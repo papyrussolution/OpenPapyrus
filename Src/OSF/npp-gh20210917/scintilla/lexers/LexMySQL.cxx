@@ -359,13 +359,13 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 			    break;
 			case SCE_MYSQL_HIDDENCOMMAND:
 			    /*
-			       if (endPending)
+			       if(endPending)
 			       {
 			       // A conditional command is not a white space so it should end the current block
 			       // before opening a new one.
 			       endPending = false;
 			       levelNext--;
-			       if (levelNext < SC_FOLDLEVELBASE)
+			       if(levelNext < SC_FOLDLEVELBASE)
 			        levelNext = SC_FOLDLEVELBASE;
 			       }
 			       }*/

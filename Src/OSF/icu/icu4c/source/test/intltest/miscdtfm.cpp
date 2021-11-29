@@ -20,7 +20,7 @@
 
 void DateFormatMiscTests::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite DateFormatMiscTests");
+	// if(exec) logln((UnicodeString)"TestSuite DateFormatMiscTests");
 	switch(index) {
 		CASE(0, test4097450)
 		CASE(1, test4099975)
@@ -118,10 +118,10 @@ void DateFormatMiscTests::test4097450()
 		FieldPosition pos(FieldPosition::DONT_CARE);
 		logln(resultFormatter.format(formatter->parse(dstring[i], status), str, pos));
 		failure(status, "resultFormatter.format");
-		//if ( !dresult[i]) System.out.print("   <-- error!");
+		//if( !dresult[i]) System.out.print("   <-- error!");
 		/*}
 		   catch (ParseException exception) {
-		    //if ( dresult[i]) System.out.print("   <-- error!");
+		    //if( dresult[i]) System.out.print("   <-- error!");
 		    System.out.print("exception --> " + exception);
 		   }*/
 		logln();
@@ -344,7 +344,7 @@ void DateFormatMiscTests::test4117335()
 		//throw new Exception("Error in long TZ name");
 	}
 //    logln(UnicodeString("Short zone name = ") + zones[index][2]);
-//    if (zones[index][2] != jstShort) {
+//    if(zones[index][2] != jstShort) {
 //        errln("*** Should have been " + prettify(jstShort) + " but it is: " + prettify(zones[index][2]));
 //        //throw new Exception("Error in short TZ name");
 //    }
@@ -354,7 +354,7 @@ void DateFormatMiscTests::test4117335()
 		//throw new Exception("Error in long TZ name");
 	}
 //    logln(UnicodeString("SHORT zone name = ") + zones[index][4]);
-//    if (zones[index][4] != jdtShort) {
+//    if(zones[index][4] != jdtShort) {
 //        errln("*** Should have been " + prettify(jstShort)+ " but it is: " + prettify(zones[index][4]));
 //        //throw new Exception("Error in short TZ name");
 //    }

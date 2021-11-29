@@ -3403,7 +3403,7 @@ protected:
 	};
 	//
 	// Устанавливает положение окна в соответствии с флагами.
-	// if (DlgFlags & fUserSettings)
+	// if(DlgFlags & fUserSettings)
 	//     Позиция верхнего левого угла устанавливается по координатам Settings.Left
 	//     и Settigns.Top с поправкой на размеры экрана.
 	// else if(DlgFlags & fCentered)
@@ -3911,12 +3911,12 @@ public:
 	int    setArray(StrAssocArray *);
 	int    GetStringByID(long id, SString & rBuf);
 	int    GoByID(long id);
-	int    FASTCALL HasChild(long id) const;
+	bool   FASTCALL HasChildren(long id) const;
 	int    GetListByParent(long parentId, LongArray & rList) const;
 	int    GetParent(long child, long * pParent) const;
-	int    GetChildList(long parentId, LongArray * pChildList);
+	//int    GetChildList(long parentId, LongArray * pChildList);
 protected:
-	void   setupView();
+	//void   setupView();
 	int    Helper_CreateTree();
 	int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
 private:
@@ -3936,13 +3936,13 @@ private:
 	Item   TempItem;
 };
 
-class StringListBoxDef : public StdListBoxDef {
+/* @v11.2.5 class StringListBoxDef : public StdListBoxDef {
 public:
 	StringListBoxDef(uint stringSize, uint aOptions);
 	virtual int    addItem(long id, const char *, long * pPos = 0);
 	virtual int    removeItem(long pos);
 	virtual void   freeAll();
-};
+};*/
 
 class DBQListBoxDef : public ListBoxDef {
 public:
@@ -4066,7 +4066,7 @@ public:
 	int    removeItem(long pos);
 	void   freeAll();
 	void   FASTCALL focusItem(long item);
-	int    SetupTreeWnd(void * hParent, long parentID); // @recursion // @v10.9.4 HTREEITEM-->(void *)
+	//int    SetupTreeWnd(void * hParent, long parentID); // @recursion // @v10.9.4 HTREEITEM-->(void *)
 	void   Scroll(short sbCmd, int value);
 	void   CreateScrollBar(int create);
 	void   SetScrollBarPos(long pos, LPARAM lParam);
@@ -4202,7 +4202,8 @@ private:
 ListWindow * CreateListWindow(DBQuery & rQuery, uint options);
 ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID);
 ListWindow * CreateListWindow(StrAssocArray * pAry, uint options);
-ListWindow * CreateListWindow(uint sz, uint options);
+// @v11.2.5 ListWindow * CreateListWindow(uint sz, uint options);
+ListWindow * CreateListWindow_Simple(uint options); // @v11.2.5
 // WordSelector * CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
 
 class ComboBoxInputLine : public TInputLine {

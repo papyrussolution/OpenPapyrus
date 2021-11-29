@@ -117,7 +117,7 @@ typedef struct  FT_CMapRec_ {
 } FT_CMapRec;
 
 /* typecast any pointer to a charmap handle */
-#define FT_CMAP(x)  ((FT_CMap)( x ))
+#define FT_CMAP(x)  ((FT_CMap)(x))
 
 /* obvious macros */
 #define FT_CMAP_PLATFORM_ID(x)  FT_CMAP(x)->charmap.platform_id
@@ -494,11 +494,11 @@ typedef struct  FT_ModuleRec_ {
  */
 FT_BASE(const void *)
 FT_Get_Module_Interface(FT_Library library,
-    const char *  mod_name);
+    const char * mod_name);
 
 FT_BASE(FT_Pointer)
 ft_module_get_service(FT_Module module,
-    const char *  service_id,
+    const char * service_id,
     FT_Bool global);
 
 #ifdef FT_CONFIG_OPTION_ENVIRONMENT_PROPERTIES

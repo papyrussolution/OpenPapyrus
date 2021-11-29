@@ -166,7 +166,7 @@ UnicodeString &DateFormat::format(const Formattable& obj, UnicodeString & append
 		default: status = U_ILLEGAL_ARGUMENT_ERROR; return appendTo;
 	}
 	// Is this right?
-	//if (fieldPosition.getBeginIndex() == fieldPosition.getEndIndex())
+	//if(fieldPosition.getBeginIndex() == fieldPosition.getEndIndex())
 	//  status = U_ILLEGAL_ARGUMENT_ERROR;
 	return format(date, appendTo, fieldPosition);
 }
@@ -183,7 +183,7 @@ UnicodeString &DateFormat::format(const Formattable& obj, UnicodeString & append
 		default: status = U_ILLEGAL_ARGUMENT_ERROR; return appendTo;
 	}
 	// Is this right?
-	//if (fieldPosition.getBeginIndex() == fieldPosition.getEndIndex())
+	//if(fieldPosition.getBeginIndex() == fieldPosition.getEndIndex())
 	//  status = U_ILLEGAL_ARGUMENT_ERROR;
 	return format(date, appendTo, posIter, status);
 }

@@ -366,7 +366,7 @@ EOF2Da:                                 /* premature EOF */
  * Bit-fill a row according to the white/black
  * runs generated during G3/G4 decoding.
  */
-void _TIFFFax3fillruns(uchar* buf, uint32* runs, uint32* erun, uint32 lastx)
+void _TIFFFax3fillruns(uchar * buf, uint32* runs, uint32* erun, uint32 lastx)
 {
 	static const uchar _fillmasks[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 	uchar * cp;
@@ -765,8 +765,8 @@ static const uchar oneruns[256] = {
  * the routines that find pixel spans.
  */
 #ifdef VAXC
-static int32 find0span(uchar*, int32, int32);
-static int32 find1span(uchar*, int32, int32);
+static int32 find0span(uchar *, int32, int32);
+static int32 find1span(uchar *, int32, int32);
 #pragma inline(find0span,find1span)
 #endif
 
@@ -775,7 +775,7 @@ static int32 find1span(uchar*, int32, int32);
  * table.  The ``base'' of the bit string is supplied
  * along with the start+end bit indices.
  */
-inline static int32 find0span(uchar* bp, int32 bs, int32 be)
+inline static int32 find0span(uchar * bp, int32 bs, int32 be)
 {
 	int32 bits = be - bs;
 	int32 n, span;
@@ -837,7 +837,7 @@ inline static int32 find0span(uchar* bp, int32 bs, int32 be)
 	return (span);
 }
 
-inline static int32 find1span(uchar* bp, int32 bs, int32 be)
+inline static int32 find1span(uchar * bp, int32 bs, int32 be)
 {
 	int32 bits = be - bs;
 	int32 n, span;
@@ -917,7 +917,7 @@ inline static int32 find1span(uchar* bp, int32 bs, int32 be)
  * a sequence of all-white or all-black spans
  * of pixels encoded with Huffman codes.
  */
-static int Fax3Encode1DRow(TIFF* tif, uchar* bp, uint32 bits)
+static int Fax3Encode1DRow(TIFF* tif, uchar * bp, uint32 bits)
 {
 	Fax3CodecState* sp = EncoderState(tif);
 	int32 span;
@@ -959,7 +959,7 @@ static const tableentry vcodes[7] = {
  * 2d-encode a row of pixels.  Consult the CCITT
  * documentation for the algorithm.
  */
-static int Fax3Encode2DRow(TIFF* tif, uchar* bp, uchar* rp, uint32 bits)
+static int Fax3Encode2DRow(TIFF* tif, uchar * bp, uchar * rp, uint32 bits)
 {
 #define PIXEL(buf, ix)   ((((buf)[(ix)>>3]) >> (7-((ix)&7))) & 1)
 	uint32 a0 = 0;

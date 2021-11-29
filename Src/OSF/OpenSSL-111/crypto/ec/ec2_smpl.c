@@ -708,7 +708,7 @@ int ec_GF2m_simple_ladder_pre(const EC_GROUP * group,
 
 	/* if field_encode defined convert between representations */
 	if((group->meth->field_encode != NULL
-	  && !group->meth->field_encode(group, s->Z, s->Z, ctx))
+	 && !group->meth->field_encode(group, s->Z, s->Z, ctx))
 	    || !group->meth->field_mul(group, s->X, p->X, s->Z, ctx))
 		return 0;
 
@@ -722,7 +722,7 @@ int ec_GF2m_simple_ladder_pre(const EC_GROUP * group,
 	} while(BN_is_zero(r->Y));
 
 	if((group->meth->field_encode != NULL
-	  && !group->meth->field_encode(group, r->Y, r->Y, ctx))
+	 && !group->meth->field_encode(group, r->Y, r->Y, ctx))
 	    || !group->meth->field_sqr(group, r->Z, p->X, ctx)
 	    || !group->meth->field_sqr(group, r->X, r->Z, ctx)
 	    || !BN_GF2m_add(r->X, r->X, group->b)

@@ -40,7 +40,6 @@ FT_LOCAL_DEF(void) BitOrderInvert(unsigned char*  buf, size_t nbytes)
 		*buf = (unsigned char)val;
 	}
 }
-
 /*
  * Invert byte order within each 16-bits of an array.
  */

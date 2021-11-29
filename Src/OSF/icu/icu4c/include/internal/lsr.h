@@ -49,7 +49,7 @@ struct LSR final : public UMemory {
     LSR(const LSR &other) = delete;
     inline ~LSR() {
         // Pure inline code for almost all instances.
-        if (owned != nullptr) {
+        if(owned != nullptr) {
             deleteOwned();
         }
     }

@@ -92,7 +92,7 @@ class U_I18N_API FieldPositionIteratorHandler : public FieldPositionHandler {
 
   /** Copies a failed error code into _status. */
   inline void getError(UErrorCode & _status) {
-    if (U_SUCCESS(_status) && U_FAILURE(status)) {
+    if(U_SUCCESS(_status) && U_FAILURE(status)) {
       _status = status;
     }
   }

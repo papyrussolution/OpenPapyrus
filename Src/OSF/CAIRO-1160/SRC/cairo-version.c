@@ -132,7 +132,7 @@
  * printf ("Compiling with suitable cairo version: %s\n", %CAIRO_VERSION_STRING);
  * ##endif
  *
- * if (cairo_version() >= CAIRO_VERSION_ENCODE(1, 0, 0))
+ * if(cairo_version() >= CAIRO_VERSION_ENCODE(1, 0, 0))
  *     printf ("Running with suitable cairo version: %s\n", cairo_version_string ());
  * </programlisting></informalexample>
  *
@@ -224,7 +224,7 @@
  * or equal to version X.Y.Z could be performed as follows:
  *
  * <informalexample><programlisting>
- * if (cairo_version() >= CAIRO_VERSION_ENCODE(X,Y,Z)) {...}
+ * if(cairo_version() >= CAIRO_VERSION_ENCODE(X,Y,Z)) {...}
  * </programlisting></informalexample>
  *
  * See also cairo_version_string() as well as the compile-time

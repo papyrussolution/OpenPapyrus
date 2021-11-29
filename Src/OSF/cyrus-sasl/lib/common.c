@@ -1403,7 +1403,7 @@ static int _sasl_conn_getopt(void * context,
 		    callback->id != SASL_CB_LIST_END;
 		    callback++)
 			if(callback->id == SASL_CB_GETOPT
-			  && (((sasl_getopt_t*)(callback->proc))(callback->context,
+			 && (((sasl_getopt_t*)(callback->proc))(callback->context,
 			    plugin_name,
 			    option,
 			    result,
@@ -2033,10 +2033,10 @@ int sasl_idle(sasl_conn_t * conn)
 {
 	if(!conn) {
 		if(_sasl_server_idle_hook
-		  && _sasl_server_idle_hook(NULL))
+		 && _sasl_server_idle_hook(NULL))
 			return 1;
 		if(_sasl_client_idle_hook
-		  && _sasl_client_idle_hook(NULL))
+		 && _sasl_client_idle_hook(NULL))
 			return 1;
 		return 0;
 	}

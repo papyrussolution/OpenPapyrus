@@ -64,7 +64,7 @@ public:
 		}
 
 		bool subset_update_header(hb_subset_plan_t * plan,
-		    unsigned int num_hmetrics) const
+		    uint num_hmetrics) const
 		{
 			hb_blob_t * src_blob = hb_sanitize_context_t().reference_table<H> (plan->source, H::tableTag);
 			hb_blob_t * dest_blob = hb_blob_copy_writable_or_fail(src_blob);
@@ -74,7 +74,7 @@ public:
 				return false;
 			}
 
-			unsigned int length;
+			uint length;
 			H * table = (H*)hb_blob_get_data(dest_blob, &length);
 			table->numberOfLongMetrics = num_hmetrics;
 
@@ -147,7 +147,7 @@ public:
 			friend struct hmtxvmtx;
 
 			void init(hb_face_t * face,
-			    unsigned int default_advance_ = 0)
+			    uint default_advance_ = 0)
 			{
 				default_advance = default_advance_ ? default_advance_ : hb_face_get_upem(face);
 
@@ -157,7 +157,7 @@ public:
 				table = hb_sanitize_context_t().reference_table<hmtxvmtx> (face, T::tableTag);
 
 				/* Cap num_metrics() and num_advances() based on table length. */
-				unsigned int len = table.get_length();
+				uint len = table.get_length();
 				if(UNLIKELY(num_advances * 4 > len))
 					num_advances = len / 4;
 				num_metrics = num_advances + (len - 4 * num_advances) / 2;
@@ -206,7 +206,7 @@ public:
 #endif
 			}
 
-			unsigned int get_advance(hb_codepoint_t glyph) const
+			uint get_advance(hb_codepoint_t glyph) const
 			{
 				if(UNLIKELY(glyph >= num_metrics)) {
 					/* If num_metrics is zero, it means we don't have the metrics table
@@ -220,9 +220,9 @@ public:
 				return table->longMetricZ[hb_min(glyph, (uint32_t)num_advances - 1)].advance;
 			}
 
-			unsigned int get_advance(hb_codepoint_t glyph, hb_font_t * font) const
+			uint get_advance(hb_codepoint_t glyph, hb_font_t * font) const
 			{
-				unsigned int advance = get_advance(glyph);
+				uint advance = get_advance(glyph);
 #ifndef HB_NO_VAR
 				if(UNLIKELY(glyph >= num_metrics) || !font->num_coords)
 					return advance;
@@ -234,10 +234,10 @@ public:
 #endif
 			}
 
-			unsigned int num_advances_for_subset(const hb_subset_plan_t * plan) const
+			uint num_advances_for_subset(const hb_subset_plan_t * plan) const
 			{
-				unsigned int num_advances = plan->num_output_glyphs();
-				unsigned int last_advance = _advance_for_new_gid(plan, num_advances - 1);
+				uint num_advances = plan->num_output_glyphs();
+				uint last_advance = _advance_for_new_gid(plan, num_advances - 1);
 				while(num_advances > 1 && last_advance == _advance_for_new_gid(plan, num_advances - 2)) {
 					num_advances--;
 				}
@@ -245,7 +245,7 @@ public:
 			}
 
 private:
-			unsigned int _advance_for_new_gid(const hb_subset_plan_t * plan, hb_codepoint_t new_gid) const
+			uint _advance_for_new_gid(const hb_subset_plan_t * plan, hb_codepoint_t new_gid) const
 			{
 				hb_codepoint_t old_gid;
 				if(!plan->old_gid_for_new_gid(new_gid, &old_gid))
@@ -253,9 +253,9 @@ private:
 				return get_advance(old_gid);
 			}
 protected:
-			unsigned int num_metrics;
-			unsigned int num_advances;
-			unsigned int default_advance;
+			uint num_metrics;
+			uint num_advances;
+			uint default_advance;
 
 private:
 			hb_blob_ptr_t<hmtxvmtx> table;

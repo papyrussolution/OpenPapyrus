@@ -55,7 +55,7 @@ public:
 	};
 
 	struct SegmentMaps : ArrayOf<AxisValueMap>{
-		int map(int value, unsigned int from_offset = 0, unsigned int to_offset = 1) const
+		int map(int value, uint from_offset = 0, uint to_offset = 1) const
 		{
 #define fromCoord coords[from_offset]
 #define toCoord coords[to_offset]
@@ -72,8 +72,8 @@ public:
 			if(value <= arrayZ[0].fromCoord)
 				return value - arrayZ[0].fromCoord + arrayZ[0].toCoord;
 
-			unsigned int i;
-			unsigned int count = len - 1;
+			uint i;
+			uint count = len - 1;
 			for(i = 1; i < count && value > arrayZ[i].fromCoord; i++)
 				;
 
@@ -110,7 +110,7 @@ public:
 				return_trace(false);
 
 			const SegmentMaps * map = &firstAxisSegmentMaps;
-			unsigned int count = axisCount;
+			uint count = axisCount;
 			for(uint i = 0; i < count; i++) {
 				if(UNLIKELY(!map->sanitize(c)))
 					return_trace(false);
@@ -120,9 +120,9 @@ public:
 			return_trace(true);
 		}
 
-		void map_coords(int * coords, unsigned int coords_length) const
+		void map_coords(int * coords, uint coords_length) const
 		{
-			unsigned int count = hb_min(coords_length, axisCount);
+			uint count = hb_min(coords_length, axisCount);
 
 			const SegmentMaps * map = &firstAxisSegmentMaps;
 			for(uint i = 0; i < count; i++) {
@@ -131,9 +131,9 @@ public:
 			}
 		}
 
-		void unmap_coords(int * coords, unsigned int coords_length) const
+		void unmap_coords(int * coords, uint coords_length) const
 		{
-			unsigned int count = hb_min(coords_length, axisCount);
+			uint count = hb_min(coords_length, axisCount);
 
 			const SegmentMaps * map = &firstAxisSegmentMaps;
 			for(uint i = 0; i < count; i++) {

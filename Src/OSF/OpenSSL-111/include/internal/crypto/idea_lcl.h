@@ -8,7 +8,7 @@
 
 #define idea_mul(r,a,b,ul) \
 ul=(ulong)a*b; \
-if (ul != 0) \
+if(ul != 0) \
         { \
         r=(ul&0xffff)-(ul>>16); \
         r-=((r)>>16); \

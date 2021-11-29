@@ -1582,7 +1582,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 #ifdef DEBUG_CRYPTO
 	ssh_log_hexdump("r", (const uchar *)ssh_string_data(sig_blob), 20);
-	ssh_log_hexdump("s", (uchar*)ssh_string_data(sig_blob) + 20, 20);
+	ssh_log_hexdump("s", (uchar *)ssh_string_data(sig_blob) + 20, 20);
 #endif
 	r = ssh_string_new(20);
 	if(r == NULL) {
@@ -1630,7 +1630,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 	raw_sig_len = rc;
 
-	raw_sig_data = (uchar*)SAlloc::C(1, raw_sig_len);
+	raw_sig_data = (uchar *)SAlloc::C(1, raw_sig_len);
 	if(raw_sig_data == NULL) {
 		goto error;
 	}
@@ -1762,7 +1762,7 @@ static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 	raw_sig_len = rc;
 
-	raw_sig_data = (uchar*)SAlloc::C(1, raw_sig_len);
+	raw_sig_data = (uchar *)SAlloc::C(1, raw_sig_len);
 	if(raw_sig_data == NULL) {
 		goto error;
 	}
@@ -2067,7 +2067,7 @@ ssh_signature pki_sign_data(const ssh_key privkey,
 
 	/* Allocate buffer for signature */
 	raw_sig_len = (size_t)EVP_PKEY_size(pkey);
-	raw_sig_data = (uchar*)SAlloc::M(raw_sig_len);
+	raw_sig_data = (uchar *)SAlloc::M(raw_sig_len);
 	if(raw_sig_data == NULL) {
 		SSH_LOG(SSH_LOG_TRACE, "Out of memory");
 		goto out;
@@ -2188,7 +2188,7 @@ int pki_verify_data_signature(ssh_signature signature,
 	if(pubkey == NULL || ssh_key_is_private(pubkey) || input == NULL ||
 	    signature == NULL || (signature->raw_sig == NULL
 #ifndef HAVE_OPENSSL_ED25519
-	  && signature->ed25519_sig == NULL
+	 && signature->ed25519_sig == NULL
 #endif
 	    )) {
 		SSH_LOG(SSH_LOG_TRACE, "Bad parameter provided to "

@@ -1267,7 +1267,7 @@ int ssh_generate_session_keys(ssh_session session)
 	}
 	/* See RFC4251 Section 5 for the definition of mpint which is the
 	 * encoding we need to use for key in the SSH KDF */
-	key = (uchar*)k_string;
+	key = (uchar *)k_string;
 	key_len = ssh_string_len(k_string) + 4;
 	IV_len = crypto->digest_len;
 	if(session->client) {

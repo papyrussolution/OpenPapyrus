@@ -145,7 +145,7 @@
 
 .macro pixld numpix, bpp, basereg, mem_operand, abits=0
 .if bpp > 0
-.if (bpp == 32) && (numpix == 8) && (DEINTERLEAVE_32BPP_ENABLED != 0)
+.if(bpp == 32) && (numpix == 8) && (DEINTERLEAVE_32BPP_ENABLED != 0)
     pixldst4 vld4, 8, %(basereg+4), %(basereg+5), \
                       %(basereg+6), %(basereg+7), mem_operand, abits
 .elseif (bpp == 24) && (numpix == 8)
@@ -168,7 +168,7 @@
 
 .macro pixst numpix, bpp, basereg, mem_operand, abits=0
 .if bpp > 0
-.if (bpp == 32) && (numpix == 8) && (DEINTERLEAVE_32BPP_ENABLED != 0)
+.if(bpp == 32) && (numpix == 8) && (DEINTERLEAVE_32BPP_ENABLED != 0)
     pixldst4 vst4, 8, %(basereg+4), %(basereg+5), \
                       %(basereg+6), %(basereg+7), mem_operand, abits
 .elseif (bpp == 24) && (numpix == 8)
@@ -190,7 +190,7 @@
 .endm
 
 .macro pixld_a numpix, bpp, basereg, mem_operand
-.if (bpp * numpix) <= 128
+.if(bpp * numpix) <= 128
     pixld numpix, bpp, basereg, mem_operand, %(bpp * numpix)
 .else
     pixld numpix, bpp, basereg, mem_operand, 128
@@ -198,7 +198,7 @@
 .endm
 
 .macro pixst_a numpix, bpp, basereg, mem_operand
-.if (bpp * numpix) <= 128
+.if(bpp * numpix) <= 128
     pixst numpix, bpp, basereg, mem_operand, %(bpp * numpix)
 .else
     pixst numpix, bpp, basereg, mem_operand, 128
@@ -346,7 +346,7 @@
 
 /* deinterleave B, G, R, A channels for eight 32bpp pixels in 4 registers */
 .macro pixdeinterleave bpp, basereg
-.if (bpp == 32) && (DEINTERLEAVE_32BPP_ENABLED != 0)
+.if(bpp == 32) && (DEINTERLEAVE_32BPP_ENABLED != 0)
     vuzp8 %(basereg+0), %(basereg+1)
     vuzp8 %(basereg+2), %(basereg+3)
     vuzp8 %(basereg+1), %(basereg+3)
@@ -356,7 +356,7 @@
 
 /* interleave B, G, R, A channels for eight 32bpp pixels in 4 registers */
 .macro pixinterleave bpp, basereg
-.if (bpp == 32) && (DEINTERLEAVE_32BPP_ENABLED != 0)
+.if(bpp == 32) && (DEINTERLEAVE_32BPP_ENABLED != 0)
     vzip8 %(basereg+0), %(basereg+2)
     vzip8 %(basereg+1), %(basereg+3)
     vzip8 %(basereg+2), %(basereg+3)
@@ -393,13 +393,13 @@
  * when working with the graphics data.
  */
 .macro PF a, x:vararg
-.if (PREFETCH_TYPE_CURRENT == PREFETCH_TYPE_ADVANCED)
+.if(PREFETCH_TYPE_CURRENT == PREFETCH_TYPE_ADVANCED)
     a x
 .endif
 .endm
 
 .macro cache_preload std_increment, boost_increment
-.if (src_bpp_shift >= 0) || (dst_r_bpp != 0) || (mask_bpp_shift >= 0)
+.if(src_bpp_shift >= 0) || (dst_r_bpp != 0) || (mask_bpp_shift >= 0)
 .if regs_shortage
     PF ldr ORIG_W, [sp] /* If we are short on regs, ORIG_W is kept on stack */
 .endif
@@ -434,7 +434,7 @@
 .endm
 
 .macro cache_preload_simple
-.if (PREFETCH_TYPE_CURRENT == PREFETCH_TYPE_SIMPLE)
+.if(PREFETCH_TYPE_CURRENT == PREFETCH_TYPE_SIMPLE)
 .if src_bpp > 0
     pld [SRC, #(PREFETCH_DISTANCE_SIMPLE * src_bpp / 8)]
 .endif
@@ -466,7 +466,7 @@
 
 .irp lowbit, 1, 2, 4, 8, 16
 local skip1
-.if (dst_w_bpp <= (lowbit * 8)) && ((lowbit * 8) < (pixblock_size * dst_w_bpp))
+.if(dst_w_bpp <= (lowbit * 8)) && ((lowbit * 8) < (pixblock_size * dst_w_bpp))
 .if lowbit < 16 /* we don't need more than 16-byte alignment */
     tst         DST_R, #lowbit
     beq         1f
@@ -494,7 +494,7 @@ local skip1
 
     pixinterleave dst_w_bpp, dst_w_basereg
 .irp lowbit, 1, 2, 4, 8, 16
-.if (dst_w_bpp <= (lowbit * 8)) && ((lowbit * 8) < (pixblock_size * dst_w_bpp))
+.if(dst_w_bpp <= (lowbit * 8)) && ((lowbit * 8) < (pixblock_size * dst_w_bpp))
 .if lowbit < 16 /* we don't need more than 16-byte alignment */
     tst         DST_W, #lowbit
     beq         1f
@@ -590,13 +590,13 @@ local skip1
 .if mask_bpp != 0
     add         MASK, MASK, MASK_STRIDE, lsl #mask_bpp_shift
 .endif
-.if (dst_w_bpp != 24)
+.if(dst_w_bpp != 24)
     sub         DST_W, DST_W, W, lsl #dst_bpp_shift
 .endif
-.if (src_bpp != 24) && (src_bpp != 0)
+.if(src_bpp != 24) && (src_bpp != 0)
     sub         SRC, SRC, W, lsl #src_bpp_shift
 .endif
-.if (mask_bpp != 24) && (mask_bpp != 0)
+.if(mask_bpp != 24) && (mask_bpp != 0)
     sub         MASK, MASK, W, lsl #mask_bpp_shift
 .endif
     subs        H, H, #1
@@ -700,7 +700,7 @@ local skip1
  * allocation scheme may be a bit different depending on whether source
  * or mask is not used.
  */
-.if (PREFETCH_TYPE_CURRENT < PREFETCH_TYPE_ADVANCED)
+.if(PREFETCH_TYPE_CURRENT < PREFETCH_TYPE_ADVANCED)
     ORIG_W      .req        r10     /* saved original width */
     DUMMY       .req        r12     /* temporary register */
     .set        regs_shortage, 0
@@ -755,12 +755,12 @@ local skip1
     .error "requested dst bpp (dst_w_bpp) is not supported"
 .endif
 
-.if (((flags) & FLAG_DST_READWRITE) != 0)
+.if(((flags) & FLAG_DST_READWRITE) != 0)
     .set dst_r_bpp, dst_w_bpp
 .else
     .set dst_r_bpp, 0
 .endif
-.if (((flags) & FLAG_DEINTERLEAVE_32BPP) != 0)
+.if(((flags) & FLAG_DEINTERLEAVE_32BPP) != 0)
     .set DEINTERLEAVE_32BPP_ENABLED, 1
 .else
     .set DEINTERLEAVE_32BPP_ENABLED, 0
@@ -995,12 +995,12 @@ local skip1
     .endm
 .endif
 
-.if (((flags) & FLAG_DST_READWRITE) != 0)
+.if(((flags) & FLAG_DST_READWRITE) != 0)
     .set dst_r_bpp, dst_w_bpp
 .else
     .set dst_r_bpp, 0
 .endif
-.if (((flags) & FLAG_DEINTERLEAVE_32BPP) != 0)
+.if(((flags) & FLAG_DEINTERLEAVE_32BPP) != 0)
     .set DEINTERLEAVE_32BPP_ENABLED, 1
 .else
     .set DEINTERLEAVE_32BPP_ENABLED, 0

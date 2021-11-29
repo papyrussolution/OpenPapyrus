@@ -59,7 +59,7 @@ static int PackBitsPostEncode(TIFF* tif)
  */
 static int PackBitsEncode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 {
-	uchar* bp = (uchar *)buf;
+	uchar * bp = (uchar *)buf;
 	uint8 * op;
 	uint8 * ep;
 	uint8 * lastliteral;

@@ -60,7 +60,7 @@ protected:
   nsCodingStateMachine* mCodingSM[NUM_OF_ESC_CHARSETS] ;
   PRUint32    mActiveSM;
   nsProbingState mState;
-  const char *  mDetectedCharset;
+  const char * mDetectedCharset;
 };
 
 #endif /* nsEscCharSetProber_h__ */

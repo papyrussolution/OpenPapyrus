@@ -53,7 +53,7 @@ extern HB_INTERNAL const uint8_t _hb_modified_combining_class[256];
 /* Simple callbacks are those taking a hb_codepoint_t and returning a hb_codepoint_t */
 #define HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS_SIMPLE \
 	HB_UNICODE_FUNC_IMPLEMENT(hb_unicode_combining_class_t, combining_class) \
-	HB_IF_NOT_DEPRECATED(HB_UNICODE_FUNC_IMPLEMENT(unsigned int, eastasian_width)) \
+	HB_IF_NOT_DEPRECATED(HB_UNICODE_FUNC_IMPLEMENT(uint, eastasian_width)) \
 	HB_UNICODE_FUNC_IMPLEMENT(hb_unicode_general_category_t, general_category) \
 	HB_UNICODE_FUNC_IMPLEMENT(hb_codepoint_t, mirroring) \
 	HB_UNICODE_FUNC_IMPLEMENT(hb_script_t, script) \
@@ -77,12 +77,12 @@ struct hb_unicode_funcs_t {
 		* a = ab; * b = 0;
 		return func.decompose(this, ab, a, b, user_data.decompose);
 	}
-	unsigned int decompose_compatibility(hb_codepoint_t u, hb_codepoint_t * decomposed)
+	uint decompose_compatibility(hb_codepoint_t u, hb_codepoint_t * decomposed)
 	{
 #ifdef HB_DISABLE_DEPRECATED
-		unsigned int ret  = 0;
+		uint ret  = 0;
 #else
-		unsigned int ret = func.decompose_compatibility(this, u, decomposed, user_data.decompose_compatibility);
+		uint ret = func.decompose_compatibility(this, u, decomposed, user_data.decompose_compatibility);
 #endif
 		if(ret == 1 && u == decomposed[0]) {
 			decomposed[0] = 0;
@@ -91,7 +91,7 @@ struct hb_unicode_funcs_t {
 		decomposed[ret] = 0;
 		return ret;
 	}
-	unsigned int modified_combining_class(hb_codepoint_t u)
+	uint modified_combining_class(hb_codepoint_t u)
 	{
 		/* XXX This hack belongs to the USE shaper (for Tai Tham):
 		 * Reorder SAKOT to ensure it comes after any tone marks. */

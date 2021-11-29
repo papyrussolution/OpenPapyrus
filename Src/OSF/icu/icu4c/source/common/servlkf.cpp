@@ -87,7 +87,7 @@ UnicodeString &LocaleKeyFactory::getDisplayName(const UnicodeString & id, const 
 	if((_coverage & 0x1) == 0) {
 		//UErrorCode status = U_ZERO_ERROR;
 		// assume if this is called on us, we support some fallback of this id
-		// if (isSupportedID(id, status)) {
+		// if(isSupportedID(id, status)) {
 		Locale loc;
 		LocaleUtility::initLocaleFromName(id, loc);
 		return loc.getDisplayName(locale, result);

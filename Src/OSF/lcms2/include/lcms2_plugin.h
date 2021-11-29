@@ -32,7 +32,7 @@
 
 // Deal with Microsoft's attempt at deprecating C standard runtime functions
 #ifdef _MSC_VER
-#    if (_MSC_VER >= 1400)
+#    if(_MSC_VER >= 1400)
 #      ifndef _CRT_SECURE_NO_DEPRECATE
 #        define _CRT_SECURE_NO_DEPRECATE
 #      endif

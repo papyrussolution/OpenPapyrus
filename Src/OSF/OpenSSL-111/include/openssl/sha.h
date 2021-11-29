@@ -80,7 +80,7 @@ void SHA256_Transform(SHA256_CTX *c, const uchar *data);
  * wide big-endian values.
  */
 #define SHA512_CBLOCK   (SHA_LBLOCK*8)
-#if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
+#if(defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
 #define SHA_LONG64 unsigned __int64
 #define U64(C)     C##UI64
 #elif defined(__arch64__)

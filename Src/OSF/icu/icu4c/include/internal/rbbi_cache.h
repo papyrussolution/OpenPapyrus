@@ -88,7 +88,7 @@ class RuleBasedBreakIterator::BreakCache: public UMemory {
                 BreakCache(RuleBasedBreakIterator *bi, UErrorCode & status);
     virtual     ~BreakCache();
     void   reset(int32_t pos = 0, int32_t ruleStatus = 0);
-    void   next() {    if (fBufIdx == fEndBufIdx) {
+    void   next() {    if(fBufIdx == fEndBufIdx) {
                                 nextOL();
                             } else {
                                 fBufIdx = modChunkSize(fBufIdx + 1);

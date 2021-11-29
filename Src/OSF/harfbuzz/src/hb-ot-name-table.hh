@@ -47,8 +47,8 @@ namespace OT {
 		hb_language_t language(hb_face_t * face) const
 		{
 #ifndef HB_NO_OT_NAME_LANGUAGE
-			unsigned int p = platformID;
-			unsigned int l = languageID;
+			uint p = platformID;
+			uint l = languageID;
 
 			if(p == 3)
 				return _hb_ot_name_language_for_ms_code(l);
@@ -68,8 +68,8 @@ namespace OT {
 		uint16_t score() const
 		{
 			/* Same order as in cmap::find_best_subtable(). */
-			unsigned int p = platformID;
-			unsigned int e = encodingID;
+			uint p = platformID;
+			uint e = encodingID;
 
 			/* 32-bit. */
 			if(p == 3 && e == 10) return 0;
@@ -103,8 +103,8 @@ namespace OT {
 
 		bool isUnicode() const
 		{
-			unsigned int p = platformID;
-			unsigned int e = encodingID;
+			uint p = platformID;
+			uint e = encodingID;
 
 			return (p == 0 ||
 			       (p == 3 && (e == 0 || e == 1 || e == 10)));
@@ -190,7 +190,7 @@ public:
 	struct name {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_name;
 
-		unsigned int get_size() const
+		uint get_size() const
 		{
 			return min_size + count * nameRecordZ.item_size;
 		}
@@ -280,7 +280,7 @@ public:
 				this->names.qsort(_hb_ot_name_entry_cmp);
 				/* Walk and pick best only for each name_id,language pair,
 				 * while dropping unsupported encodings. */
-				unsigned int j = 0;
+				uint j = 0;
 				for(uint i = 0; i < this->names.length; i++) {
 					if(this->names[i].entry_score == UNSUPPORTED ||
 					    this->names[i].language == HB_LANGUAGE_INVALID)
@@ -302,7 +302,7 @@ public:
 
 			int get_index(hb_ot_name_id_t name_id,
 			    hb_language_t language,
-			    unsigned int * width = nullptr) const
+			    uint * width = nullptr) const
 			{
 				const hb_ot_name_entry_t key = {name_id, {0}, language};
 				const hb_ot_name_entry_t * entry = hb_bsearch(key, (const hb_ot_name_entry_t*)this->names,
@@ -318,7 +318,7 @@ public:
 				return entry->entry_index;
 			}
 
-			hb_bytes_t get_name(unsigned int idx) const
+			hb_bytes_t get_name(uint idx) const
 			{
 				const hb_array_t<const NameRecord> all_names(table->nameRecordZ.arrayZ, table->count);
 				const NameRecord &record = all_names[idx];
@@ -328,7 +328,7 @@ public:
 
 private:
 			const char * pool;
-			unsigned int pool_len;
+			uint pool_len;
 public:
 			hb_blob_ptr_t<name> table;
 			hb_vector_t<hb_ot_name_entry_t> names;

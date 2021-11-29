@@ -1781,7 +1781,7 @@ int EGifPutCode(GifFileType * GifFile, int CodeSize, const GifByteType * CodeBlo
 	/* No need to dump code size as Compression set up does any for us: */
 	/*
 	 * Buf = CodeSize;
-	 * if (InternalWrite(GifFile, &Buf, 1) != 1) {
+	 * if(InternalWrite(GifFile, &Buf, 1) != 1) {
 	 * GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 	 * return GIF_ERROR;
 	 * }

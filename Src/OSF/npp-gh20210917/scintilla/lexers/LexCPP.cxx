@@ -63,8 +63,8 @@ bool followsReturnKeyword(const StyleContext &sc, LexAccessor &styler) {
 	const char * retBack = "nruter";
 	const char * s = retBack;
 	while(*s
-	  && pos >= lineStartPos
-	  && styler.SafeGetCharAt(pos) == *s) {
+	 && pos >= lineStartPos
+	 && styler.SafeGetCharAt(pos) == *s) {
 		s++;
 		pos--;
 	}
@@ -1351,9 +1351,9 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 					sc.SetState(SCE_C_COMMENTLINE|activitySet);
 			}
 			else if(sc.ch == '/'
-			  && (setOKBeforeRE.Contains(chPrevNonWhite)
+			 && (setOKBeforeRE.Contains(chPrevNonWhite)
 			    || followsReturnKeyword(sc, styler))
-			  && (!setCouldBePostOp.Contains(chPrevNonWhite)
+			 && (!setCouldBePostOp.Contains(chPrevNonWhite)
 			    || !FollowsPostfixOperator(sc, styler))) {
 				sc.SetState(SCE_C_REGEX|activitySet);   // JavaScript's RegEx
 				inRERange = false;

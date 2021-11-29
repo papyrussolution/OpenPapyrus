@@ -3962,7 +3962,7 @@ static xmlSchemaAttributeGroup * xmlSchemaGetAttributeGroup(xmlSchemaPtr schema,
 	WXS_FIND_GLOBAL_ITEM(attrgrpDecl, xmlSchemaAttributeGroup *)
 exit:
 	/* @todo 
-	   if ((ret != NULL) && (ret->redef != NULL)) {
+	   if((ret != NULL) && (ret->redef != NULL)) {
 	 * Return the last redefinition. *
 	    ret = ret->redef;
 	   }
@@ -7851,7 +7851,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 	 */
 	/* REMOVED:
 	   attr = xmlSchemaGetPropNode(node, "version");
-	   if (attr != NULL) {
+	   if(attr != NULL) {
 	    res = xmlSchemaPValAttrNode(ctxt, NULL, NULL, attr, xmlSchemaGetBuiltInType(XML_SCHEMAS_TOKEN), &val);
 	    HFAILURE;
 	   }
@@ -16494,10 +16494,10 @@ static int xmlSchemaCheckElementDeclConsistent(xmlSchemaParserCtxtPtr pctxt,
 			       xmlSchemaTreeItemPtr sub;
 
 			       sub = WXS_PARTICLE_TERM(particle)->children;  (xmlSchemaParticlePtr)
-			       while (sub != NULL) {
+			       while(sub != NULL) {
 			        ret = xmlSchemaCheckElementDeclConsistent(pctxt, ctxtComponent,
 			            ctxtParticle, ctxtElem);
-			        if (ret != 0)
+			        if(ret != 0)
 			            return ret;
 			        sub = sub->next;
 			       }
@@ -19181,7 +19181,7 @@ deregister_check:
 		}
 		else
 			sto = sto->next;
-	} /* while (sto != NULL) */
+	} /* while(sto != NULL) */
 	return 0;
 }
 
@@ -20766,7 +20766,7 @@ static int xmlSchemaProcessXSIType(xmlSchemaValidCtxt * vctxt, xmlSchemaAttrInfo
 			 * change the schema and we don't want this. We don't need
 			 * the parser context anymore.
 			 *
-			 * if ((vctxt->pctxt == NULL) &&
+			 * if((vctxt->pctxt == NULL) &&
 			 *	(xmlSchemaCreatePCtxtOnVCtxt(vctxt) == -1))
 			 *	    return -1;
 			 */
@@ -21395,7 +21395,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 				}
 				iattr->vcValue = iattr->use->defValue;
 				/*
-				   if (xmlSchemaCompareValuesWhtsp(attr->val,
+				   if(xmlSchemaCompareValuesWhtsp(attr->val,
 				    (xmlSchemaWhitespaceValueType) ws,
 				    attr->use->defVal,
 				    (xmlSchemaWhitespaceValueType) ws) != 0) {
@@ -21411,7 +21411,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 				}
 				iattr->vcValue = iattr->decl->defValue;
 				/*
-				   if (xmlSchemaCompareValuesWhtsp(attr->val,
+				   if(xmlSchemaCompareValuesWhtsp(attr->val,
 				    (xmlSchemaWhitespaceValueType) ws,
 				    attrDecl->defVal,
 				    (xmlSchemaWhitespaceValueType) ws) != 0) {

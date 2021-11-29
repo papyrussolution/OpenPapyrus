@@ -163,22 +163,22 @@ static int auxprop_verify_password(sasl_conn_t * conn, const char * userstr, con
 	}
 
 	if((!auxprop_values[0].values || !auxprop_values[0].values[0])
-	  && (!auxprop_values[1].values || !auxprop_values[1].values[0])) {
+	 && (!auxprop_values[1].values || !auxprop_values[1].values[0])) {
 		return SASL_NOUSER;
 	}
 
 	/* At the point this has been called, the username has been canonified
 	 * and we've done the auxprop lookup.  This should be easy. */
 	if(auxprop_values[0].name
-	  && auxprop_values[0].values
-	  && auxprop_values[0].values[0]
-	  && !strcmp(auxprop_values[0].values[0], passwd)) {
+	 && auxprop_values[0].values
+	 && auxprop_values[0].values[0]
+	 && !strcmp(auxprop_values[0].values[0], passwd)) {
 		/* We have a plaintext version and it matched! */
 		return SASL_OK;
 	}
 	else if(auxprop_values[1].name
-	  && auxprop_values[1].values
-	  && auxprop_values[1].values[0]) {
+	 && auxprop_values[1].values
+	 && auxprop_values[1].values[0]) {
 		const char * db_secret = auxprop_values[1].values[0];
 		sasl_secret_t * construct;
 
@@ -295,9 +295,9 @@ static int auxprop_verify_password_hashed(sasl_conn_t * conn,
 	/* NB: Note that if auxprop_lookup failed to verify the password,
 	   then the userPassword property value would be NULL */
 	if(auxprop_values[0].name
-	  && auxprop_values[0].values
-	  && auxprop_values[0].values[0]
-	  && !strcmp(auxprop_values[0].values[0], passwd)) {
+	 && auxprop_values[0].values
+	 && auxprop_values[0].values[0]
+	 && !strcmp(auxprop_values[0].values[0], passwd)) {
 		/* We have a plaintext version and it matched! */
 		return SASL_OK;
 	}

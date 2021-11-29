@@ -44,7 +44,7 @@ namespace AAT {
 		friend struct Lookup<T>;
 
 private:
-		const T* get_value(hb_codepoint_t glyph_id, unsigned int num_glyphs) const
+		const T* get_value(hb_codepoint_t glyph_id, uint num_glyphs) const
 		{
 			if(UNLIKELY(glyph_id >= num_glyphs)) return nullptr;
 			return &arrayZ[glyph_id];
@@ -308,8 +308,8 @@ private:
 
 			const HBUINT8 * p = &valueArrayZ[(glyph_id - firstGlyph) * valueSize];
 
-			unsigned int v = 0;
-			unsigned int count = valueSize;
+			uint v = 0;
+			uint count = valueSize;
 			for(uint i = 0; i < count; i++)
 				v = (v << 8) | *p++;
 
@@ -339,7 +339,7 @@ public:
 
 	template <typename T>
 	struct Lookup {
-		const T* get_value(hb_codepoint_t glyph_id, unsigned int num_glyphs) const
+		const T* get_value(hb_codepoint_t glyph_id, uint num_glyphs) const
 		{
 			switch(u.format) {
 				case 0: return u.format0.get_value(glyph_id, num_glyphs);
@@ -351,7 +351,7 @@ public:
 			}
 		}
 
-		const typename T::type get_value_or_null(hb_codepoint_t glyph_id, unsigned int num_glyphs) const
+		const typename T::type get_value_or_null(hb_codepoint_t glyph_id, uint num_glyphs) const
 		{
 			switch(u.format) {
 				/* Format 10 cannot return a pointer. */
@@ -363,8 +363,8 @@ public:
 		}
 
 		typename T::type get_class(hb_codepoint_t glyph_id,
-		    unsigned int num_glyphs,
-		    unsigned int outOfRange) const
+		    uint num_glyphs,
+		    uint outOfRange) const
 		{
 			const T * v = get_value(glyph_id, num_glyphs);
 			return v ? *v : outOfRange;
@@ -437,7 +437,7 @@ namespace AAT {
 
 	template <typename T>
 	struct Entry {
-		bool sanitize(hb_sanitize_context_t * c, unsigned int count) const
+		bool sanitize(hb_sanitize_context_t * c, uint count) const
 		{
 			TRACE_SANITIZE(this);
 			/* Note, we don't recurse-sanitize data because we don't access it.
@@ -464,7 +464,7 @@ public:
 
 	template <>
 	struct Entry<void>{
-		bool sanitize(hb_sanitize_context_t * c, unsigned int count /*XXX Unused?*/) const
+		bool sanitize(hb_sanitize_context_t * c, uint count /*XXX Unused?*/) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this));
@@ -495,12 +495,12 @@ public:
 			CLASS_END_OF_LINE = 3,
 		};
 
-		int new_state(unsigned int newState) const
+		int new_state(uint newState) const
 		{
 			return Types::extended ? newState : ((int)newState - (int)stateArrayTable) / (int)nClasses;
 		}
 
-		unsigned int get_class(hb_codepoint_t glyph_id, unsigned int num_glyphs) const
+		uint get_class(hb_codepoint_t glyph_id, uint num_glyphs) const
 		{
 			if(UNLIKELY(glyph_id == DELETED_GLYPH)) return CLASS_DELETED_GLYPH;
 			return (this+classTable).get_class(glyph_id, num_glyphs, 1);
@@ -509,7 +509,7 @@ public:
 		const Entry<Extra> * get_entries() const
 		{ return (this+entryTable).arrayZ; }
 
-		const Entry<Extra> &get_entry(int state, unsigned int klass) const
+		const Entry<Extra> &get_entry(int state, uint klass) const
 		{
 			if(UNLIKELY(klass >= nClasses))
 				klass = StateTable<Types, Entry<Extra>> ::CLASS_OUT_OF_BOUNDS;
@@ -517,14 +517,14 @@ public:
 			const HBUSHORT * states = (this+stateArrayTable).arrayZ;
 			const Entry<Extra> * entries = (this+entryTable).arrayZ;
 
-			unsigned int entry = states[state * nClasses + klass];
+			uint entry = states[state * nClasses + klass];
 			DEBUG_MSG(APPLY, nullptr, "e%u", entry);
 
 			return entries[entry];
 		}
 
 		bool sanitize(hb_sanitize_context_t * c,
-		    unsigned int * num_entries_out = nullptr) const
+		    uint * num_entries_out = nullptr) const
 		{
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!(c->check_struct(this) &&
@@ -534,10 +534,10 @@ public:
 			const HBUSHORT * states = (this+stateArrayTable).arrayZ;
 			const Entry<Extra> * entries = (this+entryTable).arrayZ;
 
-			unsigned int num_classes = nClasses;
+			uint num_classes = nClasses;
 			if(UNLIKELY(hb_unsigned_mul_overflows(num_classes, states[0].static_size)))
 				return_trace(false);
-			unsigned int row_stride = num_classes * states[0].static_size;
+			uint row_stride = num_classes * states[0].static_size;
 
 			/* Apple 'kern' table has this peculiarity:
 			 *
@@ -555,11 +555,11 @@ public:
 
 			int min_state = 0;
 			int max_state = 0;
-			unsigned int num_entries = 0;
+			uint num_entries = 0;
 
 			int state_pos = 0;
 			int state_neg = 0;
-			unsigned int entry = 0;
+			uint entry = 0;
 			while(min_state < state_neg || state_pos <= max_state) {
 				if(min_state < state_neg) {
 					/* Negative states. */
@@ -638,15 +638,15 @@ public:
 
 	template <typename HBUCHAR>
 	struct ClassTable {
-		unsigned int get_class(hb_codepoint_t glyph_id, unsigned int outOfRange) const
+		uint get_class(hb_codepoint_t glyph_id, uint outOfRange) const
 		{
-			unsigned int i = glyph_id - firstGlyph;
+			uint i = glyph_id - firstGlyph;
 			return i >= classArray.len ? outOfRange : classArray.arrayZ[i];
 		}
 
-		unsigned int get_class(hb_codepoint_t glyph_id,
-		    unsigned int num_glyphs HB_UNUSED,
-		    unsigned int outOfRange) const
+		uint get_class(hb_codepoint_t glyph_id,
+		    uint num_glyphs HB_UNUSED,
+		    uint outOfRange) const
 		{
 			return get_class(glyph_id, outOfRange);
 		}
@@ -672,15 +672,15 @@ public:
 		typedef ClassTable<HBUINT8> ClassTypeNarrow;
 		typedef ClassTable<HBUINT16> ClassTypeWide;
 
-		template <typename T> static unsigned int offsetToIndex(unsigned int offset, const void * base, const T * array)
+		template <typename T> static uint offsetToIndex(uint offset, const void * base, const T * array)
 		{
 			return (offset - ((const char*)array - (const char*)base)) / T::static_size;
 		}
-		template <typename T> static unsigned int byteOffsetToIndex(unsigned int offset, const void * base, const T * array)
+		template <typename T> static uint byteOffsetToIndex(uint offset, const void * base, const T * array)
 		{
 			return offsetToIndex(offset, base, array);
 		}
-		template <typename T> static unsigned int wordOffsetToIndex(unsigned int offset, const void * base, const T * array)
+		template <typename T> static uint wordOffsetToIndex(uint offset, const void * base, const T * array)
 		{
 			return offsetToIndex(2 * offset, base, array);
 		}
@@ -693,15 +693,15 @@ public:
 		typedef Lookup<HBUINT16> ClassTypeNarrow;
 		typedef Lookup<HBUINT16> ClassTypeWide;
 
-		template <typename T> static unsigned int offsetToIndex(unsigned int offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
+		template <typename T> static uint offsetToIndex(uint offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
 		{
 			return offset;
 		}
-		template <typename T> static unsigned int byteOffsetToIndex(unsigned int offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
+		template <typename T> static uint byteOffsetToIndex(uint offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
 		{
 			return offset / 2;
 		}
-		template <typename T> static unsigned int wordOffsetToIndex(unsigned int offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
+		template <typename T> static uint wordOffsetToIndex(uint offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
 		{
 			return offset;
 		}
@@ -718,7 +718,7 @@ public:
 				buffer->clear_output();
 			int state = StateTable<Types, EntryData>::STATE_START_OF_TEXT;
 			for(buffer->idx = 0; buffer->successful;) {
-				unsigned int klass = buffer->idx < buffer->len ?
+				uint klass = buffer->idx < buffer->len ?
 				    machine.get_class(buffer->info[buffer->idx].codepoint, num_glyphs) :
 				    (uint)StateTable<Types, EntryData>::CLASS_END_OF_TEXT;
 				DEBUG_MSG(APPLY, nullptr, "c%u at %u", klass, buffer->idx);
@@ -759,7 +759,7 @@ public:
 public:
 		const StateTable<Types, EntryData> &machine;
 		hb_buffer_t * buffer;
-		unsigned int num_glyphs;
+		uint num_glyphs;
 	};
 
 	struct ankr;
@@ -778,13 +778,13 @@ public:
 		const ankr * ankr_table;
 
 		/* Unused. For debug tracing only. */
-		unsigned int lookup_index;
+		uint lookup_index;
 
 		HB_INTERNAL hb_aat_apply_context_t(const hb_ot_shape_plan_t * plan_, hb_font_t * font_,
 		    hb_buffer_t * buffer_, hb_blob_t * blob = const_cast<hb_blob_t *> (&Null(hb_blob_t)));
 		HB_INTERNAL ~hb_aat_apply_context_t ();
 		HB_INTERNAL void set_ankr_table(const AAT::ankr * ankr_table_);
-		void set_lookup_index(unsigned int i) { lookup_index = i; }
+		void set_lookup_index(uint i) { lookup_index = i; }
 	};
 } /* namespace AAT */
 

@@ -35,8 +35,8 @@
 	#include "hb-font.h"
 
 	HB_BEGIN_DECLS
-		HB_EXTERN void hb_shape(hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features, unsigned int num_features);
-		HB_EXTERN hb_bool_t hb_shape_full(hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features, unsigned int num_features, const char * const * shaper_list);
+		HB_EXTERN void hb_shape(hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features, uint num_features);
+		HB_EXTERN hb_bool_t hb_shape_full(hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features, uint num_features, const char * const * shaper_list);
 		HB_EXTERN const char ** hb_shape_list_shapers(void);
 	HB_END_DECLS
 #endif /* HB_SHAPE_H */

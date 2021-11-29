@@ -31,7 +31,6 @@ struct _xmlCharEncodingAlias {
 	const char * name;
 	const char * alias;
 };
-
 /*
 static xmlCharEncodingHandler * xmlUTF16LEHandler = NULL;
 static xmlCharEncodingHandler * xmlUTF16BEHandler = NULL;
@@ -107,7 +106,7 @@ static LibXmlEncoderBlock EncBlk;
 //     The value of *inlen after return is the number of octets consumed
 //     if the return value is positive, else unpredictable.
 //
-static int UTF8ToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlenb)
+static int UTF8ToUTF8(uchar * out, int * outlen, const uchar * inb, int * inlenb)
 {
 	int len;
 	if(!out || !inb || !outlen || !inlenb)
@@ -142,11 +141,11 @@ static int UTF8ToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlenb)
 //     The value of *inlen after return is the number of octets consumed
 //     if the return value is positive, else unpredictable.
 //
-static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlenb)
+static int UTF16LEToUTF8(uchar * out, int * outlen, const uchar * inb, int * inlenb)
 {
-	uchar* outstart = out;
-	const uchar* processed = inb;
-	uchar* outend = out + *outlen;
+	uchar * outstart = out;
+	const uchar * processed = inb;
+	uchar * outend = out + *outlen;
 	ushort* in = (ushort *)inb;
 	ushort* inend;
 	uint c, d, inlen;
@@ -289,12 +288,12 @@ static void closeIcuConverter(uconv_t * conv)
  *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-static int asciiToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
+static int asciiToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen)
 {
-	uchar* outstart = out;
-	const uchar* base = in;
-	const uchar* processed = in;
-	uchar* outend = out + *outlen;
+	uchar * outstart = out;
+	const uchar * base = in;
+	const uchar * processed = in;
+	uchar * outend = out + *outlen;
 	uint c;
 	const uchar * inend = in + (*inlen);
 	while((in < inend) && (out - outstart + 5 < *outlen)) {
@@ -331,13 +330,13 @@ static int asciiToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
  *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
+static int UTF8Toascii(uchar * out, int * outlen, const uchar * in, int * inlen)
 {
-	const uchar* processed = in;
-	const uchar* outend;
-	const uchar* outstart = out;
-	const uchar* instart = in;
-	const uchar* inend;
+	const uchar * processed = in;
+	const uchar * outend;
+	const uchar * outstart = out;
+	const uchar * instart = in;
+	const uchar * inend;
 	uint c, d;
 	int trailing;
 	if(!out || !outlen || !inlen)
@@ -425,14 +424,14 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
  *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-int isolat1ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
+int isolat1ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen)
 {
-	uchar* outstart = out;
-	const uchar* base = in;
-	uchar* outend;
-	const uchar* inend;
-	const uchar* instop;
-	if((out == NULL) || (in == NULL) || (outlen == NULL) || (inlen == NULL))
+	uchar * outstart = out;
+	const uchar * base = in;
+	uchar * outend;
+	const uchar * inend;
+	const uchar * instop;
+	if(!out || !in || !outlen || !inlen)
 		return -1;
 	outend = out + *outlen;
 	inend = in + (*inlen);
@@ -473,13 +472,13 @@ int isolat1ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
  *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
+int UTF8Toisolat1(uchar * out, int * outlen, const uchar * in, int * inlen)
 {
-	const uchar* processed = in;
-	const uchar* outend;
-	const uchar* outstart = out;
-	const uchar* instart = in;
-	const uchar* inend;
+	const uchar * processed = in;
+	const uchar * outend;
+	const uchar * outstart = out;
+	const uchar * instart = in;
+	const uchar * inend;
 	uint c, d;
 	int trailing;
 	if(!out || !outlen || !inlen)
@@ -570,10 +569,10 @@ int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
 // Returns the number of bytes written, or -1 if lack of space, or -2
 //     if the transcoding failed.
 //
-static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen)
+static int UTF8ToUTF16LE(uchar * outb, int * outlen, const uchar * in, int * inlen)
 {
 	ushort* out = (ushort *)outb;
-	const uchar* processed = in;
+	const uchar * processed = in;
 	const uchar * const instart = in;
 	ushort* outstart = out;
 	uint c, d;
@@ -688,7 +687,7 @@ static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen
 // Returns the number of bytes written, or -1 if lack of space, or -2
 //     if the transcoding failed.
 //
-static int UTF8ToUTF16(uchar* outb, int * outlen, const uchar* in, int * inlen)
+static int UTF8ToUTF16(uchar * outb, int * outlen, const uchar * in, int * inlen)
 {
 	if(!in) {
 		/*
@@ -730,11 +729,11 @@ static int UTF8ToUTF16(uchar* outb, int * outlen, const uchar* in, int * inlen)
  * The value of *inlen after return is the number of octets consumed
  *   if the return value is positive, else unpredictable.
  */
-static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlenb)
+static int UTF16BEToUTF8(uchar * out, int * outlen, const uchar * inb, int * inlenb)
 {
-	uchar* outstart = out;
-	const uchar* processed = inb;
-	uchar* outend = out + *outlen;
+	uchar * outstart = out;
+	const uchar * processed = inb;
+	uchar * outend = out + *outlen;
 	ushort* in = (ushort *)inb;
 	ushort* inend;
 	uint c, d, inlen;
@@ -829,14 +828,14 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
  * Returns the number of byte written, or -1 by lack of space, or -2
  *   if the transcoding failed.
  */
-static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen)
+static int UTF8ToUTF16BE(uchar * outb, int * outlen, const uchar * in, int * inlen)
 {
 	ushort* out = (ushort *)outb;
-	const uchar* processed = in;
+	const uchar * processed = in;
 	const uchar * const instart = in;
 	ushort* outstart = out;
 	ushort* outend;
-	const uchar* inend;
+	const uchar * inend;
 	uint c, d;
 	int trailing;
 	uchar * tmp;
@@ -951,7 +950,7 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
  *
  * Returns one of the XML_CHAR_ENCODING_... values.
  */
-xmlCharEncoding xmlDetectCharEncoding(const uchar* in, int len)
+xmlCharEncoding xmlDetectCharEncoding(const uchar * in, int len)
 {
 	if(!in)
 		return XML_CHAR_ENCODING_NONE;
@@ -1483,7 +1482,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
 		return -1;
 	if(err == U_INVALID_CHAR_FOUND || err == U_ILLEGAL_CHAR_FOUND)
 		return -2;
-	/* if (err == U_TRUNCATED_CHAR_FOUND) */
+	/* if(err == U_TRUNCATED_CHAR_FOUND) */
 	return -3;
 }
 
@@ -2370,9 +2369,8 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
 	return (in->consumed + (in->cur - in->base));
 }
 
-#if !defined(LIBXML_ICONV_ENABLED) && !defined(LIBXML_ICU_ENABLED)
+#if !defined(LIBXML_ICONV_ENABLED) /*&& !defined(LIBXML_ICU_ENABLED)*/
 #ifdef LIBXML_ISO8859X_ENABLED
-
 /**
  * UTF8ToISO8859x:
  * @out:  a pointer to an array of bytes to store the result
@@ -2389,7 +2387,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
  *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of ocetes consumed.
  */
-static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen, uchar const * xlattable)
+static int UTF8ToISO8859x(uchar * out, int * outlen, const uchar * in, int * inlen, uchar const * xlattable)
 {
 	const uchar * outstart = out;
 	const uchar * inend;
@@ -2503,7 +2501,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
  * The value of @inlen after return is the number of octets consumed
  * The value of @outlen after return is the number of ocetes produced.
  */
-static int ISO8859xToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen, ushort const * unicodetable)
+static int ISO8859xToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen, ushort const * unicodetable)
 {
 	if(!out || !outlen || !inlen || !in || !unicodetable)
 		return -1;
@@ -3760,34 +3758,34 @@ static uchar const xmltranscodetable_ISO8859_16 [] /* @sobolev 48 + 9 * 64*/  = 
 //
 // auto-generated functions for ISO-8859-2 .. ISO-8859-16
 //
-static int ISO8859_2ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_2); }
-static int UTF8ToISO8859_2(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_2); }
-static int ISO8859_3ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_3); }
-static int UTF8ToISO8859_3(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_3); }
-static int ISO8859_4ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_4); }
-static int UTF8ToISO8859_4(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_4); }
-static int ISO8859_5ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_5); }
-static int UTF8ToISO8859_5(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_5); }
-static int ISO8859_6ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_6); }
-static int UTF8ToISO8859_6(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_6); }
-static int ISO8859_7ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_7); }
-static int UTF8ToISO8859_7(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_7); }
-static int ISO8859_8ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_8); }
-static int UTF8ToISO8859_8(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_8); }
-static int ISO8859_9ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_9); }
-static int UTF8ToISO8859_9(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_9); }
-static int ISO8859_10ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_10); }
-static int UTF8ToISO8859_10(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_10); }
-static int ISO8859_11ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_11); }
-static int UTF8ToISO8859_11(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_11); }
-static int ISO8859_13ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_13); }
-static int UTF8ToISO8859_13(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_13); }
-static int ISO8859_14ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_14); }
-static int UTF8ToISO8859_14(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_14); }
-static int ISO8859_15ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_15); }
-static int UTF8ToISO8859_15(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_15); }
-static int ISO8859_16ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_16); }
-static int UTF8ToISO8859_16(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_16); }
+static int ISO8859_2ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_2); }
+static int UTF8ToISO8859_2(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_2); }
+static int ISO8859_3ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_3); }
+static int UTF8ToISO8859_3(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_3); }
+static int ISO8859_4ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_4); }
+static int UTF8ToISO8859_4(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_4); }
+static int ISO8859_5ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_5); }
+static int UTF8ToISO8859_5(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_5); }
+static int ISO8859_6ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_6); }
+static int UTF8ToISO8859_6(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_6); }
+static int ISO8859_7ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_7); }
+static int UTF8ToISO8859_7(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_7); }
+static int ISO8859_8ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_8); }
+static int UTF8ToISO8859_8(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_8); }
+static int ISO8859_9ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_9); }
+static int UTF8ToISO8859_9(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_9); }
+static int ISO8859_10ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_10); }
+static int UTF8ToISO8859_10(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_10); }
+static int ISO8859_11ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_11); }
+static int UTF8ToISO8859_11(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_11); }
+static int ISO8859_13ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_13); }
+static int UTF8ToISO8859_13(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_13); }
+static int ISO8859_14ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_14); }
+static int UTF8ToISO8859_14(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_14); }
+static int ISO8859_15ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_15); }
+static int UTF8ToISO8859_15(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_15); }
+static int ISO8859_16ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_16); }
+static int UTF8ToISO8859_16(uchar * out, int * outlen, const uchar * in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_16); }
 //
 //
 //

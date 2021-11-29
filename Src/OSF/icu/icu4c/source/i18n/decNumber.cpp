@@ -2040,7 +2040,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberPower(decNumber * res, const decNumbe
 			if(decNumberIsInfinite(rhs)) { /* rhs Infinity  */
 				Flag rhsneg = rhs->bits&DECNEG; /* save rhs sign  */
 				if(decNumberIsNegative(lhs) /* lhs<0  */
-				  && !decNumberIsZero(lhs)) /* ..  */
+				 && !decNumberIsZero(lhs)) /* ..  */
 					status |= DEC_Invalid_operation;
 				else {  /* lhs >=0  */
 					uprv_decNumberZero(&dnOne); /* set up 1  */
@@ -2077,7 +2077,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberPower(decNumber * res, const decNumbe
 		}
 
 		if(decNumberIsNegative(lhs) /* -x ..  */
-		  && isoddint) bits = DECNEG; /* .. to an odd power  */
+		 && isoddint) bits = DECNEG; /* .. to an odd power  */
 
 		/* handle LHS infinity  */
 		if(decNumberIsInfinite(lhs)) { /* [NaNs already handled]  */
@@ -2531,7 +2531,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberRotate(decNumber * res, const decNumb
 			/* convert -ve rotate to equivalent positive rotation  */
 			if(rotate<0) rotate = set->digits+rotate;
 			if(rotate!=0 && rotate!=set->digits /* zero or full rotation  */
-			  && !decNumberIsInfinite(res)) { /* lhs was infinite  */
+			 && !decNumberIsInfinite(res)) { /* lhs was infinite  */
 				/* left-rotate to do; 0 < rotate < set->digits  */
 				uInt units, shift; /* work  */
 				uInt msudigits; /* digits in result msu  */
@@ -3996,16 +3996,16 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
 		/* is all in one unit, no operand rounding is needed, and no carry,  */
 		/* lengthening, or borrow is needed  */
 		if(padding==0
-		  && rhs->digits<=DECDPUN
-		  && rhs->exponent>=set->emin /* [some normals drop through]  */
-		  && rhs->exponent<=set->emax-set->digits+1 /* [could clamp]  */
-		  && rhs->digits<=reqdigits
-		  && lhs->digits<=reqdigits) {
+		 && rhs->digits<=DECDPUN
+		 && rhs->exponent>=set->emin /* [some normals drop through]  */
+		 && rhs->exponent<=set->emax-set->digits+1 /* [could clamp]  */
+		 && rhs->digits<=reqdigits
+		 && lhs->digits<=reqdigits) {
 			Int partial = *lhs->lsu;
 			if(!diffsign) { /* adding  */
 				partial += *rhs->lsu;
 				if((partial<=DECDPUNMAX) /* result fits in unit  */
-				  && (lhs->digits>=DECDPUN || /* .. and no digits-count change  */
+				 && (lhs->digits>=DECDPUN || /* .. and no digits-count change  */
 				    partial<(Int)powers[lhs->digits])) { /* ..  */
 					if(res!=lhs) uprv_decNumberCopy(res, lhs); /* not in place  */
 					*res->lsu = (Unit)partial; /* [copy could have overwritten RHS]  */
@@ -4188,9 +4188,9 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
 		/* '-'."  [Subset zeros also never have '-', set by decFinish.]  */
 		if(ISZERO(res) && diffsign
      #if DECSUBSET
-		  && set->extended
+		 && set->extended
      #endif
-		  && (*status&DEC_Inexact)==0) {
+		 && (*status&DEC_Inexact)==0) {
 			if(set->round==DEC_ROUND_FLOOR) res->bits |= DECNEG; /* sign -  */
 			else res->bits &= ~DECNEG;          /* sign +  */
 		}
@@ -5525,7 +5525,7 @@ decNumber * decExpOp(decNumber * res, const decNumber * rhs,
 				/* than the accumulator by p+1 digits.  There must also be  */
 				/* full precision in a.  */
 				if(((a->digits+a->exponent)>=(t->digits+t->exponent+p+1))
-				  && (a->digits>=p)) break;
+				 && (a->digits>=p)) break;
 				decAddOp(d, d, &numone, &dset, 0, &ignore); /* d=d+1  */
 			} /* iterate  */
 
@@ -7637,7 +7637,7 @@ static uInt decCheckMath(const decNumber * rhs, decContext * set,
 	else if((rhs->digits>DEC_MAX_MATH
 	 || rhs->exponent+rhs->digits>DEC_MAX_MATH+1
 	 || rhs->exponent+rhs->digits<2*(1-DEC_MAX_MATH))
-	  && !ISZERO(rhs)) *status |= DEC_Invalid_operation;
+	 && !ISZERO(rhs)) *status |= DEC_Invalid_operation;
 	return (*status!=save);
 }   /* decCheckMath  */
 
@@ -7781,7 +7781,7 @@ static decNumber * decDecap(decNumber * dn, Int drop) {
 /*     */
 /* This is used for generic caseless compare, including the awkward   */
 /* case of the Turkish dotted and dotless Is.  Use as (for example):  */
-/*   if (decBiStr(test, "mike", "MIKE")) ...        */
+/*   if(decBiStr(test, "mike", "MIKE")) ...        */
 /* ------------------------------------------------------------------ */
 static Flag decBiStr(const char * targ, const char * str1, const char * str2) {
 	for(;; targ++, str1++, str2++) {
@@ -8043,7 +8043,7 @@ static Flag decCheckOperands(decNumber * res, const decNumber * lhs,
 		return 1;
 	}
 	else if(set!=DECUNCONT
-	  && (set->digits<1 || set->round>=DEC_ROUND_MAX)) {
+	 && (set->digits<1 || set->round>=DEC_ROUND_MAX)) {
 		bad = 1;
     #if DECTRACE || DECVERB
 		printf("Bad context [digits=%ld round=%ld].\n",
@@ -8192,7 +8192,7 @@ static Flag decCheckNumber(const decNumber * dn) {
 static void decCheckInexact(const decNumber * dn, decContext * set) {
   #if !DECSUBSET && DECEXTFLAG
 	if((set->status & (DEC_Inexact|DEC_Subnormal))==DEC_Inexact
-	  && (set->digits!=dn->digits) && !(dn->bits & DECSPECIAL)) {
+	 && (set->digits!=dn->digits) && !(dn->bits & DECSPECIAL)) {
       #if DECTRACE || DECVERB
 		printf("Insufficient digits [%ld] on normal Inexact result.\n",
 		    (LI)dn->digits);

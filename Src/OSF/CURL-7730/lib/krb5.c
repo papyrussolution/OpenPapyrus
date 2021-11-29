@@ -339,7 +339,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 				p = strstr(p, "ADAT=");
 				if(p) {
 					result = Curl_base64_decode(p + 5,
-						(uchar**)&_gssresp.value,
+						(uchar **)&_gssresp.value,
 						&_gssresp.length);
 					if(result) {
 						failf(data, "base64-decoding: %s", curl_easy_strerror(result));
@@ -684,7 +684,7 @@ int Curl_sec_read_msg(struct connectdata * conn, char * buffer,
 
 	DEBUGASSERT(level > PROT_NONE && level < PROT_LAST);
 
-	error = Curl_base64_decode(buffer + 4, (uchar**)&buf, &decoded_sz);
+	error = Curl_base64_decode(buffer + 4, (uchar **)&buf, &decoded_sz);
 	if(error || decoded_sz == 0)
 		return -1;
 

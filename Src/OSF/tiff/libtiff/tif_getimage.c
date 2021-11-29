@@ -513,7 +513,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 	uint32 col, row, y, rowstoread;
 	tmsize_t pos;
 	uint32 tw, th;
-	uchar* buf = NULL;
+	uchar * buf = NULL;
 	int32 fromskew, toskew;
 	uint32 nrow;
 	int ret = 1, flip;
@@ -609,11 +609,11 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
 	uint32 col, row, y, rowstoread;
 	tmsize_t pos;
 	uint32 tw, th;
-	uchar* buf = NULL;
-	uchar* p0 = NULL;
-	uchar* p1 = NULL;
-	uchar* p2 = NULL;
-	uchar* pa = NULL;
+	uchar * buf = NULL;
+	uchar * p0 = NULL;
+	uchar * p1 = NULL;
+	uchar * p2 = NULL;
+	uchar * pa = NULL;
 	int32 fromskew, toskew;
 	int alpha = img->alpha;
 	uint32 nrow;
@@ -749,7 +749,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 	tileContigRoutine put = img->put.contig;
 	uint32 row, y, nrow, nrowsub, rowstoread;
 	tmsize_t pos;
-	uchar* buf = NULL;
+	uchar * buf = NULL;
 	uint32 rowsperstrip;
 	uint16 subsamplinghor, subsamplingver;
 	uint32 imagewidth = img->width;
@@ -958,7 +958,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 #define PACKW(r, g, b)     ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|A1)
 #define PACKW4(r, g, b, a) ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|((uint32)W2B(a)<<24))
 
-#define DECLAREContigPutFunc(name) static void name(const TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar* pp)
+#define DECLAREContigPutFunc(name) static void name(const TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * pp)
 /*
  * 8-bit palette => colormap/RGB
  */
@@ -1281,7 +1281,7 @@ DECLAREContigPutFunc(putRGBcontig8bitCMYKMaptile)
 	}
 }
 
-#define DECLARESepPutFunc(name)	static void name(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar* r, uchar* g, uchar* b, uchar* a)
+#define DECLARESepPutFunc(name)	static void name(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * r, uchar * g, uchar * b, uchar * a)
 /*
  * 8-bit unpacked samples => RGB
  */
@@ -1437,7 +1437,7 @@ DECLAREContigPutFunc(putcontig8bitCIELab)
  * for difficult blocks.
  */
 #ifdef notdef
-static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar* pp, int h_group, int v_group)
+static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * pp, int h_group, int v_group)
 {
 	uint32* cp1 = cp+w+toskew;
 	uint32* cp2 = cp1+w+toskew;

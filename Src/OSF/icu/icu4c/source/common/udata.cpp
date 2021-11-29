@@ -691,10 +691,10 @@ static UDataMemory * openCommonData(const char * path,          /*  Path from Op
 		 * access functions.
 		 */
 		/*
-		   if (uprv_getICUData_collation) {
+		   if(uprv_getICUData_collation) {
 		    setCommonICUDataPointer(uprv_getICUData_collation(), FALSE, pErrorCode);
 		   }
-		   if (uprv_getICUData_conversion) {
+		   if(uprv_getICUData_conversion) {
 		    setCommonICUDataPointer(uprv_getICUData_conversion(), FALSE, pErrorCode);
 		   }
 		 */
@@ -1159,7 +1159,7 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 		isICUData = TRUE;
 	}
 
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)  /* Windows:  try "foo\bar" and "foo/bar" */
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)  /* Windows:  try "foo\bar" and "foo/bar" */
 	/* remap from alternate path char to the main one */
 	CharString altSepPath;
 	if(path) {

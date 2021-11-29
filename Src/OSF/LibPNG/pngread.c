@@ -1633,13 +1633,13 @@ static int make_ga_colormap(png_image_read_control * display)
 	 * [0..5]*51, the GA processing uses PNG_DIV51(value) to find the
 	 * relevant entry.
 	 *
-	 * if (alpha > 229) // opaque
+	 * if(alpha > 229) // opaque
 	 * {
 	 *  // The 231 entries are selected to make the math below work:
 	 *  base = 0;
 	 *  entry = (231 * gray + 128) >> 8;
 	 * }
-	 * else if (alpha < 26) // transparent
+	 * else if(alpha < 26) // transparent
 	 * {
 	 *  base = 231;
 	 *  entry = 0;

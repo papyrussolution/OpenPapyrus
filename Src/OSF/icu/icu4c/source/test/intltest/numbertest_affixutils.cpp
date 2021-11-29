@@ -51,7 +51,7 @@ class DefaultSymbolProvider : public SymbolProvider {
 };
 
 void AffixUtilsTest::runIndexedTest(int32_t index, bool exec, const char *&name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite AffixUtilsTest: ");
     }
     TESTCASE_AUTO_BEGIN;

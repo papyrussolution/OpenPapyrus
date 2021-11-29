@@ -879,8 +879,8 @@ void LexerRaku::ProcessStringVars(StyleContext &sc, const Sci_Position length, c
 			sc.SetState(state);
 		}
 		else if(sc.chPrev != '\\'
-		  && (sc.ch == '$' || sc.ch == '@')
-		  && IsWordStartChar(sc.chNext)) {
+		 && (sc.ch == '$' || sc.ch == '@')
+		 && IsWordStartChar(sc.chNext)) {
 			sc.SetState(varState);
 		}
 		sc.Forward(); // Next character
@@ -949,7 +949,7 @@ bool LexerRaku::ProcessValidRegQlangStart(StyleContext &sc, Sci_Position length,
 		// parse / save an adverb: RAKUTYPE_REGEX only has adverbs after delim
 		//                      >= RAKUTYPE_QLANG only has adverbs before delim
 		else if(!got_all_adverbs && sc.ch == ':' && (!(dp.opener == 0 && got_ident)
-		  && !(dp.opener > 0 && type >= RAKUTYPE_QLANG))) {
+		 && !(dp.opener > 0 && type >= RAKUTYPE_QLANG))) {
 			sc.SetState(SCE_RAKU_ADVERB);
 			while(IsAlphaNumeric(sc.chNext) && sc.More()) {
 				sc.Forward();
@@ -962,7 +962,7 @@ bool LexerRaku::ProcessValidRegQlangStart(StyleContext &sc, Sci_Position length,
 
 		// find starting delimiter
 		else if(dp.opener == 0 && (was_space || IsValidRegOrQAdjacent(sc.ch))
-		  && IsValidDelimiter(sc.ch)) {               // make sure the delimiter is legal (most are)
+		 && IsValidDelimiter(sc.ch)) {               // make sure the delimiter is legal (most are)
 			sc.SetState((state = target_state));// start state here...
 			dp.opener = sc.ch;                                      // this is our delimiter, get count
 			if(type < RAKUTYPE_QLANG)                       // type is Regex
@@ -1348,7 +1348,7 @@ void SCI_METHOD LexerRaku::Lex(Sci_PositionU startPos, Sci_Position length, int 
 
 			// --- Keywords / functions / types / barewords -------------------
 			else if((sc.currentPos == 0 || sc.atLineStart || IsValidIdentPrecede(sc.chPrev))
-			  && IsWordStartChar(sc.ch)) {
+			 && IsWordStartChar(sc.ch)) {
 				len = LengthToNonWordChar(sc, lengthToEnd, s, sizeof(s));
 				if(keywords.InList(s)) {
 					sc.SetState(SCE_RAKU_WORD);             // Keywords
@@ -1415,7 +1415,7 @@ void SCI_METHOD LexerRaku::Lex(Sci_PositionU startPos, Sci_Position length, int 
 				sc.Forward();
 				char ch_delim = 0;
 				if(setSpecialVar.Contains(sc.ch)
-				  && !setWord.Contains(sc.chNext)) {                  // Process Special Var
+				 && !setWord.Contains(sc.chNext)) {                  // Process Special Var
 					ch_delim = -1;
 				}
 				else if(setTwigil.Contains(sc.ch)) {            // Process Twigil
@@ -1541,24 +1541,24 @@ void SCI_METHOD LexerRaku::Fold(Sci_PositionU startPos, Sci_Position length, int
 			// Multi-line
 			if(options.foldCommentMultiline) {
 				if(style == SCE_RAKU_COMMENTLINE && atLineStart && ch == '#' && chNext == '`'
-				  && styleNextStartLine == SCE_RAKU_COMMENTEMBED) {
+				 && styleNextStartLine == SCE_RAKU_COMMENTEMBED) {
 					levelCurrent++;
 					wasCommentMulti = true; // don't confuse line comments
 				}
 				else if(style == SCE_RAKU_COMMENTEMBED && atLineStart
-				  && styleNextStartLine != SCE_RAKU_COMMENTEMBED) {
+				 && styleNextStartLine != SCE_RAKU_COMMENTEMBED) {
 					levelCurrent--;
 				}
 			}
 
 			// Line comments
 			if(!wasCommentMulti && atEOL && stylePrev == SCE_RAKU_COMMENTLINE
-			  && IsCommentLine(lineCurrent, styler)) {
+			 && IsCommentLine(lineCurrent, styler)) {
 				if(!IsCommentLine(lineCurrent - 1, styler)
-				  && IsCommentLine(lineCurrent + 1, styler))
+				 && IsCommentLine(lineCurrent + 1, styler))
 					levelCurrent++;
 				else if(IsCommentLine(lineCurrent - 1, styler)
-				  && !IsCommentLine(lineCurrent + 1, styler))
+				 && !IsCommentLine(lineCurrent + 1, styler))
 					levelCurrent--;
 			}
 

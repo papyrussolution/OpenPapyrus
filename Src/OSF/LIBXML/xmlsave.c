@@ -206,11 +206,11 @@ static uchar * FASTCALL xmlSerializeHexCharRef(uchar * out, int val)
  *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-static int xmlEscapeEntities(uchar* out, int * outlen, const xmlChar* in, int * inlen)
+static int xmlEscapeEntities(uchar * out, int * outlen, const xmlChar* in, int * inlen)
 {
-	uchar* outstart = out;
-	const uchar* base = in;
-	uchar* outend = out + *outlen;
+	uchar * outstart = out;
+	const uchar * base = in;
+	uchar * outend = out + *outlen;
 	int val;
 	const uchar * inend = in + (*inlen);
 	while((in < inend) && (out < outend)) {

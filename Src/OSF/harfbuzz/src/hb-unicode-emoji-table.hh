@@ -57,12 +57,12 @@ _hb_emoji_u8[448] =
 };
 
 static inline unsigned
-_hb_emoji_b4 (const uint8_t* a, unsigned i)
+_hb_emoji_b4 (const uint8_t* a, uint i)
 {
   return (a[i>>1]>>((i&1u)<<2))&15u;
 }
 static inline unsigned
-_hb_emoji_b1 (const uint8_t* a, unsigned i)
+_hb_emoji_b1 (const uint8_t* a, uint i)
 {
   return (a[i>>3]>>((i&7u)<<0))&1u;
 }

@@ -51,7 +51,7 @@
 // Returns `dst' (as a const)
 // Note:
 //   - uses no statics
-//   - takes a uchar* not an in_addr as input
+//   - takes a uchar * not an in_addr as input
 // 
 static char * FASTCALL inet_ntop4(const uchar * src, char * dst, size_t size)
 {

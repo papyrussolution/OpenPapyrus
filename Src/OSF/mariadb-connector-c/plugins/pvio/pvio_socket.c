@@ -287,7 +287,7 @@ ssize_t pvio_socket_read(MARIADB_PVIO * pvio, uchar * buffer, size_t length)
 		int err = socket_errno;
 		if((err != SOCKET_EAGAIN
 #ifdef HAVE_SOCKET_EWOULDBLOCK
-		  && err != SOCKET_EWOULDBLOCK
+		 && err != SOCKET_EWOULDBLOCK
 #endif
 		    ) || timeout == 0)
 			return r;
@@ -453,7 +453,7 @@ ssize_t pvio_socket_write(MARIADB_PVIO * pvio, const uchar * buffer, size_t leng
 		int err = socket_errno;
 		if((err != SOCKET_EAGAIN
 #ifdef HAVE_SOCKET_EWOULDBLOCK
-		  && err != SOCKET_EWOULDBLOCK
+		 && err != SOCKET_EWOULDBLOCK
 #endif
 		    ) || timeout == 0)
 			return r;

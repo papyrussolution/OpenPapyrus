@@ -151,7 +151,7 @@ typedef enum E_Where E_Where;
 			log_err("%s returned %d instead of x != %d\n",  action, actual, expected); \
 		} \
 } UPRV_BLOCK_MACRO_END
-/*#define CONFIRM_ErrorCode(actual,expected) if ((expected)==(actual)) { record_pass(); } else { record_fail();
+/*#define CONFIRM_ErrorCode(actual,expected) if((expected)==(actual)) { record_pass(); } else { record_fail();
     log_err("%s returned  %s  instead of %s\n", action, myErrorName(actual), myErrorName(expected)); } */
 static void CONFIRM_ErrorCode(UErrorCode actual, UErrorCode expected)
 {
@@ -1070,7 +1070,7 @@ static void TestAPI() {
 	utestdatapath = (UChar *)SAlloc::M((len+10)*sizeof(UChar));
 
 	u_charsToUChars(testdatapath, utestdatapath, (int32_t)strlen(testdatapath)+1);
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR) && U_FILE_SEP_CHAR == '\\'
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR) && U_FILE_SEP_CHAR == '\\'
 	{
 		/* Convert all backslashes to forward slashes so that we can make sure that ures_openU
 		   can handle invariant characters. */
@@ -1128,7 +1128,7 @@ static void TestAPI() {
 	ures_resetIterator(teRes);
 	/*Test ures_getNextResource() where resource is table*/
 	status = U_ZERO_ERROR;
-#if (U_CHARSET_FAMILY == U_ASCII_FAMILY)
+#if(U_CHARSET_FAMILY == U_ASCII_FAMILY)
 	/* The next key varies depending on the charset. */
 	teFillin = ures_getNextResource(teRes, teFillin, &status);
 	if(U_FAILURE(status)) {

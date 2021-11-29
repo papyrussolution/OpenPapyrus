@@ -458,19 +458,19 @@ PDF_SEPARABLE_BLEND_MODE(screen)
  *
  * ad * as * B(d/ad, s/as)
  * = ad * as * Hardlight (s, d)
- * = if (d / ad < 0.5)
+ * = if(d / ad < 0.5)
  * as * ad * Multiply (s/as, 2 * d/ad)
  * else
  * as * ad * Screen (s/as, 2 * d / ad - 1)
- * = if (d < 0.5 * ad)
+ * = if(d < 0.5 * ad)
  * as * ad * s/as * 2 * d /ad
  * else
  * as * ad * (s/as + 2 * d / ad - 1 - s / as * (2 * d / ad - 1))
- * = if (2 * d < ad)
+ * = if(2 * d < ad)
  * 2 * s * d
  * else
  * ad * s + 2 * as * d - as * ad - ad * s * (2 * d / ad - 1)
- * = if (2 * d < ad)
+ * = if(2 * d < ad)
  * 2 * s * d
  * else
  * as * ad - 2 * (ad - d) * (as - s)
@@ -523,7 +523,7 @@ PDF_SEPARABLE_BLEND_MODE(lighten)
  * Hard light
  *
  * ad * as * B(d/ad, s/as)
- * = if (s/as <= 0.5)
+ * = if(s/as <= 0.5)
  * ad * as * Multiply (d/ad, 2 * s/as)
  * else
  * ad * as * Screen (d/ad, 2 * s/as - 1)
@@ -551,11 +551,11 @@ PDF_SEPARABLE_BLEND_MODE(hard_light)
  *
  * ad * as * B(s/as, d/ad)
  * = ad * as * abs (s/as - d/ad)
- * = if (s/as <= d/ad)
+ * = if(s/as <= d/ad)
  * ad * as * (d/ad - s/as)
  * else
  * ad * as * (s/as - d/ad)
- * = if (ad * s <= as * d)
+ * = if(ad * s <= as * d)
  * as * d - ad * s
  * else
  * ad * s - as * d

@@ -45,7 +45,7 @@ struct curltime Curl_now(void)
 		/* Disable /analyze warning that GetTickCount64 is preferred  */
 #if defined(_MSC_VER)
 	#pragma warning(push)
-	#if (_MSC_VER >= 1900)
+	#if(_MSC_VER >= 1900)
 		#pragma warning(disable:28159)
 	#endif
 #endif

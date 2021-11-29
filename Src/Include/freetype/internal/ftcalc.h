@@ -340,7 +340,7 @@ ft_corner_is_flat(FT_Pos in_x,
 
 static __inline FT_Int32 FT_MSB_i386(FT_UInt32 x)
 {
-	unsigned long where;
+	ulong where;
 	_BitScanReverse(&where, x);
 	return (FT_Int32)where;
 }

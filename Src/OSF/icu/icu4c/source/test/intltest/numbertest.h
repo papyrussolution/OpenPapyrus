@@ -371,7 +371,7 @@ class NumberPermutationTest : public IntlTest {
 #define TESTCLASS(id, TestClass)          \
     case id:                              \
         name = #TestClass;                \
-        if (exec) {                       \
+        if(exec) {                       \
             logln(#TestClass " test---"); \
             logln((UnicodeString)"");     \
             TestClass test;               \
@@ -382,7 +382,7 @@ class NumberPermutationTest : public IntlTest {
 class NumberTest : public IntlTest {
   public:
     void runIndexedTest(int32_t index, bool exec, const char *&name, char *par = 0) override {
-        if (exec) {
+        if(exec) {
             logln("TestSuite NumberTest: ");
         }
 

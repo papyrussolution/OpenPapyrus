@@ -164,7 +164,7 @@ struct evp_cipher_st {
 #define BLOCK_CIPHER_ecb_loop() \
         size_t i, bl; \
         bl = EVP_CIPHER_CTX_cipher(ctx)->block_size;    \
-        if (inl < bl) return 1;\
+        if(inl < bl) return 1;\
         inl -= bl; \
         for (i=0; i <= inl; i+=bl)
 
@@ -189,7 +189,7 @@ static int cname##_ecb_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, 
             in +=EVP_MAXCHUNK;\
             out+=EVP_MAXCHUNK;\
         }\
-        if (inl) {\
+        if(inl) {\
             int num = EVP_CIPHER_CTX_num(ctx);\
             cprefix##_ofb##cbits##_encrypt(in, out, (long)inl, &EVP_C_DATA(kstruct,ctx)->ksched, EVP_CIPHER_CTX_iv_noconst(ctx), &num); \
             EVP_CIPHER_CTX_set_num(ctx, num);\
@@ -207,7 +207,7 @@ static int cname##_cbc_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, 
             in +=EVP_MAXCHUNK;\
             out+=EVP_MAXCHUNK;\
             }\
-        if (inl)\
+        if(inl)\
             cprefix##_cbc_encrypt(in, out, (long)inl, &EVP_C_DATA(kstruct,ctx)->ksched, EVP_CIPHER_CTX_iv_noconst(ctx), EVP_CIPHER_CTX_encrypting(ctx));\
         return 1;\
 }
@@ -216,14 +216,14 @@ static int cname##_cbc_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, 
 static int cname##_cfb##cbits##_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, size_t inl) \
 {\
     size_t chunk = EVP_MAXCHUNK;\
-    if (cbits == 1)  chunk >>= 3;\
-    if (inl < chunk) chunk = inl;\
-    while (inl && inl >= chunk)\
+    if(cbits == 1)  chunk >>= 3;\
+    if(inl < chunk) chunk = inl;\
+    while(inl && inl >= chunk)\
     {\
         int num = EVP_CIPHER_CTX_num(ctx);\
         cprefix##_cfb##cbits##_encrypt(in, out, (long) \
             ((cbits == 1) \
-              && !EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS) \
+    && !EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS) \
                 ? chunk*8 : chunk), \
             &EVP_C_DATA(kstruct, ctx)->ksched, EVP_CIPHER_CTX_iv_noconst(ctx),\
             &num, EVP_CIPHER_CTX_encrypting(ctx));\
@@ -231,7 +231,7 @@ static int cname##_cfb##cbits##_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uc
         inl -= chunk;\
         in += chunk;\
         out += chunk;\
-        if (inl < chunk) chunk = inl;\
+        if(inl < chunk) chunk = inl;\
     }\
     return 1;\
 }

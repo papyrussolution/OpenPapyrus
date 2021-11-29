@@ -276,7 +276,7 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 		hs += HASH_3_SIZE;
 /*
         No match finder uses this at the moment.
-        if (mf->hash_bytes > 4)
+        if(mf->hash_bytes > 4)
                 hs += HASH_4_SIZE;
  */
  	const uint32 old_hash_count = mf->hash_count;

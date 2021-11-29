@@ -19,7 +19,7 @@ template <typename T, size_t count>
 void StringCopy(T (&dest)[count], const T* source) {
 	for (size_t i=0; i<count; i++) {
 		dest[i] = source[i];
-		if (!source[i])
+		if(!source[i])
 			break;
 	}
 	dest[count-1] = 0;

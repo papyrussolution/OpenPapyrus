@@ -14,14 +14,14 @@
  * doesn't have to be unambiguous. Simplest example is lazy "constant"
  * initialization when one can synchronize on variable itself, e.g.
  *
- * if (var == NOT_YET_INITIALIZED)
+ * if(var == NOT_YET_INITIALIZED)
  *     var = function_returning_same_value();
  *
  * This does work provided that loads and stores are single-instruction
  * operations (and integer ones are on *all* supported platforms), but
  * it upsets Thread Sanitizer. Suggested solution is
  *
- * if (tsan_load(&var) == NOT_YET_INITIALIZED)
+ * if(tsan_load(&var) == NOT_YET_INITIALIZED)
  *     tsan_store(&var, function_returning_same_value());
  *
  * Production machine code would be the same, so one can wonder why

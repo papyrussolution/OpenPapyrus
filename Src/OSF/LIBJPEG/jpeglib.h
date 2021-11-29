@@ -349,7 +349,7 @@ struct jpeg_compress_struct {
 
 	/* State variable: index of next scanline to be written to
 	 * jpeg_write_scanlines().  Application may use this to control its
-	 * processing loop, e.g., "while (next_scanline < image_height)".
+	 * processing loop, e.g., "while(next_scanline < image_height)".
 	 */
 	JDIMENSION next_scanline; /* 0 .. image_height-1  */
 	/* Remaining fields are known throughout compressor, but generally
@@ -463,7 +463,7 @@ struct jpeg_decompress_struct {
 	 */
 	/* Row index of next scanline to be read from jpeg_read_scanlines().
 	 * Application may use this to control its processing loop, e.g.,
-	 * "while (output_scanline < output_height)".
+	 * "while(output_scanline < output_height)".
 	 */
 	JDIMENSION output_scanline; /* 0 .. output_height-1  */
 	/* Current input scan number and number of iMCU rows completed in scan.

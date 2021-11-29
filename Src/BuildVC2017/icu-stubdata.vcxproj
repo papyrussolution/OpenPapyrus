@@ -279,14 +279,14 @@
   <ItemGroup>
     <ResourceCompile Include="..\osf\icu\icu4c\source\stubdata\..\data\misc\icudata.rc">
       <AdditionalIncludeDirectories>../common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

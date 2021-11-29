@@ -414,7 +414,7 @@ static const ReorderingScheme* findMatchingScheme(UBiDiLevel inLevel, UBiDiLevel
 	for(i = 0; i < nSchemes; i++) {
 		const ReorderingScheme * pScheme = Schemes + i;
 		if(inLevel == pScheme->inLevel && outLevel == pScheme->outLevel
-		  && inOrder == pScheme->inOrder && outOrder == pScheme->outOrder) {
+		 && inOrder == pScheme->inOrder && outOrder == pScheme->outOrder) {
 			return pScheme;
 		}
 	}

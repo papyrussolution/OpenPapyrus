@@ -81,7 +81,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 
 	/* Add any encoded padding that is required */
 	if(padsize != 0
-	  && EVP_DecodeUpdate(ctx, a, &outl, pad, padsize) < 0) {
+	 && EVP_DecodeUpdate(ctx, a, &outl, pad, padsize) < 0) {
 		outl = -1;
 		goto err;
 	}
@@ -148,7 +148,7 @@ static int t_tob64(char * dst, const uchar * src, int size)
 	 */
 	leadz = 3 - (size % 3);
 	if(leadz != 3
-	  && !EVP_EncodeUpdate(ctx, (uchar *)dst, &outl, pad,
+	 && !EVP_EncodeUpdate(ctx, (uchar *)dst, &outl, pad,
 	    leadz)) {
 		EVP_ENCODE_CTX_free(ctx);
 		return 0;

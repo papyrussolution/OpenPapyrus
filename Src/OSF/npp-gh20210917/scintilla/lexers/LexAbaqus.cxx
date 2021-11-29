@@ -411,7 +411,7 @@ static int LineType(Sci_Position line, Accessor &styler) {
 	wlen++;
 
 	i++;
-	while( (i < eol_pos) && (wlen < 255) ) {
+	while((i < eol_pos) && (wlen < 255) ) {
 		c = styler.SafeGetCharAt(i);
 		ch = static_cast<char>(LowerCase(c));
 
@@ -487,7 +487,7 @@ static void FoldABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int,
 	// Determine the base line level of all lines following
 	// the previous keyword
 	// new keyword lines are placed on this level
-	//if ( prvKeyLineTp & 4 ) {
+	//if( prvKeyLineTp & 4 ) {
 	int level = styler.LevelAt(prvKeyLine) & ~SC_FOLDLEVELHEADERFLAG;
 	//}
 

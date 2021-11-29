@@ -127,7 +127,7 @@ class small_map {
     InitFrom(src);
   }
   void operator=(const small_map& src) {
-    if (&src == this) return;
+    if(&src == this) return;
 
     // This is not optimal. If src and dest are both using the small
     // array, we could skip the teardown and reconstruct. One problem
@@ -153,7 +153,7 @@ class small_map {
     inline iterator(): array_iter_(NULL) {}
 
     inline iterator& operator++() {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         ++array_iter_;
       } else {
         ++hash_iter_;
@@ -166,7 +166,7 @@ class small_map {
       return result;
     }
     inline iterator& operator--() {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         --array_iter_;
       } else {
         --hash_iter_;
@@ -179,7 +179,7 @@ class small_map {
       return result;
     }
     inline value_type* operator->() const {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         return array_iter_->get();
       } else {
         return hash_iter_.operator->();
@@ -187,7 +187,7 @@ class small_map {
     }
 
     inline value_type& operator*() const {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         return *array_iter_->get();
       } else {
         return *hash_iter_;
@@ -195,7 +195,7 @@ class small_map {
     }
 
     inline bool operator==(const iterator& other) const {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         return array_iter_ == other.array_iter_;
       } else {
         return other.array_iter_ == NULL && hash_iter_ == other.hash_iter_;
@@ -234,7 +234,7 @@ class small_map {
       : array_iter_(other.array_iter_), hash_iter_(other.hash_iter_) {}
 
     inline const_iterator& operator++() {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         ++array_iter_;
       } else {
         ++hash_iter_;
@@ -248,7 +248,7 @@ class small_map {
     }
 
     inline const_iterator& operator--() {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         --array_iter_;
       } else {
         --hash_iter_;
@@ -262,7 +262,7 @@ class small_map {
     }
 
     inline const value_type* operator->() const {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         return array_iter_->get();
       } else {
         return hash_iter_.operator->();
@@ -270,7 +270,7 @@ class small_map {
     }
 
     inline const value_type& operator*() const {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         return *array_iter_->get();
       } else {
         return *hash_iter_;
@@ -278,7 +278,7 @@ class small_map {
     }
 
     inline bool operator==(const const_iterator& other) const {
-      if (array_iter_ != NULL) {
+      if(array_iter_ != NULL) {
         return array_iter_ == other.array_iter_;
       } else {
         return other.array_iter_ == NULL && hash_iter_ == other.hash_iter_;
@@ -304,9 +304,9 @@ class small_map {
 
   iterator find(const key_type& key) {
     key_equal compare;
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       for (int i = 0; i < size_; i++) {
-        if (compare(array_[i]->first, key)) {
+        if(compare(array_[i]->first, key)) {
           return iterator(array_ + i);
         }
       }
@@ -318,9 +318,9 @@ class small_map {
 
   const_iterator find(const key_type& key) const {
     key_equal compare;
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       for (int i = 0; i < size_; i++) {
-        if (compare(array_[i]->first, key)) {
+        if(compare(array_[i]->first, key)) {
           return const_iterator(array_ + i);
         }
       }
@@ -334,15 +334,15 @@ class small_map {
   data_type& operator[](const key_type& key) {
     key_equal compare;
 
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       // operator[] searches backwards, favoring recently-added
       // elements.
       for (int i = size_-1; i >= 0; --i) {
-        if (compare(array_[i]->first, key)) {
+        if(compare(array_[i]->first, key)) {
           return array_[i]->second;
         }
       }
-      if (size_ == kArraySize) {
+      if(size_ == kArraySize) {
         ConvertToRealMap();
         return (*map_)[key];
       } else {
@@ -358,13 +358,13 @@ class small_map {
   std::pair<iterator, bool> insert(const value_type& x) {
     key_equal compare;
 
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       for (int i = 0; i < size_; i++) {
-        if (compare(array_[i]->first, x.first)) {
+        if(compare(array_[i]->first, x.first)) {
           return std::make_pair(iterator(array_ + i), false);
         }
       }
-      if (size_ == kArraySize) {
+      if(size_ == kArraySize) {
         ConvertToRealMap();  // Invalidates all iterators!
         std::pair<typename NormalMap::iterator, bool> ret = map_->insert(x);
         return std::make_pair(iterator(ret.first), ret.second);
@@ -381,21 +381,21 @@ class small_map {
   // Invalidates iterators.
   template <class InputIterator>
   void insert(InputIterator f, InputIterator l) {
-    while (f != l) {
+    while(f != l) {
       insert(*f);
       ++f;
     }
   }
 
   iterator begin() {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       return iterator(array_);
     } else {
       return iterator(map_->begin());
     }
   }
   const_iterator begin() const {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       return const_iterator(array_);
     } else {
       return const_iterator(map_->begin());
@@ -403,14 +403,14 @@ class small_map {
   }
 
   iterator end() {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       return iterator(array_ + size_);
     } else {
       return iterator(map_->end());
     }
   }
   const_iterator end() const {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       return const_iterator(array_ + size_);
     } else {
       return const_iterator(map_->end());
@@ -418,7 +418,7 @@ class small_map {
   }
 
   void clear() {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       for (int i = 0; i < size_; i++) {
         array_[i].Destroy();
       }
@@ -430,11 +430,11 @@ class small_map {
 
   // Invalidates iterators.
   void erase(const iterator& position) {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       int i = position.array_iter_ - array_;
       array_[i].Destroy();
       --size_;
-      if (i != size_) {
+      if(i != size_) {
         array_[i].Init(*array_[size_]);
         array_[size_].Destroy();
       }
@@ -445,7 +445,7 @@ class small_map {
 
   int erase(const key_type& key) {
     iterator iter = find(key);
-    if (iter == end()) return 0;
+    if(iter == end()) return 0;
     erase(iter);
     return 1;
   }
@@ -455,7 +455,7 @@ class small_map {
   }
 
   int size() const {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       return size_;
     } else {
       return map_->size();
@@ -463,7 +463,7 @@ class small_map {
   }
 
   bool empty() const {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       return (size_ == 0);
     } else {
       return map_->empty();
@@ -529,7 +529,7 @@ class small_map {
   void InitFrom(const small_map& src) {
     functor_ = src.functor_;
     size_ = src.size_;
-    if (src.size_ >= 0) {
+    if(src.size_ >= 0) {
       for (int i = 0; i < size_; i++) {
         array_[i].Init(*src.array_[i]);
       }
@@ -539,7 +539,7 @@ class small_map {
     }
   }
   void Destroy() {
-    if (size_ >= 0) {
+    if(size_ >= 0) {
       for (int i = 0; i < size_; i++) {
         array_[i].Destroy();
       }

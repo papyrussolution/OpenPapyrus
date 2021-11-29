@@ -51,7 +51,7 @@ public:
 
 	int ValueFor(const std::string &s) const {
 		std::map<std::string, int>::const_iterator it = wordToStyle.find(s);
-		if (it != wordToStyle.end())
+		if(it != wordToStyle.end())
 			return it->second;
 		else
 			return -1;
@@ -63,8 +63,8 @@ public:
 
 	void RemoveStyle(int style) {
 		std::map<std::string, int>::iterator it = wordToStyle.begin();
-		while (it != wordToStyle.end()) {
-			if (it->second == style) {
+		while(it != wordToStyle.end()) {
+			if(it->second == style) {
 				it = wordToStyle.erase(it);
 			} else {
 				++it;
@@ -74,16 +74,16 @@ public:
 
 	void SetIdentifiers(int style, const char *identifiers) {
 		RemoveStyle(style);
-		while (*identifiers) {
+		while(*identifiers) {
 			const char *cpSpace = identifiers;
-			while (*cpSpace && !(*cpSpace == ' ' || *cpSpace == '\t' || *cpSpace == '\r' || *cpSpace == '\n'))
+			while(*cpSpace && !(*cpSpace == ' ' || *cpSpace == '\t' || *cpSpace == '\r' || *cpSpace == '\n'))
 				cpSpace++;
-			if (cpSpace > identifiers) {
+			if(cpSpace > identifiers) {
 				std::string word(identifiers, cpSpace - identifiers);
 				wordToStyle[word] = style;
 			}
 			identifiers = cpSpace;
-			if (*identifiers)
+			if(*identifiers)
 				identifiers++;
 		}
 	}
@@ -100,7 +100,7 @@ class SubStyles {
 
 	int BlockFromBaseStyle(int baseStyle) const noexcept {
 		for (int b=0; b < classifications; b++) {
-			if (baseStyle == baseStyles[b])
+			if(baseStyle == baseStyles[b])
 				return b;
 		}
 		return -1;
@@ -109,7 +109,7 @@ class SubStyles {
 	int BlockFromStyle(int style) const {
 		int b = 0;
 		for (std::vector<WordClassifier>::const_iterator it=classifiers.begin(); it != classifiers.end(); ++it) {
-			if (it->IncludesStyle(style))
+			if(it->IncludesStyle(style))
 				return b;
 			b++;
 		}
@@ -125,7 +125,7 @@ public:
 		stylesAvailable(stylesAvailable_),
 		secondaryDistance(secondaryDistance_),
 		allocated(0) {
-		while (baseStyles[classifications]) {
+		while(baseStyles[classifications]) {
 			classifiers.push_back(WordClassifier(baseStyles[classifications]));
 			classifications++;
 		}
@@ -133,8 +133,8 @@ public:
 
 	int Allocate(int styleBase, int numberStyles) {
 		const int block = BlockFromBaseStyle(styleBase);
-		if (block >= 0) {
-			if ((allocated + numberStyles) > stylesAvailable)
+		if(block >= 0) {
+			if((allocated + numberStyles) > stylesAvailable)
 				return -1;
 			const int startBlock = styleFirst + allocated;
 			allocated += numberStyles;
@@ -157,7 +157,7 @@ public:
 
 	int BaseStyle(int subStyle) const {
 		const int block = BlockFromStyle(subStyle);
-		if (block >= 0)
+		if(block >= 0)
 			return classifiers[block].Base();
 		else
 			return subStyle;
@@ -170,7 +170,7 @@ public:
 	int FirstAllocated() const {
 		int start = 257;
 		for (std::vector<WordClassifier>::const_iterator it = classifiers.begin(); it != classifiers.end(); ++it) {
-			if (start > it->Start())
+			if(start > it->Start())
 				start = it->Start();
 		}
 		return (start < 256) ? start : -1;
@@ -179,7 +179,7 @@ public:
 	int LastAllocated() const {
 		int last = -1;
 		for (std::vector<WordClassifier>::const_iterator it = classifiers.begin(); it != classifiers.end(); ++it) {
-			if (last < it->Last())
+			if(last < it->Last())
 				last = it->Last();
 		}
 		return last;
@@ -187,7 +187,7 @@ public:
 
 	void SetIdentifiers(int style, const char *identifiers) {
 		const int block = BlockFromStyle(style);
-		if (block >= 0)
+		if(block >= 0)
 			classifiers[block].SetIdentifiers(style, identifiers);
 	}
 

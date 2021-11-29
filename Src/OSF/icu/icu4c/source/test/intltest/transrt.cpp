@@ -197,7 +197,7 @@ bool LegalGreek::is(const UnicodeString & sourceString) const {
 	if(full == FALSE) {
 		// A special case which is legal but should be
 		// excluded from round trip
-		// if (sourceString == UnicodeString("\\u039C\\u03C0", "")) {
+		// if(sourceString == UnicodeString("\\u039C\\u03C0", "")) {
 		//    return FALSE;
 		// }
 		for(int32_t i = 0; i < decomp.length(); ++i) {
@@ -775,7 +775,7 @@ void RTTest::test2(bool quickRt, int32_t density) {
 		}
 		if(isSame(srcStr, reverse) == FALSE &&
 		    roundtripExclusionsSet.contains(c) == FALSE
-		  && roundtripExclusionsSet.contains(srcStr)==FALSE) {
+		 && roundtripExclusionsSet.contains(srcStr)==FALSE) {
 			logRoundTripFailure(srcStr, targetToSource->getID(), targ, sourceToTarget->getID(), reverse);
 			failRound.add(c);
 			continue;

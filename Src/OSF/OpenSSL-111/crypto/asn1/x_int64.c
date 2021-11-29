@@ -55,10 +55,10 @@ static int uint64_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
 	memcpy(&utmp, cp, sizeof(utmp));
 
 	if((it->size & INTxx_FLAG_ZERO_DEFAULT) == INTxx_FLAG_ZERO_DEFAULT
-	  && utmp == 0)
+	 && utmp == 0)
 		return -1;
 	if((it->size & INTxx_FLAG_SIGNED) == INTxx_FLAG_SIGNED
-	  && (int64_t)utmp < 0) {
+	 && (int64_t)utmp < 0) {
 		/* i2c_uint64_int() assumes positive values */
 		utmp = 0 - utmp;
 		neg = 1;
@@ -95,7 +95,7 @@ static int uint64_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
 		return 0;
 	}
 	if((it->size & INTxx_FLAG_SIGNED) == INTxx_FLAG_SIGNED
-	  && !neg && utmp > INT64_MAX) {
+	 && !neg && utmp > INT64_MAX) {
 		ASN1err(ASN1_F_UINT64_C2I, ASN1_R_TOO_LARGE);
 		return 0;
 	}
@@ -150,10 +150,10 @@ static int uint32_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
 	memcpy(&utmp, cp, sizeof(utmp));
 
 	if((it->size & INTxx_FLAG_ZERO_DEFAULT) == INTxx_FLAG_ZERO_DEFAULT
-	  && utmp == 0)
+	 && utmp == 0)
 		return -1;
 	if((it->size & INTxx_FLAG_SIGNED) == INTxx_FLAG_SIGNED
-	  && (int32_t)utmp < 0) {
+	 && (int32_t)utmp < 0) {
 		/* i2c_uint64_int() assumes positive values */
 		utmp = 0 - utmp;
 		neg = 1;

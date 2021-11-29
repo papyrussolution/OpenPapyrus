@@ -322,7 +322,7 @@ bool UnicodeSet::contains(UChar32 c) const {
 	// LATER: for large sets, add binary search
 	//int32_t i = -1;
 	//for (;;) {
-	//    if (c < list[++i]) break;
+	//    if(c < list[++i]) break;
 	//}
 	if(bmpSet != NULL) {
 		return bmpSet->contains(c);
@@ -394,7 +394,7 @@ int32_t UnicodeSet::findCodePoint(UChar32 c) const {
 bool UnicodeSet::contains(UChar32 start, UChar32 end) const {
 	//int32_t i = -1;
 	//for (;;) {
-	//    if (start < list[++i]) break;
+	//    if(start < list[++i]) break;
 	//}
 	int32_t i = findCodePoint(start);
 	return ((i & 1) != 0 && end < list[i]);
@@ -456,7 +456,7 @@ bool UnicodeSet::containsAll(const UnicodeString & s) const {
 bool UnicodeSet::containsNone(UChar32 start, UChar32 end) const {
 	//int32_t i = -1;
 	//for (;;) {
-	//    if (start < list[++i]) break;
+	//    if(start < list[++i]) break;
 	//}
 	int32_t i = findCodePoint(start);
 	return ((i & 1) == 0 && end < list[i]);
@@ -2110,7 +2110,7 @@ UnicodeString & UnicodeSet::_generatePattern(UnicodeString & result,
 	// If the set contains at least 2 intervals and includes both
 	// MIN_VALUE and MAX_VALUE, then the inverse representation will
 	// be more economical.
-	//     if (getRangeCount() >= 2 &&
+	//     if(getRangeCount() >= 2 &&
 	//             getRangeStart(0) == MIN_VALUE &&
 	//             getRangeEnd(last) == MAX_VALUE)
 	// Invariant: list[len-1] == HIGH == MAX_VALUE + 1

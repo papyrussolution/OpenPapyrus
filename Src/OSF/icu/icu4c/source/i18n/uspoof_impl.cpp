@@ -350,9 +350,9 @@ URestrictionLevel SpoofImpl::getRestrictionLevel(const UnicodeString & input, UE
 
 	// Section 5.2 step 7:
 	if(!resolvedNoLatn.isEmpty()
-	  && !resolvedNoLatn.test(USCRIPT_CYRILLIC, status)
-	  && !resolvedNoLatn.test(USCRIPT_GREEK, status)
-	  && !resolvedNoLatn.test(USCRIPT_CHEROKEE, status)) {
+	 && !resolvedNoLatn.test(USCRIPT_CYRILLIC, status)
+	 && !resolvedNoLatn.test(USCRIPT_GREEK, status)
+	 && !resolvedNoLatn.test(USCRIPT_CHEROKEE, status)) {
 		return USPOOF_MODERATELY_RESTRICTIVE;
 	}
 

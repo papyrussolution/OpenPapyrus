@@ -61,7 +61,7 @@
  *
  * Since: 0.9.2
  **/
-hb_blob_t * hb_blob_create(const char * data, unsigned int length, hb_memory_mode_t mode, void * user_data, hb_destroy_func_t destroy)
+hb_blob_t * hb_blob_create(const char * data, uint length, hb_memory_mode_t mode, void * user_data, hb_destroy_func_t destroy)
 {
 	hb_blob_t * blob;
 	if(!length || length >= 1u << 31 || !(blob = hb_object_create<hb_blob_t> ())) {
@@ -108,7 +108,7 @@ static void _hb_blob_destroy(void * data)
  *
  * Since: 0.9.2
  **/
-hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent, unsigned int offset, unsigned int length)
+hb_blob_t * hb_blob_create_sub_blob(hb_blob_t * parent, uint offset, uint length)
 {
 	hb_blob_t * blob;
 	if(!length || !parent || offset >= parent->length)
@@ -246,7 +246,7 @@ hb_bool_t hb_blob_is_immutable(const hb_blob_t * blob)
  *
  * Since: 0.9.2
  **/
-unsigned int hb_blob_get_length(hb_blob_t * blob)
+uint hb_blob_get_length(hb_blob_t * blob)
 {
 	return blob->length;
 }
@@ -258,7 +258,7 @@ unsigned int hb_blob_get_length(hb_blob_t * blob)
  *
  * Since: 0.9.2
  **/
-const char * hb_blob_get_data(hb_blob_t * blob, unsigned int * length)
+const char * hb_blob_get_data(hb_blob_t * blob, uint * length)
 {
 	ASSIGN_PTR(length, blob->length);
 	return blob->data;
@@ -278,7 +278,7 @@ const char * hb_blob_get_data(hb_blob_t * blob, unsigned int * length)
  *
  * Since: 0.9.2
  **/
-char * hb_blob_get_data_writable(hb_blob_t * blob, unsigned int * length)
+char * hb_blob_get_data_writable(hb_blob_t * blob, uint * length)
 {
 	if(!blob->try_make_writable()) {
 		ASSIGN_PTR(length, 0);

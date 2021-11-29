@@ -170,7 +170,7 @@ void PluralMapTest::TestCopyAndAssign() {
     addVariant(PluralMapBase::FEW, "picklefew", control);
     {
         PluralMapForPluralMapTest *rhs = new PluralMapForPluralMapTest();
-        if (rhs == NULL) {
+        if(rhs == NULL) {
             errln("Memory allocation error.");
             return;
         }
@@ -183,7 +183,7 @@ void PluralMapTest::TestCopyAndAssign() {
     }
     {
         PluralMapForPluralMapTest *rhs = new PluralMapForPluralMapTest();
-        if (rhs == NULL) {
+        if(rhs == NULL) {
             errln("Memory allocation error.");
             return;
         }
@@ -210,7 +210,7 @@ void PluralMapTest::addVariant(
         PluralMapForPluralMapTest &map) {
     UErrorCode status = U_ZERO_ERROR;
     UnicodeString *current = map.getMutable(v, status);
-    if (!assertSuccess("", status)) {
+    if(!assertSuccess("", status)) {
         return;
     }
     (*current) = value;

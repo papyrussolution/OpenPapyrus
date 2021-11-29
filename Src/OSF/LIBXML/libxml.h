@@ -2671,7 +2671,7 @@ int xmlNop(void);
 	#ifdef __GNUC__
 		#ifdef PIC
 			#ifdef linux
-				#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
+				#if(__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
 					//#include "elfgcchack.h"
 				#endif
 			#endif

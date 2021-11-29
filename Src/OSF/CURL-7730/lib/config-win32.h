@@ -179,7 +179,7 @@
 #define RETSIGTYPE void /* Define to the return type of signal handlers (int or void). */
 /* Define if ssize_t is not an available 'typedefed' type. */
 #ifndef _SSIZE_T_DEFINED
-	#if (defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__) || defined(__MINGW32__)
+	#if(defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__) || defined(__MINGW32__)
 	#elif defined(_WIN64)
 		#define _SSIZE_T_DEFINED
 		#define ssize_t __int64
@@ -280,7 +280,7 @@
 
 /* Define if the compiler supports the 'long long' data type. */
 #if defined(__MINGW32__) || defined(__WATCOMC__)      || \
-	(defined(_MSC_VER)   && (_MSC_VER     >= 1310)) || \
+	(defined(_MSC_VER) && (_MSC_VER     >= 1310)) || \
 	(defined(__BORLANDC__) && (__BORLANDC__ >= 0x561))
 #define HAVE_LONGLONG 1
 #endif
@@ -340,7 +340,7 @@
 #ifndef WINVER
 #define WINVER VS2008_DEF_TARGET
 #endif
-#if (_WIN32_WINNT < VS2008_MIN_TARGET) || (WINVER < VS2008_MIN_TARGET)
+#if(_WIN32_WINNT < VS2008_MIN_TARGET) || (WINVER < VS2008_MIN_TARGET)
 #error VS2008 does not support Windows build targets prior to Windows 2000
 #endif
 #endif
@@ -353,7 +353,7 @@
 #ifndef WINVER
 #define WINVER VS2012_DEF_TARGET
 #endif
-#if (_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
+#if(_WIN32_WINNT < VS2012_MIN_TARGET) || (WINVER < VS2012_MIN_TARGET)
 #if defined(_USING_V110_SDK71_)
 #error VS2012 does not support Windows build targets prior to Windows XP
 #else
@@ -420,7 +420,7 @@
 /*                        LARGE FILE SUPPORT                        */
 /* ---------------------------------------------------------------- */
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
-	#if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
+	#if(_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
 		#define USE_WIN32_LARGE_FILES
 	#else
 		#define USE_WIN32_SMALL_FILES
@@ -479,13 +479,13 @@
 	#define CURL_DISABLE_LDAP 1
 #endif
 // @sobolev {
-#if (_MSC_VER < 1900) 
+#if(_MSC_VER < 1900) 
 	#define CURL_DISABLE_LDAP 1
 #endif
 // } @sobolev 
 // Define to use the Windows crypto library. 
 #if !defined(CURL_WINDOWS_APP)
-	#if (_MSC_VER >= 1900) // @sobolev
+	#if(_MSC_VER >= 1900) // @sobolev
 		#define USE_WIN32_CRYPTO
 	#endif
 #endif

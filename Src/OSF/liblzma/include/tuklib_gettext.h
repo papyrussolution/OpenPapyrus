@@ -31,7 +31,7 @@
 			setlocale(LC_ALL, ""); \
 			bindtextdomain(package, localedir); \
 			textdomain(package); \
-		} while (0)
+		} while(0)
 #	define _(msgid) gettext(msgid)
 #else
 #	define tuklib_gettext_init(package, localedir) \

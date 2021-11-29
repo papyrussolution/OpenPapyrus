@@ -167,7 +167,7 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 		}
 
 		if(!etm) {
-			hmac_update(ctx, (uchar*)&seq, sizeof(uint32_t));
+			hmac_update(ctx, (uchar *)&seq, sizeof(uint32_t));
 			hmac_update(ctx, data, len);
 			hmac_final(ctx, crypto->hmacbuf, &finallen);
 		}
@@ -177,7 +177,7 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 
 		if(etm) {
 			PUSH_BE_U32(data, 0, len - etm_packet_offset);
-			hmac_update(ctx, (uchar*)&seq, sizeof(uint32_t));
+			hmac_update(ctx, (uchar *)&seq, sizeof(uint32_t));
 			hmac_update(ctx, data, len);
 			hmac_final(ctx, crypto->hmacbuf, &finallen);
 		}
@@ -249,14 +249,14 @@ int ssh_packet_hmac_verify(ssh_session session,
 
 	seq = htonl(session->recv_seq);
 
-	hmac_update(ctx, (uchar*)&seq, sizeof(uint32_t));
+	hmac_update(ctx, (uchar *)&seq, sizeof(uint32_t));
 	hmac_update(ctx, data, len);
 	hmac_final(ctx, hmacbuf, &hmaclen);
 
 #ifdef DEBUG_CRYPTO
 	ssh_log_hexdump("received mac", mac, hmaclen);
 	ssh_log_hexdump("Computed mac", hmacbuf, hmaclen);
-	ssh_log_hexdump("seq", (uchar*)&seq, sizeof(uint32_t));
+	ssh_log_hexdump("seq", (uchar *)&seq, sizeof(uint32_t));
 #endif
 	if(secure_memcmp(mac, hmacbuf, hmaclen) == 0) {
 		return 0;

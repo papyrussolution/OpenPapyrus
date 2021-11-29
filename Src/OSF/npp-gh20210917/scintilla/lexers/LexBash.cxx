@@ -1098,10 +1098,10 @@ void SCI_METHOD LexerBash::Fold(Sci_PositionU startPos, Sci_Position length, int
 		// Comment folding
 		if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			  && IsCommentLine(lineCurrent + 1, styler))
+			 && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			  && !IsCommentLine(lineCurrent + 1, styler))
+			 && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		if(style == SCE_SH_WORD) {

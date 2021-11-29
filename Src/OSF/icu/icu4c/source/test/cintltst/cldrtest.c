@@ -128,7 +128,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 					sameArray = FALSE;
 				}
 				if(strcmp(subBundleKey, "DateTimeElements") == 0
-				  && (subBundleArr[idx] < 1 || 7 < subBundleArr[idx])) {
+				 && (subBundleArr[idx] < 1 || 7 < subBundleArr[idx])) {
 					log_err("Value out of range with key \"%s\" at index %d in \"%s\" for locale \"%s\"\n",
 					    subBundleKey,
 					    idx,
@@ -138,7 +138,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			}
 			/* Special exception es_US and DateTimeElements */
 			if(sameArray
-			  && !(strcmp(locale, "es_US") == 0 && strcmp(subBundleKey, "DateTimeElements") == 0)) {
+			 && !(strcmp(locale, "es_US") == 0 && strcmp(subBundleKey, "DateTimeElements") == 0)) {
 				log_err("Integer vectors are the same with key \"%s\" in \"%s\" from root for locale \"%s\"\n",
 				    subBundleKey,
 				    ures_getKey(currentBundle),
@@ -150,7 +150,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 			UResourceBundle * subSubRootBundle = ures_getByIndex(subRootBundle, 0, NULL, &errorCode);
 
 			if(U_SUCCESS(errorCode)
-			  && (ures_getType(subSubBundle) == URES_ARRAY || ures_getType(subSubRootBundle) == URES_ARRAY)) {
+			 && (ures_getType(subSubBundle) == URES_ARRAY || ures_getType(subSubRootBundle) == URES_ARRAY)) {
 				/* Here is one of the recursive parts */
 				TestKeyInRootRecursive(subRootBundle, rootName, subBundle, locale);
 			}
@@ -250,7 +250,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 						    locale);
 					}
 					else if(subBundleKey != NULL
-					  && strcmp(subBundleKey, "DateTimePatterns") == 0) {
+					 && strcmp(subBundleKey, "DateTimePatterns") == 0) {
 						int32_t quoted = 0;
 						const UChar * localeStrItr = localeStr;
 						while(*localeStrItr) {
@@ -260,7 +260,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 							else if((quoted % 2) == 0) {
 								/* Search for unquoted characters */
 								if(4 <= idx && idx <= 7
-								  && (*localeStrItr == (UChar)0x6B /* k */
+								 && (*localeStrItr == (UChar)0x6B /* k */
 								 || *localeStrItr == (UChar)0x48 /* H */
 								 || *localeStrItr == (UChar)0x6D /* m */
 								 || *localeStrItr == (UChar)0x73 /* s */
@@ -275,7 +275,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 										locale);
 								}
 								else if(0 <= idx && idx <= 3
-								  && (*localeStrItr == (UChar)0x47 /* G */
+								 && (*localeStrItr == (UChar)0x47 /* G */
 								 || *localeStrItr == (UChar)0x79 /* y */
 								 || *localeStrItr == (UChar)0x4D /* M */
 								 || *localeStrItr == (UChar)0x64 /* d */
@@ -295,8 +295,8 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 						}
 					}
 					else if(idx == 4 && subBundleKey != NULL
-					  && strcmp(subBundleKey, "NumberElements") == 0
-					  && u_charDigitValue(localeStr[0]) != 0) {
+					 && strcmp(subBundleKey, "NumberElements") == 0
+					 && u_charDigitValue(localeStr[0]) != 0) {
 						log_err("key \"%s\" at index %d has a non-zero based number for locale \"%s\"\n",
 						    subBundleKey,
 						    idx,
@@ -304,7 +304,7 @@ static void TestKeyInRootRecursive(UResourceBundle * root, const char * rootName
 					}
 				}
 				(void)sameArray; /* Suppress set but not used warning. */
-/*                if (sameArray && strcmp(rootName, "root") == 0) {
+/*                if(sameArray && strcmp(rootName, "root") == 0) {
                     log_err("Arrays are the same with key \"%s\" in \"%s\" from root for locale \"%s\"\n",
                             subBundleKey,
                             ures_getKey(currentBundle),
@@ -501,7 +501,7 @@ static void TestLocaleStructure() {
         errorCode=U_ZERO_ERROR;
         strcpy(locName, uloc_getAvailable(locIndex));
         locNamePtr = strrchr(locName, '_');
-        if (locNamePtr) {
+        if(locNamePtr) {
  * locNamePtr = 0;
         }
         else {
@@ -724,9 +724,9 @@ static int32_t findStringSetMismatch(const char * currLoc, const UChar * string,
 		UChar32 testChar;
 		U16_NEXT(string, strIdx, langSize, testChar);
 		if(!uset_contains(exemplarSet, testChar)
-		  && testChar != 0x0020 && testChar != 0x00A0 && testChar != 0x002e && testChar != 0x002c && testChar != 0x002d &&
+		 && testChar != 0x0020 && testChar != 0x00A0 && testChar != 0x002e && testChar != 0x002c && testChar != 0x002d &&
 		    testChar != 0x0027
-		  && testChar != 0x005B && testChar != 0x005D && testChar != 0x2019 && testChar != 0x0f0b && testChar != 0x200C &&
+		 && testChar != 0x005B && testChar != 0x005D && testChar != 0x2019 && testChar != 0x0f0b && testChar != 0x200C &&
 		    testChar != 0x200D) {
 			if(!ignoreNumbers || (ignoreNumbers && (testChar < 0x30 || testChar > 0x39))) {
 				uset_close(exemplarSet);
@@ -920,7 +920,7 @@ static void VerifyTranslation(void)
 		if(mergedExemplarSet == NULL /*|| (getTestOption(QUICK_OPTION) && uset_size() > 2048)*/) {
 			log_verbose("skipping test for %s\n", currLoc);
 		}
-		//else if (uprv_strncmp(currLoc,"bem",3) == 0 || uprv_strncmp(currLoc,"mgo",3) == 0 ||
+		//else if(uprv_strncmp(currLoc,"bem",3) == 0 || uprv_strncmp(currLoc,"mgo",3) == 0 ||
 		// uprv_strncmp(currLoc,"nl",2) == 0) {
 		//    log_verbose("skipping test for %s, some month and country names known to use aux exemplars\n",
 		// currLoc);

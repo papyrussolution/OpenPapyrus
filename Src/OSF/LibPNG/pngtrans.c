@@ -220,7 +220,7 @@ void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in png_do_invert");
 	/* This test removed from libpng version 1.0.13 and 1.2.0:
-	 * if (row_info->bit_depth == 1 &&
+	 * if(row_info->bit_depth == 1 &&
 	 */
 	if(row_info->color_type == PNG_COLOR_TYPE_GRAY) {
 		png_bytep rp = row;

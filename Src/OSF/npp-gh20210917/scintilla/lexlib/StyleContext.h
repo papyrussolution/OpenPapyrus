@@ -26,7 +26,7 @@ class StyleContext {
 	Sci_Position offsetRelative;
 
 	void GetNextChar() {
-		if (multiByteAccess) {
+		if(multiByteAccess) {
 			chNext = multiByteAccess->GetCharacterAndWidth(currentPos+width, &widthNext);
 		} else {
 			chNext = static_cast<unsigned char>(styler.SafeGetCharAt(currentPos+width, 0));
@@ -34,7 +34,7 @@ class StyleContext {
 		}
 		// End of line determined from line end position, allowing CR, LF,
 		// CRLF and Unicode line ends as set by document.
-		if (currentLine < lineDocEnd)
+		if(currentLine < lineDocEnd)
 			atLineEnd = static_cast<Sci_Position>(currentPos) >= (lineStartNext-1);
 		else // Last line
 			atLineEnd = static_cast<Sci_Position>(currentPos) >= lineStartNext;
@@ -72,7 +72,7 @@ public:
 		width(0),
 		chNext(0),
 		widthNext(1) {
-		if (styler.Encoding() != EncodingType::eightBit) {
+		if(styler.Encoding() != EncodingType::eightBit) {
 			multiByteAccess = styler.MultiByteAccess();
 		}
 		styler.StartAt(startPos /*, chMask*/);
@@ -80,7 +80,7 @@ public:
 		currentLine = styler.GetLine(startPos);
 		lineStartNext = styler.LineStart(currentLine+1);
 		lengthDocument = static_cast<Sci_PositionU>(styler.Length());
-		if (endPos == lengthDocument)
+		if(endPos == lengthDocument)
 			endPos++;
 		lineDocEnd = styler.GetLine(lengthDocument);
 		atLineStart = static_cast<Sci_PositionU>(styler.LineStart(currentLine)) == startPos;
@@ -104,9 +104,9 @@ public:
 		return currentPos < endPos;
 	}
 	void Forward() {
-		if (currentPos < endPos) {
+		if(currentPos < endPos) {
 			atLineStart = atLineEnd;
-			if (atLineStart) {
+			if(atLineStart) {
 				currentLine++;
 				lineStartNext = styler.LineStart(currentLine+1);
 			}
@@ -130,10 +130,10 @@ public:
 	}
 	void ForwardBytes(Sci_Position nb) {
 		const Sci_PositionU forwardPos = currentPos + nb;
-		while (forwardPos > currentPos) {
+		while(forwardPos > currentPos) {
 			const Sci_PositionU currentPosStart = currentPos;
 			Forward();
-			if (currentPos == currentPosStart) {
+			if(currentPos == currentPosStart) {
 				// Reached end
 				return;
 			}
@@ -158,10 +158,10 @@ public:
 		return static_cast<unsigned char>(styler.SafeGetCharAt(currentPos+n, chDefault));
 	}
 	int GetRelativeCharacter(Sci_Position n) {
-		if (n == 0)
+		if(n == 0)
 			return ch;
-		if (multiByteAccess) {
-			if ((currentPosLastRelative != currentPos) ||
+		if(multiByteAccess) {
+			if((currentPosLastRelative != currentPos) ||
 				((n > 0) && ((offsetRelative < 0) || (n < offsetRelative))) ||
 				((n < 0) && ((offsetRelative > 0) || (n > offsetRelative)))) {
 				posRelative = currentPos;
@@ -186,16 +186,16 @@ public:
 		return (ch == static_cast<unsigned char>(ch0)) && (chNext == static_cast<unsigned char>(ch1));
 	}
 	bool Match(const char *s) {
-		if (ch != static_cast<unsigned char>(*s))
+		if(ch != static_cast<unsigned char>(*s))
 			return false;
 		s++;
-		if (!*s)
+		if(!*s)
 			return true;
-		if (chNext != static_cast<unsigned char>(*s))
+		if(chNext != static_cast<unsigned char>(*s))
 			return false;
 		s++;
 		for (int n=2; *s; n++) {
-			if (*s != styler.SafeGetCharAt(currentPos+n, 0))
+			if(*s != styler.SafeGetCharAt(currentPos+n, 0))
 				return false;
 			s++;
 		}

@@ -31,7 +31,7 @@
 using namespace CFF;
 
 struct remap_sid_t : hb_inc_bimap_t {
-	unsigned int add(unsigned int sid)
+	uint add(uint sid)
 	{
 		if((sid != CFF_UNDEF_SID) && !is_std_std(sid))
 			return offset_sid(hb_inc_bimap_t::add(unoffset_sid(sid)));
@@ -39,7 +39,7 @@ struct remap_sid_t : hb_inc_bimap_t {
 			return sid;
 	}
 
-	unsigned int operator[](unsigned int sid) const
+	uint operator[](uint sid) const
 	{
 		if(is_std_std(sid) || (sid == CFF_UNDEF_SID))
 			return sid;
@@ -47,17 +47,17 @@ struct remap_sid_t : hb_inc_bimap_t {
 			return offset_sid(get(unoffset_sid(sid)));
 	}
 
-	static const unsigned int num_std_strings = 391;
+	static const uint num_std_strings = 391;
 
-	static bool is_std_std(unsigned int sid) {
+	static bool is_std_std(uint sid) {
 		return sid < num_std_strings;
 	}
 
-	static unsigned int offset_sid(unsigned int sid) {
+	static uint offset_sid(uint sid) {
 		return sid + num_std_strings;
 	}
 
-	static unsigned int unoffset_sid(unsigned int sid) {
+	static uint unoffset_sid(uint sid) {
 		return sid - num_std_strings;
 	}
 };
@@ -92,7 +92,7 @@ struct cff1_top_dict_values_mod_t : cff1_top_dict_values_t {
 		return base->get_count() + SUPER::get_count();
 	}
 
-	const cff1_top_dict_val_t &get_value(unsigned int i) const
+	const cff1_top_dict_val_t &get_value(uint i) const
 	{
 		if(i < base->get_count())
 			return (*base)[i];
@@ -100,7 +100,7 @@ struct cff1_top_dict_values_mod_t : cff1_top_dict_values_t {
 			return SUPER::values[i - base->get_count()];
 	}
 
-	const cff1_top_dict_val_t &operator [](unsigned int i) const {
+	const cff1_top_dict_val_t &operator [](uint i) const {
 		return get_value(i);
 	}
 
@@ -117,14 +117,14 @@ protected:
 
 struct top_dict_modifiers_t {
 	top_dict_modifiers_t (const cff1_sub_table_info_t &info_,
-	    const unsigned int (&nameSIDs_)[name_dict_values_t::ValCount])
+	    const uint (&nameSIDs_)[name_dict_values_t::ValCount])
 		: info(info_),
 		nameSIDs(nameSIDs_)
 	{
 	}
 
 	const cff1_sub_table_info_t &info;
-	const unsigned int    (&nameSIDs)[name_dict_values_t::ValCount];
+	const uint    (&nameSIDs)[name_dict_values_t::ValCount];
 };
 
 struct cff1_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<cff1_top_dict_val_t>{
@@ -266,12 +266,12 @@ private:
 
 struct range_list_t : hb_vector_t<code_pair_t>{
 	/* replace the first glyph ID in the "glyph" field each range with a nLeft value */
-	bool complete(unsigned int last_glyph)
+	bool complete(uint last_glyph)
 	{
 		bool two_byte = false;
 		for(uint i = (*this).length; i > 0; i--) {
 			code_pair_t &pair = (*this)[i - 1];
-			unsigned int nLeft = last_glyph - pair.glyph - 1;
+			uint nLeft = last_glyph - pair.glyph - 1;
 			if(nLeft >= 0x100)
 				two_byte = true;
 			last_glyph = pair.glyph;
@@ -397,7 +397,7 @@ struct cff_subset_plan {
 	void plan_subset_encoding(const OT::cff1::accelerator_subset_t &acc, hb_subset_plan_t * plan)
 	{
 		const Encoding * encoding = acc.encoding;
-		unsigned int size0, size1, supp_size;
+		uint size0, size1, supp_size;
 		hb_codepoint_t code, last_code = CFF_UNDEF_CODE;
 		hb_vector_t<hb_codepoint_t> supp_codes;
 
@@ -410,7 +410,7 @@ struct cff_subset_plan {
 		supp_codes.init();
 
 		subset_enc_num_codes = plan->num_output_glyphs() - 1;
-		unsigned int glyph;
+		uint glyph;
 		for(glyph = 1; glyph < plan->num_output_glyphs(); glyph++) {
 			hb_codepoint_t old_glyph;
 			if(!plan->old_gid_for_new_gid(glyph, &old_glyph)) {
@@ -455,7 +455,7 @@ struct cff_subset_plan {
 
 	void plan_subset_charset(const OT::cff1::accelerator_subset_t &acc, hb_subset_plan_t * plan)
 	{
-		unsigned int size0, size_ranges;
+		uint size0, size_ranges;
 		hb_codepoint_t sid, last_sid = CFF_UNDEF_CODE;
 
 		if(UNLIKELY(!subset_charset_ranges.resize(0))) {
@@ -463,7 +463,7 @@ struct cff_subset_plan {
 			return;
 		}
 
-		unsigned int glyph;
+		uint glyph;
 		for(glyph = 1; glyph < plan->num_output_glyphs(); glyph++) {
 			hb_codepoint_t old_glyph;
 			if(!plan->old_gid_for_new_gid(glyph, &old_glyph)) {
@@ -503,7 +503,7 @@ struct cff_subset_plan {
 		sidmap.reset();
 
 		for(uint i = 0; i < name_dict_values_t::ValCount; i++) {
-			unsigned int sid = acc.topDict.nameSIDs[i];
+			uint sid = acc.topDict.nameSIDs[i];
 			if(sid != CFF_UNDEF_SID) {
 				(void)sidmap.add(sid);
 				topDictModSIDs[i] = sidmap[sid];
@@ -613,7 +613,7 @@ struct cff_subset_plan {
 			/* local subrs */
 			if(!subset_localsubrs.resize(orig_fdcount))
 				return false;
-			for(unsigned int fd = 0; fd < orig_fdcount; fd++) {
+			for(uint fd = 0; fd < orig_fdcount; fd++) {
 				subset_localsubrs[fd].init();
 				if(fdmap.has(fd)) {
 					if(!subr_subsetter.encode_localsubrs(fd, subset_localsubrs[fd]))
@@ -652,10 +652,10 @@ struct cff_subset_plan {
 	cff1_top_dict_values_mod_t topdict_mod;
 	cff1_sub_table_info_t info;
 
-	unsigned int num_glyphs;
-	unsigned int orig_fdcount;
-	unsigned int subset_fdcount;
-	unsigned int subset_fdselect_format;
+	uint num_glyphs;
+	uint orig_fdcount;
+	uint subset_fdcount;
+	uint subset_fdselect_format;
 	hb_vector_t<code_pair_t>   subset_fdselect_ranges;
 
 	/* font dict index remap table from fullset FDArray to subset FDArray.
@@ -672,7 +672,7 @@ struct cff_subset_plan {
 	bool gid_renum;
 	bool subset_encoding;
 	uint8_t subset_enc_format;
-	unsigned int subset_enc_num_codes;
+	uint subset_enc_num_codes;
 	range_list_t subset_enc_code_ranges;
 	hb_vector_t<code_pair_t>  subset_enc_supp_codes;
 
@@ -681,7 +681,7 @@ struct cff_subset_plan {
 	bool subset_charset;
 
 	remap_sid_t sidmap;
-	unsigned int topDictModSIDs[name_dict_values_t::ValCount];
+	uint topDictModSIDs[name_dict_values_t::ValCount];
 
 	bool desubroutinize;
 };
@@ -689,7 +689,7 @@ struct cff_subset_plan {
 static bool _serialize_cff1(hb_serialize_context_t * c,
     cff_subset_plan &plan,
     const OT::cff1::accelerator_subset_t  &acc,
-    unsigned int num_glyphs)
+    uint num_glyphs)
 {
 	/* private dicts & local subrs */
 	for(int i = (int)acc.privateDicts.length; --i >= 0;) {

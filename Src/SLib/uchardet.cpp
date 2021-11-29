@@ -281,7 +281,7 @@ protected:
 	//#define NUM_OF_ESC_CHARSETS  4
 	nsCodingStateMachine * mCodingSM[4];
 	uint32 mActiveSM;
-	const char *  mDetectedCharset;
+	const char * mDetectedCharset;
 };
 //
 //#include <nsHebrewProber.h>

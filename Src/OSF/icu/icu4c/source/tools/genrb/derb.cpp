@@ -201,7 +201,7 @@ extern int main(int argc, char * argv[]) {
 #if U_PLATFORM_HAS_WIN32_API
 			if(!absfilename) {
 				absfilename = (uprv_strlen(arg) > 2 && isalpha(arg[0])
-				  && arg[1] == ':' && arg[2] == U_FILE_SEP_CHAR);
+				 && arg[1] == ':' && arg[2] == U_FILE_SEP_CHAR);
 			}
 #endif
 			if(absfilename) {

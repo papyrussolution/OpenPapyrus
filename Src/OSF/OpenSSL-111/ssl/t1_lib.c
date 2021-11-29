@@ -985,8 +985,8 @@ int tls_check_sigalg_curve(const SSL * s, int curve)
 		if(lu == NULL)
 			continue;
 		if(lu->sig == EVP_PKEY_EC
-		  && lu->curve != NID_undef
-		  && curve == lu->curve)
+		 && lu->curve != NID_undef
+		 && curve == lu->curve)
 			return 1;
 	}
 
@@ -1031,7 +1031,7 @@ int tls12_check_peer_sigalg(SSL * s, uint16_t sig, EVP_PKEY * pkey)
 	if(lu == NULL
 	    || (SSL_IS_TLS13(s) && (lu->hash == NID_sha1 || lu->hash == NID_sha224))
 	    || (pkeyid != lu->sig
-	  && (lu->sig != EVP_PKEY_RSA_PSS || pkeyid != EVP_PKEY_RSA))) {
+	 && (lu->sig != EVP_PKEY_RSA_PSS || pkeyid != EVP_PKEY_RSA))) {
 		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS12_CHECK_PEER_SIGALG,
 		    SSL_R_WRONG_SIGNATURE_TYPE);
 		return 0;
@@ -1075,7 +1075,7 @@ int tls12_check_peer_sigalg(SSL * s, uint16_t sig, EVP_PKEY * pkey)
 			if(tls1_suiteb(s)) {
 				/* Check sigalg matches a permissible Suite B value */
 				if(sig != TLSEXT_SIGALG_ecdsa_secp256r1_sha256
-				  && sig != TLSEXT_SIGALG_ecdsa_secp384r1_sha384) {
+				 && sig != TLSEXT_SIGALG_ecdsa_secp384r1_sha384) {
 					SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
 					    SSL_F_TLS12_CHECK_PEER_SIGALG,
 					    SSL_R_WRONG_SIGNATURE_TYPE);
@@ -1203,7 +1203,7 @@ int ssl_cipher_disabled(SSL * s, const SSL_CIPHER * c, int op, int ecdhe)
 		 * in SSLv3 if we are a client
 		 */
 		if(min_tls == TLS1_VERSION && ecdhe
-		  && (c->algorithm_mkey & (SSL_kECDHE | SSL_kECDHEPSK)) != 0)
+		 && (c->algorithm_mkey & (SSL_kECDHE | SSL_kECDHEPSK)) != 0)
 			min_tls = SSL3_VERSION;
 
 		if((min_tls > s->s3->tmp.max_ver) || (c->max_tls < s->s3->tmp.min_ver))
@@ -1239,7 +1239,7 @@ int tls1_set_server_sigalgs(SSL * s)
 	 * the default algorithm for each certificate type
 	 */
 	if(s->s3->tmp.peer_cert_sigalgs == NULL
-	  && s->s3->tmp.peer_sigalgs == NULL) {
+	 && s->s3->tmp.peer_sigalgs == NULL) {
 		const uint16_t * sent_sigs;
 		size_t sent_sigslen = tls12_get_psigalgs(s, 1, &sent_sigs);
 
@@ -1507,7 +1507,7 @@ end:
 	 * performs any action
 	 */
 	if(s->session_ctx->decrypt_ticket_cb != NULL
-	  && (ret == SSL_TICKET_EMPTY
+	 && (ret == SSL_TICKET_EMPTY
 	    || ret == SSL_TICKET_NO_DECRYPT
 	    || ret == SSL_TICKET_SUCCESS
 	    || ret == SSL_TICKET_SUCCESS_RENEW)) {
@@ -1582,7 +1582,7 @@ static int tls12_sigalg_allowed(SSL * s, int op, const SIGALG_LOOKUP * lu)
 		return 0;
 	/* TODO(OpenSSL1.2) fully axe DSA/etc. in ClientHello per TLS 1.3 spec */
 	if(!s->server && !SSL_IS_DTLS(s) && s->s3->tmp.min_ver >= TLS1_3_VERSION
-	  && (lu->sig == EVP_PKEY_DSA || lu->hash_idx == SSL_MD_SHA1_IDX
+	 && (lu->sig == EVP_PKEY_DSA || lu->hash_idx == SSL_MD_SHA1_IDX
 	    || lu->hash_idx == SSL_MD_MD5_IDX
 	    || lu->hash_idx == SSL_MD_SHA224_IDX))
 		return 0;
@@ -1598,8 +1598,8 @@ static int tls12_sigalg_allowed(SSL * s, int op, const SIGALG_LOOKUP * lu)
 		if(s->server && SSL_IS_TLS13(s))
 			return 0;
 		if(!s->server
-		  && s->method->version == TLS_ANY_VERSION
-		  && s->s3->tmp.max_ver >= TLS1_3_VERSION) {
+		 && s->method->version == TLS_ANY_VERSION
+		 && s->s3->tmp.max_ver >= TLS1_3_VERSION) {
 			int i, num;
 			STACK_OF(SSL_CIPHER) *sk;
 
@@ -1669,7 +1669,7 @@ void ssl_set_sig_mask(uint32_t * pmask_a, SSL * s, int op)
 
 		/* If algorithm is disabled see if we can enable it */
 		if((clu->amask & disabled_mask) != 0
-		  && tls12_sigalg_allowed(s, op, lu))
+		 && tls12_sigalg_allowed(s, op, lu))
 			disabled_mask &= ~clu->amask;
 	}
 	*pmask_a |= disabled_mask;
@@ -1694,8 +1694,8 @@ int tls12_copy_sigalgs(SSL * s, WPACKET * pkt,
 		 */
 		if(rv == 0 && (!SSL_IS_TLS13(s)
 		    || (lu->sig != EVP_PKEY_RSA
-		  && lu->hash != NID_sha1
-		  && lu->hash != NID_sha224)))
+		 && lu->hash != NID_sha1
+		 && lu->hash != NID_sha224)))
 			rv = 1;
 	}
 	if(rv == 0)
@@ -2581,7 +2581,7 @@ static int tls12_get_cert_sigalg_idx(const SSL * s, const SIGALG_LOOKUP * lu)
 	if(clu == NULL
 	    || (clu->amask & s->s3->tmp.new_cipher->algorithm_auth) == 0
 	    || (clu->nid == EVP_PKEY_RSA_PSS
-	  && (s->s3->tmp.new_cipher->algorithm_mkey & SSL_kRSA) != 0))
+	 && (s->s3->tmp.new_cipher->algorithm_mkey & SSL_kRSA) != 0))
 		return -1;
 
 	return s->s3->tmp.valid_flags[sig_idx] & CERT_PKEY_VALID ? sig_idx : -1;
@@ -2841,7 +2841,7 @@ int tls_choose_sigalg(SSL * s, int fatalerrs)
 				sent_sigslen = tls12_get_psigalgs(s, 1, &sent_sigs);
 				for(i = 0; i < sent_sigslen; i++, sent_sigs++) {
 					if(lu->sigalg == *sent_sigs
-					  && has_usable_cert(s, lu, lu->sig_idx))
+					 && has_usable_cert(s, lu, lu->sig_idx))
 						break;
 				}
 				if(i == sent_sigslen) {
@@ -2875,7 +2875,7 @@ int tls_choose_sigalg(SSL * s, int fatalerrs)
 int SSL_CTX_set_tlsext_max_fragment_length(SSL_CTX * ctx, uint8_t mode)
 {
 	if(mode != TLSEXT_max_fragment_length_DISABLED
-	  && !IS_MAX_FRAGMENT_LENGTH_EXT_VALID(mode)) {
+	 && !IS_MAX_FRAGMENT_LENGTH_EXT_VALID(mode)) {
 		SSLerr(SSL_F_SSL_CTX_SET_TLSEXT_MAX_FRAGMENT_LENGTH,
 		    SSL_R_SSL3_EXT_INVALID_MAX_FRAGMENT_LENGTH);
 		return 0;
@@ -2888,7 +2888,7 @@ int SSL_CTX_set_tlsext_max_fragment_length(SSL_CTX * ctx, uint8_t mode)
 int SSL_set_tlsext_max_fragment_length(SSL * ssl, uint8_t mode)
 {
 	if(mode != TLSEXT_max_fragment_length_DISABLED
-	  && !IS_MAX_FRAGMENT_LENGTH_EXT_VALID(mode)) {
+	 && !IS_MAX_FRAGMENT_LENGTH_EXT_VALID(mode)) {
 		SSLerr(SSL_F_SSL_SET_TLSEXT_MAX_FRAGMENT_LENGTH,
 		    SSL_R_SSL3_EXT_INVALID_MAX_FRAGMENT_LENGTH);
 		return 0;

@@ -23,7 +23,6 @@
  *
  * Igalia Author(s): Frédéric Wang
  */
-
 #ifndef HB_OT_H_IN
 #error "Include <hb-ot.h> instead."
 #endif
@@ -172,17 +171,17 @@ typedef struct hb_ot_math_glyph_part_t {
 } hb_ot_math_glyph_part_t;
 
 /* Methods */
-HB_EXTERN hb_bool_t hb_ot_math_has_data(hb_face_t * face);
+HB_EXTERN hb_bool_t hb_ot_math_has_data(const hb_face_t * face);
 HB_EXTERN hb_position_t hb_ot_math_get_constant(hb_font_t * font, hb_ot_math_constant_t constant);
 HB_EXTERN hb_position_t hb_ot_math_get_glyph_italics_correction(hb_font_t * font, hb_codepoint_t glyph);
 HB_EXTERN hb_position_t hb_ot_math_get_glyph_top_accent_attachment(hb_font_t * font, hb_codepoint_t glyph);
 HB_EXTERN hb_bool_t hb_ot_math_is_glyph_extended_shape(hb_face_t * face, hb_codepoint_t glyph);
 HB_EXTERN hb_position_t hb_ot_math_get_glyph_kerning(hb_font_t * font, hb_codepoint_t glyph, hb_ot_math_kern_t kern, hb_position_t correction_height);
-HB_EXTERN unsigned int hb_ot_math_get_glyph_variants(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
-    unsigned int start_offset, unsigned int * variants_count/* IN/OUT */, hb_ot_math_glyph_variant_t * variants /* OUT */);
+HB_EXTERN uint hb_ot_math_get_glyph_variants(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
+    uint start_offset, uint * variants_count/* IN/OUT */, hb_ot_math_glyph_variant_t * variants /* OUT */);
 HB_EXTERN hb_position_t hb_ot_math_get_min_connector_overlap(hb_font_t * font, hb_direction_t direction);
-HB_EXTERN unsigned int hb_ot_math_get_glyph_assembly(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
-    unsigned int start_offset, unsigned int * parts_count/* IN/OUT */, hb_ot_math_glyph_part_t * parts/* OUT */, hb_position_t * italics_correction /* OUT */);
+HB_EXTERN uint hb_ot_math_get_glyph_assembly(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
+    uint start_offset, uint * parts_count/* IN/OUT */, hb_ot_math_glyph_part_t * parts/* OUT */, hb_position_t * italics_correction /* OUT */);
 
 HB_END_DECLS
 

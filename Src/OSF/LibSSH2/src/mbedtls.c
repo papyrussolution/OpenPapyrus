@@ -333,8 +333,8 @@ void _libssh2_mbedtls_rsa_free(libssh2_rsa_ctx * ctx)
 static uchar * gen_publickey_from_rsa(LIBSSH2_SESSION * session, mbedtls_rsa_context * rsa, size_t * keylen)
 {
 	ulong len;
-	uchar* key;
-	uchar* p;
+	uchar * key;
+	uchar * p;
 	int e_bytes = mbedtls_mpi_size(&rsa->E);
 	int n_bytes = mbedtls_mpi_size(&rsa->N);
 	/* Key form is "ssh-rsa" + e + n. */

@@ -40,10 +40,10 @@ namespace OT {
 	struct InstanceRecord {
 		friend struct fvar;
 
-		hb_array_t<const HBFixed> get_coordinates(unsigned int axis_count) const
+		hb_array_t<const HBFixed> get_coordinates(uint axis_count) const
 		{ return coordinatesZ.as_array(axis_count); }
 
-		bool sanitize(hb_sanitize_context_t * c, unsigned int axis_count) const
+		bool sanitize(hb_sanitize_context_t * c, uint axis_count) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) &&
@@ -173,18 +173,18 @@ public:
 			    c->check_range(get_instance(0), instanceCount, instanceSize));
 		}
 
-		unsigned int get_axis_count() const {
+		uint get_axis_count() const {
 			return axisCount;
 		}
 
 #ifndef HB_DISABLE_DEPRECATED
-		unsigned int get_axes_deprecated(unsigned int start_offset,
-		    unsigned int * axes_count /* IN/OUT */,
+		uint get_axes_deprecated(uint start_offset,
+		    uint * axes_count /* IN/OUT */,
 		    hb_ot_var_axis_t * axes_array /* OUT */) const
 		{
 			if(axes_count) {
 				hb_array_t<const AxisRecord> arr = get_axes().sub_array(start_offset, axes_count);
-				for(unsigned i = 0; i < arr.length; ++i)
+				for(uint i = 0; i < arr.length; ++i)
 					arr[i].get_axis_deprecated(&axes_array[i]);
 			}
 			return axisCount;
@@ -192,13 +192,13 @@ public:
 
 #endif
 
-		unsigned int get_axis_infos(unsigned int start_offset,
-		    unsigned int * axes_count /* IN/OUT */,
+		uint get_axis_infos(uint start_offset,
+		    uint * axes_count /* IN/OUT */,
 		    hb_ot_var_axis_info_t * axes_array /* OUT */) const
 		{
 			if(axes_count) {
 				hb_array_t<const AxisRecord> arr = get_axes().sub_array(start_offset, axes_count);
-				for(unsigned i = 0; i < arr.length; ++i)
+				for(uint i = 0; i < arr.length; ++i)
 					arr[i].get_axis_info(start_offset + i, &axes_array[i]);
 			}
 			return axisCount;
@@ -207,7 +207,7 @@ public:
 #ifndef HB_DISABLE_DEPRECATED
 		bool find_axis_deprecated(hb_tag_t tag, unsigned * axis_index, hb_ot_var_axis_t * info) const
 		{
-			unsigned i;
+			uint i;
 			if(!axis_index) axis_index = &i;
 			*axis_index = HB_OT_VAR_NO_AXIS_INDEX;
 			auto axes = get_axes();
@@ -218,33 +218,33 @@ public:
 
 		bool find_axis_info(hb_tag_t tag, hb_ot_var_axis_info_t * info) const
 		{
-			unsigned i;
+			uint i;
 			auto axes = get_axes();
 			return axes.lfind(tag, &i) && (axes[i].get_axis_info(i, info), true);
 		}
 
-		int normalize_axis_value(unsigned int axis_index, float v) const
+		int normalize_axis_value(uint axis_index, float v) const
 		{
 			return get_axes()[axis_index].normalize_axis_value(v);
 		}
 
-		float unnormalize_axis_value(unsigned int axis_index, int v) const
+		float unnormalize_axis_value(uint axis_index, int v) const
 		{
 			return get_axes()[axis_index].unnormalize_axis_value(v);
 		}
 
-		unsigned int get_instance_count() const {
+		uint get_instance_count() const {
 			return instanceCount;
 		}
 
-		hb_ot_name_id_t get_instance_subfamily_name_id(unsigned int instance_index) const
+		hb_ot_name_id_t get_instance_subfamily_name_id(uint instance_index) const
 		{
 			const InstanceRecord * instance = get_instance(instance_index);
 			if(UNLIKELY(!instance)) return HB_OT_NAME_ID_INVALID;
 			return instance->subfamilyNameID;
 		}
 
-		hb_ot_name_id_t get_instance_postscript_name_id(unsigned int instance_index) const
+		hb_ot_name_id_t get_instance_postscript_name_id(uint instance_index) const
 		{
 			const InstanceRecord * instance = get_instance(instance_index);
 			if(UNLIKELY(!instance)) return HB_OT_NAME_ID_INVALID;
@@ -253,8 +253,8 @@ public:
 			return HB_OT_NAME_ID_INVALID;
 		}
 
-		unsigned int get_instance_coords(unsigned int instance_index,
-		    unsigned int * coords_length,                /* IN/OUT */
+		uint get_instance_coords(uint instance_index,
+		    uint * coords_length,                /* IN/OUT */
 		    float * coords /* OUT */) const
 		{
 			const InstanceRecord * instance = get_instance(instance_index);
@@ -297,7 +297,7 @@ protected:
 		hb_array_t<const AxisRecord> get_axes() const
 		{ return hb_array(&(this+firstAxis), axisCount); }
 
-		const InstanceRecord * get_instance(unsigned int i) const
+		const InstanceRecord * get_instance(uint i) const
 		{
 			if(UNLIKELY(i >= instanceCount)) return nullptr;
 			return &StructAtOffset<InstanceRecord> (&StructAfter<InstanceRecord> (get_axes()),

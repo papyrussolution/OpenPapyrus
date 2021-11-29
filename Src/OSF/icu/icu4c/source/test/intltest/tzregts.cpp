@@ -21,7 +21,7 @@
 
 void TimeZoneRegressionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite NumberFormatRegressionTest");
+	// if(exec) logln((UnicodeString)"TestSuite NumberFormatRegressionTest");
 	switch(index) {
 		CASE(0, Test4052967);
 		CASE(1, Test4073209);
@@ -271,7 +271,7 @@ void TimeZoneRegressionTest:: Test4096952() {
         for (int32_t i=0; i < ZONES.length; ++i) {
             TimeZone *zone = TimeZone::createTimeZone(ZONES[i]);
             UnicodeString id;
-            if (zone->getID(id) != ZONES[i])
+            if(zone->getID(id) != ZONES[i])
                 errln("Fail: Test broken; zones not instantiating");
 
             ByteArrayOutputStream baos;
@@ -287,13 +287,13 @@ void TimeZoneRegressionTest:: Test4096952() {
             TimeZone frankenZone = (TimeZone) istream.readObject();
             //logln("Zone:        " + zone);
             //logln("FrankenZone: " + frankenZone);
-            if (!zone.equals(frankenZone)) {
+            if(!zone.equals(frankenZone)) {
                 logln("TimeZone " + zone.getID() +
                       " not equal to serialized/deserialized one");
                 pass = false;
             }
         }
-        if (!pass) errln("Fail: TimeZone serialization/equality bug");
+        if(!pass) errln("Fail: TimeZone serialization/equality bug");
     }
     catch (IOException e) {
         errln("Fail: " + e);
@@ -1012,7 +1012,7 @@ void TimeZoneRegressionTest::TestJ186() {
 	if(z.useDaylightTime()) {
 		errln("Fail: useDaylightTime true with start rule only");
 	}
-	//~if (z.getDSTSavings() != 0) {
+	//~if(z.getDSTSavings() != 0) {
 	//~    errln("Fail: dst savings != 0 with start rule only");
 	//~}
 	z.setEndRule(UCAL_MARCH, -1, UCAL_SUNDAY, 0, status);

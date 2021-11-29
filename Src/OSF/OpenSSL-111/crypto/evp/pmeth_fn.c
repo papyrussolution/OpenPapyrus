@@ -227,8 +227,8 @@ int EVP_PKEY_derive_set_peer(EVP_PKEY_CTX * ctx, EVP_PKEY * peer)
 		return -2;
 	}
 	if(ctx->operation != EVP_PKEY_OP_DERIVE
-	  && ctx->operation != EVP_PKEY_OP_ENCRYPT
-	  && ctx->operation != EVP_PKEY_OP_DECRYPT) {
+	 && ctx->operation != EVP_PKEY_OP_ENCRYPT
+	 && ctx->operation != EVP_PKEY_OP_DECRYPT) {
 		EVPerr(EVP_F_EVP_PKEY_DERIVE_SET_PEER,
 		    EVP_R_OPERATON_NOT_INITIALIZED);
 		return -1;

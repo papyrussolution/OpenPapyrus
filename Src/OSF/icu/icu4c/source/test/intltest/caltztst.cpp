@@ -180,13 +180,13 @@ UDate CalendarTimeZoneTest::date(int32_t y, int32_t m, int32_t d, int32_t hr, in
    CalendarTimeZoneTest::utcDate(int32_t y, int32_t m, int32_t d, int32_t hr, int32_t min, int32_t sec)
    {
     Calendar* cal = getCalendar();
-    if (cal == 0) return 0.0;
+    if(cal == 0) return 0.0;
     UErrorCode status = U_ZERO_ERROR;
     Date dt = date(y, m, d, hr, min, sec) +
         cal->get(Calendar::ZONE_OFFSET, status) -
         cal->get(Calendar::DST_OFFSET, status);
     releaseCalendar(cal);
-    if (U_FAILURE(status))
+    if(U_FAILURE(status))
     {
         errln("FAIL: Calendar::get failed");
         return 0.0;

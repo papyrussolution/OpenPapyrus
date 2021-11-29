@@ -68,35 +68,35 @@ int _sasldb_getdata(const sasl_utils_t *utils,
   sasl_getopt_t *getopt;
   const char *path = SASL_DB_PATH;
 
-  if (!utils) return SASL_BADPARAM;
-  if (!authid || !propName || !realm || !out || !max_out) {
+  if(!utils) return SASL_BADPARAM;
+  if(!authid || !propName || !realm || !out || !max_out) {
       utils->seterror(conn, 0,
 		      "Bad parameter in db_ndbm.c: _sasldb_getdata");    
       return SASL_BADPARAM;
   }
-  if (!db_ok) {
+  if(!db_ok) {
       utils->seterror(conn, 0, "Database not checked");
       return SASL_FAIL;
   }
 
   result = _sasldb_alloc_key(utils, authid, realm, propName,
 			     &key, &key_len);
-  if (result != SASL_OK) {
+  if(result != SASL_OK) {
       utils->seterror(conn, 0,
 		      "Could not allocate key in _sasldb_getdata");
       return result;
   }
 
-  if (utils->getcallback(conn, SASL_CB_GETOPT,
+  if(utils->getcallback(conn, SASL_CB_GETOPT,
                         (sasl_callback_ft *)&getopt, &cntxt) == SASL_OK) {
       const char *p;
-      if (getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
+      if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
 	 && p != NULL && *p != 0) {
           path = p;
       }
   }
   db = dbm_open(path, O_RDONLY, S_IRUSR | S_IWUSR);
-  if (! db) {
+  if(! db) {
       utils->seterror(cntxt, 0, "Could not open db `%s': %s",
 		      path, strerror(errno));
       result = SASL_FAIL;
@@ -105,7 +105,7 @@ int _sasldb_getdata(const sasl_utils_t *utils,
   dkey.dptr = key;
   dkey.dsize = key_len;
   dvalue = dbm_fetch(db, dkey);
-  if (! dvalue.dptr) {
+  if(! dvalue.dptr) {
       utils->seterror(cntxt, SASL_NOLOG,
 		      "user: %s@%s property: %s not found in sasldb %s",
 		      authid, realm, propName, path);
@@ -152,9 +152,9 @@ int _sasldb_putdata(const sasl_utils_t *utils,
   sasl_getopt_t *getopt;
   const char *path = SASL_DB_PATH;
 
-  if (!utils) return SASL_BADPARAM;
+  if(!utils) return SASL_BADPARAM;
 
-  if (!authid || !realm || !propName) {
+  if(!authid || !realm || !propName) {
       utils->seterror(conn, 0,
 		      "Bad parameter in db_ndbm.c: _sasldb_putdata");
       return SASL_BADPARAM;
@@ -162,16 +162,16 @@ int _sasldb_putdata(const sasl_utils_t *utils,
 
   result = _sasldb_alloc_key(utils, authid, realm, propName,
 			     &key, &key_len);
-  if (result != SASL_OK) {
+  if(result != SASL_OK) {
       utils->seterror(conn, 0,
 		      "Could not allocate key in _sasldb_putdata"); 
       return result;
   }
 
-  if (utils->getcallback(conn, SASL_CB_GETOPT,
+  if(utils->getcallback(conn, SASL_CB_GETOPT,
 			 (sasl_callback_ft *)&getopt, &cntxt) == SASL_OK) {
       const char *p;
-      if (getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
+      if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
 	 && p != NULL && *p != 0) {
           path = p;
       }
@@ -180,7 +180,7 @@ int _sasldb_putdata(const sasl_utils_t *utils,
   db = dbm_open(path,
 		O_RDWR | O_CREAT,
 		S_IRUSR | S_IWUSR);
-  if (! db) {
+  if(! db) {
       utils->seterror(conn, 0, "Could not open db `%s' for writing: %s",
 		      path, strerror(errno));
       utils->log(conn, SASL_LOG_ERR,
@@ -191,12 +191,12 @@ int _sasldb_putdata(const sasl_utils_t *utils,
   }
   dkey.dptr = key;
   dkey.dsize = key_len;
-  if (data) {
+  if(data) {
     datum dvalue;
     dvalue.dptr = (void *)data;
     if(!data_len) data_len = strlen(data);
     dvalue.dsize = data_len;
-    if (dbm_store(db, dkey, dvalue, DBM_REPLACE)) {
+    if(dbm_store(db, dkey, dvalue, DBM_REPLACE)) {
 	utils->seterror(conn, 0,
 			"Couldn't update record for %s@%s property %s "
 			"in db %s: %s", authid, realm, propName, path,
@@ -204,7 +204,7 @@ int _sasldb_putdata(const sasl_utils_t *utils,
 	result = SASL_FAIL;
     }
   } else {
-      if (dbm_delete(db, dkey)) {
+      if(dbm_delete(db, dkey)) {
 	  utils->seterror(conn, 0,
 			  "Couldn't delete record for %s@%s property %s "
 			  "in db %s: %s", authid, realm, propName, path,
@@ -238,18 +238,18 @@ int _sasl_check_db(const sasl_utils_t *utils,
 
     if(!utils) return SASL_BADPARAM;
 
-    if (utils->getcallback(conn, SASL_CB_GETOPT,
+    if(utils->getcallback(conn, SASL_CB_GETOPT,
 			   (sasl_callback_ft *)&getopt, &cntxt) == SASL_OK) {
 	const char *p;
-	if (getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
-	  && p != NULL && *p != 0) {
+	if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
+	 && p != NULL && *p != 0) {
 	    path = p;
 	}
     }
 
     db = utils->malloc(strlen(path) + SUFLEN);
 
-    if (db == NULL) {
+    if(db == NULL) {
 	ret = SASL_NOMEM;
     }
 
@@ -262,28 +262,28 @@ int _sasl_check_db(const sasl_utils_t *utils,
     }
 
 #ifdef DBM_SUFFIX
-    if (ret == SASL_OK) {
+    if(ret == SASL_OK) {
 	sprintf(db, "%s%s", path, DBM_SUFFIX);
 	ret = vf(cntxt, db, SASL_VRFY_PASSWD);
     }
 #else
-    if (ret == SASL_OK) {
+    if(ret == SASL_OK) {
 	sprintf(db, "%s.dir", path);
 	ret = vf(cntxt, db, SASL_VRFY_PASSWD);
     }
-    if (ret == SASL_OK) {
+    if(ret == SASL_OK) {
 	sprintf(db, "%s.pag", path);
 	ret = vf(cntxt, db, SASL_VRFY_PASSWD);
     }
 #endif
-    if (db) {
+    if(db) {
 	utils->free(db);
     }
-    if (ret == SASL_OK) {
+    if(ret == SASL_OK) {
 	db_ok = 1;
     }
 
-    if (ret == SASL_OK || ret == SASL_CONTINUE) {
+    if(ret == SASL_OK || ret == SASL_CONTINUE) {
 	return SASL_OK;
     } else {
 	utils->seterror(conn, 0,
@@ -315,11 +315,11 @@ sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t *utils,
 	return NULL;
     }
 
-    if (utils->getcallback(conn, SASL_CB_GETOPT,
+    if(utils->getcallback(conn, SASL_CB_GETOPT,
 			   (sasl_callback_ft *)&getopt, &cntxt) == SASL_OK) {
 	const char *p;
-	if (getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
-	  && p != NULL && *p != 0) {
+	if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK 
+	 && p != NULL && *p != 0) {
 	    path = p;
 	}
     }

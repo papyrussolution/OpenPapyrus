@@ -766,7 +766,7 @@ int i2d_ECPKParameters(const EC_GROUP *, uchar ** out);
 #define d2i_ECPKParameters_bio(bp, x) ASN1_d2i_bio_of(EC_GROUP, NULL, d2i_ECPKParameters, bp, x)
 #define i2d_ECPKParameters_bio(bp, x) ASN1_i2d_bio_of_const(EC_GROUP, i2d_ECPKParameters, bp, x)
 #define d2i_ECPKParameters_fp(fp, x) (EC_GROUP*)ASN1_d2i_fp(NULL, \
-	    (char *(*)())d2i_ECPKParameters, (fp), (uchar**)(x))
+	    (char *(*)())d2i_ECPKParameters, (fp), (uchar **)(x))
 #define i2d_ECPKParameters_fp(fp, x) ASN1_i2d_fp(i2d_ECPKParameters, (fp), \
 	    (uchar *)(x))
 

@@ -149,7 +149,7 @@ uint32_t computeCRC(const char *ptr, uint32_t len, uint32_t lastcrc) {
     for (i = 0; i <= 255; i++) {
         crc2 = i;
         for (j = 8; j > 0; j--) {
-            if ((crc2 & 1) == 1) {
+            if((crc2 & 1) == 1) {
                 crc2 = (crc2 >> 1) ^ CRC32_POLYNOMIAL;
             } else {
                 crc2 >>= 1;
@@ -253,7 +253,7 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
     while(srcIndex<srcLen) {
         U16_NEXT(src, srcIndex, srcLen, c);
 
-        if (U16_IS_LEAD(c) || U16_IS_TRAIL(c)) {
+        if(U16_IS_LEAD(c) || U16_IS_TRAIL(c)) {
             *status = U_ILLEGAL_CHAR_FOUND;
             fprintf(stderr, "Illegal Surrogate! \n");
             uprv_free(dest);
@@ -554,7 +554,7 @@ static char *printContainer(SResource *res, const char *container, const char *r
     write_tabs(out);
 
     resname = res->getKeyString(srBundle);
-    if (resname != NULL && *resname != 0) {
+    if(resname != NULL && *resname != 0) {
         sid = getID(id, resname, sid);
     } else {
         sid = getID(id, NULL, sid);
@@ -564,20 +564,20 @@ static char *printContainer(SResource *res, const char *container, const char *r
     write_utf8_file(out, UnicodeString(container));
     printAttribute("id", sid, (int32_t) uprv_strlen(sid));
 
-    if (resname != NULL) {
+    if(resname != NULL) {
         printAttribute("resname", resname, (int32_t) uprv_strlen(resname));
     }
 
-    if (mimetype != NULL) {
+    if(mimetype != NULL) {
         printAttribute("mime-type", mimetype, (int32_t) uprv_strlen(mimetype));
     }
 
-    if (restype != NULL) {
+    if(restype != NULL) {
         printAttribute("restype", restype, (int32_t) uprv_strlen(restype));
     }
 
     tabCount += 1;
-    if (res->fComment.fLength > 0) {
+    if(res->fComment.fLength > 0) {
         /* printComments will print the closing ">\n" */
         printComments(&res->fComment, resname, TRUE, status);
     } else {
@@ -633,7 +633,7 @@ string_write_xml(StringResource *res, const char * id, const char * /*language*/
 
     buf = convertAndEscape(&buf, 0, &bufLen, res->getBuffer(), res->length(), status);
 
-    if (U_FAILURE(*status)) {
+    if(U_FAILURE(*status)) {
         return;
     }
 
@@ -693,7 +693,7 @@ array_write_xml(ArrayResource *res, const char * id, const char * language, UErr
 
     current = res->fFirst;
 
-    while (current != NULL) {
+    while(current != NULL) {
         char c[256] = {0};
         char * subId = NULL;
 
@@ -817,7 +817,7 @@ bin_write_xml(BinaryResource *res, const char * id, const char * /*language*/, U
         uprv_strcpy(fileName, res->fFileName);
         f = uprv_strrchr(fileName, '\\');
 
-        if (f != NULL) {
+        if(f != NULL) {
             f++;
         } else {
             f = fileName;
@@ -825,7 +825,7 @@ bin_write_xml(BinaryResource *res, const char * id, const char * /*language*/, U
 
         ext = uprv_strrchr(fileName, '.');
 
-        if (ext == NULL) {
+        if(ext == NULL) {
             fprintf(stderr, "Error: %s is an unknown binary filename type.\n", fileName);
             exit(U_ILLEGAL_ARGUMENT_ERROR);
         }
@@ -922,7 +922,7 @@ table_write_xml(TableResource *res, const char * id, const char * language, bool
     struct SResource *current = NULL;
     char * sid = NULL;
 
-    if (U_FAILURE(*status)) {
+    if(U_FAILURE(*status)) {
         return ;
     }
 
@@ -934,7 +934,7 @@ table_write_xml(TableResource *res, const char * id, const char * language, bool
 
     current = res->fFirst;
 
-    while (current != NULL) {
+    while(current != NULL) {
         res_write_xml(current, sid, language, FALSE, status);
 
         if(U_FAILURE(*status)) {
@@ -956,11 +956,11 @@ table_write_xml(TableResource *res, const char * id, const char * language, bool
 void
 res_write_xml(struct SResource *res, const char * id,  const char * language, bool isTopLevel, UErrorCode *status) {
 
-    if (U_FAILURE(*status)) {
+    if(U_FAILURE(*status)) {
         return ;
     }
 
-    if (res != NULL) {
+    if(res != NULL) {
         switch (res->fType) {
         case URES_STRING:
              string_write_xml    (static_cast<StringResource *>(res), id, language, status);
@@ -1055,9 +1055,9 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
     temp = NULL;
 
 
-    if (language == NULL) {
+    if(language == NULL) {
 /*        lang = parseFilename(filename, lang);
-        if (lang == NULL) {*/
+        if(lang == NULL) {*/
             /* now check if locale name is valid or not
       * this is to cater for situation where
       * pegasusServer.txt contains
@@ -1115,11 +1115,11 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
     uprv_strcat(xmlfileName,outputFileName);
     uprv_strcat(xmlfileName,xliffExt);
 
-    if (writtenFilename) {
+    if(writtenFilename) {
         uprv_strncpy(writtenFilename, xmlfileName, writtenFilenameLen);
     }
 
-    if (U_FAILURE(*status)) {
+    if(U_FAILURE(*status)) {
         goto cleanup_bundle_write_xml;
     }
 

@@ -1130,12 +1130,12 @@ void PatternStringUtils::patternInfoToStringBuilder(const AffixPatternProvider& 
     bool perMilleReplacesPercent, UnicodeString & output) {
 	// Should the output render '+' where '-' would normally appear in the pattern?
 	bool plusReplacesMinusSign = (patternSignType == PATTERN_SIGN_TYPE_POS_SIGN)
-	  && !patternInfo.positiveHasPlusSign();
+	 && !patternInfo.positiveHasPlusSign();
 
 	// Should we use the affix from the negative subpattern?
 	// (If not, we will use the positive subpattern.)
 	bool useNegativeAffixPattern = patternInfo.hasNegativeSubpattern()
-	  && (patternSignType == PATTERN_SIGN_TYPE_NEG
+	 && (patternSignType == PATTERN_SIGN_TYPE_NEG
 	 || (patternInfo.negativeHasMinusSign() && (plusReplacesMinusSign || approximately)));
 
 	// Resolve the flags for the affix pattern.

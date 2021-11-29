@@ -38,7 +38,7 @@ void LocaleAliasTest::runIndexedTest( int32_t index, bool exec, const char *& na
         // keep the last index in sync with the condition in default:
 
         default:
-            if (index <= 5) { // keep this in sync with the last index!
+            if(index <= 5) { // keep this in sync with the last index!
                 name = "(test omitted by !UCONFIG_NO_FORMATTING)";
             } else {
                 name = "";
@@ -64,10 +64,10 @@ void LocaleAliasTest::TestCalendar() {
         //Test function "getLocale(ULocale.VALID_LOCALE)"
         const char * l1 = c1->getLocaleID(ULOC_VALID_LOCALE, status);
         const char * l2 = c2->getLocaleID(ULOC_VALID_LOCALE, status);
-        if (strcmp(newLoc.getName(), l1)!=0) {
+        if(strcmp(newLoc.getName(), l1)!=0) {
             errln("CalendarTest: newLoc!=l1: newLoc= "+UnicodeString(newLoc.getName()) +" l1= "+UnicodeString(l1));
         }
-        if (strcmp(l1, l2)!=0) {
+        if(strcmp(l1, l2)!=0) {
             errln("CalendarTest: l1!=l2: l1= "+UnicodeString(l1) +" l2= "+UnicodeString(l2));
         }
         if(!(c1==c2)) {
@@ -97,10 +97,10 @@ void LocaleAliasTest::TestDateFormat() {
         //Test function "getLocale"
         const char * l1 = df1->getLocaleID(ULOC_VALID_LOCALE, status);
         const char * l2 = df2->getLocaleID(ULOC_VALID_LOCALE, status);
-        if (strcmp(newLoc.getName(), l1)!=0) {
+        if(strcmp(newLoc.getName(), l1)!=0) {
             errln("CalendarTest: newLoc!=l1: newLoc= "+UnicodeString(newLoc.getName()) +" l1= "+UnicodeString(l1));
         }
-        if (strcmp(l1, l2)!=0) {
+        if(strcmp(l1, l2)!=0) {
             errln("TestDateFormat: l1!=l2: l1= "+UnicodeString(l1) +" l2= "+UnicodeString(l2));
         }
         if(!(df1==df2)) {
@@ -131,10 +131,10 @@ void LocaleAliasTest::TestCollation() {
         Locale l1 = c1->getLocale(ULOC_VALID_LOCALE, status);
         Locale l2 = c2->getLocale(ULOC_VALID_LOCALE, status);
 
-        if (strcmp(newLoc.getName(), l1.getName())!=0) {
+        if(strcmp(newLoc.getName(), l1.getName())!=0) {
             errln("CalendarTest: newLoc!=l1: newLoc= "+UnicodeString(newLoc.getName()) +" l1= "+UnicodeString(l1.getName()));
         }
-        if (strcmp(l1.getName(), l2.getName())!=0) {
+        if(strcmp(l1.getName(), l2.getName())!=0) {
             errln("CollationTest: l1!=l2: l1= "+UnicodeString(l1.getName()) +" l2= "+UnicodeString(l2.getName()));
         }
         if(!(c1==c2)) {
@@ -159,7 +159,7 @@ void LocaleAliasTest::TestULocale() {
         UnicodeString name1, name2;
         oldLoc.getDisplayName(name1);
         newLoc.getDisplayName(name2);
-        if (name1!=name2) {
+        if(name1!=name2) {
             errln("DisplayNames are not equal.  newLoc= "+UnicodeString(newLoc.getName())  +" oldLoc= "+UnicodeString(oldLoc.getName()));
         }
         log("ULocale(getDisplayName) old:");
@@ -251,19 +251,19 @@ void LocaleAliasTest::TestUResourceBundle() {
         UnicodeString us1("NULL");
         UnicodeString us2("NULL");
         rb1 = new ResourceBundle(testdatapath, oldLoc, status);
-        if (U_FAILURE(U_ZERO_ERROR)) {
+        if(U_FAILURE(U_ZERO_ERROR)) {
 
         } else {
             us1 = rb1->getStringEx("locale", status);
         }
         rb2 = new ResourceBundle(testdatapath, newLoc, status);
-        if (U_FAILURE(U_ZERO_ERROR)) {
+        if(U_FAILURE(U_ZERO_ERROR)) {
 
         } else {
             us2 = rb2->getStringEx("locale", status);
         }
         UnicodeString uNewLoc(newLoc.getName());
-        if (us1.compare(uNewLoc)!=0 || us1.compare(us2)!=0 || status!=U_ZERO_ERROR) {
+        if(us1.compare(uNewLoc)!=0 || us1.compare(us2)!=0 || status!=U_ZERO_ERROR) {
 
         }
         log("UResourceBundle(getStringEx) old:");
@@ -271,10 +271,10 @@ void LocaleAliasTest::TestUResourceBundle() {
         log("   new:");
         logln(us2);
 
-        if (rb1!=NULL) {
+        if(rb1!=NULL) {
             delete rb1;
         }
-        if (rb2!=NULL) {
+        if(rb2!=NULL) {
             delete rb2;
         }
     }

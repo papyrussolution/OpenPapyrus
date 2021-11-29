@@ -318,7 +318,7 @@ class U_I18N_API NullableValue {
 
     NullableValue<T>& operator = (const NullableValue<T>& other) {
         fNull = other.fNull;
-        if (!fNull) {
+        if(!fNull) {
             fValue = other.fValue;
         }
         return *this;
@@ -345,7 +345,7 @@ class U_I18N_API NullableValue {
     }
 
     T get(UErrorCode & status) const {
-        if (fNull) {
+        if(fNull) {
             status = U_UNDEFINED_VARIABLE;
         }
         return fValue;

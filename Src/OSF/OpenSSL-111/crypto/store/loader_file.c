@@ -241,10 +241,10 @@ static OSSL_STORE_INFO * try_decode_PKCS12(const char * pem_name,
 				OSSL_STORE_INFO * osi_ca = NULL;
 
 				if((ctx = sk_OSSL_STORE_INFO_new_null()) != NULL
-				  && (osi_pkey = OSSL_STORE_INFO_new_PKEY(pkey)) != NULL
-				  && sk_OSSL_STORE_INFO_push(ctx, osi_pkey) != 0
-				  && (osi_cert = OSSL_STORE_INFO_new_CERT(cert)) != NULL
-				  && sk_OSSL_STORE_INFO_push(ctx, osi_cert) != 0) {
+				 && (osi_pkey = OSSL_STORE_INFO_new_PKEY(pkey)) != NULL
+				 && sk_OSSL_STORE_INFO_push(ctx, osi_pkey) != 0
+				 && (osi_cert = OSSL_STORE_INFO_new_CERT(cert)) != NULL
+				 && sk_OSSL_STORE_INFO_push(ctx, osi_cert) != 0) {
 					ok = 1;
 					osi_pkey = NULL;
 					osi_cert = NULL;
@@ -403,7 +403,7 @@ static OSSL_STORE_INFO * try_decode_PrivateKey(const char * pem_name,
 			int slen;
 
 			if((slen = pem_check_suffix(pem_name, "PRIVATE KEY")) > 0
-			  && (ameth = EVP_PKEY_asn1_find_str(NULL, pem_name,
+			 && (ameth = EVP_PKEY_asn1_find_str(NULL, pem_name,
 			    slen)) != NULL) {
 				*matchcount = 1;
 				pkey = d2i_PrivateKey(ameth->pkey_id, NULL, &blob, len);
@@ -516,9 +516,9 @@ static OSSL_STORE_INFO * try_decode_params(const char * pem_name,
 		}
 
 		if(EVP_PKEY_set_type_str(pkey, pem_name, slen)
-		  && (ameth = EVP_PKEY_get0_asn1(pkey)) != NULL
-		  && ameth->param_decode != NULL
-		  && ameth->param_decode(pkey, &blob, len))
+		 && (ameth = EVP_PKEY_get0_asn1(pkey)) != NULL
+		 && ameth->param_decode != NULL
+		 && ameth->param_decode(pkey, &blob, len))
 			ok = 1;
 	}
 	else {
@@ -538,9 +538,9 @@ static OSSL_STORE_INFO * try_decode_params(const char * pem_name,
 				continue;
 
 			if(EVP_PKEY_set_type(tmp_pkey, ameth->pkey_id)
-			  && (ameth = EVP_PKEY_get0_asn1(tmp_pkey)) != NULL
-			  && ameth->param_decode != NULL
-			  && ameth->param_decode(tmp_pkey, &tmp_blob, len)) {
+			 && (ameth = EVP_PKEY_get0_asn1(tmp_pkey)) != NULL
+			 && ameth->param_decode != NULL
+			 && ameth->param_decode(tmp_pkey, &tmp_blob, len)) {
 				if(pkey != NULL)
 					EVP_PKEY_free(tmp_pkey);
 				else
@@ -596,7 +596,7 @@ static OSSL_STORE_INFO * try_decode_X509Certificate(const char * pem_name,
 		if(strcmp(pem_name, PEM_STRING_X509_TRUSTED) == 0)
 			ignore_trusted = 0;
 		else if(strcmp(pem_name, PEM_STRING_X509_OLD) != 0
-		  && strcmp(pem_name, PEM_STRING_X509) != 0)
+		 && strcmp(pem_name, PEM_STRING_X509) != 0)
 			/* No match */
 			return NULL;
 		*matchcount = 1;
@@ -1012,7 +1012,7 @@ err:
 	BUF_MEM_free(new_mem);
 
 	if(result != NULL
-	  && (t = OSSL_STORE_INFO_get_type(result)) == OSSL_STORE_INFO_EMBEDDED) {
+	 && (t = OSSL_STORE_INFO_get_type(result)) == OSSL_STORE_INFO_EMBEDDED) {
 		pem_name = new_pem_name =
 			ossl_store_info_get0_EMBEDDED_pem_name(result);
 		new_mem = ossl_store_info_get0_EMBEDDED_buffer(result);
@@ -1146,8 +1146,8 @@ static int file_name_check(OSSL_STORE_LOADER_CTX * ctx, const char * name)
 
 	/* If the expected type isn't supported, no name is accepted */
 	if(ctx->expected_type != 0
-	  && ctx->expected_type != OSSL_STORE_INFO_CERT
-	  && ctx->expected_type != OSSL_STORE_INFO_CRL)
+	 && ctx->expected_type != OSSL_STORE_INFO_CERT
+	 && ctx->expected_type != OSSL_STORE_INFO_CRL)
 		return 0;
 
 	/*
@@ -1166,7 +1166,7 @@ static int file_name_check(OSSL_STORE_LOADER_CTX * ctx, const char * name)
 	if(*p == 'r') {
 		p++;
 		if(ctx->expected_type != 0
-		  && ctx->expected_type != OSSL_STORE_INFO_CRL)
+		 && ctx->expected_type != OSSL_STORE_INFO_CRL)
 			return 0;
 	}
 	else if(ctx->expected_type == OSSL_STORE_INFO_CRL) {
@@ -1225,8 +1225,8 @@ static OSSL_STORE_INFO * file_load(OSSL_STORE_LOADER_CTX * ctx, const UI_METHOD 
 			}
 
 			if(ctx->_.dir.last_entry[0] != '.'
-			  && file_name_check(ctx, ctx->_.dir.last_entry)
-			  && !file_name_to_uri(ctx, ctx->_.dir.last_entry, &newname))
+			 && file_name_check(ctx, ctx->_.dir.last_entry)
+			 && !file_name_to_uri(ctx, ctx->_.dir.last_entry, &newname))
 				return NULL;
 
 			/*
@@ -1242,7 +1242,7 @@ static OSSL_STORE_INFO * file_load(OSSL_STORE_LOADER_CTX * ctx, const UI_METHOD 
 				ctx->_.dir.end_reached = 1;
 
 			if(newname != NULL
-			  && (result = OSSL_STORE_INFO_new_NAME(newname)) == NULL) {
+			 && (result = OSSL_STORE_INFO_new_NAME(newname)) == NULL) {
 				OPENSSL_free(newname);
 				OSSL_STOREerr(OSSL_STORE_F_FILE_LOAD, ERR_R_OSSL_STORE_LIB);
 				return NULL;
@@ -1327,8 +1327,8 @@ endloop:
 			return NULL;
 
 		if(result != NULL
-		  && ctx->expected_type != 0
-		  && ctx->expected_type != OSSL_STORE_INFO_get_type(result)) {
+		 && ctx->expected_type != 0
+		 && ctx->expected_type != OSSL_STORE_INFO_get_type(result)) {
 			OSSL_STORE_INFO_free(result);
 			goto again;
 		}

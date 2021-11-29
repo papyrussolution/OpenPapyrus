@@ -83,7 +83,7 @@
  *     const struct
  *     {
  * int          err_code;
- * const char *  err_msg;
+ * const char * err_msg;
  *     } ft_errors[] =
  *
  *     #include <freetype/fterrors.h>

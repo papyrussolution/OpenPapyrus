@@ -168,25 +168,25 @@ static void ColorizeMarkdownDoc(Sci_PositionU startPos, Sci_Position length, int
 		/* De-activated because it gets in the way of other valid indentation
 		 * schemes, for example multiple paragraphs inside a list item.
 		   // Code block
-		   else if (sc.state == SCE_MARKDOWN_CODEBK) {
+		   else if(sc.state == SCE_MARKDOWN_CODEBK) {
 		    bool d = true;
-		    if (IsNewline(sc.ch)) {
-		        if (sc.chNext != '\t') {
+		    if(IsNewline(sc.ch)) {
+		        if(sc.chNext != '\t') {
 		            for (int c = 1; c < 5; ++c) {
-		                if (sc.GetRelative(c) != ' ')
+		                if(sc.GetRelative(c) != ' ')
 		                    d = false;
 		            }
 		        }
 		    }
-		    else if (sc.atLineStart) {
-		        if (sc.ch != '\t' ) {
+		    else if(sc.atLineStart) {
+		        if(sc.ch != '\t' ) {
 		            for (int i = 0; i < 4; ++i) {
-		                if (sc.GetRelative(i) != ' ')
+		                if(sc.GetRelative(i) != ' ')
 		                    d = false;
 		            }
 		        }
 		    }
-		    if (!d)
+		    if(!d)
 		        sc.SetState(SCE_MARKDOWN_LINE_BEGIN);
 		   }
 		 */
@@ -292,7 +292,7 @@ static void ColorizeMarkdownDoc(Sci_PositionU startPos, Sci_Position length, int
 				sc.SetState(SCE_MARKDOWN_BLOCKQUOTE);
 			/*
 			   // Begin of code block
-			   else if (!HasPrevLineContent(sc) && (sc.chPrev == '\t' || precharCount >= 4))
+			   else if(!HasPrevLineContent(sc) && (sc.chPrev == '\t' || precharCount >= 4))
 			    sc.SetState(SCE_MARKDOWN_CODEBK);
 			 */
 			// HRule - Total of three or more hyphens, asterisks, or underscores

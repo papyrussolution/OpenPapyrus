@@ -1186,7 +1186,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 	    || conn->http_proxy.proxytype == CURLPROXY_HTTPS
 #endif
 	    )
-	  && conn->httpversion != 20) {
+	 && conn->httpversion != 20) {
 		/* We never send more than CURL_MAX_WRITE_SIZE bytes in one single chunk
 		   when we speak HTTPS, as if only a fraction of it is sent now, this data
 		   needs to fit into the normal read-callback buffer later on and that
@@ -3459,7 +3459,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 				   close the stream. */
 				if(0 == k->maxdownload
 #if defined(USE_NGHTTP2)
-				  && !((conn->handler->protocol & PROTO_FAMILY_HTTP) &&
+				 && !((conn->handler->protocol & PROTO_FAMILY_HTTP) &&
 				    conn->httpversion == 20)
 #endif
 				    )
@@ -3618,7 +3618,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 				else if(data->set.http_fail_on_error && (k->httpcode >= 400) &&
 				    ((k->httpcode != 401) || !conn->bits.user_passwd)
 #ifndef CURL_DISABLE_PROXY
-				  && ((k->httpcode != 407) || !conn->bits.proxy_user_passwd)
+				 && ((k->httpcode != 407) || !conn->bits.proxy_user_passwd)
 #endif
 				    ) {
 					/* serious error, go home! */

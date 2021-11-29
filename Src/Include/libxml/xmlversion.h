@@ -224,7 +224,7 @@ extern "C" {
 #if 0 // @sobolev 1-->0 
 #define LIBXML_ICONV_ENABLED // Whether iconv support is available
 #endif
-#if 0
+#if 0 // @v11.2.5 ICU теперь включен в общий пул зависимостей, однако, есть некоторые сложности в подключением его в LIBXML
 	#define LIBXML_ICU_ENABLED // Whether icu support is available
 #endif
 #if 1
@@ -277,7 +277,7 @@ extern "C" {
  * Macro used to signal to GCC unused function parameters
  */
 #ifndef ATTRIBUTE_UNUSED
-	#if ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
+	#if((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
 		#define ATTRIBUTE_UNUSED __attribute__((unused))
 	#else
 		#define ATTRIBUTE_UNUSED
@@ -289,7 +289,7 @@ extern "C" {
  * Macro used to indicate to GCC this is an allocator function
  */
 #ifndef LIBXML_ATTR_ALLOC_SIZE
-	#if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)))
+	#if((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)))
 		#define LIBXML_ATTR_ALLOC_SIZE(x) __attribute__((alloc_size(x)))
 	#else
 		#define LIBXML_ATTR_ALLOC_SIZE(x)
@@ -303,7 +303,7 @@ extern "C" {
  * Macro used to indicate to GCC the parameter are printf like
  */
 #ifndef LIBXML_ATTR_FORMAT
-	#if ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 3)))
+	#if((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 3)))
 		#define LIBXML_ATTR_FORMAT(fmt,args) __attribute__((__format__(__printf__,fmt,args)))
 	#else
 		#define LIBXML_ATTR_FORMAT(fmt,args)

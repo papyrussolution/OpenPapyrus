@@ -47,7 +47,7 @@ struct hb_face_t {
 	void * user_data;
 	hb_destroy_func_t destroy;
 
-	unsigned int index;             /* Face index in a collection, zero-based. */
+	uint index;             /* Face index in a collection, zero-based. */
 	mutable hb_atomic_int_t upem;   /* Units-per-EM. */
 	mutable hb_atomic_int_t num_glyphs; /* Number of glyphs. */
 
@@ -76,26 +76,26 @@ struct hb_face_t {
 		return blob;
 	}
 
-	HB_PURE_FUNC unsigned int get_upem() const
+	HB_PURE_FUNC uint get_upem() const
 	{
-		unsigned int ret = upem.get_relaxed();
+		uint ret = upem.get_relaxed();
 		if(UNLIKELY(!ret)) {
 			return load_upem();
 		}
 		return ret;
 	}
 
-	unsigned int get_num_glyphs() const
+	uint get_num_glyphs() const
 	{
-		unsigned int ret = num_glyphs.get_relaxed();
+		uint ret = num_glyphs.get_relaxed();
 		if(UNLIKELY(ret == UINT_MAX))
 			return load_num_glyphs();
 		return ret;
 	}
 
 private:
-	HB_INTERNAL unsigned int load_upem() const;
-	HB_INTERNAL unsigned int load_num_glyphs() const;
+	HB_INTERNAL uint load_upem() const;
+	HB_INTERNAL uint load_num_glyphs() const;
 };
 
 DECLARE_NULL_INSTANCE(hb_face_t);

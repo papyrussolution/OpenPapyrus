@@ -30,7 +30,7 @@ static int _asn1_check_infinite_end(const uchar ** p, long len)
 
 int ASN1_check_infinite_end(uchar ** p, long len)
 {
-	return _asn1_check_infinite_end((const uchar**)p, len);
+	return _asn1_check_infinite_end((const uchar **)p, len);
 }
 
 int ASN1_const_check_infinite_end(const uchar ** p, long len)

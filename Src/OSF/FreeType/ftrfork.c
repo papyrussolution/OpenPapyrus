@@ -699,8 +699,8 @@ static FT_Error raccess_guess_linux_double_from_file_name(FT_Library library,
 static char * raccess_make_file_name(FT_Memory memory, const char  * original_name, const char  * insertion)
 {
 	char *        new_name = NULL;
-	const char *  tmp;
-	const char *  slash;
+	const char * tmp;
+	const char * slash;
 	size_t new_length;
 	FT_Error error = FT_Err_Ok;
 	FT_UNUSED(error);

@@ -51,12 +51,12 @@ void
 TIFFWarning(const char * module, const char * fmt, ...)
 {
 	va_list ap;
-	if (_TIFFwarningHandler) {
+	if(_TIFFwarningHandler) {
 		va_start(ap, fmt);
 		(*_TIFFwarningHandler)(module, fmt, ap);
 		va_end(ap);
 	}
-	if (_TIFFwarningHandlerExt) {
+	if(_TIFFwarningHandlerExt) {
 		va_start(ap, fmt);
 		(*_TIFFwarningHandlerExt)(0, module, fmt, ap);
 		va_end(ap);
@@ -67,12 +67,12 @@ void
 TIFFWarningExt(thandle_t fd, const char * module, const char * fmt, ...)
 {
 	va_list ap;
-	if (_TIFFwarningHandler) {
+	if(_TIFFwarningHandler) {
 		va_start(ap, fmt);	
 		(*_TIFFwarningHandler)(module, fmt, ap);
 		va_end(ap);
 	}
-	if (_TIFFwarningHandlerExt) {
+	if(_TIFFwarningHandlerExt) {
 		va_start(ap, fmt);
 		(*_TIFFwarningHandlerExt)(fd, module, fmt, ap);
 		va_end(ap);

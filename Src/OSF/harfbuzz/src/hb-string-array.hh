@@ -59,7 +59,7 @@ HB_STRING_ARRAY_POOL_NAME =
 #undef _S
   }
 };
-static const unsigned int HB_STRING_ARRAY_OFFS_NAME[] =
+static const uint HB_STRING_ARRAY_OFFS_NAME[] =
 {
 #define _S(s) offsetof (union HB_STRING_ARRAY_TYPE_NAME, st.HB_PASTE(str, __LINE__)),
 #include HB_STRING_ARRAY_LIST
@@ -67,10 +67,10 @@ static const unsigned int HB_STRING_ARRAY_OFFS_NAME[] =
   sizeof (HB_STRING_ARRAY_TYPE_NAME)
 };
 
-static const unsigned int HB_STRING_ARRAY_LENG_NAME = ARRAY_LENGTH_CONST (HB_STRING_ARRAY_OFFS_NAME) - 1;
+static const uint HB_STRING_ARRAY_LENG_NAME = ARRAY_LENGTH_CONST (HB_STRING_ARRAY_OFFS_NAME) - 1;
 
 static inline hb_bytes_t
-HB_STRING_ARRAY_NAME (unsigned int i)
+HB_STRING_ARRAY_NAME (uint i)
 {
   assert (i < ARRAY_LENGTH (HB_STRING_ARRAY_OFFS_NAME) - 1);
   return hb_bytes_t (HB_STRING_ARRAY_POOL_NAME.str + HB_STRING_ARRAY_OFFS_NAME[i],

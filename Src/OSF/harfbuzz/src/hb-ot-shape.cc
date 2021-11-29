@@ -53,7 +53,7 @@ static inline bool _hb_apply_morx(hb_face_t * face, const hb_segment_properties_
 
 static void hb_ot_shape_collect_features(hb_ot_shape_planner_t * planner,
     const hb_feature_t   * user_features,
-    unsigned int num_user_features);
+    uint num_user_features);
 
 hb_ot_shape_planner_t::hb_ot_shape_planner_t (hb_face_t * face,
     const hb_segment_properties_t * props) :
@@ -75,8 +75,7 @@ hb_ot_shape_planner_t::hb_ot_shape_planner_t (hb_face_t * face,
 		shaper = &_hb_ot_complex_shaper_dumber;
 }
 
-void hb_ot_shape_planner_t::compile(hb_ot_shape_plan_t           &plan,
-    const hb_ot_shape_plan_key_t &key)
+void hb_ot_shape_planner_t::compile(hb_ot_shape_plan_t &plan, const hb_ot_shape_plan_key_t &key)
 {
 	plan.props = props;
 	plan.shaper = shaper;
@@ -151,27 +150,19 @@ void hb_ot_shape_planner_t::compile(hb_ot_shape_plan_t           &plan,
 			plan.apply_kern = true;
 #endif
 	}
-
-	plan.zero_marks = script_zero_marks &&
-	    !plan.apply_kerx &&
-	    (!plan.apply_kern
+	plan.zero_marks = script_zero_marks && !plan.apply_kerx && (!plan.apply_kern
 #ifndef HB_NO_OT_KERN
 	    || !hb_ot_layout_has_machine_kerning(face)
 #endif
 	    );
 	plan.has_gpos_mark = !!plan.map.get_1_mask(HB_TAG('m', 'a', 'r', 'k'));
 
-	plan.adjust_mark_positioning_when_zeroing = !plan.apply_gpos &&
-	    !plan.apply_kerx &&
-	    (!plan.apply_kern
+	plan.adjust_mark_positioning_when_zeroing = !plan.apply_gpos && !plan.apply_kerx && (!plan.apply_kern
 #ifndef HB_NO_OT_KERN
 	    || !hb_ot_layout_has_cross_kerning(face)
 #endif
 	    );
-
-	plan.fallback_mark_positioning = plan.adjust_mark_positioning_when_zeroing &&
-	    script_fallback_mark_positioning;
-
+	plan.fallback_mark_positioning = plan.adjust_mark_positioning_when_zeroing && script_fallback_mark_positioning;
 #ifndef HB_NO_AAT_SHAPE
 	/* Currently we always apply trak. */
 	plan.apply_trak = plan.requested_tracking && hb_aat_layout_has_tracking(face);
@@ -261,7 +252,7 @@ static const hb_ot_map_feature_t horizontal_features[] = {
 	{HB_TAG('r', 'c', 'l', 't'), F_GLOBAL},
 };
 
-static void hb_ot_shape_collect_features(hb_ot_shape_planner_t * planner, const hb_feature_t * user_features, unsigned int num_user_features)
+static void hb_ot_shape_collect_features(hb_ot_shape_planner_t * planner, const hb_feature_t * user_features, uint num_user_features)
 {
 	hb_ot_map_builder_t * map = &planner->map;
 	map->enable_feature(HB_TAG('r', 'v', 'r', 'n'));
@@ -382,7 +373,7 @@ struct hb_ot_shape_context_t {
 	hb_face_t * face;
 	hb_buffer_t * buffer;
 	const hb_feature_t * user_features;
-	unsigned int num_user_features;
+	uint num_user_features;
 
 	/* Transient stuff */
 	hb_direction_t target_direction;
@@ -402,7 +393,7 @@ static void hb_set_unicode_props(hb_buffer_t * buffer)
 	 *
 	 * https://www.unicode.org/reports/tr29/#Regex_Definitions
 	 */
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++) {
 		_hb_glyph_info_set_unicode_props(&info[i], buffer);
@@ -569,7 +560,7 @@ static hb_codepoint_t hb_vert_char_for(hb_codepoint_t u)
 static inline void hb_ot_rotate_chars(const hb_ot_shape_context_t * c)
 {
 	hb_buffer_t * buffer = c->buffer;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 
 	if(HB_DIRECTION_IS_BACKWARD(c->target_direction)) {
@@ -616,11 +607,11 @@ static inline void hb_ot_shape_setup_masks_fraction(const hb_ot_shape_context_t 
 		post_mask = c->plan->numr_mask | c->plan->frac_mask;
 	}
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++) {
 		if(info[i].codepoint == 0x2044u) { /* FRACTION SLASH */
-			unsigned int start = i, end = i + 1;
+			uint start = i, end = i + 1;
 			while(start &&
 			    _hb_glyph_info_get_general_category(&info[start - 1]) ==
 			    HB_UNICODE_GENERAL_CATEGORY_DECIMAL_NUMBER)
@@ -632,10 +623,10 @@ static inline void hb_ot_shape_setup_masks_fraction(const hb_ot_shape_context_t 
 
 			buffer->unsafe_to_break(start, end);
 
-			for(unsigned int j = start; j < i; j++)
+			for(uint j = start; j < i; j++)
 				info[j].mask |= pre_mask;
 			info[i].mask |= c->plan->frac_mask;
-			for(unsigned int j = i + 1; j < end; j++)
+			for(uint j = i + 1; j < end; j++)
 				info[j].mask |= post_mask;
 
 			i = end - 1;
@@ -665,7 +656,7 @@ static inline void hb_ot_shape_setup_masks(const hb_ot_shape_context_t * c)
 	for(uint i = 0; i < c->num_user_features; i++) {
 		const hb_feature_t * feature = &c->user_features[i];
 		if(!(feature->start == HB_FEATURE_GLOBAL_START && feature->end == HB_FEATURE_GLOBAL_END)) {
-			unsigned int shift;
+			uint shift;
 			hb_mask_t mask = map->get_mask(feature->tag, &shift);
 			buffer->set_masks(feature->value << shift, mask, feature->start, feature->end);
 		}
@@ -679,10 +670,10 @@ static void hb_ot_zero_width_default_ignorables(const hb_buffer_t * buffer)
 	    (buffer->flags & HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES))
 		return;
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	hb_glyph_position_t * pos = buffer->pos;
-	unsigned int i = 0;
+	uint i = 0;
 	for(i = 0; i < count; i++)
 		if(UNLIKELY(_hb_glyph_info_is_default_ignorable(&info[i])))
 			pos[i].x_advance = pos[i].y_advance = pos[i].x_offset = pos[i].y_offset = 0;
@@ -695,7 +686,7 @@ static void hb_ot_hide_default_ignorables(hb_buffer_t * buffer,
 	    (buffer->flags & HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES))
 		return;
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 
 	hb_codepoint_t invisible = buffer->invisible;
@@ -714,7 +705,7 @@ static void hb_ot_hide_default_ignorables(hb_buffer_t * buffer,
 static inline void hb_ot_map_glyphs_fast(hb_buffer_t * buffer)
 {
 	/* Normalization process sets up glyph_index(), we just copy it. */
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		info[i].codepoint = info[i].glyph_index();
@@ -724,7 +715,7 @@ static inline void hb_ot_map_glyphs_fast(hb_buffer_t * buffer)
 
 static inline void hb_synthesize_glyph_classes(hb_buffer_t * buffer)
 {
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++) {
 		hb_ot_layout_glyph_props_flags_t klass;
@@ -818,7 +809,7 @@ static inline void zero_mark_width(hb_glyph_position_t * pos)
 
 static inline void zero_mark_widths_by_gdef(hb_buffer_t * buffer, bool adjust_offsets)
 {
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		if(_hb_glyph_info_is_mark(&info[i])) {
@@ -831,7 +822,7 @@ static inline void zero_mark_widths_by_gdef(hb_buffer_t * buffer, bool adjust_of
 static inline void hb_ot_position_default(const hb_ot_shape_context_t * c)
 {
 	hb_direction_t direction = c->buffer->props.direction;
-	unsigned int count = c->buffer->len;
+	uint count = c->buffer->len;
 	hb_glyph_info_t * info = c->buffer->info;
 	hb_glyph_position_t * pos = c->buffer->pos;
 
@@ -860,7 +851,7 @@ static inline void hb_ot_position_default(const hb_ot_shape_context_t * c)
 
 static inline void hb_ot_position_complex(const hb_ot_shape_context_t * c)
 {
-	unsigned int count = c->buffer->len;
+	uint count = c->buffer->len;
 	hb_glyph_info_t * info = c->buffer->info;
 	hb_glyph_position_t * pos = c->buffer->pos;
 
@@ -939,14 +930,10 @@ static inline void hb_ot_position_complex(const hb_ot_shape_context_t * c)
 static inline void hb_ot_position(const hb_ot_shape_context_t * c)
 {
 	c->buffer->clear_positions();
-
 	hb_ot_position_default(c);
-
 	hb_ot_position_complex(c);
-
 	if(HB_DIRECTION_IS_BACKWARD(c->buffer->props.direction))
 		hb_buffer_reverse(c->buffer);
-
 	_hb_buffer_deallocate_gsubgpos_vars(c->buffer);
 }
 
@@ -954,15 +941,12 @@ static inline void hb_propagate_flags(hb_buffer_t * buffer)
 {
 	/* Propagate cluster-level glyph flags to be the same on all cluster glyphs.
 	 * Simplifies using them. */
-
 	if(!(buffer->scratch_flags & HB_BUFFER_SCRATCH_FLAG_HAS_UNSAFE_TO_BREAK))
 		return;
-
 	hb_glyph_info_t * info = buffer->info;
-
 	foreach_cluster(buffer, start, end)
 	{
-		unsigned int mask = 0;
+		uint mask = 0;
 		for(uint i = start; i < end; i++)
 			if(info[i].mask & HB_GLYPH_FLAG_UNSAFE_TO_BREAK) {
 				mask = HB_GLYPH_FLAG_UNSAFE_TO_BREAK;
@@ -981,56 +965,37 @@ static void hb_ot_shape_internal(hb_ot_shape_context_t * c)
 	c->buffer->deallocate_var_all();
 	c->buffer->scratch_flags = HB_BUFFER_SCRATCH_FLAG_DEFAULT;
 	if(LIKELY(!hb_unsigned_mul_overflows(c->buffer->len, HB_BUFFER_MAX_LEN_FACTOR))) {
-		c->buffer->max_len = hb_max(c->buffer->len * HB_BUFFER_MAX_LEN_FACTOR,
-			(uint)HB_BUFFER_MAX_LEN_MIN);
+		c->buffer->max_len = hb_max(c->buffer->len * HB_BUFFER_MAX_LEN_FACTOR, (uint)HB_BUFFER_MAX_LEN_MIN);
 	}
 	if(LIKELY(!hb_unsigned_mul_overflows(c->buffer->len, HB_BUFFER_MAX_OPS_FACTOR))) {
-		c->buffer->max_ops = hb_max(c->buffer->len * HB_BUFFER_MAX_OPS_FACTOR,
-			(uint)HB_BUFFER_MAX_OPS_MIN);
+		c->buffer->max_ops = hb_max(c->buffer->len * HB_BUFFER_MAX_OPS_FACTOR, (uint)HB_BUFFER_MAX_OPS_MIN);
 	}
-
 	/* Save the original direction, we use it later. */
 	c->target_direction = c->buffer->props.direction;
-
 	_hb_buffer_allocate_unicode_vars(c->buffer);
-
 	c->buffer->clear_output();
-
 	hb_ot_shape_initialize_masks(c);
 	hb_set_unicode_props(c->buffer);
 	hb_insert_dotted_circle(c->buffer, c->font);
-
 	hb_form_clusters(c->buffer);
-
 	hb_ensure_native_direction(c->buffer);
-
 	if(c->plan->shaper->preprocess_text)
 		c->plan->shaper->preprocess_text(c->plan, c->buffer, c->font);
-
 	hb_ot_substitute_pre(c);
 	hb_ot_position(c);
 	hb_ot_substitute_post(c);
-
 	hb_propagate_flags(c->buffer);
-
 	_hb_buffer_deallocate_unicode_vars(c->buffer);
-
 	c->buffer->props.direction = c->target_direction;
-
 	c->buffer->max_len = HB_BUFFER_MAX_LEN_DEFAULT;
 	c->buffer->max_ops = HB_BUFFER_MAX_OPS_DEFAULT;
 	c->buffer->deallocate_var_all();
 }
 
-hb_bool_t _hb_ot_shape(hb_shape_plan_t * shape_plan,
-    hb_font_t * font,
-    hb_buffer_t * buffer,
-    const hb_feature_t * features,
-    unsigned int num_features)
+hb_bool_t _hb_ot_shape(hb_shape_plan_t * shape_plan, hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features, uint num_features)
 {
 	hb_ot_shape_context_t c = {&shape_plan->ot, font, font->face, buffer, features, num_features};
 	hb_ot_shape_internal(&c);
-
 	return true;
 }
 
@@ -1063,12 +1028,12 @@ static void add_char(hb_font_t * font, hb_unicode_funcs_t * unicode, hb_bool_t m
  * Since: 0.9.2
  **/
 void hb_ot_shape_glyphs_closure(hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features,
-    unsigned int num_features, hb_set_t * glyphs)
+    uint num_features, hb_set_t * glyphs)
 {
 	const char * shapers[] = {"ot", nullptr};
 	hb_shape_plan_t * shape_plan = hb_shape_plan_create_cached(font->face, &buffer->props, features, num_features, shapers);
 	bool mirror = hb_script_get_horizontal_direction(buffer->props.script) == HB_DIRECTION_RTL;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		add_char(font, buffer->unicode, mirror, info[i].codepoint, glyphs);

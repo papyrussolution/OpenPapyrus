@@ -115,7 +115,7 @@ void TiXmlString ::operator =(const TiXmlString & copy)
 //{
 //    TCHAR * lookup;
 //    for (lookup = cstring; * lookup; lookup++)
-//        if (! isspace (* lookup))
+//        if(! isspace (* lookup))
 //            return false;
 //    return true;
 //}
@@ -221,7 +221,7 @@ void TiXmlString::append(const TCHAR * suffix)
 
 //unsigned TiXmlString::length () const
 //{
-//    if (allocated)
+//    if(allocated)
 //        // return lstrlen (cstring);
 //        return current_length;
 //    return 0;

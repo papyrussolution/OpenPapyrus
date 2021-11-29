@@ -21,7 +21,7 @@ using namespace std;
 
 FileNameStringSplitter::FileNameStringSplitter(const TCHAR * fileNameStr)
 {
-	//if (!fileNameStr) return;
+	//if(!fileNameStr) return;
 	TCHAR * pStr = NULL;
 	bool isInsideQuotes = false;
 	const int filePathLength = MAX_PATH;
@@ -1014,7 +1014,7 @@ int Notepad_plus::getHtmlXmlEncoding(const TCHAR * fileName) const
 		}
 		return -1;
 	}
-	else { // if (langT == L_HTML)
+	else { // if(langT == L_HTML)
 		const char * htmlHeaderRegExpr  =
 		    "<meta[ \\t]+http-equiv[ \\t]*=[ \\t\"']*Content-Type[ \\t\"']*content[ \\t]*= *[\"']text/html;[ \\t]+charset[ \\t]*=[ \\t]*.+[\"'] */*>";
 		const char * htmlHeaderRegExpr2 =
@@ -3210,7 +3210,7 @@ size_t Notepad_plus::getCurrentDocCharCount(UniMode u)
 		// it would not be appropriate for counting characters in a small selection.
 		size_t result = 0;
 		size_t endpos = _pEditView->execute(SCI_GETLENGTH);
-		uchar* buf = (uchar*)_pEditView->execute(SCI_GETCHARACTERPOINTER); // Scintilla doc said the pointer can be invalidated by any other "execute"
+		uchar * buf = (uchar *)_pEditView->execute(SCI_GETCHARACTERPOINTER); // Scintilla doc said the pointer can be invalidated by any other "execute"
 
 #ifdef _OPENMP // parallel counting of characters with OpenMP
 		if(endpos > 50000) { // starting threads takes time; for small files it is better to simply count in one thread
@@ -4689,7 +4689,7 @@ void Notepad_plus::fullScreenToggle()
 		fullscreenArea.left = 0;
 		fullscreenArea.right = GetSystemMetrics(SM_CXSCREEN);
 		fullscreenArea.bottom = GetSystemMetrics(SM_CYSCREEN);
-		//if (_winVersion != WV_NT)
+		//if(_winVersion != WV_NT)
 		{
 			HMONITOR currentMonitor; // Handle to monitor where fullscreen should go
 			MONITORINFO mi; // Info of that monitor
@@ -7216,8 +7216,8 @@ bool Notepad_plus::undoStreamComment(bool tryBlockComment)
 
 		//-- First, check if there is a stream-comment around the selectionStart position:
 		if((blnStartCommentBefore[iSelStart] && blnEndCommentAfter[iSelStart])
-		  && (!blnEndCommentBefore[iSelStart] || (posStartCommentBefore[iSelStart] >= posEndCommentBefore[iSelStart]))
-		  && (!blnStartCommentAfter[iSelStart] || (posEndCommentAfter[iSelStart] <= posStartCommentAfter[iSelStart]))) {
+		 && (!blnEndCommentBefore[iSelStart] || (posStartCommentBefore[iSelStart] >= posEndCommentBefore[iSelStart]))
+		 && (!blnStartCommentAfter[iSelStart] || (posEndCommentAfter[iSelStart] <= posStartCommentAfter[iSelStart]))) {
 			posStartComment = posStartCommentBefore[iSelStart];
 			posEndComment   = posEndCommentAfter[iSelStart];
 		}
@@ -7246,14 +7246,14 @@ bool Notepad_plus::undoStreamComment(bool tryBlockComment)
 			(posEndCommentAfter[iSelEnd] == -1 ? blnEndCommentAfter[iSelEnd] = false : blnEndCommentAfter[iSelEnd] = true);
 
 			if((blnStartCommentBefore[iSelEnd] && blnEndCommentAfter[iSelEnd])
-			  && (!blnEndCommentBefore[iSelEnd] || (posStartCommentBefore[iSelEnd] >= posEndCommentBefore[iSelEnd]))
-			  && (!blnStartCommentAfter[iSelEnd] || (posEndCommentAfter[iSelEnd] <= posStartCommentAfter[iSelEnd]))) {
+			 && (!blnEndCommentBefore[iSelEnd] || (posStartCommentBefore[iSelEnd] >= posEndCommentBefore[iSelEnd]))
+			 && (!blnStartCommentAfter[iSelEnd] || (posEndCommentAfter[iSelEnd] <= posStartCommentAfter[iSelEnd]))) {
 				posStartComment = posStartCommentBefore[iSelEnd];
 				posEndComment   = posEndCommentAfter[iSelEnd];
 			}
 			//-- Third, check if there is a stream-comment within the selected area:
 			else if((blnStartCommentAfter[iSelStart] && (posStartCommentAfter[iSelStart] < selectionEnd))
-			  && (blnEndCommentBefore[iSelEnd] && (posEndCommentBefore[iSelEnd] >  selectionStart))) {
+			 && (blnEndCommentBefore[iSelEnd] && (posEndCommentBefore[iSelEnd] >  selectionStart))) {
 				//-- If there are more than one stream-comment within the selection, take the first one
 				// after selectionStart!!
 				posStartComment = posStartCommentAfter[iSelStart];

@@ -425,7 +425,7 @@ void gumbo_tokenizer_set_is_current_node_foreign(GumboParser * parser, bool is_f
 //   GumboParser parser;
 //   GumboToken output;
 //   gumbo_tokenizer_state_init(&parser, text, strlen(text));
-//   while (gumbo_lex(&parser, &output)) {
+//   while(gumbo_lex(&parser, &output)) {
 //     ...do stuff with output.
 //     gumbo_token_destroy(&parser, &token);
 //   }

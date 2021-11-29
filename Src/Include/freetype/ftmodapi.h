@@ -175,7 +175,7 @@ typedef void
  */
 typedef FT_Module_Interface
 (* FT_Module_Requester)(FT_Module module,
-    const char *  name);
+    const char * name);
 
 /**************************************************************************
  *
@@ -283,7 +283,7 @@ FT_Add_Module(FT_Library library,
  */
 FT_EXPORT(FT_Module)
 FT_Get_Module(FT_Library library,
-    const char *  module_name);
+    const char * module_name);
 
 /**************************************************************************
  *

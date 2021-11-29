@@ -38,7 +38,7 @@ UTF8DocumentIterator::UTF8DocumentIterator(Document* doc, Sci::Position pos, Sci
 		PLATFORM_ASSERT(m_pos <= m_end);
 
 		// Ensure for release.
-		if (m_pos > m_end)
+		if(m_pos > m_end)
 		{
 				m_pos = m_end;
 		}
@@ -59,7 +59,7 @@ UTF8DocumentIterator::UTF8DocumentIterator(const UTF8DocumentIterator& copy) :
 		m_character[1] = copy.m_character[1];
 
 		// Ensure for release.
-		if (m_pos > m_end)
+		if(m_pos > m_end)
 		{
 				m_pos = m_end;
 		}
@@ -68,7 +68,7 @@ UTF8DocumentIterator::UTF8DocumentIterator(const UTF8DocumentIterator& copy) :
 UTF8DocumentIterator& UTF8DocumentIterator::operator ++ ()
 {
 	PLATFORM_ASSERT(m_pos < m_end);
-	if (m_utf16Length == 2 && m_characterIndex == 0)
+	if(m_utf16Length == 2 && m_characterIndex == 0)
 	{
 		m_characterIndex = 1;
 	}
@@ -76,7 +76,7 @@ UTF8DocumentIterator& UTF8DocumentIterator::operator ++ ()
 	{
 		m_pos += m_utf8Length;
 
-		if (m_pos > m_end)
+		if(m_pos > m_end)
 		{
 			m_pos = m_end;
 		}
@@ -88,7 +88,7 @@ UTF8DocumentIterator& UTF8DocumentIterator::operator ++ ()
 
 UTF8DocumentIterator& UTF8DocumentIterator::operator -- ()
 {
-	if (m_utf16Length == 2 && m_characterIndex == 1)
+	if(m_utf16Length == 2 && m_characterIndex == 1)
 	{
 		m_characterIndex = 0;
 	}
@@ -96,11 +96,11 @@ UTF8DocumentIterator& UTF8DocumentIterator::operator -- ()
 	{
 		--m_pos;
 		// Skip past the UTF-8 extension bytes
-		while (0x80 == (m_doc->CharAt(m_pos) & 0xC0) && m_pos > 0)
+		while(0x80 == (m_doc->CharAt(m_pos) & 0xC0) && m_pos > 0)
 			--m_pos;
 
 		readCharacter();
-		if (m_utf16Length == 2)
+		if(m_utf16Length == 2)
 		{
 			m_characterIndex = 1;
 		}
@@ -111,7 +111,7 @@ UTF8DocumentIterator& UTF8DocumentIterator::operator -- ()
 void UTF8DocumentIterator::readCharacter()
 {
 	unsigned char currentChar = m_doc->CharAt(m_pos);
-	if (currentChar & 0x80)
+	if(currentChar & 0x80)
 	{
 		int mask = 0x40;
 		int nBytes = 1;
@@ -120,7 +120,7 @@ void UTF8DocumentIterator::readCharacter()
 		{
 			mask >>= 1;
 			++nBytes;
-		} while (currentChar & mask);
+		} while(currentChar & mask);
 
 		int result = currentChar & m_firstByteMask[nBytes];
 		Sci::Position pos = m_pos;
@@ -129,13 +129,13 @@ void UTF8DocumentIterator::readCharacter()
 		// If a byte does not start with 10xxxxxx then it's not part of the
 		// the code. Therefore invalid UTF-8 encodings are dealt with, simply by stopping when
 		// the UTF8 extension bytes are no longer valid.
-		while ((--nBytes) && (pos < m_end) && (0x80 == ((currentChar = m_doc->CharAt(++pos)) & 0xC0)))
+		while((--nBytes) && (pos < m_end) && (0x80 == ((currentChar = m_doc->CharAt(++pos)) & 0xC0)))
 		{
 			result = (result << 6) | (currentChar & 0x3F);
 			++m_utf8Length;
 		}
 
-		if (result >= 0x10000)
+		if(result >= 0x10000)
 		{
 			result -= 0x10000;
 			m_utf16Length = 2;

@@ -55,7 +55,7 @@ void *   _mi_arena_alloc(size_t size, bool* commit, bool* large, bool* is_pinned
 void *   _mi_arena_alloc_aligned(size_t size, size_t alignment, bool* commit, bool* large, bool* is_pinned, bool* is_zero, size_t* memid, mi_os_tld_t* tld);
 
 // Constants
-#if (MI_INTPTR_SIZE==8)
+#if(MI_INTPTR_SIZE==8)
 #define MI_HEAP_REGION_MAX_SIZE    (256 * GiB)  // 64KiB for the region map
 #elif (MI_INTPTR_SIZE==4)
 #define MI_HEAP_REGION_MAX_SIZE    (3 * GiB)    // ~ KiB for the region map
@@ -113,7 +113,7 @@ static size_t mi_region_block_count(size_t size) {
 /*
    // Return a rounded commit/reset size such that we don't fragment large OS pages into small ones.
    static size_t mi_good_commit_size(size_t size) {
-   if (size > (SIZE_MAX - _mi_os_large_page_size())) return size;
+   if(size > (SIZE_MAX - _mi_os_large_page_size())) return size;
    return _mi_align_up(size, _mi_os_large_page_size());
    }
  */
@@ -341,7 +341,7 @@ static void * mi_region_try_alloc(size_t blocks, bool* commit, bool* large, bool
 	}
 	mi_assert_internal(!_mi_bitmap_is_any_claimed(&region->reset, 1, blocks, bit_idx));
 
-  #if (MI_DEBUG>=2)
+  #if(MI_DEBUG>=2)
 	if(*commit) {
 		((uint8_t*)p)[0] = 0;
 	}
@@ -395,7 +395,7 @@ void * _mi_mem_alloc_aligned(size_t size,
 
 	if(p) {
 		mi_assert_internal((uintptr_t)p % alignment == 0);
-#if (MI_DEBUG>=2)
+#if(MI_DEBUG>=2)
 		if(*commit) {
 			((uint8_t*)p)[0] = 0;
 		}                          // ensure the memory is committed

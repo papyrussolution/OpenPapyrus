@@ -950,7 +950,7 @@ bool OlsonTimeZone::getNextTransition(UDate base, bool inclusive, TimeZoneTransi
 			from->getName(fromName);
 			to->getName(toName);
 			if(fromName == toName && from->getRawOffset() == to->getRawOffset()
-			  && from->getDSTSavings() == to->getDSTSavings()) {
+			 && from->getDSTSavings() == to->getDSTSavings()) {
 				return getNextTransition(startTime, false, result);
 			}
 			result.setTime(startTime);

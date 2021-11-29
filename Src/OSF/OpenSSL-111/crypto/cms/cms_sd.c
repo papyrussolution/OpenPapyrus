@@ -92,7 +92,7 @@ static void cms_sd_set_version(CMS_SignedData * sd)
 	}
 
 	if((OBJ_obj2nid(sd->encapContentInfo->eContentType) != NID_pkcs7_data)
-	  && (sd->version < 3))
+	 && (sd->version < 3))
 		sd->version = 3;
 
 	for(i = 0; i < sk_CMS_SignerInfo_num(sd->signerInfos); i++) {

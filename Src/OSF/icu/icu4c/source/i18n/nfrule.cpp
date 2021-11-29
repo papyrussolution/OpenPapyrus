@@ -144,7 +144,7 @@ void NFRule::makeRules(UnicodeString & description,
 		// base value is an even multiple of its divisor (or it's one
 		// of the special rules)
 		if((rule1->baseValue > 0
-		  && (rule1->baseValue % util64_pow(rule1->radix, rule1->exponent)) == 0)
+		 && (rule1->baseValue % util64_pow(rule1->radix, rule1->exponent)) == 0)
 		 || rule1->getType() == kImproperFractionRule
 		 || rule1->getType() == kDefaultRule) {
 			// if it passes that test, new up the second rule.  If the
@@ -625,11 +625,11 @@ static bool util_equalSubstitutions(const NFSubstitution* sub1, const NFSubstitu
 bool NFRule::operator==(const NFRule& rhs) const
 {
 	return baseValue == rhs.baseValue
-	     && radix == rhs.radix
-	     && exponent == rhs.exponent
-	     && fRuleText == rhs.fRuleText
-	     && util_equalSubstitutions(sub1, rhs.sub1)
-	     && util_equalSubstitutions(sub2, rhs.sub2);
+	 && radix == rhs.radix
+	 && exponent == rhs.exponent
+	 && fRuleText == rhs.fRuleText
+	 && util_equalSubstitutions(sub1, rhs.sub1)
+	 && util_equalSubstitutions(sub2, rhs.sub2);
 }
 
 /**
@@ -1057,9 +1057,9 @@ bool NFRule::doParse(const UnicodeString & text,
 		// call fails to make a match (each time, it picks up where it
 		// left off the previous time)
 	} while(sub1Pos != sub2Pos
-	  && pp.getIndex() > 0
-	  && pp.getIndex() < workText.length()
-	  && pp.getIndex() != start);
+	 && pp.getIndex() > 0
+	 && pp.getIndex() < workText.length()
+	 && pp.getIndex() != start);
 
 	// update the caller's ParsePosition with our high-water mark
 	// (i.e., it now points at the first character this function
@@ -1345,13 +1345,13 @@ int32_t NFRule::prefixLength(const UnicodeString & str, const UnicodeString & pr
 		while(oPrefix != CollationElementIterator::NULLORDER) {
 			// skip over ignorable characters in the target string
 			while(CollationElementIterator::primaryOrder(oStr) == 0
-			  && oStr != CollationElementIterator::NULLORDER) {
+			 && oStr != CollationElementIterator::NULLORDER) {
 				oStr = strIter->next(err);
 			}
 
 			// skip over ignorable characters in the prefix
 			while(CollationElementIterator::primaryOrder(oPrefix) == 0
-			  && oPrefix != CollationElementIterator::NULLORDER) {
+			 && oPrefix != CollationElementIterator::NULLORDER) {
 				oPrefix = prefixIter->next(err);
 			}
 
@@ -1494,7 +1494,7 @@ int32_t NFRule::findText(const UnicodeString & str,
 			UnicodeString prefix(fRuleText.tempSubString(0, pluralRuleStart));
 			UnicodeString suffix(fRuleText.tempSubString(pluralRuleSuffix));
 			if(str.compare(start - prefix.length(), prefix.length(), prefix, 0, prefix.length()) == 0
-			  && str.compare(start + matchLen, suffix.length(), suffix, 0, suffix.length()) == 0) {
+			 && str.compare(start + matchLen, suffix.length(), suffix, 0, suffix.length()) == 0) {
 				*length = matchLen + prefix.length() + suffix.length();
 				return start - prefix.length();
 			}
@@ -1602,7 +1602,7 @@ bool NFRule::allIgnorable(const UnicodeString & str, UErrorCode & status) const
 		UErrorCode err = U_ZERO_ERROR;
 		int32_t o = iter->next(err);
 		while(o != CollationElementIterator::NULLORDER
-		  && CollationElementIterator::primaryOrder(o) == 0) {
+		 && CollationElementIterator::primaryOrder(o) == 0) {
 			o = iter->next(err);
 		}
 

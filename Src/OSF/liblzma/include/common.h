@@ -235,7 +235,7 @@ do { \
 	const lzma_ret ret_ = (expr); \
 	if(ret_ != LZMA_OK) \
 		return ret_; \
-} while (0)
+} while(0)
 
 
 /// If next isn't already initialized, free the previous coder. Then mark
@@ -248,7 +248,7 @@ do { \
 	if((uintptr_t)(func) != (next)->init) \
 		lzma_next_end(next, allocator); \
 	(next)->init = (uintptr_t)(func); \
-} while (0)
+} while(0)
 
 
 /// Initializes lzma_strm and calls func() to initialize strm->internal->next.
@@ -263,7 +263,7 @@ do { \
 		lzma_end(strm); \
 		return ret_; \
 	} \
-} while (0)
+} while(0)
 
 #define lzma_next_strm_init2(func, strm, arg1, arg2) \
 do { \
@@ -273,7 +273,7 @@ do { \
 		lzma_end(strm); \
 		return ret_; \
 	} \
-} while (0)
+} while(0)
 
 #define lzma_next_strm_init3(func, strm, arg1, arg2, arg3) \
 do { \
@@ -283,7 +283,7 @@ do { \
 		lzma_end(strm); \
 		return ret_; \
 	} \
-} while (0)
+} while(0)
 
 #define lzma_next_strm_init4(func, strm, arg1, arg2, arg3, arg4) \
 do { \
@@ -293,7 +293,7 @@ do { \
 		lzma_end(strm); \
 		return ret_; \
 	} \
-} while (0)
+} while(0)
 //
 #include "check-internal.h"
 //#include "crc_macros.h"

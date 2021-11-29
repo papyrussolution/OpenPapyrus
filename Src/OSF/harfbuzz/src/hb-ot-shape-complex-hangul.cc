@@ -175,10 +175,10 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 	 */
 
 	buffer->clear_output();
-	unsigned int start = 0, end = 0; /* Extent of most recently seen syllable;
+	uint start = 0, end = 0; /* Extent of most recently seen syllable;
 	       * valid only if start < end
 	                                  */
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 
 	for(buffer->idx = 0; buffer->idx < count && buffer->successful;) {
 		hb_codepoint_t u = buffer->cur().codepoint;
@@ -235,7 +235,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 			if(isV(v)) {
 				/* Have <L,V> or <L,V,T>. */
 				hb_codepoint_t t = 0;
-				unsigned int tindex = 0;
+				uint tindex = 0;
 				if(buffer->idx + 2 < count) {
 					t = buffer->cur(+2).codepoint;
 					if(isT(t))
@@ -285,16 +285,16 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 			/* Have <LV>, <LVT>, or <LV,T> */
 			hb_codepoint_t s = u;
 			bool has_glyph = font->has_glyph(s);
-			unsigned int lindex = (s - SBase) / NCount;
-			unsigned int nindex = (s - SBase) % NCount;
-			unsigned int vindex = nindex / TCount;
-			unsigned int tindex = nindex % TCount;
+			uint lindex = (s - SBase) / NCount;
+			uint nindex = (s - SBase) % NCount;
+			uint vindex = nindex / TCount;
+			uint tindex = nindex % TCount;
 
 			if(!tindex &&
 			    buffer->idx + 1 < count &&
 			    isCombiningT(buffer->cur(+1).codepoint)) {
 				/* <LV,T>, try to combine. */
-				unsigned int new_tindex = buffer->cur(+1).codepoint - TBase;
+				uint new_tindex = buffer->cur(+1).codepoint - TBase;
 				hb_codepoint_t new_s = s + new_tindex;
 				if(font->has_glyph(new_s)) {
 					buffer->replace_glyphs(2, 1, &new_s);
@@ -321,7 +321,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 				if(font->has_glyph(decomposed[0]) &&
 				    font->has_glyph(decomposed[1]) &&
 				    (!tindex || font->has_glyph(decomposed[2]))) {
-					unsigned int s_len = tindex ? 3 : 2;
+					uint s_len = tindex ? 3 : 2;
 					buffer->replace_glyphs(1, s_len, decomposed);
 
 					/* If we decomposed an LV because of a non-combining T following,
@@ -341,7 +341,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 					hb_glyph_info_t * info = buffer->out_info;
 					end = start + s_len;
 
-					unsigned int i = start;
+					uint i = start;
 					info[i++].hangul_shaping_feature() = LJMO;
 					info[i++].hangul_shaping_feature() = VJMO;
 					if(i < end)
@@ -379,7 +379,7 @@ static void setup_masks_hangul(const hb_ot_shape_plan_t * plan,
 	const hangul_shape_plan_t * hangul_plan = (const hangul_shape_plan_t*)plan->data;
 
 	if(LIKELY(hangul_plan)) {
-		unsigned int count = buffer->len;
+		uint count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
 		for(uint i = 0; i < count; i++, info++)
 			info->mask |= hangul_plan->mask_array[info->hangul_shaping_feature()];

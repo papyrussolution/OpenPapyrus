@@ -57,7 +57,7 @@ namespace OT {
 		void collect_mapping(hb_set_t * unicodes, /* OUT */
 		    hb_map_t * mapping /* OUT */) const
 		{
-			for(unsigned i = 0; i < 256; i++)
+			for(uint i = 0; i < 256; i++)
 				if(glyphIdArray[i]) {
 					hb_codepoint_t glyph = glyphIdArray[i];
 					unicodes->add(i);
@@ -151,7 +151,7 @@ public:
 		    HBUINT16 * startCode,
 		    unsigned segcount)
 		{
-			unsigned i = 0;
+			uint i = 0;
 			hb_codepoint_t last_gid = 0, start_gid = 0, last_cp = 0xFFFF;
 			bool use_delta = true;
 
@@ -203,7 +203,7 @@ public:
 
 			+hb_range(segcount)
 			| hb_filter([&] (const unsigned _) { return idDelta[_] == 0; })
-			| hb_apply([&] (const unsigned i)
+			| hb_apply([&] (const uint i)
 			{
 				idRangeOffset[i] = 2 * (c->start_embed<HBUINT16> () - idRangeOffset - i);
 
@@ -315,15 +315,15 @@ public:
 					this->segCount + 1);
 				if(!found)
 					return false;
-				unsigned int i = found - endCount;
+				uint i = found - endCount;
 
 				hb_codepoint_t gid;
-				unsigned int rangeOffset = this->idRangeOffset[i];
+				uint rangeOffset = this->idRangeOffset[i];
 				if(rangeOffset == 0)
 					gid = codepoint + this->idDelta[i];
 				else {
 					/* Somebody has been smoking... */
-					unsigned int index = rangeOffset / 2 + (codepoint - this->startCount[i]) + i - this->segCount;
+					uint index = rangeOffset / 2 + (codepoint - this->startCount[i]) + i - this->segCount;
 					if(UNLIKELY(index >= this->glyphIdArrayLength))
 						return false;
 					gid = this->glyphIdArray[index];
@@ -345,13 +345,13 @@ public:
 
 			void collect_unicodes(hb_set_t * out) const
 			{
-				unsigned int count = this->segCount;
+				uint count = this->segCount;
 				if(count && this->startCount[count - 1] == 0xFFFFu)
 					count--; /* Skip sentinel segment. */
 				for(uint i = 0; i < count; i++) {
 					hb_codepoint_t start = this->startCount[i];
 					hb_codepoint_t end = this->endCount[i];
-					unsigned int rangeOffset = this->idRangeOffset[i];
+					uint rangeOffset = this->idRangeOffset[i];
 					if(rangeOffset == 0) {
 						for(hb_codepoint_t codepoint = start; codepoint <= end; codepoint++) {
 							hb_codepoint_t gid = (codepoint + this->idDelta[i]) & 0xFFFFu;
@@ -362,7 +362,7 @@ public:
 					}
 					else {
 						for(hb_codepoint_t codepoint = start; codepoint <= end; codepoint++) {
-							unsigned int index = rangeOffset / 2 + (codepoint - this->startCount[i]) + i -
+							uint index = rangeOffset / 2 + (codepoint - this->startCount[i]) + i -
 							    this->segCount;
 							if(UNLIKELY(index >= this->glyphIdArrayLength))
 								break;
@@ -378,10 +378,10 @@ public:
 			void collect_mapping(hb_set_t * unicodes, /* OUT */
 			    hb_map_t * mapping /* OUT */) const
 			{
-				unsigned count = this->segCount;
+				uint count = this->segCount;
 				if(count && this->startCount[count - 1] == 0xFFFFu)
 					count--; /* Skip sentinel segment. */
-				for(unsigned i = 0; i < count; i++) {
+				for(uint i = 0; i < count; i++) {
 					hb_codepoint_t start = this->startCount[i];
 					hb_codepoint_t end = this->endCount[i];
 					unsigned rangeOffset = this->idRangeOffset[i];
@@ -415,8 +415,8 @@ public:
 			const HBUINT16 * idDelta;
 			const HBUINT16 * idRangeOffset;
 			const HBUINT16 * glyphIdArray;
-			unsigned int segCount;
-			unsigned int glyphIdArrayLength;
+			uint segCount;
+			uint glyphIdArrayLength;
 		};
 
 		bool get_glyph(hb_codepoint_t codepoint, hb_codepoint_t * glyph) const
@@ -534,7 +534,7 @@ public:
 		void collect_unicodes(hb_set_t * out) const
 		{
 			hb_codepoint_t start = startCharCode;
-			unsigned int count = glyphIdArray.len;
+			uint count = glyphIdArray.len;
 			for(uint i = 0; i < count; i++)
 				if(glyphIdArray[i])
 					out->add(start + i);
@@ -544,8 +544,8 @@ public:
 		    hb_map_t * mapping /* OUT */) const
 		{
 			hb_codepoint_t start_cp = startCharCode;
-			unsigned count = glyphIdArray.len;
-			for(unsigned i = 0; i < count; i++)
+			uint count = glyphIdArray.len;
+			for(uint i = 0; i < count; i++)
 				if(glyphIdArray[i]) {
 					hb_codepoint_t unicode = start_cp + i;
 					hb_codepoint_t glyphid = glyphIdArray[i];
@@ -588,7 +588,7 @@ public:
 			return true;
 		}
 
-		void collect_unicodes(hb_set_t * out, unsigned int num_glyphs) const
+		void collect_unicodes(hb_set_t * out, uint num_glyphs) const
 		{
 			for(uint i = 0; i < this->groups.len; i++) {
 				hb_codepoint_t start = this->groups[i].startCharCode;
@@ -613,7 +613,7 @@ public:
 		    hb_map_t * mapping,    /* OUT */
 		    unsigned num_glyphs) const
 		{
-			for(unsigned i = 0; i < this->groups.len; i++) {
+			for(uint i = 0; i < this->groups.len; i++) {
 				hb_codepoint_t start = this->groups[i].startCharCode;
 				hb_codepoint_t end = hb_min((hb_codepoint_t)this->groups[i].endCharCode,
 					(hb_codepoint_t)HB_UNICODE_MAX);
@@ -761,7 +761,7 @@ public:
 	struct DefaultUVS : SortedArrayOf<UnicodeValueRange, HBUINT32>{
 		void collect_unicodes(hb_set_t * out) const
 		{
-			unsigned int count = len;
+			uint count = len;
 			for(uint i = 0; i < count; i++) {
 				hb_codepoint_t first = arrayZ[i].startUnicodeValue;
 				hb_codepoint_t last = hb_min((hb_codepoint_t)(first + arrayZ[i].additionalCount),
@@ -847,7 +847,7 @@ public:
 	struct NonDefaultUVS : SortedArrayOf<UVSMapping, HBUINT32>{
 		void collect_unicodes(hb_set_t * out) const
 		{
-			unsigned int count = len;
+			uint count = len;
 			for(uint i = 0; i < count; i++)
 				out->add(arrayZ[i].unicodeValue);
 		}
@@ -855,8 +855,8 @@ public:
 		void collect_mapping(hb_set_t * unicodes, /* OUT */
 		    hb_map_t * mapping /* OUT */) const
 		{
-			unsigned count = len;
-			for(unsigned i = 0; i < count; i++) {
+			uint count = len;
+			for(uint i = 0; i < count; i++) {
 				hb_codepoint_t unicode = arrayZ[i].unicodeValue;
 				hb_codepoint_t glyphid = arrayZ[i].glyphID;
 				unicodes->add(unicode);
@@ -1021,7 +1021,7 @@ public:
 
 		void collect_variation_selectors(hb_set_t * out) const
 		{
-			unsigned int count = record.len;
+			uint count = record.len;
 			for(uint i = 0; i < count; i++)
 				out->add(record.arrayZ[i].varSelector);
 		}
@@ -1101,7 +1101,7 @@ public:
 		void _add_links_to_variation_records(hb_serialize_context_t * c,
 		    const hb_vector_t<hb_pair_t<unsigned, unsigned>>& obj_indices)
 		{
-			for(unsigned i = 0; i < obj_indices.length; i++) {
+			for(uint i = 0; i < obj_indices.length; i++) {
 				/*
 				 * Since the record array has been reversed (see comments in copy())
 				 * but obj_indices has not been, the indices at obj_indices[i]
@@ -1162,7 +1162,7 @@ public:
 			}
 		}
 
-		void collect_unicodes(hb_set_t * out, unsigned int num_glyphs = UINT_MAX) const
+		void collect_unicodes(hb_set_t * out, uint num_glyphs = UINT_MAX) const
 		{
 			switch(u.format) {
 				case  0: u.format0.collect_unicodes(out); return;
@@ -1504,18 +1504,18 @@ public:
 				return this->get_glyph_funcZ(this->get_glyph_data, unicode, glyph);
 			}
 
-			unsigned int get_nominal_glyphs(unsigned int count,
+			uint get_nominal_glyphs(uint count,
 			    const hb_codepoint_t * first_unicode,
-			    unsigned int unicode_stride,
+			    uint unicode_stride,
 			    hb_codepoint_t * first_glyph,
-			    unsigned int glyph_stride) const
+			    uint glyph_stride) const
 			{
 				if(UNLIKELY(!this->get_glyph_funcZ)) return 0;
 
 				hb_cmap_get_glyph_func_t get_glyph_funcZ = this->get_glyph_funcZ;
 				const void * get_glyph_data = this->get_glyph_data;
 
-				unsigned int done;
+				uint done;
 				for(done = 0;
 				    done < count && get_glyph_funcZ(get_glyph_data, *first_unicode, first_glyph);
 				    done++) {
@@ -1533,7 +1533,7 @@ public:
 				}
 				return get_nominal_glyph(unicode, glyph);
 			}
-			void collect_unicodes(hb_set_t * out, unsigned int num_glyphs) const
+			void collect_unicodes(hb_set_t * out, uint num_glyphs) const
 			{
 				subtable->collect_unicodes(out, num_glyphs);
 			}
@@ -1584,7 +1584,7 @@ public:
 		};
 
 protected:
-		const CmapSubtable * find_subtable(unsigned int platform_id, unsigned int encoding_id) const
+		const CmapSubtable * find_subtable(uint platform_id, uint encoding_id) const
 		{
 			EncodingRecord key;
 			key.platformID = platform_id;
@@ -1595,8 +1595,8 @@ protected:
 			return &(this+result.subtable);
 		}
 
-		const EncodingRecord * find_encodingrec(unsigned int platform_id,
-		    unsigned int encoding_id) const
+		const EncodingRecord * find_encodingrec(uint platform_id,
+		    uint encoding_id) const
 		{
 			EncodingRecord key;
 			key.platformID = platform_id;

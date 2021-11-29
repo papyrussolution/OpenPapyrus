@@ -605,7 +605,7 @@ static void cipher_encrypt(struct ssh_cipher_struct * cipher, void * in, void * 
 	if(total_len == len) {
 		return;
 	}
-	rc = mbedtls_cipher_finish(&cipher->encrypt_ctx, (uchar*)out + outlen, &outlen);
+	rc = mbedtls_cipher_finish(&cipher->encrypt_ctx, (uchar *)out + outlen, &outlen);
 	total_len += outlen;
 	if(rc != 0) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_finish failed during encryption");
@@ -649,7 +649,7 @@ static void cipher_decrypt(struct ssh_cipher_struct * cipher, void * in, void * 
 		return;
 	}
 
-	rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar*)out +
+	rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar *)out +
 		outlen, &outlen);
 
 	if(rc != 0) {
@@ -689,7 +689,7 @@ static void cipher_decrypt_cbc(struct ssh_cipher_struct * cipher, void * in, voi
 		return;
 	}
 	else {
-		rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar*)out + outlen, &outlen);
+		rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar *)out + outlen, &outlen);
 	}
 	if(rc != 0) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_finish failed during decryption");
@@ -732,8 +732,8 @@ static void cipher_encrypt_gcm(struct ssh_cipher_struct * cipher, void * in, voi
 		AES_GCM_IVLEN,
 		in,                    /* aad */
 		aadlen,
-		(const uchar*)in + aadlen,                     /* input */
-		(uchar*)out + aadlen,                     /* output */
+		(const uchar *)in + aadlen,                     /* input */
+		(uchar *)out + aadlen,                     /* output */
 		authlen,
 		tag);                    /* tag */
 	if(rc != 0) {
@@ -765,7 +765,7 @@ static int cipher_decrypt_gcm(struct ssh_cipher_struct * cipher,
 		(const uint8*)complete_packet + aadlen + encrypted_size,                    /* tag */
 		authlen,
 		(const uint8*)complete_packet + aadlen,                    /* input */
-		(uchar*)out);                    /* output */
+		(uchar *)out);                    /* output */
 	if(rc != 0) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_gcm_auth_decrypt failed");
 		return SSH_ERROR;

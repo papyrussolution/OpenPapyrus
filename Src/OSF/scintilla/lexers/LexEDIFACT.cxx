@@ -172,7 +172,7 @@ void LexerEDIFACT::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int, IDo
 		for(; lineCurrent < lineDataStart; lineCurrent++)
 			pAccess->SetLevel(lineCurrent, SC_FOLDLEVELBASE | SC_FOLDLEVELWHITEFLAG | iIndentPrevious);
 		pAccess->GetCharRange(SegmentHeader, posLineStart, 3);
-		//if (DetectSegmentHeader(SegmentHeader) == SCE_EDI_BADSEGMENT) // Abort if this is not a proper segment header
+		//if(DetectSegmentHeader(SegmentHeader) == SCE_EDI_BADSEGMENT) // Abort if this is not a proper segment header
 
 		int level = 0;
 		if(memcmp(SegmentHeader, "UNH", 3) == 0)  // UNH starts blocks

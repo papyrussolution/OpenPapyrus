@@ -1679,7 +1679,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * valu
 		while((*cur == 0) && (cur != endval)) cur++;
 	}
 	/* @todo what return value ? c.f. bug #158628
-	   if (ret != NULL) {
+	   if(ret != NULL) {
 	    TODO
 	   } */
 	SAlloc::F(val);

@@ -411,7 +411,7 @@ STACK_OF(X509) *PKCS7_get0_signers(PKCS7 *p7, STACK_OF(X509) *certs,
 			signer = X509_find_by_issuer_and_serial(certs,
 				ias->issuer, ias->serial);
 		if(!signer && !(flags & PKCS7_NOINTERN)
-		  && p7->d.sign->cert)
+		 && p7->d.sign->cert)
 			signer =
 			    X509_find_by_issuer_and_serial(p7->d.sign->cert,
 				ias->issuer, ias->serial);

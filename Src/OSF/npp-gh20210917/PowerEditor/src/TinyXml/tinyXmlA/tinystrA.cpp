@@ -117,7 +117,7 @@ void TiXmlStringA ::operator =(const TiXmlStringA & copy)
 //{
 //    char * lookup;
 //    for (lookup = cstring; * lookup; lookup++)
-//        if (! isspace (* lookup))
+//        if(! isspace (* lookup))
 //            return false;
 //    return true;
 //}
@@ -210,7 +210,7 @@ void TiXmlStringA::append(const char * suffix)
 
 //unsigned TiXmlStringA::length () const
 //{
-//    if (allocated)
+//    if(allocated)
 //        // return strlen (cstring);
 //        return current_length;
 //    return 0;

@@ -40,7 +40,7 @@
 #define CURL_MASK_SCHAR  0x7F
 #define CURL_MASK_UCHAR  0xFF
 
-#if (SIZEOF_SHORT == 2)
+#if(SIZEOF_SHORT == 2)
 #define CURL_MASK_SSHORT  0x7FFF
 #define CURL_MASK_USHORT  0xFFFF
 #elif (SIZEOF_SHORT == 4)
@@ -53,7 +53,7 @@
 #error "SIZEOF_SHORT not defined"
 #endif
 
-#if (SIZEOF_INT == 2)
+#if(SIZEOF_INT == 2)
 #define CURL_MASK_SINT  0x7FFF
 #define CURL_MASK_UINT  0xFFFF
 #elif (SIZEOF_INT == 4)
@@ -69,7 +69,7 @@
 #error "SIZEOF_INT not defined"
 #endif
 
-#if (SIZEOF_LONG == 2)
+#if(SIZEOF_LONG == 2)
 #define CURL_MASK_SLONG  0x7FFFL
 #define CURL_MASK_ULONG  0xFFFFUL
 #elif (SIZEOF_LONG == 4)
@@ -85,7 +85,7 @@
 #error "SIZEOF_LONG not defined"
 #endif
 
-#if (SIZEOF_CURL_OFF_T == 2)
+#if(SIZEOF_CURL_OFF_T == 2)
 #define CURL_MASK_SCOFFT  CURL_OFF_T_C(0x7FFF)
 #define CURL_MASK_UCOFFT  CURL_OFF_TU_C(0xFFFF)
 #elif (SIZEOF_CURL_OFF_T == 4)
@@ -101,7 +101,7 @@
 #error "SIZEOF_CURL_OFF_T not defined"
 #endif
 
-#if (SIZEOF_SIZE_T == SIZEOF_SHORT)
+#if(SIZEOF_SIZE_T == SIZEOF_SHORT)
 #define CURL_MASK_SSIZE_T  CURL_MASK_SSHORT
 #define CURL_MASK_USIZE_T  CURL_MASK_USHORT
 #elif (SIZEOF_SIZE_T == SIZEOF_INT)
@@ -221,7 +221,7 @@ ulong curlx_uztoul(size_t uznum)
 	#pragma warning(push)
 	#pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
-#if (SIZEOF_LONG < SIZEOF_SIZE_T)
+#if(SIZEOF_LONG < SIZEOF_SIZE_T)
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
 #endif
 	return (ulong)(uznum & (size_t)CURL_MASK_ULONG);
@@ -238,7 +238,7 @@ unsigned int curlx_uztoui(size_t uznum)
 	#pragma warning(push)
 	#pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
-#if (SIZEOF_INT < SIZEOF_SIZE_T)
+#if(SIZEOF_INT < SIZEOF_SIZE_T)
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
 #endif
 	return (uint)(uznum & (size_t)CURL_MASK_UINT);
@@ -259,7 +259,7 @@ int curlx_sltosi(long slnum)
 #endif
 
 	DEBUGASSERT(slnum >= 0);
-#if (SIZEOF_INT < SIZEOF_LONG)
+#if(SIZEOF_INT < SIZEOF_LONG)
 	DEBUGASSERT((ulong)slnum <= (ulong)CURL_MASK_SINT);
 #endif
 	return (int)(slnum & (long)CURL_MASK_SINT);
@@ -281,7 +281,7 @@ unsigned int curlx_sltoui(long slnum)
 #endif
 
 	DEBUGASSERT(slnum >= 0);
-#if (SIZEOF_INT < SIZEOF_LONG)
+#if(SIZEOF_INT < SIZEOF_LONG)
 	DEBUGASSERT((ulong)slnum <= (ulong)CURL_MASK_UINT);
 #endif
 	return (uint)(slnum & (long)CURL_MASK_UINT);
@@ -361,7 +361,7 @@ int curlx_sztosi(ssize_t sznum)
 #endif
 
 	DEBUGASSERT(sznum >= 0);
-#if (SIZEOF_INT < SIZEOF_SIZE_T)
+#if(SIZEOF_INT < SIZEOF_SIZE_T)
 	DEBUGASSERT((size_t)sznum <= (size_t)CURL_MASK_SINT);
 #endif
 	return (int)(sznum & (ssize_t)CURL_MASK_SINT);
@@ -452,7 +452,7 @@ void curlx_FD_ZERO(fd_set * fdset)
 
 ushort curlx_htons(ushort usnum)
 {
-#if (__INTEL_COMPILER == 910) && defined(__i386__)
+#if(__INTEL_COMPILER == 910) && defined(__i386__)
 	return (ushort)(((usnum << 8) & 0xFF00) | ((usnum >> 8) & 0x00FF));
 #else
   #pragma warning(push)
@@ -464,7 +464,7 @@ ushort curlx_htons(ushort usnum)
 
 ushort curlx_ntohs(ushort usnum)
 {
-#if (__INTEL_COMPILER == 910) && defined(__i386__)
+#if(__INTEL_COMPILER == 910) && defined(__i386__)
 	return (ushort)(((usnum << 8) & 0xFF00) | ((usnum >> 8) & 0x00FF));
 #else
   #pragma warning(push)

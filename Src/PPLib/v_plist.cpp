@@ -2842,7 +2842,7 @@ int EditPriceListConfig()
 		int    idx = 0, fld_list[12];
 		SString goods_ex_titles, item_buf;
 		PPObjGoods::ReadGoodsExTitles(0, goods_ex_titles);
-		THROW(p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify));
+		THROW(p_lw = CreateListWindow_Simple(lbtDblClkNotify));
 		fld_list[0] = GDSEXSTR_STORAGE;
 		fld_list[1] = GDSEXSTR_STANDARD;
 		fld_list[2] = GDSEXSTR_INGRED;

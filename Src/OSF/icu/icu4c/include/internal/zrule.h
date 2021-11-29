@@ -238,7 +238,7 @@ U_CAPI bool U_EXPORT2 izrule_getPreviousStart(IZRule* rule, UDate base, int32_t 
  * a return value from getDynamicClassID(). For example:
  * <pre>
  * .   Base* polymorphic_pointer = createPolymorphicObject();
- * .   if (polymorphic_pointer->getDynamicClassID() ==
+ * .   if(polymorphic_pointer->getDynamicClassID() ==
  * .       erived::getStaticClassID()) ...
  * </pre>
  * @param rule              The IZrule to use

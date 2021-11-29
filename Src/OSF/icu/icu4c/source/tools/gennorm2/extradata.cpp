@@ -174,7 +174,7 @@ void ExtraData::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 }
 
 //  Ticket #13342 - Disable optimizations on MSVC for this function as a workaround.
-#if (defined(_MSC_VER) && (_MSC_VER >= 1900) && defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 190024210))
+#if(defined(_MSC_VER) && (_MSC_VER >= 1900) && defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 190024210))
 #pragma optimize( "", off )
 #endif
 
@@ -232,7 +232,7 @@ void ExtraData::writeExtraData(UChar32 c, Norm &norm)
 }
 
 // Ticket #13342 - Turn optimization back on.
-#if (defined(_MSC_VER) && (_MSC_VER >= 1900) && defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 190024210))
+#if(defined(_MSC_VER) && (_MSC_VER >= 1900) && defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 190024210))
 #pragma optimize( "", on )
 #endif
 

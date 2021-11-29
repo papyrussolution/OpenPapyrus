@@ -64,7 +64,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 
-			unsigned int count = ARRAY_LENGTH(mathValueRecords);
+			uint count = ARRAY_LENGTH(mathValueRecords);
 			for(uint i = 0; i < count; i++)
 				if(!mathValueRecords[i].sanitize(c, this))
 					return_trace(false);
@@ -175,7 +175,7 @@ public:
 		hb_position_t get_value(hb_codepoint_t glyph,
 		    hb_font_t * font) const
 		{
-			unsigned int index = (this+coverage).get_coverage(glyph);
+			uint index = (this+coverage).get_coverage(glyph);
 			return italicsCorrection[index].get_x_value(font, this);
 		}
 
@@ -205,7 +205,7 @@ public:
 		hb_position_t get_value(hb_codepoint_t glyph,
 		    hb_font_t * font) const
 		{
-			unsigned int index = (this+topAccentCoverage).get_coverage(glyph);
+			uint index = (this+topAccentCoverage).get_coverage(glyph);
 			if(index == NOT_COVERED)
 				return font->get_glyph_h_advance(glyph) / 2;
 			return topAccentAttachment[index].get_x_value(font, this);
@@ -229,7 +229,7 @@ public:
 		bool sanitize_math_value_records(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			unsigned int count = 2 * heightCount + 1;
+			uint count = 2 * heightCount + 1;
 			for(uint i = 0; i < count; i++)
 				if(!mathValueRecordsZ.arrayZ[i].sanitize(c, this)) return_trace(false);
 			return_trace(true);
@@ -257,10 +257,10 @@ public:
 			 * makes the result consistent with the limit cases and we can just use the
 			 * binary search algorithm of std::upper_bound:
 			 */
-			unsigned int i = 0;
-			unsigned int count = heightCount;
+			uint i = 0;
+			uint count = heightCount;
 			while(count > 0) {
-				unsigned int half = count / 2;
+				uint half = count / 2;
 				hb_position_t height = correctionHeight[i + half].get_y_value(font, this);
 				if(sign * height < sign * correction_height) {
 					i += half + 1;
@@ -294,7 +294,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 
-			unsigned int count = ARRAY_LENGTH(mathKern);
+			uint count = ARRAY_LENGTH(mathKern);
 			for(uint i = 0; i < count; i++)
 				if(UNLIKELY(!mathKern[i].sanitize(c, base)))
 					return_trace(false);
@@ -307,7 +307,7 @@ public:
 		    hb_font_t * font,
 		    const void * base) const
 		{
-			unsigned int idx = kern;
+			uint idx = kern;
 			if(UNLIKELY(idx >= ARRAY_LENGTH(mathKern))) return 0;
 			return (base+mathKern[idx]).get_value(correction_height, font);
 		}
@@ -335,7 +335,7 @@ public:
 		    hb_position_t correction_height,
 		    hb_font_t * font) const
 		{
-			unsigned int index = (this+mathKernCoverage).get_coverage(glyph);
+			uint index = (this+mathKernCoverage).get_coverage(glyph);
 			return mathKernInfoRecords[index].get_kerning(kern, correction_height, font, this);
 		}
 
@@ -500,10 +500,10 @@ public:
 			    partRecords.sanitize(c));
 		}
 
-		unsigned int get_parts(hb_direction_t direction,
+		uint get_parts(hb_direction_t direction,
 		    hb_font_t * font,
-		    unsigned int start_offset,
-		    unsigned int * parts_count,      /* IN/OUT */
+		    uint start_offset,
+		    uint * parts_count,      /* IN/OUT */
 		    hb_ot_math_glyph_part_t * parts /* OUT */,
 		    hb_position_t * italics_correction /* OUT */) const
 		{
@@ -548,10 +548,10 @@ public:
 			return this+glyphAssembly;
 		}
 
-		unsigned int get_variants(hb_direction_t direction,
+		uint get_variants(hb_direction_t direction,
 		    hb_font_t * font,
-		    unsigned int start_offset,
-		    unsigned int * variants_count,         /* IN/OUT */
+		    uint start_offset,
+		    uint * variants_count,         /* IN/OUT */
 		    hb_ot_math_glyph_variant_t * variants /* OUT */) const
 		{
 			if(variants_count) {
@@ -579,7 +579,7 @@ public:
 		bool sanitize_offsets(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			unsigned int count = vertGlyphCount + horizGlyphCount;
+			uint count = vertGlyphCount + horizGlyphCount;
 			for(uint i = 0; i < count; i++)
 				if(!glyphConstruction.arrayZ[i].sanitize(c, this)) return_trace(false);
 			return_trace(true);
@@ -601,22 +601,22 @@ public:
 			return font->em_scale_dir(minConnectorOverlap, direction);
 		}
 
-		unsigned int get_glyph_variants(hb_codepoint_t glyph,
+		uint get_glyph_variants(hb_codepoint_t glyph,
 		    hb_direction_t direction,
 		    hb_font_t * font,
-		    unsigned int start_offset,
-		    unsigned int * variants_count,               /* IN/OUT */
+		    uint start_offset,
+		    uint * variants_count,               /* IN/OUT */
 		    hb_ot_math_glyph_variant_t * variants /* OUT */) const
 		{
 			return get_glyph_construction(glyph, direction, font)
 			       .get_variants(direction, font, start_offset, variants_count, variants);
 		}
 
-		unsigned int get_glyph_parts(hb_codepoint_t glyph,
+		uint get_glyph_parts(hb_codepoint_t glyph,
 		    hb_direction_t direction,
 		    hb_font_t * font,
-		    unsigned int start_offset,
-		    unsigned int * parts_count,            /* IN/OUT */
+		    uint start_offset,
+		    uint * parts_count,            /* IN/OUT */
 		    hb_ot_math_glyph_part_t * parts /* OUT */,
 		    hb_position_t * italics_correction /* OUT */) const
 		{
@@ -633,11 +633,11 @@ private:
 		    hb_font_t * font HB_UNUSED) const
 		{
 			bool vertical = HB_DIRECTION_IS_VERTICAL(direction);
-			unsigned int count = vertical ? vertGlyphCount : horizGlyphCount;
+			uint count = vertical ? vertGlyphCount : horizGlyphCount;
 			const OffsetTo<Coverage> &coverage = vertical ? vertGlyphCoverage
 			    : horizGlyphCoverage;
 
-			unsigned int index = (this+coverage).get_coverage(glyph);
+			uint index = (this+coverage).get_coverage(glyph);
 			if(UNLIKELY(index >= count)) return Null(MathGlyphConstruction);
 
 			if(!vertical)

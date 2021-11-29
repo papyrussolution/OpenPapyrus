@@ -46,7 +46,7 @@
  *     int32_t start = 0, limit = 0;
  *     UScriptCode code = USCRIPT_INVALID_CODE;
  *
- *     while (uscript_nextRun(&start, &limit, &code)) {
+ *     while(uscript_nextRun(&start, &limit, &code)) {
  *         printf("Script '%s' from %d to %d.\n", uscript_getName(code), start, limit);
  *     }
  *

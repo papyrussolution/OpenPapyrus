@@ -25,10 +25,10 @@ int EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
 	 * sometimes only copies of the context are ever finalised.
 	 */
 	if(ctx->digest && ctx->digest->cleanup
-	  && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
+	 && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
 		ctx->digest->cleanup(ctx);
 	if(ctx->digest && ctx->digest->ctx_size && ctx->md_data
-	  && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE)) {
+	 && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE)) {
 		OPENSSL_clear_free(ctx->md_data, ctx->digest->ctx_size);
 	}
 	/*
@@ -279,8 +279,8 @@ int EVP_Digest(const void * data, size_t count,
 		return 0;
 	EVP_MD_CTX_set_flags(ctx, EVP_MD_CTX_FLAG_ONESHOT);
 	ret = EVP_DigestInit_ex(ctx, type, impl)
-	  && EVP_DigestUpdate(ctx, data, count)
-	  && EVP_DigestFinal_ex(ctx, md, size);
+	 && EVP_DigestUpdate(ctx, data, count)
+	 && EVP_DigestFinal_ex(ctx, md, size);
 	EVP_MD_CTX_free(ctx);
 
 	return ret;

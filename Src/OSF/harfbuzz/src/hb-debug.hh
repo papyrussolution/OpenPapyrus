@@ -74,7 +74,7 @@ static inline hb_options_t hb_options()
 /*
  * Debug output (needs enabling at compile time.)
  */
-static inline bool _hb_debug(unsigned int level, unsigned int max_level)
+static inline bool _hb_debug(uint level, uint max_level)
 {
 	return level < max_level;
 }
@@ -85,7 +85,7 @@ static inline bool _hb_debug(unsigned int level, unsigned int max_level)
 static inline void _hb_print_func(const char * func)
 {
 	if(func) {
-		unsigned int func_len = strlen(func);
+		uint func_len = strlen(func);
 		/* Skip "static" */
 		if(0 == strncmp(func, "static ", 7))
 			func += 7;
@@ -108,7 +108,7 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
     const void * obj,
     const char * func,
     bool indented,
-    unsigned int level,
+    uint level,
     int level_dir,
     const char * message,
     va_list ap) HB_PRINTF_FUNC(7, 0);
@@ -116,7 +116,7 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
     const void * obj,
     const char * func,
     bool indented,
-    unsigned int level,
+    uint level,
     int level_dir,
     const char * message,
     va_list ap)
@@ -163,13 +163,13 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 
 template <> inline void HB_PRINTF_FUNC(7, 0)
 _hb_debug_msg_va<0> (const char * what HB_UNUSED, const void * obj HB_UNUSED, const char * func HB_UNUSED,
-bool indented HB_UNUSED, unsigned int level HB_UNUSED, int level_dir HB_UNUSED, const char * message HB_UNUSED, va_list ap HB_UNUSED) {
+bool indented HB_UNUSED, uint level HB_UNUSED, int level_dir HB_UNUSED, const char * message HB_UNUSED, va_list ap HB_UNUSED) {
 }
 
 template <int max_level> static inline void _hb_debug_msg(const char * what, const void * obj, const char * func,
-    bool indented, unsigned int level, int level_dir, const char * message, ...) HB_PRINTF_FUNC(7, 8);
+    bool indented, uint level, int level_dir, const char * message, ...) HB_PRINTF_FUNC(7, 8);
 template <int max_level> static inline void HB_PRINTF_FUNC(7, 8)
-_hb_debug_msg(const char * what, const void * obj, const char * func, bool indented, unsigned int level, int level_dir, const char * message, ...)
+_hb_debug_msg(const char * what, const void * obj, const char * func, bool indented, uint level, int level_dir, const char * message, ...)
 {
 	va_list ap;
 	va_start(ap, message);
@@ -181,7 +181,7 @@ _hb_debug_msg<0> (const char * what HB_UNUSED,
 const void * obj HB_UNUSED,
 const char * func HB_UNUSED,
 bool indented HB_UNUSED,
-unsigned int level HB_UNUSED,
+uint level HB_UNUSED,
 int level_dir HB_UNUSED,
 const char * message HB_UNUSED,
 ...)HB_PRINTF_FUNC(7, 8);
@@ -190,7 +190,7 @@ _hb_debug_msg<0> (const char * what HB_UNUSED,
 const void * obj HB_UNUSED,
 const char * func HB_UNUSED,
 bool indented HB_UNUSED,
-unsigned int level HB_UNUSED,
+uint level HB_UNUSED,
 int level_dir HB_UNUSED,
 const char * message HB_UNUSED,
 ...) {
@@ -242,7 +242,7 @@ template <>
 
 template <int max_level, typename ret_t>
 struct hb_auto_trace_t {
-	explicit inline hb_auto_trace_t(unsigned int * plevel_,
+	explicit inline hb_auto_trace_t(uint * plevel_,
 	    const char * what_,
 	    const void * obj_,
 	    const char * func,
@@ -269,7 +269,7 @@ struct hb_auto_trace_t {
 	template <typename T>
 	T ret(T&& v,
 	    const char * func = "",
-	    unsigned int line = 0)
+	    uint line = 0)
 	{
 		if(UNLIKELY(returned)) {
 			slfprintf_stderr("OUCH, double calls to return_trace().  This is a bug, please report.\n");
@@ -286,7 +286,7 @@ struct hb_auto_trace_t {
 	}
 
 private:
-	unsigned int * plevel;
+	uint * plevel;
 	const char * what;
 	const void * obj;
 	bool returned;
@@ -294,7 +294,7 @@ private:
 
 template <typename ret_t> /* Make sure we don't use hb_auto_trace_t when not tracing. */
 struct hb_auto_trace_t<0, ret_t>{
-	explicit inline hb_auto_trace_t(unsigned int * plevel_,
+	explicit inline hb_auto_trace_t(uint * plevel_,
 	    const char * what_,
 	    const void * obj_,
 	    const char * func,
@@ -305,7 +305,7 @@ struct hb_auto_trace_t<0, ret_t>{
 	template <typename T>
 	T ret(T&& v,
 	    const char * func HB_UNUSED = nullptr,
-	    unsigned int line HB_UNUSED = 0) {
+	    uint line HB_UNUSED = 0) {
 		return hb_forward<T> (v);
 	}
 };
@@ -317,7 +317,7 @@ struct hb_no_trace_t {
 	template <typename T>
 	T ret(T&& v,
 	    const char * func HB_UNUSED = nullptr,
-	    unsigned int line HB_UNUSED = 0) {
+	    uint line HB_UNUSED = 0) {
 		return hb_forward<T> (v);
 	}
 };

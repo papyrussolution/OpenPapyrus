@@ -266,7 +266,7 @@ class StringBuilder {
   StringBuilder(char * buffer, int buffer_size)
       : buffer_(buffer, buffer_size), position_(0) { }
 
-  ~StringBuilder() { if (!is_finalized()) Finalize(); }
+  ~StringBuilder() { if(!is_finalized()) Finalize(); }
 
   int size() const { return buffer_.length(); }
 

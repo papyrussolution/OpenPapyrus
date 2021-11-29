@@ -64,18 +64,18 @@ public:
 
 	HanjaDic() : HJinterface(nullptr) {
 		hr = CLSIDFromProgID(OLESTR("mshjdic.hanjadic"), &CLSID_HanjaDic);
-		if (SUCCEEDED(hr)) {
+		if(SUCCEEDED(hr)) {
 			hr = CoCreateInstance(CLSID_HanjaDic, nullptr,
 					CLSCTX_INPROC_SERVER, IID_IHanjaDic,
 					(LPVOID *)& HJinterface);
-			if (SUCCEEDED(hr)) {
+			if(SUCCEEDED(hr)) {
 				hr = HJinterface->OpenMainDic();
 			}
 		}
 	}
 
 	~HanjaDic() {
-		if (SUCCEEDED(hr)) {
+		if(SUCCEEDED(hr)) {
 			hr = HJinterface->CloseMainDic();
 			HJinterface->Release();
 		}
@@ -88,7 +88,7 @@ public:
 	bool IsHanja(int hanja) {
 		HANJA_TYPE hanjaType;
 		hr = HJinterface->GetHanjaType(static_cast<unsigned short>(hanja), &hanjaType);
-		if (SUCCEEDED(hr)) {
+		if(SUCCEEDED(hr)) {
 			return (hanjaType > 0);
 		}
 		return false;
@@ -100,16 +100,16 @@ int GetHangulOfHanja(wchar_t *inout) {
 	// Return the number of characters converted.
 	int changed = 0;
 	HanjaDic dict;
-	if (dict.HJdictAvailable()) {
+	if(dict.HJdictAvailable()) {
 		const size_t len = wcslen(inout);
 		wchar_t conv[UTF8MaxBytes] = {0};
 		BSTR bstrHangul = SysAllocString(conv);
 		for (size_t i=0; i<len; i++) {
-			if (dict.IsHanja(static_cast<int>(inout[i]))) { // Pass hanja only!
+			if(dict.IsHanja(static_cast<int>(inout[i]))) { // Pass hanja only!
 				conv[0] = inout[i];
 				BSTR bstrHanja = SysAllocString(conv);
 				const HRESULT hr = dict.HJinterface->HanjaToHangul(bstrHanja, &bstrHangul);
-				if (SUCCEEDED(hr)) {
+				if(SUCCEEDED(hr)) {
 					inout[i] = static_cast<wchar_t>(bstrHangul[0]);
 					changed += 1;
 				}

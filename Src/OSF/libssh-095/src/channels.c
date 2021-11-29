@@ -1089,12 +1089,12 @@ void ssh_channel_do_free(ssh_channel channel)
  * Example:
    @code
    rc = ssh_channel_send_eof(channel);
-   if (rc == SSH_ERROR) {
+   if(rc == SSH_ERROR) {
        return -1;
    }
    while(!ssh_channel_is_eof(channel)) {
        rc = ssh_channel_read(channel, buf, sizeof(buf), 0);
-       if (rc == SSH_ERROR) {
+       if(rc == SSH_ERROR) {
            return -1;
        }
    }
@@ -2433,12 +2433,12 @@ error:
  * Example:
    @code
    rc = ssh_channel_request_exec(channel, "ps aux");
-   if (rc > 0) {
+   if(rc > 0) {
        return -1;
    }
 
-   while ((rc = ssh_channel_read(channel, buffer, sizeof(buffer), 0)) > 0) {
-       if (fwrite(buffer, 1, rc, stdout) != (uint) rc) {
+   while((rc = ssh_channel_read(channel, buffer, sizeof(buffer), 0)) > 0) {
+       if(fwrite(buffer, 1, rc, stdout) != (uint) rc) {
            return -1;
        }
    }

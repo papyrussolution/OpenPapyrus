@@ -311,7 +311,7 @@ U_CAPI int32_t U_EXPORT2 vzone_countTransitionRules(VZone* zone, UErrorCode & st
  * a return value from getDynamicClassID(). For example:
  * <pre>
  * .   Base* polymorphic_pointer = createPolymorphicObject();
- * .   if (polymorphic_pointer->getDynamicClassID() ==
+ * .   if(polymorphic_pointer->getDynamicClassID() ==
  * .       erived::getStaticClassID()) ...
  * </pre>
  * @param zone, the vzone to use

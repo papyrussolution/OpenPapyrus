@@ -46,10 +46,10 @@ namespace OT {
 			auto &skippy_iter = c.iter_input;
 
 			bool horizontal = HB_DIRECTION_IS_HORIZONTAL(buffer->props.direction);
-			unsigned int count = buffer->len;
+			uint count = buffer->len;
 			hb_glyph_info_t * info = buffer->info;
 			hb_glyph_position_t * pos = buffer->pos;
-			for(unsigned int idx = 0; idx < count;) {
+			for(uint idx = 0; idx < count;) {
 				if(!(info[idx].mask & kern_mask)) {
 					idx++;
 					continue;
@@ -61,8 +61,8 @@ namespace OT {
 					continue;
 				}
 
-				unsigned int i = idx;
-				unsigned int j = skippy_iter.idx;
+				uint i = idx;
+				uint j = skippy_iter.idx;
 
 				hb_position_t kern = driver.get_kerning(info[i].codepoint,
 					info[j].codepoint);

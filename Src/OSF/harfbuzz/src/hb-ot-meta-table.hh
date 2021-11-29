@@ -71,7 +71,7 @@ public:
 			{
 				return table->dataMaps.lsearch(tag).reference_entry(table.get_blob());
 			}
-			unsigned int get_entries(unsigned int start_offset, unsigned int * count, hb_ot_meta_tag_t * entries) const
+			uint get_entries(uint start_offset, uint * count, hb_ot_meta_tag_t * entries) const
 			{
 				if(count) {
 					+table->dataMaps.sub_array(start_offset, count) | hb_map(&DataMap::get_tag) | hb_map([] (hb_tag_t tag) { return (hb_ot_meta_tag_t)tag; })

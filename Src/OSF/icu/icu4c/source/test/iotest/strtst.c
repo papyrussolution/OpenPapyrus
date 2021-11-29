@@ -562,14 +562,14 @@ static void TestStringCompatibility() {
 /*        sprintf(testBuf, "%e", (double)num);
         u_sprintf(uStringBuf, "%e", (double)num);
         u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
-        if (strcmp(myString, testBuf) != 0) {
+        if(strcmp(myString, testBuf) != 0) {
             log_err("%%e Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
         }
 
         sprintf(testBuf, "%E", (double)num);
         u_sprintf(uStringBuf, "%E", (double)num);
         u_austrncpy(myString, uStringBuf, UPRV_LENGTHOF(myString));
-        if (strcmp(myString, testBuf) != 0) {
+        if(strcmp(myString, testBuf) != 0) {
             log_err("%%E Got: \"%s\", Expected: \"%s\"\n", myString, testBuf);
         }*/
 

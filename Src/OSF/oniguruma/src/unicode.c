@@ -886,7 +886,7 @@ static enum EGCB_BREAK_TYPE unicode_egcb_is_break_2code(OnigCodePoint from_code,
 		if(from == EGCB_L && to != EGCB_T) return EGCB_NOT_BREAK;
 		/* GB7 */
 		if((from == EGCB_LV || from == EGCB_V)
-		  && (to == EGCB_V || to == EGCB_T)) return EGCB_NOT_BREAK;
+		 && (to == EGCB_V || to == EGCB_T)) return EGCB_NOT_BREAK;
 
 		/* GB8 */
 		if((to == EGCB_T) && (from == EGCB_LVT || from == EGCB_T))

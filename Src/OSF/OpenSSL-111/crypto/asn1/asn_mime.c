@@ -922,7 +922,7 @@ static int mime_bound_check(char * line, int linelen, const char * bound, int bl
 		return 0;
 	/* Check for part boundary */
 	if((strncmp(line, "--", 2) == 0)
-	  && strncmp(line + 2, bound, blen) == 0) {
+	 && strncmp(line + 2, bound, blen) == 0) {
 		if(strncmp(line + blen + 2, "--", 2) == 0)
 			return 2;
 		else

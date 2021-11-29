@@ -183,7 +183,7 @@
 #if defined(__MSDOS__) && !defined(MSDOS)
 	#define MSDOS
 #endif
-#if (defined(OS_2) || defined(__OS2__)) && !defined(OS2)
+#if(defined(OS_2) || defined(__OS2__)) && !defined(OS2)
 	#define OS2
 #endif
 #if defined(_WINDOWS) && !defined(WINDOWS)
@@ -194,7 +194,7 @@
 		#define WIN32
 	#endif
 #endif
-#if (defined(MSDOS) || defined(OS2) || defined(WINDOWS)) && !defined(WIN32)
+#if(defined(MSDOS) || defined(OS2) || defined(WINDOWS)) && !defined(WIN32)
 	#if !defined(__GNUC__) && !defined(__FLAT__) && !defined(__386__)
 		#ifndef SYS16BIT
 			#define SYS16BIT
@@ -318,7 +318,7 @@
 			#define FAR far
 		#endif
 	#endif
-	#if (defined(__SMALL__) || defined(__MEDIUM__))
+	#if(defined(__SMALL__) || defined(__MEDIUM__))
 	// Turbo C small or medium model 
 		#define SMALL_MEDIUM
 		#ifdef __BORLANDC__
@@ -407,7 +407,7 @@ typedef uLong uLongf;
 #endif
 #if !defined(Z_U4) && !defined(Z_SOLO) && defined(STDC)
 	#include <limits.h>
-	#if (UINT_MAX == 0xffffffffUL)
+	#if(UINT_MAX == 0xffffffffUL)
 		#define Z_U4 unsigned
 	#elif (ULONG_MAX == 0xffffffffUL)
 		#define Z_U4 unsigned long
@@ -2038,7 +2038,7 @@ ZEXTERN void ZEXPORT gzclearerr(gzFile file);
 //   An Adler-32 checksum is almost as reliable as a CRC-32 but can be computed much faster.
 // Usage example:
 //   uLong adler = adler32(0L, Z_NULL, 0);
-//   while (read_buffer(buffer, length) != EOF) {
+//   while(read_buffer(buffer, length) != EOF) {
 //     adler = adler32(adler, buffer, length);
 //   }
 //   if(adler != original_adler) error();
@@ -2069,10 +2069,10 @@ ZEXTERN uLong ZEXPORT crc32(uLong crc, const Bytef *buf, uInt len);
    Usage example:
 
      uLong crc = crc32(0L, Z_NULL, 0);
-     while (read_buffer(buffer, length) != EOF) {
+     while(read_buffer(buffer, length) != EOF) {
        crc = crc32(crc, buffer, length);
      }
-     if (crc != original_crc) error();
+     if(crc != original_crc) error();
  */
 ZEXTERN uLong ZEXPORT crc32_z(uLong adler, const Bytef *buf, size_t len);
 /*
@@ -2196,7 +2196,7 @@ ZEXTERN int ZEXPORT inflateValidate(z_streamp, int);
 ZEXTERN unsigned long ZEXPORT inflateCodesUsed(z_streamp);
 ZEXTERN int ZEXPORT inflateResetKeep(z_streamp);
 ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
-#if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(Z_SOLO)
+#if(defined(_WIN32) || defined(__CYGWIN__)) && !defined(Z_SOLO)
 	ZEXTERN gzFile ZEXPORT gzopen_w(const wchar_t * path, const char * mode);
 #endif
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
@@ -2276,7 +2276,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		#define OS_CODE  0x00
 		#ifndef Z_SOLO
 			#if defined(__TURBOC__) || defined(__BORLANDC__)
-				#if (__STDC__ == 1) && (defined(__LARGE__) || defined(__COMPACT__))
+				#if(__STDC__ == 1) && (defined(__LARGE__) || defined(__COMPACT__))
 					// Allow compilation with ANSI keywords only enabled 
 					void _Cdecl farfree(void * block);
 					void * _Cdecl farmalloc(unsigned long nbytes);
@@ -2343,7 +2343,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	#if defined(_BEOS_) || defined(RISCOS)
 		#define fdopen(fd, mode) NULL /* No fdopen() */
 	#endif
-	#if (defined(_MSC_VER) && (_MSC_VER > 600)) && !defined __INTERIX
+	#if(defined(_MSC_VER) && (_MSC_VER > 600)) && !defined __INTERIX
 		#if defined(_WIN32_WCE)
 			#define fdopen(fd, mode) NULL /* No fdopen() */
 			#ifndef _PTRDIFF_T_DEFINED

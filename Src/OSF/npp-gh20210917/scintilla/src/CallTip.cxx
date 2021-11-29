@@ -60,7 +60,7 @@ bool CallTip::IsTabCharacter(char ch) const noexcept {
 }
 
 int CallTip::NextTabPos(int x) const noexcept {
-	if (tabSize > 0) {              // paranoia... not called unless this is true
+	if(tabSize > 0) {              // paranoia... not called unless this is true
 		x -= insetX;                // position relative to text
 		x = (x + tabSize) / tabSize;  // tab "number"
 		return tabSize*x + insetX;  // position of next tab
@@ -86,7 +86,7 @@ void DrawArrow(Scintilla::Surface *surface, const PRectangle &rc, bool upArrow, 
 	const PRectangle rcClientInner(rc.left + 1, rc.top + 1, rc.right - 2, rc.bottom - 1);
 	surface->FillRectangle(rcClientInner, colourUnSel);
 
-	if (upArrow) {      // Up arrow
+	if(upArrow) {      // Up arrow
 		Point pts[] = {
 			Point::FromInts(centreX - halfWidth, centreY + quarterWidth),
 			Point::FromInts(centreX + halfWidth, centreY + quarterWidth),
@@ -110,7 +110,7 @@ void DrawArrow(Scintilla::Surface *surface, const PRectangle &rc, bool upArrow, 
 int CallTip::DrawChunk(Surface *surface, int x, std::string_view sv,
 	int ytext, PRectangle rcClient, bool asHighlight, bool draw) {
 
-	if (sv.empty()) {
+	if(sv.empty()) {
 		return x;
 	}
 
@@ -119,13 +119,13 @@ int CallTip::DrawChunk(Surface *surface, int x, std::string_view sv,
 	// Start with single element 0 to simplify append checks.
 	std::vector<size_t> ends(1);
 	for (size_t i=0; i<sv.length(); i++) {
-		if (IsArrowCharacter(sv[i]) || IsTabCharacter(sv[i])) {
-			if (ends.back() != i)
+		if(IsArrowCharacter(sv[i]) || IsTabCharacter(sv[i])) {
+			if(ends.back() != i)
 				ends.push_back(i);
 			ends.push_back(i+1);
 		}
 	}
-	if (ends.back() != sv.length())
+	if(ends.back() != sv.length())
 		ends.push_back(sv.length());
 	ends.erase(ends.begin());	// Remove initial 0.
 
@@ -133,26 +133,26 @@ int CallTip::DrawChunk(Surface *surface, int x, std::string_view sv,
 	for (const size_t endSeg : ends) {
 		assert(endSeg > 0);
 		int xEnd;
-		if (IsArrowCharacter(sv[startSeg])) {
+		if(IsArrowCharacter(sv[startSeg])) {
 			xEnd = x + widthArrow;
 			const bool upArrow = sv[startSeg] == '\001';
 			rcClient.left = static_cast<XYPOSITION>(x);
 			rcClient.right = static_cast<XYPOSITION>(xEnd);
-			if (draw) {
+			if(draw) {
 				DrawArrow(surface, rcClient, upArrow, colourBG, colourUnSel);
 			}
 			offsetMain = xEnd;
-			if (upArrow) {
+			if(upArrow) {
 				rectUp = rcClient;
 			} else {
 				rectDown = rcClient;
 			}
-		} else if (IsTabCharacter(sv[startSeg])) {
+		} else if(IsTabCharacter(sv[startSeg])) {
 			xEnd = NextTabPos(x);
 		} else {
 			const std::string_view segText = sv.substr(startSeg, endSeg - startSeg);
 			xEnd = x + static_cast<int>(std::lround(surface->WidthText(font, segText)));
-			if (draw) {
+			if(draw) {
 				rcClient.left = static_cast<XYPOSITION>(x);
 				rcClient.right = static_cast<XYPOSITION>(xEnd);
 				surface->DrawTextTransparent(rcClient, font, static_cast<XYPOSITION>(ytext),
@@ -181,10 +181,10 @@ int CallTip::PaintContents(Surface *surfaceWindow, bool draw) {
 	std::string_view remaining(val);
 	int maxWidth = 0;
 	size_t lineStart = 0;
-	while (!remaining.empty()) {
+	while(!remaining.empty()) {
 		const std::string_view chunkVal = remaining.substr(0, remaining.find_first_of('\n'));
 		remaining.remove_prefix(chunkVal.length());
-		if (!remaining.empty()) {
+		if(!remaining.empty()) {
 			remaining.remove_prefix(1);	// Skip \n
 		}
 
@@ -219,7 +219,7 @@ int CallTip::PaintContents(Surface *surfaceWindow, bool draw) {
 }
 
 void CallTip::PaintCT(Surface *surfaceWindow) {
-	if (val.empty())
+	if(val.empty())
 		return;
 	const PRectangle rcClientPos = wCallTip.GetClientPosition();
 	const PRectangle rcClientSize(0.0f, 0.0f, rcClientPos.right - rcClientPos.left,
@@ -247,9 +247,9 @@ void CallTip::PaintCT(Surface *surfaceWindow) {
 
 void CallTip::MouseClick(Point pt) noexcept {
 	clickPlace = 0;
-	if (rectUp.Contains(pt))
+	if(rectUp.Contains(pt))
 		clickPlace = 1;
-	if (rectDown.Contains(pt))
+	if(rectDown.Contains(pt))
 		clickPlace = 2;
 }
 
@@ -283,7 +283,7 @@ PRectangle CallTip::CallTipStart(Sci::Position pos, Point pt, int textHeight, co
 	// rectangle is aligned to the right edge of the last arrow encountered in
 	// the tip text, else to the tip text left edge.
 	const int height = lineHeight * numLines - static_cast<int>(surfaceMeasure->InternalLeading(font)) + borderHeight * 2;
-	if (above) {
+	if(above) {
 		return PRectangle(pt.x - offsetMain, pt.y - verticalOffset - height, pt.x + width - offsetMain, pt.y - verticalOffset);
 	} else {
 		return PRectangle(pt.x - offsetMain, pt.y + verticalOffset + textHeight, pt.x + width - offsetMain, pt.y + verticalOffset + textHeight + height);
@@ -292,17 +292,17 @@ PRectangle CallTip::CallTipStart(Sci::Position pos, Point pt, int textHeight, co
 
 void CallTip::CallTipCancel() {
 	inCallTipMode = false;
-	if (wCallTip.Created()) {
+	if(wCallTip.Created()) {
 		wCallTip.Destroy();
 	}
 }
 
 void CallTip::SetHighlight(size_t start, size_t end) {
 	// Avoid flashing by checking something has really changed
-	if ((start != highlight.start) || (end != highlight.end)) {
+	if((start != highlight.start) || (end != highlight.end)) {
 		highlight.start = start;
 		highlight.end = (end > start) ? end : start;
-		if (wCallTip.Created()) {
+		if(wCallTip.Created()) {
 			wCallTip.InvalidateAll();
 		}
 	}

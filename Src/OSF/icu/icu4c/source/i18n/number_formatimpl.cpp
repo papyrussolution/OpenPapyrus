@@ -167,8 +167,8 @@ const MicroPropsGenerator* NumberFormatterImpl::macrosToMicroGenerator(const Mac
 	// compact notation overrides the middle modifier (micros.modMiddle)
 	// normally used for the percent pattern.
 	bool isCldrUnit = !isCurrency
-	  && !isBaseUnit
-	  && (unitWidth == UNUM_UNIT_WIDTH_FULL_NAME
+	 && !isBaseUnit
+	 && (unitWidth == UNUM_UNIT_WIDTH_FULL_NAME
 	 || !(isPercent || isPermille)
 	 || isCompactNotation
 	    );

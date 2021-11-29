@@ -10,7 +10,7 @@
 #include "number_patternstring.h"
 
 void PatternStringTest::runIndexedTest(int32_t index, bool exec, const char *& name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite PatternStringTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -25,7 +25,7 @@ void PatternStringTest::runIndexedTest(int32_t index, bool exec, const char *& n
 void PatternStringTest::testLocalized() {
     IcuTestErrorCode status(*this, "testLocalized");
     DecimalFormatSymbols symbols(Locale::getEnglish(), status);
-    if (status.isFailure()) { return; }
+    if(status.isFailure()) { return; }
     symbols.setSymbol(DecimalFormatSymbols::kDecimalSeparatorSymbol, u"a", status);
     symbols.setSymbol(DecimalFormatSymbols::kPercentSymbol, u"b", status);
     symbols.setSymbol(DecimalFormatSymbols::kMinusSignSymbol, u".", status);

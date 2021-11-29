@@ -318,8 +318,8 @@ U_CAPI bool ulocimp_isCanonicalizedLocaleForTest(const char * localeName);
  * PreflightingLocaleIDBuffer tempBuffer;
  * do {
  *     tempBuffer.requestedCapacity = uloc_doSomething(localeID, tempBuffer.getBuffer(), tempBuffer.getCapacity(), &err);
- * } while (tempBuffer.needToTryAgain(&err));
- * if (U_SUCCESS(err)) {
+ * } while(tempBuffer.needToTryAgain(&err));
+ * if(U_SUCCESS(err)) {
  *     uloc_doSomethingWithTheResult(tempBuffer.getBuffer());
  * }
  */
@@ -344,7 +344,7 @@ public:
     ~PreflightingLocaleIDBuffer() { uprv_free(heapBuffer); }
     
     char * getBuffer() {
-        if (heapBuffer == nullptr) {
+        if(heapBuffer == nullptr) {
             return stackBuffer;
         } else {
             return heapBuffer;
@@ -356,14 +356,14 @@ public:
     }
     
     bool needToTryAgain(UErrorCode * err) {
-        if (heapBuffer != nullptr) {
+        if(heapBuffer != nullptr) {
             return false;
         }
     
-        if (*err == U_BUFFER_OVERFLOW_ERROR || *err == U_STRING_NOT_TERMINATED_WARNING) {
+        if(*err == U_BUFFER_OVERFLOW_ERROR || *err == U_STRING_NOT_TERMINATED_WARNING) {
             int32_t newCapacity = requestedCapacity + 2;    // one for the terminating null, one just for paranoia
             heapBuffer = static_cast<char *>(uprv_malloc(newCapacity));
-            if (heapBuffer == nullptr) {
+            if(heapBuffer == nullptr) {
                 *err = U_MEMORY_ALLOCATION_ERROR;
             } else {
                 *err = U_ZERO_ERROR;

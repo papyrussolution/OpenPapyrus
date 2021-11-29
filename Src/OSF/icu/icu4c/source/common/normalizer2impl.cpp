@@ -2285,7 +2285,7 @@ uint8_t Normalizer2Impl::getPreviousTrailCC(const uint8_t * start, const uint8_t
 // function on Windows ARM64. As a work-around, we disable optimizations for this function.
 // This work-around could/should be removed once the following versions of Visual Studio are no
 // longer supported: All versions of VS2017, and versions of VS2019 below 16.4.
-#if (defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
+#if(defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
 #pragma optimize( "", off )
 #endif
 // Gets the FCD value from the regular normalization data.
@@ -2324,7 +2324,7 @@ uint16_t Normalizer2Impl::getFCD16FromNormData(UChar32 c) const {
 	return norm16;
 }
 
-#if (defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
+#if(defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
 #pragma optimize( "", on )
 #endif
 

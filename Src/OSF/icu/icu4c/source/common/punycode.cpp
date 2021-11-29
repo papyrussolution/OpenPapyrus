@@ -517,7 +517,7 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 		n += i/destCPCount;
 		i %= destCPCount;
 		/* not needed for Punycode: */
-		/* if (decode_digit(n) <= BASE) return punycode_invalid_input; */
+		/* if(decode_digit(n) <= BASE) return punycode_invalid_input; */
 
 		if(n>0x10ffff || U_IS_SURROGATE(n)) {
 			/* Unicode code point overflow */

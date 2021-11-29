@@ -72,7 +72,7 @@ uloc_getTableStringWithFallback(const char *path, const char *locale,
         icu::StackUResourceBundle subTable;
         ures_getByKeyWithFallback(rb.getAlias(), tableKey, table.getAlias(), &errorCode);
 
-        if (subTableKey != NULL) {
+        if(subTableKey != NULL) {
             /*
             ures_getByKeyWithFallback(table.getAlias(), subTableKey, subTable.getAlias(), &errorCode);
             item = ures_getStringByKeyWithFallback(subTable.getAlias(), itemKey, pLength, &errorCode);
@@ -151,13 +151,13 @@ _uloc_getOrientationHelper(const char * localeId,
 {
     ULayoutType result = ULOC_LAYOUT_UNKNOWN;
 
-    if (!U_FAILURE(*status)) {
+    if(!U_FAILURE(*status)) {
         int32_t length = 0;
         char localeBuffer[ULOC_FULLNAME_CAPACITY];
 
         uloc_canonicalize(localeId, localeBuffer, sizeof(localeBuffer), status);
 
-        if (!U_FAILURE(*status)) {
+        if(!U_FAILURE(*status)) {
             const UChar * const value =
                 uloc_getTableStringWithFallback(
                     NULL,
@@ -168,7 +168,7 @@ _uloc_getOrientationHelper(const char * localeId,
                     &length,
                     status);
 
-            if (!U_FAILURE(*status) && length != 0) {
+            if(!U_FAILURE(*status) && length != 0) {
                 switch(value[0])
                 {
                 case 0x0062: /* 'b' */

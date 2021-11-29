@@ -210,7 +210,7 @@ static int asn1_check_sequence(ssh_buffer buffer)
 	}
 	size = asn1_get_len(buffer);
 	if((padding = ssh_buffer_get_len(buffer) - size) > 0) {
-		for(i = ssh_buffer_get_len(buffer) - size, j = (uchar*)ssh_buffer_get(buffer) + size; i; i--, j++) {
+		for(i = ssh_buffer_get_len(buffer) - size, j = (uchar *)ssh_buffer_get(buffer) + size; i; i--, j++) {
 			if(*j != padding) {  /* padding is allowed */
 				return 0;    /* but nothing else */
 			}
@@ -374,7 +374,7 @@ static int privatekey_dek_header(const char * header, uint header_len,
 			eol = true;                                                 \
 		else          /* calculate length */                    \
 			for(p += len, len = 0; p[len] && p[len] != '\n'             \
-			  && p[len] != '\r'; len++);    \
+			 && p[len] != '\r'; len++);    \
 }
 
 static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
@@ -820,7 +820,7 @@ static int asn1_oi_to_nid(const ssh_string oi)
 	size_t len = ssh_string_len(oi);
 	for(e = mapping; e->length; e++) {
 		if(len == e->length
-		  && memcmp(ssh_string_data(oi), e->identifier, len) == 0) {
+		 && memcmp(ssh_string_data(oi), e->identifier, len) == 0) {
 			return e->nid;
 		}
 	}
@@ -1949,7 +1949,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 			    20,
 			    ssh_string_data(sig_blob),
 			    20,
-			    (uchar*)ssh_string_data(sig_blob) + 20);
+			    (uchar *)ssh_string_data(sig_blob) + 20);
 		    if(err) {
 			    ssh_signature_free(sig);
 			    return NULL;

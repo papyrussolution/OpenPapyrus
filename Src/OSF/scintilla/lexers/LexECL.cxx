@@ -353,7 +353,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			}
 			else if(sc.ch == '/' && setOKBeforeRE.Contains(chPrevNonWhite)) {
 				sc.SetState(SCE_ECL_REGEX);     // JavaScript's RegEx
-//			} else if (sc.ch == '\"') {
+//			} else if(sc.ch == '\"') {
 //				sc.SetState(SCE_ECL_STRING);
 			}
 			else if(sc.ch == '\'') {

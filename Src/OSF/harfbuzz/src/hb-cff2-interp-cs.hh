@@ -57,8 +57,8 @@ namespace CFF {
 			reset_blends(); number_t::set_real(v);
 		}
 
-		void set_blends(unsigned int numValues_, unsigned int valueIndex_,
-		    unsigned int numBlends, hb_array_t<const blend_arg_t> blends_)
+		void set_blends(uint numValues_, uint valueIndex_,
+		    uint numBlends, hb_array_t<const blend_arg_t> blends_)
 		{
 			numValues = numValues_;
 			valueIndex = valueIndex_;
@@ -77,8 +77,8 @@ namespace CFF {
 			deltas.resize(0);
 		}
 
-		unsigned int numValues;
-		unsigned int valueIndex;
+		uint numValues;
+		uint valueIndex;
 		hb_vector_t<number_t> deltas;
 	};
 
@@ -87,8 +87,8 @@ namespace CFF {
 
 	struct cff2_cs_interp_env_t : cs_interp_env_t<blend_arg_t, CFF2Subrs>{
 		template <typename ACC>
-		void init(const byte_str_t &str, ACC &acc, unsigned int fd,
-		    const int * coords_ = nullptr, unsigned int num_coords_ = 0)
+		void init(const byte_str_t &str, ACC &acc, uint fd,
+		    const int * coords_ = nullptr, uint num_coords_ = 0)
 		{
 			SUPER::init(str, acc.globalSubrs, acc.privateDicts[fd].localSubrs);
 
@@ -120,7 +120,7 @@ namespace CFF {
 				return OpCode_return;
 		}
 
-		const blend_arg_t& eval_arg(unsigned int i)
+		const blend_arg_t& eval_arg(uint i)
 		{
 			blend_arg_t  &arg = argStack[i];
 			blend_arg(arg);
@@ -151,7 +151,7 @@ namespace CFF {
 
 		void process_vsindex()
 		{
-			unsigned int index = argStack.pop_uint();
+			uint index = argStack.pop_uint();
 			if(UNLIKELY(seen_vsindex() || seen_blend)) {
 				set_error();
 			}
@@ -160,10 +160,10 @@ namespace CFF {
 			}
 			seen_vsindex_ = true;
 		}
-		unsigned int get_region_count() const { return region_count; }
-		void   set_region_count(unsigned int region_count_) { region_count = region_count_; }
-		unsigned int get_ivs() const { return ivs; }
-		void   set_ivs(unsigned int ivs_) { ivs = ivs_; }
+		uint get_region_count() const { return region_count; }
+		void   set_region_count(uint region_count_) { region_count = region_count_; }
+		uint get_ivs() const { return ivs; }
+		void   set_ivs(uint ivs_) { ivs = ivs_; }
 		bool   seen_vsindex() const { return seen_vsindex_; }
 protected:
 		void blend_arg(blend_arg_t &arg)
@@ -182,10 +182,10 @@ protected:
 
 protected:
 		const int * coords;
-		unsigned int num_coords;
+		uint num_coords;
 		const CFF2VariationStore * varStore;
-		unsigned int region_count;
-		unsigned int ivs;
+		uint region_count;
+		uint ivs;
 		hb_vector_t<float>  scalars;
 		bool do_blend;
 		bool seen_vsindex_;
@@ -227,13 +227,13 @@ protected:
 
 		static void process_blend(cff2_cs_interp_env_t &env, PARAM& param)
 		{
-			unsigned int n, k;
+			uint n, k;
 
 			env.process_blend();
 			k = env.get_region_count();
 			n = env.argStack.pop_uint();
 			/* copy the blend values into blend array of the default values */
-			unsigned int start = env.argStack.get_count() - ((k+1) * n);
+			uint start = env.argStack.get_count() - ((k+1) * n);
 			/* let an obvious error case fail, but note CFF2 spec doesn't forbid n==0 */
 			if(UNLIKELY(start > env.argStack.get_count())) {
 				env.set_error();

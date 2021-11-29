@@ -716,12 +716,12 @@ static const int T3_EXPECTINGPUNCTUATION = 1 << 14;
 static bool FASTCALL IsStringTransition(int s1, int s2)
 {
 	return s1 != s2
-	     && (s1 == SCE_T3_S_STRING || s1 == SCE_T3_X_STRING
+	 && (s1 == SCE_T3_S_STRING || s1 == SCE_T3_X_STRING
 	    || (s1 == SCE_T3_D_STRING && s2 != SCE_T3_X_DEFAULT))
-	     && s2 != SCE_T3_LIB_DIRECTIVE
-	     && s2 != SCE_T3_MSG_PARAM
-	     && s2 != SCE_T3_HTML_TAG
-	     && s2 != SCE_T3_HTML_STRING;
+	 && s2 != SCE_T3_LIB_DIRECTIVE
+	 && s2 != SCE_T3_MSG_PARAM
+	 && s2 != SCE_T3_HTML_TAG
+	 && s2 != SCE_T3_HTML_STRING;
 }
 
 static bool FASTCALL IsATADS3Punctuation(const int ch)
@@ -879,7 +879,7 @@ static void FoldTADS3Doc(Sci_PositionU startPos, Sci_Position length, int initSt
 			}
 		}
 		else if(levelNext == SC_FOLDLEVELBASE+1 && seenStart
-		  && ch == ';' && IsAnOperator(style)) {
+		 && ch == ';' && IsAnOperator(style)) {
 			levelNext--;
 			seenStart = 0;
 		}

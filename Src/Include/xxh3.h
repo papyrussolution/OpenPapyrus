@@ -74,7 +74,7 @@
 	#endif
 #endif
 /* uint64 XXH_mult32to64(uint32 a, uint64 b) { return (uint64)a * (uint64)b; } */
-#if (_MSC_VER >= 1600) && defined(_M_IX86)
+#if(_MSC_VER >= 1600) && defined(_M_IX86)
 	#include <intrin.h>
 	#define XXH_mult32to64(x, y) __emulu(x, y)
 #else
@@ -162,7 +162,7 @@
 
 #define XXH_SECRET_DEFAULT_SIZE 192   /* minimum XXH3_SECRET_SIZE_MIN */
 
-#if (XXH_SECRET_DEFAULT_SIZE < XXH3_SECRET_SIZE_MIN)
+#if(XXH_SECRET_DEFAULT_SIZE < XXH3_SECRET_SIZE_MIN)
 	#error "default keyset is not large enough"
 #endif
 
@@ -422,7 +422,7 @@ typedef enum { XXH3_acc_64bits, XXH3_acc_128bits } XXH3_accWidth_e;
 
 XXH_FORCE_INLINE void XXH3_accumulate_512(void * XXH_RESTRICT acc, const void * XXH_RESTRICT data, const void * XXH_RESTRICT key, XXH3_accWidth_e accWidth)
 {
-#if (XXH_VECTOR == XXH_AVX2)
+#if(XXH_VECTOR == XXH_AVX2)
 	assert((((size_t)acc) & 31) == 0);
 	{   
 		XXH_ALIGN(32) __m256i* const xacc  =       (__m256i*)acc;
@@ -615,7 +615,7 @@ XXH_FORCE_INLINE void XXH3_accumulate_512(void * XXH_RESTRICT acc, const void * 
 
 XXH_FORCE_INLINE void XXH3_scrambleAcc(void * XXH_RESTRICT acc, const void * XXH_RESTRICT key)
 {
-#if (XXH_VECTOR == XXH_AVX2)
+#if(XXH_VECTOR == XXH_AVX2)
 	assert((((size_t)acc) & 31) == 0);
 	{   
 		XXH_ALIGN(32) __m256i* const xacc = (__m256i*)acc;

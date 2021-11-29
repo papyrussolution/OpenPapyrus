@@ -591,18 +591,18 @@ static uint16_t addToKnownAliases(const char * alias) {
 	/* strict matching */
 /*    for (idx = 0; idx < knownAliasesCount; idx++) {
         uint16_t num = GET_ALIAS_NUM(alias);
-        if (knownAliases[idx] != num
-          && uprv_strcmp(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
+        if(knownAliases[idx] != num
+ && uprv_strcmp(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
         {
             fprintf(stderr, "%s:%d: warning: duplicate alias %s and %s found\n", path,
                 lineNum, alias, GET_ALIAS_STR(knownAliases[idx]));
             duplicateKnownAliasesCount++;
             break;
         }
-        else if (knownAliases[idx] != num
-          && ucnv_compareNames(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
+        else if(knownAliases[idx] != num
+ && ucnv_compareNames(alias, GET_ALIAS_STR(knownAliases[idx])) == 0)
         {
-            if (verbose) {
+            if(verbose) {
                 fprintf(stderr, "%s:%d: information: duplicate alias %s and %s found\n", path,
                     lineNum, alias, GET_ALIAS_STR(knownAliases[idx]));
             }
@@ -694,12 +694,12 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 
 		/* Check for duplicate default aliases for this converter on all tags */
 		/* It's okay to have multiple standards prefer the same name */
-/*        if (verbose && !dupFound) {
+/*        if(verbose && !dupFound) {
             for (idx = 0; idx < tagCount; idx++) {
-                if (tags[idx].aliasList[converter].aliases) {
+                if(tags[idx].aliasList[converter].aliases) {
                     uint16_t aliasNum = tags[idx].aliasList[converter].aliases[0];
-                    if (aliasNum
-                      && ucnv_compareNames(alias, GET_ALIAS_STR(aliasNum)) == 0)
+                    if(aliasNum
+            && ucnv_compareNames(alias, GET_ALIAS_STR(aliasNum)) == 0)
                     {
                         fprintf(stderr, "%s:%d: warning: duplicate alias %s found for converter %s and standard tag
                            %s\n", path,

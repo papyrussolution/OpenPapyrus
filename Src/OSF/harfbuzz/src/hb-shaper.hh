@@ -34,7 +34,7 @@ typedef hb_bool_t hb_shape_func_t (hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features);
+    uint num_features);
 
 #define HB_SHAPER_IMPLEMENT(name) \
 	extern "C" HB_INTERNAL hb_shape_func_t _hb_ ## name ## _shape;
@@ -48,7 +48,7 @@ struct hb_shaper_entry_t {
 
 HB_INTERNAL const hb_shaper_entry_t * _hb_shapers_get();
 
-template <typename Data, unsigned int WheresData, typename T>
+template <typename Data, uint WheresData, typename T>
 struct hb_shaper_lazy_loader_t;
 
 #define HB_SHAPER_ORDER(Shaper) \
@@ -84,7 +84,7 @@ template <enum hb_shaper_order_t order, typename Object> struct hb_shaper_object
 		typedef HB_SHAPER_DATA_TYPE (shaper, object) value; \
 	}; \
         \
-	template <unsigned int WheresData> \
+	template <uint WheresData> \
 	struct hb_shaper_lazy_loader_t<hb_ ## object ## _t, WheresData, HB_SHAPER_DATA_TYPE(shaper, object)> \
 	: hb_lazy_loader_t<HB_SHAPER_DATA_TYPE(shaper, object), \
 	    hb_shaper_lazy_loader_t<hb_ ## object ## _t, \

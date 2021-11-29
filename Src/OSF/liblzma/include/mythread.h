@@ -36,7 +36,7 @@
 //
 //     mythread_sync(mutex) {
 //         foo();
-//         if (some_error)
+//         if(some_error)
 //             break; // Skips bar()
 //         bar();
 //     }

@@ -135,7 +135,7 @@ static UnicodeString & getWindowsFormat(int32_t lcid, bool currency, UnicodeStri
 	/* Just to make sure of the above statement, we add this assert */
 	U_ASSERT(result >=0);
 	// The following code is not used because _vscwprintf isn't available on MinGW at the moment.
-	/*if (result < 0) {
+	/*if(result < 0) {
 	    int newLength;
 
 	    va_start(args, fmt);
@@ -202,7 +202,7 @@ static UnicodeString & getWindowsFormat(int32_t lcid, bool currency, UnicodeStri
 		DELETE_ARRAY(buffer);
 	}
 
-	/*if (nBuffer != nStackBuffer) {
+	/*if(nBuffer != nStackBuffer) {
 	    DELETE_ARRAY(nBuffer);
 	   }*/
 

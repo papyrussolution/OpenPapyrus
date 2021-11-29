@@ -101,7 +101,7 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 					sc.SetState(SCE_F_DEFAULT);
 			}
 			else if(toLineStart == 5) {
-				//if (!IsASpace(sc.ch) && sc.ch != '0') {
+				//if(!IsASpace(sc.ch) && sc.ch != '0') {
 				if(sc.ch != '\r' && sc.ch != '\n') {
 					sc.SetState(SCE_F_CONTINUATION);
 					if(!IsASpace(sc.ch) && sc.ch != '0')
@@ -631,7 +631,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 										tmpLineCurrent++;
 										j = styler.LineStart(tmpLineCurrent);
 										if(styler.StyleAt(j+5) == SCE_F_CONTINUATION
-										  && !IsABlank(styler.SafeGetCharAt(j+5)) &&
+										 && !IsABlank(styler.SafeGetCharAt(j+5)) &&
 										    styler.SafeGetCharAt(j+5) != '0') {
 											j += 5;
 											continue;

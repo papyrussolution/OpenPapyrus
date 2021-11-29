@@ -42,7 +42,7 @@
 /*
  * Define WIN32 when build target is Win32 API
  */
-#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
+#if(defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
 	#define WIN32
 #endif
 #ifdef WIN32
@@ -348,13 +348,13 @@
 		#define SIZEOF_OFF_T 4
 	#endif
 #endif
-#if (SIZEOF_CURL_OFF_T == 4)
+#if(SIZEOF_CURL_OFF_T == 4)
 	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFF)
 #else
 	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFFFFFFFFFF) /* assume CURL_SIZEOF_CURL_OFF_T == 8 */
 #endif
 #define CURL_OFF_T_MIN (-CURL_OFF_T_MAX - CURL_OFF_T_C(1))
-#if (SIZEOF_TIME_T == 4)
+#if(SIZEOF_TIME_T == 4)
 	#ifdef HAVE_TIME_T_UNSIGNED
 		#define TIME_T_MAX UINT_MAX
 		#define TIME_T_MIN 0
@@ -634,7 +634,7 @@ int netware_init(void);
 #endif /* DONT_USE_RECV_BEFORE_SEND_WORKAROUND */
 /* Detect Windows App environment which has a restricted access
  * to the Win32 APIs. */
-#if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || defined(WINAPI_FAMILY)
+#if(defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || defined(WINAPI_FAMILY)
 	#include <winapifamily.h>
 	#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 		#define CURL_WINDOWS_APP

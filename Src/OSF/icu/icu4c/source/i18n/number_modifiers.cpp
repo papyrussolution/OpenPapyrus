@@ -100,9 +100,9 @@ bool ConstantAffixModifier::semanticallyEquivalent(const Modifier& other) const
 		return false;
 	}
 	return fPrefix == _other->fPrefix
-	     && fSuffix == _other->fSuffix
-	     && fField == _other->fField
-	     && fStrong == _other->fStrong;
+	 && fSuffix == _other->fSuffix
+	 && fField == _other->fField
+	 && fStrong == _other->fStrong;
 }
 
 SimpleModifier::SimpleModifier(const SimpleFormatter &simpleFormatter, Field field, bool strong)
@@ -193,8 +193,8 @@ bool SimpleModifier::semanticallyEquivalent(const Modifier& other) const {
 		return fParameters.obj == _other->fParameters.obj;
 	}
 	return fCompiledPattern == _other->fCompiledPattern
-	     && fField == _other->fField
-	     && fStrong == _other->fStrong;
+	 && fField == _other->fField
+	 && fStrong == _other->fStrong;
 }
 
 int32_t SimpleModifier::formatAsPrefixSuffix(FormattedStringBuilder &result, int32_t startIndex, int32_t endIndex,
@@ -322,9 +322,9 @@ bool ConstantMultiFieldModifier::semanticallyEquivalent(const Modifier& other) c
 		return fParameters.obj == _other->fParameters.obj;
 	}
 	return fPrefix.contentEquals(_other->fPrefix)
-	     && fSuffix.contentEquals(_other->fSuffix)
-	     && fOverwrite == _other->fOverwrite
-	     && fStrong == _other->fStrong;
+	 && fSuffix.contentEquals(_other->fSuffix)
+	 && fOverwrite == _other->fOverwrite
+	 && fStrong == _other->fStrong;
 }
 
 CurrencySpacingEnabledModifier::CurrencySpacingEnabledModifier(const FormattedStringBuilder &prefix,

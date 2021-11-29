@@ -467,7 +467,7 @@ int32_t HebrewCalendar::yearType(int32_t year) const
 /**
  * Determine whether a given Hebrew year is a leap year
  *
- * The rule here is that if (year % 19) == 0, 3, 6, 8, 11, 14, or 17.
+ * The rule here is that if(year % 19) == 0, 3, 6, 8, 11, 14, or 17.
  * The formula below performs the same test, believe it or not.
  */
 bool HebrewCalendar::isLeapYear(int32_t year) {

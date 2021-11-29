@@ -739,11 +739,11 @@ FT_Load_Glyph(FT_Face face,
 	 *   load properly.
 	 */
 
-	if(hinter                                         &&
-	    !(load_flags & FT_LOAD_NO_HINTING )           &&
-	    !(load_flags & FT_LOAD_NO_AUTOHINT )          &&
-	    FT_IS_SCALABLE(face)                         &&
-	    !FT_IS_TRICKY(face)                          &&
+	if(hinter &&
+	    !(load_flags & FT_LOAD_NO_HINTING ) &&
+	    !(load_flags & FT_LOAD_NO_AUTOHINT ) &&
+	    FT_IS_SCALABLE(face) &&
+	    !FT_IS_TRICKY(face) &&
 	    ((load_flags & FT_LOAD_IGNORE_TRANSFORM ) || 
 	    ( face->internal->transform_matrix.yx == 0 &&
 	    face->internal->transform_matrix.xx != 0) ||
@@ -766,9 +766,9 @@ FT_Load_Glyph(FT_Face face,
 			/* check the size of the `fpgm' and `prep' tables, too --    */
 			/* the assumption is that there don't exist real TTFs where  */
 			/* both `fpgm' and `prep' tables are missing    */
-			if(( mode == FT_RENDER_MODE_LIGHT         && ( !FT_DRIVER_HINTS_LIGHTLY(driver) &&
-			    !is_light_type1                    )) || ( FT_IS_SFNT(face)                           &&
-			    ttface->num_locations                        && ttface->max_profile.maxSizeOfInstructions == 0 && ttface->font_program_size == 0 && 
+			if(( mode == FT_RENDER_MODE_LIGHT && ( !FT_DRIVER_HINTS_LIGHTLY(driver) &&
+			    !is_light_type1                    )) || ( FT_IS_SFNT(face) &&
+			    ttface->num_locations && ttface->max_profile.maxSizeOfInstructions == 0 && ttface->font_program_size == 0 && 
 				ttface->cvt_program_size == 0                  ))
 				autohint = TRUE;
 		}
@@ -781,7 +781,7 @@ FT_Load_Glyph(FT_Face face,
 		/* XXX: This is really a temporary hack that should disappear */
 		/*      promptly with FreeType 2.1!        */
 		/*                                         */
-		if(FT_HAS_FIXED_SIZES(face)            && ( load_flags & FT_LOAD_NO_BITMAP ) == 0) {
+		if(FT_HAS_FIXED_SIZES(face) && ( load_flags & FT_LOAD_NO_BITMAP ) == 0) {
 			error = driver->clazz->load_glyph(slot, face->size, glyph_index, load_flags | FT_LOAD_SBITS_ONLY);
 			if(!error && slot->format == FT_GLYPH_FORMAT_BITMAP)
 				goto Load_Ok;
@@ -884,9 +884,9 @@ Load_Ok:
 	slot->internal->load_flags = load_flags;
 
 	/* do we need to render the image or preset the bitmap now? */
-	if(!error                                  &&
-	    ( load_flags & FT_LOAD_NO_SCALE ) == 0  &&
-	    slot->format != FT_GLYPH_FORMAT_BITMAP  &&
+	if(!error &&
+	    ( load_flags & FT_LOAD_NO_SCALE ) == 0 &&
+	    slot->format != FT_GLYPH_FORMAT_BITMAP &&
 	    slot->format != FT_GLYPH_FORMAT_COMPOSITE) {
 		FT_Render_Mode mode = FT_LOAD_TARGET_MODE(load_flags);
 
@@ -1163,7 +1163,7 @@ static FT_CharMap find_variant_selector_charmap(FT_Face face)
 	end = first + face->num_charmaps; /* points after the last one */
 
 	for(cur = first; cur < end; cur++) {
-		if(cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE  &&
+		if(cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE &&
 		    cur[0]->encoding_id == TT_APPLE_ID_VARIANT_SELECTOR &&
 		    FT_Get_CMap_Format(cur[0]) == 14)
 			return cur[0];
@@ -1276,7 +1276,7 @@ Fail:
 
 FT_EXPORT_DEF(FT_Error)
 FT_New_Face(FT_Library library,
-    const char *  pathname,
+    const char * pathname,
     FT_Long face_index,
     FT_Face     *aface)
 {
@@ -1400,7 +1400,7 @@ open_face_from_buffer(FT_Library library,
     FT_Byte*     base,
     FT_ULong size,
     FT_Long face_index,
-    const char *  driver_name,
+    const char * driver_name,
     FT_Face     *aface)
 {
 	FT_Open_Args args;
@@ -2189,7 +2189,7 @@ static FT_Error ft_open_face_internal(FT_Library library,
 					goto Success;
 
 #ifdef FT_CONFIG_OPTION_MAC_FONTS
-				if(test_mac_fonts                                         &&
+				if(test_mac_fonts &&
 				    ft_strcmp(cur[0]->clazz->module_name, "truetype") == 0 &&
 				    FT_ERR_EQ(error, Table_Missing)                        ) {
 					/* TrueType but essential tables are missing */
@@ -2219,8 +2219,8 @@ Fail3:
 		/* If we are on the mac, and we get an       */
 		/* FT_Err_Invalid_Stream_Operation it may be because we have an */
 		/* empty data fork, so we need to check the resource fork.      */
-		if(FT_ERR_NEQ(error, Cannot_Open_Stream)     &&
-		    FT_ERR_NEQ(error, Unknown_File_Format)    &&
+		if(FT_ERR_NEQ(error, Cannot_Open_Stream) &&
+		    FT_ERR_NEQ(error, Unknown_File_Format) &&
 		    FT_ERR_NEQ(error, Invalid_Stream_Operation))
 			goto Fail2;
 
@@ -2379,7 +2379,7 @@ Exit:
 
 FT_EXPORT_DEF(FT_Error)
 FT_Attach_File(FT_Face face,
-    const char *  filepathname)
+    const char * filepathname)
 {
 	FT_Open_Args open;
 
@@ -2430,7 +2430,7 @@ FT_Attach_Stream(FT_Face face,
 
 	/* close the attached stream */
 	FT_Stream_Free(stream,
-	    FT_BOOL(parameters->stream                   &&
+	    FT_BOOL(parameters->stream &&
 	    ( parameters->flags & FT_OPEN_STREAM )));
 
 Exit:
@@ -3183,7 +3183,7 @@ FT_Set_Charmap(FT_Face face,
 	limit = cur + face->num_charmaps;
 
 	for(; cur < limit; cur++) {
-		if(cur[0] == charmap                  &&
+		if(cur[0] == charmap &&
 		    FT_Get_CMap_Format(charmap) != 14) {
 			face->charmap = cur[0];
 			return FT_Err_Ok;
@@ -3459,8 +3459,8 @@ FT_Face_GetCharVariantIndex(FT_Face face,
 {
 	FT_UInt result = 0;
 
-	if(face                                         &&
-	    face->charmap                                &&
+	if(face &&
+	    face->charmap &&
 	    face->charmap->encoding == FT_ENCODING_UNICODE) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
 		FT_CMap ucmap = FT_CMAP(face->charmap);
@@ -3607,7 +3607,7 @@ FT_Get_Name_Index(FT_Face face,
 {
 	FT_UInt result = 0;
 
-	if(face                     &&
+	if(face &&
 	    FT_HAS_GLYPH_NAMES(face) &&
 	    glyph_name) {
 		FT_Service_GlyphDict service;
@@ -3663,7 +3663,7 @@ FT_Get_Glyph_Name(FT_Face face,
 FT_EXPORT_DEF(const char *)
 FT_Get_Postscript_Name(FT_Face face)
 {
-	const char *  result = NULL;
+	const char * result = NULL;
 
 	if(!face)
 		goto Exit;
@@ -4131,49 +4131,37 @@ FT_Render_Glyph_Internal(FT_Library library,
 	 */
 
 	/* we use FT_TRACE3 in this block */
-	if(!error                             &&
+	if(!error &&
 	    ft_trace_levels[trace_checksum] >= 3 &&
 	    slot->bitmap.buffer) {
 		FT_Bitmap bitmap;
 		FT_Error err;
-
 		FT_Bitmap_Init(&bitmap);
-
 		/* we convert to a single bitmap format for computing the checksum */
 		/* this also converts the bitmap flow to `down' (i.e., pitch > 0)  */
 		err = FT_Bitmap_Convert(library, &slot->bitmap, &bitmap, 1);
 		if(!err) {
 			MD5_CTX ctx;
 			uchar md5[16];
-			unsigned long coverage = 0;
+			ulong coverage = 0;
 			int i, j;
 			int rows  = (int)bitmap.rows;
 			int pitch = bitmap.pitch;
-
-			FT_TRACE3(( "FT_Render_Glyph: bitmap %dx%d, %s (mode %d)\n",
-			    pitch,
-			    rows,
-			    pixel_modes[slot->bitmap.pixel_mode],
-			    slot->bitmap.pixel_mode ));
-
+			FT_TRACE3(( "FT_Render_Glyph: bitmap %dx%d, %s (mode %d)\n", pitch,
+			    rows, pixel_modes[slot->bitmap.pixel_mode], slot->bitmap.pixel_mode ));
 			for(i = 0; i < rows; i++)
 				for(j = 0; j < pitch; j++)
 					coverage += bitmap.buffer[i * pitch + j];
-
 			FT_TRACE3(( "  Total coverage: %lu\n", coverage ));
-
 			MD5_Init(&ctx);
 			if(bitmap.buffer)
-				MD5_Update(&ctx, bitmap.buffer,
-				    (unsigned long)rows * (unsigned long)pitch);
+				MD5_Update(&ctx, bitmap.buffer, (ulong)rows * (ulong)pitch);
 			MD5_Final(md5, &ctx);
-
 			FT_TRACE3(( "  MD5 checksum: " ));
 			for(i = 0; i < 16; i++)
 				FT_TRACE3(( "%02X", md5[i]));
 			FT_TRACE3(( "\n" ));
 		}
-
 		FT_Bitmap_Done(library, &bitmap);
 	}
 
@@ -4182,7 +4170,7 @@ FT_Render_Glyph_Internal(FT_Library library,
 	 */
 
 	/* we use FT_TRACE7 in this block */
-	if(!error                             &&
+	if(!error &&
 	    ft_trace_levels[trace_checksum] >= 7) {
 		if(slot->bitmap.rows  < 128U &&
 		    slot->bitmap.width < 128U &&
@@ -4192,7 +4180,7 @@ FT_Render_Glyph_Internal(FT_Library library,
 			int pitch =      slot->bitmap.pitch;
 			int i, j, m;
 
-			uchar*  topleft = slot->bitmap.buffer;
+			uchar * topleft = slot->bitmap.buffer;
 
 			if(pitch < 0)
 				topleft -= pitch * ( rows - 1 );
@@ -4394,7 +4382,7 @@ Fail:
 	if(FT_MODULE_IS_RENDERER(module)) {
 		FT_Renderer renderer = FT_RENDERER(module);
 
-		if(renderer->clazz                                        &&
+		if(renderer->clazz &&
 		    renderer->clazz->glyph_format == FT_GLYPH_FORMAT_OUTLINE &&
 		    renderer->raster)
 			renderer->clazz->raster_class->raster_done(renderer->raster);
@@ -4408,7 +4396,7 @@ Fail:
 
 FT_EXPORT_DEF(FT_Module)
 FT_Get_Module(FT_Library library,
-    const char *  module_name)
+    const char * module_name)
 {
 	FT_Module result = NULL;
 	FT_Module*  cur;
@@ -4433,7 +4421,7 @@ FT_Get_Module(FT_Library library,
 
 FT_BASE_DEF(const void *)
 FT_Get_Module_Interface(FT_Library library,
-    const char *  mod_name)
+    const char * mod_name)
 {
 	FT_Module module;
 
@@ -4446,7 +4434,7 @@ FT_Get_Module_Interface(FT_Library library,
 
 FT_BASE_DEF(FT_Pointer)
 ft_module_get_service(FT_Module module,
-    const char *  service_id,
+    const char * service_id,
     FT_Bool global)
 {
 	FT_Pointer result = NULL;
@@ -4728,11 +4716,11 @@ FT_Done_Library(FT_Library library)
 	 */
 	{
 		FT_UInt m, n;
-		const char *  driver_name[] = { "type42", NULL };
+		const char * driver_name[] = { "type42", NULL };
 		for(m = 0; m < sizeof( driver_name ) / sizeof( driver_name[0]); m++) {
 			for(n = 0; n < library->num_modules; n++) {
 				FT_Module module = library->modules[n];
-				const char *  module_name = module->clazz->module_name;
+				const char * module_name = module->clazz->module_name;
 				FT_List faces;
 				if(driver_name[m] && ft_strcmp(module_name, driver_name[m]) != 0)
 					continue;

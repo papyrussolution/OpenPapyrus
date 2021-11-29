@@ -90,7 +90,7 @@ FILE * openssl_fopen(const char * filename, const char * mode)
 			for(iterator = newname, lastchar = '\0';
 			    *filename; filename++, iterator++) {
 				if(lastchar == '/' && filename[0] == '.'
-				  && filename[1] != '.' && filename[1] != '/') {
+				 && filename[1] != '.' && filename[1] != '/') {
 					/* Leading dots are not permitted in plain DOS. */
 					*iterator = '_';
 				}

@@ -229,13 +229,13 @@ typedef struct  FT_Frame_Field_ {
 	((long)( buffer += 3, FT_PEEK_OFF3(buffer - 3)) )
 
 #define FT_NEXT_UOFF3(buffer)                                           \
-	((unsigned long)( buffer += 3, FT_PEEK_UOFF3(buffer - 3)) )
+	((ulong)( buffer += 3, FT_PEEK_UOFF3(buffer - 3)) )
 
 #define FT_NEXT_LONG(buffer)                                  \
 	((long)( buffer += 4, FT_PEEK_LONG(buffer - 4)) )
 
 #define FT_NEXT_ULONG(buffer)                                           \
-	((unsigned long)( buffer += 4, FT_PEEK_ULONG(buffer - 4)) )
+	((ulong)( buffer += 4, FT_PEEK_ULONG(buffer - 4)) )
 
 #define FT_NEXT_SHORT_LE(buffer)                                   \
 	((short)( buffer += 2, FT_PEEK_SHORT_LE(buffer - 2)) )
@@ -247,13 +247,13 @@ typedef struct  FT_Frame_Field_ {
 	((long)( buffer += 3, FT_PEEK_OFF3_LE(buffer - 3)) )
 
 #define FT_NEXT_UOFF3_LE(buffer)                                           \
-	((unsigned long)( buffer += 3, FT_PEEK_UOFF3_LE(buffer - 3)) )
+	((ulong)( buffer += 3, FT_PEEK_UOFF3_LE(buffer - 3)) )
 
 #define FT_NEXT_LONG_LE(buffer)                                  \
 	((long)( buffer += 4, FT_PEEK_LONG_LE(buffer - 4)) )
 
 #define FT_NEXT_ULONG_LE(buffer)                                           \
-	((unsigned long)( buffer += 4, FT_PEEK_ULONG_LE(buffer - 4)) )
+	((ulong)( buffer += 4, FT_PEEK_ULONG_LE(buffer - 4)) )
 
 /**************************************************************************
  *
@@ -330,7 +330,7 @@ typedef struct  FT_Frame_Field_ {
 /* initialize a stream for reading a regular system stream */
 FT_BASE(FT_Error)
 FT_Stream_Open(FT_Stream stream,
-    const char *  filepathname);
+    const char * filepathname);
 
 #endif /* FT_CONFIG_OPTION_NO_DEFAULT_SYSTEM */
 

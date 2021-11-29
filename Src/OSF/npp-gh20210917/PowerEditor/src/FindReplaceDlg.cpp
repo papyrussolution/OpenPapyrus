@@ -1787,7 +1787,7 @@ bool FindReplaceDlg::processFindNext(const TCHAR * txt2find, const FindOption * 
 
 	// Never allow a zero length match in the middle of a line end marker
 	if((*_ppEditView)->execute(SCI_GETCHARAT, startPosition - 1) == '\r'
-	  && (*_ppEditView)->execute(SCI_GETCHARAT, startPosition) == '\n') {
+	 && (*_ppEditView)->execute(SCI_GETCHARAT, startPosition) == '\n') {
 		flags = (flags & ~SCFIND_REGEXP_EMPTYMATCH_MASK) | SCFIND_REGEXP_EMPTYMATCH_NONE;
 	}
 

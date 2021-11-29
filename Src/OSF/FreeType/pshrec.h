@@ -74,9 +74,9 @@ FT_BEGIN_HEADER
   } PS_HintRec;
 
 
-#define ps_hint_is_active( x )  ((x)->flags & PS_HINT_FLAG_ACTIVE )
-#define ps_hint_is_ghost( x )   ((x)->flags & PS_HINT_FLAG_GHOST  )
-#define ps_hint_is_bottom( x )  ((x)->flags & PS_HINT_FLAG_BOTTOM )
+#define ps_hint_is_active(x)  ((x)->flags & PS_HINT_FLAG_ACTIVE )
+#define ps_hint_is_ghost(x)   ((x)->flags & PS_HINT_FLAG_GHOST  )
+#define ps_hint_is_bottom(x)  ((x)->flags & PS_HINT_FLAG_BOTTOM )
 
 
   /* hints table descriptor */

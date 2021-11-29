@@ -341,12 +341,12 @@ static void U_CALLCONV strprepProfileLineFn(void * context,
 		s++;
 		length = (int32_t)(fields[0][1] - s);
 		if(length >= NORMALIZE_DIRECTIVE_LEN
-		  && uprv_strncmp(s, NORMALIZE_DIRECTIVE, NORMALIZE_DIRECTIVE_LEN) == 0) {
+		 && uprv_strncmp(s, NORMALIZE_DIRECTIVE, NORMALIZE_DIRECTIVE_LEN) == 0) {
 			options[NORMALIZE].doesOccur = TRUE;
 			return;
 		}
 		else if(length >= CHECK_BIDI_DIRECTIVE_LEN
-		  && uprv_strncmp(s, CHECK_BIDI_DIRECTIVE, CHECK_BIDI_DIRECTIVE_LEN) == 0) {
+		 && uprv_strncmp(s, CHECK_BIDI_DIRECTIVE, CHECK_BIDI_DIRECTIVE_LEN) == 0) {
 			options[CHECK_BIDI].doesOccur = TRUE;
 			return;
 		}

@@ -273,7 +273,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 			   case SCE_CAML_KEYWORD2:
 			   case SCE_CAML_KEYWORD3:
 			        // [try to] interpret as [additional] keyword char
-			        if (!iscaml(ch))
+			        if(!iscaml(ch))
 			                state2 = SCE_CAML_DEFAULT, advance = false;
 			        break;*/
 

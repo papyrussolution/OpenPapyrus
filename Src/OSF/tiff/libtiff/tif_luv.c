@@ -181,7 +181,7 @@ static int LogL16Decode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	int shft;
 	tmsize_t i;
 	tmsize_t npixels;
-	uchar* bp;
+	uchar * bp;
 	int16* tp;
 	int16 b;
 	tmsize_t cc;
@@ -246,7 +246,7 @@ static int LogLuvDecode24(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	tmsize_t cc;
 	tmsize_t i;
 	tmsize_t npixels;
-	uchar* bp;
+	uchar * bp;
 	uint32* tp;
 	assert(s == 0);
 	assert(sp != NULL);
@@ -292,7 +292,7 @@ static int LogLuvDecode32(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	int shft;
 	tmsize_t i;
 	tmsize_t npixels;
-	uchar* bp;
+	uchar * bp;
 	uint32* tp;
 	uint32 b;
 	tmsize_t cc;

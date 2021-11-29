@@ -56,7 +56,7 @@ public:
 
 	struct ltag {
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_ltag;
-		hb_language_t get_language(unsigned int i) const
+		hb_language_t get_language(uint i) const
 		{
 			const FTStringRange &range = tagRanges[i];
 			return hb_language_from_string((const char*)(this+range.tag).arrayZ, range.length);

@@ -50,12 +50,12 @@ namespace OT {
 	};
 
 	struct AttachList {
-		unsigned int get_attach_points(hb_codepoint_t glyph_id,
-		    unsigned int start_offset,
-		    unsigned int * point_count /* IN/OUT */,
-		    unsigned int * point_array /* OUT */) const
+		uint get_attach_points(hb_codepoint_t glyph_id,
+		    uint start_offset,
+		    uint * point_count /* IN/OUT */,
+		    uint * point_array /* OUT */) const
 		{
-			unsigned int index = (this+coverage).get_coverage(glyph_id);
+			uint index = (this+coverage).get_coverage(glyph_id);
 			if(index == NOT_COVERED) {
 				if(point_count)
 					*point_count = 0;
@@ -341,15 +341,15 @@ public:
 	};
 
 	struct LigCaretList {
-		unsigned int get_lig_carets(hb_font_t * font,
+		uint get_lig_carets(hb_font_t * font,
 		    hb_direction_t direction,
 		    hb_codepoint_t glyph_id,
 		    const VariationStore &var_store,
-		    unsigned int start_offset,
-		    unsigned int * caret_count /* IN/OUT */,
+		    uint start_offset,
+		    uint * caret_count /* IN/OUT */,
 		    hb_position_t * caret_array /* OUT */) const
 		{
-			unsigned int index = (this+coverage).get_coverage(glyph_id);
+			uint index = (this+coverage).get_coverage(glyph_id);
 			if(index == NOT_COVERED) {
 				if(caret_count)
 					*caret_count = 0;
@@ -409,7 +409,7 @@ public:
 	};
 
 	struct MarkGlyphSetsFormat1 {
-		bool covers(unsigned int set_index, hb_codepoint_t glyph_id) const
+		bool covers(uint set_index, hb_codepoint_t glyph_id) const
 		{
 			return (this+coverage[set_index]).get_coverage(glyph_id) != NOT_COVERED;
 		}
@@ -456,7 +456,7 @@ public:
 	};
 
 	struct MarkGlyphSets {
-		bool covers(unsigned int set_index, hb_codepoint_t glyph_id) const
+		bool covers(uint set_index, hb_codepoint_t glyph_id) const
 		{
 			switch(u.format) {
 				case 1: return u.format1.covers(set_index, glyph_id);
@@ -517,12 +517,12 @@ public:
 			return glyphClassDef != 0;
 		}
 
-		unsigned int get_glyph_class(hb_codepoint_t glyph) const
+		uint get_glyph_class(hb_codepoint_t glyph) const
 		{
 			return (this+glyphClassDef).get_class(glyph);
 		}
 
-		void get_glyphs_in_class(unsigned int klass, hb_set_t * glyphs) const
+		void get_glyphs_in_class(uint klass, hb_set_t * glyphs) const
 		{
 			(this+glyphClassDef).collect_class(glyphs, klass);
 		}
@@ -531,7 +531,7 @@ public:
 			return markAttachClassDef != 0;
 		}
 
-		unsigned int get_mark_attachment_type(hb_codepoint_t glyph) const
+		uint get_mark_attachment_type(hb_codepoint_t glyph) const
 		{
 			return (this+markAttachClassDef).get_class(glyph);
 		}
@@ -540,10 +540,10 @@ public:
 			return attachList != 0;
 		}
 
-		unsigned int get_attach_points(hb_codepoint_t glyph_id,
-		    unsigned int start_offset,
-		    unsigned int * point_count /* IN/OUT */,
-		    unsigned int * point_array /* OUT */) const
+		uint get_attach_points(hb_codepoint_t glyph_id,
+		    uint start_offset,
+		    uint * point_count /* IN/OUT */,
+		    uint * point_array /* OUT */) const
 		{
 			return (this+attachList).get_attach_points(glyph_id, start_offset, point_count, point_array);
 		}
@@ -552,11 +552,11 @@ public:
 			return ligCaretList != 0;
 		}
 
-		unsigned int get_lig_carets(hb_font_t * font,
+		uint get_lig_carets(hb_font_t * font,
 		    hb_direction_t direction,
 		    hb_codepoint_t glyph_id,
-		    unsigned int start_offset,
-		    unsigned int * caret_count /* IN/OUT */,
+		    uint start_offset,
+		    uint * caret_count /* IN/OUT */,
 		    hb_position_t * caret_array /* OUT */) const
 		{
 			return (this+ligCaretList).get_lig_carets(font,
@@ -568,7 +568,7 @@ public:
 			return version.to_int() >= 0x00010002u && markGlyphSetsDef != 0;
 		}
 
-		bool mark_set_covers(unsigned int set_index, hb_codepoint_t glyph_id) const
+		bool mark_set_covers(uint set_index, hb_codepoint_t glyph_id) const
 		{
 			return version.to_int() >= 0x00010002u && (this+markGlyphSetsDef).covers(set_index, glyph_id);
 		}
@@ -585,9 +585,9 @@ public:
 		/* glyph_props is a 16-bit integer where the lower 8-bit have bits representing
 		 * glyph class and other bits, and high 8-bit the mark attachment type (if any).
 		 * Not to be confused with lookup_props which is very similar. */
-		unsigned int get_glyph_props(hb_codepoint_t glyph) const
+		uint get_glyph_props(hb_codepoint_t glyph) const
 		{
-			unsigned int klass = get_glyph_class(glyph);
+			uint klass = get_glyph_class(glyph);
 
 			static_assert(((uint)HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH == (uint)LookupFlag::IgnoreBaseGlyphs),
 			    "");
@@ -624,7 +624,7 @@ public:
 			hb_blob_ptr_t<GDEF> table;
 		};
 
-		unsigned int get_size() const
+		uint get_size() const
 		{
 			return min_size +
 			       (version.to_int() >= 0x00010002u ? markGlyphSetsDef.static_size : 0) +

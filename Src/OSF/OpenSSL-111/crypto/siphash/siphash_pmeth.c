@@ -81,7 +81,7 @@ static int int_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 static int siphash_signctx_init(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)
 {
 	SIPHASH_PKEY_CTX * pctx = static_cast<SIPHASH_PKEY_CTX *>(EVP_PKEY_CTX_get_data(ctx));
-	const uchar* key;
+	const uchar * key;
 	size_t len;
 	key = EVP_PKEY_get0_siphash(EVP_PKEY_CTX_get0_pkey(ctx), &len);
 	if(key == NULL || len != SIPHASH_KEY_SIZE)

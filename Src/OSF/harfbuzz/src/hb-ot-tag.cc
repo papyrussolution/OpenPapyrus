@@ -105,7 +105,7 @@ static hb_script_t hb_ot_new_tag_to_script(hb_tag_t tag)
 #ifndef HB_DISABLE_DEPRECATED
 	void hb_ot_tags_from_script(hb_script_t script, hb_tag_t * script_tag_1, hb_tag_t * script_tag_2)
 	{
-		unsigned int count = 2;
+		uint count = 2;
 		hb_tag_t tags[2];
 		hb_ot_tags_from_script_and_language(script, HB_LANGUAGE_INVALID, &count, tags, nullptr, nullptr);
 		*script_tag_1 = count > 0 ? tags[0] : HB_OT_TAG_DEFAULT_SCRIPT;
@@ -121,9 +121,9 @@ static hb_script_t hb_ot_new_tag_to_script(hb_tag_t tag)
  * So we just do that, and handle the exceptional cases in a switch.
  */
 
-static void hb_ot_all_tags_from_script(hb_script_t script, unsigned int * count /* IN/OUT */, hb_tag_t * tags /* OUT */)
+static void hb_ot_all_tags_from_script(hb_script_t script, uint * count /* IN/OUT */, hb_tag_t * tags /* OUT */)
 {
-	unsigned int i = 0;
+	uint i = 0;
 	hb_tag_t new_tag = hb_ot_new_tag_from_script(script);
 	if(UNLIKELY(new_tag != HB_OT_TAG_DEFAULT_SCRIPT)) {
 		/* HB_SCRIPT_MYANMAR maps to 'mym2', but there is no 'mym3'. */
@@ -164,7 +164,7 @@ static bool subtag_matches(const char * lang_str, const char * limit, const char
 
 static hb_bool_t lang_matches(const char * lang_str, const char * spec)
 {
-	unsigned int len = strlen(spec);
+	uint len = strlen(spec);
 	return strncmp(lang_str, spec, len) == 0 && (lang_str[len] == '\0' || lang_str[len] == '-');
 }
 
@@ -174,9 +174,9 @@ struct LangTag {
 	int cmp(const char * a) const
 	{
 		const char * b = this->language;
-		unsigned int db;
+		uint db;
 		const char * p = strchr(a, '-');
-		unsigned int da = p ? (uint)(p - a) : strlen(a);
+		uint da = p ? (uint)(p - a) : strlen(a);
 		p = strchr(b, '-');
 		db = p ? (uint)(p - b) : strlen(b);
 		return strncmp(a, b, hb_max(da, db));
@@ -202,17 +202,17 @@ struct LangTag {
 #ifndef HB_DISABLE_DEPRECATED
 	hb_tag_t hb_ot_tag_from_language(hb_language_t language)
 	{
-		unsigned int count = 1;
+		uint count = 1;
 		hb_tag_t tags[1];
 		hb_ot_tags_from_script_and_language(HB_SCRIPT_UNKNOWN, language, nullptr, nullptr, &count, tags);
 		return count > 0 ? tags[0] : HB_OT_TAG_DEFAULT_LANGUAGE;
 	}
 #endif
 
-static void hb_ot_tags_from_language(const char * lang_str, const char * limit, unsigned int * count, hb_tag_t * tags)
+static void hb_ot_tags_from_language(const char * lang_str, const char * limit, uint * count, hb_tag_t * tags)
 {
 	const char * s;
-	unsigned int tag_idx;
+	uint tag_idx;
 	/* Check for matches of multiple subtags. */
 	if(hb_ot_tags_from_complex_language(lang_str, limit, count, tags))
 		return;
@@ -227,7 +227,7 @@ static void hb_ot_tags_from_language(const char * lang_str, const char * limit, 
 				lang_str = s + 1;
 		}
 		if(hb_sorted_array(ot_languages).bfind(lang_str, &tag_idx)) {
-			unsigned int i;
+			uint i;
 			while(tag_idx != 0 &&
 			    0 == strcmp(ot_languages[tag_idx].language, ot_languages[tag_idx - 1].language))
 				tag_idx--;
@@ -254,7 +254,7 @@ static void hb_ot_tags_from_language(const char * lang_str, const char * limit, 
 }
 
 static bool parse_private_use_subtag(const char * private_use_subtag,
-    unsigned int * count,
+    uint * count,
     hb_tag_t * tags,
     const char * prefix,
     uchar (*normalize)(uchar))
@@ -317,9 +317,9 @@ static bool parse_private_use_subtag(const char * private_use_subtag,
  **/
 void hb_ot_tags_from_script_and_language(hb_script_t script,
     hb_language_t language,
-    unsigned int * script_count /* IN/OUT */,
+    uint * script_count /* IN/OUT */,
     hb_tag_t * script_tags /* OUT */,
-    unsigned int * language_count /* IN/OUT */,
+    uint * language_count /* IN/OUT */,
     hb_tag_t * language_tags /* OUT */)
 {
 	bool needs_script = true;
@@ -378,7 +378,7 @@ void hb_ot_tags_from_script_and_language(hb_script_t script,
  **/
 hb_language_t hb_ot_tag_to_language(hb_tag_t tag)
 {
-	unsigned int i;
+	uint i;
 
 	if(tag == HB_OT_TAG_DEFAULT_LANGUAGE)
 		return nullptr;
@@ -439,7 +439,7 @@ void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
 	if(script)
 		*script = script_out;
 	if(language) {
-		unsigned int script_count = 1;
+		uint script_count = 1;
 		hb_tag_t primary_script_tag[1];
 		hb_ot_tags_from_script_and_language(script_out,
 		    HB_LANGUAGE_INVALID,

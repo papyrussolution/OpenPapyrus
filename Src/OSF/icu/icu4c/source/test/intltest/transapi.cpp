@@ -667,7 +667,7 @@ void TransliteratorAPITest::TestRegisterUnregister() {
 		return;
 	}
 	/* Check inverse too
-	   if (Transliterator::createInstance("TestA-TestB",
+	   if(Transliterator::createInstance("TestA-TestB",
 	                                   (UTransDirection)UTRANS_REVERSE) != NULL) {
 	   errln("FAIL: TestA-TestB inverse already registered\n");
 	   return;
@@ -697,7 +697,7 @@ void TransliteratorAPITest::TestRegisterUnregister() {
 	/* Check inverse too
 	   s = Transliterator::createInstance("TestA-TestB",
 	                                   (UTransDirection)UTRANS_REVERSE);
-	   if (s == NULL) {
+	   if(s == NULL) {
 	   errln("FAIL: TestA-TestB inverse not registered\n");
 	   return;
 	   }

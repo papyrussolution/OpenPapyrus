@@ -4705,7 +4705,7 @@ static cmsInt32Number CheckProfileCreation(void)
 		if(!CheckRAWtags(Pass, h)) goto Error;
 
 		SubTest("Dictionary meta tags");
-		// if (!CheckDictionary16(Pass, h)) goto Error;
+		// if(!CheckDictionary16(Pass, h)) goto Error;
 		if(!CheckDictionary24(Pass, h)) goto Error;
 
 		if(Pass == 1) {
@@ -6327,7 +6327,7 @@ cmsInt32Number CheckGBD(void)
 
 				cmsDoTransform(xform, rgb, &Lab, 1);
 
-				// if (fabs(Lab.b) < 20 && Lab.a > 0) continue;
+				// if(fabs(Lab.b) < 20 && Lab.a > 0) continue;
 
 				if(!cmsGDBAddPoint(h, &Lab)) {
 					cmsGBDFree(h);

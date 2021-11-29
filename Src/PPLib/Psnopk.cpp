@@ -513,7 +513,7 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 			PPID id = list.at(i);
 			if(pSrc->Search(id, &pos) > 0) {
 				StrAssocArray::Item item = pSrc->Get(pos);
-				if(pSrc->HasChild(id)) {
+				if(pSrc->HasChildren(id)) {
 					pDest->Add(item.Id, item.ParentId, item.Txt);
 					CopyList(item.Id, pSrc, pDest); // @recursion
 				}

@@ -34,7 +34,7 @@ private:
 public:
 	CharacterCategoryMap();
 	CharacterCategory CategoryFor(int character) const {
-		if (static_cast<size_t>(character) < dense.size()) {
+		if(static_cast<size_t>(character) < dense.size()) {
 			return static_cast<CharacterCategory>(dense[character]);
 		} else {
 			// binary search through ranges

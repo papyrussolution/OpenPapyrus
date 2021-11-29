@@ -14,7 +14,7 @@
  * DEFINE_RUN_ONCE(myinitfunc)
  * {
  *     do_some_initialisation();
- *     if (init_is_successful())
+ *     if(init_is_successful())
  *   return 1;
  *
  *     return 0;
@@ -46,7 +46,7 @@
  * DEFINE_RUN_ONCE_STATIC(myinitfunc)
  * {
  *     do_some_initialisation();
- *     if (init_is_successful())
+ *     if(init_is_successful())
  *   return 1;
  *
  *     return 0;
@@ -78,7 +78,7 @@
  * DEFINE_RUN_ONCE_STATIC(myinitfunc)
  * {
  *     do_some_initialisation();
- *     if (init_is_successful())
+ *     if(init_is_successful())
  *   return 1;
  *
  *     return 0;
@@ -87,7 +87,7 @@
  * DEFINE_RUN_ONCE_STATIC_ALT(myaltinitfunc, myinitfunc)
  * {
  *     do_some_alternative_initialisation();
- *     if (init_is_successful())
+ *     if(init_is_successful())
  *   return 1;
  *
  *     return 0;

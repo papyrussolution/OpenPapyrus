@@ -85,7 +85,7 @@ static void FreeStrings(void)
 	strings_initialized = FALSE;
 }
 
-#if (U_PLATFORM == U_PF_LINUX) /* add platforms here .. */
+#if(U_PLATFORM == U_PF_LINUX) /* add platforms here .. */
 /* Keep the #if above in sync with the one below that has the same "add platforms here .." comment. */
 #else
 /* Platform dependent test to detect if this type will return NULL when interpreted as a pointer. */
@@ -225,7 +225,7 @@ static void MessageFormatTest(void)
 					    austrdup(result), austrdup(testResultStrings[i]));
 				}
 
-#if (U_PLATFORM == U_PF_LINUX) /* add platforms here .. */
+#if(U_PLATFORM == U_PF_LINUX) /* add platforms here .. */
 				log_verbose("Skipping potentially crashing test for mismatched varargs.\n");
 #else
 				log_verbose(

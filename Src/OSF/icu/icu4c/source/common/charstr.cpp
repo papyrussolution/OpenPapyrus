@@ -265,7 +265,7 @@ CharString &CharString::ensureEndsWithFileSeparator(UErrorCode & errorCode) {
 
 char CharString::getDirSepChar() const {
 	char dirSepChar = U_FILE_SEP_CHAR;
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	// We may need to return a different directory separator when building for Cygwin or MSYS2.
 	if(len>0 && !uprv_strchr(data(), U_FILE_SEP_CHAR) && uprv_strchr(data(), U_FILE_ALT_SEP_CHAR))
 		dirSepChar = U_FILE_ALT_SEP_CHAR;

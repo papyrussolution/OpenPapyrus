@@ -1643,7 +1643,7 @@ void RuleBasedNumberFormat::stripWhitespace(UnicodeString & description)
 	while(start != -1 && start < description.length()) {
 		// seek to the first non-whitespace character...
 		while(start < description.length()
-		  && PatternProps::isWhiteSpace(description.charAt(start))) {
+		 && PatternProps::isWhiteSpace(description.charAt(start))) {
 			++start;
 		}
 

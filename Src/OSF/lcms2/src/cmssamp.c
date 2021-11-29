@@ -76,7 +76,7 @@ cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
     cmsContext ContextID = cmsGetProfileContextID(hInput);
 
     // If the profile does not support input direction, assume Black point 0
-    if (!cmsIsIntentSupported(hInput, Intent, LCMS_USED_AS_INPUT)) {
+    if(!cmsIsIntentSupported(hInput, Intent, LCMS_USED_AS_INPUT)) {
 
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
         return FALSE;
@@ -89,20 +89,20 @@ cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
     Space = cmsGetColorSpace(hInput);
 
     // This function returns darker colorant in 16 bits for several spaces
-    if (!_cmsEndPointsBySpace(Space, NULL, &Black, &nChannels)) {
+    if(!_cmsEndPointsBySpace(Space, NULL, &Black, &nChannels)) {
 
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
         return FALSE;
     }
 
-    if (nChannels != T_CHANNELS(dwFormat)) {
+    if(nChannels != T_CHANNELS(dwFormat)) {
        BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
        return FALSE;
     }
 
     // Lab will be used as the output space, but lab2 will avoid recursion
     hLab = cmsCreateLab2ProfileTHR(ContextID, NULL);
-    if (hLab == NULL) {
+    if(hLab == NULL) {
        BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
        return FALSE;
     }
@@ -112,7 +112,7 @@ cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
                                 hLab, TYPE_Lab_DBL, Intent, cmsFLAGS_NOOPTIMIZE|cmsFLAGS_NOCACHE);
     cmsCloseProfile(hLab);
 
-    if (xform == NULL) {
+    if(xform == NULL) {
 
         // Something went wrong. Get rid of open resources and return zero as black
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
@@ -124,7 +124,7 @@ cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
 
     // Force it to be neutral, clip to max. L* of 50
     Lab.a = Lab.b = 0;
-    if (Lab.L > 50) Lab.L = 50;
+    if(Lab.L > 50) Lab.L = 50;
 
     // Free the resources
     cmsDeleteTransform(xform);
@@ -132,7 +132,7 @@ cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
     // Convert from Lab (which is now clipped) to XYZ.
     cmsLab2XYZ(NULL, &BlackXYZ, &Lab);
 
-    if (BlackPoint != NULL)
+    if(BlackPoint != NULL)
         *BlackPoint = BlackXYZ;
 
     return TRUE;
@@ -151,14 +151,14 @@ cmsBool BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfi
     cmsCIEXYZ  BlackXYZ;
 
      // Is the intent supported by the profile?
-    if (!cmsIsIntentSupported(hProfile, INTENT_PERCEPTUAL, LCMS_USED_AS_INPUT)) {
+    if(!cmsIsIntentSupported(hProfile, INTENT_PERCEPTUAL, LCMS_USED_AS_INPUT)) {
 
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
         return TRUE;
     }
 
     hRoundTrip = CreateRoundtripXForm(hProfile, INTENT_PERCEPTUAL);
-    if (hRoundTrip == NULL) {
+    if(hRoundTrip == NULL) {
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
         return FALSE;
     }
@@ -167,7 +167,7 @@ cmsBool BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfi
     cmsDoTransform(hRoundTrip, &LabIn, &LabOut, 1);
 
     // Clip Lab to reasonable limits
-    if (LabOut.L > 50) LabOut.L = 50;
+    if(LabOut.L > 50) LabOut.L = 50;
     LabOut.a = LabOut.b = 0;
 
     cmsDeleteTransform(hRoundTrip);
@@ -175,7 +175,7 @@ cmsBool BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfi
     // Convert it to XYZ
     cmsLab2XYZ(NULL, &BlackXYZ, &LabOut);
 
-    if (BlackPoint != NULL)
+    if(BlackPoint != NULL)
         *BlackPoint = BlackXYZ;
 
     return TRUE;
@@ -193,7 +193,7 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
 
     // Make sure the device class is adequate
     devClass = cmsGetDeviceClass(hProfile);
-    if (devClass == cmsSigLinkClass ||
+    if(devClass == cmsSigLinkClass ||
         devClass == cmsSigAbstractClass ||
         devClass == cmsSigNamedColorClass) {
             BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
@@ -201,7 +201,7 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
     }
 
     // Make sure intent is adequate
-    if (Intent != INTENT_PERCEPTUAL &&
+    if(Intent != INTENT_PERCEPTUAL &&
         Intent != INTENT_RELATIVE_COLORIMETRIC &&
         Intent != INTENT_SATURATION) {
             BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
@@ -210,11 +210,11 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
 
     // v4 + perceptual & saturation intents does have its own black point, and it is
     // well specified enough to use it. Black point tag is deprecated in V4.
-    if ((cmsGetEncodedICCversion(hProfile) >= 0x4000000) &&
+    if((cmsGetEncodedICCversion(hProfile) >= 0x4000000) &&
         (Intent == INTENT_PERCEPTUAL || Intent == INTENT_SATURATION)) {
 
             // Matrix shaper share MRC & perceptual intents
-            if (cmsIsMatrixShaper(hProfile))
+            if(cmsIsMatrixShaper(hProfile))
                 return BlackPointAsDarkerColorant(hProfile, INTENT_RELATIVE_COLORIMETRIC, BlackPoint, 0);
 
             // Get Perceptual black out of v4 profiles. That is fixed for perceptual & saturation intents
@@ -229,7 +229,7 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
 #ifdef CMS_USE_PROFILE_BLACK_POINT_TAG
 
     // v2, v4 rel/abs colorimetric
-    if (cmsIsTag(hProfile, cmsSigMediaBlackPointTag) &&
+    if(cmsIsTag(hProfile, cmsSigMediaBlackPointTag) &&
         Intent == INTENT_RELATIVE_COLORIMETRIC) {
 
             cmsCIEXYZ *BlackPtr, BlackXYZ, UntrustedBlackPoint, TrustedBlackPoint, MediaWhite;
@@ -238,7 +238,7 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
             // If black point is specified, then use it,
 
             BlackPtr = cmsReadTag(hProfile, cmsSigMediaBlackPointTag);
-            if (BlackPtr != NULL) {
+            if(BlackPtr != NULL) {
 
                 BlackXYZ = *BlackPtr;
                 _cmsReadMediaWhitePoint(&MediaWhite, hProfile);
@@ -249,10 +249,10 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
                 // Force a=b=0 to get rid of any chroma
                 cmsXYZ2Lab(NULL, &Lab, &UntrustedBlackPoint);
                 Lab.a = Lab.b = 0;
-                if (Lab.L > 50) Lab.L = 50; // Clip to L* <= 50
+                if(Lab.L > 50) Lab.L = 50; // Clip to L* <= 50
                 cmsLab2XYZ(NULL, &TrustedBlackPoint, &Lab);
 
-                if (BlackPoint != NULL)
+                if(BlackPoint != NULL)
                     *BlackPoint = TrustedBlackPoint;
 
                 return TRUE;
@@ -263,7 +263,7 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
     // That is about v2 profiles.
 
     // If output profile, discount ink-limiting and that's all
-    if (Intent == INTENT_RELATIVE_COLORIMETRIC &&
+    if(Intent == INTENT_RELATIVE_COLORIMETRIC &&
         (cmsGetDeviceClass(hProfile) == cmsSigOutputClass) &&
         (cmsGetColorSpace(hProfile)  == cmsSigCmykData))
         return BlackPointUsingPerceptualBlack(BlackPoint, hProfile);
@@ -289,7 +289,7 @@ cmsFloat64Number RootOfLeastSquaresFitQuadraticCurve(int n, cmsFloat64Number x[]
     cmsMAT3 m;
     cmsVEC3 v, res;
 
-    if (n < 4) return 0;
+    if(n < 4) return 0;
 
     for (i=0; i < n; i++) {
 
@@ -312,21 +312,21 @@ cmsFloat64Number RootOfLeastSquaresFitQuadraticCurve(int n, cmsFloat64Number x[]
 
     _cmsVEC3init(&v, sum_y, sum_yx, sum_yx2);
 
-    if (!_cmsMAT3solve(&res, &m, &v)) return 0;
+    if(!_cmsMAT3solve(&res, &m, &v)) return 0;
 
       
     a = res.n[2];
     b = res.n[1];
     c = res.n[0];
 
-    if (fabs(a) < 1.0E-10) {
+    if(fabs(a) < 1.0E-10) {
     
         return cmsmin(0, cmsmax(50, -c/b ));
     }
     else {
 
          d = b*b - 4.0 * a * c;
-         if (d <= 0) {
+         if(d <= 0) {
              return 0;
          }
          else {
@@ -359,7 +359,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     // Make sure the device class is adequate
     devClass = cmsGetDeviceClass(hProfile);
-    if (devClass == cmsSigLinkClass ||
+    if(devClass == cmsSigLinkClass ||
         devClass == cmsSigAbstractClass ||
         devClass == cmsSigNamedColorClass) {
             BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
@@ -367,7 +367,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     }
 
     // Make sure intent is adequate
-    if (Intent != INTENT_PERCEPTUAL &&
+    if(Intent != INTENT_PERCEPTUAL &&
         Intent != INTENT_RELATIVE_COLORIMETRIC &&
         Intent != INTENT_SATURATION) {
             BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
@@ -377,11 +377,11 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     // v4 + perceptual & saturation intents does have its own black point, and it is
     // well specified enough to use it. Black point tag is deprecated in V4.
-    if ((cmsGetEncodedICCversion(hProfile) >= 0x4000000) &&
+    if((cmsGetEncodedICCversion(hProfile) >= 0x4000000) &&
         (Intent == INTENT_PERCEPTUAL || Intent == INTENT_SATURATION)) {
 
             // Matrix shaper share MRC & perceptual intents
-            if (cmsIsMatrixShaper(hProfile))
+            if(cmsIsMatrixShaper(hProfile))
                 return BlackPointAsDarkerColorant(hProfile, INTENT_RELATIVE_COLORIMETRIC, BlackPoint, 0);
 
             // Get Perceptual black out of v4 profiles. That is fixed for perceptual & saturation intents
@@ -394,7 +394,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     // Check if the profile is lut based and gray, rgb or cmyk (7.2 in Adobe's document)
     ColorSpace = cmsGetColorSpace(hProfile);
-    if (!cmsIsCLUT(hProfile, Intent, LCMS_USED_AS_OUTPUT ) ||
+    if(!cmsIsCLUT(hProfile, Intent, LCMS_USED_AS_OUTPUT ) ||
         (ColorSpace != cmsSigGrayData &&
          ColorSpace != cmsSigRgbData &&
          ColorSpace != cmsSigCmykData)) {
@@ -407,12 +407,12 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     
     // Set a first guess, that should work on good profiles.
-    if (Intent == INTENT_RELATIVE_COLORIMETRIC) {
+    if(Intent == INTENT_RELATIVE_COLORIMETRIC) {
 
         cmsCIEXYZ IniXYZ;
 
         // calculate initial Lab as source black point
-        if (!cmsDetectBlackPoint(&IniXYZ, hProfile, Intent, dwFlags)) {
+        if(!cmsDetectBlackPoint(&IniXYZ, hProfile, Intent, dwFlags)) {
             return FALSE;
         }
 
@@ -433,7 +433,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     // Create a roundtrip. Define a Transform BT for all x in L*a*b*
     hRoundTrip = CreateRoundtripXForm(hProfile, Intent);
-    if (hRoundTrip == NULL)  return FALSE;
+    if(hRoundTrip == NULL)  return FALSE;
 
     // Compute ramps
 
@@ -455,7 +455,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     }
 
     // Check
-    if (! (outRamp[0] < outRamp[255])) {
+    if(! (outRamp[0] < outRamp[255])) {
 
         cmsDeleteTransform(hRoundTrip);
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
@@ -466,11 +466,11 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     // Test for mid range straight (only on relative colorimetric)
     NearlyStraightMidrange = TRUE;
     MinL = outRamp[0]; MaxL = outRamp[255];
-    if (Intent == INTENT_RELATIVE_COLORIMETRIC) {
+    if(Intent == INTENT_RELATIVE_COLORIMETRIC) {
       
         for (l=0; l < 256; l++) {
 
-            if (! ((inRamp[l] <= MinL + 0.2 * (MaxL - MinL) ) ||   
+            if(! ((inRamp[l] <= MinL + 0.2 * (MaxL - MinL) ) ||   
                 (fabs(inRamp[l] - outRamp[l]) < 4.0)))
                 NearlyStraightMidrange = FALSE;
         }
@@ -479,7 +479,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
         // DestinationBlackPoint shall be the same as initialLab. 
         // Otherwise, the DestinationBlackPoint shall be determined 
         // using curve fitting.
-        if (NearlyStraightMidrange) {
+        if(NearlyStraightMidrange) {
 
             cmsLab2XYZ(NULL, BlackPoint, &InitialLab);
             cmsDeleteTransform(hRoundTrip);
@@ -496,7 +496,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     }
 
     // find the black point using the least squares error quadratic curve fitting
-    if (Intent == INTENT_RELATIVE_COLORIMETRIC) {
+    if(Intent == INTENT_RELATIVE_COLORIMETRIC) {
         lo = 0.1;
         hi = 0.5;
     }
@@ -513,7 +513,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     
         cmsFloat64Number ff = yRamp[l];
 
-        if (ff >= lo && ff < hi) {
+        if(ff >= lo && ff < hi) {
             x[n] = inRamp[l];
             y[n] = yRamp[l];
             n++;
@@ -522,7 +522,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     
     // No suitable points
-    if (n < 3 ) {
+    if(n < 3 ) {
         cmsDeleteTransform(hRoundTrip);
         BlackPoint -> X = BlackPoint ->Y = BlackPoint -> Z = 0.0;
         return FALSE;
@@ -532,7 +532,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     // fit and get the vertex of quadratic curve
     Lab.L = RootOfLeastSquaresFitQuadraticCurve(n, x, y);
 
-    if (Lab.L < 0.0) { // clip to zero L* if the vertex is negative
+    if(Lab.L < 0.0) { // clip to zero L* if the vertex is negative
         Lab.L = 0;
     }
 

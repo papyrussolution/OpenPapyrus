@@ -43,7 +43,7 @@
 
 /* Implementation */
 
-#if (CAIRO_FIXED_BITS != 32)
+#if(CAIRO_FIXED_BITS != 32)
 	#error CAIRO_FIXED_BITS must be 32, and the type must be a 32-bit type.
 	#error To remove this limitation, you will have to fix the tessellator.
 #endif
@@ -171,7 +171,7 @@ static inline int _cairo_fixed_integer_ceil(cairo_fixed_t f)
  */
 static inline cairo_fixed_16_16_t _cairo_fixed_to_16_16(cairo_fixed_t f)
 {
-#if (CAIRO_FIXED_FRAC_BITS == 16) && (CAIRO_FIXED_BITS == 32)
+#if(CAIRO_FIXED_FRAC_BITS == 16) && (CAIRO_FIXED_BITS == 32)
 	return f;
 #elif CAIRO_FIXED_FRAC_BITS > 16
 	/* We're just dropping the low bits, so we won't ever got over/underflow here */

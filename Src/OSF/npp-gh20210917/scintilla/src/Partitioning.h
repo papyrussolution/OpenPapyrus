@@ -34,14 +34,14 @@ public:
 		const ptrdiff_t rangeLength = end - start;
 		ptrdiff_t range1Length = rangeLength;
 		const ptrdiff_t part1Left = this->part1Length - start;
-		if (range1Length > part1Left)
+		if(range1Length > part1Left)
 			range1Length = part1Left;
-		while (i < range1Length) {
+		while(i < range1Length) {
 			this->body[start++] += delta;
 			i++;
 		}
 		start += this->gapLength;
-		while (i < rangeLength) {
+		while(i < rangeLength) {
 			this->body[start++] += delta;
 			i++;
 		}
@@ -66,11 +66,11 @@ private:
 
 	// Move step forward
 	void ApplyStep(T partitionUpTo) noexcept {
-		if (stepLength != 0) {
+		if(stepLength != 0) {
 			body->RangeAddDelta(stepPartition+1, partitionUpTo + 1, stepLength);
 		}
 		stepPartition = partitionUpTo;
-		if (stepPartition >= body->Length()-1) {
+		if(stepPartition >= body->Length()-1) {
 			stepPartition = Partitions();
 			stepLength = 0;
 		}
@@ -78,7 +78,7 @@ private:
 
 	// Move step backward
 	void BackStep(T partitionDownTo) noexcept {
-		if (stepLength != 0) {
+		if(stepLength != 0) {
 			body->RangeAddDelta(partitionDownTo+1, stepPartition+1, -stepLength);
 		}
 		stepPartition = partitionDownTo;
@@ -115,7 +115,7 @@ public:
 	}
 
 	void InsertPartition(T partition, T pos) {
-		if (stepPartition < partition) {
+		if(stepPartition < partition) {
 			ApplyStep(partition);
 		}
 		body->Insert(partition, pos);
@@ -123,7 +123,7 @@ public:
 	}
 
 	void InsertPartitions(T partition, const T *positions, size_t length) {
-		if (stepPartition < partition) {
+		if(stepPartition < partition) {
 			ApplyStep(partition);
 		}
 		body->InsertFromArray(partition, positions, 0, length);
@@ -132,7 +132,7 @@ public:
 
 	void InsertPartitionsWithCast(T partition, const ptrdiff_t *positions, size_t length) {
 		// Used for 64-bit builds when T is 32-bits
-		if (stepPartition < partition) {
+		if(stepPartition < partition) {
 			ApplyStep(partition);
 		}
 		T *pInsertion = body->InsertEmpty(partition, length);
@@ -144,7 +144,7 @@ public:
 
 	void SetPartitionStartPosition(T partition, T pos) noexcept {
 		ApplyStep(partition+1);
-		if ((partition < 0) || (partition > body->Length())) {
+		if((partition < 0) || (partition > body->Length())) {
 			return;
 		}
 		body->SetValueAt(partition, pos);
@@ -152,12 +152,12 @@ public:
 
 	void InsertText(T partitionInsert, T delta) noexcept {
 		// Point all the partitions after the insertion point further along in the buffer
-		if (stepLength != 0) {
-			if (partitionInsert >= stepPartition) {
+		if(stepLength != 0) {
+			if(partitionInsert >= stepPartition) {
 				// Fill in up to the new insertion point
 				ApplyStep(partitionInsert);
 				stepLength += delta;
-			} else if (partitionInsert >= (stepPartition - body->Length() / 10)) {
+			} else if(partitionInsert >= (stepPartition - body->Length() / 10)) {
 				// Close to step but before so move step back
 				BackStep(partitionInsert);
 				stepLength += delta;
@@ -173,7 +173,7 @@ public:
 	}
 
 	void RemovePartition(T partition) {
-		if (partition > stepPartition) {
+		if(partition > stepPartition) {
 			ApplyStep(partition);
 			stepPartition--;
 		} else {
@@ -186,34 +186,34 @@ public:
 		PLATFORM_ASSERT(partition >= 0);
 		PLATFORM_ASSERT(partition < body->Length());
 		const ptrdiff_t lengthBody = body->Length();
-		if ((partition < 0) || (partition >= lengthBody)) {
+		if((partition < 0) || (partition >= lengthBody)) {
 			return 0;
 		}
 		T pos = body->ValueAt(partition);
-		if (partition > stepPartition)
+		if(partition > stepPartition)
 			pos += stepLength;
 		return pos;
 	}
 
 	/// Return value in range [0 .. Partitions() - 1] even for arguments outside interval
 	T PartitionFromPosition(T pos) const noexcept {
-		if (body->Length() <= 1)
+		if(body->Length() <= 1)
 			return 0;
-		if (pos >= (PositionFromPartition(Partitions())))
+		if(pos >= (PositionFromPartition(Partitions())))
 			return Partitions() - 1;
 		T lower = 0;
 		T upper = Partitions();
 		do {
 			const T middle = (upper + lower + 1) / 2; 	// Round high
 			T posMiddle = body->ValueAt(middle);
-			if (middle > stepPartition)
+			if(middle > stepPartition)
 				posMiddle += stepLength;
-			if (pos < posMiddle) {
+			if(pos < posMiddle) {
 				upper = middle - 1;
 			} else {
 				lower = middle;
 			}
-		} while (lower < upper);
+		} while(lower < upper);
 		return lower;
 	}
 
@@ -223,14 +223,14 @@ public:
 
 	void Check() const {
 #ifdef CHECK_CORRECTNESS
-		if (Length() < 0) {
+		if(Length() < 0) {
 			throw std::runtime_error("Partitioning: Length can not be negative.");
 		}
-		if (Partitions() < 1) {
+		if(Partitions() < 1) {
 			throw std::runtime_error("Partitioning: Must always have 1 or more partitions.");
 		}
-		if (Length() == 0) {
-			if ((PositionFromPartition(0) != 0) || (PositionFromPartition(1) != 0)) {
+		if(Length() == 0) {
+			if((PositionFromPartition(0) != 0) || (PositionFromPartition(1) != 0)) {
 				throw std::runtime_error("Partitioning: Invalid empty partitioning.");
 			}
 		} else {
@@ -238,9 +238,9 @@ public:
 			for (T i = 0; i < Partitions(); i++) {
 				const T pos = PositionFromPartition(i);
 				const T posNext = PositionFromPartition(i+1);
-				if (pos > posNext) {
+				if(pos > posNext) {
 					throw std::runtime_error("Partitioning: Negative partition.");
-				} else if (pos == posNext) {
+				} else if(pos == posNext) {
 					throw std::runtime_error("Partitioning: Empty partition.");
 				}
 			}

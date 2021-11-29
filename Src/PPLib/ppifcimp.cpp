@@ -8060,7 +8060,7 @@ void DL6ICLS_PPFiltGoods::AddGoodsGroupID(int32 id)
 int32 DL6ICLS_PPFiltGoods::get_GrpID()                     { IMPL_PPIFC_GETPROP(GoodsFilt, GrpID); }
 void  DL6ICLS_PPFiltGoods::put_GrpID(int32 value)          { IMPL_PPIFC_PUTPROP(GoodsFilt, GrpID); }
 int32 DL6ICLS_PPFiltGoods::get_ManufID()                   { IMPL_PPIFC_GETPROP(GoodsFilt, ManufID); }
-void  DL6ICLS_PPFiltGoods::put_ManufID(int32 value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, ManufID); }
+void  DL6ICLS_PPFiltGoods::put_ManufID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, ManufID); }
 int32 DL6ICLS_PPFiltGoods::get_ManufCountryID()            { IMPL_PPIFC_GETPROP(GoodsFilt, ManufCountryID); }
 void  DL6ICLS_PPFiltGoods::put_ManufCountryID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, ManufCountryID); }
 int32 DL6ICLS_PPFiltGoods::get_UnitID()                    { IMPL_PPIFC_GETPROP(GoodsFilt, UnitID); }
@@ -8068,7 +8068,7 @@ void  DL6ICLS_PPFiltGoods::put_UnitID(int32 value)         { IMPL_PPIFC_PUTPROP(
 int32 DL6ICLS_PPFiltGoods::get_PhUnitID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, PhUnitID); }
 void  DL6ICLS_PPFiltGoods::put_PhUnitID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, PhUnitID); }
 int32 DL6ICLS_PPFiltGoods::get_SupplID()                   { IMPL_PPIFC_GETPROP(GoodsFilt, SupplID); }
-void  DL6ICLS_PPFiltGoods::put_SupplID(int32 value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, SupplID); }
+void  DL6ICLS_PPFiltGoods::put_SupplID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, SupplID); }
 int32 DL6ICLS_PPFiltGoods::get_GoodsTypeID()               { IMPL_PPIFC_GETPROP(GoodsFilt, GoodsTypeID); }
 void  DL6ICLS_PPFiltGoods::put_GoodsTypeID(int32 value)    { IMPL_PPIFC_PUTPROP(GoodsFilt, GoodsTypeID); }
 int32 DL6ICLS_PPFiltGoods::get_TaxGrpID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, TaxGrpID); }
@@ -8082,9 +8082,9 @@ void  DL6ICLS_PPFiltGoods::put_LocID(int32 value)
 PpyVGoodsFlags DL6ICLS_PPFiltGoods::get_Flags()            { IMPL_PPIFC_GETPROP_CAST(GoodsFilt, Flags, PpyVGoodsFlags); }
 void  DL6ICLS_PPFiltGoods::put_Flags(PpyVGoodsFlags value) { IMPL_PPIFC_PUTPROP(GoodsFilt, Flags); }
 int32 DL6ICLS_PPFiltGoods::get_VatRate()                   { IMPL_PPIFC_GETPROP(GoodsFilt, VatRate); }
-void  DL6ICLS_PPFiltGoods::put_VatRate(int32 value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, VatRate); }
+void  DL6ICLS_PPFiltGoods::put_VatRate(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, VatRate); }
 LDATE  DL6ICLS_PPFiltGoods::get_VatDate()                  { IMPL_PPIFC_GETPROP(GoodsFilt, VatDate); }
-void  DL6ICLS_PPFiltGoods::put_VatDate(LDATE value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, VatDate); }
+void  DL6ICLS_PPFiltGoods::put_VatDate(LDATE value) { IMPL_PPIFC_PUTPROP(GoodsFilt, VatDate); }
 int32 DL6ICLS_PPFiltGoods::get_BrandID()                   { IMPL_PPIFC_GETPROP(GoodsFilt, BrandList.GetSingle()); }
 void  DL6ICLS_PPFiltGoods::put_BrandID(int32 value)
 {
@@ -8114,7 +8114,7 @@ void  DL6ICLS_PPFiltGoods::put_KindID(int32 value)         { IMPL_PPIFC_PUTPROP(
 int32 DL6ICLS_PPFiltGoods::get_KindID()                    { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.KindID); }
 void  DL6ICLS_PPFiltGoods::put_AddObjID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.AddObjID); }
 int32 DL6ICLS_PPFiltGoods::get_AddObjID()                  { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.AddObjID); }
-void  DL6ICLS_PPFiltGoods::put_GradeID(int32 value)        { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.GradeID); }
+void  DL6ICLS_PPFiltGoods::put_GradeID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.GradeID); }
 int32 DL6ICLS_PPFiltGoods::get_GradeID()                   { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.GradeID); }
 void  DL6ICLS_PPFiltGoods::put_AddObj2ID(int32 value)      { IMPL_PPIFC_PUTPROP(GoodsFilt, Ep.AddObj2ID); }
 int32 DL6ICLS_PPFiltGoods::get_AddObj2ID()                 { IMPL_PPIFC_GETPROP(GoodsFilt, Ep.AddObj2ID); }

@@ -82,12 +82,12 @@ static void ColouriseBullantDoc(Sci_PositionU startPos, Sci_Position length, int
 			visibleChars = 0;
 
 /*			int indentBlock = GetLineIndentation(lineCurrent);
-                        if (blockChange==1){
+                        if(blockChange==1){
                                 lineCurrent++;
                                 int pos=SetLineIndentation(lineCurrent, indentBlock + indentSize);
-                        } else if (blockChange==-1) {
+                        } else if(blockChange==-1) {
                                 indentBlock -= indentSize;
-                                if (indentBlock < 0)
+                                if(indentBlock < 0)
                                         indentBlock = 0;
                                 SetLineIndentation(lineCurrent, indentBlock);
                                 lineCurrent++;

@@ -5848,7 +5848,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    return 0;   // Even if there is no text, there is a first line that starts at 0
 		    if(static_cast<int>(wParam) > pdoc->LinesTotal())
 			    return -1;
-		    //if (wParam > pdoc->LineFromPosition(pdoc->Length()))	// Useful test, anyway...
+		    //if(wParam > pdoc->LineFromPosition(pdoc->Length()))	// Useful test, anyway...
 		    //	return -1;
 		    return pdoc->LineStart(static_cast<int>(wParam));
 

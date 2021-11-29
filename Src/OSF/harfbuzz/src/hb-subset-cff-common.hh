@@ -103,7 +103,7 @@ namespace CFF {
 
 		void copy_str(const byte_str_t &str)
 		{
-			unsigned int offset = buff.length;
+			uint offset = buff.length;
 			if(UNLIKELY(!buff.resize(offset + str.length))) {
 				set_error();
 				return;
@@ -242,7 +242,7 @@ protected:
 					continue;
 				}
 				const byte_str_t str = (*acc.charStrings)[glyph];
-				unsigned int fd = acc.fdSelect->get_fd(glyph);
+				uint fd = acc.fdSelect->get_fd(glyph);
 				if(UNLIKELY(fd >= acc.fdCount))
 					return false;
 				cs_interpreter_t<ENV, OPSET, flatten_param_t> interp;
@@ -264,7 +264,7 @@ protected:
 			local_closures.init();
 		}
 
-		void init(unsigned int fd_count)
+		void init(uint fd_count)
 		{
 			valid = true;
 			global_closure = hb_set_create();
@@ -300,7 +300,7 @@ protected:
 	};
 
 	struct parsed_cs_op_t : op_str_t {
-		void init(unsigned int subr_num_ = 0)
+		void init(uint subr_num_ = 0)
 		{
 			op_str_t::init();
 			subr_num = subr_num_;
@@ -320,7 +320,7 @@ protected:
 		void set_keep() { keep_flag = true; }
 		bool for_skip() const { return skip_flag; }
 		void set_skip() { skip_flag = true; }
-		unsigned int subr_num;
+		uint subr_num;
 protected:
 		bool drop_flag : 1;
 		bool keep_flag : 1;
@@ -342,10 +342,10 @@ protected:
 				SUPER::add_op(op, str_ref);
 		}
 
-		void add_call_op(op_code_t op, const byte_str_ref_t& str_ref, unsigned int subr_num)
+		void add_call_op(op_code_t op, const byte_str_ref_t& str_ref, uint subr_num)
 		{
 			if(!is_parsed()) {
-				unsigned int parsed_len = get_count();
+				uint parsed_len = get_count();
 				if(LIKELY(parsed_len > 0))
 					values[parsed_len-1].set_skip();
 
@@ -362,7 +362,7 @@ protected:
 			prefix_num_ = num;
 		}
 
-		bool at_end(unsigned int pos) const
+		bool at_end(uint pos) const
 		{
 			return ((pos + 1 >= values.length) /* CFF2 */
 			       || (values[pos + 1].op == OpCode_return));
@@ -417,7 +417,7 @@ private:
 	};
 
 	struct parsed_cs_str_vec_t : hb_vector_t<parsed_cs_str_t>{
-		void init(unsigned int len_ = 0)
+		void init(uint len_ = 0)
 		{
 			SUPER::init();
 			if(UNLIKELY(!resize(len_)))
@@ -515,7 +515,7 @@ private:
 				bias = 32768;
 		}
 
-		int biased_num(unsigned int old_num) const
+		int biased_num(uint old_num) const
 		{
 			hb_codepoint_t new_num = get(old_num);
 			return (int)new_num - bias;
@@ -536,7 +536,7 @@ protected:
 			fini();
 		}
 
-		void init(unsigned int fdCount)
+		void init(uint fdCount)
 		{
 			if(UNLIKELY(!local_remaps.resize(fdCount))) return;
 			for(uint i = 0; i < fdCount; i++)
@@ -627,7 +627,7 @@ protected:
 				if(!plan->old_gid_for_new_gid(i, &glyph))
 					continue;
 				const byte_str_t str = (*acc.charStrings)[glyph];
-				unsigned int fd = acc.fdSelect->get_fd(glyph);
+				uint fd = acc.fdSelect->get_fd(glyph);
 				if(UNLIKELY(fd >= acc.fdCount))
 					return false;
 
@@ -654,7 +654,7 @@ protected:
 					hb_codepoint_t glyph;
 					if(!plan->old_gid_for_new_gid(i, &glyph))
 						continue;
-					unsigned int fd = acc.fdSelect->get_fd(glyph);
+					uint fd = acc.fdSelect->get_fd(glyph);
 					if(UNLIKELY(fd >= acc.fdCount))
 						return false;
 					subr_subset_param_t param;
@@ -677,7 +677,7 @@ protected:
 					hb_codepoint_t glyph;
 					if(!plan->old_gid_for_new_gid(i, &glyph))
 						continue;
-					unsigned int fd = acc.fdSelect->get_fd(glyph);
+					uint fd = acc.fdSelect->get_fd(glyph);
 					if(UNLIKELY(fd >= acc.fdCount))
 						return false;
 					subr_subset_param_t param;
@@ -705,7 +705,7 @@ protected:
 					if(endchar_op != OpCode_Invalid) buffArray[i].push(endchar_op);
 					continue;
 				}
-				unsigned int fd = acc.fdSelect->get_fd(glyph);
+				uint fd = acc.fdSelect->get_fd(glyph);
 				if(UNLIKELY(fd >= acc.fdCount))
 					return false;
 				if(UNLIKELY(!encode_str(parsed_charstrings[i], fd, buffArray[i])))
@@ -714,14 +714,14 @@ protected:
 			return true;
 		}
 
-		bool encode_subrs(const parsed_cs_str_vec_t &subrs, const subr_remap_t& remap, unsigned int fd,
+		bool encode_subrs(const parsed_cs_str_vec_t &subrs, const subr_remap_t& remap, uint fd,
 		    str_buff_vec_t &buffArray) const
 		{
-			unsigned int count = remap.get_population();
+			uint count = remap.get_population();
 
 			if(UNLIKELY(!buffArray.resize(count)))
 				return false;
-			for(unsigned int old_num = 0; old_num < subrs.length; old_num++) {
+			for(uint old_num = 0; old_num < subrs.length; old_num++) {
 				hb_codepoint_t new_num = remap[old_num];
 				if(new_num != CFF_UNDEF_CODE) {
 					if(UNLIKELY(!encode_str(subrs[old_num], fd, buffArray[new_num])))
@@ -736,7 +736,7 @@ protected:
 			return encode_subrs(parsed_global_subrs, remaps.global_remap, 0, buffArray);
 		}
 
-		bool encode_localsubrs(unsigned int fd, str_buff_vec_t &buffArray) const
+		bool encode_localsubrs(uint fd, str_buff_vec_t &buffArray) const
 		{
 			return encode_subrs(parsed_local_subrs[fd], remaps.local_remaps[fd], fd, buffArray);
 		}
@@ -756,8 +756,8 @@ protected:
 			bool vsindex_dropped;
 		};
 
-		bool drop_hints_in_subr(parsed_cs_str_t &str, unsigned int pos,
-		    parsed_cs_str_vec_t &subrs, unsigned int subr_num,
+		bool drop_hints_in_subr(parsed_cs_str_t &str, uint pos,
+		    parsed_cs_str_vec_t &subrs, uint subr_num,
 		    const subr_subset_param_t &param, drop_hints_param_t &drop)
 		{
 			drop.ends_in_hint = false;
@@ -784,7 +784,7 @@ protected:
 		{
 			bool seen_hint = false;
 
-			for(unsigned int pos = 0; pos < str.values.length; pos++) {
+			for(uint pos = 0; pos < str.values.length; pos++) {
 				bool has_hint = false;
 				switch(str.values[pos].op)
 				{
@@ -850,7 +850,7 @@ protected:
 			 * only (usually one) hintmask operator, then calls to this subr can be dropped.
 			 */
 			drop.all_dropped = true;
-			for(unsigned int pos = 0; pos < str.values.length; pos++) {
+			for(uint pos = 0; pos < str.values.length; pos++) {
 				parsed_cs_op_t  &csop = str.values[pos];
 				if(csop.op == OpCode_return)
 					break;
@@ -863,8 +863,8 @@ protected:
 			return seen_hint;
 		}
 
-		void collect_subr_refs_in_subr(parsed_cs_str_t &str, unsigned int pos,
-		    unsigned int subr_num, parsed_cs_str_vec_t &subrs,
+		void collect_subr_refs_in_subr(parsed_cs_str_t &str, uint pos,
+		    uint subr_num, parsed_cs_str_vec_t &subrs,
 		    hb_set_t * closure,
 		    const subr_subset_param_t &param)
 		{
@@ -874,7 +874,7 @@ protected:
 
 		void collect_subr_refs_in_str(parsed_cs_str_t &str, const subr_subset_param_t &param)
 		{
-			for(unsigned int pos = 0; pos < str.values.length; pos++) {
+			for(uint pos = 0; pos < str.values.length; pos++) {
 				if(!str.values[pos].for_drop()) {
 					switch(str.values[pos].op)
 					{
@@ -896,7 +896,7 @@ protected:
 			}
 		}
 
-		bool encode_str(const parsed_cs_str_t &str, const unsigned int fd, str_buff_t &buff) const
+		bool encode_str(const parsed_cs_str_t &str, const uint fd, str_buff_t &buff) const
 		{
 			buff.init();
 			str_encoder_t  encoder(buff);
@@ -950,20 +950,20 @@ private:
 } /* namespace CFF */
 
 HB_INTERNAL bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
-    unsigned int fdCount,
+    uint fdCount,
     const CFF::FDSelect &src,                         /* IN */
-    unsigned int &subset_fd_count /* OUT */,
-    unsigned int &subset_fdselect_size /* OUT */,
-    unsigned int &subset_fdselect_format /* OUT */,
+    uint &subset_fd_count /* OUT */,
+    uint &subset_fdselect_size /* OUT */,
+    uint &subset_fdselect_format /* OUT */,
     hb_vector_t<CFF::code_pair_t> &fdselect_ranges /* OUT */,
     hb_inc_bimap_t &fdmap /* OUT */);
 
 HB_INTERNAL bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
-    unsigned int num_glyphs,
+    uint num_glyphs,
     const CFF::FDSelect &src,
-    unsigned int fd_count,
-    unsigned int fdselect_format,
-    unsigned int size,
+    uint fd_count,
+    uint fdselect_format,
+    uint size,
     const hb_vector_t<CFF::code_pair_t> &fdselect_ranges);
 
 #endif /* HB_SUBSET_CFF_COMMON_HH */

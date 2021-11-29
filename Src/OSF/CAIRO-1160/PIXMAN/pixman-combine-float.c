@@ -366,19 +366,19 @@ static force_inline float blend_screen(float sa, float s, float da, float d)
  *
  * ad * as * B(d/ad, s/as)
  * = ad * as * Hardlight (s, d)
- * = if (d / ad < 0.5)
+ * = if(d / ad < 0.5)
  * as * ad * Multiply (s/as, 2 * d/ad)
  * else
  * as * ad * Screen (s/as, 2 * d / ad - 1)
- * = if (d < 0.5 * ad)
+ * = if(d < 0.5 * ad)
  * as * ad * s/as * 2 * d /ad
  * else
  * as * ad * (s/as + 2 * d / ad - 1 - s / as * (2 * d / ad - 1))
- * = if (2 * d < ad)
+ * = if(2 * d < ad)
  * 2 * s * d
  * else
  * ad * s + 2 * as * d - as * ad - ad * s * (2 * d / ad - 1)
- * = if (2 * d < ad)
+ * = if(2 * d < ad)
  * 2 * s * d
  * else
  * as * ad - 2 * (ad - d) * (as - s)
@@ -433,7 +433,7 @@ static force_inline float blend_lighten(float sa, float s, float da, float d)
  * ad * as * B(d/ad, s/as)
  * = if d/ad = 0
  * ad * as * 0
- * else if (d/ad >= (1 - s/as)
+ * else if(d/ad >= (1 - s/as)
  * ad * as * 1
  * else
  * ad * as * ((d/ad) / (1 - s/as))
@@ -493,7 +493,7 @@ static force_inline float blend_color_burn(float sa, float s, float da, float d)
  * Hard light
  *
  * ad * as * B(d/ad, s/as)
- * = if (s/as <= 0.5)
+ * = if(s/as <= 0.5)
  * ad * as * Multiply (d/ad, 2 * s/as)
  * else
  * ad * as * Screen (d/ad, 2 * s/as - 1)
@@ -518,15 +518,15 @@ static force_inline float blend_hard_light(float sa, float s, float da, float d)
  * Soft light
  *
  * ad * as * B(d/ad, s/as)
- * = if (s/as <= 0.5)
+ * = if(s/as <= 0.5)
  * ad * as * (d/ad - (1 - 2 * s/as) * d/ad * (1 - d/ad))
- * else if (d/ad <= 0.25)
+ * else if(d/ad <= 0.25)
  * ad * as * (d/ad + (2 * s/as - 1) * ((((16 * d/ad - 12) * d/ad + 4) * d/ad) - d/ad))
  * else
  * ad * as * (d/ad + (2 * s/as - 1) * sqrt (d/ad))
- * = if (2 * s <= as)
+ * = if(2 * s <= as)
  * d * as - d * (ad - d) * (as - 2 * s) / ad;
- * else if (4 * d <= ad)
+ * else if(4 * d <= ad)
  * (2 * s - as) * d * ((16 * d / ad - 12) * d / ad + 3);
  * else
  * d * as + (sqrt (d * ad) - d) * (2 * s - as);
@@ -557,11 +557,11 @@ static force_inline float blend_soft_light(float sa, float s, float da, float d)
  *
  * ad * as * B(s/as, d/ad)
  * = ad * as * abs (s/as - d/ad)
- * = if (s/as <= d/ad)
+ * = if(s/as <= d/ad)
  * ad * as * (d/ad - s/as)
  * else
  * ad * as * (s/as - d/ad)
- * = if (ad * s <= as * d)
+ * = if(ad * s <= as * d)
  * as * d - ad * s
  * else
  * ad * s - as * d

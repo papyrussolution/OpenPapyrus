@@ -208,10 +208,10 @@ private:
     void
     normalizeUTF8(uint32_t options, StringPiece src, ByteSink &sink,
                   Edits *edits, UErrorCode & errorCode) const U_OVERRIDE {
-        if (U_FAILURE(errorCode)) {
+        if(U_FAILURE(errorCode)) {
             return;
         }
-        if (edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
+        if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
             edits->reset();
         }
         const uint8_t *s = reinterpret_cast<const uint8_t *>(src.data());
@@ -264,10 +264,10 @@ private:
     void
     normalizeUTF8(uint32_t options, StringPiece src, ByteSink &sink,
                   Edits *edits, UErrorCode & errorCode) const U_OVERRIDE {
-        if (U_FAILURE(errorCode)) {
+        if(U_FAILURE(errorCode)) {
             return;
         }
-        if (edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
+        if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
             edits->reset();
         }
         const uint8_t *s = reinterpret_cast<const uint8_t *>(src.data());

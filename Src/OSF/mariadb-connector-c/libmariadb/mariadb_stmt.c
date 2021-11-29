@@ -587,7 +587,7 @@ int store_param(MYSQL_STMT * stmt, int column, uchar ** p, unsigned long row_nr)
 }
 
 /* {{{ mysqlnd_stmt_execute_generate_simple_request */
-uchar* mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * request_len)
+uchar * mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * request_len)
 {
 	/* execute packet has the following format:
 	   Offset   Length      Description
@@ -596,10 +596,10 @@ uchar* mysql_stmt_execute_generate_simple_request(MYSQL_STMT * stmt, size_t * re
 	   4             1      Flags (cursor type)
 	   5             4      Iteration count
 	   -----------------------------------------
-	   if (stmt->param_count):
+	   if(stmt->param_count):
 	   6  (paramcount+7)/8  null bitmap
 	   ------------------------------------------
-	   if (stmt->send_types_to_server):
+	   if(stmt->send_types_to_server):
 	   param_count*2    parameter types
 	   1st byte: parameter type
 	   2nd byte flag:
@@ -756,7 +756,7 @@ bool mysql_stmt_skip_paramset(MYSQL_STMT * stmt, uint row)
 /* }}} */
 
 /* {{{ mysql_stmt_execute_generate_bulk_request */
-uchar* mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * request_len)
+uchar * mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * request_len)
 {
 	/* execute packet has the following format:
 	   Offset   Length      Description
@@ -766,7 +766,7 @@ uchar* mysql_stmt_execute_generate_bulk_request(MYSQL_STMT * stmt, size_t * requ
 	                          STMT_BULK_FLAG_CLIENT_SEND_TYPES = 128
 	                          STMT_BULK_FLAG_INSERT_ID_REQUEST = 64
 	   -----------------------------------------
-	   if (stmt->send_types_to_server):
+	   if(stmt->send_types_to_server):
 	   for (i=0; i < param_count; i++)
 	     1st byte: parameter type
 	     2nd byte flag:

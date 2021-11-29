@@ -145,7 +145,7 @@ enum punycode_status punycode_encode(punycode_uint input_length,
 			output[out++] = (char)
 			    (case_flags ?  encode_basic(input[j], case_flags[j]) : input[j]);
 		}
-		/* else if (input[j] < n) return punycode_bad_input; */
+		/* else if(input[j] < n) return punycode_bad_input; */
 		/* (not needed for Punycode with unsigned code points) */
 	}
 
@@ -164,7 +164,7 @@ enum punycode_status punycode_encode(punycode_uint input_length,
 		/* handled already.  Find the next larger one: */
 
 		for(m = maxint, j = 0; j < input_length; ++j) {
-			/* if (basic(input[j])) continue; */
+			/* if(basic(input[j])) continue; */
 			/* (not needed for Punycode) */
 			if(input[j] >= n && input[j] < m) m = input[j];
 		}
@@ -276,7 +276,7 @@ enum punycode_status punycode_decode(punycode_uint input_length,
 		/* Insert n at position i of the output: */
 
 		/* not needed for Punycode: */
-		/* if (decode_digit(n) <= base) return punycode_invalid_input; */
+		/* if(decode_digit(n) <= base) return punycode_invalid_input; */
 		if(out >= max_out) return punycode_big_output;
 
 		if(case_flags) {

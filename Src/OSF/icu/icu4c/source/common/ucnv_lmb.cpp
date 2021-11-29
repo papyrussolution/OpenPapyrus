@@ -860,7 +860,7 @@ static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs*     args,
 		/*Fix for SPR#DJOE66JFN3 (Lotus)*/
 		if((uniChar>=0x80) && (uniChar<=0xff)
 		    /*Fix for SPR#JUYA6XAERU and TSAO7GL5NK (Lotus)*/ &&(uniChar!=0xB1) &&(uniChar!=0xD7) &&(uniChar!=0xF7)
-		  &&(uniChar!=0xB0) &&(uniChar!=0xB4) &&(uniChar!=0xB6) &&(uniChar!=0xA7) &&(uniChar!=0xA8)) {
+		 &&(uniChar!=0xB0) &&(uniChar!=0xB4) &&(uniChar!=0xB6) &&(uniChar!=0xA7) &&(uniChar!=0xA8)) {
 			extraInfo->localeConverterIndex = ULMBCS_GRP_L1;
 		}
 		if(((uniChar > ULMBCS_C0END) && (uniChar < ULMBCS_C1START)) ||
@@ -1212,7 +1212,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 			else if(uniChar == 0xfffe) {
 				*err = U_INVALID_CHAR_FOUND;
 			}
-			else { /* if (uniChar == 0xffff) */
+			else { /* if(uniChar == 0xffff) */
 				*err = U_ILLEGAL_CHAR_FOUND;
 			}
 		}

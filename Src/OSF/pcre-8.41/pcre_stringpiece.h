@@ -59,7 +59,7 @@ using std::string;
 
 class PCRECPP_EXP_DEFN StringPiece {
 private:
-	const char *   ptr_;
+	const char * ptr_;
 	int length_;
 
 public:
@@ -72,7 +72,7 @@ public:
 	StringPiece(const char * str) : ptr_(str), length_(static_cast<int>(strlen(ptr_))) 
 	{
 	}
-	StringPiece(const uchar* str) : ptr_(reinterpret_cast<const char *>(str)), length_(static_cast<int>(strlen(ptr_))) 
+	StringPiece(const uchar * str) : ptr_(reinterpret_cast<const char *>(str)), length_(static_cast<int>(strlen(ptr_))) 
 	{
 	}
 	StringPiece(const string & str) : ptr_(str.data()), length_(static_cast<int>(str.size())) 

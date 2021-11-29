@@ -41,7 +41,7 @@ static inline void _add_cff_seac_components(const OT::cff1::accelerator_t &cff, 
 #ifndef HB_NO_SUBSET_LAYOUT
 static void _remap_indexes(const hb_set_t * indexes, hb_map_t * mapping /* OUT */)
 {
-	unsigned count = indexes->get_population();
+	uint count = indexes->get_population();
 	for(auto _ : +hb_zip(indexes->iter(), hb_range(count)))
 		mapping->set(_.first, _.second);
 }
@@ -117,7 +117,7 @@ static inline void _cmap_closure(hb_face_t * face,
 }
 
 static inline void _remove_invalid_gids(hb_set_t * glyphs,
-    unsigned int num_glyphs)
+    uint num_glyphs)
 {
 	hb_codepoint_t gid = HB_SET_VALUE_INVALID;
 	while(glyphs->next(&gid)) {
@@ -209,7 +209,7 @@ static void _create_old_gid_to_new_gid_map(const hb_face_t * face,
     const hb_set_t * all_gids_to_retain,
     hb_map_t * glyph_map,                            /* OUT */
     hb_map_t * reverse_glyph_map,                            /* OUT */
-    unsigned int * num_glyphs /* OUT */)
+    uint * num_glyphs /* OUT */)
 {
 	if(!retain_gids) {
 		+hb_enumerate(hb_iter(all_gids_to_retain), (hb_codepoint_t)0)

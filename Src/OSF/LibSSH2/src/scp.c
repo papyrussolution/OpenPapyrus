@@ -382,9 +382,9 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 				}
 				if((session->scpRecv_response_len > 1) && ((session->scpRecv_response[session->scpRecv_response_len - 1] < '0')
 					    || (session->scpRecv_response[session->scpRecv_response_len - 1] > '9'))
-				  && (session->scpRecv_response[session->scpRecv_response_len - 1] != ' ')
-				  && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\r')
-				  && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\n')) {
+				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != ' ')
+				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\r')
+				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\n')) {
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid data in SCP response");
 					goto scp_recv_error;
 				}
@@ -482,8 +482,8 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 					goto scp_recv_error;
 				}
 				if((session->scpRecv_response_len > 1) && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\r')
-				  && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\n')
-				  && (session->scpRecv_response[session->scpRecv_response_len - 1] < 32)) {
+				 && (session->scpRecv_response[session->scpRecv_response_len - 1] != '\n')
+				 && (session->scpRecv_response[session->scpRecv_response_len - 1] < 32)) {
 					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid data in SCP response");
 					goto scp_recv_error;
 				}

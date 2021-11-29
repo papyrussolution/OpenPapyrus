@@ -76,7 +76,7 @@ void hb_aat_map_builder_t::compile(hb_aat_map_t  &m)
 	/* Sort features and merge duplicates */
 	if(features.length) {
 		features.qsort();
-		unsigned int j = 0;
+		uint j = 0;
 		for(uint i = 1; i < features.length; i++)
 			if(features[i].type != features[j].type ||
 			    /* Nonexclusive feature selectors come in even/odd pairs to turn a setting on/off

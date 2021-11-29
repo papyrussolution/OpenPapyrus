@@ -486,11 +486,11 @@ FT_Glyph_Get_CBox(FT_Glyph glyph,
  *     error = FT_Get_Glyph( face->glyph, &glyph );
  *
  *     // convert to a bitmap (default render mode + destroying old)
- *     if ( glyph->format != FT_GLYPH_FORMAT_BITMAP )
+ *     if( glyph->format != FT_GLYPH_FORMAT_BITMAP )
  *     {
  * error = FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL,
  *                               0, 1 );
- * if ( error ) // `glyph' unchanged
+ * if( error ) // `glyph' unchanged
  *   ...
  *     }
  *

@@ -1750,7 +1750,7 @@ int32_t RBBICharMonkey::next(int32_t prevPos) {
 		//                      only two, a break following will occur via other rules, and will include
 		//                      any trailing extend characters, which is needed behavior.
 		if(fRegionalIndicatorSet->contains(c0) && fRegionalIndicatorSet->contains(c1)
-		  && fRegionalIndicatorSet->contains(c2)) {
+		 && fRegionalIndicatorSet->contains(c2)) {
 			setAppliedRule(p2, "GB12-13  Regional_Indicator x Regional_Indicator");
 			break;
 		}
@@ -4188,7 +4188,7 @@ void RBBITest::TestBug9983(void)  {
 	brkiter->setText(text);
 	brkiter->last();
 	iterationCount = 0;
-	while( (offset = brkiter->previous()) != UBRK_DONE) {
+	while((offset = brkiter->previous()) != UBRK_DONE) {
 		iterationCount++;
 		rstatus = brkiter->getRuleStatus();
 		(void)rstatus; // Suppress set but not used warning.
@@ -4201,7 +4201,7 @@ void RBBITest::TestBug9983(void)  {
 	brkiterPOSIX->setText(text);
 	brkiterPOSIX->last();
 	iterationCount = 0;
-	while( (offset = brkiterPOSIX->previous()) != UBRK_DONE) {
+	while((offset = brkiterPOSIX->previous()) != UBRK_DONE) {
 		iterationCount++;
 		rstatus = brkiterPOSIX->getRuleStatus();
 		(void)rstatus; // Suppress set but not used warning.

@@ -132,7 +132,7 @@ class AutoAffixPatternProvider {
     }
 
     inline void setTo(const DecimalFormatProperties& properties, UErrorCode & status) {
-        if (properties.currencyPluralInfo.fPtr.isNull()) {
+        if(properties.currencyPluralInfo.fPtr.isNull()) {
             propertiesAPP.setTo(properties, status);
             currencyPluralInfoAPP.setToBogus();
         } else {
@@ -142,9 +142,9 @@ class AutoAffixPatternProvider {
     }
 
     inline void setTo(const AffixPatternProvider* provider, UErrorCode & status) {
-        if (auto ptr = dynamic_cast<const PropertiesAffixPatternProvider*>(provider)) {
+        if(auto ptr = dynamic_cast<const PropertiesAffixPatternProvider*>(provider)) {
             propertiesAPP = *ptr;
-        } else if (auto ptr = dynamic_cast<const CurrencyPluralInfoAffixProvider*>(provider)) {
+        } else if(auto ptr = dynamic_cast<const CurrencyPluralInfoAffixProvider*>(provider)) {
             currencyPluralInfoAPP = *ptr;
         } else {
             status = U_INTERNAL_PROGRAM_ERROR;
@@ -152,7 +152,7 @@ class AutoAffixPatternProvider {
     }
 
     inline const AffixPatternProvider& get() const {
-      if (!currencyPluralInfoAPP.isBogus()) {
+      if(!currencyPluralInfoAPP.isBogus()) {
         return currencyPluralInfoAPP;
       } else {
         return propertiesAPP;

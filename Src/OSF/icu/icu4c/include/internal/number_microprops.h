@@ -51,7 +51,7 @@ class IntMeasures : public MaybeStackArray<int64_t, 2> {
 
     // Assignment operator
     IntMeasures & operator = (const IntMeasures &rhs) {
-        if (this == &rhs) {
+        if(this == &rhs) {
             return *this;
         }
         copyFrom(rhs, status);
@@ -165,7 +165,7 @@ struct MicroProps : public MicroPropsGenerator {
                          UErrorCode & status) const U_OVERRIDE {
         (void) quantity;
         (void) status;
-        if (this == &micros) {
+        if(this == &micros) {
             // Unsafe path: no need to perform a copy.
             U_ASSERT(!exhausted);
             micros.exhausted = true;

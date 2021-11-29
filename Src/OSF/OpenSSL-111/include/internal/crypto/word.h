@@ -16,7 +16,7 @@
 #include <arch_intrinsics.h>
 #include <curve448utils.h>
 
-#if (ARCH_WORD_BITS == 64)
+#if(ARCH_WORD_BITS == 64)
 typedef uint64_t word_t, mask_t;
 typedef __uint128_t dword_t;
 typedef int32_t hsword_t;
@@ -66,7 +66,7 @@ static ossl_inline mask_t bool_to_mask(c448_bool_t m)
     uint i;
     uint limit = sizeof(c448_bool_t) / sizeof(mask_t);
 
-    if (limit < 1)
+    if(limit < 1)
         limit = 1;
     for (i = 0; i < limit; i++)
         ret |= ~word_is_zero(m >> (i * 8 * sizeof(word_t)));

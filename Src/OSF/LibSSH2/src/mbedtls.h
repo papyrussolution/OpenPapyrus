@@ -69,7 +69,7 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 #define libssh2_hmac_cleanup(pctx) \
 	mbedtls_md_free(pctx)
 #define libssh2_hmac_update(ctx, data, datalen) \
-	mbedtls_md_hmac_update(&ctx, (uchar*)data, datalen)
+	mbedtls_md_hmac_update(&ctx, (uchar *)data, datalen)
 #define libssh2_hmac_final(ctx, hash) \
 	mbedtls_md_hmac_finish(&ctx, hash)
 
@@ -94,7 +94,7 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 #define libssh2_sha1_init(pctx) \
 	_libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, NULL, 0)
 #define libssh2_sha1_update(ctx, data, datalen) \
-	mbedtls_md_update(&ctx, (uchar*)data, datalen)
+	mbedtls_md_update(&ctx, (uchar *)data, datalen)
 #define libssh2_sha1_final(ctx, hash) \
 	_libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha1(data, datalen, hash) \
@@ -110,7 +110,7 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 #define libssh2_sha256_init(pctx) \
 	_libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, NULL, 0)
 #define libssh2_sha256_update(ctx, data, datalen) \
-	mbedtls_md_update(&ctx, (uchar*)data, datalen)
+	mbedtls_md_update(&ctx, (uchar *)data, datalen)
 #define libssh2_sha256_final(ctx, hash) \
 	_libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha256(data, datalen, hash) \
@@ -124,7 +124,7 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 #define libssh2_sha512_ctx      mbedtls_md_context_t
 
 #define libssh2_sha512_init(pctx) _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, NULL, 0)
-#define libssh2_sha512_update(ctx, data, datalen) mbedtls_md_update(&ctx, (uchar*)data, datalen)
+#define libssh2_sha512_update(ctx, data, datalen) mbedtls_md_update(&ctx, (uchar *)data, datalen)
 #define libssh2_sha512_final(ctx, hash) _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha512(data, datalen, hash) _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA512, hash)
 
@@ -136,7 +136,7 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 #define libssh2_md5_ctx      mbedtls_md_context_t
 
 #define libssh2_md5_init(pctx) _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, NULL, 0)
-#define libssh2_md5_update(ctx, data, datalen) mbedtls_md_update(&ctx, (uchar*)data, datalen)
+#define libssh2_md5_update(ctx, data, datalen) mbedtls_md_update(&ctx, (uchar *)data, datalen)
 #define libssh2_md5_final(ctx, hash) _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_md5(data, datalen, hash) _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_MD5, hash)
 

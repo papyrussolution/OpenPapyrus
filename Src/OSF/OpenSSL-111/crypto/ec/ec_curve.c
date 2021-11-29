@@ -3163,11 +3163,11 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 	 */
 	/* Get p, a & b */
 	if(!(EC_GROUP_get_curve(group, bn[0], bn[1], bn[2], ctx)
-	  && ((generator = EC_GROUP_get0_generator(group)) != NULL)
+	 && ((generator = EC_GROUP_get0_generator(group)) != NULL)
 	    /* Get x & y */
-	  && EC_POINT_get_affine_coordinates(group, generator, bn[3], bn[4], ctx)
+	 && EC_POINT_get_affine_coordinates(group, generator, bn[3], bn[4], ctx)
 	    /* Get order */
-	  && EC_GROUP_get_order(group, bn[5], ctx)))
+	 && EC_GROUP_get_order(group, bn[5], ctx)))
 		goto end;
 
 	/*
@@ -3190,17 +3190,17 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 
 		/* Look for unique fields in the fixed curve data */
 		if(data->field_type == field_type
-		  && param_len == data->param_len
-		  && (nid <= 0 || nid == curve.nid)
+		 && param_len == data->param_len
+		 && (nid <= 0 || nid == curve.nid)
 		    /* check the optional cofactor (ignore if its zero) */
-		  && (BN_is_zero(cofactor)
+		 && (BN_is_zero(cofactor)
 		    || BN_is_word(cofactor, (const BN_ULONG)curve.data->cofactor))
 		    /* Check the optional seed (ignore if its not set) */
-		  && (data->seed_len == 0 || seed_len == 0
+		 && (data->seed_len == 0 || seed_len == 0
 		    || ((size_t)data->seed_len == seed_len
-		  && memcmp(params_seed, seed, seed_len) == 0))
+		 && memcmp(params_seed, seed, seed_len) == 0))
 		    /* Check that the groups params match the built-in curve params */
-		  && memcmp(param_bytes, params, param_len * NUM_BN_FIELDS)
+		 && memcmp(param_bytes, params, param_len * NUM_BN_FIELDS)
 		    == 0) {
 			ret = curve.nid;
 			goto end;

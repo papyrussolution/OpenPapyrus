@@ -260,7 +260,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 			   case SCE_CAML_KEYWORD2:
 			   case SCE_CAML_KEYWORD3:
 			        // [try to] interpret as [additional] keyword char
-			        if (!iscaml(ch))
+			        if(!iscaml(ch))
 			                state2 = SCE_CAML_DEFAULT, advance = false;
 			        break;*/
 
@@ -278,7 +278,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    || (!isSML && sc.Match('`'))                // Caml extra term char
 				    || (!sstrchr("!$%&*+-./:<=>?@^|~", sc.ch) // "operator" chars
 			                    // SML extra ident chars
-					  && !(isSML && (sc.Match('\\') || sc.Match('`'))))) {
+					 && !(isSML && (sc.Match('\\') || sc.Match('`'))))) {
 				    // check for INCLUSIVE termination
 				    if(o && sstrchr(")]};,", sc.ch)) {
 					    if((sc.Match(')') && sc.chPrev == '(')
@@ -300,24 +300,24 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    break;
 			    // how about an integer suffix?
 			    if(!isSML && (sc.Match('l') || sc.Match('L') || sc.Match('n'))
-			  && (sc.chPrev == '_' || IsADigit(sc.chPrev, chBase)))
+			 && (sc.chPrev == '_' || IsADigit(sc.chPrev, chBase)))
 				    break;
 			    // or a floating-point literal?
 			    if(chBase == 10) {
 				    // with a decimal point?
 				    if(sc.Match('.')
-				  && ((!isSML && sc.chPrev == '_')
+				 && ((!isSML && sc.chPrev == '_')
 					    || IsADigit(sc.chPrev, chBase)))
 					    break;
 				    // with an exponent? (I)
 				    if((sc.Match('e') || sc.Match('E'))
-				  && ((!isSML && (sc.chPrev == '.' || sc.chPrev == '_'))
+				 && ((!isSML && (sc.chPrev == '.' || sc.chPrev == '_'))
 					    || IsADigit(sc.chPrev, chBase)))
 					    break;
 				    // with an exponent? (II)
 				    if(((!isSML && (sc.Match('+') || sc.Match('-')))
 					    || (isSML && sc.Match('~')))
-				  && (sc.chPrev == 'e' || sc.chPrev == 'E'))
+				 && (sc.chPrev == 'e' || sc.chPrev == 'E'))
 					    break;
 			    }
 			    // it looks like we have run out of number
@@ -397,7 +397,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 				    // enable "magic" (read-only) comment AS REQUIRED
 			    }
 			    else if(useMagic && sc.currentPos - chToken == 4
-			  && sc.Match('c') && sc.chPrev == 'r' && sc.GetRelative(-2) == '@')
+			 && sc.Match('c') && sc.chPrev == 'r' && sc.GetRelative(-2) == '@')
 				    sc.state |= 0x10;   // (switch to read-only comment style)
 			    break;
 		}

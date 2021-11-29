@@ -206,7 +206,7 @@ static void setup_masks_use(const hb_ot_shape_plan_t * plan,
 	/* We cannot setup masks here.  We save information about characters
 	 * and setup masks later on in a pause-callback. */
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		info[i].use_category() = hb_use_get_category(info[i].codepoint);
@@ -224,7 +224,7 @@ static void setup_rphf_mask(const hb_ot_shape_plan_t * plan,
 
 	foreach_syllable(buffer, start, end)
 	{
-		unsigned int limit = info[start].use_category() == USE_R ? 1 : hb_min(3u, end - start);
+		uint limit = info[start].use_category() == USE_R ? 1 : hb_min(3u, end - start);
 		for(uint i = start; i < start + limit; i++)
 			info[i].mask |= mask;
 	}
@@ -249,7 +249,7 @@ static void setup_topographical_masks(const hb_ot_shape_plan_t * plan,
 		return;
 	hb_mask_t other_masks = ~all_masks;
 
-	unsigned int last_start = 0;
+	uint last_start = 0;
 	joining_form_t last_form = _USE_NONE;
 	hb_glyph_info_t * info = buffer->info;
 	foreach_syllable(buffer, start, end)
@@ -347,7 +347,7 @@ static inline bool is_halant_use(const hb_glyph_info_t &info)
 	       !_hb_glyph_info_ligated(&info);
 }
 
-static void reorder_syllable_use(hb_buffer_t * buffer, unsigned int start, unsigned int end)
+static void reorder_syllable_use(hb_buffer_t * buffer, uint start, uint end)
 {
 	use_syllable_type_t syllable_type = (use_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
 	/* Only a few syllable types need reordering. */
@@ -403,7 +403,7 @@ static void reorder_syllable_use(hb_buffer_t * buffer, unsigned int start, unsig
 	}
 
 	/* Move things back. */
-	unsigned int j = start;
+	uint j = start;
 	for(uint i = start; i < end; i++) {
 		uint32_t flag = FLAG_UNSAFE(info[i].use_category());
 		if(is_halant_use(info[i])) {
@@ -433,7 +433,7 @@ static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_
 	/* Note: This loop is extra overhead, but should not be measurable.
 	 * TODO Use a buffer scratch flag to remove the loop. */
 	bool has_broken_syllables = false;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == use_broken_cluster) {
@@ -451,9 +451,9 @@ static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_
 	buffer->clear_output();
 
 	buffer->idx = 0;
-	unsigned int last_syllable = 0;
+	uint last_syllable = 0;
 	while(buffer->idx < buffer->len && buffer->successful) {
-		unsigned int syllable = buffer->cur().syllable();
+		uint syllable = buffer->cur().syllable();
 		use_syllable_type_t syllable_type = (use_syllable_type_t)(syllable & 0x0F);
 		if(UNLIKELY(last_syllable != syllable && syllable_type == use_broken_cluster)) {
 			last_syllable = syllable;

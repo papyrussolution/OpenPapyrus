@@ -190,7 +190,7 @@
 //
 // (*) Both Perl and PCRE allow non matching parentheses by means of the
 // "?:" modifier within the pattern itself. e.g. (?:ab|cd) does not
-// capture, while (ab|cd) does.
+// capture, while(ab|cd) does.
 //
 // For each modifier, there are two member functions whose name is made
 // out of the modifier in lowercase, without the "PCRE_" prefix. For
@@ -218,7 +218,7 @@
 //    RE_options opt;
 //    opt.set_caseless(true);
 //
-//    if (RE("HELLO", opt).PartialMatch("hello world")) ...
+//    if(RE("HELLO", opt).PartialMatch("hello world")) ...
 //
 // RE_options has two constructors. The default constructor takes no
 // arguments and creates a set of flags that are off by default.
@@ -266,7 +266,7 @@
 //    string var;
 //    int value;
 //    pcrecpp::RE re("(\\w+) = (\\d+)\n");
-//    while (re.Consume(&input, &var, &value)) {
+//    while(re.Consume(&input, &var, &value)) {
 //      ...;
 //    }
 //
@@ -338,7 +338,7 @@
 namespace pcrecpp {
 
 #define PCRE_SET_OR_CLEAR(b, o) \
-    if (b) all_options_ |= (o); else all_options_ &= ~(o); \
+    if(b) all_options_ |= (o); else all_options_ &= ~(o); \
     return *this
 
 #define PCRE_IS_SET(o)  \
@@ -490,10 +490,10 @@ class PCRECPP_EXP_DEFN RE {
   RE(const string & pat, const RE_Options& option) { Init(pat, &option); }
   RE(const char * pat) { Init(pat, NULL); }
   RE(const char * pat, const RE_Options& option) { Init(pat, &option); }
-  RE(const uchar* pat) {
+  RE(const uchar * pat) {
     Init(reinterpret_cast<const char *>(pat), NULL);
   }
-  RE(const uchar* pat, const RE_Options& option) {
+  RE(const uchar * pat, const RE_Options& option) {
     Init(reinterpret_cast<const char *>(pat), &option);
   }
 
@@ -501,7 +501,7 @@ class PCRECPP_EXP_DEFN RE {
   // because they recompile the expression.
   RE(const RE& re) { Init(re.pattern_, &re.options_); }
   const RE& operator = (const RE& re) {
-    if (this != &re) {
+    if(this != &re) {
       Cleanup();
 
       // This is the code that originally came from Google

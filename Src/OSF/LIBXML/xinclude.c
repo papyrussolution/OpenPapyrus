@@ -521,7 +521,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, const x
 	/*
 	 * Avoid recursion in already substitued resources
 	   for (i = 0;i < ctxt->urlNr;i++) {
-	    if (sstreq(doc->URL, ctxt->urlTab[i]))
+	    if(sstreq(doc->URL, ctxt->urlTab[i]))
 	        return;
 	   }
 	 */
@@ -1317,12 +1317,12 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	xmlXIncludeMergeEntities(ctxt, ctxt->doc, doc);
 	/*
 	 * We don't need the DTD anymore, free up space
-	   if (doc->intSubset != NULL) {
+	   if(doc->intSubset != NULL) {
 	    xmlUnlinkNode((xmlNode *) doc->intSubset);
 	    xmlFreeNode((xmlNode *) doc->intSubset);
 	    doc->intSubset = NULL;
 	   }
-	   if (doc->extSubset != NULL) {
+	   if(doc->extSubset != NULL) {
 	    xmlUnlinkNode((xmlNode *) doc->extSubset);
 	    xmlFreeNode((xmlNode *) doc->extSubset);
 	    doc->extSubset = NULL;

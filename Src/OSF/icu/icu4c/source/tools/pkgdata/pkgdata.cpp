@@ -17,7 +17,7 @@
 #include "putilimp.h"
 
 #if U_HAVE_POPEN
-#if (U_PF_MINGW <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(__STRICT_ANSI__)
+#if(U_PF_MINGW <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(__STRICT_ANSI__)
 /* popen/pclose aren't defined in strict ANSI on Cygwin and MinGW */
 #undef __STRICT_ANSI__
 #endif
@@ -535,7 +535,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 		}
 		return result;
 	}
-	else { /* if (IN_COMMON_MODE(mode) || IN_DLL_MODE(mode) || IN_STATIC_MODE(mode)) */
+	else { /* if(IN_COMMON_MODE(mode) || IN_DLL_MODE(mode) || IN_STATIC_MODE(mode)) */
 		bool noVersion = FALSE;
 
 		uprv_strcpy(targetDir, o->targetDir);
@@ -602,7 +602,7 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 
 			return result;
 		}
-		else { /* if (IN_STATIC_MODE(mode) || IN_DLL_MODE(mode)) */
+		else { /* if(IN_STATIC_MODE(mode) || IN_DLL_MODE(mode)) */
 			char gencFilePath[SMALL_BUFFER_MAX_SIZE] = "";
 			char version_major[10] = "";
 			bool reverseExt = FALSE;
@@ -1333,7 +1333,7 @@ static int32_t pkg_generateLibraryFile(const char * targetDir,
 			result = runCommand(cmd);
 		}
 	}
-	else { /* if (IN_DLL_MODE(mode)) */
+	else { /* if(IN_DLL_MODE(mode)) */
 		if(cmd == NULL) {
 			length = static_cast<int32_t>(uprv_strlen(pkgDataFlags[GENLIB]) + uprv_strlen(pkgDataFlags[LDICUDTFLAGS]) +
 			    ((uprv_strlen(targetDir) + uprv_strlen(libFileNames[LIB_FILE_VERSION_TMP])) * 2) +

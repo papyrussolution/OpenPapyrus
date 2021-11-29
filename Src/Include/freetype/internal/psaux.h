@@ -216,7 +216,7 @@ typedef void
 
 /* structure type used to model object fields */
 typedef struct  T1_FieldRec_ {
-	const char *         ident;    /* field identifier               */
+	const char * ident;    /* field identifier               */
 	T1_FieldLocation location;
 	T1_FieldType type;            /* type of field                  */
 	T1_Field_ParseFunc reader;
@@ -1188,7 +1188,7 @@ typedef struct  AFM_ParserRec_ {
 	AFM_FontInfo FontInfo;
 
 	FT_Int
-	(* get_index)(const char *  name,
+	(* get_index)(const char * name,
 	    FT_Offset len,
 	    void *    user_data);
 

@@ -94,7 +94,7 @@ struct hb_serialize_context_t {
 		return snapshot_t { head, tail, current, current->links.length };
 	}
 
-	hb_serialize_context_t(void * start_, unsigned int size) :
+	hb_serialize_context_t(void * start_, uint size) :
 		start((char*)start_),
 		end(start + size),
 		current(nullptr)
@@ -386,15 +386,15 @@ struct hb_serialize_context_t {
 			}
 	}
 
-	unsigned int length() const
+	uint length() const
 	{
 		if(UNLIKELY(!current)) return 0;
 		return this->head - current->head;
 	}
 
-	void align(unsigned int alignment)
+	void align(uint alignment)
 	{
-		unsigned int l = length() % alignment;
+		uint l = length() % alignment;
 		if(l)
 			allocate_size<void> (alignment - l);
 	}
@@ -420,7 +420,7 @@ struct hb_serialize_context_t {
 		this->successful = false;
 	}
 
-	template <typename Type> Type * allocate_size(unsigned int size)
+	template <typename Type> Type * allocate_size(uint size)
 	{
 		if(UNLIKELY(!this->successful)) 
 			return nullptr;
@@ -440,7 +440,7 @@ struct hb_serialize_context_t {
 	}
 	template <typename Type> Type * embed(const Type * obj)
 	{
-		unsigned int size = obj->get_size();
+		uint size = obj->get_size();
 		Type * ret = this->allocate_size<Type> (size);
 		if(UNLIKELY(!ret)) return nullptr;
 		memcpy(ret, obj, size);
@@ -490,7 +490,7 @@ struct hb_serialize_context_t {
 	hb_serialize_context_t& operator << (const Type &obj) & { embed(obj); return *this; }
 
 		template <typename Type>
-		Type * extend_size(Type * obj, unsigned int size)
+		Type * extend_size(Type * obj, uint size)
 			{
 			if(UNLIKELY(in_error())) return nullptr;
 
@@ -502,7 +502,7 @@ struct hb_serialize_context_t {
 		}
 
 		template <typename Type>
-		Type * extend_size(Type &obj, unsigned int size)
+		Type * extend_size(Type &obj, uint size)
 			{
 			return extend_size(hb_addressof(obj), size);
 		}
@@ -534,7 +534,7 @@ struct hb_serialize_context_t {
 			{
 			assert(this->successful);
 		        /* Copy both items from head side and tail side... */
-			unsigned int len = (this->head - this->start) + (this->end  - this->tail);
+			uint len = (this->head - this->start) + (this->end  - this->tail);
 			char * p = (char*)SAlloc::M(len);
 			if(UNLIKELY(!p)) 
 				return hb_bytes_t();
@@ -562,7 +562,7 @@ struct hb_serialize_context_t {
 		}
 		public: /* TODO Make private. */
 		char * start, * head, * tail, * end;
-	unsigned int debug_depth;
+	uint debug_depth;
 	bool successful;
 	bool ran_out_of_room;
 

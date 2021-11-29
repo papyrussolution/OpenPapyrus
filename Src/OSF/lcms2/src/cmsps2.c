@@ -392,8 +392,8 @@ void EmitIntent(cmsIOHANDLER* m, cmsUInt32Number RenderingIntent)
 //
 //  Convert L* to Y
 //
-//      Y = Yn*[ (L* + 16) / 116] ^ 3   if (L*) >= 6 / 29
-//        = Yn*( L* / 116) / 7.787      if (L*) < 6 / 29
+//      Y = Yn*[ (L* + 16) / 116] ^ 3   if(L*) >= 6 / 29
+//        = Yn*( L* / 116) / 7.787      if(L*) < 6 / 29
 //
 
 // Lab -> XYZ, see the discussion above

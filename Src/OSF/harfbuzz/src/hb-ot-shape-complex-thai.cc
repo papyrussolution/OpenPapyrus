@@ -210,10 +210,10 @@ static void do_thai_pua_shaping(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 	thai_above_state_t above_state = thai_above_start_state[NOT_CONSONANT];
 	thai_below_state_t below_state = thai_below_start_state[NOT_CONSONANT];
-	unsigned int base = 0;
+	uint base = 0;
 
 	hb_glyph_info_t * info = buffer->info;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	for(uint i = 0; i < count; i++) {
 		thai_mark_type_t mt = get_mark_type(info[i].codepoint);
 
@@ -300,7 +300,7 @@ static void preprocess_text_thai(const hb_ot_shape_plan_t * plan,
 #define IS_TONE_MARK(x) (hb_in_ranges<hb_codepoint_t> ((x) & ~0x0080u, 0x0E34u, 0x0E37u, 0x0E47u, 0x0E4Eu, 0x0E31u, 0x0E31u))
 
 	buffer->clear_output();
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	for(buffer->idx = 0; buffer->idx < count && buffer->successful;) {
 		hb_codepoint_t u = buffer->cur().codepoint;
 		if(LIKELY(!IS_SARA_AM(u))) {
@@ -316,11 +316,11 @@ static void preprocess_text_thai(const hb_ot_shape_plan_t * plan,
 			return;
 
 		/* Make Nikhahit be recognized as a ccc=0 mark when zeroing widths. */
-		unsigned int end = buffer->out_len;
+		uint end = buffer->out_len;
 		_hb_glyph_info_set_general_category(&buffer->out_info[end - 2], HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK);
 
 		/* Ok, let's see... */
-		unsigned int start = end - 2;
+		uint start = end - 2;
 		while(start > 0 && IS_TONE_MARK(buffer->out_info[start - 1].codepoint))
 			start--;
 

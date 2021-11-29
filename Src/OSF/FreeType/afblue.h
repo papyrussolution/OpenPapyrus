@@ -32,17 +32,17 @@ FT_BEGIN_HEADER
           do                                        \
           {                                         \
             ch = (unsigned char)*p++;               \
-            if ( ch >= 0x80 )                       \
+            if( ch >= 0x80 )                       \
             {                                       \
               FT_UInt  len_;                        \
                                                     \
                                                     \
-              if ( ch < 0xE0 )                      \
+              if( ch < 0xE0 )                      \
               {                                     \
                 len_ = 1;                           \
                 ch  &= 0x1F;                        \
               }                                     \
-              else if ( ch < 0xF0 )                 \
+              else if( ch < 0xF0 )                 \
               {                                     \
                 len_ = 2;                           \
                 ch  &= 0x0F;                        \
@@ -56,7 +56,7 @@ FT_BEGIN_HEADER
               for ( ; len_ > 0; len_-- )            \
                 ch = ( ch << 6 ) | ( *p++ & 0x3F ); \
             }                                       \
-          } while ( 0 )
+          } while(0)
 
 
   // 

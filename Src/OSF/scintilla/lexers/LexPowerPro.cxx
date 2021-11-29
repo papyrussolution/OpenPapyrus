@@ -171,7 +171,7 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 			    break;
 
 			case SCE_POWERPRO_IDENTIFIER:
-			    //if ((sc.ch > 0) && !setWord.Contains(sc.ch) || (sc.ch == '.')) { // use this line if don't want to match
+			    //if((sc.ch > 0) && !setWord.Contains(sc.ch) || (sc.ch == '.')) { // use this line if don't want to match
 			    // keywords with . in them. ie: win.debug will match both win and debug so win debug will also be colorized
 			    if((sc.ch > 0) && !setWord.Contains(sc.ch)) {      // || (sc.ch == '.')) { // use this line if you want to match
 				                                               // keywords with a . ie: win.debug will only match win.debug

@@ -41,22 +41,10 @@ typedef HRESULT (*WINAPI t_DWriteCreateFactory)(
  * to override malloc/free, we will redefine new/delete so users
  * won't need to do that by their own.
  */
-void * operator new(size_t size)        {
-	return SAlloc::M(size);
-}
-
-void * operator new [](size_t size)     {
-	return SAlloc::M(size);
-}
-
-void operator delete(void * pointer)    {
-	SAlloc::F(pointer);
-}
-
-void operator delete [](void * pointer) {
-	SAlloc::F(pointer);
-}
-
+void * operator new(size_t size) { return SAlloc::M(size); }
+void * operator new [](size_t size) { return SAlloc::M(size); }
+void operator delete(void * pointer) { SAlloc::F(pointer); }
+void operator delete [](void * pointer) { SAlloc::F(pointer); }
 /*
  * DirectWrite font stream helpers
  */
@@ -82,10 +70,7 @@ public:
 	IFACEMETHOD_(ULONG, AddRef) ()  {
 		return 1;
 	}
-	IFACEMETHOD_(ULONG, Release) () {
-		return 1;
-	}
-
+	IFACEMETHOD_(ULONG, Release) () { return 1; }
 	// IDWriteFontFileLoader methods
 	virtual HRESULT STDMETHODCALLTYPE CreateStreamFromKey(void const* fontFileReferenceKey,
 	    uint32_t fontFileReferenceKeySize,
@@ -94,13 +79,12 @@ public:
 		*fontFileStream = mFontFileStream;
 		return S_OK;
 	}
-
-	virtual ~DWriteFontFileLoader() {
+	virtual ~DWriteFontFileLoader() 
+	{
 	}
 };
 
-class DWriteFontFileStream : public IDWriteFontFileStream
-{
+class DWriteFontFileStream : public IDWriteFontFileStream {
 private:
 	uint8_t * mData;
 	uint32_t mSize;
@@ -559,7 +543,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features,
+    uint num_features,
     float lineWidth)
 {
 	hb_face_t * face = font->face;
@@ -570,12 +554,12 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 	IDWriteTextAnalyzer* analyzer;
 	dwriteFactory->CreateTextAnalyzer(&analyzer);
 
-	unsigned int scratch_size;
+	uint scratch_size;
 	hb_buffer_t::scratch_buffer_t * scratch = buffer->get_scratch_buffer(&scratch_size);
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
-		unsigned int _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
 		assert(_consumed <= scratch_size); \
 		scratch += _consumed; \
 		scratch_size -= _consumed; \
@@ -585,7 +569,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 
 	ALLOCATE_ARRAY(wchar_t, textString, buffer->len * 2);
 
-	unsigned int chars_len = 0;
+	uint chars_len = 0;
 	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		buffer->info[i].utf16_index() = chars_len;
@@ -604,7 +588,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 	chars_len = 0;
 	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
-		unsigned int cluster = buffer->info[i].cluster;
+		uint cluster = buffer->info[i].cluster;
 		log_clusters[chars_len++] = cluster;
 		if(hb_in_range(c, 0x10000u, 0x10FFFFu))
 			log_clusters[chars_len++] = cluster; /* Surrogates. */
@@ -694,7 +678,7 @@ retry_getglyphs:
 
 	/* The -2 in the following is to compensate for possible
 	 * alignment needed after the WORD array.  sizeof (WORD) == 2. */
-	unsigned int glyphs_size = (scratch_size * sizeof(int) - 2)
+	uint glyphs_size = (scratch_size * sizeof(int) - 2)
 	    / (sizeof(WORD) +
 	    sizeof(DWRITE_SHAPING_GLYPH_PROPERTIES) +
 	    sizeof(int) +
@@ -794,74 +778,58 @@ retry_getjustifiedglyphs:
 		else {
 			delete [] glyphAdvances;
 			delete [] glyphOffsets;
-
 			glyphAdvances = justifiedGlyphAdvances;
 			glyphOffsets = justifiedGlyphOffsets;
 		}
-
 		delete [] justificationOpportunities;
 	}
-
 	/* Ok, we've got everything we need, now compose output buffer,
 	 * very, *very*, carefully! */
-
 	/* Calculate visual-clusters.  That's what we ship. */
 	for(uint i = 0; i < glyphCount; i++)
 		vis_clusters[i] = (uint32_t)-1;
 	for(uint i = 0; i < buffer->len; i++) {
-		uint32_t * p =
-		    &vis_clusters[log_clusters[buffer->info[i].utf16_index()]];
+		uint32_t * p = &vis_clusters[log_clusters[buffer->info[i].utf16_index()]];
 		*p = hb_min(*p, buffer->info[i].cluster);
 	}
 	for(uint i = 1; i < glyphCount; i++)
 		if(vis_clusters[i] == (uint32_t)-1)
 			vis_clusters[i] = vis_clusters[i - 1];
-
 #undef utf16_index
-
 	if(UNLIKELY(!buffer->ensure(glyphCount)))
 		FAIL("Buffer in error");
-
 #undef FAIL
-
 	/* Set glyph infos */
 	buffer->len = 0;
 	for(uint i = 0; i < glyphCount; i++) {
 		hb_glyph_info_t * info = &buffer->info[buffer->len++];
-
 		info->codepoint = glyphIndices[i];
 		info->cluster = vis_clusters[i];
-
 		/* The rest is crap.  Let's store position info there for now. */
 		info->mask = glyphAdvances[i];
 		info->var1.i32 = glyphOffsets[i].advanceOffset;
 		info->var2.i32 = glyphOffsets[i].ascenderOffset;
 	}
-
 	/* Set glyph positions */
 	buffer->clear_positions();
 	for(uint i = 0; i < glyphCount; i++) {
 		hb_glyph_info_t * info = &buffer->info[i];
 		hb_glyph_position_t * pos = &buffer->pos[i];
-
 		/* TODO vertical */
 		pos->x_advance = x_mult * (int32_t)info->mask;
 		pos->x_offset = x_mult * (isRightToLeft ? -info->var1.i32 : info->var1.i32);
 		pos->y_offset = y_mult * info->var2.i32;
 	}
-
-	if(isRightToLeft) hb_buffer_reverse(buffer);
-
+	if(isRightToLeft) 
+		hb_buffer_reverse(buffer);
 	delete [] clusterMap;
 	delete [] glyphIndices;
 	delete [] textProperties;
 	delete [] glyphProperties;
 	delete [] glyphAdvances;
 	delete [] glyphOffsets;
-
 	if(num_features)
 		delete [] typographic_features.features;
-
 	/* Wow, done! */
 	return true;
 }
@@ -870,7 +838,7 @@ hb_bool_t _hb_directwrite_shape(hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features)
+    uint num_features)
 {
 	return _hb_directwrite_shape_full(shape_plan, font, buffer,
 		   features, num_features, 0);
@@ -879,7 +847,7 @@ hb_bool_t _hb_directwrite_shape(hb_shape_plan_t * shape_plan,
 HB_UNUSED static bool _hb_directwrite_shape_experimental_width(hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features,
+    uint num_features,
     float width)
 {
 	static const char * shapers = "directwrite";

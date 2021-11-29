@@ -2932,8 +2932,8 @@ static int use_bilinear(double x, double y, double t)
 	if(h < 1.0 / (0.75 * 0.75))
 		return TRUE; /* scale > .75 */
 	if((h > 3.99 && h < 4.01) /* scale is 1/2 */
-	  && !_cairo_fixed_from_double(x*y) /* parallel to an axis */
-	  && _cairo_fixed_is_integer(_cairo_fixed_from_double(t)))
+	 && !_cairo_fixed_from_double(x*y) /* parallel to an axis */
+	 && _cairo_fixed_is_integer(_cairo_fixed_from_double(t)))
 		return TRUE;
 	return FALSE;
 }

@@ -110,7 +110,7 @@ static inline void lzma_sha256_update(const uint8 *buf, size_t size, lzma_check_
 #if defined(HAVE_CC_SHA256_INIT) && SIZE_MAX > UINT32_MAX
 	// Darwin's CC_SHA256_Update takes uint32_t as the buffer size,
 	// so use a loop to support size_t.
-	while (size > UINT32_MAX) {
+	while(size > UINT32_MAX) {
 		LZMA_SHA256FUNC(Update)(&check->state.sha256, buf, UINT32_MAX);
 		buf += UINT32_MAX;
 		size -= UINT32_MAX;

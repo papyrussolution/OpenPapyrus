@@ -133,7 +133,7 @@ SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0),
 	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0), SessUuid(SCtrGenerate()) /* Генерируем абсолютно уникальный id сессии */
 {
 	assert((void *)&TlsIdx == (void *)this); // TlsIdx - @firstmember
-#if (USE_ASMLIB > 0)
+#if(USE_ASMLIB > 0)
 	{
 		//
 		// Перед началом исполнения программы сделаем вызовы функций из библиотеки ASMLIB для того,
@@ -250,7 +250,7 @@ static void InitTest()
 		// @v10.9.3 {
 		STATIC_ASSERT(BIN(17) == 1); // must be 1
 		STATIC_ASSERT(BIN(0) == 0);
-		#if (_MSC_VER > 1400) // @v10.9.10 Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
+		#if(_MSC_VER > 1400) // @v10.9.10 Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
 			STATIC_ASSERT(BIN(0.0) == 0);
 			STATIC_ASSERT(BIN(0.0f) == 0); // @v10.9.10
 		#endif

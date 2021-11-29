@@ -61,7 +61,7 @@ bool SecurityGard::checkSha256(const std::wstring& filePath, NppModule module2ch
 	// It should be stay in commenting out
 	/*
 	   bool dontCheck = true;
-	   if (dontCheck)
+	   if(dontCheck)
 	        return true;
 	 */
 	std::string content = getFileContent(filePath.c_str());

@@ -586,12 +586,12 @@ error:
  * Example:
  *
  * @code
- *  if (ssh_version(SSH_VERSION_INT(0,2,1)) == NULL) {
+ *  if(ssh_version(SSH_VERSION_INT(0,2,1)) == NULL) {
  *    slfprintf_stderr("libssh version is too old!\n");
  *    exit(1);
  *  }
  *
- *  if (debug) {
+ *  if(debug) {
  *    printf("libssh %s\n", ssh_version(0));
  *  }
  * @endcode

@@ -55,7 +55,7 @@ namespace OT {
 	struct contour_point_vector_t : hb_vector_t<contour_point_t>{
 		void extend(const hb_array_t<contour_point_t> &a)
 		{
-			unsigned int old_len = length;
+			uint old_len = length;
 			resize(old_len + a.length);
 			for(uint i = 0; i < a.length; i++)
 				(*this)[old_len + i] = a[i];
@@ -94,7 +94,7 @@ namespace OT {
 			return StructAtOffset<TupleVariationHeader> (this, get_size(axis_count));
 		}
 
-		float calculate_scalar(const int * coords, unsigned int coord_count,
+		float calculate_scalar(const int * coords, uint coord_count,
 		    const hb_array_t<const F2DOT14> shared_tuples) const
 		{
 			hb_array_t<const F2DOT14> peak_tuple;
@@ -102,7 +102,7 @@ namespace OT {
 			if(has_peak())
 				peak_tuple = get_peak_tuple(coord_count);
 			else {
-				unsigned int index = get_index();
+				uint index = get_index();
 				if(UNLIKELY(index * coord_count >= shared_tuples.length))
 					return 0.f;
 				peak_tuple = shared_tuples.sub_array(coord_count * index, coord_count);
@@ -205,7 +205,7 @@ public:
 		}
 
 		struct tuple_iterator_t {
-			void init(hb_bytes_t var_data_bytes_, unsigned int axis_count_)
+			void init(hb_bytes_t var_data_bytes_, uint axis_count_)
 			{
 				var_data_bytes = var_data_bytes_;
 				var_data = var_data_bytes_.as<GlyphVariationData> ();
@@ -215,7 +215,7 @@ public:
 				data_offset = 0;
 			}
 
-			bool get_shared_indices(hb_vector_t<unsigned int> &shared_indices /* OUT */)
+			bool get_shared_indices(hb_vector_t<uint> &shared_indices /* OUT */)
 			{
 				if(var_data->has_shared_point_numbers()) {
 					const HBUINT8 * base = &(var_data+var_data->data);
@@ -250,9 +250,9 @@ public:
 
 private:
 			const GlyphVariationData * var_data;
-			unsigned int index;
-			unsigned int axis_count;
-			unsigned int data_offset;
+			uint index;
+			uint axis_count;
+			uint data_offset;
 
 public:
 			hb_bytes_t var_data_bytes;
@@ -260,7 +260,7 @@ public:
 		};
 
 		static bool get_tuple_iterator(hb_bytes_t var_data_bytes, unsigned axis_count,
-		    hb_vector_t<unsigned int> &shared_indices /* OUT */,
+		    hb_vector_t<uint> &shared_indices /* OUT */,
 		    tuple_iterator_t * iterator /* OUT */)
 		{
 			iterator->init(var_data_bytes, axis_count);
@@ -274,7 +274,7 @@ public:
 		}
 
 		static bool unpack_points(const HBUINT8 *&p /* IN/OUT */,
-		    hb_vector_t<unsigned int> &points /* OUT */,
+		    hb_vector_t<uint> &points /* OUT */,
 		    const hb_bytes_t &bytes)
 		{
 			enum packed_point_flag_t {
@@ -291,7 +291,7 @@ public:
 			}
 			points.resize(count);
 
-			unsigned int n = 0;
+			uint n = 0;
 			uint16_t i = 0;
 			while(i < count) {
 				if(UNLIKELY(!bytes.check_range(p))) return false;
@@ -329,13 +329,13 @@ public:
 				DELTA_RUN_COUNT_MASK = 0x3F
 			};
 
-			unsigned int i = 0;
-			unsigned int count = deltas.length;
+			uint i = 0;
+			uint count = deltas.length;
 			while(i < count) {
 				if(UNLIKELY(!bytes.check_range(p))) return false;
 				uint8_t control = *p++;
-				unsigned int run_count = (control & DELTA_RUN_COUNT_MASK) + 1;
-				unsigned int j;
+				uint run_count = (control & DELTA_RUN_COUNT_MASK) + 1;
+				uint j;
 				if(control & DELTAS_ARE_ZERO)
 					for(j = 0; j < run_count && i < count; j++, i++)
 						deltas[i] = 0;
@@ -368,7 +368,7 @@ protected:
 				return ((*this) & SharedPointNumbers);
 			}
 
-			unsigned int get_count() const {
+			uint get_count() const {
 				return (*this) & CountMask;
 			}
 
@@ -428,10 +428,10 @@ public:
 			out->axisCount = axisCount;
 			out->sharedTupleCount = sharedTupleCount;
 
-			unsigned int num_glyphs = c->plan->num_output_glyphs();
+			uint num_glyphs = c->plan->num_output_glyphs();
 			out->glyphCount = num_glyphs;
 
-			unsigned int subset_data_size = 0;
+			uint subset_data_size = 0;
 			for(hb_codepoint_t gid = 0; gid < num_glyphs; gid++) {
 				hb_codepoint_t old_gid;
 				if(!c->plan->old_gid_for_new_gid(gid, &old_gid)) continue;
@@ -448,7 +448,7 @@ public:
 			if(!sharedTupleCount || !sharedTuples)
 				out->sharedTuples = 0;
 			else {
-				unsigned int shared_tuple_size = F2DOT14::static_size * axisCount * sharedTupleCount;
+				uint shared_tuple_size = F2DOT14::static_size * axisCount * sharedTupleCount;
 				F2DOT14 * tuples = c->serializer->allocate_size<F2DOT14> (shared_tuple_size);
 				if(!tuples) return_trace(false);
 				out->sharedTuples = (char*)tuples - (char*)out;
@@ -459,7 +459,7 @@ public:
 			if(!subset_data) return_trace(false);
 			out->dataZ = subset_data - (char*)out;
 
-			unsigned int glyph_offset = 0;
+			uint glyph_offset = 0;
 			for(hb_codepoint_t gid = 0; gid < num_glyphs; gid++) {
 				hb_codepoint_t old_gid;
 				hb_bytes_t var_data_bytes = c->plan->old_gid_for_new_gid(gid, &old_gid)
@@ -497,7 +497,7 @@ protected:
 			return flags & 1;
 		}
 
-		unsigned get_offset(unsigned i) const
+		unsigned get_offset(uint i) const
 		{
 			return is_long_offset() ? get_long_offset_array()[i] : get_short_offset_array()[i] * 2;
 		}
@@ -535,7 +535,7 @@ private:
 			template <typename T>
 			static float infer_delta(const hb_array_t<contour_point_t> points,
 			    const hb_array_t<contour_point_t> deltas,
-			    unsigned int target, unsigned int prev, unsigned int next)
+			    uint target, uint prev, uint next)
 			{
 				float target_val = T::get(points[target]);
 				float prev_val = T::get(points[prev]);
@@ -555,7 +555,7 @@ private:
 				return (1.f - r) * prev_delta + r * next_delta;
 			}
 
-			static unsigned int next_index(unsigned int i, unsigned int start, unsigned int end)
+			static uint next_index(uint i, uint start, uint end)
 			{
 				return (i >= end) ? start : (i + 1);
 			}
@@ -572,7 +572,7 @@ public:
 
 				hb_bytes_t var_data_bytes = table->get_glyph_var_data_bytes(table.get_blob(), glyph);
 				if(!var_data_bytes.as<GlyphVariationData> ()->has_data()) return true;
-				hb_vector_t<unsigned int> shared_indices;
+				hb_vector_t<uint> shared_indices;
 				GlyphVariationData::tuple_iterator_t iterator;
 				if(!GlyphVariationData::get_tuple_iterator(var_data_bytes, table->axisCount,
 				    shared_indices, &iterator))
@@ -588,7 +588,7 @@ public:
 				deltas.resize(points.length);
 
 				hb_vector_t<unsigned> end_points;
-				for(unsigned i = 0; i < points.length; ++i)
+				for(uint i = 0; i < points.length; ++i)
 					if(points[i].is_end_point)
 						end_points.push(i);
 
@@ -600,19 +600,19 @@ public:
 					float scalar = iterator.current_tuple->calculate_scalar(coords, num_coords, shared_tuples);
 					if(scalar == 0.f) continue;
 					const HBUINT8 * p = iterator.get_serialized_data();
-					unsigned int length = iterator.current_tuple->get_data_size();
+					uint length = iterator.current_tuple->get_data_size();
 					if(UNLIKELY(!iterator.var_data_bytes.check_range(p, length)))
 						return false;
 
 					hb_bytes_t bytes((const char*)p, length);
-					hb_vector_t<unsigned int> private_indices;
+					hb_vector_t<uint> private_indices;
 					if(iterator.current_tuple->has_private_points() &&
 					    !GlyphVariationData::unpack_points(p, private_indices, bytes))
 						return false;
-					const hb_array_t<unsigned int> &indices = private_indices.length ? private_indices : shared_indices;
+					const hb_array_t<uint> &indices = private_indices.length ? private_indices : shared_indices;
 
 					bool apply_to_all = (indices.length == 0);
-					unsigned int num_deltas = apply_to_all ? points.length : indices.length;
+					uint num_deltas = apply_to_all ? points.length : indices.length;
 					hb_vector_t<int> x_deltas;
 					x_deltas.resize(num_deltas);
 					if(!GlyphVariationData::unpack_deltas(p, x_deltas, bytes))
@@ -625,7 +625,7 @@ public:
 					for(uint i = 0; i < deltas.length; i++)
 						deltas[i].init();
 					for(uint i = 0; i < num_deltas; i++) {
-						unsigned int pt_index = apply_to_all ? i : indices[i];
+						uint pt_index = apply_to_all ? i : indices[i];
 						deltas[pt_index].flag = 1; /* this point is referenced, i.e., explicit
 						                              deltas specified */
 						deltas[pt_index].x += x_deltas[i] * scalar;
@@ -640,7 +640,7 @@ public:
 						/* Check the number of unreferenced points in a contour. If no unref
 						   points or no ref points, nothing to do. */
 						unsigned unref_count = 0;
-						for(unsigned i = start_point; i <= end_point; i++)
+						for(uint i = start_point; i <= end_point; i++)
 							if(!deltas[i].flag) unref_count++;
 
 						unsigned j = start_point;
@@ -653,7 +653,7 @@ public:
 							 * Note that a gap may wrap around at left (start_point) and/or
 							 *at right (end_point).
 							 */
-							unsigned int prev, next, i;
+							uint prev, next, i;
 							for(;;) {
 								i = j;
 								j = next_index(i, start_point, end_point);
@@ -693,7 +693,7 @@ no_more_gaps:
 				return true;
 			}
 
-			unsigned int get_axis_count() const {
+			uint get_axis_count() const {
 				return table->axisCount;
 			}
 

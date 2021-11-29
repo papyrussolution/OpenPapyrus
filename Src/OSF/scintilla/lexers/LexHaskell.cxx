@@ -574,7 +574,7 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 			int style = SCE_HA_OPERATOR;
 			if(sc.ch == ':' && !alreadyInTheMiddleOfOperator
 			    // except "::"
-			  && !(sc.chNext == ':' && !IsAnHaskellOperatorChar(sc.GetRelative(2)))) {
+			 && !(sc.chNext == ':' && !IsAnHaskellOperatorChar(sc.GetRelative(2)))) {
 				style = SCE_HA_CAPITAL;
 			}
 			alreadyInTheMiddleOfOperator = false;
@@ -881,8 +881,8 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 				sc.SetState(SCE_HA_OPERATOR);
 
 				if(options.implicitParams
-				  && IsAHaskellWordStart(sc.chNext)
-				  && !IsHaskellUpperCase(sc.chNext)) {
+				 && IsAHaskellWordStart(sc.chNext)
+				 && !IsHaskellUpperCase(sc.chNext)) {
 					sc.Forward();
 					sc.ChangeState(SCE_HA_IDENTIFIER);
 				}

@@ -204,7 +204,7 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 	#define VGMEMP_DEFINED(a, s)
 #endif
 #ifndef BYTE_ORDER
-# if (defined(_LITTLE_ENDIAN) || defined(_BIG_ENDIAN)) && !(defined(_LITTLE_ENDIAN) && defined(_BIG_ENDIAN))
+# if(defined(_LITTLE_ENDIAN) || defined(_BIG_ENDIAN)) && !(defined(_LITTLE_ENDIAN) && defined(_BIG_ENDIAN))
 /* Solaris just defines one or the other */
 #  define LITTLE_ENDIAN 1234
 #  define BIG_ENDIAN    4321
@@ -228,7 +228,7 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 #endif
 #include "lmdb.h"
 #include "midl.h"
-#if (BYTE_ORDER == LITTLE_ENDIAN) == (BYTE_ORDER == BIG_ENDIAN)
+#if(BYTE_ORDER == LITTLE_ENDIAN) == (BYTE_ORDER == BIG_ENDIAN)
 	#error "Unknown or unsupported endianness (BYTE_ORDER)"
 #elif (-6 & 5) || CHAR_BIT!=8 || UINT_MAX!=0xffffffff || MDB_SIZE_MAX%UINT_MAX
 	#error "Two's complement, reasonably sized integer types, please"
@@ -302,7 +302,7 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 
 #if defined(MDB_USE_POSIX_MUTEX) && (MDB_USE_ROBUST)
 /* glibc < 2.12 only provided _np API */
-#  if (defined(__GLIBC__) && GLIBC_VER < 0x02000c) || \
+#  if(defined(__GLIBC__) && GLIBC_VER < 0x02000c) || \
 	(defined(PTHREAD_MUTEX_ROBUST_NP) && !defined(PTHREAD_MUTEX_ROBUST))
 #define PTHREAD_MUTEX_ROBUST PTHREAD_MUTEX_ROBUST_NP
 #define pthread_mutexattr_setrobust(attr, flag)      pthread_mutexattr_setrobust_np(attr, flag)
@@ -1758,7 +1758,7 @@ void mdb_cursor_chk(MDB_cursor * mc)
 
 #endif
 
-#if (MDB_DEBUG) > 2
+#if(MDB_DEBUG) > 2
 /** Count all the pages in each DB and in the freelist
  *  and make sure it matches the actual number of pages
  *  being used.
@@ -2310,7 +2310,7 @@ static int mdb_page_alloc(MDB_cursor * mc, int num, MDB_page ** mp)
 			last = env->me_pglast;
 			oldest = env->me_pgoldest;
 			mdb_cursor_init(&m2, txn, FREE_DBI, NULL);
-#if (MDB_DEVEL) & 2     /* "& 2" so MDB_DEVEL=1 won't hide bugs breaking freeDB */
+#if(MDB_DEVEL) & 2     /* "& 2" so MDB_DEVEL=1 won't hide bugs breaking freeDB */
 			/* Use original snapshot. TODO: Should need less care in code
 			 * which modifies the database. Maybe we can delete some code?
 			 */
@@ -2375,7 +2375,7 @@ static int mdb_page_alloc(MDB_cursor * mc, int num, MDB_page ** mp)
 			mop = env->me_pghead;
 		}
 		env->me_pglast = last;
-#if (MDB_DEBUG) > 1
+#if(MDB_DEBUG) > 1
 		DPRINTF(("IDL read txn %" Yu " root %" Yu " num %u", last, txn->mt_dbs[FREE_DBI].md_root, i));
 		for(j = i; j; j--)
 			DPRINTF(("IDL %" Yu, idl[j]));
@@ -3299,7 +3299,7 @@ static int mdb_freelist_save(MDB_txn * txn)
 			} while(freecnt < free_pgs[0]);
 			mdb_midl_sort(free_pgs);
 			memcpy(data.mv_data, free_pgs, data.mv_size);
-#if (MDB_DEBUG) > 1
+#if(MDB_DEBUG) > 1
 			{
 				uint i = free_pgs[0];
 				DPRINTF(("IDL write txn %" Yu " root %" Yu " num %u", txn->mt_txnid, txn->mt_dbs[FREE_DBI].md_root, i));
@@ -3432,7 +3432,7 @@ static int mdb_page_flush(MDB_txn * txn, int keep)
 #ifdef _WIN32
 	    /* In windows, we still do writes to the file (with write-through enabled in sync mode),
 	     * as this is faster than FlushViewOfFile/FlushFileBuffers */
-	  && (env->me_flags & MDB_NOSYNC)
+	 && (env->me_flags & MDB_NOSYNC)
 #endif
 	    ) {
 		/* Clear dirty flags */
@@ -3812,7 +3812,7 @@ int mdb_txn_commit(MDB_txn * txn)
 	mdb_midl_free(env->me_pghead);
 	env->me_pghead = NULL;
 	mdb_midl_shrink(&txn->mt_free_pgs);
-#if (MDB_DEBUG) > 2
+#if(MDB_DEBUG) > 2
 	mdb_audit(txn);
 #endif
 	if((rc = mdb_page_flush(txn, 0)))
@@ -3989,7 +3989,7 @@ static int mdb_env_write_meta(MDB_txn * txn)
 		mp->mm_dbs[FREE_DBI] = txn->mt_dbs[FREE_DBI];
 		mp->mm_dbs[MAIN_DBI] = txn->mt_dbs[MAIN_DBI];
 		mp->mm_last_pg = txn->mt_next_pgno - 1;
-#if (__GNUC__ * 100 + __GNUC_MINOR__ >= 404) && /* TODO: portability */ \
+#if(__GNUC__ * 100 + __GNUC_MINOR__ >= 404) && /* TODO: portability */ \
 		!(defined(__i386__) || defined(__x86_64__))
 		/* LY: issue a memory barrier, if not x86. ITS#7969 */
 		__sync_synchronize();
@@ -5264,7 +5264,7 @@ int ESECT mdb_env_open(MDB_env * env, const char * path, uint flags, mdb_mode_t 
 				txn->mt_dbs = (MDB_db*)((char *)txn + tsize);
 				txn->mt_cursors = (MDB_cursor**)(txn->mt_dbs + env->me_maxdbs);
 				txn->mt_dbiseqs = (uint*)(txn->mt_cursors + env->me_maxdbs);
-				txn->mt_dbflags = (uchar*)(txn->mt_dbiseqs + env->me_maxdbs);
+				txn->mt_dbflags = (uchar *)(txn->mt_dbiseqs + env->me_maxdbs);
 				txn->mt_env = env;
 #ifdef MDB_VL32
 				txn->mt_rpages = SAlloc::M(MDB_TRPAGE_SIZE * sizeof(MDB_ID3));
@@ -5516,9 +5516,9 @@ static int mdb_cmp_memnr(const MDB_val * a, const MDB_val * b)
 	const uchar * p1, * p2, * p1_lim;
 	ssize_t len_diff;
 	int diff;
-	p1_lim = (const uchar*)a->mv_data;
-	p1 = (const uchar*)a->mv_data + a->mv_size;
-	p2 = (const uchar*)b->mv_data + b->mv_size;
+	p1_lim = (const uchar *)a->mv_data;
+	p1 = (const uchar *)a->mv_data + a->mv_size;
+	p2 = (const uchar *)b->mv_data + b->mv_size;
 	len_diff = (ssize_t)a->mv_size - (ssize_t)b->mv_size;
 	if(len_diff > 0) {
 		p1_lim += len_diff;

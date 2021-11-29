@@ -183,7 +183,7 @@ CharList * pkg_appendUniqueDirToList(CharList * l, CharList** end, const char * 
 {
 	char aBuf[1024];
 	char * rPtr = (char *)uprv_strrchr(strAlias, U_FILE_SEP_CHAR);
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	{
 		char * aPtr = (char *)uprv_strrchr(strAlias, U_FILE_ALT_SEP_CHAR);
 		if(!rPtr || /* regular char wasn't found or.. */

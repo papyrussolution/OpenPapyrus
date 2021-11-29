@@ -54,16 +54,16 @@ typedef struct {
 } _sasl_plug_rec;
 
 /* For static linking */
-#define SPECIFIC_CLIENT_PLUG_INIT_PROTO( x ) \
+#define SPECIFIC_CLIENT_PLUG_INIT_PROTO(x) \
 sasl_client_plug_init_t x##_client_plug_init
 
-#define SPECIFIC_SERVER_PLUG_INIT_PROTO( x ) \
+#define SPECIFIC_SERVER_PLUG_INIT_PROTO(x) \
 sasl_server_plug_init_t x##_server_plug_init
 
-#define SPECIFIC_AUXPROP_PLUG_INIT_PROTO( x ) \
+#define SPECIFIC_AUXPROP_PLUG_INIT_PROTO(x) \
 sasl_auxprop_init_t x##_auxprop_plug_init
 
-#define SPECIFIC_CANONUSER_PLUG_INIT_PROTO( x ) \
+#define SPECIFIC_CANONUSER_PLUG_INIT_PROTO(x) \
 sasl_canonuser_init_t x##_canonuser_plug_init
 
 /* Static Compillation Foo */

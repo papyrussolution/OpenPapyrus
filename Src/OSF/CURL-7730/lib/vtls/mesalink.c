@@ -219,7 +219,7 @@ static CURLcode mesalink_connect_step1(struct connectdata * conn, int sockindex)
 	if((hostname_len < USHRT_MAX) &&
 	    (0 == Curl_inet_pton(AF_INET, hostname, &addr4))
 #ifdef ENABLE_IPV6
-	  && (0 == Curl_inet_pton(AF_INET6, hostname, &addr6))
+	 && (0 == Curl_inet_pton(AF_INET6, hostname, &addr6))
 #endif
 	    ) {
 		/* hostname is not a valid IP address */

@@ -164,7 +164,7 @@ template <typename T> struct array_iter_t : hb_iter_with_fallback_t<array_iter_t
 	}
 	typedef T& __item_t__;
 	static constexpr bool is_random_access_iterator = true;
-	T& __item_at__(unsigned i) const { return arr[i]; }
+	T& __item_at__(uint i) const { return arr[i]; }
 	void __forward__(unsigned n) { arr += n; }
 	void __rewind__(unsigned n) { arr -= n; }
 	unsigned __len__() const { return arr.length; }
@@ -336,8 +336,8 @@ int HarfBuzzTestIter() // ###
 	| hb_drain
 	;
 
-	unsigned int temp1 = 10;
-	unsigned int temp2 = 0;
+	uint temp1 = 10;
+	uint temp2 = 0;
 	hb_map_t * result =
 	    +hb_iter(src)
 	    | hb_map([&] (int i) -> hb_set_t *
@@ -358,7 +358,7 @@ int HarfBuzzTestIter() // ###
 	;
 	/* The result should be something like 0->10, 1->11, ..., 9->19 */
 	assert(hb_map_get(result, 9) == 19);
-	unsigned int temp3 = 0;
+	uint temp3 = 0;
 	+hb_iter(src)
 	| hb_map([&] (int i) {
 		return ++temp3;
@@ -419,7 +419,7 @@ int HarfBuzzTestNumber() // ###
 		const char * pp = str;
 		const char * end = str + strlen(str);
 
-		unsigned int pv;
+		uint pv;
 		assert(hb_parse_uint(&pp, end, &pv));
 		assert(pv == 123);
 		assert(pp - str == 3);
@@ -432,7 +432,7 @@ int HarfBuzzTestNumber() // ###
 		const char * pp = str;
 		const char * end = str + 3;
 
-		unsigned int pv;
+		uint pv;
 		assert(hb_parse_uint(&pp, end, &pv, true, 16));
 		assert(pv == 0x12F);
 		assert(pp - str == 3);
@@ -445,7 +445,7 @@ int HarfBuzzTestNumber() // ###
 		const char * pp = str;
 		const char * end = str + 4;
 
-		unsigned int pv;
+		uint pv;
 		assert(!hb_parse_uint(&pp, end, &pv, true, 16));
 		assert(hb_parse_uint(&pp, end, &pv, false, 16));
 		assert(pv == 0x12F);
@@ -473,7 +473,7 @@ int HarfBuzzTestNumber() // ###
 		assert(ARRAY_LENGTH(str) == 4);
 		const char * end = str + ARRAY_LENGTH(str);
 
-		unsigned int pv;
+		uint pv;
 		assert(hb_parse_uint(&pp, end, &pv));
 		assert(pv == 123);
 		assert(pp - str == 3);
@@ -486,7 +486,7 @@ int HarfBuzzTestNumber() // ###
 		assert(ARRAY_LENGTH(str) == 5);
 		const char * end = str + ARRAY_LENGTH(str);
 
-		unsigned int pv;
+		uint pv;
 		assert(hb_parse_uint(&pp, end, &pv));
 		assert(pv == 123);
 		assert(pp - str == 3);
@@ -499,7 +499,7 @@ int HarfBuzzTestNumber() // ###
 		assert(ARRAY_LENGTH(str) == 5);
 		const char * end = str + ARRAY_LENGTH(str);
 
-		unsigned int pv;
+		uint pv;
 		assert(hb_parse_uint(&pp, end, &pv));
 		assert(pv == 123);
 		assert(pp - str == 3);
@@ -594,7 +594,7 @@ int HarfBuzzTestNumber() // ###
 //
 //
 //
-/*static void test(hb_codepoint_t cp, unsigned int bit)
+/*static void test(hb_codepoint_t cp, uint bit)
 {
 	if(OT::_hb_ot_os2_get_unicode_range_bit(cp) != bit) {
 		slfprintf_stderr("got incorrect bit (%d) for cp 0x%X. Should have been %d.", OT::_hb_ot_os2_get_unicode_range_bit(cp), cp, bit);
@@ -736,7 +736,7 @@ int HarfBuzzTestCommon(const char * pFileName) // ###
 	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
 	hb_blob_destroy(blob);
 	blob = nullptr;
-	unsigned int upem = hb_face_get_upem(face);
+	uint upem = hb_face_get_upem(face);
 	hb_font_t * font = hb_font_create(face);
 	hb_font_set_scale(font, upem, upem);
 #ifdef HAVE_FREETYPE
@@ -746,7 +746,7 @@ int HarfBuzzTestCommon(const char * pFileName) // ###
 	hb_buffer_add_utf8(buffer, "\xe0\xa4\x95\xe0\xa5\x8d\xe0\xa4\xb0\xe0\xa5\x8d\xe0\xa4\x95", -1, 0, -1);
 	hb_buffer_guess_segment_properties(buffer);
 	hb_shape(font, buffer, nullptr, 0);
-	unsigned int count = hb_buffer_get_length(buffer);
+	uint count = hb_buffer_get_length(buffer);
 	hb_glyph_info_t * infos = hb_buffer_get_glyph_infos(buffer, nullptr);
 	hb_glyph_position_t * positions = hb_buffer_get_glyph_positions(buffer, nullptr);
 	for(uint i = 0; i < count; i++) {
@@ -775,7 +775,7 @@ int HarfBuzzTestBufferSerialize(const char * pFileName) // ###
 	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
 	hb_blob_destroy(blob);
 	blob = nullptr;
-	unsigned int upem = hb_face_get_upem(face);
+	uint upem = hb_face_get_upem(face);
 	hb_font_t * font = hb_font_create(face);
 	hb_face_destroy(face);
 	hb_font_set_scale(font, upem, upem);
@@ -816,7 +816,7 @@ int HarfBuzzTestGPosSizeParams(const char * pFileName) // ###
 	hb_blob_destroy(blob);
 	blob = nullptr;
 #ifndef HB_NO_LAYOUT_FEATURE_PARAMS
-	unsigned int p[5];
+	uint p[5];
 	ok = hb_ot_layout_get_size_params(face, p, p+1, (p+2), p+3, p+4);
 	printf("%g %u %u %g %g\n", p[0]/10., p[1], p[2], p[3]/10., p[4]/10.);
 #endif
@@ -838,10 +838,10 @@ int HarfBuzzTestOtGlyphName(const char * pFileName) // ###
 	hb_font_t * font = hb_font_create(face);
 	hb_blob_destroy(blob);
 	blob = nullptr;
-	const unsigned int num_glyphs = hb_face_get_glyph_count(face);
+	const uint num_glyphs = hb_face_get_glyph_count(face);
 	for(hb_codepoint_t gid = 0; gid < num_glyphs; gid++) {
 		char buf[64];
-		unsigned int buf_size = sizeof(buf);
+		uint buf_size = sizeof(buf);
 		if(hb_font_get_glyph_name(font, gid, buf, buf_size)) {
 			hb_codepoint_t gid_inv;
 			if(hb_font_get_glyph_from_name(font, buf, strlen(buf), &gid_inv)) {
@@ -881,12 +881,12 @@ int HarfBuzzTestOtMeta(const char * pFileName) // ###
 	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
 	hb_blob_destroy(blob);
 	blob = nullptr;
-	unsigned int count = 0;
+	uint count = 0;
 #ifndef HB_NO_META
 	count = hb_ot_meta_get_entry_tags(face, 0, nullptr, nullptr);
 	hb_ot_meta_tag_t * tags = (hb_ot_meta_tag_t *)SAlloc::M(sizeof(hb_ot_meta_tag_t) * count);
 	hb_ot_meta_get_entry_tags(face, 0, &count, tags);
-	for(unsigned i = 0; i < count; ++i) {
+	for(uint i = 0; i < count; ++i) {
 		hb_blob_t * entry = hb_ot_meta_reference_entry(face, tags[i]);
 		printf("%c%c%c%c, size: %d: %.*s\n", HB_UNTAG(tags[i]), hb_blob_get_length(entry), hb_blob_get_length(entry), hb_blob_get_data(entry, nullptr));
 		hb_blob_destroy(entry);

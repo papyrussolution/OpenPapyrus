@@ -561,7 +561,7 @@ static inline uint32_t findConverter(const char * alias, bool * containsOption, 
 			if(containsOption) {
 				bool containsCnvOptionInfo = (bool)gMainTable.optionTable->containsCnvOptionInfo;
 				*containsOption = (bool)((containsCnvOptionInfo
-				  && ((gMainTable.untaggedConvArray[mid] & UCNV_CONTAINS_OPTION_BIT) != 0))
+				 && ((gMainTable.untaggedConvArray[mid] & UCNV_CONTAINS_OPTION_BIT) != 0))
 				 || !containsCnvOptionInfo);
 			}
 			return gMainTable.untaggedConvArray[mid] & UCNV_CONVERTER_INDEX_MASK;
@@ -583,7 +583,7 @@ static inline bool isAliasInList(const char * alias, uint32_t listOffset) {
 		const uint16_t * currList = gMainTable.taggedAliasLists + listOffset + 1;
 		for(currAlias = 0; currAlias < listCount; currAlias++) {
 			if(currList[currAlias]
-			  && ucnv_compareNames(alias, GET_STRING(currList[currAlias]))==0) {
+			 && ucnv_compareNames(alias, GET_STRING(currList[currAlias]))==0) {
 				return TRUE;
 			}
 		}

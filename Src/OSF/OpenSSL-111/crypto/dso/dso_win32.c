@@ -444,7 +444,7 @@ static char * win32_merger(DSO * dso, const char * filespec1,
 			filespec1_split->dirlen = filespec2_split->dirlen;
 		}
 		else if(filespec1_split->dir[0] != '\\'
-		  && filespec1_split->dir[0] != '/') {
+		 && filespec1_split->dir[0] != '/') {
 			filespec1_split->predir = filespec2_split->dir;
 			filespec1_split->predirlen = filespec2_split->dirlen;
 		}

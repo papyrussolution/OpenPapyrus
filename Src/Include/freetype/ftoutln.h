@@ -347,7 +347,7 @@ FT_Outline_Transform(const FT_Outline*  outline,
  *   ```
  *     FT_Load_Glyph( face, index, FT_LOAD_DEFAULT );
  *
- *     if ( face->glyph->format == FT_GLYPH_FORMAT_OUTLINE )
+ *     if( face->glyph->format == FT_GLYPH_FORMAT_OUTLINE )
  * FT_Outline_Embolden( &face->glyph->outline, strength );
  *   ```
  *

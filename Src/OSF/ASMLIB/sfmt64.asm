@@ -302,7 +302,7 @@ L100:   mov     par2d, eax
 ; for (i = 1, j = 0; j < count; j++) {
 ;    r = func1(sta[i] ^ sta[(i + mid) % size] ^ sta[(i + size - 1) % size]);
 ;    sta[(i + mid) % size] += r;
-;    if (j < NumSeeds) r += seeds[j]
+;    if(j < NumSeeds) r += seeds[j]
 ;    r += i;
 ;    sta[(i + mid + lag) % size] += r;
 ;    sta[i] = r;
@@ -341,7 +341,7 @@ L103:   xor     eax,  [par1+r10*4+CRandomSFMTA.STATE]      ; sta[(i + size - 1) 
         ; sta[(i + mid) % size] += r;
         add     [par1+rbp*4+CRandomSFMTA.STATE], eax
         
-        ; if (j < NumSeeds) r += seeds[j]
+        ; if(j < NumSeeds) r += seeds[j]
         cmp     par2d, par4d
         jnb     L104
         add     eax, [par3+par2*4]        
@@ -425,7 +425,7 @@ L114:
         cmp     par2d, SFMT_SIZE
         jb      L110
     
-        ; if (UseMother) {
+        ; if(UseMother) {
         cmp     dword [par1+CRandomSFMTA.USEMOTHER], 0
         jz      L120
         
@@ -599,7 +599,7 @@ SFMTBRandom:                                               ; generate random bit
 
 SFMTBRandom_reg:                                           ; Entry for register parameters, used internally
 
-; if (ix >= SFMT_N*4) Generate();
+; if(ix >= SFMT_N*4) Generate();
         mov     edx, [par1+CRandomSFMTA.IX]
         cmp     edx, SFMT_N*16
         jnb     NeedGenerate
@@ -610,7 +610,7 @@ SFMTBRandom_reg:                                           ; Entry for register 
         mov     [par1+CRandomSFMTA.IX], edx
 
 AfterGenerate:
-; if (UseMother) y += MotherBits();
+; if(UseMother) y += MotherBits();
         cmp     dword [par1+CRandomSFMTA.USEMOTHER], 0
         jz      NoMother
         
@@ -638,7 +638,7 @@ SFMTRandom:                                                ; generate random flo
 SFMTRandom_reg:                                            ; internal entry point        
 
 ; check if there are at least 64 random bits in state buffer
-; if (ix >= SFMT_N*4-1) Generate();
+; if(ix >= SFMT_N*4-1) Generate();
         mov     edx, [par1+CRandomSFMTA.IX]
         cmp     edx, SFMT_N*16-4
         jnb     L303
@@ -681,7 +681,7 @@ SFMTRandomL:                                               ; generate random flo
 SFMTRandomL_reg:                                           ; internal entry point        
 
 ; check if there are at least 64 random bits in state buffer
-; if (ix >= SFMT_N*4-1) Generate();
+; if(ix >= SFMT_N*4-1) Generate();
         mov     edx, [par1+CRandomSFMTA.IX]
         cmp     edx, SFMT_N*16-4
         jnb     L403
@@ -764,7 +764,7 @@ SFMTIRandomX:
         jle     short M30                                  ; max <= min (signed)
         inc     ebx                                        ; interval = max - min + 1
         
-        ; if (interval != LastInterval) {
+        ; if(interval != LastInterval) {
         cmp     ebx, [par1+CRandomSFMTA.LASTINTERVAL]
         je      M10
         ; need to calculate new rejection limit
@@ -782,7 +782,7 @@ M20:    ; do { // Rejection loop
         call    SFMTBRandom_reg                            ; random bits (par1 is preserved)
         ; longran  = (uint64)BRandom() * interval;
         mul     dword [par1+CRandomSFMTA.LASTINTERVAL]
-        ; } while (remainder > RLimit);
+        ; } while(remainder > RLimit);
         cmp     eax, [par1+CRandomSFMTA.RLIMIT]
         ja      M20
         

@@ -1407,7 +1407,7 @@ void DateTimePatternGenerator::setDateTimeFromCalendar(const Locale & locale, UE
 
 	LocalUResourceBundlePointer dateTimePatterns;
 	if(fCalendar->getType() != nullptr && *fCalendar->getType() != '\0'
-	  && uprv_strcmp(fCalendar->getType(), DT_DateTimeGregorianTag) != 0) {
+	 && uprv_strcmp(fCalendar->getType(), DT_DateTimeGregorianTag) != 0) {
 		dateTimePatterns.adoptInstead(ures_getByKeyWithFallback(calData.getAlias(), fCalendar->getType(),
 		    nullptr, &status));
 		ures_getByKeyWithFallback(dateTimePatterns.getAlias(), DT_DateTimePatternsTag,
@@ -1699,9 +1699,9 @@ UnicodeString DateTimePatternGenerator::adjustFieldTypes(const UnicodeString & p
 					}
 				}
 				UChar c = (typeValue!= UDATPG_HOUR_FIELD
-				  && typeValue!= UDATPG_MONTH_FIELD
-				  && typeValue!= UDATPG_WEEKDAY_FIELD
-				  && (typeValue!= UDATPG_YEAR_FIELD || reqFieldChar==CAP_Y))
+				 && typeValue!= UDATPG_MONTH_FIELD
+				 && typeValue!= UDATPG_WEEKDAY_FIELD
+				 && (typeValue!= UDATPG_YEAR_FIELD || reqFieldChar==CAP_Y))
 				    ? reqFieldChar
 				    : field.charAt(0);
 				if(c == CAP_E && adjFieldLen < 3) {
@@ -2317,8 +2317,8 @@ void DateTimeMatcher::set(const UnicodeString & pattern, FormatParser* fp, PtnSk
 	// I think beyond a certain point we should not try to fix bad developer input and try guessing what they mean.
 	// Garbage in, garbage out.
 	if(!skeletonResult.original.isFieldEmpty(UDATPG_MINUTE_FIELD)
-	  && !skeletonResult.original.isFieldEmpty(UDATPG_FRACTIONAL_SECOND_FIELD)
-	  && skeletonResult.original.isFieldEmpty(UDATPG_SECOND_FIELD)) {
+	 && !skeletonResult.original.isFieldEmpty(UDATPG_FRACTIONAL_SECOND_FIELD)
+	 && skeletonResult.original.isFieldEmpty(UDATPG_SECOND_FIELD)) {
 		// Force the use of seconds
 		for(i = 0; dtTypes[i].patternChar != 0; i++) {
 			if(dtTypes[i].field == UDATPG_SECOND_FIELD) {
@@ -2760,8 +2760,8 @@ void PtnSkeleton::clear()
 
 bool PtnSkeleton::equals(const PtnSkeleton& other) const {
 	return (original == other.original)
-	     && (baseOriginal == other.baseOriginal)
-	     && (uprv_memcmp(type, other.type, sizeof(type)) == 0);
+	 && (baseOriginal == other.baseOriginal)
+	 && (uprv_memcmp(type, other.type, sizeof(type)) == 0);
 }
 
 UnicodeString PtnSkeleton::getSkeleton() const {

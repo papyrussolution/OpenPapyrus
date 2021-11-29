@@ -17,7 +17,7 @@ using namespace icu::number::impl;
 
 
 void NumberSkeletonTest::runIndexedTest(int32_t index, bool exec, const char *& name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite AffixUtilsTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -285,7 +285,7 @@ void NumberSkeletonTest::stemsRequiringOption() {
             int32_t expectedOffset = u_strlen(stem) + ((suffix[0] == u'/') ? 1 : 0);
             assertEquals(skeletonString, expectedOffset, perror.offset);
             UnicodeString expectedPreContext = skeletonString.tempSubString(0, expectedOffset);
-            if (expectedPreContext.length() >= U_PARSE_CONTEXT_LEN - 1) {
+            if(expectedPreContext.length() >= U_PARSE_CONTEXT_LEN - 1) {
                 expectedPreContext = expectedPreContext.tempSubString(expectedOffset - U_PARSE_CONTEXT_LEN + 1);
             }
             assertEquals(skeletonString, expectedPreContext, perror.preContext);
@@ -337,7 +337,7 @@ void NumberSkeletonTest::flexibleSeparators() {
         UnicodeString actual = NumberFormatter::forSkeleton(skeletonString, status).locale("en")
                                .formatDouble(5142.3, status)
                                .toString(status);
-        if (!status.errDataIfFailureAndReset()) {
+        if(!status.errDataIfFailureAndReset()) {
             assertEquals(skeletonString, expected, actual);
         }
         status.errIfFailureAndReset();
@@ -480,10 +480,10 @@ void NumberSkeletonTest::perUnitToSkeleton() {
             skeleton += cas2.subtype;
 
             status.setScope(skeleton);
-            if (cas1.type != cas2.type && cas1.subtype != cas2.subtype) {
+            if(cas1.type != cas2.type && cas1.subtype != cas2.subtype) {
                 UnicodeString toSkeleton = NumberFormatter::forSkeleton(
                     skeleton, status).toSkeleton(status);
-                if (status.errIfFailureAndReset()) {
+                if(status.errIfFailureAndReset()) {
                     continue;
                 }
                 // Ensure both subtype are in the toSkeleton.

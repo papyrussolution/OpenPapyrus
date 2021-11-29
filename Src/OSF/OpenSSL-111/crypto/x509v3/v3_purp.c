@@ -174,7 +174,7 @@ int X509_PURPOSE_add(int id, int trust, int flags,
 	/* If its a new entry manage the dynamic table */
 	if(idx == -1) {
 		if(xptable == NULL
-		  && (xptable = sk_X509_PURPOSE_new(xp_cmp)) == NULL) {
+		 && (xptable = sk_X509_PURPOSE_new(xp_cmp)) == NULL) {
 			X509V3err(X509V3_F_X509_PURPOSE_ADD, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -681,7 +681,7 @@ static int check_purpose_timestamp_sign(const X509_PURPOSE * xp, const X509 * x,
 	 * be rejected).
 	 */
 	if((x->ex_flags & EXFLAG_KUSAGE)
-	  && ((x->ex_kusage & ~(KU_NON_REPUDIATION | KU_DIGITAL_SIGNATURE)) ||
+	 && ((x->ex_kusage & ~(KU_NON_REPUDIATION | KU_DIGITAL_SIGNATURE)) ||
 	    !(x->ex_kusage & (KU_NON_REPUDIATION | KU_DIGITAL_SIGNATURE))))
 		return 0;
 

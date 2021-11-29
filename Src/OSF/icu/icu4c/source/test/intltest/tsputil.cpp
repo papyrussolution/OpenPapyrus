@@ -11,12 +11,12 @@
 #include "tsputil.h"
 #include "putilimp.h"
 
-#define CASE(id,test) case id: name = #test; if (exec) { logln(#test "---"); logln((UnicodeString)""); test(); } break;
+#define CASE(id,test) case id: name = #test; if(exec) { logln(#test "---"); logln((UnicodeString)""); test(); } break;
 
 void 
 PUtilTest::runIndexedTest( int32_t index, bool exec, const char *& name, char * /*par*/ )
 {
-    //if (exec) logln("TestSuite PUtilTest: ");
+    //if(exec) logln("TestSuite PUtilTest: ");
     switch (index) {
         CASE(0, testMaxMin)
         CASE(1, testNaN)
@@ -205,7 +205,7 @@ PUtilTest::maxMinTest(double a, double b, double exp, bool max)
         else
             errln(UnicodeString("FAIL: min(") + a + ", " + b + ") is " + result + ", expected " + exp);
     else {
-        if (verbose) {
+        if(verbose) {
             if(max)
                 logln(UnicodeString("OK: max(") + a + ", " + b + ") is " + result);
             else

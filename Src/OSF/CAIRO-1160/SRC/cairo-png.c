@@ -123,7 +123,7 @@ static void png_simple_error_callback(png_structp png, const char * error_msg)
 	/* if we get here, then we have to choice but to abort ... */
 }
 
-static void png_simple_warning_callback(png_structp png, const char *  error_msg)
+static void png_simple_warning_callback(png_structp png, const char * error_msg)
 {
 	/* png does not expect to abort and will try to tidy up and continue
 	 * loading the image after a warning. So we also want to return the

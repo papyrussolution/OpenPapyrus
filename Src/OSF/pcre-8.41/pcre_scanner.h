@@ -37,7 +37,7 @@
 //      string var;
 //      int number;
 //      scanner.SetSkipExpression("\\s+"); // Skip any white space we encounter
-//      while (scanner.Consume("(\\w+) = (\\d+)", &var, &number)) {
+//      while(scanner.Consume("(\\w+) = (\\d+)", &var, &number)) {
 //        ...;
 //      }
 

@@ -612,7 +612,7 @@ int RAND_DRBG_generate(RAND_DRBG * drbg, uchar * out, size_t outlen,
 	if(drbg->parent != NULL) {
 		uint reseed_counter = tsan_load(&drbg->reseed_prop_counter);
 		if(reseed_counter > 0
-		  && tsan_load(&drbg->parent->reseed_prop_counter)
+		 && tsan_load(&drbg->parent->reseed_prop_counter)
 		    != reseed_counter)
 			reseed_required = 1;
 	}

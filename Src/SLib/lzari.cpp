@@ -595,7 +595,7 @@ int LZAri::DecodeChar()
 			Low -= Q2;
 			High -= Q2;
 		}
-		else if (Low >= Q1 && High <= Q3) {
+		else if(Low >= Q1 && High <= Q3) {
 			Value -= Q1;
 			Low -= Q1;
 			High -= Q1;
@@ -692,7 +692,7 @@ int LZAri::Encode(ulong * pFileSize, PercentFunc pf)
 				if(--len)
 					THROW(P_Tree->InsertNode(r) > 0);
 			}
-		} while (len > 0);
+		} while(len > 0);
 		THROW(EncodeEnd() > 0);
 		ok = 1;
 	}

@@ -71,8 +71,8 @@ static int i2r_NAMING_AUTHORITY(const struct v3_ext_method * method, void * in,
 		return 0;
 
 	if(namingAuthority->namingAuthorityId == NULL
-	  && namingAuthority->namingAuthorityText == NULL
-	  && namingAuthority->namingAuthorityUrl == NULL)
+	 && namingAuthority->namingAuthorityText == NULL
+	 && namingAuthority->namingAuthorityUrl == NULL)
 		return 0;
 
 	if(BIO_printf(bp, "%*snamingAuthority: ", ind, "") <= 0)

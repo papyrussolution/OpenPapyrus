@@ -1007,7 +1007,7 @@ static int ssl_print_server_hello(BIO * bio, int indent, const uchar * msg, size
 	if(!ssl_print_random(bio, indent, &msg, &msglen))
 		return 0;
 	if(vers != TLS1_3_VERSION
-	  && !ssl_print_hexbuf(bio, indent, "session_id", 1, &msg, &msglen))
+	 && !ssl_print_hexbuf(bio, indent, "session_id", 1, &msg, &msglen))
 		return 0;
 	if(msglen < 2)
 		return 0;
@@ -1228,7 +1228,7 @@ static int ssl_print_certificates(BIO * bio, const SSL * ssl, int server,
 	size_t clen;
 
 	if(SSL_IS_TLS13(ssl)
-	  && !ssl_print_hexbuf(bio, indent, "context", 1, &msg, &msglen))
+	 && !ssl_print_hexbuf(bio, indent, "context", 1, &msg, &msglen))
 		return 0;
 
 	if(msglen < 3)
@@ -1375,7 +1375,7 @@ static int ssl_print_ticket(BIO * bio, int indent, const SSL * ssl,
 	if(!ssl_print_hexbuf(bio, indent + 2, "ticket", 2, &msg, &msglen))
 		return 0;
 	if(SSL_IS_TLS13(ssl)
-	  && !ssl_print_extensions(bio, indent + 2, 0,
+	 && !ssl_print_extensions(bio, indent + 2, 0,
 	    SSL3_MT_NEWSESSION_TICKET, &msg, &msglen))
 		return 0;
 	if(msglen)

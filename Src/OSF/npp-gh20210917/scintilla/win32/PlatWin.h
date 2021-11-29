@@ -47,7 +47,7 @@ void SetWindowPointer(HWND hWnd, void *ptr) noexcept;
 /// This avoids undefined and conditionally defined behaviour.
 template<typename T>
 T DLLFunction(HMODULE hModule, LPCSTR lpProcName) noexcept {
-	if (!hModule) {
+	if(!hModule) {
 		return nullptr;
 	}
 	FARPROC function = ::GetProcAddress(hModule, lpProcName);
@@ -62,7 +62,7 @@ T DLLFunction(HMODULE hModule, LPCSTR lpProcName) noexcept {
 // warnings which are avoided by the catch.
 template <class T>
 void ReleaseUnknown(T *&ppUnknown) noexcept {
-	if (ppUnknown) {
+	if(ppUnknown) {
 		try {
 			ppUnknown->Release();
 		}

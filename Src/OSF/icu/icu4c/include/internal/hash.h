@@ -125,11 +125,11 @@ private:
 
 inline void Hashtable::init(UHashFunction *keyHash, UKeyComparator *keyComp,
                             UValueComparator *valueComp, UErrorCode & status) {
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         return;
     }
     uhash_init(&hashObj, keyHash, keyComp, valueComp, &status);
-    if (U_SUCCESS(status)) {
+    if(U_SUCCESS(status)) {
         hash = &hashObj;
         uhash_setKeyDeleter(hash, uprv_deleteUObject);
     }
@@ -137,11 +137,11 @@ inline void Hashtable::init(UHashFunction *keyHash, UKeyComparator *keyComp,
 
 inline void Hashtable::initSize(UHashFunction *keyHash, UKeyComparator *keyComp,
                                 UValueComparator *valueComp, int32_t size, UErrorCode & status) {
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         return;
     }
     uhash_initSize(&hashObj, keyHash, keyComp, valueComp, size, &status);
-    if (U_SUCCESS(status)) {
+    if(U_SUCCESS(status)) {
         hash = &hashObj;
         uhash_setKeyDeleter(hash, uprv_deleteUObject);
     }
@@ -188,7 +188,7 @@ inline Hashtable::Hashtable()
 }
 
 inline Hashtable::~Hashtable() {
-    if (hash != NULL) {
+    if(hash != NULL) {
         uhash_close(hash);
     }
 }

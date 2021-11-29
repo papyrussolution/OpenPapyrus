@@ -274,7 +274,7 @@ const TCHAR* TiXmlBase::ReadText(const TCHAR* p, TIXML_STRING * text, bool trimW
 		// Remove leading white space:
 		p = SkipWhiteSpace(p);
 		while(p && *p
-		  && !StringEqual(p, endTag, caseInsensitive) ) {
+		 && !StringEqual(p, endTag, caseInsensitive) ) {
 			if(*p == '\r' || *p == '\n') {
 				whitespace = true;
 				++p;

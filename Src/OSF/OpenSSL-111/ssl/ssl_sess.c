@@ -949,7 +949,7 @@ int SSL_SESSION_is_resumable(const SSL_SESSION * s)
 	 * session ID.
 	 */
 	return !s->not_resumable
-	     && (s->session_id_length > 0 || s->ext.ticklen > 0);
+	 && (s->session_id_length > 0 || s->ext.ticklen > 0);
 }
 
 long SSL_CTX_set_timeout(SSL_CTX * s, long t)

@@ -407,9 +407,9 @@ static void aes_gcm_encrypt(struct ssh_cipher_struct * cipher, void * in, void *
 
 	/* Encrypt the rest of the data */
 	err = gcry_cipher_encrypt(cipher->key[0],
-		(uchar*)out + aadlen,
+		(uchar *)out + aadlen,
 		len - aadlen,
-		(uchar*)in + aadlen,
+		(uchar *)in + aadlen,
 		len - aadlen);
 	if(err) {
 		SSH_LOG(SSH_LOG_WARNING, "gcry_cipher_encrypt failed: %s",
@@ -468,14 +468,14 @@ static int aes_gcm_decrypt(struct ssh_cipher_struct * cipher, void * complete_pa
 	err = gcry_cipher_decrypt(cipher->key[0],
 		out,
 		encrypted_size,
-		(uchar*)complete_packet + aadlen,
+		(uchar *)complete_packet + aadlen,
 		encrypted_size);
 	if(err) {
 		SSH_LOG(SSH_LOG_WARNING, "gcry_cipher_decrypt failed: %s", gpg_strerror(err));
 		return SSH_ERROR;
 	}
 	/* Check the tag */
-	err = gcry_cipher_checktag(cipher->key[0], (uchar*)complete_packet + aadlen + encrypted_size, authlen);
+	err = gcry_cipher_checktag(cipher->key[0], (uchar *)complete_packet + aadlen + encrypted_size, authlen);
 	if(gpg_err_code(err) == GPG_ERR_CHECKSUM) {
 		SSH_LOG(SSH_LOG_WARNING, "The authentication tag does not match");
 		return SSH_ERROR;

@@ -47,7 +47,7 @@
 #include <arpa/inet.h>
 #endif
 
-#if (defined(HAVE_IOCTL_FIONBIO) && defined(NETWARE))
+#if(defined(HAVE_IOCTL_FIONBIO) && defined(NETWARE))
 #include <sys/filio.h>
 #endif
 #ifdef NETWARE
@@ -1249,7 +1249,7 @@ static CURLcode singleipconnect(struct connectdata * conn,
 			case EINPROGRESS:
 			case EWOULDBLOCK:
 #if defined(EAGAIN)
-#if (EAGAIN) != (EWOULDBLOCK)
+#if(EAGAIN) != (EWOULDBLOCK)
 			/* On some platforms EAGAIN and EWOULDBLOCK are the
 			 * same value, and on others they are different, hence
 			 * the odd #if

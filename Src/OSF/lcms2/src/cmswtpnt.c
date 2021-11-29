@@ -58,14 +58,14 @@ cmsBool  CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, cmsFloat64Number
 
     // For correlated color temperature (T) between 4000K and 7000K:
 
-    if (T >= 4000. && T <= 7000.)
+    if(T >= 4000. && T <= 7000.)
     {
         x = -4.6070*(1E9/T3) + 2.9678*(1E6/T2) + 0.09911*(1E3/T) + 0.244063;
     }
     else
         // or for correlated color temperature (T) between 7000K and 25000K:
 
-        if (T > 7000.0 && T <= 25000.0)
+        if(T > 7000.0 && T <= 25000.0)
         {
             x = -2.0064*(1E9/T3) + 1.9018*(1E6/T2) + 0.24748*(1E3/T) + 0.237040;
         }
@@ -168,7 +168,7 @@ cmsBool  CMSEXPORT cmsTempFromWhitePoint(cmsFloat64Number* TempK, const cmsCIExy
 
         dj = ((vs - vj) - tj * (us - uj)) / sqrt(1.0 + tj * tj);
 
-        if ((j != 0) && (di/dj < 0.0)) {
+        if((j != 0) && (di/dj < 0.0)) {
 
             // Found a match
             *TempK = 1000000.0 / (mi + (di / (di - dj)) * (mj - mi));
@@ -201,7 +201,7 @@ cmsBool ComputeChromaticAdaptation(cmsMAT3* Conversion,
 
 
     Tmp = *Chad;
-    if (!_cmsMAT3inverse(&Tmp, &Chad_Inv)) return FALSE;
+    if(!_cmsMAT3inverse(&Tmp, &Chad_Inv)) return FALSE;
 
     _cmsVEC3init(&ConeSourceXYZ, SourceWhitePoint -> X,
                              SourceWhitePoint -> Y,
@@ -237,7 +237,7 @@ cmsBool  _cmsAdaptationMatrix(cmsMAT3* r, const cmsMAT3* ConeMatrix, const cmsCI
         {{  0.0389, -0.0685,  1.0296 }}
     }};
 
-    if (ConeMatrix == NULL)
+    if(ConeMatrix == NULL)
         ConeMatrix = &LamRigg;
 
     return ComputeChromaticAdaptation(r, FromIll, ToIll, ConeMatrix);
@@ -253,7 +253,7 @@ cmsBool _cmsAdaptMatrixToD50(cmsMAT3* r, const cmsCIExyY* SourceWhitePt)
 
     cmsxyY2XYZ(&Dn, SourceWhitePt);
 
-    if (!_cmsAdaptationMatrix(&Bradford, NULL, &Dn, cmsD50_XYZ())) return FALSE;
+    if(!_cmsAdaptationMatrix(&Bradford, NULL, &Dn, cmsD50_XYZ())) return FALSE;
 
     Tmp = *r;
     _cmsMAT3per(r, &Bradford, &Tmp);
@@ -299,7 +299,7 @@ cmsBool _cmsBuildRGB2XYZtransferMatrix(cmsMAT3* r, const cmsCIExyY* WhitePt, con
 
 
     // Result = Primaries ^ (-1) inverse matrix
-    if (!_cmsMAT3inverse(&Primaries, &Result))
+    if(!_cmsMAT3inverse(&Primaries, &Result))
         return FALSE;
 
 
@@ -334,7 +334,7 @@ cmsBool CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result,
     _cmsAssert(Illuminant != NULL);
     _cmsAssert(Value != NULL);
 
-    if (!_cmsAdaptationMatrix(&Bradford, NULL, SourceWhitePt, Illuminant)) return FALSE;
+    if(!_cmsAdaptationMatrix(&Bradford, NULL, SourceWhitePt, Illuminant)) return FALSE;
 
     _cmsVEC3init(&In, Value -> X, Value -> Y, Value -> Z);
     _cmsMAT3eval(&Out, &Bradford, &In);

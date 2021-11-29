@@ -95,7 +95,7 @@ static bool _is_table_present(hb_face_t * source, hb_tag_t tag)
 	hb_tag_t table_tags[32];
 	unsigned offset = 0, num_tables = ARRAY_LENGTH(table_tags);
 	while((hb_face_get_table_tags(source, offset, &num_tables, table_tags), num_tables)) {
-		for(unsigned i = 0; i < num_tables; ++i)
+		for(uint i = 0; i < num_tables; ++i)
 			if(table_tags[i] == tag)
 				return true;
 		offset += num_tables;
@@ -195,7 +195,7 @@ hb_face_t * hb_subset(hb_face_t * source, hb_subset_input_t * input)
 	hb_tag_t table_tags[32];
 	unsigned offset = 0, num_tables = ARRAY_LENGTH(table_tags);
 	while((hb_face_get_table_tags(source, offset, &num_tables, table_tags), num_tables)) {
-		for(unsigned i = 0; i < num_tables; ++i) {
+		for(uint i = 0; i < num_tables; ++i) {
 			hb_tag_t tag = table_tags[i];
 			if(_should_drop_table(plan, tag) && !tags_set.has(tag)) continue;
 			tags_set.add(tag);

@@ -107,7 +107,7 @@
 #endif
 /* slim_internal.h */
 #define CAIRO_HAS_HIDDEN_SYMBOLS 1
-#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && (defined(__ELF__) || defined(__APPLE__)) && !defined(__sun)
+#if(__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && (defined(__ELF__) || defined(__APPLE__)) && !defined(__sun)
 	#define cairo_private_no_warn	__attribute__((__visibility__("hidden")))
 #elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
 	#define cairo_private_no_warn	__hidden
@@ -182,7 +182,7 @@
 	#undef __attribute__
 	#define __attribute__(x)
 #endif
-#if (defined(__WIN32__) && !defined(__WINE__)) || defined(_MSC_VER)
+#if(defined(__WIN32__) && !defined(__WINE__)) || defined(_MSC_VER)
 	#define access _access
 	#define fdopen _fdopen
 	#define hypot _hypot

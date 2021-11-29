@@ -79,7 +79,7 @@ namespace AAT {
 			    const Entry<EntryData> &entry)
 			{
 				hb_buffer_t * buffer = driver->buffer;
-				unsigned int flags = entry.flags;
+				uint flags = entry.flags;
 
 				if(flags & MarkFirst)
 					start = buffer->idx;
@@ -112,9 +112,9 @@ namespace AAT {
 						0x33, /* 15	ABxCD => DCxBA */
 					};
 
-					unsigned int m = map[flags & Verb];
-					unsigned int l = hb_min(2u, m >> 4);
-					unsigned int r = hb_min(2u, m & 0x0F);
+					uint m = map[flags & Verb];
+					uint l = hb_min(2u, m >> 4);
+					uint r = hb_min(2u, m & 0x0F);
 					bool reverse_l = 3 == (m >> 4);
 					bool reverse_r = 3 == (m & 0x0F);
 
@@ -150,8 +150,8 @@ namespace AAT {
 public:
 			bool ret;
 private:
-			unsigned int start;
-			unsigned int end;
+			uint start;
+			uint end;
 		};
 
 		bool apply(hb_aat_apply_context_t * c) const
@@ -241,7 +241,7 @@ public:
 					}
 				}
 				else {
-					unsigned int offset = entry.data.markIndex + buffer->info[mark].codepoint;
+					uint offset = entry.data.markIndex + buffer->info[mark].codepoint;
 					const UnsizedArrayOf<HBGlyphID> &subs_old = (const UnsizedArrayOf<HBGlyphID> &)subs;
 					replacement = &subs_old[Types::wordOffsetToIndex(offset, table, subs_old.arrayZ)];
 					if(!replacement->sanitize(&c->sanitizer) || !*replacement)
@@ -254,7 +254,7 @@ public:
 				}
 
 				replacement = nullptr;
-				unsigned int idx = hb_min(buffer->idx, buffer->len - 1);
+				uint idx = hb_min(buffer->idx, buffer->len - 1);
 				if(Types::extended) {
 					if(entry.data.currentIndex != 0xFFFF) {
 						const Lookup<HBGlyphID> &lookup = subs[entry.data.currentIndex];
@@ -262,7 +262,7 @@ public:
 					}
 				}
 				else {
-					unsigned int offset = entry.data.currentIndex + buffer->info[idx].codepoint;
+					uint offset = entry.data.currentIndex + buffer->info[idx].codepoint;
 					const UnsizedArrayOf<HBGlyphID> &subs_old = (const UnsizedArrayOf<HBGlyphID> &)subs;
 					replacement = &subs_old[Types::wordOffsetToIndex(offset, table, subs_old.arrayZ)];
 					if(!replacement->sanitize(&c->sanitizer) || !*replacement)
@@ -284,7 +284,7 @@ public:
 private:
 			hb_aat_apply_context_t * c;
 			bool mark_set;
-			unsigned int mark;
+			uint mark;
 			const ContextualSubtable * table;
 			const UnsizedOffsetListOf<Lookup<HBGlyphID>, HBUINT, false> &subs;
 		};
@@ -305,13 +305,13 @@ private:
 		{
 			TRACE_SANITIZE(this);
 
-			unsigned int num_entries = 0;
+			uint num_entries = 0;
 			if(UNLIKELY(!machine.sanitize(c, &num_entries))) return_trace(false);
 
 			if(!Types::extended)
 				return_trace(substitutionTables.sanitize(c, this, 0));
 
-			unsigned int num_lookups = 0;
+			uint num_lookups = 0;
 
 			const Entry<EntryData> * entries = machine.get_entries();
 			for(uint i = 0; i < num_entries; i++) {
@@ -363,7 +363,7 @@ public:
 			return entry.flags & PerformAction;
 		}
 
-		static unsigned int ligActionIndex(const Entry<EntryData> &entry)
+		static uint ligActionIndex(const Entry<EntryData> &entry)
 		{
 			return entry.data.ligActionIndex;
 		}
@@ -387,7 +387,7 @@ public:
 			return entry.flags & Offset;
 		}
 
-		static unsigned int ligActionIndex(const Entry<EntryData> &entry)
+		static uint ligActionIndex(const Entry<EntryData> &entry)
 		{
 			return entry.flags & Offset;
 		}
@@ -452,17 +452,17 @@ public:
 
 				if(LigatureEntryT::performAction(entry)) {
 					DEBUG_MSG(APPLY, nullptr, "Perform action with %u", match_length);
-					unsigned int end = buffer->out_len;
+					uint end = buffer->out_len;
 					if(UNLIKELY(!match_length))
 						return;
 					if(buffer->idx >= buffer->len)
 						return; /* TODO Work on previous instead? */
-					unsigned int cursor = match_length;
-					unsigned int action_idx = LigatureEntryT::ligActionIndex(entry);
+					uint cursor = match_length;
+					uint action_idx = LigatureEntryT::ligActionIndex(entry);
 					action_idx = Types::offsetToIndex(action_idx, table, ligAction.arrayZ);
 					const HBUINT32 * actionData = &ligAction[action_idx];
-					unsigned int ligature_idx = 0;
-					unsigned int action;
+					uint ligature_idx = 0;
+					uint action;
 					do {
 						if(UNLIKELY(!cursor)) {
 							/* Stack underflow.  Clear the stack. */
@@ -478,7 +478,7 @@ public:
 						if(uoffset & 0x20000000)
 							uoffset |= 0xC0000000; /* Sign-extend. */
 						int32_t offset = (int32_t)uoffset;
-						unsigned int component_idx = buffer->cur().codepoint + offset;
+						uint component_idx = buffer->cur().codepoint + offset;
 						component_idx = Types::wordOffsetToIndex(component_idx, table, component.arrayZ);
 						const HBUINT16 &componentData = component[component_idx];
 						if(UNLIKELY(!componentData.sanitize(&c->sanitizer))) break;
@@ -492,7 +492,7 @@ public:
 							DEBUG_MSG(APPLY, nullptr, "Produced ligature %u", lig);
 							buffer->replace_glyph(lig);
 
-							unsigned int lig_end =
+							uint lig_end =
 							    match_positions[(match_length - 1u) % ARRAY_LENGTH(match_positions)] + 1u;
 							/* Now go and delete all subsequent components. */
 							while(match_length - 1u > cursor) {
@@ -522,8 +522,8 @@ private:
 			const UnsizedArrayOf<HBUINT32> &ligAction;
 			const UnsizedArrayOf<HBUINT16> &component;
 			const UnsizedArrayOf<HBGlyphID> &ligature;
-			unsigned int match_length;
-			unsigned int match_positions[HB_MAX_CONTEXT_LENGTH];
+			uint match_length;
+			uint match_positions[HB_MAX_CONTEXT_LENGTH];
 		};
 
 		bool apply(hb_aat_apply_context_t * c) const
@@ -566,10 +566,10 @@ public:
 			TRACE_APPLY(this);
 
 			bool ret = false;
-			unsigned int num_glyphs = c->face->get_num_glyphs();
+			uint num_glyphs = c->face->get_num_glyphs();
 
 			hb_glyph_info_t * info = c->buffer->info;
-			unsigned int count = c->buffer->len;
+			uint count = c->buffer->len;
 			for(uint i = 0; i < count; i++) {
 				const HBGlyphID * replacement = substitute.get_value(info[i].codepoint, num_glyphs);
 				if(replacement) {
@@ -680,20 +680,20 @@ public:
 			    const Entry<EntryData> &entry)
 			{
 				hb_buffer_t * buffer = driver->buffer;
-				unsigned int flags = entry.flags;
+				uint flags = entry.flags;
 
 				unsigned mark_loc = buffer->out_len;
 
 				if(entry.data.markedInsertIndex != 0xFFFF) {
-					unsigned int count = (flags & MarkedInsertCount);
+					uint count = (flags & MarkedInsertCount);
 					if(UNLIKELY((buffer->max_ops -= count) <= 0)) return;
-					unsigned int start = entry.data.markedInsertIndex;
+					uint start = entry.data.markedInsertIndex;
 					const HBGlyphID * glyphs = &insertionAction[start];
 					if(UNLIKELY(!c->sanitizer.check_array(glyphs, count))) count = 0;
 
 					bool before = flags & MarkedInsertBefore;
 
-					unsigned int end = buffer->out_len;
+					uint end = buffer->out_len;
 					buffer->move_to(mark);
 
 					if(buffer->idx < buffer->len && !before)
@@ -713,15 +713,15 @@ public:
 					mark = mark_loc;
 
 				if(entry.data.currentInsertIndex != 0xFFFF) {
-					unsigned int count = (flags & CurrentInsertCount) >> 5;
+					uint count = (flags & CurrentInsertCount) >> 5;
 					if(UNLIKELY((buffer->max_ops -= count) <= 0)) return;
-					unsigned int start = entry.data.currentInsertIndex;
+					uint start = entry.data.currentInsertIndex;
 					const HBGlyphID * glyphs = &insertionAction[start];
 					if(UNLIKELY(!c->sanitizer.check_array(glyphs, count))) count = 0;
 
 					bool before = flags & CurrentInsertBefore;
 
-					unsigned int end = buffer->out_len;
+					uint end = buffer->out_len;
 
 					if(buffer->idx < buffer->len && !before)
 						buffer->copy_glyph();
@@ -754,7 +754,7 @@ public:
 			bool ret;
 private:
 			hb_aat_apply_context_t * c;
-			unsigned int mark;
+			uint mark;
 			const UnsizedArrayOf<HBGlyphID> &insertionAction;
 		};
 
@@ -814,15 +814,15 @@ public:
 		template <typename T>
 		friend struct Chain;
 
-		unsigned int get_size() const {
+		uint get_size() const {
 			return length;
 		}
 
-		unsigned int get_type() const {
+		uint get_type() const {
 			return coverage & 0xFF;
 		}
 
-		unsigned int get_coverage() const {
+		uint get_coverage() const {
 			return coverage >> (sizeof(HBUINT) * 8 - 8);
 		}
 
@@ -852,7 +852,7 @@ public:
 		template <typename context_t, typename ... Ts>
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
-			unsigned int subtable_type = get_type();
+			uint subtable_type = get_type();
 			TRACE_DISPATCH(this, subtable_type);
 			switch(subtable_type) {
 				case Rearrangement:         return_trace(c->dispatch(u.rearrangement, hb_forward<Ts> (ds) ...));
@@ -907,8 +907,8 @@ public:
 		{
 			hb_mask_t flags = defaultFlags;
 			{
-				unsigned int count = featureCount;
-				for(unsigned i = 0; i < count; i++) {
+				uint count = featureCount;
+				for(uint i = 0; i < count; i++) {
 					const Feature &feature = featureZ[i];
 					hb_aat_layout_feature_type_t type = (hb_aat_layout_feature_type_t)(uint)feature.featureType;
 					hb_aat_layout_feature_selector_t setting =
@@ -939,7 +939,7 @@ retry:
 		    hb_mask_t flags) const
 		{
 			const ChainSubtable<Types> * subtable = &StructAfter<ChainSubtable<Types>> (featureZ.as_array(featureCount));
-			unsigned int count = subtableCount;
+			uint count = subtableCount;
 			for(uint i = 0; i < count; i++) {
 				bool reverse;
 
@@ -1004,11 +1004,11 @@ skip:
 			}
 		}
 
-		unsigned int get_size() const {
+		uint get_size() const {
 			return length;
 		}
 
-		bool sanitize(hb_sanitize_context_t * c, unsigned int version HB_UNUSED) const
+		bool sanitize(hb_sanitize_context_t * c, uint version HB_UNUSED) const
 		{
 			TRACE_SANITIZE(this);
 			if(!length.sanitize(c) ||
@@ -1020,7 +1020,7 @@ skip:
 				return_trace(false);
 
 			const ChainSubtable<Types> * subtable = &StructAfter<ChainSubtable<Types>> (featureZ.as_array(featureCount));
-			unsigned int count = subtableCount;
+			uint count = subtableCount;
 			for(uint i = 0; i < count; i++) {
 				if(!subtable->sanitize(c))
 					return_trace(false);
@@ -1056,7 +1056,7 @@ public:
 		void compile_flags(const hb_aat_map_builder_t * mapper, hb_aat_map_t * map) const
 		{
 			const Chain<Types> * chain = &firstChain;
-			unsigned int count = chainCount;
+			uint count = chainCount;
 			for(uint i = 0; i < count; i++) {
 				map->chain_flags.push(chain->compile_flags(mapper));
 				chain = &StructAfter<Chain<Types>> (*chain);
@@ -1068,7 +1068,7 @@ public:
 				return;
 			c->set_lookup_index(0);
 			const Chain<Types> * chain = &firstChain;
-			unsigned int count = chainCount;
+			uint count = chainCount;
 			for(uint i = 0; i < count; i++) {
 				chain->apply(c, c->plan->aat_map.chain_flags[i]);
 				if(UNLIKELY(!c->buffer->successful)) 
@@ -1082,7 +1082,7 @@ public:
 			if(!version.sanitize(c) || !version || !chainCount.sanitize(c))
 				return_trace(false);
 			const Chain<Types> * chain = &firstChain;
-			unsigned int count = chainCount;
+			uint count = chainCount;
 			for(uint i = 0; i < count; i++) {
 				if(!chain->sanitize(c, version))
 					return_trace(false);

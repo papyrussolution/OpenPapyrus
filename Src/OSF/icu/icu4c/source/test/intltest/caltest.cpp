@@ -1331,7 +1331,7 @@ void CalendarTest::TestFieldSet4781()
         errln("FAIL: Exception received:");
         e.printStackTrace(log);
     }
-    if (!ok) errln("Serialization of Calendar object failed.");
+    if(!ok) errln("Serialization of Calendar object failed.");
    }
 
    UnicodeString & CalendarTest::PREFIX = "abc";
@@ -2640,12 +2640,12 @@ char * CalFields::toString(char * buf, int32_t len) const {
 bool
 CalFields::operator==(const CalFields &rhs) const {
 	return year == rhs.year
-	     && month == rhs.month
-	     && day == rhs.day
-	     && hour == rhs.hour
-	     && min == rhs.min
-	     && sec == rhs.sec
-	     && ms == rhs.ms;
+	 && month == rhs.month
+	 && day == rhs.day
+	 && hour == rhs.hour
+	 && min == rhs.min
+	 && sec == rhs.sec
+	 && ms == rhs.ms;
 }
 
 bool
@@ -2655,12 +2655,12 @@ CalFields::operator != (const CalFields &rhs) const {
 
 bool CalFields::isEquivalentTo(const Calendar& cal, UErrorCode & status) const {
 	return year == cal.get(UCAL_YEAR, status)
-	     && month == cal.get(UCAL_MONTH, status) + 1
-	     && day == cal.get(UCAL_DAY_OF_MONTH, status)
-	     && hour == cal.get(UCAL_HOUR_OF_DAY, status)
-	     && min == cal.get(UCAL_MINUTE, status)
-	     && sec == cal.get(UCAL_SECOND, status)
-	     && ms == cal.get(UCAL_MILLISECOND, status);
+	 && month == cal.get(UCAL_MONTH, status) + 1
+	 && day == cal.get(UCAL_DAY_OF_MONTH, status)
+	 && hour == cal.get(UCAL_HOUR_OF_DAY, status)
+	 && min == cal.get(UCAL_MINUTE, status)
+	 && sec == cal.get(UCAL_SECOND, status)
+	 && ms == cal.get(UCAL_MILLISECOND, status);
 }
 
 typedef struct {

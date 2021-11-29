@@ -12395,7 +12395,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			PPID  cur_id = 0;
 			SmartListBox * p_tree_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GRPLIST));
 			p_tree_list->def->getCurID(&cur_id);
-			if(static_cast<StdTreeListBoxDef *>(p_tree_list->def)->HasChild(cur_id))
+			if(static_cast<StdTreeListBoxDef *>(p_tree_list->def)->HasChildren(cur_id))
 				updGdsList = 0;
 			else
 				SelGoodsGrpID = cur_id;

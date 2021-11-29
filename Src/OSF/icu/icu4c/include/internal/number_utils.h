@@ -39,7 +39,7 @@ namespace utils {
 inline int32_t insertDigitFromSymbols(FormattedStringBuilder& output, int32_t index, int8_t digit,
                                       const DecimalFormatSymbols& symbols, Field field,
                                       UErrorCode & status) {
-    if (symbols.getCodePointZero() != -1) {
+    if(symbols.getCodePointZero() != -1) {
         return output.insertCodePoint(index, symbols.getCodePointZero() + digit, field, status);
     }
     return output.insert(index, symbols.getConstDigitSymbol(digit), field, status);
@@ -74,7 +74,7 @@ getPatternForStyle(const Locale & locale, const char * nsName, CldrPatternStyle 
  */
 inline StandardPlural::Form getStandardPlural(const PluralRules *rules,
                                               const IFixedDecimal &fdec) {
-    if (rules == nullptr) {
+    if(rules == nullptr) {
         // Fail gracefully if the user didn't provide a PluralRules
         return StandardPlural::Form::OTHER;
     } else {
@@ -94,7 +94,7 @@ inline StandardPlural::Form getPluralSafe(
     // TODO(ICU-20500): Avoid the copy?
     DecimalQuantity copy(dq);
     rounder.apply(copy, status);
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         return StandardPlural::Form::OTHER;
     }
     return getStandardPlural(rules, copy);

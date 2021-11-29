@@ -23,7 +23,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_STRERROR_R
-#if (!defined(HAVE_POSIX_STRERROR_R) && \
+#if(!defined(HAVE_POSIX_STRERROR_R) && \
 	!defined(HAVE_GLIBC_STRERROR_R) && \
 	!defined(HAVE_VXWORKS_STRERROR_R)) || \
 	(defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_VXWORKS_STRERROR_R)) || \

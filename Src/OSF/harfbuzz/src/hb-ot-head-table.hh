@@ -41,9 +41,9 @@ namespace OT {
 	struct head {
 		friend struct OffsetTable;
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_head;
-		unsigned int get_upem() const
+		uint get_upem() const
 		{
-			unsigned int upem = unitsPerEm;
+			uint upem = unitsPerEm;
 			/* If no valid head table found, assume 1000, which matches typical Type1 usage. */
 			return 16 <= upem && upem <= 16384 ? upem : 1000;
 		}

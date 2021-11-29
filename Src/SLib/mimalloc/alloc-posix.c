@@ -104,7 +104,7 @@ mi_decl_restrict unsigned short* mi_wcsdup(const unsigned short* s) NOEXCEPT {
 	return p;
 }
 
-mi_decl_restrict uchar* mi_mbsdup(const uchar* s)  NOEXCEPT {
+mi_decl_restrict uchar * mi_mbsdup(const uchar * s)  NOEXCEPT {
 	return (uchar *)mi_strdup((const char *)s);
 }
 

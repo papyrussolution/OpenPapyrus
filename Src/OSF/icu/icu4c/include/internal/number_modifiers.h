@@ -306,7 +306,7 @@ class U_I18N_API AdoptingModifierStore : public ModifierStore, public UMemory {
     /** Returns a reference to the modifier; no ownership change. */
     const Modifier *getModifier(Signum signum, StandardPlural::Form plural) const U_OVERRIDE {
         const Modifier* modifier = mods[getModIndex(signum, plural)];
-        if (modifier == nullptr && plural != DEFAULT_STANDARD_PLURAL) {
+        if(modifier == nullptr && plural != DEFAULT_STANDARD_PLURAL) {
             modifier = mods[getModIndex(signum, DEFAULT_STANDARD_PLURAL)];
         }
         return modifier;

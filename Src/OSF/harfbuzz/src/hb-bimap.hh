@@ -23,7 +23,6 @@
  *
  * Adobe Author(s): Michiharu Ariza
  */
-
 #ifndef HB_BIMAP_HH
 #define HB_BIMAP_HH
 
@@ -32,35 +31,32 @@
 
 /* Bi-directional map */
 struct hb_bimap_t {
-	hb_bimap_t() {
+	hb_bimap_t() 
+	{
 		init();
 	}
-	~hb_bimap_t () {
+	~hb_bimap_t() 
+	{
 		fini();
 	}
-
 	void init()
 	{
 		forw_map.init();
 		back_map.init();
 	}
-
 	void fini()
 	{
 		forw_map.fini();
 		back_map.fini();
 	}
-
 	void reset()
 	{
 		forw_map.reset();
 		back_map.reset();
 	}
-
 	bool in_error() const {
 		return forw_map.in_error() || back_map.in_error();
 	}
-
 	void set(hb_codepoint_t lhs, hb_codepoint_t rhs)
 	{
 		if(UNLIKELY(lhs == HB_MAP_VALUE_INVALID)) return;
@@ -86,7 +82,7 @@ struct hb_bimap_t {
 		back_map.clear();
 	}
 	bool is_empty() const { return get_population() == 0; }
-	unsigned int get_population() const { return forw_map.get_population(); }
+	uint get_population() const { return forw_map.get_population(); }
 protected:
 	hb_map_t forw_map;
 	hb_map_t back_map;
@@ -94,16 +90,15 @@ protected:
 
 /* Inremental bimap: only lhs is given, rhs is incrementally assigned */
 struct hb_inc_bimap_t : hb_bimap_t {
-	hb_inc_bimap_t() {
+	hb_inc_bimap_t() 
+	{
 		init();
 	}
-
 	void init()
 	{
 		hb_bimap_t::init();
 		next_value = 0;
 	}
-
 	/* Add a mapping from lhs to rhs with a unique value if lhs is unknown.
 	 * Return the rhs value as the result.
 	 */
@@ -116,37 +111,31 @@ struct hb_inc_bimap_t : hb_bimap_t {
 		}
 		return rhs;
 	}
-
 	hb_codepoint_t skip()
 	{
 		return next_value++;
 	}
-
 	hb_codepoint_t get_next_value() const
 	{
 		return next_value;
 	}
-
 	void add_set(const hb_set_t * set)
 	{
 		hb_codepoint_t i = HB_SET_VALUE_INVALID;
 		while(hb_set_next(set, &i)) add(i);
 	}
-
 	/* Create an identity map. */
-	bool identity(unsigned int size)
+	bool identity(uint size)
 	{
 		clear();
 		for(hb_codepoint_t i = 0; i < size; i++) set(i, i);
 		return !in_error();
 	}
-
 protected:
 	static int cmp_id(const void * a, const void * b)
 	{
 		return (int)*(const hb_codepoint_t*)a - (int)*(const hb_codepoint_t*)b;
 	}
-
 public:
 	/* Optional: after finished adding all mappings in a random order,
 	 * reassign rhs to lhs so that they are in the same order. */
@@ -155,19 +144,15 @@ public:
 		hb_codepoint_t count = get_population();
 		hb_vector_t <hb_codepoint_t> work;
 		work.resize(count);
-
 		for(hb_codepoint_t rhs = 0; rhs < count; rhs++)
 			work[rhs] = back_map[rhs];
-
 		work.qsort(cmp_id);
-
 		clear();
 		for(hb_codepoint_t rhs = 0; rhs < count; rhs++)
 			set(work[rhs], rhs);
 	}
-
 protected:
-	unsigned int next_value;
+	uint next_value;
 };
 
 #endif /* HB_BIMAP_HH */

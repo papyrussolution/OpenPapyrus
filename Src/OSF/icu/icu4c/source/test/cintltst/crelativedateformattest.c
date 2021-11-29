@@ -576,7 +576,7 @@ static void TestNumericField()
 						break;
 					}
 					if(ucfpos_getCategory(cfpos, &status) == UFIELD_CATEGORY_RELATIVE_DATETIME
-					  && ucfpos_getField(cfpos, &status) == UDAT_REL_NUMERIC_FIELD) {
+					 && ucfpos_getField(cfpos, &status) == UDAT_REL_NUMERIC_FIELD) {
 						break;
 					}
 				}
@@ -643,7 +643,7 @@ static void TestNumericField()
 						break;
 					}
 					if(ucfpos_getCategory(cfpos, &status) == UFIELD_CATEGORY_RELATIVE_DATETIME
-					  && ucfpos_getField(cfpos, &status) == UDAT_REL_NUMERIC_FIELD) {
+					 && ucfpos_getField(cfpos, &status) == UDAT_REL_NUMERIC_FIELD) {
 						break;
 					}
 				}

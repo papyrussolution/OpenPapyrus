@@ -388,7 +388,7 @@ void PluralRulesTest::testGetSamples() {
 
 	double values[1000];
 	for(int32_t i = 0; U_SUCCESS(status) && i < numLocales; ++i) {
-		//if (uprv_strcmp(locales[i].getLanguage(), "fr") == 0 &&
+		//if(uprv_strcmp(locales[i].getLanguage(), "fr") == 0 &&
 		//        logKnownIssue("21322", "PluralRules::getSamples cannot distinguish 1e5 from 100000")) {
 		//    continue;
 		//}
@@ -427,7 +427,7 @@ void PluralRulesTest::testGetSamples() {
 				}
 				else {
 					UnicodeString resultKeyword = rules->select(values[j]);
-					// if (strcmp(locales[i].getName(), "uk") == 0) {    // Debug only.
+					// if(strcmp(locales[i].getName(), "uk") == 0) {    // Debug only.
 					//     std::cout << "  uk " << US(resultKeyword).cstr() << " " << values[j] <<
 					// std::endl;
 					// }
@@ -459,7 +459,7 @@ void PluralRulesTest::testGetFixedDecimalSamples() {
 
 	FixedDecimal values[1000];
 	for(int32_t i = 0; U_SUCCESS(status) && i < numLocales; ++i) {
-		//if (uprv_strcmp(locales[i].getLanguage(), "fr") == 0 &&
+		//if(uprv_strcmp(locales[i].getLanguage(), "fr") == 0 &&
 		//        logKnownIssue("21322", "PluralRules::getSamples cannot distinguish 1e5 from 100000")) {
 		//    continue;
 		//}
@@ -498,7 +498,7 @@ void PluralRulesTest::testGetFixedDecimalSamples() {
 				}
 				else {
 					UnicodeString resultKeyword = rules->select(values[j]);
-					// if (strcmp(locales[i].getName(), "uk") == 0) {    // Debug only.
+					// if(strcmp(locales[i].getName(), "uk") == 0) {    // Debug only.
 					//     std::cout << "  uk " << US(resultKeyword).cstr() << " " << values[j] <<
 					// std::endl;
 					// }

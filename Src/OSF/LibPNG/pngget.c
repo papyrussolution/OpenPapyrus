@@ -797,7 +797,7 @@ uint32 PNGAPI png_get_tRNS(png_const_structrp png_ptr, png_inforp info_ptr, png_
 			if(trans_color != NULL)
 				*trans_color = &(info_ptr->trans_color);
 		}
-		else { /* if (info_ptr->color_type != PNG_COLOR_TYPE_PALETTE) */
+		else { /* if(info_ptr->color_type != PNG_COLOR_TYPE_PALETTE) */
 			if(trans_color != NULL) {
 				*trans_color = &(info_ptr->trans_color);
 				retval |= PNG_INFO_tRNS;

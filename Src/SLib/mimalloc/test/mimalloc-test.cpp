@@ -85,7 +85,7 @@ typedef uintptr_t * random_t;
 
 int MiMalloc_Test02_Stress(int argc, char ** argv) 
 {
-	#if (UINTPTR_MAX != UINT32_MAX)
+	#if(UINTPTR_MAX != UINT32_MAX)
 		static const uintptr_t cookie = 0xbf58476d1ce4e5b9UL;
 	#else
 		static const uintptr_t cookie = 0x1ce4e5b9UL;
@@ -144,7 +144,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 		}
 		static void * atomic_exchange_ptr(volatile void ** p, void * newval) 
 		{
-		#if (INTPTR_MAX == INT32_MAX)
+		#if(INTPTR_MAX == INT32_MAX)
 			return (void *)InterlockedExchange((volatile LONG*)p, (LONG)newval);
 		#else
 			return (void *)InterlockedExchange64((volatile LONG64*)p, (LONG64)newval);
@@ -211,7 +211,7 @@ int MiMalloc_Test02_Stress(int argc, char ** argv)
 		static uintptr_t pick(random_t r) 
 		{
 			uintptr_t x = *r;
-		#if (UINTPTR_MAX > UINT32_MAX)
+		#if(UINTPTR_MAX > UINT32_MAX)
 			// by Sebastiano Vigna, see: <http://xoshiro.di.unimi.it/splitmix64.c>
 			x ^= x >> 30;
 			x *= 0xbf58476d1ce4e5b9UL;

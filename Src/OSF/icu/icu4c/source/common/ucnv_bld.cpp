@@ -1208,7 +1208,7 @@ U_CAPI const char * U_EXPORT2 ucnv_getDefaultName() {
 		 || U_FAILURE(errorCode) || cnv == NULL
 		 || uprv_strlen(name)>=sizeof(gDefaultConverterNameBuffer)) {
 			/* Panic time, let's use a fallback. */
-#if (U_CHARSET_FAMILY == U_ASCII_FAMILY)
+#if(U_CHARSET_FAMILY == U_ASCII_FAMILY)
 			name = "US-ASCII";
 			/* there is no 'algorithmic' converter for EBCDIC */
 #elif U_PLATFORM == U_PF_OS390

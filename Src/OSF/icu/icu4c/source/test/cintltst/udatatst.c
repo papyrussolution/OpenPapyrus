@@ -318,7 +318,7 @@ static void TestUDataOpen() {
 /*      strcpy(icuDataFilePath, testPath); */
 /*      status = U_ZERO_ERROR; */
 /*      result = udata_open( icuDataFilePath, "cnv", "test1", &status); */
-/*      if (status != U_ZERO_ERROR) { */
+/*      if(status != U_ZERO_ERROR) { */
 /*          log_err("FAIL: udata_open( \"%s\", \"cnv\", \"test1\") returned status %s\n", icuDataFilePath,
    u_errorName(status)); */
 /*      } */
@@ -836,9 +836,9 @@ static void TestUDataGetInfo() {
 		return;
 	}
 	udata_getInfo(result, &dataInfo);
-	if(dataInfo.size==20          &&  dataInfo.size!=30 &&
-	    dataInfo.isBigEndian==U_IS_BIG_ENDIAN     &&
-	    dataInfo.charsetFamily==U_CHARSET_FAMILY  &&
+	if(dataInfo.size==20 &&  dataInfo.size!=30 &&
+	    dataInfo.isBigEndian==U_IS_BIG_ENDIAN &&
+	    dataInfo.charsetFamily==U_CHARSET_FAMILY &&
 	    dataInfo.dataFormat[0]==0x43 &&  dataInfo.dataFormat[0]!=0x54 &&/* dataFormat="CvAl" and not "Test". The
 	                                                                       values are set for cnvalias.dat*/
 	    dataInfo.dataFormat[1]==0x76 &&  dataInfo.dataFormat[1]!=0x65 &&
@@ -865,9 +865,9 @@ static void TestUDataGetInfo() {
 		return;
 	}
 	udata_getInfo(result, &dataInfo);
-	if(dataInfo.size==20           &&
-	    dataInfo.isBigEndian==U_IS_BIG_ENDIAN     &&
-	    dataInfo.charsetFamily==U_CHARSET_FAMILY  &&
+	if(dataInfo.size==20 &&
+	    dataInfo.isBigEndian==U_IS_BIG_ENDIAN &&
+	    dataInfo.charsetFamily==U_CHARSET_FAMILY &&
 	    dataInfo.dataFormat[0]==0x54 && /* dataFormat="Test". The values are set for test.dat*/
 	    dataInfo.dataFormat[1]==0x65 &&
 	    dataInfo.dataFormat[2]==0x73 &&

@@ -135,7 +135,7 @@ static PVirtualAlloc2 pVirtualAlloc2 = NULL;
 static PNtAllocateVirtualMemoryEx pNtAllocateVirtualMemoryEx = NULL;
 
 // Similarly, GetNumaProcesorNodeEx is only supported since Windows 7
-#if (_WIN32_WINNT < 0x601)  // before Win7
+#if(_WIN32_WINNT < 0x601)  // before Win7
 // @sobolev typedef struct _PROCESSOR_NUMBER { WORD Group; BYTE Number; BYTE Reserved; } PROCESSOR_NUMBER, * PPROCESSOR_NUMBER;
 #endif
 typedef VOID (__stdcall *PGetCurrentProcessorNumberEx)(PPROCESSOR_NUMBER ProcNumber);
@@ -268,7 +268,7 @@ static void * mi_os_get_aligned_hint(size_t try_alignment, size_t size);
 
 #ifdef _WIN32
 static void * mi_win_virtual_allocx(void * addr, size_t size, size_t try_alignment, DWORD flags) {
-#if (MI_INTPTR_SIZE >= 8)
+#if(MI_INTPTR_SIZE >= 8)
 	// on 64-bit systems, try to use the virtual address area after 4TiB for 4MiB aligned allocations
 	void * hint;
 	if(addr == NULL && (hint = mi_os_get_aligned_hint(try_alignment, size)) != NULL) {
@@ -359,7 +359,7 @@ static void * mi_wasm_heap_grow(size_t size, size_t try_alignment)
 static void * mi_unix_mmapx(void * addr, size_t size, size_t try_alignment, int protect_flags, int flags, int fd) 
 {
 	void * p = NULL;
-  #if (MI_INTPTR_SIZE >= 8) && !defined(MAP_ALIGNED)
+  #if(MI_INTPTR_SIZE >= 8) && !defined(MAP_ALIGNED)
 	// on 64-bit systems, use the virtual address area after 4TiB for 4MiB aligned allocations
 	void * hint;
 	if(addr == NULL && (hint = mi_os_get_aligned_hint(try_alignment, size)) != NULL) {
@@ -507,7 +507,7 @@ static void * mi_unix_mmap(void * addr, size_t size, size_t try_alignment, int p
 
 // On 64-bit systems, we can do efficient aligned allocation by using
 // the 4TiB to 30TiB area to allocate them.
-#if (MI_INTPTR_SIZE >= 8) && (defined(_WIN32) || (defined(MI_OS_USE_MMAP) && !defined(MAP_ALIGNED)))
+#if(MI_INTPTR_SIZE >= 8) && (defined(_WIN32) || (defined(MI_OS_USE_MMAP) && !defined(MAP_ALIGNED)))
 static mi_decl_cache_align _Atomic(uintptr_t) aligned_base;
 
 // Return a 4MiB aligned address that is probably available.
@@ -527,13 +527,13 @@ static void * mi_os_get_aligned_hint(size_t try_alignment, size_t size)
 	if(try_alignment == 0 || try_alignment > MI_SEGMENT_SIZE) return NULL;
 	if((size%MI_SEGMENT_SIZE) != 0) return NULL;
 	if(size > 1*GiB) return NULL; // guarantee the chance of fixed valid address is at most 1/(KK_HINT_AREA / 1<<30) = 1/4096.
-  #if (MI_SECURE>0)
+  #if(MI_SECURE>0)
 	size += MI_SEGMENT_SIZE;  // put in `MI_SEGMENT_SIZE` virtual gaps between hinted blocks; this splits VLA's but increases guarded areas.
   #endif
 	uintptr_t hint = mi_atomic_add_acq_rel(&aligned_base, size);
 	if(hint == 0 || hint > KK_HINT_MAX) { // wrap or initialize
 		uintptr_t init = KK_HINT_BASE;
-    #if (MI_SECURE>0 || MI_DEBUG==0)       // security: randomize start of aligned allocations unless in debug mode
+    #if(MI_SECURE>0 || MI_DEBUG==0)       // security: randomize start of aligned allocations unless in debug mode
 		uintptr_t r = _mi_heap_random_next(mi_get_default_heap());
 		init = init + ((MI_SEGMENT_SIZE * ((r>>17) & 0xFFFFF)) % KK_HINT_AREA); // (randomly 20 bits)*4MiB == 0 to 4TiB
     #endif
@@ -561,9 +561,9 @@ static void * mi_os_mem_alloc(size_t size, size_t try_alignment, bool commit, bo
 	if(!commit) allow_large = false;
 	void * p = NULL;
 	/*
-	   if (commit && allow_large) {
+	   if(commit && allow_large) {
 	   p = _mi_os_try_alloc_from_huge_reserved(size, try_alignment);
-	   if (p != NULL) {
+	   if(p != NULL) {
 	 * is_large = true;
 	    return p;
 	   }
@@ -839,7 +839,7 @@ static bool mi_os_resetx(void * addr, size_t size, bool reset, mi_stats_t* stats
 	else _mi_stat_decrease(&stats->reset, csize);
 	if(!reset) return true; // nothing to do on unreset!
 
-  #if (MI_DEBUG>1)
+  #if(MI_DEBUG>1)
 	if(MI_SECURE==0) {
 		memzero(start, csize); // pretend it is eagerly reset
 	}
@@ -924,7 +924,7 @@ static bool mi_os_protectx(void * addr, size_t size, bool protect) {
 	void * start = mi_os_page_align_area_conservative(addr, size, &csize);
 	if(csize == 0) return false;
 	/*
-	   if (_mi_os_is_huge_reserved(addr)) {
+	   if(_mi_os_is_huge_reserved(addr)) {
 	        _mi_warning_message("cannot mprotect memory allocated in huge OS pages\n");
 	   }
 	 */
@@ -1075,7 +1075,7 @@ static void * mi_os_alloc_huge_os_pagesx(void * addr, size_t size, int numa_node
 	}
 #endif
 
-#if (MI_INTPTR_SIZE >= 8)
+#if(MI_INTPTR_SIZE >= 8)
 	// To ensure proper alignment, use our own area for huge OS pages
 	static mi_decl_cache_align _Atomic(uintptr_t)  mi_huge_start; // = 0
 
@@ -1093,7 +1093,7 @@ static void * mi_os_alloc_huge_os_pagesx(void * addr, size_t size, int numa_node
 			if(start == 0) {
 				// Initialize the start address after the 32TiB area
 				start = ((uintptr_t)32 << 40); // 32TiB virtual start address
-	#if (MI_SECURE>0 || MI_DEBUG==0)      // security: randomize start of huge pages unless in debug mode
+	#if(MI_SECURE>0 || MI_DEBUG==0)      // security: randomize start of huge pages unless in debug mode
 				uintptr_t r = _mi_heap_random_next(mi_get_default_heap());
 				start = start + ((uintptr_t)MI_HUGE_OS_PAGE_SIZE * ((r>>17) & 0x0FFF)); // (randomly 12bits)*1GiB == between 0 to 4TiB
 	#endif

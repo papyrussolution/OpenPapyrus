@@ -465,7 +465,7 @@ static cairo_status_t _cairo_svg_surface_add_source_surface(cairo_svg_surface_t 
 	cairo_status_t status;
 	source_key.id  = source_surface->unique_id;
 	cairo_surface_get_mime_data(source_surface, CAIRO_MIME_TYPE_UNIQUE_ID,
-	    (const uchar**)&source_key.unique_id,
+	    (const uchar **)&source_key.unique_id,
 	    &source_key.unique_id_length);
 	_cairo_svg_source_surface_init_key(&source_key);
 	source_entry = (cairo_svg_source_surface_t *)_cairo_hash_table_lookup(surface->source_surfaces, &source_key.base);
@@ -1716,7 +1716,7 @@ static cairo_status_t _cairo_svg_surface_emit_radial_pattern(cairo_svg_surface_t
 		 */
 		if((extend == CAIRO_EXTEND_REFLECT
 		    || extend == CAIRO_EXTEND_REPEAT)
-		  && r0 > 0.0) {
+		 && r0 > 0.0) {
 			double r_org = r1;
 
 			if(extend == CAIRO_EXTEND_REFLECT) {

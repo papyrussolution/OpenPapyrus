@@ -544,7 +544,7 @@ char * ssh_get_issue_banner(ssh_session session)
  * @code
  * int openssh = ssh_get_openssh_version();
  *
- * if (openssh == SSH_INT_VERSION(6, 1, 0)) {
+ * if(openssh == SSH_INT_VERSION(6, 1, 0)) {
  *     printf("Version match!\m");
  * }
  * @endcode

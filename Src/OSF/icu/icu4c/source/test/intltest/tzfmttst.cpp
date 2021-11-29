@@ -680,7 +680,7 @@ void TimeZoneFormatTest::RunTimeRoundTripTests(int32_t threadNumber) {
 						    ", diff=" + (parsedDate - testTimes[testidx]);
 						// Timebomb for TZData update
 						if(expectedRoundTrip[testidx]
-						  && !isSpecialTimeRoundTripCase(gLocaleData->locales[locidx].getName(), *tzid,
+						 && !isSpecialTimeRoundTripCase(gLocaleData->locales[locidx].getName(), *tzid,
 						    PATTERNS[patidx], testTimes[testidx])) {
 							errln((UnicodeString)"FAIL: " + msg);
 						}

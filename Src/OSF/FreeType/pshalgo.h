@@ -38,13 +38,13 @@ FT_BEGIN_HEADER
 #define PSH_HINT_FITTED  8U
 
 
-#define psh_hint_is_active( x )  (((x)->flags & PSH_HINT_ACTIVE ) != 0 )
-#define psh_hint_is_ghost( x )   (((x)->flags & PSH_HINT_GHOST  ) != 0 )
-#define psh_hint_is_fitted( x )  (((x)->flags & PSH_HINT_FITTED ) != 0 )
+#define psh_hint_is_active(x)  (((x)->flags & PSH_HINT_ACTIVE ) != 0 )
+#define psh_hint_is_ghost(x)   (((x)->flags & PSH_HINT_GHOST  ) != 0 )
+#define psh_hint_is_fitted(x)  (((x)->flags & PSH_HINT_FITTED ) != 0 )
 
-#define psh_hint_activate( x )    (x)->flags |=  PSH_HINT_ACTIVE
-#define psh_hint_deactivate( x )  (x)->flags &= ~PSH_HINT_ACTIVE
-#define psh_hint_set_fitted( x )  (x)->flags |=  PSH_HINT_FITTED
+#define psh_hint_activate(x)    (x)->flags |=  PSH_HINT_ACTIVE
+#define psh_hint_deactivate(x)  (x)->flags &= ~PSH_HINT_ACTIVE
+#define psh_hint_set_fitted(x)  (x)->flags |=  PSH_HINT_FITTED
 
 
   /* hint structure */

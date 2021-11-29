@@ -119,7 +119,7 @@ typedef struct {
 	OnigOptionType options;
 	OnigRegion*    region;
 	int ptr_num;
-	const uchar *   start; /* search start position (for \G: BEGIN_POSITION) */
+	const uchar * start; /* search start position (for \G: BEGIN_POSITION) */
 	uint match_stack_limit;
 #ifdef USE_RETRY_LIMIT
 	ulong retry_limit_in_match;
@@ -964,7 +964,7 @@ typedef ptrdiff_t StackIndex;
 
 typedef union {
 	StackIndex i;
-	uchar *     s;
+	uchar * s;
 } StkPtrType;
 
 typedef struct _StackType {
@@ -973,7 +973,7 @@ typedef struct _StackType {
 	union {
 		struct {
 			Operation* pcode; /* byte code position */
-			uchar *     pstr; /* string position */
+			uchar * pstr; /* string position */
 		} state;
 
 		struct {
@@ -1599,7 +1599,7 @@ static int stack_double(int* is_alloca, char ** arg_alloc_base, StackType** arg_
 		while(k > stk_base) { \
 			k--; \
 			if((k->type & STK_MASK_MEM_END_OR_MARK) != 0 \
-			  && k->zid == (mnum)) { \
+			 && k->zid == (mnum)) { \
 				level++; \
 			} \
 			else if(k->type == STK_MEM_START && k->zid == (mnum)) { \
@@ -1709,7 +1709,7 @@ static int stack_double(int* is_alloca, char ** arg_alloc_base, StackType** arg_
 			k--; \
 			STACK_BASE_CHECK(k, "STACK_GET_SAVE_VAL_TYPE_LAST_ID"); \
 			if(k->type == STK_SAVE_VAL && k->u.val.type == (stype) \
-			  && k->zid == (sid)) { \
+			 && k->zid == (sid)) { \
 				if(level == 0) { \
 					(sval) = k->u.val.v; \
 					if(clear != 0) k->type = STK_VOID; \
@@ -1730,7 +1730,7 @@ static int stack_double(int* is_alloca, char ** arg_alloc_base, StackType** arg_
 			k--; \
 			STACK_BASE_CHECK(k, "STACK_GET_SAVE_VAL_TYPE_LAST_ID"); \
 			if(k->type == STK_SAVE_VAL && k->u.val.type == (stype) \
-			  && k->zid == (sid)) { \
+			 && k->zid == (sid)) { \
 				if(level == 0) { \
 					(sval) = k->u.val.v; \
 					break; \
@@ -2818,7 +2818,7 @@ set_region:
 #ifdef USE_POSIX_API
 			} /* else OPTON_POSIX_REGION() */
 #endif
-			} /* if (region) */
+			} /* if(region) */
 		} /* n > best_len */
 
 #ifdef USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE
@@ -4637,7 +4637,7 @@ extern int onig_match_with_param(regex_t* reg, const uchar * str, const uchar * 
 	MATCH_ARG_INIT(msa, reg, option, region, at, mp);
 	if(region
 #ifdef USE_POSIX_API
-	  && !OPTON_POSIX_REGION(option)
+	 && !OPTON_POSIX_REGION(option)
 #endif
 	    ) {
 		r = onig_region_resize_clear(region, reg->num_mem + 1);
@@ -4870,7 +4870,7 @@ static int search_in_range(regex_t* reg, const uchar * str, const uchar * end, c
 #endif
 	if(region
 #ifdef USE_POSIX_API
-	  && !OPTON_POSIX_REGION(option)
+	 && !OPTON_POSIX_REGION(option)
 #endif
 	    ) {
 		r = onig_region_resize_clear(region, reg->num_mem + 1);
@@ -5103,7 +5103,7 @@ finish:
 	// If result is mismatch and no FIND_NOT_EMPTY option, then the region is not set in match_at(). 
 	if(OPTON_FIND_NOT_EMPTY(reg->options) && region
 #ifdef USE_POSIX_API
-	  && !OPTON_POSIX_REGION(option)
+	 && !OPTON_POSIX_REGION(option)
 #endif
 	    ) {
 		onig_region_clear(region);

@@ -52,7 +52,7 @@ U_CAPI UNewDataMemory * U_EXPORT2 udata_create(const char * dir, const char * ty
 	}
 
 	char dirSepChar = U_FILE_SEP_CHAR;
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	// We may need to append a different directory separator when building for Cygwin or MSYS2.
 	if(dir && *dir) {
 		if(!uprv_strchr(dir, U_FILE_SEP_CHAR) && uprv_strchr(dir, U_FILE_ALT_SEP_CHAR)) {

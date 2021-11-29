@@ -196,7 +196,7 @@ int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc,
 			set = sk_X509_NAME_ENTRY_value(sk, loc - 1)->set;
 		}
 	}
-	else {                  /* if (set >= 0) */
+	else {                  /* if(set >= 0) */
 		if(loc >= n) {
 			if(loc != 0)
 				set = sk_X509_NAME_ENTRY_value(sk, loc - 1)->set + 1;

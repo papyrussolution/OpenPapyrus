@@ -42,7 +42,7 @@
 ; sh1 = L-1
 ; q = x + (m*x >> n)              [high part of signed multiplication]
 ; q = (q >> sh1) - (x<0 ? -1 : 0)
-; if (divisor < 0) q = -q         [negative divisor not supported in present implementation]
+; if(divisor < 0) q = -q         [negative divisor not supported in present implementation]
 ; x/d = q
 ;
 ; Copyright (c) 2011 GNU General Public License www.gnu.org/licenses

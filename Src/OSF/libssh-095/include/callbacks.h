@@ -465,7 +465,7 @@ typedef struct ssh_socket_callbacks_struct * ssh_socket_callbacks;
  * ssh_callbacks_iterate(channel->callbacks, ssh_channel_callbacks,
  *               channel_eof_function){
  *     rc = ssh_callbacks_iterate_exec(session, channel);
- *     if (rc != SSH_OK){
+ *     if(rc != SSH_OK){
  *   break;
  *     }
  * }

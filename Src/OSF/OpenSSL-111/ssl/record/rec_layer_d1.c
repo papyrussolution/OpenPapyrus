@@ -424,14 +424,14 @@ start:
 	 * record that isn't an alert.
 	 */
 	if(SSL3_RECORD_get_type(rr) != SSL3_RT_ALERT
-	  && SSL3_RECORD_get_length(rr) != 0)
+	 && SSL3_RECORD_get_length(rr) != 0)
 		s->rlayer.alert_count = 0;
 
 	/* we now have a packet which can be read and processed */
 
 	if(s->s3->change_cipher_spec /* set when we receive ChangeCipherSpec,
 	                              * reset by ssl3_get_finished */
-	  && (SSL3_RECORD_get_type(rr) != SSL3_RT_HANDSHAKE)) {
+	 && (SSL3_RECORD_get_type(rr) != SSL3_RT_HANDSHAKE)) {
 		/*
 		 * We now have application data between CCS and Finished. Most likely
 		 * the packets were reordered on their way, so buffer the application
@@ -515,7 +515,7 @@ start:
 		 */
 		if(BIO_dgram_is_sctp(SSL_get_rbio(s)) &&
 		    s->d1->shutdown_received
-		  && !BIO_dgram_sctp_msg_waiting(SSL_get_rbio(s))) {
+		 && !BIO_dgram_sctp_msg_waiting(SSL_get_rbio(s))) {
 			s->shutdown |= SSL_RECEIVED_SHUTDOWN;
 			return 0;
 		}

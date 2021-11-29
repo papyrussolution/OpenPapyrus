@@ -11,7 +11,7 @@
 #include "number_patternmodifier.h"
 
 void PatternModifierTest::runIndexedTest(int32_t index, bool exec, const char *&name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite PatternModifierTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -31,7 +31,7 @@ void PatternModifierTest::testBasic() {
     mod.setPatternAttributes(UNUM_SIGN_AUTO, false, false);
     DecimalFormatSymbols symbols(Locale::getEnglish(), status);
     mod.setSymbols(&symbols, {u"USD", status}, UNUM_UNIT_WIDTH_SHORT, nullptr, status);
-    if (!assertSuccess("Spot 2", status, true)) {
+    if(!assertSuccess("Spot 2", status, true)) {
         return;
     }
 
@@ -123,7 +123,7 @@ void PatternModifierTest::testPatternWithNoPlaceholder() {
     mod.setPatternAttributes(UNUM_SIGN_AUTO, false, false);
     DecimalFormatSymbols symbols(Locale::getEnglish(), status);
     mod.setSymbols(&symbols, {u"USD", status}, UNUM_UNIT_WIDTH_SHORT, nullptr, status);
-    if (!assertSuccess("Spot 2", status, true)) {
+    if(!assertSuccess("Spot 2", status, true)) {
         return;
     }
     mod.setNumberProperties(SIGNUM_POS, StandardPlural::Form::COUNT);
@@ -142,7 +142,7 @@ void PatternModifierTest::testPatternWithNoPlaceholder() {
     assertSuccess("Spot 5", status);
     MicroProps micros;
     LocalPointer<ImmutablePatternModifier> imod(mod.createImmutable(status), status);
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
       dataerrln("%s %d  Error in ImmutablePatternModifier creation",
                 __FILE__, __LINE__);
       assertSuccess("Spot 6", status);
@@ -166,7 +166,7 @@ void PatternModifierTest::testMutableEqualsImmutable() {
     DecimalFormatSymbols symbols(Locale::getEnglish(), status);
     mod.setSymbols(&symbols, {u"USD", status}, UNUM_UNIT_WIDTH_SHORT, nullptr, status);
     assertSuccess("Spot 2", status);
-    if (U_FAILURE(status)) { return; }
+    if(U_FAILURE(status)) { return; }
     DecimalQuantity fq;
     fq.setToInt(1);
 

@@ -31,7 +31,7 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 	WordList &keywords3 = *keywordlists[2];
 
 	// Do not leak onto next line
-	/*if (initStyle == SCE_ESCRIPT_STRINGEOL)
+	/*if(initStyle == SCE_ESCRIPT_STRINGEOL)
 	        initStyle = SCE_ESCRIPT_DEFAULT;*/
 
 	StyleContext sc(startPos, length, initStyle, styler);
@@ -39,7 +39,7 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 	bool caseSensitive = styler.GetPropertyInt("escript.case.sensitive", 0) != 0;
 
 	for(; sc.More(); sc.Forward()) {
-		/*if (sc.atLineStart && (sc.state == SCE_ESCRIPT_STRING)) {
+		/*if(sc.atLineStart && (sc.state == SCE_ESCRIPT_STRING)) {
 		        // Prevent SCE_ESCRIPT_STRINGEOL from leaking back to previous line
 		        sc.SetState(SCE_ESCRIPT_STRING);
 		   }*/
@@ -134,7 +134,7 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 			}
 			else if(sc.ch == '\"') {
 				sc.SetState(SCE_ESCRIPT_STRING);
-				//} else if (isoperator(static_cast<char>(sc.ch))) {
+				//} else if(isoperator(static_cast<char>(sc.ch))) {
 			}
 			else if(sc.ch == '+' || sc.ch == '-' || sc.ch == '*' || sc.ch == '/' || sc.ch == '=' || sc.ch == '<' || sc.ch ==
 			    '>' || sc.ch == '&' || sc.ch == '|' || sc.ch == '!' || sc.ch == '?' || sc.ch == ':') {

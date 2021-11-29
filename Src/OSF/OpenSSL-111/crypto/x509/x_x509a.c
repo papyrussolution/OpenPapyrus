@@ -75,7 +75,7 @@ int X509_keyid_set1(X509 * x, const uchar * id, int len)
 	if((aux = aux_get(x)) == NULL)
 		return 0;
 	if(aux->keyid == NULL
-	  && (aux->keyid = ASN1_OCTET_STRING_new()) == NULL)
+	 && (aux->keyid = ASN1_OCTET_STRING_new()) == NULL)
 		return 0;
 	return ASN1_STRING_set(aux->keyid, id, len);
 }
@@ -110,7 +110,7 @@ int X509_add1_trust_object(X509 * x, const ASN1_OBJECT * obj)
 	if((aux = aux_get(x)) == NULL)
 		goto err;
 	if(aux->trust == NULL
-	  && (aux->trust = sk_ASN1_OBJECT_new_null()) == NULL)
+	 && (aux->trust = sk_ASN1_OBJECT_new_null()) == NULL)
 		goto err;
 	if(!objtmp || sk_ASN1_OBJECT_push(aux->trust, objtmp))
 		return 1;
@@ -128,7 +128,7 @@ int X509_add1_reject_object(X509 * x, const ASN1_OBJECT * obj)
 	if((aux = aux_get(x)) == NULL)
 		goto err;
 	if(aux->reject == NULL
-	  && (aux->reject = sk_ASN1_OBJECT_new_null()) == NULL)
+	 && (aux->reject = sk_ASN1_OBJECT_new_null()) == NULL)
 		goto err;
 	return sk_ASN1_OBJECT_push(aux->reject, objtmp);
 err:

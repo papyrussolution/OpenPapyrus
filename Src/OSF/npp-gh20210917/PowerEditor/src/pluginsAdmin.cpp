@@ -60,7 +60,7 @@ void Version::setVersionFrom(const generic_string& filePath)
 			return;
 		if(bufferSize <= 0)
 			return;
-		uchar* buffer = new uchar[bufferSize];
+		uchar * buffer = new uchar[bufferSize];
 		::GetFileVersionInfo(filePath.c_str(), handle, bufferSize, buffer);
 		VS_FIXEDFILEINFO* lpFileInfo = nullptr;
 		UINT cbFileInfo = 0;

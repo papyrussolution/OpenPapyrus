@@ -1149,9 +1149,9 @@ void TestMessageFormat::testParse()
 		}
 		else {
 			if((fmt_arr[0].getType() == Formattable::kString)
-			  && (fmt_arr[1].getType() == Formattable::kString)
-			  && (fmt_arr[0].getString(tmp1) == "abc")
-			  && (fmt_arr[1].getString(tmp2) == "def")) {
+			 && (fmt_arr[1].getType() == Formattable::kString)
+			 && (fmt_arr[0].getString(tmp1) == "abc")
+			 && (fmt_arr[1].getString(tmp2) == "def")) {
 				logln("MSG parse (ustring, count, err) tested.");
 			}
 			else {
@@ -1174,9 +1174,9 @@ void TestMessageFormat::testParse()
 		}
 		else {
 			if((fmt_arr[0].getType() == Formattable::kString)
-			  && (fmt_arr[1].getType() == Formattable::kString)
-			  && (fmt_arr[0].getString(tmp1) == "abc")
-			  && (fmt_arr[1].getString(tmp2) == "def")) {
+			 && (fmt_arr[1].getType() == Formattable::kString)
+			 && (fmt_arr[0].getString(tmp1) == "abc")
+			 && (fmt_arr[1].getString(tmp2) == "def")) {
 				logln("MSG parse (ustring, parsepos., count) tested.");
 			}
 			else {
@@ -1201,9 +1201,9 @@ void TestMessageFormat::testParse()
 		}
 		else {
 			if((fmta[0].getType() == Formattable::kString)
-			  && (fmta[1].getType() == Formattable::kString)
-			  && (fmta[0].getString(tmp1) == "abc")
-			  && (fmta[1].getString(tmp2) == "def")) {
+			 && (fmta[1].getType() == Formattable::kString)
+			 && (fmta[0].getString(tmp1) == "abc")
+			 && (fmta[1].getString(tmp2) == "def")) {
 				logln("MSG parse (ustring, Formattable, parsepos ) tested.");
 			}
 			else {

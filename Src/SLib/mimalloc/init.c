@@ -34,7 +34,7 @@ const mi_page_t _mi_page_empty = {
 
 #define MI_PAGE_EMPTY() ((mi_page_t*)&_mi_page_empty)
 
-#if (MI_PADDING>0) && (MI_INTPTR_SIZE >= 8)
+#if(MI_PADDING>0) && (MI_INTPTR_SIZE >= 8)
 #define MI_SMALL_PAGES_EMPTY  { MI_INIT128(MI_PAGE_EMPTY), MI_PAGE_EMPTY(), MI_PAGE_EMPTY() }
 #elif (MI_PADDING>0)
 #define MI_SMALL_PAGES_EMPTY  { MI_INIT128(MI_PAGE_EMPTY), MI_PAGE_EMPTY(), MI_PAGE_EMPTY(), MI_PAGE_EMPTY() }
@@ -283,7 +283,7 @@ static void _mi_thread_done(mi_heap_t* default_heap);
 // use thread local storage keys to detect thread ending
   #include <windows.h>
   #include <fibersapi.h>
-  #if (_WIN32_WINNT < 0x600)  // before Windows Vista
+  #if(_WIN32_WINNT < 0x600)  // before Windows Vista
 WINBASEAPI DWORD WINAPI FlsAlloc(_In_opt_ PFLS_CALLBACK_FUNCTION lpCallback);
 WINBASEAPI PVOID WINAPI FlsGetValue(_In_ DWORD dwFlsIndex);
 WINBASEAPI BOOL WINAPI FlsSetValue(_In_ DWORD dwFlsIndex, _In_opt_ PVOID lpFlsData);
@@ -484,7 +484,7 @@ void mi_process_init(void) NOEXCEPT {
 	mi_detect_cpu_features();
 	_mi_os_init();
 	mi_heap_main_init();
-  #if (MI_DEBUG)
+  #if(MI_DEBUG)
 	_mi_verbose_message("debug level : %d\n", MI_DEBUG);
   #endif
 	_mi_verbose_message("secure level: %d\n", MI_SECURE);
@@ -516,7 +516,7 @@ static void mi_process_done(void) {
 	                          // linked with a DLL; Issue #208
   #endif
 
-  #if (MI_DEBUG != 0) || !defined(MI_SHARED_LIB)
+  #if(MI_DEBUG != 0) || !defined(MI_SHARED_LIB)
 	// free all memory if possible on process exit. This is not needed for a stand-alone process
 	// but should be done if mimalloc is statically linked into another shared library which
 	// is repeatedly loaded/unloaded, see issue #281.

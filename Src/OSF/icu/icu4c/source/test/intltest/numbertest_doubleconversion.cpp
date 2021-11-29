@@ -12,7 +12,7 @@
 using namespace double_conversion;
 
 void DoubleConversionTest::runIndexedTest(int32_t index, bool exec, const char *&name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite DoubleConversionTest: ");
     }
     TESTCASE_AUTO_BEGIN;

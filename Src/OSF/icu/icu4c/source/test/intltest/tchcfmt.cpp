@@ -189,7 +189,7 @@ void TestChoiceFormat::TestComplexExample(void)
 		"There are 3 files on Disk_A"
 	};
 
-	// if (status != U_ZERO_ERROR) return; // TODO: analyze why we have such a bad bail out here!
+	// if(status != U_ZERO_ERROR) return; // TODO: analyze why we have such a bad bail out here!
 
 	if(U_FAILURE(status)) {
 		delete fileform;
@@ -227,10 +227,10 @@ void TestChoiceFormat::TestComplexExample(void)
 	int32_t retCount;
 	const double* retLimits = fileform->getLimits(retCount);
 	if((retCount == 4) && (retLimits)
-	  && (retLimits[0] == -1.0)
-	  && (retLimits[1] == 0.0)
-	  && (retLimits[2] == 1.0)
-	  && (retLimits[3] == 2.0)) {
+	 && (retLimits[0] == -1.0)
+	 && (retLimits[1] == 0.0)
+	 && (retLimits[2] == 1.0)
+	 && (retLimits[3] == 2.0)) {
 		it_logln("getLimits tested!");
 	}
 	else {
@@ -239,10 +239,10 @@ void TestChoiceFormat::TestComplexExample(void)
 
 	const UnicodeString * retFormats = fileform->getFormats(retCount);
 	if((retCount == 4) && (retFormats)
-	  && (retFormats[0] == "are corrupted files")
-	  && (retFormats[1] == "are no files")
-	  && (retFormats[2] == "is one file")
-	  && (retFormats[3] == "are {2} files")) {
+	 && (retFormats[0] == "are corrupted files")
+	 && (retFormats[1] == "are no files")
+	 && (retFormats[2] == "is one file")
+	 && (retFormats[3] == "are {2} files")) {
 		it_logln("getFormats tested!");
 	}
 	else {
@@ -446,7 +446,7 @@ void TestChoiceFormat::TestComplexExample(void)
 
 	/*
 	   UClassID classID = ChoiceFormat::getStaticClassID();
-	   if (classID == form_pat.getDynamicClassID()) {
+	   if(classID == form_pat.getDynamicClassID()) {
 	    it_out << "getStaticClassID and getDynamicClassID tested." << endl;
 	   }else {
 	    it_errln("*** getStaticClassID and getDynamicClassID!");

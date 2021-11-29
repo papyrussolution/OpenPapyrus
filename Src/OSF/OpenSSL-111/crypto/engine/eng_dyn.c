@@ -218,7 +218,7 @@ static dynamic_data_ctx * dynamic_get_data_ctx(ENGINE * e)
 		}
 		CRYPTO_THREAD_unlock(global_engine_lock);
 		/*
-		 * In theory we could "give back" the index here if (new_idx>-1), but
+		 * In theory we could "give back" the index here if(new_idx>-1), but
 		 * it's not possible and wouldn't gain us much if it were.
 		 */
 	}

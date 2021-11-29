@@ -933,10 +933,10 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				//{
 				//	const SPoint2F cur = GetCurrent();
 				//	int first = 1;
-				//	while (scan.Skip().IsDotPrefixedNumber()) {
+				//	while(scan.Skip().IsDotPrefixedNumber()) {
 				//		THROW(GetSvgPathPoint(scan, temp_buf, pnt));
 				//		//const SPoint2F cur = GetCurrent();
-				//		if (first) {
+				//		if(first) {
 				//			Move(cur + pnt);
 				//			first = 0;
 				//		}
@@ -3258,9 +3258,9 @@ DWORD HowManyColors(IN UPBITMAPINFOHEADER upbih, IN BOOL fOldFormat, OUT OPTIONA
 		}
 		if(upbih->biClrUsed)
 			return (DWORD)upbih->biClrUsed;
-		else if (upbih->biBitCount <= 8)
+		else if(upbih->biBitCount <= 8)
 			return (1 << upbih->biBitCount);
-		else if ((upbih->biBitCount == 16) || (upbih->biBitCount == 32))
+		else if((upbih->biBitCount == 16) || (upbih->biBitCount == 32))
 			return 3;
 	}
 	return 0;
@@ -3284,7 +3284,7 @@ BOOL TrulyMonochrome(LPVOID lpColorTable, BOOL fOldFormat)
 		// Honey - its quadruplets!
 		if(lpRGB[0] == RESCLR_BLACK)
 			return (lpRGB[1] == RESCLR_WHITE);
-		else if (lpRGB[0] == RESCLR_WHITE)
+		else if(lpRGB[0] == RESCLR_WHITE)
 			return (lpRGB[1] == RESCLR_BLACK);
 	}
 #undef lpRGB

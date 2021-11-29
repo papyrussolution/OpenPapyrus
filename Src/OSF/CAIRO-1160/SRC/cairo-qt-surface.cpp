@@ -64,7 +64,7 @@
 #include <QWidget>
 #include <QtCore/QVarLengthArray>
 
-#if ((QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)) || defined(QT_GLYPHS_API_BACKPORT)) && 0
+#if((QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)) || defined(QT_GLYPHS_API_BACKPORT)) && 0
 	extern void qt_draw_glyphs(QPainter *, const quint32 * glyphs, const QPointF * positions, int count);
 #endif
 
@@ -1336,7 +1336,7 @@ static cairo_int_status_t _cairo_qt_surface_show_glyphs(void * abstract_surface,
     cairo_scaled_font_t * scaled_font,
     const cairo_clip_t * clip)
 {
-#if ((QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)) || defined(QT_GLYPHS_API_BACKPORT)) && 0
+#if((QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)) || defined(QT_GLYPHS_API_BACKPORT)) && 0
 	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)abstract_surface;
 
 	// pick out the colour to use from the cairo source

@@ -63,7 +63,7 @@ private:
 	}
 
 	TiXmlCursorA cursor;
-	const char *             stamp;
+	const char * stamp;
 	int tabsize;
 };
 
@@ -197,9 +197,9 @@ const char * TiXmlBaseA::ReadName(const char * p, TIXMLA_STRING * name)
 	// hyphens, or colons. (Colons are valid ony for namespaces,
 	// but tinyxml can't tell namespaces from names.)
 	if(p && *p
-	  && (isalpha(static_cast<uchar>(*p)) || *p == '_')) {
+	 && (isalpha(static_cast<uchar>(*p)) || *p == '_')) {
 		while(p && *p
-		  &&      (               isalnum( (uchar)*p)
+		 &&      (               isalnum( (uchar)*p)
 		    || *p == '_'
 		    || *p == '-'
 		    || *p == '.'
@@ -220,9 +220,9 @@ const char * TiXmlBaseA::GetEntity(const char * p, char * value)
 
 	// Handle the &#x entities.
 	if(strncmp("&#x", p, 3) == 0
-	  && *(p+3)
-	  && *(p+4)
-	  && ( *(p+4) == ';' || *(p+5) == ';' )
+	 && *(p+3)
+	 && *(p+4)
+	 && ( *(p+4) == ';' || *(p+5) == ';' )
 	    ) {
 		*value = 0;
 
@@ -311,7 +311,7 @@ const char * TiXmlBaseA::ReadText(const char * p,
 	    || !condenseWhiteSpace) {           // if true, whitespace is always kept
 		// Keep all the white space.
 		while(p && *p
-		  && !StringEqual(p, endTag, caseInsensitive)
+		 && !StringEqual(p, endTag, caseInsensitive)
 		    ) {
 			char c;
 			p = GetChar(p, &c);
@@ -324,7 +324,7 @@ const char * TiXmlBaseA::ReadText(const char * p,
 		// Remove leading white space:
 		p = SkipWhiteSpace(p);
 		while(p && *p
-		  && !StringEqual(p, endTag, caseInsensitive) ) {
+		 && !StringEqual(p, endTag, caseInsensitive) ) {
 			if(*p == '\r' || *p == '\n') {
 				whitespace = true;
 				++p;
@@ -553,7 +553,7 @@ void TiXmlElementA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 	// If not, identify and stream.
 
 	if(tag->at(tag->length() - 1) == '>'
-	  && tag->at(tag->length() - 2) == '/') {
+	 && tag->at(tag->length() - 2) == '/') {
 		// All good!
 		return;
 	}
@@ -840,8 +840,8 @@ void TiXmlCommentA::StreamIn(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag)
 		(*tag) += static_cast<char>(c);
 
 		if(c == '>'
-		  && tag->at(tag->length() - 2) == '-'
-		  && tag->at(tag->length() - 3) == '-') {
+		 && tag->at(tag->length() - 2) == '-'
+		 && tag->at(tag->length() - 3) == '-') {
 			// All is well.
 			return;
 		}
@@ -926,8 +926,8 @@ const char * TiXmlAttributeA::Parse(const char * p, TiXmlParsingDataA* data)
 		// its best, even without them.
 		value = "";
 		while(p && *p                                                                                   // existence
-		  && !isspace(*p) && *p != '\n' && *p != '\r'                 // whitespace
-		  && *p != '/' && *p != '>') {                                                        // tag end
+		 && !isspace(*p) && *p != '\n' && *p != '\r'                 // whitespace
+		 && *p != '/' && *p != '>') {                                                        // tag end
 			value += *p;
 			++p;
 		}

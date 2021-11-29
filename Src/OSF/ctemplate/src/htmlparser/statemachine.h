@@ -164,7 +164,7 @@ static inline void statemachine_set_column_number(statemachine_ctx *ctx,
  * NULL is returned if the parser didn't encounter an error.
  */
 static inline const char *statemachine_get_error_msg(statemachine_ctx *ctx) {
-  if (ctx->next_state == STATEMACHINE_ERROR) {
+  if(ctx->next_state == STATEMACHINE_ERROR) {
     return ctx->error_msg;
   } else {
     return NULL;

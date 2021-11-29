@@ -87,7 +87,7 @@ int SipHash_set_hash_size(SIPHASH * ctx, size_t hash_size)
 {
 	hash_size = siphash_adjust_hash_size(hash_size);
 	if(hash_size != SIPHASH_MIN_DIGEST_SIZE
-	  && hash_size != SIPHASH_MAX_DIGEST_SIZE)
+	 && hash_size != SIPHASH_MAX_DIGEST_SIZE)
 		return 0;
 
 	/*

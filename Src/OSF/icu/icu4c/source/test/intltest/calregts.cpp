@@ -28,7 +28,7 @@ const UDate CalendarRegressionTest::LATEST_SUPPORTED_MILLIS    =   4503599627370
 
 void CalendarRegressionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite NumberFormatRegressionTest");
+	// if(exec) logln((UnicodeString)"TestSuite NumberFormatRegressionTest");
 	switch(index) {
 		CASE(0, test4100311);
 		CASE(1, test4074758);

@@ -309,7 +309,7 @@ static void ft_bzip2_stream_close(FT_Stream stream)
 	}
 }
 
-static unsigned long ft_bzip2_stream_io(FT_Stream stream, unsigned long offset, uchar*  buffer, unsigned long count)
+static ulong ft_bzip2_stream_io(FT_Stream stream, ulong offset, uchar * buffer, ulong count)
 {
 	FT_BZip2File zip = (FT_BZip2File)stream->descriptor.pointer;
 	return ft_bzip2_file_io(zip, offset, buffer, count);

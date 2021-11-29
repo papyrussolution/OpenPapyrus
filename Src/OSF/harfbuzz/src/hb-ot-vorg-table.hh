@@ -60,7 +60,7 @@ public:
 		bool has_data() const { return version.to_int(); }
 		int get_y_origin(hb_codepoint_t glyph) const
 		{
-			unsigned int i;
+			uint i;
 			if(!vertYOrigins.bfind(glyph, &i))
 				return defaultVertOriginY;
 			return vertYOrigins[i].vertOriginY;

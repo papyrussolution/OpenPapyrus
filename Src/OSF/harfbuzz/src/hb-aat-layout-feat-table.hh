@@ -36,12 +36,10 @@
 namespace AAT {
 	struct SettingName {
 		friend struct FeatureName;
-
 		int cmp(hb_aat_layout_feature_selector_t key) const
 		{
 			return (int)key - (int)setting;
 		}
-
 		hb_aat_layout_feature_selector_t get_selector() const
 		{
 			return (hb_aat_layout_feature_selector_t)(uint)setting;
@@ -87,10 +85,10 @@ public:
 			 * as the default. */
 		};
 
-		unsigned int get_selector_infos(unsigned int start_offset,
-		    unsigned int  * selectors_count,               /* IN/OUT.  May be NULL. */
+		uint get_selector_infos(uint start_offset,
+		    uint  * selectors_count,               /* IN/OUT.  May be NULL. */
 		    hb_aat_layout_feature_selector_info_t * selectors,                     /* OUT.     May be NULL. */
-		    unsigned int  * pdefault_index,                /* OUT.     May be NULL. */
+		    uint  * pdefault_index,                /* OUT.     May be NULL. */
 		    const void * base) const
 		{
 			hb_array_t< const SettingName> settings_table = (base+settingTableZ).as_array(nSettings);
@@ -98,7 +96,7 @@ public:
 			static_assert(Index::NOT_FOUND_INDEX == HB_AAT_LAYOUT_NO_SELECTOR_INDEX, "");
 
 			hb_aat_layout_feature_selector_t default_selector = HB_AAT_LAYOUT_FEATURE_SELECTOR_INVALID;
-			unsigned int default_index = Index::NOT_FOUND_INDEX;
+			uint default_index = Index::NOT_FOUND_INDEX;
 			if(featureFlags & Exclusive) {
 				default_index = (featureFlags & NotDefault) ? featureFlags & IndexMask : 0;
 				default_selector = settings_table[default_index].get_selector();
@@ -143,14 +141,8 @@ public:
 
 	struct feat {
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_feat;
-
-		bool has_data() const {
-			return version.to_int();
-		}
-
-		unsigned int get_feature_types(unsigned int start_offset,
-		    unsigned int * count,
-		    hb_aat_layout_feature_type_t * features) const
+		bool has_data() const { return version.to_int(); }
+		uint get_feature_types(uint start_offset, uint * count, hb_aat_layout_feature_type_t * features) const
 		{
 			if(count) {
 				+namesZ.as_array(featureNameCount).sub_array(start_offset, count)
@@ -163,21 +155,19 @@ public:
 		bool exposes_feature(hb_aat_layout_feature_type_t feature_type) const { return get_feature(feature_type).has_data(); }
 		const FeatureName& get_feature(hb_aat_layout_feature_type_t feature_type) const { return namesZ.bsearch(featureNameCount, feature_type); }
 		hb_ot_name_id_t get_feature_name_id(hb_aat_layout_feature_type_t feature) const { return get_feature(feature).get_feature_name_id(); }
-		unsigned int get_selector_infos(hb_aat_layout_feature_type_t feature_type,
-		    unsigned int start_offset,
-		    unsigned int  * selectors_count,               /* IN/OUT.  May be NULL. */
+		uint get_selector_infos(hb_aat_layout_feature_type_t feature_type,
+		    uint start_offset,
+		    uint  * selectors_count,               /* IN/OUT.  May be NULL. */
 		    hb_aat_layout_feature_selector_info_t * selectors,                     /* OUT.     May be NULL. */
-		    unsigned int  * default_index /* OUT.     May be NULL. */) const
+		    uint  * default_index /* OUT.     May be NULL. */) const
 		{
 			return get_feature(feature_type).get_selector_infos(start_offset, selectors_count, selectors, default_index, this);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(LIKELY(c->check_struct(this) && version.major == 1 && namesZ.sanitize(c, featureNameCount, this)));
 		}
-
 protected:
 		FixedVersion<>version; /* Version number of the feature name table
 		 * (0x00010000 for the current version). */

@@ -92,7 +92,7 @@ bool Grouper::groupAtPosition(int32_t position, const impl::DecimalQuantity &val
 	}
 	position -= fGrouping1;
 	return position >= 0 && (position % fGrouping2) == 0
-	     && value.getUpperDisplayMagnitude() - fGrouping1 + 1 >= fMinGrouping;
+	 && value.getUpperDisplayMagnitude() - fGrouping1 + 1 >= fMinGrouping;
 }
 
 int16_t Grouper::getPrimary() const { return fGrouping1; }

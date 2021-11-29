@@ -376,7 +376,7 @@ SimpleFilteredSentenceBreakIterator::EFBMatchResult SimpleFilteredSentenceBreakI
 			return kExceptionHere; // See if the next is another exception.
 		}
 		else if(bestValue == kPARTIAL
-		  && fData->hasForwardsPartialTrie()) { // make sure there's a forward trie
+		 && fData->hasForwardsPartialTrie()) { // make sure there's a forward trie
 			//if(debug2) u_printf(" partial backward match\n");
 			// We matched the "Ph." in "Ph.D." - now we need to run everything through the forwards trie
 			// to see if it matches something going forward.

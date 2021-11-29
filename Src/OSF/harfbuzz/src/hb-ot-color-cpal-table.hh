@@ -44,8 +44,8 @@ namespace OT {
 
 private:
 		hb_ot_color_palette_flags_t get_palette_flags(const void * base,
-		    unsigned int palette_index,
-		    unsigned int palette_count) const
+		    uint palette_index,
+		    uint palette_count) const
 		{
 			if(!paletteFlagsZ) return HB_OT_COLOR_PALETTE_FLAG_DEFAULT;
 			return (hb_ot_color_palette_flags_t)(uint32_t)
@@ -53,16 +53,16 @@ private:
 		}
 
 		hb_ot_name_id_t get_palette_name_id(const void * base,
-		    unsigned int palette_index,
-		    unsigned int palette_count) const
+		    uint palette_index,
+		    uint palette_count) const
 		{
 			if(!paletteLabelsZ) return HB_OT_NAME_ID_INVALID;
 			return (base+paletteLabelsZ).as_array(palette_count)[palette_index];
 		}
 
 		hb_ot_name_id_t get_color_name_id(const void * base,
-		    unsigned int color_index,
-		    unsigned int color_count) const
+		    uint color_index,
+		    uint color_count) const
 		{
 			if(!colorLabelsZ) return HB_OT_NAME_ID_INVALID;
 			return (base+colorLabelsZ).as_array(color_count)[color_index];
@@ -71,8 +71,8 @@ private:
 public:
 		bool sanitize(hb_sanitize_context_t * c,
 		    const void * base,
-		    unsigned int palette_count,
-		    unsigned int color_count) const
+		    uint palette_count,
+		    uint color_count) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) &&
@@ -107,44 +107,44 @@ public:
 			return numPalettes;
 		}
 
-		unsigned int get_size() const
+		uint get_size() const
 		{
 			return min_size + numPalettes * sizeof(colorRecordIndicesZ[0]);
 		}
 
-		unsigned int get_palette_count() const {
+		uint get_palette_count() const {
 			return numPalettes;
 		}
 
-		unsigned int   get_color_count() const {
+		uint   get_color_count() const {
 			return numColors;
 		}
 
-		hb_ot_color_palette_flags_t get_palette_flags(unsigned int palette_index) const
+		hb_ot_color_palette_flags_t get_palette_flags(uint palette_index) const
 		{
 			return v1().get_palette_flags(this, palette_index, numPalettes);
 		}
 
-		hb_ot_name_id_t get_palette_name_id(unsigned int palette_index) const
+		hb_ot_name_id_t get_palette_name_id(uint palette_index) const
 		{
 			return v1().get_palette_name_id(this, palette_index, numPalettes);
 		}
 
-		hb_ot_name_id_t get_color_name_id(unsigned int color_index) const
+		hb_ot_name_id_t get_color_name_id(uint color_index) const
 		{
 			return v1().get_color_name_id(this, color_index, numColors);
 		}
 
-		unsigned int get_palette_colors(unsigned int palette_index,
-		    unsigned int start_offset,
-		    unsigned int * color_count,               /* IN/OUT.  May be NULL. */
+		uint get_palette_colors(uint palette_index,
+		    uint start_offset,
+		    uint * color_count,               /* IN/OUT.  May be NULL. */
 		    hb_color_t * colors /* OUT.     May be NULL. */) const
 		{
 			if(UNLIKELY(palette_index >= numPalettes)) {
 				if(color_count) *color_count = 0;
 				return 0;
 			}
-			unsigned int start_index = colorRecordIndicesZ[palette_index];
+			uint start_index = colorRecordIndicesZ[palette_index];
 			hb_array_t<const BGRAColor> all_colors((this+colorRecordsZ).arrayZ, numColorRecords);
 			hb_array_t<const BGRAColor> palette_colors = all_colors.sub_array(start_index,
 				numColors);

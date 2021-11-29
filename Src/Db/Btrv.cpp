@@ -87,7 +87,7 @@ static int FASTCALL BRet(int r)
 //
 //
 const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
-#if (BTRIEVE_VER >= 0x0600)
+#if(BTRIEVE_VER >= 0x0600)
 	{{512, 8}, {1024, 23}, {1536, 24}, {2048, 54}, {2560, 54}, {3072, 54}, {3584, 54}, {4096, 119}};
 #else
 	{{512, 8}, {1024, 24}, {1536, 24}, {2048, 24}, {2560, 24}, {3072, 24}, {3584, 24}, {4096, 24}};

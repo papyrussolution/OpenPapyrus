@@ -574,7 +574,7 @@ static bool fallback(char * loc) {
 	}
 	/*
 	   char *i = uprv_strrchr(loc, '_');
-	   if (i == NULL) {
+	   if(i == NULL) {
 	       i = loc;
 	   }
 	 * i = 0;
@@ -2271,7 +2271,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_countCurrencies(const char * locale,
 				ures_close(currencyRes);
 				ures_close(fromRes);
 			} // end For loop
-		} // end if (U_SUCCESS(localStatus))
+		} // end if(U_SUCCESS(localStatus))
 
 		ures_close(countryArray);
 

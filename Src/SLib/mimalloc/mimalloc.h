@@ -14,7 +14,7 @@
 //
 /* (see slport.h; mi_attr_noexcept_Removed replaced with NOEXCEPT)
 #ifdef __cplusplus
-  #if (__cplusplus >= 201103L) || (_MSC_VER > 1900)  // C++11
+  #if(__cplusplus >= 201103L) || (_MSC_VER > 1900)  // C++11
     #define mi_attr_noexcept_Removed   noexcept
   #else
     #define mi_attr_noexcept_Removed   throw()
@@ -45,7 +45,7 @@
     #define mi_decl_restrict
     #define mi_attr_malloc              __attribute__((malloc))
   #else
-    #if (_MSC_VER >= 1900) && !defined(__EDG__)
+    #if(_MSC_VER >= 1900) && !defined(__EDG__)
       #define mi_decl_restrict          __declspec(allocator) __declspec(restrict)
     #else
       #define mi_decl_restrict          __declspec(restrict)
@@ -61,7 +61,7 @@
   #define mi_decl_export                __attribute__((visibility("default")))
   #define mi_decl_restrict
   #define mi_attr_malloc                __attribute__((malloc))
-  #if (defined(__clang_major__) && (__clang_major__ < 4)) || (__GNUC__ < 5)
+  #if(defined(__clang_major__) && (__clang_major__ < 4)) || (__GNUC__ < 5)
     #define mi_attr_alloc_size(s)
     #define mi_attr_alloc_size2(s1, s2)
     #define mi_attr_alloc_align(p)
@@ -310,7 +310,7 @@ mi_decl_nodiscard mi_decl_export void * mi_reallocarray(void * p, size_t count, 
 mi_decl_nodiscard mi_decl_export void * mi_aligned_recalloc(void * p, size_t newcount, size_t size, size_t alignment) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export void * mi_aligned_offset_recalloc(void * p, size_t newcount, size_t size, size_t alignment, size_t offset) NOEXCEPT;
 mi_decl_nodiscard mi_decl_export mi_decl_restrict unsigned short * mi_wcsdup(const unsigned short* s) NOEXCEPT mi_attr_malloc;
-mi_decl_nodiscard mi_decl_export mi_decl_restrict uchar *  mi_mbsdup(const uchar* s)  NOEXCEPT mi_attr_malloc;
+mi_decl_nodiscard mi_decl_export mi_decl_restrict uchar * mi_mbsdup(const uchar * s)  NOEXCEPT mi_attr_malloc;
 mi_decl_export int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT;
 mi_decl_export int mi_wdupenv_s(unsigned short** buf, size_t* size, const unsigned short* name) NOEXCEPT;
 mi_decl_export void mi_free_size(void * p, size_t size) NOEXCEPT;
@@ -336,7 +336,7 @@ mi_decl_nodiscard mi_decl_export void * mi_new_reallocn(void * p, size_t newcoun
 #ifdef __cplusplus
 
 #include <cstdint>     // PTRDIFF_MAX
-#if (__cplusplus >= 201103L) || (_MSC_VER > 1900)  // C++11
+#if(__cplusplus >= 201103L) || (_MSC_VER > 1900)  // C++11
 	#include <type_traits> // std::true_type
 	#include <utility>     // std::forward
 #endif
@@ -364,7 +364,7 @@ template <class T> struct mi_stl_allocator {
 	{
 		mi_free(p);
 	}
-  #if (__cplusplus >= 201703L)  // C++17
+  #if(__cplusplus >= 201703L)  // C++17
 	mi_decl_nodiscard T* allocate(size_type count) 
 	{
 		return static_cast<T*>(mi_new_n(count, sizeof(T)));
@@ -379,7 +379,7 @@ template <class T> struct mi_stl_allocator {
 		return static_cast<pointer>(mi_new_n(count, sizeof(value_type)));
 	}
   #endif
-  #if ((__cplusplus >= 201103L) || (_MSC_VER > 1900))  // C++11
+  #if((__cplusplus >= 201103L) || (_MSC_VER > 1900))  // C++11
 	using propagate_on_container_copy_assignment = std::true_type;
 	using propagate_on_container_move_assignment = std::true_type;
 	using propagate_on_container_swap = std::true_type;

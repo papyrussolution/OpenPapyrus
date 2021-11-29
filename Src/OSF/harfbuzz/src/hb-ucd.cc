@@ -142,7 +142,7 @@ static hb_bool_t hb_ucd_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 {
 	if(_hb_ucd_decompose_hangul(ab, a, b)) return true;
 
-	unsigned i = _hb_ucd_dm(ab);
+	uint i = _hb_ucd_dm(ab);
 
 	if(LIKELY(!i)) return false;
 	i--;

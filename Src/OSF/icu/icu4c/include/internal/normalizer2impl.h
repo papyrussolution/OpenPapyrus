@@ -297,7 +297,7 @@ public:
         return norm16>=MIN_NORMAL_MAYBE_YES ? getCCFromNormalYesOrMaybe(norm16) : 0;
     }
     uint8_t getCCFromYesOrMaybeCP(UChar32 c) const {
-        if (c < minCompNoMaybeCP) { return 0; }
+        if(c < minCompNoMaybeCP) { return 0; }
         return getCCFromYesOrMaybe(getNorm16(c));
     }
 

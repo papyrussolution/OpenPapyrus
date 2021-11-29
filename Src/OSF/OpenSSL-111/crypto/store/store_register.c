@@ -150,7 +150,7 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 	 */
 	if(ossl_isalpha(*scheme))
 		while(*scheme != '\0'
-		  && (ossl_isalpha(*scheme)
+		 && (ossl_isalpha(*scheme)
 		    || ossl_isdigit(*scheme)
 		    || strchr("+-.", *scheme) != NULL))
 			scheme++;
@@ -182,7 +182,7 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 	}
 
 	if(loader_register != NULL
-	  && (lh_OSSL_STORE_LOADER_insert(loader_register, loader) != NULL
+	 && (lh_OSSL_STORE_LOADER_insert(loader_register, loader) != NULL
 	    || lh_OSSL_STORE_LOADER_error(loader_register) == 0))
 		ok = 1;
 

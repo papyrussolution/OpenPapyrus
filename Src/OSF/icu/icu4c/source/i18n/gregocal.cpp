@@ -426,7 +426,7 @@ int32_t GregorianCalendar::handleComputeJulianDay(UCalendarDateFields bestField)
 
 	// The following check handles portions of the cutover year BEFORE the
 	// cutover itself happens.
-	//if ((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {  /*  cutoverJulianDay)) { */
+	//if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {  /*  cutoverJulianDay)) { */
 	if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {   /*  cutoverJulianDay)) { */
 #if defined (U_DEBUG_CAL)
 		fprintf(stderr, "%s:%d: jd [invert] %d\n",
@@ -647,11 +647,11 @@ double GregorianCalendar::computeJulianDayOfYear(bool isGregorian,
 //  */
 // int32_t GregorianCalendar::computeRelativeDOW() const {
 //     int32_t relDow = 0;
-//     if (fStamp[UCAL_DOW_LOCAL] > fStamp[UCAL_DAY_OF_WEEK]) {
+//     if(fStamp[UCAL_DOW_LOCAL] > fStamp[UCAL_DAY_OF_WEEK]) {
 //         relDow = internalGet(UCAL_DOW_LOCAL) - 1; // 1-based
-//     } else if (fStamp[UCAL_DAY_OF_WEEK] != kUnset) {
+//     } else if(fStamp[UCAL_DAY_OF_WEEK] != kUnset) {
 //         relDow = internalGet(UCAL_DAY_OF_WEEK) - getFirstDayOfWeek();
-//         if (relDow < 0) relDow += 7;
+//         if(relDow < 0) relDow += 7;
 //     }
 //     return relDow;
 // }
@@ -662,7 +662,7 @@ double GregorianCalendar::computeJulianDayOfYear(bool isGregorian,
 //  */
 // int32_t GregorianCalendar::computeRelativeDOW(double julianDay) const {
 //   int32_t relDow = julianDayToDayOfWeek(julianDay) - getFirstDayOfWeek();
-//     if (relDow < 0) {
+//     if(relDow < 0) {
 //         relDow += 7;
 //     }
 //     return relDow;

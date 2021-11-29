@@ -236,7 +236,7 @@ hb_bool_t hb_map_is_empty(const hb_map_t * map)
  *
  * Since: 1.7.7
  **/
-unsigned int hb_map_get_population(const hb_map_t * map)
+uint hb_map_get_population(const hb_map_t * map)
 {
 	return map->get_population();
 }

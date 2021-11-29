@@ -2007,9 +2007,9 @@ bool TZDBNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode
 			// to adjust actual time. To avoid false type information,
 			// this implementation replaces the name type with SHORT_GENERIC.
 			if(match->ambiguousType
-			  && (ntype == UTZNM_SHORT_STANDARD || ntype == UTZNM_SHORT_DAYLIGHT)
-			  && (fTypes & UTZNM_SHORT_STANDARD) != 0
-			  && (fTypes & UTZNM_SHORT_DAYLIGHT) != 0) {
+			 && (ntype == UTZNM_SHORT_STANDARD || ntype == UTZNM_SHORT_DAYLIGHT)
+			 && (fTypes & UTZNM_SHORT_STANDARD) != 0
+			 && (fTypes & UTZNM_SHORT_DAYLIGHT) != 0) {
 				ntype = UTZNM_SHORT_GENERIC;
 			}
 

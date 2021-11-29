@@ -62,7 +62,7 @@
 	 * 16-bit quantities    int16/uint16
 	 * 32-bit quantities    int32/uint32
 	 * 64-bit quantities    int64/uint64
-	 * strings              uchar*
+	 * strings              uchar *
 	 */
 	typedef TIFF_INT8_T   int8;
 	typedef TIFF_UINT8_T  uint8;

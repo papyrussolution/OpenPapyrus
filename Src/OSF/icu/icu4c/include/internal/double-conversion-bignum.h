@@ -126,7 +126,7 @@ class Bignum {
   static const int kBigitCapacity = kMaxSignificantBits / kBigitSize;
 
   static void EnsureCapacity(const int size) {
-    if (size > kBigitCapacity) {
+    if(size > kBigitCapacity) {
       DOUBLE_CONVERSION_UNREACHABLE();
     }
   }

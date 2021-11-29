@@ -687,7 +687,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 			tp = op;
 			do {
 				*--tp = codep->value;
-			} while( (codep = codep->next) != NULL);
+			} while((codep = codep->next) != NULL);
 		}
 		else {
 			*op++ = (char)code;

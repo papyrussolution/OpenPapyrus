@@ -160,7 +160,7 @@
 .endm
 
 .macro pixst cond, numbytes, firstreg, base
- .if (flags) & FLAG_DST_READWRITE
+ .if(flags) & FLAG_DST_READWRITE
         pixst_baseupdated cond, numbytes, %(firstreg+0), %(firstreg+1), %(firstreg+2), %(firstreg+3), base
  .else
         pixldst st, cond, numbytes, %(firstreg+0), %(firstreg+1), %(firstreg+2), %(firstreg+3), base
@@ -168,7 +168,7 @@
 .endm
 
 .macro PF a, x:vararg
- .if (PREFETCH_TYPE_CURRENT == PREFETCH_TYPE_STANDARD)
+ .if(PREFETCH_TYPE_CURRENT == PREFETCH_TYPE_STANDARD)
         a x
  .endif
 .endm
@@ -330,7 +330,7 @@
 .endm
 
 .macro conditional_process1  cond, process_head, process_tail, numbytes, firstreg, unaligned_src, unaligned_mask, decrementx
- .if (flags) & FLAG_BRANCH_OVER
+ .if(flags) & FLAG_BRANCH_OVER
   .ifc cond,mi
         bpl     100f
   .endif
@@ -348,11 +348,11 @@
 .endm
 
 .macro conditional_process2  test, cond1, cond2, process_head, process_tail, numbytes1, numbytes2, firstreg1, firstreg2, unaligned_src, unaligned_mask, decrementx
- .if (flags) & (FLAG_DST_READWRITE | FLAG_BRANCH_OVER | FLAG_PROCESS_CORRUPTS_PSR | FLAG_PROCESS_DOES_STORE)
+ .if(flags) & (FLAG_DST_READWRITE | FLAG_BRANCH_OVER | FLAG_PROCESS_CORRUPTS_PSR | FLAG_PROCESS_DOES_STORE)
         /* Can't interleave reads and writes */
         test
         conditional_process1  cond1, process_head, process_tail, numbytes1, firstreg1, unaligned_src, unaligned_mask, decrementx
-  .if (flags) & FLAG_PROCESS_CORRUPTS_PSR
+  .if(flags) & FLAG_PROCESS_CORRUPTS_PSR
         test
   .endif
         conditional_process1  cond2, process_head, process_tail, numbytes2, firstreg2, unaligned_src, unaligned_mask, decrementx
@@ -374,7 +374,7 @@
 
 
 .macro test_bits_1_0_ptr
- .if (flags) & FLAG_PROCESS_CORRUPTS_WK0
+ .if(flags) & FLAG_PROCESS_CORRUPTS_WK0
         movs    SCRATCH, X, lsl #32-1  /* C,N = bits 1,0 of DST */
  .else
         movs    SCRATCH, WK0, lsl #32-1  /* C,N = bits 1,0 of DST */
@@ -382,7 +382,7 @@
 .endm
 
 .macro test_bits_3_2_ptr
- .if (flags) & FLAG_PROCESS_CORRUPTS_WK0
+ .if(flags) & FLAG_PROCESS_CORRUPTS_WK0
         movs    SCRATCH, X, lsl #32-3  /* C,N = bits 3, 2 of DST */
  .else
         movs    SCRATCH, WK0, lsl #32-3  /* C,N = bits 3, 2 of DST */
@@ -392,7 +392,7 @@
 .macro leading_15bytes  process_head, process_tail
         /* On entry, WK0 bits 0-3 = number of bytes until destination is 16-byte aligned */
  .set DECREMENT_X, 1
- .if (flags) & FLAG_PROCESS_CORRUPTS_WK0
+ .if(flags) & FLAG_PROCESS_CORRUPTS_WK0
   .set DECREMENT_X, 0
         sub     X, X, WK0, lsr #dst_bpp_shift
         str     X, [sp, #LINE_SAVED_REG_COUNT*4]
@@ -406,7 +406,7 @@
         conditional_process1  cs, process_head, process_tail, 2, 2, 1, 1, DECREMENT_X
  .endif
         conditional_process2  test_bits_3_2_ptr, mi, cs, process_head, process_tail, 4, 8, 1, 2, 1, 1, DECREMENT_X
- .if (flags) & FLAG_PROCESS_CORRUPTS_WK0
+ .if(flags) & FLAG_PROCESS_CORRUPTS_WK0
         ldr     X, [sp, #LINE_SAVED_REG_COUNT*4]
  .endif
 .endm
@@ -439,7 +439,7 @@
  .set SUBBLOCK, 0 /* this is a count of STMs; there can be up to 8 STMs per block */
  .rept pix_per_block*dst_w_bpp/128
         process_head  , 16, 0, unaligned_src, unaligned_mask, 1
-  .if (src_bpp > 0) && (mask_bpp == 0) && ((flags) & FLAG_PROCESS_PRESERVES_SCRATCH)
+  .if(src_bpp > 0) && (mask_bpp == 0) && ((flags) & FLAG_PROCESS_PRESERVES_SCRATCH)
         preload_middle  src_bpp, SRC, 1
   .elseif (src_bpp == 0) && (mask_bpp > 0) && ((flags) & FLAG_PROCESS_PRESERVES_SCRATCH)
         preload_middle  mask_bpp, MASK, 1
@@ -447,7 +447,7 @@
         preload_middle  src_bpp, SRC, 0
         preload_middle  mask_bpp, MASK, 0
   .endif
-  .if (dst_r_bpp > 0) && ((SUBBLOCK % 2) == 0) && (((flags) & FLAG_NO_PRELOAD_DST) == 0)
+  .if(dst_r_bpp > 0) && ((SUBBLOCK % 2) == 0) && (((flags) & FLAG_NO_PRELOAD_DST) == 0)
         /* Because we know that writes are 16-byte aligned, it's relatively easy to ensure that
  * destination prefetches are 32-byte aligned. It's also the easiest channel to offset
  * preloads for, to achieve staggered prefetches for multiple channels, because there are
@@ -477,12 +477,12 @@
         process_inner_loop  process_head, process_tail, unaligned_src, unaligned_mask, 0 + DST_PRELOAD_BIAS
 112:
         /* Just before the final (prefetch_distance+1) 32-byte blocks, deal with final preloads */
- .if (src_bpp*pix_per_block > 256) || (mask_bpp*pix_per_block > 256) || (dst_r_bpp*pix_per_block > 256)
+ .if(src_bpp*pix_per_block > 256) || (mask_bpp*pix_per_block > 256) || (dst_r_bpp*pix_per_block > 256)
         PF  and,    WK0, X, #pix_per_block-1
  .endif
         preload_trailing  src_bpp, src_bpp_shift, SRC
         preload_trailing  mask_bpp, mask_bpp_shift, MASK
- .if ((flags) & FLAG_NO_PRELOAD_DST) == 0
+ .if((flags) & FLAG_NO_PRELOAD_DST) == 0
         preload_trailing  dst_r_bpp, dst_bpp_shift, DST
  .endif
         add     X, X, #(prefetch_distance+2)*pix_per_block - 128/dst_w_bpp
@@ -554,7 +554,7 @@
  .endif
         subs    Y, Y, #1
  .if vars_spilled
-  .if (LINE_SAVED_REGS) & (1<<1)
+  .if(LINE_SAVED_REGS) & (1<<1)
         str     Y, [sp]
   .endif
  .endif
@@ -576,7 +576,7 @@
         b       198f
   .endif
  .else
-  .if (!vars_spilled) && ((flags) & FLAG_SPILL_LINE_VARS)
+  .if(!vars_spilled) && ((flags) & FLAG_SPILL_LINE_VARS)
         b       198f
   .endif
  .endif
@@ -655,7 +655,7 @@
   .error "requested dst bpp (dst_w_bpp) is not supported"
  .endif
 
- .if (((flags) & FLAG_DST_READWRITE) != 0)
+ .if(((flags) & FLAG_DST_READWRITE) != 0)
   .set dst_r_bpp, dst_w_bpp
  .else
   .set dst_r_bpp, 0
@@ -734,7 +734,7 @@
 
         init
 
- .if (flags) & FLAG_PROCESS_CORRUPTS_WK0
+ .if(flags) & FLAG_PROCESS_CORRUPTS_WK0
         /* Reserve a word in which to store X during leading pixels */
         sub     sp, sp, #4
   .set ARGS_STACK_OFFSET, ARGS_STACK_OFFSET+4
@@ -766,7 +766,7 @@
  * (prefetch_distance+1) complete blocks to go. */
         sub     X, X, #(prefetch_distance+2)*pix_per_block
         mov     ORIG_W, X
-  .if (flags) & FLAG_SPILL_LINE_VARS_WIDE
+  .if(flags) & FLAG_SPILL_LINE_VARS_WIDE
         /* This is stmdb sp!,{} */
         .word   0xE92D0000 | LINE_SAVED_REGS
    .set ARGS_STACK_OFFSET, ARGS_STACK_OFFSET + LINE_SAVED_REG_COUNT*4
@@ -776,7 +776,7 @@
         newline
         preload_leading_step1  src_bpp, WK1, SRC
         preload_leading_step1  mask_bpp, WK2, MASK
-  .if ((flags) & FLAG_NO_PRELOAD_DST) == 0
+  .if((flags) & FLAG_NO_PRELOAD_DST) == 0
         preload_leading_step1  dst_r_bpp, WK3, DST
   .endif
         
@@ -786,14 +786,14 @@
 
         preload_leading_step2  src_bpp, src_bpp_shift, WK1, SRC
         preload_leading_step2  mask_bpp, mask_bpp_shift, WK2, MASK
-  .if ((flags) & FLAG_NO_PRELOAD_DST) == 0
+  .if((flags) & FLAG_NO_PRELOAD_DST) == 0
         preload_leading_step2  dst_r_bpp, dst_bpp_shift, WK3, DST
   .endif
 
         leading_15bytes  process_head, process_tail
         
 154:    /* Destination now 16-byte aligned; we have at least one prefetch on each channel as well as at least one 16-byte output block */
-  .if (src_bpp > 0) && (mask_bpp == 0) && ((flags) & FLAG_PROCESS_PRESERVES_SCRATCH)
+  .if(src_bpp > 0) && (mask_bpp == 0) && ((flags) & FLAG_PROCESS_PRESERVES_SCRATCH)
         and     SCRATCH, SRC, #31
         rsb     SCRATCH, SCRATCH, #32*prefetch_distance
   .elseif (src_bpp == 0) && (mask_bpp > 0) && ((flags) & FLAG_PROCESS_PRESERVES_SCRATCH)
@@ -808,7 +808,7 @@
 
 157:    /* Check for another line */
         end_of_line 1, %((flags) & FLAG_SPILL_LINE_VARS_WIDE), 151b
-  .if (flags) & FLAG_SPILL_LINE_VARS_WIDE
+  .if(flags) & FLAG_SPILL_LINE_VARS_WIDE
    .set ARGS_STACK_OFFSET, ARGS_STACK_OFFSET - LINE_SAVED_REG_COUNT*4
    .set LOCALS_STACK_OFFSET, LOCALS_STACK_OFFSET - LINE_SAVED_REG_COUNT*4
   .endif
@@ -818,7 +818,7 @@
 
 160:    /* Medium case */
         mov     ORIG_W, X
- .if (flags) & FLAG_SPILL_LINE_VARS_NON_WIDE
+ .if(flags) & FLAG_SPILL_LINE_VARS_NON_WIDE
         /* This is stmdb sp!,{} */
         .word   0xE92D0000 | LINE_SAVED_REGS
   .set ARGS_STACK_OFFSET, ARGS_STACK_OFFSET + LINE_SAVED_REG_COUNT*4
@@ -828,7 +828,7 @@
         newline
         preload_line 0, src_bpp, src_bpp_shift, SRC  /* in: X, corrupts: WK0-WK1 */
         preload_line 0, mask_bpp, mask_bpp_shift, MASK
- .if ((flags) & FLAG_NO_PRELOAD_DST) == 0
+ .if((flags) & FLAG_NO_PRELOAD_DST) == 0
         preload_line 0, dst_r_bpp, dst_bpp_shift, DST
  .endif
         
@@ -851,7 +851,7 @@
  .if dst_w_bpp < 32
         mov     ORIG_W, X
  .endif
- .if (flags) & FLAG_SPILL_LINE_VARS_NON_WIDE
+ .if(flags) & FLAG_SPILL_LINE_VARS_NON_WIDE
         /* This is stmdb sp!,{} */
         .word   0xE92D0000 | LINE_SAVED_REGS
  .endif
@@ -859,7 +859,7 @@
         newline
         preload_line 1, src_bpp, src_bpp_shift, SRC  /* in: X, corrupts: WK0-WK1 */
         preload_line 1, mask_bpp, mask_bpp_shift, MASK
- .if ((flags) & FLAG_NO_PRELOAD_DST) == 0
+ .if((flags) & FLAG_NO_PRELOAD_DST) == 0
         preload_line 1, dst_r_bpp, dst_bpp_shift, DST
  .endif
         
@@ -892,17 +892,17 @@
 
 177:    /* Check for another line */
         end_of_line %(dst_w_bpp < 32), %((flags) & FLAG_SPILL_LINE_VARS_NON_WIDE), 171b, last_one
- .if (flags) & FLAG_SPILL_LINE_VARS_NON_WIDE
+ .if(flags) & FLAG_SPILL_LINE_VARS_NON_WIDE
   .set ARGS_STACK_OFFSET, ARGS_STACK_OFFSET - LINE_SAVED_REG_COUNT*4
   .set LOCALS_STACK_OFFSET, LOCALS_STACK_OFFSET - LINE_SAVED_REG_COUNT*4
  .endif
 
 197:
- .if (flags) & FLAG_SPILL_LINE_VARS
+ .if(flags) & FLAG_SPILL_LINE_VARS
         add     sp, sp, #LINE_SAVED_REG_COUNT*4
  .endif
 198:
- .if (flags) & FLAG_PROCESS_CORRUPTS_WK0
+ .if(flags) & FLAG_PROCESS_CORRUPTS_WK0
   .set ARGS_STACK_OFFSET, ARGS_STACK_OFFSET-4
   .set LOCALS_STACK_OFFSET, LOCALS_STACK_OFFSET-4
         add     sp, sp, #4

@@ -107,9 +107,9 @@ U_CAPI ULocaleBundle * u_locbund_init(ULocaleBundle * result, const char * loc)
 
     for (styleIdx = 0; styleIdx < ULOCALEBUNDLE_NUMBERFORMAT_COUNT; styleIdx++) {
         status = U_ZERO_ERROR;
-        if (result->fNumberFormat[styleIdx]) {
+        if(result->fNumberFormat[styleIdx]) {
             result->fNumberFormat[styleIdx] = unum_clone(bundle->fNumberFormat[styleIdx], &status);
-            if (U_FAILURE(status)) {
+            if(U_FAILURE(status)) {
                 result->fNumberFormat[styleIdx] = NULL;
             }
         }

@@ -129,7 +129,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 		priority = a->param.sched_priority;
 		if(a->thrname)
 			tp->name = _strdup(a->thrname);
-#if (THREAD_PRIORITY_LOWEST > THREAD_PRIORITY_NORMAL)
+#if(THREAD_PRIORITY_LOWEST > THREAD_PRIORITY_NORMAL)
 		/* WinCE */
 #else
 		/* Everything else */

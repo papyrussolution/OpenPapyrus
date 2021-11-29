@@ -364,8 +364,8 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos &xmlTags)
 									}
 								}
 							} while(!tagFound && closeTagsRemaining > 0 && nextCloseTag.success);
-						} // end if (selfclosingtag)... else {
-					} // end if (-1 != closeAngle)  {
+						} // end if(selfclosingtag)... else {
+					} // end if(-1 != closeAngle)  {
 				} // end if tagName.size() != 0
 			} // end open tag test
 		}

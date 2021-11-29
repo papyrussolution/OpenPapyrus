@@ -30,7 +30,7 @@ extern "C" {
 	#endif  /* _DLL */
 #endif  /* _CRTIMP */
 // Define __cdecl for non-Microsoft compilers 
-#if ( !defined(_MSC_VER) && !defined(__cdecl) )
+#if( !defined(_MSC_VER) && !defined(__cdecl) )
 	#define __cdecl
 #endif
 // Define _CRTAPI1 (for compatibility with the NT SDK) 
@@ -52,7 +52,7 @@ extern "C" {
 	#define  __PTW32_DLLPORT __declspec(dllimport)
 #endif
 // declare reference to errno 
-#if (defined(_MT) || defined(_MD) || defined(_DLL)) && !defined(_MAC)
+#if(defined(_MT) || defined(_MD) || defined(_DLL)) && !defined(_MAC)
 	__PTW32_DLLPORT int * __cdecl _errno(void);
 	#define errno   (*_errno())
 #else   /* ndef _MT && ndef _MD && ndef _DLL */

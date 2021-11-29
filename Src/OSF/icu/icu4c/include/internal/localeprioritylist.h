@@ -63,7 +63,7 @@ public:
         const Locale &next() override {
             for(;;) {
                 const Locale *locale = list.localeAt(index++);
-                if (locale != nullptr) {
+                if(locale != nullptr) {
                     ++count;
                     return *locale;
                 }

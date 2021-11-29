@@ -196,7 +196,7 @@ DSO_FUNC_TYPE DSO_bind_func(DSO * dso, const char * symname)
  * honest. For one thing, I think I have to return a negative value for any
  * error because possible DSO_ctrl() commands may return values such as
  * "size"s that can legitimately be zero (making the standard
- * "if (DSO_cmd(...))" form that works almost everywhere else fail at odd
+ * "if(DSO_cmd(...))" form that works almost everywhere else fail at odd
  * times. I'd prefer "output" values to be passed by reference and the return
  * value as success/failure like usual ... but we conform when we must... :-)
  */
@@ -331,7 +331,7 @@ DSO * DSO_dsobyaddr(void * addr, int flags)
 
 	filename = static_cast<char *>(OPENSSL_malloc(len));
 	if(filename != NULL
-	  && DSO_pathbyaddr(addr, filename, len) == len)
+	 && DSO_pathbyaddr(addr, filename, len) == len)
 		ret = DSO_load(NULL, filename, NULL, flags);
 
 	OPENSSL_free(filename);

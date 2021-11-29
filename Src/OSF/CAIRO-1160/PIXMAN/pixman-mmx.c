@@ -59,7 +59,7 @@ extern __inline void __attribute__((__gnu_inline__, __always_inline__, __artific
 #endif
 
 #ifdef USE_X86_MMX
-#if (defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64))
+#if(defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64))
 #include <xmmintrin.h>
 #else
 /* We have to compile with -msse to use xmmintrin.h, but that causes SSE
@@ -143,7 +143,7 @@ extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artifi
 #elif defined(__GNUC__)
 #define USE_M64_CASTS
 #elif defined(__SUNPRO_C)
-#if (__SUNPRO_C >= 0x5120) && !defined(__NOVECTORSIZE__)
+#if(__SUNPRO_C >= 0x5120) && !defined(__NOVECTORSIZE__)
 /* Solaris Studio 12.3 (Sun C 5.12) introduces __attribute__(__vector_size__)
  * support, and defaults to using it to define __m64, unless __NOVECTORSIZE__
  * is defined.   If it is used, then the mm_cvt* intrinsics must be used.
@@ -3091,7 +3091,7 @@ static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
 		}
 
 		while(w >= 64) {
-#if (defined (__GNUC__) || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))) && defined USE_X86_MMX
+#if(defined (__GNUC__) || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))) && defined USE_X86_MMX
 			__asm__ (
 				"movq	  (%1),	  %%mm0\n"
 				"movq	 8(%1),	  %%mm1\n"

@@ -492,7 +492,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 				sc.SetState(SCE_AU3_OPERATOR);
 			else if(sc.ch == '@')
 				sc.SetState(SCE_AU3_KEYWORD);
-			//else if (sc.ch == '_') {sc.SetState(SCE_AU3_KEYWORD);}
+			//else if(sc.ch == '_') {sc.SetState(SCE_AU3_KEYWORD);}
 			else if(sc.ch == '<' && si==3)
 				sc.SetState(SCE_AU3_STRING); // string after #include
 			else if(sc.ch == '\"') {

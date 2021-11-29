@@ -471,7 +471,7 @@ int _cairo_lround(double d)
 	 * same as the integer word order which, on the modern machines that we
 	 * care about, is OK.
 	 */
-#if ( defined(FLOAT_WORDS_BIGENDIAN) && !defined(WORDS_BIGENDIAN)) || \
+#if( defined(FLOAT_WORDS_BIGENDIAN) && !defined(WORDS_BIGENDIAN)) || \
 	(!defined(FLOAT_WORDS_BIGENDIAN) &&  defined(WORDS_BIGENDIAN))
 	{
 		uint32 temp = u.ui32[0];
@@ -589,7 +589,7 @@ int _cairo_lround(double d)
 	 *
 	 * The most straightforward way to do this would be:
 	 *
-	 * if (shift_amount > 31)
+	 * if(shift_amount > 31)
 	 * output = 0;
 	 *
 	 * But we can use a little trick to avoid the potential branch. The
@@ -604,7 +604,7 @@ int _cairo_lround(double d)
 	/* If the input double was a negative number, then we have to negate our
 	 * output. The most straightforward way to do this would be:
 	 *
-	 * if (!top)
+	 * if(!top)
 	 * output = -output;
 	 *
 	 * as "top" at this point is either 0x0 (if the input was negative) or
@@ -612,7 +612,7 @@ int _cairo_lround(double d)
 	 * avoid the branch. Observe that the following snippet of code has the
 	 * same effect as the reference snippet above:
 	 *
-	 * if (!top)
+	 * if(!top)
 	 * output = 0 - output;
 	 * else
 	 * output = output - 0;

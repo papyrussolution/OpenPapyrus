@@ -251,7 +251,7 @@ static void storeMappingData()
 	mappingData = (uint16_t*)uprv_calloc(mappingDataCapacity, U_SIZEOF_UCHAR);
 
 	while(writtenElementCount < elementCount) {
-		while( (element = uhash_nextElement(hashTable, &pos))!=NULL) {
+		while((element = uhash_nextElement(hashTable, &pos))!=NULL) {
 			codepoint = element->key.integer;
 			value = (ValueStruct*)element->value.pointer;
 

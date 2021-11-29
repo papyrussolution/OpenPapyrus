@@ -393,7 +393,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 /* that way a newer port will also work if some one has one */
 #ifdef __VAX
 
-#if (OPENSSL_VERSION_NUMBER < 0x00907001L)
+#if(OPENSSL_VERSION_NUMBER < 0x00907001L)
 #define des_set_odd_parity DES_SET_ODD_PARITY
 #define des_set_key DES_SET_KEY
 #define des_ecb_encrypt DES_ECB_ENCRYPT
@@ -407,7 +407,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 
     /* Curl defines these to lower case and VAX needs them in upper case */
     /* So we need static routines */
-#if (OPENSSL_VERSION_NUMBER < 0x00907001L)
+#if(OPENSSL_VERSION_NUMBER < 0x00907001L)
 
 #       undef des_set_odd_parity
 #       undef DES_set_odd_parity

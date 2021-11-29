@@ -77,7 +77,7 @@ static void FASTCALL jbig2_decode_mmr_consume(Jbig2MmrCtx * mmr, int n_bits)
    <raph> that means that entries 0x90 .. 0x9f have the entry { val, 4 }
    <raph> because those are all the bytes that start with the code
    <raph> and the 4 is the length of the code
-   ... if (n_bits > initial_bits) ...
+   ... if(n_bits > initial_bits) ...
    <raph> anyway, in that case, it basically points to a mini table
    <raph> the n_bits is the maximum length of all codes beginning with that byte
    <raph> so 2^(n_bits - initial_bits) is the size of the mini-table

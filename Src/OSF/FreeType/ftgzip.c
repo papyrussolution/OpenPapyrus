@@ -450,7 +450,7 @@ static void ft_gzip_stream_close(FT_Stream stream)
 		FT_FREE(stream->base);
 }
 
-static unsigned long ft_gzip_stream_io(FT_Stream stream, unsigned long offset, uchar*  buffer, unsigned long count)
+static ulong ft_gzip_stream_io(FT_Stream stream, ulong offset, uchar * buffer, ulong count)
 {
 	FT_GZipFile zip = (FT_GZipFile)stream->descriptor.pointer;
 	return ft_gzip_file_io(zip, offset, buffer, count);

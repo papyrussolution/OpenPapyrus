@@ -638,8 +638,8 @@ UNITTEST DOHcode doh_decode(const uchar * doh, size_t dohlen, DNStype dnstype, s
 			return DOH_DNS_OUT_OF_RANGE;
 		type = get16bit(doh, index);
 		if((type != DNS_TYPE_CNAME) /* may be synthesized from DNAME */
-		  && (type != DNS_TYPE_DNAME) /* if present, accept and ignore */
-		  && (type != dnstype))
+		 && (type != DNS_TYPE_DNAME) /* if present, accept and ignore */
+		 && (type != dnstype))
 			/* Not the same type as was asked for nor CNAME nor DNAME */
 			return DOH_DNS_UNEXPECTED_TYPE;
 		index += 2;

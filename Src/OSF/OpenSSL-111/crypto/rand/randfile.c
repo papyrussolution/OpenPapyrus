@@ -256,7 +256,7 @@ const char * RAND_file_name(char * buf, size_t size)
 	if((envlen = GetEnvironmentVariableW(var = L"RANDFILE", NULL, 0)) == 0) {
 		use_randfile = 0;
 		if((envlen = GetEnvironmentVariableW(var = L"HOME", NULL, 0)) == 0
-		  && (envlen = GetEnvironmentVariableW(var = L"USERPROFILE",
+		 && (envlen = GetEnvironmentVariableW(var = L"USERPROFILE",
 		    NULL, 0)) == 0)
 			envlen = GetEnvironmentVariableW(var = L"SYSTEMROOT", NULL, 0);
 	}

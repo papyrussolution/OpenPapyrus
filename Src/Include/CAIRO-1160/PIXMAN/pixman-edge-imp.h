@@ -59,9 +59,9 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 	rx += X_FRAC_FIRST(1) - pixman_fixed_e;
 #endif
 	/* clip X */
-	if (lx < 0)
+	if(lx < 0)
 	    lx = 0;
-	if (pixman_fixed_to_int (rx) >= width)
+	if(pixman_fixed_to_int (rx) >= width)
 #if N_BITS == 1
 	    rx = pixman_int_to_fixed (width);
 #else
@@ -73,7 +73,7 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 #endif
 
 	/* Skip empty (or backwards) sections */
-	if (rx > lx)
+	if(rx > lx)
 	{
 
 	    /* Find pixel bounds for span */
@@ -94,9 +94,9 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 		    n = (w);						\
 		    r = RIGHT_MASK ((x) + n);				\
 		    l = LEFT_MASK (x);					\
-		    if (l) {						\
+		    if(l) {						\
 			n -= 32 - ((x) & 0x1f);				\
-			if (n < 0) {					\
+			if(n < 0) {					\
 			    n = 0;					\
 			    l &= r;					\
 			    r = 0;					\
@@ -117,13 +117,13 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 		
 		MASK_BITS (x, width, startmask, nmiddle, endmask);
 
-		if (startmask) {
+		if(startmask) {
 		    WRITE(image, a, READ(image, a) | startmask);
 		    a++;
 		}
-		while (nmiddle--)
+		while(nmiddle--)
 		    WRITE(image, a++, 0xffffffff);
-		if (endmask)
+		if(endmask)
 		    WRITE(image, a, READ(image, a) | endmask);
 	    }
 #else
@@ -137,7 +137,7 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 		rxs = RENDER_SAMPLES_X (rx, N_BITS);
 
 		/* Add coverage across row */
-		if (lxi == rxi)
+		if(lxi == rxi)
 		{
 		    ADD_ALPHA (rxs - lxs);
 		}
@@ -158,11 +158,11 @@ RASTERIZE_EDGES (pixman_image_t  *image,
 #endif
 	}
 
-	if (y == b)
+	if(y == b)
 	    break;
 
 #if N_BITS > 1
-	if (pixman_fixed_frac (y) != Y_FRAC_LAST(N_BITS))
+	if(pixman_fixed_frac (y) != Y_FRAC_LAST(N_BITS))
 	{
 	    RENDER_EDGE_STEP_SMALL (l);
 	    RENDER_EDGE_STEP_SMALL (r);

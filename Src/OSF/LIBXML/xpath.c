@@ -7579,7 +7579,7 @@ static xmlNodeSet * xmlXPathGetElementsByIds(xmlDoc * doc, const xmlChar * ids)
 			 * was an NCName, but this generated much troubles for
 			 * me and Aleksey Sanin, people blatantly violated that
 			 * constaint, like Visa3D spec.
-			 * if (xmlValidateNCName(ID, 1) == 0)
+			 * if(xmlValidateNCName(ID, 1) == 0)
 			 */
 			attr = xmlGetID(doc, ID);
 			if(attr) {
@@ -8340,7 +8340,7 @@ void xmlXPathTranslateFunction(xmlXPathParserContext * ctxt, int nargs)
 					break;
 				}
 				/* then skip over remaining bytes for this char */
-				while( (ch <<= 1) & 0x80)
+				while((ch <<= 1) & 0x80)
 					if((*cptr++ & 0xc0) != 0x80) {
 						xmlGenericError(0, "xmlXPathTranslateFunction: Invalid UTF8 string\n");
 						/* not asserting an XPath error is probably better */
@@ -11798,7 +11798,7 @@ error:
 			ctxt->context->contextSize = 0;
 			ctxt->context->proximityPosition = 0;
 			/* QUESTION TODO: Why was this code commented out?
-			    if (op->ch2 != -1)
+			    if(op->ch2 != -1)
 			        total += xmlXPathCompOpEval(ctxt, &comp->steps[op->ch2]);
 			    CHECK_ERROR0;
 			    res = valuePop(ctxt);
@@ -12397,7 +12397,7 @@ static int FASTCALL xmlXPathCompOpEval(xmlXPathParserContext * ctxt, xmlXPathSte
 				ctxt->context->contextSize = 0;
 				ctxt->context->proximityPosition = 0;
 /*
-                if (op->ch2 != -1)
+                if(op->ch2 != -1)
                     total += xmlXPathCompOpEval(ctxt, &comp->steps[op->ch2]);
                 CHECK_ERROR0;
                 res = valuePop(ctxt);

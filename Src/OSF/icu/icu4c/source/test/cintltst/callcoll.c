@@ -1255,7 +1255,7 @@ static void TestFCDCrash() {
         return FALSE;
     }
     uenum_reset(list, status);
-    while( (value= uenum_next(list, &length, status))!=NULL) {
+    while((value= uenum_next(list, &length, status))!=NULL) {
         if(strcmp(value, str)==0) {
             return TRUE;
         }

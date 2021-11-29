@@ -723,7 +723,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 			t1 = r;
 			hasRealData = TRUE;
 			isDefault = TRUE;
-			// TODO: Why not if (usingUSRData) { ... } like in the non-default-locale code path?
+			// TODO: Why not if(usingUSRData) { ... } like in the non-default-locale code path?
 			if((hasChopped || mayHaveParent(name)) && !isRoot) {
 				if(!loadParentsExceptRoot(t1, name, UPRV_LENGTHOF(name), usingUSRData, usrDataPath, status)) {
 					goto finish;
@@ -3174,7 +3174,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 		}
 
 		while((subPtr = ures_getNextResource(&item, &subItem, &subStatus)) != 0
-		  && U_SUCCESS(subStatus)) {
+		 && U_SUCCESS(subStatus)) {
 			const char * k;
 			int32_t i;
 			k = ures_getKey(subPtr);

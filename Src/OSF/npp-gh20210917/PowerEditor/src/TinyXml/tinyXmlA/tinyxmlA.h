@@ -173,7 +173,7 @@ public:
 		char * buffer;
 	};
 
-	static const char *      SkipWhiteSpace(const char *);
+	static const char * SkipWhiteSpace(const char *);
 	inline static bool      IsWhiteSpace(int c) {
 		return ( isspace(c) || c == '\n' || c == '\r' );
 	}
@@ -254,7 +254,7 @@ public:
 
 private:
 	struct Entity {
-		const char *     str;
+		const char * str;
 		uint strLength;
 		char chr;
 	};
@@ -393,7 +393,7 @@ public:
 	        IterateChildren does the same thing with the syntax:
 	        @verbatim
 	                child = 0;
-	                while( child = parent->IterateChildren( child ) )
+	                while(child = parent->IterateChildren( child ) )
 	        @endverbatim
 
 	        IterateChildren takes the previous child as input and finds
@@ -1194,16 +1194,16 @@ private:
 
         @verbatim
         TiXmlElementA* root = document.FirstChildElement( "Document" );
-        if ( root )
+        if( root )
         {
                 TiXmlElementA* element = root->FirstChildElement( "Element" );
-                if ( element )
+                if( element )
                 {
                         TiXmlElementA* child = element->FirstChildElement( "Child" );
-                        if ( child )
+                        if( child )
                         {
                                 TiXmlElementA* child2 = child->NextSiblingElement( "Child" );
-                                if ( child2 )
+                                if( child2 )
                                 {
                                         // Finally do something useful.
         @endverbatim
@@ -1216,7 +1216,7 @@ private:
         TiXmlHandleA docHandle( &document );
         TiXmlElementA* child2 = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", 1
            ).Element();
-        if ( child2 )
+        if( child2 )
         {
                 // do something useful
         @endverbatim
@@ -1232,11 +1232,11 @@ private:
 
         @verbatim
         int i=0;
-        while ( true )
+        while(true )
         {
                 TiXmlElementA* child = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", i
                    ).Element();
-                if ( !child )
+                if( !child )
                         break;
                 // do something
  ++i;

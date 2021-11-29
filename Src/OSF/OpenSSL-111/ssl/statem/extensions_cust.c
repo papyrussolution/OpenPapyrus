@@ -85,7 +85,7 @@ custom_ext_method * custom_ext_find(const custom_ext_methods * exts,
 
 	for(i = 0; i < exts->meths_count; i++, meth++) {
 		if(ext_type == meth->ext_type
-		  && (role == ENDPOINT_BOTH || role == meth->role
+		 && (role == ENDPOINT_BOTH || role == meth->role
 		    || meth->role == ENDPOINT_BOTH)) {
 			if(idx != NULL)
 				*idx = i;
@@ -358,8 +358,8 @@ static int add_custom_ext_intern(SSL_CTX * ctx, ENDPOINT role,
 	 * these two things may not play well together.
 	 */
 	if(ext_type == TLSEXT_TYPE_signed_certificate_timestamp
-	  && (context & SSL_EXT_CLIENT_HELLO) != 0
-	  && SSL_CTX_ct_is_enabled(ctx))
+	 && (context & SSL_EXT_CLIENT_HELLO) != 0
+	 && SSL_CTX_ct_is_enabled(ctx))
 		return 0;
 #endif
 
@@ -368,7 +368,7 @@ static int add_custom_ext_intern(SSL_CTX * ctx, ENDPOINT role,
 	 * for extension types that previously were not supported, but now are.
 	 */
 	if(SSL_extension_supported(ext_type)
-	  && ext_type != TLSEXT_TYPE_signed_certificate_timestamp)
+	 && ext_type != TLSEXT_TYPE_signed_certificate_timestamp)
 		return 0;
 
 	/* Extension type must fit in 16 bits */

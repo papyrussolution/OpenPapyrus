@@ -320,7 +320,7 @@ public:
 	char * digestString(const char * string)
 	{
 		Init();
-		Update( (uchar*)string, static_cast<uint>(strlen(string)));
+		Update( (uchar *)string, static_cast<uint>(strlen(string)));
 		Final();
 		return digestChars;
 	}

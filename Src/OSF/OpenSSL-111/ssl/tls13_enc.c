@@ -472,15 +472,15 @@ int tls13_change_cipher_state(SSL * s, int which)
 			}
 
 			if(s->early_data_state == SSL_EARLY_DATA_CONNECTING
-			  && s->max_early_data > 0
-			  && s->session->ext.max_early_data == 0) {
+			 && s->max_early_data > 0
+			 && s->session->ext.max_early_data == 0) {
 				/*
 				 * If we are attempting to send early data, and we've decided to
 				 * actually do it but max_early_data in s->session is 0 then we
 				 * must be using an external PSK.
 				 */
 				if(!ossl_assert(s->psksession != NULL
-				  && s->max_early_data ==
+				 && s->max_early_data ==
 				    s->psksession->ext.max_early_data)) {
 					SSLfatal(s, SSL_AD_INTERNAL_ERROR,
 					    SSL_F_TLS13_CHANGE_CIPHER_STATE,
@@ -655,7 +655,7 @@ int tls13_change_cipher_state(SSL * s, int which)
 	}
 
 	if(finsecret != NULL
-	  && !tls13_derive_finishedkey(s, ssl_handshake_md(s), secret,
+	 && !tls13_derive_finishedkey(s, ssl_handshake_md(s), secret,
 	    finsecret, finsecretlen)) {
 		/* SSLfatal() already called */
 		goto err;

@@ -409,7 +409,7 @@ enum {
 
 struct ListFormatter::ListPatternsSink : public ResourceSink {
 	UnicodeString two, start, middle, end;
-#if ((U_PLATFORM == U_PF_AIX) || (U_PLATFORM == U_PF_OS390)) && (U_CPLUSPLUS_VERSION < 11)
+#if((U_PLATFORM == U_PF_AIX) || (U_PLATFORM == U_PF_OS390)) && (U_CPLUSPLUS_VERSION < 11)
 	char aliasedStyle[kStyleLenMax+1];
 	ListPatternsSink() {
 		memzero(aliasedStyle, kStyleLenMax+1);

@@ -9968,7 +9968,7 @@ static int PThr4wTest_Benchtest5()
 // 
 #define sleep(i) Sleep(i*1000)
 
-#if (!defined INFINITE)
+#if(!defined INFINITE)
 	#define INFINITE 0xFFFFFFFF
 #endif
 

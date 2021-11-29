@@ -43,7 +43,7 @@
 	#ifndef isinf
 		#define isinf(d) ((_fpclass(d) == _FPCLASS_PINF) ? 1 : ((_fpclass(d) == _FPCLASS_NINF) ? -1 : 0))
 	#endif
-	/* _isnan(x) returns nonzero if (x == NaN) and zero otherwise. */
+	/* _isnan(x) returns nonzero if(x == NaN) and zero otherwise. */
 	#ifndef isnan
 		#define isnan(d) (_isnan(d))
 	#endif
@@ -56,7 +56,7 @@
 			if(expon == 1025) {
 				if(val == 0.5)
 					return 1;
-				else if (val == -0.5)
+				else if(val == -0.5)
 					return -1;
 				else
 					return 0;

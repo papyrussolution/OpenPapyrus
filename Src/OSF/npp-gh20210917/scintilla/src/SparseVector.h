@@ -54,7 +54,7 @@ public:
 		return starts->PositionFromPartition(element);
 	}
 	Sci::Position ElementFromPosition(Sci::Position position) const noexcept {
-		if (position < Length()) {
+		if(position < Length()) {
 			return starts->PartitionFromPosition(position);
 		} else {
 			return starts->Partitions();
@@ -64,7 +64,7 @@ public:
 		assert(position <= Length());
 		const Sci::Position partition = ElementFromPosition(position);
 		const Sci::Position startPartition = starts->PositionFromPartition(partition);
-		if (startPartition == position) {
+		if(startPartition == position) {
 			return values->ValueAt(partition);
 		} else {
 			return empty;
@@ -75,11 +75,11 @@ public:
 		assert(position <= Length());
 		const Sci::Position partition = ElementFromPosition(position);
 		const Sci::Position startPartition = starts->PositionFromPartition(partition);
-		if (value == T()) {
+		if(value == T()) {
 			// Setting the empty value is equivalent to deleting the position
-			if (position == 0) {
+			if(position == 0) {
 				ClearValue(partition);
-			} else if (position == startPartition) {
+			} else if(position == startPartition) {
 				// Currently an element at this position, so remove
 				ClearValue(partition);
 				starts->RemovePartition(partition);
@@ -87,7 +87,7 @@ public:
 			}
 			// Else element remains empty
 		} else {
-			if (position == startPartition) {
+			if(position == startPartition) {
 				// Already a value at this position, so replace
 				ClearValue(partition);
 				values->SetValueAt(partition, std::forward<ParamType>(value));
@@ -102,18 +102,18 @@ public:
 		assert(position <= Length());
 		const Sci::Position partition = starts->PartitionFromPosition(position);
 		const Sci::Position startPartition = starts->PositionFromPartition(partition);
-		if (startPartition == position) {
+		if(startPartition == position) {
 			const bool positionOccupied = values->ValueAt(partition) != T();
 			// Inserting at start of run so make previous longer
-			if (partition == 0) {
+			if(partition == 0) {
 				// Inserting at start of document so ensure start empty
-				if (positionOccupied) {
+				if(positionOccupied) {
 					starts->InsertPartition(1, 0);
 					values->InsertEmpty(0, 1);
 				}
 				starts->InsertText(partition, insertLength);
 			} else {
-				if (positionOccupied) {
+				if(positionOccupied) {
 					starts->InsertText(partition - 1, insertLength);
 				} else {
 					// Insert at end of run so do not extend style
@@ -128,18 +128,18 @@ public:
 		assert(position < Length());
 		Sci::Position partition = starts->PartitionFromPosition(position);
 		const Sci::Position startPartition = starts->PositionFromPartition(partition);
-		if (startPartition == position) {
-			if (partition == 0) {
+		if(startPartition == position) {
+			if(partition == 0) {
 				ClearValue(0);
-				if (starts->PositionFromPartition(1) == 1) {
+				if(starts->PositionFromPartition(1) == 1) {
 					// Removing all space of first partition, so remove next partition
 					// and move value if not last
-					if (Elements() > 1) {
+					if(Elements() > 1) {
 						starts->RemovePartition(partition + 1);
 						values->Delete(partition);
 					}
 				}
-			} else if (partition == starts->Partitions()) {
+			} else if(partition == starts->Partitions()) {
 				// This should not be possible
 				ClearValue(partition);
 				throw std::runtime_error("SparseVector: deleting end partition.");
@@ -157,19 +157,19 @@ public:
 	void DeleteRange(Sci::Position position, Sci::Position deleteLength) {
 		// For now, delete elements in range - may want to leave value at start
 		// or combine onto position.
-		if (position > Length() || (deleteLength == 0)) {
+		if(position > Length() || (deleteLength == 0)) {
 			return;
 		}
 		const Sci::Position positionEnd = position + deleteLength;
 		assert(positionEnd <= Length());
-		if (position == 0) {
+		if(position == 0) {
 			// Remove all partitions in range, moving values to start
-			while ((Elements() > 1) && (starts->PositionFromPartition(1) <= deleteLength)) {
+			while((Elements() > 1) && (starts->PositionFromPartition(1) <= deleteLength)) {
 				starts->RemovePartition(1);
 				values->Delete(0);
 			}
 			starts->InsertText(0, -deleteLength);
-			if (Length() == 0) {
+			if(Length() == 0) {
 				ClearValue(0);
 			}
 		} else {
@@ -180,7 +180,7 @@ public:
 			for (;;) {
 				const Sci::Position positionAtIndex = starts->PositionFromPartition(partitionDelete);
 				assert(position <= positionAtIndex);
-				if (positionAtIndex >= positionEnd) {
+				if(positionAtIndex >= positionEnd) {
 					break;
 				}
 				assert(partitionDelete <= Elements());
@@ -193,7 +193,7 @@ public:
 	}
 	Sci::Position IndexAfter(Sci::Position position) const noexcept {
 		assert(position < Length());
-		if (position < 0)
+		if(position < 0)
 			return 0;
 		const Sci::Position partition = starts->PartitionFromPosition(position);
 		return partition + 1;
@@ -201,7 +201,7 @@ public:
 	void Check() const {
 #ifdef CHECK_CORRECTNESS
 		starts->Check();
-		if (starts->Partitions() != values->Length() - 1) {
+		if(starts->Partitions() != values->Length() - 1) {
 			throw std::runtime_error("SparseVector: Partitions and values different lengths.");
 		}
 #endif

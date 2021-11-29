@@ -70,7 +70,7 @@ HB_EXTERN void hb_set_union(hb_set_t * set, const hb_set_t * other);
 HB_EXTERN void hb_set_intersect(hb_set_t * set, const hb_set_t * other);
 HB_EXTERN void hb_set_subtract(hb_set_t * set, const hb_set_t * other);
 HB_EXTERN void hb_set_symmetric_difference(hb_set_t * set, const hb_set_t * other);
-HB_EXTERN unsigned int hb_set_get_population(const hb_set_t * set);
+HB_EXTERN uint hb_set_get_population(const hb_set_t * set);
 /* Returns HB_SET_VALUE_INVALID if set empty. */
 HB_EXTERN hb_codepoint_t hb_set_get_min(const hb_set_t * set);
 /* Returns HB_SET_VALUE_INVALID if set empty. */

@@ -233,7 +233,7 @@ void CanonicalIterator::setSource(const UnicodeString & newSource, UErrorCode & 
 	// for each segment, get all the combinations that can produce
 	// it after NFD normalization
 	for(i = 0; i < pieces_length; ++i) {
-		//if (PROGRESS) printf("SEGMENT\n");
+		//if(PROGRESS) printf("SEGMENT\n");
 		pieces[i] = getEquivalents(list[i], pieces_lengths[i], status);
 	}
 
@@ -257,7 +257,7 @@ void U_EXPORT2 CanonicalIterator::permute(UnicodeString & source, bool skipZeros
 	if(U_FAILURE(status)) {
 		return;
 	}
-	//if (PROGRESS) printf("Permute: %s\n", UToS(Tr(source)));
+	//if(PROGRESS) printf("Permute: %s\n", UToS(Tr(source)));
 	int32_t i = 0;
 
 	// optimization:
@@ -320,7 +320,7 @@ void U_EXPORT2 CanonicalIterator::permute(UnicodeString & source, bool skipZeros
 				return;
 			}
 			chStr->append(*permRes); //*((UnicodeString *)(ne->value.pointer));
-			//if (PROGRESS) printf("  Piece: %s\n", UToS(*chStr));
+			//if(PROGRESS) printf("  Piece: %s\n", UToS(*chStr));
 			result->put(*chStr, chStr, status);
 			ne = subpermute.nextElement(el);
 		}
@@ -354,7 +354,7 @@ UnicodeString * CanonicalIterator::getEquivalents(const UnicodeString & segment,
 	int32_t el = UHASH_FIRST;
 	//Iterator it = basic.iterator();
 	ne = basic.nextElement(el);
-	//while (it.hasNext())
+	//while(it.hasNext())
 	while(ne != NULL) {
 		//String item = (String) it.next();
 		UnicodeString item = *((UnicodeString *)(ne->value.pointer));
@@ -365,7 +365,7 @@ UnicodeString * CanonicalIterator::getEquivalents(const UnicodeString & segment,
 		int32_t el2 = UHASH_FIRST;
 		//Iterator it2 = permutations.iterator();
 		ne2 = permutations.nextElement(el2);
-		//while (it2.hasNext())
+		//while(it2.hasNext())
 		while(ne2 != NULL) {
 			//String possible = (String) it2.next();
 			//UnicodeString *possible = new UnicodeString(*((UnicodeString *)(ne2->value.pointer)));
@@ -375,12 +375,12 @@ UnicodeString * CanonicalIterator::getEquivalents(const UnicodeString & segment,
 
 			// TODO: check if operator == is semanticaly the same as attempt.equals(segment)
 			if(attempt==segment) {
-				//if (PROGRESS) printf("Adding Permutation: %s\n", UToS(Tr(*possible)));
+				//if(PROGRESS) printf("Adding Permutation: %s\n", UToS(Tr(*possible)));
 				// TODO: use the hashtable just to catch duplicates - store strings directly (somehow).
 				result.put(possible, new UnicodeString(possible), status); //add(possible);
 			}
 			else {
-				//if (PROGRESS) printf("-Skipping Permutation: %s\n", UToS(Tr(*possible)));
+				//if(PROGRESS) printf("-Skipping Permutation: %s\n", UToS(Tr(*possible)));
 			}
 
 			ne2 = permutations.nextElement(el2);
@@ -424,7 +424,7 @@ Hashtable * CanonicalIterator::getEquivalents2(Hashtable * fillinResult, const U
 		return NULL;
 	}
 
-	//if (PROGRESS) printf("Adding: %s\n", UToS(Tr(segment)));
+	//if(PROGRESS) printf("Adding: %s\n", UToS(Tr(segment)));
 
 	UnicodeString toPut(segment, segLen);
 
@@ -467,7 +467,7 @@ Hashtable * CanonicalIterator::getEquivalents2(Hashtable * fillinResult, const U
 				*toAdd += item;
 				fillinResult->put(*toAdd, toAdd, status);
 
-				//if (PROGRESS) printf("Adding: %s\n", UToS(Tr(*toAdd)));
+				//if(PROGRESS) printf("Adding: %s\n", UToS(Tr(*toAdd)));
 
 				ne = remainder.nextElement(el);
 			}
@@ -494,8 +494,8 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
     UErrorCode & status) {
 //Hashtable *CanonicalIterator::extract(UChar32 comp, const UnicodeString & segment, int32_t segLen, int32_t segmentPos,
 // UErrorCode & status) {
-	//if (PROGRESS) printf(" extract: %s, ", UToS(Tr(UnicodeString(comp))));
-	//if (PROGRESS) printf("%s, %i\n", UToS(Tr(segment)), segmentPos);
+	//if(PROGRESS) printf(" extract: %s, ", UToS(Tr(UnicodeString(comp))));
+	//if(PROGRESS) printf("%s, %i\n", UToS(Tr(segment)), segmentPos);
 
 	if(U_FAILURE(status)) {
 		return NULL;
@@ -527,7 +527,7 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
 		U16_NEXT(segment, i, segLen, cp);
 
 		if(cp == decompCp) { // if equal, eat another cp from decomp
-			//if (PROGRESS) printf("  matches: %s\n", UToS(Tr(UnicodeString(cp))));
+			//if(PROGRESS) printf("  matches: %s\n", UToS(Tr(UnicodeString(cp))));
 
 			if(decompPos == decompLen) { // done, have all decomp characters!
 				temp.append(segment+i, segLen-i);
@@ -537,7 +537,7 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
 			U16_NEXT(decomp, decompPos, decompLen, decompCp);
 		}
 		else {
-			//if (PROGRESS) printf("  buffer: %s\n", UToS(Tr(UnicodeString(cp))));
+			//if(PROGRESS) printf("  buffer: %s\n", UToS(Tr(UnicodeString(cp))));
 
 			// brute force approach
 			temp.append(cp);
@@ -551,14 +551,14 @@ Hashtable * CanonicalIterator::extract(Hashtable * fillinResult,
 			   // if the decomp class < the segment class, we fail
 
 			   segClass = getClass(cp);
-			   if (decompClass <= segClass) return null;
+			   if(decompClass <= segClass) return null;
 			 */
 		}
 	}
 	if(!ok)
 		return NULL; // we failed, characters left over
 
-	//if (PROGRESS) printf("Matches\n");
+	//if(PROGRESS) printf("Matches\n");
 
 	if(inputLen == temp.length()) {
 		fillinResult->put(UnicodeString(), new UnicodeString(), status);

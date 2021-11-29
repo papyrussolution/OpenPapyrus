@@ -263,7 +263,7 @@ UnicodeString CanonicalIteratorTest::collectionToString(Hashtable * col) {
 	int32_t el = UHASH_FIRST;
 	//Iterator it = basic.iterator();
 	ne = col->nextElement(el);
-	//while (it.hasNext())
+	//while(it.hasNext())
 	while(ne != NULL) {
 		//String item = (String) it.next();
 		UnicodeString * item = (UnicodeString *)(ne->value.pointer);
@@ -286,8 +286,8 @@ UnicodeString CanonicalIteratorTest::collectionToString(Hashtable * col) {
 
 /*
     Iterator it = col.iterator();
-    while (it.hasNext()) {
-        if (result.length() != 0) result.append(", ");
+    while(it.hasNext()) {
+        if(result.length() != 0) result.append(", ");
         result.append(it.next().toString());
     }
  */

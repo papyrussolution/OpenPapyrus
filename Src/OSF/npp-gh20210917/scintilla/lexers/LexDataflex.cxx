@@ -236,7 +236,7 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 			    break;
 			case SCE_DF_PREPROCESSOR2:
 			    // we don't have inline comments or preprocessor2 commands
-			    //if (sc.Match('*', ')')) {
+			    //if(sc.Match('*', ')')) {
 			    //	sc.Forward();
 			    //	sc.ForwardSetState(SCE_DF_DEFAULT);
 			    //}
@@ -273,12 +273,12 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 			    }
 			    break;
 			case SCE_DF_SCOPEWORD:
-			    //if (!setHexNumber.Contains(sc.ch) && sc.ch != '$') {
+			    //if(!setHexNumber.Contains(sc.ch) && sc.ch != '$') {
 			    //	sc.SetState(SCE_DF_DEFAULT);
 			    //}
 			    break;
 			case SCE_DF_OPERATOR:
-//				if (bSmartHighlighting && sc.chPrev == ';') {
+//				if(bSmartHighlighting && sc.chPrev == ';') {
 //					curLineState &= ~(stateInProperty | stateInExport);
 //				}
 			    sc.SetState(SCE_DF_DEFAULT);
@@ -312,7 +312,7 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 			}
 			else if(sc.ch == '{') {
 				sc.SetState(SCE_DF_METATAG);
-				//} else if (sc.Match("(*$")) {
+				//} else if(sc.Match("(*$")) {
 				//	sc.SetState(SCE_DF_PREPROCESSOR2);
 			}
 			else if(sc.ch == '/' && setWord.Contains(sc.chNext) &&  sc.atLineStart) {
@@ -330,7 +330,7 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 			}
 			else if(setOperator.Contains(sc.ch)) {
 				sc.SetState(SCE_DF_OPERATOR);
-//			} else if (curLineState & stateInICode) {
+//			} else if(curLineState & stateInICode) {
 				// ICode start ! in a string followed by close string mark is not icode
 			}
 			else if((sc.ch == '!') && !(sc.ch == '!' && ((sc.chNext == '\"') || (sc.ch == '\'')) )) {
@@ -535,17 +535,17 @@ static void FoldDataFlexDoc(Sci_PositionU startPos, Sci_Position length, int ini
 		}
 		if(foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			  && IsCommentLine(lineCurrent + 1, styler))
+			 && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			  && !IsCommentLine(lineCurrent+1, styler))
+			 && !IsCommentLine(lineCurrent+1, styler))
 				levelCurrent--;
 		}
 		if(foldPreprocessor) {
 			if(style == SCE_DF_PREPROCESSOR) {
 				iWordSize = ClassifyDataFlexPreprocessorFoldPoint(levelCurrent, lineFoldStateCurrent, i + 1, styler);
-				//} else if (style == SCE_DF_PREPROCESSOR2 && ch == '(' && chNext == '*'
-				//         && styler.SafeGetCharAt(i + 2) == '$') {
+				//} else if(style == SCE_DF_PREPROCESSOR2 && ch == '(' && chNext == '*'
+				// && styler.SafeGetCharAt(i + 2) == '$') {
 				//	ClassifyDataFlexPreprocessorFoldPoint(levelCurrent, lineFoldStateCurrent, i + 3,
 				// styler);
 				i = i + iWordSize;

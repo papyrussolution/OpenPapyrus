@@ -45,7 +45,7 @@ enum Section {
 inline bool
 getRoundingDirection(bool isEven, bool isNegative, Section section, RoundingMode roundingMode,
                      UErrorCode & status) {
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         return false;
     }
     switch (roundingMode) {

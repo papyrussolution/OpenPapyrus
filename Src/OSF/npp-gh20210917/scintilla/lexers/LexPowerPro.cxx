@@ -171,7 +171,7 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 			    break;
 
 			case SCE_POWERPRO_IDENTIFIER:
-			    //if ((sc.ch > 0) && !setWord.Contains(sc.ch) || (sc.ch == '.')) { // use this line if don't
+			    //if((sc.ch > 0) && !setWord.Contains(sc.ch) || (sc.ch == '.')) { // use this line if don't
 			    // want to match keywords with . in them. ie: win.debug will match both win and debug so win
 			    // debug will also be colorized
 			    if((sc.ch > 0) && !setWord.Contains(sc.ch)) {      // || (sc.ch == '.')) { // use this line
@@ -511,8 +511,8 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 			// if a keyword is found on the current line and the line doesn't end with ;;+ (continuation)
 			//    and we are not inside a commentblock.
 			if(firstWordLen > 0
-			  && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';'
-			  && (!IsStreamCommentStyle(style) || foldInComment) ) {
+			 && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';'
+			 && (!IsStreamCommentStyle(style) || foldInComment) ) {
 				// only fold "if" last keyword is "then"  (else its a one line if)
 				if(strcmp(szFirstWord, "if") == 0 && isDoLastWord)
 					levelNext++;
@@ -564,14 +564,14 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 					levelNext++;
 				} // fold till the last line for normal comment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				  && styleNext != SCE_POWERPRO_COMMENTLINE
-				  && stylePrev == SCE_POWERPRO_COMMENTLINE
-				  && style == SCE_POWERPRO_COMMENTLINE) {
+				 && styleNext != SCE_POWERPRO_COMMENTLINE
+				 && stylePrev == SCE_POWERPRO_COMMENTLINE
+				 && style == SCE_POWERPRO_COMMENTLINE) {
 					levelNext--;
 				} // fold till the one but last line for Blockcomment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				  && styleNext != SCE_POWERPRO_COMMENTBLOCK
-				  && style == SCE_POWERPRO_COMMENTBLOCK) {
+				 && styleNext != SCE_POWERPRO_COMMENTBLOCK
+				 && style == SCE_POWERPRO_COMMENTBLOCK) {
 					levelNext--;
 					levelCurrent--;
 				}

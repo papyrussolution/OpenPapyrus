@@ -90,7 +90,7 @@ static void poly1305_blocks(void * ctx, const uchar * inp, size_t len, u32 padbi
  */
 #define CONSTANT_TIME_CARRY(a, b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
 
-#if (defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16) && (defined(__SIZEOF_LONG__) && __SIZEOF_LONG__==8)
+#if(defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16) && (defined(__SIZEOF_LONG__) && __SIZEOF_LONG__==8)
 
 typedef ulong u64;
 typedef __uint128_t u128;

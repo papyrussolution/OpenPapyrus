@@ -59,11 +59,11 @@ struct name_cache {
 	} cache[name_cache_size];
 };
 
-static const char *     lookup_gname(void *, int64);
-static const char *     lookup_uname(void *, int64);
+static const char * lookup_gname(void *, int64);
+static const char * lookup_uname(void *, int64);
 static void     cleanup(void *);
-static const char *     lookup_gname_helper(struct name_cache *, id_t gid);
-static const char *     lookup_uname_helper(struct name_cache *, id_t uid);
+static const char * lookup_gname_helper(struct name_cache *, id_t gid);
+static const char * lookup_uname_helper(struct name_cache *, id_t uid);
 
 /*
  * Installs functions that use getpwuid()/getgrgid()---along with

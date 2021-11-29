@@ -124,7 +124,7 @@
  * associated assembler code, pass --enable-arm-neon=no to configure
  * or put -DPNG_ARM_NEON_OPT=0 in CPPFLAGS.
  */
-	#if (defined(__ARM_NEON__) || defined(__ARM_NEON)) &&	defined(PNG_ALIGNED_MEMORY_SUPPORTED)
+	#if(defined(__ARM_NEON__) || defined(__ARM_NEON)) &&	defined(PNG_ALIGNED_MEMORY_SUPPORTED)
 		#define PNG_ARM_NEON_OPT 2
 	#else
 		#define PNG_ARM_NEON_OPT 0
@@ -390,7 +390,7 @@
 	#define PNG_UNUSED(param) (void)param;
 #endif
 // Just a little check that someone hasn't tried to define something contradictory.
-#if (PNG_ZBUF_SIZE > 65536L) && defined(PNG_MAX_MALLOC_64K)
+#if(PNG_ZBUF_SIZE > 65536L) && defined(PNG_MAX_MALLOC_64K)
 	#undef PNG_ZBUF_SIZE
 	#define PNG_ZBUF_SIZE 65536L
 #endif
@@ -451,7 +451,7 @@
  */
 #include <float.h>
 
-#if (defined(__MWERKS__) && defined(macintosh)) || defined(applec) || defined(THINK_C) || defined(__SC__) || defined(TARGET_OS_MAC)
+#if(defined(__MWERKS__) && defined(macintosh)) || defined(applec) || defined(THINK_C) || defined(__SC__) || defined(TARGET_OS_MAC)
 /* We need to check that <math.h> hasn't already been included earlier
  * as it seems it doesn't agree with <fp.h>, yet we should really use
  * <fp.h> if possible.

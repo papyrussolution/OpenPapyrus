@@ -983,7 +983,7 @@ static uint32_t getHostID(const ILcidPosixMap * this_0, const char * posixID, UE
 	/* We asked for something unusual, like en_ZZ, and we try to return the number for the same language. */
 	/* We also have to make sure that sid and si and similar string subsets don't match. */
 	if((posixID[bestIdxDiff] == '_' || posixID[bestIdxDiff] == '@')
-	  && this_0->regionMaps[bestIdx].posixID[bestIdxDiff] == 0) {
+	 && this_0->regionMaps[bestIdx].posixID[bestIdxDiff] == 0) {
 		*status = U_USING_FALLBACK_WARNING;
 		return this_0->regionMaps[bestIdx].hostID;
 	}

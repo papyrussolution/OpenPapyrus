@@ -800,12 +800,12 @@ inline H * MaybeStackHeaderAndArray<H, T, stackCapacity>::orphanOrClone(int32_t 
  *     MemoryPool<MyType> pool;
  *
  *     MyType* o1 = pool.create();
- *     if (o1 != nullptr) {
+ *     if(o1 != nullptr) {
  *         foo(o1);
  *     }
  *
  *     MyType* o2 = pool.create(1, 2, 3);
- *     if (o2 != nullptr) {
+ *     if(o2 != nullptr) {
  *         bar(o2);
  *     }
  *
@@ -896,7 +896,7 @@ protected:
  *
  *     MaybeStackVector<MyType> vector;
  *     MyType* element = vector.emplaceBack();
- *     if (!element) {
+ *     if(!element) {
  *         status = U_MEMORY_ALLOCATION_ERROR;
  *     }
  *     // do stuff with element

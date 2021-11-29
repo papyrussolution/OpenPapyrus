@@ -401,7 +401,7 @@ static void U_CALLCONV DataDrivenScanf(void)
 					continue;
 				}
 /*                testFile = u_fopen(STANDARD_TEST_FILE, "w", fileLocale, "UTF-8");
-                if (!testFile) {
+                if(!testFile) {
                     log_err("Can't open test file - %s\n",
                             STANDARD_TEST_FILE);
                 }*/
@@ -506,7 +506,7 @@ static void U_CALLCONV DataDrivenScanf(void)
 				if(uBufferLenReturned != 1) {
 					log_err("error scanf converted %d arguments. Test case = %d\n", uBufferLenReturned, i);
 				}
-/*                if (u_strcmp(uBuffer, expectedResult) != 0) {
+/*                if(u_strcmp(uBuffer, expectedResult) != 0) {
                     u_austrncpy(cBuffer, uBuffer, sizeof(cBuffer));
                     u_austrncpy(cFormat, format, sizeof(cFormat));
                     u_austrncpy(cExpected, expectedResult, sizeof(cExpected));
@@ -514,7 +514,7 @@ static void U_CALLCONV DataDrivenScanf(void)
                     log_err("FAILURE string test case %d \"%s\" - Got: \"%s\" Expected: \"%s\"\n",
                             i, cFormat, cBuffer, cExpected);
                 }
-                if (uBuffer[uBufferLenReturned-1] == 0
+                if(uBuffer[uBufferLenReturned-1] == 0
  || uBuffer[uBufferLenReturned] != 0
  || uBuffer[uBufferLenReturned+1] != 0x2A
  || uBuffer[uBufferLenReturned+2] != 0x2A)
@@ -526,13 +526,13 @@ static void U_CALLCONV DataDrivenScanf(void)
                 }*/
 /*                u_fclose(testFile);
                 testFile = u_fopen(STANDARD_TEST_FILE, "r", fileLocale, "UTF-8");
-                if (!testFile) {
+                if(!testFile) {
                     log_err("Can't open test file - %s\n",
                             STANDARD_TEST_FILE);
                 }
                 uBuffer[0];
                 u_fgets(uBuffer, UPRV_LENGTHOF(uBuffer), testFile);
-                if (u_strcmp(uBuffer, expectedResult) != 0) {
+                if(u_strcmp(uBuffer, expectedResult) != 0) {
                     u_austrncpy(cBuffer, uBuffer, sizeof(cBuffer));
                     u_austrncpy(cFormat, format, sizeof(cFormat));
                     u_austrncpy(cExpected, expectedResult, sizeof(cExpected));
@@ -540,7 +540,7 @@ static void U_CALLCONV DataDrivenScanf(void)
                     log_err("FAILURE file test case %d \"%s\" - Got: \"%s\" Expected: \"%s\"\n",
                             i, cFormat, cBuffer, cExpected);
                 }
-                if (uFileBufferLenReturned != uBufferLenReturned)
+                if(uFileBufferLenReturned != uBufferLenReturned)
                 {
                     u_austrncpy(cBuffer, uBuffer, sizeof(cBuffer));
                     cBuffer[sizeof(cBuffer)-1] = 0;

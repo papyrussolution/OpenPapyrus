@@ -37,11 +37,11 @@ class U_I18N_API MultiplierFormatHandler : public MicroPropsGenerator, public UM
 static inline Scale scaleFromProperties(const DecimalFormatProperties& properties) {
     int32_t magnitudeMultiplier = properties.magnitudeMultiplier + properties.multiplierScale;
     int32_t arbitraryMultiplier = properties.multiplier;
-    if (magnitudeMultiplier != 0 && arbitraryMultiplier != 1) {
+    if(magnitudeMultiplier != 0 && arbitraryMultiplier != 1) {
         return Scale::byDoubleAndPowerOfTen(arbitraryMultiplier, magnitudeMultiplier);
-    } else if (magnitudeMultiplier != 0) {
+    } else if(magnitudeMultiplier != 0) {
         return Scale::powerOfTen(magnitudeMultiplier);
-    } else if (arbitraryMultiplier != 1) {
+    } else if(arbitraryMultiplier != 1) {
         return Scale::byDouble(arbitraryMultiplier);
     } else {
         return Scale::none();

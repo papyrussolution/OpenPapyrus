@@ -10,7 +10,7 @@
 
 #include "mimalloc-types.h"
 
-#if (MI_DEBUG>0)
+#if(MI_DEBUG>0)
 	#define mi_trace_message(...)  _mi_trace_message(__VA_ARGS__)
 #else
 	#define mi_trace_message(...)
@@ -168,7 +168,7 @@ bool        _mi_page_is_valid(mi_page_t* page);
    Inlined definitions
    ----------------------------------------------------------- */
 #define UNUSED(x)     (void)(x)
-#if (MI_DEBUG>0)
+#if(MI_DEBUG>0)
 #define UNUSED_RELEASE(x)
 #else
 #define UNUSED_RELEASE(x)  UNUSED(x)
@@ -232,7 +232,7 @@ static inline bool mi_malloc_satisfies_alignment(size_t alignment, size_t size) 
 #undef _CLOCK_T
 #endif
 static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) {
-  #if (SIZE_MAX == UINT_MAX)
+  #if(SIZE_MAX == UINT_MAX)
 	return __builtin_umul_overflow(count, size, total);
   #elif (SIZE_MAX == ULONG_MAX)
 	return __builtin_umull_overflow(count, size, total);
@@ -246,7 +246,7 @@ static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) {
   #define MI_MUL_NO_OVERFLOW ((size_t)1 << (4*sizeof(size_t)))  // sqrt(SIZE_MAX)
 	*total = count * size;
 	return ((size >= MI_MUL_NO_OVERFLOW || count >= MI_MUL_NO_OVERFLOW)
-	     && size > 0 && (SIZE_MAX / size) < count);
+	 && size > 0 && (SIZE_MAX / size) < count);
 }
 
 #endif
@@ -396,7 +396,7 @@ static inline mi_segment_t* _mi_page_segment(const mi_page_t* page)
 // used internally
 static inline uintptr_t _mi_segment_page_idx_of(const mi_segment_t* segment, const void * p) 
 {
-	// if (segment->page_size > MI_SEGMENT_SIZE) return &segment->pages[0];  // huge pages
+	// if(segment->page_size > MI_SEGMENT_SIZE) return &segment->pages[0];  // huge pages
 	ptrdiff_t diff = (uint8_t*)p - (uint8_t*)segment;
 	mi_assert_internal(diff >= 0 && (size_t)diff < MI_SEGMENT_SIZE);
 	uintptr_t idx = (uintptr_t)diff >> segment->page_shift;
@@ -673,7 +673,7 @@ static inline uintptr_t _mi_random_shuffle(uintptr_t x)
 	if(x==0) {
 		x = 17;
 	}                 // ensure we don't get stuck in generating zeros
-#if (MI_INTPTR_SIZE==8)
+#if(MI_INTPTR_SIZE==8)
 	// by Sebastiano Vigna, see: <http://xoshiro.di.unimi.it/splitmix64.c>
 	x ^= x >> 30;
 	x *= 0xbf58476d1ce4e5b9UL;
@@ -803,7 +803,7 @@ static inline uintptr_t _mi_thread_id(void) NOEXCEPT {
 #define MI_HAVE_FAST_BITSCAN
 static inline size_t mi_clz(uintptr_t x) {
 	if(x==0) return MI_INTPTR_BITS;
-#if (INTPTR_MAX == LONG_MAX)
+#if(INTPTR_MAX == LONG_MAX)
 	return __builtin_clzl(x);
 #else
 	return __builtin_clzll(x);
@@ -812,7 +812,7 @@ static inline size_t mi_clz(uintptr_t x) {
 
 static inline size_t mi_ctz(uintptr_t x) {
 	if(x==0) return MI_INTPTR_BITS;
-#if (INTPTR_MAX == LONG_MAX)
+#if(INTPTR_MAX == LONG_MAX)
 	return __builtin_ctzl(x);
 #else
 	return __builtin_ctzll(x);
@@ -826,7 +826,7 @@ static inline size_t mi_ctz(uintptr_t x) {
 static inline size_t mi_clz(uintptr_t x) {
 	if(x==0) return MI_INTPTR_BITS;
 	unsigned long idx;
-#if (INTPTR_MAX == LONG_MAX)
+#if(INTPTR_MAX == LONG_MAX)
 	_BitScanReverse(&idx, x);
 #else
 	_BitScanReverse64(&idx, x);
@@ -839,7 +839,7 @@ static inline size_t mi_ctz(uintptr_t x)
 	if(x==0) 
 		return MI_INTPTR_BITS;
 	ulong idx;
-#if (INTPTR_MAX == LONG_MAX)
+#if(INTPTR_MAX == LONG_MAX)
 	_BitScanForward(&idx, x);
 #else
 	_BitScanForward64(&idx, x);
@@ -876,7 +876,7 @@ static inline size_t mi_clz32(uint32_t x) {
 
 static inline size_t mi_clz(uintptr_t x) {
 	if(x==0) return MI_INTPTR_BITS;
-#if (MI_INTPTR_BITS <= 32)
+#if(MI_INTPTR_BITS <= 32)
 	return mi_clz32((uint32_t)x);
 #else
 	size_t count = mi_clz32((uint32_t)(x >> 32));
@@ -887,7 +887,7 @@ static inline size_t mi_clz(uintptr_t x) {
 
 static inline size_t mi_ctz(uintptr_t x) {
 	if(x==0) return MI_INTPTR_BITS;
-#if (MI_INTPTR_BITS <= 32)
+#if(MI_INTPTR_BITS <= 32)
 	return mi_ctz32((uint32_t)x);
 #else
 	size_t count = mi_ctz32((uint32_t)x);
@@ -936,7 +936,7 @@ static inline void _mi_memcpy(void * dst, const void * src, size_t n) {
 // The `_mi_memcpy_aligned` can be used if the pointers are machine-word aligned
 // This is used for example in `mi_realloc`.
 //
-#if (__GNUC__ >= 4) || defined(__clang__)
+#if(__GNUC__ >= 4) || defined(__clang__)
 // On GCC/CLang we provide a hint that the pointers are word aligned.
 #include <string.h>
 static inline void _mi_memcpy_aligned(void * dst, const void * src, size_t n) {

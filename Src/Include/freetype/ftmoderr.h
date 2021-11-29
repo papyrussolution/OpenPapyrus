@@ -60,7 +60,7 @@
  *     inequality, respectively.  Example:
  *
  *     ```
- * if ( FT_ERR_EQ( error, Invalid_Outline ))
+ * if( FT_ERR_EQ( error, Invalid_Outline ))
  *   ...
  *     ```
  *
@@ -69,7 +69,7 @@
  *     same as
  *
  *     ```
- * if ( error == FT_Err_Invalid_Outline )
+ * if( error == FT_Err_Invalid_Outline )
  *   ...
  *     ```
  *
@@ -90,7 +90,7 @@
  *   const struct
  *   {
  *     int          mod_err_offset;
- *     const char *  mod_err_msg
+ *     const char * mod_err_msg
  *   } ft_mod_errors[] =
  *
  *   #include <freetype/ftmoderr.h>

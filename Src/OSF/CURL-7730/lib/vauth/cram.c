@@ -63,7 +63,7 @@ CURLcode Curl_auth_decode_cram_md5_message(const char * chlg64, char ** outptr,
 
 	/* Decode the challenge if necessary */
 	if(chlg64len && *chlg64 != '=')
-		result = Curl_base64_decode(chlg64, (uchar**)outptr, outlen);
+		result = Curl_base64_decode(chlg64, (uchar **)outptr, outlen);
 
 	return result;
 }

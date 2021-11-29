@@ -244,7 +244,7 @@ typedef struct  FT_Bitmap_ {
 	unsigned int rows;
 	unsigned int width;
 	int pitch;
-	uchar*  buffer;
+	uchar * buffer;
 	unsigned short num_grays;
 	uchar pixel_mode;
 	uchar palette_mode;
@@ -644,7 +644,7 @@ typedef struct  FT_Outline_Funcs_ {
  *   FT_IMAGE_TAG
  *
  * @description:
- *   This macro converts four-letter tags to an unsigned long type.
+ *   This macro converts four-letter tags to an ulong type.
  *
  * @note:
  *   Since many 16-bit compilers don't like 32-bit enumerations, you should
@@ -1054,8 +1054,8 @@ typedef void
  */
 typedef void
 (* FT_Raster_ResetFunc)(FT_Raster raster,
-    uchar*  pool_base,
-    unsigned long pool_size);
+    uchar * pool_base,
+    ulong pool_size);
 
 #define FT_Raster_Reset_Func  FT_Raster_ResetFunc
 
@@ -1081,7 +1081,7 @@ typedef void
  */
 typedef int
 (* FT_Raster_SetModeFunc)(FT_Raster raster,
-    unsigned long mode,
+    ulong mode,
     void *      args);
 
 #define FT_Raster_Set_Mode_Func  FT_Raster_SetModeFunc

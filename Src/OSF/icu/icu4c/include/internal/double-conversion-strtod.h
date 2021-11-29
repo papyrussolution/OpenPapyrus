@@ -66,7 +66,7 @@ float StrtofTrimmed(Vector<const char> trimmed, int exponent);
 
 inline Vector<const char> TrimTrailingZeros(Vector<const char> buffer) {
   for (int i = buffer.length() - 1; i >= 0; --i) {
-    if (buffer[i] != '0') {
+    if(buffer[i] != '0') {
       return buffer.SubVector(0, i + 1);
     }
   }

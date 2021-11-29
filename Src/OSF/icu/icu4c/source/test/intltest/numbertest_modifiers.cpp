@@ -13,7 +13,7 @@
 #include "numbertest.h"
 
 void ModifiersTest::runIndexedTest(int32_t index, bool exec, const char *&name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite ModifiersTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -102,7 +102,7 @@ void ModifiersTest::testSimpleModifier() {
 void ModifiersTest::testCurrencySpacingEnabledModifier() {
     UErrorCode status = U_ZERO_ERROR;
     DecimalFormatSymbols symbols(Locale("en"), status);
-    if (!assertSuccess("Spot 1", status, true)) {
+    if(!assertSuccess("Spot 1", status, true)) {
         return;
     }
 
@@ -165,7 +165,7 @@ void ModifiersTest::assertModifierEquals(const Modifier &mod, FormattedStringBui
     mod.apply(sb, 0, sb.length(), status);
     assertEquals("Prefix length", expectedPrefixLength, mod.getPrefixLength());
     assertEquals("Strong", expectedStrong, mod.isStrong());
-    if (dynamic_cast<const CurrencySpacingEnabledModifier*>(&mod) == nullptr) {
+    if(dynamic_cast<const CurrencySpacingEnabledModifier*>(&mod) == nullptr) {
         // i.e., if mod is not a CurrencySpacingEnabledModifier
         assertEquals("Code point count equals actual code point count",
                 sb.codePointCount() - oldCount, mod.getCodePointCount());

@@ -20,9 +20,9 @@
 //
 // Override system malloc
 //
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
+#if(defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
 // use aliasing to alias the exported function to one of our `mi_` functions
-  #if (defined(__GNUC__) && __GNUC__ >= 9)
+  #if(defined(__GNUC__) && __GNUC__ >= 9)
     #define MI_FORWARD(fun)      __attribute__((alias(#fun), used, visibility("default"), copy(fun)));
   #else
     #define MI_FORWARD(fun)      __attribute__((alias(#fun), used, visibility("default")));
@@ -84,7 +84,7 @@ void * calloc(size_t size, size_t n)    MI_FORWARD2(mi_calloc, size, n)
 void * realloc(void * p, size_t newsize) MI_FORWARD2(mi_realloc, p, newsize)
 void  free(void * p)                    MI_FORWARD0(mi_free, p)
 #endif
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
+#if(defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
 	#pragma GCC visibility push(default)
 #endif
 //
@@ -110,12 +110,12 @@ void * operator new(std::size_t n, const std::nothrow_t& tag) noexcept {
 
 void * operator new[] (std::size_t n, const std::nothrow_t& tag)noexcept { UNUSED(tag); return mi_new_nothrow(n); }
 
-  #if (__cplusplus >= 201402L || _MSC_VER >= 1916)
+  #if(__cplusplus >= 201402L || _MSC_VER >= 1916)
 void operator delete(void * p, std::size_t n) noexcept MI_FORWARD02(mi_free_size, p, n)
 void operator delete[] (void * p, std::size_t n) noexcept MI_FORWARD02(mi_free_size, p, n)
   #endif
 
-  #if (__cplusplus > 201402L && defined(__cpp_aligned_new)) && (!defined(__GNUC__) || (__GNUC__ > 5))
+  #if(__cplusplus > 201402L && defined(__cpp_aligned_new)) && (!defined(__GNUC__) || (__GNUC__ > 5))
 void operator delete(void * p, std::align_val_t al) noexcept {
 	mi_free_aligned(p, static_cast<size_t>(al));
 }
@@ -156,7 +156,7 @@ void _ZdlPvmSt11align_val_t(void * p, size_t n, size_t al) { mi_free_size_aligne
 void _ZdaPvmSt11align_val_t(void * p, size_t n, size_t al) { mi_free_size_aligned(p, n, al); }
 
 typedef struct mi_nothrow_s { int _tag; } mi_nothrow_t;
-  #if (MI_INTPTR_SIZE==8)
+  #if(MI_INTPTR_SIZE==8)
 void * _Znwm(size_t n)                             MI_FORWARD1(mi_new, n)     // new 64-bit
 void * _Znam(size_t n)                             MI_FORWARD1(mi_new, n)     // new[] 64-bit
 void * _ZnwmSt11align_val_t(size_t n, size_t al)   MI_FORWARD2(mi_new_aligned, n, al)
@@ -263,7 +263,7 @@ int   __posix_memalign(void ** p, size_t alignment, size_t size) {
 }
 #endif
 
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
+#if(defined(__GNUC__) || defined(__clang__)) && !defined(__APPLE__)
 #pragma GCC visibility pop
 #endif
 

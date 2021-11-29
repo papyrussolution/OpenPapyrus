@@ -1042,10 +1042,9 @@ int ClsdGoodsDialog::selectDim(uint ctlID, PPGdsClsDim * pDim)
 {
 	int    ok = -1;
 	int    scale = static_cast<int>(pDim->Scale);
-	ListWindow * p_lw = 0;
 	double rval = getCtrlReal(ctlID);
 	long   lval = static_cast<long>(rval * fpow10i(scale));
-	p_lw = CreateListWindow(16, lbtDisposeData | lbtDblClkNotify);
+	ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 	if(p_lw) {
 		for(uint i = 0; i < pDim->ValList.getCount(); i++) {
 			char   item_buf[64];

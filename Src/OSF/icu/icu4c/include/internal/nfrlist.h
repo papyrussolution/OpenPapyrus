@@ -43,7 +43,7 @@ public:
         , fCount(0)
         , fCapacity(capacity) {}
     ~NFRuleList() {
-        if (fStuff) {
+        if(fStuff) {
             for(uint32_t i = 0; i < fCount; ++i) {
                 delete fStuff[i];
             }
@@ -52,7 +52,7 @@ public:
     }
     NFRule* operator[](uint32_t index) const { return fStuff != NULL ? fStuff[index] : NULL; }
     NFRule* remove(uint32_t index) {
-    	if (fStuff == NULL) {
+    	if(fStuff == NULL) {
     		return NULL;
     	}
         NFRule* result = fStuff[index];
@@ -63,11 +63,11 @@ public:
         return result;
     }
     void add(NFRule* thing) {
-        if (fCount == fCapacity) {
+        if(fCount == fCapacity) {
             fCapacity += 10;
             fStuff = (NFRule**)uprv_realloc(fStuff, fCapacity * sizeof(NFRule*)); // assume success
         }
-        if (fStuff != NULL) {
+        if(fStuff != NULL) {
         	fStuff[fCount++] = thing;
         } else {
         	fCapacity = 0;
@@ -87,12 +87,12 @@ public:
     void deleteAll() {
         NFRule** tmp = NULL;
         int32_t size = fCount;
-        if (size > 0) {
+        if(size > 0) {
             tmp = release();
             for (int32_t i = 0; i < size; i++) {
                 delete tmp[i];
             }
-            if (tmp) {
+            if(tmp) {
                 uprv_free(tmp);
             }
         }

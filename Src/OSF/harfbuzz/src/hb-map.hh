@@ -75,10 +75,10 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 
 	hb_object_header_t header;
 	bool successful; /* Allocations successful */
-	unsigned int population; /* Not including tombstones. */
-	unsigned int occupancy; /* Including tombstones. */
-	unsigned int mask;
-	unsigned int prime;
+	uint population; /* Not including tombstones. */
+	uint occupancy; /* Including tombstones. */
+	uint mask;
+	uint prime;
 	item_t * items;
 
 	void init_shallow()
@@ -123,8 +123,8 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 	{
 		if(UNLIKELY(!successful)) 
 			return false;
-		unsigned int power = hb_bit_storage(population * 2 + 8);
-		unsigned int new_size = 1u << power;
+		uint power = hb_bit_storage(population * 2 + 8);
+		uint new_size = 1u << power;
 		item_t * new_items = (item_t *)SAlloc::M((size_t)new_size * sizeof(item_t));
 		if(UNLIKELY(!new_items)) {
 			successful = false;
@@ -133,7 +133,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 		for(auto &_ : hb_iter(new_items, new_size))
 			_.clear();
 
-		unsigned int old_size = mask + 1;
+		uint old_size = mask + 1;
 		item_t * old_items = items;
 
 		/* Switch to new, empty, array. */
@@ -159,7 +159,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 	V get(K key) const
 	{
 		if(UNLIKELY(!items)) return vINVALID;
-		unsigned int i = bucket_for(key);
+		uint i = bucket_for(key);
 		return items[i].is_real() && items[i] == key ? items[i].value : vINVALID;
 	}
 
@@ -198,7 +198,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 		return population == 0;
 	}
 
-	unsigned int get_population() const {
+	uint get_population() const {
 		return population;
 	}
 
@@ -239,7 +239,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			if(UNLIKELY(!successful)) return;
 			if(UNLIKELY(key == kINVALID)) return;
 			if((occupancy + occupancy / 2) >= mask && !resize()) return;
-			unsigned int i = bucket_for_hash(key, hash);
+			uint i = bucket_for_hash(key, hash);
 
 			if(value == vINVALID && items[i].key != key)
 				return; /* Trying to delete non-existent key. */
@@ -259,16 +259,16 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 				population++;
 		}
 
-		unsigned int bucket_for(K key) const
+		uint bucket_for(K key) const
 			{
 			return bucket_for_hash(key, hb_hash(key));
 		}
 
-		unsigned int bucket_for_hash(K key, uint32_t hash) const
+		uint bucket_for_hash(K key, uint32_t hash) const
 			{
-			unsigned int i = hash % prime;
-			unsigned int step = 0;
-			unsigned int tombstone = (uint)-1;
+			uint i = hash % prime;
+			uint step = 0;
+			uint tombstone = (uint)-1;
 			while(!items[i].is_unused()) {
 				if(items[i].hash == hash && items[i] == key)
 					return i;
@@ -279,7 +279,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			return tombstone == (uint)-1 ? i : tombstone;
 		}
 
-		static unsigned int prime_for(unsigned int shift)
+		static uint prime_for(uint shift)
 			{
 		        /* Following comment and table copied from glib. */
 		        /* Each table size has an associated prime modulo (the first prime
@@ -288,7 +288,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 		 * good distribution with poor hash functions.
 		         */
 		        /* Not declaring static to make all kinds of compilers happy... */
-		        /*static*/ const unsigned int prime_mod [32] =
+		        /*static*/ const uint prime_mod [32] =
 			{
 				1, /* For 1 << 0 */
 				2,

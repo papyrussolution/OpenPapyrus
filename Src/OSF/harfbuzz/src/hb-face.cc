@@ -29,7 +29,7 @@
  *
  * Since: 1.7.7
  **/
-unsigned int hb_face_count(hb_blob_t * blob)
+uint hb_face_count(hb_blob_t * blob)
 {
 	if(UNLIKELY(!blob))
 		return 0;
@@ -37,7 +37,7 @@ unsigned int hb_face_count(hb_blob_t * blob)
 	/* Make API signature const after. */
 	hb_blob_t * sanitized = hb_sanitize_context_t().sanitize_blob<OT::OpenTypeFontFile> (hb_blob_reference(blob));
 	const OT::OpenTypeFontFile& ot = *sanitized->as<OT::OpenTypeFontFile> ();
-	unsigned int ret = ot.get_face_count();
+	uint ret = ot.get_face_count();
 	hb_blob_destroy(sanitized);
 	return ret;
 }
@@ -87,10 +87,10 @@ hb_face_t * hb_face_create_for_tables(hb_reference_table_func_t reference_table_
 
 typedef struct hb_face_for_data_closure_t {
 	hb_blob_t * blob;
-	unsigned int index;
+	uint index;
 } hb_face_for_data_closure_t;
 
-static hb_face_for_data_closure_t * _hb_face_for_data_closure_create(hb_blob_t * blob, unsigned int index)
+static hb_face_for_data_closure_t * _hb_face_for_data_closure_create(hb_blob_t * blob, uint index)
 {
 	hb_face_for_data_closure_t * closure = (hb_face_for_data_closure_t*)SAlloc::C(1, sizeof(hb_face_for_data_closure_t));
 	if(UNLIKELY(!closure))
@@ -113,7 +113,7 @@ static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face HB_UNUSED,
 	if(tag == HB_TAG_NONE)
 		return hb_blob_reference(data->blob);
 	const OT::OpenTypeFontFile &ot_file = *data->blob->as<OT::OpenTypeFontFile> ();
-	unsigned int base_offset;
+	uint base_offset;
 	const OT::OpenTypeFontFace &ot_face = ot_file.get_face(data->index, &base_offset);
 	const OT::OpenTypeTable &table = ot_face.get_table_by_tag(tag);
 	hb_blob_t * blob = hb_blob_create_sub_blob(data->blob, base_offset + table.offset, table.length);
@@ -130,7 +130,7 @@ static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face HB_UNUSED,
  *
  * Since: 0.9.2
  **/
-hb_face_t * hb_face_create(hb_blob_t * blob, unsigned int index)
+hb_face_t * hb_face_create(hb_blob_t * blob, uint index)
 {
 	hb_face_t * face;
 	if(UNLIKELY(!blob))
@@ -300,7 +300,7 @@ hb_blob_t * hb_face_reference_blob(hb_face_t * face)
  *
  * Since: 0.9.2
  **/
-void hb_face_set_index(hb_face_t * face, unsigned int index)
+void hb_face_set_index(hb_face_t * face, uint index)
 {
 	if(hb_object_is_immutable(face))
 		return;
@@ -316,7 +316,7 @@ void hb_face_set_index(hb_face_t * face, unsigned int index)
  *
  * Since: 0.9.2
  **/
-unsigned int hb_face_get_index(const hb_face_t * face)
+uint hb_face_get_index(const hb_face_t * face)
 {
 	return face->index;
 }
@@ -329,7 +329,7 @@ unsigned int hb_face_get_index(const hb_face_t * face)
  *
  * Since: 0.9.2
  **/
-void hb_face_set_upem(hb_face_t * face, unsigned int upem)
+void hb_face_set_upem(hb_face_t * face, uint upem)
 {
 	if(hb_object_is_immutable(face))
 		return;
@@ -345,7 +345,7 @@ void hb_face_set_upem(hb_face_t * face, unsigned int upem)
  *
  * Since: 0.9.2
  **/
-unsigned int hb_face_get_upem(const hb_face_t * face)
+uint hb_face_get_upem(const hb_face_t * face)
 {
 	return face->get_upem();
 }
@@ -358,7 +358,7 @@ unsigned int hb_face_get_upem(const hb_face_t * face)
  *
  * Since: 0.9.7
  **/
-void hb_face_set_glyph_count(hb_face_t * face, unsigned int glyph_count)
+void hb_face_set_glyph_count(hb_face_t * face, uint glyph_count)
 {
 	if(hb_object_is_immutable(face))
 		return;
@@ -374,7 +374,7 @@ void hb_face_set_glyph_count(hb_face_t * face, unsigned int glyph_count)
  *
  * Since: 0.9.7
  **/
-unsigned int hb_face_get_glyph_count(const hb_face_t * face)
+uint hb_face_get_glyph_count(const hb_face_t * face)
 {
 	return face->get_num_glyphs();
 }
@@ -391,7 +391,7 @@ unsigned int hb_face_get_glyph_count(const hb_face_t * face)
  *
  * Since: 1.6.0
  **/
-unsigned int hb_face_get_table_tags(const hb_face_t * face, unsigned int start_offset, unsigned int * table_count/* IN/OUT */, hb_tag_t * table_tags /* OUT */)
+uint hb_face_get_table_tags(const hb_face_t * face, uint start_offset, uint * table_count/* IN/OUT */, hb_tag_t * table_tags /* OUT */)
 {
 	if(face->destroy != (hb_destroy_func_t)_hb_face_for_data_closure_destroy) {
 		ASSIGN_PTR(table_count, 0);
@@ -488,8 +488,8 @@ static void _hb_face_builder_data_destroy(void * user_data)
 
 static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t * data)
 {
-	unsigned int table_count = data->tables.length;
-	unsigned int face_length = table_count * 16 + 12;
+	uint table_count = data->tables.length;
+	uint face_length = table_count * 16 + 12;
 	for(uint i = 0; i < table_count; i++)
 		face_length += hb_ceil_to_4(hb_blob_get_length(data->tables[i].blob));
 	char * buf = (char *)SAlloc::M(face_length);

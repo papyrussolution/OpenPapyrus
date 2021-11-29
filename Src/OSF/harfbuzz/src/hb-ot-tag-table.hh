@@ -1074,7 +1074,7 @@ static const LangTag ot_languages[] = {
  **/
 static bool hb_ot_tags_from_complex_language(const char * lang_str,
     const char * limit,
-    unsigned int * count /* IN/OUT */,
+    uint * count /* IN/OUT */,
     hb_tag_t * tags /* OUT */)
 {
 	if(subtag_matches(lang_str, limit, "-fonnapa")) {
@@ -1648,7 +1648,7 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str,
 		case 'i':
 		    if(0 == strcmp(&lang_str[1], "-navajo")) {
 			    /* Navajo */
-			    unsigned int i;
+			    uint i;
 			    hb_tag_t possible_tags[] = {
 				    HB_TAG('N', 'A', 'V', ' '), /* Navajo */
 				    HB_TAG('A', 'T', 'H', ' '), /* Athapaskan */

@@ -244,7 +244,7 @@ bool AffixMatcherWarehouse::isInteresting(const AffixPatternProvider& patternInf
 	    AffixUtils::containsOnlySymbolsAndIgnorables(negSuffixString, *ignorables.getSet(), status)
 	    // HACK: Plus and minus sign are a special case: we accept them trailing only if they are
 	    // trailing in the pattern string.
-	  && !AffixUtils::containsType(posSuffixString, TYPE_PLUS_SIGN, status) &&
+	 && !AffixUtils::containsType(posSuffixString, TYPE_PLUS_SIGN, status) &&
 	    !AffixUtils::containsType(posSuffixString, TYPE_MINUS_SIGN, status) &&
 	    !AffixUtils::containsType(negSuffixString, TYPE_PLUS_SIGN, status) &&
 	    !AffixUtils::containsType(negSuffixString, TYPE_MINUS_SIGN, status)) {
@@ -280,11 +280,11 @@ void AffixMatcherWarehouse::createAffixMatchers(const AffixPatternProvider& patt
 
 		// Skip affixes in some cases
 		if(type == PATTERN_SIGN_TYPE_POS
-		  && 0 != (parseFlags & PARSE_FLAG_PLUS_SIGN_ALLOWED)) {
+		 && 0 != (parseFlags & PARSE_FLAG_PLUS_SIGN_ALLOWED)) {
 			continue;
 		}
 		if(type == PATTERN_SIGN_TYPE_POS_SIGN
-		  && 0 == (parseFlags & PARSE_FLAG_PLUS_SIGN_ALLOWED)) {
+		 && 0 == (parseFlags & PARSE_FLAG_PLUS_SIGN_ALLOWED)) {
 			continue;
 		}
 

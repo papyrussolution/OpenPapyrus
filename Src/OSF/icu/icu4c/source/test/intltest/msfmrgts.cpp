@@ -156,7 +156,7 @@ void MessageFormatRegressionTest::Test4074764() {
     UnicodeString pat;
     pat = fmt->toPattern(pat);
     UnicodeString exp("{0,choice,0#no files|1#one file|1< {0,number,integer} files}");
-    if (pat != exp) {
+    if(pat != exp) {
         errln("MessageFormat.toPattern failed");
         errln("Exp: " + exp);
         errln("Got: " + pat);
@@ -233,7 +233,7 @@ void MessageFormatRegressionTest::Test4031438()
 			}
 		}
 
-		//if (objs[i] != NULL && objs[i].getString(temp1) != params[i].getString(temp2)) {
+		//if(objs[i] != NULL && objs[i].getString(temp1) != params[i].getString(temp2)) {
 		if(temp != temp1) {
 			errln("Parse failed on object " + objs[i].getString(temp1) + " at index : " + i);
 		}
@@ -246,7 +246,7 @@ void MessageFormatRegressionTest::Test4031438()
 	// only a null array
 
 	/*tempBuffer = messageFormatter->format(null, tempBuffer, FieldPosition(FieldPosition::DONT_CARE), status);
-	   if (tempBuffer != "Impossible {1} has occurred -- status code is {0} and message is {2}." || failure(status,
+	   if(tempBuffer != "Impossible {1} has occurred -- status code is {0} and message is {2}." || failure(status,
 	      "messageFormat->format"))
 	    errln("Tests with no arguments failed");
 	   logln("Formatted with null : " + tempBuffer);*/
@@ -260,7 +260,7 @@ void MessageFormatRegressionTest::Test4031438()
 	logln("Formatted with params : " + tempBuffer);
 
 	/*tempBuffer = messageFormatter->format(null);
-	   if (!tempBuffer.equals("Double ' Quotes {0} test and quoted {1} test plus other {2} stuff."))
+	   if(!tempBuffer.equals("Double ' Quotes {0} test and quoted {1} test plus other {2} stuff."))
 	    errln("quote format test (w/ null) failed.");
 	   logln("Formatted with null : " + tempBuffer);
 	   logln("toPattern : " + messageFormatter.toPattern());*/
@@ -366,7 +366,7 @@ void MessageFormatRegressionTest::Test4106659()
 	   //    logln("ChoiceFormat constructor should check for the array lengths");
 	   //    cf = null;
 	   //}
-	   //if (cf != null)
+	   //if(cf != null)
 	   //    errln(cf->format(5));
 	   //
 	   delete cf;
@@ -432,7 +432,7 @@ void MessageFormatRegressionTest::Test4111739()
 	    errln("Unexpected exception : " + e.getMessage());
 	   }
 
-	   if (!format1.equals(format2)) {
+	   if(!format1.equals(format2)) {
 	    errln("MessageFormats before and after serialization are not" +
 	        " equal\nformat1 = " + format1 + "(" + format1.toPattern() + ")\nformat2 = " +
 	        format2 + "(" + format2.toPattern() + ")");
@@ -456,7 +456,7 @@ void MessageFormatRegressionTest::Test4114743()
 	if(!U_FAILURE(status))
 		errln("illegal pattern: \"" + illegalPattern + "\"");
 	/*} catch (IllegalArgumentException foo) {
-	    if (!originalPattern.equals(mf.toPattern()))
+	    if(!originalPattern.equals(mf.toPattern()))
 	        errln("pattern after: \"" + mf.toPattern() + "\"");
 	   }*/
 	delete mf;
@@ -491,7 +491,7 @@ void MessageFormatRegressionTest::Test4116444()
 		if(array != NULL) {
 			log("{");
 			for(int j = 0; j < count; j++) {
-				//if (array[j] != null)
+				//if(array[j] != null)
 				UnicodeString dummy;
 				dataerrln("\"" + array[j].getString(dummy) + "\"");
 				//else
@@ -568,7 +568,7 @@ void MessageFormatRegressionTest::Test4113018()
 	if(!U_FAILURE(status))
 		errln("Should have thrown IllegalArgumentException for pattern : " + illegalPattern);
 	/*} catch (IllegalArgumentException e) {
-	    if (!originalPattern.equals(mf.toPattern()))
+	    if(!originalPattern.equals(mf.toPattern()))
 	        errln("pattern after: \"" + mf.toPattern() + "\"");
 	   }*/
 	delete mf;

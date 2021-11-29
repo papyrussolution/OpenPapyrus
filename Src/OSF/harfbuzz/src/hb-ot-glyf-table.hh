@@ -80,7 +80,7 @@ public:
 		}
 
 		template<typename Iterator,
-		hb_requires(hb_is_source_of(Iterator, unsigned int))>
+		hb_requires(hb_is_source_of(Iterator, uint))>
 		static bool _add_loca_and_head(hb_subset_plan_t * plan, Iterator padded_offsets)
 		{
 			unsigned max_offset = +padded_offsets | hb_reduce(hb_add, 0);
@@ -101,14 +101,14 @@ public:
 			return result;
 		}
 		template<typename IteratorIn, typename IteratorOut,
-		hb_requires(hb_is_source_of(IteratorIn, unsigned int)),
+		hb_requires(hb_is_source_of(IteratorIn, uint)),
 		hb_requires(hb_is_sink_of(IteratorOut, unsigned))>
 		static void _write_loca(IteratorIn it, unsigned right_shift, IteratorOut dest)
 		{
-			unsigned int offset = 0;
+			uint offset = 0;
 			dest << 0;
 			+it
-			| hb_map([ =, &offset] (unsigned int padded_size)
+			| hb_map([ =, &offset] (uint padded_size)
 			{
 				offset += padded_size;
 				DEBUG_MSG(SUBSET, nullptr, "loca entry offset %d", offset);
@@ -229,9 +229,9 @@ protected:
 			};
 
 public:
-			unsigned int get_size() const
+			uint get_size() const
 			{
-				unsigned int size = min_size;
+				uint size = min_size;
 				/* arg1 and 2 are int16 */
 				if(flags & ARG_1_AND_2_ARE_WORDS) size += 4;
 				/* arg1 and 2 are int8 */
@@ -275,7 +275,7 @@ public:
 				return !(flags & ARGS_ARE_XY_VALUES);
 			}
 
-			void get_anchor_points(unsigned int &point1, unsigned int &point2) const
+			void get_anchor_points(uint &point1, uint &point2) const
 			{
 				const HBUINT8 * p = &StructAfter<const HBUINT8> (glyphIndex);
 				if(flags & ARG_1_AND_2_ARE_WORDS) {
@@ -468,19 +468,19 @@ public:
 					header(header_), bytes(bytes_) {
 				}
 
-				unsigned int instruction_len_offset() const
+				uint instruction_len_offset() const
 				{
 					return GlyphHeader::static_size + 2 * header.numberOfContours;
 				}
 
-				unsigned int length(unsigned int instruction_len) const
+				uint length(uint instruction_len) const
 				{
 					return instruction_len_offset() + 2 + instruction_len;
 				}
 
-				unsigned int instructions_length() const
+				uint instructions_length() const
 				{
-					unsigned int instruction_length_offset = instruction_len_offset();
+					uint instruction_length_offset = instruction_len_offset();
 					if(UNLIKELY(instruction_length_offset + 2 > bytes.length)) return 0;
 
 					const HBUINT16 &instructionLength = StructAtOffset<HBUINT16> (&bytes, instruction_length_offset);
@@ -498,25 +498,25 @@ public:
 					glyph += instruction_len_offset();
 
 					if(UNLIKELY(glyph + 2 >= glyph_end)) return Glyph();
-					unsigned int num_coordinates = StructAtOffset<HBUINT16> (glyph - 2, 0) + 1;
-					unsigned int num_instructions = StructAtOffset<HBUINT16> (glyph, 0);
+					uint num_coordinates = StructAtOffset<HBUINT16> (glyph - 2, 0) + 1;
+					uint num_instructions = StructAtOffset<HBUINT16> (glyph, 0);
 
 					glyph += 2 + num_instructions;
 
-					unsigned int coord_bytes = 0;
-					unsigned int coords_with_flags = 0;
+					uint coord_bytes = 0;
+					uint coords_with_flags = 0;
 					while(glyph < glyph_end) {
 						uint8_t flag = *glyph;
 						glyph++;
 
-						unsigned int repeat = 1;
+						uint repeat = 1;
 						if(flag & FLAG_REPEAT) {
 							if(UNLIKELY(glyph >= glyph_end)) return Glyph();
 							repeat = *glyph + 1;
 							glyph++;
 						}
 
-						unsigned int xBytes, yBytes;
+						uint xBytes, yBytes;
 						xBytes = yBytes = 0;
 						if(flag & FLAG_X_SHORT) xBytes = 1;
 						else if((flag & FLAG_X_SAME) == 0) xBytes = 2;
@@ -542,8 +542,8 @@ public:
 
 				void drop_hints_bytes(hb_bytes_t &dest_start, hb_bytes_t &dest_end) const
 				{
-					unsigned int instructions_len = instructions_length();
-					unsigned int glyph_length = length(instructions_len);
+					uint instructions_len = instructions_length();
+					uint glyph_length = length(instructions_len);
 					dest_start = bytes.sub_array(0, glyph_length - instructions_len);
 					dest_end = bytes.sub_array(glyph_length, bytes.length - glyph_length);
 				}
@@ -556,7 +556,7 @@ public:
 				    const simple_glyph_flag_t same_flag)
 				{
 					float v = 0;
-					for(unsigned i = 0; i < points_.length; i++) {
+					for(uint i = 0; i < points_.length; i++) {
 						uint8_t flag = points_[i].flag;
 						if(flag & short_flag) {
 							if(UNLIKELY(!bytes.check_range(p))) return false;
@@ -583,7 +583,7 @@ public:
 					const HBUINT16 * endPtsOfContours = &StructAfter<HBUINT16> (header);
 					int num_contours = header.numberOfContours;
 					if(UNLIKELY(!bytes.check_range(&endPtsOfContours[num_contours + 1]))) return false;
-					unsigned int num_points = endPtsOfContours[num_contours - 1] + 1;
+					uint num_points = endPtsOfContours[num_contours - 1] + 1;
 
 					points_.resize(num_points);
 					for(uint i = 0; i < points_.length; i++) points_[i].init();
@@ -603,7 +603,7 @@ public:
 						points_[i].flag = flag;
 						if(flag & FLAG_REPEAT) {
 							if(UNLIKELY(!bytes.check_range(p))) return false;
-							unsigned int repeat_count = *p++;
+							uint repeat_count = *p++;
 							while((repeat_count-- > 0) && (++i < num_points))
 								points_[i].flag = flag;
 						}
@@ -629,10 +629,10 @@ public:
 					return composite_iter_t(bytes, &StructAfter<CompositeGlyphChain, GlyphHeader> (header));
 				}
 
-				unsigned int instructions_length(hb_bytes_t bytes) const
+				uint instructions_length(hb_bytes_t bytes) const
 				{
-					unsigned int start = bytes.length;
-					unsigned int end = bytes.length;
+					uint start = bytes.length;
+					uint end = bytes.length;
 					const CompositeGlyphChain * last = nullptr;
 					for(auto &item : get_iterator())
 						last = &item;
@@ -705,7 +705,7 @@ public:
 			bool get_points(hb_font_t * font, const accelerator_t &glyf_accelerator,
 			    contour_point_vector_t &all_points /* OUT */,
 			    bool phantom_only = false,
-			    unsigned int depth = 0) const
+			    uint depth = 0) const
 			{
 				if(UNLIKELY(depth > HB_MAX_NESTING_LEVEL)) return false;
 				contour_point_vector_t points;
@@ -716,7 +716,7 @@ public:
 					    /* pseudo component points for each component in composite glyph */
 					    unsigned num_points = hb_len(CompositeGlyph(*header, bytes).get_iterator());
 					    if(UNLIKELY(!points.resize(num_points))) return false;
-					    for(unsigned i = 0; i < points.length; i++)
+					    for(uint i = 0; i < points.length; i++)
 						    points[i].init();
 					    break;
 				    }
@@ -730,7 +730,7 @@ public:
 				if(UNLIKELY(!points.resize(points.length + PHANTOM_COUNT))) return false;
 				hb_array_t<contour_point_t> phantoms = points.sub_array(points.length - PHANTOM_COUNT, PHANTOM_COUNT);
 				{
-					for(unsigned i = 0; i < PHANTOM_COUNT; ++i) phantoms[i].init();
+					for(uint i = 0; i < PHANTOM_COUNT; ++i) phantoms[i].init();
 					int h_delta = (int)header->xMin - glyf_accelerator.hmtx->get_side_bearing(gid);
 					int v_orig  = (int)header->yMax + glyf_accelerator.vmtx->get_side_bearing(gid);
 					unsigned h_adv = glyf_accelerator.hmtx->get_advance(gid);
@@ -752,7 +752,7 @@ public:
 					    break;
 					case COMPOSITE:
 				    {
-					    unsigned int comp_index = 0;
+					    uint comp_index = 0;
 					    for(auto &item : get_composite_iterator()) {
 						    contour_point_vector_t comp_points;
 						    if(UNLIKELY(!glyf_accelerator.glyph_for_gid(item.get_glyph_index())
@@ -773,7 +773,7 @@ public:
 						    comp_points.translate(points[comp_index]);
 
 						    if(item.is_anchored()) {
-							    unsigned int p1, p2;
+							    uint p1, p2;
 							    item.get_anchor_points(p1, p2);
 							    if(LIKELY(p1 < all_points.length && p2 < comp_points.length)) {
 								    contour_point_t delta;
@@ -897,7 +897,7 @@ protected:
 				/* Where to write phantoms, nullptr if not requested */
 				contour_point_t * phantoms = consumer.get_phantoms_sink();
 				if(phantoms)
-					for(unsigned i = 0; i < PHANTOM_COUNT; ++i)
+					for(uint i = 0; i < PHANTOM_COUNT; ++i)
 						phantoms[i] = all_points[all_points.length - PHANTOM_COUNT + i];
 
 				return true;
@@ -1023,7 +1023,7 @@ public:
 			{
 				if(UNLIKELY(gid >= num_glyphs)) return Glyph();
 
-				unsigned int start_offset, end_offset;
+				uint start_offset, end_offset;
 
 				if(short_offset) {
 					const HBUINT16 * offsets = (const HBUINT16*)loca_table->dataZ.arrayZ;
@@ -1045,7 +1045,7 @@ public:
 			}
 
 			void add_gid_and_children(hb_codepoint_t gid, hb_set_t * gids_to_retain,
-			    unsigned int depth = 0) const
+			    uint depth = 0) const
 			{
 				if(UNLIKELY(depth++ > HB_MAX_NESTING_LEVEL)) return;
 				/* Check if is already visited */
@@ -1196,7 +1196,7 @@ public:
 
 private:
 			bool short_offset;
-			unsigned int num_glyphs;
+			uint num_glyphs;
 			hb_blob_ptr_t<loca> loca_table;
 			hb_blob_ptr_t<glyf> glyf_table;
 			hb_face_t * face;
@@ -1216,7 +1216,7 @@ private:
 
 				hb_bytes_t dest_glyph = dest_start.copy(c);
 				dest_glyph = hb_bytes_t(&dest_glyph, dest_glyph.length + dest_end.copy(c).length);
-				unsigned int pad_length = padding();
+				uint pad_length = padding();
 				DEBUG_MSG(SUBSET,
 				    nullptr,
 				    "serialize %d byte glyph, width %d pad %d",
@@ -1250,16 +1250,16 @@ private:
 				source_glyph.drop_hints_bytes(dest_start, dest_end);
 			}
 
-			unsigned int      length() const {
+			uint      length() const {
 				return dest_start.length + dest_end.length;
 			}
 
 			/* pad to 2 to ensure 2-byte loca will be ok */
-			unsigned int     padding() const {
+			uint     padding() const {
 				return length() % 2;
 			}
 
-			unsigned int padded_size() const {
+			uint padded_size() const {
 				return length() + padding();
 			}
 		};

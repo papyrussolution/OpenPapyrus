@@ -50,9 +50,9 @@ FT_BEGIN_HEADER
 
   } FTC_INodeRec, *FTC_INode;
 
-#define FTC_INODE( x )         ((FTC_INode)( x ))
-#define FTC_INODE_GINDEX( x )  FTC_GNODE(x)->gindex
-#define FTC_INODE_FAMILY( x )  FTC_GNODE(x)->family
+#define FTC_INODE(x)         ((FTC_INode)(x))
+#define FTC_INODE_GINDEX(x)  FTC_GNODE(x)->gindex
+#define FTC_INODE_FAMILY(x)  FTC_GNODE(x)->family
 
   typedef FT_Error
   (*FTC_IFamily_LoadGlyphFunc)( FTC_Family  family,
@@ -69,9 +69,9 @@ FT_BEGIN_HEADER
 
   typedef const FTC_IFamilyClassRec*  FTC_IFamilyClass;
 
-#define FTC_IFAMILY_CLASS( x )  ((FTC_IFamilyClass)(x))
+#define FTC_IFAMILY_CLASS(x)  ((FTC_IFamilyClass)(x))
 
-#define FTC_CACHE_IFAMILY_CLASS( x ) \
+#define FTC_CACHE_IFAMILY_CLASS(x) \
           FTC_IFAMILY_CLASS( FTC_CACHE_GCACHE_CLASS(x)->family_class )
 
 

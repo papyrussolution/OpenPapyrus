@@ -141,8 +141,8 @@ typedef struct {
 
 	int by_number;
 	int called_gnum;
-	uchar *  name;
-	uchar *  name_end;
+	uchar * name;
+	uchar * name_end;
 	int entry_count;
 } CallNode;
 

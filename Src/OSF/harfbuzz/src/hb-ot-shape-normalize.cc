@@ -108,7 +108,7 @@ static inline void skip_char(hb_buffer_t * buffer)
 }
 
 /* Returns 0 if didn't decompose, number of resulting characters otherwise. */
-static inline unsigned int decompose(const hb_ot_shape_normalize_context_t * c, bool shortest, hb_codepoint_t ab)
+static inline uint decompose(const hb_ot_shape_normalize_context_t * c, bool shortest, hb_codepoint_t ab)
 {
 	hb_codepoint_t a = 0, b = 0, a_glyph = 0, b_glyph = 0;
 	hb_buffer_t * const buffer = c->buffer;
@@ -129,7 +129,7 @@ static inline unsigned int decompose(const hb_ot_shape_normalize_context_t * c, 
 		return 1;
 	}
 
-	unsigned int ret;
+	uint ret;
 	if((ret = decompose(c, shortest, a))) {
 		if(b) {
 			output_char(buffer, b, b_glyph);
@@ -196,7 +196,7 @@ static inline void decompose_current_character(const hb_ot_shape_normalize_conte
 }
 
 static inline void handle_variation_selector_cluster(const hb_ot_shape_normalize_context_t * c,
-    unsigned int end,
+    uint end,
     bool short_circuit HB_UNUSED)
 {
 	/* TODO Currently if there's a variation-selector we give-up, it's just too hard. */
@@ -232,7 +232,7 @@ static inline void handle_variation_selector_cluster(const hb_ot_shape_normalize
 	}
 }
 
-static inline void decompose_multi_char_cluster(const hb_ot_shape_normalize_context_t * c, unsigned int end, bool short_circuit)
+static inline void decompose_multi_char_cluster(const hb_ot_shape_normalize_context_t * c, uint end, bool short_circuit)
 {
 	hb_buffer_t * const buffer = c->buffer;
 	for(uint i = buffer->idx; i < end && buffer->successful; i++)
@@ -247,8 +247,8 @@ static inline void decompose_multi_char_cluster(const hb_ot_shape_normalize_cont
 
 static int compare_combining_class(const hb_glyph_info_t * pa, const hb_glyph_info_t * pb)
 {
-	unsigned int a = _hb_glyph_info_get_modified_combining_class(pa);
-	unsigned int b = _hb_glyph_info_get_modified_combining_class(pb);
+	uint a = _hb_glyph_info_get_modified_combining_class(pa);
+	uint b = _hb_glyph_info_get_modified_combining_class(pb);
 
 	return a < b ? -1 : a == b ? 0 : +1;
 }
@@ -284,7 +284,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 	bool might_short_circuit = always_short_circuit ||
 	    (mode != HB_OT_SHAPE_NORMALIZATION_MODE_DECOMPOSED &&
 	    mode != HB_OT_SHAPE_NORMALIZATION_MODE_COMPOSED_DIACRITICS_NO_SHORT_CIRCUIT);
-	unsigned int count;
+	uint count;
 
 	/* We do a fairly straightforward yet custom normalization process in three
 	 * separate rounds: decompose, reorder, recompose (if desired).  Currently
@@ -300,7 +300,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 		count = buffer->len;
 		buffer->idx = 0;
 		do {
-			unsigned int end;
+			uint end;
 			for(end = buffer->idx + 1; end < count; end++)
 				if(UNLIKELY(_hb_glyph_info_is_unicode_mark(&buffer->info[end])))
 					break;
@@ -310,7 +310,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 
 			/* From idx to end are simple clusters. */
 			if(might_short_circuit) {
-				unsigned int done = font->get_nominal_glyphs(end - buffer->idx,
+				uint done = font->get_nominal_glyphs(end - buffer->idx,
 					&buffer->cur().codepoint,
 					sizeof(buffer->info[0]),
 					&buffer->cur().glyph_index(),
@@ -345,7 +345,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 			if(_hb_glyph_info_get_modified_combining_class(&buffer->info[i]) == 0)
 				continue;
 
-			unsigned int end;
+			uint end;
 			for(end = i + 1; end < count; end++)
 				if(_hb_glyph_info_get_modified_combining_class(&buffer->info[end]) == 0)
 					break;
@@ -386,7 +386,7 @@ void _hb_ot_shape_normalize(const hb_ot_shape_plan_t * plan,
 
 		buffer->clear_output();
 		count = buffer->len;
-		unsigned int starter = 0;
+		uint starter = 0;
 		buffer->next_glyph();
 		while(buffer->idx < count && buffer->successful) {
 			hb_codepoint_t composed, glyph;

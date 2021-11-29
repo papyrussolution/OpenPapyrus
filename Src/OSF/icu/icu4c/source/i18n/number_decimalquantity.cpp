@@ -578,7 +578,7 @@ void DecimalQuantity::_setToDecNum(const DecNum& decnum, UErrorCode & status) {
 
 int64_t DecimalQuantity::toLong(bool truncateIfOverflow) const {
 	// NOTE: Call sites should be guarded by fitsInLong(), like this:
-	// if (dq.fitsInLong()) { /* use dq.toLong() */ } else { /* use some fallback */ }
+	// if(dq.fitsInLong()) { /* use dq.toLong() */ } else { /* use some fallback */ }
 	// Fallback behavior upon truncateIfOverflow is to truncate at 17 digits.
 	uint64_t result = 0L;
 	int32_t upperMagnitude = exponent + scale + precision - 1;
@@ -1419,11 +1419,11 @@ const char16_t* DecimalQuantity::checkHealth() const {
 bool DecimalQuantity::operator==(const DecimalQuantity& other) const {
 	bool basicEquals =
 	    scale == other.scale
-	  && precision == other.precision
-	  && flags == other.flags
-	  && lReqPos == other.lReqPos
-	  && rReqPos == other.rReqPos
-	  && isApproximate == other.isApproximate;
+	 && precision == other.precision
+	 && flags == other.flags
+	 && lReqPos == other.lReqPos
+	 && rReqPos == other.rReqPos
+	 && isApproximate == other.isApproximate;
 	if(!basicEquals) {
 		return false;
 	}

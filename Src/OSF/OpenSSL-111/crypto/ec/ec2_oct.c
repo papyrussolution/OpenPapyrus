@@ -120,8 +120,8 @@ size_t ec_GF2m_simple_point2oct(const EC_GROUP * group, const EC_POINT * point,
 	size_t field_len, i, skip;
 
 	if((form != POINT_CONVERSION_COMPRESSED)
-	  && (form != POINT_CONVERSION_UNCOMPRESSED)
-	  && (form != POINT_CONVERSION_HYBRID)) {
+	 && (form != POINT_CONVERSION_UNCOMPRESSED)
+	 && (form != POINT_CONVERSION_HYBRID)) {
 		ECerr(EC_F_EC_GF2M_SIMPLE_POINT2OCT, EC_R_INVALID_FORM);
 		goto err;
 	}

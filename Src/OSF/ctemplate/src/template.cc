@@ -2405,7 +2405,7 @@ size_t Template::InsertLine(const char * line, size_t len, Strip strip,
 		// add_newline to be referenced after the Write statement.
 	}
 	else if(strip >= STRIP_BLANK_LINES
-	  && IsBlankOrOnlyHasOneRemovableMarker(&line, &len, delim)) {
+	 && IsBlankOrOnlyHasOneRemovableMarker(&line, &len, delim)) {
 		add_newline = false;
 	}
 

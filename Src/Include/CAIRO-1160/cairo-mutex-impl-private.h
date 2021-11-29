@@ -47,7 +47,7 @@
 #define CAIRO_MUTEX_IMPL_NOOP	do {/*no-op*/} while(0)
 /* And one that evaluates its argument once */
 #define CAIRO_MUTEX_IMPL_NOOP1(expr)        do { (void)(expr); } while(0)
-/* Note: 'if (expr) {}' is an alternative to '(void)(expr);' that will 'use' the
+/* Note: 'if(expr) {}' is an alternative to '(void)(expr);' that will 'use' the
  * result of __attribute__((warn_used_result)) functions. */
 
 /* Cairo mutex implementation:
@@ -84,7 +84,7 @@
  * <programlisting>
  *	cairo_mutex_impl_t _cairo_some_mutex;
  *
- *    if (1)
+ *    if(1)
  *  CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
  *    else
  *  CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
@@ -98,7 +98,7 @@
  * <programlisting>
  *	cairo_mutex_impl_t _cairo_some_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;
  *
- *    if (1)
+ *    if(1)
  *  CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
  *    else
  *  CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
@@ -114,7 +114,7 @@
  *
  *    CAIRO_MUTEX_IMPL_INIT (_cairo_some_mutex);
  *
- *    if (1)
+ *    if(1)
  *  CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
  *    else
  *  CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);

@@ -34,15 +34,15 @@
 struct hb_shape_plan_key_t {
 	hb_segment_properties_t props;
 	const hb_feature_t * user_features;
-	unsigned int num_user_features;
+	uint num_user_features;
 #ifndef HB_NO_OT_SHAPE
 	hb_ot_shape_plan_key_t ot;
 #endif
 	hb_shape_func_t * shaper_func;
 	const char * shaper_name;
 	HB_INTERNAL bool init(bool copy, hb_face_t * face, const hb_segment_properties_t * props,
-	    const hb_feature_t  * user_features, unsigned int num_user_features, const int * coords,
-	    unsigned int num_coords, const char * const  * shaper_list);
+	    const hb_feature_t  * user_features, uint num_user_features, const int * coords,
+	    uint num_coords, const char * const  * shaper_list);
 	HB_INTERNAL void free() { SAlloc::F((void *)user_features); }
 	HB_INTERNAL bool user_features_match(const hb_shape_plan_key_t * other);
 	HB_INTERNAL bool equal(const hb_shape_plan_key_t * other);

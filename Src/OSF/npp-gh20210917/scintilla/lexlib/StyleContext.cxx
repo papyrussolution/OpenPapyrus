@@ -15,14 +15,14 @@
 using namespace Scintilla;
 
 bool StyleContext::MatchIgnoreCase(const char *s) {
-	if (MakeLowerCase(ch) != static_cast<unsigned char>(*s))
+	if(MakeLowerCase(ch) != static_cast<unsigned char>(*s))
 		return false;
 	s++;
-	if (MakeLowerCase(chNext) != static_cast<unsigned char>(*s))
+	if(MakeLowerCase(chNext) != static_cast<unsigned char>(*s))
 		return false;
 	s++;
 	for (int n = 2; *s; n++) {
-		if (*s !=
+		if(*s !=
 			MakeLowerCase(styler.SafeGetCharAt(currentPos + n, 0)))
 			return false;
 		s++;
@@ -31,16 +31,16 @@ bool StyleContext::MatchIgnoreCase(const char *s) {
 }
 
 bool StyleContext::MatchIgnoreCase2(const char *s) {
-	if (MakeLowerCase(ch) != MakeLowerCase(static_cast<unsigned char>(*s)))
+	if(MakeLowerCase(ch) != MakeLowerCase(static_cast<unsigned char>(*s)))
 		return false;
 	s++;
-	if (!*s)
+	if(!*s)
 		return true;
-	if (MakeLowerCase(chNext) != MakeLowerCase(static_cast<unsigned char>(*s)))
+	if(MakeLowerCase(chNext) != MakeLowerCase(static_cast<unsigned char>(*s)))
 		return false;
 	s++;
 	for (int n = 2; *s; n++) {
-		if (MakeLowerCase(static_cast<unsigned char>(*s)) !=
+		if(MakeLowerCase(static_cast<unsigned char>(*s)) !=
 			MakeLowerCase(static_cast<unsigned char>(styler.SafeGetCharAt(currentPos + n))))
 			return false;
 		s++;
@@ -54,7 +54,7 @@ static void getRange(Sci_PositionU start,
 		char *s,
 		Sci_PositionU len) {
 	Sci_PositionU i = 0;
-	while ((i < end - start + 1) && (i < len-1)) {
+	while((i < end - start + 1) && (i < len-1)) {
 		s[i] = styler[start + i];
 		i++;
 	}
@@ -71,7 +71,7 @@ static void getRangeLowered(Sci_PositionU start,
 		char *s,
 		Sci_PositionU len) {
 	Sci_PositionU i = 0;
-	while ((i < end - start + 1) && (i < len-1)) {
+	while((i < end - start + 1) && (i < len-1)) {
 		s[i] = MakeLowerCase(styler[start + i]);
 		i++;
 	}

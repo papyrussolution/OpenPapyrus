@@ -87,7 +87,7 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * conn, const char *
 	    (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
 		const char * p;
 		if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK
-		  && p != NULL && *p != 0) {
+		 && p != NULL && *p != 0) {
 			path = p;
 		}
 	}
@@ -175,7 +175,7 @@ int _sasldb_putdata(const sasl_utils_t * utils,
 	    (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
 		const char * p;
 		if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK
-		  && p != NULL && *p != 0) {
+		 && p != NULL && *p != 0) {
 			path = p;
 		}
 	}
@@ -227,7 +227,7 @@ int _sasl_check_db(const sasl_utils_t * utils,
 	    (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
 		const char * p;
 		if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK
-		  && p != NULL && *p != 0) {
+		 && p != NULL && *p != 0) {
 			path = p;
 		}
 	}
@@ -281,7 +281,7 @@ sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils,
 	    (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
 		const char * p;
 		if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK
-		  && p != NULL && *p != 0) {
+		 && p != NULL && *p != 0) {
 			path = p;
 		}
 	}

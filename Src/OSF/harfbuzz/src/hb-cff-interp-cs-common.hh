@@ -39,7 +39,7 @@ namespace CFF {
 	};
 
 	struct call_context_t {
-		void init(const byte_str_ref_t substr_ = byte_str_ref_t(), cs_type_t type_ = CSType_CharString, unsigned int subr_num_ = 0)
+		void init(const byte_str_ref_t substr_ = byte_str_ref_t(), cs_type_t type_ = CSType_CharString, uint subr_num_ = 0)
 		{
 			str_ref = substr_;
 			type = type_;
@@ -51,11 +51,11 @@ namespace CFF {
 
 		byte_str_ref_t str_ref;
 		cs_type_t type;
-		unsigned int subr_num;
+		uint subr_num;
 	};
 
 /* call stack */
-	const unsigned int kMaxCallLimit = 10;
+	const uint kMaxCallLimit = 10;
 	struct call_stack_t : cff_stack_t<call_context_t, kMaxCallLimit> {};
 
 	template <typename SUBRS>
@@ -63,7 +63,7 @@ namespace CFF {
 		void init(const SUBRS * subrs_)
 		{
 			subrs = subrs_;
-			unsigned int nSubrs = get_count();
+			uint nSubrs = get_count();
 			if(nSubrs < 1240)
 				bias = 107;
 			else if(nSubrs < 33900)
@@ -75,15 +75,15 @@ namespace CFF {
 		void fini() {
 		}
 
-		unsigned int get_count() const {
+		uint get_count() const {
 			return subrs ? subrs->count : 0;
 		}
 
-		unsigned int get_bias() const {
+		uint get_bias() const {
 			return bias;
 		}
 
-		byte_str_t operator [] (unsigned int index)const
+		byte_str_t operator [] (uint index)const
 		{
 			if(UNLIKELY(!subrs || index >= subrs->count))
 				return Null(byte_str_t);
@@ -92,7 +92,7 @@ namespace CFF {
 		}
 
 protected:
-		unsigned int bias;
+		uint bias;
 		const SUBRS * subrs;
 	};
 
@@ -161,7 +161,7 @@ protected:
 			return callStack.in_error() || SUPER::in_error();
 		}
 
-		bool pop_subr_num(const biased_subrs_t<SUBRS>& biasedSubrs, unsigned int &subr_num)
+		bool pop_subr_num(const biased_subrs_t<SUBRS>& biasedSubrs, uint &subr_num)
 		{
 			subr_num = 0;
 			int n = SUPER::argStack.pop_int();
@@ -175,7 +175,7 @@ protected:
 
 		void call_subr(const biased_subrs_t<SUBRS>& biasedSubrs, cs_type_t type)
 		{
-			unsigned int subr_num = 0;
+			uint subr_num = 0;
 			if(UNLIKELY(!pop_subr_num(biasedSubrs, subr_num) || callStack.get_count() >= kMaxCallLimit)) {
 				SUPER::set_error();
 				return;
@@ -214,9 +214,9 @@ public:
 		bool seen_moveto;
 		bool seen_hintmask;
 
-		unsigned int hstem_count;
-		unsigned int vstem_count;
-		unsigned int hintmask_size;
+		uint hstem_count;
+		uint vstem_count;
+		uint hintmask_size;
 		call_stack_t callStack;
 		biased_subrs_t<SUBRS>   globalSubrs;
 		biased_subrs_t<SUBRS>   localSubrs;
@@ -497,7 +497,7 @@ protected:
 		static void hlineto(ENV &env, PARAM& param)
 		{
 			point_t pt1;
-			unsigned int i = 0;
+			uint i = 0;
 			for(; i + 2 <= env.argStack.get_count(); i += 2) {
 				pt1 = env.get_pt();
 				pt1.move_x(env.eval_arg(i));
@@ -515,7 +515,7 @@ protected:
 		static void vlineto(ENV &env, PARAM& param)
 		{
 			point_t pt1;
-			unsigned int i = 0;
+			uint i = 0;
 			for(; i + 2 <= env.argStack.get_count(); i += 2) {
 				pt1 = env.get_pt();
 				pt1.move_y(env.eval_arg(i));
@@ -545,12 +545,12 @@ protected:
 
 		static void rcurveline(ENV &env, PARAM& param)
 		{
-			unsigned int arg_count = env.argStack.get_count();
+			uint arg_count = env.argStack.get_count();
 			if(UNLIKELY(arg_count < 8))
 				return;
 
-			unsigned int i = 0;
-			unsigned int curve_limit = arg_count - 2;
+			uint i = 0;
+			uint curve_limit = arg_count - 2;
 			for(; i + 6 <= curve_limit; i += 6) {
 				point_t pt1 = env.get_pt();
 				pt1.move(env.eval_arg(i), env.eval_arg(i+1));
@@ -568,12 +568,12 @@ protected:
 
 		static void rlinecurve(ENV &env, PARAM& param)
 		{
-			unsigned int arg_count = env.argStack.get_count();
+			uint arg_count = env.argStack.get_count();
 			if(UNLIKELY(arg_count < 8))
 				return;
 
-			unsigned int i = 0;
-			unsigned int line_limit = arg_count - 6;
+			uint i = 0;
+			uint line_limit = arg_count - 6;
 			for(; i + 2 <= line_limit; i += 2) {
 				point_t pt1 = env.get_pt();
 				pt1.move(env.eval_arg(i), env.eval_arg(i+1));
@@ -591,7 +591,7 @@ protected:
 
 		static void vvcurveto(ENV &env, PARAM& param)
 		{
-			unsigned int i = 0;
+			uint i = 0;
 			point_t pt1 = env.get_pt();
 			if((env.argStack.get_count() & 1) != 0)
 				pt1.move_x(env.eval_arg(i++));
@@ -608,7 +608,7 @@ protected:
 
 		static void hhcurveto(ENV &env, PARAM& param)
 		{
-			unsigned int i = 0;
+			uint i = 0;
 			point_t pt1 = env.get_pt();
 			if((env.argStack.get_count() & 1) != 0)
 				pt1.move_y(env.eval_arg(i++));
@@ -626,7 +626,7 @@ protected:
 		static void vhcurveto(ENV &env, PARAM& param)
 		{
 			point_t pt1, pt2, pt3;
-			unsigned int i = 0;
+			uint i = 0;
 			if((env.argStack.get_count() % 8) >= 4) {
 				point_t pt1 = env.get_pt();
 				pt1.move_y(env.eval_arg(i));
@@ -683,7 +683,7 @@ protected:
 		static void hvcurveto(ENV &env, PARAM& param)
 		{
 			point_t pt1, pt2, pt3;
-			unsigned int i = 0;
+			uint i = 0;
 			if((env.argStack.get_count() % 8) >= 4) {
 				point_t pt1 = env.get_pt();
 				pt1.move_x(env.eval_arg(i));

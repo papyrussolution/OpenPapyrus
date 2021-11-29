@@ -199,12 +199,12 @@ int OPENSSL_init_ssl(uint64_t opts, const OPENSSL_INIT_SETTINGS * settings)
 		return 0;
 
 	if((opts & OPENSSL_INIT_NO_LOAD_SSL_STRINGS)
-	  && !RUN_ONCE_ALT(&ssl_strings, ossl_init_no_load_ssl_strings,
+	 && !RUN_ONCE_ALT(&ssl_strings, ossl_init_no_load_ssl_strings,
 	    ossl_init_load_ssl_strings))
 		return 0;
 
 	if((opts & OPENSSL_INIT_LOAD_SSL_STRINGS)
-	  && !RUN_ONCE(&ssl_strings, ossl_init_load_ssl_strings))
+	 && !RUN_ONCE(&ssl_strings, ossl_init_load_ssl_strings))
 		return 0;
 
 	return 1;

@@ -3721,7 +3721,7 @@ cmsBool WriteSegmentedCurve(cmsIOHANDLER* io, cmsToneCurve* g)
 		}
 
 		// It seems there is no need to align. Code is here, and for safety commented out
-		// if (!_cmsWriteAlignment(io)) goto Error;
+		// if(!_cmsWriteAlignment(io)) goto Error;
 	}
 
 	return TRUE;

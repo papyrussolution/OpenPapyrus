@@ -56,7 +56,7 @@
 #endif
 // Encoded free lists allow detection of corrupted free lists
 // and can detect buffer overflows, modify after free, and double `free`s.
-#if (MI_SECURE>=3 || MI_DEBUG>=1 || MI_PADDING > 0)
+#if(MI_SECURE>=3 || MI_DEBUG>=1 || MI_PADDING > 0)
 	#define MI_ENCODE_FREELIST  1
 #endif
 //
@@ -116,7 +116,7 @@
 
 // Maximum number of size classes. (spaced exponentially in 12.5% increments)
 #define MI_BIN_HUGE  (73U)
-#if (MI_LARGE_OBJ_WSIZE_MAX >= 655360)
+#if(MI_LARGE_OBJ_WSIZE_MAX >= 655360)
 	#error "define more bins"
 #endif
 // Used as a special value to encode block sizes in 32 bits.
@@ -290,7 +290,7 @@ typedef struct mi_random_cxt_s {
 } mi_random_ctx_t;
 
 // In debug mode there is a padding stucture at the end of the blocks to check for buffer overflows
-#if (MI_PADDING)
+#if(MI_PADDING)
 	typedef struct mi_padding_s {
 		uint32_t canary; // encoded block value to check validity of the padding (in case of overflow)
 		uint32_t delta; // padding bytes before the block. (mi_usable_size(p) - delta == exact allocated bytes)
@@ -327,19 +327,19 @@ struct mi_heap_s {
 #define MI_DEBUG_FREED      (0xDF)
 #define MI_DEBUG_PADDING    (0xDE)
 
-#if (MI_DEBUG)
+#if(MI_DEBUG)
 	// use our own assertion to print without memory allocation
 	void _mi_assert_fail(const char * assertion, const char * fname, unsigned int line, const char * func);
 	#define mi_assert(expr)     ((expr) ? (void)0 : _mi_assert_fail(#expr, __FILE__, __LINE__, __func__))
 #else
 	#define mi_assert(x)
 #endif
-#if (MI_DEBUG>1)
+#if(MI_DEBUG>1)
 	#define mi_assert_internal    mi_assert
 #else
 	#define mi_assert_internal(x)
 #endif
-#if (MI_DEBUG>2)
+#if(MI_DEBUG>2)
 	#define mi_assert_expensive   mi_assert
 #else
 	#define mi_assert_expensive(x)
@@ -348,7 +348,7 @@ struct mi_heap_s {
 // Statistics
 //
 #ifndef MI_STAT
-	#if (MI_DEBUG>0)
+	#if(MI_DEBUG>0)
 		#define MI_STAT 2
 	#else
 		#define MI_STAT 0
@@ -399,7 +399,7 @@ void _mi_stat_increase(mi_stat_count_t* stat, size_t amount);
 void _mi_stat_decrease(mi_stat_count_t* stat, size_t amount);
 void _mi_stat_counter_increase(mi_stat_counter_t* stat, size_t amount);
 
-#if (MI_STAT)
+#if(MI_STAT)
 #define mi_stat_increase(stat, amount)         _mi_stat_increase(&(stat), amount)
 #define mi_stat_decrease(stat, amount)         _mi_stat_decrease(&(stat), amount)
 #define mi_stat_counter_increase(stat, amount) _mi_stat_counter_increase(&(stat), amount)

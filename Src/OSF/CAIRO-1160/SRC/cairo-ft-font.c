@@ -899,7 +899,7 @@ static void _fill_xrender_bitmap(FT_Bitmap * target,
 		    if(!bgr) {
 			    for(h = height; h > 0; h--, srcLine += 3 * src_pitch, dstLine += pitch) {
 				    int x;
-				    uchar* src = srcLine;
+				    uchar * src = srcLine;
 				    uint*  dst = (uint *)dstLine;
 
 				    for(x = 0; x < width; x++, src += 1) {
@@ -3055,7 +3055,7 @@ cairo_font_face_t * cairo_ft_font_face_create_for_pattern(FcPattern * pattern)
  * font_face = cairo_ft_font_face_create_for_ft_face (ft_face, 0);
  * status = cairo_font_face_set_user_data (font_face, &key,
  *   ft_face, (cairo_destroy_func_t) FT_Done_Face);
- * if (status) {
+ * if(status) {
  * cairo_font_face_destroy (font_face);
  * FT_Done_Face (ft_face);
  * return ERROR;

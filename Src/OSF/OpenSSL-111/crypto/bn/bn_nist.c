@@ -417,9 +417,9 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		carry = 1;
 
 	/*
-	 * we need 'if (carry==0 || result>=modulus) result-=modulus;'
+	 * we need 'if(carry==0 || result>=modulus) result-=modulus;'
 	 * as comparison implies subtraction, we can write
-	 * 'tmp=result-modulus; if (!carry || !borrow) result=tmp;'
+	 * 'tmp=result-modulus; if(!carry || !borrow) result=tmp;'
 	 * this is what happens below, but without explicit if:-) a.
 	 */
 	mask =

@@ -30,7 +30,7 @@
 	static int libxml_is_threaded = -1;
 	#ifdef __GNUC__
 		#ifdef linux
-			#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
+			#if(__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
 				extern int pthread_once(pthread_once_t * __once_control, void (* __init_routine)()) __attribute((weak));
 				extern void * pthread_getspecific(pthread_key_t __key) __attribute((weak));
 				extern int pthread_setspecific(pthread_key_t __key, __const void * __pointer) __attribute((weak));

@@ -604,7 +604,7 @@ static const char ** expectPrefRegionsTestData[] = {
 static void TestGetPreferredValues() {
 	const char *** testDataPtr = expectPrefRegionsTestData;
 	const char ** regionListPtr;
-	while( (regionListPtr = *testDataPtr++) != NULL) {
+	while((regionListPtr = *testDataPtr++) != NULL) {
 		UErrorCode status = U_ZERO_ERROR;
 		const char * deprecatedCode = *regionListPtr++;
 		const URegion * r = uregion_getRegionFromCode(deprecatedCode, &status);
@@ -613,7 +613,7 @@ static void TestGetPreferredValues() {
 			if(U_SUCCESS(status) ) {
 				if(preferredRegions != NULL) {
 					const char * preferredCode;
-					while( (preferredCode = *regionListPtr++) != NULL) {
+					while((preferredCode = *regionListPtr++) != NULL) {
 						const char * check;
 						bool found = FALSE;
 						uenum_reset(preferredRegions, &status);

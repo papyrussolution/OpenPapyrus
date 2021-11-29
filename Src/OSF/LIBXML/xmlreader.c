@@ -1159,7 +1159,7 @@ get_next_node:
 		if((oldstate == XML_TEXTREADER_ELEMENT) && (reader->P_Node->type == XML_ELEMENT_NODE) &&
 		    !reader->P_Node->children && ((reader->P_Node->extra & NODE_IS_EMPTY) == 0)
 #ifdef LIBXML_XINCLUDE_ENABLED
-		  && (reader->in_xinclude <= 0)
+		 && (reader->in_xinclude <= 0)
 #endif
 		    ) {
 			reader->state = XML_TEXTREADER_END;

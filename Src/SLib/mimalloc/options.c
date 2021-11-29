@@ -364,7 +364,7 @@ static _Atomic(void *) mi_error_arg;     // = NULL
 
 static void mi_error_default(int err) {
 	UNUSED(err);
-#if (MI_DEBUG>0)
+#if(MI_DEBUG>0)
 	if(err==EFAULT) {
     #ifdef _MSC_VER
 		__debugbreak();
@@ -372,7 +372,7 @@ static void mi_error_default(int err) {
 		abort();
 	}
 #endif
-#if (MI_SECURE>0)
+#if(MI_SECURE>0)
 	if(err==EFAULT) { // abort on serious errors in secure mode (corrupted meta-data)
 		abort();
 	}

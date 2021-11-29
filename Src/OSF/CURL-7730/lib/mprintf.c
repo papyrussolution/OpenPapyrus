@@ -65,7 +65,7 @@
  * Non-ANSI integer extensions
  */
 
-#if (defined(__BORLANDC__) && (__BORLANDC__ >= 0x520)) || \
+#if(defined(__BORLANDC__) && (__BORLANDC__ >= 0x520)) || \
 	(defined(__WATCOMC__) && defined(__386__)) || \
 	(defined(__POCC__) && defined(_MSC_VER)) || \
 	(defined(_WIN32_WCE)) || \
@@ -325,7 +325,7 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 					    break;
 #if defined(MP_HAVE_INT_EXTENSIONS)
 					case 'I':
-#if (SIZEOF_CURL_OFF_T > SIZEOF_LONG)
+#if(SIZEOF_CURL_OFF_T > SIZEOF_LONG)
 					    flags |= FLAGS_LONGLONG;
 #else
 					    flags |= FLAGS_LONG;
@@ -347,14 +347,14 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 					case 'z':
 					    /* the code below generates a warning if -Wunreachable-code is
 					       used */
-#if (SIZEOF_SIZE_T > SIZEOF_LONG)
+#if(SIZEOF_SIZE_T > SIZEOF_LONG)
 					    flags |= FLAGS_LONGLONG;
 #else
 					    flags |= FLAGS_LONG;
 #endif
 					    break;
 					case 'O':
-#if (SIZEOF_CURL_OFF_T > SIZEOF_LONG)
+#if(SIZEOF_CURL_OFF_T > SIZEOF_LONG)
 					    flags |= FLAGS_LONGLONG;
 #else
 					    flags |= FLAGS_LONG;

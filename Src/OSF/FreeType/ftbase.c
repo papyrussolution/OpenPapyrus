@@ -572,13 +572,13 @@ FT_BASE_DEF(FT_Pointer) ft_mem_dup(FT_Memory memory, const void *  address, FT_U
 	return p;
 }
 
-FT_BASE_DEF(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char *  str, FT_Error    *p_error)
+FT_BASE_DEF(FT_Pointer) ft_mem_strdup(FT_Memory memory, const char * str, FT_Error    *p_error)
 {
 	FT_ULong len = str ? (FT_ULong)ft_strlen(str) + 1 : 0;
 	return ft_mem_dup(memory, str, len, p_error);
 }
 
-FT_BASE_DEF(FT_Int) ft_mem_strcpyn(char * dst, const char *  src, FT_ULong size)
+FT_BASE_DEF(FT_Int) ft_mem_strcpyn(char * dst, const char * src, FT_ULong size)
 {
 	while(size > 1 && *src != 0) {
 		*dst++ = *src++;

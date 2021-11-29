@@ -41,7 +41,7 @@ void Catalogue::AddLexerModule(LexerModule *plm) {
 int Scintilla_LinkLexers() {
 
 	static int initialised = 0;
-	if (initialised)
+	if(initialised)
 		return 0;
 	initialised = 1;
 

@@ -1964,8 +1964,8 @@ inline bool TestCollator::operator==(const Collator& other) const {
 	return this == &other;
 
 	// Normally, subclasses should do something like the following:
-	//    if (this == &other) { return true; }
-	//    if (!Collator::operator==(other)) { return false; }  // not the same class
+	//    if(this == &other) { return true; }
+	//    if(!Collator::operator==(other)) { return false; }  // not the same class
 	//
 	//    const TestCollator &o = (const TestCollator&)other;
 	//    (compare this vs. o's subclass fields)

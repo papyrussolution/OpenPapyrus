@@ -519,7 +519,7 @@ int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 		}
 	}
 	if(counter) {
-		p_lw = CreateListWindow(128, lbtDisposeData | lbtDblClkNotify);
+		p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 		if(p_lw) {
 			SymbHashTable::Iter iter;
 			uint   _id = 0;
@@ -548,10 +548,9 @@ int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 int PPObjWorkbook::SelectKeyword(SString & rKeyword)
 {
 	rKeyword.Z();
-
 	int    ok = -1;
 	PPID   id = 0;
-	ListWindow * p_lw = CreateListWindow(128, lbtDisposeData | lbtDblClkNotify);
+	ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 	if(p_lw) {
 		WorkbookTbl::Rec wb_rec;
 		for(SEnum en = P_Tbl->EnumByType(PPWBTYP_KEYWORD, 0); en.Next(&wb_rec) > 0;) {

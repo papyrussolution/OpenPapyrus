@@ -989,9 +989,9 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 			            /* In JavaScript, \u must be followed by four hexadecimal numbers.
 			               Otherwise it is a lowercase u letter. */
 				    if(MAX_255(ptr[1]) && (digitab[ptr[1]] & ctype_xdigit) != 0
-				  && MAX_255(ptr[2]) && (digitab[ptr[2]] & ctype_xdigit) != 0
-				  && MAX_255(ptr[3]) && (digitab[ptr[3]] & ctype_xdigit) != 0
-				  && MAX_255(ptr[4]) && (digitab[ptr[4]] & ctype_xdigit) != 0) {
+				 && MAX_255(ptr[2]) && (digitab[ptr[2]] & ctype_xdigit) != 0
+				 && MAX_255(ptr[3]) && (digitab[ptr[3]] & ctype_xdigit) != 0
+				 && MAX_255(ptr[4]) && (digitab[ptr[4]] & ctype_xdigit) != 0) {
 					    c = 0;
 					    for(i = 0; i < 4; ++i) {
 						    uint32 cc = *(++ptr);
@@ -5052,7 +5052,7 @@ OUTPUT_SINGLE_REPEAT:
 						/* If the maximum is also zero, we used to just omit the group from the
 							output altogether, like this:
 
-							** if (repeat_max == 0)
+							** if(repeat_max == 0)
 							**   {
 							**   code = previous;
 							**   goto END_REPEAT;
@@ -6364,7 +6364,7 @@ NUMBERED_GROUP:
 				    errorcodeptr, /* Where to put an error message */
 				    (bravalue == OP_ASSERTBACK ||
 					    bravalue == OP_ASSERTBACK_NOT), /* TRUE if back assert */
-				    reset_bracount, /* True if (?| group */
+				    reset_bracount, /* True if(?| group */
 				    skipbytes, /* Skip over bracket number */
 				    cond_depth +
 				    ((bravalue == OP_COND) ? 1 : 0), /* Depth of condition subpatterns */
@@ -6823,7 +6823,7 @@ static BOOL compile_regex(int options, pcre_uchar ** codeptr, const pcre_uchar *
 	   pre-compile phase to find out whether anything has yet been compiled or not. */
 
 	/* If this is a capturing subpattern, add to the chain of open capturing items
-	   so that we can detect them if (*ACCEPT) is encountered. This is also used to
+	   so that we can detect them if(*ACCEPT) is encountered. This is also used to
 	   detect groups that contain recursive back references to themselves. Note that
 	   only OP_CBRA need be tested here; changing this opcode to one of its variants,
 	   e.g. OP_SCBRAPOS, happens later, after the group has been compiled. */

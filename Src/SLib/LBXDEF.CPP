@@ -716,12 +716,304 @@ int StdTreeListBoxDef::GoByID(long id)
 	return 1;
 }
 
-int FASTCALL StdTreeListBoxDef::HasChild(long id) const
-	{ return P_SaList ? P_SaList->HasChild(id) : 0; }
+bool FASTCALL StdTreeListBoxDef::HasChildren(long id) const
+	{ return P_SaList ? P_SaList->HasChildren(id) : false; }
 int StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
 	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
 int StdTreeListBoxDef::GetParent(long child, long * pParent) const
 	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
+//
+//
+#if 0 // {
+// @construction {
+class StdTreeListBoxDef2_ : public ListBoxDef {
+public:
+	friend class SmartListBox;
+
+	StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID);
+	~StdTreeListBoxDef2_();
+	virtual void   setViewHight(int);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    valid();
+	virtual int    go(long);
+	virtual int    step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray & rList);
+	virtual void * FASTCALL getRow_(long);
+	virtual int    getCurString(SString & rBuf);
+	virtual int    getCurID(long *);
+	virtual int    getCurData(void *);
+	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	int    setArray(StrAssocTree *);
+	int    GetStringByID(long id, SString & rBuf);
+	int    GoByID(long id);
+	bool   FASTCALL HasChildren(long id) const;
+	int    GetListByParent(long parentId, LongArray & rList) const;
+	int    GetParent(long child, long * pParent) const;
+	//int    GetChildList(long parentId, LongArray * pChildList);
+protected:
+	//void   setupView();
+	int    Helper_CreateTree();
+	int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
+private:
+	StrAssocTree * P_SaList;
+	struct TreeItem {
+		long   Id;
+		long   ParentId;
+		void * H; // @v10.9.4 HTREEITEM-->(void *)
+		uint   P;
+	};
+	//STree  T;
+	struct Item {
+		long   Id;
+		long   ParentId;
+		char   Txt[256];
+	};
+	Item   TempItem;
+};
+
+StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0)
+{
+	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, LBDEFSIGN_STDTREE);
+	setArray(pList);
+}
+
+StdTreeListBoxDef2_::~StdTreeListBoxDef2_()
+{
+	if(Options & lbtDisposeData)
+		delete P_SaList;
+}
+
+int StdTreeListBoxDef2_::Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos)
+{
+	int    ok = 1;
+	if(!rAddedIdxList.Has(idx)) {
+		StrAssocArray::Item item_ = P_SaList->Get(idx);
+		TreeItem ti;
+		ti.Id = item_.Id;
+		ti.ParentId = item_.ParentId;
+		ti.H = 0;
+		ti.P = idx;
+		uint32 pos = 0;
+		uint32 parent_p = 0;
+		if(item_.ParentId) {
+			if(!T.Search(&item_.ParentId, &parent_p, CMPF_LONG)) {
+				//
+				// Если родительский элемент еще не попал в дерево, то
+				// рекурсивно вызываем функцию Helper_AddTreeItem для вставки родительского элемента.
+				//
+				uint   sa_parent_p = 0;
+				if(P_SaList->Search(item_.ParentId, &sa_parent_p)) {
+					int    r;
+					THROW(r = Helper_AddTreeItem(sa_parent_p, rAddedIdxList, &parent_p)); // @recursion
+					assert(r > 0); // Не может такого быть, чтобы не обнаруженный до этого элемент, уже был помечен как созданный.
+				}
+				else
+					parent_p = 0;
+			}
+		}
+		//THROW(T.Insert(&ti, parent_p, &pos));
+		rAddedIdxList.Add(idx);
+		ASSIGN_PTR(pPos, pos);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int StdTreeListBoxDef2_::Helper_CreateTree()
+{
+	int    ok = 1;
+	if(P_SaList) {
+		UintHashTable added_idx_list;
+		const uint _c = P_SaList->GetCount();
+		for(uint i = 0; i < _c; i++) {
+			uint32 pos = 0;
+			THROW(Helper_AddTreeItem(i, added_idx_list, &pos));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int StdTreeListBoxDef2_::setArray(StrAssocTree * pList)
+{
+	if(Options & lbtDisposeData) {
+		delete P_SaList;
+	}
+	P_SaList = pList;
+	//T.Z();
+	Helper_CreateTree();
+	top();
+	return 1;
+}
+
+int StdTreeListBoxDef2_::getCurString(SString & rBuf)
+{
+	long   cur_id = 0L;
+	getCurID(&cur_id);
+	SETIFZ(cur_id, CurItem);
+	return GetStringByID(cur_id, rBuf);
+}
+
+int StdTreeListBoxDef2_::getCurID(long * pId)
+{
+	int    ok = 0;
+	if(P_SaList) {
+		const void * p = getRow_(_curItem());
+		if(p) {
+			*pId = static_cast<const long *>(p)[0];
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int StdTreeListBoxDef2_::getCurData(void * b)
+{
+	if(P_SaList) {
+		const void * p = getRow_(_curItem());
+		if(p)
+			strnzcpy(static_cast<char *>(b), ((const Item *)p)->Txt, 255);
+	}
+	return 0;
+}
+
+int  StdTreeListBoxDef2_::valid() { return BIN(P_SaList); }
+long StdTreeListBoxDef2_::getRecsCount() { return P_SaList ? P_SaList->GetCount() : 0; }
+
+int StdTreeListBoxDef2_::getIdList(LongArray & rList)
+{
+	int    ok = -1;
+	if(P_SaList) {
+		P_SaList->GetList(rList);
+		rList.sortAndUndup();
+		ok = 1;
+	}
+	return ok;
+}
+
+void * FASTCALL StdTreeListBoxDef2_::getRow_(long r)
+{
+	if(P_SaList && r < (long)P_SaList->getCount()) {
+		StrAssocArray::Item item = P_SaList->Get(r);
+		TempItem.Id = item.Id;
+		TempItem.ParentId = item.ParentId;
+		STRNSCPY(TempItem.Txt, item.Txt);
+		return &TempItem;
+	}
+	else
+		return 0;
+}
+
+int StdTreeListBoxDef2_::go(long pos)
+{
+	if(valid() && pos >= 0 && pos < getRecsCount()) {
+		CurItem = pos;
+		return 1;
+	}
+	else
+		return -1;
+}
+
+int StdTreeListBoxDef2_::step(long delta) { return go(CurItem + delta); }
+
+int StdTreeListBoxDef2_::top()
+{
+	CurItem = 0;
+	return 1;
+}
+
+int StdTreeListBoxDef2_::bottom()
+{
+	CurItem = getRecsCount();
+	return 1;
+}
+
+void StdTreeListBoxDef2_::getScrollData(long * pScrollDelta, long * pScrollPos)
+{
+	ASSIGN_PTR(pScrollPos, 0);
+	if(P_SaList) {
+		uint32 pos = 0;
+		long * p_id = (long *)getRow_(_curItem());
+		if(p_id && *p_id && T.Search(p_id, &pos, CMPF_LONG)) {
+			TreeItem * p_item = static_cast<TreeItem *>(T.GetData(pos));
+			if(p_item)
+				ASSIGN_PTR(pScrollPos, (long)p_item->H);
+		}
+	}
+	ASSIGN_PTR(pScrollDelta, 0);
+}
+
+int  StdTreeListBoxDef2_::GetFrameState() { return -1; }
+int  StdTreeListBoxDef2_::GetFrameSize() { return -1; }
+void StdTreeListBoxDef2_::setViewHight(int h) { ListBoxDef::setViewHight(h); }
+
+int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchMode)
+{
+	int    r   = 0;
+	if(valid()) {
+		int    dir = (srchMode & ~srchFlags);
+		uint   ofs = sizeof(long);
+		uint   pos;
+		if(P_SaList) {
+			if(srchMode & lbSrchByID) {
+				pos = 0;
+				r = P_SaList->Search(*(long *)pPattern, &pos);
+			}
+			else {
+				pos = (dir == srchNext) ? (uint)_curItem() + 1 : 0U;
+				SETIFZ(fcmp, substFCMP);
+				r = P_SaList->SearchByText((const char *)pPattern, fcmp, &pos);
+			}
+		}
+		if(r)
+			CurItem = pos;
+	}
+	return r;
+}
+
+int StdTreeListBoxDef2_::GetStringByID(long id, SString & rBuf)
+{
+	int    ok = -1;
+	uint   pos = 0;
+	rBuf.Z();
+	if(valid()) {
+		if(P_SaList) {
+			long parent_id = 0;
+			if(P_SaList->Search(id, &parent_id, &rBuf))
+				ok = 1;
+			//ok = BIN(P_SaList->GetText(id, rBuf));
+		}
+	}
+	return ok;
+}
+
+int StdTreeListBoxDef2_::GoByID(long id)
+{
+	uint   pos = 0;
+	if(valid() && P_SaList && P_SaList->Search(id, &pos))
+		go(pos);
+	return 1;
+}
+
+bool FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const
+	{ return P_SaList ? P_SaList->HasChildren(id) : false; }
+int StdTreeListBoxDef2_::GetListByParent(long parentId, LongArray & rList) const
+	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
+int StdTreeListBoxDef2_::GetParent(long childId, long * pParentId) const
+{ 
+	return P_SaList ? P_SaList->Search(childId, pParentId, 0) : 0;
+	//return P_SaList ? (P_SaList->GetParent(childId, pParentId) > 0) : 0; 
+}
+#endif // } 0 @construction 
+
+#if 0 // @v11.2.5 {
 //
 // StringListBoxDef
 //
@@ -753,6 +1045,7 @@ int StringListBoxDef::removeItem(long pos)
 	{ return (P_Data && pos >= 0) ? P_Data->atFree(static_cast<uint>(pos)) : 0; }
 void StringListBoxDef::freeAll()
 	{ CALLPTRMEMB(P_Data, freeAll()); }
+#endif // } 0 @v11.2.5
 //
 // DBQListBoxDef
 //

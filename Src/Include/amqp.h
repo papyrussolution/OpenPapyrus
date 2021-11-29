@@ -2889,7 +2889,7 @@ AMQP_END_DECLS
 //#include "amqp_time.h"
 // amqp_time.h {
 //#include <stdint.h>
-#if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
+#if((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
 	/*
 	#ifndef WINVER
 		#define WINVER 0x0502

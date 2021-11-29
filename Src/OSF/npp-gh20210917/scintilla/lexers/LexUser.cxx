@@ -434,7 +434,7 @@ static bool IsNumber(StyleContext & sc, vector<string> * numberTokens[], vvstrin
 	for(;;) {
 		skipForward = 0;
 
-		// if (isInListForward2(fwEndVectors, (*fwEndVectors)->size(), sc, ignoreCase, offset)  ||
+		// if(isInListForward2(fwEndVectors, (*fwEndVectors)->size(), sc, ignoreCase, offset)  ||
 		// isWhiteSpace(sc.GetRelative(offset)))
 		if(isWhiteSpace(sc.GetRelative(offset)) || isInListForward2(fwEndVectors, 12, sc, ignoreCase, offset)) {
 			if(hasExtras2 == true && hasSuffix1 == false)

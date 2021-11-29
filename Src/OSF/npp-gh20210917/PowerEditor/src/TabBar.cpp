@@ -1063,7 +1063,7 @@ void TabBarPlus::exchangeItemData(POINT point)
 	// Find the destination tab...
 	int nTab = getTabIndexAt(point);
 	// The position is over a tab.
-	//if (hitinfo.flags != TCHT_NOWHERE)
+	//if(hitinfo.flags != TCHT_NOWHERE)
 	if(nTab != -1) {
 		_isDraggingInside = true;
 		if(nTab != _nTabDragged) {

@@ -459,7 +459,7 @@ TimeZone* U_EXPORT2 TimeZone::detectHostTimeZone()
 
 	int32_t hostIDLen = hostStrID.length();
 	if(hostZone != NULL && rawOffset != hostZone->getRawOffset()
-	  && (3 <= hostIDLen && hostIDLen <= 4)) {
+	 && (3 <= hostIDLen && hostIDLen <= 4)) {
 		// Uh oh. This probably wasn't a good id.
 		// It was probably an ambiguous abbreviation
 		delete hostZone;

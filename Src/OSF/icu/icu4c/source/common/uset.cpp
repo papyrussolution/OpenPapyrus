@@ -293,7 +293,7 @@ U_CAPI int32_t U_EXPORT2 uset_getItem(const USet* uset, int32_t itemIndex,
 //U_CAPI bool U_EXPORT2
 //uset_getRange(const USet* set, int32_t rangeIndex,
 //              UChar32* pStart, UChar32* pEnd) {
-//    if ((uint32_t) rangeIndex >= (uint32_t) uset_getRangeCount(set)) {
+//    if((uint32_t) rangeIndex >= (uint32_t) uset_getRangeCount(set)) {
 //        return FALSE;
 //    }
 //    const UnicodeSet* us = (const UnicodeSet*) set;

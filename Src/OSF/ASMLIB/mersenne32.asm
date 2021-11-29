@@ -239,13 +239,13 @@ M320:   mov     eax, [ecx+esi*4-4+CRandomMersenneA.MT]     ; mt[i-1]
         inc     esi                                        ; i++
         inc     edi                                        ; j++
         cmp     esi, MERS_N
-        jb      M330                                       ; if (i>=MERS_N)
+        jb      M330                                       ; if(i>=MERS_N)
         mov     eax, [ecx+(MERS_N-1)*4+CRandomMersenneA.MT]; mt[0] = mt[MERS_N-1];
         mov     [ecx+CRandomMersenneA.MT], eax
         mov     esi, 1                                     ; i=1;
 M330:
         cmp     edi, [esp]                                 ; length
-        jb      M340          ; if (j>=length)
+        jb      M340          ; if(j>=length)
         xor     edi, edi                                   ; j = 0;
 M340:
         dec     ebp                                        ; k--
@@ -262,7 +262,7 @@ M360:   mov     eax, [ecx+esi*4-4+CRandomMersenneA.MT]     ; mt[i-1]
         mov     [ecx+esi*4+CRandomMersenneA.MT], eax       ; save in mt[i]
         inc     esi                                        ; i++
         cmp     esi, MERS_N
-        jb      M370                                       ; if (i>=MERS_N)
+        jb      M370                                       ; if(i>=MERS_N)
         mov     eax, [ecx+(MERS_N-1)*4+CRandomMersenneA.MT]; mt[0] = mt[MERS_N-1];
         mov     [ecx+CRandomMersenneA.MT], eax
         mov     esi, 1                                     ; i=1;
@@ -549,7 +549,7 @@ _MersIRandomX: ; PROC   NEAR
         jle     short M830                                 ; max <= min (signed)
         inc     edi                                        ; interval = max - min + 1
         
-        ; if (interval != LastInterval) {
+        ; if(interval != LastInterval) {
         cmp     edi, [ecx+CRandomMersenneA.LastInterval]
         je      M810
         ; RLimit = uint32(((uint64)1 << 32) / interval) * interval - 1;}
@@ -565,7 +565,7 @@ M820:   ; do { // Rejection loop
         call    MersBRandom_reg                            ; random bits (ecx is preserved)
         ; longran  = (uint64)BRandom() * interval;
         mul     edi
-        ; } while (remainder > RLimit);
+        ; } while(remainder > RLimit);
         cmp     eax, [ecx+CRandomMersenneA.RLimit]
         ja      M820
         

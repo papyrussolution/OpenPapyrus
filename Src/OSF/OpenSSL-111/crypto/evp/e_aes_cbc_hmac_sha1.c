@@ -408,7 +408,7 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 
 #if defined(STITCHED_CALL)
 		if(plen > (sha_off + iv)
-		  && (blocks = (plen - (sha_off + iv)) / SHA_CBLOCK)) {
+		 && (blocks = (plen - (sha_off + iv)) / SHA_CBLOCK)) {
 			SHA1_Update(&key->md, in + iv, sha_off);
 
 			aesni_cbc_sha1_enc(in, out, blocks, &key->ks,

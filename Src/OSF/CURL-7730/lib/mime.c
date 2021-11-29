@@ -29,7 +29,7 @@
 #include "urldata.h"
 //#include "sendf.h"
 
-#if (!defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_MIME)) || \
+#if(!defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_MIME)) || \
 	!defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_IMAP)
 
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)

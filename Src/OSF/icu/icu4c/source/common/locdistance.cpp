@@ -288,7 +288,7 @@ int32_t LocaleDistance::getRegionPartitionsDistance(BytesTrie &iter, uint64_t st
 	// See if we have single desired/supported partitions, from NUL-terminated
 	// partition strings without explicit length.
 	bool suppLengthGt1 = *supportedPartitions != 0; // gt1: more than 1 character
-	// equivalent to: if (desLength == 1 && suppLength == 1)
+	// equivalent to: if(desLength == 1 && suppLength == 1)
 	if(*desiredPartitions == 0 && !suppLengthGt1) {
 		// Fastpath for single desired/supported partitions.
 		UStringTrieResult result = iter.next(uprv_invCharToAscii(desired) | END_OF_SUBTAG);

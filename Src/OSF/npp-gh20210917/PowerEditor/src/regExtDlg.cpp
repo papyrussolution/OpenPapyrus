@@ -424,7 +424,7 @@ void RegExtDlg::writeNppPath()
 	nRet = ::RegCreateKeyEx(HKEY_CLASSES_ROOT, regStr.c_str(), 0, nullptr, 0, KEY_ALL_ACCESS, nullptr, &hKey, &dwDisp);
 
 	if(nRet == ERROR_SUCCESS) {
-		//if (dwDisp == REG_CREATED_NEW_KEY)
+		//if(dwDisp == REG_CREATED_NEW_KEY)
 		{
 			// Write the value for new document
 			::RegOpenKeyEx(HKEY_CLASSES_ROOT, nppName, 0, KEY_ALL_ACCESS, &hRootKey);
@@ -449,7 +449,7 @@ void RegExtDlg::writeNppPath()
 	nRet = ::RegCreateKeyEx(HKEY_CLASSES_ROOT, regStr.c_str(), 0, nullptr, 0, KEY_ALL_ACCESS, nullptr, &hKey, &dwDisp);
 
 	if(nRet == ERROR_SUCCESS) {
-		//if (dwDisp == REG_CREATED_NEW_KEY)
+		//if(dwDisp == REG_CREATED_NEW_KEY)
 		{
 			TCHAR nppPath[MAX_PATH];
 			::GetModuleFileName(_hInst, nppPath, MAX_PATH);

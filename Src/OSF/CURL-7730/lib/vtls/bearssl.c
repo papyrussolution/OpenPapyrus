@@ -392,7 +392,7 @@ static CURLcode bearssl_connect_step1(struct connectdata * conn, int sockindex)
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2
 #ifndef CURL_DISABLE_PROXY
-		  && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
+		 && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
 #endif
 		    ) {
 			backend->protocols[cur++] = NGHTTP2_PROTO_VERSION_ID;

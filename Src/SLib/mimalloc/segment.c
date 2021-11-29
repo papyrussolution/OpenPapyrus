@@ -41,7 +41,7 @@ static uint8_t* mi_segment_raw_page_start(const mi_segment_t* segment, const mi_
    Queue of segments containing free pages
    ----------------------------------------------------------- */
 
-#if (MI_DEBUG>=3)
+#if(MI_DEBUG>=3)
 static bool mi_segment_queue_contains(const mi_segment_queue_t* queue, const mi_segment_t* segment) {
 	mi_assert_internal(segment != NULL);
 	mi_segment_t* list = queue->first;
@@ -111,7 +111,7 @@ static void mi_segment_insert_in_free_queue(mi_segment_t* segment, mi_segments_t
    Invariant checking
    ----------------------------------------------------------- */
 
-#if (MI_DEBUG>=2)
+#if(MI_DEBUG>=2)
 static bool mi_segment_is_in_free_queue(const mi_segment_t* segment, mi_segments_tld_t* tld) {
 	mi_segment_queue_t* queue = mi_segment_free_queue(segment, tld);
 	bool in_queue = (queue!=NULL && (segment->next != NULL || segment->prev != NULL || queue->first == segment));
@@ -134,7 +134,7 @@ static size_t mi_segment_page_size(const mi_segment_t* segment) {
 	}
 }
 
-#if (MI_DEBUG>=2)
+#if(MI_DEBUG>=2)
 static bool mi_pages_reset_contains(const mi_page_t* page, mi_segments_tld_t* tld) {
 	mi_page_t* p = tld->pages_reset.first;
 	while(p != NULL) {
@@ -146,7 +146,7 @@ static bool mi_pages_reset_contains(const mi_page_t* page, mi_segments_tld_t* tl
 
 #endif
 
-#if (MI_DEBUG>=3)
+#if(MI_DEBUG>=3)
 static bool mi_segment_is_valid(const mi_segment_t* segment, mi_segments_tld_t* tld) {
 	mi_assert_internal(segment != NULL);
 	mi_assert_internal(_mi_ptr_cookie(segment) == segment->cookie);
@@ -387,7 +387,7 @@ static uint8_t* mi_segment_raw_page_start(const mi_segment_t* segment, const mi_
 		psize -= segment->segment_info_size;
 	}
 
-#if (MI_SECURE > 1)  // every page has an os guard page
+#if(MI_SECURE > 1)  // every page has an os guard page
 	psize -= _mi_os_page_size();
 #elif (MI_SECURE==1) // the last page has an os guard page at the end
 	if(page->segment_idx == segment->capacity - 1) {
@@ -507,11 +507,11 @@ static mi_segment_t* mi_segment_cache_pop(size_t segment_size, mi_segments_tld_t
 
 static bool mi_segment_cache_full(mi_segments_tld_t* tld)
 {
-	// if (tld->count == 1 && tld->cache_count==0) return false; // always cache at least the final segment of a
+	// if(tld->count == 1 && tld->cache_count==0) return false; // always cache at least the final segment of a
 	// thread
 	size_t max_cache = mi_option_get(mi_option_segment_cache);
 	if(tld->cache_count < max_cache
-	  && tld->cache_count < (1 + (tld->peak_count / MI_SEGMENT_CACHE_FRACTION)) // at least allow a 1 element
+	 && tld->cache_count < (1 + (tld->peak_count / MI_SEGMENT_CACHE_FRACTION)) // at least allow a 1 element
 	                                                                              // cache
 	    ) {
 		return false;
@@ -1386,7 +1386,7 @@ void _mi_segment_huge_page_free(mi_segment_t* segment, mi_page_t* page, mi_block
 		mi_segments_track_size((long)segment->segment_size, &tld->segments);
 		_mi_segment_page_free(page, true, &tld->segments);
 	}
-#if (MI_DEBUG!=0)
+#if(MI_DEBUG!=0)
 	else {
 		mi_assert_internal(false);
 	}

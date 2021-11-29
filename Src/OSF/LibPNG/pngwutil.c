@@ -346,7 +346,7 @@ static int png_deflate_claim(png_structrp png_ptr, uint32 owner, png_alloc_size_
 		if(data_size <= 16384) {
 			/* IMPLEMENTATION NOTE: this 'half_window_size' stuff is only here to
 			 * work round a Microsoft Visual C misbehavior which, contrary to C-90,
-			 * widens the result of the following shift to 64-bits if (and,
+			 * widens the result of the following shift to 64-bits if(and,
 			 * apparently, only if) it is used in a test.
 			 */
 			unsigned int half_window_size = 1U << (windowBits-1);

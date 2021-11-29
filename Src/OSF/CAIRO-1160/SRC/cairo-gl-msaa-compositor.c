@@ -271,9 +271,9 @@ static boolint can_use_msaa_compositor(cairo_gl_surface_t * surface,
 	   rendering. */
 	if((gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
 	    gl_flavor == CAIRO_GL_FLAVOR_ES2)
-	  && surface->supports_msaa
-	  && surface->num_samples > 1
-	  && antialias == CAIRO_ANTIALIAS_NONE)
+	 && surface->supports_msaa
+	 && surface->num_samples > 1
+	 && antialias == CAIRO_ANTIALIAS_NONE)
 		return FALSE;
 
 	/* The MSAA compositor has a single-sample mode, so we can

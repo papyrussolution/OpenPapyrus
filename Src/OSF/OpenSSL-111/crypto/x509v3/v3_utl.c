@@ -1004,7 +1004,7 @@ static int ipv6_from_asc(uchar * v6, const char * in)
 		/* Can only have two zeroes if at start or end */
 		else if(v6stat.zero_cnt == 2) {
 			if((v6stat.zero_pos != 0)
-			  && (v6stat.zero_pos != v6stat.total))
+			 && (v6stat.zero_pos != v6stat.total))
 				return 0;
 		}
 		else {

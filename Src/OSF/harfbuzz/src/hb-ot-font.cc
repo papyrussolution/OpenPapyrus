@@ -45,8 +45,8 @@ static hb_bool_t hb_ot_get_nominal_glyph(hb_font_t * font HB_UNUSED, void * font
 	return ot_face->cmap->get_nominal_glyph(unicode, glyph);
 }
 
-static unsigned int hb_ot_get_nominal_glyphs(hb_font_t * font HB_UNUSED, void * font_data, unsigned int count,
-    const hb_codepoint_t * first_unicode, unsigned int unicode_stride, hb_codepoint_t * first_glyph, unsigned int glyph_stride,
+static uint hb_ot_get_nominal_glyphs(hb_font_t * font HB_UNUSED, void * font_data, uint count,
+    const hb_codepoint_t * first_unicode, uint unicode_stride, hb_codepoint_t * first_glyph, uint glyph_stride,
     void * user_data HB_UNUSED)
 {
 	const hb_ot_face_t * ot_face = (const hb_ot_face_t*)font_data;
@@ -60,8 +60,8 @@ static hb_bool_t hb_ot_get_variation_glyph(hb_font_t * font HB_UNUSED, void * fo
 	return ot_face->cmap->get_variation_glyph(unicode, variation_selector, glyph);
 }
 
-static void hb_ot_get_glyph_h_advances(hb_font_t* font, void * font_data, unsigned count, const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride, hb_position_t * first_advance, unsigned advance_stride, void * user_data HB_UNUSED)
+static void hb_ot_get_glyph_h_advances(hb_font_t* font, void * font_data, uint count, const hb_codepoint_t * first_glyph,
+    uint glyph_stride, hb_position_t * first_advance, uint advance_stride, void * user_data HB_UNUSED)
 {
 	const hb_ot_face_t * ot_face = (const hb_ot_face_t*)font_data;
 	const OT::hmtx_accelerator_t &hmtx = *ot_face->hmtx;
@@ -72,8 +72,8 @@ static void hb_ot_get_glyph_h_advances(hb_font_t* font, void * font_data, unsign
 	}
 }
 
-static void hb_ot_get_glyph_v_advances(hb_font_t* font, void * font_data, unsigned count, const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride, hb_position_t * first_advance, unsigned advance_stride, void * user_data HB_UNUSED)
+static void hb_ot_get_glyph_v_advances(hb_font_t* font, void * font_data, uint count, const hb_codepoint_t * first_glyph,
+    uint glyph_stride, hb_position_t * first_advance, uint advance_stride, void * user_data HB_UNUSED)
 {
 	const hb_ot_face_t * ot_face = (const hb_ot_face_t*)font_data;
 	const OT::vmtx_accelerator_t &vmtx = *ot_face->vmtx;
@@ -130,7 +130,7 @@ static hb_bool_t hb_ot_get_glyph_extents(hb_font_t * font, void * font_data, hb_
 
 #ifndef HB_NO_OT_FONT_GLYPH_NAMES
 static hb_bool_t hb_ot_get_glyph_name(hb_font_t * font HB_UNUSED, void * font_data, hb_codepoint_t glyph,
-    char * name, unsigned int size, void * user_data HB_UNUSED)
+    char * name, uint size, void * user_data HB_UNUSED)
 {
 	const hb_ot_face_t * ot_face = (const hb_ot_face_t*)font_data;
 	if(ot_face->post->get_glyph_name(glyph, name, size)) return true;

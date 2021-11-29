@@ -118,9 +118,9 @@ static int disambiguateBareword(LexAccessor &styler, Sci_PositionU bk, Sci_Posit
 	// next, scan forward after word past tab/spaces only;
 	// if ch isn't one of '[{(,' we can skip the test
 	if((ch == '{' || ch == '(' || ch == '['|| ch == ',')
-	  && fw < endPos) {
+	 && fw < endPos) {
 		while(IsASpaceOrTab(ch = static_cast<unsigned char>(styler.SafeGetCharAt(fw)))
-		  && fw < endPos) {
+		 && fw < endPos) {
 			fw++;
 		}
 		if((ch == '}' && brace)
@@ -1459,7 +1459,7 @@ public:
 					fw++;
 				}
 				else if(sc.ch == 'q' && setQDelim.Contains(sc.chNext)
-				  && !setWord.Contains(sc.GetRelative(2))) {
+				 && !setWord.Contains(sc.GetRelative(2))) {
 					if(sc.chNext == 'q') sc.ChangeState(SCE_PL_STRING_QQ);
 					else if(sc.chNext == 'x') sc.ChangeState(SCE_PL_STRING_QX);
 					else if(sc.chNext == 'r') sc.ChangeState(SCE_PL_STRING_QR);
@@ -1752,8 +1752,8 @@ public:
 				}
 			}
 			else if(sc.ch == '='            // POD
-			  && setPOD.Contains(sc.chNext)
-			  && sc.atLineStart) {
+			 && setPOD.Contains(sc.chNext)
+			 && sc.atLineStart) {
 				sc.SetState(SCE_PL_POD);
 				backFlag = BACK_NONE;
 			}
@@ -1854,10 +1854,10 @@ void SCI_METHOD LexerPerl::Fold(Sci_PositionU startPos, Sci_Position length, int
 		// Comment folding
 		if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			  && IsCommentLine(lineCurrent + 1, styler))
+			 && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			  && !IsCommentLine(lineCurrent + 1, styler))
+			 && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		// {} [] block folding
@@ -1912,7 +1912,7 @@ void SCI_METHOD LexerPerl::Fold(Sci_PositionU startPos, Sci_Position length, int
 		// package folding
 		if(options.foldPackage && atLineStart) {
 			if(IsPackageLine(lineCurrent, styler)
-			  && !IsPackageLine(lineCurrent + 1, styler))
+			 && !IsPackageLine(lineCurrent + 1, styler))
 				isPackageLine = true;
 		}
 

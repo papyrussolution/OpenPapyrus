@@ -200,7 +200,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t 
 		bool isGrouping = false;
 
 		// 1) Attempt the decimal separator string literal.
-		// if (we have not seen a decimal separator yet) { ... }
+		// if(we have not seen a decimal separator yet) { ... }
 		if(actualDecimalString.isBogus() && !decimalSeparator.isEmpty()) {
 			int32_t overlap = segment.getCommonPrefixLength(decimalSeparator);
 			maybeMore = maybeMore || (overlap == segment.length());
@@ -220,7 +220,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t 
 		}
 
 		// 2.5) Attempt to match a new the grouping separator string literal.
-		// if (we have not seen a grouping or decimal separator yet) { ... }
+		// if(we have not seen a grouping or decimal separator yet) { ... }
 		if(!groupingDisabled && actualGroupingString.isBogus() && actualDecimalString.isBogus() &&
 		    !groupingSeparator.isEmpty()) {
 			int32_t overlap = segment.getCommonPrefixLength(groupingSeparator);
@@ -232,7 +232,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t 
 		}
 
 		// 3) Attempt to match a decimal separator from the equivalence set.
-		// if (we have not seen a decimal separator yet) { ... }
+		// if(we have not seen a decimal separator yet) { ... }
 		// The !isGrouping is to confirm that we haven't yet matched the current character.
 		if(!isGrouping && actualDecimalString.isBogus()) {
 			if(decimalUniSet->contains(cp)) {
@@ -242,7 +242,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t 
 		}
 
 		// 4) Attempt to match a grouping separator from the equivalence set.
-		// if (we have not seen a grouping or decimal separator yet) { ... }
+		// if(we have not seen a grouping or decimal separator yet) { ... }
 		if(!groupingDisabled && actualGroupingString.isBogus() && actualDecimalString.isBogus()) {
 			if(groupingUniSet->contains(cp)) {
 				isGrouping = true;

@@ -244,8 +244,8 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
 
 /************
 \
-    if (*ctxt->input->cur == '%') xmlParserHandlePEReference(ctxt);	\
-    if (*ctxt->input->cur == '&') xmlParserHandleReference(ctxt);
+    if(*ctxt->input->cur == '%') xmlParserHandlePEReference(ctxt);	\
+    if(*ctxt->input->cur == '&') xmlParserHandleReference(ctxt);
 ************/
 
 #define CUR_CHAR(l) htmlCurrentChar(ctxt, &l)
@@ -1598,13 +1598,13 @@ const htmlEntityDesc * htmlEntityValueLookup(uint value)
  *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-int UTF8ToHtml(uchar* out, int * outlen, const uchar* in, int * inlen)
+int UTF8ToHtml(uchar * out, int * outlen, const uchar * in, int * inlen)
 {
-	const uchar* processed = in;
-	const uchar* outend;
-	const uchar* outstart = out;
-	const uchar* instart = in;
-	const uchar* inend;
+	const uchar * processed = in;
+	const uchar * outend;
+	const uchar * outstart = out;
+	const uchar * instart = in;
+	const uchar * inend;
 	uint c, d;
 	int trailing;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL))
@@ -1705,13 +1705,13 @@ int UTF8ToHtml(uchar* out, int * outlen, const uchar* in, int * inlen)
  *   as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, int quoteChar)
+int htmlEncodeEntities(uchar * out, int * outlen, const uchar * in, int * inlen, int quoteChar)
 {
-	const uchar* processed = in;
-	const uchar* outend;
-	const uchar* outstart = out;
-	const uchar* instart = in;
-	const uchar* inend;
+	const uchar * processed = in;
+	const uchar * outend;
+	const uchar * outstart = out;
+	const uchar * instart = in;
+	const uchar * inend;
 	uint c, d;
 	int trailing;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL))

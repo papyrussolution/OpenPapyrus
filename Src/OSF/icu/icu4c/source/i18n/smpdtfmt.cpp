@@ -2979,7 +2979,7 @@ static int32_t matchStringWithOptionalDot(const UnicodeString & text,
 
 	if(matchLenData == data.length() /* normal match */
 	 || (data.charAt(data.length() - 1) == 0x2e
-	  && matchLenData == data.length() - 1 /* match without trailing dot */)) {
+	 && matchLenData == data.length() - 1 /* match without trailing dot */)) {
 		return matchLenText;
 	}
 
@@ -3860,7 +3860,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 			}
 		}
 
-		// For the following, need to repeat some of the "if (gotNumber)" code above:
+		// For the following, need to repeat some of the "if(gotNumber)" code above:
 		// UDAT_[STANDALONE_]MONTH_FIELD, UDAT_DOW_LOCAL_FIELD, UDAT_STANDALONE_DAY_FIELD,
 		// UDAT_[STANDALONE_]QUARTER_FIELD
 		switch(patternCharIndex) {

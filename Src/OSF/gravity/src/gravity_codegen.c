@@ -534,7 +534,7 @@ static void visit_loop_for_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	// {
 	//    var $expr = expr;
 	//    var $value = $expr.iterate(null);
-	//    while ($value) {
+	//    while($value) {
 	//        cond = $expr.next($value);
 	//        stmp;
 	//        $value = $expr.iterate($value);
@@ -815,7 +815,7 @@ static void process_constructor(gvisitor_t * self, gravity_class_t * c, gnode_t 
 	if((!internal_init_function) && (!constructor_function)) 
 		goto check_meta;
 //    // 2. internal init is present and constructor is not used
-//    if ((internal_init_function) && (!constructor_function)) {
+//    if((internal_init_function) && (!constructor_function)) {
 //        // add a RET0 command
 //        ircode_t *code = (ircode_t *)internal_init_function->bytecode;
 //        ircode_add(code, RET0, 0, 0, 0);
@@ -1825,7 +1825,7 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 		nprocessed += (uint32)k;
 
 		// check if this chunk can be optimized
-		// if (check_literals_list(self, node, ismap, idxstart, idxend, dest)) continue;
+		// if(check_literals_list(self, node, ismap, idxstart, idxend, dest)) continue;
 
 		// save register context
 		ircode_push_context(code);

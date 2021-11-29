@@ -1352,7 +1352,7 @@ Transliterator* TransliteratorRegistry::instantiateEntry(const UnicodeString & I
 		    UnicodeString rules = entry->stringArg;
 		    //ures_close(bundle);
 
-		    //if (U_FAILURE(status)) {
+		    //if(U_FAILURE(status)) {
 		    // We have a failure of some kind.  Remove the ID from the
 		    // registry so we don't keep trying.  NOTE: This will throw off
 		    // anyone who is, at the moment, trying to iterate over the

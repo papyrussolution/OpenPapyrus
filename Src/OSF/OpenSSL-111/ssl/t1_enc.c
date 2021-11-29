@@ -313,7 +313,7 @@ int tls1_change_cipher_state(SSL * s, int which)
 	}
 	/* Needed for "composite" AEADs, such as RC4-HMAC-MD5 */
 	if((EVP_CIPHER_flags(c) & EVP_CIPH_FLAG_AEAD_CIPHER) && *mac_secret_size
-	  && !EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_AEAD_SET_MAC_KEY,
+	 && !EVP_CIPHER_CTX_ctrl(dd, EVP_CTRL_AEAD_SET_MAC_KEY,
 	    (int)*mac_secret_size, mac_secret)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_CHANGE_CIPHER_STATE,
 		    ERR_R_INTERNAL_ERROR);
@@ -410,7 +410,7 @@ int tls1_setup_key_block(SSL * s)
 #endif
 
 	if(!(s->options & SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
-	  && s->method->version <= TLS1_VERSION) {
+	 && s->method->version <= TLS1_VERSION) {
 		/*
 		 * enable vulnerability countermeasure for CBC ciphers with known-IV
 		 * problem (http://www.openssl.org/~bodo/tls-cbc.txt)

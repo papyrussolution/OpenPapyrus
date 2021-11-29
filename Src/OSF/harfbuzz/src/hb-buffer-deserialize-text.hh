@@ -314,7 +314,7 @@ static const int deserialize_text_en_main = 1;
 
 static hb_bool_t _hb_buffer_deserialize_glyphs_text(hb_buffer_t * buffer,
     const char * buf,
-    unsigned int buf_len,
+    uint buf_len,
     const char ** end_ptr,
     hb_font_t * font)
 {

@@ -109,7 +109,7 @@
 #ifndef DEBUGLEVEL
 	#define DEBUGLEVEL 0
 #endif
-#if (DEBUGLEVEL>=1)
+#if(DEBUGLEVEL>=1)
 	//#include <assert.h>  // note : can still be disabled with NDEBUG 
 	#define XXH_ASSERT_Removed(c)   assert(c)
 #else
@@ -134,7 +134,7 @@
 
 /* ===   Memory access   === */
 
-#if (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
+#if(defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
 	// Force direct memory access. Only works on CPU which support unaligned memory access in hardware 
 	static uint32 XXH_read32(const void * memPtr) { return *(const uint32*)memPtr; }
 #elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==1))
@@ -543,7 +543,7 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
  *
  * If XXH_REROLL is defined, this is ignored and the loop is always rerolled. */
 #ifndef XXH_REROLL_XXH64
-	#if (defined(__ILP32__) || defined(_ILP32)) /* ILP32 is often defined on 32-bit GCC family */ \
+	#if(defined(__ILP32__) || defined(_ILP32)) /* ILP32 is often defined on 32-bit GCC family */ \
 		|| !(defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64) /* x86-64 */ \
 		|| defined(_M_ARM64) || defined(__aarch64__) || defined(__arm64__) /* aarch64 */ \
 		|| defined(__PPC64__) || defined(__PPC64LE__) || defined(__ppc64__) || defined(__powerpc64__) /* ppc64 */ \
@@ -555,7 +555,7 @@ XXH_PUBLIC_API XXH32_hash_t XXH32_hashFromCanonical(const XXH32_canonical_t* src
 	#endif
 #endif /* !defined(XXH_REROLL_XXH64) */
 
-#if (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
+#if(defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
 	// Force direct memory access. Only works on CPU which support unaligned memory access in hardware 
 	static uint64 XXH_read64(const void * memPtr) { return *(const uint64*)memPtr; }
 #elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==1))

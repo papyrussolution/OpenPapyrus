@@ -186,7 +186,7 @@ _mm_packs_pi32 (__m64 __m1, __m64 __m2)
 extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_set_pi16 (uint16 __w3, uint16 __w2, uint16 __w1, uint16 __w0)
 {
-	if (__builtin_constant_p (__w3) &&
+	if(__builtin_constant_p (__w3) &&
 	    __builtin_constant_p (__w2) &&
 	    __builtin_constant_p (__w1) &&
 	    __builtin_constant_p (__w0))
@@ -197,7 +197,7 @@ _mm_set_pi16 (uint16 __w3, uint16 __w2, uint16 __w1, uint16 __w0)
 			     | ((uint64)__w0 <<  0);
 		return *(__m64 *)&val;
 	}
-	else if (__w3 == __w2 && __w2 == __w1 && __w1 == __w0)
+	else if(__w3 == __w2 && __w2 == __w1 && __w1 == __w0)
 	{
 		/* TODO: handle other cases */
 		uint64 val = __w3;
@@ -219,14 +219,14 @@ _mm_set_pi16 (uint16 __w3, uint16 __w2, uint16 __w1, uint16 __w0)
 extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_set_pi32 (unsigned __i1, unsigned __i0)
 {
-	if (__builtin_constant_p (__i1) &&
+	if(__builtin_constant_p (__i1) &&
 	    __builtin_constant_p (__i0))
 	{
 		uint64 val = ((uint64)__i1 << 32)
 			     | ((uint64)__i0 <<  0);
 		return *(__m64 *)&val;
 	}
-	else if (__i1 == __i0)
+	else if(__i1 == __i0)
 	{
 		uint64 imm = _MM_SHUFFLE (1, 0, 1, 0);
 		__m64 ret;

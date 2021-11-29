@@ -340,7 +340,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength
 // function on Windows ARM64. As a work-around, we disable optimizations for this function.
 // This work-around could/should be removed once the following versions of Visual Studio are no
 // longer supported: All versions of VS2017, and versions of VS2019 below 16.4.
-#if (defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
+#if(defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
 #pragma optimize( "", off )
 #endif
 U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
@@ -614,6 +614,6 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
 	return u_terminateUChars(saveDest, destCapacity, destCapacity-destSize, pErrorCode);
 }
 
-#if (defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
+#if(defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
 #pragma optimize( "", on )
 #endif

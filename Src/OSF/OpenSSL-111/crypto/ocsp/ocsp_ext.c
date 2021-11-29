@@ -428,7 +428,7 @@ X509_EXTENSION * OCSP_url_svcloc_new(X509_NAME * issuer, const char ** urls)
 	if((sloc->issuer = X509_NAME_dup(issuer)) == NULL)
 		goto err;
 	if(urls && *urls
-	  && (sloc->locator = sk_ACCESS_DESCRIPTION_new_null()) == NULL)
+	 && (sloc->locator = sk_ACCESS_DESCRIPTION_new_null()) == NULL)
 		goto err;
 	while(urls && *urls) {
 		if((ad = ACCESS_DESCRIPTION_new()) == NULL)

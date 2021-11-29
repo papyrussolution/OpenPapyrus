@@ -320,8 +320,8 @@ NFRuleSet::~NFRuleSet()
 {
 	for(int i = 0; i < NON_NUMERICAL_RULE_LENGTH; i++) {
 		if(i != IMPROPER_FRACTION_RULE_INDEX
-		  && i != PROPER_FRACTION_RULE_INDEX
-		  && i != DEFAULT_RULE_INDEX) {
+		 && i != PROPER_FRACTION_RULE_INDEX
+		 && i != DEFAULT_RULE_INDEX) {
 			delete nonNumericalRules[i];
 		}
 		// else it will be deleted via NFRuleList fractionRules

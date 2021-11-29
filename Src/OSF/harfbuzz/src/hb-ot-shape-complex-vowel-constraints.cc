@@ -50,7 +50,7 @@ void _hb_preprocess_text_vowel_constraints(const hb_ot_shape_plan_t * plan HB_UN
 	 */
 	bool processed = false;
 	buffer->clear_output();
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	switch((uint)buffer->props.script)
 	{
 		case HB_SCRIPT_DEVANAGARI:

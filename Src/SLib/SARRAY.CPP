@@ -2173,9 +2173,9 @@ uint StrAssocArray::getPointer() const { return LAssocArray::getPointer(); }
 uint StrAssocArray::setPointer(uint p) { return LAssocArray::setPointer(p); }
 uint StrAssocArray::incPointer() { return LAssocArray::incPointer(); }
 
-int FASTCALL StrAssocArray::HasChild(long id) const
+bool FASTCALL StrAssocArray::HasChildren(long id) const
 {
-	return (id == 0) ? BIN(LAssocArray::getCount()) : ParentList.SearchByVal(id, 0, 0);
+	return (id == 0) ? LOGIC(LAssocArray::getCount()) : LOGIC(ParentList.SearchByVal(id, 0, 0));
 }
 
 int StrAssocArray::GetParent(long id, long * pParentId) const
@@ -2843,9 +2843,8 @@ void StrAssocArray::Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & 
 			assert(item.Id == key);
 			assert(item.ParentId == parentId);
 			rTempList.AddFast(item.Id, item.ParentId, item.Txt);
-			if(HasChild(item.Id)) {
+			if(HasChildren(item.Id))
 				Helper_SortByTextInTreeOrder(item.Id, rTempList); // @recursion
-			}
 		}
 	}
 }
@@ -3119,6 +3118,12 @@ uint StrAssocTree::GetCount() const
 {
 	return L.GetCount();
 }
+
+bool StrAssocTree::HasChildren(long id) const
+{
+	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
+	return (p_entry && p_entry->P_Children && p_entry->P_Children->SArray::getCount());
+}
 	
 bool StrAssocTree::Search(long id, long * pParentId, SString * pBuf) const
 {
@@ -3141,6 +3146,13 @@ StrAssocTree::EntryHandle FASTCALL StrAssocTree::Search(long id) const
 {
 	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
 	return EntryHandle(p_entry);
+}
+
+int StrAssocTree::GetList(LongArray & rList) const
+{
+	rList.Z();
+	L.GetKeyList(true, rList);
+	return 1;
 }
 
 int StrAssocTree::GetListByParent(long parentId, bool recursive, LongArray & rList) const
@@ -3282,6 +3294,8 @@ int Test_StrAssocTree()
 		if(blk.Helper_GetFiles(root_path, 0)) {
 			SString saa_buf;
 			SString sat_buf;
+			LongArray sa_id_list;
+			LongArray st_id_list;
 			int32   saa_parent_id = 0;
 			int32   sat_parent_id = 0;
 			assert(blk.Saa.getCount() == blk.Sat.GetCount());

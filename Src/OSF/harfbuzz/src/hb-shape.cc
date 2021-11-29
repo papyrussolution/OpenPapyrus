@@ -53,7 +53,7 @@ static struct hb_shaper_list_lazy_loader_t : hb_lazy_loader_t<const char *, hb_s
 			return nullptr;
 
 		const hb_shaper_entry_t * shapers = _hb_shapers_get();
-		unsigned int i;
+		uint i;
 		for(i = 0; i < HB_SHAPERS_COUNT; i++)
 			shaper_list[i] = shapers[i].name;
 		shaper_list[i] = nullptr;
@@ -121,7 +121,7 @@ const char ** hb_shape_list_shapers()
 hb_bool_t hb_shape_full(hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features,
+    uint num_features,
     const char * const * shaper_list)
 {
 	if(UNLIKELY(hb_object_is_immutable(buffer))) return false;
@@ -157,7 +157,7 @@ hb_bool_t hb_shape_full(hb_font_t * font,
 void hb_shape(hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features)
+    uint num_features)
 {
 	hb_shape_full(font, buffer, features, num_features, nullptr);
 }

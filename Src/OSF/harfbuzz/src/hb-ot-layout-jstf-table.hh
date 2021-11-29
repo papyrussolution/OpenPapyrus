@@ -134,30 +134,30 @@ public:
  */
 
 	struct JstfScript {
-		unsigned int get_lang_sys_count() const
+		uint get_lang_sys_count() const
 		{
 			return langSys.len;
 		}
 
-		const Tag& get_lang_sys_tag(unsigned int i) const
+		const Tag& get_lang_sys_tag(uint i) const
 		{
 			return langSys.get_tag(i);
 		}
 
-		unsigned int get_lang_sys_tags(unsigned int start_offset,
-		    unsigned int * lang_sys_count /* IN/OUT */,
+		uint get_lang_sys_tags(uint start_offset,
+		    uint * lang_sys_count /* IN/OUT */,
 		    hb_tag_t * lang_sys_tags /* OUT */) const
 		{
 			return langSys.get_tags(start_offset, lang_sys_count, lang_sys_tags);
 		}
 
-		const JstfLangSys& get_lang_sys(unsigned int i) const
+		const JstfLangSys& get_lang_sys(uint i) const
 		{
 			if(i == Index::NOT_FOUND_INDEX) return get_default_lang_sys();
 			return this+langSys[i].offset;
 		}
 
-		bool find_lang_sys_index(hb_tag_t tag, unsigned int * index) const
+		bool find_lang_sys_index(hb_tag_t tag, uint * index) const
 		{
 			return langSys.find_index(tag, index);
 		}
@@ -201,23 +201,23 @@ public:
 	struct JSTF {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_JSTF;
 
-		unsigned int get_script_count() const
+		uint get_script_count() const
 		{
 			return scriptList.len;
 		}
-		const Tag& get_script_tag(unsigned int i) const
+		const Tag& get_script_tag(uint i) const
 		{
 			return scriptList.get_tag(i);
 		}
-		unsigned int get_script_tags(unsigned int start_offset, unsigned int * script_count /* IN/OUT */, hb_tag_t * script_tags /* OUT */) const
+		uint get_script_tags(uint start_offset, uint * script_count /* IN/OUT */, hb_tag_t * script_tags /* OUT */) const
 		{
 			return scriptList.get_tags(start_offset, script_count, script_tags);
 		}
-		const JstfScript& get_script(unsigned int i) const
+		const JstfScript& get_script(uint i) const
 		{
 			return this+scriptList[i].offset;
 		}
-		bool find_script_index(hb_tag_t tag, unsigned int * index) const
+		bool find_script_index(hb_tag_t tag, uint * index) const
 		{
 			return scriptList.find_index(tag, index);
 		}

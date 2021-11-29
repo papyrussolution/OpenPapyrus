@@ -90,29 +90,29 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
   * dimensionality not being negative.
      */
     int32_t compareTo(const SingleUnitImpl& other) const {
-        if (dimensionality < 0 && other.dimensionality > 0) {
+        if(dimensionality < 0 && other.dimensionality > 0) {
             // Positive dimensions first
             return 1;
         }
-        if (dimensionality > 0 && other.dimensionality < 0) {
+        if(dimensionality > 0 && other.dimensionality < 0) {
             return -1;
         }
 
         // Sort by official quantity order
         int32_t thisQuantity = this->getUnitCategoryIndex();
         int32_t otherQuantity = other.getUnitCategoryIndex();
-        if (thisQuantity < otherQuantity) {
+        if(thisQuantity < otherQuantity) {
             return -1;
         }
-        if (thisQuantity > otherQuantity) {
+        if(thisQuantity > otherQuantity) {
             return 1;
         }
 
         // If quantity order didn't help, then we go by index.
-        if (index < other.index) {
+        if(index < other.index) {
             return -1;
         }
-        if (index > other.index) {
+        if(index > other.index) {
             return 1;
         }
 
@@ -134,17 +134,17 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
         // we return 1 not -1. Thus because we want th sorting order
         // for the bigger prefix to be before the smaller.
         // Example: megabyte should come before kilobyte.
-        if (unitPower < otherUnitPower) {
+        if(unitPower < otherUnitPower) {
             return 1;
         }
-        if (unitPower > otherUnitPower) {
+        if(unitPower > otherUnitPower) {
             return -1;
         }
 
-        if (unitBase < otherUnitBase) {
+        if(unitBase < otherUnitBase) {
             return 1;
         }
-        if (unitBase > otherUnitBase) {
+        if(unitBase > otherUnitBase) {
             return -1;
         }
 

@@ -89,7 +89,7 @@ void _hb_options_init()
 hb_tag_t hb_tag_from_string(const char * str, int len)
 {
 	char tag[4];
-	unsigned int i;
+	uint i;
 
 	if(!str || !len || !*str)
 		return HB_TAG_NONE;
@@ -208,10 +208,10 @@ static bool lang_equal(hb_language_t v1,
 }
 
 #if 0
-static unsigned int lang_hash(const void * key)
+static uint lang_hash(const void * key)
 {
 	const uchar * p = key;
-	unsigned int h = 0;
+	uint h = 0;
 	while(canon_map[*p]) {
 		h = (h << 5) - h + canon_map[*p];
 		p++;
@@ -575,9 +575,9 @@ hb_direction_t hb_script_get_horizontal_direction(hb_script_t script)
  *
  * Since: 0.9.2
  **/
-void hb_version(unsigned int * major,
-    unsigned int * minor,
-    unsigned int * micro)
+void hb_version(uint * major,
+    uint * minor,
+    uint * micro)
 {
 	*major = HB_VERSION_MAJOR;
 	*minor = HB_VERSION_MINOR;
@@ -610,9 +610,9 @@ const char * hb_version_string()
  *
  * Since: 0.9.30
  **/
-hb_bool_t hb_version_atleast(unsigned int major,
-    unsigned int minor,
-    unsigned int micro)
+hb_bool_t hb_version_atleast(uint major,
+    uint minor,
+    uint micro)
 {
 	return HB_VERSION_ATLEAST(major, minor, micro);
 }
@@ -637,7 +637,7 @@ static bool parse_char(const char ** pp, const char * end, char c)
 	return true;
 }
 
-static bool parse_uint(const char ** pp, const char * end, unsigned int * pv)
+static bool parse_uint(const char ** pp, const char * end, uint * pv)
 {
 	/* Intentionally use hb_parse_int inside instead of hb_parse_uint,
 	 * such that -1 turns into "big number"... */
@@ -863,12 +863,12 @@ hb_bool_t hb_feature_from_string(const char * str, int len, hb_feature_t * featu
  * Since: 0.9.5
  **/
 void hb_feature_to_string(hb_feature_t * feature,
-    char * buf, unsigned int size)
+    char * buf, uint size)
 {
 	if(UNLIKELY(!size)) return;
 
 	char s[128];
-	unsigned int len = 0;
+	uint len = 0;
 	if(feature->value == 0)
 		s[len++] = '-';
 	hb_tag_to_string(feature->tag, s + len);
@@ -938,11 +938,11 @@ hb_bool_t hb_variation_from_string(const char * str, int len, hb_variation_t * v
  *
  * Since: 1.4.2
  */
-void hb_variation_to_string(hb_variation_t * variation, char * buf, unsigned int size)
+void hb_variation_to_string(hb_variation_t * variation, char * buf, uint size)
 {
 	if(UNLIKELY(!size)) return;
 	char s[128];
-	unsigned int len = 0;
+	uint len = 0;
 	hb_tag_to_string(variation->tag, s + len);
 	len += 4;
 	while(len && s[len - 1] == ' ')

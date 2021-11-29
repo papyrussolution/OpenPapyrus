@@ -925,10 +925,10 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 			}
 			if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 				if(!IsCommentLine(lineCurrent - 1, styler)
-				  && IsCommentLine(lineCurrent + 1, styler))
+				 && IsCommentLine(lineCurrent + 1, styler))
 					levelNext++;
 				else if(IsCommentLine(lineCurrent - 1, styler)
-				  && !IsCommentLine(lineCurrent+1, styler))
+				 && !IsCommentLine(lineCurrent+1, styler))
 					levelNext--;
 			}
 			if(options.foldComment && (style == SCE_V_COMMENTLINE)) {

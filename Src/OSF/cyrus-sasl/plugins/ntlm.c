@@ -76,7 +76,7 @@ typedef int SOCKET;
 #include <openssl/hmac.h>
 #include <openssl/des.h>
 #include <openssl/opensslv.h>
-#if (OPENSSL_VERSION_NUMBER >= 0x0090700f) && !defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
+#if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && !defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
 	#define des_cblock DES_cblock
 	#define des_key_schedule DES_key_schedule
 	#define des_set_odd_parity(k) DES_set_odd_parity((k))

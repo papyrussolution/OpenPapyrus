@@ -318,8 +318,8 @@ UPerfFunction* UPerfTest::runIndexedTest(int32_t /*index*/, bool /*exec*/, const
 	// to be overridden by a method like:
 	/*
 	   switch (index) {
-	    case 0: name = "First Test"; if (exec) FirstTest( par ); break;
-	    case 1: name = "Second Test"; if (exec) SecondTest( par ); break;
+	    case 0: name = "First Test"; if(exec) FirstTest( par ); break;
+	    case 1: name = "Second Test"; if(exec) SecondTest( par ); break;
 	    default: name = ""; break;
 	   }
 	 */

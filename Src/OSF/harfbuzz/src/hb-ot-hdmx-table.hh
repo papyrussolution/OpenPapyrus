@@ -37,7 +37,7 @@
 
 namespace OT {
 	struct DeviceRecord {
-		static unsigned int get_size(unsigned count)
+		static uint get_size(uint count)
 		{
 			return hb_ceil_to_4(min_size + count * HBUINT8::static_size);
 		}
@@ -80,12 +80,12 @@ public:
 	struct hdmx {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_hdmx;
 
-		unsigned int get_size() const
+		uint get_size() const
 		{
 			return min_size + numRecords * sizeDeviceRecord;
 		}
 
-		const DeviceRecord& operator [] (unsigned int i)const
+		const DeviceRecord& operator [] (uint i)const
 		{
 			/* XXX Null(DeviceRecord) is NOT safe as it's num-glyphs lengthed.
 			 * https://github.com/harfbuzz/harfbuzz/issues/1300 */

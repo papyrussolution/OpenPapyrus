@@ -43,19 +43,19 @@
 /* StructAtOffset<T>(P,Ofs) returns the struct T& that is placed at memory
  * location pointed to by P plus Ofs bytes. */
 template<typename Type>
-static inline const Type& StructAtOffset(const void * P, unsigned int offset)
+static inline const Type& StructAtOffset(const void * P, uint offset)
 {
 	return *reinterpret_cast<const Type*> ((const char*)P + offset);
 }
 
 template<typename Type>
-static inline Type& StructAtOffset(void * P, unsigned int offset)
+static inline Type& StructAtOffset(void * P, uint offset)
 {
 	return *reinterpret_cast<Type*> ((char*)P + offset);
 }
 
 template<typename Type>
-static inline const Type& StructAtOffsetUnaligned(const void * P, unsigned int offset)
+static inline const Type& StructAtOffsetUnaligned(const void * P, uint offset)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -64,7 +64,7 @@ static inline const Type& StructAtOffsetUnaligned(const void * P, unsigned int o
 }
 
 template<typename Type>
-static inline Type& StructAtOffsetUnaligned(void * P, unsigned int offset)
+static inline Type& StructAtOffsetUnaligned(void * P, uint offset)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -106,7 +106,7 @@ static inline Type& StructAfter(TObject &X)
 
 #define DEFINE_SIZE_STATIC(size) \
 	DEFINE_INSTANCE_ASSERTION(sizeof(*this) == (size)) \
-	unsigned int get_size() const { return (size); } \
+	uint get_size() const { return (size); } \
 	static constexpr unsigned null_size = (size); \
 	static constexpr unsigned min_size = (size); \
 	static constexpr unsigned static_size = (size)
@@ -133,14 +133,14 @@ static inline Type& StructAfter(TObject &X)
 	static constexpr unsigned min_size = (size)
 
 #define DEFINE_SIZE_ARRAY_SIZED(size, array) \
-	unsigned int get_size() const { return (size - (array).min_size + (array).get_size()); } \
+	uint get_size() const { return (size - (array).min_size + (array).get_size()); } \
 	DEFINE_SIZE_ARRAY(size, array)
 
 /*
  * Lazy loaders.
  */
 
-template <typename Data, unsigned int WheresData>
+template <typename Data, uint WheresData>
 struct hb_data_wrapper_t {
 	static_assert(WheresData > 0, "");
 
@@ -178,7 +178,7 @@ template <typename T2> struct hb_non_void_t<void, T2> { typedef T2 value; };
 template <typename Returned,
 typename Subclass = void,
 typename Data = void,
-unsigned int WheresData = 0,
+uint WheresData = 0,
 typename Stored = Returned>
     struct hb_lazy_loader_t : hb_data_wrapper_t<Data, WheresData>{
 	typedef typename hb_non_void_t<Subclass,
@@ -287,12 +287,12 @@ retry:
 
 /* Specializations. */
 
-template <typename T, unsigned int WheresFace>
+template <typename T, uint WheresFace>
 struct hb_face_lazy_loader_t : hb_lazy_loader_t<T,
     hb_face_lazy_loader_t<T, WheresFace>,
     hb_face_t, WheresFace> {};
 
-template <typename T, unsigned int WheresFace>
+template <typename T, uint WheresFace>
 struct hb_table_lazy_loader_t : hb_lazy_loader_t<T,
     hb_table_lazy_loader_t<T, WheresFace>,
     hb_face_t, WheresFace,

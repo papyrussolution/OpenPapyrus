@@ -1665,7 +1665,7 @@ int /* PRIVATE */ png_icc_check_length(png_const_structrp png_ptr, png_colorspac
 		return png_icc_profile_error(png_ptr, colorspace, name, profile_length, "exceeds libpng limits");
 #else /* !SET_USER_LIMITS */
       /* This will get compiled out on all 32-bit and better systems. */
-	else if (PNG_SIZE_MAX < profile_length)
+	else if(PNG_SIZE_MAX < profile_length)
 		return png_icc_profile_error(png_ptr, colorspace, name, profile_length, "exceeds system limits");
 #endif /* !SET_USER_LIMITS */
 	return 1;

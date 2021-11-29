@@ -53,7 +53,7 @@ public:
 		upTo = 0;
 	}
 	void Need(workItems items_, Sci::Position pos) noexcept {
-		if ((items_ & workStyle) && (upTo < pos))
+		if((items_ & workStyle) && (upTo < pos))
 			upTo = pos;
 		items = static_cast<workItems>(items | items_);
 	}
@@ -122,7 +122,7 @@ struct WrapPending {
 		end = lineLarge;
 	}
 	void Wrapped(Sci::Line line) noexcept {
-		if (start == line)
+		if(start == line)
 			start++;
 	}
 	bool NeedsWrap() const noexcept {
@@ -131,11 +131,11 @@ struct WrapPending {
 	bool AddRange(Sci::Line lineStart, Sci::Line lineEnd) noexcept {
 		const bool neededWrap = NeedsWrap();
 		bool changed = false;
-		if (start > lineStart) {
+		if(start > lineStart) {
 			start = lineStart;
 			changed = true;
 		}
-		if ((end < lineEnd) || !neededWrap) {
+		if((end < lineEnd) || !neededWrap) {
 			end = lineEnd;
 			changed = true;
 		}
@@ -613,7 +613,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool SetAppearance(T &variable, T value) {
 		// Using ! and == as more types have == defined than !=.
 		const bool changed = !(variable == value);
-		if (changed) {
+		if(changed) {
 			variable = value;
 			InvalidateStyleRedraw();
 		}
@@ -642,7 +642,7 @@ private:
 	std::unique_ptr<Surface> surf;
 public:
 	AutoSurface(const Editor *ed, int technology = -1) {
-		if (ed->wMain.GetID()) {
+		if(ed->wMain.GetID()) {
 			surf.reset(Surface::Allocate(technology != -1 ? technology : ed->technology));
 			surf->Init(ed->wMain.GetID());
 			surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());
@@ -651,7 +651,7 @@ public:
 		}
 	}
 	AutoSurface(SurfaceID sid, Editor *ed, int technology = -1) {
-		if (ed->wMain.GetID()) {
+		if(ed->wMain.GetID()) {
 			surf.reset(Surface::Allocate(technology != -1 ? technology : ed->technology));
 			surf->Init(sid, ed->wMain.GetID());
 			surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());

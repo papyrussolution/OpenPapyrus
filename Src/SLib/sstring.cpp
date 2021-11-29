@@ -4901,7 +4901,7 @@ static int SPathCommonPrefix(const char * pFile1, const char * pFile2, char * ac
 				break; /* Strings differ at this point */
 			lpszIter1++;
 			lpszIter2++;
-		} while (1);
+		} while(1);
 		if(iLen == 2)
 			iLen++; /* Feature/Bug compatible with Win32 */
 		if(iLen && achPath) {

@@ -89,55 +89,36 @@ struct hb_ot_complex_shaper_t {
 	 * May be NULL.
 	 */
 	void (* data_destroy) (void * data);
-
 	/* preprocess_text()
 	 * Called during shape().
 	 * Shapers can use to modify text before shaping starts.
 	 * May be NULL.
 	 */
-	void (* preprocess_text) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t * buffer,
-	    hb_font_t * font);
-
+	void (* preprocess_text) (const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, hb_font_t * font);
 	/* postprocess_glyphs()
 	 * Called during shape().
 	 * Shapers can use to modify glyphs after shaping ends.
 	 * May be NULL.
 	 */
-	void (* postprocess_glyphs) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t * buffer,
-	    hb_font_t * font);
-
+	void (* postprocess_glyphs) (const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, hb_font_t * font);
 	hb_ot_shape_normalization_mode_t normalization_preference;
-
 	/* decompose()
 	 * Called during shape()'s normalization.
 	 * May be NULL.
 	 */
-	bool (* decompose) (const hb_ot_shape_normalize_context_t * c,
-	    hb_codepoint_t ab,
-	    hb_codepoint_t * a,
-	    hb_codepoint_t * b);
-
+	bool (* decompose) (const hb_ot_shape_normalize_context_t * c, hb_codepoint_t ab, hb_codepoint_t * a, hb_codepoint_t * b);
 	/* compose()
 	 * Called during shape()'s normalization.
 	 * May be NULL.
 	 */
-	bool (* compose) (const hb_ot_shape_normalize_context_t * c,
-	    hb_codepoint_t a,
-	    hb_codepoint_t b,
-	    hb_codepoint_t * ab);
-
+	bool (* compose) (const hb_ot_shape_normalize_context_t * c, hb_codepoint_t a, hb_codepoint_t b, hb_codepoint_t * ab);
 	/* setup_masks()
 	 * Called during shape().
 	 * Shapers should use map to get feature masks and set on buffer.
 	 * Shapers may NOT modify characters.
 	 * May be NULL.
 	 */
-	void (* setup_masks) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t * buffer,
-	    hb_font_t * font);
-
+	void (* setup_masks) (const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, hb_font_t * font);
 	/* gpos_tag()
 	 * If not HB_TAG_NONE, then must match found GPOS script tag for
 	 * GPOS to be applied.  Otherwise, fallback positioning will be used.
@@ -149,13 +130,8 @@ struct hb_ot_complex_shaper_t {
 	 * Shapers can use to modify ordering of combining marks.
 	 * May be NULL.
 	 */
-	void (* reorder_marks) (const hb_ot_shape_plan_t * plan,
-	    hb_buffer_t * buffer,
-	    unsigned int start,
-	    unsigned int end);
-
+	void (* reorder_marks) (const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, uint start, uint end);
 	hb_ot_shape_zero_width_marks_type_t zero_width_marks;
-
 	bool fallback_position;
 };
 
@@ -165,11 +141,9 @@ HB_COMPLEX_SHAPERS_IMPLEMENT_SHAPERS
 
 static inline const hb_ot_complex_shaper_t * hb_ot_shape_complex_categorize(const hb_ot_shape_planner_t * planner)
 {
-	switch((hb_tag_t)planner->props.script)
-	{
+	switch((hb_tag_t)planner->props.script) {
 		default:
 		    return &_hb_ot_complex_shaper_default;
-
 		/* Unicode-1.1 additions */
 		case HB_SCRIPT_ARABIC:
 

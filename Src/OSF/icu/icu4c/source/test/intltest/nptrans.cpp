@@ -113,7 +113,7 @@ NamePrepTransform::NamePrepTransform(UParseError& parseError, UErrorCode & statu
     if(U_SUCCESS(status) && (lmapping.isNull())) {
         status = U_MEMORY_ALLOCATION_ERROR;
     }
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         return;
     }
     mapping = lmapping.orphan();

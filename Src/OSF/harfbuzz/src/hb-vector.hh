@@ -59,7 +59,7 @@ struct hb_vector_t {
 private:
 	int allocated; /* == -1 means allocation failed. */
 public:
-	unsigned int length;
+	uint length;
 public:
 	Type * arrayZ;
 	void init()
@@ -75,7 +75,7 @@ public:
 
 	void fini_deep()
 	{
-		unsigned int count = length;
+		uint count = length;
 		for(uint i = 0; i < count; i++)
 			arrayZ[i].fini();
 		fini();
@@ -111,14 +111,14 @@ public:
 	uint32_t hash() const { return as_array().hash(); }
 	Type& operator [] (int i_)
 	{
-		unsigned int i = (uint)i_;
+		uint i = (uint)i_;
 		if(UNLIKELY(i >= length))
 			return Crap(Type);
 		return arrayZ[i];
 	}
 	const Type& operator [] (int i_)const
 	{
-		unsigned int i = (uint)i_;
+		uint i = (uint)i_;
 		if(UNLIKELY(i >= length))
 			return Null(Type);
 		return arrayZ[i];
@@ -142,10 +142,10 @@ public:
 	operator   iter_t() const { return iter(); }
 	operator writer_t() { return writer(); }
 
-	hb_array_t<const Type> sub_array(unsigned int start_offset, unsigned int count) const { return as_array().sub_array(start_offset, count); }
-	hb_array_t<const Type> sub_array(unsigned int start_offset, unsigned int * count = nullptr /* IN/OUT */) const { return as_array().sub_array(start_offset, count); }
-	hb_array_t<Type> sub_array(unsigned int start_offset, unsigned int count) { return as_array().sub_array(start_offset, count); }
-	hb_array_t<Type> sub_array(unsigned int start_offset, unsigned int * count = nullptr /* IN/OUT */) { return as_array().sub_array(start_offset, count); }
+	hb_array_t<const Type> sub_array(uint start_offset, uint count) const { return as_array().sub_array(start_offset, count); }
+	hb_array_t<const Type> sub_array(uint start_offset, uint * count = nullptr /* IN/OUT */) const { return as_array().sub_array(start_offset, count); }
+	hb_array_t<Type> sub_array(uint start_offset, uint count) { return as_array().sub_array(start_offset, count); }
+	hb_array_t<Type> sub_array(uint start_offset, uint * count = nullptr /* IN/OUT */) { return as_array().sub_array(start_offset, count); }
 
 	hb_sorted_array_t<Type> as_sorted_array()
 	{
@@ -157,8 +157,8 @@ public:
 	template <typename T> explicit operator T * () { return arrayZ; }
 	template <typename T> explicit operator const T * () const { return arrayZ; }
 
-	Type * operator  + (unsigned int i) {return arrayZ + i; }
-	const Type * operator  + (unsigned int i)const { return arrayZ + i; }
+	Type * operator  + (uint i) {return arrayZ + i; }
+	const Type * operator  + (uint i)const { return arrayZ + i; }
 
 	Type * push()
 	{
@@ -177,14 +177,14 @@ public:
 	bool in_error() const { return allocated < 0; }
 
 	/* Allocate for size but don't adjust length. */
-	bool alloc(unsigned int size)
+	bool alloc(uint size)
 	{
 		if(UNLIKELY(allocated < 0))
 			return false;
 		if(LIKELY(size <= (uint)allocated))
 			return true;
 		/* Reallocate */
-		unsigned int new_allocated = allocated;
+		uint new_allocated = allocated;
 		while(size >= new_allocated)
 			new_allocated += (new_allocated >> 1) + 8;
 		Type * new_array = nullptr;
@@ -202,7 +202,7 @@ public:
 
 	bool resize(int size_)
 	{
-		unsigned int size = size_ < 0 ? 0u : (uint)size_;
+		uint size = size_ < 0 ? 0u : (uint)size_;
 		if(!alloc(size))
 			return false;
 		if(size > length)
@@ -216,7 +216,7 @@ public:
 			return Null(Type);
 		return hb_move(arrayZ[--length]); /* Does this move actually work? */
 	}
-	void remove(unsigned int i)
+	void remove(uint i)
 	{
 		if(UNLIKELY(i >= length))
 			return;
@@ -225,7 +225,7 @@ public:
 	}
 	void shrink(int size_)
 	{
-		unsigned int size = size_ < 0 ? 0u : (uint)size_;
+		uint size = size_ < 0 ? 0u : (uint)size_;
 		if(size < length)
 			length = size;
 	}
@@ -250,7 +250,7 @@ public:
 		as_array().qsort(cmp);
 	}
 
-	void qsort(unsigned int start = 0, unsigned int end = (uint)-1)
+	void qsort(uint start = 0, uint end = (uint)-1)
 	{
 		as_array().qsort(start, end);
 	}
@@ -317,9 +317,9 @@ struct hb_sorted_vector_t : hb_vector_t<Type>{
 	}
 
 	template <typename T>
-	bool bfind(const T &x, unsigned int * i = nullptr,
+	bool bfind(const T &x, uint * i = nullptr,
 	    hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
-	    unsigned int to_store = (uint)-1) const
+	    uint to_store = (uint)-1) const
 	{
 		return as_array().bfind(x, i, not_found, to_store);
 	}

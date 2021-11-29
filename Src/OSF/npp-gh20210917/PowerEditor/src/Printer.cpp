@@ -66,7 +66,7 @@ size_t Printer::doPrint()
 
 size_t Printer::doPrint(bool justDoIt)
 {/*
-	if (!::PrintDlg(&_pdlg))
+	if(!::PrintDlg(&_pdlg))
 	                return 0;
 	 */
 	const NppGUI & nppGUI = (NppParameters::getInstance()).getNppGUI();

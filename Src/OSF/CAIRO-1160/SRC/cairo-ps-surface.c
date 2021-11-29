@@ -1793,7 +1793,7 @@ static boolint surface_pattern_supported(const cairo_surface_pattern_t * pattern
 
 /* XXX: Need to write this function here...
     content = pattern->surface->content;
-    if (content == CAIRO_CONTENT_ALPHA)
+    if(content == CAIRO_CONTENT_ALPHA)
         return FALSE;
  */
 
@@ -3059,7 +3059,7 @@ static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surfac
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	cairo_surface_get_mime_data(params->src_surface, CAIRO_MIME_TYPE_UNIQUE_ID,
-	    (const uchar**)&source_key.unique_id,
+	    (const uchar **)&source_key.unique_id,
 	    &source_key.unique_id_length);
 	if(source_key.unique_id == NULL || source_key.unique_id_length == 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;

@@ -141,7 +141,7 @@ static ossl_inline void gf_cond_sel(gf x, const gf y, const gf z, mask_t is_z)
 	}
 }
 
-/* Constant time, if (neg) x=-x; */
+/* Constant time, if(neg) x=-x; */
 static ossl_inline void gf_cond_neg(gf x, mask_t neg)
 {
 	gf y;
@@ -150,7 +150,7 @@ static ossl_inline void gf_cond_neg(gf x, mask_t neg)
 	gf_cond_sel(x, x, y, neg);
 }
 
-/* Constant time, if (swap) (x,y) = (y,x); */
+/* Constant time, if(swap) (x,y) = (y,x); */
 static ossl_inline void gf_cond_swap(gf x, gf_s * RESTRICT y, mask_t swap)
 {
 	size_t i;

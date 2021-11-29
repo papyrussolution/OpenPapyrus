@@ -3208,7 +3208,7 @@ void cairo_show_text_glyphs(cairo_t * cr, const char * utf8, int utf8_len, const
 	if(utf8 == NULL && utf8_len == -1)
 		utf8_len = 0;
 	/* No NULLs for non-zeros */
-	if((num_glyphs && glyphs   == NULL) || (utf8_len   && utf8     == NULL) || (num_clusters && clusters == NULL)) {
+	if((num_glyphs && glyphs   == NULL) || (utf8_len && utf8     == NULL) || (num_clusters && clusters == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}

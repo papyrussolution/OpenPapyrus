@@ -108,7 +108,7 @@ float hb_style_get_value(hb_font_t * font, hb_tag_t tag)
 		    return face->table.OS2->is_italic() || face->table.head->is_italic() ? 1 : 0;
 		case HB_STYLE_TAG_OPTICAL_SIZE:
 	    {
-		    unsigned int lower, upper;
+		    uint lower, upper;
 		    return face->table.OS2->v5().get_optical_size(&lower, &upper)
 			   ? (float)(lower + upper) / 2.f
 			   : 12.f;

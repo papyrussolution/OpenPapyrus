@@ -382,7 +382,7 @@ static const int use_syllable_machine_en_main = 5;
 
 static void find_syllables_use(hb_buffer_t * buffer)
 {
-	unsigned int p, pe, eof, ts, te, act;
+	uint p, pe, eof, ts, te, act;
 	int cs;
 	hb_glyph_info_t * info = buffer->info;
 
@@ -399,7 +399,7 @@ static void find_syllables_use(hb_buffer_t * buffer)
 	p = 0;
 	pe = eof = buffer->len;
 
-	unsigned int syllable_serial = 1;
+	uint syllable_serial = 1;
 
 #line 412 "hb-ot-shape-complex-use-machine.hh"
 	{

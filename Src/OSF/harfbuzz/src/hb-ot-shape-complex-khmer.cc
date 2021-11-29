@@ -103,7 +103,7 @@ static void collect_features_khmer(hb_ot_shape_planner_t * plan)
 	map->enable_feature(HB_TAG('l', 'o', 'c', 'l'));
 	map->enable_feature(HB_TAG('c', 'c', 'm', 'p'));
 
-	unsigned int i = 0;
+	uint i = 0;
 	for(; i < KHMER_BASIC_FEATURES; i++)
 		map->add_feature(khmer_features[i]);
 
@@ -191,7 +191,7 @@ static void setup_masks_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
 	/* We cannot setup masks here.  We save information about characters
 	 * and setup masks later on in a pause-callback. */
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		set_khmer_properties(info[i]);
@@ -212,7 +212,7 @@ static void setup_syllables_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
 static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
     hb_face_t * face HB_UNUSED,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	const khmer_shape_plan_t * khmer_plan = (const khmer_shape_plan_t*)plan->data;
 	hb_glyph_info_t * info = buffer->info;
@@ -227,7 +227,7 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 			info[i].mask  |= mask;
 	}
 
-	unsigned int num_coengs = 0;
+	uint num_coengs = 0;
 	for(uint i = start + 1; i < end; i++) {
 		/* """
 		 * When a COENG + (Cons | IndV) combination are found (and subscript count
@@ -245,7 +245,7 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 			num_coengs++;
 
 			if(info[i+1].khmer_category() == OT_Ra) {
-				for(unsigned int j = 0; j < 2; j++)
+				for(uint j = 0; j < 2; j++)
 					info[i + j].mask |= khmer_plan->mask_array[KHMER_PREF];
 
 				/* Move the Coeng,Ro sequence to the start. */
@@ -263,7 +263,7 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 				 * U+1784,U+17D2,U+1782,U+17D2,U+179A
 				 */
 				if(khmer_plan->mask_array[KHMER_CFAR])
-					for(unsigned int j = i + 2; j < end; j++)
+					for(uint j = i + 2; j < end; j++)
 						info[j].mask |= khmer_plan->mask_array[KHMER_CFAR];
 
 				num_coengs = 2; /* Done. */
@@ -284,7 +284,7 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 static void reorder_syllable_khmer(const hb_ot_shape_plan_t * plan,
     hb_face_t * face,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	khmer_syllable_type_t syllable_type = (khmer_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
 	switch(syllable_type)
@@ -310,7 +310,7 @@ static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan H
 	/* Note: This loop is extra overhead, but should not be measurable.
 	 * TODO Use a buffer scratch flag to remove the loop. */
 	bool has_broken_syllables = false;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == khmer_broken_cluster) {
@@ -332,9 +332,9 @@ static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan H
 	buffer->clear_output();
 
 	buffer->idx = 0;
-	unsigned int last_syllable = 0;
+	uint last_syllable = 0;
 	while(buffer->idx < buffer->len && buffer->successful) {
-		unsigned int syllable = buffer->cur().syllable();
+		uint syllable = buffer->cur().syllable();
 		khmer_syllable_type_t syllable_type = (khmer_syllable_type_t)(syllable & 0x0F);
 		if(UNLIKELY(last_syllable != syllable && syllable_type == khmer_broken_cluster)) {
 			last_syllable = syllable;

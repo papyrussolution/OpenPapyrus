@@ -387,7 +387,7 @@ typedef int (* X509_LOOKUP_get_by_issuer_serial_fn)(X509_LOOKUP * ctx,
     X509_OBJECT * ret);
 typedef int (* X509_LOOKUP_get_by_fingerprint_fn)(X509_LOOKUP * ctx,
     X509_LOOKUP_TYPE type,
-    const uchar* bytes,
+    const uchar * bytes,
     int len,
     X509_OBJECT * ret);
 typedef int (* X509_LOOKUP_get_by_alias_fn)(X509_LOOKUP * ctx,

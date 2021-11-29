@@ -296,7 +296,7 @@ U_CAPI bool U_EXPORT2 ubidi_isInverse(UBiDi * pBiDi) {
  */
 U_CAPI void U_EXPORT2 ubidi_setReorderingMode(UBiDi * pBiDi, UBiDiReorderingMode reorderingMode) {
 	if((pBiDi!=NULL) && (reorderingMode >= UBIDI_REORDER_DEFAULT)
-	  && (reorderingMode < UBIDI_REORDER_COUNT)) {
+	 && (reorderingMode < UBIDI_REORDER_COUNT)) {
 		pBiDi->reorderingMode = reorderingMode;
 		pBiDi->isInverse = (bool)(reorderingMode == UBIDI_REORDER_INVERSE_NUMBERS_AS_L);
 	}

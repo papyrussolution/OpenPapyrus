@@ -92,7 +92,7 @@ public:
 			{
 				index_to_offset.init();
 				table = hb_sanitize_context_t().reference_table<post> (face);
-				unsigned int table_length = table.get_length();
+				uint table_length = table.get_length();
 				version = table->version.to_int();
 				if(version != 0x00020000) 
 					return;
@@ -109,14 +109,14 @@ public:
 				SAlloc::F(gids_sorted_by_name.get());
 				table.destroy();
 			}
-			bool get_glyph_name(hb_codepoint_t glyph, char * buf, unsigned int buf_len) const
+			bool get_glyph_name(hb_codepoint_t glyph, char * buf, uint buf_len) const
 			{
 				hb_bytes_t s = find_glyph_name(glyph);
 				if(!s.length) 
 					return false;
 				else {
 					if(buf_len) {
-						// @sobolev unsigned int len = hb_min(buf_len - 1, s.length);
+						// @sobolev uint len = hb_min(buf_len - 1, s.length);
 						// @sobolev strncpy(buf, s.arrayZ, len);
 						// @sobolev buf[len] = '\0';
 						strnzcpy(buf, s.arrayZ, buf_len); // @sobolev
@@ -126,7 +126,7 @@ public:
 			}
 			bool get_glyph_from_name(const char * name, int len, hb_codepoint_t * glyph) const
 			{
-				unsigned int count = get_glyph_count();
+				uint count = get_glyph_count();
 				if(UNLIKELY(!count)) return false;
 				if(len < 0) len = strlen(name);
 				if(UNLIKELY(!len)) return false;
@@ -154,7 +154,7 @@ retry:
 			}
 			hb_blob_ptr_t<post> table;
 protected:
-			unsigned int get_glyph_count() const
+			uint get_glyph_count() const
 			{
 				if(version == 0x00010000)
 					return format1_names_length;
@@ -190,17 +190,17 @@ protected:
 				if(version != 0x00020000 || glyph >= glyphNameIndex->len)
 					return hb_bytes_t();
 
-				unsigned int index = glyphNameIndex->arrayZ[glyph];
+				uint index = glyphNameIndex->arrayZ[glyph];
 				if(index < format1_names_length)
 					return format1_names(index);
 				index -= format1_names_length;
 
 				if(index >= index_to_offset.length)
 					return hb_bytes_t();
-				unsigned int offset = index_to_offset[index];
+				uint offset = index_to_offset[index];
 
 				const uint8_t * data = pool + offset;
-				unsigned int name_length = *data;
+				uint name_length = *data;
 				data++;
 
 				return hb_bytes_t((const char*)data, name_length);

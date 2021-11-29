@@ -40,7 +40,7 @@
 
 namespace OT {
 	struct SBIXGlyph {
-		SBIXGlyph* copy(hb_serialize_context_t * c, unsigned int data_length) const
+		SBIXGlyph* copy(hb_serialize_context_t * c, uint data_length) const
 		{
 			TRACE_SERIALIZE(this);
 			SBIXGlyph* new_glyph = c->start_embed<SBIXGlyph> ();
@@ -75,7 +75,7 @@ public:
 	};
 
 	struct SBIXStrike {
-		static unsigned int get_size(unsigned num_glyphs)
+		static uint get_size(unsigned num_glyphs)
 		{
 			return min_size + num_glyphs * HBUINT32::static_size;
 		}
@@ -87,19 +87,19 @@ public:
 			    imageOffsetsZ.sanitize_shallow(c, c->get_num_glyphs() + 1));
 		}
 
-		hb_blob_t * get_glyph_blob(unsigned int glyph_id,
+		hb_blob_t * get_glyph_blob(uint glyph_id,
 		    hb_blob_t * sbix_blob,
 		    hb_tag_t file_type,
 		    int * x_offset,
 		    int * y_offset,
-		    unsigned int num_glyphs,
-		    unsigned int * strike_ppem) const
+		    uint num_glyphs,
+		    uint * strike_ppem) const
 		{
 			if(UNLIKELY(!ppem)) return hb_blob_get_empty(); /* To get Null() object out of the way. */
 
-			unsigned int retry_count = 8;
-			unsigned int sbix_len = sbix_blob->length;
-			unsigned int strike_offset = (const char*)this - (const char*)sbix_blob->data;
+			uint retry_count = 8;
+			uint sbix_len = sbix_blob->length;
+			uint strike_offset = (const char*)this - (const char*)sbix_blob->data;
 			assert(strike_offset < sbix_len);
 
 retry:
@@ -109,8 +109,8 @@ retry:
 			    (uint)imageOffsetsZ[glyph_id + 1] > sbix_len - strike_offset))
 				return hb_blob_get_empty();
 
-			unsigned int glyph_offset = strike_offset + (uint)imageOffsetsZ[glyph_id] + SBIXGlyph::min_size;
-			unsigned int glyph_length = imageOffsetsZ[glyph_id + 1] - imageOffsetsZ[glyph_id] - SBIXGlyph::min_size;
+			uint glyph_offset = strike_offset + (uint)imageOffsetsZ[glyph_id] + SBIXGlyph::min_size;
+			uint glyph_length = imageOffsetsZ[glyph_id + 1] - imageOffsetsZ[glyph_id] - SBIXGlyph::min_size;
 			const SBIXGlyph * glyph = &(this+imageOffsetsZ[glyph_id]);
 			if(glyph->graphicType == HB_TAG('d', 'u', 'p', 'e')) {
 				if(glyph_length >= 2) {
@@ -129,10 +129,10 @@ retry:
 			return hb_blob_create_sub_blob(sbix_blob, glyph_offset, glyph_length);
 		}
 
-		bool subset(hb_subset_context_t * c, unsigned int available_len) const
+		bool subset(hb_subset_context_t * c, uint available_len) const
 		{
 			TRACE_SUBSET(this);
-			unsigned int num_output_glyphs = c->plan->num_output_glyphs();
+			uint num_output_glyphs = c->plan->num_output_glyphs();
 			auto* out = c->serializer->start_embed<SBIXStrike> ();
 			if(UNLIKELY(!out)) return_trace(false);
 			auto snap = c->serializer->snapshot();
@@ -155,8 +155,8 @@ retry:
 					continue;
 				}
 				has_glyphs = true;
-				unsigned int delta = imageOffsetsZ[old_gid + 1] - imageOffsetsZ[old_gid];
-				unsigned int glyph_data_length = delta - SBIXGlyph::min_size;
+				uint delta = imageOffsetsZ[old_gid + 1] - imageOffsetsZ[old_gid];
+				uint glyph_data_length = delta - SBIXGlyph::min_size;
 				if(!(this+imageOffsetsZ[old_gid]).copy(c->serializer, glyph_data_length))
 					return_trace(false);
 				out->imageOffsetsZ[new_gid] = head;
@@ -188,7 +188,7 @@ public:
 			return version;
 		}
 
-		const SBIXStrike &get_strike(unsigned int i) const {
+		const SBIXStrike &get_strike(uint i) const {
 			return this+strikes[i];
 		}
 
@@ -219,7 +219,7 @@ public:
 			    hb_codepoint_t glyph_id,
 			    int  * x_offset,
 			    int  * y_offset,
-			    unsigned int * available_ppem) const
+			    uint * available_ppem) const
 			{
 				return choose_strike(font).get_glyph_blob(glyph_id, table.get_blob(),
 					   HB_TAG('p', 'n', 'g', ' '),
@@ -231,19 +231,19 @@ private:
 
 			const SBIXStrike &choose_strike(hb_font_t * font) const
 			{
-				unsigned count = table->strikes.len;
+				uint count = table->strikes.len;
 				if(UNLIKELY(!count))
 					return Null(SBIXStrike);
 
-				unsigned int requested_ppem = hb_max(font->x_ppem, font->y_ppem);
+				uint requested_ppem = hb_max(font->x_ppem, font->y_ppem);
 				if(!requested_ppem)
 					requested_ppem = 1<<30; /* Choose largest strike. */
 				/* TODO Add DPI sensitivity as well? */
-				unsigned int best_i = 0;
-				unsigned int best_ppem = table->get_strike(0).ppem;
+				uint best_i = 0;
+				uint best_ppem = table->get_strike(0).ppem;
 
 				for(uint i = 1; i < count; i++) {
-					unsigned int ppem = (table->get_strike(i)).ppem;
+					uint ppem = (table->get_strike(i)).ppem;
 					if((requested_ppem <= ppem && ppem < best_ppem) ||
 					    (requested_ppem > best_ppem && ppem > best_ppem)) {
 						best_i = i;
@@ -285,7 +285,7 @@ public:
 					return false;
 
 				int x_offset = 0, y_offset = 0;
-				unsigned int strike_ppem = 0;
+				uint strike_ppem = 0;
 				hb_blob_t * blob = reference_png(font, glyph, &x_offset, &y_offset, &strike_ppem);
 
 				const PNGHeader &png = *blob->as<PNGHeader>();
@@ -318,7 +318,7 @@ public:
 private:
 			hb_blob_ptr_t<sbix> table;
 
-			unsigned int num_glyphs;
+			uint num_glyphs;
 		};
 
 		bool sanitize(hb_sanitize_context_t * c) const
@@ -329,7 +329,7 @@ private:
 			    strikes.sanitize(c, this)));
 		}
 
-		bool add_strike(hb_subset_context_t * c, unsigned i) const
+		bool add_strike(hb_subset_context_t * c, uint i) const
 		{
 			if(strikes[i].is_null() || c->source_blob->length < (uint)strikes[i])
 				return false;

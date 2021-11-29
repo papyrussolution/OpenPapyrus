@@ -214,7 +214,7 @@ static hb_bool_t hb_ft_get_nominal_glyph(hb_font_t * font HB_UNUSED, void * font
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
-	unsigned int g = FT_Get_Char_Index(ft_font->ft_face, unicode);
+	uint g = FT_Get_Char_Index(ft_font->ft_face, unicode);
 	if(UNLIKELY(!g)) {
 		if(UNLIKELY(ft_font->symbol) && unicode <= 0x00FFu) {
 			/* For symbol-encoded OpenType fonts, we duplicate the
@@ -233,18 +233,18 @@ static hb_bool_t hb_ft_get_nominal_glyph(hb_font_t * font HB_UNUSED, void * font
 	return true;
 }
 
-static unsigned int hb_ft_get_nominal_glyphs(hb_font_t * font HB_UNUSED,
+static uint hb_ft_get_nominal_glyphs(hb_font_t * font HB_UNUSED,
     void * font_data,
-    unsigned int count,
+    uint count,
     const hb_codepoint_t * first_unicode,
-    unsigned int unicode_stride,
+    uint unicode_stride,
     hb_codepoint_t * first_glyph,
-    unsigned int glyph_stride,
+    uint glyph_stride,
     void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
-	unsigned int done;
+	uint done;
 	for(done = 0;
 	    done < count && (*first_glyph = FT_Get_Char_Index(ft_font->ft_face, *first_unicode));
 	    done++) {
@@ -265,7 +265,7 @@ static hb_bool_t hb_ft_get_variation_glyph(hb_font_t * font HB_UNUSED,
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
-	unsigned int g = FT_Face_GetCharVariantIndex(ft_font->ft_face, unicode, variation_selector);
+	uint g = FT_Face_GetCharVariantIndex(ft_font->ft_face, unicode, variation_selector);
 	if(UNLIKELY(!g))
 		return false;
 	*glyph = g;
@@ -273,11 +273,11 @@ static hb_bool_t hb_ft_get_variation_glyph(hb_font_t * font HB_UNUSED,
 }
 
 static void hb_ft_get_glyph_h_advances(hb_font_t* font, void * font_data,
-    unsigned count,
+    uint count,
     const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride,
+    uint glyph_stride,
     hb_position_t * first_advance,
-    unsigned advance_stride,
+    uint advance_stride,
     void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
@@ -294,7 +294,7 @@ static void hb_ft_get_glyph_h_advances(hb_font_t* font, void * font_data,
 	for(uint i = 0; i < count; i++) {
 		FT_Fixed v = 0;
 		hb_codepoint_t glyph = *first_glyph;
-		unsigned int cv;
+		uint cv;
 		if(ft_font->advance_cache.get(glyph, &cv))
 			v = cv;
 		else {
@@ -383,7 +383,7 @@ static hb_bool_t hb_ft_get_glyph_extents(hb_font_t * font, void * font_data,
 }
 
 static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED, void * font_data, hb_codepoint_t glyph,
-    unsigned int point_index, hb_position_t * x, hb_position_t * y, void * user_data HB_UNUSED)
+    uint point_index, hb_position_t * x, hb_position_t * y, void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -400,7 +400,7 @@ static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED, void 
 }
 
 static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font HB_UNUSED, void * font_data,
-    hb_codepoint_t glyph, char * name, unsigned int size, void * user_data HB_UNUSED)
+    hb_codepoint_t glyph, char * name, uint size, void * user_data HB_UNUSED)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -801,7 +801,7 @@ static void _release_blob(FT_Face ft_face) { hb_blob_destroy((hb_blob_t*)ft_face
 void hb_ft_font_set_funcs(hb_font_t * font)
 {
 	hb_blob_t * blob = hb_face_reference_blob(font->face);
-	unsigned int blob_length;
+	uint blob_length;
 	const char * blob_data = hb_blob_get_data(blob, &blob_length);
 	if(UNLIKELY(!blob_length))
 		DEBUG_MSG(FT, font, "Font face has empty blob");
@@ -823,7 +823,7 @@ void hb_ft_font_set_funcs(hb_font_t * font)
 		FT_Set_Transform(ft_face, &matrix, nullptr);
 	}
 #if defined(HAVE_FT_GET_VAR_BLEND_COORDINATES) && !defined(HB_NO_VAR)
-	unsigned int num_coords;
+	uint num_coords;
 	const int * coords = hb_font_get_var_coords_normalized(font, &num_coords);
 	if(num_coords) {
 		FT_Fixed * ft_coords = (FT_Fixed*)SAlloc::C(num_coords, sizeof(FT_Fixed));

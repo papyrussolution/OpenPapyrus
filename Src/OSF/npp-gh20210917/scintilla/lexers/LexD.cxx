@@ -438,7 +438,7 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 				numHex = sc.ch == '0' && ( sc.chNext == 'x' || sc.chNext == 'X' );
 			}
 			else if((sc.ch == 'r' || sc.ch == 'x' || sc.ch == 'q')
-			  && sc.chNext == '"') {
+			 && sc.chNext == '"') {
 				// Limited support for hex and delimited strings: parse as r""
 				sc.SetState(SCE_D_STRINGR);
 				sc.Forward();

@@ -1282,9 +1282,9 @@ void PluralRuleParser::checkSyntax(UErrorCode & status)
 		    }
 		    break;
 		case tNumber:
-		    if(type != tDot2 && type != tSemiColon && type != tIs     && type != tNot  &&
-			type != tIn  && type != tEqual   && type != tNotEqual && type != tWithin &&
-			type != tAnd && type != tOr      && type != tComma  && type != tAt   &&
+		    if(type != tDot2 && type != tSemiColon && type != tIs && type != tNot &&
+			type != tIn && type != tEqual && type != tNotEqual && type != tWithin &&
+			type != tAnd && type != tOr && type != tComma && type != tAt &&
 			type != tEOF) {
 			    status = U_UNEXPECTED_TOKEN;
 		    }
@@ -1574,13 +1574,13 @@ FixedDecimal::FixedDecimal(double n, int32_t v, int64_t f, int32_t e) {
 	// check values. TODO make into unit test.
 	//
 	//            long visiblePower = (int) Math.pow(10, v);
-	//            if (decimalDigits > visiblePower) {
+	//            if(decimalDigits > visiblePower) {
 	//                throw new IllegalArgumentException();
 	//            }
 	//            double fraction = intValue + (decimalDigits / (double) visiblePower);
-	//            if (fraction != source) {
+	//            if(fraction != source) {
 	//                double diff = Math.abs(fraction - source)/(Math.abs(fraction) + Math.abs(source));
-	//                if (diff > 0.00000001d) {
+	//                if(diff > 0.00000001d) {
 	//                    throw new IllegalArgumentException();
 	//                }
 	//            }
@@ -1854,7 +1854,7 @@ int32_t FixedDecimal::getVisibleFractionDigitCount() const {
 
 bool FixedDecimal::operator==(const FixedDecimal &other) const {
 	return source == other.source && visibleDecimalDigitCount == other.visibleDecimalDigitCount
-	     && decimalDigits == other.decimalDigits && exponent == other.exponent;
+	 && decimalDigits == other.decimalDigits && exponent == other.exponent;
 }
 
 UnicodeString FixedDecimal::toString() const {

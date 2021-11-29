@@ -14,7 +14,7 @@
 #include <numparse_affixes.h>
 
 void NumberParserTest::runIndexedTest(int32_t index, bool exec, const char *& name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite NumberParserTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -131,13 +131,13 @@ void NumberParserTest::testBasic() {
         LocalPointer<const NumberParserImpl> parser(
                 NumberParserImpl::createSimpleParser(
                         Locale("en"), patternString, parseFlags, status));
-        if (status.errDataIfFailureAndReset("createSimpleParser() failed")) {
+        if(status.errDataIfFailureAndReset("createSimpleParser() failed")) {
             continue;
         }
         UnicodeString message =
                 UnicodeString("Input <") + inputString + UnicodeString("> Parser ") + parser->toString();
 
-        if (0 != (cas.flags & 0x01)) {
+        if(0 != (cas.flags & 0x01)) {
             // Test greedy code path
             ParsedNumber resultObject;
             parser->parse(inputString, true, resultObject, status);
@@ -148,7 +148,7 @@ void NumberParserTest::testBasic() {
                 cas.expectedResultDouble, resultObject.getDouble(status));
         }
 
-        if (0 != (cas.flags & 0x02)) {
+        if(0 != (cas.flags & 0x02)) {
             // Test slow code path
             ParsedNumber resultObject;
             parser->parse(inputString, false, resultObject, status);
@@ -163,7 +163,7 @@ void NumberParserTest::testBasic() {
                     resultObject.getDouble(status));
         }
 
-        if (0 != (cas.flags & 0x04)) {
+        if(0 != (cas.flags & 0x04)) {
             // Test with strict separators
             parser.adoptInstead(
                     NumberParserImpl::createSimpleParser(
@@ -186,7 +186,7 @@ void NumberParserTest::testSeriesMatcher() {
     IcuTestErrorCode status(*this, "testSeriesMatcher");
 
     DecimalFormatSymbols symbols("en", status);
-    if (status.errDataIfFailureAndReset("Failure in DecimalFormtSymbols constructor")) {
+    if(status.errDataIfFailureAndReset("Failure in DecimalFormtSymbols constructor")) {
         return;
     }
     PlusSignMatcher m0(symbols, false);
@@ -246,7 +246,7 @@ void NumberParserTest::testCombinedCurrencyMatcher() {
     Locale locale = Locale::getEnglish();
 
     DecimalFormatSymbols dfs(locale, status);
-    if (status.errDataIfFailureAndReset("Failure in DecimalFormtSymbols constructor")) {
+    if(status.errDataIfFailureAndReset("Failure in DecimalFormtSymbols constructor")) {
         return;
     }
     dfs.setSymbol(DecimalFormatSymbols::kCurrencySymbol, u"IU$", status);
@@ -340,7 +340,7 @@ void NumberParserTest::testAffixPatternMatcher() {
         bool success;
         AffixPatternMatcher matcher = AffixPatternMatcher::fromAffixPattern(
                 affixPattern, warehouse, parseFlags, &success, status);
-        if (!status.errDataIfFailureAndReset("Creation should be successful")) {
+        if(!status.errDataIfFailureAndReset("Creation should be successful")) {
 
             // Check that the matcher has the expected number of children
             assertEquals(affixPattern + " " + cas.exactMatch, cas.expectedMatcherLength, matcher.length());
@@ -364,7 +364,7 @@ void NumberParserTest::test20360_BidiOverflow() {
     inputString.append(u'5');
 
     LocalPointer<const NumberParserImpl> parser(NumberParserImpl::createSimpleParser("en", u"0", 0, status));
-    if (status.errDataIfFailureAndReset("createSimpleParser() failed")) {
+    if(status.errDataIfFailureAndReset("createSimpleParser() failed")) {
         return;
     }
 
@@ -390,7 +390,7 @@ void NumberParserTest::testInfiniteRecursion() {
     inputString.append(u'5');
 
     LocalPointer<const NumberParserImpl> parser(NumberParserImpl::createSimpleParser("en", u"0", 0, status));
-    if (status.errDataIfFailureAndReset("createSimpleParser() failed")) {
+    if(status.errDataIfFailureAndReset("createSimpleParser() failed")) {
         return;
     }
 

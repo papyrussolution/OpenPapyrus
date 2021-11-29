@@ -68,7 +68,7 @@ const uint32 PRIV(vspace_list)[] = { VSPACE_LIST };
 /* These are the breakpoints for different numbers of bytes in a UTF-8
 character. */
 
-#if (defined SUPPORT_UTF && defined COMPILE_PCRE8) || (defined PCRE_INCLUDED && (defined SUPPORT_PCRE16 || defined SUPPORT_PCRE32))
+#if(defined SUPPORT_UTF && defined COMPILE_PCRE8) || (defined PCRE_INCLUDED && (defined SUPPORT_PCRE16 || defined SUPPORT_PCRE32))
 
 /* These tables are also required by pcretest in 16- or 32-bit mode. */
 

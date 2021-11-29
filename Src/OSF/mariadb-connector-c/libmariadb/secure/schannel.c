@@ -357,7 +357,7 @@ end:
 	return rc;
 }
 
-ssize_t ma_tls_read(MARIADB_TLS * ctls, const uchar* buffer, size_t length)
+ssize_t ma_tls_read(MARIADB_TLS * ctls, const uchar * buffer, size_t length)
 {
 	SC_CTX * sctx = (SC_CTX*)ctls->ssl;
 	MARIADB_PVIO * pvio = ctls->pvio;
@@ -371,7 +371,7 @@ ssize_t ma_tls_read(MARIADB_TLS * ctls, const uchar* buffer, size_t length)
 	return (status == SEC_E_OK) ? (ssize_t)dlength : -1;
 }
 
-ssize_t ma_tls_write(MARIADB_TLS * ctls, const uchar* buffer, size_t length)
+ssize_t ma_tls_write(MARIADB_TLS * ctls, const uchar * buffer, size_t length)
 {
 	MARIADB_PVIO * pvio = ctls->pvio;
 	ssize_t rc, wlength = 0;

@@ -533,7 +533,7 @@ typedef struct FT_CharMapRec_*  FT_CharMap;
  *   FT_ENC_TAG
  *
  * @description:
- *   This macro converts four-letter tags into an unsigned long.  It is
+ *   This macro converts four-letter tags into an ulong.  It is
  *   used to define 'encoding' identifiers (see @FT_Encoding).
  *
  * @note:
@@ -1479,7 +1479,7 @@ typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
  *   ```
  *     font_format = FT_Get_Font_Format( face );
  *
- *     if ( !strcmp( font_format, "TrueType" ) &&
+ *     if( !strcmp( font_format, "TrueType" ) &&
  *    do_native_bytecode_hinting         )
  *     {
  * ascender  = ROUND( FT_MulFix( face->ascender,
@@ -1746,9 +1746,9 @@ typedef struct FT_Slot_InternalRec_*  FT_Slot_Internal;
  *
  * <load glyph with `FT_Load_Glyph'>
  *
- * if ( prev_rsb_delta - slot->lsb_delta >  32 )
+ * if( prev_rsb_delta - slot->lsb_delta >  32 )
  *   origin_x -= 64;
- * else if ( prev_rsb_delta - slot->lsb_delta < -31 )
+ * else if( prev_rsb_delta - slot->lsb_delta < -31 )
  *   origin_x += 64;
  *
  * prev_rsb_delta = slot->rsb_delta;
@@ -2021,7 +2021,7 @@ typedef struct  FT_Open_Args_ {
  *   Use @FT_Done_Face to destroy the created @FT_Face object (along with
  *   its slot and sizes).
  */
-FT_EXPORT(FT_Error) FT_New_Face(FT_Library library, const char *  filepathname, FT_Long face_index, FT_Face     *aface);
+FT_EXPORT(FT_Error) FT_New_Face(FT_Library library, const char * filepathname, FT_Long face_index, FT_Face     *aface);
 
 /**************************************************************************
  *
@@ -2138,7 +2138,7 @@ FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_
  *
  *
  *     error = FT_Open_Face( library, args, -1, &face );
- *     if ( error ) { ... }
+ *     if( error ) { ... }
  *
  *     num_faces = face->num_faces;
  *     FT_Done_Face( face );
@@ -2175,7 +2175,7 @@ FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_
  *
  *
  * error = FT_Open_Face( library, args, id, &face );
- * if ( error ) { ... }
+ * if( error ) { ... }
  *
  * num_faces  = face->num_faces;
  * num_instances = face->style_flags >> 16;
@@ -2184,7 +2184,7 @@ FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_
  *
  * FT_Done_Face( face );
  *
- * if ( instance_idx < num_instances )
+ * if( instance_idx < num_instances )
  *   instance_idx++;
  * else
  * {
@@ -2192,7 +2192,7 @@ FT_EXPORT(FT_Error) FT_New_Memory_Face(FT_Library library, const FT_Byte*  file_
  *   instance_idx = 0;
  * }
  *
- *     } while ( face_idx < num_faces )
+ *     } while(face_idx < num_faces )
  *   ```
  */
 FT_EXPORT(FT_Error) FT_Open_Face(FT_Library library, const FT_Open_Args*  args, FT_Long face_index, FT_Face             *aface);
@@ -2216,7 +2216,7 @@ FT_EXPORT(FT_Error) FT_Open_Face(FT_Library library, const FT_Open_Args*  args, 
  * @return:
  *   FreeType error code.  0~means success.
  */
-FT_EXPORT(FT_Error) FT_Attach_File(FT_Face face, const char *  filepathname);
+FT_EXPORT(FT_Error) FT_Attach_File(FT_Face face, const char * filepathname);
 
 /**************************************************************************
  *
@@ -3508,7 +3508,7 @@ FT_EXPORT(FT_UInt) FT_Get_Char_Index(FT_Face face, FT_ULong charcode);
  *
  *
  *     charcode = FT_Get_First_Char( face, &gindex );
- *     while ( gindex != 0)
+ *     while(gindex != 0)
  *     {
  * ... do something with (charcode,gindex) pair ...
  *
@@ -3861,7 +3861,7 @@ typedef struct  FT_LayerIterator_ {
  *     FT_UInt  layer_glyph_index;
  *     FT_UInt  layer_color_index;
  *     error = FT_Palette_Select( face, palette_index, &palette );
- *     if ( error )
+ *     if( error )
  * palette = NULL;
  *
  *     iterator.p  = NULL;
@@ -3871,10 +3871,10 @@ typedef struct  FT_LayerIterator_ {
  *                                       &layer_color_index,
  *                                       &iterator );
  *
- *     if ( palette && have_layers ) {
+ *     if( palette && have_layers ) {
  * do {
  *   FT_Color  layer_color;
- *   if ( layer_color_index == 0xFFFF )
+ *   if( layer_color_index == 0xFFFF )
  *     layer_color = text_foreground_color;
  *   else
  *     layer_color = palette[layer_color_index];
@@ -3882,7 +3882,7 @@ typedef struct  FT_LayerIterator_ {
  *   // Load and render glyph `layer_glyph_index', then
  *   // blend resulting pixmap (using color `layer_color')
  *   // with previously created pixmaps.
- * } while ( FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index, &iterator));
+ * } while(FT_Get_Color_Glyph_Layer(face, glyph_index, &layer_glyph_index, &layer_color_index, &iterator));
  *     }
  *   ```
  */

@@ -1691,7 +1691,7 @@ void EditView::DrawIndentGuidesOverEmpty(SciSurface * surface, const EditModel &
     int line, int lineVisible, PRectangle rcLine, int xStart, int subLine)
 {
 	if((vsDraw.viewIndentationGuides == ivLookForward || vsDraw.viewIndentationGuides == ivLookBoth)
-	  && (subLine == 0)) {
+	 && (subLine == 0)) {
 		const int posLineStart = model.pdoc->LineStart(line);
 		int indentSpace = model.pdoc->GetLineIndentation(line);
 		int xStartText = static_cast<int>(ll->positions[model.pdoc->GetLineIndentPosition(line) - posLineStart]);
@@ -1946,7 +1946,7 @@ void EditView::PaintText(SciSurface * surfaceWindow, const EditModel &model, PRe
 			}
 		}
 		ll.Set(0);
-		//if (durPaint < 0.00000001)
+		//if(durPaint < 0.00000001)
 		//	durPaint = 0.00000001;
 
 		// Right column limit indicator

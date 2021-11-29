@@ -70,7 +70,7 @@ enum mimestrategy {
 
 /* Content transfer encoder. */
 struct mime_encoder {
-  const char *   name;          /* Encoding name. */
+  const char * name;          /* Encoding name. */
   size_t         (*encodefunc)(char *buffer, size_t size, bool ateof,
                                curl_mimepart *part); /* Encoded read. */
   curl_off_t     (*sizefunc)(curl_mimepart *part); /* Encoded size. */
@@ -131,7 +131,7 @@ struct curl_mimepart {
 
 CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...);
 
-#if (!defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_MIME)) ||     \
+#if(!defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_MIME)) ||     \
   !defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_IMAP)
 
 /* Prototypes. */

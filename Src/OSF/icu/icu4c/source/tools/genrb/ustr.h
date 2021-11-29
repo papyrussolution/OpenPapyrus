@@ -23,7 +23,7 @@
 #include "unicode/utypes.h"
 
 #define U_APPEND_CHAR32(c,target,len) UPRV_BLOCK_MACRO_BEGIN {  \
-    if (c <= 0xffff)                                            \
+    if(c <= 0xffff)                                            \
     {                                                           \
         *(target)++ = (UChar) c;                                \
         len=1;                                                  \
@@ -38,7 +38,7 @@
 } UPRV_BLOCK_MACRO_END
 
 #define U_APPEND_CHAR32_ONLY(c,target) UPRV_BLOCK_MACRO_BEGIN { \
-    if (c <= 0xffff)                                            \
+    if(c <= 0xffff)                                            \
     {                                                           \
         *(target)++ = (UChar) c;                                \
     }                                                           \

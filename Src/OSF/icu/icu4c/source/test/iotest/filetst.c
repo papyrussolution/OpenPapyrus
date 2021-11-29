@@ -1059,13 +1059,13 @@ static void TestFilePrintCompatibility() {
 
 /*        fscanf(myCFile, "%s", readBuf);
         sprintf(testBuf, "%e", (double)num);
-        if (strcmp(readBuf, testBuf) != 0) {
+        if(strcmp(readBuf, testBuf) != 0) {
             log_err("%%e Got: \"%s\", Expected: \"%s\"\n", readBuf, testBuf);
         }
 
         fscanf(myCFile, "%s", readBuf);
         sprintf(testBuf, "%E", (double)num);
-        if (strcmp(readBuf, testBuf) != 0) {
+        if(strcmp(readBuf, testBuf) != 0) {
             log_err("%%E Got: \"%s\", Expected: \"%s\"\n", readBuf, testBuf);
         }*/
 

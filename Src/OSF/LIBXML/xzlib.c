@@ -281,7 +281,7 @@ static int is_format_lzma(xz_statep state)
 		uncompressed_size |= (uint64_t)(state->in[5 + i]) << (i * 8);
 
 	if(uncompressed_size != UINT64_MAX
-	  && uncompressed_size > (UINT64_C(1) << 38))
+	 && uncompressed_size > (UINT64_C(1) << 38))
 		return 0;
 
 	return 1;

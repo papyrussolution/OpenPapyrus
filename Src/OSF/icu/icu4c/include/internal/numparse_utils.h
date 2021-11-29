@@ -23,7 +23,7 @@ inline static void putLeadCodePoints(const UnicodeSet* input, UnicodeSet* output
 }
 
 inline static void putLeadCodePoint(const UnicodeString & input, UnicodeSet* output) {
-    if (!input.isEmpty()) {
+    if(!input.isEmpty()) {
         output->add(input.char32At(0));
     }
 }

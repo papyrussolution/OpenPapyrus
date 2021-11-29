@@ -161,6 +161,12 @@ PPBackupScen::PPBackupScen() : ID(0), Period(1), Flags(0), NumCopies(1)
 	PTR32(BackupPath)[0] = 0;
 }
 
+bool FASTCALL PPBackupScen::IsEq(const PPBackupScen & rS) const
+{
+	return (ID == rS.ID && Period == rS.Period && Flags == rS.Flags && NumCopies == rS.NumCopies &&
+		sstreq(Name, rS.Name) && sstreq(DBName, rS.DBName) && sstreq(BackupPath, rS.BackupPath));
+}
+
 PPBackupScen & PPBackupScen::Z()
 {
 	ID = 0;
@@ -497,7 +503,7 @@ int PPBackup::GetLastScenCopy(PPBackupScen * pScen, BCopyData * bcdata)
 //
 // Config backup - from PPConfig
 //
-static int SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
+/* @v11.2.5 static int SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 {
 	if(pList) {
 		pList->ViewOptions |= lbfl;
@@ -510,23 +516,26 @@ static int SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 		}
 	}
 	return -1;
-}
+}*/
 
-class ConfigBackupDialog : public TDialog {
+class ConfigBackupDialog : public PPListDialog {
 public:
-	ConfigBackupDialog(PPIniFile * pIniFile) : TDialog(DLG_BUCFG_SELECT), P_IniFile(pIniFile)
+	ConfigBackupDialog(/*PPIniFile * pIniFile*/) : PPListDialog(DLG_BUCFG_SELECT, CTL_BUCFG_SCNAME)
 	{
-		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BUCFG_SCNAME));
-		SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
+		P_IniFile = new PPIniFile;
+		//P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BUCFG_SCNAME));
+		//SetupStrListBox(P_List); // @v11.2.5
+		// @v11.2.5 SetupListBox(P_List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
 		DBES.ReadFromProfile(P_IniFile, 0);
 		//P_ScenList = new SArray(sizeof(PPBackupScen));
-		updateList();
+		updateList(-1);
 	}
 	virtual ~ConfigBackupDialog()
 	{
+		delete P_IniFile;
 	}
 private:
-	DECL_HANDLE_EVENT
+	/*DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
 		if(TVCOMMAND) {
@@ -541,44 +550,72 @@ private:
 		else
 			return;
 		clearEvent(event);
-	}
+	}*/
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID); // @<<PPListDialog::_addItem (reply on cmaInsert)
+	virtual int  editItem(long pos, long id); // @<<PPListDialog::_editItem (reply on cmaEdit or cmLBDblClk)
+	virtual int  delItem(long pos, long id); // @<<PPListDialog::_delItem (reply on cmaDelete)
+
 	int    editEntry(int isNewEntry, PPBackupScen *);
-	int    updateList();
-	int    addEntry();
-	int    updateEntry();
-	int    deleteEntry();
+	//int    updateList();
+	//int    addEntry();
+	//int    updateEntry();
+	//int    deleteEntry();
 	PPDbEntrySet2 DBES;
-	SmartListBox * P_List;
+	//SmartListBox * P_List;
 	TSVector <PPBackupScen> ScenList;
 	PPIniFile * P_IniFile;
 };
 
-int ConfigBackupDialog::updateList()
+/*
+int LinkFilesDialog::setupList()
 {
-	if(P_List) {
-		PPBackup::GetScenList(0, 0, ScenList);
-		P_List->freeAll();
-		SString n, pn;
-		for(uint i = 0; i < ScenList.getCount(); i++) {
-			char sub[128];
-			StringSet ss(SLBColumnDelim);
-			const PPBackupScen & r_entry = ScenList.at(i);
-			STRNSCPY(sub, r_entry.Name);
-			ss.add(strip(sub));
-			DBES.GetAttr(r_entry.DBName, DbLoginBlock::attrDbSymb, n);
-			DBES.GetAttr(r_entry.DBName, DbLoginBlock::attrDbFriendlyName, pn);
-			pn.SetIfEmpty(n);
-			ss.add(pn.Strip());
-			P_List->addItem(i+1, ss.getBuf());
+	int    ok = -1;
+	if(LinksAry.getCount()) {
+		StringSet ss(SLBColumnDelim);
+		for(uint i = 0; i < LinksAry.getCount(); i++) {
+			PPLinkFile flink = *LinksAry.at(i);
+			ss.Z().add(flink.Description);
+			THROW(addStringToList(i, ss.getBuf()));
 		}
-		P_List->Draw_();
+		ok = 1;
 	}
+	CATCHZOK
+	return ok;
+}
+*/
+
+int ConfigBackupDialog::setupList()
+{
+	//if(P_List) {
+		PPBackup::GetScenList(0, 0, ScenList);
+		//P_List->freeAll();
+		//SString n, pn;
+		SString dbsymb;
+		SString temp_buf;
+		StringSet ss(SLBColumnDelim);
+		for(uint i = 0; i < ScenList.getCount(); i++) {
+			//char sub[128];
+			const PPBackupScen & r_entry = ScenList.at(i);
+			//STRNSCPY(sub, r_entry.Name);
+			ss.Z();
+			ss.add((temp_buf = r_entry.Name).Strip());
+			DBES.GetAttr(r_entry.DBName, DbLoginBlock::attrDbSymb, dbsymb);
+			DBES.GetAttr(r_entry.DBName, DbLoginBlock::attrDbFriendlyName, temp_buf);
+			temp_buf.SetIfEmpty(dbsymb);
+			ss.add(temp_buf.Strip());
+			addStringToList(i+1, ss.getBuf());
+			//P_List->addItem(i+1, ss.getBuf());
+		}
+		//P_List->Draw_();
+	//}
 	return 1;
 }
 
 int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	SString cc, temp_buf;
 	TDialog * dlg = new TDialog(DLG_BUCFG_EDIT);
 	PPBackupScen entry = *pEntry;
@@ -651,7 +688,8 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 	return ok;
 }
 
-int ConfigBackupDialog::addEntry()
+//int ConfigBackupDialog::addEntry()
+/*virtual*/int ConfigBackupDialog::addItem(long * pPos, long * pID) // @<<PPListDialog::_addItem (reply on cmaInsert)
 {
 	int    ok = -1;
 	PPBackupScen entry;
@@ -661,46 +699,53 @@ int ConfigBackupDialog::addEntry()
 		SString temp_buf;
 		entry.ToStr(temp_buf);
 		P_IniFile->AppendParam(BACKUP, entry.Name, temp_buf, 1);
-		updateList();
+		//updateList();
+		ASSIGN_PTR(pPos, ScenList.getCount());
+		ASSIGN_PTR(pID, ScenList.getCount()+1);
 		ok = 1;
 	}
 	return ok;
 }
 
-int ConfigBackupDialog::updateEntry()
+//int ConfigBackupDialog::updateEntry()
+/*virtual*/int ConfigBackupDialog::editItem(long pos, long id) // @<<PPListDialog::_editItem (reply on cmaEdit or cmLBDblClk)
 {
 	int    ok = -1;
 	if(P_IniFile) {
-		PPID   ssid = 0;
+		//PPID   ssid = 0;
 		SString org_entry_name, buf;
-		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
-		if(ssid) {
-			PPBackupScen & r_entry = ScenList.at((int)ssid-1);
+		//getCtrlData(CTL_BUCFG_SCNAME, &ssid);
+		if(/*ssid*/pos >= 0 && pos < ScenList.getCountI()) {
+			PPBackupScen & r_entry = ScenList.at(pos);
+			const PPBackupScen org_entry = r_entry;
 			org_entry_name = r_entry.Name;
 			DBES.SetSelection(DBES.GetBySymb(r_entry.DBName, 0));
 			if(editEntry(1, &r_entry) > 0) {
-				r_entry.ToStr(buf);
-				P_IniFile->RemoveParam(BACKUP, org_entry_name);
-				P_IniFile->AppendParam(BACKUP, r_entry.Name, buf, 1);
-				updateList();
-				ok = 1;
+				if(!org_entry.IsEq(r_entry)) {
+					r_entry.ToStr(buf);
+					P_IniFile->RemoveParam(BACKUP, org_entry_name);
+					P_IniFile->AppendParam(BACKUP, r_entry.Name, buf, 1);
+					//updateList();
+					ok = 1;
+				}
 			}
 		}
 	}
 	return ok;
 }
 
-int ConfigBackupDialog::deleteEntry()
+//int ConfigBackupDialog::deleteEntry()
+/*virtual*/int ConfigBackupDialog::delItem(long pos, long id) // @<<PPListDialog::_delItem (reply on cmaDelete)
 {
 	int    ok = -1;
 	if(P_IniFile) {
-		PPID   ssid = 0;
-		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
-		if(ssid) {
-			const PPBackupScen & r_entry = ScenList.at((int)ssid-1);
+		//PPID   ssid = 0;
+		//getCtrlData(CTL_BUCFG_SCNAME, &ssid);
+		if(/*ssid*/pos >= 0 && pos < ScenList.getCountI()) {
+			const PPBackupScen & r_entry = ScenList.at(pos);
 			if(PPMessage(mfConf, PPCFM_REMOVECFG, r_entry.Name) == cmYes) {
 				P_IniFile->RemoveParam(BACKUP, r_entry.Name);
-				updateList();
+				//updateList();
 				ok = 1;
 			}
 		}
@@ -711,10 +756,10 @@ int ConfigBackupDialog::deleteEntry()
 int ConfigBackup()
 {
 	int    ok = 1;
-	ConfigBackupDialog * dlg = 0;
-	PPIniFile ini_file;
-	THROW_SL(ini_file.IsValid());
-	dlg = new ConfigBackupDialog(&ini_file);
+	//ConfigBackupDialog * dlg = 0;
+	//PPIniFile ini_file;
+	//THROW_SL(ini_file.IsValid());
+	ConfigBackupDialog * dlg = new ConfigBackupDialog(/*&ini_file*/);
 	THROW(CheckDialogPtr(&dlg));
 	ExecViewAndDestroy(dlg);
 	CATCHZOKPPERR
@@ -1715,7 +1760,7 @@ void BackupDialog::setupScenCombo()
 	ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_BU_BACKUP_SCEN));
 	if(p_cb) {
 		PPBackupScen scen;
-		ListWindow * p_lw = CreateListWindow(40, lbtDisposeData);
+		ListWindow * p_lw = CreateListWindow_Simple(0);
 		long   i = 0;
 		while(PPB->EnumScen(&i, &scen) > 0)
 			p_lw->listBox()->addItem(i, scen.Name);
@@ -2524,8 +2569,8 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 	int    reply = cmCancel;
 	PPBackup * ppb = 0;
 	PPDbEntrySet2 local_dbes;
-	PPIniFile ini_file;
 	if(pDbes == 0) {
+		PPIniFile ini_file;
 		local_dbes.ReadFromProfile(&ini_file);
 		pDbes = &local_dbes;
 	}
@@ -2582,32 +2627,40 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 								int    r = -1;
 								dlg->getDTS(&bdd);
 								switch(reply) {
-									case cmBuBackup: r = _DoBackup(ppb, bdd, UseCopyContinouos(&ini_file, pDbes)); break;
+									case cmBuBackup: 
+										{
+											PPIniFile ini_file;
+											r = _DoBackup(ppb, bdd, UseCopyContinouos(&ini_file, pDbes)); 
+										}
+										break;
 									case cmBuRestore: r = _DoRestore(ppb, bdd); break;
 									case cmBuRemove: r = _DoRemoveCopy(ppb, bdd); break;
 									case cmBuReleaseContinuous:
-										if(UseCopyContinouos(&ini_file, pDbes)) {
-											/* @v10.9.5 
-											BCopyData copy_data;
-											copy_data.Set = bdd.Scen.Name;
-											copy_data.CopyPath = bdd.Scen.BackupPath;
-											copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);
-											PPWaitStart();
-											if(!ppb->Backup(&copy_data, CallbackBuLog, 0)) {
-												PPSetError(PPERR_DBLIB);
-												PPError();
-												CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+										{
+											PPIniFile ini_file;
+											if(UseCopyContinouos(&ini_file, pDbes)) {
+												/* @v10.9.5 
+												BCopyData copy_data;
+												copy_data.Set = bdd.Scen.Name;
+												copy_data.CopyPath = bdd.Scen.BackupPath;
+												copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);
+												PPWaitStart();
+												if(!ppb->Backup(&copy_data, CallbackBuLog, 0)) {
+													PPSetError(PPERR_DBLIB);
+													PPError();
+													CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+												}
+												*/
+												// @v10.9.5 {
+												PPWaitStart();
+												if(!ppb->ReleaseContinuousMode(CallbackBuLog, 0)) {
+													PPSetError(PPERR_DBLIB);
+													PPError();
+													CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+												}
+												// } @v10.9.5 
+												PPWaitStop();
 											}
-											*/
-											// @v10.9.5 {
-											PPWaitStart();
-											if(!ppb->ReleaseContinuousMode(CallbackBuLog, 0)) {
-												PPSetError(PPERR_DBLIB);
-												PPError();
-												CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
-											}
-											// } @v10.9.5 
-											PPWaitStop();
 										}
 										break;
 								}

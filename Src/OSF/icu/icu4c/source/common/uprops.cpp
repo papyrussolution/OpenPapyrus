@@ -845,7 +845,7 @@ U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, UChar * dest, int32_t d
 	// second: c = NFKC(Fold(b))
 	UnicodeString folded2String(kc1);
 	UnicodeString kc2 = nfkc->normalize(folded2String.foldCase(), *pErrorCode);
-	// if (c != b) add the mapping from a to c
+	// if(c != b) add the mapping from a to c
 	if(U_FAILURE(*pErrorCode) || kc1==kc2) {
 		return u_terminateUChars(dest, destCapacity, 0, pErrorCode);
 	}

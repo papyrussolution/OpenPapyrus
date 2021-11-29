@@ -1734,7 +1734,7 @@ static GravityArray <gnode_t *> * parse_optional_parameter_declaration(gravity_p
 	assert(params);
 
 	// check if implicit self parameter must be added
-	// was if (IS_CLASS_ENCLOSED()*/) { ... add SELF PARAMETER ...}
+	// was if(IS_CLASS_ENCLOSED()*/) { ... add SELF PARAMETER ...}
 	// but we decided to ALWAYS pass SELF because it simplified cases
 	// like c1().p1.p1.p1(1234);
 

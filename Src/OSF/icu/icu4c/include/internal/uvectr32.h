@@ -213,7 +213,7 @@ public:
 // UVector32 inlines
 
 inline bool UVector32::ensureCapacity(int32_t minimumCapacity, UErrorCode & status) {
-    if ((minimumCapacity >= 0) && (capacity >= minimumCapacity)) {
+    if((minimumCapacity >= 0) && (capacity >= minimumCapacity)) {
         return true;
     } else {
         return expandCapacity(minimumCapacity, status);
@@ -226,14 +226,14 @@ inline int32_t UVector32::elementAti(int32_t index) const {
 
 
 inline void UVector32::addElement(int32_t elem, UErrorCode & status) {
-    if (ensureCapacity(count + 1, status)) {
+    if(ensureCapacity(count + 1, status)) {
         elements[count] = elem;
         count++;
     }
 }
 
 inline int32_t *UVector32::reserveBlock(int32_t size, UErrorCode & status) {
-    if (ensureCapacity(count+size, status) == false) {
+    if(ensureCapacity(count+size, status) == false) {
         return NULL;
     }
     int32_t *rp = elements+count;
@@ -244,7 +244,7 @@ inline int32_t *UVector32::reserveBlock(int32_t size, UErrorCode & status) {
 inline int32_t *UVector32::popFrame(int32_t size) {
     U_ASSERT(count >= size);
     count -= size;
-    if (count < 0) {
+    if(count < 0) {
         count = 0;
     }
     return elements+count-size;
@@ -294,7 +294,7 @@ inline int32_t UVector32::push(int32_t i, UErrorCode & status) {
 
 inline int32_t UVector32::popi() {
     int32_t result = 0;
-    if (count > 0) {
+    if(count > 0) {
         count--;
         result = elements[count];
     }

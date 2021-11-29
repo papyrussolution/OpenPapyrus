@@ -898,7 +898,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * inpu
 				return 0;
 			/*
 			 * "UTF-16" can be used for both LE and BE
-			   if ((!xmlStrncmp(BAD_CAST input->buf->encoder->name,
+			   if((!xmlStrncmp(BAD_CAST input->buf->encoder->name,
 			   reinterpret_cast<const xmlChar *>("UTF-16"), 6)) &&
 			   (!xmlStrncmp(BAD_CAST handler->name,
 			   reinterpret_cast<const xmlChar *>("UTF-16"), 6))) {

@@ -140,7 +140,7 @@ class LocaleCacheKey : public CacheKey<T> {
  protected:
    Locale   fLoc;
    virtual bool equals(const CacheKeyBase &other) const override {
-       if (!CacheKey<T>::equals(other)) {
+       if(!CacheKey<T>::equals(other)) {
            return false;
        }
        // We know this and other are of same class because equals() on
@@ -226,20 +226,20 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
            const void *creationContext,
            const T *&ptr,
            UErrorCode & status) const {
-       if (U_FAILURE(status)) {
+       if(U_FAILURE(status)) {
            return;
        }
        UErrorCode creationStatus = U_ZERO_ERROR;
        const SharedObject *value = NULL;
        _get(key, value, creationContext, creationStatus);
        const T *tvalue = (const T *) value;
-       if (U_SUCCESS(creationStatus)) {
+       if(U_SUCCESS(creationStatus)) {
            SharedObject::copyPtr(tvalue, ptr);
        }
        SharedObject::clearPtr(tvalue);
        // Take care not to overwrite a warning status passed in with
        // another warning or U_ZERO_ERROR.
-       if (status == U_ZERO_ERROR || U_FAILURE(creationStatus)) {
+       if(status == U_ZERO_ERROR || U_FAILURE(creationStatus)) {
            status = creationStatus;
        }
    }
@@ -268,7 +268,7 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
    static void getByLocale(
            const Locale &loc, const T *&ptr, UErrorCode & status) {
        const UnifiedCache *cache = getInstance(status);
-       if (U_FAILURE(status)) {
+       if(U_FAILURE(status)) {
            return;
        }
        cache->get(LocaleCacheKey<T>(loc), ptr, status);

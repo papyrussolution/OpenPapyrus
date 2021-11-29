@@ -807,7 +807,7 @@ void RBBITableBuilder::flagLookAheadStates() {
 				U_ASSERT(lookAheadNode == sd->fPositions->elementAt(positionsIdx));
 				uint32_t lookaheadSlot = fLookAheadRuleMap->elementAti(lookAheadNode->fVal);
 				U_ASSERT(sd->fLookAhead == 0 || sd->fLookAhead == lookaheadSlot);
-				// if (sd->fLookAhead != 0 && sd->fLookAhead != lookaheadSlot) {
+				// if(sd->fLookAhead != 0 && sd->fLookAhead != lookaheadSlot) {
 				//     printf("%s:%d Bingo. sd->fLookAhead:%d   lookaheadSlot:%d\n",
 				//            __FILE__, __LINE__, sd->fLookAhead, lookaheadSlot);
 				// }

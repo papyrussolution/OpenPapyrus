@@ -964,7 +964,7 @@ bool ConvertFile::convertFile(const char * pname,
 						errtag = "problemCvtFromU";
 					}
 					else {
-						// Do not use fromoffsets if (t != NULL) because the Unicode text may
+						// Do not use fromoffsets if(t != NULL) because the Unicode text may
 						// be different from what the offsets refer to.
 
 						// output file offset

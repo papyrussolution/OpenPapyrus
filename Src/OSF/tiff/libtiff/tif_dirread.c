@@ -3253,8 +3253,8 @@ int TIFFReadDirectory(TIFF* tif)
 #if !defined(DEFER_STRILE_LOAD)
 		}
 		else if(tif->tif_dir.td_planarconfig == PLANARCONFIG_CONTIG && tif->tif_dir.td_nstrips > 2
-		  && tif->tif_dir.td_compression == COMPRESSION_NONE && tif->tif_dir.td_stripbytecount[0] != tif->tif_dir.td_stripbytecount[1]
-		  && tif->tif_dir.td_stripbytecount[0] != 0 && tif->tif_dir.td_stripbytecount[1] != 0) {
+		 && tif->tif_dir.td_compression == COMPRESSION_NONE && tif->tif_dir.td_stripbytecount[0] != tif->tif_dir.td_stripbytecount[1]
+		 && tif->tif_dir.td_stripbytecount[0] != 0 && tif->tif_dir.td_stripbytecount[1] != 0) {
 			/*
 			 * XXX: Some vendors fill StripByteCount array with
 			 * absolutely wrong values (it can be equal to

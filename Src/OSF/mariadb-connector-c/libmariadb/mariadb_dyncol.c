@@ -3236,7 +3236,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 
 	copy = ((header.format != new_header.format) ||
 	    (new_header.format == dyncol_fmt_str));
-	/* if (new_header.offset_size!=offset_size) then we have to rewrite header */
+	/* if(new_header.offset_size!=offset_size) then we have to rewrite header */
 	header_delta_sign =
 	    ((int)new_header.offset_size + new_fmt->fixed_hdr_entry) -
 	    ((int)header.offset_size + fmt->fixed_hdr_entry);

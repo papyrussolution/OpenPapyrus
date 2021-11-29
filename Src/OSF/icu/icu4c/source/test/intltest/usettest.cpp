@@ -204,7 +204,7 @@ bool UnicodeSetTest::toPatternAux(UChar32 start, UChar32 end) {
 	UnicodeString pat = "";
 	// TODO do these in hex
 	//String source = "0x" + Integer.toString(start,16).toUpperCase();
-	//if (start != end) source += "..0x" + Integer.toString(end,16).toUpperCase();
+	//if(start != end) source += "..0x" + Integer.toString(end,16).toUpperCase();
 	UnicodeString source;
 	source = source + (uint32_t)start;
 	if(start != end)
@@ -226,14 +226,14 @@ bool UnicodeSetTest::checkPat(const UnicodeString & source,
 	if(!checkPat(source + " (escaped)", testSet, pat0)) return FALSE;
 
 	//String pat1 = unescapeLeniently(pat0);
-	//if (!checkPat(source + " (in code)", testSet, pat1)) return false;
+	//if(!checkPat(source + " (in code)", testSet, pat1)) return false;
 
 	UnicodeString pat2;
 	testSet.toPattern(pat2, FALSE);
 	if(!checkPat(source, testSet, pat2)) return FALSE;
 
 	//String pat3 = unescapeLeniently(pat2);
-	// if (!checkPat(source + " (in code)", testSet, pat3)) return false;
+	// if(!checkPat(source + " (in code)", testSet, pat3)) return false;
 
 	//logln(source + " => " + pat0 + ", " + pat1 + ", " + pat2 + ", " + pat3);
 	logln((UnicodeString)source + " => " + pat0 + ", " + pat2);

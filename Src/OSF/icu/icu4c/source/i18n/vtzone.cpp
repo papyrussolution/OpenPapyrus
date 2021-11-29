@@ -804,7 +804,7 @@ static bool isEquivalentDateRule(int32_t month, int32_t weekInMonth, int32_t day
 		return FALSE;
 	}
 	if(dtrule->getDateRuleType() == DateTimeRule::DOW
-	  && dtrule->getRuleWeekInMonth() == weekInMonth) {
+	 && dtrule->getRuleWeekInMonth() == weekInMonth) {
 		return TRUE;
 	}
 	int32_t ruleDOM = dtrule->getRuleDayOfMonth();
@@ -813,7 +813,7 @@ static bool isEquivalentDateRule(int32_t month, int32_t weekInMonth, int32_t day
 			return TRUE;
 		}
 		if(month != UCAL_FEBRUARY && (MONTHLENGTH[month] - ruleDOM)%7 == 6
-		  && weekInMonth == -1*((MONTHLENGTH[month]-ruleDOM+1)/7)) {
+		 && weekInMonth == -1*((MONTHLENGTH[month]-ruleDOM+1)/7)) {
 			return TRUE;
 		}
 	}
@@ -822,7 +822,7 @@ static bool isEquivalentDateRule(int32_t month, int32_t weekInMonth, int32_t day
 			return TRUE;
 		}
 		if(month != UCAL_FEBRUARY && (MONTHLENGTH[month] - ruleDOM)%7 == 0
-		  && weekInMonth == -1*((MONTHLENGTH[month] - ruleDOM)/7 + 1)) {
+		 && weekInMonth == -1*((MONTHLENGTH[month] - ruleDOM)/7 + 1)) {
 			return TRUE;
 		}
 	}
@@ -1804,14 +1804,14 @@ void VTimeZone::write(VTZWriter& writer, UErrorCode & status) const {
 		for(int32_t i = 0; i < vtzlines->size(); i++) {
 			UnicodeString * line = (UnicodeString *)vtzlines->elementAt(i);
 			if(line->startsWith(ICAL_TZURL, -1)
-			  && line->charAt(u_strlen(ICAL_TZURL)) == COLON) {
+			 && line->charAt(u_strlen(ICAL_TZURL)) == COLON) {
 				writer.write(ICAL_TZURL);
 				writer.write(COLON);
 				writer.write(tzurl);
 				writer.write(ICAL_NEWLINE);
 			}
 			else if(line->startsWith(ICAL_LASTMOD, -1)
-			  && line->charAt(u_strlen(ICAL_LASTMOD)) == COLON) {
+			 && line->charAt(u_strlen(ICAL_LASTMOD)) == COLON) {
 				UnicodeString utcString;
 				writer.write(ICAL_LASTMOD);
 				writer.write(COLON);
@@ -2019,20 +2019,20 @@ void VTimeZone::writeZone(VTZWriter& w, BasicTimeZone& basictz,
 		const AnnualTimeZoneRule * atzrule;
 		if(isDst) {
 			if(finalDstRule == nullptr
-			  && (atzrule = dynamic_cast<const AnnualTimeZoneRule *>(tzt.getTo())) != nullptr
-			  && atzrule->getEndYear() == AnnualTimeZoneRule::MAX_YEAR
+			 && (atzrule = dynamic_cast<const AnnualTimeZoneRule *>(tzt.getTo())) != nullptr
+			 && atzrule->getEndYear() == AnnualTimeZoneRule::MAX_YEAR
 			    ) {
 				finalDstRule = atzrule->clone();
 			}
 			if(dstCount > 0) {
 				if(year == dstStartYear + dstCount
-				  && name.compare(dstName) == 0
-				  && dstFromOffset == fromOffset
-				  && dstToOffset == toOffset
-				  && dstMonth == month
-				  && dstDayOfWeek == dow
-				  && dstWeekInMonth == weekInMonth
-				  && dstMillisInDay == mid) {
+				 && name.compare(dstName) == 0
+				 && dstFromOffset == fromOffset
+				 && dstToOffset == toOffset
+				 && dstMonth == month
+				 && dstDayOfWeek == dow
+				 && dstWeekInMonth == weekInMonth
+				 && dstMillisInDay == mid) {
 					// Update until time
 					dstUntilTime = t;
 					dstCount++;
@@ -2072,20 +2072,20 @@ void VTimeZone::writeZone(VTZWriter& w, BasicTimeZone& basictz,
 		}
 		else {
 			if(finalStdRule == nullptr
-			  && (atzrule = dynamic_cast<const AnnualTimeZoneRule *>(tzt.getTo())) != nullptr
-			  && atzrule->getEndYear() == AnnualTimeZoneRule::MAX_YEAR
+			 && (atzrule = dynamic_cast<const AnnualTimeZoneRule *>(tzt.getTo())) != nullptr
+			 && atzrule->getEndYear() == AnnualTimeZoneRule::MAX_YEAR
 			    ) {
 				finalStdRule = atzrule->clone();
 			}
 			if(stdCount > 0) {
 				if(year == stdStartYear + stdCount
-				  && name.compare(stdName) == 0
-				  && stdFromOffset == fromOffset
-				  && stdToOffset == toOffset
-				  && stdMonth == month
-				  && stdDayOfWeek == dow
-				  && stdWeekInMonth == weekInMonth
-				  && stdMillisInDay == mid) {
+				 && name.compare(stdName) == 0
+				 && stdFromOffset == fromOffset
+				 && stdToOffset == toOffset
+				 && stdMonth == month
+				 && stdDayOfWeek == dow
+				 && stdWeekInMonth == weekInMonth
+				 && stdMillisInDay == mid) {
 					// Update until time
 					stdUntilTime = t;
 					stdCount++;

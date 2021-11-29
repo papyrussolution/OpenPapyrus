@@ -159,7 +159,7 @@ public:
 	};
 
 	struct ActionSubrecord {
-		unsigned int get_length() const {
+		uint get_length() const {
 			return u.header.actionLength;
 		}
 
@@ -204,7 +204,7 @@ public:
 			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
 
-			unsigned int offset = min_size;
+			uint offset = min_size;
 			for(uint i = 0; i < count; i++) {
 				const ActionSubrecord& subrecord = StructAtOffset<ActionSubrecord> (this, offset);
 				if(UNLIKELY(!subrecord.sanitize(c))) return_trace(false);

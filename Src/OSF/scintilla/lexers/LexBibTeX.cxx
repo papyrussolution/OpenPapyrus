@@ -210,7 +210,7 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 				level |= SC_FOLDLEVELWHITEFLAG;
 			if((current_level > prev_level))
 				level |= SC_FOLDLEVELHEADERFLAG;
-			// else if (current_level < prev_level)
+			// else if(current_level < prev_level)
 			//	level |= SC_FOLDLEVELBOXFOOTERFLAG; // Deprecated
 
 			if(level != styler.LevelAt(current_line)) {

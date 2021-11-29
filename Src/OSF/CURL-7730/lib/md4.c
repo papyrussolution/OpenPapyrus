@@ -39,7 +39,7 @@
 #include <mbedtls/config.h>
 #include <mbedtls/version.h>
 
-#if (MBEDTLS_VERSION_NUMBER >= 0x02070000)
+#if(MBEDTLS_VERSION_NUMBER >= 0x02070000)
   #define HAS_MBEDTLS_RESULT_CODE_BASED_FUNCTIONS
 #endif
 #endif /* USE_MBEDTLS */

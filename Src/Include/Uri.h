@@ -162,7 +162,7 @@ private:
 	int    FASTCALL OnExitOwnHostUserInfo(const char * pFirst);
 	int    FASTCALL OnExitOwnHost2(const char * pFirst);
 	int    FASTCALL OnExitSegmentNzNcOrScheme2(const char * pFirst);
-	int    FASTCALL PushPathSegment(const char * pFirst, const char *  afterLast);
+	int    FASTCALL PushPathSegment(const char * pFirst, const char * afterLast);
 };
 
 struct UriQueryList {

@@ -227,13 +227,13 @@ extern void onig_posix_reg_set_encoding(int mb_code)
 	onigenc_set_default_encoding(enc);
 }
 
-extern int onig_posix_reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar* name, const uchar* name_end, int** nums)
+extern int onig_posix_reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
 {
 	return onig_name_to_group_numbers(ONIG_C(reg), name, name_end, nums);
 }
 
 typedef struct {
-	int (*func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void *);
+	int (*func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *);
 	onig_posix_regex_t* reg;
 	void * arg;
 } i_wrap;
@@ -244,7 +244,7 @@ static int i_wrapper(const uchar * name, const uchar * name_end, int ng, int* gs
 	return (*warg->func)(name, name_end, ng, gs, warg->reg, warg->arg);
 }
 
-extern int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void *), void * arg)
+extern int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *), void * arg)
 {
 	i_wrap warg;
 	warg.func = func;
@@ -280,12 +280,12 @@ extern void reg_set_encoding(int mb_code)
 	onig_posix_reg_set_encoding(mb_code);
 }
 
-extern int reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar* name, const uchar* name_end, int** nums)
+extern int reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
 {
 	return onig_posix_reg_name_to_group_numbers(reg, name, name_end, nums);
 }
 
-extern int reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const uchar*, const uchar*, int, int*, onig_posix_regex_t*, void *), void * arg)
+extern int reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *), void * arg)
 {
 	return onig_posix_reg_foreach_name(reg, func, arg);
 }

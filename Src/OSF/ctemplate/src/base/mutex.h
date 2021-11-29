@@ -234,7 +234,7 @@ Mutex::~Mutex() { assert(mutex_ == 0); }
 void Mutex::Lock() { assert(--mutex_ == -1); }
 void Mutex::Unlock()       { assert(mutex_++ == -1); }
 #ifdef GMUTEX_TRYLOCK
-bool Mutex::TryLock()      { if (mutex_) return false; Lock(); return true; }
+bool Mutex::TryLock()      { if(mutex_) return false; Lock(); return true; }
 #endif
 void Mutex::ReaderLock()   { assert(++mutex_ > 0); }
 void Mutex::ReaderUnlock() { assert(mutex_-- > 0); }
@@ -243,7 +243,7 @@ typedef int GoogleOnceType;
 const GoogleOnceType GOOGLE_ONCE_INIT = 0;
 inline int GoogleOnceInit(GoogleOnceType* once_control,
                           void (*init_routine)(void)) {
-  if ((*once_control)++ == 0)
+  if((*once_control)++ == 0)
     (*init_routine)();
   return 0;
 }
@@ -258,9 +258,9 @@ Mutex::Mutex(base::LinkerInitialized) : destroy_(false) {
   InitializeCriticalSection(&mutex_);
   SetIsSafe();
 }
-Mutex::~Mutex() { if (destroy_) DeleteCriticalSection(&mutex_); }
-void Mutex::Lock() { if (is_safe_) EnterCriticalSection(&mutex_); }
-void Mutex::Unlock()       { if (is_safe_) LeaveCriticalSection(&mutex_); }
+Mutex::~Mutex() { if(destroy_) DeleteCriticalSection(&mutex_); }
+void Mutex::Lock() { if(is_safe_) EnterCriticalSection(&mutex_); }
+void Mutex::Unlock()       { if(is_safe_) LeaveCriticalSection(&mutex_); }
 #ifdef GMUTEX_TRYLOCK
 bool Mutex::TryLock()      { return is_safe_ ?
                                  TryEnterCriticalSection(&mutex_) != 0 : true; }
@@ -278,11 +278,11 @@ typedef volatile LONG GoogleOnceType;
 const GoogleOnceType GOOGLE_ONCE_INIT = 0;
 inline int GoogleOnceInit(GoogleOnceType* once_control,
                           void (*init_routine)(void)) {
-  while (1) {
+  while(1) {
     LONG prev = InterlockedCompareExchange(once_control, 1, 0);
-    if (prev == 2) {            // We've successfully initted in the past.
+    if(prev == 2) {            // We've successfully initted in the past.
       return 0;
-    } else if (prev == 0) {     // No init yet, but we have the lock.
+    } else if(prev == 0) {     // No init yet, but we have the lock.
       (*init_routine)();
       InterlockedExchange(once_control, 2);
       return 0;
@@ -297,18 +297,18 @@ inline int GoogleOnceInit(GoogleOnceType* once_control,
 #elif defined(HAVE_PTHREAD) && defined(HAVE_RWLOCK)
 
 #define SAFE_PTHREAD(fncall)  do {   /* run fncall if is_safe_ is true */  \
-  if (is_safe_ && fncall(&mutex_) != 0) abort();                           \
-} while (0)
+  if(is_safe_ && fncall(&mutex_) != 0) abort();                           \
+} while(0)
 
 Mutex::Mutex() : destroy_(true) {
   SetIsSafe();
-  if (is_safe_ && pthread_rwlock_init(&mutex_, NULL) != 0) abort();
+  if(is_safe_ && pthread_rwlock_init(&mutex_, NULL) != 0) abort();
 }
 Mutex::Mutex(base::LinkerInitialized) : destroy_(false) {
   SetIsSafe();
-  if (is_safe_ && pthread_rwlock_init(&mutex_, NULL) != 0) abort();
+  if(is_safe_ && pthread_rwlock_init(&mutex_, NULL) != 0) abort();
 }
-Mutex::~Mutex()       { if (destroy_) SAFE_PTHREAD(pthread_rwlock_destroy); }
+Mutex::~Mutex()       { if(destroy_) SAFE_PTHREAD(pthread_rwlock_destroy); }
 void Mutex::Lock()    { SAFE_PTHREAD(pthread_rwlock_wrlock); }
 void Mutex::Unlock()  { SAFE_PTHREAD(pthread_rwlock_unlock); }
 #ifdef GMUTEX_TRYLOCK
@@ -329,18 +329,18 @@ inline int GoogleOnceInit(GoogleOnceType* once_control,
 #elif defined(HAVE_PTHREAD)
 
 #define SAFE_PTHREAD(fncall)  do {   /* run fncall if is_safe_ is true */  \
-  if (is_safe_ && fncall(&mutex_) != 0) abort();                           \
-} while (0)
+  if(is_safe_ && fncall(&mutex_) != 0) abort();                           \
+} while(0)
 
 Mutex::Mutex() : destroy_(true) {
   SetIsSafe();
-  if (is_safe_ && pthread_mutex_init(&mutex_, NULL) != 0) abort();
+  if(is_safe_ && pthread_mutex_init(&mutex_, NULL) != 0) abort();
 }
 Mutex::Mutex(base::LinkerInitialized) : destroy_(false) {
   SetIsSafe();
-  if (is_safe_ && pthread_mutex_init(&mutex_, NULL) != 0) abort();
+  if(is_safe_ && pthread_mutex_init(&mutex_, NULL) != 0) abort();
 }
-Mutex::~Mutex()       { if (destroy_) SAFE_PTHREAD(pthread_mutex_destroy); }
+Mutex::~Mutex()       { if(destroy_) SAFE_PTHREAD(pthread_mutex_destroy); }
 void Mutex::Lock()    { SAFE_PTHREAD(pthread_mutex_lock); }
 void Mutex::Unlock()  { SAFE_PTHREAD(pthread_mutex_unlock); }
 #ifdef GMUTEX_TRYLOCK

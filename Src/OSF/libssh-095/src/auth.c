@@ -1693,7 +1693,7 @@ const char * ssh_userauth_kbdint_getinstruction(ssh_session session) {
  *   char echo;
  *
  *   prompt = ssh_userauth_kbdint_getprompt(session, 0, &echo);
- *   if (echo) ...
+ *   if(echo) ...
  * @endcode
  */
 const char * ssh_userauth_kbdint_getprompt(ssh_session session, uint i,

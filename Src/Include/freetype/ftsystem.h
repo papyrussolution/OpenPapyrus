@@ -212,11 +212,11 @@ typedef union  FT_StreamDesc_ {
  *   a `count` of~0.  A non-zero return value then indicates an error.
  *
  */
-typedef unsigned long
+typedef ulong
 (* FT_Stream_IoFunc)(FT_Stream stream,
-    unsigned long offset,
-    uchar*  buffer,
-    unsigned long count);
+    ulong offset,
+    uchar * buffer,
+    ulong count);
 
 /**************************************************************************
  *
@@ -290,16 +290,16 @@ typedef void
  *
  */
 typedef struct  FT_StreamRec_ {
-	uchar*       base;
-	unsigned long size;
-	unsigned long pos;
+	uchar * base;
+	ulong size;
+	ulong pos;
 	FT_StreamDesc descriptor;
 	FT_StreamDesc pathname;
 	FT_Stream_IoFunc read;
 	FT_Stream_CloseFunc close;
 	FT_Memory memory;
-	uchar*       cursor;
-	uchar*       limit;
+	uchar * cursor;
+	uchar * limit;
 } FT_StreamRec;
 
 /* */

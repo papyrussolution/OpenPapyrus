@@ -71,10 +71,10 @@ bool UCharCharacterIterator::operator==(const ForwardCharacterIterator& that) co
 	UCharCharacterIterator&    realThat = (UCharCharacterIterator&)that;
 
 	return text == realThat.text
-	     && textLength == realThat.textLength
-	     && pos == realThat.pos
-	     && begin == realThat.begin
-	     && end == realThat.end;
+	 && textLength == realThat.textLength
+	 && pos == realThat.pos
+	 && begin == realThat.begin
+	 && end == realThat.end;
 }
 
 int32_t UCharCharacterIterator::hashCode() const {

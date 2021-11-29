@@ -208,10 +208,10 @@ struct UFormattedValueImpl : public UMemory, public UFormattedValueApiHelper {
 
 /** Boilerplate to check for valid status before dereferencing the fData pointer. */
 #define UPRV_FORMATTED_VALUE_METHOD_GUARD(returnExpression) \
-    if (U_FAILURE(status)) { \
+    if(U_FAILURE(status)) { \
         return returnExpression; \
     } \
-    if (fData == nullptr) { \
+    if(fData == nullptr) { \
         status = fErrorCode; \
         return returnExpression; \
     } \
@@ -258,11 +258,11 @@ struct UFormattedValueImpl : public UMemory, public UFormattedValueApiHelper {
 #define UPRV_FORMATTED_VALUE_CAPI_NO_IMPLTYPE_AUTO_IMPL(CType, ImplType, HelperType, Prefix) \
     U_CAPI CType* U_EXPORT2 \
     Prefix ## _openResult (UErrorCode * ec) { \
-        if (U_FAILURE(*ec)) { \
+        if(U_FAILURE(*ec)) { \
             return nullptr; \
         } \
         ImplType* impl = new ImplType(); \
-        if (impl == nullptr) { \
+        if(impl == nullptr) { \
             *ec = U_MEMORY_ALLOCATION_ERROR; \
             return nullptr; \
         } \
@@ -271,7 +271,7 @@ struct UFormattedValueImpl : public UMemory, public UFormattedValueApiHelper {
     U_CAPI const UFormattedValue* U_EXPORT2 \
     Prefix ## _resultAsValue (const CType* uresult, UErrorCode * ec) { \
         const ImplType* result = HelperType::validate(uresult, *ec); \
-        if (U_FAILURE(*ec)) { return nullptr; } \
+        if(U_FAILURE(*ec)) { return nullptr; } \
         return static_cast<const UFormattedValueApiHelper*>(result)->exportConstForC(); \
     } \
     U_CAPI void U_EXPORT2 \

@@ -34,22 +34,22 @@ int Accessor::IndentAmount(Sci_Position line, int *flags, PFNIsCommentLeader pfn
 	int indent = 0;
 	bool inPrevPrefix = line > 0;
 	Sci_Position posPrev = inPrevPrefix ? LineStart(line-1) : 0;
-	while ((ch == ' ' || ch == '\t') && (pos < end)) {
-		if (inPrevPrefix) {
+	while((ch == ' ' || ch == '\t') && (pos < end)) {
+		if(inPrevPrefix) {
 			const char chPrev = (*this)[posPrev++];
-			if (chPrev == ' ' || chPrev == '\t') {
-				if (chPrev != ch)
+			if(chPrev == ' ' || chPrev == '\t') {
+				if(chPrev != ch)
 					spaceFlags |= wsInconsistent;
 			} else {
 				inPrevPrefix = false;
 			}
 		}
-		if (ch == ' ') {
+		if(ch == ' ') {
 			spaceFlags |= wsSpace;
 			indent++;
 		} else {	// Tab
 			spaceFlags |= wsTab;
-			if (spaceFlags & wsSpace)
+			if(spaceFlags & wsSpace)
 				spaceFlags |= wsSpaceTab;
 			indent = (indent / 8 + 1) * 8;
 		}
@@ -59,7 +59,7 @@ int Accessor::IndentAmount(Sci_Position line, int *flags, PFNIsCommentLeader pfn
 	*flags = spaceFlags;
 	indent += SC_FOLDLEVELBASE;
 	// if completely empty line or the start of a comment...
-	if ((LineStart(line) == Length()) || (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') ||
+	if((LineStart(line) == Length()) || (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') ||
 			(pfnIsCommentLeader && (*pfnIsCommentLeader)(*this, pos, end-pos)))
 		return indent | SC_FOLDLEVELWHITEFLAG;
 	else

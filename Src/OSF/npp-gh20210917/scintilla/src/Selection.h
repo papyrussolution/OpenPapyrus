@@ -16,7 +16,7 @@ class SelectionPosition {
 public:
 	explicit SelectionPosition(Sci::Position position_=INVALID_POSITION, Sci::Position virtualSpace_=0) noexcept : position(position_), virtualSpace(virtualSpace_) {
 		PLATFORM_ASSERT(virtualSpace < 800000);
-		if (virtualSpace < 0)
+		if(virtualSpace < 0)
 			virtualSpace = 0;
 	}
 	void Reset() noexcept {
@@ -43,7 +43,7 @@ public:
 	}
 	void SetVirtualSpace(Sci::Position virtualSpace_) noexcept {
 		PLATFORM_ASSERT(virtualSpace_ < 800000);
-		if (virtualSpace_ >= 0)
+		if(virtualSpace_ >= 0)
 			virtualSpace = virtualSpace_;
 	}
 	void Add(Sci::Position increment) noexcept {
@@ -61,7 +61,7 @@ struct SelectionSegment {
 	SelectionSegment() noexcept : start(), end() {
 	}
 	SelectionSegment(SelectionPosition a, SelectionPosition b) noexcept {
-		if (a < b) {
+		if(a < b) {
 			start = a;
 			end = b;
 		} else {
@@ -76,9 +76,9 @@ struct SelectionSegment {
 		return end.Position() - start.Position();
 	}
 	void Extend(SelectionPosition p) noexcept {
-		if (start > p)
+		if(start > p)
 			start = p;
-		if (end < p)
+		if(end < p)
 			end = p;
 	}
 };

@@ -151,7 +151,7 @@ static worker_state worker_encode(worker_thread * thr, worker_state state)
 			thr->progress_out = thr->outbuf->size;
 
 			while(in_size == thr->in_size
-			  && thr->state == THR_RUN)
+			 && thr->state == THR_RUN)
 				mythread_cond_wait(&thr->cond, &thr->mutex);
 
 			state = thr->state;
@@ -519,9 +519,9 @@ static bool wait_for_work(lzma_stream_coder * coder, mythread_condtime * wait_ab
 		//  - Time out occurs.
 		while((!has_input || coder->threads_free == NULL
 		    || !lzma_outq_has_buf(&coder->outq))
-		  && !lzma_outq_is_readable(&coder->outq)
-		  && coder->thread_error == LZMA_OK
-		  && !timed_out) {
+		 && !lzma_outq_is_readable(&coder->outq)
+		 && coder->thread_error == LZMA_OK
+		 && !timed_out) {
 			if(coder->timeout != 0)
 				timed_out = mythread_cond_timedwait(
 					&coder->cond, &coder->mutex,

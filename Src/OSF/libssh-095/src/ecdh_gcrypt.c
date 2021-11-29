@@ -106,7 +106,7 @@ int ecdh_build_k(ssh_session session)
 	gcry_sexp_t result = NULL;
 	/* We need to get the x coordinate.  Libgcrypt 1.7 and above
 	   offers a suitable API for that.  */
-#if (GCRYPT_VERSION_NUMBER >= 0x010700)
+#if(GCRYPT_VERSION_NUMBER >= 0x010700)
 	gcry_mpi_t s = NULL;
 	gcry_mpi_point_t point;
 #else
@@ -142,7 +142,7 @@ int ecdh_build_k(ssh_session session)
 	if(err) {
 		goto out;
 	}
-#if (GCRYPT_VERSION_NUMBER >= 0x010700)
+#if(GCRYPT_VERSION_NUMBER >= 0x010700)
 	err = gcry_sexp_extract_param(result, "", "s", &s, NULL);
 	if(err) {
 		goto out;

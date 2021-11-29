@@ -58,7 +58,7 @@ typedef void *EVPCTX;
 #include <openssl/bn.h>
 #include <openssl/opensslv.h>
 #define OPENSSL_0_9_7b 0x0090702fL
-#if (OPENSSL_VERSION_NUMBER <= OPENSSL_0_9_7b)
+#if(OPENSSL_VERSION_NUMBER <= OPENSSL_0_9_7b)
 	#define BROKEN_AES_CTR
 #endif
 typedef BIGNUM*  bignum;
@@ -76,7 +76,7 @@ typedef BN_CTX* bignum_CTX;
 #define bignum_bin2bn(data, datalen, dest)   \
     do {                                     \
         (*dest) = BN_new();                  \
-        if ((*dest) != NULL) {               \
+        if((*dest) != NULL) {               \
             BN_bin2bn(data,datalen,(*dest)); \
         }                                    \
     } while(0)

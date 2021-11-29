@@ -41,7 +41,7 @@ struct kerberos5data;
 
 #endif
 
-#if (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)) && defined(USE_SPNEGO)
+#if(defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)) && defined(USE_SPNEGO)
 struct negotiatedata;
 
 #endif

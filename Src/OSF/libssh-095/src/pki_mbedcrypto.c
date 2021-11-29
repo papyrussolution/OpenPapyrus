@@ -94,16 +94,16 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 					    goto fail;
 				    }
 				    /* TODO fix signedness and strlen */
-				    valid = mbedtls_pk_parse_key(rsa, (const uchar*)b64_key, b64len, tmp, strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
+				    valid = mbedtls_pk_parse_key(rsa, (const uchar *)b64_key, b64len, tmp, strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
 			    }
 			    else {
-				    valid = mbedtls_pk_parse_key(rsa, (const uchar*)b64_key, b64len, NULL, 0);
+				    valid = mbedtls_pk_parse_key(rsa, (const uchar *)b64_key, b64len, NULL, 0);
 			    }
 		    }
 		    else {
 			    valid = mbedtls_pk_parse_key(rsa,
-				    (const uchar*)b64_key, b64len,
-				    (const uchar*)passphrase,
+				    (const uchar *)b64_key, b64len,
+				    (const uchar *)passphrase,
 				    strnlen(passphrase, MAX_PASSPHRASE_SIZE));
 		    }
 
@@ -132,21 +132,21 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 					    goto fail;
 				    }
 				    valid = mbedtls_pk_parse_key(ecdsa,
-					    (const uchar*)b64_key,
+					    (const uchar *)b64_key,
 					    b64len, tmp,
 					    strnlen((const char *)tmp, MAX_PASSPHRASE_SIZE));
 			    }
 			    else {
 				    valid = mbedtls_pk_parse_key(ecdsa,
-					    (const uchar*)b64_key,
+					    (const uchar *)b64_key,
 					    b64len, NULL,
 					    0);
 			    }
 		    }
 		    else {
 			    valid = mbedtls_pk_parse_key(ecdsa,
-				    (const uchar*)b64_key, b64len,
-				    (const uchar*)passphrase,
+				    (const uchar *)b64_key, b64len,
+				    (const uchar *)passphrase,
 				    strnlen(passphrase, MAX_PASSPHRASE_SIZE));
 		    }
 

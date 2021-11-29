@@ -29,7 +29,7 @@
 namespace CFF {
 	using namespace OT;
 
-	typedef unsigned int op_code_t;
+	typedef uint op_code_t;
 
 /* === Dict operators === */
 
@@ -96,7 +96,7 @@ namespace CFF {
 		return op >= OpCode_ESC_Base;
 	}
 
-	inline unsigned int OpCode_Size(op_code_t op) {
+	inline uint OpCode_Size(op_code_t op) {
 		return Is_OpCode_ESC(op) ? 2 : 1;
 	}
 
@@ -315,10 +315,10 @@ protected:
 		byte_str_t()
 			: hb_ubytes_t() {
 		}
-		byte_str_t(const UnsizedByteStr &s, unsigned int l)
+		byte_str_t(const UnsizedByteStr &s, uint l)
 			: hb_ubytes_t((const uchar *)&s, l) {
 		}
-		byte_str_t(const uchar * s, unsigned int l)
+		byte_str_t(const uchar * s, uint l)
 			: hb_ubytes_t(s, l) {
 		}
 		byte_str_t(const hb_ubytes_t &ub) /* conversion from hb_ubytes_t */
@@ -326,12 +326,12 @@ protected:
 		}
 
 		/* sub-string */
-		byte_str_t sub_str(unsigned int offset, unsigned int len_) const
+		byte_str_t sub_str(uint offset, uint len_) const
 		{
 			return byte_str_t(hb_ubytes_t::sub_array(offset, len_));
 		}
 
-		bool check_limit(unsigned int offset, unsigned int count) const
+		bool check_limit(uint offset, uint count) const
 		{
 			return (offset + count <= length);
 		}
@@ -353,11 +353,11 @@ protected:
 		void fini() {
 		}
 
-		byte_str_ref_t(const byte_str_t &str_, unsigned int offset_ = 0)
+		byte_str_ref_t(const byte_str_t &str_, uint offset_ = 0)
 			: str(str_), offset(offset_), error(false) {
 		}
 
-		void reset(const byte_str_t &str_, unsigned int offset_ = 0)
+		void reset(const byte_str_t &str_, uint offset_ = 0)
 		{
 			str = str_;
 			offset = offset_;
@@ -377,17 +377,17 @@ protected:
 			return str.sub_str(offset, str.length - offset);
 		}
 
-		byte_str_t sub_str(unsigned int offset_, unsigned int len_) const
+		byte_str_t sub_str(uint offset_, uint len_) const
 		{
 			return str.sub_str(offset_, len_);
 		}
 
-		bool avail(unsigned int count = 1) const
+		bool avail(uint count = 1) const
 		{
 			return (!in_error() && str.check_limit(offset, count));
 		}
 
-		void inc(unsigned int count = 1)
+		void inc(uint count = 1)
 		{
 			if(LIKELY(!in_error() && (offset <= str.length) && (offset + count <= str.length))) {
 				offset += count;
@@ -407,7 +407,7 @@ protected:
 		}
 
 		byte_str_t str;
-		unsigned int offset; /* beginning of the sub-string within str */
+		uint offset; /* beginning of the sub-string within str */
 
 protected:
 		bool error;
@@ -432,7 +432,7 @@ protected:
 			elements.fini_deep();
 		}
 
-		ELEM& operator [] (unsigned int i)
+		ELEM& operator [] (uint i)
 		{
 			if(UNLIKELY(i >= count)) set_error();
 			return elements[i];
@@ -466,7 +466,7 @@ protected:
 			}
 		}
 
-		void pop(unsigned int n)
+		void pop(uint n)
 		{
 			if(LIKELY(count >= n))
 				count -= n;
@@ -503,7 +503,7 @@ protected:
 			error = true;
 		}
 
-		unsigned int get_count() const {
+		uint get_count() const {
 			return count;
 		}
 
@@ -515,7 +515,7 @@ protected:
 
 protected:
 		bool error;
-		unsigned int count;
+		uint count;
 		hb_vector_t<ELEM> elements;
 	};
 
@@ -548,7 +548,7 @@ protected:
 			return this->pop().to_int();
 		}
 
-		unsigned int pop_uint()
+		uint pop_uint()
 		{
 			int i = pop_int();
 			if(UNLIKELY(i < 0)) {
@@ -573,7 +573,7 @@ protected:
 			return true;
 		}
 
-		hb_array_t<const ARG> get_subarray(unsigned int start) const
+		hb_array_t<const ARG> get_subarray(uint start) const
 		{ return S::elements.sub_array(start); }
 
 private:
@@ -645,13 +645,13 @@ protected:
 			return values.length;
 		}
 
-		const VAL &get_value(unsigned int i)   const {
+		const VAL &get_value(uint i)   const {
 			return values[i];
 		}
 
-		const VAL &operator [] (unsigned int i)const { return get_value(i); }
+		const VAL &operator [] (uint i)const { return get_value(i); }
 
-		unsigned int opStart;
+		uint opStart;
 		hb_vector_t<VAL>   values;
 	};
 
@@ -693,7 +693,7 @@ protected:
 			return op;
 		}
 
-		const ARG& eval_arg(unsigned int i) {
+		const ARG& eval_arg(uint i) {
 			return argStack[i];
 		}
 
@@ -701,7 +701,7 @@ protected:
 			return argStack.pop();
 		}
 
-		void pop_n_args(unsigned int n) {
+		void pop_n_args(uint n) {
 			argStack.pop(n);
 		}
 

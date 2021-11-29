@@ -76,7 +76,7 @@ cairo_public const char * cairo_version_string(void);
  * value as a boolean condition.
  *
  * <informalexample><programlisting>
- *  if (cairo_in_stroke (cr, x, y)) {
+ *  if(cairo_in_stroke (cr, x, y)) {
  * /<!-- -->* do something *<!-- -->/
  *  }
  * </programlisting></informalexample>

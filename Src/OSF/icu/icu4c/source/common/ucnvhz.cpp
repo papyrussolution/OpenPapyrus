@@ -156,7 +156,7 @@ static void U_CALLCONV UConverter_toUnicode_HZ_OFFSETS_LOGIC(UConverterToUnicode
 	tempBuf[1] = 0;
 
 	/* Calling code already handles this situation. */
-	/*if ((args->converter == NULL) || (args->targetLimit < args->target) || (mySourceLimit < args->source)) {
+	/*if((args->converter == NULL) || (args->targetLimit < args->target) || (mySourceLimit < args->source)) {
 	 * err = U_ILLEGAL_ARGUMENT_ERROR;
 	    return;
 	   }*/
@@ -355,7 +355,7 @@ static void U_CALLCONV UConverter_fromUnicode_HZ_OFFSETS_LOGIC(UConverterFromUni
 	const char * escSeq = NULL;
 
 	/* Calling code already handles this situation. */
-	/*if ((args->converter == NULL) || (args->targetLimit < myTarget) || (args->sourceLimit < args->source)) {
+	/*if((args->converter == NULL) || (args->targetLimit < myTarget) || (args->sourceLimit < args->source)) {
 	 * err = U_ILLEGAL_ARGUMENT_ERROR;
 	    return;
 	   }*/

@@ -2329,7 +2329,7 @@ extern BOOL PRIV(xclass)(uint32, const pcre_uchar *, BOOL);
 	extern int PRIV(jit_exec) (const PUBL(extra) *, const pcre_uchar *, int, int, int, int *, int);
 	extern void PRIV(jit_free) (void *);
 	extern int PRIV(jit_get_size) (void *);
-	extern const char *       PRIV(jit_get_target) (void);
+	extern const char * PRIV(jit_get_target) (void);
 #endif
 //
 // Unicode character database (UCD) 

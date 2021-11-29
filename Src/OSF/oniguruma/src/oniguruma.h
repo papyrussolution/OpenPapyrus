@@ -84,25 +84,25 @@ typedef struct {
 typedef int (* OnigApplyAllCaseFoldFunc)(OnigCodePoint from, OnigCodePoint* to, int to_len, void * arg);
 
 typedef struct OnigEncodingTypeST {
-	int (*mbc_enc_len)(const uchar* p);
-	const char *   name;
+	int (*mbc_enc_len)(const uchar * p);
+	const char * name;
 	int max_enc_len;
 	int min_enc_len;
-	int (*is_mbc_newline)(const uchar* p, const uchar* end);
-	OnigCodePoint (* mbc_to_code)(const uchar* p, const uchar* end);
+	int (*is_mbc_newline)(const uchar * p, const uchar * end);
+	OnigCodePoint (* mbc_to_code)(const uchar * p, const uchar * end);
 	int (*code_to_mbclen)(OnigCodePoint code);
 	int (*code_to_mbc)(OnigCodePoint code, uchar *buf);
-	int (*mbc_case_fold)(OnigCaseFoldType flag, const uchar**pp, const uchar* end, uchar* to);
+	int (*mbc_case_fold)(OnigCaseFoldType flag, const uchar **pp, const uchar * end, uchar * to);
 	int (*apply_all_case_fold)(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg);
-	int (*get_case_fold_codes_by_str)(OnigCaseFoldType flag, const uchar* p, const uchar* end, OnigCaseFoldCodeItem acs[]);
-	int (*property_name_to_ctype)(struct OnigEncodingTypeST* enc, uchar* p, uchar* end);
+	int (*get_case_fold_codes_by_str)(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem acs[]);
+	int (*property_name_to_ctype)(struct OnigEncodingTypeST* enc, uchar * p, uchar * end);
 	int (*is_code_ctype)(OnigCodePoint code, OnigCtype ctype);
 	int (*get_ctype_code_range)(OnigCtype ctype, OnigCodePoint* sb_out, const OnigCodePoint* ranges[]);
-	uchar* (*left_adjust_char_head)(const uchar* start, const uchar* p);
-	int (*is_allowed_reverse_match)(const uchar* p, const uchar* end);
+	uchar * (*left_adjust_char_head)(const uchar * start, const uchar * p);
+	int (*is_allowed_reverse_match)(const uchar * p, const uchar * end);
 	int (*init)(void);
 	int (*is_initialized)(void);
-	int (*is_valid_mbc_string)(const uchar* s, const uchar* end);
+	int (*is_valid_mbc_string)(const uchar * s, const uchar * end);
 	uint flag;
 	OnigCodePoint sb_range;
 	int index;
@@ -212,7 +212,7 @@ typedef enum {
 #define ONIGENC_IS_MBC_WORD(enc, s, end)  ONIGENC_IS_CODE_WORD(enc, ONIGENC_MBC_TO_CODE(enc, s, end))
 #define ONIGENC_IS_MBC_WORD_ASCII(enc, s, end) onigenc_is_mbc_word_ascii(enc, s, end)
 #define ONIGENC_NAME(enc)                      ((enc)->name)
-#define ONIGENC_MBC_CASE_FOLD(enc, flag, pp, end, buf) (enc)->mbc_case_fold(flag, (const uchar**)pp, end, buf)
+#define ONIGENC_MBC_CASE_FOLD(enc, flag, pp, end, buf) (enc)->mbc_case_fold(flag, (const uchar **)pp, end, buf)
 #define ONIGENC_IS_ALLOWED_REVERSE_MATCH(enc, s, end) (enc)->is_allowed_reverse_match(s, end)
 #define ONIGENC_LEFT_ADJUST_CHAR_HEAD(enc, start, s) (enc)->left_adjust_char_head(start, s)
 #define ONIGENC_IS_VALID_MBC_STRING(enc, s, end) (enc)->is_valid_mbc_string(s, end)
@@ -247,23 +247,23 @@ typedef enum {
 
 #define ONIGENC_GET_CTYPE_CODE_RANGE(enc, ctype, sbout, ranges) (enc)->get_ctype_code_range(ctype, sbout, ranges)
 
-ONIG_EXTERN uchar* onigenc_step_back(OnigEncoding enc, const uchar* start, const uchar* s, int n);
+ONIG_EXTERN uchar * onigenc_step_back(OnigEncoding enc, const uchar * start, const uchar * s, int n);
 
 /* encoding API */
 ONIG_EXTERN int     onigenc_init(void);
 ONIG_EXTERN int     onig_initialize_encoding(OnigEncoding enc);
 ONIG_EXTERN int     onigenc_set_default_encoding(OnigEncoding enc);
 ONIG_EXTERN OnigEncoding onigenc_get_default_encoding(void);
-ONIG_EXTERN void    onigenc_set_default_caseconv_table(const uchar* table);
-ONIG_EXTERN uchar * onigenc_get_right_adjust_char_head_with_prev(OnigEncoding enc, const uchar* start, const uchar* s, const uchar**prev);
-ONIG_EXTERN uchar * onigenc_get_prev_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
-ONIG_EXTERN uchar * onigenc_get_left_adjust_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
-ONIG_EXTERN uchar * onigenc_get_right_adjust_char_head(OnigEncoding enc, const uchar* start, const uchar* s);
-ONIG_EXTERN int     onigenc_strlen(OnigEncoding enc, const uchar* p, const uchar* end);
-ONIG_EXTERN int     onigenc_strlen_null(OnigEncoding enc, const uchar* p);
-ONIG_EXTERN int     onigenc_str_bytelen_null(OnigEncoding enc, const uchar* p);
-ONIG_EXTERN int     onigenc_is_valid_mbc_string(OnigEncoding enc, const uchar* s, const uchar* end);
-ONIG_EXTERN uchar * onigenc_strdup(OnigEncoding enc, const uchar* s, const uchar* end);
+ONIG_EXTERN void    onigenc_set_default_caseconv_table(const uchar * table);
+ONIG_EXTERN uchar * onigenc_get_right_adjust_char_head_with_prev(OnigEncoding enc, const uchar * start, const uchar * s, const uchar **prev);
+ONIG_EXTERN uchar * onigenc_get_prev_char_head(OnigEncoding enc, const uchar * start, const uchar * s);
+ONIG_EXTERN uchar * onigenc_get_left_adjust_char_head(OnigEncoding enc, const uchar * start, const uchar * s);
+ONIG_EXTERN uchar * onigenc_get_right_adjust_char_head(OnigEncoding enc, const uchar * start, const uchar * s);
+ONIG_EXTERN int     onigenc_strlen(OnigEncoding enc, const uchar * p, const uchar * end);
+ONIG_EXTERN int     onigenc_strlen_null(OnigEncoding enc, const uchar * p);
+ONIG_EXTERN int     onigenc_str_bytelen_null(OnigEncoding enc, const uchar * p);
+ONIG_EXTERN int     onigenc_is_valid_mbc_string(OnigEncoding enc, const uchar * s, const uchar * end);
+ONIG_EXTERN uchar * onigenc_strdup(OnigEncoding enc, const uchar * s, const uchar * end);
 
 /* PART: regular expression */
 
@@ -676,8 +676,8 @@ typedef union {
 	long l;
 	OnigCodePoint c;
 	struct {
-		uchar* start;
-		uchar* end;
+		uchar * start;
+		uchar * end;
 	} s;
 
 	void * p;
@@ -693,23 +693,23 @@ typedef struct OnigMatchParamStruct OnigMatchParam;
 ONIG_EXTERN int onig_initialize(OnigEncoding encodings[], int number_of_encodings);
 /* onig_init(): deprecated function. Use onig_initialize(). */
 ONIG_EXTERN int onig_init(void);
-ONIG_EXTERN int ONIG_VARIADIC_FUNC_ATTR onig_error_code_to_str(uchar* s, int err_code, ...);
+ONIG_EXTERN int ONIG_VARIADIC_FUNC_ATTR onig_error_code_to_str(uchar * s, int err_code, ...);
 ONIG_EXTERN int onig_is_error_code_needs_param(int code);
 ONIG_EXTERN void onig_set_warn_func(OnigWarnFunc f);
 ONIG_EXTERN void onig_set_verb_warn_func(OnigWarnFunc f);
-ONIG_EXTERN int onig_new(OnigRegex*, const uchar* pattern, const uchar* pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo);
+ONIG_EXTERN int onig_new(OnigRegex*, const uchar * pattern, const uchar * pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo);
 ONIG_EXTERN int onig_reg_init(OnigRegex reg, OnigOptionType option, OnigCaseFoldType case_fold_flag, OnigEncoding enc, OnigSyntaxType* syntax);
-int onig_new_without_alloc(OnigRegex, const uchar* pattern, const uchar* pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo);
-ONIG_EXTERN int onig_new_deluxe(OnigRegex* reg, const uchar* pattern, const uchar* pattern_end, OnigCompileInfo* ci, OnigErrorInfo* einfo);
+int onig_new_without_alloc(OnigRegex, const uchar * pattern, const uchar * pattern_end, OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo);
+ONIG_EXTERN int onig_new_deluxe(OnigRegex* reg, const uchar * pattern, const uchar * pattern_end, OnigCompileInfo* ci, OnigErrorInfo* einfo);
 ONIG_EXTERN void onig_free(OnigRegex);
 ONIG_EXTERN void onig_free_body(OnigRegex);
-ONIG_EXTERN int onig_scan(OnigRegex reg, const uchar* str, const uchar* end, OnigRegion* region, OnigOptionType option, int (* scan_callback)(
+ONIG_EXTERN int onig_scan(OnigRegex reg, const uchar * str, const uchar * end, OnigRegion* region, OnigOptionType option, int (* scan_callback)(
 	int, int, OnigRegion*, void *), void * callback_arg);
-ONIG_EXTERN int onig_search(OnigRegex, const uchar* str, const uchar* end, const uchar* start, const uchar* range, OnigRegion* region, OnigOptionType option);
-ONIG_EXTERN int onig_search_with_param(OnigRegex, const uchar* str, const uchar* end, const uchar* start, const uchar* range,
+ONIG_EXTERN int onig_search(OnigRegex, const uchar * str, const uchar * end, const uchar * start, const uchar * range, OnigRegion* region, OnigOptionType option);
+ONIG_EXTERN int onig_search_with_param(OnigRegex, const uchar * str, const uchar * end, const uchar * start, const uchar * range,
     OnigRegion* region, OnigOptionType option, OnigMatchParam* mp);
-ONIG_EXTERN int onig_match(OnigRegex, const uchar* str, const uchar* end, const uchar* at, OnigRegion* region, OnigOptionType option);
-ONIG_EXTERN int onig_match_with_param(OnigRegex, const uchar* str, const uchar* end, const uchar* at, OnigRegion* region,
+ONIG_EXTERN int onig_match(OnigRegex, const uchar * str, const uchar * end, const uchar * at, OnigRegion* region, OnigOptionType option);
+ONIG_EXTERN int onig_match_with_param(OnigRegex, const uchar * str, const uchar * end, const uchar * at, OnigRegion* region,
     OnigOptionType option, OnigMatchParam* mp);
 ONIG_EXTERN int onig_regset_new(OnigRegSet**rset, int n, regex_t* regs[]);
 ONIG_EXTERN int onig_regset_add(OnigRegSet* set, regex_t* reg);
@@ -718,10 +718,10 @@ ONIG_EXTERN void onig_regset_free(OnigRegSet* set);
 ONIG_EXTERN int onig_regset_number_of_regex(OnigRegSet* set);
 ONIG_EXTERN regex_t * onig_regset_get_regex(OnigRegSet* set, int at);
 ONIG_EXTERN OnigRegion * onig_regset_get_region(OnigRegSet* set, int at);
-ONIG_EXTERN int onig_regset_search(OnigRegSet* set, const uchar* str, const uchar* end, const uchar* start, const uchar* range,
+ONIG_EXTERN int onig_regset_search(OnigRegSet* set, const uchar * str, const uchar * end, const uchar * start, const uchar * range,
     OnigRegSetLead lead, OnigOptionType option, int* rmatch_pos);
-ONIG_EXTERN int onig_regset_search_with_param(OnigRegSet* set, const uchar* str, const uchar* end, const uchar* start,
-    const uchar* range,  OnigRegSetLead lead, OnigOptionType option, OnigMatchParam* mps[], int* rmatch_pos);
+ONIG_EXTERN int onig_regset_search_with_param(OnigRegSet* set, const uchar * str, const uchar * end, const uchar * start,
+    const uchar * range,  OnigRegSetLead lead, OnigOptionType option, OnigMatchParam* mps[], int* rmatch_pos);
 ONIG_EXTERN OnigRegion* onig_region_new(void);
 ONIG_EXTERN void onig_region_init(OnigRegion* region);
 ONIG_EXTERN void onig_region_free(OnigRegion* region, int free_self);
@@ -729,9 +729,9 @@ ONIG_EXTERN void onig_region_copy(OnigRegion* to, OnigRegion* from);
 ONIG_EXTERN void onig_region_clear(OnigRegion* region);
 ONIG_EXTERN int onig_region_resize(OnigRegion* region, int n);
 ONIG_EXTERN int onig_region_set(OnigRegion* region, int at, int beg, int end);
-ONIG_EXTERN int onig_name_to_group_numbers(OnigRegex reg, const uchar* name, const uchar* name_end, int** nums);
-ONIG_EXTERN int onig_name_to_backref_number(OnigRegex reg, const uchar* name, const uchar* name_end, OnigRegion * region);
-ONIG_EXTERN int onig_foreach_name(OnigRegex reg, int (* func)(const uchar*, const uchar*, int, int*, OnigRegex, void *), void * arg);
+ONIG_EXTERN int onig_name_to_group_numbers(OnigRegex reg, const uchar * name, const uchar * name_end, int** nums);
+ONIG_EXTERN int onig_name_to_backref_number(OnigRegex reg, const uchar * name, const uchar * name_end, OnigRegion * region);
+ONIG_EXTERN int onig_foreach_name(OnigRegex reg, int (* func)(const uchar *, const uchar *, int, int*, OnigRegex, void *), void * arg);
 ONIG_EXTERN int onig_number_of_names(OnigRegex reg);
 ONIG_EXTERN int onig_number_of_captures(OnigRegex reg);
 ONIG_EXTERN int onig_number_of_capture_histories(OnigRegex reg);
@@ -791,32 +791,32 @@ ONIG_EXTERN OnigCalloutFunc onig_get_progress_callout(void);
 ONIG_EXTERN int onig_set_progress_callout(OnigCalloutFunc f);
 ONIG_EXTERN OnigCalloutFunc onig_get_retraction_callout(void);
 ONIG_EXTERN int onig_set_retraction_callout(OnigCalloutFunc f);
-ONIG_EXTERN int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType type, uchar* name, uchar* name_end, int callout_in,
+ONIG_EXTERN int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType type, uchar * name, uchar * name_end, int callout_in,
     OnigCalloutFunc callout, OnigCalloutFunc end_callout, int arg_num, uint arg_types[], int optional_arg_num, OnigValue opt_defaults[]);
-ONIG_EXTERN uchar* onig_get_callout_name_by_name_id(int id);
-ONIG_EXTERN int onig_get_callout_num_by_tag(OnigRegex reg, const uchar* tag, const uchar* tag_end);
-ONIG_EXTERN int onig_get_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, const uchar* tag, const uchar* tag_end, int slot, OnigType* type, OnigValue* val);
-ONIG_EXTERN int onig_set_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, const uchar* tag, const uchar* tag_end, int slot, OnigType type, OnigValue* val);
+ONIG_EXTERN uchar * onig_get_callout_name_by_name_id(int id);
+ONIG_EXTERN int onig_get_callout_num_by_tag(OnigRegex reg, const uchar * tag, const uchar * tag_end);
+ONIG_EXTERN int onig_get_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, const uchar * tag, const uchar * tag_end, int slot, OnigType* type, OnigValue* val);
+ONIG_EXTERN int onig_set_callout_data_by_tag(OnigRegex reg, OnigMatchParam* mp, const uchar * tag, const uchar * tag_end, int slot, OnigType type, OnigValue* val);
 
 /* used in callout functions */
 ONIG_EXTERN int onig_get_callout_num_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN OnigCalloutIn onig_get_callout_in_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN int onig_get_name_id_by_callout_args(OnigCalloutArgs * args);
-ONIG_EXTERN const uchar* onig_get_contents_by_callout_args(OnigCalloutArgs * args);
-ONIG_EXTERN const uchar* onig_get_contents_end_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_contents_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_contents_end_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN int onig_get_args_num_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN int onig_get_passed_args_num_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN int onig_get_arg_by_callout_args(OnigCalloutArgs * args, int index, OnigType* type, OnigValue* val);
-ONIG_EXTERN const uchar* onig_get_string_by_callout_args(OnigCalloutArgs * args);
-ONIG_EXTERN const uchar* onig_get_string_end_by_callout_args(OnigCalloutArgs * args);
-ONIG_EXTERN const uchar* onig_get_start_by_callout_args(OnigCalloutArgs * args);
-ONIG_EXTERN const uchar* onig_get_right_range_by_callout_args(OnigCalloutArgs * args);
-ONIG_EXTERN const uchar* onig_get_current_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_string_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_string_end_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_start_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_right_range_by_callout_args(OnigCalloutArgs * args);
+ONIG_EXTERN const uchar * onig_get_current_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN OnigRegex onig_get_regex_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN ulong onig_get_retry_counter_by_callout_args(OnigCalloutArgs * args);
 ONIG_EXTERN int onig_callout_tag_is_exist_at_callout_num(OnigRegex reg, int callout_num);
-ONIG_EXTERN const uchar* onig_get_callout_tag_start(OnigRegex reg, int callout_num);
-ONIG_EXTERN const uchar* onig_get_callout_tag_end(OnigRegex reg, int callout_num);
+ONIG_EXTERN const uchar * onig_get_callout_tag_start(OnigRegex reg, int callout_num);
+ONIG_EXTERN const uchar * onig_get_callout_tag_end(OnigRegex reg, int callout_num);
 ONIG_EXTERN int onig_get_callout_data_dont_clear_old(OnigRegex reg, OnigMatchParam* mp, int callout_num, int slot, OnigType* type, OnigValue* val);
 ONIG_EXTERN int onig_get_callout_data_by_callout_args_self_dont_clear_old(OnigCalloutArgs * args, int slot, OnigType* type, OnigValue* val);
 ONIG_EXTERN int onig_get_callout_data(OnigRegex reg, OnigMatchParam* mp, int callout_num, int slot, OnigType* type, OnigValue* val);

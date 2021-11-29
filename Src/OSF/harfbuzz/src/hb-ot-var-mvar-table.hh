@@ -68,7 +68,7 @@ public:
 		}
 
 		float get_var(hb_tag_t tag,
-		    const int * coords, unsigned int coord_count) const
+		    const int * coords, uint coord_count) const
 		{
 			const VariationValueRecord * record;
 			record = (VariationValueRecord*)hb_bsearch(tag,

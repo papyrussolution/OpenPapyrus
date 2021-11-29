@@ -848,7 +848,7 @@ const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos)
 			if((ch & 0xc0) != 0xc0)
 				return 0;
 			/* then skip over remaining bytes for this char */
-			while( (ch <<= 1) & 0x80)
+			while((ch <<= 1) & 0x80)
 				if((*utf++ & 0xc0) != 0x80)
 					return 0;
 		}
@@ -881,7 +881,7 @@ int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar)
 			if((ch & 0xc0) != 0xc0)
 				return -1;
 			/* then skip over remaining bytes for this char */
-			while( (ch <<= 1) & 0x80)
+			while((ch <<= 1) & 0x80)
 				if((*utf++ & 0xc0) != 0x80)
 					return -1;
 		}
@@ -919,7 +919,7 @@ xmlChar * xmlUTF8Strsub(const xmlChar * utf, int start, int len)
 			if((ch & 0xc0) != 0xc0)
 				return 0;
 			/* then skip over remaining bytes for this char */
-			while( (ch <<= 1) & 0x80)
+			while((ch <<= 1) & 0x80)
 				if((*utf++ & 0xc0) != 0x80)
 					return 0;
 		}

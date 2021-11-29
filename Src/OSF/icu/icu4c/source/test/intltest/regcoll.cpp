@@ -497,14 +497,14 @@ void CollationRegressionTest::Test4079231(/* char * par */)
 	// but doesn't compile 'cause NULL can't be converted
 	// to Collator&
 	//
-	// if (en_us->operator==(NULL))
+	// if(en_us->operator==(NULL))
 	// {
 	//     errln("en_us->operator==(NULL) returned TRUE");
 	// }
 
 	/*
 	   try {
-	       if (en_us->equals(null)) {
+	       if(en_us->equals(null)) {
 	           errln("en_us->equals(null) returned true");
 	       }
 	   }

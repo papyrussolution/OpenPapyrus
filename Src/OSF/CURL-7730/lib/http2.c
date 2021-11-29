@@ -44,7 +44,7 @@
 
 #define H2_BUFSIZE 32768
 
-#if (NGHTTP2_VERSION_NUM < 0x010c00)
+#if(NGHTTP2_VERSION_NUM < 0x010c00)
 #error too old nghttp2 version, upgrade!
 #endif
 
@@ -52,7 +52,7 @@
 #define nghttp2_session_callbacks_set_error_callback(x, y)
 #endif
 
-#if (NGHTTP2_VERSION_NUM >= 0x010c00)
+#if(NGHTTP2_VERSION_NUM >= 0x010c00)
 #define NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE 1
 #endif
 

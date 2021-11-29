@@ -648,7 +648,7 @@ double SRng::GetGammaKnuth(double a, double b)
 	uint na = static_cast<uint>(floor(a));
 	if(a == na)
 		return b * GetGammaInt(na);
-	else if (na == 0)
+	else if(na == 0)
 		return b * GetGammaFrac(a);
 	else
 		return b * (GetGammaInt(na) + GetGammaFrac(a - na));
@@ -680,7 +680,7 @@ double SRng::GetGammaInt(uint a)
 			do {
 				y = tan(SMathConst::Pi * GetReal());
 				x = sqa * y + a_1;
-			} while (x <= 0);
+			} while(x <= 0);
 			v = GetReal();
 		} while(v > (1 + y * y) * exp(a_1 * log(x / a_1) - sqa * y));
 		return x;
@@ -711,7 +711,7 @@ double SRng::GetGammaPdf(double x, double a, double b)
 {
 	if(x < 0)
 		return 0;
-	else if (x == 0) {
+	else if(x == 0) {
 		if(a == 1)
 			return 1/b;
 		else
@@ -918,7 +918,7 @@ TryAgain:
 				goto TryAgain;
 			ix = (int)x;
 		}
-		else if (u <= p3) {
+		else if(u <= p3) {
 			/* Left tail */
 			ix = (int)(xl + log(v) / lambda_l);
 			if(ix < 0)

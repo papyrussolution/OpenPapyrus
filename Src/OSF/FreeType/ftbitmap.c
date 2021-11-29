@@ -110,7 +110,7 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 	FT_Error error;
 	unsigned int new_pitch;
 	FT_UInt bpp;
-	uchar*  buffer = NULL;
+	uchar * buffer = NULL;
 	FT_UInt width  = bitmap->width;
 	FT_UInt height = bitmap->rows;
 	unsigned int pitch  = (uint)FT_ABS(bitmap->pitch);
@@ -167,9 +167,9 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 	/* thus take care of the flow direction   */
 	if(bitmap->pitch > 0) {
 		FT_UInt len = ( width * bpp + 7 ) >> 3;
-		uchar*  in  = bitmap->buffer;
-		uchar*  out = buffer;
-		uchar*  limit = bitmap->buffer + pitch * bitmap->rows;
+		uchar * in  = bitmap->buffer;
+		uchar * out = buffer;
+		uchar * limit = bitmap->buffer + pitch * bitmap->rows;
 		unsigned int delta = new_pitch - len;
 		memzero(out, new_pitch * ypixels);
 		out += new_pitch * ypixels;
@@ -185,9 +185,9 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 	}
 	else {
 		FT_UInt len = ( width * bpp + 7 ) >> 3;
-		uchar*  in  = bitmap->buffer;
-		uchar*  out = buffer;
-		uchar*  limit = bitmap->buffer + pitch * bitmap->rows;
+		uchar * in  = bitmap->buffer;
+		uchar * out = buffer;
+		uchar * limit = bitmap->buffer + pitch * bitmap->rows;
 		unsigned int delta = new_pitch - len;
 		while(in < limit) {
 			FT_MEM_COPY(out, in, len);
@@ -212,7 +212,7 @@ static FT_Error ft_bitmap_assure_buffer(FT_Memory memory, FT_Bitmap*  bitmap, FT
 FT_EXPORT_DEF(FT_Error) FT_Bitmap_Embolden(FT_Library library, FT_Bitmap*  bitmap, FT_Pos xStrength, FT_Pos yStrength)
 {
 	FT_Error error;
-	uchar*  p;
+	uchar * p;
 	FT_Int i, x, pitch;
 	FT_UInt y;
 	FT_Int xstr, ystr;
@@ -727,7 +727,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 	    target->rows  != final_rows) {
 		/* adjust old bitmap to enlarged size */
 		int new_pitch;
-		uchar*  buffer = NULL;
+		uchar * buffer = NULL;
 		int pitch = target->pitch;
 		if(pitch < 0)
 			pitch = -pitch;
@@ -751,9 +751,9 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 			/* XXX */
 		}
 		else {
-			uchar*  p = target->buffer;
-			uchar*  q = buffer + ( final_rows - y - target->rows ) * new_pitch + x * 4;
-			uchar*  limit_p = p + pitch * (int)target->rows;
+			uchar * p = target->buffer;
+			uchar * q = buffer + ( final_rows - y - target->rows ) * new_pitch + x * 4;
+			uchar * limit_p = p + pitch * (int)target->rows;
 			while(p < limit_p) {
 				FT_MEM_COPY(q, p, pitch);
 				p += pitch;
@@ -795,13 +795,13 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		/* XXX */
 	}
 	else {
-		uchar*  p = source->buffer;
-		uchar*  q = target->buffer + ( target->rows - y - source->rows ) * target->pitch + x * 4;
-		uchar*  limit_p = p + source->pitch * (int)source->rows;
+		uchar * p = source->buffer;
+		uchar * q = target->buffer + ( target->rows - y - source->rows ) * target->pitch + x * 4;
+		uchar * limit_p = p + source->pitch * (int)source->rows;
 		while(p < limit_p) {
-			uchar*  r  = p;
-			uchar*  s  = q;
-			uchar*  limit_r = r + source->width;
+			uchar * r  = p;
+			uchar * s  = q;
+			uchar * limit_r = r + source->width;
 			while(r < limit_r) {
 				int aa = *r++;
 				int fa = color.alpha * aa / 255;

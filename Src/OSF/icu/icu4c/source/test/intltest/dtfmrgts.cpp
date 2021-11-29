@@ -22,7 +22,7 @@
 
 void DateFormatRegressionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite DateFormatRegressionTest");
+	// if(exec) logln((UnicodeString)"TestSuite DateFormatRegressionTest");
 	switch(index) {
 		CASE(0, Test4029195)
 		CASE(1, Test4052408)
@@ -462,9 +462,9 @@ void DateFormatRegressionTest::Test4065240(void)
 	//(UnicodeString) "java.text.resources.DateFormatZoneData", curLocale);
 
 	// {sfb} API change to ResourceBundle -- add getLocale()
-	/*if (bundle->getLocale().getLanguage(temp) == UnicodeString("de")) {
+	/*if(bundle->getLocale().getLanguage(temp) == UnicodeString("de")) {
 	    // UPDATE THIS AS ZONE NAME RESOURCE FOR <EST> in de_DE is updated
-	    if (!strFullDate.endsWith(UnicodeString("GMT-05:00")))
+	    if(!strFullDate.endsWith(UnicodeString("GMT-05:00")))
 	        errln("Fail: Want GMT-05:00");
 	   }
 	   else {
@@ -671,7 +671,7 @@ void DateFormatRegressionTest::Test4100302(void)
             ObjectInputStream ois =
                 new ObjectInputStream(new ByteArrayInputStream(bytes));
 
-            if (!format.equals(ois.readObject())) {
+            if(!format.equals(ois.readObject())) {
                 pass = FALSE;
                 logln("DateFormat instance for locale " +
                       locales[i] + " is incorrectly serialized/deserialized.");
@@ -680,7 +680,7 @@ void DateFormatRegressionTest::Test4100302(void)
                       locales[i] + " is OKAY.");
             }
         }
-        if (!pass) errln("Fail: DateFormat serialization/equality bug");
+        if(!pass) errln("Fail: DateFormat serialization/equality bug");
     }
     catch (IOException e) {
         errln("Fail: " + e);
@@ -1035,7 +1035,7 @@ void DateFormatRegressionTest::Test4151706(void)
 	UDate d = fmt.parse(dateString, status);
 	failure(status, "fmt->parse");
 	// {sfb} what about next two lines?
-	//if (d.getTime() != Date.UTC(1998-1900, Calendar.DECEMBER, 31, 23, 0, 0))
+	//if(d.getTime() != Date.UTC(1998-1900, Calendar.DECEMBER, 31, 23, 0, 0))
 	//    errln("Incorrect value: " + d);
 	/*} catch (Exception e) {
 	    errln("Fail: " + e);

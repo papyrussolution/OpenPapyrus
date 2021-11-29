@@ -160,12 +160,10 @@ public:
 		setCtrlData(CTL_AMOUNTTYPE_REPLACE, &replace);
 		if(p_cb_tax) {
 			SString word;
-			ListWindow * p_lw = CreateListWindow(16, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
-			// @v9.0.2 PPGetWord(PPWORD_VAT, 0, word);
-			PPLoadString("vat", word); // @v9.0.2
+			ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify|lbtFocNotify);
+			PPLoadString("vat", word);
 			p_lw->listBox()->addItem(GTAX_VAT, word);
-			// @v9.2.6 PPGetWord(PPWORD_STAX, 0, word);
-			PPLoadString("salestax", word); // @v9.2.6
+			PPLoadString("salestax", word);
 			p_lw->listBox()->addItem(GTAX_SALES, word);
 			p_cb_tax->setListWindow(p_lw);
 		}

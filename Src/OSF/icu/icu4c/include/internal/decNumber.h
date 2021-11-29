@@ -191,8 +191,8 @@
   #define decNumberIsSNaN(dn)      (((dn)->bits&(DECSNAN))!=0)
   #define decNumberIsSpecial(dn)   (((dn)->bits&DECSPECIAL)!=0)
   #define decNumberIsZero(dn)      (*(dn)->lsu==0 \
-                                  && (dn)->digits==1 \
-                                  && (((dn)->bits&DECSPECIAL)==0))
+                        && (dn)->digits==1 \
+                        && (((dn)->bits&DECSPECIAL)==0))
   #define decNumberRadix(dn)       (10)
 
 #endif

@@ -28,9 +28,9 @@ public:
         // If the strings are stored in resource bundles which should be built with
         // duplicate elimination, then we should be able to hash on just the pointer values.
         uhash_init(&map, uhash_hashUChars, uhash_compareUChars, uhash_compareLong, &errorCode);
-        if (U_FAILURE(errorCode)) { return; }
+        if(U_FAILURE(errorCode)) { return; }
         strings = new CharString();
-        if (strings == nullptr) {
+        if(strings == nullptr) {
             errorCode = U_MEMORY_ALLOCATION_ERROR;
         }
     }
@@ -56,15 +56,15 @@ public:
   * stable storage, such as strings returned by resource bundle functions.
      */
     int32_t add(const UnicodeString & s, UErrorCode & errorCode) {
-        if (U_FAILURE(errorCode)) { return 0; }
-        if (isFrozen) {
+        if(U_FAILURE(errorCode)) { return 0; }
+        if(isFrozen) {
             errorCode = U_NO_WRITE_PERMISSION;
             return 0;
         }
         // The string points into the resource bundle.
         const char16_t *p = s.getBuffer();
         int32_t oldIndex = uhash_geti(&map, p);
-        if (oldIndex != 0) {  // found duplicate
+        if(oldIndex != 0) {  // found duplicate
             return oldIndex;
         }
         // Explicit NUL terminator for the previous string.

@@ -699,7 +699,7 @@ static EVP_PKEY * do_PVK_body(const uchar ** in, uint saltlen, uint keylen, pem_
 			goto err;
 		if(!EVP_DecryptFinal_ex(cctx, q + enctmplen, &enctmplen))
 			goto err;
-		magic = read_ledword((const uchar**)&q);
+		magic = read_ledword((const uchar **)&q);
 		if(magic != MS_RSA2MAGIC && magic != MS_DSS2MAGIC) {
 			q = enctmp + 8;
 			memzero(keybuf + 5, 11);
@@ -709,7 +709,7 @@ static EVP_PKEY * do_PVK_body(const uchar ** in, uint saltlen, uint keylen, pem_
 				goto err;
 			if(!EVP_DecryptFinal_ex(cctx, q + enctmplen, &enctmplen))
 				goto err;
-			magic = read_ledword((const uchar**)&q);
+			magic = read_ledword((const uchar **)&q);
 			if(magic != MS_RSA2MAGIC && magic != MS_DSS2MAGIC) {
 				PEMerr(PEM_F_DO_PVK_BODY, PEM_R_BAD_DECRYPT);
 				goto err;

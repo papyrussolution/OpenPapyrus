@@ -122,7 +122,7 @@ public:
 	 * a return value from getDynamicClassID(). For example:
 	 * <pre>
 	 * .   Base* polymorphic_pointer = createPolymorphicObject();
-	 * .   if (polymorphic_pointer->getDynamicClassID() ==
+	 * .   if(polymorphic_pointer->getDynamicClassID() ==
 	 * .       derived::getStaticClassID()) ...
 	 * </pre>
 	 * @return          The class ID for all objects of this class.

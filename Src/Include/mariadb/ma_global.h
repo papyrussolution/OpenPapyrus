@@ -115,7 +115,7 @@
 	#define HAVE_ATOMIC_SUB
 #endif
 /* In Linux-ia64 including atomic.h will give us an error */
-#if (defined(HAVE_LINUXTHREADS) && defined(__GNUC__) && (defined(__ia64__) || defined(__powerpc64__))) || !defined(THREAD)
+#if(defined(HAVE_LINUXTHREADS) && defined(__GNUC__) && (defined(__ia64__) || defined(__powerpc64__))) || !defined(THREAD)
 	#undef HAVE_ATOMIC_ADD
 	#undef HAVE_ATOMIC_SUB
 #endif
@@ -210,8 +210,8 @@
 #define sgn(a)		(((a) < 0) ? -1 : ((a) > 0) ? 1 : 0)
 #define swap(t,a,b)	do { t dummy; dummy = a; a = b; b = dummy; } while(0)
 #define test(a)		((a) ? 1 : 0)
-#define set_if_bigger(a,b)  do { if ((a) < (b)) (a)=(b); } while(0)
-#define set_if_smaller(a,b) do { if ((a) > (b)) (a)=(b); } while(0)
+#define set_if_bigger(a,b)  do { if((a) < (b)) (a)=(b); } while(0)
+#define set_if_smaller(a,b) do { if((a) > (b)) (a)=(b); } while(0)
 #define test_all_bits(a,b) (((a) & (b)) == (b))
 #define set_bits(type, bit_count) (sizeof(type)*8 <= (bit_count) ? ~(type) 0 : ((((type) 1) << (bit_count)) - (type) 1))
 #define array_elements(A) ((uint) (sizeof(A)/sizeof(A[0])))
@@ -643,7 +643,7 @@ typedef uint64 my_ulonglong;
 #define int2store(T,A)	*((uint16 *) (T))= (uint16) (A)
 #define int3store(T,A)  do { *(T)=  (uchar) ((A));\
                             *(T+1)=(uchar) (((uint) (A) >> 8));\
-                            *(T+2)=(uchar) (((A) >> 16)); } while (0)
+                            *(T+2)=(uchar) (((A) >> 16)); } while(0)
 #define int4store(T,A)	*((long *) (T))= (long) (A)
 #define int5store(T,A)  do { *(T)= (uchar)((A));\
                              *((T)+1)=(uchar) (((A) >> 8));\
@@ -669,7 +669,7 @@ do { doubleget_union _tmp; \
      (V) = _tmp.v; } while(0)
 #define doublestore(T,V) do { *((long *) T) = ((doubleget_union *)&V)->m[0]; \
 			     *(((long *) T)+1) = ((doubleget_union *)&V)->m[1]; \
-                         } while (0)
+                         } while(0)
 #define float4get(V,M)   do { *((float *) &(V)) = *((float*) (M)); } while(0)
 #define float8get(V,M)   doubleget((V),(M))
 #define float4store(V,M) memcpy((uchar *) V,(uchar *) (&M),sizeof(float))

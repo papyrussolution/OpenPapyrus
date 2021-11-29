@@ -42,20 +42,20 @@ using namespace CFF;
  **/
 
 bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
-    unsigned int fdCount,
+    uint fdCount,
     const FDSelect &src,                          /* IN */
-    unsigned int &subset_fd_count /* OUT */,
-    unsigned int &subset_fdselect_size /* OUT */,
-    unsigned int &subset_fdselect_format /* OUT */,
+    uint &subset_fd_count /* OUT */,
+    uint &subset_fdselect_size /* OUT */,
+    uint &subset_fdselect_format /* OUT */,
     hb_vector_t<code_pair_t> &fdselect_ranges /* OUT */,
     hb_inc_bimap_t &fdmap /* OUT */)
 {
 	subset_fd_count = 0;
 	subset_fdselect_size = 0;
 	subset_fdselect_format = 0;
-	unsigned int num_ranges = 0;
+	uint num_ranges = 0;
 
-	unsigned int subset_num_glyphs = plan->num_output_glyphs();
+	uint subset_num_glyphs = plan->num_output_glyphs();
 	if(subset_num_glyphs == 0)
 		return true;
 
@@ -115,9 +115,9 @@ bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
 	}
 	else {
 #if CFF_SERIALIZE_FDSELECT_0
-		unsigned int format0_size = FDSelect::min_size + FDSelect0::min_size + HBUINT8::static_size * subset_num_glyphs;
+		uint format0_size = FDSelect::min_size + FDSelect0::min_size + HBUINT8::static_size * subset_num_glyphs;
 #endif
-		unsigned int format3_size = FDSelect::min_size + FDSelect3::min_size + FDSelect3_Range::static_size * num_ranges +
+		uint format3_size = FDSelect::min_size + FDSelect3::min_size + FDSelect3_Range::static_size * num_ranges +
 		    HBUINT16::static_size;
 
 #if CFF_SERIALIZE_FDSELECT_0
@@ -138,9 +138,9 @@ bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
 
 template <typename FDSELECT3_4>
 static inline bool serialize_fdselect_3_4(hb_serialize_context_t * c,
-    const unsigned int num_glyphs,
+    const uint num_glyphs,
     const FDSelect &src,
-    unsigned int size,
+    uint size,
     const hb_vector_t<code_pair_t> &fdselect_ranges)
 {
 	TRACE_SERIALIZE(this);
@@ -160,11 +160,11 @@ static inline bool serialize_fdselect_3_4(hb_serialize_context_t * c,
  * Serialize a subset FDSelect format planned above.
  **/
 bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
-    const unsigned int num_glyphs,
+    const uint num_glyphs,
     const FDSelect &src,
-    unsigned int fd_count,
-    unsigned int fdselect_format,
-    unsigned int size,
+    uint fd_count,
+    uint fdselect_format,
+    uint size,
     const hb_vector_t<code_pair_t> &fdselect_ranges)
 {
 	TRACE_SERIALIZE(this);
@@ -178,8 +178,8 @@ bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
 	    {
 		    FDSelect0 * p = c->allocate_size<FDSelect0> (size);
 		    if(UNLIKELY(!p)) return_trace(false);
-		    unsigned int range_index = 0;
-		    unsigned int fd = fdselect_ranges[range_index++].code;
+		    uint range_index = 0;
+		    uint fd = fdselect_ranges[range_index++].code;
 		    for(uint i = 0; i < num_glyphs; i++) {
 			    if((range_index < fdselect_ranges.len) &&
 				(i >= fdselect_ranges[range_index].glyph)) {

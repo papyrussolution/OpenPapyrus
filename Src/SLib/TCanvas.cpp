@@ -4196,7 +4196,7 @@ int SPaintToolBox::CreateColor(int ident, SColor c)
 		for(uint i = 0; !ident && i < co; i++) {
 			SPaintObj & r_item = at(i);
 			//if(r_item.GetType() == SPaintObj::tColor && (SColor)r_item == c)
-			if (r_item.GetType() == SPaintObj::tColor && r_item.operator SColor() == c)
+			if(r_item.GetType() == SPaintObj::tColor && r_item.operator SColor() == c)
 				ident = r_item.GetId();
 		}
 		if(!ident) {

@@ -428,7 +428,7 @@ static ETestConvertResult testConvertFromU(const UChar * source, int sourceLen, 
 		    checkOffsets ? offs : NULL,
 		    doFlush,     /* flush if we're at the end of the input data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && sourceLimit < realSourceEnd));
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && sourceLimit < realSourceEnd));
 
 	if(U_FAILURE(status)) {
 		log_err("Problem doing fromUnicode to %s, errcode %s %s\n", codepage, myErrorName(status), gNuConvTestName);
@@ -586,7 +586,7 @@ static ETestConvertResult testConvertToU(const uint8_t * source, int sourcelen, 
 		    &status);
 
 		/*        offs += (targ-oldTarg); */
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
 	                                                                                                        just
 	                                                                                                        need
 	                                                                                                        another
@@ -1395,7 +1395,7 @@ static void TestConverterTypesAndStarters()
 		if(myConverter!=NULL)
 			ucnv_getStarters(myConverter, mystarters, &err);
 
-		/*if (memcmp(expectedKSCstarters, mystarters, sizeof(expectedKSCstarters)))
+		/*if(memcmp(expectedKSCstarters, mystarters, sizeof(expectedKSCstarters)))
 		   log_err("Failed ucnv_getStarters for ksc\n");
 		   else
 		   log_verbose("ucnv_getStarters ok\n");*/

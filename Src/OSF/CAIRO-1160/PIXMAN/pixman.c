@@ -393,15 +393,15 @@ static pixman_bool_t FASTCALL analyze_extent(pixman_image_t * image, const pixma
 	if(!compute_transformed_extents(transform, extents, &transformed))
 		return FALSE;
 	if(image->common.type == BITS) {
-		if(pixman_fixed_to_int(transformed.x1 - pixman_fixed_e) >= 0              &&
-		    pixman_fixed_to_int(transformed.y1 - pixman_fixed_e) >= 0              &&
+		if(pixman_fixed_to_int(transformed.x1 - pixman_fixed_e) >= 0    &&
+		    pixman_fixed_to_int(transformed.y1 - pixman_fixed_e) >= 0    &&
 		    pixman_fixed_to_int(transformed.x2 - pixman_fixed_e) < image->bits.width &&
 		    pixman_fixed_to_int(transformed.y2 - pixman_fixed_e) < image->bits.height) {
 			*flags |= FAST_PATH_SAMPLES_COVER_CLIP_NEAREST;
 		}
 
-		if(pixman_fixed_to_int(transformed.x1 - pixman_fixed_1 / 2) >= 0              &&
-		    pixman_fixed_to_int(transformed.y1 - pixman_fixed_1 / 2) >= 0              &&
+		if(pixman_fixed_to_int(transformed.x1 - pixman_fixed_1 / 2) >= 0    &&
+		    pixman_fixed_to_int(transformed.y1 - pixman_fixed_1 / 2) >= 0    &&
 		    pixman_fixed_to_int(transformed.x2 + pixman_fixed_1 / 2) < image->bits.width &&
 		    pixman_fixed_to_int(transformed.y2 + pixman_fixed_1 / 2) < image->bits.height) {
 			*flags |= FAST_PATH_SAMPLES_COVER_CLIP_BILINEAR;
@@ -476,9 +476,9 @@ PIXMAN_EXPORT void FASTCALL pixman_image_composite32(pixman_op_t op, pixman_imag
 	info.dest_flags = dest->common.flags;
 	/* Check for pixbufs */
 	if((mask_format == PIXMAN_a8r8g8b8 || mask_format == PIXMAN_a8b8g8r8) &&
-	    (src->type == BITS && src->bits.bits == mask->bits.bits)         &&
-	    (src->common.repeat == mask->common.repeat)                      &&
-	    (info.src_flags & info.mask_flags & FAST_PATH_ID_TRANSFORM)      &&
+	    (src->type == BITS && src->bits.bits == mask->bits.bits) &&
+	    (src->common.repeat == mask->common.repeat)            &&
+	    (info.src_flags & info.mask_flags & FAST_PATH_ID_TRANSFORM) &&
 	    (src_x == mask_x && src_y == mask_y)) {
 		if(src_format == PIXMAN_x8b8g8r8)
 			src_format = mask_format = PIXMAN_pixbuf;
@@ -720,7 +720,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_fill_boxes(pixman_op_t op, pixman_image
  * or equal to version X.Y.Z could be performed as follows:
  *
  * <informalexample><programlisting>
- * if (pixman_version() >= PIXMAN_VERSION_ENCODE(X,Y,Z)) {...}
+ * if(pixman_version() >= PIXMAN_VERSION_ENCODE(X,Y,Z)) {...}
  * </programlisting></informalexample>
  *
  * See also pixman_version_string() as well as the compile-time

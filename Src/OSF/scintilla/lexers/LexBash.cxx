@@ -873,10 +873,10 @@ static void FoldBashDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 		// Comment folding
 		if(foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			  && IsCommentLine(lineCurrent + 1, styler))
+			 && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			  && !IsCommentLine(lineCurrent + 1, styler))
+			 && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		if(style == SCE_SH_OPERATOR) {

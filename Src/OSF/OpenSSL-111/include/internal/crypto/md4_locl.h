@@ -24,7 +24,7 @@ void md4_block_data_order(MD4_CTX *c, const void *p, size_t num);
         ll=(c)->B; (void)HOST_l2c(ll,(s));      \
         ll=(c)->C; (void)HOST_l2c(ll,(s));      \
         ll=(c)->D; (void)HOST_l2c(ll,(s));      \
-        } while (0)
+        } while(0)
 #define HASH_BLOCK_DATA_ORDER   md4_block_data_order
 
 #include <md32_common.h>

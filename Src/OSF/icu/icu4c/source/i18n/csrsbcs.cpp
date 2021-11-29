@@ -109,7 +109,7 @@ int32_t NGramParser::parse(InputText * det)
 	addByte(0x20);
 	double rawPercent = (double)hitCount / (double)ngramCount;
 
-	//            if (rawPercent <= 2.0) {
+	//            if(rawPercent <= 2.0) {
 	//                return 0;
 	//            }
 

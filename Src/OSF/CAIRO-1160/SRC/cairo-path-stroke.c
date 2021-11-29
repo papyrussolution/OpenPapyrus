@@ -740,9 +740,9 @@ static cairo_status_t _cairo_stroker_add_caps(cairo_stroker_t * stroker)
 
 	/* check for a degenerative sub_path */
 	if(stroker->has_initial_sub_path
-	  && !stroker->has_first_face
-	  && !stroker->has_current_face
-	  && stroker->style.line_cap == CAIRO_LINE_CAP_ROUND) {
+	 && !stroker->has_first_face
+	 && !stroker->has_current_face
+	 && stroker->style.line_cap == CAIRO_LINE_CAP_ROUND) {
 		/* pick an arbitrary slope to use */
 		double dx = 1.0, dy = 0.0;
 		cairo_slope_t slope = { CAIRO_FIXED_ONE, 0 };

@@ -43,7 +43,7 @@
 ** of an integer. In a worst case, NBM == 113 for long double and
 ** sizeof(integer) == 32.)
 */
-#if ((((LUA_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) >> (NBM - (3 * (NBM / 4))))  >  0
+#if((((LUA_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) >> (NBM - (3 * (NBM / 4))))  >  0
 	#define l_intfitsf(i)  (-((lua_Integer)1 << NBM) <= (i) && (i) <= ((lua_Integer)1 << NBM))
 #endif
 

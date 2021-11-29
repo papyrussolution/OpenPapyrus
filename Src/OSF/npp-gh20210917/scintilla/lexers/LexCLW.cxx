@@ -615,7 +615,7 @@ static void FoldClarionDoc(Sci_PositionU uiStartPos, Sci_Position iLength, int i
 				char chBuffer[100];
 				FillBuffer(iLastStart, uiPos, accStyler, chBuffer, sizeof(chBuffer));
 				iLevelCurrent = ClassifyClarionFoldPoint(iLevelCurrent, chBuffer);
-				//	if ((iLevelCurrent == SC_FOLDLEVELBASE + 1) && iLineCurrent > 1) {
+				//	if((iLevelCurrent == SC_FOLDLEVELBASE + 1) && iLineCurrent > 1) {
 				//		accStyler.SetLevel(iLineCurrent-1,SC_FOLDLEVELBASE);
 				//		iLevelPrev = SC_FOLDLEVELBASE;
 				//	}

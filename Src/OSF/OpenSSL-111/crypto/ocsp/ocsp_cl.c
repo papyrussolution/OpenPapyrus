@@ -75,7 +75,7 @@ int OCSP_request_add1_cert(OCSP_REQUEST * req, X509 * cert)
 	if(cert == NULL)
 		return 1;
 	if(sig->certs == NULL
-	  && (sig->certs = sk_X509_new_null()) == NULL)
+	 && (sig->certs = sk_X509_new_null()) == NULL)
 		return 0;
 
 	if(!sk_X509_push(sig->certs, cert))

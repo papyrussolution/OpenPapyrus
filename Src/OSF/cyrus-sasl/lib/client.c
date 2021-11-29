@@ -235,7 +235,7 @@ static int client_idle(sasl_conn_t * conn)
 	    m;
 	    m = m->next)
 		if(m->m.plug->idle
-		  &&  m->m.plug->idle(m->m.plug->glob_context,
+		 &&  m->m.plug->idle(m->m.plug->glob_context,
 		    conn,
 		    conn ? ((sasl_client_conn_t*)conn)->cparams : NULL))
 			return 1;
@@ -720,7 +720,7 @@ int sasl_client_start(sasl_conn_t * conn, const char * mechlist, sasl_interact_t
 			}
 
 			if((m->m.plug->features & SASL_FEAT_NEEDSERVERFQDN)
-			  && !conn->serverFQDN) {
+			 && !conn->serverFQDN) {
 				break;
 			}
 
@@ -979,7 +979,7 @@ int _sasl_client_listmech(sasl_conn_t * conn,
 
 		/* Can we meet it's features? */
 		if((m->m.plug->features & SASL_FEAT_NEEDSERVERFQDN)
-		  && !conn->serverFQDN) {
+		 && !conn->serverFQDN) {
 			continue;
 		}
 
@@ -1139,7 +1139,7 @@ static void _sasl_print_mechanism(client_sasl_mechanism_t * m, sasl_info_callbac
 	}
 
 /* Delay loading is not supported for the client side plugins:
-    if (m->f) {
+    if(m->f) {
         printf ("\n\twill be loaded from \"%s\"", m->f);
     }
  */

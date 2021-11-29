@@ -329,7 +329,7 @@ void CurrencyPluralInfo::deleteHash(Hashtable* hTable)
 	if(hTable) {
 		int32_t pos = UHASH_FIRST;
 		const UHashElement* element = nullptr;
-		while( (element = hTable->nextElement(pos)) != nullptr) {
+		while((element = hTable->nextElement(pos)) != nullptr) {
 			const UHashTok valueTok = element->value;
 			const UnicodeString * value = (UnicodeString *)valueTok.pointer;
 			delete value;
@@ -359,7 +359,7 @@ void CurrencyPluralInfo::copyHash(const Hashtable* source, Hashtable* target, UE
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* element = nullptr;
 	if(source) {
-		while( (element = source->nextElement(pos)) != nullptr) {
+		while((element = source->nextElement(pos)) != nullptr) {
 			const UHashTok keyTok = element->key;
 			const UnicodeString * key = (UnicodeString *)keyTok.pointer;
 			const UHashTok valueTok = element->value;

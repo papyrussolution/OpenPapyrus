@@ -679,7 +679,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    if(!oneof5(state, SCE_HPHP_COMMENT, SCE_HPHP_COMMENTLINE, SCE_HJ_COMMENT, SCE_HJ_COMMENTLINE, SCE_HJ_COMMENTDOC) && !isStringState(state)) {
 					    //Platform::DebugPrintf("state=%d, StateToPrint=%d, initStyle=%d\n", state, StateToPrint,
 					    // initStyle);
-					    //if ((state == SCE_HPHP_OPERATOR) || (state == SCE_HPHP_DEFAULT) || (state == SCE_HJ_SYMBOLS)
+					    //if((state == SCE_HPHP_OPERATOR) || (state == SCE_HPHP_DEFAULT) || (state == SCE_HJ_SYMBOLS)
 					    // || (state == SCE_HJ_START) || (state == SCE_HJ_DEFAULT)) {
 					    if(ch == '#') {
 						    Sci_Position j = i + 1;
@@ -1122,7 +1122,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    break;
 			case SCE_H_SGML_DEFAULT:
 			case SCE_H_SGML_BLOCK_DEFAULT:
-//			if (scriptLanguage == eScriptSGMLblock)
+//			if(scriptLanguage == eScriptSGMLblock)
 //				StateToPrint = SCE_H_SGML_BLOCK_DEFAULT;
 			    if(ch == '\"') {
 				    styler.ColourTo(i - 1, state_to_print);
@@ -1275,7 +1275,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    state = SCE_H_DEFAULT;
 			    }
 			    if(ch != '#' && !(IsASCII(ch) && isalnum(ch)) // Should check that '#' follows '&', but it is unlikely anyway...
-			  && ch != '.' && ch != '-' && ch != '_' && ch != ':') {     // valid in XML
+			 && ch != '.' && ch != '-' && ch != '_' && ch != ':') {     // valid in XML
 				    if(!IsASCII(ch)) // Possibly start of a multibyte character so don't allow this byte to be in entity style
 					    styler.ColourTo(i-1, SCE_H_TAGUNKNOWN);
 				    else

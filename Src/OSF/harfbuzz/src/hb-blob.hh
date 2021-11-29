@@ -66,7 +66,7 @@ public:
 	hb_object_header_t header;
 
 	const char * data;
-	unsigned int length;
+	uint length;
 	hb_memory_mode_t mode;
 
 	void * user_data;
@@ -96,7 +96,7 @@ struct hb_blob_ptr_t {
 		return b.get_raw();
 	}
 
-	unsigned int get_length() const {
+	uint get_length() const {
 		return b.get()->length;
 	}
 

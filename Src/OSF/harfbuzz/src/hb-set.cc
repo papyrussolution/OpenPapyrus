@@ -374,7 +374,7 @@ void hb_set_invert(hb_set_t * set HB_UNUSED)
  *
  * Since: 0.9.7
  **/
-unsigned int hb_set_get_population(const hb_set_t * set)
+uint hb_set_get_population(const hb_set_t * set)
 {
 	return set->get_population();
 }

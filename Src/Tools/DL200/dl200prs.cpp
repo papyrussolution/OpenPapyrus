@@ -1249,7 +1249,7 @@ int DL200_ParamDialog::setupFormCombo()
 	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME))) != 0) {
 		SStrCollection data_list;
 		long   sel = 0;
-		THROW(p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify));
+		THROW(p_lw = CreateListWindow_Simple(lbtDblClkNotify));
 		getSelectedFileName(path, sizeof(path));
 		if(path[0]) {
 			uint   i;
@@ -1278,7 +1278,7 @@ int DL200_ParamDialog::setupFileCombo()
 	ListWindow * p_lw = 0;
 	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_FNAME))) != 0) {
 		long sel = 0;
-		p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify);
+		p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 		THROW(p_lw);
 		{
 			uint   p, i = 0;

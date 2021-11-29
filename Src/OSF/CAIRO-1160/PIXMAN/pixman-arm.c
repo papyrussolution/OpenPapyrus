@@ -109,15 +109,15 @@ detect_cpu_features (void)
     cpu_family = android_getCpuFamily();
     cpu_features = android_getCpuFeatures();
 
-    if (cpu_family == ANDROID_CPU_FAMILY_ARM)
+    if(cpu_family == ANDROID_CPU_FAMILY_ARM)
     {
-	if (cpu_features & ANDROID_CPU_ARM_FEATURE_ARMv7)
+	if(cpu_features & ANDROID_CPU_ARM_FEATURE_ARMv7)
 	    features |= ARM_V7;
 
-	if (cpu_features & ANDROID_CPU_ARM_FEATURE_VFPv3)
+	if(cpu_features & ANDROID_CPU_ARM_FEATURE_VFPv3)
 	    features |= ARM_VFP;
 
-	if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON)
+	if(cpu_features & ANDROID_CPU_ARM_FEATURE_NEON)
 	    features |= ARM_NEON;
     }
 
@@ -142,32 +142,32 @@ detect_cpu_features (void)
     int fd;
 
     fd = open ("/proc/self/auxv", O_RDONLY);
-    if (fd >= 0)
+    if(fd >= 0)
     {
-	while (read (fd, &aux, sizeof(Elf32_auxv_t)) == sizeof(Elf32_auxv_t))
+	while(read (fd, &aux, sizeof(Elf32_auxv_t)) == sizeof(Elf32_auxv_t))
 	{
-	    if (aux.a_type == AT_HWCAP)
+	    if(aux.a_type == AT_HWCAP)
 	    {
 		uint32 hwcap = aux.a_un.a_val;
 
 		/* hardcode these values to avoid depending on specific
 		 * versions of the hwcap header, e.g. HWCAP_NEON
 		 */
-		if ((hwcap & 64) != 0)
+		if((hwcap & 64) != 0)
 		    features |= ARM_VFP;
-		if ((hwcap & 512) != 0)
+		if((hwcap & 512) != 0)
 		    features |= ARM_IWMMXT;
 		/* this flag is only present on kernel 2.6.29 */
-		if ((hwcap & 4096) != 0)
+		if((hwcap & 4096) != 0)
 		    features |= ARM_NEON;
 	    }
-	    else if (aux.a_type == AT_PLATFORM)
+	    else if(aux.a_type == AT_PLATFORM)
 	    {
 		const char *plat = (const char *) aux.a_un.a_val;
 
-		if (strncmp (plat, "v7l", 3) == 0)
+		if(strncmp (plat, "v7l", 3) == 0)
 		    features |= (ARM_V7 | ARM_V6);
-		else if (strncmp (plat, "v6l", 3) == 0)
+		else if(strncmp (plat, "v6l", 3) == 0)
 		    features |= ARM_V6;
 	    }
 	}
@@ -193,7 +193,7 @@ have_feature (arm_cpu_features_t feature)
     static pixman_bool_t initialized;
     static arm_cpu_features_t features;
 
-    if (!initialized)
+    if(!initialized)
     {
 	features = detect_cpu_features();
 	initialized = TRUE;
@@ -208,17 +208,17 @@ pixman_implementation_t *
 _pixman_arm_get_implementations (pixman_implementation_t *imp)
 {
 #ifdef USE_ARM_SIMD
-    if (!_pixman_disabled ("arm-simd") && have_feature (ARM_V6))
+    if(!_pixman_disabled ("arm-simd") && have_feature (ARM_V6))
 	imp = _pixman_implementation_create_arm_simd (imp);
 #endif
 
 #ifdef USE_ARM_IWMMXT
-    if (!_pixman_disabled ("arm-iwmmxt") && have_feature (ARM_IWMMXT))
+    if(!_pixman_disabled ("arm-iwmmxt") && have_feature (ARM_IWMMXT))
 	imp = _pixman_implementation_create_mmx (imp);
 #endif
 
 #ifdef USE_ARM_NEON
-    if (!_pixman_disabled ("arm-neon") && have_feature (ARM_NEON))
+    if(!_pixman_disabled ("arm-neon") && have_feature (ARM_NEON))
 	imp = _pixman_implementation_create_arm_neon (imp);
 #endif
 

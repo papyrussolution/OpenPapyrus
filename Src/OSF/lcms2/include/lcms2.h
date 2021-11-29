@@ -94,14 +94,14 @@ typedef float cmsFloat32Number;
 typedef double cmsFloat64Number;
 
 // 16-bit base types
-#if (USHRT_MAX == 65535U)
+#if(USHRT_MAX == 65535U)
 	typedef unsigned short cmsUInt16Number;
 #elif (UINT_MAX == 65535U)
 	typedef unsigned int cmsUInt16Number;
 #else
 	#error "Unable to find 16 bits unsigned type, unsupported compiler"
 #endif
-#if (SHRT_MAX == 32767)
+#if(SHRT_MAX == 32767)
 	typedef  short cmsInt16Number;
 #elif (INT_MAX == 32767)
 	typedef  int cmsInt16Number;
@@ -109,14 +109,14 @@ typedef double cmsFloat64Number;
 	#error "Unable to find 16 bits signed type, unsupported compiler"
 #endif
 // 32-bit base type
-#if (UINT_MAX == 4294967295U)
+#if(UINT_MAX == 4294967295U)
 	typedef unsigned int cmsUInt32Number;
 #elif (ULONG_MAX == 4294967295U)
 	typedef unsigned long cmsUInt32Number;
 #else
 	#error "Unable to find 32 bit unsigned type, unsupported compiler"
 #endif
-#if (INT_MAX == +2147483647)
+#if(INT_MAX == +2147483647)
 	typedef  int cmsInt32Number;
 #elif (LONG_MAX == +2147483647)
 	typedef  long cmsInt32Number;
@@ -125,14 +125,14 @@ typedef double cmsFloat64Number;
 #endif
 // 64-bit base types
 #ifndef CMS_DONT_USE_INT64
-	#if (ULONG_MAX  == 18446744073709551615U)
+	#if(ULONG_MAX  == 18446744073709551615U)
 		typedef unsigned long cmsUInt64Number;
 	#elif (ULLONG_MAX == 18446744073709551615U)
 		typedef unsigned long long cmsUInt64Number;
 	#else
 		#define CMS_DONT_USE_INT64 1
 	#endif
-	#if (LONG_MAX == +9223372036854775807)
+	#if(LONG_MAX == +9223372036854775807)
 		typedef  long cmsInt64Number;
 	#elif (LLONG_MAX == +9223372036854775807)
 		typedef  long long cmsInt64Number;
@@ -1815,7 +1815,7 @@ CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * 
 CMSAPI cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName);
 CMSAPI cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded);
 // Properties
-CMSAPI const char *      CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
+CMSAPI const char * CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * cComment);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * cProp, const char * Str);
@@ -1823,17 +1823,17 @@ CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp
 CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer);
-CMSAPI const char *      CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * cProp);
+CMSAPI const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * cProp);
 CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp);
-CMSAPI const char *      CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey);
+CMSAPI const char * CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey);
 CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames);
 CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames);
 // Datasets
-CMSAPI const char *      CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col);
+CMSAPI const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col);
 CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, cmsFloat64Number Val);
-CMSAPI const char *      CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
+CMSAPI const char * CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
 CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample, cmsFloat64Number Val);
@@ -1841,7 +1841,7 @@ CMSAPI cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch, c
 CMSAPI int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char * cSample);
 CMSAPI cmsBool CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE hIT8, int n, const char * Sample);
 CMSAPI int CMSEXPORT cmsIT8EnumDataFormat(cmsHANDLE hIT8, char *** SampleNames);
-CMSAPI const char *      CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buffer);
+CMSAPI const char * CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buffer);
 CMSAPI int CMSEXPORT cmsIT8GetPatchByName(cmsHANDLE hIT8, const char * cPatch);
 // The LABEL extension
 CMSAPI int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const char * cField, const char * ExpectedType);

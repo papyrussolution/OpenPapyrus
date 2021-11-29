@@ -55,7 +55,7 @@ public:
 	struct ankr {
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_ankr;
 
-		const Anchor &get_anchor(hb_codepoint_t glyph_id, unsigned int i, unsigned int num_glyphs) const
+		const Anchor &get_anchor(hb_codepoint_t glyph_id, uint i, uint num_glyphs) const
 		{
 			const NNOffsetTo<GlyphAnchors> * offset = (this+lookupTable).get_value(glyph_id, num_glyphs);
 			if(!offset)

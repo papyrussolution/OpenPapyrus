@@ -22,8 +22,8 @@
 FT_EXPORT_DEF(FT_Error) FT_Get_BDF_Charset_ID(FT_Face face, const char ** acharset_encoding, const char ** acharset_registry)
 {
 	FT_Error error;
-	const char *  encoding = NULL;
-	const char *  registry = NULL;
+	const char * encoding = NULL;
+	const char * registry = NULL;
 	FT_Service_BDF service;
 	if(!face)
 		return FT_THROW(Invalid_Face_Handle);
@@ -38,7 +38,7 @@ FT_EXPORT_DEF(FT_Error) FT_Get_BDF_Charset_ID(FT_Face face, const char ** achars
 }
 
 /* documentation is in ftbdf.h */
-FT_EXPORT_DEF(FT_Error) FT_Get_BDF_Property(FT_Face face, const char *       prop_name, BDF_PropertyRec  *aproperty)
+FT_EXPORT_DEF(FT_Error) FT_Get_BDF_Property(FT_Face face, const char * prop_name, BDF_PropertyRec  *aproperty)
 {
 	FT_Error error;
 	FT_Service_BDF service;

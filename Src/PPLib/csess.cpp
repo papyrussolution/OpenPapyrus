@@ -66,7 +66,7 @@ int CSessionCore::SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionT
 	return ok;
 }
 
-int CSessionCore::HasChild(PPID sessID)
+int CSessionCore::HasChildren(PPID sessID)
 {
 	int    ok = -1;
 	CSessionTbl::Key3 k;

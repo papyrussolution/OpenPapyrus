@@ -544,12 +544,12 @@
 	//
 	// [Target Architecture]
 	//
-	#if (defined(_M_X64) || defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(__amd64) || defined(__amd64__))
+	#if(defined(_M_X64) || defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(__amd64) || defined(__amd64__))
 		#define CXX_ARCH_X86_64     (1)
 	#else
 		#define CXX_ARCH_X86_64     (0)
 	#endif
-	#if (defined(_M_IX86 ) || defined(__X86__ ) || defined(__i386) || defined(__IA32__) || defined(__I86__) || defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__THW_INTEL__))
+	#if(defined(_M_IX86 ) || defined(__X86__ ) || defined(__i386) || defined(__IA32__) || defined(__I86__) || defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__THW_INTEL__))
 		#define CXX_ARCH_X86        (!CXX_ARCH_X86_64)
 	#else
 		#define CXX_ARCH_X86        (0)
@@ -559,7 +559,7 @@
 	#else
 		#define CXX_ARCH_ARM64      (0)
 	#endif
-	#if (defined(_M_ARM) || defined(__arm) || defined(__thumb__) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb2__))
+	#if(defined(_M_ARM) || defined(__arm) || defined(__thumb__) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb2__))
 		#define CXX_ARCH_ARM32      (!CXX_ARCH_ARM64)
 	#else
 		#define CXX_ARCH_ARM32      (0)
@@ -637,7 +637,7 @@
 	// [Export|Import]
 	//
 	#if CXX_OS_WINDOWS
-		#if (CXX_GNU || CXX_CLANG) && !CXX_MINGW
+		#if(CXX_GNU || CXX_CLANG) && !CXX_MINGW
 			#define CXX_EXPORT __attribute__((__dllexport__))
 			#define CXX_IMPORT __attribute__((__dllimport__))
 		#else

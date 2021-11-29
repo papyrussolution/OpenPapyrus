@@ -586,7 +586,7 @@ void TransliteratorTest::TestArabic() {
 //    UErrorCode status=U_ZERO_ERROR;
 //    UParseError parseError;
 //    Transliterator *t = Transliterator::createInstance("Latin-Arabic", UTRANS_FORWARD, parseError, status);
-//    if (t == 0) {
+//    if(t == 0) {
 //        errln("FAIL: createInstance failed");
 //        return;
 //    }
@@ -3728,12 +3728,12 @@ void TransliteratorTest::TestIncrementalProgress() {
 					// 4. Any-*/MNS
 					// If UCONFIG_NO_BREAK_ITERATION is on, Latin-Thai is also not expected to work.
 					if(id.compare((UnicodeString)"Devanagari-Arabic/") != 0
-					  && !(id.startsWith((UnicodeString)"Any-") &&
+					 && !(id.startsWith((UnicodeString)"Any-") &&
 					    (id.endsWith((UnicodeString)"/BGN") || id.endsWith((UnicodeString)"/BGN_1981") ||
 					    id.endsWith((UnicodeString)"/UNGEGN") || id.endsWith((UnicodeString)"/MNS"))
 					    )
 #if UCONFIG_NO_BREAK_ITERATION
-					  && id.compare((UnicodeString)"Latin-Thai/") != 0
+					 && id.compare((UnicodeString)"Latin-Thai/") != 0
 #endif
 					    ) {
 						errln((UnicodeString)"FAIL: Could not create inverse of " + id);
@@ -4529,7 +4529,7 @@ void TransliteratorTest::TestBeginEnd() {
         UErrorCode status = U_ZERO_ERROR;
         Transliterator* t = Transliterator::createFromRules("foo", UnicodeString(BOGUS_BEGIN_END_RULES[i]),
                 UTRANS_FORWARD, parseError, status);
-        if (!U_FAILURE(status)) {
+        if(!U_FAILURE(status)) {
             delete t;
             errln((UnicodeString)"Should have gotten syntax error from " + BOGUS_BEGIN_END_RULES[i]);
         }

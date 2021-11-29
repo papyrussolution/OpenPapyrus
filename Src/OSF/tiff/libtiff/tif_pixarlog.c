@@ -496,7 +496,7 @@ static int PixarLogMakeTables(PixarLogState * sp)
 	b = exp(-c*ONE); /* multiplicative scale factor [b*exp(c*ONE) = 1] */
 	linstep = b*c*exp(1.);
 
-	LogK1 = (float)(1./c); /* if (v >= 2)  token = k1*log(v*k2) */
+	LogK1 = (float)(1./c); /* if(v >= 2)  token = k1*log(v*k2) */
 	LogK2 = (float)(1./b);
 	lt2size = (int)(2./linstep) + 1;
 	FromLT2 = static_cast<uint16 *>(SAlloc::M(lt2size*sizeof(uint16)));

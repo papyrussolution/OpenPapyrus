@@ -134,7 +134,7 @@ extern int      Curl_gsk_secure_soc_write(gsk_handle my_session_handle,
                                           int writeBufSize, int *amtWritten);
 #define gsk_secure_soc_write    Curl_gsk_secure_soc_write
 
-extern const char *     Curl_gsk_strerror_a(int gsk_return_value);
+extern const char * Curl_gsk_strerror_a(int gsk_return_value);
 #define gsk_strerror    Curl_gsk_strerror_a
 
 extern int      Curl_gsk_secure_soc_startInit(gsk_handle my_session_handle,

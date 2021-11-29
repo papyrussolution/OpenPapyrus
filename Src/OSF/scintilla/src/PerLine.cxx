@@ -183,7 +183,7 @@ int LineMarkers::MarkerNext(int lineStart, int mask) const
 	for(int iLine = lineStart; iLine < length; iLine++) {
 		MarkerHandleSet * onLine = markers[iLine];
 		if(onLine && ((onLine->MarkValue() & mask) != 0))
-			//if ((pdoc->GetMark(iLine) & lParam) != 0)
+			//if((pdoc->GetMark(iLine) & lParam) != 0)
 			return iLine;
 	}
 	return -1;

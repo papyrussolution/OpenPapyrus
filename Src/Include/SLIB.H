@@ -172,7 +172,7 @@
 #define FMAXEXP     38
 #define DMINEXP     -307
 #define FMINEXP     -37
-#if (__BORLANDC__ < 0x500)
+#if(__BORLANDC__ < 0x500)
 	// @v10.8.2 (replaced with SMathConst::Max) #define MAXDOUBLE   1.797693E+308
 	// @v10.8.2 (replaced with SMathConst::Min) #define MINDOUBLE   2.225074E-308
 	// @v10.9.6 #define MAXFLOAT    3.37E+38f
@@ -8175,7 +8175,7 @@ public:
 	//
 	int    GetIdList(LongArray & rList) const;
 	int    GetListByParent(long parentId, int recursive, LongArray &) const;
-	int    FASTCALL HasChild(long id) const;
+	bool   FASTCALL HasChildren(long id) const;
 	int    GetParent(long id, long * pParentId) const;
 	//
 	// Descr: Удаляет элемент с идентификатором id.
@@ -8310,8 +8310,15 @@ public:
 	int    FASTCALL Copy(const StrAssocTree & rS);
 	StrAssocTree & Z();
 	uint   GetCount() const;
+	bool   HasChildren(long id) const;
 	bool   Search(long id, long * pParentId, SString * pBuf) const;
 	EntryHandle FASTCALL Search(long id) const;
+	//
+	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
+	//  Параметр rList в начале функции обнуляется. После выполнения функции список НЕ сортируется и 
+	//  из него НЕ удаляются дубликаты (нет вызова rList.sortAndUndup()).
+	//
+	int    GetList(LongArray & rList) const;
 	int    GetListByParent(long parentId, bool recursive, LongArray & rList) const;
 	int    Add(long id, const char * pStr, int replaceDup);
 	int    Add(long id, long parentId, const char * pStr, int replaceDup);
@@ -11778,8 +11785,8 @@ protected:
 	double Sum[4]; // Sum[0] - линейная сумма, Sum[1] - сумма квадратов, Sum[2] - сумма кубов, Sum[3] - сумма четвертых степеней
 	double Exp;    // Математическое ожидание
 	double Var;    // Дисперсия //
-	double Kurtosis; // if (Flags & fExt) ((Sum4 / Count) / pow(SumQ / Count, 2)) - 3.0;
-	double Skew;     // if (Flags & fExt) (Sum3 / Count) / pow(SumQ / Count, 1.5)
+	double Kurtosis; // if(Flags & fExt) ((Sum4 / Count) / pow(SumQ / Count, 2)) - 3.0;
+	double Skew;     // if(Flags & fExt) (Sum3 / Count) / pow(SumQ / Count, 1.5)
 	double Test_Z;
 	double Test_ChSq;
 	RealArray Series; // Если (Flags & (fGammaTest|fGaussianTest|fStoreVals)), то все поступающие значения сохраняются в этом массиве

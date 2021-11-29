@@ -225,7 +225,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 		if(lineString.empty()) {
 			continue; // skip empty lines.
 		}
-#if (U_CPLUSPLUS_VERSION >= 11)
+#if(U_CPLUSPLUS_VERSION >= 11)
 		char * line = &lineString.front();
 #else
 		char * line = &lineString.at(0);

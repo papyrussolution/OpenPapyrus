@@ -67,11 +67,11 @@ public:
 	struct maxp {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_maxp;
 
-		unsigned int get_num_glyphs() const {
+		uint get_num_glyphs() const {
 			return numGlyphs;
 		}
 
-		void set_num_glyphs(unsigned int count)
+		void set_num_glyphs(uint count)
 		{
 			numGlyphs = count;
 		}

@@ -68,7 +68,7 @@ class TiXmlStringA
     // Convert a TiXmlStringA into a classical char *
     const char * c_str () const
     {
-        if (allocated)
+        if(allocated)
             return cstring;
         return "";
     }
@@ -142,7 +142,7 @@ class TiXmlStringA
     void reserve (unsigned size)
     {
         empty_it ();
-        if (size)
+        if(size)
         {
             allocated = size;
 			TIXMLA_STRING cstring = new char [size];
@@ -183,7 +183,7 @@ class TiXmlStringA
     // Internal function that clears the content of a TiXmlStringA
     void empty_it ()
     {
-        if (cstring)
+        if(cstring)
             delete [] cstring;
         cstring = NULL;
         allocated = 0;

@@ -124,7 +124,7 @@ U_CAPI void U_EXPORT2 ztrans_adoptTo(ZTrans* trans, void * to);
  * a return value from getDynamicClassID(). For example:
  * <pre>
  * .   Base* polymorphic_pointer = createPolymorphicObject();
- * .   if (polymorphic_pointer->getDynamicClassID() ==
+ * .   if(polymorphic_pointer->getDynamicClassID() ==
  * .       erived::getStaticClassID()) ...
  * </pre>
  * param trans, the transition to use

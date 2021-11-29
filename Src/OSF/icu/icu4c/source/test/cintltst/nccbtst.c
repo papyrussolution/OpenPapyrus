@@ -2661,7 +2661,7 @@ bool testConvertFromUnicode(const UChar * source, int sourceLen,  const uint8_t 
 		    checkOffsets ? offs : NULL,
 		    doFlush, /* flush if we're at the end of the input data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (sourceLimit < realSourceEnd)));
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (sourceLimit < realSourceEnd)));
 
 	if(status==U_INVALID_CHAR_FOUND || status == U_ILLEGAL_CHAR_FOUND) {
 		UChar errChars[50]; /* should be sufficient */
@@ -2841,7 +2841,7 @@ bool testConvertToUnicode(const uint8_t * source, int sourcelen, const UChar * e
 		    checkOffsets ? offs : NULL,
 		    (bool)(srcLimit == realSourceEnd), /* flush if we're at the end of the source data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
 	                                                                                                        just
 	                                                                                                        need
 	                                                                                                        another
@@ -3031,7 +3031,7 @@ bool testConvertFromUnicodeWithContext(const UChar * source, int sourceLen,  con
 		    checkOffsets ? offs : NULL,
 		    doFlush, /* flush if we're at the end of the input data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (sourceLimit < realSourceEnd)));
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (sourceLimit < realSourceEnd)));
 
 	/* allow failure codes for the stop callback */
 	if(U_FAILURE(status) && status != expectedError) {
@@ -3194,7 +3194,7 @@ bool testConvertToUnicodeWithContext(const uint8_t * source, int sourcelen, cons
 		    checkOffsets ? offs : NULL,
 		    (bool)(srcLimit == realSourceEnd), /* flush if we're at the end of the source data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
 	                                                                                                        just
 	                                                                                                        need
 	                                                                                                        another

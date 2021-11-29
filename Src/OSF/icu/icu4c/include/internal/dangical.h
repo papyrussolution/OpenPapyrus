@@ -85,7 +85,7 @@ class DangiCalendar : public ChineseCalendar {
    * value from getDynamicClassID(). For example:
    *
    *      Base* polymorphic_pointer = createPolymorphicObject();
-   *      if (polymorphic_pointer->getDynamicClassID() ==
+   *      if(polymorphic_pointer->getDynamicClassID() ==
    *          Derived::getStaticClassID()) ...
    *
    * @return   The class ID for all objects of this class.

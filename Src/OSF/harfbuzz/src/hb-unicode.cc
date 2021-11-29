@@ -55,7 +55,7 @@ static hb_unicode_combining_class_t hb_unicode_combining_class_nil(hb_unicode_fu
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-static unsigned int hb_unicode_eastasian_width_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
+static uint hb_unicode_eastasian_width_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t unicode HB_UNUSED,
     void * user_data HB_UNUSED)
 {
@@ -104,7 +104,7 @@ static hb_bool_t hb_unicode_decompose_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-static unsigned int hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
+static uint hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
     hb_codepoint_t u HB_UNUSED,
     hb_codepoint_t * decomposed HB_UNUSED,
     void * user_data HB_UNUSED)
@@ -414,7 +414,7 @@ hb_bool_t hb_unicode_decompose(hb_unicode_funcs_t * ufuncs,
  * Since: 0.9.2
  * Deprecated: 2.0.0
  **/
-unsigned int hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
+uint hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t u,
     hb_codepoint_t * decomposed)
 {

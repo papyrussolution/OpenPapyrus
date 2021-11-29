@@ -1440,7 +1440,7 @@ static inline void multiply_128(uint64 u, uint64 v, uint64 * w)
 {
 	// Make use of 64x64->128 unsigned multiplication instruction
 	// (if processor has this instruction and compiler allows for using it).
-#if (defined(__GNUC__) || defined(__clang__)) && defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16)
+#if(defined(__GNUC__) || defined(__clang__)) && defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16)
 	unsigned __int128 value_w = ((unsigned __int128)u) * v;
 	w[0] = ((uint64)( value_w       ));
 	w[1] = ((uint64)( value_w >> 64 ));

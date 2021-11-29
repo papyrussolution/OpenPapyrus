@@ -60,8 +60,8 @@ namespace CFF {
 			dict_values_t<OPSTR>::fini();
 		}
 
-		unsigned int charStringsOffset;
-		unsigned int FDArrayOffset;
+		uint charStringsOffset;
+		uint FDArrayOffset;
 	};
 
 	struct dict_opset_t : opset_t<number_t>{
@@ -90,7 +90,7 @@ namespace CFF {
 			enum Nibble { DECIMAL = 10, EXP_POS, EXP_NEG, RESERVED, NEG, END };
 			char buf[32];
 			uchar byte = 0;
-			for(unsigned i = 0, count = 0; count < ARRAY_LENGTH(buf); ++i, ++count) {
+			for(uint i = 0, count = 0; count < ARRAY_LENGTH(buf); ++i, ++count) {
 				unsigned nibble;
 				if(!(i & 1)) {
 					if(UNLIKELY(!str_ref.avail())) 

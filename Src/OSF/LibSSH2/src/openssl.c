@@ -625,8 +625,8 @@ static uchar * gen_publickey_from_rsa(LIBSSH2_SESSION * session, RSA * rsa, size
 {
 	int e_bytes, n_bytes;
 	ulong len;
-	uchar* key;
-	uchar* p;
+	uchar * key;
+	uchar * p;
 	const BIGNUM * e;
 	const BIGNUM * n;
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -713,8 +713,8 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION * session, uchar ** method
     size_t * method_len, uchar ** pubkeydata, size_t * pubkeydata_len, EVP_PKEY * pk)
 {
 	RSA * rsa = NULL;
-	uchar* key;
-	uchar* method_buf = NULL;
+	uchar * key;
+	uchar * method_buf = NULL;
 	size_t key_len;
 	_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Computing public key from RSA private key envelop");
 	rsa = EVP_PKEY_get1_RSA(pk);
@@ -749,8 +749,8 @@ __alloc_error:
 static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION * session, uchar ** method, size_t * method_len, uchar ** pubkeydata, size_t * pubkeydata_len, EVP_PKEY * pk)
 {
 	DSA*           dsa = NULL;
-	uchar* key;
-	uchar* method_buf = NULL;
+	uchar * key;
+	uchar * method_buf = NULL;
 	size_t key_len;
 	_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Computing public key from DSA private key envelop");
 	dsa = EVP_PKEY_get1_DSA(pk);

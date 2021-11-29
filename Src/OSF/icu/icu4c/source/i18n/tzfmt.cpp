@@ -465,9 +465,9 @@ bool TimeZoneFormat::operator==(const Format& other) const {
 
 	bool isEqual =
 	    fLocale == tzfmt->fLocale
-	  && fGMTPattern == tzfmt->fGMTPattern
-	  && fGMTZeroFormat == tzfmt->fGMTZeroFormat
-	  && *fTimeZoneNames == *tzfmt->fTimeZoneNames;
+	 && fGMTPattern == tzfmt->fGMTPattern
+	 && fGMTZeroFormat == tzfmt->fGMTZeroFormat
+	 && *fTimeZoneNames == *tzfmt->fTimeZoneNames;
 
 	for(int32_t i = 0; i < UTZFMT_PAT_COUNT && isEqual; i++) {
 		isEqual = fGMTOffsetPatterns[i] == tzfmt->fGMTOffsetPatterns[i];

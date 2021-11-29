@@ -239,13 +239,13 @@ FT_Trace_Enable(void);
 //#include "stdio.h"  /* for vfprintf() */
 
 /* print a message */
-FT_BASE(void) FT_Message(const char *  fmt, ...);
+FT_BASE(void) FT_Message(const char * fmt, ...);
 
 /* print a message and exit */
-FT_BASE(void) FT_Panic(const char *  fmt, ...);
+FT_BASE(void) FT_Panic(const char * fmt, ...);
 
 /* report file name and line number of an error */
-FT_BASE(int) FT_Throw(FT_Error error, int line, const char *  file);
+FT_BASE(int) FT_Throw(FT_Error error, int line, const char * file);
 
 #endif /* FT_DEBUG_LEVEL_ERROR */
 

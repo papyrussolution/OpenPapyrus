@@ -1133,7 +1133,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 					(state != SCE_HJ_COMMENTLINE) && (state != SCE_HJ_COMMENTDOC) && (!isStringState(state))) {
 					    //Platform::DebugPrintf("state=%d, StateToPrint=%d, initStyle=%d\n", state,
 					    // StateToPrint, initStyle);
-					    //if ((state == SCE_HPHP_OPERATOR) || (state == SCE_HPHP_DEFAULT) || (state
+					    //if((state == SCE_HPHP_OPERATOR) || (state == SCE_HPHP_DEFAULT) || (state
 					    // == SCE_HJ_SYMBOLS) || (state == SCE_HJ_START) || (state ==
 					    // SCE_HJ_DEFAULT)) {
 					    if(ch == '#') {
@@ -1645,7 +1645,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 			    break;
 			case SCE_H_SGML_DEFAULT:
 			case SCE_H_SGML_BLOCK_DEFAULT:
-//			if (scriptLanguage == eScriptSGMLblock)
+//			if(scriptLanguage == eScriptSGMLblock)
 //				StateToPrint = SCE_H_SGML_BLOCK_DEFAULT;
 
 			    if(ch == '\"') {

@@ -59,8 +59,8 @@ enum myanmar_category_t {
 static inline void set_myanmar_properties(hb_glyph_info_t &info)
 {
 	hb_codepoint_t u = info.codepoint;
-	unsigned int type = hb_indic_get_categories(u);
-	unsigned int cat = type & 0x7Fu;
+	uint type = hb_indic_get_categories(u);
+	uint cat = type & 0x7Fu;
 	indic_position_t pos = (indic_position_t)(type >> 8);
 	/* Myanmar
 	 * https://docs.microsoft.com/en-us/typography/script-development/myanmar#analyze

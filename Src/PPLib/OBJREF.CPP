@@ -146,7 +146,7 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 					if(P_List->def && P_List->isTreeList()) {
 						PPID cur_id = 0;
 						P_List->def->getCurID(&cur_id);
-						if(static_cast<const StdTreeListBoxDef *>(P_List->def)->HasChild(cur_id))
+						if(static_cast<const StdTreeListBoxDef *>(P_List->def)->HasChildren(cur_id))
 							edit = 0;
 					}
 					if(edit)

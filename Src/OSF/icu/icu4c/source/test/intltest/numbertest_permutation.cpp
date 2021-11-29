@@ -10,7 +10,7 @@
 #include "ucbuf.h"
 
 void NumberPermutationTest::runIndexedTest(int32_t index, bool exec, const char *& name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite NumberPermutationTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -90,7 +90,7 @@ void NumberPermutationTest::testPermutations() {
     auto currentSection = std::vector<const char16_t*>();
     for (int32_t i = 0; i < UPRV_LENGTHOF(kSkeletonParts); i++) {
         const char16_t* skeletonPart = kSkeletonParts[i];
-        if (skeletonPart == nullptr) {
+        if(skeletonPart == nullptr) {
             skeletonParts.push_back(currentSection);
             currentSection.clear();
         } else {
@@ -144,7 +144,7 @@ void NumberPermutationTest::testPermutations() {
             }
 
             // Quick mode: test all fields at least once but stop early.
-            if (quick) {
+            if(quick) {
                 infoln(u"Quick mode: stopped after " + Int64ToUnicodeString(resultLines.size()) +
                        u" lines");
                 goto outerEnd;
@@ -160,7 +160,7 @@ outerEnd:
     // Compare it to the golden file
     const char * codePage = "UTF-8";
     LocalUCHARBUFPointer f(ucbuf_open(goldenFilePath.data(), &codePage, TRUE, FALSE, status));
-    if (!assertSuccess("Can't open data file", status)) {
+    if(!assertSuccess("Can't open data file", status)) {
         return;
     }
 
@@ -168,7 +168,7 @@ outerEnd:
     int32_t lineLength;
     for (const auto& actualLine : resultLines) {
         const UChar * lineBuf = ucbuf_readline(f.getAlias(), &lineLength, status);
-        if (lineBuf == nullptr) {
+        if(lineBuf == nullptr) {
             errln("More lines generated than are in the data file!");
             break;
         }
@@ -178,12 +178,12 @@ outerEnd:
         lineNumber++;
     }
     // Quick mode: test all fields at least once but stop early.
-    if (!quick && ucbuf_readline(f.getAlias(), &lineLength, status) != nullptr) {
+    if(!quick && ucbuf_readline(f.getAlias(), &lineLength, status) != nullptr) {
         errln("Fewer lines generated than are in the data file!");
     }
 
     // Overwrite the golden data if requested
-    if (write_golden_data) {
+    if(write_golden_data) {
         std::ofstream outFile;
         outFile.open(goldenFilePath.data());
         for (const auto& uniLine : resultLines) {

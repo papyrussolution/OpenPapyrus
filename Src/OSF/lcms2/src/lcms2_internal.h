@@ -117,7 +117,7 @@
 
 // Code analysis is broken on asserts
 #ifdef _MSC_VER
-#    if (_MSC_VER >= 1500)
+#    if(_MSC_VER >= 1500)
 #define _cmsAssert(a)  { assert((a)); __analysis_assume((a)); }
 #     else
 #define _cmsAssert(a)   assert((a))
@@ -254,7 +254,7 @@ cmsINLINE cmsUInt16Number _cmsQuickSaturateWord(cmsFloat64Number d)
 typedef CRITICAL_SECTION _cmsMutex;
 
 #ifdef _MSC_VER
-#    if (_MSC_VER >= 1800)
+#    if(_MSC_VER >= 1800)
 #          pragma warning(disable : 26135)
 #    endif
 #endif

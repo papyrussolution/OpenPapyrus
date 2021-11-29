@@ -649,7 +649,7 @@ void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_font_subsets_t 
 }
 
 cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t * subsets, cairo_scaled_font_t * scaled_font,
-    ulong scaled_font_glyph_index, const char *   utf8, int utf8_len, cairo_scaled_font_subsets_glyph_t * subset_glyph)
+    ulong scaled_font_glyph_index, const char * utf8, int utf8_len, cairo_scaled_font_subsets_glyph_t * subset_glyph)
 {
 	cairo_sub_font_t key, * sub_font;
 	cairo_scaled_glyph_t * scaled_glyph;

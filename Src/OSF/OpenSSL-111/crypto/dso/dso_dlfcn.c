@@ -367,10 +367,10 @@ static int dladdr(void * ptr, Dl_info * dl)
 	do {
 		this_ldi = next_ldi;
 		if(((addr >= (uintptr_t)this_ldi->ldinfo_textorg)
-		  && (addr < ((uintptr_t)this_ldi->ldinfo_textorg +
+		 && (addr < ((uintptr_t)this_ldi->ldinfo_textorg +
 		    this_ldi->ldinfo_textsize)))
 		    || ((addr >= (uintptr_t)this_ldi->ldinfo_dataorg)
-		  && (addr < ((uintptr_t)this_ldi->ldinfo_dataorg +
+		 && (addr < ((uintptr_t)this_ldi->ldinfo_dataorg +
 		    this_ldi->ldinfo_datasize)))) {
 			char * buffer, * member;
 			size_t buffer_sz, member_len;

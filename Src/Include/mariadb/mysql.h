@@ -506,7 +506,7 @@ int STDCALL mysql_set_character_set(MYSQL * mysql, const char * csname);
 bool STDCALL mariadb_get_info(MYSQL * mysql, enum mariadb_value value, void * arg);
 MYSQL * STDCALL mysql_init(MYSQL * mysql);
 int STDCALL mysql_ssl_set(MYSQL * mysql, const char * key, const char * cert, const char * ca, const char * capath, const char * cipher);
-const char *    STDCALL mysql_get_ssl_cipher(MYSQL * mysql);
+const char * STDCALL mysql_get_ssl_cipher(MYSQL * mysql);
 bool STDCALL mysql_change_user(MYSQL * mysql, const char * user, const char * passwd, const char * db);
 MYSQL * STDCALL mysql_real_connect(MYSQL * mysql, const char * host,
     const char * user, const char * passwd, const char * db, unsigned int port, const char * unix_socket, unsigned long clientflag);

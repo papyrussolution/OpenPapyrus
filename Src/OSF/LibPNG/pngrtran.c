@@ -1457,7 +1457,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 						if(png_ptr->trans_alpha[i] == 0) {
 							palette[i] = back;
 						}
-						else { /* if (png_ptr->trans_alpha[i] != 0xff) */
+						else { /* if(png_ptr->trans_alpha[i] != 0xff) */
 							uint8 v, w;
 							v = png_ptr->gamma_to_1[palette[i].R];
 							png_composite(w, v, png_ptr->trans_alpha[i], back_1.R);
@@ -1486,7 +1486,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 				png_ptr->transformations &= ~(PNG_COMPOSE | PNG_GAMMA);
 			} /* color_type == PNG_COLOR_TYPE_PALETTE */
 
-			/* if (png_ptr->background_gamma_type!=PNG_BACKGROUND_GAMMA_UNKNOWN) */
+			/* if(png_ptr->background_gamma_type!=PNG_BACKGROUND_GAMMA_UNKNOWN) */
 			else { /* color_type != PNG_COLOR_TYPE_PALETTE */
 				int gs_sig, g_sig;
 				png_fixed_point g = PNG_FP_1; /* Correction to linear */
@@ -1572,7 +1572,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 		if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE
 #ifdef PNG_READ_RGB_TO_GRAY_SUPPORTED
 		    /* RGB_TO_GRAY needs to have non-gamma-corrected values! */
-		  && ((png_ptr->transformations & PNG_EXPAND) == 0 || (png_ptr->transformations & PNG_RGB_TO_GRAY) == 0)
+		 && ((png_ptr->transformations & PNG_EXPAND) == 0 || (png_ptr->transformations & PNG_RGB_TO_GRAY) == 0)
 #endif
 		    ) {
 			png_colorp palette = png_ptr->palette;
@@ -3028,7 +3028,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    }
 				    }
 			    }
-			    else { /* if (row_info->bit_depth == 16) */
+			    else { /* if(row_info->bit_depth == 16) */
 #ifdef PNG_READ_GAMMA_SUPPORTED
 				    if(gamma_16 != NULL) {
 					    sp = row;
@@ -3118,7 +3118,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    }
 				    }
 			    }
-			    else { /* if (png_ptr->bit_depth == 16) */
+			    else { /* if(png_ptr->bit_depth == 16) */
 #ifdef PNG_READ_GAMMA_SUPPORTED
 				    if(gamma_16 != NULL && gamma_16_from_1 != NULL && gamma_16_to_1 != NULL) {
 					    sp = row;
@@ -3229,7 +3229,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    }
 				    }
 			    }
-			    else { /* if (row_info->bit_depth == 16) */
+			    else { /* if(row_info->bit_depth == 16) */
 #ifdef PNG_READ_GAMMA_SUPPORTED
 				    if(gamma_16 != NULL && gamma_16_from_1 != NULL && gamma_16_to_1 != NULL) {
 					    sp = row;
@@ -3353,7 +3353,7 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 					    sp++;
 				    }
 			    }
-			    else { /* if (row_info->bit_depth == 16) */
+			    else { /* if(row_info->bit_depth == 16) */
 				    sp = row;
 				    for(i = 0; i < row_width; i++) {
 					    png_uint_16 v;
@@ -3395,7 +3395,7 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 				    }
 			    }
 
-			    else { /* if (row_info->bit_depth == 16) */
+			    else { /* if(row_info->bit_depth == 16) */
 				    sp = row;
 				    for(i = 0; i < row_width; i++) {
 					    png_uint_16 v = gamma_16_table[*(sp + 1) >> gamma_shift][*sp];
@@ -3427,7 +3427,7 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 				    }
 			    }
 
-			    else { /* if (row_info->bit_depth == 16) */
+			    else { /* if(row_info->bit_depth == 16) */
 				    sp = row;
 				    for(i = 0; i < row_width; i++) {
 					    png_uint_16 v = gamma_16_table[*(sp + 1) >> gamma_shift][*sp];

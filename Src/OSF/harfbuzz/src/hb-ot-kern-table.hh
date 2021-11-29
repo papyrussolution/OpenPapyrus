@@ -47,11 +47,11 @@ namespace OT {
 			hb_array_t<const HBUINT8> kernIndex = StructAfter<const UnsizedArrayOf<HBUINT8>> (rightClass).as_array(
 				leftClassCount * rightClassCount);
 
-			unsigned int leftC = leftClass[left];
-			unsigned int rightC = rightClass[right];
+			uint leftC = leftClass[left];
+			uint rightC = rightClass[right];
 			if(UNLIKELY(leftC >= leftClassCount || rightC >= rightClassCount))
 				return 0;
-			unsigned int i = leftC * rightClassCount + rightC;
+			uint i = leftC * rightClassCount + rightC;
 			return kernValue[kernIndex[i]];
 		}
 
@@ -109,11 +109,11 @@ public:
 
 	template <typename KernSubTableHeader>
 	struct KernSubTable {
-		unsigned int get_size() const {
+		uint get_size() const {
 			return u.header.length;
 		}
 
-		unsigned int get_type() const {
+		uint get_type() const {
 			return u.header.format;
 		}
 
@@ -129,7 +129,7 @@ public:
 		template <typename context_t, typename ... Ts>
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
-			unsigned int subtable_type = get_type();
+			uint subtable_type = get_type();
 			TRACE_DISPATCH(this, subtable_type);
 			switch(subtable_type) {
 				case 0:     return_trace(c->dispatch(u.format0));
@@ -310,7 +310,7 @@ public:
 		template <typename context_t, typename ... Ts>
 		typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
-			unsigned int subtable_type = get_type();
+			uint subtable_type = get_type();
 			TRACE_DISPATCH(this, subtable_type);
 			switch(subtable_type) {
 				case 0:     return_trace(c->dispatch(u.ot, hb_forward<Ts> (ds) ...));

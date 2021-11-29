@@ -220,7 +220,7 @@ static void ft_lzw_stream_close(FT_Stream stream)
 	}
 }
 
-static unsigned long ft_lzw_stream_io(FT_Stream stream, unsigned long offset, uchar*  buffer, unsigned long count)
+static ulong ft_lzw_stream_io(FT_Stream stream, ulong offset, uchar * buffer, ulong count)
 {
 	FT_LZWFile zip = (FT_LZWFile)stream->descriptor.pointer;
 	return ft_lzw_file_io(zip, offset, buffer, count);

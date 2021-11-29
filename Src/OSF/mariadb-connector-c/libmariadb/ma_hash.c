@@ -84,7 +84,7 @@ void hash_free(HASH * hash)
 /* some helper functions */
 
 /*
-   This function is char * instead of uchar* as HPUX11 compiler can't
+   This function is char * instead of uchar * as HPUX11 compiler can't
    handle inline functions that are not defined as native types
  */
 

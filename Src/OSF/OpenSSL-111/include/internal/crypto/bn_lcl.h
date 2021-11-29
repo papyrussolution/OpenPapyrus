@@ -246,9 +246,9 @@ struct bn_gencb_st {
 	uint ver;       /* To handle binary (in)compatibility */
 	void * arg;             /* callback-specific data */
 	union {
-		/* if (ver==1) - handles old style callbacks */
+		/* if(ver==1) - handles old style callbacks */
 		void (* cb_1) (int, int, void *);
-		/* if (ver==2) - new callback style */
+		/* if(ver==2) - new callback style */
 		int (* cb_2) (int, int, BN_GENCB *);
 	} cb;
 };

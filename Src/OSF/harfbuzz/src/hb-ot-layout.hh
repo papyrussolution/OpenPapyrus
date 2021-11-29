@@ -42,23 +42,17 @@ struct hb_ot_shape_plan_t;
 /*
  * kern
  */
-
-HB_INTERNAL bool hb_ot_layout_has_kerning(hb_face_t * face);
-
+HB_INTERNAL bool hb_ot_layout_has_kerning(const hb_face_t * face);
 HB_INTERNAL bool hb_ot_layout_has_machine_kerning(hb_face_t * face);
-
 HB_INTERNAL bool hb_ot_layout_has_cross_kerning(hb_face_t * face);
-
-HB_INTERNAL void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font,
-    hb_buffer_t * buffer);
+HB_INTERNAL void hb_ot_layout_kern(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer);
 
 /* Private API corresponding to hb-ot-layout.h: */
 
 HB_INTERNAL bool hb_ot_layout_table_find_feature(hb_face_t * face,
     hb_tag_t table_tag,
     hb_tag_t feature_tag,
-    unsigned int * feature_index);
+    uint * feature_index);
 
 /*
  * GDEF
@@ -131,18 +125,18 @@ HB_INTERNAL void hb_ot_layout_position_finish_offsets(hb_font_t * font,
 
 /* Loop over syllables. Based on foreach_cluster(). */
 #define foreach_syllable(buffer, start, end) \
-	for(unsigned int \
+	for(uint \
 	    _count = buffer->len, \
 	    start = 0, end = _count ? _hb_next_syllable(buffer, 0) : 0; \
 	    start < _count; \
 	    start = end, end = _hb_next_syllable(buffer, start))
 
-static inline unsigned int _hb_next_syllable(hb_buffer_t * buffer, unsigned int start)
+static inline uint _hb_next_syllable(hb_buffer_t * buffer, uint start)
 {
 	hb_glyph_info_t * info = buffer->info;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 
-	unsigned int syllable = info[start].syllable();
+	uint syllable = info[start].syllable();
 	while(++start < count && syllable == info[start].syllable())
 		;
 
@@ -154,7 +148,7 @@ static inline void _hb_clear_syllables(const hb_ot_shape_plan_t * plan HB_UNUSED
     hb_buffer_t * buffer)
 {
 	hb_glyph_info_t * info = buffer->info;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	for(uint i = 0; i < count; i++)
 		info[i].syllable() = 0;
 }
@@ -194,9 +188,9 @@ HB_MARK_AS_FLAG_T(hb_unicode_props_flags_t);
 static inline void _hb_glyph_info_set_unicode_props(hb_glyph_info_t * info, hb_buffer_t * buffer)
 {
 	hb_unicode_funcs_t * unicode = buffer->unicode;
-	unsigned int u = info->codepoint;
-	unsigned int gen_cat = (uint)unicode->general_category(u);
-	unsigned int props = gen_cat;
+	uint u = info->codepoint;
+	uint gen_cat = (uint)unicode->general_category(u);
+	uint props = gen_cat;
 	if(u >= 0x80u) {
 		buffer->scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_NON_ASCII;
 		if(UNLIKELY(unicode->is_default_ignorable(u))) {
@@ -249,14 +243,14 @@ static inline bool _hb_glyph_info_is_unicode_mark(const hb_glyph_info_t * info)
 }
 
 static inline void _hb_glyph_info_set_modified_combining_class(hb_glyph_info_t * info,
-    unsigned int modified_class)
+    uint modified_class)
 {
 	if(UNLIKELY(!_hb_glyph_info_is_unicode_mark(info)))
 		return;
 	info->unicode_props() = (modified_class<<8) | (info->unicode_props() & 0xFF);
 }
 
-static inline unsigned int _hb_glyph_info_get_modified_combining_class(const hb_glyph_info_t * info)
+static inline uint _hb_glyph_info_get_modified_combining_class(const hb_glyph_info_t * info)
 {
 	return _hb_glyph_info_is_unicode_mark(info) ? info->unicode_props()>>8 : 0;
 }
@@ -320,16 +314,16 @@ static inline bool _hb_glyph_info_is_continuation(const hb_glyph_info_t * info)
 
 /* Loop over grapheme. Based on foreach_cluster(). */
 #define foreach_grapheme(buffer, start, end) \
-	for(unsigned int \
+	for(uint \
 	    _count = buffer->len, \
 	    start = 0, end = _count ? _hb_next_grapheme(buffer, 0) : 0; \
 	    start < _count; \
 	    start = end, end = _hb_next_grapheme(buffer, start))
 
-static inline unsigned int _hb_next_grapheme(hb_buffer_t * buffer, unsigned int start)
+static inline uint _hb_next_grapheme(hb_buffer_t * buffer, uint start)
 {
 	hb_glyph_info_t * info = buffer->info;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 
 	while(++start < count && _hb_glyph_info_is_continuation(&info[start]))
 		;
@@ -396,22 +390,22 @@ static inline void _hb_glyph_info_clear_lig_props(hb_glyph_info_t * info)
 
 #define IS_LIG_BASE 0x10
 
-static inline void _hb_glyph_info_set_lig_props_for_ligature(hb_glyph_info_t * info, unsigned int lig_id, unsigned int lig_num_comps)
+static inline void _hb_glyph_info_set_lig_props_for_ligature(hb_glyph_info_t * info, uint lig_id, uint lig_num_comps)
 {
 	info->lig_props() = (lig_id << 5) | IS_LIG_BASE | (lig_num_comps & 0x0F);
 }
 
-static inline void _hb_glyph_info_set_lig_props_for_mark(hb_glyph_info_t * info, unsigned int lig_id, unsigned int lig_comp)
+static inline void _hb_glyph_info_set_lig_props_for_mark(hb_glyph_info_t * info, uint lig_id, uint lig_comp)
 {
 	info->lig_props() = (lig_id << 5) | (lig_comp & 0x0F);
 }
 
-static inline void _hb_glyph_info_set_lig_props_for_component(hb_glyph_info_t * info, unsigned int comp)
+static inline void _hb_glyph_info_set_lig_props_for_component(hb_glyph_info_t * info, uint comp)
 {
 	_hb_glyph_info_set_lig_props_for_mark(info, 0, comp);
 }
 
-static inline unsigned int _hb_glyph_info_get_lig_id(const hb_glyph_info_t * info)
+static inline uint _hb_glyph_info_get_lig_id(const hb_glyph_info_t * info)
 {
 	return info->lig_props() >> 5;
 }
@@ -421,7 +415,7 @@ static inline bool _hb_glyph_info_ligated_internal(const hb_glyph_info_t * info)
 	return !!(info->lig_props() & IS_LIG_BASE);
 }
 
-static inline unsigned int _hb_glyph_info_get_lig_comp(const hb_glyph_info_t * info)
+static inline uint _hb_glyph_info_get_lig_comp(const hb_glyph_info_t * info)
 {
 	if(_hb_glyph_info_ligated_internal(info))
 		return 0;
@@ -429,7 +423,7 @@ static inline unsigned int _hb_glyph_info_get_lig_comp(const hb_glyph_info_t * i
 		return info->lig_props() & 0x0F;
 }
 
-static inline unsigned int _hb_glyph_info_get_lig_num_comps(const hb_glyph_info_t * info)
+static inline uint _hb_glyph_info_get_lig_num_comps(const hb_glyph_info_t * info)
 {
 	if((info->glyph_props() & HB_OT_LAYOUT_GLYPH_PROPS_LIGATURE) &&
 	    _hb_glyph_info_ligated_internal(info))
@@ -448,12 +442,12 @@ static inline uint8_t _hb_allocate_lig_id(hb_buffer_t * buffer)
 
 /* glyph_props: */
 
-static inline void _hb_glyph_info_set_glyph_props(hb_glyph_info_t * info, unsigned int props)
+static inline void _hb_glyph_info_set_glyph_props(hb_glyph_info_t * info, uint props)
 {
 	info->glyph_props() = props;
 }
 
-static inline unsigned int _hb_glyph_info_get_glyph_props(const hb_glyph_info_t * info)
+static inline uint _hb_glyph_info_get_glyph_props(const hb_glyph_info_t * info)
 {
 	return info->glyph_props();
 }
@@ -507,7 +501,7 @@ static inline void _hb_glyph_info_clear_substituted(hb_glyph_info_t * info)
 static inline void _hb_clear_substitution_flags(const hb_ot_shape_plan_t * plan HB_UNUSED, hb_font_t * font HB_UNUSED, hb_buffer_t * buffer)
 {
 	hb_glyph_info_t * info = buffer->info;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	for(uint i = 0; i < count; i++)
 		_hb_glyph_info_clear_substituted(&info[i]);
 }

@@ -21,7 +21,7 @@
 
 void ParsePositionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite ParsePositionTest");
+	// if(exec) logln((UnicodeString)"TestSuite ParsePositionTest");
 	switch(index) {
 		CASE(0, TestParsePosition)
 		CASE(1, TestFieldPosition)
@@ -138,9 +138,9 @@ void ParsePositionTest::TestFieldPosition()
 //            fp.setField( i+8 );
 //            fp.setBeginIndex( i+6 );
 //            fp.setEndIndex( i+7 );
-//            if (fp.getField() != i+8)  err1 = TRUE;
-//            if (fp.getBeginIndex() != i+6) err2 = TRUE;
-//            if (fp.getEndIndex() != i+7) err3 = TRUE;
+//            if(fp.getField() != i+8)  err1 = TRUE;
+//            if(fp.getBeginIndex() != i+6) err2 = TRUE;
+//            if(fp.getEndIndex() != i+7) err3 = TRUE;
 //        }
 	if(!err1) {
 		logln("FP setField and getField tested.");

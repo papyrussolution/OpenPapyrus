@@ -111,7 +111,7 @@ static void setup_masks_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
 	/* We cannot setup masks here.  We save information about characters
 	 * and setup masks later on in a pause-callback. */
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		set_myanmar_properties(info[i]);
@@ -138,15 +138,15 @@ static int compare_myanmar_order(const hb_glyph_info_t * pa, const hb_glyph_info
  * https://docs.microsoft.com/en-us/typography/script-development/myanmar */
 
 static void initial_reordering_consonant_syllable(hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	hb_glyph_info_t * info = buffer->info;
 
-	unsigned int base = end;
+	uint base = end;
 	bool has_reph = false;
 
 	{
-		unsigned int limit = start;
+		uint limit = start;
 		if(start + 3 <= end &&
 		    info[start  ].myanmar_category() == OT_Ra &&
 		    info[start+1].myanmar_category() == OT_As &&
@@ -170,7 +170,7 @@ static void initial_reordering_consonant_syllable(hb_buffer_t * buffer,
 
 	/* Reorder! */
 	{
-		unsigned int i = start;
+		uint i = start;
 		for(; i < start + (has_reph ? 3 : 0); i++)
 			info[i].myanmar_position() = POS_AFTER_MAIN;
 		for(; i < base; i++)
@@ -225,7 +225,7 @@ static void initial_reordering_consonant_syllable(hb_buffer_t * buffer,
 static void reorder_syllable_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
     hb_face_t * face HB_UNUSED,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	myanmar_syllable_type_t syllable_type = (myanmar_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
 	switch(syllable_type) {
@@ -251,7 +251,7 @@ static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan
 	/* Note: This loop is extra overhead, but should not be measurable.
 	 * TODO Use a buffer scratch flag to remove the loop. */
 	bool has_broken_syllables = false;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == myanmar_broken_cluster) {
@@ -273,9 +273,9 @@ static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan
 	buffer->clear_output();
 
 	buffer->idx = 0;
-	unsigned int last_syllable = 0;
+	uint last_syllable = 0;
 	while(buffer->idx < buffer->len && buffer->successful) {
-		unsigned int syllable = buffer->cur().syllable();
+		uint syllable = buffer->cur().syllable();
 		myanmar_syllable_type_t syllable_type = (myanmar_syllable_type_t)(syllable & 0x0F);
 		if(UNLIKELY(last_syllable != syllable && syllable_type == myanmar_broken_cluster)) {
 			last_syllable = syllable;

@@ -576,9 +576,9 @@ MSG_PROCESS_RETURN tls_process_change_cipher_spec(SSL * s, PACKET * pkt)
 	 */
 	if(SSL_IS_DTLS(s)) {
 		if((s->version == DTLS1_BAD_VER
-		  && remain != DTLS1_CCS_HEADER_LENGTH + 1)
+		 && remain != DTLS1_CCS_HEADER_LENGTH + 1)
 		    || (s->version != DTLS1_BAD_VER
-		  && remain != DTLS1_CCS_HEADER_LENGTH - 1)) {
+		 && remain != DTLS1_CCS_HEADER_LENGTH - 1)) {
 			SSLfatal(s, SSL_AD_DECODE_ERROR,
 			    SSL_F_TLS_PROCESS_CHANGE_CIPHER_SPEC,
 			    SSL_R_BAD_CHANGE_CIPHER_SPEC);
@@ -765,7 +765,7 @@ static int ssl_add_cert_to_wpacket(SSL * s, WPACKET * pkt, X509 * x, int chain)
 	}
 
 	if(SSL_IS_TLS13(s)
-	  && !tls_construct_extensions(s, pkt, SSL_EXT_TLS1_3_CERTIFICATE, x,
+	 && !tls_construct_extensions(s, pkt, SSL_EXT_TLS1_3_CERTIFICATE, x,
 	    chain)) {
 		/* SSLfatal() already called */
 		return 0;
@@ -920,7 +920,7 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst, int clearbufs, int stop
 	}
 
 	if(SSL_IS_TLS13(s) && !s->server
-	  && s->post_handshake_auth == SSL_PHA_REQUESTED)
+	 && s->post_handshake_auth == SSL_PHA_REQUESTED)
 		s->post_handshake_auth = SSL_PHA_EXT_SENT;
 
 	/*
@@ -1036,7 +1036,7 @@ int tls_get_message_header(SSL * s, int * mt)
 					return 0;
 				}
 				if(s->statem.hand_state == TLS_ST_BEFORE
-				  && (s->s3->flags & TLS1_FLAGS_STATELESS) != 0) {
+				 && (s->s3->flags & TLS1_FLAGS_STATELESS) != 0) {
 					/*
 					 * We are stateless and we received a CCS. Probably this is
 					 * from a client between the first and second ClientHellos.
@@ -1064,7 +1064,7 @@ int tls_get_message_header(SSL * s, int * mt)
 		skip_message = 0;
 		if(!s->server)
 			if(s->statem.hand_state != TLS_ST_OK
-			  && p[0] == SSL3_MT_HELLO_REQUEST)
+			 && p[0] == SSL3_MT_HELLO_REQUEST)
 				/*
 				 * The server may always send 'Hello Request' messages --
 				 * we are doing a handshake anyway now, so ignore them if
@@ -1176,7 +1176,7 @@ int tls_get_message_body(SSL * s, size_t * len)
 #define SERVER_HELLO_RANDOM_OFFSET  (SSL3_HM_HEADER_LENGTH + 2)
 		/* KeyUpdate and NewSessionTicket do not need to be added */
 		if(!SSL_IS_TLS13(s) || (s->s3->tmp.message_type != SSL3_MT_NEWSESSION_TICKET
-		  && s->s3->tmp.message_type != SSL3_MT_KEY_UPDATE)) {
+		 && s->s3->tmp.message_type != SSL3_MT_KEY_UPDATE)) {
 			if(s->s3->tmp.message_type != SSL3_MT_SERVER_HELLO
 			    || s->init_num < SERVER_HELLO_RANDOM_OFFSET + SSL3_RANDOM_SIZE
 			    || memcmp(hrrrandom,
@@ -1449,9 +1449,9 @@ int ssl_version_supported(const SSL * s, int version, const SSL_METHOD ** meth)
 	    vent->version != 0 && version_cmp(s, version, vent->version) <= 0;
 	    ++vent) {
 		if(vent->cmeth != NULL
-		  && version_cmp(s, version, vent->version) == 0
-		  && ssl_method_error(s, vent->cmeth()) == 0
-		  && (!s->server
+		 && version_cmp(s, version, vent->version) == 0
+		 && ssl_method_error(s, vent->cmeth()) == 0
+		 && (!s->server
 		    || version != TLS1_3_VERSION
 		    || is_tls13_capable(s))) {
 			if(meth != NULL)
@@ -1564,11 +1564,11 @@ int ssl_set_version_bound(int method_version, int version, int * bound)
 static void check_for_downgrade(SSL * s, int vers, DOWNGRADE * dgrd)
 {
 	if(vers == TLS1_2_VERSION
-	  && ssl_version_supported(s, TLS1_3_VERSION, NULL)) {
+	 && ssl_version_supported(s, TLS1_3_VERSION, NULL)) {
 		*dgrd = DOWNGRADE_TO_1_2;
 	}
 	else if(!SSL_IS_DTLS(s)
-	  && vers < TLS1_2_VERSION
+	 && vers < TLS1_2_VERSION
 	    /*
 	     * We need to ensure that a server that disables TLSv1.2
 	     * (creating a hole between TLSv1.3 and TLSv1.1) can still
@@ -1576,7 +1576,7 @@ static void check_for_downgrade(SSL * s, int vers, DOWNGRADE * dgrd)
 	     * below. Therefore we do not enable the sentinel if TLSv1.3 is
 	     * enabled and TLSv1.2 is not.
 	     */
-	  && ssl_version_supported(s, TLS1_2_VERSION, NULL)) {
+	 && ssl_version_supported(s, TLS1_2_VERSION, NULL)) {
 		*dgrd = DOWNGRADE_TO_1_1;
 	}
 	else {
@@ -1825,8 +1825,8 @@ int ssl_choose_client_version(SSL * s, int version, RAW_EXTENSION * extensions)
 		}
 	}
 	else if(!SSL_IS_DTLS(s)
-	  && s->version < TLS1_2_VERSION
-	  && real_max > s->version) {
+	 && s->version < TLS1_2_VERSION
+	 && real_max > s->version) {
 		if(memcmp(tls11downgrade,
 		    s->s3->server_random + SSL3_RANDOM_SIZE
 		    - sizeof(tls11downgrade),
@@ -2029,7 +2029,7 @@ int check_in_list(SSL * s, uint16_t group_id, const uint16_t * groups,
 		uint16_t group = groups[i];
 
 		if(group_id == group
-		  && (!checkallow
+		 && (!checkallow
 		    || tls_curve_allowed(s, group, SSL_SECOP_CURVE_CHECK))) {
 			return 1;
 		}
@@ -2079,7 +2079,7 @@ int create_synthetic_message_hash(SSL * s, const uchar * hashval, size_t hashlen
 	 * receiving a ClientHello2 with a cookie.
 	 */
 	if(hrr != NULL
-	  && (!ssl3_finish_mac(s, hrr, hrrlen)
+	 && (!ssl3_finish_mac(s, hrr, hrrlen)
 	    || !ssl3_finish_mac(s, (uchar *)s->init_buf->data,
 	    s->s3->tmp.message_size
 	    + SSL3_HM_HEADER_LENGTH))) {

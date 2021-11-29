@@ -19,7 +19,7 @@
 /*static bool chkstatus( UErrorCode & status, char * msg = NULL )
    {
     bool ok = (status == U_ZERO_ERROR);
-    if (!ok) it_errln( msg );
+    if(!ok) it_errln( msg );
     return ok;
    }*/
 
@@ -229,8 +229,8 @@ void test_Formattable(void)
 	{
 		bool t;
 		t = (fta.getType() == Formattable::kString)
-		  && (fta.getString(res) == "abc")
-		  && (fta.getString() == "abc");
+		 && (fta.getString(res) == "abc")
+		 && (fta.getString() == "abc");
 		res = fta.getString(status = U_ZERO_ERROR);
 		t = t && (status != U_INVALID_FORMAT_ERROR && res == "abc");
 		res = ftc.getString(status = U_ZERO_ERROR);
@@ -260,10 +260,10 @@ void test_Formattable(void)
 	Formattable ft_arr(ftarray, ft_cnt);
 	UnicodeString temp;
 	if((ft_arr[0].getType() == Formattable::kDate) && (ft_arr[0].getDate()   == 1.0)
-	  && (ft_arr[1].getType() == Formattable::kDouble) && (ft_arr[1].getDouble() == 2.0)
-	  && (ft_arr[2].getType() == Formattable::kLong) && (ft_arr[2].getLong()   == (int32_t)3)
-	  && (ft_arr[3].getType() == Formattable::kString) && (ft_arr[3].getString(temp) == ucs)
-	  && (ft_arr[4].getType() == Formattable::kString) && (ft_arr[4].getString(temp) == *ucs_ptr) ) {
+	 && (ft_arr[1].getType() == Formattable::kDouble) && (ft_arr[1].getDouble() == 2.0)
+	 && (ft_arr[2].getType() == Formattable::kLong) && (ft_arr[2].getLong()   == (int32_t)3)
+	 && (ft_arr[3].getType() == Formattable::kString) && (ft_arr[3].getString(temp) == ucs)
+	 && (ft_arr[4].getType() == Formattable::kString) && (ft_arr[4].getString(temp) == *ucs_ptr) ) {
 		it_logln("FT constr. for date, double, long, ustring, ustring* and array tested");
 	}
 	else {
@@ -338,7 +338,7 @@ void test_Formattable(void)
 		ft_dynarr[i] = ftarr2[i];
 	}
 	if((ft_dynarr[0].getType() == Formattable::kLong) && (ft_dynarr[0].getLong() == (int32_t)3)
-	  && (ft_dynarr[1].getType() == Formattable::kLong) && (ft_dynarr[1].getLong() == (int32_t)4)) {
+	 && (ft_dynarr[1].getType() == Formattable::kLong) && (ft_dynarr[1].getLong() == (int32_t)4)) {
 		it_logln("FT operator= and array operations tested");
 	}
 	else {
@@ -347,7 +347,7 @@ void test_Formattable(void)
 
 	ft_arr.adoptArray(ft_dynarr, ftarr2_cnt);
 	if((ft_arr[0].getType() == Formattable::kLong) && (ft_arr[0].getLong() == (int32_t)3)
-	  && (ft_arr[1].getType() == Formattable::kLong) && (ft_arr[1].getLong() == (int32_t)4)) {
+	 && (ft_arr[1].getType() == Formattable::kLong) && (ft_arr[1].getLong() == (int32_t)4)) {
 		it_logln("FT adoptArray tested");
 	}
 	else {

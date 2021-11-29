@@ -85,7 +85,7 @@
  *          // function
  *          for (loops=0; loops<10; loops++) {
  *              for (line=0; line < gNumFileLines; line++) {
- *                  if (opt_uselen) {
+ *                  if(opt_uselen) {
  *                      len = fileLines[line].len;
  *                  }
  *
@@ -109,7 +109,7 @@
  *          utimer_getTime(&start);
  *          for (loops=0; loops<loopCount; loops++) {
  *              for (line=0; line < gNumFileLines; line++) {
- *                  if (opt_uselen) {
+ *                  if(opt_uselen) {
  *                      len = fileLines[line].len;
  *                  }
  *

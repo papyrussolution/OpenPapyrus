@@ -827,9 +827,9 @@ static const char * remapShortTimeZone(const char * stdID, const char * dstID, i
 #endif
 	for(idx = 0; idx < UPRV_LENGTHOF(OFFSET_ZONE_MAPPINGS); idx++) {
 		if(offset == OFFSET_ZONE_MAPPINGS[idx].offsetSeconds
-		  && daylightType == OFFSET_ZONE_MAPPINGS[idx].daylightType
-		  && strcmp(OFFSET_ZONE_MAPPINGS[idx].stdID, stdID) == 0
-		  && strcmp(OFFSET_ZONE_MAPPINGS[idx].dstID, dstID) == 0) {
+		 && daylightType == OFFSET_ZONE_MAPPINGS[idx].daylightType
+		 && strcmp(OFFSET_ZONE_MAPPINGS[idx].stdID, stdID) == 0
+		 && strcmp(OFFSET_ZONE_MAPPINGS[idx].dstID, dstID) == 0) {
 			return OFFSET_ZONE_MAPPINGS[idx].olsonID;
 		}
 	}
@@ -955,7 +955,7 @@ static char * searchForTZFile(const char * path, DefaultTZInfo* tzInfo) {
 	while((dirEntry = readdir(dirp)) != NULL) {
 		const char * dirName = dirEntry->d_name;
 		if(uprv_strcmp(dirName, SKIP1) != 0 && uprv_strcmp(dirName, SKIP2) != 0
-		  && uprv_strcmp(TZFILE_SKIP, dirName) != 0 && uprv_strcmp(TZFILE_SKIP2, dirName) != 0) {
+		 && uprv_strcmp(TZFILE_SKIP, dirName) != 0 && uprv_strcmp(TZFILE_SKIP2, dirName) != 0) {
 			/* Create a newpath with the new entry to test each entry in the directory. */
 			CharString newpath(curpath, status);
 			newpath.append(dirName, -1, status);
@@ -1091,7 +1091,7 @@ U_CAPI const char * U_EXPORT2 uprv_tzname(int n)
     int ret;
 
     tzid = getenv("TZFILE");
-    if (tzid != NULL) {
+    if(tzid != NULL) {
         return tzid;
     }
  #endif*/
@@ -1106,7 +1106,7 @@ U_CAPI const char * U_EXPORT2 uprv_tzname(int n)
 	if(tzid != NULL && isValidOlsonID(tzid)
 #if U_PLATFORM == U_PF_SOLARIS
 	    /* Don't misinterpret TZ "localtime" on Solaris as a time zone name. */
-	  && uprv_strcmp(tzid, TZ_ENV_CHECK) != 0
+	 && uprv_strcmp(tzid, TZ_ENV_CHECK) != 0
 #endif
 	    ) {
 		/* The colon forces tzset() to treat the remainder as zoneinfo path */
@@ -1135,7 +1135,7 @@ U_CAPI const char * U_EXPORT2 uprv_tzname(int n)
 			char * tzZoneInfoTailPtr = uprv_strstr(gTimeZoneBuffer, TZZONEINFOTAIL);
 
 			if(tzZoneInfoTailPtr != NULL
-			  && isValidOlsonID(tzZoneInfoTailPtr + tzZoneInfoTailLen)) {
+			 && isValidOlsonID(tzZoneInfoTailPtr + tzZoneInfoTailLen)) {
 				return (gTimeZoneBufferPtr = tzZoneInfoTailPtr + tzZoneInfoTailLen);
 			}
 		}
@@ -1281,7 +1281,7 @@ U_CAPI void U_EXPORT2 u_setDataDirectory(const char * directory) {
 		}
 		uprv_strcpy(newDataDir, directory);
 
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 		{
 			char * p;
 			while((p = uprv_strchr(newDataDir, U_FILE_ALT_SEP_CHAR)) != NULL) {
@@ -1308,7 +1308,7 @@ U_CAPI bool U_EXPORT2 uprv_pathIsAbsolute(const char * path)
 		return TRUE;
 	}
 
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	if(*path == U_FILE_ALT_SEP_CHAR) {
 		return TRUE;
 	}
@@ -1454,7 +1454,7 @@ static void setTimeZoneFilesDir(const char * path, UErrorCode & status)
 	}
 	gTimeZoneFilesDirectory->clear();
 	gTimeZoneFilesDirectory->append(path, status);
-#if (U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
+#if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	char * p = gTimeZoneFilesDirectory->data();
 	while((p = uprv_strchr(p, U_FILE_ALT_SEP_CHAR)) != NULL) {
 		*p = U_FILE_SEP_CHAR;
@@ -2103,7 +2103,7 @@ static const char * int_getDefaultCodepage()
 	/* On Solaris nl_langinfo returns C locale values unless setlocale
 	 * was called earlier.
 	 */
-#if (U_HAVE_NL_LANGINFO_CODESET && U_PLATFORM != U_PF_SOLARIS)
+#if(U_HAVE_NL_LANGINFO_CODESET && U_PLATFORM != U_PF_SOLARIS)
 	/* When available, check nl_langinfo first because it usually gives more
 	   useful names. It depends on LC_CTYPE.
 	   nl_langinfo may use the same buffer as setlocale. */

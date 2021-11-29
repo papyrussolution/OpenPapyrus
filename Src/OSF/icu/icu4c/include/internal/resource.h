@@ -218,7 +218,7 @@ public:
     /**
   * Same as
   * <pre>
-  * if (getType() == URES_STRING) {
+  * if(getType() == URES_STRING) {
   *     return new String[] { getString(); }
   * } else {
   *     return getStringArray();
@@ -236,7 +236,7 @@ public:
     /**
   * Same as
   * <pre>
-  * if (getType() == URES_STRING) {
+  * if(getType() == URES_STRING) {
   *     return getString();
   * } else {
   *     return getStringArray()[0];

@@ -10772,7 +10772,7 @@ SQLITE_API int sqlite3changeset_fk_conflicts(sqlite3_changeset_iter * pIter,  /*
 **
 ** <pre>
 **   sqlite3changeset_start();
-**   while( SQLITE_ROW==sqlite3changeset_next() ){
+**   while(SQLITE_ROW==sqlite3changeset_next() ){
 **     // Do something with change.
 **   }
 **   rc = sqlite3changeset_finalize();

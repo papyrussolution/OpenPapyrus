@@ -229,9 +229,9 @@ typedef signed long FT_Long;
  *   FT_ULong
  *
  * @description:
- *   A typedef for unsigned long.
+ *   A typedef for ulong.
  */
-typedef unsigned long FT_ULong;
+typedef ulong FT_ULong;
 
 /**************************************************************************
  *
@@ -439,7 +439,7 @@ typedef struct  FT_Generic_ {
  *
  * @description:
  *   This macro converts four-letter tags that are used to label TrueType
- *   tables into an unsigned long, to be used within FreeType.
+ *   tables into an ulong, to be used within FreeType.
  *
  * @note:
  *   The produced values **must** be 32-bit integers.  Don't redefine this

@@ -1667,7 +1667,7 @@ int STextBrowser::WMHCreate()
 SCodepage STextBrowser::SelectEncoding(SCodepage initCp) const
 {
 	SCodepage result_cp = initCp;
-	ListWindow * p_lw = CreateListWindow(128, lbtDisposeData | lbtDblClkNotify);
+	ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
 	if(p_lw) {
 		SCodepage cp;
 		SString cp_name;

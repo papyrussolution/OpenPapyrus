@@ -206,7 +206,7 @@ static bool testConvertFromUnicode(const UChar * source, int sourceLen,  const u
 		    checkOffsets ? offs : NULL,
 		    doFlush, /* flush if we're at the end of the input data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (sourceLimit < realSourceEnd));
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (sourceLimit < realSourceEnd));
 
 	if(U_FAILURE(status)) {
 		log_err("Problem doing toUnicode, errcode %d %s\n", myErrorName(status), gNuConvTestName);
@@ -350,7 +350,7 @@ static bool testConvertToUnicode(const uint8_t * source, int sourcelen, const UC
 		    checkOffsets ? offs : NULL,
 		    (bool)(srcLimit == realSourceEnd), /* flush if we're at the end of the source data */
 		    &status);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (srcLimit < realSourceEnd)); /* while we just need another
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (srcLimit < realSourceEnd)); /* while we just need another
 	                                                                                 buffer */
 
 	if(U_FAILURE(status)) {

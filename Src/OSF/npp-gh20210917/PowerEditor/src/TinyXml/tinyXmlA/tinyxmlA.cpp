@@ -42,9 +42,9 @@ void TiXmlBaseA::PutString(const TIXMLA_STRING& str, TIXMLA_STRING* outString)
 		int c = str[i];
 
 		if(c == '&'
-		  && i < ( static_cast<int>(str.length()) - 2 )
-		  && str[i+1] == '#'
-		  && str[i+2] == 'x') {
+		 && i < ( static_cast<int>(str.length()) - 2 )
+		 && str[i+1] == '#'
+		 && str[i+2] == 'x') {
 			// Hexadecimal character reference.
 			// Pass through unchanged.
 			// &#xA9;	-- copyright symbol, for example.

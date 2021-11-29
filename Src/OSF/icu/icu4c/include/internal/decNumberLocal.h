@@ -154,13 +154,13 @@
   #define DECNUMMAXP 999999999  /* maximum precision code can handle  */
   #define DECNUMMAXE 999999999  /* maximum adjusted exponent ditto    */
   #define DECNUMMINE -999999999 /* minimum adjusted exponent ditto    */
-  #if (DECNUMMAXP != DEC_MAX_DIGITS)
+  #if(DECNUMMAXP != DEC_MAX_DIGITS)
     #error Maximum digits mismatch
   #endif
-  #if (DECNUMMAXE != DEC_MAX_EMAX)
+  #if(DECNUMMAXE != DEC_MAX_EMAX)
     #error Maximum exponent mismatch
   #endif
-  #if (DECNUMMINE != DEC_MIN_EMIN)
+  #if(DECNUMMINE != DEC_MIN_EMIN)
     #error Minimum exponent mismatch
   #endif
 
@@ -262,16 +262,16 @@
   #define TODIGIT(u, cut, c, pow) UPRV_BLOCK_MACRO_BEGIN { \
     *(c)='0';                             \
     pow=DECPOWERS[cut]*2;                 \
-    if ((u)>pow) {                        \
+    if((u)>pow) {                        \
       pow*=4;                             \
-      if ((u)>=pow) {(u)-=pow; *(c)+=8;}  \
+      if((u)>=pow) {(u)-=pow; *(c)+=8;}  \
       pow/=2;                             \
-      if ((u)>=pow) {(u)-=pow; *(c)+=4;}  \
+      if((u)>=pow) {(u)-=pow; *(c)+=4;}  \
       pow/=2;                             \
       }                                   \
-    if ((u)>=pow) {(u)-=pow; *(c)+=2;}    \
+    if((u)>=pow) {(u)-=pow; *(c)+=2;}    \
     pow/=2;                               \
-    if ((u)>=pow) {(u)-=pow; *(c)+=1;}    \
+    if((u)>=pow) {(u)-=pow; *(c)+=1;}    \
     } UPRV_BLOCK_MACRO_END
 
   /* ---------------------------------------------------------------- */
@@ -357,38 +357,38 @@
       #define ZEROWORD SINGLEZERO
       /* [test macros not needed except for Zero]   */
       #define DFISZERO(df)  ((DFWORD(df, 0)&0x1c0fffff)==0         \
-                        && (DFWORD(df, 0)&0x60000000)!=0x60000000)
+              && (DFWORD(df, 0)&0x60000000)!=0x60000000)
     #elif DECPMAX==16
       #define ZEROWORD DOUBLEZERO
       #define DFISZERO(df)  ((DFWORD(df, 1)==0                     \
-                        && (DFWORD(df, 0)&0x1c03ffff)==0         \
-                        && (DFWORD(df, 0)&0x60000000)!=0x60000000))
+              && (DFWORD(df, 0)&0x1c03ffff)==0         \
+              && (DFWORD(df, 0)&0x60000000)!=0x60000000))
       #define DFISINT(df) ((DFWORD(df, 0)&0x63fc0000)==0x22380000  \
                          ||(DFWORD(df, 0)&0x7bfc0000)==0x6a380000)
       #define DFISUINT01(df) ((DFWORD(df, 0)&0xfbfc0000)==0x22380000)
       #define DFISCCZERO(df) (DFWORD(df, 1)==0                     \
-                        && (DFWORD(df, 0)&0x0003ffff)==0)
+              && (DFWORD(df, 0)&0x0003ffff)==0)
       #define DFISCC01(df)  ((DFWORD(df, 0)&~0xfffc9124)==0        \
-                        && (DFWORD(df, 1)&~0x49124491)==0)
+              && (DFWORD(df, 1)&~0x49124491)==0)
     #elif DECPMAX==34
       #define ZEROWORD QUADZERO
       #define DFISZERO(df)  ((DFWORD(df, 3)==0                     \
-                        &&  DFWORD(df, 2)==0                     \
-                        &&  DFWORD(df, 1)==0                     \
-                        && (DFWORD(df, 0)&0x1c003fff)==0         \
-                        && (DFWORD(df, 0)&0x60000000)!=0x60000000))
+              &&  DFWORD(df, 2)==0                     \
+              &&  DFWORD(df, 1)==0                     \
+              && (DFWORD(df, 0)&0x1c003fff)==0         \
+              && (DFWORD(df, 0)&0x60000000)!=0x60000000))
       #define DFISINT(df) ((DFWORD(df, 0)&0x63ffc000)==0x22080000  \
                          ||(DFWORD(df, 0)&0x7bffc000)==0x6a080000)
       #define DFISUINT01(df) ((DFWORD(df, 0)&0xfbffc000)==0x22080000)
       #define DFISCCZERO(df) (DFWORD(df, 3)==0                     \
-                        &&  DFWORD(df, 2)==0                     \
-                        &&  DFWORD(df, 1)==0                     \
-                        && (DFWORD(df, 0)&0x00003fff)==0)
+              &&  DFWORD(df, 2)==0                     \
+              &&  DFWORD(df, 1)==0                     \
+              && (DFWORD(df, 0)&0x00003fff)==0)
 
       #define DFISCC01(df)   ((DFWORD(df, 0)&~0xffffc912)==0       \
-                        &&  (DFWORD(df, 1)&~0x44912449)==0       \
-                        &&  (DFWORD(df, 2)&~0x12449124)==0       \
-                        &&  (DFWORD(df, 3)&~0x49124491)==0)
+              &&  (DFWORD(df, 1)&~0x44912449)==0       \
+              &&  (DFWORD(df, 2)&~0x12449124)==0       \
+              &&  (DFWORD(df, 3)&~0x49124491)==0)
     #endif
 
     /* Macros to test if a certain 10 bits of a uInt or pair of uInts */
@@ -411,25 +411,25 @@
     #if DECPMAX==7
       #define ISCOEFFZERO(u) (                                      \
            UBTOUI((u)+DECPMAX-4)==0                                 \
-      && UBTOUS((u)+DECPMAX-6)==0                                 \
-      && *(u)==0)
+ && UBTOUS((u)+DECPMAX-6)==0                                 \
+ && *(u)==0)
     #elif DECPMAX==16
       #define ISCOEFFZERO(u) (                                      \
            UBTOUI((u)+DECPMAX-4)==0                                 \
-      && UBTOUI((u)+DECPMAX-8)==0                                 \
-      && UBTOUI((u)+DECPMAX-12)==0                                \
-      && UBTOUI(u)==0)
+ && UBTOUI((u)+DECPMAX-8)==0                                 \
+ && UBTOUI((u)+DECPMAX-12)==0                                \
+ && UBTOUI(u)==0)
     #elif DECPMAX==34
       #define ISCOEFFZERO(u) (                                      \
            UBTOUI((u)+DECPMAX-4)==0                                 \
-      && UBTOUI((u)+DECPMAX-8)==0                                 \
-      && UBTOUI((u)+DECPMAX-12)==0                                \
-      && UBTOUI((u)+DECPMAX-16)==0                                \
-      && UBTOUI((u)+DECPMAX-20)==0                                \
-      && UBTOUI((u)+DECPMAX-24)==0                                \
-      && UBTOUI((u)+DECPMAX-28)==0                                \
-      && UBTOUI((u)+DECPMAX-32)==0                                \
-      && UBTOUS(u)==0)
+ && UBTOUI((u)+DECPMAX-8)==0                                 \
+ && UBTOUI((u)+DECPMAX-12)==0                                \
+ && UBTOUI((u)+DECPMAX-16)==0                                \
+ && UBTOUI((u)+DECPMAX-20)==0                                \
+ && UBTOUI((u)+DECPMAX-24)==0                                \
+ && UBTOUI((u)+DECPMAX-28)==0                                \
+ && UBTOUI((u)+DECPMAX-32)==0                                \
+ && UBTOUS(u)==0)
     #endif
 
     /* Macros and masks for the exponent continuation field and MSD   */
@@ -649,9 +649,9 @@
     #define ADDCOEFFTHOU(df, buf) {                           \
       uInt sourhi=DFWORD(df, 0);                              \
       (buf)[0]+=DPD2BIN[sourhi&0x3ff];                        \
-      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
+      if(buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
       (buf)[1]+=DPD2BIN[(sourhi>>10)&0x3ff];                  \
-      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
+      if(buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
       (buf)[2]+=DECCOMBMSD[sourhi>>26];}
 
     #elif DECPMAX==16
@@ -659,16 +659,16 @@
       uInt sourhi, sourlo;                                    \
       sourlo=DFWORD(df, 1);                                   \
       (buf)[0]+=DPD2BIN[sourlo&0x3ff];                        \
-      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
+      if(buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
       (buf)[1]+=DPD2BIN[(sourlo>>10)&0x3ff];                  \
-      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
+      if(buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
       (buf)[2]+=DPD2BIN[(sourlo>>20)&0x3ff];                  \
-      if (buf[2]>999) {buf[2]-=1000; buf[3]++;}               \
+      if(buf[2]>999) {buf[2]-=1000; buf[3]++;}               \
       sourhi=DFWORD(df, 0);                                   \
       (buf)[3]+=DPD2BIN[((sourhi<<2) | (sourlo>>30))&0x3ff];  \
-      if (buf[3]>999) {buf[3]-=1000; buf[4]++;}               \
+      if(buf[3]>999) {buf[3]-=1000; buf[4]++;}               \
       (buf)[4]+=DPD2BIN[(sourhi>>8)&0x3ff];                   \
-      if (buf[4]>999) {buf[4]-=1000; buf[5]++;}               \
+      if(buf[4]>999) {buf[4]-=1000; buf[5]++;}               \
       (buf)[5]+=DECCOMBMSD[sourhi>>26];}
 
     #elif DECPMAX==34
@@ -676,30 +676,30 @@
       uInt sourhi, sourmh, sourml, sourlo;                    \
       sourlo=DFWORD(df, 3);                                   \
       (buf)[0]+=DPD2BIN[sourlo&0x3ff];                        \
-      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
+      if(buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
       (buf)[1]+=DPD2BIN[(sourlo>>10)&0x3ff];                  \
-      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
+      if(buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
       (buf)[2]+=DPD2BIN[(sourlo>>20)&0x3ff];                  \
-      if (buf[2]>999) {buf[2]-=1000; buf[3]++;}               \
+      if(buf[2]>999) {buf[2]-=1000; buf[3]++;}               \
       sourml=DFWORD(df, 2);                                   \
       (buf)[3]+=DPD2BIN[((sourml<<2) | (sourlo>>30))&0x3ff];  \
-      if (buf[3]>999) {buf[3]-=1000; buf[4]++;}               \
+      if(buf[3]>999) {buf[3]-=1000; buf[4]++;}               \
       (buf)[4]+=DPD2BIN[(sourml>>8)&0x3ff];                   \
-      if (buf[4]>999) {buf[4]-=1000; buf[5]++;}               \
+      if(buf[4]>999) {buf[4]-=1000; buf[5]++;}               \
       (buf)[5]+=DPD2BIN[(sourml>>18)&0x3ff];                  \
-      if (buf[5]>999) {buf[5]-=1000; buf[6]++;}               \
+      if(buf[5]>999) {buf[5]-=1000; buf[6]++;}               \
       sourmh=DFWORD(df, 1);                                   \
       (buf)[6]+=DPD2BIN[((sourmh<<4) | (sourml>>28))&0x3ff];  \
-      if (buf[6]>999) {buf[6]-=1000; buf[7]++;}               \
+      if(buf[6]>999) {buf[6]-=1000; buf[7]++;}               \
       (buf)[7]+=DPD2BIN[(sourmh>>6)&0x3ff];                   \
-      if (buf[7]>999) {buf[7]-=1000; buf[8]++;}               \
+      if(buf[7]>999) {buf[7]-=1000; buf[8]++;}               \
       (buf)[8]+=DPD2BIN[(sourmh>>16)&0x3ff];                  \
-      if (buf[8]>999) {buf[8]-=1000; buf[9]++;}               \
+      if(buf[8]>999) {buf[8]-=1000; buf[9]++;}               \
       sourhi=DFWORD(df, 0);                                   \
       (buf)[9]+=DPD2BIN[((sourhi<<6) | (sourmh>>26))&0x3ff];  \
-      if (buf[9]>999) {buf[9]-=1000; buf[10]++;}              \
+      if(buf[9]>999) {buf[9]-=1000; buf[10]++;}              \
       (buf)[10]+=DPD2BIN[(sourhi>>4)&0x3ff];                  \
-      if (buf[10]>999) {buf[10]-=1000; buf[11]++;}            \
+      if(buf[10]>999) {buf[10]-=1000; buf[11]++;}            \
       (buf)[11]+=DECCOMBMSD[sourhi>>26];}
     #endif
 

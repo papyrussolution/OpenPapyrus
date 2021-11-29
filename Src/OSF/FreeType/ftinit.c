@@ -97,21 +97,19 @@ FT_EXPORT_DEF(void) FT_Add_Default_Modules(FT_Library library)
 
 FT_EXPORT_DEF(void) FT_Set_Default_Properties(FT_Library library)
 {
-	const char *  env;
-	const char *  p;
-	const char *  q;
+	const char * p;
+	const char * q;
 	char module_name[MAX_LENGTH + 1];
 	char property_name[MAX_LENGTH + 1];
 	char property_value[MAX_LENGTH + 1];
 	int i;
-	env = ft_getenv("FREETYPE_PROPERTIES");
+	const char * env = ft_getenv("FREETYPE_PROPERTIES");
 	if(!env)
 		return;
 	for(p = env; *p; p++) {
 		/* skip leading whitespace and separators */
 		if(*p == ' ' || *p == '\t')
 			continue;
-
 		/* read module name, followed by `:' */
 		q = p;
 		for(i = 0; i < MAX_LENGTH; i++) {
@@ -120,10 +118,8 @@ FT_EXPORT_DEF(void) FT_Set_Default_Properties(FT_Library library)
 			module_name[i] = *p++;
 		}
 		module_name[i] = '\0';
-
 		if(!*p || *p != ':' || p == q)
 			break;
-
 		/* read property name, followed by `=' */
 		q = ++p;
 		for(i = 0; i < MAX_LENGTH; i++) {

@@ -461,7 +461,7 @@ static int parsedate(const char * date, time_t * output)
 	}
 #endif
 
-#if (SIZEOF_TIME_T < 5)
+#if(SIZEOF_TIME_T < 5)
 
 #ifdef HAVE_TIME_T_UNSIGNED
 	/* an unsigned 32 bit time_t can only hold dates to 2106 */

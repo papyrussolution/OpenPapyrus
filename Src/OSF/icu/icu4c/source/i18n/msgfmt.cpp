@@ -1208,7 +1208,7 @@ FieldPosition* MessageFormat::updateMetaData(AppendableWrapper& /*dest*/, int32_
 	// Unlike in Java, there are no field attributes defined for MessageFormat. Do nothing.
 	return NULL;
 	/*
-	   if (fp != NULL && Field.ARGUMENT.equals(fp.getFieldAttribute())) {
+	   if(fp != NULL && Field.ARGUMENT.equals(fp.getFieldAttribute())) {
 	      fp->setBeginIndex(prevLength);
 	      fp->setEndIndex(dest.get_length());
 	      return NULL;

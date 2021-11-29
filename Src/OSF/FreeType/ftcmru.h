@@ -172,14 +172,14 @@ FT_BEGIN_HEADER
     _first = *(_pfirst);                                                    \
     _node  = NULL;                                                          \
                                                                             \
-    if ( _first )                                                           \
+    if( _first )                                                           \
     {                                                                       \
       _node = _first;                                                       \
       do                                                                    \
       {                                                                     \
-        if ( _compare( _node, (key)) )                                     \
+        if( _compare( _node, (key)) )                                     \
         {                                                                   \
-          if ( _node != _first )                                            \
+          if( _node != _first )                                            \
             FTC_MruNode_Up( _pfirst, _node );                               \
                                                                             \
           node = _node;                                                     \
@@ -187,7 +187,7 @@ FT_BEGIN_HEADER
         }                                                                   \
         _node = _node->next;                                                \
                                                                             \
-      } while ( _node != _first);                                           \
+      } while(_node != _first);                                           \
     }                                                                       \
                                                                             \
     error = FTC_MruList_New((list), (key), (FTC_MruNode*)(void*)&(node)); \
@@ -220,7 +220,7 @@ FT_BEGIN_HEADER
     FTC_MruNode  _first = (list)->nodes;      \
                                               \
                                               \
-    if ( _first )                             \
+    if( _first )                             \
     {                                         \
       FTC_MruNode  _node = _first;            \
                                               \
@@ -233,7 +233,7 @@ FT_BEGIN_HEADER
 #define FTC_MRULIST_LOOP_END()               \
         _node = _node->next;                 \
                                              \
-      } while ( _node != _first );           \
+      } while(_node != _first );           \
     }                                        \
   FT_END_STMNT
 

@@ -100,11 +100,11 @@ struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatte
 		SUPER::flush_args(env, param);
 	}
 
-	static void flatten_blends(const blend_arg_t &arg, unsigned int i, cff2_cs_interp_env_t &env, flatten_param_t& param)
+	static void flatten_blends(const blend_arg_t &arg, uint i, cff2_cs_interp_env_t &env, flatten_param_t& param)
 	{
 		/* flatten the default values */
 		str_encoder_t encoder(param.flatStr);
-		for(unsigned int j = 0; j < arg.numValues; j++) {
+		for(uint j = 0; j < arg.numValues; j++) {
 			const blend_arg_t &arg1 = env.argStack[i + j];
 			if(UNLIKELY(!((arg1.blending() && (arg.numValues == arg1.numValues) && (arg1.valueIndex == j) &&
 			    (arg1.deltas.length == env.get_region_count()))))) {
@@ -114,9 +114,9 @@ struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatte
 			encoder.encode_num(arg1);
 		}
 		/* flatten deltas for each value */
-		for(unsigned int j = 0; j < arg.numValues; j++) {
+		for(uint j = 0; j < arg.numValues; j++) {
 			const blend_arg_t &arg1 = env.argStack[i + j];
-			for(unsigned int k = 0; k < arg1.deltas.length; k++)
+			for(uint k = 0; k < arg1.deltas.length; k++)
 				encoder.encode_num(arg1.deltas[k]);
 		}
 		/* flatten the number of values followed by blend operator */
@@ -262,7 +262,7 @@ struct cff2_subset_plan {
 			/* local subrs */
 			if(!subset_localsubrs.resize(orig_fdcount))
 				return false;
-			for(unsigned int fd = 0; fd < orig_fdcount; fd++) {
+			for(uint fd = 0; fd < orig_fdcount; fd++) {
 				subset_localsubrs[fd].init();
 				if(!subr_subsetter.encode_localsubrs(fd, subset_localsubrs[fd]))
 					return false;
@@ -289,10 +289,10 @@ struct cff2_subset_plan {
 
 	cff2_sub_table_info_t info;
 
-	unsigned int orig_fdcount;
-	unsigned int subset_fdcount;
-	unsigned int subset_fdselect_size;
-	unsigned int subset_fdselect_format;
+	uint orig_fdcount;
+	uint subset_fdcount;
+	uint subset_fdselect_size;
+	uint subset_fdselect_format;
 	hb_vector_t<code_pair_t>   subset_fdselect_ranges;
 
 	hb_inc_bimap_t fdmap;
@@ -308,7 +308,7 @@ struct cff2_subset_plan {
 static bool _serialize_cff2(hb_serialize_context_t * c,
     cff2_subset_plan &plan,
     const OT::cff2::accelerator_subset_t  &acc,
-    unsigned int num_glyphs)
+    uint num_glyphs)
 {
 	/* private dicts & local subrs */
 	hb_vector_t<table_info_t>  private_dict_infos;

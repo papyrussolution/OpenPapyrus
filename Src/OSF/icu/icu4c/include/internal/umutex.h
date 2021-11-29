@@ -164,7 +164,7 @@ template <class T> void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)(T, 
 // UMutex should be constexpr-constructible, so that no initialization code
 // is run during startup.
 // This works on all C++ libraries except MS VS before VS2019.
-#if (defined(_CPPLIB_VER) && !defined(_MSVC_STL_VERSION)) || \
+#if(defined(_CPPLIB_VER) && !defined(_MSVC_STL_VERSION)) || \
 	(defined(_MSVC_STL_VERSION) && _MSVC_STL_VERSION < 142)
 // (VS std lib older than VS2017) || (VS std lib version < VS2019)
 #define UMUTEX_CONSTEXPR

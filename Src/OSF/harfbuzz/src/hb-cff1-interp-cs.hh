@@ -36,7 +36,7 @@ namespace CFF {
 
 	struct cff1_cs_interp_env_t : cs_interp_env_t<number_t, CFF1Subrs>{
 		template <typename ACC>
-		void init(const byte_str_t &str, ACC &acc, unsigned int fd)
+		void init(const byte_str_t &str, ACC &acc, uint fd)
 		{
 			SUPER::init(str, acc.globalSubrs, acc.privateDicts[fd].localSubrs);
 			processed_width = false;
@@ -73,7 +73,7 @@ namespace CFF {
 
 		bool processed_width;
 		bool has_width;
-		unsigned int arg_start;
+		uint arg_start;
 		number_t width;
 		bool in_seac;
 

@@ -31,7 +31,7 @@ double NumberFormatRoundTripTest::min_numeric_error       = 1.0;
 
 void NumberFormatRoundTripTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite NumberFormatRoundTripTest");
+	// if(exec) logln((UnicodeString)"TestSuite NumberFormatRoundTripTest");
 	switch(index) {
 		CASE(0, start)
 		default: name = ""; break;
@@ -183,7 +183,7 @@ void NumberFormatRoundTripTest::test(NumberFormat * fmt)
 #endif
 		}
 
-#if (defined(_MSC_VER) && _MSC_VER < 1400) || defined(__alpha__) || defined(U_OSF)
+#if(defined(_MSC_VER) && _MSC_VER < 1400) || defined(__alpha__) || defined(U_OSF)
 		// These machines and compilers don't fully support denormalized doubles,
 		test(fmt, randomDouble(1e-292));
 		test(fmt, randomDouble(1e-100));

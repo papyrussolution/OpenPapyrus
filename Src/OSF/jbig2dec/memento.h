@@ -283,16 +283,16 @@ void Memento_bt(void);
 #define Memento_breakOnRealloc(A)          0
 #define Memento_getBlockNum(A)             0
 #define Memento_find(A)                    0
-#define Memento_breakpoint()               do {} while (0)
+#define Memento_breakpoint()               do {} while(0)
 #define Memento_failAt(A)                  0
 #define Memento_failThisEvent()            0
-#define Memento_listBlocks()               do {} while (0)
-#define Memento_listNewBlocks()            do {} while (0)
+#define Memento_listBlocks()               do {} while(0)
+#define Memento_listNewBlocks()            do {} while(0)
 #define Memento_setMax(A)                  0
-#define Memento_stats()                    do {} while (0)
+#define Memento_stats()                    do {} while(0)
 #define Memento_label(A,B)                 (A)
-#define Memento_info(A)                    do {} while (0)
-#define Memento_listBlockInfo()            do {} while (0)
+#define Memento_info(A)                    do {} while(0)
+#define Memento_listBlockInfo()            do {} while(0)
 #define Memento_takeByteRef(A)             (A)
 #define Memento_dropByteRef(A)             (A)
 #define Memento_takeShortRef(A)            (A)
@@ -308,11 +308,11 @@ void Memento_bt(void);
 #define Memento_checkShortPointerOrNull(A) 0
 #define Memento_checkIntPointerOrNull(A)   0
 
-#define Memento_tick()                     do {} while (0)
-#define Memento_startLeaking()             do {} while (0)
-#define Memento_stopLeaking()              do {} while (0)
-#define Memento_fin()                      do {} while (0)
-#define Memento_bt()                       do {} while (0)
+#define Memento_tick()                     do {} while(0)
+#define Memento_startLeaking()             do {} while(0)
+#define Memento_stopLeaking()              do {} while(0)
+#define Memento_fin()                      do {} while(0)
+#define Memento_bt()                       do {} while(0)
 #define Memento_sequence()                 (0)
 #define Memento_squeezing()                (0)
 

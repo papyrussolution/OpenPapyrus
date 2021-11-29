@@ -731,10 +731,10 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 		}
 		if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			  && IsCommentLine(lineCurrent + 1, styler))
+			 && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			  && !IsCommentLine(lineCurrent + 1, styler))
+			 && !IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent--;
 		}
 		// PreProcessor Folding
@@ -876,7 +876,7 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 					levelCurrent++;
 			}
 			else if(nextLineStyle != 0 && currLineStyle != nextLineStyle
-			  && (priorSectionIsSubSection(lineCurrent -1, styler)
+			 && (priorSectionIsSubSection(lineCurrent -1, styler)
 				    || !nextSectionIsSubSection(lineCurrent + 1, styler))) {
 				for(Sci_Position j = styler.LineStart(lineCurrent + 1); j < styler.LineStart(lineCurrent + 1 + 1) - 1;
 				    j++) {

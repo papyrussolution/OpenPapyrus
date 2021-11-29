@@ -660,7 +660,7 @@ void AutoCompletion::insertMatchedChars(int character, const MatchedPairConf & m
 					    return;
 				    startChar = '[';
 			    }
-			    else {    // if (character == int('}'))
+			    else {    // if(character == int('}'))
 				    if(!matchedPairConf._doCurlyBrackets)
 					    return;
 				    startChar = '{';

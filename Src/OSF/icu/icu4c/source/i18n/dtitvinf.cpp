@@ -593,7 +593,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* elem = nullptr;
-	while( (elem = fIntervalPatterns->nextElement(pos)) != nullptr) {
+	while((elem = fIntervalPatterns->nextElement(pos)) != nullptr) {
 		const UHashTok keyTok = elem->key;
 		UnicodeString * newSkeleton = (UnicodeString *)keyTok.pointer;
 #ifdef DTITVINF_DEBUG
@@ -701,7 +701,7 @@ void DateIntervalInfo::deleteHash(Hashtable* hTable)
 	}
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* element = nullptr;
-	while( (element = hTable->nextElement(pos)) != nullptr) {
+	while((element = hTable->nextElement(pos)) != nullptr) {
 		const UHashTok valueTok = element->value;
 		const UnicodeString * value = (UnicodeString *)valueTok.pointer;
 		delete[] value;
@@ -760,7 +760,7 @@ void DateIntervalInfo::copyHash(const Hashtable* source,
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* element = nullptr;
 	if(source) {
-		while( (element = source->nextElement(pos)) != nullptr) {
+		while((element = source->nextElement(pos)) != nullptr) {
 			const UHashTok keyTok = element->key;
 			const UnicodeString * key = (UnicodeString *)keyTok.pointer;
 			const UHashTok valueTok = element->value;

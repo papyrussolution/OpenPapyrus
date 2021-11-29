@@ -22,9 +22,9 @@
  * with arch_arm32.
  */
 #ifndef C448_WORD_BITS
-#if (defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16)) \
-    && !defined(__sparc__) \
-    && (!defined(__SIZEOF_LONG__) || (__SIZEOF_LONG__ == 8))
+#if(defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16)) \
+ && !defined(__sparc__) \
+ && (!defined(__SIZEOF_LONG__) || (__SIZEOF_LONG__ == 8))
 
 #define C448_WORD_BITS 64      /* The number of bits in a word */
 #else

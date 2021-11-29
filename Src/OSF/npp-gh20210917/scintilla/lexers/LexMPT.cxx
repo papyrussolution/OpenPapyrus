@@ -139,7 +139,7 @@ static void FoldLotDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
  */
 				case SCE_LOT_FAIL:
 /*
-                                if (stylePrev != SCE_LOT_FAIL)
+                                if(stylePrev != SCE_LOT_FAIL)
                                         lev = SC_FOLDLEVELBASE | SC_FOLDLEVELHEADERFLAG;
                                 else
                                         lev = SC_FOLDLEVELBASE + 1;

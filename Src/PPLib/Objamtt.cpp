@@ -278,7 +278,7 @@ int AmtTypeDialog::setDTS(const PPAmountTypePacket * pData)
 	setCtrlData(CTL_AMOUNTTYPE_REPLACE, &replace);
 	if(p_cb_tax) {
 		SString word;
-		ListWindow * p_lw = CreateListWindow(16, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
+		ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify|lbtFocNotify);
 		// @v9.0.2 PPGetWord(PPWORD_VAT, 0, word);
 		PPLoadString("vat", word); // @v9.0.2
 		p_lw->listBox()->addItem(GTAX_VAT, word);

@@ -86,7 +86,7 @@ int SSL_in_before(const SSL * s)
 	 * and not started any handshake process yet.
 	 */
 	return (s->statem.hand_state == TLS_ST_BEFORE)
-	     && (s->statem.state == MSG_FLOW_UNINITED);
+	 && (s->statem.state == MSG_FLOW_UNINITED);
 }
 
 /*
@@ -133,7 +133,7 @@ void FASTCALL ossl_statem_fatal(SSL * s, int al, int func, int reason, const cha
 #define check_fatal(s, f) \
 	do { \
 		if(!ossl_assert((s)->statem.in_init \
-		  && (s)->statem.state == MSG_FLOW_ERROR)) \
+		 && (s)->statem.state == MSG_FLOW_ERROR)) \
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, (f), \
 			    SSL_R_MISSING_FATAL); \
 	} while(0)
@@ -205,7 +205,7 @@ void ossl_statem_check_finish_init(SSL * s, int sending)
 	}
 	else if(!s->server) {
 		if((sending && (s->statem.hand_state == TLS_ST_PENDING_EARLY_DATA_END || s->statem.hand_state == TLS_ST_EARLY_DATA)
-		  && s->early_data_state != SSL_EARLY_DATA_WRITING) || (!sending && s->statem.hand_state == TLS_ST_EARLY_DATA)) {
+		 && s->early_data_state != SSL_EARLY_DATA_WRITING) || (!sending && s->statem.hand_state == TLS_ST_EARLY_DATA)) {
 			ossl_statem_set_in_init(s, 1);
 			/*
 			 * SSL_write() has been called directly. We don't allow any more
@@ -217,7 +217,7 @@ void ossl_statem_check_finish_init(SSL * s, int sending)
 	}
 	else {
 		if(s->early_data_state == SSL_EARLY_DATA_FINISHED_READING
-		  && s->statem.hand_state == TLS_ST_EARLY_DATA)
+		 && s->statem.hand_state == TLS_ST_EARLY_DATA)
 			ossl_statem_set_in_init(s, 1);
 	}
 }
@@ -954,7 +954,7 @@ int ossl_statem_app_data_allowed(SSL * s)
 int ossl_statem_export_allowed(SSL * s)
 {
 	return s->s3->previous_server_finished_len != 0
-	     && s->statem.hand_state != TLS_ST_SW_FINISHED;
+	 && s->statem.hand_state != TLS_ST_SW_FINISHED;
 }
 
 /*

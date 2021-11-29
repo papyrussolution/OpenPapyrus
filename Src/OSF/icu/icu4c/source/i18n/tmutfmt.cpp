@@ -685,7 +685,7 @@ void TimeUnitFormat::deleteHash(Hashtable* htable) {
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* element = NULL;
 	if(htable) {
-		while( (element = htable->nextElement(pos)) != NULL) {
+		while((element = htable->nextElement(pos)) != NULL) {
 			const UHashTok valueTok = element->value;
 			const MessageFormat** value = (const MessageFormat**)valueTok.pointer;
 			delete value[UTMUTFMT_FULL_STYLE];
@@ -704,7 +704,7 @@ void TimeUnitFormat::copyHash(const Hashtable* source, Hashtable* target, UError
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* element = NULL;
 	if(source) {
-		while( (element = source->nextElement(pos)) != NULL) {
+		while((element = source->nextElement(pos)) != NULL) {
 			const UHashTok keyTok = element->key;
 			const UnicodeString * key = (UnicodeString *)keyTok.pointer;
 			const UHashTok valueTok = element->value;

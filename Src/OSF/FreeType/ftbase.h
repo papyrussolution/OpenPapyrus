@@ -47,7 +47,7 @@ open_face_from_buffer(FT_Library library,
     FT_Byte*     base,
     FT_ULong size,
     FT_Long face_index,
-    const char *  driver_name,
+    const char * driver_name,
     FT_Face     *aface);
 
 #if  defined( FT_CONFIG_OPTION_GUESSING_EMBEDDED_RFORK ) && \

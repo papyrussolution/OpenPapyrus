@@ -100,12 +100,12 @@ namespace OT {
 		   * advance--measured from beginning of
 		   * PosTable (may be NULL) */
 #endif
-		unsigned int get_len() const { return hb_popcount((uint)*this); }
-		unsigned int get_size() const { return get_len() * Value::static_size; }
+		uint get_len() const { return hb_popcount((uint)*this); }
+		uint get_size() const { return get_len() * Value::static_size; }
 		bool apply_value(hb_ot_apply_context_t * c, const void  * base, const Value * values, hb_glyph_position_t   &glyph_pos) const
 		{
 			bool ret = false;
-			unsigned int format = *this;
+			uint format = *this;
 			if(!format) return ret;
 			hb_font_t * font = c->font;
 			bool horizontal = HB_DIRECTION_IS_HORIZONTAL(c->direction);
@@ -155,7 +155,7 @@ namespace OT {
 
 		void serialize_copy(hb_serialize_context_t * c, const void * base, const Value * values, const hb_map_t * layout_variation_idx_map) const
 		{
-			unsigned int format = *this;
+			uint format = *this;
 			if(!format) return;
 			if(format & xPlacement) c->copy(*values++);
 			if(format & yPlacement) c->copy(*values++);
@@ -171,7 +171,7 @@ namespace OT {
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c, const void * base, const hb_array_t<const Value>& values) const
 		{
 			unsigned format = *this;
-			unsigned i = 0;
+			uint i = 0;
 			if(format & xPlacement) i++;
 			if(format & yPlacement) i++;
 			if(format & xAdvance) i++;
@@ -196,7 +196,7 @@ namespace OT {
 private:
 		bool sanitize_value_devices(hb_sanitize_context_t * c, const void * base, const Value * values) const
 		{
-			unsigned int format = *this;
+			uint format = *this;
 			if(format & xPlacement) values++;
 			if(format & yPlacement) values++;
 			if(format & xAdvance) values++;
@@ -250,7 +250,7 @@ public:
 
 		bool has_device() const
 		{
-			unsigned int format = *this;
+			uint format = *this;
 			return (format & devices) != 0;
 		}
 
@@ -260,10 +260,10 @@ public:
 			return_trace(c->check_range(values, get_size()) && (!has_device() || sanitize_value_devices(c, base, values)));
 		}
 
-		bool sanitize_values(hb_sanitize_context_t * c, const void * base, const Value * values, unsigned int count) const
+		bool sanitize_values(hb_sanitize_context_t * c, const void * base, const Value * values, uint count) const
 		{
 			TRACE_SANITIZE(this);
-			unsigned int len = get_len();
+			uint len = get_len();
 
 			if(!c->check_range(values, count, get_size())) return_trace(false);
 
@@ -282,8 +282,8 @@ public:
 		bool sanitize_values_stride_unsafe(hb_sanitize_context_t * c,
 		    const void * base,
 		    const Value * values,
-		    unsigned int count,
-		    unsigned int stride) const
+		    uint count,
+		    uint stride) const
 		{
 			TRACE_SANITIZE(this);
 
@@ -347,8 +347,8 @@ public:
 			return;
 #endif
 
-			unsigned int x_ppem = font->x_ppem;
-			unsigned int y_ppem = font->y_ppem;
+			uint x_ppem = font->x_ppem;
+			uint y_ppem = font->y_ppem;
 			hb_position_t cx = 0, cy = 0;
 			bool ret;
 
@@ -496,8 +496,8 @@ public:
 	};
 
 	struct AnchorMatrix {
-		const Anchor& get_anchor(unsigned int row, unsigned int col,
-		    unsigned int cols, bool * found) const
+		const Anchor& get_anchor(uint row, uint col,
+		    uint cols, bool * found) const
 		{
 			* found = false;
 			if(UNLIKELY(row >= rows || col >= cols)) return Null(Anchor);
@@ -510,7 +510,7 @@ public:
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c,
 		    Iterator index_iter) const
 		{
-			for(unsigned i : index_iter)
+			for(uint i : index_iter)
 				(this+matrixZ[i]).collect_variation_indices(c);
 		}
 
@@ -527,7 +527,7 @@ public:
 			if(UNLIKELY(!c->extend_min((*this)))) return_trace(false);
 
 			this->rows = num_rows;
-			for(const unsigned i : index_iter) {
+			for(const uint i : index_iter) {
 				auto * offset = c->embed(offset_matrix->matrixZ[i]);
 				if(!offset) return_trace(false);
 				offset->serialize_copy(c, offset_matrix->matrixZ[i],
@@ -539,12 +539,12 @@ public:
 			return_trace(true);
 		}
 
-		bool sanitize(hb_sanitize_context_t * c, unsigned int cols) const
+		bool sanitize(hb_sanitize_context_t * c, uint cols) const
 		{
 			TRACE_SANITIZE(this);
 			if(!c->check_struct(this)) return_trace(false);
 			if(UNLIKELY(hb_unsigned_mul_overflows(rows, cols))) return_trace(false);
-			unsigned int count = rows * cols;
+			uint count = rows * cols;
 			if(!c->check_array(matrixZ.arrayZ, count)) return_trace(false);
 			for(uint i = 0; i < count; i++)
 				if(!matrixZ[i].sanitize(c, this)) return_trace(false);
@@ -610,14 +610,14 @@ public:
 	struct MarkArray : ArrayOf<MarkRecord> /* Array of MarkRecords--in Coverage order */
 	{
 		bool apply(hb_ot_apply_context_t * c,
-		    unsigned int mark_index, unsigned int glyph_index,
-		    const AnchorMatrix &anchors, unsigned int class_count,
-		    unsigned int glyph_pos) const
+		    uint mark_index, uint glyph_index,
+		    const AnchorMatrix &anchors, uint class_count,
+		    uint glyph_pos) const
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
 			const MarkRecord &record = ArrayOf<MarkRecord>::operator[] (mark_index);
-			unsigned int mark_class = record.klass;
+			uint mark_class = record.klass;
 
 			const Anchor& mark_anchor = this + record.markAnchor;
 			bool found;
@@ -702,7 +702,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
+			uint index = (this+coverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			valueFormat.apply_value(c, this, values, buffer->cur_pos());
@@ -800,7 +800,7 @@ public:
 			unsigned sub_length = valueFormat.get_len();
 			const hb_array_t<const Value> values_array = values.as_array(valueCount * sub_length);
 
-			for(unsigned i : +it
+			for(uint i : +it
 			    | hb_map(hb_second))
 				valueFormat.collect_variation_indices(c, this, values_array.sub_array(i * sub_length, sub_length));
 		}
@@ -818,7 +818,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
+			uint index = (this+coverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			if(LIKELY(index >= valueCount)) return_trace(false);
@@ -1036,12 +1036,12 @@ public:
 		bool intersects(const hb_set_t * glyphs,
 		    const ValueFormat * valueFormats) const
 		{
-			unsigned int len1 = valueFormats[0].get_len();
-			unsigned int len2 = valueFormats[1].get_len();
-			unsigned int record_size = HBUINT16::static_size * (1 + len1 + len2);
+			uint len1 = valueFormats[0].get_len();
+			uint len2 = valueFormats[1].get_len();
+			uint record_size = HBUINT16::static_size * (1 + len1 + len2);
 
 			const PairValueRecord * record = &firstPairValueRecord;
-			unsigned int count = len;
+			uint count = len;
 			for(uint i = 0; i < count; i++) {
 				if(glyphs->has(record->secondGlyph))
 					return true;
@@ -1051,9 +1051,9 @@ public:
 		}
 		void collect_glyphs(hb_collect_glyphs_context_t * c, const ValueFormat * valueFormats) const
 		{
-			unsigned int len1 = valueFormats[0].get_len();
-			unsigned int len2 = valueFormats[1].get_len();
-			unsigned int record_size = HBUINT16::static_size * (1 + len1 + len2);
+			uint len1 = valueFormats[0].get_len();
+			uint len2 = valueFormats[1].get_len();
+			uint record_size = HBUINT16::static_size * (1 + len1 + len2);
 			const PairValueRecord * record = &firstPairValueRecord;
 			c->input->add_array(&record->secondGlyph, len, record_size);
 		}
@@ -1064,8 +1064,8 @@ public:
 			unsigned record_size = HBUINT16::static_size * (1 + len1 + len2);
 
 			const PairValueRecord * record = &firstPairValueRecord;
-			unsigned count = len;
-			for(unsigned i = 0; i < count; i++) {
+			uint count = len;
+			for(uint i = 0; i < count; i++) {
 				if(c->glyph_set->has(record->secondGlyph)) {
 					record->collect_variation_indices(c, valueFormats, this);
 				}
@@ -1073,13 +1073,13 @@ public:
 				record = &StructAtOffset<const PairValueRecord> (record, record_size);
 			}
 		}
-		bool apply(hb_ot_apply_context_t * c, const ValueFormat * valueFormats, unsigned int pos) const
+		bool apply(hb_ot_apply_context_t * c, const ValueFormat * valueFormats, uint pos) const
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int len1 = valueFormats[0].get_len();
-			unsigned int len2 = valueFormats[1].get_len();
-			unsigned int record_size = HBUINT16::static_size * (1 + len1 + len2);
+			uint len1 = valueFormats[0].get_len();
+			uint len2 = valueFormats[1].get_len();
+			uint record_size = HBUINT16::static_size * (1 + len1 + len2);
 
 			const PairValueRecord * record = hb_bsearch(buffer->info[pos].codepoint,
 				&firstPairValueRecord,
@@ -1125,8 +1125,8 @@ public:
 			};
 
 			const PairValueRecord * record = &firstPairValueRecord;
-			unsigned count = len, num = 0;
-			for(unsigned i = 0; i < count; i++) {
+			uint count = len, num = 0;
+			for(uint i = 0; i < count; i++) {
 				if(glyphset.has(record->secondGlyph)
 				    && record->serialize(c->serializer, &closure)) num++;
 				record = &StructAtOffset<const PairValueRecord> (record, record_size);
@@ -1139,8 +1139,8 @@ public:
 
 		struct sanitize_closure_t {
 			const ValueFormat * valueFormats;
-			unsigned int len1; /* valueFormats[0].get_len() */
-			unsigned int stride; /* 1 + len1 + len2 */
+			uint len1; /* valueFormats[0].get_len() */
+			uint stride; /* 1 + len1 + len2 */
 		};
 
 		bool sanitize(hb_sanitize_context_t * c, const sanitize_closure_t * closure) const
@@ -1152,7 +1152,7 @@ public:
 			    HBUINT16::static_size,
 			    closure->stride))) return_trace(false);
 
-			unsigned int count = len;
+			uint count = len;
 			const PairValueRecord * record = &firstPairValueRecord;
 			return_trace(closure->valueFormats[0].sanitize_values_stride_unsafe(c, this, &record->values[0], count,
 			    closure->stride) &&
@@ -1205,7 +1205,7 @@ public:
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
 			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
-			unsigned int count = pairSet.len;
+			uint count = pairSet.len;
 			for(uint i = 0; i < count; i++)
 				(this+pairSet[i]).collect_glyphs(c, valueFormat);
 		}
@@ -1218,7 +1218,7 @@ public:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
+			uint index = (this+coverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
@@ -1275,8 +1275,8 @@ public:
 
 			if(!c->check_struct(this)) return_trace(false);
 
-			unsigned int len1 = valueFormat[0].get_len();
-			unsigned int len2 = valueFormat[1].get_len();
+			uint len1 = valueFormat[0].get_len();
+			uint len2 = valueFormat[1].get_len();
 			PairSet::sanitize_closure_t closure =
 			{
 				valueFormat,
@@ -1360,19 +1360,19 @@ public:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int index = (this+coverage).get_coverage(buffer->cur().codepoint);
+			uint index = (this+coverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(index == NOT_COVERED)) return_trace(false);
 
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
 			skippy_iter.reset(buffer->idx, 1);
 			if(!skippy_iter.next()) return_trace(false);
 
-			unsigned int len1 = valueFormat1.get_len();
-			unsigned int len2 = valueFormat2.get_len();
-			unsigned int record_len = len1 + len2;
+			uint len1 = valueFormat1.get_len();
+			uint len2 = valueFormat2.get_len();
+			uint record_len = len1 + len2;
 
-			unsigned int klass1 = (this+classDef1).get_class(buffer->cur().codepoint);
-			unsigned int klass2 = (this+classDef2).get_class(buffer->info[skippy_iter.idx].codepoint);
+			uint klass1 = (this+classDef1).get_class(buffer->cur().codepoint);
+			uint klass2 = (this+classDef2).get_class(buffer->info[skippy_iter.idx].codepoint);
 			if(UNLIKELY(klass1 >= class1Count || klass2 >= class2Count)) return_trace(false);
 
 			const Value * v = &values[record_len * (klass1 * class2Count + klass2)];
@@ -1446,11 +1446,11 @@ public:
 			    && classDef1.sanitize(c, this)
 			    && classDef2.sanitize(c, this))) return_trace(false);
 
-			unsigned int len1 = valueFormat1.get_len();
-			unsigned int len2 = valueFormat2.get_len();
-			unsigned int stride = len1 + len2;
-			unsigned int record_size = valueFormat1.get_size() + valueFormat2.get_size();
-			unsigned int count = (uint)class1Count * (uint)class2Count;
+			uint len1 = valueFormat1.get_len();
+			uint len2 = valueFormat2.get_len();
+			uint stride = len1 + len2;
+			uint record_size = valueFormat1.get_size() + valueFormat2.get_size();
+			uint count = (uint)class1Count * (uint)class2Count;
 			return_trace(c->check_range((const void*)values,
 			    count,
 			    record_size) &&
@@ -1563,9 +1563,9 @@ public:
 	};
 
 	static void reverse_cursive_minor_offset(hb_glyph_position_t * pos,
-	    unsigned int i,
+	    uint i,
 	    hb_direction_t direction,
-	    unsigned int new_parent);
+	    uint new_parent);
 
 	struct CursivePosFormat1 {
 		bool intersects(const hb_set_t * glyphs) const
@@ -1610,8 +1610,8 @@ public:
 			    entryExitRecord[(this+coverage).get_coverage(buffer->info[skippy_iter.idx].codepoint)];
 			if(!prev_record.exitAnchor) return_trace(false);
 
-			unsigned int i = skippy_iter.idx;
-			unsigned int j = buffer->idx;
+			uint i = skippy_iter.idx;
+			uint j = buffer->idx;
 
 			buffer->unsafe_to_break(i, j);
 			float entry_x, entry_y, exit_x, exit_y;
@@ -1664,12 +1664,12 @@ public:
 			 *
 			 * Optimize things for the case of RightToLeft, as that's most common in
 			 * Arabic. */
-			unsigned int child  = i;
-			unsigned int parent = j;
+			uint child  = i;
+			uint parent = j;
 			hb_position_t x_offset = entry_x - exit_x;
 			hb_position_t y_offset = entry_y - exit_y;
 			if(!(c->lookup_props & LookupFlag::RightToLeft)) {
-				unsigned int k = child;
+				uint k = child;
 				child = parent;
 				parent = k;
 				x_offset = -x_offset;
@@ -1863,7 +1863,7 @@ protected:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int mark_index = (this+markCoverage).get_coverage(buffer->cur().codepoint);
+			uint mark_index = (this+markCoverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(mark_index == NOT_COVERED)) return_trace(false);
 
 			/* Now we search backwards for a non-mark glyph */
@@ -1893,7 +1893,7 @@ protected:
 			/* Checking that matched glyph is actually a base glyph by GDEF is too strong; disabled */
 			//if (!_hb_glyph_info_is_base_glyph (&buffer->info[skippy_iter.idx])) { return_trace (false); }
 
-			unsigned int base_index = (this+baseCoverage).get_coverage(buffer->info[skippy_iter.idx].codepoint);
+			uint base_index = (this+baseCoverage).get_coverage(buffer->info[skippy_iter.idx].codepoint);
 			if(base_index == NOT_COVERED) return_trace(false);
 
 			return_trace((this+markArray).apply(c, mark_index, base_index, this+baseArray, classCount, skippy_iter.idx));
@@ -2055,7 +2055,7 @@ protected:
 			;
 
 			const LigatureArray& lig_array = this+ligatureArray;
-			for(const unsigned i : lig_iter) {
+			for(const uint i : lig_iter) {
 				hb_sorted_vector_t<unsigned> lig_indexes;
 				unsigned row_count = lig_array[i].rows;
 				for(unsigned row : +hb_range(row_count)) {
@@ -2084,7 +2084,7 @@ protected:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int mark_index = (this+markCoverage).get_coverage(buffer->cur().codepoint);
+			uint mark_index = (this+markCoverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(mark_index == NOT_COVERED)) return_trace(false);
 
 			/* Now we search backwards for a non-mark glyph */
@@ -2096,25 +2096,25 @@ protected:
 			/* Checking that matched glyph is actually a ligature by GDEF is too strong; disabled */
 			//if (!_hb_glyph_info_is_ligature (&buffer->info[skippy_iter.idx])) { return_trace (false); }
 
-			unsigned int j = skippy_iter.idx;
-			unsigned int lig_index = (this+ligatureCoverage).get_coverage(buffer->info[j].codepoint);
+			uint j = skippy_iter.idx;
+			uint lig_index = (this+ligatureCoverage).get_coverage(buffer->info[j].codepoint);
 			if(lig_index == NOT_COVERED) return_trace(false);
 
 			const LigatureArray& lig_array = this+ligatureArray;
 			const LigatureAttach& lig_attach = lig_array[lig_index];
 
 			/* Find component to attach to */
-			unsigned int comp_count = lig_attach.rows;
+			uint comp_count = lig_attach.rows;
 			if(UNLIKELY(!comp_count)) return_trace(false);
 
 			/* We must now check whether the ligature ID of the current mark glyph
 			 * is identical to the ligature ID of the found ligature.  If yes, we
 			 * can directly use the component index.  If not, we attach the mark
 			 * glyph to the last component of the ligature. */
-			unsigned int comp_index;
-			unsigned int lig_id = _hb_glyph_info_get_lig_id(&buffer->info[j]);
-			unsigned int mark_id = _hb_glyph_info_get_lig_id(&buffer->cur());
-			unsigned int mark_comp = _hb_glyph_info_get_lig_comp(&buffer->cur());
+			uint comp_index;
+			uint lig_id = _hb_glyph_info_get_lig_id(&buffer->info[j]);
+			uint mark_id = _hb_glyph_info_get_lig_id(&buffer->cur());
+			uint mark_comp = _hb_glyph_info_get_lig_comp(&buffer->cur());
 			if(lig_id && lig_id == mark_id && mark_comp > 0)
 				comp_index = hb_min(comp_count, _hb_glyph_info_get_lig_comp(&buffer->cur())) - 1;
 			else
@@ -2237,7 +2237,7 @@ protected:
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-			unsigned int mark1_index = (this+mark1Coverage).get_coverage(buffer->cur().codepoint);
+			uint mark1_index = (this+mark1Coverage).get_coverage(buffer->cur().codepoint);
 			if(LIKELY(mark1_index == NOT_COVERED)) return_trace(false);
 
 			/* now we search backwards for a suitable mark glyph until a non-mark glyph */
@@ -2250,12 +2250,12 @@ protected:
 				return_trace(false);
 			}
 
-			unsigned int j = skippy_iter.idx;
+			uint j = skippy_iter.idx;
 
-			unsigned int id1 = _hb_glyph_info_get_lig_id(&buffer->cur());
-			unsigned int id2 = _hb_glyph_info_get_lig_id(&buffer->info[j]);
-			unsigned int comp1 = _hb_glyph_info_get_lig_comp(&buffer->cur());
-			unsigned int comp2 = _hb_glyph_info_get_lig_comp(&buffer->info[j]);
+			uint id1 = _hb_glyph_info_get_lig_id(&buffer->cur());
+			uint id2 = _hb_glyph_info_get_lig_id(&buffer->info[j]);
+			uint comp1 = _hb_glyph_info_get_lig_comp(&buffer->cur());
+			uint comp2 = _hb_glyph_info_get_lig_comp(&buffer->info[j]);
 
 			if(LIKELY(id1 == id2)) {
 				if(id1 == 0) /* Marks belonging to the same base. */
@@ -2274,7 +2274,7 @@ protected:
 			return_trace(false);
 
 good:
-			unsigned int mark2_index = (this+mark2Coverage).get_coverage(buffer->info[j].codepoint);
+			uint mark2_index = (this+mark2Coverage).get_coverage(buffer->info[j].codepoint);
 			if(mark2_index == NOT_COVERED) return_trace(false);
 
 			return_trace((this+mark1Array).apply(c, mark1_index, mark2_index, this+mark2Array, classCount, j));
@@ -2432,7 +2432,7 @@ protected:
 		};
 
 		template <typename context_t, typename ... Ts>
-		typename context_t::return_t dispatch(context_t * c, unsigned int lookup_type, Ts&&... ds) const
+		typename context_t::return_t dispatch(context_t * c, uint lookup_type, Ts&&... ds) const
 		{
 			TRACE_DISPATCH(this, lookup_type);
 			switch(lookup_type) {
@@ -2449,7 +2449,7 @@ protected:
 			}
 		}
 
-		bool intersects(const hb_set_t * glyphs, unsigned int lookup_type) const
+		bool intersects(const hb_set_t * glyphs, uint lookup_type) const
 		{
 			hb_intersects_context_t c(glyphs);
 			return dispatch(&c, lookup_type);
@@ -2475,7 +2475,7 @@ public:
 	struct PosLookup : Lookup {
 		typedef struct PosLookupSubTable SubTable;
 
-		const SubTable& get_subtable(unsigned int i) const
+		const SubTable& get_subtable(uint i) const
 		{
 			return Lookup::get_subtable<SubTable> (i);
 		}
@@ -2525,10 +2525,10 @@ public:
 			dispatch(&c);
 		}
 
-		static inline bool apply_recurse_func(hb_ot_apply_context_t * c, unsigned int lookup_index);
+		static inline bool apply_recurse_func(hb_ot_apply_context_t * c, uint lookup_index);
 
 		template <typename context_t>
-		static typename context_t::return_t dispatch_recurse_func(context_t * c, unsigned int lookup_index);
+		static typename context_t::return_t dispatch_recurse_func(context_t * c, uint lookup_index);
 
 		HB_INTERNAL static hb_closure_lookups_context_t::return_t dispatch_closure_lookups_recurse_func(
 			hb_closure_lookups_context_t * c,
@@ -2559,7 +2559,7 @@ public:
 	struct GPOS : GSUBGPOS {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_GPOS;
 
-		const PosLookup& get_lookup(unsigned int i) const
+		const PosLookup& get_lookup(uint i) const
 		{
 			return static_cast<const PosLookup &> (GSUBGPOS::get_lookup(i));
 		}
@@ -2584,7 +2584,7 @@ public:
 
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
-			for(unsigned i = 0; i < GSUBGPOS::get_lookup_count(); i++) {
+			for(uint i = 0; i < GSUBGPOS::get_lookup_count(); i++) {
 				if(!c->gpos_lookups->has(i)) continue;
 				const PosLookup &l = get_lookup(i);
 				l.dispatch(c);
@@ -2602,9 +2602,9 @@ public:
 	};
 
 	static void reverse_cursive_minor_offset(hb_glyph_position_t * pos,
-	    unsigned int i,
+	    uint i,
 	    hb_direction_t direction,
-	    unsigned int new_parent)
+	    uint new_parent)
 	{
 		int chain = pos[i].attach_chain(), type = pos[i].attach_type();
 		if(LIKELY(!chain || 0 == (type & ATTACH_TYPE_CURSIVE)))
@@ -2612,7 +2612,7 @@ public:
 
 		pos[i].attach_chain() = 0;
 
-		unsigned int j = (int)i + chain;
+		uint j = (int)i + chain;
 
 		/* Stop if we see new parent in the chain. */
 		if(j == new_parent)
@@ -2630,8 +2630,8 @@ public:
 	}
 
 	static void propagate_attachment_offsets(hb_glyph_position_t * pos,
-	    unsigned int len,
-	    unsigned int i,
+	    uint len,
+	    uint i,
 	    hb_direction_t direction)
 	{
 		/* Adjusts offsets of attached glyphs (both cursive and mark) to accumulate
@@ -2642,7 +2642,7 @@ public:
 
 		pos[i].attach_chain() = 0;
 
-		unsigned int j = (int)i + chain;
+		uint j = (int)i + chain;
 
 		if(UNLIKELY(j >= len))
 			return;
@@ -2663,12 +2663,12 @@ public:
 
 			assert(j < i);
 			if(HB_DIRECTION_IS_FORWARD(direction))
-				for(unsigned int k = j; k < i; k++) {
+				for(uint k = j; k < i; k++) {
 					pos[i].x_offset -= pos[k].x_advance;
 					pos[i].y_offset -= pos[k].y_advance;
 				}
 			else
-				for(unsigned int k = j + 1; k < i + 1; k++) {
+				for(uint k = j + 1; k < i + 1; k++) {
 					pos[i].x_offset += pos[k].x_advance;
 					pos[i].y_offset += pos[k].y_advance;
 				}
@@ -2677,7 +2677,7 @@ public:
 
 	void GPOS::position_start(hb_font_t * font HB_UNUSED, hb_buffer_t * buffer)
 	{
-		unsigned int count = buffer->len;
+		uint count = buffer->len;
 		for(uint i = 0; i < count; i++)
 			buffer->pos[i].attach_chain() = buffer->pos[i].attach_type() = 0;
 	}
@@ -2691,7 +2691,7 @@ public:
 	{
 		_hb_buffer_assert_gsubgpos_vars(buffer);
 
-		unsigned int len;
+		uint len;
 		hb_glyph_position_t * pos = hb_buffer_get_glyph_positions(buffer, &len);
 		hb_direction_t direction = buffer->props.direction;
 
@@ -2707,7 +2707,7 @@ public:
 
 #ifndef HB_NO_OT_LAYOUT
 	template <typename context_t>
-/*static*/ typename context_t::return_t PosLookup::dispatch_recurse_func(context_t * c, unsigned int lookup_index)
+/*static*/ typename context_t::return_t PosLookup::dispatch_recurse_func(context_t * c, uint lookup_index)
 	{
 		const PosLookup &l = c->face->table.GPOS.get_relaxed()->table->get_lookup(lookup_index);
 		return l.dispatch(c);
@@ -2720,11 +2720,11 @@ public:
 		return l.closure_lookups(c, this_index);
 	}
 
-/*static*/ bool PosLookup::apply_recurse_func(hb_ot_apply_context_t * c, unsigned int lookup_index)
+/*static*/ bool PosLookup::apply_recurse_func(hb_ot_apply_context_t * c, uint lookup_index)
 	{
 		const PosLookup &l = c->face->table.GPOS.get_relaxed()->table->get_lookup(lookup_index);
-		unsigned int saved_lookup_props = c->lookup_props;
-		unsigned int saved_lookup_index = c->lookup_index;
+		uint saved_lookup_props = c->lookup_props;
+		uint saved_lookup_index = c->lookup_index;
 		c->set_lookup_index(lookup_index);
 		c->set_lookup_props(l.get_props());
 		bool ret = l.dispatch(c);

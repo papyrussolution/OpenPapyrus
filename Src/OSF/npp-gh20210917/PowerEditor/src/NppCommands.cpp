@@ -391,7 +391,7 @@ void Notepad_plus::command(int id)
 			    return;
 		    }
 		    // Lock the handle and copy the text to the buffer.
-		    uchar * lpucharCopy = (uchar*)GlobalLock(hglbCopy);
+		    uchar * lpucharCopy = (uchar *)GlobalLock(hglbCopy);
 		    memcpy(lpucharCopy, pBinText, textLen * sizeof(uchar));
 		    lpucharCopy[textLen] = 0;        // null character
 		    GlobalUnlock(hglbCopy);
@@ -1814,7 +1814,7 @@ void Notepad_plus::command(int id)
 			    else if(id == IDM_VIEW_IN_EDGE) {
 				    appName = TEXT("msedge.exe");
 			    }
-			    else {    // if (id == IDM_VIEW_IN_IE)
+			    else {    // if(id == IDM_VIEW_IN_IE)
 				    appName = TEXT("IEXPLORE.EXE");
 			    }
 
@@ -3034,7 +3034,7 @@ void Notepad_plus::command(int id)
 		    int margin;
 		    if(id == IDM_VIEW_LINENUMBER)
 			    margin = ScintillaEditView::_SC_MARGE_LINENUMBER;
-		    else     //if (id == IDM_VIEW_SYMBOLMARGIN)
+		    else     //if(id == IDM_VIEW_SYMBOLMARGIN)
 			    margin = ScintillaEditView::_SC_MARGE_SYBOLE;
 
 		    if(_mainEditView.hasMarginShowed(margin)) {
@@ -3126,7 +3126,7 @@ void Notepad_plus::command(int id)
 			    _pluginsManager.relayNppMessages(WM_COMMAND, id, 0);
 		    }
 /*UNLOAD
-                        else if ((id >= ID_PLUGINS_REMOVING) && (id < ID_PLUGINS_REMOVING_END))
+                        else if((id >= ID_PLUGINS_REMOVING) && (id < ID_PLUGINS_REMOVING_END))
                         {
                                 int i = id - ID_PLUGINS_REMOVING;
                                 _pluginsManager.unloadPlugin(i, _pPublicInterface->getHSelf());

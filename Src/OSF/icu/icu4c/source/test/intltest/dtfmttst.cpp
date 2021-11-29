@@ -707,7 +707,7 @@ void DateFormatTest::tryPat994(SimpleDateFormat* format, const char * pat, const
 	//}
 	//catch(ParseException e) {
 	//    logln((UnicodeString)"ParseException: " + e.getMessage());
-	//    if (expected != null) errln((UnicodeString)"FAIL: Expected " + dateToString(expected));
+	//    if(expected != null) errln((UnicodeString)"FAIL: Expected " + dateToString(expected));
 	//}
 	//catch(Exception e) {
 	//    errln((UnicodeString)"*** Exception:");

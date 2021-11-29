@@ -2230,7 +2230,7 @@ void ScintillaEditView::setMultiSelections(const ColumnModeInfos & cmi)
 			execute(SCI_SETSELECTIONNSTART, i, selStart);
 			execute(SCI_SETSELECTIONNEND, i, selEnd);
 		}
-		//if (cmi[i].hasVirtualSpace())
+		//if(cmi[i].hasVirtualSpace())
 		//{
 		if(cmi[i]._nbVirtualAnchorSpc)
 			execute(SCI_SETSELECTIONNANCHORVIRTUALSPACE, i, cmi[i]._nbVirtualAnchorSpc);
@@ -2793,9 +2793,9 @@ void ScintillaEditView::runMarkers(bool doHide, size_t searchStart, bool endOfDo
 	                Find open hiding marker:
 	                        set hiding start
 	                Find closing:
-	                        if (hiding):
+	                        if(hiding):
 	                                Hide lines between now and start
-	                                if (endOfDoc = false)
+	                                if(endOfDoc = false)
 	                                        return
 	                                else
 	                                        search for other hidden sections

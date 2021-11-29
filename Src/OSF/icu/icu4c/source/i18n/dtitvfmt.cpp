@@ -428,7 +428,7 @@ UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
 	firstIndex = -1;
 
 	// not support different calendar types and time zones
-	//if ( fromCalendar.getType() != toCalendar.getType() ) {
+	//if( fromCalendar.getType() != toCalendar.getType() ) {
 	if(!fromCalendar.isEquivalentTo(toCalendar) ) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return appendTo;

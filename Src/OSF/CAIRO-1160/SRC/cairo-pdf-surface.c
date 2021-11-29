@@ -1219,7 +1219,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 	surface_key.id  = source_surface->unique_id;
 	surface_key.interpolate = interpolate;
 	cairo_surface_get_mime_data(source_surface, CAIRO_MIME_TYPE_UNIQUE_ID,
-	    (const uchar**)&surface_key.unique_id,
+	    (const uchar **)&surface_key.unique_id,
 	    &surface_key.unique_id_length);
 	_cairo_pdf_source_surface_init_key(&surface_key);
 	surface_entry = (cairo_pdf_source_surface_entry_t *)_cairo_hash_table_lookup(surface->all_surfaces, &surface_key.base);
@@ -2410,7 +2410,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 	for(i = 0; i < size; i++) {
 		*entry = (cairo_pdf_jbig2_global_t*)_cairo_array_index(&surface->jbig2_global, i);
 		if((*entry)->id && global_id && (*entry)->id_length == global_id_length
-		  && memcmp((*entry)->id, global_id, global_id_length) == 0) {
+		 && memcmp((*entry)->id, global_id, global_id_length) == 0) {
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
@@ -6155,7 +6155,7 @@ static boolint _surface_pattern_supported(cairo_surface_pattern_t * pattern)
 	 * don't think it's worth the extra code to support it. */
 
 /* XXX: Need to write this function here...
-    if (pattern->surface->content == CAIRO_CONTENT_ALPHA)
+    if(pattern->surface->content == CAIRO_CONTENT_ALPHA)
         return FALSE;
  */
 

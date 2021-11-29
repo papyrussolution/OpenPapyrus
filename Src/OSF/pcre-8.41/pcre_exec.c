@@ -2114,7 +2114,7 @@ ASSERT_NL_OR_EOS:
 						    else
 #endif
 						    prev_is_word = MAX_255(eptr[-1])
-						  && ((md->ctypes[eptr[-1]] & ctype_word) != 0);
+						 && ((md->ctypes[eptr[-1]] & ctype_word) != 0);
 					    }
 
 			                    /* Get status of next character */
@@ -5318,7 +5318,7 @@ GOT_MAX:
 									if(c != CHAR_LF &&
 								    (md->bsr_anycrlf || (c != CHAR_VT && c != CHAR_FF && c != CHAR_NEL
 #ifndef EBCDIC
-										  && c != 0x2028 && c != 0x2029
+										 && c != 0x2028 && c != 0x2029
 #endif  /* Not EBCDIC */
 									    )))
 										break;
@@ -5510,7 +5510,7 @@ VSPACE_CASES: gotspace = TRUE; break;
 									if(c != CHAR_LF && (md->bsr_anycrlf ||
 									    (c != CHAR_VT && c != CHAR_FF && c != CHAR_NEL
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
-										  && c != 0x2028 && c != 0x2029
+										 && c != 0x2028 && c != 0x2029
 #endif
 									    ))) break;
 									eptr++;
@@ -5939,7 +5939,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 	   an unsupported flag is set. */
 #ifdef SUPPORT_JIT
 	if(extra_data && (extra_data->flags & (PCRE_EXTRA_EXECUTABLE_JIT|PCRE_EXTRA_TABLES)) == PCRE_EXTRA_EXECUTABLE_JIT
-	  && extra_data->executable_jit && (options & ~PUBLIC_JIT_EXEC_OPTIONS) == 0) {
+	 && extra_data->executable_jit && (options & ~PUBLIC_JIT_EXEC_OPTIONS) == 0) {
 		rc = PRIV(jit_exec) (extra_data, (const pcre_uchar*)subject, length, start_offset, options, offsets, offsetcount);
 		// PCRE_ERROR_NULL means that the selected normal or partial matching
 		// mode is not compiled. In this case we simply fallback to interpreter. 

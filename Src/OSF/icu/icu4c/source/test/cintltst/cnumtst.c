@@ -2566,7 +2566,7 @@ static void TestUNumberingSystem() {
 			// sanity check for a couple of number systems that must be in the enumeration
 			bool foundLatn = FALSE;
 			bool foundArab = FALSE;
-			while( (numsys = uenum_next(uenum, NULL, &status)) != NULL && U_SUCCESS(status) ) {
+			while((numsys = uenum_next(uenum, NULL, &status)) != NULL && U_SUCCESS(status) ) {
 				status = U_ZERO_ERROR;
 				unumsys = unumsys_openByName(numsys, &status);
 				if(U_SUCCESS(status) ) {

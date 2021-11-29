@@ -31,7 +31,7 @@ static bool isSet(int startDate) {
 
 static bool isValidRuleStartDate(int32_t year, int32_t month, int32_t day) {
 	return year >= MIN_ENCODED_START_YEAR && year <= MAX_ENCODED_START_YEAR
-	     && month >= 1 && month <= 12 && day >=1 && day <= 31;
+	 && month >= 1 && month <= 12 && day >=1 && day <= 31;
 }
 
 /**

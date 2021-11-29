@@ -51,7 +51,7 @@ FT_BEGIN_HEADER
  *
  *   count ::
  *     The number of faces in the collection.  The specification says this
- *     should be an unsigned long, but we use a signed long since we need
+ *     should be an ulong, but we use a signed long since we need
  *     the value -1 for specific purposes.
  *
  *   offsets ::
@@ -1431,7 +1431,7 @@ typedef struct  TT_FaceRec_ {
 
 	FT_Generic extra;
 
-	const char *           postscript_name;
+	const char * postscript_name;
 
 	FT_ULong glyf_len;
 	FT_ULong glyf_offset;             /* since 2.7.1 */
@@ -1444,7 +1444,7 @@ typedef struct  TT_FaceRec_ {
 
 	FT_UInt32 variation_support;             /* since 2.7.1 */
 
-	const char *           var_postscript_prefix; /* since 2.7.2 */
+	const char * var_postscript_prefix; /* since 2.7.2 */
 	FT_UInt var_postscript_prefix_len;           /* since 2.7.2 */
 
 #endif

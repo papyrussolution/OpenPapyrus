@@ -946,7 +946,7 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 					if(list && list->isTreeList()) {
 						PPID cur_id = 0;
 						list->def->getCurID(&cur_id);
-						if(static_cast<const StdTreeListBoxDef *>(list->def)->HasChild(cur_id))
+						if(static_cast<const StdTreeListBoxDef *>(list->def)->HasChildren(cur_id))
 							action = 0;
 					}
 					if(action && isCurrCtlID(Data.LeftCtlId))
@@ -1720,11 +1720,11 @@ int STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC,
 	int    ok = 1;
 	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(cb && pSC && pSC->getCount()) {
-		ListWindow * lw = CreateListWindow(128, lbtDisposeData);
+		ListWindow * lw = CreateListWindow_Simple(0);
 		for(uint i = 0; i < pSC->getCount(); i++) {
 			char * p_buf = (char *)pSC->at(i);
 			if(p_buf && p_buf[0] != '\0') {
-				char   temp_buf[128];
+				char   temp_buf[256]; // @v11.2.5 [128]-->[256]
 				long   id = 0;
 				uint   pos = 0;
 				StringSet ss(',', p_buf);
@@ -1780,7 +1780,7 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 		int    idx = 0;
 		PrcssrAlcReport::Config alr_cfg;
 		SString item_buf, id_buf, txt_buf;
-		THROW(p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify));
+		THROW(p_lw = CreateListWindow_Simple(lbtDblClkNotify));
 		for(idx = 0; PPGetSubStr(PPTXT_SUBSTGOODSLIST, idx, item_buf) > 0; idx++) {
 			long   id = 0;
 			if(item_buf.Divide(',', id_buf, txt_buf) > 0)

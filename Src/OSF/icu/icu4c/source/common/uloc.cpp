@@ -535,7 +535,7 @@ U_CAPI const char * U_EXPORT2 locale_getKeywordsStart(const char * localeID) {
 	if((result = uprv_strchr(localeID, '@')) != NULL) {
 		return result;
 	}
-#if (U_CHARSET_FAMILY == U_EBCDIC_FAMILY)
+#if(U_CHARSET_FAMILY == U_EBCDIC_FAMILY)
 	else {
 		/* We do this because the @ sign is variant, and the @ sign used on one
 		   EBCDIC machine won't be compiled the same way on other EBCDIC based
@@ -1208,7 +1208,7 @@ CharString U_EXPORT2 ulocimp_getScript(const char * localeID,
 
 	/* copy the second item as far as possible and count its length */
 	while(!_isTerminator(localeID[idLen]) && !_isIDSeparator(localeID[idLen])
-	  && uprv_isASCIILetter(localeID[idLen])) {
+	 && uprv_isASCIILetter(localeID[idLen])) {
 		idLen++;
 	}
 

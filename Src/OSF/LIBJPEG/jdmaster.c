@@ -173,8 +173,8 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
  * a (subscript-check-less) C table lookup
  *		x = sample_range_limit[x];
  * is faster than explicit tests
- *		if (x < 0)  x = 0;
- *		else if (x > MAXJSAMPLE)  x = MAXJSAMPLE;
+ *		if(x < 0)  x = 0;
+ *		else if(x > MAXJSAMPLE)  x = MAXJSAMPLE;
  * These processes all use a common table prepared by the routine below.
  *
  * For most steps we can mathematically guarantee that the initial value

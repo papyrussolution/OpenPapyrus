@@ -2703,7 +2703,7 @@ static bool string_raw(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 	uint32 ascii = 0;
 	uint32 n = utf8_charbytes(string->cptr(), 0);
 	for(uint32 i = 0; i < n; ++i) {
-		// if (n > 1) {printf("%u (%d)\n", (uint8_t)string->s[i], (uint32)pow(10, n-(i+1)));}
+		// if(n > 1) {printf("%u (%d)\n", (uint8_t)string->s[i], (uint32)pow(10, n-(i+1)));}
 		ascii += (uint32)((uint8_t)string->cptr()[i] * pow(10, n - (i + 1)));
 	}
 	return vm->ReturnValue(GravityValue::from_int(ascii), rindex);

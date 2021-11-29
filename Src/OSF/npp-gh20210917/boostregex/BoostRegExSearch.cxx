@@ -73,9 +73,9 @@ private:
 		}
 		
 		bool isContinuationSearch(Document* document, Sci::Position startPosition, int direction) {
-			if (hasDocumentChanged(document))
+			if(hasDocumentChanged(document))
 				return false;
-			if (direction > 0) 
+			if(direction > 0) 
 				return startPosition == _endPositionForContinuationCheck;
 			else
 				return startPosition == _position;
@@ -101,12 +101,12 @@ private:
 			return currentDocument != _document || _documentModified;
 		}
 		void setDocument(Document* newDocument) {
-			if (newDocument != _document)
+			if(newDocument != _document)
 			{
-				if (_document != NULL)
+				if(_document != NULL)
 					_document->RemoveWatcher(this, NULL);
 				_document = newDocument;
-				if (_document != NULL)
+				if(_document != NULL)
 					_document->AddWatcher(this, NULL);
 			}
 		}
@@ -114,20 +114,20 @@ private:
 		// DocWatcher, so we can track modifications to know if we should consider a search to be a continuation of last search:
 		virtual void NotifyModified(Document* modifiedDocument, DocModification mh, void * /*userData*/)
 		{
-			if (modifiedDocument == _document)
+			if(modifiedDocument == _document)
 			{
-				if (mh.modificationType & (SC_PERFORMED_UNDO | SC_PERFORMED_REDO))
+				if(mh.modificationType & (SC_PERFORMED_UNDO | SC_PERFORMED_REDO))
 					_documentModified = true;
 				// Replacing last found text should not make isContinuationSearch return false.
-				else if (mh.modificationType & SC_MOD_DELETETEXT)
+				else if(mh.modificationType & SC_MOD_DELETETEXT)
 				{
-					if (mh.position == position() && mh.length == length()) // Deleting what we last found.
+					if(mh.position == position() && mh.length == length()) // Deleting what we last found.
 						_endPositionForContinuationCheck = _position;
 					else _documentModified = true;
 				}
-				else if (mh.modificationType & SC_MOD_INSERTTEXT)
+				else if(mh.modificationType & SC_MOD_INSERTTEXT)
 				{
-					if (mh.position == position() && position() == _endPositionForContinuationCheck) // Replace at last found position.
+					if(mh.position == position() && position() == _endPositionForContinuationCheck) // Replace at last found position.
 						_endPositionForContinuationCheck += mh.length;
 					else _documentModified = true;
 				}
@@ -136,7 +136,7 @@ private:
 
 		virtual void NotifyDeleted(Document* deletedDocument, void * /*userData*/) noexcept
 		{
-			if (deletedDocument == _document)
+			if(deletedDocument == _document)
 			{
 				// We set the _document here, as we don't want to call the RemoveWatcher on this deleted document. 
 				// Calling RemoveWatcher inside NotifyDeleted results in a crash, as NotifyDeleted is called whilst
@@ -167,7 +167,7 @@ private:
 			return _charPtr;
 		}
 		operator const wchar_t*() {
-			if (_wcharPtr == NULL)
+			if(_wcharPtr == NULL)
 				_wcharPtr = utf8ToWchar(_charPtr);
 			return _wcharPtr;
 		}
@@ -257,7 +257,7 @@ Sci::Position BoostRegexSearch::FindText(Document* doc, Sci::Position startPosit
 		
 		search._document = doc;
 		
-		if (startPosition > endPosition
+		if(startPosition > endPosition
 			|| startPosition == endPosition && _lastDirection < 0)  // If we search in an empty region, suppose the direction is the same as last search (this is only important to verify if there can be an empty match in that empty region).
 		{
 			search._startPosition = endPosition;
@@ -299,7 +299,7 @@ Sci::Position BoostRegexSearch::FindText(Document* doc, Sci::Position startPosit
 			isUtf8 ? _utf8.FindText(search)
 			       : _ansi.FindText(search);
 
-		if (match.found())
+		if(match.found())
 		{
 			*lengthRet = match.length();
 			_lastMatch = match;
@@ -352,17 +352,17 @@ BoostRegexSearch::Match BoostRegexSearch::EncodingDependent<CharT, CharacterIter
 	do {
 		const bool end_reached = next_search_from_position > search._endPosition;
 		found = !end_reached && boost::regex_search(CharacterIterator(search._document, next_search_from_position, search._endPosition), endIterator, _match, _regex, search._boostRegexFlags, baseIterator);
-		if (found) {
+		if(found) {
 			const Sci::Position  position = _match[0].first.pos();
 			const Sci::Position  length   = _match[0].second.pos() - position;
 			const bool match_is_non_empty    = length != 0;
 			const bool is_allowed_empty_here = search._is_allowed_empty && (search._is_allowed_empty_at_start_position || position > search._startPosition);
 			match_is_valid = match_is_non_empty || is_allowed_empty_here;
-			if (!match_is_valid)
+			if(!match_is_valid)
 				next_search_from_position = search.nextCharacter(position);
 		}
-	} while (found && !match_is_valid);
-	if (found)
+	} while(found && !match_is_valid);
+	if(found)
 		return Match(search._document, _match[0].first.pos(), _match[0].second.pos());
 	else
 		return Match();
@@ -382,11 +382,11 @@ BoostRegexSearch::Match BoostRegexSearch::EncodingDependent<CharT, CharacterIter
 	Sci::Position bestEnd = -1;
 	for (;;) {
 		Match matchRange = FindText(search);
-		if (!matchRange.found())
+		if(!matchRange.found())
 			break;
 		Sci::Position position = matchRange.position();
 		Sci::Position endPosition = matchRange.endPosition();
-		if (endPosition > bestEnd && (endPosition < search._endPosition || position != endPosition || is_allowed_empty_at_end_position)) // We are searching for the longest match which has the fathest end (but may not accept empty match at end position).
+		if(endPosition > bestEnd && (endPosition < search._endPosition || position != endPosition || is_allowed_empty_at_end_position)) // We are searching for the longest match which has the fathest end (but may not accept empty match at end position).
 		{
 			bestMatch = _match;
 			bestPosition = position;
@@ -394,7 +394,7 @@ BoostRegexSearch::Match BoostRegexSearch::EncodingDependent<CharT, CharacterIter
 		}
 		search._startPosition = search.nextCharacter(position);
 	}
-	if (bestPosition >= 0)
+	if(bestPosition >= 0)
 		return Match(search._document, bestPosition, bestEnd);
 	else
 		return Match();
@@ -403,7 +403,7 @@ BoostRegexSearch::Match BoostRegexSearch::EncodingDependent<CharT, CharacterIter
 template <class CharT, class CharacterIterator>
 void BoostRegexSearch::EncodingDependent<CharT, CharacterIterator>::compileRegex(const char *regex, const int compileFlags)
 {
-	if (_lastCompileFlags != compileFlags || _lastRegexString != regex)
+	if(_lastCompileFlags != compileFlags || _lastRegexString != regex)
 	{
 		_regex = Regex(CharTPtr(regex), static_cast<regex_constants::syntax_option_type>(compileFlags));
 		_lastRegexString = regex;
@@ -413,7 +413,7 @@ void BoostRegexSearch::EncodingDependent<CharT, CharacterIterator>::compileRegex
 
 Sci::Position BoostRegexSearch::SearchParameters::nextCharacter(Sci::Position position)
 {
-	if (_skip_windows_line_end_as_one_character && _document->CharAt(position) == '\r' && _document->CharAt(position+1) == '\n')
+	if(_skip_windows_line_end_as_one_character && _document->CharAt(position) == '\r' && _document->CharAt(position+1) == '\n')
 		return position + 2;
 	else
 		return position + 1;

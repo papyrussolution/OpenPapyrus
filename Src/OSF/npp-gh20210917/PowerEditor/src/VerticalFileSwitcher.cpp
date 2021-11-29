@@ -364,7 +364,7 @@ int VerticalFileSwitcher::setHeaderOrder(int columnIndex)
 		return SORT_DIRECTION_DOWN;
 	}
 
-	//if (_lastSortingDirection == SORT_DIRECTION_DOWN)
+	//if(_lastSortingDirection == SORT_DIRECTION_DOWN)
 	return SORT_DIRECTION_NONE;
 }
 

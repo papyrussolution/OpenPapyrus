@@ -228,7 +228,7 @@ static const int khmer_syllable_machine_en_main = 20;
 
 static void find_syllables_khmer(hb_buffer_t * buffer)
 {
-	unsigned int p, pe, eof, ts, te, act HB_UNUSED;
+	uint p, pe, eof, ts, te, act HB_UNUSED;
 	int cs;
 	hb_glyph_info_t * info = buffer->info;
 
@@ -245,7 +245,7 @@ static void find_syllables_khmer(hb_buffer_t * buffer)
 	p = 0;
 	pe = eof = buffer->len;
 
-	unsigned int syllable_serial = 1;
+	uint syllable_serial = 1;
 
 #line 258 "hb-ot-shape-complex-khmer-machine.hh"
 	{

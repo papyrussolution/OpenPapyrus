@@ -591,16 +591,16 @@ UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZ
 				TimeZoneTransition before;
 				bool beforTrs = btz->getPreviousTransition(date, TRUE, before);
 				if(beforTrs
-				  && (date - before.getTime() < kDstCheckRange)
-				  && before.getFrom()->getDSTSavings() != 0) {
+				 && (date - before.getTime() < kDstCheckRange)
+				 && before.getFrom()->getDSTSavings() != 0) {
 					useStandard = FALSE;
 				}
 				else {
 					TimeZoneTransition after;
 					bool afterTrs = btz->getNextTransition(date, FALSE, after);
 					if(afterTrs
-					  && (after.getTime() - date < kDstCheckRange)
-					  && after.getTo()->getDSTSavings() != 0) {
+					 && (after.getTime() - date < kDstCheckRange)
+					 && after.getTo()->getDSTSavings() != 0) {
 						useStandard = FALSE;
 					}
 				}
@@ -911,7 +911,7 @@ int32_t TZGNCore::findBestMatch(const UnicodeString & text, int32_t start, uint3
 			// then we need to check if the name is same with the location name.
 			// This is probably a data error or a design bug.
 /*
-            if (!isLongStandard) {
+            if(!isLongStandard) {
                 tzID.setTo(bestMatchTzID);
                 timeType = bestMatchTimeType;
                 return bestMatchLen;

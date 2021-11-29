@@ -106,7 +106,7 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 				collect_entry_name = true;
 			}
 			else if((sc.state == SCE_BIBTEX_ENTRY || sc.state == SCE_BIBTEX_UNKNOWN_ENTRY)
-			  && (sc.ch == '{' || sc.ch == '(')) {
+			 && (sc.ch == '{' || sc.ch == '(')) {
 				// Entry name colorization done
 				// Found either a { or a ( after entry's name, e.g. @entry(...) @entry{...}
 				// Closing counterpart needs to be stored.
@@ -255,7 +255,7 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 
 			if((current_level > prev_level))
 				level |= SC_FOLDLEVELHEADERFLAG;
-			// else if (current_level < prev_level)
+			// else if(current_level < prev_level)
 			//	level |= SC_FOLDLEVELBOXFOOTERFLAG; // Deprecated
 
 			if(level != styler.LevelAt(current_line)) {

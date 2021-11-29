@@ -743,7 +743,7 @@ static int ssl_conf_cmd_allowed(SSL_CONF_CTX * cctx, const ssl_conf_cmd_tbl * t)
 	if((tfl & SSL_CONF_FLAG_CLIENT) && !(cfl & SSL_CONF_FLAG_CLIENT))
 		return 0;
 	if((tfl & SSL_CONF_FLAG_CERTIFICATE)
-	  && !(cfl & SSL_CONF_FLAG_CERTIFICATE))
+	 && !(cfl & SSL_CONF_FLAG_CERTIFICATE))
 		return 0;
 	return 1;
 }

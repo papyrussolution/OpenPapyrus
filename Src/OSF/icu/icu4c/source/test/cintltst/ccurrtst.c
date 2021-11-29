@@ -17,7 +17,7 @@
 #include <icu-internal.h>
 #pragma hdrstop
 
-#if (!UCONFIG_NO_COLLATION)  /* This is not a formatting test. This is a collation test. */
+#if(!UCONFIG_NO_COLLATION)  /* This is not a formatting test. This is a collation test. */
 
 #include "unicode/uloc.h"
 #include "cintltst.h"

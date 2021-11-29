@@ -81,7 +81,7 @@ class U_I18N_API SymbolProvider {
  *
  * <pre>
  * long tag = 0L;
- * while (AffixPatternUtils.hasNext(tag, patternString)) {
+ * while(AffixPatternUtils.hasNext(tag, patternString)) {
  *   tag = AffixPatternUtils.nextToken(tag, patternString);
  *   int typeOrCp = AffixPatternUtils.getTypeOrCp(tag);
  *   switch (typeOrCp) {

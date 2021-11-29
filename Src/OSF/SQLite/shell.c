@@ -30,7 +30,7 @@
 ** This file contains code to implement the "sqlite" command line
 ** utility for accessing SQLite databases.
 */
-#if (defined(_WIN32) || defined(WIN32)) && !defined(_CRT_SECURE_NO_WARNINGS)
+#if(defined(_WIN32) || defined(WIN32)) && !defined(_CRT_SECURE_NO_WARNINGS)
 /* This needs to come before any includes for MSVC compiler */
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -67,7 +67,7 @@
 /*
 ** No support for loadable extensions in VxWorks.
 */
-#if (defined(__RTP__) || defined(_WRS_KERNEL)) && !SQLITE_OMIT_LOAD_EXTENSION
+#if(defined(__RTP__) || defined(_WRS_KERNEL)) && !SQLITE_OMIT_LOAD_EXTENSION
 #define SQLITE_OMIT_LOAD_EXTENSION 1
 #endif
 
@@ -102,7 +102,7 @@ typedef unsigned char u8;
 #  include <pwd.h>
 # endif
 #endif
-#if (!defined(_WIN32) && !defined(WIN32)) || defined(__MINGW32__)
+#if(!defined(_WIN32) && !defined(WIN32)) || defined(__MINGW32__)
 # include <unistd.h>
 # include <dirent.h>
 #define GETPID getpid
@@ -220,7 +220,7 @@ extern LPWSTR sqlite3_win32_utf8_to_unicode(const char * zText);
 ** rendering quoted strings that contain \n characters).  The following
 ** routines take care of that.
 */
-#if (defined(_WIN32) || defined(WIN32)) && !SQLITE_OS_WINRT
+#if(defined(_WIN32) || defined(WIN32)) && !SQLITE_OS_WINRT
 static void setBinaryMode(FILE * file, int isOutput){
 	if(isOutput) fflush(file);
 	_setmode(_fileno(file), _O_BINARY);
@@ -589,7 +589,7 @@ static void utf8_width_print(FILE * pOut, int w, const char * zUtf){
 			if(n==aw) {
 				do {
 					i++;
-				} while( (zUtf[i]&0xc0)==0x80);
+				} while((zUtf[i]&0xc0)==0x80);
 				break;
 			}
 		}
@@ -806,7 +806,7 @@ static sqlite3_int64 integerValue(const char * zArg){
 	if(zArg[0]=='0' && zArg[1]=='x') {
 		int x;
 		zArg += 2;
-		while( (x = hexDigitValue(zArg[0]))>=0) {
+		while((x = hexDigitValue(zArg[0]))>=0) {
 			v = (v<<4) + x;
 			zArg++;
 		}
@@ -1028,8 +1028,8 @@ static void shellAddSchemaName(sqlite3_context * pCtx,
 					}
 				}
 				if(zName
-				    && aPrefix[i][0]=='V'
-				    && (zFake = shellFakeSchema(db, zSchema, zName))!=0
+				 && aPrefix[i][0]=='V'
+				 && (zFake = shellFakeSchema(db, zSchema, zName))!=0
 				    ) {
 					if(z==0) {
 						z = sqlite3_mprintf("%s\n/* %s */", zIn, zFake);
@@ -3438,7 +3438,7 @@ static int completionNext(sqlite3_vtab_cursor * cur){
 		}
 		if(pCur->nPrefix==0) break;
 		if(pCur->nPrefix<=pCur->szRow
-		    && sqlite3_strnicmp(pCur->zPrefix, pCur->zCurrentRow, pCur->nPrefix)==0
+		 && sqlite3_strnicmp(pCur->zPrefix, pCur->zCurrentRow, pCur->nPrefix)==0
 		    ) {
 			break;
 		}
@@ -4122,9 +4122,9 @@ static int apndIsAppendvfsDatabase(sqlite3_int64 sz, sqlite3_file * pFile){
 		*/
 		rc = pFile->pMethods->xRead(pFile, zHdr, sizeof(zHdr), iMark);
 		if(SQLITE_OK==rc
-		    && memcmp(zHdr, apvfsSqliteHdr, sizeof(zHdr))==0
-		    && (sz & 0x1ff) == APND_MARK_SIZE
-		    && sz>=512+APND_MARK_SIZE
+		 && memcmp(zHdr, apvfsSqliteHdr, sizeof(zHdr))==0
+		 && (sz & 0x1ff) == APND_MARK_SIZE
+		 && sz>=512+APND_MARK_SIZE
 		    ) {
 			return 1; /* It's an appendvfs database */
 		}
@@ -4505,7 +4505,7 @@ static int uintCollFunc(void * notUsed,
 			}
 			k = 0;
 			while(i+k<nKey1 && isdigit(zA[i+k])
-			    && j+k<nKey2 && isdigit(zB[j+k]) ) {
+			 && j+k<nKey2 && isdigit(zB[j+k]) ) {
 				k++;
 			}
 			if(i+k<nKey1 && isdigit(zA[i+k]) ) {
@@ -5302,7 +5302,7 @@ static void ieee754func(sqlite3_context * context,
 		char zResult[100];
 		assert(sizeof(m)==sizeof(r) );
 		if(sqlite3_value_type(argv[0])==SQLITE_BLOB
-		    && sqlite3_value_bytes(argv[0])==sizeof(r)
+		 && sqlite3_value_bytes(argv[0])==sizeof(r)
 		    ) {
 			const unsigned char * x = (const unsigned char *)sqlite3_value_blob(argv[0]);
 			unsigned int i;
@@ -5380,7 +5380,7 @@ static void ieee754func(sqlite3_context * context,
 			sqlite3_result_double(context, 0.0);
 			return;
 		}
-		while( (m>>32)&0xffe00000) {
+		while((m>>32)&0xffe00000) {
 			m >>= 1;
 			e++;
 		}
@@ -6083,13 +6083,13 @@ static unsigned re_next_char(ReInput * p){
 			if(c<0x80) c = 0xfffd;
 		}
 		else if( (c&0xf0)==0xe0 && p->i+1<p->mx && (p->z[p->i]&0xc0)==0x80
-		    && (p->z[p->i+1]&0xc0)==0x80) {
+		 && (p->z[p->i+1]&0xc0)==0x80) {
 			c = (c&0x0f)<<12 | ((p->z[p->i]&0x3f)<<6) | (p->z[p->i+1]&0x3f);
 			p->i += 2;
 			if(c<=0x7ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
 		}
 		else if( (c&0xf8)==0xf0 && p->i+3<p->mx && (p->z[p->i]&0xc0)==0x80
-		    && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80) {
+		 && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80) {
 			c = (c&0x07)<<18 | ((p->z[p->i]&0x3f)<<12) | ((p->z[p->i+1]&0x3f)<<6)
 				| (p->z[p->i+2]&0x3f);
 			p->i += 3;
@@ -6146,7 +6146,7 @@ static int re_match(ReCompiled * pRe, const unsigned char * zIn, int nIn){
 	if(pRe->nInit) {
 		unsigned char x = pRe->zInit[0];
 		while(in.i+pRe->nInit<=in.mx
-		    && (zIn[in.i]!=x ||
+		 && (zIn[in.i]!=x ||
 		    strncmp((const char*)zIn+in.i, (const char*)pRe->zInit, pRe->nInit)!=0)
 		    ) {
 			in.i++;
@@ -6355,9 +6355,9 @@ static unsigned re_esc_char(ReCompiled * p){
 	if(c=='u' && p->sIn.i+4<p->sIn.mx) {
 		const unsigned char * zIn = p->sIn.z + p->sIn.i;
 		if(re_hex(zIn[1], &v)
-		    && re_hex(zIn[2], &v)
-		    && re_hex(zIn[3], &v)
-		    && re_hex(zIn[4], &v)
+		 && re_hex(zIn[2], &v)
+		 && re_hex(zIn[3], &v)
+		 && re_hex(zIn[4], &v)
 		    ) {
 			p->sIn.i += 5;
 			return v;
@@ -6366,7 +6366,7 @@ static unsigned re_esc_char(ReCompiled * p){
 	if(c=='x' && p->sIn.i+2<p->sIn.mx) {
 		const unsigned char * zIn = p->sIn.z + p->sIn.i;
 		if(re_hex(zIn[1], &v)
-		    && re_hex(zIn[2], &v)
+		 && re_hex(zIn[2], &v)
 		    ) {
 			p->sIn.i += 3;
 			return v;
@@ -6423,7 +6423,7 @@ static const char * re_subcompile_string(ReCompiled * p){
 	int iStart;
 	unsigned c;
 	const char * zErr;
-	while( (c = p->xNextChar(&p->sIn))!=0) {
+	while((c = p->xNextChar(&p->sIn))!=0) {
 		iStart = p->nState;
 		switch(c) {
 			case '|':
@@ -6469,14 +6469,14 @@ static const char * re_subcompile_string(ReCompiled * p){
 			    int m = 0, n = 0;
 			    int sz, j;
 			    if(iPrev<0) return "'{m,n}' without operand";
-			    while( (c = rePeek(p))>='0' && c<='9') {
+			    while((c = rePeek(p))>='0' && c<='9') {
 				    m = m*10 + c - '0'; p->sIn.i++;
 			    }
 			    n = m;
 			    if(c==',') {
 				    p->sIn.i++;
 				    n = 0;
-				    while( (c = rePeek(p))>='0' && c<='9') {
+				    while((c = rePeek(p))>='0' && c<='9') {
 					    n = n*10 + c-'0'; p->sIn.i++;
 				    }
 			    }
@@ -6510,7 +6510,7 @@ static const char * re_subcompile_string(ReCompiled * p){
 			    else{
 				    re_append(p, RE_OP_CC_INC, 0);
 			    }
-			    while( (c = p->xNextChar(&p->sIn))!=0) {
+			    while((c = p->xNextChar(&p->sIn))!=0) {
 				    if(c=='[' && rePeek(p)==':') {
 					    return "POSIX character classes not supported";
 				    }
@@ -7908,7 +7908,7 @@ static int zipfileReadEOCD(ZipfileTab * pTab,               /* Return errors her
 		/* Scan backwards looking for the signature bytes */
 		for(i = nRead-20; i>=0; i--) {
 			if(aRead[i]==0x50 && aRead[i+1]==0x4b
-			    && aRead[i+2]==0x05 && aRead[i+3]==0x06
+			 && aRead[i+2]==0x05 && aRead[i+3]==0x06
 			    ) {
 				break;
 			}
@@ -9719,9 +9719,9 @@ static int expertBestIndex(sqlite3_vtab * pVtab, sqlite3_index_info * pIdxInfo){
 		for(i = 0; i<pIdxInfo->nConstraint; i++) {
 			struct sqlite3_index_constraint * pCons = &pIdxInfo->aConstraint[i];
 			if(pCons->usable
-			    && pCons->iColumn>=0
-			    && p->pTab->aCol[pCons->iColumn].iPk==0
-			    && (pCons->op & opmask)
+			 && pCons->iColumn>=0
+			 && p->pTab->aCol[pCons->iColumn].iPk==0
+			 && (pCons->op & opmask)
 			    ) {
 				IdxConstraint * pNew;
 				const char * zColl = sqlite3_vtab_collation(pIdxInfo, i);
@@ -10055,9 +10055,9 @@ static int idxIdentifierRequiresQuotes(const char * zId){
 	int i;
 	for(i = 0; zId[i]; i++) {
 		if(!(zId[i]=='_')
-		    && !(zId[i]>='0' && zId[i]<='9')
-		    && !(zId[i]>='a' && zId[i]<='z')
-		    && !(zId[i]>='A' && zId[i]<='Z')
+		 && !(zId[i]>='0' && zId[i]<='9')
+		 && !(zId[i]>='a' && zId[i]<='z')
+		 && !(zId[i]>='A' && zId[i]<='Z')
 		    ) {
 			return 1;
 		}
@@ -10405,7 +10405,7 @@ int idxFindIndexes(sqlite3expert * p,
 					zIdx = &zDetail[i+13];
 				}
 				else if(i+22<nDetail
-				    && memcmp(&zDetail[i], " USING COVERING INDEX ", 22)==0
+				 && memcmp(&zDetail[i], " USING COVERING INDEX ", 22)==0
 				    ) {
 					zIdx = &zDetail[i+22];
 				}
@@ -12638,7 +12638,7 @@ static void output_quoted_escaped_string(FILE * out, const char * z){
 static void output_c_string(FILE * out, const char * z){
 	unsigned int c;
 	fputc('"', out);
-	while( (c = *(z++))!=0) {
+	while((c = *(z++))!=0) {
 		if(c=='\\') {
 			fputc(c, out);
 			fputc(c, out);
@@ -12719,11 +12719,11 @@ static void output_html_string(FILE * out, const char * z){
 	if(z==0) z = "";
 	while(*z) {
 		for(i = 0; z[i]
-		    && z[i]!='<'
-		    && z[i]!='&'
-		    && z[i]!='>'
-		    && z[i]!='\"'
-		    && z[i]!='\'';
+		 && z[i]!='<'
+		 && z[i]!='&'
+		 && z[i]!='>'
+		 && z[i]!='\"'
+		 && z[i]!='\'';
 		    i++) {
 		}
 		if(i>0) {
@@ -12820,7 +12820,7 @@ static void interrupt_handler(int NotUsed){
 	if(globalDb) sqlite3_interrupt(globalDb);
 }
 
-#if (defined(_WIN32) || defined(WIN32)) && !defined(_WIN32_WCE)
+#if(defined(_WIN32) || defined(WIN32)) && !defined(_WIN32_WCE)
 /*
 ** This routine runs for console events (e.g. Ctrl-C) on Win32
 */
@@ -13986,7 +13986,7 @@ static void explain_data_prepare(ShellState * p, sqlite3_stmt * pSql){
 			for(i = p2op; i<iOp; i++) p->aiIndent[i] += 2;
 		}
 		if(str_in_array(zOp, azGoto) && p2op<p->nIndent
-		    && (abYield[p2op] || sqlite3_column_int(pSql, 2))
+		 && (abYield[p2op] || sqlite3_column_int(pSql, 2))
 		    ) {
 			for(i = p2op; i<iOp; i++) p->aiIndent[i] += 2;
 		}
@@ -14198,7 +14198,7 @@ static void exec_prepared_stmt_columnar(ShellState * p,                        /
 			z = (const char*)sqlite3_column_text(pStmt, i);
 			azData[nRow*nColumn + i] = z ? strdup(z) : 0;
 		}
-	} while( (rc = sqlite3_step(pStmt))==SQLITE_ROW);
+	} while((rc = sqlite3_step(pStmt))==SQLITE_ROW);
 	if(nColumn>p->nWidth) {
 		p->colWidth = (int *)realloc(p->colWidth, nColumn*2*sizeof(int));
 		if(p->colWidth==0) shell_out_of_memory();
@@ -14735,7 +14735,7 @@ static char ** tableColumnList(ShellState * p, const char * zTab){
 		if(sqlite3_column_int(pStmt, 5) ) {
 			nPK++;
 			if(nPK==1
-			    && sqlite3_stricmp((const char*)sqlite3_column_text(pStmt, 2),
+			 && sqlite3_stricmp((const char*)sqlite3_column_text(pStmt, 2),
 			    "INTEGER")==0
 			    ) {
 				isIPK = 1;
@@ -15428,7 +15428,7 @@ int deduceDatabaseType(const char * zName, int dfltZip){
 		fseek(f, -22, SEEK_END);
 		n = fread(zBuf, 22, 1, f);
 		if(n==1 && zBuf[0]==0x50 && zBuf[1]==0x4b && zBuf[2]==0x05
-		    && zBuf[3]==0x06) {
+		 && zBuf[3]==0x06) {
 			rc = SHELL_OPEN_ZIPFILE;
 		}
 		else if(n==0 && dfltZip && sqlite3_strlike("%.zip", zName, 0)==0) {
@@ -16327,7 +16327,7 @@ static void tryToCloneData(ShellState * p,
 		goto end_data_xfer;
 	}
 	for(k = 0; k<2; k++) {
-		while( (rc = sqlite3_step(pQuery))==SQLITE_ROW) {
+		while((rc = sqlite3_step(pQuery))==SQLITE_ROW) {
 			for(i = 0; i<n; i++) {
 				switch(sqlite3_column_type(pQuery, i) ) {
 					case SQLITE_NULL: {
@@ -16414,7 +16414,7 @@ static void tryToCloneSchema(ShellState * p,
 		    zQuery);
 		goto end_schema_xfer;
 	}
-	while( (rc = sqlite3_step(pQuery))==SQLITE_ROW) {
+	while((rc = sqlite3_step(pQuery))==SQLITE_ROW) {
 		zName = sqlite3_column_text(pQuery, 0);
 		zSql = sqlite3_column_text(pQuery, 1);
 		printf("%s... ", zName); fflush(stdout);
@@ -16441,7 +16441,7 @@ static void tryToCloneSchema(ShellState * p,
 			    zQuery);
 			goto end_schema_xfer;
 		}
-		while( (rc = sqlite3_step(pQuery))==SQLITE_ROW) {
+		while((rc = sqlite3_step(pQuery))==SQLITE_ROW) {
 			zName = sqlite3_column_text(pQuery, 0);
 			zSql = sqlite3_column_text(pQuery, 1);
 			printf("%s... ", zName); fflush(stdout);
@@ -16611,7 +16611,7 @@ static int shell_dbinfo_command(ShellState * p, int nArg, char ** azArg){
 	}
 	sqlite3_bind_text(pStmt, 1, zDb, -1, SQLITE_STATIC);
 	if(sqlite3_step(pStmt)==SQLITE_ROW
-	    && sqlite3_column_bytes(pStmt, 0)>100
+	 && sqlite3_column_bytes(pStmt, 0)>100
 	    ) {
 		memcpy(aHdr, sqlite3_column_blob(pStmt, 0), 100);
 		sqlite3_finalize(pStmt);
@@ -16698,14 +16698,14 @@ static int testcase_glob(const char * zGlob, const char * z){
 	int invert;
 	int seen;
 
-	while( (c = (*(zGlob++)))!=0) {
+	while((c = (*(zGlob++)))!=0) {
 		if(IsSpace(c) ) {
 			if(!IsSpace(*z) ) return 0;
 			while(IsSpace(*zGlob) ) zGlob++;
 			while(IsSpace(*z) ) z++;
 		}
 		else if(c=='*') {
-			while( (c = (*(zGlob++))) == '*' || c=='?') {
+			while((c = (*(zGlob++))) == '*' || c=='?') {
 				if(c=='?' && (*(z++))==0) return 0;
 			}
 			if(c==0) {
@@ -16717,7 +16717,7 @@ static int testcase_glob(const char * zGlob, const char * z){
 				}
 				return (*z)!=0;
 			}
-			while( (c2 = (*(z++)))!=0) {
+			while((c2 = (*(z++)))!=0) {
 				while(c2!=c) {
 					c2 = *(z++);
 					if(c2==0) return 0;
@@ -17043,8 +17043,8 @@ static int lintFkeyIndexes(ShellState * pState,             /* Current shell too
 			}
 			else{
 				if(bGroupByParent
-				    && (bVerbose || res==0)
-				    && (zPrev==0 || sqlite3_stricmp(zParent, zPrev))
+				 && (bVerbose || res==0)
+				 && (zPrev==0 || sqlite3_stricmp(zParent, zPrev))
 				    ) {
 					raw_printf(out, "-- Parent table %s\n", zParent);
 					sqlite3_free(zPrev);
@@ -17849,7 +17849,7 @@ static int arDotCommand(ShellState * pState,          /* Current shell tool stat
 		}
 		if(cmd.zSrcTable==0 && cmd.bZip==0 && cmd.eCmd!=AR_CMD_HELP) {
 			if(cmd.eCmd!=AR_CMD_CREATE
-			    && sqlite3_table_column_metadata(cmd.db, 0, "sqlar", "name", 0, 0, 0, 0, 0)
+			 && sqlite3_table_column_metadata(cmd.db, 0, "sqlar", "name", 0, 0, 0, 0, 0)
 			    ) {
 				utf8_printf(stderr, "database does not contain an 'sqlar' table\n");
 				rc = SQLITE_ERROR;
@@ -18015,7 +18015,7 @@ static void recoverFreeTable(RecoverTable * pTab){
 }
 
 /*
-** This function is a no-op if (*pRc) is not SQLITE_OK when it is called.
+** This function is a no-op if(*pRc) is not SQLITE_OK when it is called.
 ** Otherwise, it allocates and returns a RecoverTable object based on the
 ** final four arguments passed to this function. It is the responsibility
 ** of the caller to eventually free the returned object using
@@ -18721,7 +18721,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			close_db(pDest);
 			return 1;
 		}
-		while(  (rc = sqlite3_backup_step(pBackup, 100))==SQLITE_OK) {
+		while((rc = sqlite3_backup_step(pBackup, 100))==SQLITE_OK) {
 		}
 		sqlite3_backup_finish(pBackup);
 		if(rc==SQLITE_DONE) {
@@ -19147,8 +19147,8 @@ static int do_meta_command(char * zLine, ShellState * p){
 		zCmd = nArg>=2 ? azArg[1] : "help";
 
 		if(zCmd[0]=='-'
-		    && (strcmp(zCmd, "--schema")==0 || strcmp(zCmd, "-schema")==0)
-		    && nArg>=4
+		 && (strcmp(zCmd, "--schema")==0 || strcmp(zCmd, "-schema")==0)
+		 && nArg>=4
 		    ) {
 			zSchema = azArg[2];
 			for(i = 3; i<nArg; i++) azArg[i-2] = azArg[i];
@@ -19484,7 +19484,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			output_c_string(p->out, zSep);
 			utf8_printf(p->out, "\n");
 		}
-		while( (nSkip--)>0) {
+		while((nSkip--)>0) {
 			while(xRead(&sCtx) && sCtx.cTerm==sCtx.cColSep) {
 			}
 		}
@@ -20055,7 +20055,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 		}
 	}
 	else if( (c=='o'
-	    && (strncmp(azArg[0], "output", n)==0||strncmp(azArg[0], "once", n)==0))
+	 && (strncmp(azArg[0], "output", n)==0||strncmp(azArg[0], "once", n)==0))
 	    || (c=='e' && n==5 && strcmp(azArg[0], "excel")==0)
 	    ) {
 		char * zFile = 0;
@@ -20415,7 +20415,7 @@ parameter_syntax_error:
 			close_db(pSrc);
 			return 1;
 		}
-		while( (rc = sqlite3_backup_step(pBackup, 100))==SQLITE_OK
+		while((rc = sqlite3_backup_step(pBackup, 100))==SQLITE_OK
 		    || rc==SQLITE_BUSY) {
 			if(rc==SQLITE_BUSY) {
 				if(nTimeout++ >= 3) break;
@@ -20673,7 +20673,7 @@ session_not_open:
 					rc = 0;
 				}
 				if(pChng
-				    && fwrite(pChng, szChng, 1, out)!=1) {
+				 && fwrite(pChng, szChng, 1, out)!=1) {
 					raw_printf(stderr, "ERROR: Failed to write entire %d-byte output\n",
 					    szChng);
 				}
@@ -21078,7 +21078,7 @@ session_syntax_error:
 
 #ifndef SQLITE_NOHAVE_SYSTEM
 	if(c=='s'
-	    && (strncmp(azArg[0], "shell", n)==0 || strncmp(azArg[0], "system", n)==0)
+	 && (strncmp(azArg[0], "shell", n)==0 || strncmp(azArg[0], "system", n)==0)
 	    ) {
 		char * zCmd;
 		int i, x;
@@ -21822,7 +21822,7 @@ static int line_is_command_terminator(const char * zLine){
 		return 1; /* Oracle */
 	}
 	if(ToLower(zLine[0])=='g' && ToLower(zLine[1])=='o'
-	    && _all_whitespace(&zLine[2]) ) {
+	 && _all_whitespace(&zLine[2]) ) {
 		return 1; /* SQL Server */
 	}
 	return 0;
@@ -21967,7 +21967,7 @@ static int process_input(ShellState * p){
 			nSql += nLine;
 		}
 		if(nSql && line_contains_semicolon(&zSql[nSqlPrior], nSql-nSqlPrior)
-		    && sqlite3_complete(zSql) ) {
+		 && sqlite3_complete(zSql) ) {
 			errCnt += runOneSqlLine(p, zSql, p->in, startline);
 			nSql = 0;
 			if(p->outCount) {
@@ -22245,7 +22245,7 @@ static char * cmdline_option_value(int argc, char ** argv, int i){
 }
 
 #ifndef SQLITE_SHELL_IS_UTF8
-#  if (defined(_WIN32) || defined(WIN32)) \
+#  if(defined(_WIN32) || defined(WIN32)) \
 	&& (defined(_MSC_VER) || (defined(UNICODE) && defined(__GNUC__)))
 #    define SQLITE_SHELL_IS_UTF8          (0)
 #  else

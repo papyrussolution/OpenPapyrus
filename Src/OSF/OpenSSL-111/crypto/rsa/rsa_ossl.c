@@ -613,7 +613,7 @@ static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * c
 		goto err;
 
 	if(rsa->version == RSA_ASN1_VERSION_MULTI
-	  && ((ex_primes = sk_RSA_PRIME_INFO_num(rsa->prime_infos)) <= 0
+	 && ((ex_primes = sk_RSA_PRIME_INFO_num(rsa->prime_infos)) <= 0
 	    || ex_primes > RSA_MAX_PRIME_NUM - 2))
 		goto err;
 
@@ -650,8 +650,8 @@ static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * c
 		BN_free(factor);
 
 		smooth = (ex_primes == 0)
-		  && (rsa->meth->bn_mod_exp == BN_mod_exp_mont)
-		  && (BN_num_bits(rsa->q) == BN_num_bits(rsa->p));
+		 && (rsa->meth->bn_mod_exp == BN_mod_exp_mont)
+		 && (BN_num_bits(rsa->q) == BN_num_bits(rsa->p));
 	}
 
 	if(rsa->flags & RSA_FLAG_CACHE_PUBLIC)

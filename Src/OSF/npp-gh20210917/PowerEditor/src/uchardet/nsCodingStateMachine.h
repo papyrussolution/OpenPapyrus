@@ -66,7 +66,7 @@ public:
   nsSMState NextState(char c){
     //for each byte we get its class , if it is first byte, we also get byte length
     PRUint32 byteCls = GETCLASS(c);
-    if (mCurrentState == eStart)
+    if(mCurrentState == eStart)
     { 
       mCurrentBytePos = 0; 
       mCurrentCharLen = mModel->charLenTable[byteCls];

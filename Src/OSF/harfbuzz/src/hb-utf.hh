@@ -47,7 +47,7 @@ struct hb_utf8_t {
 
 		if(c > 0x7Fu) {
 			if(hb_in_range<hb_codepoint_t> (c, 0xC2u, 0xDFu)) { /* Two-byte */
-				unsigned int t1;
+				uint t1;
 				if(LIKELY(text < end && (t1 = text[0] - 0x80u) <= 0x3Fu)) {
 					c = ((c&0x1Fu)<<6) | t1;
 					text++;
@@ -56,7 +56,7 @@ struct hb_utf8_t {
 					goto error;
 			}
 			else if(hb_in_range<hb_codepoint_t> (c, 0xE0u, 0xEFu)) { /* Three-byte */
-				unsigned int t1, t2;
+				uint t1, t2;
 				if(LIKELY(1 < end - text && (t1 = text[0] - 0x80u) <= 0x3Fu && (t2 = text[1] - 0x80u) <= 0x3Fu)) {
 					c = ((c&0xFu)<<12) | (t1<<6) | t2;
 					if(UNLIKELY(c < 0x0800u || hb_in_range<hb_codepoint_t> (c, 0xD800u, 0xDFFFu)))
@@ -67,7 +67,7 @@ struct hb_utf8_t {
 					goto error;
 			}
 			else if(hb_in_range<hb_codepoint_t> (c, 0xF0u, 0xF4u)) { /* Four-byte */
-				unsigned int t1, t2, t3;
+				uint t1, t2, t3;
 				if(LIKELY(2 < end - text && (t1 = text[0] - 0x80u) <= 0x3Fu && (t2 = text[1] - 0x80u) <= 0x3Fu && (t3 = text[2] - 0x80u) <= 0x3Fu)) {
 					c = ((c&0x7u)<<18) | (t1<<12) | (t2<<6) | t3;
 					if(UNLIKELY(!hb_in_range<hb_codepoint_t> (c, 0x10000u, 0x10FFFFu)))
@@ -105,12 +105,12 @@ error:
 		return end - 1;
 	}
 
-	static unsigned int strlen(const codepoint_t * text)
+	static uint strlen(const codepoint_t * text)
 	{
 		return ::strlen((const char*)text);
 	}
 
-	static unsigned int encode_len(hb_codepoint_t unicode)
+	static uint encode_len(hb_codepoint_t unicode)
 	{
 		if(unicode <   0x0080u) return 1;
 		if(unicode <   0x0800u) return 2;
@@ -213,14 +213,14 @@ struct hb_utf16_xe_t {
 		return text;
 	}
 
-	static unsigned int strlen(const codepoint_t * text)
+	static uint strlen(const codepoint_t * text)
 	{
-		unsigned int l = 0;
+		uint l = 0;
 		while(*text++) l++;
 		return l;
 	}
 
-	static unsigned int encode_len(hb_codepoint_t unicode)
+	static uint encode_len(hb_codepoint_t unicode)
 	{
 		return unicode < 0x10000 ? 1 : 2;
 	}
@@ -272,14 +272,14 @@ template <typename TCodepoint, bool validate = true>
 		return text;
 	}
 
-	static unsigned int strlen(const TCodepoint * text)
+	static uint strlen(const TCodepoint * text)
 	{
-		unsigned int l = 0;
+		uint l = 0;
 		while(*text++) l++;
 		return l;
 	}
 
-	static unsigned int encode_len(hb_codepoint_t unicode HB_UNUSED)
+	static uint encode_len(hb_codepoint_t unicode HB_UNUSED)
 	{
 		return 1;
 	}
@@ -319,14 +319,14 @@ struct hb_latin1_t {
 		return text;
 	}
 
-	static unsigned int strlen(const codepoint_t * text)
+	static uint strlen(const codepoint_t * text)
 	{
-		unsigned int l = 0;
+		uint l = 0;
 		while(*text++) l++;
 		return l;
 	}
 
-	static unsigned int encode_len(hb_codepoint_t unicode HB_UNUSED)
+	static uint encode_len(hb_codepoint_t unicode HB_UNUSED)
 	{
 		return 1;
 	}
@@ -367,14 +367,14 @@ struct hb_ascii_t {
 		return text;
 	}
 
-	static unsigned int strlen(const codepoint_t * text)
+	static uint strlen(const codepoint_t * text)
 	{
-		unsigned int l = 0;
+		uint l = 0;
 		while(*text++) l++;
 		return l;
 	}
 
-	static unsigned int encode_len(hb_codepoint_t unicode HB_UNUSED)
+	static uint encode_len(hb_codepoint_t unicode HB_UNUSED)
 	{
 		return 1;
 	}

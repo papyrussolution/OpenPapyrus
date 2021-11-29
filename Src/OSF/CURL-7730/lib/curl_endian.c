@@ -81,7 +81,7 @@ ushort Curl_read16_be(const uchar * buf)
 	       ((ushort)buf[1]));
 }
 
-#if (CURL_SIZEOF_CURL_OFF_T > 4)
+#if(CURL_SIZEOF_CURL_OFF_T > 4)
 /*
  * write32_le()
  *

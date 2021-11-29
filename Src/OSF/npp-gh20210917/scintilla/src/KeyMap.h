@@ -28,7 +28,7 @@ public:
 	KeyModifiers(int key_, int modifiers_) noexcept : key(key_), modifiers(modifiers_) {
 	}
 	bool operator<(const KeyModifiers &other) const noexcept {
-		if (key == other.key)
+		if(key == other.key)
 			return modifiers < other.modifiers;
 		else
 			return key < other.key;

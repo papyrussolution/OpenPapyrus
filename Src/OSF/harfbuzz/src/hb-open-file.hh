@@ -72,17 +72,17 @@ public:
 	typedef struct OffsetTable {
 		friend struct OpenTypeFontFile;
 
-		unsigned int get_table_count() const {
+		uint get_table_count() const {
 			return tables.len;
 		}
 
-		const TableRecord& get_table(unsigned int i) const
+		const TableRecord& get_table(uint i) const
 		{
 			return tables[i];
 		}
 
-		unsigned int get_table_tags(unsigned int start_offset,
-		    unsigned int * table_count,           /* IN/OUT */
+		uint get_table_tags(uint start_offset,
+		    uint * table_count,           /* IN/OUT */
 		    hb_tag_t * table_tags /* OUT */) const
 		{
 			if(table_count) {
@@ -94,7 +94,7 @@ public:
 			return tables.len;
 		}
 
-		bool find_table_index(hb_tag_t tag, unsigned int * table_index) const
+		bool find_table_index(hb_tag_t tag, uint * table_index) const
 		{
 			Tag t;
 			t = tag;
@@ -103,7 +103,7 @@ public:
 
 		const TableRecord& get_table_by_tag(hb_tag_t tag) const
 		{
-			unsigned int table_index;
+			uint table_index;
 			find_table_index(tag, &table_index);
 			return get_table(table_index);
 		}
@@ -196,11 +196,11 @@ public:
 	struct TTCHeaderVersion1 {
 		friend struct TTCHeader;
 
-		unsigned int get_face_count() const {
+		uint get_face_count() const {
 			return table.len;
 		}
 
-		const OpenTypeFontFace& get_face(unsigned int i) const {
+		const OpenTypeFontFace& get_face(uint i) const {
 			return this+table[i];
 		}
 
@@ -226,7 +226,7 @@ public:
 
 private:
 
-		unsigned int get_face_count() const
+		uint get_face_count() const
 		{
 			switch(u.header.version.major) {
 				case 2: /* version 2 is compatible with version 1 */
@@ -235,7 +235,7 @@ private:
 			}
 		}
 
-		const OpenTypeFontFace& get_face(unsigned int i) const
+		const OpenTypeFontFace& get_face(uint i) const
 		{
 			switch(u.header.version.major) {
 				case 2: /* version 2 is compatible with version 1 */
@@ -304,7 +304,7 @@ public:
 #define HB_TAG_sfnt HB_TAG('s', 'f', 'n', 't')
 
 	struct ResourceTypeRecord {
-		unsigned int get_resource_count() const
+		uint get_resource_count() const
 		{
 			return tag == HB_TAG_sfnt ? resCountM1 + 1 : 0;
 		}
@@ -313,7 +313,7 @@ public:
 			return tag == HB_TAG_sfnt;
 		}
 
-		const ResourceRecord& get_resource_record(unsigned int i,
+		const ResourceRecord& get_resource_record(uint i,
 		    const void * type_base) const
 		{
 			return (type_base+resourcesZ).as_array(get_resource_count())[i];
@@ -341,9 +341,9 @@ public:
 	};
 
 	struct ResourceMap {
-		unsigned int get_face_count() const
+		uint get_face_count() const
 		{
-			unsigned int count = get_type_count();
+			uint count = get_type_count();
 			for(uint i = 0; i < count; i++) {
 				const ResourceTypeRecord& type = get_type_record(i);
 				if(type.is_sfnt())
@@ -352,10 +352,10 @@ public:
 			return 0;
 		}
 
-		const OpenTypeFontFace& get_face(unsigned int idx,
+		const OpenTypeFontFace& get_face(uint idx,
 		    const void * data_base) const
 		{
-			unsigned int count = get_type_count();
+			uint count = get_type_count();
 			for(uint i = 0; i < count; i++) {
 				const ResourceTypeRecord& type = get_type_record(i);
 				/* The check for idx < count is here because ResourceRecord is NOT null-safe.
@@ -376,11 +376,11 @@ public:
 		}
 
 private:
-		unsigned int get_type_count() const {
+		uint get_type_count() const {
 			return (this+typeList).lenM1 + 1;
 		}
 
-		const ResourceTypeRecord& get_type_record(unsigned int i) const
+		const ResourceTypeRecord& get_type_record(uint i) const
 		{
 			return (this+typeList)[i];
 		}
@@ -400,13 +400,13 @@ public:
 	};
 
 	struct ResourceForkHeader {
-		unsigned int get_face_count() const
+		uint get_face_count() const
 		{
 			return (this+map).get_face_count();
 		}
 
-		const OpenTypeFontFace& get_face(unsigned int idx,
-		    unsigned int * base_offset = nullptr) const
+		const OpenTypeFontFace& get_face(uint idx,
+		    uint * base_offset = nullptr) const
 		{
 			const OpenTypeFontFace &face = (this+map).get_face(idx, &(this+data));
 			if(base_offset)
@@ -454,7 +454,7 @@ public:
 			return u.tag;
 		}
 
-		unsigned int get_face_count() const
+		uint get_face_count() const
 		{
 			switch(u.tag) {
 				case CFFTag: /* All the non-collection tags */
@@ -467,7 +467,7 @@ public:
 			}
 		}
 
-		const OpenTypeFontFace& get_face(unsigned int i, unsigned int * base_offset = nullptr) const
+		const OpenTypeFontFace& get_face(uint i, uint * base_offset = nullptr) const
 		{
 			if(base_offset)
 				*base_offset = 0;

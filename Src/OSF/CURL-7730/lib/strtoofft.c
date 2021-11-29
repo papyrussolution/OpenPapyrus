@@ -33,7 +33,7 @@
  * https://www.opengroup.org/onlinepubs/009695399/functions/strtoimax.html
  */
 
-#if (SIZEOF_CURL_OFF_T > SIZEOF_LONG)
+#if(SIZEOF_CURL_OFF_T > SIZEOF_LONG)
 #ifdef HAVE_STRTOLL
 #define strtooff strtoll
 #else
@@ -59,7 +59,7 @@ _CRTIMP __int64 __cdecl _strtoi64(const char * _String,
 /* Range tests can be used for alphanum decoding if characters are consecutive,
    like in ASCII. Else an array is scanned. Determine this condition now. */
 
-#if ('9' - '0') != 9 || ('Z' - 'A') != 25 || ('z' - 'a') != 25
+#if('9' - '0') != 9 || ('Z' - 'A') != 25 || ('z' - 'a') != 25
 
 #define NO_RANGE_TEST
 

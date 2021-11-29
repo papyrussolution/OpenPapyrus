@@ -565,7 +565,7 @@ static struct SResource * parseString(ParseState* state, char * tag, uint32_t st
 	struct UString   * tokenValue;
 	struct SResource * result = NULL;
 
-/*    if (tag != NULL && uprv_strcmp(tag, "%%UCARULES") == 0)
+/*    if(tag != NULL && uprv_strcmp(tag, "%%UCARULES") == 0)
     {
         return parseUCARules(tag, startline, status);
     }*/

@@ -1091,8 +1091,8 @@ __owur static int ecp_nistz256_set_from_affine(EC_POINT * out, const EC_GROUP * 
 	int ret = 0;
 
 	if((ret = bn_set_words(out->X, in->X, P256_LIMBS))
-	  && (ret = bn_set_words(out->Y, in->Y, P256_LIMBS))
-	  && (ret = bn_set_words(out->Z, ONE, P256_LIMBS)))
+	 && (ret = bn_set_words(out->Y, in->Y, P256_LIMBS))
+	 && (ret = bn_set_words(out->Z, ONE, P256_LIMBS)))
 		out->Z_is_one = 1;
 
 	return ret;

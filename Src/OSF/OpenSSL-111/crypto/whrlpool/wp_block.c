@@ -40,7 +40,7 @@
 #include "wp_locl.h"
 
 typedef uchar u8;
-#if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32)
+#if(defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32)
 	typedef unsigned __int64 u64;
 #elif defined(__arch64__)
 	typedef ulong u64;

@@ -707,13 +707,13 @@ FT_Get_Sfnt_Table(FT_Face face,
  *
  *
  *     error = FT_Load_Sfnt_Table( face, tag, 0, NULL, &length );
- *     if ( error ) { ... table does not exist ... }
+ *     if( error ) { ... table does not exist ... }
  *
  *     buffer = malloc( length );
- *     if ( buffer == NULL ) { ... not enough memory ... }
+ *     if( buffer == NULL ) { ... not enough memory ... }
  *
  *     error = FT_Load_Sfnt_Table( face, tag, 0, buffer, &length );
- *     if ( error ) { ... could not load table ... }
+ *     if( error ) { ... could not load table ... }
  *   ```
  *
  *   Note that structures like @TT_Header or @TT_OS2 can't be used with

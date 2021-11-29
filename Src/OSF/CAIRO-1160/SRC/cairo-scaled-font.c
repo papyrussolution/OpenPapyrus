@@ -1529,7 +1529,7 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  *  &amp;glyphs, &amp;num_glyphs,
  *  &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
  *
- * if (status == CAIRO_STATUS_SUCCESS) {
+ * if(status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_text_glyphs (cr,
  *      utf8, utf8_len,
  *      glyphs, num_glyphs,
@@ -1554,7 +1554,7 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  *  NULL, NULL,
  *  NULL);
  *
- * if (status == CAIRO_STATUS_SUCCESS) {
+ * if(status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_glyphs (cr, glyphs, num_glyphs);
  * cairo_glyph_free (glyphs);
  * }
@@ -1579,15 +1579,15 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  *  &amp;glyphs, &amp;num_glyphs,
  *  &amp;clusters, &amp;num_clusters, &amp;cluster_flags);
  *
- * if (status == CAIRO_STATUS_SUCCESS) {
+ * if(status == CAIRO_STATUS_SUCCESS) {
  * cairo_show_text_glyphs (cr,
  *      utf8, utf8_len,
  *      glyphs, num_glyphs,
  *      clusters, num_clusters, cluster_flags);
  *
- * if (glyphs != stack_glyphs)
+ * if(glyphs != stack_glyphs)
  * cairo_glyph_free (glyphs);
- * if (clusters != stack_clusters)
+ * if(clusters != stack_clusters)
  * cairo_text_cluster_free (clusters);
  * }
  * </programlisting></informalexample>

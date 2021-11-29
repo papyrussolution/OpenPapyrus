@@ -191,7 +191,7 @@ void DateIntervalFormatTest::testAPI() {
 	   DateIntervalInfo* nonConstInf = inf->clone();
 	   dtitvfmt->adoptDateIntervalInfo(nonConstInf, status);
 	   anotherInf = dtitvfmt->getDateIntervalInfo();
-	   if ( (*inf) != (*anotherInf) || U_FAILURE(status) ) {
+	   if( (*inf) != (*anotherInf) || U_FAILURE(status) ) {
 	    dataerrln("ERROR: adoptDateIntervalInfo failed");
 	   }
 	 */
@@ -204,7 +204,7 @@ void DateIntervalFormatTest::testAPI() {
 	   const DateFormat* fmt = another->getDateFormat();
 	   dtitvfmt->setDateFormat(*fmt, status);
 	   const DateFormat* anotherFmt = dtitvfmt->getDateFormat();
-	   if ( (*fmt) != (*anotherFmt) || U_FAILURE(status) ) {
+	   if( (*fmt) != (*anotherFmt) || U_FAILURE(status) ) {
 	    dataerrln("ERROR: getDateFormat/setDateFormat failed");
 	   }
 
@@ -212,7 +212,7 @@ void DateIntervalFormatTest::testAPI() {
 	   DateFormat* nonConstFmt = fmt->clone();
 	   dtitvfmt->adoptDateFormat(nonConstFmt, status);
 	   anotherFmt = dtitvfmt->getDateFormat();
-	   if ( (*fmt) != (*anotherFmt) || U_FAILURE(status) ) {
+	   if( (*fmt) != (*anotherFmt) || U_FAILURE(status) ) {
 	    dataerrln("ERROR: adoptDateFormat failed");
 	   }
 	   delete fmt;
@@ -244,13 +244,13 @@ void DateIntervalFormatTest::testAPI() {
 	   }
 
 	   DateIntervalFormat* dtifmt2 = new(dtifmt);
-	   if ( (*dtifmt) != (*dtifmt2) ) {
+	   if( (*dtifmt) != (*dtifmt2) ) {
 	    dataerrln("ERROR: Could not create DateIntervalFormat (default) - exiting");
 	    return;
 	   }
 
 	   DateIntervalFormat dtifmt3 = (*dtifmt);
-	   if ( (*dtifmt) != dtifmt3 ) {
+	   if( (*dtifmt) != dtifmt3 ) {
 	    dataerrln("ERROR: Could not create DateIntervalFormat (default) - exiting");
 	    return;
 	   }
@@ -1621,16 +1621,16 @@ void DateIntervalFormatTest::stress(const char ** data, int32_t data_length,
 			if(!assertSuccess("createInstance(skeleton)", ec)) return;
 			/*
 			   // reset the calendar to be Gregorian calendar for "th"
-			   if ( uprv_strcmp(locName, "th") == 0) {
+			   if( uprv_strcmp(locName, "th") == 0) {
 			    GregorianCalendar* gregCal = new GregorianCalendar(loc, ec);
-			    if (!assertSuccess("GregorianCalendar()", ec)) return;
+			    if(!assertSuccess("GregorianCalendar()", ec)) return;
 			    const DateFormat* dformat = dtitvfmt->getDateFormat();
 			    DateFormat* newOne = dformat->clone();
 			    newOne->adoptCalendar(gregCal);
 			    //dtitvfmt->adoptDateFormat(newOne, ec);
 			    dtitvfmt->setDateFormat(*newOne, ec);
 			    delete newOne;
-			    if (!assertSuccess("adoptDateFormat()", ec)) return;
+			    if(!assertSuccess("adoptDateFormat()", ec)) return;
 			   }
 			 */
 			FieldPosition pos(FieldPosition::DONT_CARE);

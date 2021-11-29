@@ -41,7 +41,7 @@ static inline mi_block_t* mi_page_block_at(const mi_page_t* page, void * page_st
 static void mi_page_init(mi_heap_t* heap, mi_page_t* page, size_t size, mi_tld_t* tld);
 static void mi_page_extend_free(mi_heap_t* heap, mi_page_t* page, mi_tld_t* tld);
 
-#if (MI_DEBUG>=3)
+#if(MI_DEBUG>=3)
 static size_t mi_page_list_count(mi_page_t* page, mi_block_t* head) 
 {
 	size_t count = 0;
@@ -471,7 +471,7 @@ static void mi_page_free_list_extend_secure(mi_heap_t* const heap, mi_page_t* co
     const size_t extend, mi_stats_t* const stats) 
 {
 	UNUSED(stats);
-  #if (MI_SECURE<=2)
+  #if(MI_SECURE<=2)
 	mi_assert_internal(page->free == NULL);
 	mi_assert_internal(page->local_free == NULL);
   #endif
@@ -529,7 +529,7 @@ static void mi_page_free_list_extend_secure(mi_heap_t* const heap, mi_page_t* co
 static mi_decl_noinline void mi_page_free_list_extend(mi_page_t* const page, const size_t bsize, const size_t extend, mi_stats_t* const stats)
 {
 	UNUSED(stats);
-  #if (MI_SECURE <= 2)
+  #if(MI_SECURE <= 2)
 	mi_assert_internal(page->free == NULL);
 	mi_assert_internal(page->local_free == NULL);
   #endif
@@ -555,7 +555,7 @@ static mi_decl_noinline void mi_page_free_list_extend(mi_page_t* const page, con
    ----------------------------------------------------------- */
 
 #define MI_MAX_EXTEND_SIZE    (4*1024)      // heuristic, one OS page seems to work well.
-#if (MI_SECURE>0)
+#if(MI_SECURE>0)
 	#define MI_MIN_EXTEND         (8*MI_SECURE) // extend at least by this many
 #else
 	#define MI_MIN_EXTEND         (1)
@@ -568,7 +568,7 @@ static mi_decl_noinline void mi_page_free_list_extend(mi_page_t* const page, con
 // extra test in malloc? or cache effects?)
 static void mi_page_extend_free(mi_heap_t* heap, mi_page_t* page, mi_tld_t* tld) {
 	mi_assert_expensive(mi_page_is_valid_init(page));
-  #if (MI_SECURE<=2)
+  #if(MI_SECURE<=2)
 	mi_assert(page->free == NULL);
 	mi_assert(page->local_free == NULL);
 	if(page->free != NULL) return;
@@ -640,7 +640,7 @@ static void mi_page_init(mi_heap_t* heap, mi_page_t* page, size_t block_size, mi
 	mi_assert_internal(page->prev == NULL);
 	mi_assert_internal(page->retire_expire == 0);
 	mi_assert_internal(!mi_page_has_aligned(page));
-  #if (MI_ENCODE_FREELIST)
+  #if(MI_ENCODE_FREELIST)
 	mi_assert_internal(page->keys[0] != 0);
 	mi_assert_internal(page->keys[1] != 0);
   #endif
@@ -705,7 +705,7 @@ static inline mi_page_t* mi_find_free_page(mi_heap_t* heap, size_t size)
 	mi_page_queue_t* pq = mi_page_queue(heap, size);
 	mi_page_t* page = pq->first;
 	if(page != NULL) {
-   #if (MI_SECURE>=3) // in secure mode, we extend half the time to increase randomness
+   #if(MI_SECURE>=3) // in secure mode, we extend half the time to increase randomness
 		if(page->capacity < page->reserved && ((_mi_heap_random_next(heap) & 1) == 1)) {
 			mi_page_extend_free(heap, page, heap->tld);
 			mi_assert_internal(mi_page_immediate_available(page));

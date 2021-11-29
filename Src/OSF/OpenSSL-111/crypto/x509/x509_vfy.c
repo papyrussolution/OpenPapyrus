@@ -443,7 +443,7 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 		int ret;
 		x = sk_X509_value(ctx->chain, i);
 		if(!(ctx->param->flags & X509_V_FLAG_IGNORE_CRITICAL)
-		  && (x->ex_flags & EXFLAG_CRITICAL)) {
+		 && (x->ex_flags & EXFLAG_CRITICAL)) {
 			if(!verify_cb_cert(ctx, x, i,
 			    X509_V_ERR_UNHANDLED_CRITICAL_EXTENSION))
 				return 0;
@@ -491,7 +491,7 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 			return 0;
 		/* Check pathlen */
 		if((i > 1) && (x->ex_pathlen != -1)
-		  && (plen > (x->ex_pathlen + proxy_path_length))) {
+		 && (plen > (x->ex_pathlen + proxy_path_length))) {
 			if(!verify_cb_cert(ctx, x, i, X509_V_ERR_PATH_LENGTH_EXCEEDED))
 				return 0;
 		}
@@ -631,7 +631,7 @@ static int check_name_constraints(X509_STORE_CTX * ctx)
 
 proxy_name_done:
 			if(err != X509_V_OK
-			  && !verify_cb_cert(ctx, x, i, err))
+			 && !verify_cb_cert(ctx, x, i, err))
 				return 0;
 		}
 
@@ -649,9 +649,9 @@ proxy_name_done:
 
 				/* If EE certificate check commonName too */
 				if(rv == X509_V_OK && i == 0
-				  && (ctx->param->hostflags
+				 && (ctx->param->hostflags
 				    & X509_CHECK_FLAG_NEVER_CHECK_SUBJECT) == 0
-				  && ((ctx->param->hostflags
+				 && ((ctx->param->hostflags
 				    & X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT) != 0
 				    || !has_san_id(x, GEN_DNS)))
 					rv = NAME_CONSTRAINTS_check_CN(x, nc);
@@ -1401,7 +1401,7 @@ static int crl_crldp_check(X509 * x, X509_CRL * crl, int crl_score,
 		}
 	}
 	if((!crl->idp || !crl->idp->distpoint)
-	  && (crl_score & CRL_SCORE_ISSUER_NAME))
+	 && (crl_score & CRL_SCORE_ISSUER_NAME))
 		return 1;
 	return 0;
 }
@@ -1541,7 +1541,7 @@ static int cert_crl(X509_STORE_CTX * ctx, X509_CRL * crl, X509 * x)
 	 * change the meaning of CRL entries.
 	 */
 	if(!(ctx->param->flags & X509_V_FLAG_IGNORE_CRITICAL)
-	  && (crl->flags & EXFLAG_CRITICAL) &&
+	 && (crl->flags & EXFLAG_CRITICAL) &&
 	    !verify_cb_crl(ctx, X509_V_ERR_UNHANDLED_CRITICAL_CRL_EXTENSION))
 		return 0;
 	/*

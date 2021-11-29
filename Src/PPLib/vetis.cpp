@@ -4581,7 +4581,7 @@ int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocu
 				for(const xmlNode * p_c = p_a ? p_a->children : 0; p_c; p_c = p_c->next) {
 					if(SXml::GetContentByName(p_c, "issueSeries", temp_buf))           { p_rd->IssueSeries = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); }
 					else if(SXml::GetContentByName(p_c, "issueNumber", temp_buf))      { p_rd->IssueNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER); }
-					else if(SXml::GetContentByName(p_c, "issueDate", temp_buf))        { p_rd->IssueDate = strtodate_(temp_buf, DATF_ISO8601); }
+					else if(SXml::GetContentByName(p_c, "issueDate", temp_buf)) { p_rd->IssueDate = strtodate_(temp_buf, DATF_ISO8601); }
 					else if(SXml::GetContentByName(p_c, "type", temp_buf))             { p_rd->DocumentType = temp_buf.ToLong(); }
 					else if(SXml::GetContentByName(p_c, "relationshipType", temp_buf)) { p_rd->RelationshipType = temp_buf.ToLong(); }
 				}

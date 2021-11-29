@@ -248,7 +248,7 @@ static int horAcc8(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
 
-	uchar* cp = (uchar *)cp0;
+	uchar * cp = (uchar *)cp0;
 	if((cc%stride)!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "horAcc8", "%s", "(cc%stride)!=0");
 		return 0;
@@ -443,7 +443,7 @@ static int horDiff8(TIFF* tif, uint8 * cp0, tmsize_t cc)
 {
 	TIFFPredictorState* sp = PredictorState(tif);
 	tmsize_t stride = sp->stride;
-	uchar* cp = (uchar *)cp0;
+	uchar * cp = (uchar *)cp0;
 	if((cc%stride)!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "horDiff8", "%s", "(cc%stride)!=0");
 		return 0;
@@ -608,7 +608,7 @@ static int PredictorEncodeTile(TIFF* tif, uint8 * bp0, tmsize_t cc0, uint16 s)
 	TIFFPredictorState * sp = PredictorState(tif);
 	uint8 * working_copy;
 	tmsize_t cc = cc0, rowsize;
-	uchar* bp;
+	uchar * bp;
 	int result_code;
 	assert(sp != NULL);
 	assert(sp->encodepfunc != NULL);

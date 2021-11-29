@@ -31,7 +31,7 @@
 #include "numberformattesttuple.h"
 #include "number_decimalquantity.h"
 
-#if (U_PLATFORM == U_PF_AIX) || (U_PLATFORM == U_PF_OS390)
+#if(U_PLATFORM == U_PF_AIX) || (U_PLATFORM == U_PF_OS390)
 // These should not be macros. If they are,
 // replace them with std::isnan and std::isinf
 #if defined(isnan)
@@ -439,10 +439,10 @@ void NumberFormatTest::Test20186_SpacesAroundSemicolon()
    list1.fDecimalAt = 1;
    DigitList list2;
    list2.set((int32_t)1);
-   if (list1 != list2) {
+   if(list1 != list2) {
     errln("digitlist append, operator!= or set failed ");
    }
-   if (!(list1 == list2)) {
+   if(!(list1 == list2)) {
     errln("digitlist append, operator== or set failed ");
    }
    }
@@ -660,19 +660,19 @@ void NumberFormatTest::TestScientificGrouping() {
     char c;
     bool decimalSet = FALSE;
     dl.clear();
-    while ((c = *str++)) {
-        if (c == '-') {
+    while((c = *str++)) {
+        if(c == '-') {
             dl.fIsPositive = FALSE;
-        } else if (c == '+') {
+        } else if(c == '+') {
             dl.fIsPositive = TRUE;
-        } else if (c == '.') {
+        } else if(c == '.') {
             dl.fDecimalAt = dl.fCount;
             decimalSet = TRUE;
         } else {
             dl.append(c);
         }
     }
-    if (!decimalSet) {
+    if(!decimalSet) {
         dl.fDecimalAt = dl.fCount;
     }
    }*/
@@ -706,55 +706,55 @@ void NumberFormatTest::TestInt64() {
     DigitList dl;
     setFromString(dl, int64maxstr);
     {
-        if (!dl.fitsIntoInt64(FALSE)) {
+        if(!dl.fitsIntoInt64(FALSE)) {
             errln(fail + int64maxstr + " didn't fit");
         }
         int64_t int64Value = dl.getInt64();
-        if (int64Value != int64max) {
+        if(int64Value != int64max) {
             errln(fail + int64maxstr);
         }
         dl.set(int64Value);
         int64Value = dl.getInt64();
-        if (int64Value != int64max) {
+        if(int64Value != int64max) {
             errln(fail + int64maxstr);
         }
     }
     // test negative of max int64 value (1 shy of min int64 value)
     dl.fIsPositive = FALSE;
     {
-        if (!dl.fitsIntoInt64(FALSE)) {
+        if(!dl.fitsIntoInt64(FALSE)) {
             errln(fail + "-" + int64maxstr + " didn't fit");
         }
         int64_t int64Value = dl.getInt64();
-        if (int64Value != -int64max) {
+        if(int64Value != -int64max) {
             errln(fail + "-" + int64maxstr);
         }
         dl.set(int64Value);
         int64Value = dl.getInt64();
-        if (int64Value != -int64max) {
+        if(int64Value != -int64max) {
             errln(fail + "-" + int64maxstr);
         }
     }
     // test min int64 value
     setFromString(dl, int64minstr);
     {
-        if (!dl.fitsIntoInt64(FALSE)) {
+        if(!dl.fitsIntoInt64(FALSE)) {
             errln(fail + "-" + int64minstr + " didn't fit");
         }
         int64_t int64Value = dl.getInt64();
-        if (int64Value != int64min) {
+        if(int64Value != int64min) {
             errln(fail + int64minstr);
         }
         dl.set(int64Value);
         int64Value = dl.getInt64();
-        if (int64Value != int64min) {
+        if(int64Value != int64min) {
             errln(fail + int64minstr);
         }
     }
     // test negative of min int 64 value (1 more than max int64 value)
     dl.fIsPositive = TRUE; // won't fit
     {
-        if (dl.fitsIntoInt64(FALSE)) {
+        if(dl.fitsIntoInt64(FALSE)) {
             errln(fail + "-(" + int64minstr + ") didn't fit");
         }
     }*/
@@ -1406,7 +1406,7 @@ void NumberFormatTest::TestComplexCurrency() {
 //    UErrorCode ec = U_ZERO_ERROR;
 //    Locale loc("kn", "IN", "");
 //    NumberFormat* fmt = NumberFormat::createCurrencyInstance(loc, ec);
-//    if (U_SUCCESS(ec)) {
+//    if(U_SUCCESS(ec)) {
 //        expect2(*fmt, 1.0, CharsToUnicodeString("Re.\\u00A01.00"));
 //        Use .00392625 because that's 2^-8.  Any value less than 0.005 is fine.
 //        expect(*fmt, 1.00390625, CharsToUnicodeString("Re.\\u00A01.00")); // tricky
@@ -2360,8 +2360,8 @@ void NumberFormatTest::TestSymbolsWithBadLocale() {
 			UnicodeString symbolString = mySymbols.getSymbol((DecimalFormatSymbols::ENumberFormatSymbol)symbolEnum);
 			logln(UnicodeString("DecimalFormatSymbols[") + symbolEnum + UnicodeString("] = ") + prettify(symbolString));
 			if(symbolString.length() == 0
-			  && symbolEnum != (int)DecimalFormatSymbols::kGroupingSeparatorSymbol
-			  && symbolEnum != (int)DecimalFormatSymbols::kMonetaryGroupingSeparatorSymbol) {
+			 && symbolEnum != (int)DecimalFormatSymbols::kGroupingSeparatorSymbol
+			 && symbolEnum != (int)DecimalFormatSymbols::kMonetaryGroupingSeparatorSymbol) {
 				errln("DecimalFormatSymbols has an empty string at index %d.", symbolEnum);
 			}
 		}
@@ -3063,7 +3063,7 @@ void NumberFormatTest::TestCompatibleCurrencies() {
     UErrorCode status = U_ZERO_ERROR;
     LocalPointer<NumberFormat> fmt(
         NumberFormat::createCurrencyInstance(Locale::getUS(), status));
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         errln("Could not create number format instance.");
         return;
     }
@@ -7434,7 +7434,7 @@ bool NumberFormatTest::testFormattableAsUFormattable(const char * file, int line
 	}
 
 	if(assertEquals(fileLine + " isNumeric()", f.isNumeric(), ufmt_isNumeric(u))
-	  && f.isNumeric()) {
+	 && f.isNumeric()) {
 		UErrorCode convStatus = U_ZERO_ERROR;
 
 		if(uType != UFMT_INT64) { // may fail to compare
@@ -7464,9 +7464,9 @@ bool NumberFormatTest::testFormattableAsUFormattable(const char * file, int line
 			int64_t r = ufmt_getInt64(u, &int64ConversionU);
 
 			if((l==r)
-			  && ( uType != UFMT_INT64 ) // int64 better not overflow
-			  && (U_INVALID_FORMAT_ERROR==int64ConversionU)
-			  && (U_INVALID_FORMAT_ERROR==int64ConversionF) ) {
+			 && ( uType != UFMT_INT64 ) // int64 better not overflow
+			 && (U_INVALID_FORMAT_ERROR==int64ConversionU)
+			 && (U_INVALID_FORMAT_ERROR==int64ConversionF) ) {
 				logln("%s:%d: OK: 64 bit overflow", file, line);
 			}
 			else {

@@ -70,7 +70,7 @@ HB_EXTERN HB_DEPRECATED void hb_set_invert(hb_set_t * set);
  *
  * Deprecated: 2.0.0
  */
-typedef unsigned int (* hb_unicode_eastasian_width_func_t)    (hb_unicode_funcs_t * ufuncs,
+typedef uint (* hb_unicode_eastasian_width_func_t)    (hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t unicode,
     void * user_data);
 
@@ -96,7 +96,7 @@ HB_EXTERN HB_DEPRECATED void hb_unicode_funcs_set_eastasian_width_func(hb_unicod
  * Since: 0.9.2
  * Deprecated: 2.0.0
  **/
-HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_eastasian_width(hb_unicode_funcs_t * ufuncs,
+HB_EXTERN HB_DEPRECATED uint hb_unicode_eastasian_width(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t unicode);
 
 /**
@@ -122,7 +122,7 @@ HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_eastasian_width(hb_unicode_funcs
  *
  * Deprecated: 2.0.0
  */
-typedef unsigned int (* hb_unicode_decompose_compatibility_func_t)    (hb_unicode_funcs_t * ufuncs,
+typedef uint (* hb_unicode_decompose_compatibility_func_t)    (hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t u,
     hb_codepoint_t * decomposed,
     void * user_data);
@@ -152,7 +152,7 @@ HB_EXTERN HB_DEPRECATED void hb_unicode_funcs_set_decompose_compatibility_func(h
     hb_unicode_decompose_compatibility_func_t func,
     void * user_data, hb_destroy_func_t destroy);
 
-HB_EXTERN HB_DEPRECATED unsigned int hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
+HB_EXTERN HB_DEPRECATED uint hb_unicode_decompose_compatibility(hb_unicode_funcs_t * ufuncs,
     hb_codepoint_t u,
     hb_codepoint_t * decomposed);
 

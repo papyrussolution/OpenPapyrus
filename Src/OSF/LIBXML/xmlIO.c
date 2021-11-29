@@ -3081,11 +3081,11 @@ done:
  *   if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * inlen)
+static int xmlEscapeContent(uchar * out, int * outlen, const xmlChar* in, int * inlen)
 {
-	uchar* outstart = out;
-	const uchar* base = in;
-	uchar* outend = out + *outlen;
+	uchar * outstart = out;
+	const uchar * base = in;
+	uchar * outend = out + *outlen;
 	const uchar * inend = in + (*inlen);
 	while((in < inend) && (out < outend)) {
 		if(*in == '<') {

@@ -24,7 +24,7 @@ void IconList::init(HINSTANCE hInst, int iconSize)
 	_iconSize = iconSize;
 	const int nbMore = 45;
 	_hImglst = ImageList_Create(iconSize, iconSize, ILC_COLOR32 | ILC_MASK, 0, nbMore);
-	if (!_hImglst)
+	if(!_hImglst)
 		throw std::runtime_error("IconList::create : ImageList_Create() function returns null");
 };
 
@@ -41,7 +41,7 @@ void IconList::create(int iconSize, HINSTANCE hInst, int *iconIDArray, int iconI
 void IconList::addIcon(int iconID) const 
 {
 	HICON hIcon = ::LoadIcon(_hInst, MAKEINTRESOURCE(iconID));
-	if (!hIcon)
+	if(!hIcon)
 		throw std::runtime_error("IconList::addIcon : LoadIcon() function return null");
 
 	ImageList_AddIcon(_hImglst, hIcon);
@@ -51,14 +51,14 @@ void IconList::addIcon(int iconID) const
 
 void IconList::addIcon(HICON hIcon) const
 {
-	if (hIcon)
+	if(hIcon)
 		ImageList_AddIcon(_hImglst, hIcon);
 };
 
 bool IconList::changeIcon(int index, const TCHAR *iconLocation) const
 {
 	HBITMAP hBmp = (HBITMAP)::LoadImage(_hInst, iconLocation, IMAGE_ICON, _iconSize, _iconSize, LR_LOADFROMFILE | LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
-	if (!hBmp)
+	if(!hBmp)
 		return false;
 	int i = ImageList_ReplaceIcon(_hImglst, index, (HICON)hBmp);
 	ImageList_AddMasked(_hImglst, (HBITMAP)hBmp, RGB(255,0,255));
@@ -98,7 +98,7 @@ void ToolBarIcons::reInit(int size)
 
 	for (size_t i = 0, len = _tbiis.size(); i < len; ++i)
 	{
-		if (_tbiis[i]._defaultIcon != -1)
+		if(_tbiis[i]._defaultIcon != -1)
 		{
 			_iconListVector[HLIST_DEFAULT].addIcon(_tbiis[i]._defaultIcon);
 			_iconListVector[HLIST_DISABLE].addIcon(_tbiis[i]._grayIcon);
@@ -122,7 +122,7 @@ void ToolBarIcons::reInit(int size)
 
 		HICON hIcon = nullptr;
 
-		if (i._hIcon_DM)
+		if(i._hIcon_DM)
 		{
 			hIcon = i._hIcon_DM;
 		}
@@ -136,7 +136,7 @@ void ToolBarIcons::reInit(int size)
 			BITMAP bmp;
 			int nbByteBmp = ::GetObject(iconinfoSrc.hbmColor, sizeof(BITMAP), &bmp);
 
-			if (!nbByteBmp)
+			if(!nbByteBmp)
 			{
 				hIcon = i._hIcon;
 			}

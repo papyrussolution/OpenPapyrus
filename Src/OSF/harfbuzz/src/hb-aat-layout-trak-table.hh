@@ -43,12 +43,12 @@ namespace AAT {
 		friend struct TrackData;
 
 		float get_track_value() const { return track.to_float(); }
-		int get_value(const void * base, unsigned int index, unsigned int table_size) const
+		int get_value(const void * base, uint index, uint table_size) const
 		{
 			return (base+valuesZ).as_array(table_size)[index];
 		}
 public:
-		bool sanitize(hb_sanitize_context_t * c, const void * base, unsigned int table_size) const
+		bool sanitize(hb_sanitize_context_t * c, const void * base, uint table_size) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(LIKELY(c->check_struct(this) && (valuesZ.sanitize(c, base, table_size))));
@@ -64,12 +64,12 @@ public:
 	};
 
 	struct TrackData {
-		float interpolate_at(unsigned int idx,
+		float interpolate_at(uint idx,
 		    float target_size,
 		    const TrackTableEntry &trackTableEntry,
 		    const void * base) const
 		{
-			unsigned int sizes = nSizes;
+			uint sizes = nSizes;
 			hb_array_t<const HBFixed> size_table((base+sizeTable).arrayZ, sizes);
 
 			float s0 = size_table[idx].to_float();
@@ -85,7 +85,7 @@ public:
 			 * Choose track.
 			 */
 			const TrackTableEntry * trackTableEntry = nullptr;
-			unsigned int count = nTracks;
+			uint count = nTracks;
 			for(uint i = 0; i < count; i++) {
 				/* Note: Seems like the track entries are sorted by values.  But the
 				 * spec doesn't explicitly say that.  It just mentions it in the example. */
@@ -102,13 +102,13 @@ public:
 			/*
 			 * Choose size.
 			 */
-			unsigned int sizes = nSizes;
+			uint sizes = nSizes;
 			if(!sizes) 
 				return 0.;
 			if(sizes == 1) 
 				return trackTableEntry->get_value(base, 0, sizes);
 			hb_array_t<const HBFixed> size_table((base+sizeTable).arrayZ, sizes);
-			unsigned int size_index;
+			uint size_index;
 			for(size_index = 0; size_index < sizes - 1; size_index++)
 				if(size_table[size_index].to_float() >= ptem)
 					break;

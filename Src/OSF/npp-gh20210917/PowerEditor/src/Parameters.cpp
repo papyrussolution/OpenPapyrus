@@ -391,7 +391,7 @@ static const WinMenuKeyDefinition winKeyDefs[] = {
 //	{ VK_NULL,    IDM_ONLINESUPPORT,                            false, false, false, nullptr },
 //	{ VK_NULL,    IDM_PLUGINSHOME,                              false, false, false, nullptr },
 
-	// The following two commands are not in menu if (nppGUI._doesExistUpdater == 0).
+	// The following two commands are not in menu if(nppGUI._doesExistUpdater == 0).
 	// They cannot be derived from menu then, only for this reason the text is specified here.
 	// In localized environments, the text comes preferably from xml Menu/Main/Commands.
 	{ VK_NULL,    IDM_UPDATE_NPP,                               false, false, false, TEXT("Update Notepad++") },
@@ -3716,7 +3716,7 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			if(val) {
 				if(sstreq(val, TEXT("no")))
 					_nppGUI._toolbarShow = false;
-				else // if (sstreq(val, TEXT("yes")))
+				else // if(sstreq(val, TEXT("yes")))
 					_nppGUI._toolbarShow = true;
 			}
 			TiXmlNode * n = childNode->FirstChild();
@@ -3731,7 +3731,7 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 						_nppGUI._toolBarStatus = TB_SMALL2;
 					else if(sstreq(val, TEXT("large2")))
 						_nppGUI._toolBarStatus = TB_LARGE2;
-					else //if (!lstrcmp(val, TEXT("standard")))
+					else //if(!lstrcmp(val, TEXT("standard")))
 						_nppGUI._toolBarStatus = TB_STANDARD;
 				}
 			}
@@ -5271,7 +5271,7 @@ void NppParameters::createXmlTreeFromGUIParams()
 			pStr = TEXT("small2");
 		else if(_nppGUI._toolBarStatus == TB_LARGE2)
 			pStr = TEXT("large2");
-		else //if (_nppGUI._toolBarStatus == TB_STANDARD)
+		else //if(_nppGUI._toolBarStatus == TB_STANDARD)
 			pStr = TEXT("standard");
 		GUIConfigElement->InsertEndChild(TiXmlText(pStr));
 	}
@@ -6279,14 +6279,14 @@ void NppParameters::insertUserLang2Tree(TiXmlNode * node, UserLangContainer * us
 		if(style2Write._styleID == -1)
 			continue;
 		styleElement->SetAttribute(TEXT("name"), style2Write._styleDesc);
-		//if (HIBYTE(HIWORD(style2Write._fgColor)) != 0xFF)
+		//if(HIBYTE(HIWORD(style2Write._fgColor)) != 0xFF)
 		{
 			int rgbVal = RGB2int(style2Write._fgColor);
 			TCHAR fgStr[7];
 			wsprintf(fgStr, TEXT("%.6X"), rgbVal);
 			styleElement->SetAttribute(TEXT("fgColor"), fgStr);
 		}
-		//if (HIBYTE(HIWORD(style2Write._bgColor)) != 0xFF)
+		//if(HIBYTE(HIWORD(style2Write._bgColor)) != 0xFF)
 		{
 			int rgbVal = RGB2int(style2Write._bgColor);
 			TCHAR bgStr[7];

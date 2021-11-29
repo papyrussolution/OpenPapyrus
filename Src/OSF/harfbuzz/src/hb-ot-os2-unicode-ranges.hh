@@ -38,7 +38,7 @@ struct OS2Range
 
   hb_codepoint_t start;
   hb_codepoint_t end;
-  unsigned int bit;
+  uint bit;
 };
 
 /* Note: The contents of this array was generated using gen-os2-unicode-ranges.py. */
@@ -219,7 +219,7 @@ static const OS2Range _hb_os2_unicode_ranges[] =
  * _hb_ot_os2_get_unicode_range_bit:
  * Returns the bit to be set in os/2 ulUnicodeOS2Range for a given codepoint.
  **/
-static unsigned int
+static uint
 _hb_ot_os2_get_unicode_range_bit (hb_codepoint_t cp)
 {
   auto *range = hb_sorted_array (_hb_os2_unicode_ranges).bsearch (cp);

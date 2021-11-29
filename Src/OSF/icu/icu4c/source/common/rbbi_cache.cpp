@@ -139,7 +139,7 @@ void RuleBasedBreakIterator::DictionaryCache::populateDictionary(int32_t startPo
 
 	while(U_SUCCESS(status)) {
 		while((current = (int32_t)UTEXT_GETNATIVEINDEX(text)) < rangeEnd
-		  && (category < dictStart)) {
+		 && (category < dictStart)) {
 			utext_next32(text); // TODO: cleaner loop structure.
 			c = utext_current32(text);
 			category = ucptrie_get(fBI->fData->fTrie, c);

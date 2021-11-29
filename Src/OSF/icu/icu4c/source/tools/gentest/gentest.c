@@ -83,7 +83,7 @@ main(int argc, char * argv[]) {
 
     if( options[4].doesOccur ) {
     	return outputJavaStuff( argv[0], options[2].value );
-    } else if ( options[3].doesOccur ) {
+    } else if( options[3].doesOccur ) {
         return genres32( argv[0], options[2].value );
     } else { 
         /* printf("Generating the test memory mapped file\n"); */
@@ -197,7 +197,7 @@ outputJavaStuff(const char * progname, const char *outputDir) {
             case UDBG_UCalendarDateFields:
             case UDBG_UCalendarMonths:
                 /* Temporary workaround for IS_LEAP_MONTH #6051 */
-                if (t == UDBG_UCalendarDateFields && i == 22) {
+                if(t == UDBG_UCalendarDateFields && i == 22) {
                   fprintf(out, "com.ibm.icu.util.ChineseCalendar.%s, /* %d */", udbg_enumName((UDebugEnumType)t,i), i);
                 } else {
                   fprintf(out, "com.ibm.icu.util.Calendar.%s, /* %d */", udbg_enumName((UDebugEnumType)t,i), i);

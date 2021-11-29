@@ -56,7 +56,7 @@ public:
 
 	// Is the position within the range?
 	bool Contains(Sci::Position pos) const noexcept {
-		if (start < end) {
+		if(start < end) {
 			return (pos >= start && pos <= end);
 		} else {
 			return (pos <= start && pos >= end);
@@ -65,7 +65,7 @@ public:
 
 	// Is the character after pos within the range?
 	bool ContainsCharacter(Sci::Position pos) const noexcept {
-		if (start < end) {
+		if(start < end) {
 			return (pos >= start && pos < end);
 		} else {
 			return (pos < start && pos >= end);
@@ -115,7 +115,7 @@ struct StyledText {
 	// Return 1 when start is outside text
 	size_t LineLength(size_t start) const noexcept {
 		size_t cur = start;
-		while ((cur < length) && (text[cur] != '\n'))
+		while((cur < length) && (text[cur] != '\n'))
 			cur++;
 		return cur-start;
 	}
@@ -515,7 +515,7 @@ class UndoGroup {
 public:
 	UndoGroup(Document *pdoc_, bool groupNeeded_=true) :
 		pdoc(pdoc_), groupNeeded(groupNeeded_) {
-		if (groupNeeded) {
+		if(groupNeeded) {
 			pdoc->BeginUndoAction();
 		}
 	}
@@ -525,7 +525,7 @@ public:
 	void operator = (const UndoGroup &) = delete;
 	UndoGroup & operator = (UndoGroup &&) = delete;
 	~UndoGroup() {
-		if (groupNeeded) {
+		if(groupNeeded) {
 			pdoc->EndUndoAction();
 		}
 	}

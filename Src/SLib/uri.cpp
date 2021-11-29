@@ -2452,7 +2452,7 @@ void UriParserState::Reset()
 	P_Uri = p_uri_backup;
 }
 
-int FASTCALL UriParserState::PushPathSegment(const char * first, const char *  afterLast)
+int FASTCALL UriParserState::PushPathSegment(const char * first, const char * afterLast)
 {
 	int    ok = TRUE;
 	UriUri::PathSegment * segment = new UriUri::PathSegment(0, 0);

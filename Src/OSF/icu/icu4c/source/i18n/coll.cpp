@@ -555,7 +555,7 @@ UnicodeString & U_EXPORT2 Collator::getDisplayName(const Locale & objectLocale,
 /* This is useless information */
 /*void Collator::getVersion(UVersionInfo versionInfo) const
    {
-   if (versionInfo!=NULL)
+   if(versionInfo!=NULL)
     uprv_memcpy(versionInfo, fVersion, U_MAX_VERSION_LENGTH);
    }
  */

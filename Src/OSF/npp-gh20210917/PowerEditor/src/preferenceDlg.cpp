@@ -2252,7 +2252,7 @@ INT_PTR CALLBACK LanguageSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			    }
 
 			    // Tab setting - Double click is not used at this moment
-			    /*else if (LOWORD(wParam) == IDC_LIST_TABSETTNG)
+			    /*else if(LOWORD(wParam) == IDC_LIST_TABSETTNG)
 			       {
 			       }*/
 		    }
@@ -3261,7 +3261,7 @@ INT_PTR CALLBACK AutoCompletionSubDlg::run_dlgProc(UINT message, WPARAM wParam, 
 					nppGUI._matchedPairConf._doDoubleQuotes = isChecked;
 					label = isChecked ? TEXT(" \"  \"") : TEXT(" \"");
 				}
-				else {        // if (wParam == IDD_AUTOC_QUOTESCHECK)
+				else {        // if(wParam == IDD_AUTOC_QUOTESCHECK)
 					nppGUI._matchedPairConf._doQuotes = isChecked;
 					label = isChecked ? TEXT(" '  '") : TEXT(" '");
 				}

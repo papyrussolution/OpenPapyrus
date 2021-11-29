@@ -30,7 +30,7 @@
 
 #define CASE(id,test) case id:                                \
                           name = #test;                       \
-                          if (exec) {                         \
+                          if(exec) {                         \
                               logln(#test "---"); logln();    \
                               test t;                         \
                               callTest(t, par);               \
@@ -39,7 +39,7 @@
 
 void IntlTestTransliterator::runIndexedTest( int32_t index, bool exec, const char *& name, char * par )
 {
-    if (exec) logln("TestSuite Transliterator");
+    if(exec) logln("TestSuite Transliterator");
     switch (index) {
         CASE(0, TransliteratorTest);
         CASE(1, TransliteratorAPITest);

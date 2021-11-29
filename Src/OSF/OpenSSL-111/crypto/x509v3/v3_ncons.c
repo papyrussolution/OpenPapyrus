@@ -359,9 +359,9 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 			 * plausible, since it has two or more labels.
 			 */
 			if(c == '.'
-			  && utf8_value[i+1] != '.'
-			  && utf8_value[i - 1] != '-'
-			  && utf8_value[i+1] != '-') {
+			 && utf8_value[i+1] != '.'
+			 && utf8_value[i - 1] != '-'
+			 && utf8_value[i+1] != '-') {
 				isdnsname = 1;
 				continue;
 			}

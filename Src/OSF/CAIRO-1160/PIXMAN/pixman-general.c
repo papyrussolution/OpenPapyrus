@@ -114,9 +114,9 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 	iter_flags_t width_flag, src_iter_flags;
 	int Bpp;
 	int i;
-	if((src_image->common.flags & FAST_PATH_NARROW_FORMAT)                &&
+	if((src_image->common.flags & FAST_PATH_NARROW_FORMAT)      &&
 	    (!mask_image || mask_image->common.flags & FAST_PATH_NARROW_FORMAT) &&
-	    (dest_image->common.flags & FAST_PATH_NARROW_FORMAT)               &&
+	    (dest_image->common.flags & FAST_PATH_NARROW_FORMAT)     &&
 	    !(operator_needs_division(op))) {
 		width_flag = ITER_NARROW;
 		Bpp = 4;

@@ -62,7 +62,7 @@ int __ptw32_setthreadpriority(pthread_t thread, int policy, int priority)
 	if(prio < sched_get_priority_min(policy) || prio > sched_get_priority_max(policy)) {
 		return EINVAL;
 	}
-#if (THREAD_PRIORITY_LOWEST > THREAD_PRIORITY_NORMAL)
+#if(THREAD_PRIORITY_LOWEST > THREAD_PRIORITY_NORMAL)
 /* WinCE */
 #else
 /* Everything else */

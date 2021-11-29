@@ -40,13 +40,13 @@ int main(int argc, char ** argv)
 	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
 	hb_blob_destroy(blob);
 	blob = nullptr;
-	unsigned int count = 0;
+	uint count = 0;
 #ifndef HB_NO_NAME
 	const hb_ot_name_entry_t * entries = hb_ot_name_list_names(face, &count);
 	for(uint i = 0; i < count; i++) {
 		printf("%u	%s	", entries[i].name_id, hb_language_to_string(entries[i].language));
 		char buf[64];
-		unsigned int buf_size = sizeof(buf);
+		uint buf_size = sizeof(buf);
 		hb_ot_name_get_utf8(face, entries[i].name_id, entries[i].language, &buf_size, buf);
 		printf("%s\n", buf);
 	}

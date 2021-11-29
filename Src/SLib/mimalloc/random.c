@@ -306,7 +306,7 @@ void _mi_random_init(mi_random_ctx_t* ctx)
 /*
    static bool array_equals(uint32_t* x, uint32_t* y, size_t n) {
    for (size_t i = 0; i < n; i++) {
-    if (x[i] != y[i]) return false;
+    if(x[i] != y[i]) return false;
    }
    return true;
    }

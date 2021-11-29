@@ -42,21 +42,21 @@ const uchar _hb_Null_AAT_Lookup[2] = {0xFF, 0xFF};
 
 /* hb_face_t */
 
-unsigned int hb_face_t::load_num_glyphs() const
+uint hb_face_t::load_num_glyphs() const
 {
 	hb_sanitize_context_t c = hb_sanitize_context_t();
 	c.set_num_glyphs(0); /* So we don't recurse ad infinitum. */
 	hb_blob_t * maxp_blob = c.reference_table<OT::maxp> (this);
 	const OT::maxp * maxp_table = maxp_blob->as<OT::maxp> ();
-	unsigned int ret = maxp_table->get_num_glyphs();
+	uint ret = maxp_table->get_num_glyphs();
 	num_glyphs.set_relaxed(ret);
 	hb_blob_destroy(maxp_blob);
 	return ret;
 }
 
-unsigned int hb_face_t::load_upem() const
+uint hb_face_t::load_upem() const
 {
-	unsigned int ret = table.head->get_upem();
+	uint ret = table.head->get_upem();
 	upem.set_relaxed(ret);
 	return ret;
 }

@@ -81,7 +81,7 @@ int ssh_mbedcry_hex2bn(bignum *dest, char *data);
 
 #define bignum_new() ssh_mbedcry_bn_new()
 #define bignum_safe_free(num) do { \
-    if ((num) != NULL) { \
+    if((num) != NULL) { \
         ssh_mbedcry_bn_free(num); \
         (num)=NULL; \
     } \
@@ -93,7 +93,7 @@ int ssh_mbedcry_hex2bn(bignum *dest, char *data);
                                                           overflow/underflow */
 #define bignum_bin2bn(data, datalen, bn) do { \
     *(bn) = bignum_new(); \
-    if (*(bn) != NULL) { \
+    if(*(bn) != NULL) { \
         mbedtls_mpi_read_binary(*(bn), data, datalen); \
     } \
     } while(0)
@@ -117,10 +117,10 @@ int ssh_mbedcry_hex2bn(bignum *dest, char *data);
 #define bignum_cmp(num1, num2) mbedtls_mpi_cmp_mpi(num1, num2)
 #define bignum_rshift1(dest, src) mbedtls_mpi_copy(dest, src), mbedtls_mpi_shift_r(dest, 1)
 #define bignum_dup(orig, dest) do { \
-    if (*(dest) == NULL) { \
+    if(*(dest) == NULL) { \
         *(dest) = bignum_new(); \
     } \
-    if (*(dest) != NULL) { \
+    if(*(dest) != NULL) { \
         mbedtls_mpi_copy(orig, *(dest)); \
     } \
     } while(0)

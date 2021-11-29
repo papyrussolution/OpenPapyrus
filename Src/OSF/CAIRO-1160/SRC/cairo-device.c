@@ -71,7 +71,7 @@
  * cairo_device_flush (device);
  * // Try to acquire the device
  * status = cairo_device_acquire (device);
- * if (status != CAIRO_STATUS_SUCCESS) {
+ * if(status != CAIRO_STATUS_SUCCESS) {
  * printf ("Failed to acquire the device: %s\n", cairo_status_to_string (status));
  * return;
  * }

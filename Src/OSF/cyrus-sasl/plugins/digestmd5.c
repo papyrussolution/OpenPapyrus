@@ -58,7 +58,7 @@
 # ifdef WITH_SSL_DES
 #  include <openssl/des.h>
 #  include <openssl/opensslv.h>
-#  if (OPENSSL_VERSION_NUMBER >= 0x0090700f) && \
+#  if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && \
 	!defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
 #define des_cblock DES_cblock
 #define des_key_schedule DES_key_schedule
@@ -2638,7 +2638,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	if(result < 0 ||
 	    ((!auxprop_values[0].name || !auxprop_values[0].values)
 #if defined(OBSOLETE_DIGEST_ATTR)
-	  && (!auxprop_values[1].name || !auxprop_values[1].values)
+	 && (!auxprop_values[1].name || !auxprop_values[1].values)
 #endif
 	    )) {
 		/* We didn't find this username */
@@ -4034,7 +4034,7 @@ SKIP_SPACES_IN_CIPHER:
 		   can we use integrity or nothing? */
 
 		if((limit >= 1) && (musthave <= 1)
-		  && (protection & DIGEST_INTEGRITY)) {
+		 && (protection & DIGEST_INTEGRITY)) {
 			/* integrity */
 			ctext->protection = DIGEST_INTEGRITY;
 		}

@@ -115,11 +115,11 @@ class DiyFp {
     // This method is mainly called for normalizing boundaries. In general,
     // boundaries need to be shifted by 10 bits, and we optimize for this case.
     const uint64_t k10MSBits = DOUBLE_CONVERSION_UINT64_2PART_C(0xFFC00000, 00000000);
-    while ((significand & k10MSBits) == 0) {
+    while((significand & k10MSBits) == 0) {
       significand <<= 10;
       exponent -= 10;
     }
-    while ((significand & kUint64MSB) == 0) {
+    while((significand & kUint64MSB) == 0) {
       significand <<= 1;
       exponent--;
     }

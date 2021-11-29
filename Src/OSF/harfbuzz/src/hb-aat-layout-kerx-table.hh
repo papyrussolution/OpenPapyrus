@@ -41,13 +41,13 @@ namespace AAT {
 	using namespace OT;
 
 	static inline int kerxTupleKern(int value,
-	    unsigned int tupleCount,
+	    uint tupleCount,
 	    const void * base,
 	    hb_aat_apply_context_t * c)
 	{
 		if(LIKELY(!tupleCount || !c)) return value;
 
-		unsigned int offset = value;
+		uint offset = value;
 		const FWORD * pv = &StructAtOffset<FWORD> (base, offset);
 		if(UNLIKELY(!c->sanitizer.check_array(pv, tupleCount))) return 0;
 		return *pv;
@@ -166,7 +166,7 @@ public:
 			return entry.data.kernActionIndex != 0xFFFF;
 		}
 
-		static unsigned int kernActionIndex(const Entry<EntryData> &entry)
+		static uint kernActionIndex(const Entry<EntryData> &entry)
 		{
 			return entry.data.kernActionIndex;
 		}
@@ -190,7 +190,7 @@ public:
 			return entry.flags & Offset;
 		}
 
-		static unsigned int kernActionIndex(const Entry<EntryData> &entry)
+		static uint kernActionIndex(const Entry<EntryData> &entry)
 		{
 			return entry.flags & Offset;
 		}
@@ -232,7 +232,7 @@ public:
 			    const Entry<EntryData> &entry)
 			{
 				hb_buffer_t * buffer = driver->buffer;
-				unsigned int flags = entry.flags;
+				uint flags = entry.flags;
 
 				if(flags & Format1EntryT::Reset)
 					depth = 0;
@@ -245,9 +245,9 @@ public:
 				}
 
 				if(Format1EntryT::performAction(entry) && depth) {
-					unsigned int tuple_count = hb_max(1u, table->header.tuple_count());
+					uint tuple_count = hb_max(1u, table->header.tuple_count());
 
-					unsigned int kern_idx = Format1EntryT::kernActionIndex(entry);
+					uint kern_idx = Format1EntryT::kernActionIndex(entry);
 					kern_idx = Types::byteOffsetToIndex(kern_idx, &table->machine, kernAction.arrayZ);
 					const FWORD * actions = &kernAction[kern_idx];
 					if(!c->sanitizer.check_array(actions, depth, tuple_count)) {
@@ -263,7 +263,7 @@ public:
 					 * The end of the list is marked by an odd value... */
 					bool last = false;
 					while(!last && depth) {
-						unsigned int idx = stack[--depth];
+						uint idx = stack[--depth];
 						int v = *actions;
 						actions += tuple_count;
 						if(idx >= buffer->len) continue;
@@ -321,8 +321,8 @@ private:
 			hb_aat_apply_context_t * c;
 			const KerxSubTableFormat1 * table;
 			const UnsizedArrayOf<FWORD> &kernAction;
-			unsigned int stack[8];
-			unsigned int depth;
+			uint stack[8];
+			uint depth;
 			bool crossStream;
 		};
 		bool apply(hb_aat_apply_context_t * c) const
@@ -358,12 +358,12 @@ public:
 		int get_kerning(hb_codepoint_t left, hb_codepoint_t right,
 		    hb_aat_apply_context_t * c) const
 		{
-			unsigned int num_glyphs = c->sanitizer.get_num_glyphs();
-			unsigned int l = (this+leftClassTable).get_class(left, num_glyphs, 0);
-			unsigned int r = (this+rightClassTable).get_class(right, num_glyphs, 0);
+			uint num_glyphs = c->sanitizer.get_num_glyphs();
+			uint l = (this+leftClassTable).get_class(left, num_glyphs, 0);
+			uint r = (this+rightClassTable).get_class(right, num_glyphs, 0);
 
 			const UnsizedArrayOf<FWORD> &arrayZ = this+array;
-			unsigned int kern_idx = l + r;
+			uint kern_idx = l + r;
 			kern_idx = Types::offsetToIndex(kern_idx, this, arrayZ.arrayZ);
 			const FWORD * v = &arrayZ[kern_idx];
 			if(UNLIKELY(!v->sanitize(&c->sanitizer))) return 0;
@@ -479,8 +479,8 @@ public:
 						       double the ankrActionIndex to get the correct offset here. */
 						    const HBUINT16 * data = &ankrData[entry.data.ankrActionIndex * 2];
 						    if(!c->sanitizer.check_array(data, 2)) return;
-						    unsigned int markControlPoint = *data++;
-						    unsigned int currControlPoint = *data++;
+						    uint markControlPoint = *data++;
+						    uint currControlPoint = *data++;
 						    hb_position_t markX = 0;
 						    hb_position_t markY = 0;
 						    hb_position_t currX = 0;
@@ -508,8 +508,8 @@ public:
 						       double the ankrActionIndex to get the correct offset here. */
 						    const HBUINT16 * data = &ankrData[entry.data.ankrActionIndex * 2];
 						    if(!c->sanitizer.check_array(data, 2)) return;
-						    unsigned int markAnchorPoint = *data++;
-						    unsigned int currAnchorPoint = *data++;
+						    uint markAnchorPoint = *data++;
+						    uint currAnchorPoint = *data++;
 						    const Anchor &markAnchor = c->ankr_table->get_anchor(c->buffer->info[mark].codepoint,
 							    markAnchorPoint,
 							    c->sanitizer.get_num_glyphs());
@@ -554,10 +554,10 @@ public:
 
 private:
 			hb_aat_apply_context_t * c;
-			unsigned int action_type;
+			uint action_type;
 			const HBUINT16 * ankrData;
 			bool mark_set;
-			unsigned int mark;
+			uint mark;
 		};
 
 		bool apply(hb_aat_apply_context_t * c) const
@@ -596,12 +596,12 @@ public:
 		int get_kerning(hb_codepoint_t left, hb_codepoint_t right,
 		    hb_aat_apply_context_t * c) const
 		{
-			unsigned int num_glyphs = c->sanitizer.get_num_glyphs();
+			uint num_glyphs = c->sanitizer.get_num_glyphs();
 			if(is_long()) {
 				const typename U::Long &t = u.l;
-				unsigned int l = (this+t.rowIndexTable).get_value_or_null(left, num_glyphs);
-				unsigned int r = (this+t.columnIndexTable).get_value_or_null(right, num_glyphs);
-				unsigned int offset = l + r;
+				uint l = (this+t.rowIndexTable).get_value_or_null(left, num_glyphs);
+				uint r = (this+t.columnIndexTable).get_value_or_null(right, num_glyphs);
+				uint offset = l + r;
 				if(UNLIKELY(offset < l)) return 0; /* Addition overflow. */
 				if(UNLIKELY(hb_unsigned_mul_overflows(offset, sizeof(FWORD32)))) return 0;
 				const FWORD32 * v = &StructAtOffset<FWORD32> (&(this+t.array), offset * sizeof(FWORD32));
@@ -610,9 +610,9 @@ public:
 			}
 			else {
 				const typename U::Short &t = u.s;
-				unsigned int l = (this+t.rowIndexTable).get_value_or_null(left, num_glyphs);
-				unsigned int r = (this+t.columnIndexTable).get_value_or_null(right, num_glyphs);
-				unsigned int offset = l + r;
+				uint l = (this+t.rowIndexTable).get_value_or_null(left, num_glyphs);
+				uint r = (this+t.columnIndexTable).get_value_or_null(right, num_glyphs);
+				uint offset = l + r;
 				const FWORD * v = &StructAtOffset<FWORD> (&(this+t.array), offset * sizeof(FWORD));
 				if(UNLIKELY(!v->sanitize(&c->sanitizer))) return 0;
 				return kerxTupleKern(*v, header.tuple_count(), &(this+vector), c);
@@ -719,11 +719,11 @@ public:
 
 	struct KerxSubTable {
 		friend struct kerx;
-		unsigned int get_size() const { return u.header.length; }
-		unsigned int get_type() const { return u.header.coverage & u.header.SubtableType; }
+		uint get_size() const { return u.header.length; }
+		uint get_type() const { return u.header.coverage & u.header.SubtableType; }
 		template <typename context_t, typename ... Ts> typename context_t::return_t dispatch(context_t * c, Ts&&... ds) const
 		{
-			unsigned int subtable_type = get_type();
+			uint subtable_type = get_type();
 			TRACE_DISPATCH(this, subtable_type);
 			switch(subtable_type) {
 				case 0:     return_trace(c->dispatch(u.format0, hb_forward<Ts> (ds) ...));
@@ -773,7 +773,7 @@ public:
 			typedef typename T::SubTable SubTable;
 
 			const SubTable * st = &thiz()->firstSubTable;
-			unsigned int count = thiz()->tableCount;
+			uint count = thiz()->tableCount;
 			for(uint i = 0; i < count; i++) {
 				if(st->get_type() == 1)
 					return true;
@@ -787,7 +787,7 @@ public:
 			typedef typename T::SubTable SubTable;
 
 			const SubTable * st = &thiz()->firstSubTable;
-			unsigned int count = thiz()->tableCount;
+			uint count = thiz()->tableCount;
 			for(uint i = 0; i < count; i++) {
 				if(st->u.header.coverage & st->u.header.CrossStream)
 					return true;
@@ -802,7 +802,7 @@ public:
 
 			int v = 0;
 			const SubTable * st = &thiz()->firstSubTable;
-			unsigned int count = thiz()->tableCount;
+			uint count = thiz()->tableCount;
 			for(uint i = 0; i < count; i++) {
 				if((st->u.header.coverage & (st->u.header.Variation | st->u.header.CrossStream)) ||
 				    !st->u.header.is_horizontal())
@@ -821,7 +821,7 @@ public:
 			bool seenCrossStream = false;
 			c->set_lookup_index(0);
 			const SubTable * st = &thiz()->firstSubTable;
-			unsigned int count = thiz()->tableCount;
+			uint count = thiz()->tableCount;
 			for(uint i = 0; i < count; i++) {
 				bool reverse;
 
@@ -842,7 +842,7 @@ public:
 					/* Attach all glyphs into a chain. */
 					seenCrossStream = true;
 					hb_glyph_position_t * pos = c->buffer->pos;
-					unsigned int count = c->buffer->len;
+					uint count = c->buffer->len;
 					for(uint i = 0; i < count; i++) {
 						pos[i].attach_type() = ATTACH_TYPE_CURSIVE;
 						pos[i].attach_chain() = HB_DIRECTION_IS_FORWARD(c->buffer->props.direction) ? -1 : +1;
@@ -884,7 +884,7 @@ skip:
 			typedef typename T::SubTable SubTable;
 
 			const SubTable * st = &thiz()->firstSubTable;
-			unsigned int count = thiz()->tableCount;
+			uint count = thiz()->tableCount;
 			for(uint i = 0; i < count; i++) {
 				if(UNLIKELY(!st->u.header.sanitize(c)))
 					return_trace(false);

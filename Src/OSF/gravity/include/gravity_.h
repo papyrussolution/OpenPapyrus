@@ -153,7 +153,7 @@ struct gravity_vm;
 	#define DEBUG_LEXER(...)
 #endif
 #if GRAVITY_LEXEM_DEBUG
-	#define DEBUG_LEXEM(...) do { if (!lexer->peeking) { printf("(%03d, %03d, %02d) ", lexer->token.lineno, lexer->token.colno, lexer->token.position); PRINT_LINE(__VA_ARGS__);} } while(0)
+	#define DEBUG_LEXEM(...) do { if(!lexer->peeking) { printf("(%03d, %03d, %02d) ", lexer->token.lineno, lexer->token.colno, lexer->token.position); PRINT_LINE(__VA_ARGS__);} } while(0)
 #else
 	#define DEBUG_LEXEM(...)
 #endif
@@ -807,12 +807,12 @@ struct GravityValue : public GravityValueBase {
 	bool   IsObject() const
 	{
 		// was:
-		// if (!v) return false;
-		// if (v.IsInt()) return false;
-		// if (v.IsFloat()) return false;
-		// if (v.IsBool()) return false;
-		// if (VALUE_ISA_NULL(v)) return false;
-		// if (VALUE_ISA_UNDEFINED(v)) return false;
+		// if(!v) return false;
+		// if(v.IsInt()) return false;
+		// if(v.IsFloat()) return false;
+		// if(v.IsBool()) return false;
+		// if(VALUE_ISA_NULL(v)) return false;
+		// if(VALUE_ISA_UNDEFINED(v)) return false;
 		// return true;
 		if(!isa || oneof4(isa, GravityEnv.P_ClsInt, GravityEnv.P_ClsFloat, GravityEnv.P_ClsBool, GravityEnv.P_ClsNull) || !Ptr) 
 			return false;
@@ -1768,9 +1768,9 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 // for a better line number computation in case of runtime error (as a consequence ip and frame variables
 // has been explicitly exposed in the gravity_vm_runclosure function and the infinite loop error message
 // has been moved outside the gravity_check_stack function)
-#define RUNTIME_ERROR(...) do { STORE_FRAME(); report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, __VA_ARGS__); return false; } while (0)
+#define RUNTIME_ERROR(...) do { STORE_FRAME(); report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, __VA_ARGS__); return false; } while(0)
 #define RUNTIME_FIBER_ERROR(_err)       RUNTIME_ERROR("%s",_err)
-#define RUNTIME_WARNING(...) do { report_runtime_error(vm, GRAVITY_WARNING, __VA_ARGS__); } while (0)
+#define RUNTIME_WARNING(...) do { report_runtime_error(vm, GRAVITY_WARNING, __VA_ARGS__); } while(0)
 #define SETVALUE_BOOL(idx, x)           stackstart[idx]=GravityValue::from_bool(x)
 #define SETVALUE_INT(idx, x)            stackstart[idx]=GravityValue::from_int(x)
 #define SETVALUE_FLOAT(idx, x)          stackstart[idx]=GravityValue::from_float(x)
@@ -1784,21 +1784,21 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 
 /* @sobolev #if GRAVITY_COMPUTED_GOTO
 #define DECLARE_DISPATCH_TABLE      static void * dispatchTable[] = {                                \
-                                  &&RET0,       &&HALT,       &&NOP,        &&RET,          \
-                                  &&CALL,       &&LOAD,       &&LOADS,      &&LOADAT,       \
-                                  &&LOADK,      &&LOADG,      &&LOADI,      &&LOADU,        \
-                                  &&MOVE,       &&STORE,      &&STOREAT,    &&STOREG,       \
-                                  &&STOREU,     &&JUMP,       &&JUMPF,      &&SWITCH,       \
-                                  &&ADD,        &&SUB,        &&DIV,        &&MUL,          \
-                                  &&REM,        &&AND,        &&OR,         &&LT,           \
-                                  &&GT,         &&EQ,         &&LEQ,        &&GEQ,          \
-                                  &&NEQ,        &&EQQ,        &&NEQQ,       &&ISA,          \
-                                  &&MATCH,      &&NEG,        &&NOT,        &&LSHIFT,       \
-                                  &&RSHIFT,     &&BAND,       &&BOR,        &&BXOR,         \
-                                  &&BNOT,       &&MAPNEW,     &&LISTNEW,    &&RANGENEW,     \
-                                  &&SETLIST,    &&CLOSURE,    &&CLOSE,      &&CHECK,        \
-                                  &&RESERVED2,  &&RESERVED3,  &&RESERVED4,  &&RESERVED5,    \
-                                  &&RESERVED6                                                        };
+                        &&RET0, &&HALT, &&NOP, &&RET,          \
+                        &&CALL, &&LOAD, &&LOADS, &&LOADAT,       \
+                        &&LOADK, &&LOADG, &&LOADI, &&LOADU,        \
+                        &&MOVE, &&STORE, &&STOREAT, &&STOREG,       \
+                        &&STOREU, &&JUMP, &&JUMPF, &&SWITCH,       \
+                        &&ADD, &&SUB, &&DIV, &&MUL,          \
+                        &&REM, &&AND, &&OR, &&LT,           \
+                        &&GT, &&EQ, &&LEQ, &&GEQ,          \
+                        &&NEQ, &&EQQ, &&NEQQ, &&ISA,          \
+                        &&MATCH, &&NEG, &&NOT, &&LSHIFT,       \
+                        &&RSHIFT, &&BAND, &&BOR, &&BXOR,         \
+                        &&BNOT, &&MAPNEW, &&LISTNEW, &&RANGENEW,     \
+                        &&SETLIST, &&CLOSURE, &&CLOSE, &&CHECK,        \
+                        &&RESERVED2, &&RESERVED3, &&RESERVED4, &&RESERVED5,    \
+                        &&RESERVED6                                                        };
 #define INTERPRET_LOOP              DISPATCH();
 #define CASE_CODE(name)             START_MICROBENCH(vm); name
 #if GRAVITY_VM_STATS
@@ -1825,7 +1825,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 
 // SYNC_STACKTOP has been modified in version 0.5.8 (December 4th 2018)
 // stack must be trashed ONLY in the fiber remains the same otherwise GC will collect stack values from a still active Fiber
-#define SYNC_STACKTOP(_fiber_saved, _fiber,_n)      if (_fiber_saved && (_fiber_saved == _fiber)) _fiber_saved->stacktop -= _n
+#define SYNC_STACKTOP(_fiber_saved, _fiber,_n)      if(_fiber_saved && (_fiber_saved == _fiber)) _fiber_saved->stacktop -= _n
 #define SETFRAME_OUTLOOP(cframe)                    (cframe)->outloop = true
 #define COMPUTE_JUMP(value)                         (func->U.Nf.bytecode + (value))
 // FAST MATH MACROS
@@ -2222,7 +2222,7 @@ const char * gravity_disassemble(gravity_vm *vm, gravity_function_t *f, const ch
 //    ===       Identical (130)
 //    !==       Not identical (130)
 //    ~=        Pattern match (130)
-//  &&        Logical AND (120) (associativity left)
+// &&        Logical AND (120) (associativity left)
 //    ||        Logical OR (110) (associativity left)
 //    ?:        Ternary conditional (100) (associativity right)
 //    =         Assign (90) (associativity right)

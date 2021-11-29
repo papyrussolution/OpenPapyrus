@@ -50,7 +50,7 @@ HB_EXTERN void * hb_map_get_user_data(hb_map_t * map, hb_user_data_key_t * key);
 HB_EXTERN hb_bool_t hb_map_allocation_successful(const hb_map_t * map);
 HB_EXTERN void hb_map_clear(hb_map_t * map);
 HB_EXTERN hb_bool_t hb_map_is_empty(const hb_map_t * map);
-HB_EXTERN unsigned int hb_map_get_population(const hb_map_t * map);
+HB_EXTERN uint hb_map_get_population(const hb_map_t * map);
 HB_EXTERN void hb_map_set(hb_map_t * map, hb_codepoint_t key, hb_codepoint_t value);
 HB_EXTERN hb_codepoint_t hb_map_get(const hb_map_t * map, hb_codepoint_t key);
 HB_EXTERN void hb_map_del(hb_map_t * map, hb_codepoint_t key);

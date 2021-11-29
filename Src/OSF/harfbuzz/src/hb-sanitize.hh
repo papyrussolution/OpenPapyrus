@@ -149,7 +149,7 @@ hb_dispatch_context_t<hb_sanitize_context_t, bool, HB_DEBUG_SANITIZE>{
 		return !r;
 	}
 
-	bool visit_subtables(unsigned count)
+	bool visit_subtables(uint count)
 	{
 		max_subtables += count;
 		return max_subtables < HB_SANITIZE_MAX_SUTABLES;
@@ -170,13 +170,13 @@ public:
 		this->writable = false;
 	}
 
-	void set_num_glyphs(unsigned int num_glyphs_)
+	void set_num_glyphs(uint num_glyphs_)
 	{
 		num_glyphs = num_glyphs_;
 		num_glyphs_set = true;
 	}
 
-	unsigned int get_num_glyphs() {
+	uint get_num_glyphs() {
 		return num_glyphs;
 	}
 
@@ -241,7 +241,7 @@ public:
 	}
 
 	bool check_range(const void * base,
-	    unsigned int len) const
+	    uint len) const
 	{
 		const char * p = (const char*)base;
 		bool ok = !len ||
@@ -262,8 +262,8 @@ public:
 
 	template <typename T>
 	bool check_range(const T * base,
-	    unsigned int a,
-	    unsigned int b) const
+	    uint a,
+	    uint b) const
 	{
 		return !hb_unsigned_mul_overflows(a, b) &&
 		       this->check_range(base, a * b);
@@ -271,24 +271,24 @@ public:
 
 	template <typename T>
 	bool check_range(const T * base,
-	    unsigned int a,
-	    unsigned int b,
-	    unsigned int c) const
+	    uint a,
+	    uint b,
+	    uint c) const
 	{
 		return !hb_unsigned_mul_overflows(a, b) &&
 		       this->check_range(base, a * b, c);
 	}
 
 	template <typename T>
-	bool check_array(const T * base, unsigned int len) const
+	bool check_array(const T * base, uint len) const
 	{
 		return this->check_range(base, len, hb_static_size(T));
 	}
 
 	template <typename T>
 	bool check_array(const T * base,
-	    unsigned int a,
-	    unsigned int b) const
+	    uint a,
+	    uint b) const
 	{
 		return this->check_range(base, a, b, hb_static_size(T));
 	}
@@ -299,7 +299,7 @@ public:
 		return LIKELY(this->check_range(obj, obj->min_size));
 	}
 
-	bool may_edit(const void * base, unsigned int len)
+	bool may_edit(const void * base, uint len)
 	{
 		if(this->edit_count >= HB_SANITIZE_MAX_EDITS)
 			return false;
@@ -399,9 +399,9 @@ retry:
 	mutable int max_ops, max_subtables;
 private:
 	bool writable;
-	unsigned int edit_count;
+	uint edit_count;
 	hb_blob_t * blob;
-	unsigned int num_glyphs;
+	uint num_glyphs;
 	bool num_glyphs_set;
 };
 

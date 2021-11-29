@@ -34,7 +34,7 @@
 #define FT_BEGIN_HEADER
 #define FT_END_HEADER
 
-#define FT_LOCAL_DEF( x )   static x
+#define FT_LOCAL_DEF(x)   static x
 
 
   /* from include/freetype/fttypes.h */
@@ -43,7 +43,7 @@
   typedef signed int     FT_Int;
   typedef unsigned int   FT_UInt;
   typedef signed long    FT_Long;
-  typedef unsigned long  FT_ULong;
+  typedef ulong  FT_ULong;
   typedef signed long    FT_F26Dot6;
   typedef int            FT_Error;
 
@@ -82,7 +82,7 @@
 
   /* from src/ftcalc.c */
 
-#if ( defined _WIN32 || defined _WIN64 )
+#if( defined _WIN32 || defined _WIN64 )
 
   typedef __int64  FT_Int64;
 
@@ -105,9 +105,9 @@
 
 
     s = 1;
-    if ( a < 0 ) { a = -a; s = -1; }
-    if ( b < 0 ) { b = -b; s = -s; }
-    if ( c < 0 ) { c = -c; s = -s; }
+    if( a < 0 ) { a = -a; s = -1; }
+    if( b < 0 ) { b = -b; s = -s; }
+    if( c < 0 ) { c = -c; s = -s; }
 
     d = (FT_Long)( c > 0 ? ((FT_Int64)a * b + ( c >> 1 )) / c
                          : 0x7FFFFFFFL );
@@ -126,9 +126,9 @@
 
 
     s = 1;
-    if ( a < 0 ) { a = -a; s = -1; }
-    if ( b < 0 ) { b = -b; s = -s; }
-    if ( c < 0 ) { c = -c; s = -s; }
+    if( a < 0 ) { a = -a; s = -1; }
+    if( b < 0 ) { b = -b; s = -s; }
+    if( c < 0 ) { c = -c; s = -s; }
 
     d = (FT_Long)( c > 0 ? (FT_Int64)a * b / c
                          : 0x7FFFFFFFL );

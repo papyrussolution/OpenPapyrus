@@ -77,10 +77,10 @@ public:
 	};
 
 	struct OS2V5Tail {
-		inline bool get_optical_size(unsigned int * lower, unsigned int * upper) const
+		inline bool get_optical_size(uint * lower, uint * upper) const
 		{
-			unsigned int lower_optical_size = usLowerOpticalPointSize;
-			unsigned int upper_optical_size = usUpperOpticalPointSize;
+			uint lower_optical_size = usLowerOpticalPointSize;
+			uint upper_optical_size = usUpperOpticalPointSize;
 
 			/* Per https://docs.microsoft.com/en-us/typography/opentype/spec/os2#lps */
 			if(lower_optical_size < upper_optical_size &&
@@ -215,11 +215,11 @@ public:
 				newBits[i] = 0;
 			hb_codepoint_t cp = HB_SET_VALUE_INVALID;
 			while(codepoints->next(&cp)) {
-				unsigned int bit = _hb_ot_os2_get_unicode_range_bit(cp);
+				uint bit = _hb_ot_os2_get_unicode_range_bit(cp);
 				if(bit < 128) {
-					unsigned int block = bit / 32;
-					unsigned int bit_in_block = bit % 32;
-					unsigned int mask = 1 << bit_in_block;
+					uint block = bit / 32;
+					uint bit_in_block = bit % 32;
+					uint mask = 1 << bit_in_block;
 					newBits[block] = newBits[block] | mask;
 				}
 				if(cp >= 0x10000 && cp <= 0x110000) {

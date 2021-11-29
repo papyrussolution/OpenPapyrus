@@ -346,7 +346,7 @@ public:
 	        IterateChildren does the same thing with the syntax:
 	        @verbatim
 	                child = 0;
-	                while( child = parent->IterateChildren( child ) )
+	                while(child = parent->IterateChildren( child ) )
 	        @endverbatim
 
 	        IterateChildren takes the previous child as input and finds
@@ -989,16 +989,16 @@ private:
 
         @verbatim
         TiXmlElement* root = document.FirstChildElement( "Document" );
-        if ( root )
+        if( root )
         {
                 TiXmlElement* element = root->FirstChildElement( "Element" );
-                if ( element )
+                if( element )
                 {
                         TiXmlElement* child = element->FirstChildElement( "Child" );
-                        if ( child )
+                        if( child )
                         {
                                 TiXmlElement* child2 = child->NextSiblingElement( "Child" );
-                                if ( child2 )
+                                if( child2 )
                                 {
                                         // Finally do something useful.
         @endverbatim
@@ -1010,7 +1010,7 @@ private:
         @verbatim
         TiXmlHandle docHandle( &document );
         TiXmlElement* child2 = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", 1 ).Element();
-        if ( child2 )
+        if( child2 )
         {
                 // do something useful
         @endverbatim
@@ -1026,11 +1026,11 @@ private:
 
         @verbatim
         int i=0;
-        while ( true )
+        while(true )
         {
                 TiXmlElement* child = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", i
                    ).Element();
-                if ( !child )
+                if( !child )
                         break;
                 // do something
  ++i;

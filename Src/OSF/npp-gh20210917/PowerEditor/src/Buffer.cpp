@@ -869,7 +869,7 @@ SavingStatus FileManager::saveBuffer(BufferID id, const TCHAR * filename, bool i
 				items_written = 1;
 		}
 		// check the language du fichier
-		LangType language = detectLanguageFromTextBegining((uchar*)buf, lengthDoc);
+		LangType language = detectLanguageFromTextBegining((uchar *)buf, lengthDoc);
 		UnicodeConvertor.fclose();
 		// Error, we didn't write the entire document to disk.
 		// Note that fwrite() doesn't return the number of bytes written, but rather the number of ITEMS.
@@ -1145,7 +1145,7 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, char * data
 				break;
 			if(isFirstTime) {
 				// check if file contain any BOM
-				if(Utf8_16_Read::determineEncoding((uchar*)data, lenFile) != uni8Bit) {
+				if(Utf8_16_Read::determineEncoding((uchar *)data, lenFile) != uni8Bit) {
 					// if file contains any BOM, then encoding will be erased,
 					// and the document will be interpreted as UTF
 					fileFormat._encoding = -1;
@@ -1156,7 +1156,7 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, char * data
 				}
 				if(fileFormat._language == L_TEXT) {
 					// check the language du fichier
-					fileFormat._language = detectLanguageFromTextBegining((uchar*)data, lenFile);
+					fileFormat._language = detectLanguageFromTextBegining((uchar *)data, lenFile);
 				}
 				isFirstTime = false;
 			}

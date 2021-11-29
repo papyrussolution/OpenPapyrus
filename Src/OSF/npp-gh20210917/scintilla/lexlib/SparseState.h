@@ -41,20 +41,20 @@ public:
 	}
 	void Set(Sci_Position position, T value) {
 		Delete(position);
-		if (states.empty() || (value != states[states.size()-1].value)) {
+		if(states.empty() || (value != states[states.size()-1].value)) {
 			states.push_back(State(position, value));
 		}
 	}
 	T ValueAt(Sci_Position position) {
-		if (states.empty())
+		if(states.empty())
 			return T();
-		if (position < states[0].position)
+		if(position < states[0].position)
 			return T();
 		typename stateVector::iterator low = Find(position);
-		if (low == states.end()) {
+		if(low == states.end()) {
 			return states[states.size()-1].value;
 		} else {
-			if (low->position > position) {
+			if(low->position > position) {
 				--low;
 			}
 			return low->value;
@@ -62,7 +62,7 @@ public:
 	}
 	bool Delete(Sci_Position position) {
 		typename stateVector::iterator low = Find(position);
-		if (low != states.end()) {
+		if(low != states.end()) {
 			states.erase(low, states.end());
 			return true;
 		}
@@ -80,19 +80,19 @@ public:
 		bool different = true;
 		bool changed = false;
 		typename stateVector::iterator low = Find(other.positionFirst);
-		if (static_cast<size_t>(states.end() - low) == other.states.size()) {
+		if(static_cast<size_t>(states.end() - low) == other.states.size()) {
 			// Same number in other as after positionFirst in this
 			different = !std::equal(low, states.end(), other.states.begin());
 		}
-		if (different) {
-			if (low != states.end()) {
+		if(different) {
+			if(low != states.end()) {
 				states.erase(low, states.end());
 				changed = true;
 			}
 			typename stateVector::const_iterator startOther = other.states.begin();
-			if (!states.empty() && !other.states.empty() && states.back().value == startOther->value)
+			if(!states.empty() && !other.states.empty() && states.back().value == startOther->value)
 				++startOther;
-			if (startOther != other.states.end()) {
+			if(startOther != other.states.end()) {
 				states.insert(states.end(), startOther, other.states.end());
 				changed = true;
 			}

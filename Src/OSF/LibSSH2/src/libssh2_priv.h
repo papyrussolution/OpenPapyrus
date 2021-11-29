@@ -1031,7 +1031,7 @@ struct _LIBSSH2_COMP_METHOD {
 #ifdef LIBSSH2DEBUG
 void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format, ...);
 #else
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__GNUC__)
+#if(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__GNUC__)
 /* C99 supported and also by older GCC */
 #define _libssh2_debug(x, y, z, ...) do {} while(0)
 #else

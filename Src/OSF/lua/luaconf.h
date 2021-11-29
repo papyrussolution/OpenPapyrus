@@ -66,7 +66,7 @@
    @@ LUAI_BITSINT defines the (minimum) number of bits in an 'int'.
  */
 /* avoid undefined shifts */
-#if ((INT_MAX >> 15) >> 15) >= 1
+#if((INT_MAX >> 15) >> 15) >= 1
 	#define LUAI_BITSINT    32
 #else
 	#define LUAI_BITSINT    16 // 'int' always must have at least 16 bits 

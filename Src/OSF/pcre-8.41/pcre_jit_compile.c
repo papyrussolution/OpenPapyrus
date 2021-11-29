@@ -2431,7 +2431,7 @@ static SLJIT_INLINE void return_with_partial_match(compiler_common * common, str
 
 	SLJIT_COMPILE_ASSERT(STR_END == SLJIT_S1, str_end_must_be_saved_reg2);
 	SLJIT_ASSERT(common->start_used_ptr != 0 && common->start_ptr != 0
-	  && (common->mode == JIT_PARTIAL_SOFT_COMPILE ? common->hit_start != 0 : common->hit_start == 0));
+	 && (common->mode == JIT_PARTIAL_SOFT_COMPILE ? common->hit_start != 0 : common->hit_start == 0));
 
 	OP1(SLJIT_MOV, SLJIT_R1, 0, ARGUMENTS, 0);
 	OP1(SLJIT_MOV, SLJIT_RETURN_REG, 0, SLJIT_IMM, PCRE_ERROR_PARTIAL);
@@ -3724,7 +3724,7 @@ static int scan_prefix(compiler_common * common, pcre_uchar * cc, pcre_uchar * c
 	}
 }
 
-#if (defined SLJIT_CONFIG_X86 && SLJIT_CONFIG_X86) && !(defined SUPPORT_VALGRIND)
+#if(defined SLJIT_CONFIG_X86 && SLJIT_CONFIG_X86) && !(defined SUPPORT_VALGRIND)
 
 static sljit_s32 character_to_int32(pcre_uchar chr)
 {
@@ -3806,7 +3806,7 @@ static SLJIT_INLINE void fast_forward_first_char2_sse2(compiler_common * common,
 	OP2(SLJIT_AND, STR_PTR, 0, STR_PTR, 0, SLJIT_IMM, ~0xf);
 
 /* MOVDQA xmm1, xmm2/m128 */
-#if (defined SLJIT_CONFIG_X86_64 && SLJIT_CONFIG_X86_64)
+#if(defined SLJIT_CONFIG_X86_64 && SLJIT_CONFIG_X86_64)
 
 	if(str_ptr_ind < 8) {
 		instruction[2] = 0x6f;
@@ -3903,7 +3903,7 @@ static SLJIT_INLINE void fast_forward_first_char2_sse2(compiler_common * common,
 	instruction[1] = 0x0f;
 
 /* MOVDQA xmm1, xmm2/m128 */
-#if (defined SLJIT_CONFIG_X86_64 && SLJIT_CONFIG_X86_64)
+#if(defined SLJIT_CONFIG_X86_64 && SLJIT_CONFIG_X86_64)
 
 	if(str_ptr_ind < 8) {
 		instruction[2] = 0x6f;
@@ -4024,7 +4024,7 @@ static void fast_forward_first_char2(compiler_common * common, pcre_uchar char1,
 		utf_start = LABEL();
 #endif
 
-#if (defined SLJIT_CONFIG_X86 && SLJIT_CONFIG_X86) && !(defined SUPPORT_VALGRIND)
+#if(defined SLJIT_CONFIG_X86 && SLJIT_CONFIG_X86) && !(defined SUPPORT_VALGRIND)
 
 /* SSE2 accelerated first character search. */
 
@@ -4818,9 +4818,9 @@ static BOOL check_class_ranges(compiler_common * common, const sljit_u8 * bits, 
 
 		case 4:
 		    if((ranges[1] - ranges[0]) == (ranges[3] - ranges[2])
-		  && (ranges[0] | (ranges[2] - ranges[0])) == ranges[2]
-		  && (ranges[1] & (ranges[2] - ranges[0])) == 0
-		  && is_powerof2(ranges[2] - ranges[0])) {
+		 && (ranges[0] | (ranges[2] - ranges[0])) == ranges[2]
+		 && (ranges[1] & (ranges[2] - ranges[0])) == 0
+		 && is_powerof2(ranges[2] - ranges[0])) {
 			    SLJIT_ASSERT(
 			    (ranges[0] & (ranges[2] - ranges[0])) == 0 && (ranges[2] & ranges[3] & (ranges[2] - ranges[0])) != 0);
 			    OP2(SLJIT_OR, TMP1, 0, TMP1, 0, SLJIT_IMM, ranges[2] - ranges[0]);
@@ -5137,7 +5137,7 @@ static pcre_uchar * byte_sequence_compare(compiler_common * common, BOOL caseles
 #endif
 
 	context->length -= IN_UCHARS(1);
-#if (defined SLJIT_UNALIGNED && SLJIT_UNALIGNED) && (defined COMPILE_PCRE8 || defined COMPILE_PCRE16)
+#if(defined SLJIT_UNALIGNED && SLJIT_UNALIGNED) && (defined COMPILE_PCRE8 || defined COMPILE_PCRE16)
 
 	/* Unaligned read is supported. */
 	if(othercasebit != 0 && othercasechar == cc) {
@@ -6217,7 +6217,7 @@ static pcre_uchar * compile_char1_matchingpath(compiler_common * common,
 		    if(common->utf && HAS_EXTRALEN(*cc)) length += GET_EXTRALEN(*cc);
 #endif
 		    if(common->mode == JIT_COMPILE && check_str_ptr
-		  && (type == OP_CHAR || !char_has_othercase(common, cc) || char_get_othercase_bit(common, cc) != 0)) {
+		 && (type == OP_CHAR || !char_has_othercase(common, cc) || char_get_othercase_bit(common, cc) != 0)) {
 			    OP2(SLJIT_ADD, STR_PTR, 0, STR_PTR, 0, SLJIT_IMM, IN_UCHARS(length));
 			    add_jump(compiler, backtracks, CMP(SLJIT_GREATER, STR_PTR, 0, STR_END, 0));
 
@@ -8392,7 +8392,7 @@ static pcre_uchar * compile_iterator_matchingpath(compiler_common * common, pcre
 		SLJIT_ASSERT(fast_str_ptr == 0);
 		if(common->mode == JIT_COMPILE
 #ifdef SUPPORT_UTF
-		  && !common->utf
+		 && !common->utf
 #endif
 		    ) {
 			OP2(SLJIT_ADD, TMP1, 0, STR_PTR, 0, SLJIT_IMM, IN_UCHARS(exact));

@@ -1390,7 +1390,7 @@ const char * ZEXPORT zError(int err)
 		#ifdef M_I86
 			// Microsoft C in 16-bit mode 
 			#define MY_ZCALLOC
-			#if (!defined(_MSC_VER) || (_MSC_VER <= 600))
+			#if(!defined(_MSC_VER) || (_MSC_VER <= 600))
 				#define _halloc  halloc
 				#define _hfree   hfree
 			#endif
@@ -5106,7 +5106,7 @@ static uInt FASTCALL longest_match(deflate_state * s, IPos cur_match)
 		// conditional jumps will be made that depend on those values.
 		// However the length of the match is limited to the lookahead, so
 		// the output of deflate is not affected by the uninitialized values.
-#if (defined(UNALIGNED_OK) && MAX_MATCH == 258)
+#if(defined(UNALIGNED_OK) && MAX_MATCH == 258)
 		/* This code assumes sizeof(ushort) == 2. Do not use
 		 * UNALIGNED_OK if your compiler uses a different size.
 		 */
@@ -7271,7 +7271,7 @@ dodist:
  * 1.2.beta6    4 Jan 2003
  * - Added comments in inffast.c on effectiveness of POSTINC
  * - Typecasting all around to reduce compiler warnings
- * - Changed loops from while (1) or do {} while (1) to for (;;), again to
+ * - Changed loops from while(1) or do {} while(1) to for (;;), again to
  * make compilers happy
  * - Changed type of window in inflateBackInit() to uchar *
  *
@@ -7635,7 +7635,7 @@ static int updatewindow(z_streamp strm, const uchar * end, uint copy)
     for (;;) switch (state) {
     ...
     case STATEn:
-        if (not enough input data or output space to make progress)
+        if(not enough input data or output space to make progress)
             return;
         ... make progress ...
         state = STATEm;
@@ -7674,7 +7674,7 @@ static int updatewindow(z_streamp strm, const uchar * end, uint copy)
    returns:
 
     case STATEw:
-        while (want < need) {
+        while(want < need) {
             NEEDBITS_INFL(n);
             keep[want++] = BITS(n);
             DROPBITS(n);

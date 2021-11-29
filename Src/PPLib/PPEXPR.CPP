@@ -639,7 +639,7 @@ int PPExprParser::GetToken()
 			} while(isalnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.'));
 			*p = 0;
 			Func = 0;
-			if(sstreqi_ascii(buf, "abs"))        { Func = funcAbs; }
+			if(sstreqi_ascii(buf, "abs")) { Func = funcAbs; }
 			else if(sstreqi_ascii(buf, "sqrt"))  { Func = funcSqrt; }
 			else if(sstreqi_ascii(buf, "sin"))   { Func = funcSin; }
 			else if(sstreqi_ascii(buf, "cos"))   { Func = funcCos; }

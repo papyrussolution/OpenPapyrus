@@ -366,7 +366,7 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
 			for(int32_t k = j+1; k<index[x+1]; ++k) {
 				TransliterationRule* r2 = rules[k];
 				if(r1->masks(*r2)) {
-//|                 if (errors == null) {
+//|                 if(errors == null) {
 //|                     errors = new StringBuffer();
 //|                 } else {
 //|                     errors.append("\n");
@@ -380,7 +380,7 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
 		}
 	}
 
-	//if (errors != null) {
+	//if(errors != null) {
 	//    throw new IllegalArgumentException(errors.toString());
 	//}
 }

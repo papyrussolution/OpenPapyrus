@@ -74,10 +74,10 @@ bool BasicTimeZone::hasEquivalentTransitions(const BasicTimeZone& tz, UDate star
 			// Skip a transition which only differ the amount of DST savings
 			while(true) {
 				if(avail1
-				  && tr1.getTime() <= end
-				  && (tr1.getFrom()->getRawOffset() + tr1.getFrom()->getDSTSavings()
+				 && tr1.getTime() <= end
+				 && (tr1.getFrom()->getRawOffset() + tr1.getFrom()->getDSTSavings()
 				    == tr1.getTo()->getRawOffset() + tr1.getTo()->getDSTSavings())
-				  && (tr1.getFrom()->getDSTSavings() != 0 && tr1.getTo()->getDSTSavings() != 0)) {
+				 && (tr1.getFrom()->getDSTSavings() != 0 && tr1.getTo()->getDSTSavings() != 0)) {
 					getNextTransition(tr1.getTime(), FALSE, tr1);
 				}
 				else {
@@ -86,10 +86,10 @@ bool BasicTimeZone::hasEquivalentTransitions(const BasicTimeZone& tz, UDate star
 			}
 			while(true) {
 				if(avail2
-				  && tr2.getTime() <= end
-				  && (tr2.getFrom()->getRawOffset() + tr2.getFrom()->getDSTSavings()
+				 && tr2.getTime() <= end
+				 && (tr2.getFrom()->getRawOffset() + tr2.getFrom()->getDSTSavings()
 				    == tr2.getTo()->getRawOffset() + tr2.getTo()->getDSTSavings())
-				  && (tr2.getFrom()->getDSTSavings() != 0 && tr2.getTo()->getDSTSavings() != 0)) {
+				 && (tr2.getFrom()->getDSTSavings() != 0 && tr2.getTo()->getDSTSavings() != 0)) {
 					tz.getNextTransition(tr2.getTime(), FALSE, tr2);
 				}
 				else {
@@ -158,7 +158,7 @@ void BasicTimeZone::getSimpleRulesNear(UDate date, InitialTimeZoneRule*& initial
 		UDate nextTransitionTime = tr.getTime();
 		if(((tr.getFrom()->getDSTSavings() == 0 && tr.getTo()->getDSTSavings() != 0)
 		 || (tr.getFrom()->getDSTSavings() != 0 && tr.getTo()->getDSTSavings() == 0))
-		  && (date + MILLIS_PER_YEAR > nextTransitionTime)) {
+		 && (date + MILLIS_PER_YEAR > nextTransitionTime)) {
 			int32_t year, month, dom, dow, doy, mid;
 			UDate d;
 
@@ -187,7 +187,7 @@ void BasicTimeZone::getSimpleRulesNear(UDate date, InitialTimeZoneRule*& initial
 					// and within roughly 1 year from the next transition
 					if(((tr.getFrom()->getDSTSavings() == 0 && tr.getTo()->getDSTSavings() != 0)
 					 || (tr.getFrom()->getDSTSavings() != 0 && tr.getTo()->getDSTSavings() == 0))
-					  && nextTransitionTime + MILLIS_PER_YEAR > tr.getTime()) {
+					 && nextTransitionTime + MILLIS_PER_YEAR > tr.getTime()) {
 						// Get local wall time for the next transition time
 						Grego::timeToFields(tr.getTime() + tr.getFrom()->getRawOffset() + tr.getFrom()->getDSTSavings(),
 							year, month, dom, dow, doy, mid);

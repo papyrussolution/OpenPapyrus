@@ -258,7 +258,7 @@ static void ColorizeTxt2tagsDoc(Sci_PositionU startPos, Sci_Position length, int
 			else if(sc.Match("+")) {
 				// Catch the special case of an unordered list
 				if(sc.chNext == ' ' && IsASpaceOrTab(sc.GetRelative(1))) {
-					//    if (IsNewline(sc.ch)) {
+					//    if(IsNewline(sc.ch)) {
 					//precharCount = 0;
 					//		sc.SetState(SCE_TXT2TAGS_LINE_BEGIN);
 					//sc.SetState(SCE_TXT2TAGS_PRECHAR);
@@ -280,7 +280,7 @@ static void ColorizeTxt2tagsDoc(Sci_PositionU startPos, Sci_Position length, int
 			// Codeblock
 			else if(sc.Match("```")) {
 				if(!HasPrevLineContent(sc))
-					//  if (!FollowToLineEnd(sc))
+					//  if(!FollowToLineEnd(sc))
 					sc.SetState(SCE_TXT2TAGS_CODEBK);
 				else
 					sc.SetState(SCE_TXT2TAGS_DEFAULT);
@@ -340,7 +340,7 @@ static void ColorizeTxt2tagsDoc(Sci_PositionU startPos, Sci_Position length, int
 			}
 			/*
 			   // Begin of code block
-			   else if (!HasPrevLineContent(sc) && (sc.chPrev == '\t' || precharCount >= 4))
+			   else if(!HasPrevLineContent(sc) && (sc.chPrev == '\t' || precharCount >= 4))
 			    sc.SetState(SCE_TXT2TAGS_CODEBK);
 			 */
 			// HRule - Total of 20 or more hyphens, asterisks, or underscores
@@ -378,7 +378,7 @@ static void ColorizeTxt2tagsDoc(Sci_PositionU startPos, Sci_Position length, int
 
 		// New state anywhere in doc
 		if(sc.state == SCE_TXT2TAGS_DEFAULT) {
-			//   if (sc.atLineStart && sc.ch == '#') {
+			//   if(sc.atLineStart && sc.ch == '#') {
 			//       sc.SetState(SCE_TXT2TAGS_LINE_BEGIN);
 			//       freezeCursor = true;
 			//   }

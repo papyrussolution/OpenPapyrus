@@ -3315,9 +3315,9 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 				sum = 0
 				for i = 1 to N-1 do
 					p = Num[N-i]
-					if (i mod 2 <> 0) then
+					if(i mod 2 <> 0) then
 						p = 2*p
-						if (p > 9) then
+						if(p > 9) then
 							p = p - 9
 						end if
 					end if
@@ -3325,7 +3325,7 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 				next i
 				//дополнение до 10
 				sum = 10 - (sum mod 10)
-				if (sum == 10) then
+				if(sum == 10) then
 					sum = 0
 				end if
 				Num[N] = sum

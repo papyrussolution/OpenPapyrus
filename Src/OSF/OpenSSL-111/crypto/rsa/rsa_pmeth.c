@@ -569,7 +569,7 @@ bad_pad:
 			    RSAerr(RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_PADDING_MODE);
 			    return -2;
 		    }
-		    *(uchar**)p2 = rctx->oaep_label;
+		    *(uchar **)p2 = rctx->oaep_label;
 		    return rctx->oaep_labellen;
 
 		case EVP_PKEY_CTRL_DIGESTINIT:

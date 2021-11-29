@@ -87,9 +87,9 @@ bool StringCharacterIterator::operator==(const ForwardCharacterIterator& that) c
 	StringCharacterIterator&    realThat = (StringCharacterIterator&)that;
 
 	return text == realThat.text
-	     && pos == realThat.pos
-	     && begin == realThat.begin
-	     && end == realThat.end;
+	 && pos == realThat.pos
+	 && begin == realThat.begin
+	 && end == realThat.end;
 }
 
 StringCharacterIterator* StringCharacterIterator::clone() const {

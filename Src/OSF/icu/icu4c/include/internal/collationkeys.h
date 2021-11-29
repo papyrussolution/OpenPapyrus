@@ -40,10 +40,10 @@ public:
 
     virtual void Append(const char *bytes, int32_t n) override;
     void Append(uint32_t b) {
-        if (ignore_ > 0) {
+        if(ignore_ > 0) {
             --ignore_;
         } else {
-            if (appended_ < capacity_ || Resize(1, appended_)) {
+            if(appended_ < capacity_ || Resize(1, appended_)) {
                 buffer_[appended_] = (char)b;
             }
             ++appended_;

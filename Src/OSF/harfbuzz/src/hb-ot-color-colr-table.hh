@@ -96,9 +96,9 @@ public:
 			return numBaseGlyphs;
 		}
 
-		unsigned int get_glyph_layers(hb_codepoint_t glyph,
-		    unsigned int start_offset,
-		    unsigned int * count,             /* IN/OUT.  May be NULL. */
+		uint get_glyph_layers(hb_codepoint_t glyph,
+		    uint start_offset,
+		    uint * count,             /* IN/OUT.  May be NULL. */
 		    hb_ot_color_layer_t * layers /* OUT.     May be NULL. */) const
 		{
 			const BaseGlyphRecord &record = (this+baseGlyphsZ).bsearch(numBaseGlyphs, glyph);

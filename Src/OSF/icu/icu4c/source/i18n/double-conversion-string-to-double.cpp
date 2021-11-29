@@ -704,7 +704,7 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 			// Check overflow.
 			int digit = *current - '0';
 			if(num >= max_exponent / 10
-			  && !(num == max_exponent / 10 && digit <= max_exponent % 10)) {
+			 && !(num == max_exponent / 10 && digit <= max_exponent % 10)) {
 				num = max_exponent;
 			}
 			else {

@@ -517,7 +517,7 @@ void SCI_METHOD LexerSQL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				// MySQL requires a space or control char after --
 				// http://dev.mysql.com/doc/mysql/en/ansi-diff-comments.html
 				// Perhaps we should enforce that with proper property:
-				//~                     } else if (sc.Match("-- ")) {
+				//~                     } else if(sc.Match("-- ")) {
 				sc.SetState(SCE_SQL_COMMENTLINE);
 			}
 			else if(sc.ch == '#' && options.sqlNumbersignComment) {
@@ -565,7 +565,7 @@ void SCI_METHOD LexerSQL::Fold(Sci_PositionU startPos, Sci_Position length, int 
 				    ++tempPos) {
 					int tempStyle = styler.StyleAt(tempPos);
 					if(!IsCommentStyle(tempStyle)
-					  && tempStyle != SCE_SQL_DEFAULT) {
+					 && tempStyle != SCE_SQL_DEFAULT) {
 						isAllClear = false;
 						break;
 					}

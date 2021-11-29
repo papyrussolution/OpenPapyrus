@@ -733,10 +733,16 @@ int SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVa
 	else {
 		SString sect(pSect);
 		SString param(pParam);
-		SString line_buf, temp_buf, temp_key, temp_val;
+		SString line_buf;
+		SString temp_buf;
+		SString temp_key;
+		SString temp_val;
+		SString temp_path;
 		SFile  out_file;
 		SPathStruc ps;
-		int    this_sect = 0, is_sect_founded = 0, param_added = 0;
+		int    this_sect = 0;
+		int    is_sect_founded = 0;
+		int    param_added = 0;
 		const  int opnr = Open(FileName);
 		THROW(opnr);
 		do_close_file = BIN(opnr > 0);
@@ -747,8 +753,8 @@ int SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVa
 		EncodeText(sect);
 		EncodeText(param);
 		ps.Split(FileName);
-		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-		MakeTempFileName(temp_buf, 0, 0, 0, temp_buf);
+		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_path);
+		MakeTempFileName(temp_path, 0, 0, 0, temp_buf);
 		THROW(out_file.Open(temp_buf, SFile::mWrite));
 		for(File.Seek(0); File.ReadLine(line_buf);) {
 			int    do_write_org_line = 1;

@@ -267,7 +267,7 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */ int
 #define SETBLOCK 6
 #endif
 
-#if (SETBLOCK == 0)
+#if(SETBLOCK == 0)
 #error "no non-blocking method was found/used/set"
 #endif
 }
@@ -341,7 +341,7 @@ static int get_socket_nonblocking(int sockfd)
 #define GETBLOCK 7
 #endif
 
-#if (GETBLOCK == 0)
+#if(GETBLOCK == 0)
 #error "no non-blocking method was found/used/get"
 #endif
 }

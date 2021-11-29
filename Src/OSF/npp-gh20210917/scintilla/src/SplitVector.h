@@ -25,8 +25,8 @@ protected:
 	/// deletion at that point will not require much copying and
 	/// hence be fast.
 	void GapTo(ptrdiff_t position) noexcept {
-		if (position != part1Length) {
-			if (position < part1Length) {
+		if(position != part1Length) {
+			if(position < part1Length) {
 				// Moving the gap towards start so moving elements towards end
 				std::move_backward(
 					body.data() + position,
@@ -46,8 +46,8 @@ protected:
 	/// Check that there is room in the buffer for an insertion,
 	/// reallocating if more space needed.
 	void RoomFor(ptrdiff_t insertionLength) {
-		if (gapLength <= insertionLength) {
-			while (growSize < static_cast<ptrdiff_t>(body.size() / 6))
+		if(gapLength <= insertionLength) {
+			while(growSize < static_cast<ptrdiff_t>(body.size() / 6))
 				growSize *= 2;
 			ReAllocate(body.size() + insertionLength + growSize);
 		}
@@ -88,10 +88,10 @@ public:
 	/// copy existing contents to the new buffer.
 	/// Must not be used to decrease the size of the buffer.
 	void ReAllocate(ptrdiff_t newSize) {
-		if (newSize < 0)
+		if(newSize < 0)
 			throw std::runtime_error("SplitVector::ReAllocate: negative size.");
 
-		if (newSize > static_cast<ptrdiff_t>(body.size())) {
+		if(newSize > static_cast<ptrdiff_t>(body.size())) {
 			// Move the gap to the end
 			GapTo(lengthBody);
 			gapLength += newSize - static_cast<ptrdiff_t>(body.size());
@@ -106,14 +106,14 @@ public:
 	/// Retrieve the element at a particular position.
 	/// Retrieving positions outside the range of the buffer returns empty or 0.
 	const T& ValueAt(ptrdiff_t position) const noexcept {
-		if (position < part1Length) {
-			if (position < 0) {
+		if(position < part1Length) {
+			if(position < 0) {
 				return empty;
 			} else {
 				return body[position];
 			}
 		} else {
-			if (position >= lengthBody) {
+			if(position >= lengthBody) {
 				return empty;
 			} else {
 				return body[gapLength + position];
@@ -126,16 +126,16 @@ public:
 	/// but asserts in debug builds.
 	template <typename ParamType>
 	void SetValueAt(ptrdiff_t position, ParamType&& v) noexcept {
-		if (position < part1Length) {
+		if(position < part1Length) {
 			PLATFORM_ASSERT(position >= 0);
-			if (position < 0) {
+			if(position < 0) {
 				;
 			} else {
 				body[position] = std::forward<ParamType>(v);
 			}
 		} else {
 			PLATFORM_ASSERT(position < lengthBody);
-			if (position >= lengthBody) {
+			if(position >= lengthBody) {
 				;
 			} else {
 				body[gapLength + position] = std::forward<ParamType>(v);
@@ -147,7 +147,7 @@ public:
 	/// The position must be within bounds or an assertion is triggered.
 	const T & operator[](ptrdiff_t position) const noexcept {
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
-		if (position < part1Length) {
+		if(position < part1Length) {
 			return body[position];
 		} else {
 			return body[gapLength + position];
@@ -159,7 +159,7 @@ public:
 	/// The position must be within bounds or an assertion is triggered.
 	T & operator[](ptrdiff_t position) noexcept {
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
-		if (position < part1Length) {
+		if(position < part1Length) {
 			return body[position];
 		} else {
 			return body[gapLength + position];
@@ -175,7 +175,7 @@ public:
 	/// Inserting at positions outside the current range fails.
 	void Insert(ptrdiff_t position, T v) {
 		PLATFORM_ASSERT((position >= 0) && (position <= lengthBody));
-		if ((position < 0) || (position > lengthBody)) {
+		if((position < 0) || (position > lengthBody)) {
 			return;
 		}
 		RoomFor(1);
@@ -190,8 +190,8 @@ public:
 	/// Inserting at positions outside the current range fails.
 	void InsertValue(ptrdiff_t position, ptrdiff_t insertLength, T v) {
 		PLATFORM_ASSERT((position >= 0) && (position <= lengthBody));
-		if (insertLength > 0) {
-			if ((position < 0) || (position > lengthBody)) {
+		if(insertLength > 0) {
+			if((position < 0) || (position > lengthBody)) {
 				return;
 			}
 			RoomFor(insertLength);
@@ -209,8 +209,8 @@ public:
 	/// Callers can write to the returned pointer to transform inputs without copies.
 	T *InsertEmpty(ptrdiff_t position, ptrdiff_t insertLength) {
 		PLATFORM_ASSERT((position >= 0) && (position <= lengthBody));
-		if (insertLength > 0) {
-			if ((position < 0) || (position > lengthBody)) {
+		if(insertLength > 0) {
+			if((position < 0) || (position > lengthBody)) {
 				return nullptr;
 			}
 			RoomFor(insertLength);
@@ -229,7 +229,7 @@ public:
 	/// Ensure at least length elements allocated,
 	/// appending zero valued elements if needed.
 	void EnsureLength(ptrdiff_t wantedLength) {
-		if (Length() < wantedLength) {
+		if(Length() < wantedLength) {
 			InsertEmpty(Length(), wantedLength - Length());
 		}
 	}
@@ -237,8 +237,8 @@ public:
 	/// Insert text into the buffer from an array.
 	void InsertFromArray(ptrdiff_t positionToInsert, const T s[], ptrdiff_t positionFrom, ptrdiff_t insertLength) {
 		PLATFORM_ASSERT((positionToInsert >= 0) && (positionToInsert <= lengthBody));
-		if (insertLength > 0) {
-			if ((positionToInsert < 0) || (positionToInsert > lengthBody)) {
+		if(insertLength > 0) {
+			if((positionToInsert < 0) || (positionToInsert > lengthBody)) {
 				return;
 			}
 			RoomFor(insertLength);
@@ -261,13 +261,13 @@ public:
 	/// Cannot be noexcept as vector::shrink_to_fit may be called and it may throw.
 	void DeleteRange(ptrdiff_t position, ptrdiff_t deleteLength) {
 		PLATFORM_ASSERT((position >= 0) && (position + deleteLength <= lengthBody));
-		if ((position < 0) || ((position + deleteLength) > lengthBody)) {
+		if((position < 0) || ((position + deleteLength) > lengthBody)) {
 			return;
 		}
-		if ((position == 0) && (deleteLength == lengthBody)) {
+		if((position == 0) && (deleteLength == lengthBody)) {
 			// Full deallocation returns storage and is faster
 			Init();
-		} else if (deleteLength > 0) {
+		} else if(deleteLength > 0) {
 			GapTo(position);
 			lengthBody -= deleteLength;
 			gapLength += deleteLength;
@@ -283,10 +283,10 @@ public:
 	void GetRange(T *buffer, ptrdiff_t position, ptrdiff_t retrieveLength) const noexcept {
 		// Split into up to 2 ranges, before and after the split then use memcpy on each.
 		ptrdiff_t range1Length = 0;
-		if (position < part1Length) {
+		if(position < part1Length) {
 			const ptrdiff_t part1AfterPosition = part1Length - position;
 			range1Length = retrieveLength;
-			if (range1Length > part1AfterPosition)
+			if(range1Length > part1AfterPosition)
 				range1Length = part1AfterPosition;
 		}
 		std::copy(body.data() + position, body.data() + position + range1Length, buffer);
@@ -310,8 +310,8 @@ public:
 	/// Return a pointer to a range of elements, first rearranging the buffer if
 	/// needed to make that range contiguous.
 	T *RangePointer(ptrdiff_t position, ptrdiff_t rangeLength) noexcept {
-		if (position < part1Length) {
-			if ((position + rangeLength) > part1Length) {
+		if(position < part1Length) {
+			if((position + rangeLength) > part1Length) {
 				// Range overlaps gap, so move gap to start of range.
 				GapTo(position);
 				return body.data() + position + gapLength;

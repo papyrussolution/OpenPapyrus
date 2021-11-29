@@ -21,10 +21,10 @@ static PRectangle PixelGridAlign(const PRectangle &rc) noexcept {
 
 void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &rcLine, const PRectangle &rcCharacter, State state, int value) const {
 	StyleAndColour sacDraw = sacNormal;
-	if (Flags() & SC_INDICFLAG_VALUEFORE) {
+	if(Flags() & SC_INDICFLAG_VALUEFORE) {
 		sacDraw.fore = ColourDesired(value & SC_INDICVALUEMASK);
 	}
-	if (state == State::hover) {
+	if(state == State::hover) {
 		sacDraw = sacHover;
 	}
 	const IntegerRectangle irc(rc);
@@ -38,8 +38,8 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 			const int xLast = ircSquiggle.right;
 			int y = 0;
 			surface->MoveTo(x, irc.top + y);
-			while (x < xLast) {
-				if ((x + 2) > xLast) {
+			while(x < xLast) {
+				if((x + 2) > xLast) {
 					y = 1;
 					x = xLast;
 				} else {
@@ -58,7 +58,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 			RGBAImage image(width, 3, 1.0, nullptr);
 			enum { alphaFull = 0xff, alphaSide = 0x2f, alphaSide2=0x5f };
 			for (int x = 0; x < width; x++) {
-				if (x%2) {
+				if(x%2) {
 					// Two halfway columns have a full pixel in middle flanked by light pixels
 					image.SetPixel(x, 0, sacDraw.fore, alphaSide);
 					image.SetPixel(x, 1, sacDraw.fore, alphaFull);
@@ -77,7 +77,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 			surface->MoveTo(irc.left, irc.top);
 			int x = irc.left + 3;
 			int y = 0;
-			while (x < rc.right) {
+			while(x < rc.right) {
 				surface->LineTo(x - 1, irc.top + y);
 				y = 1 - y;
 				surface->LineTo(x, irc.top + y);
@@ -90,7 +90,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 	case INDIC_TT: {
 			surface->MoveTo(irc.left, ymid);
 			int x = irc.left + 5;
-			while (x < rc.right) {
+			while(x < rc.right) {
 				surface->LineTo(x, ymid);
 				surface->MoveTo(x-3, ymid);
 				surface->LineTo(x-3, ymid+2);
@@ -99,7 +99,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 				x += 5;
 			}
 			surface->LineTo(irc.right, ymid);	// Finish the line
-			if (x - 3 <= rc.right) {
+			if(x - 3 <= rc.right) {
 				surface->MoveTo(x-3, ymid);
 				surface->LineTo(x-3, ymid+2);
 			}
@@ -108,11 +108,11 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 
 	case INDIC_DIAGONAL: {
 			int x = irc.left;
-			while (x < rc.right) {
+			while(x < rc.right) {
 				surface->MoveTo(x, irc.top + 2);
 				int endX = x+3;
 				int endY = irc.top - 1;
-				if (endX > rc.right) {
+				if(endX > rc.right) {
 					endY += endX - irc.right;
 					endX = irc.right;
 				}
@@ -147,7 +147,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 	case INDIC_STRAIGHTBOX:
 	case INDIC_FULLBOX: {
 			PRectangle rcBox = rcLine;
-			if (sacDraw.style != INDIC_FULLBOX)
+			if(sacDraw.style != INDIC_FULLBOX)
 				rcBox.top = rcLine.top + 1;
 			rcBox.left = rc.left;
 			rcBox.right = rc.right;
@@ -206,7 +206,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 
 	case INDIC_DASH: {
 			int x = irc.left;
-			while (x < rc.right) {
+			while(x < rc.right) {
 				surface->MoveTo(x, ymid);
 				surface->LineTo(std::min(x + 4, irc.right), ymid);
 				x += 7;
@@ -216,7 +216,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 
 	case INDIC_DOTS: {
 			int x = irc.left;
-			while (x < irc.right) {
+			while(x < irc.right) {
 				const PRectangle rcDot = PRectangle::FromInts(x, ymid, x + 1, ymid + 1);
 				surface->FillRectangle(rcDot, sacDraw.fore);
 				x += 2;
@@ -238,7 +238,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 
 	case INDIC_POINT:
 	case INDIC_POINTCHARACTER:
-		if (rcCharacter.Width() >= 0.1) {
+		if(rcCharacter.Width() >= 0.1) {
 			const XYPOSITION pixelHeight = std::floor(rc.Height() - 1.0f);	// 1 pixel onto next line if multiphase
 			const XYPOSITION x = (sacDraw.style == INDIC_POINT) ? (rcCharacter.left) : ((rcCharacter.right + rcCharacter.left) / 2);
 			const XYPOSITION ix = std::round(x);

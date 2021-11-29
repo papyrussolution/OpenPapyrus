@@ -535,7 +535,7 @@ void FileBrowser::notified(LPNMHDR notification)
 					    popupMenuCmd(IDM_FILEBROWSER_REMOVEROOTFOLDER);
 			    }
 			    /*
-			       else if (ptvkd->wVKey == VK_UP)
+			       else if(ptvkd->wVKey == VK_UP)
 			       {
 			            if(0x80 & GetKeyState(VK_CONTROL)) {
 			                    popupMenuCmd(IDM_FILEBROWSER_MOVEUP);
@@ -546,7 +546,7 @@ void FileBrowser::notified(LPNMHDR notification)
 			                    popupMenuCmd(IDM_FILEBROWSER_MOVEDOWN);
 			            }
 			       }
-			       else if (ptvkd->wVKey == VK_F2)
+			       else if(ptvkd->wVKey == VK_F2)
 			            popupMenuCmd(IDM_FILEBROWSER_RENAME);
 			     */
 		    }

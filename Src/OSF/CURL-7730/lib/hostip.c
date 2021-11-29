@@ -194,7 +194,7 @@ static int hostcache_timestamp_remove(void * datap, void * hc)
 	struct Curl_dns_entry * c = (struct Curl_dns_entry *)hc;
 
 	return (0 != c->timestamp)
-	     && (data->now - c->timestamp >= data->cache_timeout);
+	 && (data->now - c->timestamp >= data->cache_timeout);
 }
 
 /*

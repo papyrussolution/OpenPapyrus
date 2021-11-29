@@ -188,7 +188,7 @@ int FASTCALL SSystem::GetCpuInfo()
 		#include <sys/sysctl.h>
 	#endif
 #endif
-#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+#if(CXX_ARCH_X86) || (CXX_ARCH_X86_64)
 	#if defined(_MSC_VER)
 		static void psnip_cpu_getid(int func, int* data) 
 		{
@@ -201,7 +201,7 @@ int FASTCALL SSystem::GetCpuInfo()
 		}
 	#endif
 #elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
-	#if (defined(__GNUC__) && ((__GNUC__ > 2) || (__GNUC__ == 2 && __GNUC_MINOR__ >= 16)))
+	#if(defined(__GNUC__) && ((__GNUC__ > 2) || (__GNUC__ == 2 && __GNUC_MINOR__ >= 16)))
 		#define PSNIP_CPU__IMPL_GETAUXVAL
 		#include <sys/auxv.h>
 	#endif
@@ -209,7 +209,7 @@ int FASTCALL SSystem::GetCpuInfo()
 
 static psnip_once psnip_cpu_once = PSNIP_ONCE_INIT;
 
-#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+#if(CXX_ARCH_X86) || (CXX_ARCH_X86_64)
 	static unsigned int psnip_cpuinfo[8 * 4] = { 0, };
 #elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)
 	static unsigned long psnip_cpuinfo[2] = { 0, };
@@ -217,7 +217,7 @@ static psnip_once psnip_cpu_once = PSNIP_ONCE_INIT;
 
 static void psnip_cpu_init(void) 
 {
-	#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+	#if(CXX_ARCH_X86) || (CXX_ARCH_X86_64)
 		for(int i = 0 ; i < 8 ; i++) {
 			psnip_cpu_getid(i, (int*) &(psnip_cpuinfo[i * 4]));
 		}
@@ -229,14 +229,14 @@ static void psnip_cpu_init(void)
 
 int psnip_cpu_feature_check(uint feature) 
 {
-#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+#if(CXX_ARCH_X86) || (CXX_ARCH_X86_64)
 	uint i;
 	uint r;
 	uint b;
 #elif defined(CXX_ARCH_ARM32) || defined(CXX_ARCH_ARM64)
 	ulong b, i;
 #endif
-#if (CXX_ARCH_X86) || (CXX_ARCH_X86_64)
+#if(CXX_ARCH_X86) || (CXX_ARCH_X86_64)
 	if((feature & SSystem::cpuftr_CPU_MASK) != SSystem::cpuftr_X86)
 		return 0;
 #elif (CXX_ARCH_ARM32) || (CXX_ARCH_ARM64)

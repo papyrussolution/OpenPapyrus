@@ -449,7 +449,7 @@ static int memory_read_privatekey(LIBSSH2_SESSION * session, const LIBSSH2_HOSTK
 	*hostkey_abstract = NULL;
 	while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
 		if((*hostkey_methods_avail)->initPEMFromMemory
-		  && strncmp((*hostkey_methods_avail)->name, (const char *)method,
+		 && strncmp((*hostkey_methods_avail)->name, (const char *)method,
 			    method_len) == 0) {
 			*hostkey_method = *hostkey_methods_avail;
 			break;

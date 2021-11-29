@@ -283,7 +283,7 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 				setToBogus();
 				return;
 			}
-			while( (vsize>1) && (newVariant[vsize-1] == SEP_CHAR) ) {
+			while((vsize>1) && (newVariant[vsize-1] == SEP_CHAR) ) {
 				vsize--;
 			}
 		}
@@ -1902,7 +1902,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 					break;
 				}
 			}
-		} // if (canonicalize) {
+		} // if(canonicalize) {
 
 		// successful end of init()
 		return *this;

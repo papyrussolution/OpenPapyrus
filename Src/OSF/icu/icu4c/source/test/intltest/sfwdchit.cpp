@@ -91,7 +91,7 @@ bool SimpleFwdCharIterator::operator==(const ForwardCharacterIterator& that) con
 #endif
 
 int32_t SimpleFwdCharIterator::hashCode() const {
-    if (fHashCode == kInvalidHashCode)
+    if(fHashCode == kInvalidHashCode)
     {
         UHashTok key;
         key.pointer = fStart;

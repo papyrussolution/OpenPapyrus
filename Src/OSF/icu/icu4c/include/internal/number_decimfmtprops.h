@@ -46,13 +46,13 @@ public:
     CurrencyPluralInfoWrapper() = default;
 
     CurrencyPluralInfoWrapper(const CurrencyPluralInfoWrapper& other) {
-        if (!other.fPtr.isNull()) {
+        if(!other.fPtr.isNull()) {
             fPtr.adoptInstead(new CurrencyPluralInfo(*other.fPtr));
         }
     }
 
     CurrencyPluralInfoWrapper& operator = (const CurrencyPluralInfoWrapper& other) {
-        if (this != &other &&  // self-assignment: no-op
+        if(this != &other &&  // self-assignment: no-op
                 !other.fPtr.isNull()) {
             fPtr.adoptInstead(new CurrencyPluralInfo(*other.fPtr));
         }

@@ -1437,7 +1437,7 @@ int FASTCALL DbeInitSize(int option, DBConst * result, size_t s);
 #define THROW_PP(expr,val)     {if(!(expr)){PPSetError(val);goto __scatch;}}
 #define THROW_PP_S(expr,val,s) {if(!(expr)){PPSetError(val,s); goto __scatch;}}
 #define THROW_SL(expr)         {if(!(expr)){PPSetErrorSLib();goto __scatch;}}
-#define THROW_MEM(expr)        {if(!(expr)){PPSetErrorNoMem();goto __scatch;}}
+#define THROW_MEM(expr) {if(!(expr)){PPSetErrorNoMem();goto __scatch;}}
 #define THROW_INVARG(expr)     {if(!(expr)){PPSetErrorInvParam();goto __scatch;}}
 #define THROW_DB(expr)         {if(!(expr)){PPSetErrorDB();goto __scatch;}}
 #define THROW_LXML(expr, ctx)  {if(!(expr)){PPSetLibXmlError(ctx);goto __scatch;}}
@@ -1597,7 +1597,7 @@ private:
 };
 
 #if /*SL_PROFILE &&*/ !defined(DL600C) // { @v9.8.0 commented(SL_PROFILE)
-	#define PROFILE(line)        {DS.GProfileStart(__FILE__, __LINE__); line; DS.GProfileFinish(__FILE__, __LINE__);}
+	#define PROFILE(line) {DS.GProfileStart(__FILE__, __LINE__); line; DS.GProfileFinish(__FILE__, __LINE__);}
 	#define PROFILE_S(line, s)   {DS.GProfileStart(__FILE__, __LINE__, s); line; DS.GProfileFinish(__FILE__, __LINE__);}
 	#define PROFILE_START        {long _profile_start_ln_num = __LINE__; DS.GProfileStart(__FILE__, _profile_start_ln_num);
 	#define PROFILE_START_S(s)   {long _profile_start_ln_num = __LINE__; DS.GProfileStart(__FILE__, _profile_start_ln_num, s);
@@ -1714,6 +1714,7 @@ private:
 struct PPBackupScen { // @flat // @persistent
 	PPBackupScen();
 	PPBackupScen & Z();
+	bool   FASTCALL IsEq(const PPBackupScen & rS) const;
 	int    ToStr(SString & rBuf) const;
 	long   ID;
 	long   Period;     // Backup period (days)
@@ -14429,7 +14430,7 @@ public:
 	//
 	int    SearchLast(PPID cashNodeID, int incompl, PPID * pID, CSessionTbl::Rec * pRec);
 	int    SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPIDArray * pList);
-	int    HasChild(PPID sessID);
+	int    HasChildren(PPID sessID);
 	int    GetSubSessList(PPID superSessID, PPIDArray *);
 	int    GetLastNumber(PPID cashNodeID, long cashNumber, long * pNumber, CSessionTbl::Rec * pRec = 0);
 	int    GetIncompleteSessList(int grade /* CSESSINCMPL_XXX */, PPID cashNodeID, PPIDArray *);

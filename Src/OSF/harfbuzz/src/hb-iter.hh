@@ -94,20 +94,20 @@ struct hb_iter_t
   hb_remove_reference<item_t>* operator -> () const { return hb_addressof (**thiz()); }
   item_t operator * () const { return thiz()->__item__ (); }
   item_t operator * () { return thiz()->__item__ (); }
-  item_t operator [] (unsigned i) const { return thiz()->__item_at__ (i); }
-  item_t operator [] (unsigned i) { return thiz()->__item_at__ (i); }
-  iter_t& operator += (unsigned count) &  { thiz()->__forward__ (count); return *thiz(); }
-  iter_t  operator += (unsigned count) && { thiz()->__forward__ (count); return *thiz(); }
+  item_t operator [] (uint i) const { return thiz()->__item_at__ (i); }
+  item_t operator [] (uint i) { return thiz()->__item_at__ (i); }
+  iter_t& operator += (uint count) &  { thiz()->__forward__ (count); return *thiz(); }
+  iter_t  operator += (uint count) && { thiz()->__forward__ (count); return *thiz(); }
   iter_t& operator ++ () &  { thiz()->__next__ (); return *thiz(); }
   iter_t  operator ++ () && { thiz()->__next__ (); return *thiz(); }
-  iter_t& operator -= (unsigned count) &  { thiz()->__rewind__ (count); return *thiz(); }
-  iter_t  operator -= (unsigned count) && { thiz()->__rewind__ (count); return *thiz(); }
+  iter_t& operator -= (uint count) &  { thiz()->__rewind__ (count); return *thiz(); }
+  iter_t  operator -= (uint count) && { thiz()->__rewind__ (count); return *thiz(); }
   iter_t& operator -- () &  { thiz()->__prev__ (); return *thiz(); }
   iter_t  operator -- () && { thiz()->__prev__ (); return *thiz(); }
-  iter_t operator + (unsigned count) const { auto c = thiz()->iter (); c += count; return c; }
-  friend iter_t operator + (unsigned count, const iter_t &it) { return it + count; }
+  iter_t operator + (uint count) const { auto c = thiz()->iter (); c += count; return c; }
+  friend iter_t operator + (uint count, const iter_t &it) { return it + count; }
   iter_t operator ++ (int) { iter_t c (*thiz()); ++*thiz(); return c; }
-  iter_t operator - (unsigned count) const { auto c = thiz()->iter (); c -= count; return c; }
+  iter_t operator - (uint count) const { auto c = thiz()->iter (); c -= count; return c; }
   iter_t operator -- (int) { iter_t c (*thiz()); --*thiz(); return c; }
   template <typename T>
   iter_t& operator >> (T &v) &  { v = **thiz(); ++*thiz(); return *thiz(); }
@@ -167,10 +167,10 @@ struct
   /* Specialization for C arrays. */
 
   template <typename Type> inline hb_array_t<Type>
-  operator () (Type *array, unsigned int length) const
+  operator () (Type *array, uint length) const
   { return hb_array_t<Type> (array, length); }
 
-  template <typename Type, unsigned int length> hb_array_t<Type>
+  template <typename Type, uint length> hb_array_t<Type>
   operator () (Type (&array)[length]) const
   { return hb_array_t<Type> (array, length); }
 
@@ -197,7 +197,7 @@ struct hb_iter_fallback_mixin_t
 
   /* Access: Implement __item__(), or __item_at__() if random-access. */
   item_t __item__ () const { return (*thiz())[0]; }
-  item_t __item_at__ (unsigned i) const { return *(*thiz() + i); }
+  item_t __item_at__ (uint i) const { return *(*thiz() + i); }
 
   /* Termination: Implement __more__(), or __len__() if random-access. */
   bool __more__ () const { return bool (thiz()->len ()); }
@@ -378,7 +378,7 @@ struct hb_map_iter_t :
     Sorted == hb_function_sortedness_t::RETAINS_SORTING ? Iter::is_sorted_iterator :
     false;
   __item_t__ __item__ () const { return hb_get (f.get (), *it); }
-  __item_t__ __item_at__ (unsigned i) const { return hb_get (f.get (), it[i]); }
+  __item_t__ __item_at__ (uint i) const { return hb_get (f.get (), it[i]); }
   bool __more__ () const { return bool (it); }
   unsigned __len__ () const { return it.len (); }
   void __next__ () { ++it; }
@@ -554,7 +554,7 @@ struct hb_zip_iter_t :
   static constexpr bool is_sorted_iterator = A::is_sorted_iterator;
 
   __item_t__ __item__ () const { return __item_t__ (*a, *b); }
-  __item_t__ __item_at__ (unsigned i) const { return __item_t__ (a[i], b[i]); }
+  __item_t__ __item_at__ (uint i) const { return __item_t__ (a[i], b[i]); }
   bool __more__ () const { return bool (a) && bool (b); }
   unsigned __len__ () const { return hb_min (a.len (), b.len ()); }
   void __next__ () { ++a; ++b; }
@@ -753,17 +753,17 @@ struct
 { HB_PARTIALIZE(2);
   template <typename Iterable,
 	    hb_requires (hb_is_iterable (Iterable))>
-  auto operator () (Iterable&& it, unsigned count) const HB_AUTO_RETURN
+  auto operator () (Iterable&& it, uint count) const HB_AUTO_RETURN
   ( hb_zip (hb_range (count), it) | hb_map (hb_second) )
 
   /* Specialization arrays. */
 
   template <typename Type> inline hb_array_t<Type>
-  operator () (hb_array_t<Type> array, unsigned count) const
+  operator () (hb_array_t<Type> array, uint count) const
   { return array.sub_array (0, count); }
 
   template <typename Type> inline hb_sorted_array_t<Type>
-  operator () (hb_sorted_array_t<Type> array, unsigned count) const
+  operator () (hb_sorted_array_t<Type> array, uint count) const
   { return array.sub_array (0, count); }
 }
 HB_FUNCOBJ (hb_take);
@@ -772,7 +772,7 @@ struct
 { HB_PARTIALIZE(2);
   template <typename Iter,
 	    hb_requires (hb_is_iterator (Iter))>
-  auto operator () (Iter it, unsigned count) const HB_AUTO_RETURN
+  auto operator () (Iter it, uint count) const HB_AUTO_RETURN
   (
     + hb_iota (it, hb_add (count))
     | hb_map (hb_take (count))

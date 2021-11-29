@@ -112,7 +112,7 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 					sc.SetState(SCE_F_DEFAULT);
 			}
 			else if(toLineStart == 5) {
-				//if (!IsASpace(sc.ch) && sc.ch != '0') {
+				//if(!IsASpace(sc.ch) && sc.ch != '0') {
 				if(sc.ch != '\r' && sc.ch != '\n') {
 					sc.SetState(SCE_F_CONTINUATION);
 					if(!IsASpace(sc.ch) && sc.ch != '0')

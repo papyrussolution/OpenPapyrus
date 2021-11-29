@@ -219,7 +219,7 @@ int ssh_gssapi_handle_userauth(ssh_session session, const char * user, uint32_t 
 	}
 
 	for(i = 0; i< n_oid; ++i) {
-		uchar * oid_s = (uchar*)ssh_string_data(oids[i]);
+		uchar * oid_s = (uchar *)ssh_string_data(oids[i]);
 		size_t len = ssh_string_len(oids[i]);
 
 		if(oid_s == NULL) {
@@ -281,7 +281,7 @@ int ssh_gssapi_handle_userauth(ssh_session session, const char * user, uint32_t 
 
 	/* finding which OID from client we selected */
 	for(i = 0; i< n_oid; ++i) {
-		uchar * oid_s = (uchar*)ssh_string_data(oids[i]);
+		uchar * oid_s = (uchar *)ssh_string_data(oids[i]);
 		size_t len = ssh_string_len(oids[i]);
 
 		if(oid_s == NULL) {
@@ -766,9 +766,9 @@ int ssh_gssapi_auth_mic(ssh_session session){
 			rc = SSH_ERROR;
 			goto out;
 		}
-		((uchar*)oids[i]->data)[0] = SSH_OID_TAG;
-		((uchar*)oids[i]->data)[1] = selected->elements[i].length;
-		memcpy((uchar*)oids[i]->data + 2, selected->elements[i].elements,
+		((uchar *)oids[i]->data)[0] = SSH_OID_TAG;
+		((uchar *)oids[i]->data)[1] = selected->elements[i].length;
+		memcpy((uchar *)oids[i]->data + 2, selected->elements[i].elements,
 		    selected->elements[i].length);
 	}
 

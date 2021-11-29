@@ -650,7 +650,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 	 * crypto/bn/rsaz_exp.c and accompanying assembly modules.
 	 */
 	if((16 == a->top) && (16 == p->top) && (BN_num_bits(m) == 1024)
-	  && rsaz_avx2_eligible()) {
+	 && rsaz_avx2_eligible()) {
 		if(NULL == bn_wexpand(rr, 16))
 			goto err;
 		RSAZ_1024_mod_exp_avx2(rr->d, a->d, p->d, m->d, mont->RR.d,

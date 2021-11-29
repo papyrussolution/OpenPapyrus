@@ -88,9 +88,9 @@ FT_BEGIN_HEADER
 #define T1_Release_Table( p )          \
           do                           \
           {                            \
-            if ((p)->funcs.release )  \
+            if((p)->funcs.release )  \
               (p)->funcs.release( p ); \
-          } while ( 0 )
+          } while(0)
 
 
 #define T1_Skip_Spaces( p )    (p)->root.funcs.skip_spaces( &(p)->root )

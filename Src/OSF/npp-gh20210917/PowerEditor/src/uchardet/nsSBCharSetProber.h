@@ -51,13 +51,13 @@
 
 struct SequenceModel
 {
-  const uchar* const charToOrderMap;    // [256] table use to find a char's order
+  const uchar * const charToOrderMap;    // [256] table use to find a char's order
   const PRUint8* const precedenceMatrix;  // [SAMPLE_SIZE][SAMPLE_SIZE]; table to find a 2-char sequence's frequency
   float  mTypicalPositiveRatio;     // = freqSeqs / totalSeqs 
   PRBool keepEnglishLetter;         // says if this script contains English characters (not implemented)
   const char * const charsetName;
   SequenceModel(void);
-  SequenceModel(const uchar* const a, const PRUint8* const  b,float c,PRBool d,const char * const e) 
+  SequenceModel(const uchar * const a, const PRUint8* const  b,float c,PRBool d,const char * const e) 
 	  : charToOrderMap(a), precedenceMatrix(b), mTypicalPositiveRatio(c), keepEnglishLetter(d), charsetName(e){}
   SequenceModel& operator = (const SequenceModel&);
 } ;

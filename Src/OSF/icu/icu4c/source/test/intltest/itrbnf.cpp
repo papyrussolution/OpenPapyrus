@@ -116,7 +116,7 @@ void IntlTestRBNF::TestHebrewFraction() {
 		}
 		else {
 //            formatter->parse(result, parseResult, pp);
-//            if (parseResult.getDouble() != 123.45) {
+//            if(parseResult.getDouble() != 123.45) {
 //                errln("expected 123.45 but got: %g", parseResult.getDouble());
 //            }
 		}
@@ -131,7 +131,7 @@ void IntlTestRBNF::TestHebrewFraction() {
 		else {
 			pp.setIndex(0);
 //            formatter->parse(result, parseResult, pp);
-//            if (parseResult.getDouble() != 123.0045) {
+//            if(parseResult.getDouble() != 123.0045) {
 //                errln("expected 123.0045 but got: %g", parseResult.getDouble());
 //            }
 		}
@@ -1825,11 +1825,11 @@ void IntlTestRBNF::TestLocalizations(void)
 					Locale locale2("ja_JP");
 					UnicodeString name = formatter0.getRuleSetName(0);
 					if(formatter0.getRuleSetDisplayName(0, locale0) == "Main"
-					  && formatter0.getRuleSetDisplayName(0, locale1) == "das Main"
-					  && formatter0.getRuleSetDisplayName(0, locale2) == "%main"
-					  && formatter0.getRuleSetDisplayName(name, locale0) == "Main"
-					  && formatter0.getRuleSetDisplayName(name, locale1) == "das Main"
-					  && formatter0.getRuleSetDisplayName(name, locale2) == "%main") {
+					 && formatter0.getRuleSetDisplayName(0, locale1) == "das Main"
+					 && formatter0.getRuleSetDisplayName(0, locale2) == "%main"
+					 && formatter0.getRuleSetDisplayName(name, locale0) == "Main"
+					 && formatter0.getRuleSetDisplayName(name, locale1) == "das Main"
+					 && formatter0.getRuleSetDisplayName(name, locale2) == "%main") {
 						logln("getRuleSetDisplayName tested");
 					}
 					else {
@@ -2455,7 +2455,7 @@ void IntlTestRBNF::doTest(RuleBasedNumberFormat* formatter, const char * const t
 							}
 							else {
 								if(parsedNumber != expectedNumber
-								  && (!uprv_isNaN(parsedNumber.getDouble()) ||
+								 && (!uprv_isNaN(parsedNumber.getDouble()) ||
 								    !uprv_isNaN(expectedNumber.getDouble()))) {
 									UnicodeString msg = "FAIL: parse failed for ";
 									msg.append(actualString);

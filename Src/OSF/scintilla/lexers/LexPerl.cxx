@@ -1099,12 +1099,12 @@ public:
 			    }
 			    else {
 				    if(pod == SCE_PL_POD_VERB           // still part of current paragraph
-					  && (styler.GetLineState(ln - 1) == SCE_PL_POD)) {
+					 && (styler.GetLineState(ln - 1) == SCE_PL_POD)) {
 					    pod = SCE_PL_POD;
 					    styler.SetLineState(ln, pod);
 				    }
 				    else if(pod == SCE_PL_POD
-					  && (styler.GetLineState(ln - 1) == SCE_PL_POD_VERB)) {
+					 && (styler.GetLineState(ln - 1) == SCE_PL_POD_VERB)) {
 					    pod = SCE_PL_POD_VERB;
 					    styler.SetLineState(ln, pod);
 				    }
@@ -1434,7 +1434,7 @@ public:
 					fw++;
 				}
 				else if(sc.ch == 'q' && setQDelim.Contains(sc.chNext)
-				  && !setWord.Contains(sc.GetRelative(2))) {
+				 && !setWord.Contains(sc.GetRelative(2))) {
 					if(sc.chNext == 'q') sc.ChangeState(SCE_PL_STRING_QQ);
 					else if(sc.chNext == 'x') sc.ChangeState(SCE_PL_STRING_QX);
 					else if(sc.chNext == 'r') sc.ChangeState(SCE_PL_STRING_QR);
@@ -1567,7 +1567,7 @@ public:
 						    }
 						    else if(bkch == '+' || bkch == '-') {
 							    if(bkch == static_cast<uchar>(styler.SafeGetCharAt(bk - 1))
-							  && bkch != static_cast<uchar>(styler.SafeGetCharAt(bk - 2)))
+							 && bkch != static_cast<uchar>(styler.SafeGetCharAt(bk - 2)))
 								    // exceptions for operators: unary suffixes ++, --
 								    preferRE = false;
 						    }

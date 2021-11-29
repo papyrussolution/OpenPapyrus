@@ -711,5 +711,10 @@ void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type), 0, 0); }
 ListWindow * CreateListWindow(StrAssocArray * pAry, uint options) { return new ListWindow(new StrAssocListBoxDef(pAry, options), 0, 0); }
 ListWindow * CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32), 0, 0); }
-ListWindow * CreateListWindow(uint sz, uint options) { return new ListWindow(new StringListBoxDef(sz, options), 0, 0); }
+// @v11.2.5 ListWindow * CreateListWindow(uint sz, uint options) { return new ListWindow(new StringListBoxDef(sz, options), 0, 0); }
 // @v9.8.12 (unused) WordSelector * CreateWordSelector(WordSel_ExtraBlock * pBlk) { return new WordSelector(pBlk); }
+ListWindow * CreateListWindow_Simple(uint options) // @v11.2.5
+{ 
+	StrAssocListBoxDef * p_def = new StrAssocListBoxDef(new StrAssocArray, options | lbtDisposeData);
+	return new ListWindow(p_def, 0, 0); 
+}

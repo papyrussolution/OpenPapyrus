@@ -17,7 +17,7 @@
  * SECURITY WORKSHOP, CAMBRIDGE, U.K., DECEMBER 9-11, 1993)
  */
 
-#if (BF_ROUNDS != 16) && (BF_ROUNDS != 20)
+#if(BF_ROUNDS != 16) && (BF_ROUNDS != 20)
 #error If you set BF_ROUNDS to some value other than 16 or 20, you will have \
 	to modify the code.
 #endif

@@ -113,7 +113,7 @@ static CGFontRef create_cg_font(hb_face_t * face)
 	}
 	else {
 		hb_blob_t * blob = hb_face_reference_blob(face);
-		unsigned int blob_length;
+		uint blob_length;
 		const char * blob_data = hb_blob_get_data(blob, &blob_length);
 		if(UNLIKELY(!blob_length))
 			DEBUG_MSG(CORETEXT, face, "Face has empty blob");
@@ -393,13 +393,13 @@ CTFontRef hb_coretext_font_get_ct_font(hb_font_t * font)
  */
 
 struct feature_record_t {
-	unsigned int feature;
-	unsigned int setting;
+	uint feature;
+	uint setting;
 };
 
 struct active_feature_t {
 	feature_record_t rec;
-	unsigned int order;
+	uint order;
 
 	HB_INTERNAL static int cmp(const void * pa, const void * pb) {
 		const active_feature_t * a = (const active_feature_t*)pa;
@@ -416,7 +416,7 @@ struct active_feature_t {
 };
 
 struct feature_event_t {
-	unsigned int index;
+	uint index;
 	bool start;
 	active_feature_t feature;
 
@@ -431,15 +431,15 @@ struct feature_event_t {
 
 struct range_record_t {
 	CTFontRef font;
-	unsigned int index_first; /* == start */
-	unsigned int index_last; /* == end - 1 */
+	uint index_first; /* == start */
+	uint index_last; /* == end - 1 */
 };
 
 hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features)
+    uint num_features)
 {
 	hb_face_t * face = font->face;
 	CGFontRef cg_font = (CGFontRef)(const void*)face->data.coretext;
@@ -458,7 +458,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 	 * cluster... */
 	if(buffer->cluster_level == HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES) {
 		hb_unicode_funcs_t * unicode = buffer->unicode;
-		unsigned int count = buffer->len;
+		uint count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
 		for(uint i = 1; i < count; i++)
 			if(HB_UNICODE_GENERAL_CATEGORY_IS_MARK(unicode->general_category(info[i].codepoint)))
@@ -519,7 +519,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 
 		/* Scan events and save features for each range. */
 		hb_vector_t<active_feature_t> active_features;
-		unsigned int last_index = 0;
+		uint last_index = 0;
 		for(uint i = 0; i < feature_events.length; i++) {
 			feature_event_t * event = &feature_events[i];
 
@@ -534,7 +534,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 
 					/* TODO sort and resolve conflicting features? */
 					/* active_features.qsort (); */
-					for(unsigned int j = 0; j < active_features.length; j++) {
+					for(uint j = 0; j < active_features.length; j++) {
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
 						CFStringRef keys[] = {
 							kCTFontFeatureTypeIdentifierKey,
@@ -610,13 +610,13 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 		}
 	}
 
-	unsigned int scratch_size;
+	uint scratch_size;
 	hb_buffer_t::scratch_buffer_t * scratch = buffer->get_scratch_buffer(&scratch_size);
 
 #define ALLOCATE_ARRAY(Type, name, len, on_no_room) \
 	Type *name = (Type*)scratch; \
 	do { \
-		unsigned int _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
 		if(UNLIKELY(_consumed > scratch_size)) \
 		{ \
 			on_no_room; \
@@ -627,7 +627,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 	} while(0)
 
 	ALLOCATE_ARRAY(UniChar, pchars, buffer->len * 2, ((void)nullptr) /*nothing*/);
-	unsigned int chars_len = 0;
+	uint chars_len = 0;
 	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		if(LIKELY(c <= 0xFFFFu))
@@ -640,11 +640,11 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 		}
 	}
 
-	ALLOCATE_ARRAY(unsigned int, log_clusters, chars_len, ((void)nullptr) /*nothing*/);
+	ALLOCATE_ARRAY(uint, log_clusters, chars_len, ((void)nullptr) /*nothing*/);
 	chars_len = 0;
 	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
-		unsigned int cluster = buffer->info[i].cluster;
+		uint cluster = buffer->info[i].cluster;
 		log_clusters[chars_len++] = cluster;
 		if(hb_in_range(c, 0x10000u, 0x10FFFFu))
 			log_clusters[chars_len++] = cluster; /* Surrogates. */
@@ -675,7 +675,7 @@ resize_and_retry:
 
 		/* Get previous start-of-scratch-area, that we use later for readjusting
 		 * our existing scratch arrays. */
-		unsigned int old_scratch_used;
+		uint old_scratch_used;
 		hb_buffer_t::scratch_buffer_t * old_scratch;
 		old_scratch = buffer->get_scratch_buffer(&old_scratch_used);
 		old_scratch_used = scratch - old_scratch;
@@ -687,7 +687,7 @@ resize_and_retry:
 		 * cleanest way to do without completely restructuring the rest of this shaper. */
 		scratch = buffer->get_scratch_buffer(&scratch_size);
 		pchars = reinterpret_cast<UniChar *> (((char *)scratch + ((char *)pchars - (char *)old_scratch)));
-		log_clusters = reinterpret_cast<unsigned int *> (((char *)scratch + ((char *)log_clusters - (char *)old_scratch)));
+		log_clusters = reinterpret_cast<uint *> (((char *)scratch + ((char *)log_clusters - (char *)old_scratch)));
 		scratch += old_scratch_used;
 		scratch_size -= old_scratch_used;
 	}
@@ -734,9 +734,9 @@ resize_and_retry:
 			    kCTFontAttributeName, ct_font);
 
 			if(num_features && range_records.length) {
-				unsigned int start = 0;
+				uint start = 0;
 				range_record_t * last_range = &range_records[0];
-				for(unsigned int k = 0; k < chars_len; k++) {
+				for(uint k = 0; k < chars_len; k++) {
 					range_record_t * range = last_range;
 					while(log_clusters[k] < range->index_first)
 						range--;
@@ -761,7 +761,7 @@ resize_and_retry:
 			 * Note: once kern is disabled, reenabling it doesn't currently seem to work in CoreText.
 			 */
 			if(num_features) {
-				unsigned int zeroint = 0;
+				uint zeroint = 0;
 				CFNumberRef zero = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &zeroint);
 				for(uint i = 0; i < num_features; i++) {
 					const hb_feature_t &feature = features[i];
@@ -811,7 +811,7 @@ resize_and_retry:
 		}
 
 		CFArrayRef glyph_runs = CTLineGetGlyphRuns(line);
-		unsigned int num_runs = CFArrayGetCount(glyph_runs);
+		uint num_runs = CFArrayGetCount(glyph_runs);
 		DEBUG_MSG(CORETEXT, nullptr, "Num runs: %d", num_runs);
 
 		buffer->len = 0;
@@ -913,7 +913,7 @@ resize_and_retry:
 					x_offset = -x_offset;
 					y_offset = -y_offset;
 
-					unsigned int old_len = buffer->len;
+					uint old_len = buffer->len;
 					for(CFIndex j = range.location; j < range.location + range.length; j++) {
 						UniChar ch = CFStringGetCharacterAtIndex(string_ref, j);
 						if(hb_in_range<UniChar> (ch, 0xDC00u, 0xDFFFu) && range.location < j) {
@@ -944,7 +944,7 @@ resize_and_retry:
 				}
 			}
 
-			unsigned int num_glyphs = CTRunGetGlyphCount(run);
+			uint num_glyphs = CTRunGetGlyphCount(run);
 			if(num_glyphs == 0)
 				continue;
 
@@ -962,7 +962,7 @@ resize_and_retry:
 #define USE_PTR true
 
 #define SCRATCH_SAVE() \
-	unsigned int scratch_size_saved = scratch_size; \
+	uint scratch_size_saved = scratch_size; \
 	hb_buffer_t::scratch_buffer_t * scratch_saved = scratch
 
 #define SCRATCH_RESTORE() \
@@ -984,7 +984,7 @@ resize_and_retry:
 					string_indices = index_buf;
 				}
 				hb_glyph_info_t * info = run_info;
-				for(unsigned int j = 0; j < num_glyphs; j++) {
+				for(uint j = 0; j < num_glyphs; j++) {
 					info->codepoint = glyphs[j];
 					info->cluster = log_clusters[string_indices[j]];
 					info++;
@@ -1007,7 +1007,7 @@ resize_and_retry:
 				hb_glyph_info_t * info = run_info;
 				if(HB_DIRECTION_IS_HORIZONTAL(buffer->props.direction)) {
 					hb_position_t x_offset = (positions[0].x - advances_so_far) * x_mult;
-					for(unsigned int j = 0; j < num_glyphs; j++) {
+					for(uint j = 0; j < num_glyphs; j++) {
 						double advance;
 						if(LIKELY(j + 1 < num_glyphs))
 							advance = positions[j + 1].x - positions[j].x;
@@ -1021,7 +1021,7 @@ resize_and_retry:
 				}
 				else {
 					hb_position_t y_offset = (positions[0].y - advances_so_far) * y_mult;
-					for(unsigned int j = 0; j < num_glyphs; j++) {
+					for(uint j = 0; j < num_glyphs; j++) {
 						double advance;
 						if(LIKELY(j + 1 < num_glyphs))
 							advance = positions[j + 1].y - positions[j].y;
@@ -1060,7 +1060,7 @@ resize_and_retry:
 
 		buffer->clear_positions();
 
-		unsigned int count = buffer->len;
+		uint count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
 		hb_glyph_position_t * pos = buffer->pos;
 		if(HB_DIRECTION_IS_HORIZONTAL(buffer->props.direction))
@@ -1093,14 +1093,14 @@ resize_and_retry:
 		if(count > 1 && (status_or & kCTRunStatusNonMonotonic)) {
 			hb_glyph_info_t * info = buffer->info;
 			if(HB_DIRECTION_IS_FORWARD(buffer->props.direction)) {
-				unsigned int cluster = info[count - 1].cluster;
+				uint cluster = info[count - 1].cluster;
 				for(uint i = count - 1; i > 0; i--) {
 					cluster = hb_min(cluster, info[i - 1].cluster);
 					info[i - 1].cluster = cluster;
 				}
 			}
 			else {
-				unsigned int cluster = info[0].cluster;
+				uint cluster = info[0].cluster;
 				for(uint i = 1; i < count; i++) {
 					cluster = hb_min(cluster, info[i].cluster);
 					info[i].cluster = cluster;

@@ -103,7 +103,7 @@ cmsBool CMSEXPORT _cmsMAT3isIdentity(const cmsMAT3* a)
 
     for (i=0; i < 3; i++)
         for (j=0; j < 3; j++)
-            if (!CloseEnough(a ->v[i].n[j], Identity.v[i].n[j])) return FALSE;
+            if(!CloseEnough(a ->v[i].n[j], Identity.v[i].n[j])) return FALSE;
 
     return TRUE;
 }
@@ -135,7 +135,7 @@ cmsBool  CMSEXPORT _cmsMAT3inverse(const cmsMAT3* a, cmsMAT3* b)
 
    det = a -> v[0].n[0]*c0 + a -> v[0].n[1]*c1 + a -> v[0].n[2]*c2;
 
-   if (fabs(det) < MATRIX_DET_TOLERANCE) return FALSE;  // singular matrix; can't invert
+   if(fabs(det) < MATRIX_DET_TOLERANCE) return FALSE;  // singular matrix; can't invert
 
    b -> v[0].n[0] = c0/det;
    b -> v[0].n[1] = (a -> v[0].n[2]*a -> v[2].n[1] - a -> v[0].n[1]*a -> v[2].n[2])/det;
@@ -158,7 +158,7 @@ cmsBool  CMSEXPORT _cmsMAT3solve(cmsVEC3* x, cmsMAT3* a, cmsVEC3* b)
 
     memmove(&m, a, sizeof(cmsMAT3));
 
-    if (!_cmsMAT3inverse(&m, &a_1)) return FALSE;  // Singular matrix
+    if(!_cmsMAT3inverse(&m, &a_1)) return FALSE;  // Singular matrix
 
     _cmsMAT3eval(x, &a_1, b);
     return TRUE;

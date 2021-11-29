@@ -472,7 +472,7 @@ int UI_process(UI * ui)
 	const char * state = "processing";
 
 	if(ui->meth->ui_open_session != NULL
-	  && ui->meth->ui_open_session(ui) <= 0) {
+	 && ui->meth->ui_open_session(ui) <= 0) {
 		state = "opening session";
 		ok = -1;
 		goto err;
@@ -484,7 +484,7 @@ int UI_process(UI * ui)
 
 	for(i = 0; i < sk_UI_STRING_num(ui->strings); i++) {
 		if(ui->meth->ui_write_string != NULL
-		  && (ui->meth->ui_write_string(ui,
+		 && (ui->meth->ui_write_string(ui,
 		    sk_UI_STRING_value(ui->strings, i))
 		    <= 0)) {
 			state = "writing strings";
@@ -531,7 +531,7 @@ int UI_process(UI * ui)
 	state = NULL;
 err:
 	if(ui->meth->ui_close_session != NULL
-	  && ui->meth->ui_close_session(ui) <= 0) {
+	 && ui->meth->ui_close_session(ui) <= 0) {
 		if(state == NULL)
 			state = "closing session";
 		ok = -1;

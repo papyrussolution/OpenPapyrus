@@ -454,7 +454,7 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			    )
 				levelCurrent++;
 			else if(lineCurrent!=0 && !IsTeXCommentLine(lineCurrent - 1, styler)
-			  && IsTeXCommentLine(lineCurrent + 1, styler)
+			 && IsTeXCommentLine(lineCurrent + 1, styler)
 			    )
 				levelCurrent++;
 			else if(lineCurrent!=0 && IsTeXCommentLine(lineCurrent - 1, styler) &&

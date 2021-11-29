@@ -392,7 +392,7 @@ public:
 			if(!base_script.has_data()) return false;
 
 			if(LIKELY(coord)) {
-				unsigned int tag_index = 0;
+				uint tag_index = 0;
 				(this+baseTagList).bfind(baseline_tag, &tag_index);
 				* coord = &base_script.get_base_coord(tag_index);
 			}

@@ -3830,7 +3830,7 @@ static inline uint_fast8_t _hb_ucd_ccc(unsigned u)
 	return u<125259u ? _hb_ucd_u8[15060+(((_hb_ucd_u8[13636+(((_hb_ucd_u8[12656+(u>>3>>4)])<<4)+((u>>3)&15u))])<<3)+((u)&7u))] : 0;
 }
 
-static inline unsigned _hb_ucd_b4(const uint8_t* a, unsigned i)
+static inline unsigned _hb_ucd_b4(const uint8_t* a, uint i)
 {
 	return (a[i>>1]>>((i&1u)<<2))&15u;
 }
@@ -5556,7 +5556,7 @@ static inline uint_fast8_t _hb_ucd_ccc(unsigned u)
 	       ((u)&3u))] : 0;
 }
 
-static inline unsigned _hb_ucd_b4(const uint8_t* a, unsigned i)
+static inline unsigned _hb_ucd_b4(const uint8_t* a, uint i)
 {
 	return (a[i>>1]>>((i&1u)<<2))&15u;
 }
@@ -6758,7 +6758,7 @@ static inline uint_fast8_t _hb_ucd_ccc(unsigned u)
 	       ((u>>2)&3u))])<<2)+((u)&3u))] : 0;
 }
 
-static inline unsigned _hb_ucd_b4(const uint8_t* a, unsigned i)
+static inline unsigned _hb_ucd_b4(const uint8_t* a, uint i)
 {
 	return (a[i>>1]>>((i&1u)<<2))&15u;
 }

@@ -245,10 +245,10 @@ void IntlTestCollator::doTestVariant(Collator* col,
 		log("\n");
 	}
 /*
-   if (compareResult != result) {
+   if(compareResult != result) {
     errln("String comparison failed in variant test\n");
    }
-   if (keyResult != result) {
+   if(keyResult != result) {
     errln("Collation key comparison failed in variant test\n");
    }
  */

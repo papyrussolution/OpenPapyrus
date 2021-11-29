@@ -171,7 +171,7 @@ name		args	description
 OP_MOVE,/*	A B	R(A) := R(B)					*/
 OP_LOADK,/*	A Bx	R(A) := Kst(Bx)					*/
 OP_LOADKX,/*	A 	R(A) := Kst(extra arg)				*/
-OP_LOADBOOL,/*	A B C	R(A) := (Bool)B; if (C) pc++			*/
+OP_LOADBOOL,/*	A B C	R(A) := (Bool)B; if(C) pc++			*/
 OP_LOADNIL,/*	A B	R(A), R(A+1), ..., R(A+B) := nil		*/
 OP_GETUPVAL,/*	A B	R(A) := UpValue[B]				*/
 
@@ -205,13 +205,13 @@ OP_LEN,/*	A B	R(A) := length of R(B)				*/
 
 OP_CONCAT,/*	A B C	R(A) := R(B).. ... ..R(C)			*/
 
-OP_JMP,/*	A sBx	pc+=sBx; if (A) close all upvalues >= R(A - 1)	*/
-OP_EQ,/*	A B C	if ((RK(B) == RK(C)) ~= A) then pc++		*/
-OP_LT,/*	A B C	if ((RK(B) <  RK(C)) ~= A) then pc++		*/
-OP_LE,/*	A B C	if ((RK(B) <= RK(C)) ~= A) then pc++		*/
+OP_JMP,/*	A sBx	pc+=sBx; if(A) close all upvalues >= R(A - 1)	*/
+OP_EQ,/*	A B C	if((RK(B) == RK(C)) ~= A) then pc++		*/
+OP_LT,/*	A B C	if((RK(B) <  RK(C)) ~= A) then pc++		*/
+OP_LE,/*	A B C	if((RK(B) <= RK(C)) ~= A) then pc++		*/
 
 OP_TEST,/*	A C	if not (R(A) <=> C) then pc++			*/
-OP_TESTSET,/*	A B C	if (R(B) <=> C) then R(A) := R(B) else pc++	*/
+OP_TESTSET,/*	A B C	if(R(B) <=> C) then R(A) := R(B) else pc++	*/
 
 OP_CALL,/*	A B C	R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1)) */
 OP_TAILCALL,/*	A B C	return R(A)(R(A+1), ... ,R(A+B-1))		*/
@@ -240,16 +240,16 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 
 /*===========================================================================
   Notes:
-  (*) In OP_CALL, if (B == 0) then B = top. If (C == 0), then 'top' is
+  (*) In OP_CALL, if(B == 0) then B = top. If (C == 0), then 'top' is
   set to last_result+1, so next open instruction (OP_CALL, OP_RETURN,
   OP_SETLIST) may use 'top'.
 
-  (*) In OP_VARARG, if (B == 0) then use actual number of varargs and
+  (*) In OP_VARARG, if(B == 0) then use actual number of varargs and
   set top (like in OP_CALL with C == 0).
 
-  (*) In OP_RETURN, if (B == 0) then return up to 'top'.
+  (*) In OP_RETURN, if(B == 0) then return up to 'top'.
 
-  (*) In OP_SETLIST, if (B == 0) then B = 'top'; if (C == 0) then next
+  (*) In OP_SETLIST, if(B == 0) then B = 'top'; if(C == 0) then next
   'instruction' is EXTRAARG(real C).
 
   (*) In OP_LOADKX, the next 'instruction' is always EXTRAARG.

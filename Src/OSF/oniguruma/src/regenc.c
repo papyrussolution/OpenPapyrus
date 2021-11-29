@@ -535,8 +535,8 @@ ss_combination:
 	}
 	else if(0x61 <= *p && *p <= 0x7a) { /* a - z */
 		if(*p == SMALL_S && ess_tsett_flag != 0 && end > p + 1
-		  && (*(p+1) == SMALL_S || *(p+1) == LARGE_S)
-		  && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) {
+		 && (*(p+1) == SMALL_S || *(p+1) == LARGE_S)
+		 && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) {
 			goto ss_combination;
 		}
 
@@ -546,7 +546,7 @@ ss_combination:
 		return 1;
 	}
 	else if(*p == 0xdf && ess_tsett_flag != 0
-	  && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) {
+	 && CASE_FOLD_IS_NOT_ASCII_ONLY(flag)) {
 		items[0].byte_len = 1;
 		items[0].code_len = 2;
 		items[0].code[0] = (OnigCodePoint)'s';

@@ -364,7 +364,7 @@ static bool _get_bounds(const OT::cff1::accelerator_t * cff, hb_codepoint_t glyp
 struct cff1_cs_opset_extents_t : cff1_cs_opset_t<cff1_cs_opset_extents_t, cff1_extents_param_t, cff1_path_procs_extents_t>{
 	static void process_seac(cff1_cs_interp_env_t &env, cff1_extents_param_t& param)
 	{
-		unsigned int n = env.argStack.get_count();
+		uint n = env.argStack.get_count();
 		point_t delta;
 		delta.x = env.argStack[n-4];
 		delta.y = env.argStack[n-3];
@@ -389,7 +389,7 @@ bool _get_bounds(const OT::cff1::accelerator_t * cff, hb_codepoint_t glyph, boun
 	bounds.init();
 	if(UNLIKELY(!cff->is_valid() || (glyph >= cff->num_glyphs))) return false;
 
-	unsigned int fd = cff->fdSelect->get_fd(glyph);
+	uint fd = cff->fdSelect->get_fd(glyph);
 	cff1_cs_interpreter_t<cff1_cs_opset_extents_t, cff1_extents_param_t> interp;
 	const byte_str_t str = (*cff->charStrings)[glyph];
 	interp.env.init(str, *cff, fd);
@@ -511,7 +511,7 @@ struct cff1_cs_opset_path_t : cff1_cs_opset_t<cff1_cs_opset_path_t, cff1_path_pa
 		/* End previous path */
 		param.end_path();
 
-		unsigned int n = env.argStack.get_count();
+		uint n = env.argStack.get_count();
 		point_t delta;
 		delta.x = env.argStack[n-4];
 		delta.y = env.argStack[n-3];
@@ -530,7 +530,7 @@ bool _get_path(const OT::cff1::accelerator_t * cff, hb_font_t * font, hb_codepoi
 {
 	if(UNLIKELY(!cff->is_valid() || (glyph >= cff->num_glyphs))) return false;
 
-	unsigned int fd = cff->fdSelect->get_fd(glyph);
+	uint fd = cff->fdSelect->get_fd(glyph);
 	cff1_cs_interpreter_t<cff1_cs_opset_path_t, cff1_path_param_t> interp;
 	const byte_str_t str = (*cff->charStrings)[glyph];
 	interp.env.init(str, *cff, fd);
@@ -576,7 +576,7 @@ struct get_seac_param_t {
 struct cff1_cs_opset_seac_t : cff1_cs_opset_t<cff1_cs_opset_seac_t, get_seac_param_t>{
 	static void process_seac(cff1_cs_interp_env_t &env, get_seac_param_t& param)
 	{
-		unsigned int n = env.argStack.get_count();
+		uint n = env.argStack.get_count();
 		hb_codepoint_t base_char = (hb_codepoint_t)env.argStack[n-2].to_int();
 		hb_codepoint_t accent_char = (hb_codepoint_t)env.argStack[n-1].to_int();
 
@@ -589,7 +589,7 @@ bool OT::cff1::accelerator_t::get_seac_components(hb_codepoint_t glyph, hb_codep
 {
 	if(UNLIKELY(!is_valid() || (glyph >= num_glyphs))) return false;
 
-	unsigned int fd = fdSelect->get_fd(glyph);
+	uint fd = fdSelect->get_fd(glyph);
 	cff1_cs_interpreter_t<cff1_cs_opset_seac_t, get_seac_param_t> interp;
 	const byte_str_t str = (*charStrings)[glyph];
 	interp.env.init(str, *this, fd);

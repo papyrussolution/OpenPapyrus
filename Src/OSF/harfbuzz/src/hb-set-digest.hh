@@ -45,7 +45,7 @@
  * an attractive trade-off.
  */
 
-template <typename mask_t, unsigned int shift>
+template <typename mask_t, uint shift>
 struct hb_set_digest_lowest_bits_t
 {
   static constexpr unsigned mask_bytes = sizeof (mask_t);
@@ -78,18 +78,18 @@ struct hb_set_digest_lowest_bits_t
   }
 
   template <typename T>
-  void add_array (const T *array, unsigned int count, unsigned int stride=sizeof(T))
+  void add_array (const T *array, uint count, uint stride=sizeof(T))
   {
-    for (unsigned int i = 0; i < count; i++)
+    for (uint i = 0; i < count; i++)
     {
       add (*array);
       array = (const T *) (stride + (const char *) array);
     }
   }
   template <typename T>
-  bool add_sorted_array (const T *array, unsigned int count, unsigned int stride=sizeof(T))
+  bool add_sorted_array (const T *array, uint count, uint stride=sizeof(T))
   {
-    for (unsigned int i = 0; i < count; i++)
+    for (uint i = 0; i < count; i++)
     {
       add (*array);
       array = (const T *) (stride + (const char *) array);
@@ -129,13 +129,13 @@ struct hb_set_digest_combiner_t
     return true;
   }
   template <typename T>
-  void add_array (const T *array, unsigned int count, unsigned int stride=sizeof(T))
+  void add_array (const T *array, uint count, uint stride=sizeof(T))
   {
     head.add_array (array, count, stride);
     tail.add_array (array, count, stride);
   }
   template <typename T>
-  bool add_sorted_array (const T *array, unsigned int count, unsigned int stride=sizeof(T))
+  bool add_sorted_array (const T *array, uint count, uint stride=sizeof(T))
   {
     head.add_sorted_array (array, count, stride);
     tail.add_sorted_array (array, count, stride);

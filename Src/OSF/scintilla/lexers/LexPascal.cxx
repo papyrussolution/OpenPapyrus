@@ -552,10 +552,10 @@ static void FoldPascalDoc(Sci_PositionU startPos, Sci_Position length, int initS
 		}
 		if(foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
 			if(!IsCommentLine(lineCurrent - 1, styler)
-			  && IsCommentLine(lineCurrent + 1, styler))
+			 && IsCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
 			else if(IsCommentLine(lineCurrent - 1, styler)
-			  && !IsCommentLine(lineCurrent+1, styler))
+			 && !IsCommentLine(lineCurrent+1, styler))
 				levelCurrent--;
 		}
 		if(foldPreprocessor) {
@@ -563,7 +563,7 @@ static void FoldPascalDoc(Sci_PositionU startPos, Sci_Position length, int initS
 				ClassifyPascalPreprocessorFoldPoint(levelCurrent, lineFoldStateCurrent, i + 2, styler);
 			}
 			else if(style == SCE_PAS_PREPROCESSOR2 && ch == '(' && chNext == '*'
-			  && styler.SafeGetCharAt(i + 2) == '$') {
+			 && styler.SafeGetCharAt(i + 2) == '$') {
 				ClassifyPascalPreprocessorFoldPoint(levelCurrent, lineFoldStateCurrent, i + 3, styler);
 			}
 		}

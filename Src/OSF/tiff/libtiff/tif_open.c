@@ -313,7 +313,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	if(tif->tif_header.common.tiff_magic != TIFF_BIGENDIAN &&
 	    tif->tif_header.common.tiff_magic != TIFF_LITTLEENDIAN
 	    #if MDI_SUPPORT
-	  &&
+	 &&
 	    #if HOST_BIGENDIAN
 	    tif->tif_header.common.tiff_magic != MDI_BIGENDIAN
 	    #else

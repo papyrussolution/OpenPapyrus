@@ -55,7 +55,7 @@ uchar * ssh_mbedcry_bn2num(const_bignum num, int radix)
 		ZFREE(buf);
 		return NULL;
 	}
-	return (uchar*)buf;
+	return (uchar *)buf;
 }
 
 int ssh_mbedcry_rand(bignum rnd, int bits, int top, int bottom)

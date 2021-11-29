@@ -117,7 +117,7 @@ void LssLin::Solve_Simple(uint count, const double * pX, const double * pY)
 	}
 }
 
-#if (_MSC_VER >= 1910) // {
+#if(_MSC_VER >= 1910) // {
 //
 // Черт его знает почему, но эта, якобы ускоренная всякими SSE-AVX версия почти в 2 раза медленнее тупого варианта Solve_Simle.
 // По-этому оставляю для истории.
@@ -237,7 +237,7 @@ void LssLin::Solve_SSE(uint count, const double * pX, const double * pY)
 
 void LssLin::Solve(uint count, const double * pX, const double * pY)
 {
-	/*#if (_MSC_VER >= 1910)
+	/*#if(_MSC_VER >= 1910)
 		Solve_SSE(count, pX, pY);
 	#else
 		Solve_Simple(count, pX, pY);

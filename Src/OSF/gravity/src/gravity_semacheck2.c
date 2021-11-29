@@ -821,7 +821,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			continue;
 
 //        // check for manifest type
-//        if (p->annotation_type) {
+//        if(p->annotation_type) {
 //            // struct gnode_var_t was modified with
 //            // // untagged union, if no type is declared then this union is NULL otherwise
 //            // union {
@@ -830,8 +830,8 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 // NULL)
 //            // };
 //            gnode_t *class_type = lookup_identifier(self, p->annotation_type, NULL);
-//            if (!class_type) {REPORT_WARNING(p, "Unable to find type %s.", p->annotation_type);}
-//        //     if (!NODE_ISA(class_type, NODE_CLASS_DECL)) {REPORT_ERROR(p, "Unable to set non class type %s.",
+//            if(!class_type) {REPORT_WARNING(p, "Unable to find type %s.", p->annotation_type);}
+//        //     if(!NODE_ISA(class_type, NODE_CLASS_DECL)) {REPORT_ERROR(p, "Unable to set non class type %s.",
 // p->annotation_type); continue;}
 //        //     p->class_type = (gnode_class_decl_t *)class_type;
 //        }
@@ -928,11 +928,11 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 	}
 
 	// check protocols (disable in this version because protocols are not yet supported)
-	// if (node->protocols) {
+	// if(node->protocols) {
 	//    gnode_array_each(node->protocols, {
 	//        gnode_id_expr_t *id = (gnode_id_expr_t *)val;
 	//        gnode_t *target = lookup_symtable_id(self, id, false);
-	//        if (!target) continue;
+	//        if(!target) continue;
 	//        id->symbol = target;
 	//    });
 	// }
@@ -1015,7 +1015,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 	// because the lookup context can vary at runtime, for example
 	// class C1 {...}
 	// class C2 {...}
-	// func foo(n) {if (n % 2 == 0) return C1(); else return C2();}
+	// func foo(n) {if(n % 2 == 0) return C1(); else return C2();}
 	// var c = foo(rand()).bar;
 	// should bar be lookup in C1 or in C2?
 	// we really can't know at compile time but only at runtime

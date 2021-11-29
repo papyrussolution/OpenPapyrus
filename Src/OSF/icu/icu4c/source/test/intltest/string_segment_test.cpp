@@ -23,7 +23,7 @@ class StringSegmentTest : public IntlTest {
 static const char16_t* SAMPLE_STRING = u"📻 radio 📻";
 
 void StringSegmentTest::runIndexedTest(int32_t index, bool exec, const char *&name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite StringSegmentTest: ");
     }
     TESTCASE_AUTO_BEGIN;

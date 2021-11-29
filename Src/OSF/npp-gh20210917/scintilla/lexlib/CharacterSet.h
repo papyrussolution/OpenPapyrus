@@ -31,11 +31,11 @@ public:
 			bset[i] = false;
 		}
 		AddString(initialSet);
-		if (base & setLower)
+		if(base & setLower)
 			AddString("abcdefghijklmnopqrstuvwxyz");
-		if (base & setUpper)
+		if(base & setUpper)
 			AddString("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		if (base & setDigits)
+		if(base & setDigits)
 			AddString("0123456789");
 	}
 	CharacterSet(const CharacterSet &other) {
@@ -54,7 +54,7 @@ public:
 		other.bset = nullptr;
 	}
 	CharacterSet & operator = (const CharacterSet &other) {
-		if (this != &other) {
+		if(this != &other) {
 			bool *bsetNew = new bool[other.size];
 			for (int i = 0; i < other.size; i++) {
 				bsetNew[i] = other.bset[i];
@@ -67,7 +67,7 @@ public:
 		return *this;
 	}
 	CharacterSet & operator = (CharacterSet &&other) noexcept {
-		if (this != &other) {
+		if(this != &other) {
 			delete []bset;
 			size = other.size;
 			valueAfter = other.valueAfter;
@@ -96,7 +96,7 @@ public:
 	}
 	bool Contains(int val) const noexcept {
 		assert(val >= 0);
-		if (val < 0) return false;
+		if(val < 0) return false;
 		return (val < size) ? bset[val] : valueAfter;
 	}
 	bool Contains(char ch) const noexcept {
@@ -121,7 +121,7 @@ constexpr bool IsADigit(int ch) noexcept {
 }
 
 constexpr bool IsADigit(int ch, int base) noexcept {
-	if (base <= 10) {
+	if(base <= 10) {
 		return (ch >= '0') && (ch < '0' + base);
 	} else {
 		return ((ch >= '0') && (ch <= '9')) ||
@@ -170,9 +170,9 @@ constexpr bool iswordstart(int ch) noexcept {
 }
 
 constexpr bool isoperator(int ch) noexcept {
-	if (IsAlphaNumeric(ch))
+	if(IsAlphaNumeric(ch))
 		return false;
-	if (ch == '%' || ch == '^' || ch == '&' || ch == '*' ||
+	if(ch == '%' || ch == '^' || ch == '&' || ch == '*' ||
 	        ch == '(' || ch == ')' || ch == '-' || ch == '+' ||
 	        ch == '=' || ch == '|' || ch == '{' || ch == '}' ||
 	        ch == '[' || ch == ']' || ch == ':' || ch == ';' ||
@@ -186,7 +186,7 @@ constexpr bool isoperator(int ch) noexcept {
 
 template <typename T>
 constexpr T MakeUpperCase(T ch) noexcept {
-	if (ch < 'a' || ch > 'z')
+	if(ch < 'a' || ch > 'z')
 		return ch;
 	else
 		return ch - 'a' + 'A';
@@ -194,7 +194,7 @@ constexpr T MakeUpperCase(T ch) noexcept {
 
 template <typename T>
 constexpr T MakeLowerCase(T ch) noexcept {
-	if (ch < 'A' || ch > 'Z')
+	if(ch < 'A' || ch > 'Z')
 		return ch;
 	else
 		return ch - 'A' + 'a';

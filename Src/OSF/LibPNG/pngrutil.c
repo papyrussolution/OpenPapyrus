@@ -3563,7 +3563,7 @@ void /* PRIVATE */ png_read_finish_row(png_structrp png_ptr)
 			if((png_ptr->transformations & PNG_INTERLACE) == 0) {
 				png_ptr->num_rows = (png_ptr->height + png_pass_yinc[png_ptr->pass] - 1 - png_pass_ystart[png_ptr->pass]) / png_pass_yinc[png_ptr->pass];
 			}
-			else /* if (png_ptr->transformations & PNG_INTERLACE) */
+			else /* if(png_ptr->transformations & PNG_INTERLACE) */
 				break;  /* libpng deinterlacing sees every row */
 		} while(png_ptr->num_rows == 0 || png_ptr->iwidth == 0);
 		if(png_ptr->pass < 7)

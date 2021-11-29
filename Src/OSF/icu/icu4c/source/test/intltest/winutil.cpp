@@ -39,7 +39,7 @@ BOOL CALLBACK EnumLocalesProc(LPSTR lpLocaleString)
 	int32_t localeIDLen;
     UErrorCode status = U_ZERO_ERROR;
 
-    if (lcidCount >= lcidMax) {
+    if(lcidCount >= lcidMax) {
         Win32Utilities::LCIDRecord *newRecords = new Win32Utilities::LCIDRecord[lcidMax + 32];
 
         for (int i = 0; i < lcidMax; i += 1) {
@@ -54,7 +54,7 @@ BOOL CALLBACK EnumLocalesProc(LPSTR lpLocaleString)
     sscanf(lpLocaleString, "%8x", &lcidRecords[lcidCount].lcid);
 
     localeIDLen = uprv_convertToPosix(lcidRecords[lcidCount].lcid, localeID, UPRV_LENGTHOF(localeID), &status);
-    if (U_SUCCESS(status)) {
+    if(U_SUCCESS(status)) {
         lcidRecords[lcidCount].localeID = new char[localeIDLen + 1];
         memcpy(lcidRecords[lcidCount].localeID, localeID, localeIDLen);
         lcidRecords[lcidCount].localeID[localeIDLen] = 0;

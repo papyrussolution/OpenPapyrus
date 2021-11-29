@@ -176,7 +176,7 @@ static void collect_features_indic(hb_ot_shape_planner_t * plan)
 	 * there is a use of it, it's typically at the beginning. */
 	map->enable_feature(HB_TAG('c', 'c', 'm', 'p'));
 
-	unsigned int i = 0;
+	uint i = 0;
 	map->add_gsub_pause(initial_reordering_indic);
 
 	for(; i < INDIC_BASIC_FEATURES; i++) {
@@ -340,7 +340,7 @@ static void setup_masks_indic(const hb_ot_shape_plan_t * plan HB_UNUSED,
 	/* We cannot setup masks here.  We save information about characters
 	 * and setup masks later on in a pause-callback. */
 
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		set_indic_properties(info[i]);
@@ -375,7 +375,7 @@ static void update_consonant_positions_indic(const hb_ot_shape_plan_t * plan,
 	hb_codepoint_t virama;
 	if(indic_plan->load_virama_glyph(font, &virama)) {
 		hb_face_t * face = font->face;
-		unsigned int count = buffer->len;
+		uint count = buffer->len;
 		hb_glyph_info_t * info = buffer->info;
 		for(uint i = 0; i < count; i++)
 			if(info[i].indic_position() == POS_BASE_C) {
@@ -391,7 +391,7 @@ static void update_consonant_positions_indic(const hb_ot_shape_plan_t * plan,
 static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * plan,
     hb_face_t * face,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	const indic_shape_plan_t * indic_plan = (const indic_shape_plan_t*)plan->data;
 	hb_glyph_info_t * info = buffer->info;
@@ -425,14 +425,14 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 	 *     base consonants.
 	 */
 
-	unsigned int base = end;
+	uint base = end;
 	bool has_reph = false;
 
 	{
 		/* -> If the syllable starts with Ra + Halant (in a script that has Reph)
 		 *    and has more than one consonant, Ra is excluded from candidates for
 		 *    base consonants. */
-		unsigned int limit = start;
+		uint limit = start;
 		if(indic_plan->mask_array[INDIC_RPHF] &&
 		    start + 3 <= end &&
 		    (
@@ -467,7 +467,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 			case BASE_POS_LAST:
 		    {
 			    /* -> starting from the end of the syllable, move backwards */
-			    unsigned int i = end;
+			    uint i = end;
 			    bool seen_below = false;
 			    do {
 				    i--;
@@ -591,7 +591,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 	 * Happens in Sinhala. */
 	for(uint i = base + 1; i < end; i++)
 		if(info[i].indic_category() == OT_M) {
-			for(unsigned int j = i + 1; j < end; j++)
+			for(uint j = i + 1; j < end; j++)
 				if(is_consonant(info[j])) {
 					info[j].indic_position() = POS_FINAL_C;
 					break;
@@ -635,7 +635,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 		bool disallow_double_halants = buffer->props.script == HB_SCRIPT_KANNADA;
 		for(uint i = base + 1; i < end; i++)
 			if(info[i].indic_category() == OT_H) {
-				unsigned int j;
+				uint j;
 				for(j = end - 1; j > i; j--)
 					if(is_consonant(info[j]) ||
 					    (disallow_double_halants && info[j].indic_category() == OT_H))
@@ -668,7 +668,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 					 * We don't want to move the virama with the left matra.
 					 * TEST: U+0D9A,U+0DDA
 					 */
-					for(unsigned int j = i; j > start; j--)
+					for(uint j = i; j > start; j--)
 						if(info[j - 1].indic_position() != POS_PRE_M) {
 							info[i].indic_position() = info[j - 1].indic_position();
 							break;
@@ -683,10 +683,10 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 	/* For post-base consonants let them own anything before them
 	 * since the last consonant or matra. */
 	{
-		unsigned int last = base;
+		uint last = base;
 		for(uint i = base + 1; i < end; i++)
 			if(is_consonant(info[i])) {
-				for(unsigned int j = last + 1; j < i; j++)
+				for(uint j = last + 1; j < i; j++)
 					if(info[j].indic_position() < POS_SMVD)
 						info[j].indic_position() = info[i].indic_position();
 				last = i;
@@ -697,7 +697,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 
 	{
 		/* Use syllable() for sort accounting temporarily. */
-		unsigned int syllable = info[start].syllable();
+		uint syllable = info[start].syllable();
 		for(uint i = start; i < end; i++)
 			info[i].syllable() = i - start;
 
@@ -727,11 +727,11 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 			/* Note!  syllable() is a one-byte field. */
 			for(uint i = base; i < end; i++)
 				if(info[i].syllable() != 255) {
-					unsigned int max = i;
-					unsigned int j = start + info[i].syllable();
+					uint max = i;
+					uint j = start + info[i].syllable();
 					while(j != i) {
 						max = hb_max(max, j);
-						unsigned int next = start + info[j].syllable();
+						uint next = start + info[j].syllable();
 						info[j].syllable() = 255; /* So we don't process j later again. */
 						j = next;
 					}
@@ -803,15 +803,15 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 			}
 	}
 
-	unsigned int pref_len = 2;
+	uint pref_len = 2;
 	if(indic_plan->mask_array[INDIC_PREF] && base + pref_len < end) {
 		/* Find a Halant,Ra sequence and mark it for pre-base-reordering processing. */
 		for(uint i = base + 1; i + pref_len - 1 < end; i++) {
 			hb_codepoint_t glyphs[2];
-			for(unsigned int j = 0; j < pref_len; j++)
+			for(uint j = 0; j < pref_len; j++)
 				glyphs[j] = info[i + j].codepoint;
 			if(indic_plan->pref.would_substitute(glyphs, pref_len, face)) {
-				for(unsigned int j = 0; j < pref_len; j++)
+				for(uint j = 0; j < pref_len; j++)
 					info[i++].mask |= indic_plan->mask_array[INDIC_PREF];
 				break;
 			}
@@ -822,7 +822,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 	for(uint i = start + 1; i < end; i++)
 		if(is_joiner(info[i])) {
 			bool non_joiner = info[i].indic_category() == OT_ZWNJ;
-			unsigned int j = i;
+			uint j = i;
 
 			do {
 				j--;
@@ -841,7 +841,7 @@ static void initial_reordering_consonant_syllable(const hb_ot_shape_plan_t * pla
 static void initial_reordering_standalone_cluster(const hb_ot_shape_plan_t * plan,
     hb_face_t * face,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	/* We treat placeholder/dotted-circle as if they are consonants, so we
 	 * should just chain.  Only if not in compatibility mode that is... */
@@ -861,7 +861,7 @@ static void initial_reordering_standalone_cluster(const hb_ot_shape_plan_t * pla
 static void initial_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
     hb_face_t * face,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	indic_syllable_type_t syllable_type = (indic_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
 	switch(syllable_type)
@@ -894,7 +894,7 @@ static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan H
 	/* Note: This loop is extra overhead, but should not be measurable.
 	 * TODO Use a buffer scratch flag to remove the loop. */
 	bool has_broken_syllables = false;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	for(uint i = 0; i < count; i++)
 		if((info[i].syllable() & 0x0F) == indic_broken_cluster) {
@@ -916,9 +916,9 @@ static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan H
 	buffer->clear_output();
 
 	buffer->idx = 0;
-	unsigned int last_syllable = 0;
+	uint last_syllable = 0;
 	while(buffer->idx < buffer->len && buffer->successful) {
-		unsigned int syllable = buffer->cur().syllable();
+		uint syllable = buffer->cur().syllable();
 		indic_syllable_type_t syllable_type = (indic_syllable_type_t)(syllable & 0x0F);
 		if(UNLIKELY(last_syllable != syllable && syllable_type == indic_broken_cluster)) {
 			last_syllable = syllable;
@@ -955,7 +955,7 @@ static void initial_reordering_indic(const hb_ot_shape_plan_t * plan,
 
 static void final_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
     hb_buffer_t * buffer,
-    unsigned int start, unsigned int end)
+    uint start, uint end)
 {
 	const indic_shape_plan_t * indic_plan = (const indic_shape_plan_t*)plan->data;
 	hb_glyph_info_t * info = buffer->info;
@@ -990,7 +990,7 @@ static void final_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
 	bool try_pref = !!indic_plan->mask_array[INDIC_PREF];
 
 	/* Find base again */
-	unsigned int base;
+	uint base;
 	for(base = start; base < end; base++)
 		if(info[base].indic_position() >= POS_BASE_C) {
 			if(try_pref && base + 1 < end) {
@@ -1069,7 +1069,7 @@ static void final_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
 
 	if(start + 1 < end && start < base) { /* Otherwise there can't be any pre-base matra characters. */
 		/* If we lost track of base, alas, position before last thingy. */
-		unsigned int new_pos = base == end ? base - 2 : base - 1;
+		uint new_pos = base == end ? base - 2 : base - 1;
 
 		/* Malayalam / Tamil do not have "half" forms or explicit virama forms.
 		 * The glyphs formed by 'half' are Chillus or ligated explicit viramas.
@@ -1119,7 +1119,7 @@ search:
 			/* Now go see if there's actually any matras... */
 			for(uint i = new_pos; i > start; i--)
 				if(info[i - 1].indic_position() == POS_PRE_M) {
-					unsigned int old_pos = i - 1;
+					uint old_pos = i - 1;
 					if(old_pos < base && base <= new_pos) /* Shouldn't actually happen. */
 						base--;
 
@@ -1165,7 +1165,7 @@ search:
 	    info[start].indic_position() == POS_RA_TO_BECOME_REPH &&
 	    ((info[start].indic_category() == OT_Repha) ^
 	    _hb_glyph_info_ligated_and_didnt_multiply(&info[start]))) {
-		unsigned int new_reph_pos;
+		uint new_reph_pos;
 		reph_position_t reph_pos = indic_plan->config->reph_pos;
 
 		/*       1. If reph should be positioned after post-base consonant forms,
@@ -1315,7 +1315,7 @@ reph_move:
 					 *    consonant.
 					 */
 
-					unsigned int new_pos = base;
+					uint new_pos = base;
 					/* Malayalam / Tamil do not have "half" forms or explicit virama forms.
 					 * The glyphs formed by 'half' are Chillus or ligated explicit viramas.
 					 * We want to position matra after them.
@@ -1333,7 +1333,7 @@ reph_move:
 					}
 
 					{
-						unsigned int old_pos = i;
+						uint old_pos = i;
 
 						buffer->merge_clusters(new_pos, old_pos + 1);
 						hb_glyph_info_t tmp = info[old_pos];
@@ -1384,7 +1384,7 @@ static void final_reordering_indic(const hb_ot_shape_plan_t * plan,
     hb_font_t * font HB_UNUSED,
     hb_buffer_t * buffer)
 {
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	if(UNLIKELY(!count)) return;
 
 	foreach_syllable(buffer, start, end)

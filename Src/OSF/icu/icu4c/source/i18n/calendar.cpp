@@ -3118,7 +3118,7 @@ int32_t Calendar::handleComputeJulianDay(UCalendarDateFields bestField)
 		if(bestField == UCAL_WEEK_OF_YEAR) { // ------------------------------------- WOY -------------
 			if(!isSet(UCAL_YEAR_WOY) || // YWOY not set at all or
 			    ( (resolveFields(kYearPrecedence) != UCAL_YEAR_WOY) // YWOY doesn't have precedence
-			  && (fStamp[UCAL_YEAR_WOY]!=kInternallySet) ) ) { // (excluding where all fields are internally set - then YWOY is used)
+			 && (fStamp[UCAL_YEAR_WOY]!=kInternallySet) ) ) { // (excluding where all fields are internally set - then YWOY is used)
 				// need to be sure to stay in 'real' year.
 				int32_t woy = internalGet(bestField);
 				int32_t nextJulianDay = handleComputeMonthStart(year+1, 0, FALSE); // jd of day before jan 1
@@ -3278,7 +3278,7 @@ int32_t Calendar::handleGetExtendedYearFromWeekFields(int32_t yearWoy, int32_t w
 
 	//// (nextFirst was not used below)
 	// int32_t nextFirst = julianDayToDayOfWeek(nextJan1Start + 1) - firstDayOfWeek;
-	// if (nextFirst < 0) {
+	// if(nextFirst < 0) {
 	//     nextFirst += 7;
 	//}
 
@@ -3541,7 +3541,7 @@ int32_t Calendar::getActualHelper(UCalendarDateFields field, int32_t startValue,
 	// is week 5, and the rest of week is week 1.
 	int32_t result = startValue;
 	if((work->get(field, status) != startValue
-	  && field != UCAL_WEEK_OF_MONTH && delta > 0) || U_FAILURE(status)) {
+	 && field != UCAL_WEEK_OF_MONTH && delta > 0) || U_FAILURE(status)) {
 #if defined (U_DEBUG_CAL)
 		fprintf(stderr,
 		    "getActualHelper(fld %d) - got  %d (not %d) - %s\n",
@@ -3663,10 +3663,10 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 		int32_t arrLen;
 		const int32_t * weekDataArr = ures_getIntVector(weekData, &arrLen, &status);
 		if(U_SUCCESS(status) && arrLen == 6
-		  && 1 <= weekDataArr[0] && weekDataArr[0] <= 7
-		  && 1 <= weekDataArr[1] && weekDataArr[1] <= 7
-		  && 1 <= weekDataArr[2] && weekDataArr[2] <= 7
-		  && 1 <= weekDataArr[4] && weekDataArr[4] <= 7) {
+		 && 1 <= weekDataArr[0] && weekDataArr[0] <= 7
+		 && 1 <= weekDataArr[1] && weekDataArr[1] <= 7
+		 && 1 <= weekDataArr[2] && weekDataArr[2] <= 7
+		 && 1 <= weekDataArr[4] && weekDataArr[4] <= 7) {
 			fFirstDayOfWeek = (UCalendarDaysOfWeek)weekDataArr[0];
 			fMinimalDaysInFirstWeek = (uint8_t)weekDataArr[1];
 			fWeekendOnset = (UCalendarDaysOfWeek)weekDataArr[2];

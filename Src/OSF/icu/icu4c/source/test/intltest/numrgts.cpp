@@ -106,7 +106,7 @@ UClassID MyNumberFormatTest::getDynamicClassID()  const
 
 void NumberFormatRegressionTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/)
 {
-	// if (exec) logln((UnicodeString)"TestSuite NumberFormatRegressionTest");
+	// if(exec) logln((UnicodeString)"TestSuite NumberFormatRegressionTest");
 	switch(index) {
 		CASE(0, Test4075713);
 		CASE(1, Test4074620);
@@ -424,7 +424,7 @@ float NumberFormatRegressionTest::assignFloatValue(float returnfloat)
 	    ? result.getDouble() : result.getLong());
 	if(uprv_fabs(floatResult - returnfloat) > 0.0001)
 		//String stringValue = nfcommon.format(returnfloat).substring(1);
-		//if (Float.valueOf(stringValue).floatValue() != returnfloat)
+		//if(Float.valueOf(stringValue).floatValue() != returnfloat)
 		errln(UnicodeString("FAIL: expected ") + returnfloat + ", got " + floatResult + " (" + stringValue+")");
 
 	delete nfcommon;
@@ -555,7 +555,7 @@ void NumberFormatRegressionTest::Test4086575(void)
 	logln("nf toLocPattern2: " + nf->toLocalizedPattern(temp));
 	UnicodeString buffer;
 	buffer = nf->format((int32_t)1234, buffer, pos);
-	//if (buffer != UnicodeString("1\u00a0234,00"))
+	//if(buffer != UnicodeString("1\u00a0234,00"))
 	UChar c[] = {
 		0x31, 0x202f, 0x32, 0x33, 0x34, 0x2c, 0x30, 0x30
 	};
@@ -599,7 +599,7 @@ void NumberFormatRegressionTest::Test4068693(void)
 	Formattable d;
 	//Double d = (Double)df.parse("123.55456", pos=new ParsePosition(0));
 	df->parse(UnicodeString("123.55456"), d, pos);
-	//if (!d.toString().equals("123.55456")) {
+	//if(!d.toString().equals("123.55456")) {
 	UnicodeString dstr;
 	df->setMaximumFractionDigits(999);
 	df->setMaximumIntegerDigits(999);
@@ -697,7 +697,7 @@ void NumberFormatRegressionTest::Test4090489(void)
     logln(UnicodeString("d = ") + d);
     //logln("BigDecimal.toString():  " + bd.toString());
     df->format(d, sb, fp);
-    if (sb != "10000000.0000000100") {
+    if(sb != "10000000.0000000100") {
         errln("DecimalFormat.format(): " + sb);
     }
  */
@@ -782,7 +782,7 @@ void NumberFormatRegressionTest::Test4092561(void)
 	   logln("Long.MIN_VALUE : " + df.parse(str, new ParsePosition(0)).toString());
 	   df.setMultiplier(100);
 	   Number num = df.parse(str, new ParsePosition(0));
-	   if (num.doubleValue() != -9.223372036854776E16)
+	   if(num.doubleValue() != -9.223372036854776E16)
 	    errln("Bug 4092561 test failed when multiplier is set to not 1.");
 	 */
 	delete df;
@@ -1464,7 +1464,7 @@ void NumberFormatRegressionTest::Test4108738(void)
 	UnicodeString temp;
 	FieldPosition pos(FieldPosition::DONT_CARE);
 	temp = df->format(num.getDouble(), temp, pos);
-	//if (!num.toString().equals("1.222"))
+	//if(!num.toString().equals("1.222"))
 	if(temp != UnicodeString("1.222"))
 		//errln("\"" + text + "\"  is parsed as " + num);
 		errln("\"" + text + "\"  is parsed as " + temp);
@@ -1473,7 +1473,7 @@ void NumberFormatRegressionTest::Test4108738(void)
 	df->parse(text, num, pp);
 	temp.remove();
 	temp = df->format(num.getDouble(), temp, pos);
-	//if (!num.toString().equals("1.222"))
+	//if(!num.toString().equals("1.222"))
 	if(temp != UnicodeString("1.222"))
 		errln("\"" + text + "\"  is parsed as " + temp);
 
@@ -1709,7 +1709,7 @@ void NumberFormatRegressionTest::Test4122840(void)
 		UChar fo[] = { 0x00A4 };
 		UnicodeString foo(fo, 1, 1);
 
-		//if (pattern.indexOf("\u00A4") == -1 ) {
+		//if(pattern.indexOf("\u00A4") == -1 ) {
 		if(pattern.indexOf(foo) == -1) {
 			errln(UnicodeString("Currency format for ") + UnicodeString(locales[i].getName()) +
 			    " does not contain generic currency symbol:" +
@@ -1949,7 +1949,7 @@ void NumberFormatRegressionTest::Test4141750() {
 	    UnicodeString str("12345.67");
 	    BigDecimal bd = new BigDecimal(str);
 	    String sd = NumberFormat.getInstance(Locale.US).format(bd);
-	    if (!sd.endsWith("67")) errln("Fail: " + str + " x format -> " + sd);
+	    if(!sd.endsWith("67")) errln("Fail: " + str + " x format -> " + sd);
 	   }
 	   catch (Exception e) {
 	    errln(e.toString());
@@ -2187,7 +2187,7 @@ void NumberFormatRegressionTest::Test4162852(void)
 		}
 		double e = n.getDouble();
 		logln("%f -> \"%s\" -> %f", d, CStr(s)(), e);
-#if (U_PLATFORM == U_PF_OS390 && !defined(IEEE_754)) || U_PLATFORM == U_PF_OS400
+#if(U_PLATFORM == U_PF_OS390 && !defined(IEEE_754)) || U_PLATFORM == U_PF_OS400
 		if(e != 0.0) {
 #else
 		if(e != 0.0 || (std::signbit(e) == false)) {
@@ -2511,7 +2511,7 @@ void NumberFormatRegressionTest::Test4212072() {
 
 // TODO(refactor): don't worry about localized patterns for now.
 			// Make sure we set the currency attributes appropriately
-//            if (j == 1) {   // Currency format
+//            if(j == 1) {   // Currency format
 //                f2.setCurrency(f2.getCurrency(), status);
 //            }
 			failure(status,

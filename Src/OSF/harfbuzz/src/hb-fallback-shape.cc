@@ -64,7 +64,7 @@ hb_bool_t _hb_fallback_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features HB_UNUSED,
-    unsigned int num_features HB_UNUSED)
+    uint num_features HB_UNUSED)
 {
 	/* TODO
 	 *
@@ -83,7 +83,7 @@ hb_bool_t _hb_fallback_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
 
 	hb_direction_t direction = buffer->props.direction;
 	hb_unicode_funcs_t * unicode = buffer->unicode;
-	unsigned int count = buffer->len;
+	uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	hb_glyph_position_t * pos = buffer->pos;
 	for(uint i = 0; i < count; i++) {

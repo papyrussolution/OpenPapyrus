@@ -44,7 +44,7 @@ class OptionSet {
 			switch (opType) {
 			case SC_TYPE_BOOLEAN: {
 					bool option = atoi(val) != 0;
-					if ((*base).*pb != option) {
+					if((*base).*pb != option) {
 						(*base).*pb = option;
 						return true;
 					}
@@ -52,14 +52,14 @@ class OptionSet {
 				}
 			case SC_TYPE_INTEGER: {
 					int option = atoi(val);
-					if ((*base).*pi != option) {
+					if((*base).*pi != option) {
 						(*base).*pi = option;
 						return true;
 					}
 					break;
 				}
 			case SC_TYPE_STRING: {
-					if ((*base).*ps != val) {
+					if((*base).*ps != val) {
 						(*base).*ps = val;
 						return true;
 					}
@@ -78,7 +78,7 @@ class OptionSet {
 	std::string wordLists;
 
 	void AppendName(const char *name) {
-		if (!names.empty())
+		if(!names.empty())
 			names += "\n";
 		names += name;
 	}
@@ -100,14 +100,14 @@ public:
 	}
 	int PropertyType(const char *name) {
 		typename OptionMap::iterator it = nameToDef.find(name);
-		if (it != nameToDef.end()) {
+		if(it != nameToDef.end()) {
 			return it->second.opType;
 		}
 		return SC_TYPE_BOOLEAN;
 	}
 	const char *DescribeProperty(const char *name) {
 		typename OptionMap::iterator it = nameToDef.find(name);
-		if (it != nameToDef.end()) {
+		if(it != nameToDef.end()) {
 			return it->second.description.c_str();
 		}
 		return "";
@@ -115,7 +115,7 @@ public:
 
 	bool PropertySet(T *base, const char *name, const char *val) {
 		typename OptionMap::iterator it = nameToDef.find(name);
-		if (it != nameToDef.end()) {
+		if(it != nameToDef.end()) {
 			return it->second.Set(base, val);
 		}
 		return false;
@@ -123,16 +123,16 @@ public:
 
 	const char *PropertyGet(const char *name) {
 		typename OptionMap::iterator it = nameToDef.find(name);
-		if (it != nameToDef.end()) {
+		if(it != nameToDef.end()) {
 			return it->second.Get();
 		}
 		return nullptr;
 	}
 
 	void DefineWordListSets(const char * const wordListDescriptions[]) {
-		if (wordListDescriptions) {
+		if(wordListDescriptions) {
 			for (size_t wl = 0; wordListDescriptions[wl]; wl++) {
-				if (!wordLists.empty())
+				if(!wordLists.empty())
 					wordLists += "\n";
 				wordLists += wordListDescriptions[wl];
 			}

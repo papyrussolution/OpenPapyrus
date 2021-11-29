@@ -92,7 +92,7 @@ OCSP_SINGLERESP * OCSP_basic_add1_status(OCSP_BASICRESP * rsp,
 	OCSP_REVOKEDINFO * ri;
 
 	if(rsp->tbsResponseData.responses == NULL
-	  && (rsp->tbsResponseData.responses
+	 && (rsp->tbsResponseData.responses
 		    = sk_OCSP_SINGLERESP_new_null()) == NULL)
 		goto err;
 
@@ -155,7 +155,7 @@ err:
 int OCSP_basic_add1_cert(OCSP_BASICRESP * resp, X509 * cert)
 {
 	if(resp->certs == NULL
-	  && (resp->certs = sk_X509_new_null()) == NULL)
+	 && (resp->certs = sk_X509_new_null()) == NULL)
 		return 0;
 
 	if(!sk_X509_push(resp->certs, cert))
@@ -293,7 +293,7 @@ int OCSP_RESPID_match(OCSP_RESPID * respid, X509 * cert)
 			return 0;
 
 		return (ASN1_STRING_length(respid->value.byKey) == SHA_DIGEST_LENGTH)
-		     && (memcmp(ASN1_STRING_get0_data(respid->value.byKey), md,
+		 && (memcmp(ASN1_STRING_get0_data(respid->value.byKey), md,
 		       SHA_DIGEST_LENGTH) == 0);
 	}
 	else if(respid->type == V_OCSP_RESPID_NAME) {

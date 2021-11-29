@@ -43,9 +43,9 @@ namespace OT {
 		template <typename T>
 		bool serialize(hb_serialize_context_t * c, const T &plan)
 		{
-			unsigned int width = plan.get_width();
-			unsigned int inner_bit_count = plan.get_inner_bit_count();
-			const hb_array_t<const unsigned int> output_map = plan.get_output_map();
+			uint width = plan.get_width();
+			uint inner_bit_count = plan.get_inner_bit_count();
+			const hb_array_t<const uint> output_map = plan.get_output_map();
 
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(output_map.length && ((((inner_bit_count-1)&~0xF)!=0) || (((width-1)&~0x3)!=0))))
@@ -57,11 +57,11 @@ namespace OT {
 			HBUINT8 * p = c->allocate_size<HBUINT8> (width * output_map.length);
 			if(UNLIKELY(!p)) return_trace(false);
 			for(uint i = 0; i < output_map.length; i++) {
-				unsigned int v = output_map[i];
-				unsigned int outer = v >> 16;
-				unsigned int inner = v & 0xFFFF;
-				unsigned int u = (outer << inner_bit_count) | inner;
-				for(unsigned int w = width; w > 0;) {
+				uint v = output_map[i];
+				uint outer = v >> 16;
+				uint inner = v & 0xFFFF;
+				uint u = (outer << inner_bit_count) | inner;
+				for(uint w = width; w > 0;) {
 					p[--w] = u;
 					u >>= 8;
 				}
@@ -70,7 +70,7 @@ namespace OT {
 			return_trace(true);
 		}
 
-		unsigned int map(unsigned int v) const /* Returns 16.16 outer.inner. */
+		uint map(uint v) const /* Returns 16.16 outer.inner. */
 		{
 			/* If count is zero, pass value unchanged.  This takes
 			 * care of direct mapping for advance map. */
@@ -80,33 +80,33 @@ namespace OT {
 			if(v >= mapCount)
 				v = mapCount - 1;
 
-			unsigned int u = 0;
+			uint u = 0;
 			{ /* Fetch it. */
-				unsigned int w = get_width();
+				uint w = get_width();
 				const HBUINT8 * p = mapDataZ.arrayZ + w * v;
 				for(; w; w--)
 					u = (u << 8) + *p++;
 			}
 
 			{ /* Repack it. */
-				unsigned int n = get_inner_bit_count();
-				unsigned int outer = u >> n;
-				unsigned int inner = u & ((1 << n) - 1);
+				uint n = get_inner_bit_count();
+				uint outer = u >> n;
+				uint inner = u & ((1 << n) - 1);
 				u = (outer<<16) | inner;
 			}
 
 			return u;
 		}
 
-		unsigned int get_map_count() const {
+		uint get_map_count() const {
 			return mapCount;
 		}
 
-		unsigned int get_width() const {
+		uint get_width() const {
 			return ((format >> 4) & 3) + 1;
 		}
 
-		unsigned int get_inner_bit_count() const {
+		uint get_inner_bit_count() const {
 			return (format & 0xF) + 1;
 		}
 
@@ -142,13 +142,13 @@ public:
 
 			if(&index_map == &Null(DeltaSetIndexMap)) return;
 
-			unsigned int last_val = (uint)-1;
+			uint last_val = (uint)-1;
 			hb_codepoint_t last_gid = (hb_codepoint_t)-1;
 			hb_codepoint_t gid = (hb_codepoint_t)hb_min(index_map.get_map_count(), plan->num_output_glyphs());
 
 			outer_bit_count = (index_map.get_width() * 8) - index_map.get_inner_bit_count();
 			max_inners.resize(inner_sets.length);
-			for(unsigned i = 0; i < inner_sets.length; i++) max_inners[i] = 0;
+			for(uint i = 0; i < inner_sets.length; i++) max_inners[i] = 0;
 
 			/* Search backwards for a map value different from the last map value */
 			for(; gid > 0; gid--) {
@@ -160,7 +160,7 @@ public:
 						break;
 				}
 
-				unsigned int v = index_map.map(old_gid);
+				uint v = index_map.map(old_gid);
 				if(last_gid == (hb_codepoint_t)-1) {
 					last_val = v;
 					last_gid = gid;
@@ -176,9 +176,9 @@ public:
 			for(gid = 0; gid < map_count; gid++) {
 				hb_codepoint_t old_gid;
 				if(plan->old_gid_for_new_gid(gid, &old_gid)) {
-					unsigned int v = index_map.map(old_gid);
-					unsigned int outer = v >> 16;
-					unsigned int inner = v & 0xFFFF;
+					uint v = index_map.map(old_gid);
+					uint outer = v >> 16;
+					uint inner = v & 0xFFFF;
 					outer_map.add(outer);
 					if(inner > max_inners[outer]) max_inners[outer] = inner;
 					if(outer >= inner_sets.length) return;
@@ -202,7 +202,7 @@ public:
 
 			for(uint i = 0; i < max_inners.length; i++) {
 				if(inner_maps[i].get_population() == 0) continue;
-				unsigned int bit_count = (max_inners[i]==0) ? 1 : hb_bit_storage(inner_maps[i][max_inners[i]]);
+				uint bit_count = (max_inners[i]==0) ? 1 : hb_bit_storage(inner_maps[i][max_inners[i]]);
 				if(bit_count > inner_bit_count) inner_bit_count = bit_count;
 			}
 
@@ -210,26 +210,26 @@ public:
 			for(hb_codepoint_t gid = 0; gid < output_map.length; gid++) {
 				hb_codepoint_t old_gid;
 				if(plan->old_gid_for_new_gid(gid, &old_gid)) {
-					unsigned int v = input_map->map(old_gid);
-					unsigned int outer = v >> 16;
+					uint v = input_map->map(old_gid);
+					uint outer = v >> 16;
 					output_map[gid] = (outer_map[outer] << 16) | (inner_maps[outer][v & 0xFFFF]);
 				}
 				else
 					output_map[gid] = 0; /* Map unused glyph to outer/inner=0/0 */
 			}
 		}
-		unsigned int get_inner_bit_count() const { return inner_bit_count; }
-		unsigned int get_width() const { return ((outer_bit_count + inner_bit_count + 7) / 8); }
-		unsigned int get_map_count() const { return map_count; }
-		unsigned int get_size() const { return (map_count ? (DeltaSetIndexMap::min_size + get_width() * map_count) : 0); }
+		uint get_inner_bit_count() const { return inner_bit_count; }
+		uint get_width() const { return ((outer_bit_count + inner_bit_count + 7) / 8); }
+		uint get_map_count() const { return map_count; }
+		uint get_size() const { return (map_count ? (DeltaSetIndexMap::min_size + get_width() * map_count) : 0); }
 		bool is_identity() const { return get_output_map().length == 0; }
-		hb_array_t<const unsigned int> get_output_map() const { return output_map.as_array(); }
+		hb_array_t<const uint> get_output_map() const { return output_map.as_array(); }
 protected:
-		unsigned int map_count;
-		hb_vector_t<unsigned int> max_inners;
-		unsigned int outer_bit_count;
-		unsigned int inner_bit_count;
-		hb_vector_t<unsigned int> output_map;
+		uint map_count;
+		hb_vector_t<uint> max_inners;
+		uint outer_bit_count;
+		uint inner_bit_count;
+		hb_vector_t<uint> output_map;
 	};
 
 	struct hvarvvar_subset_plan_t {
@@ -376,15 +376,15 @@ protected:
 
 		float get_advance_var(hb_codepoint_t glyph, hb_font_t * font) const
 		{
-			unsigned int varidx = (this+advMap).map(glyph);
+			uint varidx = (this+advMap).map(glyph);
 			return (this+varStore).get_delta(varidx, font->coords, font->num_coords);
 		}
 
 		float get_side_bearing_var(hb_codepoint_t glyph,
-		    const int * coords, unsigned int coord_count) const
+		    const int * coords, uint coord_count) const
 		{
 			if(!has_side_bearing_deltas()) return 0.f;
-			unsigned int varidx = (this+lsbMap).map(glyph);
+			uint varidx = (this+lsbMap).map(glyph);
 			return (this+varStore).get_delta(varidx, coords, coord_count);
 		}
 

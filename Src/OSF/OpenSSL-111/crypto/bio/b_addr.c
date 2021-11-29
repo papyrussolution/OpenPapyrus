@@ -827,7 +827,7 @@ retry:
 			}
 
 			if(endp != service && *endp == '\0'
-			  && portnum > 0 && portnum < 65536) {
+			 && portnum > 0 && portnum < 65536) {
 				se_fallback.s_port = htons((ushort)portnum);
 				se_fallback.s_proto = proto;
 				se = &se_fallback;

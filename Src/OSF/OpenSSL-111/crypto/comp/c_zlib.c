@@ -222,8 +222,8 @@ COMP_METHOD * COMP_zlib(void)
 			p_zError = (zError__ft)DSO_bind_func(zlib_dso, "zError");
 
 			if(p_compress && p_inflateEnd && p_inflate
-			  && p_inflateInit_ && p_deflateEnd
-			  && p_deflate && p_deflateInit_ && p_zError)
+			 && p_inflateInit_ && p_deflateEnd
+			 && p_deflate && p_deflateInit_ && p_zError)
 				zlib_loaded++;
 
 			if(!OPENSSL_init_crypto(OPENSSL_INIT_ZLIB, NULL)) {

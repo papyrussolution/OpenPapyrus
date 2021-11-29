@@ -15,7 +15,7 @@
  * The boolean methods return a bitmask of all ones (0xff...f) for true
  * and 0 for false. This is useful for choosing a value based on the result
  * of a conditional in constant time. For example,
- *      if (a < b) {
+ *      if(a < b) {
  *  c = a;
  *      } else {
  *  c = b;
@@ -297,7 +297,7 @@ static ossl_inline uint64_t constant_time_select_64(uint64_t mask, uint64_t a, u
 /*
  * mask must be 0xFFFFFFFF or 0x00000000.
  *
- * if (mask) {
+ * if(mask) {
  *     uint32_t tmp = *a;
  *
  *     *a = *b;
@@ -314,7 +314,7 @@ static ossl_inline void constant_time_cond_swap_32(uint32_t mask, uint32_t * a, 
 /*
  * mask must be 0xFFFFFFFF or 0x00000000.
  *
- * if (mask) {
+ * if(mask) {
  *     uint64_t tmp = *a;
  *
  *     *a = *b;

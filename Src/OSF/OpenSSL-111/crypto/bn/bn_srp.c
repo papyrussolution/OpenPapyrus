@@ -16,8 +16,8 @@
 //#include <openssl/srp.h>
 #include <bn_srp.h>
 
-#if (BN_BYTES == 8)
-#if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
+#if(BN_BYTES == 8)
+#if(defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
 #define bn_pack4(a1, a2, a3, a4) ((a1 ## UI64<<48)|(a2 ## UI64<<32)|(a3 ## UI64<<16)|a4 ## UI64)
 #elif defined(__arch64__)
 #define bn_pack4(a1, a2, a3, a4) ((a1 ## UL<<48)|(a2 ## UL<<32)|(a3 ## UL<<16)|a4 ## UL)

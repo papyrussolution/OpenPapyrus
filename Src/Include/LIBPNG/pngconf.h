@@ -218,7 +218,7 @@
 #error "PNG_USER_PRIVATEBUILD must be defined if PNGAPI is changed"
 #endif
 
-#if (defined(_MSC_VER) && _MSC_VER < 800) || \
+#if(defined(_MSC_VER) && _MSC_VER < 800) || \
 	(defined(__BORLANDC__) && __BORLANDC__ < 0x500)
 /* older Borland and MSC
  * compilers used '__export' and required this to be after
@@ -236,7 +236,7 @@
 #endif /* compiler */
 
 #else /* !Windows */
-#if (defined(__IBMC__) || defined(__IBMCPP__)) && defined(__OS2__)
+#if(defined(__IBMC__) || defined(__IBMCPP__)) && defined(__OS2__)
 #define PNGAPI _System
 #else /* !Windows/x86 && !OS/2 */
 /* Use the defaults, or define PNG*API on the command line (but
@@ -369,7 +369,7 @@
 #          define PNG_PRIVATE __attribute__((__deprecated__))
 #endif
 #      endif
-#      if ((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
+#      if((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
 #ifndef PNG_RESTRICT
 #          define PNG_RESTRICT __restrict
 #endif
@@ -384,7 +384,7 @@
 #define PNG_NORETURN   __declspec(noreturn)
 #endif
 #    ifndef PNG_ALLOCATED
-#      if (_MSC_VER >= 1400)
+#      if(_MSC_VER >= 1400)
 #define PNG_ALLOCATED __declspec(restrict)
 #      endif
 #endif
@@ -395,7 +395,7 @@
 #define PNG_PRIVATE __declspec(deprecated)
 #endif
 #    ifndef PNG_RESTRICT
-#      if (_MSC_VER >= 1400)
+#      if(_MSC_VER >= 1400)
 #define PNG_RESTRICT __restrict
 #      endif
 #endif
@@ -501,7 +501,7 @@ typedef ptrdiff_t png_ptrdiff_t;
 #ifndef PNG_SMALL_SIZE_T
 	// Compiler specific tests for systems where size_t is known to be less than
 	// 32 bits (some of these systems may no longer work because of the lack of 'far' support; see above.)
-	#if (defined(__TURBOC__) && !defined(__FLAT__)) || (defined(_MSC_VER) && defined(MAXSEG_64K))
+	#if(defined(__TURBOC__) && !defined(__FLAT__)) || (defined(_MSC_VER) && defined(MAXSEG_64K))
 		#define PNG_SMALL_SIZE_T
 	#endif
 #endif

@@ -39,7 +39,7 @@
 /*
   libssh2_version() can be used like this:
 
-  if (!libssh2_version(LIBSSH2_VERSION_NUM)) {
+  if(!libssh2_version(LIBSSH2_VERSION_NUM)) {
     fprintf (stderr, "Runtime libssh2 version too old!\n");
     exit(1);
   }

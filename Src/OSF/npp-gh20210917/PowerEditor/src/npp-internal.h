@@ -2096,7 +2096,7 @@ public:
 	bool isTransparentAvailable() const { return (_transparentFuncAddr != NULL); }
 
 	// 0 <= percent < 256
-	// if (percent == 255) then opacq
+	// if(percent == 255) then opacq
 	void SetTransparent(HWND hwnd, int percent);
 	void removeTransparent(HWND hwnd);
 	void setCmdlineParam(const CmdLineParamsDTO & cmdLineParams) { _cmdLineParams = cmdLineParams; }
@@ -7265,7 +7265,7 @@ namespace ReadDirectoryChangesPrivate { // Copyright (c) 2010 James E Beveridge
 ///				{
 ///					DWORD dwAction;
 ///					std::wstring wstrFilename;
-///					while (changes.Pop(dwAction, wstrFilename))
+///					while(changes.Pop(dwAction, wstrFilename))
 ///						wprintf(L"%s %s\n", ExplainAction(dwAction), wstrFilename);
 ///				}
 ///				break;

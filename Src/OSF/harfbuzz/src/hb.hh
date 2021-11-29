@@ -30,6 +30,7 @@
 #define HB_HH
 
 #include <slib.h> // @sobolev
+#define HAVE_ICU // @sobolev
 #define HAVE_FREETYPE // @sobolev
 #define HAVE_GDI // @sobolev
 #define HAVE_UNISCRIBE // @sobolev
@@ -413,7 +414,7 @@
 #define HB_STMT_END   while(0)
 
 /* Static-assert as expression. */
-template <unsigned int cond> class hb_assert_constant_t;
+template <uint cond> class hb_assert_constant_t;
 template <> class hb_assert_constant_t<1> {};
 #define ASSERT_STATIC_EXPR_ZERO(_cond) (0 * (uint)sizeof(hb_assert_constant_t<_cond>))
 

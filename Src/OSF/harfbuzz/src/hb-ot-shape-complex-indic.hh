@@ -194,7 +194,7 @@ enum indic_matra_category_t {
 
 HB_INTERNAL INDIC_TABLE_ELEMENT_TYPE hb_indic_get_categories(hb_codepoint_t u);
 
-static inline bool is_one_of(const hb_glyph_info_t &info, unsigned int flags)
+static inline bool is_one_of(const hb_glyph_info_t &info, uint flags)
 {
 	/* If it ligated, all bets are off. */
 	if(_hb_glyph_info_ligated(&info)) return false;
@@ -312,7 +312,7 @@ static inline bool is_ra(hb_codepoint_t u)
 static inline void set_indic_properties(hb_glyph_info_t &info)
 {
 	hb_codepoint_t u = info.codepoint;
-	unsigned int type = hb_indic_get_categories(u);
+	uint type = hb_indic_get_categories(u);
 	indic_category_t cat = (indic_category_t)(type & 0x7Fu);
 	indic_position_t pos = (indic_position_t)(type >> 8);
 
@@ -395,7 +395,7 @@ struct hb_indic_would_substitute_feature_t {
 	}
 
 	bool would_substitute(const hb_codepoint_t * glyphs,
-	    unsigned int glyphs_count,
+	    uint glyphs_count,
 	    hb_face_t  * face) const
 	{
 		for(uint i = 0; i < count; i++)
@@ -406,7 +406,7 @@ struct hb_indic_would_substitute_feature_t {
 
 private:
 	const hb_ot_map_t::lookup_map_t * lookups;
-	unsigned int count;
+	uint count;
 	bool zero_context;
 };
 

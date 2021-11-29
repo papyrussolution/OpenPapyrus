@@ -131,12 +131,12 @@ UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
                                UChar charToFind) {
     for (int32_t i=start; i<limit; ++i) {
         UChar c = text.charAt(i);
-        if (c == BACKSLASH) {
+        if(c == BACKSLASH) {
  ++i;
-        } else if (c == APOSTROPHE) {
-            while (++i < limit
-                 && text.charAt(i) != APOSTROPHE) {}
-        } else if (c == charToFind) {
+        } else if(c == APOSTROPHE) {
+            while(++i < limit
+       && text.charAt(i) != APOSTROPHE) {}
+        } else if(c == charToFind) {
             return i;
         }
     }
@@ -186,20 +186,20 @@ int32_t ICU_Utility::skipWhitespace(const UnicodeString & str, int32_t& pos,
 //?    UChar32 c;
 //?    bool isForward = (stop >= pos);
 //?
-//?    if (!isForward) {
+//?    if(!isForward) {
 //?        --pos; // pos is a limit, so back up by one
 //?    }
 //?
-//?    while (pos != stop &&
+//?    while(pos != stop &&
 //?           PatternProps::isWhiteSpace(c = text.char32At(pos))) {
-//?        if (isForward) {
+//?        if(isForward) {
 //?            pos += U16_LENGTH(c);
 //?        } else {
 //?            pos -= U16_LENGTH(c);
 //?        }
 //?    }
 //?
-//?    if (!isForward) {
+//?    if(!isForward) {
 //?        ++pos; // make pos back into a limit
 //?    }
 //?

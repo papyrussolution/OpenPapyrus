@@ -710,8 +710,8 @@ void IntlTest::runIndexedTest(int32_t /*index*/, bool /*exec*/, const char * & /
 	// to be overridden by a method like:
 	/*
 	   switch (index) {
-	    case 0: name = "First Test"; if (exec) FirstTest( par ); break;
-	    case 1: name = "Second Test"; if (exec) SecondTest( par ); break;
+	    case 0: name = "First Test"; if(exec) FirstTest( par ); break;
+	    case 1: name = "Second Test"; if(exec) SecondTest( par ); break;
 	    default: name = ""; break;
 	   }
 	 */
@@ -2251,8 +2251,8 @@ const char * IntlTest::getProperty(const char * prop)
 	for(int32_t i = 0; i < numProps; i++) {
 		int32_t plen = static_cast<int32_t>(uprv_strlen(prop));
 		if((int32_t)uprv_strlen(proplines[i]) > plen + 1
-		  && proplines[i][plen] == '='
-		  && uprv_strncmp(proplines[i], prop, plen) == 0) {
+		 && proplines[i][plen] == '='
+		 && uprv_strncmp(proplines[i], prop, plen) == 0) {
 			val = &(proplines[i][plen+1]);
 			break;
 		}

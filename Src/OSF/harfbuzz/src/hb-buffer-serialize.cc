@@ -85,8 +85,8 @@ const char * hb_buffer_serialize_format_to_string(hb_buffer_serialize_format_t f
 	}
 }
 
-static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, unsigned int start, unsigned int end,
-    char * buf, unsigned int buf_size, unsigned int * buf_consumed, hb_font_t * font, hb_buffer_serialize_flags_t flags)
+static uint _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, uint start, uint end,
+    char * buf, uint buf_size, uint * buf_consumed, hb_font_t * font, hb_buffer_serialize_flags_t flags)
 {
 	hb_glyph_info_t * info = hb_buffer_get_glyph_infos(buffer, nullptr);
 	hb_glyph_position_t * pos = (flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS) ? nullptr : hb_buffer_get_glyph_positions(buffer, nullptr);
@@ -140,7 +140,7 @@ static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, unsig
 			p += hb_max(0, snprintf(p, ARRAY_LENGTH(b) - (p - b), ",\"w\":%d,\"h\":%d", extents.width, extents.height));
 		}
 		*p++ = '}';
-		unsigned int l = p - b;
+		uint l = p - b;
 		if(buf_size > l) {
 			memcpy(buf, b, l);
 			buf += l;
@@ -158,12 +158,12 @@ static unsigned int _hb_buffer_serialize_glyphs_json(hb_buffer_t * buffer, unsig
 	return end - start;
 }
 
-static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
-    unsigned int start,
-    unsigned int end,
+static uint _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
+    uint start,
+    uint end,
     char * buf,
-    unsigned int buf_size,
-    unsigned int * buf_consumed,
+    uint buf_size,
+    uint * buf_consumed,
     hb_font_t * font,
     hb_buffer_serialize_flags_t flags)
 {
@@ -217,7 +217,7 @@ static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
 				extents.height));
 		}
 
-		unsigned int l = p - b;
+		uint l = p - b;
 		if(buf_size > l) {
 			memcpy(buf, b, l);
 			buf += l;
@@ -283,11 +283,11 @@ static unsigned int _hb_buffer_serialize_glyphs_text(hb_buffer_t * buffer,
  *
  * Since: 0.9.7
  **/
-unsigned int hb_buffer_serialize_glyphs(hb_buffer_t * buffer, unsigned int start, unsigned int end, char * buf,
-    unsigned int buf_size, unsigned int * buf_consumed, hb_font_t * font, hb_buffer_serialize_format_t format, hb_buffer_serialize_flags_t flags)
+uint hb_buffer_serialize_glyphs(hb_buffer_t * buffer, uint start, uint end, char * buf,
+    uint buf_size, uint * buf_consumed, hb_font_t * font, hb_buffer_serialize_format_t format, hb_buffer_serialize_flags_t flags)
 {
 	assert(start <= end && end <= buffer->len);
-	unsigned int sconsumed;
+	uint sconsumed;
 	SETIFZ(buf_consumed, &sconsumed);
 	*buf_consumed = 0;
 	if(buf_size)
@@ -321,7 +321,7 @@ static bool parse_int(const char * pp, const char * end, int32_t * pv)
 
 static bool parse_uint(const char * pp, const char * end, uint32_t * pv)
 {
-	unsigned int v;
+	uint v;
 	const char * p = pp;
 	if(UNLIKELY(!hb_parse_uint(&p, end, &v, true /* whole buffer */)))
 		return false;

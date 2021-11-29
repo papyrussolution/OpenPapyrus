@@ -204,7 +204,7 @@ static int camellia_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 
 	mode = EVP_CIPHER_CTX_mode(ctx);
 	if((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE)
-	  && !enc) {
+	 && !enc) {
 		dat->block = (block128_f)Camellia_decrypt;
 		dat->stream.cbc = mode == EVP_CIPH_CBC_MODE ?
 		    (cbc128_f)Camellia_cbc_encrypt : NULL;

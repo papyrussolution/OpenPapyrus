@@ -246,7 +246,7 @@ static hb_uniscribe_shaper_funcs_t * hb_uniscribe_shaper_get_funcs()
 
 struct active_feature_t {
 	OPENTYPE_FEATURE_RECORD rec;
-	unsigned int order;
+	uint order;
 
 	HB_INTERNAL static int cmp(const void * pa, const void * pb) {
 		const active_feature_t * a = (const active_feature_t*)pa;
@@ -264,7 +264,7 @@ struct active_feature_t {
 };
 
 struct feature_event_t {
-	unsigned int index;
+	uint index;
 	bool start;
 	active_feature_t feature;
 
@@ -280,8 +280,8 @@ struct feature_event_t {
 
 struct range_record_t {
 	TEXTRANGE_PROPERTIES props;
-	unsigned int index_first; /* == start */
-	unsigned int index_last; /* == end - 1 */
+	uint index_first; /* == start */
+	uint index_last; /* == end - 1 */
 };
 
 /*
@@ -295,7 +295,7 @@ struct hb_uniscribe_face_data_t {
 };
 
 /* face_name should point to a wchar_t[LF_FACESIZE] object. */
-static void _hb_generate_unique_face_name(wchar_t * face_name, unsigned int * plen)
+static void _hb_generate_unique_face_name(wchar_t * face_name, uint * plen)
 {
 	/* We'll create a private name for the font from a UUID using a simple,
 	 * somewhat base64-like encoding scheme */
@@ -303,7 +303,7 @@ static void _hb_generate_unique_face_name(wchar_t * face_name, unsigned int * pl
 	UUID id;
 	UuidCreate((UUID*)&id);
 	static_assert((2 + 3 * (16/2) < LF_FACESIZE), "");
-	unsigned int name_str_len = 0;
+	uint name_str_len = 0;
 	face_name[name_str_len++] = 'F';
 	face_name[name_str_len++] = '_';
 	uchar * p = (uchar *)&id;
@@ -336,18 +336,18 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 
 	blob = hb_sanitize_context_t().sanitize_blob<OT::OpenTypeFontFile> (blob);
 
-	unsigned int length, new_length, name_str_len;
+	uint length, new_length, name_str_len;
 	const char * orig_sfnt_data = hb_blob_get_data(blob, &length);
 
 	_hb_generate_unique_face_name(new_name, &name_str_len);
 
 	static const uint16_t name_IDs[] = { 1, 2, 3, 4, 6 };
 
-	unsigned int name_table_length = OT::name::min_size +
+	uint name_table_length = OT::name::min_size +
 	    ARRAY_LENGTH(name_IDs) * OT::NameRecord::static_size +
 	    name_str_len * 2;                        /* for name data in UTF16BE form */
-	unsigned int padded_name_table_length = ((name_table_length + 3) & ~3);
-	unsigned int name_table_offset = (length + 3) & ~3;
+	uint padded_name_table_length = ((name_table_length + 3) & ~3);
+	uint name_table_offset = (length + 3) & ~3;
 
 	new_length = name_table_offset + padded_name_table_length;
 	void * new_sfnt_data = SAlloc::C(1, new_length);
@@ -381,12 +381,12 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 
 	/* Adjust name table entry to point to new name table */
 	const OT::OpenTypeFontFile &file = *(OT::OpenTypeFontFile*)(new_sfnt_data);
-	unsigned int face_count = file.get_face_count();
-	for(unsigned int face_index = 0; face_index < face_count; face_index++) {
+	uint face_count = file.get_face_count();
+	for(uint face_index = 0; face_index < face_count; face_index++) {
 		/* Note: doing multiple edits (ie. TTC) can be unsafe.  There may be
 		 * toe-stepping.  But we don't really care. */
 		const OT::OpenTypeFontFace &face = file.get_face(face_index);
-		unsigned int index;
+		uint index;
 		if(face.find_table_index(HB_OT_TAG_name, &index)) {
 			OT::TableRecord &record = const_cast<OT::TableRecord &> (face.get_table(index));
 			record.checkSum.set_for_data(&name, padded_name_table_length);
@@ -454,7 +454,7 @@ struct hb_uniscribe_font_data_t {
 	double x_mult, y_mult; /* From LOGFONT space to HB space. */
 };
 
-static bool populate_log_font(LOGFONTW * lf, hb_font_t * font, unsigned int font_size)
+static bool populate_log_font(LOGFONTW * lf, hb_font_t * font, uint font_size)
 {
 	memzero(lf, sizeof(*lf));
 	lf->lfHeight = -(int)font_size;
@@ -546,7 +546,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features)
+    uint num_features)
 {
 	hb_face_t * face = font->face;
 	const hb_uniscribe_face_data_t * face_data = face->data.uniscribe;
@@ -590,7 +590,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 
 		/* Scan events and save features for each range. */
 		hb_vector_t<active_feature_t> active_features;
-		unsigned int last_index = 0;
+		uint last_index = 0;
 		for(uint i = 0; i < feature_events.length; i++) {
 			feature_event_t * event = &feature_events[i];
 
@@ -598,10 +598,10 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 				/* Save a snapshot of active features and the range. */
 				range_record_t * range = range_records.push();
 
-				unsigned int offset = feature_records.length;
+				uint offset = feature_records.length;
 
 				active_features.qsort();
-				for(unsigned int j = 0; j < active_features.length; j++) {
+				for(uint j = 0; j < active_features.length; j++) {
 					if(!j ||
 					    active_features[j].rec.tagFeature != feature_records[feature_records.length - 1].tagFeature) {
 						feature_records.push(active_features[j].rec);
@@ -653,13 +653,13 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 
 retry:
 
-	unsigned int scratch_size;
+	uint scratch_size;
 	hb_buffer_t::scratch_buffer_t * scratch = buffer->get_scratch_buffer(&scratch_size);
 
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
-		unsigned int _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
 		assert(_consumed <= scratch_size); \
 		scratch += _consumed; \
 		scratch_size -= _consumed; \
@@ -669,7 +669,7 @@ retry:
 
 	ALLOCATE_ARRAY(WCHAR, pchars, buffer->len * 2);
 
-	unsigned int chars_len = 0;
+	uint chars_len = 0;
 	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
 		buffer->info[i].utf16_index() = chars_len;
@@ -691,7 +691,7 @@ retry:
 		chars_len = 0;
 		for(uint i = 0; i < buffer->len; i++) {
 			hb_codepoint_t c = buffer->info[i].codepoint;
-			unsigned int cluster = buffer->info[i].cluster;
+			uint cluster = buffer->info[i].cluster;
 			log_clusters[chars_len++] = cluster;
 			if(hb_in_range(c, 0x10000u, 0x10FFFFu))
 				log_clusters[chars_len++] = cluster; /* Surrogates. */
@@ -700,7 +700,7 @@ retry:
 
 	/* The -2 in the following is to compensate for possible
 	 * alignment needed after the WORD array.  sizeof(WORD) == 2. */
-	unsigned int glyphs_size = (scratch_size * sizeof(int) - 2)
+	uint glyphs_size = (scratch_size * sizeof(int) - 2)
 	    / (sizeof(WORD) +
 	    sizeof(SCRIPT_GLYPHPROP) +
 	    sizeof(int) +
@@ -752,7 +752,7 @@ retry:
 #undef MAX_ITEMS
 
 	hb_tag_t lang_tag;
-	unsigned int lang_count = 1;
+	uint lang_count = 1;
 	hb_ot_tags_from_script_and_language(buffer->props.script,
 	    buffer->props.language,
 	    nullptr, nullptr,
@@ -761,12 +761,12 @@ retry:
 	hb_vector_t<TEXTRANGE_PROPERTIES*> range_properties;
 	hb_vector_t<int> range_char_counts;
 
-	unsigned int glyphs_offset = 0;
-	unsigned int glyphs_len;
+	uint glyphs_offset = 0;
+	uint glyphs_len;
 	bool backward = HB_DIRECTION_IS_BACKWARD(buffer->props.direction);
 	for(int i = 0; i < item_count; i++) {
-		unsigned int chars_offset = items[i].iCharPos;
-		unsigned int item_chars_len = items[i+1].iCharPos - chars_offset;
+		uint chars_offset = items[i].iCharPos;
+		uint item_chars_len = items[i+1].iCharPos - chars_offset;
 
 		if(num_features) {
 			range_properties.shrink(0);
@@ -774,7 +774,7 @@ retry:
 
 			range_record_t * last_range = &range_records[0];
 
-			for(unsigned int k = chars_offset; k < chars_offset + item_chars_len; k++) {
+			for(uint k = chars_offset; k < chars_offset + item_chars_len; k++) {
 				range_record_t * range = last_range;
 				while(log_clusters[k] < range->index_first)
 					range--;
@@ -840,7 +840,7 @@ retry_shape:
 			FAIL("ScriptShapeOpenType() failed: 0x%08lx", hr);
 		}
 
-		for(unsigned int j = chars_offset; j < chars_offset + item_chars_len; j++)
+		for(uint j = chars_offset; j < chars_offset + item_chars_len; j++)
 			log_clusters[j] += glyphs_offset;
 
 		hr = funcs->ScriptPlaceOpenType(font_data->hdc,

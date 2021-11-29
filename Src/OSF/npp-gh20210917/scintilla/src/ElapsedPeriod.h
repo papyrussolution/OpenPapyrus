@@ -23,7 +23,7 @@ public:
 			std::chrono::high_resolution_clock::now();
 		const std::chrono::duration<double> stylingDuration =
 			std::chrono::duration_cast<std::chrono::duration<double>>(tpNow - tp);
-		if (reset) {
+		if(reset) {
 			tp = tpNow;
 		}
 		return stylingDuration.count();

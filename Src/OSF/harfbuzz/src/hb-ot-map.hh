@@ -45,15 +45,15 @@ public:
 
 	struct feature_map_t {
 		hb_tag_t tag; /* should be first for our bsearch to work */
-		unsigned int index[2]; /* GSUB/GPOS */
-		unsigned int stage[2]; /* GSUB/GPOS */
-		unsigned int shift;
+		uint index[2]; /* GSUB/GPOS */
+		uint stage[2]; /* GSUB/GPOS */
+		uint shift;
 		hb_mask_t mask;
 		hb_mask_t _1_mask; /* mask for value=1, for quick access */
-		unsigned int needs_fallback : 1;
-		unsigned int auto_zwnj : 1;
-		unsigned int auto_zwj : 1;
-		unsigned int random : 1;
+		uint needs_fallback : 1;
+		uint auto_zwnj : 1;
+		uint auto_zwj : 1;
+		uint random : 1;
 
 		int cmp(const hb_tag_t tag_) const
 		{
@@ -79,7 +79,7 @@ public:
 	typedef void (* pause_func_t) (const struct hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer);
 
 	struct stage_map_t {
-		unsigned int last_lookup; /* Cumulative */
+		uint last_lookup; /* Cumulative */
 		pause_func_t pause_func;
 	};
 
@@ -87,7 +87,7 @@ public:
 	{
 		memzero(this, sizeof(*this));
 		features.init();
-		for(unsigned int table_index = 0; table_index < 2; table_index++) {
+		for(uint table_index = 0; table_index < 2; table_index++) {
 			lookups[table_index].init();
 			stages[table_index].init();
 		}
@@ -96,7 +96,7 @@ public:
 	void fini()
 	{
 		features.fini();
-		for(unsigned int table_index = 0; table_index < 2; table_index++) {
+		for(uint table_index = 0; table_index < 2; table_index++) {
 			lookups[table_index].fini();
 			stages[table_index].fini();
 		}
@@ -106,7 +106,7 @@ public:
 		return global_mask;
 	}
 
-	hb_mask_t get_mask(hb_tag_t feature_tag, unsigned int * shift = nullptr) const
+	hb_mask_t get_mask(hb_tag_t feature_tag, uint * shift = nullptr) const
 	{
 		const feature_map_t * map = features.bsearch(feature_tag);
 		if(shift) *shift = map ? map->shift : 0;
@@ -125,20 +125,20 @@ public:
 		return map ? map->_1_mask : 0;
 	}
 
-	unsigned int get_feature_index(unsigned int table_index, hb_tag_t feature_tag) const
+	uint get_feature_index(uint table_index, hb_tag_t feature_tag) const
 	{
 		const feature_map_t * map = features.bsearch(feature_tag);
 		return map ? map->index[table_index] : HB_OT_LAYOUT_NO_FEATURE_INDEX;
 	}
 
-	unsigned int get_feature_stage(unsigned int table_index, hb_tag_t feature_tag) const
+	uint get_feature_stage(uint table_index, hb_tag_t feature_tag) const
 	{
 		const feature_map_t * map = features.bsearch(feature_tag);
 		return map ? map->stage[table_index] : UINT_MAX;
 	}
 
-	void get_stage_lookups(unsigned int table_index, unsigned int stage,
-	    const struct lookup_map_t ** plookups, unsigned int * lookup_count) const
+	void get_stage_lookups(uint table_index, uint stage,
+	    const struct lookup_map_t ** plookups, uint * lookup_count) const
 	{
 		if(UNLIKELY(stage == UINT_MAX)) {
 			* plookups = nullptr;
@@ -146,14 +146,14 @@ public:
 			return;
 		}
 		assert(stage <= stages[table_index].length);
-		unsigned int start = stage ? stages[table_index][stage - 1].last_lookup : 0;
-		unsigned int end   = stage <
+		uint start = stage ? stages[table_index][stage - 1].last_lookup : 0;
+		uint end   = stage <
 		    stages[table_index].length ? stages[table_index][stage].last_lookup : lookups[table_index].length;
 		* plookups = end == start ? nullptr : &lookups[table_index][start];
 		* lookup_count = end - start;
 	}
 
-	HB_INTERNAL void collect_lookups(unsigned int table_index, hb_set_t * lookups) const;
+	HB_INTERNAL void collect_lookups(uint table_index, hb_set_t * lookups) const;
 	template <typename Proxy>
 	HB_INTERNAL void apply(const Proxy &proxy,
 	    const struct hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer) const;
@@ -207,7 +207,7 @@ public:
 
 	HB_INTERNAL void add_feature(hb_tag_t tag,
 	    hb_ot_map_feature_flags_t flags = F_NONE,
-	    unsigned int value = 1);
+	    uint value = 1);
 
 	void add_feature(const hb_ot_map_feature_t &feat)
 	{
@@ -216,7 +216,7 @@ public:
 
 	void enable_feature(hb_tag_t tag,
 	    hb_ot_map_feature_flags_t flags = F_NONE,
-	    unsigned int value = 1)
+	    uint value = 1)
 	{
 		add_feature(tag, F_GLOBAL | flags, value);
 	}
@@ -242,9 +242,9 @@ public:
 private:
 
 	HB_INTERNAL void add_lookups(hb_ot_map_t  &m,
-	    unsigned int table_index,
-	    unsigned int feature_index,
-	    unsigned int variations_index,
+	    uint table_index,
+	    uint feature_index,
+	    uint variations_index,
 	    hb_mask_t mask,
 	    bool auto_zwnj = true,
 	    bool auto_zwj = true,
@@ -252,11 +252,11 @@ private:
 
 	struct feature_info_t {
 		hb_tag_t tag;
-		unsigned int seq; /* sequence#, used for stable sorting only */
-		unsigned int max_value;
+		uint seq; /* sequence#, used for stable sorting only */
+		uint max_value;
 		hb_ot_map_feature_flags_t flags;
-		unsigned int default_value; /* for non-global features, what should the unset glyphs take */
-		unsigned int stage[2]; /* GSUB/GPOS */
+		uint default_value; /* for non-global features, what should the unset glyphs take */
+		uint stage[2]; /* GSUB/GPOS */
 
 		HB_INTERNAL static int cmp(const void * pa, const void * pb)
 		{
@@ -268,11 +268,11 @@ private:
 	};
 
 	struct stage_info_t {
-		unsigned int index;
+		uint index;
 		hb_ot_map_t::pause_func_t pause_func;
 	};
 
-	HB_INTERNAL void add_pause(unsigned int table_index, hb_ot_map_t::pause_func_t pause_func);
+	HB_INTERNAL void add_pause(uint table_index, hb_ot_map_t::pause_func_t pause_func);
 
 public:
 
@@ -281,11 +281,11 @@ public:
 
 	hb_tag_t chosen_script[2];
 	bool found_script[2];
-	unsigned int script_index[2], language_index[2];
+	uint script_index[2], language_index[2];
 
 private:
 
-	unsigned int current_stage[2]; /* GSUB/GPOS */
+	uint current_stage[2]; /* GSUB/GPOS */
 	hb_vector_t<feature_info_t> feature_infos;
 	hb_vector_t<stage_info_t> stages[2]; /* GSUB/GPOS */
 };

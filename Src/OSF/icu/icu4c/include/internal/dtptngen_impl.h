@@ -144,7 +144,7 @@ private:
 
 inline bool SkeletonFields::operator==(const SkeletonFields& other) const {
     return (uprv_memcmp(chars, other.chars, sizeof(chars)) == 0
-      && uprv_memcmp(lengths, other.lengths, sizeof(lengths)) == 0);
+ && uprv_memcmp(lengths, other.lengths, sizeof(lengths)) == 0);
 }
 
 inline bool SkeletonFields::operator != (const SkeletonFields& other) const {

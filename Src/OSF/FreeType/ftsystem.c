@@ -178,7 +178,7 @@ FT_CALLBACK_DEF(void) ft_ansi_stream_close(FT_Stream stream)
  *   the function is used for seeking), a non-zero return value
  *   indicates an error.
  */
-FT_CALLBACK_DEF(unsigned long) ft_ansi_stream_io(FT_Stream stream, unsigned long offset, uchar*  buffer, unsigned long count)
+FT_CALLBACK_DEF(ulong) ft_ansi_stream_io(FT_Stream stream, ulong offset, uchar * buffer, ulong count)
 {
 	FT_FILE*  file;
 	if(!count && offset > stream->size)
@@ -186,11 +186,11 @@ FT_CALLBACK_DEF(unsigned long) ft_ansi_stream_io(FT_Stream stream, unsigned long
 	file = STREAM_FILE(stream);
 	if(stream->pos != offset)
 		ft_fseek(file, (long)offset, SEEK_SET);
-	return (unsigned long)ft_fread(buffer, 1, count, file);
+	return (ulong)ft_fread(buffer, 1, count, file);
 }
 
 /* documentation is in ftstream.h */
-FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char *  filepathname)
+FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char * filepathname)
 {
 	FT_FILE*  file;
 	if(!stream)
@@ -207,7 +207,7 @@ FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char *  filepathnam
 		return FT_THROW(Cannot_Open_Resource);
 	}
 	ft_fseek(file, 0, SEEK_END);
-	stream->size = (unsigned long)ft_ftell(file);
+	stream->size = (ulong)ft_ftell(file);
 	if(!stream->size) {
 		FT_ERROR(( "FT_Stream_Open:" ));
 		FT_ERROR(( " opened `%s' but zero-sized\n", filepathname ));

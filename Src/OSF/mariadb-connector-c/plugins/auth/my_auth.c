@@ -3,7 +3,7 @@
 #pragma hdrstop
 
 typedef struct st_mysql_client_plugin_AUTHENTICATION auth_plugin_t;
-static int client_mpvio_write_packet(struct st_plugin_vio*, const uchar*, size_t);
+static int client_mpvio_write_packet(struct st_plugin_vio*, const uchar *, size_t);
 static int native_password_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql);
 static int dummy_fallback_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql __attribute__((unused)));
 extern void read_user_name(char * name);
@@ -32,7 +32,7 @@ typedef struct {
  #define compile_time_assert(A) \
    do {\
    typedef char constraint[(A) ? 1 : -1];\
-   } while (0);
+   } while(0);
  */
 
 auth_plugin_t mysql_native_password_client_plugin = {
@@ -391,7 +391,7 @@ void mpvio_info(MARIADB_PVIO * pvio, MYSQL_PLUGIN_VIO_INFO * info)
 		       {
 		       struct sockaddr addr;
 		       SOCKET_SIZE_TYPE addrlen= sizeof(addr);
-		       if (getsockname(vio->sd, &addr, &addrlen))
+		       if(getsockname(vio->sd, &addr, &addrlen))
 		        return;
 		       info->protocol= addr.sa_family == AF_UNIX ?
 		        MYSQL_VIO_SOCKET : MYSQL_VIO_TCP;

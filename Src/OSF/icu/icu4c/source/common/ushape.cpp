@@ -794,7 +794,7 @@ static int32_t handleGeneratedSpaces(UChar * dest, int32_t sourceLength,
 	if(shapingMode == 0) {
 		if(((options&U_SHAPE_LAMALEF_MASK) == shapeVars.uShapeLamalefBegin) ||
 		    (((options&U_SHAPE_LAMALEF_MASK) == U_SHAPE_LAMALEF_AUTO )
-		  && (shapeVars.spacesRelativeToTextBeginEnd==1)) ) {
+		 && (shapeVars.spacesRelativeToTextBeginEnd==1)) ) {
 			lamAlefOption = 1;
 		}
 		if((options&U_SHAPE_TASHKEEL_MASK) == shapeVars.uShapeTashkeelBegin) {
@@ -832,7 +832,7 @@ static int32_t handleGeneratedSpaces(UChar * dest, int32_t sourceLength,
 	if(shapingMode == 0) {
 		if(((options&U_SHAPE_LAMALEF_MASK) == shapeVars.uShapeLamalefEnd) ||
 		    (((options&U_SHAPE_LAMALEF_MASK) == U_SHAPE_LAMALEF_AUTO )
-		  && (shapeVars.spacesRelativeToTextBeginEnd==0)) ) {
+		 && (shapeVars.spacesRelativeToTextBeginEnd==0)) ) {
 			lamAlefOption = 1;
 		}
 		if((options&U_SHAPE_TASHKEEL_MASK) == shapeVars.uShapeTashkeelEnd) {
@@ -904,7 +904,7 @@ static int32_t expandCompositCharAtBegin(UChar * dest, int32_t sourceLength, int
 			tempbuffer[j] = LAM_CHAR;
 			/* to ensure the array index is within the range */
 			U_ASSERT(dest[i] >= 0xFEF5u
-			  && dest[i]-0xFEF5u < UPRV_LENGTHOF(convertLamAlef));
+			 && dest[i]-0xFEF5u < UPRV_LENGTHOF(convertLamAlef));
 			tempbuffer[j-1] = convertLamAlef[ dest[i] - 0xFEF5 ];
 			j--;
 			countl--;
@@ -1301,7 +1301,7 @@ static int32_t shapeUnicode(UChar * dest, int32_t sourceLength,
 					else {
 						/* to ensure the array index is within the range */
 						U_ASSERT(dest[i] >= 0x064Bu
-						  && dest[i]-0x064Bu < UPRV_LENGTHOF(IrrelevantPos));
+						 && dest[i]-0x064Bu < UPRV_LENGTHOF(IrrelevantPos));
 						dest[i] =  0xFE70 + IrrelevantPos[(dest[i] - 0x064B)] + static_cast<UChar>(Shape);
 					}
 				}
@@ -1370,12 +1370,12 @@ static int32_t deShapeUnicode(UChar * dest, int32_t sourceLength,
 				dest[i] = c;
 		}
 		else if((yehHamzaComposeEnabled == 1) && ((inputChar == HAMZA06_CHAR) || (inputChar == HAMZAFE_CHAR))
-		  && (i < (sourceLength - 1)) && isAlefMaksouraChar(dest[i+1])) {
+		 && (i < (sourceLength - 1)) && isAlefMaksouraChar(dest[i+1])) {
 			dest[i] = SPACE_CHAR;
 			dest[i+1] = YEH_HAMZA_CHAR;
 		}
 		else if((seenComposeEnabled == 1) && (isTailChar(inputChar)) && (i< (sourceLength - 1))
-		  && (isSeenTailFamilyChar(dest[i+1])) ) {
+		 && (isSeenTailFamilyChar(dest[i+1])) ) {
 			dest[i] = SPACE_CHAR;
 		}
 		else if(( inputChar >= 0xFE70) && (inputChar <= 0xFEF4 )) { /* FExx Arabic range */

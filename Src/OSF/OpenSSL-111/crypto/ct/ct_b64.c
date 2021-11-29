@@ -62,7 +62,7 @@ SCT * SCT_new_from_base64(uchar version, const char * logid_base64,
 {
 	SCT * sct = SCT_new();
 	uchar * dec = NULL;
-	const uchar* p = NULL;
+	const uchar * p = NULL;
 	int declen;
 	if(sct == NULL) {
 		CTerr(CT_F_SCT_NEW_FROM_BASE64, ERR_R_MALLOC_FAILURE);

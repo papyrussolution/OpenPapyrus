@@ -527,7 +527,7 @@ NFSubstitution::NFSubstitution(int32_t _pos,
 	// about these characters, so strip them off
 	UnicodeString workingDescription(description);
 	if(description.length() >= 2
-	  && description.charAt(0) == description.charAt(description.length() - 1)) {
+	 && description.charAt(0) == description.charAt(description.length() - 1)) {
 		workingDescription.remove(description.length() - 1, 1);
 		workingDescription.remove(0, 1);
 	}
@@ -632,10 +632,10 @@ NFSubstitution::operator==(const NFSubstitution &rhs) const
 	// in common
 	// this should be called by subclasses before their own equality tests
 	return typeid(*this) == typeid(rhs)
-	     && pos == rhs.pos
-	     && (ruleSet == NULL) == (rhs.ruleSet == NULL)
+	 && pos == rhs.pos
+	 && (ruleSet == NULL) == (rhs.ruleSet == NULL)
 	       // && ruleSet == rhs.ruleSet causes circularity, other checks to make instead?
-	     && (numberFormat == NULL
+	 && (numberFormat == NULL
 	       ? (rhs.numberFormat == NULL)
 	       : (*numberFormat == *rhs.numberFormat));
 }
@@ -1183,8 +1183,8 @@ void FractionalPartSubstitution::doSubstitution(double number, UnicodeString & t
 		//          bool doZeros = FALSE;
 		//          for (int32_t i = 0; i < kMaxDecimalDigits; i++) {
 		//              int64_t digit = numberToFormat % 10;
-		//              if (digit != 0 || doZeros) {
-		//                  if (doZeros && useSpaces) {
+		//              if(digit != 0 || doZeros) {
+		//                  if(doZeros && useSpaces) {
 		//                      toInsertInto.insert(_pos + getPos(), gSpace);
 		//                  }
 		//                  doZeros = TRUE;

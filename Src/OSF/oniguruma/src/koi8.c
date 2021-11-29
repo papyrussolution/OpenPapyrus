@@ -77,9 +77,9 @@ static const ushort EncKOI8_CtypeTable[256] = {
 	0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2, 0x34a2
 };
 
-static int koi8_mbc_case_fold(OnigCaseFoldType flag, const uchar** pp, const uchar* end ARG_UNUSED, uchar* lower)
+static int koi8_mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar * end ARG_UNUSED, uchar * lower)
 {
-	const uchar* p = *pp;
+	const uchar * p = *pp;
 	if(CASE_FOLD_IS_NOT_ASCII_ONLY(flag) || ONIGENC_IS_ASCII_CODE(*p))
 		*lower = ENC_KOI8_TO_LOWER_CASE(*p);
 	else
@@ -170,7 +170,7 @@ static int koi8_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldF
 	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, f, arg);
 }
 
-static int koi8_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar* p, const uchar* end, OnigCaseFoldCodeItem items[])
+static int koi8_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
 	return onigenc_get_case_fold_codes_by_str_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, p, end, items);
 }

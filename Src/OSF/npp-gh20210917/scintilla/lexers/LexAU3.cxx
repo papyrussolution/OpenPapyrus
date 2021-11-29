@@ -524,7 +524,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 			else if(sc.ch == '@') {
 				sc.SetState(SCE_AU3_KEYWORD);
 			}
-			//else if (sc.ch == '_') {sc.SetState(SCE_AU3_KEYWORD);}
+			//else if(sc.ch == '_') {sc.SetState(SCE_AU3_KEYWORD);}
 			else if(sc.ch == '<' && si==3) {
 				sc.SetState(SCE_AU3_STRING);
 			}                                                   // string after #include
@@ -819,15 +819,15 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 				}
 				// fold till the last line for normal comment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				  && !(styleNext == SCE_AU3_COMMENT)
-				  && stylePrev == SCE_AU3_COMMENT
-				  && style == SCE_AU3_COMMENT) {
+				 && !(styleNext == SCE_AU3_COMMENT)
+				 && stylePrev == SCE_AU3_COMMENT
+				 && style == SCE_AU3_COMMENT) {
 					levelNext--;
 				}
 				// fold till the one but last line for Blockcomment lines
 				else if(IsStreamCommentStyle(stylePrev)
-				  && !(styleNext == SCE_AU3_COMMENTBLOCK)
-				  && style == SCE_AU3_COMMENTBLOCK) {
+				 && !(styleNext == SCE_AU3_COMMENTBLOCK)
+				 && style == SCE_AU3_COMMENTBLOCK) {
 					levelNext--;
 					levelCurrent--;
 				}

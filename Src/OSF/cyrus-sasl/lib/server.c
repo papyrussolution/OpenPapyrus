@@ -435,7 +435,7 @@ int sasl_server_add_plugin(const char * plugname,
 		&pluglist, &plugcount);
 
 	if((result != SASL_OK) && (result != SASL_NOUSER)
-	  && (result != SASL_CONTINUE)) {
+	 && (result != SASL_CONTINUE)) {
 		_sasl_log(NULL, SASL_LOG_DEBUG,
 		    "%s_client_plug_init() failed in sasl_server_add_plugin(): %z\n",
 		    plugname, result);
@@ -575,7 +575,7 @@ static int server_idle(sasl_conn_t * conn)
 	    m != NULL;
 	    m = m->next) {
 		if(m->m.plug->idle
-		  &&  m->m.plug->idle(m->m.plug->glob_context,
+		 &&  m->m.plug->idle(m->m.plug->glob_context,
 		    conn,
 		    s_conn->sparams)) {
 			return 1;
@@ -1541,8 +1541,8 @@ int sasl_server_start(sasl_conn_t * conn,
 
 done:
 	if(result != SASL_OK
-	  && result != SASL_CONTINUE
-	  && result != SASL_INTERACT) {
+	 && result != SASL_CONTINUE
+	 && result != SASL_INTERACT) {
 		if(conn->context) {
 			s_conn->mech->m.plug->mech_dispose(conn->context,
 			    s_conn->sparams->utils);
@@ -1669,8 +1669,8 @@ int sasl_server_step(sasl_conn_t * conn,
 	}
 
 	if(ret != SASL_OK
-	  && ret != SASL_CONTINUE
-	  && ret != SASL_INTERACT) {
+	 && ret != SASL_CONTINUE
+	 && ret != SASL_INTERACT) {
 		if(conn->context) {
 			s_conn->mech->m.plug->mech_dispose(conn->context,
 			    s_conn->sparams->utils);

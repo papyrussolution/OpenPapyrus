@@ -1076,7 +1076,7 @@ void IntlTestDateTimePatternGeneratorAPI::testAllFieldPatterns(/*char *par*/)
 
 	const char ** localeNamesPtr = localeNames;
 	const char * localeName;
-	while( (localeName = *localeNamesPtr++) != NULL) {
+	while((localeName = *localeNamesPtr++) != NULL) {
 		UErrorCode status = U_ZERO_ERROR;
 		Locale locale = Locale::createFromName(localeName);
 		DateTimePatternGenerator * dtpg = DateTimePatternGenerator::createInstance(locale, status);

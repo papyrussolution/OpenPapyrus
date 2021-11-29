@@ -49,7 +49,7 @@
    options.h, but is only seen in >= 3.6.6 since that's when they started
    disabling SSLv3 by default. */
 #ifndef WOLFSSL_ALLOW_SSLV3
-#if (LIBWOLFSSL_VERSION_HEX < 0x03006006) || \
+#if(LIBWOLFSSL_VERSION_HEX < 0x03006006) || \
 	defined(HAVE_WOLFSSLV3_CLIENT_METHOD)
 #define WOLFSSL_ALLOW_SSLV3
 #endif
@@ -724,7 +724,7 @@ static CURLcode wolfssl_connect_step2(struct connectdata * conn,
 #endif /* HAVE_ALPN */
 
 	connssl->connecting_state = ssl_connect_3;
-#if (LIBWOLFSSL_VERSION_HEX >= 0x03009010)
+#if(LIBWOLFSSL_VERSION_HEX >= 0x03009010)
 	infof(data, "SSL connection using %s / %s\n",
 	    wolfSSL_get_version(backend->handle),
 	    wolfSSL_get_cipher_name(backend->handle));

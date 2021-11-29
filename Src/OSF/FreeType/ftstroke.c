@@ -347,7 +347,7 @@ static FT_Error ft_stroke_border_lineto(FT_StrokeBorder border, FT_Vector*      
 	}
 	else {
 		/* don't add zero-length lineto, but always add moveto */
-		if(border->num_points > (FT_UInt)border->start                   &&
+		if(border->num_points > (FT_UInt)border->start &&
 		    FT_IS_SMALL(border->points[border->num_points - 1].x - to->x) &&
 		    FT_IS_SMALL(border->points[border->num_points - 1].y - to->y))
 			return error;
@@ -797,7 +797,7 @@ static FT_Error ft_stroker_inside(FT_Stroker stroker,
 		min_length =
 		    ft_pos_abs(FT_MulDiv(stroker->radius, sigma.y, sigma.x));
 
-		intersect = FT_BOOL(min_length                       &&
+		intersect = FT_BOOL(min_length &&
 			stroker->line_length >= min_length &&
 			line_length          >= min_length);
 	}
@@ -1135,7 +1135,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ConicTo(FT_Stroker stroker, FT_Vector*  contr
 		/* initialize with current direction */
 		angle_in = angle_out = stroker->angle_in;
 
-		if(arc < limit                                           &&
+		if(arc < limit &&
 		    !ft_conic_is_small_enough(arc, &angle_in, &angle_out)) {
 			if(stroker->first_point)
 				stroker->angle_in = angle_in;
@@ -1320,7 +1320,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_CubicTo(FT_Stroker stroker, FT_Vector*  contr
 		/* initialize with current direction */
 		angle_in = angle_out = angle_mid = stroker->angle_in;
 
-		if(arc < limit                                       &&
+		if(arc < limit &&
 		    !ft_cubic_is_small_enough(arc, &angle_in,
 		    &angle_mid, &angle_out)) {
 			if(stroker->first_point)
@@ -1499,7 +1499,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_BeginSubPath(FT_Stroker stroker, FT_Vector*  
 	/* cover the negative sector created with wide strokes.  */
 	stroker->handle_wide_strokes =
 	    FT_BOOL(stroker->line_join != FT_STROKER_LINEJOIN_ROUND || 
-		( stroker->subpath_open                      &&
+		( stroker->subpath_open &&
 		stroker->line_cap == FT_STROKER_LINECAP_BUTT ));
 
 	/* record the subpath start point for each border */

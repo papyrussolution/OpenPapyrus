@@ -314,7 +314,7 @@ static void TestBuilder() {
 		log_err("udatpg_openSkeletons failed!\n");
 		return;
 	}
-	while( (s = uenum_unext(en, &length, &errorCode))!= NULL) {
+	while((s = uenum_unext(en, &length, &errorCode))!= NULL) {
 		p = udatpg_getPatternForSkeleton(dtpg, s, length, &pLength);
 		if(U_FAILURE(errorCode) || p==NULL || u_memcmp(p, ptrResult[count], pLength)!=0) {
 			log_err("udatpg_getPatternForSkeleton failed!\n");
@@ -327,7 +327,7 @@ static void TestBuilder() {
 	/* Get all baseSkeletons */
 	en = udatpg_openBaseSkeletons(dtpg, &errorCode);
 	count = 0;
-	while( (s = uenum_unext(en, &length, &errorCode))!= NULL) {
+	while((s = uenum_unext(en, &length, &errorCode))!= NULL) {
 		p = udatpg_getPatternForSkeleton(dtpg, s, length, &pLength);
 		if(U_FAILURE(errorCode) || p==NULL || u_memcmp(p, resultBaseSkeletons[count], pLength)!=0) {
 			log_err("udatpg_getPatternForSkeleton failed!\n");

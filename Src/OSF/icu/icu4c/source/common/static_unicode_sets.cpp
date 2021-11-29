@@ -250,13 +250,13 @@ Key unisets::chooseFrom(UnicodeString str, Key key1, Key key2) {
 }
 
 //Key unisets::chooseCurrency(UnicodeString str) {
-//    if (get(DOLLAR_SIGN)->contains(str)) {
+//    if(get(DOLLAR_SIGN)->contains(str)) {
 //        return DOLLAR_SIGN;
-//    } else if (get(POUND_SIGN)->contains(str)) {
+//    } else if(get(POUND_SIGN)->contains(str)) {
 //        return POUND_SIGN;
-//    } else if (get(RUPEE_SIGN)->contains(str)) {
+//    } else if(get(RUPEE_SIGN)->contains(str)) {
 //        return RUPEE_SIGN;
-//    } else if (get(YEN_SIGN)->contains(str)) {
+//    } else if(get(YEN_SIGN)->contains(str)) {
 //        return YEN_SIGN;
 //    } else {
 //        return NONE;

@@ -110,7 +110,7 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		else if(minFrac == -1) {
 			minFrac = std::min(maxFrac, digits);
 		}
-		else { /* if (maxFrac == -1) */
+		else { /* if(maxFrac == -1) */
 			maxFrac = std::max(minFrac, digits);
 		}
 	}

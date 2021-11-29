@@ -48,7 +48,7 @@
 //#ifdef HAVE_PROCESS_H
 	//#include <process.h>
 //#endif
-#if (defined(NETWARE) && defined(__NOVELL_LIBC__))
+#if(defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
 	#define in_addr_t ulong
 #endif
@@ -359,8 +359,8 @@ CURLcode Curl_resolver_is_resolved(struct connectdata * conn,
 	   any responses still pending when the EXPIRE_HAPPY_EYEBALLS_DNS timer
 	   expires. */
 	if(res && res->num_pending /* This is only set to non-zero if the timer was started. */
-	  && (res->happy_eyeballs_dns_time.tv_sec || res->happy_eyeballs_dns_time.tv_usec)
-	  && (Curl_timediff(Curl_now(), res->happy_eyeballs_dns_time)
+	 && (res->happy_eyeballs_dns_time.tv_sec || res->happy_eyeballs_dns_time.tv_usec)
+	 && (Curl_timediff(Curl_now(), res->happy_eyeballs_dns_time)
 	    >= HAPPY_EYEBALLS_DNS_TIMEOUT)) {
 		/* Remember that the EXPIRE_HAPPY_EYEBALLS_DNS timer is no longer
 		   running. */
@@ -557,7 +557,7 @@ static void query_completed_cb(void * arg,  /* (struct connectdata *) */
 		       either a result of bad input (which should affect all parallel
 		       requests), local or network conditions, non-definitive server
 		       responses, or us cancelling the request. */
-		  && (status == ARES_SUCCESS || status == ARES_ENOTFOUND)) {
+		 && (status == ARES_SUCCESS || status == ARES_ENOTFOUND)) {
 			/* Right now, there can only be up to two parallel queries, so don't
 			   bother handling any other cases. */
 			DEBUGASSERT(res->num_pending == 1);
@@ -710,8 +710,8 @@ CURLcode Curl_set_dns_servers(struct Curl_easy * data,
 	if(!(servers && servers[0]))
 		return CURLE_OK;
 
-#if (ARES_VERSION >= 0x010704)
-#if (ARES_VERSION >= 0x010b00)
+#if(ARES_VERSION >= 0x010704)
+#if(ARES_VERSION >= 0x010b00)
 	ares_result = ares_set_servers_ports_csv(data->state.resolver, servers);
 #else
 	ares_result = ares_set_servers_csv(data->state.resolver, servers);
@@ -740,7 +740,7 @@ CURLcode Curl_set_dns_servers(struct Curl_easy * data,
 CURLcode Curl_set_dns_interface(struct Curl_easy * data,
     const char * interf)
 {
-#if (ARES_VERSION >= 0x010704)
+#if(ARES_VERSION >= 0x010704)
 	if(!interf)
 		interf = "";
 
@@ -757,7 +757,7 @@ CURLcode Curl_set_dns_interface(struct Curl_easy * data,
 CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
     const char * local_ip4)
 {
-#if (ARES_VERSION >= 0x010704)
+#if(ARES_VERSION >= 0x010704)
 	struct in_addr a4;
 
 	if((!local_ip4) || (local_ip4[0] == 0)) {
@@ -781,7 +781,7 @@ CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
 
 CURLcode Curl_set_dns_local_ip6(struct Curl_easy * data, const char * local_ip6)
 {
-#if (ARES_VERSION >= 0x010704) && defined(ENABLE_IPV6)
+#if(ARES_VERSION >= 0x010704) && defined(ENABLE_IPV6)
 	uchar a6[INET6_ADDRSTRLEN];
 	if((!local_ip6) || (local_ip6[0] == 0)) {
 		/* disabled: do not bind to a specific address */

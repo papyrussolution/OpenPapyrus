@@ -81,7 +81,7 @@ typedef struct  FT_ValidatorRec_ {
 #pragma warning( pop )
 #endif
 
-#define FT_VALIDATOR(x)  ((FT_Validator)( x ))
+#define FT_VALIDATOR(x)  ((FT_Validator)(x))
 
 FT_BASE(void)
 ft_validator_init(FT_Validator valid,

@@ -272,7 +272,7 @@ Exit:
 			charmap.encoding = FT_ENCODING_UNICODE;
 
 			error = FT_CMap_New(cmap_classes->unicode, NULL, &charmap, NULL);
-			if(error                                      &&
+			if(error &&
 			    FT_ERR_NEQ(error, No_Unicode_Glyph_Name) &&
 			    FT_ERR_NEQ(error, Unimplemented_Feature))
 				goto Exit;

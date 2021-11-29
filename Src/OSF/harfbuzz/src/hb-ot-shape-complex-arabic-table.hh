@@ -164,7 +164,7 @@ static const uint8_t joining_table[] =
 }; /* Table items: 1340; occupancy: 57% */
 
 
-static unsigned int
+static uint
 joining_type (hb_codepoint_t u)
 {
   switch (u >> 12)

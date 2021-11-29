@@ -798,18 +798,18 @@ UDate CalendarAstronomer::getSunRiseSet(bool rise)
 //               H = ::acos(-tanL * ::tan(pos2.declination));
 //        double lst2r = (CalendarAstronomer_PI2-H + pos2.ascension ) * 24 / CalendarAstronomer_PI2;
 //        double lst2s = (H + pos2.ascension ) * 24 / CalendarAstronomer_PI2;
-//        if (lst1r > 24) lst1r -= 24;
-//        if (lst1s > 24) lst1s -= 24;
-//        if (lst2r > 24) lst2r -= 24;
-//        if (lst2s > 24) lst2s -= 24;
+//        if(lst1r > 24) lst1r -= 24;
+//        if(lst1s > 24) lst1s -= 24;
+//        if(lst2r > 24) lst2r -= 24;
+//        if(lst2s > 24) lst2s -= 24;
 //
 //        // 4. Convert LSTs to GSTs.  If GST1 > GST2, add 24 to GST2.
 //        double gst1r = lstToGst(lst1r);
 //        double gst1s = lstToGst(lst1s);
 //        double gst2r = lstToGst(lst2r);
 //        double gst2s = lstToGst(lst2s);
-//        if (gst1r > gst2r) gst2r += 24;
-//        if (gst1s > gst2s) gst2s += 24;
+//        if(gst1r > gst2r) gst2r += 24;
+//        if(gst1s > gst2s) gst2s += 24;
 //
 //        // 5. Calculate GST at 0h UT of this date
 //        double t00 = utToGst(0);
@@ -817,14 +817,14 @@ UDate CalendarAstronomer::getSunRiseSet(bool rise)
 //        // 6. Calculate GST at 0h on the observer's longitude
 //        double offset = ::round(fLongitude*12/PI); // p.95 step 6; he _rounds_ to nearest 15 deg.
 //        double t00p = t00 - offset*1.002737909;
-//        if (t00p < 0) t00p += 24; // do NOT normalize
+//        if(t00p < 0) t00p += 24; // do NOT normalize
 //
 //        // 7. Adjust
-//        if (gst1r < t00p) {
+//        if(gst1r < t00p) {
 //            gst1r += 24;
 //            gst2r += 24;
 //        }
-//        if (gst1s < t00p) {
+//        if(gst1s < t00p) {
 //            gst1s += 24;
 //            gst2s += 24;
 //        }

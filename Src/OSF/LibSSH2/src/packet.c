@@ -617,7 +617,7 @@ libssh2_packet_add_jump_point1:
 					    }
 				    }
 				    else if(len == sizeof("exit-signal") - 1
-				  && !memcmp("exit-signal", data + 9,
+				 && !memcmp("exit-signal", data + 9,
 					    sizeof("exit-signal") - 1)) {
 					    /* command terminated due to signal */
 					    if(datalen >= 20)
@@ -691,7 +691,7 @@ libssh2_packet_add_jump_point4:
 				    ;
 			    else if((datalen >= (sizeof("forwarded-tcpip") + 4)) &&
 			    ((sizeof("forwarded-tcpip") - 1) == _libssh2_ntohu32(data + 1))
-			  &&
+			 &&
 			    (memcmp(data + 5, "forwarded-tcpip", sizeof("forwarded-tcpip") - 1) == 0)) {
 				    /* init the state struct */
 				    memzero(&session->packAdd_Qlstn_state, sizeof(session->packAdd_Qlstn_state));
@@ -806,7 +806,7 @@ int _libssh2_packet_ask(LIBSSH2_SESSION * session, uchar packet_type,
 	_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Looking for packet of type: %d", (int)packet_type);
 	while(packet) {
 		if(packet->data[0] == packet_type && (packet->data_len >= (match_ofs + match_len))
-		  && (!match_buf || (memcmp(packet->data + match_ofs, match_buf, match_len) == 0))) {
+		 && (!match_buf || (memcmp(packet->data + match_ofs, match_buf, match_len) == 0))) {
 			*data = packet->data;
 			*data_len = packet->data_len;
 			/* unlink struct from session->packets */

@@ -464,7 +464,7 @@ void rand_pool_free(RAND_POOL * pool)
 	/*
 	 * Although it would be advisable from a cryptographical viewpoint,
 	 * we are not allowed to clear attached buffers, since they are passed
-	 * to rand_pool_attach() as `const uchar*`.
+	 * to rand_pool_attach() as `const uchar *`.
 	 * (see corresponding comment in rand_pool_attach()).
 	 */
 	if(!pool->attached) {
@@ -804,7 +804,7 @@ const RAND_METHOD * RAND_get_rand_method(void)
 
 		/* If we have an engine that can do RAND, use it. */
 		if((e = ENGINE_get_default_RAND()) != NULL
-		  && (tmp_meth = ENGINE_get_RAND(e)) != NULL) {
+		 && (tmp_meth = ENGINE_get_RAND(e)) != NULL) {
 			funct_ref = e;
 			default_RAND_meth = tmp_meth;
 		}

@@ -39,13 +39,13 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_gnu_tar.c 19157
 struct gnutar {
 	uint64 entry_bytes_remaining;
 	uint64 entry_padding;
-	const char *    linkname;
+	const char * linkname;
 	size_t linkname_length;
-	const char *    pathname;
+	const char * pathname;
 	size_t pathname_length;
-	const char *    uname;
+	const char * uname;
 	size_t uname_length;
-	const char *    gname;
+	const char * gname;
 	size_t gname_length;
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;

@@ -19,7 +19,7 @@
    Minimal alignment in machine words (i.e. `sizeof(void *)`)
    ----------------------------------------------------------- */
 
-#if (MI_MAX_ALIGN_SIZE > 4*MI_INTPTR_SIZE)
+#if(MI_MAX_ALIGN_SIZE > 4*MI_INTPTR_SIZE)
   #error "define alignment for more than 4x word size for this platform"
 #elif (MI_MAX_ALIGN_SIZE > 2*MI_INTPTR_SIZE)
   #define MI_ALIGN4W   // 4 machine words minimal alignment
@@ -112,7 +112,7 @@ size_t mi_good_size(size_t size) NOEXCEPT
 	}
 }
 
-#if (MI_DEBUG>1)
+#if(MI_DEBUG>1)
 	static bool mi_page_queue_contains(mi_page_queue_t* queue, const mi_page_t* page) 
 	{
 		mi_assert_internal(page != NULL);

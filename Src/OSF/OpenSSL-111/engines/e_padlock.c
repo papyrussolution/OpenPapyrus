@@ -21,7 +21,7 @@
 #ifndef OPENSSL_NO_HW_PADLOCK
 
 /* Attempt to have a single source for both 0.9.7 and 0.9.8 :-) */
-#if (OPENSSL_VERSION_NUMBER >= 0x00908000L)
+#if(OPENSSL_VERSION_NUMBER >= 0x00908000L)
 #ifndef OPENSSL_NO_DYNAMIC_ENGINE
 #define DYNAMIC_ENGINE
 #endif
@@ -476,7 +476,7 @@ static int padlock_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 	static const EVP_CIPHER * padlock_aes_ ## ksize ## _ ## lmode(void) \
 	{                                                                       \
 		if(_hidden_aes_ ## ksize ## _ ## lmode == NULL                           \
-		  && ((_hidden_aes_ ## ksize ## _ ## lmode =                            \
+		 && ((_hidden_aes_ ## ksize ## _ ## lmode =                            \
 		    EVP_CIPHER_meth_new(NID_aes_ ## ksize ## _ ## lmode,             \
 		    EVP_CIPHER_block_size_ ## umode,         \
 		    AES_KEY_SIZE_ ## ksize)) == NULL         \

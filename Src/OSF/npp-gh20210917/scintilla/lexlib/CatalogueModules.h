@@ -17,7 +17,7 @@ class CatalogueModules {
 public:
 	const LexerModule *Find(int language) const {
 		for (const LexerModule *lm : lexerCatalogue) {
-			if (lm->GetLanguage() == language) {
+			if(lm->GetLanguage() == language) {
 				return lm;
 			}
 		}
@@ -25,9 +25,9 @@ public:
 	}
 
 	const LexerModule *Find(const char *languageName) const noexcept {
-		if (languageName) {
+		if(languageName) {
 			for (const LexerModule *lm : lexerCatalogue) {
-				if (lm->languageName && (0 == strcmp(lm->languageName, languageName))) {
+				if(lm->languageName && (0 == strcmp(lm->languageName, languageName))) {
 					return lm;
 				}
 			}
@@ -44,7 +44,7 @@ public:
 	}
 
 	const char *Name(unsigned int index) const noexcept {
-		if (index < static_cast<unsigned int>(lexerCatalogue.size())) {
+		if(index < static_cast<unsigned int>(lexerCatalogue.size())) {
 			return lexerCatalogue[index]->languageName;
 		} else {
 			return "";
@@ -58,7 +58,7 @@ public:
 
 	ILexer5 *Create(unsigned int index) const {
 		const LexerModule *plm = lexerCatalogue[index];
-		if (!plm) {
+		if(!plm) {
 			return nullptr;
 		}
 		return plm->Create();

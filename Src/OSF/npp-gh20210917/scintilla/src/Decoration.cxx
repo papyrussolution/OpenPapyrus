@@ -121,7 +121,7 @@ DecorationList<POS>::~DecorationList() {
 template <typename POS>
 Decoration<POS> *DecorationList<POS>::DecorationFromIndicator(int indicator) noexcept {
 	for (const std::unique_ptr<Decoration<POS>> &deco : decorationList) {
-		if (deco->Indicator() == indicator) {
+		if(deco->Indicator() == indicator) {
 			return deco.get();
 		}
 	}
@@ -171,16 +171,16 @@ void DecorationList<POS>::SetCurrentValue(int value) {
 
 template <typename POS>
 FillResult<Sci::Position> DecorationList<POS>::FillRange(Sci::Position position, int value, Sci::Position fillLength) {
-	if (!current) {
+	if(!current) {
 		current = DecorationFromIndicator(currentIndicator);
-		if (!current) {
+		if(!current) {
 			current = Create(currentIndicator, lengthDocument);
 		}
 	}
 	// Converting result from POS to Sci::Position as callers not polymorphic.
 	const FillResult<POS> frInPOS = current->rs.FillRange(static_cast<POS>(position), value, static_cast<POS>(fillLength));
 	const FillResult<Sci::Position> fr { frInPOS.changed, frInPOS.position, frInPOS.fillLength };
-		if (current->Empty()) {
+		if(current->Empty()) {
 		Delete(currentIndicator);
 	}
 	return fr;
@@ -192,7 +192,7 @@ void DecorationList<POS>::InsertSpace(Sci::Position position, Sci::Position inse
 	lengthDocument += insertLength;
 	for (const std::unique_ptr<Decoration<POS>> &deco : decorationList) {
 		deco->rs.InsertSpace(static_cast<POS>(position), static_cast<POS>(insertLength));
-		if (atEnd) {
+		if(atEnd) {
 			deco->rs.FillRange(static_cast<POS>(position), 0, static_cast<POS>(insertLength));
 		}
 	}
@@ -205,7 +205,7 @@ void DecorationList<POS>::DeleteRange(Sci::Position position, Sci::Position dele
 		deco->rs.DeleteRange(static_cast<POS>(position), static_cast<POS>(deleteLength));
 	}
 	DeleteAnyEmpty();
-	if (decorationList.size() != decorationView.size()) {
+	if(decorationList.size() != decorationView.size()) {
 		// One or more empty decorations deleted so update view.
 		current = nullptr;
 		SetView();
@@ -224,7 +224,7 @@ void DecorationList<POS>::DeleteLexerDecorations() {
 
 template <typename POS>
 void DecorationList<POS>::DeleteAnyEmpty() {
-	if (lengthDocument == 0) {
+	if(lengthDocument == 0) {
 		decorationList.clear();
 	} else {
 		decorationList.erase(std::remove_if(decorationList.begin(), decorationList.end(),
@@ -246,8 +246,8 @@ template <typename POS>
 int DecorationList<POS>::AllOnFor(Sci::Position position) const noexcept {
 	int mask = 0;
 	for (const std::unique_ptr<Decoration<POS>> &deco : decorationList) {
-		if (deco->rs.ValueAt(static_cast<POS>(position))) {
-			if (deco->Indicator() < INDICATOR_IME) {
+		if(deco->rs.ValueAt(static_cast<POS>(position))) {
+			if(deco->Indicator() < INDICATOR_IME) {
 				mask |= 1 << deco->Indicator();
 			}
 		}
@@ -258,7 +258,7 @@ int DecorationList<POS>::AllOnFor(Sci::Position position) const noexcept {
 template <typename POS>
 int DecorationList<POS>::ValueAt(int indicator, Sci::Position position) noexcept {
 	const Decoration<POS> *deco = DecorationFromIndicator(indicator);
-	if (deco) {
+	if(deco) {
 		return deco->rs.ValueAt(static_cast<POS>(position));
 	}
 	return 0;
@@ -267,7 +267,7 @@ int DecorationList<POS>::ValueAt(int indicator, Sci::Position position) noexcept
 template <typename POS>
 Sci::Position DecorationList<POS>::Start(int indicator, Sci::Position position) noexcept {
 	const Decoration<POS> *deco = DecorationFromIndicator(indicator);
-	if (deco) {
+	if(deco) {
 		return deco->rs.StartRun(static_cast<POS>(position));
 	}
 	return 0;
@@ -276,7 +276,7 @@ Sci::Position DecorationList<POS>::Start(int indicator, Sci::Position position) 
 template <typename POS>
 Sci::Position DecorationList<POS>::End(int indicator, Sci::Position position) noexcept {
 	const Decoration<POS> *deco = DecorationFromIndicator(indicator);
-	if (deco) {
+	if(deco) {
 		return deco->rs.EndRun(static_cast<POS>(position));
 	}
 	return 0;
@@ -287,14 +287,14 @@ Sci::Position DecorationList<POS>::End(int indicator, Sci::Position position) no
 namespace Scintilla {
 
 std::unique_ptr<IDecoration> DecorationCreate(bool largeDocument, int indicator) {
-	if (largeDocument)
+	if(largeDocument)
 		return std::make_unique<Decoration<Sci::Position>>(indicator);
 	else
 		return std::make_unique<Decoration<int>>(indicator);
 }
 
 std::unique_ptr<IDecorationList> DecorationListCreate(bool largeDocument) {
-	if (largeDocument)
+	if(largeDocument)
 		return std::make_unique<DecorationList<Sci::Position>>();
 	else
 		return std::make_unique<DecorationList<int>>();

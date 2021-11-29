@@ -45,7 +45,7 @@ int main(int argc, char ** argv)
 #ifdef HAVE_FREETYPE
 	hb_ft_font_set_funcs(font);
 #endif
-	unsigned int len = argc - 3;
+	uint len = argc - 3;
 	hb_codepoint_t glyphs[2];
 	if(!hb_font_glyph_from_string(font, argv[3], -1, &glyphs[0]) || (argc > 4 && !hb_font_glyph_from_string(font, argv[4], -1, &glyphs[1])))
 		return 2;

@@ -2388,7 +2388,7 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt)
 							t2->to, t2->atom);
 						/* don't shortcut the computation so all non deterministic
 						transition get marked down
-						if (ret == 0)
+						if(ret == 0)
 							return 0;
 						*/
 						if(!ret) {

@@ -41,7 +41,7 @@ public:
 		PLATFORM_ASSERT(m_pos <= m_end);
 
 		// Ensure for release.
-		if (m_pos > m_end)
+		if(m_pos > m_end)
 		{
 			m_pos = m_end;
 		}
@@ -57,7 +57,7 @@ public:
 		PLATFORM_ASSERT(m_pos <= m_end);
 
 		// Ensure for release.
-		if (m_pos > m_end)
+		if(m_pos > m_end)
 		{
 			m_pos = m_end;
 		}

@@ -39,7 +39,7 @@
 
 static int JBIGSetupDecode(TIFF* tif)
 {
-	if (TIFFNumberOfStrips(tif) != 1)
+	if(TIFFNumberOfStrips(tif) != 1)
 	{
 		TIFFErrorExt(tif->tif_clientdata, "JBIG", "Multistrip images not supported in decoder");
 		return 0;
@@ -52,10 +52,10 @@ static int JBIGDecode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 {
 	struct jbg_dec_state decoder;
 	int decodeStatus = 0;
-	uchar* pImage = NULL;
+	uchar * pImage = NULL;
 	(void) size, (void) s;
 
-	if (isFillOrder(tif, tif->tif_dir.td_fillorder))
+	if(isFillOrder(tif, tif->tif_dir.td_fillorder))
 	{
 		TIFFReverseBits(tif->tif_rawdata, tif->tif_rawdatasize);
 	}
@@ -76,7 +76,7 @@ static int JBIGDecode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 	 */
 #endif /* HAVE_JBG_NEWLEN */
 	decodeStatus = jbg_dec_in(&decoder, (uchar *)tif->tif_rawdata, (size_t)tif->tif_rawdatasize, NULL);
-	if (JBG_EOK != decodeStatus)
+	if(JBG_EOK != decodeStatus)
 	{
 		/*
 		 * XXX: JBG_EN constant was defined in pre-2.0 releases of the
@@ -102,7 +102,7 @@ static int JBIGDecode(TIFF* tif, uint8 * buffer, tmsize_t size, uint16 s)
 
 static int JBIGSetupEncode(TIFF* tif)
 {
-	if (TIFFNumberOfStrips(tif) != 1)
+	if(TIFFNumberOfStrips(tif) != 1)
 	{
 		TIFFErrorExt(tif->tif_clientdata, "JBIG", "Multistrip images not supported in encoder");
 		return 0;
@@ -111,14 +111,14 @@ static int JBIGSetupEncode(TIFF* tif)
 	return 1;
 }
 
-static int JBIGCopyEncodedData(TIFF* tif, uchar* pp, size_t cc, uint16 s)
+static int JBIGCopyEncodedData(TIFF* tif, uchar * pp, size_t cc, uint16 s)
 {
 	(void) s;
-	while (cc > 0)
+	while(cc > 0)
 	{
 		tmsize_t n = (tmsize_t)cc;
 
-		if (tif->tif_rawcc + n > tif->tif_rawdatasize)
+		if(tif->tif_rawcc + n > tif->tif_rawdatasize)
 		{
 			n = tif->tif_rawdatasize - tif->tif_rawcc;
 		}
@@ -129,7 +129,7 @@ static int JBIGCopyEncodedData(TIFF* tif, uchar* pp, size_t cc, uint16 s)
 		tif->tif_rawcc += n;
 		pp += n;
 		cc -= (size_t)n;
-		if (tif->tif_rawcc >= tif->tif_rawdatasize &&
+		if(tif->tif_rawcc >= tif->tif_rawdatasize &&
 		    !TIFFFlushData1(tif))
 		{
 			return -1;
@@ -139,11 +139,11 @@ static int JBIGCopyEncodedData(TIFF* tif, uchar* pp, size_t cc, uint16 s)
 	return 1;
 }
 
-static void JBIGOutputBie(uchar* buffer, size_t len, void * userData)
+static void JBIGOutputBie(uchar * buffer, size_t len, void * userData)
 {
 	TIFF* tif = (TIFF*)userData;
 
-	if (isFillOrder(tif, tif->tif_dir.td_fillorder))
+	if(isFillOrder(tif, tif->tif_dir.td_fillorder))
 	{
 		TIFFReverseBits(buffer, (tmsize_t)len);
 	}

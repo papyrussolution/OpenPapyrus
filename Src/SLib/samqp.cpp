@@ -47,7 +47,7 @@
 #ifdef _MSC_VER
 	#define _CRT_SECURE_NO_WARNINGS
 #endif
-#if ((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
+#if((defined(_WIN32)) || (defined(__MINGW32__)) || (defined(__MINGW64__)))
 	#ifndef WINVER
 		// WINVER 0x0502 is WinXP SP2+, Windows Server 2003 SP1+
 		// See: http://msdn.microsoft.com/en-us/library/windows/desktop/aa383745(v=vs.85).aspx#macros_for_conditional_declarations
@@ -405,7 +405,7 @@ int amqp_send_frame_inner(amqp_connection_state_t state, const amqp_frame_t * fr
 int    amqp_openssl_bio_init();
 void   amqp_openssl_bio_destroy();
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L)
 	#define AMQP_OPENSSL_V110
 #endif
 #ifdef AMQP_OPENSSL_V110
@@ -3520,7 +3520,7 @@ error_out1:
 //
 // AMQP_TIME {
 //
-#if (defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__) || defined(__MINGW64__))
+#if(defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__) || defined(__MINGW64__))
 	#define AMQP_WIN_TIMER_API
 #elif (defined(machintosh) || defined(__APPLE__) || defined(__APPLE_CC__))
 	#define AMQP_MAC_TIMER_API
@@ -7104,7 +7104,7 @@ int amqp_uninitialize_ssl_library()
 	EVP_cleanup();
 	CRYPTO_cleanup_all_ex_data();
 	ERR_free_strings();
-#if (OPENSSL_VERSION_NUMBER >= 0x10002003L) && !defined(LIBRESSL_VERSION_NUMBER)
+#if(OPENSSL_VERSION_NUMBER >= 0x10002003L) && !defined(LIBRESSL_VERSION_NUMBER)
 	SSL_COMP_free_compression_methods();
 #endif
 	openssl_initialized = 0;

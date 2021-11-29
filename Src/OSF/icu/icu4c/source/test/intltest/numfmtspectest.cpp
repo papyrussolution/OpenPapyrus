@@ -20,7 +20,7 @@ static const UChar kJPY[] = {0x4A, 0x50, 0x59};
 
 static void fixNonBreakingSpace(UnicodeString & str) {
     for (int32_t i = 0; i < str.length(); ++i) {
-        if (str[i] == 0xa0) {
+        if(str[i] == 0xa0) {
             str.setCharAt(i, 0x20);
         }
     }    
@@ -32,7 +32,7 @@ static NumberFormat *nfWithPattern(const char *pattern) {
     UErrorCode status = U_ZERO_ERROR;
     DecimalFormat *result = new DecimalFormat(
             upattern, new DecimalFormatSymbols("fr", status), status);
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         return NULL;
     }
 
@@ -67,7 +67,7 @@ private:
 
 void NumberFormatSpecificationTest::runIndexedTest(
         int32_t index, bool exec, const char *&name, char *) {
-    if (exec) {
+    if(exec) {
         logln("TestSuite NumberFormatSpecificationTest: ");
     }
     TESTCASE_AUTO_BEGIN;
@@ -95,7 +95,7 @@ void NumberFormatSpecificationTest::TestBasicPatterns() {
 
 void NumberFormatSpecificationTest::TestNfSetters() {
     LocalPointer<NumberFormat> nf(nfWithPattern("#,##0.##"));
-    if (nf == NULL) {
+    if(nf == NULL) {
         dataerrln("Error creating NumberFormat");
         return;
     }
@@ -186,7 +186,7 @@ void NumberFormatSpecificationTest::TestPadding() {
         UnicodeString result;
         DecimalFormat fmt(
                 upattern, new DecimalFormatSymbols("fr", status), status);
-        if (U_FAILURE(status)) {
+        if(U_FAILURE(status)) {
             dataerrln("Error creating DecimalFormat - %s", u_errorName(status));
         } else {
             fmt.setCurrency(kJPY);
@@ -205,7 +205,7 @@ void NumberFormatSpecificationTest::TestPadding() {
                 upattern,
                 new DecimalFormatSymbols("en_US", status),
                 status);
-        if (U_FAILURE(status)) {
+        if(U_FAILURE(status)) {
             dataerrln("Error creating DecimalFormat - %s", u_errorName(status));
         } else {
             fmt.format(-433.22, result);
@@ -223,7 +223,7 @@ void NumberFormatSpecificationTest::TestPadding() {
                 paddedSciPattern,
                 sym,
                 status);
-        if (U_FAILURE(status)) {
+        if(U_FAILURE(status)) {
             dataerrln("Error creating DecimalFormat - %s", u_errorName(status));
         } else {
             UnicodeString result;
@@ -249,7 +249,7 @@ void NumberFormatSpecificationTest::assertPatternFr(
     UnicodeString result;
     DecimalFormat fmt(
             upattern, new DecimalFormatSymbols("fr_FR", status), status);
-    if (U_FAILURE(status)) {
+    if(U_FAILURE(status)) {
         dataerrln("Error creating DecimalFormatSymbols - %s", u_errorName(status));
         return;
     }

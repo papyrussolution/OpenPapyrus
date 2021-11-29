@@ -490,7 +490,7 @@ int main(int argc, char ** argv)
 	/* Close input file, if we opened it.
 	 * Note: we assume that jpeg_read_coefficients consumed all input
 	 * until JPEG_REACHED_EOI, and that jpeg_finish_decompress will
-	 * only consume more while (! cinfo->inputctl->eoi_reached).
+	 * only consume more while(! cinfo->inputctl->eoi_reached).
 	 * We cannot call jpeg_finish_decompress here since we still need the
 	 * virtual arrays allocated from the source object for processing.
 	 */

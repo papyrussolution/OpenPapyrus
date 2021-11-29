@@ -67,7 +67,7 @@ int32_t TaiwanCalendar::handleGetExtendedYear()
 	int32_t year = kGregorianEpoch;
 
 	if(newerField(UCAL_EXTENDED_YEAR, UCAL_YEAR) == UCAL_EXTENDED_YEAR
-	  && newerField(UCAL_EXTENDED_YEAR, UCAL_ERA) == UCAL_EXTENDED_YEAR) {
+	 && newerField(UCAL_EXTENDED_YEAR, UCAL_ERA) == UCAL_EXTENDED_YEAR) {
 		year = internalGet(UCAL_EXTENDED_YEAR, kGregorianEpoch);
 	}
 	else {

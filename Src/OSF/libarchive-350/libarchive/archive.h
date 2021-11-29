@@ -157,7 +157,7 @@ __LA_DECL int           archive_version_number(void);
  */
 #define ARCHIVE_VERSION_ONLY_STRING "3.5.0"
 #define ARCHIVE_VERSION_STRING "libarchive " ARCHIVE_VERSION_ONLY_STRING
-__LA_DECL const char *  archive_version_string(void);
+__LA_DECL const char * archive_version_string(void);
 
 /*
  * Detailed textual name/version of the library and its dependencies.
@@ -166,18 +166,18 @@ __LA_DECL const char *  archive_version_string(void);
  * the list of libraries described here will vary depending on how
  * libarchive was compiled.
  */
-__LA_DECL const char *  archive_version_details(void);
+__LA_DECL const char * archive_version_details(void);
 
 /*
  * Returns NULL if libarchive was compiled without the associated library.
  * Otherwise, returns the version number that libarchive was compiled
  * against.
  */
-__LA_DECL const char *  archive_zlib_version(void);
-__LA_DECL const char *  archive_liblzma_version(void);
-__LA_DECL const char *  archive_bzlib_version(void);
-__LA_DECL const char *  archive_liblz4_version(void);
-__LA_DECL const char *  archive_libzstd_version(void);
+__LA_DECL const char * archive_zlib_version(void);
+__LA_DECL const char * archive_liblzma_version(void);
+__LA_DECL const char * archive_bzlib_version(void);
+__LA_DECL const char * archive_liblz4_version(void);
+__LA_DECL const char * archive_libzstd_version(void);
 
 /* Declare our basic types. */
 struct archive;
@@ -940,7 +940,7 @@ __LA_DECL int   archive_free(struct archive *);
 __LA_DECL int            archive_filter_count(struct archive *);
 __LA_DECL la_int64_t     archive_filter_bytes(struct archive *, int);
 __LA_DECL int            archive_filter_code(struct archive *, int);
-__LA_DECL const char *   archive_filter_name(struct archive *, int);
+__LA_DECL const char * archive_filter_name(struct archive *, int);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* These don't properly handle multiple filters, so are deprecated and

@@ -45,11 +45,11 @@ static const hb_tag_t arabic_fallback_features[] =
 
 static OT::SubstLookup * arabic_fallback_synthesize_lookup_single(const hb_ot_shape_plan_t * plan HB_UNUSED,
     hb_font_t * font,
-    unsigned int feature_index)
+    uint feature_index)
 {
 	OT::HBGlyphID glyphs[SHAPING_TABLE_LAST - SHAPING_TABLE_FIRST + 1];
 	OT::HBGlyphID substitutes[SHAPING_TABLE_LAST - SHAPING_TABLE_FIRST + 1];
-	unsigned int num_glyphs = 0;
+	uint num_glyphs = 0;
 
 	/* Populate arrays */
 	for(hb_codepoint_t u = SHAPING_TABLE_FIRST; u < SHAPING_TABLE_LAST + 1; u++) {
@@ -95,20 +95,20 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_
     hb_font_t * font)
 {
 	OT::HBGlyphID first_glyphs[ARRAY_LENGTH_CONST(ligature_table)];
-	unsigned int first_glyphs_indirection[ARRAY_LENGTH_CONST(ligature_table)];
-	unsigned int ligature_per_first_glyph_count_list[ARRAY_LENGTH_CONST(first_glyphs)];
-	unsigned int num_first_glyphs = 0;
+	uint first_glyphs_indirection[ARRAY_LENGTH_CONST(ligature_table)];
+	uint ligature_per_first_glyph_count_list[ARRAY_LENGTH_CONST(first_glyphs)];
+	uint num_first_glyphs = 0;
 
 	/* We know that all our ligatures are 2-component */
 	OT::HBGlyphID ligature_list[ARRAY_LENGTH_CONST(first_glyphs) * ARRAY_LENGTH_CONST(ligature_table[0].ligatures)];
-	unsigned int component_count_list[ARRAY_LENGTH_CONST(ligature_list)];
+	uint component_count_list[ARRAY_LENGTH_CONST(ligature_list)];
 	OT::HBGlyphID component_list[ARRAY_LENGTH_CONST(ligature_list) * 1 /* One extra component per ligature */];
-	unsigned int num_ligatures = 0;
+	uint num_ligatures = 0;
 
 	/* Populate arrays */
 
 	/* Sort out the first-glyphs */
-	for(unsigned int first_glyph_idx = 0; first_glyph_idx < ARRAY_LENGTH(first_glyphs); first_glyph_idx++) {
+	for(uint first_glyph_idx = 0; first_glyph_idx < ARRAY_LENGTH(first_glyphs); first_glyph_idx++) {
 		hb_codepoint_t first_u = ligature_table[first_glyph_idx].first;
 		hb_codepoint_t first_glyph;
 		if(!hb_font_get_glyph(font, first_u, 0, &first_glyph))
@@ -124,9 +124,9 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_
 
 	/* Now that the first-glyphs are sorted, walk again, populate ligatures. */
 	for(uint i = 0; i < num_first_glyphs; i++) {
-		unsigned int first_glyph_idx = first_glyphs_indirection[i];
+		uint first_glyph_idx = first_glyphs_indirection[i];
 
-		for(unsigned int second_glyph_idx = 0; second_glyph_idx < ARRAY_LENGTH(ligature_table[0].ligatures); second_glyph_idx++) {
+		for(uint second_glyph_idx = 0; second_glyph_idx < ARRAY_LENGTH(ligature_table[0].ligatures); second_glyph_idx++) {
 			hb_codepoint_t second_u   = ligature_table[first_glyph_idx].ligatures[second_glyph_idx].second;
 			hb_codepoint_t ligature_u = ligature_table[first_glyph_idx].ligatures[second_glyph_idx].ligature;
 			hb_codepoint_t second_glyph, ligature_glyph;
@@ -166,7 +166,7 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_
 
 static OT::SubstLookup * arabic_fallback_synthesize_lookup(const hb_ot_shape_plan_t * plan,
     hb_font_t * font,
-    unsigned int feature_index)
+    uint feature_index)
 {
 	if(feature_index < 4)
 		return arabic_fallback_synthesize_lookup_single(plan, font, feature_index);
@@ -177,7 +177,7 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup(const hb_ot_shape_pla
 #define ARABIC_FALLBACK_MAX_LOOKUPS 5
 
 struct arabic_fallback_plan_t {
-	unsigned int num_lookups;
+	uint num_lookups;
 	bool free_lookups;
 
 	hb_mask_t mask_array[ARABIC_FALLBACK_MAX_LOOKUPS];
@@ -223,7 +223,7 @@ static bool arabic_fallback_plan_init_win1256(arabic_fallback_plan_t * fallback_
 	/* TODO sanitize the table? */
 
 	unsigned j = 0;
-	unsigned int count = manifest.len;
+	uint count = manifest.len;
 	for(uint i = 0; i < count; i++) {
 		fallback_plan->mask_array[j] = plan->map.get_1_mask(manifest[i].tag);
 		if(fallback_plan->mask_array[j]) {
@@ -249,7 +249,7 @@ static bool arabic_fallback_plan_init_unicode(arabic_fallback_plan_t * fallback_
     hb_font_t * font)
 {
 	static_assert((ARRAY_LENGTH_CONST(arabic_fallback_features) <= ARABIC_FALLBACK_MAX_LOOKUPS), "");
-	unsigned int j = 0;
+	uint j = 0;
 	for(uint i = 0; i < ARRAY_LENGTH(arabic_fallback_features); i++) {
 		fallback_plan->mask_array[j] = plan->map.get_1_mask(arabic_fallback_features[i]);
 		if(fallback_plan->mask_array[j]) {

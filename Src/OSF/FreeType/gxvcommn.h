@@ -62,7 +62,7 @@ FT_BEGIN_HEADER
 #undef GXV_LOAD_UNUSED_VARS /* debug purpose */
 
 #define IS_PARANOID_VALIDATION          ( gxvalid->root->level >= FT_VALIDATE_PARANOID )
-#define GXV_SET_ERR_IF_PARANOID( err )  { if ( IS_PARANOID_VALIDATION ) ( err ); }
+#define GXV_SET_ERR_IF_PARANOID( err )  { if( IS_PARANOID_VALIDATION ) ( err ); }
 
   // 
   // 
@@ -270,7 +270,7 @@ FT_BEGIN_HEADER
 
 #define GXV_LIMIT_CHECK( _count )                                     \
           FT_BEGIN_STMNT                                              \
-            if ( p + _count > ( limit? limit : gxvalid->root->limit )) \
+            if( p + _count > ( limit? limit : gxvalid->root->limit )) \
               FT_INVALID_TOO_SHORT;                                   \
           FT_END_STMNT
 
@@ -296,11 +296,11 @@ FT_BEGIN_HEADER
 
 #else /* !FT_DEBUG_LEVEL_TRACE */
 
-#define GXV_INIT                do { } while ( 0 )
-#define GXV_NAME_ENTER( name )  do { } while ( 0 )
-#define GXV_EXIT                do { } while ( 0 )
+#define GXV_INIT                do { } while(0)
+#define GXV_NAME_ENTER( name )  do { } while(0)
+#define GXV_EXIT                do { } while(0)
 
-#define GXV_TRACE( s )          do { } while ( 0 )
+#define GXV_TRACE( s )          do { } while(0)
 
 #endif  /* !FT_DEBUG_LEVEL_TRACE */
 
@@ -316,7 +316,7 @@ FT_BEGIN_HEADER
 #define GXV_32BIT_ALIGNMENT_VALIDATE( a ) \
           FT_BEGIN_STMNT                  \
             {                             \
-              if ((a) & 3 )              \
+              if((a) & 3 )              \
                 FT_INVALID_OFFSET;        \
             }                             \
           FT_END_STMNT
@@ -348,7 +348,7 @@ FT_BEGIN_HEADER
                                                         \
                                                         \
               for ( b = p; b < (FT_Bytes)p + len; b++ ) \
-                if ( 0x40 < *b && *b < 0x7E )           \
+                if( 0x40 < *b && *b < 0x7E )           \
                   FT_TRACE1(("%c", *b));                \
                 else                                    \
                   FT_TRACE1(("\\x%02x", *b));           \
@@ -502,13 +502,13 @@ FT_BEGIN_HEADER
 
 #define GXV_SUBTABLE_OFFSET_CHECK( _offset )          \
           FT_BEGIN_STMNT                              \
-            if ((_offset) > gxvalid->subtable_length ) \
+            if((_offset) > gxvalid->subtable_length ) \
               FT_INVALID_OFFSET;                      \
           FT_END_STMNT
 
 #define GXV_SUBTABLE_LIMIT_CHECK( _count )                  \
           FT_BEGIN_STMNT                                    \
-            if (( p + (_count) - gxvalid->subtable_start ) > \
+            if(( p + (_count) - gxvalid->subtable_start ) > \
                    gxvalid->subtable_length )                 \
               FT_INVALID_TOO_SHORT;                         \
           FT_END_STMNT

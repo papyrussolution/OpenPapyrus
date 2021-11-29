@@ -217,7 +217,7 @@ static ASN1_TYPE * generate_v3(const char * str, X509V3_CTX * cnf, int depth,
 
 	if(asn1_tags.imp_tag != -1) {
 		if(asn1_tags.imp_class == V_ASN1_UNIVERSAL
-		  && (asn1_tags.imp_tag == V_ASN1_SEQUENCE
+		 && (asn1_tags.imp_tag == V_ASN1_SEQUENCE
 		    || asn1_tags.imp_tag == V_ASN1_SET))
 			hdr_constructed = V_ASN1_CONSTRUCTED;
 		ASN1_put_object(&p, hdr_constructed, hdr_len,

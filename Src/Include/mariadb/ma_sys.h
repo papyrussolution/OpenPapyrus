@@ -435,15 +435,15 @@ extern long my_clock(void);
 extern sig_handler sigtstp_handler(int signal_number);
 extern void handle_recived_signals(void);
 extern int init_key_cache(ulong use_mem, ulong leave_this_much_mem);
-extern uchar * key_cache_read(File file, my_off_t filepos, uchar* buff, uint length,
+extern uchar * key_cache_read(File file, my_off_t filepos, uchar * buff, uint length,
     uint block_length, int return_buffer);
-extern int key_cache_write(File file, my_off_t filepos, uchar* buff, uint length,
+extern int key_cache_write(File file, my_off_t filepos, uchar * buff, uint length,
     uint block_length, int force_write);
 extern int flush_key_blocks(int file, enum flush_type type);
 extern void end_key_cache(void);
 extern sig_handler my_set_alarm_variable(int signo);
 extern void my_string_ptr_sort(void * base, uint items, size_s size);
-extern void radixsort_for_str_ptr(uchar* base[], uint number_of_elements,
+extern void radixsort_for_str_ptr(uchar * base[], uint number_of_elements,
     size_s size_of_element, uchar * buffer[]);
 extern qsort_t qsort2(void * base_ptr, size_t total_elems, size_t size,
     qsort2_cmp cmp, void * cmp_argument);

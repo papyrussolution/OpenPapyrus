@@ -37,9 +37,9 @@ FT_BEGIN_HEADER
   } FTC_SNodeRec, *FTC_SNode;
 
 
-#define FTC_SNODE( x )         ((FTC_SNode)( x ))
-#define FTC_SNODE_GINDEX( x )  FTC_GNODE( x )->gindex
-#define FTC_SNODE_FAMILY( x )  FTC_GNODE( x )->family
+#define FTC_SNODE(x)         ((FTC_SNode)(x))
+#define FTC_SNODE_GINDEX(x)  FTC_GNODE(x)->gindex
+#define FTC_SNODE_FAMILY(x)  FTC_GNODE(x)->family
 
   typedef FT_UInt
   (*FTC_SFamily_GetCountFunc)( FTC_Family   family,
@@ -61,10 +61,10 @@ FT_BEGIN_HEADER
 
   typedef const FTC_SFamilyClassRec*  FTC_SFamilyClass;
 
-#define FTC_SFAMILY_CLASS( x )  ((FTC_SFamilyClass)(x))
+#define FTC_SFAMILY_CLASS(x)  ((FTC_SFamilyClass)(x))
 
-#define FTC_CACHE_SFAMILY_CLASS( x )  \
-          FTC_SFAMILY_CLASS( FTC_CACHE_GCACHE_CLASS( x )->family_class )
+#define FTC_CACHE_SFAMILY_CLASS(x)  \
+          FTC_SFAMILY_CLASS( FTC_CACHE_GCACHE_CLASS(x)->family_class )
 
 
   FT_LOCAL( void )

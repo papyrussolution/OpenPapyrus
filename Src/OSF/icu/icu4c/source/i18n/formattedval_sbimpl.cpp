@@ -121,10 +121,10 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 	bool prevIsNumeric = false;
 	if(numericField != kUndefinedField) {
 		prevIsNumeric = cfpos.getCategory() == numericField.getCategory()
-		  && cfpos.getField() == numericField.getField();
+		 && cfpos.getField() == numericField.getField();
 	}
 	bool prevIsInteger = cfpos.getCategory() == UFIELD_CATEGORY_NUMBER
-	  && cfpos.getField() == UNUM_INTEGER_FIELD;
+	 && cfpos.getField() == UNUM_INTEGER_FIELD;
 
 	for(int32_t i = fString.fZero + cfpos.getLimit(); i <= fString.fZero + fString.fLength; i++) {
 		Field _field = (i < fString.fZero + fString.fLength) ? fString.getFieldPtr()[i] : kEndField;
@@ -183,11 +183,11 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 		}
 		// Special case: coalesce the INTEGER if we are pointing at the end of the INTEGER.
 		if(cfpos.matchesField(UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD)
-		  && i > fString.fZero
-		  && !prevIsInteger
-		  && !prevIsNumeric
-		  && isIntOrGroup(fString.getFieldPtr()[i - 1])
-		  && !isIntOrGroup(_field)) {
+		 && i > fString.fZero
+		 && !prevIsInteger
+		 && !prevIsNumeric
+		 && isIntOrGroup(fString.getFieldPtr()[i - 1])
+		 && !isIntOrGroup(_field)) {
 			int j = i - 1;
 			for(; j >= fString.fZero && isIntOrGroup(fString.getFieldPtr()[j]); j--) {
 			}
@@ -196,11 +196,11 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 		}
 		// Special case: coalesce NUMERIC if we are pointing at the end of the NUMERIC.
 		if(numericField != kUndefinedField
-		  && cfpos.matchesField(numericField.getCategory(), numericField.getField())
-		  && i > fString.fZero
-		  && !prevIsNumeric
-		  && fString.getFieldPtr()[i - 1].isNumeric()
-		  && !_field.isNumeric()) {
+		 && cfpos.matchesField(numericField.getCategory(), numericField.getField())
+		 && i > fString.fZero
+		 && !prevIsNumeric
+		 && fString.getFieldPtr()[i - 1].isNumeric()
+		 && !_field.isNumeric()) {
 			// Re-wind to the beginning of the field and then emit it
 			int32_t j = i - 1;
 			for(; j >= fString.fZero && fString.getFieldPtr()[j].isNumeric(); j--) {
@@ -327,7 +327,7 @@ bool FormattedValueStringBuilderImpl::isIntOrGroup(Field field) {
 
 bool FormattedValueStringBuilderImpl::isTrimmable(Field field) {
 	return field != Field(UFIELD_CATEGORY_NUMBER, UNUM_GROUPING_SEPARATOR_FIELD)
-	     && field.getCategory() != UFIELD_CATEGORY_LIST;
+	 && field.getCategory() != UFIELD_CATEGORY_LIST;
 }
 
 int32_t FormattedValueStringBuilderImpl::trimBack(int32_t limit) const {

@@ -622,7 +622,7 @@ DateFormatSymbols::operator==(const DateFormatSymbols &other) const
 			}
 			else if(fZoneStrings != NULL && other.fZoneStrings != NULL) {
 				if(fZoneStringsRowCount == other.fZoneStringsRowCount
-				  && fZoneStringsColCount == other.fZoneStringsColCount) {
+				 && fZoneStringsColCount == other.fZoneStringsColCount) {
 					bool cmpres = true;
 					for(int32_t i = 0; (i < fZoneStringsRowCount) && cmpres; i++) {
 						cmpres = arrayCompare(fZoneStrings[i], other.fZoneStrings[i], fZoneStringsColCount);
@@ -1573,7 +1573,7 @@ struct CalendarDataSink : public ResourceSink {
 			// Only visit the resources that were referenced by an alias on the previous calendar
 			// (AmPmMarkersAbbr is an exception).
 			if(!resourcesToVisit.isNull() && !resourcesToVisit->isEmpty() && !resourcesToVisit->contains(&keyUString)
-			  && uprv_strcmp(key, gAmPmMarkersAbbrTag) != 0) {
+			 && uprv_strcmp(key, gAmPmMarkersAbbrTag) != 0) {
 				continue;
 			}
 
@@ -1821,7 +1821,7 @@ struct CalendarDataSink : public ResourceSink {
 			UnicodeString aliasPath(aliasPathUChar, aliasPathSize);
 			const int32_t aliasPrefixLength = UPRV_LENGTHOF(kCalendarAliasPrefixUChar);
 			if(aliasPath.startsWith(kCalendarAliasPrefixUChar, aliasPrefixLength)
-			  && aliasPath.length() > aliasPrefixLength) {
+			 && aliasPath.length() > aliasPrefixLength) {
 				int32_t typeLimit = aliasPath.indexOf(SOLIDUS, aliasPrefixLength);
 				if(typeLimit > aliasPrefixLength) {
 					const UnicodeString aliasCalendarType =
@@ -1829,13 +1829,13 @@ struct CalendarDataSink : public ResourceSink {
 					aliasRelativePath.setTo(aliasPath, typeLimit + 1, aliasPath.length());
 
 					if(currentCalendarType == aliasCalendarType
-					  && currentRelativePath != aliasRelativePath) {
+					 && currentRelativePath != aliasRelativePath) {
 						// If we have an alias to the same calendar, the path to the resource
 						// must be different
 						return SAME_CALENDAR;
 					}
 					else if(currentCalendarType != aliasCalendarType
-					  && currentRelativePath == aliasRelativePath) {
+					 && currentRelativePath == aliasRelativePath) {
 						// If we have an alias to a different calendar, the path to the resource
 						// must be the same
 						if(aliasCalendarType.compare(kGregorianTagUChar, UPRV_LENGTHOF(kGregorianTagUChar)) == 0) {
@@ -2250,7 +2250,7 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 		UResourceBundle * contextTransforms = ures_getByKeyWithFallback(localeBundle, gContextTransformsTag, NULL, &tempStatus);
 		if(U_SUCCESS(tempStatus)) {
 			UResourceBundle * contextTransformUsage;
-			while( (contextTransformUsage = ures_getNextResource(contextTransforms, NULL, &tempStatus)) != NULL) {
+			while((contextTransformUsage = ures_getNextResource(contextTransforms, NULL, &tempStatus)) != NULL) {
 				const int32_t * intVector = ures_getIntVector(contextTransformUsage, &len, &status);
 				if(U_SUCCESS(tempStatus) && intVector != NULL && len >= 2) {
 					const char * usageType = ures_getKey(contextTransformUsage);
@@ -2437,7 +2437,7 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 	   fLocalPatternChars.setTo(TRUE, resStr, len);
 	   // If the locale data does not include new pattern chars, use the defaults
 	   // TODO: Consider making this an error, since this may add conflicting characters.
-	   if (len < PATTERN_CHARS_LEN) {
+	   if(len < PATTERN_CHARS_LEN) {
 	    fLocalPatternChars.append(UnicodeString(TRUE, &gPatternChars[len], PATTERN_CHARS_LEN-len));
 	   }
 	 */

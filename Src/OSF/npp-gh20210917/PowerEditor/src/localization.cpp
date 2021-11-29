@@ -318,7 +318,7 @@ void NativeLangSpeaker::changeMenuLang(HMENU menuHandle, generic_string & plugin
 
 static const int tabContextMenuItemPos[] =
 {
-//  +-------------- The order in tab menu (NppNotification.cpp : if (!_tabPopupMenu.isCreated())
+//  +-------------- The order in tab menu (NppNotification.cpp : if(!_tabPopupMenu.isCreated())
 //  |
 //  |        +------ Number in english.xml (<language>.xml) : <TabBar>
 //  |        |

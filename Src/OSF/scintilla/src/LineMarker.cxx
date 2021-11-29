@@ -48,7 +48,7 @@ LineMarker::~LineMarker()
 LineMarker & FASTCALL LineMarker::operator = (const LineMarker &other) 
 {
 	// Defined to avoid pxpm being blindly copied, not as a complete assignment operator
-	if (this != &other) {
+	if(this != &other) {
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
 		back = ColourDesired(0xff,0xff,0xff);

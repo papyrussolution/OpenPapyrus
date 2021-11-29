@@ -148,9 +148,9 @@ DONE:
  *               struct elt *ep;
  *
  *               pthread_mutex_lock(&lp->lm);
- *               while ((ep = find_elt(l,k) != NULL) && ep->busy)
+ *               while((ep = find_elt(l,k) != NULL) && ep->busy)
  *                 pthread_cond_wait(&ep->notbusy, &lp->lm);
- *               if (ep != NULL)
+ *               if(ep != NULL)
  *                 ep->busy = 1;
  *               pthread_mutex_unlock(&lp->lm);
  *               return(ep);
@@ -313,27 +313,27 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *   bTimedOut = sem_wait( semBlockQueue,timeout );
  *
  *   lock( mtxUnblockLock );
- *   if ( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
- *  if ( bTimeout ) {                       // timeout (or canceled)
- *    if ( 0 != nWaitersBlocked ) {
+ *   if( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
+ *  if( bTimeout ) {                       // timeout (or canceled)
+ *    if( 0 != nWaitersBlocked ) {
  *      nWaitersBlocked--;
  *    }
  *    else {
  *      nWaitersGone++;                     // count spurious wakeups.
  *    }
  *  }
- *  if ( 0 == --nWaitersToUnblock ) {
- *    if ( 0 != nWaitersBlocked ) {
+ *  if( 0 == --nWaitersToUnblock ) {
+ *    if( 0 != nWaitersBlocked ) {
  *      sem_post( semBlockLock );           // open the gate.
  *      nSignalsWasLeft = 0;                // do not open the gate
  *                                    // below again.
  *    }
- *    else if ( 0 != (nWaitersWasGone = nWaitersGone) ) {
+ *    else if( 0 != (nWaitersWasGone = nWaitersGone) ) {
  *      nWaitersGone = 0;
  *    }
  *  }
  *   }
- *   else if ( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
+ *   else if( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
  *                                    // spurious semaphore :-)
  *  sem_wait( semBlockLock );
  *  nWaitersBlocked -= nWaitersGone;     // something is going on here
@@ -343,10 +343,10 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *   }
  *   unlock( mtxUnblockLock );
  *
- *   if ( 1 == nSignalsWasLeft ) {
- *  if ( 0 != nWaitersWasGone ) {
+ *   if( 1 == nSignalsWasLeft ) {
+ *  if( 0 != nWaitersWasGone ) {
  *    // sem_adjust( semBlockQueue,-nWaitersWasGone );
- *    while ( nWaitersWasGone-- ) {
+ *    while(nWaitersWasGone-- ) {
  *      sem_wait( semBlockQueue );       // better now than spurious later
  *    }
  *  } sem_post( semBlockLock );          // open the gate
@@ -364,11 +364,11 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *
  *   lock( mtxUnblockLock );
  *
- *   if ( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
- *  if ( 0 == nWaitersBlocked ) {        // NO-OP
+ *   if( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
+ *  if( 0 == nWaitersBlocked ) {        // NO-OP
  *    return unlock( mtxUnblockLock );
  *  }
- *  if (bAll) {
+ *  if(bAll) {
  *    nWaitersToUnblock += nSignalsToIssue=nWaitersBlocked;
  *    nWaitersBlocked = 0;
  *  }
@@ -378,13 +378,13 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *    nWaitersBlocked--;
  *  }
  *   }
- *   else if ( nWaitersBlocked > nWaitersGone ) { // HARMLESS RACE CONDITION!
+ *   else if( nWaitersBlocked > nWaitersGone ) { // HARMLESS RACE CONDITION!
  *  sem_wait( semBlockLock );                  // close the gate
- *  if ( 0 != nWaitersGone ) {
+ *  if( 0 != nWaitersGone ) {
  *    nWaitersBlocked -= nWaitersGone;
  *    nWaitersGone = 0;
  *  }
- *  if (bAll) {
+ *  if(bAll) {
  *    nSignalsToIssue = nWaitersToUnblock = nWaitersBlocked;
  *    nWaitersBlocked = 0;
  *  }
@@ -431,10 +431,10 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *   bTimedOut = sem_wait( semBlockQueue,timeout );
  *
  *   lock( mtxUnblockLock );
- *   if ( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
+ *   if( 0 != (nSignalsWasLeft = nWaitersToUnblock) ) {
  *  --nWaitersToUnblock;
  *   }
- *   else if ( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
+ *   else if( INT_MAX/2 == ++nWaitersGone ) { // timeout/canceled or
  *                                    // spurious semaphore :-)
  *  sem_wait( semBlockLock );
  *  nWaitersBlocked -= nWaitersGone;        // something is going on here
@@ -444,7 +444,7 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *   }
  *   unlock( mtxUnblockLock );
  *
- *   if ( 1 == nSignalsWasLeft ) {
+ *   if( 1 == nSignalsWasLeft ) {
  *  sem_post( semBlockLock );               // open the gate
  *   }
  *
@@ -460,11 +460,11 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *
  *   lock( mtxUnblockLock );
  *
- *   if ( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
- *  if ( 0 == nWaitersBlocked ) {        // NO-OP
+ *   if( 0 != nWaitersToUnblock ) {        // the gate is closed!!!
+ *  if( 0 == nWaitersBlocked ) {        // NO-OP
  *    return unlock( mtxUnblockLock );
  *  }
- *  if (bAll) {
+ *  if(bAll) {
  *    nWaitersToUnblock += nSignalsToIssue=nWaitersBlocked;
  *    nWaitersBlocked = 0;
  *  }
@@ -474,13 +474,13 @@ int pthread_cond_destroy(pthread_cond_t * cond)
  *    --nWaitersBlocked;
  *  }
  *   }
- *   else if ( nWaitersBlocked > nWaitersGone ) { // HARMLESS RACE CONDITION!
+ *   else if( nWaitersBlocked > nWaitersGone ) { // HARMLESS RACE CONDITION!
  *  sem_wait( semBlockLock );                  // close the gate
- *  if ( 0 != nWaitersGone ) {
+ *  if( 0 != nWaitersGone ) {
  *    nWaitersBlocked -= nWaitersGone;
  *    nWaitersGone = 0;
  *  }
- *  if (bAll) {
+ *  if(bAll) {
  *    nSignalsToIssue = nWaitersToUnblock = nWaitersBlocked;
  *    nWaitersBlocked = 0;
  *  }

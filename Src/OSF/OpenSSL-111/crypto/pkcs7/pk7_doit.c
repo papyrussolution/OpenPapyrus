@@ -45,7 +45,7 @@ static ASN1_OCTET_STRING * PKCS7_get_octet_string(PKCS7 * p7)
 	if(PKCS7_type_is_data(p7))
 		return p7->d.data;
 	if(PKCS7_type_is_other(p7) && p7->d.other
-	  && (p7->d.other->type == V_ASN1_OCTET_STRING))
+	 && (p7->d.other->type == V_ASN1_OCTET_STRING))
 		return p7->d.other->value.octet_string;
 	return NULL;
 }

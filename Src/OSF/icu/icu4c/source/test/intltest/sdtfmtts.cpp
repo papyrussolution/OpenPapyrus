@@ -20,10 +20,10 @@
 
 void IntlTestSimpleDateFormatAPI::runIndexedTest( int32_t index, bool exec, const char *& name, char * /*par*/ )
 {
-    if (exec) logln("TestSuite SimpleDateFormatAPI");
+    if(exec) logln("TestSuite SimpleDateFormatAPI");
     switch (index) {
         case 0: name = "SimpleDateFormat API test";
-                if (exec) {
+                if(exec) {
                     logln("SimpleDateFormat API test---"); logln("");
                     UErrorCode status = U_ZERO_ERROR;
                     Locale saveLocale;
@@ -266,12 +266,12 @@ void IntlTestSimpleDateFormatAPI::testAPI(/*char *par*/)
     object.setLenient(false);
     ParsePosition pp(0);
     UDate udDate = object.parse("2007W014", pp);
-    if ((double)udDate == 0.0) {
+    if((double)udDate == 0.0) {
         errln("ERROR: Parsing failed using 'Y' and 'e'");
     }
 
 // ====== Test ticket 11295 getNumberFormatForField returns wild pointer
-    if (object.getNumberFormatForField('N') != NULL) {
+    if(object.getNumberFormatForField('N') != NULL) {
         errln("N is not a valid field, "
               "getNumberFormatForField should return NULL");
     }

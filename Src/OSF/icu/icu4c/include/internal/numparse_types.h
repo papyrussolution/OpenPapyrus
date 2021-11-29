@@ -66,7 +66,7 @@ class CompactUnicodeString {
 
     CompactUnicodeString(const UnicodeString & text, UErrorCode & status)
             : fBuffer(text.length() + 1, status) {
-        if (U_FAILURE(status)) { return; }
+        if(U_FAILURE(status)) { return; }
         uprv_memcpy(fBuffer.getAlias(), text.getBuffer(), sizeof(UChar) * text.length());
         fBuffer[text.length()] = 0;
     }

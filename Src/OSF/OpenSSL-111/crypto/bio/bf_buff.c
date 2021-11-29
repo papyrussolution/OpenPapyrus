@@ -298,7 +298,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 				    ibs = (int)num;
 				    obs = ctx->obuf_size;
 			    }
-			    else { /* if (*ip == 1) */
+			    else { /* if(*ip == 1) */
 				    ibs = ctx->ibuf_size;
 				    obs = (int)num;
 			    }

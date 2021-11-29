@@ -880,7 +880,7 @@ static void U_CALLCONV TraceData(const void * context, int32_t fnNumber, int32_t
 static void * U_CALLCONV ctest_libMalloc(const void * context, size_t size) 
 {
 	(void)context; // suppress compiler warnings about unused variable
-	/*if (VERBOSITY) {
+	/*if(VERBOSITY) {
 	    printf("Allocated %ld\n", (long)size);
 	   }*/
 	if(MINIMUM_MEMORY_SIZE_FAILURE <= size && size <= MAXIMUM_MEMORY_SIZE_FAILURE) {
@@ -892,7 +892,7 @@ static void * U_CALLCONV ctest_libMalloc(const void * context, size_t size)
 static void * U_CALLCONV ctest_libRealloc(const void * context, void * mem, size_t size) 
 {
 	(void)context; // suppress compiler warnings about unused variable
-	/*if (VERBOSITY) {
+	/*if(VERBOSITY) {
 	    printf("Reallocated %ld\n", (long)size);
 	   }*/
 	if(MINIMUM_MEMORY_SIZE_FAILURE <= size && size <= MAXIMUM_MEMORY_SIZE_FAILURE) {

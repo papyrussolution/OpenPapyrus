@@ -716,7 +716,7 @@ uint32 * gravity_bytecode_deserialize(const char * buffer, size_t len, uint32 * 
 			// http://codereview.stackexchange.com/questions/42976/hexadecimal-to-integer-conversion-function
 
 			// no needs to have also the case:
-			// if (c >= 'a' && c <= 'f') {
+			// if(c >= 'a' && c <= 'f') {
 			//        c = c - 'a' + 10;
 			// }
 			// because bytecode is always uppercase
@@ -1954,12 +1954,12 @@ void gravity_value_serialize(const char * key, GravityValue v, GravityJson * jso
 /*bool FASTCALL gravity_value_isobject(const GravityValue v) 
 {
 	// was:
-	// if (!v) return false;
-	// if (v.IsInt()) return false;
-	// if (v.IsFloat()) return false;
-	// if (v.IsBool()) return false;
-	// if (VALUE_ISA_NULL(v)) return false;
-	// if (VALUE_ISA_UNDEFINED(v)) return false;
+	// if(!v) return false;
+	// if(v.IsInt()) return false;
+	// if(v.IsFloat()) return false;
+	// if(v.IsBool()) return false;
+	// if(VALUE_ISA_NULL(v)) return false;
+	// if(VALUE_ISA_UNDEFINED(v)) return false;
 	// return true;
 	if(!v.isa || oneof4(v.isa, GravityEnv.P_ClsInt, GravityEnv.P_ClsFloat, GravityEnv.P_ClsBool, GravityEnv.P_ClsNull) || !v.p) 
 		return false;

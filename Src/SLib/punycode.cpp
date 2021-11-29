@@ -157,7 +157,7 @@ int SPunycodeEncode(const uint * input, size_t input_length, SString & rOut, con
 		if(basic(input[j])) {
 			rOut.CatChar(pCaseFlags ? encode_basic(input[j], pCaseFlags[j]) : (char)input[j]);
 		}
-		/* else if (input[j] < n) return punycode_bad_input; */
+		/* else if(input[j] < n) return punycode_bad_input; */
 		/* (not needed for Punycode with unsigned code points) */
 	}
 	h = b = rOut.Len();
@@ -176,7 +176,7 @@ int SPunycodeEncode(const uint * input, size_t input_length, SString & rOut, con
 		/* All non-basic code points < n have been     */
 		/* handled already.  Find the next larger one: */
 		for(m = maxint, j = 0; j < input_len; ++j) {
-			/* if (basic(input[j])) continue; */
+			/* if(basic(input[j])) continue; */
 			/* (not needed for Punycode) */
 			if(input[j] >= n && input[j] < m)
 				m = input[j];
@@ -314,7 +314,7 @@ int SPunycodeDecode(const char * input, size_t input_length, size_t * output_len
 		i %= (out + 1);
 		//
 		// Insert n at position i of the output: not needed for Punycode:
-		// if (basic(n)) return punycode_bad_input;
+		// if(basic(n)) return punycode_bad_input;
 		//
 		THROW_S(out < max_out, SLERR_PUNYCODE_BIGOUTPUT);
 		if(pCaseFlags) {

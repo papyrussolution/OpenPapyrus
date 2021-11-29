@@ -152,7 +152,7 @@ class CTEMPLATE_DLL_DECL TemplateCache {
                       const TemplateDictionaryInterface* dictionary,
                       PerExpandData* per_expand_data,
                       std::string* output_buffer) {
-    if (output_buffer == NULL)  return false;
+    if(output_buffer == NULL)  return false;
     StringEmitter e(output_buffer);
     return ExpandWithData(filename, strip, dictionary, per_expand_data, &e);
   }
@@ -179,7 +179,7 @@ class CTEMPLATE_DLL_DECL TemplateCache {
                     const TemplateDictionaryInterface* dictionary,
                     PerExpandData* per_expand_data,
                     std::string* output_buffer) const {
-    if (output_buffer == NULL)  return false;
+    if(output_buffer == NULL)  return false;
     StringEmitter e(output_buffer);
     return ExpandNoLoad(filename, strip, dictionary, per_expand_data, &e);
   }

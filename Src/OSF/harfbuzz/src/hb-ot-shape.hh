@@ -32,10 +32,10 @@
 #include "hb-aat-map.hh"
 
 struct hb_ot_shape_plan_key_t {
-	unsigned int variations_index[2];
+	uint variations_index[2];
 	void init(hb_face_t * face, const int * coords, unsigned num_coords)
 	{
-		for(unsigned int table_index = 0; table_index < 2; table_index++)
+		for(uint table_index = 0; table_index < 2; table_index++)
 			hb_ot_layout_table_find_feature_variations(face, table_tags[table_index], coords, num_coords, &variations_index[table_index]);
 	}
 	bool equal(const hb_ot_shape_plan_key_t * other) { return 0 == memcmp(this, other, sizeof(*this)); }
@@ -107,7 +107,7 @@ struct hb_ot_shape_plan_t {
 #endif
 	void collect_lookups(hb_tag_t table_tag, hb_set_t * lookups) const
 	{
-		unsigned int table_index;
+		uint table_index;
 		switch(table_tag) {
 			case HB_OT_TAG_GSUB: table_index = 0; break;
 			case HB_OT_TAG_GPOS: table_index = 1; break;

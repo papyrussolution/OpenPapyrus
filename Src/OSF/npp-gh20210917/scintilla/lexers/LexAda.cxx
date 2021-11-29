@@ -72,11 +72,11 @@ static void ColouriseCharacter(StyleContext& sc, bool& apostropheStartsAttribute
 }
 
 static void ColouriseContext(StyleContext& sc, char chEnd, int stateEOL) {
-	while (!sc.atLineEnd && !sc.Match(chEnd)) {
+	while(!sc.atLineEnd && !sc.Match(chEnd)) {
 		sc.Forward();
 	}
 
-	if (!sc.atLineEnd) {
+	if(!sc.atLineEnd) {
 		sc.ForwardSetState(SCE_ADA_DEFAULT);
 	} else {
 		sc.ChangeState(stateEOL);
@@ -88,7 +88,7 @@ static void ColouriseComment(StyleContext& sc, bool& /*apostropheStartsAttribute
 
 	sc.SetState(SCE_ADA_COMMENTLINE);
 
-	while (!sc.atLineEnd) {
+	while(!sc.atLineEnd) {
 		sc.Forward();
 	}
 }
@@ -110,13 +110,13 @@ static void ColouriseLabel(StyleContext& sc, WordList& keywords, bool& apostroph
 
 	std::string identifier;
 
-	while (!sc.atLineEnd && !IsSeparatorOrDelimiterCharacter(sc.ch)) {
+	while(!sc.atLineEnd && !IsSeparatorOrDelimiterCharacter(sc.ch)) {
 		identifier += static_cast<char>(tolower(sc.ch));
 		sc.Forward();
 	}
 
 	// Skip ">>"
-	if (sc.Match('>', '>')) {
+	if(sc.Match('>', '>')) {
 		sc.Forward();
 		sc.Forward();
 	} else {
@@ -124,7 +124,7 @@ static void ColouriseLabel(StyleContext& sc, WordList& keywords, bool& apostroph
 	}
 
 	// If the name is an invalid identifier or a keyword, then make it invalid label
-	if (!IsValidIdentifier(identifier) || keywords.InList(identifier.c_str())) {
+	if(!IsValidIdentifier(identifier) || keywords.InList(identifier.c_str())) {
 		sc.ChangeState(SCE_ADA_ILLEGAL);
 	}
 
@@ -140,24 +140,24 @@ static void ColouriseNumber(StyleContext& sc, bool& apostropheStartsAttribute) {
 
 	// Get all characters up to a delimiter or a separator, including points, but excluding
 	// double points (ranges).
-	while (!IsSeparatorOrDelimiterCharacter(sc.ch) || (sc.ch == '.' && sc.chNext != '.')) {
+	while(!IsSeparatorOrDelimiterCharacter(sc.ch) || (sc.ch == '.' && sc.chNext != '.')) {
 		number += static_cast<char>(sc.ch);
 		sc.Forward();
 	}
 
 	// Special case: exponent with sign
-	if ((sc.chPrev == 'e' || sc.chPrev == 'E') &&
+	if((sc.chPrev == 'e' || sc.chPrev == 'E') &&
 	        (sc.ch == '+' || sc.ch == '-')) {
 		number += static_cast<char>(sc.ch);
 		sc.Forward ();
 
-		while (!IsSeparatorOrDelimiterCharacter(sc.ch)) {
+		while(!IsSeparatorOrDelimiterCharacter(sc.ch)) {
 			number += static_cast<char>(sc.ch);
 			sc.Forward();
 		}
 	}
 
-	if (!IsValidNumber(number)) {
+	if(!IsValidNumber(number)) {
 		sc.ChangeState(SCE_ADA_ILLEGAL);
 	}
 
@@ -185,18 +185,18 @@ static void ColouriseWord(StyleContext& sc, WordList& keywords, bool& apostrophe
 
 	std::string word;
 
-	while (!sc.atLineEnd && !IsSeparatorOrDelimiterCharacter(sc.ch)) {
+	while(!sc.atLineEnd && !IsSeparatorOrDelimiterCharacter(sc.ch)) {
 		word += static_cast<char>(tolower(sc.ch));
 		sc.Forward();
 	}
 
-	if (!IsValidIdentifier(word)) {
+	if(!IsValidIdentifier(word)) {
 		sc.ChangeState(SCE_ADA_ILLEGAL);
 
-	} else if (keywords.InList(word.c_str())) {
+	} else if(keywords.InList(word.c_str())) {
 		sc.ChangeState(SCE_ADA_WORD);
 
-		if (word != "all") {
+		if(word != "all") {
 			apostropheStartsAttribute = false;
 		}
 	}
@@ -221,8 +221,8 @@ static void ColouriseDocument(
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	bool apostropheStartsAttribute = (styler.GetLineState(lineCurrent) & 1) != 0;
 
-	while (sc.More()) {
-		if (sc.atLineEnd) {
+	while(sc.More()) {
+		if(sc.atLineEnd) {
 			// Go to the next line
 			sc.Forward();
 			lineCurrent++;
@@ -235,31 +235,31 @@ static void ColouriseDocument(
 		}
 
 		// Comments
-		if (sc.Match('-', '-')) {
+		if(sc.Match('-', '-')) {
 			ColouriseComment(sc, apostropheStartsAttribute);
 
 		// Strings
-		} else if (sc.Match('"')) {
+		} else if(sc.Match('"')) {
 			ColouriseString(sc, apostropheStartsAttribute);
 
 		// Characters
-		} else if (sc.Match('\'') && !apostropheStartsAttribute) {
+		} else if(sc.Match('\'') && !apostropheStartsAttribute) {
 			ColouriseCharacter(sc, apostropheStartsAttribute);
 
 		// Labels
-		} else if (sc.Match('<', '<')) {
+		} else if(sc.Match('<', '<')) {
 			ColouriseLabel(sc, keywords, apostropheStartsAttribute);
 
 		// Whitespace
-		} else if (IsASpace(sc.ch)) {
+		} else if(IsASpace(sc.ch)) {
 			ColouriseWhiteSpace(sc, apostropheStartsAttribute);
 
 		// Delimiters
-		} else if (IsDelimiterCharacter(sc.ch)) {
+		} else if(IsDelimiterCharacter(sc.ch)) {
 			ColouriseDelimiter(sc, apostropheStartsAttribute);
 
 		// Numbers
-		} else if (IsADigit(sc.ch) || sc.ch == '#') {
+		} else if(IsADigit(sc.ch) || sc.ch == '#') {
 			ColouriseNumber(sc, apostropheStartsAttribute);
 
 		// Keywords or identifiers
@@ -306,18 +306,18 @@ static bool IsValidIdentifier(const std::string & identifier) {
 	size_t length = identifier.length();
 
 	// Zero-length identifiers are not valid (these can occur inside labels)
-	if (length == 0) {
+	if(length == 0) {
 		return false;
 	}
 
 	// Check for valid character at the start
-	if (!IsWordStartCharacter(identifier[0])) {
+	if(!IsWordStartCharacter(identifier[0])) {
 		return false;
 	}
 
 	// Check for only valid characters and no double underscores
 	for (size_t i = 0; i < length; i++) {
-		if (!IsWordCharacter(identifier[i]) ||
+		if(!IsWordCharacter(identifier[i]) ||
 		        (identifier[i] == '_' && lastWasUnderscore)) {
 			return false;
 		}
@@ -325,7 +325,7 @@ static bool IsValidIdentifier(const std::string & identifier) {
 	}
 
 	// Check for underscore at the end
-	if (lastWasUnderscore == true) {
+	if(lastWasUnderscore == true) {
 		return false;
 	}
 
@@ -340,33 +340,33 @@ static bool IsValidNumber(const std::string & number) {
 	size_t i = 0;
 	size_t length = number.length();
 
-	if (length == 0)
+	if(length == 0)
 		return false; // Just in case
 
 	// Decimal number
-	if (hashPos == std::string::npos) {
+	if(hashPos == std::string::npos) {
 		bool canBeSpecial = false;
 
 		for (; i < length; i++) {
-			if (number[i] == '_') {
-				if (!canBeSpecial) {
+			if(number[i] == '_') {
+				if(!canBeSpecial) {
 					return false;
 				}
 				canBeSpecial = false;
-			} else if (number[i] == '.') {
-				if (!canBeSpecial || seenDot) {
+			} else if(number[i] == '.') {
+				if(!canBeSpecial || seenDot) {
 					return false;
 				}
 				canBeSpecial = false;
 				seenDot = true;
-			} else if (IsADigit(number[i])) {
+			} else if(IsADigit(number[i])) {
 				canBeSpecial = true;
 			} else {
 				break;
 			}
 		}
 
-		if (!canBeSpecial)
+		if(!canBeSpecial)
 			return false;
 	} else {
 		// Based number
@@ -376,25 +376,25 @@ static bool IsValidNumber(const std::string & number) {
 		// Parse base
 		for (; i < length; i++) {
 			int ch = number[i];
-			if (ch == '_') {
-				if (!canBeSpecial)
+			if(ch == '_') {
+				if(!canBeSpecial)
 					return false;
 				canBeSpecial = false;
-			} else if (IsADigit(ch)) {
+			} else if(IsADigit(ch)) {
 				base = base * 10 + (ch - '0');
-				if (base > 16)
+				if(base > 16)
 					return false;
 				canBeSpecial = true;
-			} else if (ch == '#' && canBeSpecial) {
+			} else if(ch == '#' && canBeSpecial) {
 				break;
 			} else {
 				return false;
 			}
 		}
 
-		if (base < 2)
+		if(base < 2)
 			return false;
-		if (i == length)
+		if(i == length)
 			return false;
 
 		i++; // Skip over '#'
@@ -405,32 +405,32 @@ static bool IsValidNumber(const std::string & number) {
 		for (; i < length; i++) {
 			int ch = tolower(number[i]);
 
-			if (ch == '_') {
-				if (!canBeSpecial) {
+			if(ch == '_') {
+				if(!canBeSpecial) {
 					return false;
 				}
 				canBeSpecial = false;
 
-			} else if (ch == '.') {
-				if (!canBeSpecial || seenDot) {
+			} else if(ch == '.') {
+				if(!canBeSpecial || seenDot) {
 					return false;
 				}
 				canBeSpecial = false;
 				seenDot = true;
 
-			} else if (IsADigit(ch)) {
-				if (ch - '0' >= base) {
+			} else if(IsADigit(ch)) {
+				if(ch - '0' >= base) {
 					return false;
 				}
 				canBeSpecial = true;
 
-			} else if (ch >= 'a' && ch <= 'f') {
-				if (ch - 'a' + 10 >= base) {
+			} else if(ch >= 'a' && ch <= 'f') {
+				if(ch - 'a' + 10 >= base) {
 					return false;
 				}
 				canBeSpecial = true;
 
-			} else if (ch == '#' && canBeSpecial) {
+			} else if(ch == '#' && canBeSpecial) {
 				break;
 
 			} else {
@@ -438,7 +438,7 @@ static bool IsValidNumber(const std::string & number) {
 			}
 		}
 
-		if (i == length) {
+		if(i == length) {
 			return false;
 		}
 
@@ -446,46 +446,46 @@ static bool IsValidNumber(const std::string & number) {
 	}
 
 	// Exponent (optional)
-	if (i < length) {
-		if (number[i] != 'e' && number[i] != 'E')
+	if(i < length) {
+		if(number[i] != 'e' && number[i] != 'E')
 			return false;
 
 		i++; // Move past 'E'
 
-		if (i == length) {
+		if(i == length) {
 			return false;
 		}
 
-		if (number[i] == '+')
+		if(number[i] == '+')
 			i++;
-		else if (number[i] == '-') {
-			if (seenDot) {
+		else if(number[i] == '-') {
+			if(seenDot) {
 				i++;
 			} else {
 				return false; // Integer literals should not have negative exponents
 			}
 		}
 
-		if (i == length) {
+		if(i == length) {
 			return false;
 		}
 
 		bool canBeSpecial = false;
 
 		for (; i < length; i++) {
-			if (number[i] == '_') {
-				if (!canBeSpecial) {
+			if(number[i] == '_') {
+				if(!canBeSpecial) {
 					return false;
 				}
 				canBeSpecial = false;
-			} else if (IsADigit(number[i])) {
+			} else if(IsADigit(number[i])) {
 				canBeSpecial = true;
 			} else {
 				return false;
 			}
 		}
 
-		if (!canBeSpecial)
+		if(!canBeSpecial)
 			return false;
 	}
 

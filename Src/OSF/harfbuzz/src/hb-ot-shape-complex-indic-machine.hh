@@ -397,7 +397,7 @@ static const int indic_syllable_machine_en_main = 39;
 
 static void find_syllables_indic(hb_buffer_t * buffer)
 {
-	unsigned int p, pe, eof, ts, te, act;
+	uint p, pe, eof, ts, te, act;
 	int cs;
 	hb_glyph_info_t * info = buffer->info;
 
@@ -414,7 +414,7 @@ static void find_syllables_indic(hb_buffer_t * buffer)
 	p = 0;
 	pe = eof = buffer->len;
 
-	unsigned int syllable_serial = 1;
+	uint syllable_serial = 1;
 
 #line 427 "hb-ot-shape-complex-indic-machine.hh"
 	{

@@ -77,7 +77,7 @@ protected:
    PRBool  mStart;
    PRBool  mGotData;
    char    mLastChar;
-   const char *  mDetectedCharset;
+   const char * mDetectedCharset;
    PRInt32 mBestGuess;
    PRUint32 mLanguageFilter;
 

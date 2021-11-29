@@ -349,7 +349,7 @@ void CollationIteratorTest::TestMaxExpansion(/* char * par */)
 			order = iter->previous(status);
 
 		while(U_SUCCESS(status)
-		  && iter->previous(status) != (int32_t)CollationElementIterator::NULLORDER) {
+		 && iter->previous(status) != (int32_t)CollationElementIterator::NULLORDER) {
 			count++;
 		}
 

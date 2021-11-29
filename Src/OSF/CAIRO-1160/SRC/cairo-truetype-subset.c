@@ -136,7 +136,7 @@ static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * s
 	 * it should be added in the future.  For now, the freetype backend
 	 * returns UNSUPPORTED in load_truetype_table if the font is vertical.
 	 *
-	 *  if (cairo_font_options_get_vertical_layout (scaled_font_subset->scaled_font))
+	 *  if(cairo_font_options_get_vertical_layout (scaled_font_subset->scaled_font))
 	 * return CAIRO_INT_STATUS_UNSUPPORTED;
 	 */
 
@@ -665,7 +665,7 @@ static cairo_status_t cairo_truetype_font_write_hhea_table(cairo_truetype_font_t
 	if(font->status)
 		return font->status;
 	size = sizeof(tt_hhea_t);
-	status = cairo_truetype_font_allocate_write_buffer(font, size, (uchar**)&hhea);
+	status = cairo_truetype_font_allocate_write_buffer(font, size, (uchar **)&hhea);
 	if(UNLIKELY(status))
 		return _cairo_truetype_font_set_error(font, status);
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, tag, 0, (uchar *)hhea, &size);
@@ -701,7 +701,7 @@ static cairo_status_t cairo_truetype_font_write_hmtx_table(cairo_truetype_font_t
 		short_entry_size = sizeof(int16);
 		status = cairo_truetype_font_allocate_write_buffer(font,
 			long_entry_size,
-			(uchar**)&p);
+			(uchar **)&p);
 		if(UNLIKELY(status))
 			return _cairo_truetype_font_set_error(font, status);
 
@@ -767,7 +767,7 @@ static cairo_status_t cairo_truetype_font_write_maxp_table(cairo_truetype_font_t
 	if(font->status)
 		return font->status;
 	size = sizeof(tt_maxp_t);
-	status = cairo_truetype_font_allocate_write_buffer(font, size, (uchar**)&maxp);
+	status = cairo_truetype_font_allocate_write_buffer(font, size, (uchar **)&maxp);
 	if(UNLIKELY(status))
 		return _cairo_truetype_font_set_error(font, status);
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, tag, 0, (uchar *)maxp, &size);

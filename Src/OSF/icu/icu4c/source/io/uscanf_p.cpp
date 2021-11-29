@@ -306,7 +306,7 @@ static int32_t u_scanf_skip_leading_ws(UFILE   * input,
 	bool isNotEOF;
 
 	/* skip all leading ws in the input */
-	while( ((isNotEOF = ufile_getch(input, &c)) == TRUE) && (c == pad || u_isWhitespace(c)) ) {
+	while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (c == pad || u_isWhitespace(c)) ) {
 		count++;
 	}
 
@@ -338,7 +338,7 @@ static int32_t u_scanf_skip_leading_positive_sign(UFILE   * input,
 
 		if(U_SUCCESS(localStatus)) {
 			/* skip all leading ws in the input */
-			while( ((isNotEOF = ufile_getch(input, &c)) == TRUE) && (count < symbolLen && c == plusSymbol[count]) ) {
+			while(((isNotEOF = ufile_getch(input, &c)) == TRUE) && (count < symbolLen && c == plusSymbol[count]) ) {
 				count++;
 			}
 
@@ -829,9 +829,9 @@ static int32_t u_scanf_string_handler(UFILE * input,
 	if(U_FAILURE(status))
 		return -1;
 
-	while( (info->fWidth == -1 || count < info->fWidth)
-	  && ((isNotEOF = ufile_getch(input, &c)) == TRUE)
-	  && (!info->fIsString || (c != info->fPadChar && !u_isWhitespace(c)))) {
+	while((info->fWidth == -1 || count < info->fWidth)
+	 && ((isNotEOF = ufile_getch(input, &c)) == TRUE)
+	 && (!info->fIsString || (c != info->fPadChar && !u_isWhitespace(c)))) {
 		if(!info->fSkipArg) {
 			/* put the character from the input onto the target */
 			source = &c;
@@ -916,9 +916,9 @@ static int32_t u_scanf_ustring_handler(UFILE   * input,
 	/* get the string one character at a time, truncating to the width */
 	count = 0;
 
-	while( (info->fWidth == -1 || count < info->fWidth)
-	  && ((isNotEOF = ufile_getch(input, &c)) == TRUE)
-	  && (!info->fIsString || (c != info->fPadChar && !u_isWhitespace(c)))) {
+	while((info->fWidth == -1 || count < info->fWidth)
+	 && ((isNotEOF = ufile_getch(input, &c)) == TRUE)
+	 && (!info->fIsString || (c != info->fPadChar && !u_isWhitespace(c)))) {
 		/* put the character from the input onto the target */
 		if(!info->fSkipArg) {
 			*alias++ = c;

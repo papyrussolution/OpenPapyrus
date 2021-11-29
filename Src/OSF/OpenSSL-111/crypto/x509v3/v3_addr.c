@@ -1270,7 +1270,7 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx,
 			IPAddressFamily * fp =
 			    sk_IPAddressFamily_value(x->rfc3779_addr, j);
 			if(fp->ipAddressChoice->type == IPAddressChoice_inherit
-			  && sk_IPAddressFamily_find(child, fp) >= 0)
+			 && sk_IPAddressFamily_find(child, fp) >= 0)
 				validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 		}
 	}

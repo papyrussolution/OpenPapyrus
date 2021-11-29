@@ -499,9 +499,9 @@ int extension_is_relevant(SSL * s, uint extctx, uint thisctx)
 		is_tls13 = SSL_IS_TLS13(s);
 
 	if((SSL_IS_DTLS(s)
-	  && (extctx & SSL_EXT_TLS_IMPLEMENTATION_ONLY) != 0)
+	 && (extctx & SSL_EXT_TLS_IMPLEMENTATION_ONLY) != 0)
 	    || (s->version == SSL3_VERSION
-	  && (extctx & SSL_EXT_SSL3_ALLOWED) == 0)
+	 && (extctx & SSL_EXT_SSL3_ALLOWED) == 0)
 	    /*
 	     * Note that SSL_IS_TLS13() means "TLS 1.3 has been negotiated",
 	     * which is never true when generating the ClientHello.
@@ -512,7 +512,7 @@ int extension_is_relevant(SSL * s, uint extctx, uint thisctx)
 	     */
 	    || (is_tls13 && (extctx & SSL_EXT_TLS1_2_AND_BELOW_ONLY) != 0)
 	    || (!is_tls13 && (extctx & SSL_EXT_TLS1_3_ONLY) != 0
-	  && (thisctx & SSL_EXT_CLIENT_HELLO) == 0)
+	 && (thisctx & SSL_EXT_CLIENT_HELLO) == 0)
 	    || (s->server && !is_tls13 && (extctx & SSL_EXT_TLS1_3_ONLY) != 0)
 	    || (s->hit && (extctx & SSL_EXT_IGNORE_ON_RESUMPTION) != 0))
 		return 0;
@@ -592,16 +592,16 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 		 * itself handle unsolicited response checks.
 		 */
 		if(idx < OSSL_NELEM(ext_defs)
-		  && (context & (SSL_EXT_CLIENT_HELLO
+		 && (context & (SSL_EXT_CLIENT_HELLO
 		    | SSL_EXT_TLS1_3_CERTIFICATE_REQUEST
 		    | SSL_EXT_TLS1_3_NEW_SESSION_TICKET)) == 0
-		  && type != TLSEXT_TYPE_cookie
-		  && type != TLSEXT_TYPE_renegotiate
-		  && type != TLSEXT_TYPE_signed_certificate_timestamp
-		  && (s->ext.extflags[idx] & SSL_EXT_FLAG_SENT) == 0
+		 && type != TLSEXT_TYPE_cookie
+		 && type != TLSEXT_TYPE_renegotiate
+		 && type != TLSEXT_TYPE_signed_certificate_timestamp
+		 && (s->ext.extflags[idx] & SSL_EXT_FLAG_SENT) == 0
 #ifndef OPENSSL_NO_GOST
-		  && !((context & SSL_EXT_TLS1_2_SERVER_HELLO) != 0
-		  && type == TLSEXT_TYPE_cryptopro_bug)
+		 && !((context & SSL_EXT_TLS1_2_SERVER_HELLO) != 0
+		 && type == TLSEXT_TYPE_cryptopro_bug)
 #endif
 		    ) {
 			SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION, SSL_F_TLS_COLLECT_EXTENSIONS, SSL_R_UNSOLICITED_EXTENSION);
@@ -750,7 +750,7 @@ int tls_construct_extensions(SSL * s, WPACKET * pkt, uint context,
 	     */
 	    || ((context &
 	    (SSL_EXT_CLIENT_HELLO | SSL_EXT_TLS1_2_SERVER_HELLO)) != 0
-	  && !WPACKET_set_flags(pkt,
+	 && !WPACKET_set_flags(pkt,
 	    WPACKET_FLAGS_ABANDON_ON_ZERO_LENGTH))) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_EXTENSIONS, ERR_R_INTERNAL_ERROR);
 		return 0;
@@ -1158,8 +1158,8 @@ static int final_key_share(SSL * s, uint context, int sent)
 	 *     fail;
 	 */
 	if(!s->server
-	  && !sent
-	  && (!s->hit
+	 && !sent
+	 && (!s->hit
 	    || (s->ext.psk_kex_mode & TLSEXT_KEX_MODE_FLAG_KE) == 0)) {
 		/* Nothing left we can do - just fail */
 		SSLfatal(s, SSL_AD_MISSING_EXTENSION, SSL_F_FINAL_KEY_SHARE, SSL_R_NO_SUITABLE_KEY_SHARE);
@@ -1326,9 +1326,9 @@ int tls_psk_do_binder(SSL * s, const EVP_MD * md, const uchar * msgstart,
 	hashsize = (size_t)hashsizei;
 
 	if(external
-	  && s->early_data_state == SSL_EARLY_DATA_CONNECTING
-	  && s->session->ext.max_early_data == 0
-	  && sess->ext.max_early_data > 0)
+	 && s->early_data_state == SSL_EARLY_DATA_CONNECTING
+	 && s->session->ext.max_early_data == 0
+	 && sess->ext.max_early_data > 0)
 		usepskfored = 1;
 
 	if(external) {
@@ -1476,8 +1476,8 @@ static int final_early_data(SSL * s, uint context, int sent)
 
 	if(!s->server) {
 		if(context == SSL_EXT_TLS1_3_ENCRYPTED_EXTENSIONS
-		  && sent
-		  && !s->ext.early_data_ok) {
+		 && sent
+		 && !s->ext.early_data_ok) {
 			/*
 			 * If we get here then the server accepted our early_data but we
 			 * later realised that it shouldn't have done (e.g. inconsistent

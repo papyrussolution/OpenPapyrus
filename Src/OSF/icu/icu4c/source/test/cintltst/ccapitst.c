@@ -1018,7 +1018,7 @@ static void TestAlias()
 		}
 		else {
 			if(strcmp(ucnv_getName(cnv, &status), name) != 0
-			  && (strstr(name, "PlatformEndian") == 0 && strstr(name, "OppositeEndian") == 0)) {
+			 && (strstr(name, "PlatformEndian") == 0 && strstr(name, "OppositeEndian") == 0)) {
 				log_err("FAIL: Converter \"%s\" returned \"%s\" for getName. "
 				    "They should be the same\n",
 				    name, ucnv_getName(cnv, &status));

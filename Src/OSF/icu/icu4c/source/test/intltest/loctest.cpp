@@ -347,7 +347,7 @@ void LocaleTest::TestBasicGetters() {
 		errln("Country code mismatch: " + temp + "  versus \"ZX\"");
 
 	temp = test8.getVariant();
-	//if (temp != UnicodeString("SPECIAL") )
+	//if(temp != UnicodeString("SPECIAL") )
 	//    errln("Variant code mismatch: " + temp + "  versus \"SPECIAL\"");
 	// As of 3.0, the "@special" will *not* be parsed by uloc_getName()
 	if(temp != UnicodeString("") )
@@ -747,7 +747,7 @@ void LocaleTest::TestDataDirectory()
     Locale  test(Locale::US);
     test.getISO3Language(testValue);
     logln("first fetch of language retrieved " + testValue);
-    if (testValue != "eng")
+    if(testValue != "eng")
         errln("Initial check of ISO3 language failed: expected \"eng\", got \"" + testValue + "\"");
 
     {
@@ -758,13 +758,13 @@ void LocaleTest::TestDataDirectory()
 
     test.getISO3Language(testValue);
     logln("second fetch of language retrieved " + testValue);
-    if (testValue != "xxx")
+    if(testValue != "xxx")
         errln("setDataDirectory() failed: expected \"xxx\", got \"" + testValue + "\"");
 
     Locale::setDataDirectory(oldDirectory);
     test.getISO3Language(testValue);
     logln("third fetch of language retrieved " + testValue);
-    if (testValue != "eng")
+    if(testValue != "eng")
         errln("get/setDataDirectory() failed: expected \"eng\", got \"" + testValue + "\"");
  */
 }

@@ -48,17 +48,17 @@ namespace CFF {
 	typedef FDSelect3_4_Range<HBUINT32, HBUINT16> FDSelect4_Range;
 
 	struct CFF2FDSelect {
-		bool serialize(hb_serialize_context_t * c, const CFF2FDSelect &src, unsigned int num_glyphs)
+		bool serialize(hb_serialize_context_t * c, const CFF2FDSelect &src, uint num_glyphs)
 		{
 			TRACE_SERIALIZE(this);
-			unsigned int size = src.get_size(num_glyphs);
+			uint size = src.get_size(num_glyphs);
 			CFF2FDSelect * dest = c->allocate_size<CFF2FDSelect> (size);
 			if(UNLIKELY(!dest)) return_trace(false);
 			memcpy(dest, &src, size);
 			return_trace(true);
 		}
 
-		unsigned int get_size(unsigned int num_glyphs) const
+		uint get_size(uint num_glyphs) const
 		{
 			switch(format)
 			{
@@ -81,7 +81,7 @@ namespace CFF {
 			}
 		}
 
-		bool sanitize(hb_sanitize_context_t * c, unsigned int fdcount) const
+		bool sanitize(hb_sanitize_context_t * c, uint fdcount) const
 		{
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!c->check_struct(this)))
@@ -115,14 +115,14 @@ public:
 		bool serialize(hb_serialize_context_t * c, const CFF2VariationStore * varStore)
 		{
 			TRACE_SERIALIZE(this);
-			unsigned int size_ = varStore->get_size();
+			uint size_ = varStore->get_size();
 			CFF2VariationStore * dest = c->allocate_size<CFF2VariationStore> (size_);
 			if(UNLIKELY(!dest)) return_trace(false);
 			memcpy(dest, varStore, size_);
 			return_trace(true);
 		}
 
-		unsigned int get_size() const {
+		uint get_size() const {
 			return HBUINT16::static_size + size;
 		}
 
@@ -144,8 +144,8 @@ public:
 			top_dict_values_t<>::fini();
 		}
 
-		unsigned int vstoreOffset;
-		unsigned int FDSelectOffset;
+		uint vstoreOffset;
+		uint FDSelectOffset;
 	};
 
 	struct cff2_top_dict_opset_t : top_dict_opset_t<>{
@@ -237,9 +237,9 @@ private:
 			dict_values_t<VAL>::fini();
 		}
 
-		unsigned int subrsOffset;
+		uint subrsOffset;
 		const CFF2Subrs * localSubrs;
-		unsigned int ivs;
+		uint ivs;
 	};
 
 	typedef cff2_private_dict_values_base_t<op_str_t> cff2_private_dict_values_subset_t;
@@ -261,16 +261,16 @@ private:
 			seen_vsindex = true;
 		}
 
-		unsigned int get_ivs() const {
+		uint get_ivs() const {
 			return ivs;
 		}
 
-		void   set_ivs(unsigned int ivs_) {
+		void   set_ivs(uint ivs_) {
 			ivs = ivs_;
 		}
 
 protected:
-		unsigned int ivs;
+		uint ivs;
 		bool seen_vsindex;
 	};
 
@@ -514,12 +514,12 @@ public:
 			const CFF2CharStrings * charStrings;
 			const CFF2FDArray * fdArray;
 			const CFF2FDSelect * fdSelect;
-			unsigned int fdCount;
+			uint fdCount;
 
 			hb_vector_t<cff2_font_dict_values_t>     fontDicts;
 			hb_vector_t<PRIVDICTVAL>  privateDicts;
 
-			unsigned int num_glyphs;
+			uint num_glyphs;
 		};
 
 		struct accelerator_t : accelerator_templ_t<cff2_private_dict_opset_t, cff2_private_dict_values_t>{

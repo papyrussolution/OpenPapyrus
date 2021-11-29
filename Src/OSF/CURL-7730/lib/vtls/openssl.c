@@ -76,10 +76,10 @@
 #ifdef USE_AMISSL
 	#include "amigaos.h"
 #endif
-#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_OCSP)
+#if(OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_OCSP)
 	#include <openssl/ocsp.h>
 #endif
-#if (OPENSSL_VERSION_NUMBER >= 0x0090700fL) && /* 0.9.7 or later */ !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
+#if(OPENSSL_VERSION_NUMBER >= 0x0090700fL) && /* 0.9.7 or later */ !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
 	#define USE_OPENSSL_ENGINE
 	#include <openssl/engine.h>
 #endif
@@ -110,7 +110,7 @@
 #define SSL_METHOD_QUAL
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
+#if(OPENSSL_VERSION_NUMBER >= 0x10000000L)
 #define HAVE_ERR_REMOVE_THREAD_STATE 1
 #endif
 
@@ -120,7 +120,7 @@
 #define OPENSSL_NO_SSL2
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && /* OpenSSL 1.1.0+ */ \
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L) && /* OpenSSL 1.1.0+ */ \
 	!(defined(LIBRESSL_VERSION_NUMBER) && \
 	LIBRESSL_VERSION_NUMBER < 0x20700000L)
 #define SSLEAY_VERSION_NUMBER OPENSSL_VERSION_NUMBER
@@ -148,13 +148,13 @@
 #endif
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x1000200fL) && /* 1.0.2 or later */ \
+#if(OPENSSL_VERSION_NUMBER >= 0x1000200fL) && /* 1.0.2 or later */ \
 	!(defined(LIBRESSL_VERSION_NUMBER) && \
 	LIBRESSL_VERSION_NUMBER < 0x20700000L)
 #define HAVE_X509_GET0_SIGNATURE 1
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x1000200fL) /* 1.0.2 or later */
+#if(OPENSSL_VERSION_NUMBER >= 0x1000200fL) /* 1.0.2 or later */
 #define HAVE_SSL_GET_SHUTDOWN 1
 #endif
 
@@ -164,7 +164,7 @@
 #define HAVE_SSL_COMP_FREE_COMPRESSION_METHODS 1
 #endif
 
-#if (OPENSSL_VERSION_NUMBER < 0x0090808fL)
+#if(OPENSSL_VERSION_NUMBER < 0x0090808fL)
 /* not present in older OpenSSL */
 #define OPENSSL_load_builtin_modules(x)
 #endif
@@ -176,7 +176,7 @@
  * LibreSSL: unsupported in at least 2.7.2 (explicitly check for it since it
  *     lies and pretends to be OpenSSL 2.0.0).
  */
-#if (OPENSSL_VERSION_NUMBER >= 0x10101000L && !defined(LIBRESSL_VERSION_NUMBER)) || defined(OPENSSL_IS_BORINGSSL)
+#if(OPENSSL_VERSION_NUMBER >= 0x10101000L && !defined(LIBRESSL_VERSION_NUMBER)) || defined(OPENSSL_IS_BORINGSSL)
 	#define HAVE_KEYLOG_CALLBACK
 #endif
 /* Whether SSL_CTX_set_ciphersuites is available.
@@ -184,7 +184,7 @@
  * BoringSSL: no
  * LibreSSL: no
  */
-#if ((OPENSSL_VERSION_NUMBER >= 0x10101000L) && !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL))
+#if((OPENSSL_VERSION_NUMBER >= 0x10101000L) && !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL))
 #define HAVE_SSL_CTX_SET_CIPHERSUITES
 #define HAVE_SSL_CTX_SET_POST_HANDSHAKE_AUTH
 /* SET_EC_CURVES available under the same preconditions: see
@@ -201,7 +201,7 @@
 #define OSSL_PACKAGE "OpenSSL"
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L)
 /* up2date versions of OpenSSL maintain the default reasonably secure without
  * breaking compatibility, so it is better not to override the default by curl
  */
@@ -615,7 +615,7 @@ static int SSL_CTX_use_certificate_chain_bio(SSL_CTX * ctx, BIO* in,
     const char * key_passwd)
 {
 /* SSL_CTX_add1_chain_cert introduced in OpenSSL 1.0.2 */
-#if (OPENSSL_VERSION_NUMBER >= 0x1000200fL) && /* OpenSSL 1.0.2 or later */ \
+#if(OPENSSL_VERSION_NUMBER >= 0x1000200fL) && /* OpenSSL 1.0.2 or later */ \
 	!(defined(LIBRESSL_VERSION_NUMBER) && \
 	(LIBRESSL_VERSION_NUMBER < 0x2090100fL)) /* LibreSSL 2.9.1 or later */
 	int ret = 0;
@@ -1090,7 +1090,7 @@ static int Curl_ossl_init(void)
 	    CONF_MFLAGS_IGNORE_MISSING_FILE);
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L) && \
 	!defined(LIBRESSL_VERSION_NUMBER)
 	/* OpenSSL 1.1.0+ takes care of initialization itself */
 #else
@@ -1116,7 +1116,7 @@ static int Curl_ossl_init(void)
 /* Global cleanup */
 static void Curl_ossl_cleanup(void)
 {
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L) && \
 	!defined(LIBRESSL_VERSION_NUMBER)
 	/* OpenSSL 1.1 deprecates all these cleanup functions and
 	   turns them into no-ops in OpenSSL 1.0 compatibility mode */
@@ -1721,7 +1721,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 	return result;
 }
 
-#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
 	!defined(OPENSSL_NO_OCSP)
 static CURLcode verifystatus(struct connectdata * conn,
     struct ssl_connect_data * connssl)
@@ -1770,7 +1770,7 @@ static CURLcode verifystatus(struct connectdata * conn,
 	ch = SSL_get_peer_cert_chain(backend->handle);
 	st = SSL_CTX_get_cert_store(backend->ctx);
 
-#if ((OPENSSL_VERSION_NUMBER <= 0x1000201fL) /* Fixed after 1.0.2a */ || \
+#if((OPENSSL_VERSION_NUMBER <= 0x1000201fL) /* Fixed after 1.0.2a */ || \
 	(defined(LIBRESSL_VERSION_NUMBER) &&                               \
 	LIBRESSL_VERSION_NUMBER <= 0x2040200fL))
 	/* The authorized responder cert in the OCSP response MUST be signed by the
@@ -2022,7 +2022,7 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type,
 	 */
 	if(ssl_ver
 #ifdef SSL3_RT_INNER_CONTENT_TYPE
-	  && content_type != SSL3_RT_INNER_CONTENT_TYPE
+	 && content_type != SSL3_RT_INNER_CONTENT_TYPE
 #endif
 	    ) {
 		const char * msg_name, * tls_rt_name;
@@ -2173,7 +2173,7 @@ static const char * get_ssl_version_txt(SSL * ssl)
 
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) /* 1.1.0 */
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L) /* 1.1.0 */
 static CURLcode set_ssl_version_min_max(SSL_CTX * ctx, struct connectdata * conn)
 {
 	/* first, TLS min version... */
@@ -2263,11 +2263,11 @@ typedef uint32_t ctx_option_t;
 typedef long ctx_option_t;
 #endif
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) /* 1.1.0 */
+#if(OPENSSL_VERSION_NUMBER < 0x10100000L) /* 1.1.0 */
 static CURLcode set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
     struct connectdata * conn, int sockindex)
 {
-#if (OPENSSL_VERSION_NUMBER < 0x1000100FL) || !defined(TLS1_3_VERSION)
+#if(OPENSSL_VERSION_NUMBER < 0x1000100FL) || !defined(TLS1_3_VERSION)
 	/* convoluted #if condition just to avoid compiler warnings on unused
 	   variable */
 	struct Curl_easy * data = conn->data;
@@ -2451,7 +2451,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 		case CURL_SSLVERSION_TLSv1_2:
 		case CURL_SSLVERSION_TLSv1_3:
 		    /* it will be handled later with the context options */
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L)
 		    req_method = TLS_client_method();
 #else
 		    req_method = SSLv23_client_method();
@@ -2618,7 +2618,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 		    ctx_options |= SSL_OP_NO_SSLv2;
 		    ctx_options |= SSL_OP_NO_SSLv3;
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) /* 1.1.0 */
+#if(OPENSSL_VERSION_NUMBER >= 0x10100000L) /* 1.1.0 */
 		    result = set_ssl_version_min_max(backend->ctx, conn);
 #else
 		    result = set_ssl_version_min_max_legacy(&ctx_options, conn, sockindex);
@@ -2647,7 +2647,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2
 #ifndef CURL_DISABLE_PROXY
-		  && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
+		 && (!SSL_IS_PROXY() || !conn->bits.tunnel_proxy)
 #endif
 		    ) {
 			protocols[cur++] = NGHTTP2_PROTO_VERSION_ID_LEN;
@@ -3056,7 +3056,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 		return CURLE_OUT_OF_MEMORY;
 	}
 
-#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
 	!defined(OPENSSL_NO_OCSP)
 	if(SSL_CONN_CONFIG(verifystatus))
 		SSL_set_tlsext_status_type(backend->handle, TLSEXT_STATUSTYPE_ocsp);
@@ -3822,7 +3822,7 @@ static CURLcode servercert(struct connectdata * conn,
 			infof(data, " SSL certificate verify ok.\n");
 	}
 
-#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
 	!defined(OPENSSL_NO_OCSP)
 	if(SSL_CONN_CONFIG(verifystatus)) {
 		result = verifystatus(conn, connssl);
@@ -4170,7 +4170,7 @@ static ssize_t ossl_recv(struct connectdata * conn, /* connection data */
 
 			       We can use this to gauge how many users may be affected, and
 			       if it goes ok eventually transition to allow in dev and release with
-			       the newest OpenSSL: #if (OPENSSL_VERSION_NUMBER >= 0x10101000L) */
+			       the newest OpenSSL: #if(OPENSSL_VERSION_NUMBER >= 0x10101000L) */
 #ifdef DEBUGBUILD
 			    if(err == SSL_ERROR_SYSCALL) {
 				    int sockerr = SOCKERRNO;
@@ -4297,7 +4297,7 @@ static CURLcode Curl_ossl_md5sum(uchar * tmp, /* input */
 	return CURLE_OK;
 }
 
-#if (OPENSSL_VERSION_NUMBER >= 0x0090800fL) && !defined(OPENSSL_NO_SHA256)
+#if(OPENSSL_VERSION_NUMBER >= 0x0090800fL) && !defined(OPENSSL_NO_SHA256)
 static CURLcode Curl_ossl_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
     uchar * sha256sum /* output */,
@@ -4319,7 +4319,7 @@ static CURLcode Curl_ossl_sha256sum(const uchar * tmp, /* input */
 
 static bool Curl_ossl_cert_status_request(void)
 {
-#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
 	!defined(OPENSSL_NO_OCSP)
 	return TRUE;
 #else
@@ -4369,7 +4369,7 @@ const struct Curl_ssl Curl_ssl_openssl = {
 	Curl_ossl_engines_list,  /* engines_list */
 	Curl_none_false_start,   /* false_start */
 	Curl_ossl_md5sum,        /* md5sum */
-#if (OPENSSL_VERSION_NUMBER >= 0x0090800fL) && !defined(OPENSSL_NO_SHA256)
+#if(OPENSSL_VERSION_NUMBER >= 0x0090800fL) && !defined(OPENSSL_NO_SHA256)
 	Curl_ossl_sha256sum      /* sha256sum */
 #else
 	NULL                     /* sha256sum */

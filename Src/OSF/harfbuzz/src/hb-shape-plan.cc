@@ -20,8 +20,8 @@
  * hb_shape_plan_key_t
  */
 bool hb_shape_plan_key_t::init(bool copy, hb_face_t * face, const hb_segment_properties_t * props,
-    const hb_feature_t * user_features, unsigned int num_user_features, const int * coords,
-    unsigned int num_coords, const char * const * shaper_list)
+    const hb_feature_t * user_features, uint num_user_features, const int * coords,
+    uint num_coords, const char * const * shaper_list)
 {
 	hb_feature_t * features = nullptr;
 	if(copy && num_user_features && !(features = (hb_feature_t*)SAlloc::C(num_user_features, sizeof(hb_feature_t))))
@@ -127,13 +127,13 @@ bool hb_shape_plan_key_t::equal(const hb_shape_plan_key_t * other)
  * Since: 0.9.7
  **/
 hb_shape_plan_t * hb_shape_plan_create(hb_face_t * face, const hb_segment_properties_t * props, const hb_feature_t  * user_features,
-    unsigned int num_user_features, const char * const  * shaper_list)
+    uint num_user_features, const char * const  * shaper_list)
 {
 	return hb_shape_plan_create2(face, props, user_features, num_user_features, nullptr, 0, shaper_list);
 }
 
 hb_shape_plan_t * hb_shape_plan_create2(hb_face_t * face, const hb_segment_properties_t * props, const hb_feature_t  * user_features,
-    unsigned int num_user_features, const int * coords, unsigned int num_coords, const char * const  * shaper_list)
+    uint num_user_features, const int * coords, uint num_coords, const char * const  * shaper_list)
 {
 	DEBUG_MSG_FUNC(SHAPE_PLAN, nullptr, "face=%p num_features=%d num_coords=%d shaper_list=%p", face, num_user_features, num_coords, shaper_list);
 	assert(props->direction != HB_DIRECTION_INVALID);
@@ -274,7 +274,7 @@ hb_bool_t hb_shape_plan_execute(hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
-    unsigned int num_features)
+    uint num_features)
 {
 	DEBUG_MSG_FUNC(SHAPE_PLAN, shape_plan, "num_features=%d shaper_func=%p, shaper_name=%s",
 	    num_features, shape_plan->key.shaper_func, shape_plan->key.shaper_name);
@@ -323,7 +323,7 @@ hb_bool_t hb_shape_plan_execute(hb_shape_plan_t * shape_plan,
 hb_shape_plan_t * hb_shape_plan_create_cached(hb_face_t * face,
     const hb_segment_properties_t * props,
     const hb_feature_t  * user_features,
-    unsigned int num_user_features,
+    uint num_user_features,
     const char * const  * shaper_list)
 {
 	return hb_shape_plan_create_cached2(face, props,
@@ -335,9 +335,9 @@ hb_shape_plan_t * hb_shape_plan_create_cached(hb_face_t * face,
 hb_shape_plan_t * hb_shape_plan_create_cached2(hb_face_t * face,
     const hb_segment_properties_t * props,
     const hb_feature_t  * user_features,
-    unsigned int num_user_features,
+    uint num_user_features,
     const int * coords,
-    unsigned int num_coords,
+    uint num_coords,
     const char * const  * shaper_list)
 {
 	DEBUG_MSG_FUNC(SHAPE_PLAN, nullptr, "face=%p num_features=%d shaper_list=%p", face, num_user_features, shaper_list);

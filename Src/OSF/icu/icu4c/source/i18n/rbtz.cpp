@@ -98,7 +98,7 @@ bool RuleBasedTimeZone::operator==(const TimeZone& that) const {
 		return false;
 	}
 	if(compareRules(fHistoricRules, rbtz->fHistoricRules)
-	  && compareRules(fFinalRules, rbtz->fFinalRules)) {
+	 && compareRules(fFinalRules, rbtz->fFinalRules)) {
 		return true;
 	}
 	return false;
@@ -215,7 +215,7 @@ void RuleBasedTimeZone::complete(UErrorCode & status) {
 						r->getName(name);
 						if(*r == *curRule ||
 						    (name == curName && r->getRawOffset() == curRule->getRawOffset()
-						  && r->getDSTSavings() == curRule->getDSTSavings())) {
+						 && r->getDSTSavings() == curRule->getDSTSavings())) {
 							continue;
 						}
 						if(tt < nextTransitionTime) {
@@ -516,7 +516,7 @@ bool RuleBasedTimeZone::hasSameRules(const TimeZone& other) const {
 		return FALSE;
 	}
 	if(compareRules(fHistoricRules, that.fHistoricRules)
-	  && compareRules(fFinalRules, that.fFinalRules)) {
+	 && compareRules(fFinalRules, that.fFinalRules)) {
 		return TRUE;
 	}
 	return FALSE;
@@ -746,7 +746,7 @@ bool RuleBasedTimeZone::findNext(UDate base, bool inclusive, UDate& transitionTi
 	if(found) {
 		// For now, this implementation ignore transitions with only zone name changes.
 		if(result.from->getRawOffset() == result.to->getRawOffset()
-		  && result.from->getDSTSavings() == result.to->getDSTSavings()) {
+		 && result.from->getDSTSavings() == result.to->getDSTSavings()) {
 			if(isFinal) {
 				return FALSE;
 			}
@@ -831,7 +831,7 @@ bool RuleBasedTimeZone::findPrev(UDate base, bool inclusive, UDate& transitionTi
 	if(found) {
 		// For now, this implementation ignore transitions with only zone name changes.
 		if(result.from->getRawOffset() == result.to->getRawOffset()
-		  && result.from->getDSTSavings() == result.to->getDSTSavings()) {
+		 && result.from->getDSTSavings() == result.to->getDSTSavings()) {
 			// No offset changes.  Try next one if not final
 			return findPrev(result.time, FALSE /* always exclusive */,
 				   transitionTime, fromRule, toRule);

@@ -7517,7 +7517,7 @@ err_if_else:
 
 				    if(PEND) return ONIGERR_END_PATTERN_IN_GROUP;
 				    PFETCH(c);
-			    } /* while (1) */
+			    } /* while(1) */
 		    }
 		    break;
 
@@ -7766,7 +7766,7 @@ static int i_apply_case_fold(OnigCodePoint from, OnigCodePoint to[], int to_len,
 		uchar buf[ONIGENC_CODE_TO_MBC_MAXLEN];
 		if(onig_is_code_in_cc(enc, from, cc)
 #ifdef CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS
-		  && !IS_NCCLASS_NOT(cc)
+		 && !IS_NCCLASS_NOT(cc)
 #endif
 		    ) {
 			int j, m, index;

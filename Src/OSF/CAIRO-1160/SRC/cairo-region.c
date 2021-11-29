@@ -798,7 +798,7 @@ slim_hidden_def(cairo_region_contains_rectangle);
  *
  * Checks whether (@x, @y) is contained in @region.
  *
- * Return value: %TRUE if (@x, @y) is contained in @region, %FALSE if it is not.
+ * Return value: %TRUE if(@x, @y) is contained in @region, %FALSE if it is not.
  *
  * Since: 1.10
  **/

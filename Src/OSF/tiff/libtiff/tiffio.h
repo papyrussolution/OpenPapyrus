@@ -182,8 +182,8 @@ typedef struct _TIFFRGBAImage TIFFRGBAImage;
  * different format or, for example, unpack the data
  * and draw the unpacked raster on the display.
  */
-typedef void (*tileContigRoutine)(const TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar*);
-typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar*, uchar*, uchar*, uchar*);
+typedef void (*tileContigRoutine)(const TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar *);
+typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar *, uchar *, uchar *, uchar *);
 /*
  * RGBA-reader state.
  */

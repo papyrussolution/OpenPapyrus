@@ -24,13 +24,13 @@ FT_BEGIN_HEADER
 
 typedef FT_Error
 (* FT_Properties_SetFunc)(FT_Module module,
-    const char *  property_name,
+    const char * property_name,
     const void *  value,
     FT_Bool value_is_string);
 
 typedef FT_Error
 (* FT_Properties_GetFunc)(FT_Module module,
-    const char *  property_name,
+    const char * property_name,
     void *    value);
 
 FT_DEFINE_SERVICE(Properties)

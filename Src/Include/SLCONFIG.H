@@ -39,7 +39,7 @@
 // _WIN32_WINNT_WINTHRESHOLD           0x0A00 // Windows 10
 // _WIN32_WINNT_WIN10                  0x0A00 // Windows 10
 //
-#if (_MSC_VER < 1900)
+#if(_MSC_VER < 1900)
 	#ifndef _WIN32_WINNT
 		#define _WIN32_WINNT 0x0501
 	#endif
@@ -61,7 +61,7 @@
 	#endif
 	#define _CRT_SECURE_NO_WARNINGS
 	// @v10.9.10 {
-	#if (_MSC_VER >= 1928)
+	#if(_MSC_VER >= 1928)
 		#define WINDOWS_IGNORE_PACKING_MISMATCH
 	#endif
 	// } @v10.9.10 

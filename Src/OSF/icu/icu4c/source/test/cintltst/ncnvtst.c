@@ -684,8 +684,8 @@ static void TestRegressionUTF8() {
 		offset16 = 0;
 		offset8 = 0;
 		while(currCh <= UNICODE_LIMIT
-		  && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN))
-		  && offset8 < (MAX_LENGTH - MAX_UTF8_LEN)) {
+		 && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN))
+		 && offset8 < (MAX_LENGTH - MAX_UTF8_LEN)) {
 			if(currCh == SURROGATE_HIGH_START) {
 				currCh = SURROGATE_LOW_END + 1; /* Skip surrogate range */
 			}
@@ -754,8 +754,8 @@ static void TestRegressionUTF32() {
 		offset16 = 0;
 		offset32 = 0;
 		while(currCh <= UNICODE_LIMIT
-		  && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN))
-		  && offset32 < ((int32_t)(MAX_LENGTH/sizeof(UChar32) - MAX_UTF32_LEN))) {
+		 && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN))
+		 && offset32 < ((int32_t)(MAX_LENGTH/sizeof(UChar32) - MAX_UTF32_LEN))) {
 			if(currCh == SURROGATE_HIGH_START) {
 				currCh = SURROGATE_LOW_END + 1; /* Skip surrogate range */
 			}
@@ -1238,7 +1238,7 @@ static bool testConvertFromU(const UChar * source, int sourceLen,  const uint8_t
 			ucnv_resetToUnicode(conv);
 		if(gInBufferSize ==999 && gOutBufferSize==999)
 			ucnv_resetToUnicode(conv);
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && sourceLimit < realSourceEnd));
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && sourceLimit < realSourceEnd));
 
 	if(U_FAILURE(status)) {
 		log_err("Problem doing fromUnicode to %s, errcode %s %s\n", codepage, myErrorName(status), gNuConvTestName);
@@ -1401,7 +1401,7 @@ static bool testConvertToU(const uint8_t * source, int sourcelen, const UChar * 
 		if(gInBufferSize ==999 && gOutBufferSize==999)
 			ucnv_resetToUnicode(conv);
 		/*        offs += (targ-oldTarg); */
-	} while( (status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
+	} while((status == U_BUFFER_OVERFLOW_ERROR) || (U_SUCCESS(status) && (srcLimit < realSourceEnd))); /* while we
 	                                                                                                        just
 	                                                                                                        need
 	                                                                                                        another

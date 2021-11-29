@@ -1922,7 +1922,7 @@ void RegexCompile::insertOp(int32_t where)
 		int32_t opType = URX_TYPE(op);
 		int32_t opValue = URX_VAL(op);
 		if((opType == URX_JMP || opType == URX_JMPX || opType == URX_STATE_SAVE || opType == URX_CTR_LOOP || opType == URX_CTR_LOOP_NG || 
-			opType == URX_JMP_SAV || opType == URX_JMP_SAV_X || opType == URX_RELOC_OPRND)  && opValue > where) {
+			opType == URX_JMP_SAV || opType == URX_JMP_SAV_X || opType == URX_RELOC_OPRND) && opValue > where) {
 			// Target location for this opcode is after the insertion point and
 			//   needs to be incremented to adjust for the insertion.
 			opValue++;

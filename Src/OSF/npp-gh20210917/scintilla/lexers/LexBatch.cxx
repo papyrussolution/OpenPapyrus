@@ -526,8 +526,8 @@ static void ColouriseBatchDoc(Sci_PositionU startPos,
 						// Colorize Other Operators
 						// Do not Colorize Paranthesis, quoted text and escaped operators
 						if(((wordBuffer[0] != ')') && (wordBuffer[0] != '(')
-						  && !textQuoted(lineBuffer, offset - wbl) && !IsEscaped(lineBuffer, offset - wbl + wbo))
-						  && !((wordBuffer[0] == '=') && !isNotAssigned ))
+						 && !textQuoted(lineBuffer, offset - wbl) && !IsEscaped(lineBuffer, offset - wbl + wbo))
+						 && !((wordBuffer[0] == '=') && !isNotAssigned ))
 							styler.ColourTo(startLine + offset - 1 - (wbl - 1), SCE_BAT_OPERATOR);
 						else
 							styler.ColourTo(startLine + offset - 1 - (wbl - 1), SCE_BAT_DEFAULT);

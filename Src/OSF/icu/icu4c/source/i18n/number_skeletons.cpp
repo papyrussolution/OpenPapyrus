@@ -1829,7 +1829,7 @@ bool GeneratorHelpers::scale(const MacroProps& macros, UnicodeString & sb, UErro
 
 // Definitions of public API methods (put here for dependency disentanglement)
 
-#if (U_PF_WINDOWS <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(_MSC_VER)
+#if(U_PF_WINDOWS <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(_MSC_VER)
 // Ignore MSVC warning 4661. This is generated for NumberFormatterSettings<>::toSkeleton() as this method
 // is defined elsewhere (in number_skeletons.cpp). The compiler is warning that the explicit template instantiation
 // inside this single translation unit (CPP file) is incomplete, and thus it isn't sure if the template class is
@@ -1863,7 +1863,7 @@ UnlocalizedNumberFormatter NumberFormatter::forSkeleton(const UnicodeString & sk
 	return skeleton::create(skeleton, &perror, status);
 }
 
-#if (U_PF_WINDOWS <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(_MSC_VER)
+#if(U_PF_WINDOWS <= U_PLATFORM && U_PLATFORM <= U_PF_CYGWIN) && defined(_MSC_VER)
 // Warning 4661.
 #pragma warning(pop)
 #endif

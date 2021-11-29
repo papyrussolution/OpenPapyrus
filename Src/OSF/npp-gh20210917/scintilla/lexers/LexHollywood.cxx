@@ -354,7 +354,7 @@ void SCI_METHOD LexerHollywood::Lex(Sci_PositionU startPos, Sci_Position length,
 			// comments won't be recognized in sequences like "+/* Hello*/"
 			// --> "+/*" would be recognized as a sequence of operators
 
-			// if (!IsOperator(sc.ch)) sc.SetState(SCE_HOLLYWOOD_DEFAULT);
+			// if(!IsOperator(sc.ch)) sc.SetState(SCE_HOLLYWOOD_DEFAULT);
 			sc.SetState(SCE_HOLLYWOOD_DEFAULT);
 		}
 		else if(sc.state == SCE_HOLLYWOOD_PREPROCESSOR) {

@@ -1982,7 +1982,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 
 /* The Paul Hsieh hash function */
 #undef get16bits
-#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__)		 \
+#if(defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__)		 \
 	|| defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
 #define get16bits(d) (*((const uint16_t*)(d)))
 #endif
@@ -2045,7 +2045,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
  * gcc -m64 -dM -E - < /dev/null                  (on gcc)
  * cc -## a.c (where a.c is a simple test file)   (Sun Studio)
  */
-#if (defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
+#if(defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
 #define MUR_GETBLOCK(p, i) p[i]
 #else /* non intel */
 #define MUR_PLUS0_ALIGNED(p) (((ulong)p & 0x3) == 0)
@@ -2053,7 +2053,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #define MUR_PLUS2_ALIGNED(p) (((ulong)p & 0x3) == 2)
 #define MUR_PLUS3_ALIGNED(p) (((ulong)p & 0x3) == 3)
 #define WP(p) ((uint32_t *)((ulong)(p) & ~3UL))
-#if (defined(__BIG_ENDIAN__) || defined(SPARC) || defined(__ppc__) || defined(__ppc64__))
+#if(defined(__BIG_ENDIAN__) || defined(SPARC) || defined(__ppc__) || defined(__ppc64__))
 #define MUR_THREE_ONE(p) ((((*WP(p))&0x00ffffff) << 8) | (((*(WP(p)+1))&0xff000000) >> 24))
 #define MUR_TWO_TWO(p)   ((((*WP(p))&0x0000ffff) <<16) | (((*(WP(p)+1))&0xffff0000) >> 16))
 #define MUR_ONE_THREE(p) ((((*WP(p))&0x000000ff) <<24) | (((*(WP(p)+1))&0xffffff00) >>  8))

@@ -11,7 +11,7 @@
 
 #include <limits.h>
 
-#if (-1 & 3) == 0x03		/* Two's complement */
+#if(-1 & 3) == 0x03		/* Two's complement */
 
 #define __MAXUINT__(T) ((T) -1)
 #define __MAXINT__(T) ((T) ((((T) 1) << ((sizeof(T) * CHAR_BIT) - 1)) ^ __MAXUINT__(T)))

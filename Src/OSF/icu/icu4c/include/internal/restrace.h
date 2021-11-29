@@ -73,7 +73,7 @@ public:
   * non-null; otherwise, does nothing.
      */
     void maybeTrace(const char * type) const {
-        if (fResB || fParent) {
+        if(fResB || fParent) {
             trace(type);
         }
     }

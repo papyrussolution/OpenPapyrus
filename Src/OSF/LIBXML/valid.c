@@ -3502,7 +3502,7 @@ int xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlElement * elem
 	}
 	/* One ID per Element Type
 	 * already done when registering the attribute
-	   if (xmlScanIDAttributeDecl(ctxt, elem) > 1) {
+	   if(xmlScanIDAttributeDecl(ctxt, elem) > 1) {
 	    ret = 0;
 	   } */
 	return ret;

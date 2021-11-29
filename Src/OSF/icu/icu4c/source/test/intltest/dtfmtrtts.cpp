@@ -110,7 +110,7 @@ void DateFormatRoundTripTest::TestCentury()
 	/* TODO: We need to review this code and clarify what we really
 	 * want to test here.
 	 */
-	//if (date[1] != date[2] || result[0] != result[1]) {
+	//if(date[1] != date[2] || result[0] != result[1]) {
 	if(date[1] != date[2]) {
 		errln("Round trip failure: \"%S\" (%f), \"%S\" (%f)", result[0].getBuffer(), date[1], result[1].getBuffer(), date[2]);
 	}

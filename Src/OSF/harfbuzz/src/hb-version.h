@@ -41,9 +41,9 @@ HB_BEGIN_DECLS
 #define HB_VERSION_STRING "2.7.2"
 #define HB_VERSION_ATLEAST(major, minor, micro) ((major)*10000+(minor)*100+(micro) <= HB_VERSION_MAJOR*10000+HB_VERSION_MINOR*100+HB_VERSION_MICRO)
 
-HB_EXTERN void hb_version(unsigned int * major, unsigned int * minor, unsigned int * micro);
+HB_EXTERN void hb_version(uint * major, uint * minor, uint * micro);
 HB_EXTERN const char * hb_version_string(void);
-HB_EXTERN hb_bool_t hb_version_atleast(unsigned int major, unsigned int minor, unsigned int micro);
+HB_EXTERN hb_bool_t hb_version_atleast(uint major, uint minor, uint micro);
 
 HB_END_DECLS
 

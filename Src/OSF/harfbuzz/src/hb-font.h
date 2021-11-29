@@ -99,12 +99,12 @@ typedef hb_bool_t (* hb_font_get_variation_glyph_func_t) (hb_font_t * font, void
     hb_codepoint_t * glyph,
     void * user_data);
 
-typedef unsigned int (* hb_font_get_nominal_glyphs_func_t) (hb_font_t * font, void * font_data,
-    unsigned int count,
+typedef uint (* hb_font_get_nominal_glyphs_func_t) (hb_font_t * font, void * font_data,
+    uint count,
     const hb_codepoint_t * first_unicode,
-    unsigned int unicode_stride,
+    uint unicode_stride,
     hb_codepoint_t * first_glyph,
-    unsigned int glyph_stride,
+    uint glyph_stride,
     void * user_data);
 
 typedef hb_position_t (* hb_font_get_glyph_advance_func_t) (hb_font_t * font, void * font_data,
@@ -114,11 +114,11 @@ typedef hb_font_get_glyph_advance_func_t hb_font_get_glyph_h_advance_func_t;
 typedef hb_font_get_glyph_advance_func_t hb_font_get_glyph_v_advance_func_t;
 
 typedef void (* hb_font_get_glyph_advances_func_t) (hb_font_t* font, void * font_data,
-    unsigned int count,
+    uint count,
     const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride,
+    uint glyph_stride,
     hb_position_t * first_advance,
-    unsigned advance_stride,
+    uint advance_stride,
     void * user_data);
 typedef hb_font_get_glyph_advances_func_t hb_font_get_glyph_h_advances_func_t;
 typedef hb_font_get_glyph_advances_func_t hb_font_get_glyph_v_advances_func_t;
@@ -140,13 +140,13 @@ typedef hb_bool_t (* hb_font_get_glyph_extents_func_t) (hb_font_t * font, void *
     hb_glyph_extents_t * extents,
     void * user_data);
 typedef hb_bool_t (* hb_font_get_glyph_contour_point_func_t) (hb_font_t * font, void * font_data,
-    hb_codepoint_t glyph, unsigned int point_index,
+    hb_codepoint_t glyph, uint point_index,
     hb_position_t * x, hb_position_t * y,
     void * user_data);
 
 typedef hb_bool_t (* hb_font_get_glyph_name_func_t) (hb_font_t * font, void * font_data,
     hb_codepoint_t glyph,
-    char * name, unsigned int size,
+    char * name, uint size,
     void * user_data);
 typedef hb_bool_t (* hb_font_get_glyph_from_name_func_t) (hb_font_t * font, void * font_data,
     const char * name, int len,                                                     /* -1 means nul-terminated */
@@ -409,12 +409,12 @@ HB_EXTERN hb_bool_t hb_font_get_variation_glyph(hb_font_t * font,
     hb_codepoint_t unicode, hb_codepoint_t variation_selector,
     hb_codepoint_t * glyph);
 
-HB_EXTERN unsigned int hb_font_get_nominal_glyphs(hb_font_t * font,
-    unsigned int count,
+HB_EXTERN uint hb_font_get_nominal_glyphs(hb_font_t * font,
+    uint count,
     const hb_codepoint_t * first_unicode,
-    unsigned int unicode_stride,
+    uint unicode_stride,
     hb_codepoint_t * first_glyph,
-    unsigned int glyph_stride);
+    uint glyph_stride);
 
 HB_EXTERN hb_position_t hb_font_get_glyph_h_advance(hb_font_t * font,
     hb_codepoint_t glyph);
@@ -422,17 +422,17 @@ HB_EXTERN hb_position_t hb_font_get_glyph_v_advance(hb_font_t * font,
     hb_codepoint_t glyph);
 
 HB_EXTERN void hb_font_get_glyph_h_advances(hb_font_t* font,
-    unsigned int count,
+    uint count,
     const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride,
+    uint glyph_stride,
     hb_position_t * first_advance,
-    unsigned advance_stride);
+    uint advance_stride);
 HB_EXTERN void hb_font_get_glyph_v_advances(hb_font_t* font,
-    unsigned int count,
+    uint count,
     const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride,
+    uint glyph_stride,
     hb_position_t * first_advance,
-    unsigned advance_stride);
+    uint advance_stride);
 
 HB_EXTERN hb_bool_t hb_font_get_glyph_h_origin(hb_font_t * font,
     hb_codepoint_t glyph,
@@ -449,12 +449,12 @@ HB_EXTERN hb_bool_t hb_font_get_glyph_extents(hb_font_t * font,
     hb_glyph_extents_t * extents);
 
 HB_EXTERN hb_bool_t hb_font_get_glyph_contour_point(hb_font_t * font,
-    hb_codepoint_t glyph, unsigned int point_index,
+    hb_codepoint_t glyph, uint point_index,
     hb_position_t * x, hb_position_t * y);
 
 HB_EXTERN hb_bool_t hb_font_get_glyph_name(hb_font_t * font,
     hb_codepoint_t glyph,
-    char * name, unsigned int size);
+    char * name, uint size);
 HB_EXTERN hb_bool_t hb_font_get_glyph_from_name(hb_font_t * font,
     const char * name, int len,                         /* -1 means nul-terminated */
     hb_codepoint_t * glyph);
@@ -476,11 +476,11 @@ HB_EXTERN void hb_font_get_glyph_advance_for_direction(hb_font_t * font,
     hb_position_t * x, hb_position_t * y);
 HB_EXTERN void hb_font_get_glyph_advances_for_direction(hb_font_t* font,
     hb_direction_t direction,
-    unsigned int count,
+    uint count,
     const hb_codepoint_t * first_glyph,
-    unsigned glyph_stride,
+    uint glyph_stride,
     hb_position_t * first_advance,
-    unsigned advance_stride);
+    uint advance_stride);
 HB_EXTERN void hb_font_get_glyph_origin_for_direction(hb_font_t * font,
     hb_codepoint_t glyph,
     hb_direction_t direction,
@@ -505,14 +505,14 @@ HB_EXTERN hb_bool_t hb_font_get_glyph_extents_for_origin(hb_font_t * font,
     hb_glyph_extents_t * extents);
 
 HB_EXTERN hb_bool_t hb_font_get_glyph_contour_point_for_origin(hb_font_t * font,
-    hb_codepoint_t glyph, unsigned int point_index,
+    hb_codepoint_t glyph, uint point_index,
     hb_direction_t direction,
     hb_position_t * x, hb_position_t * y);
 
 /* Generates gidDDD if glyph has no name. */
 HB_EXTERN void hb_font_glyph_to_string(hb_font_t * font,
     hb_codepoint_t glyph,
-    char * s, unsigned int size);
+    char * s, uint size);
 /* Parses gidDDD and uniUUUU strings automatically. */
 HB_EXTERN hb_bool_t hb_font_glyph_from_string(hb_font_t * font,
     const char * s, int len,                       /* -1 means nul-terminated */
@@ -543,21 +543,21 @@ HB_EXTERN void hb_font_get_scale(hb_font_t * font, int * x_scale, int * y_scale)
 /*
  * A zero value means "no hinting in that direction"
  */
-HB_EXTERN void hb_font_set_ppem(hb_font_t * font, unsigned int x_ppem, unsigned int y_ppem);
-HB_EXTERN void hb_font_get_ppem(hb_font_t * font, unsigned int * x_ppem, unsigned int * y_ppem);
+HB_EXTERN void hb_font_set_ppem(hb_font_t * font, uint x_ppem, uint y_ppem);
+HB_EXTERN void hb_font_get_ppem(hb_font_t * font, uint * x_ppem, uint * y_ppem);
 /*
  * Point size per EM.  Used for optical-sizing in CoreText.
  * A value of zero means "not set".
  */
 HB_EXTERN void hb_font_set_ptem(hb_font_t * font, float ptem);
 HB_EXTERN float hb_font_get_ptem(hb_font_t * font);
-HB_EXTERN void hb_font_set_variations(hb_font_t * font, const hb_variation_t * variations, unsigned int variations_length);
-HB_EXTERN void hb_font_set_var_coords_design(hb_font_t * font, const float * coords, unsigned int coords_length);
+HB_EXTERN void hb_font_set_variations(hb_font_t * font, const hb_variation_t * variations, uint variations_length);
+HB_EXTERN void hb_font_set_var_coords_design(hb_font_t * font, const float * coords, uint coords_length);
 #ifdef HB_EXPERIMENTAL_API
-	HB_EXTERN const float * hb_font_get_var_coords_design(hb_font_t * font, unsigned int * length);
+	HB_EXTERN const float * hb_font_get_var_coords_design(hb_font_t * font, uint * length);
 #endif
-HB_EXTERN void hb_font_set_var_coords_normalized(hb_font_t * font, const int * coords/* 2.14 normalized */, unsigned int coords_length);
-HB_EXTERN const int * hb_font_get_var_coords_normalized(hb_font_t * font, unsigned int * length);
+HB_EXTERN void hb_font_set_var_coords_normalized(hb_font_t * font, const int * coords/* 2.14 normalized */, uint coords_length);
+HB_EXTERN const int * hb_font_get_var_coords_normalized(hb_font_t * font, uint * length);
 HB_EXTERN void hb_font_set_var_named_instance(hb_font_t * font, unsigned instance_index);
 #ifdef HB_EXPERIMENTAL_API
 	HB_EXTERN hb_bool_t hb_font_draw_glyph(hb_font_t * font, hb_codepoint_t glyph, const hb_draw_funcs_t * funcs, void * user_data);

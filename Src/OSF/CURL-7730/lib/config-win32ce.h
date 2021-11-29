@@ -320,7 +320,7 @@
 #define RETSIGTYPE void
 
 /* Define ssize_t if it is not an available 'typedefed' type */
-#if (defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__)
+#if(defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__)
 #elif defined(_WIN64)
 #define ssize_t __int64
 #else
@@ -394,7 +394,7 @@
 /* ---------------------------------------------------------------- */
 
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
-#  if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
+#  if(_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
 #    define USE_WIN32_LARGE_FILES
 #  else
 #    define USE_WIN32_SMALL_FILES

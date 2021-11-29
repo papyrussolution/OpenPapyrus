@@ -287,7 +287,7 @@ foundBest:
 			// no preceding word, or the non-word shares less than the minimum threshold
 			// of characters with a dictionary word, then scan to resynchronize
 			if(words[wordsFound % THAI_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
-			  && (cuWordLength == 0
+			 && (cuWordLength == 0
 			 || words[wordsFound%THAI_LOOKAHEAD].longestPrefix() < THAI_PREFIX_COMBINE_THRESHOLD)) {
 				// Look for a plausible word boundary
 				int32_t remaining = rangeEnd - (current+cuWordLength);
@@ -346,7 +346,7 @@ foundBest:
 		// could be a typo in the middle of a word.
 		if((int32_t)utext_getNativeIndex(text) < rangeEnd && cuWordLength > 0) {
 			if(words[wordsFound%THAI_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
-			  && fSuffixSet.contains(uc = utext_current32(text))) {
+			 && fSuffixSet.contains(uc = utext_current32(text))) {
 				if(uc == THAI_PAIYANNOI) {
 					if(!fSuffixSet.contains(utext_previous32(text))) {
 						// Skip over previous end and PAIYANNOI
@@ -515,7 +515,7 @@ foundBest:
 			// no preceding word, or the non-word shares less than the minimum threshold
 			// of characters with a dictionary word, then scan to resynchronize
 			if(words[wordsFound % LAO_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
-			  && (cuWordLength == 0
+			 && (cuWordLength == 0
 			 || words[wordsFound%LAO_LOOKAHEAD].longestPrefix() < LAO_PREFIX_COMBINE_THRESHOLD)) {
 				// Look for a plausible word boundary
 				int32_t remaining = rangeEnd - (current + cuWordLength);
@@ -686,7 +686,7 @@ foundBest:
 			// no preceding word, or the non-word shares less than the minimum threshold
 			// of characters with a dictionary word, then scan to resynchronize
 			if(words[wordsFound % BURMESE_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
-			  && (cuWordLength == 0
+			 && (cuWordLength == 0
 			 || words[wordsFound%BURMESE_LOOKAHEAD].longestPrefix() < BURMESE_PREFIX_COMBINE_THRESHOLD)) {
 				// Look for a plausible word boundary
 				int32_t remaining = rangeEnd - (current + cuWordLength);
@@ -893,7 +893,7 @@ foundBest:
 			// no preceding word, or the non-word shares less than the minimum threshold
 			// of characters with a dictionary word, then scan to resynchronize
 			if(words[wordsFound % KHMER_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
-			  && (cuWordLength == 0
+			 && (cuWordLength == 0
 			 || words[wordsFound % KHMER_LOOKAHEAD].longestPrefix() < KHMER_PREFIX_COMBINE_THRESHOLD)) {
 				// Look for a plausible word boundary
 				int32_t remaining = rangeEnd - (current+cuWordLength);
@@ -947,11 +947,11 @@ foundBest:
 		// We do this in code rather than using a rule so that the heuristic
 		// resynch continues to function. For example, one of the suffix characters
 		// could be a typo in the middle of a word.
-//        if ((int32_t)utext_getNativeIndex(text) < rangeEnd && wordLength > 0) {
-//            if (words[wordsFound%KHMER_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
-//              && fSuffixSet.contains(uc = utext_current32(text))) {
-//                if (uc == KHMER_PAIYANNOI) {
-//                    if (!fSuffixSet.contains(utext_previous32(text))) {
+//        if((int32_t)utext_getNativeIndex(text) < rangeEnd && wordLength > 0) {
+//            if(words[wordsFound%KHMER_LOOKAHEAD].candidates(text, fDictionary, rangeEnd) <= 0
+//    && fSuffixSet.contains(uc = utext_current32(text))) {
+//                if(uc == KHMER_PAIYANNOI) {
+//                    if(!fSuffixSet.contains(utext_previous32(text))) {
 //                        // Skip over previous end and PAIYANNOI
 //                        utext_next32(text);
 //                        utext_next32(text);
@@ -963,8 +963,8 @@ foundBest:
 //                        utext_next32(text);
 //                    }
 //                }
-//                if (uc == KHMER_MAIYAMOK) {
-//                    if (utext_previous32(text) != KHMER_MAIYAMOK) {
+//                if(uc == KHMER_MAIYAMOK) {
+//                    if(utext_previous32(text) != KHMER_MAIYAMOK) {
 //                        // Skip over previous end and MAIYAMOK
 //                        utext_next32(text);
 //                        utext_next32(text);

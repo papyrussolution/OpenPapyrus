@@ -53,7 +53,7 @@
  *
  * Since: 2.1.0
  */
-hb_bool_t hb_ot_color_has_palettes(hb_face_t * face)
+hb_bool_t hb_ot_color_has_palettes(const hb_face_t * face)
 {
 	return face->table.CPAL->has_data();
 }
@@ -67,7 +67,7 @@ hb_bool_t hb_ot_color_has_palettes(hb_face_t * face)
  *
  * Since: 2.1.0
  */
-unsigned int hb_ot_color_palette_get_count(hb_face_t * face)
+uint hb_ot_color_palette_get_count(const hb_face_t * face)
 {
 	return face->table.CPAL->get_palette_count();
 }
@@ -87,7 +87,7 @@ unsigned int hb_ot_color_palette_get_count(hb_face_t * face)
  *
  * Since: 2.1.0
  */
-hb_ot_name_id_t hb_ot_color_palette_get_name_id(hb_face_t * face, unsigned int palette_index)
+hb_ot_name_id_t hb_ot_color_palette_get_name_id(const hb_face_t * face, uint palette_index)
 {
 	return face->table.CPAL->get_palette_name_id(palette_index);
 }
@@ -106,7 +106,7 @@ hb_ot_name_id_t hb_ot_color_palette_get_name_id(hb_face_t * face, unsigned int p
  *
  * Since: 2.1.0
  */
-hb_ot_name_id_t hb_ot_color_palette_color_get_name_id(hb_face_t * face, unsigned int color_index)
+hb_ot_name_id_t hb_ot_color_palette_color_get_name_id(const hb_face_t * face, uint color_index)
 {
 	return face->table.CPAL->get_color_name_id(color_index);
 }
@@ -121,12 +121,10 @@ hb_ot_name_id_t hb_ot_color_palette_color_get_name_id(hb_face_t * face, unsigned
  *
  * Since: 2.1.0
  */
-hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(hb_face_t * face,
-    unsigned int palette_index)
+hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(const hb_face_t * face, uint palette_index)
 {
 	return face->table.CPAL->get_palette_flags(palette_index);
 }
-
 /**
  * hb_ot_color_palette_get_colors:
  * @face: #hb_face_t to work upon
@@ -148,8 +146,8 @@ hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(hb_face_t * face,
  *
  * Since: 2.1.0
  */
-unsigned int hb_ot_color_palette_get_colors(hb_face_t * face, unsigned int palette_index, unsigned int start_offset,
-    unsigned int * colors_count /* IN/OUT.  May be NULL. */, hb_color_t * colors /* OUT.     May be NULL. */)
+uint hb_ot_color_palette_get_colors(hb_face_t * face, uint palette_index, uint start_offset,
+    uint * colors_count /* IN/OUT.  May be NULL. */, hb_color_t * colors /* OUT.     May be NULL. */)
 {
 	return face->table.CPAL->get_palette_colors(palette_index, start_offset, colors_count, colors);
 }
@@ -188,7 +186,7 @@ hb_bool_t hb_ot_color_has_layers(hb_face_t * face)
  *
  * Since: 2.1.0
  */
-unsigned int hb_ot_color_glyph_get_layers(hb_face_t * face, hb_codepoint_t glyph, unsigned int start_offset, unsigned int * layer_count/* IN/OUT.  May be NULL. */,
+uint hb_ot_color_glyph_get_layers(hb_face_t * face, hb_codepoint_t glyph, uint start_offset, uint * layer_count/* IN/OUT.  May be NULL. */,
     hb_ot_color_layer_t * layers /* OUT.     May be NULL. */)
 {
 	return face->table.COLR->get_glyph_layers(glyph, start_offset, layer_count, layers);

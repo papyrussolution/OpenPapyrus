@@ -46,7 +46,7 @@ extern IntlTest *createStaticUnicodeSetsTest();
 
 void IntlTestUtilities::runIndexedTest( int32_t index, bool exec, const char *& name, char * par )
 {
-    if (exec) logln("TestSuite Utilities: ");
+    if(exec) logln("TestSuite Utilities: ");
     TESTCASE_AUTO_BEGIN;
     TESTCASE_AUTO_CLASS(MultithreadTest);
     TESTCASE_AUTO_CLASS(StringTest);
@@ -81,11 +81,11 @@ void IntlTestUtilities::runIndexedTest( int32_t index, bool exec, const char *& 
 }
 
 void ErrorCodeTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/) {
-    if (exec) logln("TestSuite Utilities: ");
+    if(exec) logln("TestSuite Utilities: ");
     switch (index) {
-        case 0: name = "TestErrorCode"; if (exec) TestErrorCode(); break;
-        case 1: name = "TestSubclass"; if (exec) TestSubclass(); break;
-        case 2: name = "TestIcuTestErrorCode"; if (exec) TestIcuTestErrorCode(); break;
+        case 0: name = "TestErrorCode"; if(exec) TestErrorCode(); break;
+        case 1: name = "TestSubclass"; if(exec) TestSubclass(); break;
+        case 2: name = "TestIcuTestErrorCode"; if(exec) TestIcuTestErrorCode(); break;
         default: name = ""; break; //needed to end loop
     }
 }
@@ -203,7 +203,7 @@ class IcuTestErrorCodeTestHelper : public IntlTest {
         test->assertFalse("Already saw an error", seenError);
         seenError = TRUE;
         test->assertEquals("Message for Error", expectedErrln, message);
-        if (expectedDataErr) {
+        if(expectedDataErr) {
             test->errln("Got non-data error, but expected data error");
         }
     }
@@ -212,7 +212,7 @@ class IcuTestErrorCodeTestHelper : public IntlTest {
         test->assertFalse("Already saw an error", seenError);
         seenError = TRUE;
         test->assertEquals("Message for Error", expectedErrln, message);
-        if (!expectedDataErr) {
+        if(!expectedDataErr) {
             test->errln("Got data error, but expected non-data error");
         }
     }

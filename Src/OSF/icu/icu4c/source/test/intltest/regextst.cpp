@@ -124,7 +124,7 @@ static void utextToPrintable(char * buf, int32_t bufLen, UText * text) {
 		c = UTEXT_NEXT32(text);
 	}
 	*bufPtr = 0;
-#if (U_CHARSET_FAMILY==U_EBCDIC_FAMILY)
+#if(U_CHARSET_FAMILY==U_EBCDIC_FAMILY)
 	char * ebuf = (char *)SAlloc::M(bufLen);
 	uprv_eastrncpy((unsigned char *)ebuf, (const unsigned char *)buf, bufLen);
 	uprv_strncpy(buf, ebuf, bufLen);

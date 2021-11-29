@@ -9,11 +9,11 @@
 
 // Fix for Visual Studio
 
-#if (!defined(HAVE_BZERO) || !defined(bzero))
+#if(!defined(HAVE_BZERO) || !defined(bzero))
 #define bzero(b, len) memset((b), 0, (len))
 #endif
 
-#if (!defined(HAVE_SNPRINTF) || !defined(snprintf))
+#if(!defined(HAVE_SNPRINTF) || !defined(snprintf))
 #define snprintf    _snprintf
 #endif
 
