@@ -155,7 +155,7 @@ class U_I18N_API AffixPatternMatcher : public ArraySeriesMatcher {
 
     UnicodeString getPattern() const;
 
-    bool operator==(const AffixPatternMatcher& other) const;
+    bool operator == (const AffixPatternMatcher& other) const;
 
   private:
     CompactUnicodeString<4> fPattern;

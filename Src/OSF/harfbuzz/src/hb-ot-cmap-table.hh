@@ -145,20 +145,14 @@ public:
 
 		template<typename Iterator,
 		hb_requires(hb_is_iterator(Iterator))>
-		HBINT16* serialize_idDelta_array(hb_serialize_context_t * c,
-		    Iterator it,
-		    HBUINT16 * endCode,
-		    HBUINT16 * startCode,
-		    unsigned segcount)
+		HBINT16* serialize_idDelta_array(hb_serialize_context_t * c, Iterator it, HBUINT16 * endCode, HBUINT16 * startCode, unsigned segcount)
 		{
 			uint i = 0;
 			hb_codepoint_t last_gid = 0, start_gid = 0, last_cp = 0xFFFF;
 			bool use_delta = true;
-
 			HBINT16 * idDelta = c->start_embed<HBINT16> ();
 			if((char*)idDelta - (char*)startCode != (int)segcount * (int)HBINT16::static_size)
 				return nullptr;
-
 			for(const hb_item_type<Iterator> _ : +it) {
 				if(_.first == startCode[i]) {
 					use_delta = true;
@@ -190,19 +184,15 @@ public:
 
 		template<typename Iterator,
 		hb_requires(hb_is_iterator(Iterator))>
-		HBUINT16* serialize_rangeoffset_glyid(hb_serialize_context_t * c,
-		    Iterator it,
-		    HBUINT16 * endCode,
-		    HBUINT16 * startCode,
-		    HBINT16 * idDelta,
-		    unsigned segcount)
+		HBUINT16* serialize_rangeoffset_glyid(hb_serialize_context_t * c, Iterator it,
+		    HBUINT16 * endCode, HBUINT16 * startCode, HBINT16 * idDelta, unsigned segcount)
 		{
 			HBUINT16 * idRangeOffset = c->allocate_size<HBUINT16> (HBUINT16::static_size * segcount);
 			if(UNLIKELY(!c->check_success(idRangeOffset))) return nullptr;
 			if(UNLIKELY((char*)idRangeOffset - (char*)idDelta != (int)segcount * (int)HBINT16::static_size)) return nullptr;
 
 			+hb_range(segcount)
-			| hb_filter([&] (const unsigned _) { return idDelta[_] == 0; })
+			| hb_filter([&] (const uint _) { return idDelta[_] == 0; })
 			| hb_apply([&] (const uint i)
 			{
 				idRangeOffset[i] = 2 * (c->start_embed<HBUINT16> () - idRangeOffset - i);
@@ -653,7 +643,7 @@ public:
 		DEFINE_SIZE_ARRAY(16, groups);
 	};
 
-	struct CmapSubtableFormat12 : CmapSubtableLongSegmented<CmapSubtableFormat12>{
+	struct CmapSubtableFormat12 : CmapSubtableLongSegmented<CmapSubtableFormat12> {
 		static hb_codepoint_t group_get_glyph(const CmapSubtableLongGroup &group,
 		    hb_codepoint_t u)
 		{
@@ -723,7 +713,7 @@ private:
 		}
 	};
 
-	struct CmapSubtableFormat13 : CmapSubtableLongSegmented<CmapSubtableFormat13>{
+	struct CmapSubtableFormat13 : CmapSubtableLongSegmented<CmapSubtableFormat13> {
 		static hb_codepoint_t group_get_glyph(const CmapSubtableLongGroup &group,
 		    hb_codepoint_t u HB_UNUSED)
 		{
@@ -758,7 +748,7 @@ public:
 		DEFINE_SIZE_STATIC(4);
 	};
 
-	struct DefaultUVS : SortedArrayOf<UnicodeValueRange, HBUINT32>{
+	struct DefaultUVS : SortedArrayOf<UnicodeValueRange, HBUINT32> {
 		void collect_unicodes(hb_set_t * out) const
 		{
 			uint count = len;
@@ -844,7 +834,7 @@ public:
 		DEFINE_SIZE_STATIC(5);
 	};
 
-	struct NonDefaultUVS : SortedArrayOf<UVSMapping, HBUINT32>{
+	struct NonDefaultUVS : SortedArrayOf<UVSMapping, HBUINT32> {
 		void collect_unicodes(hb_set_t * out) const
 		{
 			uint count = len;

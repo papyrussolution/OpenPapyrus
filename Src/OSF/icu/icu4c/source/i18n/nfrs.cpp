@@ -342,7 +342,7 @@ static bool util_equalRules(const NFRule* rule1, const NFRule* rule2)
 }
 
 bool
-NFRuleSet::operator==(const NFRuleSet &rhs) const
+NFRuleSet::operator == (const NFRuleSet &rhs) const
 {
 	if(rules.size() == rhs.rules.size() &&
 	    fIsFractionRuleSet == rhs.fIsFractionRuleSet &&

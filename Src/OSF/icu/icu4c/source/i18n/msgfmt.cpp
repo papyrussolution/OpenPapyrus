@@ -367,14 +367,14 @@ const MessageFormat&MessageFormat::operator = (const MessageFormat& that)
 	return *this;
 }
 
-bool MessageFormat::operator==(const Format& rhs) const
+bool MessageFormat::operator == (const Format& rhs) const
 {
 	if(this == &rhs) return true;
 
 	MessageFormat& that = (MessageFormat&)rhs;
 
 	// Check class ID before checking MessageFormat members
-	if(!Format::operator==(rhs) ||
+	if(!Format::operator == (rhs) ||
 	    msgPattern != that.msgPattern ||
 	    fLocale != that.fLocale) {
 		return false;
@@ -1827,7 +1827,7 @@ bool MessageFormat::equalFormats(const void * left, const void * right) {
 	return *(const Format*)left==*(const Format*)right;
 }
 
-bool MessageFormat::DummyFormat::operator==(const Format&) const {
+bool MessageFormat::DummyFormat::operator == (const Format&) const {
 	return true;
 }
 

@@ -140,6 +140,11 @@ struct KeyDownCommand { // @flat @noctr @size=4
 	uint16 Code;
 };
 //
+// Descr: Если строка rSrc содержит non-ascii символы, то функция транслирует символы строки
+//   в латинские в соответствии с клавиатурными кодами, которым соответствуют non-ascii знаки.
+//
+int    TranslateLocaleKeyboardTextToLatin(const SString & rSrc, SString & rResult);
+//
 // Descr: Структура, передаваемая с сообщением cmSetFont
 //
 struct SetFontEvent {
@@ -3349,7 +3354,7 @@ public:
 	//
 	// Descr: Возвращает !0 если в поле состояния установлен флаг f.
 	//
-	int    FASTCALL CheckFlag(long f) const;
+	bool   FASTCALL CheckFlag(long f) const;
 	int    FASTCALL addGroup(ushort grpID, CtrlGroup*);
 	int    FASTCALL setGroupData(ushort, void *);
 	int    FASTCALL getGroupData(ushort, void *);
@@ -4693,7 +4698,7 @@ public:
 		tbiListSelBrush     = 87, // Кисть отрисовки selected строки списка
 		tbiListSelPen       = 88, // Перо отрисовки selected строки списка
 		//
-		tbiControlFont      = 89, // @v11.2.3 Шрифт для отрисовки управляющих элементов 
+		tbiControlFont      = 110, // @v11.2.3 Шрифт для отрисовки управляющих элементов 
 	};
 
     int    InitUiToolBox();
@@ -4967,7 +4972,7 @@ public:
 	int    FreeAllCrosstab();
 	int    IsBOQ() const;
 	int    IsEOQ() const;
-	int    CheckFlag(uint) const;
+	bool   CheckFlag(uint f) const;
 	void   SetUserProc(SBrowserDataProc proc, void * extraPtr);
 protected:
 	SBrowserDataProc UserProc;

@@ -258,13 +258,13 @@ public:
 	};
 
 	template <typename Type>
-	struct _hb_has_null<Type, true>{
+	struct _hb_has_null<Type, true> {
 		static const Type * get_null() { return &Null(Type); }
 		static Type * get_crap() { return &Crap(Type); }
 	};
 
 	template <typename Type, typename OffsetType = HBUINT16, bool has_null = true>
-	    struct OffsetTo : Offset<OffsetType, has_null>{
+	    struct OffsetTo : Offset<OffsetType, has_null> {
 		HB_DELETE_COPY_ASSIGN(OffsetTo);
 		OffsetTo() = default;
 
@@ -475,7 +475,7 @@ public:
 
 /* Unsized array of offsets relative to the beginning of the array itself. */
 	template <typename Type, typename OffsetType, bool has_null = true>
-	    struct UnsizedOffsetListOf : UnsizedOffsetArrayOf<Type, OffsetType, has_null>{
+	    struct UnsizedOffsetListOf : UnsizedOffsetArrayOf<Type, OffsetType, has_null> {
 		const Type& operator [] (int i_)const
 		{
 			uint i = (uint)i_;
@@ -502,7 +502,7 @@ public:
 
 /* An array with sorted elements.  Supports binary searching. */
 	template <typename Type>
-	struct SortedUnsizedArrayOf : UnsizedArrayOf<Type>{
+	struct SortedUnsizedArrayOf : UnsizedArrayOf<Type> {
 		hb_sorted_array_t<Type> as_array(uint len)
 		{
 			return hb_sorted_array(this->arrayZ, len);
@@ -704,7 +704,7 @@ public:
 
 /* Array of offsets relative to the beginning of the array itself. */
 	template <typename Type>
-	struct OffsetListOf : OffsetArrayOf<Type>{
+	struct OffsetListOf : OffsetArrayOf<Type> {
 		const Type& operator [] (int i_)const
 		{
 			uint i = (uint)i_;
@@ -868,7 +868,7 @@ public:
 
 /* An array with sorted elements.  Supports binary searching. */
 	template <typename Type, typename LenType = HBUINT16>
-	    struct SortedArrayOf : ArrayOf<Type, LenType>{
+	    struct SortedArrayOf : ArrayOf<Type, LenType> {
 		hb_sorted_array_t<Type> as_array() {
 			return hb_sorted_array(this->arrayZ, this->len);
 		}

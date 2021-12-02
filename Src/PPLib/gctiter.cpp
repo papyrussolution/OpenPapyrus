@@ -525,7 +525,7 @@ int GCTIterator::InitQuery(int cpMode)
 		}
 	}
 	if(Filt.GoodsID) {
-		if(g_obj.IsGeneric(Filt.GoodsID) > 0) {
+		if(g_obj.IsGeneric(Filt.GoodsID)) {
 			THROW(g_obj.GetGenericList(Filt.GoodsID, &GoodsArray));
 			State |= stUseGoodsList;
 		}

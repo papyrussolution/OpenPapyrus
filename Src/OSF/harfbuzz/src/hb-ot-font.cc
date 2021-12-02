@@ -172,7 +172,7 @@ static hb_bool_t hb_ot_get_font_v_extents(hb_font_t * font, void * font_data HB_
 static void free_static_ot_funcs();
 #endif
 
-static struct hb_ot_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ot_font_funcs_lazy_loader_t>{
+static struct hb_ot_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ot_font_funcs_lazy_loader_t> {
 	static hb_font_funcs_t * create()
 	{
 		hb_font_funcs_t * funcs = hb_font_funcs_create();

@@ -55,7 +55,7 @@ struct _cairo_damage {
 	cairo_box_t boxes[32];
 };
 
-cairo_private cairo_damage_t * _cairo_damage_create(void);
+cairo_private cairo_damage_t * _cairo_damage_create();
 cairo_private cairo_damage_t * _cairo_damage_create_in_error(cairo_status_t status);
 cairo_private cairo_damage_t * _cairo_damage_add_box(cairo_damage_t * damage, const cairo_box_t * box);
 cairo_private cairo_damage_t * _cairo_damage_add_rectangle(cairo_damage_t * damage, const cairo_rectangle_int_t * rect);

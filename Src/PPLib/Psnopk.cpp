@@ -906,7 +906,7 @@ int PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int use_ta)
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPPsnOpKind, Symb)));
 			pPack->Rec.ExValSrc = (pPack->Rec.ExValGrp == POKEVG_TAG) ? 0 : pPack->Rec.ExValSrc;
-			THROW(EditItem(Obj, *pID, &pPack->Rec, 0));
+			THROW(StoreItem(Obj, *pID, &pPack->Rec, 0));
 			*pID = pPack->Rec.ID;
 			p_ex = static_cast<_POKExtra *>(pPack->AllocExtraProp(&extra_sz));
 			THROW(extra_sz == 0 || p_ex);

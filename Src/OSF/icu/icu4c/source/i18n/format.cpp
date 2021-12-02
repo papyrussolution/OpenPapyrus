@@ -121,7 +121,7 @@ void Format::parseObject(const UnicodeString & source, Formattable& result, UErr
 	}
 }
 
-bool Format::operator==(const Format& that) const
+bool Format::operator == (const Format& that) const
 {
 	// Subclasses: Call this method and then add more specific checks.
 	return typeid(*this) == typeid(that);

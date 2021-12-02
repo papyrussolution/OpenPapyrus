@@ -2119,6 +2119,7 @@
 	#define CTL_UNIT_BASERATIO           (12 + WINDOWS_ID_BIAS)
 	#define CTL_UNIT_ROUNDING            (13 + WINDOWS_ID_BIAS)
 	#define CTL_UNIT_CODE                (14 + WINDOWS_ID_BIAS)
+	#define CTL_UNIT_FRAGM               (15 + WINDOWS_ID_BIAS)
 #define DLG_COMMOBJ                51 // Общий диалог редактирования объекта
 	#define CTL_COMMOBJ_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_COMMOBJ_SYMB             (2 + WINDOWS_ID_BIAS)
@@ -11159,6 +11160,7 @@
 	#define CTL_STQCMD_DESCR                 (10 + WINDOWS_ID_BIAS)
 	#define CTL_STQCMD_VCMD                  (11  + WINDOWS_ID_BIAS) // Команда вывода отчета
 	#define CTLSEL_STQCMD_VCMD               (12  + WINDOWS_ID_BIAS)
+	#define CTL_STQCMD_REXPRTM               (13  + WINDOWS_ID_BIAS) // Время истечения срока действия результата
 #define DLG_STQFACE               1405
 	#define CTL_STQFACE_LANG                 (1  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQFACE_LANG              (2  + WINDOWS_ID_BIAS)

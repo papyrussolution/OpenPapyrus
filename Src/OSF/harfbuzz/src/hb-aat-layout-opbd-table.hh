@@ -114,35 +114,28 @@ protected:
 public:
 		DEFINE_SIZE_MIN(2);
 	};
-
 	struct opbd {
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_opbd;
-
 		bool get_bounds(hb_font_t * font, hb_codepoint_t glyph_id,
 		    hb_glyph_extents_t * extents) const
 		{
-			switch(format)
-			{
+			switch(format) {
 				case 0: return u.format0.get_bounds(font, glyph_id, extents, this);
 				case 1: return u.format1.get_bounds(font, glyph_id, extents, this);
 				default: return false;
 			}
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!c->check_struct(this) || version.major != 1))
 				return_trace(false);
-
-			switch(format)
-			{
+			switch(format) {
 				case 0: return_trace(u.format0.sanitize(c, this));
 				case 1: return_trace(u.format1.sanitize(c, this));
 				default: return_trace(true);
 			}
 		}
-
 protected:
 		FixedVersion<>version; /* Version number of the optical bounds
 		 * table (0x00010000 for the current version). */

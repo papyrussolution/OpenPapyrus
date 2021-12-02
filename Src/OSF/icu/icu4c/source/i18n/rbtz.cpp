@@ -86,11 +86,11 @@ RuleBasedTimeZone&RuleBasedTimeZone::operator = (const RuleBasedTimeZone& right)
 	return *this;
 }
 
-bool RuleBasedTimeZone::operator==(const TimeZone& that) const {
+bool RuleBasedTimeZone::operator == (const TimeZone& that) const {
 	if(this == &that) {
 		return true;
 	}
-	if(typeid(*this) != typeid(that) || !BasicTimeZone::operator==(that)) {
+	if(typeid(*this) != typeid(that) || !BasicTimeZone::operator == (that)) {
 		return false;
 	}
 	RuleBasedTimeZone * rbtz = (RuleBasedTimeZone*)&that;
@@ -105,7 +105,7 @@ bool RuleBasedTimeZone::operator==(const TimeZone& that) const {
 }
 
 bool RuleBasedTimeZone::operator != (const TimeZone& that) const {
-	return !operator==(that);
+	return !operator == (that);
 }
 
 void RuleBasedTimeZone::addTransitionRule(TimeZoneRule* rule, UErrorCode & status) {

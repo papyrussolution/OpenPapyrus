@@ -104,18 +104,14 @@ protected:
 public:
 		DEFINE_SIZE_MIN(68);
 	};
-
 	struct bsln {
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_bsln;
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!(c->check_struct(this) && defaultBaseline < 32)))
 				return_trace(false);
-
-			switch(format)
-			{
+			switch(format) {
 				case 0: return_trace(parts.format0.sanitize(c));
 				case 1: return_trace(parts.format1.sanitize(c));
 				case 2: return_trace(parts.format2.sanitize(c));

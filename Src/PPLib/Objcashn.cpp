@@ -629,7 +629,7 @@ int  PPObjCashNode::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 				if(same_id == 0) {
 					if(p_rec->ID >= PP_FIRSTUSRREF)
 						p_rec->ID = 0;
-					THROW(EditItem(Obj, *pID, p_rec, 1));
+					THROW(StoreItem(Obj, *pID, p_rec, 1));
 					ASSIGN_PTR(pID, P_Ref->data.ObjID);
 				}
 				else {
@@ -1029,7 +1029,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 			rec.Speciality   = p_scn->Speciality;
 			memcpy(rec.Port,  p_scn->Port,  sizeof(rec.Port));
 		}
-		THROW(EditItem(PPOBJ_CASHNODE, *pID, &rec, 0));
+		THROW(StoreItem(PPOBJ_CASHNODE, *pID, &rec, 0));
 		*pID = rec.ID;
 		THROW(P_Ref->PutPropArray(Obj, *pID, CNPRP_DIVGRPASSC, pCN->P_DivGrpList, 0));
 		THROW(P_Ref->Ot.PutList(Obj, *pID, &pCN->TagL, 0)); // @v9.6.5

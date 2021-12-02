@@ -132,7 +132,7 @@ public:
 		DEFINE_SIZE_MIN(2 + VariationStore::min_size);
 	};
 
-	struct cff2_top_dict_values_t : top_dict_values_t<>{
+	struct cff2_top_dict_values_t : top_dict_values_t<> {
 		void init()
 		{
 			top_dict_values_t<>::init();
@@ -148,7 +148,7 @@ public:
 		uint FDSelectOffset;
 	};
 
-	struct cff2_top_dict_opset_t : top_dict_opset_t<>{
+	struct cff2_top_dict_opset_t : top_dict_opset_t<> {
 		static void process_op(op_code_t op, num_interp_env_t& env, cff2_top_dict_values_t& dictval)
 		{
 			switch(op) {
@@ -184,7 +184,7 @@ public:
 		typedef top_dict_opset_t<> SUPER;
 	};
 
-	struct cff2_font_dict_values_t : dict_values_t<op_str_t>{
+	struct cff2_font_dict_values_t : dict_values_t<op_str_t> {
 		void init()
 		{
 			dict_values_t<op_str_t>::init();
@@ -224,7 +224,7 @@ private:
 	};
 
 	template <typename VAL>
-	struct cff2_private_dict_values_base_t : dict_values_t<VAL>{
+	struct cff2_private_dict_values_base_t : dict_values_t<VAL> {
 		void init()
 		{
 			dict_values_t<VAL>::init();
@@ -370,7 +370,7 @@ private:
 	typedef dict_interpreter_t<cff2_top_dict_opset_t, cff2_top_dict_values_t> cff2_top_dict_interpreter_t;
 	typedef dict_interpreter_t<cff2_font_dict_opset_t, cff2_font_dict_values_t> cff2_font_dict_interpreter_t;
 
-	struct CFF2FDArray : FDArray<HBUINT32>{
+	struct CFF2FDArray : FDArray<HBUINT32> {
 		/* FDArray::serialize does not compile without this partial specialization */
 		template <typename ITER, typename OP_SERIALIZER>
 		bool serialize(hb_serialize_context_t * c, ITER it, OP_SERIALIZER& opszr)
@@ -522,7 +522,7 @@ public:
 			uint num_glyphs;
 		};
 
-		struct accelerator_t : accelerator_templ_t<cff2_private_dict_opset_t, cff2_private_dict_values_t>{
+		struct accelerator_t : accelerator_templ_t<cff2_private_dict_opset_t, cff2_private_dict_values_t> {
 			HB_INTERNAL bool get_extents(hb_font_t * font,
 			    hb_codepoint_t glyph,
 			    hb_glyph_extents_t * extents) const;

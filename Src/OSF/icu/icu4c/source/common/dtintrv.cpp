@@ -38,6 +38,6 @@ DateInterval&DateInterval::operator = (const DateInterval& other)
 }
 
 DateInterval* DateInterval::clone() const { return new DateInterval(*this); }
-bool DateInterval::operator==(const DateInterval& other) const { return ( fromDate == other.fromDate && toDate == other.toDate ); }
+bool DateInterval::operator == (const DateInterval& other) const { return ( fromDate == other.fromDate && toDate == other.toDate ); }
 
 U_NAMESPACE_END

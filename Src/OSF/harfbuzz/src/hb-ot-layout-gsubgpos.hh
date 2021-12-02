@@ -39,7 +39,7 @@
 
 namespace OT {
 	struct hb_intersects_context_t :
-	hb_dispatch_context_t<hb_intersects_context_t, bool>{
+	hb_dispatch_context_t<hb_intersects_context_t, bool> {
 		template <typename T>
 		return_t dispatch(const T &obj) {
 			return obj.intersects(this->glyphs);
@@ -61,7 +61,7 @@ namespace OT {
 	};
 
 	struct hb_closure_context_t :
-	hb_dispatch_context_t<hb_closure_context_t>{
+	hb_dispatch_context_t<hb_closure_context_t> {
 		typedef return_t (* recurse_func_t) (hb_closure_context_t * c, uint lookup_index);
 		template <typename T>
 		return_t dispatch(const T &obj) {
@@ -149,7 +149,7 @@ private:
 	};
 
 	struct hb_closure_lookups_context_t :
-	hb_dispatch_context_t<hb_closure_lookups_context_t>{
+	hb_dispatch_context_t<hb_closure_lookups_context_t> {
 		typedef return_t (* recurse_func_t) (hb_closure_lookups_context_t * c, unsigned lookup_index);
 		template <typename T>
 		return_t dispatch(const T &obj) {
@@ -231,7 +231,7 @@ private:
 	};
 
 	struct hb_would_apply_context_t :
-	hb_dispatch_context_t<hb_would_apply_context_t, bool>{
+	hb_dispatch_context_t<hb_would_apply_context_t, bool> {
 		template <typename T>
 		return_t dispatch(const T &obj) {
 			return obj.would_apply(this);
@@ -262,7 +262,7 @@ private:
 	};
 
 	struct hb_collect_glyphs_context_t :
-	hb_dispatch_context_t<hb_collect_glyphs_context_t>{
+	hb_dispatch_context_t<hb_collect_glyphs_context_t> {
 		typedef return_t (* recurse_func_t) (hb_collect_glyphs_context_t * c, uint lookup_index);
 		template <typename T>
 		return_t dispatch(const T &obj) {
@@ -346,7 +346,7 @@ private:
 
 	template <typename set_t>
 	struct hb_collect_coverage_context_t :
-	hb_dispatch_context_t<hb_collect_coverage_context_t<set_t>, const Coverage &>{
+	hb_dispatch_context_t<hb_collect_coverage_context_t<set_t>, const Coverage &> {
 		typedef const Coverage &return_t; // Stoopid that we have to dupe this here.
 		template <typename T>
 		return_t dispatch(const T &obj) {
@@ -371,7 +371,7 @@ private:
 	};
 
 	struct hb_ot_apply_context_t :
-	hb_dispatch_context_t<hb_ot_apply_context_t, bool, HB_DEBUG_APPLY>{
+	hb_dispatch_context_t<hb_ot_apply_context_t, bool, HB_DEBUG_APPLY> {
 		struct matcher_t {
 			matcher_t() : lookup_props(0), ignore_zwnj(false), ignore_zwj(false), mask(-1),
 #define arg1(arg) (arg) /* Remove the macro to see why it's needed! */
@@ -711,7 +711,7 @@ protected:
 	};
 
 	struct hb_get_subtables_context_t :
-	hb_dispatch_context_t<hb_get_subtables_context_t>{
+	hb_dispatch_context_t<hb_get_subtables_context_t> {
 		template <typename Type>
 		static inline bool apply_to(const void * obj, OT::hb_ot_apply_context_t * c)
 		{
@@ -1783,7 +1783,7 @@ public:
 
 			return
 				+hb_enumerate(ruleSet)
-				| hb_filter([&] (unsigned _)
+				| hb_filter([&] (uint _)
 				    { return class_def.intersects_class(c->glyphs, _); },
 				    hb_first)
 				| hb_map(hb_second)
@@ -2692,7 +2692,7 @@ public:
 
 			return
 				+hb_enumerate(ruleSet)
-				| hb_filter([&] (unsigned _)
+				| hb_filter([&] (uint _)
 				    { return input_class_def.intersects_class(c->glyphs, _); },
 				    hb_first)
 				| hb_map(hb_second)

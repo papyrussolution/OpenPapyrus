@@ -2787,7 +2787,7 @@ static void sse2_composite_over_n_8_8888(pixman_implementation_t * imp,
 #if defined(__GNUC__) && !defined(__x86_64__) && !defined(__amd64__)
 __attribute__((__force_align_arg_pointer__))
 #endif
-static pixman_bool_t sse2_fill(pixman_implementation_t * imp,
+static boolint sse2_fill(pixman_implementation_t * imp,
     uint32 * bits,
     int stride,
     int bpp,
@@ -3798,7 +3798,7 @@ static void sse2_composite_add_n_8_8888(pixman_implementation_t * imp, pixman_co
 	}
 }
 
-static pixman_bool_t sse2_blt(pixman_implementation_t * imp,
+static boolint sse2_blt(pixman_implementation_t * imp,
     uint32 * src_bits,
     uint32 * dst_bits,
     int src_stride,
@@ -4220,7 +4220,7 @@ static void sse2_composite_over_8888_8888_8888(pixman_implementation_t * imp, pi
 
 /* A variant of 'sse2_combine_over_u' with minor tweaks */
 static force_inline void scaled_nearest_scanline_sse2_8888_8888_OVER(uint32 * pd, const uint32* ps,
-    int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, pixman_bool_t fully_transparent_src)
+    int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint fully_transparent_src)
 {
 	uint32 s, d;
 	const uint32* pm = NULL;
@@ -4298,7 +4298,7 @@ FAST_NEAREST_MAINLOOP(sse2_8888_8888_pad_OVER, scaled_nearest_scanline_sse2_8888
 FAST_NEAREST_MAINLOOP(sse2_8888_8888_normal_OVER, scaled_nearest_scanline_sse2_8888_8888_OVER, uint32, uint32, NORMAL)
 
 static force_inline void scaled_nearest_scanline_sse2_8888_n_8888_OVER(const uint32 * mask, uint32 *  dst,
-    const uint32 * src, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, pixman_bool_t zero_src)
+    const uint32 * src, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint zero_src)
 {
 	__m128i xmm_mask;
 	__m128i xmm_src, xmm_src_lo, xmm_src_hi;
@@ -4536,7 +4536,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8888_SRC(uint32 *  d
     pixman_fixed_t vx_,
     pixman_fixed_t unit_x_,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
@@ -4573,7 +4573,7 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_none_SRC, scaled_bilinear_scanline_
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_normal_SRC, scaled_bilinear_scanline_sse2_8888_8888_SRC, uint32, uint32, uint32, NORMAL, FLAG_NONE)
 
 static force_inline void scaled_bilinear_scanline_sse2_x888_8888_SRC(uint32 *  dst, const uint32 * mask, const uint32 * src_top,
-    const uint32 * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, pixman_bool_t zero_src)
+    const uint32 * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
@@ -4619,7 +4619,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32 *  
     pixman_fixed_t vx_,
     pixman_fixed_t unit_x_,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
@@ -4691,7 +4691,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32 *
     pixman_fixed_t vx_,
     pixman_fixed_t unit_x_,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
@@ -4806,7 +4806,7 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *
     pixman_fixed_t vx_,
     pixman_fixed_t unit_x_,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;

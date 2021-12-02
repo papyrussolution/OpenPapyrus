@@ -53,7 +53,7 @@
  */
 #define REPEAT_NORMAL_MIN_WIDTH                 64
 
-static force_inline pixman_bool_t repeat(pixman_repeat_t repeat, int32 * c, int size) // @sobolev int-->int32
+static force_inline boolint repeat(pixman_repeat_t repeat, int32 * c, int size) // @sobolev int-->int32
 {
 	if(repeat == PIXMAN_REPEAT_NONE) {
 		if(*c < 0 || *c >= size)
@@ -240,7 +240,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 
 #define FAST_NEAREST_SCANLINE(scanline_func_name, SRC_FORMAT, DST_FORMAT, src_type_t, dst_type_t, OP, repeat_mode) \
 	static force_inline void scanline_func_name(dst_type_t * dst, const src_type_t * src, int32 w, pixman_fixed_t vx, \
-	    pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, pixman_bool_t fully_transparent_src) \
+	    pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint fully_transparent_src) \
 	{                                                                                               \
 		uint32 d;                                                                           \
 		src_type_t s1, s2;                                                                      \
@@ -443,7 +443,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32 source_image_width
 
 #define FAST_NEAREST_MAINLOOP_NOMASK(scale_func_name, scanline_func, src_type_t, dst_type_t, repeat_mode) \
 	static force_inline void scanline_func ## scale_func_name ## _wrapper(const uint8 * mask, dst_type_t * dst, const src_type_t *src, \
-		int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t fully_transparent_src) \
+		int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint fully_transparent_src) \
 	{                                                                                           \
 		scanline_func(dst, src, w, vx, unit_x, max_vx, fully_transparent_src);                 \
 	}                                                                                           \
@@ -649,7 +649,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
  *		       pixman_fixed_t     vx,
  *		       pixman_fixed_t     unit_x,
  *		       pixman_fixed_t     max_vx,
- *		       pixman_bool_t      zero_src)
+ *		       boolint      zero_src)
  *
  * Where:
  *  dst                 - destination scanline buffer for storing results
@@ -698,7 +698,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
 		int src_width;                                                                              \
 		pixman_fixed_t src_width_fixed;                                                             \
 		int max_x;                                                                                  \
-		pixman_bool_t need_src_extension;                                                           \
+		boolint need_src_extension;                                                           \
 		PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, dst_type_t, dst_stride, dst_line, 1);    \
 		if(flags & FLAG_HAVE_SOLID_MASK) { \
 			solid_mask = _pixman_image_get_solid(imp, mask_image, dest_image->bits.format);        \

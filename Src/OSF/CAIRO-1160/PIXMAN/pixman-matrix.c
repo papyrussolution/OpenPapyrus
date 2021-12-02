@@ -153,7 +153,7 @@ static force_inline void fixed_64_16_to_int128(int64 hi,
  * Convert 112.16 fixed point value to 48.16 with clamping for the out
  * of range values.
  */
-static force_inline pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64 hi, int64 lo, pixman_bool_t * clampflag)
+static force_inline pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64 hi, int64 lo, boolint * clampflag)
 {
 	if((lo >> 63) != hi) {
 		*clampflag = TRUE;
@@ -174,9 +174,9 @@ static force_inline pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64 hi, i
  * and PAD repeats correctly) and the return value is FALSE to indicate that
  * such clamping has happened.
  */
-PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result)
+PIXMAN_EXPORT boolint pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result)
 {
-	pixman_bool_t clampflag = FALSE;
+	boolint clampflag = FALSE;
 	int i;
 	int64 tmp[3][2], divint;
 	uint16 divfrac;
@@ -318,7 +318,7 @@ PIXMAN_EXPORT void pixman_transform_init_identity(struct pixman_transform * matr
 
 typedef pixman_fixed_32_32_t pixman_fixed_34_30_t;
 
-PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_transform_point_3d(const struct pixman_transform * transform, struct pixman_vector * vector)
+PIXMAN_EXPORT boolint FASTCALL pixman_transform_point_3d(const struct pixman_transform * transform, struct pixman_vector * vector)
 {
 	pixman_vector_48_16_t tmp;
 	tmp.v[0] = vector->vector[0];
@@ -331,7 +331,7 @@ PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_transform_point_3d(const struct pixm
 	return vector->vector[0] == tmp.v[0] && vector->vector[1] == tmp.v[1] && vector->vector[2] == tmp.v[2];
 }
 
-PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_transform_point(const struct pixman_transform * transform, struct pixman_vector * vector)
+PIXMAN_EXPORT boolint FASTCALL pixman_transform_point(const struct pixman_transform * transform, struct pixman_vector * vector)
 {
 	pixman_vector_48_16_t tmp;
 	tmp.v[0] = vector->vector[0];
@@ -345,7 +345,7 @@ PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_transform_point(const struct pixman_
 	return vector->vector[0] == tmp.v[0] && vector->vector[1] == tmp.v[1] && vector->vector[2] == tmp.v[2];
 }
 
-PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_transform_multiply(struct pixman_transform * dst, const struct pixman_transform * l, const struct pixman_transform * r)
+PIXMAN_EXPORT boolint FASTCALL pixman_transform_multiply(struct pixman_transform * dst, const struct pixman_transform * l, const struct pixman_transform * r)
 {
 	struct pixman_transform d;
 	int dx, dy;
@@ -381,7 +381,7 @@ static pixman_fixed_t fixed_inverse(pixman_fixed_t x)
 	return (pixman_fixed_t)((((pixman_fixed_48_16_t)F(1)) * F(1)) / x);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_scale(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t sx, pixman_fixed_t sy)
+PIXMAN_EXPORT boolint pixman_transform_scale(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t sx, pixman_fixed_t sy)
 {
 	struct pixman_transform t;
 	if(sx == 0 || sy == 0)
@@ -409,7 +409,7 @@ PIXMAN_EXPORT void FASTCALL pixman_transform_init_rotate(struct pixman_transform
 	t->matrix[2][2] = F(1);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_rotate(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t c, pixman_fixed_t s)
+PIXMAN_EXPORT boolint pixman_transform_rotate(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t c, pixman_fixed_t s)
 {
 	struct pixman_transform t;
 	if(forward) {
@@ -435,7 +435,7 @@ PIXMAN_EXPORT void pixman_transform_init_translate(struct pixman_transform * t, 
 	t->matrix[2][2] = F(1);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_translate(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t tx, pixman_fixed_t ty)
+PIXMAN_EXPORT boolint pixman_transform_translate(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t tx, pixman_fixed_t ty)
 {
 	struct pixman_transform t;
 	if(forward) {
@@ -451,7 +451,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_translate(struct pixman_transform *
 	return TRUE;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_bounds(const struct pixman_transform * matrix, struct pixman_box16 * b)
+PIXMAN_EXPORT boolint pixman_transform_bounds(const struct pixman_transform * matrix, struct pixman_box16 * b)
 {
 	struct pixman_vector v[4];
 	int i;
@@ -499,7 +499,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_bounds(const struct pixman_transfor
 	return TRUE;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_invert(struct pixman_transform * dst, const struct pixman_transform * src)
+PIXMAN_EXPORT boolint pixman_transform_invert(struct pixman_transform * dst, const struct pixman_transform * src)
 {
 	struct pixman_f_transform m;
 	pixman_f_transform_from_pixman_transform(&m, src);
@@ -510,7 +510,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_invert(struct pixman_transform * ds
 	return TRUE;
 }
 
-static pixman_bool_t FASTCALL within_epsilon(pixman_fixed_t a, pixman_fixed_t b, pixman_fixed_t epsilon)
+static boolint FASTCALL within_epsilon(pixman_fixed_t a, pixman_fixed_t b, pixman_fixed_t epsilon)
 {
 	pixman_fixed_t t = a - b;
 	if(t < 0)
@@ -529,7 +529,7 @@ static pixman_bool_t FASTCALL within_epsilon(pixman_fixed_t a, pixman_fixed_t b,
 	IS_ZERO(a))
 #define IS_INT(a)    (IS_ZERO(pixman_fixed_frac(a)))
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_is_identity(const struct pixman_transform * t)
+PIXMAN_EXPORT boolint pixman_transform_is_identity(const struct pixman_transform * t)
 {
 	return (IS_SAME(t->matrix[0][0], t->matrix[1][1]) &&
 	       IS_SAME(t->matrix[0][0], t->matrix[2][2]) &&
@@ -542,7 +542,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_is_identity(const struct pixman_tra
 	       IS_ZERO(t->matrix[2][1]));
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_is_scale(const struct pixman_transform * t)
+PIXMAN_EXPORT boolint pixman_transform_is_scale(const struct pixman_transform * t)
 {
 	return (!IS_ZERO(t->matrix[0][0]) &&
 	       IS_ZERO(t->matrix[0][1]) &&
@@ -557,7 +557,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_is_scale(const struct pixman_transf
 	       !IS_ZERO(t->matrix[2][2]));
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_is_int_translate(const struct pixman_transform * t)
+PIXMAN_EXPORT boolint pixman_transform_is_int_translate(const struct pixman_transform * t)
 {
 	return (IS_ONE(t->matrix[0][0]) &&
 	       IS_ZERO(t->matrix[0][1]) &&
@@ -572,7 +572,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_is_int_translate(const struct pixma
 	       IS_ONE(t->matrix[2][2]));
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_is_inverse(const struct pixman_transform * a, const struct pixman_transform * b)
+PIXMAN_EXPORT boolint pixman_transform_is_inverse(const struct pixman_transform * a, const struct pixman_transform * b)
 {
 	struct pixman_transform t;
 	if(!pixman_transform_multiply(&t, a, b))
@@ -589,7 +589,7 @@ PIXMAN_EXPORT void pixman_f_transform_from_pixman_transform(struct pixman_f_tran
 	}
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_transform_from_pixman_f_transform(struct pixman_transform * t, const struct pixman_f_transform * ft)
+PIXMAN_EXPORT boolint pixman_transform_from_pixman_f_transform(struct pixman_transform * t, const struct pixman_f_transform * ft)
 {
 	int i, j;
 	for(j = 0; j < 3; j++) {
@@ -604,7 +604,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_from_pixman_f_transform(struct pixm
 	return TRUE;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_invert(struct pixman_f_transform * dst, const struct pixman_f_transform * src)
+PIXMAN_EXPORT boolint pixman_f_transform_invert(struct pixman_f_transform * dst, const struct pixman_f_transform * src)
 {
 	static const int a[3] = { 2, 2, 1 };
 	static const int b[3] = { 1, 0, 0 };
@@ -641,7 +641,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_f_transform_invert(struct pixman_f_transform 
 	return TRUE;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_point(const struct pixman_f_transform * t, struct pixman_f_vector * v)
+PIXMAN_EXPORT boolint pixman_f_transform_point(const struct pixman_f_transform * t, struct pixman_f_vector * v)
 {
 	struct pixman_f_vector result;
 	int i, j;
@@ -708,7 +708,7 @@ PIXMAN_EXPORT void pixman_f_transform_init_scale(struct pixman_f_transform * t, 
 	t->m[2][2] = 1;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_scale(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double sx, double sy)
+PIXMAN_EXPORT boolint pixman_f_transform_scale(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double sx, double sy)
 {
 	struct pixman_f_transform t;
 	if(sx == 0 || sy == 0)
@@ -737,7 +737,7 @@ PIXMAN_EXPORT void pixman_f_transform_init_rotate(struct pixman_f_transform * t,
 	t->m[2][2] = 1;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_rotate(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double c, double s)
+PIXMAN_EXPORT boolint pixman_f_transform_rotate(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double c, double s)
 {
 	struct pixman_f_transform t;
 	if(forward) {
@@ -764,7 +764,7 @@ PIXMAN_EXPORT void pixman_f_transform_init_translate(struct pixman_f_transform *
 	t->m[2][2] = 1;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_translate(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double tx, double ty)
+PIXMAN_EXPORT boolint pixman_f_transform_translate(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double tx, double ty)
 {
 	struct pixman_f_transform t;
 	if(forward) {
@@ -778,7 +778,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_f_transform_translate(struct pixman_f_transfo
 	return TRUE;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_bounds(const struct pixman_f_transform * t, struct pixman_box16 * b)
+PIXMAN_EXPORT boolint pixman_f_transform_bounds(const struct pixman_f_transform * t, struct pixman_box16 * b)
 {
 	struct pixman_f_vector v[4];
 	int i;

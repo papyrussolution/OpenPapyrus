@@ -94,7 +94,7 @@ int32_t StringPiece::compare(StringPiece other) {
 	return 0;
 }
 
-U_EXPORT bool U_EXPORT2 operator==(const StringPiece& x, const StringPiece& y) {
+U_EXPORT bool U_EXPORT2 operator == (const StringPiece& x, const StringPiece& y) {
 	int32_t len = x.size();
 	if(len != y.size()) {
 		return false;

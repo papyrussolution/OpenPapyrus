@@ -130,7 +130,7 @@ protected:
 	};
 
 	template <typename ARG, typename SUBRS>
-	struct cs_interp_env_t : interp_env_t<ARG>{
+	struct cs_interp_env_t : interp_env_t<ARG> {
 		void init(const byte_str_t &str, const SUBRS * globalSubrs_, const SUBRS * localSubrs_)
 		{
 			interp_env_t<ARG>::init(str);
@@ -252,7 +252,7 @@ private:
 	};
 
 	template <typename ARG, typename OPSET, typename ENV, typename PARAM, typename PATH = path_procs_null_t<ENV, PARAM>>
-	struct cs_opset_t : opset_t<ARG>{
+	struct cs_opset_t : opset_t<ARG> {
 		static void process_op(op_code_t op, ENV &env, PARAM& param)
 		{
 			switch(op) {
@@ -394,16 +394,13 @@ private:
 				env.str_ref.inc(env.hintmask_size);
 			}
 		}
-
 		static void process_post_flex(op_code_t op, ENV &env, PARAM& param)
 		{
 			OPSET::flush_args_and_op(op, env, param);
 		}
-
 		static void check_width(op_code_t op, ENV &env, PARAM& param)
 		{
 		}
-
 		static void process_post_move(op_code_t op, ENV &env, PARAM& param)
 		{
 			if(!env.seen_moveto) {
@@ -412,36 +409,29 @@ private:
 			}
 			OPSET::flush_args_and_op(op, env, param);
 		}
-
 		static void process_post_path(op_code_t op, ENV &env, PARAM& param)
 		{
 			OPSET::flush_args_and_op(op, env, param);
 		}
-
 		static void flush_args_and_op(op_code_t op, ENV &env, PARAM& param)
 		{
 			OPSET::flush_args(env, param);
 			OPSET::flush_op(op, env, param);
 		}
-
 		static void flush_args(ENV &env, PARAM& param)
 		{
 			env.pop_n_args(env.argStack.get_count());
 		}
-
 		static void flush_op(op_code_t op, ENV &env, PARAM& param)
 		{
 		}
-
 		static void flush_hintmask(op_code_t op, ENV &env, PARAM& param)
 		{
 			OPSET::flush_args_and_op(op, env, param);
 		}
-
 		static bool is_number_op(op_code_t op)
 		{
-			switch(op)
-			{
+			switch(op) {
 				case OpCode_shortint:
 				case OpCode_fixedcs:
 				case OpCode_TwoBytePosInt0: case OpCode_TwoBytePosInt1:
@@ -867,7 +857,7 @@ protected:
 	};
 
 	template <typename ENV, typename OPSET, typename PARAM>
-	struct cs_interpreter_t : interpreter_t<ENV>{
+	struct cs_interpreter_t : interpreter_t<ENV> {
 		bool interpret(PARAM& param)
 		{
 			SUPER::env.set_endchar(false);

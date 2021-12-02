@@ -1851,7 +1851,7 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 		if(!P_BObj->P_Tbl->HasWLabel(rRec.BillID))
 			ok = -1;
 	}
-	else if(!Filt.GoodsGrpID && GObj.IsAsset(labs(goods_id)) > 0)
+	else if(!Filt.GoodsGrpID && GObj.IsAsset(labs(goods_id)))
 		ok = -1;
 	else if(goods_id > 0 && (Filt.AgentID || Filt.Flags & GoodsRestFilt::fZeroSupplAgent)) { // Агента поставщика не проверяем для лотов заказов
 		THROW(P_BObj->trfr->Rcpt.GetOriginDate(&rRec, &org_lot_date, &org_lot_bill_id));

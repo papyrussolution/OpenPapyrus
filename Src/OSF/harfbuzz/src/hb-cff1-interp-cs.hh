@@ -34,7 +34,7 @@ namespace CFF {
 
 	typedef biased_subrs_t<CFF1Subrs>   cff1_biased_subrs_t;
 
-	struct cff1_cs_interp_env_t : cs_interp_env_t<number_t, CFF1Subrs>{
+	struct cff1_cs_interp_env_t : cs_interp_env_t<number_t, CFF1Subrs> {
 		template <typename ACC>
 		void init(const byte_str_t &str, ACC &acc, uint fd)
 		{
@@ -82,7 +82,7 @@ private:
 	};
 
 	template <typename OPSET, typename PARAM, typename PATH = path_procs_null_t<cff1_cs_interp_env_t, PARAM>>
-	struct cff1_cs_opset_t : cs_opset_t<number_t, OPSET, cff1_cs_interp_env_t, PARAM, PATH>{
+	struct cff1_cs_opset_t : cs_opset_t<number_t, OPSET, cff1_cs_interp_env_t, PARAM, PATH> {
 		/* PostScript-originated legacy opcodes (OpCode_add etc) are unsupported */
 		/* Type 1-originated deprecated opcodes, seac behavior of endchar and dotsection are supported */
 
@@ -101,7 +101,6 @@ private:
 				    OPSET::flush_args_and_op(op, env, param);
 				    env.set_endchar(true);
 				    break;
-
 				default:
 				    SUPER::process_op(op, env, param);
 			}
@@ -111,8 +110,7 @@ private:
 		{
 			if(!env.processed_width) {
 				bool has_width = false;
-				switch(op)
-				{
+				switch(op) {
 					case OpCode_endchar:
 					case OpCode_hstem:
 					case OpCode_hstemhm:

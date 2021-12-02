@@ -486,7 +486,7 @@ private:
 	}
 
 	/* No comparison operators with other MaybeStackArray's. */
-	bool operator==(const MaybeStackArray & /*other*/) = delete;
+	bool operator == (const MaybeStackArray & /*other*/) = delete;
 	bool operator != (const MaybeStackArray & /*other*/) = delete;
 	/* No ownership transfer: No copy constructor, no assignment operator. */
 	MaybeStackArray(const MaybeStackArray & /*other*/) = delete;
@@ -711,7 +711,7 @@ private:
 	}
 
 	/* No comparison operators with other MaybeStackHeaderAndArray's. */
-	bool operator==(const MaybeStackHeaderAndArray & /*other*/) {
+	bool operator == (const MaybeStackHeaderAndArray & /*other*/) {
 		return false;
 	}
 

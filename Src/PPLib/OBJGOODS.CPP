@@ -2268,23 +2268,23 @@ int PPObjGoods::ValidateGoodsParent(PPID parentID)
 	return ok;
 }
 
-int PPObjGoods::Fetch(PPID id, Goods2Tbl::Rec * rec) { return P_Tbl->Fetch(id, rec); }
-int PPObjGoods::SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec) { return P_Tbl->SearchByName(Kind, pName, pID, pRec); }
-int PPObjGoods::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return P_Tbl->BelongToGroup(id, grp, pSubGrpID); }
-int PPObjGoods::IsAltGroup(PPID grpID) { return P_Tbl->IsAltGroup(grpID); }
-int PPObjGoods::IsTempAltGroup(PPID grpID) { return P_Tbl->IsTempAltGroup(grpID); }
-int PPObjGoods::IsDynamicAltGroup(PPID grpID) { return P_Tbl->IsDynamicAltGroup(grpID); }
-int PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio) { return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
-int PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList) { return P_Tbl->GetGenericList(genID, pList); }
-int PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongToGen(goodsID, gen, b); }
-int PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta) { return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
-int PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
-int PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
-int PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry) { return P_Tbl->ReadBarcodes(id, rAry); }
-int PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, rBuf); }
-int PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->FetchSingleBarcode(id, rBuf); }
-int PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
-int PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
+int  PPObjGoods::Fetch(PPID id, Goods2Tbl::Rec * rec) { return P_Tbl->Fetch(id, rec); }
+int  PPObjGoods::SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec) { return P_Tbl->SearchByName(Kind, pName, pID, pRec); }
+int  PPObjGoods::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return P_Tbl->BelongToGroup(id, grp, pSubGrpID); }
+int  PPObjGoods::IsAltGroup(PPID grpID) { return P_Tbl->IsAltGroup(grpID); }
+int  PPObjGoods::IsTempAltGroup(PPID grpID) { return P_Tbl->IsTempAltGroup(grpID); }
+int  PPObjGoods::IsDynamicAltGroup(PPID grpID) { return P_Tbl->IsDynamicAltGroup(grpID); }
+int  PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio) { return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
+int  PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList) { return P_Tbl->GetGenericList(genID, pList); }
+int  PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongToGen(goodsID, gen, b); }
+int  PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta) { return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
+int  PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
+int  PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
+int  PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry) { return P_Tbl->ReadBarcodes(id, rAry); }
+int  PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, rBuf); }
+int  PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->FetchSingleBarcode(id, rBuf); }
+bool PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
+bool PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
 
 int PPObjGoods::IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID)
 {
@@ -2323,16 +2323,16 @@ int PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 	return is_found;
 }
 
-int PPObjGoods::CheckFlag(PPID goodsID, long flag)
+bool PPObjGoods::CheckFlag(PPID goodsID, long flag)
 {
 	Goods2Tbl::Rec goods_rec;
-	return BIN(Fetch(labs(goodsID), &goods_rec) > 0 && (goods_rec.Flags & flag) == flag);
+	return (Fetch(labs(goodsID), &goods_rec) > 0 && (goods_rec.Flags & flag) == flag);
 }
 
-int PPObjGoods::IsAssetType(PPID goodsTypeID)
+bool PPObjGoods::IsAssetType(PPID goodsTypeID)
 {
 	PPGoodsType gt_rec;
-	return BIN(goodsTypeID && GtObj.Fetch(goodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ASSETS);
+	return (goodsTypeID && GtObj.Fetch(goodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ASSETS);
 }
 
 int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec)
@@ -2642,7 +2642,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 	else
 		P_Tbl->copyBufTo(&rec);
 	id = rec.ID;
-	if(pFilt->Flags & GoodsFilt::fExcludeAsset && IsAssetType(rec.GoodsTypeID) > 0)
+	if(pFilt->Flags & GoodsFilt::fExcludeAsset && IsAssetType(rec.GoodsTypeID))
 		return 0;
 	if(pFilt->Flags & GoodsFilt::fHidePassive && rec.Flags & GF_PASSIV)
 		CFF_RET;
@@ -3537,7 +3537,7 @@ int PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind g
 		switch(gpk) {
 			case gpkndGoods:
 				dlg_id = DLG_GOODS;
-				if(IsAssetType(pPack->Rec.GoodsTypeID) > 0)
+				if(IsAssetType(pPack->Rec.GoodsTypeID))
 					dlg_id = DLG_ASSET;
 				break;
 			case gpkndOrdinaryGroup: dlg_id = DLG_GOODSGROUP; break;

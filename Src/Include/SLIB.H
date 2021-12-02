@@ -1601,23 +1601,21 @@ enum SEOLFormat {
 //
 class SHandle {
 public:
+	SHandle() : P(0)
+	{
+	}
+	explicit SHandle(void * ptr) : P(ptr)
+	{
+	}
 	SHandle & operator = (void * ptr)
 	{
 		P = ptr;
 		return *this;
 	}
-	SHandle & operator = (uint32 i)
-	{
-		P = 0;
-		I = i;
-		return *this;
-	}
 	int operator !() const { return (P == 0); }
 	operator void * () const { return P; }
-	operator uint32 () const { return I; }
 private:
 	void * P;
-	uint32 I;
 };
 //
 //
@@ -3276,9 +3274,9 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 
 struct DateRange { // @persistent @size=8
 	DECL_INVARIANT_C();
-	int    FASTCALL operator == (const DateRange & rS) const { return IsEq(rS); }
-	int    FASTCALL operator != (const DateRange & rS) const { return !IsEq(rS); }
-	int    FASTCALL IsEq(const DateRange & rS) const;
+	bool   FASTCALL operator == (const DateRange & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const DateRange & rS) const { return !IsEq(rS); }
+	bool   FASTCALL IsEq(const DateRange & rS) const;
 	int    FASTCALL Cmp(const DateRange & rS) const;
 	//
 	// Descr: Возвращает длину интервала в днях.
@@ -3495,9 +3493,9 @@ public:
 	SPoint2F(float x, float y);
 	SPoint2F & FASTCALL operator = (const SPoint2S & p);
 	SPoint2F & FASTCALL operator = (float f);
-	int    FASTCALL operator == (const SPoint2F & rS) const;
-	int    FASTCALL operator != (const SPoint2F & rS) const;
-	int    FASTCALL IsEq(const SPoint2F & rS) const;
+	bool   FASTCALL operator == (const SPoint2F & rS) const;
+	bool   FASTCALL operator != (const SPoint2F & rS) const;
+	bool   FASTCALL IsEq(const SPoint2F & rS) const;
 	bool   IsZero() const;
 	bool   IsPositive() const;
 	SPoint2F Set(float xy);
@@ -3698,10 +3696,10 @@ public:
 	// Descr: Возвращает SString::Cmp(pS, 0) == 0
 	//   То есть, если строка this равна строке pS с учетом регистра символов.
 	//
-	int    FASTCALL operator == (const char * pS) const;
-	int    FASTCALL operator != (const char * pS) const;
-	int    FASTCALL operator == (const SString & rS) const;
-	int    FASTCALL operator != (const SString & rS) const;
+	bool   FASTCALL operator == (const char * pS) const;
+	bool   FASTCALL operator != (const char * pS) const;
+	bool   FASTCALL operator == (const SString & rS) const;
+	bool   FASTCALL operator != (const SString & rS) const;
 	//
 	// Descr: Возвращает символ, находящийся в позиции n (n = 0..)
 	//   Если n больше длины строки, то возвращает 0.
@@ -3712,17 +3710,17 @@ public:
 	//   в противном случае возвращает 0.
 	//
 	int    Single() const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	//int    operator !() const { return Empty(); }
-	int    NotEmpty() const;
+	bool   NotEmpty() const;
 	//
-	// Descr: Возвращает !0 если после применения метода Strip строка становится пустой.
+	// Descr: Возвращает true если после применения метода Strip строка становится пустой.
 	//
-	int    NotEmptyS();
-	int    FASTCALL IsEq(const SString & rS) const;
-	int    FASTCALL IsEq(const char * pS) const;
-	int    FASTCALL IsEqNC(const SString & rS) const;
-	int    FASTCALL IsEqNC(const char * pS) const;
+	bool   NotEmptyS();
+	bool   FASTCALL IsEq(const SString & rS) const;
+	bool   FASTCALL IsEq(const char * pS) const;
+	bool   FASTCALL IsEqNC(const SString & rS) const;
+	bool   FASTCALL IsEqNC(const char * pS) const;
 	bool   FASTCALL IsEqiAscii(const char * pS) const;
 	bool   FASTCALL IsEqiUtf8(const char * pS) const;
 	//
@@ -3808,7 +3806,7 @@ public:
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
-	int    FASTCALL HasChr(int c) const;
+	bool   FASTCALL HasChr(int c) const;
 	//
 	// Descr: проверяет на принадлежность символов строки диапазону [0-9]||[a-z]||[A..Z]
 	// Returns:
@@ -7783,7 +7781,7 @@ public:
 	int    BSearch(long key, long * pVal, uint * pPos) const;
 	int    SearchByVal(long val, long * pKey, uint * pPos) const;
 	int    SearchPair(long key, long val, uint * pPos) const;
-	int    CheckFlag(long key, long mask, int binary = 0) const;
+	bool   CheckFlag(long key, long mask, int binary = 0) const;
 	//
 	// Descr: Сортирует массив по ключу (Key) в возрастающем порядке.
 	//
@@ -7805,7 +7803,7 @@ public:
 //
 //
 struct LLAssoc {
-	int    FASTCALL operator == (const LLAssoc &) const;
+	bool   FASTCALL operator == (const LLAssoc &) const;
 	int64  Key;
 	int64  Val;
 };
@@ -8268,6 +8266,7 @@ private:
 			BaseList & Z();
 			int    FASTCALL Copy(const BaseList & rS);
 			uint   GetCount() const;
+			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
 			int    Implement_Add(int32 key, uint strP);
 			ENTRY * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const;
 			void   Implement_SortByID();
@@ -8293,18 +8292,6 @@ private:
 		uint   GetCount() const;
 	};
 public:
-	class EntryHandle { 
-	public:
-		EntryHandle() : P(0)
-		{
-		}
-		bool operator !() const { return P == 0; }
-		bool IsEmpty() const { return P == 0; }
-	private:
-		EntryHandle(StrAssocTree::ENTRY *);
-		friend class StrAssocTree;
-		void * P; 
-	};
 	StrAssocTree();
 	StrAssocTree(const StrAssocTree & rS);
 	int    FASTCALL Copy(const StrAssocTree & rS);
@@ -8312,9 +8299,12 @@ public:
 	uint   GetCount() const;
 	bool   HasChildren(long id) const;
 	bool   Search(long id, long * pParentId, SString * pBuf) const;
-	EntryHandle FASTCALL Search(long id) const;
+	SHandle FASTCALL Search(long id) const;
+	bool   Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const;
 	//
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
+	//  Порядок обхода элементов дерева - в глубину: перебираются элементы корневого уровня и для каждого элемента,
+	//  имеющего потомков, перебираются эти потомки.
 	//  Параметр rList в начале функции обнуляется. После выполнения функции список НЕ сортируется и 
 	//  из него НЕ удаляются дубликаты (нет вызова rList.sortAndUndup()).
 	//
@@ -8330,7 +8320,7 @@ private:
 	ENTRY::BaseList L;
 	static int Helper_CmpFunc_ByText(const void * p1, const void * p2, const StrAssocTree * pArray);
 	friend DECL_CMPFUNC(StrAssocTreeEntry_ByText);
-	bool   FASTCALL ValidateEntryHandle(const EntryHandle h) const;
+	bool   FASTCALL ValidateEntryHandle(const SHandle h) const;
 };
 //
 //
@@ -10216,7 +10206,7 @@ public:
 	SEOLFormat GetEolFormat() const { return Eolf; }
 	SCodepageIdent GetCp() const { return Cp; }
 	const char * GetCpName() const { return CpName; }
-	int    FASTCALL CheckFlag(long f) const { return BIN(Flags & f); }
+	bool   FASTCALL CheckFlag(long f) const { return LOGIC(Flags & f); }
 	SCodepageIdent GetAutodetectedCp() const;
 private:
 	long   Flags;
@@ -12340,7 +12330,7 @@ long   FASTCALL fmul1000i(double);
 //   1 - fabs(v1-v2) < epsilon
 //   0 - fabs(v1-v2) >= epsilon
 //
-int    FASTCALL feqeps(double v1, double v2, double epsilon);
+inline bool feqeps(double v1, double v2, double epsilon) { return (fabs(v1-v2) < epsilon); }
 //
 // Descr: ret = (dr != 0) ? (dd / dr) : 0
 //
@@ -13144,7 +13134,7 @@ public:
 	SSerializeContext();
 	~SSerializeContext();
 	void   Init(long flags, LDATE suppDate);
-	int    FASTCALL CheckFlag(long f) const;
+	bool   FASTCALL CheckFlag(long f) const;
 	//
 	// Descr: Записывает (считывает) состояние объекта в (из) буфер rBuf.
 	//   Если Flags & fSeparateDataStruct, то вместе с состоянием сериализуется и

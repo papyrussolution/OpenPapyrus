@@ -2954,7 +2954,7 @@ int PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	p_dlg->setDTS(&rec);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&rec) > 0) {
-			THROW(EditItem(PPOBJ_RFIDDEVICE, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_RFIDDEVICE, *pID, &rec, 1));
 			*pID = rec.ID;
 			valid_data = 1;
 			ok = cmOK;

@@ -97,12 +97,12 @@ HB_FUNCOBJ(hb_addressof);
 template <typename T> static inline T hb_declval();
 #define hb_declval(T) (hb_declval<T> ())
 
-template <typename T> struct hb_match_const : hb_type_identity_t<T>, hb_bool_constant<false>{};
+template <typename T> struct hb_match_const : hb_type_identity_t<T>, hb_bool_constant<false> {};
 template <typename T> struct hb_match_const<const T>    : hb_type_identity_t<T>, hb_bool_constant<true> {};
 template <typename T> using hb_remove_const = typename hb_match_const<T>::type;
 template <typename T> using hb_add_const = const T;
 #define hb_is_const(T) hb_match_const<T>::value
-template <typename T> struct hb_match_reference : hb_type_identity_t<T>, hb_bool_constant<false>{};
+template <typename T> struct hb_match_reference : hb_type_identity_t<T>, hb_bool_constant<false> {};
 template <typename T> struct hb_match_reference<T &>    : hb_type_identity_t<T>, hb_bool_constant<true> {};
 template <typename T> struct hb_match_reference<T &&>   : hb_type_identity_t<T>, hb_bool_constant<true> {};
 template <typename T> using hb_remove_reference = typename hb_match_reference<T>::type;
@@ -113,7 +113,7 @@ template <typename T> auto _hb_try_add_rvalue_reference(hb_priority<1>)->hb_type
 template <typename T> auto _hb_try_add_rvalue_reference(hb_priority<0>)->hb_type_identity<T>;
 template <typename T> using hb_add_rvalue_reference = decltype(_hb_try_add_rvalue_reference<T> (hb_prioritize));
 #define hb_is_reference(T) hb_match_reference<T>::value
-template <typename T> struct hb_match_pointer : hb_type_identity_t<T>, hb_bool_constant<false>{};
+template <typename T> struct hb_match_pointer : hb_type_identity_t<T>, hb_bool_constant<false> {};
 template <typename T> struct hb_match_pointer<T *>      : hb_type_identity_t<T>, hb_bool_constant<true> {};
 template <typename T> using hb_remove_pointer = typename hb_match_pointer<T>::type;
 template <typename T> auto _hb_try_add_pointer(hb_priority<1>)->hb_type_identity<hb_remove_reference<T>*>;
@@ -206,7 +206,7 @@ struct hb_reference_wrapper {
 };
 
 template <typename T>
-struct hb_reference_wrapper<T&>{
+struct hb_reference_wrapper<T&> {
 	hb_reference_wrapper(T& v) : v(hb_addressof(v)) {
 	}
 	bool operator == (const hb_reference_wrapper &o) const { return v == o.v; }

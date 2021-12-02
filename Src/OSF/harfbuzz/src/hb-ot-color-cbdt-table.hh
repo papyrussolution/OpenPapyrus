@@ -189,24 +189,17 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			if(!u.header.sanitize(c)) return_trace(false);
-			switch(u.header.indexFormat)
-			{
+			switch(u.header.indexFormat) {
 				case 1: return_trace(u.format1.sanitize(c, glyph_count));
 				case 3: return_trace(u.format3.sanitize(c, glyph_count));
 				default: return_trace(true);
 			}
 		}
-
-		bool finish_subtable(hb_serialize_context_t * c,
-		    uint cbdt_prime_len,
-		    uint num_glyphs,
-		    uint * size /* OUT (accumulated) */)
+		bool finish_subtable(hb_serialize_context_t * c, uint cbdt_prime_len, uint num_glyphs, uint * size /* OUT (accumulated) */)
 		{
 			TRACE_SERIALIZE(this);
-
 			uint local_offset = cbdt_prime_len - u.header.imageDataOffset;
-			switch(u.header.indexFormat)
-			{
+			switch(u.header.indexFormat) {
 				case 1: return_trace(u.format1.add_offset(c, local_offset, size));
 				case 3: {
 				    if(!u.format3.add_offset(c, local_offset, size))
@@ -221,18 +214,12 @@ public:
 				default: return_trace(false);
 			}
 		}
-
-		bool fill_missing_glyphs(hb_serialize_context_t * c,
-		    uint cbdt_prime_len,
-		    uint num_missing,
-		    uint * size /* OUT (accumulated) */,
-		    uint * num_glyphs /* OUT (accumulated) */)
+		bool fill_missing_glyphs(hb_serialize_context_t * c, uint cbdt_prime_len, uint num_missing,
+		    uint * size /* OUT (accumulated) */, uint * num_glyphs /* OUT (accumulated) */)
 		{
 			TRACE_SERIALIZE(this);
-
 			uint local_offset = cbdt_prime_len - u.header.imageDataOffset;
-			switch(u.header.indexFormat)
-			{
+			switch(u.header.indexFormat) {
 				case 1: {
 				    for(uint i = 0; i < num_missing; i++) {
 					    if(UNLIKELY(!u.format1.add_offset(c, local_offset, size)))
@@ -274,13 +261,10 @@ public:
 
 			return_trace(subtable_prime->add_offset(c, new_local_offset, size));
 		}
-
-		bool add_offset(hb_serialize_context_t * c, uint local_offset,
-		    uint * size /* OUT (accumulated) */)
+		bool add_offset(hb_serialize_context_t * c, uint local_offset, uint * size /* OUT (accumulated) */)
 		{
 			TRACE_SERIALIZE(this);
-			switch(u.header.indexFormat)
-			{
+			switch(u.header.indexFormat) {
 				case 1: return_trace(u.format1.add_offset(c, local_offset, size));
 				case 3: return_trace(u.format3.add_offset(c, local_offset, size));
 				// TODO: Implement tables 2, 4, 5
@@ -289,43 +273,30 @@ public:
 				default: return_trace(false);
 			}
 		}
-
 		bool get_extents(hb_glyph_extents_t * extents HB_UNUSED) const
 		{
-			switch(u.header.indexFormat)
-			{
+			switch(u.header.indexFormat) {
 				case 2: case 5: /* TODO */
 				case 1: case 3: case 4: /* Variable-metrics formats do not have metrics here. */
 				default: return (false);
 			}
 		}
-
-		bool get_image_data(uint idx, uint * offset,
-		    uint * length, uint * format) const
+		bool get_image_data(uint idx, uint * offset, uint * length, uint * format) const
 		{
-			* format = u.header.imageFormat;
-			switch(u.header.indexFormat)
-			{
+			*format = u.header.imageFormat;
+			switch(u.header.indexFormat) {
 				case 1: return u.format1.get_image_data(idx, offset, length);
 				case 3: return u.format3.get_image_data(idx, offset, length);
 				default: return false;
 			}
 		}
-
-		const IndexSubtableHeader* get_header() const {
-			return &u.header;
-		}
-
-		void populate_header(unsigned index_format,
-		    unsigned image_format,
-		    uint image_data_offset,
-		    uint * size)
+		const IndexSubtableHeader* get_header() const { return &u.header; }
+		void populate_header(unsigned index_format, unsigned image_format, uint image_data_offset, uint * size)
 		{
 			u.header.indexFormat = index_format;
 			u.header.imageFormat = image_format;
 			u.header.imageDataOffset = image_data_offset;
-			switch(u.header.indexFormat)
-			{
+			switch(u.header.indexFormat) {
 				case 1: *size += IndexSubtableFormat1::min_size; break;
 				case 3: *size += IndexSubtableFormat3::min_size; break;
 			}
@@ -790,20 +761,15 @@ public:
 				const IndexSubtableRecord * subtable_record = strike.find_table(glyph, cblc, &base);
 				if(!subtable_record || !strike.ppemX || !strike.ppemY)
 					return false;
-
 				if(subtable_record->get_extents(extents, base))
 					return true;
-
 				uint image_offset = 0, image_length = 0, image_format = 0;
 				if(!subtable_record->get_image_data(glyph, base, &image_offset, &image_length, &image_format))
 					return false;
-
 				uint cbdt_len = cbdt.get_length();
 				if(UNLIKELY(image_offset > cbdt_len || cbdt_len - image_offset < image_length))
 					return false;
-
-				switch(image_format)
-				{
+				switch(image_format) {
 					case 17: {
 					    if(UNLIKELY(image_length < GlyphBitmapDataFormat17::min_size))
 						    return false;
@@ -847,9 +813,7 @@ public:
 				uint cbdt_len = cbdt.get_length();
 				if(UNLIKELY(image_offset > cbdt_len || cbdt_len - image_offset < image_length))
 					return hb_blob_get_empty();
-
-				switch(image_format)
-				{
+				switch(image_format) {
 					case 17:
 				    {
 					    if(UNLIKELY(image_length < GlyphBitmapDataFormat17::min_size))

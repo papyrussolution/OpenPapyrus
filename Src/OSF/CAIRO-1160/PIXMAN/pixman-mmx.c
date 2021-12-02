@@ -453,7 +453,7 @@ static force_inline void store8888(uint32 * dest, __m64 v)
 	store(dest, v);
 }
 
-static force_inline pixman_bool_t is_equal(__m64 a, __m64 b)
+static force_inline boolint is_equal(__m64 a, __m64 b)
 {
 #ifdef USE_LOONGSON_MMI
 	/* __m64 is double, we can compare directly. */
@@ -463,7 +463,7 @@ static force_inline pixman_bool_t is_equal(__m64 a, __m64 b)
 #endif
 }
 
-static force_inline pixman_bool_t is_opaque(__m64 v)
+static force_inline boolint is_opaque(__m64 v)
 {
 #ifdef USE_LOONGSON_MMI
 	return is_equal(_mm_and_si64(v, MC(full_alpha)), MC(full_alpha));
@@ -473,7 +473,7 @@ static force_inline pixman_bool_t is_opaque(__m64 v)
 #endif
 }
 
-static force_inline pixman_bool_t is_zero(__m64 v)
+static force_inline boolint is_zero(__m64 v)
 {
 	return is_equal(v, _mm_setzero_si64());
 }
@@ -1929,7 +1929,7 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 	_mm_empty();
 }
 
-static pixman_bool_t mmx_fill(pixman_implementation_t * imp,
+static boolint mmx_fill(pixman_implementation_t * imp,
     uint32 * bits,
     int stride,
     int bpp,
@@ -3017,7 +3017,7 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
 	_mm_empty();
 }
 
-static pixman_bool_t mmx_blt(pixman_implementation_t * imp,
+static boolint mmx_blt(pixman_implementation_t * imp,
     uint32 * src_bits,
     uint32 * dst_bits,
     int src_stride,
@@ -3293,7 +3293,7 @@ static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32*     
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t src_width_fixed,
-    pixman_bool_t fully_transparent_src)
+    boolint fully_transparent_src)
 {
 	if(fully_transparent_src)
 		return;
@@ -3334,7 +3334,7 @@ static force_inline void scaled_nearest_scanline_mmx_8888_n_8888_OVER(const uint
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t src_width_fixed,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	__m64 mm_mask;
 
@@ -3439,7 +3439,7 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8888_SRC(uint32 *  ds
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	BILINEAR_DECLARE_VARIABLES;
 	__m64 pix;
@@ -3480,7 +3480,7 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8888_OVER(uint32 *  d
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	BILINEAR_DECLARE_VARIABLES;
 	__m64 pix1, pix2;
@@ -3527,7 +3527,7 @@ static force_inline void scaled_bilinear_scanline_mmx_8888_8_8888_OVER(uint32 * 
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t max_vx,
-    pixman_bool_t zero_src)
+    boolint zero_src)
 {
 	BILINEAR_DECLARE_VARIABLES;
 	__m64 pix1, pix2;

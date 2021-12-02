@@ -4985,7 +4985,7 @@ void PsnSelAnalogDialog::getResult(PPID * pID)
 	ASSIGN_PTR(pID, Selection);
 }
 
-int PsnSelAnalogDialog::setupList()
+void PsnSelAnalogDialog::setupList()
 {
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_PSNSELANALOG_LIST));
 	if(p_list) {
@@ -4994,17 +4994,16 @@ int PsnSelAnalogDialog::setupList()
 		p_list->freeAll();
 		if(sap.NamePattern.NotEmptyS()) {
 			PPIDArray id_list;
+			PersonTbl::Rec rec;
 			P_PsnObj->GetListByPattern(&sap, &id_list);
 			for(uint i = 0; i < id_list.getCount(); i++) {
 				const PPID psn_id = id_list.get(i);
-				PersonTbl::Rec rec;
 				if(P_PsnObj->Search(psn_id, &rec) > 0)
 					p_list->addItem(psn_id, rec.Name);
 			}
 		}
 		p_list->Draw_();
 	}
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(PsnSelAnalogDialog)
@@ -6588,7 +6587,7 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTL_PSNKIND_DEFSTATUS, &psnk.DefStatusID);
 			dlg->GetClusterData(CTL_PSNKIND_FLAGS, &psnk.Flags);
 			*pID = psnk.ID;
-			THROW(EditItem(PPOBJ_PERSONKIND, *pID, &psnk, 1));
+			THROW(StoreItem(PPOBJ_PERSONKIND, *pID, &psnk, 1));
 			*pID = psnk.ID;
 			Dirty(*pID);
 			ok = cmOK;
@@ -6638,7 +6637,7 @@ int PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		PPPersonKind * p_rec = static_cast<PPPersonKind *>(p->Data);
 		if(*pID || SearchByName(p_rec->Name, pID, 0) > 0) {
 			p_rec->ID = *pID;
-			int    r = EditItem(Obj, *pID, p_rec, 1);
+			int    r = StoreItem(Obj, *pID, p_rec, 1);
 			if(r > 0)
    			    ok = ((*pID = P_Ref->data.ObjID), 102);
 			else if(r < 0)
@@ -6651,7 +6650,7 @@ int PPObjPersonKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 		}
 		else {
 			p_rec->ID = *pID = 0;
-			if(EditItem(Obj, *pID, p_rec, 1))
+			if(StoreItem(Obj, *pID, p_rec, 1))
 			    ok = ((*pID = P_Ref->data.ObjID), 101);
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);

@@ -3886,7 +3886,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								int    upd = 0;
 								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
 									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
-										templt = (GObj.IsAsset(p_ti->GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
+										templt = GObj.IsAsset(p_ti->GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
 											if(temp_buf.NotEmptyS()) {
 												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf);

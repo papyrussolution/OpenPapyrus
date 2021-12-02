@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -39,7 +39,7 @@ int PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 		dlg->GetClusterData(CTL_ADVBILLKIND_FLAGS, &rec.Flags);
 		if(!CheckName(*pID, rec.Name, 0))
 			dlg->selectCtrl(CTL_ADVBILLKIND_NAME);
-		else if(EditItem(Obj, *pID, &rec, 1)) {
+		else if(StoreItem(Obj, *pID, &rec, 1)) {
 			Dirty(*pID);
 			valid_data = 1;
 		}

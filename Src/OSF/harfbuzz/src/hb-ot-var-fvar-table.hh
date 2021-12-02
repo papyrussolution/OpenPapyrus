@@ -283,12 +283,12 @@ public:
 			;
 
 			+hb_range((uint)instanceCount)
-			| hb_map([this] (const unsigned _) { return get_instance_subfamily_name_id(_); })
+			| hb_map([this] (const uint _) { return get_instance_subfamily_name_id(_); })
 			| hb_sink(nameids)
 			;
 
 			+hb_range((uint)instanceCount)
-			| hb_map([this] (const unsigned _) { return get_instance_postscript_name_id(_); })
+			| hb_map([this] (const uint _) { return get_instance_postscript_name_id(_); })
 			| hb_sink(nameids)
 			;
 		}

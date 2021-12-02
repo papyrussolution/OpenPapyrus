@@ -40,8 +40,8 @@ public:
 
     ~NFRuleSet();
 
-    bool operator==(const NFRuleSet& rhs) const;
-    bool operator != (const NFRuleSet& rhs) const { return !operator==(rhs); }
+    bool operator == (const NFRuleSet& rhs) const;
+    bool operator != (const NFRuleSet& rhs) const { return !operator == (rhs); }
 
     bool isPublic() const { return fIsPublic; }
 

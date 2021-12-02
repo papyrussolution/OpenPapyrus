@@ -86,10 +86,10 @@ public:
   * equal if they are of the same size and all elements are equal,
   * as compared using this object's comparer.
      */
-    bool operator==(const UVector32& other);
+    bool operator == (const UVector32& other);
 
     /**
-  * Equivalent to !operator==()
+  * Equivalent to !operator == ()
      */
     inline bool operator != (const UVector32& other);
 
@@ -269,7 +269,7 @@ inline int32_t UVector32::lastElementi() const {
 }
 
 inline bool UVector32::operator != (const UVector32& other) {
-    return !operator==(other);
+    return !operator == (other);
 }
 
 inline int32_t *UVector32::getBuffer() const {

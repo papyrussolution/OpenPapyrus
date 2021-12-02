@@ -275,11 +275,11 @@ UCharsTrieBuilder::UCTLinearMatchNode::UCTLinearMatchNode(const UChar * units, i
 	hash = hash*37u+ustr_hashUCharsN(units, len);
 }
 
-bool UCharsTrieBuilder::UCTLinearMatchNode::operator==(const Node &other) const {
+bool UCharsTrieBuilder::UCTLinearMatchNode::operator == (const Node &other) const {
 	if(this==&other) {
 		return true;
 	}
-	if(!LinearMatchNode::operator==(other)) {
+	if(!LinearMatchNode::operator == (other)) {
 		return false;
 	}
 	const UCTLinearMatchNode &o = (const UCTLinearMatchNode &)other;

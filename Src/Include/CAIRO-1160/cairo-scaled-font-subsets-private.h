@@ -63,7 +63,7 @@ typedef struct _cairo_scaled_font_subsets_glyph {
  * caller owns this object and should call
  * _cairo_scaled_font_subsets_destroy() when done with it.
  **/
-cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_scaled(void);
+cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_scaled();
 
 /**
  * _cairo_scaled_font_subsets_create_simple:
@@ -83,7 +83,7 @@ cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_sc
  * caller owns this object and should call
  * _cairo_scaled_font_subsets_destroy() when done with it.
  **/
-cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_simple(void);
+cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_simple();
 /**
  * _cairo_scaled_font_subsets_create_composite:
  *
@@ -105,7 +105,7 @@ cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_si
  * caller owns this object and should call
  * _cairo_scaled_font_subsets_destroy() when done with it.
  **/
-cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_composite(void);
+cairo_private cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_composite();
 
 /**
  * _cairo_scaled_font_subsets_destroy:

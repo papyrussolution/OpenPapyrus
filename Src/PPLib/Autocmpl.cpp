@@ -648,9 +648,9 @@ const PPGoodsStruc * PPComplBlock::GetGoodsStruc(uint idx/*0..*/) const
 	return p_result;
 }
 
-int PPComplBlock::Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsID, double srcQtty)
+int PPComplBlock::Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsID, double srcQtty, uint * pResultIdx)
 {
-	int    ok = 1;
+	int    ok = -1;
 	double sqtty = 0.0;
 	PPGoodsStrucItem gsi;
 	THROW(srcGsPos < rGs.Items.getCount());
@@ -692,6 +692,71 @@ int PPComplBlock::Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsI
 		s.PartQty = fdivnz(_qtty, Head.NeedQty);
 		s.FreeQty = 0.0;
 		THROW_SL(insert(&s));
+		assert(getCount() > 0); // @v11.2.5
+		ASSIGN_PTR(pResultIdx, getCount()-1); // @v11.2.5
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPComplBlock::Helper_InitCompleteData(const PPGoodsStruc & rGs, PPID goodsID, double needQty, const PPBillPacket * pBillPack, bool recursiveUnrollIncome)
+{
+	int    ok = 1;
+	LongArray new_idx_list;
+	{
+		PPObjGoods goods_obj;
+		PPObjGoodsStruc gs_obj;
+		for(uint i = 0; i < rGs.Items.getCount(); i++) {
+			const PPGoodsStrucItem & r_gs_item = rGs.Items.at(i);
+			bool skip = false;
+			if(recursiveUnrollIncome) {
+				//gs_obj.Selector()
+				PPGoodsStruc::Ident gs_ident(r_gs_item.GoodsID, -1L, GSF_PARTITIAL, pBillPack->Rec.Dt);
+				gs_ident.AndFlags = (GSF_DECOMPL);
+				TSCollection <PPGoodsStruc> gs_list;
+				if(goods_obj.LoadGoodsStruc(gs_ident, gs_list) > 0 && gs_list.getCount() == 1) {
+					PPGoodsStrucItem gsi;
+					double sqtty = 0.0;
+					const int gixr = rGs.GetItemExt(i, &gsi, goodsID, needQty, &sqtty);
+					if(gixr == 1) { // Если количество задано формулой, то пока не будем разворачивать такую структуру
+						Helper_InitCompleteData(*gs_list.at(0), gsi.GoodsID, sqtty, pBillPack, recursiveUnrollIncome); // @recursion
+						skip = true;
+					}
+				}
+			}
+			if(!skip) {
+				uint result_idx = 0;
+				int r = Add(rGs, i, goodsID, needQty, &result_idx);
+				if(r > 0) {
+					assert(result_idx < getCount());
+					new_idx_list.add(result_idx);
+				}
+				THROW(r);
+			}
+		}
+	}
+	{
+		SString formula;
+		rGs.P_Cb = this;
+		for(uint i = 0; i < new_idx_list.getCount(); i++) {
+			const uint idx = static_cast<uint>(new_idx_list.at(i));
+			ComplItem & r_item = at(idx);
+			if(r_item.GsiFlags & GSIF_FORMULA) {
+				GetFormula(idx, formula);
+				assert(formula.NotEmpty());
+				//
+				double v = 0.0;
+				//const  PPGoodsStrucItem & r_gsi = Items.at(r_item.SrcGsPos-1);
+				const PPGoodsStruc * p_gs = GetGoodsStruc(idx);
+				assert(p_gs);
+				GdsClsCalcExprContext ctx(p_gs, pBillPack);
+				THROW(PPCalcExpression(formula, &v, &ctx));
+				r_item.NeedQty = v;
+				r_item.PartQty = fdivnz(v, needQty);
+			}
+		}
+		rGs.P_Cb = 0;
 	}
 	CATCHZOK
 	return ok;
@@ -707,34 +772,7 @@ int PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPBillPac
 	rData.Head.NeedQty = needQty;
 	rData.Head.FreeQty = 0.0;
 	rData.Head.GoodsFlags = (goods_obj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
-	{
-		for(uint i = 0; i < Items.getCount(); i++) {
-			/*if(recursiveUnrollIncome && RecursiveUnrollIncome(gsi.GoodsID, 0.0, pBillPack, rData) > 0) {
-			}*/
-			THROW(rData.Add(*this, i, goodsID, needQty));
-		}
-	}
-	{
-		SString formula;
-		P_Cb = &rData;
-		for(uint i = 0; i < rData.getCount(); i++) {
-			ComplItem & r_item = rData.at(i);
-			if(r_item.GsiFlags & GSIF_FORMULA) {
-				rData.GetFormula(i, formula);
-				assert(formula.NotEmpty());
-				//
-				double v = 0.0;
-				//const  PPGoodsStrucItem & r_gsi = Items.at(r_item.SrcGsPos-1);
-				const PPGoodsStruc * p_gs = rData.GetGoodsStruc(i);
-				assert(p_gs);
-				GdsClsCalcExprContext ctx(p_gs, pBillPack);
-				THROW(PPCalcExpression(formula, &v, &ctx));
-				r_item.NeedQty = v;
-				r_item.PartQty = fdivnz(v, needQty);
-			}
-		}
-		P_Cb = 0;
-	}
+	THROW(rData.Helper_InitCompleteData(*this, goodsID, needQty, pBillPack, recursiveUnrollIncome));
 #if 0 // @v11.2.4 {
 	{
 		int    r;
@@ -865,7 +903,7 @@ int PPBillPacket::InsertComplete(PPGoodsStruc & rGs, uint pos, PUGL * pDfctList,
 		PUGL   deficit_list;
 		PUGL * p_deficit_list = NZOR(pDfctList, &deficit_list);
 		ComplItem * ps;
-		THROW(rGs.InitCompleteData(p_ti->GoodsID, need_qty, this, /*&S,*/ ary, recursive));
+		THROW(rGs.InitCompleteData(p_ti->GoodsID, need_qty, this, /*&S,*/ ary, (p_ti->Flags & PPTFR_MINUS) ? recursive : false));
 		for(uint i = 0; ary.enumItems(&i, (void **)&ps);) {
 			if(ps->PartQty != 0.0 && ps->NeedQty != 0.0) {
 				ILTI   ilti;

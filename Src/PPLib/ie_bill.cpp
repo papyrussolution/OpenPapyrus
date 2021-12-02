@@ -3157,7 +3157,7 @@ int PPBillImporter::Import(int useTa)
 									P_BObj->AdjustSerialForUniq(ti.GoodsID, ti.LotID, 0, serial);
 								}
 								else if(P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
-									sn_templt = (GObj.IsAsset(ti.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
+									sn_templt = GObj.IsAsset(ti.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 									P_BObj->GetSnByTemplate(pack.Rec.Code, labs(ti.GoodsID), &pack.LTagL/*SnL*/, sn_templt, serial);
 								}
 							}

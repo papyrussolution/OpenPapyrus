@@ -98,7 +98,7 @@ PIXMAN_MIPS_BIND_SCALED_BILINEAR_SRC_A8_DST(0, 0565_8_0565, SRC, uint16, uint16)
 PIXMAN_MIPS_BIND_SCALED_BILINEAR_SRC_A8_DST(SKIP_ZERO_SRC, 8888_8_8888, OVER, uint32, uint32)
 PIXMAN_MIPS_BIND_SCALED_BILINEAR_SRC_A8_DST(SKIP_ZERO_SRC, 8888_8_8888, ADD, uint32, uint32)
 
-static pixman_bool_t mips_dspr2_fill(pixman_implementation_t * imp, uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 _xor)
+static boolint mips_dspr2_fill(pixman_implementation_t * imp, uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 _xor)
 {
 	uint8 * byte_line;
 	uint32 byte_width;
@@ -132,7 +132,7 @@ static pixman_bool_t mips_dspr2_fill(pixman_implementation_t * imp, uint32 * bit
 	}
 }
 
-static pixman_bool_t mips_dspr2_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride, int dst_stride,
+static boolint mips_dspr2_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride, int dst_stride,
     int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {
 	if(src_bpp != dst_bpp)

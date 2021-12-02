@@ -35,7 +35,7 @@
 #ifdef __APPLE__
 #include <sys/sysctl.h>
 
-static pixman_bool_t pixman_have_vmx(void)
+static boolint pixman_have_vmx(void)
 {
 	int error, have_vmx;
 	size_t length = sizeof(have_vmx);
@@ -53,7 +53,7 @@ static pixman_bool_t pixman_have_vmx(void)
 #include <sys/sysctl.h>
 #include <machine/cpu.h>
 
-static pixman_bool_t pixman_have_vmx(void)
+static boolint pixman_have_vmx(void)
 {
 	int error, have_vmx;
 	int mib[2] = { CTL_MACHDEP, CPU_ALTIVEC };
@@ -77,7 +77,7 @@ static pixman_bool_t pixman_have_vmx(void)
 #include <linux/auxvec.h>
 #include <asm/cputable.h>
 
-static pixman_bool_t pixman_have_vmx(void)
+static boolint pixman_have_vmx(void)
 {
 	int have_vmx = FALSE;
 	int fd;
@@ -112,7 +112,7 @@ static void vmx_test(int sig, siginfo_t * si, void * unused)
 	longjmp(jump_env, 1);
 }
 
-static pixman_bool_t pixman_have_vmx(void)
+static boolint pixman_have_vmx(void)
 {
 	struct sigaction sa, osa;
 	int jmp_result;

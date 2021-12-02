@@ -230,8 +230,7 @@ static cairo_status_t upload_boxes(cairo_win32_display_surface_t * dst, const ca
 	TRACE_FUNCTION_SIMPLE();
 	if((dst->win32.flags & CAIRO_WIN32_SURFACE_CAN_STRETCHDIB) == 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-	if(!_cairo_matrix_is_integer_translation(&source->matrix,
-	    &cb.tx, &cb.ty))
+	if(!_cairo_matrix_is_integer_translation(&source->matrix, &cb.tx, &cb.ty))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	pattern = (const cairo_surface_pattern_t*)source;
 	surface = _cairo_surface_get_source(pattern->surface, &cb.limit);
@@ -464,7 +463,7 @@ static boolint check_glyphs(cairo_composite_rectangles_t * composite, cairo_scal
 		return FALSE;
 	if(!_cairo_pattern_is_opaque_solid(&composite->source_pattern.base))
 		return FALSE;
-	return (composite->op == CAIRO_OPERATOR_CLEAR || composite->op == CAIRO_OPERATOR_SOURCE || composite->op == CAIRO_OPERATOR_OVER);
+	return oneof3(composite->op, CAIRO_OPERATOR_CLEAR, CAIRO_OPERATOR_SOURCE, CAIRO_OPERATOR_OVER);
 }
 
 static cairo_int_status_t _cairo_win32_gdi_compositor_glyphs(const cairo_compositor_t * compositor,

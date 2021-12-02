@@ -327,7 +327,7 @@ struct cff1_extents_param_t {
 	const OT::cff1::accelerator_t * cff;
 };
 
-struct cff1_path_procs_extents_t : path_procs_t<cff1_path_procs_extents_t, cff1_cs_interp_env_t, cff1_extents_param_t>{
+struct cff1_path_procs_extents_t : path_procs_t<cff1_path_procs_extents_t, cff1_cs_interp_env_t, cff1_extents_param_t> {
 	static void moveto(cff1_cs_interp_env_t &env, cff1_extents_param_t& param, const point_t &pt)
 	{
 		param.end_path();
@@ -361,7 +361,7 @@ struct cff1_path_procs_extents_t : path_procs_t<cff1_path_procs_extents_t, cff1_
 
 static bool _get_bounds(const OT::cff1::accelerator_t * cff, hb_codepoint_t glyph, bounds_t &bounds, bool in_seac = false);
 
-struct cff1_cs_opset_extents_t : cff1_cs_opset_t<cff1_cs_opset_extents_t, cff1_extents_param_t, cff1_path_procs_extents_t>{
+struct cff1_cs_opset_extents_t : cff1_cs_opset_t<cff1_cs_opset_extents_t, cff1_extents_param_t, cff1_path_procs_extents_t> {
 	static void process_seac(cff1_cs_interp_env_t &env, cff1_extents_param_t& param)
 	{
 		uint n = env.argStack.get_count();
@@ -482,7 +482,7 @@ struct cff1_path_param_t {
 	const OT::cff1::accelerator_t * cff;
 };
 
-struct cff1_path_procs_path_t : path_procs_t<cff1_path_procs_path_t, cff1_cs_interp_env_t, cff1_path_param_t>{
+struct cff1_path_procs_path_t : path_procs_t<cff1_path_procs_path_t, cff1_cs_interp_env_t, cff1_path_param_t> {
 	static void moveto(cff1_cs_interp_env_t &env, cff1_path_param_t& param, const point_t &pt)
 	{
 		param.move_to(pt);
@@ -505,7 +505,7 @@ struct cff1_path_procs_path_t : path_procs_t<cff1_path_procs_path_t, cff1_cs_int
 static bool _get_path(const OT::cff1::accelerator_t * cff, hb_font_t * font, hb_codepoint_t glyph,
     draw_helper_t &draw_helper, bool in_seac = false, point_t * delta = nullptr);
 
-struct cff1_cs_opset_path_t : cff1_cs_opset_t<cff1_cs_opset_path_t, cff1_path_param_t, cff1_path_procs_path_t>{
+struct cff1_cs_opset_path_t : cff1_cs_opset_t<cff1_cs_opset_path_t, cff1_path_param_t, cff1_path_procs_path_t> {
 	static void process_seac(cff1_cs_interp_env_t &env, cff1_path_param_t& param)
 	{
 		/* End previous path */
@@ -573,7 +573,7 @@ struct get_seac_param_t {
 	hb_codepoint_t accent;
 };
 
-struct cff1_cs_opset_seac_t : cff1_cs_opset_t<cff1_cs_opset_seac_t, get_seac_param_t>{
+struct cff1_cs_opset_seac_t : cff1_cs_opset_t<cff1_cs_opset_seac_t, get_seac_param_t> {
 	static void process_seac(cff1_cs_interp_env_t &env, get_seac_param_t& param)
 	{
 		uint n = env.argStack.get_count();

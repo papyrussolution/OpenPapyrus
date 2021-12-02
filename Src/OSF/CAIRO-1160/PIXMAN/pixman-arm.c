@@ -187,10 +187,10 @@ detect_cpu_features (void)
 
 #endif /* Linux elf */
 
-static pixman_bool_t
+static boolint
 have_feature (arm_cpu_features_t feature)
 {
-    static pixman_bool_t initialized;
+    static boolint initialized;
     static arm_cpu_features_t features;
 
     if(!initialized)

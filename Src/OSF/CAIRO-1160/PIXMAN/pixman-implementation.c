@@ -144,7 +144,7 @@ static void dummy_combine(pixman_implementation_t * imp, pixman_op_t op, uint32 
 {
 }
 
-pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implementation_t * imp, pixman_op_t op, pixman_bool_t component_alpha, pixman_bool_t narrow)
+pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implementation_t * imp, pixman_op_t op, boolint component_alpha, boolint narrow)
 {
 	while(imp) {
 		pixman_combine_32_func_t f = NULL;
@@ -171,7 +171,7 @@ pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implement
 	return dummy_combine;
 }
 
-pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp,
+boolint _pixman_implementation_blt(pixman_implementation_t * imp,
     uint32 * src_bits,
     uint32 * dst_bits,
     int src_stride,
@@ -196,7 +196,7 @@ pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp,
 	return FALSE;
 }
 
-pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32 * bits,
+boolint _pixman_implementation_fill(pixman_implementation_t * imp, uint32 * bits,
     int stride, int bpp, int x, int y, int width, int height, uint32 filler)
 {
 	while(imp) {
@@ -250,7 +250,7 @@ void _pixman_implementation_iter_init(pixman_implementation_t * imp, pixman_iter
 	}
 }
 
-pixman_bool_t _pixman_disabled(const char * name)
+boolint _pixman_disabled(const char * name)
 {
 	const char * env;
 	if((env = getenv("PIXMAN_DISABLE"))) {

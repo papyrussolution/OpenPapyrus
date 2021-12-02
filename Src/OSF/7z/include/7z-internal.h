@@ -907,7 +907,7 @@ public:
 	}
 	T * operator=(const CMyComPtr<T>& lp) { return (*this = lp._p); }
 	bool operator!() const { return (_p == NULL); }
-	// bool operator==(T* pT) const {  return _p == pT; }
+	// bool operator == (T* pT) const {  return _p == pT; }
 	void Attach(T* p2)
 	{
 		Release();
@@ -1975,25 +1975,25 @@ public:
 //bool operator < (const AString & s1, const AString & s2);
 //bool operator > (const AString & s1, const AString & s2);
 /*
-   bool operator==(const AString &s1, const AString &s2);
-   bool operator==(const AString &s1, const char    *s2);
-   bool operator==(const char    *s1, const AString &s2);
+   bool operator == (const AString &s1, const AString &s2);
+   bool operator == (const AString &s1, const char    *s2);
+   bool operator == (const char    *s1, const AString &s2);
 
    bool operator!=(const AString &s1, const AString &s2);
    bool operator!=(const AString &s1, const char    *s2);
    bool operator!=(const char    *s1, const AString &s2);
  */
-inline bool operator==(const AString &s1, const AString &s2) { return s1.Len() == s2.Len() && strcmp(s1, s2) == 0; }
-inline bool operator==(const AString &s1, const char    * s2) { return strcmp(s1, s2) == 0; }
-inline bool operator==(const char    * s1, const AString &s2) { return strcmp(s1, s2) == 0; }
+inline bool operator == (const AString &s1, const AString &s2) { return s1.Len() == s2.Len() && strcmp(s1, s2) == 0; }
+inline bool operator == (const AString &s1, const char    * s2) { return strcmp(s1, s2) == 0; }
+inline bool operator == (const char    * s1, const AString &s2) { return strcmp(s1, s2) == 0; }
 inline bool operator!=(const AString &s1, const AString &s2) { return s1.Len() != s2.Len() || strcmp(s1, s2) != 0; }
 inline bool operator!=(const AString &s1, const char    * s2) { return strcmp(s1, s2) != 0; }
 inline bool operator!=(const char    * s1, const AString &s2) { return strcmp(s1, s2) != 0; }
 
 // ---------- forbidden functions ----------
 
-void operator==(char c1, const AString &s2);
-void operator==(const AString &s1, char c2);
+void operator == (char c1, const AString &s2);
+void operator == (const AString &s1, char c2);
 void operator+(char c, const AString &s); // this function can be OK, but we don't use it
 void operator+(const AString &s, int c);
 void operator+(const AString &s, unsigned c);
@@ -2151,17 +2151,17 @@ public:
 bool operator < (const UString &s1, const UString &s2);
 bool operator > (const UString &s1, const UString &s2);
 
-inline bool operator==(const UString &s1, const UString &s2) { return s1.Len() == s2.Len() && wcscmp(s1, s2) == 0; }
-inline bool operator==(const UString &s1, const wchar_t * s2) { return wcscmp(s1, s2) == 0; }
-inline bool operator==(const wchar_t * s1, const UString &s2) { return wcscmp(s1, s2) == 0; }
+inline bool operator == (const UString &s1, const UString &s2) { return s1.Len() == s2.Len() && wcscmp(s1, s2) == 0; }
+inline bool operator == (const UString &s1, const wchar_t * s2) { return wcscmp(s1, s2) == 0; }
+inline bool operator == (const wchar_t * s1, const UString &s2) { return wcscmp(s1, s2) == 0; }
 inline bool operator!=(const UString &s1, const UString &s2) { return s1.Len() != s2.Len() || wcscmp(s1, s2) != 0; }
 inline bool operator!=(const UString &s1, const wchar_t * s2) { return wcscmp(s1, s2) != 0; }
 inline bool operator!=(const wchar_t * s1, const UString &s2) { return wcscmp(s1, s2) != 0; }
 
 // ---------- forbidden functions ----------
 
-void operator==(wchar_t c1, const UString &s2);
-void operator==(const UString &s1, wchar_t c2);
+void operator == (wchar_t c1, const UString &s2);
+void operator == (const UString &s1, wchar_t c2);
 void operator+(wchar_t c, const UString &s); // this function can be OK, but we don't use it
 void operator+(const AString &s1, const UString &s2);
 void operator+(const UString &s1, const AString &s2);
@@ -2228,9 +2228,9 @@ public:
 	void SetFromAscii(const char * s);
 };
 
-bool operator==(const UString2 &s1, const UString2 &s2);
-bool operator==(const UString2 &s1, const wchar_t * s2);
-bool operator==(const wchar_t * s1, const UString2 &s2);
+bool operator == (const UString2 &s1, const UString2 &s2);
+bool operator == (const UString2 &s1, const wchar_t * s2);
+bool operator == (const wchar_t * s1, const UString2 &s2);
 
 inline bool operator!=(const UString2 &s1, const UString2 &s2) { return !(s1 == s2); }
 inline bool operator!=(const UString2 &s1, const wchar_t * s2) { return !(s1 == s2); }
@@ -2238,8 +2238,8 @@ inline bool operator!=(const wchar_t * s1, const UString2 &s2) { return !(s1 == 
 
 // ---------- forbidden functions ----------
 
-void operator==(wchar_t c1, const UString2 &s2);
-void operator==(const UString2 &s1, wchar_t c2);
+void operator == (wchar_t c1, const UString2 &s2);
+void operator == (const UString2 &s1, wchar_t c2);
 bool operator<(const UString2 &s1, const UString2 &s2);
 bool operator>(const UString2 &s1, const UString2 &s2);
 

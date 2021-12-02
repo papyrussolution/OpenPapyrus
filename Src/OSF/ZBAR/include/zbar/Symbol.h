@@ -201,7 +201,7 @@ public:
 
 		/// test if two iterators refer to the same Point in the same
 		/// Symbol.
-		bool operator==(const PointIterator& iter) const
+		bool operator == (const PointIterator& iter) const
 		{
 			return (_index == iter._index &&
 			    ((_index < 0) || _sym == iter._sym));
@@ -273,7 +273,7 @@ private:
 	}
 
 	/// test if two Symbol objects refer to the same C symbol.
-	bool operator==(const Symbol& sym) const
+	bool operator == (const Symbol& sym) const
 	{
 		return (_sym == sym._sym);
 	}
@@ -457,7 +457,7 @@ public:
 	}
 
 	/// test if two iterators refer to the same Symbol
-	bool operator==(const ZBarSymbolIterator& iter) const
+	bool operator == (const ZBarSymbolIterator& iter) const
 	{
 		// it is enough to test the symbols, as they belong
 		// to only one set (also simplifies invalid case)

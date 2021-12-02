@@ -587,9 +587,9 @@ SimpleDateFormat* SimpleDateFormat::clone() const
 }
 
 bool
-SimpleDateFormat::operator==(const Format &other) const
+SimpleDateFormat::operator == (const Format &other) const
 {
-	if(DateFormat::operator==(other)) {
+	if(DateFormat::operator == (other)) {
 		// The DateFormat::operator== check for fCapitalizationContext equality above
 		//   is sufficient to check equality of all derived context-related data.
 		// DateFormat::operator== guarantees following cast is safe

@@ -38,7 +38,7 @@ namespace OT {
  */
 
 /* Array of contour point indices--in increasing numerical order */
-	struct AttachPoint : ArrayOf<HBUINT16>{
+	struct AttachPoint : ArrayOf<HBUINT16> {
 		bool subset(hb_subset_context_t * c) const
 		{
 			TRACE_SUBSET(this);

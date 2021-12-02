@@ -109,7 +109,7 @@ bool StringSegment::codePointsEqual(UChar32 cp1, UChar32 cp2, bool foldCase) {
 	return cp1 == cp2;
 }
 
-bool StringSegment::operator==(const UnicodeString & other) const {
+bool StringSegment::operator == (const UnicodeString & other) const {
 	return toTempUnicodeString() == other;
 }
 

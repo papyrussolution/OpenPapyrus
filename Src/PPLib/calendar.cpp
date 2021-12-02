@@ -2955,6 +2955,29 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							}
 						}
 					}
+					else if(Kind == kPeriod) {
+						const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
+						if(PeriodTerm == PRD_MONTH && p_lo_extra->Ident == loiMonth) {
+							const int m = p_lo_extra->Value;
+							if(m >= 1 && m <= 12) {
+								const LDATE _isd = ISD();
+								const int y = _isd.year();
+								Data.Period.low = encodedate(1, m, y);
+								Data.Period.upp = encodedate(dayspermonth(m, y), m, y);
+								EndModalCmd = cmOK;
+								clearEvent(event);
+							}
+						}
+						else if(PeriodTerm == PRD_ANNUAL && p_lo_extra->Ident == loiYear) {
+							const int y = p_lo_extra->Value+StartLoYear;
+							if(y > 1600 && y < 2200) {
+								Data.Period.low = encodedate(1, 1, y);
+								Data.Period.upp = encodedate(31, 12, y);								
+								EndModalCmd = cmOK;
+								clearEvent(event);
+							}
+						}
+					}
 					else if(Kind == kTime) {
 						const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
 						if(p_lo_extra->Ident == loiFrame_Minuts) {
@@ -3025,7 +3048,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							{
 								const int year = p_lo_extra->Value+StartLoYear;
 								const LDATE _isd = ISD();
-								if(year != _isd.year()) {
+								/*if(year != _isd.year())*/{
 									int m = _isd.month();
 									int d = _isd.day();
 									const int dpm = dayspermonth(m, year);
@@ -3037,11 +3060,13 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 											_p.Set(AdjustLeftDate(PeriodTerm, encodedate(1, 1, year)), AdjustRightDate(PeriodTerm, encodedate(31, 12, year)));
 											if(checkdate(_p.low) && checkdate(_p.upp)) {
 												if(_p.low < Data.Period.low || !Data.Period.low) {
-													Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
+													if(Data.Period.upp < _p.low) // @v11.2.5
+														Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
 													Data.Period.low = _p.low;
 												}
 												else if(_p.upp > Data.Period.upp) {
-													Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
+													if(Data.Period.low > _p.upp)
+														Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
 													Data.Period.upp = _p.upp;
 												}
 												UpdateSelectedPeriod(0);
@@ -3056,7 +3081,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							{
 								const int month = p_lo_extra->Value;
 								const LDATE _isd = ISD();
-								if(month != _isd.month() && checkirange(month, 1, 12)) {
+								if(/*month != _isd.month() &&*/checkirange(month, 1, 12)) {
 									int y = _isd.year();
 									int d = _isd.day();
 									const int dpm = dayspermonth(month, y);
@@ -3068,11 +3093,13 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 											_p.Set(AdjustLeftDate(PeriodTerm, encodedate(1, month, y)), AdjustRightDate(PeriodTerm, encodedate(dpm, month, y)));
 											if(checkdate(_p.low) && checkdate(_p.upp)) {
 												if(_p.low < Data.Period.low || !Data.Period.low) {
-													Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
+													if(Data.Period.upp < _p.low) // @v11.2.5
+														Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
 													Data.Period.low = _p.low;
 												}
 												else if(_p.upp > Data.Period.upp) {
-													Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
+													if(Data.Period.low > _p.upp)
+														Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
 													Data.Period.upp = _p.upp;
 												}
 												UpdateSelectedPeriod(0);
@@ -3089,7 +3116,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 							{
 								const int d = p_lo_extra->Value;
 								const LDATE _isd = ISD();
-								if(d != _isd.day()) {
+								/*if(d != _isd.day())*/{
 									int y = _isd.year();
 									int m = _isd.month();
 									const int dpm = dayspermonth(m, y);
@@ -3101,11 +3128,13 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 											_p.Set(AdjustLeftDate(PeriodTerm, _isd), AdjustRightDate(PeriodTerm, _isd));
 											if(checkdate(_p.low) && checkdate(_p.upp)) {
 												if(_p.low < Data.Period.low || !Data.Period.low) {
-													Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
+													if(Data.Period.upp < _p.low) // @v11.2.5
+														Data.Period.upp = NZOR(AdjustRightDate(PeriodTerm, Data.Period.low), _p.upp);
 													Data.Period.low = _p.low;
 												}
 												else if(_p.upp > Data.Period.upp) {
-													Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
+													if(Data.Period.low > _p.upp)
+														Data.Period.low = NZOR(AdjustLeftDate(PeriodTerm, Data.Period.upp), _p.low);
 													Data.Period.upp = _p.upp;
 												}
 												UpdateSelectedPeriod(0);

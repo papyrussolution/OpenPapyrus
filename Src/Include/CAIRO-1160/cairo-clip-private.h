@@ -65,7 +65,7 @@ struct _cairo_clip {
 	cairo_box_t embedded_box;
 };
 
-cairo_private cairo_clip_t * _cairo_clip_create(void);
+cairo_private cairo_clip_t * _cairo_clip_create();
 cairo_private cairo_clip_path_t * _cairo_clip_path_reference(cairo_clip_path_t * clip_path);
 cairo_private void FASTCALL _cairo_clip_path_destroy(cairo_clip_path_t * clip_path);
 cairo_private void FASTCALL _cairo_clip_destroy(cairo_clip_t * clip);

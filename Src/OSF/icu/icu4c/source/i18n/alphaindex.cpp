@@ -774,7 +774,7 @@ UnicodeString AlphabeticIndex::separated(const UnicodeString & item) {
 	return result;
 }
 
-bool AlphabeticIndex::operator==(const AlphabeticIndex& /* other */) const {
+bool AlphabeticIndex::operator == (const AlphabeticIndex& /* other */) const {
 	return false;
 }
 

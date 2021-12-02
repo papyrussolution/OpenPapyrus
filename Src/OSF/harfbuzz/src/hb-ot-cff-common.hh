@@ -65,7 +65,7 @@ namespace CFF {
 	};
 
 	typedef hb_vector_t<uchar> str_buff_t;
-	struct str_buff_vec_t : hb_vector_t<str_buff_t>{
+	struct str_buff_vec_t : hb_vector_t<str_buff_t> {
 		void fini() {
 			SUPER::fini_deep();
 		}
@@ -104,7 +104,6 @@ private:
 				memcpy(out, this, size);
 			return_trace(out);
 		}
-
 		bool serialize(hb_serialize_context_t * c, const CFFIndex &src)
 		{
 			TRACE_SERIALIZE(this);
@@ -114,10 +113,7 @@ private:
 			memcpy(dest, &src, size);
 			return_trace(true);
 		}
-
-		bool serialize(hb_serialize_context_t * c,
-		    uint offSize_,
-		    const byte_str_array_t &byteArray)
+		bool serialize(hb_serialize_context_t * c, uint offSize_, const byte_str_array_t &byteArray)
 		{
 			TRACE_SERIALIZE(this);
 			if(byteArray.length == 0) {
@@ -152,10 +148,7 @@ private:
 			}
 			return_trace(true);
 		}
-
-		bool serialize(hb_serialize_context_t * c,
-		    uint offSize_,
-		    const str_buff_vec_t &buffArray)
+		bool serialize(hb_serialize_context_t * c, uint offSize_, const str_buff_vec_t &buffArray)
 		{
 			byte_str_array_t byteArray;
 			byteArray.init();
@@ -166,11 +159,7 @@ private:
 			byteArray.fini();
 			return result;
 		}
-
-		template <typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator it)
+		template <typename Iterator, hb_requires(hb_is_iterator(Iterator))> bool serialize(hb_serialize_context_t * c, Iterator it)
 		{
 			TRACE_SERIALIZE(this);
 			if(it.len() == 0) {
@@ -185,15 +174,11 @@ private:
 			}
 			return_trace(true);
 		}
-
-		bool serialize(hb_serialize_context_t * c,
-		    const byte_str_array_t &byteArray)
+		bool serialize(hb_serialize_context_t * c, const byte_str_array_t &byteArray)
 		{
 			return serialize(c, +hb_iter(byteArray));
 		}
-
-		bool serialize(hb_serialize_context_t * c,
-		    const str_buff_vec_t &buffArray)
+		bool serialize(hb_serialize_context_t * c, const str_buff_vec_t &buffArray)
 		{
 			auto it =
 			    +hb_iter(buffArray)
@@ -201,24 +186,17 @@ private:
 			;
 			return serialize(c, it);
 		}
-
-		template <typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize_header(hb_serialize_context_t * c,
-		    Iterator it)
+		template <typename Iterator, hb_requires(hb_is_iterator(Iterator))> bool serialize_header(hb_serialize_context_t * c, Iterator it)
 		{
 			TRACE_SERIALIZE(this);
-
 			unsigned total = +it | hb_reduce(hb_add, 0);
 			unsigned off_size = calcOffSize(total);
-
 			/* serialize CFFIndex header */
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			this->count = it.len();
 			this->offSize = off_size;
 			if(UNLIKELY(!c->allocate_size<HBUINT8> (off_size * (it.len() + 1))))
 				return_trace(false);
-
 			/* serialize indices */
 			uint offset = 1;
 			uint i = 0;
@@ -227,7 +205,6 @@ private:
 				offset += _;
 			}
 			CFFIndex<COUNT>::set_offset_at(i, offset);
-
 			return_trace(true);
 		}
 
@@ -241,7 +218,6 @@ private:
 				offset >>= 8;
 			}
 		}
-
 		uint offset_at(uint index) const
 		{
 			assert(index <= count);
@@ -252,30 +228,22 @@ private:
 				offset = (offset << 8) + *p++;
 			return offset;
 		}
-
 		uint length_at(uint index) const
 		{
-			if(UNLIKELY((offset_at(index + 1) < offset_at(index)) ||
-			    (offset_at(index + 1) > offset_at(count))))
+			if(UNLIKELY((offset_at(index + 1) < offset_at(index)) || (offset_at(index + 1) > offset_at(count))))
 				return 0;
 			return offset_at(index + 1) - offset_at(index);
 		}
-
 		const uchar * data_base() const
 		{
 			return (const uchar *)this + min_size + offset_array_size();
 		}
-
-		uint data_size() const {
-			return HBINT8::static_size;
-		}
-
+		uint data_size() const { return HBINT8::static_size; }
 		byte_str_t operator [] (uint index)const
 		{
 			if(UNLIKELY(index >= count)) return Null(byte_str_t);
 			return byte_str_t(data_base() + offset_at(index) - 1, length_at(index));
 		}
-
 		uint get_size() const
 		{
 			if(this == &Null(CFFIndex)) return 0;
@@ -283,7 +251,6 @@ private:
 				return min_size + offset_array_size() + (offset_at(count) - 1);
 			return count.static_size; /* empty CFFIndex contains count only */
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
@@ -315,7 +282,7 @@ public:
 	};
 
 	template <typename COUNT, typename TYPE>
-	struct CFFIndexOf : CFFIndex<COUNT>{
+	struct CFFIndexOf : CFFIndex<COUNT> {
 		const byte_str_t operator [] (uint index)const
 		{
 			if(LIKELY(index < CFFIndex<COUNT>::count))
@@ -564,11 +531,9 @@ public:
 			memcpy(dest, &src, size);
 			return_trace(true);
 		}
-
 		uint get_size(uint num_glyphs) const
 		{
-			switch(format)
-			{
+			switch(format) {
 				case 0: return format.static_size + u.format0.get_size(num_glyphs);
 				case 3: return format.static_size + u.format3.get_size();
 				default: return 0;
@@ -578,23 +543,18 @@ public:
 		hb_codepoint_t get_fd(hb_codepoint_t glyph) const
 		{
 			if(this == &Null(FDSelect)) return 0;
-
-			switch(format)
-			{
+			switch(format) {
 				case 0: return u.format0.get_fd(glyph);
 				case 3: return u.format3.get_fd(glyph);
 				default: return 0;
 			}
 		}
-
 		bool sanitize(hb_sanitize_context_t * c, uint fdcount) const
 		{
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
-
-			switch(format)
-			{
+			switch(format) {
 				case 0: return_trace(u.format0.sanitize(c, fdcount));
 				case 3: return_trace(u.format3.sanitize(c, fdcount));
 				default: return_trace(false);
@@ -612,7 +572,7 @@ public:
 	};
 
 	template <typename COUNT>
-	struct Subrs : CFFIndex<COUNT>{
+	struct Subrs : CFFIndex<COUNT> {
 		typedef COUNT count_type;
 		typedef CFFIndex<COUNT> SUPER;
 	};

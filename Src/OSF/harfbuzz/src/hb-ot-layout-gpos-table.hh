@@ -496,19 +496,15 @@ public:
 	};
 
 	struct AnchorMatrix {
-		const Anchor& get_anchor(uint row, uint col,
-		    uint cols, bool * found) const
+		const Anchor& get_anchor(uint row, uint col, uint cols, bool * found) const
 		{
 			* found = false;
 			if(UNLIKELY(row >= rows || col >= cols)) return Null(Anchor);
 			*found = !matrixZ[row * cols + col].is_null();
 			return this+matrixZ[row * cols + col];
 		}
-
-		template <typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		void collect_variation_indices(hb_collect_variation_indices_context_t * c,
-		    Iterator index_iter) const
+		template <typename Iterator, hb_requires(hb_is_iterator(Iterator))>
+		void collect_variation_indices(hb_collect_variation_indices_context_t * c, Iterator index_iter) const
 		{
 			for(uint i : index_iter)
 				(this+matrixZ[i]).collect_variation_indices(c);
@@ -516,11 +512,7 @@ public:
 
 		template <typename Iterator,
 		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize(hb_serialize_context_t * c,
-		    unsigned num_rows,
-		    AnchorMatrix const * offset_matrix,
-		    const hb_map_t * layout_variation_idx_map,
-		    Iterator index_iter)
+		bool serialize(hb_serialize_context_t * c, unsigned num_rows, AnchorMatrix const * offset_matrix, const hb_map_t * layout_variation_idx_map, Iterator index_iter)
 		{
 			TRACE_SERIALIZE(this);
 			if(!index_iter) return_trace(false);
@@ -530,15 +522,11 @@ public:
 			for(const uint i : index_iter) {
 				auto * offset = c->embed(offset_matrix->matrixZ[i]);
 				if(!offset) return_trace(false);
-				offset->serialize_copy(c, offset_matrix->matrixZ[i],
-				    offset_matrix, c->to_bias(this),
-				    hb_serialize_context_t::Head,
-				    layout_variation_idx_map);
+				offset->serialize_copy(c, offset_matrix->matrixZ[i], offset_matrix, c->to_bias(this),
+				    hb_serialize_context_t::Head, layout_variation_idx_map);
 			}
-
 			return_trace(true);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c, uint cols) const
 		{
 			TRACE_SANITIZE(this);
@@ -561,17 +549,12 @@ public:
 
 	struct MarkRecord {
 		friend struct MarkArray;
-
-		unsigned get_class() const {
-			return (uint)klass;
-		}
-
+		unsigned get_class() const { return (uint)klass; }
 		bool sanitize(hb_sanitize_context_t * c, const void * base) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) && markAnchor.sanitize(c, base));
 		}
-
 		MarkRecord * copy(hb_serialize_context_t * c,
 		    const void   * src_base,
 		    unsigned dst_bias,
@@ -583,26 +566,16 @@ public:
 			if(UNLIKELY(!out)) return_trace(nullptr);
 
 			out->klass = klass_mapping->get(klass);
-			out->markAnchor.serialize_copy(c,
-			    markAnchor,
-			    src_base,
-			    dst_bias,
-			    hb_serialize_context_t::Head,
-			    layout_variation_idx_map);
+			out->markAnchor.serialize_copy(c, markAnchor, src_base, dst_bias, hb_serialize_context_t::Head, layout_variation_idx_map);
 			return_trace(out);
 		}
-
-		void collect_variation_indices(hb_collect_variation_indices_context_t * c,
-		    const void * src_base) const
+		void collect_variation_indices(hb_collect_variation_indices_context_t * c, const void * src_base) const
 		{
 			(src_base+markAnchor).collect_variation_indices(c);
 		}
-
 protected:
 		HBUINT16 klass;         /* Class defined for this mark */
-		OffsetTo<Anchor>
-		markAnchor;             /* Offset to Anchor table--from
-		 * beginning of MarkArray table */
+		OffsetTo<Anchor> markAnchor; /* Offset to Anchor table--from beginning of MarkArray table */
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
@@ -2406,7 +2379,7 @@ protected:
 
 	struct ChainContextPos : ChainContext {};
 
-	struct ExtensionPos : Extension<ExtensionPos>{
+	struct ExtensionPos : Extension<ExtensionPos> {
 		typedef struct PosLookupSubTable SubTable;
 	};
 
@@ -2558,30 +2531,23 @@ public:
 
 	struct GPOS : GSUBGPOS {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_GPOS;
-
 		const PosLookup& get_lookup(uint i) const
 		{
 			return static_cast<const PosLookup &> (GSUBGPOS::get_lookup(i));
 		}
-
 		static inline void position_start(hb_font_t * font, hb_buffer_t * buffer);
 		static inline void position_finish_advances(hb_font_t * font, hb_buffer_t * buffer);
 		static inline void position_finish_offsets(hb_font_t * font, hb_buffer_t * buffer);
-
 		bool subset(hb_subset_context_t * c) const
 		{
 			hb_subset_layout_context_t l(c, tableTag, c->plan->gpos_lookups, c->plan->gpos_features);
 			return GSUBGPOS::subset<PosLookup> (&l);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			return GSUBGPOS::sanitize<PosLookup> (c);
 		}
-
-		HB_INTERNAL bool is_blocklisted(hb_blob_t * blob,
-		    hb_face_t * face) const;
-
+		HB_INTERNAL bool is_blocklisted(hb_blob_t * blob, hb_face_t * face) const;
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
 			for(uint i = 0; i < GSUBGPOS::get_lookup_count(); i++) {
@@ -2590,67 +2556,43 @@ public:
 				l.dispatch(c);
 			}
 		}
-
-		void closure_lookups(hb_face_t * face,
-		    const hb_set_t * glyphs,
-		    hb_set_t * lookup_indexes /* IN/OUT */) const
+		void closure_lookups(hb_face_t * face, const hb_set_t * glyphs, hb_set_t * lookup_indexes /* IN/OUT */) const
 		{
 			GSUBGPOS::closure_lookups<PosLookup> (face, glyphs, lookup_indexes);
 		}
-
 		typedef GSUBGPOS::accelerator_t<GPOS> accelerator_t;
 	};
-
-	static void reverse_cursive_minor_offset(hb_glyph_position_t * pos,
-	    uint i,
-	    hb_direction_t direction,
-	    uint new_parent)
+	static void reverse_cursive_minor_offset(hb_glyph_position_t * pos, uint i, hb_direction_t direction, uint new_parent)
 	{
 		int chain = pos[i].attach_chain(), type = pos[i].attach_type();
 		if(LIKELY(!chain || 0 == (type & ATTACH_TYPE_CURSIVE)))
 			return;
-
 		pos[i].attach_chain() = 0;
-
 		uint j = (int)i + chain;
-
 		/* Stop if we see new parent in the chain. */
 		if(j == new_parent)
 			return;
-
 		reverse_cursive_minor_offset(pos, j, direction, new_parent);
-
 		if(HB_DIRECTION_IS_HORIZONTAL(direction))
 			pos[j].y_offset = -pos[i].y_offset;
 		else
 			pos[j].x_offset = -pos[i].x_offset;
-
 		pos[j].attach_chain() = -chain;
 		pos[j].attach_type() = type;
 	}
-
-	static void propagate_attachment_offsets(hb_glyph_position_t * pos,
-	    uint len,
-	    uint i,
-	    hb_direction_t direction)
+	static void propagate_attachment_offsets(hb_glyph_position_t * pos, uint len, uint i, hb_direction_t direction)
 	{
 		/* Adjusts offsets of attached glyphs (both cursive and mark) to accumulate
 		 * offset of glyph they are attached to. */
 		int chain = pos[i].attach_chain(), type = pos[i].attach_type();
 		if(LIKELY(!chain))
 			return;
-
 		pos[i].attach_chain() = 0;
-
 		uint j = (int)i + chain;
-
 		if(UNLIKELY(j >= len))
 			return;
-
 		propagate_attachment_offsets(pos, len, j, direction);
-
 		assert(!!(type & ATTACH_TYPE_MARK) ^ !!(type & ATTACH_TYPE_CURSIVE));
-
 		if(type & ATTACH_TYPE_CURSIVE) {
 			if(HB_DIRECTION_IS_HORIZONTAL(direction))
 				pos[i].y_offset += pos[j].y_offset;
@@ -2660,7 +2602,6 @@ public:
 		else {/*if (type & ATTACH_TYPE_MARK)*/
 			pos[i].x_offset += pos[j].x_offset;
 			pos[i].y_offset += pos[j].y_offset;
-
 			assert(j < i);
 			if(HB_DIRECTION_IS_FORWARD(direction))
 				for(uint k = j; k < i; k++) {

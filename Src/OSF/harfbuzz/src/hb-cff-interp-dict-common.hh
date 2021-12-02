@@ -48,7 +48,7 @@ namespace CFF {
 	template <typename VAL> struct dict_values_t : parsed_values_t<VAL> {};
 
 	template <typename OPSTR = op_str_t>
-	    struct top_dict_values_t : dict_values_t<OPSTR>{
+	    struct top_dict_values_t : dict_values_t<OPSTR> {
 		void init()
 		{
 			dict_values_t<OPSTR>::init();
@@ -64,7 +64,7 @@ namespace CFF {
 		uint FDArrayOffset;
 	};
 
-	struct dict_opset_t : opset_t<number_t>{
+	struct dict_opset_t : opset_t<number_t> {
 		static void process_op(op_code_t op, interp_env_t<number_t>& env)
 		{
 			switch(op) {
@@ -119,15 +119,12 @@ namespace CFF {
 					}
 				}
 			}
-
 			str_ref.set_error();
 			return .0;
 		}
-
 		static bool is_hint_op(op_code_t op)
 		{
-			switch(op)
-			{
+			switch(op) {
 				case OpCode_BlueValues:
 				case OpCode_OtherBlues:
 				case OpCode_FamilyBlues:
@@ -173,7 +170,7 @@ namespace CFF {
 	};
 
 	template <typename OPSET, typename PARAM, typename ENV = num_interp_env_t>
-	    struct dict_interpreter_t : interpreter_t<ENV>{
+	    struct dict_interpreter_t : interpreter_t<ENV> {
 		bool interpret(PARAM& param)
 		{
 			param.init();

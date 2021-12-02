@@ -1244,7 +1244,7 @@ TimeZoneGenericNames* TimeZoneGenericNames::createInstance(const Locale & locale
 	return instance;
 }
 
-bool TimeZoneGenericNames::operator==(const TimeZoneGenericNames& other) const {
+bool TimeZoneGenericNames::operator == (const TimeZoneGenericNames& other) const {
 	// Just compare if the other object also use the same
 	// ref entry
 	return fRef == other.fRef;

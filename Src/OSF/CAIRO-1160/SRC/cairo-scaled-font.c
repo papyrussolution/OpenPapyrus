@@ -257,16 +257,17 @@ static const cairo_scaled_font_t _cairo_scaled_font_nil = {
  *
  * Return value: the error status.
  **/
-cairo_status_t _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font, cairo_status_t status)
+cairo_status_t FASTCALL _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font, cairo_status_t status)
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return status;
-	/* Don't overwrite an existing error. This preserves the first
-	 * error, which is the most significant. */
-	_cairo_status_set_error(&scaled_font->status, status);
-	return _cairo_error(status);
+	else {
+		// Don't overwrite an existing error. This preserves the first
+		// error, which is the most significant
+		_cairo_status_set_error(&scaled_font->status, status);
+		return _cairo_error(status);
+	}
 }
-
 /**
  * cairo_scaled_font_get_type:
  * @scaled_font: a #cairo_scaled_font_t
@@ -279,13 +280,12 @@ cairo_status_t _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font, c
  *
  * Since: 1.2
  **/
-cairo_font_type_t cairo_scaled_font_get_type(cairo_scaled_font_t * scaled_font)
+cairo_font_type_t FASTCALL cairo_scaled_font_get_type(const cairo_scaled_font_t * scaled_font)
 {
 	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&scaled_font->ref_count))
 		return CAIRO_FONT_TYPE_TOY;
 	return scaled_font->backend->type;
 }
-
 /**
  * cairo_scaled_font_status:
  * @scaled_font: a #cairo_scaled_font_t
@@ -298,7 +298,7 @@ cairo_font_type_t cairo_scaled_font_get_type(cairo_scaled_font_t * scaled_font)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_scaled_font_status(cairo_scaled_font_t * scaled_font)
+cairo_status_t FASTCALL cairo_scaled_font_status(const cairo_scaled_font_t * scaled_font)
 {
 	return scaled_font->status;
 }
@@ -398,18 +398,16 @@ void _cairo_scaled_font_map_destroy(void)
 		SAlloc::F(scaled_font);
 	}
 	_cairo_hash_table_destroy(font_map->hash_table);
-	SAlloc::F(cairo_scaled_font_map);
-	cairo_scaled_font_map = NULL;
+	ZFREE(cairo_scaled_font_map);
 CLEANUP_MUTEX_LOCK:
 	CAIRO_MUTEX_UNLOCK(_cairo_scaled_font_map_mutex);
 }
 
 static void FASTCALL _cairo_scaled_glyph_page_destroy(cairo_scaled_font_t * scaled_font, cairo_scaled_glyph_page_t * page)
 {
-	uint n;
 	assert(!scaled_font->cache_frozen);
 	assert(!scaled_font->global_cache_frozen);
-	for(n = 0; n < page->num_glyphs; n++) {
+	for(uint n = 0; n < page->num_glyphs; n++) {
 		_cairo_hash_table_remove(scaled_font->glyphs, &page->glyphs[n].hash_entry);
 		_cairo_scaled_glyph_fini(scaled_font, &page->glyphs[n]);
 	}
@@ -1795,24 +1793,15 @@ BAIL:   /* error with input arguments */
 
 slim_hidden_def(cairo_scaled_font_text_to_glyphs);
 
-static inline boolint _range_contains_glyph(const cairo_box_t * extents,
-    cairo_fixed_t left,
-    cairo_fixed_t top,
-    cairo_fixed_t right,
-    cairo_fixed_t bottom)
+static inline boolint _range_contains_glyph(const cairo_box_t * extents, cairo_fixed_t left,
+    cairo_fixed_t top, cairo_fixed_t right, cairo_fixed_t bottom)
 {
 	if(left == right || top == bottom)
 		return FALSE;
-
-	return right > extents->p1.x &&
-	       left < extents->p2.x &&
-	       bottom > extents->p1.y &&
-	       top < extents->p2.y;
+	return right > extents->p1.x && left < extents->p2.x && bottom > extents->p1.y && top < extents->p2.y;
 }
 
-static cairo_status_t _cairo_scaled_font_single_glyph_device_extents(cairo_scaled_font_t * scaled_font,
-    const cairo_glyph_t * glyph,
-    cairo_rectangle_int_t * extents)
+static cairo_status_t _cairo_scaled_font_single_glyph_device_extents(cairo_scaled_font_t * scaled_font, const cairo_glyph_t * glyph, cairo_rectangle_int_t * extents)
 {
 	cairo_scaled_glyph_t * scaled_glyph;
 	cairo_status_t status;
@@ -1822,16 +1811,10 @@ static cairo_status_t _cairo_scaled_font_single_glyph_device_extents(cairo_scale
 		boolint round_xy = _cairo_font_options_get_round_glyph_positions(&scaled_font->options) == CAIRO_ROUND_GLYPH_POS_ON;
 		cairo_box_t box;
 		cairo_fixed_t v;
-		if(round_xy)
-			v = _cairo_fixed_from_int(_cairo_lround(glyph->P.x));
-		else
-			v = _cairo_fixed_from_double(glyph->P.x);
+		v = round_xy ? _cairo_fixed_from_int(_cairo_lround(glyph->P.x)) : _cairo_fixed_from_double(glyph->P.x);
 		box.p1.x = v + scaled_glyph->bbox.p1.x;
 		box.p2.x = v + scaled_glyph->bbox.p2.x;
-		if(round_xy)
-			v = _cairo_fixed_from_int(_cairo_lround(glyph->P.y));
-		else
-			v = _cairo_fixed_from_double(glyph->P.y);
+		v = round_xy ? _cairo_fixed_from_int(_cairo_lround(glyph->P.y)) : _cairo_fixed_from_double(glyph->P.y);
 		box.p1.y = v + scaled_glyph->bbox.p1.y;
 		box.p2.y = v + scaled_glyph->bbox.p2.y;
 		_cairo_box_round_to_rectangle(&box, extents);
@@ -1853,33 +1836,25 @@ cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * sca
 	if(UNLIKELY(scaled_font->status))
 		return scaled_font->status;
 	if(num_glyphs == 1) {
-		if(overlap_out)
-			*overlap_out = FALSE;
+		ASSIGN_PTR(overlap_out, FALSE);
 		return _cairo_scaled_font_single_glyph_device_extents(scaled_font, glyphs, extents);
 	}
 	_cairo_scaled_font_freeze_cache(scaled_font);
 	memzero(glyph_cache, sizeof(glyph_cache));
 	for(i = 0; i < num_glyphs; i++) {
-		cairo_scaled_glyph_t * scaled_glyph;
 		cairo_fixed_t x, y, x1, y1, x2, y2;
 		int cache_index = glyphs[i].index % ARRAY_LENGTH(glyph_cache);
-		scaled_glyph = glyph_cache[cache_index];
+		cairo_scaled_glyph_t * scaled_glyph = glyph_cache[cache_index];
 		if(scaled_glyph == NULL || _cairo_scaled_glyph_index(scaled_glyph) != glyphs[i].index) {
 			status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
 			if(UNLIKELY(status))
 				break;
 			glyph_cache[cache_index] = scaled_glyph;
 		}
-		if(round_glyph_positions == CAIRO_ROUND_GLYPH_POS_ON)
-			x = _cairo_fixed_from_int(_cairo_lround(glyphs[i].P.x));
-		else
-			x = _cairo_fixed_from_double(glyphs[i].P.x);
+		x = (round_glyph_positions == CAIRO_ROUND_GLYPH_POS_ON) ? _cairo_fixed_from_int(_cairo_lround(glyphs[i].P.x)) : _cairo_fixed_from_double(glyphs[i].P.x);
 		x1 = x + scaled_glyph->bbox.p1.x;
 		x2 = x + scaled_glyph->bbox.p2.x;
-		if(round_glyph_positions == CAIRO_ROUND_GLYPH_POS_ON)
-			y = _cairo_fixed_from_int(_cairo_lround(glyphs[i].P.y));
-		else
-			y = _cairo_fixed_from_double(glyphs[i].P.y);
+		y = (round_glyph_positions == CAIRO_ROUND_GLYPH_POS_ON) ? _cairo_fixed_from_int(_cairo_lround(glyphs[i].P.y)) : _cairo_fixed_from_double(glyphs[i].P.y);
 		y1 = y + scaled_glyph->bbox.p1.y;
 		y2 = y + scaled_glyph->bbox.p2.y;
 		if(overlap == FALSE)
@@ -1899,8 +1874,7 @@ cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * sca
 		extents->x = extents->y = 0;
 		extents->width = extents->height = 0;
 	}
-	if(overlap_out != NULL)
-		*overlap_out = overlap;
+	ASSIGN_PTR(overlap_out, overlap);
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2219,7 +2193,6 @@ BAIL:
 	_cairo_scaled_font_thaw_cache(scaled_font);
 	return _cairo_scaled_font_set_error(scaled_font, status);
 }
-
 /**
  * _cairo_scaled_glyph_set_metrics:
  * @scaled_glyph: a #cairo_scaled_glyph_t
@@ -2234,44 +2207,49 @@ BAIL:
 void _cairo_scaled_glyph_set_metrics(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_font_t * scaled_font, const cairo_text_extents_t * fs_metrics)
 {
 	boolint first = TRUE;
-	double hm, wm;
 	double min_user_x = 0.0, max_user_x = 0.0, min_user_y = 0.0, max_user_y = 0.0;
 	double min_device_x = 0.0, max_device_x = 0.0, min_device_y = 0.0, max_device_y = 0.0;
 	double device_x_advance, device_y_advance;
 	scaled_glyph->fs_metrics = *fs_metrics;
-	for(hm = 0.0; hm <= 1.0; hm += 1.0)
-		for(wm = 0.0; wm <= 1.0; wm += 1.0) {
-			double x, y;
-			/* Transform this corner to user space */
-			x = fs_metrics->x_bearing + fs_metrics->width * wm;
-			y = fs_metrics->y_bearing + fs_metrics->height * hm;
-			cairo_matrix_transform_point(&scaled_font->font_matrix, &x, &y);
-			if(first) {
-				min_user_x = max_user_x = x;
-				min_user_y = max_user_y = y;
+	for(double hm = 0.0; hm <= 1.0; hm += 1.0) {
+		for(double wm = 0.0; wm <= 1.0; wm += 1.0) {
+			const double x__ = fs_metrics->x_bearing + fs_metrics->width * wm;
+			const double y__ = fs_metrics->y_bearing + fs_metrics->height * hm;
+			{
+				// Transform this corner to user space 
+				double x = x__;//fs_metrics->x_bearing + fs_metrics->width * wm;
+				double y = y__;//fs_metrics->y_bearing + fs_metrics->height * hm;
+				cairo_matrix_transform_point(&scaled_font->font_matrix, &x, &y);
+				if(first) {
+					min_user_x = max_user_x = x;
+					min_user_y = max_user_y = y;
+				}
+				else {
+					SETMIN(min_user_x, x);
+					SETMAX(max_user_x, x);
+					SETMIN(min_user_y, y);
+					SETMAX(max_user_y, y);
+				}
 			}
-			else {
-				if(x < min_user_x) min_user_x = x;
-				if(x > max_user_x) max_user_x = x;
-				if(y < min_user_y) min_user_y = y;
-				if(y > max_user_y) max_user_y = y;
-			}
-			/* Transform this corner to device space from glyph origin */
-			x = fs_metrics->x_bearing + fs_metrics->width * wm;
-			y = fs_metrics->y_bearing + fs_metrics->height * hm;
-			cairo_matrix_transform_distance(&scaled_font->scale, &x, &y);
-			if(first) {
-				min_device_x = max_device_x = x;
-				min_device_y = max_device_y = y;
-			}
-			else {
-				if(x < min_device_x) min_device_x = x;
-				if(x > max_device_x) max_device_x = x;
-				if(y < min_device_y) min_device_y = y;
-				if(y > max_device_y) max_device_y = y;
+			{
+				// Transform this corner to device space from glyph origin 
+				double x = x__;//fs_metrics->x_bearing + fs_metrics->width * wm;
+				double y = y__;//fs_metrics->y_bearing + fs_metrics->height * hm;
+				cairo_matrix_transform_distance(&scaled_font->scale, &x, &y);
+				if(first) {
+					min_device_x = max_device_x = x;
+					min_device_y = max_device_y = y;
+				}
+				else {
+					SETMIN(min_device_x, x);
+					SETMAX(max_device_x, x);
+					SETMIN(min_device_y, y);
+					SETMAX(max_device_y, y);
+				}
 			}
 			first = FALSE;
 		}
+	}
 	scaled_glyph->metrics.x_bearing = min_user_x;
 	scaled_glyph->metrics.y_bearing = min_user_y;
 	scaled_glyph->metrics.width = max_user_x - min_user_x;

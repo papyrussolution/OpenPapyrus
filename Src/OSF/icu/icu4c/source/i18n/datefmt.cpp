@@ -60,7 +60,7 @@ protected:
 			return false;
 		}
 		// We know that this and other are of same class if we get this far.
-		return operator==(static_cast<const DateFmtBestPatternKey &>(other));
+		return operator == (static_cast<const DateFmtBestPatternKey &>(other));
 	}
 public:
 	DateFmtBestPatternKey(const Locale &loc,
@@ -77,7 +77,7 @@ public:
 	virtual int32_t hashCode() const override {
 		return (int32_t)(37u * (uint32_t)LocaleCacheKey<DateFmtBestPattern>::hashCode() + (uint32_t)fSkeleton.hashCode());
 	}
-	inline bool operator==(const DateFmtBestPatternKey &other) const {
+	inline bool operator == (const DateFmtBestPatternKey &other) const {
 		return fSkeleton == other.fSkeleton;
 	}
 	virtual CacheKeyBase * clone() const override {
@@ -137,7 +137,7 @@ DateFormat::~DateFormat()
 	delete fNumberFormat;
 }
 
-bool DateFormat::operator==(const Format& other) const
+bool DateFormat::operator == (const Format& other) const
 {
 	// This protected comparison operator should only be called by subclasses
 	// which have confirmed that the other object being compared against is
@@ -147,7 +147,7 @@ bool DateFormat::operator==(const Format& other) const
 	DateFormat* fmt = (DateFormat*)&other;
 
 	return (this == fmt) ||
-	       (Format::operator==(other) &&
+	       (Format::operator == (other) &&
 	       fCalendar&&(fCalendar->isEquivalentTo(*fmt->fCalendar)) &&
 	       (fNumberFormat && *fNumberFormat == *fmt->fNumberFormat) &&
 	       (fCapitalizationContext == fmt->fCapitalizationContext));

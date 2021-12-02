@@ -502,7 +502,7 @@ static inline uint32_t hb_uint32_swap(const uint32_t v)
  */
 template <typename Type, int Bytes> struct BEInt;
 
-template <typename Type> struct BEInt<Type, 1>{
+template <typename Type> struct BEInt<Type, 1> {
 public:
 	BEInt<Type, 1>& operator = (Type V)
 	{
@@ -555,7 +555,7 @@ public:
 	}
 private: uint8_t v[3];
 };
-template <typename Type> struct BEInt<Type, 4>{
+template <typename Type> struct BEInt<Type, 4> {
 public:
 	BEInt<Type, 4>& operator = (Type V)
 	{

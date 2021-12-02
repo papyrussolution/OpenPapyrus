@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Графики рабочего времени
 //
@@ -78,7 +78,7 @@ int PPObjDateTimeRep::Edit(PPID * pID, void * extraPtr)
 	if(EditDtr(&rec) > 0) {
 		if(*pID)
 			*pID = rec.ID;
-		THROW(EditItem(Obj, *pID, &rec, 1));
+		THROW(StoreItem(Obj, *pID, &rec, 1));
 		*pID = rec.ID;
 		ok = cmOK;
 	}

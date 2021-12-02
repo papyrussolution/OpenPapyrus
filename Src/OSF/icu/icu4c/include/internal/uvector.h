@@ -100,11 +100,11 @@ public:
 	 * equal if they are of the same size and all elements are equal,
 	 * as compared using this object's comparer.
 	 */
-	bool operator==(const UVector& other) const;
+	bool operator == (const UVector& other) const;
 	/**
-	 * Equivalent to !operator==()
+	 * Equivalent to !operator == ()
 	 */
-	inline bool operator !=(const UVector& other) const { return !operator==(other); }
+	inline bool operator !=(const UVector& other) const { return !operator == (other); }
 	//------------------------------------------------------------
 	// java.util.Vector API
 	//------------------------------------------------------------

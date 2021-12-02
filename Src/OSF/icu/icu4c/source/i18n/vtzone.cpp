@@ -1075,12 +1075,12 @@ VTimeZone&VTimeZone::operator = (const VTimeZone& right) {
 	return *this;
 }
 
-bool VTimeZone::operator==(const TimeZone& that) const 
+bool VTimeZone::operator == (const TimeZone& that) const 
 {
 	if(this == &that) {
 		return true;
 	}
-	if(typeid(*this) != typeid(that) || !BasicTimeZone::operator==(that)) {
+	if(typeid(*this) != typeid(that) || !BasicTimeZone::operator == (that)) {
 		return false;
 	}
 	VTimeZone * vtz = (VTimeZone*)&that;
@@ -1092,7 +1092,7 @@ bool VTimeZone::operator==(const TimeZone& that) const
 	return false;
 }
 
-bool VTimeZone::operator != (const TimeZone& that) const { return !operator==(that); }
+bool VTimeZone::operator != (const TimeZone& that) const { return !operator == (that); }
 
 VTimeZone* VTimeZone::createVTimeZoneByID(const UnicodeString & ID) {
 	VTimeZone * vtz = new VTimeZone();

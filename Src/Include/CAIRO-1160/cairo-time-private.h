@@ -46,7 +46,7 @@ typedef cairo_int64_t cairo_time_t;
 cairo_private int _cairo_time_cmp(const void * a, const void * b);
 cairo_private double _cairo_time_to_s(cairo_time_t t);
 cairo_private cairo_time_t _cairo_time_from_s(double t);
-cairo_private cairo_time_t _cairo_time_get(void);
+cairo_private cairo_time_t _cairo_time_get();
 
 static cairo_always_inline cairo_time_t _cairo_time_get_delta(cairo_time_t t)
 {

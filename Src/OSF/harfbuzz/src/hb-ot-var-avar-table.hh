@@ -54,7 +54,7 @@ public:
 		DEFINE_SIZE_STATIC(4);
 	};
 
-	struct SegmentMaps : ArrayOf<AxisValueMap>{
+	struct SegmentMaps : ArrayOf<AxisValueMap> {
 		int map(int value, uint from_offset = 0, uint to_offset = 1) const
 		{
 #define fromCoord coords[from_offset]

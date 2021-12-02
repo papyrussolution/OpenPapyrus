@@ -353,7 +353,7 @@ int PPObjReference::Browse(void * extraPtr)
 	return CheckRights(PPR_READ) ? SimpleObjView(this, extraPtr) : PPErrorZ();
 }
 
-int PPObjReference::EditItem(PPID obj, PPID id, void * pRec, int use_ta)
+int PPObjReference::StoreItem(PPID obj, PPID id, void * pRec, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -494,7 +494,7 @@ int PPObjReference::Edit(PPID * pID, void * extraPtr)
 			THROW(is_new || CheckRights(PPR_MOD));
 			if(*pID)
 				*pID = rec.ObjID;
-			THROW(EditItem(Obj, *pID, &rec, 1));
+			THROW(StoreItem(Obj, *pID, &rec, 1));
 			*pID = rec.ObjID;
 			ok = cmOK;
 		}
@@ -633,7 +633,7 @@ int PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 				ok = 1;
 		}
 		if(!ok) {
-			int    r = EditItem(Obj, *pID, p_rec, 1);
+			int    r = StoreItem(Obj, *pID, p_rec, 1);
 			if(r > 0) {
 				ok = *pID ? 102 : 101;
 				*pID = P_Ref->data.ObjID;
@@ -687,7 +687,7 @@ int PPObjReference::ProcessReservedItem(TVRez & rez)
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
-		THROW(EditItem(Obj, 0, &rec, 1));
+		THROW(StoreItem(Obj, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -743,6 +743,30 @@ static int UnitListFilt(void * rec, void * extraPtr)
 PPUnit2::PPUnit2()
 {
 	THISZERO();
+}
+
+int PPUnit2::ValidateQuantityFraction(double qtty) const
+{
+	int    ok = 1;
+	const  double frac_tolerance = 1E-5;
+	if(Fragmentation > 0 && Fragmentation < 100000) {
+		double _rem = ffrac(qtty);
+		assert(_rem >= 0.0); // @paranoic
+		const double _f = ffrac(_rem * Fragmentation);
+		if(!feqeps(_f, 0.0, frac_tolerance) && !feqeps(_f, 1.0, frac_tolerance))
+			ok = PPSetError(PPERR_QTTYMUSTMATCHUFRAG, SLS.AcquireRvlStr().Cat(Fragmentation));
+	}
+	else if(Rounding_ > 0.0) {
+		const double _r = round(qtty, Rounding_, 0);
+		if(!feqeps(_r, qtty, frac_tolerance))
+			ok = PPSetError(PPERR_QTTYMUSTMATCHUFRAG, SLS.AcquireRvlStr().Cat(Rounding_, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+	}
+	else if(Flags & PPUnit::IntVal) {
+		const double _f = ffrac(qtty);
+		if(!feqeps(_f, 0.0, frac_tolerance) && !feqeps(_f, 1.0, frac_tolerance))
+			ok = PPSetError(PPERR_QTTYMUSTBEINT);
+	}
+	return ok;
 }
 
 PPObjUnit::PPObjUnit(void * extraPtr) : PPObjReference(PPOBJ_UNIT, extraPtr)
@@ -905,7 +929,7 @@ int PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 		PPUnit * p_rec = static_cast<PPUnit *>(p->Data);
 		if(*pID || SearchByName(p_rec->Name, pID, 0) > 0) {
 			p_rec->ID = *pID;
-			int    r = EditItem(Obj, *pID, p_rec, 1);
+			int    r = StoreItem(Obj, *pID, p_rec, 1);
 			if(r > 0)
    			    ok = ((*pID = P_Ref->data.ObjID), 102);
 			else if(r < 0)
@@ -918,7 +942,7 @@ int PPObjUnit::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 		}
 		else {
 			p_rec->ID = *pID = 0;
-			if(EditItem(Obj, *pID, p_rec, 1))
+			if(StoreItem(Obj, *pID, p_rec, 1))
 			    ok = ((*pID = P_Ref->data.ObjID), 101);
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);
@@ -979,6 +1003,8 @@ public:
 		double BaseRatio;
 		double Rounding_;
 		long   Flags;
+		uint16 Fragmentation; // @v11.2.5
+		uint16 Reserve;       // @v11.2.5 @alignment
 	};
 };
 
@@ -993,6 +1019,7 @@ int UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->BaseRatio  = rec.BaseRatio;
 		p_cache_rec->Rounding_  = rec.Rounding_;
 		p_cache_rec->Flags = rec.Flags;
+		p_cache_rec->Fragmentation = rec.Fragmentation; // @v11.2.5
 		MultTextBlock b;
 		b.Add(rec.Name);
 		b.Add(rec.Abbr);
@@ -1015,6 +1042,7 @@ void UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	p_data_rec->BaseRatio  = p_cache_rec->BaseRatio;
 	p_data_rec->Rounding_  = p_cache_rec->Rounding_;
 	p_data_rec->Flags      = p_cache_rec->Flags;
+	p_data_rec->Fragmentation = p_cache_rec->Fragmentation; // @v11.2.5
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));
 	b.Get(p_data_rec->Abbr, sizeof(p_data_rec->Abbr));
@@ -1058,6 +1086,7 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	SetupPPObjCombo(dlg, CTLSEL_UNIT_BASE, PPOBJ_UNIT, unit.BaseUnitID, 0, reinterpret_cast<void *>(PPUnit::SI));
 	dlg->setCtrlReal(CTL_UNIT_BASERATIO, unit.BaseRatio);
 	dlg->setCtrlReal(CTL_UNIT_ROUNDING,  unit.Rounding_);
+	dlg->setCtrlUInt16(CTL_UNIT_FRAGM, unit.Fragmentation); // @v11.2.5
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_UNIT_NAME, unit.Name);
 		if(!CheckName(*pID, strip(unit.Name), 0))
@@ -1076,9 +1105,10 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 			else {
 				dlg->getCtrlData(CTL_UNIT_BASERATIO, &unit.BaseRatio);
 				dlg->getCtrlData(CTL_UNIT_ROUNDING, &unit.Rounding_);
+				dlg->getCtrlData(CTL_UNIT_FRAGM, &unit.Fragmentation); // @v11.2.5
 				if(*pID)
 					*pID = unit.ID;
-				THROW(EditItem(PPOBJ_UNIT, *pID, &unit, 1));
+				THROW(StoreItem(PPOBJ_UNIT, *pID, &unit, 1));
 				Dirty(*pID);
 			}
 		}
@@ -1115,7 +1145,7 @@ int PPObjUnit::ProcessReservedItem(TVRez & rez)
 				case 'I': rec.Flags |= PPUnit::IntVal;   break;
 			}
 		}
-		THROW(EditItem(PPOBJ_UNIT, 0, &rec, 1));
+		THROW(StoreItem(PPOBJ_UNIT, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -1196,7 +1226,7 @@ int PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTL_PSNST_ID, &rec.ID);
 			if(*pID)
 			   	*pID = rec.ID;
-			THROW(EditItem(PPOBJ_PRSNSTATUS, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_PRSNSTATUS, *pID, &rec, 1));
 		}
 	}
 	CATCHZOKPPERR
@@ -1277,7 +1307,7 @@ int PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 		PPPersonCat * p_rec = static_cast<PPPersonCat *>(p->Data);
 		if(*pID || SearchByName(p_rec->Name, pID, 0) > 0) {
 			p_rec->ID = *pID;
-			int    r = EditItem(Obj, *pID, p_rec, 1);
+			int    r = StoreItem(Obj, *pID, p_rec, 1);
 			if(r > 0)
    			    ok = ((*pID = P_Ref->data.ObjID), 102);
 			else if(r < 0)
@@ -1290,7 +1320,7 @@ int PPObjPersonCat::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 		}
 		else {
 			p_rec->ID = *pID = 0;
-			if(EditItem(Obj, *pID, p_rec, 1))
+			if(StoreItem(Obj, *pID, p_rec, 1))
 			    ok = ((*pID = P_Ref->data.ObjID), 101);
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ID, p_rec->Name);
@@ -1397,7 +1427,7 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTL_ELNKK_ID, &rec.ID);
 			if(*pID)
 			   	*pID = rec.ID;
-			THROW(EditItem(PPOBJ_ELINKKIND, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_ELINKKIND, *pID, &rec, 1));
 		}
 	}
 	CATCHZOKPPERR
@@ -1464,7 +1494,7 @@ int PPObjELinkKind::ProcessReservedItem(TVRez & rez)
 			default:  rec.Type = ELNKRT_UNKNOWN; break;
 		}
 		SETFLAG(rec.Flags, ELNKF_PREF, pref);
-		THROW(EditItem(PPOBJ_ELINKKIND, 0, &rec, 1));
+		THROW(StoreItem(PPOBJ_ELINKKIND, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -1664,7 +1694,7 @@ int PPObjCurrency::Edit(PPID * pID, void * extraPtr)
 			valid_data = 1;
 			if(*pID)
 				*pID = rec.ID;
-			THROW(EditItem(PPOBJ_CURRENCY, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_CURRENCY, *pID, &rec, 1));
 		}
 	}
 	CATCHZOKPPERR
@@ -1673,7 +1703,7 @@ int PPObjCurrency::Edit(PPID * pID, void * extraPtr)
 }
 
 int PPObjCurrency::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRCURRENCY, 0); }
-int PPObjCurrency::AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta) { return EditItem(PPOBJ_CURRENCY, *pID, pCurrency, use_ta); }
+int PPObjCurrency::AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta) { return StoreItem(PPOBJ_CURRENCY, *pID, pCurrency, use_ta); }
 
 StrAssocArray * PPObjCurrency::CreateSelectorList(int asSymb, const PPIDArray * pIncludeList, const PPIDArray * pExcludeList)
 {
@@ -1860,7 +1890,7 @@ int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 				THROW(P_Ref->AllocDynamicObj(pID, rec.ObjName, rec.Val1, 1));
 			}
 			else {
-				THROW(EditItem(Obj, *pID, &rec, 1));
+				THROW(StoreItem(Obj, *pID, &rec, 1));
 			}
 			ok = cmOK;
 		}
@@ -1903,7 +1933,7 @@ int PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 				THROW(P_Ref->AllocDynamicObj(pID, p_rec->ObjName, p_rec->Val1, 1));
 			}
 			else {
-				THROW(EditItem(Obj, *pID, p_rec, 1));
+				THROW(StoreItem(Obj, *pID, p_rec, 1));
 			}
 		}
 	}
@@ -2594,7 +2624,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 			Reference::Encrypt(Reference::crymRef2, pPassword, glb_acc.Password, sizeof(glb_acc.Password));
 			glb_acc.LocalUserID = localUserID;
 			glb_acc.PersonID = personID;
-			THROW(EditItem(Obj, 0, &glb_acc, 0));
+			THROW(StoreItem(Obj, 0, &glb_acc, 0));
 			ID = reinterpret_cast<const ReferenceTbl::Rec *>(&glb_acc)->ObjID;
 			if(p_scs_obj) {
 				PPSCardSerPacket scs_pack;
@@ -4151,7 +4181,7 @@ int PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
 				dlg->selectCtrl(CTL_FPACKTYPE_NAME);
 			else if(!CheckDupSymb(*pID, rec.Symb))
 				PPErrorByDialog(dlg, CTL_FPACKTYPE_SYMB);
-			else if(EditItem(Obj, *pID, &rec, 1)) {
+			else if(StoreItem(Obj, *pID, &rec, 1)) {
 				Dirty(*pID);
 				valid_data = 1;
 			}
@@ -4188,7 +4218,7 @@ int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
 		STRNSCPY(rec.Symb, symb);
-		THROW(EditItem(Obj, 0, &rec, 1));
+		THROW(StoreItem(Obj, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;

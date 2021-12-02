@@ -435,7 +435,7 @@ static GP_INLINE double intersect_line_plane(GpVertex * v1, GpVertex * v2, t_pla
 	if(numerator == 0)
 		return 0;
 	else {
-		double denominator = p[0]*(v1->x - v2->x) + p[1]*(v1->y - v2->y) + p[2]*(v1->z - v2->z);
+		double denominator = p[0] * (v1->x - v2->x) + p[1] * (v1->y - v2->y) + p[2] * (v1->z - v2->z);
 		return (denominator==0 ? (numerator>0 ? VERYLARGE : -VERYLARGE) : numerator/denominator);
 	}
 }

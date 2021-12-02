@@ -669,7 +669,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 			}
 		}
 		if(costwovat || pricewotaxes || setcostwovat || setpricewovat) { // @v10.6.6 setpricewovat
-			const  int is_asset = BIN(gobj.IsAsset(labs(pLotRec->GoodsID)) > 0);
+			const  bool is_asset = gobj.IsAsset(labs(pLotRec->GoodsID));
 			int    vat_free = -1;
 			gobj.MultTaxFactor(pLotRec->GoodsID, &tax_factor);
 			if(costwovat) {

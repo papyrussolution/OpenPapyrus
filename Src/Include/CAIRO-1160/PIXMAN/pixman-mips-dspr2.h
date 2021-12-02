@@ -178,7 +178,7 @@ void pixman_fill_buff32_mips(void * dst, uint32 n_bytes, uint32 value);
 		pixman_fixed_t unit_x); \
                                                                              \
 	static force_inline void scaled_nearest_scanline_mips_ ## name ## _ ## op(dst_type *  pd, \
-	    const src_type * ps, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t zero_src) \
+	    const src_type * ps, int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                            \
 		pixman_scaled_nearest_scanline_ ## name ## _ ## op ## _asm_mips(pd, ps, w, vx, unit_x);    \
 	}                                                                            \
@@ -200,7 +200,7 @@ void pixman_fill_buff32_mips(void * dst, uint32 n_bytes, uint32 value);
 		int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x);  \
                                                                               \
 	static force_inline void scaled_nearest_scanline_mips_ ## name ## _ ## op(const uint8 *  mask, dst_type *  pd, const src_type * ps, \
-	    int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t zero_src)        \
+	    int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src)        \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
 			return;                                                               \
@@ -217,7 +217,7 @@ void pixman_fill_buff32_mips(void * dst, uint32 n_bytes, uint32 value);
 	void pixman_scaled_bilinear_scanline_ ## name ## _ ## op ## _asm_mips(dst_type *  dst,           \
 		const src_type * src_top, const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x); \
 	static force_inline void scaled_bilinear_scanline_mips_ ## name ## _ ## op(dst_type *  dst, const uint32 * mask, const src_type * src_top, \
-	    const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t zero_src) \
+	    const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                            \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                 \
 			return;                                                              \
@@ -236,7 +236,7 @@ void pixman_fill_buff32_mips(void * dst, uint32 n_bytes, uint32 value);
 		const src_type * top, const src_type * bottom, int wt, int wb, pixman_fixed_t x, pixman_fixed_t ux, int width); \
                                                                               \
 	static force_inline void scaled_bilinear_scanline_mips_ ## name ## _ ## op(dst_type *  dst, const uint8 *  mask, \
-	    const src_type * src_top, const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t zero_src) \
+	    const src_type * src_top, const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
 			return;                                                               \

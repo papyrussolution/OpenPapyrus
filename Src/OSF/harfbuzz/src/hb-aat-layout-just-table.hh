@@ -157,20 +157,14 @@ protected:
 public:
 		DEFINE_SIZE_STATIC(10);
 	};
-
 	struct ActionSubrecord {
-		uint get_length() const {
-			return u.header.actionLength;
-		}
-
+		uint get_length() const { return u.header.actionLength; }
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
-
-			switch(u.header.actionType)
-			{
+			switch(u.header.actionType) {
 				case 0:  return_trace(u.decompositionAction.sanitize(c));
 				case 1:  return_trace(u.unconditionalAddGlyphAction.sanitize(c));
 				case 2:  return_trace(u.conditionalAddGlyphAction.sanitize(c));

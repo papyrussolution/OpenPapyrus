@@ -198,7 +198,7 @@ public:
 		DEFINE_SIZE_STATIC(6);
 	};
 
-	struct KernOT : AAT::KerxTable<KernOT>{
+	struct KernOT : AAT::KerxTable<KernOT> {
 		friend struct AAT::KerxTable<KernOT>;
 
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_kern;
@@ -246,7 +246,7 @@ public:
 		DEFINE_SIZE_STATIC(8);
 	};
 
-	struct KernAAT : AAT::KerxTable<KernAAT>{
+	struct KernAAT : AAT::KerxTable<KernAAT> {
 		friend struct AAT::KerxTable<KernAAT>;
 
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_kern;

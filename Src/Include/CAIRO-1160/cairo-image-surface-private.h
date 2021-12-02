@@ -78,9 +78,9 @@ typedef struct _cairo_image_source {
 
 cairo_private extern const cairo_surface_backend_t _cairo_image_surface_backend;
 cairo_private extern const cairo_surface_backend_t _cairo_image_source_backend;
-cairo_private const cairo_compositor_t * _cairo_image_mask_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_image_traps_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_image_spans_compositor_get(void);
+cairo_private const cairo_compositor_t * _cairo_image_mask_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_image_traps_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_image_spans_compositor_get();
 
 #define _cairo_image_default_compositor_get _cairo_image_spans_compositor_get
 

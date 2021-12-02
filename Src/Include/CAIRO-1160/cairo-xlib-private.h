@@ -244,10 +244,10 @@ cairo_private cairo_font_options_t * _cairo_xlib_screen_get_font_options(cairo_x
 cairo_private cairo_status_t _cairo_xlib_screen_get_visual_info(cairo_xlib_display_t * display, cairo_xlib_screen_t * info, Visual * visual, cairo_xlib_visual_info_t ** out);
 cairo_private cairo_status_t _cairo_xlib_visual_info_create(Display * dpy, int screen, VisualID visualid, cairo_xlib_visual_info_t ** out);
 cairo_private void _cairo_xlib_visual_info_destroy(cairo_xlib_visual_info_t * info);
-cairo_private const cairo_compositor_t * _cairo_xlib_core_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_xlib_fallback_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_xlib_mask_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_xlib_traps_compositor_get(void);
+cairo_private const cairo_compositor_t * _cairo_xlib_core_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_xlib_fallback_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_xlib_mask_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_xlib_traps_compositor_get();
 cairo_private void _cairo_xlib_surface_ensure_picture(cairo_xlib_surface_t * surface);
 cairo_private void _cairo_xlib_surface_set_precision(cairo_xlib_surface_t * surface, cairo_antialias_t antialias);
 cairo_private cairo_int_status_t _cairo_xlib_surface_set_attributes(cairo_xlib_display_t * display,

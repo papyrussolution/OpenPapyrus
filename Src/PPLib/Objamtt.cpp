@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -472,7 +472,7 @@ int PPObjAmountType::ProcessReservedItem(TVRez & rez)
 		STRNSCPY(rec.Symb, symb);
 		if(errOnDefault)
 			rec.Flags |= PPAmountType::fErrOnDefault;
-		THROW(EditItem(PPOBJ_AMOUNTTYPE, 0, &rec, 1));
+		THROW(StoreItem(PPOBJ_AMOUNTTYPE, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;

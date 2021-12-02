@@ -255,7 +255,7 @@ UnicodeSet * UnicodeSet::cloneAsThawed() const {
  * @param o set to be compared for equality with this set.
  * @return <tt>true</tt> if the specified set is equal to this set.
  */
-bool UnicodeSet::operator==(const UnicodeSet & o) const {
+bool UnicodeSet::operator == (const UnicodeSet & o) const {
 	if(len != o.len) return false;
 	for(int32_t i = 0; i < len; ++i) {
 		if(list[i] != o.list[i]) return false;

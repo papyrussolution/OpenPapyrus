@@ -371,11 +371,11 @@ PluralFormat&PluralFormat::operator = (const PluralFormat& other) {
 	return *this;
 }
 
-bool PluralFormat::operator==(const Format& other) const {
+bool PluralFormat::operator == (const Format& other) const {
 	if(this == &other) {
 		return true;
 	}
-	if(!Format::operator==(other)) {
+	if(!Format::operator == (other)) {
 		return false;
 	}
 	const PluralFormat& o = (const PluralFormat&)other;
@@ -390,7 +390,7 @@ bool PluralFormat::operator==(const Format& other) const {
 }
 
 bool PluralFormat::operator != (const Format& other) const {
-	return !operator==(other);
+	return !operator == (other);
 }
 
 void PluralFormat::parseObject(const UnicodeString & /*source*/,

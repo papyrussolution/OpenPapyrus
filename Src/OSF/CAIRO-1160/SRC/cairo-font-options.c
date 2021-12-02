@@ -56,14 +56,13 @@ static const cairo_font_options_t _cairo_font_options_nil = {
 	CAIRO_ROUND_GLYPH_POS_DEFAULT,
 	NULL
 };
-
 /**
  * _cairo_font_options_init_default:
  * @options: a #cairo_font_options_t
  *
  * Initializes all fields of the font options object to default values.
  **/
-void _cairo_font_options_init_default(cairo_font_options_t * options)
+void FASTCALL _cairo_font_options_init_default(cairo_font_options_t * options)
 {
 	options->antialias = CAIRO_ANTIALIAS_DEFAULT;
 	options->subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
@@ -74,8 +73,7 @@ void _cairo_font_options_init_default(cairo_font_options_t * options)
 	options->variations = NULL;
 }
 
-void _cairo_font_options_init_copy(cairo_font_options_t * options,
-    const cairo_font_options_t * other)
+void FASTCALL _cairo_font_options_init_copy(cairo_font_options_t * options, const cairo_font_options_t * other)
 {
 	options->antialias = other->antialias;
 	options->subpixel_order = other->subpixel_order;
@@ -85,7 +83,6 @@ void _cairo_font_options_init_copy(cairo_font_options_t * options,
 	options->round_glyph_positions = other->round_glyph_positions;
 	options->variations = other->variations ? sstrdup(other->variations) : NULL;
 }
-
 /**
  * cairo_font_options_create:
  *
@@ -143,7 +140,6 @@ void _cairo_font_options_fini(cairo_font_options_t * options)
 {
 	SAlloc::F(options->variations);
 }
-
 /**
  * cairo_font_options_destroy:
  * @options: a #cairo_font_options_t
@@ -196,15 +192,12 @@ slim_hidden_def(cairo_font_options_status);
  *
  * Since: 1.0
  **/
-void cairo_font_options_merge(cairo_font_options_t * options,
-    const cairo_font_options_t * other)
+void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_options_t * other)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	if(cairo_font_options_status((cairo_font_options_t*)other))
 		return;
-
 	if(other->antialias != CAIRO_ANTIALIAS_DEFAULT)
 		options->antialias = other->antialias;
 	if(other->subpixel_order != CAIRO_SUBPIXEL_ORDER_DEFAULT)
@@ -305,12 +298,10 @@ slim_hidden_def(cairo_font_options_hash);
  *
  * Since: 1.0
  **/
-void cairo_font_options_set_antialias(cairo_font_options_t * options,
-    cairo_antialias_t antialias)
+void cairo_font_options_set_antialias(cairo_font_options_t * options, cairo_antialias_t antialias)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	options->antialias = antialias;
 }
 
@@ -328,12 +319,8 @@ slim_hidden_def(cairo_font_options_set_antialias);
  **/
 cairo_antialias_t cairo_font_options_get_antialias(const cairo_font_options_t * options)
 {
-	if(cairo_font_options_status((cairo_font_options_t*)options))
-		return CAIRO_ANTIALIAS_DEFAULT;
-
-	return options->antialias;
+	return cairo_font_options_status((cairo_font_options_t*)options) ? CAIRO_ANTIALIAS_DEFAULT : options->antialias;
 }
-
 /**
  * cairo_font_options_set_subpixel_order:
  * @options: a #cairo_font_options_t
@@ -347,17 +334,14 @@ cairo_antialias_t cairo_font_options_get_antialias(const cairo_font_options_t * 
  *
  * Since: 1.0
  **/
-void cairo_font_options_set_subpixel_order(cairo_font_options_t * options,
-    cairo_subpixel_order_t subpixel_order)
+void cairo_font_options_set_subpixel_order(cairo_font_options_t * options, cairo_subpixel_order_t subpixel_order)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	options->subpixel_order = subpixel_order;
 }
 
 slim_hidden_def(cairo_font_options_set_subpixel_order);
-
 /**
  * cairo_font_options_get_subpixel_order:
  * @options: a #cairo_font_options_t
@@ -371,12 +355,8 @@ slim_hidden_def(cairo_font_options_set_subpixel_order);
  **/
 cairo_subpixel_order_t cairo_font_options_get_subpixel_order(const cairo_font_options_t * options)
 {
-	if(cairo_font_options_status((cairo_font_options_t*)options))
-		return CAIRO_SUBPIXEL_ORDER_DEFAULT;
-
-	return options->subpixel_order;
+	return cairo_font_options_status((cairo_font_options_t*)options) ? CAIRO_SUBPIXEL_ORDER_DEFAULT : options->subpixel_order;
 }
-
 /**
  * _cairo_font_options_set_lcd_filter:
  * @options: a #cairo_font_options_t
@@ -387,15 +367,12 @@ cairo_subpixel_order_t cairo_font_options_get_subpixel_order(const cairo_font_op
  * mode of %CAIRO_ANTIALIAS_SUBPIXEL. See the documentation for
  * #cairo_lcd_filter_t for full details.
  **/
-void _cairo_font_options_set_lcd_filter(cairo_font_options_t * options,
-    cairo_lcd_filter_t lcd_filter)
+void _cairo_font_options_set_lcd_filter(cairo_font_options_t * options, cairo_lcd_filter_t lcd_filter)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	options->lcd_filter = lcd_filter;
 }
-
 /**
  * _cairo_font_options_get_lcd_filter:
  * @options: a #cairo_font_options_t
@@ -407,12 +384,8 @@ void _cairo_font_options_set_lcd_filter(cairo_font_options_t * options,
  **/
 cairo_lcd_filter_t _cairo_font_options_get_lcd_filter(const cairo_font_options_t * options)
 {
-	if(cairo_font_options_status((cairo_font_options_t*)options))
-		return CAIRO_LCD_FILTER_DEFAULT;
-
-	return options->lcd_filter;
+	return cairo_font_options_status((cairo_font_options_t*)options) ? CAIRO_LCD_FILTER_DEFAULT : options->lcd_filter;
 }
-
 /**
  * _cairo_font_options_set_round_glyph_positions:
  * @options: a #cairo_font_options_t
@@ -421,15 +394,12 @@ cairo_lcd_filter_t _cairo_font_options_get_lcd_filter(const cairo_font_options_t
  * Sets the rounding options for the font options object. If rounding is set, a
  * glyph's position will be rounded to integer values.
  **/
-void _cairo_font_options_set_round_glyph_positions(cairo_font_options_t * options,
-    cairo_round_glyph_positions_t round)
+void FASTCALL _cairo_font_options_set_round_glyph_positions(cairo_font_options_t * options, cairo_round_glyph_positions_t round)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	options->round_glyph_positions = round;
 }
-
 /**
  * _cairo_font_options_get_round_glyph_positions:
  * @options: a #cairo_font_options_t
@@ -438,14 +408,10 @@ void _cairo_font_options_set_round_glyph_positions(cairo_font_options_t * option
  *
  * Return value: The round glyph posistions flag for the font options object.
  **/
-cairo_round_glyph_positions_t _cairo_font_options_get_round_glyph_positions(const cairo_font_options_t * options)
+cairo_round_glyph_positions_t FASTCALL _cairo_font_options_get_round_glyph_positions(const cairo_font_options_t * options)
 {
-	if(cairo_font_options_status((cairo_font_options_t*)options))
-		return CAIRO_ROUND_GLYPH_POS_DEFAULT;
-
-	return options->round_glyph_positions;
+	return cairo_font_options_status((cairo_font_options_t*)options) ? CAIRO_ROUND_GLYPH_POS_DEFAULT : options->round_glyph_positions;
 }
-
 /**
  * cairo_font_options_set_hint_style:
  * @options: a #cairo_font_options_t
@@ -458,12 +424,10 @@ cairo_round_glyph_positions_t _cairo_font_options_get_round_glyph_positions(cons
  *
  * Since: 1.0
  **/
-void cairo_font_options_set_hint_style(cairo_font_options_t * options,
-    cairo_hint_style_t hint_style)
+void cairo_font_options_set_hint_style(cairo_font_options_t * options, cairo_hint_style_t hint_style)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	options->hint_style = hint_style;
 }
 
@@ -484,7 +448,6 @@ cairo_hint_style_t cairo_font_options_get_hint_style(const cairo_font_options_t 
 {
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		return CAIRO_HINT_STYLE_DEFAULT;
-
 	return options->hint_style;
 }
 
@@ -500,12 +463,10 @@ cairo_hint_style_t cairo_font_options_get_hint_style(const cairo_font_options_t 
  *
  * Since: 1.0
  **/
-void cairo_font_options_set_hint_metrics(cairo_font_options_t * options,
-    cairo_hint_metrics_t hint_metrics)
+void cairo_font_options_set_hint_metrics(cairo_font_options_t * options, cairo_hint_metrics_t hint_metrics)
 {
 	if(cairo_font_options_status(options))
 		return;
-
 	options->hint_metrics = hint_metrics;
 }
 
@@ -526,10 +487,8 @@ cairo_hint_metrics_t cairo_font_options_get_hint_metrics(const cairo_font_option
 {
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		return CAIRO_HINT_METRICS_DEFAULT;
-
 	return options->hint_metrics;
 }
-
 /**
  * cairo_font_options_set_variations:
  * @options: a #cairo_font_options_t
@@ -550,14 +509,12 @@ cairo_hint_metrics_t cairo_font_options_get_hint_metrics(const cairo_font_option
  *
  * Since: 1.16
  **/
-void cairo_font_options_set_variations(cairo_font_options_t * options,
-    const char * variations)
+void cairo_font_options_set_variations(cairo_font_options_t * options, const char * variations)
 {
 	char * tmp = variations ? sstrdup(variations) : NULL;
 	SAlloc::F(options->variations);
 	options->variations = tmp;
 }
-
 /**
  * cairo_font_options_get_variations:
  * @options: a #cairo_font_options_t

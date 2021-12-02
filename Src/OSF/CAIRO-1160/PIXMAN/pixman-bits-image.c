@@ -48,7 +48,7 @@ static uint32 * _pixman_image_get_scanline_generic_float(pixman_iter_t * iter, c
 
 /* Fetch functions */
 
-static force_inline uint32 fetch_pixel_no_alpha(bits_image_t * image, int x, int y, pixman_bool_t check_bounds)
+static force_inline uint32 fetch_pixel_no_alpha(bits_image_t * image, int x, int y, boolint check_bounds)
 {
 	if(check_bounds && (x < 0 || x >= image->width || y < 0 || y >= image->height)) {
 		return 0;
@@ -56,7 +56,7 @@ static force_inline uint32 fetch_pixel_no_alpha(bits_image_t * image, int x, int
 	return image->fetch_pixel_32(image, x, y);
 }
 
-typedef uint32 (* get_pixel_t) (bits_image_t * image, int x, int y, pixman_bool_t check_bounds);
+typedef uint32 (* get_pixel_t) (bits_image_t * image, int x, int y, boolint check_bounds);
 
 static force_inline uint32 bits_image_fetch_pixel_nearest(bits_image_t * image, pixman_fixed_t x,
     pixman_fixed_t y, get_pixel_t get_pixel)
@@ -286,7 +286,7 @@ static uint32 * bits_image_fetch_affine_no_alpha(pixman_iter_t *  iter, const ui
 }
 
 /* General fetcher */
-static force_inline uint32 fetch_pixel_general(bits_image_t * image, int x, int y, pixman_bool_t check_bounds)
+static force_inline uint32 fetch_pixel_general(bits_image_t * image, int x, int y, boolint check_bounds)
 {
 	uint32 pixel;
 	if(check_bounds && (x < 0 || x >= image->width || y < 0 || y >= image->height)) {
@@ -377,7 +377,7 @@ static void replicate_pixel_float(bits_image_t * bits, int x, int y, int width, 
 		*(buffer++) = color;
 }
 
-static void bits_image_fetch_untransformed_repeat_none(bits_image_t * image, pixman_bool_t wide, int x, int y, int width, uint32 * buffer)
+static void bits_image_fetch_untransformed_repeat_none(bits_image_t * image, boolint wide, int x, int y, int width, uint32 * buffer)
 {
 	uint32 w;
 	if(y < 0 || y >= image->height) {
@@ -404,7 +404,7 @@ static void bits_image_fetch_untransformed_repeat_none(bits_image_t * image, pix
 	memzero(buffer, width * (wide ? sizeof(argb_t) : 4));
 }
 
-static void bits_image_fetch_untransformed_repeat_normal(bits_image_t * image, pixman_bool_t wide, int x, int y, int width, uint32 * buffer)
+static void bits_image_fetch_untransformed_repeat_normal(bits_image_t * image, boolint wide, int x, int y, int width, uint32 * buffer)
 {
 	uint32 w;
 	while(y < 0)
@@ -622,7 +622,7 @@ void _pixman_bits_image_dest_iter_init(pixman_image_t * image, pixman_iter_t * i
 	}
 }
 
-static uint32 * create_bits(pixman_format_code_t format, int width, int height, int * rowstride_bytes, pixman_bool_t clear)
+static uint32 * create_bits(pixman_format_code_t format, int width, int height, int * rowstride_bytes, boolint clear)
 {
 	int stride;
 	size_t buf_size;
@@ -647,7 +647,7 @@ static uint32 * create_bits(pixman_format_code_t format, int width, int height, 
 		return (uint32 *)SAlloc::M(buf_size);
 }
 
-pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32 * bits, int rowstride, pixman_bool_t clear)
+boolint _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32 * bits, int rowstride, boolint clear)
 {
 	uint32 * free_me = NULL;
 	if(PIXMAN_FORMAT_BPP(format) == 128)
@@ -675,7 +675,7 @@ pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code
 	return TRUE;
 }
 
-static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, int width, int height, uint32 * bits, int rowstride_bytes, pixman_bool_t clear)
+static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, int width, int height, uint32 * bits, int rowstride_bytes, boolint clear)
 {
 	/* must be a whole number of uint32's
 	 */

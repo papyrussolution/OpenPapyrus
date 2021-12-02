@@ -394,7 +394,7 @@ DateTimePatternGenerator&DateTimePatternGenerator::operator = (const DateTimePat
 	return *this;
 }
 
-bool DateTimePatternGenerator::operator==(const DateTimePatternGenerator& other) const {
+bool DateTimePatternGenerator::operator == (const DateTimePatternGenerator& other) const {
 	if(this == &other) {
 		return true;
 	}
@@ -418,7 +418,7 @@ bool DateTimePatternGenerator::operator==(const DateTimePatternGenerator& other)
 }
 
 bool DateTimePatternGenerator::operator != (const DateTimePatternGenerator& other) const {
-	return !operator==(other);
+	return !operator == (other);
 }
 
 DateTimePatternGenerator::~DateTimePatternGenerator() {

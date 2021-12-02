@@ -1341,7 +1341,7 @@ void SSerializeContext::Init(long flags, LDATE suppDate)
 	SymbTbl.Clear();
 }
 
-int FASTCALL SSerializeContext::CheckFlag(long f) const { return BIN(Flags & f); }
+bool FASTCALL SSerializeContext::CheckFlag(long f) const { return LOGIC(Flags & f); }
 LDATE SSerializeContext::GetSupportingDate() const { return SuppDate; }
 
 int SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID)

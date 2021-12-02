@@ -65,10 +65,10 @@ struct image_common {
 	int32 ref_count;
 	pixman_region32_t clip_region;
 	int32 alpha_count;            // How many times this image is being used as an alpha map 
-	pixman_bool_t have_clip_region; // FALSE if there is no clip 
-	pixman_bool_t client_clip;      // Whether the source clip was set by a client 
-	pixman_bool_t clip_sources;     // Whether the clip applies when the image is used as a source 
-	pixman_bool_t dirty;
+	boolint have_clip_region; // FALSE if there is no clip 
+	boolint client_clip;      // Whether the source clip was set by a client 
+	boolint clip_sources;     // Whether the clip applies when the image is used as a source 
+	boolint dirty;
 	pixman_transform_t * transform;
 	pixman_repeat_t repeat;
 	pixman_filter_t filter;
@@ -77,7 +77,7 @@ struct image_common {
 	bits_image_t * alpha_map;
 	int alpha_origin_x;
 	int alpha_origin_y;
-	pixman_bool_t component_alpha;
+	boolint component_alpha;
 	property_changed_func_t property_changed;
 	pixman_image_destroy_func_t destroy_func;
 	void *  destroy_data;
@@ -231,10 +231,10 @@ void _pixman_linear_gradient_iter_init(pixman_image_t * image, pixman_iter_t * i
 void _pixman_radial_gradient_iter_init(pixman_image_t * image, pixman_iter_t * iter);
 void _pixman_conical_gradient_iter_init(pixman_image_t * image, pixman_iter_t * iter);
 void _pixman_image_init(pixman_image_t * image);
-pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32 *  bits, int rowstride, pixman_bool_t clear);
-pixman_bool_t _pixman_image_fini(pixman_image_t * image);
-pixman_image_t * _pixman_image_allocate(void);
-pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops);
+boolint _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32 *  bits, int rowstride, boolint clear);
+boolint _pixman_image_fini(pixman_image_t * image);
+pixman_image_t * _pixman_image_allocate();
+boolint _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops);
 void _pixman_image_reset_clip_region(pixman_image_t * image);
 void FASTCALL _pixman_image_validate(pixman_image_t * image);
 
@@ -259,7 +259,7 @@ typedef struct {
 	pixman_gradient_stop_t * stops;
 	int num_stops;
 	pixman_repeat_t repeat;
-	pixman_bool_t need_reset;
+	boolint need_reset;
 } pixman_gradient_walker_t;
 
 void _pixman_gradient_walker_init(pixman_gradient_walker_t * walker, gradient_t * gradient, pixman_repeat_t repeat);
@@ -327,9 +327,9 @@ typedef struct {
 typedef void (* pixman_combine_32_func_t) (pixman_implementation_t * imp, pixman_op_t op, uint32 * dest, const uint32 * src, const uint32 * mask, int width);
 typedef void (* pixman_combine_float_func_t) (pixman_implementation_t * imp, pixman_op_t op, float * dest, const float * src, const float * mask, int n_pixels);
 typedef void (* pixman_composite_func_t) (pixman_implementation_t * imp, pixman_composite_info_t * info);
-typedef pixman_bool_t (* pixman_blt_func_t) (pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride, int dst_stride,
+typedef boolint (* pixman_blt_func_t) (pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride, int dst_stride,
     int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
-typedef pixman_bool_t (* pixman_fill_func_t) (pixman_implementation_t * imp, uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 filler);
+typedef boolint (* pixman_fill_func_t) (pixman_implementation_t * imp, uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 filler);
 void _pixman_setup_combiner_functions_32(pixman_implementation_t * imp);
 void _pixman_setup_combiner_functions_float(pixman_implementation_t * imp);
 
@@ -362,14 +362,14 @@ pixman_implementation_t * _pixman_implementation_create(pixman_implementation_t 
 void _pixman_implementation_lookup_composite(pixman_implementation_t * toplevel, pixman_op_t op, pixman_format_code_t src_format,
     uint32 src_flags, pixman_format_code_t mask_format, uint32 mask_flags, pixman_format_code_t dest_format, uint32 dest_flags,
     pixman_implementation_t ** out_imp, pixman_composite_func_t * out_func);
-pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implementation_t * imp, pixman_op_t op, pixman_bool_t component_alpha, pixman_bool_t wide);
-pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride,
+pixman_combine_32_func_t _pixman_implementation_lookup_combiner(pixman_implementation_t * imp, pixman_op_t op, boolint component_alpha, boolint wide);
+boolint _pixman_implementation_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits, int src_stride,
     int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
-pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 filler);
+boolint _pixman_implementation_fill(pixman_implementation_t * imp, uint32 * bits, int stride, int bpp, int x, int y, int width, int height, uint32 filler);
 void _pixman_implementation_iter_init(pixman_implementation_t * imp, pixman_iter_t * iter, pixman_image_t * image, int x, int y,
     int width, int height, uint8 * buffer, iter_flags_t flags, uint32 image_flags);
 /* Specific implementations */
-pixman_implementation_t * _pixman_implementation_create_general(void);
+pixman_implementation_t * _pixman_implementation_create_general();
 pixman_implementation_t * _pixman_implementation_create_fast_path(pixman_implementation_t * fallback);
 pixman_implementation_t * _pixman_implementation_create_noop(pixman_implementation_t * fallback);
 
@@ -395,17 +395,17 @@ pixman_implementation_t * _pixman_implementation_create_noop(pixman_implementati
 	pixman_implementation_t * _pixman_implementation_create_vmx(pixman_implementation_t * fallback);
 #endif
 
-pixman_bool_t _pixman_implementation_disabled(const char * name);
+boolint _pixman_implementation_disabled(const char * name);
 pixman_implementation_t * _pixman_x86_get_implementations(pixman_implementation_t * imp);
 pixman_implementation_t * _pixman_arm_get_implementations(pixman_implementation_t * imp);
 pixman_implementation_t * _pixman_ppc_get_implementations(pixman_implementation_t * imp);
 pixman_implementation_t * _pixman_mips_get_implementations(pixman_implementation_t * imp);
-pixman_implementation_t * _pixman_choose_implementation(void);
-pixman_bool_t _pixman_disabled(const char * name);
+pixman_implementation_t * _pixman_choose_implementation();
+boolint _pixman_disabled(const char * name);
 /*
  * Utilities
  */
-pixman_bool_t _pixman_compute_composite_region32(pixman_region32_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,
+boolint _pixman_compute_composite_region32(pixman_region32_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,
     int32 src_x, int32 src_y, int32 mask_x, int32 mask_y, int32 dest_x, int32 dest_y, int32 width, int32 height);
 uint32 * _pixman_iter_get_scanline_noop(pixman_iter_t * iter, const uint32 * mask);
 void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_t * info);
@@ -528,22 +528,22 @@ static force_inline pixman_implementation_t * get_implementation(void)
 /* This function is exported for the sake of the test suite and not part
  * of the ABI.
  */
-PIXMAN_EXPORT pixman_implementation_t * _pixman_internal_only_get_implementation(void);
+PIXMAN_EXPORT pixman_implementation_t * _pixman_internal_only_get_implementation();
 
 /* Memory allocation helpers */
 void * FASTCALL pixman_malloc_ab(uint n, uint b);
 void * pixman_malloc_abc(uint a, uint b, uint c);
 void * pixman_malloc_ab_plus_c(uint a, uint b, uint c);
-pixman_bool_t _pixman_multiply_overflows_size(size_t a, size_t b);
-pixman_bool_t _pixman_multiply_overflows_int(uint a, uint b);
-pixman_bool_t _pixman_addition_overflows_int(uint a, uint b);
+boolint _pixman_multiply_overflows_size(size_t a, size_t b);
+boolint _pixman_multiply_overflows_int(uint a, uint b);
+boolint _pixman_addition_overflows_int(uint a, uint b);
 
 /* Compositing utilities */
 void pixman_expand_to_float(argb_t * dst, const uint32 * src, pixman_format_code_t format, int width);
 void pixman_contract_from_float(uint32 * dst, const argb_t * src, int width);
 /* Region Helpers */
-pixman_bool_t pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman_region16_t * src);
-pixman_bool_t pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman_region32_t * src);
+boolint pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman_region16_t * src);
+boolint pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman_region32_t * src);
 
 /* Doubly linked lists */
 typedef struct pixman_link_t pixman_link_t;
@@ -735,7 +735,7 @@ void FASTCALL _pixman_log_error(const char * function, const char * message);
 
 typedef struct { pixman_fixed_48_16_t v[3]; } pixman_vector_48_16_t;
 
-pixman_bool_t pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
+boolint pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
 void pixman_transform_point_31_16_3d(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
 void pixman_transform_point_31_16_affine(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
 /*

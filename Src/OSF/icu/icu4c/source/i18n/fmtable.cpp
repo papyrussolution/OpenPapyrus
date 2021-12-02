@@ -236,7 +236,7 @@ Formattable& Formattable::operator = (const Formattable &source)
 	return *this;
 }
 
-bool Formattable::operator==(const Formattable &that) const
+bool Formattable::operator == (const Formattable &that) const
 {
 	int32_t i;
 	if(this == &that) return true;

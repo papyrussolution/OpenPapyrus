@@ -325,7 +325,7 @@ class U_I18N_API FixedDecimal: public IFixedDecimal, public UObject {
     static int32_t decimals(double n);
 
     FixedDecimal& operator = (const FixedDecimal& other) = default;
-    bool operator==(const FixedDecimal &other) const;
+    bool operator == (const FixedDecimal &other) const;
 
     UnicodeString toString() const;
 

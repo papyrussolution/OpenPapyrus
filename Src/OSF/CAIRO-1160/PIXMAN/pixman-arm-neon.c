@@ -113,7 +113,7 @@ void pixman_composite_src_n_8888_asm_neon(int32 w,
     int32 dst_stride,
     uint32 src);
 
-static pixman_bool_t arm_neon_fill(pixman_implementation_t * imp,
+static boolint arm_neon_fill(pixman_implementation_t * imp,
     uint32 * bits,
     int stride,
     int bpp,
@@ -157,7 +157,7 @@ static pixman_bool_t arm_neon_fill(pixman_implementation_t * imp,
 	}
 }
 
-static pixman_bool_t arm_neon_blt(pixman_implementation_t * imp,
+static boolint arm_neon_blt(pixman_implementation_t * imp,
     uint32 * src_bits,
     uint32 * dst_bits,
     int src_stride,

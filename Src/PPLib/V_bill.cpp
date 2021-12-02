@@ -7857,7 +7857,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 					vatsum_newprice = gt_vect.GetValue(GTAXVF_VAT);
 				}
 			}
-			else if(p_ti->Flags & PPTFR_REVAL && reval_assets_wo_vat && gobj.IsAsset(labs(p_ti->GoodsID)) > 0) {
+			else if(p_ti->Flags & PPTFR_REVAL && reval_assets_wo_vat && gobj.IsAsset(labs(p_ti->GoodsID))) {
 				GTaxVect gt_vect;
 				long   amt_flags  = ~0L;
 				long   excl_flags = 0L;

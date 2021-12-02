@@ -239,7 +239,7 @@ int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 		rec.ID  = id;
 		STRNSCPY(rec.Name, name);
 		STRNSCPY(rec.Symb, symb);
-		THROW(EditItem(Obj, 0, &rec, 1));
+		THROW(StoreItem(Obj, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;

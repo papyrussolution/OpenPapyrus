@@ -32,7 +32,7 @@ class RuleCharacterIterator : public UMemory {
 
     // TODO: Ideas for later.  (Do not implement if not needed, lest the
     // code coverage numbers go down due to unused methods.)
-    // 1. Add a copy constructor, operator==() method.
+    // 1. Add a copy constructor, operator == () method.
     // 2. Rather than return DONE, throw an exception if the end
     // is reached -- this is an alternate usage model, probably not useful.
 

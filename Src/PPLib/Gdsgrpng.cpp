@@ -1173,9 +1173,8 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 		if(filt.GoodsGrpID || filt.GoodsID) {
 			if(!filt.GoodsID)
 				GoodsIterator::GetListByGroup(filt.GoodsGrpID, &goods_list);
-			else if(GObj.IsGeneric(filt.GoodsID) > 0) {
+			else if(GObj.IsGeneric(filt.GoodsID))
 				GObj.GetGenericList(filt.GoodsID, &goods_list);
-			}
 			else
 				goods_list.add(filt.GoodsID);
 			//

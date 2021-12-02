@@ -257,7 +257,7 @@ NumberFormat&NumberFormat::operator = (const NumberFormat& rhs)
 	return *this;
 }
 
-bool NumberFormat::operator==(const Format& that) const
+bool NumberFormat::operator == (const Format& that) const
 {
 	// Format::operator== guarantees this cast is safe
 	NumberFormat* other = (NumberFormat*)&that;
@@ -266,7 +266,7 @@ bool NumberFormat::operator==(const Format& that) const
 	// This code makes it easy to determine why two format objects that should
 	// be equal aren't.
 	bool first = TRUE;
-	if(!Format::operator==(that)) {
+	if(!Format::operator == (that)) {
 		if(first) {
 			printf("[ "); first = FALSE;
 		}
@@ -346,7 +346,7 @@ bool NumberFormat::operator==(const Format& that) const
 #endif
 
 	return ((this == &that) ||
-	       ((Format::operator==(that) &&
+	       ((Format::operator == (that) &&
 	       fMaxIntegerDigits == other->fMaxIntegerDigits &&
 	       fMinIntegerDigits == other->fMinIntegerDigits &&
 	       fMaxFractionDigits == other->fMaxFractionDigits &&

@@ -410,7 +410,7 @@ struct active_feature_t {
 		       0;
 	}
 
-	bool operator==(const active_feature_t * f) {
+	bool operator == (const active_feature_t * f) {
 		return cmp(this, f) == 0;
 	}
 };

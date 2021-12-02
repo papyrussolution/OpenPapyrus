@@ -60,14 +60,14 @@ public:
 	 * @param rhs    the object to be compared with.
 	 * @return       true if the given Format objects are semantically equal.
 	 */
-	virtual bool operator==(const NFSubstitution& rhs) const;
+	virtual bool operator == (const NFSubstitution& rhs) const;
 	/**
 	 * Return true if the given Format objects are semantically unequal.
 	 * Objects of different subclasses are considered unequal.
 	 * @param rhs    the object to be compared with.
 	 * @return       true if the given Format objects are semantically unequal.
 	 */
-	bool operator != (const NFSubstitution& rhs) const { return !operator==(rhs); }
+	bool operator != (const NFSubstitution& rhs) const { return !operator == (rhs); }
 	/**
 	 * Sets the substitution's divisor.  Used by NFRule.setBaseValue().
 	 * A no-op for all substitutions except multiplier and modulus

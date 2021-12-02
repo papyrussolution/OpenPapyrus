@@ -445,7 +445,7 @@ Region::~Region ()
  * Returns true if the two regions are equal.
  * Per PMC, just use pointer compare, since we have at most one instance of each Region.
  */
-bool Region::operator==(const Region &that) const { return (idStr == that.idStr); }
+bool Region::operator == (const Region &that) const { return (idStr == that.idStr); }
 /**
  * Returns true if the two regions are NOT equal; that is, if operator ==() returns false.
  * Per PMC, just use pointer compare, since we have at most one instance of each Region.

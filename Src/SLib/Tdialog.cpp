@@ -464,7 +464,7 @@ TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TW
 TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber) { Helper_Constructor(resID, 0, 0, coNothing); }
 TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber) { Helper_Constructor(resID, 0, 0, co); }
 void TDialog::ToCascade() { DlgFlags |= fCascade; }
-int FASTCALL TDialog::CheckFlag(long f) const { return BIN(DlgFlags & f); }
+bool FASTCALL TDialog::CheckFlag(long f) const { return LOGIC(DlgFlags & f); }
 
 TDialog::~TDialog()
 {

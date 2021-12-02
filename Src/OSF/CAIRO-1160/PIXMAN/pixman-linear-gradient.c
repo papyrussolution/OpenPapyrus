@@ -32,7 +32,7 @@
 //#include <stdlib.h>
 //#include "pixman-private.h"
 
-static pixman_bool_t linear_gradient_is_horizontal(pixman_image_t * image, int x, int y, int width, int height)
+static boolint linear_gradient_is_horizontal(pixman_image_t * image, int x, int y, int width, int height)
 {
 	linear_gradient_t * linear = (linear_gradient_t*)image;
 	pixman_vector_t v;

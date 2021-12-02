@@ -339,7 +339,7 @@ public:
 	struct LigatureEntry;
 
 	template <>
-	struct LigatureEntry<true>{
+	struct LigatureEntry<true> {
 		enum Flags {
 			SetComponent        = 0x8000,/* Push this glyph onto the component stack for
 			 * eventual processing. */
@@ -369,7 +369,7 @@ public:
 		}
 	};
 	template <>
-	struct LigatureEntry<false>{
+	struct LigatureEntry<false> {
 		enum Flags {
 			SetComponent        = 0x8000,/* Push this glyph onto the component stack for
 			 * eventual processing. */

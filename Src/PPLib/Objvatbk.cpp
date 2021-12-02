@@ -25,10 +25,10 @@ VATBCfg & FASTCALL VATBCfg::operator = (const VATBCfg & s)
 	return *this;
 }
 
-int VATBCfg::CheckFlag(PPID opID, long f) const
+bool VATBCfg::CheckFlag(PPID opID, long f) const
 {
 	uint   p = 0;
-	return BIN(List.lsearch(&opID, &p, CMPF_LONG) && List.at(p).Flags & f);
+	return (List.lsearch(&opID, &p, CMPF_LONG) && List.at(p).Flags & f);
 }
 
 int VATBCfg::CheckOp(PPID /*opID*/, PPID * /*pAccSheetID*/)

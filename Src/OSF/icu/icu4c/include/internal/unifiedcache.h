@@ -75,7 +75,7 @@ class U_COMMON_API CacheKeyBase : public UObject {
     */
    virtual char *writeDescription(char *buffer, int32_t bufSize) const = 0;
 
-   friend inline bool operator==(const CacheKeyBase& lhs,
+   friend inline bool operator == (const CacheKeyBase& lhs,
                                  const CacheKeyBase& rhs) {
        return lhs.equals(rhs);
    }
@@ -145,7 +145,7 @@ class LocaleCacheKey : public CacheKey<T> {
        }
        // We know this and other are of same class because equals() on
        // CacheKey returned true.
-       return operator==(static_cast<const LocaleCacheKey<T> &>(other));
+       return operator == (static_cast<const LocaleCacheKey<T> &>(other));
    }
  public:
    LocaleCacheKey(const Locale &loc) : fLoc(loc) {}

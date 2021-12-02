@@ -94,7 +94,7 @@ public:
 	/**
 	 * Override Calendar Returns a unique class ID POLYMORPHICALLY. Pure virtual
 	 * override. This method is to implement a simple version of RTTI, since not all C++
-	 * compilers support genuine RTTI. Polymorphic operator==() and clone() methods call
+	 * compilers support genuine RTTI. Polymorphic operator == () and clone() methods call
 	 * this method.
 	 *
 	 * @return   The class ID for this object. All objects of a given class have the

@@ -63,7 +63,7 @@ static void gradient_property_changed(pixman_image_t * image)
 	}
 }
 
-pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops)
+boolint _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops)
 {
 	return_val_if_fail(n_stops > 0, FALSE);
 	/* We allocate two extra stops, one before the beginning of the stop list,
@@ -108,7 +108,7 @@ void _pixman_image_init(pixman_image_t * image)
 	common->dirty = TRUE;
 }
 
-pixman_bool_t _pixman_image_fini(pixman_image_t * image)
+boolint _pixman_image_fini(pixman_image_t * image)
 {
 	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	common->ref_count--;
@@ -159,7 +159,7 @@ PIXMAN_EXPORT pixman_image_t * FASTCALL pixman_image_ref(pixman_image_t * image)
 }
 
 /* returns TRUE when the image is freed */
-PIXMAN_EXPORT pixman_bool_t FASTCALL pixman_image_unref(pixman_image_t * image)
+PIXMAN_EXPORT boolint FASTCALL pixman_image_unref(pixman_image_t * image)
 {
 	if(_pixman_image_fini(image)) {
 		SAlloc::F(image);
@@ -425,10 +425,10 @@ void FASTCALL _pixman_image_validate(pixman_image_t * image)
 		_pixman_image_validate((pixman_image_t*)image->common.alpha_map);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region)
+PIXMAN_EXPORT boolint pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region)
 {
 	image_common_t * common = reinterpret_cast<image_common_t *>(image);
-	pixman_bool_t result;
+	boolint result;
 	if(region) {
 		if((result = pixman_region32_copy(&common->clip_region, region)))
 			image->common.have_clip_region = TRUE;
@@ -441,10 +441,10 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region32(pixman_image_t * imag
 	return result;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region)
+PIXMAN_EXPORT boolint pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region)
 {
 	image_common_t * common = reinterpret_cast<image_common_t *>(image);
-	pixman_bool_t result;
+	boolint result;
 	if(region) {
 		if((result = pixman_region32_copy_from_region16(&common->clip_region, region)))
 			image->common.have_clip_region = TRUE;
@@ -457,12 +457,12 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_clip_region(pixman_image_t * image,
 	return result;
 }
 
-PIXMAN_EXPORT void pixman_image_set_has_client_clip(pixman_image_t * image, pixman_bool_t client_clip)
+PIXMAN_EXPORT void pixman_image_set_has_client_clip(pixman_image_t * image, boolint client_clip)
 {
 	image->common.client_clip = client_clip;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, const pixman_transform_t * transform)
+PIXMAN_EXPORT boolint pixman_image_set_transform(pixman_image_t * image, const pixman_transform_t * transform)
 {
 	static const pixman_transform_t id = {
 		{ { pixman_fixed_1, 0, 0 },
@@ -470,7 +470,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, c
 		  { 0, 0, pixman_fixed_1 } }
 	};
 	image_common_t * common = reinterpret_cast<image_common_t *>(image);
-	pixman_bool_t result;
+	boolint result;
 	if(common->transform == transform)
 		return TRUE;
 	if(!transform || memcmp(&id, transform, sizeof(pixman_transform_t)) == 0) {
@@ -504,7 +504,7 @@ PIXMAN_EXPORT void pixman_image_set_repeat(pixman_image_t * image, pixman_repeat
 	image_property_changed(image);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * params, int n_params)
+PIXMAN_EXPORT boolint pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * params, int n_params)
 {
 	image_common_t * common = reinterpret_cast<image_common_t *>(image);
 	pixman_fixed_t * new_params;
@@ -535,7 +535,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixm
 	return TRUE;
 }
 
-PIXMAN_EXPORT void pixman_image_set_source_clipping(pixman_image_t * image, pixman_bool_t clip_sources)
+PIXMAN_EXPORT void pixman_image_set_source_clipping(pixman_image_t * image, boolint clip_sources)
 {
 	if(image->common.clip_sources == clip_sources)
 		return;
@@ -586,7 +586,7 @@ PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_ima
 	image_property_changed(image);
 }
 
-PIXMAN_EXPORT void pixman_image_set_component_alpha(pixman_image_t * image, pixman_bool_t component_alpha)
+PIXMAN_EXPORT void pixman_image_set_component_alpha(pixman_image_t * image, boolint component_alpha)
 {
 	if(image->common.component_alpha == component_alpha)
 		return;
@@ -594,7 +594,7 @@ PIXMAN_EXPORT void pixman_image_set_component_alpha(pixman_image_t * image, pixm
 	image_property_changed(image);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_image_get_component_alpha(const pixman_image_t * image)
+PIXMAN_EXPORT boolint pixman_image_get_component_alpha(const pixman_image_t * image)
 {
 	return image->common.component_alpha;
 }

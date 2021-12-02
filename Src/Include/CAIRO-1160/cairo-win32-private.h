@@ -149,8 +149,8 @@ typedef struct _cairo_win32_device {
 #define to_win32_device(D) (reinterpret_cast<cairo_win32_device_t *>(D))
 #define to_win32_device_from_surface(S) to_win32_device(static_cast<cairo_surface_t *>(S)->device)
 
-cairo_private cairo_device_t * _cairo_win32_device_get(void);
-const cairo_compositor_t * _cairo_win32_gdi_compositor_get(void);
+cairo_private cairo_device_t * _cairo_win32_device_get();
+const cairo_compositor_t * _cairo_win32_gdi_compositor_get();
 cairo_status_t FASTCALL _cairo_win32_print_gdi_error(const char * context);
 cairo_private void _cairo_win32_display_surface_discard_fallback(cairo_win32_display_surface_t * surface);
 boolint _cairo_win32_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle);

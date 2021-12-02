@@ -320,7 +320,7 @@ int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
 	if(pDlg && pData) {
 		Data = *static_cast<const Rec *>(pData);
 		const  long f = GF_DYNAMICTEMPALTGRP;
-		if(GObj.CheckFlag(Data.GoodsGrpID, f) > 0) {
+		if(GObj.CheckFlag(Data.GoodsGrpID, f)) {
 			THROW(Filt.ReadFromProp(PPOBJ_GOODSGROUP, Data.GoodsGrpID, GGPRP_GOODSFILT2, GGPRP_GOODSFLT_));
 		}
 		if(!(Data.Flags & GoodsCtrlGroup::ignoreRtOnlyGroup)) {
@@ -1374,7 +1374,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 	SetClusterData(CTL_GOODS_ASSETFLAGS, Data.Rec.Flags);
 	AddClusterAssoc(CTL_GOODS_DYNAMIC, 0, GF_DYNAMIC);
 	SetClusterData(CTL_GOODS_DYNAMIC, Data.Rec.Flags);
-	if(GObj.IsAssetType(Data.Rec.GoodsTypeID) > 0) {
+	if(GObj.IsAssetType(Data.Rec.GoodsTypeID)) {
 		SString okof_buf;
 		Data.GetExtStrData(GDSEXSTR_OKOF, okof_buf);
 		setCtrlString(CTL_GOODS_OKOF, okof_buf);
@@ -1441,7 +1441,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 	}
 	GetClusterData(CTL_GOODS_ASSETFLAGS, &Data.Rec.Flags);
 	GetClusterData(CTL_GOODS_DYNAMIC,    &Data.Rec.Flags);
-	if(GObj.IsAssetType(Data.Rec.GoodsTypeID) > 0) {
+	if(GObj.IsAssetType(Data.Rec.GoodsTypeID)) {
 		SString okof_buf;
 		getCtrlString(CTL_GOODS_OKOF, okof_buf);
 		Data.PutExtStrData(GDSEXSTR_OKOF, okof_buf);

@@ -144,7 +144,7 @@ DecimalFormatSymbols&DecimalFormatSymbols::operator = (const DecimalFormatSymbol
 	return *this;
 }
 
-bool DecimalFormatSymbols::operator==(const DecimalFormatSymbols& that) const
+bool DecimalFormatSymbols::operator == (const DecimalFormatSymbols& that) const
 {
 	if(this == &that) {
 		return true;

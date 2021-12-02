@@ -183,7 +183,7 @@ void NumberRangeFormatterImpl::format(UFormattedNumberRangeData& data, bool equa
 
 	// If any of the affixes are different, an identity is not possible
 	// and we must use formatRange().
-	// TODO: Write this as MicroProps operator==() ?
+	// TODO: Write this as MicroProps operator == () ?
 	// TODO: Avoid the redundancy of these equality operations with the
 	// ones in formatRange?
 	if(!micros1.modInner->semanticallyEquivalent(*micros2.modInner)

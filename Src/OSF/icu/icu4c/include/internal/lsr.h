@@ -65,10 +65,10 @@ struct LSR final : public UMemory {
     static int32_t indexForRegion(const char *region);
 
     bool isEquivalentTo(const LSR &other) const;
-    bool operator==(const LSR &other) const;
+    bool operator == (const LSR &other) const;
 
     inline bool operator != (const LSR &other) const {
-        return !operator==(other);
+        return !operator == (other);
     }
 
     LSR &setHashCode();

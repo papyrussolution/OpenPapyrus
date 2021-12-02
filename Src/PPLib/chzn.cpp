@@ -146,7 +146,11 @@ Data Matrix для табачной продукции и фармацевтик
 				temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
 			}
 			// } @v11.0.1 
-			if(!temp_buf.IsAscii()) {
+			// @v11.2.5 {
+			TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
+			pCode = raw_buf;
+			// } @v11.2.5 
+			/* @v11.2.5 if(!temp_buf.IsAscii()) {
 				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
 				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 				r_temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
@@ -157,7 +161,7 @@ Data Matrix для табачной продукции и фармацевтик
 					raw_buf.CatChar(static_cast<char>(tc));
 				}
 				pCode = raw_buf.cptr();
-			}
+			}*/
 		}
 		pr = rS.Parse(pCode);
 		if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
@@ -322,18 +326,6 @@ Data Matrix для табачной продукции и фармацевтик
 	if(!isempty(pExtraInfoText)) {
 		dlg->setStaticText(CTL_CHZNMARK_INFO, pExtraInfoText);
 	}
-	/*if(pAgi) {
-		SString line_buf;
-		GetGoodsName(pAgi->GoodsID, temp_buf);
-		line_buf = temp_buf;
-		if(pAgi->CategoryCode.NotEmpty())
-			line_buf.CR().Cat(pAgi->CategoryCode);
-		if(pAgi->CategoryName.NotEmpty()) {
-			(temp_buf = pAgi->CategoryName).Transf(CTRANSF_OUTER_TO_INNER);
-			line_buf.CR().Cat(temp_buf);
-		}
-		dlg->setStaticText(CTL_EGAISMARK_AGI, line_buf);
-	}*/
     while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
 		GtinStruc gts;

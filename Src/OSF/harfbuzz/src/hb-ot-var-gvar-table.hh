@@ -52,7 +52,7 @@ namespace OT {
 		bool is_end_point;
 	};
 
-	struct contour_point_vector_t : hb_vector_t<contour_point_t>{
+	struct contour_point_vector_t : hb_vector_t<contour_point_t> {
 		void extend(const hb_array_t<contour_point_t> &a)
 		{
 			uint old_len = length;

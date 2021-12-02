@@ -217,7 +217,7 @@ UnicodeString AffixPatternMatcher::getPattern() const {
 	return fPattern.toAliasedUnicodeString();
 }
 
-bool AffixPatternMatcher::operator==(const AffixPatternMatcher& other) const {
+bool AffixPatternMatcher::operator == (const AffixPatternMatcher& other) const {
 	return fPattern == other.fPattern;
 }
 

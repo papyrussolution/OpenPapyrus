@@ -459,10 +459,11 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			setCtrlString(CTL_STQCMD_NAME, (temp_buf = Data.Name).Transf(CTRANSF_UTF8_TO_INNER));
 			setCtrlString(CTL_STQCMD_DESCR, (temp_buf = Data.Description).Transf(CTRANSF_UTF8_TO_INNER));
 			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid));
+			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec); // @v11.2.5
 			{
 				StrAssocArray basecmd_list;
-				basecmd_list.Add(StyloQCommandList::Item::sqbcPersonEvent, StyloQCommandList::GetBaseCommandName(StyloQCommandList::Item::sqbcPersonEvent, temp_buf));
-				basecmd_list.Add(StyloQCommandList::Item::sqbcReport, StyloQCommandList::GetBaseCommandName(StyloQCommandList::Item::sqbcReport, temp_buf));
+				basecmd_list.Add(StyloQCommandList::sqbcPersonEvent, StyloQCommandList::GetBaseCommandName(StyloQCommandList::sqbcPersonEvent, temp_buf));
+				basecmd_list.Add(StyloQCommandList::sqbcReport, StyloQCommandList::GetBaseCommandName(StyloQCommandList::sqbcReport, temp_buf));
 				SetupStrAssocCombo(this, CTLSEL_STQCMD_BASECMD, basecmd_list, Data.BaseCmdId, 0, 0, 0);
 			}
 			{
@@ -481,11 +482,12 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			Data.Name = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 			getCtrlString(CTL_STQCMD_DESCR, temp_buf.Z());
 			Data.Description = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			Data.ResultExpiryTimeSec = getCtrlLong(CTL_STQCMD_REXPRTM); // @v11.2.5
 			getCtrlData(CTLSEL_STQCMD_BASECMD, &Data.BaseCmdId);
 			getCtrlData(CTLSEL_STQCMD_OTR, &Data.ObjTypeRestriction);
 			getCtrlData(CTLSEL_STQCMD_OGR, &Data.ObjGroupRestriction);
 			Data.ViewSymb.Z();
-			if(Data.BaseCmdId == Data.sqbcReport) {
+			if(Data.BaseCmdId == StyloQCommandList::sqbcReport) {
 				long view_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
 				uint pos = 0;
 				if(CmdSymbList.Search(view_id, &pos))
@@ -499,10 +501,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmCmdParam)) {
-				if(Data.BaseCmdId == Data.sqbcPersonEvent) {
+				if(Data.BaseCmdId == StyloQCommandList::sqbcPersonEvent) {
 					ChangePersonEventTemplate();
 				}
-				else if(Data.BaseCmdId == Data.sqbcReport) {
+				else if(Data.BaseCmdId == StyloQCommandList::sqbcReport) {
 					ChangeBaseFilter();
 				}
 				else
@@ -602,10 +604,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 		{
 			bool enable_cmd_param = false;
 			bool enable_viewcmd = false;
-			if(baseCmd == StyloQCommandList::Item::sqbcPersonEvent) {
+			if(baseCmd == StyloQCommandList::sqbcPersonEvent) {
 				enable_cmd_param = true;
 			}
-			else if(baseCmd == StyloQCommandList::Item::sqbcReport) {
+			else if(baseCmd == StyloQCommandList::sqbcReport) {
 				enable_cmd_param = true;
 				long   view_id = 0;
 				uint   pos = 0;

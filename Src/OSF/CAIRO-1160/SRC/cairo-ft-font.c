@@ -2018,14 +2018,13 @@ static cairo_int_status_t _cairo_ft_scaled_glyph_init(void * abstract_font, cair
 	cairo_ft_scaled_font_t * scaled_font = static_cast<cairo_ft_scaled_font_t *>(abstract_font);
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
 	FT_GlyphSlot glyph;
-	FT_Face face;
 	int load_flags = scaled_font->ft_options.load_flags;
 	FT_Glyph_Metrics * metrics;
 	double x_factor, y_factor;
 	boolint vertical_layout = FALSE;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	boolint scaled_glyph_loaded = FALSE;
-	face = _cairo_ft_unscaled_font_lock_face(unscaled);
+	FT_Face face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	/* Ignore global advance unconditionally */
@@ -2053,14 +2052,8 @@ static cairo_int_status_t _cairo_ft_scaled_glyph_init(void * abstract_font, cair
 		 * Compute font-space metrics
 		 */
 		metrics = &glyph->metrics;
-		if(unscaled->x_scale == 0)
-			x_factor = 0;
-		else
-			x_factor = 1 / unscaled->x_scale;
-		if(unscaled->y_scale == 0)
-			y_factor = 0;
-		else
-			y_factor = 1 / unscaled->y_scale;
+		x_factor = (unscaled->x_scale == 0) ? 0.0 : (1.0 / unscaled->x_scale);
+		y_factor = (unscaled->y_scale == 0) ? 0.0 : (1.0 / unscaled->y_scale);
 		/*
 		 * Note: Y coordinates of the horizontal bearing need to be negated.
 		 *
@@ -2107,20 +2100,16 @@ static cairo_int_status_t _cairo_ft_scaled_glyph_init(void * abstract_font, cair
 			if(!vertical_layout) {
 				fs_metrics.x_bearing = DOUBLE_FROM_26_6(metrics->horiBearingX) * x_factor;
 				fs_metrics.y_bearing = DOUBLE_FROM_26_6(-metrics->horiBearingY) * y_factor;
-				if(hint_metrics || glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-					fs_metrics.x_advance = DOUBLE_FROM_26_6(metrics->horiAdvance) * x_factor;
-				else
-					fs_metrics.x_advance = DOUBLE_FROM_16_16(glyph->linearHoriAdvance) * x_factor;
+				fs_metrics.x_advance = (hint_metrics || glyph->format != FT_GLYPH_FORMAT_OUTLINE) ? 
+					(DOUBLE_FROM_26_6(metrics->horiAdvance) * x_factor) : (DOUBLE_FROM_16_16(glyph->linearHoriAdvance) * x_factor);
 				fs_metrics.y_advance = 0 * y_factor;
 			}
 			else {
 				fs_metrics.x_bearing = DOUBLE_FROM_26_6(metrics->vertBearingX) * x_factor;
 				fs_metrics.y_bearing = DOUBLE_FROM_26_6(metrics->vertBearingY) * y_factor;
 				fs_metrics.x_advance = 0 * x_factor;
-				if(hint_metrics || glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-					fs_metrics.y_advance = DOUBLE_FROM_26_6(metrics->vertAdvance) * y_factor;
-				else
-					fs_metrics.y_advance = DOUBLE_FROM_16_16(glyph->linearVertAdvance) * y_factor;
+				fs_metrics.y_advance = (hint_metrics || glyph->format != FT_GLYPH_FORMAT_OUTLINE) ? 
+					(DOUBLE_FROM_26_6(metrics->vertAdvance) * y_factor) : (DOUBLE_FROM_16_16(glyph->linearVertAdvance) * y_factor);
 			}
 		}
 		_cairo_scaled_glyph_set_metrics(scaled_glyph, &scaled_font->base, &fs_metrics);
@@ -2183,10 +2172,7 @@ LOAD:
 				goto FAIL;
 			glyph = face->glyph;
 		}
-		if(glyph->format == FT_GLYPH_FORMAT_OUTLINE)
-			status = _decompose_glyph_outline(face, &scaled_font->ft_options.base, &path);
-		else
-			status = CAIRO_INT_STATUS_UNSUPPORTED;
+		status = (glyph->format == FT_GLYPH_FORMAT_OUTLINE) ? _decompose_glyph_outline(face, &scaled_font->ft_options.base, &path) : CAIRO_INT_STATUS_UNSUPPORTED;
 		if(UNLIKELY(status))
 			goto FAIL;
 		_cairo_scaled_glyph_set_path(scaled_glyph, &scaled_font->base, path);
@@ -2245,22 +2231,24 @@ static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font, ulong in
 {
 	cairo_ft_scaled_font_t * scaled_font = static_cast<cairo_ft_scaled_font_t *>(abstract_font);
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;
-	FT_ULong charcode;
-	FT_UInt gindex;
 	FT_Face face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	*ucs4 = (uint32)-1;
-	charcode = FT_Get_First_Char(face, &gindex);
-	while(gindex != 0) {
-		if(gindex == index) {
-			*ucs4 = charcode;
-			break;
+	else {
+		FT_ULong charcode;
+		FT_UInt gindex;
+		*ucs4 = (uint32)-1;
+		charcode = FT_Get_First_Char(face, &gindex);
+		while(gindex != 0) {
+			if(gindex == index) {
+				*ucs4 = charcode;
+				break;
+			}
+			charcode = FT_Get_Next_Char(face, charcode, &gindex);
 		}
-		charcode = FT_Get_Next_Char(face, charcode, &gindex);
+		_cairo_ft_unscaled_font_unlock_face(unscaled);
+		return CAIRO_STATUS_SUCCESS;
 	}
-	_cairo_ft_unscaled_font_unlock_face(unscaled);
-	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_int_status_t _cairo_ft_is_synthetic(void * abstract_font, boolint * is_synthetic)
@@ -2278,7 +2266,6 @@ static cairo_int_status_t _cairo_ft_is_synthetic(void * abstract_font, boolint *
 	face = _cairo_ft_unscaled_font_lock_face(unscaled);
 	if(!face)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	if(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
 		FT_MM_Var * mm_var = NULL;
 		FT_Fixed * coords = NULL;

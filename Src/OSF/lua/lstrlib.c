@@ -1353,7 +1353,7 @@ static int str_packsize(lua_State * L)
 			case Kzstr: /* zero-terminated string */
 			    luaL_argerror(L, 1, "variable-length format");
 			/* call never return, but to avoid warnings: */// @fallthrough
-			default:  break;
+			default: break;
 		}
 	}
 	lua_pushinteger(L, (lua_Integer)totalsize);

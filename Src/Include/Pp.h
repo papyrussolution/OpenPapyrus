@@ -2006,7 +2006,7 @@ public:
 	int    UpdateItemByID(PPID id, long flags);
 	int    FASTCALL RemoveItemByID(PPID id);
 	int    SearchItemByID(PPID id, uint * pPos) const;
-	int    CheckFlag(PPID id, long flag) const;
+	bool   CheckFlag(PPID id, long flag) const;
 private:
 	int    FASTCALL Helper_MergeItems(const ObjRestrictArray * pS);
 };
@@ -16593,7 +16593,7 @@ protected:
 	//   0  - записи rR1 и rR2 не эквивалентны
 	//
 	virtual int  IsRecEq(const ReferenceTbl::Rec & rR1, const ReferenceTbl::Rec & rR2);
-	int    EditItem(PPID obj, PPID id, void * rec, int use_ta);
+	int    StoreItem(PPID obj, PPID id, void * rec, int use_ta);
 	int    LoadReservedItems(uint rezID);
 	int    Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx);
 public:
@@ -16921,6 +16921,7 @@ private:
 //
 struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	PPUnit2();
+	int    ValidateQuantityFraction(double qtty) const;
 	enum {
 		SI       = 0x0001, // (S) Единица системы СИ
 		Physical = 0x0002, // (P) Физическая единица
@@ -16937,7 +16938,7 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	char   Abbr[20];       // Символьный код единицы измерения //
 	char   Code[12];       // Цифровой код единицы измерения //
 	char   Reserve[14];    // @reserve // @v11.2.4
-	uint16 Fragmentation;  // @v11.2.4 Дробнобность единицы измерения. Позволяет оперировать количествами
+	uint16 Fragmentation;  // @v11.2.4 Дробность единицы измерения. Позволяет оперировать количествами
 		// меньшими единицы, но пропорционально величине Fragmentation (с поправкой на десятичное округление).
 		// Например, если Fragmentation == 8, то допускается оперировать величинами 1, 0.125, 0.25, 0.5, 0.75, 0.875.
 		// Если Fragmentation == 3, то допускаются значения 1, 0.3333.., 0.6666..
@@ -23903,7 +23904,7 @@ public:
 	// заботится об инициализации этого поля.
 	//
 	PPID   GoodsID; // @transient
-	const  PPComplBlock * P_Cb; // @transient Предварительный массив товарных строк для вставки в документа.
+	mutable const PPComplBlock * P_Cb; // @transient Предварительный массив товарных строк для вставки в документа.
 		// Необходим для обсчета компонентов по формулам.
 	PPGoodsStrucHeader Rec;
 	TSVector <PPGoodsStrucItem> Items;  //
@@ -29401,10 +29402,10 @@ public:
 	//   >0 - запись для товара goodsID найдена и в поле Flags флаг flag установлен.
 	//   0  - либо запись goodsID не найдена, либо в поле Flags флаг flag не установлен.
 	//
-	int    CheckFlag(PPID goodsID, long flag);
-	int    IsGeneric(PPID goodsID); // @>>PPObjGoods::CheckFlag
-	int    IsAsset(PPID goodsID);   // @>>PPObjGoods::CheckFlag
-	int    IsAssetType(PPID goodsTypeID);
+	bool   CheckFlag(PPID goodsID, long flag);
+	bool   IsGeneric(PPID goodsID); // @>>PPObjGoods::CheckFlag
+	bool   IsAsset(PPID goodsID);   // @>>PPObjGoods::CheckFlag
+	bool   IsAssetType(PPID goodsTypeID);
 	//
 	// Descr: Возвращает !0 если товар с идентификатором goodsID равен otherGoodsID либо
 	//   otherGoodsID является обобщенным товаром и goodsID входит в это обобщение.
@@ -32676,7 +32677,7 @@ struct ComplItem {
 class PPComplBlock : public TSVector <ComplItem> {
 public:
 	PPComplBlock();
-	int    Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsID, double srcQtty);
+	int    Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsID, double srcQtty, uint * pResultIdx);
 	bool   GetFormula(uint idx/*0..*/, SString & rFormula) const;
 	//
 	// Descr: Возвращает указатель на структуру, ассоциированную с элементом по индексу idx.
@@ -32684,6 +32685,7 @@ public:
 	//   (в контексте использования данного класса, это - серьезная ошибка).
 	//
 	const  PPGoodsStruc * GetGoodsStruc(uint idx/*0..*/) const;
+	int    Helper_InitCompleteData(const PPGoodsStruc & rGs, PPID goodsID, double needQty, const PPBillPacket * pBillPack, bool recursiveUnrollIncome);
 	ComplItem Head;
 private:
 	SStrGroup FPool; // @v11.2.4 Пул формул
@@ -34957,7 +34959,7 @@ public:
 	int    AddOp(PPID);
 	int    SetAccSheet(PPID);
 	int    CheckOp(PPID opID, PPID * pAccSheetID = 0);
-	int    CheckFlag(PPID opID, long f) const;
+	bool   CheckFlag(PPID opID, long f) const;
 	int    CheckAccSheet(PPID accSheetID);
 	int    CheckList(PPID * pAccSheetID = 0);
 	int    Setup();
@@ -46020,21 +46022,23 @@ private:
 class StyloQConfig {
 public:
 	enum { // @persistent
-		tagUnkn            = 0,
-		tagUrl             = 1, // URL сервера централизованной обработки
-		tagMqbAuth         = 2, // Login MQ-брокера сервера централизованной обработки
-		tagMqbSecret       = 3, // Secret MQ-брокера сервера централизованной обработки
-		tagLoclUrl         = 4, // URL локальной обработки запросов (отдельная машина или сеанс)
-		tagLoclMqbAuth     = 5, // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
-		tagLoclMqbSecret   = 6, // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
-		tagFeatures        = 7, // Флаги особенностей сервиса
+		tagUnkn            =  0,
+		tagUrl             =  1, // URL сервера централизованной обработки
+		tagMqbAuth         =  2, // Login MQ-брокера сервера централизованной обработки
+		tagMqbSecret       =  3, // Secret MQ-брокера сервера централизованной обработки
+		tagLoclUrl         =  4, // URL локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclMqbAuth     =  5, // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclMqbSecret   =  6, // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
+		tagFeatures        =  7, // Флаги особенностей сервиса
 		//
 		// Замечание по сроку действия: одна сторона передает другой период истечения срока действия в секундах.
 		//   Принимающая сторона складывает это значение с текущим epoch-временем и сохраняет на своей стороне
 		//   для того, чтобы в последующем принять решение о запросе обновления.
 		//
-		tagExpiryPeriodSec = 8, // @v11.2.3 Период истечения срока действия в секундах
-		tagExpiryEpochSec  = 9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
+		tagExpiryPeriodSec =  8, // @v11.2.3 Период истечения срока действия в секундах
+		tagExpiryEpochSec  =  9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
+		tagPrefLanguage    = 10, // @v11.2.5 (private config) Предпочтительный язык
+		tagDefFace         = 11, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
@@ -46225,14 +46229,37 @@ private:
 
 class StyloQCommandList { // @construction
 public:
+	//
+	// Descr: Идентификаторы базовых типов команд
+	//
+	enum { // @persistent
+		sqbcEmpty       = 0,
+		sqbcRegister    = 1,
+		sqbcLogin       = 2,
+		sqbcPersonEvent = 3,
+		sqbcReport      = 4,
+		sqbcSearch      = 5, // Поисковый запрос
+	};
+	//
+	// Descr: Идентификаторы типов документов обмена
+	//
+	enum { // @persistent
+		sqbdtNone       = 0,
+		// Диапазон [1..500] зарезервирован за типами документов EDI в соответствии с идентификацией PPEDIOP_XXX
+		// Только небольшая часть из тех операций будут применены для Stylo-Q, но для обеспечения соответствия и
+		// минимизации дублирования мы резервируем диапазон с запасом.
+		sqbdtCCheck     = 501, // Кассовый чек
+		sqbdtContact    = 502, // Контактные данные персоналии
+		sqbdtTodo       = 503, // Задача (todo)
+		sqbdtSvcReq     = 504, // Запрос на обслуживание
+	};
+	struct CallbackItem {
+
+	};
 	struct Item {
 		Item();
-		enum { // @persistent
-			sqbcEmpty       = 0,
-			sqbcRegister    = 1,
-			sqbcLogin       = 2,
-			sqbcPersonEvent = 3,
-			sqbcReport      = 4
+		enum {
+			fResultPersistent = 0x0001
 		};
 		int32  Ver;                 //
 		int32  BaseCmdId;           //
@@ -46240,6 +46267,9 @@ public:
 		S_GUID Uuid;                //
 		int32  ObjTypeRestriction;  //
 		int32  ObjGroupRestriction; //
+		int32  ResultExpiryTimeSec; // @v11.2.5 Период истечения срока действия результата в секундах. (<=0 - undefined)
+			// Если ResultExpiryPeriodSec то клиент может пользоваться результатом запроса в течении этого времени без
+			// повторного обращения к сервису.
 		SString DbSymb;             //
 		SString Name;               // utf8
 		SString ViewSymb;           //
@@ -52863,7 +52893,7 @@ class QuantityCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
 		Rec();
-		int    FASTCALL operator == (const Rec & rS) const;
+		bool   FASTCALL operator == (const Rec & rS) const;
 
 		double UnitPerPack;
 		double Packs;
@@ -53431,7 +53461,7 @@ public:
 	void   getResult(PPID * pID);
 private:
 	DECL_HANDLE_EVENT;
-	int    setupList();
+	void   setupList();
 	PPObjPerson * P_PsnObj;
 	PPID   Selection;
 };

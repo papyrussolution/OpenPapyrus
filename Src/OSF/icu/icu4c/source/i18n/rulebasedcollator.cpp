@@ -224,11 +224,11 @@ RuleBasedCollator &RuleBasedCollator::operator = (const RuleBasedCollator &other
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(RuleBasedCollator)
 
 bool
-RuleBasedCollator::operator==(const Collator &other) const {
+RuleBasedCollator::operator == (const Collator &other) const {
 	if(this == &other) {
 		return true;
 	}
-	if(!Collator::operator==(other)) {
+	if(!Collator::operator == (other)) {
 		return false;
 	}
 	const RuleBasedCollator &o = static_cast<const RuleBasedCollator &>(other);
@@ -276,7 +276,7 @@ int32_t RuleBasedCollator::hashCode() const {
 	if(data->base == NULL) {
 		return h;
 	}                                 // root collator
-	// Do not rely on the rule string, see comments in operator==().
+	// Do not rely on the rule string, see comments in operator == ().
 	UErrorCode errorCode = U_ZERO_ERROR;
 	LocalPointer<UnicodeSet> set(getTailoredSet(errorCode));
 	if(U_FAILURE(errorCode)) {

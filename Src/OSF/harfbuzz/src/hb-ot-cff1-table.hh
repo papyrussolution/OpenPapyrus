@@ -159,13 +159,8 @@ namespace CFF {
 			memcpy(dest, &src, size);
 			return_trace(true);
 		}
-
 		/* serialize a subset Encoding */
-		bool serialize(hb_serialize_context_t * c,
-		    uint8_t format,
-		    uint enc_count,
-		    const hb_vector_t<code_pair_t>& code_ranges,
-		    const hb_vector_t<code_pair_t>& supp_codes)
+		bool serialize(hb_serialize_context_t * c, uint8_t format, uint enc_count, const hb_vector_t<code_pair_t>& code_ranges, const hb_vector_t<code_pair_t>& supp_codes)
 		{
 			TRACE_SERIALIZE(this);
 			Encoding * dest = c->extend_min(*this);
@@ -221,8 +216,7 @@ namespace CFF {
 		uint get_size() const
 		{
 			uint size = min_size;
-			switch(table_format())
-			{
+			switch(table_format()) {
 				case 0: size += u.format0.get_size(); break;
 				case 1: size += u.format1.get_size(); break;
 			}
@@ -253,9 +247,7 @@ namespace CFF {
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
-
-			switch(table_format())
-			{
+			switch(table_format()) {
 				case 0: if(UNLIKELY(!u.format0.sanitize(c))) {
 					    return_trace(false);
 				}
@@ -272,8 +264,7 @@ namespace CFF {
 protected:
 		const CFF1SuppEncData &suppEncData() const
 		{
-			switch(table_format())
-			{
+			switch(table_format()) {
 				case 0: return StructAfter<CFF1SuppEncData> (u.format0.codes[u.format0.nCodes()-1]);
 				case 1: return StructAfter<CFF1SuppEncData> (u.format1.ranges[u.format1.nRanges()-1]);
 				default: return Null(CFF1SuppEncData);
@@ -425,19 +416,14 @@ public:
 			memcpy(dest, &src, size);
 			return_trace(true);
 		}
-
 		/* serialize a subset Charset */
-		bool serialize(hb_serialize_context_t * c,
-		    uint8_t format,
-		    uint num_glyphs,
-		    const hb_vector_t<code_pair_t>& sid_ranges)
+		bool serialize(hb_serialize_context_t * c, uint8_t format, uint num_glyphs, const hb_vector_t<code_pair_t>& sid_ranges)
 		{
 			TRACE_SERIALIZE(this);
 			Charset * dest = c->extend_min(*this);
 			if(UNLIKELY(!dest)) return_trace(false);
 			dest->format = format;
-			switch(format)
-			{
+			switch(format) {
 				case 0:
 			    {
 				    Charset0 * fmt0 = c->allocate_size<Charset0>
@@ -482,34 +468,28 @@ public:
 			}
 			return_trace(true);
 		}
-
 		uint get_size(uint num_glyphs) const
 		{
-			switch(format)
-			{
+			switch(format) {
 				case 0: return min_size + u.format0.get_size(num_glyphs);
 				case 1: return min_size + u.format1.get_size(num_glyphs);
 				case 2: return min_size + u.format2.get_size(num_glyphs);
 				default: return 0;
 			}
 		}
-
 		hb_codepoint_t get_sid(hb_codepoint_t glyph, uint num_glyphs) const
 		{
 			if(UNLIKELY(glyph >= num_glyphs)) return 0;
-			switch(format)
-			{
+			switch(format) {
 				case 0: return u.format0.get_sid(glyph);
 				case 1: return u.format1.get_sid(glyph);
 				case 2: return u.format2.get_sid(glyph);
 				default: return 0;
 			}
 		}
-
 		hb_codepoint_t get_glyph(hb_codepoint_t sid, uint num_glyphs) const
 		{
-			switch(format)
-			{
+			switch(format) {
 				case 0: return u.format0.get_glyph(sid, num_glyphs);
 				case 1: return u.format1.get_glyph(sid, num_glyphs);
 				case 2: return u.format2.get_glyph(sid, num_glyphs);
@@ -522,9 +502,7 @@ public:
 			TRACE_SANITIZE(this);
 			if(UNLIKELY(!c->check_struct(this)))
 				return_trace(false);
-
-			switch(format)
-			{
+			switch(format) {
 				case 0: return_trace(u.format0.sanitize(c, c->get_num_glyphs()));
 				case 1: return_trace(u.format1.sanitize(c, c->get_num_glyphs()));
 				case 2: return_trace(u.format2.sanitize(c, c->get_num_glyphs()));
@@ -595,55 +573,37 @@ public:
 
 			ValCount
 		};
-
 		void init()
 		{
 			for(uint i = 0; i < ValCount; i++)
 				values[i] = CFF_UNDEF_SID;
 		}
-
-		uint& operator[] (uint i)
-		{assert(i < ValCount); return values[i]; }
-
-		uint operator[] (uint i)const
-		{ assert(i < ValCount); return values[i]; }
+		uint & operator[] (uint i) {assert(i < ValCount); return values[i]; }
+		uint operator[] (uint i) const { assert(i < ValCount); return values[i]; }
 
 		static enum name_dict_val_index_t name_op_to_index(op_code_t op){
 			switch(op) {
 				default: // can't happen - just make some compiler happy
-				case OpCode_version:
-				    return version;
-				case OpCode_Notice:
-				    return notice;
-				case OpCode_Copyright:
-				    return copyright;
-				case OpCode_FullName:
-				    return fullName;
-				case OpCode_FamilyName:
-				    return familyName;
-				case OpCode_Weight:
-				    return weight;
-				case OpCode_PostScript:
-				    return postscript;
-				case OpCode_FontName:
-				    return fontName;
-				case OpCode_BaseFontName:
-				    return baseFontName;
+				case OpCode_version: return version;
+				case OpCode_Notice: return notice;
+				case OpCode_Copyright: return copyright;
+				case OpCode_FullName: return fullName;
+				case OpCode_FamilyName: return familyName;
+				case OpCode_Weight: return weight;
+				case OpCode_PostScript: return postscript;
+				case OpCode_FontName: return fontName;
+				case OpCode_BaseFontName: return baseFontName;
 			}
 		}
-
 		uint values[ValCount];
 	};
-
 	struct cff1_top_dict_val_t : op_str_t {
 		uint last_arg_offset;
 	};
-
-	struct cff1_top_dict_values_t : top_dict_values_t<cff1_top_dict_val_t>{
+	struct cff1_top_dict_values_t : top_dict_values_t<cff1_top_dict_val_t> {
 		void init()
 		{
 			top_dict_values_t<cff1_top_dict_val_t>::init();
-
 			nameSIDs.init();
 			ros_supplement = 0;
 			cidCount = 8720;
@@ -652,33 +612,28 @@ public:
 			FDSelectOffset = 0;
 			privateDictInfo.init();
 		}
-
 		void fini() {
 			top_dict_values_t<cff1_top_dict_val_t>::fini();
 		}
-
 		bool is_CID() const
 		{
 			return nameSIDs[name_dict_values_t::registry] != CFF_UNDEF_SID;
 		}
-
 		name_dict_values_t nameSIDs;
 		uint ros_supplement_offset;
 		uint ros_supplement;
 		uint cidCount;
-
 		uint EncodingOffset;
 		uint CharsetOffset;
 		uint FDSelectOffset;
 		table_info_t privateDictInfo;
 	};
 
-	struct cff1_top_dict_opset_t : top_dict_opset_t<cff1_top_dict_val_t>{
+	struct cff1_top_dict_opset_t : top_dict_opset_t<cff1_top_dict_val_t> {
 		static void process_op(op_code_t op, cff1_top_dict_interp_env_t& env, cff1_top_dict_values_t& dictval)
 		{
 			cff1_top_dict_val_t val;
 			val.last_arg_offset = (env.last_offset-1) - dictval.opStart; /* offset to the last argument */
-
 			switch(op) {
 				case OpCode_version:
 				case OpCode_Notice:
@@ -759,7 +714,7 @@ public:
 		}
 	};
 
-	struct cff1_font_dict_values_t : dict_values_t<op_str_t>{
+	struct cff1_font_dict_values_t : dict_values_t<op_str_t> {
 		void init()
 		{
 			dict_values_t<op_str_t>::init();
@@ -806,7 +761,7 @@ public:
 	};
 
 	template <typename VAL>
-	struct cff1_private_dict_values_base_t : dict_values_t<VAL>{
+	struct cff1_private_dict_values_base_t : dict_values_t<VAL> {
 		void init()
 		{
 			dict_values_t<VAL>::init();
@@ -946,7 +901,7 @@ public:
 		uint fontName;
 	};
 
-	struct CFF1FDArray : FDArray<HBUINT16>{
+	struct CFF1FDArray : FDArray<HBUINT16> {
 		/* FDArray::serialize() requires this partial specialization to compile */
 		template <typename ITER, typename OP_SERIALIZER>
 		bool serialize(hb_serialize_context_t * c, ITER it, OP_SERIALIZER& opszr)
@@ -1276,7 +1231,7 @@ public:
 			uint num_glyphs;
 		};
 
-		struct accelerator_t : accelerator_templ_t<cff1_private_dict_opset_t, cff1_private_dict_values_t>{
+		struct accelerator_t : accelerator_templ_t<cff1_private_dict_opset_t, cff1_private_dict_values_t> {
 			void init(hb_face_t * face)
 			{
 				SUPER::init(face);

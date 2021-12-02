@@ -529,7 +529,7 @@ public:
 	TiXmlAttribute* Next() const;
 	/// Get the previous sibling attribute in the DOM. Returns null at beginning.
 	TiXmlAttribute* Previous() const;
-	bool operator==(const TiXmlAttribute& rhs) const { return rhs.name == name; }
+	bool operator == (const TiXmlAttribute& rhs) const { return rhs.name == name; }
 	bool operator<(const TiXmlAttribute& rhs) const { return name < rhs.name; }
 	bool operator>(const TiXmlAttribute& rhs)  const { return name > rhs.name; }
 	/*	[internal use]

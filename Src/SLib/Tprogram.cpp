@@ -1007,7 +1007,6 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 	ViewOptions = 0;
 	P_DeskTop = new TGroup(TRect());
 	application = this;
-	HWND      hWnd;
 	H_Icon = LoadIcon(hInstance, MAKEINTRESOURCE(ICON_MAIN_P2));
 	{
 		WNDCLASSEX wc;
@@ -1027,7 +1026,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		::RegisterClassEx(&wc);
 	}
 	// @v11.2.4 WS_EX_COMPOSITED
-	hWnd = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
+	HWND   hWnd = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
 		WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
 	UpdateWindow(hWnd);
@@ -1297,7 +1296,6 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
         //
 	};
 */
-
 int TProgram::InitUiToolBox()
 {
 	int    ok = 1;
@@ -1349,7 +1347,7 @@ int TProgram::InitUiToolBox()
 			UiToolBox.SetPen(tbiButtonPen_F+tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			// @v11.2.3 {
 			{
-				UiToolBox.CreateFont_(tbiControlFont, "MS Sans Serif", 12, 0);
+				UiToolBox.CreateFont_(tbiControlFont, "Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
 				/*
 				HFONT hf = 0;
 				{

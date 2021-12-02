@@ -1210,7 +1210,8 @@ int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID par
 
 int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID)
 {
-	int    ok = 1, idx = 0;
+	int    ok = 1;
+	int    idx = 0;
 	PPID   prc_id = 0;
 	PPObjGoods goods_obj;
 	PPIDArray id_list;

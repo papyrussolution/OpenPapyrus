@@ -194,7 +194,7 @@ static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 static void free_static_icu_funcs();
 #endif
 
-static struct hb_icu_unicode_funcs_lazy_loader_t : hb_unicode_funcs_lazy_loader_t<hb_icu_unicode_funcs_lazy_loader_t>{
+static struct hb_icu_unicode_funcs_lazy_loader_t : hb_unicode_funcs_lazy_loader_t<hb_icu_unicode_funcs_lazy_loader_t> {
 	static hb_unicode_funcs_t * create()
 	{
 		void * user_data = nullptr;

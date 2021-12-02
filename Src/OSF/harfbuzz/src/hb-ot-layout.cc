@@ -1788,7 +1788,7 @@ hb_bool_t hb_ot_layout_get_baseline(hb_font_t * font,
 #endif
 
 struct hb_get_glyph_alternates_dispatch_t :
-	hb_dispatch_context_t<hb_get_glyph_alternates_dispatch_t, unsigned>{
+	hb_dispatch_context_t<hb_get_glyph_alternates_dispatch_t, unsigned> {
 	static return_t default_return_value() {
 		return 0;
 	}

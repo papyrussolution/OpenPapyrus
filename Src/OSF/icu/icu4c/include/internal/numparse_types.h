@@ -75,7 +75,7 @@ class CompactUnicodeString {
         return UnicodeString(true, fBuffer.getAlias(), -1);
     }
 
-    bool operator==(const CompactUnicodeString& other) const {
+    bool operator == (const CompactUnicodeString& other) const {
         // Use the alias-only constructor and then call UnicodeString operator==
         return toAliasedUnicodeString() == other.toAliasedUnicodeString();
     }

@@ -1,5 +1,5 @@
 // OBJACSHT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -160,7 +160,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 				STRNSCPY(acs_rec.Symb, "ACS-WH");
 				acs_rec.Assoc = PPOBJ_LOCATION;
 				acs_rec.Flags |= ACSHF_AUTOCREATART;
-				THROW(EditItem(Obj, zero_id, &acs_rec, 1));
+				THROW(StoreItem(Obj, zero_id, &acs_rec, 1));
 				ok = 1;
 			}
 			{
@@ -181,7 +181,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 							acs_rec.Flags |= ACSHF_USECLIAGT;
 						else if(pk_rec.ID == PPPRK_SUPPL)
 							acs_rec.Flags |= ACSHF_USESUPPLAGT;
-						THROW(EditItem(Obj, zero_id, &acs_rec, 1));
+						THROW(StoreItem(Obj, zero_id, &acs_rec, 1));
 						ok = 1;
 					}
 				}
@@ -228,7 +228,7 @@ int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 				*pID = rec.ID;
 			if(!CheckName(*pID, rec.Name, 0))
 				dlg->selectCtrl(CTL_ACCSHEET_NAME);
-			else if(EditItem(Obj, *pID, &rec, 1)) {
+			else if(StoreItem(Obj, *pID, &rec, 1)) {
 				Dirty(*pID);
 				valid_data = 1;
 			}
@@ -348,7 +348,7 @@ int PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 				}
 				if(same_id == 0) {
 					p_rec->ID = 0;
-					if(EditItem(Obj, *pID, p_rec, 1)) {
+					if(StoreItem(Obj, *pID, p_rec, 1)) {
 						ASSIGN_PTR(pID, P_Ref->data.ObjID);
 					}
 					else {

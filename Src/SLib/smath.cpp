@@ -190,7 +190,6 @@ double FASTCALL fdivui(uint a, uint b) { return b ? (static_cast<double>(a) / st
 long   FASTCALL fmul100i(double v)   { return R0i(v * 100.0); }
 long   FASTCALL fmul1000i(double v)   { return R0i(v * 1000.0); }
 double FASTCALL fdivnz(double dd, double dr) { return (dr != 0.0) ? (dd / dr) : 0.0; }
-int    FASTCALL feqeps(double v1, double v2, double epsilon) { return BIN(fabs(v1-v2) < epsilon); }
 
 double FASTCALL fint(double v)
 {

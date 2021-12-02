@@ -869,16 +869,16 @@ int    SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
 SString & FASTCALL SString::operator = (const SString & s) { return CopyFrom(s); }
 SString & FASTCALL SString::operator = (const char * pS) { return CopyFrom(pS); }
 SString & FASTCALL SString::Set(const uchar * pS) { return CopyFrom(reinterpret_cast<const char *>(pS)); }
-int    FASTCALL SString::operator == (const char * pS) const { return IsEq(pS); }
-int    FASTCALL SString::operator != (const char * pS) const { return BIN(!IsEq(pS)); }
-int    FASTCALL SString::operator == (const SString & rS) const { return IsEq(rS); }
-int    FASTCALL SString::operator != (const SString & rS) const { return BIN(!IsEq(rS)); }
-int    FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
-int    FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
+bool   FASTCALL SString::operator == (const char * pS) const { return IsEq(pS); }
+bool   FASTCALL SString::operator != (const char * pS) const { return !IsEq(pS); }
+bool   FASTCALL SString::operator == (const SString & rS) const { return IsEq(rS); }
+bool   FASTCALL SString::operator != (const SString & rS) const { return !IsEq(rS); }
+bool   FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
+bool   FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
-int    SString::IsEmpty() const { return BIN(Len() == 0); }
-int    SString::NotEmpty() const { return BIN(Len()); }
-int    SString::NotEmptyS() { return Strip().NotEmpty(); }
+bool   SString::IsEmpty() const { return (Len() == 0); }
+bool   SString::NotEmpty() const { return (Len() != 0); }
+bool   SString::NotEmptyS() { return Strip().NotEmpty(); }
 SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
 SString & SString::Tab()     { return CatChar('\t'); }
 SString & SString::Space()   { return CatChar(' ');  }
@@ -958,20 +958,20 @@ const char * SString::SearchChar(int c, size_t * pPos) const
 	return SearchCharPos(0, c, pPos); // @v10.3.11
 }
 
-int FASTCALL SString::HasChr(int c) const
+bool FASTCALL SString::HasChr(int c) const
 {
 	if(c == 0)
-		return 0;
+		return false;
 	else {
 		const char * p_buf = P_Buf;
 		switch(L) {
 			case 0:
-			case 1:  return 0;
+			case 1:  return false;
 			case 2:  return (p_buf[0] == c);
 			case 3:  return (p_buf[0] == c || p_buf[1] == c);
 			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
 			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
-			default: return BIN(memchr(p_buf, static_cast<uchar>(c), L-1));
+			default: return (memchr(p_buf, static_cast<uchar>(c), L-1) != 0);
 		}
 	}
 }
@@ -2038,7 +2038,7 @@ SString & SString::NumberToLat(uint value)
 	return *this;
 }
 
-int FASTCALL SString::IsEq(const SString & rS) const
+bool FASTCALL SString::IsEq(const SString & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
@@ -2046,20 +2046,20 @@ int FASTCALL SString::IsEq(const SString & rS) const
 		const char * p_sbuf = rS.P_Buf;
 		assert(len == 0 || (p_buf && p_sbuf));
 		switch(len) {
-			case 0: return 1;
-			case 1: return BIN(p_buf[0] == p_sbuf[0]);
-			case 2: return BIN(PTR16C(p_buf)[0] == PTR16C(p_sbuf)[0]);
-			case 3: return BIN(p_buf[0] == p_sbuf[0] && p_buf[1] == p_sbuf[1] && p_buf[2] == p_sbuf[2]);
-			case 4: return BIN(PTR32C(p_buf)[0] == PTR32C(p_sbuf)[0]);
-			case 8: return BIN(PTR64C(p_buf)[0] == PTR64C(p_sbuf)[0]);
-			default: return BIN(memcmp(p_buf, p_sbuf, len) == 0);
+			case 0: return true;
+			case 1: return (p_buf[0] == p_sbuf[0]);
+			case 2: return (PTR16C(p_buf)[0] == PTR16C(p_sbuf)[0]);
+			case 3: return (p_buf[0] == p_sbuf[0] && p_buf[1] == p_sbuf[1] && p_buf[2] == p_sbuf[2]);
+			case 4: return (PTR32C(p_buf)[0] == PTR32C(p_sbuf)[0]);
+			case 8: return (PTR64C(p_buf)[0] == PTR64C(p_sbuf)[0]);
+			default: return (memcmp(p_buf, p_sbuf, len) == 0);
 		}
 	}
 	else
-		return 0;
+		return false;
 }
 
-int FASTCALL SString::IsEq(const char * pS) const
+bool FASTCALL SString::IsEq(const char * pS) const
 {
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);
@@ -2067,17 +2067,17 @@ int FASTCALL SString::IsEq(const char * pS) const
 		const char * p_buf = P_Buf;
 		assert(len == 0 || p_buf);
 		switch(len) {
-			case 0: return 1;
-			case 1: return BIN(p_buf[0] == pS[0]);
-			case 2: return BIN(PTR16C(p_buf)[0] == PTR16C(pS)[0]);
-			case 3: return BIN(p_buf[0] == pS[0] && p_buf[1] == pS[1] && p_buf[2] == pS[2]);
-			case 4: return BIN(PTR32C(p_buf)[0] == PTR32C(pS)[0]);
-			case 8: return BIN(PTR64C(p_buf)[0] == PTR64C(pS)[0]);
-			default: return BIN(memcmp(p_buf, pS, len) == 0);
+			case 0: return true;
+			case 1: return (p_buf[0] == pS[0]);
+			case 2: return (PTR16C(p_buf)[0] == PTR16C(pS)[0]);
+			case 3: return (p_buf[0] == pS[0] && p_buf[1] == pS[1] && p_buf[2] == pS[2]);
+			case 4: return (PTR32C(p_buf)[0] == PTR32C(pS)[0]);
+			case 8: return (PTR64C(p_buf)[0] == PTR64C(pS)[0]);
+			default: return (memcmp(p_buf, pS, len) == 0);
 		}
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const

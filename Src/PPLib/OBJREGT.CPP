@@ -1,5 +1,5 @@
 // OBJREGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -308,7 +308,7 @@ int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 				case 'N': rec.Flags |= REGTF_ONLYNUMBER; break;
 			}
 		}
-		THROW(EditItem(Obj, 0, &rec, 1));
+		THROW(StoreItem(Obj, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -383,4 +383,3 @@ int PPObjRegisterType::Fetch(PPID id, PPRegisterType * pRec)
 	RegisterTypeCache * p_cache = GetDbLocalCachePtr <RegisterTypeCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
-

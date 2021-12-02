@@ -135,7 +135,7 @@ DateIntervalInfo::~DateIntervalInfo() {
 }
 
 bool
-DateIntervalInfo::operator==(const DateIntervalInfo &other) const {
+DateIntervalInfo::operator == (const DateIntervalInfo &other) const {
 	bool equal = (
 		fFallbackIntervalPattern == other.fFallbackIntervalPattern &&
 		fFirstDateInPtnIsLaterDate == other.fFirstDateInPtnIsLaterDate );

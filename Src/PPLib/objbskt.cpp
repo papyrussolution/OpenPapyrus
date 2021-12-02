@@ -691,7 +691,7 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
 		STRNSCPY(rec.Symb, symb);
-		THROW(EditItem(Obj, 0, &rec, 1));
+		THROW(StoreItem(Obj, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;

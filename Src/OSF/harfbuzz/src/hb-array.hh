@@ -36,7 +36,7 @@ template <typename Type>
 struct hb_sorted_array_t;
 
 template <typename Type>
-struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&>{
+struct hb_array_t : hb_iter_with_fallback_t<hb_array_t<Type>, Type&> {
 	/*
 	 * Constructors.
 	 */
@@ -292,7 +292,7 @@ enum hb_bfind_not_found_t {
 template <typename Type>
 struct hb_sorted_array_t :
 hb_iter_t<hb_sorted_array_t<Type>, Type&>,
-    hb_array_t<Type>{
+    hb_array_t<Type> {
 	typedef hb_iter_t<hb_sorted_array_t, Type&> iter_base_t;
 	HB_ITER_USING(iter_base_t);
 	static constexpr bool is_random_access_iterator = true;

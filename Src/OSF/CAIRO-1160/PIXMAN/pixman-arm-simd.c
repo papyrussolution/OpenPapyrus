@@ -52,7 +52,7 @@ void pixman_composite_src_n_8888_asm_armv6(int32 w, int32 h, uint32 * dst, int32
 void pixman_composite_src_n_0565_asm_armv6(int32 w, int32 h, uint16 * dst, int32 dst_stride, uint16 src);
 void pixman_composite_src_n_8_asm_armv6(int32 w, int32 h, uint8  * dst, int32 dst_stride, uint8 src);
 
-static pixman_bool_t arm_simd_fill(pixman_implementation_t * imp, uint32 * bits, int stride/* in 32-bit words */, int bpp,
+static boolint arm_simd_fill(pixman_implementation_t * imp, uint32 * bits, int stride/* in 32-bit words */, int bpp,
     int x, int y, int width, int height, uint32 _xor)
 {
 	/* stride is always multiple of 32bit units in pixman */
@@ -72,7 +72,7 @@ static pixman_bool_t arm_simd_fill(pixman_implementation_t * imp, uint32 * bits,
 	}
 }
 
-static pixman_bool_t arm_simd_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits,
+static boolint arm_simd_blt(pixman_implementation_t * imp, uint32 * src_bits, uint32 * dst_bits,
     int src_stride/* in 32-bit words */, int dst_stride/* in 32-bit words */, int src_bpp, int dst_bpp,
     int src_x, int src_y, int dest_x, int dest_y, int width, int height)
 {

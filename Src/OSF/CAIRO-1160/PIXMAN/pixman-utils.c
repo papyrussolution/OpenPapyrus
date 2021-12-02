@@ -30,9 +30,9 @@
 //#include <stdlib.h>
 //#include "pixman-private.h"
 
-pixman_bool_t _pixman_multiply_overflows_size(size_t a, size_t b) { return a >= SIZE_MAX / b; }
-pixman_bool_t _pixman_multiply_overflows_int(uint a, uint b) { return a >= INT32_MAX / b; }
-pixman_bool_t _pixman_addition_overflows_int(uint a, uint b) { return a > INT32_MAX - b; }
+boolint _pixman_multiply_overflows_size(size_t a, size_t b) { return a >= SIZE_MAX / b; }
+boolint _pixman_multiply_overflows_int(uint a, uint b) { return a >= INT32_MAX / b; }
+boolint _pixman_addition_overflows_int(uint a, uint b) { return a > INT32_MAX - b; }
 
 void * pixman_malloc_ab_plus_c(uint a, uint b, uint c)
 {
@@ -175,10 +175,10 @@ void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_
 
 #define N_TMP_BOXES (16)
 
-pixman_bool_t pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman_region32_t * src)
+boolint pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman_region32_t * src)
 {
 	int n_boxes;
-	pixman_bool_t retval = FALSE;
+	boolint retval = FALSE;
 	const pixman_box32_t * boxes32 = pixman_region32_rectangles(src, &n_boxes);
 	pixman_box16_t * boxes16 = static_cast<pixman_box16_t *>(pixman_malloc_ab(n_boxes, sizeof(pixman_box16_t)));
 	if(boxes16) {
@@ -195,12 +195,12 @@ pixman_bool_t pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman
 	return retval;
 }
 
-pixman_bool_t pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman_region16_t * src)
+boolint pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman_region16_t * src)
 {
 	int n_boxes, i;
 	pixman_box32_t * boxes32;
 	pixman_box32_t tmp_boxes[N_TMP_BOXES];
-	pixman_bool_t retval;
+	boolint retval;
 	pixman_box16_t * boxes16 = pixman_region_rectangles(src, &n_boxes);
 	if(n_boxes > N_TMP_BOXES)
 		boxes32 = (pixman_box32_t *)pixman_malloc_ab(n_boxes, sizeof(pixman_box32_t));

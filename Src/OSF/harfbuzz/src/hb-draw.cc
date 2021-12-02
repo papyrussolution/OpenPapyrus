@@ -54,8 +54,7 @@ void hb_draw_funcs_set_line_to_func(hb_draw_funcs_t * funcs,
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_quadratic_to_func(hb_draw_funcs_t   * funcs,
-    hb_draw_quadratic_to_func_t quadratic_to)
+void hb_draw_funcs_set_quadratic_to_func(hb_draw_funcs_t   * funcs, hb_draw_quadratic_to_func_t quadratic_to)
 {
 	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->quadratic_to = quadratic_to;

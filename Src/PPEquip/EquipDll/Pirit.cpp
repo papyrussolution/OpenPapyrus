@@ -115,7 +115,7 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), TaxSys(0), Tax(0),
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomFragm(0), TaxSys(0), Tax(0),
 		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
 		Timestamp(ZERODATETIME) /*v11.2.3*/
 	{
@@ -129,6 +129,7 @@ struct CheckStruct {
 		Tax = 0;
 		Ptt = 0; // @v10.4.1
 		Stt = 0; // @erik v10.4.12
+		UomFragm = 0; // @v11.2.5
 		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
 		Text.Z();
 		Code.Z();
@@ -165,6 +166,7 @@ struct CheckStruct {
 	int    Tax;          //
 	int    Ptt;          // @v10.4.1 // CCheckPacket::PaymentTermTag
 	int    Stt;          // @erik v10.4.12
+	int    UomFragm;     // @v11.2.5 Фрагментация единицы измерения //
 	int    ChZnProdType; // @v10.7.2
 	double PaymCash;
 	double PaymBank;
@@ -248,7 +250,7 @@ public:
 		pchznmfReturn     = 0x0001, // Возврат
 		pchznmfFractional = 0x0002  // Дробный товар
 	};
-	int    PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult);
+	int    PreprocessChZnMark(const char * pMarkCode, double qtty, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult);
 
 	int    SessID;
 	int    LastError;
@@ -1099,6 +1101,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SString chzn_serial;
 			SString chzn_partn;
 			int   chzn_prodtype = 0;
+			int   uom_fragm = 0;
 			PreprocessChZnCodeResult result;
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
@@ -1114,13 +1117,15 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				chzn_partn = param_val;
 			if(pb.Get("CHZNPRODTYPE", param_val) > 0)
 				chzn_prodtype = param_val.ToLong();
+			if(pb.Get("UOMFRAGM", param_val) > 0) // @v11.2.5
+				uom_fragm = inrangeordefault(param_val.ToLong(), 1L, 100000L, 0L);
 			if(chzn_code.NotEmptyS()) {
 				const char * p_serial = chzn_serial.NotEmpty() ? chzn_serial.cptr() : chzn_partn.cptr();
 				if(!isempty(p_serial) && chzn_gtin.NotEmpty()) {
 					(chzn_code = chzn_gtin).Cat(p_serial);
 				}
 				//int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
-				THROW(PreprocessChZnMark(chzn_code, R0i(fabs(qtty)), 0, &result) > 0);
+				THROW(PreprocessChZnMark(chzn_code, fabs(qtty), uom_fragm, 0, &result) > 0);
 				result_buf.Z().CatEq("CheckResult", (long)result.CheckResult).Semicol().
 					CatEq("Reason", (long)result.Reason).Semicol().
 					CatEq("ProcessingResult", (long)result.ProcessingResult).Semicol().
@@ -1410,6 +1415,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.ChZnPpStatus = param_val.ToLong();
 			if(pb.Get("CHZNSID", param_val) > 0) // @v11.2.4
 				Check.ChZnSid = param_val;
+			if(pb.Get("UOMFRAGM", param_val) > 0) // @v11.2.5
+				Check.UomFragm = inrangeordefault(param_val.ToLong(), 1L, 100000L, 0L);
 			if(pb.Get("VATRATE", param_val) > 0) {
 				_vat_rate = R2(param_val.ToReal());
 			}
@@ -2041,7 +2048,7 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 		pchznmfReturn     = 0x0001, // Возврат
 		pchznmfFractional = 0x0002  // Дробный товар
 */
-int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
+int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult)
 {
 	int    ok = 1;
 	if(isempty(pMarkCode))

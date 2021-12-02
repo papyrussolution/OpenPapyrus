@@ -215,7 +215,7 @@
 	    pixman_fixed_t vx,       \
 	    pixman_fixed_t unit_x,   \
 	    pixman_fixed_t max_vx,   \
-	    pixman_bool_t zero_src) \
+	    boolint zero_src) \
 	{                                                                             \
 		pixman_scaled_nearest_scanline_ ## name ## _ ## op ## _asm_ ## cputype(w, pd, ps, vx, unit_x, max_vx);    \
 	}                                                                             \
@@ -251,7 +251,7 @@
 	    pixman_fixed_t vx,       \
 	    pixman_fixed_t unit_x,   \
 	    pixman_fixed_t max_vx,   \
-	    pixman_bool_t zero_src) \
+	    boolint zero_src) \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
 			return;                                                               \
@@ -284,7 +284,7 @@
 		pixman_fixed_t vx,          \
 		pixman_fixed_t unit_x,      \
 		pixman_fixed_t max_vx,      \
-		pixman_bool_t zero_src)    \
+		boolint zero_src)    \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
 			return;                                                               \
@@ -308,7 +308,7 @@
 		int width);      \
                                                                               \
 	static force_inline void scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op(dst_type * dst, const uint8 * mask, const src_type * src_top, \
-		const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, pixman_bool_t zero_src) \
+		const src_type * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t max_vx, boolint zero_src) \
 	{                                                                             \
 		if((flags & SKIP_ZERO_SRC) && zero_src)                                  \
 			return;                                                                   \

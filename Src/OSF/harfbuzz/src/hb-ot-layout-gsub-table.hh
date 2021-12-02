@@ -1137,7 +1137,7 @@ protected:
 
 	struct ChainContextSubst : ChainContext {};
 
-	struct ExtensionSubst : Extension<ExtensionSubst>{
+	struct ExtensionSubst : Extension<ExtensionSubst> {
 		typedef struct SubstLookupSubTable SubTable;
 		bool is_reverse() const;
 	};

@@ -310,7 +310,7 @@ RuleBasedBreakIterator* RuleBasedBreakIterator::clone() const
  * same class, have the same behavior, and iterate over the same text.
  */
 bool
-RuleBasedBreakIterator::operator==(const BreakIterator &that) const {
+RuleBasedBreakIterator::operator == (const BreakIterator &that) const {
 	if(typeid(*this) != typeid(that)) {
 		return false;
 	}

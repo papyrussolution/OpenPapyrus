@@ -114,7 +114,7 @@ public:
  * JstfLangSys -- Justification Language System Table
  */
 
-	struct JstfLangSys : OffsetListOf<JstfPriority>{
+	struct JstfLangSys : OffsetListOf<JstfPriority> {
 		bool sanitize(hb_sanitize_context_t * c,
 		    const Record_sanitize_closure_t * = nullptr) const
 		{

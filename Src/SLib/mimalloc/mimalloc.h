@@ -401,7 +401,7 @@ template <class T> struct mi_stl_allocator {
 	const_pointer address(const_reference x) const { return &x; }
 };
 
-template <class T1, class T2> bool operator==(const mi_stl_allocator<T1>&, const mi_stl_allocator<T2>&) NOEXCEPT {
+template <class T1, class T2> bool operator == (const mi_stl_allocator<T1>&, const mi_stl_allocator<T2>&) NOEXCEPT {
 	return true;
 }
 

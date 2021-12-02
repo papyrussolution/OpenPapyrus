@@ -729,7 +729,7 @@ int PPObjSecur::ProcessReservedItem(TVRez & rez)
 		else if(Obj == PPOBJ_USRGRP)
 			secur.ParentID = PPCFG_MAIN;
 		Reference::VerifySecur(&secur, 1);
-		THROW(EditItem(Obj, 0, &secur, 1));
+		THROW(StoreItem(Obj, 0, &secur, 1));
 	}
 	CATCHZOK
 	return ok;

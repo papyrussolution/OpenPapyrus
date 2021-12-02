@@ -117,7 +117,7 @@ CurrencyPluralInfo::~CurrencyPluralInfo()
 	ZDELETE(fLocale);
 }
 
-bool CurrencyPluralInfo::operator==(const CurrencyPluralInfo& info) const 
+bool CurrencyPluralInfo::operator == (const CurrencyPluralInfo& info) const 
 {
 #ifdef CURRENCY_PLURAL_INFO_DEBUG
 	if(*fPluralRules == *info.fPluralRules) {

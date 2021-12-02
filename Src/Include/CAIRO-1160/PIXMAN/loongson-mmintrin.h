@@ -109,14 +109,12 @@ _mm_cmpeq_pi32 (__m64 __m1, __m64 __m2)
 	return ret;
 }
 
-extern __inline void __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_empty (void)
+extern __inline void __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_empty(void)
 {
 
 }
 
-extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_madd_pi16 (__m64 __m1, __m64 __m2)
+extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_madd_pi16 (__m64 __m1, __m64 __m2)
 {
 	__m64 ret;
 	asm("pmaddhw %0, %1, %2\n\t"
@@ -126,8 +124,7 @@ _mm_madd_pi16 (__m64 __m1, __m64 __m2)
 	return ret;
 }
 
-extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_mulhi_pu16 (__m64 __m1, __m64 __m2)
+extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_mulhi_pu16 (__m64 __m1, __m64 __m2)
 {
 	__m64 ret;
 	asm("pmulhuh %0, %1, %2\n\t"
@@ -137,8 +134,7 @@ _mm_mulhi_pu16 (__m64 __m1, __m64 __m2)
 	return ret;
 }
 
-extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_mullo_pi16 (__m64 __m1, __m64 __m2)
+extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_mullo_pi16 (__m64 __m1, __m64 __m2)
 {
 	__m64 ret;
 	asm("pmullh %0, %1, %2\n\t"
@@ -148,8 +144,7 @@ _mm_mullo_pi16 (__m64 __m1, __m64 __m2)
 	return ret;
 }
 
-extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_or_si64 (__m64 __m1, __m64 __m2)
+extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_or_si64 (__m64 __m1, __m64 __m2)
 {
 	__m64 ret;
 	asm("or %0, %1, %2\n\t"
@@ -159,8 +154,7 @@ _mm_or_si64 (__m64 __m1, __m64 __m2)
 	return ret;
 }
 
-extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_packs_pu16 (__m64 __m1, __m64 __m2)
+extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_packs_pu16 (__m64 __m1, __m64 __m2)
 {
 	__m64 ret;
 	asm("packushb %0, %1, %2\n\t"
@@ -170,8 +164,7 @@ _mm_packs_pu16 (__m64 __m1, __m64 __m2)
 	return ret;
 }
 
-extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_packs_pi32 (__m64 __m1, __m64 __m2)
+extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__)) _mm_packs_pi32 (__m64 __m1, __m64 __m2)
 {
 	__m64 ret;
 	asm("packsswh %0, %1, %2\n\t"
@@ -219,15 +212,11 @@ _mm_set_pi16 (uint16 __w3, uint16 __w2, uint16 __w1, uint16 __w0)
 extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_set_pi32 (unsigned __i1, unsigned __i0)
 {
-	if(__builtin_constant_p (__i1) &&
-	    __builtin_constant_p (__i0))
-	{
-		uint64 val = ((uint64)__i1 << 32)
-			     | ((uint64)__i0 <<  0);
+	if(__builtin_constant_p (__i1) && __builtin_constant_p (__i0)) {
+		uint64 val = ((uint64)__i1 << 32) | ((uint64)__i0 <<  0);
 		return *(__m64 *)&val;
 	}
-	else if(__i1 == __i0)
-	{
+	else if(__i1 == __i0) {
 		uint64 imm = _MM_SHUFFLE (1, 0, 1, 0);
 		__m64 ret;
 		asm("pshufh %0, %1, %2\n\t"

@@ -112,13 +112,13 @@ UnicodeString * StringEnumeration::setChars(const char * s, int32_t length, UErr
 }
 
 bool
-StringEnumeration::operator==(const StringEnumeration &that) const {
+StringEnumeration::operator == (const StringEnumeration &that) const {
 	return typeid(*this) == typeid(that);
 }
 
 bool
 StringEnumeration::operator != (const StringEnumeration &that) const {
-	return !operator==(that);
+	return !operator == (that);
 }
 
 // UStringEnumeration implementation --------------------------------------- ***

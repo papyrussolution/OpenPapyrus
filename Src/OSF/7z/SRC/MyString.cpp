@@ -1602,11 +1602,11 @@ UString2 & UString2::operator=(const UString2 &s)
 	return *this;
 }
 
-bool operator==(const UString2 &s1, const UString2 &s2)
+bool operator == (const UString2 &s1, const UString2 &s2)
 	{ return s1.Len() == s2.Len() && (s1.IsEmpty() || wcscmp(s1.GetRawPtr(), s2.GetRawPtr()) == 0); }
-bool operator==(const UString2 &s1, const wchar_t * s2)
+bool operator == (const UString2 &s1, const wchar_t * s2)
 	{ return s1.IsEmpty() ? (*s2 == 0) : (wcscmp(s1.GetRawPtr(), s2) == 0); }
-bool operator==(const wchar_t * s1, const UString2 &s2)
+bool operator == (const wchar_t * s1, const UString2 &s2)
 	{ return s2.IsEmpty() ? (*s1 == 0) : (wcscmp(s1, s2.GetRawPtr()) == 0); }
 
 // ----------------------------------------

@@ -114,11 +114,11 @@ cairo_private cairo_output_stream_t * _cairo_output_stream_create_for_filename(c
  * on it when finished. The stream will not do this itself.
  */
 cairo_private cairo_output_stream_t * _cairo_output_stream_create_for_file(FILE * file);
-cairo_private cairo_output_stream_t * _cairo_memory_stream_create(void);
+cairo_private cairo_output_stream_t * _cairo_memory_stream_create();
 cairo_private void _cairo_memory_stream_copy(cairo_output_stream_t * base, cairo_output_stream_t * dest);
 cairo_private int _cairo_memory_stream_length(cairo_output_stream_t * stream);
 cairo_private cairo_status_t _cairo_memory_stream_destroy(cairo_output_stream_t * abstract_stream, uchar ** data_out, ulong * length_out);
-cairo_private cairo_output_stream_t * _cairo_null_stream_create(void);
+cairo_private cairo_output_stream_t * _cairo_null_stream_create();
 /* cairo-base85-stream.c */
 cairo_private cairo_output_stream_t * _cairo_base85_stream_create(cairo_output_stream_t * output);
 /* cairo-base64-stream.c */

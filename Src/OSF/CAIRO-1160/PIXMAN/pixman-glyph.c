@@ -274,7 +274,7 @@ PIXMAN_EXPORT pixman_format_code_t pixman_glyph_get_mask_format(pixman_glyph_cac
 	return format;
 }
 
-static pixman_bool_t box32_intersect(pixman_box32_t * dest, const pixman_box32_t * box1, const pixman_box32_t * box2)
+static boolint box32_intersect(pixman_box32_t * dest, const pixman_box32_t * box1, const pixman_box32_t * box2)
 {
 	dest->x1 = MAX(box1->x1, box2->x1);
 	dest->y1 = MAX(box1->y1, box2->y1);
@@ -363,7 +363,7 @@ static void add_glyphs(pixman_glyph_cache_t * cache, pixman_image_t * dest, int 
 	pixman_box32_t dest_box;
 	pixman_composite_info_t info;
 	pixman_image_t * white_img = NULL;
-	pixman_bool_t white_src = FALSE;
+	boolint white_src = FALSE;
 	int i;
 	_pixman_image_validate(dest);
 	dest_format = dest->common.extended_format_code;

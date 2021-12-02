@@ -39,10 +39,10 @@
 CAIRO_BEGIN_DECLS
 
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER
-cairo_private void _cairo_mutex_initialize (void);
+cairo_private void _cairo_mutex_initialize ();
 #endif
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
-cairo_private void _cairo_mutex_finalize (void);
+cairo_private void _cairo_mutex_finalize ();
 #endif
 /* only if using static initializer and/or finalizer define the boolean */
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER || _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER

@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -121,7 +121,7 @@ int PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
 			valid_data = 1;
 			if(*pID)
 				*pID = rec.ID;
-			THROW(EditItem(Obj, *pID, &rec, 1));
+			THROW(StoreItem(Obj, *pID, &rec, 1));
 		}
 	}
 	CATCH

@@ -135,7 +135,7 @@ CollationKey&CollationKey::setToBogus()
 	return *this;
 }
 
-bool CollationKey::operator==(const CollationKey& source) const
+bool CollationKey::operator == (const CollationKey& source) const
 {
 	return getLength() == source.getLength() &&
 	       (this == &source ||

@@ -426,7 +426,7 @@ Locale * Locale::clone() const {
 }
 
 bool
-Locale::operator==(const Locale &other) const
+Locale::operator == (const Locale &other) const
 {
 	return (uprv_strcmp(other.fullName, fullName) == 0);
 }

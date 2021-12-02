@@ -120,7 +120,7 @@ public:
 
 			auto it =
 			    +hb_range((uint)numRecords)
-			    | hb_map([c, this] (unsigned _)
+			    | hb_map([c, this] (uint _)
 			{
 				const DeviceRecord * device_record =
 				&StructAtOffset<DeviceRecord> (&firstDeviceRecord,

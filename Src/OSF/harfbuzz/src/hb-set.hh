@@ -775,7 +775,7 @@ public:
 	/*
 	 * Iterator implementation.
 	 */
-	struct iter_t : hb_iter_with_fallback_t<iter_t, hb_codepoint_t>{
+	struct iter_t : hb_iter_with_fallback_t<iter_t, hb_codepoint_t> {
 		static constexpr bool is_sorted_iterator = true;
 		iter_t(const hb_set_t &s_ = Null(hb_set_t), bool init = true) : s(&s_), v(INVALID), l(0)
 		{

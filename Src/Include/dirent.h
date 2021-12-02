@@ -44,31 +44,31 @@
 	#define S_IFCHR _S_IFCHR /* Character device bit */
 #endif
 #if !defined(S_IFFIFO)
-	#define S_IFFIFO _S_IFFIFO /* Pipe bit */
+	#define S_IFFIFO _S_IFFIFO // Pipe bit 
 #endif
 #if !defined(S_IFREG)
-	#define S_IFREG _S_IFREG /* Regular file bit */
+	#define S_IFREG _S_IFREG // Regular file bit 
 #endif
 #if !defined(S_IREAD)
-	#define S_IREAD _S_IREAD /* Read permission */
+	#define S_IREAD _S_IREAD // Read permission 
 #endif
 #if !defined(S_IWRITE)
-	#define S_IWRITE _S_IWRITE /* Write permission */
+	#define S_IWRITE _S_IWRITE // Write permission 
 #endif
 #if !defined(S_IEXEC)
-	#define S_IEXEC _S_IEXEC /* Execute permission */
+	#define S_IEXEC _S_IEXEC // Execute permission 
 #endif
 #if !defined(S_IFIFO)
-	#define S_IFIFO _S_IFIFO /* Pipe */
+	#define S_IFIFO _S_IFIFO // Pipe 
 #endif
 #if !defined(S_IFBLK)
-	#define S_IFBLK 0 /* Block device */
+	#define S_IFBLK 0060000 // Block device 
 #endif
 #if !defined(S_IFLNK)
-	#define S_IFLNK 0 /* Link */
+	#define S_IFLNK 0120000 // Link 
 #endif
 #if !defined(S_IFSOCK)
-	#define S_IFSOCK 0 /* Socket */
+	#define S_IFSOCK 0140000 // Socket 
 #endif
 #if !defined(S_IRUSR)
 	#define S_IRUSR S_IREAD /* Read user permission */
@@ -77,7 +77,7 @@
 	#define S_IWUSR S_IWRITE /* Write user permission */
 #endif
 #if !defined(S_IXUSR)
-	#define S_IXUSR 0 /* Execute user permission */
+	#define S_IXUSR 0 // Execute user permission 
 #endif
 #if !defined(S_IRGRP)
 	#define S_IRGRP 0 /* Read group permission */

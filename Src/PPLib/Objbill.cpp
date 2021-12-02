@@ -4256,7 +4256,7 @@ int PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPack, PP
 int PPObjBill::IsAssetLot(PPID lotID)
 {
 	ReceiptTbl::Rec lot_rec;
-	return (trfr->Rcpt.Search(lotID, &lot_rec) > 0 && GObj.CheckFlag(lot_rec.GoodsID, GF_ASSETS) > 0) ? 1 : -1;
+	return (trfr->Rcpt.Search(lotID, &lot_rec) > 0 && GObj.CheckFlag(lot_rec.GoodsID, GF_ASSETS)) ? 1 : -1;
 }
 
 int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)

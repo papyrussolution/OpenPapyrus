@@ -939,7 +939,7 @@ void PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double discou
 	DscntEntry * p_item;
 	PPIDArray wodis_goods_list;
 	for(i = 0; rList.enumItems(&i, (void **)&p_item);)
-		if(GObj.CheckFlag(p_item->GoodsID, GF_NODISCOUNT) > 0)
+		if(GObj.CheckFlag(p_item->GoodsID, GF_NODISCOUNT))
 			wodis_goods_list.addUnique(p_item->GoodsID);
 		else {
 			qtty   = fabs(p_item->Qtty);
@@ -2829,7 +2829,7 @@ int PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rT
 		actual_dtm.Set(rTSesRec.StDt, rTSesRec.StTm);
 		if(rTSesRec.SCardID && ScObj.Fetch(rTSesRec.SCardID, &sc_rec) > 0) {
   			const  int cfg_dsbl_no_dis = 0;//BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fIgnoreNoDisGoodsTag);
-			nodis = BIN(!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT) > 0);
+			nodis = BIN(!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT));
 			if(!nodis) {
 				PPObjSCardSeries scs_obj;
 				PPSCardSeries scs_rec;

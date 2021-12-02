@@ -715,7 +715,7 @@ void TrfrItemDialog::editQCertData()
 void TrfrItemDialog::GenerateSerial()
 {
 	if(IsTaggedItem()) {
-		const SString templt((GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
+		const SString templt(GObj.IsAsset(Item.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
 		SString serial;
 		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->LTagL/*SnL*/, templt, serial) > 0)
 			setCtrlString(CTL_LOT_SERIAL, serial);

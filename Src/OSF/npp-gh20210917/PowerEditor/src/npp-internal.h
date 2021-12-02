@@ -663,7 +663,7 @@ public:
 	Shortcut(const Shortcut & sc);
 	BYTE getAcceleratorModifiers();
 	Shortcut & operator = (const Shortcut & sc);
-	friend inline const bool operator==(const Shortcut & a, const Shortcut & b) 
+	friend inline const bool operator == (const Shortcut & a, const Shortcut & b) 
 	{
 		return (sstreq(a.getMenuName(), b.getMenuName()) && (a._keyCombo._isCtrl == b._keyCombo._isCtrl) &&
 		       (a._keyCombo._isAlt == b._keyCombo._isAlt) && (a._keyCombo._isShift == b._keyCombo._isShift) && (a._keyCombo._key == b._keyCombo._key));

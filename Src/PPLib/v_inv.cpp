@@ -899,10 +899,10 @@ QuantityCtrlGroup::Rec::Rec()
 	THISZERO();
 }
 
-int FASTCALL QuantityCtrlGroup::Rec::operator == (const Rec & rS) const
+bool FASTCALL QuantityCtrlGroup::Rec::operator == (const Rec & rS) const
 {
 	const double epsilon = 1E-8;
-	return BIN(feqeps(UnitPerPack, rS.UnitPerPack, epsilon) && feqeps(Packs, rS.Packs, epsilon) &&
+	return (feqeps(UnitPerPack, rS.UnitPerPack, epsilon) && feqeps(Packs, rS.Packs, epsilon) &&
 		feqeps(PackTail, rS.PackTail, epsilon) && feqeps(Qtty, rS.Qtty, epsilon));
 }
 

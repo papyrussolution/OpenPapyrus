@@ -90,7 +90,7 @@ namespace OT {
 	    hb_map_t * klass_map /*INOUT*/);
 
 	struct hb_subset_layout_context_t :
-	hb_dispatch_context_t<hb_subset_layout_context_t, hb_empty_t, HB_DEBUG_SUBSET>{
+	hb_dispatch_context_t<hb_subset_layout_context_t, hb_empty_t, HB_DEBUG_SUBSET> {
 		const char * get_name() {
 			return "SUBSET_LAYOUT";
 		}
@@ -149,7 +149,7 @@ private:
 	};
 
 	struct hb_collect_variation_indices_context_t :
-	hb_dispatch_context_t<hb_collect_variation_indices_context_t>{
+	hb_dispatch_context_t<hb_collect_variation_indices_context_t> {
 		template <typename T>
 		return_t dispatch(const T &obj) {
 			obj.collect_variation_indices(this); return hb_empty_t();
@@ -334,7 +334,7 @@ public:
 	};
 
 	template <typename Type>
-	struct RecordArrayOf : SortedArrayOf<Record<Type>>{
+	struct RecordArrayOf : SortedArrayOf<Record<Type>> {
 		const OffsetTo<Type>& get_offset(uint i) const
 		{ return (*this)[i].offset; }
 		OffsetTo<Type>&get_offset(uint i)
@@ -366,7 +366,7 @@ public:
 	};
 
 	template <typename Type>
-	struct RecordListOf : RecordArrayOf<Type>{
+	struct RecordListOf : RecordArrayOf<Type> {
 		const Type& operator [] (uint i)const
 		{ return this+this->get_offset(i); }
 
@@ -392,7 +392,7 @@ public:
 
 	struct Feature;
 
-	struct RecordListOfFeature : RecordListOf<Feature>{
+	struct RecordListOfFeature : RecordListOf<Feature> {
 		bool subset(hb_subset_context_t * c,
 		    hb_subset_layout_context_t * l) const
 		{
@@ -442,7 +442,7 @@ public:
 
 	DECLARE_NULL_NAMESPACE_BYTES(OT, RangeRecord);
 
-	struct IndexArray : ArrayOf<Index>{
+	struct IndexArray : ArrayOf<Index> {
 		bool intersects(const hb_map_t * indexes) const
 		{
 			return hb_any(*this, indexes);
@@ -1237,7 +1237,7 @@ public:
 	typedef OffsetListOf<Lookup> LookupList;
 
 	template <typename TLookup>
-	struct LookupOffsetList : OffsetListOf<TLookup>{
+	struct LookupOffsetList : OffsetListOf<TLookup> {
 		bool subset(hb_subset_context_t * c,
 		    hb_subset_layout_context_t * l) const
 		{
@@ -1542,14 +1542,12 @@ public:
 				default: return NOT_COVERED;
 			}
 		}
-
 		template <typename Iterator,
 		hb_requires(hb_is_sorted_source_of(Iterator, hb_codepoint_t))>
 		bool serialize(hb_serialize_context_t * c, Iterator glyphs)
 		{
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
-
 			uint count = 0;
 			unsigned num_ranges = 0;
 			hb_codepoint_t last = (hb_codepoint_t)-2;
@@ -1560,9 +1558,7 @@ public:
 				count++;
 			}
 			u.format = count <= num_ranges * 3 ? 1 : 2;
-
-			switch(u.format)
-			{
+			switch(u.format) {
 				case 1: return_trace(u.format1.serialize(c, glyphs));
 				case 2: return_trace(u.format2.serialize(c, glyphs));
 				default: return_trace(false);
@@ -1590,8 +1586,7 @@ public:
 		{
 			TRACE_SANITIZE(this);
 			if(!u.format.sanitize(c)) return_trace(false);
-			switch(u.format)
-			{
+			switch(u.format) {
 				case 1: return_trace(u.format1.sanitize(c));
 				case 2: return_trace(u.format2.sanitize(c));
 				default: return_trace(true);
@@ -1600,8 +1595,7 @@ public:
 
 		bool intersects(const hb_set_t * glyphs) const
 		{
-			switch(u.format)
-			{
+			switch(u.format) {
 				case 1: return u.format1.intersects(glyphs);
 				case 2: return u.format2.intersects(glyphs);
 				default: return false;
@@ -1610,8 +1604,7 @@ public:
 
 		bool intersects_coverage(const hb_set_t * glyphs, uint index) const
 		{
-			switch(u.format)
-			{
+			switch(u.format) {
 				case 1: return u.format1.intersects_coverage(glyphs, index);
 				case 2: return u.format2.intersects_coverage(glyphs, index);
 				default: return false;
@@ -1629,7 +1622,7 @@ public:
 				default: return false;
 			}
 		}
-		struct iter_t : hb_iter_with_fallback_t<iter_t, hb_codepoint_t>{
+		struct iter_t : hb_iter_with_fallback_t<iter_t, hb_codepoint_t> {
 			static constexpr bool is_sorted_iterator = true;
 			iter_t(const Coverage &c_ = Null(Coverage))
 			{
@@ -1638,7 +1631,7 @@ public:
 				switch(format) {
 					case 1: u.format1.init(c_.u.format1); return;
 					case 2: u.format2.init(c_.u.format2); return;
-					default:                               return;
+					default: return;
 				}
 			}
 			bool __more__() const
@@ -1654,29 +1647,25 @@ public:
 				switch(format) {
 					case 1: u.format1.next(); break;
 					case 2: u.format2.next(); break;
-					default:                   break;
+					default: break;
 				}
 			}
 			typedef hb_codepoint_t __item_t__;
 			__item_t__ __item__() const {
 				return get_glyph();
 			}
-
 			hb_codepoint_t get_glyph() const
 			{
-				switch(format)
-				{
+				switch(format) {
 					case 1: return u.format1.get_glyph();
 					case 2: return u.format2.get_glyph();
 					default: return 0;
 				}
 			}
-
 			bool operator != (const iter_t &o) const
 			{
 				if(format != o.format) return true;
-				switch(format)
-				{
+				switch(format) {
 					case 1: return u.format1 != o.u.format1;
 					case 2: return u.format2 != o.u.format2;
 					default: return false;
@@ -1757,13 +1746,8 @@ public:
 
 	struct ClassDefFormat1 {
 		friend struct ClassDef;
-
-private:
-		uint get_class(hb_codepoint_t glyph_id) const
-		{
-			return classValue[(uint)(glyph_id - startGlyph)];
-		}
-
+	private:
+		uint get_class(hb_codepoint_t glyph_id) const { return classValue[(uint)(glyph_id - startGlyph)]; }
 		template<typename Iterator,
 		hb_requires(hb_is_iterator(Iterator))>
 		bool serialize(hb_serialize_context_t * c,
@@ -1900,33 +1884,22 @@ public:
 		friend struct ClassDef;
 
 private:
-		uint get_class(hb_codepoint_t glyph_id) const
-		{
-			return rangeRecord.bsearch(glyph_id).value;
-		}
-
-		template<typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		bool serialize(hb_serialize_context_t * c,
-		    Iterator it)
+		uint get_class(hb_codepoint_t glyph_id) const { return rangeRecord.bsearch(glyph_id).value; }
+		template<typename Iterator, hb_requires(hb_is_iterator(Iterator))> bool serialize(hb_serialize_context_t * c, Iterator it)
 		{
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
-
 			if(UNLIKELY(!it)) {
 				rangeRecord.len = 0;
 				return_trace(true);
 			}
-
 			unsigned num_ranges = 1;
 			hb_codepoint_t prev_gid = (*it).first;
 			unsigned prev_klass = (*it).second;
-
 			RangeRecord range_rec;
 			range_rec.first = prev_gid;
 			range_rec.last = prev_gid;
 			range_rec.value = prev_klass;
-
 			RangeRecord * record = c->copy(range_rec);
 			if(UNLIKELY(!record)) return_trace(false);
 
@@ -2118,17 +2091,14 @@ public:
 					format = 1;
 			}
 			u.format = format;
-
-			switch(u.format)
-			{
+			switch(u.format) {
 				case 1: return_trace(u.format1.serialize(c, it));
 				case 2: return_trace(u.format2.serialize(c, it));
 				default: return_trace(false);
 			}
 		}
 
-		bool subset(hb_subset_context_t * c,
-		    hb_map_t * klass_map = nullptr /*OUT*/) const
+		bool subset(hb_subset_context_t * c, hb_map_t * klass_map = nullptr /*OUT*/) const
 		{
 			TRACE_SUBSET(this);
 			switch(u.format) {
@@ -2361,29 +2331,19 @@ public:
 			for(uint i = count; i < num_scalars; i++)
 				scalars[i] = 0.f;
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    regionIndices.sanitize(c) &&
-			    shortCount <= regionIndices.len &&
-			    c->check_range(get_delta_bytes(),
-			    itemCount,
-			    get_row_size()));
+			return_trace(c->check_struct(this) && regionIndices.sanitize(c) && shortCount <= regionIndices.len &&
+			    c->check_range(get_delta_bytes(), itemCount, get_row_size()));
 		}
-
-		bool serialize(hb_serialize_context_t * c,
-		    const VarData * src,
-		    const hb_inc_bimap_t &inner_map,
-		    const hb_bimap_t &region_map)
+		bool serialize(hb_serialize_context_t * c, const VarData * src, const hb_inc_bimap_t &inner_map, const hb_bimap_t &region_map)
 		{
 			TRACE_SERIALIZE(this);
 			if(UNLIKELY(!c->extend_min(*this))) return_trace(false);
 			itemCount = inner_map.get_next_value();
-
 			/* Optimize short count */
-			unsigned short ri_count = src->regionIndices.len;
+			ushort ri_count = src->regionIndices.len;
 			enum delta_size_t { kZero = 0, kByte, kShort };
 
 			hb_vector_t<delta_size_t> delta_sz;

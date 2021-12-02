@@ -91,7 +91,7 @@ static const op_info_t op_flags[PIXMAN_N_OPERATORS] =
 
 #define SCANLINE_BUFFER_LENGTH 8192
 
-static pixman_bool_t operator_needs_division(pixman_op_t op)
+static boolint operator_needs_division(pixman_op_t op)
 {
 	static const uint8 needs_division[] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, /* SATURATE */
@@ -110,7 +110,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 	uint8 * src_buffer, * mask_buffer, * dest_buffer;
 	pixman_iter_t src_iter, mask_iter, dest_iter;
 	pixman_combine_32_func_t compose;
-	pixman_bool_t component_alpha;
+	boolint component_alpha;
 	iter_flags_t width_flag, src_iter_flags;
 	int Bpp;
 	int i;

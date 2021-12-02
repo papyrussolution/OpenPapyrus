@@ -1373,11 +1373,12 @@ int SmartListBox::TransmitData(int dir, void * pData)
 
 IMPL_HANDLE_EVENT(SmartListBox)
 {
-	TView::handleEvent(event); // @v11.2.4
 	if(event.isCmd(cmDraw)) {
 		Implement_Draw();
 		clearEvent(event); // @v11.2.4
 	}
+	else
+		TView::handleEvent(event); // @v11.2.4
 }
 
 void SmartListBox::Implement_Draw()
@@ -1569,25 +1570,26 @@ void SmartListBox::setRange(long aRange)
 
 void SmartListBox::setState(uint aState, bool enable)
 {
-	const long preserve_state = State; // @v11.2.4
+	// @v11.2.5 const long preserve_state = State; // @v11.2.4
 	TView::setState(aState, enable);
-	if((aState & (sfSelected|sfActive)) != (preserve_state & (sfSelected|sfActive)) && !Columns.getCount())
+	// @v11.2.5 if((aState & (sfSelected|sfActive)) != (preserve_state & (sfSelected|sfActive)) && !Columns.getCount())
+	if(aState & (sfSelected|sfActive) && !Columns.getCount()) // @v11.2.5
 		if(!(State & stTreeList))
 			Draw_();
 }
 
 int SmartListBox::addItem(long id, const char * s, long * pPos)
 {
-	int    r = -1;
-	if(def && (r = def->addItem(id, s, pPos)) > 0)
+	const int r = def ? def->addItem(id, s, pPos) : -1;
+	if(r > 0)
 		setRange(def->getRecsCount());
 	return r;
 }
 
 int SmartListBox::removeItem(long pos)
 {
-	int    r = -1;
-	if(def && (r = def->removeItem(pos)) > 0)
+	const int r = def ? def->removeItem(pos) : -1;
+	if(r > 0)
 		setRange(def->getRecsCount());
 	return r;
 }

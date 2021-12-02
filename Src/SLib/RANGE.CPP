@@ -311,7 +311,7 @@ IMPL_INVARIANT_C(DateRange)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-int FASTCALL DateRange::IsEq(const DateRange & rS) const
+bool FASTCALL DateRange::IsEq(const DateRange & rS) const
 {
 	return (low == rS.low && upp == rS.upp);
 }

@@ -275,7 +275,7 @@ public:
 };
 
 template <typename Type>
-struct hb_sorted_vector_t : hb_vector_t<Type>{
+struct hb_sorted_vector_t : hb_vector_t<Type> {
 	hb_sorted_array_t<Type> as_array() {
 		return hb_sorted_array(this->arrayZ, this->length);
 	}

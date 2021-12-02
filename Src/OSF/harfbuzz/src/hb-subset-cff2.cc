@@ -37,7 +37,7 @@ struct cff2_sub_table_info_t : cff_sub_table_info_t {
 	objidx_t var_store_link;
 };
 
-struct cff2_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<>{
+struct cff2_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<> {
 	bool serialize(hb_serialize_context_t * c, const op_str_t &opstr, const cff2_sub_table_info_t &info) const
 	{
 		TRACE_SERIALIZE(this);
@@ -51,7 +51,7 @@ struct cff2_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<>{
 	}
 };
 
-struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatten_param_t>{
+struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatten_param_t> {
 	static void flush_args_and_op(op_code_t op, cff2_cs_interp_env_t &env, flatten_param_t& param)
 	{
 		switch(op)
@@ -142,7 +142,7 @@ private:
 	typedef cs_opset_t<blend_arg_t, cff2_cs_opset_flatten_t, cff2_cs_opset_flatten_t, cff2_cs_interp_env_t, flatten_param_t> CSOPSET;
 };
 
-struct cff2_cs_opset_subr_subset_t : cff2_cs_opset_t<cff2_cs_opset_subr_subset_t, subr_subset_param_t>{
+struct cff2_cs_opset_subr_subset_t : cff2_cs_opset_t<cff2_cs_opset_subr_subset_t, subr_subset_param_t> {
 	static void process_op(op_code_t op, cff2_cs_interp_env_t &env, subr_subset_param_t& param)
 	{
 		switch(op) {
@@ -189,7 +189,7 @@ private:
 };
 
 struct cff2_subr_subsetter_t : subr_subsetter_t<cff2_subr_subsetter_t, CFF2Subrs, const OT::cff2::accelerator_subset_t,
-	    cff2_cs_interp_env_t, cff2_cs_opset_subr_subset_t>{
+	    cff2_cs_interp_env_t, cff2_cs_opset_subr_subset_t> {
 	cff2_subr_subsetter_t (const OT::cff2::accelerator_subset_t &acc_, const hb_subset_plan_t * plan_)
 		: subr_subsetter_t(acc_, plan_) {
 	}

@@ -64,7 +64,7 @@ struct cff2_extents_param_t {
 	number_t max_y;
 };
 
-struct cff2_path_procs_extents_t : path_procs_t<cff2_path_procs_extents_t, cff2_cs_interp_env_t, cff2_extents_param_t>{
+struct cff2_path_procs_extents_t : path_procs_t<cff2_path_procs_extents_t, cff2_cs_interp_env_t, cff2_extents_param_t> {
 	static void moveto(cff2_cs_interp_env_t &env, cff2_extents_param_t& param, const point_t &pt)
 	{
 		param.end_path();
@@ -167,7 +167,7 @@ protected:
 	hb_font_t * font;
 };
 
-struct cff2_path_procs_path_t : path_procs_t<cff2_path_procs_path_t, cff2_cs_interp_env_t, cff2_path_param_t>{
+struct cff2_path_procs_path_t : path_procs_t<cff2_path_procs_path_t, cff2_cs_interp_env_t, cff2_path_param_t> {
 	static void moveto(cff2_cs_interp_env_t &env, cff2_path_param_t& param, const point_t &pt)
 	{
 		param.move_to(pt);

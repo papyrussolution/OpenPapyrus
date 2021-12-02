@@ -2189,7 +2189,7 @@ const char * MeasureUnit::getIdentifier() const {
 	return fImpl ? fImpl->identifier.data() : gSubTypes[getOffset()];
 }
 
-bool MeasureUnit::operator==(const UObject& other) const {
+bool MeasureUnit::operator == (const UObject& other) const {
 	if(this == &other) { // Same object, equal
 		return true;
 	}

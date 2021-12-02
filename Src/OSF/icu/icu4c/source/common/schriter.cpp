@@ -71,12 +71,12 @@ StringCharacterIterator&StringCharacterIterator::operator = (const StringCharact
 	return *this;
 }
 
-bool StringCharacterIterator::operator==(const ForwardCharacterIterator& that) const {
+bool StringCharacterIterator::operator == (const ForwardCharacterIterator& that) const {
 	if(this == &that) {
 		return true;
 	}
 
-	// do not call UCharCharacterIterator::operator==()
+	// do not call UCharCharacterIterator::operator == ()
 	// because that checks for array pointer equality
 	// while we compare UnicodeString objects
 

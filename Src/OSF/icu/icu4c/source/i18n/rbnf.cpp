@@ -78,9 +78,9 @@ public:
 		return NULL;
 	}
 
-	virtual bool operator==(const LocalizationInfo* rhs) const;
+	virtual bool operator == (const LocalizationInfo* rhs) const;
 	inline bool operator != (const LocalizationInfo* rhs) const {
-		return !operator==(rhs);
+		return !operator == (rhs);
 	}
 
 	virtual int32_t getNumberOfRuleSets() const = 0;
@@ -113,7 +113,7 @@ static bool streq(const UChar * lhs, const UChar * rhs)
 	return FALSE;
 }
 
-bool LocalizationInfo::operator==(const LocalizationInfo* rhs) const 
+bool LocalizationInfo::operator == (const LocalizationInfo* rhs) const 
 {
 	if(rhs) {
 		if(this == rhs) {
@@ -909,7 +909,7 @@ RuleBasedNumberFormat* RuleBasedNumberFormat::clone() const
 	return new RuleBasedNumberFormat(*this);
 }
 
-bool RuleBasedNumberFormat::operator==(const Format& other) const
+bool RuleBasedNumberFormat::operator == (const Format& other) const
 {
 	if(this == &other) {
 		return true;

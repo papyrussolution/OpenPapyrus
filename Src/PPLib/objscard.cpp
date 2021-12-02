@@ -1072,8 +1072,8 @@ int PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta
 				if(pattern.IsEq(*pPack))
 					eq = 1;
 				else {
-					pPack->Rec.VerifTag = 2; // @v9.8.9
-					THROW(rec_updated = EditItem(Obj, *pID ? pPack->Rec.ID : 0, &pPack->Rec, 0));
+					pPack->Rec.VerifTag = 2;
+					THROW(rec_updated = StoreItem(Obj, *pID ? pPack->Rec.ID : 0, &pPack->Rec, 0));
 					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE, 0, 0)); // Удаляем старую версию правил пересчета карт записи
 					if(pattern.Rec.ID && (pPack->Rec.PDis != pattern.Rec.PDis ||
 						pPack->Rec.MaxCredit != pattern.Rec.MaxCredit || pPack->Rec.Expiry != pattern.Rec.Expiry)) {
@@ -1083,8 +1083,8 @@ int PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta
 			}
 			else {
 				THROW(CheckRights(PPR_INS));
-				pPack->Rec.VerifTag = 2; // @v9.8.9
-				THROW(EditItem(Obj, 0, &pPack->Rec, 0));
+				pPack->Rec.VerifTag = 2;
+				THROW(StoreItem(Obj, 0, &pPack->Rec, 0));
 			}
 			if(!eq) {
 				THROW_MEM(p_strg = new (&pPack->Rule, 0, SCARDSERIES_RULE2) Storage_SCardRule);

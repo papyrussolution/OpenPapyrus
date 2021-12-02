@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -73,7 +73,7 @@ int PPObjAccount::AddCurRecord(const PPAccount * pBaseRec, PPID curID)
 	cur_acc_rec.ID = 0;
 	cur_acc_rec.CurID = curID;
 	cur_acc_rec.Limit = cur_acc_rec.Overdraft = 0;
-	return EditItem(Obj, 0, &cur_acc_rec, 0);
+	return StoreItem(Obj, 0, &cur_acc_rec, 0);
 }
 
 int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
@@ -105,7 +105,7 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 						}
 				}
 			}
-			THROW(EditItem(Obj, new_id, &pPack->Rec, 0));
+			THROW(StoreItem(Obj, new_id, &pPack->Rec, 0));
 			new_id = pPack->Rec.ID;
 			// @v10.2.12 @fix pPack->Rec.ID = new_id;
 			ASSIGN_PTR(pID, new_id);

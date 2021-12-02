@@ -860,11 +860,8 @@ static cmsInt32Number CheckD50Roundtrip(void)
 
 static void BuildTable(cmsInt32Number n, cmsUInt16Number Tab[], cmsBool Descending)
 {
-	cmsInt32Number i;
-
-	for(i = 0; i < n; i++) {
+	for(cmsInt32Number i = 0; i < n; i++) {
 		cmsFloat64Number v = (cmsFloat64Number)((cmsFloat64Number)65535.0 * i ) / (n-1);
-
 		Tab[Descending ? (n - i - 1) : i ] = (cmsUInt16Number)floor(v + 0.5);
 	}
 }
@@ -901,62 +898,25 @@ static cmsInt32Number Check1D(cmsInt32Number nNodesToCheck, cmsBool Down, cmsInt
 	return 1;
 }
 
-static cmsInt32Number Check1DLERP2(void)
-{
-	return Check1D(2, FALSE, 0);
-}
-
-static cmsInt32Number Check1DLERP3(void)
-{
-	return Check1D(3, FALSE, 1);
-}
-
-static cmsInt32Number Check1DLERP4(void)
-{
-	return Check1D(4, FALSE, 0);
-}
-
-static cmsInt32Number Check1DLERP6(void)
-{
-	return Check1D(6, FALSE, 0);
-}
-
-static cmsInt32Number Check1DLERP18(void)
-{
-	return Check1D(18, FALSE, 0);
-}
-
-static cmsInt32Number Check1DLERP2Down(void)
-{
-	return Check1D(2, TRUE, 0);
-}
-
-static cmsInt32Number Check1DLERP3Down(void)
-{
-	return Check1D(3, TRUE, 1);
-}
-
-static cmsInt32Number Check1DLERP6Down(void)
-{
-	return Check1D(6, TRUE, 0);
-}
-
-static cmsInt32Number Check1DLERP18Down(void)
-{
-	return Check1D(18, TRUE, 0);
-}
+static cmsInt32Number Check1DLERP2(void) { return Check1D(2, FALSE, 0); }
+static cmsInt32Number Check1DLERP3(void) { return Check1D(3, FALSE, 1); }
+static cmsInt32Number Check1DLERP4(void) { return Check1D(4, FALSE, 0); }
+static cmsInt32Number Check1DLERP6(void) { return Check1D(6, FALSE, 0); }
+static cmsInt32Number Check1DLERP18(void) { return Check1D(18, FALSE, 0); }
+static cmsInt32Number Check1DLERP2Down(void) { return Check1D(2, TRUE, 0); }
+static cmsInt32Number Check1DLERP3Down(void) { return Check1D(3, TRUE, 1); }
+static cmsInt32Number Check1DLERP6Down(void) { return Check1D(6, TRUE, 0); }
+static cmsInt32Number Check1DLERP18Down(void) { return Check1D(18, TRUE, 0); }
 
 static cmsInt32Number ExhaustiveCheck1DLERP(void)
 {
 	cmsUInt32Number j;
-
 	printf("\n");
 	for(j = 10; j <= 4096; j++) {
 		if((j % 10) == 0) printf("%u    \r", j);
 
 		if(!Check1D(j, FALSE, 1)) return 0;
 	}
-
 	printf("\rResult is ");
 	return 1;
 }
@@ -967,10 +927,8 @@ static cmsInt32Number ExhaustiveCheck1DLERPDown(void)
 	printf("\n");
 	for(j = 10; j <= 4096; j++) {
 		if((j % 10) == 0) printf("%u    \r", j);
-
 		if(!Check1D(j, TRUE, 1)) return 0;
 	}
-
 	printf("\rResult is ");
 	return 1;
 }
@@ -5610,26 +5568,22 @@ cmsInt32Number CheckCMYK(cmsInt32Number Intent, const char * Profile1, const cha
 	return Max < 3.0;
 }
 
-static
-cmsInt32Number CheckCMYKRoundtrip(void)
+static cmsInt32Number CheckCMYKRoundtrip(void)
 {
 	return CheckCMYK(INTENT_RELATIVE_COLORIMETRIC, "test1.icc", "test1.icc");
 }
 
-static
-cmsInt32Number CheckCMYKPerceptual(void)
+static cmsInt32Number CheckCMYKPerceptual(void)
 {
 	return CheckCMYK(INTENT_PERCEPTUAL, "test1.icc", "test2.icc");
 }
 
-static
-cmsInt32Number CheckCMYKRelCol(void)
+static cmsInt32Number CheckCMYKRelCol(void)
 {
 	return CheckCMYK(INTENT_RELATIVE_COLORIMETRIC, "test1.icc", "test2.icc");
 }
 
-static
-cmsInt32Number CheckKOnlyBlackPreserving(void)
+static cmsInt32Number CheckKOnlyBlackPreserving(void)
 {
 	cmsHPROFILE hSWOP  = cmsOpenProfileFromFileTHR(DbgThread(), "test1.icc", "r");
 	cmsHPROFILE hFOGRA = cmsOpenProfileFromFileTHR(DbgThread(), "test2.icc", "r");
@@ -5639,72 +5593,48 @@ cmsInt32Number CheckKOnlyBlackPreserving(void)
 	cmsHPROFILE hLab;
 	cmsFloat64Number DeltaL, Max;
 	cmsInt32Number i;
-
 	hLab = cmsCreateLab4ProfileTHR(DbgThread(), NULL);
-
 	xform = cmsCreateTransformTHR(DbgThread(), hSWOP, TYPE_CMYK_FLT, hFOGRA, TYPE_CMYK_FLT, INTENT_PRESERVE_K_ONLY_PERCEPTUAL, 0);
-
 	swop_lab = cmsCreateTransformTHR(DbgThread(), hSWOP,   TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, INTENT_PERCEPTUAL, 0);
 	fogra_lab = cmsCreateTransformTHR(DbgThread(), hFOGRA, TYPE_CMYK_FLT, hLab, TYPE_Lab_DBL, INTENT_PERCEPTUAL, 0);
-
 	Max = 0;
-
 	for(i = 0; i <= 100; i++) {
 		CMYK1[0] = 0;
 		CMYK1[1] = 0;
 		CMYK1[2] = 0;
 		CMYK1[3] = (cmsFloat32Number)i;
-
-		// SWOP CMYK to Lab1
-		cmsDoTransform(swop_lab, CMYK1, &Lab1, 1);
-
-		// SWOP To FOGRA using black preservation
-		cmsDoTransform(xform, CMYK1, CMYK2, 1);
-
-		// Obtained FOGRA CMYK to Lab2
-		cmsDoTransform(fogra_lab, CMYK2, &Lab2, 1);
-
-		// We care only on L*
-		DeltaL = fabs(Lab1.L - Lab2.L);
-
-		if(DeltaL > Max) Max = DeltaL;
+		cmsDoTransform(swop_lab, CMYK1, &Lab1, 1); // SWOP CMYK to Lab1
+		cmsDoTransform(xform, CMYK1, CMYK2, 1); // SWOP To FOGRA using black preservation
+		cmsDoTransform(fogra_lab, CMYK2, &Lab2, 1); // Obtained FOGRA CMYK to Lab2
+		DeltaL = fabs(Lab1.L - Lab2.L); // We care only on L*
+		if(DeltaL > Max) 
+			Max = DeltaL;
 	}
-
 	cmsDeleteTransform(xform);
-
 	// dL should be below 3.0
-
 	// Same, but FOGRA to SWOP
 	xform = cmsCreateTransformTHR(DbgThread(), hFOGRA, TYPE_CMYK_FLT, hSWOP, TYPE_CMYK_FLT, INTENT_PRESERVE_K_ONLY_PERCEPTUAL, 0);
-
 	for(i = 0; i <= 100; i++) {
 		CMYK1[0] = 0;
 		CMYK1[1] = 0;
 		CMYK1[2] = 0;
 		CMYK1[3] = (cmsFloat32Number)i;
-
 		cmsDoTransform(fogra_lab, CMYK1, &Lab1, 1);
 		cmsDoTransform(xform, CMYK1, CMYK2, 1);
 		cmsDoTransform(swop_lab, CMYK2, &Lab2, 1);
-
 		DeltaL = fabs(Lab1.L - Lab2.L);
-
 		if(DeltaL > Max) Max = DeltaL;
 	}
-
 	cmsCloseProfile(hSWOP);
 	cmsCloseProfile(hFOGRA);
 	cmsCloseProfile(hLab);
-
 	cmsDeleteTransform(xform);
 	cmsDeleteTransform(swop_lab);
 	cmsDeleteTransform(fogra_lab);
-
 	return Max < 3.0;
 }
 
-static
-cmsInt32Number CheckKPlaneBlackPreserving(void)
+static cmsInt32Number CheckKPlaneBlackPreserving(void)
 {
 	cmsHPROFILE hSWOP  = cmsOpenProfileFromFileTHR(DbgThread(), "test1.icc", "r");
 	cmsHPROFILE hFOGRA = cmsOpenProfileFromFileTHR(DbgThread(), "test2.icc", "r");

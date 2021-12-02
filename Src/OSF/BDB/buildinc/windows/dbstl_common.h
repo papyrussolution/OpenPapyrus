@@ -403,11 +403,11 @@ _exported void dbstl_thread_exit();
 /// Operators to compare two Dbt objects.
 /// \param d1 Dbt object to compare.
 /// \param d2 Dbt object to compare.
-_exported bool operator==(const Dbt&d1, const Dbt&d2);
+_exported bool operator == (const Dbt&d1, const Dbt&d2);
 /// Operators to compare two DBT objects.
 /// \param d1 DBT object to compare.
 /// \param d2 DBT object to compare.
-_exported bool operator==(const DBT&d1, const DBT&d2);
+_exported bool operator == (const DBT&d1, const DBT&d2);
 
 /// If exisiting random temporary database name generation mechanism is still
 /// causing name clashes, users can set this global suffix number which will

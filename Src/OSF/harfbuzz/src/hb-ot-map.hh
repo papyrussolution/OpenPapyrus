@@ -62,12 +62,11 @@ public:
 	};
 
 	struct lookup_map_t {
-		unsigned short index;
-		unsigned short auto_zwnj : 1;
-		unsigned short auto_zwj : 1;
-		unsigned short random : 1;
+		ushort index;
+		ushort auto_zwnj : 1;
+		ushort auto_zwj : 1;
+		ushort random : 1;
 		hb_mask_t mask;
-
 		HB_INTERNAL static int cmp(const void * pa, const void * pb)
 		{
 			const lookup_map_t * a = (const lookup_map_t*)pa;

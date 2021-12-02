@@ -45,7 +45,7 @@ TimeZoneTransition&TimeZoneTransition::operator = (const TimeZoneTransition& rig
 	return *this;
 }
 
-bool TimeZoneTransition::operator==(const TimeZoneTransition& that) const 
+bool TimeZoneTransition::operator == (const TimeZoneTransition& that) const 
 {
 	if(this == &that) {
 		return true;
@@ -64,7 +64,7 @@ bool TimeZoneTransition::operator==(const TimeZoneTransition& that) const
 	return false;
 }
 
-bool TimeZoneTransition::operator != (const TimeZoneTransition& that) const { return !operator==(that); }
+bool TimeZoneTransition::operator != (const TimeZoneTransition& that) const { return !operator == (that); }
 void TimeZoneTransition::setTime(UDate time) { fTime = time; }
 
 void TimeZoneTransition::setFrom(const TimeZoneRule& from) 

@@ -325,7 +325,7 @@ int PPObjBizScTempl::PutPacket(PPID * pID, PPBizScTemplPacket * pPack, int use_t
 		}
 		else {
 			pPack->Rec.Tag = PPOBJ_BIZSCTEMPL;
-			THROW(EditItem(Obj, *pID, &pPack->Rec, 0));
+			THROW(StoreItem(Obj, *pID, &pPack->Rec, 0));
 			THROW(P_Ref->PutPropArray(Obj, P_Ref->data.ObjID, PPPRP_BIZSCTEMPLCOLS,  &pPack->Cols,  0));
 			THROW(P_Ref->PutPropArray(Obj, P_Ref->data.ObjID, PPPRP_BIZSCTEMPLROWS,  &pPack->Rows,  0));
 			THROW(P_Ref->PutPropArray(Obj, P_Ref->data.ObjID, PPPRP_BIZSCTEMPLCELLS, &pPack->Cells, 0));
@@ -715,6 +715,7 @@ int BizScTemplDialog::setupList()
 	SVector * p_list = 0;
 	TSVector <PPBizScTemplCell> cell_list;
 	SString types;
+	SString temp_buf;
 	PPLoadText(PPTXT_BIZSCTI_TYPESTEXT, types);
 	if(GetSelList() == CTL_BIZSCT_LIST) {
 		p_list = &Data.Cols;
@@ -725,7 +726,6 @@ int BizScTemplDialog::setupList()
 		p_list = &Data.Rows;
 	for(uint i = 0; i < p_list->getCount(); i++) {
 		long id = 0;
-		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
 		temp_buf.Z().Cat(i + 1);
 		ss.add(temp_buf);

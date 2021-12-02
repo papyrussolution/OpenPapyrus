@@ -938,7 +938,7 @@ void U_EXPORT2 Calendar::getCalendarTypeFromLocale(const Locale &aLocale,
 }
 
 bool
-Calendar::operator==(const Calendar &that) const
+Calendar::operator == (const Calendar &that) const
 {
 	UErrorCode status = U_ZERO_ERROR;
 	return isEquivalentTo(that) &&

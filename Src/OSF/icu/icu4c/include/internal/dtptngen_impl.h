@@ -134,7 +134,7 @@ public:
     UnicodeString & appendTo(UnicodeString & string) const;
     UnicodeString & appendFieldTo(int32_t field, UnicodeString & string) const;
     UChar getFirstChar() const;
-    inline bool operator==(const SkeletonFields& other) const;
+    inline bool operator == (const SkeletonFields& other) const;
     inline bool operator != (const SkeletonFields& other) const;
 
 private:
@@ -142,13 +142,13 @@ private:
     int8_t lengths[UDATPG_FIELD_COUNT];
 };
 
-inline bool SkeletonFields::operator==(const SkeletonFields& other) const {
+inline bool SkeletonFields::operator == (const SkeletonFields& other) const {
     return (uprv_memcmp(chars, other.chars, sizeof(chars)) == 0
  && uprv_memcmp(lengths, other.lengths, sizeof(lengths)) == 0);
 }
 
 inline bool SkeletonFields::operator != (const SkeletonFields& other) const {
-    return (! operator==(other));
+    return (! operator == (other));
 }
 
 class PtnSkeleton : public UMemory {

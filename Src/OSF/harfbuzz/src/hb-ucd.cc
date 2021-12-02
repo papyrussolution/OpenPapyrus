@@ -177,7 +177,7 @@ static hb_bool_t hb_ucd_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 static void free_static_ucd_funcs();
 #endif
 
-static struct hb_ucd_unicode_funcs_lazy_loader_t : hb_unicode_funcs_lazy_loader_t<hb_ucd_unicode_funcs_lazy_loader_t>{
+static struct hb_ucd_unicode_funcs_lazy_loader_t : hb_unicode_funcs_lazy_loader_t<hb_ucd_unicode_funcs_lazy_loader_t> {
 	static hb_unicode_funcs_t * create()
 	{
 		hb_unicode_funcs_t * funcs = hb_unicode_funcs_create(nullptr);

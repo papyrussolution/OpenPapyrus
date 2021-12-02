@@ -52,8 +52,8 @@ CAIRO_BEGIN_DECLS
 
 /* The OS/2 Specific Cairo API */
 
-cairo_public void cairo_os2_init(void);
-cairo_public void cairo_os2_fini(void);
+cairo_public void cairo_os2_init();
+cairo_public void cairo_os2_fini();
 
 #if CAIRO_HAS_OS2_SURFACE
 	cairo_public cairo_surface_t * cairo_os2_surface_create(HPS hps_client_window, int width, int height);

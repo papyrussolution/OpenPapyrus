@@ -183,7 +183,7 @@ void BrowserDef::ClearGroupIndexies()
 uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
 int    BrowserDef::IsBOQ() const { return isBOQ; }
 int    BrowserDef::IsEOQ() const { return isEOQ; }
-int    BrowserDef::CheckFlag(uint f) const { return BIN(options & f); }
+bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(options & f); }
 
 void BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 {

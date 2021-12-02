@@ -1053,9 +1053,9 @@ SPoint2F SPoint2F::Scale(float factor)
 	return *this;
 }
 
-int    FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEq(rS); } // @v10.9.10
-int    FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEq(rS); } // @v10.9.10
-int    FASTCALL SPoint2F::IsEq(const SPoint2F & rS) const { return (x == rS.x && y == rS.y); } // @v10.9.10
+bool   FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEq(rS); } // @v10.9.10
+bool   FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEq(rS); } // @v10.9.10
+bool   FASTCALL SPoint2F::IsEq(const SPoint2F & rS) const { return (x == rS.x && y == rS.y); } // @v10.9.10
 bool   SPoint2F::IsZero() const { return (x == 0.0f && y == 0.0f); } // @v11.2.0 @fix (x != 0.0f && y != 0.0f)-->(x == 0.0f && y == 0.0f);
 bool   SPoint2F::IsPositive() const { return (x > 0.0f && y > 0.0f); }
 int    FASTCALL SPoint2F::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }

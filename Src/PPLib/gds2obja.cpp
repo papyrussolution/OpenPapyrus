@@ -616,7 +616,7 @@ int PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 		if(dlg->getDTS(&rec)) {
 			if(*pID)
 				*pID = rec.ID;
-			if(EditItem(Obj, *pID, &rec, 1)) {
+			if(StoreItem(Obj, *pID, &rec, 1)) {
 				*pID = rec.ID;
 				ok = cmOK;
 			}

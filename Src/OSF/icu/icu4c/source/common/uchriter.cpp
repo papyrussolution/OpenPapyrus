@@ -60,7 +60,7 @@ UCharCharacterIterator&UCharCharacterIterator::operator = (const UCharCharacterI
 UCharCharacterIterator::~UCharCharacterIterator() {
 }
 
-bool UCharCharacterIterator::operator==(const ForwardCharacterIterator& that) const {
+bool UCharCharacterIterator::operator == (const ForwardCharacterIterator& that) const {
 	if(this == &that) {
 		return true;
 	}

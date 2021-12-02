@@ -369,8 +369,8 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,         "@{bill_extension}\tF4"
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,    "@{doadddocumentbyscard}\tF2"
-	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,          "Редактировать документ подтверждения\tCtrl-K"
-	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,          "Удалить документ подтверждения\tCtrl-D"
+	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,          "@{doeditackbill}\tCtrl-K"
+	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,          "@{dodeleteackbill}\tCtrl-D"
 	separator
 	//BROWSE           :  kbF3,       PPDV_LINS02,          "@{viewbillitems}\tF3"
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
@@ -431,8 +431,8 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	EDITBILLFREIGHT  :  kbCtrlF4,   PPDV_FREIGHT02,       "@{freight}\tCtrl-F4" // @v10.7.3
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
-	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "Редактировать документ подтверждения\tCtrl-K"
-	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,        "Удалить документ подтверждения\tCtrl-D"
+	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "@{doeditackbill}\tCtrl-K"
+	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,        "@{dodeleteackbill}\tCtrl-D"
 	separator
 	BROWSE           :  kbF3,       PPDV_LINS02,          "@{viewbillitems}\tF3"
 	//ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
@@ -494,8 +494,8 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
 	EDITBILLFREIGHT  :  kbCtrlF4,   PPDV_FREIGHT02,       "@{freight}\tCtrl-F4" // @v9.3.12
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
-	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "Редактировать документ подтверждения\tCtrl-K"
-	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,        "Удалить документ подтверждения\tCtrl-D"
+	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "@{doeditackbill}\tCtrl-K"
+	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,        "@{dodeleteackbill}\tCtrl-D"
 	separator
 	BROWSE           :  kbF3,       PPDV_LINS02,          "@{viewbillitems}\tF3"
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
@@ -646,8 +646,8 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
 	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	separator
-	EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,          hidden, "Редактировать документ подтверждения\tCtrl-K"
-	DELACKBILL       :  kbCtrlD,    PPDV_NOICON,          hidden, "Удалить документ подтверждения\tCtrl-D"
+	EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,          hidden, "@{doeditackbill}\tCtrl-K"
+	DELACKBILL       :  kbCtrlD,    PPDV_NOICON,          hidden, "@{dodeleteackbill}\tCtrl-D"
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
 }
 
@@ -1341,7 +1341,7 @@ browser ACCOUNT_SYS north(100), 1, 0, "%s", OWNER|GRID, 0
 	"@kind",                 3, zstring(20),    0,  3, BCO_USERPROC
 	"@appellation",          4, zstring(48),    0, 30, BCO_USERPROC
 	"@accsheet",             5, zstring(48),    0, 30, BCO_USERPROC
-	"Flags",                 6, zstring(20),    0,  6, BCO_USERPROC
+	"@flags",                6, zstring(20),    0,  6, BCO_USERPROC
 	"FRRL_Date",             7, date,           0,  8, BCO_USERPROC
 	toolbar ACCOUNT
 }
@@ -1534,8 +1534,8 @@ browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 		ALTPRINT                : kbAltF7, TBBM_PRINTLIST,         "Печать описи\tAlt-F7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
-		CVTGENATURNTOEXTACCBILL : kbCtrlC,  PPDV_NOICON,      "Конвертация общих проводок в расширенные\tCtrl-C"
-		EDITBILLINFO            : kbCtrlF3, PPDV_NOICON,      "Редактирование информации о документе\tCtrl-F3"
+		CVTGENATURNTOEXTACCBILL : kbCtrlC,  PPDV_NOICON,      "@{doconvertgenaturntoextaturn}\tCtrl-C"
+		EDITBILLINFO            : kbCtrlF3, PPDV_NOICON,      "@{doeditbillinfo}\tCtrl-F3"
 		separator
 		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
@@ -6404,11 +6404,11 @@ browser JOB north(100), 1, 0, "@{jobtask_pl}", OWNER|GRID, 0
 	"@jobitem_schedule",  3,  zstring(64), 0,  20, BCO_USERPROC
 	"@jobitem_nextjob",   4,  zstring(64), 0,  20, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "Редактировать задачу\tEnter"
+		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "@{doeditsrvjob}\tEnter"
 		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doaddtodo}\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2" // @v10.4.3
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{dodeletetodo}\tDelete"
-		PRINT            :  kbF7,       PPDV_PRINTER01,         "Печать списка задач\tF7"
+		PRINT            :  kbF7,       PPDV_PRINTER01,         "@{doprintsrvjoblist}\tF7"
 		SAVE             :  kbCtrlS,    PPDV_SAVE03,            "@{save}\tCtrlS"
 		CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	}
@@ -6471,11 +6471,11 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "@{detail}\tEnter"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "@{doremovebill} (только для исходящих)\tDelete"
 		LOTOPS           : kbF3,       TBBM_LOTSOPER,       "@{view_lotop}\tF3"
-		VIEWLINKREST     : kbF4,       PPDV_LINK01,         "Связанные остатки\tF4" // @v10.1.12
-		MATCHPERSON      : kbCtrlM,    PPDV_MATCH01,        "Сопоставить объекты\tCtrl-M"
-		UTILIZEDVDOC     : kbCtrlF6,   PPDV_NOICON,         "Погасить ветеринарный документ\tCtrl-F6"
-		SETUPOUTGOING    : kbCtrlF5,   PPDV_NOICON,         "Сформировать исходящие документы\tCtrl-F5"
-		SENDOUTGOING     : kbCtrlF8,   PPDV_NOICON,         "Отправить запросы на подготовку исходящих документов\tCtrl-F8"
+		VIEWLINKREST     : kbF4,       PPDV_LINK01,         "@{doviewlinkedstock}\tF4" // @v10.1.12
+		MATCHPERSON      : kbCtrlM,    PPDV_MATCH01,        "@{domatchobjects}\tCtrl-M"
+		UTILIZEDVDOC     : kbCtrlF6,   PPDV_NOICON,         "@{doutilizevetdoc}\tCtrl-F6"
+		SETUPOUTGOING    : kbCtrlF5,   PPDV_NOICON,         "@{domakeoutgoingvetdocs}\tCtrl-F5"
+		SENDOUTGOING     : kbCtrlF8,   PPDV_NOICON,         "@{dotransmitoutgoingvetdocs}\tCtrl-F8"
 		UPDATEITEMS      : kbF5,       PPDV_VETISREFRESH,   "@{refresh}\tF5"
 		VETISWAREHOUSE   : kbCtrlF3,   PPDV_VETISWAREHOUSE, "@{warehouse} @{brand_vetis}\tCtrl-F3"
 		VETISPRODUCT     : kbCtrlF4,   PPDV_NOICON,         "@{vetisware}\tCtrl-F4"
@@ -7959,7 +7959,7 @@ record Goods2 {
 	ExtC           zstring(4096)       "@{goods_gdsexstr_c}";
 	ExtD           zstring(4096)       "@{goods_gdsexstr_d}";
 	ExtE           zstring(4096)       "@{goods_gdsexstr_e}";
-	ExtLongNameTo  zstring(4)          "Символ доп поля для сохраннения длинного наименования";
+	ExtLongNameTo  zstring(4)          "Символ доп поля для сохранения длинного наименования";
 	ArCode         zstring(32)         "@{codebyar}";
 	AltGrpCode     zstring(32)         "Код альтернативной группы";
 	AltGrpPLU      long                "@{altgroupplu}";

@@ -123,7 +123,7 @@ void TDialog::RemoveUnusedControls()
 				// } @v11.2.4 
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
-				const bool export_mode = LOGIC(p_dlg->CheckFlag(TDialog::fExport));
+				const bool export_mode = p_dlg->CheckFlag(TDialog::fExport);
 				TView::messageCommand(p_dlg, cmInit);
 				if(!export_mode) // @v11.0.4
 					SetupCtrlTextProc(p_dlg->H(), 0);

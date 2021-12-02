@@ -295,7 +295,7 @@ int PPObjBudget::PutRec(PPID * pID, PPBudget * pRec, int use_ta)
 		}
 		else if(pRec) {
 			pRec->ObjType = PPOBJ_BUDGET;
-			THROW(EditItem(PPOBJ_BUDGET, *pID, pRec, 0));
+			THROW(StoreItem(PPOBJ_BUDGET, *pID, pRec, 0));
 			*pID = pRec->ID = P_Ref->data.ObjID;
 		}
 		THROW(tra.Commit());

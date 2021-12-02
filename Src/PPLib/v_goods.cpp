@@ -1298,7 +1298,7 @@ int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, B
 
 void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) { // @v8.3.12 && !(Filt.Flags & GoodsFilt::fNegation)
+	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) {
 		// @v10.6.4 pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
 		pBrw->InsColumn(-1, "@plu", 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v10.6.4
 	}
@@ -1308,8 +1308,7 @@ void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->InsColumn(-1, "@barcode", 6, 0, 0, 0); // @v9.0.2
 	*/
 	if(Filt.Flags & GoodsFilt::fShowBarcode) {
-		// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_BARCODE, 7, 0, 0, 0);
-		pBrw->InsColumn(-1, "@barcode", 7, 0, 0, 0); // @v9.0.2
+		pBrw->InsColumn(-1, "@barcode", 7, 0, 0, 0);
 	}
 	if(!(Filt.Flags & GoodsFilt::fShowStrucType) && Filt.Flags & GoodsFilt::fShowCargo) {
 		pBrw->insertColumn(-1, "@cargobrutto",  10, 0, ALIGN_RIGHT|NMBF_NOZERO, 0);
@@ -1318,12 +1317,10 @@ void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->insertColumn(-1, "@cargopckg",   13, 0, ALIGN_RIGHT|NMBF_NOZERO, 0);
 	}
 	if(Filt.Flags & GoodsFilt::fShowArCode) {
-		// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_AR,   8, 0, 0, 0);
-		// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_CODE, 9, 0, 0, 0);
-		pBrw->InsColumn(-1, "@article", 8, 0, 0, 0); // @v9.0.2
-		pBrw->InsColumn(-1, "@code", 9, 0, 0, 0); // @v9.0.2
+		pBrw->InsColumn(-1, "@article", 8, 0, 0, 0);
+		pBrw->InsColumn(-1, "@code", 9, 0, 0, 0);
 	}
-	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, /*this*/pBrw)); // @v9.5.5 this-->pBrw
+	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
 }
 
 static void FASTCALL SetGsChr(SString & rS, char c)

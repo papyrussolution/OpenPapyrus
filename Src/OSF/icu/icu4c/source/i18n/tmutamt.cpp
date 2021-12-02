@@ -38,8 +38,8 @@ TimeUnitAmount&TimeUnitAmount::operator = (const TimeUnitAmount& other) {
 	return *this;
 }
 
-bool TimeUnitAmount::operator==(const UObject& other) const {
-	return Measure::operator==(other);
+bool TimeUnitAmount::operator == (const UObject& other) const {
+	return Measure::operator == (other);
 }
 
 TimeUnitAmount* TimeUnitAmount::clone() const {

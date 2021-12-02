@@ -1317,7 +1317,7 @@ SString & DL6ICLS_PPUtil::UTF8ToOem(SString & rBuf) { return rBuf.Utf8ToOem(); }
 SString & DL6ICLS_PPUtil::UTF8ToChar(SString & rBuf) { return rBuf.Utf8ToChar(); }
 int32  DL6ICLS_PPUtil::ToLong(SString & rBuf) { return rBuf.ToLong(); }
 double DL6ICLS_PPUtil::ToDouble(SString & rBuf) { return rBuf.ToReal(); }
-int32  DL6ICLS_PPUtil::CheckFlag(int32 flags, int32 flag) { return ((flags & flag) == flag) ? 1 : 0; }
+int32  DL6ICLS_PPUtil::CheckFlag(int32 flags, int32 flag) { return BIN((flags & flag) == flag); }
 int32  DL6ICLS_PPUtil::GetSellAccSheet() { return IfcImpCheckDictionary() ? ::GetSellAccSheet() : 0; }
 int32  DL6ICLS_PPUtil::GetAgentAccSheet() { return IfcImpCheckDictionary() ? ::GetAgentAccSheet() : 0; }
 int32  DL6ICLS_PPUtil::GetSupplAccSheet() { return IfcImpCheckDictionary() ? ::GetSupplAccSheet() : 0; }

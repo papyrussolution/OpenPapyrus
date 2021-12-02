@@ -62,33 +62,25 @@ public:
 			 * struct do all the hard work... */
 			return_trace(true);
 		}
-
-		bool subset_update_header(hb_subset_plan_t * plan,
-		    uint num_hmetrics) const
+		bool subset_update_header(hb_subset_plan_t * plan, uint num_hmetrics) const
 		{
 			hb_blob_t * src_blob = hb_sanitize_context_t().reference_table<H> (plan->source, H::tableTag);
 			hb_blob_t * dest_blob = hb_blob_copy_writable_or_fail(src_blob);
 			hb_blob_destroy(src_blob);
-
 			if(UNLIKELY(!dest_blob)) {
 				return false;
 			}
-
 			uint length;
 			H * table = (H*)hb_blob_get_data(dest_blob, &length);
 			table->numberOfLongMetrics = num_hmetrics;
-
 			bool result = plan->add_table(H::tableTag, dest_blob);
 			hb_blob_destroy(dest_blob);
-
 			return result;
 		}
 
 		template<typename Iterator,
 		hb_requires(hb_is_iterator(Iterator))>
-		void serialize(hb_serialize_context_t * c,
-		    Iterator it,
-		    unsigned num_advances)
+		void serialize(hb_serialize_context_t * c, Iterator it, unsigned num_advances)
 		{
 			unsigned idx = 0;
 			for(auto _ : it) {
@@ -120,7 +112,7 @@ public:
 
 			auto it =
 			    +hb_range(c->plan->num_output_glyphs())
-			    | hb_map([c, &_mtx] (unsigned _)
+			    | hb_map([c, &_mtx] (uint _)
 			{
 				hb_codepoint_t old_gid;
 				if(!c->plan->old_gid_for_new_gid(_, &old_gid))

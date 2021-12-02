@@ -65,8 +65,8 @@ CAIRO_BEGIN_DECLS
 #define CAIRO_VERSION_STRINGIZE(major, minor, micro)  CAIRO_VERSION_STRINGIZE_(major, minor, micro)
 #define CAIRO_VERSION_STRING CAIRO_VERSION_STRINGIZE(CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO)
 
-cairo_public int cairo_version(void);
-cairo_public const char * cairo_version_string(void);
+cairo_public int cairo_version();
+cairo_public const char * cairo_version_string();
 /**
  * boolint:
  *
@@ -1176,7 +1176,7 @@ typedef enum _cairo_hint_metrics {
  **/
 typedef struct _cairo_font_options cairo_font_options_t;
 
-cairo_public cairo_font_options_t * cairo_font_options_create(void);
+cairo_public cairo_font_options_t * cairo_font_options_create();
 cairo_public cairo_font_options_t * cairo_font_options_copy(const cairo_font_options_t * original);
 cairo_public void cairo_font_options_destroy(cairo_font_options_t * options);
 cairo_public cairo_status_t FASTCALL cairo_font_options_status(const cairo_font_options_t * options);
@@ -1281,8 +1281,8 @@ cairo_public cairo_scaled_font_t * cairo_scaled_font_create(cairo_font_face_t * 
 cairo_public cairo_scaled_font_t * cairo_scaled_font_reference(cairo_scaled_font_t * scaled_font);
 cairo_public void cairo_scaled_font_destroy(cairo_scaled_font_t * scaled_font);
 cairo_public uint cairo_scaled_font_get_reference_count(cairo_scaled_font_t * scaled_font);
-cairo_public cairo_status_t cairo_scaled_font_status(cairo_scaled_font_t * scaled_font);
-cairo_public cairo_font_type_t cairo_scaled_font_get_type(cairo_scaled_font_t * scaled_font);
+cairo_public cairo_status_t FASTCALL cairo_scaled_font_status(const cairo_scaled_font_t * scaled_font);
+cairo_public cairo_font_type_t FASTCALL cairo_scaled_font_get_type(const cairo_scaled_font_t * scaled_font);
 cairo_public void * cairo_scaled_font_get_user_data(cairo_scaled_font_t * scaled_font, const cairo_user_data_key_t * key);
 cairo_public cairo_status_t cairo_scaled_font_set_user_data(cairo_scaled_font_t * scaled_font, const cairo_user_data_key_t * key,
     void * user_data, cairo_destroy_func_t destroy);
@@ -1308,7 +1308,7 @@ cairo_public cairo_font_weight_t cairo_toy_font_face_get_weight(cairo_font_face_
 
 /* User fonts */
 
-cairo_public cairo_font_face_t * cairo_user_font_face_create(void);
+cairo_public cairo_font_face_t * cairo_user_font_face_create();
 
 /* User-font method signatures */
 
@@ -2031,7 +2031,7 @@ cairo_public cairo_pattern_t * cairo_pattern_create_rgba(double red, double gree
 cairo_public cairo_pattern_t * cairo_pattern_create_for_surface(cairo_surface_t * surface);
 cairo_public cairo_pattern_t * cairo_pattern_create_linear(double x0, double y0, double x1, double y1);
 cairo_public cairo_pattern_t * cairo_pattern_create_radial(double cx0, double cy0, double radius0, double cx1, double cy1, double radius1);
-cairo_public cairo_pattern_t * cairo_pattern_create_mesh(void);
+cairo_public cairo_pattern_t * cairo_pattern_create_mesh();
 cairo_public cairo_pattern_t * cairo_pattern_reference(cairo_pattern_t * pattern);
 cairo_public void FASTCALL cairo_pattern_destroy(cairo_pattern_t * pattern);
 cairo_public uint cairo_pattern_get_reference_count(const cairo_pattern_t * pattern);
@@ -2222,7 +2222,7 @@ typedef enum _cairo_region_overlap {
 	CAIRO_REGION_OVERLAP_PART       /* partly inside region */
 } cairo_region_overlap_t;
 
-cairo_public cairo_region_t * cairo_region_create(void);
+cairo_public cairo_region_t * cairo_region_create();
 cairo_public cairo_region_t * cairo_region_create_rectangle(const cairo_rectangle_int_t * rectangle);
 cairo_public cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_int_t * rects, int count);
 cairo_public cairo_region_t * cairo_region_copy(const cairo_region_t * original);
@@ -2247,7 +2247,7 @@ cairo_public cairo_status_t cairo_region_xor(cairo_region_t * dst, const cairo_r
 cairo_public cairo_status_t cairo_region_xor_rectangle(cairo_region_t * dst, const cairo_rectangle_int_t * rectangle);
 
 /* Functions to be used while debugging (not intended for use in production code) */
-cairo_public void cairo_debug_reset_static_data(void);
+cairo_public void cairo_debug_reset_static_data();
 
 CAIRO_END_DECLS
 

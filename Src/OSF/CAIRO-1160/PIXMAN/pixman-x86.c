@@ -75,7 +75,7 @@ static cpu_features_t detect_cpu_features(void)
 #define _PIXMAN_X86_64                                                  \
 	(defined(__amd64__) || defined(__x86_64__) || defined(_M_AMD64))
 
-static pixman_bool_t have_cpuid(void)
+static boolint have_cpuid(void)
 {
 #if _PIXMAN_X86_64 || defined (_MSC_VER)
 
@@ -226,9 +226,9 @@ static cpu_features_t detect_cpu_features(void)
 
 #endif
 
-static pixman_bool_t have_feature(cpu_features_t feature)
+static boolint have_feature(cpu_features_t feature)
 {
-	static pixman_bool_t initialized;
+	static boolint initialized;
 	static cpu_features_t features;
 	if(!initialized) {
 		features = detect_cpu_features();

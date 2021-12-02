@@ -41,7 +41,7 @@ CollationSettings::~CollationSettings() {
 	}
 }
 
-bool CollationSettings::operator==(const CollationSettings &other) const {
+bool CollationSettings::operator == (const CollationSettings &other) const {
 	if(options != other.options) {
 		return false;
 	}

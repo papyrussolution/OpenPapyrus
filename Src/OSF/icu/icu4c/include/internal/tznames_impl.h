@@ -166,7 +166,7 @@ public:
 
 	virtual ~TimeZoneNamesImpl();
 
-	virtual bool operator==(const TimeZoneNames& other) const override;
+	virtual bool operator == (const TimeZoneNames& other) const override;
 	virtual TimeZoneNamesImpl* clone() const override;
 	StringEnumeration * getAvailableMetaZoneIDs(UErrorCode & status) const override;
 	StringEnumeration * getAvailableMetaZoneIDs(const UnicodeString & tzID, UErrorCode & status) const override;
@@ -211,7 +211,7 @@ class TZDBTimeZoneNames : public TimeZoneNames {
 public:
 	TZDBTimeZoneNames(const Locale & locale);
 	virtual ~TZDBTimeZoneNames();
-	virtual bool operator==(const TimeZoneNames& other) const override;
+	virtual bool operator == (const TimeZoneNames& other) const override;
 	virtual TZDBTimeZoneNames* clone() const override;
 	StringEnumeration * getAvailableMetaZoneIDs(UErrorCode & status) const override;
 	StringEnumeration * getAvailableMetaZoneIDs(const UnicodeString & tzID, UErrorCode & status) const override;

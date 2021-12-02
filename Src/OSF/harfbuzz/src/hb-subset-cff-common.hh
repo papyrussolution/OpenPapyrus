@@ -143,23 +143,16 @@ protected:
 
 	template <typename OPSTR = op_str_t>
 	    struct cff_top_dict_op_serializer_t : op_serializer_t {
-		bool serialize(hb_serialize_context_t * c,
-		    const OPSTR &opstr,
-		    const cff_sub_table_info_t &info) const
+		bool serialize(hb_serialize_context_t * c, const OPSTR &opstr, const cff_sub_table_info_t &info) const
 		{
 			TRACE_SERIALIZE(this);
-
-			switch(opstr.op)
-			{
+			switch(opstr.op) {
 				case OpCode_CharStrings:
 				    return_trace(FontDict::serialize_link4_op(c, opstr.op, info.char_strings_link, whence_t::Absolute));
-
 				case OpCode_FDArray:
 				    return_trace(FontDict::serialize_link4_op(c, opstr.op, info.fd_array_link, whence_t::Absolute));
-
 				case OpCode_FDSelect:
 				    return_trace(FontDict::serialize_link4_op(c, opstr.op, info.fd_select.link, whence_t::Absolute));
-
 				default:
 				    return_trace(copy_opstr(c, opstr));
 			}
@@ -168,12 +161,9 @@ protected:
 	};
 
 	struct cff_font_dict_op_serializer_t : op_serializer_t {
-		bool serialize(hb_serialize_context_t * c,
-		    const op_str_t &opstr,
-		    const table_info_t &privateDictInfo) const
+		bool serialize(hb_serialize_context_t * c, const op_str_t &opstr, const table_info_t &privateDictInfo) const
 		{
 			TRACE_SERIALIZE(this);
-
 			if(opstr.op == OpCode_Private) {
 				/* serialize the private dict size & offset as 2-byte & 4-byte integers */
 				return_trace(UnsizedByteStr::serialize_int2(c, privateDictInfo.size) &&
@@ -327,7 +317,7 @@ protected:
 		bool skip_flag : 1;
 	};
 
-	struct parsed_cs_str_t : parsed_values_t<parsed_cs_op_t>{
+	struct parsed_cs_str_t : parsed_values_t<parsed_cs_op_t> {
 		void init()
 		{
 			SUPER::init();
@@ -416,7 +406,7 @@ private:
 		typedef parsed_values_t<parsed_cs_op_t> SUPER;
 	};
 
-	struct parsed_cs_str_vec_t : hb_vector_t<parsed_cs_str_t>{
+	struct parsed_cs_str_vec_t : hb_vector_t<parsed_cs_str_t> {
 		void init(uint len_ = 0)
 		{
 			SUPER::init();
@@ -451,16 +441,13 @@ private:
 
 		parsed_cs_str_t * get_parsed_str_for_context(call_context_t &context)
 		{
-			switch(context.type)
-			{
+			switch(context.type) {
 				case CSType_CharString:
 				    return parsed_charstring;
-
 				case CSType_LocalSubr:
 				    if(LIKELY(context.subr_num < parsed_local_subrs->length))
 					    return &(*parsed_local_subrs)[context.subr_num];
 				    break;
-
 				case CSType_GlobalSubr:
 				    if(LIKELY(context.subr_num < parsed_global_subrs->length))
 					    return &(*parsed_global_subrs)[context.subr_num];
@@ -778,16 +765,13 @@ protected:
 
 			return has_hint;
 		}
-
 		/* returns true if it sees a hint op before the first moveto */
 		bool drop_hints_in_str(parsed_cs_str_t &str, const subr_subset_param_t &param, drop_hints_param_t &drop)
 		{
 			bool seen_hint = false;
-
 			for(uint pos = 0; pos < str.values.length; pos++) {
 				bool has_hint = false;
-				switch(str.values[pos].op)
-				{
+				switch(str.values[pos].op) {
 					case OpCode_callsubr:
 					    has_hint = drop_hints_in_subr(str, pos,
 						    *param.parsed_local_subrs, str.values[pos].subr_num,
@@ -876,8 +860,7 @@ protected:
 		{
 			for(uint pos = 0; pos < str.values.length; pos++) {
 				if(!str.values[pos].for_drop()) {
-					switch(str.values[pos].op)
-					{
+					switch(str.values[pos].op) {
 						case OpCode_callsubr:
 						    collect_subr_refs_in_subr(str, pos,
 							str.values[pos].subr_num, *param.parsed_local_subrs,
@@ -911,8 +894,7 @@ protected:
 			for(uint i = 0; i < str.get_count(); i++) {
 				const parsed_cs_op_t  &opstr = str.values[i];
 				if(!opstr.for_drop() && !opstr.for_skip()) {
-					switch(opstr.op)
-					{
+					switch(opstr.op) {
 						case OpCode_callsubr:
 						    encoder.encode_int(remaps.local_remaps[fd].biased_num(opstr.subr_num));
 						    encoder.encode_op(OpCode_callsubr);

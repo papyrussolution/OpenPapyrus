@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -99,7 +99,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			rec.StockTolerance = dlg->getCtrlReal(CTL_GDSTYP_STKTLR);
 			if(*pID)
 				*pID = rec.ID;
-			THROW(EditItem(PPOBJ_GOODSTYPE, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_GOODSTYPE, *pID, &rec, 1));
 			Dirty(*pID);
 		}
 	}
@@ -238,7 +238,7 @@ int PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 			dlg->GetClusterData(CTL_BCODESTR_SPC, &rec.Speciality); // @v10.7.6
 			if(*pID)
 				*pID = rec.ID;
-			THROW(EditItem(PPOBJ_BCODESTRUC, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_BCODESTRUC, *pID, &rec, 1));
 		}
 	}
 	CATCHZOKPPERR
@@ -982,7 +982,7 @@ int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 			pack.MaxLoad = dlg->getCtrlLong(CTL_PALLET_MAXLOAD);
 			if(*pID)
 				*pID = pack.ID;
-			if(EditItem(Obj, *pID, &pack, 1)) {
+			if(StoreItem(Obj, *pID, &pack, 1)) {
 				*pID = pack.ID;
 				ok = cmOK;
 			}

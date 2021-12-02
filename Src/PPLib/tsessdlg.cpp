@@ -725,7 +725,7 @@ private:
 			THROW(addStringToList(i+1, ss.getBuf()));
 		}
 		CATCHZOKPPERR
-		return 1;
+		return ok;
 	}
 	virtual int addItem(long * pPos, long * pID)
 	{

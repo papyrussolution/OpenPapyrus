@@ -1326,6 +1326,27 @@ int KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 	return ok;
 }
 
+int TranslateLocaleKeyboardTextToLatin(const SString & rSrc, SString & rResult)
+{
+	rResult.Z();
+	int    ok = -1;
+	if(!rSrc.IsAscii()) {
+		// ѕопытка транслировать латинский символ из локальной раскладки клавиатуры
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		r_temp_buf_u.CopyFromMb_INNER(rSrc, rSrc.Len());
+		for(size_t i = 0; i < r_temp_buf_u.Len(); i++) {
+			const wchar_t c = r_temp_buf_u.C(i);
+			KeyDownCommand kd;
+			uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
+			rResult.CatChar(static_cast<char>(tc));
+		}
+		ok = 1;
+	}
+	else
+		rResult = rSrc;
+	return ok;
+}
+
 TEvent::TEvent()
 {
 	THISZERO();
@@ -1462,7 +1483,7 @@ ushort FASTCALL TGroup::execView(TWindow * p)
 		p->ViewOptions &= ~ofSelectable;
 		p->setState(sfModal, true);
 		SetCurrentView(p, enterSelect);
-		::SetFocus(p->H()); // @v11.2.4
+		// @v11.2.5 ::SetFocus(p->H()); // @v11.2.4
 		if(save_owner == 0)
 			Insert_(p);
 		{
@@ -1638,18 +1659,16 @@ void TGroup::setState(uint aState, bool enable)
 
 int FASTCALL TGroup::valid(ushort command)
 {
-	{
-		int    ok = 1;
-		TView * p_term = P_Last;
-		TView * p_temp = P_Last;
-		if(p_temp) do {
-			p_temp = p_temp->P_Next;
-			if(!p_temp->valid(command)) {
-				ok = 0;
-			}
-		} while(ok && p_temp != p_term);
-		return ok;
-	}
+	int    ok = 1;
+	TView * p_term = P_Last;
+	TView * p_temp = P_Last;
+	if(p_temp) do {
+		p_temp = p_temp->P_Next;
+		if(!p_temp->valid(command)) {
+			ok = 0;
+		}
+	} while(ok && p_temp != p_term);
+	return ok;
 }
 
 uint TGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }

@@ -1026,7 +1026,7 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp, pixman_co
 	int32 i, j;
 	pixman_image_t extended_src_image;
 	uint32 extended_src[REPEAT_MIN_WIDTH * 2];
-	pixman_bool_t need_src_extension;
+	boolint need_src_extension;
 	uint32 * src_line;
 	int32 src_stride;
 	int32 src_bpp;
@@ -1157,7 +1157,7 @@ static force_inline void scaled_nearest_scanline_565_565_SRC(uint16 *  dst,
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,
     pixman_fixed_t max_vx,
-    pixman_bool_t fully_transparent_src)
+    boolint fully_transparent_src)
 {
 	uint16 tmp1, tmp2, tmp3, tmp4;
 	while((w -= 4) >= 0) {
@@ -1852,7 +1852,7 @@ static void pixman_fill32(uint32 * bits,
 	}
 }
 
-static pixman_bool_t fast_path_fill(pixman_implementation_t * imp,
+static boolint fast_path_fill(pixman_implementation_t * imp,
     uint32 * bits,
     int stride,
     int bpp,

@@ -114,7 +114,7 @@ class U_I18N_API StringSegment : public UMemory {
      */
     int32_t getCaseSensitivePrefixLength(const UnicodeString & other);
 
-    bool operator==(const UnicodeString & other) const;
+    bool operator == (const UnicodeString & other) const;
 
   private:
     const UnicodeString & fStr;

@@ -65,7 +65,7 @@ void IntegerWidth::apply(impl::DecimalQuantity& quantity, UErrorCode & status) c
 	}
 }
 
-bool IntegerWidth::operator==(const IntegerWidth& other) const {
+bool IntegerWidth::operator == (const IntegerWidth& other) const {
 	// Private operator==; do error and bogus checking first!
 	U_ASSERT(!fHasError);
 	U_ASSERT(!other.fHasError);

@@ -1,5 +1,5 @@
 // OBJBILST.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021
 // @codepage UTF-8
 // PPObjBillStatus - Статусы документов
 //
@@ -110,7 +110,7 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 			// } @v10.2.4 
 			if(*pID)
 				*pID = rec.ID;
-			THROW(EditItem(PPOBJ_BILLSTATUS, *pID, &rec, 1));
+			THROW(StoreItem(PPOBJ_BILLSTATUS, *pID, &rec, 1));
 			*pID = rec.ID;
 			Dirty(*pID);
 		}
@@ -220,7 +220,7 @@ int PPObjBillStatus::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				}
 				if(same_id == 0) {
 					p_rec->ID = 0;
-					THROW(EditItem(Obj, *pID, p_rec, 1));
+					THROW(StoreItem(Obj, *pID, p_rec, 1));
 					ASSIGN_PTR(pID, P_Ref->data.ObjID);
 				}
 			}

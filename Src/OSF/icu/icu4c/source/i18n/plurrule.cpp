@@ -514,7 +514,7 @@ UnicodeString PluralRules::getKeywordOther() const {
 }
 
 bool
-PluralRules::operator==(const PluralRules &other) const {
+PluralRules::operator == (const PluralRules &other) const {
 	const UnicodeString * ptrKeyword;
 	UErrorCode status = U_ZERO_ERROR;
 
@@ -1852,7 +1852,7 @@ int32_t FixedDecimal::getVisibleFractionDigitCount() const {
 	return visibleDecimalDigitCount;
 }
 
-bool FixedDecimal::operator==(const FixedDecimal &other) const {
+bool FixedDecimal::operator == (const FixedDecimal &other) const {
 	return source == other.source && visibleDecimalDigitCount == other.visibleDecimalDigitCount
 	 && decimalDigits == other.decimalDigits && exponent == other.exponent;
 }

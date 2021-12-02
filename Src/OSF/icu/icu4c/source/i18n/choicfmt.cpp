@@ -95,10 +95,10 @@ ChoiceFormat::ChoiceFormat(const UnicodeString & newPattern, UParseError& parseE
 	applyPattern(newPattern, parseError, status);
 }
 
-bool ChoiceFormat::operator==(const Format& that) const
+bool ChoiceFormat::operator == (const Format& that) const
 {
 	if(this == &that) return true;
-	if(!NumberFormat::operator==(that)) return false;
+	if(!NumberFormat::operator == (that)) return false;
 	ChoiceFormat& thatAlias = (ChoiceFormat&)that;
 	return msgPattern == thatAlias.msgPattern;
 }

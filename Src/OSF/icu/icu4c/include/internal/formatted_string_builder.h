@@ -64,7 +64,7 @@ class U_I18N_API FormattedStringBuilder : public UMemory {
         inline int32_t getField() const;
         inline bool isNumeric() const;
         inline bool isUndefined() const;
-        inline bool operator==(const Field& other) const;
+        inline bool operator == (const Field& other) const;
         inline bool operator != (const Field& other) const;
     };
 
@@ -252,7 +252,7 @@ inline bool FormattedStringBuilder::Field::isUndefined() const {
     return getCategory() == UFIELD_CATEGORY_UNDEFINED;
 }
 
-inline bool FormattedStringBuilder::Field::operator==(const Field& other) const {
+inline bool FormattedStringBuilder::Field::operator == (const Field& other) const {
     return bits == other.bits;
 }
 

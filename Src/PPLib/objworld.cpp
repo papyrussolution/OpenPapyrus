@@ -72,7 +72,7 @@ int PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 			if(SearchByCode(rec.Code, 0, &temp_id, 0) > 0)
 				PPErrorByDialog(dlg, CTL_WOBJSTATUS_CODE, PPERR_DUPWORLDOBJSTATUSCODE);
 			else {
-				if(EditItem(Obj, *pID, &rec, 1)) {
+				if(StoreItem(Obj, *pID, &rec, 1)) {
 					SETIFZ(*pID, rec.ID);
 					valid_data = 1;
 					ok = cmOK;

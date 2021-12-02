@@ -41,7 +41,7 @@ FieldPositionIterator::FieldPositionIterator(const FieldPositionIterator &rhs)
 	}
 }
 
-bool FieldPositionIterator::operator==(const FieldPositionIterator &rhs) const 
+bool FieldPositionIterator::operator == (const FieldPositionIterator &rhs) const 
 {
 	if(&rhs == this) {
 		return true;
@@ -52,7 +52,7 @@ bool FieldPositionIterator::operator==(const FieldPositionIterator &rhs) const
 	if(!data) {
 		return rhs.data == NULL;
 	}
-	return rhs.data ? data->operator==(*rhs.data) : false;
+	return rhs.data ? data->operator == (*rhs.data) : false;
 }
 
 void FieldPositionIterator::setData(UVector32 * adopt, UErrorCode & status) 

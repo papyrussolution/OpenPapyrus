@@ -222,7 +222,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 						const PPID int_grp_id = term_grp_list.get(j);
 						temp_alt_list.clear();
 						if(is_excl_alt_fold) {
-							if(GObj.CheckFlag(int_grp_id, GF_DYNAMICALTGRP) > 0) {
+							if(GObj.CheckFlag(int_grp_id, GF_DYNAMICALTGRP)) {
 								THROW(Helper_MakeListByGroup(0, int_grp_id, &temp_alt_list, 0)); // @recursion
 								THROW(id_list.add(&temp_alt_list));
 							}
@@ -236,7 +236,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 								THROW(FilterList(&temp_alt_list, &id_list, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG));
 							}
 						}
-						else if(GObj.CheckFlag(int_grp_id, GF_ALTGROUP) > 0) {
+						else if(GObj.CheckFlag(int_grp_id, GF_ALTGROUP)) {
 							THROW(Helper_MakeListByGroup(0, int_grp_id, &temp_alt_list, 0)); // @recursion
 							THROW(id_list.add(&temp_alt_list));
 						}

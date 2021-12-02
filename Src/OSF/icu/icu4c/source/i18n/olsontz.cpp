@@ -316,10 +316,10 @@ OlsonTimeZone::~OlsonTimeZone() {
 /**
  * Returns true if the two TimeZone objects are equal.
  */
-bool OlsonTimeZone::operator==(const TimeZone& other) const {
+bool OlsonTimeZone::operator == (const TimeZone& other) const {
 	return ((this == &other) ||
 	       (typeid(*this) == typeid(other) &&
-	       TimeZone::operator==(other) &&
+	       TimeZone::operator == (other) &&
 	       hasSameRules(other)));
 }
 

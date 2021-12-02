@@ -145,7 +145,7 @@ struct U_I18N_API DecimalFormatProperties : public UMemory {
 
     DecimalFormatProperties();
 
-    inline bool operator==(const DecimalFormatProperties& other) const {
+    inline bool operator == (const DecimalFormatProperties& other) const {
         return _equals(other, false);
     }
 

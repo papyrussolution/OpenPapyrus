@@ -43,7 +43,7 @@
 
 typedef float (* combine_channel_t) (float sa, float s, float da, float d);
 
-static force_inline void combine_inner(pixman_bool_t component,
+static force_inline void combine_inner(boolint component,
     float * dest, const float * src, const float * mask, int n_pixels,
     combine_channel_t combine_a, combine_channel_t combine_c)
 {

@@ -31,7 +31,7 @@
 //#include <string.h>
 //#include <stdlib.h>
 
-static pixman_bool_t have_feature(const char * search_string)
+static boolint have_feature(const char * search_string)
 {
 #if defined (__linux__) /* linux ELF */
 	/* Simple detection of MIPS features at runtime for Linux.

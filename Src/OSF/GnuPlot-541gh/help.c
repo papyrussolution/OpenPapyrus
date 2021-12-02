@@ -343,7 +343,7 @@ void FreeHelp()
  *  matches -- for if there are, the abbreviation is ambiguous.
  *  We print the ambiguous matches in that case, and return not found.
  */
-static KEY * /* NULL if not found */ FindHelp(char * keyword/* string we look for */)
+static KEY * /*NULL if not found*/ FindHelp(char * keyword/* string we look for */)
 {
 	size_t len = strcspn(keyword, " ");
 	for(KEY * key = keys; key->key; key++) {
@@ -354,22 +354,22 @@ static KEY * /* NULL if not found */ FindHelp(char * keyword/* string we look fo
 				if(key_len != len) {
 					// Expand front portion of keyword 
 					int shift = key_len - len;
-					for(int i = keyword_len+shift; i >= len && i >= shift; i--)
+					for(int i = keyword_len+shift; i >= static_cast<ssize_t>(len) && i >= shift; i--)
 						keyword[i] = keyword[i-shift];
 					strncpy(keyword, key->key, key_len); /* give back the full spelling */
 					len = key_len;
 					keyword_len += shift;
 				}
-				/* Check for another subword */
+				// Check for another subword 
 				if(keyword[len] == ' ') {
 					len = len + 1 + strcspn(keyword + len + 1, " ");
-					key--; /* start with current key */
+					key--; // start with current key 
 				}
 				else
-					return (key); /* found!!  non-ambiguous abbreviation */
+					return key; // found!!  non-ambiguous abbreviation 
 			}
 			else
-				return (&empty_key);
+				return &empty_key;
 		}
 	}
 	return NULL; // not found 

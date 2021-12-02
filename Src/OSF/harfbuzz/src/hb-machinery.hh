@@ -160,7 +160,7 @@ struct hb_data_wrapper_t {
 };
 
 template <>
-struct hb_data_wrapper_t<void, 0>{
+struct hb_data_wrapper_t<void, 0> {
 	bool is_inert() const {
 		return false;
 	}
@@ -180,7 +180,7 @@ typename Subclass = void,
 typename Data = void,
 uint WheresData = 0,
 typename Stored = Returned>
-    struct hb_lazy_loader_t : hb_data_wrapper_t<Data, WheresData>{
+    struct hb_lazy_loader_t : hb_data_wrapper_t<Data, WheresData> {
 	typedef typename hb_non_void_t<Subclass,
 	    hb_lazy_loader_t<Returned, Subclass, Data, WheresData, Stored>
 	    >::value Funcs;
@@ -296,7 +296,7 @@ template <typename T, uint WheresFace>
 struct hb_table_lazy_loader_t : hb_lazy_loader_t<T,
     hb_table_lazy_loader_t<T, WheresFace>,
     hb_face_t, WheresFace,
-    hb_blob_t>{
+    hb_blob_t> {
 	static hb_blob_t * create(hb_face_t * face)
 	{
 		return hb_sanitize_context_t().reference_table<T> (face);
@@ -322,7 +322,7 @@ struct hb_table_lazy_loader_t : hb_lazy_loader_t<T,
 };
 
 template <typename Subclass>
-struct hb_font_funcs_lazy_loader_t : hb_lazy_loader_t<hb_font_funcs_t, Subclass>{
+struct hb_font_funcs_lazy_loader_t : hb_lazy_loader_t<hb_font_funcs_t, Subclass> {
 	static void destroy(hb_font_funcs_t * p)
 	{
 		hb_font_funcs_destroy(p);
@@ -334,7 +334,7 @@ struct hb_font_funcs_lazy_loader_t : hb_lazy_loader_t<hb_font_funcs_t, Subclass>
 	}
 };
 template <typename Subclass>
-struct hb_unicode_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unicode_funcs_t, Subclass>{
+struct hb_unicode_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unicode_funcs_t, Subclass> {
 	static void destroy(hb_unicode_funcs_t * p)
 	{
 		hb_unicode_funcs_destroy(p);

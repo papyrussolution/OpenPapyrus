@@ -261,7 +261,7 @@ PIXMAN_EXPORT void pixman_rasterize_trapezoid(pixman_image_t * image, const pixm
 	}
 }
 
-static const pixman_bool_t zero_src_has_no_effect[PIXMAN_N_OPERATORS] =
+static const boolint zero_src_has_no_effect[PIXMAN_N_OPERATORS] =
 {
 	FALSE,  /* Clear		0			0    */
 	FALSE,  /* Src			1			0    */
@@ -278,7 +278,7 @@ static const pixman_bool_t zero_src_has_no_effect[PIXMAN_N_OPERATORS] =
 	TRUE,   /* Add			1			1    */
 };
 
-static pixman_bool_t get_trap_extents(pixman_op_t op, pixman_image_t * dest, const pixman_trapezoid_t * traps, int n_traps, pixman_box32_t * box)
+static boolint get_trap_extents(pixman_op_t op, pixman_image_t * dest, const pixman_trapezoid_t * traps, int n_traps, pixman_box32_t * box)
 {
 	int i;
 	/* When the operator is such that a zero source has an
@@ -474,40 +474,21 @@ static pixman_trapezoid_t * convert_triangles(int n_tris, const pixman_triangle_
 	return traps;
 }
 
-PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op,
-    pixman_image_t *   src,
-    pixman_image_t *   dst,
-    pixman_format_code_t mask_format,
-    int x_src,
-    int y_src,
-    int x_dst,
-    int y_dst,
-    int n_tris,
-    const pixman_triangle_t * tris)
+PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op, pixman_image_t *   src, pixman_image_t *   dst,
+    pixman_format_code_t mask_format, int x_src, int y_src, int x_dst, int y_dst, int n_tris, const pixman_triangle_t * tris)
 {
 	pixman_trapezoid_t * traps;
-
 	if((traps = convert_triangles(n_tris, tris))) {
-		pixman_composite_trapezoids(op, src, dst, mask_format,
-		    x_src, y_src, x_dst, y_dst,
-		    n_tris * 2, traps);
-
+		pixman_composite_trapezoids(op, src, dst, mask_format, x_src, y_src, x_dst, y_dst, n_tris * 2, traps);
 		SAlloc::F(traps);
 	}
 }
 
-PIXMAN_EXPORT void pixman_add_triangles(pixman_image_t * image,
-    int32 x_off,
-    int32 y_off,
-    int n_tris,
-    const pixman_triangle_t * tris)
+PIXMAN_EXPORT void pixman_add_triangles(pixman_image_t * image, int32 x_off, int32 y_off, int n_tris, const pixman_triangle_t * tris)
 {
 	pixman_trapezoid_t * traps;
-
 	if((traps = convert_triangles(n_tris, tris))) {
-		pixman_add_trapezoids(image, x_off, y_off,
-		    n_tris * 2, traps);
-
+		pixman_add_trapezoids(image, x_off, y_off, n_tris * 2, traps);
 		SAlloc::F(traps);
 	}
 }

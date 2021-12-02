@@ -135,7 +135,7 @@ bool CollationElementIterator::operator != (const CollationElementIterator& othe
 	return !(*this == other);
 }
 
-bool CollationElementIterator::operator==(const CollationElementIterator& that) const
+bool CollationElementIterator::operator == (const CollationElementIterator& that) const
 {
 	if(this == &that) {
 		return true;

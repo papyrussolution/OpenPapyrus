@@ -67,7 +67,7 @@ _hb_emoji_b1 (const uint8_t* a, uint i)
   return (a[i>>3]>>((i&7u)<<0))&1u;
 }
 static inline uint_fast8_t
-_hb_emoji_is_Extended_Pictographic (unsigned u)
+_hb_emoji_is_Extended_Pictographic (uint u)
 {
   return u<131069u?_hb_emoji_b1(192+_hb_emoji_u8,((_hb_emoji_u8[64+(((_hb_emoji_b4(_hb_emoji_u8,u>>6>>4))<<4)+((u>>6)&15u))])<<6)+((u)&63u)):0;
 }

@@ -53,7 +53,7 @@ static uint32 * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32 *
 	conical_gradient_t * conical = (conical_gradient_t*)image;
 	uint32 * end = buffer + width;
 	pixman_gradient_walker_t walker;
-	pixman_bool_t affine = TRUE;
+	boolint affine = TRUE;
 	double cx = 1.0;
 	double cy = 0.0;
 	double cz = 0.0;

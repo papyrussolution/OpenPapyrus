@@ -357,10 +357,10 @@ int ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
 	return lsearch(&objID, pPos, CMPF_LONG);
 }
 
-int ObjRestrictArray::CheckFlag(PPID objID, long f) const
+bool ObjRestrictArray::CheckFlag(PPID objID, long f) const
 {
 	uint   p = 0;
-	return BIN(lsearch(&objID, &p, CMPF_LONG) && at(p).Flags & f);
+	return (lsearch(&objID, &p, CMPF_LONG) && at(p).Flags & f);
 }
 //
 //

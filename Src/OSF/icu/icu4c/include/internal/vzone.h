@@ -322,7 +322,7 @@ U_CAPI UClassID U_EXPORT2 vzone_getStaticClassID(VZone* zone);
 /**
  * Returns a unique class ID POLYMORPHICALLY. Pure virtual override. This
  * method is to implement a simple version of RTTI, since not all C++
- * compilers support genuine RTTI. Polymorphic operator==() and clone()
+ * compilers support genuine RTTI. Polymorphic operator == () and clone()
  * methods call this method.
  *
  * @param zone, the vzone to use

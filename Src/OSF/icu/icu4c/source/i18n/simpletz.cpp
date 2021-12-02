@@ -200,11 +200,11 @@ SimpleTimeZone &SimpleTimeZone::operator = (const SimpleTimeZone &right)
 	return *this;
 }
 
-bool SimpleTimeZone::operator==(const TimeZone& that) const
+bool SimpleTimeZone::operator == (const TimeZone& that) const
 {
 	return ((this == &that) ||
 	       (typeid(*this) == typeid(that) &&
-	       TimeZone::operator==(that) &&
+	       TimeZone::operator == (that) &&
 	       hasSameRules(that)));
 }
 

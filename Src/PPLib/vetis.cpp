@@ -10826,10 +10826,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 				if(checkdate(filt.Period.upp))
 					period.upp = filt.Period.upp;
 				if(!checkdate(period.low)) {
-					if(checkdate(period.upp))
-						period.low = period.upp;
-					else
-						period.low = getcurdate_();
+					period.low = checkdate(period.upp) ? period.upp : getcurdate_();
 				}
 				if(!checkdate(period.upp)) {
 					period.upp = getcurdate_();
@@ -11592,6 +11589,11 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 								}
 							}
 						}
+						// @v11.2.5 {
+						else if(vi.SubProductID && ifc.PeC.GetEntity(vi.SubProductID, _ent) > 0) {
+							regroute_list.Add(region_guid_from, region_guid_to, _ent.Guid, vi.EntityID);
+						}
+						// } @v11.2.5 
 					}
 				}
 			}
@@ -11665,10 +11667,12 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 					else {
 						// @v11.0.11 {
 						const TSCollection <VetisRouteSectionR13nRules> * p_region_rules = 0;
-						for(uint ridx = 0; !p_region_rules && ridx < regroute_list.getCount(); ridx++) {
-							const _VetisRegionRouteEntry * p_rrl_item = regroute_list.at(ridx);
-							if(p_rrl_item && p_rrl_item->SrcIdList.lsearch(entity_id) && p_rrl_item->R13RulesList.getCount())
-								p_region_rules = &p_rrl_item->R13RulesList;
+						{
+							for(uint ridx = 0; !p_region_rules && ridx < regroute_list.getCount(); ridx++) {
+								const _VetisRegionRouteEntry * p_rrl_item = regroute_list.at(ridx);
+								if(p_rrl_item && p_rrl_item->SrcIdList.lsearch(entity_id) && p_rrl_item->R13RulesList.getCount())
+									p_region_rules = &p_rrl_item->R13RulesList;
+							}
 						}
 						// } @v11.0.11 
 						if(oneof2(use_alg2, 1, 100)) {
@@ -12844,12 +12848,8 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 							period.low = Filt.Period.low;
 						if(checkdate(Filt.Period.upp))
 							period.upp = Filt.Period.upp;
-						if(!checkdate(period.low)) {
-							if(checkdate(period.upp))
-								period.low = period.upp;
-							else
-								period.low = getcurdate_();
-						}
+						if(!checkdate(period.low))
+							period.low = checkdate(period.upp) ? period.upp : getcurdate_();
 						if(!checkdate(period.upp)) {
 							/*if(checkdate(period.low))
 								period.upp = period.low;

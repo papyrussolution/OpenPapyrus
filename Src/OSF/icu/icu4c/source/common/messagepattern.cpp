@@ -304,7 +304,7 @@ MessagePattern::clear() {
 }
 
 bool
-MessagePattern::operator==(const MessagePattern &other) const {
+MessagePattern::operator == (const MessagePattern &other) const {
     if(this==&other) {
         return true;
     }
@@ -382,7 +382,7 @@ MessagePattern::getPluralOffset(int32_t pluralStart) const {
 // MessagePattern::Part ---------------------------------------------------- ***
 
 bool
-MessagePattern::Part::operator==(const Part &other) const {
+MessagePattern::Part::operator == (const Part &other) const {
     if(this==&other) {
         return true;
     }

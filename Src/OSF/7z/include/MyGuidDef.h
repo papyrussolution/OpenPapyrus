@@ -18,7 +18,7 @@ typedef struct {
 #define REFCLSID REFGUID
 #define REFIID REFGUID
 #ifdef __cplusplus
-	inline int operator==(REFGUID g1, REFGUID g2)
+	inline int operator == (REFGUID g1, REFGUID g2)
 	{
 		for(int i = 0; i < (int)sizeof(g1); i++)
 			if(((uchar *)&g1)[i] != ((uchar *)&g2)[i])

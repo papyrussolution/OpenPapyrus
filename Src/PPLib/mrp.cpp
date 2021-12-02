@@ -1191,7 +1191,7 @@ int PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf,
 			const MrpReqItem & r_dest_item = dest_list.at(i);
 			const  PPID goods_id = r_dest_item.GoodsID;
 			double rest = 0.0, dfct = 0.0;
-			if(goods_obj.CheckFlag(goods_id, GF_UNLIM) > 0) {
+			if(goods_obj.CheckFlag(goods_id, GF_UNLIM)) {
 				THROW(r = P_Tbl->SetRest(pLeaf->TabID, goods_id, 0, &dfct, 0));
 			}
 			else {

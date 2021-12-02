@@ -293,7 +293,7 @@ private:
 };
 
 template <typename ret_t> /* Make sure we don't use hb_auto_trace_t when not tracing. */
-struct hb_auto_trace_t<0, ret_t>{
+struct hb_auto_trace_t<0, ret_t> {
 	explicit inline hb_auto_trace_t(uint * plevel_,
 	    const char * what_,
 	    const void * obj_,

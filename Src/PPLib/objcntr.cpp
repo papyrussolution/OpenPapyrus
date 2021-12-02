@@ -1,5 +1,5 @@
 // OBJCNTR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -379,7 +379,7 @@ int PPObjOpCounter::MakeReserved(long flags)
 			// Здесь нельзя использовать PutPacket поскольку добавляется запись
 			// с предопределенным идентификатором.
 			//
-			THROW(EditItem(Obj, 0, &pack.Head, 1));
+			THROW(StoreItem(Obj, 0, &pack.Head, 1));
 		}
 	}
 	CATCHZOK

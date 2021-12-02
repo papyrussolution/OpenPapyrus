@@ -203,7 +203,7 @@ static void free_static_uniscribe_shaper_funcs();
 #endif
 
 static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_uniscribe_shaper_funcs_t,
-	    hb_uniscribe_shaper_funcs_lazy_loader_t>{
+	    hb_uniscribe_shaper_funcs_lazy_loader_t> {
 	static hb_uniscribe_shaper_funcs_t * create()
 	{
 		hb_uniscribe_shaper_funcs_t * funcs = (hb_uniscribe_shaper_funcs_t*)SAlloc::C(1, sizeof(hb_uniscribe_shaper_funcs_t));
@@ -257,7 +257,7 @@ struct active_feature_t {
 		       0;
 	}
 
-	bool operator==(const active_feature_t * f)
+	bool operator == (const active_feature_t * f)
 	{
 		return cmp(this, f) == 0;
 	}

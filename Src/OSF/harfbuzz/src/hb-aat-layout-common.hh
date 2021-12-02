@@ -463,7 +463,7 @@ public:
 	};
 
 	template <>
-	struct Entry<void>{
+	struct Entry<void> {
 		bool sanitize(hb_sanitize_context_t * c, uint count /*XXX Unused?*/) const
 		{
 			TRACE_SANITIZE(this);
@@ -615,22 +615,15 @@ public:
 					entry = num_entries;
 				}
 			}
-
 			if(num_entries_out)
 				*num_entries_out = num_entries;
-
 			return_trace(true);
 		}
-
 protected:
-		HBUINT nClasses; /* Number of classes, which is the number of indices
-		 * in a single line in the state array. */
-		NNOffsetTo<ClassType, HBUINT>
-		classTable;     /* Offset to the class table. */
-		NNOffsetTo<UnsizedArrayOf<HBUSHORT>, HBUINT>
-		stateArrayTable; /* Offset to the state array. */
-		NNOffsetTo<UnsizedArrayOf<Entry<Extra>>, HBUINT>
-		entryTable;     /* Offset to the entry array. */
+		HBUINT nClasses; /* Number of classes, which is the number of indices in a single line in the state array. */
+		NNOffsetTo<ClassType, HBUINT> classTable;     /* Offset to the class table. */
+		NNOffsetTo<UnsizedArrayOf<HBUSHORT>, HBUINT> stateArrayTable; /* Offset to the state array. */
+		NNOffsetTo<UnsizedArrayOf<Entry<Extra>>, HBUINT> entryTable;     /* Offset to the entry array. */
 
 public:
 		DEFINE_SIZE_STATIC(4 * sizeof(HBUINT));
@@ -643,20 +636,15 @@ public:
 			uint i = glyph_id - firstGlyph;
 			return i >= classArray.len ? outOfRange : classArray.arrayZ[i];
 		}
-
-		uint get_class(hb_codepoint_t glyph_id,
-		    uint num_glyphs HB_UNUSED,
-		    uint outOfRange) const
+		uint get_class(hb_codepoint_t glyph_id, uint num_glyphs HB_UNUSED, uint outOfRange) const
 		{
 			return get_class(glyph_id, outOfRange);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) && classArray.sanitize(c));
 		}
-
 protected:
 		HBGlyphID firstGlyph;   /* First glyph index included in the trimmed array. */
 		ArrayOf<HBUCHAR>      classArray; /* The class codes (indexed by glyph index minus

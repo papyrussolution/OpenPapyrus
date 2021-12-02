@@ -1,7 +1,7 @@
 // CHKPAN.CPP
 // Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
-// @codepage windows-1251
-// Панель ввода кассовых чеков
+// @codepage UTF-8
+// РџР°РЅРµР»СЊ РІРІРѕРґР° РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,14 +9,14 @@
 
 int RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
 //
-// Команда для вызова звонка на принтере с кухонным звонком
+// РљРѕРјР°РЅРґР° РґР»СЏ РІС‹Р·РѕРІР° Р·РІРѕРЅРєР° РЅР° РїСЂРёРЅС‚РµСЂРµ СЃ РєСѓС…РѕРЅРЅС‹Рј Р·РІРѕРЅРєРѕРј
 //
 // ESC 'p' m n1 n2
 //
-// Параметры:
-//    m = 0 или 1 - не знаю что значит
-//    n1 [0..255] - не знаю, что значит (возможно, длительность)
-//    n2 [0..255] - не знаю, что значит (возможно, длительность)
+// РџР°СЂР°РјРµС‚СЂС‹:
+//    m = 0 РёР»Рё 1 - РЅРµ Р·РЅР°СЋ С‡С‚Рѕ Р·РЅР°С‡РёС‚
+//    n1 [0..255] - РЅРµ Р·РЅР°СЋ, С‡С‚Рѕ Р·РЅР°С‡РёС‚ (РІРѕР·РјРѕР¶РЅРѕ, РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ)
+//    n2 [0..255] - РЅРµ Р·РЅР°СЋ, С‡С‚Рѕ Р·РЅР°С‡РёС‚ (РІРѕР·РјРѕР¶РЅРѕ, РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ)
 //
 // Example: 1B 70 0 5 5
 // "1B70000505"
@@ -32,54 +32,54 @@ int RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
 //PPBnkTerminal * GetBnkTerm(PPID bnkTermID, const char * pPort, const char * pPath); // Prototype (BNKTERM.CPP)
 int showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
 //
-// Состояния панели ввода кассовых чеков и допустимые действия //
+// РЎРѕСЃС‚РѕСЏРЅРёСЏ РїР°РЅРµР»Рё РІРІРѕРґР° РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ Рё РґРѕРїСѓСЃС‚РёРјС‹Рµ РґРµР№СЃС‚РІРёСЏ //
 //
-// - (1) sEMPTYLIST_EMPTYBUF Пустой список строк, пустой буфер ввода
-//   ! 1 Выбрать товар по коду                  Код + Enter
-//   ! 2 Выбрать товар по наименованию          F2
-//   ! 3 Выбрать товар по цене                  Цена + F4
-//   ! 4 Включить режим возврата товара         Ctrl-F5
-//    11 Дисконтая карта                        Код карты + F3
-//   ! 5 Закрыть панель                         Escape
-//    13 Выбрать отложенный чек                 F8
+// - (1) sEMPTYLIST_EMPTYBUF РџСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє, РїСѓСЃС‚РѕР№ Р±СѓС„РµСЂ РІРІРѕРґР°
+//   ! 1 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РєРѕРґСѓ                  РљРѕРґ + Enter
+//   ! 2 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ          F2
+//   ! 3 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ С†РµРЅРµ                  Р¦РµРЅР° + F4
+//   ! 4 Р’РєР»СЋС‡РёС‚СЊ СЂРµР¶РёРј РІРѕР·РІСЂР°С‚Р° С‚РѕРІР°СЂР°         Ctrl-F5
+//    11 Р”РёСЃРєРѕРЅС‚Р°СЏ РєР°СЂС‚Р°                        РљРѕРґ РєР°СЂС‚С‹ + F3
+//   ! 5 Р—Р°РєСЂС‹С‚СЊ РїР°РЅРµР»СЊ                         Escape
+//    13 Р’С‹Р±СЂР°С‚СЊ РѕС‚Р»РѕР¶РµРЅРЅС‹Р№ С‡РµРє                 F8
 //
-// - (2) sEMPTYLIST_BUF      Пустой список строк, в буфере ввода есть товар
-//   ! 1 Выбрать товар по коду                  Код + Enter
-//   ! 2 Выбрать товар по наименованию          F2
-//   ! 3 Выбрать товар по цене                  Цена + F4
-//   ! 6 Внести количество                      Количество + F6 or "* количество" or "количество *"
-//    11 Дисконтая карта                        Код карты + F3
-//   ! 7 Внести товар из буфера ввода в список  Enter
-//   ! 8 Очистить буфер ввода                   Escape
+// - (2) sEMPTYLIST_BUF      РџСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє, РІ Р±СѓС„РµСЂРµ РІРІРѕРґР° РµСЃС‚СЊ С‚РѕРІР°СЂ
+//   ! 1 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РєРѕРґСѓ                  РљРѕРґ + Enter
+//   ! 2 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ          F2
+//   ! 3 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ С†РµРЅРµ                  Р¦РµРЅР° + F4
+//   ! 6 Р’РЅРµСЃС‚Рё РєРѕР»РёС‡РµСЃС‚РІРѕ                      РљРѕР»РёС‡РµСЃС‚РІРѕ + F6 or "* РєРѕР»РёС‡РµСЃС‚РІРѕ" or "РєРѕР»РёС‡РµСЃС‚РІРѕ *"
+//    11 Р”РёСЃРєРѕРЅС‚Р°СЏ РєР°СЂС‚Р°                        РљРѕРґ РєР°СЂС‚С‹ + F3
+//   ! 7 Р’РЅРµСЃС‚Рё С‚РѕРІР°СЂ РёР· Р±СѓС„РµСЂР° РІРІРѕРґР° РІ СЃРїРёСЃРѕРє  Enter
+//   ! 8 РћС‡РёСЃС‚РёС‚СЊ Р±СѓС„РµСЂ РІРІРѕРґР°                   Escape
 //
-// - (3) sLIST_EMPTYBUF      Непустой список строк, пустой буфер ввода
-//   ! 1 Выбрать товар по коду                  Код + Enter
-//   ! 2 Выбрать товар по наименованию          F2
-//   ! 3 Выбрать товар по цене                  Цена + F4
-//    11 Дисконтая карта                        Код карты + F3
-//   ! 9 Очистить список строк                  Escape
-//   !10 Провести чек                           Enter
-//    12 Отложить чек                           F8
+// - (3) sLIST_EMPTYBUF      РќРµРїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє, РїСѓСЃС‚РѕР№ Р±СѓС„РµСЂ РІРІРѕРґР°
+//   ! 1 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РєРѕРґСѓ                  РљРѕРґ + Enter
+//   ! 2 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ          F2
+//   ! 3 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ С†РµРЅРµ                  Р¦РµРЅР° + F4
+//    11 Р”РёСЃРєРѕРЅС‚Р°СЏ РєР°СЂС‚Р°                        РљРѕРґ РєР°СЂС‚С‹ + F3
+//   ! 9 РћС‡РёСЃС‚РёС‚СЊ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє                  Escape
+//   !10 РџСЂРѕРІРµСЃС‚Рё С‡РµРє                           Enter
+//    12 РћС‚Р»РѕР¶РёС‚СЊ С‡РµРє                           F8
 //
-// - (4) sLIST_BUF           Непустой список строк, в буфере ввода есть товар
-//   ! 1 Выбрать товар по коду                  Код + Enter
-//   ! 2 Выбрать товар по наименованию          F2
-//   ! 3 Выбрать товар по цене                  Цена + F4
-//   ! 6 Внести количество                      Количество + F6 or "* количество" or "количество *"
-//    11 Дисконтая карта                        Код карты + F3
-//   ! 7 Внести товар из буфера ввода в список  Enter
-//   ! 8 Очистить буфер ввода                   Escape
+// - (4) sLIST_BUF           РќРµРїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє, РІ Р±СѓС„РµСЂРµ РІРІРѕРґР° РµСЃС‚СЊ С‚РѕРІР°СЂ
+//   ! 1 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РєРѕРґСѓ                  РљРѕРґ + Enter
+//   ! 2 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ          F2
+//   ! 3 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РїРѕ С†РµРЅРµ                  Р¦РµРЅР° + F4
+//   ! 6 Р’РЅРµСЃС‚Рё РєРѕР»РёС‡РµСЃС‚РІРѕ                      РљРѕР»РёС‡РµСЃС‚РІРѕ + F6 or "* РєРѕР»РёС‡РµСЃС‚РІРѕ" or "РєРѕР»РёС‡РµСЃС‚РІРѕ *"
+//    11 Р”РёСЃРєРѕРЅС‚Р°СЏ РєР°СЂС‚Р°                        РљРѕРґ РєР°СЂС‚С‹ + F3
+//   ! 7 Р’РЅРµСЃС‚Рё С‚РѕРІР°СЂ РёР· Р±СѓС„РµСЂР° РІРІРѕРґР° РІ СЃРїРёСЃРѕРє  Enter
+//   ! 8 РћС‡РёСЃС‚РёС‚СЊ Р±СѓС„РµСЂ РІРІРѕРґР°                   Escape
 //
-// - (5) sLISTSEL_EMPTYBUF   Режим выбора строк из чека продажи, пустой буфер ввода
-//   ! 2 Выбрать товар из чека продажи          F2
-//   ! 9 Очистить список строк                  Escape
-//   !10 Провести чек                           Enter
+// - (5) sLISTSEL_EMPTYBUF   Р РµР¶РёРј РІС‹Р±РѕСЂР° СЃС‚СЂРѕРє РёР· С‡РµРєР° РїСЂРѕРґР°Р¶Рё, РїСѓСЃС‚РѕР№ Р±СѓС„РµСЂ РІРІРѕРґР°
+//   ! 2 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РёР· С‡РµРєР° РїСЂРѕРґР°Р¶Рё          F2
+//   ! 9 РћС‡РёСЃС‚РёС‚СЊ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє                  Escape
+//   !10 РџСЂРѕРІРµСЃС‚Рё С‡РµРє                           Enter
 //
-// - (6) sLISTSEL_BUF        Режим выбора строк из чека продажи, в буфере ввода есть товар
-//   ! 2 Выбрать товар из чека продажи          F2
-//   ! 6 Внести количество                      Количество + F6 or "* количество" or "количество *"
-//   ! 7 Внести товар из буфера ввода в список  Enter
-//   ! 8 Очистить буфер ввода                   Escape
+// - (6) sLISTSEL_BUF        Р РµР¶РёРј РІС‹Р±РѕСЂР° СЃС‚СЂРѕРє РёР· С‡РµРєР° РїСЂРѕРґР°Р¶Рё, РІ Р±СѓС„РµСЂРµ РІРІРѕРґР° РµСЃС‚СЊ С‚РѕРІР°СЂ
+//   ! 2 Р’С‹Р±СЂР°С‚СЊ С‚РѕРІР°СЂ РёР· С‡РµРєР° РїСЂРѕРґР°Р¶Рё          F2
+//   ! 6 Р’РЅРµСЃС‚Рё РєРѕР»РёС‡РµСЃС‚РІРѕ                      РљРѕР»РёС‡РµСЃС‚РІРѕ + F6 or "* РєРѕР»РёС‡РµСЃС‚РІРѕ" or "РєРѕР»РёС‡РµСЃС‚РІРѕ *"
+//   ! 7 Р’РЅРµСЃС‚Рё С‚РѕРІР°СЂ РёР· Р±СѓС„РµСЂР° РІРІРѕРґР° РІ СЃРїРёСЃРѕРє  Enter
+//   ! 8 РћС‡РёСЃС‚РёС‚СЊ Р±СѓС„РµСЂ РІРІРѕРґР°                   Escape
 //
 struct SaComplexEntry {
 	SaComplexEntry(PPID goodsID, double qtty) : GoodsID(goodsID), FinalGoodsID(0), Qtty(qtty), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
@@ -101,7 +101,7 @@ struct SaComplexEntry {
 		return ok;
 	}
 	enum {
-		fGeneric = 0x0001 // Товар GoodsID является обобщенным
+		fGeneric = 0x0001 // РўРѕРІР°СЂ GoodsID СЏРІР»СЏРµС‚СЃСЏ РѕР±РѕР±С‰РµРЅРЅС‹Рј
 	};
 	PPID   GoodsID;
 	PPID   FinalGoodsID;
@@ -345,9 +345,9 @@ int CPosProcessor::Packet::Grouping(uint itemIdx)
 		else {
 			at(itemIdx).Flags |= cifGrouped;
 			//
-			// Для данного элемента устанавливается такой же номер очереди, как и у
-			// предыдущего элемента (предшествующий элемент имеет приоритет по причине здравого
-			// смысла - группируют обычно менее значительный элемент с более значительным).
+			// Р”Р»СЏ РґР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚Р°РєРѕР№ Р¶Рµ РЅРѕРјРµСЂ РѕС‡РµСЂРµРґРё, РєР°Рє Рё Сѓ
+			// РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р° (РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚ РёРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїРѕ РїСЂРёС‡РёРЅРµ Р·РґСЂР°РІРѕРіРѕ
+			// СЃРјС‹СЃР»Р° - РіСЂСѓРїРїРёСЂСѓСЋС‚ РѕР±С‹С‡РЅРѕ РјРµРЅРµРµ Р·РЅР°С‡РёС‚РµР»СЊРЅС‹Р№ СЌР»РµРјРµРЅС‚ СЃ Р±РѕР»РµРµ Р·РЅР°С‡РёС‚РµР»СЊРЅС‹Рј).
 			//
 			int8   prev_queue = at(itemIdx-1).Queue;
 			if(at(itemIdx).Queue != prev_queue)
@@ -367,7 +367,7 @@ int CPosProcessor::Packet::SetQueue(uint itemIdx, int8 queue)
 	if(i < c) {
 		at(i++).Queue = queue;
 		//
-		// Для всех элементов, сгруппированных с данным, необходимо выставить тот же самый номер очереди.
+		// Р”Р»СЏ РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ, СЃРіСЂСѓРїРїРёСЂРѕРІР°РЅРЅС‹С… СЃ РґР°РЅРЅС‹Рј, РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹СЃС‚Р°РІРёС‚СЊ С‚РѕС‚ Р¶Рµ СЃР°РјС‹Р№ РЅРѕРјРµСЂ РѕС‡РµСЂРµРґРё.
 		//
 		while(i < c && at(i).Flags & (cifGrouped|cifModifier)) {
 			at(i++).Queue = queue;
@@ -384,7 +384,7 @@ int CPosProcessor::Packet::InitIteration()
 {
 	IterIdx = 0;
 	//
-	// Расставляем нумерацию групп строк по признаку cifGrouped
+	// Р Р°СЃСЃС‚Р°РІР»СЏРµРј РЅСѓРјРµСЂР°С†РёСЋ РіСЂСѓРїРї СЃС‚СЂРѕРє РїРѕ РїСЂРёР·РЅР°РєСѓ cifGrouped
 	//
 	int    grp_n = 0;
 	int    is_grp = 0;
@@ -528,7 +528,7 @@ double CPosProcessor::CardState::GetDiscount(double ccAmount) const
 const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqb(PPID goodsID, int * pNoDiscount)
 {
   	const  int cfg_dsbl_no_dis = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fIgnoreNoDisGoodsTag);
-	const  int nodis = BIN(!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT) > 0);
+	const  int nodis = BIN(!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT));
 	ASSIGN_PTR(pNoDiscount, nodis);
 	return nodis ? 0 : CSt.P_Eqb;
 }
@@ -1165,7 +1165,7 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 				if(ScObj.P_Tbl->GetListByLoc(loc_rec.ID, 0, &sc_list) > 0) {
 					if(sc_list.getCount()) {
 						P.Eccd.SCardID_ = sc_list.get(0);
-						// @todo Что-то надо сделать в случае неоднозначности (sc_list.getCount() > 1)
+						// @todo Р§С‚Рѕ-С‚Рѕ РЅР°РґРѕ СЃРґРµР»Р°С‚СЊ РІ СЃР»СѓС‡Р°Рµ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚Рё (sc_list.getCount() > 1)
 					}
 				}
 			}
@@ -1194,9 +1194,9 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 			PPObjCSession::StringToRights(rt_buf, &rt, &ort);
 			f = OrgOperRights;
 			//
-			// Флаги помеченные как //x закомментированы по причине того,
-			// что в диалоге радектирования тега прав персоналии к кассовым операциям
-			// данные признаки не присутствуют, а значит не могут быть отключены.
+			// Р¤Р»Р°РіРё РїРѕРјРµС‡РµРЅРЅС‹Рµ РєР°Рє //x Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅС‹ РїРѕ РїСЂРёС‡РёРЅРµ С‚РѕРіРѕ,
+			// С‡С‚Рѕ РІ РґРёР°Р»РѕРіРµ СЂР°РґРµРєС‚РёСЂРѕРІР°РЅРёСЏ С‚РµРіР° РїСЂР°РІ РїРµСЂСЃРѕРЅР°Р»РёРё Рє РєР°СЃСЃРѕРІС‹Рј РѕРїРµСЂР°С†РёСЏРј
+			// РґР°РЅРЅС‹Рµ РїСЂРёР·РЅР°РєРё РЅРµ РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‚, Р° Р·РЅР°С‡РёС‚ РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РѕС‚РєР»СЋС‡РµРЅС‹.
 			//
 			SETFLAG(f, orfReturns,     ort & CSESSOPRT_RETCHECK);
 			SETFLAG(f, orfEscCheck,    rt & CSESSRT_ESCCHECK);
@@ -1438,15 +1438,15 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 				init_rest = 0.0;
 			double rest = 0.0;
 			const double fixed_bonus = fdiv100i(sc_rec.FixedBonus); // @v10.5.6
-			CSt.RestByCrdCard = (fixed_bonus > 0.0) ? MIN(fixed_bonus, init_rest) : init_rest; // @todo FixedBonus надо доработать
+			CSt.RestByCrdCard = (fixed_bonus > 0.0) ? MIN(fixed_bonus, init_rest) : init_rest; // @todo FixedBonus РЅР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ
 			Flags |= fSCardCredit;
 			if(scst == scstBonus) {
 				PPSCardConfig sc_cfg;
 				ScObj.FetchConfig(&sc_cfg);
 				//
-				// Необходимо различать случаи использования бонусов и начисления бонусов.
-				// Флаг fSCardBonusReal позволяет начислить на бонусную карту деньги, но не позволяет
-				// списывать, флаг же fSCardBonus позволяет списывать (остаток не нулевой).
+				// РќРµРѕР±С…РѕРґРёРјРѕ СЂР°Р·Р»РёС‡Р°С‚СЊ СЃР»СѓС‡Р°Рё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р±РѕРЅСѓСЃРѕРІ Рё РЅР°С‡РёСЃР»РµРЅРёСЏ Р±РѕРЅСѓСЃРѕРІ.
+				// Р¤Р»Р°Рі fSCardBonusReal РїРѕР·РІРѕР»СЏРµС‚ РЅР°С‡РёСЃР»РёС‚СЊ РЅР° Р±РѕРЅСѓСЃРЅСѓСЋ РєР°СЂС‚Сѓ РґРµРЅСЊРіРё, РЅРѕ РЅРµ РїРѕР·РІРѕР»СЏРµС‚
+				// СЃРїРёСЃС‹РІР°С‚СЊ, С„Р»Р°Рі Р¶Рµ fSCardBonus РїРѕР·РІРѕР»СЏРµС‚ СЃРїРёСЃС‹РІР°С‚СЊ (РѕСЃС‚Р°С‚РѕРє РЅРµ РЅСѓР»РµРІРѕР№).
 				if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards))
 					Flags |= fSCardBonusReal;
 				if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards) && init_rest > 0.0)
@@ -1472,8 +1472,8 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 				}
 				else if(scst == scstCredit && CSt.MaxCreditByCrdCard > 0.0 && cc > (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard)) {
 					//
-					// Если по карте установлен положительный кредитный лимит и он исчерпан, то перестаем воспринимать
-					// эту карту как кредитную.
+					// Р•СЃР»Рё РїРѕ РєР°СЂС‚Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№ РєСЂРµРґРёС‚РЅС‹Р№ Р»РёРјРёС‚ Рё РѕРЅ РёСЃС‡РµСЂРїР°РЅ, С‚Рѕ РїРµСЂРµСЃС‚Р°РµРј РІРѕСЃРїСЂРёРЅРёРјР°С‚СЊ
+					// СЌС‚Сѓ РєР°СЂС‚Сѓ РєР°Рє РєСЂРµРґРёС‚РЅСѓСЋ.
  					//
 					Flags &= ~fSCardCredit;
 					CSt.RestByCrdCard = 0.0;
@@ -1482,8 +1482,8 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 				}
 				else {
 					// @v10.9.0 add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
-					// @v11.1.10 (возвращаем назад) add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v10.9.0
-					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v11.1.10 (возвращаем назад)
+					// @v11.1.10 (РІРѕР·РІСЂР°С‰Р°РµРј РЅР°Р·Р°Рґ) add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v10.9.0
+					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v11.1.10 (РІРѕР·РІСЂР°С‰Р°РµРј РЅР°Р·Р°Рґ)
 				}
 				if(!skip_crd_processing) {
 					/* @v10.9.0 if(add_paym <= 0.0)
@@ -1492,7 +1492,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 						add_paym += non_crd_amt;*/
 					if(Flags & fSCardBonus)
 						CSt.UsableBonus = MIN(MAX(cc, 0.0), init_rest);
-					else /*if(!(Flags & fSCardBonus))*/ { // Для бонусных карт запрос доплаты не выводится и сумма дебета не корректируется //
+					else /*if(!(Flags & fSCardBonus))*/ { // Р”Р»СЏ Р±РѕРЅСѓСЃРЅС‹С… РєР°СЂС‚ Р·Р°РїСЂРѕСЃ РґРѕРїР»Р°С‚С‹ РЅРµ РІС‹РІРѕРґРёС‚СЃСЏ Рё СЃСѓРјРјР° РґРµР±РµС‚Р° РЅРµ РєРѕСЂСЂРµРєС‚РёСЂСѓРµС‚СЃСЏ //
 						if(add_paym > 0.0) {
 							if(R2(CSt.AdditionalPayment) == 0.0) { 
 								if(scs_rec.Flags & SCRDSF_DISABLEADDPAYM)
@@ -1502,7 +1502,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 									buf.Cat(add_paym, SFMT_MONEY);
 									if(!ConfirmMessage(PPCFM_MAXCRD_OVERDRAFT, buf, 1)) {
 										//
-										// @? Значение доплаты все равно устанавливаем
+										// @? Р—РЅР°С‡РµРЅРёРµ РґРѕРїР»Р°С‚С‹ РІСЃРµ СЂР°РІРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј
 										//
 										CSt.AdditionalPayment = R2(add_paym);
 										//
@@ -1610,7 +1610,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 		TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
 		for(i = 0; P.enumItems(&i, (void **)&p_item);) {
 			double qtty = fabs(p_item->Quantity);
-			double gift_item_dis = 0.0; // Подарочная суммовая скидка по строке
+			double gift_item_dis = 0.0; // РџРѕРґР°СЂРѕС‡РЅР°СЏ СЃСѓРјРјРѕРІР°СЏ СЃРєРёРґРєР° РїРѕ СЃС‚СЂРѕРєРµ
 			double item_price = p_item->Price; // @v10.2.8
 			double item_discount = p_item->Discount; // @v10.2.8
 			int    no_discount = 0;
@@ -1620,7 +1620,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 			const  PPID goods_id = p_item->GoodsID;
 			{
 				//
-				// Рассчитываем цену {
+				// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј С†РµРЅСѓ {
 				//
 				double price_by_serial = 0.0;
 				lot_list.clear();
@@ -1647,7 +1647,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				if(_gpr > 0)
 					item_price = rgi.Price;
 				if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) {
-					if(rgi.Flags & rgi.fDisabledQuot) { // Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
+					if(rgi.Flags & rgi.fDisabledQuot) { // РСЃРєР»СЋС‡РёС‚РµР»СЊРЅР°СЏ СЃРёС‚СѓР°С†РёСЏ: ExtPrice РїРµСЂРµР±РёРІР°РµС‚ РїРѕ РїСЂРёРѕСЂРёС‚РµС‚Сѓ Р±Р»РѕРєРёСЂРѕРІР°РЅРЅСѓСЋ РєРѕС‚РёСЂРѕРІРєСѓ
 						item_price = rgi.ExtPrice;
 						item_discount = 0.0;
 					}
@@ -1684,7 +1684,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 					if(gift_item_dis != 0.0) {
 						r_blk.GiftDisList.Add((long)(i-1), gift_item_dis);
 						if(!r_blk.IsRounding)
-							r_blk.Amount = R2(r_blk.Amount - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
+							r_blk.Amount = R2(r_blk.Amount - gift_item_dis); // РЎСѓРјРјСѓ РїРѕРґР°СЂРѕС‡РЅРѕР№ СЃРєРёРґРєРё РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹С‡РµСЃС‚СЊ РёР· Р±Р°Р·С‹ РґР»СЏ СЂР°СЃС‡РµС‚Р° РѕР±С‰РµР№ СЃРєРёРґРєРё
 					}
 					assert(p_item->Price == 0.0);
 					p_item->Discount = 0.0;
@@ -1702,7 +1702,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 					p_item->Price = item_price;
 					p_item->Discount = item_discount;
 				}
-				else if(!no_discount) { // Дополнительный блок для правильной идентификации блокировки скидки
+				else if(!no_discount) { // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р±Р»РѕРє РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С†РёРё Р±Р»РѕРєРёСЂРѕРІРєРё СЃРєРёРґРєРё
 					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
 					if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
 						no_discount = 1;
@@ -1749,7 +1749,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distributeGiftDiscount)
 {
 	//
-	// Если товар не имеет котировки, то на него распространяется общая скидка.
+	// Р•СЃР»Рё С‚РѕРІР°СЂ РЅРµ РёРјРµРµС‚ РєРѕС‚РёСЂРѕРІРєРё, С‚Рѕ РЅР° РЅРµРіРѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ РѕР±С‰Р°СЏ СЃРєРёРґРєР°.
 	//
 	CPosProcessor_SetupDiscontBlock sdb(roundingDiscount, distributeGiftDiscount);
 	if(CSt.GetID() && CSt.CSTRB.SpecialTreatment) {
@@ -1761,20 +1761,20 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 	}
 	if(sdb.P_Scst) {
 		if(SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, sdb.ScstCb) > 0) {
-			Helper_PreprocessDiscountLoop(1/*mode*/, &sdb); // Первый цикл (mode = 1) для запроса к сторонним сервисам
+			Helper_PreprocessDiscountLoop(1/*mode*/, &sdb); // РџРµСЂРІС‹Р№ С†РёРєР» (mode = 1) РґР»СЏ Р·Р°РїСЂРѕСЃР° Рє СЃС‚РѕСЂРѕРЅРЅРёРј СЃРµСЂРІРёСЃР°Рј
 		}
 		else {
 			ZDELETE(sdb.P_Scst);
 		}
 	}
-	Helper_PreprocessDiscountLoop(0/*mode*/, &sdb); // Основной цикл (mode = 0)
+	Helper_PreprocessDiscountLoop(0/*mode*/, &sdb); // РћСЃРЅРѕРІРЅРѕР№ С†РёРєР» (mode = 0)
 	{
 		//
-		// Специальный признак, индицирующий то, что финишная скидка
-		// на элемент (last_index-1) должна прибавляться к существующей скидке,
-		// а не замещать ее. Чаще всего этот признак просто равен is_rounding,
-		// однако, если происходит распределение подарочной скидки по позиции
-		// (last_index-1), то finish_addendum становится равным 1.
+		// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РїСЂРёР·РЅР°Рє, РёРЅРґРёС†РёСЂСѓСЋС‰РёР№ С‚Рѕ, С‡С‚Рѕ С„РёРЅРёС€РЅР°СЏ СЃРєРёРґРєР°
+		// РЅР° СЌР»РµРјРµРЅС‚ (last_index-1) РґРѕР»Р¶РЅР° РїСЂРёР±Р°РІР»СЏС‚СЊСЃСЏ Рє СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ СЃРєРёРґРєРµ,
+		// Р° РЅРµ Р·Р°РјРµС‰Р°С‚СЊ РµРµ. Р§Р°С‰Рµ РІСЃРµРіРѕ СЌС‚РѕС‚ РїСЂРёР·РЅР°Рє РїСЂРѕСЃС‚Рѕ СЂР°РІРµРЅ is_rounding,
+		// РѕРґРЅР°РєРѕ, РµСЃР»Рё РїСЂРѕРёСЃС…РѕРґРёС‚ СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµ РїРѕРґР°СЂРѕС‡РЅРѕР№ СЃРєРёРґРєРё РїРѕ РїРѕР·РёС†РёРё
+		// (last_index-1), С‚Рѕ finish_addendum СЃС‚Р°РЅРѕРІРёС‚СЃСЏ СЂР°РІРЅС‹Рј 1.
 		//
 		int    finish_addendum = sdb.IsRounding;
 		//
@@ -1815,14 +1815,14 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 					const double qtty = fabs(p_item->Quantity);
 					const double p    = R2(sdb.IsRounding ? p_item->NetPrice() : p_item->Price); // @R2
 					double d = this->RoundDis(fdivnz(p * (discount - part_dis), (sdb.Amount - part_amount)));
-					SETMIN(d, p); // Гарантируем то, что скидка не превысит цену
+					SETMIN(d, p); // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј С‚Рѕ, С‡С‚Рѕ СЃРєРёРґРєР° РЅРµ РїСЂРµРІС‹СЃРёС‚ С†РµРЅСѓ
 					p_item->Discount = d;
 					part_dis    += (d * qtty);
 					part_amount += (p * qtty);
 				}
 			//
-			// Распределяем специальную подарочную скидку по тем позициям, на основании
-			// которых она была предоставлена.
+			// Р Р°СЃРїСЂРµРґРµР»СЏРµРј СЃРїРµС†РёР°Р»СЊРЅСѓСЋ РїРѕРґР°СЂРѕС‡РЅСѓСЋ СЃРєРёРґРєСѓ РїРѕ С‚РµРј РїРѕР·РёС†РёСЏРј, РЅР° РѕСЃРЅРѕРІР°РЅРёРё
+			// РєРѕС‚РѕСЂС‹С… РѕРЅР° Р±С‹Р»Р° РїСЂРµРґРѕСЃС‚Р°РІР»РµРЅР°.
 			// {
 			for(uint j = 0; j < sdb.GiftDisList.getCount(); j++) {
 				uint   i;
@@ -1846,9 +1846,9 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 				}
 				if(main_pos_list.getCount()) {
 					//
-					// Специальный случай: подарочная скидка распределяется только на основной компонент подарочной структуры
+					// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РїРѕРґР°СЂРѕС‡РЅР°СЏ СЃРєРёРґРєР° СЂР°СЃРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РЅР° РѕСЃРЅРѕРІРЅРѕР№ РєРѕРјРїРѕРЅРµРЅС‚ РїРѕРґР°СЂРѕС‡РЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹
 					//
-					pos_list = main_pos_list; // Подменяем pos_list на main_pos_list
+					pos_list = main_pos_list; // РџРѕРґРјРµРЅСЏРµРј pos_list РЅР° main_pos_list
 					gift_amt = 0.0;
 					//
 					plc = pos_list.getCount();
@@ -1868,7 +1868,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 					const double qtty = fabs(p_item->Quantity);
 					const double p    = R2(p_item->NetPrice()); // @R2
 					double d = this->RoundDis((i == (plc-1)) ? ((dis - gift_part_dis) / qtty) : (fdivnz(p * (dis - gift_part_dis), (gift_amt - gift_part_amt))));
-					SETMIN(d, p); // Гарантируем то, что скидка не превысит цену
+					SETMIN(d, p); // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј С‚Рѕ, С‡С‚Рѕ СЃРєРёРґРєР° РЅРµ РїСЂРµРІС‹СЃРёС‚ С†РµРЅСѓ
 					p_item->Discount = this->RoundDis(p_item->Discount + d);
 					gift_part_dis += (d * qtty);
 					gift_part_amt += (p * qtty);
@@ -1889,7 +1889,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 				p_item->Discount = sdb.IsRounding ? (p_item->Discount + d) : this->RoundDis(p_item->Discount + d);
 			}
 			else {
-				SETMIN(d, org_p); // Гарантируем то, что скидка не превысит цену
+				SETMIN(d, org_p); // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј С‚Рѕ, С‡С‚Рѕ СЃРєРёРґРєР° РЅРµ РїСЂРµРІС‹СЃРёС‚ С†РµРЅСѓ
 				p_item->Discount = d;
 			}
 			part_dis    += (d * qtty); // @debug
@@ -2084,7 +2084,7 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 				PPSCardConfig sc_cfg;
 				ScObj.FetchConfig(&sc_cfg);
 				if(!(sc_cfg.Flags & sc_cfg.fDontUseBonusCards)) {
-					if(!F(fRetCheck)) { // По бонусной карте в возврате бонус не учитываем (пока)
+					if(!F(fRetCheck)) { // РџРѕ Р±РѕРЅСѓСЃРЅРѕР№ РєР°СЂС‚Рµ РІ РІРѕР·РІСЂР°С‚Рµ Р±РѕРЅСѓСЃ РЅРµ СѓС‡РёС‚С‹РІР°РµРј (РїРѕРєР°)
 						const PPID bonus_goods_grp_id  = scs_rec.BonusGrpID;
 						const PPID bonus_charge_grp_id = scs_rec.BonusChrgGrpID;
 						if(pPack) {
@@ -2235,8 +2235,8 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 	P.SetupCCheckPacket(pPack, CSt);
 	pPack->SetupPaymList(pCcPl);
 	// @v11.0.9 {
-	// @todo Здесь надо в пакете чека сохранить информацию о ручной скидке.
-	// Это - важно, иначе не останется следа от того факта, что кассир предоставил произвольную скидку
+	// @todo Р—РґРµСЃСЊ РЅР°РґРѕ РІ РїР°РєРµС‚Рµ С‡РµРєР° СЃРѕС…СЂР°РЅРёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂСѓС‡РЅРѕР№ СЃРєРёРґРєРµ.
+	// Р­С‚Рѕ - РІР°Р¶РЅРѕ, РёРЅР°С‡Рµ РЅРµ РѕСЃС‚Р°РЅРµС‚СЃСЏ СЃР»РµРґР° РѕС‚ С‚РѕРіРѕ С„Р°РєС‚Р°, С‡С‚Рѕ РєР°СЃСЃРёСЂ РїСЂРµРґРѕСЃС‚Р°РІРёР» РїСЂРѕРёР·РІРѕР»СЊРЅСѓСЋ СЃРєРёРґРєСѓ
 	/*if(ManDis.Discount > 0.0) {
 		if(ManDis.Flags & ManDis.fPct) {
 		}
@@ -2337,8 +2337,8 @@ int CPosProcessor::AutosaveCheck()
 				}
 				else {
 					//
-					// Следующие 2 строки следует раскомментировать, если дата и время отложенного чека должны
-					// соответствовать последнему изменению (в противном случае они будут соответствовать времени создания чека).
+					// РЎР»РµРґСѓСЋС‰РёРµ 2 СЃС‚СЂРѕРєРё СЃР»РµРґСѓРµС‚ СЂР°СЃРєРѕРјРјРµРЅС‚РёСЂРѕРІР°С‚СЊ, РµСЃР»Рё РґР°С‚Р° Рё РІСЂРµРјСЏ РѕС‚Р»РѕР¶РµРЅРЅРѕРіРѕ С‡РµРєР° РґРѕР»Р¶РЅС‹
+					// СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РїРѕСЃР»РµРґРЅРµРјСѓ РёР·РјРµРЅРµРЅРёСЋ (РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РѕРЅРё Р±СѓРґСѓС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РІСЂРµРјРµРЅРё СЃРѕР·РґР°РЅРёСЏ С‡РµРєР°).
 					//
 					//pack.Rec.Dt = last_chk_rec.Dt;
 					//pack.Rec.Tm = last_chk_rec.Tm;
@@ -2349,10 +2349,10 @@ int CPosProcessor::AutosaveCheck()
 			if(mode == accmSuspended) {
 				THROW_PP(OuterOi.Id == 0, PPERR_UNABLESUSPTSESSCHECK);
 				//
-				// Перед тем, как сохранить отложенный чек, удаляем строки подарков.
-				// Делается это потому, что при восстановлении могут измениться условия начисления //
-				// подарков, кроме того, у нас нет механизма сохранения признака cifGift в строке чека.
-				// При восстановлении подарки будут начислены снова.
+				// РџРµСЂРµРґ С‚РµРј, РєР°Рє СЃРѕС…СЂР°РЅРёС‚СЊ РѕС‚Р»РѕР¶РµРЅРЅС‹Р№ С‡РµРє, СѓРґР°Р»СЏРµРј СЃС‚СЂРѕРєРё РїРѕРґР°СЂРєРѕРІ.
+				// Р”РµР»Р°РµС‚СЃСЏ СЌС‚Рѕ РїРѕС‚РѕРјСѓ, С‡С‚Рѕ РїСЂРё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРё РјРѕРіСѓС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ СѓСЃР»РѕРІРёСЏ РЅР°С‡РёСЃР»РµРЅРёСЏ //
+				// РїРѕРґР°СЂРєРѕРІ, РєСЂРѕРјРµ С‚РѕРіРѕ, Сѓ РЅР°СЃ РЅРµС‚ РјРµС…Р°РЅРёР·РјР° СЃРѕС…СЂР°РЅРµРЅРёСЏ РїСЂРёР·РЅР°РєР° cifGift РІ СЃС‚СЂРѕРєРµ С‡РµРєР°.
+				// РџСЂРё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРё РїРѕРґР°СЂРєРё Р±СѓРґСѓС‚ РЅР°С‡РёСЃР»РµРЅС‹ СЃРЅРѕРІР°.
 				//
 				P.ClearGift();
 			}
@@ -2368,7 +2368,7 @@ int CPosProcessor::AutosaveCheck()
 			SETFLAG(epb.Pack.Rec.Flags, CCHKF_JUNK, mode == accmJunk);
 			SETFLAG(epb.Pack.Rec.Flags, CCHKF_PREPRINT, Flags & fPrinted);
 			//
-			// Перед окончательным проведением чека необходимо распределить подарочную скидку (если она есть) по строкам чека.
+			// РџРµСЂРµРґ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅС‹Рј РїСЂРѕРІРµРґРµРЅРёРµРј С‡РµРєР° РЅРµРѕР±С…РѕРґРёРјРѕ СЂР°СЃРїСЂРµРґРµР»РёС‚СЊ РїРѕРґР°СЂРѕС‡РЅСѓСЋ СЃРєРёРґРєСѓ (РµСЃР»Рё РѕРЅР° РµСЃС‚СЊ) РїРѕ СЃС‚СЂРѕРєР°Рј С‡РµРєР°.
 			//
 			if(mode == accmRegular) {
 				/* @v10.9.8 CCheckItem * p_item;
@@ -2429,12 +2429,12 @@ int CPosProcessor::AutosaveCheck()
 					}
 					if(P_EgPrc) {
 						//
-						// Перед передачей в ЕГАИС необходимо предварительное проведение чеков
-						// для того, что бы сформировались значения номеров чеков.
-						// Однако, это не исключает коллизию, возникающую в случае, если после
-						// успешного проведения через ЕГАИС фискальный регистратор при печати
-						// присвоит чеку собственный номер. При этом получится так, что в БД и
-						// фискальной памяти будут хранится не те номера, которые были переданы в ЕГАИС.
+						// РџРµСЂРµРґ РїРµСЂРµРґР°С‡РµР№ РІ Р•Р“РђРРЎ РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРµ РїСЂРѕРІРµРґРµРЅРёРµ С‡РµРєРѕРІ
+						// РґР»СЏ С‚РѕРіРѕ, С‡С‚Рѕ Р±С‹ СЃС„РѕСЂРјРёСЂРѕРІР°Р»РёСЃСЊ Р·РЅР°С‡РµРЅРёСЏ РЅРѕРјРµСЂРѕРІ С‡РµРєРѕРІ.
+						// РћРґРЅР°РєРѕ, СЌС‚Рѕ РЅРµ РёСЃРєР»СЋС‡Р°РµС‚ РєРѕР»Р»РёР·РёСЋ, РІРѕР·РЅРёРєР°СЋС‰СѓСЋ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РїРѕСЃР»Рµ
+						// СѓСЃРїРµС€РЅРѕРіРѕ РїСЂРѕРІРµРґРµРЅРёСЏ С‡РµСЂРµР· Р•Р“РђРРЎ С„РёСЃРєР°Р»СЊРЅС‹Р№ СЂРµРіРёСЃС‚СЂР°С‚РѕСЂ РїСЂРё РїРµС‡Р°С‚Рё
+						// РїСЂРёСЃРІРѕРёС‚ С‡РµРєСѓ СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ РЅРѕРјРµСЂ. РџСЂРё СЌС‚РѕРј РїРѕР»СѓС‡РёС‚СЃСЏ С‚Р°Рє, С‡С‚Рѕ РІ Р‘Р” Рё
+						// С„РёСЃРєР°Р»СЊРЅРѕР№ РїР°РјСЏС‚Рё Р±СѓРґСѓС‚ С…СЂР°РЅРёС‚СЃСЏ РЅРµ С‚Рµ РЅРѕРјРµСЂР°, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё РїРµСЂРµРґР°РЅС‹ РІ Р•Р“РђРРЎ.
 						//
 						if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
 							THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
@@ -2486,8 +2486,8 @@ int CPosProcessor::AutosaveCheck()
 					epb.ExtPack.Rec.Code = org_ext_code;
 			}
 			// @v9.5.10 {
-			// По непонятным причинам Viki Print перестал возвращать ненулевой номер чека прежним образом.
-			// Пока, до решения проблемы, будем замещать нулевой номер нашим собственным.
+			// РџРѕ РЅРµРїРѕРЅСЏС‚РЅС‹Рј РїСЂРёС‡РёРЅР°Рј Viki Print РїРµСЂРµСЃС‚Р°Р» РІРѕР·РІСЂР°С‰Р°С‚СЊ РЅРµРЅСѓР»РµРІРѕР№ РЅРѕРјРµСЂ С‡РµРєР° РїСЂРµР¶РЅРёРј РѕР±СЂР°Р·РѕРј.
+			// РџРѕРєР°, РґРѕ СЂРµС€РµРЅРёСЏ РїСЂРѕР±Р»РµРјС‹, Р±СѓРґРµРј Р·Р°РјРµС‰Р°С‚СЊ РЅСѓР»РµРІРѕР№ РЅРѕРјРµСЂ РЅР°С€РёРј СЃРѕР±СЃС‚РІРµРЅРЅС‹Рј.
 			SETIFZ(epb.Pack.Rec.Code, org_code);
 			if(epb.Flags & epb.fIsExtPack) {
 				SETIFZ(epb.ExtPack.Rec.Code, org_ext_code);
@@ -2495,8 +2495,8 @@ int CPosProcessor::AutosaveCheck()
 			// } @v9.5.10
 			if(was_turned_before_printing) {
 				//
-				// При проведении чека перед печатью может возникнуть ситуация, когда
-				// печать изменила некоторые поля чека. В этом случае необходимо в БД изменить значения этих полей.
+				// РџСЂРё РїСЂРѕРІРµРґРµРЅРёРё С‡РµРєР° РїРµСЂРµРґ РїРµС‡Р°С‚СЊСЋ РјРѕР¶РµС‚ РІРѕР·РЅРёРєРЅСѓС‚СЊ СЃРёС‚СѓР°С†РёСЏ, РєРѕРіРґР°
+				// РїРµС‡Р°С‚СЊ РёР·РјРµРЅРёР»Р° РЅРµРєРѕС‚РѕСЂС‹Рµ РїРѕР»СЏ С‡РµРєР°. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РІ Р‘Р” РёР·РјРµРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ СЌС‚РёС… РїРѕР»РµР№.
 				//
 				CCheckCore & r_cc = GetCc();
 				PPTransaction tra(1);
@@ -2529,8 +2529,8 @@ int CPosProcessor::AutosaveCheck()
 				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 			}
 			//
-			// На ошибки печати чека и др., возникшие в Implement_AcceptCheckOnEquipment(), реагируем уже после
-			// завершения транзакций в базе данных.
+			// РќР° РѕС€РёР±РєРё РїРµС‡Р°С‚Рё С‡РµРєР° Рё РґСЂ., РІРѕР·РЅРёРєС€РёРµ РІ Implement_AcceptCheckOnEquipment(), СЂРµР°РіРёСЂСѓРµРј СѓР¶Рµ РїРѕСЃР»Рµ
+			// Р·Р°РІРµСЂС€РµРЅРёСЏ С‚СЂР°РЅР·Р°РєС†РёР№ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С….
 			//
 			if((epb.R == 0 && epb.SyncPrnErr != 3) || (epb.RExt == 0 && epb.ExtSyncPrnErr != 3)) // ???
 				PPError();
@@ -2617,7 +2617,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 {
  	int    ok = 1;
 	CCheckCore & r_cc = GetCc();
- 	int    _turn_done = 0; // Признак того, что была выполнена функция CCheckCore::TurnCheck или CCheckCore::UpdateCheck
+ 	int    _turn_done = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ Р±С‹Р»Р° РІС‹РїРѕР»РЅРµРЅР° С„СѓРЅРєС†РёСЏ CCheckCore::TurnCheck РёР»Рё CCheckCore::UpdateCheck
 	int    do_clear_junk_attrs = 0;
 	SString temp_buf;
 	SString uhtt_err_added_msg;
@@ -2642,8 +2642,8 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 					if(!P.Eccd.Addr_.ID) {
 						if(LocationCore::GetExFieldS(&P.Eccd.Addr_, LOCEXSTR_PHONE, temp_buf).NotEmptyS()) {
 							//
-							// Если у адреса есть телефон, то объявляем такой адрес автономным,
-							// дабы при повторном обращении этого клиента можно было бы повторно использовать этот адрес.
+							// Р•СЃР»Рё Сѓ Р°РґСЂРµСЃР° РµСЃС‚СЊ С‚РµР»РµС„РѕРЅ, С‚Рѕ РѕР±СЉСЏРІР»СЏРµРј С‚Р°РєРѕР№ Р°РґСЂРµСЃ Р°РІС‚РѕРЅРѕРјРЅС‹Рј,
+							// РґР°Р±С‹ РїСЂРё РїРѕРІС‚РѕСЂРЅРѕРј РѕР±СЂР°С‰РµРЅРёРё СЌС‚РѕРіРѕ РєР»РёРµРЅС‚Р° РјРѕР¶РЅРѕ Р±С‹Р»Рѕ Р±С‹ РїРѕРІС‚РѕСЂРЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚РѕС‚ Р°РґСЂРµСЃ.
 							//
 							P.Eccd.Addr_.Flags |= LOCF_STANDALONE;
 						}
@@ -2710,12 +2710,12 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 					THROW(ScObj.Search(CSt.GetID(), &sc_rec) > 0);
 					scst = ScObj.GetSeriesType(sc_rec.SeriesID);
 					//
-					// Автоактивация карты
+					// РђРІС‚РѕР°РєС‚РёРІР°С†РёСЏ РєР°СЂС‚С‹
 					//
 					const long scf_mask = SCRDF_NEEDACTIVATION|SCRDF_AUTOACTIVATION|SCRDF_CLOSED;
 					if((sc_rec.Flags & scf_mask) == scf_mask) {
 						//
-						// Начисление на карту не считаем операцией, которая может активировать карту
+						// РќР°С‡РёСЃР»РµРЅРёРµ РЅР° РєР°СЂС‚Сѓ РЅРµ СЃС‡РёС‚Р°РµРј РѕРїРµСЂР°С†РёРµР№, РєРѕС‚РѕСЂР°СЏ РјРѕР¶РµС‚ Р°РєС‚РёРІРёСЂРѕРІР°С‚СЊ РєР°СЂС‚Сѓ
 						//
 						const int only_charge_goods = IsOnlyChargeGoodsInPacket(sc_rec.ID, pPack);
 						if(!only_charge_goods && ScObj.ActivateRec(&sc_rec) > 0)
@@ -2750,8 +2750,8 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 				}
 				if(pPack->AL_Const().getCount()) {
 					//
-					// Если в чеке установлен расширенный список оплат, то все списания произведены функцией CCheckCore::TurnCheck
-					// Здесь нам остается только начислить деньги на карту (если необходимо)
+					// Р•СЃР»Рё РІ С‡РµРєРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ СЃРїРёСЃРѕРє РѕРїР»Р°С‚, С‚Рѕ РІСЃРµ СЃРїРёСЃР°РЅРёСЏ РїСЂРѕРёР·РІРµРґРµРЅС‹ С„СѓРЅРєС†РёРµР№ CCheckCore::TurnCheck
+					// Р—РґРµСЃСЊ РЅР°Рј РѕСЃС‚Р°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РЅР°С‡РёСЃР»РёС‚СЊ РґРµРЅСЊРіРё РЅР° РєР°СЂС‚Сѓ (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ)
 					//
 					if(!F(fRetCheck)) {
 						if(CSt.GetID() && CSt.Flags & CSt.fUhtt && F(fSCardBonusReal|fSCardCredit) && bonus_charge_amt != 0.0) {
@@ -2801,12 +2801,12 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 				else {
 					if(F(fRetCheck)) {
 						//
-						// Одновременная проверка на fRetCheck и fRetByCredit - параноидальная, но береженого - Бог бережет.
+						// РћРґРЅРѕРІСЂРµРјРµРЅРЅР°СЏ РїСЂРѕРІРµСЂРєР° РЅР° fRetCheck Рё fRetByCredit - РїР°СЂР°РЅРѕРёРґР°Р»СЊРЅР°СЏ, РЅРѕ Р±РµСЂРµР¶РµРЅРѕРіРѕ - Р‘РѕРі Р±РµСЂРµР¶РµС‚.
 						//
 						if(F(fRetByCredit) && CSt.GetID() && oneof2(scst, scstCredit, scstBonus)) {
 							double total = MONEYTOLDBL(pPack->Rec.Amount);
 							//
-							// Для возвратов суммы отрицательные, но начисление должно быть положительным
+							// Р”Р»СЏ РІРѕР·РІСЂР°С‚РѕРІ СЃСѓРјРјС‹ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рµ, РЅРѕ РЅР°С‡РёСЃР»РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Рј
 							//
 							double charge_amount = R2(-(total - CSt.AdditionalPayment));
 							if(charge_amount >= 0.01) {
@@ -3027,7 +3027,7 @@ int CheckPaneDialog::MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID
 	return ok;
 }
 //
-// Инициализация списка групп, которые можно выбирать
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР° РіСЂСѓРїРї, РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РІС‹Р±РёСЂР°С‚СЊ
 //
 int CheckPaneDialog::InitGroupList(const PPTouchScreenPacket & rTsPack)
 {
@@ -3130,7 +3130,7 @@ int CheckPaneDialog::PhnSvcConnect()
 					// @error
 				}
 			}
-			delete p_client; // Если соединение с сервером прошло успешно, то p_client == 0, а P_PhnSvcClient != 0
+			delete p_client; // Р•СЃР»Рё СЃРѕРµРґРёРЅРµРЅРёРµ СЃ СЃРµСЂРІРµСЂРѕРј РїСЂРѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ, С‚Рѕ p_client == 0, Р° P_PhnSvcClient != 0
 			*/
 		}
 	}
@@ -3502,13 +3502,21 @@ int CheckPaneDialog::IsSalCode(const SString & rInput, SString & rCode)
 		} while(!ok && ++asterix < 2);
 	}
 	else {
+		SString & r_temp_buf = SLS.AcquireRvlStr();;
+		TranslateLocaleKeyboardTextToLatin(rInput, r_temp_buf); // @v11.2.5
 		do {
+			// @v11.2.5 {
+			if(IsCode(r_temp_buf, pfx = "SAL", asterix, rCode))
+				ok = 1;
+			// } @v11.2.5 
+			/* @v11.2.5
 			if(IsCode(rInput, pfx = "SAL", asterix, rCode))
 				ok = 1;
-			else if(IsCode(rInput, pfx = "ЫФД", asterix, rCode))
+			else if(IsCode(rInput, pfx = "Р«Р¤Р”", asterix, rCode))
 				ok = 1;
-			else if(IsCode(rInput, (pfx = "ЫФД").ToOem(), asterix, rCode))
+			else if(IsCode(rInput, (pfx = "Р«Р¤Р”").ToOem(), asterix, rCode))
 				ok = 1;
+			*/
 		} while(!ok && ++asterix < 2);
 	}
 	return ok;
@@ -3691,8 +3699,8 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		assert(oneof4(rBlk.Kind, cpmUndef, cpmCash, cpmBank, cpmIncorpCrd));
 		if(F(fRetCheck) && Rb.AmL.GetTotal() != 0.0) {
 			//
-			// Если возврат осуществляется по чеку со сложными суммами, то масштабируем список
-			// до суммы возврата и (изменив флаг) используем для расчета.
+			// Р•СЃР»Рё РІРѕР·РІСЂР°С‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РїРѕ С‡РµРєСѓ СЃРѕ СЃР»РѕР¶РЅС‹РјРё СЃСѓРјРјР°РјРё, С‚Рѕ РјР°СЃС€С‚Р°Р±РёСЂСѓРµРј СЃРїРёСЃРѕРє
+			// РґРѕ СЃСѓРјРјС‹ РІРѕР·РІСЂР°С‚Р° Рё (РёР·РјРµРЅРёРІ С„Р»Р°Рі) РёСЃРїРѕР»СЊР·СѓРµРј РґР»СЏ СЂР°СЃС‡РµС‚Р°.
 			//
 			rBlk.CcPl = Rb.AmL;
 			rBlk.CcPl.InvertSign();
@@ -3702,16 +3710,16 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		else if(F(fRetByCredit)) {
 			if(addpaym_r2 > add_paym_epsilon) {
 				rBlk.AmtToPaym = R2(rBlk.GetTotal());
-				assert(CSt.GetID() != 0); // Если карта не установлена, то попасть в эту ветку кода невозможно
+				assert(CSt.GetID() != 0); // Р•СЃР»Рё РєР°СЂС‚Р° РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР°, С‚Рѕ РїРѕРїР°СЃС‚СЊ РІ СЌС‚Сѓ РІРµС‚РєСѓ РєРѕРґР° РЅРµРІРѕР·РјРѕР¶РЅРѕ
 				if(rBlk.Kind == cpmBank) {
 					rBlk.CcPl.Add(CCAMTTYP_BANK, rBlk.AmtToPaym);
 				}
 				else if(rBlk.Kind == cpmIncorpCrd) {
-					// При предустановленном типе оплаты cmpIncorpCrd мы не должны попасть в эту ветку
+					// РџСЂРё РїСЂРµРґСѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј С‚РёРїРµ РѕРїР»Р°С‚С‹ cmpIncorpCrd РјС‹ РЅРµ РґРѕР»Р¶РЅС‹ РїРѕРїР°СЃС‚СЊ РІ СЌС‚Сѓ РІРµС‚РєСѓ
 					assert(rBlk.Kind != cpmIncorpCrd);
 				}
 				else {
-					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Р”СЂСѓРіРёРµ РІР°СЂРёР°РЅС‚С‹ РёСЃРєР»СЋС‡РµРЅС‹
 					rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
 				}
 				rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal() - addpaym_r2, CSt.GetID());
@@ -3727,7 +3735,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 						rBlk.CcPl.Add(CCAMTTYP_BANK, rBlk.AmtToPaym);
 					}
 					else {
-						assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+						assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Р”СЂСѓРіРёРµ РІР°СЂРёР°РЅС‚С‹ РёСЃРєР»СЋС‡РµРЅС‹
 						rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
 					}
 					rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal() - rBlk.AmtToPaym, CSt.GetID());
@@ -3741,16 +3749,16 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					addpaym_r2 = rBlk.GetTotal() - rBlk.GetUsableBonus();
 				}
 				rBlk.AmtToPaym = addpaym_r2;
-				assert(CSt.GetID() != 0); // Если карта не установлена, то попасть в эту ветку кода невозможно
+				assert(CSt.GetID() != 0); // Р•СЃР»Рё РєР°СЂС‚Р° РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР°, С‚Рѕ РїРѕРїР°СЃС‚СЊ РІ СЌС‚Сѓ РІРµС‚РєСѓ РєРѕРґР° РЅРµРІРѕР·РјРѕР¶РЅРѕ
 				if(rBlk.Kind == cpmBank) {
 					rBlk.CcPl.Add(CCAMTTYP_BANK, rBlk.AmtToPaym);
 				}
 				else if(rBlk.Kind == cpmIncorpCrd) {
-					// При предустановленном типе оплаты cmpIncorpCrd мы не должны попасть в эту ветку
+					// РџСЂРё РїСЂРµРґСѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј С‚РёРїРµ РѕРїР»Р°С‚С‹ cmpIncorpCrd РјС‹ РЅРµ РґРѕР»Р¶РЅС‹ РїРѕРїР°СЃС‚СЊ РІ СЌС‚Сѓ РІРµС‚РєСѓ
 					assert(rBlk.Kind != cpmIncorpCrd);
 				}
 				else {
-					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Р”СЂСѓРіРёРµ РІР°СЂРёР°РЅС‚С‹ РёСЃРєР»СЋС‡РµРЅС‹
 					rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
 				}
 				rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal() - rBlk.AmtToPaym, CSt.GetID());
@@ -3765,7 +3773,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal(), CSt.GetID());
 				}
 				else {
-					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Р”СЂСѓРіРёРµ РІР°СЂРёР°РЅС‚С‹ РёСЃРєР»СЋС‡РµРЅС‹
 					rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
 				}
 				if(rBlk.GetUsableBonus() != 0.0) {
@@ -3821,8 +3829,8 @@ int CPosProcessor::RecognizeCode(int mode, const char * pCode, int autoInput)
 			if(acs_id && PPObjArticle::GetSearchingRegTypeID(acs_id, 0, 0, &reg_type_id) > 0)
 				ArObj.SearchByRegCode(acs_id, reg_type_id, pCode, &ar_id, 0);
 			if(ar_id) {
-				SetupAgent(ar_id, BIN(mode == crmodeAgent)); // asAuthAgent=1 под вопросом. Сейчас установлено потому,
-					// что функция вызывается только мобильным агентом и в этом случае так правильно.
+				SetupAgent(ar_id, BIN(mode == crmodeAgent)); // asAuthAgent=1 РїРѕРґ РІРѕРїСЂРѕСЃРѕРј. РЎРµР№С‡Р°СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РїРѕС‚РѕРјСѓ,
+					// С‡С‚Рѕ С„СѓРЅРєС†РёСЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РјРѕР±РёР»СЊРЅС‹Рј Р°РіРµРЅС‚РѕРј Рё РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ С‚Р°Рє РїСЂР°РІРёР»СЊРЅРѕ.
 				SetupInfo(0);
 				try_next = 0;
 				ok = 1;
@@ -3834,7 +3842,7 @@ int CPosProcessor::RecognizeCode(int mode, const char * pCode, int autoInput)
 		}
 		if(try_next && oneof2(mode, crmodeAuto, crmodeSCard)) {
 			//
-			// Выбор карты
+			// Р’С‹Р±РѕСЂ РєР°СЂС‚С‹
 			//
 			if(PPObjSCard::PreprocessSCardCode(ss_code = pCode) > 0) {
 				char   card_code[64];
@@ -4028,9 +4036,9 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck))
 					MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 				else {
-					int    r = -1; // r == 1000 - операция невозможна из-за несоблюдения какого-то условия //
+					int    r = -1; // r == 1000 - РѕРїРµСЂР°С†РёСЏ РЅРµРІРѕР·РјРѕР¶РЅР° РёР·-Р·Р° РЅРµСЃРѕР±Р»СЋРґРµРЅРёСЏ РєР°РєРѕРіРѕ-С‚Рѕ СѓСЃР»РѕРІРёСЏ //
 					char   code[256]; // @v10.8.1 [128]-->[256]
-					int    is_serial = 0; // !0 если code является подходящим серийным номером
+					int    is_serial = 0; // !0 РµСЃР»Рё code СЏРІР»СЏРµС‚СЃСЏ РїРѕРґС…РѕРґСЏС‰РёРј СЃРµСЂРёР№РЅС‹Рј РЅРѕРјРµСЂРѕРј
 					double qtty = 1.0;
 					double price = 0.0;
 					PPID   goods_id = 0;
@@ -4109,7 +4117,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							SetupInfo(0);
 						}
 						//
-						// Выбор карты
+						// Р’С‹Р±РѕСЂ РєР°СЂС‚С‹
 						//
 						else {
 							PPIDArray sc_id_list;
@@ -4140,7 +4148,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			AcceptRow();
 		else if(P.getCount()) {
 			//
-			// Проведение и печать чека
+			// РџСЂРѕРІРµРґРµРЅРёРµ Рё РїРµС‡Р°С‚СЊ С‡РµРєР°
 			//
 			if(CnExtFlags & CASHFX_DISABLEZEROSCARD && !CSt.GetID())
 				MessageError(PPERR_CHKPAN_SCARDNEEDED, 0, eomBeep|eomStatusLine);
@@ -4176,9 +4184,9 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									}
 								}
 								if(bnk_paym_result) { // @v10.9.0
-									PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
+									PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 РџРµС‡Р°С‚Р°С‚СЊ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃР»РёРї РґРѕ С‡РµРєР°
 									AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
-									PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
+									PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 РџРµС‡Р°С‚Р°С‚СЊ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃР»РёРї РїРѕСЃР»Рµ С‡РµРєР°
 								}
 							}
 							break;
@@ -4202,7 +4210,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										SString bnk_slip_buf;
 										_again = 0;
 										// @vmiller {
-										if(P_BNKTERM) { // Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
+										if(P_BNKTERM) { // Р—РґРµСЃСЊ РЅРµ РїСЂРѕРІРµСЂСЏСЋ С‚РёРї РѕРїРµСЂР°С†РёРё, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РїСЂРё СЃРјРµС€Р°РЅРЅРѕР№ РѕРїР»Р°С‚Рµ РІ paym_blk2.Kind Р±СѓРґРµС‚ СЃС‚РѕСЏС‚СЊ cpmCash
 											for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
 												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
@@ -4222,10 +4230,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										else
 											CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
 										if(bnk_paym_result) {
-											PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
+											PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 РџРµС‡Р°С‚Р°С‚СЊ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃР»РёРї РґРѕ С‡РµРєР°
 											const PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
 											AcceptCheck(&paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
-											PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
+											PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 РџРµС‡Р°С‚Р°С‚СЊ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃР»РёРї РїРѕСЃР»Рµ С‡РµРєР°
 										}
 									}
 								}
@@ -4452,7 +4460,7 @@ void ComplexDinnerDialog::DrawListItem(TDrawItemData * pDrawItem)
 			SString temp_buf;
 			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
 				::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brOdd)));
-				pDrawItem->ItemAction = 0; // Мы перерисовали фон
+				pDrawItem->ItemAction = 0; // РњС‹ РїРµСЂРµСЂРёСЃРѕРІР°Р»Рё С„РѕРЅ
 			}
 			else if(pDrawItem->ItemID != 0xffffffff) {
 				h_fnt_def = static_cast<HFONT>(::SelectObject(h_dc, static_cast<HFONT>(Ptb.Get(fontList))));
@@ -4477,7 +4485,7 @@ void ComplexDinnerDialog::DrawListItem(TDrawItemData * pDrawItem)
 			}
 		}
 		else
-			pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
+			pDrawItem->ItemAction = 0; // РЎРїРёСЃРѕРє РЅРµ Р°РєС‚РёРІРµРЅ - СЃС‚СЂРѕРєСѓ РЅРµ СЂРёСЃСѓРµРј
 	}
 }
 
@@ -4512,7 +4520,7 @@ struct _SelCheck {
 	{
 	}
 	enum {
-		fUnfinished = 0x0001 // Структура возвращает неотпечатанный чек
+		fUnfinished = 0x0001 // РЎС‚СЂСѓРєС‚СѓСЂР° РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕС‚РїРµС‡Р°С‚Р°РЅРЅС‹Р№ С‡РµРє
 	};
 	PPID    CheckID;
 	long    Flags;
@@ -4527,12 +4535,12 @@ public:
 		}
 		enum {
 			fAllowReturns = 0x0001,
-			fUnfinished   = 0x0002 // @v10.6.11 Выбор неотпечатанных чеков
+			fUnfinished   = 0x0002 // @v10.6.11 Р’С‹Р±РѕСЂ РЅРµРѕС‚РїРµС‡Р°С‚Р°РЅРЅС‹С… С‡РµРєРѕРІ
 		};
 		PPID   NodeID;
 		long   TableCode;
 		PPID   AgentID;
-		long   Rights;       // Права доступа из кассовой панели
+		long   Rights;       // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° РёР· РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»Рё
 		long   Flags;        // @v9.3.5
 		SString FormatName;
 	};
@@ -4693,7 +4701,7 @@ private:
 		stSelectFormat     = 0x0010,
 		stSelToUnite       = 0x0020,
 		stSelectSlipFormat = 0x0040,
-		stSelectUnfinished = 0x0080 // @v10.6.11 Режим выбора неотпечатанных чеков
+		stSelectUnfinished = 0x0080 // @v10.6.11 Р РµР¶РёРј РІС‹Р±РѕСЂР° РЅРµРѕС‚РїРµС‡Р°С‚Р°РЅРЅС‹С… С‡РµРєРѕРІ
 	};
 	long   State;
 	const  AddedParam * P_AddParam; // @notowned
@@ -4855,8 +4863,8 @@ private:
 				ss.add(temp_buf);
 			}
 			else {
-				// @lbt_tblordlist        "10,R,Стол;26,R,Время заказа;10,L,Карта;19,L,Владелец карты;14,R,Предоплата;18,L,Дата/время;10,L,№ чека"
-				// @lbt_tblordlist_l      "20,R,Стол;35,R,Время заказа;20,L,Карта;30,L,Владелец карты;25,R,Предоплата;36,L,Дата/время;20,L,№ чека"
+				// @lbt_tblordlist        "10,R,РЎС‚РѕР»;26,R,Р’СЂРµРјСЏ Р·Р°РєР°Р·Р°;10,L,РљР°СЂС‚Р°;19,L,Р’Р»Р°РґРµР»РµС† РєР°СЂС‚С‹;14,R,РџСЂРµРґРѕРїР»Р°С‚Р°;18,L,Р”Р°С‚Р°/РІСЂРµРјСЏ;10,L,в„– С‡РµРєР°"
+				// @lbt_tblordlist_l      "20,R,РЎС‚РѕР»;35,R,Р’СЂРµРјСЏ Р·Р°РєР°Р·Р°;20,L,РљР°СЂС‚Р°;30,L,Р’Р»Р°РґРµР»РµС† РєР°СЂС‚С‹;25,R,РџСЂРµРґРѕРїР»Р°С‚Р°;36,L,Р”Р°С‚Р°/РІСЂРµРјСЏ;20,L,в„– С‡РµРєР°"
 
 				SString scard_psn, scard_no;
 				STimeChunk tm_chunk;
@@ -5307,7 +5315,7 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 	else if(event.isCmd(cmNewCheck) && State & stTblOrders) {
 		if(IsInState(sfModal)) {
 			endModal(cmNewCheck);
-			return; // После endModal не следует обращаться к this
+			return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 		}
 	}
 	TDialog::handleEvent(event);
@@ -5391,7 +5399,7 @@ struct AddrByPhoneItem { // @flat
 	PPID   ObjID;
 	long   ObjFlags;
 	PPID   CityID;
-	PPID   AddrID;     // Если ObjType == PPOBJ_PERSON, то AddrID уточняет адрес из списка адресов, принадлежащих персоналии
+	PPID   AddrID;     // Р•СЃР»Рё ObjType == PPOBJ_PERSON, С‚Рѕ AddrID СѓС‚РѕС‡РЅСЏРµС‚ Р°РґСЂРµСЃ РёР· СЃРїРёСЃРєР° Р°РґСЂРµСЃРѕРІ, РїСЂРёРЅР°РґР»РµР¶Р°С‰РёС… РїРµСЂСЃРѕРЅР°Р»РёРё
 	char   Phone[32];
 	char   Addr[128];
 	char   Contact[128];
@@ -5406,8 +5414,7 @@ public:
 	CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), ScsRsrvPoolID(0), Channel(pChannel),
 		LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
 	{
-		addGroup(ctlgrouSCard, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
-		// @v10.6.4 MEMSZERO(OrgLocRec);
+		addGroup(ctlgrouSCard, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0));
 		Data.SCardID_ = scardID;
 		SetupCalDate(CTLCAL_CCHKDLVR_DT, CTL_CCHKDLVR_DT);
 		SetupTimePicker(this, CTL_CCHKDLVR_TM, CTLTM_CCHKDLVR_TM);
@@ -5424,7 +5431,7 @@ public:
 		}
 		setCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
 		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 0, Data.fDelivery);
-		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished); // @v9.7.7
+		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished);
 		SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
 		SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/), OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
 		SetupDeliveryCtrls(0);
@@ -5472,17 +5479,13 @@ public:
 			LocationCore::SetExField(&Data.Addr_, LOCEXSTR_CONTACT, temp_buf);
 			Data.DlvrDtm.d = getCtrlDate(CTL_CCHKDLVR_DT);
 			Data.DlvrDtm.t = getCtrlTime(CTL_CCHKDLVR_TM);
-			GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags); // @v9.4.11
+			GetClusterData(CTL_CCHKDLVR_LPHTOCRD, &Data.Flags);
 		}
-		else {
-		}
-		// @v9.4.5 {
 		{
 			SCardCtrlGroup::Rec screc;
 			getGroupData(ctlgrouSCard, &screc);
 			Data.SCardID_ = screc.SCardID;
 		}
-		// } @v9.4.5
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
@@ -5536,9 +5539,6 @@ private:
 			}
 		}
 		// } @v10.2.8
-		/* @v9.4.5 else if(event.isCbSelected(CTLSEL_CCHKDLVR_SCARD)) {
-			SCardID = getCtrlLong(CTLSEL_CCHKDLVR_SCARD);
-		} */
 		else if(event.isCmd(cmSelAddrByPhone)) {
 			const  uint c = AddrByPhoneList.getCount();
 			if(Data.Flags & Data.fDelivery && c) {
@@ -5567,7 +5567,7 @@ private:
 				if(scgrec.SCardID) {
 					int    local_ok = 0;
 					SCardTbl::Rec sc_rec;
-					if(ScObj.Fetch(scgrec.SCardID, &sc_rec) > 0) { // @v9.4.11 Search-->Fetch
+					if(ScObj.Fetch(scgrec.SCardID, &sc_rec) > 0) {
 						if((!sc_rec.LocID || sc_rec.LocID == Data.Addr_.ID) && (!sc_rec.PersonID || sc_rec.PersonID == Data.Addr_.OwnerID)) {
 							Data.SCardID_ = scgrec.SCardID;
 							local_ok = 1;
@@ -5646,7 +5646,6 @@ private:
 			}
 			setStaticText(CTL_CCHKDLVR_ST_ADDRID,  temp_buf.Z().Cat(Data.Addr_.ID));
 			setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, temp_buf.Z());
-			// @v9.4.5 {
 			{
 				PPIDArray sc_list;
 				PPID   sc_id = 0;
@@ -5674,7 +5673,6 @@ private:
 				}
 				setCtrlLong(CTL_CCHKDLVR_SCARD, sc_id);
 			}
-			// } @v9.4.5
 			SetupDeliveryCtrls(0);
 		}
 	}
@@ -5762,7 +5760,7 @@ private:
 		SString temp_buf, phone_buf;
 		getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 			if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
 				if(phone_buf.NotEmptyS()) {
@@ -5807,9 +5805,9 @@ private:
 										addr_list.addnz(psn_rec.MainLoc);
 										if(addr_list.getCount() == 0) {
 											//
-											// Если у персоналии нет ни одного адреса, то все равно необходимо
-											// отобразить эту персоналию в списке с пустым адресом, дабы
-											// пользователь мог ее выбрать и ввести адрес, который ему назовет клиент.
+											// Р•СЃР»Рё Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµС‚ РЅРё РѕРґРЅРѕРіРѕ Р°РґСЂРµСЃР°, С‚Рѕ РІСЃРµ СЂР°РІРЅРѕ РЅРµРѕР±С…РѕРґРёРјРѕ
+											// РѕС‚РѕР±СЂР°Р·РёС‚СЊ СЌС‚Сѓ РїРµСЂСЃРѕРЅР°Р»РёСЋ РІ СЃРїРёСЃРєРµ СЃ РїСѓСЃС‚С‹Рј Р°РґСЂРµСЃРѕРј, РґР°Р±С‹
+											// РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РјРѕРі РµРµ РІС‹Р±СЂР°С‚СЊ Рё РІРІРµСЃС‚Рё Р°РґСЂРµСЃ, РєРѕС‚РѕСЂС‹Р№ РµРјСѓ РЅР°Р·РѕРІРµС‚ РєР»РёРµРЅС‚.
 											//
 											addr_list.add(0L);
 										}
@@ -5823,8 +5821,7 @@ private:
 											STRNSCPY(ap_item.Contact, psn_rec.Name);
 											ap_item.AddrID = addr_id;
 											if(addr_id) {
-												// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(addr_id, 0, temp_buf);
-												PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf); // @v9.5.5
+												PsnObj.LocObj.GetAddress(addr_id, 0, temp_buf);
 												temp_buf.CopyTo(ap_item.Addr, sizeof(ap_item.Addr));
 											}
 											AddrByPhoneList.insert(&ap_item);
@@ -5886,7 +5883,7 @@ private:
 							if(temp_buf.NotEmptyS())
 								LocationCore::SetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf);
 							//
-							// Обнуляем идентификатор адреса поскольку эта запись станет собственностью чека.
+							// РћР±РЅСѓР»СЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°РґСЂРµСЃР° РїРѕСЃРєРѕР»СЊРєСѓ СЌС‚Р° Р·Р°РїРёСЃСЊ СЃС‚Р°РЅРµС‚ СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚СЊСЋ С‡РµРєР°.
 							//
 							loc_rec.ID = 0;
 							Data.Addr_ = loc_rec;
@@ -5933,7 +5930,6 @@ private:
 					}
 				}
 			}
-			// @v9.4.11 {
 			{
 				int    is_attachm_phn_to_sc_allowed = 0;
 				if(Data.SCardID_ && loc_phone.NotEmpty() && ScObj.Fetch(Data.SCardID_, &sc_rec) > 0) {
@@ -5956,14 +5952,13 @@ private:
 					SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
 				}
 			}
-			// } @v9.4.11
 		}
 		disableCtrls(!(Data.Flags & Data.fDelivery), CTL_CCHKDLVR_ADDRID, CTLSEL_CCHKDLVR_CITY,
 			CTL_CCHKDLVR_ADDR, CTL_CCHKDLVR_PHONE, CTL_CCHKDLVR_CONTACT, CTL_CCHKDLVR_DT, CTL_CCHKDLVR_TM, 0);
 		LockAddrModChecking = 0;
 	}
 
-	PPID   ScsRsrvPoolID; // Персональная карта была акцептирована из резервного пула ScsRsrvPoolID.
+	PPID   ScsRsrvPoolID; // РџРµСЂСЃРѕРЅР°Р»СЊРЅР°СЏ РєР°СЂС‚Р° Р±С‹Р»Р° Р°РєС†РµРїС‚РёСЂРѕРІР°РЅР° РёР· СЂРµР·РµСЂРІРЅРѕРіРѕ РїСѓР»Р° ScsRsrvPoolID.
 	LocationTbl::Rec OrgLocRec;
 	PPID   DefCityID;
 	PPID   PersonID;
@@ -6044,7 +6039,7 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 			}
 			if(gcsr) {
 				if(status_list.GetCount()) {
-					PPEAddrArray phn_list; // Список телефонов, находящихся в списке. Необходим для устранения дублируемых строк.
+					PPEAddrArray phn_list; // РЎРїРёСЃРѕРє С‚РµР»РµС„РѕРЅРѕРІ, РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РІ СЃРїРёСЃРєРµ. РќРµРѕР±С…РѕРґРёРј РґР»СЏ СѓСЃС‚СЂР°РЅРµРЅРёСЏ РґСѓР±Р»РёСЂСѓРµРјС‹С… СЃС‚СЂРѕРє.
 					PPIDArray ea_id_list;
 					SString contact_buf;
 					for(uint i = 0; !pop_dlvr_pane && i < status_list.GetCount(); i++) {
@@ -6173,7 +6168,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	const PPID prev_agent_id = P.GetAgentID(1);
 	if(TVCOMMAND) {
 		if(TVCMD == cmInputUpdated)
-			IdleClock = clock(); // Не обрабатываем это сообщение, а лишь прерываем таймаут засыпания //
+			IdleClock = clock(); // РќРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ, Р° Р»РёС€СЊ РїСЂРµСЂС‹РІР°РµРј С‚Р°Р№РјР°СѓС‚ Р·Р°СЃС‹РїР°РЅРёСЏ //
 		// @v10.8.1 {
 		else if(TVCMD == cmModalPostCreate) {
 			if(!(Flags & fNoEdit) && CnExtFlags & CASHFX_NOTIFYEQPTIMEMISM) {
@@ -6329,7 +6324,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				PPAlbatrosCfgMngr::Get(&acfg);
 				P_UhttImporter->InitUhttImport(acfg.Hdr.OpID, CnLocID, CashNodeID);
 				if(P_UhttImporter->Run() > 0) {
-					SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления
+					SMessageWindow::DestroyByParent(H()); // РЈР±РёСЂР°РµРј СЃ СЌРєСЂР°РЅР° РїСЂРµРґС‹РґСѓС‰РёРµ СѓРІРµРґРѕРјР»РµРЅРёСЏ
 					SMessageWindow * p_win = new SMessageWindow;
 					if(p_win) {
 						SString msg_buf;
@@ -6626,7 +6621,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(!Barrier()) {
 					if(CnSpeciality == PPCashNode::spCafe) {
 						//
-						// Выбор количества гостей за столом (P.GuestCount)
+						// Р’С‹Р±РѕСЂ РєРѕР»РёС‡РµСЃС‚РІР° РіРѕСЃС‚РµР№ Р·Р° СЃС‚РѕР»РѕРј (P.GuestCount)
 						//
 						if(P.TableCode) {
 							int    is_input = GetInput();
@@ -6779,8 +6774,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 					Barrier(1);
 				}
-				break; // @v10.3.2 @fix (отсутствовал break)
-			case kbCtrlF8: // Просмотр информации о персональной карте
+				break; // @v10.3.2 @fix (РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°Р» break)
+			case kbCtrlF8: // РџСЂРѕСЃРјРѕС‚СЂ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚Рµ
 				if(!Barrier()) {
 					PPID   scard_id = CSt.GetID();
 					ViewSCardInfo(&scard_id, CashNodeID, 1);
@@ -6840,7 +6835,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 			if(list_ctrl_id == CTL_CHKPAN_GDSLIST) {
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
 					FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brOdd)));
-					pDrawItem->ItemAction = 0; // Мы перерисовали фон
+					pDrawItem->ItemAction = 0; // РњС‹ РїРµСЂРµСЂРёСЃРѕРІР°Р»Рё С„РѕРЅ
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {
 					h_fnt_def = static_cast<HFONT>(::SelectObject(h_dc, static_cast<HFONT>(Ptb.Get(fontGoodsList))));
@@ -6880,7 +6875,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
 					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrGrp));
 					::FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get(brGrp)));
-					pDrawItem->ItemAction = 0; // Мы перерисовали фон
+					pDrawItem->ItemAction = 0; // РњС‹ РїРµСЂРµСЂРёСЃРѕРІР°Р»Рё С„РѕРЅ
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {
 					GrpListItem gli;
@@ -6929,7 +6924,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				::SetBkColor(h_dc, clr_prev);
 		}
 		else
-			pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
+			pDrawItem->ItemAction = 0; // РЎРїРёСЃРѕРє РЅРµ Р°РєС‚РёРІРµРЅ - СЃС‚СЂРѕРєСѓ РЅРµ СЂРёСЃСѓРµРј
 	}
 }
 
@@ -7063,7 +7058,7 @@ int CheckPaneDialog::SetDlgResizeParams()
 //#ifdef NDEBUG
 		ResizeDlgToFullScreen();
 //#endif
-		UpdateGList(0, 0);  // Формируем список товарных групп
+		UpdateGList(0, 0);  // Р¤РѕСЂРјРёСЂСѓРµРј СЃРїРёСЃРѕРє С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
 		ok = 1;
 	}
 	return ok;
@@ -7426,7 +7421,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, int unfinishedForReprinting)
 	SetupInfo(0);
 	SuspCheckID = ccID;
 	if(!unfinishedForReprinting) {
-		ProcessGift(); // Добавляем в чек подарочные позиции (если не репринт)
+		ProcessGift(); // Р”РѕР±Р°РІР»СЏРµРј РІ С‡РµРє РїРѕРґР°СЂРѕС‡РЅС‹Рµ РїРѕР·РёС†РёРё (РµСЃР»Рё РЅРµ СЂРµРїСЂРёРЅС‚)
 	}
 	GetCc().WriteCCheckLogFile(&cc_pack, 0, CCheckCore::logRestored, 1);
 	CATCHZOK
@@ -7478,13 +7473,12 @@ int CheckPaneDialog::SelectSuspendedCheck()
 							if(!(item.Flags & CCHKF_DELIVERY))
 								continue;
 						}
-						if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL)) // @v9.0.8
+						if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL))
 							continue;
 						list.insert(&item);
 					}
 				}
 			}
-			// @v9.7.7 {
 			if(Scf.Flags & Scf.fNotSpFinished) {
 				CCheckFilt cc_filt;
 				cc_filt.Period.low = plusdate(getcurdate_(), (Scf.DaysPeriod > 0) ? -Scf.DaysPeriod : -7);
@@ -7512,7 +7506,6 @@ int CheckPaneDialog::SelectSuspendedCheck()
 					}
 				}
 			}
-			// } @v9.7.7
 			dlg->setList(list);
 			if(ExecView(dlg) == cmOK) {
 				_SelCheck  sel_chk;
@@ -7653,7 +7646,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 					chk_pack.Rec = SelPack.Rec;
 					ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, BIN(Flags & fTouchScreen)), 1, 0);
 					if(r) {
-						int    crcc_arg = -1; // Аргумент последующего вызова функции CalcRestByCrdCard_ (-1 - не вызывать)
+						int    crcc_arg = -1; // РђСЂРіСѓРјРµРЅС‚ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ РІС‹Р·РѕРІР° С„СѓРЅРєС†РёРё CalcRestByCrdCard_ (-1 - РЅРµ РІС‹Р·С‹РІР°С‚СЊ)
 						if(r == cmaAll) {
 							LoadCheck(&chk_pack, 1);
 							SelLines.freeAll();
@@ -7854,7 +7847,7 @@ int CPosProcessor::PreprocessRowBeforeRemoving(/*IN*/long rowNo, /*OUT*/double *
 	int    ok = -1;
 	double qtty = 0.0;
 	if(rowNo >= 0 && rowNo < static_cast<long>(P.getCount())) {
-		const  CCheckItem item = P.at(static_cast<uint>(rowNo)); // @note Переменная не должна быть ссылкой (оригинал может измениться)
+		const  CCheckItem item = P.at(static_cast<uint>(rowNo)); // @note РџРµСЂРµРјРµРЅРЅР°СЏ РЅРµ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃСЃС‹Р»РєРѕР№ (РѕСЂРёРіРёРЅР°Р» РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ)
 		qtty = fabs(item.Quantity);
 		int    is_rights = 1;
 		if((Flags & fPrinted) && !(OperRightsFlags & orfChgPrintedCheck))
@@ -7907,7 +7900,7 @@ int CPosProcessor::Helper_PrintRemovedRow(const CCheckItem & rItem)
 		PPLocPrinter loc_prn_rec;
 		DS.GetTLA().PrintDevice.Z();
 		//
-		// Инициализация gtoa по ассоциации, установленной в кассовом узле
+		// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ gtoa РїРѕ Р°СЃСЃРѕС†РёР°С†РёРё, СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ РІ РєР°СЃСЃРѕРІРѕРј СѓР·Р»Рµ
 		//
 		InitCashMachine();
 		GoodsToObjAssoc gtoa(NZOR(P_CM->GetNodeData().GoodsLocAssocID, PPASS_GOODS2LOC), PPOBJ_LOCATION);
@@ -7916,7 +7909,7 @@ int CPosProcessor::Helper_PrintRemovedRow(const CCheckItem & rItem)
 			gtoa.Get(rItem.GoodsID, &loc_id);
 			{
 				//
-				// В этой области содержимое пакета P полностью очищается, а затем восстанавливается (P = saved_check).
+				// Р’ СЌС‚РѕР№ РѕР±Р»Р°СЃС‚Рё СЃРѕРґРµСЂР¶РёРјРѕРµ РїР°РєРµС‚Р° P РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‡РёС‰Р°РµС‚СЃСЏ, Р° Р·Р°С‚РµРј РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ (P = saved_check).
 				//
 				CCheckItemArray saved_check(P);
 				P.freeAll();
@@ -8074,9 +8067,9 @@ int CheckPaneDialog::RemoveRow()
 			if(PreprocessRowBeforeRemoving(cur, 0) > 0) {
 				const  CCheckItem item = P.at((uint)cur);
 				//
-				// @v8.1.11 Структура следующего ниже блока изменена таким образом, что если
-				// строка была ранее отпечатана и пользователь отклонил запрос на печать отмены,
-				// то удаляться строка не будет.
+				// @v8.1.11 РЎС‚СЂСѓРєС‚СѓСЂР° СЃР»РµРґСѓСЋС‰РµРіРѕ РЅРёР¶Рµ Р±Р»РѕРєР° РёР·РјРµРЅРµРЅР° С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј, С‡С‚Рѕ РµСЃР»Рё
+				// СЃС‚СЂРѕРєР° Р±С‹Р»Р° СЂР°РЅРµРµ РѕС‚РїРµС‡Р°С‚Р°РЅР° Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РѕС‚РєР»РѕРЅРёР» Р·Р°РїСЂРѕСЃ РЅР° РїРµС‡Р°С‚СЊ РѕС‚РјРµРЅС‹,
+				// С‚Рѕ СѓРґР°Р»СЏС‚СЊСЃСЏ СЃС‚СЂРѕРєР° РЅРµ Р±СѓРґРµС‚.
 				//
 				if(!(item.Flags & cifIsPrinted) || ConfirmMessage(PPCFM_PRINTCANCELEDCCROW, 0, 1)) {
 					Helper_RemoveRow(cur, item);
@@ -8105,9 +8098,9 @@ int CheckPaneDialog::RemoveRow()
 
 /*virtual*/void CheckPaneDialog::OnUpdateList(int goBottom)
 {
-//@lbt_chkpan    "3,R,#;3,C,;70,L,Товар;16,L,Штрихкод;11,R,Цена;10,R,Кол-во;11,R,Сумма;12,L,Серия;9,R,Отдел;4,C,Q" // DLG_CHKPAN
-//@lbt_chkpan_ts "4,R,#;3,C,;60,L,Товар;12,R,Цена;12,R,Кол-во;12,R,Сумма;10,R,Отдел;4,C,Q"                         // DLG_CHKPAN_TS
-//@lbt_chkpanv   "3,R,#;3,C,;40,L,Товар;16,L,Штрихкод;9,R,Цена;8,R,Скидка;8,R,Кол-во;9,R,Сумма;12,L,Серия"         // DLG_CHKPANV, DLG_CHKPANV_L
+//@lbt_chkpan    "3,R,#;3,C,;70,L,РўРѕРІР°СЂ;16,L,РЁС‚СЂРёС…РєРѕРґ;11,R,Р¦РµРЅР°;10,R,РљРѕР»-РІРѕ;11,R,РЎСѓРјРјР°;12,L,РЎРµСЂРёСЏ;9,R,РћС‚РґРµР»;4,C,Q" // DLG_CHKPAN
+//@lbt_chkpan_ts "4,R,#;3,C,;60,L,РўРѕРІР°СЂ;12,R,Р¦РµРЅР°;12,R,РљРѕР»-РІРѕ;12,R,РЎСѓРјРјР°;10,R,РћС‚РґРµР»;4,C,Q"                         // DLG_CHKPAN_TS
+//@lbt_chkpanv   "3,R,#;3,C,;40,L,РўРѕРІР°СЂ;16,L,РЁС‚СЂРёС…РєРѕРґ;9,R,Р¦РµРЅР°;8,R,РЎРєРёРґРєР°;8,R,РљРѕР»-РІРѕ;9,R,РЎСѓРјРјР°;12,L,РЎРµСЂРёСЏ"         // DLG_CHKPANV, DLG_CHKPANV_L
 
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 	if(p_list) {
@@ -8229,7 +8222,7 @@ static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf,
 	}
 	else if(dest == eomPopup) {
 		PPGetMessage(mfError, (errCode < 0) ? PPErrCode : errCode, pAddedMsg, 1, err_msg);
-		SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+		SMessageWindow::DestroyByParent(H()); // РЈР±РёСЂР°РµРј СЃ СЌРєСЂР°РЅР° РїСЂРµРґС‹РґСѓС‰РёРµ СѓРІРµРґРѕРјР»РµРЅРёСЏ //
 		PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
 			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
 	}
@@ -8245,7 +8238,7 @@ static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf,
 			msg_buf.Cat(temp_buf.Chomp().Strip());
 		}
 		if(msg_buf.NotEmpty()) {
-			SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+			SMessageWindow::DestroyByParent(H()); // РЈР±РёСЂР°РµРј СЃ СЌРєСЂР°РЅР° РїСЂРµРґС‹РґСѓС‰РёРµ СѓРІРµРґРѕРјР»РµРЅРёСЏ //
 			PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrOrange),
 				SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fOpaque);
 		}
@@ -8321,7 +8314,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	int    r;
 	uint   s = 0;
 	const  LDATE curdt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
-	double total_exp = 0.0; // Общий расход товара goodsID активными сессиями
+	double total_exp = 0.0; // РћР±С‰РёР№ СЂР°СЃС…РѕРґ С‚РѕРІР°СЂР° goodsID Р°РєС‚РёРІРЅС‹РјРё СЃРµСЃСЃРёСЏРјРё
 	SString serial;
 	DateIter diter;
 	SArray * p_ary = 0;
@@ -8339,7 +8332,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 		p_bobj->GetSerialNumberByLot(lot_rec.ID, serial, 1);
 		if(serial.NotEmpty()) {
 			//
-			// Защита от повторного учета текущих продаж на разных лотах, имеющих одинаковые серии
+			// Р—Р°С‰РёС‚Р° РѕС‚ РїРѕРІС‚РѕСЂРЅРѕРіРѕ СѓС‡РµС‚Р° С‚РµРєСѓС‰РёС… РїСЂРѕРґР°Р¶ РЅР° СЂР°Р·РЅС‹С… Р»РѕС‚Р°С…, РёРјРµСЋС‰РёС… РѕРґРёРЅР°РєРѕРІС‹Рµ СЃРµСЂРёРё
 			//
 			if(!seek_serial_list.search(serial, 0, 0)) {
 				THROW(GetCc().CalcActiveExpendByGoods(goodsID, loc_id, serial, &exp));
@@ -8400,7 +8393,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 		if(goods_rec.GoodsTypeID)
 			gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec);
 		if(goodsID == GetChargeGoodsID(sc_id)) {
-			// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
+			// @todo Р—РґРµСЃСЊ РЅР°РґРѕ РїСЂРѕРІРµСЂРёС‚СЊ С‡С‚Рѕ Р±С‹ С‚РѕРІР°СЂ РЅРµ Р±С‹Р» СЂР°РІРµРЅ ChargeGoodsID РёР· Р»СЋР±РѕР№ РєСЂРµРґРёС‚РЅРѕР№ СЃРµСЂРёРё РєР°СЂС‚
 			ok = (sc_id && ScObj.IsCreditCard(sc_id)) ? 1 : MessageError(PPERR_INVUSAGECHARGEGOODS, 0, eomStatusLine);
 		}
 		else if(sc_id && IsOnlyChargeGoodsInPacket(sc_id, 0)) {
@@ -8418,8 +8411,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 			}
 			else*/if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
 				//
-				// @todo В этом блоке осуществляется агрегированная автоматическая вставка нескольких позиций из комплекса.
-				// Необходимо для каждой из этих позиций проверить валидность параметров (что-то вроде рекурсивного вызова PreprocessGoodsSelection()
+				// @todo Р’ СЌС‚РѕРј Р±Р»РѕРєРµ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ Р°РіСЂРµРіРёСЂРѕРІР°РЅРЅР°СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РІСЃС‚Р°РІРєР° РЅРµСЃРєРѕР»СЊРєРёС… РїРѕР·РёС†РёР№ РёР· РєРѕРјРїР»РµРєСЃР°.
+				// РќРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ РєР°Р¶РґРѕР№ РёР· СЌС‚РёС… РїРѕР·РёС†РёР№ РїСЂРѕРІРµСЂРёС‚СЊ РІР°Р»РёРґРЅРѕСЃС‚СЊ РїР°СЂР°РјРµС‚СЂРѕРІ (С‡С‚Рѕ-С‚Рѕ РІСЂРѕРґРµ СЂРµРєСѓСЂСЃРёРІРЅРѕРіРѕ РІС‹Р·РѕРІР° PreprocessGoodsSelection()
 				//
 				AcceptRow(0);
 				for(uint i = 0; i < complex.getCount(); i++) {
@@ -8512,7 +8505,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								else {
 									// } @v10.2.4
 									SString egais_mark;
-									rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+									rBlk.Qtty = 1.0; // РњР°СЂРєРёСЂРѕРІР°РЅРЅР°СЏ Р°Р»РєРѕРіРѕР»СЊРЅР°СЏ РїСЂРѕРґСѓРєС†РёРёСЏ - СЃС‚СЂРѕРіРѕ РїРѕ РѕРґРЅРѕР№ С€С‚СѓРєРµ РЅР° СЃС‚СЂРѕРєСѓ С‡РµРєР°
 									if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
 										int    dup_mark = 0;
 										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
@@ -8549,8 +8542,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 																	take_in_attention = 1;
 																else if(cc_rec.SessID) {
 																	//
-																	// Специальный случай: рестораны - вскрытие тары. Формируют отложенные чеки с отсканированными
-																	// марками с бутылок. Повтор однозначно блокируется невзирая на продажи-возвраты (cc_even = 1)
+																	// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: СЂРµСЃС‚РѕСЂР°РЅС‹ - РІСЃРєСЂС‹С‚РёРµ С‚Р°СЂС‹. Р¤РѕСЂРјРёСЂСѓСЋС‚ РѕС‚Р»РѕР¶РµРЅРЅС‹Рµ С‡РµРєРё СЃ РѕС‚СЃРєР°РЅРёСЂРѕРІР°РЅРЅС‹РјРё
+																	// РјР°СЂРєР°РјРё СЃ Р±СѓС‚С‹Р»РѕРє. РџРѕРІС‚РѕСЂ РѕРґРЅРѕР·РЅР°С‡РЅРѕ Р±Р»РѕРєРёСЂСѓРµС‚СЃСЏ РЅРµРІР·РёСЂР°СЏ РЅР° РїСЂРѕРґР°Р¶Рё-РІРѕР·РІСЂР°С‚С‹ (cc_even = 1)
 																	//
 																	if(CsObj.Fetch(cc_rec.SessID, &cs_rec) > 0 && CnObj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.Speciality == cn_rec.spCafe) {
 																		take_in_attention = 1;
@@ -8591,8 +8584,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						}
 						if(!is_mark_processed) {
 							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
-								const int disable_chzn_mark_backtest = 1; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени
-								rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
+								const int disable_chzn_mark_backtest = 1; // @v10.8.1 РџСЂРѕР±Р»РµРјС‹ СЃ СЃРёРіР°СЂРµС‚Р°РјРё - СЃР»РёС€РєРѕРј РјРЅРѕРіРѕ РїСЂРѕРґР°Р¶ Рё РёРґРµРЅС‚РёС„РёРєР°С†РёСЏ РґСѓР±Р»РёРєР°С‚РѕРІ Р·Р°РЅРёРјР°РµС‚ РјРЅРѕРіРѕ РІСЂРµРјРµРЅРё
+								rBlk.Qtty = 1.0; // РњР°СЂРєРёСЂРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёРёСЏ - СЃС‚СЂРѕРіРѕ РїРѕ РѕРґРЅРѕР№ С€С‚СѓРєРµ РЅР° СЃС‚СЂРѕРєСѓ С‡РµРєР°
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
 								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
@@ -8731,7 +8724,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 							else if(event.isCmd(cmClear)) {
 								if(IsInState(sfModal)) {
 									endModal(cmClear);
-									return; // После endModal не следует обращаться к this
+									return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 								}
 							}
 							PPListDialog::handleEvent(event);
@@ -8868,13 +8861,30 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 {
 	int    ok = 1;
 	if(goodsID) {
+		const  bool restr_qtty_by_unit = LOGIC(CsObj.GetEqCfg().Flags & PPEquipConfig::fRestrictQttyByUnitRnd);
+		const  bool is_unlim = GObj.CheckFlag(goodsID, GF_UNLIM);
 		if(rQtty <= 0.0 && adjustQtty) {
 			rQtty = 1.0;
 		}
 		if(rQtty != 0.0) {
 			SString temp_buf;
+			Goods2Tbl::Rec goods_rec;
+			PPUnit2 u_rec;
+			if(GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+				;
+			}
+			else {
+				MEMSZERO(goods_rec);
+				MEMSZERO(u_rec);
+			}
 			//
-			// Маркированная алкогольная продукция - строго по одной штуке на строку чека
+			// РџСЂРѕРІРµСЂРєР° РЅР° РєСЂР°С‚РЅРѕСЃС‚СЊ РµРґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ //
+			//
+			if(restr_qtty_by_unit && !u_rec.ValidateQuantityFraction(rQtty)) {
+				ok = MessageError(-1, 0, eomStatusLine|eomBeep);							
+			}
+			//
+			// РњР°СЂРєРёСЂРѕРІР°РЅРЅР°СЏ Р°Р»РєРѕРіРѕР»СЊРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ - СЃС‚СЂРѕРіРѕ РїРѕ РѕРґРЅРѕР№ С€С‚СѓРєРµ РЅР° СЃС‚СЂРѕРєСѓ С‡РµРєР°
 			//
 			if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
 				PrcssrAlcReport::GoodsItem agi;
@@ -8888,35 +8898,37 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 				}
 			}
 			// @v10.8.0 {
-			if(pCurItem && !isempty(pCurItem->ChZnMark) && CnSpeciality != PPCashNode::spApteka) {
-				if(rQtty != 1.0) {
-					if(adjustQtty)
-						rQtty = 1.0;
-					else
-						ok = MessageError(PPERR_CHZN_MARKEDQTTY, 0, eomBeep|eomStatusLine);
+			if(pCurItem && !isempty(pCurItem->ChZnMark)) { 
+				PPGoodsType gt_rec;
+				// @v11.2.5 if(CnSpeciality == PPCashNode::spApteka) {
+				if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType == GTCHZNPT_MEDICINE) { // @v11.2.5 
+					if(rQtty < 1.0) {
+						if(!u_rec.ValidateQuantityFraction(rQtty)) {
+							ok = MessageError(-1, 0, eomStatusLine|eomBeep);							
+						}
+					}
+					else if(rQtty != 1.0) {
+						if(adjustQtty)
+							rQtty = 1.0;
+						else
+							ok = MessageError(PPERR_CHZN_MARKEDQTTY, 0, eomBeep|eomStatusLine);
+					}
+				}
+				else {
+					if(rQtty != 1.0) {
+						if(adjustQtty)
+							rQtty = 1.0;
+						else
+							ok = MessageError(PPERR_CHZN_MARKEDQTTY, 0, eomBeep|eomStatusLine);
+					}
 				}
 			}
 			// } @v10.8.0 
 			//
-			// Проверка на непревышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
+			// РџСЂРѕРІРµСЂРєР° РЅР° РЅРµРїСЂРµРІС‹С€РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ РѕСЃС‚Р°С‚РєР° (РїСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј С„Р»Р°РіРµ CASHF_ABOVEZEROSALE)
 			//
 			if(ok) {
-				const  int restr_qtty_by_unit = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fRestrictQttyByUnitRnd);
-				const  int is_unlim = BIN(GObj.CheckFlag(goodsID, GF_UNLIM));
 				int    rest_check_wanted = 0;
-				Goods2Tbl::Rec goods_rec;
-				PPUnit u_rec;
-				double u_rounding = 0.0;
-				if(restr_qtty_by_unit && GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-					if(u_rec.Rounding_ > 0.0)
-						u_rounding = u_rec.Rounding_;
-					else if(u_rec.Flags & PPUnit::IntVal)
-						u_rounding = 1.0;
-				}
-				else {
-					MEMSZERO(goods_rec);
-					MEMSZERO(u_rec);
-				}
 				if(!is_unlim) {
 					if(CnFlags & CASHF_ABOVEZEROSALE)
 						rest_check_wanted = 1;
@@ -8926,7 +8938,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 				if(rest_check_wanted) {
 					const double rest = CalcCurrentRest(goodsID, checkInputBuffer); // @v11.0.3 @fix checkInputBuffer 0-->checkInputBuffer
 					if(rest < rQtty) {
-						const double __prec = (u_rounding != 0.0) ? u_rounding : 0.001;
+						const double __prec = (u_rec.Rounding_ != 0.0) ? u_rec.Rounding_ : 0.001;
 						if(adjustQtty && rQtty == 1.0 && rest >= __prec) {
 							rQtty = round(rest, __prec, -1);
 							ok = 1;
@@ -8939,22 +8951,6 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 							GetGoodsName(goodsID, temp_buf);
 							ok = ConfirmMessage(PPCFM_GOODSRESTNOTENOUGH, temp_buf, 1) ? 1 : -2;
 						}
-					}
-				}
-				//
-				// Проверка на кратность единицы измерения //
-				//
-				if(ok > 0 && restr_qtty_by_unit) {
-					if(u_rounding > 0.0) {
-						const double _r = round(rQtty, u_rounding, 0);
-						if(!feqeps(_r, rQtty, 1E-7)) {
-							temp_buf.Z().Cat(u_rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-							ok = MessageError(PPERR_QTTYMUSTBERND, temp_buf, eomStatusLine|eomBeep);
-						}
-					}
-					else if(u_rec.Flags & PPUnit::IntVal) {
-						if(ffrac(rQtty) != 0.0)
-							ok = MessageError(PPERR_QTTYMUSTBEINT, 0, eomStatusLine|eomBeep);
 					}
 				}
 			}
@@ -9022,8 +9018,8 @@ void CheckPaneDialog::AcceptQuantity()
 				if(ok) {
 					r_cur.Quantity = (goods_id == GetChargeGoodsID(CSt.GetID())) ? fabs(R3(qtty)) : qtty;
 					//
-					// Так как некоторые котировки могут зависеть от количества, при изменении количества необходимо
-					// снова определить цену.
+					// РўР°Рє РєР°Рє РЅРµРєРѕС‚РѕСЂС‹Рµ РєРѕС‚РёСЂРѕРІРєРё РјРѕРіСѓС‚ Р·Р°РІРёСЃРµС‚СЊ РѕС‚ РєРѕР»РёС‡РµСЃС‚РІР°, РїСЂРё РёР·РјРµРЅРµРЅРёРё РєРѕР»РёС‡РµСЃС‚РІР° РЅРµРѕР±С…РѕРґРёРјРѕ
+					// СЃРЅРѕРІР° РѕРїСЂРµРґРµР»РёС‚СЊ С†РµРЅСѓ.
 					//
 					if(fabs(qtty) != fabs(prev_qtty) && !(r_cur.Flags & cifPriceBySerial)) {
 						RetailGoodsInfo rgi;
@@ -9050,7 +9046,7 @@ void CheckPaneDialog::AcceptQuantity()
 			}
 		}
 	}
-	if(is_input != 2) // @v10.2.1 При установке внешнего значение ввод очищать не следует
+	if(is_input != 2) // @v10.2.1 РџСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ РІРЅРµС€РЅРµРіРѕ Р·РЅР°С‡РµРЅРёРµ РІРІРѕРґ РѕС‡РёС‰Р°С‚СЊ РЅРµ СЃР»РµРґСѓРµС‚
 		ClearInput(0);
 }
 
@@ -9195,11 +9191,11 @@ public:
 private:
 	enum {
 		dummyFirst = 1,
-		brRed,             // Красная кисть
-		brGreen,           // Зеленая кисть
-		brYellow,          // Желтая кисть
-		brOrange,          // Оранжевая кисть
-		brMovCrdRest,      // Цвет поля остатка по карте в режиме переноса остатков с других карт
+		brRed,             // РљСЂР°СЃРЅР°СЏ РєРёСЃС‚СЊ
+		brGreen,           // Р—РµР»РµРЅР°СЏ РєРёСЃС‚СЊ
+		brYellow,          // Р–РµР»С‚Р°СЏ РєРёСЃС‚СЊ
+		brOrange,          // РћСЂР°РЅР¶РµРІР°СЏ РєРёСЃС‚СЊ
+		brMovCrdRest,      // Р¦РІРµС‚ РїРѕР»СЏ РѕСЃС‚Р°С‚РєР° РїРѕ РєР°СЂС‚Рµ РІ СЂРµР¶РёРјРµ РїРµСЂРµРЅРѕСЃР° РѕСЃС‚Р°С‚РєРѕРІ СЃ РґСЂСѓРіРёС… РєР°СЂС‚
 		clrRed,
 		clrGreen,
 		clrYellow,
@@ -9213,18 +9209,18 @@ private:
 	void   SetupMovCrd();
 	void   CommitMovCrd();
 	enum {
-		modeCheckView = 1,   // Режим просмотра чеков по карте
-		modeOpView,          // Режим просмотра операций начисления/списания по кредитной карте
-		modeSelectByOwner,   // Режим выбора карты по владельцу
-		modeMovCrd,          // Режим переноса кредитных остатков с других карт на выбранную карту
-		modeSelectByMultCode // Режим выбора одной из карт, имеющих один и тот же код
+		modeCheckView = 1,   // Р РµР¶РёРј РїСЂРѕСЃРјРѕС‚СЂР° С‡РµРєРѕРІ РїРѕ РєР°СЂС‚Рµ
+		modeOpView,          // Р РµР¶РёРј РїСЂРѕСЃРјРѕС‚СЂР° РѕРїРµСЂР°С†РёР№ РЅР°С‡РёСЃР»РµРЅРёСЏ/СЃРїРёСЃР°РЅРёСЏ РїРѕ РєСЂРµРґРёС‚РЅРѕР№ РєР°СЂС‚Рµ
+		modeSelectByOwner,   // Р РµР¶РёРј РІС‹Р±РѕСЂР° РєР°СЂС‚С‹ РїРѕ РІР»Р°РґРµР»СЊС†Сѓ
+		modeMovCrd,          // Р РµР¶РёРј РїРµСЂРµРЅРѕСЃР° РєСЂРµРґРёС‚РЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ СЃ РґСЂСѓРіРёС… РєР°СЂС‚ РЅР° РІС‹Р±СЂР°РЅРЅСѓСЋ РєР°СЂС‚Сѓ
+		modeSelectByMultCode // Р РµР¶РёРј РІС‹Р±РѕСЂР° РѕРґРЅРѕР№ РёР· РєР°СЂС‚, РёРјРµСЋС‰РёС… РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ РєРѕРґ
 	};
 	enum {
 		stCreditCard     = 0x0002,
 		stAsSelector     = 0x0004,
-		stWarnCardInfo   = 0x0008, // Информация о карте должна окрашиваться для привлечения внимания к просроченности карты
-		stNeedActivation = 0x0010, // Карта требует активации. Информация окрашивается в желтый цвет.
-		stAutoActivation = 0x0020  // Автоактивация карты //
+		stWarnCardInfo   = 0x0008, // РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РєР°СЂС‚Рµ РґРѕР»Р¶РЅР° РѕРєСЂР°С€РёРІР°С‚СЊСЃСЏ РґР»СЏ РїСЂРёРІР»РµС‡РµРЅРёСЏ РІРЅРёРјР°РЅРёСЏ Рє РїСЂРѕСЃСЂРѕС‡РµРЅРЅРѕСЃС‚Рё РєР°СЂС‚С‹
+		stNeedActivation = 0x0010, // РљР°СЂС‚Р° С‚СЂРµР±СѓРµС‚ Р°РєС‚РёРІР°С†РёРё. РРЅС„РѕСЂРјР°С†РёСЏ РѕРєСЂР°С€РёРІР°РµС‚СЃСЏ РІ Р¶РµР»С‚С‹Р№ С†РІРµС‚.
+		stAutoActivation = 0x0020  // РђРІС‚РѕР°РєС‚РёРІР°С†РёСЏ РєР°СЂС‚С‹ //
 	};
 	struct SpcListItem { // @flat
 		SpcListItem()
@@ -9334,7 +9330,7 @@ private:
 	long   Mode;
 	long   LocalState;
 	PPID   SCardID;
-	PPID   OwnerID; // Персоналия-владелец карты
+	PPID   OwnerID; // РџРµСЂСЃРѕРЅР°Р»РёСЏ-РІР»Р°РґРµР»РµС† РєР°СЂС‚С‹
 	SString ChecksText;
 	SString OperationsText;
 	SPaintToolBox Ptb;
@@ -9578,12 +9574,12 @@ int SCardInfoDialog::setupList()
 			for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 				if(!(item.Flags & CCHKF_SKIP)) {
 					ss.clear();
-					ss.add(temp_buf.Z().Cat(item.Dt));                                // Дата
-					ss.add(temp_buf.Z().Cat(item.Tm));                                // Время //
-					ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
-					ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
-					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
-					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
+					ss.add(temp_buf.Z().Cat(item.Dt));                                // Р”Р°С‚Р°
+					ss.add(temp_buf.Z().Cat(item.Tm));                                // Р’СЂРµРјСЏ //
+					ss.add(temp_buf.Z().Cat(item.CashID));                            // РљР°СЃСЃР°
+					ss.add(temp_buf.Z().Cat(item.Code));                              // РќРѕРјРµСЂ С‡РµРєР°
+					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // РЎСѓРјРјР°
+					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // РЎРєРёРґРєР°
 					THROW(addStringToList(item.ID, ss.getBuf()));
 				}
 			}
@@ -9600,8 +9596,8 @@ int SCardInfoDialog::setupList()
 			view.InitIteration();
 			for(uint i = 1; view.NextIteration(&item) > 0; i++) {
 				ss.clear();
-				ss.add(temp_buf.Z().Cat(item.Dt));                 // Дата
-				ss.add(temp_buf.Z().Cat(item.Tm));                 // Время //
+				ss.add(temp_buf.Z().Cat(item.Dt));                 // Р”Р°С‚Р°
+				ss.add(temp_buf.Z().Cat(item.Tm));                 // Р’СЂРµРјСЏ //
 				if(item.Flags & SCARDOPF_FREEZING) {
 					DateRange frz_prd;
 					frz_prd.Set(item.FreezingStart, item.FreezingEnd);
@@ -9609,8 +9605,8 @@ int SCardInfoDialog::setupList()
 					ss.add(temp_buf.Z());
 				}
 				else {
-					ss.add(temp_buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // Сумма
-					ss.add(temp_buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // Остаток
+					ss.add(temp_buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // РЎСѓРјРјР°
+					ss.add(temp_buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // РћСЃС‚Р°С‚РѕРє
 				}
 				THROW(addStringToList(i, ss.getBuf()));
 			}
@@ -9754,7 +9750,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			PPID   charge_goods_id = (SCardID && LocalState & stAsSelector) ? ScObj.GetChargeGoodsID(SCardID) : 0;
 			if(charge_goods_id) {
 				endModal(cmCharge);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 	}
@@ -9769,7 +9765,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 			getCtrlString(CTL_SCARDVIEW_INPUT, code);
 			if(LocalState & stAsSelector && !code.NotEmptyS() && IsInState(sfModal)) {
 				endModal(cmOK);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 			else {
 				// @v10.6.4 MEMSZERO(sc_rec);
@@ -10033,10 +10029,10 @@ int STDCALL ViewSCardInfo(PPID * pSCardID, PPID posNodeID, int asSelector)
 int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
 {
 	//
-	// Реализует окончательную не интерактивную установку найденной в БД карты
+	// Р РµР°Р»РёР·СѓРµС‚ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅСѓСЋ РЅРµ РёРЅС‚РµСЂР°РєС‚РёРІРЅСѓСЋ СѓСЃС‚Р°РЅРѕРІРєСѓ РЅР°Р№РґРµРЅРЅРѕР№ РІ Р‘Р” РєР°СЂС‚С‹
 	//
-	// @todo необходимо уточнить несколько последующих после вызовов этой функции операторов -
-	//  вероятно, их следует внести в тело этой функции.
+	// @todo РЅРµРѕР±С…РѕРґРёРјРѕ СѓС‚РѕС‡РЅРёС‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РїРѕСЃР»РµРґСѓСЋС‰РёС… РїРѕСЃР»Рµ РІС‹Р·РѕРІРѕРІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РѕРїРµСЂР°С‚РѕСЂРѕРІ -
+	//  РІРµСЂРѕСЏС‚РЅРѕ, РёС… СЃР»РµРґСѓРµС‚ РІРЅРµСЃС‚Рё РІ С‚РµР»Рѕ СЌС‚РѕР№ С„СѓРЅРєС†РёРё.
 	//
 	int    ok = 1;
 	CSt.SetID(rScRec.ID, rScRec.Code);
@@ -10124,7 +10120,7 @@ int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 		}
 		CSt.Discount = fdiv100i(pScRec->PDis);
 		Flags |= fPctDis;
-		SetupDiscount(0); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
+		SetupDiscount(0); // Р’С‹Р·РѕРІ SetupDiscount РїРµСЂРµРґ CalcRestByCrdCard_ РЅРµРѕР±С…РѕРґРёРј РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ СЂР°СЃС‡РµС‚Р° РѕСЃС‚Р°С‚РєР° РїРѕ РєСЂРµРґРёС‚РЅРѕР№ (Р±РѕРЅСѓСЃРЅРѕР№) РєР°СЂС‚Рµ
 		if(!CalcRestByCrdCard_(0))
 			ResetSCard();
 	}
@@ -10148,7 +10144,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 		Flags |= fSuspSleepTimeout;
 		const  int prev_no_gift_status = BIN(CSt.Flags & CardState::fNoGift);
 		//
-		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - ошибка, -1 - скидка по карте)
+		// РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЃРєРёРґРєР° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РЅР° С‚РµРєСѓС‰СѓСЋ СЃС‚СЂРѕРєСѓ С‡РµРєР° (1 СЃРєРёРґРєР° РїРѕ СЃС‚СЂРѕРєРµ, 0 - РѕС€РёР±РєР°, -1 - СЃРєРёРґРєР° РїРѕ РєР°СЂС‚Рµ)
 		//
 		int    row_dscnt = -1;
 		CSt.SetID(scardID, 0);
@@ -10158,7 +10154,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 			SCardTbl::Rec sc_rec;
 			const  PPID sc_id = CSt.GetID();
 			//
-			// Если мы в состоянии начисления на кредитную карту, то менять карту уже нельзя //
+			// Р•СЃР»Рё РјС‹ РІ СЃРѕСЃС‚РѕСЏРЅРёРё РЅР°С‡РёСЃР»РµРЅРёСЏ РЅР° РєСЂРµРґРёС‚РЅСѓСЋ РєР°СЂС‚Сѓ, С‚Рѕ РјРµРЅСЏС‚СЊ РєР°СЂС‚Сѓ СѓР¶Рµ РЅРµР»СЊР·СЏ //
 			//
 			if(sc_id) {
 				const PPID charge_goods_id = GetChargeGoodsID(sc_id);
@@ -10193,7 +10189,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 						}
 						CSt.Discount = fdiv100i(sc_rec.PDis);
 						Flags |= fPctDis;
-						SetupDiscount(0); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
+						SetupDiscount(0); // Р’С‹Р·РѕРІ SetupDiscount РїРµСЂРµРґ CalcRestByCrdCard_ РЅРµРѕР±С…РѕРґРёРј РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ СЂР°СЃС‡РµС‚Р° РѕСЃС‚Р°С‚РєР° РїРѕ РєСЂРµРґРёС‚РЅРѕР№ (Р±РѕРЅСѓСЃРЅРѕР№) РєР°СЂС‚Рµ
 						if(CalcRestByCrdCard_(0)) {
 							AutosaveCheck();
 						}
@@ -10281,7 +10277,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 		Flags |= fSuspSleepTimeout;
 		const  int prev_no_gift_status = BIN(CSt.Flags & CardState::fNoGift);
 		//
-		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - ошибка, -1 - скидка по карте)
+		// РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЃРєРёРґРєР° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РЅР° С‚РµРєСѓС‰СѓСЋ СЃС‚СЂРѕРєСѓ С‡РµРєР° (1 СЃРєРёРґРєР° РїРѕ СЃС‚СЂРѕРєРµ, 0 - РѕС€РёР±РєР°, -1 - СЃРєРёРґРєР° РїРѕ РєР°СЂС‚Рµ)
 		//
 		int    row_dscnt = (ascf & (ascfFromInput|ascfExtPane)) ? AcceptRowDiscount() : -1;
 		if(!(ascf & (ascfFromInput|ascfExtPane)))
@@ -10291,7 +10287,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 			int    is_found = 0;
 			SCardTbl::Rec sc_rec;
 			//
-			// Если мы в состоянии начисления на кредитную карту, то менять карту уже нельзя //
+			// Р•СЃР»Рё РјС‹ РІ СЃРѕСЃС‚РѕСЏРЅРёРё РЅР°С‡РёСЃР»РµРЅРёСЏ РЅР° РєСЂРµРґРёС‚РЅСѓСЋ РєР°СЂС‚Сѓ, С‚Рѕ РјРµРЅСЏС‚СЊ РєР°СЂС‚Сѓ СѓР¶Рµ РЅРµР»СЊР·СЏ //
 			//
 			if(CSt.GetID()) {
 				const PPID charge_goods_id = GetChargeGoodsID(CSt.GetID());
@@ -10302,13 +10298,13 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 				}
 			}
 			if(ok) {
-				int    ext_cancel = 0; // Признак отмены расширенного выбора карты
-				int    auto_charge = 0; // Признак автоматического выбора товара для начисления (пользователь до этого в диалоге выбора карты нажал соответствующую кнопку).
+				int    ext_cancel = 0; // РџСЂРёР·РЅР°Рє РѕС‚РјРµРЅС‹ СЂР°СЃС€РёСЂРµРЅРЅРѕРіРѕ РІС‹Р±РѕСЂР° РєР°СЂС‚С‹
+				int    auto_charge = 0; // РџСЂРёР·РЅР°Рє Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РІС‹Р±РѕСЂР° С‚РѕРІР°СЂР° РґР»СЏ РЅР°С‡РёСЃР»РµРЅРёСЏ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РґРѕ СЌС‚РѕРіРѕ РІ РґРёР°Р»РѕРіРµ РІС‹Р±РѕСЂР° РєР°СЂС‚С‹ РЅР°Р¶Р°Р» СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ РєРЅРѕРїРєСѓ).
 				TSVector <SCardSpecialTreatment::IdentifyReplyBlock> scp_rb_list;
 				const SCardSpecialTreatment::IdentifyReplyBlock * p_stirb = 0;
 				if((ascf & ascfExtPane) && CnExtFlags & CASHFX_EXTSCARDSEL) {
 					//
-					// Расширенный выбор карты
+					// Р Р°СЃС€РёСЂРµРЅРЅС‹Р№ РІС‹Р±РѕСЂ РєР°СЂС‚С‹
 					//
 					PPID   scard_id = CSt.GetID();
 					if(!scard_id) {
@@ -10333,12 +10329,12 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 								if(local_stirb.ScID && local_stirb.SpecialTreatment)
 									p_stirb = &local_stirb;
 								// } @v10.9.0 
-								if(cm == 2) // Начисление на карту
+								if(cm == 2) // РќР°С‡РёСЃР»РµРЅРёРµ РЅР° РєР°СЂС‚Сѓ
 									auto_charge = 1;
 								is_found = 1;
 							}
 							else {
-								Flags |= fWaitOnSCard; // Ниже по этому флагу произойдет сброс выбранной карты.
+								Flags |= fWaitOnSCard; // РќРёР¶Рµ РїРѕ СЌС‚РѕРјСѓ С„Р»Р°РіСѓ РїСЂРѕРёР·РѕР№РґРµС‚ СЃР±СЂРѕСЃ РІС‹Р±СЂР°РЅРЅРѕР№ РєР°СЂС‚С‹.
 							}
 						}
 						else
@@ -10347,7 +10343,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 				}
 				else if(ascf & (ascfFromInput|ascfExtPane)) {
 					//
-					// Выбор карты по коду, введенному в строке ввода
+					// Р’С‹Р±РѕСЂ РєР°СЂС‚С‹ РїРѕ РєРѕРґСѓ, РІРІРµРґРµРЅРЅРѕРјСѓ РІ СЃС‚СЂРѕРєРµ РІРІРѕРґР°
 					//
 					if(GetInput() > 0) {
 						PPIDArray sc_id_list;
@@ -10360,7 +10356,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 									is_found = 1;
 								}
 								else
-									err_code = PPERR_SCARDNOTFOUND; // Это невозможно! Функция ScObj.SearchCodeExt уже нашла карту по этому идентификатору
+									err_code = PPERR_SCARDNOTFOUND; // Р­С‚Рѕ РЅРµРІРѕР·РјРѕР¶РЅРѕ! Р¤СѓРЅРєС†РёСЏ ScObj.SearchCodeExt СѓР¶Рµ РЅР°С€Р»Р° РєР°СЂС‚Сѓ РїРѕ СЌС‚РѕРјСѓ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ
 							}
 							else
 								err_code = PPERR_MANUALSCARDINPUTDISABLED;
@@ -10373,12 +10369,12 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 				}
 				else if(CSt.GetID() && ScObj.Search(CSt.GetID(), &sc_rec) > 0) {
 					//
-					// Внешняя установка карты
+					// Р’РЅРµС€РЅСЏСЏ СѓСЃС‚Р°РЅРѕРІРєР° РєР°СЂС‚С‹
 					//
 					p_stirb = pStirb;
 					is_found = 1;
 				}
-				if(!ext_cancel) { // Если расширенный выбор был отменен, то это блок следует пропустить
+				if(!ext_cancel) { // Р•СЃР»Рё СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ РІС‹Р±РѕСЂ Р±С‹Р» РѕС‚РјРµРЅРµРЅ, С‚Рѕ СЌС‚Рѕ Р±Р»РѕРє СЃР»РµРґСѓРµС‚ РїСЂРѕРїСѓСЃС‚РёС‚СЊ
 					if(is_found) {
 						const int only_charge_goods = IsOnlyChargeGoodsInPacket(CSt.GetID(), 0);
 						int    cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? PPObjSCard::chkrfIgnoreUsageTime : 0), getcurdatetime_());
@@ -10388,7 +10384,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 						}
 						else {
 							//
-							// Автоактивируемая карта начиная с 9.1.8 на первом чеке ведет себя так же, как и обычная
+							// РђРІС‚РѕР°РєС‚РёРІРёСЂСѓРµРјР°СЏ РєР°СЂС‚Р° РЅР°С‡РёРЅР°СЏ СЃ 9.1.8 РЅР° РїРµСЂРІРѕРј С‡РµРєРµ РІРµРґРµС‚ СЃРµР±СЏ С‚Р°Рє Р¶Рµ, РєР°Рє Рё РѕР±С‹С‡РЅР°СЏ
 							//
 							{
 								Implement_AcceptSCard(sc_rec, p_stirb);
@@ -10410,7 +10406,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 								}
 								CSt.Discount = fdiv100i(sc_rec.PDis);
 								Flags |= fPctDis;
-								SetupDiscount(0); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
+								SetupDiscount(0); // Р’С‹Р·РѕРІ SetupDiscount РїРµСЂРµРґ CalcRestByCrdCard_ РЅРµРѕР±С…РѕРґРёРј РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ СЂР°СЃС‡РµС‚Р° РѕСЃС‚Р°С‚РєР° РїРѕ РєСЂРµРґРёС‚РЅРѕР№ (Р±РѕРЅСѓСЃРЅРѕР№) РєР°СЂС‚Рµ
 								if(CalcRestByCrdCard_(0))
 									AutosaveCheck();
 								else
@@ -10579,7 +10575,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 			}
 			else if(goodsID == GetChargeGoodsID(CSt.GetID())) {
 				//
-				// Начисление на кредитную карту
+				// РќР°С‡РёСЃР»РµРЅРёРµ РЅР° РєСЂРµРґРёС‚РЅСѓСЋ РєР°СЂС‚Сѓ
 				//
 				rgi.ID = goodsID;
 				if(GObj.Fetch(goodsID, &goods_rec) > 0) {
@@ -10606,7 +10602,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 					int    look_back_price = 0;
 					if(!giftID) {
 						if(rBlk.PriceBySerial > 0.0) {
-							// @v8.0.12 теперь priceBySerial уже учтена при вызове GetRetailGoodsInfo// price = priceBySerial;
+							// @v8.0.12 С‚РµРїРµСЂСЊ priceBySerial СѓР¶Рµ СѓС‡С‚РµРЅР° РїСЂРё РІС‹Р·РѕРІРµ GetRetailGoodsInfo// price = priceBySerial;
 							if(rBlk.Serial.IsEmpty())
 								look_back_price = 1;
 							else
@@ -10686,7 +10682,7 @@ void CheckPaneDialog::SetSCard(const char * pStr)
 	Flags |= fWaitOnSCard;
 	SString temp_buf(pStr);
 	setCtrlString(CTL_CHKPAN_INPUT, temp_buf);
-	UiFlags |= uifAutoInput; // @trick AcceptSCard(1, ) может отклонить номер карты из-за отсутствия данного флага.
+	UiFlags |= uifAutoInput; // @trick AcceptSCard(1, ) РјРѕР¶РµС‚ РѕС‚РєР»РѕРЅРёС‚СЊ РЅРѕРјРµСЂ РєР°СЂС‚С‹ РёР·-Р·Р° РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РґР°РЅРЅРѕРіРѕ С„Р»Р°РіР°.
 	AcceptSCard(0, 0, ascfFromInput);
 	UiFlags &= ~uifAutoInput; // @trick (see above)
 }
@@ -10719,8 +10715,7 @@ void CheckPaneDialog::SetInput(const char * pStr)
 	SString msg_buf, fmt_buf, goods_name;
 	if(giftID > 0) {
 		Flags |= fPresent;
-		// @v9.2.6 PPGetWord(PPWORD_GIFT, 0, msg_buf);
-		PPLoadString("gift", msg_buf); // @v9.2.6
+		PPLoadString("gift", msg_buf);
 		GetGoodsName(giftID, goods_name);
 		setCtrlString(CTL_CHKPAN_INFO, msg_buf.Space().Cat(goods_name.Quot(39, 39)));
 		if(!(Flags & fDisableBeep))
@@ -10728,13 +10723,13 @@ void CheckPaneDialog::SetInput(const char * pStr)
 		Flags &= ~fPresent;
 	}
 	else if(pGift) {
-		SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления о возможных подарках
+		SMessageWindow::DestroyByParent(H()); // РЈР±РёСЂР°РµРј СЃ СЌРєСЂР°РЅР° РїСЂРµРґС‹РґСѓС‰РёРµ СѓРІРµРґРѕРјР»РµРЅРёСЏ Рѕ РІРѕР·РјРѕР¶РЅС‹С… РїРѕРґР°СЂРєР°С…
 		if(pGift->Pot.Name.NotEmpty()) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
 				GetGoodsName(pGift->Pot.GoodsID, goods_name);
-				// PPTXT_CHKPAN_GIFTNOT    "Для получения подарка '%s'\nосталось купить товар '%s'";
-				// PPTXT_CHKPAN_GIFTNOTAMT "Для получения подарка '%s'\nосталось купить товар '%s' на сумму %.2lf";
+				// PPTXT_CHKPAN_GIFTNOT    "Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїРѕРґР°СЂРєР° '%s'\nРѕСЃС‚Р°Р»РѕСЃСЊ РєСѓРїРёС‚СЊ С‚РѕРІР°СЂ '%s'";
+				// PPTXT_CHKPAN_GIFTNOTAMT "Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїРѕРґР°СЂРєР° '%s'\nРѕСЃС‚Р°Р»РѕСЃСЊ РєСѓРїРёС‚СЊ С‚РѕРІР°СЂ '%s' РЅР° СЃСѓРјРјСѓ %.2lf";
 				PPLoadText((pGift->Pot.Amount > 0.0) ? PPTXT_CHKPAN_GIFTNOTEAMT : PPTXT_CHKPAN_GIFTNOTE, fmt_buf);
 				msg_buf.Printf(fmt_buf, pGift->Pot.Name.cptr(), goods_name.cptr(), pGift->Pot.Deficit);
 				p_win->Open(msg_buf, 0, H(), 0, 30000, GetColorRef(SClrAquamarine),
@@ -10768,8 +10763,8 @@ int CPosProcessor::ProcessGift()
 {
 	int    ok = -1;
 	uint   i;
-	PPIDArray last_item_by_giftq_goods_list; // Список товаров, по которым уже предоставлена
-		// подарочная скидка по опции GSGIFTQ_LASTITEMBYGIFTQ
+	PPIDArray last_item_by_giftq_goods_list; // РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ, РїРѕ РєРѕС‚РѕСЂС‹Рј СѓР¶Рµ РїСЂРµРґРѕСЃС‚Р°РІР»РµРЅР°
+		// РїРѕРґР°СЂРѕС‡РЅР°СЏ СЃРєРёРґРєР° РїРѕ РѕРїС†РёРё GSGIFTQ_LASTITEMBYGIFTQ
 	if(CnFlags & CASHF_CHECKFORPRESENT) {
 		if(CSt.GetID() && CSt.Flags & CardState::fNoGift) {
 			if(P.ClearGift() > 0)
@@ -10781,10 +10776,10 @@ int CPosProcessor::ProcessGift()
 			SaGiftArray::Gift gift;
 			SString buf, goods_name;
 			TSVector <SaSaleItem> sale_list, full_sale_list;
-			LAssocArray ex_gift_list;    // Список подарочных товаров, уже находящихся в чеке
-			RAssocArray ex_gift_id_list; // Список подарков, уже находящихся в чеке
+			LAssocArray ex_gift_list;    // РЎРїРёСЃРѕРє РїРѕРґР°СЂРѕС‡РЅС‹С… С‚РѕРІР°СЂРѕРІ, СѓР¶Рµ РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РІ С‡РµРєРµ
+			RAssocArray ex_gift_id_list; // РЎРїРёСЃРѕРє РїРѕРґР°СЂРєРѕРІ, СѓР¶Рµ РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РІ С‡РµРєРµ
 			LAssocArray preserve_gift_assoc = P.GiftAssoc;
-			TSCollection <SaGiftArray::Gift> _gift_list; // Список обработанных схем подарков - необходим для избежания зацикливания
+			TSCollection <SaGiftArray::Gift> _gift_list; // РЎРїРёСЃРѕРє РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… СЃС…РµРј РїРѕРґР°СЂРєРѕРІ - РЅРµРѕР±С…РѕРґРёРј РґР»СЏ РёР·Р±РµР¶Р°РЅРёСЏ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ
 			P.GiftAssoc.clear();
 			for(i = 0; i < P.getCount(); i++) {
 				CCheckItem & r_item = P.at(i);
@@ -10800,14 +10795,14 @@ int CPosProcessor::ProcessGift()
 			}
 			sale_list = full_sale_list;
 			if(sale_list.getCount()) {
-				int    overlap = 0; // Признак обработки перекрывающих подарков
+				int    overlap = 0; // РџСЂРёР·РЅР°Рє РѕР±СЂР°Р±РѕС‚РєРё РїРµСЂРµРєСЂС‹РІР°СЋС‰РёС… РїРѕРґР°СЂРєРѕРІ
 				PPObjGoodsStruc gs_obj;
 				SaGiftArray sa_gift_list;
 				THROW(gs_obj.FetchGiftList(&sa_gift_list));
 				while(1) {
 					{
 						//
-						// Блок управления циклом
+						// Р‘Р»РѕРє СѓРїСЂР°РІР»РµРЅРёСЏ С†РёРєР»РѕРј
 						//
 						int  do_process = 0;
 						if(!overlap) {
@@ -10921,12 +10916,12 @@ int CPosProcessor::ProcessGift()
 											CCheckItem & r_item = P.at(--i);
 											if(!(r_item.Flags & (cifGift|cifUsedByGift)) && r_item.GoodsID == last_goods_id) {
 												if(r_item.Quantity == 1.0) {
-													// Если встретили 1 штуку - на нее подарочную котировку и повесим - выходим.
+													// Р•СЃР»Рё РІСЃС‚СЂРµС‚РёР»Рё 1 С€С‚СѓРєСѓ - РЅР° РЅРµРµ РїРѕРґР°СЂРѕС‡РЅСѓСЋ РєРѕС‚РёСЂРѕРІРєСѓ Рё РїРѕРІРµСЃРёРј - РІС‹С…РѕРґРёРј.
 													single_pos = i;
 												}
 												else if(r_item.Quantity > 1.0 && r_item.Quantity > max_qtty) {
-													// Если количество больше 1, то позиция - потенциально может быть разбита на две
-													// с целью получения единичной строки, на которую можно повесить подарочную котировку.
+													// Р•СЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РѕР»СЊС€Рµ 1, С‚Рѕ РїРѕР·РёС†РёСЏ - РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°Р·Р±РёС‚Р° РЅР° РґРІРµ
+													// СЃ С†РµР»СЊСЋ РїРѕР»СѓС‡РµРЅРёСЏ РµРґРёРЅРёС‡РЅРѕР№ СЃС‚СЂРѕРєРё, РЅР° РєРѕС‚РѕСЂСѓСЋ РјРѕР¶РЅРѕ РїРѕРІРµСЃРёС‚СЊ РїРѕРґР°СЂРѕС‡РЅСѓСЋ РєРѕС‚РёСЂРѕРІРєСѓ.
 													max_qtty_pos = i;
 													max_qtty = r_item.Quantity;
 												}
@@ -10934,7 +10929,7 @@ int CPosProcessor::ProcessGift()
 										} while(i && single_pos < 0);
 										if(single_pos < 0 && max_qtty_pos >= 0) {
 											//
-											// Единичную позицию не нашли - придется разбивать строку с максимальным количеством.
+											// Р•РґРёРЅРёС‡РЅСѓСЋ РїРѕР·РёС†РёСЋ РЅРµ РЅР°С€Р»Рё - РїСЂРёРґРµС‚СЃСЏ СЂР°Р·Р±РёРІР°С‚СЊ СЃС‚СЂРѕРєСѓ СЃ РјР°РєСЃРёРјР°Р»СЊРЅС‹Рј РєРѕР»РёС‡РµСЃС‚РІРѕРј.
 											//
 											CCheckItem & r_item = P.at(max_qtty_pos);
 											CCheckItem new_item;
@@ -10987,7 +10982,7 @@ int CPosProcessor::ProcessGift()
 									last_gift_id = gift_id;
 							}
 							else {
-								if(GObj.IsGeneric(gift_id) > 0) {
+								if(GObj.IsGeneric(gift_id)) {
 									PPIDArray gen_list;
 									GObj.GetGenericList(gift_id, &gen_list);
 									i = gen_list.getCount();
@@ -11000,8 +10995,8 @@ int CPosProcessor::ProcessGift()
 										} while(i);
 									if(gen_list.getCount()) {
 										//
-										// Далее следует сложный цикл, необходимый для определения факта предшествующего ручного выбора
-										// этого же подарка. Если мы нашли такой подарок, то не будем просить пользователя выбрать его снова.
+										// Р”Р°Р»РµРµ СЃР»РµРґСѓРµС‚ СЃР»РѕР¶РЅС‹Р№ С†РёРєР», РЅРµРѕР±С…РѕРґРёРјС‹Р№ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ С„Р°РєС‚Р° РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РµРіРѕ СЂСѓС‡РЅРѕРіРѕ РІС‹Р±РѕСЂР°
+										// СЌС‚РѕРіРѕ Р¶Рµ РїРѕРґР°СЂРєР°. Р•СЃР»Рё РјС‹ РЅР°С€Р»Рё С‚Р°РєРѕР№ РїРѕРґР°СЂРѕРє, С‚Рѕ РЅРµ Р±СѓРґРµРј РїСЂРѕСЃРёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІС‹Р±СЂР°С‚СЊ РµРіРѕ СЃРЅРѕРІР°.
 										//
 										for(i = 0; !manual_gift && i < ex_gift_list.getCount(); i++) {
 											uint ex_pos = static_cast<uint>(ex_gift_list.at(i).Val);
@@ -11055,7 +11050,7 @@ int CPosProcessor::ProcessGift()
 								if(!skip) {
 									int    gift_accepted = 0;
 									double gift_discount = 0.0;
-									long   lpos = 0; // Индекс подарочной позиции в контейнере P
+									long   lpos = 0; // РРЅРґРµРєСЃ РїРѕРґР°СЂРѕС‡РЅРѕР№ РїРѕР·РёС†РёРё РІ РєРѕРЅС‚РµР№РЅРµСЂРµ P
 									uint   egl_pos = 0;
 									if(ex_gift_list.Search(gift_id, &lpos, &egl_pos)) {
 										CCheckItem & r_item = P.at(static_cast<uint>(lpos));
@@ -11101,7 +11096,7 @@ int CPosProcessor::ProcessGift()
 								ok = 1;
 							Flags &= ~fPresent;
 							//
-							// Переходим к следующей итерации, дабы учесть несколько подарков
+							// РџРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµР№ РёС‚РµСЂР°С†РёРё, РґР°Р±С‹ СѓС‡РµСЃС‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РїРѕРґР°СЂРєРѕРІ
 							//
 							sale_list.clear();
 							for(i = 0; i < P.getCount(); i++)
@@ -11117,7 +11112,7 @@ int CPosProcessor::ProcessGift()
 			}
 			if(ex_gift_list.getCount()) {
 				//
-				// Удалять надо начиная с самой нижней позиции - вверх.
+				// РЈРґР°Р»СЏС‚СЊ РЅР°РґРѕ РЅР°С‡РёРЅР°СЏ СЃ СЃР°РјРѕР№ РЅРёР¶РЅРµР№ РїРѕР·РёС†РёРё - РІРІРµСЂС….
 				//
 				LongArray pos_list;
 				for(i = 0; i < ex_gift_list.getCount(); i++)
@@ -11192,13 +11187,13 @@ int CPosProcessor::AcceptRow(PPID giftID)
 			}
 			if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 				SetupDiscount(0);
-			CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
+			CalcRestByCrdCard_(0); // РџСЂРµРґС‹РґСѓС‰РёР№ РІС‹Р·РѕРІ (@01) РЅРµ СѓС‡РµР» СЃРєРёРґРєСѓ РїСЂРё СЂР°СЃС‡РµС‚Рµ СЃСѓРјРјС‹ РґРѕРїР»Р°С‚С‹
 			AutosaveCheck();
 			OnUpdateList(1);
 			SelLines = sl_ary;
 		}
 	}
-	// Это условие никогда не выполняется //
+	// Р­С‚Рѕ СѓСЃР»РѕРІРёРµ РЅРёРєРѕРіРґР° РЅРµ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ //
 	else if(P.CurPos < P.getCountI() && P.HasCur()) {
 		assert(0);
 		P.at(P.CurPos) = P.GetCurC();
@@ -11210,7 +11205,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 		ClearRow();
 		if(!F(fRetCheck) && !giftID) {
 			if(ProcessGift() > 0) {
-				CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел подарочную скидку
+				CalcRestByCrdCard_(0); // РџСЂРµРґС‹РґСѓС‰РёР№ РІС‹Р·РѕРІ (@01) РЅРµ СѓС‡РµР» РїРѕРґР°СЂРѕС‡РЅСѓСЋ СЃРєРёРґРєСѓ
 			}
 		}
 	}
@@ -11313,8 +11308,8 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		if(SuspCheckID && GetCc().Search(SuspCheckID, &last_chk_rec) > 0) {
 			pack.Rec.Code = last_chk_rec.Code;
 			//
-			// Следующие 2 строки следует раскомментировать, если дата и время отложенного чека должны
-			// соответствовать последнему изменению (в противном случае они будут соответствовать времени создания чека).
+			// РЎР»РµРґСѓСЋС‰РёРµ 2 СЃС‚СЂРѕРєРё СЃР»РµРґСѓРµС‚ СЂР°СЃРєРѕРјРјРµРЅС‚РёСЂРѕРІР°С‚СЊ, РµСЃР»Рё РґР°С‚Р° Рё РІСЂРµРјСЏ РѕС‚Р»РѕР¶РµРЅРЅРѕРіРѕ С‡РµРєР° РґРѕР»Р¶РЅС‹
+			// СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РїРѕСЃР»РµРґРЅРµРјСѓ РёР·РјРµРЅРµРЅРёСЋ (РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РѕРЅРё Р±СѓРґСѓС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РІСЂРµРјРµРЅРё СЃРѕР·РґР°РЅРёСЏ С‡РµРєР°).
 			//
 			//pack.Rec.Dt = last_chk_rec.Dt;
 			//pack.Rec.Tm = last_chk_rec.Tm;
@@ -11330,8 +11325,8 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		SETFLAG(pack.Rec.Flags, CCHKF_PREPRINT, Flags & fPrinted);
 		{
 			//
-			// Перед окончательным проведением чека необходимо распределить подарочную скидку (если она есть)
-			// по строкам чека.
+			// РџРµСЂРµРґ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅС‹Рј РїСЂРѕРІРµРґРµРЅРёРµРј С‡РµРєР° РЅРµРѕР±С…РѕРґРёРјРѕ СЂР°СЃРїСЂРµРґРµР»РёС‚СЊ РїРѕРґР°СЂРѕС‡РЅСѓСЋ СЃРєРёРґРєСѓ (РµСЃР»Рё РѕРЅР° РµСЃС‚СЊ)
+			// РїРѕ СЃС‚СЂРѕРєР°Рј С‡РµРєР°.
 			//
 			CCheckItem * p_item;
 			for(uint i = 0; P.enumItems(&i, (void **)&p_item);)
@@ -11493,7 +11488,7 @@ int CheckPaneDialog::PrintSlipDocument()
 				if(fmt_list.getCount() == 1)
 					format_name = fmt_list.Get(0).Txt;
 				//
-				// @todo Вероятно, необходимо вызвать ошибку, если fmt_list.getCount() == 0
+				// @todo Р’РµСЂРѕСЏС‚РЅРѕ, РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹Р·РІР°С‚СЊ РѕС€РёР±РєСѓ, РµСЃР»Рё fmt_list.getCount() == 0
 				//
 				//
 			}
@@ -11510,7 +11505,7 @@ int CheckPaneDialog::PrintSlipDocument()
 				else
 					GetNewCheckCode(CashNodeID, &pack.Rec.Code);
 				THROW(Helper_InitCcPacket(&pack, 0, 0, iccpSetCurTime));
-				r = 1; // Если значение оставается меньше нуля документ не печатается
+				r = 1; // Р•СЃР»Рё Р·РЅР°С‡РµРЅРёРµ РѕСЃС‚Р°РІР°РµС‚СЃСЏ РјРµРЅСЊС€Рµ РЅСѓР»СЏ РґРѕРєСѓРјРµРЅС‚ РЅРµ РїРµС‡Р°С‚Р°РµС‚СЃСЏ
 			}
 			else {
 				if(chk_id)
@@ -11530,7 +11525,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 {
 	int    ok = 1;
 	int    is_print_dvc_setted = 0;
-	// @v9.9.9 (CnSpeciality != PPCashNode::spDelivery) Доставка требует дополнительных печатных копий предчека
+	// @v9.9.9 (CnSpeciality != PPCashNode::spDelivery) Р”РѕСЃС‚Р°РІРєР° С‚СЂРµР±СѓРµС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРµС‡Р°С‚РЅС‹С… РєРѕРїРёР№ РїСЂРµРґС‡РµРєР°
 	if(!pLocPrn && Flags & fPrinted && !(Flags & fNoEdit) && !(OperRightsFlags & orfChgPrintedCheck) && (CnSpeciality != PPCashNode::spDelivery)) {
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	}
@@ -11544,7 +11539,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		env.PrnFlags = noAsk ? SReport::PrintingNoAsk : 0;
 		if(CnFlags & CASHF_UNIFYGDSTOPRINT) {
 			//
-			// @v8.6.9 Добавлена обработка запрета объединения позиций, имеющих модификаторы
+			// @v8.6.9 Р”РѕР±Р°РІР»РµРЅР° РѕР±СЂР°Р±РѕС‚РєР° Р·Р°РїСЂРµС‚Р° РѕР±СЉРµРґРёРЅРµРЅРёСЏ РїРѕР·РёС†РёР№, РёРјРµСЋС‰РёС… РјРѕРґРёС„РёРєР°С‚РѕСЂС‹
 			//
 			CCheckItem * p_item = 0;
 			CCheckItemArray to_print_items;
@@ -11611,9 +11606,9 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 }
 //
 // ARG(event IN):
-//   0 - Строки успешно отпечатаны на принтер rPrnName
-//   1 - Для строк не определен принтер
-//   2 - Не удалось отпечатать строки на принтер rPrnName
+//   0 - РЎС‚СЂРѕРєРё СѓСЃРїРµС€РЅРѕ РѕС‚РїРµС‡Р°С‚Р°РЅС‹ РЅР° РїСЂРёРЅС‚РµСЂ rPrnName
+//   1 - Р”Р»СЏ СЃС‚СЂРѕРє РЅРµ РѕРїСЂРµРґРµР»РµРЅ РїСЂРёРЅС‚РµСЂ
+//   2 - РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РїРµС‡Р°С‚Р°С‚СЊ СЃС‚СЂРѕРєРё РЅР° РїСЂРёРЅС‚РµСЂ rPrnName
 //
 int CPosProcessor::MakeDbgPrintLogList(int event, const SString & rFmtBuf, const SString & rChkBuf, const SString & rPrnName, SStrCollection & rList)
 {
@@ -11686,7 +11681,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType)
 				LAssocArray pos_assoc_list;
 				PPIDArray printed_pos_list;
 				//
-				// Инициализация gtoa по ассоциации, установленной в кассовом узле
+				// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ gtoa РїРѕ Р°СЃСЃРѕС†РёР°С†РёРё, СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ РІ РєР°СЃСЃРѕРІРѕРј СѓР·Р»Рµ
 				//
 				InitCashMachine();
 				GoodsToObjAssoc gtoa(NZOR(P_CM->GetNodeData().GoodsLocAssocID, PPASS_GOODS2LOC), PPOBJ_LOCATION);
@@ -11815,7 +11810,7 @@ int CheckPaneDialog::PrintCashReports()
 	if(!(Flags & fNoEdit) && IsState(sEMPTYLIST_EMPTYBUF)) {
 		int    csp_flags = 0;
 		// 
-		// Снять X-отчет;Открыть сессию;Копия Z-отчета;Инкассация;Блокировать;Разблокировать;Открыть денежный ящик;Режим ввода чека-метки
+		// РЎРЅСЏС‚СЊ X-РѕС‚С‡РµС‚;РћС‚РєСЂС‹С‚СЊ СЃРµСЃСЃРёСЋ;РљРѕРїРёСЏ Z-РѕС‚С‡РµС‚Р°;РРЅРєР°СЃСЃР°С†РёСЏ;Р‘Р»РѕРєРёСЂРѕРІР°С‚СЊ;Р Р°Р·Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ;РћС‚РєСЂС‹С‚СЊ РґРµРЅРµР¶РЅС‹Р№ СЏС‰РёРє;Р РµР¶РёРј РІРІРѕРґР° С‡РµРєР°-РјРµС‚РєРё
 		// 
 		{
 #if 0 // @construction {
@@ -11828,7 +11823,7 @@ int CheckPaneDialog::PrintCashReports()
 				menu.AddSubstr(temp_buf, 3, cmSCSIncasso);
 				menu.AddSubstr(temp_buf, 4, cmSCSLock);
 				menu.AddSubstr(temp_buf, 5, cmSCSUnlock);
-				menu.AddSubstr(temp_buf, 6, /*Открыть денежный ящик*/0);
+				menu.AddSubstr(temp_buf, 6, /*РћС‚РєСЂС‹С‚СЊ РґРµРЅРµР¶РЅС‹Р№ СЏС‰РёРє*/0);
 				menu.AddSubstr(temp_buf, 7, cmSCSLock);
 				int    cmd = menu.Execute(H(), TMenuPopup::efRet);
 				/*
@@ -11867,7 +11862,7 @@ int CheckPaneDialog::PrintCashReports()
 				case cmCSClose:
 					{
 						SString zcheck;
-						/* @v11.0.9 Экспериментально перемещаем печать сверки по банку после печати z-отчета
+						/* @v11.0.9 Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅРѕ РїРµСЂРµРјРµС‰Р°РµРј РїРµС‡Р°С‚СЊ СЃРІРµСЂРєРё РїРѕ Р±Р°РЅРєСѓ РїРѕСЃР»Рµ РїРµС‡Р°С‚Рё z-РѕС‚С‡РµС‚Р°
 						if(P_BNKTERM) {
 							if(P_BNKTERM->GetSessReport(zcheck))
 								P_CM->SyncPrintBnkTermReport(1, zcheck);
@@ -11886,13 +11881,13 @@ int CheckPaneDialog::PrintCashReports()
 							else
 								r_ext = P_CM_EXT->SyncCloseSession();
 						}
-						// @v11.0.9 (Экспериментально перемещаем печать сверки по банку после печати z-отчета) {
+						// @v11.0.9 (Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅРѕ РїРµСЂРµРјРµС‰Р°РµРј РїРµС‡Р°С‚СЊ СЃРІРµСЂРєРё РїРѕ Р±Р°РЅРєСѓ РїРѕСЃР»Рµ РїРµС‡Р°С‚Рё z-РѕС‚С‡РµС‚Р°) {
 						if(P_BNKTERM) {
 							if(P_BNKTERM->GetSessReport(zcheck)) {
 								if(CConfig.Flags & CCFLG_DEBUG) {
 									//
-									// В одном из магазинов при снятии Z-отчета после печати банковского слипа загибается касса viki-print
-									// Данный дамп призван помочь идентифицировать проблему.
+									// Р’ РѕРґРЅРѕРј РёР· РјР°РіР°Р·РёРЅРѕРІ РїСЂРё СЃРЅСЏС‚РёРё Z-РѕС‚С‡РµС‚Р° РїРѕСЃР»Рµ РїРµС‡Р°С‚Рё Р±Р°РЅРєРѕРІСЃРєРѕРіРѕ СЃР»РёРїР° Р·Р°РіРёР±Р°РµС‚СЃСЏ РєР°СЃСЃР° viki-print
+									// Р”Р°РЅРЅС‹Р№ РґР°РјРї РїСЂРёР·РІР°РЅ РїРѕРјРѕС‡СЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РїСЂРѕР±Р»РµРјСѓ.
 									//
 									SString temp_buf;
 									PPGetFilePath(PPPATH_LOG, "bnkterm_zrep_dump.txt", temp_buf);
@@ -12005,7 +12000,7 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 	THROW(P_TSesObj->Search(tsessID, &tses_rec) > 0);
 	if(tses_rec.CCheckID_) {
 		//
-		// По сессии уже был сформирован чек
+		// РџРѕ СЃРµСЃСЃРёРё СѓР¶Рµ Р±С‹Р» СЃС„РѕСЂРјРёСЂРѕРІР°РЅ С‡РµРє
 		//
 		CCheckTbl::Rec cc_rec;
 		if(GetCc().Search(tses_rec.CCheckID_, &cc_rec) > 0)
@@ -12015,7 +12010,7 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 		CALLEXCEPT_PP_S(PPERR_TSESSALREADYCCHECKED, temp_buf);
 	}
 	//
-	// Формирование чека возможно только по закрытой сессии
+	// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ С‡РµРєР° РІРѕР·РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РїРѕ Р·Р°РєСЂС‹С‚РѕР№ СЃРµСЃСЃРёРё
 	//
 	THROW_PP(tses_rec.Status == TSESST_CLOSED, PPERR_TSESSCCHECKNOTCLOSED);
 	{
@@ -12055,7 +12050,7 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 	THROW(cip_mgr.Search(chkinpID, &cip_item) > 0);
 	if(cip_item.CCheckID) {
 		//
-		// По записи уже был сформирован чек
+		// РџРѕ Р·Р°РїРёСЃРё СѓР¶Рµ Р±С‹Р» СЃС„РѕСЂРјРёСЂРѕРІР°РЅ С‡РµРє
 		//
 		CCheckTbl::Rec cc_rec;
 		if(GetCc().Search(cip_item.CCheckID, &cc_rec) > 0)
@@ -12065,7 +12060,7 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 		CALLEXCEPT_PP_S(PPERR_CHKINPALREADYCCHECKED, temp_buf);
 	}
 	//
-	// Формирование чека возможно только по закрытой сессии
+	// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ С‡РµРєР° РІРѕР·РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РїРѕ Р·Р°РєСЂС‹С‚РѕР№ СЃРµСЃСЃРёРё
 	//
 	THROW_PP(cip_item.GetStatus() == cip_item.statusCheckedIn, PPERR_CHKINPCCHECKNOTCLOSED);
 	if(cip_item.Kind == PPCheckInPersonItem::kTSession && cip_item.PrmrID) {
@@ -12215,8 +12210,8 @@ private:
 	void   ResetButtonToTextStyle(uint ctrlID);
 	int    ProcessEnter();
 	enum {
-		fWaitOnSCard  = 0x0001, // Ожидание ввода дисконтной карты
-		fTouchScreen  = 0x0002  // Используется TouchScreen
+		fWaitOnSCard  = 0x0001, // РћР¶РёРґР°РЅРёРµ РІРІРѕРґР° РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
+		fTouchScreen  = 0x0002  // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ TouchScreen
 	};
 	long   Flags;
 	PPID   LastCtrlID;
@@ -12407,7 +12402,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			PPWaitStart();
 			if(updGdsList == -2) {
 				if(GetInput()) {
-					double p = Input.ToReal();
+					const double p = Input.ToReal();
 					p_ts_ary = GObj.CreateListByPrice(LConfig.Location, R2(p));
 					p_def = new StrAssocListBoxDef(p_ts_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 					PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELBYPRICE, grp_name);
@@ -12818,7 +12813,7 @@ int ViewGoodsInfo(const InfoKioskPaneFilt * pFilt)
 	return ok;
 }
 //
-// Генерация товарных чеков
+// Р“РµРЅРµСЂР°С†РёСЏ С‚РѕРІР°СЂРЅС‹С… С‡РµРєРѕРІ
 //
 class PrcssrCCheckGenerator {
 public:
@@ -12826,13 +12821,13 @@ public:
 		Param() : SCardPeriod(5), P_Pan(0), MaxCc(0), MaxTime(0), LineDelay(100), MaxCheckDelay(5)
 		{
 		}
-		uint   SCardPeriod;      // Ориентировочный период чеков, которые пробиваются с дисконтными картами
-			// Если SCardPeriod = 5, то примерно каждый пятый чек будет пробит по карте.
-		uint   MaxCc;            // Максимальное количество генерируемых чеков. 0 - не ограничено. def=0
-		long   MaxTime;          // Максимаальное время генерации чеков (сек). 0 - не ограничено. def=0
-		uint   LineDelay;        // Задержка между строками чека (миллисек). def=100
-		uint   MaxCheckDelay;    // Максимальная задержка между чеками (сек). Фактическая задержка
-			// является равномерной случайной величиной [0..MaxCheckDelay]. def=5
+		uint   SCardPeriod;      // РћСЂРёРµРЅС‚РёСЂРѕРІРѕС‡РЅС‹Р№ РїРµСЂРёРѕРґ С‡РµРєРѕРІ, РєРѕС‚РѕСЂС‹Рµ РїСЂРѕР±РёРІР°СЋС‚СЃСЏ СЃ РґРёСЃРєРѕРЅС‚РЅС‹РјРё РєР°СЂС‚Р°РјРё
+			// Р•СЃР»Рё SCardPeriod = 5, С‚Рѕ РїСЂРёРјРµСЂРЅРѕ РєР°Р¶РґС‹Р№ РїСЏС‚С‹Р№ С‡РµРє Р±СѓРґРµС‚ РїСЂРѕР±РёС‚ РїРѕ РєР°СЂС‚Рµ.
+		uint   MaxCc;            // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РіРµРЅРµСЂРёСЂСѓРµРјС‹С… С‡РµРєРѕРІ. 0 - РЅРµ РѕРіСЂР°РЅРёС‡РµРЅРѕ. def=0
+		long   MaxTime;          // РњР°РєСЃРёРјР°Р°Р»СЊРЅРѕРµ РІСЂРµРјСЏ РіРµРЅРµСЂР°С†РёРё С‡РµРєРѕРІ (СЃРµРє). 0 - РЅРµ РѕРіСЂР°РЅРёС‡РµРЅРѕ. def=0
+		uint   LineDelay;        // Р—Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ СЃС‚СЂРѕРєР°РјРё С‡РµРєР° (РјРёР»Р»РёСЃРµРє). def=100
+		uint   MaxCheckDelay;    // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ Р·Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ С‡РµРєР°РјРё (СЃРµРє). Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ Р·Р°РґРµСЂР¶РєР°
+			// СЏРІР»СЏРµС‚СЃСЏ СЂР°РІРЅРѕРјРµСЂРЅРѕР№ СЃР»СѓС‡Р°Р№РЅРѕР№ РІРµР»РёС‡РёРЅРѕР№ [0..MaxCheckDelay]. def=5
 		CheckPaneDialog * P_Pan; // @notowned
 	};
 	PrcssrCCheckGenerator();
@@ -12845,11 +12840,11 @@ private:
 	PPObjSCard ScObj;
 	PPIDArray GoodsList;
 	StrAssocArray * P_ScList;
-	SRng * P_RngGoods;  // Генератор товаров
-	SRng * P_RngSCard;  // Генератор дисконтных карт
-	SRng * P_RngDelay;  // Генератор задержки между чеками (сек)
-	SRng * P_RngQtty;   // Генератор количества в строке чека
-	SRng * P_RngCount;  // Генератор количества строк в чеке
+	SRng * P_RngGoods;  // Р“РµРЅРµСЂР°С‚РѕСЂ С‚РѕРІР°СЂРѕРІ
+	SRng * P_RngSCard;  // Р“РµРЅРµСЂР°С‚РѕСЂ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
+	SRng * P_RngDelay;  // Р“РµРЅРµСЂР°С‚РѕСЂ Р·Р°РґРµСЂР¶РєРё РјРµР¶РґСѓ С‡РµРєР°РјРё (СЃРµРє)
+	SRng * P_RngQtty;   // Р“РµРЅРµСЂР°С‚РѕСЂ РєРѕР»РёС‡РµСЃС‚РІР° РІ СЃС‚СЂРѕРєРµ С‡РµРєР°
+	SRng * P_RngCount;  // Р“РµРЅРµСЂР°С‚РѕСЂ РєРѕР»РёС‡РµСЃС‚РІР° СЃС‚СЂРѕРє РІ С‡РµРєРµ
 };
 
 PrcssrCCheckGenerator::PrcssrCCheckGenerator() : P_ScList(0), P_RngGoods(0), P_RngSCard(0), P_RngDelay(0), P_RngQtty(0), P_RngCount(0)
@@ -12919,7 +12914,7 @@ int PrcssrCCheckGenerator::Init(const Param * pParam)
 int PrcssrCCheckGenerator::Run()
 {
 	int    ok = 1;
-	ulong  cc_count = 0; // Количество сгенерированных чеков
+	ulong  cc_count = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹С… С‡РµРєРѕРІ
 	const  uint sc_count = P_ScList ? P_ScList->getCount() : 0;
 	SString sc_code, temp_buf;
 	LDATETIME tm_start = getcurdatetime_();
@@ -12958,7 +12953,7 @@ int PrcssrCCheckGenerator::Run()
 		{
 			const CPosProcessor::CcTotal cct = P.P_Pan->CalcTotal();
 			//
-			// выбор метода платежа и проведение чека
+			// РІС‹Р±РѕСЂ РјРµС‚РѕРґР° РїР»Р°С‚РµР¶Р° Рё РїСЂРѕРІРµРґРµРЅРёРµ С‡РµРєР°
 			//
 			CcAmountList pl;
 			if(cc_count%20 == 0) {

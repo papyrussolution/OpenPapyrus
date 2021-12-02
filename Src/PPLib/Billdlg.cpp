@@ -3891,7 +3891,7 @@ void LotQCertDialog::generateSerial()
 		BillTbl::Rec bill_rec;
 		if(P_BObj->Search(lot_rec.BillID, &bill_rec) <= 0)
 			MEMSZERO(bill_rec);
-		STRNSCPY(templt, (goods_obj.IsAsset(lot_rec.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
+		STRNSCPY(templt, goods_obj.IsAsset(lot_rec.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
 		SString serial;
 		if(P_BObj->GetSnByTemplate(bill_rec.Code, labs(lot_rec.GoodsID), 0, templt, serial) > 0)
 			setCtrlString(CTL_LOTQCERT_SERIAL, serial);

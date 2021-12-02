@@ -916,7 +916,7 @@ int PPObjTag::MakeReserved(long flags)
 					PPTransaction tra(1);
 					THROW(tra);
 					THROW(Helper_CreateEnumObject(pack));
-					THROW(EditItem(Obj, 0, &pack.Rec, 0));
+					THROW(StoreItem(Obj, 0, &pack.Rec, 0));
 					THROW(tra.Commit());
 				}
 			}
@@ -997,7 +997,7 @@ int PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
 		}
 		else {
 			THROW(Helper_CreateEnumObject(*pPack));
-			THROW(EditItem(PPOBJ_TAG, *pID, &pPack->Rec, 0));
+			THROW(StoreItem(PPOBJ_TAG, *pID, &pPack->Rec, 0));
 			*pID = pPack->Rec.ID = P_Ref->data.ObjID;
 		}
 		THROW(tra.Commit());

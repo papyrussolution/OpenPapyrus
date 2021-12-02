@@ -233,7 +233,7 @@ typedef void (* cairo_gl_emit_glyph_t) (cairo_gl_context_t * ctx, GLfloat x1, GL
 #define cairo_gl_var_type_hash(src, mask, spans, dest) ((spans) << 5) | ((mask) << 3 | (src << 1) | (dest))
 #define CAIRO_GL_VAR_TYPE_MAX (1 << 6)
 
-typedef void (* cairo_gl_generic_func_t)(void);
+typedef void (* cairo_gl_generic_func_t)();
 typedef cairo_gl_generic_func_t (* cairo_gl_get_proc_addr_func_t)(const char * procname);
 
 typedef struct _cairo_gl_dispatch {
@@ -256,7 +256,7 @@ typedef struct _cairo_gl_dispatch {
 	void (*DeleteShader)(GLuint shader);
 
 	/* Programs */
-	GLuint (* CreateProgram)(void);
+	GLuint (* CreateProgram)();
 	void (*AttachShader)(GLuint program, GLuint shader);
 	void (*DeleteProgram)(GLuint program);
 	void (*LinkProgram)(GLuint program);
@@ -484,9 +484,9 @@ cairo_private void _cairo_gl_shader_bind_matrix(cairo_gl_context_t * ctx, GLint 
 cairo_private void _cairo_gl_shader_bind_matrix4f(cairo_gl_context_t * ctx, GLint location, GLfloat* gl_m);
 cairo_private void _cairo_gl_set_shader(cairo_gl_context_t * ctx, cairo_gl_shader_t * shader);
 cairo_private void _cairo_gl_shader_fini(cairo_gl_context_t * ctx, cairo_gl_shader_t * shader);
-cairo_private int _cairo_gl_get_version(void);
-cairo_private cairo_gl_flavor_t _cairo_gl_get_flavor(void);
-cairo_private ulong _cairo_gl_get_vbo_size(void);
+cairo_private int _cairo_gl_get_version();
+cairo_private cairo_gl_flavor_t _cairo_gl_get_flavor();
+cairo_private ulong _cairo_gl_get_vbo_size();
 cairo_private boolint _cairo_gl_has_extension(const char * ext);
 cairo_private cairo_status_t _cairo_gl_dispatch_init(cairo_gl_dispatch_t * dispatch, cairo_gl_get_proc_addr_func_t get_proc_addr);
 cairo_private cairo_int_status_t _cairo_gl_operand_init(cairo_gl_operand_t * operand, const cairo_pattern_t * pattern, cairo_gl_surface_t * dst,
@@ -502,9 +502,9 @@ cairo_private void _cairo_gl_operand_emit(cairo_gl_operand_t * operand, GLfloat 
 cairo_private void _cairo_gl_operand_copy(cairo_gl_operand_t * dst, const cairo_gl_operand_t * src);
 cairo_private void _cairo_gl_operand_translate(cairo_gl_operand_t * operand, double tx, double ty);
 cairo_private void _cairo_gl_operand_destroy(cairo_gl_operand_t * operand);
-cairo_private const cairo_compositor_t * _cairo_gl_msaa_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_gl_span_compositor_get(void);
-cairo_private const cairo_compositor_t * _cairo_gl_traps_compositor_get(void);
+cairo_private const cairo_compositor_t * _cairo_gl_msaa_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_gl_span_compositor_get();
+cairo_private const cairo_compositor_t * _cairo_gl_traps_compositor_get();
 cairo_private cairo_int_status_t _cairo_gl_check_composite_glyphs(const cairo_composite_rectangles_t * extents, cairo_scaled_font_t * scaled_font,
     cairo_glyph_t * glyphs, int * num_glyphs);
 cairo_private cairo_int_status_t _cairo_gl_composite_glyphs(void * _dst, cairo_operator_t op, cairo_surface_t * _src,
@@ -517,7 +517,7 @@ cairo_private cairo_surface_t * _cairo_gl_surface_create_scratch_for_caching(cai
 cairo_private cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst, const cairo_pattern_t * pattern, boolint is_mask,
     const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y);
 cairo_private cairo_int_status_t _cairo_gl_msaa_compositor_draw_clip(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, cairo_clip_t * clip);
-cairo_private cairo_surface_t * _cairo_gl_white_source(void);
+cairo_private cairo_surface_t * _cairo_gl_white_source();
 cairo_private void _cairo_gl_scissor_to_rectangle(cairo_gl_surface_t * surface, const cairo_rectangle_int_t * r);
 
 static inline cairo_gl_operand_t * source_to_operand(cairo_surface_t * surface)

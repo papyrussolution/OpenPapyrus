@@ -104,11 +104,11 @@ public:
      */
     int32_t extract(char *dest, int32_t capacity, UErrorCode & errorCode) const;
 
-    bool operator==(StringPiece other) const {
+    bool operator == (StringPiece other) const {
         return len == other.length() && (len == 0 || uprv_memcmp(data(), other.data(), len) == 0);
     }
     bool operator != (StringPiece other) const {
-        return !operator==(other);
+        return !operator == (other);
     }
 
     /** @return last index of c, or -1 if c is not in this string */

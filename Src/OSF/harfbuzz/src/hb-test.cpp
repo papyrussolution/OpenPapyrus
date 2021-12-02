@@ -158,15 +158,15 @@ int HarfBuzzTestBitmap() // ###
 //
 //
 //
-template <typename T> struct array_iter_t : hb_iter_with_fallback_t<array_iter_t<T>, T&>{
+template <typename T> struct array_iter_t : hb_iter_with_fallback_t<array_iter_t<T>, T&> {
 	array_iter_t (hb_array_t<T> arr_) : arr(arr_) 
 	{
 	}
 	typedef T& __item_t__;
 	static constexpr bool is_random_access_iterator = true;
 	T& __item_at__(uint i) const { return arr[i]; }
-	void __forward__(unsigned n) { arr += n; }
-	void __rewind__(unsigned n) { arr -= n; }
+	void __forward__(uint n) { arr += n; }
+	void __rewind__(uint n) { arr -= n; }
 	unsigned __len__() const { return arr.length; }
 	bool operator !=(const array_iter_t& o) { return arr != o.arr; }
 private:
@@ -268,8 +268,8 @@ int HarfBuzzTestIter() // ###
 	assert(false == hb_all(st, 42u));
 	assert(true == hb_any(st));
 	assert(false == hb_any(st, 14u));
-	assert(true == hb_any(st, 14u, [] (unsigned _) { return _ - 1u; }));
-	assert(true == hb_any(st, [] (unsigned _) { return _ == 15u; }));
+	assert(true == hb_any(st, 14u, [] (uint _) { return _ - 1u; }));
+	assert(true == hb_any(st, [] (uint _) { return _ == 15u; }));
 	assert(true == hb_any(st, 15u));
 	assert(false == hb_none(st));
 	assert(false == hb_none(st, 15u));

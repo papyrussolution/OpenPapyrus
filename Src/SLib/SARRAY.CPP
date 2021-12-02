@@ -1529,18 +1529,18 @@ void LAssocArray::SortByVal() { SVector::sort(PTR_CMPFUNC(LAssoc_Val)); }
 void LAssocArray::SortByKeyVal() { SVector::sort(PTR_CMPFUNC(LAssoc_KeyVal)); }
 void LAssocArray::SortByValKey() { SVector::sort(PTR_CMPFUNC(LAssoc_ValKey)); }
 
-int LAssocArray::CheckFlag(long key, long mask, int binary) const
+bool LAssocArray::CheckFlag(long key, long mask, int binary) const
 {
 	long   val = 0;
 	const  int is_found = binary ? BSearch(key, &val, 0) : Search(key, &val, 0);
-	return BIN(is_found && (val & mask));
+	return (is_found && (val & mask));
 }
 //
 //
 //
-int FASTCALL LLAssoc::operator == (const LLAssoc & s) const
+bool FASTCALL LLAssoc::operator == (const LLAssoc & s) const
 {
-	return BIN(Key == s.Key && Val == s.Val);
+	return (Key == s.Key && Val == s.Val);
 }
 
 LLAssocArray::LLAssocArray() : TSVector <LLAssoc>()
@@ -2914,10 +2914,6 @@ int StrAssocArray::Read(SFile & rFile, long o)
 //
 // @construction {
 //
-StrAssocTree::EntryHandle::EntryHandle(StrAssocTree::ENTRY * pE) : P(pE)
-{
-}
-
 StrAssocTree::ENTRY::BaseList::BaseList() : TSArray <ENTRY>(aryDataOwner|aryEachItem)
 {
 }
@@ -2956,6 +2952,30 @@ uint StrAssocTree::ENTRY::BaseList::GetCount() const
 	for(uint i = 0; i < getCount(); i++)
 		_c += at(i).GetCount();
 	return _c;
+}
+
+bool StrAssocTree::ENTRY::BaseList::Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const
+{
+	bool result = false;
+	if(h) {
+		const uint _c = SArray::getCount();
+		const void * p_start = SArray::dataPtr();
+		if(h >= p_start && static_cast<void *>(h) < PTR8C(p_start)+(SArray::getItemSize() * _c)) {
+			const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(h));
+			ASSIGN_PTR(pId, p_entry->Key);
+			ASSIGN_PTR(pParentId, currentParentId);
+			ASSIGN_PTR(pStrP, p_entry->StrP);
+			result = true;
+		}
+		else {
+			for(uint i = 0; !result && i < _c; i++) {
+				const ENTRY & r_entry = at(i);
+				if(r_entry.P_Children)
+					result = r_entry.P_Children->Implement_Get_Unsafe(h, r_entry.Key, pId, pParentId, pStrP);
+			}
+		}
+	}
+	return result;
 }
 
 int StrAssocTree::ENTRY::BaseList::Implement_Add(int32 key, uint strP)
@@ -3137,15 +3157,24 @@ bool StrAssocTree::Search(long id, long * pParentId, SString * pBuf) const
 		return false;
 }
 
-bool FASTCALL StrAssocTree::ValidateEntryHandle(const EntryHandle h) const
+bool FASTCALL StrAssocTree::ValidateEntryHandle(const SHandle h) const
 {
-	return L.ValidateEntryPtr(h.P);
+	return L.ValidateEntryPtr(h);
 }
 	
-StrAssocTree::EntryHandle FASTCALL StrAssocTree::Search(long id) const
+SHandle FASTCALL StrAssocTree::Search(long id) const
 {
 	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
-	return EntryHandle(p_entry);
+	return SHandle(p_entry);
+}
+
+bool StrAssocTree::Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const
+{
+	uint  strp = 0;
+	bool result = L.Implement_Get_Unsafe(h, 0, pId, pParentId, &strp);
+	if(result && pBuf)
+		GetS(strp, *pBuf);
+	return result;
 }
 
 int StrAssocTree::GetList(LongArray & rList) const

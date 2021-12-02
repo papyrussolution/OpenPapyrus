@@ -321,7 +321,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
     /** Visible for testing */
     inline bool isExplicitExactDouble() { return explicitExactDouble; }
 
-    bool operator==(const DecimalQuantity& other) const;
+    bool operator == (const DecimalQuantity& other) const;
 
     inline bool operator != (const DecimalQuantity& other) const {
         return !(*this == other);

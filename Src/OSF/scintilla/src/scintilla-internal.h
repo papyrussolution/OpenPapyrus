@@ -3364,7 +3364,7 @@ template <typename T> class SparseState {
 		{
 			return position < other.position;
 		}
-		inline bool operator==(const State &other) const 
+		inline bool operator == (const State &other) const 
 		{
 			return (position == other.position) && (value == other.value);
 		}

@@ -330,7 +330,7 @@ class U_I18N_API NullableValue {
         return *this;
     }
 
-    bool operator==(const NullableValue& other) const {
+    bool operator == (const NullableValue& other) const {
         // "fValue == other.fValue" returns bool, not bool (causes compiler warnings)
         return fNull ? other.fNull : (other.fNull ? false : static_cast<bool>(fValue == other.fValue));
     }

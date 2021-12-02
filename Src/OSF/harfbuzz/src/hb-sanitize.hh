@@ -117,7 +117,7 @@
 #endif
 
 struct hb_sanitize_context_t :
-hb_dispatch_context_t<hb_sanitize_context_t, bool, HB_DEBUG_SANITIZE>{
+hb_dispatch_context_t<hb_sanitize_context_t, bool, HB_DEBUG_SANITIZE> {
 	hb_sanitize_context_t() :
 		start(nullptr), end(nullptr),
 		max_ops(0), max_subtables(0),

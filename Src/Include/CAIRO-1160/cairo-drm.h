@@ -43,7 +43,7 @@ struct udev_device;
 
 cairo_public cairo_device_t * cairo_drm_device_get(struct udev_device * device);
 cairo_public cairo_device_t * cairo_drm_device_get_for_fd(int fd);
-cairo_public cairo_device_t * cairo_drm_device_default(void);
+cairo_public cairo_device_t * cairo_drm_device_default();
 cairo_public int cairo_drm_device_get_fd(cairo_device_t * device);
 cairo_public void cairo_drm_device_throttle(cairo_device_t * device);
 cairo_public cairo_surface_t * cairo_drm_surface_create(cairo_device_t * device, cairo_format_t format, int width, int height);

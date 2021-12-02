@@ -130,7 +130,7 @@ public:
 	{
 		length_ -= n;
 	}
-	bool operator==(const StringPiece& x) const 
+	bool operator == (const StringPiece& x) const 
 	{
 		return ((length_ == x.length_) && (memcmp(ptr_, x.ptr_, length_) == 0));
 	}

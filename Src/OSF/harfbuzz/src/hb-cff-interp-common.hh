@@ -272,7 +272,7 @@ protected:
 	};
 
 /* byte string */
-	struct UnsizedByteStr : UnsizedArrayOf <HBUINT8>{
+	struct UnsizedByteStr : UnsizedArrayOf <HBUINT8> {
 		// encode 2-byte int (Dict/CharString) or 4-byte int (Dict)
 		template <typename T, typename V>
 		static bool serialize_int(hb_serialize_context_t * c, op_code_t intOp, V value)
@@ -521,7 +521,7 @@ protected:
 
 /* argument stack */
 	template <typename ARG = number_t>
-	    struct arg_stack_t : cff_stack_t<ARG, 513>{
+	    struct arg_stack_t : cff_stack_t<ARG, 513> {
 		void push_int(int v)
 		{
 			ARG &n = S::push();

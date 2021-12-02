@@ -1416,7 +1416,7 @@ const char16_t* DecimalQuantity::checkHealth() const {
 	return nullptr;
 }
 
-bool DecimalQuantity::operator==(const DecimalQuantity& other) const {
+bool DecimalQuantity::operator == (const DecimalQuantity& other) const {
 	bool basicEquals =
 	    scale == other.scale
 	 && precision == other.precision

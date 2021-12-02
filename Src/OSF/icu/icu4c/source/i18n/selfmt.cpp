@@ -149,11 +149,11 @@ SelectFormat&SelectFormat::operator = (const SelectFormat& other) {
 	return *this;
 }
 
-bool SelectFormat::operator==(const Format& other) const {
+bool SelectFormat::operator == (const Format& other) const {
 	if(this == &other) {
 		return true;
 	}
-	if(!Format::operator==(other)) {
+	if(!Format::operator == (other)) {
 		return false;
 	}
 	const SelectFormat& o = (const SelectFormat&)other;
@@ -161,7 +161,7 @@ bool SelectFormat::operator==(const Format& other) const {
 }
 
 bool SelectFormat::operator != (const Format& other) const {
-	return !operator==(other);
+	return !operator == (other);
 }
 
 void SelectFormat::parseObject(const UnicodeString & /*source*/,

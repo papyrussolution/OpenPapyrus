@@ -144,7 +144,7 @@ public:
 	struct Format1Entry;
 
 	template <>
-	struct Format1Entry<true>{
+	struct Format1Entry<true> {
 		enum Flags {
 			Push                = 0x8000,/* If set, push this glyph on the kerning stack. */
 			DontAdvance         = 0x4000,/* If set, don't advance to the next glyph
@@ -172,7 +172,7 @@ public:
 		}
 	};
 	template <>
-	struct Format1Entry<false>{
+	struct Format1Entry<false> {
 		enum Flags {
 			Push                = 0x8000,/* If set, push this glyph on the kerning stack. */
 			DontAdvance         = 0x4000,/* If set, don't advance to the next glyph
@@ -455,22 +455,16 @@ public:
 				mark_set(false),
 				mark(0) {
 			}
-
-			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED,
-			    const Entry<EntryData> &entry)
+			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED, const Entry<EntryData> &entry)
 			{
 				return entry.data.ankrActionIndex != 0xFFFF;
 			}
-
-			void transition(StateTableDriver<Types, EntryData> * driver,
-			    const Entry<EntryData> &entry)
+			void transition(StateTableDriver<Types, EntryData> * driver, const Entry<EntryData> &entry)
 			{
 				hb_buffer_t * buffer = driver->buffer;
-
 				if(mark_set && entry.data.ankrActionIndex != 0xFFFF && buffer->idx < buffer->len) {
 					hb_glyph_position_t &o = buffer->cur_pos();
-					switch(action_type)
-					{
+					switch(action_type) {
 						case 0: /* Control Point Actions.*/
 					    {
 						    /* Indexed into glyph outline. */
@@ -907,7 +901,7 @@ skip:
 		}
 	};
 
-	struct kerx : KerxTable<kerx>{
+	struct kerx : KerxTable<kerx> {
 		friend struct KerxTable<kerx>;
 
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_kerx;

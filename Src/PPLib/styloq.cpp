@@ -147,6 +147,8 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 	{ StyloQConfig::tagFeatures,        "features" }, 
 	{ StyloQConfig::tagExpiryPeriodSec, "expiryperiodsec" },
 	{ StyloQConfig::tagExpiryEpochSec,  "expiryepochsec" },
+	{ StyloQConfig::tagPrefLanguage,    "preflang" }, // @v11.2.5 (private config) Предпочтительный язык
+	{ StyloQConfig::tagDefFace,         "defface"  }, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
 };
 
 /*static*/int StyloQConfig::MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson)
@@ -626,15 +628,15 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 	rBuf.Z();
 	const char * p_sign = 0;
 	switch(cmdId) {
-		case Item::sqbcPersonEvent: p_sign = "styloqbasecmd_personevent"; break;
-		case Item::sqbcReport: p_sign = "styloqbasecmd_report"; break;
+		case sqbcPersonEvent: p_sign = "styloqbasecmd_personevent"; break;
+		case sqbcReport: p_sign = "styloqbasecmd_report"; break;
 	}
 	if(p_sign)
 		PPLoadString(p_sign, rBuf);
 	return rBuf;
 }
 
-StyloQCommandList::Item::Item() : Ver(0), BaseCmdId(sqbcEmpty), Flags(0), ObjTypeRestriction(0), ObjGroupRestriction(0)
+StyloQCommandList::Item::Item() : Ver(0), BaseCmdId(sqbcEmpty), Flags(0), ObjTypeRestriction(0), ObjGroupRestriction(0), ResultExpiryTimeSec(0)
 {
 }
 
@@ -737,6 +739,11 @@ int StyloQCommandList::Store(const char * pFileName) const
 							n_item.PutInner("Param", temp_buf);						
 						}
 					}
+					// @v11.2.5 {
+					if(p_item->ResultExpiryTimeSec > 0) {
+						n_item.PutInner("ResultExpiryTimeSec", temp_buf.Z().Cat(p_item->ResultExpiryTimeSec));
+					}
+					// } @v11.2.5 
 					if(p_item->Vd.GetCount()) {
 						THROW(p_item->Vd.XmlWrite(p_writer));
 					}
@@ -773,33 +780,26 @@ int StyloQCommandList::Load(const char * pFileName)
 				if(SXml::IsName(p_node, "StyloQCommand")) {
 					THROW_SL(p_new_item = new Item);
 					for(xmlNode * p_cn = p_node->children; p_cn; p_cn = p_cn->next) {
-						if(SXml::GetContentByName(p_cn, "Uuid", temp_buf)) {
+						if(SXml::GetContentByName(p_cn, "Uuid", temp_buf))
 							p_new_item->Uuid.FromStr(temp_buf);
-						}
-						if(SXml::GetContentByName(p_cn, "Name", temp_buf)) {
+						if(SXml::GetContentByName(p_cn, "Name", temp_buf))
 							p_new_item->Name = temp_buf;
-						}
-						else if(SXml::GetContentByName(p_cn, "BaseCommandID", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "BaseCommandID", temp_buf))
 							p_new_item->BaseCmdId = temp_buf.ToLong();
-						}
-						else if(SXml::GetContentByName(p_cn, "Flags", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "Flags", temp_buf))
 							p_new_item->Flags = temp_buf.ToLong();
-						}
-						else if(SXml::GetContentByName(p_cn, "DbSymb", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "DbSymb", temp_buf))
 							p_new_item->DbSymb = temp_buf;
-						}
-						else if(SXml::GetContentByName(p_cn, "ViewSymb", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "ViewSymb", temp_buf))
 							p_new_item->ViewSymb = temp_buf;
-						}
-						else if(SXml::GetContentByName(p_cn, "Description", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "Description", temp_buf))
 							p_new_item->Description = temp_buf;
-						}
-						else if(SXml::GetContentByName(p_cn, "ObjTypeRestriction", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "ObjTypeRestriction", temp_buf))
 							p_new_item->ObjTypeRestriction = temp_buf.ToLong();
-						}
-						else if(SXml::GetContentByName(p_cn, "ObjGroupRestriction", temp_buf)) {
+						else if(SXml::GetContentByName(p_cn, "ObjGroupRestriction", temp_buf))
 							p_new_item->ObjGroupRestriction = temp_buf.ToLong();
-						}
+						else if(SXml::GetContentByName(p_cn, "ResultExpiryTimeSec", temp_buf)) // @v11.2.5
+							p_new_item->ResultExpiryTimeSec = temp_buf.ToLong();
 						else if(SXml::GetContentByName(p_cn, "Param", temp_buf)) {
 							STempBuffer bin_buf(temp_buf.Len() * 3);
 							size_t actual_len = 0;
@@ -833,7 +833,7 @@ int StyloQCommandList::Load(const char * pFileName)
 	p_result->InsertString("doctype", "commandlist");
 	p_result->InsertString("time", temp_buf.Z().Cat(time(0)));
 	if(expirationSec > 0) {
-		p_result->Insert("expiration_period_sec", json_new_number(temp_buf.Z().Cat(expirationSec)));
+		p_result->Insert("expir_time_sec", json_new_number(temp_buf.Z().Cat(expirationSec)));
 	}
 	{
 		SJson * p_array = new SJson(SJson::tARRAY);
@@ -847,6 +847,10 @@ int StyloQCommandList::Load(const char * pFileName)
 					if(p_item->Description.NotEmpty()) {
 						p_jitem->InsertString("descr", p_item->Description);
 					}
+					// @v11.2.5 {
+					if(p_item->ResultExpiryTimeSec > 0)
+						p_jitem->InsertInt("result_expir_time_sec", p_item->ResultExpiryTimeSec);
+					// } @v11.2.5 
 					// @todo transmit image
 					json_insert_child(p_array, p_jitem);
 				}
@@ -1064,7 +1068,7 @@ int StyloQCore::PutDocument(PPID * pID, int direction, int docType, const SBinar
 					else if(p_obj->Text.IsEqiAscii("time")) {
 						doc_time = p_obj->P_Child->Text.ToInt64();
 					}
-					else if(p_obj->Text.IsEqiAscii("expiration_period_sec")) {
+					else if(p_obj->Text.IsEqiAscii("expir_time_sec")) {
 						doc_expiry = p_obj->P_Child->Text.ToLong();
 					}
 				}
@@ -3149,7 +3153,7 @@ int PPStyloQInterchange::TestDatabase()
 				if(docType == StyloQCore::doctypCommandList)
 					js.InsertString("doctype", "commandlist");
 				js.InsertString("time", temp_buf.Z().Cat(Timestamp));
-				js.Insert("expiration_period_sec", json_new_number(temp_buf.Z().Cat(3 * 24 * 3600)));
+				js.Insert("expir_time_sec", json_new_number(temp_buf.Z().Cat(3 * 24 * 3600)));
 				{
 					SJson * p_array = new SJson(SJson::tARRAY);
 					{
@@ -3332,7 +3336,7 @@ int PPStyloQInterchange::TestDatabase()
 							}
 							p_c = p_js->FindChildByKey("time");
 							THROW(p_c && p_c->P_Child);
-							p_c = p_js->FindChildByKey("expiration_period_sec");
+							p_c = p_js->FindChildByKey("expir_time_sec");
 							THROW(p_c && p_c->P_Child);
 							p_c = p_js->FindChildByKey("item_list");
 							THROW(p_c && p_c->P_Child && p_c->P_Child->IsArray());
@@ -4150,7 +4154,7 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rC
 {
 	int    ok = 1;
 	PPID   new_id = 0;
-	assert(rCmdItem.BaseCmdId == StyloQCommandList::Item::sqbcPersonEvent);
+	assert(rCmdItem.BaseCmdId == StyloQCommandList::sqbcPersonEvent);
 	{
 		SSerializeContext sctx;
 		const LDATETIME _now = getcurdatetime_();
@@ -4207,7 +4211,7 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 	PPView * p_view = 0;
 	PPBaseFilt * p_filt = 0;
 	DlRtm  * p_rtm = 0;
-	assert(rCmdItem.BaseCmdId == StyloQCommandList::Item::sqbcReport);
+	assert(rCmdItem.BaseCmdId == StyloQCommandList::sqbcReport);
 	{
 		// @debug {
 			const PPThreadLocalArea & r_tla = DS.GetConstTLA();
@@ -4456,7 +4460,7 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 							if(p_targeted_item) {
 								StyloQCommandList::Item temp_item = *p_targeted_item;
 								switch(temp_item.BaseCmdId) {
-									case StyloQCommandList::Item::sqbcPersonEvent:
+									case StyloQCommandList::sqbcPersonEvent:
 										if(ProcessCommand_PersonEvent(temp_item, cli_pack, geopos)) {
 											PPLoadText(PPTXT_SQ_CMDSUCCESS_PSNEV, reply_text_buf);
 											reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -4467,7 +4471,7 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 											PPSetError(PPERR_SQ_CMDFAULT_PSNEV);
 										}
 										break;
-									case StyloQCommandList::Item::sqbcReport:
+									case StyloQCommandList::sqbcReport:
 										if(ProcessCommand_Report(temp_item, cli_pack, geopos, reply_text_buf, temp_buf.Z())) {
 											reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 											if(temp_buf.Len())

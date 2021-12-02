@@ -89,9 +89,9 @@ public:
 	TimeZoneNamesDelegate(const Locale & locale, UErrorCode & status);
 	virtual ~TimeZoneNamesDelegate();
 
-	virtual bool operator==(const TimeZoneNames& other) const override;
+	virtual bool operator == (const TimeZoneNames& other) const override;
 	virtual bool operator != (const TimeZoneNames& other) const {
-		return !operator==(other);
+		return !operator == (other);
 	}
 
 	virtual TimeZoneNamesDelegate* clone() const override;
@@ -215,7 +215,7 @@ TimeZoneNamesDelegate::~TimeZoneNamesDelegate() {
 	umtx_unlock(&gTimeZoneNamesLock);
 }
 
-bool TimeZoneNamesDelegate::operator==(const TimeZoneNames& other) const {
+bool TimeZoneNamesDelegate::operator == (const TimeZoneNames& other) const {
 	if(this == &other) {
 		return true;
 	}

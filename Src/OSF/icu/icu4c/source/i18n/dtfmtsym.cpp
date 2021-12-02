@@ -534,7 +534,7 @@ bool DateFormatSymbols::arrayCompare(const UnicodeString * array1,
 }
 
 bool
-DateFormatSymbols::operator==(const DateFormatSymbols &other) const
+DateFormatSymbols::operator == (const DateFormatSymbols &other) const
 {
 	// First do cheap comparisons
 	if(this == &other) {

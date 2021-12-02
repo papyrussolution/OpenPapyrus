@@ -70,7 +70,7 @@ bool LSR::isEquivalentTo(const LSR &other) const {
 		(regionIndex > 0 || uprv_strcmp(region, other.region) == 0);
 }
 
-bool LSR::operator==(const LSR &other) const {
+bool LSR::operator == (const LSR &other) const {
 	return
 		uprv_strcmp(language, other.language) == 0 &&
 		uprv_strcmp(script, other.script) == 0 &&

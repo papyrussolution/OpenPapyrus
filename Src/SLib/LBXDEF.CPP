@@ -757,8 +757,8 @@ public:
 	//int    GetChildList(long parentId, LongArray * pChildList);
 protected:
 	//void   setupView();
-	int    Helper_CreateTree();
-	int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
+	//int    Helper_CreateTree();
+	//int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
 private:
 	StrAssocTree * P_SaList;
 	struct TreeItem {
@@ -774,6 +774,7 @@ private:
 		char   Txt[256];
 	};
 	Item   TempItem;
+	LongArray LL; // Линеаризованный список идентификаторов P_SaList используемый для базовых функций навигации.
 };
 
 StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0)
@@ -788,67 +789,17 @@ StdTreeListBoxDef2_::~StdTreeListBoxDef2_()
 		delete P_SaList;
 }
 
-int StdTreeListBoxDef2_::Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos)
-{
-	int    ok = 1;
-	if(!rAddedIdxList.Has(idx)) {
-		StrAssocArray::Item item_ = P_SaList->Get(idx);
-		TreeItem ti;
-		ti.Id = item_.Id;
-		ti.ParentId = item_.ParentId;
-		ti.H = 0;
-		ti.P = idx;
-		uint32 pos = 0;
-		uint32 parent_p = 0;
-		if(item_.ParentId) {
-			if(!T.Search(&item_.ParentId, &parent_p, CMPF_LONG)) {
-				//
-				// Если родительский элемент еще не попал в дерево, то
-				// рекурсивно вызываем функцию Helper_AddTreeItem для вставки родительского элемента.
-				//
-				uint   sa_parent_p = 0;
-				if(P_SaList->Search(item_.ParentId, &sa_parent_p)) {
-					int    r;
-					THROW(r = Helper_AddTreeItem(sa_parent_p, rAddedIdxList, &parent_p)); // @recursion
-					assert(r > 0); // Не может такого быть, чтобы не обнаруженный до этого элемент, уже был помечен как созданный.
-				}
-				else
-					parent_p = 0;
-			}
-		}
-		//THROW(T.Insert(&ti, parent_p, &pos));
-		rAddedIdxList.Add(idx);
-		ASSIGN_PTR(pPos, pos);
-	}
-	else
-		ok = -1;
-	CATCHZOK
-	return ok;
-}
-
-int StdTreeListBoxDef2_::Helper_CreateTree()
-{
-	int    ok = 1;
-	if(P_SaList) {
-		UintHashTable added_idx_list;
-		const uint _c = P_SaList->GetCount();
-		for(uint i = 0; i < _c; i++) {
-			uint32 pos = 0;
-			THROW(Helper_AddTreeItem(i, added_idx_list, &pos));
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
 int StdTreeListBoxDef2_::setArray(StrAssocTree * pList)
 {
 	if(Options & lbtDisposeData) {
 		delete P_SaList;
 	}
 	P_SaList = pList;
+	if(P_SaList) {
+		P_SaList->GetList(LL);
+	}
 	//T.Z();
-	Helper_CreateTree();
+	//Helper_CreateTree();
 	top();
 	return 1;
 }
@@ -885,7 +836,11 @@ int StdTreeListBoxDef2_::getCurData(void * b)
 }
 
 int  StdTreeListBoxDef2_::valid() { return BIN(P_SaList); }
-long StdTreeListBoxDef2_::getRecsCount() { return P_SaList ? P_SaList->GetCount() : 0; }
+long StdTreeListBoxDef2_::getRecsCount() 
+{ 
+	//return P_SaList ? P_SaList->GetCount() : 0; 
+	return P_SaList ? LL.getCount() : 0; 
+}
 
 int StdTreeListBoxDef2_::getIdList(LongArray & rList)
 {
@@ -900,15 +855,26 @@ int StdTreeListBoxDef2_::getIdList(LongArray & rList)
 
 void * FASTCALL StdTreeListBoxDef2_::getRow_(long r)
 {
-	if(P_SaList && r < (long)P_SaList->getCount()) {
+	void * p_result = 0;
+	if(P_SaList && r >= 0 && r < LL.getCount()) {
+		long _id = LL.get(r);
+		long _parent_id = 0;
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		if(P_SaList->Search(_id, &_parent_id, &r_temp_buf)) {
+			TempItem.Id = _id;
+			TempItem.ParentId = _parent_id;
+			STRNSCPY(TempItem.Txt, r_temp_buf);
+			p_result = &TempItem;
+		}
+		/*
 		StrAssocArray::Item item = P_SaList->Get(r);
 		TempItem.Id = item.Id;
 		TempItem.ParentId = item.ParentId;
 		STRNSCPY(TempItem.Txt, item.Txt);
-		return &TempItem;
+		p_result = &TempItem;
+		*/
 	}
-	else
-		return 0;
+	return p_result;
 }
 
 int StdTreeListBoxDef2_::go(long pos)
@@ -940,7 +906,7 @@ void StdTreeListBoxDef2_::getScrollData(long * pScrollDelta, long * pScrollPos)
 	ASSIGN_PTR(pScrollPos, 0);
 	if(P_SaList) {
 		uint32 pos = 0;
-		long * p_id = (long *)getRow_(_curItem());
+		long * p_id = static_cast<long *>(getRow_(_curItem()));
 		if(p_id && *p_id && T.Search(p_id, &pos, CMPF_LONG)) {
 			TreeItem * p_item = static_cast<TreeItem *>(T.GetData(pos));
 			if(p_item)
@@ -960,11 +926,11 @@ int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchM
 	if(valid()) {
 		int    dir = (srchMode & ~srchFlags);
 		uint   ofs = sizeof(long);
-		uint   pos;
+		uint   pos = 0;
 		if(P_SaList) {
 			if(srchMode & lbSrchByID) {
-				pos = 0;
-				r = P_SaList->Search(*(long *)pPattern, &pos);
+				//r = P_SaList->Search(*(long *)pPattern, &pos);
+				r = LL.lsearch(*(long *)pPattern, &pos);
 			}
 			else {
 				pos = (dir == srchNext) ? (uint)_curItem() + 1 : 0U;
@@ -997,8 +963,13 @@ int StdTreeListBoxDef2_::GetStringByID(long id, SString & rBuf)
 int StdTreeListBoxDef2_::GoByID(long id)
 {
 	uint   pos = 0;
+	if(valid() && P_SaList && LL.lsearch(id, &pos)) {
+		go(pos);
+	}
+	/*
 	if(valid() && P_SaList && P_SaList->Search(id, &pos))
 		go(pos);
+	*/
 	return 1;
 }
 

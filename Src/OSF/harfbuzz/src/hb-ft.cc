@@ -456,7 +456,7 @@ static hb_bool_t hb_ft_get_font_h_extents(hb_font_t * font HB_UNUSED, void * fon
 	static void free_static_ft_funcs();
 #endif
 
-static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft_font_funcs_lazy_loader_t>{
+static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft_font_funcs_lazy_loader_t> {
 	static hb_font_funcs_t * create()
 	{
 		hb_font_funcs_t * funcs = hb_font_funcs_create();

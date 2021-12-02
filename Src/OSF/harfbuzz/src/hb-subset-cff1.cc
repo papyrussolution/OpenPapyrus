@@ -127,7 +127,7 @@ struct top_dict_modifiers_t {
 	const uint    (&nameSIDs)[name_dict_values_t::ValCount];
 };
 
-struct cff1_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<cff1_top_dict_val_t>{
+struct cff1_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<cff1_top_dict_val_t> {
 	bool serialize(hb_serialize_context_t * c,
 	    const cff1_top_dict_val_t &opstr,
 	    const top_dict_modifiers_t &mod) const
@@ -202,7 +202,7 @@ private:
 	typedef cff_font_dict_op_serializer_t SUPER;
 };
 
-struct cff1_cs_opset_flatten_t : cff1_cs_opset_t<cff1_cs_opset_flatten_t, flatten_param_t>{
+struct cff1_cs_opset_flatten_t : cff1_cs_opset_t<cff1_cs_opset_flatten_t, flatten_param_t> {
 	static void flush_args_and_op(op_code_t op, cff1_cs_interp_env_t &env, flatten_param_t& param)
 	{
 		if(env.arg_start > 0)
@@ -264,7 +264,7 @@ private:
 	typedef cff1_cs_opset_t<cff1_cs_opset_flatten_t, flatten_param_t> SUPER;
 };
 
-struct range_list_t : hb_vector_t<code_pair_t>{
+struct range_list_t : hb_vector_t<code_pair_t> {
 	/* replace the first glyph ID in the "glyph" field each range with a nLeft value */
 	bool complete(uint last_glyph)
 	{
@@ -281,7 +281,7 @@ struct range_list_t : hb_vector_t<code_pair_t>{
 	}
 };
 
-struct cff1_cs_opset_subr_subset_t : cff1_cs_opset_t<cff1_cs_opset_subr_subset_t, subr_subset_param_t>{
+struct cff1_cs_opset_subr_subset_t : cff1_cs_opset_t<cff1_cs_opset_subr_subset_t, subr_subset_param_t> {
 	static void process_op(op_code_t op, cff1_cs_interp_env_t &env, subr_subset_param_t& param)
 	{
 		switch(op) {
@@ -330,7 +330,7 @@ private:
 };
 
 struct cff1_subr_subsetter_t : subr_subsetter_t<cff1_subr_subsetter_t, CFF1Subrs, const OT::cff1::accelerator_subset_t,
-	    cff1_cs_interp_env_t, cff1_cs_opset_subr_subset_t, OpCode_endchar>{
+	    cff1_cs_interp_env_t, cff1_cs_opset_subr_subset_t, OpCode_endchar> {
 	cff1_subr_subsetter_t (const OT::cff1::accelerator_subset_t &acc_, const hb_subset_plan_t * plan_)
 		: subr_subsetter_t(acc_, plan_) {
 	}

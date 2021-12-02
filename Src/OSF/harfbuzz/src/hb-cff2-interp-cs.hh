@@ -85,7 +85,7 @@ namespace CFF {
 	typedef interp_env_t<blend_arg_t> BlendInterpEnv;
 	typedef biased_subrs_t<CFF2Subrs>   cff2_biased_subrs_t;
 
-	struct cff2_cs_interp_env_t : cs_interp_env_t<blend_arg_t, CFF2Subrs>{
+	struct cff2_cs_interp_env_t : cs_interp_env_t<blend_arg_t, CFF2Subrs> {
 		template <typename ACC>
 		void init(const byte_str_t &str, ACC &acc, uint fd,
 		    const int * coords_ = nullptr, uint num_coords_ = 0)
@@ -194,7 +194,7 @@ protected:
 		typedef cs_interp_env_t<blend_arg_t, CFF2Subrs> SUPER;
 	};
 	template <typename OPSET, typename PARAM, typename PATH = path_procs_null_t<cff2_cs_interp_env_t, PARAM>>
-	struct cff2_cs_opset_t : cs_opset_t<blend_arg_t, OPSET, cff2_cs_interp_env_t, PARAM, PATH>{
+	struct cff2_cs_opset_t : cs_opset_t<blend_arg_t, OPSET, cff2_cs_interp_env_t, PARAM, PATH> {
 		static void process_op(op_code_t op, cff2_cs_interp_env_t &env, PARAM& param)
 		{
 			switch(op) {

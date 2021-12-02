@@ -360,7 +360,7 @@ public:
 			DEFINE_SIZE_MIN(4);
 		};
 
-		struct composite_iter_t : hb_iter_with_fallback_t<composite_iter_t, const CompositeGlyphChain &>{
+		struct composite_iter_t : hb_iter_with_fallback_t<composite_iter_t, const CompositeGlyphChain &> {
 			typedef const CompositeGlyphChain * __item_t__;
 			composite_iter_t(hb_bytes_t glyph_, __item_t__ current_) :
 				glyph(glyph_), current(current_)

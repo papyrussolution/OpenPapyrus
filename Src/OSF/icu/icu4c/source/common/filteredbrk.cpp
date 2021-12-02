@@ -212,7 +212,7 @@ public:
 		return NULL;
 	}
 
-	virtual bool operator==(const BreakIterator& o) const override {
+	virtual bool operator == (const BreakIterator& o) const override {
 		if(this==&o) return true; return false;
 	}
 
