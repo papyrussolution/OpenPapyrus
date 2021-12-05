@@ -196,6 +196,24 @@ IMPL_HANDLE_EVENT(TStatusWin)
 TProgram * TProgram::application;     // @global
 HINSTANCE  TProgram::hInstance;       // @global @threadsafe
 
+const UserInterfaceSettings & TProgram::GetUiSettings()
+{
+	if(!(State & stUiSettingInited)) {
+		ENTER_CRITICAL_SECTION
+		if(!(State & stUiSettingInited)) {
+			UICfg.Restore();
+		}
+		LEAVE_CRITICAL_SECTION
+	}
+	return UICfg;
+}
+
+int TProgram::UpdateUiSettings(const UserInterfaceSettings & rS)
+{
+	UICfg = rS;
+	return UICfg.Save();
+}
+
 int TProgram::SelectTabItem(const void * ptr)
 {
 	if(H_ShortcutsWnd) {
@@ -2245,7 +2263,7 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = 0;
-	if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
+	if(oneof2(APPL->GetUiSettings().WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 		int    focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
 		int    disabled = BIN(pDi->itemState & ODS_DISABLED);
 		COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
@@ -2429,7 +2447,8 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_NCPAINT:
 			{
 				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
-				if(oneof2(UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
+				const int wvs = GetUiSettings().WindowViewStyle;
+				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 					if(p_di->CtlType == ODT_BUTTON && msg != WM_NCPAINT) {
 						if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
 							ok = DrawButton2(hwnd, p_di);
@@ -2454,16 +2473,19 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case WM_ERASEBKGND:
-			if(oneof2(UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-				DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(wParam);
-				HBRUSH brush = 0, old_brush = 0;
-				SETIFZ(brush, CreateSolidBrush(RGB(0xDD, 0xDD, 0xF1)));
-				old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
-				FillRect(p_di->hDC, &p_di->rcItem, brush);
-				if(old_brush)
-					SelectObject(p_di->hDC, old_brush);
-				ZDeleteWinGdiObject(&brush);
-				ok = 1;
+			{
+				const int wvs = GetUiSettings().WindowViewStyle;
+				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
+					DRAWITEMSTRUCT * p_di = reinterpret_cast<DRAWITEMSTRUCT *>(wParam);
+					HBRUSH brush = 0, old_brush = 0;
+					SETIFZ(brush, CreateSolidBrush(RGB(0xDD, 0xDD, 0xF1)));
+					old_brush = static_cast<HBRUSH>(::SelectObject(p_di->hDC, brush));
+					FillRect(p_di->hDC, &p_di->rcItem, brush);
+					if(old_brush)
+						SelectObject(p_di->hDC, old_brush);
+					ZDeleteWinGdiObject(&brush);
+					ok = 1;
+				}
 			}
 			break;
 	}

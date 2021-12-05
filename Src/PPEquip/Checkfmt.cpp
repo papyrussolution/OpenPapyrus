@@ -15,6 +15,7 @@ SlipLineParam & SlipLineParam::Z()
 	Font = 0;
 	Kind = 0;
 	Flags = 0;
+	UomFragm = 0; // @v11.2.6
 	Qtty = 0.0;
 	Price = 0.0;
 	VatRate = 0.0;
@@ -140,6 +141,7 @@ public:
 		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
 		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
 		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
+		uint   UomFragm;      // @v11.2.6
 		double Qtty;          // Для строки чека (документа) - абсолютное количество, в остальных случаях - 0
 		double Price;         // Для строки чека (документа) - чистая цена (с учетом скидки), в остальных случаях - 0
 		double Amount;        // Для строки чека (документа) - чистая сумма по строке, для "дна" чека (документа) -
@@ -197,7 +199,7 @@ private:
 	int    ParseCondition(SFile & rFile, SString & rTokResult, int * pCondition, SString & rText);
 	void   AddZone(PPSlipFormat::Zone * pZone);
 	int    ResolveString(const Iter * pIter, const char * pExpr, SString & rResult, int * pSplitPos, int * pSplitChr);
-	int    CheckCondition(const Iter * pIter, const SString & rText, int condition);
+	bool   CheckCondition(const Iter * pIter, const SString & rText, int condition);
 	int    GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtRec = 0) const;
 	int    GetCurBillItem(const Iter * pIter, PPTransferItem * pRec);
 	int    GetCurCheckPaymItem(const Iter * pIter, CcAmountEntry * pPaymEntry) const;
@@ -1350,13 +1352,14 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 	return ok;
 }
 
-int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int condition)
+bool PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int condition)
 {
-	int    c = 0;
+	bool   c__ = false;
 	SString left, right, result;
 	double left_num = 0.0;
 	double right_num = 0.0;
-	int    is_left_num = 0, is_right_num = 0;
+	bool   is_left_num = false;
+	bool   is_right_num = false;
 	rText.Divide(';', left, right);
 	{
 		ResolveString(pIter, left, result, 0, 0);
@@ -1385,50 +1388,38 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 	switch(condition) {
 		case PPSlipFormat::Entry::cEq:
 			if(is_left_num && is_right_num)
-				c = BIN(left_num == right_num);
+				c__ = (left_num == right_num);
 			else if(is_right_num && right_num == 0)
-				c = BIN(left.IsEmpty());
+				c__ = left.IsEmpty();
 			else if(is_left_num && left_num == 0)
-				c = BIN(right.IsEmpty());
+				c__ = right.IsEmpty();
 			else
-				c = BIN(left.CmpNC(right) == 0);
+				c__ = (left.CmpNC(right) == 0);
 			break;
 		case PPSlipFormat::Entry::cNEq:
 			if(is_left_num && is_right_num)
-				c = BIN(left_num != right_num);
+				c__ = (left_num != right_num);
 			else if(is_right_num && right_num == 0)
-				c = BIN(left.NotEmpty());
+				c__ = left.NotEmpty();
 			else if(is_left_num && left_num == 0)
-				c = BIN(right.NotEmpty());
+				c__ = right.NotEmpty();
 			else
-				c = BIN(left.CmpNC(right) != 0);
+				c__ = (left.CmpNC(right) != 0);
 			break;
 		case PPSlipFormat::Entry::cGt:
-			if(is_left_num && is_right_num)
-				c = BIN(left_num > right_num);
-			else
-				c = BIN(left.CmpNC(right) > 0);
+			c__ = (is_left_num && is_right_num) ? (left_num > right_num) : (left.CmpNC(right) > 0);
 			break;
 		case PPSlipFormat::Entry::cGe:
-			if(is_left_num && is_right_num)
-				c = BIN(left_num >= right_num);
-			else
-				c = BIN(left.CmpNC(right) >= 0);
+			c__ = (is_left_num && is_right_num) ? (left_num >= right_num) : (left.CmpNC(right) >= 0);
 			break;
 		case PPSlipFormat::Entry::cLt:
-			if(is_left_num && is_right_num)
-				c = BIN(left_num < right_num);
-			else
-				c = BIN(left.CmpNC(right) < 0);
+			c__ = (is_left_num && is_right_num) ? (left_num < right_num) : (left.CmpNC(right) < 0);
 			break;
 		case PPSlipFormat::Entry::cLe:
-			if(is_left_num && is_right_num)
-				c = BIN(left_num <= right_num);
-			else
-				c = BIN(left.CmpNC(right) <= 0);
+			c__ = (is_left_num && is_right_num) ? (left_num <= right_num) : (left.CmpNC(right) <= 0);
 			break;
 	}
-	return c;
+	return c__;
 }
 
 int PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos)
@@ -1511,6 +1502,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->DivID = 0;
 			pIter->Qtty = 0.0;
 			pIter->Price = 0.0;
+			pIter->UomFragm = 0; // @v11.2.6
 			PTR32(pIter->ChZnCode)[0] = 0; // @v10.7.0
 			PTR32(pIter->ChZnGTIN)[0] = 0;  // @v10.7.2
 			PTR32(pIter->ChZnSerial)[0] = 0;  // @v10.7.2
@@ -1523,6 +1515,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
 					PPGoodsType gt_rec;
+					PPUnit u_rec;
 					if(Src == srcCCheck) {
 						CCheckPacket::LineExt cc_ext;
 						// @v10.1.0 {
@@ -1569,6 +1562,12 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 
 								}
 								// } @v10.4.1 
+								// @v11.2.6 {
+								if(goods_rec.UnitID && P_Od->GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+									if(u_rec.Fragmentation > 0 && u_rec.Fragmentation <= 100000)
+										pIter->UomFragm = u_rec.Fragmentation;
+								}
+								// } @v11.2.6 
 							}
 							pIter->ChZnProductType = chzn_product_type; // @v10.7.2
 							// @v10.6.12 {
@@ -2531,6 +2530,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegRegular, flags & (PPSlipFormat::Entry::fRegRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegJournal, flags & (PPSlipFormat::Entry::fJRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
+			sl_param.UomFragm = CurIter.UomFragm; // @v11.2.6
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.Price = CurIter.Price;
 			sl_param.VatRate = CurIter.VatRate;

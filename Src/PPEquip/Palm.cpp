@@ -3258,12 +3258,6 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 			}
 		}
 		{
-			/*if(Flags & BTC_ONLYUNLIMGOODS) {
-				PPObjGoodsType gt_obj;
-				PPGoodsType gt_rec;
-				if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) <= 0 || !(gt_rec.Flags & (GTF_UNLIMITED|GTF_QUASIUNLIM)))
-					r = -1;
-			}*/
 			PPIDArray gt_quasi_unlim_list;
 			{
 				PPObjGoodsType gt_obj;
@@ -3294,58 +3288,9 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 						goods_entry.UnitPerPack = gr_item.UnitPerPack;
 						goods_list.insert(&goods_entry);
 					}
-					/* @v10.4.9
-					THROW(grp_list.addUnique(goods_rec.ParentID));
-					DbfRecord drec_goods(p_goods_tbl);
-					drec_goods.empty();
-					drec_goods.put(1, gr_item.GoodsID);
-					drec_goods.put(2, gr_item.GoodsName);
-					rBlk.P_GObj->FetchSingleBarcode(gr_item.GoodsID, temp_buf);
-					drec_goods.put(3, temp_buf);
-					drec_goods.put(4, gr_item.UnitPerPack);
-					drec_goods.put(5, gr_item.Price);
-					drec_goods.put(6, gr_item.Rest);
-					drec_goods.put(7, goods_rec.ParentID);
-					drec_goods.put(9, goods_rec.BrandID);
-					if(goods_rec.BrandID && (pPack->Rec.Flags & PLMF_EXPBRAND)) {
-						PPBrand brand_rec;
-						if(rBlk.P_BrObj->Fetch(goods_rec.BrandID, &brand_rec) > 0)
-							drec_goods.put(10, brand_rec.OwnerID);
-					}
-					//
-					// Минимальный заказ
-					//
-					{
-						GoodsStockExt stock;
-						if(rBlk.P_GObj->GetStockExt(goods_rec.ID, &stock, 1) > 0) {
-							drec_goods.put(11, stock.MinShippmQtty);
-							drec_goods.put(12, BIN(stock.GseFlags & GoodsStockExt::fMultMinShipm));
-						}
-					}
-					for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
-						StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
-						QuotIdent qi(QIDATE(getcurdate_()), single_loc_id, r_item.Id);
-						double quot = 0.0;
-						if(rBlk.P_GObj->GetQuotExt(gr_item.GoodsID, qi, gr_item.Cost, gr_item.Price, &quot, 1) > 0) {
-							drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
-							{
-								Sdr_PalmQuot quot_rec;
-								MEMSZERO(quot_rec);
-								quot_rec.GoodsID    = gr_item.GoodsID;
-								quot_rec.QuotKindID = r_item.Id;
-								quot_rec.ClientID   = 0;
-								quot_rec.Price      = quot;
-								THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
-							}
-						}
-					}
-					PPSetAddedMsgString(p_goods_tbl->getName());
-					THROW_PP(p_goods_tbl->appendRec(&drec_goods), PPERR_DBFWRFAULT);
-					*/
 				}
 			}
 		}
-		// @v10.4.9 {
 		{
 			for(uint glidx = 0; glidx < goods_list.getCount(); glidx++) {
 				const StyloPalmGoodsEntry & r_goods_entry = goods_list.at(glidx);
@@ -3436,14 +3381,13 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 			}
 			grp_list.sortAndUndup();
 		}
-		// } @v10.4.9
 		{
 			struct NameEntry { // @flat
 				char   Name[64];
 				PPID   ID;
 				PPID   ParentID;
 			};
-			SVector name_list(sizeof(NameEntry)); // @v10.4.9 SArray-->SVector
+			SVector name_list(sizeof(NameEntry));
 			if(rBlk.P_GgList) {
 				for(uint i = 0; i < rBlk.P_GgList->getCount(); i++) {
 					const ExportBlock::GoodsGrpEntry & r_eb_entry = rBlk.P_GgList->at(i);

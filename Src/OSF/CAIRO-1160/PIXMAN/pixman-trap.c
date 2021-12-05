@@ -296,22 +296,17 @@ static boolint get_trap_extents(pixman_op_t op, pixman_image_t * dest, const pix
 	box->y1 = INT32_MAX;
 	box->x2 = INT32_MIN;
 	box->y2 = INT32_MIN;
-
 	for(i = 0; i < n_traps; ++i) {
 		const pixman_trapezoid_t * trap = &(traps[i]);
 		int y1, y2;
-
 		if(!pixman_trapezoid_valid(trap))
 			continue;
-
 		y1 = pixman_fixed_to_int(trap->top);
 		if(y1 < box->y1)
 			box->y1 = y1;
-
 		y2 = pixman_fixed_to_int(pixman_fixed_ceil(trap->bottom));
 		if(y2 > box->y2)
 			box->y2 = y2;
-
 #define EXTEND_MIN(x)                                                   \
 	if(pixman_fixed_to_int((x)) < box->x1)                        \
 		box->x1 = pixman_fixed_to_int((x));
@@ -376,16 +371,15 @@ PIXMAN_EXPORT void pixman_composite_trapezoids(pixman_op_t op, pixman_image_t * 
 				continue;
 			pixman_rasterize_trapezoid(tmp, trap, -box.x1, -box.y1);
 		}
-		pixman_image_composite(op, src, tmp, dst, x_src + box.x1, y_src + box.y1, 0, 0, x_dst + box.x1, y_dst + box.y1, box.x2 - box.x1, box.y2 - box.y1);
+		pixman_image_composite(op, src, tmp, dst, static_cast<int16>(x_src + box.x1), static_cast<int16>(y_src + box.y1), 
+			0, 0, static_cast<int16>(x_dst + box.x1), static_cast<int16>(y_dst + box.y1), static_cast<int16>(box.x2 - box.x1), static_cast<int16>(box.y2 - box.y1));
 		pixman_image_unref(tmp);
 	}
 }
 
 static int greater_y(const pixman_point_fixed_t * a, const pixman_point_fixed_t * b)
 {
-	if(a->y == b->y)
-		return a->x > b->x;
-	return a->y > b->y;
+	return (a->y == b->y) ? (a->x > b->x) : (a->y > b->y);
 }
 
 /*
@@ -440,10 +434,7 @@ static void triangle_to_trapezoids(const pixman_triangle_t * tri, pixman_trapezo
 	traps->left.p2 = *left;
 	traps->right.p1 = *top;
 	traps->right.p2 = *right;
-	if(right->y < left->y)
-		traps->bottom = right->y;
-	else
-		traps->bottom = left->y;
+	traps->bottom = (right->y < left->y) ? right->y : left->y;
 	traps++;
 	*traps = *(traps - 1);
 	if(right->y < left->y) {
@@ -462,23 +453,22 @@ static void triangle_to_trapezoids(const pixman_triangle_t * tri, pixman_trapezo
 
 static pixman_trapezoid_t * convert_triangles(int n_tris, const pixman_triangle_t * tris)
 {
-	pixman_trapezoid_t * traps;
-	int i;
-	if(n_tris <= 0)
-		return NULL;
-	traps = (pixman_trapezoid_t *)pixman_malloc_ab(n_tris, 2 * sizeof(pixman_trapezoid_t));
-	if(!traps)
-		return NULL;
-	for(i = 0; i < n_tris; ++i)
-		triangle_to_trapezoids(&(tris[i]), traps + 2 * i);
+	pixman_trapezoid_t * traps = 0;
+	if(n_tris > 0) {
+		traps = (pixman_trapezoid_t *)pixman_malloc_ab(n_tris, 2 * sizeof(pixman_trapezoid_t));
+		if(traps) {
+			for(int i = 0; i < n_tris; ++i)
+				triangle_to_trapezoids(&(tris[i]), traps + 2 * i);
+		}
+	}
 	return traps;
 }
 
 PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op, pixman_image_t *   src, pixman_image_t *   dst,
     pixman_format_code_t mask_format, int x_src, int y_src, int x_dst, int y_dst, int n_tris, const pixman_triangle_t * tris)
 {
-	pixman_trapezoid_t * traps;
-	if((traps = convert_triangles(n_tris, tris))) {
+	pixman_trapezoid_t * traps = convert_triangles(n_tris, tris);
+	if(traps) {
 		pixman_composite_trapezoids(op, src, dst, mask_format, x_src, y_src, x_dst, y_dst, n_tris * 2, traps);
 		SAlloc::F(traps);
 	}
@@ -486,9 +476,9 @@ PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op, pixman_image_t *  
 
 PIXMAN_EXPORT void pixman_add_triangles(pixman_image_t * image, int32 x_off, int32 y_off, int n_tris, const pixman_triangle_t * tris)
 {
-	pixman_trapezoid_t * traps;
-	if((traps = convert_triangles(n_tris, tris))) {
-		pixman_add_trapezoids(image, x_off, y_off, n_tris * 2, traps);
+	pixman_trapezoid_t * traps = convert_triangles(n_tris, tris);
+	if(traps) {
+		pixman_add_trapezoids(image, static_cast<int16>(x_off), static_cast<int16>(y_off), n_tris * 2, traps);
 		SAlloc::F(traps);
 	}
 }

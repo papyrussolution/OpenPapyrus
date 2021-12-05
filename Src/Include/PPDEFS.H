@@ -4454,6 +4454,7 @@
 	#define CTL_PSNEVNT_PRMRSCARD       (21 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_SCNDSCARD       (22 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_FLAGS           (23 + WINDOWS_ID_BIAS)
+	#define CTLTM_PSNEVNT_TIME          (24 + WINDOWS_ID_BIAS) // @v11.2.6
 #define DLG_GRESTTOTAL            335 // Итог по остаткам товаров
 	#define CTL_GRESTTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GRESTTOTAL_REST          (2 + WINDOWS_ID_BIAS)

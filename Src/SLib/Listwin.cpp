@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -38,13 +38,12 @@ void ListWindow::executeNM(HWND parent)
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
 	SetParent(H(), hwnd_parent);
 	if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
-		UserInterfaceSettings ui_cfg;
-		if(ui_cfg.Restore() > 0) {
+		SFontDescr list_font_descr = APPL->GetUiSettings().ListFont;
+		if(list_font_descr.Face.NotEmpty())
 			if(Id == DLGW_LBX)
-				SetCtrlFont(CTL_LBX_LIST, ui_cfg.ListFont);
+				SetCtrlFont(CTL_LBX_LIST, list_font_descr);
 			else if(Id == DLGW_TREELBX)
-				SetCtrlFont(CTL_TREELBX_TREELIST, ui_cfg.ListFont);
-		}
+				SetCtrlFont(CTL_TREELBX_TREELIST, list_font_descr);
 	}
 	CALLPTRMEMB(P_Lb, SetLBLnkToUISrchState());
 	APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);

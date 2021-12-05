@@ -1,5 +1,5 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -107,14 +107,13 @@ int LogsDialog::SendByEmail()
 	if(getCurItem(&pos, &id) > 0) {
 		PPID   acct_id = 0;
 		SString path, support, subj, temp_buf, fmt_buf;
-		UserInterfaceSettings uis;
+		UserInterfaceSettings uis = APPL->GetUiSettings();
 		LogFileEntry & r_e = LogsAry.at(pos);
 		PPAlbatrossConfig alb_cfg;
 		PPIniFile ini_file;
 		THROW(CreateVerHistLog(id - 1));
 		THROW(ini_file.IsValid());
 		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SUPPORTMAIL, support);
-		uis.Restore();
 		if(!support.Len())
 			support.CopyFrom(uis.SupportMail);
 		PPLoadText(PPTXT_INPUTEMAIL, temp_buf);
@@ -122,7 +121,8 @@ int LogsDialog::SendByEmail()
 		if(InputStringDialog(&isd_param, support) > 0) {
 			THROW_PP(support.Len() > 0, PPERR_SUPPORTMAILNOTDEF);
 			uis.SupportMail = support;
-			THROW(uis.Save());
+			// @v11.2.6 THROW(uis.Save());
+			APPL->UpdateUiSettings(uis); // @v11.2.6
 			PPGetFilePath(PPPATH_LOG, r_e.FileName, path);
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			acct_id = alb_cfg.Hdr.MailAccID;

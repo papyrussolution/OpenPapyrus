@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494459
+LastSignatureCode=2147494462
 LastAutoCodeList=1,12091;102,10174;103,10072;110,10000;111,12013;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10139;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10227
 
 [SignatureList]
@@ -9109,6 +9109,7 @@ uicfg_fpollvoipservice=2147492105
 uicfg_fextgoodsselmainname=2147492106
 uicfg_fextgoodsselhidegenerics=2147492107
 uicfg_fstringhistorydisabled=2147492108
+uicfg_fdatetimepickerbefore1124=2147494461
 uicfg_wndvkdefault=2147492109
 uicfg_wndvkflat=2147492110
 uicfg_wndvkvector=2147492111
@@ -10754,6 +10755,7 @@ styloq_binderykind_docincoming=2147494228
 styloq_binderykind_docoutcominig=2147494229
 styloqbasecmd_personevent=2147494079
 styloqbasecmd_report=2147494080
+styloqbasecmd_rsrvorderprereq=2147494462
 styloqcommand=2147494195
 styloqcommand_name=2147494438
 styloqcommand_resultexpirytimesec=2147494439

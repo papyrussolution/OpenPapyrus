@@ -10879,8 +10879,8 @@ struct SStrScan : public SRegExpSet {
 	int    FASTCALL Pop(uint prevPos);
 	int    IsEnd() const;
 	int    FASTCALL IsSpace(int ws) const;
-	int    IsNumber();
-	int    IsHex();
+	bool   IsNumber();
+	bool   IsHex();
 	//
 	// Descr: сопоставляет текущий и, возможно, следующий символ с символом новой строки.
 	//   Параметр eolf задает формат новой строки.
@@ -11058,8 +11058,8 @@ struct SStrScan : public SRegExpSet {
 	// Descr: Проверяет, является ли следующим символом c.
 	//
 	int    FASTCALL Is(char c) const;
-	int    IsDigits();
-	int    IsDotPrefixedNumber();
+	bool   IsDigits();
+	bool   IsDotPrefixedNumber();
 	//
 	// Descr: Проверяет, является ли текущий символ (P_Buf+Offs) вместе, возможно, со следующими
 	//   за ним правильной комбинацией, представляющей UTF8 символ.
@@ -12343,6 +12343,24 @@ double FASTCALL fint(double v); // @>>modf
 // Descr: Возвращает дробную часть аргумента v
 //
 double FASTCALL ffrac(double v); // @>>modf
+//
+// Descr: Функция разбивает число с плавающей точкой value на фракции обыкновенной дроби в соответствии
+//   с аргументами fragmentation и tolerance.
+// ARG(value IN): Значение, которое следует разбить. Если value < 0, то функция приводит его к абсолютному значению
+//   и лишь после этого обрабатывает. Таким образом, вызовы fsplitintofractions(x, ...) и fsplitintofractions(-x, ...) эквивалентны по результату.
+// ARG(fragmentation IN): Целочисленный параметр фрагментации. Если fragmentation == 0 или fragmentation > 100000, то функция возвращает ошибку.
+//   Этот параметр представляет знаменатель дроби, которой должно быть представлено число value. То есть, при допустимых 
+//   входных параметрах в результате выполнения функция должен соблюдаться инвариант *pDenominator == fragmentation
+// ARG(tolerance IN): Параметр чувствительности разбивки к ошибке округления. Если при попытке разбивки ffrac(value) * fragmentation будет 
+//   отличаться от целого числа на величину большую чем tolerance, то функция вернет ошибку.
+// ARG(pIntPart OUT): По указателю присваивается целая часть от fabs(value)
+// ARG(pNumerator OUT): По указателю присваивается числитель дроби результата
+// ARG(pDenominator OUT): По указателю присваивается знаменатель дроби результата
+// Returns:
+//   1 - SUCCESS
+//   0 - ERROR
+//
+int    fsplitintofractions(double value, uint fragmentation, double tolerance, double * pIntPart, double * pNumerator, double * pDenominator);
 int __forceinline fceili(double v)  { return static_cast<int>(ceil(v)); }
 int __forceinline ffloori(double v) { return static_cast<int>(floor(v)); }
 int __forceinline fceili(float v)  { return static_cast<int>(ceil(v)); }

@@ -2125,7 +2125,18 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uom
 		else
 			ps = (flags & pchznmfFractional) ? 2 : 1;
 		CreateStr(ps, in_data);
-		CreateStr(static_cast<int>(qtty), in_data);
+		if(qtty > 0.0 && qtty < 1.0 && uomFragm > 0) {
+			double ip = 0.0;
+			double nmrtr = 0.0;
+			double dnmntr = 0.0;
+			if(fsplitintofractions(qtty, uomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+				CreateStr(SLS.AcquireRvlStr().Cat(R0i(nmrtr)).CatChar('/').Cat(R0i(dnmntr)), in_data);
+			else
+				CreateStr(1.0, in_data);
+		}
+		else {
+			CreateStr(static_cast<int>(qtty), in_data);
+		}
 		CreateStr(0, in_data); // uom
 		CreateStr(0, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)
 		THROW(ExecCmd("79", in_data, out_data, r_error));
@@ -2410,8 +2421,17 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 								//CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
 								//
-								if(Check.ChZnProdType == 4)  // #2 (tag 1191) GTCHZNPT_MEDICINE
-									CreateStr("mdlp", in_data);
+								if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
+									str = "mdlp";
+									if(Check.Quantity > 0.0 && Check.Quantity < 1.0 && Check.UomFragm > 0) {
+										double ip = 0.0;
+										double nmrtr = 0.0;
+										double dnmntr = 0.0;
+										if(fsplitintofractions(Check.Quantity, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+											str.Cat(R0i(nmrtr)).CatChar('/').Cat(R0i(dnmntr)).CatChar('&');
+									}
+									CreateStr(str, in_data);
+								}
 								else
 									CreateStr("[M]", in_data);
 								CreateStr("", in_data);     // #3 (tag 1197)
@@ -2486,8 +2506,20 @@ int PiritEquip::RunCheck(int opertype)
 						//str.Trim(32);
 						//(str = Check.ChZnCode).Trim(32); // [1..32]
 						CreateStr(str, in_data); // Код товарной номенклатуры
-						if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
-							CreateStr("mdlp", in_data);
+						if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
+							// @v11.2.6 {
+							str = "mdlp";
+							if(Check.Quantity > 0.0 && Check.Quantity < 1.0 && Check.UomFragm > 0) {
+								double ip = 0.0;
+								double nmrtr = 0.0;
+								double dnmntr = 0.0;
+								if(fsplitintofractions(Check.Quantity, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+									str.Cat(R0i(nmrtr)).CatChar('/').Cat(R0i(dnmntr)).CatChar('&');
+							}
+							CreateStr(str, in_data);
+							// } @v11.2.6 
+							//CreateStr("mdlp", in_data);
+						}
 						else
 							CreateStr("[M]", in_data);
 						THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3

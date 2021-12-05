@@ -103,16 +103,23 @@ int PPApp::InitStatusBar()
 
 IMPL_HANDLE_EVENT(PPApp)
 {
+	class InnerBlock {
+	public:
+		static void OnExit(PPApp * pMaster)
+		{
+			UserInterfaceSettings ui_cfg;
+			ui_cfg.Restore();
+			SETFLAG(ui_cfg.Flags, ui_cfg.fShowLeftTree, pMaster->IsTreeVisible());
+			ui_cfg.Save();
+			CALLPTRMEMB(pMaster->P_Toolbar, SaveUserSettings(TV_GLBTOOLBAR));
+			pMaster->CloseAllBrowsers();
+			DS.Logout();
+		}
+	};
 	if(TVCOMMAND) {
 		if(TVCMD == cmQuit) {
 			if(!TVINFOPTR || *static_cast<const long *>(TVINFOPTR) == -1 || CONFIRM(PPCFM_QUIT)) {
-				UserInterfaceSettings ui_cfg;
-				ui_cfg.Restore();
-				SETFLAG(ui_cfg.Flags, ui_cfg.fShowLeftTree, IsTreeVisible());
-				ui_cfg.Save();
-				CALLPTRMEMB(P_Toolbar, SaveUserSettings(TV_GLBTOOLBAR));
-				CloseAllBrowsers();
-				DS.Logout();
+				InnerBlock::OnExit(this);
 			}
 			else {
 				clearEvent(event);
@@ -120,13 +127,6 @@ IMPL_HANDLE_EVENT(PPApp)
 			}
 		}
 		else if(TVCMD == cmDBExit) {
-			UserInterfaceSettings ui_cfg;
-			ui_cfg.Restore();
-			SETFLAG(ui_cfg.Flags, ui_cfg.fShowLeftTree, IsTreeVisible());
-			ui_cfg.Save();
-			CALLPTRMEMB(P_Toolbar, SaveUserSettings(TV_GLBTOOLBAR));
-			CloseAllBrowsers();
-			DS.Logout();
 			login(1);
 		}
 	}

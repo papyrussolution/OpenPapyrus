@@ -5945,6 +5945,8 @@ browser PALM north(100), 1, 1, " œ ", OWNER|GRID, 0
 		separator
 		EXPORTUHTT    : kbAltU,   TBBM_EXPORTUHTT,   "@{exporttouhtt}\tAlt-U"
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
+		separator
+		TEST          : kbCtrlT,  PPDV_TEST01,       "Test\tCtrl-T" // @v11.2.6
 	}
 }
 

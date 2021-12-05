@@ -1181,7 +1181,7 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 		SetupPPObjCombo(dlg, CTLSEL_BCPLABEL_LOC, PPOBJ_LOCATION, pParam->LocID, 0);
 		dlg->setCtrlUInt16(CTL_BCPLABEL_HOW, BIN(pParam->Flags & BarcodeLabelPrinter::BarcodeLabelPrintParam::fPrintAll));
 		dlg->AddClusterAssoc(CTL_BCPLABEL_FLAGS, 0, BarcodeLabelPrinter::BarcodeLabelPrintParam::fQttyAsPack);
-		dlg->AddClusterAssoc(CTL_BCPLABEL_FLAGS, 1, BarcodeLabelPrinter::BarcodeLabelPrintParam::fInteractive); // @9.6.6
+		dlg->AddClusterAssoc(CTL_BCPLABEL_FLAGS, 1, BarcodeLabelPrinter::BarcodeLabelPrintParam::fInteractive);
 		dlg->SetClusterData(CTL_BCPLABEL_FLAGS, pParam->Flags);
 		dlg->selectCtrl(pParam->PrinterID ? CTL_BCPLABEL_COUNT : CTL_BCPLABEL_PRINTER);
 		while(!valid_data && ExecView(dlg) == cmOK) {

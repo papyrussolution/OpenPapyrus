@@ -907,7 +907,7 @@ int  mdb_env_set_maxdbs(MDB_env * env, MDB_dbi dbs);
  * @param[in] env An environment handle returned by #mdb_env_create()
  * @return The maximum size of a key we can write
  */
-int  mdb_env_get_maxkeysize(MDB_env * env);
+int  mdb_env_get_maxkeysize(const MDB_env * env);
 
 /** @brief Set application information associated with the #MDB_env.
  *
@@ -1430,7 +1430,7 @@ MDB_txn * mdb_cursor_txn(MDB_cursor * cursor);
  *
  * @param[in] cursor A cursor handle returned by #mdb_cursor_open()
  */
-MDB_dbi mdb_cursor_dbi(MDB_cursor * cursor);
+MDB_dbi mdb_cursor_dbi(const MDB_cursor * cursor);
 
 /** @brief Retrieve by cursor.
  *

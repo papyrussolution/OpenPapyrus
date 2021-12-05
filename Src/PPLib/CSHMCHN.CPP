@@ -1228,12 +1228,12 @@ int PPCashMachine::SyncPrintIncasso()
 	return ok;
 }
 
-int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
+int PPCashMachine::SyncPreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
 	THROW(GetNode() > 0);
 	if(GetSyncIntrf()) {
-		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, rResult);
+		ok = P_SyncIntrf->PreprocessChZnCode(op, pCode, qtty, uomFragm, rResult);
 		PPSyncCashSession::LogPreprocessChZnCodeResult(ok, op, pCode, qtty, rResult); // @v11.2.3
 	}
 	CATCHZOK

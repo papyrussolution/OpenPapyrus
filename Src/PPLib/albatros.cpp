@@ -4,8 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 @obsolete #include <albatros.h>
-// @v9.6.3 #include <idea.h>
 
 class AlbatrosConfigDialog : public TDialog {
 public:
@@ -221,9 +219,9 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrossConfig * pCfg)
 	}
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 0, PPAlbatrosCfgHdr::fSkipBillWithUnresolvedItems);
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 1, PPAlbatrosCfgHdr::fRecadvEvalByCorrBill);
-	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 2, PPAlbatrosCfgHdr::fUncondAcceptEdiIntrMov); // @v9.0.0
-	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 3, PPAlbatrosCfgHdr::fUseOwnEgaisObjects); // @v9.0.2
-	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 4, PPAlbatrosCfgHdr::fUseDateInBillAnalog); // @v9.1.9
+	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 2, PPAlbatrosCfgHdr::fUncondAcceptEdiIntrMov);
+	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 3, PPAlbatrosCfgHdr::fUseOwnEgaisObjects);
+	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 4, PPAlbatrosCfgHdr::fUseDateInBillAnalog);
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 5, PPAlbatrosCfgHdr::fStrictExpGtinCheck); // @v10.0.04
 	SetClusterData(CTL_ALBTRCFG_FLAGS, Data.Hdr.Flags);
 	return ok;

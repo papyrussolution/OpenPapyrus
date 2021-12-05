@@ -1279,12 +1279,50 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	return ok;
 }
 
+/* @construction static IMPL_CMPFUNC(Tec_OrdN_Name, i1, i2)
+{
+	assert(pExtraData);
+	if(pExtraData) {
+		PPObjTech * p_obj = static_cast<PPObjTech *>(pExtraData);
+
+	}
+	else {
+
+	}
+}*/
+
 StrAssocArray * PPObjTech::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
 		if(!AddItemsToList(p_list, 0, 0, reinterpret_cast<long>(extraPtr), 0))
 			ZDELETE(p_list);
+		else {
+			// @v11.2.6 {
+			// Если все технологии относятся к единственному процессору, то сортируем по {OrderN; Name},
+			// иначе сортируем по Name
+			long   single_prc_id = -1;
+			TechTbl::Rec tec_rec;
+			for(uint i = 0; single_prc_id != 0 && i < p_list->getCount(); i++) {
+				StrAssocArray::Item item = p_list->at_WithoutParent(i);
+				if(Fetch(item.Id, &tec_rec) > 0) {
+					if(single_prc_id < 0)
+						single_prc_id = tec_rec.PrcID;
+					else if(tec_rec.PrcID != single_prc_id)
+						single_prc_id = 0;
+				}
+			}
+			if(single_prc_id > 0) {
+				//p_list->sort
+				// @stub Пока сортируем просто по тексту. Оказалось, StrAssocArray не предоставляет сервиса 
+				// сортировки по произвольной внешней функции
+				p_list->SortByText();
+			}
+			else {
+				p_list->SortByText();
+			}
+			// } @v11.2.6 
+		}
 	}
 	else
 		PPSetErrorNoMem();

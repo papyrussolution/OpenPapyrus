@@ -3179,8 +3179,9 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	if(!(Flags & fNoEdit)) {
 		P_PalmWaiter = new PalmImportWaiter(CheckPaneDialog::PalmImport, this); // @newok
 		{
-			UserInterfaceSettings uis;
-			if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fDisableBeep)
+			// @v11.2.6 UserInterfaceSettings uis;
+			// @v11.2.6 if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fDisableBeep)
+			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDisableBeep) // @v11.2.6
 				EnableBeep(0);
 		}
 		if(CnFlags & CASHF_SYNC) {
@@ -6732,7 +6733,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(InitCashMachine() && P_CM) {
 							SString msg_buf;
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
-							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, chzn_result);
+							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, 0, chzn_result);
 							msg_buf.CatEq("SyncPreprocessChZnCode-result", (long)r).CR();
 							msg_buf.CatEq("check-result", (long)chzn_result.CheckResult).CR();
 							msg_buf.CatEq("reason", (long)chzn_result.Reason).CR();

@@ -302,8 +302,7 @@ struct hb_pair_t {
 };
 
 #define hb_pair_t(T1, T2) hb_pair_t<T1, T2>
-template <typename T1, typename T2> static inline hb_pair_t<T1, T2>
-hb_pair(T1&& a, T2&& b) {
+template <typename T1, typename T2> static inline hb_pair_t<T1, T2> hb_pair(T1&& a, T2&& b) {
 	return hb_pair_t<T1, T2> (a, b);
 }
 
@@ -311,17 +310,13 @@ struct {
 	template <typename Pair> constexpr typename Pair::first_t operator() (const Pair &pair) const {
 		return pair.first;
 	}
-}
-
-HB_FUNCOBJ(hb_first);
+} HB_FUNCOBJ(hb_first);
 
 struct {
 	template <typename Pair> constexpr typename Pair::second_t operator() (const Pair &pair) const {
 		return pair.second;
 	}
-}
-
-HB_FUNCOBJ(hb_second);
+} HB_FUNCOBJ(hb_second);
 
 /* Note.  In min/max impl, we can use hb_type_identity<T> for second argument.
  * However, that would silently convert between different-signedness integers.
@@ -330,43 +325,32 @@ HB_FUNCOBJ(hb_second);
 struct {
 	template <typename T, typename T2> constexpr auto operator() (T&& a, T2&& b) const HB_AUTO_RETURN
 		(hb_forward<T> (a) <= hb_forward<T2> (b) ? hb_forward<T> (a) : hb_forward<T2> (b))
-}
-
-HB_FUNCOBJ(hb_min);
+} HB_FUNCOBJ(hb_min);
 
 struct {
 	template <typename T, typename T2> constexpr auto operator() (T&& a, T2&& b) const HB_AUTO_RETURN
 		(hb_forward<T> (a) >= hb_forward<T2> (b) ? hb_forward<T> (a) : hb_forward<T2> (b))
-}
-
-HB_FUNCOBJ(hb_max);
+} HB_FUNCOBJ(hb_max);
 
 struct {
 	template <typename T, typename T2, typename T3> constexpr auto operator() (T&& x, T2&& min, T3&& max) const HB_AUTO_RETURN
 		(hb_min(hb_max(hb_forward<T> (x), hb_forward<T2> (min)), hb_forward<T3> (max)))
-}
-
-HB_FUNCOBJ(hb_clamp);
-
+} HB_FUNCOBJ(hb_clamp);
 /*
  * Bithacks.
  */
 
 /* Return the number of 1 bits in v. */
-template <typename T>
-static inline HB_CONST_FUNC uint hb_popcount(T v)
+template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
 {
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(uint))
 		return __builtin_popcount(v);
-
 	if(sizeof(T) <= sizeof(unsigned long))
 		return __builtin_popcountl(v);
-
 	if(sizeof(T) <= sizeof(unsigned long long))
 		return __builtin_popcountll(v);
 #endif
-
 	if(sizeof(T) <= 4) {
 		/* "HACKMEM 169" */
 		uint32_t y;
@@ -374,24 +358,20 @@ static inline HB_CONST_FUNC uint hb_popcount(T v)
 		y = v - y - ((y >>1) & 033333333333);
 		return (((y + (y >> 3)) & 030707070707) % 077);
 	}
-
 	if(sizeof(T) == 8) {
 		uint shift = 32;
 		return hb_popcount<uint32_t> ((uint32_t)v) + hb_popcount((uint32_t)(v >> shift));
 	}
-
 	if(sizeof(T) == 16) {
 		uint shift = 64;
 		return hb_popcount<uint64_t> ((uint64_t)v) + hb_popcount((uint64_t)(v >> shift));
 	}
-
 	assert(0);
 	return 0; /* Shut up stupid compiler. */
 }
 
 /* Returns the number of bits needed to store number */
-template <typename T>
-static inline HB_CONST_FUNC uint hb_bit_storage(T v)
+template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
 {
 	if(UNLIKELY(!v)) return 0;
 

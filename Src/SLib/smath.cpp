@@ -204,6 +204,46 @@ double FASTCALL ffrac(double v)
 	return modf(v, &ip);
 }
 
+int fsplitintofractions(double value, uint fragmentation, double tolerance, double * pIntPart, double * pNumerator, double * pDenominator)
+{
+	//assert(fragmentation > 0 && fragmentation <= 100000);
+	int    ok = 1;
+	double numerator = 0.0;
+	double denominator = 0.0;
+	const  int sign = (value < 0.0) ? -1 : ((value == 0.0) ? 0 : +1);
+	if(sign == 0) {
+		denominator = fragmentation;
+		ASSIGN_PTR(pIntPart, 0.0);
+	}
+	else {
+		const  double _v = fabs(value);
+		const  double int_part = fint(_v);
+		if(fragmentation > 0 && fragmentation <= 100000) {
+			const  double _rem = ffrac(_v);
+			assert(_rem >= 0.0 && _rem < 1.0);
+			if(_rem == 0.0) {
+				denominator = fragmentation;
+			}
+			else {
+				const double _m = _rem * fragmentation;
+				const double _f = ffrac(_m);
+				if(feqeps(_f, 0.0, tolerance) || feqeps(_f, 1.0, tolerance)) {
+					denominator = fragmentation;
+					numerator = R0(_m);
+				}
+				else
+					ok = 0;
+			}
+		}
+		else
+			ok = 0;
+		ASSIGN_PTR(pIntPart, int_part);
+	}
+	ASSIGN_PTR(pNumerator, numerator);
+	ASSIGN_PTR(pDenominator, denominator);
+	return ok;
+}
+
 double fgetwsign(double val, int sign) { return (sign > 0) ? val : ((sign < 0) ? -val : 0.0); }
 double faddwsign(double val, double addendum, int sign) { return (sign > 0) ? (val + addendum) : ((sign < 0) ? (val - addendum) : val); }
 
@@ -1370,6 +1410,170 @@ int Factorize(ulong val, UlongArray * pList)
 //
 //
 #if SLTEST_RUNNING // {
+
+	SLTEST_R(smath)
+	{
+		{
+			//
+			// fsplitintofractions
+			//
+			for(double ip = 0.0; ip <= +117.0; ip += 1.0) {
+				for(uint fragmentation = 2; fragmentation <= 1000; fragmentation++) {
+					for(uint j = 0; j < fragmentation; j++) {
+						double value = ip + static_cast<double>(j) / static_cast<double>(fragmentation);
+						double intpart = -1.0;
+						double numerator = -1.0;
+						double denominator = -1.0;
+						int r = fsplitintofractions(value, fragmentation, 1E-5, &intpart, &numerator, &denominator);
+						SLTEST_CHECK_NZ(r);
+						SLTEST_CHECK_EQ(intpart, fint(fabs(value)));
+						SLTEST_CHECK_EQ(denominator, static_cast<double>(fragmentation));
+						SLTEST_CHECK_EQ(numerator, static_cast<double>(j));
+						// Проверка нулевых указателей в качестве результирующих параметров
+						SLTEST_CHECK_NZ(fsplitintofractions(value, fragmentation, 1E-5, 0, 0, 0));
+					}
+				}
+			}
+			{
+				double intpart = -1.0;
+				double numerator = -1.0;
+				double denominator = -1.0;
+				SLTEST_CHECK_Z(fsplitintofractions(1.1, 0, 1E-5, &intpart, &numerator, &denominator));
+				SLTEST_CHECK_EQ(intpart, 1.0);
+				SLTEST_CHECK_EQ(denominator, 0.0);
+				SLTEST_CHECK_EQ(numerator, 0.0);
+				SLTEST_CHECK_Z(fsplitintofractions(-0.2, 10000000, 1E-5, &intpart, &numerator, &denominator));
+				SLTEST_CHECK_EQ(intpart, 0.0);
+				SLTEST_CHECK_EQ(denominator, 0.0);
+				SLTEST_CHECK_EQ(numerator, 0.0);
+			}
+		}
+		{
+			//
+			// fpow10i
+			//
+			for(int i = -9; i < +9; i++) {
+				SLTEST_CHECK_EQ(fpow10i(i), pow(10.0, i));
+			}
+		}
+		{
+			//
+			// round
+			//
+			struct A {
+				int    R;  // точность округления //
+				double T;  // тестовое значение
+				double E0; // ожидаемый результат функции round(x, 0)
+				double E1; // ожидаемый результат функции roundnev(x, 0)
+			};
+			A a[] = {
+				{0, 0., 0., 0.},
+				{0, -1., -1., -1.},
+				{0, -5.00000000103, -5., -5.},
+				{0, -4.99999981, -5., -5.},
+				{0, -2.5, -3., -2.},
+				{0, -17.5, -18., -18.},
+				{0, -1023.499999, -1023., -1023.},
+				{0, 5.00000000103, 5., 5.},
+				{0, 4.99999981, 5., 5.},
+				{0, 2.5, 3., 2.},
+				{0, 17.5, 18., 18.},
+				{0, 1023.499999, 1023., 1023.},
+				{2, 72.055, 72.06, 72.06 }
+			};
+			uint i;
+			int  j;
+			for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
+				SLTEST_CHECK_EQ(round   (a[i].T, a[i].R), a[i].E0);
+				SLTEST_CHECK_EQ(roundnev(a[i].T, a[i].R), a[i].E1);
+			}
+			for(j = -11; j < +13; j++) {
+				double p_ = fpow10i(j);
+				for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
+					if(a[i].R == 0) { // Для ненулевого начального округления возникает мелкая ошибка
+						double v = a[i].T / p_;
+						SLTEST_CHECK_EQ(round(v, j),    a[i].E0 / p_);
+						SLTEST_CHECK_EQ(roundnev(v, j), a[i].E1 / p_);
+					}
+				}
+			}
+			if(CurrentStatus) {
+				SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
+				for(i = 0; i < 1000; i++) {
+					double b, v, r;
+					for(j = -11; j < +13; j++) {
+						b = p_rng->GetReal();
+						if(i % 2)
+							b = _chgsign(b);
+						v = round(b, j);
+						SLTEST_CHECK_LT(fabs(v - b), fpow10i(-j)/2.0);
+						r = fabs(b * fpow10i(j));
+						SLTEST_CHECK_CRANGE(fabs(v), floor(r)/fpow10i(j), ceil(r)/fpow10i(j));
+					}
+				}
+				delete p_rng;
+			}
+		}
+		{
+			// 
+			// Prime numbers
+			//
+			ulong last_tabbed_prime = FirstPrimeNumbers[SIZEOFARRAY(FirstPrimeNumbers)-1];
+			for(ulong i = 0; i < last_tabbed_prime; i++) {
+				const long isp = Helper_IsPrime(i, 1);
+				long is_tabbed_prime = 0;
+				if(i && i < SIZEOFARRAY(FirstPrimeNumbers)) {
+					SLTEST_CHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
+				}
+				for(uint j = 0; !is_tabbed_prime && j < SIZEOFARRAY(FirstPrimeNumbers); j++) {
+					const ushort tv = FirstPrimeNumbers[j];
+					if(tv == i)
+						is_tabbed_prime = 1;
+					else if(tv > i)
+						break;
+				}
+				SLTEST_CHECK_EQ(is_tabbed_prime, isp);
+				SLTEST_CHECK_EQ(Helper_IsPrime(i, 0), isp);
+			}
+			{
+				struct TestSValue {
+        			uint64 V;
+        			uint32 S;
+				} _test_row[] = {
+        			{ 0ULL,                  1 },
+        			{ 0x00000000000000ffULL, 1 },
+        			{ 0x000000000000ffffULL, 2 },
+        			{ 0x0000000000007f00ULL, 2 },
+        			{ 0x0000000000ffffffULL, 3 },
+        			{ 0x000000000070ff00ULL, 3 },
+        			{ 0x00000000ffffffffULL, 4 },
+        			{ 0x00000000af4f00ffULL, 4 },
+        			{ 0x000000ffffffffffULL, 5 },
+        			{ 0x0000003f00007b00ULL, 5 },
+        			{ 0x0000ffffffffffffULL, 6 },
+        			{ 0x00000ffff12fbeefULL, 6 },
+        			{ 0x00ffffffffffffffULL, 7 },
+        			{ 0x0070ff220001ff00ULL, 7 },
+        			{ 0xffffffffffffffffULL, 8 },
+        			{ 0x7000000000000000ULL, 8 },
+        			{ 0x70af81b39ec62da5ULL, 8 }
+				};
+				uint8 buffer[32];
+				uint32 sz;
+				uint64 value;
+				for(uint i = 0; i < SIZEOFARRAY(_test_row); i++) {
+					memzero(buffer, sizeof(buffer));
+					value = _test_row[i].V;
+					sz = sshrinkuint64(value, buffer);
+					SLTEST_CHECK_NZ(ismemzero(buffer+sz, sizeof(buffer)-sz));
+					SLTEST_CHECK_EQ(sz, _test_row[i].S);
+					SLTEST_CHECK_EQ(sexpanduint64(buffer, sz), value);
+				}
+			}
+		}
+		return CurrentStatus;
+	}
+#if 0 // @v11.2.6 {
 	SLTEST_R(fpow10i)
 	{
 		for(int i = -9; i < +9; i++) {
@@ -1492,6 +1696,7 @@ int Factorize(ulong val, UlongArray * pList)
 		}
 		return CurrentStatus;
 	}
+#endif // } 0 @v11.2.6
 #endif // } SLTEST_RUNNING
 
 #if 0 // {

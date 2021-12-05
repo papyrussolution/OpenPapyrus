@@ -70,7 +70,6 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryLong8(TIFF* tif, TIFFDirEntry* d
 static enum TIFFReadDirEntryErr TIFFReadDirEntryFloat(TIFF* tif, TIFFDirEntry* direntry, float* value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryDouble(TIFF* tif, TIFFDirEntry* direntry, double* value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryIfd8(TIFF* tif, TIFFDirEntry* direntry, uint64* value);
-
 static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryArray(TIFF* tif, TIFFDirEntry* direntry, uint32* count, uint32 desttypesize, void ** value);
 static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryByteArray(TIFF* tif, TIFFDirEntry* direntry, uint8** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntrySbyteArray(TIFF* tif, TIFFDirEntry* direntry, int8** value);
@@ -83,7 +82,6 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntrySlong8Array(TIFF* tif, TIFFDirEn
 static enum TIFFReadDirEntryErr TIFFReadDirEntryFloatArray(TIFF* tif, TIFFDirEntry* direntry, float** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryDoubleArray(TIFF* tif, TIFFDirEntry* direntry, double** value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryIfd8Array(TIFF* tif, TIFFDirEntry* direntry, uint64** value);
-
 static enum TIFFReadDirEntryErr TIFFReadDirEntryPersampleShort(TIFF* tif, TIFFDirEntry* direntry, uint16* value);
 #if 0
 static enum TIFFReadDirEntryErr TIFFReadDirEntryPersampleDouble(TIFF* tif, TIFFDirEntry* direntry, double* value);
@@ -141,49 +139,49 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLong8Slong(int32 value
 static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLong8Slong8(int64 value);
 static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSlong8Long8(uint64 value);
 */
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteSbyte(int8 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteShort(uint16 value) { return (value>0xFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteSshort(int16 value) { return ((value<0)||(value>0xFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteLong(uint32 value) { return (value>0xFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteSlong(int32 value) { return ((value<0)||(value>0xFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteLong8(uint64 value) { return (value>0xFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeByteSlong8(int64 value) { return ((value<0)||(value>0xFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteByte(uint8 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteShort(uint16 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteSshort(int16 value) { return ((value<-0x80)||(value>0x7F)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteLong(uint32 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteSlong(int32 value) { return ((value<-0x80)||(value>0x7F)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteLong8(uint64 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSbyteSlong8(int64 value) { return ((value<-0x80)||(value>0x7F)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeShortSbyte(int8 value) { return (value<0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeShortSshort(int16 value) { return (value<0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeShortLong(uint32 value) { return (value>0xFFFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeShortSlong(int32 value) { return ((value<0)||(value>0xFFFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeShortLong8(uint64 value) { return (value>0xFFFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeShortSlong8(int64 value) { return ((value<0)||(value>0xFFFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSshortShort(uint16 value) { return (value>0x7FFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSshortLong(uint32 value) { return (value>0x7FFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSshortSlong(int32 value) { return ((value<-0x8000)||(value>0x7FFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSshortLong8(uint64 value) { return (value>0x7FFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSshortSlong8(int64 value) { return ((value<-0x8000)||(value>0x7FFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLongSbyte(int8 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLongSshort(int16 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLongSlong(int32 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteSbyte(int8 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteShort(uint16 value) { return (value>0xFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteSshort(int16 value) { return ((value<0)||(value>0xFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteLong(uint32 value) { return (value>0xFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteSlong(int32 value) { return ((value<0)||(value>0xFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteLong8(uint64 value) { return (value>0xFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeByteSlong8(int64 value) { return ((value<0)||(value>0xFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteByte(uint8 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteShort(uint16 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteSshort(int16 value) { return ((value<-0x80)||(value>0x7F)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteLong(uint32 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteSlong(int32 value) { return ((value<-0x80)||(value>0x7F)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteLong8(uint64 value) { return (value>0x7F) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSbyteSlong8(int64 value) { return ((value<-0x80)||(value>0x7F)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeShortSbyte(int8 value) { return (value<0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeShortSshort(int16 value) { return (value<0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeShortLong(uint32 value) { return (value>0xFFFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeShortSlong(int32 value) { return ((value<0)||(value>0xFFFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeShortLong8(uint64 value) { return (value>0xFFFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeShortSlong8(int64 value) { return ((value<0)||(value>0xFFFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSshortShort(uint16 value) { return (value>0x7FFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSshortLong(uint32 value) { return (value>0x7FFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSshortSlong(int32 value) { return ((value<-0x8000)||(value>0x7FFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSshortLong8(uint64 value) { return (value>0x7FFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSshortSlong8(int64 value) { return ((value<-0x8000)||(value>0x7FFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLongSbyte(int8 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLongSshort(int16 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLongSlong(int32 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
 #define TIFF_UINT32_MAX 0xFFFFFFFFU // Largest 32-bit unsigned integer value.
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLongLong8(uint64 value) { return (value > TIFF_UINT32_MAX) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLongSlong8(int64 value) { return ((value < 0) || (value > (int64)TIFF_UINT32_MAX)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLongLong8(uint64 value) { return (value > TIFF_UINT32_MAX) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLongSlong8(int64 value) { return ((value < 0) || (value > (int64)TIFF_UINT32_MAX)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
 #undef TIFF_UINT32_MAX
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSlongLong(uint32 value) { return (value > 0x7FFFFFFFUL) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSlongLong(uint32 value) { return (value > 0x7FFFFFFFUL) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
 /* Check that the 8-byte unsigned value can fit in a 4-byte unsigned range */
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSlongLong8(uint64 value) { return (value > 0x7FFFFFFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSlongLong8(uint64 value) { return (value > 0x7FFFFFFF) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
 /* Check that the 8-byte signed value can fit in a 4-byte signed range */
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSlongSlong8(int64 value) { return ((value < 0-((int64)0x7FFFFFFF+1)) || (value > 0x7FFFFFFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLong8Sbyte(int8 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLong8Sshort(int16 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLong8Slong(int32 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeLong8Slong8(int64 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSlongSlong8(int64 value) { return ((value < 0-((int64)0x7FFFFFFF+1)) || (value > 0x7FFFFFFF)) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLong8Sbyte(int8 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLong8Sshort(int16 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLong8Slong(int32 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeLong8Slong8(int64 value) { return (value < 0) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
 #define TIFF_INT64_MAX ((int64)(((uint64) ~0) >> 1)) // Largest 64-bit signed integer value.
-static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckRangeSlong8Long8(uint64 value) { return (value > TIFF_INT64_MAX) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
+static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryCheckRangeSlong8Long8(uint64 value) { return (value > TIFF_INT64_MAX) ? TIFFReadDirEntryErrRange : TIFFReadDirEntryErrOk; }
 #undef TIFF_INT64_MAX
 
 static enum TIFFReadDirEntryErr FASTCALL TIFFReadDirEntryData(TIFF* tif, uint64 offset, tmsize_t size, void * dest);

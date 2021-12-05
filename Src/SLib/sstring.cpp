@@ -356,12 +356,12 @@ int FASTCALL SStrScan::GetDigits(SString & rBuf)
     return ok;
 }
 
-int SStrScan::IsDigits()
+bool SStrScan::IsDigits()
 {
-    int    ok = 0;
+    bool   ok = false;
     if(SETIFZ(P_ReDigits, new SRegExp2("^[0-9]+", cp1251, SRegExp2::syntaxDefault, 0))) {
         if(P_ReDigits->Find(P_Buf+Offs))
-            ok = 1;
+            ok = true;
     }
 	return ok;
 }
@@ -371,29 +371,26 @@ int SStrScan::IsEnd() const
 	return (!P_Buf || P_Buf[Offs] == 0);
 }
 
-int SStrScan::IsNumber()
+bool SStrScan::IsNumber()
 {
-	return BIN(InitReNumber() && P_ReNumber->Find(P_Buf+Offs));
+	return (InitReNumber() && P_ReNumber->Find(P_Buf+Offs));
 }
 
-int SStrScan::IsDotPrefixedNumber()
+bool SStrScan::IsDotPrefixedNumber()
 {
-    int    ok = 0;
+    bool   ok = false;
     const size_t preserve_offs = Offs;
     if(Is('.')) {
         Incr();
-        if(IsDigits())
-            ok = 1;
+        ok = IsDigits();
     }
     else if(Is("+.")) {
         Incr(2);
-        if(IsDigits())
-            ok = 1;
+        ok = IsDigits();
     }
     else if(Is("-.")) {
         Incr(2);
-        if(IsDigits())
-            ok = 1;
+        ok = IsDigits();
     }
     else
         ok = IsNumber();
@@ -448,9 +445,9 @@ int FASTCALL SStrScan::GetNumber(SString & rBuf)
 		return 0;
 }
 
-int SStrScan::IsHex()
+bool SStrScan::IsHex()
 {
-	return BIN(InitReHex() && P_ReHex->Find(P_Buf+Offs));
+	return (InitReHex() && P_ReHex->Find(P_Buf+Offs));
 }
 
 static FORCEINLINE uint Implement_IsEol(const char * pIn, SEOLFormat eolf)

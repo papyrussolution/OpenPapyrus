@@ -1509,8 +1509,9 @@ int GoodsBasketItemDialog(ILTI * pData, PPBasketCombine & rCart)
 	int    ok = -1;
 	GBItemDialog * dlg = 0;
 	long   basket_dlg_flags = 0;
-	UserInterfaceSettings uis;
-	if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fBasketItemFocusPckg)
+	// @v11.2.6 UserInterfaceSettings uis;
+	// @v11.2.6 if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fBasketItemFocusPckg)
+	if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fBasketItemFocusPckg) // @v11.2.6
 		basket_dlg_flags |= GBItemDialog::fFocusOnPckg;
 	if(CheckDialogPtrErr(&(dlg = new GBItemDialog(rCart, 0, basket_dlg_flags))) && dlg->setDTS(pData))
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
@@ -1926,13 +1927,16 @@ int AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double price)
 		long   basket_dlg_flags = GBItemDialog::fEnableChangeBasket;
 		PPBasketCombine basket;
 		item.GoodsID  = labs(goodsID);
-		UserInterfaceSettings uis;
-		const int uir_result = BIN(uis.Restore() > 0);
-		if(uir_result && uis.Flags & UserInterfaceSettings::fBasketItemFocusPckg)
+		// @v11.2.6 UserInterfaceSettings uis;
+		// @v11.2.6 const int uir_result = BIN(uis.Restore() > 0);
+		const long uisf = APPL->GetUiSettings().Flags;
+		// @v11.2.6 if(uir_result && uis.Flags & UserInterfaceSettings::fBasketItemFocusPckg)
+		if(uisf & UserInterfaceSettings::fBasketItemFocusPckg) // @v11.2.6
 			basket_dlg_flags |= GBItemDialog::fFocusOnPckg;
 		if(qtty > 0.0)
 			item.Quantity = qtty;
-		else if(uir_result && uis.Flags & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) {
+		// @v11.2.6 else if(uir_result && uis.Flags & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) {
+		else if(uisf & UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty) { // @v11.2.6
 			double c = 0.0;
 			if(TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c))
 				item.Quantity = (c > 0.0) ? c : 1.0;

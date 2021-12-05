@@ -95,7 +95,7 @@ class SCS_SYNCCASH : public PPSyncCashSession {
 public:
 	SCS_SYNCCASH(PPID n, char * pName, char * pPort);
 	~SCS_SYNCCASH();
-	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult);
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	virtual int PrintCheck(CCheckPacket *, uint flags);
 	virtual int PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -457,7 +457,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	PPLogMessage(PPFILNAM_CCHECK_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);	
 }
 
-int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
+int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
 	if(op == 0) {
@@ -490,6 +490,11 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, CC
 					Arr_In.Z();
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
 					THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
+					// @v11.2.6 {
+					if(ffrac(qtty) != 0.0 && uomFragm > 0) {
+						THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(uomFragm)));
+					}
+					// } @v11.2.6 
 					THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
 					for(uint i = 0; i < Arr_Out.getCount(); i++) {
 						StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
@@ -644,6 +649,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	SString param_name;
 	SString param_val;
 	SString temp_buf;
+	PPObjGoods goods_obj;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
 	THROW_INVARG(pPack);
@@ -691,7 +697,16 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
 							PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code); // @v11.2.0
 							const double chzn_qtty = fabs(ccl.Quantity);
-							pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, chzn_pp_result);
+							// @v11.2.6 {
+							uint  uom_fragm = 0;
+							Goods2Tbl::Rec goods_rec;
+							PPUnit u_rec;
+							if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+								if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
+									uom_fragm = u_rec.Fragmentation;
+							}
+							// } @v11.2.6 
+							pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
 							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 							// @debug {
 							//pczcr = 0;
@@ -700,7 +715,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							if(pczcr > 0 && chzn_pp_result.Status == 1) {
 								chzn_pp_result.LineIdx = pos;
 								int accept_op = 1; // 1 - accept, 2 - reject
-								pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, chzn_pp_result);
+								pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
 								PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 								if(pczcr > 0)
 									pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
@@ -783,6 +798,11 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text));
 						THROW(ArrAdd(Arr_In, DVCPARAM_CODE, sl_param.Code));
 						THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
+						// @v11.2.6 {
+						if(sl_param.UomFragm > 0) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(sl_param.UomFragm)));
+						}
+						// } @v11.2.6 
 						THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
 						THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						if(is_vat_free) {
@@ -804,7 +824,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 							// } @v11.1.11
 							// @v11.2.4 {
-							if(sl_param.ChZnSid.NotEmpty())
+							if(chzn_sid.NotEmpty())
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, chzn_sid));
 							// } @v11.2.4
 						}

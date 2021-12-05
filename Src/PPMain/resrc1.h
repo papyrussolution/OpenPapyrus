@@ -3,6 +3,8 @@
 // Used by ppw.rc
 //
 #define IDI_ICON1                       523
+#define CTLTM_CHKINP_CITM2              1223
+#define CTLTM_PSNEVNT_TIME              1223
 #define IDC_EDIT1                       1278
 #define IDC_BUTTON1                     1282
 

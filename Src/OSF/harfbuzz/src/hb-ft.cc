@@ -420,7 +420,7 @@ static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED, void * fo
 	if(len < 0)
 		*glyph = FT_Get_Name_Index(ft_face, (FT_String*)name);
 	else {
-		/* Make a nul-terminated version. */
+		// Make a nul-terminated version
 		char buf[128];
 		len = hb_min(len, (int)sizeof(buf)-1);
 		strncpy(buf, name, len);
@@ -428,7 +428,7 @@ static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED, void * fo
 		*glyph = FT_Get_Name_Index(ft_face, buf);
 	}
 	if(*glyph == 0) {
-		/* Check whether the given name was actually the name of glyph 0. */
+		// Check whether the given name was actually the name of glyph 0. 
 		char buf[128];
 		if(!FT_Get_Glyph_Name(ft_face, 0, buf, sizeof(buf)) && len < 0 ? !strcmp(buf, name) : !strncmp(buf, name, len))
 			return true;

@@ -242,7 +242,8 @@ int TBaseBrowserWindow::Insert()
 		if(hw_frame) {
 			RECT   rc_frame;
 			::GetClientRect(hw_frame, &rc_frame);
-			HW = ::CreateWindowEx(0, SUcSwitch(ClsName), SUcSwitch(buf), style, 0, 0, 
+			// @v11.2.6 WS_EX_COMPOSITED
+			HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(ClsName), SUcSwitch(buf), style, 0, 0, 
 				rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this);
 			APPL->SizeMainWnd(HW);
 			::ShowWindow(HW, SW_SHOW);
@@ -340,7 +341,8 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				HW = reinterpret_cast<HWND>(LOWORD(::SendMessage(h_main_wnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))));
 			}
 			else {
-				HW = ::CreateWindowEx(0, SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this);
+				// @v11.2.6 WS_EX_COMPOSITED
+				HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this);
 			}
 			if(HW) { // @v10.3.1
 				TEvent event;
@@ -1438,7 +1440,7 @@ void BrowserWindow::Refresh()
 	invalidateAll(true);
 }
 
-int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, int fmt, int isLineCursor)
+int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt, int isLineCursor)
 {
 	int    ok = 0;
 	if(pTextRect && pBuf) {
@@ -1462,7 +1464,7 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, i
 		curs_over_txt_font = ::CreateFontIndirect(&log_font);
 		if(curs_over_txt_font)
 			old_font = static_cast<HFONT>(SelectObject(hdc, curs_over_txt_font));
-		DrawMultiLinesText(hdc, pBuf, pTextRect, fmt);
+		DrawMultiLinesText(hdc, pBuf, pTextRect, _fmt);
 		SetTextColor(hdc, old_color);
 		if(old_font)
 			SelectObject(hdc, old_font);
@@ -1472,14 +1474,14 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, i
 	return ok;
 }
 
-void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt)
+void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt)
 {
 	if(pTextRect && pBuf) {
 		SString temp_buf;
 		RECT   rect = *pTextRect;
 		StringSet ss('\n', pBuf);
 		for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell)
-			::DrawText(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &rect, fmt); // @unicodeproblem 
+			::DrawText(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &rect, _fmt);
 	}
 }
 
@@ -1591,7 +1593,6 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					const int _top = r.top + 4;
 					const int _bottom = _top + _diam + 2;
 					Ellipse(hdc, _left, _top, _right, _bottom);
-
 					SelectObject(hdc, oldpen);
 					SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
@@ -1603,7 +1604,6 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 					oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
 					br = CreateSolidBrush(color);
 					oldbr = static_cast<HBRUSH>(SelectObject(hdc, br));
-
 					const int _diam = 6;
 					int   _right = r.right - 6;
 					int   _left = _right - _diam;
@@ -1639,27 +1639,28 @@ void BrowserWindow::Paint()
 {
 	BrowserDef * p_def_ = P_Def;
 	if(p_def_) {
-		const  long   hdr_width = CalcHdrWidth(1);
+		const  long hdr_width = CalcHdrWidth(1);
+		const  uint count = p_def_->getCount();
 		PAINTSTRUCT ps;
 		RECT   r;
-		UINT   i, cn, row;
-		uint   count = p_def_->getCount();
-		uint   gidx;
-		int    lt, rt, fmt;
 		union {;
 			TCHAR  tbuf[512];
 			char   cbuf[512];
 		};
 		SString temp_buf;
 		::BeginPaint(H(), &ps);
-		if(ps.fErase) {
-			RECT rect;
-			GetClientRect(H(), &rect);
-			FillRect(GetDC(H()), &rect, Brushes.ClearBrush);
-			ps.fErase = 0;
+		{
+			RECT cli_rect;
+			GetClientRect(H(), &cli_rect);
+			if(ps.fErase) {
+				FillRect(/*GetDC(H())*/ps.hdc, &cli_rect, Brushes.ClearBrush);
+				ps.fErase = 0;
+			}
+			if(ps.rcPaint.bottom == 0 || ps.rcPaint.right == 0) {
+				// @v11.2.6 GetClientRect(H(), &ps.rcPaint);
+				ps.rcPaint = cli_rect; // @v11.2.6 
+			}
 		}
-		if(ps.rcPaint.bottom == 0 || ps.rcPaint.right == 0)
-			GetClientRect(H(), &ps.rcPaint);
 		r.top    = ToolBarWidth;
 		r.left   = 0;
 		r.right  = CliSz.x;
@@ -1676,13 +1677,12 @@ void BrowserWindow::Paint()
 		r.top    += hdr_width;
 		r.bottom += hdr_width;
 		if(SIntersectRect(ps.rcPaint, r)) {
-			COLORREF oldColor;
 			uint32 schema_num = UICfg.GetBrwColorSchema();
-			oldColor = SetBkColor(ps.hdc, BrwColorsSchemas[schema_num].Title);
-			cn = Freeze ? 0 : Left;
-			i = 0;
-			while(cn <= Right && cn < count) {
-				const BroColumn & c = p_def_->at(cn);
+			const COLORREF oldColor = SetBkColor(ps.hdc, BrwColorsSchemas[schema_num].Title);
+			uint   i = 0;
+			for(uint cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
+				const  BroColumn & c = p_def_->at(cn);
+				uint   gidx;
 				r.left    = c.x - 1;
 				r.right   = CellRight(c);
 				r.bottom  = YCell * p_def_->GetCapHeight();
@@ -1764,7 +1764,7 @@ void BrowserWindow::Paint()
 				r.right -= 3;
 				r.bottom--;
 				(temp_buf = c.text).Transf(CTRANSF_INNER_TO_OUTER);
-				::DrawText(ps.hdc, SUcSwitch(temp_buf), (int)temp_buf.Len(), &r, GetCapAlign(c.Options)); // @unicodeproblem
+				::DrawText(ps.hdc, SUcSwitch(temp_buf), (int)temp_buf.Len(), &r, GetCapAlign(c.Options));
 				cn = (++i == Freeze) ? Left : (cn + 1);
 			}
 			if(r.right < CliSz.x) {
@@ -1777,92 +1777,95 @@ void BrowserWindow::Paint()
 			}
 			for(i = 0; i < p_def_->GetGroupCount(); i++) {
 				const BroGroup * p_grp = p_def_->GetGroup(i);
-				lt = MAX(p_grp->First, Left);
-				rt = MIN(p_grp->NextColumn()-1, Right);
+				const uint lt = MAX(p_grp->First, Left);
+				const uint rt = MIN(p_grp->NextColumn()-1, Right);
 				if(lt <= rt) {
 					r.left    = p_def_->at(lt).x - 1;
 					r.right   = CellRight(p_def_->at(rt));
 					r.top     = hdr_width;
 					r.bottom  = YCell * p_grp->Height + hdr_width;
-					fmt = DT_CENTER|DT_EXTERNALLEADING;
+					const uint tfmt = DT_CENTER|DT_EXTERNALLEADING;
 					DrawCapBk(ps.hdc, &r, FALSE);
 					r.left++;
 					r.top++;
 					r.right--;
 					r.bottom--;
 					(temp_buf = p_grp->P_Text).Transf(CTRANSF_INNER_TO_OUTER);
-					::DrawText(ps.hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &r, fmt); // @unicodeproblem
+					::DrawText(ps.hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &r, tfmt);
 				}
 			}
 			SetBkColor(ps.hdc, oldColor);
 		}
-		uint   view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
-		for(row = 0; row < view_height; row++) {
-			ItemRect(Left, row, &r, FALSE);
-			r.left    = 0;
-			r.right   = CliSz.x;
-			r.top    += hdr_width;
-			r.bottom += hdr_width;
-			if(SIntersectRect(ps.rcPaint, r)) {
-				int    is_focused = BIN(row == static_cast<UINT>(p_def_->_curFrameItem()));
-				int    paint_action = is_focused ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
-				RECT   paint_rect;
-				if(is_focused)
-					paint_rect = RectCursors.LineCursor;
-				else {
-					LineRect(row, &paint_rect, TRUE);
-					paint_rect.top    += hdr_width;
-					paint_rect.bottom += hdr_width - 1;
-					paint_rect.right -= 2;
-				}
-				PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
-				i = 0;
-				cn = Freeze ? 0 : Left;
-				for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
-					int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
-					ItemRect(cn, row, &r, TRUE);
-					r.top    += hdr_width;
-					r.bottom += hdr_width;
-					if(SIntersectRect(ps.rcPaint, r))
-						PaintCell(ps.hdc, r, row, cn, paint_action);
-					ItemRect(cn, row, &r, FALSE);
-					r.top    += hdr_width;
-					r.bottom += hdr_width;
-					if(SIntersectRect(ps.rcPaint, r)) {
-						uint   height_mult = GetRowHeightMult(row);
-						strip(p_def_->getMultiLinesText(p_def_->_topItem() + row, cn, cbuf, height_mult));
-						if(row > 0 && (p_def_->at(cn).Options & BCO_DONTSHOWDUPL)) {
-							char   prev_buf[512];
-							strip(p_def_->getText(p_def_->_topItem() + row - 1, cn, prev_buf));
-							if(sstreq(cbuf, prev_buf))
-								cbuf[0] = 0;
-						}
-						int    opt = p_def_->at(cn).format;
-						int    align = SFMTALIGN(opt);
-						if(align == ALIGN_LEFT)
-							fmt = DT_LEFT;
-						else if(align == ALIGN_RIGHT)
-							fmt = DT_RIGHT;
-						else if(align == ALIGN_CENTER)
-							fmt = DT_CENTER;
-						else
-							fmt = DT_LEFT;
-						SOemToChar(cbuf);
-						fmt |= (DT_NOPREFIX | DT_SINGLELINE);
-						if(is_focused && cn == HScrollPos)
-							SetBkMode(ps.hdc, TRANSPARENT);
-						int    already_draw = 0;
-						if(SIntersectRect(RectCursors.CellCursor, r))
-							already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, fmt, 0);
-						else if(SIntersectRect(RectCursors.LineCursor, r))
-							already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, fmt, 1);
-						if(!already_draw) {
-							ItemRect(cn, row, &paint_rect, TRUE);
-							paint_rect.top    += hdr_width;
-							paint_rect.bottom += hdr_width - 1;
-							paint_rect.right -= 2;
-							PaintCell(ps.hdc, paint_rect, row, cn, BrowserWindow::paintNormal);
-							DrawMultiLinesText(ps.hdc, cbuf, &r, fmt);
+		{
+			const uint view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
+			for(uint row = 0; row < view_height; row++) {
+				ItemRect(Left, row, &r, FALSE);
+				r.left    = 0;
+				r.right   = CliSz.x;
+				r.top    += hdr_width;
+				r.bottom += hdr_width;
+				if(SIntersectRect(ps.rcPaint, r)) {
+					int    is_focused = BIN(row == static_cast<UINT>(p_def_->_curFrameItem()));
+					int    paint_action = is_focused ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
+					RECT   paint_rect;
+					if(is_focused)
+						paint_rect = RectCursors.LineCursor;
+					else {
+						LineRect(row, &paint_rect, TRUE);
+						paint_rect.top    += hdr_width;
+						paint_rect.bottom += hdr_width - 1;
+						paint_rect.right -= 2;
+					}
+					PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
+					uint i = 0;
+					uint cn = Freeze ? 0 : Left;
+					for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
+						int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
+						ItemRect(cn, row, &r, TRUE);
+						r.top    += hdr_width;
+						r.bottom += hdr_width;
+						if(SIntersectRect(ps.rcPaint, r))
+							PaintCell(ps.hdc, r, row, cn, paint_action);
+						ItemRect(cn, row, &r, FALSE);
+						r.top    += hdr_width;
+						r.bottom += hdr_width;
+						if(SIntersectRect(ps.rcPaint, r)) {
+							const uint height_mult = GetRowHeightMult(row);
+							strip(p_def_->getMultiLinesText(p_def_->_topItem() + row, cn, cbuf, height_mult));
+							if(row > 0 && (p_def_->at(cn).Options & BCO_DONTSHOWDUPL)) {
+								char   prev_buf[512];
+								strip(p_def_->getText(p_def_->_topItem() + row - 1, cn, prev_buf));
+								if(sstreq(cbuf, prev_buf))
+									PTR32(cbuf)[0] = 0;
+							}
+							const  int opt = p_def_->at(cn).format;
+							const  int align = SFMTALIGN(opt);
+							uint   tfmt;
+							if(align == ALIGN_LEFT)
+								tfmt = DT_LEFT;
+							else if(align == ALIGN_RIGHT)
+								tfmt = DT_RIGHT;
+							else if(align == ALIGN_CENTER)
+								tfmt = DT_CENTER;
+							else
+								tfmt = DT_LEFT;
+							SOemToChar(cbuf);
+							tfmt |= (DT_NOPREFIX | DT_SINGLELINE);
+							if(is_focused && cn == HScrollPos)
+								SetBkMode(ps.hdc, TRANSPARENT);
+							int    already_draw = 0;
+							if(SIntersectRect(RectCursors.CellCursor, r))
+								already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 0);
+							else if(SIntersectRect(RectCursors.LineCursor, r))
+								already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
+							if(!already_draw) {
+								ItemRect(cn, row, &paint_rect, TRUE);
+								paint_rect.top    += hdr_width;
+								paint_rect.bottom += hdr_width - 1;
+								paint_rect.right -= 2;
+								PaintCell(ps.hdc, paint_rect, row, cn, BrowserWindow::paintNormal);
+								DrawMultiLinesText(ps.hdc, cbuf, &r, tfmt);
+							}
 						}
 					}
 				}
@@ -1875,24 +1878,21 @@ void BrowserWindow::Paint()
 			ItemRect(Left, 0, &r, FALSE);
 			//uint   r_h_count = P_RowsHeightAry ? P_RowsHeightAry->getCount() : 0;
 			const  uint r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
-			uint   sel_col_count = SelectedColumns.getCount();
+			const  uint sel_col_count = SelectedColumns.getCount();
 			long   last_fill_row = 0;
 			r.top += hdr_width - 2 + YCell * GetRowHeightMult(0);
 			r.left = 0;
 			const uint _right = (Right < p_def_->getCount()) ? Right : (p_def_->getCount()-1);
 			const BroColumn & c = p_def_->at(_right);
-			int    bottom = MIN(ViewHeight, static_cast<uint>(p_def_->getRecsCount()));
+			const int  bottom = MIN(ViewHeight, static_cast<uint>(p_def_->getRecsCount()));
 			uint   view_height = r_h_count ? r_h_count : ViewHeight;
 			r.right = MIN(CliSz.x, CellRight(c));
 			HPEN   old_pen = static_cast<HPEN>(SelectObject(ps.hdc, Pens.GridHorzPen));
 			view_height = (!r_h_count && sel_col_count) ? (view_height - 1) : view_height;
-			for(row = 0; row < view_height; row++) {
+			for(uint row = 0; row < view_height; row++) {
 				MoveToEx(ps.hdc, r.left, r.top, 0);
 				LineTo(ps.hdc, r.right, r.top);
-				if(r_h_count && (row+1) < view_height)
-					r.top += YCell * GetRowHeightMult(row+1);
-				else
-					r.top += YCell;
+				r.top += ((r_h_count && (row+1) < view_height) ? (YCell * GetRowHeightMult(row+1)) : YCell);
 			}
 			const  int  topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
 			long   prev_left = r.left;
@@ -1901,9 +1901,9 @@ void BrowserWindow::Paint()
 			HPEN   dot_line_pen = ::CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
 			r.bottom = topold;
 			r.top   += hdr_width - 2;
-			i = 0;
+			uint   i = 0;
 			SelectObject(ps.hdc, Pens.GridVertPen);
-			for(cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
+			for(uint cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
 				int  dot_line = 0;
 				long dot_line_delta = 6;
 				r.left = CellRight(p_def_->at(cn));
@@ -1991,27 +1991,21 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 
 int BrowserWindow::GetColumnByX(int x) const
 {
-	int    found = 0;
-	int    i = 0;
 	if(Freeze) {
-		for(i = 0; i <= static_cast<int>(Right) && i < static_cast<int>(Freeze); i++) {
+		for(int i = 0; i <= static_cast<int>(Right) && i < static_cast<int>(Freeze); i++) {
 			const BroColumn & c = P_Def->at(i);
-			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2)) {
-				found = 1;
-				break;
-			}
+			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2))
+				return i;
 		}
 	}
-	if(!found) {
-		for(i = static_cast<int>(Left); i <= static_cast<int>(Right); i++) {
+	{
+		for(int i = static_cast<int>(Left); i <= static_cast<int>(Right); i++) {
 			const BroColumn & c = P_Def->at(i);
-			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2)) {
-				found = 1;
-				break;
-			}
+			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2))
+				return i;
 		}
 	}
-	return found ? i : -1;
+	return -1;
 }
 
 int BrowserWindow::HeaderByPoint(SPoint2S point, int hdrzone, long * pVertPos) const
@@ -2563,7 +2557,7 @@ HWND GetNextBrowser(HWND hw)
 				p_view->HW = hWnd;
 				p_view->WMHCreate(reinterpret_cast<LPCREATESTRUCT>(lParam));
 				InvalidateRect(hWnd, 0, TRUE);
-				PostMessage(hWnd, WM_PAINT, 0, 0);
+				::PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
 					SString temp_buf;
 					TView::SGetWindowText(hWnd, temp_buf);
@@ -2642,8 +2636,11 @@ HWND GetNextBrowser(HWND hw)
 		case WM_PAINT:
 			if(p_view) {
 				p_view->Paint();
-				if(p_view->P_Header)
-					::UpdateWindow(GetWindow(hWnd, GW_CHILD));
+				if(p_view->P_Header) {
+					HWND hw_child = GetWindow(hWnd, GW_CHILD);
+					if(hw_child)
+						::UpdateWindow(hw_child);
+				}
 			}
 			return 0L;
 		case WM_HSCROLL:
@@ -2936,9 +2933,10 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 	}
 	else if(fcmp == SrchFunc) {
 		SendMessage(H(), WM_KEYDOWN, VK_END, 0L);
-		UserInterfaceSettings ui_cfg;
-		ui_cfg.Restore();
-		if(!(ui_cfg.Flags & UserInterfaceSettings::fDisableNotFoundWindow)) {
+		// @v11.2.6 UserInterfaceSettings ui_cfg;
+		// @v11.2.6 ui_cfg.Restore();
+		// @v11.2.6 if(!(ui_cfg.Flags & UserInterfaceSettings::fDisableNotFoundWindow)) {
+		if(!(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDisableNotFoundWindow)) { // @v11.2.6
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
 				SString msg_buf, fmt_buf;

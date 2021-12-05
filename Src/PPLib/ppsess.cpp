@@ -359,11 +359,12 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			ENTER_CRITICAL_SECTION
 			int timer_expired = BIN(!p_timer2 ||p_timer2->Check(0));
 			if(timer_expired) {
-				UserInterfaceSettings ui_cfg;
+				// @v11.2.6 UserInterfaceSettings ui_cfg;
 				ZDELETE(p_timer2);
 				upd_available = 0;
-				ui_cfg.Restore();
-				if(ui_cfg.Flags & UserInterfaceSettings::fUpdateReminder) {
+				// @v11.2.6 ui_cfg.Restore();
+				// @v11.2.6 if(ui_cfg.Flags & UserInterfaceSettings::fUpdateReminder) {
+				if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fUpdateReminder) { // @v11.2.6
 					if(PPUhttClient::ViewNewVerList(0) > 0)
 						upd_available = 1;
 				}
@@ -1733,11 +1734,12 @@ int PPSession::InitExtCfgDb()
 		static int string_history_disabled = 0; // @global (полагаемся на то, что вызов этой функции защищен блокировкой)
 		int cc_shu = string_history_disabled ? 0 : CConfig.StringHistoryUsage;
 		if(cc_shu < 0) {
-			UserInterfaceSettings ui_cfg;
+			/* @v11.2.6 UserInterfaceSettings ui_cfg;
 			if(ui_cfg.Restore() > 0)
 				cc_shu = (ui_cfg.Flags & UserInterfaceSettings::fStringHistoryDisabled) ? 0 : 1;
 			else
-				cc_shu = 1;
+				cc_shu = 1; */
+			cc_shu = (APPL->GetUiSettings().Flags & UserInterfaceSettings::fStringHistoryDisabled) ? 0 : 1; // @v11.2.6
 		}
 		if(!cc_shu) {
 			string_history_disabled = 1;
@@ -4092,8 +4094,9 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						if(cycle_ms <= 0 || cycle_ms > 600000)
 							cycle_ms = 5113;
 						if(r_tla.DefPhnSvcID) { // Пакет ps_pack инициализирован выше (r_tla.DefPhnSvcID != 0 - однозначно свидетельствует об этом)
-							UserInterfaceSettings ui_cfg;
-							if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
+							// @v11.2.6 UserInterfaceSettings ui_cfg;
+							// @v11.2.6 if(ui_cfg.Restore() > 0 && ui_cfg.Flags & ui_cfg.fPollVoipService)
+							if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fPollVoipService) // @v11.2.6
 								p_phnsvc_pack = &ps_pack;
 						}
 						// @v10.5.7 {

@@ -1477,7 +1477,7 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 			HW = reinterpret_cast<HWND>(LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child))));
 		}
 		else {
-			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, x, y, cx, cy, hw_parent, 0, /*h_inst*/0, this);
+			HW = CreateWindowEx(0, P_SLibWindowBaseClsName, SUcSwitch(title_buf), style, x, y, cx, cy, hw_parent, 0, h_inst, this);
 		}
 	}
 	return BIN(HW);
@@ -1543,7 +1543,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			if(IsMDIClientWindow(APPL->H_MainWnd))
 				Create(APPL->H_MainWnd, coMDI);
 			else
-				Create(APPL->H_TopOfStack, coPopup /* @v11.2.0 | coMaxSize*/);
+				Create(APPL->H_TopOfStack, coPopup/* @v11.2.0 | coMaxSize*/);
 		}
 		SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
 		// @v11.2.4 ::ShowWindow(HW, SW_SHOW); // @v11.2.4 SW_NORMAL-->SW_SHOW

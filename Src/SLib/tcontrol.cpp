@@ -128,17 +128,20 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		case WM_GETDLGCODE:
 		case BM_SETSTYLE:
-			if(p_view && oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-				if(uMsg == WM_GETDLGCODE) {
-					return (p_view->IsDefault() ? DLGC_DEFPUSHBUTTON : DLGC_UNDEFPUSHBUTTON);
-				}
-				else {
-					p_view->makeDefault(BIN(wParam & BS_DEFPUSHBUTTON), 0);
-					if(LOWORD(lParam)) { // do redraw
-						::InvalidateRect(hWnd, NULL, TRUE);
-						::UpdateWindow(hWnd);
+			if(p_view) {
+				const int wvs = APPL->GetUiSettings().WindowViewStyle;
+				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
+					if(uMsg == WM_GETDLGCODE) {
+						return (p_view->IsDefault() ? DLGC_DEFPUSHBUTTON : DLGC_UNDEFPUSHBUTTON);
 					}
-					return 0;
+					else {
+						p_view->makeDefault(BIN(wParam & BS_DEFPUSHBUTTON), 0);
+						if(LOWORD(lParam)) { // do redraw
+							::InvalidateRect(hWnd, NULL, TRUE);
+							::UpdateWindow(hWnd);
+						}
+						return 0;
+					}
 				}
 			}
 			break;
@@ -416,8 +419,11 @@ void TInputLine::InputStat::CheckIn()
 		case WM_KILLFOCUS:
 			if(p_view->IsInState(sfMsgToParent))
 				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-			if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
-				SetWindowPos(hWnd, 0, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_FRAMECHANGED|SWP_DRAWFRAME);
+			{
+				const int wvs = APPL->GetUiSettings().WindowViewStyle;
+				if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
+					SetWindowPos(hWnd, 0, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_FRAMECHANGED|SWP_DRAWFRAME);
+			}
 			break;
 		case WM_PASTE:
 			CALLPTRMEMB(p_view, OnPaste());

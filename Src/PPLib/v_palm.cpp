@@ -281,6 +281,8 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	return q;
 }
 
+int _Construction_MakeRsrvPriceListResponse(PPID styloPalmID); // @construction
+
 int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
@@ -307,6 +309,16 @@ int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 			case PPVCMD_EXPORTUHTT:
 				ok = -1;
 				ExportUhtt();
+				break;
+			case PPVCMD_TEST: // @v11.2.6
+				ok = -1;
+#ifndef NDEBUG				
+				{
+					id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+					if(id)
+						_Construction_MakeRsrvPriceListResponse(id);
+				}
+#endif // NDEBUG
 				break;
 		}
 	}

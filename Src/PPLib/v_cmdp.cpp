@@ -1411,8 +1411,8 @@ static void PostprocessLoadedMenu(HMENU hMenu)
 		SString temp_buf;
 		PPLoadStringS("cmd_window", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 		::AppendMenu(hMenu, MF_POPUP | MF_STRING, (UINT)h_popup, SUcSwitch(temp_buf));
-		UserInterfaceSettings uiset;
-		uiset.Restore();
+		// @v11.2.5 UserInterfaceSettings uiset;
+		// @v11.2.5 uiset.Restore();
 		PPLoadStringS("cmd_menutree", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 		// @v11.0.0 ::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, cmShowTree, SUcSwitch(temp_buf));
 		::AppendMenu(h_popup, MF_CHECKED|MF_STRING, cmShowTree, SUcSwitch(temp_buf)); // @v11.0.0 always checked

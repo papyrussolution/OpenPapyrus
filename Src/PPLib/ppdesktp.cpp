@@ -1314,10 +1314,11 @@ ushort PPDesktop::Execute()
 int PPDesktop::Advise()
 {
 	int    ok = -1;
-	UserInterfaceSettings ui_cfg;
-	ui_cfg.Restore();
+	// @v11.2.6 UserInterfaceSettings ui_cfg;
+	// @v11.2.6 ui_cfg.Restore();
 	const ThreadID thr_id = DS.GetConstTLA().GetThreadID();
-	if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
+	// @v11.2.6 if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
+	if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) { // @v11.2.6
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
 		adv_blk.Kind       = PPAdviseBlock::evBizScoreChanged;
@@ -1412,9 +1413,10 @@ int PPDesktop::CreateServiceView(int svcviewId)
 	int    ok = 0;
 	if(H()) {
 		if(svcviewId == svcviewBizScore) {
-			UserInterfaceSettings ui_cfg;
-			ui_cfg.Restore();
-			if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
+			// @v11.2.6 UserInterfaceSettings ui_cfg;
+			// @v11.2.6 ui_cfg.Restore();
+			// @v11.2.6 if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) {
+			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) { // @v11.2.6
 				PPBizScoreWindow * p_win = new PPBizScoreWindow(H());
 				if(p_win) {
 					p_win->Create();
@@ -2001,9 +2003,10 @@ IMPL_HANDLE_EVENT(PPDesktop)
 						menu.AddSubstr(temp_buf, 4, cmSelDesktop); // Выбрать рабочий стол
 						menu.AddSubstr(temp_buf, 5, cmEditDesktops);
 						if(!p_desk->GetServiceView(svcviewBizScore)) {
-							UserInterfaceSettings ui_cfg;
-							ui_cfg.Restore();
-							if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop)
+							// @v11.2.6 UserInterfaceSettings ui_cfg;
+							// @v11.2.6 ui_cfg.Restore();
+							// @v11.2.6 if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop)
+							if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fShowBizScoreOnDesktop) // @v11.2.6
 								menu.AddSubstr(temp_buf, 6, cmShowBizScoreOnDesktop); // Показать бизнес-показатели
 						}
 						uint    cmd = 0;

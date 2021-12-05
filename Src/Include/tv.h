@@ -4457,7 +4457,8 @@ public:
 		fDisableBillMultiPrint           = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
 		fExtGoodsSelHideGenerics         = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
-		fStringHistoryDisabled           = 0x00020000  // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
+		fStringHistoryDisabled           = 0x00020000, // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
+		fDateTimePickerBefore1124        = 0x00040000  // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
 	};
 	enum {
 		wndVKDefault = 0,
@@ -4589,7 +4590,8 @@ public:
 	// Descr: Флаги состояний State
 	//
 	enum {
-		stUiToolBoxInited = 0x0001 // Экземпляр UiToolBox был инициализирован вызовом InitUiToolBox
+		stUiToolBoxInited = 0x0001, // Экземпляр UiToolBox был инициализирован вызовом InitUiToolBox
+		stUiSettingInited = 0x0002  // @v11.2.6 Экземпляр UICfg был извлечен из реестра вызовом UICfg.Restore()
 	};
 	//
 	// @todo Заменить все вызовы TProgram::GetInst на SLS.GetHInst
@@ -4701,6 +4703,8 @@ public:
 		tbiControlFont      = 110, // @v11.2.3 Шрифт для отрисовки управляющих элементов 
 	};
 
+	const  UserInterfaceSettings & GetUiSettings();
+	int    UpdateUiSettings(const UserInterfaceSettings & rS);
     int    InitUiToolBox();
 	/*const*/ SPaintToolBox & GetUiToolBox() /*const*/ { return UiToolBox; }
 	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
@@ -4719,7 +4723,6 @@ public:
 	HWND   H_CloseWnd;
 	HWND   H_TopOfStack;
 	TSStack <HWND> ModalStack;
-	UserInterfaceSettings UICfg;
 	TreeWindow * P_TreeWnd;
 protected:
 	virtual int  InitStatusBar();
@@ -4760,6 +4763,7 @@ private:
 	TBitmapHash BmH;
 	SPaintToolBox UiToolBox;      // Набор инструментов для отрисовки компонентов пользовательского интерфейса.
 	TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
+	UserInterfaceSettings UICfg;
 };
 
 #define APPL    (TProgram::application)
@@ -5304,10 +5308,10 @@ private:
 	//
 	int    PaintCell(HDC hdc, RECT r, long row, long col, int paintAction);
 	int    search(void * pPattern, CompFunc fcmp, int srchMode);
-	int    DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, int fmt, int isLineCursor);
+	int    DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt, int isLineCursor);
 	void   AdjustCursorsForHdr();
 	int    CalcRowsHeight(long topItem, long bottom = 0);
-	void   DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, int fmt);
+	void   DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt);
 	int    FASTCALL CellRight(const BroColumn & rC) const;
 	int    FASTCALL GetRowHeightMult(long row) const;
 	int    FASTCALL GetRowTop(long row) const;

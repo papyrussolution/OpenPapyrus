@@ -309,17 +309,17 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 	TDialog * dlg = 0;
 	if(pAmtTypes == 0) {
 		// @v10.3.0 Теперь используется (с приоритетом) интерфейсная настройка для разрешения/запрета множественной печати
-		int    allow_mult_print = 0;
-		UserInterfaceSettings uis;
-		const int uis_r = uis.Restore();
+		bool   allow_mult_print = false;
+		const  UserInterfaceSettings uis = APPL->GetUiSettings();
+		// @v11.2.6 const int uis_r = uis.Restore();
 		if((uis.Flags & uis.fEnalbeBillMultiPrint) && !(uis.Flags & uis.fDisableBillMultiPrint))
-			allow_mult_print = 1;
+			allow_mult_print = true;
 		else if(!(uis.Flags & uis.fEnalbeBillMultiPrint) && (uis.Flags & uis.fDisableBillMultiPrint))
-			allow_mult_print = 0;
+			allow_mult_print = false;
 		else {
 			PPBillConfig cfg;
 			if(PPObjBill::ReadConfig(&cfg) > 0 && cfg.Flags & BCF_ALLOWMULTIPRINT)
-				allow_mult_print = 1;
+				allow_mult_print = true;
 		}
 		res_id = allow_mult_print ? DLG_PRNGBILLM : DLG_PRNGBILL;
 	}

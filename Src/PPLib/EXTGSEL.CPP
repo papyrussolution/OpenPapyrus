@@ -258,11 +258,12 @@ int TIDlgInitData::GetTiSign() const
 /*static*/long ExtGoodsSelDialog::GetDefaultFlags()
 {
 	long   f = 0;
-	UserInterfaceSettings uiset;
-	uiset.Restore();
-	if(uiset.Flags & UserInterfaceSettings::fExtGoodsSelHideGenerics)
+	// @v11.2.6 UserInterfaceSettings uiset;
+	// @v11.2.6 uiset.Restore();
+	const long uif = APPL->GetUiSettings().Flags;
+	if(uif & UserInterfaceSettings::fExtGoodsSelHideGenerics)
 		f |= fHideGeneric;
-	if(uiset.Flags & UserInterfaceSettings::fExtGoodsSelMainName)
+	if(uif & UserInterfaceSettings::fExtGoodsSelMainName)
 		f |= ExtGoodsSelDialog::fByName;
 	return f;
 }

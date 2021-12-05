@@ -5,11 +5,11 @@
 #include <pp.h>
 #pragma hdrstop
 
-#define USE_NEW_CALENDAR 1 // @v11.2.4
+//#define USE_NEW_CALENDAR 1 // @v11.2.4
 
 const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }
 
-#if (USE_NEW_CALENDAR == 0) // @v11.2.4 {
+//#if (USE_NEW_CALENDAR == 0) // @v11.2.4 {
 
 static LRESULT CALLBACK CalendarWndProc(HWND, UINT, WPARAM, LPARAM);
 static INT_PTR CALLBACK PeriodWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -1414,24 +1414,6 @@ void TCalendar::SendToEditBox(int y1, int y2)
 		s.CatCharN('.', 2).Cat(y2);
 	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s);
 }
-
-int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
-{
-	int    ok = -1;
-	LDATE  dt = DEREFPTROR(pDate, getcurdate_());
-	TDateCalendar * p_pc = new TDateCalendar(0, 0);
-	if(p_pc) {
-		p_pc->setDTS(dt);
-		p_pc->ShowCalendar(static_cast<HWND>(hParentWnd));
-		if(p_pc->GetRetCmd() == cmOK) {
-			p_pc->getDTS(&dt);
-			ok = 1;
-		}
-		delete p_pc;
-	}
-	ASSIGN_PTR(pDate, dt);
-	return ok;
-}
 //
 // TPeriodCalendar
 //
@@ -1671,10 +1653,10 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 		wc.style = CS_DBLCLKS;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 		wc.hbrBackground = static_cast<HBRUSH>(::GetStockObject(LTGRAY_BRUSH));
-		::RegisterClassEx(&wc); // @unicodeproblem
+		::RegisterClassEx(&wc);
 	}
-	c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP,
-		8, 85, 188, 200, parent_hWnd, NULL, TProgram::GetInst(), this); // @unicodeproblem
+	c_hWnd = ::CreateWindowEx(0, p_classname, NULL, WS_VISIBLE|WS_CHILD|WS_TABSTOP|WS_GROUP,
+		8, 85, 188, 200, parent_hWnd, NULL, TProgram::GetInst(), this);
 	Top  = 80;
 	Left = 7;
 	::ShowWindow(c_hWnd, SW_SHOWNORMAL);
@@ -1682,17 +1664,36 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 	TimerFreq = 50;
 	SetTimer(c_hWnd, 1, 50, 0);
 }
-#else
+//#else
+//#endif // } @v11.2.4 (USE_NEW_CALENDAR == 0) 
+
 int ExecDateCalendar(void * hParentWnd, LDATE * pDate)
 {
-	SCalendarPicker::DataBlock data;
-	RVALUEPTR(data.Dtm.d, pDate);
-	int ok = SCalendarPicker::Exec(SCalendarPicker::kDate, data);
-	if(ok > 0)
-		ASSIGN_PTR(pDate, data.Dtm.d);
+	const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
+	int    ok = -1;
+	if(use_new_calendar) {
+		SCalendarPicker::DataBlock data;
+		RVALUEPTR(data.Dtm.d, pDate);
+		ok = SCalendarPicker::Exec(SCalendarPicker::kDate, data);
+		if(ok > 0)
+			ASSIGN_PTR(pDate, data.Dtm.d);
+	}
+	else {
+		LDATE  dt = DEREFPTROR(pDate, getcurdate_());
+		TDateCalendar * p_pc = new TDateCalendar(0, 0);
+		if(p_pc) {
+			p_pc->setDTS(dt);
+			p_pc->ShowCalendar(static_cast<HWND>(hParentWnd));
+			if(p_pc->GetRetCmd() == cmOK) {
+				p_pc->getDTS(&dt);
+				ok = 1;
+			}
+			delete p_pc;
+		}
+		ASSIGN_PTR(pDate, dt);
+	}
 	return ok;
 }
-#endif // } @v11.2.4 (USE_NEW_CALENDAR == 0) 
 //
 //
 //
@@ -1718,27 +1719,30 @@ static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, 
 					delete p_cbwe;
 					return 0;
 				case WM_LBUTTONUP:
-					if(p_cbwe->CalType) {
-#if USE_NEW_CALENDAR
-						SCalendarPicker::Exec(SCalendarPicker::kPeriod, p_cbwe->Dlg, p_cbwe->EditID);
-#else
-						TPeriodCalendar * pc = new TPeriodCalendar(p_cbwe->Dlg, p_cbwe->EditID);
-						if(pc) {
-							pc->Show();
-							delete pc;
+					{
+						const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
+						if(p_cbwe->CalType) {
+							if(use_new_calendar)
+								SCalendarPicker::Exec(SCalendarPicker::kPeriod, p_cbwe->Dlg, p_cbwe->EditID);
+							else {
+								TPeriodCalendar * pc = new TPeriodCalendar(p_cbwe->Dlg, p_cbwe->EditID);
+								if(pc) {
+									pc->Show();
+									delete pc;
+								}
+							}
 						}
-#endif
-					}
-					else {
-#if USE_NEW_CALENDAR
-						SCalendarPicker::Exec(SCalendarPicker::kDate, p_cbwe->Dlg, p_cbwe->EditID);
-#else
-						TDateCalendar * pc = new TDateCalendar(p_cbwe->Dlg, p_cbwe->EditID);
-						if(pc) {
-							pc->ShowCalendar(0);
-							delete pc;
+						else {
+							if(use_new_calendar)
+								SCalendarPicker::Exec(SCalendarPicker::kDate, p_cbwe->Dlg, p_cbwe->EditID);
+							else {
+								TDateCalendar * pc = new TDateCalendar(p_cbwe->Dlg, p_cbwe->EditID);
+								if(pc) {
+									pc->ShowCalendar(0);
+									delete pc;
+								}
+							}
 						}
-#endif
 					}
 					break;
 			}

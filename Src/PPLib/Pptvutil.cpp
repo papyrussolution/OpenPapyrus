@@ -8,7 +8,7 @@
 #include <htmlhelp.h>
 #pragma comment (lib, "htmlhelp.lib")
 
-#define USE_NEW_TIMEPICKER 1 // @v11.2.4
+//#define USE_NEW_TIMEPICKER 1 // @v11.2.4
 
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * ValidView(TView * pView) { return APPL->validView(pView); }
@@ -63,8 +63,9 @@ int InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Param * 
 		pParam->Z();
 		pParam->RegSaveParam = pSymbol;
 		{
-			UserInterfaceSettings ui_cfg;
-			if(ui_cfg.Restore() > 0 && ui_cfg.Flags & UserInterfaceSettings::fTcbInterlaced)
+			// @v11.2.6 UserInterfaceSettings ui_cfg;
+			// @v11.2.6 if(ui_cfg.Restore() > 0 && ui_cfg.Flags & UserInterfaceSettings::fTcbInterlaced)
+			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fTcbInterlaced) // @v11.2.6
 				pParam->Flags |= pParam->fInterlaced;
 		}
 		pParam->Flags |= pParam->fUseToolTip;
@@ -2943,7 +2944,8 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics); // @v10.7.7
 		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService); // @v10.7.7 11-->12
-		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled); // 10.7.9
+		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled); // @v10.7.9
+		AddClusterAssoc(CTL_UICFG_FLAGS, 14, UserInterfaceSettings::fDateTimePickerBefore1124); // @v11.2.6
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
 		// @v10.3.0 {
@@ -3037,12 +3039,13 @@ int UISettingsDialog()
 	UICfgDialog	* p_dlg = new UICfgDialog();
 	if(CheckDialogPtrErr(&p_dlg)) {
 		uint   v = 0;
-		UserInterfaceSettings uiset;
-		uiset.Restore();
+		UserInterfaceSettings uiset = APPL->GetUiSettings(); // @v11.2.6 
+		// @v11.2.6 uiset.Restore();
 		p_dlg->setDTS(&uiset);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&uiset);
-			uiset.Save();
+			// @v11.2.6 uiset.Save();
+			APPL->UpdateUiSettings(uiset); // @v11.2.6 
 			r = 1;
 		}
 		else
@@ -3104,11 +3107,13 @@ int EmbedDialog::Embed(TDialog * pDlg)
 //
 SpecialInputCtrlGroup::SpecialInputCtrlGroup(uint ctlId, uint rdDelay) : CtrlGroup(), RdTimer(rdDelay), CtlId(ctlId), RdDelay(rdDelay), P_Ad(0)
 {
-	UserInterfaceSettings uicfg;
-	if(uicfg.Restore() > 0 && uicfg.SpecialInputDeviceSymb.NotEmptyS()) {
+	// @v11.2.6 UserInterfaceSettings uicfg;
+	SString spc_input_device_symb = APPL->GetUiSettings().SpecialInputDeviceSymb;
+	// @v11.2.6 if(uicfg.Restore() > 0 && uicfg.SpecialInputDeviceSymb.NotEmptyS()) {
+	if(spc_input_device_symb.NotEmptyS()) {
 		PPObjGenericDevice gd_obj;
 		PPID   dvc_id = 0;
-		if(gd_obj.SearchBySymb(uicfg.SpecialInputDeviceSymb, &dvc_id) > 0) {
+		if(gd_obj.SearchBySymb(spc_input_device_symb, &dvc_id) > 0) {
 			SString temp_buf, init_buf;
 			PPGenericDevicePacket gd_pack;
 			THROW(gd_obj.GetPacket(dvc_id, &gd_pack) > 0);
@@ -5647,7 +5652,7 @@ int EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 	return ok;
 }
 
-#if (USE_NEW_TIMEPICKER==0) // @v11.2.4 {
+//#if (USE_NEW_TIMEPICKER==0) // @v11.2.4 {
 //
 // TimePickerDialog
 //
@@ -6052,7 +6057,7 @@ void TimePickerDialog::Implement_Draw()
 	}
 	::EndPaint(H(), &ps);
 }
-#endif // } @v11.2.4 (USE_NEW_TIMEPICKER==0)
+//#endif // } @v11.2.4 (USE_NEW_TIMEPICKER==0)
 
 void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 {
@@ -6073,20 +6078,21 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 					return 0;
 				case WM_LBUTTONUP:
 					{
-#if USE_NEW_TIMEPICKER
-						SCalendarPicker::Exec(SCalendarPicker::kTime, p_cbwe->Dlg, p_cbwe->EditID);
-#else
-						LTIME  tm = p_cbwe->Dlg->getCtrlTime(p_cbwe->EditID);
-						TimePickerDialog * dlg = new TimePickerDialog;
-						if(CheckDialogPtrErr(&dlg)) {
-							dlg->setDTS(&tm);
-							if(ExecView(dlg) == cmOK) {
-								dlg->getDTS(&tm);
-								p_cbwe->Dlg->setCtrlTime(p_cbwe->EditID, tm);
+						const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);						
+						if(use_new_calendar) 
+							SCalendarPicker::Exec(SCalendarPicker::kTime, p_cbwe->Dlg, p_cbwe->EditID);
+						else {
+							LTIME  tm = p_cbwe->Dlg->getCtrlTime(p_cbwe->EditID);
+							TimePickerDialog * dlg = new TimePickerDialog;
+							if(CheckDialogPtrErr(&dlg)) {
+								dlg->setDTS(&tm);
+								if(ExecView(dlg) == cmOK) {
+									dlg->getDTS(&tm);
+									p_cbwe->Dlg->setCtrlTime(p_cbwe->EditID, tm);
+								}
 							}
+							delete dlg;
 						}
-						delete dlg;
-#endif
 					}
 					break;
 			}

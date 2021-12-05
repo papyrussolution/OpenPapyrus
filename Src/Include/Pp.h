@@ -20839,7 +20839,7 @@ public:
 	int    SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SyncPrintIncasso();
 	int    SyncAllowPrint();
-	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult);
+	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	int    SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags);
 	int    SyncLockCashKeyb();
 	int    SyncUnlockCashKeyb();
@@ -21521,6 +21521,7 @@ struct SlipLineParam {
 	int    Font;          // для подкладного документа - номер шрифта подкладного документа; для ленты: 1 - обычный шрифт, >1 - широкий шрифт
 	int    Kind;          // lkXXX
 	int    Flags;         // fXXX
+	uint   UomFragm;      // @v11.2.6 Фрагментация единицы измерения товара
 	double Qtty;          // для regtoFiscal
 	double Price;         // для regtoFiscal
 	double VatRate;       // для regtoFiscal
@@ -21625,7 +21626,7 @@ public:
 	//  >0 - функция выполнена (не обязательно успешно - это определяется результатом rResult)
 	//   0 - ошибка при выполнении запроса
 	//
-	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, CCheckPacket::PreprocessChZnCodeResult & rResult)
+	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
 	{
 		return -1;
 	}
@@ -46232,13 +46233,27 @@ public:
 	//
 	// Descr: Идентификаторы базовых типов команд
 	//
+	// Префиксы sqbcRsrv имеют команды, определяющие специализированный формат данных для того, чтобы было
+	// проще реализовать 2-фазное взаимодействие между клиентом и сервисом. Фактически, это hardcoding-варианты
+	// для ускорения начального этапа разработки и они несколько выпадают из общего концептуального замысла.
+	//
 	enum { // @persistent
-		sqbcEmpty       = 0,
-		sqbcRegister    = 1,
-		sqbcLogin       = 2,
-		sqbcPersonEvent = 3,
-		sqbcReport      = 4,
-		sqbcSearch      = 5, // Поисковый запрос
+		sqbcEmpty            =  0,
+		sqbcRegister         =  1,
+		sqbcLogin            =  2,
+		sqbcPersonEvent      =  3,
+		sqbcReport           =  4,
+		sqbcSearch           =  5, // Поисковый запрос
+		sqbcObjTransmit      = 21, // @special Передача данных между разделами papyrus. Кроме этой, мы резервируем
+		// еще 9 (до 30 включетельно) номеров для этой технологии, поскольку там достаточно разнообразных вариантов.
+		// last obj transmit command = 30
+		sqbcPosProtocolHost  = 31, // @special Данные в формате papyrus-pos-protocol со стороны хоста
+		sqbcPosProtocolFront = 32, // @special Данные в формате papyrus-pos-protocol со стороны кассового узла
+		// Резервируем еще 8 (до 40 включительно) номеров для этого протокола.
+		// last pos protocol command = 40
+		sqbcRsrvOrderPrereq  = 101, // Модуль данных, передаваемых сервисом клиенту чтобы тот мог сформировать 
+			// заказ. Дополнительные параметры определяют особенности модуля: заказ от конечного клиента, 
+			// агентский заказ, заказ на месте и т.д.
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена

@@ -1546,7 +1546,7 @@ static int cookie_output(struct Curl_easy * data,
 		fclose(out);
 		out = NULL;
 		if(Curl_rename(tempstore, filename)) {
-			unlink(tempstore);
+			_unlink(tempstore);
 			goto error;
 		}
 	}

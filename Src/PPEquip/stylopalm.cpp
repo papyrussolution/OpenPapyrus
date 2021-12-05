@@ -1,5 +1,5 @@
 // STYLOPALM.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2018, 2019, 2021
 //
 #pragma hdrstop
 #include <stylopalm.h>
@@ -523,7 +523,7 @@ int SpOrdHeaderStruc::ToBuf(void * pBuf, size_t * pBufSize)
 			ok = -1;
 		}
 		else {
-			char * p_buf = (char *)pBuf;
+			char * p_buf = static_cast<char *>(pBuf);
 			size_t bytes = 0;
 			memcpy(p_buf,                                 &ID,         sizeof(ID));
 			memcpy(p_buf + (bytes += sizeof(ID)),         &Date,       sizeof(Date));
