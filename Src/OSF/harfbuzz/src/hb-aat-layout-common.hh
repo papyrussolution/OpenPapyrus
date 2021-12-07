@@ -62,7 +62,7 @@ private:
 protected:
 		HBUINT16 format; /* Format identifier--format = 0 */
 		UnsizedArrayOf<T>
-		arrayZ;         /* Array of lookup values, indexed by glyph index. */
+		arrayZ; /* Array of lookup values, indexed by glyph index. */
 public:
 		DEFINE_SIZE_UNBOUNDED(2);
 	};
@@ -90,7 +90,7 @@ public:
 
 		HBGlyphID last; /* Last GlyphID in this segment */
 		HBGlyphID first; /* First GlyphID in this segment */
-		T value;        /* The lookup value (only one) */
+		T value; /* The lookup value (only one) */
 public:
 		DEFINE_SIZE_STATIC(4 + T::static_size);
 	};
@@ -121,7 +121,7 @@ private:
 protected:
 		HBUINT16 format; /* Format identifier--format = 2 */
 		VarSizedBinSearchArrayOf<LookupSegmentSingle<T>>
-		segments;       /* The actual segments. These must already be sorted,
+		segments; /* The actual segments. These must already be sorted,
 		 * according to the first word in each one (the last
 		 * glyph in each segment). */
 public:
@@ -154,7 +154,7 @@ public:
 		HBGlyphID last; /* Last GlyphID in this segment */
 		HBGlyphID first; /* First GlyphID in this segment */
 		NNOffsetTo<UnsizedArrayOf<T>>
-		valuesZ;        /* A 16-bit offset from the start of the table to the data. */
+		valuesZ; /* A 16-bit offset from the start of the table to the data. */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -180,7 +180,7 @@ private:
 protected:
 		HBUINT16 format; /* Format identifier--format = 4 */
 		VarSizedBinSearchArrayOf<LookupSegmentArray<T>>
-		segments;       /* The actual segments. These must already be sorted,
+		segments; /* The actual segments. These must already be sorted,
 		 * according to the first word in each one (the last
 		 * glyph in each segment). */
 public:
@@ -201,7 +201,7 @@ public:
 			return_trace(c->check_struct(this) && value.sanitize(c, base));
 		}
 		HBGlyphID glyph; /* Last GlyphID */
-		T value;        /* The lookup value (only one) */
+		T value; /* The lookup value (only one) */
 public:
 		DEFINE_SIZE_STATIC(2 + T::static_size);
 	};
@@ -226,7 +226,7 @@ private:
 protected:
 		HBUINT16 format; /* Format identifier--format = 6 */
 		VarSizedBinSearchArrayOf<LookupSingle<T>>
-		entries;        /* The actual entries, sorted by glyph index. */
+		entries; /* The actual entries, sorted by glyph index. */
 public:
 		DEFINE_SIZE_ARRAY(8, entries);
 	};
@@ -260,7 +260,7 @@ protected:
 		HBUINT16 glyphCount; /* Total number of glyphs (equivalent to the last
 		 * glyph minus the value of firstGlyph plus 1). */
 		UnsizedArrayOf<T>
-		valueArrayZ;    /* The lookup values (indexed by the glyph index
+		valueArrayZ; /* The lookup values (indexed by the glyph index
 		 * minus the value of firstGlyph). */
 public:
 		DEFINE_SIZE_ARRAY(6, valueArrayZ);
@@ -301,7 +301,7 @@ protected:
 		HBUINT16 glyphCount; /* Total number of glyphs (equivalent to the last
 		 * glyph minus the value of firstGlyph plus 1). */
 		UnsizedArrayOf<HBUINT8>
-		valueArrayZ;    /* The lookup values (indexed by the glyph index
+		valueArrayZ; /* The lookup values (indexed by the glyph index
 		 * minus the value of firstGlyph). */
 public:
 		DEFINE_SIZE_ARRAY(8, valueArrayZ);
@@ -426,7 +426,7 @@ public:
 		 * to the new state. Really?!?! Or just state
 		 * number?  The latter in morx for sure. */
 		HBUINT16 flags; /* Table specific. */
-		T data;         /* Optional offsets to per-glyph tables. */
+		T data; /* Optional offsets to per-glyph tables. */
 public:
 		DEFINE_SIZE_STATIC(4 + T::static_size);
 	};
@@ -567,9 +567,9 @@ public:
 		}
 protected:
 		HBUINT nClasses; /* Number of classes, which is the number of indices in a single line in the state array. */
-		NNOffsetTo<ClassType, HBUINT> classTable;     /* Offset to the class table. */
+		NNOffsetTo<ClassType, HBUINT> classTable; /* Offset to the class table. */
 		NNOffsetTo<UnsizedArrayOf<HBUSHORT>, HBUINT> stateArrayTable; /* Offset to the state array. */
-		NNOffsetTo<UnsizedArrayOf<Entry<Extra>>, HBUINT> entryTable;     /* Offset to the entry array. */
+		NNOffsetTo<UnsizedArrayOf<Entry<Extra>>, HBUINT> entryTable; /* Offset to the entry array. */
 
 public:
 		DEFINE_SIZE_STATIC(4 * sizeof(HBUINT));
@@ -592,7 +592,7 @@ public:
 			return_trace(c->check_struct(this) && classArray.sanitize(c));
 		}
 protected:
-		HBGlyphID firstGlyph;   /* First glyph index included in the trimmed array. */
+		HBGlyphID firstGlyph; /* First glyph index included in the trimmed array. */
 		ArrayOf<HBUCHAR>      classArray; /* The class codes (indexed by glyph index minus
 		   * firstGlyph). */
 public:

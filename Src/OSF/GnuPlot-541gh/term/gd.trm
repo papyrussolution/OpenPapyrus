@@ -204,7 +204,7 @@ static void PNG_init_brush(int);
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
-static bool PNG_initialized = FALSE;    /* Set when terminal first initialized */
+static bool PNG_initialized = FALSE; /* Set when terminal first initialized */
 
 static struct {
 	gdImagePtr image;
@@ -212,8 +212,8 @@ static struct {
 	uint x, y;
 	int height;
 	int charh, charw;
-	int color;         /* Magic index returned by libgd */
-	int rgb;           /* Our guess at the corresponding rgb */
+	int color; /* Magic index returned by libgd */
+	int rgb; /* Our guess at the corresponding rgb */
 	int n_colors;
 	int color_table[PNG_MAX_COLORS];
 	int rgb_table[PNG_MAX_COLORS];
@@ -231,12 +231,12 @@ static struct {
 	double default_ttfsize;
 	double fontscale;
 	bool TrueColor;
-	double dashfraction;    /* Where in a dot-dash pattern we left off */
+	double dashfraction; /* Where in a dot-dash pattern we left off */
 	/* Variables for animated gif support: */
-	bool animate;           /* Only gif supports animation */
-	int loop_count;         /* Number of times to repeat sequence */
-	int frame_count;        /* Number of frames in animation */
-	int frame_delay;        /* Time between frames in .01 seconds */
+	bool animate; /* Only gif supports animation */
+	int loop_count; /* Number of times to repeat sequence */
+	int frame_count; /* Number of frames in animation */
+	int frame_delay; /* Time between frames in .01 seconds */
 	bool frame_optimization;
 	gdImagePtr previous_image; /* Needed to encode animation as a series of deltas */
 } png_state;
@@ -701,7 +701,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	png_state.use_builtin = TRUE;
 #else
 #define UNSET_TTF_FONT \
-	;     /* nothing to do */
+	; /* nothing to do */
 #endif
 
 			case PNG_TINY:
@@ -1665,8 +1665,8 @@ TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 
 TERM_PUBLIC int PNG_text_angle(int ang)
 {
-	while(ang < -180) ang += 360;   /* Should not be needed, but reported to */
-	while(ang > 180) ang -= 360;    /* avoid a bug in some libgd versions    */
+	while(ang < -180) ang += 360; /* Should not be needed, but reported to */
+	while(ang > 180) ang -= 360; /* avoid a bug in some libgd versions    */
 	png_state.angle = ang;
 	return TRUE;
 }

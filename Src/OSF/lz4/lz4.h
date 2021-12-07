@@ -101,7 +101,7 @@ extern "C" {
 #define LZ4_VERSION_STRING LZ4_EXPAND_AND_QUOTE(LZ4_LIB_VERSION)
 
 LZ4LIB_API int LZ4_versionNumber (void); /**< library version number; useful to check dll version */
-LZ4LIB_API const char* LZ4_versionString (void);   /**< library version string; useful to check dll version */
+LZ4LIB_API const char* LZ4_versionString (void); /**< library version string; useful to check dll version */
 // 
 // Tuning parameter
 // 
@@ -242,7 +242,7 @@ LZ4LIB_API int LZ4_decompress_safe_partial (const char* src, char* dst, int srcS
 // 
 // Streaming Compression Functions
 // 
-typedef union LZ4_stream_u LZ4_stream_t;  /* incomplete type (defined later) */
+typedef union LZ4_stream_u LZ4_stream_t; /* incomplete type (defined later) */
 
 LZ4LIB_API LZ4_stream_t* LZ4_createStream(void);
 LZ4LIB_API int           LZ4_freeStream (LZ4_stream_t* streamPtr);
@@ -300,7 +300,7 @@ LZ4LIB_API int LZ4_saveDict (LZ4_stream_t* streamPtr, char* safeBuffer, int maxD
 *  Streaming Decompression Functions
 *  Bufferless synchronous API
 ************************************************/
-typedef union LZ4_streamDecode_u LZ4_streamDecode_t;   /* tracking context */
+typedef union LZ4_streamDecode_u LZ4_streamDecode_t; /* tracking context */
 
 /*! LZ4_createStreamDecode() and LZ4_freeStreamDecode() :
  *  creation / destruction of streaming decompression tracking context.
@@ -538,7 +538,7 @@ typedef struct {
 union LZ4_stream_u {
     unsigned long long table[LZ4_STREAMSIZE_U64];
     LZ4_stream_t_internal internal_donotuse;
-};  /* previously typedef'd to LZ4_stream_t */
+}; /* previously typedef'd to LZ4_stream_t */
 
 
 /*! LZ4_streamDecode_t :
@@ -553,7 +553,7 @@ union LZ4_stream_u {
 union LZ4_streamDecode_u {
     unsigned long long table[LZ4_STREAMDECODESIZE_U64];
     LZ4_streamDecode_t_internal internal_donotuse;
-};   /* previously typedef'd to LZ4_streamDecode_t */
+}; /* previously typedef'd to LZ4_streamDecode_t */
 // 
 // Obsolete Functions
 // 

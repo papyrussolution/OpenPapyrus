@@ -334,7 +334,7 @@ typedef struct _heappg {
 	db_indx_t hf_offset;	/* 22-23: High free byte page offset. */
 	uint8 unused2[1];	/*    24: Unused. */
 	uint8 type;		/*    25: Page type. */
-	uint8 unused3[2];    /* 26-27: Never used, just checksum alignment. */
+	uint8 unused3[2]; /* 26-27: Never used, just checksum alignment. */
 	uint8  chksum[DB_MAC_KEY]; /* 28-47: Checksum */
 	uint8  iv[DB_IV_BYTES]; /* 48-63: IV */
 } HEAPPG;

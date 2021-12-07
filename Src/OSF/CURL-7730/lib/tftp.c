@@ -1364,7 +1364,7 @@ static CURLcode tftp_setup_connection(struct connectdata * conn)
 		type = strstr(conn->host.rawalloc, ";mode=");
 	if(type) {
 		char command;
-		*type = 0;       /* it was in the middle of the hostname */
+		*type = 0; /* it was in the middle of the hostname */
 		command = Curl_raw_toupper(type[6]);
 
 		switch(command) {

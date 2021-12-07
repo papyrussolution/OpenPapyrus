@@ -104,7 +104,7 @@ xmlChar * xmlCharStrdup(const char * cur)
 	if(!cur) 
 		return 0;
 	while(*p != '\0') 
-		p++;  /* non input consuming */
+		p++; /* non input consuming */
 	return xmlCharStrndup(cur, p - cur);
 }
 /**
@@ -504,7 +504,7 @@ xmlChar * FASTCALL xmlStrcat(xmlChar * cur, const xmlChar * add)
 	else {
 		const xmlChar * p = add;
 		while(*p != 0) 
-			p++;  /* non input consuming */
+			p++; /* non input consuming */
 		return xmlStrncat(cur, add, p - add);
 	}
 }

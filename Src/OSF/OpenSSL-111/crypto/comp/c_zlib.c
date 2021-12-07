@@ -93,7 +93,7 @@ static deflate_ft p_deflate = NULL;
 static deflateInit__ft p_deflateInit_ = NULL;
 static zError__ft p_zError = NULL;
 
-static int zlib_loaded = 0;     /* only attempt to init func pts once */
+static int zlib_loaded = 0; /* only attempt to init func pts once */
 static DSO * zlib_dso = NULL;
 
 #define compress                p_compress
@@ -255,16 +255,16 @@ void comp_zlib_cleanup_int(void)
 /* Zlib based compression/decompression filter BIO */
 
 typedef struct {
-	uchar * ibuf;   /* Input buffer */
-	int ibufsize;           /* Buffer size */
-	z_stream zin;           /* Input decompress context */
-	uchar * obuf;   /* Output buffer */
-	int obufsize;           /* Output buffer size */
-	uchar * optr;   /* Position in output buffer */
-	int ocount;             /* Amount of data in output buffer */
-	int odone;              /* deflate EOF */
-	int comp_level;         /* Compression level to use */
-	z_stream zout;          /* Output compression context */
+	uchar * ibuf; /* Input buffer */
+	int ibufsize; /* Buffer size */
+	z_stream zin; /* Input decompress context */
+	uchar * obuf; /* Output buffer */
+	int obufsize; /* Output buffer size */
+	uchar * optr; /* Position in output buffer */
+	int ocount; /* Amount of data in output buffer */
+	int odone; /* deflate EOF */
+	int comp_level; /* Compression level to use */
+	z_stream zout; /* Output compression context */
 } BIO_ZLIB_CTX;
 
 #define ZLIB_DEFAULT_BUFSIZE 1024

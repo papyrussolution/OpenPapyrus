@@ -66,19 +66,19 @@
 #define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) SAlloc::F(r);
 
 struct xmlStreamStep {
-	int flags;              /* properties of that step */
-	const xmlChar * name;   /* first string value if NULL accept all */
-	const xmlChar * ns;     /* second string value */
-	int nodeType;           /* type of node */
+	int flags; /* properties of that step */
+	const xmlChar * name; /* first string value if NULL accept all */
+	const xmlChar * ns; /* second string value */
+	int nodeType; /* type of node */
 };
 
 //typedef struct _xmlStreamStep xmlStreamStep;
 //typedef xmlStreamStep * xmlStreamStepPtr;
 
 struct xmlStreamComp {
-	xmlDict * dict;         /* the dictionary if any */
-	int nbStep;             /* number of steps in the automata */
-	int maxStep;            /* allocated number of steps */
+	xmlDict * dict; /* the dictionary if any */
+	int nbStep; /* number of steps in the automata */
+	int maxStep; /* allocated number of steps */
 	xmlStreamStep * steps; /* the array of steps */
 	int flags;
 };
@@ -88,12 +88,12 @@ typedef xmlStreamComp * xmlStreamCompPtr;
 
 struct _xmlStreamCtxt {
 	struct _xmlStreamCtxt * next; /* link to next sub pattern if | */
-	xmlStreamCompPtr comp;  /* the compiled stream */
-	int nbState;            /* number of states in the automata */
-	int maxState;           /* allocated number of states */
-	int level;              /* how deep are we ? */
-	int * states;           /* the array of step indexes */
-	int flags;              /* validation options */
+	xmlStreamCompPtr comp; /* the compiled stream */
+	int nbState; /* number of states in the automata */
+	int maxState; /* allocated number of states */
+	int level; /* how deep are we ? */
+	int * states; /* the array of step indexes */
+	int flags; /* validation options */
 	int blockLevel;
 };
 /*
@@ -141,26 +141,26 @@ struct xmlStepOp {
 #define PAT_FROM_CUR    (1<<9)
 
 struct xmlPattern {
-	void * data;    /* the associated template */
-	xmlDict * dict;        /* the optional dictionary */
+	void * data; /* the associated template */
+	xmlDict * dict; /* the optional dictionary */
 	xmlPattern * next; /* next pattern if | is used */
 	const xmlChar * pattern; /* the pattern */
-	int flags;              /* flags */
+	int flags; /* flags */
 	int nbStep;
 	int maxStep;
-	xmlStepOp * steps;    /* ops for computation */
+	xmlStepOp * steps; /* ops for computation */
 	xmlStreamComp * stream; /* the streaming data if any */
 };
 
 struct xmlPatParserContext {
-	const xmlChar * cur;            /* the current char being parsed */
-	const xmlChar * base;           /* the full expression */
-	int error;                      /* error code */
-	xmlDict * dict;                /* the dictionary if any */
-	xmlPattern * comp;             /* the result */
-	xmlNode * elem;                /* the current node if any */
-	const xmlChar ** namespaces;    /* the namespaces definitions */
-	int nb_namespaces;              /* the number of namespaces */
+	const xmlChar * cur; /* the current char being parsed */
+	const xmlChar * base; /* the full expression */
+	int error; /* error code */
+	xmlDict * dict; /* the dictionary if any */
+	xmlPattern * comp; /* the result */
+	xmlNode * elem; /* the current node if any */
+	const xmlChar ** namespaces; /* the namespaces definitions */
+	int nb_namespaces; /* the number of namespaces */
 };
 
 //typedef struct _xmlPatParserContext xmlPatParserContext;

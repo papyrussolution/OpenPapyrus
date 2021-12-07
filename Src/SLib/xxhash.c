@@ -74,7 +74,7 @@
 //#include <limits.h>   /* ULLONG_MAX */
 //#include <string.h>
 //static void * XXH_malloc(size_t s) { return malloc(s); }
-//static void  XXH_free(void * p)  { free(p); }
+//static void  XXH_free(void * p) { free(p); }
 //static void * XXH_memcpy(void * dest, const void * src, size_t size) { return memcpy(dest, src, size); }
 
 #define XXH_STATIC_LINKING_ONLY
@@ -115,7 +115,7 @@
 #else
 	#define XXH_ASSERT_Removed(c)   ((void)0)
 #endif
-//#define XXH_STATIC_ASSERT_Removed(c)  { enum { XXH_sa = 1/(int)(!!(c)) }; } // note : use after variable declarations 
+//#define XXH_STATIC_ASSERT_Removed(c) { enum { XXH_sa = 1/(int)(!!(c)) }; } // note : use after variable declarations 
 // 
 // Basic Types
 // 
@@ -219,11 +219,11 @@ XXH_PUBLIC_API unsigned XXH_versionNumber(void) { return XXH_VERSION_NUMBER; }
 // 
 // 32-bit hash functions
 // 
-static const uint32 PRIME32_1 = 0x9E3779B1U;   /* 0b10011110001101110111100110110001 */
-static const uint32 PRIME32_2 = 0x85EBCA77U;   /* 0b10000101111010111100101001110111 */
-static const uint32 PRIME32_3 = 0xC2B2AE3DU;   /* 0b11000010101100101010111000111101 */
-static const uint32 PRIME32_4 = 0x27D4EB2FU;   /* 0b00100111110101001110101100101111 */
-static const uint32 PRIME32_5 = 0x165667B1U;   /* 0b00010110010101100110011110110001 */
+static const uint32 PRIME32_1 = 0x9E3779B1U; /* 0b10011110001101110111100110110001 */
+static const uint32 PRIME32_2 = 0x85EBCA77U; /* 0b10000101111010111100101001110111 */
+static const uint32 PRIME32_3 = 0xC2B2AE3DU; /* 0b11000010101100101010111000111101 */
+static const uint32 PRIME32_4 = 0x27D4EB2FU; /* 0b00100111110101001110101100101111 */
+static const uint32 PRIME32_5 = 0x165667B1U; /* 0b00010110010101100110011110110001 */
 
 static uint32 XXH32_round(uint32 acc, uint32 input)
 {

@@ -119,7 +119,7 @@ static cairo_surface_t * source(cairo_xlib_surface_t * dst, Picture picture, Pix
 	    &cairo_xlib_source_backend,
 	    NULL,              /* device */
 	    CAIRO_CONTENT_COLOR_ALPHA,
-	    FALSE);              /* is_vector */
+	    FALSE); /* is_vector */
 
 	/* The source exists only within an operation */
 	source->picture = picture;
@@ -611,7 +611,7 @@ static cairo_xlib_source_t * init_source(cairo_xlib_surface_t * dst,
 		    &cairo_xlib_source_backend,
 		    NULL,          /* device */
 		    CAIRO_CONTENT_COLOR_ALPHA,
-		    FALSE);          /* is_vector */
+		    FALSE); /* is_vector */
 
 		pa.subwindow_mode = IncludeInferiors;
 		source->picture = XRenderCreatePicture(dpy,

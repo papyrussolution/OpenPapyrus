@@ -1645,9 +1645,9 @@ PNG_INTERNAL_FUNCTION(void, png_build_gamma_table, (png_structrp png_ptr, int bi
 typedef struct png_control {
 	png_structp png_ptr;
 	png_infop info_ptr;
-	void * error_buf;        /* Always a jmp_buf at present. */
-	png_const_bytep memory;     /* Memory buffer. */
-	size_t size;            /* Size of the memory buffer. */
+	void * error_buf; /* Always a jmp_buf at present. */
+	png_const_bytep memory; /* Memory buffer. */
+	size_t size; /* Size of the memory buffer. */
 	unsigned int for_write       : 1; /* Otherwise it is a read structure */
 	unsigned int owned_file      : 1; /* We own the file in io_ptr */
 } png_control;

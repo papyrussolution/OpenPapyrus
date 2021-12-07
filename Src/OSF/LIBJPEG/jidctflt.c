@@ -161,7 +161,7 @@ GLOBAL(void) jpeg_idct_float(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[DCTSIZE*3] = tmp3 + tmp4;
 		wsptr[DCTSIZE*4] = tmp3 - tmp4;
 
-		inptr++;        /* advance pointers to next column */
+		inptr++; /* advance pointers to next column */
 		quantptr++;
 		wsptr++;
 	}

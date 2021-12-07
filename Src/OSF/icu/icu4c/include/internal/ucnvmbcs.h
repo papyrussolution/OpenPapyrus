@@ -379,14 +379,14 @@ typedef struct UConverterMBCSTable {
 
     /* fromUnicode */
     const uint16_t *fromUnicodeTable;
-    const uint16_t *mbcsIndex;              /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
+    const uint16_t *mbcsIndex; /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
     uint16_t sbcsIndex[SBCS_FAST_LIMIT>>6]; /* for fast conversion from low BMP to SBCS (utf8Friendly data) */
     const uint8_t *fromUnicodeBytes;
-    uint8_t *swapLFNLFromUnicodeBytes;      /* for swaplfnl */
+    uint8_t *swapLFNLFromUnicodeBytes; /* for swaplfnl */
     uint32_t fromUBytesLength;
     uint8_t outputType, unicodeMask;
-    bool utf8Friendly;                     /* for utf8Friendly data */
-    UChar maxFastUChar;                     /* for utf8Friendly data */
+    bool utf8Friendly; /* for utf8Friendly data */
+    UChar maxFastUChar; /* for utf8Friendly data */
 
     /* roundtrips */
     uint32_t asciiRoundtrips;
@@ -474,7 +474,7 @@ typedef struct {
     uint32_t options;
 
     /* new and optional in version 5; used if options&MBCS_OPT_NO_FROM_U */
-    uint32_t fullStage2Length;  /* number of 32-bit units */
+    uint32_t fullStage2Length; /* number of 32-bit units */
 } _MBCSHeader;
 
 #define UCNV_MBCS_HEADER_INITIALIZER { { 0 }, 0, 0, 0, 0, 0, 0, 0,  0,  0 }

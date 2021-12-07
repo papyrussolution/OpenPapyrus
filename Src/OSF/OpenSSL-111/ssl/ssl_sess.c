@@ -74,7 +74,7 @@ SSL_SESSION * SSL_SESSION_new(void)
 		return NULL;
 	}
 
-	ss->verify_result = 1;  /* avoid 0 (= X509_V_OK) just in case */
+	ss->verify_result = 1; /* avoid 0 (= X509_V_OK) just in case */
 	ss->references = 1;
 	ss->timeout = 60 * 5 + 4; /* 5 minute timeout by default */
 	ss->time = (ulong)time(NULL);
@@ -546,7 +546,7 @@ int ssl_get_prev_session(SSL * s, CLIENTHELLO_MSG * hello)
 		 * We have the session requested by the client, but we don't want to
 		 * use it in this context.
 		 */
-		goto err;       /* treat like cache miss */
+		goto err; /* treat like cache miss */
 	}
 
 	if((s->verify_mode & SSL_VERIFY_PEER) && s->sid_ctx_length == 0) {

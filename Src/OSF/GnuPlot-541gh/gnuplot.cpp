@@ -139,7 +139,7 @@ static char * P_DynarrayInitFailureMsg = "dynarray wasn't initialized";
 // 
 void init_dynarray(dynarray * pThis, size_t entry_size, long size, long increment)
 {
-	pThis->v = 0;            /* preset value, in case SAlloc::M fails */
+	pThis->v = 0; /* preset value, in case SAlloc::M fails */
 	if(size)
 		pThis->v = SAlloc::M(entry_size*size);
 	pThis->size = size;

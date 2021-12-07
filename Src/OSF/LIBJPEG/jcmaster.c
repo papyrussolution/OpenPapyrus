@@ -26,10 +26,10 @@ typedef enum {
 
 typedef struct {
 	struct jpeg_comp_master pub; /* public fields */
-	c_pass_type pass_type;  /* the type of the current pass */
-	int pass_number;        /* # of passes completed */
-	int total_passes;       /* total # of passes needed */
-	int scan_number;        /* current index in scan_info[] */
+	c_pass_type pass_type; /* the type of the current pass */
+	int pass_number; /* # of passes completed */
+	int total_passes; /* total # of passes needed */
+	int scan_number; /* current index in scan_info[] */
 } my_comp_master;
 
 typedef my_comp_master * my_master_ptr;
@@ -699,11 +699,11 @@ GLOBAL(void) jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only
 	}
 
 	if(cinfo->optimize_coding)
-		cinfo->arith_code = FALSE;  /* disable arithmetic coding */
+		cinfo->arith_code = FALSE; /* disable arithmetic coding */
 	else if(!cinfo->arith_code && (cinfo->progressive_mode || (cinfo->block_size > 1 && cinfo->block_size < DCTSIZE)))
 		/* TEMPORARY HACK ??? */
 		/* assume default tables no good for progressive or reduced AC mode */
-		cinfo->optimize_coding = TRUE;  /* force Huffman optimization */
+		cinfo->optimize_coding = TRUE; /* force Huffman optimization */
 
 	/* Initialize my private state */
 	if(transcode_only) {

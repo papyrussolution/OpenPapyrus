@@ -95,13 +95,13 @@ typedef union {
 
 typedef struct v8dwt_local {
 	opj_v8_t*   wavelet;
-	OPJ_INT32 dn;     /* number of elements in high pass band */
-	OPJ_INT32 sn;     /* number of elements in low pass band */
-	OPJ_INT32 cas;    /* 0 = start on even coord, 1 = start on odd coord */
-	OPJ_UINT32 win_l_x0;  /* start coord in low pass band */
-	OPJ_UINT32 win_l_x1;  /* end coord in low pass band */
-	OPJ_UINT32 win_h_x0;  /* start coord in high pass band */
-	OPJ_UINT32 win_h_x1;  /* end coord in high pass band */
+	OPJ_INT32 dn; /* number of elements in high pass band */
+	OPJ_INT32 sn; /* number of elements in low pass band */
+	OPJ_INT32 cas; /* 0 = start on even coord, 1 = start on odd coord */
+	OPJ_UINT32 win_l_x0; /* start coord in low pass band */
+	OPJ_UINT32 win_l_x1; /* end coord in low pass band */
+	OPJ_UINT32 win_h_x0; /* start coord in high pass band */
+	OPJ_UINT32 win_h_x1; /* end coord in high pass band */
 } opj_v8dwt_t;
 
 /* From table F.4 from the standard */
@@ -1759,8 +1759,8 @@ static INLINE OPJ_BOOL opj_dwt_encode_procedure(opj_thread_pool_t* tp,
 
 	while(i--) {
 		OPJ_UINT32 j;
-		OPJ_UINT32 rw;   /* width of the resolution level computed   */
-		OPJ_UINT32 rh;   /* height of the resolution level computed  */
+		OPJ_UINT32 rw; /* width of the resolution level computed   */
+		OPJ_UINT32 rh; /* height of the resolution level computed  */
 		OPJ_UINT32
 		    rw1; /* width of the resolution level once lower than computed one
 		                                                  */
@@ -2083,9 +2083,9 @@ static OPJ_BOOL opj_dwt_decode_tile(opj_thread_pool_t* tp,
 	opj_tcd_resolution_t* tr = tilec->resolutions;
 
 	OPJ_UINT32 rw = (OPJ_UINT32)(tr->x1 -
-	    tr->x0);                       /* width of the resolution level computed */
+	    tr->x0); /* width of the resolution level computed */
 	OPJ_UINT32 rh = (OPJ_UINT32)(tr->y1 -
-	    tr->y0);                       /* height of the resolution level computed */
+	    tr->y0); /* height of the resolution level computed */
 
 	OPJ_UINT32 w = (OPJ_UINT32)(tilec->resolutions[tilec->minimum_num_resolutions -
 	    1].x1 -
@@ -2633,9 +2633,9 @@ static OPJ_BOOL opj_dwt_decode_partial_tile(opj_tcd_tilecomp_t* tilec,
 	opj_tcd_resolution_t* tr_max = &(tilec->resolutions[numres - 1]);
 
 	OPJ_UINT32 rw = (OPJ_UINT32)(tr->x1 -
-	    tr->x0);                       /* width of the resolution level computed */
+	    tr->x0); /* width of the resolution level computed */
 	OPJ_UINT32 rh = (OPJ_UINT32)(tr->y1 -
-	    tr->y0);                       /* height of the resolution level computed */
+	    tr->y0); /* height of the resolution level computed */
 
 	OPJ_SIZE_T h_mem_size;
 
@@ -3350,9 +3350,9 @@ OPJ_BOOL opj_dwt_decode_tile_97(opj_thread_pool_t* tp,
 		++res;
 
 		rw = (OPJ_UINT32)(res->x1 -
-		    res->x0);         /* width of the resolution level computed */
+		    res->x0); /* width of the resolution level computed */
 		rh = (OPJ_UINT32)(res->y1 -
-		    res->y0);         /* height of the resolution level computed */
+		    res->y0); /* height of the resolution level computed */
 
 		h.dn = (OPJ_INT32)(rw - (OPJ_UINT32)h.sn);
 		h.cas = res->x0 % 2;

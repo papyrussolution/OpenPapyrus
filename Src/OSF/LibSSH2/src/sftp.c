@@ -1655,7 +1655,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char * buffer,
 	}
 
 	else
-		return 0;  /* nothing was acked, and no EAGAIN was received! */
+		return 0; /* nothing was acked, and no EAGAIN was received! */
 }
 
 /* libssh2_sftp_write
@@ -1882,7 +1882,7 @@ LIBSSH2_API void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE * handle, size_t offset)
 LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE * handle)
 {
 	if(!handle)
-		return 0;  /* no handle, no size */
+		return 0; /* no handle, no size */
 
 	/* NOTE: this may very well truncate the size if it is larger than what
 	   size_t can hold, so libssh2_sftp_tell64() is really the function you
@@ -1896,7 +1896,7 @@ LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE * handle)
 LIBSSH2_API uint64 libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE * handle)
 {
 	if(!handle)
-		return 0;  /* no handle, no size */
+		return 0; /* no handle, no size */
 
 	return handle->u.file.offset;
 }

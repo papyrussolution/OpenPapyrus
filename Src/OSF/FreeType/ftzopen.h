@@ -121,27 +121,27 @@ FT_BEGIN_HEADER
     FT_Bool      buf_clear;
     FT_Offset    buf_total;
 
-    FT_UInt      max_bits;    /* max code bits, from file header   */
-    FT_Int       block_mode;  /* block mode flag, from file header */
-    FT_UInt      max_free;    /* (1 << max_bits) - 256       */
+    FT_UInt      max_bits; /* max code bits, from file header   */
+    FT_Int       block_mode; /* block mode flag, from file header */
+    FT_UInt      max_free; /* (1 << max_bits) - 256       */
 
-    FT_UInt      num_bits;    /* current code bit number */
-    FT_UInt      free_ent;    /* index of next free entry */
-    FT_UInt      free_bits;   /* if reached by free_ent, increment num_bits */
+    FT_UInt      num_bits; /* current code bit number */
+    FT_UInt      free_ent; /* index of next free entry */
+    FT_UInt      free_bits; /* if reached by free_ent, increment num_bits */
     FT_UInt      old_code;
     FT_UInt      old_char;
     FT_UInt      in_code;
 
-    FT_UShort*   prefix;      /* always dynamically allocated / reallocated */
-    FT_Byte*     suffix;      /* suffix = (FT_Byte*)(prefix + prefix_size)  */
+    FT_UShort*   prefix; /* always dynamically allocated / reallocated */
+    FT_Byte*     suffix; /* suffix = (FT_Byte*)(prefix + prefix_size)  */
     FT_UInt      prefix_size; /* number of slots in `prefix' or `suffix'    */
 
-    FT_Byte*     stack;       /* character stack */
+    FT_Byte*     stack; /* character stack */
     FT_UInt      stack_top;
     FT_Offset    stack_size;
     FT_Byte      stack_0[FT_LZW_DEFAULT_STACK_SIZE]; /* minimize heap alloc */
 
-    FT_Stream    source;      /* source stream */
+    FT_Stream    source; /* source stream */
     FT_Memory    memory;
 
   } FT_LzwStateRec, *FT_LzwState;

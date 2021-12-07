@@ -789,39 +789,26 @@ ngx_int_t ngx_stream_variables_init_vars(ngx_conf_t * cf)
 	for(i = 0; i < cmcf->variables.nelts; i++) {
 		for(n = 0; n < cmcf->variables_keys->keys.nelts; n++) {
 			av = (ngx_stream_variable_t *)key[n].value;
-
-			if(v[i].name.len == key[n].key.len
-			    && ngx_strncmp(v[i].name.data, key[n].key.data, v[i].name.len)
-			    == 0) {
+			if(v[i].name.len == key[n].key.len && ngx_strncmp(v[i].name.data, key[n].key.data, v[i].name.len) == 0) {
 				v[i].get_handler = av->get_handler;
 				v[i].data = av->data;
-
 				av->flags |= NGX_STREAM_VAR_INDEXED;
 				v[i].flags = av->flags;
-
 				av->index = i;
-
-				if(av->get_handler == NULL
-				    || (av->flags & NGX_STREAM_VAR_WEAK)) {
+				if(av->get_handler == NULL || (av->flags & NGX_STREAM_VAR_WEAK)) {
 					break;
 				}
-
 				goto next;
 			}
 		}
-
 		len = 0;
 		av = NULL;
-
 		for(n = 0; n < cmcf->prefix_variables.nelts; n++) {
-			if(v[i].name.len >= pv[n].name.len && v[i].name.len > len
-			    && ngx_strncmp(v[i].name.data, pv[n].name.data, pv[n].name.len)
-			    == 0) {
+			if(v[i].name.len >= pv[n].name.len && v[i].name.len > len && ngx_strncmp(v[i].name.data, pv[n].name.data, pv[n].name.len) == 0) {
 				av = &pv[n];
 				len = pv[n].name.len;
 			}
 		}
-
 		if(av) {
 			v[i].get_handler = av->get_handler;
 			v[i].data = (uintptr_t)&v[i].name;

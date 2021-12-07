@@ -99,7 +99,7 @@ FT_BEGIN_HEADER
     FT_Short  descent;
     FT_Short  attributes;
 
-    FT_ULong  bits;  /* offset into the PCF_BITMAPS table */
+    FT_ULong  bits; /* offset into the PCF_BITMAPS table */
 
   } PCF_MetricRec, *PCF_Metric;
 

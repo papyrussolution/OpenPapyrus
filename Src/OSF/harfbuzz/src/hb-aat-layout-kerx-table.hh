@@ -135,7 +135,7 @@ public:
 protected:
 		KernSubTableHeader header;
 		BinSearchArrayOf<KernPair, typename KernSubTableHeader::Types::HBUINT>
-		pairs;          /* Sorted kern records. */
+		pairs; /* Sorted kern records. */
 public:
 		DEFINE_SIZE_ARRAY(KernSubTableHeader::static_size + 16, pairs);
 	};
@@ -405,15 +405,15 @@ public:
 
 protected:
 		KernSubTableHeader header;
-		HBUINT rowWidth;        /* The width, in bytes, of a row in the table. */
+		HBUINT rowWidth; /* The width, in bytes, of a row in the table. */
 		NNOffsetTo<typename Types::ClassTypeWide, HBUINT>
-		leftClassTable;         /* Offset from beginning of this subtable to
+		leftClassTable; /* Offset from beginning of this subtable to
 		 * left-hand class table. */
 		NNOffsetTo<typename Types::ClassTypeWide, HBUINT>
-		rightClassTable;        /* Offset from beginning of this subtable to
+		rightClassTable; /* Offset from beginning of this subtable to
 		 * right-hand class table. */
 		NNOffsetTo<UnsizedArrayOf<FWORD>, HBUINT>
-		array;                  /* Offset from beginning of this subtable to
+		array; /* Offset from beginning of this subtable to
 		 * the start of the kerning array. */
 public:
 		DEFINE_SIZE_STATIC(KernSubTableHeader::static_size + 4 * sizeof(HBUINT));

@@ -146,7 +146,7 @@ FT_BEGIN_HEADER
    */
   typedef struct  CF2_OutlineRec_
   {
-    CF2_OutlineCallbacksRec  root;        /* base class must be first */
+    CF2_OutlineCallbacksRec  root; /* base class must be first */
     PS_Decoder*              decoder;
 
   } CF2_OutlineRec, *CF2_Outline;

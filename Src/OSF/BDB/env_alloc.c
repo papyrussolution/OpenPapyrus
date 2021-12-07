@@ -32,7 +32,7 @@
 typedef SH_TAILQ_HEAD (__sizeq) SIZEQ_HEAD;
 
 typedef struct __alloc_layout {
-	SH_TAILQ_HEAD(__addrq) addrq;           /* Sorted by address */
+	SH_TAILQ_HEAD(__addrq) addrq; /* Sorted by address */
 
 	/*
 	 * A perfect Berkeley DB application does little allocation because
@@ -54,18 +54,18 @@ typedef struct __alloc_layout {
 	 * queues, we have separate queues for chunks up to 1MB.
 	 */
 #define DB_SIZE_Q_COUNT 11
-	SIZEQ_HEAD sizeq[DB_SIZE_Q_COUNT];      /* Sorted by size */
+	SIZEQ_HEAD sizeq[DB_SIZE_Q_COUNT]; /* Sorted by size */
 #ifdef HAVE_STATISTICS
 	uint32 pow2_size[DB_SIZE_Q_COUNT];
 #endif
 
 #ifdef HAVE_STATISTICS
-	uint32 success;                      /* Successful allocations */
-	uint32 failure;                      /* Failed allocations */
-	uint32 freed;                        /* Free calls */
-	uint32 longest;                      /* Longest chain walked */
+	uint32 success; /* Successful allocations */
+	uint32 failure; /* Failed allocations */
+	uint32 freed; /* Free calls */
+	uint32 longest; /* Longest chain walked */
 #endif
-	uintmax_t unused;                       /* Guarantee alignment */
+	uintmax_t unused; /* Guarantee alignment */
 } ALLOC_LAYOUT;
 
 typedef struct __alloc_element {
@@ -242,7 +242,7 @@ retry:
 #ifdef HAVE_STATISTICS
 	if(i >= DB_SIZE_Q_COUNT)
 		i = DB_SIZE_Q_COUNT-1;
-	++head->pow2_size[i];           /* Note the size of the request. */
+	++head->pow2_size[i]; /* Note the size of the request. */
 #endif
 	/*
 	 * Search this queue, and, if necessary, queues larger than this queue,

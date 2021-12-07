@@ -448,7 +448,7 @@ static void horizontalAccumulate8abgr(uint16 * wp, int n, int stride, uchar * op
 typedef struct {
 	TIFFPredictorState predict;
 	z_stream stream;
-	tmsize_t tbuf_size;                /* only set/used on reading for now */
+	tmsize_t tbuf_size; /* only set/used on reading for now */
 	uint16  * tbuf;
 	uint16 stride;
 	int state;
@@ -456,8 +456,8 @@ typedef struct {
 	int quality;
 #define PLSTATE_INIT 1
 
-	TIFFVSetMethod vgetparent;              /* super-class method */
-	TIFFVSetMethod vsetparent;              /* super-class method */
+	TIFFVSetMethod vgetparent; /* super-class method */
+	TIFFVSetMethod vsetparent; /* super-class method */
 
 	float * ToLinearF;
 	uint16 * ToLinear16;
@@ -672,7 +672,7 @@ static int PixarLogSetupDecode(TIFF* tif)
 	/* add one more stride in case input ends mid-stride */
 	tbuf_size = add_ms(tbuf_size, sizeof(uint16) * sp->stride);
 	if(tbuf_size == 0)
-		return 0;   /* TODO: this is an error return without error report through TIFFErrorExt */
+		return 0; /* TODO: this is an error return without error report through TIFFErrorExt */
 	sp->tbuf = static_cast<uint16 *>(SAlloc::M(tbuf_size));
 	if(sp->tbuf == NULL)
 		return 0;
@@ -765,7 +765,7 @@ static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	do {
 		int state = inflate(&sp->stream, Z_PARTIAL_FLUSH);
 		if(state == Z_STREAM_END) {
-			break;                  /* XXX */
+			break; /* XXX */
 		}
 		if(state == Z_DATA_ERROR) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Decoding error at scanline %lu, %s",
@@ -807,7 +807,7 @@ static int PixarLogDecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 	}
 
 	for(i = 0; i < nsamples; i += llen, up += llen) {
-		switch(sp->user_datafmt)  {
+		switch(sp->user_datafmt) {
 			case PIXARLOGDATAFMT_FLOAT:
 			    horizontalAccumulateF(up, llen, sp->stride, (float *)op, sp->ToLinearF);
 			    op += llen * sizeof(float);
@@ -851,7 +851,7 @@ static int PixarLogSetupEncode(TIFF* tif)
 	sp->stride = (td->td_planarconfig == PLANARCONFIG_CONTIG ? td->td_samplesperpixel : 1);
 	tbuf_size = multiply_ms(multiply_ms(multiply_ms(sp->stride, td->td_imagewidth), td->td_rowsperstrip), sizeof(uint16));
 	if(tbuf_size == 0)
-		return 0;  /* TODO: this is an error return without error report through TIFFErrorExt */
+		return 0; /* TODO: this is an error return without error report through TIFFErrorExt */
 	sp->tbuf = static_cast<uint16 *>(SAlloc::M(tbuf_size));
 	if(sp->tbuf == NULL)
 		return 0;
@@ -1053,12 +1053,12 @@ static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 	(void)s;
 	switch(sp->user_datafmt) {
 		case PIXARLOGDATAFMT_FLOAT:
-		    n = cc / sizeof(float);     /* XXX float == 32 bits */
+		    n = cc / sizeof(float); /* XXX float == 32 bits */
 		    break;
 		case PIXARLOGDATAFMT_16BIT:
 		case PIXARLOGDATAFMT_12BITPICIO:
 		case PIXARLOGDATAFMT_11BITLOG:
-		    n = cc / sizeof(uint16);    /* XXX uint16 == 16 bits */
+		    n = cc / sizeof(uint16); /* XXX uint16 == 16 bits */
 		    break;
 		case PIXARLOGDATAFMT_8BIT:
 		case PIXARLOGDATAFMT_8BITABGR:
@@ -1077,7 +1077,7 @@ static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 	}
 
 	for(i = 0, up = sp->tbuf; i < n; i += llen, up += llen) {
-		switch(sp->user_datafmt)  {
+		switch(sp->user_datafmt) {
 			case PIXARLOGDATAFMT_FLOAT:
 			    horizontalDifferenceF((float *)bp, llen, sp->stride, up, sp->FromLT2);
 			    bp += llen * sizeof(float);
@@ -1117,7 +1117,7 @@ static int PixarLogEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 			tif->tif_rawcc = tif->tif_rawdatasize;
 			TIFFFlushData1(tif);
 			sp->stream.next_out = tif->tif_rawdata;
-			sp->stream.avail_out = (uInt)tif->tif_rawdatasize;   /* this is a safe typecast, as check is
+			sp->stream.avail_out = (uInt)tif->tif_rawdatasize; /* this is a safe typecast, as check is
 			                                                       made already in PixarLogPreEncode */
 		}
 	} while(sp->stream.avail_in > 0);
@@ -1338,9 +1338,9 @@ int TIFFInitPixarLog(TIFF* tif, int scheme)
 
 	/* Override SetField so we can handle our private pseudo-tag */
 	sp->vgetparent = tif->tif_tagmethods.vgetfield;
-	tif->tif_tagmethods.vgetfield = PixarLogVGetField;   /* hook for codec tags */
+	tif->tif_tagmethods.vgetfield = PixarLogVGetField; /* hook for codec tags */
 	sp->vsetparent = tif->tif_tagmethods.vsetfield;
-	tif->tif_tagmethods.vsetfield = PixarLogVSetField;   /* hook for codec tags */
+	tif->tif_tagmethods.vsetfield = PixarLogVSetField; /* hook for codec tags */
 
 	/* Default values for codec-specific fields */
 	sp->quality = Z_DEFAULT_COMPRESSION; /* default comp. level */

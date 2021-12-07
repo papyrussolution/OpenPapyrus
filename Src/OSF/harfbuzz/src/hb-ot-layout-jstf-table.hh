@@ -66,43 +66,43 @@ namespace OT {
 
 protected:
 		OffsetTo<JstfModList>
-		shrinkageEnableGSUB;    /* Offset to Shrinkage Enable GSUB
+		shrinkageEnableGSUB; /* Offset to Shrinkage Enable GSUB
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfModList>
-		shrinkageDisableGSUB;   /* Offset to Shrinkage Disable GSUB
+		shrinkageDisableGSUB; /* Offset to Shrinkage Disable GSUB
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfModList>
-		shrinkageEnableGPOS;    /* Offset to Shrinkage Enable GPOS
+		shrinkageEnableGPOS; /* Offset to Shrinkage Enable GPOS
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfModList>
-		shrinkageDisableGPOS;   /* Offset to Shrinkage Disable GPOS
+		shrinkageDisableGPOS; /* Offset to Shrinkage Disable GPOS
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfMax>
-		shrinkageJstfMax;       /* Offset to Shrinkage JstfMax table--
+		shrinkageJstfMax; /* Offset to Shrinkage JstfMax table--
 		 * from beginning of JstfPriority table
 		 * --may be NULL */
 		OffsetTo<JstfModList>
-		extensionEnableGSUB;    /* Offset to Extension Enable GSUB
+		extensionEnableGSUB; /* Offset to Extension Enable GSUB
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfModList>
-		extensionDisableGSUB;   /* Offset to Extension Disable GSUB
+		extensionDisableGSUB; /* Offset to Extension Disable GSUB
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfModList>
-		extensionEnableGPOS;    /* Offset to Extension Enable GPOS
+		extensionEnableGPOS; /* Offset to Extension Enable GPOS
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfModList>
-		extensionDisableGPOS;   /* Offset to Extension Disable GPOS
+		extensionDisableGPOS; /* Offset to Extension Disable GPOS
 		 * JstfModList table--from beginning of
 		 * JstfPriority table--may be NULL */
 		OffsetTo<JstfMax>
-		extensionJstfMax;       /* Offset to Extension JstfMax table--
+		extensionJstfMax; /* Offset to Extension JstfMax table--
 		 * from beginning of JstfPriority table
 		 * --may be NULL */
 
@@ -187,7 +187,7 @@ protected:
 		defaultLangSys; /* Offset to DefaultJstfLangSys table--from
 		 * beginning of JstfScript table--may be Null */
 		RecordArrayOf<JstfLangSys>
-		langSys;        /* Array of JstfLangSysRecords--listed
+		langSys; /* Array of JstfLangSysRecords--listed
 		 * alphabetically by LangSysTag */
 public:
 		DEFINE_SIZE_ARRAY(6, langSys);
@@ -229,7 +229,7 @@ public:
 protected:
 		FixedVersion<>version; /* Version of the JSTF table--initially set to 0x00010000u */
 		RecordArrayOf<JstfScript>
-		scriptList;     /* Array of JstfScripts--listed
+		scriptList; /* Array of JstfScripts--listed
 		 * alphabetically by ScriptTag */
 public:
 		DEFINE_SIZE_ARRAY(6, scriptList);

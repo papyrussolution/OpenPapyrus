@@ -88,7 +88,7 @@ namespace CFF {
 #define OpCode_ESC_Base         256
 #define Make_OpCode_ESC(byte2)  ((op_code_t)(OpCode_ESC_Base + (byte2)))
 
-	inline op_code_t Unmake_OpCode_ESC(op_code_t op)  {
+	inline op_code_t Unmake_OpCode_ESC(op_code_t op) {
 		return (op_code_t)(op - OpCode_ESC_Base);
 	}
 
@@ -544,7 +544,7 @@ protected:
 			return this->pop();
 		}
 
-		int pop_int()  {
+		int pop_int() {
 			return this->pop().to_int();
 		}
 

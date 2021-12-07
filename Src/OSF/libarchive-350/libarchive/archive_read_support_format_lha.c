@@ -136,11 +136,11 @@ struct lha {
 	int64 entry_unconsumed;
 	uint16_t entry_crc_calculated;
 
-	size_t header_size;                     /* header size		    */
+	size_t header_size; /* header size		    */
 	uchar level;                    /* header level		    */
 	char method[3];                         /* compress type	    */
-	int64 compsize;                       /* compressed data size	    */
-	int64 origsize;                       /* original file size	    */
+	int64 compsize; /* compressed data size	    */
+	int64 origsize; /* original file size	    */
 	int setflag;
 #define BIRTHTIME_IS_SET        1
 #define ATIME_IS_SET            2
@@ -863,7 +863,7 @@ static int lha_read_file_header_1(struct archive_read * a, struct lha * lha)
 	lha->compsize -= extdsize - 2;
 
 	if(lha->compsize < 0)
-		goto invalid;   /* Invalid compressed file size */
+		goto invalid; /* Invalid compressed file size */
 
 	if(sum_calculated != headersum) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "LHa header sum error");
@@ -1577,9 +1577,9 @@ static time_t lha_dos_time(const uchar * p)
 	int msTime = archive_le16dec(p);
 	int msDate = archive_le16dec(p+2);
 	memzero(&ts, sizeof(ts));
-	ts.tm_year = ((msDate >> 9) & 0x7f) + 80;   /* Years since 1900. */
-	ts.tm_mon = ((msDate >> 5) & 0x0f) - 1;     /* Month number.     */
-	ts.tm_mday = msDate & 0x1f;                 /* Day of month.     */
+	ts.tm_year = ((msDate >> 9) & 0x7f) + 80; /* Years since 1900. */
+	ts.tm_mon = ((msDate >> 5) & 0x0f) - 1; /* Month number.     */
+	ts.tm_mday = msDate & 0x1f; /* Day of month.     */
 	ts.tm_hour = (msTime >> 11) & 0x1f;
 	ts.tm_min = (msTime >> 5) & 0x3f;
 	ts.tm_sec = (msTime << 1) & 0x3e;

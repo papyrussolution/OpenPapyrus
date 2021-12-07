@@ -188,11 +188,11 @@ typename Stored = Returned>
 	void init0() {
 	}          /* Init, when memory is already set to 0. No-op for us. */
 
-	void init()  {
+	void init() {
 		instance.set_relaxed(nullptr);
 	}
 
-	void fini()  {
+	void fini() {
 		do_destroy(instance.get());
 	}
 

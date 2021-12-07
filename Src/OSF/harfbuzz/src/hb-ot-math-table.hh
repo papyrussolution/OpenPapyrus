@@ -50,7 +50,7 @@ namespace OT {
 		}
 
 protected:
-		HBINT16 value;          /* The X or Y value in design units */
+		HBINT16 value; /* The X or Y value in design units */
 		OffsetTo<Device>      deviceTable; /* Offset to the device table - from the
 		    * beginning of parent table.  May be NULL.
 		    * Suggested format for device table is 1. */
@@ -527,7 +527,7 @@ protected:
 		 * MathGlyphAssembly. Should not
 		 * depend on the assembly size. */
 		ArrayOf<MathGlyphPartRecord>
-		partRecords;    /* Array of part records, from
+		partRecords; /* Array of part records, from
 		 * left to right and bottom to
 		 * top. */
 
@@ -697,11 +697,11 @@ public:
 protected:
 		FixedVersion<>version; /* Version of the MATH table initially set to 0x00010000u */
 		OffsetTo<MathConstants>
-		mathConstants;  /* MathConstants table */
+		mathConstants; /* MathConstants table */
 		OffsetTo<MathGlyphInfo>
-		mathGlyphInfo;  /* MathGlyphInfo table */
+		mathGlyphInfo; /* MathGlyphInfo table */
 		OffsetTo<MathVariants>
-		mathVariants;   /* MathVariants table */
+		mathVariants; /* MathVariants table */
 
 public:
 		DEFINE_SIZE_STATIC(10);

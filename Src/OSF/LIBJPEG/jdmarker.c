@@ -99,7 +99,7 @@ typedef struct {
 
 	/* Status of COM/APPn marker saving */
 	jpeg_saved_marker_ptr cur_marker; /* NULL if not processing a marker */
-	uint bytes_read;        /* data bytes read so far in marker */
+	uint bytes_read; /* data bytes read so far in marker */
 	/* Note: cur_marker is not linked into marker_list until it's all read. */
 } my_marker_reader;
 
@@ -536,9 +536,9 @@ LOCAL(boolean) get_lse(j_decompress_ptr cinfo)
 	if(tmp != 0x0D) /* ID inverse transform specification */
 		ERREXIT1(cinfo, JERR_UNKNOWN_MARKER, cinfo->unread_marker);
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
-	if(tmp != MAXJSAMPLE) goto bad;         /* MAXTRANS */
+	if(tmp != MAXJSAMPLE) goto bad; /* MAXTRANS */
 	INPUT_BYTE(cinfo, tmp, return FALSE);
-	if(tmp != 3) goto bad;                  /* Nt=3 */
+	if(tmp != 3) goto bad; /* Nt=3 */
 	INPUT_BYTE(cinfo, cid, return FALSE);
 	if(cid != cinfo->comp_info[1].component_id) goto bad;
 	INPUT_BYTE(cinfo, cid, return FALSE);
@@ -546,21 +546,21 @@ LOCAL(boolean) get_lse(j_decompress_ptr cinfo)
 	INPUT_BYTE(cinfo, cid, return FALSE);
 	if(cid != cinfo->comp_info[2].component_id) goto bad;
 	INPUT_BYTE(cinfo, tmp, return FALSE);
-	if(tmp != 0x80) goto bad;       /* F1: CENTER1=1, NORM1=0 */
+	if(tmp != 0x80) goto bad; /* F1: CENTER1=1, NORM1=0 */
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
-	if(tmp != 0) goto bad;                  /* A(1,1)=0 */
+	if(tmp != 0) goto bad; /* A(1,1)=0 */
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
-	if(tmp != 0) goto bad;                  /* A(1,2)=0 */
+	if(tmp != 0) goto bad; /* A(1,2)=0 */
 	INPUT_BYTE(cinfo, tmp, return FALSE);
-	if(tmp != 0) goto bad;          /* F2: CENTER2=0, NORM2=0 */
+	if(tmp != 0) goto bad; /* F2: CENTER2=0, NORM2=0 */
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
-	if(tmp != 1) goto bad;                  /* A(2,1)=1 */
+	if(tmp != 1) goto bad; /* A(2,1)=1 */
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
-	if(tmp != 0) goto bad;                  /* A(2,2)=0 */
+	if(tmp != 0) goto bad; /* A(2,2)=0 */
 	INPUT_BYTE(cinfo, tmp, return FALSE);
-	if(tmp != 0) goto bad;          /* F3: CENTER3=0, NORM3=0 */
+	if(tmp != 0) goto bad; /* F3: CENTER3=0, NORM3=0 */
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
-	if(tmp != 1) goto bad;                  /* A(3,1)=1 */
+	if(tmp != 1) goto bad; /* A(3,1)=1 */
 	INPUT_2BYTES(cinfo, tmp, return FALSE);
 	if(tmp != 0) {                          /* A(3,2)=0 */
 bad:
@@ -798,7 +798,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 		    break;
 	}
 	/* skip any remaining data -- could be lots */
-	INPUT_SYNC(cinfo);      /* do before skip_input_data */
+	INPUT_SYNC(cinfo); /* do before skip_input_data */
 	if(length > 0)
 		(*cinfo->src->skip_input_data)(cinfo, (long)length);
 	return TRUE;
@@ -814,7 +814,7 @@ METHODDEF(boolean) skip_variable(j_decompress_ptr cinfo)
 	INPUT_2BYTES(cinfo, length, return FALSE);
 	length -= 2;
 	TRACEMS2(cinfo, 1, JTRC_MISC_MARKER, cinfo->unread_marker, (int)length);
-	INPUT_SYNC(cinfo);      /* do before skip_input_data */
+	INPUT_SYNC(cinfo); /* do before skip_input_data */
 	if(length > 0)
 		(*cinfo->src->skip_input_data)(cinfo, (long)length);
 	return TRUE;
@@ -853,7 +853,7 @@ LOCAL(boolean) next_marker(j_decompress_ptr cinfo)
 			INPUT_BYTE(cinfo, c, return FALSE);
 		} while(c == 0xFF);
 		if(c != 0)
-			break;  /* found a valid marker, exit loop */
+			break; /* found a valid marker, exit loop */
 		/* Reach here if we found a stuffed-zero data sequence (FF/00).
 		 * Discard it and loop back to try again.
 		 */
@@ -1146,16 +1146,16 @@ GLOBAL(boolean) jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired)
 	/* Outer loop handles repeated decision after scanning forward. */
 	for(;; ) {
 		if(marker < (int)M_SOF0)
-			action = 2;  /* invalid marker */
+			action = 2; /* invalid marker */
 		else if(marker < (int)M_RST0 || marker > (int)M_RST7)
-			action = 3;  /* valid non-restart marker */
+			action = 3; /* valid non-restart marker */
 		else {
 			if(marker == ((int)M_RST0 + ((desired+1) & 7)) || marker == ((int)M_RST0 + ((desired+2) & 7)))
-				action = 3;  /* one of the next two expected restarts */
+				action = 3; /* one of the next two expected restarts */
 			else if(marker == ((int)M_RST0 + ((desired-1) & 7)) || marker == ((int)M_RST0 + ((desired-2) & 7)))
-				action = 2;  /* a prior restart, so advance */
+				action = 2; /* a prior restart, so advance */
 			else
-				action = 1;  /* desired restart or too far away */
+				action = 1; /* desired restart or too far away */
 		}
 		TRACEMS2(cinfo, 4, JTRC_RECOVERY_ACTION, marker, action);
 		switch(action) {
@@ -1182,10 +1182,10 @@ GLOBAL(boolean) jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired)
 METHODDEF(void) reset_marker_reader(j_decompress_ptr cinfo)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
-	cinfo->comp_info = NULL;        /* until allocated by get_sof */
-	cinfo->input_scan_number = 0;   /* no SOS seen yet */
-	cinfo->unread_marker = 0;       /* no pending marker */
-	marker->pub.saw_SOI = FALSE;    /* set internal state too */
+	cinfo->comp_info = NULL; /* until allocated by get_sof */
+	cinfo->input_scan_number = 0; /* no SOS seen yet */
+	cinfo->unread_marker = 0; /* no pending marker */
+	marker->pub.saw_SOI = FALSE; /* set internal state too */
 	marker->pub.saw_SOF = FALSE;
 	marker->pub.discarded_bytes = 0;
 	marker->cur_marker = NULL;

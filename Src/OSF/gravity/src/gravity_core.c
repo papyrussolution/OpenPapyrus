@@ -2084,7 +2084,7 @@ static bool int_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 r
 
 // MARK: - Bool Class -
 
-static bool operator_bool_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex)  { return operator_int_add(vm, args, nargs, rindex); }
+static bool operator_bool_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_add(vm, args, nargs, rindex); }
 static bool operator_bool_sub(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_sub(vm, args, nargs, rindex); }
 static bool operator_bool_div(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_div(vm, args, nargs, rindex); }
 static bool operator_bool_mul(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_mul(vm, args, nargs, rindex); }

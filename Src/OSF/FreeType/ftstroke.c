@@ -270,8 +270,8 @@ typedef struct  FT_StrokeBorderRec_ {
 	FT_UInt max_points;
 	FT_Vector*  points;
 	FT_Byte*    tags;
-	FT_Bool movable;  /* TRUE for ends of lineto borders */
-	FT_Int start;     /* index of current sub-path start point */
+	FT_Bool movable; /* TRUE for ends of lineto borders */
+	FT_Int start; /* index of current sub-path start point */
 	FT_Memory memory;
 	FT_Bool valid;
 } FT_StrokeBorderRec, * FT_StrokeBorder;
@@ -624,16 +624,16 @@ static void ft_stroke_border_export(FT_StrokeBorder border,
 #define FT_SIDE_TO_ROTATE(s)   ( FT_ANGLE_PI2 - (s) * FT_ANGLE_PI )
 
 typedef struct  FT_StrokerRec_ {
-	FT_Angle angle_in;                     /* direction into curr join */
+	FT_Angle angle_in; /* direction into curr join */
 	FT_Angle angle_out;                    /* direction out of join  */
-	FT_Vector center;                      /* current position */
-	FT_Fixed line_length;                  /* length of last lineto */
+	FT_Vector center; /* current position */
+	FT_Fixed line_length; /* length of last lineto */
 	FT_Bool first_point;                   /* is this the start? */
-	FT_Bool subpath_open;                  /* is the subpath open? */
-	FT_Angle subpath_angle;                /* subpath start direction */
-	FT_Vector subpath_start;               /* subpath start position */
-	FT_Fixed subpath_line_length;          /* subpath start lineto len */
-	FT_Bool handle_wide_strokes;           /* use wide strokes logic? */
+	FT_Bool subpath_open; /* is the subpath open? */
+	FT_Angle subpath_angle; /* subpath start direction */
+	FT_Vector subpath_start; /* subpath start position */
+	FT_Fixed subpath_line_length; /* subpath start lineto len */
+	FT_Bool handle_wide_strokes; /* use wide strokes logic? */
 
 	FT_Stroker_LineCap line_cap;
 	FT_Stroker_LineJoin line_join;
@@ -648,7 +648,7 @@ typedef struct  FT_StrokerRec_ {
 /* documentation is in ftstroke.h */
 FT_EXPORT_DEF(FT_Error) FT_Stroker_New(FT_Library library, FT_Stroker  *astroker)
 {
-	FT_Error error;          /* assigned in FT_NEW */
+	FT_Error error; /* assigned in FT_NEW */
 	FT_Memory memory;
 	FT_Stroker stroker = NULL;
 	if(!library)
@@ -777,7 +777,7 @@ static FT_Error ft_stroker_inside(FT_Stroker stroker,
 	FT_Fixed length;
 	FT_Vector sigma, delta;
 	FT_Error error = FT_Err_Ok;
-	FT_Bool intersect;               /* use intersection of lines? */
+	FT_Bool intersect; /* use intersection of lines? */
 
 	rotate = FT_SIDE_TO_ROTATE(side);
 
@@ -1715,9 +1715,9 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_ParseOutline(FT_Stroker stroker, FT_Outline* 
 	FT_Vector*  limit;
 	char *       tags;
 	FT_Error error;
-	FT_Int n;          /* index of contour in outline     */
-	FT_UInt first;     /* index of first point in contour */
-	FT_Int tag;        /* current point's state     */
+	FT_Int n; /* index of contour in outline     */
+	FT_UInt first; /* index of first point in contour */
+	FT_Int tag; /* current point's state     */
 	if(!outline)
 		return FT_THROW(Invalid_Outline);
 	if(!stroker)

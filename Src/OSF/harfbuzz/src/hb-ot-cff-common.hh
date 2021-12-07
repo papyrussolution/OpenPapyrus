@@ -272,7 +272,7 @@ protected:
 		}
 
 public:
-		COUNT count;    /* Number of object data. Note there are (count+1) offsets */
+		COUNT count; /* Number of object data. Note there are (count+1) offsets */
 		HBUINT8 offSize; /* The byte size of each offset in the offsets array. */
 		HBUINT8 offsets[HB_VAR_ARRAY];
 		/* The array of (count + 1) offsets into objects array (1-base). */

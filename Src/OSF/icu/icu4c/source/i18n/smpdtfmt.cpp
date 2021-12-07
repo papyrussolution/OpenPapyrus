@@ -131,7 +131,7 @@ static const int8_t kTimeFieldsCount = 10;
 static const UChar gDefaultPattern[] =
 {
 	0x79, 0x79, 0x79, 0x79, 0x4D, 0x4D, 0x64, 0x64, 0x20, 0x68, 0x68, 0x3A, 0x6D, 0x6D, 0x20, 0x61, 0
-};  /* "yyyyMMdd hh:mm a" */
+}; /* "yyyyMMdd hh:mm a" */
 
 // This prefix is designed to NEVER MATCH real text, in order to
 // suppress the parsing of negative numbers.  Adjust as needed (if

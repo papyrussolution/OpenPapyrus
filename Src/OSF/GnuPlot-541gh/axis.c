@@ -460,7 +460,7 @@ static int FASTCALL looks_like_numeric(const char * format)
 	if(!(format = strchr(format, '%')))
 		return 0;
 	while(++format && (*format == ' ' || *format == '-' || *format == '+' || *format == '#'))
-		;               /* do nothing */
+		; /* do nothing */
 	while(isdigit((uchar)*format) || *format == '.')
 		++format;
 	return (*format == 'e' || *format == 'f' || *format == 'g' || *format == 'h');
@@ -569,17 +569,17 @@ double quantize_normal_tics(double arg, int guide)
 	/* JRV 20021117: fixed this by changing next to last threshold
 	   from 1 to 2.  However, with guide=20, this doesn't matter. */
 	if(posns > 40)
-		tics = 0.05;    /* eg 0, .05, .10, ... */
+		tics = 0.05; /* eg 0, .05, .10, ... */
 	else if(posns > 20)
-		tics = 0.1;     /* eg 0, .1, .2, ... */
+		tics = 0.1; /* eg 0, .1, .2, ... */
 	else if(posns > 10)
-		tics = 0.2;     /* eg 0,0.2,0.4,... */
+		tics = 0.2; /* eg 0,0.2,0.4,... */
 	else if(posns > 4)
-		tics = 0.5;     /* 0,0.5,1, */
+		tics = 0.5; /* 0,0.5,1, */
 	else if(posns > 2)
-		tics = 1;       /* 0,1,2,.... */
+		tics = 1; /* 0,1,2,.... */
 	else if(posns > 0.5)
-		tics = 2;       /* 0, 2, 4, 6 */
+		tics = 2; /* 0, 2, 4, 6 */
 	else
 		/* getting desperate... the ceil is to make sure we
 		 * go over rather than under - eg plot [-10:10] x*x
@@ -615,11 +615,11 @@ static double quantize_duodecimal_tics(double arg, int guide)
 	else if(posns > 2)
 		return power / 2; /* 6 smaller units = half a unit */
 	else if(posns > 1)
-		return power;   /* 0, 1, 2, ..., 11 */
+		return power; /* 0, 1, 2, ..., 11 */
 	else if(posns > 0.5)
-		return power * 2;       /* 0, 2, 4, ..., 10 */
+		return power * 2; /* 0, 2, 4, ..., 10 */
 	else if(posns > 1.0/3)
-		return power * 3;       /* 0, 3, 6, 9 */
+		return power * 3; /* 0, 3, 6, 9 */
 	else
 		/* getting desperate... the ceil is to make sure we
 		 * go over rather than under - eg plot [-10:10] x*x
@@ -887,9 +887,9 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 	 *		minitics are always evenly spaced in user coords
 	 */
 	{
-		double tic;     /* loop counter */
+		double tic; /* loop counter */
 		double internal; /* in internal co-ords */
-		double user;    /* in user co-ords */
+		double user; /* in user co-ords */
 		double start, step, end;
 		int nsteps;
 		//double internal_min, internal_max; // to allow for rounding errors 
@@ -1260,8 +1260,8 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 	GpAxis * this_axis = &AxS[axis];
 	const bool axis_is_vertical = oneof2(axis, FIRST_Y_AXIS, SECOND_Y_AXIS);
 	const bool axis_is_second   = oneof2(axis, SECOND_X_AXIS, SECOND_Y_AXIS);
-	int axis_position;      /* 'non-running' coordinate */
-	int mirror_position;    /* 'non-running' coordinate, 'other' side */
+	int axis_position; /* 'non-running' coordinate */
+	int mirror_position; /* 'non-running' coordinate, 'other' side */
 	double axis_coord = 0.0; /* coordinate of this axis along non-running axis */
 	if(oneof2(zeroaxis_basis, SECOND_X_AXIS, SECOND_Y_AXIS)) {
 		axis_position = AxS[zeroaxis_basis].term_upper;

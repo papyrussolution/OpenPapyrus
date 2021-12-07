@@ -173,7 +173,7 @@ TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis);
  * Number of available point types for HPGL/2
  */
 
-#define  HPGL2_NUM_NOPSPOINTS 6;        /* for nopspoints option */
+#define  HPGL2_NUM_NOPSPOINTS 6; /* for nopspoints option */
 #define  HPGL2_NUM_PSPOINTS 75; /* for pspoints option */
 
 /*
@@ -615,7 +615,7 @@ static double HPGL2_lw = 0;
 static bool HPGL2_in_pe = FALSE;
 static bool HPGL2_lost;
 /* point symbols */
-static double HPGL2_psize = 1.0;        /* Default point size */
+static double HPGL2_psize = 1.0; /* Default point size */
 /* font/text */
 static int HPGL2_font_num_current = 0; /* current font */
 static double HPGL2_point_size_current = 0; /* current pointsize */
@@ -623,9 +623,9 @@ static double HPGL2_is_italic = FALSE;
 static double HPGL2_is_bold = FALSE;
 static enum JUSTIFY HPGL2_justification = LEFT;
 /* enhanced text */
-static double HPGL2_base;       /* distance above initial baseline */
-static double HPGL2_base_save;  /* saved baseline for overprint=3/4 */
-static bool HPGL2_sizeonly;     /* first pass for right/center aligned text */
+static double HPGL2_base; /* distance above initial baseline */
+static double HPGL2_base_save; /* saved baseline for overprint=3/4 */
+static bool HPGL2_sizeonly; /* first pass for right/center aligned text */
 static bool HPGL2_opened_string;
 static bool HPGL2_show;
 static int HPGL2_overprint;
@@ -641,8 +641,8 @@ static int HPGL_eject;
 
 TERM_PUBLIC void HPGL_options(GpTermEntry * pThis, GnuPlot * pGp)
 {
-	HPGL_numpen = 6;        /* default to six pens */
-	HPGL_eject = 0;         /* default to no eject */
+	HPGL_numpen = 6; /* default to six pens */
+	HPGL_eject = 0; /* default to no eject */
 	while(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.AlmostEqualsCur("eje$ct"))
 			HPGL_eject = 1;
@@ -1052,12 +1052,12 @@ UL7,4,4,4,4,0,4,4,4,4,4,0,4,4,4,4,4,0,4;\n",
 /*
  * Control variables
  */
-	HPGL_ang = 0;           /* Horizontal */
+	HPGL_ang = 0; /* Horizontal */
 	HPGL2_is_bold = HPGL2_is_italic = FALSE;
 	HPGL2_justification = LEFT;
-	HPGL2_in_pe = FALSE;    /* Not in PE command */
-	HPGL2_lost = TRUE;      /* Pen position is unknown */
-	HPGL_penstate = UP;     /* Pen is up */
+	HPGL2_in_pe = FALSE; /* Not in PE command */
+	HPGL2_lost = TRUE; /* Pen position is unknown */
+	HPGL_penstate = UP; /* Pen is up */
 }
 
 TERM_PUBLIC void PCL_graphics(GpTermEntry * pThis)

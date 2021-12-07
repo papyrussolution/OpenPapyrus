@@ -148,7 +148,7 @@ struct Curl_multi {
 	/* multiplexing wanted */
 	bool multiplexing;
 	bool recheckstate; /* see Curl_multi_connchanged */
-	bool in_callback;      /* true while executing a callback */
+	bool in_callback; /* true while executing a callback */
 	bool ipv6_works;
 };
 

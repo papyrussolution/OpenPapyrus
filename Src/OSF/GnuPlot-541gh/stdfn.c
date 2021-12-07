@@ -333,7 +333,7 @@ char * gp_getcwd(char * path, size_t len)
  */
 
 struct DIR {
-	intptr_t handle;        /* -1 for failed rewind */
+	intptr_t handle; /* -1 for failed rewind */
 	struct _wfinddata_t info;
 	struct gp_dirent result; /* d_name null iff first time */
 	WCHAR * name; /* null-terminated string */

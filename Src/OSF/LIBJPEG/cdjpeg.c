@@ -111,17 +111,17 @@ GLOBAL(boolean) keymatch(char * arg, const char * keyword, int minchars)
 	int nmatched = 0;
 	while((ca = *arg++) != '\0') {
 		if((ck = *keyword++) == '\0')
-			return FALSE;  /* arg longer than keyword, no good */
+			return FALSE; /* arg longer than keyword, no good */
 		if(isupper(ca)) /* force arg to lcase (assume ck is already) */
 			ca = tolower(ca);
 		if(ca != ck)
-			return FALSE;  /* no good */
-		nmatched++;     /* count matched characters */
+			return FALSE; /* no good */
+		nmatched++; /* count matched characters */
 	}
 	/* reached end of argument; fail if it's too short for unique abbrev */
 	if(nmatched < minchars)
 		return FALSE;
-	return TRUE;            /* A-OK */
+	return TRUE; /* A-OK */
 }
 
 /*

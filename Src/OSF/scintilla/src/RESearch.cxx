@@ -441,16 +441,16 @@ int RESearch::GetBackslashExpression(const char * pattern, int &incr)
 
 const char * RESearch::Compile(const char * pattern, int length, bool caseSensitive, bool posix) 
 {
-	char * mp = nfa;          /* nfa pointer       */
-	char * lp;              /* saved pointer     */
-	char * sp = nfa;          /* another one       */
+	char * mp = nfa; /* nfa pointer       */
+	char * lp; /* saved pointer     */
+	char * sp = nfa; /* another one       */
 	char * mpMax = mp + MAXNFA - BITBLK - 10;
 
-	int tagi = 0;          /* tag stack index   */
-	int tagc = 1;          /* actual tag count  */
+	int tagi = 0; /* tag stack index   */
+	int tagc = 1; /* actual tag count  */
 
 	int n;
-	char mask;             /* xor mask -CCL/NCL */
+	char mask; /* xor mask -CCL/NCL */
 	int c1, c2, prevChar;
 
 	if(!pattern || !length) {
@@ -461,7 +461,7 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 	}
 	sta = NOP;
 
-	const char * p = pattern;     /* pattern pointer   */
+	const char * p = pattern; /* pattern pointer   */
 	for(int i = 0; i<length; i++, p++) {
 		if(mp > mpMax)
 			return badpat("Pattern too long");
@@ -613,7 +613,7 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 			case '?':
 			    if(p == pattern)
 				    return badpat("Empty closure");
-			    lp = sp;            /* previous opcode */
+			    lp = sp; /* previous opcode */
 			    if(*lp == CLO || *lp == LCLO)       /* equivalence... */
 				    break;
 			    switch(*lp) {
@@ -870,11 +870,11 @@ extern void re_fail(char *, char);
 int RESearch::PMatch(CharacterIndexer &ci, int lp, int endp, char * ap) 
 {
 	int op, c, n;
-	int e;          /* extra pointer for CLO  */
-	int bp;         /* beginning of subpat... */
-	int ep;         /* ending of subpat...    */
-	int are;        /* to save the line ptr.  */
-	int llp;        /* lazy lp for LCLO       */
+	int e; /* extra pointer for CLO  */
+	int bp; /* beginning of subpat... */
+	int ep; /* ending of subpat...    */
+	int are; /* to save the line ptr.  */
+	int llp; /* lazy lp for LCLO       */
 	while((op = *ap++) != END)
 		switch(op) {
 			case CHR:

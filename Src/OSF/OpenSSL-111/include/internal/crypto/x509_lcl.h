@@ -16,22 +16,22 @@
 
 struct X509_VERIFY_PARAM_st {
     char *name;
-    time_t check_time;          /* Time to use */
-    uint32_t inh_flags;         /* Inheritance flags */
-    ulong flags;        /* Various verify flags */
-    int purpose;                /* purpose to check untrusted certificates */
-    int trust;                  /* trust setting to check */
-    int depth;                  /* Verify depth */
-    int auth_level;             /* Security level for chain verification */
+    time_t check_time; /* Time to use */
+    uint32_t inh_flags; /* Inheritance flags */
+    ulong flags; /* Various verify flags */
+    int purpose; /* purpose to check untrusted certificates */
+    int trust; /* trust setting to check */
+    int depth; /* Verify depth */
+    int auth_level; /* Security level for chain verification */
     STACK_OF(ASN1_OBJECT) *policies; /* Permissible policies */
     /* Peer identity details */
     STACK_OF(OPENSSL_STRING) *hosts; /* Set of acceptable names */
-    uint hostflags;     /* Flags to control matching features */
-    char *peername;             /* Matching hostname in peer certificate */
-    char *email;                /* If not NULL email address to match */
+    uint hostflags; /* Flags to control matching features */
+    char *peername; /* Matching hostname in peer certificate */
+    char *email; /* If not NULL email address to match */
     size_t emaillen;
-    uchar *ip;          /* If not NULL IP address to match */
-    size_t iplen;               /* Length of IP address */
+    uchar *ip; /* If not NULL IP address to match */
+    size_t iplen; /* Length of IP address */
 };
 
 /* No error callback if depth < 0 */
@@ -92,8 +92,8 @@ struct x509_lookup_st {
     int init;                   /* have we been started */
     int skip;                   /* don't use us. */
     X509_LOOKUP_METHOD *method; /* the functions */
-    void *method_data;          /* method data */
-    X509_STORE *store_ctx;      /* who owns us */
+    void *method_data; /* method data */
+    X509_STORE *store_ctx; /* who owns us */
 };
 
 /*
@@ -103,7 +103,7 @@ struct x509_lookup_st {
  */
 struct x509_store_st {
     /* The following is a cache of trusted certs */
-    int cache;                  /* if true, stash any hits */
+    int cache; /* if true, stash any hits */
     STACK_OF(X509_OBJECT) *objs; /* Cache of all objects */
     /* These are external lookup methods */
     STACK_OF(X509_LOOKUP) *get_cert_methods;

@@ -38,7 +38,7 @@ FT_BEGIN_HEADER
   typedef struct  CFF_CMapStdRec_
   {
     FT_CMapRec  cmap;
-    FT_UShort*  gids;   /* up to 256 elements */
+    FT_UShort*  gids; /* up to 256 elements */
 
   } CFF_CMapStdRec;
 

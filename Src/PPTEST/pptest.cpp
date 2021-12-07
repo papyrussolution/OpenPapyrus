@@ -1475,9 +1475,9 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
+	Test_StyloQInvitation();
 	Test_StrAssocTree();
 	//Test_Launch_SCalendarPicker();
-	//Test_StyloQInvitation();
 	//Test_PPStyloQInterchange();
 	/*{
 		SSecretTagPool stp;

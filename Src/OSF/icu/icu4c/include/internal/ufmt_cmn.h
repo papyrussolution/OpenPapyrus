@@ -54,10 +54,10 @@ typedef enum ufmt_type_info {
  * Union representing a uprintf/uscanf argument
  */
 typedef union ufmt_args {
-    int64_t int64Value;    /* int, UChar */
-    float   floatValue;    /* float */
-    double  doubleValue;   /* double */
-    void   *ptrValue;     /* any pointer - void *, char *, wchar_t*, UChar * */
+    int64_t int64Value; /* int, UChar */
+    float   floatValue; /* float */
+    double  doubleValue; /* double */
+    void   *ptrValue; /* any pointer - void *, char *, wchar_t*, UChar * */
     /*wchar_t wcharValue;*/    /* wchar_t */    /* TODO: Should wchar_t be used? */
     /*UDate dateValue;*/     /* Date */
 } ufmt_args;

@@ -521,17 +521,17 @@ cmsBool CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab,
 			Lab->a = amax;
 			Lab->b = amax * slope;
 		}
-		else if(h >= 45. && h < 135.)  {
+		else if(h >= 45. && h < 135.) {
 			// clip by bmax
 			Lab->b = bmax;
 			Lab->a = bmax / slope;
 		}
-		else if(h >= 135. && h < 225.)  {
+		else if(h >= 135. && h < 225.) {
 			// clip by amin
 			Lab->a = amin;
 			Lab->b = amin * slope;
 		}
-		else if(h >= 225. && h < 315.)  {
+		else if(h >= 225. && h < 315.) {
 			// clip by bmin
 			Lab->b = bmin;
 			Lab->a = bmin / slope;

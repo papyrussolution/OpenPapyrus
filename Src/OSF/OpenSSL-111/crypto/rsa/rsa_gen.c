@@ -64,12 +64,12 @@ static int rsa_builtin_keygen(RSA * rsa, int bits, int primes, BIGNUM * e_value,
 	BN_ULONG bitst = 0;
 	ulong error = 0;
 	if(bits < RSA_MIN_MODULUS_BITS) {
-		ok = 0;     /* we set our own err */
+		ok = 0; /* we set our own err */
 		RSAerr(RSA_F_RSA_BUILTIN_KEYGEN, RSA_R_KEY_SIZE_TOO_SMALL);
 		goto err;
 	}
 	if(primes < RSA_DEFAULT_PRIME_NUM || primes > rsa_multip_cap(bits)) {
-		ok = 0;     /* we set our own err */
+		ok = 0; /* we set our own err */
 		RSAerr(RSA_F_RSA_BUILTIN_KEYGEN, RSA_R_KEY_PRIME_NUM_INVALID);
 		goto err;
 	}
@@ -292,7 +292,7 @@ redo:
 		BN_with_flags(pr0, r0, BN_FLG_CONSTTIME);
 		if(!BN_mod_inverse(rsa->d, rsa->e, pr0, ctx)) {
 			BN_free(pr0);
-			goto err;   /* d */
+			goto err; /* d */
 		}
 		/* We MUST free pr0 before any further use of r0 */
 		BN_free(pr0);

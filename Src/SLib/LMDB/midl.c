@@ -193,7 +193,7 @@ int mdb_midl_append_range(MDB_IDL * idp, MDB_ID id, unsigned n)
 void mdb_midl_xmerge(MDB_IDL idl, MDB_IDL merge)
 {
 	MDB_ID old_id, merge_id, i = merge[0], j = idl[0], k = i+j, total = k;
-	idl[0] = (MDB_ID)-1;            /* delimiter for idl scan below */
+	idl[0] = (MDB_ID)-1; /* delimiter for idl scan below */
 	old_id = idl[j];
 	while(i) {
 		merge_id = merge[i--];
@@ -207,7 +207,7 @@ void mdb_midl_xmerge(MDB_IDL idl, MDB_IDL merge)
 /* Quicksort + Insertion sort for small arrays */
 
 #define SMALL   8
-#define MIDL_SWAP(a, b)  { itmp = (a); (a) = (b); (b) = itmp; }
+#define MIDL_SWAP(a, b) { itmp = (a); (a) = (b); (b) = itmp; }
 
 void mdb_midl_sort(MDB_IDL ids)
 {
@@ -233,7 +233,7 @@ void mdb_midl_sort(MDB_IDL ids)
 			l = istack[jstack--];
 		}
 		else {
-			k = (l + ir) >> 1;      /* Choose median of left, center, right */
+			k = (l + ir) >> 1; /* Choose median of left, center, right */
 			MIDL_SWAP(ids[k], ids[l+1]);
 			if(ids[l] < ids[ir]) {
 				MIDL_SWAP(ids[l], ids[ir]);

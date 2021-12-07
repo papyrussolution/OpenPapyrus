@@ -50,8 +50,8 @@ int RAND_egd_bytes(const char * path, int bytes)
 #endif
 #else
 struct sockaddr_un {
-	short sun_family;       /* AF_UNIX */
-	char sun_path[108];     /* path name (gag) */
+	short sun_family; /* AF_UNIX */
+	char sun_path[108]; /* path name (gag) */
 };
 
 #endif                         /* NO_SYS_UN_H */

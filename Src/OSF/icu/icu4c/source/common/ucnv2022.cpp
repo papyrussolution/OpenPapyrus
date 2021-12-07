@@ -194,9 +194,9 @@ typedef enum {
 }Cnv2022Type;
 
 typedef struct ISO2022State {
-	int8_t cs[4];   /* charset number for SI (G0)/SO (G1)/SS2 (G2)/SS3 (G3) */
-	int8_t g;       /* 0..3 for G0..G3 (SI/SO/SS2/SS3) */
-	int8_t prevG;   /* g before single shift (SS2 or SS3) */
+	int8_t cs[4]; /* charset number for SI (G0)/SO (G1)/SS2 (G2)/SS3 (G3) */
+	int8_t g; /* 0..3 for G0..G3 (SI/SO/SS2/SS3) */
+	int8_t prevG; /* g before single shift (SS2 or SS3) */
 } ISO2022State;
 
 #define UCNV_OPTIONS_VERSION_MASK 0xf
@@ -444,7 +444,7 @@ static inline void setInitialStateToUnicodeKR(UConverter * /*converter*/, UConve
 		UConverter * cnv = myConverterData->currentConverter;
 
 		cnv->toUnicodeStatus = 0; /* offset */
-		cnv->mode = 0;      /* state */
+		cnv->mode = 0; /* state */
 		cnv->toULength = 0; /* byteIndex */
 	}
 }

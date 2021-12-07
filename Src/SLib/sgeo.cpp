@@ -638,9 +638,9 @@ double SGeo::SinCosSeries(int sinp, const SGeo::SinCosPair & rSC/*double sinx, d
 	// using Clenshaw summation.  N.B. c[0] is unused for sin series
 	// Approx operation count = (n + 5) mult and (2 * n + 2) add
 	double ar, y0, y1;
-	c += (n + sinp);              /* Point to one beyond last element */
+	c += (n + sinp); /* Point to one beyond last element */
 	ar = 2 * (rSC.C - rSC.S) * (rSC.C + rSC.S); /* 2 * cos(2 * x) */
-	y0 = n & 1 ? *--c : 0; y1 = 0;          /* accumulators for sum */
+	y0 = n & 1 ? *--c : 0; y1 = 0; /* accumulators for sum */
 	// Now n is even
 	n /= 2;
 	while(n--) {
@@ -744,7 +744,7 @@ void C1pf(double eps, double c[])
 	double d = eps;
 	int o = 0, l;
 	for(l = 1; l <= nC1p; ++l) { /* l is index of C1p[l] */
-		int m = (nC1p - l) / 2;     /* order of polynomial in eps^2 */
+		int m = (nC1p - l) / 2; /* order of polynomial in eps^2 */
 		c[l] = d * polyval(m, coeff + o, eps2) / coeff[o + m + 1];
 		o += m + 2;
 		d *= eps;
@@ -773,7 +773,7 @@ void C2f(double eps, double c[])
 	double d = eps;
 	int o = 0, l;
 	for(l = 1; l <= nC2; ++l) { /* l is index of C2[l] */
-		int m = (nC2 - l) / 2;     /* order of polynomial in eps^2 */
+		int m = (nC2 - l) / 2; /* order of polynomial in eps^2 */
 		c[l] = d * polyval(m, coeff + o, eps2) / coeff[o + m + 1];
 		o += m + 2;
 		d *= eps;
@@ -808,7 +808,7 @@ void SGeo::Geodesic::C3f_(double eps, double c[]) const
 	double mult = 1;
 	int o = 0, l;
 	for(l = 1; l < nC3; ++l) {   /* l is index of C3[l] */
-		int m = nC3 - l - 1;        /* order of polynomial in eps */
+		int m = nC3 - l - 1; /* order of polynomial in eps */
 		mult *= eps;
 		c[l] = mult * polyval(m, C3x + o, eps);
 		o += m + 1;
@@ -985,7 +985,7 @@ void SGeo::Geodesic::C4coeff_(/*SGeo::Geodesic * g*/)
 	int o = 0, k = 0, l, j;
 	for(l = 0; l < nC4; ++l) {        /* l is index of C4[l] */
 		for(j = nC4 - 1; j >= l; --j) { /* coeff of eps^j */
-			int m = nC4 - j - 1;           /* order of polynomial in n */
+			int m = nC4 - j - 1; /* order of polynomial in n */
 			C4x[k++] = polyval(m, coeff + o, N) / coeff[o + m + 1];
 			o += m + 2;
 		}

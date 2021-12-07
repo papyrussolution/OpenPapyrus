@@ -83,7 +83,7 @@ struct fixup_entry {
 	unsigned long mtime_nanos;
 	unsigned long ctime_nanos;
 	unsigned long fflags_set;
-	int fixup;                      /* bitmask of what needs fixing */
+	int fixup; /* bitmask of what needs fixing */
 	wchar_t                 * name;
 };
 
@@ -147,9 +147,9 @@ struct archive_write_disk {
 	/* Information about the object being restored right now. */
 	struct archive_entry    * entry; /* Entry being extracted. */
 	wchar_t                 * name; /* Name of entry, possibly edited. */
-	struct archive_wstring _name_data;   /* backing store for 'name' */
+	struct archive_wstring _name_data; /* backing store for 'name' */
 	wchar_t                 * tmpname; /* Temporary name */
-	struct archive_wstring _tmpname_data;  /* backing store for 'tmpname' */
+	struct archive_wstring _tmpname_data; /* backing store for 'tmpname' */
 	/* Tasks remaining for this object. */
 	int todo;
 	/* Tasks deferred until end-of-archive. */

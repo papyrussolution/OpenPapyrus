@@ -141,8 +141,8 @@ static void mif_put_point(uint x, uint y, int np);
 #endif
 
 static struct mif_line {        /* Line point structure specification */
-	float fpos_x;           /* Line point X coordinate */
-	float fpos_y;           /*            Y coordinate */
+	float fpos_x; /* Line point X coordinate */
+	float fpos_y; /*            Y coordinate */
 	struct mif_line * next; /* Pointer to next line point */
 	struct mif_line * prev; /* Pointer to previous line point */
 } mif_line =
@@ -164,18 +164,18 @@ static struct mif_line {        /* Line point structure specification */
 #define MIF_HTIC  (MIF_XMAX/225)        /* Size of scale mark (hor) */
 
 /** Drawing properties **/
-static char mif_justify[64];    /* How to justify the used text */
-static char mif_pen[64], mif_pen_width[64], mif_separation[64];         /* How to plot */
-static char mif_textcolor[64];  /* EAM parallels separation */
+static char mif_justify[64]; /* How to justify the used text */
+static char mif_pen[64], mif_pen_width[64], mif_separation[64]; /* How to plot */
+static char mif_textcolor[64]; /* EAM parallels separation */
 
-static int mif_text_ang = 0;            /* Rotation angle of text */
+static int mif_text_ang = 0; /* Rotation angle of text */
 
 static int mif_fill_patterns[] = {7, 12, 3, 0, 9, 8, 14, 13};
 #define MIF_FILL_SOLID  0
 #define MIF_FILL_NONE  15
 
 #define MIF_NPENS 16            /* Number of MIF pen types */
-static int mif_pentype = 0;     /* Pen type to use. Also used to create groups for graphics */
+static int mif_pentype = 0; /* Pen type to use. Also used to create groups for graphics */
 #define MIF_PEN_TO_GROUP(P)     ( 1 + (P) )     /* Map pen type to group number. Must be >= 1 */
 
 static int mif_pattern_table[MIF_NPENS] =
@@ -198,19 +198,19 @@ static struct mif_group_id {
 
 	int group_id;
 #define MIF_INVALID_GROUP_ID    0       /* An invalid MIF group ID */
-} mif_group_id[MIF_NGROUP_ID];  /* List of used group ID:s and corresponding MIF groups existence */
+} mif_group_id[MIF_NGROUP_ID]; /* List of used group ID:s and corresponding MIF groups existence */
 
 /** Semaphores **/
 static int mif_initialized = 0; /* != 0 when output is active */
-static int mif_in_frame = 0;    /* != 0 when inside a plot frame */
-static int mif_frameno = -1;    /* Current frame number */
-static int mif_colour = TRUE;   /* == TRUE when colour should be used */
+static int mif_in_frame = 0; /* != 0 when inside a plot frame */
+static int mif_frameno = -1; /* Current frame number */
+static int mif_colour = TRUE; /* == TRUE when colour should be used */
 static int mif_polyline = TRUE; /* == TRUE when lines are drawn as continuous curves */
 
 struct mpt {                    /* point definition structure */
-	int chr;                /* character for point */
+	int chr; /* character for point */
 	float x_offset, y_offset; /* offset for vertical positioning */
-	char * font;            /* font */
+	char * font; /* font */
 };
 
 static char zgnuplot[] = "ZGnuplot"; /* character formats */
@@ -826,7 +826,7 @@ static int proc_group_id(int group_id)
 	}
 	/* Group ID processed */
 	else {
-		rval = -1;      /* Not inside a Frame */
+		rval = -1; /* Not inside a Frame */
 	}
 
 	/* Return MIF group status */

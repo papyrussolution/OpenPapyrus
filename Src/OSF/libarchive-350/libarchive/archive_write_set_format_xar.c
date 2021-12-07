@@ -159,11 +159,11 @@ struct heap_data {
 	int id;
 	struct heap_data        * next;
 	uint64 temp_offset;
-	uint64 length;                        /* archived size.	*/
+	uint64 length; /* archived size.	*/
 	uint64 size;                          /* extracted size.	*/
 	enum enctype compression;
-	struct chksumval a_sum;                 /* archived checksum.	*/
-	struct chksumval e_sum;                 /* extracted checksum.	*/
+	struct chksumval a_sum; /* archived checksum.	*/
+	struct chksumval e_sum; /* extracted checksum.	*/
 };
 
 struct file {
@@ -177,7 +177,7 @@ struct file {
 	/* For hardlinked files.
 	 * Use only when archive_entry_nlink() > 1 */
 	struct file             * hardlink_target;
-	struct file             * parent;        /* parent directory entry */
+	struct file             * parent; /* parent directory entry */
 	/*
 	 * To manage sub directory files.
 	 * We use 'chnext' (a member of struct file) to chain.
@@ -233,8 +233,8 @@ struct xar {
 	int opt_compression_level;
 	uint32 opt_threads;
 
-	struct chksumwork a_sumwrk;             /* archived checksum.	*/
-	struct chksumwork e_sumwrk;             /* extracted checksum.	*/
+	struct chksumwork a_sumwrk; /* archived checksum.	*/
+	struct chksumwork e_sumwrk; /* extracted checksum.	*/
 	struct la_zstream stream;
 	struct archive_string_conv * sconv;
 	/*
@@ -2530,7 +2530,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 static int compression_init_encoder_bzip2(struct archive * a,
     struct la_zstream * lastrm, int level)
 {
-	(void)level;  /* UNUSED */
+	(void)level; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "bzip2"));
@@ -2708,7 +2708,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 static int compression_init_encoder_lzma(struct archive * a,
     struct la_zstream * lastrm, int level)
 {
-	(void)level;  /* UNUSED */
+	(void)level; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "lzma"));
@@ -2717,8 +2717,8 @@ static int compression_init_encoder_lzma(struct archive * a,
 static int compression_init_encoder_xz(struct archive * a,
     struct la_zstream * lastrm, int level, int threads)
 {
-	(void)level;  /* UNUSED */
-	(void)threads;  /* UNUSED */
+	(void)level; /* UNUSED */
+	(void)threads; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "xz"));

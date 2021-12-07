@@ -971,7 +971,7 @@ int __add_dbregid(DB_LOG_VRFY_INFO * lvh, VRFY_FILEREG_INFO * freg, int32 dbregi
 		}
 	}
 	if(IS_DBREG_OPEN(opcode))
-		tret = 1;  /* dbregid not in the array, gonna add 1. */
+		tret = 1; /* dbregid not in the array, gonna add 1. */
 	/*
 	 * Remove closed dbregid. dbregid can be recycled, not unique to a db
 	 * file, it's dynamically allocated for each db handle.
@@ -1404,7 +1404,7 @@ int __txn_started(DB_LOG_VRFY_INFO * lvinfo, DB_LSN lsn, uint32 txnid, int * res
 	}
 err:
 	if(ret == DB_NOTFOUND)
-		ret = 0;  /* It's OK if can't find it. */
+		ret = 0; /* It's OK if can't find it. */
 	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	return ret;

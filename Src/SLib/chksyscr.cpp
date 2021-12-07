@@ -146,7 +146,7 @@ static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUT
 	//
 	// Prepare input buffer
 	//
-	if(pAS->fInitialized)  {
+	if(pAS->fInitialized) {
 		sbdIn.ulVersion = 0;
 		sbdIn.cBuffers = 1;
 		sbdIn.pBuffers = &sbIn;
@@ -195,7 +195,7 @@ static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn,
 	SecBuffer       sbIn;
 	ULONG           fContextAttr;
 	SString msg_buf;
-	if(!pAS->fInitialized)  {
+	if(!pAS->fInitialized) {
 		ss = rVt._AcquireCredentialsHandle(NULL, _T("NTLM"), SECPKG_CRED_INBOUND, 0, 0, 0, 0, &pAS->hcred, &tsExpiry);
 		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_ACQCREDHDL);

@@ -2172,7 +2172,7 @@ AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, D
 			MEMSZERO(NodeRec);
 	}
 	if(UpdatedOnly) {
-		if(UpdatedOnly == 2 && statID && P_DLS)  {
+		if(UpdatedOnly == 2 && statID && P_DLS) {
 			P_DLS->GetExportedObjectsSince(PPOBJ_SCARD, statID, &UpdSCardList);
 		}
 		else {

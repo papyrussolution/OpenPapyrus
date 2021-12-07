@@ -336,7 +336,7 @@ int Camellia_Ekeygen(int keyBitLength, const u8 * rawKey, KEY_TABLE_TYPE k)
 		RotLeft128(s0, s1, s2, s3, 17); /* KL <<<111 */
 		k[44] = s0, k[45] = s1, k[46] = s2, k[47] = s3;
 
-		return 3;       /* grand rounds */
+		return 3; /* grand rounds */
 	}
 	else {
 		k[12] = s0, k[13] = s1, k[14] = s2, k[15] = s3;
@@ -382,7 +382,7 @@ int Camellia_Ekeygen(int keyBitLength, const u8 * rawKey, KEY_TABLE_TYPE k)
 		RotLeft128(s2, s3, s0, s1, 2); /* KL <<<111 */
 		k[60] = s2, k[61] = s3, k[62] = s0, k[63] = s1;
 
-		return 4;       /* grand rounds */
+		return 4; /* grand rounds */
 	}
 	/*
 	 * It is possible to perform certain precalculations, which

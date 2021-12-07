@@ -512,7 +512,7 @@ static int __ham_vrfy_bucket(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 buck
 		if(ret != 0)
 			goto err;
 		if(next_pgno == PGNO_INVALID)
-			break;          /* End of the bucket. */
+			break; /* End of the bucket. */
 		/* We already checked this, but just in case... */
 		if(!IS_VALID_PGNO(next_pgno)) {
 			EPRINT((env, DB_STR_A("1119", "Page %lu: hash page has bad next_pgno", "%lu"), (ulong)pgno));

@@ -53,14 +53,14 @@ typedef enum {
    used. */
 struct IMAP {
 	curl_pp_transfer transfer;
-	char * mailbox;   /* Mailbox to select */
+	char * mailbox; /* Mailbox to select */
 	char * uidvalidity; /* UIDVALIDITY to check in select */
-	char * uid;       /* Message UID to fetch */
-	char * mindex;    /* Index in mail box of mail to fetch */
-	char * section;   /* Message SECTION to fetch */
-	char * partial;   /* Message PARTIAL to fetch */
-	char * query;     /* Query to search for */
-	char * custom;    /* Custom request */
+	char * uid; /* Message UID to fetch */
+	char * mindex; /* Index in mail box of mail to fetch */
+	char * section; /* Message SECTION to fetch */
+	char * partial; /* Message PARTIAL to fetch */
+	char * query; /* Query to search for */
+	char * custom; /* Custom request */
 	char * custom_params; /* Parameters for the custom request */
 };
 
@@ -68,19 +68,19 @@ struct IMAP {
    struct */
 struct imap_conn {
 	struct pingpong pp;
-	imapstate state;      /* Always use imap.c:state() to change state! */
-	bool ssldone;         /* Is connect() over SSL done? */
-	bool preauth;         /* Is this connection PREAUTH? */
-	struct SASL sasl;     /* SASL-related parameters */
+	imapstate state; /* Always use imap.c:state() to change state! */
+	bool ssldone; /* Is connect() over SSL done? */
+	bool preauth; /* Is this connection PREAUTH? */
+	struct SASL sasl; /* SASL-related parameters */
 	unsigned int preftype; /* Preferred authentication type */
-	unsigned int cmdid;   /* Last used command ID */
-	char resptag[5];      /* Response tag to wait for */
-	bool tls_supported;   /* StartTLS capability supported by server */
-	bool login_disabled;  /* LOGIN command disabled by server */
-	bool ir_supported;    /* Initial response supported by server */
-	char * mailbox;       /* The last selected mailbox */
+	unsigned int cmdid; /* Last used command ID */
+	char resptag[5]; /* Response tag to wait for */
+	bool tls_supported; /* StartTLS capability supported by server */
+	bool login_disabled; /* LOGIN command disabled by server */
+	bool ir_supported; /* Initial response supported by server */
+	char * mailbox; /* The last selected mailbox */
 	char * mailbox_uidvalidity; /* UIDVALIDITY parsed from select response */
-	struct dynbuf dyn;    /* for the IMAP commands */
+	struct dynbuf dyn; /* for the IMAP commands */
 };
 
 extern const struct Curl_handler Curl_handler_imap;

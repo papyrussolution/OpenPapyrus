@@ -221,7 +221,7 @@ void GnuPlot::DoKDensity(curve_points * cp, int firstPoint/* where to start in p
 static double * cp_binomial(int points)
 {
 	int k;
-	int e = points;             /* well we're going from k=0 to k=p_count-1 */
+	int e = points; /* well we're going from k=0 to k=p_count-1 */
 	double * coeff = (double*)SAlloc::M(e * sizeof(double));
 	int n = points - 1;
 	e = n / 2;
@@ -622,7 +622,7 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 	GpCoordinate * dest/* where to put the interpolated data */)
 {
 	double xdiff, temp, x, y;
-	double xstart, xend;    /* Endpoints of the sampled x range */
+	double xstart, xend; /* Endpoints of the sampled x range */
 	int i, l;
 	GpCoordinate * this_points;
 	AxS.Idx_X = pPlot->AxIdx_X;
@@ -1347,7 +1347,7 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 	// Replace original data with spline approximation 
 	FREEANDASSIGN(pCurve->points, new_points);
 	pCurve->p_count = nseg;
-	pCurve->p_max = nseg+1;  /* not sure why we asked for 1 extra */
+	pCurve->p_max = nseg+1; /* not sure why we asked for 1 extra */
 }
 /*
  * Generate 2D splines along a path for each set of points in the plot,
@@ -1361,8 +1361,8 @@ void GnuPlot::Do3DCubic(iso_curve * pCurve, enum PLOT_SMOOTH smoothOption)
 void GnuPlot::Gen2DPathSplines(curve_points * pPlot)
 {
 	int i;
-	int ic, first_point;    /* indexes for original data */
-	int is = 0;             /* index for new (splined) data */
+	int ic, first_point; /* indexes for original data */
+	int is = 0; /* index for new (splined) data */
 	GpCoordinate * old_points = NULL;
 	GpCoordinate * splined_points;
 	GpSplineCoeff * sc_x = NULL;

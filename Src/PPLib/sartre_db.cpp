@@ -400,7 +400,7 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 		if(f & SrWordAssoc::fHasFlexiaModel) { THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf)); } else if(dir < 0) pWa->FlexiaModelID = 0;
 		if(f & SrWordAssoc::fHasAccentModel) { THROW_SL(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf)); } else if(dir < 0) pWa->AccentModelID = 0;
 		if(f & SrWordAssoc::fHasPrefix)      { THROW_SL(p_sctx->Serialize(dir, pWa->PrefixID,      rBuf)); } else if(dir < 0) pWa->PrefixID = 0;
-		if(f & SrWordAssoc::fHasAffixModel)  { THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID,  rBuf)); } else if(dir < 0) pWa->AffixModelID = 0;
+		if(f & SrWordAssoc::fHasAffixModel) { THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID,  rBuf)); } else if(dir < 0) pWa->AffixModelID = 0;
 		if(f & SrWordAssoc::fHasAbbrExp)     { THROW_SL(p_sctx->Serialize(dir, pWa->AbbrExpID,     rBuf)); } else if(dir < 0) pWa->AbbrExpID = 0;
 	}
 	CATCHZOK
@@ -1692,7 +1692,7 @@ CONCEPTID FASTCALL SrDatabase::ResolveReservedConcept(int rc)
 		case rcInstance: if(!PropInstance) { THROW(ResolveConcept("crp_instance", &PropInstance)); } prop = PropInstance; break;
 		case rcSubclass: if(!PropSubclass) { THROW(ResolveConcept("crp_subclass", &PropSubclass)); } prop = PropSubclass; break;
 		case rcType:     if(!PropType)     { THROW(ResolveConcept("crp_type", &PropType)); } prop = PropType; break;
-		case rcHMember:  if(!PropHMember)  { THROW(ResolveConcept("crp_hmember", &PropHMember)); } prop = PropHMember; break;
+		case rcHMember:  if(!PropHMember) { THROW(ResolveConcept("crp_hmember", &PropHMember)); } prop = PropHMember; break;
 	}
 	CATCH
 		prop = 0;

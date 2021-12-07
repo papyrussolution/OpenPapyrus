@@ -56,7 +56,7 @@ struct memdebug {
 
 FILE * curl_dbg_logfile = NULL;
 static bool memlimit = FALSE; /* enable memory limit */
-static long memsize = 0;  /* set number of mallocs allowed */
+static long memsize = 0; /* set number of mallocs allowed */
 
 /* this sets the log file name */
 void curl_dbg_memdebug(const char * logname)

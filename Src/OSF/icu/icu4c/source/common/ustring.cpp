@@ -628,7 +628,7 @@ U_CAPI UChar * U_EXPORT2 u_strtok_r(UChar * src,
 U_CAPI UChar * U_EXPORT2 u_strcat(UChar * dst,
     const UChar * src)
 {
-	UChar * anchor = dst;       /* save a pointer to start of dst */
+	UChar * anchor = dst; /* save a pointer to start of dst */
 	while(*dst != 0) {          /* To end of first string */
 		++dst;
 	}
@@ -642,7 +642,7 @@ U_CAPI UChar * U_EXPORT2 u_strncat(UChar * dst,
     int32_t n)
 {
 	if(n > 0) {
-		UChar * anchor = dst;   /* save a pointer to start of dst */
+		UChar * anchor = dst; /* save a pointer to start of dst */
 		while(*dst != 0) {      /* To end of first string */
 			++dst;
 		}
@@ -967,7 +967,7 @@ U_CAPI int32_t U_EXPORT2 u_strncmpCodePointOrder(const UChar * s1, const UChar *
 U_CAPI UChar * U_EXPORT2 u_strcpy(UChar * dst,
     const UChar * src)
 {
-	UChar * anchor = dst;       /* save a pointer to start of dst */
+	UChar * anchor = dst; /* save a pointer to start of dst */
 
 	while((*(dst++) = *(src++)) != 0) { /* copy string 2 over     */
 	}
@@ -979,7 +979,7 @@ U_CAPI UChar * U_EXPORT2 u_strncpy(UChar * dst,
     const UChar * src,
     int32_t n)
 {
-	UChar * anchor = dst;       /* save a pointer to start of dst */
+	UChar * anchor = dst; /* save a pointer to start of dst */
 
 	/* copy string 2 over */
 	while(n > 0 && (*(dst++) = *(src++)) != 0) {

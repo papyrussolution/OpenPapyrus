@@ -243,7 +243,7 @@ void __db_SHA1Final(uchar * digest, SHA1_CTX * context)
 		digest[i] = (uchar)((context->state[i>>2]>>((3-(i&3))*8) )&255);
 	}
 	/* Wipe variables */
-	i = 0;  /* JHB */
+	i = 0; /* JHB */
 	memzero(context->buffer, 64);
 	memzero(context->state, 20);
 	memzero(context->count, 8);

@@ -251,7 +251,7 @@ void ViewStyle::Init(size_t stylesSize_)
 	foldmarginHighlightColour = ColourOptional(ColourDesired(0xc0, 0xc0, 0xc0));
 	whitespaceColours.fore = ColourOptional();
 	whitespaceColours.back = ColourOptional(ColourDesired(0xff, 0xff, 0xff));
-	controlCharSymbol = 0;  /* Draw the control characters */
+	controlCharSymbol = 0; /* Draw the control characters */
 	controlCharWidth = 0;
 	selbar = Platform::Chrome();
 	selbarlight = Platform::ChromeHighlight();

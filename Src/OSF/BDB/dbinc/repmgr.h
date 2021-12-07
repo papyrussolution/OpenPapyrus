@@ -560,7 +560,7 @@ struct __channel {
 		REPMGR_CONNECTION *conn;
 		/* For EID_MASTER or EID_BROADCAST channels. */
 		struct {
-			mgr_mutex_t *mutex;  /* For connection establishment. */
+			mgr_mutex_t *mutex; /* For connection establishment. */
 			REPMGR_CONNECTION **array;
 			uint32 cnt;
 		} conns;

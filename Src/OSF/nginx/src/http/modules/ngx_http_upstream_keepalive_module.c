@@ -167,44 +167,29 @@ static ngx_int_t ngx_http_upstream_get_keepalive_peer(ngx_peer_connection_t * pc
 {
 	ngx_http_upstream_keepalive_peer_data_t  * kp = (ngx_http_upstream_keepalive_peer_data_t *)data;
 	ngx_http_upstream_keepalive_cache_t * item;
-
 	ngx_int_t rc;
 	ngx_queue_t  * q, * cache;
 	ngx_connection_t  * c;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-	    "get keepalive peer");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get keepalive peer");
 	/* ask balancer */
-
 	rc = kp->original_get_peer(pc, kp->data);
-
 	if(rc != NGX_OK) {
 		return rc;
 	}
-
 	/* search cache for suitable connection */
-
 	cache = &kp->conf->cache;
-
 	for(q = ngx_queue_head(cache);
 	    q != ngx_queue_sentinel(cache);
 	    q = ngx_queue_next(q)) {
 		item = ngx_queue_data(q, ngx_http_upstream_keepalive_cache_t, queue);
 		c = item->connection;
-
-		if(ngx_memn2cmp((u_char *)&item->sockaddr, (u_char *)pc->sockaddr,
-			    item->socklen, pc->socklen)
-		    == 0) {
+		if(ngx_memn2cmp((u_char *)&item->sockaddr, (u_char *)pc->sockaddr, item->socklen, pc->socklen) == 0) {
 			ngx_queue_remove(q);
 			ngx_queue_insert_head(&kp->conf->free, q);
-
 			goto found;
 		}
 	}
-
 	return NGX_OK;
-
 found:
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get keepalive peer: using connection %p", c);
 	c->idle = 0;

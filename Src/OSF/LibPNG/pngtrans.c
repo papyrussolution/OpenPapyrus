@@ -473,7 +473,7 @@ void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, i
 		}
 
 		else
-			return;  /* bad bit depth */
+			return; /* bad bit depth */
 
 		row_info->channels = 1;
 
@@ -514,7 +514,7 @@ void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, i
 		}
 
 		else
-			return;  /* bad bit depth */
+			return; /* bad bit depth */
 
 		row_info->channels = 3;
 
@@ -524,7 +524,7 @@ void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, i
 	}
 
 	else
-		return;  /* The filler channel has gone already */
+		return; /* The filler channel has gone already */
 
 	/* Fix the rowbytes value. */
 	row_info->rowbytes = dp-row;

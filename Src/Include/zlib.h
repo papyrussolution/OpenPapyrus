@@ -578,19 +578,19 @@ typedef z_stream  * z_streamp;
 // for more details on the meanings of these fields.
 // 
 typedef struct gz_header_s {
-	int text;       /* true if compressed data believed to be text */
-	uLong time;     /* modification time */
-	int xflags;     /* extra flags (not used when writing a gzip file) */
-	int os;         /* operating system */
+	int text; /* true if compressed data believed to be text */
+	uLong time; /* modification time */
+	int xflags; /* extra flags (not used when writing a gzip file) */
+	int os; /* operating system */
 	Bytef * extra; /* pointer to extra field or Z_NULL if none */
 	uInt extra_len; /* extra field length (valid if extra != Z_NULL) */
 	uInt extra_max; /* space at extra (only when reading header) */
 	Bytef * name; /* pointer to zero-terminated file name or Z_NULL */
-	uInt name_max;  /* space at name (only when reading header) */
+	uInt name_max; /* space at name (only when reading header) */
 	Bytef * comment; /* pointer to zero-terminated comment or Z_NULL */
-	uInt comm_max;  /* space at comment (only when reading header) */
-	int hcrc;       /* true if there was or will be a header crc */
-	int done;       /* true when done reading gzip header (not used when writing a gzip file) */
+	uInt comm_max; /* space at comment (only when reading header) */
+	int hcrc; /* true if there was or will be a header crc */
+	int done; /* true when done reading gzip header (not used when writing a gzip file) */
 } gz_header;
 
 typedef gz_header  * gz_headerp;
@@ -1673,7 +1673,7 @@ ZEXTERN int ZEXPORT uncompress2(Bytef *dest,   uLongf *destLen, const Bytef *sou
    wrapper, documented in RFC 1952, wrapped around a deflate stream.
  */
 
-typedef struct gzFile_s * gzFile;    /* semi-opaque gzip file descriptor */
+typedef struct gzFile_s * gzFile; /* semi-opaque gzip file descriptor */
 
 /*
    ZEXTERN gzFile ZEXPORT gzopen(const char *path, const char *mode);
@@ -2221,7 +2221,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		//#include <stdlib.h>
 	#endif
 	#ifdef Z_SOLO
-		typedef long ptrdiff_t;     /* guess -- will be caught if guess is wrong */
+		typedef long ptrdiff_t; /* guess -- will be caught if guess is wrong */
 	#endif
 	/* @sobolev #ifndef local
 		#define local static
@@ -2460,9 +2460,9 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	// the current table to the next table.  Each entry is four bytes. 
 	// 
 	typedef struct {
-		uchar  op;       /* operation, extra bits, table bits */
-		uchar  bits;     /* bits in this part of the code */
-		ushort val;     /* offset in table or code value */
+		uchar  op; /* operation, extra bits, table bits */
+		uchar  bits; /* bits in this part of the code */
+		ushort val; /* offset in table or code value */
 	} ZInfTreesCode; // code
 	// 
 	// op values as set by inflate_table():
@@ -2571,47 +2571,47 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	// including the allocated sliding window, which is up to 32K bytes. 
 	//
 	struct inflate_state {
-		z_streamp strm;         /* pointer back to this zlib stream */
-		inflate_mode mode;      /* current inflate mode */
-		int    last;               /* true if processing last block */
-		int    wrap;               /* bit 0 true for zlib, bit 1 true for gzip, bit 2 true to validate check value */
-		int    havedict;           /* true if dictionary provided */
-		int    flags;              /* gzip header method and flags (0 if zlib) */
-		uint   dmax;          /* zlib header max distance (INFLATE_STRICT) */
-		ulong  check;    /* protected copy of check value */
-		ulong  total;    /* protected copy of output count */
-		gz_headerp head;        /* where to save gzip header information */
+		z_streamp strm; /* pointer back to this zlib stream */
+		inflate_mode mode; /* current inflate mode */
+		int    last; /* true if processing last block */
+		int    wrap; /* bit 0 true for zlib, bit 1 true for gzip, bit 2 true to validate check value */
+		int    havedict; /* true if dictionary provided */
+		int    flags; /* gzip header method and flags (0 if zlib) */
+		uint   dmax; /* zlib header max distance (INFLATE_STRICT) */
+		ulong  check; /* protected copy of check value */
+		ulong  total; /* protected copy of output count */
+		gz_headerp head; /* where to save gzip header information */
 		/* sliding window */
-		uint   wbits;         /* log base 2 of requested window size */
-		uint   wsize;         /* window size or zero if not using window */
-		uint   whave;         /* valid bytes in the window */
-		uint   wnext;         /* window write index */
+		uint   wbits; /* log base 2 of requested window size */
+		uint   wsize; /* window size or zero if not using window */
+		uint   whave; /* valid bytes in the window */
+		uint   wnext; /* window write index */
 		uchar  * window; /* allocated sliding window, if needed */
 		/* bit accumulator */
-		ulong  hold;     /* input bit accumulator */
-		uint   bits;          /* number of bits in "in" */
+		ulong  hold; /* input bit accumulator */
+		uint   bits; /* number of bits in "in" */
 		/* for string and stored block copying */
-		uint   length;        /* literal or length of data to copy */
-		uint   offset;        /* distance back to copy string from */
+		uint   length; /* literal or length of data to copy */
+		uint   offset; /* distance back to copy string from */
 		/* for table and code decoding */
-		uint   extra;         /* extra bits needed */
+		uint   extra; /* extra bits needed */
 		/* fixed and dynamic code tables */
 		const  ZInfTreesCode * lencode; /* starting table for length/literal codes */
 		const  ZInfTreesCode * distcode; /* starting table for distance codes */
-		uint   lenbits;       /* index bits for lencode */
-		uint   distbits;      /* index bits for distcode */
+		uint   lenbits; /* index bits for lencode */
+		uint   distbits; /* index bits for distcode */
 		/* dynamic table building */
-		uint   ncode;         /* number of code length code lengths */
-		uint   nlen;          /* number of length code lengths */
-		uint   ndist;         /* number of distance code lengths */
-		uint   have;          /* number of code lengths in lens[] */
-		ZInfTreesCode * next;        /* next available space in codes[] */
+		uint   ncode; /* number of code length code lengths */
+		uint   nlen; /* number of length code lengths */
+		uint   ndist; /* number of distance code lengths */
+		uint   have; /* number of code lengths in lens[] */
+		ZInfTreesCode * next; /* next available space in codes[] */
 		ushort lens[320]; /* temporary storage for code lengths */
 		ushort work[288]; /* work area for code table building */
-		ZInfTreesCode codes[ENOUGH];     /* space for code tables */
-		int    sane;               /* if false, allow invalid distance too far */
-		int    back;               /* bits back of last unprocessed length/lit */
-		uint   was;           /* initial length of match */
+		ZInfTreesCode codes[ENOUGH]; /* space for code tables */
+		int    sane; /* if false, allow invalid distance too far */
+		int    back; /* bits back of last unprocessed length/lit */
+		uint   was; /* initial length of match */
 	};
 	//#include "inffast.h"
 	void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start);
@@ -2681,23 +2681,23 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	// save space in the various tables. IPos is used only for parameter passing.
 	//
 	typedef struct internal_state {
-		z_streamp strm;  /* pointer back to this zlib stream */
-		int status;      /* as the name implies */
+		z_streamp strm; /* pointer back to this zlib stream */
+		int status; /* as the name implies */
 		Bytef * pending_buf; /* output still pending */
 		ulong pending_buf_size; /* size of pending_buf */
 		Bytef * pending_out; /* next pending byte to output to the stream */
-		ulong pending;     /* nb of bytes in the pending buffer */
-		int wrap;        /* bit 0 true for zlib, bit 1 true for gzip */
+		ulong pending; /* nb of bytes in the pending buffer */
+		int wrap; /* bit 0 true for zlib, bit 1 true for gzip */
 		gz_headerp gzhead; /* gzip header information to write */
-		ulong gzindex;     /* where in extra, name, or comment */
-		Byte method;     /* can only be DEFLATED */
-		int last_flush;  /* value of flush param for previous deflate call */
+		ulong gzindex; /* where in extra, name, or comment */
+		Byte method; /* can only be DEFLATED */
+		int last_flush; /* value of flush param for previous deflate call */
 
 		/* used by deflate.c: */
 
-		uInt w_size;     /* LZ77 window size (32K by default) */
-		uInt w_bits;     /* log2(w_size)  (8..16) */
-		uInt w_mask;     /* w_size - 1 */
+		uInt w_size; /* LZ77 window size (32K by default) */
+		uInt w_bits; /* log2(w_size)  (8..16) */
+		uInt w_mask; /* w_size - 1 */
 		Bytef * window;
 		/* Sliding window. Input bytes are read into the second half of the window,
 		 * and move to the first half later to keep a dictionary of at least wSize
@@ -2712,21 +2712,21 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 			// array to 64K, this link is maintained only for the last 32K strings.
 			// An index in this array is thus a window index modulo 32K.
 		Posf * head; /* Heads of the hash chains or NIL. */
-		uInt ins_h;       /* hash index of string to be inserted */
-		uInt hash_size;   /* number of elements in hash table */
-		uInt hash_bits;   /* log2(hash_size) */
-		uInt hash_mask;   /* hash_size-1 */
+		uInt ins_h; /* hash index of string to be inserted */
+		uInt hash_size; /* number of elements in hash table */
+		uInt hash_bits; /* log2(hash_size) */
+		uInt hash_mask; /* hash_size-1 */
 		uInt hash_shift; // Number of bits by which ins_h must be shifted at each input
 			// step. It must be such that after MIN_MATCH steps, the oldest
 			// byte no longer takes part in the hash key, that is: hash_shift * MIN_MATCH >= hash_bits
 		long block_start; // Window position at the beginning of the current output block. Gets
 			// negative when the window is moved backwards.
-		uInt match_length;       /* length of best match */
-		IPos prev_match;         /* previous match */
-		int match_available;     /* set if previous match exists */
-		uInt strstart;           /* start of string to insert */
-		uInt match_start;        /* start of matching string */
-		uInt lookahead;          /* number of valid bytes ahead in window */
+		uInt match_length; /* length of best match */
+		IPos prev_match; /* previous match */
+		int match_available; /* set if previous match exists */
+		uInt strstart; /* start of string to insert */
+		uInt match_start; /* start of matching string */
+		uInt lookahead; /* number of valid bytes ahead in window */
 		uInt prev_length;        // Length of the best match at previous step. Matches not greater than this
 			// are discarded. This is used in the lazy match evaluation.
 		uInt max_chain_length;   // To speed up deflation, hash chains are never searched beyond this
@@ -2748,18 +2748,18 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		struct ct_data_s dyn_ltree[HEAP_SIZE]; /* literal and length tree */
 		struct ct_data_s dyn_dtree[2*D_CODES+1]; /* distance tree */
 		struct ct_data_s bl_tree[2*BL_CODES+1]; /* Huffman tree for bit lengths */
-		struct tree_desc_s l_desc;           /* desc. for literal tree */
-		struct tree_desc_s d_desc;           /* desc. for distance tree */
-		struct tree_desc_s bl_desc;          /* desc. for bit length tree */
+		struct tree_desc_s l_desc; /* desc. for literal tree */
+		struct tree_desc_s d_desc; /* desc. for distance tree */
+		struct tree_desc_s bl_desc; /* desc. for bit length tree */
 		ushort bl_count[MAX_BITS+1]; // number of codes at each bit length for an optimal tree 
-		int heap[2*L_CODES+1];  /* heap used to build the Huffman trees */
-		int heap_len;           /* number of elements in the heap */
-		int heap_max;           /* element of largest frequency */
+		int heap[2*L_CODES+1]; /* heap used to build the Huffman trees */
+		int heap_len; /* number of elements in the heap */
+		int heap_max; /* element of largest frequency */
 		/* The sons of heap[n] are heap[2*n] and heap[2*n+1]. heap[0] is not used.
 		 * The same heap array is used to build all trees.
 		 */
 		uchar depth[2*L_CODES+1]; // Depth of each subtree used as tie breaker for trees of equal frequency
-		uchar * l_buf;     /* buffer for literals or lengths */
+		uchar * l_buf; /* buffer for literals or lengths */
 		uInt lit_bufsize;
 		/* Size of match buffer for literals/lengths.  There are 4 reasons for
 		 * limiting lit_bufsize to 64K:
@@ -2779,17 +2779,17 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		 *   trees more frequently.
 		 * - I can't count above 4
 		 */
-		uInt last_lit;  /* running index in l_buf */
+		uInt last_lit; /* running index in l_buf */
 		ushort * d_buf; // Buffer for distances. To simplify the code, d_buf and l_buf have
 			// the same number of elements. To use different lengths, an extra flag
 			// array would be necessary.
-		ulong opt_len;    /* bit length of current block with optimal trees */
+		ulong opt_len; /* bit length of current block with optimal trees */
 		ulong static_len; /* bit length of current block with static trees */
-		uInt matches;   /* number of string matches in current block */
-		uInt insert;    /* bytes at end of window left to insert */
+		uInt matches; /* number of string matches in current block */
+		uInt insert; /* bytes at end of window left to insert */
 	#ifdef ZLIB_DEBUG
 		ulong compressed_len; /* total bit length of compressed file mod 2^32 */
-		ulong bits_sent;  /* bit length of compressed data sent mod 2^32 */
+		ulong bits_sent; /* bit length of compressed data sent mod 2^32 */
 	#endif
 		ushort bi_buf; // Output buffer. bits are inserted starting at the bottom (least significant bits).
 		int bi_valid;   // Number of valid bits in bi_buf.  All bits above the last valid bit are always zero.

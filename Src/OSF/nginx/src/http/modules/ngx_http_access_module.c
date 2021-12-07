@@ -9,7 +9,7 @@
 struct ngx_http_access_rule_t {
 	in_addr_t mask;
 	in_addr_t addr;
-	ngx_uint_t deny;         /* unsigned  deny:1; */
+	ngx_uint_t deny; /* unsigned  deny:1; */
 };
 
 #if (NGX_HAVE_INET6)
@@ -17,7 +17,7 @@ struct ngx_http_access_rule_t {
 struct ngx_http_access_rule6_t {
 	struct in6_addr addr;
 	struct in6_addr mask;
-	ngx_uint_t deny;         /* unsigned  deny:1; */
+	ngx_uint_t deny; /* unsigned  deny:1; */
 };
 
 #endif
@@ -25,7 +25,7 @@ struct ngx_http_access_rule6_t {
 #if (NGX_HAVE_UNIX_DOMAIN)
 
 typedef struct {
-	ngx_uint_t deny;         /* unsigned  deny:1; */
+	ngx_uint_t deny; /* unsigned  deny:1; */
 } ngx_http_access_rule_un_t;
 
 #endif

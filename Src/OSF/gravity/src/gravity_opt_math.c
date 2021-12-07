@@ -869,7 +869,7 @@ static GravityClassImplementation_Math gravity_clsimp_math;
 
 bool gravity_ismath_class(const gravity_class_t * c) { return (c && c == gravity_clsimp_math.P_Cls); }
 const char * gravity_math_name() { return gravity_clsimp_math.P_Name/*GRAVITY_CLASS_MATH_NAME*/; }
-void gravity_math_register(gravity_vm * vm)  { gravity_clsimp_math.Register(vm); }
+void gravity_math_register(gravity_vm * vm) { gravity_clsimp_math.Register(vm); }
 void gravity_math_free() { gravity_clsimp_math.UnRegister(); }
 
 #if 0 // {

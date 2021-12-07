@@ -489,7 +489,7 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	PlaceObjects(pTerm, Gg.P_FirstObject, LAYER_BEHIND, 3);
 	if(replot_mode != AXIS_ONLY_ROTATE)
 		PlacePixmaps(pTerm, LAYER_BEHIND, 3);
-	TermApplyLpProperties(pTerm, &Gg.border_lp);   /* border linetype */
+	TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 	// must come before using Draw3DGraphBox() the first time 
 	Setup3DBoxCorners();
 	// DRAW GRID AND BORDER 
@@ -634,7 +634,7 @@ SECOND_KEY_PASS:
 			yl -= _3DBlk.KeyEntryHeight;                         \
 	} while(0)
 	key_count = 0;
-	_3DBlk.YlRef = yl -= _3DBlk.KeyEntryHeight / 2;    /* centralise the keys */
+	_3DBlk.YlRef = yl -= _3DBlk.KeyEntryHeight / 2; /* centralise the keys */
 	/* PM January 2005: The mistake of missing blank lines in the data file is
 	 * so frequently made (see questions at comp.graphics.apps.gnuplot) that it
 	 * really deserves this warning. But don't show it too often --- only if it
@@ -3295,10 +3295,10 @@ void GnuPlot::SPlotMapDeactivate()
 // 
 void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 {
-	double dx, dxl, dxh;    /* rectangle extent along X axis (vertical) */
-	double dz, dzl, dzh;    /* rectangle extent along Z axis (horizontal) */
-	double dy;              /* always 0 */
-	int x0, y0, x1, y1;     /* terminal coordinates */
+	double dx, dxl, dxh; /* rectangle extent along X axis (vertical) */
+	double dz, dzl, dzh; /* rectangle extent along Z axis (horizontal) */
+	double dy; /* always 0 */
+	int x0, y0, x1, y1; /* terminal coordinates */
 	const int style = style_from_fill(&pPlot->fill_properties);
 	const int colortype = pPlot->fill_properties.border_color.type;
 	if(!_3DBlk.xz_projection) {

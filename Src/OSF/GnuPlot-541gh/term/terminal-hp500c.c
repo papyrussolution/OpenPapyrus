@@ -252,7 +252,7 @@ static int HP_compress(uchar * op, uchar * oe, uchar * cp)
 	uchar * ce = cp;
 	while(op < oe) {
 		uchar prevchar = *op; /* remember char */
-		uchar count = 1;      /* its read the first time */
+		uchar count = 1; /* its read the first time */
 		while(++op < oe && *op == prevchar && count < 255) {
 			/* set op to the next char */
 			count++; /* and count it  */
@@ -260,8 +260,8 @@ static int HP_compress(uchar * op, uchar * oe, uchar * cp)
 		*ce++ = --count; /* were ready, so correct the count */
 		*ce++ = prevchar; /* and store <what> */
 	}
-	*ce = 0;                /* just to be safe   */
-	return ce - cp;         /* length of  cbufs */
+	*ce = 0; /* just to be safe   */
+	return ce - cp; /* length of  cbufs */
 }
 
 static uchar HP_complement(int c)
@@ -277,7 +277,7 @@ static int HP_compress_to_TIFF(uchar * op/* original pointer */, uchar * oe/* en
 		uchar prevchar;
 		uchar count;
 		prevchar = *op; /* gelesenes Zeichen aufbewaren */
-		count = 1;      /* bisher wurde es einmal gelesen */
+		count = 1; /* bisher wurde es einmal gelesen */
 		while(++op < oe && *op == prevchar && count < 128) {
 			count++;
 		}

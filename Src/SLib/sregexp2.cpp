@@ -229,7 +229,7 @@ int SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * 
 		uint onig_options = SRE2_FlagsToOnigurumaOptions(flags & (/*fNotBOL|fNotEOL|fNotBeginString|fNotEndString|fNotBeginPosition*/0));
 		int r = onig_search(static_cast<regex_t *>(H), reinterpret_cast<const uchar *>(pText), reinterpret_cast<const uchar *>(pText+textLen), 
 			reinterpret_cast<const uchar *>(pText), reinterpret_cast<const uchar *>(pText+textLen), &region, onig_options);
-		if(r >= 0)  {
+		if(r >= 0) {
 			if(pResult) {
 				for(int i = 0; i < region.num_regs; i++) {
 					IntRange ritem;

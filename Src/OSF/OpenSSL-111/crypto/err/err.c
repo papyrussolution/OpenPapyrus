@@ -464,7 +464,7 @@ static ulong get_error_values(int inc, int top, const char ** file, int * line, 
 	if(es->bottom == es->top)
 		return 0;
 	if(top)
-		i = es->top;    /* last error */
+		i = es->top; /* last error */
 	else
 		i = (es->bottom + 1) % ERR_NUM_ERRORS; /* first error */
 	ret = es->err_buffer[i];

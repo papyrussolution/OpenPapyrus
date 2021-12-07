@@ -143,7 +143,7 @@ enum FIG_TEXT_STYLEBITS {
 
 #define FIG_TEXT_NORMAL      FIG_TEXT_POSTSCRIPT
 
-static int FIG_current_layer;   /* behind|back|plot|front */
+static int FIG_current_layer; /* behind|back|plot|front */
 
 enum FIG_poly_stat {
 	FIG_poly_new, FIG_poly_part
@@ -160,7 +160,7 @@ static double FIG_current_linewidth = 1.0;
 static GpSizeUnits FIG_size_units = INCHES;
 
 /* Maximum number of points per POLYLINE. */
-static int FIG_poly_vec_max = 999;      /* JFS */
+static int FIG_poly_vec_max = 999; /* JFS */
 
 static enum FIG_poly_stat FIG_polyvec_stat;
 
@@ -174,27 +174,27 @@ static uint FIG_RGB_colors[256];
 static int FIG_width  = 6000;
 static int FIG_height = 3600;
 
-static F_point * FIG_points = NULL;      /* Array for the collection of points for
+static F_point * FIG_points = NULL; /* Array for the collection of points for
                                             POLYLINE, allocated on demand. */
 static F_line FIG_line;
 
-static int FIG_type;            /* actually solid or dash pattern */
-static float FIG_spacing;       /* length of dash or dot spacing */
-static int FIG_justify;         /* Fig justification T_*_JUSTIFIED */
-static float FIG_angle;         /* Fig text angle (in radians) */
-static int FIG_use_color = TRUE;        /* do we use color or not? */
+static int FIG_type; /* actually solid or dash pattern */
+static float FIG_spacing; /* length of dash or dot spacing */
+static int FIG_justify; /* Fig justification T_*_JUSTIFIED */
+static float FIG_angle; /* Fig text angle (in radians) */
+static int FIG_use_color = TRUE; /* do we use color or not? */
 static int FIG_color = DEFAULT; /* which color to use */
 static int FIG_xoff = FIG_IRES;
 static int FIG_yoff = FIG_IRES;
 static int FIG_font_id = FIG_ROMAN_FONT;
 static int FIG_font_s = FIG_FONT_S;
 static int FIG_portrait = FALSE;
-static int FIG_text_flags = FIG_TEXT_NORMAL;    /* whether text is special or hidden etc. */
-static int FIG_palette_set = FALSE;     /* PM3D Palette Set ? */
-static int FIG_palette_size = 128;      /* Number of colours in palette */
-static int FIG_palette_offst = 32;      /* Offset from zero for palette colours */
-static int FIG_rgb_color_offset = 32;   /* First user-defined RGB color */
-static int FIG_fill_style = 20;         /* Full saturation */
+static int FIG_text_flags = FIG_TEXT_NORMAL; /* whether text is special or hidden etc. */
+static int FIG_palette_set = FALSE; /* PM3D Palette Set ? */
+static int FIG_palette_size = 128; /* Number of colours in palette */
+static int FIG_palette_offst = 32; /* Offset from zero for palette colours */
+static int FIG_rgb_color_offset = 32; /* First user-defined RGB color */
+static int FIG_fill_style = 20; /* Full saturation */
 
 static void FIG_poly_clean(enum FIG_poly_stat fig_stat);
 
@@ -998,7 +998,7 @@ TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 		fprintf(GPT.P_GpOutFile, " %d %d", FIG_xoff + corners[i].x, pThis->MaxY + FIG_yoff - corners[i].y);
 		if(j++ > 4 && i != points - 1) {
 			fputs("\n\t", GPT.P_GpOutFile);
-			j = 0;  /* JFS */
+			j = 0; /* JFS */
 		}
 	}
 	fprintf(GPT.P_GpOutFile, " %d %d", FIG_xoff + corners[0].x, pThis->MaxY + FIG_yoff - corners[0].y);

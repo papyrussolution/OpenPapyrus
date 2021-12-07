@@ -62,7 +62,7 @@ struct GpMeshTriangle {
 	coordval ymax;
 	coordval zmin;
 	coordval zmax;
-	t_plane plane;          /* the plane coefficients */
+	t_plane plane; /* the plane coefficients */
 	bool frontfacing; /* is polygon facing front- or backwards? */
 };
 
@@ -312,7 +312,7 @@ long GnuPlot::MakeEdge(long vnum1, long vnum2, lp_style_type * lp, int style, in
 long GnuPlot::StoreEdge(long vnum1, edge_direction direction, long crvlen, lp_style_type * lp, int style)
 {
 	GpVertex * v1 = vlist + vnum1;
-	GpVertex * v2 = NULL;     /* just in case: initialize... */
+	GpVertex * v2 = NULL; /* just in case: initialize... */
 	long vnum2;
 	uint drawbits = (0x1 << direction);
 	switch(direction) {
@@ -682,11 +682,11 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 {
 	long i;
 	GpSurfacePoints * this_plot;
-	int  surface;       /* count the surfaces (i.e. sub-plots) */
-	long crv, ncrvs;    /* count isolines */
-	long nverts;        /* count vertices */
-	long max_crvlen;    /* maximal length of isoline in any plot */
-	long nv, ne, np;    /* local poly/edge/vertex counts */
+	int  surface; /* count the surfaces (i.e. sub-plots) */
+	long crv, ncrvs; /* count isolines */
+	long nverts; /* count vertices */
+	long max_crvlen; /* maximal length of isoline in any plot */
+	long nv, ne, np; /* local poly/edge/vertex counts */
 	long * north_polygons; /* stores polygons of isoline above */
 	long * these_polygons; /* same, being built for use by next turn */
 	long * north_edges; /* stores edges of polyline above */
@@ -1381,7 +1381,7 @@ int GnuPlot::InFront(GpTermEntry * pTerm, long edgenum/* number of the edge in e
 	long polynum; // ... and its index in the plist 
 	GpVertex * v1;
 	GpVertex * v2; /* pointers to vertices of input edge */
-	coordval xmin, xmax;    /* all of these are for the edge */
+	coordval xmin, xmax; /* all of these are for the edge */
 	coordval ymin, ymax;
 	coordval zmin;
 	int grid_x, grid_y;

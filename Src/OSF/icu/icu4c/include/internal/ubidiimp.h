@@ -159,34 +159,34 @@ enum {                                  /* flags for Opening.flags */
 
 typedef struct Opening {
     int32_t position;                   /* position of opening bracket */
-    int32_t match;                      /* matching char or -position of closing bracket */
-    int32_t contextPos;                 /* position of last strong char found before opening */
-    uint16_t flags;                     /* bits for L or R/AL found within the pair */
-    UBiDiDirection contextDir;          /* L or R according to last strong char before opening */
-    uint8_t filler;                     /* to complete a nice multiple of 4 chars */
+    int32_t match; /* matching char or -position of closing bracket */
+    int32_t contextPos; /* position of last strong char found before opening */
+    uint16_t flags; /* bits for L or R/AL found within the pair */
+    UBiDiDirection contextDir; /* L or R according to last strong char before opening */
+    uint8_t filler; /* to complete a nice multiple of 4 chars */
 } Opening;
 
 typedef struct IsoRun {
-    int32_t contextPos;                /* position of char determining context */
-    uint16_t start;                     /* index of first opening entry for this run */
-    uint16_t limit;                     /* index after last opening entry for this run */
+    int32_t contextPos; /* position of char determining context */
+    uint16_t start; /* index of first opening entry for this run */
+    uint16_t limit; /* index after last opening entry for this run */
     UBiDiLevel level;                   /* level of this run */
-    DirProp lastStrong;                 /* bidi class of last strong char found in this run */
+    DirProp lastStrong; /* bidi class of last strong char found in this run */
     DirProp lastBase;                   /* bidi class of last base char found in this run */
-    UBiDiDirection contextDir;          /* L or R to use as context for following openings */
+    UBiDiDirection contextDir; /* L or R to use as context for following openings */
 } IsoRun;
 
 typedef struct BracketData {
     UBiDi   *pBiDi;
     /* array of opening entries which should be enough in most cases; no malloc() */
     Opening simpleOpenings[SIMPLE_OPENINGS_COUNT];
-    Opening *openings;                  /* pointer to current array of entries */
-    int32_t openingsCount;              /* number of allocated entries */
-    int32_t isoRunLast;                 /* index of last used entry */
+    Opening *openings; /* pointer to current array of entries */
+    int32_t openingsCount; /* number of allocated entries */
+    int32_t isoRunLast; /* index of last used entry */
     /* array of nested isolated sequence entries; can never excess UBIDI_MAX_EXPLICIT_LEVEL
        + 1 for index 0, + 1 for before the first isolated sequence */
     IsoRun  isoRuns[UBIDI_MAX_EXPLICIT_LEVEL+2];
-    bool isNumbersSpecial;             /* reordering mode for NUMBERS_SPECIAL */
+    bool isNumbersSpecial; /* reordering mode for NUMBERS_SPECIAL */
 } BracketData;
 
 typedef struct Isolate {
@@ -199,7 +199,7 @@ typedef struct Isolate {
 typedef struct Run {
     int32_t logicalStart,   /* first character of the run; b31 indicates even/odd level */
             visualLimit,    /* last visual position of the run +1 */
-            insertRemove;   /* if >0, flags for inserting LRM/RLM before/after run,
+            insertRemove; /* if >0, flags for inserting LRM/RLM before/after run,
                                if <0, count of bidi controls within run   */
 } Run;
 
@@ -240,16 +240,16 @@ enum {
 /* InsertPoints structure for noting where to put BiDi marks ---------------- */
 
 typedef struct Point {
-    int32_t pos;            /* position in text */
-    int32_t flag;           /* flag for LRM/RLM, before/after */
+    int32_t pos; /* position in text */
+    int32_t flag; /* flag for LRM/RLM, before/after */
 } Point;
 
 typedef struct InsertPoints {
-    int32_t capacity;       /* number of points allocated */
-    int32_t size;           /* number of points used */
-    int32_t confirmed;      /* number of points confirmed */
-    UErrorCode errorCode;   /* for eventual memory shortage */
-    Point *points;          /* pointer to array of points */
+    int32_t capacity; /* number of points allocated */
+    int32_t size; /* number of points used */
+    int32_t confirmed; /* number of points confirmed */
+    UErrorCode errorCode; /* for eventual memory shortage */
+    Point *points; /* pointer to array of points */
 } InsertPoints;
 
 
@@ -330,7 +330,7 @@ struct UBiDi {
     int32_t epiLength;
 
     /* the following is set in ubidi_setPara, used in processPropertySeq */
-    const struct ImpTabPair * pImpTabPair;  /* pointer to levels state table pair */
+    const struct ImpTabPair * pImpTabPair; /* pointer to levels state table pair */
 
     /* the overall paragraph or line directionality - see UBiDiDirection */
     UBiDiDirection direction;
@@ -346,7 +346,7 @@ struct UBiDi {
     int32_t trailingWSStart;
 
     /* fields for paragraph handling */
-    int32_t paraCount;                  /* set in getDirProps() */
+    int32_t paraCount; /* set in getDirProps() */
     /* filled in getDirProps() */
     Para *paras;
 
@@ -354,7 +354,7 @@ struct UBiDi {
     Para simpleParas[SIMPLE_PARAS_COUNT];
 
     /* fields for line reordering */
-    int32_t runCount;     /* ==-1: runs not set up yet */
+    int32_t runCount; /* ==-1: runs not set up yet */
     Run *runs;
 
     /* for non-mixed text, we only need a tiny array of runs (no malloc()) */
@@ -378,8 +378,8 @@ struct UBiDi {
     int32_t controlCount;
 
     /* for Bidi class callback */
-    UBiDiClassCallback *fnClassCallback;    /* action pointer */
-    const void *coClassCallback;            /* context pointer */
+    UBiDiClassCallback *fnClassCallback; /* action pointer */
+    const void *coClassCallback; /* context pointer */
 };
 
 #define IS_VALID_PARA(x) ((x) && ((x)->pParaBiDi==(x)))

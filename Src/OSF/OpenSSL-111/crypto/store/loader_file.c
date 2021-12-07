@@ -1264,7 +1264,7 @@ again:
 			char * pem_name = NULL; /* PEM record name */
 			char * pem_header = NULL; /* PEM record header */
 			uchar * data = NULL; /* DER encoded data */
-			long len = 0;   /* DER encoded data length */
+			long len = 0; /* DER encoded data length */
 
 			matchcount = -1;
 			if(ctx->type == ossl_store_loader_ctx_st::is_pem) {

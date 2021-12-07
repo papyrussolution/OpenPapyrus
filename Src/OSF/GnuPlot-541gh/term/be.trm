@@ -85,7 +85,7 @@ typedef enum { hasNoArg, hasArg } OptionArg;
 
 static struct beopt {
 	const char * option; /* Name of option */
-	OptionArg arg;  /* Whether option has argument */
+	OptionArg arg; /* Whether option has argument */
 }  BE_cmdargs[] =
 {
 	{ "-mono", hasNoArg }, { "-gray", hasNoArg }, { "-clear", hasNoArg },
@@ -248,7 +248,7 @@ TERM_PUBLIC void BE_reset()
 
 TERM_PUBLIC void BE_graphics()
 {
-	BEFORE_GRAPHICS;        /* kludge for crippled select */
+	BEFORE_GRAPHICS; /* kludge for crippled select */
 	PRINT1("G%d\n", BE_plot_number);
 }
 
@@ -256,7 +256,7 @@ TERM_PUBLIC void BE_text(GpTermEntry * pThis)
 {
 	PRINT0("E\n");
 	FFLUSH();
-	AFTER_TEXT;             /* kludge for crippled select */
+	AFTER_TEXT; /* kludge for crippled select */
 }
 
 TERM_PUBLIC void BE_move(uint x, uint y)

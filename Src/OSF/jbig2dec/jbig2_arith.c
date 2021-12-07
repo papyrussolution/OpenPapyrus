@@ -209,8 +209,8 @@ Jbig2ArithState * jbig2_arith_new(Jbig2Ctx * ctx, Jbig2WordStream * ws)
 /* could put bit fields in to minimize memory usage */
 typedef struct {
 	uint16_t Qe;
-	byte mps_xor;           /* mps_xor = index ^ NMPS */
-	byte lps_xor;           /* lps_xor = index ^ NLPS ^ (SWITCH << 7) */
+	byte mps_xor; /* mps_xor = index ^ NMPS */
+	byte lps_xor; /* lps_xor = index ^ NLPS ^ (SWITCH << 7) */
 } Jbig2ArithQe;
 
 static const Jbig2ArithQe jbig2_arith_Qe[MAX_QE_ARRAY_SIZE] = {

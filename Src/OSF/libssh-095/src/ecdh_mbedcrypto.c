@@ -254,7 +254,7 @@ SSH_PACKET_CALLBACK(ssh_packet_server_ecdh_init)
 		SSH2_MSG_KEXDH_REPLY,
 		pubkey_blob,          /* host's pubkey */
 		q_s_string,          /* ecdh public key */
-		sig_blob);          /* signature blob */
+		sig_blob); /* signature blob */
 
 	SSH_STRING_FREE(sig_blob);
 	SSH_STRING_FREE(pubkey_blob);

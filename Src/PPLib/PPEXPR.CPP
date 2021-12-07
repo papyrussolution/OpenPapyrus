@@ -640,7 +640,7 @@ int PPExprParser::GetToken()
 			*p = 0;
 			Func = 0;
 			if(sstreqi_ascii(buf, "abs")) { Func = funcAbs; }
-			else if(sstreqi_ascii(buf, "sqrt"))  { Func = funcSqrt; }
+			else if(sstreqi_ascii(buf, "sqrt")) { Func = funcSqrt; }
 			else if(sstreqi_ascii(buf, "sin"))   { Func = funcSin; }
 			else if(sstreqi_ascii(buf, "cos"))   { Func = funcCos; }
 			else if(sstreqi_ascii(buf, "tan"))   { Func = funcTan; }
@@ -653,7 +653,7 @@ int PPExprParser::GetToken()
 			else if(sstreqi_ascii(buf, "oid"))   { Func = funcOid; }
 			else if(sstreqi_ascii(buf, "pow"))   { Func = funcPow; }
 			else if(sstreqi_ascii(buf, "min"))   { Func = funcMin; }
-			else if(sstreqi_ascii(buf, "minz"))  { Func = funcMinZ; }
+			else if(sstreqi_ascii(buf, "minz")) { Func = funcMinZ; }
 			else if(sstreqi_ascii(buf, "max"))   { Func = funcMax; }
 			else if(sstreqi_ascii(buf, "?"))     { Func = funcQuest; }
 			else if(sstreqi_ascii(buf, "eq"))    { Func = funcEq; }

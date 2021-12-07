@@ -813,7 +813,7 @@ LOCAL(boolean) jt_read_integer(const char ** strptr, JDIMENSION * result)
 	}
 	*result = val;
 	if(ptr == *strptr)
-		return FALSE;   /* oops, no digits */
+		return FALSE; /* oops, no digits */
 	*strptr = ptr;
 	return TRUE;
 }
@@ -994,9 +994,9 @@ GLOBAL(boolean) jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_tran
 	if(info->crop) {
 		/* Insert default values for unset crop parameters */
 		if(info->crop_xoffset_set == JCROP_UNSET)
-			info->crop_xoffset = 0;  /* default to +0 */
+			info->crop_xoffset = 0; /* default to +0 */
 		if(info->crop_yoffset_set == JCROP_UNSET)
-			info->crop_yoffset = 0;  /* default to +0 */
+			info->crop_yoffset = 0; /* default to +0 */
 		if(info->crop_width_set == JCROP_UNSET) {
 			if(info->crop_xoffset >= info->output_width)
 				ERREXIT(srcinfo, JERR_BAD_CROP_SPEC);
@@ -1222,7 +1222,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 	uint firstoffset, offset;
 	JDIMENSION new_value;
 
-	if(length < 12) return;  /* Length of an IFD entry */
+	if(length < 12) return; /* Length of an IFD entry */
 
 	/* Discover byte order */
 	if(GETJOCTET(data[0]) == 0x49 && GETJOCTET(data[1]) == 0x49)
@@ -1257,7 +1257,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 		firstoffset <<= 8;
 		firstoffset += GETJOCTET(data[4]);
 	}
-	if(firstoffset > length - 2) return;  /* check end of data segment */
+	if(firstoffset > length - 2) return; /* check end of data segment */
 
 	/* Get the number of directory entries contained in this IFD */
 	if(is_motorola) {
@@ -1275,7 +1275,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 
 	/* Search for ExifSubIFD offset Tag in IFD0 */
 	for(;; ) {
-		if(firstoffset > length - 12) return;  /* check end of data segment */
+		if(firstoffset > length - 12) return; /* check end of data segment */
 		/* Get Tag number */
 		if(is_motorola) {
 			tagnum = GETJOCTET(data[firstoffset]);
@@ -1287,7 +1287,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 			tagnum <<= 8;
 			tagnum += GETJOCTET(data[firstoffset]);
 		}
-		if(tagnum == 0x8769) break;  /* found ExifSubIFD offset Tag */
+		if(tagnum == 0x8769) break; /* found ExifSubIFD offset Tag */
 		if(--number_of_tags == 0) return;
 		firstoffset += 12;
 	}
@@ -1307,7 +1307,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 		offset <<= 8;
 		offset += GETJOCTET(data[firstoffset+8]);
 	}
-	if(offset > length - 2) return;  /* check end of data segment */
+	if(offset > length - 2) return; /* check end of data segment */
 
 	/* Get the number of directory entries contained in this SubIFD */
 	if(is_motorola) {
@@ -1325,7 +1325,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 
 	/* Search for ExifImageWidth and ExifImageHeight Tags in this SubIFD */
 	do {
-		if(offset > length - 12) return;  /* check end of data segment */
+		if(offset > length - 12) return; /* check end of data segment */
 		/* Get Tag number */
 		if(is_motorola) {
 			tagnum = GETJOCTET(data[offset]);
@@ -1339,9 +1339,9 @@ static void adjust_exif_parameters(JOCTET FAR * data, uint length,
 		}
 		if(tagnum == 0xA002 || tagnum == 0xA003) {
 			if(tagnum == 0xA002)
-				new_value = new_width;  /* ExifImageWidth Tag */
+				new_value = new_width; /* ExifImageWidth Tag */
 			else
-				new_value = new_height;  /* ExifImageHeight Tag */
+				new_value = new_height; /* ExifImageHeight Tag */
 			if(is_motorola) {
 				data[offset+2] = 0; /* Format = ulong (4 octets) */
 				data[offset+3] = 4;
@@ -1594,12 +1594,12 @@ GLOBAL(void) jcopy_markers_execute(j_decompress_ptr srcinfo, j_compress_ptr dsti
 		    GETJOCTET(marker->data[0]) == 0x4A && GETJOCTET(marker->data[1]) == 0x46 &&
 		    GETJOCTET(marker->data[2]) == 0x49 && GETJOCTET(marker->data[3]) == 0x46 &&
 		    GETJOCTET(marker->data[4]) == 0)
-			continue;  /* reject duplicate JFIF */
+			continue; /* reject duplicate JFIF */
 		if(dstinfo->write_Adobe_marker && marker->marker == JPEG_APP0+14 &&
 		    marker->data_length >= 5 && GETJOCTET(marker->data[0]) == 0x41 &&
 		    GETJOCTET(marker->data[1]) == 0x64 && GETJOCTET(marker->data[2]) == 0x6F &&
 		    GETJOCTET(marker->data[3]) == 0x62 && GETJOCTET(marker->data[4]) == 0x65)
-			continue;  /* reject duplicate Adobe */
+			continue; /* reject duplicate Adobe */
 #ifdef NEED_FAR_POINTERS
 		/* We could use jpeg_write_marker if the data weren't FAR... */
 		{

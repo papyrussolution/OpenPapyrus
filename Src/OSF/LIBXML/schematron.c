@@ -59,10 +59,10 @@ typedef enum {
 struct xmlSchematronTest {
 	xmlSchematronTest * next; /* the next test in the list */
 	xmlSchematronTestType type; /* the test type */
-	xmlNode * P_Node;        /* the node in the tree */
-	xmlChar * test;         /* the expression to test */
+	xmlNode * P_Node; /* the node in the tree */
+	xmlChar * test; /* the expression to test */
 	xmlXPathCompExprPtr comp; /* the compiled expression */
-	xmlChar * report;       /* the message to report */
+	xmlChar * report; /* the message to report */
 };
 /**
  * _xmlSchematronRule:
@@ -74,11 +74,11 @@ struct xmlSchematronTest {
 struct xmlSchematronRule {
 	xmlSchematronRule * next; /* the next rule in the list */
 	xmlSchematronRule * patnext; /* the next rule in the pattern list */
-	xmlNode * P_Node;        /* the node in the tree */
-	xmlChar * context;      /* the context evaluation rule */
+	xmlNode * P_Node; /* the node in the tree */
+	xmlChar * context; /* the context evaluation rule */
 	xmlSchematronTest * tests; /* the list of tests */
-	xmlPattern * pattern;  /* the compiled pattern associated */
-	xmlChar * report;       /* the message to report */
+	xmlPattern * pattern; /* the compiled pattern associated */
+	xmlChar * report; /* the message to report */
 };
 /**
  * _xmlSchematronPattern:
@@ -90,7 +90,7 @@ struct xmlSchematronRule {
 struct xmlSchematronPattern {
 	xmlSchematronPattern * next; /* the next pattern in the list */
 	xmlSchematronRule * rules; /* the list of rules */
-	xmlChar * name;         /* the name of the pattern */
+	xmlChar * name; /* the name of the pattern */
 };
 /**
  * _xmlSchematron:
@@ -98,19 +98,19 @@ struct xmlSchematronPattern {
  * A Schematrons definition
  */
 struct _xmlSchematron {
-	const xmlChar * name;   /* schema name */
-	int preserve;           /* was the document passed by the user */
-	xmlDoc * doc;          /* pointer to the parsed document */
-	int flags;              /* specific to this schematron */
-	void * _private;        /* unused by the library */
-	xmlDict * dict;        /* the dictionnary used internally */
-	const xmlChar * title;  /* the title if any */
-	int nbNs;               /* the number of namespaces */
-	int nbPattern;          /* the number of patterns */
+	const xmlChar * name; /* schema name */
+	int preserve; /* was the document passed by the user */
+	xmlDoc * doc; /* pointer to the parsed document */
+	int flags; /* specific to this schematron */
+	void * _private; /* unused by the library */
+	xmlDict * dict; /* the dictionnary used internally */
+	const xmlChar * title; /* the title if any */
+	int nbNs; /* the number of namespaces */
+	int nbPattern; /* the number of patterns */
 	xmlSchematronPattern * patterns; /* the patterns found */
 	xmlSchematronRule * rules; /* the rules gathered */
-	int nbNamespaces;       /* number of namespaces in the array */
-	int maxNamespaces;      /* size of the array */
+	int nbNamespaces; /* number of namespaces in the array */
+	int maxNamespaces; /* size of the array */
 	const xmlChar ** namespaces; /* the array of namespaces */
 };
 /**
@@ -120,13 +120,13 @@ struct _xmlSchematron {
  */
 struct _xmlSchematronValidCtxt {
 	int type;
-	int flags;              /* an or of xmlSchematronValidOptions */
+	int flags; /* an or of xmlSchematronValidOptions */
 	xmlDict * dict;
 	int nberrors;
 	int err;
 	xmlSchematron * schema;
 	xmlXPathContext * xctxt;
-	FILE * outputFile;      /* if using XML_SCHEMATRON_OUT_FILE */
+	FILE * outputFile; /* if using XML_SCHEMATRON_OUT_FILE */
 	xmlBuffer * outputBuffer; /* if using XML_SCHEMATRON_OUT_BUFFER */
 #ifdef LIBXML_OUTPUT_ENABLED
 	xmlOutputWriteCallback iowrite; /* if using XML_SCHEMATRON_OUT_IO */
@@ -134,10 +134,10 @@ struct _xmlSchematronValidCtxt {
 #endif
 	void * ioctx;
 	/* error reporting data */
-	void * userData;                 /* user specific data block */
+	void * userData; /* user specific data block */
 	xmlSchematronValidityErrorFunc error; /* the callback in case of errors */
 	xmlSchematronValidityWarningFunc warning; /* callback in case of warning */
-	xmlStructuredErrorFunc serror;   /* the structured function */
+	xmlStructuredErrorFunc serror; /* the structured function */
 };
 
 struct _xmlSchematronParserCtxt {
@@ -152,17 +152,17 @@ struct _xmlSchematronParserCtxt {
 	int err;
 	xmlXPathContext * xctxt; // the XPath context used for compilation 
 	xmlSchematron * schema;
-	int nbNamespaces;       /* number of namespaces in the array */
-	int maxNamespaces;      /* size of the array */
+	int nbNamespaces; /* number of namespaces in the array */
+	int maxNamespaces; /* size of the array */
 	const xmlChar ** namespaces; /* the array of namespaces */
-	int nbIncludes;         /* number of includes in the array */
-	int maxIncludes;        /* size of the array */
-	xmlNode ** includes;  /* the array of includes */
+	int nbIncludes; /* number of includes in the array */
+	int maxIncludes; /* size of the array */
+	xmlNode ** includes; /* the array of includes */
 	/* error reporting data */
-	void * userData;                 /* user specific data block */
+	void * userData; /* user specific data block */
 	xmlSchematronValidityErrorFunc error; /* the callback in case of errors */
 	xmlSchematronValidityWarningFunc warning; /* callback in case of warning */
-	xmlStructuredErrorFunc serror;   /* the structured function */
+	xmlStructuredErrorFunc serror; /* the structured function */
 };
 
 #define XML_STRON_CTXT_PARSER 1

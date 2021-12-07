@@ -412,11 +412,11 @@ extern "C" {
  */
 
 struct ASN1_TEMPLATE_st {
-	ulong flags;    /* Various flags */
-	long tag;               /* tag, not used if no tagging */
-	ulong offset;   /* Offset of this field in structure */
+	ulong flags; /* Various flags */
+	long tag; /* tag, not used if no tagging */
+	ulong offset; /* Offset of this field in structure */
 	const char * field_name; /* Field name */
-	ASN1_ITEM_EXP * item;   /* Relevant ASN1_ITEM or ASN1_ADB */
+	ASN1_ITEM_EXP * item; /* Relevant ASN1_ITEM or ASN1_ADB */
 };
 
 /* Macro to extract ASN1_ITEM and ASN1_ADB pointer from ASN1_TEMPLATE */
@@ -428,17 +428,17 @@ typedef struct ASN1_ADB_TABLE_st ASN1_ADB_TABLE;
 typedef struct ASN1_ADB_st ASN1_ADB;
 
 struct ASN1_ADB_st {
-	ulong flags;    /* Various flags */
-	ulong offset;   /* Offset of selector field */
+	ulong flags; /* Various flags */
+	ulong offset; /* Offset of selector field */
 	int (* adb_cb)(long * psel); /* Application callback */
 	const ASN1_ADB_TABLE * tbl; /* Table of possible types */
-	long tblcount;          /* Number of entries in tbl */
+	long tblcount; /* Number of entries in tbl */
 	const ASN1_TEMPLATE * default_tt; /* Type to use if no match */
 	const ASN1_TEMPLATE * null_tt; /* Type to use if selector is NULL */
 };
 
 struct ASN1_ADB_TABLE_st {
-	long value;             /* NID for an object or value for an int */
+	long value; /* NID for an object or value for an int */
 	const ASN1_TEMPLATE tt; /* item for this value */
 };
 
@@ -508,7 +508,6 @@ struct ASN1_ADB_TABLE_st {
 #define ASN1_TFLG_ADB_MASK      (0x3<<8)
 
 #define ASN1_TFLG_ADB_OID       (0x1<<8)
-
 #define ASN1_TFLG_ADB_INT       (0x1<<9)
 
 /*
@@ -517,22 +516,18 @@ struct ASN1_ADB_TABLE_st {
  */
 
 #define ASN1_TFLG_NDEF          (0x1<<11)
-
-/* Field is embedded and not a pointer */
-#define ASN1_TFLG_EMBED         (0x1 << 12)
+#define ASN1_TFLG_EMBED         (0x1 << 12) /* Field is embedded and not a pointer */
 
 /* This is the actual ASN1 item itself */
 
 struct ASN1_ITEM_st {
-	char itype;             /* The item type, primitive, SEQUENCE, CHOICE
-	                         * or extern */
-	long utype;             /* underlying type */
-	const ASN1_TEMPLATE * templates; /* If SEQUENCE or CHOICE this contains
-	                                  * the contents */
-	long tcount;            /* Number of templates if SEQUENCE or CHOICE */
-	const void * funcs;     /* functions that handle this type */
-	long size;              /* Structure size (usually) */
-	const char * sname;     /* Structure name */
+	char itype; /* The item type, primitive, SEQUENCE, CHOICE or extern */
+	long utype; /* underlying type */
+	const ASN1_TEMPLATE * templates; /* If SEQUENCE or CHOICE this contains the contents */
+	long tcount; /* Number of templates if SEQUENCE or CHOICE */
+	const void * funcs; /* functions that handle this type */
+	long size; /* Structure size (usually) */
+	const char * sname; /* Structure name */
 };
 
 /*-
@@ -586,12 +581,12 @@ struct ASN1_ITEM_st {
  * like CHOICE
  */
 struct ASN1_TLC_st {
-	char valid;             /* Values below are valid */
-	int ret;                /* return value */
-	long plen;              /* length */
-	int ptag;               /* class value */
-	int pclass;             /* class value */
-	int hdrlen;             /* header length */
+	char valid; /* Values below are valid */
+	int ret; /* return value */
+	long plen; /* length */
+	int ptag; /* class value */
+	int pclass; /* class value */
+	int hdrlen; /* header length */
 };
 
 /* Typedefs for ASN1 function pointers */
@@ -647,10 +642,10 @@ typedef int ASN1_aux_cb(int operation, ASN1_VALUE ** in, const ASN1_ITEM * it, v
 typedef struct ASN1_AUX_st {
 	void * app_data;
 	int flags;
-	int ref_offset;         /* Offset of reference value */
-	int ref_lock;           /* Lock type to use */
+	int ref_offset; /* Offset of reference value */
+	int ref_lock; /* Lock type to use */
 	ASN1_aux_cb * asn1_cb;
-	int enc_offset;         /* Offset of ASN1_ENCODING structure */
+	int enc_offset; /* Offset of ASN1_ENCODING structure */
 } ASN1_AUX;
 
 /* For print related callbacks exarg points to this structure */

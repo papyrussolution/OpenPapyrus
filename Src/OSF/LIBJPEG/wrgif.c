@@ -49,17 +49,17 @@ typedef struct {
 	struct djpeg_dest_struct pub; /* public fields */
 	j_decompress_ptr cinfo; /* back link saves passing separate parm */
 	/* State for packing variable-width codes into a bitstream */
-	int n_bits;             /* current number of bits/code */
-	int maxcode;            /* maximum code, given n_bits */
-	INT32 cur_accum;        /* holds bits not yet output */
-	int cur_bits;           /* # of bits in cur_accum */
+	int n_bits; /* current number of bits/code */
+	int maxcode; /* maximum code, given n_bits */
+	INT32 cur_accum; /* holds bits not yet output */
+	int cur_bits; /* # of bits in cur_accum */
 	/* State for GIF code assignment */
-	int ClearCode;          /* clear code (doesn't change) */
-	int EOFCode;            /* EOF code (ditto) */
-	int code_counter;       /* counts output symbols */
+	int ClearCode; /* clear code (doesn't change) */
+	int EOFCode; /* EOF code (ditto) */
+	int code_counter; /* counts output symbols */
 	/* GIF data packet construction buffer */
-	int bytesinpkt;         /* # of bytes in current packet */
-	char packetbuf[256];    /* workspace for accumulating packet */
+	int bytesinpkt; /* # of bytes in current packet */
+	char packetbuf[256]; /* workspace for accumulating packet */
 } gif_dest_struct;
 
 typedef gif_dest_struct * gif_dest_ptr;
@@ -230,7 +230,7 @@ static void emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
 	/* Write the Logical Screen Descriptor */
 	put_word(dinfo, (uint)dinfo->cinfo->output_width);
 	put_word(dinfo, (uint)dinfo->cinfo->output_height);
-	FlagByte = 0x80;        /* Yes, there is a global color table */
+	FlagByte = 0x80; /* Yes, there is a global color table */
 	FlagByte |= (BitsPerPixel-1) << 4; /* color resolution */
 	FlagByte |= (BitsPerPixel-1); /* size of global color table */
 	putc(FlagByte, dinfo->pub.output_file);
@@ -265,7 +265,7 @@ static void emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
 	}
 	// Write image separator and Image Descriptor 
 	putc(',', dinfo->pub.output_file); /* separator */
-	put_word(dinfo, 0);     /* left/top offset */
+	put_word(dinfo, 0); /* left/top offset */
 	put_word(dinfo, 0);
 	put_word(dinfo, (uint)dinfo->cinfo->output_width); // image size 
 	put_word(dinfo, (uint)dinfo->cinfo->output_height);

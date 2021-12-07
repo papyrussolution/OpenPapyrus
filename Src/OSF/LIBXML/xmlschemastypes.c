@@ -35,13 +35,13 @@ typedef struct _xmlSchemaValDate xmlSchemaValDate;
 typedef xmlSchemaValDate * xmlSchemaValDatePtr;
 struct _xmlSchemaValDate {
 	long year;
-	uint mon     : 4;       /* 1 <=  mon    <= 12   */
-	uint day     : 5;       /* 1 <=  day    <= 31   */
-	uint hour    : 5;       /* 0 <=  hour   <= 23   */
-	uint min     : 6;       /* 0 <=  min    <= 59	*/
+	uint mon     : 4; /* 1 <=  mon    <= 12   */
+	uint day     : 5; /* 1 <=  day    <= 31   */
+	uint hour    : 5; /* 0 <=  hour   <= 23   */
+	uint min     : 6; /* 0 <=  min    <= 59	*/
 	double sec;
-	uint tz_flag : 1;       /* is tzo explicitely set? */
-	signed int tzo     : 12;        /* -1440 <= tzo <= 1440;
+	uint tz_flag : 1; /* is tzo explicitely set? */
+	signed int tzo     : 12; /* -1440 <= tzo <= 1440;
 	                                   currently only -840 to +840 are needed */
 };
 
@@ -49,9 +49,9 @@ struct _xmlSchemaValDate {
 typedef struct _xmlSchemaValDuration xmlSchemaValDuration;
 typedef xmlSchemaValDuration * xmlSchemaValDurationPtr;
 struct _xmlSchemaValDuration {
-	long mon;                       /* mon stores years also */
+	long mon; /* mon stores years also */
 	long day;
-	double sec;                     /* sec stores min and hour also */
+	double sec; /* sec stores min and hour also */
 };
 
 typedef struct _xmlSchemaValDecimal xmlSchemaValDecimal;
@@ -1419,7 +1419,7 @@ static int xmlSchemaValidateDuration(xmlSchemaType * type ATTRIBUTE_UNUSED, cons
 	int isneg = 0;
 	uint seq = 0;
 	double num;
-	int num_type = 0;         /* -1 = invalid, 0 = int, 1 = floating */
+	int num_type = 0; /* -1 = invalid, 0 = int, 1 = floating */
 	const xmlChar desig[]  = {'Y', 'M', 'D', 'H', 'M', 'S'};
 	const double multi[]  = { 0.0, 0.0, 86400.0, 3600.0, 60.0, 1.0, 0.0};
 	if(duration == NULL)
@@ -1961,7 +1961,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
 		    if(*cur != 0)
-			    goto return1;  /* error if any extraneous chars */
+			    goto return1; /* error if any extraneous chars */
 		    if(val) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_DECIMAL);
 			    if(v) {
@@ -3192,7 +3192,7 @@ static int xmlSchemaCompareDurations(xmlSchemaVal * x, xmlSchemaVal * y)
 	minday += dayRange[0][xmon];
 	maxday += dayRange[1][xmon];
 	if((maxday == minday) && (maxday == xday))
-		return 0;  /* can this really happen ? */
+		return 0; /* can this really happen ? */
 	if(maxday < xday)
 		return (-invert);
 	if(minday > xday)
@@ -3488,7 +3488,7 @@ static long _xmlSchemaDateCastYMToDays(const xmlSchemaVal * dt)
 	long ret;
 	int mon = dt->value.date.mon;
 	if(mon <= 0) 
-		mon = 1;  /* normalization */
+		mon = 1; /* normalization */
 	if(dt->value.date.year <= 0)
 		ret = (dt->value.date.year * 365) + (((dt->value.date.year+1)/4)-((dt->value.date.year+1)/100) + ((dt->value.date.year+1)/400)) + DAY_IN_YEAR(0, mon, dt->value.date.year);
 	else
@@ -3557,7 +3557,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 						if(sec > 0.0)
 							ret = 1;
 						else
-							ret = 2;  /* indeterminate */
+							ret = 2; /* indeterminate */
 					}
 					xmlSchemaFreeValue(p1);
 					xmlSchemaFreeValue(q1);
@@ -3604,7 +3604,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 					if(sec > 0.0)
 						ret = 1;
 					else
-						ret = 2;  /* indeterminate */
+						ret = 2; /* indeterminate */
 				}
 				xmlSchemaFreeValue(p1);
 				xmlSchemaFreeValue(q1);
@@ -3666,11 +3666,11 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 		case XML_SCHEMAS_TIME: ymask = 0x8; break;
 		default: ymask = 0; break;
 	}
-	xor_mask = xmask ^ ymask;       /* mark type differences */
-	and_mask = xmask & ymask;       /* mark field specification */
+	xor_mask = xmask ^ ymask; /* mark type differences */
+	and_mask = xmask & ymask; /* mark field specification */
 	/* year */
 	if(xor_mask & 1)
-		return 2;  /* indeterminate */
+		return 2; /* indeterminate */
 	else if(and_mask & 1) {
 		if(x->value.date.year < y->value.date.year)
 			return -1;
@@ -3680,7 +3680,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 
 	/* month */
 	if(xor_mask & 2)
-		return 2;  /* indeterminate */
+		return 2; /* indeterminate */
 	else if(and_mask & 2) {
 		if(x->value.date.mon < y->value.date.mon)
 			return -1;
@@ -3690,7 +3690,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 
 	/* day */
 	if(xor_mask & 4)
-		return 2;  /* indeterminate */
+		return 2; /* indeterminate */
 	else if(and_mask & 4) {
 		if(x->value.date.day < y->value.date.day)
 			return -1;
@@ -3700,7 +3700,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 
 	/* time */
 	if(xor_mask & 8)
-		return 2;  /* indeterminate */
+		return 2; /* indeterminate */
 	else if(and_mask & 8) {
 		if(x->value.date.hour < y->value.date.hour)
 			return -1;

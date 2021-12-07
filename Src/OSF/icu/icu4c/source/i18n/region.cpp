@@ -54,9 +54,9 @@ static UHashtable * regionIDMap = NULL;
 static UHashtable * numericCodeMap = NULL;
 static UVector * allRegions = NULL;
 
-static const UChar UNKNOWN_REGION_ID [] = { 0x5A, 0x5A, 0 };  /* "ZZ" */
-static const UChar OUTLYING_OCEANIA_REGION_ID [] = { 0x51, 0x4F, 0 };  /* "QO" */
-static const UChar WORLD_ID [] = { 0x30, 0x30, 0x31, 0 };  /* "001" */
+static const UChar UNKNOWN_REGION_ID [] = { 0x5A, 0x5A, 0 }; /* "ZZ" */
+static const UChar OUTLYING_OCEANIA_REGION_ID [] = { 0x51, 0x4F, 0 }; /* "QO" */
+static const UChar WORLD_ID [] = { 0x30, 0x30, 0x31, 0 }; /* "001" */
 static const UChar RANGE_MARKER = 0x7E; /* '~' */
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(RegionNameEnumeration)

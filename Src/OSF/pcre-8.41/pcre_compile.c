@@ -214,9 +214,9 @@ static uchar ebcdic_escape_c[] = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
    platforms. */
 
 typedef struct verbitem {
-	int len;             /* Length of verb name */
-	int op;              /* Op when no arg, or -1 if arg mandatory */
-	int op_arg;          /* Op when arg present, or -1 if not allowed */
+	int len; /* Length of verb name */
+	int op; /* Op when no arg, or -1 if arg mandatory */
+	int op_arg; /* Op when arg present, or -1 if not allowed */
 } verbitem;
 
 static const char verbnames[] =
@@ -943,7 +943,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 	uint32 c;
 	int escape = 0;
 	int i;
-	GETCHARINCTEST(c, ptr);   /* Get character value, increment pointer */
+	GETCHARINCTEST(c, ptr); /* Get character value, increment pointer */
 	ptr--;                    /* Set pointer back to the last byte */
 	/* If backslash is at the end of the pattern, it's an error. */
 	if(c == CHAR_NULL) 
@@ -996,10 +996,10 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 					    for(i = 0; i < 4; ++i) {
 						    uint32 cc = *(++ptr);
 #ifndef EBCDIC  /* ASCII/UTF-8 coding */
-						    if(cc >= CHAR_a) cc -= 32;  /* Convert to upper case */
+						    if(cc >= CHAR_a) cc -= 32; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc < CHAR_A) ? CHAR_0 : (CHAR_A - 10));
 #else           /* EBCDIC coding */
-						    if(cc >= CHAR_a && cc <= CHAR_z) cc += 64;  /* Convert to upper case
+						    if(cc >= CHAR_a && cc <= CHAR_z) cc += 64; /* Convert to upper case
 						                                                  */
 						    c = (c << 4) + cc - ((cc >= CHAR_0) ? CHAR_0 : (CHAR_A - 10));
 #endif
@@ -1179,7 +1179,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 				    while(*ptr >= CHAR_0 && *ptr <= CHAR_7) {
 					    uint32 cc = *ptr++;
 					    if(c == 0 && cc == CHAR_0) 
-							continue;  /* Leading zeroes */
+							continue; /* Leading zeroes */
 #ifdef COMPILE_PCRE32
 					    if(c >= 0x20000000l) {
 						    overflow = TRUE; break;
@@ -1223,11 +1223,11 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 						    uint32 cc = *(++ptr);
 #ifndef EBCDIC  /* ASCII/UTF-8 coding */
 						    if(cc >= CHAR_a) 
-								cc -= 32;  /* Convert to upper case */
+								cc -= 32; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc < CHAR_A) ? CHAR_0 : (CHAR_A - 10));
 #else           /* EBCDIC coding */
 						    if(cc >= CHAR_a && cc <= CHAR_z) 
-								cc += 64;  /* Convert to upper case */
+								cc += 64; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc >= CHAR_0) ? CHAR_0 : (CHAR_A - 10));
 #endif
 					    }
@@ -1251,7 +1251,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 					    while(MAX_255(*ptr) && (digitab[*ptr] & ctype_xdigit) != 0) {
 						    uint32 cc = *ptr++;
 						    if(c == 0 && cc == CHAR_0) 
-								continue;  /* Leading zeroes */
+								continue; /* Leading zeroes */
 #ifdef COMPILE_PCRE32
 						    if(c >= 0x10000000l) {
 							    overflow = TRUE; break;
@@ -1259,11 +1259,11 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 #endif
 #ifndef EBCDIC  /* ASCII/UTF-8 coding */
 						    if(cc >= CHAR_a) 
-								cc -= 32;  /* Convert to upper case */
+								cc -= 32; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc < CHAR_A) ? CHAR_0 : (CHAR_A - 10));
 #else           /* EBCDIC coding */
 						    if(cc >= CHAR_a && cc <= CHAR_z) 
-								cc += 64;  /* Convert to upper case */
+								cc += 64; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc >= CHAR_0) ? CHAR_0 : (CHAR_A - 10));
 #endif
 #if defined COMPILE_PCRE8
@@ -1304,11 +1304,11 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 						    cc = *(++ptr); /* ++ in initializers */
 #ifndef EBCDIC  /* ASCII/UTF-8 coding */
 						    if(cc >= CHAR_a) 
-								cc -= 32;  /* Convert to upper case */
+								cc -= 32; /* Convert to upper case */
 						    c = c * 16 + cc - ((cc < CHAR_A) ? CHAR_0 : (CHAR_A - 10));
 #else           /* EBCDIC coding */
 						    if(cc <= CHAR_z) 
-								cc += 64;  /* Convert to upper case */
+								cc += 64; /* Convert to upper case */
 						    c = c * 16 + cc - ((cc >= CHAR_0) ? CHAR_0 : (CHAR_A - 10));
 #endif
 					    }
@@ -1654,14 +1654,14 @@ static int find_fixedlength(pcre_uchar * code, BOOL utf, BOOL atend, compile_dat
 					ce += GET(ce, 1); 
 				} while(*ce == OP_ALT); /* End subpattern */
 			    if(cc > cs && cc < ce) 
-					return -1;  /* Recursion */
+					return -1; /* Recursion */
 			    else { /* Check for mutual recursion */
 				    recurse_check * r = recurses;
 				    for(r = recurses; r; r = r->prev) 
 						if(r->group == cs) 
 							break;
 				    if(r) 
-						return -1;  /* Mutual recursion */
+						return -1; /* Mutual recursion */
 			    }
 			    this_recurse.prev = recurses;
 			    this_recurse.group = cs;
@@ -2196,7 +2196,7 @@ static BOOL could_be_empty_branch(const pcre_uchar * code, const pcre_uchar * en
 					if((int)GET(tcode, 0) == (int)(code + 1 - cd->start_code)) 
 						return TRUE;
 				if(GET(scode, 1) == 0) 
-					return TRUE;  /* Unclosed */
+					return TRUE; /* Unclosed */
 			}
 			// If the reference is to a completed group, we need to detect whether this
 			// is a recursive call, as otherwise there will be an infinite loop. If it is
@@ -2206,14 +2206,14 @@ static BOOL could_be_empty_branch(const pcre_uchar * code, const pcre_uchar * en
 				endgroup += GET(endgroup, 1); 
 			} while(*endgroup == OP_ALT);
 			if(code >= scode && code <= endgroup) 
-				continue;  /* Simple recursion */
+				continue; /* Simple recursion */
 			else {
 				recurse_check * r = recurses;
 				for(r = recurses; r; r = r->prev)
 					if(r->group == scode) 
 						break;
 				if(r) 
-					continue;  /* Mutual recursion */
+					continue; /* Mutual recursion */
 			}
 			// Completed reference; scan the referenced group, remembering it on the
 			// stack chain to detect mutual recursions. 
@@ -2228,7 +2228,7 @@ static BOOL could_be_empty_branch(const pcre_uchar * code, const pcre_uchar * en
 				scode += GET(scode, 1);
 			} while(*scode == OP_ALT);
 			if(!empty_branch) 
-				return FALSE;  /* All branches are non-empty */
+				return FALSE; /* All branches are non-empty */
 			continue;
 		}
 		// Groups with zero repeats can of course be empty; skip them. 
@@ -2252,7 +2252,7 @@ static BOOL could_be_empty_branch(const pcre_uchar * code, const pcre_uchar * en
 		if(oneof8(c, OP_BRA, OP_BRAPOS, OP_CBRA, OP_CBRAPOS, OP_ONCE, OP_ONCE_NC, OP_COND, OP_SCOND)) {
 			BOOL empty_branch;
 			if(GET(code, 1) == 0) 
-				return TRUE;  /* Hit unclosed bracket */
+				return TRUE; /* Hit unclosed bracket */
 			// If a conditional group has only one branch, there is a second, implied,
 			// empty branch, so just skip over the conditional, because it could be empty.
 			// Otherwise, scan the individual branches of the group. 
@@ -2266,7 +2266,7 @@ static BOOL could_be_empty_branch(const pcre_uchar * code, const pcre_uchar * en
 					code += GET(code, 1);
 				} while(*code == OP_ALT);
 				if(!empty_branch) 
-					return FALSE;  /* All branches are non-empty */
+					return FALSE; /* All branches are non-empty */
 			}
 			c = *code;
 			continue;
@@ -2306,7 +2306,7 @@ static BOOL could_be_empty_branch(const pcre_uchar * code, const pcre_uchar * en
 				    case OP_CRRANGE:
 				    case OP_CRMINRANGE:
 				    case OP_CRPOSRANGE:
-					if(GET2(ccode, 1) > 0) return FALSE;  /* Minimum > 0 */
+					if(GET2(ccode, 1) > 0) return FALSE; /* Minimum > 0 */
 					break;
 			    }
 			    break;
@@ -2848,7 +2848,7 @@ static BOOL compare_opcodes(const pcre_uchar * code, BOOL utf, const compile_dat
 		// Check for a supported opcode, and load its properties. 
 		code = get_chr_property_list(code, utf, cd->fcc, list);
 		if(!code) 
-			return FALSE;  /* Unsupported */
+			return FALSE; /* Unsupported */
 		// If either opcode is a small character list, set pointers for comparing
 		// characters from that list with another list, or with a property. 
 		if(base_list[0] == OP_CHAR) {
@@ -3060,7 +3060,7 @@ static BOOL compare_opcodes(const pcre_uchar * code, BOOL utf, const compile_dat
 					    ochr_ptr++;
 				    } while(*ochr_ptr != NOTACHAR);
 				    if(*ochr_ptr == NOTACHAR) 
-						return FALSE;  /* Not found */
+						return FALSE; /* Not found */
 				    break;
 				// Note that OP_DIGIT etc. are generated only when PCRE_UCP is *not*
 				// set. When it is set, \d etc. are converted into OP_(NOT_)PROP codes. 
@@ -3352,7 +3352,7 @@ static void auto_possessify(pcre_uchar * code, BOOL utf, const compile_data * cd
 
 static BOOL check_posix_syntax(const pcre_uchar * ptr, const pcre_uchar ** endptr)
 {
-	pcre_uchar terminator;  /* Don't combine these lines; the Solaris cc */
+	pcre_uchar terminator; /* Don't combine these lines; the Solaris cc */
 	terminator = *(++ptr); /* compiler warns about "non-constant" initializer. */
 	for(++ptr; *ptr != CHAR_NULL; ptr++) {
 		if(*ptr == CHAR_BACKSLASH && (ptr[1] == CHAR_RIGHT_SQUARE_BRACKET || ptr[1] == CHAR_BACKSLASH))
@@ -3473,7 +3473,7 @@ static pcre_uchar * auto_callout(pcre_uchar * code, const pcre_uchar * ptr, comp
 	*code++ = OP_CALLOUT;
 	*code++ = 255;
 	PUT(code, 0, (int)(ptr - cd->start_pattern)); /* Pattern offset */
-	PUT(code, LINK_SIZE, 0);               /* Default length */
+	PUT(code, LINK_SIZE, 0); /* Default length */
 	return code + 2 * LINK_SIZE;
 }
 
@@ -3537,7 +3537,7 @@ static int get_othercase_range(uint32 * cptr, uint32 d, uint32 * ocptr, uint32 *
 			break;
 	}
 	if(c > d) 
-		return -1;  /* Reached end of range */
+		return -1; /* Reached end of range */
 /* Found a character that has a single other case. Search for the end of the
    range, which is either the end of the input range, or a character that has zero
    or more than one other cases. */
@@ -3549,7 +3549,7 @@ static int get_othercase_range(uint32 * cptr, uint32 d, uint32 * ocptr, uint32 *
 		next++;
 	}
 	*odptr = next - 1; /* End of othercase range */
-	*cptr = c;     /* Rest of input range */
+	*cptr = c; /* Rest of input range */
 	return 0;
 }
 
@@ -3600,7 +3600,7 @@ static int add_to_class(pcre_uint8 * classbits, pcre_uchar ** uchardptr, int opt
 					// Extend the original range if there is overlap, noting that if oc < c, we
 					// can't have od > end because a subrange is always shorter than the basic
 					// range. Otherwise, use a recursive call to add the additional range. 
-				else if(oc < start && od >= start - 1) start = oc;  /* Extend downwards */
+				else if(oc < start && od >= start - 1) start = oc; /* Extend downwards */
 				else if(od > end && oc <= end + 1) {
 					end = od; /* Extend upwards */
 					if(end > classbits_end) classbits_end = (end <= 0xff ? end : 0xff);
@@ -3791,7 +3791,7 @@ static BOOL compile_branch(int * optionsptr, pcre_uchar ** codeptr,
 	uint32 zeroreqchar, zerofirstchar;
 	int32 zeroreqcharflags, zerofirstcharflags;
 	int32 req_caseopt, reqvary, tempreqvary;
-	int options = *optionsptr;       /* May change dynamically */
+	int options = *optionsptr; /* May change dynamically */
 	int after_manual_callout = 0;
 	int length_prevgroup = 0;
 	uint32 c;
@@ -3890,7 +3890,7 @@ REDO_LOOP:
 		// If we are in the pre-compile phase, accumulate the length used for the previous cycle of this loop. 
 		if(lengthptr) {
 #ifdef PCRE_DEBUG
-			if(code > cd->hwm) cd->hwm = code;  /* High water info */
+			if(code > cd->hwm) cd->hwm = code; /* High water info */
 #endif
 			if(code > cd->start_workspace + cd->workspace_size - WORK_SIZE_SAFETY_MARGIN) { /* Check for overrun */
 				*errorcodeptr = (code >= cd->start_workspace + cd->workspace_size) ? ERR52 : ERR87;
@@ -4344,7 +4344,7 @@ REDO_LOOP:
 							    else inescq = TRUE;
 							    continue;
 						    }
-						    else if(escape == ESC_E) continue;  /* Ignore orphan \E */
+						    else if(escape == ESC_E) continue; /* Ignore orphan \E */
 
 						    else {
 							    const pcre_uint8 * cbits = cd->cbits; /* Every class contains at least two < 256 characters. */
@@ -4518,7 +4518,7 @@ CHECK_RANGE:
 							    goto FAILED;
 						    }
 						    if(d == c) 
-								goto CLASS_SINGLE_CHARACTER;  /* A few lines below */
+								goto CLASS_SINGLE_CHARACTER; /* A few lines below */
 							// We have found a character range, so single character optimizations
 							// cannot be done anymore. Any value greater than 1 indicates that there is more than one character.
 						    class_one_char = 2;
@@ -5004,7 +5004,7 @@ OUTPUT_SINGLE_REPEAT:
 				    else {
 					    *code++ = OP_CRRANGE + repeat_type;
 					    PUT2INC(code, 0, repeat_min);
-					    if(repeat_max == -1) repeat_max = 0;  /* 2-byte encoding for max */
+					    if(repeat_max == -1) repeat_max = 0; /* 2-byte encoding for max */
 					    PUT2INC(code, 0, repeat_max);
 				    }
 			    }
@@ -5556,7 +5556,7 @@ END_REPEAT:
 					    vn += verbs[i].len + 1;
 				    }
 				    if(i < verbcount) 
-						continue;  /* Successfully handled a verb */
+						continue; /* Successfully handled a verb */
 				    *errorcodeptr = ERR60; /* Verb not recognized */
 				    goto FAILED;
 			    }
@@ -7294,7 +7294,7 @@ static void add_name(compile_data * cd, const pcre_uchar * name, int length, uin
 	for(int i = 0; i < cd->names_found; i++) {
 		int crc = memcmp(name, slot+IMM2_SIZE, IN_UCHARS(length));
 		if(crc == 0 && slot[IMM2_SIZE+length] != 0)
-			crc = -1;  /* Current name is a substring */
+			crc = -1; /* Current name is a substring */
 		// Make space in the table and break the loop for an earlier name. For a
 		// duplicate or later name, carry on. We do this for duplicates so that in the
 		// simple case (when ?(| is not used) they are in order of their numbers. In all
@@ -7494,7 +7494,7 @@ PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile2(PCRE_SPTR32 pattern,
 			int p = skipatstart + 18;
 			while(isdigit(ptr[p])) {
 				if(c > PCRE_UINT32_MAX / 10 - 1) 
-					break;  /* Integer overflow check */
+					break; /* Integer overflow check */
 				c = c*10 + ptr[p++] - CHAR_0;
 			}
 			if(ptr[p++] != CHAR_RIGHT_PARENTHESIS) 

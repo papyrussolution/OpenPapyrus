@@ -231,16 +231,16 @@ typedef struct AF_EdgeRec_*     AF_Edge;
 
 typedef struct AF_PointRec_ {
 	FT_UShort flags; /* point flags used by hinter   */
-	FT_Char in_dir;  /* direction of inwards vector  */
+	FT_Char in_dir; /* direction of inwards vector  */
 	FT_Char out_dir; /* direction of outwards vector */
 
-	FT_Pos ox, oy;   /* original, scaled position      */
+	FT_Pos ox, oy; /* original, scaled position      */
 	FT_Short fx, fy; /* original, unscaled position (in font units) */
-	FT_Pos x, y;     /* current position         */
-	FT_Pos u, v;     /* current (x,y) or (y,x) depending on context */
+	FT_Pos x, y; /* current position         */
+	FT_Pos u, v; /* current (x,y) or (y,x) depending on context */
 
-	AF_Point next;   /* next point in contour     */
-	AF_Point prev;   /* previous point in contour */
+	AF_Point next; /* next point in contour     */
+	AF_Point prev; /* previous point in contour */
 
 #ifdef FT_DEBUG_AUTOFIT
 	/* track `before' and `after' edges for strong points */
@@ -250,58 +250,58 @@ typedef struct AF_PointRec_ {
 } AF_PointRec;
 
 typedef struct  AF_SegmentRec_ {
-	FT_Byte flags;       /* edge/segment flags for this segment */
-	FT_Char dir;         /* segment direction      */
-	FT_Short pos;        /* position of segment    */
-	FT_Short delta;      /* deviation from segment position     */
-	FT_Short min_coord;  /* minimum coordinate of segment */
-	FT_Short max_coord;  /* maximum coordinate of segment */
-	FT_Short height;     /* the hinted segment height     */
+	FT_Byte flags; /* edge/segment flags for this segment */
+	FT_Char dir; /* segment direction      */
+	FT_Short pos; /* position of segment    */
+	FT_Short delta; /* deviation from segment position     */
+	FT_Short min_coord; /* minimum coordinate of segment */
+	FT_Short max_coord; /* maximum coordinate of segment */
+	FT_Short height; /* the hinted segment height     */
 
-	AF_Edge edge;        /* the segment's parent edge     */
+	AF_Edge edge; /* the segment's parent edge     */
 	AF_Segment edge_next; /* link to next segment in parent edge */
 
-	AF_Segment link;     /* (stem) link segment  */
-	AF_Segment serif;    /* primary segment for serifs */
-	FT_Pos score;        /* used during stem matching  */
-	FT_Pos len;          /* used during stem matching  */
+	AF_Segment link; /* (stem) link segment  */
+	AF_Segment serif; /* primary segment for serifs */
+	FT_Pos score; /* used during stem matching  */
+	FT_Pos len; /* used during stem matching  */
 
-	AF_Point first;      /* first point in edge segment */
-	AF_Point last;       /* last point in edge segment  */
+	AF_Point first; /* first point in edge segment */
+	AF_Point last; /* last point in edge segment  */
 } AF_SegmentRec;
 
 typedef struct  AF_EdgeRec_ {
-	FT_Short fpos;      /* original, unscaled position (in font units) */
-	FT_Pos opos;        /* original, scaled position      */
-	FT_Pos pos;         /* current position         */
+	FT_Short fpos; /* original, unscaled position (in font units) */
+	FT_Pos opos; /* original, scaled position      */
+	FT_Pos pos; /* current position         */
 
-	FT_Byte flags;      /* edge flags                */
-	FT_Char dir;        /* edge direction            */
-	FT_Fixed scale;     /* used to speed up interpolation between edges */
+	FT_Byte flags; /* edge flags                */
+	FT_Char dir; /* edge direction            */
+	FT_Fixed scale; /* used to speed up interpolation between edges */
 
 	AF_Width blue_edge; /* non-NULL if this is a blue edge */
-	AF_Edge link;       /* link edge    */
-	AF_Edge serif;      /* primary edge for serifs   */
-	FT_Int score;       /* used during stem matching */
+	AF_Edge link; /* link edge    */
+	AF_Edge serif; /* primary edge for serifs   */
+	FT_Int score; /* used during stem matching */
 
-	AF_Segment first;   /* first segment in edge */
-	AF_Segment last;    /* last segment in edge  */
+	AF_Segment first; /* first segment in edge */
+	AF_Segment last; /* last segment in edge  */
 } AF_EdgeRec;
 
 #define AF_SEGMENTS_EMBEDDED  18   /* number of embedded segments   */
 #define AF_EDGES_EMBEDDED     12   /* number of embedded edges      */
 
 typedef struct  AF_AxisHintsRec_ {
-	FT_Int num_segments;    /* number of used segments      */
-	FT_Int max_segments;    /* number of allocated segments */
-	AF_Segment segments;    /* segments array  */
+	FT_Int num_segments; /* number of used segments      */
+	FT_Int max_segments; /* number of allocated segments */
+	AF_Segment segments; /* segments array  */
 #ifdef AF_SORT_SEGMENTS
 	FT_Int mid_segments;
 #endif
 
-	FT_Int num_edges;       /* number of used edges      */
-	FT_Int max_edges;       /* number of allocated edges */
-	AF_Edge edges;          /* edges array  */
+	FT_Int num_edges; /* number of used edges      */
+	FT_Int max_edges; /* number of allocated edges */
+	AF_Edge edges; /* edges array  */
 
 	AF_Direction major_dir; /* either vertical or horizontal */
 
@@ -321,19 +321,19 @@ typedef struct  AF_GlyphHintsRec_ {
 	FT_Pos x_delta;
 	FT_Fixed y_scale;
 	FT_Pos y_delta;
-	FT_Int max_points;          /* number of allocated points */
-	FT_Int num_points;          /* number of used points      */
-	AF_Point points;            /* points array  */
-	FT_Int max_contours;        /* number of allocated contours */
-	FT_Int num_contours;        /* number of used contours      */
-	AF_Point*        contours;  /* contours array  */
+	FT_Int max_points; /* number of allocated points */
+	FT_Int num_points; /* number of used points      */
+	AF_Point points; /* points array  */
+	FT_Int max_contours; /* number of allocated contours */
+	FT_Int num_contours; /* number of used contours      */
+	AF_Point*        contours; /* contours array  */
 	AF_AxisHintsRec axis[AF_DIMENSION_MAX];
-	FT_UInt32 scaler_flags;     /* copy of scaler flags    */
-	FT_UInt32 other_flags;      /* free for style-specific */
+	FT_UInt32 scaler_flags; /* copy of scaler flags    */
+	FT_UInt32 other_flags; /* free for style-specific */
 	                            /* implementations   */
 	AF_StyleMetrics metrics;
 
-	FT_Pos xmin_delta;          /* used for warping */
+	FT_Pos xmin_delta; /* used for warping */
 	FT_Pos xmax_delta;
 
 	/* Two arrays to avoid allocation penalty.      */

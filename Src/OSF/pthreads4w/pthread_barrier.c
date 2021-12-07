@@ -141,8 +141,7 @@ int pthread_barrier_wait(pthread_barrier_t * barrier)
 		 */
 		result = __ptw32_semwait(&(b->semBarrierBreeched));
 	}
-	if((__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_INCREMENT_LONG((__PTW32_INTERLOCKED_LONGPTR)&b->nCurrentBarrierHeight)
-	    ==  (__PTW32_INTERLOCKED_LONG)b->nInitialBarrierHeight) {
+	if((__PTW32_INTERLOCKED_LONG)__PTW32_INTERLOCKED_INCREMENT_LONG((__PTW32_INTERLOCKED_LONGPTR)&b->nCurrentBarrierHeight) == (__PTW32_INTERLOCKED_LONG)b->nInitialBarrierHeight) {
 		/*
 		 * We are the last thread to cross this barrier
 		 */

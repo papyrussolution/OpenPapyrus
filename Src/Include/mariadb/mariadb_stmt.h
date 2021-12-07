@@ -105,28 +105,28 @@ typedef enum mysql_stmt_state {
 } enum_mysqlnd_stmt_state;
 
 typedef struct st_mysql_bind {
-	unsigned long * length;   /* output length pointer */
-	bool * is_null;  /* Pointer to null indicator */
-	void * buffer;   /* buffer to get/put data */
-	bool * error;    /* set this if you want to track data truncations happened during fetch */
+	unsigned long * length; /* output length pointer */
+	bool * is_null; /* Pointer to null indicator */
+	void * buffer; /* buffer to get/put data */
+	bool * error; /* set this if you want to track data truncations happened during fetch */
 	union {
 		uchar * row_ptr; /* for the current data position */
-		char * indicator;  /* indicator variable */
+		char * indicator; /* indicator variable */
 	} u;
 
 	void (* store_param_func)(NET * net, struct st_mysql_bind * param);
 	void (* fetch_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
 	void (* skip_result)(struct st_mysql_bind *, MYSQL_FIELD *, uchar ** row);
 	unsigned long buffer_length; /* output buffer length, must be set when fetching str/binary */
-	unsigned long offset;      /* offset position for char/binary fetch */
+	unsigned long offset; /* offset position for char/binary fetch */
 	unsigned long length_value; /* Used if length is 0 */
-	unsigned int flags;        /* special flags, e.g. for dummy bind  */
-	unsigned int pack_length;  /* Internal length for packed data */
+	unsigned int flags; /* special flags, e.g. for dummy bind  */
+	unsigned int pack_length; /* Internal length for packed data */
 	enum   enum_field_types buffer_type; /* buffer type */
-	bool   error_value;       /* used if error is 0 */
-	bool   is_unsigned;       /* set if integer type is unsigned */
-	bool   long_data_used;    /* If used with mysql_send_long_data */
-	bool   is_null_value;     /* Used if is_null is 0 */
+	bool   error_value; /* used if error is 0 */
+	bool   is_unsigned; /* set if integer type is unsigned */
+	bool   long_data_used; /* If used with mysql_send_long_data */
+	bool   is_null_value; /* Used if is_null is 0 */
 	void * extension;
 } MYSQL_BIND;
 
@@ -188,7 +188,7 @@ struct st_mysql_stmt {
 	MA_MEM_ROOT mem_root;
 	MYSQL * mysql;
 	unsigned long stmt_id;
-	unsigned long flags;     /* cursor is set here */
+	unsigned long flags; /* cursor is set here */
 	enum_mysqlnd_stmt_state state;
 	MYSQL_FIELD * fields;
 	unsigned int field_count;
@@ -196,7 +196,7 @@ struct st_mysql_stmt {
 	uchar send_types_to_server;
 	MYSQL_BIND * params;
 	MYSQL_BIND * bind;
-	MYSQL_DATA result;          /* we don't use mysqlnd's result set logic */
+	MYSQL_DATA result; /* we don't use mysqlnd's result set logic */
 	MYSQL_ROWS * result_cursor;
 	bool bind_result_done;
 	bool bind_param_done;
@@ -210,7 +210,7 @@ struct st_mysql_stmt {
 	bool cursor_exists;
 	void * extension;
 	mysql_stmt_fetch_row_func fetch_row_func;
-	unsigned int execute_count;      /* count how many times the stmt was executed */
+	unsigned int execute_count; /* count how many times the stmt was executed */
 	mysql_stmt_use_or_store_func default_rset_handler;
 	struct st_mysqlnd_stmt_methods  * m;
 	unsigned int array_size;

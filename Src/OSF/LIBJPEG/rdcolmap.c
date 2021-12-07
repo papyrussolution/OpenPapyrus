@@ -51,7 +51,7 @@ static void add_map_entry(j_decompress_ptr cinfo, int R, int G, int B)
 	/* Check for duplicate color. */
 	for(index = 0; index < ncolors; index++) {
 		if(GETJSAMPLE(colormap0[index]) == R && GETJSAMPLE(colormap1[index]) == G && GETJSAMPLE(colormap2[index]) == B)
-			return;  /* color is already in map */
+			return; /* color is already in map */
 	}
 	/* Check for map overflow. */
 	if(ncolors >= (MAXJSAMPLE+1))
@@ -140,7 +140,7 @@ static void read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 	uint row, col;
 	int R, G, B;
 	/* Initial 'P' has already been read by read_color_map */
-	int c = getc(infile);       /* save format discriminator for a sec */
+	int c = getc(infile); /* save format discriminator for a sec */
 	/* while we fetch the remaining header info */
 	uint w = read_pbm_integer(cinfo, infile);
 	uint h = read_pbm_integer(cinfo, infile);

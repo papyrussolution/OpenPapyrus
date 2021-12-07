@@ -20,8 +20,8 @@
  * in RFC5280 et al.
  */
 struct X509_name_entry_st {
-    ASN1_OBJECT *object;        /* AttributeType */
-    ASN1_STRING *value;         /* AttributeValue */
+    ASN1_OBJECT *object; /* AttributeType */
+    ASN1_STRING *value; /* AttributeValue */
     int set;                    /* index of RDNSequence for this entry */
     int size;                   /* temp variable */
 };
@@ -29,8 +29,8 @@ struct X509_name_entry_st {
 /* Name from RFC 5280. */
 struct X509_name_st {
     STACK_OF(X509_NAME_ENTRY) *entries; /* DN components */
-    int modified;               /* true if 'bytes' needs to be built */
-    BUF_MEM *bytes;             /* cached encoding: cannot be NULL */
+    int modified; /* true if 'bytes' needs to be built */
+    BUF_MEM *bytes; /* cached encoding: cannot be NULL */
     /* canonical encoding used for rapid Name comparison */
     uchar *canon_enc;
     int canon_enclen;
@@ -52,10 +52,10 @@ struct x509_sig_info_st {
 /* PKCS#10 certificate request */
 
 struct X509_req_info_st {
-    ASN1_ENCODING enc;          /* cached encoding of signed part */
-    ASN1_INTEGER *version;      /* version, defaults to v1(0) so can be NULL */
-    X509_NAME *subject;         /* certificate request DN */
-    X509_PUBKEY *pubkey;        /* public key of request */
+    ASN1_ENCODING enc; /* cached encoding of signed part */
+    ASN1_INTEGER *version; /* version, defaults to v1(0) so can be NULL */
+    X509_NAME *subject; /* certificate request DN */
+    X509_PUBKEY *pubkey; /* public key of request */
     /*
      * Zero or more attributes.
      * NB: although attributes is a mandatory field some broken
@@ -65,28 +65,28 @@ struct X509_req_info_st {
 };
 
 struct X509_req_st {
-    X509_REQ_INFO req_info;     /* signed certificate request data */
-    X509_ALGOR sig_alg;         /* signature algorithm */
+    X509_REQ_INFO req_info; /* signed certificate request data */
+    X509_ALGOR sig_alg; /* signature algorithm */
     ASN1_BIT_STRING *signature; /* signature */
     CRYPTO_REF_COUNT references;
     CRYPTO_RWLOCK *lock;
 };
 
 struct X509_crl_info_st {
-    ASN1_INTEGER *version;      /* version: defaults to v1(0) so may be NULL */
-    X509_ALGOR sig_alg;         /* signature algorithm */
-    X509_NAME *issuer;          /* CRL issuer name */
-    ASN1_TIME *lastUpdate;      /* lastUpdate field */
-    ASN1_TIME *nextUpdate;      /* nextUpdate field: optional */
-    STACK_OF(X509_REVOKED) *revoked;        /* revoked entries: optional */
-    STACK_OF(X509_EXTENSION) *extensions;   /* extensions: optional */
-    ASN1_ENCODING enc;                      /* encoding of signed portion of CRL */
+    ASN1_INTEGER *version; /* version: defaults to v1(0) so may be NULL */
+    X509_ALGOR sig_alg; /* signature algorithm */
+    X509_NAME *issuer; /* CRL issuer name */
+    ASN1_TIME *lastUpdate; /* lastUpdate field */
+    ASN1_TIME *nextUpdate; /* nextUpdate field: optional */
+    STACK_OF(X509_REVOKED) *revoked; /* revoked entries: optional */
+    STACK_OF(X509_EXTENSION) *extensions; /* extensions: optional */
+    ASN1_ENCODING enc; /* encoding of signed portion of CRL */
 };
 
 struct X509_crl_st {
-    X509_CRL_INFO crl;          /* signed CRL data */
-    X509_ALGOR sig_alg;         /* CRL signature algorithm */
-    ASN1_BIT_STRING signature;  /* CRL signature */
+    X509_CRL_INFO crl; /* signed CRL data */
+    X509_ALGOR sig_alg; /* CRL signature algorithm */
+    ASN1_BIT_STRING signature; /* CRL signature */
     CRYPTO_REF_COUNT references;
     int flags;
     /*
@@ -112,8 +112,8 @@ struct X509_crl_st {
 
 struct x509_revoked_st {
     ASN1_INTEGER serialNumber; /* revoked entry serial number */
-    ASN1_TIME *revocationDate;  /* revocation date */
-    STACK_OF(X509_EXTENSION) *extensions;   /* CRL entry extensions: optional */
+    ASN1_TIME *revocationDate; /* revocation date */
+    STACK_OF(X509_EXTENSION) *extensions; /* CRL entry extensions: optional */
     /* decoded value of CRLissuer extension: set if indirect CRL */
     STACK_OF(GENERAL_NAME) *issuer;
     /* revocation reason: set to CRL_REASON_NONE if reason extension absent */
@@ -135,13 +135,13 @@ struct x509_revoked_st {
 struct x509_cert_aux_st {
     STACK_OF(ASN1_OBJECT) *trust; /* trusted uses */
     STACK_OF(ASN1_OBJECT) *reject; /* rejected uses */
-    ASN1_UTF8STRING *alias;     /* "friendly name" */
-    ASN1_OCTET_STRING *keyid;   /* key id of private key */
+    ASN1_UTF8STRING *alias; /* "friendly name" */
+    ASN1_OCTET_STRING *keyid; /* key id of private key */
     STACK_OF(X509_ALGOR) *other; /* other unspecified info */
 };
 
 struct x509_cinf_st {
-    ASN1_INTEGER *version;      /* [ 0 ] default of v1 */
+    ASN1_INTEGER *version; /* [ 0 ] default of v1 */
     ASN1_INTEGER serialNumber;
     X509_ALGOR signature;
     X509_NAME *issuer;

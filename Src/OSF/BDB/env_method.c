@@ -778,7 +778,7 @@ int __env_set_flags(DB_ENV * dbenv, uint32 flags, int on)
 		}
 		else {
 			if(tenv->n_hotbackup == 0)
-				needs_checkpoint = -1;  /* signal count error */
+				needs_checkpoint = -1; /* signal count error */
 			else
 				tenv->n_hotbackup--;
 		}

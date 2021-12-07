@@ -144,14 +144,14 @@ static/*local*/ void zcfree(voidpf opaque, voidpf ptr)
 #define FT_GZIP_BUFFER_SIZE  4096
 
 typedef struct  FT_GZipFileRec_ {
-	FT_Stream source;      /* parent/source stream  */
-	FT_Stream stream;      /* embedding stream      */
-	FT_Memory memory;      /* memory allocator      */
-	z_stream zstream;      /* zlib input stream     */
-	FT_ULong start;        /* starting position, after .gz header */
-	FT_Byte input[FT_GZIP_BUFFER_SIZE];  /* input read buffer  */
+	FT_Stream source; /* parent/source stream  */
+	FT_Stream stream; /* embedding stream      */
+	FT_Memory memory; /* memory allocator      */
+	z_stream zstream; /* zlib input stream     */
+	FT_ULong start; /* starting position, after .gz header */
+	FT_Byte input[FT_GZIP_BUFFER_SIZE]; /* input read buffer  */
 	FT_Byte buffer[FT_GZIP_BUFFER_SIZE]; /* output buffer      */
-	FT_ULong pos;                        /* position in output */
+	FT_ULong pos; /* position in output */
 	FT_Byte*   cursor;
 	FT_Byte*   limit;
 } FT_GZipFileRec, * FT_GZipFile;

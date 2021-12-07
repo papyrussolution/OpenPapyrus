@@ -111,7 +111,7 @@ int __db_vrfy_ovfl_structure(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32
 		EPRINT((env, DB_STR_A("0677", "Page %lu: overflow page of invalid type %lu", "%lu %lu"),
 			(ulong)pgno, (ulong)pip->type));
 		ret = DB_VERIFY_BAD;
-		goto err;               /* Unsafe to continue. */
+		goto err; /* Unsafe to continue. */
 	}
 	prev = pip->prev_pgno;
 	if(prev != PGNO_INVALID) {

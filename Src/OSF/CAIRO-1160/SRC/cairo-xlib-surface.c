@@ -410,7 +410,7 @@ cairo_status_t _cairo_xlib_surface_get_gc(cairo_xlib_display_t * display,
 static int _noop_error_handler(Display * display,
     XErrorEvent * event)
 {
-	return False;           /* return value is ignored */
+	return False; /* return value is ignored */
 }
 
 static void _swap_ximage_2bytes(XImage * ximage)
@@ -1703,7 +1703,7 @@ found:
 	    &cairo_xlib_surface_backend,
 	    screen->device,
 	    _xrender_format_to_content(xrender_format),
-	    FALSE);              /* is_vector */
+	    FALSE); /* is_vector */
 
 	surface->screen = screen;
 	surface->compositor = display->compositor;

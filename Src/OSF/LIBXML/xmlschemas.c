@@ -472,9 +472,9 @@ struct _xmlSchemaConstructionCtxt {
 
 struct _xmlSchemaParserCtxt {
 	int    type;
-	void * errCtxt;        /* user specific error context */
+	void * errCtxt; /* user specific error context */
 	xmlSchemaValidityErrorFunc F_Error; /* the callback in case of errors */
-	xmlSchemaValidityWarningFunc F_Warning;   /* the callback in case of warning */
+	xmlSchemaValidityWarningFunc F_Warning; /* the callback in case of warning */
 	int    err;
 	int    nberrors;
 	xmlStructuredErrorFunc serror;
@@ -482,11 +482,11 @@ struct _xmlSchemaParserCtxt {
 	int    ownsConstructor; /* @todo Move this to parser *flags*. */
 	/* xmlSchemaPtr topschema;	*/
 	/* xmlHashTablePtr namespaces;  */
-	xmlSchemaPtr schema;    /* The main schema in use */
+	xmlSchemaPtr schema; /* The main schema in use */
 	int    counter;
 	const  xmlChar * URL;
 	xmlDoc * doc;
-	int    preserve;           /* Whether the doc should be freed  */
+	int    preserve; /* Whether the doc should be freed  */
 	const  char * buffer;
 	int    size;
 	/*
@@ -496,7 +496,7 @@ struct _xmlSchemaParserCtxt {
 	xmlAutomataState * start;
 	xmlAutomataState * end;
 	xmlAutomataState * state;
-	xmlDict * dict;        /* dictionnary for interned string names */
+	xmlDict * dict; /* dictionnary for interned string names */
 	xmlSchemaType * ctxtType; /* The current context simple/complex type */
 	int    options;
 	xmlSchemaValidCtxt * vctxt;
@@ -835,11 +835,11 @@ struct xmlSchemaAttrInfo {
  */
 struct _xmlSchemaValidCtxt {
 	int    type;
-	void * errCtxt;        /* user specific data block */
+	void * errCtxt; /* user specific data block */
 	xmlSchemaValidityErrorFunc error; /* the callback in case of errors */
 	xmlSchemaValidityWarningFunc warning; /* the callback in case of warning */
 	xmlStructuredErrorFunc serror;
-	xmlSchema * schema;    /* The schema in use */
+	xmlSchema * schema; /* The schema in use */
 	xmlDoc * doc;
 	xmlParserInputBuffer * input;
 	xmlCharEncoding enc;

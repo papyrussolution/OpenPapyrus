@@ -106,7 +106,7 @@ static void PSTRICKS_apply_linecolor();
 static bool PST_standalone = FALSE;
 
 /* plot size */
-static bool PST_unit_plot = FALSE;      /* Unit-sized plot off */
+static bool PST_unit_plot = FALSE; /* Unit-sized plot off */
 static GpSizeUnits PSTRICKS_explicit_units = INCHES;
 static float PSTRICKS_size_x = 5.f;
 static float PSTRICKS_size_y = 3.f;

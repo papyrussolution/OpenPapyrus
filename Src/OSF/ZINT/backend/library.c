@@ -584,7 +584,7 @@ static int reduced_charset(struct ZintSymbol * symbol, const uchar * source, int
 			symbol->output_options += BARCODE_BIND;
 		}
 	}
-	else if(symbol->Std == BARCODE_ITF14)  {
+	else if(symbol->Std == BARCODE_ITF14) {
 		symbol->whitespace_width = 20;
 		symbol->border_width = 8;
 		if(!(symbol->output_options & BARCODE_BOX)) {

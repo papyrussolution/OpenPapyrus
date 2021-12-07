@@ -114,9 +114,9 @@ static int setup_sparse_fiemap(struct archive_read_disk *, struct archive_entry 
 #if !ARCHIVE_ACL_SUPPORT
 int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	(void)a;      /* UNUSED */
-	(void)entry;  /* UNUSED */
-	(void)fd;     /* UNUSED */
+	(void)a; /* UNUSED */
+	(void)entry; /* UNUSED */
+	(void)fd; /* UNUSED */
 	return ARCHIVE_OK;
 }
 
@@ -731,9 +731,9 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  */
 static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	(void)a;     /* UNUSED */
+	(void)a; /* UNUSED */
 	(void)entry; /* UNUSED */
-	(void)fd;    /* UNUSED */
+	(void)fd; /* UNUSED */
 	return ARCHIVE_OK;
 }
 
@@ -976,9 +976,9 @@ exit_setup_sparse:
  */
 static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	(void)a;     /* UNUSED */
+	(void)a; /* UNUSED */
 	(void)entry; /* UNUSED */
-	(void)fd;    /* UNUSED */
+	(void)fd; /* UNUSED */
 	return ARCHIVE_OK;
 }
 

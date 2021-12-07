@@ -84,12 +84,12 @@ FT_BEGIN_HEADER
 
   typedef struct  CF2_StemHintRec_
   {
-    FT_Bool  used;     /* DS positions are valid   */
+    FT_Bool  used; /* DS positions are valid   */
 
-    CF2_Fixed  min;    /* original character space value */
+    CF2_Fixed  min; /* original character space value */
     CF2_Fixed  max;
 
-    CF2_Fixed  minDS;  /* DS position after first use    */
+    CF2_Fixed  minDS; /* DS position after first use    */
     CF2_Fixed  maxDS;
 
   } CF2_StemHintRec, *CF2_StemHint;
@@ -182,39 +182,39 @@ FT_BEGIN_HEADER
   {
     /* TODO: gather some of these into a hinting context */
 
-    CF2_Font              font;           /* font instance    */
-    CF2_OutlineCallbacks  callbacks;      /* outline consumer */
+    CF2_Font              font; /* font instance    */
+    CF2_OutlineCallbacks  callbacks; /* outline consumer */
 
 
-    CF2_HintMapRec  hintMap;        /* current hint map      */
-    CF2_HintMapRec  firstHintMap;   /* saved copy     */
+    CF2_HintMapRec  hintMap; /* current hint map      */
+    CF2_HintMapRec  firstHintMap; /* saved copy     */
     CF2_HintMapRec  initialHintMap; /* based on all captured hints */
 
-    CF2_ArrStackRec  hintMoves;  /* list of hint moves for 2nd pass */
+    CF2_ArrStackRec  hintMoves; /* list of hint moves for 2nd pass */
 
-    CF2_Fixed  scaleX;         /* matrix a */
-    CF2_Fixed  scaleC;         /* matrix c */
-    CF2_Fixed  scaleY;         /* matrix d */
+    CF2_Fixed  scaleX; /* matrix a */
+    CF2_Fixed  scaleC; /* matrix c */
+    CF2_Fixed  scaleY; /* matrix d */
 
-    FT_Vector  fractionalTranslation;  /* including deviceXScale */
+    FT_Vector  fractionalTranslation; /* including deviceXScale */
 #if 0
-    CF2_Fixed  hShift;    /* character space horizontal shift */
+    CF2_Fixed  hShift; /* character space horizontal shift */
                           /* (for fauxing) */
 #endif
 
-    FT_Bool  pathIsOpen;     /* true after MoveTo  */
-    FT_Bool  pathIsClosing;  /* true when synthesizing closepath line */
-    FT_Bool  darken;         /* true if stem darkening   */
-    FT_Bool  moveIsPending;  /* true between MoveTo and offset MoveTo */
+    FT_Bool  pathIsOpen; /* true after MoveTo  */
+    FT_Bool  pathIsClosing; /* true when synthesizing closepath line */
+    FT_Bool  darken; /* true if stem darkening   */
+    FT_Bool  moveIsPending; /* true between MoveTo and offset MoveTo */
 
     /* references used to call `cf2_hintmap_build', if necessary */
     CF2_ArrStack         hStemHintArray;
     CF2_ArrStack         vStemHintArray;
-    CF2_HintMask         hintMask;     /* ptr to the current mask */
-    CF2_Fixed            hintOriginY;  /* copy of current origin  */
+    CF2_HintMask         hintMask; /* ptr to the current mask */
+    CF2_Fixed            hintOriginY; /* copy of current origin  */
     const CF2_BluesRec*  blues;
 
-    CF2_Fixed  xOffset;        /* character space offsets */
+    CF2_Fixed  xOffset; /* character space offsets */
     CF2_Fixed  yOffset;
 
     /* character space miter limit threshold */
@@ -222,8 +222,8 @@ FT_BEGIN_HEADER
     /* vertical/horizontal snap distance in character space */
     CF2_Fixed  snapThreshold;
 
-    FT_Vector  offsetStart0;  /* first and second points of first */
-    FT_Vector  offsetStart1;  /* element with offset applied      */
+    FT_Vector  offsetStart0; /* first and second points of first */
+    FT_Vector  offsetStart1; /* element with offset applied      */
 
     /* current point, character space, before offset */
     FT_Vector  currentCS;

@@ -822,7 +822,7 @@ ulong SRng::GetBinomial(double p, ulong n)
 	// Inverse cdf logic for small mean (BINV in K+S)
 	//
 	if(np < SMALL_MEAN) {
-		double f0 = fpowi(q, n);   /* f(x), starting with x=0 */
+		double f0 = fpowi(q, n); /* f(x), starting with x=0 */
 		while(1) {
 			//
 			// This while(1) loop will almost certainly only loop once; but if u=1 to within a few epsilons
@@ -863,11 +863,11 @@ ulong SRng::GetBinomial(double p, ulong n)
 	else {
 		/* For n >= SMALL_MEAN, we invoke the BTPE algorithm */
 		int    k;
-		double ffm = np + p;      /* ffm = n*p+p             */
+		double ffm = np + p; /* ffm = n*p+p             */
 		int    m = static_cast<int>(ffm); //m = int floor[n*p+p]
-		double fm = m;            /* fm = double m;          */
-		double xm = fm + 0.5;     /* xm = half integer mean (tip of triangle)  */
-		double npq = np * q;      /* npq = n*p*q            */
+		double fm = m; /* fm = double m;          */
+		double xm = fm + 0.5; /* xm = half integer mean (tip of triangle)  */
+		double npq = np * q; /* npq = n*p*q            */
 
 		/* Compute cumulative area of tri, para, exp tails */
 
@@ -1254,11 +1254,11 @@ static void TestRngGeneric(STestCase * pCase, SRng::Algorithm alg, uint level)
 	TestRngMin(pCase, p_rng, &kmin, ran_min, ran_max);
 	p_rng->Set(1);
 	TestRngSum(pCase, p_rng, &sigma);
-	p_rng->Set(12345);       /* set seed to a "typical" value */
+	p_rng->Set(12345); /* set seed to a "typical" value */
 	TestRngMax(pCase, p_rng, &kmax, ran_max);
-	p_rng->Set(12345);       /* set seed to a "typical" value */
+	p_rng->Set(12345); /* set seed to a "typical" value */
 	TestRngMin(pCase, p_rng, &kmin, ran_min, ran_max);
-	p_rng->Set(12345);       /* set seed to a "typical" value */
+	p_rng->Set(12345); /* set seed to a "typical" value */
 	TestRngSum(pCase, p_rng, &sigma);
 	delete p_rng;
 }

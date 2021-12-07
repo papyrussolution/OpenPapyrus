@@ -760,7 +760,7 @@ int ec_GFp_simple_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
 	if(!field_mul(group, n0, n0, n6, ctx))
 		goto end;
 	if(!field_mul(group, n5, n4, n5, ctx))
-		goto end;       /* now n5 is n5^3 */
+		goto end; /* now n5 is n5^3 */
 	if(!field_mul(group, n1, n2, n5, ctx))
 		goto end;
 	if(!BN_mod_sub_quick(n0, n0, n1, p))
@@ -1119,7 +1119,7 @@ int ec_GFp_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 
 	/* compare  X_a*Z_b^2  with  X_b*Z_a^2 */
 	if(BN_cmp(tmp1_, tmp2_) != 0) {
-		ret = 1;        /* points differ */
+		ret = 1; /* points differ */
 		goto end;
 	}
 
@@ -1144,7 +1144,7 @@ int ec_GFp_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 
 	/* compare  Y_a*Z_b^3  with  Y_b*Z_a^3 */
 	if(BN_cmp(tmp1_, tmp2_) != 0) {
-		ret = 1;        /* points differ */
+		ret = 1; /* points differ */
 		goto end;
 	}
 

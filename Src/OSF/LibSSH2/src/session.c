@@ -262,7 +262,7 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */ int
 #endif
 
 #ifdef HAVE_DISABLED_NONBLOCKING
-	return 0;               /* returns success */
+	return 0; /* returns success */
 #undef SETBLOCK
 #define SETBLOCK 6
 #endif
@@ -336,7 +336,7 @@ static int get_socket_nonblocking(int sockfd)
 #endif
 
 #ifdef HAVE_DISABLED_NONBLOCKING
-	return 1;               /* returns blocking */
+	return 1; /* returns blocking */
 #undef GETBLOCK
 #define GETBLOCK 7
 #endif

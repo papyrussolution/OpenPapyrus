@@ -388,7 +388,7 @@ U_CAPI void U_EXPORT2 ucal_setDate(UCalendar*        cal,
     int32_t year,
     int32_t month,
     int32_t date,
-    UErrorCode        * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return;
 
@@ -403,7 +403,7 @@ U_CAPI void U_EXPORT2 ucal_setDateTime(UCalendar*        cal,
     int32_t hour,
     int32_t minute,
     int32_t second,
-    UErrorCode        * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return;
 
@@ -472,7 +472,7 @@ U_CAPI void U_EXPORT2 ucal_clear(UCalendar* calendar)
 U_CAPI int32_t U_EXPORT2 ucal_getLimit(const UCalendar*              cal,
     UCalendarDateFields field,
     UCalendarLimitType type,
-    UErrorCode        * status)
+    UErrorCode * status)
 {
 	if(status==0 || U_FAILURE(*status)) {
 		return -1;

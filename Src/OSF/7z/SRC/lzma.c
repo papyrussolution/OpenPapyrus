@@ -2708,10 +2708,10 @@ SRes LzmaDec_DecodeToDic(CLzmaDec * p, SizeT dicLimit, const Byte * src, SizeT *
 			{
 				unsigned kkk = (uint)(p->buf - p->tempBuf);
 				if(rem < kkk)
-					return SZ_ERROR_FAIL;  /* some internal error */
+					return SZ_ERROR_FAIL; /* some internal error */
 				rem -= kkk;
 				if(lookAhead < rem)
-					return SZ_ERROR_FAIL;  /* some internal error */
+					return SZ_ERROR_FAIL; /* some internal error */
 				lookAhead -= rem;
 			}
 			(*srcLen) += lookAhead;

@@ -117,7 +117,7 @@ static int64 file_skip(struct archive * a, void * client_data, int64 request)
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	int64 skip = request;
 	int64 old_offset, new_offset;
-	int skip_bits = sizeof(skip) * 8 - 1;  /* off_t is a signed type. */
+	int skip_bits = sizeof(skip) * 8 - 1; /* off_t is a signed type. */
 
 	if(!mine->use_lseek)
 		return 0;

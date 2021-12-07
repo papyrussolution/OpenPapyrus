@@ -947,7 +947,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 {
 	uint32_t a0 = MINUS1;
 	uint32_t a1, a2, b1, b2;
-	int c = 0;              /* 0 is white, black is 1 */
+	int c = 0; /* 0 is white, black is 1 */
 	while(1) {
 		uint32_t word = mmr->word;
 		/* printf ("%08x\n", word); */

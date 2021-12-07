@@ -60,7 +60,7 @@
 /* The type of a compression buffer list used by the write code. */
 typedef struct png_compression_buffer {
 	struct png_compression_buffer * next;
-	uint8 output[1];                  /* actually zbuf_size */
+	uint8 output[1]; /* actually zbuf_size */
 } png_compression_buffer, * png_compression_bufferp;
 
 #define PNG_COMPRESSION_BUFFER_SIZE(pp)	\
@@ -108,17 +108,17 @@ typedef struct png_XYZ {
  */
 typedef struct png_colorspace {
 #ifdef PNG_GAMMA_SUPPORTED
-	png_fixed_point gamma;   /* File gamma */
+	png_fixed_point gamma; /* File gamma */
 #endif
 
 #ifdef PNG_COLORSPACE_SUPPORTED
-	png_xy end_points_xy;    /* End points as chromaticities */
-	png_XYZ end_points_XYZ;  /* End points as CIE XYZ colorant values */
+	png_xy end_points_xy; /* End points as chromaticities */
+	png_XYZ end_points_XYZ; /* End points as CIE XYZ colorant values */
 	png_uint_16 rendering_intent; /* Rendering intent of a profile */
 #endif
 
 	/* Flags are always defined to simplify the code. */
-	png_uint_16 flags;       /* As defined below */
+	png_uint_16 flags; /* As defined below */
 } png_colorspace, * PNG_RESTRICT png_colorspacerp;
 
 typedef const png_colorspace * PNG_RESTRICT png_const_colorspacerp;
@@ -141,16 +141,16 @@ struct png_struct_def {
 	jmp_buf jmp_buf_local; /* New name in 1.6.0 for jmp_buf in png_struct */
 	png_longjmp_ptr longjmp_fn; /* setjmp non-local goto function. */
 	jmp_buf * jmp_buf_ptr; /* passed to longjmp_fn */
-	size_t jmp_buf_size;  /* size of the above, if allocated */
+	size_t jmp_buf_size; /* size of the above, if allocated */
 #endif
 	png_error_ptr error_fn; /* function for printing errors and aborting */
 #ifdef PNG_WARNINGS_SUPPORTED
 	png_error_ptr warning_fn; /* function for printing warnings */
 #endif
-	void * error_ptr;  /* user supplied struct for error functions */
+	void * error_ptr; /* user supplied struct for error functions */
 	png_rw_ptr write_data_fn; /* function for writing output data */
 	png_rw_ptr read_data_fn; /* function for reading input data */
-	void * io_ptr;     /* ptr to application struct for I/O functions */
+	void * io_ptr; /* ptr to application struct for I/O functions */
 #ifdef PNG_READ_USER_TRANSFORM_SUPPORTED
 	png_user_transform_ptr read_user_transform_fn; /* user read transform */
 #endif
@@ -165,43 +165,43 @@ struct png_struct_def {
 	uint8 user_transform_channels; /* channels in user transformed pixels */
 #endif
 #endif
-	uint32 mode;     /* tells us where we are in the PNG file */
-	uint32 flags;    /* flags indicating various things to libpng */
+	uint32 mode; /* tells us where we are in the PNG file */
+	uint32 flags; /* flags indicating various things to libpng */
 	uint32 transformations; /* which transformations to perform */
-	uint32 zowner;   /* ID (chunk type) of zstream owner, 0 if none */
-	z_stream zstream;     /* decompression structure */
+	uint32 zowner; /* ID (chunk type) of zstream owner, 0 if none */
+	z_stream zstream; /* decompression structure */
 #ifdef PNG_WRITE_SUPPORTED
 	png_compression_bufferp zbuffer_list; /* Created on demand during write */
-	uInt zbuffer_size;               /* size of the actual buffer */
-	int zlib_level;       /* holds zlib compression level */
-	int zlib_method;      /* holds zlib compression method */
+	uInt zbuffer_size; /* size of the actual buffer */
+	int zlib_level; /* holds zlib compression level */
+	int zlib_method; /* holds zlib compression method */
 	int zlib_window_bits; /* holds zlib compression window bits */
-	int zlib_mem_level;   /* holds zlib compression memory level */
-	int zlib_strategy;    /* holds zlib compression strategy */
+	int zlib_mem_level; /* holds zlib compression memory level */
+	int zlib_strategy; /* holds zlib compression strategy */
 #endif
 	// Added at libpng 1.5.4 
 #ifdef PNG_WRITE_CUSTOMIZE_ZTXT_COMPRESSION_SUPPORTED
-	int zlib_text_level;       /* holds zlib compression level */
-	int zlib_text_method;      /* holds zlib compression method */
+	int zlib_text_level; /* holds zlib compression level */
+	int zlib_text_method; /* holds zlib compression method */
 	int zlib_text_window_bits; /* holds zlib compression window bits */
-	int zlib_text_mem_level;   /* holds zlib compression memory level */
-	int zlib_text_strategy;    /* holds zlib compression strategy */
+	int zlib_text_mem_level; /* holds zlib compression memory level */
+	int zlib_text_strategy; /* holds zlib compression strategy */
 #endif
 	// End of material added at libpng 1.5.4 
 	// Added at libpng 1.6.0 
 #ifdef PNG_WRITE_SUPPORTED
-	int zlib_set_level;   /* Actual values set into the zstream on write */
+	int zlib_set_level; /* Actual values set into the zstream on write */
 	int zlib_set_method;
 	int zlib_set_window_bits;
 	int zlib_set_mem_level;
 	int zlib_set_strategy;
 #endif
-	uint32 width;    /* width of image in pixels */
-	uint32 height;   /* height of image in pixels */
+	uint32 width; /* width of image in pixels */
+	uint32 height; /* height of image in pixels */
 	uint32 num_rows; /* number of rows in current pass */
 	uint32 usr_width; /* width of row at start of write */
-	size_t rowbytes;  /* size of row in bytes */
-	uint32 iwidth;   /* width of current interlaced row in pixels */
+	size_t rowbytes; /* size of row in bytes */
+	uint32 iwidth; /* width of current interlaced row in pixels */
 	uint32 row_number; /* current row in interlace pass */
 	uint32 chunk_name; /* PNG_CHUNK() id of current chunk */
 	png_bytep prev_row; // buffer to save previous (unfiltered) row. While reading this is a pointer into
@@ -214,35 +214,35 @@ struct png_struct_def {
 #endif
 	size_t info_rowbytes; /* Added in 1.5.4: cache of updated row bytes */
 	uint32 idat_size; /* current IDAT size for read */
-	uint32 crc;      /* current chunk CRC value */
-	png_colorp palette;   /* palette from the input file */
+	uint32 crc; /* current chunk CRC value */
+	png_colorp palette; /* palette from the input file */
 	png_uint_16 num_palette; /* number of color entries in palette */
 // Added at libpng-1.5.10
 #ifdef PNG_CHECK_FOR_INVALID_INDEX_SUPPORTED
-	int num_palette_max;  /* maximum palette index found in IDAT */
+	int num_palette_max; /* maximum palette index found in IDAT */
 #endif
 	png_uint_16 num_trans; /* number of transparency values */
 	uint8 compression; /* file compression type (always 0) */
-	uint8 filter;      /* file filter type (always 0) */
-	uint8 interlaced;  /* PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7 */
-	uint8 pass;        /* current interlace pass (0 - 6) */
-	uint8 do_filter;   /* row filter flags (see PNG_FILTER_ below ) */
-	uint8 color_type;  /* color type of file */
-	uint8 bit_depth;   /* bit depth of file */
+	uint8 filter; /* file filter type (always 0) */
+	uint8 interlaced; /* PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7 */
+	uint8 pass; /* current interlace pass (0 - 6) */
+	uint8 do_filter; /* row filter flags (see PNG_FILTER_ below ) */
+	uint8 color_type; /* color type of file */
+	uint8 bit_depth; /* bit depth of file */
 	uint8 usr_bit_depth; /* bit depth of users row: write only */
 	uint8 pixel_depth; /* number of bits per pixel */
-	uint8 channels;    /* number of channels in file */
+	uint8 channels; /* number of channels in file */
 #ifdef PNG_WRITE_SUPPORTED
 	uint8 usr_channels; /* channels at start of write: write only */
 #endif
-	uint8 sig_bytes;   /* magic bytes read/written from start of file */
+	uint8 sig_bytes; /* magic bytes read/written from start of file */
 	uint8 maximum_pixel_depth; // pixel depth used for the row buffers
 	uint8 transformed_pixel_depth; // pixel depth after read/write transforms 
 #if PNG_ZLIB_VERNUM >= 0x1240
 	uint8 zstream_start; /* at start of an input zlib stream */
 #endif /* Zlib >= 1.2.4 */
 #if defined(PNG_READ_FILLER_SUPPORTED) || defined(PNG_WRITE_FILLER_SUPPORTED)
-	png_uint_16 filler;      /* filler bytes for pixel expansion */
+	png_uint_16 filler; /* filler bytes for pixel expansion */
 #endif
 #if defined(PNG_bKGD_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || \
 	defined(PNG_READ_ALPHA_MODE_SUPPORTED)
@@ -271,13 +271,13 @@ struct png_struct_def {
 #endif /* READ_BACKGROUND || READ_ALPHA_MODE || RGB_TO_GRAY */
 #endif
 #if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_sBIT_SUPPORTED)
-	png_color_8 sig_bit;  /* significant bits in each available channel */
+	png_color_8 sig_bit; /* significant bits in each available channel */
 #endif
 #if defined(PNG_READ_SHIFT_SUPPORTED) || defined(PNG_WRITE_SHIFT_SUPPORTED)
-	png_color_8 shift;    /* shift for significant bit tranformation */
+	png_color_8 shift; /* shift for significant bit tranformation */
 #endif
 #if defined(PNG_tRNS_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || defined(PNG_READ_EXPAND_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
-	png_bytep trans_alpha;      /* alpha values for paletted files */
+	png_bytep trans_alpha; /* alpha values for paletted files */
 	png_color_16 trans_color; /* transparent color for non-paletted files */
 #endif
 	png_read_status_ptr read_row_fn; /* called after each row is decoded */
@@ -286,18 +286,18 @@ struct png_struct_def {
 	png_progressive_info_ptr info_fn; /* called after header data fully read */
 	png_progressive_row_ptr row_fn; /* called after a prog. row is decoded */
 	png_progressive_end_ptr end_fn; /* called after image is complete */
-	png_bytep save_buffer_ptr;   /* current location in save_buffer */
-	png_bytep save_buffer;       /* buffer for previously read data */
+	png_bytep save_buffer_ptr; /* current location in save_buffer */
+	png_bytep save_buffer; /* buffer for previously read data */
 	png_bytep current_buffer_ptr; /* current location in current_buffer */
-	png_bytep current_buffer;    /* buffer for recently used data */
-	uint32 push_length;     /* size of current input chunk */
-	uint32 skip_length;     /* bytes to skip in input data */
+	png_bytep current_buffer; /* buffer for recently used data */
+	uint32 push_length; /* size of current input chunk */
+	uint32 skip_length; /* bytes to skip in input data */
 	size_t save_buffer_size; /* amount of data now in save_buffer */
-	size_t save_buffer_max;  /* total size of save_buffer */
-	size_t buffer_size;      /* total amount of available input data */
+	size_t save_buffer_max; /* total size of save_buffer */
+	size_t buffer_size; /* total amount of available input data */
 	size_t current_buffer_size; /* amount of data now in current_buffer */
-	int process_mode;            /* what push library is currently doing */
-	int cur_palette;             /* current push library palette index */
+	int process_mode; /* what push library is currently doing */
+	int cur_palette; /* current push library palette index */
 #endif /* PROGRESSIVE_READ */
 #if defined(__TURBOC__) && !defined(_Windows) && !defined(__FLAT__)
 /* For the Borland special 64K segment handler */
@@ -332,7 +332,7 @@ struct png_struct_def {
 #endif
 #endif
 #ifdef PNG_SET_UNKNOWN_CHUNKS_SUPPORTED
-	int unknown_default;     /* As PNG_HANDLE_* */
+	int unknown_default; /* As PNG_HANDLE_* */
 	unsigned int num_chunk_list; /* Number of entries in the list */
 	png_bytep chunk_list; // List of uint8[5]; the textual chunk name followed by a PNG_HANDLE_* byte 
 #endif
@@ -363,14 +363,14 @@ struct png_struct_def {
 	// New members added in libpng-1.0.2 but first enabled by default in 1.2.0 
 	//
 #ifdef PNG_USER_MEM_SUPPORTED
-	void * mem_ptr;        /* user supplied struct for mem functions */
+	void * mem_ptr; /* user supplied struct for mem functions */
 	png_malloc_ptr malloc_fn; /* function for allocating memory */
-	png_free_ptr free_fn;     /* function for freeing memory */
+	png_free_ptr free_fn; /* function for freeing memory */
 #endif
 	//
 	// New member added in libpng-1.0.13 and 1.2.0 
 	//
-	png_bytep big_row_buf;    /* buffer to save current (unfiltered) row */
+	png_bytep big_row_buf; /* buffer to save current (unfiltered) row */
 #ifdef PNG_READ_QUANTIZE_SUPPORTED
 		//
 	// The following three members were added at version 1.0.14 and 1.2.4 
@@ -401,11 +401,11 @@ struct png_struct_def {
 	size_t old_big_row_buf_size; // New member added in libpng-1.2.26 
 #ifdef PNG_READ_SUPPORTED
 	// New member added in libpng-1.2.30 
-	png_bytep read_buffer;       /* buffer for reading chunk data */
+	png_bytep read_buffer; /* buffer for reading chunk data */
 	png_alloc_size_t read_buffer_size; /* current size of the buffer */
 #endif
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
-	uInt IDAT_read_size;         /* limit on read buffer size for IDAT */
+	uInt IDAT_read_size; /* limit on read buffer size for IDAT */
 #endif
 #ifdef PNG_IO_STATE_SUPPORTED
 	uint32 io_state; // New member added in libpng-1.4.0 

@@ -17,7 +17,7 @@ using namespace NWindows;
 // BZip2Crc.cpp
 uint32 CBZip2Crc::Table[256];
 
-static const uint32 kBZip2CrcPoly = 0x04c11db7;  /* AUTODIN II, Ethernet, & FDDI */
+static const uint32 kBZip2CrcPoly = 0x04c11db7; /* AUTODIN II, Ethernet, & FDDI */
 
 void CBZip2Crc::InitTable()
 {
@@ -189,7 +189,7 @@ namespace NCompress {
 						needLeave = false;
 						res = EncodeBlock3(blockSize);
 					}
-					catch(const CInBufferException &e)  { res = e.ErrorCode; }
+					catch(const CInBufferException &e) { res = e.ErrorCode; }
 					catch(const COutBufferException &e) { res = e.ErrorCode; }
 					catch(...) { res = E_FAIL; }
 					if(res != S_OK) {
@@ -2500,7 +2500,7 @@ namespace NArchive {
 		else
 			return result;
 		return extractCallback->SetOperationResult(opRes);
-		// } catch(...)  { return E_FAIL; }
+		// } catch(...) { return E_FAIL; }
 		COM_TRY_END
 	}
 

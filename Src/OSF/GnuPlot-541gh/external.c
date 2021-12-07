@@ -130,7 +130,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	fifn = (fifn_t)DLL_SYM(dl, "gnuplot_fini");
 	if(!(at = (at_type *)SAlloc::M(sizeof(at_type))))
 		goto bailout;
-	memzero(at, sizeof(*at));       /* reset action table !!! */
+	memzero(at, sizeof(*at)); /* reset action table !!! */
 	at->a_count = 1;
 	at->actions[0].index = CALLE;
 	at->actions[0].arg.exf_arg = (exft_entry *)SAlloc::M(sizeof(exft_entry));

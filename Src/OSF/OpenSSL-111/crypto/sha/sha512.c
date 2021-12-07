@@ -138,7 +138,7 @@ int SHA512_Final(uchar * md, SHA512_CTX * c)
 {
 	uchar * p = (uchar *)c->u.p;
 	size_t n = c->num;
-	p[n] = 0x80;            /* There always is a room for one */
+	p[n] = 0x80; /* There always is a room for one */
 	n++;
 	if(n > (sizeof(c->u) - 16)) {
 		memzero(p + n, sizeof(c->u) - n);

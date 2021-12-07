@@ -64,8 +64,8 @@ static int ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in,
 		}
 	}
 
-	k = BN_new();           /* this value is later returned in *kinvp */
-	r = BN_new();           /* this value is later returned in *rp */
+	k = BN_new(); /* this value is later returned in *kinvp */
+	r = BN_new(); /* this value is later returned in *rp */
 	X = BN_new();
 	if(k == NULL || r == NULL || X == NULL) {
 		ECerr(EC_F_ECDSA_SIGN_SETUP, ERR_R_MALLOC_FAILURE);
@@ -365,7 +365,7 @@ int ossl_ecdsa_verify_sig(const uchar * dgst, int dgst_len,
 	    BN_ucmp(sig->r, order) >= 0 || BN_is_zero(sig->s) ||
 	    BN_is_negative(sig->s) || BN_ucmp(sig->s, order) >= 0) {
 		ECerr(EC_F_OSSL_ECDSA_VERIFY_SIG, EC_R_BAD_SIGNATURE);
-		ret = 0;        /* signature is invalid */
+		ret = 0; /* signature is invalid */
 		goto err;
 	}
 	/* calculate tmp1 = inv(S) mod order */

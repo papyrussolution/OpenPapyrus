@@ -209,7 +209,7 @@ static const uchar zisofs_magic[8] = {
 struct zisofs {
 	/* Set 1 if this file compressed by paged zlib */
 	int pz;
-	int pz_log2_bs;              /* Log2 of block size */
+	int pz_log2_bs; /* Log2 of block size */
 	uint64 pz_uncompressed_size;
 
 	int initialized;
@@ -240,8 +240,8 @@ struct zisofs {
 #endif
 
 struct content {
-	uint64 offset;        /* Offset on disk.		*/
-	uint64 size;          /* File size in bytes.		*/
+	uint64 offset; /* Offset on disk.		*/
+	uint64 size; /* File size in bytes.		*/
 	struct content  * next;
 };
 
@@ -253,21 +253,21 @@ struct file_info {
 	struct file_info        * re_next;
 	int subdirs;
 	uint64 key;                   /* Heap Key.			*/
-	uint64 offset;                /* Offset on disk.		*/
-	uint64 size;                  /* File size in bytes.		*/
-	uint32 ce_offset;             /* Offset of CE.		*/
-	uint32 ce_size;               /* Size of CE.			*/
-	char rr_moved;                  /* Flag to rr_moved.		*/
+	uint64 offset; /* Offset on disk.		*/
+	uint64 size; /* File size in bytes.		*/
+	uint32 ce_offset; /* Offset of CE.		*/
+	uint32 ce_size; /* Size of CE.			*/
+	char rr_moved; /* Flag to rr_moved.		*/
 	char rr_moved_has_re_only;
-	char re;                        /* Having RRIP "RE" extension.	*/
+	char re; /* Having RRIP "RE" extension.	*/
 	char re_descendant;
-	uint64 cl_offset;             /* Having RRIP "CL" extension.	*/
+	uint64 cl_offset; /* Having RRIP "CL" extension.	*/
 	int birthtime_is_set;
-	time_t birthtime;               /* File created time.		*/
+	time_t birthtime; /* File created time.		*/
 	time_t mtime;                   /* File last modified time.	*/
 	time_t atime;                   /* File last accessed time.	*/
 	time_t ctime;                   /* File attribute change time.	*/
-	uint64 rdev;                  /* Device number.		*/
+	uint64 rdev; /* Device number.		*/
 	mode_t mode;
 	uid_t uid;
 	gid_t gid;
@@ -276,12 +276,12 @@ struct file_info {
 	struct archive_string name; /* Pathname */
 	uchar   * utf16be_name;
 	size_t utf16be_bytes;
-	char name_continues;             /* Non-zero if name continues */
+	char name_continues; /* Non-zero if name continues */
 	struct archive_string symlink;
-	char symlink_continues;             /* Non-zero if link continues */
+	char symlink_continues; /* Non-zero if link continues */
 	/* Set 1 if this file compressed by paged zlib(zisofs) */
 	int pz;
-	int pz_log2_bs;              /* Log2 of block size */
+	int pz_log2_bs; /* Log2 of block size */
 	uint64 pz_uncompressed_size;
 	/* Set 1 if this file is multi extent. */
 	int multi_extent;
@@ -310,15 +310,15 @@ struct iso9660 {
 	int opt_support_rockridge;
 
 	struct archive_string pathname;
-	char seenRockridge;     /* Set true if RR extensions are used. */
-	char seenSUSP;          /* Set true if SUSP is being used. */
+	char seenRockridge; /* Set true if RR extensions are used. */
+	char seenSUSP; /* Set true if SUSP is being used. */
 	char seenJoliet;
 
 	uchar suspOffset;
 	struct file_info * rr_moved;
 	struct read_ce_queue {
 		struct read_ce_req {
-			uint64 offset;        /* Offset of CE on disk. */
+			uint64 offset; /* Offset of CE on disk. */
 			struct file_info * file;
 		}               * reqs;
 
@@ -2426,7 +2426,7 @@ static void parse_rockridge_SL1(struct file_info * file, const uchar * data,
 		default:
 		    return;
 	}
-	++data;  /* Skip flag byte. */
+	++data; /* Skip flag byte. */
 	--data_length;
 
 	/*

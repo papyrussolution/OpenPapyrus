@@ -7641,6 +7641,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doinventoryrecalcstock              "Пересчет учетных остатков"
 @doinventoryrecalcprices             "Пересчет учетных цен"
 @doinventoryrecalcdeficit            "Пересчет дефицита"
+@dostyloqinvite                      "Приглашение Stylo-Q"
 //
 @usepackparams                       "Использовать параметры упаковки"
 @reportsendmail                      "Отправка отчета на электронную почту" // generic
@@ -17111,6 +17112,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqcommand_objtyperestriction             "@{objtype}"
 @styloqcommand_objgrouprestriction            "@{objectgroup}"
 @styloqcommand_viewsymb                       "Тип отображения"
+@styloqcommand_remoteorderparam               "Параметры дистанционного сбора заказов"
 @styloqcommand_description                    "@{description}"
 
 @styloqsvcconfig                              "Конфигурация сервиса Stylo-Q"

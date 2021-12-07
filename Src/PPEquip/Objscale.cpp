@@ -1770,7 +1770,7 @@ ComDispInterface * COMMassaK::InitDriver()
 	return p_drv;
 }
 
-int COMMassaK::SetMKProp(PPID id, long lVal)  { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
+int COMMassaK::SetMKProp(PPID id, long lVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
 int COMMassaK::SetParam(long lVal)            { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
 int COMMassaK::SetParam(const char * pStrVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
 

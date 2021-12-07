@@ -145,7 +145,7 @@ static int encode928(ushort bitString[], ushort codeWords[], int bitLng)
 		bitCnt = _min(bitLng - b, 69);
 		cwLng += cwCnt = bitCnt / 10 + 1;
 		for(i = 0; i < cwCnt; i++)
-			codeWords[cwNdx + i] = 0;  /* init 0 */
+			codeWords[cwNdx + i] = 0; /* init 0 */
 		for(i = 0; i < bitCnt; i++) {
 			if(getBit(bitString, b + bitCnt - i - 1)) {
 				for(j = 0; j < cwCnt; j++)

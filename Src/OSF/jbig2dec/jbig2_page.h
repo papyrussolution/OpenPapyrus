@@ -36,8 +36,8 @@ typedef enum {
 struct _Jbig2Page {
     Jbig2PageState state;
     uint32_t number;
-    uint32_t height, width;     /* in pixels */
-    uint32_t x_resolution, y_resolution;        /* in pixels per meter */
+    uint32_t height, width; /* in pixels */
+    uint32_t x_resolution, y_resolution; /* in pixels per meter */
     uint16_t stripe_size;
     boolint striped;
     uint32_t end_row;

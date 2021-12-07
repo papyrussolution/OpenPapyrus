@@ -97,14 +97,14 @@ typedef struct bio_f_buffer_ctx_struct {
 	/*- BIO *bio; *//*
 	 * this is now in the BIO struct
 	 */
-	int ibuf_size;          /* how big is the input buffer */
-	int obuf_size;          /* how big is the output buffer */
-	char * ibuf;            /* the char array */
-	int ibuf_len;           /* how many bytes are in it */
-	int ibuf_off;           /* write/read offset */
-	char * obuf;            /* the char array */
-	int obuf_len;           /* how many bytes are in it */
-	int obuf_off;           /* write/read offset */
+	int ibuf_size; /* how big is the input buffer */
+	int obuf_size; /* how big is the output buffer */
+	char * ibuf; /* the char array */
+	int ibuf_len; /* how many bytes are in it */
+	int ibuf_off; /* write/read offset */
+	char * obuf; /* the char array */
+	int obuf_len; /* how many bytes are in it */
+	int obuf_off; /* write/read offset */
 } BIO_F_BUFFER_CTX;
 
 struct bio_st {
@@ -112,10 +112,10 @@ struct bio_st {
 	/* bio, mode, argp, argi, argl, ret */
 	BIO_callback_fn callback;
 	BIO_callback_fn_ex callback_ex;
-	char * cb_arg;          /* first argument for the callback */
+	char * cb_arg; /* first argument for the callback */
 	int init;
 	int shutdown;
-	int flags;              /* extra storage */
+	int flags; /* extra storage */
 	int retry_reason;
 	int num;
 	void * ptr;

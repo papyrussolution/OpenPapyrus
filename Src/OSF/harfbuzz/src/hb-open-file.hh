@@ -60,7 +60,7 @@ namespace OT {
 			return_trace(c->check_struct(this));
 		}
 
-		Tag tag;        /* 4-byte identifier. */
+		Tag tag; /* 4-byte identifier. */
 		CheckSum checkSum; /* CheckSum for this table. */
 		Offset32 offset; /* Offset from beginning of TrueType font
 		 * file. */
@@ -211,11 +211,11 @@ public:
 		}
 
 protected:
-		Tag ttcTag;     /* TrueType Collection ID string: 'ttcf' */
+		Tag ttcTag; /* TrueType Collection ID string: 'ttcf' */
 		FixedVersion<>version; /* Version of the TTC Header (1.0),
 		 * 0x00010000u */
 		LArrayOf<LOffsetTo<OffsetTable>>
-		table;          /* Array of offsets to the OffsetTable for each font
+		table; /* Array of offsets to the OffsetTable for each font
 		 * from the beginning of the file */
 public:
 		DEFINE_SIZE_ARRAY(12, table);
@@ -289,12 +289,12 @@ protected:
 		}
 
 protected:
-		HBUINT16 id;    /* Resource ID. */
+		HBUINT16 id; /* Resource ID. */
 		HBINT16 nameOffset; /* Offset from beginning of resource name list
 		 * to resource name, -1 means there is none. */
-		HBUINT8 attrs;  /* Resource attributes */
+		HBUINT8 attrs; /* Resource attributes */
 		NNOffsetTo<LArrayOf<HBUINT8>, HBUINT24>
-		offset;         /* Offset from beginning of data block to
+		offset; /* Offset from beginning of data block to
 		 * data for this resource */
 		HBUINT32 reserved; /* Reserved for handle to resource */
 public:
@@ -331,10 +331,10 @@ public:
 		}
 
 protected:
-		Tag tag;        /* Resource type. */
+		Tag tag; /* Resource type. */
 		HBUINT16 resCountM1; /* Number of resources minus 1. */
 		NNOffsetTo<UnsizedArrayOf<ResourceRecord>>
-		resourcesZ;     /* Offset from beginning of resource type list
+		resourcesZ; /* Offset from beginning of resource type list
 		 * to reference item list for this type. */
 public:
 		DEFINE_SIZE_STATIC(8);
@@ -391,7 +391,7 @@ protected:
 		HBUINT16 resreved2; /* Reserved for file reference number */
 		HBUINT16 attrs; /* Resource fork attribute */
 		NNOffsetTo<ArrayOfM1<ResourceTypeRecord>>
-		typeList;       /* Offset from beginning of map to
+		typeList; /* Offset from beginning of map to
 		 * resource type list */
 		Offset16 nameList; /* Offset from beginning of map to
 		 * resource name list */
@@ -424,10 +424,10 @@ public:
 
 protected:
 		LNNOffsetTo<UnsizedArrayOf<HBUINT8>>
-		data;           /* Offset from beginning of resource fork
+		data; /* Offset from beginning of resource fork
 		 * to resource data */
 		LNNOffsetTo<ResourceMap >
-		map;            /* Offset from beginning of resource fork
+		map; /* Offset from beginning of resource fork
 		 * to resource map */
 		HBUINT32 dataLen; /* Length of resource data */
 		HBUINT32 mapLen; /* Length of resource map */
@@ -513,7 +513,7 @@ public:
 
 protected:
 		union {
-			Tag tag;        /* 4-byte identifier. */
+			Tag tag; /* 4-byte identifier. */
 			OpenTypeFontFace fontFace;
 			TTCHeader ttcHeader;
 			ResourceForkHeader rfHeader;

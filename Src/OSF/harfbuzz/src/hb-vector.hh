@@ -36,7 +36,7 @@ struct hb_vector_t {
 	typedef Type item_t;
 	static constexpr unsigned item_size = hb_static_size(Type);
 
-	hb_vector_t()  {
+	hb_vector_t() {
 		init();
 	}
 	hb_vector_t(const hb_vector_t &o)

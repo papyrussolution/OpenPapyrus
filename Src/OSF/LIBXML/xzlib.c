@@ -21,38 +21,38 @@
 
 /* internal lzma file state data structure */
 typedef struct {
-	int mode;               /* see lzma modes above */
-	int fd;                 /* file descriptor */
-	char * path;            /* path or fd for error messages */
-	uint64_t pos;           /* current position in uncompressed data */
-	uint size;      /* buffer size, zero if not allocated yet */
-	uint want;      /* requested buffer size, default is BUFSIZ */
-	uchar * in;     /* input buffer */
-	uchar * out;    /* output buffer (double-sized when reading) */
-	uchar * next;   /* next output data to deliver or write */
-	uint have;      /* amount of output data unused at next */
-	int eof;                /* true if end of input file reached */
-	uint64_t start;         /* where the lzma data started, for rewinding */
-	uint64_t raw;           /* where the raw data started, for seeking */
-	int how;                /* 0: get header, 1: copy, 2: decompress */
-	int direct;             /* true if last read direct, false if lzma */
+	int mode; /* see lzma modes above */
+	int fd; /* file descriptor */
+	char * path; /* path or fd for error messages */
+	uint64_t pos; /* current position in uncompressed data */
+	uint size; /* buffer size, zero if not allocated yet */
+	uint want; /* requested buffer size, default is BUFSIZ */
+	uchar * in; /* input buffer */
+	uchar * out; /* output buffer (double-sized when reading) */
+	uchar * next; /* next output data to deliver or write */
+	uint have; /* amount of output data unused at next */
+	int eof; /* true if end of input file reached */
+	uint64_t start; /* where the lzma data started, for rewinding */
+	uint64_t raw; /* where the raw data started, for seeking */
+	int how; /* 0: get header, 1: copy, 2: decompress */
+	int direct; /* true if last read direct, false if lzma */
 	/* seek request */
-	uint64_t skip;          /* amount to skip (already rewound if backwards) */
-	int seek;               /* true if seek request pending */
+	uint64_t skip; /* amount to skip (already rewound if backwards) */
+	int seek; /* true if seek request pending */
 	/* error information */
-	int err;                /* error code */
-	char * msg;             /* error message */
+	int err; /* error code */
+	char * msg; /* error message */
 	/* lzma stream */
-	int init;               /* is the iniflate stream initialized */
-	lzma_stream strm;       /* stream structure in-place (not a pointer) */
-	char padding1[32];      /* padding allowing to cope with possible
+	int init; /* is the iniflate stream initialized */
+	lzma_stream strm; /* stream structure in-place (not a pointer) */
+	char padding1[32]; /* padding allowing to cope with possible
 	                           extensions of above structure without
 	                           too much side effect */
 #ifdef HAVE_ZLIB_H
 	/* zlib inflate or deflate stream */
-	z_stream zstrm;         /* stream structure in-place (not a pointer) */
+	z_stream zstrm; /* stream structure in-place (not a pointer) */
 #endif
-	char padding2[32];      /* padding allowing to cope with possible
+	char padding2[32]; /* padding allowing to cope with possible
 	                           extensions of above structure without
 	                           too much side effect */
 } xz_state, * xz_statep;
@@ -90,13 +90,13 @@ static void xz_error(xz_statep state, int err, const char * msg)
 
 static void xz_reset(xz_statep state)
 {
-	state->have = 0;        /* no output data available */
-	state->eof = 0;         /* not at end of file */
-	state->how = LOOK;      /* look for gzip header */
-	state->direct = 1;      /* default for empty file */
-	state->seek = 0;        /* no seek request pending */
+	state->have = 0; /* no output data available */
+	state->eof = 0; /* not at end of file */
+	state->how = LOOK; /* look for gzip header */
+	state->direct = 1; /* default for empty file */
+	state->seek = 0; /* no seek request pending */
 	xz_error(state, LZMA_OK, 0); /* clear error */
-	state->pos = 0;         /* no uncompressed data yet */
+	state->pos = 0; /* no uncompressed data yet */
 	state->strm.avail_in = 0; /* no input data yet */
 #ifdef HAVE_ZLIB_H
 	state->zstrm.avail_in = 0; /* no input data yet */
@@ -109,10 +109,10 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 	xz_statep state = static_cast<xz_statep>(SAlloc::M(sizeof(xz_state)));
 	if(!state)
 		return NULL;
-	state->size = 0;        /* no buffers allocated yet */
-	state->want = BUFSIZ;   /* requested buffer size */
-	state->msg = NULL;      /* no error message yet */
-	state->init = 0;        /* initialization of zlib data */
+	state->size = 0; /* no buffers allocated yet */
+	state->want = BUFSIZ; /* requested buffer size */
+	state->msg = NULL; /* no error message yet */
+	state->init = 0; /* initialization of zlib data */
 	/* save the path name for error messages */
 	state->path = static_cast<char *>(SAlloc::M(sstrlen(path) + 1));
 	if(state->path == NULL) {
@@ -173,11 +173,11 @@ int __libxml2_xzcompressed(xzFile f)
 
 xzFile __libxml2_xzdopen(int fd, const char * mode)
 {
-	char * path;            /* identifier for error messages */
+	char * path; /* identifier for error messages */
 	xzFile xz;
 	if(fd == -1 || (path = static_cast<char *>(SAlloc::M(7 + 3 * sizeof(int)))) == NULL)
 		return NULL;
-	sprintf(path, "<fd:%d>", fd);   /* for debugging */
+	sprintf(path, "<fd:%d>", fd); /* for debugging */
 	xz = xz_open(path, fd, mode);
 	SAlloc::F(path);
 	return xz;

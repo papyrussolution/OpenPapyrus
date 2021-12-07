@@ -33,8 +33,8 @@ FT_BEGIN_HEADER
   typedef struct  TT_CMapRec_
   {
     FT_CMapRec  cmap;
-    FT_Byte*    data;           /* pointer to in-memory cmap table */
-    FT_Int      flags;          /* for format 4 only  */
+    FT_Byte*    data; /* pointer to in-memory cmap table */
+    FT_Int      flags; /* for format 4 only  */
 
   } TT_CMapRec, *TT_CMap;
 

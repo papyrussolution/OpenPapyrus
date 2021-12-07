@@ -97,7 +97,7 @@ static int bn_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 		return 1;
 	}
 
-	max = (2 * nl);         /* carry is stored separately */
+	max = (2 * nl); /* carry is stored separately */
 	if(bn_wexpand(r, max) == NULL)
 		return 0;
 
@@ -267,9 +267,9 @@ int BN_MONT_CTX_set(BN_MONT_CTX * mont, const BIGNUM * mod, BN_CTX * ctx)
 	BN_CTX_start(ctx);
 	if((Ri = BN_CTX_get(ctx)) == NULL)
 		goto err;
-	R = &(mont->RR);        /* grab RR as a temp */
+	R = &(mont->RR); /* grab RR as a temp */
 	if(!BN_copy(&(mont->N), mod))
-		goto err;       /* Set N */
+		goto err; /* Set N */
 	if(BN_get_flags(mod, BN_FLG_CONSTTIME) != 0)
 		BN_set_flags(&(mont->N), BN_FLG_CONSTTIME);
 	mont->N.neg = 0;

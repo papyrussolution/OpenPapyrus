@@ -87,20 +87,20 @@ typedef int uint16_vap;
  * TIFF header.
  */
 typedef struct {
-	uint16 tiff_magic;      /* magic number (defines byte order) */
-	uint16 tiff_version;    /* TIFF version number */
+	uint16 tiff_magic; /* magic number (defines byte order) */
+	uint16 tiff_version; /* TIFF version number */
 } TIFFHeaderCommon;
 typedef struct {
-	uint16 tiff_magic;      /* magic number (defines byte order) */
-	uint16 tiff_version;    /* TIFF version number */
-	uint32 tiff_diroff;     /* byte offset to first directory */
+	uint16 tiff_magic; /* magic number (defines byte order) */
+	uint16 tiff_version; /* TIFF version number */
+	uint32 tiff_diroff; /* byte offset to first directory */
 } TIFFHeaderClassic;
 typedef struct {
-	uint16 tiff_magic;      /* magic number (defines byte order) */
-	uint16 tiff_version;    /* TIFF version number */
+	uint16 tiff_magic; /* magic number (defines byte order) */
+	uint16 tiff_version; /* TIFF version number */
 	uint16 tiff_offsetsize; /* size of offsets, should be 8 */
-	uint16 tiff_unused;     /* unused word, should be 0 */
-	uint64 tiff_diroff;     /* byte offset to first directory */
+	uint16 tiff_unused; /* unused word, should be 0 */
+	uint64 tiff_diroff; /* byte offset to first directory */
 } TIFFHeaderBig;
 
 

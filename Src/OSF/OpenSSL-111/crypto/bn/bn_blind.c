@@ -17,7 +17,7 @@ struct bn_blinding_st {
 	BIGNUM * A;
 	BIGNUM * Ai;
 	BIGNUM * e;
-	BIGNUM * mod;           /* just a reference */
+	BIGNUM * mod; /* just a reference */
 	CRYPTO_THREAD_ID tid;
 	int counter;
 	ulong flags;

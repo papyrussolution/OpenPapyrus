@@ -102,15 +102,15 @@ struct xmlTextReader {
 	uint   base;        // base of the segment in the input 
 	uint   cur;         // current position in the input 
 	xmlDoc * doc;       // when walking an existing doc 
-	xmlTextReaderValidate validate;  /* is there any validation */
+	xmlTextReaderValidate validate; /* is there any validation */
 	xmlTextReaderState state;
-	xmlParserCtxt * ctxt;          /* the parser context */
-	xmlSAXHandler * sax;           /* the parser SAX callbacks */
-	xmlParserInputBuffer * input;  /* the input */
-	startElementSAXFunc startElement;    /* initial SAX callbacks */
-	endElementSAXFunc endElement;        /* idem */
+	xmlParserCtxt * ctxt; /* the parser context */
+	xmlSAXHandler * sax; /* the parser SAX callbacks */
+	xmlParserInputBuffer * input; /* the input */
+	startElementSAXFunc startElement; /* initial SAX callbacks */
+	endElementSAXFunc endElement; /* idem */
 	startElementNsSAX2Func startElementNs; /* idem */
-	endElementNsSAX2Func endElementNs;     /* idem */
+	endElementNsSAX2Func endElementNs; /* idem */
 	charactersSAXFunc characters;
 	cdataBlockSAXFunc cdataBlock;
 	xmlNode * curnode; // current attribute node 
@@ -129,28 +129,28 @@ struct xmlTextReader {
 	xmlStructuredErrorFunc sErrorFunc; // callback function 
 #ifdef LIBXML_SCHEMAS_ENABLED
 	/* Handling of RelaxNG validation */
-	xmlRelaxNGPtr rngSchemas;       /* The Relax NG schemas */
+	xmlRelaxNGPtr rngSchemas; /* The Relax NG schemas */
 	xmlRelaxNGValidCtxtPtr rngValidCtxt; /* The Relax NG validation context */
-	int    rngPreserveCtxt;                /* 1 if the context was provided by the user */
-	int    rngValidErrors;               /* The number of errors detected */
-	xmlNode * rngFullNode;         /* the node if RNG not progressive */
+	int    rngPreserveCtxt; /* 1 if the context was provided by the user */
+	int    rngValidErrors; /* The number of errors detected */
+	xmlNode * rngFullNode; /* the node if RNG not progressive */
 	/* Handling of Schemas validation */
 	xmlSchema * xsdSchemas; // The Schemas schemas 
 	xmlSchemaValidCtxt * xsdValidCtxt; // The Schemas validation context 
-	int    xsdPreserveCtxt;               /* 1 if the context was provided by the user */
-	int    xsdValidErrors;              /* The number of errors detected */
-	xmlSchemaSAXPlugPtr xsdPlug;    /* the schemas plug in SAX pipeline */
+	int    xsdPreserveCtxt; /* 1 if the context was provided by the user */
+	int    xsdValidErrors; /* The number of errors detected */
+	xmlSchemaSAXPlugPtr xsdPlug; /* the schemas plug in SAX pipeline */
 #endif
 #ifdef LIBXML_XINCLUDE_ENABLED
 	/* Handling of XInclude processing */
 	int    xinclude;                   /* is xinclude asked for */
 	const  xmlChar * xinclude_name; /* the xinclude name from dict */
-	xmlXIncludeCtxt * xincctxt;    /* the xinclude context */
-	int    in_xinclude;                /* counts for xinclude */
+	xmlXIncludeCtxt * xincctxt; /* the xinclude context */
+	int    in_xinclude; /* counts for xinclude */
 #endif
 #ifdef LIBXML_PATTERN_ENABLED
-	int    patternNr;                  /* number of preserve patterns */
-	int    patternMax;                 /* max preserve patterns */
+	int    patternNr; /* number of preserve patterns */
+	int    patternMax; /* max preserve patterns */
 	xmlPattern ** patternTab; /* array of preserve patterns */
 #endif
 };
@@ -4710,16 +4710,16 @@ int xmlReaderNewIO(xmlTextReader * reader, xmlInputReadCallback ioread,
  */
 static int xmlBase64Decode(const uchar * in, unsigned long * inlen, uchar * to, unsigned long * tolen)
 {
-	ulong  incur;    /* current index in in[] */
-	ulong  inblk;    /* last block index in in[] */
-	ulong  outcur;   /* current index in out[] */
-	ulong  inmax;    /* size of in[] */
-	ulong  outmax;   /* size of out[] */
-	uchar  cur;      /* the current value read from in[] */
+	ulong  incur; /* current index in in[] */
+	ulong  inblk; /* last block index in in[] */
+	ulong  outcur; /* current index in out[] */
+	ulong  inmax; /* size of in[] */
+	ulong  outmax; /* size of out[] */
+	uchar  cur; /* the current value read from in[] */
 	uchar  intmp[4], outtmp[4]; /* temporary buffers for the convert */
-	int    nbintmp;            /* number of byte in intmp[] */
-	int    is_ignore;          /* cur should be ignored */
-	int    is_end = 0;         /* the end of the base64 was found */
+	int    nbintmp; /* number of byte in intmp[] */
+	int    is_ignore; /* cur should be ignored */
+	int    is_end = 0; /* the end of the base64 was found */
 	int    retval = 1;
 	int    i;
 	if((in == NULL) || (inlen == NULL) || (to == NULL) || (tolen == NULL))

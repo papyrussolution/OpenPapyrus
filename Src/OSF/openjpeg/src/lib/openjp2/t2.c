@@ -538,7 +538,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 				    (OPJ_INT32)
 				    p_cstr_info->tile[p_tile_no].tp[curtp].tp_end_pos) { /* New tile part */
 					info_TL->tp[curtp].tp_numpacks = p_cstr_info->packno -
-					    tp_start_packno;          /* Number of packets in previous tile-part */
+					    tp_start_packno; /* Number of packets in previous tile-part */
 					tp_start_packno = p_cstr_info->packno;
 					curtp++;
 					info_PK->start_pos = p_cstr_info->tile[p_tile_no].tp[curtp].tp_end_header + 1;
@@ -550,7 +550,7 @@ OPJ_BOOL opj_t2_decode_packets(opj_tcd_t* tcd,
 				}
 				info_PK->end_pos = info_PK->start_pos + l_nb_bytes_read - 1;
 				info_PK->end_ph_pos += info_PK->start_pos -
-				    1;     /* End of packet header which now only represents the distance */
+				    1; /* End of packet header which now only represents the distance */
 				++p_cstr_info->packno;
 			}
 #endif
@@ -663,9 +663,9 @@ static OPJ_BOOL opj_t2_encode_packet(OPJ_UINT32 tileno,
 	OPJ_BYTE* c = dest;
 	OPJ_UINT32 l_nb_bytes;
 	OPJ_UINT32 compno = pi->compno; /* component value */
-	OPJ_UINT32 resno  = pi->resno;  /* resolution level value */
+	OPJ_UINT32 resno  = pi->resno; /* resolution level value */
 	OPJ_UINT32 precno = pi->precno; /* precinct value */
-	OPJ_UINT32 layno  = pi->layno;  /* quality layer value */
+	OPJ_UINT32 layno  = pi->layno; /* quality layer value */
 	OPJ_UINT32 l_nb_blocks;
 	opj_tcd_band_t * band = 00;
 	opj_tcd_cblk_enc_t* cblk = 00;
@@ -790,7 +790,7 @@ static OPJ_BOOL opj_t2_encode_packet(OPJ_UINT32 tileno,
 		}
 	}
 #endif
-	opj_bio_write(bio, packet_empty ? 0 : 1, 1);       /* Empty header bit */
+	opj_bio_write(bio, packet_empty ? 0 : 1, 1); /* Empty header bit */
 
 	/* Writing Packet header */
 	band = res->bands;
@@ -900,7 +900,7 @@ static OPJ_BOOL opj_t2_encode_packet(OPJ_UINT32 tileno,
 
 	if(!opj_bio_flush(bio)) {
 		opj_bio_destroy(bio);
-		return OPJ_FALSE;       /* modified to eliminate longjmp !! */
+		return OPJ_FALSE; /* modified to eliminate longjmp !! */
 	}
 
 	l_nb_bytes = (OPJ_UINT32)opj_bio_numbytes(bio);

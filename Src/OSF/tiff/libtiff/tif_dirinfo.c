@@ -411,7 +411,7 @@ int TIFFDataWidth(TIFFDataType type)
 		case TIFF_LONG8:
 		case TIFF_SLONG8:
 		case TIFF_IFD8: return 8;
-		default: return 0;     /* will return 0 for unknown types */
+		default: return 0; /* will return 0 for unknown types */
 	}
 }
 /*

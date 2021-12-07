@@ -27,7 +27,7 @@ int RSA_padding_add_SSLv23(uchar * to, int tlen,
 	p = (uchar *)to;
 
 	*(p++) = 0;
-	*(p++) = 2;             /* Public Key BT (Block Type) */
+	*(p++) = 2; /* Public Key BT (Block Type) */
 
 	/* pad out with non-zero random data */
 	j = tlen - 3 - 8 - flen;

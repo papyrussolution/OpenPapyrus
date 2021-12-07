@@ -126,7 +126,7 @@ struct _LIBSSH2_AGENT {
 	struct agent_ops * ops;
 	struct agent_transaction_ctx transctx;
 	struct agent_publickey * identity;
-	struct list_head head;          /* list of public keys */
+	struct list_head head; /* list of public keys */
 };
 
 #ifdef PF_UNIX
@@ -237,7 +237,7 @@ static int agent_connect_pageant(LIBSSH2_AGENT * agent)
 	if(!hwnd)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed connecting agent");
 	else {
-		agent->fd = 0;     /* Mark as the connection has been established */
+		agent->fd = 0; /* Mark as the connection has been established */
 		return LIBSSH2_ERROR_NONE;
 	}
 }

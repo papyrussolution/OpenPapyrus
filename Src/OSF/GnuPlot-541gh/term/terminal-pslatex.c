@@ -90,7 +90,7 @@ static pstex_text_command * pstex_labels = NULL;
 static int epslatex_text_layer = 0;
 
 // Support for optimization of set_color 
-static t_colorspec tex_previous_colorspec = {(colortype)-1, 0, 0.0};  /* Initialize to invalid type */
+static t_colorspec tex_previous_colorspec = {(colortype)-1, 0, 0.0}; /* Initialize to invalid type */
 static char tex_current_color[64];
 static char tex_rgb_colordef[64];
 static bool tex_color_synced = FALSE;

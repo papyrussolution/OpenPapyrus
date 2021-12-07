@@ -196,10 +196,10 @@ struct mtree_writer {
 	                                         * entry resides */
 
 	/* Options */
-	int dironly;            /* If it is set, ignore all files except
+	int dironly; /* If it is set, ignore all files except
 	                         * directory files, like mtree(8) -d option. */
-	int indent;             /* If it is set, indent output data. */
-	int output_global_set;  /* If it is set, use /set keyword to set
+	int indent; /* If it is set, indent output data. */
+	int output_global_set; /* If it is set, use /set keyword to set
 	                         * global values. When generating mtree
 	                         * classic format, it is set by default. */
 };

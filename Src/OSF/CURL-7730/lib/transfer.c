@@ -1074,7 +1074,7 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 			conn->writesockfd,  /* socket to send to */
 			k->upload_fromhere, /* buffer pointer */
 			k->upload_present,  /* buffer size */
-			&bytes_written);    /* actually sent */
+			&bytes_written); /* actually sent */
 		if(result)
 			return result;
 

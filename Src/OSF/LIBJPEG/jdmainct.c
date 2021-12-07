@@ -114,13 +114,13 @@ typedef struct {
 	struct jpeg_d_main_controller pub; /* public fields */
 	/* Pointer to allocated workspace (M or M+2 row groups). */
 	JSAMPARRAY buffer[MAX_COMPONENTS];
-	boolean buffer_full;    /* Have we gotten an iMCU row from decoder? */
+	boolean buffer_full; /* Have we gotten an iMCU row from decoder? */
 	JDIMENSION rowgroup_ctr; /* counts row groups output to postprocessor */
 	/* Remaining fields are only used in the context case. */
 	/* These are the master pointers to the funny-order pointer lists. */
-	JSAMPIMAGE xbuffer[2];  /* pointers to weird pointer lists */
-	int whichptr;           /* indicates which pointer set is now in use */
-	int context_state;      /* process_data state machine status */
+	JSAMPIMAGE xbuffer[2]; /* pointers to weird pointer lists */
+	int whichptr; /* indicates which pointer set is now in use */
+	int context_state; /* process_data state machine status */
 	JDIMENSION rowgroups_avail; /* row groups available to postprocessor */
 	JDIMENSION iMCU_row_ctr; /* counts iMCU rows to detect image top/bot */
 } my_main_controller;
@@ -325,7 +325,7 @@ METHODDEF(void) process_data_simple_main(j_decompress_ptr cinfo, JSAMPARRAY outp
 	// @v9c if(!mainp->buffer_full) {
 	if(mainp->rowgroup_ctr >= mainp->rowgroups_avail) { // @v9c 
 		if(!(*cinfo->coef->decompress_data)(cinfo, mainp->buffer))
-			return;  /* suspension forced, can do nothing more */
+			return; /* suspension forced, can do nothing more */
 		// @v9c mainp->buffer_full = TRUE; /* OK, we have an iMCU row to work with */
 		mainp->rowgroup_ctr = 0; // OK, we have an iMCU row to work with // @v9c
 	}
@@ -356,7 +356,7 @@ METHODDEF(void) process_data_context_main(j_decompress_ptr cinfo, JSAMPARRAY out
 	/* Read input data if we haven't filled the main buffer yet */
 	if(!mainp->buffer_full) {
 		if(!(*cinfo->coef->decompress_data)(cinfo, mainp->xbuffer[mainp->whichptr]))
-			return;  /* suspension forced, can do nothing more */
+			return; /* suspension forced, can do nothing more */
 		mainp->buffer_full = TRUE; /* OK, we have an iMCU row to work with */
 		mainp->iMCU_row_ctr++; /* count rows received */
 	}
@@ -370,10 +370,10 @@ METHODDEF(void) process_data_context_main(j_decompress_ptr cinfo, JSAMPARRAY out
 		    /* Call postprocessor using previously set pointers for postponed row */
 		    (*cinfo->post->post_process_data)(cinfo, mainp->xbuffer[mainp->whichptr], &mainp->rowgroup_ctr, mainp->rowgroups_avail, output_buf, out_row_ctr, out_rows_avail);
 		    if(mainp->rowgroup_ctr < mainp->rowgroups_avail)
-			    return;  /* Need to suspend */
+			    return; /* Need to suspend */
 		    mainp->context_state = CTX_PREPARE_FOR_IMCU;
 		    if(*out_row_ctr >= out_rows_avail)
-			    return;  /* Postprocessor exactly filled output buf */
+			    return; /* Postprocessor exactly filled output buf */
 		// @fallthrough
 		case CTX_PREPARE_FOR_IMCU:
 		    /* Prepare to process first M-1 row groups of this iMCU row */
@@ -390,7 +390,7 @@ METHODDEF(void) process_data_context_main(j_decompress_ptr cinfo, JSAMPARRAY out
 		    /* Call postprocessor using previously set pointers */
 		    (*cinfo->post->post_process_data)(cinfo, mainp->xbuffer[mainp->whichptr], &mainp->rowgroup_ctr, mainp->rowgroups_avail, output_buf, out_row_ctr, out_rows_avail);
 		    if(mainp->rowgroup_ctr < mainp->rowgroups_avail)
-			    return;  /* Need to suspend */
+			    return; /* Need to suspend */
 		    /* After the first iMCU, change wraparound pointers to normal state */
 		    if(mainp->iMCU_row_ctr == 1)
 			    set_wraparound_pointers(cinfo);

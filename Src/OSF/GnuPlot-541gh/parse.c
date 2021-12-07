@@ -145,7 +145,7 @@ at_type * GnuPlot::TempAt()
 	if(_Pb.P_At)
 		free_at(_Pb.P_At);
 	_Pb.P_At = (at_type *)SAlloc::M(sizeof(struct at_type));
-	memzero(_Pb.P_At, sizeof(*_Pb.P_At));     /* reset action table !!! */
+	memzero(_Pb.P_At, sizeof(*_Pb.P_At)); /* reset action table !!! */
 	_Pb.AtSize = MAX_AT_LEN;
 	_Pb.RecursionLevel = 0;
 	ParseExpression();
@@ -172,7 +172,7 @@ struct at_type * create_call_column_at(char * string)
 	at_type * at = (at_type *)SAlloc::M(sizeof(int) + 2*sizeof(at_entry));
 	at->a_count = 2;
 	at->actions[0].index = PUSHC;
-	at->actions[0].arg.j_arg = 3;   /* FIXME - magic number! */
+	at->actions[0].arg.j_arg = 3; /* FIXME - magic number! */
 	at->actions[0].arg.v_arg.Type = STRING;
 	at->actions[0].arg.v_arg.v.string_val = string;
 	at->actions[1].index = COLUMN;
@@ -188,7 +188,7 @@ at_type * create_call_columnhead()
 	at_type * p_at = (at_type *)SAlloc::M(sizeof(int) + 2*sizeof(at_entry));
 	p_at->a_count = 2;
 	p_at->actions[0].index = PUSHC;
-	p_at->actions[0].arg.j_arg = 3;   /* FIXME - magic number! */
+	p_at->actions[0].arg.j_arg = 3; /* FIXME - magic number! */
 	p_at->actions[0].arg.v_arg.Type = INTGR;
 	p_at->actions[0].arg.v_arg.v.int_val = -1;
 	p_at->actions[1].index = COLUMNHEAD;

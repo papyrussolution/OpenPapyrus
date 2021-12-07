@@ -23,8 +23,8 @@
 //
 typedef struct {
 	struct jpeg_destination_mgr pub; /* public fields */
-	FILE * outfile;         /* target stream */
-	JOCTET * buffer;        /* start of buffer */
+	FILE * outfile; /* target stream */
+	JOCTET * buffer; /* start of buffer */
 } my_destination_mgr;
 
 typedef my_destination_mgr * my_dest_ptr;
@@ -38,7 +38,7 @@ typedef struct {
 	uchar ** outbuffer; /* target buffer */
 	ulong * outsize;
 	uchar * newbuffer; /* newly allocated buffer */
-	JOCTET * buffer;        /* start of buffer */
+	JOCTET * buffer; /* start of buffer */
 	size_t bufsize;
 } my_mem_destination_mgr;
 

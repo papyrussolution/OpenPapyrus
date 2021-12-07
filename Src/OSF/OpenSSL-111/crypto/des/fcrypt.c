@@ -62,7 +62,7 @@ char * DES_crypt(const char * buf, const char * salt)
 	return DES_fcrypt(buf, salt, buff);
 #else
 	char e_salt[2 + 1];
-	char e_buf[32 + 1];     /* replace 32 by 8 ? */
+	char e_buf[32 + 1]; /* replace 32 by 8 ? */
 	char * ret;
 
 	if(salt[0] == '\0' || salt[1] == '\0')

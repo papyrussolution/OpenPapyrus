@@ -63,17 +63,17 @@ typedef struct tiff TIFF;
  * int32 on 32bit machines, int64 on 64bit machines
  */
 typedef TIFF_SSIZE_T tmsize_t;
-typedef uint64 toff_t;          /* file offset */
+typedef uint64 toff_t; /* file offset */
 /* the following are deprecated and should be replaced by their defining
    counterparts */
-typedef uint32 ttag_t;          /* directory tag */
-typedef uint16 tdir_t;          /* directory index */
-typedef uint16 tsample_t;       /* sample number */
-typedef uint32 tstrile_t;       /* strip or tile number */
-typedef tstrile_t tstrip_t;     /* strip number */
-typedef tstrile_t ttile_t;      /* tile number */
-typedef tmsize_t tsize_t;       /* i/o size in bytes */
-typedef void * tdata_t;          /* image data ref */
+typedef uint32 ttag_t; /* directory tag */
+typedef uint16 tdir_t; /* directory index */
+typedef uint16 tsample_t; /* sample number */
+typedef uint32 tstrile_t; /* strip or tile number */
+typedef tstrile_t tstrip_t; /* strip number */
+typedef tstrile_t ttile_t; /* tile number */
+typedef tmsize_t tsize_t; /* i/o size in bytes */
+typedef void * tdata_t; /* image data ref */
 
 #if !defined(__WIN32__) && (defined(_WIN32) || defined(WIN32))
 	#define __WIN32__
@@ -94,12 +94,12 @@ typedef void * tdata_t;          /* image data ref */
 	#define VC_EXTRALEAN
 	#include <windows.h>
 	#ifdef __WIN32__
-		DECLARE_HANDLE(thandle_t);     /* Win32 file handle */
+		DECLARE_HANDLE(thandle_t); /* Win32 file handle */
 	#else
-		typedef HFILE thandle_t;       /* client data handle */
+		typedef HFILE thandle_t; /* client data handle */
 	#endif /* __WIN32__ */
 #else
-	typedef void * thandle_t;       /* client data handle */
+	typedef void * thandle_t; /* client data handle */
 #endif /* USE_WIN32_FILEIO */
 /*
  * Flags to pass to TIFFPrintDirectory to control
@@ -130,10 +130,10 @@ typedef void * tdata_t;          /* image data ref */
 
 /* Structure for holding information about a display device. */
 
-typedef uchar TIFFRGBValue;               /* 8-bit samples */
+typedef uchar TIFFRGBValue; /* 8-bit samples */
 
 typedef struct {
-	float d_mat[3][3];                        /* XYZ -> luminance matrix */
+	float d_mat[3][3]; /* XYZ -> luminance matrix */
 	float d_YCR;                              /* Light o/p for reference white */
 	float d_YCG;
 	float d_YCB;
@@ -163,9 +163,9 @@ typedef struct {                                  /* CIE Lab 1976->RGB support *
 	float rstep, gstep, bstep;
 	float X0, Y0, Z0;                         /* Reference white point */
 	TIFFDisplay display;
-	float Yr2r[CIELABTORGB_TABLE_RANGE + 1];  /* Conversion of Yr to r */
-	float Yg2g[CIELABTORGB_TABLE_RANGE + 1];  /* Conversion of Yg to g */
-	float Yb2b[CIELABTORGB_TABLE_RANGE + 1];  /* Conversion of Yb to b */
+	float Yr2r[CIELABTORGB_TABLE_RANGE + 1]; /* Conversion of Yr to r */
+	float Yg2g[CIELABTORGB_TABLE_RANGE + 1]; /* Conversion of Yg to g */
+	float Yb2b[CIELABTORGB_TABLE_RANGE + 1]; /* Conversion of Yb to b */
 } TIFFCIELabToRGB;
 
 /*
@@ -195,11 +195,11 @@ struct _TIFFRGBAImage {
 	uint32 width;                           /* image width */
 	uint32 height;                          /* image height */
 	uint16 bitspersample;                   /* image bits/sample */
-	uint16 samplesperpixel;                 /* image samples/pixel */
-	uint16 orientation;                     /* image orientation */
-	uint16 req_orientation;                 /* requested orientation */
-	uint16 photometric;                     /* image photometric interp */
-	uint16* redcmap;                        /* colormap palette */
+	uint16 samplesperpixel; /* image samples/pixel */
+	uint16 orientation; /* image orientation */
+	uint16 req_orientation; /* requested orientation */
+	uint16 photometric; /* image photometric interp */
+	uint16* redcmap; /* colormap palette */
 	uint16* greencmap;
 	uint16* bluecmap;
 	/* get image data routine */
@@ -210,11 +210,11 @@ struct _TIFFRGBAImage {
 	    tileContigRoutine contig;
 	    tileSeparateRoutine separate;
 	} put;
-	TIFFRGBValue* Map;                      /* sample mapping array */
+	TIFFRGBValue* Map; /* sample mapping array */
 	uint32 ** BWmap;                         /* black&white map */
-	uint32 ** PALmap;                        /* palette image map */
-	TIFFYCbCrToRGB* ycbcr;                  /* YCbCr conversion state */
-	TIFFCIELabToRGB* cielab;                /* CIE L*a*b conversion state */
+	uint32 ** PALmap; /* palette image map */
+	TIFFYCbCrToRGB* ycbcr; /* YCbCr conversion state */
+	TIFFCIELabToRGB* cielab; /* CIE L*a*b conversion state */
 	uint8 * UaToAa;                          /* Unassociated alpha to associated alpha conversion LUT */
 	uint8 * Bitdepth16To8;                   /* LUT for conversion from 16bit to 8bit values */
 	int row_offset;
@@ -450,7 +450,7 @@ extern tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void * data, tmsi
 extern tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void * data, tmsize_t cc);  
 extern tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void * data, tmsize_t cc);  
 extern tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void * data, tmsize_t cc);  
-extern int TIFFDataWidth(TIFFDataType);    /* table of tag datatype widths */
+extern int TIFFDataWidth(TIFFDataType); /* table of tag datatype widths */
 extern void TIFFSetWriteOffset(TIFF* tif, toff_t off);
 extern void FASTCALL TIFFSwabShort(uint16 *);
 extern void FASTCALL TIFFSwabLong(uint32 *);

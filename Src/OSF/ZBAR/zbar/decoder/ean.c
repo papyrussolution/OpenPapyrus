@@ -254,7 +254,7 @@ static /*inline*/ int8 FASTCALL decode4(const zbar_decoder_t * dcode)
 		mid = (((1 << code) & 0x0420) ? 3 /* E1E2 in 33,44 */ : 4 /* E1E2 in 34,43 */);
 		alt = d2 > (mid * dcode->ean.s4);
 		if(alt)
-			code = ((code >> 1) & 3) | 0x10;  /* compress code space */
+			code = ((code >> 1) & 3) | 0x10; /* compress code space */
 		dbprintf(2, " (d2=%d(%d) alt=%d)", d2, mid * dcode->ean.s4, alt);
 	}
 	dbprintf(2, " char=%02x", digits[(uchar)code]);

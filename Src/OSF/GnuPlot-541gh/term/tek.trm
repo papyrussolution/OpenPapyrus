@@ -303,7 +303,7 @@ TERM_PUBLIC void KTEK40graphics()
 TERM_PUBLIC void KTEK40Ctext()
 {
 	TEK40text();
-	KTEK40Clinetype(0);     /* change to green */
+	KTEK40Clinetype(0); /* change to green */
 }
 
 /* special color linetypes for MS-DOS Kermit v2.31 tektronix emulator */
@@ -419,7 +419,7 @@ static int SIXEL_dt;
 static int SIXEL_fp, SIXEL_np;
 
 struct SIXEL_colorspec {
-	int state;      /* see definitions above */
+	int state; /* see definitions above */
 	int rgbval;
 };
 
@@ -970,7 +970,7 @@ static void CT_solid_vector(int x, int y)
    delays actual line drawing until maximum line segment is determined
    (or first/last point is defined)
  */
-static int CT_penon = 0;        /* is Pen on? */
+static int CT_penon = 0; /* is Pen on? */
 
 static void CT_draw_vpoint(int x, int y, int last)
 {
@@ -1010,7 +1010,7 @@ static void CT_draw_vpoint(int x, int y, int last)
 
 static void CT_pattern_vector(int x1, int y1)
 {
-	int op;                 /* order parameter */
+	int op; /* order parameter */
 	int x0 = CT_last_x;
 	int y0 = CT_last_y;
 	int dx = x1 - x0;

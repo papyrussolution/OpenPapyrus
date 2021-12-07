@@ -53,12 +53,12 @@ typedef enum {
    used. */
 struct SMTP {
 	curl_pp_transfer transfer;
-	char * custom;     /* Custom Request */
+	char * custom; /* Custom Request */
 	struct curl_slist * rcpt; /* Recipient list */
-	bool rcpt_had_ok;  /* Whether any of RCPT TO commands (depends on
+	bool rcpt_had_ok; /* Whether any of RCPT TO commands (depends on
 	                      total number of recipients) succeeded so far */
 	int rcpt_last_error; /* The last error received for RCPT TO command */
-	size_t eob;        /* Number of bytes of the EOB (End Of Body) that
+	size_t eob; /* Number of bytes of the EOB (End Of Body) that
 	                      have been received so far */
 	bool trailing_crlf; /* Specifies if the tailing CRLF is present */
 };
@@ -67,10 +67,10 @@ struct SMTP {
    struct */
 struct smtp_conn {
 	struct pingpong pp;
-	smtpstate state;   /* Always use smtp.c:state() to change state! */
-	bool ssldone;      /* Is connect() over SSL done? */
-	char * domain;     /* Client address/name to send in the EHLO */
-	struct SASL sasl;  /* SASL-related storage */
+	smtpstate state; /* Always use smtp.c:state() to change state! */
+	bool ssldone; /* Is connect() over SSL done? */
+	char * domain; /* Client address/name to send in the EHLO */
+	struct SASL sasl; /* SASL-related storage */
 	bool tls_supported; /* StartTLS capability supported by server */
 	bool size_supported; /* If server supports SIZE extension according to
 	                        RFC 1870 */

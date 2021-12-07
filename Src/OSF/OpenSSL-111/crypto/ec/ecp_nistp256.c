@@ -41,7 +41,7 @@ NON_EMPTY_TRANSLATION_UNIT
 
 #if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
 /* even with gcc, the typedef won't work for 32-bit platforms */
-typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit
+typedef __uint128_t uint128_t; /* nonstandard; implemented by gcc on 64-bit
                                  * platforms */
 typedef __int128_t int128_t;
 #else
@@ -393,15 +393,15 @@ static void felem_shrink(smallfelem out, const felem in)
 	 * We perform two partial reductions where we eliminate the high-word of
 	 * tmp[3]. We don't update the other words till the end.
 	 */
-	a = tmp[3] >> 64;       /* a < 2^46 */
+	a = tmp[3] >> 64; /* a < 2^46 */
 	tmp[3] = (u64)tmp[3];
 	tmp[3] -= a;
 	tmp[3] += ((limb)a) << 32;
 	/* tmp[3] < 2^79 */
 
 	b = a;
-	a = tmp[3] >> 64;       /* a < 2^15 */
-	b += a;                 /* b < 2^46 + 2^15 < 2^47 */
+	a = tmp[3] >> 64; /* a < 2^15 */
+	b += a; /* b < 2^46 + 2^15 < 2^47 */
 	tmp[3] = (u64)tmp[3];
 	tmp[3] -= a;
 	tmp[3] += ((limb)a) << 32;
@@ -1661,8 +1661,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 	 * of the generator (two in each of the last 32 rounds) and additions of
 	 * other points multiples (every 5th round).
 	 */
-	skip = 1;               /* save two point operations in the first
-	                         * round */
+	skip = 1; /* save two point operations in the first round */
 	for(i = (num_points ? 255 : 31); i >= 0; --i) {
 		/* double */
 		if(!skip)
@@ -2030,23 +2029,18 @@ int ec_GFp_nistp256_points_mul(const EC_GROUP * group, EC_POINT * r,
 		if(generator == NULL)
 			goto err;
 		/* get the generator from precomputation */
-		if(!smallfelem_to_BN(x, g_pre_comp[0][1][0]) ||
-		    !smallfelem_to_BN(y, g_pre_comp[0][1][1]) ||
-		    !smallfelem_to_BN(z, g_pre_comp[0][1][2])) {
+		if(!smallfelem_to_BN(x, g_pre_comp[0][1][0]) || !smallfelem_to_BN(y, g_pre_comp[0][1][1]) || !smallfelem_to_BN(z, g_pre_comp[0][1][2])) {
 			ECerr(EC_F_EC_GFP_NISTP256_POINTS_MUL, ERR_R_BN_LIB);
 			goto err;
 		}
-		if(!EC_POINT_set_Jprojective_coordinates_GFp(group,
-		    generator, x, y, z,
-		    ctx))
+		if(!EC_POINT_set_Jprojective_coordinates_GFp(group, generator, x, y, z, ctx))
 			goto err;
 		if(0 == EC_POINT_cmp(group, generator, group->generator, ctx))
 			/* precomputation matches generator */
 			have_pre_comp = 1;
 		else
 			/*
-			 * we don't have valid precomputation: treat the generator as a
-			 * random point
+			 * we don't have valid precomputation: treat the generator as a random point
 			 */
 			num_points++;
 	}

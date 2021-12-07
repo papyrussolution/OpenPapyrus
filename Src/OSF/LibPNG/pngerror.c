@@ -532,7 +532,7 @@ jmp_buf * PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjm
 		else {
 			png_ptr->jmp_buf_ptr = png_voidcast(jmp_buf *, png_malloc_warn(png_ptr, jmp_buf_size));
 			if(png_ptr->jmp_buf_ptr == NULL)
-				return NULL;  /* new NULL return on OOM */
+				return NULL; /* new NULL return on OOM */
 			png_ptr->jmp_buf_size = jmp_buf_size;
 		}
 	}

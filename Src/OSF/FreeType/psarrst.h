@@ -53,13 +53,13 @@ FT_BEGIN_HEADER
     FT_Memory  memory;
     FT_Error*  error;
 
-    size_t  sizeItem;       /* bytes per element       */
-    size_t  allocated;      /* items allocated  */
-    size_t  chunk;          /* allocation increment in items */
-    size_t  count;          /* number of elements allocated  */
-    size_t  totalSize;      /* total bytes allocated   */
+    size_t  sizeItem; /* bytes per element       */
+    size_t  allocated; /* items allocated  */
+    size_t  chunk; /* allocation increment in items */
+    size_t  count; /* number of elements allocated  */
+    size_t  totalSize; /* total bytes allocated   */
 
-    void*  ptr;             /* ptr to data      */
+    void*  ptr; /* ptr to data      */
 
   } CF2_ArrStackRec, *CF2_ArrStack;
 

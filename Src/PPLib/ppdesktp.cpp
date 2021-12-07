@@ -1249,12 +1249,10 @@ int PPDesktop::ArrangeIcon(SPoint2S * pCoord)
 
 void PPDesktop::Update(const TRect * pR, bool drawBackgnd)
 {
-	if(pR) {
+	if(pR)
 		invalidateRect(*pR, drawBackgnd);
-	}
-	else {
+	else
 		invalidateAll(drawBackgnd);
-	}
 	::UpdateWindow(H());
 }
 
@@ -1300,7 +1298,7 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
+	HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
 		style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this);
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());

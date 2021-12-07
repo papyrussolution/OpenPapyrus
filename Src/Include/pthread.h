@@ -352,7 +352,7 @@ typedef struct {
 #if  __PTW32_VERSION_MAJOR > 2
 	size_t x;                   /* Extra information - reuse count etc */
 #else
-	unsigned int x;             /* Extra information - reuse count etc */
+	unsigned int x; /* Extra information - reuse count etc */
 #endif
 } __ptw32_handle_t;
 
@@ -440,8 +440,8 @@ enum { /* pthread_attr_{get,set}detachstate
 #define PTHREAD_ONCE_INIT       { 0,  __PTW32_FALSE }
 
 struct pthread_once_t_ {
-	void * lock;      /* MCS lock */
-	int done;               /* indicates if user function has been executed */
+	void * lock; /* MCS lock */
+	int done; /* indicates if user function has been executed */
 };
 
 #else
@@ -449,8 +449,8 @@ struct pthread_once_t_ {
 #define PTHREAD_ONCE_INIT       {  __PTW32_FALSE, 0, 0, 0 }
 
 struct pthread_once_t_ {
-	int done;               /* indicates if user function has been executed */
-	void * lock;      /* MCS lock */
+	int done; /* indicates if user function has been executed */
+	void * lock; /* MCS lock */
 	int reserved1;
 	int reserved2;
 };

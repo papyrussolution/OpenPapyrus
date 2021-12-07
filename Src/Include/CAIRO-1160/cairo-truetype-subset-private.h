@@ -111,10 +111,10 @@ typedef struct _tt_head {
     int16     modified_2;
     int16     modified_3;
     int16     modified_4;
-    int16     x_min;                  /* FWORD */
-    int16     y_min;                  /* FWORD */
-    int16     x_max;                  /* FWORD */
-    int16     y_max;                  /* FWORD */
+    int16     x_min; /* FWORD */
+    int16     y_min; /* FWORD */
+    int16     x_max; /* FWORD */
+    int16     y_max; /* FWORD */
     uint16    mac_style;
     uint16    lowest_rec_pppem;
     int16     font_direction_hint;
@@ -125,13 +125,13 @@ typedef struct _tt_head {
 typedef struct _tt_hhea {
     int16     version_1;
     int16     version_2;
-    int16     ascender;               /* FWORD */
-    int16     descender;              /* FWORD */
-    int16     line_gap;               /* FWORD */
-    uint16    advance_max_width;      /* UFWORD */
-    int16     min_left_side_bearing;  /* FWORD */
+    int16     ascender; /* FWORD */
+    int16     descender; /* FWORD */
+    int16     line_gap; /* FWORD */
+    uint16    advance_max_width; /* UFWORD */
+    int16     min_left_side_bearing; /* FWORD */
     int16     min_right_side_bearing; /* FWORD */
-    int16     x_max_extent;           /* FWORD */
+    int16     x_max_extent; /* FWORD */
     int16     caret_slope_rise;
     int16     caret_slope_run;
     int16     reserved[5];

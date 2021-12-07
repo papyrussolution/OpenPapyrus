@@ -115,19 +115,19 @@ typedef enum {
 #define ISCII_CNV_PREFIX "ISCII,version="
 
 typedef struct {
-	UChar contextCharToUnicode;     /* previous Unicode codepoint for contextual analysis */
-	UChar contextCharFromUnicode;   /* previous Unicode codepoint for contextual analysis */
-	uint16_t defDeltaToUnicode;     /* delta for switching to default state when DEF is encountered  */
+	UChar contextCharToUnicode; /* previous Unicode codepoint for contextual analysis */
+	UChar contextCharFromUnicode; /* previous Unicode codepoint for contextual analysis */
+	uint16_t defDeltaToUnicode; /* delta for switching to default state when DEF is encountered  */
 	uint16_t currentDeltaFromUnicode; /* current delta in Indic block */
 	uint16_t currentDeltaToUnicode; /* current delta in Indic block */
 	MaskEnum currentMaskFromUnicode; /* mask for current state in toUnicode */
-	MaskEnum currentMaskToUnicode;  /* mask for current state in toUnicode */
-	MaskEnum defMaskToUnicode;      /* mask for default state in toUnicode */
-	bool isFirstBuffer;            /* boolean for fromUnicode to see if we need to announce the first script */
-	bool resetToDefaultToUnicode;  /* boolean for resetting to default delta and mask when a newline is
+	MaskEnum currentMaskToUnicode; /* mask for current state in toUnicode */
+	MaskEnum defMaskToUnicode; /* mask for default state in toUnicode */
+	bool isFirstBuffer; /* boolean for fromUnicode to see if we need to announce the first script */
+	bool resetToDefaultToUnicode; /* boolean for resetting to default delta and mask when a newline is
 	                                   encountered*/
 	char name[sizeof(ISCII_CNV_PREFIX) + 1];
-	UChar32 prevToUnicodeStatus;    /* Hold the previous toUnicodeStatus. This is necessary because we may need to
+	UChar32 prevToUnicodeStatus; /* Hold the previous toUnicodeStatus. This is necessary because we may need to
 	                                   know the last two code points. */
 } UConverterDataISCII;
 

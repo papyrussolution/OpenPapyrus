@@ -832,10 +832,10 @@ struct re_pattern_buffer {
 	uint ops_alloc; /* allocated space for ops */
 	uchar * string_pool;
 	uchar * string_pool_end;
-	int num_mem;               /* used memory(...) num counted from 1 */
-	int num_repeat;            /* OP_REPEAT/OP_REPEAT_NG id-counter */
-	int num_empty_check;       /* OP_EMPTY_CHECK_START/END id counter */
-	int num_call;              /* number of subexp call */
+	int num_mem; /* used memory(...) num counted from 1 */
+	int num_repeat; /* OP_REPEAT/OP_REPEAT_NG id-counter */
+	int num_empty_check; /* OP_EMPTY_CHECK_START/END id counter */
+	int num_call; /* number of subexp call */
 	MemStatusType capture_history; /* (?@...) flag (1-31) */
 	MemStatusType push_mem_start; /* need backtrack flag */
 	MemStatusType push_mem_end; /* need backtrack flag */
@@ -848,18 +848,18 @@ struct re_pattern_buffer {
 	OnigCaseFoldType case_fold_flag;
 	void * name_table;
 	/* optimization info (string search, char-map and anchors) */
-	int optimize;               /* optimize flag */
-	int threshold_len;          /* search str-length for apply optimize */
-	int anchor;                 /* BEGIN_BUF, BEGIN_POS, (SEMI_)END_BUF */
-	OnigLen anc_dist_min;       /* (SEMI_)END_BUF anchor distance */
-	OnigLen anc_dist_max;       /* (SEMI_)END_BUF anchor distance */
-	int sub_anchor;             /* start-anchor for exact or map */
+	int optimize; /* optimize flag */
+	int threshold_len; /* search str-length for apply optimize */
+	int anchor; /* BEGIN_BUF, BEGIN_POS, (SEMI_)END_BUF */
+	OnigLen anc_dist_min; /* (SEMI_)END_BUF anchor distance */
+	OnigLen anc_dist_max; /* (SEMI_)END_BUF anchor distance */
+	int sub_anchor; /* start-anchor for exact or map */
 	uchar * exact;
 	uchar * exact_end;
 	uchar map[CHAR_MAP_SIZE]; /* used as BMH skip or char-map */
 	int map_offset;
-	OnigLen dist_min;            /* min-distance of exact or map */
-	OnigLen dist_max;            /* max-distance of exact or map */
+	OnigLen dist_min; /* min-distance of exact or map */
+	OnigLen dist_max; /* max-distance of exact or map */
 	RegexExt*      extp;
 };
 

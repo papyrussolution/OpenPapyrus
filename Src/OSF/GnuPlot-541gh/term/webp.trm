@@ -107,11 +107,11 @@ static WebPAnimEncoder* wp_enc = NULL;
 static WebPAnimEncoderOptions wp_enc_options;
 static struct {
 	TBOOLEAN animate;
-	int loop;               /* number of repetitions on playback; 0 = infinite */
-	int delay;              /* time in milliseconds between successive frames */
-	int quality;            /* 1-74 lossy; 75-100 lossless */
-	int frame;              /* current frame number within animation */
-	uint32_t background;    /* ARGB version of cairo_params->background */
+	int loop; /* number of repetitions on playback; 0 = infinite */
+	int delay; /* time in milliseconds between successive frames */
+	int quality; /* 1-74 lossy; 75-100 lossless */
+	int frame; /* current frame number within animation */
+	uint32_t background; /* ARGB version of cairo_params->background */
 } webp_params = { FALSE, 0, 50, 75, 0, 0xFFFFFF };
 
 void WEBP_options(GpTermEntry * pThis, GnuPlot * pGp, int show)
@@ -208,7 +208,7 @@ void WEBP_text()
 	WebPConfigInit(&wpconfig);
 	wpconfig.quality = webp_params.quality;
 	wpconfig.lossless = (webp_params.quality < 75) ? 0 : 1;
-	wpconfig.method = 4;    /* 0=fast/larger, 6=slow/smaller */
+	wpconfig.method = 4; /* 0=fast/larger, 6=slow/smaller */
 	wpconfig.thread_level = 1; /* non-zero uses multi-threaded encoding */
 	wpconfig.image_hint = WEBP_HINT_GRAPH;
 

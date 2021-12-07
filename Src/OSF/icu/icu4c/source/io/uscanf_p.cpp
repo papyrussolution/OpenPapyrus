@@ -74,26 +74,26 @@
  * Struct encapsulating a single uscanf format specification.
  */
 typedef struct u_scanf_spec_info {
-	int32_t fWidth;     /* Width  */
+	int32_t fWidth; /* Width  */
 
-	UChar fSpec;        /* Format specification  */
+	UChar fSpec; /* Format specification  */
 
-	UChar fPadChar;     /* Padding character  */
+	UChar fPadChar; /* Padding character  */
 
-	bool fSkipArg;     /* TRUE if arg should be skipped */
+	bool fSkipArg; /* TRUE if arg should be skipped */
 	bool fIsLongDouble; /* L flag  */
-	bool fIsShort;     /* h flag  */
-	bool fIsLong;      /* l flag  */
-	bool fIsLongLong;  /* ll flag  */
-	bool fIsString;    /* TRUE if this is a NULL-terminated string. */
+	bool fIsShort; /* h flag  */
+	bool fIsLong; /* l flag  */
+	bool fIsLongLong; /* ll flag  */
+	bool fIsString; /* TRUE if this is a NULL-terminated string. */
 } u_scanf_spec_info;
 
 /**
  * Struct encapsulating a single u_scanf format specification.
  */
 typedef struct u_scanf_spec {
-	u_scanf_spec_info fInfo;       /* Information on this spec */
-	int32_t fArgPos;       /* Position of data in arg list */
+	u_scanf_spec_info fInfo; /* Information on this spec */
+	int32_t fArgPos; /* Position of data in arg list */
 } u_scanf_spec;
 
 /**
@@ -1137,7 +1137,7 @@ static int32_t u_scanf_pointer_handler(UFILE   * input,
 
 	int32_t len;
 	int32_t skipped;
-	void   * result;
+	void * result;
 	void   ** p     = (void **)(args[0].ptrValue);
 
 	/* skip all ws in the input */

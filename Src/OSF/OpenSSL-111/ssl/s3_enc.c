@@ -23,7 +23,7 @@ static int ssl3_generate_key_block(SSL * s, uchar * km, int num)
 	int ret = 0;
 
 #ifdef CHARSET_EBCDIC
-	c = os_toascii[c];      /* 'A' in ASCII */
+	c = os_toascii[c]; /* 'A' in ASCII */
 #endif
 	k = 0;
 	m5 = EVP_MD_CTX_new();

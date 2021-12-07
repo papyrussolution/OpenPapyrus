@@ -20,8 +20,8 @@ static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 static int rc5_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
 
 typedef struct {
-	int rounds;             /* number of rounds */
-	RC5_32_KEY ks;          /* key schedule */
+	int rounds; /* number of rounds */
+	RC5_32_KEY ks; /* key schedule */
 } EVP_RC5_KEY;
 
 #define data(ctx)       EVP_C_DATA(EVP_RC5_KEY, ctx)

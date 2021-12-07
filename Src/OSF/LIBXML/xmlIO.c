@@ -2995,7 +2995,7 @@ int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
 int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf)
 {
 	int nbchars = 0; /* number of chars to output to I/O */
-	int ret;     /* return from function call */
+	int ret; /* return from function call */
 	int written = 0; /* number of char written to I/O so far */
 	if(!out || out->error)
 		return -1;
@@ -3149,12 +3149,12 @@ static int xmlEscapeContent(uchar * out, int * outlen, const xmlChar* in, int * 
 int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCharEncodingOutputFunc escaping)
 {
 	int nbchars = 0; /* number of chars to output to I/O */
-	int ret;     /* return from function call */
+	int ret; /* return from function call */
 	int written = 0; /* number of char written to I/O so far */
 	int oldwritten = 0; /* loop guard */
-	int chunk;   /* number of byte currently processed from str */
-	int len;     /* number of bytes in str */
-	int cons;    /* byte from str consumed */
+	int chunk; /* number of byte currently processed from str */
+	int len; /* number of bytes in str */
+	int cons; /* byte from str consumed */
 	if(!out || out->error || !str || !out->buffer || (xmlBufGetAllocationScheme(out->buffer) == XML_BUFFER_ALLOC_IMMUTABLE))
 		return -1;
 	len = sstrlen(str);

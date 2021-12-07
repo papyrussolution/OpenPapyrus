@@ -56,7 +56,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 		return buf;
 	}
 
-	len--;                  /* space for '\0' */
+	len--; /* space for '\0' */
 	l = 0;
 	for(i = 0; i < sk_X509_NAME_ENTRY_num(a->entries); i++) {
 		ne = sk_X509_NAME_ENTRY_value(a->entries, i);

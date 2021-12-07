@@ -140,7 +140,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 	size_t sslv3_pad_length = 40, header_length, variance_blocks,
 	    len, max_mac_bytes, num_blocks,
 	    num_starting_blocks, k, mac_end_offset, c, index_a, index_b;
-	size_t bits;      /* at most 18 bits */
+	size_t bits; /* at most 18 bits */
 	uchar length_bytes[MAX_HASH_BIT_COUNT_BYTES];
 	/* hmac_pad is the masked HMAC key. */
 	uchar hmac_pad[MAX_HASH_BLOCK_SIZE];

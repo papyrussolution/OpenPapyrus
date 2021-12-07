@@ -311,19 +311,19 @@ extern "C" {
 // 
 // Types 
 // 
-struct real_pcre;                 /* declaration; the definition is private  */
+struct real_pcre; /* declaration; the definition is private  */
 struct real_pcre8_or_16;
 struct real_pcre32;
 typedef struct /*real_pcre*/ real_pcre8_or_16 pcre;
-struct real_pcre16;               /* declaration; the definition is private  */
+struct real_pcre16; /* declaration; the definition is private  */
 typedef struct /*real_pcre16*/ real_pcre8_or_16 pcre16;
-struct real_pcre32;               /* declaration; the definition is private  */
+struct real_pcre32; /* declaration; the definition is private  */
 typedef struct real_pcre32 pcre32;
-struct real_pcre_jit_stack;       /* declaration; the definition is private  */
+struct real_pcre_jit_stack; /* declaration; the definition is private  */
 typedef struct real_pcre_jit_stack pcre_jit_stack;
-struct real_pcre16_jit_stack;     /* declaration; the definition is private  */
+struct real_pcre16_jit_stack; /* declaration; the definition is private  */
 typedef struct real_pcre16_jit_stack pcre16_jit_stack;
-struct real_pcre32_jit_stack;     /* declaration; the definition is private  */
+struct real_pcre32_jit_stack; /* declaration; the definition is private  */
 typedef struct real_pcre32_jit_stack pcre32_jit_stack;
 // 
 // If PCRE is compiled with 16 bit character support, PCRE_UCHAR16 must contain
@@ -355,40 +355,40 @@ typedef struct real_pcre32_jit_stack pcre32_jit_stack;
    such as way as to be extensible. Always add new fields at the end, in order to
    remain compatible. */
 typedef struct pcre_extra {
-	unsigned long flags;  /* Bits for which fields are set */
-	void * study_data;        /* Opaque data from pcre_study() */
+	unsigned long flags; /* Bits for which fields are set */
+	void * study_data; /* Opaque data from pcre_study() */
 	unsigned long match_limit; /* Maximum number of calls to match() */
-	void * callout_data;      /* Data passed back in callouts */
+	void * callout_data; /* Data passed back in callouts */
 	const uchar * tables; /* Pointer to character tables */
 	unsigned long match_limit_recursion; /* Max recursive calls to match() */
-	uchar ** mark;    /* For passing back a mark pointer */
-	void * executable_jit;    /* Contains a pointer to a compiled jit code */
+	uchar ** mark; /* For passing back a mark pointer */
+	void * executable_jit; /* Contains a pointer to a compiled jit code */
 } pcre_extra;
 
 /* Same structure as above, but with 16 bit char pointers. */
 
 typedef struct pcre16_extra {
-	unsigned long flags;  /* Bits for which fields are set */
-	void * study_data;        /* Opaque data from pcre_study() */
+	unsigned long flags; /* Bits for which fields are set */
+	void * study_data; /* Opaque data from pcre_study() */
 	unsigned long match_limit; /* Maximum number of calls to match() */
-	void * callout_data;      /* Data passed back in callouts */
+	void * callout_data; /* Data passed back in callouts */
 	const uchar * tables; /* Pointer to character tables */
 	unsigned long match_limit_recursion; /* Max recursive calls to match() */
-	PCRE_UCHAR16 ** mark;     /* For passing back a mark pointer */
-	void * executable_jit;    /* Contains a pointer to a compiled jit code */
+	PCRE_UCHAR16 ** mark; /* For passing back a mark pointer */
+	void * executable_jit; /* Contains a pointer to a compiled jit code */
 } pcre16_extra;
 
 /* Same structure as above, but with 32 bit char pointers. */
 
 typedef struct pcre32_extra {
-	unsigned long flags;  /* Bits for which fields are set */
-	void * study_data;        /* Opaque data from pcre_study() */
+	unsigned long flags; /* Bits for which fields are set */
+	void * study_data; /* Opaque data from pcre_study() */
 	unsigned long match_limit; /* Maximum number of calls to match() */
-	void * callout_data;      /* Data passed back in callouts */
+	void * callout_data; /* Data passed back in callouts */
 	const uchar * tables; /* Pointer to character tables */
 	unsigned long match_limit_recursion; /* Max recursive calls to match() */
-	PCRE_UCHAR32 ** mark;     /* For passing back a mark pointer */
-	void * executable_jit;    /* Contains a pointer to a compiled jit code */
+	PCRE_UCHAR32 ** mark; /* For passing back a mark pointer */
+	void * executable_jit; /* Contains a pointer to a compiled jit code */
 } pcre32_extra;
 
 /* The structure for passing out data via the pcre_callout_function. We use a
@@ -397,20 +397,20 @@ typedef struct pcre32_extra {
    without modification. */
 
 typedef struct pcre_callout_block {
-	int version;              /* Identifies version of block */
+	int version; /* Identifies version of block */
 	/* ------------------------ Version 0 ------------------------------- */
-	int callout_number;       /* Number compiled into pattern */
+	int callout_number; /* Number compiled into pattern */
 	int    * offset_vector; /* The offset vector */
-	PCRE_SPTR subject;        /* The subject being matched */
-	int subject_length;       /* The length of the subject */
-	int start_match;          /* Offset to start of this match attempt */
-	int current_position;     /* Where we currently are in the subject */
-	int capture_top;          /* Max current capture */
-	int capture_last;         /* Most recently closed capture */
+	PCRE_SPTR subject; /* The subject being matched */
+	int subject_length; /* The length of the subject */
+	int start_match; /* Offset to start of this match attempt */
+	int current_position; /* Where we currently are in the subject */
+	int capture_top; /* Max current capture */
+	int capture_last; /* Most recently closed capture */
 	void   * callout_data; /* Data passed in with the call */
 	/* ------------------- Added for Version 1 -------------------------- */
-	int pattern_position;     /* Offset to next item in the pattern */
-	int next_item_length;     /* Length of next item in the pattern */
+	int pattern_position; /* Offset to next item in the pattern */
+	int next_item_length; /* Length of next item in the pattern */
 	/* ------------------- Added for Version 2 -------------------------- */
 	const uchar * mark; /* Pointer to current mark or NULL    */
 	/* ------------------------------------------------------------------ */
@@ -419,20 +419,20 @@ typedef struct pcre_callout_block {
 /* Same structure as above, but with 16 bit char pointers. */
 
 typedef struct pcre16_callout_block {
-	int version;              /* Identifies version of block */
+	int version; /* Identifies version of block */
 	/* ------------------------ Version 0 ------------------------------- */
-	int callout_number;       /* Number compiled into pattern */
+	int callout_number; /* Number compiled into pattern */
 	int    * offset_vector; /* The offset vector */
-	PCRE_SPTR16 subject;      /* The subject being matched */
-	int subject_length;       /* The length of the subject */
-	int start_match;          /* Offset to start of this match attempt */
-	int current_position;     /* Where we currently are in the subject */
-	int capture_top;          /* Max current capture */
-	int capture_last;         /* Most recently closed capture */
+	PCRE_SPTR16 subject; /* The subject being matched */
+	int subject_length; /* The length of the subject */
+	int start_match; /* Offset to start of this match attempt */
+	int current_position; /* Where we currently are in the subject */
+	int capture_top; /* Max current capture */
+	int capture_last; /* Most recently closed capture */
 	void   * callout_data; /* Data passed in with the call */
 	/* ------------------- Added for Version 1 -------------------------- */
-	int pattern_position;     /* Offset to next item in the pattern */
-	int next_item_length;     /* Length of next item in the pattern */
+	int pattern_position; /* Offset to next item in the pattern */
+	int next_item_length; /* Length of next item in the pattern */
 	/* ------------------- Added for Version 2 -------------------------- */
 	const PCRE_UCHAR16 * mark; /* Pointer to current mark or NULL    */
 	/* ------------------------------------------------------------------ */
@@ -443,18 +443,18 @@ typedef struct pcre16_callout_block {
 typedef struct pcre32_callout_block {
 	int    version; // Identifies version of block 
 	// ------------------------ Version 0 ------------------------------- 
-	int    callout_number;       /* Number compiled into pattern */
+	int    callout_number; /* Number compiled into pattern */
 	int  * offset_vector; /* The offset vector */
-	PCRE_SPTR32 subject;      /* The subject being matched */
-	int    subject_length;       /* The length of the subject */
-	int    start_match;          /* Offset to start of this match attempt */
-	int    current_position;     /* Where we currently are in the subject */
-	int    capture_top;          /* Max current capture */
-	int    capture_last;         /* Most recently closed capture */
+	PCRE_SPTR32 subject; /* The subject being matched */
+	int    subject_length; /* The length of the subject */
+	int    start_match; /* Offset to start of this match attempt */
+	int    current_position; /* Where we currently are in the subject */
+	int    capture_top; /* Max current capture */
+	int    capture_last; /* Most recently closed capture */
 	void * callout_data; /* Data passed in with the call */
 	// ------------------- Added for Version 1 -------------------------- 
-	int    pattern_position;     /* Offset to next item in the pattern */
-	int    next_item_length;     /* Length of next item in the pattern */
+	int    pattern_position; /* Offset to next item in the pattern */
+	int    next_item_length; /* Length of next item in the pattern */
 	// ------------------- Added for Version 2 -------------------------- 
 	const PCRE_UCHAR32 * mark; /* Pointer to current mark or NULL    */
 } pcre32_callout_block;

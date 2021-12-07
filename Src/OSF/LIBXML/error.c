@@ -127,7 +127,7 @@ void xmlParserPrintFileInfo(xmlParserInput * input)
  */
 static void xmlParserPrintFileContextInternal(xmlParserInput * input, xmlGenericErrorFunc channel, void * data)
 {
-	uint n, col;    /* GCC warns if signed, because compared with sizeof() */
+	uint n, col; /* GCC warns if signed, because compared with sizeof() */
 	xmlChar content[81]; /* space for 80 chars + line terminator */
 	xmlChar * ctnt;
 	if(input) {

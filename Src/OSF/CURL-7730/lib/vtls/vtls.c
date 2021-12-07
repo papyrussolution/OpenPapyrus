@@ -539,7 +539,7 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 	/* free it if there's one already present */
 	SAlloc::F(store->name);
 	SAlloc::F(store->conn_to_host);
-	store->name = clone_host;         /* clone host name */
+	store->name = clone_host; /* clone host name */
 	store->conn_to_host = clone_conn_to_host; /* clone connect to host name */
 	store->conn_to_port = conn_to_port; /* connect to port number */
 	/* port number */

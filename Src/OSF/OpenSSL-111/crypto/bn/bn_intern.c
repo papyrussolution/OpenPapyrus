@@ -42,9 +42,9 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 		BNerr(BN_F_BN_COMPUTE_WNAF, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-	bit = 1 << w;           /* at most 128 */
-	next_bit = bit << 1;    /* at most 256 */
-	mask = next_bit - 1;    /* at most 255 */
+	bit = 1 << w; /* at most 128 */
+	next_bit = bit << 1; /* at most 256 */
+	mask = next_bit - 1; /* at most 255 */
 
 	if(BN_is_negative(scalar)) {
 		sign = -1;

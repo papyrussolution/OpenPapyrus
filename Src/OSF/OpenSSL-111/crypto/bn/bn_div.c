@@ -142,7 +142,7 @@ static int bn_left_align(BIGNUM * num)
 	int top = num->top;
 	int rshift = BN_num_bits_word(d[top - 1]), lshift, i;
 	lshift = BN_BITS2 - rshift;
-	rshift %= BN_BITS2;        /* say no to undefined behaviour */
+	rshift %= BN_BITS2; /* say no to undefined behaviour */
 	rmask = (BN_ULONG)0 - rshift; /* rmask = 0 - (rshift != 0) */
 	rmask |= rmask >> 8;
 	for(i = 0, m = 0; i < top; i++) {

@@ -319,18 +319,18 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	if(file_split->node) {
 		len += 2 + file_split->nodelen; /* 2 for starting \\ */
 		if(file_split->predir || file_split->dir || file_split->file)
-			len++;  /* 1 for ending \ */
+			len++; /* 1 for ending \ */
 	}
 	else if(file_split->device) {
 		len += file_split->devicelen + 1; /* 1 for ending : */
 	}
 	len += file_split->predirlen;
 	if(file_split->predir && (file_split->dir || file_split->file)) {
-		len++;          /* 1 for ending \ */
+		len++; /* 1 for ending \ */
 	}
 	len += file_split->dirlen;
 	if(file_split->dir && file_split->file) {
-		len++;          /* 1 for ending \ */
+		len++; /* 1 for ending \ */
 	}
 	len += file_split->filelen;
 

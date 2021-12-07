@@ -377,15 +377,15 @@ int xmlNop(void);
 		xmlElementType type;  // XML_ENTITY_DECL, must be second ! 
 		const xmlChar * name; // Entity name 
 		xmlNode * children;   // First child link 
-		xmlNode * last;  /* Last child link */
-		xmlDtd  * parent;  /* -> DTD */
-		xmlNode * next;  /* next sibling link  */
-		xmlNode * prev;  /* previous sibling link  */
-		xmlDoc  * doc;  /* the containing document */
-		const xmlChar * orig;  /* content without ref substitution */
-		const xmlChar * content;  /* content or ndata if unparsed */
-		int    length;                     /* the content length */
-		xmlEntityType etype;            /* The entity type */
+		xmlNode * last; /* Last child link */
+		xmlDtd  * parent; /* -> DTD */
+		xmlNode * next; /* next sibling link  */
+		xmlNode * prev; /* previous sibling link  */
+		xmlDoc  * doc; /* the containing document */
+		const xmlChar * orig; /* content without ref substitution */
+		const xmlChar * content; /* content or ndata if unparsed */
+		int    length; /* the content length */
+		xmlEntityType etype; /* The entity type */
 		const xmlChar * ExternalID; // External identifier for PUBLIC 
 		const xmlChar * SystemID;   // URI for a SYSTEM or PUBLIC Entity 
 		struct xmlEntity * nexte;   // unused 
@@ -1282,7 +1282,7 @@ int xmlNop(void);
 			xmlXPathVariableLookupFunc varLookupFunc; /* variable lookup func */
 			void *varLookupData;		/* variable lookup data */
 			/* Possibility to link in an extra item */
-			void *extra;                        /* needed for XSLT */
+			void *extra; /* needed for XSLT */
 			/* The function name and URI when calling a function */
 			const xmlChar *function;
 			const xmlChar *functionURI;
@@ -1293,8 +1293,8 @@ int xmlNop(void);
 			xmlNs ** tmpNsList; // Array of namespaces 
 			int tmpNsNr;			/* number of namespaces in scope */
 			/* error reporting mechanism */
-			void *userData;                     /* user specific data block */
-			xmlStructuredErrorFunc error;       /* the callback in case of errors */
+			void *userData; /* user specific data block */
+			xmlStructuredErrorFunc error; /* the callback in case of errors */
 			xmlError lastError;			/* the last error */
 			xmlNode * debugNode;		/* the source node XSLT */
 			/* dictionary */
@@ -2451,16 +2451,16 @@ int xmlNop(void);
 	//typedef struct _xmlURI xmlURI;
 
 	struct xmlURI {
-		char * scheme;  /* the URI scheme */
-		char * opaque;  /* opaque part */
+		char * scheme; /* the URI scheme */
+		char * opaque; /* opaque part */
 		char * authority; /* the authority part */
-		char * server;  /* the server part */
-		char * user;    /* the user part */
+		char * server; /* the server part */
+		char * user; /* the user part */
 		int    port;   // the port number 
-		char * path;    /* the path string */
-		char * query;   /* the query string (deprecated - use with caution) */
+		char * path; /* the path string */
+		char * query; /* the query string (deprecated - use with caution) */
 		char * fragment; /* the fragment identifier */
-		int    cleanup;    /* parsing potentially unclean URI */
+		int    cleanup; /* parsing potentially unclean URI */
 		char * query_raw; /* the query string (as it appears in the URI) */
 	};
 	//typedef xmlURI * xmlURIPtr;

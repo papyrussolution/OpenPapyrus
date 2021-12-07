@@ -248,10 +248,10 @@ extern "C" {
  * has cmd_num set to zero and/or cmd_name set to NULL.
  */
 typedef struct ENGINE_CMD_DEFN_st {
-    uint cmd_num;       /* The command number */
-    const char *cmd_name;       /* The command name itself */
-    const char *cmd_desc;       /* A short description of the command */
-    uint cmd_flags;     /* The input the command expects */
+    uint cmd_num; /* The command number */
+    const char *cmd_name; /* The command name itself */
+    const char *cmd_desc; /* A short description of the command */
+    uint cmd_flags; /* The input the command expects */
 } ENGINE_CMD_DEFN;
 
 /* Generic function pointer */

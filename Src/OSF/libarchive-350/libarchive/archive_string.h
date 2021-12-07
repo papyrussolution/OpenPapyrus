@@ -52,13 +52,13 @@
  */
 
 struct archive_string {
-	char	*s;  /* Pointer to the storage */
+	char	*s; /* Pointer to the storage */
 	size_t	 length; /* Length of 's' in characters */
 	size_t	 buffer_length; /* Length of malloc-ed storage in bytes. */
 };
 
 struct archive_wstring {
-	wchar_t	*s;  /* Pointer to the storage */
+	wchar_t	*s; /* Pointer to the storage */
 	size_t	 length; /* Length of 's' in characters */
 	size_t	 buffer_length; /* Length of malloc-ed storage in bytes. */
 };

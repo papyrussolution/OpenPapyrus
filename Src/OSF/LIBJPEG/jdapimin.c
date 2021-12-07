@@ -27,7 +27,7 @@ GLOBAL(void) jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t s
 {
 	int i;
 	/* Guard against version mismatches between library and caller. */
-	cinfo->mem = NULL;      /* so jpeg_destroy knows mem mgr not called */
+	cinfo->mem = NULL; /* so jpeg_destroy knows mem mgr not called */
 	if(version != JPEG_LIB_VERSION)
 		ERREXIT2(cinfo, JERR_BAD_LIB_VERSION, JPEG_LIB_VERSION, version);
 	if(structsize != SIZEOF(struct jpeg_decompress_struct))
@@ -108,11 +108,11 @@ static void default_decompress_parms(j_decompress_ptr cinfo)
 		    else if(cid0 == 0x01 && cid1 == 0x22 && cid2 == 0x23)
 			    cinfo->jpeg_color_space = JCS_BG_YCC;
 		    else if(cid0 == 0x52 && cid1 == 0x47 && cid2 == 0x42)
-			    cinfo->jpeg_color_space = JCS_RGB;  /* ASCII 'R', 'G', 'B' */
+			    cinfo->jpeg_color_space = JCS_RGB; /* ASCII 'R', 'G', 'B' */
 		    else if(cid0 == 0x72 && cid1 == 0x67 && cid2 == 0x62)
-			    cinfo->jpeg_color_space = JCS_BG_RGB;  /* ASCII 'r', 'g', 'b' */
+			    cinfo->jpeg_color_space = JCS_BG_RGB; /* ASCII 'r', 'g', 'b' */
 		    else if(cinfo->saw_JFIF_marker)
-			    cinfo->jpeg_color_space = JCS_YCbCr;  /* assume it's YCbCr */
+			    cinfo->jpeg_color_space = JCS_YCbCr; /* assume it's YCbCr */
 		    else if(cinfo->saw_Adobe_marker) {
 			    switch(cinfo->Adobe_transform) {
 				    case 0:
@@ -162,7 +162,7 @@ static void default_decompress_parms(j_decompress_ptr cinfo)
 		    break;
 	}
 	/* Set defaults for other decompression parameters. */
-	cinfo->scale_num = cinfo->block_size;   /* 1:1 scaling */
+	cinfo->scale_num = cinfo->block_size; /* 1:1 scaling */
 	cinfo->scale_denom = cinfo->block_size;
 	cinfo->output_gamma = 1.0;
 	cinfo->buffered_image = FALSE;
@@ -335,7 +335,7 @@ GLOBAL(boolean) jpeg_finish_decompress(j_decompress_ptr cinfo)
 	/* Read until EOI */
 	while(!cinfo->inputctl->eoi_reached) {
 		if((*cinfo->inputctl->consume_input)(cinfo) == JPEG_SUSPENDED)
-			return FALSE;  /* Suspend, come back later */
+			return FALSE; /* Suspend, come back later */
 	}
 	/* Do final cleanup */
 	(*cinfo->src->term_source)(cinfo);

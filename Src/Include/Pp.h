@@ -1440,7 +1440,7 @@ int FASTCALL DbeInitSize(int option, DBConst * result, size_t s);
 #define THROW_MEM(expr) {if(!(expr)){PPSetErrorNoMem();goto __scatch;}}
 #define THROW_INVARG(expr)     {if(!(expr)){PPSetErrorInvParam();goto __scatch;}}
 #define THROW_DB(expr)         {if(!(expr)){PPSetErrorDB();goto __scatch;}}
-#define THROW_LXML(expr, ctx)  {if(!(expr)){PPSetLibXmlError(ctx);goto __scatch;}}
+#define THROW_LXML(expr, ctx) {if(!(expr)){PPSetLibXmlError(ctx);goto __scatch;}}
 #define CALLEXCEPT_PP(val)     {PPSetError(val);goto __scatch;}
 #define CALLEXCEPT_PP_S(val,s) {PPSetError(val,s); goto __scatch;}
 #define CATCHZOKPPERR \
@@ -20785,7 +20785,7 @@ public:
 	static int IsSyncCMT(PPID cmtID);
 	static int IsAsyncCMT(PPID cmtID);
 	virtual ~PPCashMachine();
-	virtual PPSyncCashSession  * SyncInterface()  { return 0; }
+	virtual PPSyncCashSession  * SyncInterface() { return 0; }
 	virtual PPAsyncCashSession * AsyncInterface() { return 0; }
 	//
 	// Синхронные методы
@@ -46219,6 +46219,19 @@ public:
 	//    SSecretTagPool::tagFPI
 	//
 	int    GetOwnPeerEntry(StoragePacket * pPack);
+
+	enum {
+		gcisfMakeSecret = 0x0001
+	};
+	//
+	// Descr: Генерирует клиентский идентификатор для сервиса с идентификатором pSvcId[svcIdLen].
+	//   Исходный пул rOwnPool должен содержать SSecretTagPool::tagPrimaryRN и SSecretTagPool::tagAG.
+	//   В результирующий пул rPool вставляется сгенерированный клиентский идентификатор resultIdentTag (SSecretTagPool::tagClientIdent || SSecretTagPool::tagSvcIdent).
+	//   SSecretTagPool::tagSvcIdent применяется при генерации собственного набора параметров участника (и для клиента и для сервиса).
+	//   Если аргумент flags содержит битовый флаг gcisfMakeSecret, то так же генерируется секрет (SSecretTagPool::tagSecret).
+	//
+	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool); // @v11.2.7
+	int    SetupPeerInstance(PPID * pID, int use_ta); // @v11.2.7
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StoragePacket * pPack);
 	int    ReadCurrentPacket(StoragePacket * pPack);
 
@@ -46291,6 +46304,9 @@ public:
 		SString Description;        // utf8 Подробное описание команды
 		SString Image;              // Ссылка на изображение, ассоциированное с командой
 		SBuffer Param;              // Фильтр для ViewSymb и(или) ViewId
+			// sqbcPersonEvent: PPPsnEventPacket
+			// sqbcRsrvOrderPrereq: int32 id of StyloPalm
+			// 
 		PPNamedFilt::ViewDefinition Vd;
 	};
 	//
@@ -46520,17 +46536,8 @@ private:
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
-	enum {
-		gcisfMakeSecret = 0x0001
-	};
-	//
-	// Descr: Генерирует клиентский идентификатор для сервиса с идентификатором pSvcId[svcIdLen].
-	//   Исходный пул rOwnPool должен содержать SSecretTagPool::tagPrimaryRN и SSecretTagPool::tagAG.
-	//   В результирующий пул rPool вставляется сгенерированный клиентский идентификатор resultIdentTag (SSecretTagPool::tagClientIdent || SSecretTagPool::tagSvcIdent).
-	//   SSecretTagPool::tagSvcIdent применяется при генерации собственного набора параметров участника (и для клиента и для сервиса).
-	//   Если аргумент flags содержит битовый флаг gcisfMakeSecret, то так же генерируется секрет (SSecretTagPool::tagSecret).
-	//
-	int    GeneratePublicIdent(const SSecretTagPool & rOwnPool, const SBinaryChunk & rSvcIdent, uint resultIdentTag, long flags, SSecretTagPool & rPool);
+	int    ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
+		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение
@@ -46633,12 +46640,17 @@ private:
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    MakeList(PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    Invitation();
 
 	StyloQBinderyFilt Filt;
 	SArray * P_DsList;
 	SStrGroup StrPool;
 	PPObjStyloQBindery Obj;
 	ObjCollection ObjColl;
+	enum {
+		stMatchingUpdated = 0x0001 // Были изменены привязки записей (надо обновить глобальную карту соответствий объектов StyloQ)
+	};
+	uint   State;
 };
 
 class StyloQCommandFilt : public PPBaseFilt {

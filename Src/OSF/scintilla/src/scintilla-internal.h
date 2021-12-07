@@ -1244,7 +1244,7 @@ public:
 	int    position;
 	int    length;
 	int    linesAdded; /**< Negative if lines deleted. */
-	const  char * text;       /**< Only valid for changes to text, not for changes to style. */
+	const  char * text; /**< Only valid for changes to text, not for changes to style. */
 	int    line;
 	int    foldLevelNow;
 	int    foldLevelPrev;
@@ -3177,8 +3177,8 @@ private:
 	bool iswordc(uchar x) const { return charClass->IsWord(x); }
 
 	int bol;
-	int tagstk[MAXTAG];  /* subpat tag stack */
-	char nfa[MAXNFA];    /* automaton */
+	int tagstk[MAXTAG]; /* subpat tag stack */
+	char nfa[MAXNFA]; /* automaton */
 	int sta;
 	uchar bittab[BITBLK]; /* bit table for CCL pre-set bits */
 	int failure;

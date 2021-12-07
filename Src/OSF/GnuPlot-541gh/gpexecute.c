@@ -82,7 +82,7 @@ static int gpe_pop(gpe_fifo_t ** base)
 #ifdef PIPE_IPC
 	RETSIGTYPE pipe_died_handler(int signum)
 	{
-		(void)signum;           /* avoid -Wunused warning. */
+		(void)signum; /* avoid -Wunused warning. */
 		/* fprintf(stderr, "\n*******(pipe_died_handler)*******\n"); */
 		close(1);
 		pipe_died = 1;

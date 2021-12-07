@@ -62,7 +62,7 @@ struct read_file_data {
 	int fd;
 	size_t block_size;
 	void    * buffer;
-	mode_t st_mode;    /* Mode bits for opened file. */
+	mode_t st_mode; /* Mode bits for opened file. */
 	char use_lseek;
 	enum fnt_e { 
 		FNT_STDIN, 
@@ -70,7 +70,7 @@ struct read_file_data {
 		FNT_WCS 
 	} filename_type;
 	union {
-		char m[1];    /* MBS filename. */
+		char m[1]; /* MBS filename. */
 		wchar_t w[1]; /* WCS filename. */
 	} filename; /* Must be last! */
 };

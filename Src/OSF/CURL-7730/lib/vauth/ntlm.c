@@ -394,8 +394,8 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 	size_t size;
 
 	uchar ntlmbuf[NTLM_BUFSIZE];
-	const char * host = "";       /* empty */
-	const char * domain = "";     /* empty */
+	const char * host = ""; /* empty */
+	const char * domain = ""; /* empty */
 	size_t hostlen = 0;
 	size_t domlen = 0;
 	size_t hostoff = 0;

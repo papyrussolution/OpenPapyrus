@@ -46,7 +46,7 @@ FT_BEGIN_HEADER
   /* rasterizer integer and fixed point arithmetic must be 32-bit */
 
 #define   CF2_Fixed  CF2_F16Dot16
-  typedef FT_Int32   CF2_Frac;   /* 2.30 fixed point */
+  typedef FT_Int32   CF2_Frac; /* 2.30 fixed point */
 
 
 #define CF2_FIXED_MAX      ((CF2_Fixed)0x7FFFFFFFL )

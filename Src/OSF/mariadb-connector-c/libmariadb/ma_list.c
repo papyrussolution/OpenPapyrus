@@ -37,7 +37,7 @@ LIST * list_add(LIST * root, LIST * element)
 	else
 		element->prev = 0;
 	element->next = root;
-	return(element);                /* New root */
+	return(element); /* New root */
 }
 
 LIST * list_delete(LIST * root, LIST * element)

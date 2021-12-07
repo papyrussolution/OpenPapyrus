@@ -4042,7 +4042,7 @@ int archive_mstring_update_utf8(struct archive * a, struct archive_mstring * aes
 	/* Empty the mbs and wcs strings. */
 	archive_string_empty(&(aes->aes_mbs));
 	archive_wstring_empty(&(aes->aes_wcs));
-	aes->aes_set = AES_SET_UTF8;    /* Only UTF8 is set now. */
+	aes->aes_set = AES_SET_UTF8; /* Only UTF8 is set now. */
 	/* Try converting UTF-8 to MBS, return false on failure. */
 	sc = archive_string_conversion_from_charset(a, "UTF-8", 1);
 	if(sc == NULL)

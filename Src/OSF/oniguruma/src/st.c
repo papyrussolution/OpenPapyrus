@@ -112,7 +112,7 @@ static int new_size(int size)
 			return primes[i];
 	}
 	/* Ran out of polynomials */
-	return -1;              /* should raise exception */
+	return -1; /* should raise exception */
 #endif
 }
 

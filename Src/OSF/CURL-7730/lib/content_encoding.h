@@ -24,15 +24,15 @@
 #include "curl_setup.h"
 
 struct contenc_writer {
-  const struct content_encoding *handler;  /* Encoding handler. */
-  struct contenc_writer *downstream;  /* Downstream writer. */
-  void *params;  /* Encoding-specific storage (variable length). */
+  const struct content_encoding *handler; /* Encoding handler. */
+  struct contenc_writer *downstream; /* Downstream writer. */
+  void *params; /* Encoding-specific storage (variable length). */
 };
 
 /* Content encoding writer. */
 struct content_encoding {
-  const char *name;        /* Encoding name. */
-  const char *alias;       /* Encoding name alias. */
+  const char *name; /* Encoding name. */
+  const char *alias; /* Encoding name alias. */
   CURLcode (*init_writer)(struct connectdata *conn,
                           struct contenc_writer *writer);
   CURLcode (*unencode_write)(struct connectdata *conn,

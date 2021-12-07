@@ -382,9 +382,9 @@ TERM_PUBLIC void HP26_move(uint x, uint y)
 TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
 {
 	HP26_gnu_map[-2 + 2] = BN_create(0, 2048, DOTS); /* border */
-	HP26_gnu_map[-1 + 2] = HP26_gnu_map[-2 + 2];    /* axes */
+	HP26_gnu_map[-1 + 2] = HP26_gnu_map[-2 + 2]; /* axes */
 	HP26_gnu_map[0 + 2] = BN_create(2, 3072, SOLID); /* plot 0 */
-	HP26_gnu_map[1 + 2] = HP26_gnu_map[-2 + 2];     /* plot 1 */
+	HP26_gnu_map[1 + 2] = HP26_gnu_map[-2 + 2]; /* plot 1 */
 	HP26_gnu_map[2 + 2] = BN_create(4, 1024, LINE5); /* plot 2 */
 	HP26_gnu_map[3 + 2] = BN_create(5, 256, LINE6); /* plot 3 */
 	HP26_gnu_map[4 + 2] = BN_create(6, 256, LINE8); /* plot 4 */
@@ -393,9 +393,9 @@ TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
 	HP26_gnu_map[7 + 2] = BN_create(9, 64, LINE6); /* plot 7 */
 	HP26_gnu_map[8 + 2] = BN_create(10, 64, LINE4); /* plot 8 */
 	HP26_gnu_map[9 + 2] = BN_create(11, 512, POINT); /* point plot */
-	HP26_buff = HP26_gnu_map[10];   /* set to an unlikely linetype */
+	HP26_buff = HP26_gnu_map[10]; /* set to an unlikely linetype */
 	HP26_linetype_current = 0; /* set to force a linetype change */
-	HP26_angle = 1;         /* left to right, default */
+	HP26_angle = 1; /* left to right, default */
 	fputs("\033*mp1m2a2Q", GPT.P_GpOutFile);
 	/*           1 2 3 4
 	   1.  make text upright
@@ -531,7 +531,7 @@ TERM_PUBLIC void HP26_linetype(int linetype)
 	linetype += 2;
 	if(HP26_gnu_map[linetype] == HP26_buff) {
 		HP26_nop_line++;
-		return;         /* gnuplot just sent us another NOP */
+		return; /* gnuplot just sent us another NOP */
 	}
 	HP26_buff = HP26_gnu_map[linetype];
 }

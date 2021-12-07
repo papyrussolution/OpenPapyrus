@@ -755,7 +755,7 @@ void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 		do {
 			p->OrderFall++;
 			if(!p->MinContext->Suffix)
-				return;  /* EndMarker (symbol = -1) */
+				return; /* EndMarker (symbol = -1) */
 			p->MinContext = Ppmd7_GetContext(p, p->MinContext->Suffix);
 		} while(p->MinContext->NumStats == numMasked);
 		see = Ppmd7_MakeEscFreq(p, numMasked, &escFreq);

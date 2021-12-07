@@ -2749,8 +2749,8 @@ int TIFFReadDirectory(TIFF* tif)
 
 	tif->tif_diroff = tif->tif_nextdiroff;
 	if(!TIFFCheckDirOffset(tif, tif->tif_nextdiroff))
-		return 0;           /* last offset or bad offset (IFD looping) */
-	(*tif->tif_cleanup)(tif);   /* cleanup any previous compression state */
+		return 0; /* last offset or bad offset (IFD looping) */
+	(*tif->tif_cleanup)(tif); /* cleanup any previous compression state */
 	tif->tif_curdir++;
 	nextdiroff = tif->tif_nextdiroff;
 	dircount = TIFFFetchDirectory(tif, nextdiroff, &dir, &tif->tif_nextdiroff);
@@ -2777,8 +2777,8 @@ int TIFFReadDirectory(TIFF* tif)
 		}
 	}
 
-	tif->tif_flags &= ~TIFF_BEENWRITING;    /* reset before new dir */
-	tif->tif_flags &= ~TIFF_BUF4WRITE;      /* reset before new dir */
+	tif->tif_flags &= ~TIFF_BEENWRITING; /* reset before new dir */
+	tif->tif_flags &= ~TIFF_BUF4WRITE; /* reset before new dir */
 	/* free any old stuff and reinit */
 	TIFFFreeDirectory(tif);
 	TIFFDefaultDirectory(tif);
@@ -3863,7 +3863,7 @@ static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
 	fip = tif->tif_fields[fii];
 	assert(fip != NULL); /* should not happen */
 	assert(fip->set_field_type!=TIFF_SETGET_OTHER); /* if so, we shouldn't arrive here but deal with this in specialized code */
-	assert(fip->set_field_type!=TIFF_SETGET_INT);    /* if so, we shouldn't arrive here as this is only the case for pseudo-tags */
+	assert(fip->set_field_type!=TIFF_SETGET_INT); /* if so, we shouldn't arrive here as this is only the case for pseudo-tags */
 	err = TIFFReadDirEntryErrOk;
 	switch(fip->set_field_type) {
 		case TIFF_SETGET_UNDEFINED:
@@ -4409,7 +4409,7 @@ static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
 	    }
 	    break;
 		default:
-		    assert(0);        /* we should never get here */
+		    assert(0); /* we should never get here */
 		    break;
 	}
 	if(err != TIFFReadDirEntryErrOk) {

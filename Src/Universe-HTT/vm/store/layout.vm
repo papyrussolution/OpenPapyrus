@@ -61,14 +61,14 @@
 	}
 	div.shop-v1-catalog-blk {
 		position: relative;
-		-moz-box-shadow: 2px 2px 4px #888888;     /* Firefox */
-		-webkit-box-shadow: 2px 2px 4px #888888;  /* Safari, Chrome */
-		-khtml-box-shadow: 2px 2px 4px #888888;   /* KHTML */
-		box-shadow: 2px 2px 4px #888888;          /* CSS3 */
-		-moz-border-radius: 4px;     /* Firefox */
-		-webkit-border-radius: 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 4px;   /* KHTML */
-		border-radius: 4px;          /* CSS3 */
+		-moz-box-shadow: 2px 2px 4px #888888; /* Firefox */
+		-webkit-box-shadow: 2px 2px 4px #888888; /* Safari, Chrome */
+		-khtml-box-shadow: 2px 2px 4px #888888; /* KHTML */
+		box-shadow: 2px 2px 4px #888888; /* CSS3 */
+		-moz-border-radius: 4px; /* Firefox */
+		-webkit-border-radius: 4px; /* Safari, Chrome */
+		-khtml-border-radius: 4px; /* KHTML */
+		border-radius: 4px; /* CSS3 */
 	}
 	div.shop-v1-catalog-header-blk {
 		position: relative;
@@ -172,10 +172,10 @@
 		width: 100%;
 		height: 100%;
 		background: url("/rsrc/images/right_24.png") no-repeat center center transparent;
-		-moz-border-radius: 0px;     /* Firefox */
-		-webkit-border-radius: 0px;  /* Safari, Chrome */
-		-khtml-border-radius: 0px;   /* KHTML */
-		border-radius: 0px;          /* CSS3 */
+		-moz-border-radius: 0px; /* Firefox */
+		-webkit-border-radius: 0px; /* Safari, Chrome */
+		-khtml-border-radius: 0px; /* KHTML */
+		border-radius: 0px; /* CSS3 */
 	}
 	div.shop-v1-catalog-pager-to-next-btn input:hover, div.shop-v1-catalog-pager-to-next-btn input:focus {
 		background: url("/rsrc/images/right_24.png") no-repeat center center transparent;
@@ -185,19 +185,19 @@
 		float: right;
 		width: 30px;
 		height: 26px;
-		-moz-border-radius: 0 4px 4px 0;     /* Firefox */
-		-webkit-border-radius: 0 4px 4px 0;  /* Safari, Chrome */
-		-khtml-border-radius: 0 4px 4px 0;   /* KHTML */
-		border-radius: 0 4px 4px 0;          /* CSS3 */
+		-moz-border-radius: 0 4px 4px 0; /* Firefox */
+		-webkit-border-radius: 0 4px 4px 0; /* Safari, Chrome */
+		-khtml-border-radius: 0 4px 4px 0; /* KHTML */
+		border-radius: 0 4px 4px 0; /* CSS3 */
 	}
 	div.shop-v1-catalog-pager-to-last-btn input {
 		width: 100%;
 		height: 100%;
 		background: url("/rsrc/images/last_24.png") no-repeat center center transparent;
-		-moz-border-radius: 0 4px 4px 0;     /* Firefox */
-		-webkit-border-radius: 0 4px 4px 0;  /* Safari, Chrome */
-		-khtml-border-radius: 0 4px 4px 0;   /* KHTML */
-		border-radius: 0 4px 4px 0;          /* CSS3 */
+		-moz-border-radius: 0 4px 4px 0; /* Firefox */
+		-webkit-border-radius: 0 4px 4px 0; /* Safari, Chrome */
+		-khtml-border-radius: 0 4px 4px 0; /* KHTML */
+		border-radius: 0 4px 4px 0; /* CSS3 */
 	}
 	div.shop-v1-catalog-pager-to-last-btn input:hover, div.shop-v1-catalog-pager-to-last-btn input:focus {
 		background: url("/rsrc/images/last_24.png") no-repeat center center transparent;
@@ -213,24 +213,24 @@
 	}
 	div.shop-v1-cart-blk {
 		position: relative;
-		-moz-box-shadow: 2px 2px 4px #888888;     /* Firefox */
-		-webkit-box-shadow: 2px 2px 4px #888888;  /* Safari, Chrome */
-		-khtml-box-shadow: 2px 2px 4px #888888;   /* KHTML */
-		box-shadow: 2px 2px 4px #888888;          /* CSS3 */
-		-moz-border-radius: 4px;     /* Firefox */
-		-webkit-border-radius: 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 4px;   /* KHTML */
-		border-radius: 4px;          /* CSS3 */
+		-moz-box-shadow: 2px 2px 4px #888888; /* Firefox */
+		-webkit-box-shadow: 2px 2px 4px #888888; /* Safari, Chrome */
+		-khtml-box-shadow: 2px 2px 4px #888888; /* KHTML */
+		box-shadow: 2px 2px 4px #888888; /* CSS3 */
+		-moz-border-radius: 4px; /* Firefox */
+		-webkit-border-radius: 4px; /* Safari, Chrome */
+		-khtml-border-radius: 4px; /* KHTML */
+		border-radius: 4px; /* CSS3 */
 	}
 	div.shop-v1-cart-header-blk {
 		position: relative;
 		padding: 5px;
 		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
 		border: 1px solid #AAAAAA;
-		-moz-border-radius: 4px 4px 0 0;     /* Firefox */
-		-webkit-border-radius: 4px 4px 0 0;  /* Safari, Chrome */
-		-khtml-border-radius: 4px 4px 0 0;   /* KHTML */
-		border-radius: 4px 4px 0 0;          /* CSS3 */
+		-moz-border-radius: 4px 4px 0 0; /* Firefox */
+		-webkit-border-radius: 4px 4px 0 0; /* Safari, Chrome */
+		-khtml-border-radius: 4px 4px 0 0; /* KHTML */
+		border-radius: 4px 4px 0 0; /* CSS3 */
 	}
 	div.shop-v1-cart-header-title-blk {
 		position: relative;
@@ -268,10 +268,10 @@
 		width: 100%;
 		height: 100%;
 		background: url("/rsrc/images/delete_gray_12.png") no-repeat center center transparent;
-		-moz-border-radius: 4px;     /* Firefox */
-		-webkit-border-radius: 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 4px;   /* KHTML */
-		border-radius: 4px;          /* CSS3 */
+		-moz-border-radius: 4px; /* Firefox */
+		-webkit-border-radius: 4px; /* Safari, Chrome */
+		-khtml-border-radius: 4px; /* KHTML */
+		border-radius: 4px; /* CSS3 */
 	}
 	div.shop-v1-cart-header-clear-btn-blk input:hover, div.shop-v1-cart-header-clear-btn-blk input:focus {
 		background: url("/rsrc/images/delete_red_16.png") no-repeat center center transparent;
@@ -327,10 +327,10 @@
 		padding: 2px;
 		background: url("/standard-theme/images/portlet/header_bg.png") repeat-x scroll 0 0 #D4D4D4;
 		border: 1px solid #AAAAAA;
-		-moz-border-radius: 0 0 4px 4px;     /* Firefox */
-		-webkit-border-radius: 0 0 4px 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 0 0 4px 4px;   /* KHTML */
-		border-radius: 0 0 4px 4px;          /* CSS3 */
+		-moz-border-radius: 0 0 4px 4px; /* Firefox */
+		-webkit-border-radius: 0 0 4px 4px; /* Safari, Chrome */
+		-khtml-border-radius: 0 0 4px 4px; /* KHTML */
+		border-radius: 0 0 4px 4px; /* CSS3 */
 		text-align: center;
 		color: #34404F;
 		text-shadow: 1px 1px #FFFFFF;

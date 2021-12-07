@@ -463,12 +463,12 @@ protected:
 #if 0
 		HBUINT16 endCount[segCount]; /* End characterCode for each segment,
 		   * last=0xFFFFu. */
-		HBUINT16 reservedPad;   /* Set to 0. */
+		HBUINT16 reservedPad; /* Set to 0. */
 		HBUINT16 startCount[segCount]; /* Start character code for each segment. */
-		HBINT16 idDelta[segCount];      /* Delta for all character codes in segment. */
+		HBINT16 idDelta[segCount]; /* Delta for all character codes in segment. */
 		HBUINT16 idRangeOffset[segCount]; /* Offsets into glyphIdArray or 0 */
 		UnsizedArrayOf<HBUINT16>
-		glyphIdArray;   /* Glyph index array (arbitrary length) */
+		glyphIdArray; /* Glyph index array (arbitrary length) */
 #endif
 
 public:
@@ -500,8 +500,8 @@ public:
 
 private:
 		HBUINT32 startCharCode; /* First character code in this group. */
-		HBUINT32 endCharCode;   /* Last character code in this group. */
-		HBUINT32 glyphID;       /* Glyph index; interpretation depends on
+		HBUINT32 endCharCode; /* Last character code in this group. */
+		HBUINT32 glyphID; /* Glyph index; interpretation depends on
 		 * subtable format. */
 public:
 		DEFINE_SIZE_STATIC(12);
@@ -552,11 +552,11 @@ public:
 
 protected:
 		UINT formatReserved; /* Subtable format and (maybe) padding. */
-		UINT length;    /* Byte length of this subtable. */
-		UINT language;  /* Ignore. */
+		UINT length; /* Byte length of this subtable. */
+		UINT language; /* Ignore. */
 		UINT startCharCode; /* First character code covered. */
 		ArrayOf<HBGlyphID, UINT>
-		glyphIdArray;   /* Array of glyph index values for character
+		glyphIdArray; /* Array of glyph index values for character
 		 * codes in the range. */
 public:
 		DEFINE_SIZE_ARRAY(5 * sizeof(UINT), glyphIdArray);
@@ -638,7 +638,7 @@ protected:
 		HBUINT32 length; /* Byte length of this subtable. */
 		HBUINT32 language; /* Ignore. */
 		SortedArrayOf<CmapSubtableLongGroup, HBUINT32>
-		groups;         /* Groupings. */
+		groups; /* Groupings. */
 public:
 		DEFINE_SIZE_ARRAY(16, groups);
 	};
@@ -994,9 +994,9 @@ public:
 
 		HBUINT24 varSelector; /* Variation selector. */
 		LOffsetTo<DefaultUVS>
-		defaultUVS;     /* Offset to Default UVS Table.  May be 0. */
+		defaultUVS; /* Offset to Default UVS Table.  May be 0. */
 		LOffsetTo<NonDefaultUVS>
-		nonDefaultUVS;  /* Offset to Non-Default UVS Table.  May be 0. */
+		nonDefaultUVS; /* Offset to Non-Default UVS Table.  May be 0. */
 public:
 		DEFINE_SIZE_STATIC(11);
 	};
@@ -1130,7 +1130,7 @@ protected:
 		HBUINT16 format; /* Format number is set to 14. */
 		HBUINT32 length; /* Byte length of this subtable. */
 		SortedArrayOf<VariationSelectorRecord, HBUINT32>
-		record;         /* Variation selector records; sorted
+		record; /* Variation selector records; sorted
 		 * in increasing order of `varSelector'. */
 public:
 		DEFINE_SIZE_ARRAY(10, record);
@@ -1283,7 +1283,7 @@ public:
 		HBUINT16 platformID; /* Platform ID. */
 		HBUINT16 encodingID; /* Platform-specific encoding ID. */
 		LOffsetTo<CmapSubtable>
-		subtable;       /* Byte offset from beginning of table to the subtable for this encoding. */
+		subtable; /* Byte offset from beginning of table to the subtable for this encoding. */
 public:
 		DEFINE_SIZE_STATIC(8);
 	};

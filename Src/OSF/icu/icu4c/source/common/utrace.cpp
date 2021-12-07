@@ -126,7 +126,7 @@ static void outputHexBytes(int64_t val, int32_t charsToOutput,
 /* Output a pointer value in hex.  Work with any size of pointer   */
 static void outputPtrBytes(void * val, char * outBuf, int32_t * outIx, int32_t capacity) {
 	uint32_t i;
-	int32_t incVal = 1;           /* +1 for big endian, -1 for little endian */
+	int32_t incVal = 1; /* +1 for big endian, -1 for little endian */
 	char * p     = (char *)&val;/* point to current byte to output in the ptr val  */
 
 #if !U_IS_BIG_ENDIAN

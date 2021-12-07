@@ -1694,7 +1694,7 @@ static int __repmgr_build_data_out(ENV * env, DBT * msg, uint32 nmsg, __repmgr_m
 	__repmgr_add_buffer(iovecs, msg_hdr_buf, __REPMGR_MSG_HDR_SIZE);
 
 	offset = 0;
-	bulk_ptr = &bulk_base[2*nmsg+1];   /* Work backward from the end. */
+	bulk_ptr = &bulk_base[2*nmsg+1]; /* Work backward from the end. */
 	for(i = 0; i < nmsg; i++) {
 		p = (uint8 *)msg[i].data;
 		sz = (size_t)msg[i].size;
@@ -1959,7 +1959,7 @@ retry:
 	if(type == REPMGR_JOIN_SUCCESS)
 		ret = __repmgr_refresh_membership(env, response_buf, len);
 	else
-		ret = DB_REP_UNAVAIL;  /* Invalid response: protocol violation */
+		ret = DB_REP_UNAVAIL; /* Invalid response: protocol violation */
 err:
 	if(conn != NULL) {
 		if((t_ret = __repmgr_close_connection(env, conn)) != 0 && ret != 0)

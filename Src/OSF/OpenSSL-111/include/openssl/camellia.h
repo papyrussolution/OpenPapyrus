@@ -36,7 +36,7 @@ typedef uint KEY_TABLE_TYPE[CAMELLIA_TABLE_WORD_LEN]; /* to match
 
 struct camellia_key_st {
 	union {
-		double d;       /* ensures 64-bit align */
+		double d; /* ensures 64-bit align */
 		KEY_TABLE_TYPE rd_key;
 	} u;
 	int grand_rounds;

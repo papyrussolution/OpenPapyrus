@@ -799,7 +799,7 @@ static int runafewfinalizers(lua_State * L) {
 	for(i = 0; g->tobefnz && i < g->gcfinnum; i++)
 		GCTM(L, 1); /* call one finalizer */
 	g->gcfinnum = (!g->tobefnz) ? 0 /* nothing more to finalize? */
-	    : g->gcfinnum * 2;          /* else call a few more next time */
+	    : g->gcfinnum * 2; /* else call a few more next time */
 	return i;
 }
 
@@ -888,7 +888,7 @@ static void setpause(global_State * g) {
 	lua_assert(estimate > 0);
 	threshold = (g->gcpause < MAX_LMEM / estimate) /* overflow? */
 	    ? estimate * g->gcpause  /* no overflow */
-	    : MAX_LMEM;  /* overflow; truncate to maximum */
+	    : MAX_LMEM; /* overflow; truncate to maximum */
 	debt = gettotalbytes(g) - threshold;
 	luaE_setdebt(g, debt);
 }

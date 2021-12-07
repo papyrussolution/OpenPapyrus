@@ -1938,7 +1938,7 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 		SSLSetSessionOption(backend->ssl_ctx, kSSLSessionOptionSendOneByteRecord,
 		    !data->set.ssl.enable_beast);
 		SSLSetSessionOption(backend->ssl_ctx, kSSLSessionOptionFalseStart,
-		    data->set.ssl.falsestart);   /* false start support */
+		    data->set.ssl.falsestart); /* false start support */
 	}
 #endif /* CURL_BUILD_MAC_10_9 || CURL_BUILD_IOS_7 */
 

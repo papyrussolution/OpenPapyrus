@@ -119,7 +119,7 @@ int my_context_init(struct my_context * c, size_t stack_size)
 
 	memzero(c, sizeof(*c));
 	if(!(c->stack = SAlloc::M(stack_size)))
-		return -1;                      /* Out of memory */
+		return -1; /* Out of memory */
 	c->stack_size = stack_size;
 #ifdef HAVE_VALGRIND
 	c->valgrind_stack_id =
@@ -341,7 +341,7 @@ int my_context_init(struct my_context * c, size_t stack_size)
 {
 	memzero(c, sizeof(*c));
 	if(!(c->stack_bot = SAlloc::M(stack_size)))
-		return -1;                      /* Out of memory */
+		return -1; /* Out of memory */
 	/*
 	   The x86_64 ABI specifies 16-byte stack alignment.
 	   Also put two zero words at the top of the stack.
@@ -558,7 +558,7 @@ int my_context_init(struct my_context * c, size_t stack_size)
 {
 	memzero(c, sizeof(*c));
 	if(!(c->stack_bot = SAlloc::M(stack_size)))
-		return -1;                      /* Out of memory */
+		return -1; /* Out of memory */
 	c->stack_top = (void *)(( ((intptr)c->stack_bot + stack_size) & ~(intptr)0xf) - 16);
 	memzero(c->stack_top, 16);
 #ifdef HAVE_VALGRIND

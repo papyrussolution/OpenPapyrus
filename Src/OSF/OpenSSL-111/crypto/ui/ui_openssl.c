@@ -331,7 +331,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 #elif defined(OPENSSL_SYS_MSDOS)
 	if(!echo) {
 		noecho_fgets(result, maxsize, tty_in);
-		p = result;     /* FIXME: noecho_fgets doesn't return errors */
+		p = result; /* FIXME: noecho_fgets doesn't return errors */
 	}
 	else
 #endif

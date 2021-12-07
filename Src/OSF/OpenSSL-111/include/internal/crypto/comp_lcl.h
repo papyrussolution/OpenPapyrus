@@ -8,7 +8,7 @@
 
 struct comp_method_st {
     int type;                   /* NID for compression library */
-    const char *name;           /* A text string to identify the library */
+    const char *name; /* A text string to identify the library */
     int (*init) (COMP_CTX *ctx);
     void (*finish) (COMP_CTX *ctx);
     int (*compress) (COMP_CTX *ctx,

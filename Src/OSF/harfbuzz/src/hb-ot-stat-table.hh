@@ -73,7 +73,7 @@ protected:
 		NameID valueNameID; /* The name ID for entries in the 'name' table
 		 * that provide a display string for this
 		 * attribute value. */
-		HBFixed value;  /* A numeric value for this attribute value. */
+		HBFixed value; /* A numeric value for this attribute value. */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -126,7 +126,7 @@ protected:
 		NameID valueNameID; /* The name ID for entries in the 'name' table
 		 * that provide a display string for this
 		 * attribute value. */
-		HBFixed value;  /* A numeric value for this attribute value. */
+		HBFixed value; /* A numeric value for this attribute value. */
 		HBFixed linkedValue; /* The numeric value for a style-linked mapping
 		 * from this value. */
 public:
@@ -145,7 +145,7 @@ protected:
 		HBUINT16 axisIndex; /* Zero-base index into the axis record array
 		 * identifying the axis to which this value
 		 * applies. Must be less than designAxisCount. */
-		HBFixed value;  /* A numeric value for this attribute value. */
+		HBFixed value; /* A numeric value for this attribute value. */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -170,7 +170,7 @@ protected:
 		 * that provide a display string for this
 		 * attribute value. */
 		UnsizedArrayOf<AxisValueRecord>
-		axisValues;     /* Array of AxisValue records that provide the
+		axisValues; /* Array of AxisValue records that provide the
 		 * combination of axis values, one for each
 		 * contributing axis. */
 public:
@@ -251,8 +251,8 @@ public:
 		}
 
 protected:
-		Tag tag;        /* A tag identifying the axis of design variation. */
-		NameID nameID;  /* The name ID for entries in the 'name' table that
+		Tag tag; /* A tag identifying the axis of design variation. */
+		NameID nameID; /* The name ID for entries in the 'name' table that
 		 * provide a display string for this axis. */
 		HBUINT16 ordering; /* A value that applications can use to determine
 		 * primary sorting of face names, or for ordering

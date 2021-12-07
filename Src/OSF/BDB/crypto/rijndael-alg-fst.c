@@ -1339,7 +1339,7 @@ int rounds;
  * PUBLIC: void __db_rijndaelDecryptRound __P((const u32 *, int, u8 *, int));
  */
 void __db_rijndaelDecryptRound(rk, Nr, pt, ct)
-const u32*rk;           /* rk[4*(Nr + 1)] */
+const u32*rk; /* rk[4*(Nr + 1)] */
 int Nr;
 u8 * block;
 int rounds;

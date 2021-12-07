@@ -651,7 +651,7 @@ void            pixman_image_set_indexed(pixman_image_t * image, const pixman_in
 uint32 * pixman_image_get_data(pixman_image_t * image);
 int             pixman_image_get_width(const pixman_image_t * image);
 int             pixman_image_get_height(const pixman_image_t * image);
-int             pixman_image_get_stride(const pixman_image_t * image);              /* in bytes */
+int             pixman_image_get_stride(const pixman_image_t * image); /* in bytes */
 int             pixman_image_get_depth(const pixman_image_t * image);
 pixman_format_code_t pixman_image_get_format(const pixman_image_t * image);
 

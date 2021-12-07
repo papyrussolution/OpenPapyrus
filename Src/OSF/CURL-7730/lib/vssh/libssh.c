@@ -649,7 +649,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 	char * new_readdir_line;
 	int seekerr = CURL_SEEKFUNC_OK;
 	const char * err_msg;
-	*block = 0;             /* we're not blocking by default */
+	*block = 0; /* we're not blocking by default */
 
 	do {
 		switch(sshc->state) {
@@ -2224,7 +2224,7 @@ CURLcode scp_perform(struct connectdata * conn,
 
 	DEBUGF(infof(conn->data, "DO phase starts\n"));
 
-	*dophase_done = FALSE;  /* not done yet */
+	*dophase_done = FALSE; /* not done yet */
 
 	/* start the first command in the DO phase */
 	state(conn, SSH_SCP_TRANS_INIT);
@@ -2247,9 +2247,9 @@ static CURLcode myssh_do_it(struct connectdata * conn, bool * done)
 	struct Curl_easy * data = conn->data;
 	struct ssh_conn * sshc = &conn->proto.sshc;
 
-	*done = FALSE;          /* default to false */
+	*done = FALSE; /* default to false */
 
-	data->req.size = -1;    /* make sure this is unknown at this point */
+	data->req.size = -1; /* make sure this is unknown at this point */
 
 	sshc->actualcode = CURLE_OK; /* reset error code */
 	sshc->secondCreateDirs = 0; /* reset the create dir attempt state
@@ -2311,7 +2311,7 @@ static CURLcode myssh_done(struct connectdata * conn, CURLcode status)
 
 static CURLcode scp_done(struct connectdata * conn, CURLcode status, bool premature)
 {
-	(void)premature;        /* not used */
+	(void)premature; /* not used */
 
 	if(!status)
 		state(conn, SSH_SCP_DONE);

@@ -457,19 +457,19 @@ typedef struct MDB_stat {
 	uint ms_psize; /**< Size of a database page. This is currently the same for all databases. */
 	uint ms_depth; /**< Depth (height) of the B-tree */
 	mdb_size_t ms_branch_pages; /**< Number of internal (non-leaf) pages */
-	mdb_size_t ms_leaf_pages;   /**< Number of leaf pages */
+	mdb_size_t ms_leaf_pages; /**< Number of leaf pages */
 	mdb_size_t ms_overflow_pages; /**< Number of overflow pages */
-	mdb_size_t ms_entries;        /**< Number of data items */
+	mdb_size_t ms_entries; /**< Number of data items */
 } MDB_stat;
 
 /** @brief Information about the environment */
 typedef struct MDB_envinfo {
 	void * me_mapaddr;                    /**< Address of map, if fixed */
 	mdb_size_t me_mapsize;                                  /**< Size of the data memory map */
-	mdb_size_t me_last_pgno;                        /**< ID of the last used page */
-	mdb_size_t me_last_txnid;                       /**< ID of the last committed transaction */
-	uint me_maxreaders;             /**< max reader slots in the environment */
-	uint me_numreaders;             /**< max reader slots used in the environment */
+	mdb_size_t me_last_pgno; /**< ID of the last used page */
+	mdb_size_t me_last_txnid; /**< ID of the last committed transaction */
+	uint me_maxreaders; /**< max reader slots in the environment */
+	uint me_numreaders; /**< max reader slots used in the environment */
 } MDB_envinfo;
 
 /** @brief Return the LMDB library version information.

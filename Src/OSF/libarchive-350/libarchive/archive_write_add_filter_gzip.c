@@ -197,7 +197,7 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	data->compressed[3] = 0; /* No options */
 	if(data->timestamp >= 0) {
 		time_t t = time(NULL);
-		data->compressed[4] = (uint8)(t)&0xff;  /* Timestamp */
+		data->compressed[4] = (uint8)(t)&0xff; /* Timestamp */
 		data->compressed[5] = (uint8)(t>>8)&0xff;
 		data->compressed[6] = (uint8)(t>>16)&0xff;
 		data->compressed[7] = (uint8)(t>>24)&0xff;

@@ -52,7 +52,7 @@ public:
 		FixedVersion<>version; /* 0x00010000u for version 1.0. */
 		FWORD ascender; /* Typographic ascent. */
 		FWORD descender; /* Typographic descent. */
-		FWORD lineGap;  /* Typographic line gap. */
+		FWORD lineGap; /* Typographic line gap. */
 		UFWORD advanceMax; /* Maximum advance width/height value in
 		 * metrics table. */
 		FWORD minLeadingBearing;

@@ -1297,7 +1297,7 @@ int ECDSA_size(const EC_KEY * r)
 	buf[0] = 0xff;
 
 	i = i2d_ASN1_INTEGER(&bs, NULL);
-	i += i;                 /* r and s */
+	i += i; /* r and s */
 	ret = ASN1_object_size(1, i, V_ASN1_SEQUENCE);
 	return ret;
 }

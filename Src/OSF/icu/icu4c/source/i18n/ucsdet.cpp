@@ -26,7 +26,7 @@ U_NAMESPACE_USE
 
 U_CDECL_BEGIN
 
-U_CAPI UCharsetDetector * U_EXPORT2 ucsdet_open(UErrorCode   * status)
+U_CAPI UCharsetDetector * U_EXPORT2 ucsdet_open(UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;

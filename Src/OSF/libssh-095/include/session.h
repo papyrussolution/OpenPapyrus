@@ -159,7 +159,7 @@ struct ssh_session_struct {
     ssh_buffer in_hashbuf;
     ssh_buffer out_hashbuf;
     struct ssh_crypto_struct *current_crypto;
-    struct ssh_crypto_struct *next_crypto;  /* next_crypto is going to be used after a SSH2_MSG_NEWKEYS */
+    struct ssh_crypto_struct *next_crypto; /* next_crypto is going to be used after a SSH2_MSG_NEWKEYS */
     struct ssh_list *channels; /* linked list of channels */
     int maxchannel;
     ssh_agent agent; /* ssh agent */

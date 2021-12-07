@@ -662,7 +662,7 @@ struct __db_rep {
 	 * Shared configuration information -- copied to and maintained in the
 	 * shared region as soon as the shared region is created.
 	 */
-	int    eid;             /* Environment ID. */
+	int    eid; /* Environment ID. */
 	uint32 gbytes;		/* Limit on data sent in single... */
 	uint32 bytes;		/* __rep_process_message call. */
 	db_timespec	request_gap; /* Minimum time to wait before we request a missing log record. */
@@ -704,9 +704,9 @@ struct __db_rep {
 	/*
 	 * Replication Framework (repmgr) per-process information.
 	 */
-	uint  nthreads;       /* Msg processing threads. */
-	uint  athreads;       /* Space allocated for msg threads. */
-	uint  non_rep_th;     /* Threads in GMDB or channel msgs. */
+	uint  nthreads; /* Msg processing threads. */
+	uint  athreads; /* Space allocated for msg threads. */
+	uint  non_rep_th; /* Threads in GMDB or channel msgs. */
 	uint  aelect_threads; /* Space allocated for elect threads. */
 	uint32 init_policy;
 	int    perm_policy;
@@ -733,9 +733,9 @@ struct __db_rep {
 #endif
 	/* Operational stuff. */
 	REPMGR_SITE * sites; /* Array of known sites. */
-	uint  site_cnt;     /* Array slots in use. */
-	uint  site_max;     /* Total array slots allocated. */
-	int    self_eid;     /* Where to find the local site. */
+	uint  site_cnt; /* Array slots in use. */
+	uint  site_max; /* Total array slots allocated. */
+	int    self_eid; /* Where to find the local site. */
 	uint  siteinfo_seq; /* Last known update to this list. */
 	/*
 	 * The connections list contains only those connections not actively

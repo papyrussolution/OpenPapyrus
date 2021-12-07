@@ -60,21 +60,21 @@ typedef void (XMLCDECL *xmlValidityWarningFunc)(void * ctx, const char * msg, ..
 // Descr: An xmlValidCtxt is used for error reporting when validating.
 // 
 struct xmlValidCtxt {
-	void * userData;                /* user specific data block */
-	xmlValidityErrorFunc error;     /* the callback in case of errors */
+	void * userData; /* user specific data block */
+	xmlValidityErrorFunc error; /* the callback in case of errors */
 	xmlValidityWarningFunc warning; /* the callback in case of warning */
 	/* Node analysis stack used when validating within entities */
-	xmlNode * P_Node;              /* Current parsed Node */
+	xmlNode * P_Node; /* Current parsed Node */
 	int nodeNr;                   /* Depth of the parsing stack */
-	int nodeMax;                  /* Max depth of the parsing stack */
+	int nodeMax; /* Max depth of the parsing stack */
 	xmlNode ** PP_NodeTab; // array of nodes 
-	uint finishDtd;       /* finished validating the Dtd ? */
-	xmlDoc * doc;                /* the document */
+	uint finishDtd; /* finished validating the Dtd ? */
+	xmlDoc * doc; /* the document */
 	int valid;                    /* temporary validity check result */
 	/* state state used for non-determinist content validation */
-	xmlValidState * vstate;   /* current state */
-	int vstateNr;                 /* Depth of the validation stack */
-	int vstateMax;                /* Max depth of the validation stack */
+	xmlValidState * vstate; /* current state */
+	int vstateNr; /* Depth of the validation stack */
+	int vstateMax; /* Max depth of the validation stack */
 	xmlValidState * vstateTab; /* array of validation states */
 #ifdef LIBXML_REGEXP_ENABLED
 	xmlAutomata * am;          // the automata 

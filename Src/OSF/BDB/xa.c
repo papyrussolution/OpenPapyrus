@@ -250,7 +250,7 @@ static int __db_xa_open(char * xa_info, int rmid, long arg_flags)
 	DB_THREAD_INFO * ip;
 	ENV * env;
 	int inmem;
-	ulong flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	ulong flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	int ret = 0;
 	if(LF_ISSET(TMASYNC))
 		return XAER_ASYNC;
@@ -333,7 +333,7 @@ static int __db_xa_close(char * xa_info, int rmid, long arg_flags)
 	COMPQUIET(xa_info, 0);
 	COMPQUIET(ip, 0);
 	ret = 0;
-	flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	if(LF_ISSET(TMASYNC))
 		return XAER_ASYNC;
 	if(flags != TMNOFLAGS)
@@ -398,7 +398,7 @@ static int __db_xa_start(XID * xid, int rmid, long arg_flags)
 	DB_TXN * txnp;
 	ENV * env;
 	TXN_DETAIL * td;
-	ulong flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	ulong flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	int ret = 0;
 #define OK_FLAGS        (TMJOIN|TMRESUME|TMNOWAIT|TMASYNC|TMNOFLAGS)
 	if(LF_ISSET(~OK_FLAGS))
@@ -447,7 +447,7 @@ static int __db_xa_end(XID * xid, int rmid, long arg_flags)
 	ENV * env;
 	TXN_DETAIL * td;
 	int ret;
-	ulong flags = (ulong)arg_flags;      /* Convert for bit manipulation. */
+	ulong flags = (ulong)arg_flags; /* Convert for bit manipulation. */
 	if(flags != TMNOFLAGS && !LF_ISSET(TMSUSPEND|TMSUCCESS|TMFAIL))
 		return XAER_INVAL;
 	if(__db_rmid_to_env(rmid, &env) != 0)
@@ -566,7 +566,7 @@ static int __db_xa_prepare(XID * xid, int rmid, long arg_flags)
 	DB_TXN * txnp;
 	ENV * env;
 	TXN_DETAIL * td;
-	ulong flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	ulong flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	int ret = 0;
 	if(LF_ISSET(TMASYNC))
 		return XAER_ASYNC;
@@ -632,7 +632,7 @@ static int __db_xa_commit(XID * xid, int rmid, long arg_flags)
 	DB_TXN * txnp;
 	ENV * env;
 	TXN_DETAIL * td;
-	ulong flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	ulong flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	int ret = 0;
 	if(LF_ISSET(TMASYNC))
 		return XAER_ASYNC;
@@ -733,7 +733,7 @@ static int __db_xa_rollback(XID * xid, int rmid, long arg_flags)
 	DB_TXN * txnp;
 	ENV * env;
 	TXN_DETAIL * td;
-	ulong flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	ulong flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	int ret = 0;
 	if(LF_ISSET(TMASYNC))
 		return XAER_ASYNC;
@@ -799,7 +799,7 @@ static int __db_xa_forget(XID * xid, int rmid, long arg_flags)
 	ENV * env;
 	TXN_DETAIL * td;
 	int ret;
-	ulong flags = (ulong)arg_flags;      /* Conversion for bit operations. */
+	ulong flags = (ulong)arg_flags; /* Conversion for bit operations. */
 	if(LF_ISSET(TMASYNC))
 		return XAER_ASYNC;
 	if(flags != TMNOFLAGS)

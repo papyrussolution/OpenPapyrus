@@ -96,7 +96,7 @@ static double gp_cairo_enhanced_base = 0;
 static bool gp_cairo_enhanced_widthflag = TRUE;
 static bool gp_cairo_enhanced_showflag = TRUE;
 static int gp_cairo_enhanced_overprint = FALSE;
-static bool gp_cairo_enhanced_opened_string  = FALSE;  /* try to cut out empty ()'s */
+static bool gp_cairo_enhanced_opened_string  = FALSE; /* try to cut out empty ()'s */
 static char * gp_cairo_enhanced_string;
 static char * gp_cairo_enhanced_char;
 /* utf8 text to draw and its attributes */

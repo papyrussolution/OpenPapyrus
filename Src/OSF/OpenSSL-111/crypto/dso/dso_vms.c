@@ -143,7 +143,7 @@ static int vms_load(DSO * dso)
 	if(sp1 == NULL)
 		sp1 = filename;
 	else
-		sp1++;          /* The byte after the found character */
+		sp1++; /* The byte after the found character */
 	/* Now, let's see if there's a type, and save the position in sp2 */
 	sp2 = strchr(sp1, '.');
 	/*

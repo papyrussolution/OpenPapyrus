@@ -622,7 +622,7 @@ int CtmExpr::Pack(SString & rBuf) const
 		rBuf.Semicol();
 	}
 	if(P_Next) { THROW(P_Next->Pack(rBuf)); } else { rBuf.Cat(P_EmptyExprStr); }
-	if(P_Arg)  { THROW(P_Arg->Pack(rBuf));  } else { rBuf.Cat(P_EmptyExprStr); }
+	if(P_Arg) { THROW(P_Arg->Pack(rBuf));  } else { rBuf.Cat(P_EmptyExprStr); }
 	rBuf.CatChar('}');
 	CATCHZOK
 	return ok;

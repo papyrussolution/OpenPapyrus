@@ -25,15 +25,15 @@
  * directly the input->buf->buffer structures.
  */
 struct xmlBuf {
-	xmlChar * content;      /* The buffer content UTF8 */
+	xmlChar * content; /* The buffer content UTF8 */
 	uint compat_use; /* for binary compatibility */
 	uint compat_size; /* for binary compatibility */
 	xmlBufferAllocationScheme alloc; /* The realloc method */
-	xmlChar * contentIO;    /* in IO mode we may have a different base */
-	size_t use;             /* The buffer size used */
-	size_t size;            /* The buffer size */
-	xmlBuffer * buffer;    /* wrapper for an old buffer */
-	int error;              /* an error code if a failure occured */
+	xmlChar * contentIO; /* in IO mode we may have a different base */
+	size_t use; /* The buffer size used */
+	size_t size; /* The buffer size */
+	xmlBuffer * buffer; /* wrapper for an old buffer */
+	int error; /* an error code if a failure occured */
 };
 
 #ifdef WITH_BUFFER_COMPAT
@@ -142,7 +142,7 @@ xmlBuf * FASTCALL xmlBufCreateSize(size_t size)
 		ret->error = 0;
 		ret->buffer = NULL;
 		ret->alloc = xmlBufferAllocScheme;
-		ret->size = (size ? size+2 : 0);     /* +1 for ending null */
+		ret->size = (size ? size+2 : 0); /* +1 for ending null */
 		ret->compat_size = (int)ret->size;
 		if(ret->size) {
 			ret->content = static_cast<xmlChar *>(SAlloc::M(ret->size * sizeof(xmlChar)));

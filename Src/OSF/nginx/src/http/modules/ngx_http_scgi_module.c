@@ -8,7 +8,7 @@
 #pragma hdrstop
 
 typedef struct {
-	ngx_array_t caches;             /* ngx_http_file_cache_t * */
+	ngx_array_t caches; /* ngx_http_file_cache_t * */
 } ngx_http_scgi_main_conf_t;
 
 typedef struct {
@@ -371,7 +371,7 @@ static ngx_path_init_t ngx_http_scgi_temp_path = {
 static ngx_int_t ngx_http_scgi_handler(ngx_http_request_t * r)
 {
 	ngx_int_t rc;
-	ngx_http_status_t   * status;
+	ngx_http_status_t * status;
 	ngx_http_upstream_t * u;
 	ngx_http_scgi_loc_conf_t * scf;
 #if (NGX_HTTP_CACHE)
@@ -754,7 +754,7 @@ next:
 
 static ngx_int_t ngx_http_scgi_reinit_request(ngx_http_request_t * r)
 {
-	ngx_http_status_t  * status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_scgi_module);
+	ngx_http_status_t * status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_scgi_module);
 	if(status == NULL) {
 		return NGX_OK;
 	}
@@ -772,7 +772,7 @@ static ngx_int_t ngx_http_scgi_process_status_line(ngx_http_request_t * r)
 	size_t len;
 	ngx_int_t rc;
 	ngx_http_upstream_t  * u;
-	ngx_http_status_t  * status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_scgi_module);
+	ngx_http_status_t * status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_scgi_module);
 	if(status == NULL) {
 		return NGX_ERROR;
 	}

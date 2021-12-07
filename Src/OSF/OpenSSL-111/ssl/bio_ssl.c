@@ -20,7 +20,7 @@ static int ssl_new(BIO * h);
 static int ssl_free(BIO * data);
 static long ssl_callback_ctrl(BIO * h, int cmd, BIO_info_cb * fp);
 typedef struct bio_ssl_st {
-	SSL * ssl;              /* The ssl handle :-) */
+	SSL * ssl; /* The ssl handle :-) */
 	/* re-negotiate every time the total number of bytes is this size */
 	int num_renegotiates;
 	ulong renegotiate_count;

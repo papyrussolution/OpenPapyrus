@@ -83,12 +83,12 @@ struct gdstate {
 	int HaveYear;
 	int HaveMonth;
 	int HaveDay;
-	int HaveWeekDay;     /* Day of week */
-	int HaveTime;     /* Hour/minute/second */
-	int HaveZone;     /* timezone and/or DST info */
-	int HaveRel;     /* time offset; we can have more than one */
+	int HaveWeekDay; /* Day of week */
+	int HaveTime; /* Hour/minute/second */
+	int HaveZone; /* timezone and/or DST info */
+	int HaveRel; /* time offset; we can have more than one */
 	/* Absolute time values. */
-	time_t Timezone;   /* Seconds offset from GMT */
+	time_t Timezone; /* Seconds offset from GMT */
 	time_t Day;
 	time_t Hour;
 	time_t Minutes;
@@ -98,8 +98,8 @@ struct gdstate {
 	/* DST selection */
 	enum DSTMODE DSTmode;
 	/* Day of week accounting, e.g., "3rd Tuesday" */
-	time_t DayOrdinal;  /* "3" in "3rd Tuesday" */
-	time_t DayNumber;  /* "Tuesday" in "3rd Tuesday" */
+	time_t DayOrdinal; /* "3" in "3rd Tuesday" */
+	time_t DayNumber; /* "Tuesday" in "3rd Tuesday" */
 	/* Relative time values: hour/day/week offsets are measured in
 	 * seconds, month/year are counted in months. */
 	time_t RelMonth;

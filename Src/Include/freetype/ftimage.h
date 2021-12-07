@@ -313,14 +313,14 @@ typedef struct  FT_Bitmap_ {
  *   @FT_OUTLINE_INCLUDE_STUBS in `flags` is then overridden.
  */
 typedef struct  FT_Outline_ {
-	short n_contours;        /* number of contours in glyph        */
-	short n_points;          /* number of points in the glyph      */
+	short n_contours; /* number of contours in glyph        */
+	short n_points; /* number of points in the glyph      */
 
-	FT_Vector*  points;      /* the outline's points               */
-	char *       tags;        /* the points flags                   */
-	short*      contours;    /* the contour end points             */
+	FT_Vector*  points; /* the outline's points               */
+	char *       tags; /* the points flags                   */
+	short*      contours; /* the contour end points             */
 
-	int flags;               /* outline masks                      */
+	int flags; /* outline masks                      */
 } FT_Outline;
 
 /* */
@@ -968,9 +968,9 @@ typedef struct  FT_Raster_Params_ {
 	const void *  source;
 	int flags;
 	FT_SpanFunc gray_spans;
-	FT_SpanFunc black_spans;          /* unused */
-	FT_Raster_BitTest_Func bit_test;  /* unused */
-	FT_Raster_BitSet_Func bit_set;    /* unused */
+	FT_SpanFunc black_spans; /* unused */
+	FT_Raster_BitTest_Func bit_test; /* unused */
+	FT_Raster_BitSet_Func bit_set; /* unused */
 	void *  user;
 	FT_BBox clip_box;
 } FT_Raster_Params;

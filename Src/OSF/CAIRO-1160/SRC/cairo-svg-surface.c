@@ -563,7 +563,7 @@ static cairo_surface_t * _cairo_svg_surface_create_for_document(cairo_svg_docume
 	_cairo_surface_init(&surface->base, &cairo_svg_surface_backend,
 	    NULL,              /* device */
 	    content,
-	    TRUE);              /* is_vector */
+	    TRUE); /* is_vector */
 	surface->width = width;
 	surface->height = height;
 	surface->surface_bounded = bounded;

@@ -31,9 +31,9 @@
  * Quantization of the output coefficients is done by jcdctmgr.c.
  */
 #if BITS_IN_JSAMPLE == 8
-	typedef int DCTELEM;            /* 16 or 32 bits is fine */
+	typedef int DCTELEM; /* 16 or 32 bits is fine */
 #else
-	typedef INT32 DCTELEM;          /* must have 32 bits */
+	typedef INT32 DCTELEM; /* must have 32 bits */
 #endif
 typedef JMETHOD (void, forward_DCT_method_ptr, (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col));
 typedef JMETHOD (void, float_DCT_method_ptr, (FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSION start_col));
@@ -57,7 +57,7 @@ typedef MULTIPLIER ISLOW_MULT_TYPE; /* short or int, whichever is faster */
 typedef MULTIPLIER IFAST_MULT_TYPE; /* 16 bits is OK, use short if faster */
 #define IFAST_SCALE_BITS  2     /* fractional bits in scale factors */
 #else
-typedef INT32 IFAST_MULT_TYPE;  /* need 32 bits for scaled quantizers */
+typedef INT32 IFAST_MULT_TYPE; /* need 32 bits for scaled quantizers */
 #define IFAST_SCALE_BITS  13    /* fractional bits in scale factors */
 #endif
 typedef FAST_FLOAT FLOAT_MULT_TYPE; /* preferred floating type */

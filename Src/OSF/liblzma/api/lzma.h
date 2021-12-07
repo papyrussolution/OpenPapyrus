@@ -797,10 +797,10 @@ typedef struct lzma_internal_s lzma_internal;
  */
 typedef struct {
 	const uint8 * next_in; /**< Pointer to the next input byte. */
-	size_t avail_in;    /**< Number of available input bytes in next_in. */
-	uint64_t total_in;  /**< Total number of bytes read by liblzma. */
-	uint8 * next_out;  /**< Pointer to the next output position. */
-	size_t avail_out;   /**< Amount of free space in next_out. */
+	size_t avail_in; /**< Number of available input bytes in next_in. */
+	uint64_t total_in; /**< Total number of bytes read by liblzma. */
+	uint8 * next_out; /**< Pointer to the next output position. */
+	size_t avail_out; /**< Amount of free space in next_out. */
 	uint64_t total_out; /**< Total number of bytes written by liblzma. */
 	/**
 	 * \brief       Custom memory allocation functions

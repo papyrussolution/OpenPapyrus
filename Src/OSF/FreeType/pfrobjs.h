@@ -64,7 +64,7 @@ FT_BEGIN_HEADER
                  FT_Parameter*  params );
 
   FT_LOCAL( void )
-  pfr_face_done( FT_Face  face );               /* PFR_Face */
+  pfr_face_done( FT_Face  face ); /* PFR_Face */
 
 
   FT_LOCAL( FT_Error )
@@ -75,10 +75,10 @@ FT_BEGIN_HEADER
 
 
   FT_LOCAL( FT_Error )
-  pfr_slot_init( FT_GlyphSlot  slot );          /* PFR_Slot */
+  pfr_slot_init( FT_GlyphSlot  slot ); /* PFR_Slot */
 
   FT_LOCAL( void )
-  pfr_slot_done( FT_GlyphSlot  slot );          /* PFR_Slot */
+  pfr_slot_done( FT_GlyphSlot  slot ); /* PFR_Slot */
 
 
   FT_LOCAL( FT_Error )

@@ -105,8 +105,8 @@ typedef struct
 typedef struct
 {
   UInt16 Summ; /* Freq */
-  Byte Shift;  /* Speed of Freq change; low Shift is for fast change */
-  Byte Count;  /* Count to next change of Shift */
+  Byte Shift; /* Speed of Freq change; low Shift is for fast change */
+  Byte Count; /* Count to next change of Shift */
 } CPpmd_See;
 
 #define Ppmd_See_Update(p)  if ((p)->Shift < PPMD_PERIOD_BITS && --(p)->Count == 0) \

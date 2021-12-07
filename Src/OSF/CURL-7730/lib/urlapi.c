@@ -192,7 +192,7 @@ static void strcpy_url(char * output, const char * url, bool relative)
 		host_sep = (const uchar *)find_host_sep(url);
 
 	for(iptr = (uchar *)url; /* read from here */
-	    *iptr;   /* until zero byte */
+	    *iptr; /* until zero byte */
 	    iptr++) {
 		if(iptr < host_sep) {
 			*optr++ = *iptr;

@@ -137,42 +137,42 @@ struct SVG_PEN {
 
 static uint SVG_xSize = static_cast<uint>(SVG_XMAX); /* plot horizontal size */
 static uint SVG_ySize = static_cast<uint>(SVG_YMAX); /* plot vertical size*/
-static bool SVG_fixed_size = TRUE;  /* make SVG viewer size fixed */
+static bool SVG_fixed_size = TRUE; /* make SVG viewer size fixed */
 static uint SVG_xLast = UINT_MAX; /* current pen horizontal position*/
-static uint SVG_yLast = UINT_MAX;       /* current pen vertical position*/
-static int SVG_LineType = LT_NODRAW;    /* current line type*/
+static uint SVG_yLast = UINT_MAX; /* current pen vertical position*/
+static int SVG_LineType = LT_NODRAW; /* current line type*/
 static double SVG_LineWidth = 1.0; /* current line width*/
 static double SVG_linewidth_factor = 1.0; /* Multiplier for linewidths */
 static double SVG_dashlength = 1.0; /* Multiplier for dash patterns */
 static t_linecap SVG_linecap = BUTT; /* linejoin and linecap */
-static int SVG_TextAngle = 0;   /* current text orientation*/
+static int SVG_TextAngle = 0; /* current text orientation*/
 static enum JUSTIFY SVG_TextJust = LEFT; /* current text justification*/
 
 /* default text font family: */
 static char * SVG_fontNameDef = NULL;
 static char * SVG_fontStyleDef = NULL; /* default font style */
 static char * SVG_fontWeightDef = NULL; /* default font weight */
-static double SVG_fontSizeDef = 12;     /* default text size*/
+static double SVG_fontSizeDef = 12; /* default text size*/
 /* current text font family: */
 static char * SVG_fontNameCur = NULL;
 static char * SVG_fontStyleCur = NULL; /* current font style */
 static char * SVG_fontWeightCur = NULL; /* current font weight */
-static double SVG_fontSizeCur = 12;     /* current text size*/
-static double SVG_fontscale = 1.0;      /* multiplier for nominal font size */
+static double SVG_fontSizeCur = 12; /* current text size*/
+static double SVG_fontscale = 1.0; /* multiplier for nominal font size */
 static bool SVG_groupIsOpen = FALSE; /* open group flag*/
 static bool SVG_pathIsOpen = FALSE; /* open path flag*/
 static uint SVG_path_count = 0; /* size of current path*/
-static struct SVG_PEN SVG_pens[16];     /* pen descriptors*/
+static struct SVG_PEN SVG_pens[16]; /* pen descriptors*/
 static int SVG_fillPattern = -1; /* active fill pattern (-1 == undefined) */
 static uint SVG_fillPatternIndex = 0;
 static int SVG_background = -1;
 static int SVG_plotno = 0;
 static bool SVG_gridline = FALSE;
 static bool SVG_hasgrid = FALSE;
-static double SVG_fontAscent  = 0;      /* estimated current font ascent*/
-static double SVG_fontDescent = 0;      /* estimated current font descent*/
-static double SVG_fontLeading = 0;      /* estimated current font leading*/
-static double SVG_fontAvWidth = 0;      /* estimated current font char average width*/
+static double SVG_fontAscent  = 0; /* estimated current font ascent*/
+static double SVG_fontDescent = 0; /* estimated current font descent*/
+static double SVG_fontLeading = 0; /* estimated current font leading*/
+static double SVG_fontAvWidth = 0; /* estimated current font char average width*/
 
 static short SVG_Pen_RealID(int);
 static void SVG_PathOpen();
@@ -223,7 +223,7 @@ static short SVG_Pen_RealID(int inPenCode)
 		inPenCode %= 13; /* normalize pen code*/
 	inPenCode += 3;
 	if(inPenCode < 0)
-		inPenCode = 0;  /* LT_BACKGROUND should use background color */
+		inPenCode = 0; /* LT_BACKGROUND should use background color */
 	return (inPenCode);
 }
 
@@ -1673,7 +1673,7 @@ TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 		while((s = strstr(p_gp->Enht.P_CurText, "\\U+")) != NULL) {
 			*s = '\0';
 			fputs(p_gp->Enht.P_CurText, GPT.P_GpOutFile); /* everything up to the escape */
-			fputs("&#x", GPT.P_GpOutFile);        /* xml escape sequence */
+			fputs("&#x", GPT.P_GpOutFile); /* xml escape sequence */
 			s += 3;                         /* start of hex codepoint */
 			for(i = 0; i<5; i++, s++) { /* copy up to 5 hex characters */
 				if(isxdigit(*s))
@@ -1681,10 +1681,10 @@ TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 				else
 					break;
 			}
-			fputs(";", GPT.P_GpOutFile);          /* end of xml escape sequence */
+			fputs(";", GPT.P_GpOutFile); /* end of xml escape sequence */
 			p_gp->Enht.P_CurText = s;
 		}
-		fputs(p_gp->Enht.P_CurText, GPT.P_GpOutFile);    /* everything after the escape[s] */
+		fputs(p_gp->Enht.P_CurText, GPT.P_GpOutFile); /* everything after the escape[s] */
 		fputs("</tspan>", GPT.P_GpOutFile);
 	}
 }

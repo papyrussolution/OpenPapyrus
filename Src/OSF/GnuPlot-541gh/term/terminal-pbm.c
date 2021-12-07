@@ -58,8 +58,8 @@ TERM_PUBLIC void PBM_point(GpTermEntry * pThis, uint x, uint y, int point);
 
 #ifdef TERM_BODY
 
-static int pbm_font = 1;        /* small font */
-static int pbm_mode = 0;        /* 0:monochrome 1:gray 2:color */
+static int pbm_font = 1; /* small font */
+static int pbm_mode = 0; /* 0:monochrome 1:gray 2:color */
 
 /* Only needed for dubious backward compatibility with 'set size'
  * in pre-4.2 versions that didn't support 'set term size'
@@ -67,9 +67,9 @@ static int pbm_mode = 0;        /* 0:monochrome 1:gray 2:color */
 static bool PBM_explicit_size = FALSE;
 
 /* 7=black, 0=white */
-static int pgm_gray[] = { 7, 1, 6, 5, 4, 3, 2, 1, 7 };  /* grays  */
+static int pgm_gray[] = { 7, 1, 6, 5, 4, 3, 2, 1, 7 }; /* grays  */
 /* bit3=!intensify, bit2=!red, bit1=!green, bit0=!blue */
-static int ppm_color[] = { 15, 8, 3, 5, 6, 2, 4, 1, 11, 13, 14 };  /* colors */
+static int ppm_color[] = { 15, 8, 3, 5, 6, 2, 4, 1, 11, 13, 14 }; /* colors */
 
 enum PBM_id {
 	PBM_SMALL, PBM_MEDIUM, PBM_LARGE,

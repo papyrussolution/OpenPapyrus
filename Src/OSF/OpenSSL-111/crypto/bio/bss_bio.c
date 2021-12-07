@@ -53,17 +53,17 @@ const BIO_METHOD * BIO_s_bio(void)
 }
 
 struct bio_bio_st {
-	BIO * peer;             /* NULL if buf == NULL. If peer != NULL, then
+	BIO * peer; /* NULL if buf == NULL. If peer != NULL, then
 	                         * peer->ptr is also a bio_bio_st, and its
 	                         * "peer" member points back to us. peer !=
 	                         * NULL iff init != 0 in the BIO. */
 	/* This is for what we write (i.e. reading uses peer's struct): */
-	int closed;             /* valid iff peer != NULL */
-	size_t len;             /* valid iff buf != NULL; 0 if peer == NULL */
-	size_t offset;          /* valid iff buf != NULL; 0 if len == 0 */
+	int closed; /* valid iff peer != NULL */
+	size_t len; /* valid iff buf != NULL; 0 if peer == NULL */
+	size_t offset; /* valid iff buf != NULL; 0 if len == 0 */
 	size_t size;
-	char * buf;             /* "size" elements (if != NULL) */
-	size_t request;         /* valid iff peer != NULL; 0 if len != 0,
+	char * buf; /* "size" elements (if != NULL) */
+	size_t request; /* valid iff peer != NULL; 0 if len != 0,
 	                         * otherwise set by peer to number of bytes
 	                         * it (unsuccessfully) tried to read, never
 	                         * more than buffer space (size-len)
@@ -110,7 +110,7 @@ static int bio_read(BIO * bio, char * buf, int size_)
 	assert(peer_b != NULL);
 	assert(peer_b->buf != NULL);
 
-	peer_b->request = 0;    /* will be set in "retry_read" situation */
+	peer_b->request = 0; /* will be set in "retry_read" situation */
 
 	if(buf == NULL || size == 0)
 		return 0;

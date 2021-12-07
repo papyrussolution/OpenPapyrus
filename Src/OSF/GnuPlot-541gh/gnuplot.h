@@ -201,7 +201,7 @@ struct GpMeshTriangle;
 	typedef float t_voxel;
 
 	struct VGrid {
-		int    size;       /* size x size x size array */
+		int    size; /* size x size x size array */
 		double vxmin;
 		double vxmax;
 		double vxdelta;
@@ -214,7 +214,7 @@ struct GpMeshTriangle;
 		double min_value; /* min non-zero voxel value */
 		double max_value; /* max voxel value */
 		double mean_value; /* mean non-zero voxel value */
-		double stddev;  /* esd over non-zero voxels */
+		double stddev; /* esd over non-zero voxels */
 		double sum;
 		int    nzero;
 		t_voxel * vdata; /* points to 3D array of voxels */
@@ -503,10 +503,10 @@ struct GpMeshTriangle;
 	//
 	struct udft_entry {
 		udft_entry * next_udf; /* pointer to next udf in linked list */
-		char * udf_name;         /* name of this function entry */
-		at_type * at;     /* pointer to action table to execute */
-		char * definition;       /* definition of function as typed */
-		int    dummy_num;           /* required number of input variables */
+		char * udf_name; /* name of this function entry */
+		at_type * at; /* pointer to action table to execute */
+		char * definition; /* definition of function as typed */
+		int    dummy_num; /* required number of input variables */
 		GpValue dummy_values[MAX_NUM_VAR]; /* current value of dummy variables */
 	};
 	//
@@ -557,7 +557,7 @@ struct GpMeshTriangle;
 	// action table entry 
 	//
 	struct at_entry {
-		enum operators index;   /* index of p-code function */
+		enum operators index; /* index of p-code function */
 		union argument arg;
 	};
 
@@ -943,7 +943,7 @@ enum t_fillstyle {
 		double cubehelix_cycles; /* number of times round the colorwheel */
 		double cubehelix_saturation; /* color saturation */
 		/* offset for HSV color mapping */
-		double HSV_offset;      /* offset (radians) from colorwheel 0 */
+		double HSV_offset; /* offset (radians) from colorwheel 0 */
 	};
 
 	// (replaced with GnuPlot::SmPltt) extern t_sm_palette sm_palette_Removed; // @global
@@ -1391,18 +1391,18 @@ enum t_fillstyle {
 	};
 
 	struct arrow_style_type {    /* contains all Arrow properties */
-		int tag;                     /* -1 (local), AS_VARIABLE, or style index */
+		int tag; /* -1 (local), AS_VARIABLE, or style index */
 		int layer;                   /* 0 = back, 1 = front */
 		lp_style_type lp_properties;
 		/* head options */
-		t_arrow_head head;           /* arrow head choice */
+		t_arrow_head head; /* arrow head choice */
 		/* struct GpPosition headsize; */  /* x = length, y = angle [deg] */
 		double head_length;     // length of head, 0 = default
 		int head_lengthunit;    // unit (x1, x2, screen, graph)
 		double head_angle;      // front angle / deg 
 		double head_backangle;  // back angle / deg
 		arrowheadfill headfill; // AS_FILLED etc
-		bool head_fixedsize;     /* Adapt the head size for short arrow shafts? */
+		bool head_fixedsize; /* Adapt the head size for short arrow shafts? */
 		/* ... more to come ? */
 	};
 	//
@@ -1924,14 +1924,14 @@ enum t_fillstyle {
 			offset.Set(character, character, character, 0.0, 0.0, 0.0);
 		}
 		text_label * next; /* pointer to next label in linked list */
-		int tag;                /* identifies the label */
+		int tag; /* identifies the label */
 		GpPosition place;
-		enum JUSTIFY pos;       /* left/center/right horizontal justification */
+		enum JUSTIFY pos; /* left/center/right horizontal justification */
 		int rotate;
 		int layer;
-		int boxed;              /* 0 no box;  -1 default box props;  >0 boxstyle */
+		int boxed; /* 0 no box;  -1 default box props;  >0 boxstyle */
 		char * text;
-		char * font;            /* Entry font added by DJL */
+		char * font; /* Entry font added by DJL */
 		t_colorspec textcolor;
 		lp_style_type lp_properties;
 		GpPosition offset;
@@ -1954,11 +1954,11 @@ enum t_fillstyle {
 
 	struct arrow_def {
 		arrow_def * next; /* pointer to next arrow in linked list */
-		int tag;                /* identifies the arrow */
-		arrow_type type;        /* how to interpret GpPosition end */
+		int tag; /* identifies the arrow */
+		arrow_type type; /* how to interpret GpPosition end */
 		GpPosition start;
 		GpPosition end;
-		double angle;           /* angle in degrees if type arrow_end_oriented */
+		double angle; /* angle in degrees if type arrow_end_oriented */
 		arrow_style_type arrow_properties;
 	};
 	//
@@ -1969,11 +1969,11 @@ enum t_fillstyle {
 		{
 			THISZERO();
 		}
-		int type;               /* 0 = corners;  1 = center + size */
-		GpPosition center;      /* center */
-		GpPosition extent;      /* width and height */
-		GpPosition bl;          /* bottom left */
-		GpPosition tr;          /* top right */
+		int type; /* 0 = corners;  1 = center + size */
+		GpPosition center; /* center */
+		GpPosition extent; /* width and height */
+		GpPosition bl; /* bottom left */
+		GpPosition tr; /* top right */
 	};
 
 	#define DEFAULT_RADIUS (-1.0)
@@ -2009,10 +2009,10 @@ enum t_fillstyle {
 			extent.Set(graph, graph, first_axes, 0.05, 0.03, 0.0);
 			orientation = 0.0;
 		}
-		int type;               /* mapping of axes: ELLIPSEAXES_XY, ELLIPSEAXES_XX or ELLIPSEAXES_YY */
-		GpPosition center;      /* center */
-		GpPosition extent;      /* major and minor axes */
-		double orientation;     /* angle of first axis to horizontal */
+		int type; /* mapping of axes: ELLIPSEAXES_XY, ELLIPSEAXES_XX or ELLIPSEAXES_YY */
+		GpPosition center; /* center */
+		GpPosition extent; /* major and minor axes */
+		double orientation; /* angle of first axis to horizontal */
 	};
 
 	struct t_polygon {
@@ -2025,8 +2025,8 @@ enum t_fillstyle {
 			type = 0;
 			vertex = 0;
 		}
-		int type;               /* Number of vertices */
-		GpPosition * vertex;    /* Array of vertices */
+		int type; /* Number of vertices */
+		GpPosition * vertex; /* Array of vertices */
 	};
 
 	enum t_clip_object {
@@ -2143,8 +2143,8 @@ enum t_fillstyle {
 		}
 		GpObject * next;
 		int tag;
-		int layer;              /* behind or back or front */
-		int object_type;        /* e.g. OBJ_RECTANGLE */
+		int layer; /* behind or back or front */
+		int object_type; /* e.g. OBJ_RECTANGLE */
 		t_clip_object clip;
 		fill_style_type fillstyle;
 		lp_style_type lp_properties;
@@ -2160,8 +2160,8 @@ enum t_fillstyle {
 	//
 	struct custom_dashtype_def {
 		custom_dashtype_def * next; /* pointer to next dashtype in linked list */
-		int tag;                /* identifies the dashtype */
-		int d_type;             /* for DASHTYPE_SOLID or CUSTOM */
+		int tag; /* identifies the dashtype */
+		int d_type; /* for DASHTYPE_SOLID or CUSTOM */
 		t_dashtype dashtype;
 	};
 	//
@@ -2169,7 +2169,7 @@ enum t_fillstyle {
 	//
 	struct linestyle_def {
 		linestyle_def * next; /* pointer to next linestyle in linked list */
-		int tag;                /* identifies the linestyle */
+		int tag; /* identifies the linestyle */
 		lp_style_type lp_properties;
 	};
 	//
@@ -2177,24 +2177,24 @@ enum t_fillstyle {
 	//
 	struct arrowstyle_def {
 		arrowstyle_def * next; /* pointer to next arrowstyle in linked list */
-		int tag;                /* identifies the arrowstyle */
+		int tag; /* identifies the arrowstyle */
 		arrow_style_type arrow_properties;
 	};
 	//
 	// Datastructure for 'set pixmap 
 	//
 	struct t_pixmap {
-		int tag;                /* index referring to this pixmap */
+		int tag; /* index referring to this pixmap */
 		t_pixmap * next; /* pointer to next pixmap in the linked list */
 		uint ncols; /* image size */
 		uint nrows; 
-		GpPosition pin;         /* where it goes */
-		GpPosition extent;      /* width dx;  dy implicitly dx*aspect_ratio */
-		int    layer;              /* front/back/behind */
-		bool   center;            /* position is center rather than lower left */
-		char * filename;        /* where to read the pixmap pixmap */
-		char * colormapname;    /* the colormap this was taken from */
-		coordval * image_data;  /* pixel array RGBARGBA... */
+		GpPosition pin; /* where it goes */
+		GpPosition extent; /* width dx;  dy implicitly dx*aspect_ratio */
+		int    layer; /* front/back/behind */
+		bool   center; /* position is center rather than lower left */
+		char * filename; /* where to read the pixmap pixmap */
+		char * colormapname; /* the colormap this was taken from */
+		coordval * image_data; /* pixel array RGBARGBA... */
 	};
 	//
 	// Used by 'set style parallelaxis' and 'set style spiderplot' 
@@ -2205,7 +2205,7 @@ enum t_fillstyle {
 		{
 		}
 		lp_style_type lp_properties; /* used to draw the axes themselves */
-		int layer;              /* front/back */
+		int layer; /* front/back */
 	};
 
 	#define DEFAULT_PARALLEL_AXIS_STYLE {{0, LT_BLACK, 0, DASHTYPE_SOLID, 0, 0, 2.0, 0.0, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN}, LAYER_FRONT}
@@ -2282,14 +2282,14 @@ enum t_fillstyle {
 			startpattern(LT_UNDEFINED), bar_lw(0.0), next(0)
 		{
 		}
-		int    type;       /* enum t_histogram_type */
-		int    gap;        /* set style hist gap <n> (space between clusters) */
+		int    type; /* enum t_histogram_type */
+		int    gap; /* set style hist gap <n> (space between clusters) */
 		int    clustersize; /* number of datasets in this histogram */
-		double start;   /* X-coord of first histogram entry */
-		double end;     /* X-coord of last histogram entry */
+		double start; /* X-coord of first histogram entry */
+		double end; /* X-coord of last histogram entry */
 		int    startcolor; /* LT_UNDEFINED or explicit color for first entry */
 		int    startpattern; /* LT_UNDEFINED or explicit pattern for first entry */
-		double bar_lw;  /* linewidth for error bars */
+		double bar_lw; /* linewidth for error bars */
 		histogram_style * next;
 		text_label title;
 	};
@@ -2310,7 +2310,7 @@ enum t_fillstyle {
 		double limit_value;
 		bool outliers;
 		int pointtype;
-		int plotstyle;  /* CANDLESTICKS or FINANCEBARS */
+		int plotstyle; /* CANDLESTICKS or FINANCEBARS */
 		double median_linewidth;
 		double separation; /* of boxplots if there are more than one factors */
 		t_boxplot_factor_labels labels; /* Which axis to put the tic labels if there are factors */
@@ -2360,32 +2360,32 @@ enum t_fillstyle {
 			user_pos.SetDefaultKeyPosition();
 			box.SetDefaultKeybox();
 		}
-		bool visible;           /* Do we show this key at all? */
-		t_key_region region;    /* if so: where? */
+		bool visible; /* Do we show this key at all? */
+		t_key_region region; /* if so: where? */
 		t_key_ext_region margin; /* if exterior: where outside? */
 		GpPosition user_pos; /* if user specified position, this is it */
-		VERT_JUSTIFY vpos;      /* otherwise these guide auto-positioning */
+		VERT_JUSTIFY vpos; /* otherwise these guide auto-positioning */
 		JUSTIFY hpos;
-		bool fixed;     /* prevents key in 3D plot from rotating/scaling with plot */
+		bool fixed; /* prevents key in 3D plot from rotating/scaling with plot */
 		t_key_sample_positioning just;
 		t_key_stack_direction stack_dir;
-		double swidth;          /* 'width' of the linestyle sample line in the key */
-		double vert_factor;     /* user specified vertical spacing multiplier */
-		double width_fix;       /* user specified additional (+/-) width of key titles */
+		double swidth; /* 'width' of the linestyle sample line in the key */
+		double vert_factor; /* user specified vertical spacing multiplier */
+		double width_fix; /* user specified additional (+/-) width of key titles */
 		double height_fix;
 		keytitle_type auto_titles; /* auto title curves unless plotted 'with notitle' */
-		bool front;     /* draw key in a second pass after the rest of the graph */
-		bool reverse;           /* key back to front */
-		bool invert;            /* key top to bottom */
-		bool enhanced;          /* enable/disable enhanced text of key titles */
+		bool front; /* draw key in a second pass after the rest of the graph */
+		bool reverse; /* key back to front */
+		bool invert; /* key top to bottom */
+		bool enhanced; /* enable/disable enhanced text of key titles */
 		lp_style_type box; /* linetype of box around key:  */
-		char * font;            /* Will be used for both key title and plot titles */
-		t_colorspec textcolor;   /* Will be used for both key title and plot titles */
-		t_colorspec fillcolor;   /* only used if "set key front" */
+		char * font; /* Will be used for both key title and plot titles */
+		t_colorspec textcolor; /* Will be used for both key title and plot titles */
+		t_colorspec fillcolor; /* only used if "set key front" */
 		BoundingBox bounds;
-		int maxcols;            /* maximum no of columns for horizontal keys */
-		int maxrows;            /* maximum no of rows for vertical keys */
-		text_label title;       /* holds title line for the key as a whole */
+		int maxcols; /* maximum no of columns for horizontal keys */
+		int maxrows; /* maximum no of rows for vertical keys */
+		text_label title; /* holds title line for the key as a whole */
 	};
 
 	#define DEFAULT_KEYBOX_LP {0, LT_NODRAW, 0, DASHTYPE_SOLID, 0, 0, 1.0, PTSZ_DEFAULT, DEFAULT_P_CHAR, BLACK_COLORSPEC, DEFAULT_DASHPATTERN}
@@ -2571,10 +2571,10 @@ enum t_fillstyle {
 	// string, like "high" or "low").
 	// 
 	struct ticmark {
-		double position;        /* where on axis is this */
-		char * label;           /* optional (format) string label */
-		int level;              /* 0=major tic, 1=minor tic */
-		ticmark * next;  /* linked list */
+		double position; /* where on axis is this */
+		char * label; /* optional (format) string label */
+		int level; /* 0=major tic, 1=minor tic */
+		ticmark * next; /* linked list */
 	};
 	//
 	// Tic-mark labelling definition; see set xtics 
@@ -2710,16 +2710,16 @@ enum t_fillstyle {
 		// range of this axis 
 		t_autoscale autoscale;     // Which end(s) are autoscaled? */
 		t_autoscale set_autoscale; // what does 'set' think autoscale to be? 
-		int range_flags;        /* flag bits about autoscale/writeback: */
+		int range_flags; /* flag bits about autoscale/writeback: */
 		// write auto-ed ranges back to variables for autoscale 
 	#define RANGE_WRITEBACK   1
 	#define RANGE_SAMPLED     2
 	#define RANGE_IS_REVERSED 4
-		double min;             /* 'transient' axis extremal values */
+		double min; /* 'transient' axis extremal values */
 		double max;
-		double set_min;         /* set/show 'permanent' values */
+		double set_min; /* set/show 'permanent' values */
 		double set_max;
-		double writeback_min;   /* ULIG's writeback implementation */
+		double writeback_min; /* ULIG's writeback implementation */
 		double writeback_max;
 		double data_min; // Not necessarily the same as axis min 
 		double data_max;
@@ -2749,28 +2749,28 @@ enum t_fillstyle {
 		int    ticmode;    // tics on border/axis? mirrored?
 		t_ticdef ticdef;   // tic series definition 
 		int    tic_rotate; // ticmarks rotated by this angle 
-		enum JUSTIFY tic_pos;   /* left/center/right tic label justification */
-		bool   gridmajor;         /* Grid lines wanted on major tics? */
-		bool   gridminor;         /* Grid lines for minor tics? */
+		enum JUSTIFY tic_pos; /* left/center/right tic label justification */
+		bool   gridmajor; /* Grid lines wanted on major tics? */
+		bool   gridminor; /* Grid lines for minor tics? */
 		t_minitics_status minitics; /* minor tic mode (none/auto/user)? */
-		double mtic_freq;       /* minitic stepsize */
-		double ticscale;        /* scale factor for tic marks (was (0..1])*/
-		double miniticscale;    /* and for minitics */
-		double ticstep;         /* increment used to generate tic placement */
-		bool   TicIn;          /* tics to be drawn inward?  */
+		double mtic_freq; /* minitic stepsize */
+		double ticscale; /* scale factor for tic marks (was (0..1])*/
+		double miniticscale; /* and for minitics */
+		double ticstep; /* increment used to generate tic placement */
+		bool   TicIn; /* tics to be drawn inward?  */
 		// time/date axis control 
-		td_type datatype;       /* {DT_NORMAL|DT_TIMEDATE} controls _input_ */
-		td_type tictype;        /* {DT_NORMAL|DT_TIMEDATE|DT_DMS} controls _output_ */
-		char * formatstring;    /* the format string for output */
-		char * ticfmt;          /* autogenerated alternative to formatstring (needed??) */
-		t_timelevel timelevel;  /* minimum time unit used to quantize ticks */
+		td_type datatype; /* {DT_NORMAL|DT_TIMEDATE} controls _input_ */
+		td_type tictype; /* {DT_NORMAL|DT_TIMEDATE|DT_DMS} controls _output_ */
+		char * formatstring; /* the format string for output */
+		char * ticfmt; /* autogenerated alternative to formatstring (needed??) */
+		t_timelevel timelevel; /* minimum time unit used to quantize ticks */
 		// other miscellaneous fields 
 		int    index; // if this is a permanent axis, this indexes GPO.AxS[] 
 			// (index >= PARALLEL_AXES) indexes parallel axes; (index < 0) indicates a dynamically allocated structure 
-		text_label label;       /* label string and position offsets */
-		bool   manual_justify;    /* override automatic justification */
+		text_label label; /* label string and position offsets */
+		bool   manual_justify; /* override automatic justification */
 		lp_style_type * zeroaxis; /* usually points to default_axis_zeroaxis */
-		double paxis_x;         /* x coordinate of parallel axis */
+		double paxis_x; /* x coordinate of parallel axis */
 	};
 
 	#if 0 // {
@@ -3191,8 +3191,8 @@ enum t_fillstyle {
 	#define FNT13X25_HCHAR 19       /* horizontal spacing between characters */
 	#define FNT13X25_HBITS 13       /* actual number of bits per row per char */
 	extern const char_row fnt13x25[FNT_CHARS][FNT13X25_VBITS];
-	typedef uchar pixels;  /* the type of one set of 8 pixels in bitmap */
-	typedef pixels * bitmap[];       /* the bitmap */
+	typedef uchar pixels; /* the type of one set of 8 pixels in bitmap */
+	typedef pixels * bitmap[]; /* the bitmap */
 
 	void b_setvalue(GpTermEntry * pThis, uint);
 	void b_setlinetype(GpTermEntry * pThis, int);
@@ -3295,7 +3295,7 @@ enum t_fillstyle {
 	#ifdef GNUPLOT_HISTORY
 		void cancel_history();
 	#else
-		#define cancel_history()  {}
+		#define cancel_history() {}
 	#endif
 //
 //#include <plot2d.h>
@@ -3359,10 +3359,10 @@ enum t_fillstyle {
 
 	struct GpSurfacePoints {
 		GpSurfacePoints * next_sp; /* pointer to next plot in linked list */
-		int token;              /* last token used, for second parsing pass */
+		int token; /* last token used, for second parsing pass */
 		enum PLOT_TYPE plot_type; /* DATA2D? DATA3D? FUNC2D FUNC3D? NODATA? */
 		enum PLOT_STYLE plot_style; /* style set by "with" or by default */
-		char * title;           /* plot title, a.k.a. key entry */
+		char * title; /* plot title, a.k.a. key entry */
 		GpPosition * title_position; /* title at {beginning|end|<xpos>,<ypos>} */
 		bool title_no_enhanced; /* don't typeset title in enhanced mode */
 		bool title_is_automated; /* TRUE if title was auto-generated */
@@ -3385,15 +3385,15 @@ enum t_fillstyle {
 		bool pm3d_color_from_column;
 		bool has_grid_topology;
 		int hidden3d_top_linetype; /* before any calls to load_linetype() */
-		int iteration;          /* needed for tracking iteration */
-		VGrid * vgrid;   /* used only for voxel plots */
-		double iso_level;       /* used only for voxel plots */
+		int iteration; /* needed for tracking iteration */
+		VGrid * vgrid; /* used only for voxel plots */
+		double iso_level; /* used only for voxel plots */
 		/* Data files only - num of isolines read from file. For functions,  */
 		/* num_iso_read is the number of 'primary' isolines (in x direction) */
 		int num_iso_read;
 		gnuplot_contours * contours; /* NULL if not doing contours. */
 		iso_curve * iso_crvs; /* the actual data */
-		char pm3d_where[7];     /* explicitly given base, top, surface */
+		char pm3d_where[7]; /* explicitly given base, top, surface */
 	};
 
 	struct t_xyplane {
@@ -3750,12 +3750,12 @@ enum t_fillstyle {
 		int    cart_dir[3]; // 1 scan in positive direction, -1 negative, x/y/z 
 		double cart_delta[3]; // spacing between array points, x/y/z 
 		df_translation_type cart_trans; /* translate via origin, center or default */
-		double cart_cen_or_ori[3];    /* vector representing center or origin, x/y/z */
-		double cart_alpha;            /* 2D rotation angle (rotate) */
-		double cart_p[3];             /* 3D rotation normal vector (perpendicular) */
+		double cart_cen_or_ori[3]; /* vector representing center or origin, x/y/z */
+		double cart_alpha; /* 2D rotation angle (rotate) */
+		double cart_p[3]; /* 3D rotation normal vector (perpendicular) */
 		df_sample_scan_type cart_scan[3]; /* how to assign the dimensions read from file when generating coordinates */
 		bool   scan_generate_coord; /* whether or not Gnuplot should generate coordinates. */
-		off_t  scan_skip[3];           /* skip bytes before the record, line, plane */
+		off_t  scan_skip[3]; /* skip bytes before the record, line, plane */
 		// 
 		// Not controllable by the user, only by file type functions.
 		// These are all points/lines/planes format.
@@ -3794,7 +3794,7 @@ enum t_fillstyle {
 	// error interrupt for fitting routines 
 	#define Eex(a) { ErrorEx(NO_CARET, (a)); }
 	#define Eex2(a, b)    { ErrorEx(NO_CARET, (a), (b)); }
-	#define Eex3(a, b, c)  { ErrorEx(NO_CARET, (a), (b), (c)); }
+	#define Eex3(a, b, c) { ErrorEx(NO_CARET, (a), (b), (c)); }
 	#define Eexc(c, a)    { ErrorEx((c), (a)); }
 	#define Eexc2(c, a, b) { ErrorEx((c), (a), (b)); }
 	//
@@ -3928,11 +3928,11 @@ enum t_fillstyle {
 		dynarray() : v(0), size(0), end(0), increment(0), entry_size(0)
 		{
 		}
-		long size;              /* alloced size of the array */
-		long end;               /* index of first unused entry */
-		long increment;         /* amount to increment size by, on realloc */
-		size_t entry_size;      /* size of the entries in this array */
-		void * v;       /* the vector itself */
+		long size; /* alloced size of the array */
+		long end; /* index of first unused entry */
+		long increment; /* amount to increment size by, on realloc */
+		size_t entry_size; /* size of the entries in this array */
+		void * v; /* the vector itself */
 	};
 	//
 	// Prototypes 
@@ -4223,17 +4223,17 @@ enum t_fillstyle {
 		};
 
 		struct mouse_setting_t {
-			int on;            /* ...                                         */
-			int doubleclick;   /* Button1 double / single click resolution    */
+			int on; /* ...                                         */
+			int doubleclick; /* Button1 double / single click resolution    */
 			int annotate_zoom_box; /* draw coordinates at zoom box                */
-			int label;         /* draw real gnuplot labels on Button 2        */
+			int label; /* draw real gnuplot labels on Button 2        */
 			int polardistance; /* display dist. to ruler in polar coordinates */
-			int verbose;       /* display ipc commands                        */
-			int warp_pointer;  /* warp pointer after starting a zoom box      */
+			int verbose; /* display ipc commands                        */
+			int warp_pointer; /* warp pointer after starting a zoom box      */
 			double xmzoom_factor; /* scale factor for +/- zoom on x		  */
 			double ymzoom_factor; /* scale factor for +/- zoom on y		  */
-			char * fmt;        /* fprintf format for printing numbers         */
-			char * labelopts;  /* label options                               */
+			char * fmt; /* fprintf format for printing numbers         */
+			char * labelopts; /* label options                               */
 		};
 
 		#define DEFAULT_MOUSE_MODE    1 // start with mouse on by default 
@@ -4667,21 +4667,21 @@ struct ps_params_t {
 	float  dash_length;
 	float  linewidth_factor;
 	float  pointscale_factor;
-	bool   duplex_option;       /* one of duplex or simplex specified? */
+	bool   duplex_option; /* one of duplex or simplex specified? */
 	bool   duplex_state;
-	bool   rounded;             /* rounded linecaps and linejoins */
-	bool   clipped;             /* path clipped to BoundingBox? */
+	bool   rounded; /* rounded linecaps and linejoins */
+	bool   clipped; /* path clipped to BoundingBox? */
 	ps_fontfile_def * first_fontfile;
-	char   font[MAX_ID_LEN+1];      /* name of font */
-	float  fontsize;                 /* size of font in pts */
-	float  fontscale;                /* multiplier for nominal font size */
-	bool   useauxfile;          /* only necessary for ps(la)tex */
-	bool   rotate;              /* only necessary for ps(la)tex */
-	int    palfunc_samples;          /* setable via "palf$uncparam" */
-	double palfunc_deviation;     /* terminal option */
+	char   font[MAX_ID_LEN+1]; /* name of font */
+	float  fontsize; /* size of font in pts */
+	float  fontscale; /* multiplier for nominal font size */
+	bool   useauxfile; /* only necessary for ps(la)tex */
+	bool   rotate; /* only necessary for ps(la)tex */
+	int    palfunc_samples; /* setable via "palf$uncparam" */
+	double palfunc_deviation; /* terminal option */
 	bool   oldstyle;
 	bool   epslatex_standalone;
-	bool   adobeglyphnames;     /* Choice of output names for UTF8 */
+	bool   adobeglyphnames; /* Choice of output names for UTF8 */
 	rgb_color background;
 };
 
@@ -4697,10 +4697,10 @@ struct GpPostscriptBlock {
 	char   EnhFont[MAX_ID_LEN+1];
 	float  EnhFontSize;
 	int    EnsPsInitialized;
-	int    Page;         /* page count */
-	int    PathCount;   /* count of lines in path */
-	int    Ang;                  /* text angle */
-	enum   JUSTIFY Justify;  /* text is flush left */
+	int    Page; /* page count */
+	int    PathCount; /* count of lines in path */
+	int    Ang; /* text angle */
+	enum   JUSTIFY Justify; /* text is flush left */
 	ps_params_t * P_Params;// = &post_params;
 	char * PsLatexAuxname; // name of auxiliary file 
 };
@@ -4741,15 +4741,15 @@ struct SglColumnStats {
 	double mean;
 	double adev;
 	double stddev;
-	double ssd;     /* sample standard deviation */
+	double ssd; /* sample standard deviation */
 	double skewness;
 	double kurtosis;
 	double mean_err;
 	double stddev_err;
 	double skewness_err;
 	double kurtosis_err;
-	double sum;      /* sum x    */
-	double sum_sq;   /* sum x**2 */
+	double sum; /* sum x    */
+	double sum_sq; /* sum x**2 */
 	GpPair min;
 	GpPair max;
 	double median;
@@ -4762,7 +4762,7 @@ struct SglColumnStats {
 
 struct TwoColumnStats {
 	double sum_xy;
-	double slope;    /* linear regression */
+	double slope; /* linear regression */
 	double intercept;
 	double slope_err;
 	double intercept_err;

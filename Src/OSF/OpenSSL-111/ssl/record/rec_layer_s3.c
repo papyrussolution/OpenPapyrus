@@ -388,7 +388,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 			s->rlayer.wnum = tot;
 			return i;
 		}
-		tot += tmpwrit;       /* this might be last fragment */
+		tot += tmpwrit; /* this might be last fragment */
 	}
 #if !defined(OPENSSL_NO_MULTIBLOCK) && EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
 	/*

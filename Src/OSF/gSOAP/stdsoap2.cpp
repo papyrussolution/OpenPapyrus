@@ -577,9 +577,9 @@ static int fsend(struct soap * soap, const char * s, size_t n)
 					int udp_repeat;
 					int udp_delay;
 					if((soap->connect_flags&SO_BROADCAST))
-						udp_repeat = 2;  /* SOAP-over-UDP MULTICAST_UDP_REPEAT - 1 */
+						udp_repeat = 2; /* SOAP-over-UDP MULTICAST_UDP_REPEAT - 1 */
 					else
-						udp_repeat = 1;  /* SOAP-over-UDP UNICAST_UDP_REPEAT - 1 */
+						udp_repeat = 1; /* SOAP-over-UDP UNICAST_UDP_REPEAT - 1 */
 					udp_delay = ((uint)soap_random%201)+50; /* UDP_MIN_DELAY .. UDP_MAX_DELAY */
 					do {
 						tcp_select(soap, soap->socket, SOAP_TCP_SELECT_ERR, -1000*udp_delay);
@@ -3053,7 +3053,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_ssl_accept(struct soap * soap)
 		retries = 10*soap->accept_timeout;
 	}
 	if(retries <= 0)
-		retries = 100;  /* timeout: 10 sec retries, 100 times 0.1 sec */
+		retries = 100; /* timeout: 10 sec retries, 100 times 0.1 sec */
 	while((r = SSL_accept(soap->ssl)) <= 0) {
 		int err;
 		if(retries-- <= 0)
@@ -3108,7 +3108,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_ssl_accept(struct soap * soap)
 		retries = 10*soap->accept_timeout;
 	}
 	if(retries <= 0)
-		retries = 100;  /* timeout: 10 sec retries, 100 times 0.1 sec */
+		retries = 100; /* timeout: 10 sec retries, 100 times 0.1 sec */
 	while((r = gnutls_handshake(soap->session))) {
 		int s;
 		/* GNUTLS repeat handhake when GNUTLS_E_AGAIN */
@@ -3708,7 +3708,7 @@ again:
 		else
 			SOAP_SOCKBLOCK(fd)
 			if(retries <= 0)
-				retries = 100;  /* timeout: 10 sec retries, 100 times 0.1 sec */
+				retries = 100; /* timeout: 10 sec retries, 100 times 0.1 sec */
 		/* Try connecting until success or timeout (when nonblocking) */
 		do {
 			if((r = SSL_connect(soap->ssl)) <= 0) {
@@ -3885,7 +3885,7 @@ again:
 		else
 			SOAP_SOCKBLOCK(fd)
 			if(retries <= 0)
-				retries = 100;  /* timeout: 10 sec retries, 100 times 0.1 sec */
+				retries = 100; /* timeout: 10 sec retries, 100 times 0.1 sec */
 		while((r = gnutls_handshake(soap->session))) {
 			int s;
 			/* GNUTLS repeat handhake when GNUTLS_E_AGAIN */
@@ -3958,9 +3958,9 @@ static int FASTCALL tcp_select(struct soap * soap, SOAP_SOCKET s, int flags, int
 		if(flags&SOAP_TCP_SELECT_ERR)
 			pollfd.events |= POLLERR;
 		if(timeout < 0)
-			timeout /= -1000;  /* -usec -> ms */
+			timeout /= -1000; /* -usec -> ms */
 		else if(timeout <= 1000000) /* avoid overflow */
-			timeout *= 1000;  /* sec -> ms */
+			timeout *= 1000; /* sec -> ms */
 		else {
 			retries = timeout/1000000;
 			timeout = 1000000000; 
@@ -4321,7 +4321,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_poll(struct soap * soap)
 	else if(soap_valid_socket(soap->master))
 		r = tcp_select(soap, soap->master, SOAP_TCP_SELECT_SND, 0);
 	else
-		return SOAP_OK;  /* OK when no socket! */
+		return SOAP_OK; /* OK when no socket! */
 	if(r > 0) {
 #ifdef WITH_OPENSSL
 		if(soap->imode&SOAP_ENC_SSL) {
@@ -4550,7 +4550,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_done(struct soap * soap)
 		soap->clist = p;
 	}
 	if(soap->state == SOAP_INIT)
-		soap->omode &= ~SOAP_IO_UDP;  /* to force close the socket */
+		soap->omode &= ~SOAP_IO_UDP; /* to force close the socket */
 	soap->keep_alive = 0; /* to force close the socket */
 	soap_closesock(soap);
  #ifdef WITH_COOKIES
@@ -4832,7 +4832,7 @@ int http_parse(struct soap * soap)
 				}
 				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "HTTP handler return = %d\n", soap->error));
 				if(soap->error == SOAP_OK)
-					soap->error = SOAP_STOP;  /* prevents further processing */
+					soap->error = SOAP_STOP; /* prevents further processing */
 				return soap->error;
 			}
 			if(status)
@@ -5646,7 +5646,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_putcookies(struct soap * soap, const char * domai
 				      n += sstrlen(q->domain)+11;
 			      if(tmp-s+n > sizeof(tmp)) {
 				      if(s == tmp)
-					      return SOAP_OK;  /* HTTP header size overflow */
+					      return SOAP_OK; /* HTTP header size overflow */
 				      DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Cookie: %s\n", tmp));
 				      if((soap->error = soap->fposthdr(soap, "Cookie", tmp)))
 					      return soap->error;
@@ -7179,7 +7179,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_end_recv(struct soap * soap)
 {
 	soap->part = SOAP_END;
  #ifndef WITH_LEAN
-	soap->wsuid = NULL;     /* reset before next send */
+	soap->wsuid = NULL; /* reset before next send */
 	soap->c14nexclude = NULL; /* reset before next send */
  #endif
  #ifndef WITH_LEANER
@@ -8305,7 +8305,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/STDCALL soap_element(struct soap * soap, const char
 		int k = -1;
 #ifndef WITH_LEAN
 		if((soap->mode&SOAP_XML_DEFAULTNS))
-			k = 4;  /* only produce the first four required entries */
+			k = 4; /* only produce the first four required entries */
 #endif
 		for(ns = soap->local_namespaces; ns && ns->id && k; ns++, k--) {
 			if(*ns->id && (ns->out || ns->ns)) {
@@ -8635,7 +8635,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_end_out(struct soap * soap, c
  #endif
 	if(soap_send_raw(soap, "</", 2) || soap_send(soap, tag))
 		return soap->error;
-	soap->level--;  /* decrement level just before > */
+	soap->level--; /* decrement level just before > */
 	return soap_send_raw(soap, ">", 1);
 }
 
@@ -9362,7 +9362,7 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
  #endif
 		}
 		else
-			tp->visible = 1;  /* seen this attribute w/o value */
+			tp->visible = 1; /* seen this attribute w/o value */
  #ifdef WITH_DOM
 		if(att)
 			att = &(*att)->next;
@@ -9605,7 +9605,7 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 				strcpy(t, tp->name);
 				t += sstrlen(t);
 				if(t >= soap->tmpbuf+sizeof(soap->tmpbuf)-2)
-					break;  /* too many or large attribute values */
+					break; /* too many or large attribute values */
 				if(tp->value) {
 					*t++ = '=';
 					*t++ = '"';
@@ -9631,7 +9631,7 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 	if(!flag) {
 		int state = 0;
   #ifdef WITH_FAST
-		soap->labidx = 0;       /* use look-aside buffer */
+		soap->labidx = 0; /* use look-aside buffer */
   #else
 		if(soap_new_block(soap) == NULL)
 			return NULL;
@@ -9856,7 +9856,7 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap * soap, int flag, long m
 	}
  #endif
  #ifdef WITH_FAST
-	soap->labidx = 0;               /* use look-aside buffer */
+	soap->labidx = 0; /* use look-aside buffer */
  #else
 	if(soap_new_block(soap) == NULL)
 		return NULL;
@@ -10091,7 +10091,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_wstring_out(struct soap * soap, const wchar_t * s
 					    if((*s&0xD800) == 0xD800)
 						    c = (c<<10)+*s+++0x10000-(0xD800<<10)-0xDC00;
 					    else
-						    c = 0xFFFD;  /* Malformed */
+						    c = 0xFFFD; /* Malformed */
 				    }
 				    if(soap_pututf8(soap, (ulong)c))
 					    return soap->error;
@@ -12809,7 +12809,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 			if(soap->fform) {
 				soap->error = soap->fform(soap);
 				if(soap->error == SOAP_OK)
-					soap->error = SOAP_STOP;  /* prevents further processing */
+					soap->error = SOAP_STOP; /* prevents further processing */
 			}
 			return soap->error;
 		}
@@ -12826,7 +12826,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 		/* Note: fparse should not use soap_unget to push back last char */
 		if(soap_get0(soap) == (int)EOF) {
 			if(soap->status == 200)
-				return soap->error = SOAP_NO_DATA;  /* HTTP OK: always expect data */
+				return soap->error = SOAP_NO_DATA; /* HTTP OK: always expect data */
 			return soap->error = soap->status;
 		}
   #ifdef WITH_ZLIB
@@ -12880,7 +12880,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 			if(soap->error == SOAP_FORM && soap->fform) {
 				soap->error = soap->fform(soap);
 				if(soap->error == SOAP_OK)
-					soap->error = SOAP_STOP;  /* prevents further processing */
+					soap->error = SOAP_STOP; /* prevents further processing */
 			}
 			return soap->error;
 		}
@@ -12951,7 +12951,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_envelope_begin_out(struct soap * soap
 			return soap->error;
 	}
 	if(soap->mode&SOAP_IO_LENGTH)
-		soap->dime.size = soap->count;  /* DIME in MIME correction */
+		soap->dime.size = soap->count; /* DIME in MIME correction */
 	if(!(soap->mode&SOAP_IO_LENGTH) && (soap->mode&SOAP_ENC_DIME)) {
 		if(soap_putdimehdr(soap))
 			return soap->error;
@@ -13001,7 +13001,7 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_get_http_body(struct soap * soap)
 			return NULL;
 	}
    #ifdef WITH_FAST
-	soap->labidx = 0;               /* use look-aside buffer */
+	soap->labidx = 0; /* use look-aside buffer */
    #else
 	if(soap_new_block(soap) == NULL)
 		return NULL;
@@ -13861,7 +13861,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_send_empty_response(struct soap * soap, int https
 	if((m&SOAP_IO) == SOAP_IO_CHUNK)
 		soap->omode = (m&~SOAP_IO)|SOAP_IO_BUFFER;
 	if(!soap_response(soap, httpstatuscode) && !soap_end_send(soap))
-		soap->error = SOAP_STOP;  /* stops the server's processing of request */
+		soap->error = SOAP_STOP; /* stops the server's processing of request */
 	soap->omode = m;
 	return soap_closesock(soap);
 }

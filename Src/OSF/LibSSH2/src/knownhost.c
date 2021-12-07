@@ -43,14 +43,14 @@ struct known_host {
 	struct list_node node;
 	char * name; /* points to the name or the hash (allocated) */
 	size_t name_len; /* needed for hashed data */
-	int port;    /* if non-zero, a specific port this key is for on this host */
+	int port; /* if non-zero, a specific port this key is for on this host */
 	int typemask; /* plain, sha1, custom, ... */
 	char * salt; /* points to binary salt (allocated) */
 	size_t salt_len; /* size of salt */
-	char * key;  /* the (allocated) associated key. This is kept base64 encoded in memory. */
+	char * key; /* the (allocated) associated key. This is kept base64 encoded in memory. */
 	char * key_type_name; /* the (allocated) key type name */
 	size_t key_type_len; /* size of key_type_name */
-	char * comment;  /* the (allocated) optional comment text, may be NULL */
+	char * comment; /* the (allocated) optional comment text, may be NULL */
 	size_t comment_len; /* the size of comment */
 	/* this is the struct we expose externally */
 	struct libssh2_knownhost external;
@@ -578,7 +578,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS * hosts, const char * host, size_t
 		    comment, commentlen, key_type | LIBSSH2_KNOWNHOST_TYPE_SHA1|LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
 	}
 	else
-		return 0;  /* XXX: This should be an error, shouldn't it? */
+		return 0; /* XXX: This should be an error, shouldn't it? */
 }
 /*
  * hostline()
@@ -755,12 +755,12 @@ LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS * hosts, const cha
 
 	/* zero terminate where the newline is */
 	if(*cp == '\n')
-		keylen--;  /* don't include this in the count */
+		keylen--; /* don't include this in the count */
 
 	/* deal with this one host+key line */
 	rc = hostline(hosts, hostp, hostlen, keyp, keylen);
 	if(rc)
-		return rc;  /* failed */
+		return rc; /* failed */
 
 	return LIBSSH2_ERROR_NONE; /* success */
 }
@@ -861,9 +861,9 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS * hosts, struct known_host * n
 	required_size = strlen(node->key);
 
 	if(key_type_len)
-		required_size += key_type_len + 1;  /* ' ' = 1 */
+		required_size += key_type_len + 1; /* ' ' = 1 */
 	if(node->comment)
-		required_size += node->comment_len + 1;  /* ' ' = 1 */
+		required_size += node->comment_len + 1; /* ' ' = 1 */
 
 	if((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
 	    LIBSSH2_KNOWNHOST_TYPE_SHA1) {

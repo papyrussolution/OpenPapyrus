@@ -117,7 +117,7 @@ bool ma_dynstr_append_mem(DYNAMIC_STRING * str, const char * append, size_t leng
 	}
 	memcpy(str->str + str->length, append, length);
 	str->length += length;
-	str->str[str->length] = 0;              /* Safety for C programs */
+	str->str[str->length] = 0; /* Safety for C programs */
 	return FALSE;
 }
 

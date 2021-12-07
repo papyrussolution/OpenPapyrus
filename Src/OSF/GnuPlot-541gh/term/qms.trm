@@ -79,7 +79,7 @@ TERM_PUBLIC void QMS_reset();
 
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
-static int qms_line = 0;        /* to remember current line type */
+static int qms_line = 0; /* to remember current line type */
 
 TERM_PUBLIC void QMS_init(GpTermEntry * pThis)
 {

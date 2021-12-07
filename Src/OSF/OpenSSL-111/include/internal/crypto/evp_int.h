@@ -121,7 +121,7 @@ struct evp_md_st {
     int (*copy) (EVP_MD_CTX *to, const EVP_MD_CTX *from);
     int (*cleanup) (EVP_MD_CTX *ctx);
     int block_size;
-    int ctx_size;               /* how big does the ctx->md_data need to be */
+    int ctx_size; /* how big does the ctx->md_data need to be */
     /* control function */
     int (*md_ctrl) (EVP_MD_CTX *ctx, int cmd, int p1, void *p2);
 } /* EVP_MD */ ;
@@ -400,17 +400,17 @@ struct evp_pkey_st {
     union {
         void *ptr;
 #ifndef OPENSSL_NO_RSA
-        struct rsa_st *rsa;     /* RSA */
+        struct rsa_st *rsa; /* RSA */
 #endif
 #ifndef OPENSSL_NO_DSA
-        struct dsa_st *dsa;     /* DSA */
+        struct dsa_st *dsa; /* DSA */
 #endif
 #ifndef OPENSSL_NO_DH
-        struct dh_st *dh;       /* DH */
+        struct dh_st *dh; /* DH */
 #endif
 #ifndef OPENSSL_NO_EC
-        struct ec_key_st *ec;   /* ECC */
-        ECX_KEY *ecx;           /* X25519, X448, Ed25519, Ed448 */
+        struct ec_key_st *ec; /* ECC */
+        ECX_KEY *ecx; /* X25519, X448, Ed25519, Ed448 */
 #endif
     } pkey;
     int save_parameters;

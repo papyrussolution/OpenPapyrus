@@ -79,8 +79,8 @@ struct GCObject {
 */
 typedef union Value {
 	GCObject * gc; /* collectable objects */
-	void * p;  /* light userdata */
-	int b;     /* booleans */
+	void * p; /* light userdata */
+	int b; /* booleans */
 	lua_CFunction f; /* light C functions */
 	lua_Integer i; /* integer numbers */
 	lua_Number n; /* float numbers */
@@ -215,7 +215,7 @@ typedef struct lua_TValue {
 ** =======================================================
 */
 
-typedef TValue * StkId;  /* index to stack elements */
+typedef TValue * StkId; /* index to stack elements */
 
 /*
 ** Header for string value; string bytes follow the end of this structure
@@ -335,7 +335,7 @@ typedef struct Proto {
 	LocVar * locvars; /* information about local variables (debug information) */
 	Upvaldesc * upvalues; /* upvalue information */
 	struct LClosure * cache; /* last-created closure with this prototype */
-	TString  * source; /* used for debug information */
+	TString * source; /* used for debug information */
 	GCObject * gclist;
 } Proto;
 /*

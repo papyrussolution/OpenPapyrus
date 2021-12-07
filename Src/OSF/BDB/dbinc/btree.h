@@ -138,10 +138,10 @@ typedef enum {
  */
 struct __epg {
 	PAGE * page;                    /* The page. */
-	db_indx_t indx;                 /* The index on the page. */
-	db_indx_t entries;              /* The number of entries on page */
+	db_indx_t indx; /* The index on the page. */
+	db_indx_t entries; /* The number of entries on page */
 	DB_LOCK lock;                   /* The page's lock. */
-	db_lockmode_t lock_mode;        /* The lock mode. */
+	db_lockmode_t lock_mode; /* The lock mode. */
 };
 
 /*
@@ -258,13 +258,13 @@ struct __cursor {
 	/* struct __dbc_internal */
 	__DBC_INTERNAL
 	/* btree private part */
-	EPG * sp;                       /* Stack pointer. */
-	EPG * csp;                      /* Current stack entry. */
-	EPG * esp;                      /* End stack pointer. */
+	EPG * sp; /* Stack pointer. */
+	EPG * csp; /* Current stack entry. */
+	EPG * esp; /* End stack pointer. */
 	EPG stack[5];
-	db_indx_t ovflsize;             /* Maximum key/data on-page size. */
-	db_recno_t recno;               /* Current record number. */
-	uint32 order;                /* Relative order among deleted curs. */
+	db_indx_t ovflsize; /* Maximum key/data on-page size. */
+	db_recno_t recno; /* Current record number. */
+	uint32 order; /* Relative order among deleted curs. */
 #ifdef HAVE_COMPRESSION
 	/*
 	 * Compression:
@@ -285,21 +285,21 @@ struct __cursor {
 	 * compressed cursor, and is used to implement DB_PREV_DUP,
 	 * DB_PREV_NODUP, DB_NEXT_DUP, and DB_NEXT_NODUP on a deleted entry.
 	 */
-	DBT compressed;                 /* Current compressed chunk */
-	DBT key1;                       /* Holds prevKey or currentKey */
-	DBT key2;                       /* Holds prevKey or currentKey */
-	DBT data1;                      /* Holds prevData or currentData */
-	DBT data2;                      /* Holds prevData or currentData */
+	DBT compressed; /* Current compressed chunk */
+	DBT key1; /* Holds prevKey or currentKey */
+	DBT key2; /* Holds prevKey or currentKey */
+	DBT data1; /* Holds prevData or currentData */
+	DBT data2; /* Holds prevData or currentData */
 	DBT del_key;                    /* Holds key from the deleted entry */
 	DBT del_data;                   /* Holds data from the deleted entry */
-	DBT * prevKey;                  /* Previous key decompressed */
-	DBT * prevData;                 /* Previous data decompressed */
-	DBT * currentKey;               /* Current key decompressed */
-	DBT * currentData;              /* Current data decompressed */
-	uint8 * compcursor;          /* Current position in compressed */
-	uint8 * compend;             /* End of compressed */
-	uint8 * prevcursor;          /* Previous current position */
-	uint8 * prev2cursor;         /* Previous previous current position */
+	DBT * prevKey; /* Previous key decompressed */
+	DBT * prevData; /* Previous data decompressed */
+	DBT * currentKey; /* Current key decompressed */
+	DBT * currentData; /* Current data decompressed */
+	uint8 * compcursor; /* Current position in compressed */
+	uint8 * compend; /* End of compressed */
+	uint8 * prevcursor; /* Previous current position */
+	uint8 * prev2cursor; /* Previous previous current position */
 #endif
 
 	/*
@@ -428,10 +428,10 @@ struct __btree {                        /* Btree access method. */
 	 * These fields may change if this is a subdatabase and
 	 * it gets compacted.
 	 */
-	db_pgno_t bt_meta;              /* Database meta-data page. */
-	db_pgno_t bt_root;              /* Database root page. */
-	uint32 revision;             /* Revision of root/meta. */
-	uint32 bt_minkey;            /* Minimum keys per page. */
+	db_pgno_t bt_meta; /* Database meta-data page. */
+	db_pgno_t bt_root; /* Database root page. */
+	uint32 revision; /* Revision of root/meta. */
+	uint32 bt_minkey; /* Minimum keys per page. */
 	/* Btree comparison function. */
 	int (*bt_compare)(DB*, const DBT*, const DBT *);
 	/* Btree prefix function. */
@@ -446,10 +446,10 @@ struct __btree {                        /* Btree access method. */
 #endif
 
 	/* Recno access method. */
-	int re_pad;                     /* Fixed-length padding byte. */
+	int re_pad; /* Fixed-length padding byte. */
 	int re_delim;                   /* Variable-length delimiting byte. */
-	uint32 re_len;               /* Length for fixed-length records. */
-	char * re_source;               /* Source file name. */
+	uint32 re_len; /* Length for fixed-length records. */
+	char * re_source; /* Source file name. */
 
 	/*
 	 * !!!
@@ -458,8 +458,8 @@ struct __btree {                        /* Btree access method. */
 	 * multiple threads, DB is completely indifferent to the quality
 	 * of its information.
 	 */
-	db_pgno_t bt_lpgno;             /* Last insert location. */
-	DB_LSN bt_llsn;                 /* Last insert LSN. */
+	db_pgno_t bt_lpgno; /* Last insert location. */
+	DB_LSN bt_llsn; /* Last insert LSN. */
 
 	/*
 	 * !!!
@@ -468,7 +468,7 @@ struct __btree {                        /* Btree access method. */
 	 * value.  The actual writing of the backing source file cannot be
 	 * threaded, so clearing the flag isn't a problem.
 	 */
-	int re_modified;                /* If the tree was modified. */
+	int re_modified; /* If the tree was modified. */
 
 	/*
 	 * !!!
@@ -477,8 +477,8 @@ struct __btree {                        /* Btree access method. */
 	 * nor is there any thread protection.
 	 */
 	FILE * re_fp;                   /* Source file handle. */
-	int re_eof;                     /* Backing source file EOF reached. */
-	db_recno_t re_last;             /* Last record number read. */
+	int re_eof; /* Backing source file EOF reached. */
+	db_recno_t re_last; /* Last record number read. */
 
 };
 

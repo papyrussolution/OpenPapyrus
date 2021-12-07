@@ -41,8 +41,8 @@ U_NAMESPACE_BEGIN
 #define VERTICAL_BAR ((UChar)0x007C)   /*|*/
 #define MINUS        ((UChar)0x002D)   /*-*/
 
-static const UChar LEFT_CURLY_BRACE = 0x7B;     /*{*/
-static const UChar RIGHT_CURLY_BRACE = 0x7D;    /*}*/
+static const UChar LEFT_CURLY_BRACE = 0x7B; /*{*/
+static const UChar RIGHT_CURLY_BRACE = 0x7D; /*}*/
 
 #ifdef INFINITY
 #undef INFINITY

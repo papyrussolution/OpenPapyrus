@@ -17,16 +17,16 @@ typedef struct {
 	void (*info)(struct st_plugin_vio * vio, struct st_plugin_vio_info * info);
 	/* -= end of MYSQL_PLUGIN_VIO =- */
 	MYSQL * mysql;
-	auth_plugin_t * plugin;      /**< what plugin we're under */
+	auth_plugin_t * plugin; /**< what plugin we're under */
 	const char * db;
 	struct {
-		uchar * pkt;         /**< pointer into NET::buff */
+		uchar * pkt; /**< pointer into NET::buff */
 		uint pkt_len;
 	} cached_server_reply;
 
 	uint packets_read, packets_written; /**< counters for send/received packets */
-	bool mysql_change_user;    /**< if it's mysql_change_user() */
-	int last_read_packet_len;     /**< the length of the last *read* packet */
+	bool mysql_change_user; /**< if it's mysql_change_user() */
+	int last_read_packet_len; /**< the length of the last *read* packet */
 } MCPVIO_EXT;
 /*
  #define compile_time_assert(A) \

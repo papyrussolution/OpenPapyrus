@@ -23,11 +23,11 @@ struct ngx_http_log_op_s {
 struct ngx_http_log_fmt_t {
 	ngx_str_t name;
 	ngx_array_t * flushes;
-	ngx_array_t * ops;   /* array of ngx_http_log_op_t */
+	ngx_array_t * ops; /* array of ngx_http_log_op_t */
 };
 
 struct ngx_http_log_main_conf_t {
-	ngx_array_t formats;      /* array of ngx_http_log_fmt_t */
+	ngx_array_t formats; /* array of ngx_http_log_fmt_t */
 	ngx_uint_t combined_used; /* unsigned  combined_used:1 */
 };
 
@@ -56,11 +56,11 @@ struct ngx_http_log_t {
 };
 
 struct ngx_http_log_loc_conf_t {
-	ngx_array_t  * logs;  /* array of ngx_http_log_t */
+	ngx_array_t  * logs; /* array of ngx_http_log_t */
 	ngx_open_file_cache_t * open_file_cache;
 	time_t open_file_cache_valid;
 	ngx_uint_t open_file_cache_min_uses;
-	ngx_uint_t off;                     /* unsigned  off:1 */
+	ngx_uint_t off; /* unsigned  off:1 */
 };
 
 struct ngx_http_log_var_t {

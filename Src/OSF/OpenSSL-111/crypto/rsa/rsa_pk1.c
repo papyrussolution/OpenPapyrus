@@ -25,7 +25,7 @@ int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen,
 	p = (uchar *)to;
 
 	*(p++) = 0;
-	*(p++) = 1;             /* Private Key BT (Block Type) */
+	*(p++) = 1; /* Private Key BT (Block Type) */
 
 	/* pad out with 0xff data */
 	j = tlen - 3 - flen;
@@ -72,7 +72,7 @@ int RSA_padding_check_PKCS1_type_1(uchar * to, int tlen,
 	}
 
 	/* scan over padding data */
-	j = flen - 1;           /* one for type. */
+	j = flen - 1; /* one for type. */
 	for(i = 0; i < j; i++) {
 		if(*p != 0xff) { /* should decrypt to 0xff */
 			if(*p == 0) {
@@ -125,7 +125,7 @@ int RSA_padding_add_PKCS1_type_2(uchar * to, int tlen,
 	p = (uchar *)to;
 
 	*(p++) = 0;
-	*(p++) = 2;             /* Public Key BT (Block Type) */
+	*(p++) = 2; /* Public Key BT (Block Type) */
 
 	/* pad out with non-zero random data */
 	j = tlen - 3 - flen;

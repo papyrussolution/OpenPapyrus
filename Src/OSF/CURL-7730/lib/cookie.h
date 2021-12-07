@@ -28,7 +28,7 @@ struct Cookie {
 	struct Cookie * next; /* next in the chain */
 	char * name; /* <this> = value */
 	char * value; /* name = <this> */
-	char * path;  /* path = <this> which is in Set-Cookie: */
+	char * path; /* path = <this> which is in Set-Cookie: */
 	char * spath; /* sanitized cookie path */
 	char * domain; /* domain = <this> */
 	curl_off_t expires; /* expires = <this> */

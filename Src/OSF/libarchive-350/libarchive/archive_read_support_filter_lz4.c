@@ -69,8 +69,8 @@ struct private_data {
 	size_t unconsumed;
 	size_t decoded_size;
 	void * xxh32_state;
-	char valid;             /* True = decompressor is initialized */
-	char eof;             /* True = found end of compressed data. */
+	char valid; /* True = decompressor is initialized */
+	char eof; /* True = found end of compressed data. */
 };
 
 #define LEGACY_BLOCK_SIZE       (8 * 1024 * 1024)

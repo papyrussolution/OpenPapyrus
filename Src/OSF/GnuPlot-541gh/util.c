@@ -412,7 +412,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 	char * t;
 	bool seen_mantissa = FALSE; /* remember if mantissa was already output */
 	double stored_power_base = 0; /* base for the last mantissa output*/
-	int stored_power = 0;   /* power matching the mantissa output earlier */
+	int stored_power = 0; /* power matching the mantissa output earlier */
 	bool got_hash = FALSE;
 	char * dest  = &tempdest[0];
 	char * limit = &tempdest[MAX_LINE_LEN];
@@ -1027,8 +1027,8 @@ void GnuPlot::IntWarnCurToken(const char * pStr, ...)
  */
 void squash_spaces(char * s, int remain)
 {
-	char * r = s;   /* reading point */
-	char * w = s;   /* writing point */
+	char * r = s; /* reading point */
+	char * w = s; /* writing point */
 	bool space = FALSE; /* TRUE if we've already copied a space */
 	for(w = r = s; *r; r++) {
 		if(isspace((uchar)*r)) {

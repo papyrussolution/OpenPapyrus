@@ -92,7 +92,7 @@ void GnuPlot::Givens(double ** ppC, double * pD, double * pX, int N, int n)
 {
 	int i, j, k;
 	double w, gamma, sigma, rho, temp;
-	double epsilon = DBL_EPSILON;   /* FIXME (?) */
+	double epsilon = DBL_EPSILON; /* FIXME (?) */
 	// 
 	// First, construct QR decomposition of C, by 'rotating away'
 	// all elements of C below the diagonal. The rotations are

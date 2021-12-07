@@ -150,10 +150,10 @@ struct TELNET {
 	int himq[256];
 	int him_preferred[256];
 	int subnegotiation[256];
-	char subopt_ttype[32];       /* Set with suboption TTYPE */
-	char subopt_xdisploc[128];   /* Set with suboption XDISPLOC */
-	ushort subopt_wsx;   /* Set with suboption NAWS */
-	ushort subopt_wsy;   /* Set with suboption NAWS */
+	char subopt_ttype[32]; /* Set with suboption TTYPE */
+	char subopt_xdisploc[128]; /* Set with suboption XDISPLOC */
+	ushort subopt_wsx; /* Set with suboption NAWS */
+	ushort subopt_wsy; /* Set with suboption NAWS */
 	struct curl_slist * telnet_vars; /* Environment variables */
 
 	/* suboptions */

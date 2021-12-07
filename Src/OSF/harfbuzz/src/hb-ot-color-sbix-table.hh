@@ -66,7 +66,7 @@ namespace OT {
 		 * data: one of 'jpg ', 'png ' or 'tiff', or the
 		 * special format 'dupe'. */
 		UnsizedArrayOf<HBUINT8>
-		data;           /* The actual embedded graphic data. The total
+		data; /* The actual embedded graphic data. The total
 		 * length is inferred from sequential entries in
 		 * the glyphDataOffsets array and the fixed size
 		 * (8 bytes) of the preceding fields. */
@@ -170,12 +170,12 @@ retry:
 		}
 
 public:
-		HBUINT16 ppem;  /* The PPEM size for which this strike was designed. */
+		HBUINT16 ppem; /* The PPEM size for which this strike was designed. */
 		HBUINT16 resolution; /* The device pixel density (in PPI) for which this
 		 * strike was designed. (E.g., 96 PPI, 192 PPI.) */
 protected:
 		UnsizedArrayOf<LOffsetTo<SBIXGlyph>>
-		imageOffsetsZ;  /* Offset from the beginning of the strike data header
+		imageOffsetsZ; /* Offset from the beginning of the strike data header
 		 * to bitmap data for an individual glyph ID. */
 public:
 		DEFINE_SIZE_ARRAY(4, imageOffsetsZ);
@@ -387,7 +387,7 @@ protected:
 		HBUINT16 flags; /* Bit 0: Set to 1. Bit 1: Draw outlines.
 		 * Bits 2 to 15: reserved (set to 0). */
 		LOffsetLArrayOf<SBIXStrike>
-		strikes;        /* Offsets from the beginning of the 'sbix'
+		strikes; /* Offsets from the beginning of the 'sbix'
 		 * table to data for each individual bitmap strike. */
 public:
 		DEFINE_SIZE_ARRAY(8, strikes);

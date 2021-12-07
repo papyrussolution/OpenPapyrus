@@ -2238,7 +2238,7 @@ ngx_int_t ngx_open_cached_file(ngx_open_file_cache_t * cache, ngx_str_t * name, 
 struct /*ngx_listening_s*/ngx_listening_t {
 	ngx_socket_t fd;
 	struct sockaddr * sockaddr;
-	socklen_t socklen;          /* size of sockaddr */
+	socklen_t socklen; /* size of sockaddr */
 	size_t addr_text_max_len;
 	ngx_str_t addr_text;
 	int type;
@@ -2263,12 +2263,12 @@ struct /*ngx_listening_s*/ngx_listening_t {
 	unsigned open : 1;
 	unsigned remain : 1;
 	unsigned ignore : 1;
-	unsigned bound : 1;            /* already bound */
-	unsigned inherited : 1;        /* inherited from previous process */
+	unsigned bound : 1; /* already bound */
+	unsigned inherited : 1; /* inherited from previous process */
 	unsigned nonblocking_accept : 1;
 	unsigned listen : 1;
 	unsigned nonblocking : 1;
-	unsigned shared : 1;         /* shared between threads or processes */
+	unsigned shared : 1; /* shared between threads or processes */
 	unsigned addr_ntop : 1;
 	unsigned wildcard : 1;
 #if (NGX_HAVE_INET6)
@@ -3031,7 +3031,7 @@ struct ngx_http_script_engine_t {
 
 struct ngx_http_script_compile_t {
 	ngx_conf_t * cf;
-	ngx_str_t  * source;
+	ngx_str_t * source;
 	ngx_array_t   ** flushes;
 	ngx_array_t   ** lengths;
 	ngx_array_t   ** values;
@@ -4318,7 +4318,7 @@ struct ngx_stream_script_engine_t {
 
 struct ngx_stream_script_compile_t {
 	ngx_conf_t * cf;
-	ngx_str_t  * source;
+	ngx_str_t * source;
 	ngx_array_t ** flushes;
 	ngx_array_t ** lengths;
 	ngx_array_t ** values;
@@ -4441,7 +4441,7 @@ struct ngx_stream_upstream_srv_conf_s {
 	u_char   * file_name;
 	ngx_uint_t line;
 	in_port_t port;
-	ngx_uint_t no_port;                      /* unsigned no_port:1 */
+	ngx_uint_t no_port; /* unsigned no_port:1 */
 #if (NGX_STREAM_UPSTREAM_ZONE)
 	ngx_shm_zone_t  * shm_zone;
 #endif
@@ -4459,7 +4459,7 @@ struct ngx_stream_upstream_state_t {
 struct ngx_stream_upstream_resolved_t {
 	ngx_str_t host;
 	in_port_t port;
-	ngx_uint_t no_port;                     /* unsigned no_port:1 */
+	ngx_uint_t no_port; /* unsigned no_port:1 */
 	ngx_uint_t naddrs;
 	ngx_resolver_addr_t * addrs;
 	struct sockaddr * sockaddr;
@@ -4676,11 +4676,11 @@ struct ngx_stream_phase_t {
 
 struct ngx_stream_core_main_conf_t {
 	ngx_array_t servers;                    /* ngx_stream_core_srv_conf_t */
-	ngx_array_t listen;                     /* ngx_stream_listen_t */
+	ngx_array_t listen; /* ngx_stream_listen_t */
 	ngx_stream_phase_engine_t phase_engine;
 	ngx_hash_t variables_hash;
-	ngx_array_t variables;                       /* ngx_stream_variable_t */
-	ngx_array_t prefix_variables;                /* ngx_stream_variable_t */
+	ngx_array_t variables; /* ngx_stream_variable_t */
+	ngx_array_t prefix_variables; /* ngx_stream_variable_t */
 	ngx_uint_t ncaptures;
 	ngx_uint_t variables_hash_max_size;
 	ngx_uint_t variables_hash_bucket_size;
@@ -4843,7 +4843,7 @@ struct ngx_mail_listen_t {
 struct ngx_mail_addr_conf_t {
 	ngx_mail_conf_ctx_t  * ctx;
 	ngx_str_t addr_text;
-	ngx_uint_t ssl;             /* unsigned   ssl:1; */
+	ngx_uint_t ssl; /* unsigned   ssl:1; */
 };
 
 struct ngx_mail_in_addr_t {
@@ -4866,7 +4866,7 @@ struct ngx_mail_port_t {
 struct ngx_mail_conf_port_t {
 	int family;
 	in_port_t port;
-	ngx_array_t addrs;               /* array of ngx_mail_conf_addr_t */
+	ngx_array_t addrs; /* array of ngx_mail_conf_addr_t */
 };
 
 struct ngx_mail_conf_addr_t {
@@ -4874,8 +4874,8 @@ struct ngx_mail_conf_addr_t {
 };
 
 struct ngx_mail_core_main_conf_t {
-	ngx_array_t servers;             /* ngx_mail_core_srv_conf_t */
-	ngx_array_t listen;              /* ngx_mail_listen_t */
+	ngx_array_t servers; /* ngx_mail_core_srv_conf_t */
+	ngx_array_t listen; /* ngx_mail_listen_t */
 };
 
 #define NGX_MAIL_POP3_PROTOCOL  0
@@ -4894,7 +4894,7 @@ struct ngx_mail_core_srv_conf_t {
 	ngx_resolver_t  * resolver;
 	ngx_log_t    * error_log;
 	ngx_mail_conf_ctx_t  * ctx; // server ctx 
-	ngx_uint_t listen;           /* unsigned  listen:1; */
+	ngx_uint_t listen; /* unsigned  listen:1; */
 };
 
 typedef enum {

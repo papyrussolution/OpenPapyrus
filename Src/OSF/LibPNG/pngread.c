@@ -1037,10 +1037,10 @@ typedef struct {
 	/* Local variables: */
 	void * local_row;
 	void * first_row;
-	ptrdiff_t row_bytes;            /* step between rows */
-	int file_encoding;              /* E_ values above */
+	ptrdiff_t row_bytes; /* step between rows */
+	int file_encoding; /* E_ values above */
 	png_fixed_point gamma_to_linear; /* For P_FILE, reciprocal of gamma */
-	int colormap_processing;        /* PNG_CMAP_ values above */
+	int colormap_processing; /* PNG_CMAP_ values above */
 } png_image_read_control;
 
 /* Do all the *safe* initialization - 'safe' means that png_error won't be
@@ -1697,7 +1697,7 @@ static int png_image_read_colormap(void * argument)
 	const uint32 output_format = image->format;
 	const int output_encoding = (output_format & PNG_FORMAT_FLAG_LINEAR) != 0 ? P_LINEAR : P_sRGB;
 	uint   cmap_entries;
-	uint   output_processing;   /* Output processing option */
+	uint   output_processing; /* Output processing option */
 	uint   data_encoding = P_NOTSET; /* Encoding libpng must produce */
 	/* Background information; the background color and the index of this color
 	 * in the color-map if it exists (else 256).
@@ -2105,7 +2105,7 @@ static int png_image_read_colormap(void * argument)
 						 * output encoding.
 						     */
 						    if(output_encoding == P_sRGB)
-							    gray = png_sRGB_table[gray];  /* now P_LINEAR */
+							    gray = png_sRGB_table[gray]; /* now P_LINEAR */
 						    gray = PNG_DIV257(png_gamma_16bit_correct(gray, png_ptr->colorspace.gamma)); /* now P_FILE */
 						    /* And make sure the corresponding palette entry contains
 						 * exactly the required sRGB value.
@@ -2501,11 +2501,11 @@ static int png_image_read_and_map(void * argument)
 							 * So, as above with the explicit alpha checks, the
 							 * breakpoints are at 64 and 196.
 							     */
-							    if(inrow[0] & 0x80) back_i += 9;  /* red */
+							    if(inrow[0] & 0x80) back_i += 9; /* red */
 							    if(inrow[0] & 0x40) back_i += 9;
-							    if(inrow[0] & 0x80) back_i += 3;  /* green */
+							    if(inrow[0] & 0x80) back_i += 3; /* green */
 							    if(inrow[0] & 0x40) back_i += 3;
-							    if(inrow[0] & 0x80) back_i += 1;  /* blue */
+							    if(inrow[0] & 0x80) back_i += 1; /* blue */
 							    if(inrow[0] & 0x40) back_i += 1;
 
 							    *outrow = (uint8)back_i;
@@ -3027,7 +3027,7 @@ static int png_image_read_direct(void * argument)
 			 * out; use PNG_ALPHA_STANDARD, otherwise just use PNG_ALPHA_PNG.
 			 */
 			if((base_format & PNG_FORMAT_FLAG_ALPHA) != 0)
-				mode = PNG_ALPHA_STANDARD;  /* associated alpha */
+				mode = PNG_ALPHA_STANDARD; /* associated alpha */
 
 			else
 				mode = PNG_ALPHA_PNG;

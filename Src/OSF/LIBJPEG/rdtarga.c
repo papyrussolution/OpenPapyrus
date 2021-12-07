@@ -46,19 +46,19 @@ typedef struct _tga_source_struct * tga_source_ptr;
 
 typedef struct _tga_source_struct {
 	struct cjpeg_source_struct pub; /* public fields */
-	j_compress_ptr cinfo;   /* back link saves passing separate parm */
-	JSAMPARRAY colormap;    /* Targa colormap (converted to my format) */
+	j_compress_ptr cinfo; /* back link saves passing separate parm */
+	JSAMPARRAY colormap; /* Targa colormap (converted to my format) */
 	jvirt_sarray_ptr whole_image; /* Needed if funny input row order */
 	JDIMENSION current_row; /* Current logical row number to read */
 	/* Pointer to routine to extract next Targa pixel from input file */
 	JMETHOD(void, read_pixel, (tga_source_ptr sinfo));
 	/* Result of read_pixel is delivered here: */
 	U_CHAR tga_pixel[4];
-	int pixel_size;         /* Bytes per Targa pixel (1 to 4) */
+	int pixel_size; /* Bytes per Targa pixel (1 to 4) */
 	int cmap_length; // colormap length // @v9c
 	/* State info for reading RLE-coded pixels; both counts must be init to 0 */
-	int block_count;        /* # of pixels remaining in RLE block */
-	int dup_pixel_count;    /* # of times to duplicate previous pixel */
+	int block_count; /* # of pixels remaining in RLE block */
+	int dup_pixel_count; /* # of times to duplicate previous pixel */
 	/* This saves the correct pixel-row-expansion method for preload_image */
 	JMETHOD(JDIMENSION, get_pixel_rows, (j_compress_ptr cinfo, cjpeg_source_ptr sinfo));
 } tga_source_struct;
@@ -420,7 +420,7 @@ GLOBAL(cjpeg_source_ptr) jinit_read_targa(j_compress_ptr cinfo)
 {
 	// Create module interface object 
 	tga_source_ptr source = (tga_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(tga_source_struct));
-	source->cinfo = cinfo;  /* make back link for subroutines */
+	source->cinfo = cinfo; /* make back link for subroutines */
 	// Fill in method ptrs, except get_pixel_rows which start_input sets 
 	source->pub.start_input = start_input_tga;
 	source->pub.finish_input = finish_input_tga;

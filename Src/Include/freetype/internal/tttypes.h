@@ -121,10 +121,10 @@ typedef struct  SFNT_HeaderRec_ {
  *     The table length (in bytes).
  */
 typedef struct  TT_TableRec_ {
-	FT_ULong Tag;     /*        table type */
+	FT_ULong Tag; /*        table type */
 	FT_ULong CheckSum; /*    table checksum */
-	FT_ULong Offset;  /* table file offset */
-	FT_ULong Length;  /*      table length */
+	FT_ULong Offset; /* table file offset */
+	FT_ULong Length; /*      table length */
 } TT_TableRec, * TT_Table;
 
 /**************************************************************************
@@ -1328,19 +1328,19 @@ typedef struct  TT_FaceRec_ {
 	FT_UShort num_tables;
 	TT_Table dir_tables;
 
-	TT_Header header;               /* TrueType header table          */
-	TT_HoriHeader horizontal;       /* TrueType horizontal header     */
+	TT_Header header; /* TrueType header table          */
+	TT_HoriHeader horizontal; /* TrueType horizontal header     */
 
 	TT_MaxProfile max_profile;
 
 	FT_Bool vertical_info;
-	TT_VertHeader vertical;         /* TT Vertical header, if present */
+	TT_VertHeader vertical; /* TT Vertical header, if present */
 
-	FT_UShort num_names;            /* number of name records  */
-	TT_NameTableRec name_table;     /* name table              */
+	FT_UShort num_names; /* number of name records  */
+	TT_NameTableRec name_table; /* name table              */
 
-	TT_OS2 os2;                     /* TrueType OS/2 table            */
-	TT_Postscript postscript;       /* TrueType Postscript table      */
+	TT_OS2 os2; /* TrueType OS/2 table            */
+	TT_Postscript postscript; /* TrueType Postscript table      */
 
 	FT_Byte*              cmap_table; /* extracted `cmap' table */
 	FT_ULong cmap_size;
@@ -1381,7 +1381,7 @@ typedef struct  TT_FaceRec_ {
 	 */
 
 	/* grid-fitting and scaling table */
-	TT_GaspRec gasp;                        /* the `gasp' table */
+	TT_GaspRec gasp; /* the `gasp' table */
 
 	/* PCL 5 table */
 	TT_PCLT pclt;
@@ -1394,7 +1394,7 @@ typedef struct  TT_FaceRec_ {
 	TT_Post_NamesRec postscript_names;
 
 	/* glyph colors */
-	FT_Palette_Data palette_data;           /* since 2.10 */
+	FT_Palette_Data palette_data; /* since 2.10 */
 	FT_UShort palette_index;
 	FT_Color*             palette;
 	FT_Bool have_foreground_color;
@@ -1434,18 +1434,18 @@ typedef struct  TT_FaceRec_ {
 	const char * postscript_name;
 
 	FT_ULong glyf_len;
-	FT_ULong glyf_offset;             /* since 2.7.1 */
+	FT_ULong glyf_offset; /* since 2.7.1 */
 
-	FT_Bool is_cff2;                  /* since 2.7.1 */
+	FT_Bool is_cff2; /* since 2.7.1 */
 
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
 	FT_Bool doblend;
 	GX_Blend blend;
 
-	FT_UInt32 variation_support;             /* since 2.7.1 */
+	FT_UInt32 variation_support; /* since 2.7.1 */
 
 	const char * var_postscript_prefix; /* since 2.7.2 */
-	FT_UInt var_postscript_prefix_len;           /* since 2.7.2 */
+	FT_UInt var_postscript_prefix_len; /* since 2.7.2 */
 
 #endif
 
@@ -1454,7 +1454,7 @@ typedef struct  TT_FaceRec_ {
 	FT_ULong horz_metrics_size;
 	FT_ULong vert_metrics_size;
 
-	FT_ULong num_locations;          /* in broken TTF, gid > 0xFFFF */
+	FT_ULong num_locations; /* in broken TTF, gid > 0xFFFF */
 	FT_Byte*              glyph_locations;
 
 	FT_Byte*              hdmx_table;
@@ -1485,14 +1485,14 @@ typedef struct  TT_FaceRec_ {
 
 #ifdef TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY
 	/* since 2.4.12 */
-	FT_ULong sph_found_func_flags;          /* special functions found */
+	FT_ULong sph_found_func_flags; /* special functions found */
 	                                        /* for this face           */
 	FT_Bool sph_compatibility_mode;
 #endif /* TT_SUPPORT_SUBPIXEL_HINTING_INFINALITY */
 
 #ifdef TT_CONFIG_OPTION_EMBEDDED_BITMAPS
 	/* since 2.7 */
-	FT_ULong ebdt_start;           /* either `CBDT', `EBDT', or `bdat' */
+	FT_ULong ebdt_start; /* either `CBDT', `EBDT', or `bdat' */
 	FT_ULong ebdt_size;
 #endif
 
@@ -1545,14 +1545,14 @@ typedef struct  TT_GlyphZoneRec_ {
 	FT_Memory memory;
 	FT_UShort max_points;
 	FT_Short max_contours;
-	FT_UShort n_points;  /* number of points in zone    */
+	FT_UShort n_points; /* number of points in zone    */
 	FT_Short n_contours; /* number of contours          */
 
-	FT_Vector*  org;     /* original point coordinates  */
-	FT_Vector*  cur;     /* current point coordinates   */
-	FT_Vector*  orus;    /* original (unscaled) point coordinates */
+	FT_Vector*  org; /* original point coordinates  */
+	FT_Vector*  cur; /* current point coordinates   */
+	FT_Vector*  orus; /* original (unscaled) point coordinates */
 
-	FT_Byte*    tags;    /* current touch flags         */
+	FT_Byte*    tags; /* current touch flags         */
 	FT_UShort*  contours; /* contour end points          */
 
 	FT_UShort first_point; /* offset of first (#0) point  */

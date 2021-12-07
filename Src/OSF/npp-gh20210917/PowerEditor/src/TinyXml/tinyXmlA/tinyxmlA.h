@@ -1101,11 +1101,11 @@ public:
 
 	        @sa SetTabSize, Row, Column
 	 */
-	int ErrorRow()  {
+	int ErrorRow() {
 		return errorLocation.row+1;
 	}
 
-	int ErrorCol()  {
+	int ErrorCol() {
 		return errorLocation.col+1;
 	}                                               ///< The column where the error occured. See ErrorRow()
 

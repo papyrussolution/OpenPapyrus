@@ -37,8 +37,8 @@ typedef void (conversion_handler_t)(zbar_image_t*,
     const zbar_format_def_t*);
 
 typedef struct conversion_def_s {
-	int cost;                       /* conversion "badness" */
-	conversion_handler_t * func;    /* function that accomplishes it */
+	int cost; /* conversion "badness" */
+	conversion_handler_t * func; /* function that accomplishes it */
 } conversion_def_t;
 
 /* NULL terminated list of known formats, in order of preference

@@ -81,11 +81,11 @@ struct zip_entry {
 	time_t ctime;
 	uint32 crc32;
 	uint16_t mode;
-	uint16_t zip_flags;                /* From GP Flags Field */
+	uint16_t zip_flags; /* From GP Flags Field */
 	uchar compression;
-	uchar system;           /* From "version written by" */
-	uchar flags;           /* Our extra markers. */
-	uchar decdat;          /* Used for Decryption check */
+	uchar system; /* From "version written by" */
+	uchar flags; /* Our extra markers. */
+	uchar decdat; /* Used for Decryption check */
 
 	/* WinZip AES encryption extra field should be available
 	 * when compression is 99. */
@@ -1573,7 +1573,7 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff,
 	const void * compressed_buf;
 	ssize_t bytes_avail, in_bytes, to_consume = 0;
 
-	(void)offset;  /* UNUSED */
+	(void)offset; /* UNUSED */
 
 	/* Initialize decompressor if not yet initialized. */
 	if(!zip->decompress_init) {
@@ -1651,7 +1651,7 @@ static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** 
 	const void * compressed_buf;
 	ssize_t bytes_avail, in_bytes, to_consume;
 
-	(void)offset;  /* UNUSED */
+	(void)offset; /* UNUSED */
 
 	/* Initialize decompressor if not yet initialized. */
 	if(!zip->decompress_init) {
@@ -1841,7 +1841,7 @@ static int zip_read_data_zipx_ppmd(struct archive_read * a, const void ** buff,
 	size_t consumed_bytes = 0;
 	ssize_t bytes_avail = 0;
 
-	(void)offset;  /* UNUSED */
+	(void)offset; /* UNUSED */
 
 	/* If we're here for the first time, initialize Ppmd8 decompression
 	 * context first. */
@@ -1952,7 +1952,7 @@ static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
 	int r;
 	uint64 total_out;
 
-	(void)offset;  /* UNUSED */
+	(void)offset; /* UNUSED */
 
 	/* Initialize decompression context if we're here for the first time. */
 	if(!zip->decompress_init) {

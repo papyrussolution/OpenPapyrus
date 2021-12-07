@@ -56,7 +56,7 @@ namespace OT {
 
 protected:
 		UnsizedArrayOf<HBUINT8>
-		dataZ;  /* Location data. */
+		dataZ; /* Location data. */
 public:
 		DEFINE_SIZE_MIN(0); /* In reality, this is UNBOUNDED() type; but since we always
 		 * check the size externally, allow Null() object of it by
@@ -255,7 +255,7 @@ public:
 				return glyphIndex;
 			}
 
-			void drop_instructions_flag()  {
+			void drop_instructions_flag() {
 				flags = (uint16_t)flags & ~WE_HAVE_INSTRUCTIONS;
 			}
 
@@ -1266,7 +1266,7 @@ private:
 
 protected:
 		UnsizedArrayOf<HBUINT8>
-		dataZ;  /* Glyphs data. */
+		dataZ; /* Glyphs data. */
 public:
 		DEFINE_SIZE_MIN(0); /* In reality, this is UNBOUNDED() type; but since we always
 		 * check the size externally, allow Null() object of it by

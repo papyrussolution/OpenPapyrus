@@ -39,7 +39,7 @@ typedef struct st_hash_info {
 } HASH_LINK;
 
 typedef struct st_hash {
-	uint key_offset, key_length;    /* Length of key if const length */
+	uint key_offset, key_length; /* Length of key if const length */
 	uint records, blength, current_record;
 	uint flags;
 	DYNAMIC_ARRAY array;                    /* Place for hash_keys */
@@ -58,7 +58,7 @@ void * hash_next(HASH * info, const uchar * key, uint length);
 bool hash_insert(HASH * info, const uchar * data);
 bool hash_delete(HASH * hash, uchar * record);
 bool hash_update(HASH * hash, uchar * record, uchar * old_key, uint old_key_length);
-bool hash_check(HASH * hash);                 /* Only in debug library */
+bool hash_check(HASH * hash); /* Only in debug library */
 
 #define hash_clear(H) memzero((char *)(H), sizeof(*(H)))
 #define hash_inited(H) ((H)->array.buffer != 0)

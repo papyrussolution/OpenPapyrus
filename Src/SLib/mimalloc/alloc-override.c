@@ -36,7 +36,7 @@
 // use forwarding by calling our `mi_` function
   #define MI_FORWARD1(fun, x)      { return fun(x); }
   #define MI_FORWARD2(fun, x, y)    { return fun(x, y); }
-  #define MI_FORWARD3(fun, x, y, z)  { return fun(x, y, z); }
+  #define MI_FORWARD3(fun, x, y, z) { return fun(x, y, z); }
   #define MI_FORWARD0(fun, x)      { fun(x); }
   #define MI_FORWARD02(fun, x, y)   { fun(x, y); }
 #endif

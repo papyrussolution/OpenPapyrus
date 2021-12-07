@@ -57,11 +57,11 @@ FT_BEGIN_HEADER
   /* structure size should be 20 bytes on 32-bits machines */
   typedef struct  FTC_NodeRec_
   {
-    FTC_MruNodeRec  mru;          /* circular mru list pointer     */
-    FTC_Node        link;         /* used for hashing */
-    FT_Offset       hash;         /* used for hashing too   */
-    FT_UShort       cache_index;  /* index of cache the node belongs to  */
-    FT_Short        ref_count;    /* reference count for this node */
+    FTC_MruNodeRec  mru; /* circular mru list pointer     */
+    FTC_Node        link; /* used for hashing */
+    FT_Offset       hash; /* used for hashing too   */
+    FT_UShort       cache_index; /* index of cache the node belongs to  */
+    FT_Short        ref_count; /* reference count for this node */
 
   } FTC_NodeRec;
 
@@ -147,13 +147,13 @@ FT_BEGIN_HEADER
     FT_Long            slack;
     FTC_Node*          buckets;
 
-    FTC_CacheClassRec  clazz;       /* local copy, for speed  */
+    FTC_CacheClassRec  clazz; /* local copy, for speed  */
 
     FTC_Manager        manager;
     FT_Memory          memory;
-    FT_UInt            index;       /* in manager's table     */
+    FT_UInt            index; /* in manager's table     */
 
-    FTC_CacheClass     org_class;   /* original class pointer */
+    FTC_CacheClass     org_class; /* original class pointer */
 
   } FTC_CacheRec;
 

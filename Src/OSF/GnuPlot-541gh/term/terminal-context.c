@@ -231,19 +231,19 @@ typedef struct CONTEXT_params_t {
 	double xsize;                            /* 5in    */
 	double ysize;                            /* 3in    */
 	GpSizeUnits unit;                         /* INCHES */
-	bool standalone;                     /* false  */
-	bool timestamp;                      /* true   */
-	char               * header;              /* ""     */
+	bool standalone; /* false  */
+	bool timestamp; /* true   */
+	char               * header; /* ""     */
 	bool color;                          /* true   */
 	bool dashed;                         /* true   */
-	enum LINEJOIN linejoin;                  /* MITER  */
+	enum LINEJOIN linejoin; /* MITER  */
 	enum LINECAP linecap;                    /* BUTT   */
-	double scale_dashlength;                 /* 1.0    */
-	double scale_linewidth;                  /* 1.0    */
-	double scale_text;                       /* 1.0    */
-	enum CONTEXT_POINTS points;              /* CONTEXT_POINTS_WITH_METAPOST */
-	enum CONTEXT_IMAGES images;              /* CONTEXT_IMAGES_INLINE */
-	char font[MAX_ID_LEN+1];                 /* ""     */
+	double scale_dashlength; /* 1.0    */
+	double scale_linewidth; /* 1.0    */
+	double scale_text; /* 1.0    */
+	enum CONTEXT_POINTS points; /* CONTEXT_POINTS_WITH_METAPOST */
+	enum CONTEXT_IMAGES images; /* CONTEXT_IMAGES_INLINE */
+	char font[MAX_ID_LEN+1]; /* ""     */
 	double fontsize;                         /* 12pt   */
 } CONTEXT_params_t;
 

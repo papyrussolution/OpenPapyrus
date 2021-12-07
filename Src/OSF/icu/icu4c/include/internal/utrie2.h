@@ -25,7 +25,7 @@
 
 U_CDECL_BEGIN
 
-struct UTrie;  /* forward declaration */
+struct UTrie; /* forward declaration */
 #ifndef __UTRIE_H__
 typedef struct UTrie UTrie;
 #endif
@@ -653,11 +653,11 @@ typedef struct UNewTrie2 UNewTrie2;
 struct UTrie2 {
     /* protected: used by macros and functions for reading values */
     const uint16_t *index;
-    const uint16_t *data16;     /* for fast UTF-8 ASCII access, if 16b data */
-    const uint32_t *data32;     /* NULL if 16b data is used via index */
+    const uint16_t *data16; /* for fast UTF-8 ASCII access, if 16b data */
+    const uint32_t *data32; /* NULL if 16b data is used via index */
 
     int32_t indexLength, dataLength;
-    uint16_t index2NullOffset;  /* 0xffff if there is no dedicated index-2 null block */
+    uint16_t index2NullOffset; /* 0xffff if there is no dedicated index-2 null block */
     uint16_t dataNullOffset;
     uint32_t initialValue;
     /** Value returned for out-of-range code points and illegal UTF-8. */
@@ -668,12 +668,12 @@ struct UTrie2 {
     int32_t highValueIndex;
 
     /* private: used by builder and unserialization functions */
-    void *memory;           /* serialized bytes; NULL if not frozen yet */
-    int32_t length;         /* number of serialized bytes at memory; 0 if not frozen yet */
-    bool isMemoryOwned;    /* true if the trie owns the memory */
+    void *memory; /* serialized bytes; NULL if not frozen yet */
+    int32_t length; /* number of serialized bytes at memory; 0 if not frozen yet */
+    bool isMemoryOwned; /* true if the trie owns the memory */
     bool padding1;
     int16_t padding2;
-    UNewTrie2 *newTrie;     /* builder object; NULL when frozen */
+    UNewTrie2 *newTrie; /* builder object; NULL when frozen */
 
 #ifdef UTRIE2_DEBUG
     const char *name;

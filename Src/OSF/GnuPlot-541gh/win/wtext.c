@@ -225,7 +225,7 @@ int TextInit(TW * lptw)
 		wsprintf(buf, TEXT("&Update %s"), lptw->IniFile);
 		AppendMenu(lptw->hPopMenu, MF_STRING, M_WRITEINI, buf);
 	}
-	sysmenu = GetSystemMenu(lptw->hWndParent, 0);   /* get the sysmenu */
+	sysmenu = GetSystemMenu(lptw->hWndParent, 0); /* get the sysmenu */
 	AppendMenu(sysmenu, MF_SEPARATOR, 0, NULL);
 	AppendMenu(sysmenu, MF_POPUP, (UINT_PTR)lptw->hPopMenu, TEXT("&Options"));
 	AppendMenu(sysmenu, MF_STRING, M_ABOUT, TEXT("&About"));

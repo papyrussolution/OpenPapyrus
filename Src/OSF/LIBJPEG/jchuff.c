@@ -70,10 +70,10 @@ typedef struct {
 
 typedef struct {
 	struct jpeg_entropy_encoder pub; /* public fields */
-	savable_state saved;    /* Bit buffer & DC state at start of MCU */
+	savable_state saved; /* Bit buffer & DC state at start of MCU */
 	/* These fields are NOT loaded into local working state. */
 	uint restarts_to_go; /* MCUs left in this restart interval */
-	int next_restart_num;   /* next restart number to write (0-7) */
+	int next_restart_num; /* next restart number to write (0-7) */
 	/* Pointers to derived tables (these workspaces have image lifespan) */
 	c_derived_tbl * dc_derived_tbls[NUM_HUFF_TBLS];
 	c_derived_tbl * ac_derived_tbls[NUM_HUFF_TBLS];
@@ -85,13 +85,13 @@ typedef struct {
 	boolean gather_statistics;
 	// next_output_byte/free_in_buffer are local copies of cinfo->dest fields.
 	JOCTET * next_output_byte; /* => next byte to write in buffer */
-	size_t free_in_buffer;  /* # of byte spaces remaining in buffer */
-	j_compress_ptr cinfo;   /* link to cinfo (needed for dump_buffer) */
+	size_t free_in_buffer; /* # of byte spaces remaining in buffer */
+	j_compress_ptr cinfo; /* link to cinfo (needed for dump_buffer) */
 	/* Coding status for AC components */
-	int ac_tbl_no;          /* the table number of the single component */
-	uint EOBRUN;    /* run length of EOBs */
-	uint BE;        /* # of buffered correction bits before MCU */
-	char * bit_buffer;      /* buffer for correction bits (1 per char) */
+	int ac_tbl_no; /* the table number of the single component */
+	uint EOBRUN; /* run length of EOBs */
+	uint BE; /* # of buffered correction bits before MCU */
+	char * bit_buffer; /* buffer for correction bits (1 per char) */
 	/* packing correction bits tightly would save some space but cost time... */
 } huff_entropy_encoder;
 
@@ -103,9 +103,9 @@ typedef huff_entropy_encoder * huff_entropy_ptr;
 
 typedef struct {
 	JOCTET * next_output_byte; /* => next byte to write in buffer */
-	size_t free_in_buffer;  /* # of byte spaces remaining in buffer */
-	savable_state cur;      /* Current bit buffer & DC state */
-	j_compress_ptr cinfo;   /* dump_buffer needs access to this */
+	size_t free_in_buffer; /* # of byte spaces remaining in buffer */
+	savable_state cur; /* Current bit buffer & DC state */
+	j_compress_ptr cinfo; /* dump_buffer needs access to this */
 } working_state;
 // 
 // MAX_CORR_BITS is the number of bits the AC refinement correction-bit
@@ -312,7 +312,7 @@ LOCAL(boolean) FASTCALL flush_bits_s(working_state * state)
 	if(!emit_bits_s(state, 0x7F, 7)) /* fill any partial byte with ones */
 		return FALSE;
 	else {
-		state->cur.put_buffer = 0;   /* and reset bit-buffer to empty */
+		state->cur.put_buffer = 0; /* and reset bit-buffer to empty */
 		state->cur.put_bits = 0;
 		return TRUE;
 	}
@@ -546,7 +546,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 			r -= 16;
 		}
 		/* Find the number of bits needed for the magnitude of the coefficient */
-		nbits = 1;      /* there must be at least one 1 bit */
+		nbits = 1; /* there must be at least one 1 bit */
 		while((temp >>= 1))
 			nbits++;
 		/* Check for out-of-range coefficient values */
@@ -557,7 +557,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 		/* Emit that number of bits of the value, if positive, */
 		/* or the complement of its magnitude, if negative. */
 		emit_bits_e(entropy, (uint)temp2, nbits);
-		r = 0;          /* reset zero run length */
+		r = 0; /* reset zero run length */
 	}
 	if(r > 0) {             /* If there are trailing zeroes, */
 		entropy->EOBRUN++; /* count an EOB */
@@ -652,15 +652,15 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 		 * in C, we shift after obtaining the absolute value.
 		 */
 		if(temp < 0)
-			temp = -temp;  /* temp is abs value of input */
-		temp >>= Al;    /* apply the point transform */
+			temp = -temp; /* temp is abs value of input */
+		temp >>= Al; /* apply the point transform */
 		absvalues[k] = temp; /* save abs value for main pass */
 		if(temp == 1)
-			EOB = k;  /* EOB = index of last newly-nonzero coef */
+			EOB = k; /* EOB = index of last newly-nonzero coef */
 	}
 	/* Encode the AC coefficients per section G.1.2.3, fig. G.7 */
-	r = 0;                  /* r = run length of zeros */
-	BR = 0;                 /* BR = count of buffered bits added now */
+	r = 0; /* r = run length of zeros */
+	BR = 0; /* BR = count of buffered bits added now */
 	BR_buffer = entropy->bit_buffer + entropy->BE; /* Append bits to buffer */
 	for(k = cinfo->Ss; k <= Se; k++) {
 		if((temp = absvalues[k]) == 0) {
@@ -736,7 +736,7 @@ LOCAL(boolean) encode_one_block(working_state * state, const JCOEFPTR block, int
 	/* Encode the DC coefficient difference per section F.1.2.1 */
 	temp = temp2 = block[0] - last_dc_val;
 	if(temp < 0) {
-		temp = -temp;   /* temp is abs value of input */
+		temp = -temp; /* temp is abs value of input */
 		/* For a negative input, want temp2 = bitwise complement of abs(input) */
 		/* This code assumes we are on a two's complement machine */
 		temp2--;
@@ -915,7 +915,7 @@ static void htest_one_block(j_compress_ptr cinfo, const JCOEFPTR block, int last
 	/* Count the Huffman symbol for the number of bits */
 	dc_counts[nbits]++;
 	/* Encode the AC coefficients per section F.1.2.2 */
-	r = 0;                  /* r = run length of zeros */
+	r = 0; /* r = run length of zeros */
 	for(k = 1; k <= Se; k++) {
 		if((temp = block[natural_order[k]]) == 0) {
 			r++;
@@ -1003,8 +1003,8 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 {
 #define MAX_CLEN 32             /* assumed maximum initial code length */
 	uint8 bits[MAX_CLEN+1]; /* bits[k] = # of symbols with code length k */
-	int codesize[257];      /* codesize[k] = code length of symbol k */
-	int others[257];        /* next symbol in current branch of tree */
+	int codesize[257]; /* codesize[k] = code length of symbol k */
+	int others[257]; /* next symbol in current branch of tree */
 	int c1, c2;
 	int p, i, j;
 	long v;
@@ -1012,8 +1012,8 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 	memzero(bits, SIZEOF(bits));
 	memzero(codesize, SIZEOF(codesize));
 	for(i = 0; i < 257; i++)
-		others[i] = -1;  /* init links to empty */
-	freq[256] = 1;          /* make sure 256 has a nonzero count */
+		others[i] = -1; /* init links to empty */
+	freq[256] = 1; /* make sure 256 has a nonzero count */
 	/* Including the pseudo-symbol 256 in the Huffman procedure guarantees
 	 * that no real symbol is given code-value of all ones, because 256
 	 * will be placed last in the largest codeword category.
@@ -1255,5 +1255,5 @@ GLOBAL(void) jinit_huff_encoder(j_compress_ptr cinfo)
 		entropy->dc_count_ptrs[i] = entropy->ac_count_ptrs[i] = NULL;
 	}
 	if(cinfo->progressive_mode)
-		entropy->bit_buffer = NULL;  /* needed only in AC refinement scan */
+		entropy->bit_buffer = NULL; /* needed only in AC refinement scan */
 }

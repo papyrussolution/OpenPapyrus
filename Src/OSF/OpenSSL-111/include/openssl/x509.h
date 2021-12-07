@@ -221,7 +221,7 @@ typedef struct private_key_st {
     /* used to encrypt and decrypt */
     int key_length;
     char *key_data;
-    int key_free;               /* true if we should auto free key_data */
+    int key_free; /* true if we should auto free key_data */
     /* expanded version of 'enc_algor' */
     EVP_CIPHER_INFO cipher;
 } X509_PKEY;
@@ -243,11 +243,11 @@ DEFINE_STACK_OF(X509_INFO)
  */
 typedef struct Netscape_spkac_st {
     X509_PUBKEY *pubkey;
-    ASN1_IA5STRING *challenge;  /* challenge sent in atlas >= PR2 */
+    ASN1_IA5STRING *challenge; /* challenge sent in atlas >= PR2 */
 } NETSCAPE_SPKAC;
 
 typedef struct Netscape_spki_st {
-    NETSCAPE_SPKAC *spkac;      /* signed public key and challenge */
+    NETSCAPE_SPKAC *spkac; /* signed public key and challenge */
     X509_ALGOR sig_algor;
     ASN1_BIT_STRING *signature;
 } NETSCAPE_SPKI;

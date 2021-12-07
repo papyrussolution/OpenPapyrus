@@ -62,7 +62,7 @@ FT_BEGIN_HEADER
 #undef GXV_LOAD_UNUSED_VARS /* debug purpose */
 
 #define IS_PARANOID_VALIDATION          ( gxvalid->root->level >= FT_VALIDATE_PARANOID )
-#define GXV_SET_ERR_IF_PARANOID( err )  { if( IS_PARANOID_VALIDATION ) ( err ); }
+#define GXV_SET_ERR_IF_PARANOID( err ) { if( IS_PARANOID_VALIDATION ) ( err ); }
 
   // 
   // 
@@ -141,10 +141,10 @@ FT_BEGIN_HEADER
   typedef union  GXV_StateTable_GlyphOffsetDesc_
   {
     FT_Byte    uc;
-    FT_UShort  u;       /* same as GXV_LookupValueDesc */
+    FT_UShort  u; /* same as GXV_LookupValueDesc */
     FT_ULong   ul;
     FT_Char    c;
-    FT_Short   s;       /* same as GXV_LookupValueDesc */
+    FT_Short   s; /* same as GXV_LookupValueDesc */
     FT_Long    l;
 
   } GXV_StateTable_GlyphOffsetDesc;

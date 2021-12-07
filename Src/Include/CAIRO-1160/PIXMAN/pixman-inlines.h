@@ -150,7 +150,7 @@ static force_inline uint32 bilinear_interpolation(uint32 tl, uint32 tr, uint32 b
 	distxy = distx * disty;
 	distxiy = (distx << 8) - distxy; /* distx * (256 - disty) */
 	distixy = (disty << 8) - distxy; /* disty * (256 - distx) */
-	distixiy = 256 * 256 - (disty << 8) - (distx << 8) + distxy;      /* (256 - distx) * (256 - disty) */
+	distixiy = 256 * 256 - (disty << 8) - (distx << 8) + distxy; /* (256 - distx) * (256 - disty) */
 	/* Blue */
 	r = (tl & 0x000000ff) * distixiy + (tr & 0x000000ff) * distxiy + (bl & 0x000000ff) * distixy  + (br & 0x000000ff) * distxy;
 	/* Green */

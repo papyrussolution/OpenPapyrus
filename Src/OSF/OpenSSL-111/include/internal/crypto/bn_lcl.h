@@ -206,24 +206,24 @@ BN_ULONG bn_add_words(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp, i
 BN_ULONG bn_sub_words(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp, int num);
 
 struct bignum_st {
-	BN_ULONG * d;           /* Pointer to an array of 'BN_BITS2' bit
+	BN_ULONG * d; /* Pointer to an array of 'BN_BITS2' bit
 	                         * chunks. */
-	int top;                /* Index of last used d +1. */
+	int top; /* Index of last used d +1. */
 	/* The next are internal book keeping for bn_expand. */
-	int dmax;               /* Size of the d array. */
-	int neg;                /* one if the number is negative */
+	int dmax; /* Size of the d array. */
+	int neg; /* one if the number is negative */
 	int flags;
 };
 
 /* Used for montgomery multiplication */
 struct bn_mont_ctx_st {
-	int ri;                 /* number of bits in R */
-	BIGNUM RR;              /* used to convert to montgomery form,
+	int ri; /* number of bits in R */
+	BIGNUM RR; /* used to convert to montgomery form,
 	                           possibly zero-padded */
-	BIGNUM N;               /* The modulus */
-	BIGNUM Ni;              /* R*(1/R mod N) - N*Ni = 1 (Ni is only
+	BIGNUM N; /* The modulus */
+	BIGNUM Ni; /* R*(1/R mod N) - N*Ni = 1 (Ni is only
 	                         * stored for bignum algorithm) */
-	BN_ULONG n0[2];         /* least significant word(s) of Ni; (type
+	BN_ULONG n0[2]; /* least significant word(s) of Ni; (type
 	                         * changed with 0.9.9, was "BN_ULONG n0;"
 	                         * before) */
 	int flags;
@@ -234,8 +234,8 @@ struct bn_mont_ctx_st {
  * threads
  */
 struct bn_recp_ctx_st {
-	BIGNUM N;               /* the divisor */
-	BIGNUM Nr;              /* the reciprocal */
+	BIGNUM N; /* the divisor */
+	BIGNUM Nr; /* the reciprocal */
 	int num_bits;
 	int shift;
 	int flags;
@@ -243,8 +243,8 @@ struct bn_recp_ctx_st {
 
 /* Used for slow "generation" functions. */
 struct bn_gencb_st {
-	uint ver;       /* To handle binary (in)compatibility */
-	void * arg;             /* callback-specific data */
+	uint ver; /* To handle binary (in)compatibility */
+	void * arg; /* callback-specific data */
 	union {
 		/* if(ver==1) - handles old style callbacks */
 		void (* cb_1) (int, int, void *);

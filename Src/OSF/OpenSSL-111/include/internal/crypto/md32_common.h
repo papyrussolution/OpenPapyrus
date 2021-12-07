@@ -189,7 +189,7 @@ int HASH_FINAL(uchar * md, HASH_CTX * c)
 	uchar * p = (uchar *)c->data;
 	size_t n = c->num;
 
-	p[n] = 0x80;            /* there is always room for one */
+	p[n] = 0x80; /* there is always room for one */
 	n++;
 
 	if(n > (HASH_CBLOCK - 8)) {

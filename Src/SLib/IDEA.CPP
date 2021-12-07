@@ -355,10 +355,10 @@ void main(void)
 	printf("\n Encrypting %d KBytes (%ld blocks)...", KBYTES, KBYTES*64l);
 	fflush(stdout);
 	start = clock();
-	cipher_idea(XX,YY,Z);       /* encrypt plaintext XX, making YY */
+	cipher_idea(XX,YY,Z); /* encrypt plaintext XX, making YY */
 	for(l = 1; l < 64L*KBYTES; l++)
 		cipher_idea(YY,YY,Z);	/* repeated encryption */
-	cipher_idea(YY,TT,DK);      /* decrypt ciphertext YY, making TT */
+	cipher_idea(YY,TT,DK); /* decrypt ciphertext YY, making TT */
 	for(l = 1; l < 64L*KBYTES; l++)
 		cipher_idea(TT,TT,DK);	/* repeated decryption */
 	end = clock() - start;
@@ -718,7 +718,7 @@ void S_MD5::Update(const void * data, uint32 len)
 		m_bits[1]++; /* Carry from low to high */
 	}
 	m_bits[1] += len>>29;
-	t = (t>>3)&0x3f;  /* Bytes already in shsInfo->data */
+	t = (t>>3)&0x3f; /* Bytes already in shsInfo->data */
 	/* Handle any leading odd-sized chunks */
 	if(t) {
 		uint8 * p = (uint8 *)m_in+t;

@@ -32,16 +32,16 @@ FT_BEGIN_HEADER
 
   typedef struct  T1_Loader_
   {
-    T1_ParserRec  parser;          /* parser used to read the stream */
+    T1_ParserRec  parser; /* parser used to read the stream */
 
-    FT_Int        num_chars;       /* number of characters in encoding */
-    PS_TableRec   encoding_table;  /* PS_Table used to store the */
+    FT_Int        num_chars; /* number of characters in encoding */
+    PS_TableRec   encoding_table; /* PS_Table used to store the */
                                    /* encoding character names   */
 
     FT_Int        num_glyphs;
     PS_TableRec   glyph_names;
     PS_TableRec   charstrings;
-    PS_TableRec   swap_table;      /* For moving .notdef glyph to index 0. */
+    PS_TableRec   swap_table; /* For moving .notdef glyph to index 0. */
 
     FT_Int        num_subrs;
     PS_TableRec   subrs;

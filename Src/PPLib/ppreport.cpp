@@ -2638,7 +2638,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 }
 
 int FASTCALL PPAlddPrint(int rptId, PPFilt & rF, const PPReportEnv * pEnv) { return __PPAlddPrint(rptId, &rF, 0, pEnv); }
-int FASTCALL PPAlddPrint(int rptId, PView & rV, const PPReportEnv * pEnv)  { return __PPAlddPrint(rptId, reinterpret_cast<PPFilt *>(&rV), 1, pEnv); }
+int FASTCALL PPAlddPrint(int rptId, PView & rV, const PPReportEnv * pEnv) { return __PPAlddPrint(rptId, reinterpret_cast<PPFilt *>(&rV), 1, pEnv); }
 
 static int Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, long epFlags, SCodepageIdent cp, SString & rBuf)
 {

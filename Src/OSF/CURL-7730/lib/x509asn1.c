@@ -40,8 +40,8 @@
 #include "memdebug.h"
 
 /* ASN.1 OIDs. */
-static const char cnOID[] = "2.5.4.3";          /* Common name. */
-static const char sanOID[] = "2.5.29.17";       /* Subject alternative name. */
+static const char cnOID[] = "2.5.4.3"; /* Common name. */
+static const char sanOID[] = "2.5.29.17"; /* Subject alternative name. */
 
 static const struct Curl_OID OIDtable[] = {
 	{ "1.2.840.10040.4.1",        "dsa" },

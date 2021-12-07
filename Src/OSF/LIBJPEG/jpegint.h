@@ -137,7 +137,7 @@ struct jpeg_input_controller {
 	JMETHOD(void, finish_input_pass, (j_decompress_ptr cinfo));
 	// State variables made visible to other modules 
 	boolean has_multiple_scans; /* True if file has multiple scans */
-	boolean eoi_reached;    /* True when EOI has been consumed */
+	boolean eoi_reached; /* True when EOI has been consumed */
 };
 //
 // Main buffer control (downsampled-data buffer) 
@@ -181,9 +181,9 @@ struct jpeg_marker_reader {
 	/* State of marker reader --- nominally internal, but applications
 	 * supplying COM or APPn handlers might like to know the state.
 	 */
-	boolean saw_SOI;        /* found SOI? */
-	boolean saw_SOF;        /* found SOF? */
-	int next_restart_num;   /* next restart number expected (0-7) */
+	boolean saw_SOI; /* found SOI? */
+	boolean saw_SOF; /* found SOF? */
+	int next_restart_num; /* next restart number expected (0-7) */
 	uint discarded_bytes; /* # of bytes skipped looking for a marker */
 };
 

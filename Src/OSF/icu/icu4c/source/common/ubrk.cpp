@@ -83,7 +83,7 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules,
     const UChar * text,
     int32_t textLength,
     UParseError  * parseErr,
-    UErrorCode   * status)  {
+    UErrorCode * status) {
 	if(status == NULL || U_FAILURE(*status)) {
 		return 0;
 	}

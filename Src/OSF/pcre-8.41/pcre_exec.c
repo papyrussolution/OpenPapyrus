@@ -200,7 +200,7 @@ static int match_ref(int offset, PCRE_PUCHAR eptr, int length, match_data * md, 
 			while(p < endptr) {
 				uint32 c, d;
 				const ucd_record * ur;
-				if(eptr >= md->end_subject) return -2;  /* Partial match */
+				if(eptr >= md->end_subject) return -2; /* Partial match */
 				GETCHARINC(c, eptr);
 				GETCHARINC(d, p);
 				ur = GET_UCD(d);
@@ -221,7 +221,7 @@ static int match_ref(int offset, PCRE_PUCHAR eptr, int length, match_data * md, 
 		{
 			while(length-- > 0) {
 				uint32 cc, cp;
-				if(eptr >= md->end_subject) return -2;  /* Partial match */
+				if(eptr >= md->end_subject) return -2; /* Partial match */
 				cc = UCHAR21TEST(eptr);
 				cp = UCHAR21TEST(p);
 				if(TABLE_GET(cp, md->lcc, cp) != TABLE_GET(cc, md->lcc, cc)) return -1;
@@ -236,7 +236,7 @@ static int match_ref(int offset, PCRE_PUCHAR eptr, int length, match_data * md, 
 
 	else {
 		while(length-- > 0) {
-			if(eptr >= md->end_subject) return -2;  /* Partial match */
+			if(eptr >= md->end_subject) return -2; /* Partial match */
 			if(UCHAR21INCTEST(p) != UCHAR21INCTEST(eptr)) return -1;
 		}
 	}
@@ -476,8 +476,8 @@ static int match(REGISTER PCRE_PUCHAR eptr, REGISTER const pcre_uchar * ecode,
    so they can be ordinary variables in all cases. Mark some of them with
    "register" because they are used a lot in loops. */
 
-	int rrc;  /* Returns from recursive calls */
-	int i;    /* Used for loops not involving calls to RMATCH() */
+	int rrc; /* Returns from recursive calls */
+	int i; /* Used for loops not involving calls to RMATCH() */
 	uint32 c; /* Character values not kept over RMATCH() calls */
 	BOOL utf; /* Local copy of UTF flag for speed */
 	BOOL minimize, possessive; /* Quantifier options */
@@ -912,7 +912,7 @@ TAIL_RECURSE:
 					    if(op >= OP_SBRA) md->match_function_type = MATCH_CBEGROUP;
 					    RMATCH(eptr, ecode + PRIV(OP_lengths)[*ecode], offset_top, md,
 					    eptrb, RM1);
-					    if(rrc == MATCH_ONCE) break;  /* Backing up through an atomic group */
+					    if(rrc == MATCH_ONCE) break; /* Backing up through an atomic group */
 
 					    /* If we backed up to a THEN, check whether it is within the current
 					       branch by comparing the address of the THEN that is passed back with
@@ -1294,7 +1294,7 @@ POSSESSIVE_NON_CAPTURE:
 					RMATCH(eptr, ecode, offset_top, md, NULL, RM3);
 					if(rrc == MATCH_MATCH) {
 						if(md->end_offset_top > offset_top)
-							offset_top = md->end_offset_top;  /* Captures may have happened
+							offset_top = md->end_offset_top; /* Captures may have happened
 					                                                    */
 						condition = TRUE;
 
@@ -2323,7 +2323,7 @@ ASSERT_NL_OR_EOS:
 			    GETCHARINCTEST(c, eptr);
 			    switch(c)
 			    {
-HSPACE_CASES: RRETURN(MATCH_NOMATCH);        /* Byte and multibyte cases */
+HSPACE_CASES: RRETURN(MATCH_NOMATCH); /* Byte and multibyte cases */
 				    default: break;
 			    }
 			    ecode++;
@@ -2337,7 +2337,7 @@ HSPACE_CASES: RRETURN(MATCH_NOMATCH);        /* Byte and multibyte cases */
 			    GETCHARINCTEST(c, eptr);
 			    switch(c)
 			    {
-HSPACE_CASES: break;        /* Byte and multibyte cases */
+HSPACE_CASES: break; /* Byte and multibyte cases */
 				    default: RRETURN(MATCH_NOMATCH);
 			    }
 			    ecode++;
@@ -2593,7 +2593,7 @@ REF_REPEAT:
 
 				    default: /* No repeat follows */
 					if((length = match_ref(offset, eptr, length, md, caseless)) < 0) {
-						if(length == -2) eptr = md->end_subject;  /* Partial match */
+						if(length == -2) eptr = md->end_subject; /* Partial match */
 						CHECK_PARTIAL();
 						RRETURN(MATCH_NOMATCH);
 					}
@@ -2616,7 +2616,7 @@ REF_REPEAT:
 			    for(i = 1; i <= min; i++) {
 				    int slength;
 				    if((slength = match_ref(offset, eptr, length, md, caseless)) < 0) {
-					    if(slength == -2) eptr = md->end_subject;  /* Partial match */
+					    if(slength == -2) eptr = md->end_subject; /* Partial match */
 					    CHECK_PARTIAL();
 					    RRETURN(MATCH_NOMATCH);
 				    }
@@ -2637,7 +2637,7 @@ REF_REPEAT:
 					    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
 					    if(fi >= max) RRETURN(MATCH_NOMATCH);
 					    if((slength = match_ref(offset, eptr, length, md, caseless)) < 0) {
-						    if(slength == -2) eptr = md->end_subject;  /* Partial match */
+						    if(slength == -2) eptr = md->end_subject; /* Partial match */
 						    CHECK_PARTIAL();
 						    RRETURN(MATCH_NOMATCH);
 					    }
@@ -2838,12 +2838,12 @@ REF_REPEAT:
 							    eptr += len;
 						    }
 
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 
 						    for(;; ) {
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM18);
 							    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
-							    if(eptr-- == pp) break;  /* Stop if tried at original pos */
+							    if(eptr-- == pp) break; /* Stop if tried at original pos */
 							    BACKCHAR(eptr);
 						    }
 					    }
@@ -2867,7 +2867,7 @@ REF_REPEAT:
 							    eptr++;
 						    }
 
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 
 						    while(eptr >= pp) {
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM19);
@@ -2981,12 +2981,12 @@ REF_REPEAT:
 						    eptr += len;
 					    }
 
-					    if(possessive) continue;  /* No backtracking */
+					    if(possessive) continue; /* No backtracking */
 
 					    for(;; ) {
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM21);
 						    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
-						    if(eptr-- == pp) break;  /* Stop if tried at original pos */
+						    if(eptr-- == pp) break; /* Stop if tried at original pos */
 #ifdef SUPPORT_UTF
 						    if(utf) BACKCHAR(eptr);
 #endif
@@ -3238,7 +3238,7 @@ REPEATCHAR:
 							    }
 						    }
 
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 						    for(;; ) {
 							    if(eptr <= pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM23);
@@ -3332,7 +3332,7 @@ REPEATCHAR:
 						    if(fc != cc && foc != cc) break;
 						    eptr++;
 					    }
-					    if(possessive) continue;  /* No backtracking */
+					    if(possessive) continue; /* No backtracking */
 					    for(;; ) {
 						    if(eptr == pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM25);
@@ -3379,7 +3379,7 @@ REPEATCHAR:
 						    if(fc != UCHAR21TEST(eptr)) break;
 						    eptr++;
 					    }
-					    if(possessive) continue;  /* No backtracking */
+					    if(possessive) continue; /* No backtracking */
 					    for(;; ) {
 						    if(eptr == pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM27);
@@ -3616,7 +3616,7 @@ REPEATNOTCHAR:
 							    if(fc == d || (uint)foc == d) break;
 							    eptr += len;
 						    }
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 						    for(;; ) {
 							    if(eptr <= pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM30);
@@ -3637,7 +3637,7 @@ REPEATNOTCHAR:
 							    if(fc == *eptr || foc == *eptr) break;
 							    eptr++;
 						    }
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 						    for(;; ) {
 							    if(eptr == pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM31);
@@ -3731,7 +3731,7 @@ REPEATNOTCHAR:
 							    if(fc == d) break;
 							    eptr += len;
 						    }
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 						    for(;; ) {
 							    if(eptr <= pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM34);
@@ -3752,7 +3752,7 @@ REPEATNOTCHAR:
 							    if(fc == *eptr) break;
 							    eptr++;
 						    }
-						    if(possessive) continue;  /* No backtracking */
+						    if(possessive) continue; /* No backtracking */
 						    for(;; ) {
 							    if(eptr == pp) goto TAIL_RECURSE;
 							    RMATCH(eptr, ecode, offset_top, md, eptrb, RM35);
@@ -3964,8 +3964,7 @@ VSPACE_CASES:
 								}
 								GETCHARINCTEST(c, eptr);
 								category = UCD_CATEGORY(c);
-								if((category == ucp_L || category == ucp_N || c == CHAR_UNDERSCORE)
-							    == prop_fail_result)
+								if((category == ucp_L || category == ucp_N || c == CHAR_UNDERSCORE) == prop_fail_result)
 									RRETURN(MATCH_NOMATCH);
 							}
 							break;
@@ -4125,7 +4124,7 @@ VSPACE_CASES:
 								GETCHARINC(c, eptr);
 								switch(c)
 								{
-HSPACE_CASES: RRETURN(MATCH_NOMATCH);              /* Byte and multibyte cases */
+HSPACE_CASES: RRETURN(MATCH_NOMATCH); /* Byte and multibyte cases */
 									default: break;
 								}
 							}
@@ -4140,7 +4139,7 @@ HSPACE_CASES: RRETURN(MATCH_NOMATCH);              /* Byte and multibyte cases *
 								GETCHARINC(c, eptr);
 								switch(c)
 								{
-HSPACE_CASES: break;              /* Byte and multibyte cases */
+HSPACE_CASES: break; /* Byte and multibyte cases */
 									default: RRETURN(MATCH_NOMATCH);
 								}
 							}
@@ -4643,10 +4642,7 @@ VSPACE_CASES:
 								}
 								GETCHARINCTEST(c, eptr);
 								category = UCD_CATEGORY(c);
-								if((category == ucp_L ||
-								    category == ucp_N ||
-								    c == CHAR_UNDERSCORE)
-							    == prop_fail_result)
+								if((category == ucp_L || category == ucp_N || c == CHAR_UNDERSCORE) == prop_fail_result)
 									RRETURN(MATCH_NOMATCH);
 							}
 						    /* Control never gets here */
@@ -5099,14 +5095,14 @@ VSPACE_MULTIBYTE_CASES:
 								{
 HSPACE_CASES:
 VSPACE_CASES:
-									if(prop_fail_result) goto ENDLOOP99;  /* Break
+									if(prop_fail_result) goto ENDLOOP99; /* Break
 								                                                the loop
 								                                                */
 									break;
 
 									default:
 									    if((UCD_CATEGORY(c) == ucp_Z) == prop_fail_result)
-										    goto ENDLOOP99;  /* Break the loop
+										    goto ENDLOOP99; /* Break the loop
 								                                       */
 									    break;
 								}
@@ -5174,7 +5170,7 @@ GOT_MAX:
 
 			                    /* eptr is now past the end of the maximum run */
 
-					    if(possessive) continue;  /* No backtracking */
+					    if(possessive) continue; /* No backtracking */
 					    for(;; ) {
 						    if(eptr <= pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM44);
@@ -5210,7 +5206,7 @@ GOT_MAX:
 					    }
 						// eptr is now past the end of the maximum run 
 					    if(possessive) 
-							continue;  /* No backtracking */
+							continue; /* No backtracking */
 			            /* We use <= pp rather than == pp to detect the start of the run while
 			                backtracking because the use of \C in UTF mode can cause BACKCHAR to
 			                move back past pp. This is just palliative; the use of \C in UTF mode
@@ -5219,7 +5215,7 @@ GOT_MAX:
 						    int lgb, rgb;
 						    PCRE_PUCHAR fptr;
 						    if(eptr <= pp) 
-								goto TAIL_RECURSE;  /* At start of char run */
+								goto TAIL_RECURSE; /* At start of char run */
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM45);
 						    if(rrc != MATCH_NOMATCH) 
 								RRETURN(rrc);
@@ -5449,7 +5445,7 @@ VSPACE_CASES: gotspace = TRUE; break;
 							RRETURN(PCRE_ERROR_INTERNAL);
 					    }
 
-					    if(possessive) continue;  /* No backtracking */
+					    if(possessive) continue; /* No backtracking */
 					    for(;; ) {
 						    if(eptr <= pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM46);
@@ -5664,7 +5660,7 @@ ENDLOOP03:
 							RRETURN(PCRE_ERROR_INTERNAL);
 					    }
 
-					    if(possessive) continue;  /* No backtracking */
+					    if(possessive) continue; /* No backtracking */
 					    for(;; ) {
 						    if(eptr == pp) goto TAIL_RECURSE;
 						    RMATCH(eptr, ecode, offset_top, md, eptrb, RM47);
@@ -5867,8 +5863,8 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 
 #ifdef NO_RECURSE
 	heapframe frame_zero;
-	frame_zero.Xprevframe = NULL;    /* Marks the top level */
-	frame_zero.Xnextframe = NULL;    /* None are allocated yet */
+	frame_zero.Xprevframe = NULL; /* Marks the top level */
+	frame_zero.Xnextframe = NULL; /* None are allocated yet */
 	md->match_frames_base = &frame_zero;
 #endif
 	/* Check for the special magic call that measures the size of the stack used
@@ -6006,7 +6002,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_exec(const pcre32 * argument_re, c
 	md->notempty_atstart = (options & PCRE_NOTEMPTY_ATSTART) != 0;
 	md->hitend = FALSE;
 	md->mark = md->nomatch_mark = NULL; /* In case never set */
-	md->recursive = NULL;           /* No recursion at top level */
+	md->recursive = NULL; /* No recursion at top level */
 	md->hasthen = (re->flags & PCRE_HASTHEN) != 0;
 	md->lcc = tables + lcc_offset;
 	md->fcc = tables + fcc_offset;

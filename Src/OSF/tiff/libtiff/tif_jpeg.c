@@ -140,12 +140,12 @@ typedef struct {
 		struct jpeg_decompress_struct d;
 
 		struct jpeg_common_struct comm;
-	} cinfo;                        /* NB: must be first */
+	} cinfo; /* NB: must be first */
 
 	int cinfo_initialized;
 
-	jpeg_error_mgr err;             /* libjpeg error manager */
-	JMP_BUF exit_jmpbuf;            /* for catching libjpeg failures */
+	jpeg_error_mgr err; /* libjpeg error manager */
+	JMP_BUF exit_jmpbuf; /* for catching libjpeg failures */
 
 	struct jpeg_progress_mgr progress;
 
@@ -153,30 +153,30 @@ typedef struct {
 	 * The following two members could be a union, but
 	 * they're small enough that it's not worth the effort.
 	 */
-	jpeg_destination_mgr dest;      /* data dest for compression */
-	jpeg_source_mgr src;            /* data source for decompression */
+	jpeg_destination_mgr dest; /* data dest for compression */
+	jpeg_source_mgr src; /* data source for decompression */
 	                                /* private state */
-	TIFF*           tif;            /* back link needed by some code */
-	uint16 photometric;             /* copy of PhotometricInterpretation */
-	uint16 h_sampling;              /* luminance sampling factors */
+	TIFF*           tif; /* back link needed by some code */
+	uint16 photometric; /* copy of PhotometricInterpretation */
+	uint16 h_sampling; /* luminance sampling factors */
 	uint16 v_sampling;
-	tmsize_t bytesperline;          /* decompressed bytes per scanline */
+	tmsize_t bytesperline; /* decompressed bytes per scanline */
 	/* pointers to intermediate buffers when processing downsampled data */
 	JSAMPARRAY ds_buffer[MAX_COMPONENTS];
-	int scancount;                  /* number of "scanlines" accumulated */
+	int scancount; /* number of "scanlines" accumulated */
 	int samplesperclump;
 
-	TIFFVGetMethod vgetparent;      /* super-class method */
-	TIFFVSetMethod vsetparent;      /* super-class method */
-	TIFFPrintMethod printdir;       /* super-class method */
-	TIFFStripMethod defsparent;     /* super-class method */
-	TIFFTileMethod deftparent;      /* super-class method */
+	TIFFVGetMethod vgetparent; /* super-class method */
+	TIFFVSetMethod vsetparent; /* super-class method */
+	TIFFPrintMethod printdir; /* super-class method */
+	TIFFStripMethod defsparent; /* super-class method */
+	TIFFTileMethod deftparent; /* super-class method */
 	                                /* pseudo-tag fields */
-	void * jpegtables;     /* JPEGTables tag value, or NULL */
-	uint32 jpegtables_length;          /* number of bytes in same */
-	int jpegquality;                /* Compression quality level */
-	int jpegcolormode;              /* Auto RGB<=>YCbCr convert? */
-	int jpegtablesmode;             /* What to put in JPEGTables */
+	void * jpegtables; /* JPEGTables tag value, or NULL */
+	uint32 jpegtables_length; /* number of bytes in same */
+	int jpegquality; /* Compression quality level */
+	int jpegcolormode; /* Auto RGB<=>YCbCr convert? */
+	int jpegtablesmode; /* What to put in JPEGTables */
 
 	int ycbcrsampling_fetched;
 	int max_allowed_scan_number;
@@ -217,12 +217,12 @@ static const TIFFField jpegFields[] = {
  */
 static void TIFFjpeg_error_exit(j_common_ptr cinfo)
 {
-	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo);     /* NB: cinfo assumed first */
+	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo); /* NB: cinfo assumed first */
 	char buffer[JMSG_LENGTH_MAX];
 	(*cinfo->err->format_message)(cinfo, buffer);
-	TIFFErrorExt(sp->tif->tif_clientdata, "JPEGLib", "%s", buffer);         /* display the error message */
-	jpeg_abort(cinfo);                      /* clean up libjpeg state */
-	LONGJMP(sp->exit_jmpbuf, 1);            /* return to libtiff caller */
+	TIFFErrorExt(sp->tif->tif_clientdata, "JPEGLib", "%s", buffer); /* display the error message */
+	jpeg_abort(cinfo); /* clean up libjpeg state */
+	LONGJMP(sp->exit_jmpbuf, 1); /* return to libtiff caller */
 }
 /*
  * This routine is invoked only for warning messages,
@@ -240,15 +240,15 @@ static void TIFFjpeg_output_message(j_common_ptr cinfo)
 /* See http://www.libjpeg-turbo.org/pmwiki/uploads/About/TwoIssueswiththeJPEGStandard.pdf */
 static void TIFFjpeg_progress_monitor(j_common_ptr cinfo)
 {
-	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo);     /* NB: cinfo assumed first */
+	JPEGState * sp = reinterpret_cast<JPEGState *>(cinfo); /* NB: cinfo assumed first */
 	if(cinfo->is_decompressor) {
 		const int scan_no = reinterpret_cast<j_decompress_ptr>(cinfo)->input_scan_number;
 		if(scan_no >= sp->max_allowed_scan_number) {
 			TIFFErrorExt(((JPEGState*)cinfo)->tif->tif_clientdata, "TIFFjpeg_progress_monitor",
 			    "Scan number %d exceeds maximum scans (%d). This limit can be raised through the LIBTIFF_JPEG_MAX_ALLOWED_SCAN_NUMBER environment variable.",
 			    scan_no, sp->max_allowed_scan_number);
-			jpeg_abort(cinfo);      /* clean up libjpeg state */
-			LONGJMP(sp->exit_jmpbuf, 1);    /* return to libtiff caller */
+			jpeg_abort(cinfo); /* clean up libjpeg state */
+			LONGJMP(sp->exit_jmpbuf, 1); /* return to libtiff caller */
 		}
 	}
 }
@@ -516,7 +516,7 @@ static void TIFFjpeg_data_src(JPEGState* sp)
 	sp->src.skip_input_data = std_skip_input_data;
 	sp->src.resync_to_restart = jpeg_resync_to_restart;
 	sp->src.term_source = std_term_source;
-	sp->src.bytes_in_buffer = 0;            /* for safety */
+	sp->src.bytes_in_buffer = 0; /* for safety */
 	sp->src.next_input_byte = NULL;
 }
 
@@ -1111,7 +1111,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 	if(downsampled_output) {
 		if(!alloc_downsampled_buffers(tif, sp->cinfo.d.comp_info, sp->cinfo.d.num_components))
 			return 0;
-		sp->scancount = DCTSIZE;        /* mark buffer empty */
+		sp->scancount = DCTSIZE; /* mark buffer empty */
 	}
 	return 1;
 }
@@ -1299,7 +1299,7 @@ static int JPEGDecode(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 			 * Fastest way to unseparate data is to make one pass
 			 * over the scanline for each row of each component.
 			 */
-			clumpoffset = 0;    /* first sample in clump */
+			clumpoffset = 0; /* first sample in clump */
 			for(ci = 0, compptr = sp->cinfo.d.comp_info;
 			    ci < sp->cinfo.d.num_components;
 			    ci++, compptr++) {
@@ -1814,7 +1814,7 @@ static int JPEGEncodeRaw(TIFF* tif, uint8 * buf, tmsize_t cc, uint16 s)
 		 * Fastest way to separate the data is to make one pass
 		 * over the scanline for each row of each component.
 		 */
-		clumpoffset = 0;                /* first sample in clump */
+		clumpoffset = 0; /* first sample in clump */
 		for(ci = 0, compptr = sp->cinfo.c.comp_info;
 		    ci < sp->cinfo.c.num_components;
 		    ci++, compptr++) {
@@ -1908,10 +1908,10 @@ static void JPEGCleanup(TIFF* tif)
 	tif->tif_tagmethods.vsetfield = sp->vsetparent;
 	tif->tif_tagmethods.printdir = sp->printdir;
 	if(sp->cinfo_initialized)
-		TIFFjpeg_destroy(sp);   /* release libjpeg resources */
+		TIFFjpeg_destroy(sp); /* release libjpeg resources */
 	if(sp->jpegtables)              /* tag value */
 		SAlloc::F(sp->jpegtables);
-	SAlloc::F(tif->tif_data);       /* release local state */
+	SAlloc::F(tif->tif_data); /* release local state */
 	tif->tif_data = NULL;
 
 	_TIFFSetDefaultCompressionState(tif);
@@ -1937,7 +1937,7 @@ static void JPEGResetUpsampled(TIFF* tif)
 #ifdef notdef
 			if(td->td_ycbcrsubsampling[0] != 1 ||
 			    td->td_ycbcrsubsampling[1] != 1)
-				;  /* XXX what about up-sampling? */
+				; /* XXX what about up-sampling? */
 #endif
 		}
 	}
@@ -1973,11 +1973,11 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    break;
 		case TIFFTAG_JPEGQUALITY:
 		    sp->jpegquality = (int)va_arg(ap, int);
-		    return 1;                 /* pseudo tag */
+		    return 1; /* pseudo tag */
 		case TIFFTAG_JPEGCOLORMODE:
 		    sp->jpegcolormode = (int)va_arg(ap, int);
 		    JPEGResetUpsampled(tif);
-		    return 1;                 /* pseudo tag */
+		    return 1; /* pseudo tag */
 		case TIFFTAG_PHOTOMETRIC:
 	    {
 		    int ret_value = (*sp->vsetparent)(tif, tag, ap);
@@ -1986,7 +1986,7 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 	    }
 		case TIFFTAG_JPEGTABLESMODE:
 		    sp->jpegtablesmode = (int)va_arg(ap, int);
-		    return 1;                 /* pseudo tag */
+		    return 1; /* pseudo tag */
 		case TIFFTAG_YCBCRSUBSAMPLING:
 		    /* mark the fact that we have a real ycbcrsubsampling! */
 		    sp->ycbcrsampling_fetched = 1;
@@ -2161,7 +2161,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 	sp->vsetparent = tif->tif_tagmethods.vsetfield;
 	tif->tif_tagmethods.vsetfield = JPEGVSetField; /* hook for codec tags */
 	sp->printdir = tif->tif_tagmethods.printdir;
-	tif->tif_tagmethods.printdir = JPEGPrintDir;   /* hook for codec tags */
+	tif->tif_tagmethods.printdir = JPEGPrintDir; /* hook for codec tags */
 
 	/* Default values for codec-specific fields */
 	sp->jpegtables = NULL;
@@ -2191,7 +2191,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 	tif->tif_defstripsize = JPEGDefaultStripSize;
 	sp->deftparent = tif->tif_deftilesize;
 	tif->tif_deftilesize = JPEGDefaultTileSize;
-	tif->tif_flags |= TIFF_NOBITREV;        /* no bit reversal, please */
+	tif->tif_flags |= TIFF_NOBITREV; /* no bit reversal, please */
 
 	sp->cinfo_initialized = FALSE;
 

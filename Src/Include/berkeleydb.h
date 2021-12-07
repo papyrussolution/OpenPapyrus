@@ -132,15 +132,15 @@ typedef int32 pid_t;
 #else
 	typedef ssize_t db_ssize_t;
 #endif
-typedef int64   db_seq_t;      /* Sequences are only available on machines with 64-bit integral types. */
+typedef int64   db_seq_t; /* Sequences are only available on machines with 64-bit integral types. */
 typedef uint32 db_threadid_t; /* Thread and process identification. */
 // Basic types that are exported or quasi-exported.
-typedef uint32 db_pgno_t;       /* Page number type. */
-typedef uint16 db_indx_t;       /* Page offset type. */
+typedef uint32 db_pgno_t; /* Page number type. */
+typedef uint16 db_indx_t; /* Page offset type. */
 #define DB_MAX_PAGES   0xffffffff  /* >= # of pages in a file */
-typedef uint32 db_recno_t;      /* Record number type. */
+typedef uint32 db_recno_t; /* Record number type. */
 #define DB_MAX_RECORDS 0xffffffff  /* >= # of records in a tree */
-typedef uint32 db_timeout_t;    /* Type of a timeout. */
+typedef uint32 db_timeout_t; /* Type of a timeout. */
 /*
  * Region offsets are the difference between a pointer in a region and the
  * region's base address.  With private environments, both addresses are the
@@ -237,11 +237,11 @@ typedef struct __db_logvrfy_config DB_LOG_VERIFY_CONFIG;
 // Key/data structure -- a Data-Base Thang.
 //
 struct __db_dbt_base {
-	void * data;            /* Key/data */
-	uint32 size;                 /* key/data length */
-	uint32 ulen;                 /* RO: length of user buffer. */
-	uint32 dlen;                 /* RO: get/put record length. */
-	uint32 doff;                 /* RO: get/put record offset. */
+	void * data; /* Key/data */
+	uint32 size; /* key/data length */
+	uint32 ulen; /* RO: length of user buffer. */
+	uint32 dlen; /* RO: get/put record length. */
+	uint32 doff; /* RO: get/put record offset. */
 	void * app_data;
 	uint32 flags;
 };
@@ -269,20 +269,20 @@ struct __db_dbt : public __db_dbt_base {
 
 struct __db_mutex_stat { /* SHARED */
 	/* The following fields are maintained in the region's copy. */
-	uint32 st_mutex_align;       /* Mutex alignment */
-	uint32 st_mutex_tas_spins;   /* Mutex test-and-set spins */
-	uint32 st_mutex_init;        /* Initial mutex count */
-	uint32 st_mutex_cnt;         /* Mutex count */
-	uint32 st_mutex_max;         /* Mutex max */
-	uint32 st_mutex_free;        /* Available mutexes */
-	uint32 st_mutex_inuse;       /* Mutexes in use */
-	uint32 st_mutex_inuse_max;   /* Maximum mutexes ever in use */
+	uint32 st_mutex_align; /* Mutex alignment */
+	uint32 st_mutex_tas_spins; /* Mutex test-and-set spins */
+	uint32 st_mutex_init; /* Initial mutex count */
+	uint32 st_mutex_cnt; /* Mutex count */
+	uint32 st_mutex_max; /* Mutex max */
+	uint32 st_mutex_free; /* Available mutexes */
+	uint32 st_mutex_inuse; /* Mutexes in use */
+	uint32 st_mutex_inuse_max; /* Maximum mutexes ever in use */
 	/* The following fields are filled-in from other places. */
  #ifndef __TEST_DB_NO_STATISTICS
-	uintmax_t st_region_wait;       /* Region lock granted after wait. */
-	uintmax_t st_region_nowait;     /* Region lock granted without wait. */
-	roff_t st_regsize;              /* Region size. */
-	roff_t st_regmax;               /* Region max. */
+	uintmax_t st_region_wait; /* Region lock granted after wait. */
+	uintmax_t st_region_nowait; /* Region lock granted without wait. */
+	roff_t st_regsize; /* Region size. */
+	roff_t st_regmax; /* Region max. */
  #endif
 };
 
@@ -412,41 +412,41 @@ struct __db_lock_stat { /* SHARED */
 };
 
 struct __db_lock_hstat { /* SHARED */
-	uintmax_t st_nrequests;         /* Number of lock gets. */
-	uintmax_t st_nreleases;         /* Number of lock puts. */
-	uintmax_t st_nupgrade;          /* Number of lock upgrades. */
-	uintmax_t st_ndowngrade;        /* Number of lock downgrades. */
-	uint32 st_nlocks;            /* Current number of locks. */
-	uint32 st_maxnlocks;         /* Maximum number of locks so far. */
-	uint32 st_nobjects;          /* Current number of objects. */
-	uint32 st_maxnobjects;       /* Maximum number of objects so far. */
-	uintmax_t st_lock_wait;         /* Lock conflicts w/ subsequent wait */
-	uintmax_t st_lock_nowait;       /* Lock conflicts w/o subsequent wait */
-	uintmax_t st_nlocktimeouts;     /* Number of lock timeouts. */
-	uintmax_t st_ntxntimeouts;      /* Number of transaction timeouts. */
-	uint32 st_hash_len;          /* Max length of bucket. */
+	uintmax_t st_nrequests; /* Number of lock gets. */
+	uintmax_t st_nreleases; /* Number of lock puts. */
+	uintmax_t st_nupgrade; /* Number of lock upgrades. */
+	uintmax_t st_ndowngrade; /* Number of lock downgrades. */
+	uint32 st_nlocks; /* Current number of locks. */
+	uint32 st_maxnlocks; /* Maximum number of locks so far. */
+	uint32 st_nobjects; /* Current number of objects. */
+	uint32 st_maxnobjects; /* Maximum number of objects so far. */
+	uintmax_t st_lock_wait; /* Lock conflicts w/ subsequent wait */
+	uintmax_t st_lock_nowait; /* Lock conflicts w/o subsequent wait */
+	uintmax_t st_nlocktimeouts; /* Number of lock timeouts. */
+	uintmax_t st_ntxntimeouts; /* Number of transaction timeouts. */
+	uint32 st_hash_len; /* Max length of bucket. */
 };
 
 struct __db_lock_pstat { /* SHARED */
-	uint32 st_nlocks;            /* Current number of locks. */
-	uint32 st_maxnlocks;         /* Maximum number of locks so far. */
-	uint32 st_nobjects;          /* Current number of objects. */
-	uint32 st_maxnobjects;       /* Maximum number of objects so far. */
-	uintmax_t st_locksteals;        /* Number of lock steals so far. */
-	uintmax_t st_objectsteals;      /* Number of objects steals so far. */
+	uint32 st_nlocks; /* Current number of locks. */
+	uint32 st_maxnlocks; /* Maximum number of locks so far. */
+	uint32 st_nobjects; /* Current number of objects. */
+	uint32 st_maxnobjects; /* Maximum number of objects so far. */
+	uintmax_t st_locksteals; /* Number of lock steals so far. */
+	uintmax_t st_objectsteals; /* Number of objects steals so far. */
 };
 /*
  * DB_LOCK_ILOCK --
  *	Internal DB access method lock.
  */
 struct __db_ilock { /* SHARED */
-	db_pgno_t pgno;                 /* Page being locked. */
+	db_pgno_t pgno; /* Page being locked. */
 	uint8 fileid[DB_FILE_ID_LEN]; /* File id. */
  #define DB_HANDLE_LOCK          1
  #define DB_RECORD_LOCK          2
  #define DB_PAGE_LOCK            3
  #define DB_DATABASE_LOCK        4
-	uint32 type;                 /* Type of lock. */
+	uint32 type; /* Type of lock. */
 };
 //
 // DB_LOCK --
@@ -470,10 +470,10 @@ struct __db_lock_u : public __db_lock_u_base { // SHARED
 // Lock request structure
 //
 struct __db_lockreq {
-	db_lockop_t op;                 /* Operation. */
-	db_lockmode_t mode;             /* Requested mode. */
-	db_timeout_t timeout;           /* Time to expire lock. */
-	DBT * obj;                      /* Object being locked. */
+	db_lockop_t op; /* Operation. */
+	db_lockmode_t mode; /* Requested mode. */
+	db_timeout_t timeout; /* Time to expire lock. */
+	DBT * obj; /* Object being locked. */
 	DB_LOCK lock;                   /* Lock returned. */
 };
 
@@ -517,19 +517,19 @@ struct __db_lsn { // SHARED
  *	Log cursor.
  */
 struct __db_log_cursor {
-	ENV * env;                      /* Environment */
+	ENV * env; /* Environment */
 	DB_FH * fhp;                    /* File handle. */
-	DB_LSN lsn;                     /* Cursor: LSN */
-	uint32 len;                  /* Cursor: record length */
-	uint32 prev;                 /* Cursor: previous record's offset */
-	DBT dbt;                        /* Return DBT. */
+	DB_LSN lsn; /* Cursor: LSN */
+	uint32 len; /* Cursor: record length */
+	uint32 prev; /* Cursor: previous record's offset */
+	DBT dbt; /* Return DBT. */
 	DB_LSN p_lsn;                   /* Persist LSN. */
-	uint32 p_version;            /* Persist version. */
+	uint32 p_version; /* Persist version. */
 	uint8 * bp;                   /* Allocated read buffer. */
-	uint32 bp_size;              /* Read buffer length in bytes. */
-	uint32 bp_rlen;              /* Read buffer valid data length. */
-	DB_LSN bp_lsn;                  /* Read buffer first byte LSN. */
-	uint32 bp_maxrec;            /* Max record length in the log file. */
+	uint32 bp_size; /* Read buffer length in bytes. */
+	uint32 bp_rlen; /* Read buffer valid data length. */
+	DB_LSN bp_lsn; /* Read buffer first byte LSN. */
+	uint32 bp_maxrec; /* Max record length in the log file. */
 	/*
 		DB_LOGC PUBLIC HANDLE LIST BEGIN
 	*/
@@ -546,33 +546,33 @@ struct __db_log_cursor {
 
 /* Log statistics structure. */
 struct __db_log_stat { /* SHARED */
-	uint32 st_magic;             /* Log file magic number. */
-	uint32 st_version;           /* Log file version number. */
-	int32 st_mode;                /* Log file permissions mode. */
-	uint32 st_lg_bsize;          /* Log buffer size. */
-	uint32 st_lg_size;           /* Log file size. */
-	uint32 st_wc_bytes;          /* Bytes to log since checkpoint. */
-	uint32 st_wc_mbytes;         /* Megabytes to log since checkpoint. */
-	uint32 st_fileid_init;       /* Inital allocation for fileids. */
+	uint32 st_magic; /* Log file magic number. */
+	uint32 st_version; /* Log file version number. */
+	int32 st_mode; /* Log file permissions mode. */
+	uint32 st_lg_bsize; /* Log buffer size. */
+	uint32 st_lg_size; /* Log file size. */
+	uint32 st_wc_bytes; /* Bytes to log since checkpoint. */
+	uint32 st_wc_mbytes; /* Megabytes to log since checkpoint. */
+	uint32 st_fileid_init; /* Inital allocation for fileids. */
  #ifndef __TEST_DB_NO_STATISTICS
-	uint32 st_nfileid;           /* Current number of fileids. */
-	uint32 st_maxnfileid;        /* Maximum number of fileids used. */
-	uintmax_t st_record;            /* Records entered into the log. */
-	uint32 st_w_bytes;           /* Bytes to log. */
-	uint32 st_w_mbytes;          /* Megabytes to log. */
-	uintmax_t st_wcount;            /* Total I/O writes to the log. */
-	uintmax_t st_wcount_fill;       /* Overflow writes to the log. */
-	uintmax_t st_rcount;            /* Total I/O reads from the log. */
-	uintmax_t st_scount;            /* Total syncs to the log. */
-	uintmax_t st_region_wait;       /* Region lock granted after wait. */
-	uintmax_t st_region_nowait;     /* Region lock granted without wait. */
-	uint32 st_cur_file;          /* Current log file number. */
-	uint32 st_cur_offset;        /* Current log file offset. */
-	uint32 st_disk_file;         /* Known on disk log file number. */
-	uint32 st_disk_offset;       /* Known on disk log file offset. */
+	uint32 st_nfileid; /* Current number of fileids. */
+	uint32 st_maxnfileid; /* Maximum number of fileids used. */
+	uintmax_t st_record; /* Records entered into the log. */
+	uint32 st_w_bytes; /* Bytes to log. */
+	uint32 st_w_mbytes; /* Megabytes to log. */
+	uintmax_t st_wcount; /* Total I/O writes to the log. */
+	uintmax_t st_wcount_fill; /* Overflow writes to the log. */
+	uintmax_t st_rcount; /* Total I/O reads from the log. */
+	uintmax_t st_scount; /* Total syncs to the log. */
+	uintmax_t st_region_wait; /* Region lock granted after wait. */
+	uintmax_t st_region_nowait; /* Region lock granted without wait. */
+	uint32 st_cur_file; /* Current log file number. */
+	uint32 st_cur_offset; /* Current log file offset. */
+	uint32 st_disk_file; /* Known on disk log file number. */
+	uint32 st_disk_offset; /* Known on disk log file offset. */
 	uint32 st_maxcommitperflush; /* Max number of commits in a flush. */
 	uint32 st_mincommitperflush; /* Min number of commits in a flush. */
-	roff_t st_regsize;              /* Region size. */
+	roff_t st_regsize; /* Region size. */
  #endif
 };
 
@@ -667,11 +667,11 @@ struct __db_mpoolfile {
 	int    ftype;         // File type
 	int32 lsn_offset;     // LSN offset in page
 	uint32 gbytes, bytes; // Maximum file size
-	DBT * pgcookie;                 /* Byte-string passed to pgin/pgout. */
-	int32 priority;               /* Cache priority. */
+	DBT * pgcookie; /* Byte-string passed to pgin/pgout. */
+	int32 priority; /* Cache priority. */
 	void * addr;                    /* Address of mmap'd region. */
-	size_t len;                     /* Length of mmap'd region. */
-	uint32 config_flags;         /* Flags to DB_MPOOLFILE->set_flags. */
+	size_t len; /* Length of mmap'd region. */
+	uint32 config_flags; /* Flags to DB_MPOOLFILE->set_flags. */
 	/* DB_MPOOLFILE PUBLIC HANDLE LIST BEGIN */
 	int (*close)(DB_MPOOLFILE*, uint32);
 	int (*get)(DB_MPOOLFILE*, db_pgno_t*, DB_TXN*, uint32, void *);
@@ -769,16 +769,16 @@ struct __db_mpool_stat { // SHARED
  * structure, since content is mem copied between the two.
  */
 struct __db_mpool_fstat {
-	uint32 st_pagesize;          /* Page size. */
+	uint32 st_pagesize; /* Page size. */
  #ifndef __TEST_DB_NO_STATISTICS
-	uint32 st_map;               /* Pages from mapped files. */
+	uint32 st_map; /* Pages from mapped files. */
 	uintmax_t st_cache_hit; /* Pages found in the cache. */
-	uintmax_t st_cache_miss;        /* Pages not found in the cache. */
-	uintmax_t st_page_create;       /* Pages created in the cache. */
-	uintmax_t st_page_in;           /* Pages read in. */
-	uintmax_t st_page_out;          /* Pages written out. */
+	uintmax_t st_cache_miss; /* Pages not found in the cache. */
+	uintmax_t st_page_create; /* Pages created in the cache. */
+	uintmax_t st_page_in; /* Pages read in. */
+	uintmax_t st_page_out; /* Pages written out. */
  #endif
-	char * file_name;        /* File name. */
+	char * file_name; /* File name. */
 };
 
 /*******************************************************
@@ -824,15 +824,15 @@ struct __femfs {
 };
 
 struct __db_txn {
-	DB_TXNMGR * mgrp;               /* Pointer to transaction manager. */
-	DB_TXN * parent;                /* Pointer to transaction's parent. */
-	DB_THREAD_INFO * thread_info;   /* Pointer to thread information. */
-	uint32 txnid;                /* Unique transaction id. */
+	DB_TXNMGR * mgrp; /* Pointer to transaction manager. */
+	DB_TXN * parent; /* Pointer to transaction's parent. */
+	DB_THREAD_INFO * thread_info; /* Pointer to thread information. */
+	uint32 txnid; /* Unique transaction id. */
 	char * name;                    /* Transaction name. */
-	DB_LOCKER * locker;             /* Locker for this txn. */
-	void * td;                      /* Detail structure within region. */
+	DB_LOCKER * locker; /* Locker for this txn. */
+	void * td; /* Detail structure within region. */
 	db_timeout_t lock_timeout; /* Timeout for locks for this txn. */
-	void * txn_list;                /* Undo information for parent. */
+	void * txn_list; /* Undo information for parent. */
 	/*
 	 * !!!
 	 * Explicit representations of structures from queue.h.
@@ -841,7 +841,7 @@ struct __db_txn {
 	struct {
 		struct __db_txn * tqe_next;
 		struct __db_txn ** tqe_prev;
-	} links;                        /* Links transactions off manager. */
+	} links; /* Links transactions off manager. */
 	/*
 	 * !!!
 	 * Explicit representations of structures from shqueue.h.
@@ -852,7 +852,7 @@ struct __db_txn {
 	struct {
 		db_ssize_t stqe_next;
 		db_ssize_t stqe_prev;
-	} xa_links;                     /* Links XA transactions. */
+	} xa_links; /* Links XA transactions. */
 	/*
 	 * !!!
 	 * Explicit representations of structures from queue.h.
@@ -867,7 +867,7 @@ struct __db_txn {
 	struct {
 		struct __txn_event * tqh_first;
 		struct __txn_event ** tqh_last;
-	} events;                       /* Links deferred events. */
+	} events; /* Links deferred events. */
 	/*
 	 * !!!
 	 * Explicit representations of structures from queue.h.
@@ -885,7 +885,7 @@ struct __db_txn {
 	struct {
 		struct __db_txn * tqe_next;
 		struct __db_txn ** tqe_prev;
-	} klinks;                       /* Links of children in parent. */
+	} klinks; /* Links of children in parent. */
 	/*
 	 * !!!
 	 * Explicit representations of structures from queue.h.
@@ -901,9 +901,9 @@ struct __db_txn {
 	 */
 	struct __femfs femfs;
 	DB_TXN_TOKEN * token_buffer; /* User's commit token buffer. */
-	void * api_internal;    /* C++ API private. */
-	void * xml_internal;    /* XML API private. */
-	uint32 cursors;              /* Number of cursors open for txn */
+	void * api_internal; /* C++ API private. */
+	void * xml_internal; /* XML API private. */
+	uint32 cursors; /* Number of cursors open for txn */
 	/* DB_TXN PUBLIC HANDLE LIST BEGIN */
 	int       (*abort)(DB_TXN *);
 	int       (*commit)(DB_TXN*, uint32);
@@ -965,52 +965,52 @@ struct __db_preplist {
 
 /* Transaction statistics structure. */
 struct __db_txn_active {
-	uint32 txnid;                /* Transaction ID */
-	uint32 parentid;             /* Transaction ID of parent */
-	pid_t pid;                      /* Process owning txn ID */
-	db_threadid_t tid;              /* Thread owning txn ID */
-	DB_LSN lsn;                     /* LSN when transaction began */
-	DB_LSN read_lsn;                /* Read LSN for MVCC */
-	uint32 mvcc_ref;             /* MVCC reference count */
-	uint32 priority;             /* Deadlock resolution priority */
+	uint32 txnid; /* Transaction ID */
+	uint32 parentid; /* Transaction ID of parent */
+	pid_t pid; /* Process owning txn ID */
+	db_threadid_t tid; /* Thread owning txn ID */
+	DB_LSN lsn; /* LSN when transaction began */
+	DB_LSN read_lsn; /* Read LSN for MVCC */
+	uint32 mvcc_ref; /* MVCC reference count */
+	uint32 priority; /* Deadlock resolution priority */
  #define TXN_ABORTED             1
  #define TXN_COMMITTED           2
  #define TXN_NEED_ABORT          3
  #define TXN_PREPARED            4
  #define TXN_RUNNING             5
-	uint32 status;               /* Status of the transaction */
+	uint32 status; /* Status of the transaction */
 
  #define TXN_XA_ACTIVE           1
  #define TXN_XA_DEADLOCKED       2
  #define TXN_XA_IDLE             3
  #define TXN_XA_PREPARED         4
  #define TXN_XA_ROLLEDBACK       5
-	uint32 xa_status;            /* XA status */
+	uint32 xa_status; /* XA status */
 
-	uint8 gid[DB_GID_SIZE];      /* Global transaction ID */
-	char name[51];                  /* 50 bytes of name, nul termination */
+	uint8 gid[DB_GID_SIZE]; /* Global transaction ID */
+	char name[51]; /* 50 bytes of name, nul termination */
 };
 
 struct __db_txn_stat {
-	uint32 st_nrestores;         /* number of restored transactions
+	uint32 st_nrestores; /* number of restored transactions
 	                                   after recovery. */
  #ifndef __TEST_DB_NO_STATISTICS
-	DB_LSN st_last_ckp;             /* lsn of the last checkpoint */
-	__time64_t st_time_ckp;             /* time of last checkpoint */
-	uint32 st_last_txnid;        /* last transaction id given out */
-	uint32 st_inittxns;          /* inital txns allocated */
-	uint32 st_maxtxns;           /* maximum txns possible */
-	uintmax_t st_naborts;           /* number of aborted transactions */
-	uintmax_t st_nbegins;           /* number of begun transactions */
-	uintmax_t st_ncommits;          /* number of committed transactions */
-	uint32 st_nactive;           /* number of active transactions */
-	uint32 st_nsnapshot;         /* number of snapshot transactions */
-	uint32 st_maxnactive;        /* maximum active transactions */
-	uint32 st_maxnsnapshot;      /* maximum snapshot transactions */
-	uintmax_t st_region_wait;       /* Region lock granted after wait. */
-	uintmax_t st_region_nowait;     /* Region lock granted without wait. */
-	roff_t st_regsize;              /* Region size. */
-	DB_TXN_ACTIVE * st_txnarray;     /* array of active transactions */
+	DB_LSN st_last_ckp; /* lsn of the last checkpoint */
+	__time64_t st_time_ckp; /* time of last checkpoint */
+	uint32 st_last_txnid; /* last transaction id given out */
+	uint32 st_inittxns; /* inital txns allocated */
+	uint32 st_maxtxns; /* maximum txns possible */
+	uintmax_t st_naborts; /* number of aborted transactions */
+	uintmax_t st_nbegins; /* number of begun transactions */
+	uintmax_t st_ncommits; /* number of committed transactions */
+	uint32 st_nactive; /* number of active transactions */
+	uint32 st_nsnapshot; /* number of snapshot transactions */
+	uint32 st_maxnactive; /* maximum active transactions */
+	uint32 st_maxnsnapshot; /* maximum snapshot transactions */
+	uintmax_t st_region_wait; /* Region lock granted after wait. */
+	uintmax_t st_region_nowait; /* Region lock granted without wait. */
+	roff_t st_regsize; /* Region size. */
+	DB_TXN_ACTIVE * st_txnarray; /* array of active transactions */
  #endif
 };
 
@@ -1099,75 +1099,75 @@ struct __db_rep_stat { /* SHARED */
 	 * off somewhat (or, on unreasonable architectures under unlucky
 	 * circumstances, garbaged).
 	 */
-	uint32 st_startup_complete;  /* Site completed client sync-up. */
+	uint32 st_startup_complete; /* Site completed client sync-up. */
  #ifndef __TEST_DB_NO_STATISTICS
-	uintmax_t st_log_queued;        /* Log records currently queued.+ */
-	uint32 st_status;            /* Current replication status. */
-	DB_LSN st_next_lsn;             /* Next LSN to use or expect. */
-	DB_LSN st_waiting_lsn;          /* LSN we're awaiting, if any. */
-	DB_LSN st_max_perm_lsn;         /* Maximum permanent LSN. */
-	db_pgno_t st_next_pg;           /* Next pg we expect. */
-	db_pgno_t st_waiting_pg;        /* pg we're awaiting, if any. */
+	uintmax_t st_log_queued; /* Log records currently queued.+ */
+	uint32 st_status; /* Current replication status. */
+	DB_LSN st_next_lsn; /* Next LSN to use or expect. */
+	DB_LSN st_waiting_lsn; /* LSN we're awaiting, if any. */
+	DB_LSN st_max_perm_lsn; /* Maximum permanent LSN. */
+	db_pgno_t st_next_pg; /* Next pg we expect. */
+	db_pgno_t st_waiting_pg; /* pg we're awaiting, if any. */
 
-	uint32 st_dupmasters;        /* # of times a duplicate master condition was detected.+ */
-	db_ssize_t st_env_id;           /* Current environment ID. */
-	uint32 st_env_priority;      /* Current environment priority. */
-	uintmax_t st_bulk_fills;        /* Bulk buffer fills. */
-	uintmax_t st_bulk_overflows;    /* Bulk buffer overflows. */
-	uintmax_t st_bulk_records;      /* Bulk records stored. */
-	uintmax_t st_bulk_transfers;    /* Transfers of bulk buffers. */
+	uint32 st_dupmasters; /* # of times a duplicate master condition was detected.+ */
+	db_ssize_t st_env_id; /* Current environment ID. */
+	uint32 st_env_priority; /* Current environment priority. */
+	uintmax_t st_bulk_fills; /* Bulk buffer fills. */
+	uintmax_t st_bulk_overflows; /* Bulk buffer overflows. */
+	uintmax_t st_bulk_records; /* Bulk records stored. */
+	uintmax_t st_bulk_transfers; /* Transfers of bulk buffers. */
 	uintmax_t st_client_rerequests; /* Number of forced rerequests. */
-	uintmax_t st_client_svc_req;    /* Number of client service requests received by this client. */
-	uintmax_t st_client_svc_miss;   /* Number of client service requests missing on this client. */
-	uint32 st_gen;               /* Current generation number. */
-	uint32 st_egen;              /* Current election gen number. */
-	uintmax_t st_lease_chk;         /* Lease validity checks. */
-	uintmax_t st_lease_chk_misses;  /* Lease checks invalid. */
+	uintmax_t st_client_svc_req; /* Number of client service requests received by this client. */
+	uintmax_t st_client_svc_miss; /* Number of client service requests missing on this client. */
+	uint32 st_gen; /* Current generation number. */
+	uint32 st_egen; /* Current election gen number. */
+	uintmax_t st_lease_chk; /* Lease validity checks. */
+	uintmax_t st_lease_chk_misses; /* Lease checks invalid. */
 	uintmax_t st_lease_chk_refresh; /* Lease refresh attempts. */
-	uintmax_t st_lease_sends;       /* Lease messages sent live. */
+	uintmax_t st_lease_sends; /* Lease messages sent live. */
 
-	uintmax_t st_log_duplicated;    /* Log records received multiply.+ */
-	uintmax_t st_log_queued_max;    /* Max. log records queued at once.+ */
-	uintmax_t st_log_queued_total;  /* Total # of log recs. ever queued.+ */
-	uintmax_t st_log_records;       /* Log records received and put.+ */
-	uintmax_t st_log_requested;     /* Log recs. missed and requested.+ */
-	db_ssize_t st_master;           /* Env. ID of the current master. */
-	uintmax_t st_master_changes;    /* # of times we've switched masters. */
-	uintmax_t st_msgs_badgen;       /* Messages with a bad generation #.+ */
-	uintmax_t st_msgs_processed;    /* Messages received and processed.+ */
-	uintmax_t st_msgs_recover;      /* Messages ignored because this site
+	uintmax_t st_log_duplicated; /* Log records received multiply.+ */
+	uintmax_t st_log_queued_max; /* Max. log records queued at once.+ */
+	uintmax_t st_log_queued_total; /* Total # of log recs. ever queued.+ */
+	uintmax_t st_log_records; /* Log records received and put.+ */
+	uintmax_t st_log_requested; /* Log recs. missed and requested.+ */
+	db_ssize_t st_master; /* Env. ID of the current master. */
+	uintmax_t st_master_changes; /* # of times we've switched masters. */
+	uintmax_t st_msgs_badgen; /* Messages with a bad generation #.+ */
+	uintmax_t st_msgs_processed; /* Messages received and processed.+ */
+	uintmax_t st_msgs_recover; /* Messages ignored because this site
 	                                   was a client in recovery.+ */
 	uintmax_t st_msgs_send_failures; /* # of failed message sends.+ */
 	uintmax_t st_msgs_sent; /* # of successful message sends.+ */
-	uintmax_t st_newsites;          /* # of NEWSITE msgs. received.+ */
-	uint32 st_nsites;            /* Current number of sites we will assume during elections. */
-	uintmax_t st_nthrottles;        /* # of times we were throttled. */
-	uintmax_t st_outdated;          /* # of times we detected and returned an OUTDATED condition.+ */
-	uintmax_t st_pg_duplicated;     /* Pages received multiply.+ */
-	uintmax_t st_pg_records;        /* Pages received and stored.+ */
-	uintmax_t st_pg_requested;      /* Pages missed and requested.+ */
-	uintmax_t st_txns_applied;      /* # of transactions applied.+ */
+	uintmax_t st_newsites; /* # of NEWSITE msgs. received.+ */
+	uint32 st_nsites; /* Current number of sites we will assume during elections. */
+	uintmax_t st_nthrottles; /* # of times we were throttled. */
+	uintmax_t st_outdated; /* # of times we detected and returned an OUTDATED condition.+ */
+	uintmax_t st_pg_duplicated; /* Pages received multiply.+ */
+	uintmax_t st_pg_records; /* Pages received and stored.+ */
+	uintmax_t st_pg_requested; /* Pages missed and requested.+ */
+	uintmax_t st_txns_applied; /* # of transactions applied.+ */
 	uintmax_t st_startsync_delayed; /* # of STARTSYNC msgs delayed.+ */
 
 	/* Elections generally. */
 	uintmax_t st_elections; /* # of elections held.+ */
-	uintmax_t st_elections_won;     /* # of elections won by this site.+ */
+	uintmax_t st_elections_won; /* # of elections won by this site.+ */
 
 	/* Statistics about an in-progress election. */
-	db_ssize_t st_election_cur_winner;      /* Current front-runner. */
-	uint32 st_election_gen;      /* Election generation number. */
-	uint32 st_election_datagen;  /* Election data generation number. */
-	DB_LSN st_election_lsn;         /* Max. LSN of current winner. */
-	uint32 st_election_nsites;   /* # of "registered voters". */
-	uint32 st_election_nvotes;   /* # of "registered voters" needed. */
+	db_ssize_t st_election_cur_winner; /* Current front-runner. */
+	uint32 st_election_gen; /* Election generation number. */
+	uint32 st_election_datagen; /* Election data generation number. */
+	DB_LSN st_election_lsn; /* Max. LSN of current winner. */
+	uint32 st_election_nsites; /* # of "registered voters". */
+	uint32 st_election_nvotes; /* # of "registered voters" needed. */
 	uint32 st_election_priority; /* Current election priority. */
-	int32 st_election_status;     /* Current election status. */
+	int32 st_election_status; /* Current election status. */
 	uint32 st_election_tiebreaker; /* Election tiebreaker value. */
-	uint32 st_election_votes;    /* Votes received in this round. */
-	uint32 st_election_sec;      /* Last election time seconds. */
-	uint32 st_election_usec;     /* Last election time useconds. */
-	uint32 st_max_lease_sec;     /* Maximum lease timestamp seconds. */
-	uint32 st_max_lease_usec;    /* Maximum lease timestamp useconds. */
+	uint32 st_election_votes; /* Votes received in this round. */
+	uint32 st_election_sec; /* Last election time seconds. */
+	uint32 st_election_usec; /* Last election time useconds. */
+	uint32 st_max_lease_sec; /* Maximum lease timestamp seconds. */
+	uint32 st_max_lease_usec; /* Maximum lease timestamp useconds. */
 
 	/* Undocumented statistics only used by the test system. */
   #ifdef  CONFIG_TEST
@@ -1178,18 +1178,18 @@ struct __db_rep_stat { /* SHARED */
 
 /* Replication Manager statistics. */
 struct __db_repmgr_stat { /* SHARED */
-	uintmax_t st_perm_failed;       /* # of insufficiently ack'ed msgs. */
-	uintmax_t st_msgs_queued;       /* # msgs queued for network delay. */
-	uintmax_t st_msgs_dropped;      /* # msgs discarded due to excessive queue length. */
-	uintmax_t st_connection_drop;   /* Existing connections dropped. */
-	uintmax_t st_connect_fail;      /* Failed new connection attempts. */
-	uintmax_t st_elect_threads;     /* # of active election threads. */
+	uintmax_t st_perm_failed; /* # of insufficiently ack'ed msgs. */
+	uintmax_t st_msgs_queued; /* # msgs queued for network delay. */
+	uintmax_t st_msgs_dropped; /* # msgs discarded due to excessive queue length. */
+	uintmax_t st_connection_drop; /* Existing connections dropped. */
+	uintmax_t st_connect_fail; /* Failed new connection attempts. */
+	uintmax_t st_elect_threads; /* # of active election threads. */
 	uintmax_t st_max_elect_threads; /* Max concurrent e-threads ever. */
 };
 
 /* Replication Manager connection error. */
 struct __db_repmgr_conn_err {
-	int eid;   /* Replication Environment ID. */
+	int eid; /* Replication Environment ID. */
 	int error; /* System networking error code. */
 };
 
@@ -1200,23 +1200,23 @@ struct __db_repmgr_conn_err {
  * The storage record for a sequence.
  */
 struct __db_seq_record {
-	uint32 seq_version;          /* Version size/number. */
-	uint32 flags;                /* DB_SEQ_XXX Flags. */
-	db_seq_t seq_value;             /* Current value. */
-	db_seq_t seq_max;               /* Max permitted. */
-	db_seq_t seq_min;               /* Min permitted. */
+	uint32 seq_version; /* Version size/number. */
+	uint32 flags; /* DB_SEQ_XXX Flags. */
+	db_seq_t seq_value; /* Current value. */
+	db_seq_t seq_max; /* Max permitted. */
+	db_seq_t seq_min; /* Min permitted. */
 };
 /*
  * Handle for a sequence object.
  */
 struct __db_sequence {
 	DB * seq_dbp;                   /* DB handle for this sequence. */
-	db_mutex_t mtx_seq;             /* Mutex if sequence is threaded. */
-	DB_SEQ_RECORD * seq_rp;         /* Pointer to current data. */
-	DB_SEQ_RECORD seq_record;       /* Data from DB_SEQUENCE. */
-	int32 seq_cache_size;         /* Number of values cached. */
-	db_seq_t seq_last_value;        /* Last value cached. */
-	db_seq_t seq_prev_value;        /* Last value returned. */
+	db_mutex_t mtx_seq; /* Mutex if sequence is threaded. */
+	DB_SEQ_RECORD * seq_rp; /* Pointer to current data. */
+	DB_SEQ_RECORD seq_record; /* Data from DB_SEQUENCE. */
+	int32 seq_cache_size; /* Number of values cached. */
+	db_seq_t seq_last_value; /* Last value cached. */
+	db_seq_t seq_prev_value; /* Last value returned. */
 	DBT seq_key;                    /* DBT pointing to sequence key. */
 	DBT seq_data;                   /* DBT pointing to seq_record. */
 
@@ -1243,15 +1243,15 @@ struct __db_sequence {
 };
 
 struct __db_seq_stat { /* SHARED */
-	uintmax_t st_wait;              /* Sequence lock granted w/o wait. */
-	uintmax_t st_nowait;            /* Sequence lock granted after wait. */
-	db_seq_t st_current;            /* Current value in db. */
-	db_seq_t st_value;              /* Current cached value. */
-	db_seq_t st_last_value;         /* Last cached value. */
-	db_seq_t st_min;                /* Minimum value. */
-	db_seq_t st_max;                /* Maximum value. */
-	int32 st_cache_size;          /* Cache size. */
-	uint32 st_flags;             /* Flag value. */
+	uintmax_t st_wait; /* Sequence lock granted w/o wait. */
+	uintmax_t st_nowait; /* Sequence lock granted after wait. */
+	db_seq_t st_current; /* Current value in db. */
+	db_seq_t st_value; /* Current cached value. */
+	db_seq_t st_last_value; /* Last cached value. */
+	db_seq_t st_min; /* Minimum value. */
+	db_seq_t st_max; /* Maximum value. */
+	int32 st_cache_size; /* Cache size. */
+	uint32 st_flags; /* Flag value. */
 };
 
 /*******************************************************
@@ -1417,30 +1417,30 @@ struct __db {
 	int (*db_append_recno)(DB*, DBT*, db_recno_t);
 	void (*db_feedback)(DB*, int, int);
 	int (*dup_compare)(DB*, const DBT*, const DBT *);
-	void * app_private;             /* Application-private handle. */
+	void * app_private; /* Application-private handle. */
 	// 
 	// Private: owned by DB.
 	// 
-	DB_ENV * dbenv;                 /* Backing public environment. */
-	ENV * env;                      /* Backing private environment. */
+	DB_ENV * dbenv; /* Backing public environment. */
+	ENV * env; /* Backing private environment. */
 	DBTYPE type;                    /* DB access method type. */
-	DB_MPOOLFILE * mpf;              /* Backing buffer pool. */
-	db_mutex_t mutex;               /* Synchronization for free threading */
-	char * fname, * dname;            /* File/database passed to DB->open. */
-	const  char * dirname;            /* Directory of DB file. */
-	uint32 open_flags;           /* Flags passed to DB->open. */
+	DB_MPOOLFILE * mpf; /* Backing buffer pool. */
+	db_mutex_t mutex; /* Synchronization for free threading */
+	char * fname, * dname; /* File/database passed to DB->open. */
+	const  char * dirname; /* Directory of DB file. */
+	uint32 open_flags; /* Flags passed to DB->open. */
 	uint8  fileid[DB_FILE_ID_LEN]; /* File's unique ID for locking. */
-	uint32 adj_fileid;           /* File's unique ID for curs. adj. */
+	uint32 adj_fileid; /* File's unique ID for curs. adj. */
  #define DB_LOGFILEID_INVALID    -1
-	FNAME * log_filename;            /* File's naming info for logging. */
-	db_pgno_t meta_pgno;            /* Meta page number */
-	DB_LOCKER * locker;              /* Locker for handle locking. */
-	DB_LOCKER * cur_locker;          /* Current handle lock holder. */
-	DB_TXN * cur_txn;                /* Opening transaction. */
-	DB_LOCKER * associate_locker;    /* Locker for DB->associate call. */
-	DB_LOCK handle_lock;            /* Lock held on this handle. */
-	__time64_t timestamp;               /* Handle timestamp for replication. */
-	uint32 fid_gen;              /* Rep generation number for fids. */
+	FNAME * log_filename; /* File's naming info for logging. */
+	db_pgno_t meta_pgno; /* Meta page number */
+	DB_LOCKER * locker; /* Locker for handle locking. */
+	DB_LOCKER * cur_locker; /* Current handle lock holder. */
+	DB_TXN * cur_txn; /* Opening transaction. */
+	DB_LOCKER * associate_locker; /* Locker for DB->associate call. */
+	DB_LOCK handle_lock; /* Lock held on this handle. */
+	__time64_t timestamp; /* Handle timestamp for replication. */
+	uint32 fid_gen; /* Rep generation number for fids. */
 	// 
 	// Returned data memory for DB->get() and friends.
 	// 
@@ -1457,7 +1457,7 @@ struct __db {
 	// open/close file descriptors this flag doesn't protect. Locking with fcntl(2) on a file that you don't own is 
 	// a very, very unsafe thing to do.  'Nuff said.
 	// 
-	DB_FH * saved_open_fhp;         /* Saved file handle. */
+	DB_FH * saved_open_fhp; /* Saved file handle. */
 	/*
 	 * Linked list of DBP's, linked from the ENV, used to keep track
 	 * of all open db handles for cursor adjustment.
@@ -1548,11 +1548,11 @@ struct __db {
 	//
 	// Subsystem-private structure. 
 	//
-	void * bt_internal;             /* Btree/Recno access method. */
-	void * h_internal;              /* Hash access method. */
-	void * heap_internal;           /* Heap access method. */
-	void * p_internal;              /* Partition informaiton. */
-	void * q_internal;              /* Queue access method. */
+	void * bt_internal; /* Btree/Recno access method. */
+	void * h_internal; /* Hash access method. */
+	void * heap_internal; /* Heap access method. */
+	void * p_internal; /* Partition informaiton. */
+	void * q_internal; /* Queue access method. */
 
 	/* DB PUBLIC HANDLE LIST BEGIN */
 	int  (*associate)(DB*, DB_TXN*, DB*, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);
@@ -1678,14 +1678,14 @@ struct __db {
  #define DB_OK_HEAP      0x04
  #define DB_OK_QUEUE     0x08
  #define DB_OK_RECNO     0x10
-	uint32 am_ok;                /* Legal AM choices. */
+	uint32 am_ok; /* Legal AM choices. */
 
 	/*
 	 * This field really ought to be an AM_FLAG, but we have
 	 * have run out of bits.  If/when we decide to split up
 	 * the flags, we can incorporate it.
 	 */
-	int preserve_fid;               /* Do not free fileid on close. */
+	int preserve_fid; /* Do not free fileid on close. */
 
  #define DB_AM_CHKSUM            0x00000001 /* Checksumming */
  #define DB_AM_COMPENSATE        0x00000002 /* Created by compensating txn */
@@ -1718,7 +1718,7 @@ struct __db {
  #define DB_AM_SWAP              0x10000000 /* Pages need to be byte-swapped */
  #define DB_AM_TXN               0x20000000 /* Opened in a transaction */
  #define DB_AM_VERIFYING         0x40000000 /* DB handle is in the verifier */
-	uint32 orig_flags;              /* Flags at  open, for refresh */
+	uint32 orig_flags; /* Flags at  open, for refresh */
 	uint32 flags;
 };
 /*
@@ -1888,8 +1888,8 @@ struct __db {
 	} while(0)
 
 struct __db_heap_rid {
-	db_pgno_t pgno;                 /* Page number. */
-	db_indx_t indx;                 /* Index in the offset table. */
+	db_pgno_t pgno; /* Page number. */
+	db_indx_t indx; /* Index in the offset table. */
 };
  #define DB_HEAP_RID_SZ  (sizeof(db_pgno_t)+sizeof(db_indx_t))
 
@@ -1897,12 +1897,12 @@ struct __db_heap_rid {
 * Access method cursors.
 *******************************************************/
 struct __dbc {
-	DB * dbp;                        /* Backing database */
-	DB_ENV * dbenv;                  /* Backing environment */
-	ENV * env;                       /* Backing environment */
-	DB_THREAD_INFO * thread_info;    /* Thread that owns this cursor. */
+	DB * dbp; /* Backing database */
+	DB_ENV * dbenv; /* Backing environment */
+	ENV * env; /* Backing environment */
+	DB_THREAD_INFO * thread_info; /* Thread that owns this cursor. */
 	DB_TXN * txn;                   /* Associated transaction. */
-	DB_CACHE_PRIORITY priority;     /* Priority in cache. */
+	DB_CACHE_PRIORITY priority; /* Priority in cache. */
 	/*
 	 * Active/free cursor queues.
 	 *
@@ -1922,7 +1922,7 @@ struct __dbc {
 	 * TAILQ_ENTRY(__dbc) txn_cursors;
 	 */
 	struct {
-		DBC * tqe_next;  /* next element */
+		DBC * tqe_next; /* next element */
 		DBC ** tqe_prev; /* address of previous next element */
 	} txn_cursors;
 	/*
@@ -1937,18 +1937,18 @@ struct __dbc {
 	 * DB interface call.
 	 */
 	DBT * rskey;                    /* Returned secondary key. */
-	DBT * rkey;                     /* Returned [primary] key. */
+	DBT * rkey; /* Returned [primary] key. */
 	DBT * rdata;                    /* Returned data. */
 	DBT my_rskey;                   /* Space for returned secondary key. */
 	DBT my_rkey;                    /* Space for returned [primary] key. */
 	DBT my_rdata;                   /* Space for returned data. */
-	DB_LOCKER * lref;                /* Reference to default locker. */
-	DB_LOCKER * locker;              /* Locker for this operation. */
+	DB_LOCKER * lref; /* Reference to default locker. */
+	DB_LOCKER * locker; /* Locker for this operation. */
 	DBT lock_dbt;                   /* DBT referencing lock. */
-	DB_LOCK_ILOCK lock;             /* Object to be locked. */
-	DB_LOCK mylock;                 /* CDB lock held on this cursor. */
-	DBTYPE dbtype;                  /* Cursor type. */
-	DBC_INTERNAL * internal;         /* Access method private. */
+	DB_LOCK_ILOCK lock; /* Object to be locked. */
+	DB_LOCK mylock; /* CDB lock held on this cursor. */
+	DBTYPE dbtype; /* Cursor type. */
+	DBC_INTERNAL * internal; /* Access method private. */
 
 	/* DBC PUBLIC HANDLE LIST BEGIN */
 	int (*close)(DBC *);
@@ -2023,92 +2023,92 @@ struct __key_range {
 
 /* Btree/Recno statistics structure. */
 struct __db_bt_stat { /* SHARED */
-	uint32 bt_magic;             /* Magic number. */
-	uint32 bt_version;           /* Version number. */
-	uint32 bt_metaflags;         /* Metadata flags. */
-	uint32 bt_nkeys;             /* Number of unique keys. */
-	uint32 bt_ndata;             /* Number of data items. */
-	uint32 bt_pagecnt;           /* Page count. */
-	uint32 bt_pagesize;          /* Page size. */
-	uint32 bt_minkey;            /* Minkey value. */
-	uint32 bt_re_len;            /* Fixed-length record length. */
-	uint32 bt_re_pad;            /* Fixed-length record pad. */
-	uint32 bt_levels;            /* Tree levels. */
-	uint32 bt_int_pg;            /* Internal pages. */
-	uint32 bt_leaf_pg;           /* Leaf pages. */
-	uint32 bt_dup_pg;            /* Duplicate pages. */
-	uint32 bt_over_pg;           /* Overflow pages. */
-	uint32 bt_empty_pg;          /* Empty pages. */
-	uint32 bt_free;              /* Pages on the free list. */
-	uintmax_t bt_int_pgfree;        /* Bytes free in internal pages. */
-	uintmax_t bt_leaf_pgfree;       /* Bytes free in leaf pages. */
-	uintmax_t bt_dup_pgfree;        /* Bytes free in duplicate pages. */
-	uintmax_t bt_over_pgfree;       /* Bytes free in overflow pages. */
+	uint32 bt_magic; /* Magic number. */
+	uint32 bt_version; /* Version number. */
+	uint32 bt_metaflags; /* Metadata flags. */
+	uint32 bt_nkeys; /* Number of unique keys. */
+	uint32 bt_ndata; /* Number of data items. */
+	uint32 bt_pagecnt; /* Page count. */
+	uint32 bt_pagesize; /* Page size. */
+	uint32 bt_minkey; /* Minkey value. */
+	uint32 bt_re_len; /* Fixed-length record length. */
+	uint32 bt_re_pad; /* Fixed-length record pad. */
+	uint32 bt_levels; /* Tree levels. */
+	uint32 bt_int_pg; /* Internal pages. */
+	uint32 bt_leaf_pg; /* Leaf pages. */
+	uint32 bt_dup_pg; /* Duplicate pages. */
+	uint32 bt_over_pg; /* Overflow pages. */
+	uint32 bt_empty_pg; /* Empty pages. */
+	uint32 bt_free; /* Pages on the free list. */
+	uintmax_t bt_int_pgfree; /* Bytes free in internal pages. */
+	uintmax_t bt_leaf_pgfree; /* Bytes free in leaf pages. */
+	uintmax_t bt_dup_pgfree; /* Bytes free in duplicate pages. */
+	uintmax_t bt_over_pgfree; /* Bytes free in overflow pages. */
 };
 
 struct __db_compact {
 	/* Input Parameters. */
-	uint32 compact_fillpercent;          /* Desired fillfactor: 1-100 */
-	db_timeout_t compact_timeout;           /* Lock timeout. */
-	uint32 compact_pages;                /* Max pages to process. */
+	uint32 compact_fillpercent; /* Desired fillfactor: 1-100 */
+	db_timeout_t compact_timeout; /* Lock timeout. */
+	uint32 compact_pages; /* Max pages to process. */
 	/* Output Stats. */
-	uint32 compact_empty_buckets;        /* Empty hash buckets found. */
-	uint32 compact_pages_free;           /* Number of pages freed. */
-	uint32 compact_pages_examine;        /* Number of pages examine. */
-	uint32 compact_levels;               /* Number of levels removed. */
-	uint32 compact_deadlock;             /* Number of deadlocks. */
-	db_pgno_t compact_pages_truncated;       /* Pages truncated to OS. */
+	uint32 compact_empty_buckets; /* Empty hash buckets found. */
+	uint32 compact_pages_free; /* Number of pages freed. */
+	uint32 compact_pages_examine; /* Number of pages examine. */
+	uint32 compact_levels; /* Number of levels removed. */
+	uint32 compact_deadlock; /* Number of deadlocks. */
+	db_pgno_t compact_pages_truncated; /* Pages truncated to OS. */
 	/* Internal. */
-	db_pgno_t compact_truncate;             /* Page number for truncation */
+	db_pgno_t compact_truncate; /* Page number for truncation */
 };
 
 /* Hash statistics structure. */
 struct __db_h_stat { /* SHARED */
-	uint32 hash_magic;           /* Magic number. */
-	uint32 hash_version;         /* Version number. */
-	uint32 hash_metaflags;       /* Metadata flags. */
-	uint32 hash_nkeys;           /* Number of unique keys. */
-	uint32 hash_ndata;           /* Number of data items. */
-	uint32 hash_pagecnt;         /* Page count. */
-	uint32 hash_pagesize;        /* Page size. */
-	uint32 hash_ffactor;         /* Fill factor specified at create. */
-	uint32 hash_buckets;         /* Number of hash buckets. */
-	uint32 hash_free;            /* Pages on the free list. */
-	uintmax_t hash_bfree;           /* Bytes free on bucket pages. */
-	uint32 hash_bigpages;        /* Number of big key/data pages. */
-	uintmax_t hash_big_bfree;       /* Bytes free on big item pages. */
-	uint32 hash_overflows;       /* Number of overflow pages. */
-	uintmax_t hash_ovfl_free;       /* Bytes free on ovfl pages. */
-	uint32 hash_dup;             /* Number of dup pages. */
-	uintmax_t hash_dup_free;        /* Bytes free on duplicate pages. */
+	uint32 hash_magic; /* Magic number. */
+	uint32 hash_version; /* Version number. */
+	uint32 hash_metaflags; /* Metadata flags. */
+	uint32 hash_nkeys; /* Number of unique keys. */
+	uint32 hash_ndata; /* Number of data items. */
+	uint32 hash_pagecnt; /* Page count. */
+	uint32 hash_pagesize; /* Page size. */
+	uint32 hash_ffactor; /* Fill factor specified at create. */
+	uint32 hash_buckets; /* Number of hash buckets. */
+	uint32 hash_free; /* Pages on the free list. */
+	uintmax_t hash_bfree; /* Bytes free on bucket pages. */
+	uint32 hash_bigpages; /* Number of big key/data pages. */
+	uintmax_t hash_big_bfree; /* Bytes free on big item pages. */
+	uint32 hash_overflows; /* Number of overflow pages. */
+	uintmax_t hash_ovfl_free; /* Bytes free on ovfl pages. */
+	uint32 hash_dup; /* Number of dup pages. */
+	uintmax_t hash_dup_free; /* Bytes free on duplicate pages. */
 };
 
 /* Heap statistics structure. */
 struct __db_heap_stat { /* SHARED */
-	uint32 heap_magic;           /* Magic number. */
-	uint32 heap_version;         /* Version number. */
-	uint32 heap_metaflags;       /* Metadata flags. */
-	uint32 heap_nrecs;           /* Number of records. */
-	uint32 heap_pagecnt;         /* Page count. */
-	uint32 heap_pagesize;        /* Page size. */
-	uint32 heap_nregions;        /* Number of regions. */
+	uint32 heap_magic; /* Magic number. */
+	uint32 heap_version; /* Version number. */
+	uint32 heap_metaflags; /* Metadata flags. */
+	uint32 heap_nrecs; /* Number of records. */
+	uint32 heap_pagecnt; /* Page count. */
+	uint32 heap_pagesize; /* Page size. */
+	uint32 heap_nregions; /* Number of regions. */
 };
 
 /* Queue statistics structure. */
 struct __db_qam_stat { /* SHARED */
-	uint32 qs_magic;             /* Magic number. */
-	uint32 qs_version;           /* Version number. */
-	uint32 qs_metaflags;         /* Metadata flags. */
-	uint32 qs_nkeys;             /* Number of unique keys. */
-	uint32 qs_ndata;             /* Number of data items. */
-	uint32 qs_pagesize;          /* Page size. */
-	uint32 qs_extentsize;        /* Pages per extent. */
-	uint32 qs_pages;             /* Data pages. */
-	uint32 qs_re_len;            /* Fixed-length record length. */
-	uint32 qs_re_pad;            /* Fixed-length record pad. */
-	uint32 qs_pgfree;            /* Bytes free in data pages. */
-	uint32 qs_first_recno;       /* First not deleted record. */
-	uint32 qs_cur_recno;         /* Next available record number. */
+	uint32 qs_magic; /* Magic number. */
+	uint32 qs_version; /* Version number. */
+	uint32 qs_metaflags; /* Metadata flags. */
+	uint32 qs_nkeys; /* Number of unique keys. */
+	uint32 qs_ndata; /* Number of data items. */
+	uint32 qs_pagesize; /* Page size. */
+	uint32 qs_extentsize; /* Pages per extent. */
+	uint32 qs_pages; /* Data pages. */
+	uint32 qs_re_len; /* Fixed-length record length. */
+	uint32 qs_re_pad; /* Fixed-length record pad. */
+	uint32 qs_pgfree; /* Bytes free in data pages. */
+	uint32 qs_first_recno; /* First not deleted record. */
+	uint32 qs_cur_recno; /* Next available record number. */
 };
 
 /*******************************************************
@@ -2143,16 +2143,16 @@ typedef enum {
 } DB_MEM_CONFIG;
 
 struct __db_env {
-	ENV * env;                       /* Linked ENV structure */
+	ENV * env; /* Linked ENV structure */
 	//
 	// The DB_ENV structure can be used concurrently, so field access is protected.
 	//
-	db_mutex_t mtx_db_env;          /* DB_ENV structure mutex */
+	db_mutex_t mtx_db_env; /* DB_ENV structure mutex */
 	void (*db_errcall)(const DB_ENV*, const char *, const char *); /* Error message callback */
-	FILE * db_errfile;              /* Error message file stream */
-	const char * db_errpfx;         /* Error message prefix */
+	FILE * db_errfile; /* Error message file stream */
+	const char * db_errpfx; /* Error message prefix */
 	void (*db_msgcall)(const DB_ENV*, const char *); /* Other message callback */
-	FILE * db_msgfile;              /* Other message file stream */
+	FILE * db_msgfile; /* Other message file stream */
 	//
 	// Other application callback functions
 	//
@@ -2168,85 +2168,85 @@ struct __db_env {
 	char *(*thread_id_string)(DB_ENV*, pid_t, db_threadid_t, char *);
 
 	/* Application specified paths */
-	char * db_log_dir;              /* Database log file directory */
-	char * db_tmp_dir;              /* Database tmp file directory */
-	char * db_create_dir;           /* Create directory for data files */
-	char ** db_data_dir;            /* Database data file directories */
+	char * db_log_dir; /* Database log file directory */
+	char * db_tmp_dir; /* Database tmp file directory */
+	char * db_create_dir; /* Create directory for data files */
+	char ** db_data_dir; /* Database data file directories */
 	int    data_cnt;                   /* Database data file slots */
-	int    data_next;                  /* Next database data file slot */
-	char * intermediate_dir_mode;   /* Intermediate directory perms */
+	int    data_next; /* Next database data file slot */
+	char * intermediate_dir_mode; /* Intermediate directory perms */
 	long   shm_key;                   /* shmget key */
-	char * passwd;                  /* Cryptography support */
+	char * passwd; /* Cryptography support */
 	size_t passwd_len;
 	/* Private handle references */
-	void * app_private;             /* Application-private handle */
-	void * api1_internal;           /* C++, Perl API private */
-	void * api2_internal;           /* Java API private */
-	uint32 verbose;              /* DB_VERB_XXX flags */
+	void * app_private; /* Application-private handle */
+	void * api1_internal; /* C++, Perl API private */
+	void * api2_internal; /* Java API private */
+	uint32 verbose; /* DB_VERB_XXX flags */
 	/* Mutex configuration */
-	uint32 mutex_align;          /* Mutex alignment */
-	uint32 mutex_cnt;            /* Number of mutexes to configure */
-	uint32 mutex_inc;            /* Number of mutexes to add */
-	uint32 mutex_max;            /* Max number of mutexes */
-	uint32 mutex_tas_spins;      /* Test-and-set spin count */
+	uint32 mutex_align; /* Mutex alignment */
+	uint32 mutex_cnt; /* Number of mutexes to configure */
+	uint32 mutex_inc; /* Number of mutexes to add */
+	uint32 mutex_max; /* Max number of mutexes */
+	uint32 mutex_tas_spins; /* Test-and-set spin count */
 	/* Locking configuration */
-	uint8 * lk_conflicts;        /* Two dimensional conflict matrix */
+	uint8 * lk_conflicts; /* Two dimensional conflict matrix */
 	int    lk_modes;                   /* Number of lock modes in table */
-	uint32 lk_detect;            /* Deadlock detect on all conflicts */
-	uint32 lk_max;       /* Maximum number of locks */
-	uint32 lk_max_lockers;      /* Maximum number of lockers */
-	uint32 lk_max_objects;      /* Maximum number of locked objects */
-	uint32 lk_init;              /* Initial number of locks */
-	uint32 lk_init_lockers;      /* Initial number of lockers */
-	uint32 lk_init_objects;      /* Initial number of locked objects */
-	uint32 lk_partitions;       /* Number of object partitions */
-	db_timeout_t lk_timeout;        /* Lock timeout period */
+	uint32 lk_detect; /* Deadlock detect on all conflicts */
+	uint32 lk_max; /* Maximum number of locks */
+	uint32 lk_max_lockers; /* Maximum number of lockers */
+	uint32 lk_max_objects; /* Maximum number of locked objects */
+	uint32 lk_init; /* Initial number of locks */
+	uint32 lk_init_lockers; /* Initial number of lockers */
+	uint32 lk_init_objects; /* Initial number of locked objects */
+	uint32 lk_partitions; /* Number of object partitions */
+	db_timeout_t lk_timeout; /* Lock timeout period */
 	//
 	// Used during initialization
 	//
-	uint32 locker_t_size;        /* Locker hash table size. */
-	uint32 object_t_size;        /* Object hash table size. */
+	uint32 locker_t_size; /* Locker hash table size. */
+	uint32 object_t_size; /* Object hash table size. */
 	//
 	// Logging configuration
 	//
-	uint32 lg_bsize;             /* Buffer size */
-	uint32 lg_fileid_init;       /* Initial allocation for fname structs */
-	int    lg_filemode;                /* Log file permission mode */
-	uint32 lg_regionmax;         /* Region size */
-	uint32 lg_size;              /* Log file size */
-	uint32 lg_flags;             /* Log configuration */
+	uint32 lg_bsize; /* Buffer size */
+	uint32 lg_fileid_init; /* Initial allocation for fname structs */
+	int    lg_filemode; /* Log file permission mode */
+	uint32 lg_regionmax; /* Region size */
+	uint32 lg_size; /* Log file size */
+	uint32 lg_flags; /* Log configuration */
 	/* Memory pool configuration */
-	uint32 mp_gbytes;            /* Cache size: GB */
-	uint32 mp_bytes;             /* Cache size: bytes */
-	uint32 mp_max_gbytes;        /* Maximum cache size: GB */
-	uint32 mp_max_bytes;         /* Maximum cache size: bytes */
-	size_t mp_mmapsize;             /* Maximum file size for mmap */
-	int    mp_maxopenfd;               /* Maximum open file descriptors */
-	int    mp_maxwrite;                /* Maximum buffers to write */
-	uint   mp_ncache;                /* Initial number of cache regions */
-	uint32 mp_pagesize;          /* Average page size */
-	uint32 mp_tablesize;         /* Approximate hash table size */
-	uint32 mp_mtxcount;          /* Number of mutexs */
+	uint32 mp_gbytes; /* Cache size: GB */
+	uint32 mp_bytes; /* Cache size: bytes */
+	uint32 mp_max_gbytes; /* Maximum cache size: GB */
+	uint32 mp_max_bytes; /* Maximum cache size: bytes */
+	size_t mp_mmapsize; /* Maximum file size for mmap */
+	int    mp_maxopenfd; /* Maximum open file descriptors */
+	int    mp_maxwrite; /* Maximum buffers to write */
+	uint   mp_ncache; /* Initial number of cache regions */
+	uint32 mp_pagesize; /* Average page size */
+	uint32 mp_tablesize; /* Approximate hash table size */
+	uint32 mp_mtxcount; /* Number of mutexs */
 	                                /* Sleep after writing max buffers */
 	db_timeout_t mp_maxwrite_sleep;
 	//
 	// Transaction configuration
 	//
-	uint32 tx_init;              /* Initial number of transactions */
-	uint32 tx_max;               /* Maximum number of transactions */
-	__time64_t tx_timestamp;            /* Recover to specific timestamp */
-	db_timeout_t tx_timeout;        /* Timeout for transactions */
+	uint32 tx_init; /* Initial number of transactions */
+	uint32 tx_max; /* Maximum number of transactions */
+	__time64_t tx_timestamp; /* Recover to specific timestamp */
+	db_timeout_t tx_timeout; /* Timeout for transactions */
 	/* Thread tracking configuration */
-	uint32 thr_init;             /* Thread count */
-	uint32 thr_max;              /* Thread max */
-	roff_t memory_max;              /* Maximum region memory */
+	uint32 thr_init; /* Thread count */
+	uint32 thr_max; /* Thread max */
+	roff_t memory_max; /* Maximum region memory */
 	/*
 	 * The following fields are not strictly user-owned, but they outlive
 	 * the ENV structure, and so are stored here.
 	 */
-	DB_FH * registry;               /* DB_REGISTER file handle */
-	uint32 registry_off;         /* Offset of our slot.  We can't use off_t because its size depends on build settings. */
-	db_timeout_t envreg_timeout;    /* DB_REGISTER wait timeout */
+	DB_FH * registry; /* DB_REGISTER file handle */
+	uint32 registry_off; /* Offset of our slot.  We can't use off_t because its size depends on build settings. */
+	db_timeout_t envreg_timeout; /* DB_REGISTER wait timeout */
 
  #define DB_ENV_AUTO_COMMIT      0x00000001 /* DB_AUTO_COMMIT */
  #define DB_ENV_CDB_ALLDB        0x00000002 /* CDB environment wide locking */
@@ -2497,8 +2497,8 @@ struct __db_logvrfy_config {
 };
 
 struct __db_channel {
-	CHANNEL * channel;       /* Pointer to internal state details. */
-	int eid;                /* Env. ID passed in constructor. */
+	CHANNEL * channel; /* Pointer to internal state details. */
+	int eid; /* Env. ID passed in constructor. */
 	db_timeout_t timeout;
 
 	/* DB_CHANNEL PUBLIC HANDLE LIST BEGIN */

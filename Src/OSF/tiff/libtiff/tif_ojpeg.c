@@ -322,7 +322,7 @@ typedef struct {
 	uint8** subsampling_convert_ycbcrimage;
 	uint32 subsampling_convert_clinelenout;
 	uint32 subsampling_convert_state;
-	uint32 bytes_per_line;   /* if the codec outputs subsampled data, a 'line' in bytes_per_line */
+	uint32 bytes_per_line; /* if the codec outputs subsampled data, a 'line' in bytes_per_line */
 	uint32 lines_per_strile; /* and lines_per_strile means subsampling_ver desubsampled rows     */
 	OJPEGStateInBufferSource in_buffer_source;
 	uint32 in_buffer_next_strile;

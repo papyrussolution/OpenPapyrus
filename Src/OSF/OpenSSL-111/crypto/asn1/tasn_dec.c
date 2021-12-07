@@ -661,7 +661,7 @@ static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval,
 	long len;
 	if(!pval) {
 		ASN1err(ASN1_F_ASN1_D2I_EX_PRIMITIVE, ASN1_R_ILLEGAL_NULL);
-		return 0;       /* Should never happen */
+		return 0; /* Should never happen */
 	}
 
 	if(it->itype == ASN1_ITYPE_MSTRING) {

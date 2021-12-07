@@ -660,9 +660,9 @@ struct __env {
 	 * for multi-threaded support.
 	 */
 	TAILQ_HEAD(__fdlist, __fh_t) fdlist;
-	db_mutex_t mtx_mt;      /* Mersenne Twister mutex */
-	int    mti;             /* Mersenne Twister index */
-	ulong * mt;            /* Mersenne Twister state vector */
+	db_mutex_t mtx_mt; /* Mersenne Twister mutex */
+	int    mti; /* Mersenne Twister index */
+	ulong * mt; /* Mersenne Twister state vector */
 	DB_CIPHER	*crypto_handle;	/* Crypto handle */
 	DB_LOCKTAB	*lk_handle;	/* Lock handle */
 	DB_LOG		*lg_handle;	/* Log handle */

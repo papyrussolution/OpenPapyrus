@@ -78,15 +78,15 @@ struct _cairo_scaled_font {
 	/* hash key members */
 	cairo_font_face_t * font_face; /* may be NULL */
 	cairo_matrix_t font_matrix; /* font space => user space */
-	cairo_matrix_t ctm;       /* user space => device space */
+	cairo_matrix_t ctm; /* user space => device space */
 	cairo_font_options_t options;
 	uint placeholder : 1; /*  protected by fontmap mutex */
 	uint holdover : 1;
 	uint finished : 1;
 	/* "live" scaled_font members */
-	cairo_matrix_t scale;        /* font space => device space */
+	cairo_matrix_t scale; /* font space => device space */
 	cairo_matrix_t scale_inverse; /* device space => font space */
-	double max_scale;            /* maximum x/y expansion of scale */
+	double max_scale; /* maximum x/y expansion of scale */
 	cairo_font_extents_t extents; /* user space */
 	cairo_font_extents_t fs_extents; /* font space */
 	cairo_mutex_t mutex; /* The mutex protects modification to all subsequent fields. */
@@ -108,14 +108,14 @@ struct _cairo_scaled_font_private {
 
 struct _cairo_scaled_glyph {
 	cairo_hash_entry_t hash_entry;
-	cairo_text_extents_t metrics;           /* user-space metrics */
-	cairo_text_extents_t fs_metrics;        /* font-space metrics */
-	cairo_box_t bbox;                       /* device-space bounds */
-	int16 x_advance;                      /* device-space rounded X advance */
-	int16 y_advance;                      /* device-space rounded Y advance */
+	cairo_text_extents_t metrics; /* user-space metrics */
+	cairo_text_extents_t fs_metrics; /* font-space metrics */
+	cairo_box_t bbox; /* device-space bounds */
+	int16 x_advance; /* device-space rounded X advance */
+	int16 y_advance; /* device-space rounded Y advance */
 	uint has_info;
-	cairo_image_surface_t * surface;      /* device-space image */
-	cairo_path_fixed_t * path;         /* device-space outline */
+	cairo_image_surface_t * surface; /* device-space image */
+	cairo_path_fixed_t * path; /* device-space outline */
 	cairo_surface_t * recording_surface; /* device-space recording-surface */
 	cairo_image_surface_t * color_surface; /* device-space color image */
 	const void * dev_private_key;

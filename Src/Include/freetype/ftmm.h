@@ -178,7 +178,7 @@ typedef struct  FT_Var_Axis_ {
 typedef struct  FT_Var_Named_Style_ {
 	FT_Fixed*  coords;
 	FT_UInt strid;
-	FT_UInt psid;  /* since 2.7.1 */
+	FT_UInt psid; /* since 2.7.1 */
 } FT_Var_Named_Style;
 
 /**************************************************************************

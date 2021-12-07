@@ -4172,7 +4172,7 @@ CURLcode ftp_regular_transfer(struct connectdata * conn,
 
 	result = ftp_perform(conn,
 		&connected,        /* have we connected after PASV/PORT */
-		dophase_done);        /* all commands in the DO-phase done? */
+		dophase_done); /* all commands in the DO-phase done? */
 
 	if(!result) {
 		if(!*dophase_done)
@@ -4208,7 +4208,7 @@ static CURLcode ftp_setup_connection(struct connectdata * conn)
 
 	if(type) {
 		char command;
-		*type = 0;         /* it was in the middle of the hostname */
+		*type = 0; /* it was in the middle of the hostname */
 		command = Curl_raw_toupper(type[6]);
 
 		switch(command) {

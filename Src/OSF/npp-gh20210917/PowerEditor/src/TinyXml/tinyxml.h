@@ -542,7 +542,7 @@ public:
 	virtual void StreamOut(TIXML_OSTREAM * out) const;
 	// [internal use]
 	// Set the document pointer so the attribute can report errors.
-	void SetDocument(TiXmlDocument* doc)  { document = doc; }
+	void SetDocument(TiXmlDocument* doc) { document = doc; }
 private:
 	TiXmlDocument*  document;       // A pointer back to a document, for error reporting.
 	TIXML_STRING name;
@@ -914,7 +914,7 @@ public:
 	        @sa SetTabSize, Row, Column
 	 */
 	int ErrorRow() { return errorLocation.row+1; }
-	int ErrorCol()  { return errorLocation.col+1; } ///< The column where the error occured. See ErrorRow()
+	int ErrorCol() { return errorLocation.col+1; } ///< The column where the error occured. See ErrorRow()
 	/** By calling this method, with a tab size
 	        greater than 0, the row and column of each node and attribute is stored
 	        when the file is loaded. Very useful for tracking the DOM back in to

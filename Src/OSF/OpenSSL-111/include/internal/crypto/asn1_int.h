@@ -84,7 +84,7 @@ struct asn1_object_st {
 	int nid;
 	int length;
 	const uchar * data; /* data remains const after init */
-	int flags;              /* Should we free this one */
+	int flags; /* Should we free this one */
 };
 
 /* ASN1 print context structure */

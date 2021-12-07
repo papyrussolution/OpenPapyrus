@@ -79,26 +79,26 @@ static PDF * myPDF = NULL;
 
 static uint PDF_xLast = UINT_MAX; /* current pen horizontal position*/
 static uint PDF_yLast = UINT_MAX; /* current pen vertical position*/
-static int PDF_LineType = LT_UNDEFINED;         /* current line type*/
-static int PDF_LineCap = 0;                     /* Butt ends */
-static double PDF_LineWidth = 1.0;              /* current line width*/
+static int PDF_LineType = LT_UNDEFINED; /* current line type*/
+static int PDF_LineCap = 0; /* Butt ends */
+static double PDF_LineWidth = 1.0; /* current line width*/
 static int PDF_TextAngle = 0;                   /* current text orientation*/
-static enum JUSTIFY PDF_TextJust = LEFT;        /* current text justification*/
-static double PDF_linewidth_factor = 1.0;       /* multiplier for line width */
-static double PDF_dashlength_factor = 1.0;      /* multiplier for dash length */
-static bool PDF_monochrome = FALSE;             /* default all linetypes to black */
-static rgb_color PDF_current_rgb = {0., 0., 0.};  /* Last color set */
-static double PDF_current_gray = 0.0;           /* Last color set (mono version) */
+static enum JUSTIFY PDF_TextJust = LEFT; /* current text justification*/
+static double PDF_linewidth_factor = 1.0; /* multiplier for line width */
+static double PDF_dashlength_factor = 1.0; /* multiplier for dash length */
+static bool PDF_monochrome = FALSE; /* default all linetypes to black */
+static rgb_color PDF_current_rgb = {0., 0., 0.}; /* Last color set */
+static double PDF_current_gray = 0.0; /* Last color set (mono version) */
 
 #ifdef HAVE_NODASH_LIBPDF
-	static bool PDF_dashedlines = FALSE;    /* solid or dashed? */
+	static bool PDF_dashedlines = FALSE; /* solid or dashed? */
 #else
-	static bool PDF_dashedlines = TRUE;             /* solid or dashed? */
+	static bool PDF_dashedlines = TRUE; /* solid or dashed? */
 #endif
 
 /* default text font family: */
 static char PDF_fontNameDef[MAX_ID_LEN+1] = "Helvetica";
-static double PDF_fontSizeDef = 6;      /* default text size*/
+static double PDF_fontSizeDef = 6; /* default text size*/
 /* current text font family: */
 static char PDF_fontNameCur[MAX_ID_LEN+1] = "Helvetica";
 static double PDF_fontSizeCur = 6; /* current text size*/
@@ -107,7 +107,7 @@ static double PDF_fontscale = 1.0;
 static bool PDF_pageIsOpen = FALSE; /* already started a page ?? */
 static bool PDF_pathIsOpen = FALSE; /* open path flag*/
 
-static int PDF_fontAscent = 0;  /* estimated current font ascent*/
+static int PDF_fontAscent = 0; /* estimated current font ascent*/
 static int PDF_fontDescent = 0; /* estimated current font descent*/
 static int PDF_fontLeading = 0; /* estimated current font leading*/
 static int PDF_fontAvWidth = 0; /* estimated current font char average width*/
@@ -487,13 +487,13 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	p_gp->TermPointSize = pointsize;
 	// Initialize other default settings 
 	PDF_setlinecap(myPDF, PDF_LineCap);
-	PDF_setlinejoin(myPDF, PDF_LineCap);    /* round+round or butt+mitre */
+	PDF_setlinejoin(myPDF, PDF_LineCap); /* round+round or butt+mitre */
 }
 
 TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis)
 {
 	if(PDF_pageIsOpen)
-		return;         /* already open --> nothing to do */
+		return; /* already open --> nothing to do */
 	PDF_pathIsOpen = FALSE;
 	PDF_xLast = PDF_yLast = UINT_MAX;
 	// set size of canvas 

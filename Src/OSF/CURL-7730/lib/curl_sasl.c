@@ -53,7 +53,7 @@
 /* Supported mechanisms */
 static const struct {
 	const char   * name; /* Name */
-	size_t len;    /* Name length */
+	size_t len; /* Name length */
 	unsigned int bit; /* Flag bit */
 } mechtable[] = {
 	{ "LOGIN",        5,  SASL_MECH_LOGIN },
@@ -168,14 +168,14 @@ CURLcode Curl_sasl_parse_url_auth_option(struct SASL * sasl, const char * value,
  */
 void Curl_sasl_init(struct SASL * sasl, const struct SASLproto * params)
 {
-	sasl->params = params;     /* Set protocol dependent parameters */
-	sasl->state = SASL_STOP;   /* Not yet running */
+	sasl->params = params; /* Set protocol dependent parameters */
+	sasl->state = SASL_STOP; /* Not yet running */
 	sasl->authmechs = SASL_AUTH_NONE; /* No known authentication mechanism yet */
 	sasl->prefmech = SASL_AUTH_DEFAULT; /* Prefer all mechanisms */
 	sasl->authused = SASL_AUTH_NONE; /* No the authentication mechanism used */
-	sasl->resetprefs = TRUE;   /* Reset prefmech upon AUTH parsing. */
+	sasl->resetprefs = TRUE; /* Reset prefmech upon AUTH parsing. */
 	sasl->mutual_auth = FALSE; /* No mutual authentication (GSSAPI only) */
-	sasl->force_ir = FALSE;    /* Respect external option */
+	sasl->force_ir = FALSE; /* Respect external option */
 }
 
 /*
@@ -269,7 +269,7 @@ CURLcode Curl_sasl_start(struct SASL * sasl, struct connectdata * conn,
 	const char * oauth_bearer = data->set.str[STRING_BEARER];
 
 	sasl->force_ir = force_ir; /* Latch for future use */
-	sasl->authused = 0;     /* No mechanism used yet */
+	sasl->authused = 0; /* No mechanism used yet */
 	enabledmechs = sasl->authmechs & sasl->prefmech;
 	*progress = SASL_IDLE;
 

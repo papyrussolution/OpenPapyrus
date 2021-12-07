@@ -53,7 +53,7 @@ static inline bool isLineTerminator(UChar32 c) {
 //   Constructor and Destructor
 //
 //-----------------------------------------------------------------------------
-RegexMatcher::RegexMatcher(const RegexPattern * pat)  {
+RegexMatcher::RegexMatcher(const RegexPattern * pat) {
 	fDeferredStatus = U_ZERO_ERROR;
 	init(fDeferredStatus);
 	if(U_FAILURE(fDeferredStatus)) {

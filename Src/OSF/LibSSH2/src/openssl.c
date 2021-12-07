@@ -105,7 +105,7 @@ int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx, const uchar * sig, ulong 
 	uchar hash[SHA_DIGEST_LENGTH];
 	int ret;
 	if(_libssh2_sha1(m, m_len, hash))
-		return -1;  /* failure */
+		return -1; /* failure */
 	ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH, (uchar *)sig, sig_len, rsactx);
 	return (ret == 1) ? 0 : -1;
 }
@@ -528,7 +528,7 @@ int _libssh2_sha1(const uchar * message, ulong len, uchar * out)
 #ifdef HAVE_OPAQUE_STRUCTS
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	if(ctx == NULL)
-		return 1;  /* error */
+		return 1; /* error */
 	if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"))) {
 		EVP_DigestUpdate(ctx, message, len);
 		EVP_DigestFinal(ctx, out, NULL);
@@ -570,7 +570,7 @@ int _libssh2_sha256(const uchar * message, ulong len, uchar * out)
 #ifdef HAVE_OPAQUE_STRUCTS
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	if(ctx == NULL)
-		return 1;  /* error */
+		return 1; /* error */
 	if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"))) {
 		EVP_DigestUpdate(ctx, message, len);
 		EVP_DigestFinal(ctx, out, NULL);

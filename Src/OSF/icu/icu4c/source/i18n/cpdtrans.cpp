@@ -48,7 +48,7 @@ CompoundTransliterator::CompoundTransliterator(Transliterator* const translitera
     int32_t transliteratorCount,
     UnicodeFilter* adoptedFilter) :
 	Transliterator(joinIDs(transliterators, transliteratorCount), adoptedFilter),
-	trans(0), count(0), numAnonymousRBTs(0)  {
+	trans(0), count(0), numAnonymousRBTs(0) {
 	setTransliterators(transliterators, transliteratorCount);
 }
 

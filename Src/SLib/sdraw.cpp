@@ -3645,7 +3645,7 @@ HICON LoadIcoCur(HINSTANCE hmod, LPCWSTR pszResName, LPWSTR type, DWORD cxDesire
 	/*
 	* Setup module name and handles for lookup.
 	*/
-	if(hmod == NULL)  {
+	if(hmod == NULL) {
 		hmod = hmodUser;
 		pszModName = szUSER32;
 	} 

@@ -101,7 +101,7 @@ protected:
 		HBUINT16 format; /* Format identifier--format = 3 */
 		FWORD coordinate; /* X or Y value, in design units */
 		OffsetTo<Device>
-		deviceTable;    /* Offset to Device table for X or
+		deviceTable; /* Offset to Device table for X or
 		 * Y value, from beginning of
 		 * BaseCoord table (may be NULL). */
 public:
@@ -167,30 +167,20 @@ public:
 		bool sanitize(hb_sanitize_context_t * c, const void * base) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    minCoord.sanitize(c, this) &&
-			    maxCoord.sanitize(c, this)));
+			return_trace(LIKELY(c->check_struct(this) && minCoord.sanitize(c, this) && maxCoord.sanitize(c, this)));
 		}
-
 protected:
-		Tag tag;        /* 4-byte feature identification tag--must
-		 * match feature tag in FeatureList */
+		Tag tag; /* 4-byte feature identification tag--must match feature tag in FeatureList */
 		OffsetTo<BaseCoord>
-		minCoord;       /* Offset to BaseCoord table that defines
-		 * the minimum extent value, from beginning
-		 * of MinMax table (may be NULL) */
+		minCoord; /* Offset to BaseCoord table that defines the minimum extent value, from beginning of MinMax table (may be NULL) */
 		OffsetTo<BaseCoord>
-		maxCoord;       /* Offset to BaseCoord table that defines
-		 * the maximum extent value, from beginning
-		 * of MinMax table (may be NULL) */
+		maxCoord; /* Offset to BaseCoord table that defines the maximum extent value, from beginning of MinMax table (may be NULL) */
 public:
 		DEFINE_SIZE_STATIC(8);
 	};
 
 	struct MinMax {
-		void get_min_max(hb_tag_t feature_tag,
-		    const BaseCoord ** min,
-		    const BaseCoord ** max) const
+		void get_min_max(hb_tag_t feature_tag, const BaseCoord ** min, const BaseCoord ** max) const
 		{
 			const FeatMinMaxRecord &minMaxCoord = featMinMaxRecords.bsearch(feature_tag);
 			if(minMaxCoord.has_data())
@@ -200,33 +190,23 @@ public:
 				if(LIKELY(max)) *max = &(this+maxCoord);
 			}
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    minCoord.sanitize(c, this) &&
-			    maxCoord.sanitize(c, this) &&
-			    featMinMaxRecords.sanitize(c, this)));
+			return_trace(LIKELY(c->check_struct(this) && minCoord.sanitize(c, this) && maxCoord.sanitize(c, this) && featMinMaxRecords.sanitize(c, this)));
 		}
 
 protected:
 		OffsetTo<BaseCoord>
-		minCoord;       /* Offset to BaseCoord table that defines
-		 * minimum extent value, from the beginning
-		 * of MinMax table (may be NULL) */
+		minCoord; /* Offset to BaseCoord table that defines minimum extent value, from the beginning of MinMax table (may be NULL) */
 		OffsetTo<BaseCoord>
-		maxCoord;       /* Offset to BaseCoord table that defines
-		 * maximum extent value, from the beginning
-		 * of MinMax table (may be NULL) */
+		maxCoord; /* Offset to BaseCoord table that defines maximum extent value, from the beginning of MinMax table (may be NULL) */
 		SortedArrayOf<FeatMinMaxRecord>
 		featMinMaxRecords;
-		/* Array of FeatMinMaxRecords, in alphabetical
-		 * order by featureTableTag */
+		/* Array of FeatMinMaxRecords, in alphabetical order by featureTableTag */
 public:
 		DEFINE_SIZE_ARRAY(6, featMinMaxRecords);
 	};
-
 	struct BaseValues {
 		const BaseCoord &get_base_coord(int baseline_tag_index) const
 		{
@@ -237,50 +217,29 @@ public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    baseCoords.sanitize(c, this)));
+			return_trace(LIKELY(c->check_struct(this) && baseCoords.sanitize(c, this)));
 		}
-
 protected:
-		Index defaultIndex; /* Index number of default baseline for this
-		 * script — equals index position of baseline tag
-		 * in baselineTags array of the BaseTagList */
+		Index defaultIndex; /* Index number of default baseline for this script — equals index position of baseline tag in baselineTags array of the BaseTagList */
 		OffsetArrayOf<BaseCoord>
-		baseCoords;     /* Number of BaseCoord tables defined — should equal
-		 * baseTagCount in the BaseTagList
-		                 *
-		 * Array of offsets to BaseCoord tables, from beginning of
-		 * BaseValues table — order matches baselineTags array in
-		 * the BaseTagList */
+		baseCoords; /* Number of BaseCoord tables defined — should equal baseTagCount in the BaseTagList
+		                 Array of offsets to BaseCoord tables, from beginning of BaseValues table — order matches baselineTags array in the BaseTagList */
 public:
 		DEFINE_SIZE_ARRAY(4, baseCoords);
 	};
-
 	struct BaseLangSysRecord {
-		int cmp(hb_tag_t key) const {
-			return baseLangSysTag.cmp(key);
-		}
-
-		bool has_data() const {
-			return baseLangSysTag;
-		}
-
-		const MinMax &get_min_max() const {
-			return this+minMax;
-		}
-
+		int cmp(hb_tag_t key) const { return baseLangSysTag.cmp(key); }
+		bool has_data() const { return baseLangSysTag; }
+		const MinMax &get_min_max() const { return this+minMax; }
 		bool sanitize(hb_sanitize_context_t * c, const void * base) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    minMax.sanitize(c, this)));
+			return_trace(LIKELY(c->check_struct(this) && minMax.sanitize(c, this)));
 		}
-
 protected:
 		Tag baseLangSysTag; /* 4-byte language system identification tag */
 		OffsetTo<MinMax>
-		minMax;         /* Offset to MinMax table, from beginning
-		 * of BaseScript table */
+		minMax; /* Offset to MinMax table, from beginning of BaseScript table */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -291,37 +250,24 @@ public:
 			const BaseLangSysRecord& record = baseLangSysRecords.bsearch(language_tag);
 			return record.has_data() ? record.get_min_max() : this+defaultMinMax;
 		}
-
 		const BaseCoord &get_base_coord(int baseline_tag_index) const
 		{
 			return (this+baseValues).get_base_coord(baseline_tag_index);
 		}
-
-		bool has_data() const {
-			return baseValues;
-		}
-
+		bool has_data() const { return baseValues; }
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    baseValues.sanitize(c, this) &&
-			    defaultMinMax.sanitize(c, this) &&
-			    baseLangSysRecords.sanitize(c, this)));
+			return_trace(LIKELY(c->check_struct(this) && baseValues.sanitize(c, this) && defaultMinMax.sanitize(c, this) && baseLangSysRecords.sanitize(c, this)));
 		}
-
 protected:
 		OffsetTo<BaseValues>
-		baseValues;     /* Offset to BaseValues table, from beginning
-		 * of BaseScript table (may be NULL) */
+		baseValues; /* Offset to BaseValues table, from beginning of BaseScript table (may be NULL) */
 		OffsetTo<MinMax>
-		defaultMinMax;  /* Offset to MinMax table, from beginning of
-		 * BaseScript table (may be NULL) */
+		defaultMinMax; /* Offset to MinMax table, from beginning of BaseScript table (may be NULL) */
 		SortedArrayOf<BaseLangSysRecord>
 		baseLangSysRecords;
-		/* Number of BaseLangSysRecords
-		 * defined — may be zero (0) */
-
+		/* Number of BaseLangSysRecords defined — may be zero (0) */
 public:
 		DEFINE_SIZE_ARRAY(6, baseLangSysRecords);
 	};
@@ -329,36 +275,21 @@ public:
 	struct BaseScriptList;
 
 	struct BaseScriptRecord {
-		int cmp(hb_tag_t key) const {
-			return baseScriptTag.cmp(key);
-		}
-
-		bool has_data() const {
-			return baseScriptTag;
-		}
-
-		const BaseScript &get_base_script(const BaseScriptList * list) const
-		{
-			return list+baseScript;
-		}
-
+		int cmp(hb_tag_t key) const { return baseScriptTag.cmp(key); }
+		bool has_data() const { return baseScriptTag; }
+		const BaseScript &get_base_script(const BaseScriptList * list) const { return list+baseScript; }
 		bool sanitize(hb_sanitize_context_t * c, const void * base) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    baseScript.sanitize(c, base)));
+			return_trace(LIKELY(c->check_struct(this) && baseScript.sanitize(c, base)));
 		}
-
 protected:
 		Tag baseScriptTag; /* 4-byte script identification tag */
 		OffsetTo<BaseScript>
-		baseScript;     /* Offset to BaseScript table, from beginning
-		 * of BaseScriptList */
-
+		baseScript; /* Offset to BaseScript table, from beginning of BaseScriptList */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
-
 	struct BaseScriptList {
 		const BaseScript &get_base_script(hb_tag_t script) const
 		{
@@ -366,65 +297,47 @@ public:
 			if(!record->has_data()) record = &baseScriptRecords.bsearch(HB_TAG('D', 'F', 'L', 'T'));
 			return record->has_data() ? record->get_base_script(this) : Null(BaseScript);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    baseScriptRecords.sanitize(c, this));
+			return_trace(c->check_struct(this) && baseScriptRecords.sanitize(c, this));
 		}
 
 protected:
 		SortedArrayOf<BaseScriptRecord>
 		baseScriptRecords;
-
 public:
 		DEFINE_SIZE_ARRAY(2, baseScriptRecords);
 	};
 
 	struct Axis {
-		bool get_baseline(hb_tag_t baseline_tag,
-		    hb_tag_t script_tag,
-		    hb_tag_t language_tag,
-		    const BaseCoord ** coord) const
+		bool get_baseline(hb_tag_t baseline_tag, hb_tag_t script_tag, hb_tag_t language_tag, const BaseCoord ** coord) const
 		{
 			const BaseScript &base_script = (this+baseScriptList).get_base_script(script_tag);
-			if(!base_script.has_data()) return false;
-
+			if(!base_script.has_data()) 
+				return false;
 			if(LIKELY(coord)) {
 				uint tag_index = 0;
 				(this+baseTagList).bfind(baseline_tag, &tag_index);
 				* coord = &base_script.get_base_coord(tag_index);
 			}
-
 			return true;
 		}
-
-		bool get_min_max(hb_tag_t script_tag,
-		    hb_tag_t language_tag,
-		    hb_tag_t feature_tag,
-		    const BaseCoord ** min_coord,
-		    const BaseCoord ** max_coord) const
+		bool get_min_max(hb_tag_t script_tag, hb_tag_t language_tag, hb_tag_t feature_tag, const BaseCoord ** min_coord, const BaseCoord ** max_coord) const
 		{
 			const BaseScript &base_script = (this+baseScriptList).get_base_script(script_tag);
 			if(!base_script.has_data()) return false;
-
 			base_script.get_min_max(language_tag).get_min_max(feature_tag, min_coord, max_coord);
-
 			return true;
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    (this+baseTagList).sanitize(c) &&
-			    (this+baseScriptList).sanitize(c)));
+			return_trace(LIKELY(c->check_struct(this) && (this+baseTagList).sanitize(c) && (this+baseScriptList).sanitize(c)));
 		}
-
 protected:
 		OffsetTo<SortedArrayOf<Tag>>
-		baseTagList;    /* Offset to BaseTagList table, from beginning
+		baseTagList; /* Offset to BaseTagList table, from beginning
 		 * of Axis table (may be NULL)
 		 * Array of 4-byte baseline identification tags — must
 		 * be in alphabetical order */
@@ -445,30 +358,21 @@ public:
 		{
 			return HB_DIRECTION_IS_VERTICAL(direction) ? this+vAxis : this+hAxis;
 		}
-
 		const VariationStore &get_var_store() const
 		{
 			return version.to_int() < 0x00010001u ? Null(VariationStore) : this+varStore;
 		}
-
-		bool get_baseline(hb_font_t * font,
-		    hb_tag_t baseline_tag,
-		    hb_direction_t direction,
-		    hb_tag_t script_tag,
-		    hb_tag_t language_tag,
-		    hb_position_t * base) const
+		bool get_baseline(hb_font_t * font, hb_tag_t baseline_tag, hb_direction_t direction,
+		    hb_tag_t script_tag, hb_tag_t language_tag, hb_position_t * base) const
 		{
 			const BaseCoord * base_coord = nullptr;
 			if(UNLIKELY(!get_axis(direction).get_baseline(baseline_tag, script_tag, language_tag, &base_coord) ||
 			    !base_coord || !base_coord->has_data()))
 				return false;
-
 			if(LIKELY(base))
 				*base = base_coord->get_coord(font, get_var_store(), direction);
-
 			return true;
 		}
-
 		/* TODO: Expose this separately sometime? */
 		bool get_min_max(hb_font_t * font,
 		    hb_direction_t direction,
@@ -492,11 +396,8 @@ public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    LIKELY(version.major == 1) &&
-			    hAxis.sanitize(c, this) &&
-			    vAxis.sanitize(c, this) &&
-			    (version.to_int() < 0x00010001u || varStore.sanitize(c, this))));
+			return_trace(LIKELY(c->check_struct(this) && LIKELY(version.major == 1) &&
+			    hAxis.sanitize(c, this) && vAxis.sanitize(c, this) && (version.to_int() < 0x00010001u || varStore.sanitize(c, this))));
 		}
 
 protected:
@@ -506,7 +407,7 @@ protected:
 		OffsetTo<Axis>vAxis; /* Offset to vertical Axis table, from beginning
 		 * of BASE table (may be NULL) */
 		LOffsetTo<VariationStore>
-		varStore;       /* Offset to the table of Item Variation
+		varStore; /* Offset to the table of Item Variation
 		 * Store--from beginning of BASE
 		 * header (may be NULL).  Introduced
 		 * in version 0x00010001. */

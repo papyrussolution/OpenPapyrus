@@ -47,12 +47,12 @@ struct hb_face_t {
 	void * user_data;
 	hb_destroy_func_t destroy;
 
-	uint index;             /* Face index in a collection, zero-based. */
-	mutable hb_atomic_int_t upem;   /* Units-per-EM. */
+	uint index; /* Face index in a collection, zero-based. */
+	mutable hb_atomic_int_t upem; /* Units-per-EM. */
 	mutable hb_atomic_int_t num_glyphs; /* Number of glyphs. */
 
 	hb_shaper_object_dataset_t<hb_face_t> data; /* Various shaper data. */
-	hb_ot_face_t table;             /* All the face's tables. */
+	hb_ot_face_t table; /* All the face's tables. */
 
 	/* Cache */
 	struct plan_node_t {

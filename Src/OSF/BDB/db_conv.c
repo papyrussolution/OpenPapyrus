@@ -376,19 +376,19 @@ void __db_metaswap(PAGE * pg)
 {
 	uint8 * p = reinterpret_cast<uint8 *>(pg);
 	/* Swap the meta-data information. */
-	SWAP32(p);      /* lsn.file */
-	SWAP32(p);      /* lsn.offset */
-	SWAP32(p);      /* pgno */
-	SWAP32(p);      /* magic */
-	SWAP32(p);      /* version */
-	SWAP32(p);      /* pagesize */
-	p += 4;         /* unused, page type, unused, unused */
-	SWAP32(p);      /* free */
-	SWAP32(p);      /* alloc_lsn part 1 */
-	SWAP32(p);      /* alloc_lsn part 2 */
-	SWAP32(p);      /* cached key count */
-	SWAP32(p);      /* cached record count */
-	SWAP32(p);      /* flags */
+	SWAP32(p); /* lsn.file */
+	SWAP32(p); /* lsn.offset */
+	SWAP32(p); /* pgno */
+	SWAP32(p); /* magic */
+	SWAP32(p); /* version */
+	SWAP32(p); /* pagesize */
+	p += 4; /* unused, page type, unused, unused */
+	SWAP32(p); /* free */
+	SWAP32(p); /* alloc_lsn part 1 */
+	SWAP32(p); /* alloc_lsn part 2 */
+	SWAP32(p); /* cached key count */
+	SWAP32(p); /* cached record count */
+	SWAP32(p); /* flags */
 }
 /*
  * __db_byteswap --
@@ -458,12 +458,12 @@ int __db_byteswap(DB * dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 				break;
 			    case H_OFFDUP:
 				p = HOFFPAGE_PGNO(P_ENTRY(dbp, h, i));
-				SWAP32(p);                      /* pgno */
+				SWAP32(p); /* pgno */
 				break;
 			    case H_OFFPAGE:
 				p = HOFFPAGE_PGNO(P_ENTRY(dbp, h, i));
-				SWAP32(p);                      /* pgno */
-				SWAP32(p);                      /* tlen */
+				SWAP32(p); /* pgno */
+				SWAP32(p); /* tlen */
 				break;
 			    default:
 				return __db_pgfmt(env, pg);
@@ -740,13 +740,13 @@ void __db_recordswap(uint32 op, uint32 size, void * hdr, void * data, uint32 pgi
 		    case H_OFFDUP:
 			p = (uint8 *)hdr;
 			p += SSZ(HOFFPAGE, pgno);
-			SWAP32(p);                      /* pgno */
+			SWAP32(p); /* pgno */
 			break;
 		    case H_OFFPAGE:
 			p = (uint8 *)hdr;
 			p += SSZ(HOFFPAGE, pgno);
-			SWAP32(p);                      /* pgno */
-			SWAP32(p);                      /* tlen */
+			SWAP32(p); /* pgno */
+			SWAP32(p); /* tlen */
 			break;
 		    default:
 			DB_ASSERT(NULL, op != op);

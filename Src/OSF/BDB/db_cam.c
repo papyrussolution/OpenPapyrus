@@ -2757,7 +2757,7 @@ uint32 __db_partsize(uint32 nbytes, DBT * data)
 	 */
 	if(nbytes < data->doff+data->dlen)              /* Case 1 */
 		return data->doff+data->size;
-	return nbytes+data->size-data->dlen;            /* Case 2 */
+	return nbytes+data->size-data->dlen; /* Case 2 */
 }
 
 #ifdef DIAGNOSTIC

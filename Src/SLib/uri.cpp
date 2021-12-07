@@ -408,7 +408,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 	if(dest) {
 		write[0] = _UT('\0');
 		if(charsWritten)
-			*charsWritten = (int)(write-dest)+1;     /* .. for terminator */
+			*charsWritten = (int)(write-dest)+1; /* .. for terminator */
 	}
 	return SLERR_SUCCESS;
 }
@@ -2975,7 +2975,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						// Copy missing quads to the end 
 						memcpy(P_Uri->HostData.ip6->data+16-2*quadsAfterZipperCount, quadsAfterZipper, 2*quadsAfterZipperCount);
 						P_Uri->HostText.P_AfterLast = first; /* HOST END */
-						return first+1;   /* Fine */
+						return first+1; /* Fine */
 				    default:
 						StopSyntax(first);
 						return NULL;
@@ -3206,12 +3206,12 @@ const char * FASTCALL UriParserState::ParseOwnHostUserInfoNz(const char * first,
 				break;
 			case _UT(':'):
 				P_Uri->HostText.P_AfterLast = first; /* HOST END */
-				P_Uri->PortText.P_First = first+1;   /* PORT BEGIN */
+				P_Uri->PortText.P_First = first+1; /* PORT BEGIN */
 				p_ret = ParseOwnPortUserInfo(first+1, afterLast);
 				break;
 			case _UT('@'):
 				P_Uri->UserInfo.P_AfterLast = first; /* USERINFO END */
-				P_Uri->HostText.P_First = first+1;   /* HOST BEGIN */
+				P_Uri->HostText.P_First = first+1; /* HOST BEGIN */
 				p_ret = ParseOwnHost(first+1, afterLast);
 				break;
 			default:
@@ -3311,7 +3311,7 @@ const char * FASTCALL UriParserState::ParseOwnUserInfo(const char * pFirst, cons
 				break;
 			case _UT('@'): // SURE 
 				P_Uri->UserInfo.P_AfterLast = pFirst; /* USERINFO END */
-				P_Uri->HostText.P_First = pFirst+1;   /* HOST BEGIN */
+				P_Uri->HostText.P_First = pFirst+1; /* HOST BEGIN */
 				p_ret = ParseOwnHost(pFirst+1, pAfterLast);
 				break;
 			default:

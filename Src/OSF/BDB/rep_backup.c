@@ -18,11 +18,11 @@
  * (constant) offset __REP_UPDATE_SIZE in the buffer.
  */
 typedef struct {
-	uint8 * buf;         /* Buffer base address. */
-	uint32 size;         /* Total allocated buffer size. */
-	uint8 * fillptr;       /* Pointer to first unused space. */
-	uint32 count;        /* Number of entries currently in list. */
-	uint32 version;       /* Rep version of marshaled format. */
+	uint8 * buf; /* Buffer base address. */
+	uint32 size; /* Total allocated buffer size. */
+	uint8 * fillptr; /* Pointer to first unused space. */
+	uint32 count; /* Number of entries currently in list. */
+	uint32 version; /* Rep version of marshaled format. */
 } FILE_LIST_CTX;
 #define FIRST_FILE_PTR(buf)     ((buf)+__REP_UPDATE_SIZE)
 
@@ -345,7 +345,7 @@ static int __rep_is_replicated_db(const char * name, const char * dir)
 		return 1;
 	/* Here, we know we have a "__db" name. */
 	if(name[sizeof(DB_REGION_PREFIX)-1] == 'p')
-		return 1;       /* Partition files are eligible. */
+		return 1; /* Partition files are eligible. */
 	/*
 	 * Replicated system databases are eligible.  When on disk, both DBs are
 	 * sub-databases of a single database file.

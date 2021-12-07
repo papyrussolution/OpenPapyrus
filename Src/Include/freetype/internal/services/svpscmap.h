@@ -46,7 +46,7 @@ typedef const char *
  * Simple unicode -> glyph index charmap built from font glyph names table.
  */
 typedef struct  PS_UniMap_ {
-	FT_UInt32 unicode;   /* bit 31 set: is glyph variant */
+	FT_UInt32 unicode; /* bit 31 set: is glyph variant */
 	FT_UInt glyph_index;
 } PS_UniMap;
 

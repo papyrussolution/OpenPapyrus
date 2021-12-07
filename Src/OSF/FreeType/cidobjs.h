@@ -119,10 +119,10 @@ FT_BEGIN_HEADER
 
 
   FT_LOCAL( void )
-  cid_size_done( FT_Size  size );       /* CID_Size */
+  cid_size_done( FT_Size  size ); /* CID_Size */
 
   FT_LOCAL( FT_Error )
-  cid_size_init( FT_Size  size );       /* CID_Size */
+  cid_size_init( FT_Size  size ); /* CID_Size */
 
   FT_LOCAL( FT_Error )
   cid_size_request( FT_Size          size,      /* CID_Size */
@@ -136,7 +136,7 @@ FT_BEGIN_HEADER
                  FT_Parameter*  params );
 
   FT_LOCAL( void )
-  cid_face_done( FT_Face  face );               /* CID_Face */
+  cid_face_done( FT_Face  face ); /* CID_Face */
 
 
   FT_LOCAL( FT_Error )

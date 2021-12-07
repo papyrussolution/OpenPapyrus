@@ -410,21 +410,21 @@ struct rand_struct {
 enum Item_result {STRING_RESULT, REAL_RESULT, INT_RESULT, ROW_RESULT, DECIMAL_RESULT};
 
 typedef struct st_udf_args {
-	unsigned int arg_count;         /* Number of arguments */
-	enum Item_result * arg_type;    /* Pointer to item_results */
+	unsigned int arg_count; /* Number of arguments */
+	enum Item_result * arg_type; /* Pointer to item_results */
 	char ** args;                   /* Pointer to argument */
-	unsigned long * lengths;        /* Length of string arguments */
-	char * maybe_null;              /* Set to 1 for all maybe_null args */
+	unsigned long * lengths; /* Length of string arguments */
+	char * maybe_null; /* Set to 1 for all maybe_null args */
 } UDF_ARGS;
 
 /* This holds information about the result */
 
 typedef struct st_udf_init {
-	bool maybe_null;             /* 1 if function can return NULL */
-	unsigned int decimals;          /* for real functions */
-	unsigned int max_length;        /* For string functions */
-	char    * ptr;                  /* free pointer for function data */
-	bool const_item;             /* 0 if result is independent of arguments */
+	bool maybe_null; /* 1 if function can return NULL */
+	unsigned int decimals; /* for real functions */
+	unsigned int max_length; /* For string functions */
+	char    * ptr; /* free pointer for function data */
+	bool const_item; /* 0 if result is independent of arguments */
 } UDF_INIT;
 
 /* Connection types */

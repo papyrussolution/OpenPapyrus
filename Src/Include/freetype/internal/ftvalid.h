@@ -69,12 +69,12 @@ typedef enum  FT_ValidationLevel_ {
 
 /* validator structure */
 typedef struct  FT_ValidatorRec_ {
-	ft_jmp_buf jump_buffer;      /* used for exception handling      */
+	ft_jmp_buf jump_buffer; /* used for exception handling      */
 
-	const FT_Byte*      base;    /* address of table in memory       */
-	const FT_Byte*      limit;   /* `base' + sizeof(table) in memory */
-	FT_ValidationLevel level;    /* validation level                 */
-	FT_Error error;              /* error returned. 0 means success  */
+	const FT_Byte*      base; /* address of table in memory       */
+	const FT_Byte*      limit; /* `base' + sizeof(table) in memory */
+	FT_ValidationLevel level; /* validation level                 */
+	FT_Error error; /* error returned. 0 means success  */
 } FT_ValidatorRec;
 
 #if defined( _MSC_VER )

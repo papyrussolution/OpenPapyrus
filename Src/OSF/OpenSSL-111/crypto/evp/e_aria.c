@@ -29,14 +29,14 @@ typedef struct {
 		ARIA_KEY ks;
 	} ks;                   /* ARIA subkey to use */
 
-	int key_set;            /* Set if key initialised */
-	int iv_set;             /* Set if an iv is set */
+	int key_set; /* Set if key initialised */
+	int iv_set; /* Set if an iv is set */
 	GCM128_CONTEXT gcm;
-	uchar * iv;     /* Temporary IV store */
-	int ivlen;              /* IV length */
+	uchar * iv; /* Temporary IV store */
+	int ivlen; /* IV length */
 	int taglen;
-	int iv_gen;             /* It is OK to generate IVs */
-	int tls_aad_len;        /* TLS AAD length */
+	int iv_gen; /* It is OK to generate IVs */
+	int tls_aad_len; /* TLS AAD length */
 } EVP_ARIA_GCM_CTX;
 
 /* ARIA CCM context */
@@ -46,12 +46,12 @@ typedef struct {
 		ARIA_KEY ks;
 	} ks;                   /* ARIA key schedule to use */
 
-	int key_set;            /* Set if key initialised */
-	int iv_set;             /* Set if an iv is set */
-	int tag_set;            /* Set if tag is valid */
-	int len_set;            /* Set if message length set */
-	int L, M;               /* L and M parameters from RFC3610 */
-	int tls_aad_len;        /* TLS AAD length */
+	int key_set; /* Set if key initialised */
+	int iv_set; /* Set if an iv is set */
+	int tag_set; /* Set if tag is valid */
+	int len_set; /* Set if message length set */
+	int L, M; /* L and M parameters from RFC3610 */
+	int tls_aad_len; /* TLS AAD length */
 	CCM128_CONTEXT ccm;
 	ccm128_f str;
 } EVP_ARIA_CCM_CTX;

@@ -2383,13 +2383,13 @@ static int PThr4wTest_Eyal1()
 {
 	struct thread_control {
 		int id;
-		pthread_t thread;       /* thread id */
+		pthread_t thread; /* thread id */
 		pthread_mutex_t mutex_start;
 		pthread_mutex_t mutex_started;
 		pthread_mutex_t mutex_end;
 		pthread_mutex_t mutex_ended;
-		long work;              /* work done */
-		int stat;               /* pthread_init status */
+		long work; /* work done */
+		int stat; /* pthread_init status */
 	};
 
 	typedef struct thread_control TC;
@@ -5244,7 +5244,7 @@ static int PThr4wTest_Affinity2()
 	CPU_ZERO(&switchmask);
 	CPU_ZERO(&flipmask);
 	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
-		CPU_SET(cpu, &switchmask);                      /* 0b01010101010101010101010101010101 */
+		CPU_SET(cpu, &switchmask); /* 0b01010101010101010101010101010101 */
 	}
 	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu++) {
 		CPU_SET(cpu, &flipmask);                                /* 0b11111111111111111111111111111111 */
@@ -5302,7 +5302,7 @@ static int PThr4wTest_Affinity3()
 	printf("This thread has a starting affinity with %d CPUs\n", CPU_COUNT(&processCpus));
 	PTHR4W_TEST_ASSERT(!CPU_EQUAL(&mask, &processCpus));
 	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu += 2) {
-		CPU_SET(cpu, &switchmask);                      /* 0b01010101010101010101010101010101 */
+		CPU_SET(cpu, &switchmask); /* 0b01010101010101010101010101010101 */
 	}
 	for(cpu = 0; cpu < sizeof(cpu_set_t)*8; cpu++) {
 		CPU_SET(cpu, &flipmask);                                /* 0b11111111111111111111111111111111 */
@@ -5365,7 +5365,7 @@ static int PThr4wTest_Affinity5()
 	typedef union {
 		// Violates opacity 
 		cpu_set_t cpuset;
-		ulong bits;  /* To stop GCC complaining about %lx args to printf */
+		ulong bits; /* To stop GCC complaining about %lx args to printf */
 	} cpuset_to_ulint;
 	class InnerBlock {
 	public:
@@ -10346,7 +10346,7 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		if(argc >= 4)
 			DisplayMessages = atoi(argv[3]);
 	}
-	srand((int)time(NULL));   /* Seed the RN generator */
+	srand((int)time(NULL)); /* Seed the RN generator */
 	if(nthread > MAX_THREADS) {
 		printf("Maximum number of producers or consumers is %d.\n", MAX_THREADS);
 		return 2;

@@ -74,7 +74,7 @@ static uint DXF_posy;
 /* linetype is mapped to a layer. see below. */
 static uint dxf_linetype;
 static enum JUSTIFY dxf_justify = LEFT;
-static float dxf_angle = 0.0;   /* 0 is horizontal, 90.0 is vertical */
+static float dxf_angle = 0.0; /* 0 is horizontal, 90.0 is vertical */
 static const char * text_style = "STANDARD"; /* text style used in the entire drawing */
 
 #define TEXT_LAYER 0 /* text always resides on layer 0 */
@@ -228,7 +228,7 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		return;
 	stl = 0;
 	while(str[stl])
-		++stl;          /* get string length */
+		++stl; /* get string length */
 	if(vector_was_last)
 		fputs("  0\nSEQEND\n", GPT.P_GpOutFile);
 	vector_was_last = FALSE;

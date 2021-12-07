@@ -555,8 +555,8 @@ static ulmbcs_byte_t FindLMBCSLocale(const char * LocaleID)
 
 typedef struct {
 	UConverterSharedData * OptGrpConverter[ULMBCS_GRP_LAST+1]; /* Converter per Opt. grp. */
-	uint8_t OptGroup;                 /* default Opt. grp. for this LMBCS session */
-	uint8_t localeConverterIndex;     /* reasonable locale match for index */
+	uint8_t OptGroup; /* default Opt. grp. for this LMBCS session */
+	uint8_t localeConverterIndex; /* reasonable locale match for index */
 }
 
 UConverterDataLMBCS;
@@ -1077,7 +1077,7 @@ static UChar32 U_CALLCONV _LMBCSGetNextUCharWorker(UConverterToUnicodeArgs*   ar
 			return GetUniFromLMBCSUni(&(args->source));
 		}
 		else if(CurByte <= ULMBCS_CTRLOFFSET) {
-			group = CurByte;       /* group byte is in the source */
+			group = CurByte; /* group byte is in the source */
 			extraInfo = (UConverterDataLMBCS*)args->converter->extraInfo;
 			if(group > ULMBCS_GRP_LAST || (cnv = extraInfo->OptGrpConverter[group]) == NULL) {
 				/* this is not a valid group byte - no converter*/

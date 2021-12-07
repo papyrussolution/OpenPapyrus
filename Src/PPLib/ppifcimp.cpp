@@ -7316,15 +7316,15 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltCCheck, DL6ICLS_PPFiltCCheck_VTab, CCheckFilt);
 //
 void   DL6ICLS_PPFiltCCheck::SetPeriod(LDATE low, LDATE upp) { static_cast<CCheckFilt *>(ExtraPtr)->Period.Set(low, upp); }
 int32  DL6ICLS_PPFiltCCheck::get_CashNodeID() { return static_cast<const CCheckFilt *>(ExtraPtr)->NodeList.GetSingle(); }
-void   DL6ICLS_PPFiltCCheck::put_CashNodeID(int32 value)  { static_cast<CCheckFilt *>(ExtraPtr)->NodeList.Add(value); }
+void   DL6ICLS_PPFiltCCheck::put_CashNodeID(int32 value) { static_cast<CCheckFilt *>(ExtraPtr)->NodeList.Add(value); }
 int32  DL6ICLS_PPFiltCCheck::get_CashNumber()             { IMPL_PPIFC_GETPROP(CCheckFilt, CashNumber); }
-void   DL6ICLS_PPFiltCCheck::put_CashNumber(int32 value)  { IMPL_PPIFC_PUTPROP(CCheckFilt, CashNumber); }
+void   DL6ICLS_PPFiltCCheck::put_CashNumber(int32 value) { IMPL_PPIFC_PUTPROP(CCheckFilt, CashNumber); }
 int32  DL6ICLS_PPFiltCCheck::get_GoodsGrpID()             { IMPL_PPIFC_GETPROP(CCheckFilt, GoodsGrpID); }
-void   DL6ICLS_PPFiltCCheck::put_GoodsGrpID(int32 value)  { IMPL_PPIFC_PUTPROP(CCheckFilt, GoodsGrpID); }
+void   DL6ICLS_PPFiltCCheck::put_GoodsGrpID(int32 value) { IMPL_PPIFC_PUTPROP(CCheckFilt, GoodsGrpID); }
 int32  DL6ICLS_PPFiltCCheck::get_GoodsID()                { IMPL_PPIFC_GETPROP(CCheckFilt, GoodsID); }
 void   DL6ICLS_PPFiltCCheck::put_GoodsID(int32 value)     { IMPL_PPIFC_PUTPROP(CCheckFilt, GoodsID); }
 int32  DL6ICLS_PPFiltCCheck::get_SCardSerID()             { IMPL_PPIFC_GETPROP(CCheckFilt, SCardSerID); }
-void   DL6ICLS_PPFiltCCheck::put_SCardSerID(int32 value)  { IMPL_PPIFC_PUTPROP(CCheckFilt, SCardSerID); }
+void   DL6ICLS_PPFiltCCheck::put_SCardSerID(int32 value) { IMPL_PPIFC_PUTPROP(CCheckFilt, SCardSerID); }
 int32  DL6ICLS_PPFiltCCheck::get_SCardID()                { IMPL_PPIFC_GETPROP(CCheckFilt, SCardID); }
 void   DL6ICLS_PPFiltCCheck::put_SCardID(int32 value)     { IMPL_PPIFC_PUTPROP(CCheckFilt, SCardID); }
 int32  DL6ICLS_PPFiltCCheck::get_CashierID()              { IMPL_PPIFC_GETPROP(CCheckFilt, CashierID); }
@@ -7479,13 +7479,13 @@ void  DL6ICLS_PPFiltTrfrAnlz::put_CityID(int32 value)   { IMPL_PPIFC_PUTPROP(Trf
 int32 DL6ICLS_PPFiltTrfrAnlz::get_GoodsGrpID()          { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, GoodsGrpID); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_GoodsGrpID(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, GoodsGrpID); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_GoodsID()               { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, GoodsID); }
-void  DL6ICLS_PPFiltTrfrAnlz::put_GoodsID(int32 value)  { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, GoodsID); }
+void  DL6ICLS_PPFiltTrfrAnlz::put_GoodsID(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, GoodsID); }
 PpyVTrfrAnlzFlags DL6ICLS_PPFiltTrfrAnlz::get_Flags()   { IMPL_PPIFC_GETPROP_CAST(TrfrAnlzFilt, Flags, PpyVTrfrAnlzFlags); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_Flags(PpyVTrfrAnlzFlags value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, Flags); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_InitOrd()            { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, InitOrd); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_InitOrd(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, InitOrd); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_CtKind()             { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, CtKind); }
-void  DL6ICLS_PPFiltTrfrAnlz::put_CtKind(int32 value)  { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, CtKind); }
+void  DL6ICLS_PPFiltTrfrAnlz::put_CtKind(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, CtKind); }
 PpyVTrfrAnlzGrouping DL6ICLS_PPFiltTrfrAnlz::get_Grp() { IMPL_PPIFC_GETPROP_CAST(TrfrAnlzFilt, Grp, PpyVTrfrAnlzGrouping); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_Grp(PpyVTrfrAnlzGrouping value) { IMPL_PPIFC_PUTPROP_CAST(TrfrAnlzFilt, Grp, TrfrAnlzFilt::Grouping); }
 PpyVSubstGrpGoods DL6ICLS_PPFiltTrfrAnlz::get_Sgg() { IMPL_PPIFC_GETPROP_CAST(TrfrAnlzFilt, Sgg, PpyVSubstGrpGoods); }
@@ -8306,7 +8306,7 @@ void DL6ICLS_PPFiltGoodsRest::AddLocationID(int32 id)
 }
 
 PpyVGoodsRestCalcMethod DL6ICLS_PPFiltGoodsRest::get_CalcMethod()             { IMPL_PPIFC_GETPROP_CAST(GoodsRestFilt, CalcMethod, PpyVGoodsRestCalcMethod); }
-void  DL6ICLS_PPFiltGoodsRest::put_CalcMethod(PpyVGoodsRestCalcMethod value)  { IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcMethod); }
+void  DL6ICLS_PPFiltGoodsRest::put_CalcMethod(PpyVGoodsRestCalcMethod value) { IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcMethod); }
 
 PpyVGoodsRestFlags DL6ICLS_PPFiltGoodsRest::get_Flags()                       { IMPL_PPIFC_GETPROP_CAST(GoodsRestFilt, Flags, PpyVGoodsRestFlags); }
 void  DL6ICLS_PPFiltGoodsRest::put_Flags(PpyVGoodsRestFlags value)            { IMPL_PPIFC_PUTPROP(GoodsRestFilt, Flags); }
@@ -9516,9 +9516,9 @@ PpyVPrjTaskSortOrder DL6ICLS_PPFiltPrjTask::get_Order() { return (PpyVPrjTaskSor
 void DL6ICLS_PPFiltPrjTask::put_Order(PpyVPrjTaskSortOrder value) { IMPL_PPIFC_PUTPROP_CAST(PrjTaskFilt, Order, PrjTaskFilt::EnumOrder); }
 int32 DL6ICLS_PPFiltPrjTask::get_ProjectID() {return static_cast<PrjTaskFilt *>(ExtraPtr)->ProjectID; }
 void DL6ICLS_PPFiltPrjTask::put_ProjectID(int32 value) { IMPL_PPIFC_PUTPROP(PrjTaskFilt, ProjectID); }
-int32 DL6ICLS_PPFiltPrjTask::get_ClientID()  {return static_cast<PrjTaskFilt *>(ExtraPtr)->ClientID; }
+int32 DL6ICLS_PPFiltPrjTask::get_ClientID() {return static_cast<PrjTaskFilt *>(ExtraPtr)->ClientID; }
 void DL6ICLS_PPFiltPrjTask::put_ClientID(int32 value) { IMPL_PPIFC_PUTPROP(PrjTaskFilt, ClientID); }
-int32 DL6ICLS_PPFiltPrjTask::get_EmployerID()  {return static_cast<PrjTaskFilt *>(ExtraPtr)->EmployerID; }
+int32 DL6ICLS_PPFiltPrjTask::get_EmployerID() {return static_cast<PrjTaskFilt *>(ExtraPtr)->EmployerID; }
 void DL6ICLS_PPFiltPrjTask::put_EmployerID(int32 value) { IMPL_PPIFC_PUTPROP(PrjTaskFilt, EmployerID); }
 int32 DL6ICLS_PPFiltPrjTask::get_TemplateID() {return static_cast<PrjTaskFilt *>(ExtraPtr)->TemplateID; }
 void DL6ICLS_PPFiltPrjTask::put_TemplateID(int32 value) { IMPL_PPIFC_PUTPROP(PrjTaskFilt, TemplateID); }
@@ -10030,9 +10030,9 @@ void   DL6ICLS_PPFiltLot::put_Flags(PpyVLotFlags value) { IMPL_PPIFC_PUTPROP(Lot
 int32  DL6ICLS_PPFiltLot::get_ClosedTag()             { IMPL_PPIFC_GETPROP(LotFilt, ClosedTag); }
 void   DL6ICLS_PPFiltLot::put_ClosedTag(int32 value)   { IMPL_PPIFC_PUTPROP(LotFilt, ClosedTag); }
 double DL6ICLS_PPFiltLot::get_CostLow()              { return static_cast<LotFilt *>(ExtraPtr)->CostRange.low; }
-void   DL6ICLS_PPFiltLot::put_CostLow(double value)  { static_cast<LotFilt *>(ExtraPtr)->CostRange.low = value; }
+void   DL6ICLS_PPFiltLot::put_CostLow(double value) { static_cast<LotFilt *>(ExtraPtr)->CostRange.low = value; }
 double DL6ICLS_PPFiltLot::get_CostUpp()              { return static_cast<LotFilt *>(ExtraPtr)->CostRange.upp; }
-void   DL6ICLS_PPFiltLot::put_CostUpp(double value)  { static_cast<LotFilt *>(ExtraPtr)->CostRange.upp = value; }
+void   DL6ICLS_PPFiltLot::put_CostUpp(double value) { static_cast<LotFilt *>(ExtraPtr)->CostRange.upp = value; }
 double DL6ICLS_PPFiltLot::get_PriceLow()             { return static_cast<LotFilt *>(ExtraPtr)->PriceRange.low; }
 void   DL6ICLS_PPFiltLot::put_PriceLow(double value) { static_cast<LotFilt *>(ExtraPtr)->PriceRange.low = value; }
 double DL6ICLS_PPFiltLot::get_PriceUpp()             { return static_cast<LotFilt *>(ExtraPtr)->PriceRange.upp; }

@@ -46,8 +46,8 @@
 #include "archive_write_disk_private.h"
 
 typedef struct {
-	const int a_perm;       /* Libarchive permission or flag */
-	const int p_perm;       /* Platform permission or flag */
+	const int a_perm; /* Libarchive permission or flag */
+	const int p_perm; /* Platform permission or flag */
 } acl_perm_map_t;
 
 static const acl_perm_map_t acl_posix_perm_map[] = {
@@ -300,8 +300,8 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 
 	*trivialp = 1;
 #else   /* !ARCHIVE_ACL_SUNOS_NFS4 */
-	(void)is_dir;   /* UNUSED */
-	(void)aclp;     /* UNUSED */
+	(void)is_dir; /* UNUSED */
+	(void)aclp; /* UNUSED */
 #endif  /* !ARCHIVE_ACL_SUNOS_NFS4 */
 	return 0;
 }
@@ -782,7 +782,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 {
 	int ret = ARCHIVE_OK;
 
-	(void)mode;     /* UNUSED */
+	(void)mode; /* UNUSED */
 
 	if((archive_acl_types(abstract_acl)
 	    & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) != 0) {

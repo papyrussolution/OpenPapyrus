@@ -39,10 +39,10 @@ struct __qmpf {
 };			 
 
 typedef struct __mpfarray {
-	uint32 n_extent;         /* Number of extents in table. */
-	uint32 low_extent;       /* First extent open. */
-	uint32 hi_extent;        /* Last extent open. */
-	struct __qmpf * mpfarray;   /* Array of open extents. */
+	uint32 n_extent; /* Number of extents in table. */
+	uint32 low_extent; /* First extent open. */
+	uint32 hi_extent; /* Last extent open. */
+	struct __qmpf * mpfarray; /* Array of open extents. */
 } MPFARRAY;
 /*
  * The in-memory, per-tree queue data structure.

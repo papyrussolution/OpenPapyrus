@@ -259,7 +259,7 @@ int FASTCALL __os_realloc(ENV * env, size_t size, void * storep)
 		return ret;
 	}
 #ifdef DIAGNOSTIC
-	((uint8 *)p)[size-1] = CLEAR_BYTE;   /* Initialize guard byte. */
+	((uint8 *)p)[size-1] = CLEAR_BYTE; /* Initialize guard byte. */
 
 	((db_allocinfo_t *)p)->size = size;
 	p = &((db_allocinfo_t *)p)[1];

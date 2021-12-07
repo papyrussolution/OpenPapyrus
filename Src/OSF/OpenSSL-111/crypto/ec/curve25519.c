@@ -302,8 +302,8 @@ static void fe51_frombytes(fe51 h, const uint8_t * s)
 {
 	uint64_t h0 = load_7(s);                            /* 56 bits */
 	uint64_t h1 = load_6(s + 7) << 5;                   /* 53 bits */
-	uint64_t h2 = load_7(s + 13) << 2;                  /* 58 bits */
-	uint64_t h3 = load_6(s + 20) << 7;                  /* 55 bits */
+	uint64_t h2 = load_7(s + 13) << 2; /* 58 bits */
+	uint64_t h3 = load_6(s + 20) << 7; /* 55 bits */
 	uint64_t h4 = (load_6(s + 26) & 0x7fffffffffff) << 4; /* 51 bits */
 
 	h1 |= h0 >> 51; h0 &= MASK51;
@@ -465,7 +465,7 @@ static void fe51_sq(fe51 h, const fe51 f)
 	h3 = (u128)g0 * g3;
 	h4 = (u128)g0 * g4;
 
-	g0 = g4;            /* borrow g0 */
+	g0 = g4; /* borrow g0 */
 	h3 += (u128)g0 * (g4 *= 19);
 
 	h2 += (u128)g1 * g1;    g1 *= 2;
@@ -473,7 +473,7 @@ static void fe51_sq(fe51 h, const fe51 f)
 	h4 += (u128)g1 * g3;
 	h0 += (u128)g1 * g4;
 
-	g0 = g3;            /* borrow g0 */
+	g0 = g3; /* borrow g0 */
 	h1 += (u128)g0 * (g3 *= 19);
 	h2 += (u128)(g0 * 2) * g4;
 
@@ -2061,9 +2061,9 @@ static uint8_t equal(signed char b, signed char c)
 	uint8_t ub = b;
 	uint8_t uc = c;
 	uint8_t x = ub ^ uc; /* 0: yes; 1..255: no */
-	uint32_t y = x;  /* 0: yes; 1..255: no */
-	y -= 1;          /* 4294967295: yes; 0..254: no */
-	y >>= 31;        /* 1: yes; 0: no */
+	uint32_t y = x; /* 0: yes; 1..255: no */
+	y -= 1; /* 4294967295: yes; 0..254: no */
+	y >>= 31; /* 1: yes; 0: no */
 	return y;
 }
 

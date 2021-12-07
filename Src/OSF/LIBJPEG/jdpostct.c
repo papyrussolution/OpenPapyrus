@@ -30,11 +30,11 @@ typedef struct {
 	 * for one-pass operation, a strip buffer is sufficient.
 	 */
 	jvirt_sarray_ptr whole_image; /* virtual array, or NULL if one-pass */
-	JSAMPARRAY buffer;      /* strip buffer, or current strip of virtual */
+	JSAMPARRAY buffer; /* strip buffer, or current strip of virtual */
 	JDIMENSION strip_height; /* buffer size in rows */
 	/* for two-pass mode only: */
 	JDIMENSION starting_row; /* row # of first row in current strip */
-	JDIMENSION next_row;    /* index of next row to fill/empty in strip */
+	JDIMENSION next_row; /* index of next row to fill/empty in strip */
 } my_post_controller;
 
 typedef my_post_controller * my_post_ptr;
@@ -194,7 +194,7 @@ GLOBAL(void) jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_b
 	cinfo->post = (struct jpeg_d_post_controller*)post;
 	post->pub.start_pass = start_pass_dpost;
 	post->whole_image = NULL; /* flag for no virtual arrays */
-	post->buffer = NULL;    /* flag for no strip buffer */
+	post->buffer = NULL; /* flag for no strip buffer */
 
 	/* Create the quantization buffer, if needed */
 	if(cinfo->quantize_colors) {

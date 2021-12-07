@@ -145,7 +145,7 @@ namespace OT {
 		HBUINT16 nameID; /* Name ID. */
 		HBUINT16 length; /* String length (in bytes). */
 		NNOffsetTo<UnsizedArrayOf<HBUINT8>>
-		offset;         /* String offset from start of storage area (in bytes). */
+		offset; /* String offset from start of storage area (in bytes). */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -338,9 +338,9 @@ public:
 		HBUINT16 format; /* Format selector (=0/1). */
 		HBUINT16 count; /* Number of name records. */
 		NNOffsetTo<UnsizedArrayOf<HBUINT8>>
-		stringOffset;   /* Offset to start of string storage (from start of table). */
+		stringOffset; /* Offset to start of string storage (from start of table). */
 		UnsizedArrayOf<NameRecord>
-		nameRecordZ;    /* The name records where count is the number of records. */
+		nameRecordZ; /* The name records where count is the number of records. */
 public:
 		DEFINE_SIZE_ARRAY(6, nameRecordZ);
 	};

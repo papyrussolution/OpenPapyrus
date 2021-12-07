@@ -141,11 +141,11 @@
 #define C1_SHIFT  (BITS_IN_JSAMPLE-HIST_C1_BITS)
 #define C2_SHIFT  (BITS_IN_JSAMPLE-HIST_C2_BITS)
 
-typedef uint16 histcell;        /* histogram cell; prefer an unsigned type */
+typedef uint16 histcell; /* histogram cell; prefer an unsigned type */
 typedef histcell FAR * histptr; /* for pointers to histogram cells */
 typedef histcell hist1d[HIST_C2_ELEMS]; /* typedefs for the array */
-typedef hist1d FAR * hist2d;    /* type for the 2nd-level pointers */
-typedef hist2d * hist3d;        /* type for top-level pointer */
+typedef hist1d FAR * hist2d; /* type for the 2nd-level pointers */
+typedef hist2d * hist3d; /* type for top-level pointer */
 
 /* Declarations for Floyd-Steinberg dithering.
  *
@@ -172,14 +172,14 @@ typedef hist2d * hist3d;        /* type for top-level pointer */
  */
 
 #if BITS_IN_JSAMPLE == 8
-typedef int16 FSERROR;          /* 16 bits should be enough */
-typedef int LOCFSERROR;         /* use 'int' for calculation temps */
+typedef int16 FSERROR; /* 16 bits should be enough */
+typedef int LOCFSERROR; /* use 'int' for calculation temps */
 #else
-typedef INT32 FSERROR;          /* may need more than 16 bits */
-typedef INT32 LOCFSERROR;       /* be sure calculation temps are big enough */
+typedef INT32 FSERROR; /* may need more than 16 bits */
+typedef INT32 LOCFSERROR; /* be sure calculation temps are big enough */
 #endif
 
-typedef FSERROR FAR * FSERRPTR;  /* pointer to error array (in FAR storage!) */
+typedef FSERROR FAR * FSERRPTR; /* pointer to error array (in FAR storage!) */
 
 /* Private subobject */
 
@@ -188,17 +188,17 @@ typedef struct {
 
 	/* Space for the eventually created colormap is stashed here */
 	JSAMPARRAY sv_colormap; /* colormap allocated at init time */
-	int desired;            /* desired # of colors = size of colormap */
+	int desired; /* desired # of colors = size of colormap */
 
 	/* Variables for accumulating image statistics */
-	hist3d histogram;       /* pointer to the histogram */
+	hist3d histogram; /* pointer to the histogram */
 
-	boolean needs_zeroed;   /* TRUE if next pass must zero histogram */
+	boolean needs_zeroed; /* TRUE if next pass must zero histogram */
 
 	/* Variables for Floyd-Steinberg dithering */
-	FSERRPTR fserrors;      /* accumulated errors */
-	boolean on_odd_row;     /* flag to remember which row we are on */
-	int * error_limiter;    /* table for clamping the applied error */
+	FSERRPTR fserrors; /* accumulated errors */
+	boolean on_odd_row; /* flag to remember which row we are on */
+	int * error_limiter; /* table for clamping the applied error */
 } my_cquantizer;
 
 typedef my_cquantizer * my_cquantize_ptr;
@@ -764,11 +764,11 @@ static void find_best_colors(j_decompress_ptr cinfo, int minc0, int minc1, int m
 {
 	int ic0, ic1, ic2;
 	int i, icolor;
-	INT32 * bptr;  /* pointer into bestdist[] array */
-	JSAMPLE * cptr;         /* pointer into bestcolor[] array */
-	INT32 dist0, dist1;     /* initial distance values */
-	INT32 dist2;   /* current distance in inner loop */
-	INT32 xx0, xx1;         /* distance increments */
+	INT32 * bptr; /* pointer into bestdist[] array */
+	JSAMPLE * cptr; /* pointer into bestcolor[] array */
+	INT32 dist0, dist1; /* initial distance values */
+	INT32 dist2; /* current distance in inner loop */
+	INT32 xx0, xx1; /* distance increments */
 	INT32 xx2;
 	INT32 inc0, inc1, inc2; /* initial values for increments */
 	/* This array holds the distance to the nearest-so-far color for each cell */
@@ -844,7 +844,7 @@ static void fill_inverse_cmap(j_decompress_ptr cinfo, int c0, int c1, int c2)
 	histptr cachep; /* pointer into main cache array */
 	/* This array lists the candidate colormap indexes. */
 	JSAMPLE colorlist[MAXNUMCOLORS];
-	int numcolors;          /* number of candidate colors */
+	int numcolors; /* number of candidate colors */
 	/* This array holds the actually closest colormap index for each cell. */
 	JSAMPLE bestcolor[BOX_C0_ELEMS * BOX_C1_ELEMS * BOX_C2_ELEMS];
 
@@ -871,7 +871,7 @@ static void fill_inverse_cmap(j_decompress_ptr cinfo, int c0, int c1, int c2)
 	    bestcolor);
 
 	/* Save the best color numbers (plus 1) in the main cache array */
-	c0 <<= BOX_C0_LOG;      /* convert ID back to base cell indexes */
+	c0 <<= BOX_C0_LOG; /* convert ID back to base cell indexes */
 	c1 <<= BOX_C1_LOG;
 	c2 <<= BOX_C2_LOG;
 	cptr = bestcolor;
@@ -930,11 +930,11 @@ METHODDEF(void) pass2_fs_dither(j_decompress_ptr cinfo,
 	LOCFSERROR belowerr0, belowerr1, belowerr2; /* error for pixel below cur */
 	LOCFSERROR bpreverr0, bpreverr1, bpreverr2; /* error for below/prev col */
 	FSERRPTR errorptr; /* => fserrors[] at column before current */
-	JSAMPROW inptr;         /* => current input pixel */
-	JSAMPROW outptr;        /* => current output pixel */
+	JSAMPROW inptr; /* => current input pixel */
+	JSAMPROW outptr; /* => current output pixel */
 	histptr cachep;
-	int dir;                /* +1 or -1 depending on direction */
-	int dir3;               /* 3*dir, for advancing inptr & errorptr */
+	int dir; /* +1 or -1 depending on direction */
+	int dir3; /* 3*dir, for advancing inptr & errorptr */
 	int row;
 	JDIMENSION col;
 	JDIMENSION width = cinfo->output_width;
@@ -1087,7 +1087,7 @@ static void init_error_limit(j_decompress_ptr cinfo)
 
 	table = (int *)(*cinfo->mem->alloc_small)
 		    (reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (MAXJSAMPLE*2+1) * SIZEOF(int));
-	table += MAXJSAMPLE;    /* so can index -MAXJSAMPLE .. +MAXJSAMPLE */
+	table += MAXJSAMPLE; /* so can index -MAXJSAMPLE .. +MAXJSAMPLE */
 	cquantize->error_limiter = table;
 
 #define STEPSIZE ((MAXJSAMPLE+1)/16)

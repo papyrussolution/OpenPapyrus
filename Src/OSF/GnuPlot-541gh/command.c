@@ -1226,7 +1226,7 @@ void GnuPlot::LinkCommand()
 	GpAxis * primary_axis = NULL;
 	GpAxis * secondary_axis = NULL;
 	bool linked = FALSE;
-	int command_token = Pgm.GetCurTokenIdx();    /* points to "link" or "nonlinear" */
+	int command_token = Pgm.GetCurTokenIdx(); /* points to "link" or "nonlinear" */
 	Pgm.Shift();
 	// Set variable name accepatable for the via/inverse functions 
 	strcpy(_Pb.c_dummy_var[0], "x");
@@ -2279,8 +2279,8 @@ void GnuPlot::ReplotRequest(GpTermEntry * pTerm)
 		strcat(Pgm.P_InputLine, replot_args);
 		SAlloc::F(replot_args);
 	}
-	Pgm.plot_token = 0;         /* whole line to be saved as replot line */
-	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0);            /* start of replot will destroy existing data */
+	Pgm.plot_token = 0; /* whole line to be saved as replot line */
+	SET_REFRESH_OK(E_REFRESH_NOT_OK, 0); /* start of replot will destroy existing data */
 	GpU.screen_ok = FALSE;
 	Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 	Pgm.SetTokenIdx(1); // Skip the "plot" token 
@@ -2380,12 +2380,12 @@ void GnuPlot::HelpCommand()
 	static char * helpbuf = NULL;
 	static char * prompt = NULL;
 	static int toplevel = 1;
-	int base;               /* index of first char AFTER help string */
-	int len;                /* length of current help string */
+	int base; /* index of first char AFTER help string */
+	int len; /* length of current help string */
 	bool more_help;
-	bool only;          /* TRUE if only printing subtopics */
-	bool subtopics;     /* 0 if no subtopics for this topic */
-	int start;              /* starting token of help string */
+	bool only; /* TRUE if only printing subtopics */
+	bool subtopics; /* 0 if no subtopics for this topic */
+	int start; /* starting token of help string */
 #if defined(SHELFIND)
 	static char help_fname[256] = ""; /* keep helpfilename across calls */
 #endif

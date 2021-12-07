@@ -82,7 +82,7 @@
   #endif
 
   /* Development-use definitions  */
-  typedef long int LI;        /* for printf arguments only   */
+  typedef long int LI; /* for printf arguments only   */
   #define DECNOINT  0         /* 1 to check no internal use of 'int'  */
                               /*   or stdint types  */
   #if DECNOINT
@@ -282,10 +282,10 @@
   /* bcdnum -- a structure describing a format-independent finite     */
   /* number, whose coefficient is a string of bcd8 uBytes    */
   typedef struct {
-    uByte   *msd;             /* -> most significant digit   */
-    uByte   *lsd;             /* -> least ditto     */
-    uInt     sign;            /* 0=positive, DECFLOAT_Sign=negative   */
-    Int      exponent;        /* Unadjusted signed exponent (q), or   */
+    uByte   *msd; /* -> most significant digit   */
+    uByte   *lsd; /* -> least ditto     */
+    uInt     sign; /* 0=positive, DECFLOAT_Sign=negative   */
+    Int      exponent; /* Unadjusted signed exponent (q), or   */
                               /* DECFLOAT_NaN etc. for a special      */
     } bcdnum;
 
@@ -320,8 +320,8 @@
   #define DFISSNAN(df)    ((DFWORD(df, 0)&0x7e000000)==0x7e000000)
 
   /* Shared lookup tables         */
-  extern const uInt   DECCOMBMSD[64];   /* Combination field -> MSD   */
-  extern const uInt   DECCOMBFROM[48];  /* exp+msd -> Combination     */
+  extern const uInt   DECCOMBMSD[64]; /* Combination field -> MSD   */
+  extern const uInt   DECCOMBFROM[48]; /* exp+msd -> Combination     */
 
   /* Private generic (utility) routine     */
   #if DECCHECK || DECTRACE

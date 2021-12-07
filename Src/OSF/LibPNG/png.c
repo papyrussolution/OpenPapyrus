@@ -117,7 +117,7 @@ void /* PRIVATE */ png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, 
 			uInt safe_length = (uInt)length;
 #ifndef __COVERITY__
 			if(safe_length == 0)
-				safe_length = (uInt)-1;  /* evil, but safe */
+				safe_length = (uInt)-1; /* evil, but safe */
 #endif
 			crc = crc32(crc, ptr, safe_length);
 			/* The following should never issue compiler warnings; if they do the
@@ -1393,7 +1393,7 @@ static int png_colorspace_set_xy_and_XYZ(png_const_structrp png_ptr, png_colorsp
 		}
 		/* Only overwrite with preferred values */
 		if(preferred == 0)
-			return 1;  /* ok, but no change */
+			return 1; /* ok, but no change */
 	}
 	colorspace->end_points_xy = *xy;
 	colorspace->end_points_XYZ = *XYZ;
@@ -2266,7 +2266,7 @@ int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * st
 		switch((state & PNG_FP_STATE) + (type & PNG_FP_SAW_ANY)) {
 			case PNG_FP_INTEGER + PNG_FP_SAW_SIGN:
 			    if((state & PNG_FP_SAW_ANY) != 0)
-				    goto PNG_FP_End;  /* not a part of the number */
+				    goto PNG_FP_End; /* not a part of the number */
 
 			    png_fp_add(state, type);
 			    break;
@@ -2312,7 +2312,7 @@ int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * st
 			    break;
 			case PNG_FP_EXPONENT + PNG_FP_SAW_SIGN:
 			    if((state & PNG_FP_SAW_ANY) != 0)
-				    goto PNG_FP_End;  /* not a part of the number */
+				    goto PNG_FP_End; /* not a part of the number */
 			    png_fp_add(state, PNG_FP_SAW_SIGN);
 
 			    break;
@@ -2459,7 +2459,7 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 					exp_b10 = 0; /* Dot added below before first output. */
 				}
 				else
-					czero = 0;  /* No zeros to add */
+					czero = 0; /* No zeros to add */
 				/* Generate the digit list, stripping trailing zeros and
 				 * inserting a '.' before a digit if the exponent is 0.
 				 */
@@ -2552,7 +2552,7 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 						if(exp_b10 != (-1)) {
 							if(exp_b10 == 0) {
 								*ascii++ = 46;
-								--size;  /* counted above */
+								--size; /* counted above */
 							}
 							--exp_b10;
 						}
@@ -2779,7 +2779,7 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 			s16 = (s16 & 0xffff) << 16;
 			s00 += s16;
 			if(s00 < s16)
-				++s32;  /* carry */
+				++s32; /* carry */
 			if(s32 < D) { /* else overflow */
 				/* s32.s00 is now the 64-bit product, do a standard
 				 * division, we know that s32 < D, so the maximum
@@ -2794,7 +2794,7 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_i
 					else
 						d32 = 0, d00 = D;
 					if(s32 > d32) {
-						if(s00 < d00) --s32;  /* carry */
+						if(s00 < d00) --s32; /* carry */
 						s32 -= d32, s00 -= d00, result += 1<<bitshift;
 					}
 					else if(s32 == d32 && s00 >= d00)
@@ -3548,7 +3548,7 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 			shift = (uint8)((16U - sig_bit) & 0xff);
 
 		else
-			shift = 0;  /* keep all 16 bits */
+			shift = 0; /* keep all 16 bits */
 
 		if((png_ptr->transformations & (PNG_16_TO_8 | PNG_SCALE_16_TO_8)) != 0) {
 			/* PNG_MAX_GAMMA_8 is the number of bits to keep - effectively
@@ -3560,7 +3560,7 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 		}
 
 		if(shift > 8U)
-			shift = 8U;  /* Guarantees at least one table! */
+			shift = 8U; /* Guarantees at least one table! */
 
 		png_ptr->gamma_shift = shift;
 

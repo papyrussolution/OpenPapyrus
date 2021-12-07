@@ -337,7 +337,7 @@ static LIBSSH2_LISTENER * channel_forward_listen(LIBSSH2_SESSION * session, cons
 		}
 		*(s++) = SSH_MSG_GLOBAL_REQUEST;
 		_libssh2_store_str(&s, "tcpip-forward", sizeof("tcpip-forward") - 1);
-		*(s++) = 0x01;  /* want_reply */
+		*(s++) = 0x01; /* want_reply */
 		_libssh2_store_str(&s, host, session->fwdLstn_host_len);
 		_libssh2_store_u32(&s, port);
 		session->fwdLstn_state = libssh2_NB_state_created;
@@ -457,7 +457,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER * listener)
 		}
 		*(s++) = SSH_MSG_GLOBAL_REQUEST;
 		_libssh2_store_str(&s, "cancel-tcpip-forward", sizeof("cancel-tcpip-forward") - 1);
-		*(s++) = 0x00;  /* want_reply */
+		*(s++) = 0x00; /* want_reply */
 		_libssh2_store_str(&s, listener->host, host_len);
 		_libssh2_store_u32(&s, listener->port);
 		listener->chanFwdCncl_state = libssh2_NB_state_created;
@@ -803,7 +803,7 @@ static int channel_x11_req(LIBSSH2_CHANNEL * channel, int single_connection, con
 		*(s++) = SSH_MSG_CHANNEL_REQUEST;
 		_libssh2_store_u32(&s, channel->remote.id);
 		_libssh2_store_str(&s, "x11-req", sizeof("x11-req") - 1);
-		*(s++) = 0x01;  /* want_reply */
+		*(s++) = 0x01; /* want_reply */
 		*(s++) = single_connection ? 0x01 : 0x00;
 		_libssh2_store_str(&s, auth_proto ? auth_proto : "MIT-MAGIC-COOKIE-1", proto_len);
 		_libssh2_store_u32(&s, cookie_len);
@@ -1413,25 +1413,15 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id
 		 * or the standard stream with extended_data_merge
 		 * enabled and data was available
 		 */
-		if((stream_id
-			 && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-			 && (channel->local.id == read_local_id)
-			 && (stream_id == (int)_libssh2_ntohu32(read_packet->data + 5)))
-		    ||
-		    (!stream_id
-			 && (read_packet->data[0] == SSH_MSG_CHANNEL_DATA)
-			 && (channel->local.id == read_local_id))
-		    ||
-		    (!stream_id
-			 && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-			 && (channel->local.id == read_local_id)
-			 && (channel->remote.extended_data_ignore_mode
-				    == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
+		if((stream_id && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == read_local_id)
+			 && (stream_id == (int)_libssh2_ntohu32(read_packet->data + 5))) ||
+		    (!stream_id && (read_packet->data[0] == SSH_MSG_CHANNEL_DATA) && (channel->local.id == read_local_id)) ||
+		    (!stream_id && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == read_local_id) && 
+			(channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 			return (read_packet->data_len - read_packet->data_head);
 		}
 		read_packet = static_cast<LIBSSH2_PACKET *>(_libssh2_list_next(&read_packet->node));
 	}
-
 	return 0;
 }
 /*
@@ -1850,7 +1840,7 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL * channel)
 LIBSSH2_API ulong libssh2_channel_window_read_ex(LIBSSH2_CHANNEL * channel, ulong * read_avail, ulong * window_size_initial)
 {
 	if(!channel)
-		return 0;  /* no channel, no window! */
+		return 0; /* no channel, no window! */
 	if(window_size_initial) {
 		*window_size_initial = channel->remote.window_size_initial;
 	}
@@ -1879,7 +1869,7 @@ LIBSSH2_API ulong libssh2_channel_window_read_ex(LIBSSH2_CHANNEL * channel, ulon
 LIBSSH2_API ulong libssh2_channel_window_write_ex(LIBSSH2_CHANNEL * channel, ulong * window_size_initial)
 {
 	if(!channel)
-		return 0;  /* no channel, no window! */
+		return 0; /* no channel, no window! */
 	if(window_size_initial) {
 		/* For locally initiated channels this is very often 0, so it's not
 		 * *that* useful as information goes */

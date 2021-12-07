@@ -174,11 +174,15 @@ double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a
 
 int    FASTCALL sclamp(int v, int lo, int up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+int    FASTCALL sclamp(int64 v, int64 lo, int64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+int    FASTCALL sclamp(uint64 v, uint64 lo, uint64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
 
 int    FASTCALL sclampx(int v, int lo, int up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 uint   FASTCALL sclampx(uint v, uint lo, uint up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+int    FASTCALL sclampx(int64 v, int64 lo, int64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+int    FASTCALL sclampx(uint64 v, uint64 lo, uint64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 double FASTCALL sclampx(double v, double lo, double up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 float  FASTCALL sclampx(float v, float lo, float up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 
@@ -1042,13 +1046,13 @@ double FASTCALL round(double v, double prec, int dir)
 	}
 }
 
-double FASTCALL R0(double v)  { return implement_round(v, 0); }
+double FASTCALL R0(double v) { return implement_round(v, 0); }
 long   FASTCALL R0i(double v) { return static_cast<long>(implement_round(v, 0)); }
-double FASTCALL R2(double v)  { return implement_round(v, 2); }
-double FASTCALL R3(double v)  { return implement_round(v, 3); }
-double FASTCALL R4(double v)  { return implement_round(v, 4); }
-double FASTCALL R5(double v)  { return implement_round(v, 5); }
-double FASTCALL R6(double v)  { return implement_round(v, 6); }
+double FASTCALL R2(double v) { return implement_round(v, 2); }
+double FASTCALL R3(double v) { return implement_round(v, 3); }
+double FASTCALL R4(double v) { return implement_round(v, 4); }
+double FASTCALL R5(double v) { return implement_round(v, 5); }
+double FASTCALL R6(double v) { return implement_round(v, 6); }
 
 double FASTCALL roundnev(double n, int prec)
 {

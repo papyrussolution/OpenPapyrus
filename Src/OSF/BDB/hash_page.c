@@ -805,7 +805,7 @@ int __ham_sort_page_cursor(DBC * dbc, PAGE * page)
 	else
 		LSN_NOT_LOGGED(new_lsn);
 	/* Move lsn onto page. */
-	LSN(page) = new_lsn;    /* Structure assignment. */
+	LSN(page) = new_lsn; /* Structure assignment. */
 
 	/*
 	 * Invalidate the saved index, it needs to be retrieved
@@ -1004,7 +1004,7 @@ int __ham_del_pair(DBC * dbc, int flags, PAGE * ppg)
 		else
 			LSN_NOT_LOGGED(new_lsn);
 		/* Move lsn onto page. */
-		LSN(p) = new_lsn;       /* Structure assignment. */
+		LSN(p) = new_lsn; /* Structure assignment. */
 		LSN(n_pagep) = new_lsn;
 		if(NEXT_PGNO(n_pagep) != PGNO_INVALID)
 			LSN(nn_pagep) = new_lsn;
@@ -1394,7 +1394,7 @@ err:
 	}
 	else
 		LSN_NOT_LOGGED(new_lsn);
-	LSN(hcp->page) = new_lsn;       /* Structure assignment. */
+	LSN(hcp->page) = new_lsn; /* Structure assignment. */
 	__ham_onpage_replace(dbp, (PAGE *)hcp->page, (uint32)H_DATAINDEX(hcp->indx), (int32)dbt->doff, change, is_plus, dbt);
 	return 0;
 }
@@ -1792,7 +1792,7 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 	}
 	else
 		LSN_NOT_LOGGED(new_lsn);
-	LSN(old_pagep) = new_lsn;       /* Structure assignment. */
+	LSN(old_pagep) = new_lsn; /* Structure assignment. */
 	P_INIT(old_pagep, dbp->pgsize, PGNO(old_pagep), PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 	big_len = 0;
 	big_buf = NULL;
@@ -2114,7 +2114,7 @@ int __ham_add_el(DBC * dbc, const DBT * key, const DBT * val, uint32 type)
 	else
 		LSN_NOT_LOGGED(new_lsn);
 	/* Move lsn onto page. */
-	LSN(hcp->page) = new_lsn;       /* Structure assignment. */
+	LSN(hcp->page) = new_lsn; /* Structure assignment. */
 	if((ret = __ham_insertpair(dbc, (PAGE *)hcp->page, &hcp->seek_found_indx, pkey, pdata, key_type, data_type)) != 0)
 		return ret;
 	/*

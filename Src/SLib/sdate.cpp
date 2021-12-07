@@ -566,7 +566,7 @@ void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, in
 #ifndef _WIN32_WCE
 	SDosDate d;
 #endif
-	switch(format)  {
+	switch(format) {
 		case DF_BTRIEVE: static_cast<const LDATE *>(pBuf)->decode(day, mon, year); break;
 #ifndef _WIN32_WCE
 		case DF_DOS:

@@ -1045,7 +1045,7 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 	 *  We used to exit immediately in this case rather than storing anything
 	 */
 	x_axis_ptr = &AxS[pPlot->AxIdx_X];
-	dummy_type = cp->type;  /* Save result of range check on x */
+	dummy_type = cp->type; /* Save result of range check on x */
 	y_axis_ptr = &AxS[pPlot->AxIdx_Y];
 	store_and_update_range(&cp->Pt.x, x, &(cp->type), x_axis_ptr, pPlot->noautoscale);
 	store_and_update_range(&cp->Pt.y, y, &(cp->type), y_axis_ptr, pPlot->noautoscale);

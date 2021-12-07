@@ -77,14 +77,14 @@ namespace OT {
 
 /* All fields are options.  Only those available advance the value pointer. */
 #if 0
-		HBINT16 xPlacement;     /* Horizontal adjustment for
+		HBINT16 xPlacement; /* Horizontal adjustment for
 		 * placement--in design units */
-		HBINT16 yPlacement;     /* Vertical adjustment for
+		HBINT16 yPlacement; /* Vertical adjustment for
 		 * placement--in design units */
-		HBINT16 xAdvance;       /* Horizontal adjustment for
+		HBINT16 xAdvance; /* Horizontal adjustment for
 		 * advance--in design units (only used
 		 * for horizontal writing) */
-		HBINT16 yAdvance;       /* Vertical adjustment for advance--in
+		HBINT16 yAdvance; /* Vertical adjustment for advance--in
 		 * design units (only used for vertical
 		 * writing) */
 		OffsetTo<Device>      xPlaDevice; /* Offset to Device table for
@@ -328,9 +328,9 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
-		FWORD xCoordinate;      /* Horizontal value--in design units */
-		FWORD yCoordinate;      /* Vertical value--in design units */
+		HBUINT16 format; /* Format identifier--format = 1 */
+		FWORD xCoordinate; /* Horizontal value--in design units */
+		FWORD yCoordinate; /* Vertical value--in design units */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};
@@ -371,22 +371,20 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 2 */
-		FWORD xCoordinate;      /* Horizontal value--in design units */
-		FWORD yCoordinate;      /* Vertical value--in design units */
-		HBUINT16 anchorPoint;   /* Index to glyph contour point */
+		HBUINT16 format; /* Format identifier--format = 2 */
+		FWORD xCoordinate; /* Horizontal value--in design units */
+		FWORD yCoordinate; /* Vertical value--in design units */
+		HBUINT16 anchorPoint; /* Index to glyph contour point */
 public:
 		DEFINE_SIZE_STATIC(8);
 	};
 
 	struct AnchorFormat3 {
-		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id HB_UNUSED,
-		    float * x, float * y) const
+		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id HB_UNUSED, float * x, float * y) const
 		{
 			hb_font_t * font = c->font;
-			* x = font->em_fscale_x(xCoordinate);
-			* y = font->em_fscale_y(yCoordinate);
-
+			*x = font->em_fscale_x(xCoordinate);
+			*y = font->em_fscale_y(yCoordinate);
 			if(font->x_ppem || font->num_coords)
 				*x += (this+xDeviceTable).get_x_delta(font, c->var_store);
 			if(font->y_ppem || font->num_coords)
@@ -398,48 +396,39 @@ public:
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) && xDeviceTable.sanitize(c, this) && yDeviceTable.sanitize(c, this));
 		}
-
-		AnchorFormat3* copy(hb_serialize_context_t * c,
-		    const hb_map_t * layout_variation_idx_map) const
+		AnchorFormat3* copy(hb_serialize_context_t * c, const hb_map_t * layout_variation_idx_map) const
 		{
 			TRACE_SERIALIZE(this);
-			if(!layout_variation_idx_map) return_trace(nullptr);
-
+			if(!layout_variation_idx_map) 
+				return_trace(nullptr);
 			auto * out = c->embed<AnchorFormat3> (this);
-			if(UNLIKELY(!out)) return_trace(nullptr);
-
+			if(UNLIKELY(!out)) 
+				return_trace(nullptr);
 			out->xDeviceTable.serialize_copy(c, xDeviceTable, this, 0, hb_serialize_context_t::Head, layout_variation_idx_map);
 			out->yDeviceTable.serialize_copy(c, yDeviceTable, this, 0, hb_serialize_context_t::Head, layout_variation_idx_map);
 			return_trace(out);
 		}
-
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
 			(this+xDeviceTable).collect_variation_indices(c->layout_variation_indices);
 			(this+yDeviceTable).collect_variation_indices(c->layout_variation_indices);
 		}
-
 protected:
-		HBUINT16 format;        /* Format identifier--format = 3 */
-		FWORD xCoordinate;      /* Horizontal value--in design units */
-		FWORD yCoordinate;      /* Vertical value--in design units */
+		HBUINT16 format; /* Format identifier--format = 3 */
+		FWORD xCoordinate; /* Horizontal value--in design units */
+		FWORD yCoordinate; /* Vertical value--in design units */
 		OffsetTo<Device>
-		xDeviceTable;           /* Offset to Device table for X
-		 * coordinate-- from beginning of
-		 * Anchor table (may be NULL) */
+		xDeviceTable; /* Offset to Device table for X coordinate-- from beginning of Anchor table (may be NULL) */
 		OffsetTo<Device>
-		yDeviceTable;           /* Offset to Device table for Y
-		 * coordinate-- from beginning of
-		 * Anchor table (may be NULL) */
+		yDeviceTable; /* Offset to Device table for Y coordinate-- from beginning of Anchor table (may be NULL) */
 public:
 		DEFINE_SIZE_STATIC(10);
 	};
 
 	struct Anchor {
-		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id,
-		    float * x, float * y) const
+		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id, float * x, float * y) const
 		{
-			* x = *y = 0;
+			*x = *y = 0;
 			switch(u.format) {
 				case 1: u.format1.get_anchor(c, glyph_id, x, y); return;
 				case 2: u.format2.get_anchor(c, glyph_id, x, y); return;
@@ -539,9 +528,9 @@ public:
 			return_trace(true);
 		}
 
-		HBUINT16 rows;          /* Number of rows */
+		HBUINT16 rows; /* Number of rows */
 		UnsizedArrayOf<OffsetTo<Anchor>>
-		matrixZ;                /* Matrix of offsets to Anchor tables--
+		matrixZ; /* Matrix of offsets to Anchor tables--
 		 * from beginning of AnchorMatrix table */
 public:
 		DEFINE_SIZE_ARRAY(2, matrixZ);
@@ -574,7 +563,7 @@ public:
 			(src_base+markAnchor).collect_variation_indices(c);
 		}
 protected:
-		HBUINT16 klass;         /* Class defined for this mark */
+		HBUINT16 klass; /* Class defined for this mark */
 		OffsetTo<Anchor> markAnchor; /* Offset to Anchor table--from beginning of MarkArray table */
 public:
 		DEFINE_SIZE_STATIC(4);
@@ -737,13 +726,13 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of subtable */
 		ValueFormat valueFormat; /* Defines the types of data in the
 		  * ValueRecord */
-		ValueRecord values;     /* Defines positioning
+		ValueRecord values; /* Defines positioning
 		 * value(s)--applied to all glyphs in
 		 * the Coverage table */
 public:
@@ -865,14 +854,14 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 2 */
+		HBUINT16 format; /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of subtable */
 		ValueFormat valueFormat; /* Defines the types of data in the
 		  * ValueRecord */
-		HBUINT16 valueCount;    /* Number of ValueRecords */
-		ValueRecord values;     /* Array of ValueRecords--positioning
+		HBUINT16 valueCount; /* Number of ValueRecords */
+		ValueRecord values; /* Array of ValueRecords--positioning
 		 * values applied to glyphs */
 public:
 		DEFINE_SIZE_ARRAY(8, values);
@@ -994,10 +983,10 @@ protected:
 		}
 
 protected:
-		HBGlyphID secondGlyph;  /* GlyphID of second glyph in the
+		HBGlyphID secondGlyph; /* GlyphID of second glyph in the
 		 * pair--first glyph is listed in the
 		 * Coverage table */
-		ValueRecord values;     /* Positioning data for the first glyph
+		ValueRecord values; /* Positioning data for the first glyph
 		 * followed by for second glyph */
 public:
 		DEFINE_SIZE_ARRAY(2, values);
@@ -1134,7 +1123,7 @@ public:
 		}
 
 protected:
-		HBUINT16 len;   /* Number of PairValueRecords */
+		HBUINT16 len; /* Number of PairValueRecords */
 		PairValueRecord firstPairValueRecord;
 		/* Array of PairValueRecords--ordered
 		 * by GlyphID of the second glyph */
@@ -1261,9 +1250,9 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of subtable */
 		ValueFormat valueFormat[2]; /* [0] Defines the types of data in
 		  * ValueRecord1--for the first glyph
@@ -1272,7 +1261,7 @@ protected:
 		  * ValueRecord2--for the second glyph
 		  * in the pair--may be zero (0) */
 		OffsetArrayOf<PairSet>
-		pairSet;                /* Array of PairSet tables
+		pairSet; /* Array of PairSet tables
 		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(10, pairSet);
@@ -1432,9 +1421,9 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 2 */
+		HBUINT16 format; /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of subtable */
 		ValueFormat valueFormat1; /* ValueRecord definition--for the
 		   * first glyph of the pair--may be zero
@@ -1443,18 +1432,18 @@ protected:
 		   * second glyph of the pair--may be
 		   * zero (0) */
 		OffsetTo<ClassDef>
-		classDef1;              /* Offset to ClassDef table--from
+		classDef1; /* Offset to ClassDef table--from
 		 * beginning of PairPos subtable--for
 		 * the first glyph of the pair */
 		OffsetTo<ClassDef>
-		classDef2;              /* Offset to ClassDef table--from
+		classDef2; /* Offset to ClassDef table--from
 		 * beginning of PairPos subtable--for
 		 * the second glyph of the pair */
-		HBUINT16 class1Count;   /* Number of classes in ClassDef1
+		HBUINT16 class1Count; /* Number of classes in ClassDef1
 		 * table--includes Class0 */
-		HBUINT16 class2Count;   /* Number of classes in ClassDef2
+		HBUINT16 class2Count; /* Number of classes in ClassDef2
 		 * table--includes Class0 */
-		ValueRecord values;     /* Matrix of value pairs:
+		ValueRecord values; /* Matrix of value pairs:
 		 * class1-major, class2-minor,
 		 * Each entry has value1 and value2 */
 public:
@@ -1497,58 +1486,37 @@ protected:
 			(src_base+entryAnchor).collect_variation_indices(c);
 			(src_base+exitAnchor).collect_variation_indices(c);
 		}
-
-		EntryExitRecord* copy(hb_serialize_context_t * c,
-		    const void * src_base,
-		    const void * dst_base,
-		    const hb_map_t * layout_variation_idx_map) const
+		EntryExitRecord* copy(hb_serialize_context_t * c, const void * src_base,
+		    const void * dst_base, const hb_map_t * layout_variation_idx_map) const
 		{
 			TRACE_SERIALIZE(this);
 			auto * out = c->embed(this);
-			if(UNLIKELY(!out)) return_trace(nullptr);
-
-			out->entryAnchor.serialize_copy(c,
-			    entryAnchor,
-			    src_base,
-			    c->to_bias(dst_base),
-			    hb_serialize_context_t::Head,
-			    layout_variation_idx_map);
-			out->exitAnchor.serialize_copy(c,
-			    exitAnchor,
-			    src_base,
-			    c->to_bias(dst_base),
-			    hb_serialize_context_t::Head,
-			    layout_variation_idx_map);
+			if(UNLIKELY(!out)) 
+				return_trace(nullptr);
+			out->entryAnchor.serialize_copy(c, entryAnchor, src_base, c->to_bias(dst_base),
+			    hb_serialize_context_t::Head, layout_variation_idx_map);
+			out->exitAnchor.serialize_copy(c, exitAnchor, src_base, c->to_bias(dst_base),
+			    hb_serialize_context_t::Head, layout_variation_idx_map);
 			return_trace(out);
 		}
-
 protected:
 		OffsetTo<Anchor>
-		entryAnchor;            /* Offset to EntryAnchor table--from
-		 * beginning of CursivePos
-		 * subtable--may be NULL */
+		entryAnchor; /* Offset to EntryAnchor table--from beginning of CursivePos subtable--may be NULL */
 		OffsetTo<Anchor>
-		exitAnchor;             /* Offset to ExitAnchor table--from
-		 * beginning of CursivePos
-		 * subtable--may be NULL */
+		exitAnchor; /* Offset to ExitAnchor table--from beginning of CursivePos subtable--may be NULL */
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
 
-	static void reverse_cursive_minor_offset(hb_glyph_position_t * pos,
-	    uint i,
-	    hb_direction_t direction,
-	    uint new_parent);
-
+	static void reverse_cursive_minor_offset(hb_glyph_position_t * pos, uint i, hb_direction_t direction, uint new_parent);
 	struct CursivePosFormat1 {
 		bool intersects(const hb_set_t * glyphs) const
 		{
 			return (this+coverage).intersects(glyphs);
 		}
-
-		void closure_lookups(hb_closure_lookups_context_t * c) const {
+		void closure_lookups(hb_closure_lookups_context_t * c) const 
+		{
 		}
-
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
 			+hb_zip(this+coverage, entryExitRecord)
@@ -1557,24 +1525,17 @@ public:
 			| hb_apply([&] (const EntryExitRecord &record) { record.collect_variation_indices(c, this); })
 			;
 		}
-
 		void collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
 			if(UNLIKELY(!(this+coverage).collect_coverage(c->input))) return;
 		}
-
-		const Coverage &get_coverage() const {
-			return this+coverage;
-		}
-
+		const Coverage &get_coverage() const { return this+coverage; }
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			TRACE_APPLY(this);
 			hb_buffer_t * buffer = c->buffer;
-
 			const EntryExitRecord &this_record = entryExitRecord[(this+coverage).get_coverage(buffer->cur().codepoint)];
 			if(!this_record.entryAnchor) return_trace(false);
-
 			hb_ot_apply_context_t::skipping_iterator_t &skippy_iter = c->iter_input;
 			skippy_iter.reset(buffer->idx, 1);
 			if(!skippy_iter.prev()) return_trace(false);
@@ -1674,17 +1635,12 @@ public:
 			return_trace(true);
 		}
 
-		template <typename Iterator,
-		hb_requires(hb_is_iterator(Iterator))>
-		void serialize(hb_serialize_context_t * c,
-		    Iterator it,
-		    const void * src_base,
-		    const hb_map_t * layout_variation_idx_map)
+		template <typename Iterator, hb_requires(hb_is_iterator(Iterator))> void serialize(hb_serialize_context_t * c,
+		    Iterator it, const void * src_base, const hb_map_t * layout_variation_idx_map)
 		{
 			if(UNLIKELY(!c->extend_min((*this)))) return;
 			this->format = 1;
 			this->entryExitRecord.len = it.len();
-
 			for(const EntryExitRecord& entry_record : +it
 			    | hb_map(hb_second))
 				c->copy(entry_record, src_base, this, layout_variation_idx_map);
@@ -1726,12 +1682,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of subtable */
 		ArrayOf<EntryExitRecord>
-		entryExitRecord;        /* Array of EntryExit records--in
+		entryExitRecord; /* Array of EntryExit records--in
 		 * Coverage Index order */
 public:
 		DEFINE_SIZE_ARRAY(6, entryExitRecord);
@@ -1767,7 +1723,6 @@ protected:
 	    hb_map_t*        klass_mapping /* INOUT */)
 	{
 		hb_set_t orig_classes;
-
 		+hb_zip(mark_coverage, mark_array)
 		| hb_filter(glyphset, hb_first)
 		| hb_map(hb_second)
@@ -1777,22 +1732,16 @@ protected:
 
 		unsigned idx = 0;
 		for(auto klass : orig_classes.iter()) {
-			if(klass_mapping->has(klass)) continue;
+			if(klass_mapping->has(klass)) 
+				continue;
 			klass_mapping->set(klass, idx);
 			idx++;
 		}
 	}
 
 	struct MarkBasePosFormat1 {
-		bool intersects(const hb_set_t * glyphs) const
-		{
-			return (this+markCoverage).intersects(glyphs) &&
-			       (this+baseCoverage).intersects(glyphs);
-		}
-
-		void closure_lookups(hb_closure_lookups_context_t * c) const {
-		}
-
+		bool intersects(const hb_set_t * glyphs) const { return (this+markCoverage).intersects(glyphs) && (this+baseCoverage).intersects(glyphs); }
+		void closure_lookups(hb_closure_lookups_context_t * c) const {}
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
 			+hb_zip(this+markCoverage, this+markArray)
@@ -1827,10 +1776,7 @@ protected:
 			if(UNLIKELY(!(this+markCoverage).collect_coverage(c->input))) return;
 			if(UNLIKELY(!(this+baseCoverage).collect_coverage(c->input))) return;
 		}
-
-		const Coverage &get_coverage() const {
-			return this+markCoverage;
-		}
+		const Coverage &get_coverage() const { return this+markCoverage; }
 
 		bool apply(hb_ot_apply_context_t * c) const
 		{
@@ -1940,32 +1886,23 @@ protected:
 
 			return_trace(true);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    markCoverage.sanitize(c, this) &&
-			    baseCoverage.sanitize(c, this) &&
-			    markArray.sanitize(c, this) &&
-			    baseArray.sanitize(c, this, (uint)classCount));
+			return_trace(c->check_struct(this) && markCoverage.sanitize(c, this) &&
+			    baseCoverage.sanitize(c, this) && markArray.sanitize(c, this) && baseArray.sanitize(c, this, (uint)classCount));
 		}
-
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		markCoverage;           /* Offset to MarkCoverage table--from
-		 * beginning of MarkBasePos subtable */
+		markCoverage; /* Offset to MarkCoverage table--from beginning of MarkBasePos subtable */
 		OffsetTo<Coverage>
-		baseCoverage;           /* Offset to BaseCoverage table--from
-		 * beginning of MarkBasePos subtable */
-		HBUINT16 classCount;    /* Number of classes defined for marks */
+		baseCoverage; /* Offset to BaseCoverage table--from beginning of MarkBasePos subtable */
+		HBUINT16 classCount; /* Number of classes defined for marks */
 		OffsetTo<MarkArray>
-		markArray;              /* Offset to MarkArray table--from
-		 * beginning of MarkBasePos subtable */
+		markArray; /* Offset to MarkArray table--from beginning of MarkBasePos subtable */
 		OffsetTo<BaseArray>
-		baseArray;              /* Offset to BaseArray table--from
-		 * beginning of MarkBasePos subtable */
+		baseArray; /* Offset to BaseArray table--from beginning of MarkBasePos subtable */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -2000,15 +1937,10 @@ protected:
 	 * LigatureCoverage Index */
 
 	struct MarkLigPosFormat1 {
-		bool intersects(const hb_set_t * glyphs) const
+		bool intersects(const hb_set_t * glyphs) const { return (this+markCoverage).intersects(glyphs) && (this+ligatureCoverage).intersects(glyphs); }
+		void closure_lookups(hb_closure_lookups_context_t * c) const 
 		{
-			return (this+markCoverage).intersects(glyphs) &&
-			       (this+ligatureCoverage).intersects(glyphs);
 		}
-
-		void closure_lookups(hb_closure_lookups_context_t * c) const {
-		}
-
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
 			+hb_zip(this+markCoverage, this+markArray)
@@ -2048,11 +1980,7 @@ protected:
 			if(UNLIKELY(!(this+markCoverage).collect_coverage(c->input))) return;
 			if(UNLIKELY(!(this+ligatureCoverage).collect_coverage(c->input))) return;
 		}
-
-		const Coverage &get_coverage() const {
-			return this+markCoverage;
-		}
-
+		const Coverage &get_coverage() const { return this+markCoverage; }
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			TRACE_APPLY(this);
@@ -2114,20 +2042,20 @@ protected:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		markCoverage;           /* Offset to Mark Coverage table--from
+		markCoverage; /* Offset to Mark Coverage table--from
 		 * beginning of MarkLigPos subtable */
 		OffsetTo<Coverage>
-		ligatureCoverage;       /* Offset to Ligature Coverage
+		ligatureCoverage; /* Offset to Ligature Coverage
 		 * table--from beginning of MarkLigPos
 		 * subtable */
-		HBUINT16 classCount;    /* Number of defined mark classes */
+		HBUINT16 classCount; /* Number of defined mark classes */
 		OffsetTo<MarkArray>
-		markArray;              /* Offset to MarkArray table--from
+		markArray; /* Offset to MarkArray table--from
 		 * beginning of MarkLigPos subtable */
 		OffsetTo<LigatureArray>
-		ligatureArray;          /* Offset to LigatureArray table--from
+		ligatureArray; /* Offset to LigatureArray table--from
 		 * beginning of MarkLigPos subtable */
 public:
 		DEFINE_SIZE_STATIC(12);
@@ -2315,42 +2243,34 @@ good:
 				| hb_sink(mark2_indexes)
 				;
 			}
-			out->mark2Array.serialize(c->serializer, out)
-			.serialize(c->serializer,
-			    mark2_iter.len(),
-			    &(this+mark2Array),
-			    c->plan->layout_variation_idx_map,
-			    mark2_indexes.iter());
-
+			out->mark2Array.serialize(c->serializer, out).serialize(c->serializer, mark2_iter.len(),
+			    &(this+mark2Array), c->plan->layout_variation_idx_map, mark2_indexes.iter());
 			return_trace(true);
 		}
 
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    mark1Coverage.sanitize(c, this) &&
-			    mark2Coverage.sanitize(c, this) &&
-			    mark1Array.sanitize(c, this) &&
-			    mark2Array.sanitize(c, this, (uint)classCount));
+			return_trace(c->check_struct(this) && mark1Coverage.sanitize(c, this) && mark2Coverage.sanitize(c, this) &&
+			    mark1Array.sanitize(c, this) && mark2Array.sanitize(c, this, (uint)classCount));
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		mark1Coverage;          /* Offset to Combining Mark1 Coverage
+		mark1Coverage; /* Offset to Combining Mark1 Coverage
 		 * table--from beginning of MarkMarkPos
 		 * subtable */
 		OffsetTo<Coverage>
-		mark2Coverage;          /* Offset to Combining Mark2 Coverage
+		mark2Coverage; /* Offset to Combining Mark2 Coverage
 		 * table--from beginning of MarkMarkPos
 		 * subtable */
-		HBUINT16 classCount;    /* Number of defined mark classes */
+		HBUINT16 classCount; /* Number of defined mark classes */
 		OffsetTo<MarkArray>
-		mark1Array;             /* Offset to Mark1Array table--from
+		mark1Array; /* Offset to Mark1Array table--from
 		 * beginning of MarkMarkPos subtable */
 		OffsetTo<Mark2Array>
-		mark2Array;             /* Offset to Mark2Array table--from
+		mark2Array; /* Offset to Mark2Array table--from
 		 * beginning of MarkMarkPos subtable */
 public:
 		DEFINE_SIZE_STATIC(12);
@@ -2376,13 +2296,10 @@ protected:
 	};
 
 	struct ContextPos : Context {};
-
 	struct ChainContextPos : ChainContext {};
-
-	struct ExtensionPos : Extension<ExtensionPos> {
-		typedef struct PosLookupSubTable SubTable;
+	struct ExtensionPos : Extension<ExtensionPos> { 
+		typedef struct PosLookupSubTable SubTable; 
 	};
-
 /*
  * PosLookup
  */
@@ -2447,39 +2364,26 @@ public:
 
 	struct PosLookup : Lookup {
 		typedef struct PosLookupSubTable SubTable;
-
-		const SubTable& get_subtable(uint i) const
-		{
-			return Lookup::get_subtable<SubTable> (i);
-		}
-
-		bool is_reverse() const
-		{
-			return false;
-		}
-
+		const SubTable& get_subtable(uint i) const { return Lookup::get_subtable<SubTable> (i); }
+		bool is_reverse() const { return false; }
 		bool apply(hb_ot_apply_context_t * c) const
 		{
 			TRACE_APPLY(this);
 			return_trace(dispatch(c));
 		}
-
 		bool intersects(const hb_set_t * glyphs) const
 		{
 			hb_intersects_context_t c(glyphs);
 			return dispatch(&c);
 		}
-
 		hb_collect_glyphs_context_t::return_t collect_glyphs(hb_collect_glyphs_context_t * c) const
 		{
 			return dispatch(c);
 		}
-
 		hb_closure_lookups_context_t::return_t closure_lookups(hb_closure_lookups_context_t * c, unsigned this_index) const
 		{
 			if(c->is_lookup_visited(this_index))
 				return hb_closure_lookups_context_t::default_return_value();
-
 			c->set_lookup_visited(this_index);
 			if(!intersects(c->glyphs)) {
 				c->set_lookup_inactive(this_index);

@@ -26,10 +26,10 @@ FT_BEGIN_HEADER
 
 
   FT_LOCAL( FT_Error )
-  cff_size_init( FT_Size  size );           /* CFF_Size */
+  cff_size_init( FT_Size  size ); /* CFF_Size */
 
   FT_LOCAL( void )
-  cff_size_done( FT_Size  size );           /* CFF_Size */
+  cff_size_done( FT_Size  size ); /* CFF_Size */
 
   FT_LOCAL( FT_Error )
   cff_size_request( FT_Size          size,
@@ -62,7 +62,7 @@ FT_BEGIN_HEADER
                  FT_Parameter*  params );
 
   FT_LOCAL( void )
-  cff_face_done( FT_Face  face );               /* CFF_Face */
+  cff_face_done( FT_Face  face ); /* CFF_Face */
 
 
   /**************************************************************************
@@ -70,10 +70,10 @@ FT_BEGIN_HEADER
    * Driver functions
    */
   FT_LOCAL( FT_Error )
-  cff_driver_init( FT_Module  module );         /* PS_Driver */
+  cff_driver_init( FT_Module  module ); /* PS_Driver */
 
   FT_LOCAL( void )
-  cff_driver_done( FT_Module  module );         /* PS_Driver */
+  cff_driver_done( FT_Module  module ); /* PS_Driver */
 
 
 FT_END_HEADER

@@ -34,9 +34,9 @@
  * to the left of a given file name affect processing of that file.
  * The main program in this file doesn't actually use this capability...
  */
-static const char * progname;   /* program name for error messages */
-static char * outfilename;      /* for -outfile switch */
-static char * scaleoption;      /* -scale switch */
+static const char * progname; /* program name for error messages */
+static char * outfilename; /* for -outfile switch */
+static char * scaleoption; /* -scale switch */
 static JCOPY_OPTION copyoption; /* -copy switch */
 static jpeg_transform_info transformoption; /* image transformation options */
 
@@ -145,9 +145,9 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 				outfilename = NULL; /* -outfile applies to just one input file */
 				continue; /* ignore this name if previously processed */
 			}
-			break;  /* else done parsing switches */
+			break; /* else done parsing switches */
 		}
-		arg++;          /* advance past switch marker character */
+		arg++; /* advance past switch marker character */
 
 		if(keymatch(arg, "arithmetic", 1)) {
 			/* Use arithmetic coding. */
@@ -364,7 +364,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 #endif
 	}
 
-	return argn;            /* return index of next arg (file name) */
+	return argn; /* return index of next arg (file name) */
 }
 /*
  * The main program.
@@ -390,7 +390,7 @@ int main(int argc, char ** argv)
 #endif
 	progname = argv[0];
 	if(isempty(progname))
-		progname = "jpegtran";  /* in case C library doesn't provide it */
+		progname = "jpegtran"; /* in case C library doesn't provide it */
 	/* Initialize the JPEG decompression object with default error handling. */
 	srcinfo.err = jpeg_std_error(&jsrcerr);
 	jpeg_create_decompress(&srcinfo);
@@ -534,6 +534,6 @@ int main(int argc, char ** argv)
 
 	/* All done. */
 	exit(jsrcerr.num_warnings + jdsterr.num_warnings ? EXIT_WARNING : EXIT_SUCCESS);
-	return 0;               /* suppress no-return-value warnings */
+	return 0; /* suppress no-return-value warnings */
 }
 

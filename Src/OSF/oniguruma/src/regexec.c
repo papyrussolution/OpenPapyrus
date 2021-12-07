@@ -128,7 +128,7 @@ typedef struct {
 #endif
 	OnigMatchParam* mp;
 #ifdef USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE
-	int best_len;   /* for ONIG_OPTION_FIND_LONGEST */
+	int best_len; /* for ONIG_OPTION_FIND_LONGEST */
 	uchar * best_s;
 #endif
 #ifdef USE_CALL
@@ -1024,7 +1024,7 @@ typedef struct _StackType {
 
 struct OnigCalloutArgsStruct {
 	OnigCalloutIn in;
-	int name_id;          /* name id or ONIG_NON_NAME_ID */
+	int name_id; /* name id or ONIG_NON_NAME_ID */
 	int num;
 	OnigRegex regex;
 	const uchar * string;
@@ -4067,9 +4067,9 @@ struct OnigRegSetStruct {
 	int n;
 	int alloc;
 	OnigEncoding enc;
-	int anchor;         /* BEGIN_BUF, BEGIN_POS, (SEMI_)END_BUF */
-	OnigLen anc_dmin;   /* (SEMI_)END_BUF anchor distance */
-	OnigLen anc_dmax;   /* (SEMI_)END_BUF anchor distance */
+	int anchor; /* BEGIN_BUF, BEGIN_POS, (SEMI_)END_BUF */
+	OnigLen anc_dmin; /* (SEMI_)END_BUF anchor distance */
+	OnigLen anc_dmax; /* (SEMI_)END_BUF anchor distance */
 	int all_low_high;
 	int anychar_inf;
 };

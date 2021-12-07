@@ -186,8 +186,7 @@ class U_I18N_API UnitPreferences {
   * falls back to region "001" ("world").
   * @param outPreferences A pointer into an array of preferences: essentially
   * an array slice in combination with preferenceCount.
-  * @param preferenceCount The number of unit preferences that belong to the
-  * result set.
+  * @param preferenceCount The number of unit preferences that belong to the result set.
   * @param status Receives status.
      *
   * TODO(hugovdm): maybe replace `UnitPreference **&outPreferences` with a slice class?

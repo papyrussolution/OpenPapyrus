@@ -409,7 +409,7 @@ int PEM_do_header(EVP_CIPHER_INFO * cipher, uchar * data, long * plen,
 	int ok;
 	int keylen;
 	long len = *plen;
-	int ilen = (int)len;    /* EVP_DecryptUpdate etc. take int lengths */
+	int ilen = (int)len; /* EVP_DecryptUpdate etc. take int lengths */
 	EVP_CIPHER_CTX * ctx;
 	uchar key[EVP_MAX_KEY_LENGTH];
 	char buf[PEM_BUFSIZE];

@@ -24,7 +24,7 @@ void GnuPlot::F_Cerf(union argument * arg)
 	GpValue a;
 	complex double z;
 	Pop(&a);
-	z = Real(&a) + I * Imag(&a);    /* Convert gnuplot complex to C99 complex */
+	z = Real(&a) + I * Imag(&a); /* Convert gnuplot complex to C99 complex */
 	z = cerf(z);                    /* libcerf complex -> complex function */
 	Push(Gcomplex(&a, creal(z), cimag(z)));
 }
@@ -39,8 +39,8 @@ void GnuPlot::F_CDawson(union argument * arg)
 	GpValue a;
 	complex double z;
 	Pop(&a);
-	z = Real(&a) + I * Imag(&a);    /* Convert gnuplot complex to C99 complex */
-	z = cdawson(z);                 /* libcerf complex -> complex function */
+	z = Real(&a) + I * Imag(&a); /* Convert gnuplot complex to C99 complex */
+	z = cdawson(z); /* libcerf complex -> complex function */
 	Push(Gcomplex(&a, creal(z), cimag(z)));
 }
 
@@ -55,8 +55,8 @@ void GnuPlot::F_Faddeeva(union argument * arg)
 	GpValue a;
 	complex double z;
 	Pop(&a);
-	z = Real(&a) + I * Imag(&a);    /* Convert gnuplot complex to C99 complex */
-	z = w_of_z(z);                  /* libcerf complex -> complex function */
+	z = Real(&a) + I * Imag(&a); /* Convert gnuplot complex to C99 complex */
+	z = w_of_z(z); /* libcerf complex -> complex function */
 	Push(Gcomplex(&a, creal(z), cimag(z)));
 }
 // 
@@ -73,7 +73,7 @@ void GnuPlot::F_Voigtp(union argument * arg)
 	double gamma = Real(Pop(&a));
 	double sigma = Real(Pop(&a));
 	double z = Real(Pop(&a));
-	z = voigt(z, sigma, gamma);     /* libcerf double -> double function */
+	z = voigt(z, sigma, gamma); /* libcerf double -> double function */
 	Push(Gcomplex(&a, z, 0.0));
 }
 
@@ -110,7 +110,7 @@ void GnuPlot::F_VP_Fwhm(union argument * arg)
 	GpValue par;
 	double fwhm;
 	double fG, fL;
-	double a, b, c;         /* 3 points used by regula falsi */
+	double a, b, c; /* 3 points used by regula falsi */
 	double del_a, del_b, del_c;
 	int k;
 	int side = 0;

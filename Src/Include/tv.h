@@ -2394,9 +2394,9 @@ public:
 	void   showLocalMenu();
 	TRect  getClientRect() const;
 	TRect  getRect() const;
-	int    invalidateRect(const TRect &, bool erase);
-	int    invalidateRect(const FRect &, bool erase);
-	int    invalidateRegion(const SRegion & rRgn, bool erase);
+	void   invalidateRect(const TRect &, bool erase);
+	void   invalidateRect(const FRect &, bool erase);
+	void   invalidateRegion(const SRegion & rRgn, bool erase);
 	void   FASTCALL invalidateAll(bool erase);
 	//
 	// Descr: Инициализирует ожидание системой события покидания мышью клиентской области
@@ -4828,7 +4828,7 @@ public:
 	int    Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra);
 	void   Destroy();
 	int    Paint();
-	int    Move();
+	void   Move();
 	int    DoCommand(SPoint2S p);
 	void * GetImage() { return P_Image; }
 

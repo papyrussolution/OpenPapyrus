@@ -295,7 +295,7 @@ void SMessageWindow::Destroy()
 	ZDeleteWinGdiObject(&Font);
 }
 
-int SMessageWindow::Move()
+void SMessageWindow::Move()
 {
 	if(HWnd) {
 		RECT   toolt_rect;
@@ -402,7 +402,6 @@ int SMessageWindow::Move()
 		::SetWindowPos(HWnd, (Flags & fTopmost) ? HWND_TOP : 0, toolt_rect.left, toolt_rect.top, toolt_w, toolt_h, (Flags & fTopmost) ? 0 : SWP_NOZORDER);
 		TView::SSetWindowText(h_ctl, Text);
 	}
-	return 1;
 }
 
 int SMessageWindow::DoCommand(SPoint2S p)

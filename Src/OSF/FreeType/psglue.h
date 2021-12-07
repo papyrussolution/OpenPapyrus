@@ -128,7 +128,7 @@ FT_BEGIN_HEADER
     CF2_Callback_Type  quadTo;
     CF2_Callback_Type  cubeTo;
 
-    CF2_Int  windingMomentum;    /* for winding order detection */
+    CF2_Int  windingMomentum; /* for winding order detection */
 
     FT_Memory  memory;
     FT_Error*  error;

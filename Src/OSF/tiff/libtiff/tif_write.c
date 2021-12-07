@@ -573,7 +573,7 @@ int TIFFWriteBufferSetup(TIFF* tif, void * bp, tmsize_t size)
 		 */
 		if(size < 8*1024)
 			size = 8*1024;
-		bp = NULL;                      /* NB: force malloc */
+		bp = NULL; /* NB: force malloc */
 	}
 	if(bp == NULL) {
 		bp = SAlloc::M(size);

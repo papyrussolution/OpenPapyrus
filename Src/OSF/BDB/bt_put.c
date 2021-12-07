@@ -635,7 +635,7 @@ int __bam_ritem_nolog(DBC * dbc, PAGE * h, uint32 indx, DBT * hdr, DBT * data, u
 	 * the regions overlap.
 	 */
 	if(lo != ln) {
-		nbytes = (int32)(lo-ln);      /* Signed difference. */
+		nbytes = (int32)(lo-ln); /* Signed difference. */
 		if(p == t)                      /* First index is fast. */
 			inp[indx] += (uint32)nbytes;
 		else {                          /* Else, shift the page. */

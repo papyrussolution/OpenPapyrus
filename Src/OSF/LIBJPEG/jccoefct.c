@@ -33,8 +33,8 @@ typedef struct {
 	struct jpeg_c_coef_controller pub; /* public fields */
 
 	JDIMENSION iMCU_row_num; /* iMCU row # within image */
-	JDIMENSION mcu_ctr;     /* counts MCUs processed in current row */
-	int MCU_vert_offset;    /* counts MCU rows within iMCU row */
+	JDIMENSION mcu_ctr; /* counts MCUs processed in current row */
+	int MCU_vert_offset; /* counts MCU rows within iMCU row */
 	int MCU_rows_per_iMCU_row; /* number of such rows needed */
 
 	/* For single-pass compression, it's sufficient to buffer just one MCU

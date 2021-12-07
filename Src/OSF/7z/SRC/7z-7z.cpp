@@ -7306,7 +7306,7 @@ namespace NArchive {
 			return S_OK;
 		}
 		void COutHandler::InitSolidFiles() { _numSolidFiles = static_cast<uint64>(-1LL); }
-		void COutHandler::InitSolidSize()  { _numSolidBytes = static_cast<uint64>(-1LL); }
+		void COutHandler::InitSolidSize() { _numSolidBytes = static_cast<uint64>(-1LL); }
 		void COutHandler::InitSolid()
 		{
 			InitSolidFiles();

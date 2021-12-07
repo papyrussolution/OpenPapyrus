@@ -95,12 +95,12 @@ struct PW {
 	{
 		THISZERO();
 	}
-	HINSTANCE hInstance;            /* required */
-	HINSTANCE hPrevInstance;        /* required */
+	HINSTANCE hInstance; /* required */
+	HINSTANCE hPrevInstance; /* required */
 	LPWSTR Title;                   /* required */
-	LPWSTR Message;                 /* required */
+	LPWSTR Message; /* required */
 	POINT Origin;                   /* optional */
-	HWND hWndParent;                /* optional */
+	HWND hWndParent; /* optional */
 	HWND hWndPause;
 	HWND hOK;
 	HWND hCancel;
@@ -125,7 +125,7 @@ struct MW {
 	{
 		THISZERO();
 	}
-	LPTSTR szMenuName;              /* required */
+	LPTSTR szMenuName; /* required */
 	HMENU  hMenu;
 	BYTE ** macro;
 	BYTE * macrobuf;
@@ -412,10 +412,10 @@ struct GW {
 	BOOL oversample; // oversampling? 
 	BOOL gdiplus;    // Use GDI+ only backend? 
 	BOOL d2d;        // Use Direct2D backend? 
-	BOOL antialiasing;      /* anti-aliasing? */
-	BOOL polyaa;            /* anti-aliasing for polygons ? */
-	BOOL fastrotation;      /* rotate without anti-aliasing? */
-	COLORREF background;    /* background color */
+	BOOL antialiasing; /* anti-aliasing? */
+	BOOL polyaa; /* anti-aliasing for polygons ? */
+	BOOL fastrotation; /* rotate without anti-aliasing? */
+	COLORREF background; /* background color */
 	// plot properties 
 	//int xmax; // required 
 	//int ymax; // required 
@@ -439,22 +439,22 @@ struct GW {
 	uint maxtooltips;
 	uint numtooltips;
 	// points and lines 
-	double pointscale;      /* scale factor for point sizes */
-	double org_pointsize;   /* original pointsize */
-	BOOL   dashed;            /* dashed lines? */
-	BOOL   rounded;           /* rounded line caps and joins? */
-	double linewidth;       /* scale factor for linewidth */
-	LOGPEN colorpen[WGNUMPENS+2];   /* color pen definitions */
-	LOGPEN monopen[WGNUMPENS+2];    /* mono pen definitions */
+	double pointscale; /* scale factor for point sizes */
+	double org_pointsize; /* original pointsize */
+	BOOL   dashed; /* dashed lines? */
+	BOOL   rounded; /* rounded line caps and joins? */
+	double linewidth; /* scale factor for linewidth */
+	LOGPEN colorpen[WGNUMPENS+2]; /* color pen definitions */
+	LOGPEN monopen[WGNUMPENS+2]; /* mono pen definitions */
 	// fonts 
-	double fontscale;       /* scale factor for font sizes */
-	TCHAR  deffontname[MAXFONTNAME];   /* default font name */
-	int    deffontsize;        /* default font size */
-	TCHAR  fontname[MAXFONTNAME];    /* current font name */
-	int    fontsize;           /* current font size in pts */
-	int    angle;              /* text angle */
-	BOOL   rotate;            /* can text be rotated? */
-	int    justify;            /* text justification */
+	double fontscale; /* scale factor for font sizes */
+	TCHAR  deffontname[MAXFONTNAME]; /* default font name */
+	int    deffontsize; /* default font size */
+	TCHAR  fontname[MAXFONTNAME]; /* current font name */
+	int    fontsize; /* current font size in pts */
+	int    angle; /* text angle */
+	BOOL   rotate; /* can text be rotated? */
+	int    justify; /* text justification */
 	int    encoding_error; // last unknown encoding 
 	enum   set_encoding_id encoding; // text encoding 
 	LONG   tmHeight; // text metric of current font 
@@ -468,15 +468,15 @@ struct GW {
 	HCURSOR hptrCurrent;
 #ifdef USE_WINGDI
 	// GDI resources 
-	HPEN hapen;             /* stored current pen */
-	HPEN hsolid;            /* solid sibling of current pen */
-	HPEN hnull;             /* empty null pen */
-	HBRUSH colorbrush[WGNUMPENS+2];    /* brushes to fill points */
-	HBRUSH hbrush;          /* background brush */
-	HBRUSH hcolorbrush;     /* color fill brush */
-	HFONT hfonth;           /* horizontal font */
-	HFONT hfontv;           /* rotated font (arbitrary angle) */
-	LOGFONT lf;                     /* cached to speed up rotated fonts */
+	HPEN hapen; /* stored current pen */
+	HPEN hsolid; /* solid sibling of current pen */
+	HPEN hnull; /* empty null pen */
+	HBRUSH colorbrush[WGNUMPENS+2]; /* brushes to fill points */
+	HBRUSH hbrush; /* background brush */
+	HBRUSH hcolorbrush; /* color fill brush */
+	HFONT hfonth; /* horizontal font */
+	HFONT hfontv; /* rotated font (arbitrary angle) */
+	LOGFONT lf; /* cached to speed up rotated fonts */
 #endif
 #ifdef HAVE_D2D
 	/* Direct2D resources */
@@ -494,25 +494,25 @@ struct GW {
 //typedef GW * LPGW;
 
 struct enhstate_struct {
-	GW * lpgw;           /* graph window */
-	LPRECT rect;         /* rect to update */
-	BOOL opened_string;  /* started processing of substring? */
-	BOOL show;           /* print this substring? */
-	int overprint;       /* overprint flag */
-	BOOL widthflag;      /* FALSE for zero width boxes */
-	BOOL sizeonly;       /* only measure length of substring? */
-	double base;         /* current baseline position (above initial baseline) */
+	GW * lpgw; /* graph window */
+	LPRECT rect; /* rect to update */
+	BOOL opened_string; /* started processing of substring? */
+	BOOL show; /* print this substring? */
+	int overprint; /* overprint flag */
+	BOOL widthflag; /* FALSE for zero width boxes */
+	BOOL sizeonly; /* only measure length of substring? */
+	double base; /* current baseline position (above initial baseline) */
 	//int xsave, ysave; // save text position for overprinted text 
 	//int x, y; // current text position 
 	SPoint2I PtPreserve; // save text position for overprinted text 
 	SPoint2I Pt; // current text position 
 	TCHAR fontname[MAXFONTNAME]; /* current font name */
-	double fontsize;     /* current font size */
-	int totalwidth;      /* total width of printed text */
-	int totalasc;        /* total height above center line */
-	int totaldesc;       /* total height below center line */
-	double res_scale;    /* scaling due to different resolution (printers) */
-	int shift;           /* baseline alignment */
+	double fontsize; /* current font size */
+	int totalwidth; /* total width of printed text */
+	int totalasc; /* total height above center line */
+	int totaldesc; /* total height below center line */
+	double res_scale; /* scaling due to different resolution (printers) */
+	int shift; /* baseline alignment */
 	void (* set_font)();
 	uint (* text_length)(char *);
 	void (* put_text)(int, int, char *);

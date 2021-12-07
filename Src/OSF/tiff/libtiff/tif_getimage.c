@@ -228,7 +228,7 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 	img->cielab = NULL;
 	img->UaToAa = NULL;
 	img->Bitdepth16To8 = NULL;
-	img->req_orientation = ORIENTATION_BOTLEFT;     /* It is the default */
+	img->req_orientation = ORIENTATION_BOTLEFT; /* It is the default */
 	img->tif = tif;
 	img->stoponerr = stop;
 	TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &img->bitspersample);
@@ -365,7 +365,7 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 			    goto fail_return;
 		    }
 		    TIFFSetField(tif, TIFFTAG_SGILOGDATAFMT, SGILOGDATAFMT_8BIT);
-		    img->photometric = PHOTOMETRIC_MINISBLACK;          /* little white lie */
+		    img->photometric = PHOTOMETRIC_MINISBLACK; /* little white lie */
 		    img->bitspersample = 8;
 		    break;
 		case PHOTOMETRIC_LOGLUV:
@@ -378,7 +378,7 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 			    return 0;
 		    }
 		    TIFFSetField(tif, TIFFTAG_SGILOGDATAFMT, SGILOGDATAFMT_8BIT);
-		    img->photometric = PHOTOMETRIC_RGB;                 /* little white lie */
+		    img->photometric = PHOTOMETRIC_RGB; /* little white lie */
 		    img->bitspersample = 8;
 		    break;
 		case PHOTOMETRIC_CIELAB:

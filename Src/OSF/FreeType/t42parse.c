@@ -718,7 +718,7 @@ static void t42_parse_charstrings(T42_Face face, T42_Loader loader)
 				error = FT_THROW(Invalid_File_Format);
 				goto Fail;
 			}
-			cur++;              /* skip `/' */
+			cur++; /* skip `/' */
 			len = (FT_UInt)( parser->root.cursor - cur );
 			if(have_literal)
 				len--;

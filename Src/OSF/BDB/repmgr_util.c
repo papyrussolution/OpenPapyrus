@@ -1086,7 +1086,7 @@ static int read_gmdb(ENV * env, DB_THREAD_INFO * ip, uint8 ** bufp, size_t * len
 	DB_ASSERT(env, metadata.format == REPMGR_GMDB_FMT_VERSION);
 	DB_ASSERT(env, metadata.version > 0);
 
-	bufsize = 1000;         /* Initial guess. */
+	bufsize = 1000; /* Initial guess. */
 	if((ret = __os_malloc(env, bufsize, &buf)) != 0)
 		goto err;
 	membr_vers.version = metadata.version;
@@ -1319,7 +1319,7 @@ void __repmgr_fire_conn_err_event(ENV * env, REPMGR_CONNECTION * conn, int err)
 void __repmgr_print_conn_err(ENV * env, repmgr_netaddr_t * netaddr, int err)
 {
 	SITE_STRING_BUFFER site_loc_buf;
-	char msgbuf[200];       /* Arbitrary size. */
+	char msgbuf[200]; /* Arbitrary size. */
 	__repmgr_format_addr_loc(netaddr, site_loc_buf);
 	/* TCP/IP sockets API convention: 0 indicates "end-of-file". */
 	if(err == 0)

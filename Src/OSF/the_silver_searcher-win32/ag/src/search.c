@@ -203,7 +203,7 @@ multiline_done:
 	if(matches_size > 0) {
 		SAlloc::F(matches);
 	}
-	/* FIXME: handle case where matches_len > SSIZE_MAX */
+	// FIXME: handle case where matches_len > SSIZE_MAX
 	return (ssize_t)matches_len;
 }
 
@@ -387,13 +387,11 @@ cleanup:
 		UnmapViewOfFile(buf);
 #else
 		if(opts.mmap) {
-			if(buf != MAP_FAILED) {
+			if(buf != MAP_FAILED)
 				munmap(buf, f_len);
-			}
 		}
-		else {
+		else
 			SAlloc::F(buf);
-		}
 #endif
 	}
 	if(fd != -1) {

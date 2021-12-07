@@ -11,12 +11,15 @@ IMPLEMENT_PPFILT_FACTORY(StyloQBindery); StyloQBinderyFilt::StyloQBinderyFilt() 
 	Init(1, 0);
 }
 
-PPViewStyloQBindery::PPViewStyloQBindery() : PPView(0, &Filt, PPVIEW_STYLOQBINDERY, (implBrowseArray|implDontEditNullFilter), 0), P_DsList(0)
+PPViewStyloQBindery::PPViewStyloQBindery() : PPView(0, &Filt, PPVIEW_STYLOQBINDERY, (implBrowseArray|implDontEditNullFilter), 0), P_DsList(0), State(0)
 {
 }
 
 PPViewStyloQBindery::~PPViewStyloQBindery()
 {
+	if(State & stMatchingUpdated) {
+		StyloQCore::BuildSvcDbSymbMap();
+	}
 	ZDELETE(P_DsList);
 }
 
@@ -243,6 +246,58 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 	return -1;
 }
 
+int PPViewStyloQBindery::Invitation()
+{
+	int    ok = -1;
+	PPStyloQInterchange ic;
+	PPStyloQInterchange::RunServerParam rsparam;
+	PPID   own_id = 0;
+	StyloQCore::StoragePacket sp;
+	int    spir = ic.SetupPeerInstance(&own_id, 1);
+	THROW(spir);
+	THROW(ic.GetOwnPeerEntry(&sp) > 0);
+	{ 
+		//
+		// Инициализация сервера для обработки AMQ-запросов
+		//
+		THROW(ic.SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
+		//sp.Pool.Get(SSecretTagPool::tagSvcIdent, &rsparam.SvcIdent);
+		//THROW(PPMqbClient::SetupInitParam(rsparam.MqbInitParam, "styloq", 0));
+		//{
+		//	InetUrl url;
+		//	url.SetProtocol(InetUrl::protAMQP);
+		//	url.SetComponent(InetUrl::cHost, rsparam.MqbInitParam.Host);
+		//	url.SetPort_(rsparam.MqbInitParam.Port);
+		//	url.SetComponent(InetUrl::cUserName, rsparam.MqbInitParam.Auth);
+		//	url.SetComponent(InetUrl::cPassword, rsparam.MqbInitParam.Secret);
+		//	url.Composite(InetUrl::stAll, rsparam.AccessPoint);
+		//}
+		{
+			PPMqbClient::RoutingParamEntry rpe;
+			SBinaryChunk qi;
+			rsparam.MakeMqbQueueIdent(qi);
+			if(rpe.SetupStyloQRpcListener(/*rsparam.SvcIdent*/qi)) {
+				PPMqbClient::RoutingParamEntry * p_new_entry = rsparam.MqbInitParam.ConsumeParamList.CreateNewItem();
+				ASSIGN_PTR(p_new_entry, rpe);
+			}
+		}
+		int rsr = ic.RunStyloQServer(rsparam, 0);
+		if(rsr != 0) {
+			PPStyloQInterchange::Invitation inv(rsparam);
+			{
+				SJson js(SJson::tOBJECT);
+				js.InsertString("cmd", "REGISTER");
+				json_tree_to_string(&js, inv.CommandJson);
+			}
+			ic.ExecuteInvitationDialog(inv);
+		}
+		if(rsr > 0)
+			PPStyloQInterchange::StopStyloQServer();
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
 /*virtual*/int PPViewStyloQBindery::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
@@ -254,24 +309,60 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 			case PPVCMD_MATCH:
 				ok = -1;
 				if(Obj.AssignObjToClientEntry(id) > 0) {
+					State |= stMatchingUpdated;
 					ok = 1;
 				}
 				break;
 			case PPVCMD_FACE:
 				ok = -1;
-				if(Obj.EditFace(id) > 0) {
-					ok = 1;
+				if(P_DsList) {
+					if(id) {
+						if(Obj.EditFace(id) > 0) {
+							ok = 1;
+						}
+					}
+					else if(P_DsList->getCount() == 0) {
+						StyloQCore::StoragePacket own_pack;
+						PPID   own_id = 0;
+						if(Obj.P_Tbl->SetupPeerInstance(&own_id, 1)) {
+							if(Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
+								assert(own_pack.Rec.ID == own_id);
+								Obj.EditFace(own_id);
+								ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
+							}
+						}
+					}
 				}
 				break;
-			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
+			case PPVCMD_USERSORT: 
+				ok = 1; 
+				break; // The rest will be done below
 			case PPVCMD_DELETEALL:
 				// @todo ok = DeleteAll();
 				break;
 			case PPVCMD_CONFIG:
 				ok = -1;
-				if(Obj.EditConfig(id) > 0) {
-					ok = 1;
+				if(P_DsList) {
+					if(id) {
+						if(Obj.EditConfig(id) > 0) {
+							ok = 1;
+						}
+					}
+					else if(P_DsList->getCount() == 0) {
+						StyloQCore::StoragePacket own_pack;
+						PPID   own_id = 0;
+						if(Obj.P_Tbl->SetupPeerInstance(&own_id, 1)) {
+							if(Obj.P_Tbl->GetOwnPeerEntry(&own_pack) > 0) {
+								assert(own_pack.Rec.ID == own_id);
+								Obj.EditConfig(own_id);
+								ok = 1; // Так как мы (скорее всего) создали собственную запись, то безусловно обновляем список
+							}
+						}
+					}
 				}
+				break;
+			case PPVCMD_INVITATION:
+				Invitation();
 				break;
 			case PPVCMD_REFRESH:
 				ok = 1;
@@ -449,7 +540,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 		StyloQCommandDialog(PPNamedFiltMngr * pNfMgr) : TDialog(DLG_STQCMD), P_NfMgr(pNfMgr)
 		{
 			CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
-			SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, 0, 0);
+			//SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, 0, 0);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -495,6 +586,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 				if(CmdSymbList.Search(view_id, &pos))
 					Data.ViewSymb = CmdSymbList.at_WithoutParent(pos).Txt;
 			}
+			else if(Data.BaseCmdId == StyloQCommandList::sqbcRsrvOrderPrereq) {
+				PPID stylopalm_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
+				Data.Param.Z().Write(&stylopalm_id, sizeof(stylopalm_id));
+			}
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -528,6 +623,10 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 				}
 			}
 			else if(event.isCbSelected(CTLSEL_STQCMD_VCMD)) {
+				if(Data.BaseCmdId == StyloQCommandList::sqbcRsrvOrderPrereq) {
+					PPID stylopalm_id = getCtrlLong(CTLSEL_STQCMD_VCMD);
+					Data.Param.Z().Write(&stylopalm_id, sizeof(stylopalm_id));
+				}
 				/*
 				uint    pos = 0;
 				temp_buf.Z();
@@ -550,7 +649,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 			SSerializeContext sctx;
 			if(Data.Param.GetAvailableSize()) {
 				if(PsnEvObj.SerializePacket(-1, &pack, Data.Param, &sctx)) {
-					;
+					Data.Param.SetRdOffs(sav_offs);
 				}
 				else {
 					Data.Param.Z();
@@ -602,11 +701,13 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 		}
 		void   SetupBaseCommand(int32 baseCmd)
 		{
+			SString temp_buf;
 			bool enable_cmd_param = false;
 			bool enable_viewcmd = false;
 			switch(baseCmd) {
 				case StyloQCommandList::sqbcPersonEvent: 
 					enable_cmd_param = true; 
+					setLabelText(CTL_STQCMD_VCMD, "");
 					break;
 				case StyloQCommandList::sqbcReport:
 					{
@@ -616,15 +717,32 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData)
 						if(Data.ViewSymb.NotEmpty() && CmdSymbList.SearchByText(Data.ViewSymb, 1, &pos)) {
 							view_id = CmdSymbList.at_WithoutParent(pos).Id;
 						}
-						setCtrlLong(CTLSEL_STQCMD_VCMD, view_id);
+						//setCtrlLong(CTLSEL_STQCMD_VCMD, view_id);
+						{
+							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_viewsymb", temp_buf));
+							SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, view_id, 0);
+						}
 						enable_viewcmd = true;
 					}
 					break;
 				case StyloQCommandList::sqbcRsrvOrderPrereq: // @v11.2.6
-					// @todo
+					{
+						PPID   stylopalm_id = 0;
+						if(Data.Param.GetAvailableSize() == sizeof(int32)) {
+							Data.Param.ReadStatic(&stylopalm_id, sizeof(stylopalm_id));
+						}
+						{
+							CALLPTRMEMB(P_NfMgr, GetResourceLists(&CmdSymbList, &CmdTextList));
+							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_remoteorderparam", temp_buf));
+							SetupPPObjCombo(this, CTLSEL_STQCMD_VCMD, PPOBJ_STYLOPALM, stylopalm_id, OLW_CANINSERT);
+						}
+						enable_viewcmd = true;
+						//enable_cmd_param = true; 
+					}
 					break; 
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);
+			enableCommand(cmOutFields, enable_viewcmd); // @v11.2.6
 			disableCtrl(CTLSEL_STQCMD_VCMD, !enable_viewcmd);
 		}
 		void   SetupObjGroupCombo(PPID objType)

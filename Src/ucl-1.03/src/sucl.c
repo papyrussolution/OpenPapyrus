@@ -156,7 +156,7 @@ UCL_PUBLIC(const ucl_charp) _ucl_version_date(void) { return UCL_VERSION_DATE; }
 #define UCL_NMAX 5552
 /* NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 */
 
-#define UCL_DO1(buf, i)  {s1 += buf[i]; s2 += s1;}
+#define UCL_DO1(buf, i) {s1 += buf[i]; s2 += s1;}
 #define UCL_DO2(buf, i)  UCL_DO1(buf, i); UCL_DO1(buf, i+1);
 #define UCL_DO4(buf, i)  UCL_DO2(buf, i); UCL_DO2(buf, i+2);
 #define UCL_DO8(buf, i)  UCL_DO4(buf, i); UCL_DO4(buf, i+4);
@@ -203,7 +203,7 @@ UCL_PUBLIC(ucl_uint32) ucl_adler32(ucl_uint32 adler, const ucl_bytep buf, ucl_ui
 // And while many of the tests seem highly obvious and redundant they are
 // here to catch compiler/optimizer bugs. Yes, these do exist.
 //
-static ucl_bool schedule_insns_bug(void);   /* avoid inlining */
+static ucl_bool schedule_insns_bug(void); /* avoid inlining */
 static ucl_bool strength_reduce_bug(int *); /* avoid inlining */
 
 #if defined(UCL_DEBUG)

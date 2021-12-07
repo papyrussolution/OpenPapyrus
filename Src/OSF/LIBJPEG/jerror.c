@@ -210,9 +210,9 @@ GLOBAL(struct jpeg_error_mgr *) jpeg_std_error(struct jpeg_error_mgr * err)
 	err->output_message = output_message;
 	err->format_message = format_message;
 	err->reset_error_mgr = reset_error_mgr;
-	err->trace_level = 0;   /* default = no tracing */
-	err->num_warnings = 0;  /* no warnings emitted yet */
-	err->msg_code = 0;      /* may be useful as a flag for "no error" */
+	err->trace_level = 0; /* default = no tracing */
+	err->num_warnings = 0; /* no warnings emitted yet */
+	err->msg_code = 0; /* may be useful as a flag for "no error" */
 	/* Initialize message table pointers */
 	err->jpeg_message_table = jpeg_std_message_table;
 	err->last_jpeg_message = (int)JMSG_LASTMSGCODE - 1;

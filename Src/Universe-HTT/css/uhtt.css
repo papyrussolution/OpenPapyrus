@@ -25,8 +25,8 @@ div.ui-dialog .ui-dialog-content {
 }
 .border-box {
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box;         /* IE 8+ */
+	-moz-box-sizing: border-box; /* Firefox, other Gecko */
+	box-sizing: border-box; /* IE 8+ */
 }
 input.uhtt-input {
 	border-radius:4px;

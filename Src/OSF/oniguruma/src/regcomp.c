@@ -5291,7 +5291,7 @@ typedef struct {
 typedef struct {
 	MinMaxLen mm; /* position */
 	OptAnc anc;
-	int value;  /* weighted value */
+	int value; /* weighted value */
 	uchar map[CHAR_MAP_SIZE];
 } OptMap;
 

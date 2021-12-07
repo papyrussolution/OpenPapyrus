@@ -600,8 +600,8 @@ void GnuPlot::StatsRequest()
 	long max_n;
 	static double * data_x = NULL;
 	static double * data_y = NULL; /* values read from file */
-	long invalid;      /* number of missing/invalid records */
-	long blanks;       /* number of blank lines */
+	long invalid; /* number of missing/invalid records */
+	long blanks; /* number of blank lines */
 	long doubleblanks; /* number of repeated blank lines */
 	long header_records; /* number of records treated as headers rather than data */
 	long out_of_range; /* number pts rejected, because out of range */
@@ -621,12 +621,12 @@ void GnuPlot::StatsRequest()
 	ParseRange(FIRST_X_AXIS);
 	ParseRange(FIRST_Y_AXIS);
 	// Initialize 
-	invalid = 0;      /* number of missing/invalid records */
-	blanks = 0;       /* number of blank lines */
+	invalid = 0; /* number of missing/invalid records */
+	blanks = 0; /* number of blank lines */
 	header_records = 0; /* number of records treated as headers rather than data */
 	doubleblanks = 0; /* number of repeated blank lines */
 	out_of_range = 0; /* number pts rejected, because out of range */
-	n = 0;            /* number of records retained */
+	n = 0; /* number of records retained */
 	max_n = INITIAL_DATA_SIZE;
 	FREEANDASSIGN(data_x, vec(max_n)); // start with max. value 
 	FREEANDASSIGN(data_y, vec(max_n));
@@ -650,7 +650,7 @@ void GnuPlot::StatsRequest()
 	// to set the effective number of columns to 1.
 	//
 	if(TRUE) {
-		DfSetPlotMode(MODE_PLOT);    /* Used for matrix datafiles */
+		DfSetPlotMode(MODE_PLOT); /* Used for matrix datafiles */
 		columns = DfOpen(file_name, 2, NULL); /* up to 2 using specs allowed */
 		// 
 		// "stats <badfilename> nooutput"

@@ -610,7 +610,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		return FT_THROW(Invalid_Argument);
 
 	if(source_->pixel_mode == FT_PIXEL_MODE_NONE)
-		return FT_Err_Ok;     /* nothing to do */
+		return FT_Err_Ok; /* nothing to do */
 
 	/* pitches must have the same sign */
 	if(target->pixel_mode == FT_PIXEL_MODE_BGRA &&
@@ -618,7 +618,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 		return FT_THROW(Invalid_Argument);
 
 	if(!(source_->width && source_->rows ))
-		return FT_Err_Ok;     /* nothing to do */
+		return FT_Err_Ok; /* nothing to do */
 
 	/* assure integer pixel offsets */
 	source_offset.x = FT_PIX_FLOOR(source_offset_.x);
@@ -694,7 +694,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 #endif /* FT_DEBUG_LEVEL_TRACE */
 
 	if(!(final_width && final_rows ))
-		return FT_Err_Ok;     /* nothing to do */
+		return FT_Err_Ok; /* nothing to do */
 
 	/* for blending, set offset vector of final bitmap */
 	/* temporarily to (0,0)         */

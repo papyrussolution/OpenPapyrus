@@ -608,11 +608,11 @@ bool Collator::operator != (const Collator& other) const
 	return !operator == (other);
 }
 
-int32_t U_EXPORT2 Collator::getBound(const uint8_t       * source,
+int32_t U_EXPORT2 Collator::getBound(const uint8_t * source,
     int32_t sourceLength,
     UColBoundMode boundType,
     uint32_t noOfLevels,
-    uint8_t             * result,
+    uint8_t * result,
     int32_t resultLength,
     UErrorCode          &status)
 {

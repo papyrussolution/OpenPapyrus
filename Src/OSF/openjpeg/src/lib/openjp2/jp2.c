@@ -545,8 +545,8 @@ static void jp2_write_url(opj_cio_t * cio, char * Idx_file)
 	box.init_pos = cio_tell(cio);
 	cio_skip(cio, 4);
 	cio_write(cio, JP2_URL, 4); /* DBTL */
-	cio_write(cio, 0, 1);   /* VERS */
-	cio_write(cio, 0, 3);   /* FLAG */
+	cio_write(cio, 0, 1); /* VERS */
+	cio_write(cio, 0, 3); /* FLAG */
 
 	if(Idx_file) {
 		for(i = 0; i < strlen(Idx_file); i++) {
@@ -583,9 +583,9 @@ static OPJ_BOOL opj_jp2_read_ihdr(opj_jp2_t * jp2,
 		return OPJ_FALSE;
 	}
 
-	opj_read_bytes(p_image_header_data, &(jp2->h), 4);      /* HEIGHT */
+	opj_read_bytes(p_image_header_data, &(jp2->h), 4); /* HEIGHT */
 	p_image_header_data += 4;
-	opj_read_bytes(p_image_header_data, &(jp2->w), 4);      /* WIDTH */
+	opj_read_bytes(p_image_header_data, &(jp2->w), 4); /* WIDTH */
 	p_image_header_data += 4;
 	opj_read_bytes(p_image_header_data, &(jp2->numcomps), 2); /* NC */
 	p_image_header_data += 2;
@@ -611,10 +611,10 @@ static OPJ_BOOL opj_jp2_read_ihdr(opj_jp2_t * jp2,
 		return OPJ_FALSE;
 	}
 
-	opj_read_bytes(p_image_header_data, &(jp2->bpc), 1);    /* BPC */
+	opj_read_bytes(p_image_header_data, &(jp2->bpc), 1); /* BPC */
 	++p_image_header_data;
 
-	opj_read_bytes(p_image_header_data, &(jp2->C), 1);      /* C */
+	opj_read_bytes(p_image_header_data, &(jp2->C), 1); /* C */
 	++p_image_header_data;
 
 	/* Should be equal to 7 cf. chapter about image header box of the norm */
@@ -624,9 +624,9 @@ static OPJ_BOOL opj_jp2_read_ihdr(opj_jp2_t * jp2,
 		    jp2->C);
 	}
 
-	opj_read_bytes(p_image_header_data, &(jp2->UnkC), 1);   /* UnkC */
+	opj_read_bytes(p_image_header_data, &(jp2->UnkC), 1); /* UnkC */
 	++p_image_header_data;
-	opj_read_bytes(p_image_header_data, &(jp2->IPR), 1);    /* IPR */
+	opj_read_bytes(p_image_header_data, &(jp2->IPR), 1); /* IPR */
 	++p_image_header_data;
 
 	jp2->j2k->m_cp.allow_different_bit_depth_sign = (jp2->bpc == 255);
@@ -649,9 +649,9 @@ static OPJ_BYTE * opj_jp2_write_ihdr(opj_jp2_t * jp2, OPJ_UINT32 * p_nb_bytes_wr
 		return 00;
 	}
 	l_current_ihdr_ptr = l_ihdr_data;
-	opj_write_bytes(l_current_ihdr_ptr, 22, 4);         /* write box size */
+	opj_write_bytes(l_current_ihdr_ptr, 22, 4); /* write box size */
 	l_current_ihdr_ptr += 4;
-	opj_write_bytes(l_current_ihdr_ptr, JP2_IHDR, 4);   /* IHDR */
+	opj_write_bytes(l_current_ihdr_ptr, JP2_IHDR, 4); /* IHDR */
 	l_current_ihdr_ptr += 4;
 	opj_write_bytes(l_current_ihdr_ptr, jp2->h, 4); /* HEIGHT */
 	l_current_ihdr_ptr += 4;
@@ -659,13 +659,13 @@ static OPJ_BYTE * opj_jp2_write_ihdr(opj_jp2_t * jp2, OPJ_UINT32 * p_nb_bytes_wr
 	l_current_ihdr_ptr += 4;
 	opj_write_bytes(l_current_ihdr_ptr, jp2->numcomps, 2); /* NC */
 	l_current_ihdr_ptr += 2;
-	opj_write_bytes(l_current_ihdr_ptr, jp2->bpc, 1);   /* BPC */
+	opj_write_bytes(l_current_ihdr_ptr, jp2->bpc, 1); /* BPC */
 	++l_current_ihdr_ptr;
 	opj_write_bytes(l_current_ihdr_ptr, jp2->C, 1); /* C : Always 7 */
 	++l_current_ihdr_ptr;
-	opj_write_bytes(l_current_ihdr_ptr, jp2->UnkC, 1);              /* UnkC, colorspace unknown */
+	opj_write_bytes(l_current_ihdr_ptr, jp2->UnkC, 1); /* UnkC, colorspace unknown */
 	++l_current_ihdr_ptr;
-	opj_write_bytes(l_current_ihdr_ptr, jp2->IPR, 1);               /* IPR, no intellectual property */
+	opj_write_bytes(l_current_ihdr_ptr, jp2->IPR, 1); /* IPR, no intellectual property */
 	++l_current_ihdr_ptr;
 	*p_nb_bytes_written = 22;
 	return l_ihdr_data;
@@ -688,10 +688,10 @@ static OPJ_BYTE * opj_jp2_write_bpcc(opj_jp2_t * jp2, OPJ_UINT32 * p_nb_bytes_wr
 	l_current_bpcc_ptr = l_bpcc_data;
 	opj_write_bytes(l_current_bpcc_ptr, l_bpcc_size, 4);                    /* write box size */
 	l_current_bpcc_ptr += 4;
-	opj_write_bytes(l_current_bpcc_ptr, JP2_BPCC, 4);           /* BPCC */
+	opj_write_bytes(l_current_bpcc_ptr, JP2_BPCC, 4); /* BPCC */
 	l_current_bpcc_ptr += 4;
 	for(i = 0; i < jp2->numcomps; ++i) {
-		opj_write_bytes(l_current_bpcc_ptr, jp2->comps[i].bpcc, 1);     /* write each component information */
+		opj_write_bytes(l_current_bpcc_ptr, jp2->comps[i].bpcc, 1); /* write each component information */
 		++l_current_bpcc_ptr;
 	}
 	*p_nb_bytes_written = l_bpcc_size;
@@ -721,7 +721,7 @@ static OPJ_BOOL opj_jp2_read_bpcc(opj_jp2_t * jp2, OPJ_BYTE * p_bpc_header_data,
 	/* read info for each component */
 	for(i = 0; i < jp2->numcomps; ++i) {
 		opj_read_bytes(p_bpc_header_data, &jp2->comps[i].bpcc,
-		    1);     /* read each BPCC component */
+		    1); /* read each BPCC component */
 		++p_bpc_header_data;
 	}
 
@@ -753,25 +753,25 @@ static OPJ_BYTE * opj_jp2_write_cdef(opj_jp2_t * jp2,
 
 	l_current_cdef_ptr = l_cdef_data;
 
-	opj_write_bytes(l_current_cdef_ptr, l_cdef_size, 4);    /* write box size */
+	opj_write_bytes(l_current_cdef_ptr, l_cdef_size, 4); /* write box size */
 	l_current_cdef_ptr += 4;
 
-	opj_write_bytes(l_current_cdef_ptr, JP2_CDEF, 4);           /* BPCC */
+	opj_write_bytes(l_current_cdef_ptr, JP2_CDEF, 4); /* BPCC */
 	l_current_cdef_ptr += 4;
 
 	l_value = jp2->color.jp2_cdef->n;
-	opj_write_bytes(l_current_cdef_ptr, l_value, 2);            /* N */
+	opj_write_bytes(l_current_cdef_ptr, l_value, 2); /* N */
 	l_current_cdef_ptr += 2;
 
 	for(i = 0U; i < jp2->color.jp2_cdef->n; ++i) {
 		l_value = jp2->color.jp2_cdef->info[i].cn;
-		opj_write_bytes(l_current_cdef_ptr, l_value, 2);        /* Cni */
+		opj_write_bytes(l_current_cdef_ptr, l_value, 2); /* Cni */
 		l_current_cdef_ptr += 2;
 		l_value = jp2->color.jp2_cdef->info[i].typ;
-		opj_write_bytes(l_current_cdef_ptr, l_value, 2);        /* Typi */
+		opj_write_bytes(l_current_cdef_ptr, l_value, 2); /* Typi */
 		l_current_cdef_ptr += 2;
 		l_value = jp2->color.jp2_cdef->info[i].asoc;
-		opj_write_bytes(l_current_cdef_ptr, l_value, 2);        /* Asoci */
+		opj_write_bytes(l_current_cdef_ptr, l_value, 2); /* Asoci */
 		l_current_cdef_ptr += 2;
 	}
 	*p_nb_bytes_written = l_cdef_size;
@@ -815,16 +815,16 @@ static OPJ_BYTE * opj_jp2_write_colr(opj_jp2_t * jp2,
 	    4);                    /* write box size */
 	l_current_colr_ptr += 4;
 
-	opj_write_bytes(l_current_colr_ptr, JP2_COLR, 4);           /* BPCC */
+	opj_write_bytes(l_current_colr_ptr, JP2_COLR, 4); /* BPCC */
 	l_current_colr_ptr += 4;
 
-	opj_write_bytes(l_current_colr_ptr, jp2->meth, 1);          /* METH */
+	opj_write_bytes(l_current_colr_ptr, jp2->meth, 1); /* METH */
 	++l_current_colr_ptr;
 
-	opj_write_bytes(l_current_colr_ptr, jp2->precedence, 1);    /* PRECEDENCE */
+	opj_write_bytes(l_current_colr_ptr, jp2->precedence, 1); /* PRECEDENCE */
 	++l_current_colr_ptr;
 
-	opj_write_bytes(l_current_colr_ptr, jp2->approx, 1);        /* APPROX */
+	opj_write_bytes(l_current_colr_ptr, jp2->approx, 1); /* APPROX */
 	++l_current_colr_ptr;
 
 	if(jp2->meth ==
@@ -1255,15 +1255,15 @@ static OPJ_BOOL opj_jp2_read_cmap(opj_jp2_t * jp2, OPJ_BYTE * p_cmap_header_data
 		return OPJ_FALSE;
 	}
 	for(i = 0; i < nr_channels; ++i) {
-		opj_read_bytes(p_cmap_header_data, &l_value, 2);    /* CMP^i */
+		opj_read_bytes(p_cmap_header_data, &l_value, 2); /* CMP^i */
 		p_cmap_header_data += 2;
 		cmap[i].cmp = (OPJ_UINT16)l_value;
 
-		opj_read_bytes(p_cmap_header_data, &l_value, 1);    /* MTYP^i */
+		opj_read_bytes(p_cmap_header_data, &l_value, 1); /* MTYP^i */
 		++p_cmap_header_data;
 		cmap[i].mtyp = (OPJ_BYTE)l_value;
 
-		opj_read_bytes(p_cmap_header_data, &l_value, 1);    /* PCOL^i */
+		opj_read_bytes(p_cmap_header_data, &l_value, 1); /* PCOL^i */
 		++p_cmap_header_data;
 		cmap[i].pcol = (OPJ_BYTE)l_value;
 	}
@@ -1364,7 +1364,7 @@ static OPJ_BOOL opj_jp2_read_cdef(opj_jp2_t * jp2,
 		return OPJ_FALSE;
 	}
 
-	opj_read_bytes(p_cdef_header_data, &l_value, 2);    /* N */
+	opj_read_bytes(p_cdef_header_data, &l_value, 2); /* N */
 	p_cdef_header_data += 2;
 
 	if((OPJ_UINT16)l_value == 0) { /* szukw000: FIXME */
@@ -1390,15 +1390,15 @@ static OPJ_BOOL opj_jp2_read_cdef(opj_jp2_t * jp2,
 	jp2->color.jp2_cdef->n = (OPJ_UINT16)l_value;
 
 	for(i = 0; i < jp2->color.jp2_cdef->n; ++i) {
-		opj_read_bytes(p_cdef_header_data, &l_value, 2);    /* Cn^i */
+		opj_read_bytes(p_cdef_header_data, &l_value, 2); /* Cn^i */
 		p_cdef_header_data += 2;
 		cdef_info[i].cn = (OPJ_UINT16)l_value;
 
-		opj_read_bytes(p_cdef_header_data, &l_value, 2);    /* Typ^i */
+		opj_read_bytes(p_cdef_header_data, &l_value, 2); /* Typ^i */
 		p_cdef_header_data += 2;
 		cdef_info[i].typ = (OPJ_UINT16)l_value;
 
-		opj_read_bytes(p_cdef_header_data, &l_value, 2);    /* Asoc^i */
+		opj_read_bytes(p_cdef_header_data, &l_value, 2); /* Asoc^i */
 		p_cdef_header_data += 2;
 		cdef_info[i].asoc = (OPJ_UINT16)l_value;
 	}
@@ -1434,13 +1434,13 @@ static OPJ_BOOL opj_jp2_read_colr(opj_jp2_t * jp2,
 		return OPJ_TRUE;
 	}
 
-	opj_read_bytes(p_colr_header_data, &jp2->meth, 1);      /* METH */
+	opj_read_bytes(p_colr_header_data, &jp2->meth, 1); /* METH */
 	++p_colr_header_data;
 
 	opj_read_bytes(p_colr_header_data, &jp2->precedence, 1); /* PRECEDENCE */
 	++p_colr_header_data;
 
-	opj_read_bytes(p_colr_header_data, &jp2->approx, 1);    /* APPROX */
+	opj_read_bytes(p_colr_header_data, &jp2->approx, 1); /* APPROX */
 	++p_colr_header_data;
 
 	if(jp2->meth == 1) {
@@ -1789,7 +1789,7 @@ static OPJ_BOOL opj_jp2_write_jp2c(opj_jp2_t * jp2,
 	j2k_codestream_exit = opj_stream_tell(cio);
 	opj_write_bytes(l_data_header,
 	    (OPJ_UINT32)(j2k_codestream_exit - jp2->j2k_codestream_offset),
-	    4);         /* size of codestream */
+	    4); /* size of codestream */
 	opj_write_bytes(l_data_header + 4, JP2_JP2C,
 	    4);                                             /* JP2C */
 
@@ -1935,9 +1935,9 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 			jp2->bpc = 255;
 		}
 	}
-	jp2->C = 7;     /* C : Always 7 */
-	jp2->UnkC = 0;  /* UnkC, colorspace specified in colr box */
-	jp2->IPR = 0;   /* IPR, no intellectual property */
+	jp2->C = 7; /* C : Always 7 */
+	jp2->UnkC = 0; /* UnkC, colorspace specified in colr box */
+	jp2->IPR = 0; /* IPR, no intellectual property */
 
 	/* BitsPerComponent box */
 	for(i = 0; i < image->numcomps; i++) {
@@ -2026,12 +2026,12 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 			    i;                   /* cast is valid : image->numcomps [1,16384] */
 			jp2->color.jp2_cdef->info[i].typ = 0U;
 			jp2->color.jp2_cdef->info[i].asoc = (OPJ_UINT16)(i +
-			    1U);                     /* No overflow + cast is valid : image->numcomps [1,16384] */
+			    1U); /* No overflow + cast is valid : image->numcomps [1,16384] */
 		}
 		for(; i < image->numcomps; i++) {
 			if(image->comps[i].alpha != 0) { /* we'll be here exactly once */
 				jp2->color.jp2_cdef->info[i].cn = (OPJ_UINT16)
-				    i;               /* cast is valid : image->numcomps [1,16384] */
+				    i; /* cast is valid : image->numcomps [1,16384] */
 				jp2->color.jp2_cdef->info[i].typ = 1U; /* Opacity channel */
 				jp2->color.jp2_cdef->info[i].asoc =
 				    0U; /* Apply alpha channel to the whole image */
@@ -2039,7 +2039,7 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 			else {
 				/* Unknown channel */
 				jp2->color.jp2_cdef->info[i].cn = (OPJ_UINT16)
-				    i;               /* cast is valid : image->numcomps [1,16384] */
+				    i; /* cast is valid : image->numcomps [1,16384] */
 				jp2->color.jp2_cdef->info[i].typ = 65535U;
 				jp2->color.jp2_cdef->info[i].asoc = 65535U;
 			}
@@ -2047,7 +2047,7 @@ OPJ_BOOL opj_jp2_setup_encoder(opj_jp2_t * jp2,
 	}
 
 	jp2->precedence = 0; /* PRECEDENCE */
-	jp2->approx = 0;    /* APPROX */
+	jp2->approx = 0; /* APPROX */
 
 	jp2->jpip_on = parameters->jpip_on;
 
@@ -2189,7 +2189,7 @@ static OPJ_BOOL opj_jp2_default_validation(opj_jp2_t * jp2, opj_stream_private_t
 	/* precision */
 	for(i = 0; i < jp2->numcomps; ++i) {
 		l_is_valid &= ((jp2->comps[i].bpcc & 0x7FU) <
-		    38U);    /* 0 is valid, ignore sign for check */
+		    38U); /* 0 is valid, ignore sign for check */
 	}
 
 	/* METH */
@@ -3330,7 +3330,7 @@ static void write_prxy(int offset_jp2c, int length_jp2c, int offset_idx,
 	OPJ_OFF_T len, lenp;
 
 	lenp = opj_stream_tell(cio);
-	opj_stream_skip(cio, 4, p_manager);     /* L [at the end] */
+	opj_stream_skip(cio, 4, p_manager); /* L [at the end] */
 	opj_write_bytes(l_data_header, JPIP_PRXY, 4); /* IPTR           */
 	opj_stream_write_data(cio, l_data_header, 4, p_manager);
 

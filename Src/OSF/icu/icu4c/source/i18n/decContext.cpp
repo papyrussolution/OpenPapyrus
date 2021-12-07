@@ -29,7 +29,7 @@
 
 #if 0  /* ICU: No need to test endianness at runtime. */
 /* compile-time endian tester [assumes sizeof(Int)>1] */
-static const Int mfcone = 1;                 /* constant 1  */
+static const Int mfcone = 1; /* constant 1  */
 static const Flag * mfctop = (Flag*)&mfcone; /* -> top byte  */
 #define LITEND *mfctop             /* named flag; 1=little-endian  */
 #endif
@@ -64,51 +64,51 @@ U_CAPI decContext * U_EXPORT2 uprv_decContextClearStatus(decContext * context, u
 /* ------------------------------------------------------------------ */
 U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int kind) {
 	/* set defaults...  */
-	context->digits = 9;                 /* 9 digits  */
-	context->emax = DEC_MAX_EMAX;        /* 9-digit exponents  */
-	context->emin = DEC_MIN_EMIN;        /* .. balanced  */
-	context->round = DEC_ROUND_HALF_UP;  /* 0.5 rises  */
-	context->traps = DEC_Errors;         /* all but informational  */
-	context->status = 0;                 /* cleared  */
-	context->clamp = 0;                  /* no clamping  */
+	context->digits = 9; /* 9 digits  */
+	context->emax = DEC_MAX_EMAX; /* 9-digit exponents  */
+	context->emin = DEC_MIN_EMIN; /* .. balanced  */
+	context->round = DEC_ROUND_HALF_UP; /* 0.5 rises  */
+	context->traps = DEC_Errors; /* all but informational  */
+	context->status = 0; /* cleared  */
+	context->clamp = 0; /* no clamping  */
   #if DECSUBSET
-	context->extended = 0;               /* cleared  */
+	context->extended = 0; /* cleared  */
   #endif
 	switch(kind) {
 		case DEC_INIT_BASE:
 		    /* [use defaults]  */
 		    break;
 		case DEC_INIT_DECIMAL32:
-		    context->digits = 7;     /* digits  */
-		    context->emax = 96;      /* Emax  */
-		    context->emin = -95;     /* Emin  */
+		    context->digits = 7; /* digits  */
+		    context->emax = 96; /* Emax  */
+		    context->emin = -95; /* Emin  */
 		    context->round = DEC_ROUND_HALF_EVEN; /* 0.5 to nearest even  */
-		    context->traps = 0;      /* no traps set  */
-		    context->clamp = 1;      /* clamp exponents  */
+		    context->traps = 0; /* no traps set  */
+		    context->clamp = 1; /* clamp exponents  */
       #if DECSUBSET
-		    context->extended = 1;   /* set  */
+		    context->extended = 1; /* set  */
       #endif
 		    break;
 		case DEC_INIT_DECIMAL64:
-		    context->digits = 16;    /* digits  */
-		    context->emax = 384;     /* Emax  */
-		    context->emin = -383;    /* Emin  */
+		    context->digits = 16; /* digits  */
+		    context->emax = 384; /* Emax  */
+		    context->emin = -383; /* Emin  */
 		    context->round = DEC_ROUND_HALF_EVEN; /* 0.5 to nearest even  */
-		    context->traps = 0;      /* no traps set  */
-		    context->clamp = 1;      /* clamp exponents  */
+		    context->traps = 0; /* no traps set  */
+		    context->clamp = 1; /* clamp exponents  */
       #if DECSUBSET
-		    context->extended = 1;   /* set  */
+		    context->extended = 1; /* set  */
       #endif
 		    break;
 		case DEC_INIT_DECIMAL128:
-		    context->digits = 34;    /* digits  */
-		    context->emax = 6144;    /* Emax  */
-		    context->emin = -6143;   /* Emin  */
+		    context->digits = 34; /* digits  */
+		    context->emax = 6144; /* Emax  */
+		    context->emin = -6143; /* Emin  */
 		    context->round = DEC_ROUND_HALF_EVEN; /* 0.5 to nearest even  */
-		    context->traps = 0;      /* no traps set  */
-		    context->clamp = 1;      /* clamp exponents  */
+		    context->traps = 0; /* no traps set  */
+		    context->clamp = 1; /* clamp exponents  */
       #if DECSUBSET
-		    context->extended = 1;   /* set  */
+		    context->extended = 1; /* set  */
       #endif
 		    break;
 
@@ -158,7 +158,7 @@ U_CAPI uInt U_EXPORT2 uprv_decContextGetStatus(decContext * context) {
 /* ------------------------------------------------------------------ */
 U_CAPI decContext * U_EXPORT2 uprv_decContextRestoreStatus(decContext * context,
     uInt newstatus, uInt mask) {
-	context->status &= ~mask;       /* clear the selected bits  */
+	context->status &= ~mask; /* clear the selected bits  */
 	context->status |= (mask&newstatus); /* or in the new bits  */
 	return context;
 }   /* decContextRestoreStatus  */
@@ -374,9 +374,9 @@ U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * c
 /* ------------------------------------------------------------------ */
 #if 0  /* ICU: Unused function. Anyway, do not call printf(). */
 U_CAPI Int U_EXPORT2 uprv_decContextTestEndian(Flag quiet) {
-	Int res = 0;          /* optimist  */
+	Int res = 0; /* optimist  */
 	uInt dle = (uInt)DECLITEND; /* unsign  */
-	if(dle>1) dle = 1;    /* ensure 0 or 1  */
+	if(dle>1) dle = 1; /* ensure 0 or 1  */
 
 	if(LITEND!=DECLITEND) {
 		const char * adj;

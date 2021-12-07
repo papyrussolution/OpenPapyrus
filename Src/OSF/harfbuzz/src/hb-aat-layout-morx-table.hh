@@ -550,11 +550,11 @@ protected:
 		StateTable<Types, EntryData>
 		machine;
 		NNOffsetTo<UnsizedArrayOf<HBUINT32>, HBUINT>
-		ligAction;      /* Offset to the ligature action table. */
+		ligAction; /* Offset to the ligature action table. */
 		NNOffsetTo<UnsizedArrayOf<HBUINT16>, HBUINT>
-		component;      /* Offset to the component table. */
+		component; /* Offset to the component table. */
 		NNOffsetTo<UnsizedArrayOf<HBGlyphID>, HBUINT>
-		ligature;       /* Offset to the actual ligature lists. */
+		ligature; /* Offset to the actual ligature lists. */
 public:
 		DEFINE_SIZE_STATIC(28);
 	};
@@ -782,7 +782,7 @@ protected:
 		StateTable<Types, EntryData>
 		machine;
 		NNOffsetTo<UnsizedArrayOf<HBGlyphID>, HBUINT>
-		insertionAction;        /* Byte offset from stateHeader to the start of
+		insertionAction; /* Byte offset from stateHeader to the start of
 		 * the insertion glyph table. */
 public:
 		DEFINE_SIZE_STATIC(20);
@@ -884,7 +884,7 @@ public:
 		}
 
 protected:
-		HBUINT length;  /* Total subtable length, including this header. */
+		HBUINT length; /* Total subtable length, including this header. */
 		HBUINT coverage; /* Coverage flags and subtable type. */
 		HBUINT32 subFeatureFlags; /* The 32-bit mask identifying which subtable this is. */
 		union {

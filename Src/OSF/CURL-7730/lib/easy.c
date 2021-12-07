@@ -269,8 +269,8 @@ struct socketmonitor {
 };
 
 struct events {
-	long ms;        /* timeout, run the timeout function when reached */
-	bool msbump;    /* set TRUE when timeout is set by callback */
+	long ms; /* timeout, run the timeout function when reached */
+	bool msbump; /* set TRUE when timeout is set by callback */
 	int num_sockets; /* number of nodes in the monitor list */
 	struct socketmonitor * list; /* list of sockets to monitor */
 	int running_handles; /* store the returned number */

@@ -128,11 +128,11 @@ namespace OT {
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of Substitution table */
-		HBUINT16 deltaGlyphID;  /* Add to original GlyphID to get
+		HBUINT16 deltaGlyphID; /* Add to original GlyphID to get
 		 * substitute GlyphID, modulo 0x10000 */
 public:
 		DEFINE_SIZE_STATIC(6);
@@ -221,13 +221,11 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 2 */
+		HBUINT16 format; /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
-		 * beginning of Substitution table */
+		coverage; /* Offset to Coverage table--from beginning of Substitution table */
 		ArrayOf<HBGlyphID>
-		substitute;             /* Array of substitute
-		 * GlyphIDs--ordered by Coverage Index */
+		substitute; /* Array of substitute GlyphIDs--ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, substitute);
 	};
@@ -365,7 +363,7 @@ protected:
 
 protected:
 		ArrayOf<HBGlyphID>
-		substitute;             /* String of GlyphIDs to substitute */
+		substitute; /* String of GlyphIDs to substitute */
 public:
 		DEFINE_SIZE_ARRAY(2, substitute);
 	};
@@ -466,12 +464,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of Substitution table */
 		OffsetArrayOf<Sequence>
-		sequence;               /* Array of Sequence tables
+		sequence; /* Array of Sequence tables
 		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, sequence);
@@ -598,7 +596,7 @@ protected:
 
 protected:
 		ArrayOf<HBGlyphID>
-		alternates;             /* Array of alternate GlyphIDs--in
+		alternates; /* Array of alternate GlyphIDs--in
 		 * arbitrary order */
 public:
 		DEFINE_SIZE_ARRAY(2, alternates);
@@ -709,12 +707,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of Substitution table */
 		OffsetArrayOf<AlternateSet>
-		alternateSet;           /* Array of AlternateSet tables
+		alternateSet; /* Array of AlternateSet tables
 		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, alternateSet);
@@ -862,9 +860,9 @@ public:
 		}
 
 protected:
-		HBGlyphID ligGlyph;     /* GlyphID of ligature to substitute */
+		HBGlyphID ligGlyph; /* GlyphID of ligature to substitute */
 		HeadlessArrayOf<HBGlyphID>
-		component;              /* Array of component GlyphIDs--start
+		component; /* Array of component GlyphIDs--start
 		 * with the second  component--ordered
 		 * in writing direction */
 public:
@@ -961,7 +959,7 @@ public:
 
 protected:
 		OffsetArrayOf<Ligature>
-		ligature;               /* Array LigatureSet tables
+		ligature; /* Array LigatureSet tables
 		 * ordered by preference */
 public:
 		DEFINE_SIZE_ARRAY(2, ligature);
@@ -1081,12 +1079,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of Substitution table */
 		OffsetArrayOf<LigatureSet>
-		ligatureSet;            /* Array LigatureSet tables
+		ligatureSet; /* Array LigatureSet tables
 		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, ligatureSet);
@@ -1265,21 +1263,15 @@ protected:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
-		 * beginning of table */
+		coverage; /* Offset to Coverage table--from beginning of table */
 		OffsetArrayOf<Coverage>
-		backtrack;              /* Array of coverage tables
-		 * in backtracking sequence, in glyph
-		 * sequence order */
+		backtrack; /* Array of coverage tables in backtracking sequence, in glyph sequence order */
 		OffsetArrayOf<Coverage>
-		lookaheadX;             /* Array of coverage tables
-		 * in lookahead sequence, in glyph
-		 * sequence order */
+		lookaheadX; /* Array of coverage tables in lookahead sequence, in glyph sequence order */
 		ArrayOf<HBGlyphID>
-		substituteX;            /* Array of substitute
-		 * GlyphIDs--ordered by Coverage Index */
+		substituteX; /* Array of substitute GlyphIDs--ordered by Coverage Index */
 public:
 		DEFINE_SIZE_MIN(10);
 	};
@@ -1298,7 +1290,7 @@ public:
 
 protected:
 		union {
-			HBUINT16 format;                /* Format identifier */
+			HBUINT16 format; /* Format identifier */
 			ReverseChainSingleSubstFormat1 format1;
 		} u;
 	};

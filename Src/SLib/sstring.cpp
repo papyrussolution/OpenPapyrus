@@ -903,8 +903,8 @@ SString & SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKe
 SString & SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
 SString & SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
 SString & SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, ulong val)  { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, int64 val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, ulong val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SString::CatEq(const char * pKey, int64 val) { return Cat(pKey).CatChar('=').Cat(val); }
 SString & SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
 SString & SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 SString & SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }

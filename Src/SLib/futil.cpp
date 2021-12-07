@@ -370,15 +370,15 @@ int FASTCALL createEmptyFile(const char * pFileName)
 //
 //
 struct fat_date {
-	unsigned day   : 5;  /* Days */
-	unsigned month : 4;  /* Months */
-	unsigned year  : 7;  /* Year - 1980 */
+	unsigned day   : 5; /* Days */
+	unsigned month : 4; /* Months */
+	unsigned year  : 7; /* Year - 1980 */
 };
 
 struct fat_time {
-	unsigned tsec  : 5;  /* Two seconds */
-	unsigned min   : 6;  /* Minutes */
-	unsigned hour  : 5;  /* Hours */
+	unsigned tsec  : 5; /* Two seconds */
+	unsigned min   : 6; /* Minutes */
+	unsigned hour  : 5; /* Hours */
 };
 
 void STDCALL decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME * dt)

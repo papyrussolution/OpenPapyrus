@@ -59,7 +59,7 @@ struct links_entry {
 	struct archive_entry    * canonical;
 	struct archive_entry    * entry;
 	size_t hash;
-	unsigned int links;             /* # links not yet seen */
+	unsigned int links; /* # links not yet seen */
 };
 
 struct archive_entry_linkresolver {

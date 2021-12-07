@@ -42,7 +42,7 @@
 
 #if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
 /* even with gcc, the typedef won't work for 32-bit platforms */
-typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit platforms */
+typedef __uint128_t uint128_t; /* nonstandard; implemented by gcc on 64-bit platforms */
 #else
 #error "Your compiler doesn't appear to support 128-bit integer types"
 #endif
@@ -657,11 +657,11 @@ static void felem_reduce(felem out, const largefelem in)
 	overflow1 += (((limb)(in[8] >> 64)) & bottom52bits) << 6;
 	overflow2 = ((limb)(in[8] >> 64)) >> 52;
 
-	overflow1 <<= 1;        /* overflow1 < 2^13 + 2^7 + 2^59 */
-	overflow2 <<= 1;        /* overflow2 < 2^13 */
+	overflow1 <<= 1; /* overflow1 < 2^13 + 2^7 + 2^59 */
+	overflow2 <<= 1; /* overflow2 < 2^13 */
 
-	out[0] += overflow1;    /* out[0] < 2^60 */
-	out[1] += overflow2;    /* out[1] < 2^59 + 2^6 + 2^13 */
+	out[0] += overflow1; /* out[0] < 2^60 */
+	out[1] += overflow2; /* out[1] < 2^59 + 2^6 + 2^13 */
 
 	out[1] += out[0] >> 58;
 	out[0] &= bottom58bits;
@@ -1523,7 +1523,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 	 * of the generator (last quarter of rounds) and additions of other
 	 * points multiples (every 5th round).
 	 */
-	skip = 1;               /* save two point operations in the first
+	skip = 1; /* save two point operations in the first
 	                         * round */
 	for(i = (num_points ? 520 : 130); i >= 0; --i) {
 		/* double */

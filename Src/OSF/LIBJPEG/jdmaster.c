@@ -20,7 +20,7 @@
 
 typedef struct {
 	struct jpeg_decomp_master pub; /* public fields */
-	int pass_number;        /* # of passes completed */
+	int pass_number; /* # of passes completed */
 	boolean using_merged_upsample; /* TRUE if using merged upsample/cconvert */
 	// Saved references to initialized quantizer modules, in case we need to switch modes.
 	struct jpeg_color_quantizer * quantizer_1pass;
@@ -70,7 +70,7 @@ LOCAL(boolean) use_merged_upsample(j_decompress_ptr cinfo)
 	    cinfo->comp_info[2].DCT_v_scaled_size != cinfo->min_DCT_v_scaled_size)
 		return FALSE;
 	/* ??? also need to test for upsample-time rescaling, when & if supported */
-	return TRUE;            /* by golly, it'll work... */
+	return TRUE; /* by golly, it'll work... */
 #else
 	return FALSE;
 #endif

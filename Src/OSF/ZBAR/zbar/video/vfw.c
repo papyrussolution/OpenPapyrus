@@ -37,13 +37,13 @@
 	(bih)->biClrImportant, (bih)->biClrUsed, (bih)->biSize
 
 struct video_state_s {
-	zbar_thread_t thread;   /* capture message pump */
+	zbar_thread_t thread; /* capture message pump */
 	HANDLE captured;
-	HWND hwnd;              /* vfw interface */
-	HANDLE notify;          /* capture thread status change */
-	int bi_size;            /* size of bih */
+	HWND hwnd; /* vfw interface */
+	HANDLE notify; /* capture thread status change */
+	int bi_size; /* size of bih */
 	BITMAPINFOHEADER * bih; /* video format details */
-	zbar_image_t * image;   /* currently capturing frame */
+	zbar_image_t * image; /* currently capturing frame */
 };
 
 static const uint32 vfw_formats[] = {

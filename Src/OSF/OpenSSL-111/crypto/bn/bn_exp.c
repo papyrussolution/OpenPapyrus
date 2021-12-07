@@ -194,7 +194,7 @@ int BN_mod_exp_recp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 	}
 
 	if(!BN_nnmod(val[0], a, m, ctx))
-		goto err;       /* 1 */
+		goto err; /* 1 */
 	if(BN_is_zero(val[0])) {
 		BN_zero(r);
 		ret = 1;
@@ -213,12 +213,12 @@ int BN_mod_exp_recp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 		}
 	}
 
-	start = 1;              /* This is used to avoid multiplication etc
+	start = 1; /* This is used to avoid multiplication etc
 	                         * when there is only the value '1' in the
 	                         * buffer. */
-	wvalue = 0;             /* The 'value' of the window */
-	wstart = bits - 1;      /* The top bit of the window */
-	wend = 0;               /* The bottom bit of the window */
+	wvalue = 0; /* The 'value' of the window */
+	wstart = bits - 1; /* The top bit of the window */
+	wend = 0; /* The bottom bit of the window */
 
 	if(!BN_one(r))
 		goto err;
@@ -339,7 +339,7 @@ int BN_mod_exp_mont(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, const BIGNU
 	else
 		aa = a;
 	if(!bn_to_mont_fixed_top(val[0], aa, mont, ctx))
-		goto err;       /* 1 */
+		goto err; /* 1 */
 
 	window = BN_window_bits_for_exponent_size(bits);
 	if(window > 1) {
@@ -353,15 +353,15 @@ int BN_mod_exp_mont(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, const BIGNU
 		}
 	}
 
-	start = 1;              /* This is used to avoid multiplication etc
+	start = 1; /* This is used to avoid multiplication etc
 	                         * when there is only the value '1' in the
 	                         * buffer. */
-	wvalue = 0;             /* The 'value' of the window */
-	wstart = bits - 1;      /* The top bit of the window */
-	wend = 0;               /* The bottom bit of the window */
+	wvalue = 0; /* The 'value' of the window */
+	wstart = bits - 1; /* The top bit of the window */
+	wend = 0; /* The bottom bit of the window */
 
 #if 1                           /* by Shay Gueron's suggestion */
-	j = m->top;             /* borrow j */
+	j = m->top; /* borrow j */
 	if(m->d[j - 1] & (((BN_ULONG)1) << (BN_BITS2 - 1))) {
 		if(bn_wexpand(r, j) == NULL)
 			goto err;
@@ -488,7 +488,7 @@ static int MOD_EXP_CTIME_COPY_TO_PREBUF(const BIGNUM * b, int top,
 	BN_ULONG * table = (BN_ULONG*)buf;
 
 	if(top > b->top)
-		top = b->top;   /* this works because 'buf' is explicitly
+		top = b->top; /* this works because 'buf' is explicitly
 	                         * zeroed */
 	for(i = 0, j = idx; i < top; i++, j += width) {
 		table[j] = b->d[i];
@@ -533,7 +533,7 @@ static int MOD_EXP_CTIME_COPY_FROM_PREBUF(BIGNUM * b, int top,
 		BN_ULONG y0, y1, y2, y3;
 
 		i = idx >> (window - 2); /* equivalent of idx / xstride */
-		idx &= xstride - 1;     /* equivalent of idx % xstride */
+		idx &= xstride - 1; /* equivalent of idx % xstride */
 
 		y0 = (BN_ULONG)0 - (constant_time_eq_int(i, 0)&1);
 		y1 = (BN_ULONG)0 - (constant_time_eq_int(i, 1)&1);
@@ -684,7 +684,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 #endif
 #if defined(OPENSSL_BN_ASM_MONT5)
 	if(window >= 5) {
-		window = 5;     /* ~5% improvement for RSA2048 sign, and even
+		window = 5; /* ~5% improvement for RSA2048 sign, and even
 		                 * for RSA4096 */
 		/* reserve space for mont->N.d[] copy */
 		powerbufLen += top * sizeof(mont->N.d[0]);
@@ -1088,7 +1088,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 	 */
 #if defined(SPARC_T4_MONT)
 	if(OPENSSL_sparcv9cap_P[0] & (SPARCV9_VIS3 | SPARCV9_PREFER_FPU)) {
-		am.d[0] = 1;    /* borrow am */
+		am.d[0] = 1; /* borrow am */
 		for(i = 1; i < top; i++)
 			am.d[i] = 0;
 		if(!BN_mod_mul_montgomery(rr, &tmp, &am, mont, ctx))
@@ -1142,7 +1142,7 @@ int BN_mod_exp_mont_word(BIGNUM * rr, BN_ULONG a, const BIGNUM * p, const BIGNUM
 		return 0;
 	}
 	if(m->top == 1)
-		a %= m->d[0];   /* make sure that 'a' is reduced */
+		a %= m->d[0]; /* make sure that 'a' is reduced */
 	bits = BN_num_bits(p);
 	if(bits == 0) {
 		/* x**0 mod 1, or x**0 mod -1 is still zero. */
@@ -1173,10 +1173,10 @@ int BN_mod_exp_mont_word(BIGNUM * rr, BN_ULONG a, const BIGNUM * p, const BIGNUM
 		if(!BN_MONT_CTX_set(mont, m, ctx))
 			goto err;
 	}
-	r_is_one = 1;           /* except for Montgomery factor */
+	r_is_one = 1; /* except for Montgomery factor */
 	/* bits-1 >= 0 */
 	/* The result is accumulated in the product r*w. */
-	w = a;                  /* bit 'bits-1' of 'p' is always set */
+	w = a; /* bit 'bits-1' of 'p' is always set */
 	for(b = bits - 2; b >= 0; b--) {
 		/* First, square r*w. */
 		next_w = w * w;
@@ -1278,7 +1278,7 @@ int BN_mod_exp_simple(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGN
 		goto err;
 
 	if(!BN_nnmod(val[0], a, m, ctx))
-		goto err;       /* 1 */
+		goto err; /* 1 */
 	if(BN_is_zero(val[0])) {
 		BN_zero(r);
 		ret = 1;
@@ -1297,12 +1297,12 @@ int BN_mod_exp_simple(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGN
 		}
 	}
 
-	start = 1;              /* This is used to avoid multiplication etc
+	start = 1; /* This is used to avoid multiplication etc
 	                         * when there is only the value '1' in the
 	                         * buffer. */
-	wvalue = 0;             /* The 'value' of the window */
-	wstart = bits - 1;      /* The top bit of the window */
-	wend = 0;               /* The bottom bit of the window */
+	wvalue = 0; /* The 'value' of the window */
+	wstart = bits - 1; /* The top bit of the window */
+	wend = 0; /* The bottom bit of the window */
 
 	if(!BN_one(r))
 		goto err;

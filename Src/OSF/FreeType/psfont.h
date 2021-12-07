@@ -63,7 +63,7 @@ FT_BEGIN_HEADER
   struct  CF2_FontRec_
   {
     FT_Memory  memory;
-    FT_Error   error;     /* shared error for this instance */
+    FT_Error   error; /* shared error for this instance */
 
     FT_Bool             isT1;
     FT_Bool             isCFF2;
@@ -73,48 +73,48 @@ FT_BEGIN_HEADER
     /* the following have zero translation; */
     /* inner * outer = font * original      */
 
-    CF2_Matrix  currentTransform;  /* original client matrix     */
-    CF2_Matrix  innerTransform;    /* for hinting; erect, scaled */
-    CF2_Matrix  outerTransform;    /* post hinting; includes rotations */
-    CF2_Fixed   ppem;              /* transform-dependent */
+    CF2_Matrix  currentTransform; /* original client matrix     */
+    CF2_Matrix  innerTransform; /* for hinting; erect, scaled */
+    CF2_Matrix  outerTransform; /* post hinting; includes rotations */
+    CF2_Fixed   ppem; /* transform-dependent */
 
     /* variation data */
-    CFF_BlendRec  blend;            /* cached charstring blend vector  */
-    CF2_UInt      vsindex;          /* current vsindex    */
-    CF2_UInt      lenNDV;           /* current length NDV or zero      */
-    FT_Fixed*     NDV;              /* ptr to current NDV or NULL      */
+    CFF_BlendRec  blend; /* cached charstring blend vector  */
+    CF2_UInt      vsindex; /* current vsindex    */
+    CF2_UInt      lenNDV; /* current length NDV or zero      */
+    FT_Fixed*     NDV; /* ptr to current NDV or NULL      */
 
     CF2_Int  unitsPerEm;
 
-    CF2_Fixed  syntheticEmboldeningAmountX;   /* character space units */
-    CF2_Fixed  syntheticEmboldeningAmountY;   /* character space units */
+    CF2_Fixed  syntheticEmboldeningAmountX; /* character space units */
+    CF2_Fixed  syntheticEmboldeningAmountY; /* character space units */
 
     /* FreeType related members */
-    CF2_OutlineRec  outline;       /* freetype glyph outline functions */
+    CF2_OutlineRec  outline; /* freetype glyph outline functions */
     PS_Decoder*     decoder;
-    CFF_SubFont     lastSubfont;              /* FreeType parsed data; */
+    CFF_SubFont     lastSubfont; /* FreeType parsed data; */
                                               /* top font or subfont   */
 
     /* these flags can vary from one call to the next */
     FT_Bool  hinted;
-    FT_Bool  darkened;       /* true if stemDarkened or synthetic bold */
+    FT_Bool  darkened; /* true if stemDarkened or synthetic bold */
                              /* i.e. darkenX != 0 || darkenY != 0      */
     FT_Bool  stemDarkened;
 
-    FT_Int  darkenParams[8];              /* 1000 unit character space */
+    FT_Int  darkenParams[8]; /* 1000 unit character space */
 
     /* variables that depend on both FontDict and Transform */
-    CF2_Fixed  stdVW;     /* in character space; depends on dict entry */
-    CF2_Fixed  stdHW;     /* in character space; depends on dict entry */
+    CF2_Fixed  stdVW; /* in character space; depends on dict entry */
+    CF2_Fixed  stdHW; /* in character space; depends on dict entry */
     CF2_Fixed  darkenX;                    /* character space units    */
     CF2_Fixed  darkenY;                    /* depends on transform     */
                                            /* and private dict (StdVW) */
-    FT_Bool  reverseWinding;               /* darken assuming    */
+    FT_Bool  reverseWinding; /* darken assuming    */
                                            /* counterclockwise winding */
 
     CF2_BluesRec  blues;                         /* computed zone data */
 
-    FT_Service_CFFLoad  cffload;           /* pointer to cff functions */
+    FT_Service_CFFLoad  cffload; /* pointer to cff functions */
   };
 
 

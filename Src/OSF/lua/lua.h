@@ -294,7 +294,7 @@ LUA_API void (lua_setallocf)(lua_State *L, lua_Alloc f, void * ud);
 #define LUA_MASKLINE    (1 << LUA_HOOKLINE)
 #define LUA_MASKCOUNT   (1 << LUA_HOOKCOUNT)
 
-typedef struct lua_Debug lua_Debug;  /* activation record */
+typedef struct lua_Debug lua_Debug; /* activation record */
 
 /* Functions to be called by the debugger in specific events */
 typedef void (* lua_Hook)(lua_State * L, lua_Debug * ar);
@@ -323,7 +323,7 @@ struct lua_Debug {
 	int lastlinedefined; /* (S) */
 	uchar nups; /* (u) number of upvalues */
 	uchar nparams; /* (u) number of parameters */
-	char isvararg;  /* (u) */
+	char isvararg; /* (u) */
 	char istailcall; /* (t) */
 	char short_src[LUA_IDSIZE]; /* (S) */
 	/* private part */

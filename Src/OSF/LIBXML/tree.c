@@ -6098,7 +6098,7 @@ xmlBuffer * xmlBufferCreateSize(size_t size)
 	else {
 		ret->use = 0;
 		ret->alloc = xmlBufferAllocScheme;
-		ret->size = (size ? size+2 : 0);     /* +1 for ending null */
+		ret->size = (size ? size+2 : 0); /* +1 for ending null */
 		if(ret->size) {
 			ret->content = static_cast<xmlChar *>(SAlloc::M(ret->size * sizeof(xmlChar)));
 			if(ret->content == NULL) {

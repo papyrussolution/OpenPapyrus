@@ -132,7 +132,7 @@ static size_t i2c_ibuf(const uchar * b, size_t blen, int neg,
 	 * by any number of zeros...
 	 */
 	*p = pb;
-	p += pad;   /* yes, p[0] can be written twice, but it's little
+	p += pad; /* yes, p[0] can be written twice, but it's little
 	             * price to pay for eliminated branches */
 	twos_complement(p, b, blen, pb);
 

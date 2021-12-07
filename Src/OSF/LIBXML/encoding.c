@@ -1735,12 +1735,12 @@ int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
 		toconv = SKILOBYTE(64);
 	written = xmlBufAvail(out);
 	if(written > 0)
-		written--;  /* count '\0' */
+		written--; /* count '\0' */
 	if(toconv * 2 >= written) {
 		xmlBufGrow(out, toconv * 2);
 		written = xmlBufAvail(out);
 		if(written > 0)
-			written--;  /* count '\0' */
+			written--; /* count '\0' */
 	}
 	if((written > 128 * 1024) && (flush == 0))
 		written = 128 * 1024;
@@ -1926,7 +1926,7 @@ int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init)
 retry:
 	written = xmlBufAvail(out);
 	if(written > 0)
-		written--;  /* count '\0' */
+		written--; /* count '\0' */
 	//
 	// First specific handling of the initialization call
 	//
@@ -2114,7 +2114,7 @@ int xmlCharEncOutFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuff
 retry:
 	written = out->size - out->use;
 	if(written > 0)
-		written--;  /* Gennady: count '/0' */
+		written--; /* Gennady: count '/0' */
 	//
 	// First specific handling of in = NULL, i.e. the initialization call
 	//

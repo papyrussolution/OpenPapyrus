@@ -144,7 +144,7 @@ int DSA_size(const DSA * r)
 {
 	int ret, i;
 	ASN1_INTEGER bs;
-	uchar buf[4];   /* 4 bytes looks really small. However,
+	uchar buf[4]; /* 4 bytes looks really small. However,
 	                         * i2d_ASN1_INTEGER() will not look beyond
 	                         * the first byte, as long as the second
 	                         * parameter is NULL. */
@@ -157,7 +157,7 @@ int DSA_size(const DSA * r)
 	buf[0] = 0xff;
 
 	i = i2d_ASN1_INTEGER(&bs, NULL);
-	i += i;                 /* r and s */
+	i += i; /* r and s */
 	ret = ASN1_object_size(1, i, V_ASN1_SEQUENCE);
 	return ret;
 }

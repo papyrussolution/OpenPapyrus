@@ -160,7 +160,7 @@ GLOBAL(void) jpeg_fdct_float(FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSI
 		dataptr[DCTSIZE*1] = z11 + z4;
 		dataptr[DCTSIZE*7] = z11 - z4;
 
-		dataptr++;      /* advance pointer to next column */
+		dataptr++; /* advance pointer to next column */
 	}
 }
 

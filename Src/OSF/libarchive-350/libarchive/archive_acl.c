@@ -620,7 +620,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 			}
 			length += idlen;
 		}
-		length++;  /* entry separator */
+		length++; /* entry separator */
 	}
 
 	/* Add filemode-mapping access entries to the length */

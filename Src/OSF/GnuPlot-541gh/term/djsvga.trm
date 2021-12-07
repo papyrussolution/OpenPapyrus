@@ -182,9 +182,9 @@ static char DJSVGA_fontname[DJSVGAFONTLEN] = "";
 static char DJSVGA_default_fontname[DJSVGAFONTLEN] = "";
 static GrFont * DJSVGA_default_font = NULL;
 
-static GrContext * DJSVGA_context = 0;   /* save screen for suspend/resume */
+static GrContext * DJSVGA_context = 0; /* save screen for suspend/resume */
 #ifdef DJGPP
-static char * dj_textsave = 0;   /* for text-screen-saving */
+static char * dj_textsave = 0; /* for text-screen-saving */
 static int dj_cursorx, dj_cursory;
 static int dj_width, dj_height;
 #endif
@@ -196,7 +196,7 @@ static bool dj_in_path = FALSE;
 #define DJSVGA_MAXPATH 400
 static int dj_path[DJSVGA_MAXPATH][2];
 static int dj_polygon_points = 0;
-static double dj_linewidth;     /* store linewidth assignments here */
+static double dj_linewidth; /* store linewidth assignments here */
 static double dj_lwscale = 1.0;
 static double dj_pointscale = 1.0;
 static double dj_fontscale = 1.0;
@@ -215,7 +215,7 @@ static char dj_fill_pattern_bitmaps[dj_fill_pattern_num][8] = {
 	, { 0x88, 0x88, 0x44, 0x44, 0x22, 0x22, 0x11, 0x11 } /* diagonal stripes (7) */
 };
 static GrPattern dj_pattern;
-static long dj_background = 0;  /* default to black */
+static long dj_background = 0; /* default to black */
 #ifdef USE_MOUSE
 static char dj_statusline[128] = "";
 static int dj_ruler_x = -1;

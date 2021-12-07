@@ -501,7 +501,7 @@ int X509_NAME_print(BIO * bp, const X509_NAME * name, int obase)
 		OPENSSL_free(b);
 		return 1;
 	}
-	s = b + 1;              /* skip the first slash */
+	s = b + 1; /* skip the first slash */
 
 	c = s;
 	for(;;) {

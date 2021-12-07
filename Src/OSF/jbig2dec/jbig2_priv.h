@@ -94,8 +94,8 @@ struct _Jbig2Ctx {
 
     uint32_t n_segments_max;
     Jbig2Segment **segments;
-    uint32_t n_segments;             /* index of last segment header parsed */
-    uint32_t segment_index;          /* index of last segment body parsed */
+    uint32_t n_segments; /* index of last segment header parsed */
+    uint32_t segment_index; /* index of last segment body parsed */
 
     /* list of decoded pages, including the one in progress,
        currently stored as a contiguous, 0-indexed array. */

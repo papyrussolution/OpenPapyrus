@@ -1295,7 +1295,7 @@ cairo_status_t _cairo_gstate_tag_end(cairo_gstate_t * gstate, const char * tag_n
 		   NULL,             /* stroke_style */
 		   NULL,             /* ctm */
 		   NULL,             /* ctm_inverse*/
-		   NULL);             /* clip */
+		   NULL); /* clip */
 }
 
 static void FASTCALL _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate)

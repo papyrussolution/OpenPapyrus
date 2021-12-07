@@ -1273,7 +1273,7 @@ TERM_PUBLIC void GGI_set_cursor(int c, int x, int y)
 TERM_PUBLIC void GGI_set_clipboard(const char s[])
 {
 	/* XXX: not implemented */
-	(void)s;                /* avoid -Wunused */
+	(void)s; /* avoid -Wunused */
 }
 
 #endif

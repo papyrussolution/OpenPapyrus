@@ -1940,23 +1940,23 @@ enum {
 
 struct real_pcre8_or_16 {
 	uint32 magic_number;
-	uint32 size;         /* Total that was malloced */
-	uint32 options;      /* Public options */
-	uint32 flags;        /* Private flags */
-	uint32 limit_match;  /* Limit set from regex */
+	uint32 size; /* Total that was malloced */
+	uint32 options; /* Public options */
+	uint32 flags; /* Private flags */
+	uint32 limit_match; /* Limit set from regex */
 	uint32 limit_recursion; /* Limit set from regex */
-	pcre_uint16 first_char;   /* Starting character */
-	pcre_uint16 req_char;     /* This character must be seen */
+	pcre_uint16 first_char; /* Starting character */
+	pcre_uint16 req_char; /* This character must be seen */
 	pcre_uint16 max_lookbehind; /* Longest lookbehind (characters) */
-	pcre_uint16 top_bracket;  /* Highest numbered group */
-	pcre_uint16 top_backref;  /* Highest numbered back reference */
+	pcre_uint16 top_bracket; /* Highest numbered group */
+	pcre_uint16 top_backref; /* Highest numbered back reference */
 	pcre_uint16 name_table_offset; /* Offset to name table that follows */
 	pcre_uint16 name_entry_size; /* Size of any name items */
-	pcre_uint16 name_count;   /* Number of name items */
-	pcre_uint16 ref_count;    /* Reference count */
-	pcre_uint16 dummy1;       /* To ensure size is a multiple of 8 */
-	pcre_uint16 dummy2;       /* To ensure size is a multiple of 8 */
-	pcre_uint16 dummy3;       /* To ensure size is a multiple of 8 */
+	pcre_uint16 name_count; /* Number of name items */
+	pcre_uint16 ref_count; /* Reference count */
+	pcre_uint16 dummy1; /* To ensure size is a multiple of 8 */
+	pcre_uint16 dummy2; /* To ensure size is a multiple of 8 */
+	pcre_uint16 dummy3; /* To ensure size is a multiple of 8 */
 	const pcre_uint8 * tables; /* Pointer to tables or NULL for std */
 	void  * nullpad; /* NULL padding */
 };
@@ -1967,21 +1967,21 @@ struct real_pcre8_or_16 {
 
 typedef struct real_pcre32 {
 	uint32 magic_number;
-	uint32 size;         /* Total that was malloced */
-	uint32 options;      /* Public options */
-	uint32 flags;        /* Private flags */
-	uint32 limit_match;  /* Limit set from regex */
+	uint32 size; /* Total that was malloced */
+	uint32 options; /* Public options */
+	uint32 flags; /* Private flags */
+	uint32 limit_match; /* Limit set from regex */
 	uint32 limit_recursion; /* Limit set from regex */
-	uint32 first_char;   /* Starting character */
-	uint32 req_char;     /* This character must be seen */
+	uint32 first_char; /* Starting character */
+	uint32 req_char; /* This character must be seen */
 	pcre_uint16 max_lookbehind; /* Longest lookbehind (characters) */
-	pcre_uint16 top_bracket;  /* Highest numbered group */
-	pcre_uint16 top_backref;  /* Highest numbered back reference */
+	pcre_uint16 top_bracket; /* Highest numbered group */
+	pcre_uint16 top_backref; /* Highest numbered back reference */
 	pcre_uint16 name_table_offset; /* Offset to name table that follows */
 	pcre_uint16 name_entry_size; /* Size of any name items */
-	pcre_uint16 name_count;   /* Number of name items */
-	pcre_uint16 ref_count;    /* Reference count */
-	pcre_uint16 dummy;        /* To ensure size is a multiple of 8 */
+	pcre_uint16 name_count; /* Number of name items */
+	pcre_uint16 ref_count; /* Reference count */
+	pcre_uint16 dummy; /* To ensure size is a multiple of 8 */
 	const pcre_uint8 * tables; /* Pointer to tables or NULL for std */
 	void  * nullpad; /* NULL padding */
 } real_pcre32;
@@ -2010,10 +2010,10 @@ typedef int __assert_real_pcre_size_divisible_8[(sizeof(REAL_PCRE) % 8) == 0 ? 1
    remark (see NOTE above) about extending this structure applies. */
 
 typedef struct pcre_study_data {
-	uint32 size;         /* Total that was malloced */
-	uint32 flags;        /* Private flags */
+	uint32 size; /* Total that was malloced */
+	uint32 flags; /* Private flags */
 	pcre_uint8 start_bits[32]; /* Starting char bits */
-	uint32 minlength;    /* Minimum subject length */
+	uint32 minlength; /* Minimum subject length */
 } pcre_study_data;
 
 /* Structure for building a chain of open capturing subpatterns during
@@ -2023,59 +2023,59 @@ typedef struct pcre_study_data {
 
 typedef struct open_capitem {
 	struct open_capitem * next; /* Chain link */
-	pcre_uint16 number;     /* Capture number */
-	pcre_uint16 flag;       /* Set TRUE if recursive back ref */
+	pcre_uint16 number; /* Capture number */
+	pcre_uint16 flag; /* Set TRUE if recursive back ref */
 } open_capitem;
 
 /* Structure for building a list of named groups during the first pass of
    compiling. */
 
 typedef struct named_group {
-	const pcre_uchar  * name;   /* Points to the name in the pattern */
-	int length;                 /* Length of the name */
-	uint32 number;         /* Group number */
+	const pcre_uchar  * name; /* Points to the name in the pattern */
+	int length; /* Length of the name */
+	uint32 number; /* Group number */
 } named_group;
 // 
 // Structure for passing "static" information around between the functions
 // doing the compiling, so that they are thread-safe. 
 // 
 typedef struct compile_data {
-	const pcre_uint8 * lcc;     /* Points to lower casing table */
-	const pcre_uint8 * fcc;     /* Points to case-flipping table */
-	const pcre_uint8 * cbits;   /* Points to character type table */
-	const pcre_uint8 * ctypes;  /* Points to table of type maps */
+	const pcre_uint8 * lcc; /* Points to lower casing table */
+	const pcre_uint8 * fcc; /* Points to case-flipping table */
+	const pcre_uint8 * cbits; /* Points to character type table */
+	const pcre_uint8 * ctypes; /* Points to table of type maps */
 	const pcre_uchar * start_workspace; /* The start of working space */
 	const pcre_uchar * start_code; /* The start of the compiled code */
 	const pcre_uchar * start_pattern; /* The start of the pattern */
 	const pcre_uchar * end_pattern; /* The end of the pattern */
-	pcre_uchar * hwm;           /* High watermark of workspace */
-	open_capitem * open_caps;   /* Chain of open capture items */
+	pcre_uchar * hwm; /* High watermark of workspace */
+	open_capitem * open_caps; /* Chain of open capture items */
 	named_group * named_groups; /* Points to vector in pre-compile */
-	pcre_uchar * name_table;    /* The name/number table */
-	int names_found;            /* Number of entries so far */
-	int name_entry_size;        /* Size of each entry */
-	int named_group_list_size;  /* Number of entries in the list */
-	int workspace_size;         /* Size of workspace */
-	uint bracount;      /* Count of capturing parens as we compile */
-	int final_bracount;         /* Saved value after first pass */
-	int max_lookbehind;         /* Maximum lookbehind (characters) */
-	int top_backref;            /* Maximum back reference */
-	uint backref_map;   /* Bitmap of low back refs */
+	pcre_uchar * name_table; /* The name/number table */
+	int names_found; /* Number of entries so far */
+	int name_entry_size; /* Size of each entry */
+	int named_group_list_size; /* Number of entries in the list */
+	int workspace_size; /* Size of workspace */
+	uint bracount; /* Count of capturing parens as we compile */
+	int final_bracount; /* Saved value after first pass */
+	int max_lookbehind; /* Maximum lookbehind (characters) */
+	int top_backref; /* Maximum back reference */
+	uint backref_map; /* Bitmap of low back refs */
 	uint namedrefcount; /* Number of backreferences by name */
-	int parens_depth;           /* Depth of nested parentheses */
-	int assert_depth;           /* Depth of nested assertions */
+	int parens_depth; /* Depth of nested parentheses */
+	int assert_depth; /* Depth of nested assertions */
 	uint32 external_options; /* External (initial) options */
 	uint32 external_flags; /* External flag bits to be set */
-	int req_varyopt;            /* "After variable item" flag for reqbyte */
-	BOOL had_accept;            /* (*ACCEPT) encountered */
-	BOOL had_pruneorskip;       /* (*PRUNE) or (*SKIP) encountered */
-	BOOL check_lookbehind;      /* Lookbehinds need later checking */
-	BOOL dupnames;              /* Duplicate names exist */
-	BOOL dupgroups;             /* Duplicate groups exist: (?| found */
-	BOOL iscondassert;          /* Next assert is a condition */
-	int nltype;                 /* Newline type */
-	int nllen;                  /* Newline string length */
-	pcre_uchar nl[4];           /* Newline string when fixed length */
+	int req_varyopt; /* "After variable item" flag for reqbyte */
+	BOOL had_accept; /* (*ACCEPT) encountered */
+	BOOL had_pruneorskip; /* (*PRUNE) or (*SKIP) encountered */
+	BOOL check_lookbehind; /* Lookbehinds need later checking */
+	BOOL dupnames; /* Duplicate names exist */
+	BOOL dupgroups; /* Duplicate groups exist: (?| found */
+	BOOL iscondassert; /* Next assert is a condition */
+	int nltype; /* Newline type */
+	int nllen; /* Newline string length */
+	pcre_uchar nl[4]; /* Newline string when fixed length */
 } compile_data;
 // 
 // Structure for maintaining a chain of pointers to the currently incomplete
@@ -2098,10 +2098,10 @@ typedef struct recurse_check {
 // 
 typedef struct recursion_info {
 	struct recursion_info * prevrec; /* Previous recursion record (or NULL) */
-	uint group_num;   /* Number of group that was called */
-	int * offset_save;        /* Pointer to start of saved offsets */
-	int saved_max;            /* Number of saved offsets */
-	int saved_capture_last;   /* Last capture number */
+	uint group_num; /* Number of group that was called */
+	int * offset_save; /* Pointer to start of saved offsets */
+	int saved_max; /* Number of saved offsets */
+	int saved_capture_last; /* Last capture number */
 	PCRE_PUCHAR subject_position; /* Position at start of recursion */
 } recursion_info;
 // 
@@ -2127,49 +2127,49 @@ typedef struct eptrblock {
 // 
 typedef struct match_data {
 	unsigned long match_call_count; /* As it says */
-	unsigned long match_limit;     /* As it says */
+	unsigned long match_limit; /* As it says */
 	unsigned long match_limit_recursion; /* As it says */
-	int   * offset_vector;    /* Offset vector */
-	int offset_end;           /* One past the end */
-	int offset_max;           /* The maximum usable for return data */
-	int nltype;               /* Newline type */
-	int nllen;                /* Newline string length */
-	int name_count;           /* Number of names in name table */
-	int name_entry_size;      /* Size of entry in names table */
+	int   * offset_vector; /* Offset vector */
+	int offset_end; /* One past the end */
+	int offset_max; /* The maximum usable for return data */
+	int nltype; /* Newline type */
+	int nllen; /* Newline string length */
+	int name_count; /* Number of names in name table */
+	int name_entry_size; /* Size of entry in names table */
 	uint skip_arg_count; /* For counting SKIP_ARGs */
 	uint ignore_skip_arg; /* For re-run when SKIP arg name not found */
-	pcre_uchar * name_table;  /* Table of names */
-	pcre_uchar nl[4];         /* Newline string when fixed */
-	const pcre_uint8 * lcc;   /* Points to lower casing table */
-	const pcre_uint8 * fcc;   /* Points to case-flipping table */
+	pcre_uchar * name_table; /* Table of names */
+	pcre_uchar nl[4]; /* Newline string when fixed */
+	const pcre_uint8 * lcc; /* Points to lower casing table */
+	const pcre_uint8 * fcc; /* Points to case-flipping table */
 	const pcre_uint8 * ctypes; /* Points to table of type maps */
-	BOOL notbol;              /* NOTBOL flag */
-	BOOL noteol;              /* NOTEOL flag */
-	BOOL utf;                 /* UTF-8 / UTF-16 flag */
-	BOOL jscript_compat;      /* JAVASCRIPT_COMPAT flag */
-	BOOL use_ucp;             /* PCRE_UCP flag */
-	BOOL endonly;             /* Dollar not before final \n */
-	BOOL notempty;            /* Empty string match not wanted */
-	BOOL notempty_atstart;    /* Empty string match at start not wanted */
-	BOOL hitend;              /* Hit the end of the subject at some point */
-	BOOL bsr_anycrlf;         /* \R is just any CRLF, not full Unicode */
-	BOOL hasthen;             /* Pattern contains (*THEN) */
+	BOOL notbol; /* NOTBOL flag */
+	BOOL noteol; /* NOTEOL flag */
+	BOOL utf; /* UTF-8 / UTF-16 flag */
+	BOOL jscript_compat; /* JAVASCRIPT_COMPAT flag */
+	BOOL use_ucp; /* PCRE_UCP flag */
+	BOOL endonly; /* Dollar not before final \n */
+	BOOL notempty; /* Empty string match not wanted */
+	BOOL notempty_atstart; /* Empty string match at start not wanted */
+	BOOL hitend; /* Hit the end of the subject at some point */
+	BOOL bsr_anycrlf; /* \R is just any CRLF, not full Unicode */
+	BOOL hasthen; /* Pattern contains (*THEN) */
 	const pcre_uchar * start_code; /* For use when recursing */
 	PCRE_PUCHAR start_subject; /* Start of the subject string */
-	PCRE_PUCHAR end_subject;  /* End of the subject string */
+	PCRE_PUCHAR end_subject; /* End of the subject string */
 	PCRE_PUCHAR start_match_ptr; /* Start of matched string */
 	PCRE_PUCHAR end_match_ptr; /* Subject position at end match */
 	PCRE_PUCHAR start_used_ptr; /* Earliest consulted character */
-	int partial;              /* PARTIAL options */
-	int end_offset_top;       /* Highwater mark at end of match */
-	int32 capture_last;  /* Most recent capture number + overflow flag */
-	int start_offset;         /* The start offset value */
-	int match_function_type;  /* Set for certain special calls of MATCH() */
-	eptrblock * eptrchain;    /* Chain of eptrblocks for tail recursions */
-	int eptrn;                /* Next free eptrblock */
+	int partial; /* PARTIAL options */
+	int end_offset_top; /* Highwater mark at end of match */
+	int32 capture_last; /* Most recent capture number + overflow flag */
+	int start_offset; /* The start offset value */
+	int match_function_type; /* Set for certain special calls of MATCH() */
+	eptrblock * eptrchain; /* Chain of eptrblocks for tail recursions */
+	int eptrn; /* Next free eptrblock */
 	recursion_info * recursive; /* Linked list of recursion data */
-	void  * callout_data;     /* To pass back to callouts */
-	const pcre_uchar * mark;  /* Mark pointer to pass back on success */
+	void  * callout_data; /* To pass back to callouts */
+	const pcre_uchar * mark; /* Mark pointer to pass back on success */
 	const pcre_uchar * nomatch_mark; /* Mark pointer to pass back on failure */
 	const pcre_uchar * once_target; /* Where to back up to for atomic groups */
 #ifdef NO_RECURSE
@@ -2184,14 +2184,14 @@ typedef struct dfa_match_data {
 	const pcre_uchar * start_subject; /* Start of the subject string */
 	const pcre_uchar * end_subject; /* End of subject string */
 	const pcre_uchar * start_used_ptr; /* Earliest consulted character */
-	const pcre_uint8 * tables;  /* Character tables */
-	int start_offset;           /* The start offset value */
-	int moptions;               /* Match options */
-	int poptions;               /* Pattern options */
-	int nltype;                 /* Newline type */
-	int nllen;                  /* Newline string length */
-	pcre_uchar nl[4];           /* Newline string when fixed */
-	void * callout_data;        /* To pass back to callouts */
+	const pcre_uint8 * tables; /* Character tables */
+	int start_offset; /* The start offset value */
+	int moptions; /* Match options */
+	int poptions; /* Pattern options */
+	int nltype; /* Newline type */
+	int nllen; /* Newline string length */
+	pcre_uchar nl[4]; /* Newline string when fixed */
+	void * callout_data; /* To pass back to callouts */
 	dfa_recursion_info * recursive; /* Linked list of recursion data */
 } dfa_match_data;
 // 

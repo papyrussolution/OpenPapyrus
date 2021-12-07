@@ -49,9 +49,9 @@ struct archive_entry_header_ustar {
 	char mtime[12];
 	char checksum[8];
 	char typeflag[1];
-	char linkname[100];     /* "old format" header ends here */
-	char magic[6];          /* For POSIX: "ustar\0" */
-	char version[2];        /* For POSIX: "00" */
+	char linkname[100]; /* "old format" header ends here */
+	char magic[6]; /* For POSIX: "ustar\0" */
+	char version[2]; /* For POSIX: "00" */
 	char uname[32];
 	char gname[32];
 	char rdevmajor[8];
@@ -77,7 +77,7 @@ struct archive_entry_header_gnutar {
 	char checksum[8];
 	char typeflag[1];
 	char linkname[100];
-	char magic[8];     /* "ustar  \0" (note blank/blank/null at end) */
+	char magic[8]; /* "ustar  \0" (note blank/blank/null at end) */
 	char uname[32];
 	char gname[32];
 	char rdevmajor[8];
@@ -314,7 +314,7 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	/* If it's not an end-of-archive mark, it must have a valid checksum.*/
 	if(!checksum(a, h))
 		return 0;
-	bid += 48;  /* Checksum is usually 6 octal digits. */
+	bid += 48; /* Checksum is usually 6 octal digits. */
 
 	header = (const struct archive_entry_header_ustar *)h;
 
@@ -334,7 +334,7 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	    !( header->typeflag[0] >= 'A' && header->typeflag[0] <= 'Z') &&
 	    !( header->typeflag[0] >= 'a' && header->typeflag[0] <= 'z') )
 		return 0;
-	bid += 2;  /* 6 bits of variation in an 8-bit field leaves 2 bits. */
+	bid += 2; /* 6 bits of variation in an 8-bit field leaves 2 bits. */
 
 	/*
 	 * Check format of mode/uid/gid/mtime/size/rdevmajor/rdevminor fields.
@@ -1687,7 +1687,7 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 	int err = ARCHIVE_OK, r;
 
 	if(value == NULL)
-		value = "";     /* Disable compiler warning; do not pass
+		value = ""; /* Disable compiler warning; do not pass
 	                         * NULL pointer to strlen().  */
 	switch(key[0]) {
 		case 'G':

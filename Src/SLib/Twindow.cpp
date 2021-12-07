@@ -1002,32 +1002,35 @@ TRect TWindow::getRect() const
 	return ret;
 }
 
-int TWindow::invalidateRect(const TRect & rRect, bool erase)
+void TWindow::invalidateRect(const TRect & rRect, bool erase)
 {
 	RECT r = rRect;
-	return ::InvalidateRect(HW, &r, erase);
+	::InvalidateRect(HW, &r, erase);
 }
 
-int TWindow::invalidateRect(const FRect & rRect, bool erase)
+void TWindow::invalidateRect(const FRect & rRect, bool erase)
 {
 	RECT r;
 	r.left = R0i(rRect.a.x);
 	r.top = R0i(rRect.a.y);
 	r.right = R0i(rRect.b.x);
 	r.bottom = R0i(rRect.b.y);
-	return ::InvalidateRect(HW, &r, erase);
+	::InvalidateRect(HW, &r, erase);
 }
 
-int TWindow::invalidateRegion(const SRegion & rRgn, bool erase)
+void TWindow::invalidateRegion(const SRegion & rRgn, bool erase)
 {
-	const SHandle * p_hdl = reinterpret_cast<const SHandle *>(&rRgn); // @trick
-	const HRGN h_rgn = static_cast<HRGN>(static_cast<void *>(*p_hdl));
-	return ::InvalidateRgn(HW, h_rgn, erase);
+	if(HW) {
+		const SHandle * p_hdl = reinterpret_cast<const SHandle *>(&rRgn); // @trick
+		const HRGN h_rgn = static_cast<HRGN>(static_cast<void *>(*p_hdl));
+		::InvalidateRgn(HW, h_rgn, erase);
+	}
 }
 
 void FASTCALL TWindow::invalidateAll(bool erase)
 {
-	::InvalidateRect(HW, 0, erase);
+	if(HW) // @v11.2.7
+		::InvalidateRect(HW, 0, erase);
 }
 
 int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
@@ -1545,7 +1548,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			else
 				Create(APPL->H_TopOfStack, coPopup/* @v11.2.0 | coMaxSize*/);
 		}
-		SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
+		// @v11.2.7 SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
 		// @v11.2.4 ::ShowWindow(HW, SW_SHOW); // @v11.2.4 SW_NORMAL-->SW_SHOW
 		// @v11.2.4 ::UpdateWindow(HW);
 		if(APPL->PushModalWindow(this, HW)) {
@@ -1570,7 +1573,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			}
 			else if(event.isCmd(cmSetBounds)) {
 				const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOREDRAW|SWP_NOCOPYBITS);
 				clearEvent(event);
 			}
 			else if(event.isCmd(cmSize)) {

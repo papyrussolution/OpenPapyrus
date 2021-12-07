@@ -174,11 +174,11 @@ static float pc_font_aspect;
 static float pc_fontscale = 1.0;
 /* colors */
 static rgb255_color pc_background_rgb = { 0, 0, 0 };
-static int pc_background = 0;           /* index of background color */
-static short pc_pal_ofs;                /* offset of the palette (if any) */
-static short pc_max_pal_size = 128;     /* maximum palette size; this could be changed by the user */
-static short pc_pal_colors;             /* size of the palette */
-static short pc_rgbcolors;              /* number of allocated colors */
+static int pc_background = 0; /* index of background color */
+static short pc_pal_ofs; /* offset of the palette (if any) */
+static short pc_max_pal_size = 128; /* maximum palette size; this could be changed by the user */
+static short pc_pal_colors; /* size of the palette */
+static short pc_rgbcolors; /* number of allocated colors */
 static rgb255_color pc_rgbcolor[256];
 
 /* boxed text */

@@ -194,7 +194,7 @@ typedef struct cmap_t {
 	struct cmap_t * prev_cmap; /* Linked list pointers and number */
 	struct cmap_t * next_cmap;
 	Colormap colormap;
-	ulong colors[Ncolors];  /* line colors as pixel values */
+	ulong colors[Ncolors]; /* line colors as pixel values */
 	ulong rgbcolors[Ncolors]; /* line colors in rgb format */
 	ulong xorpixel; /* line colors */
 	int total;
@@ -241,21 +241,21 @@ typedef struct plot_struct {
 	char ** commands;
 	char * titlestring;
 #ifdef USE_MOUSE
-	int button;             /* buttons which are currently pressed */
-	char str[0xff];         /* last displayed string */
+	int button; /* buttons which are currently pressed */
+	char str[0xff]; /* last displayed string */
 #endif
-	Time time;              /* time stamp of previous event */
-	int lwidth;             /* this and the following 6 lines declare */
-	int type;               /* variables used during drawing in exec_cmd() */
+	Time time; /* time stamp of previous event */
+	int lwidth; /* this and the following 6 lines declare */
+	int type; /* variables used during drawing in exec_cmd() */
 	int user_width;
 	enum JUSTIFY jmode;
-	double angle;           /* Text rotation angle in degrees */
+	double angle; /* Text rotation angle in degrees */
 	int lt;
 #ifdef USE_MOUSE
-	bool mouse_on;          /* is mouse bar on? */
-	bool ruler_on;          /* is ruler on? */
-	bool ruler_lineto_on;   /* is line between ruler and mouse cursor on? */
-	int ruler_x, ruler_y;   /* coordinates of ruler */
+	bool mouse_on; /* is mouse bar on? */
+	bool ruler_on; /* is ruler on? */
+	bool ruler_lineto_on; /* is line between ruler and mouse cursor on? */
+	int ruler_x, ruler_y; /* coordinates of ruler */
 	int ruler_lineto_x, ruler_lineto_y; /* draw line from ruler to current mouse pos */
 	bool zoombox_on; /* is zoombox on? */
 	int zoombox_x1, zoombox_y1, zoombox_x2, zoombox_y2; /* coordinates of zoombox as last drawn */
@@ -263,10 +263,10 @@ typedef struct plot_struct {
 	                                                                                    corners of zoombox ; 1/2
 	                                                                                    indicate corner; a/b
 	                                                                                    indicate above/below */
-	bool resizing;          /* TRUE while waiting for an acknowledgement of resize */
+	bool resizing; /* TRUE while waiting for an acknowledgement of resize */
 
 	x11BoundingBox * x11_key_boxes; /* Track key entry coords for toggle clicks */
-	int x11_max_key_boxes;          /* Size of above array */
+	int x11_max_key_boxes; /* Size of above array */
 #endif
 	/* points to the cmap which is currently used for drawing.
 	 * This is always the default colormap, if not in pm3d.
@@ -279,7 +279,7 @@ typedef struct plot_struct {
 	 * gnuplot's axis_array structure at the time the plot was drawn.
 	 */
 	int almost2d;
-	int axis_mask;          /* Bits set to show which axes are active */
+	int axis_mask; /* Bits set to show which axes are active */
 	axis_scale_t axis_scale[NUMBER_OF_MAIN_VISIBLE_AXES];
 #endif
 	/* Last text position  - used by enhanced text mode */
@@ -368,7 +368,7 @@ static void scan_palette_from_buf();
 
 static ushort BitMaskDetails(ulong mask, ushort * left_shift, ushort * right_shift);
 
-bool swap_endian = 0;  /* For binary data. */
+bool swap_endian = 0; /* For binary data. */
 /* Petr's byte swapping routine. */
 static inline void byteswap(char* data, int datalen)
 {
@@ -403,7 +403,7 @@ static void prepare_plot(plot_struct *);
 static void delete_plot(plot_struct *);
 
 static int  record();
-static void process_event(XEvent *);    /* from Xserver */
+static void process_event(XEvent *); /* from Xserver */
 static void process_configure_notify_event(XEvent * event, bool isRetry);
 
 static void mainloop();
@@ -587,7 +587,7 @@ static int gX = 100, gY = 100;
 static uint gW = 640, gH = 450; /* defaults must match those in x11.trm */
 static uint gFlags = PSize;
 static uint BorderWidth = 2;
-static uint dep;                /* depth */
+static uint dep; /* depth */
 static long max_request_size;
 static Bool Mono = 0, Gray = 0, Rv = 0, Clear = 0;
 static char X_Name[64] = "gnuplot";
@@ -786,9 +786,9 @@ static void mainloop()
 
 #ifdef ISC22
 /* Added by Robert Eckardt, RobertE@beta.TP2.Ruhr-Uni-Bochum.de */
-	timeout.tv_sec = 0;     /* select() in ISC2.2 needs timeout */
+	timeout.tv_sec = 0; /* select() in ISC2.2 needs timeout */
 	timeout.tv_usec = 300000; /* otherwise input from gnuplot is */
-	timer = &timeout;       /* suspended til next X event. */
+	timer = &timeout; /* suspended til next X event. */
 #endif /* ISC22   (0.3s are short enough not to be noticed */
 
 	while(1) {
@@ -901,7 +901,7 @@ static void mainloop()
 	nfds = cn + 1;
 
 	while(1) {
-		XFlush(dpy);    /* see above */
+		XFlush(dpy); /* see above */
 
 		FD_ZERO(&tset);
 		FD_SET(cn, &tset);
@@ -1060,7 +1060,7 @@ static void prepare_plot(plot_struct * plot)
 	 * cursors for all windows and then define the cursor for the active
 	 * window
 	 */
-	plot->angle = 0;        /* default is horizontal */
+	plot->angle = 0; /* default is horizontal */
 	reset_cursor(plot->window); /* to avoid flash, don't reset cursor of active window */
 	XDefineCursor(dpy, plot->window, cursor);
 }
@@ -1816,7 +1816,7 @@ record()
 			    XSendEvent(dpy, message_window, False, 0, (XEvent*)&event);
 			    XFlush(dpy);
 		    }
-		    return;     /* no ast */
+		    return; /* no ast */
 		default:
 		    if(plot)
 			    store_command(buf, plot);
@@ -3790,7 +3790,7 @@ static void gp_execute_GE_plotdone(int windowid)
 static int ErrorHandler(Display * display, XErrorEvent * error_event)
 {
 	/* Don't remove directly.  Main program might be using the memory. */
-	(void)display;          /* avoid -Wunused warnings */
+	(void)display; /* avoid -Wunused warnings */
 	Add_Plot_To_Remove_FIFO_Queue((Window)error_event->resourceid);
 	gp_exec_event(GE_reset, 0, 0, 0, 0, 0);
 	return 0;
@@ -5107,8 +5107,8 @@ gnuplot: X11 aborted.\n", ldisplay);
 		}
 	}
 	pr_geometry(NULL);
-	pr_encoding();          /* check for global default encoding */
-	pr_font(NULL);          /* set current font to default font */
+	pr_encoding(); /* check for global default encoding */
+	pr_font(NULL); /* set current font to default font */
 	pr_color(&default_cmap); /* set colors for default colormap */
 	pr_width();
 	pr_dashes();
@@ -5503,8 +5503,8 @@ static void pr_encoding()
 /* Because the requested names may be of the form ",size" we must clear the	*/
 /* list whenever a new default font is set.					*/
 struct used_font {
-	char * requested_name;   /* The name passed to pr_font() */
-	XFontStruct * font;      /* The font we ended up with for that request */
+	char * requested_name; /* The name passed to pr_font() */
+	XFontStruct * font; /* The font we ended up with for that request */
 #ifdef USE_X11_MULTIBYTE
 	XFontSet mbfont;
 	int ismbfont;

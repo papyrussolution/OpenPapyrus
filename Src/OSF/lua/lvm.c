@@ -698,13 +698,13 @@ void luaV_finishOp(lua_State * L) {
 	  ci->u.l.savedpc += GETARG_sBx(i) + e; }
 
 /* for test instructions, execute the jump instruction that follows it */
-#define donextjump(ci)  { i = *ci->u.l.savedpc; dojump(ci, i, 1); }
+#define donextjump(ci) { i = *ci->u.l.savedpc; dojump(ci, i, 1); }
 
 #define Protect(x)      { {x;}; base = ci->u.l.base; }
 
 #define checkGC(L, c)  \
 	{ luaC_condGC(L, L->top = (c),  /* limit of live values */ \
-	      Protect(L->top = ci->top));             /* restore top */ \
+	      Protect(L->top = ci->top)); /* restore top */ \
 	  luai_threadyield(L); }
 
 /* fetch an instruction and prepare its execution */
@@ -725,7 +725,7 @@ void luaV_finishOp(lua_State * L) {
 ** copy of 'luaV_gettable', but protecting the call to potential
 ** metamethod (which can reallocate the stack)
 */
-#define gettableProtected(L, t, k, v)  { const TValue * slot; \
+#define gettableProtected(L, t, k, v) { const TValue * slot; \
 					 if(luaV_fastget(L, t, k, slot, luaH_get)) { setobj2s(L, v, slot); } \
 					 else Protect(luaV_finishget(L, t, k, v, slot)); }
 

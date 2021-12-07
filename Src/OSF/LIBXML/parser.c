@@ -753,8 +753,8 @@ int xmlHasFeature(xmlFeature feature)
 
 //typedef struct _xmlDefAttrs xmlDefAttrs;
 struct xmlDefAttrs {
-	int    nbAttrs;    /* number of defaulted attributes on that element */
-	int    maxAttrs;   /* the size of the array */
+	int    nbAttrs; /* number of defaulted attributes on that element */
+	int    maxAttrs; /* the size of the array */
 	const  xmlChar * values[5]; /* array of localname/prefix/values/external */
 };
 
@@ -4035,7 +4035,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int stri
 			if(!IS_BLANK_CH(*ptr))
 				return 0;
 			while(IS_BLANK_CH(*ptr))
-				ptr++;  /* @todo dangerous, fix ! */
+				ptr++; /* @todo dangerous, fix ! */
 			if((*ptr != '\'') && (*ptr != '"'))
 				return 0;
 		}
@@ -4076,7 +4076,7 @@ static void xmlParseCommentComplex(xmlParserCtxt * ctxt, xmlChar * buf, size_t l
 			return;
 		}
 	}
-	GROW;   /* Assure there's enough input data */
+	GROW; /* Assure there's enough input data */
 	q = CUR_CHAR(ql);
 	if(q == 0)
 		goto not_terminated;

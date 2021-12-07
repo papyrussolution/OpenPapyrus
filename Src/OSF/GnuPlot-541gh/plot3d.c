@@ -360,7 +360,7 @@ void GnuPlot::ThinPlateSplinesSetup(const iso_curve * pOldIsoCrvs, double ** ppX
 			double dx = xx[i] - xx[j], dy = yy[i] - yy[j];
 			K[i][j] = K[j][i] = -splines_kernel(sqrt(dx * dx + dy * dy));
 		}
-		K[i][i] = 0.0;  /* here will come the weights for errors */
+		K[i][i] = 0.0; /* here will come the weights for errors */
 		b[i] = zz[i];
 	}
 	for(i = 0; i < numpoints; i++) {

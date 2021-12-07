@@ -41,8 +41,8 @@ struct private_data {
 	bz_stream stream;
 	char            * out_block;
 	size_t out_block_size;
-	char valid;             /* True = decompressor is initialized */
-	char eof;             /* True = found end of compressed data. */
+	char valid; /* True = decompressor is initialized */
+	char eof; /* True = found end of compressed data. */
 };
 
 /* Bzip2 filter */

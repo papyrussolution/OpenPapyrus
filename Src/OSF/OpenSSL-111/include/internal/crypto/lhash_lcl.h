@@ -23,8 +23,8 @@ struct lhash_st {
     uint num_alloc_nodes;
     uint p;
     uint pmax;
-    ulong up_load;      /* load times 256 */
-    ulong down_load;    /* load times 256 */
+    ulong up_load; /* load times 256 */
+    ulong down_load; /* load times 256 */
     ulong num_items;
     ulong num_expands;
     ulong num_expand_reallocs;

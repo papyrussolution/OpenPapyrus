@@ -94,14 +94,14 @@ typedef int
 /* This structure represents a particular property of a font. */
 /* There are a set of defaults and each font has their own.   */
 typedef struct  bdf_property_t_ {
-	const char*  name;     /* Name of the property.   */
-	int format;            /* Format of the property. */
-	int builtin;           /* A builtin property.     */
+	const char*  name; /* Name of the property.   */
+	int format; /* Format of the property. */
+	int builtin; /* A builtin property.     */
 	union {
 		char*          atom;
 		long l;
 		ulong ul;
-	} value;         /* Value of the property.  */
+	} value; /* Value of the property.  */
 } bdf_property_t;
 
 /**************************************************************************
@@ -122,51 +122,51 @@ typedef struct  bdf_bbx_t_ {
 } bdf_bbx_t;
 
 typedef struct  bdf_glyph_t_ {
-	char*           name;    /* Glyph name.       */
-	ulong encoding;  /* Glyph encoding.   */
-	unsigned short swidth;   /* Scalable width.   */
-	unsigned short dwidth;   /* Device width.     */
-	bdf_bbx_t bbx;           /* Glyph bounding box.     */
-	unsigned char*  bitmap;  /* Glyph bitmap.     */
-	ulong bpr;       /* Number of bytes used per row.  */
-	unsigned short bytes;    /* Number of bytes used for the bitmap. */
+	char*           name; /* Glyph name.       */
+	ulong encoding; /* Glyph encoding.   */
+	unsigned short swidth; /* Scalable width.   */
+	unsigned short dwidth; /* Device width.     */
+	bdf_bbx_t bbx; /* Glyph bounding box.     */
+	unsigned char*  bitmap; /* Glyph bitmap.     */
+	ulong bpr; /* Number of bytes used per row.  */
+	unsigned short bytes; /* Number of bytes used for the bitmap. */
 } bdf_glyph_t;
 
 typedef struct  bdf_font_t_ {
-	char*            name;       /* Name of the font.      */
-	bdf_bbx_t bbx;               /* Font bounding box.     */
+	char*            name; /* Name of the font.      */
+	bdf_bbx_t bbx; /* Font bounding box.     */
 
-	ulong point_size;    /* Point size of the font.       */
-	ulong resolution_x;  /* Font horizontal resolution.   */
-	ulong resolution_y;  /* Font vertical resolution.     */
+	ulong point_size; /* Point size of the font.       */
+	ulong resolution_x; /* Font horizontal resolution.   */
+	ulong resolution_y; /* Font vertical resolution.     */
 
-	int spacing;                 /* Font spacing value.    */
+	int spacing; /* Font spacing value.    */
 
-	unsigned short monowidth;    /* Logical width for monowidth font.   */
+	unsigned short monowidth; /* Logical width for monowidth font.   */
 
-	ulong default_char;  /* Encoding of the default glyph.      */
+	ulong default_char; /* Encoding of the default glyph.      */
 
-	long font_ascent;            /* Font ascent.     */
-	long font_descent;           /* Font descent.    */
+	long font_ascent; /* Font ascent.     */
+	long font_descent; /* Font descent.    */
 
-	ulong glyphs_size;   /* Glyph structures allocated.   */
-	ulong glyphs_used;   /* Glyph structures used. */
-	bdf_glyph_t*     glyphs;     /* Glyphs themselves.     */
+	ulong glyphs_size; /* Glyph structures allocated.   */
+	ulong glyphs_used; /* Glyph structures used. */
+	bdf_glyph_t*     glyphs; /* Glyphs themselves.     */
 
 	ulong unencoded_size; /* Unencoded glyph struct. allocated.  */
 	ulong unencoded_used; /* Unencoded glyph struct. used. */
-	bdf_glyph_t*     unencoded;  /* Unencoded glyphs themselves.  */
+	bdf_glyph_t*     unencoded; /* Unencoded glyphs themselves.  */
 
-	ulong props_size;    /* Font properties allocated.    */
-	ulong props_used;    /* Font properties used.  */
-	bdf_property_t*  props;      /* Font properties themselves.   */
+	ulong props_size; /* Font properties allocated.    */
+	ulong props_used; /* Font properties used.  */
+	bdf_property_t*  props; /* Font properties themselves.   */
 
-	char*            comments;   /* Font comments.   */
-	ulong comments_len;  /* Length of comment string.     */
+	char*            comments; /* Font comments.   */
+	ulong comments_len; /* Length of comment string.     */
 
-	void*            internal;   /* Internal data for the font.   */
+	void*            internal; /* Internal data for the font.   */
 
-	unsigned short bpp;          /* Bits per pixel.  */
+	unsigned short bpp; /* Bits per pixel.  */
 
 	FT_Memory memory;
 

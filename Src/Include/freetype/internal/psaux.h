@@ -129,15 +129,15 @@ typedef struct  PS_Table_FuncsRec_ {
  *     A table of method pointers for this object.
  */
 typedef struct  PS_TableRec_ {
-	FT_Byte*           block;      /* current memory block           */
-	FT_Offset cursor;              /* current cursor in memory block */
-	FT_Offset capacity;            /* current size of memory block   */
+	FT_Byte*           block; /* current memory block           */
+	FT_Offset cursor; /* current cursor in memory block */
+	FT_Offset capacity; /* current size of memory block   */
 	FT_ULong init;
 
 	FT_Int max_elems;
 	FT_Int num_elems;
-	FT_Byte**          elements;   /* addresses of table elements */
-	FT_UInt*           lengths;    /* lengths of table elements   */
+	FT_Byte**          elements; /* addresses of table elements */
+	FT_UInt*           lengths; /* lengths of table elements   */
 
 	FT_Memory memory;
 	PS_Table_FuncsRec funcs;
@@ -216,21 +216,21 @@ typedef void
 
 /* structure type used to model object fields */
 typedef struct  T1_FieldRec_ {
-	const char * ident;    /* field identifier               */
+	const char * ident; /* field identifier               */
 	T1_FieldLocation location;
-	T1_FieldType type;            /* type of field                  */
+	T1_FieldType type; /* type of field                  */
 	T1_Field_ParseFunc reader;
-	FT_UInt offset;               /* offset of field in object      */
-	FT_Byte size;                 /* size of field in bytes         */
-	FT_UInt array_max;            /* maximum number of elements for */
+	FT_UInt offset; /* offset of field in object      */
+	FT_Byte size; /* size of field in bytes         */
+	FT_UInt array_max; /* maximum number of elements for */
 	                              /* array                          */
-	FT_UInt count_offset;         /* offset of element count for    */
+	FT_UInt count_offset; /* offset of element count for    */
 	                              /* arrays; must not be zero if in */
 	                              /* use -- in other words, a       */
 	                              /* `num_FOO' element must not     */
 	                              /* start the used structure if we */
 	                              /* parse a `FOO' array            */
-	FT_UInt dict;                 /* where we expect it             */
+	FT_UInt dict; /* where we expect it             */
 } T1_FieldRec;
 
 #define T1_FIELD_DICT_FONTDICT ( 1 << 0) /* also FontInfo and FDArray */
@@ -522,7 +522,7 @@ struct  PS_Builder_ {
 	FT_Vector*  left_bearing;
 	FT_Vector*  advance;
 
-	FT_BBox*  bbox;      /* bounding box */
+	FT_BBox*  bbox; /* bounding box */
 	FT_Bool path_begun;
 	FT_Bool load_points;
 	FT_Bool no_recurse;
@@ -599,7 +599,7 @@ typedef struct  PS_Decoder_ {
 	FT_Byte**  globals;
 
 	FT_Byte**  glyph_names; /* for pure CFF fonts only  */
-	FT_UInt num_glyphs;   /* number of glyphs in font */
+	FT_UInt num_glyphs; /* number of glyphs in font */
 
 	FT_Render_Mode hint_mode;
 
@@ -609,16 +609,16 @@ typedef struct  PS_Decoder_ {
 	CFF_Decoder_Free_Glyph_Callback free_glyph_callback;
 
 	/* Type 1 stuff */
-	FT_Service_PsCMaps psnames;   /* for seac */
+	FT_Service_PsCMaps psnames; /* for seac */
 
-	FT_Int lenIV;        /* internal for sub routine calls   */
+	FT_Int lenIV; /* internal for sub routine calls   */
 	FT_UInt*  locals_len; /* array of subrs length (optional) */
 	FT_Hash locals_hash; /* used if `num_subrs' was massaged */
 
 	FT_Matrix font_matrix;
 	FT_Vector font_offset;
 
-	PS_Blend blend;      /* for multiple master support */
+	PS_Blend blend; /* for multiple master support */
 
 	FT_Long*  buildchar;
 	FT_UInt len_buildchar;
@@ -764,7 +764,7 @@ typedef struct  T1_BuilderRec_ {
 	FT_Pos pos_y;
 	FT_Vector left_bearing;
 	FT_Vector advance;
-	FT_BBox bbox;              /* bounding box */
+	FT_BBox bbox; /* bounding box */
 	T1_ParseState parse_state;
 	FT_Bool load_points;
 	FT_Bool no_recurse;
@@ -855,15 +855,15 @@ typedef struct  T1_DecoderRec_ {
 	T1_Decoder_ZoneRec zones[T1_MAX_SUBRS_CALLS + 1];
 	T1_Decoder_Zone zone;
 
-	FT_Service_PsCMaps psnames;    /* for seac */
+	FT_Service_PsCMaps psnames; /* for seac */
 	FT_UInt num_glyphs;
 	FT_Byte**            glyph_names;
 
-	FT_Int lenIV;                  /* internal for sub routine calls */
+	FT_Int lenIV; /* internal for sub routine calls */
 	FT_Int num_subrs;
 	FT_Byte**            subrs;
 	FT_UInt*             subrs_len; /* array of subrs length (optional) */
-	FT_Hash subrs_hash;            /* used if `num_subrs' was massaged */
+	FT_Hash subrs_hash; /* used if `num_subrs' was massaged */
 
 	FT_Matrix font_matrix;
 	FT_Vector font_offset;
@@ -872,7 +872,7 @@ typedef struct  T1_DecoderRec_ {
 	FT_Int num_flex_vectors;
 	FT_Vector flex_vectors[7];
 
-	PS_Blend blend;               /* for multiple master support */
+	PS_Blend blend; /* for multiple master support */
 
 	FT_Render_Mode hint_mode;
 
@@ -1019,7 +1019,7 @@ struct  CFF_Builder_ {
 	FT_Vector left_bearing;
 	FT_Vector advance;
 
-	FT_BBox bbox;       /* bounding box */
+	FT_BBox bbox; /* bounding box */
 
 	FT_Bool path_begun;
 	FT_Bool load_points;
@@ -1090,7 +1090,7 @@ typedef struct  CFF_Decoder_ {
 	FT_Byte**  globals;
 
 	FT_Byte**  glyph_names; /* for pure CFF fonts only  */
-	FT_UInt num_glyphs;   /* number of glyphs in font */
+	FT_UInt num_glyphs; /* number of glyphs in font */
 
 	FT_Render_Mode hint_mode;
 

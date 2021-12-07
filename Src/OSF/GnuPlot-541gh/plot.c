@@ -460,13 +460,13 @@ void GnuPlot::InitSession()
 	Ev.OverflowHandling = INT64_OVERFLOW_TO_FLOAT; /* Reset program variables not handled by 'reset' */
 	InitVoxelSupport(); /* Reset voxel data structures if supported */
 	// Make sure all variables start in the same state 'reset' would set them to. 
-	ResetCommand();        /* FIXME: this does c_token++ */
-	LoadRcFile(0);         /* System-wide gnuplotrc if configured */
-	LoadRcFile(1);         /* ./.gnuplot if configured */
+	ResetCommand(); /* FIXME: this does c_token++ */
+	LoadRcFile(0); /* System-wide gnuplotrc if configured */
+	LoadRcFile(1); /* ./.gnuplot if configured */
 	// After this point we allow pipes and system commands 
 	_Plt.successful_initialization = TRUE;
-	LoadRcFile(2);         /* ~/.gnuplot */
-	LoadRcFile(3);         /* ~/.config/gnuplot/gnuplotrc */
+	LoadRcFile(2); /* ~/.gnuplot */
+	LoadRcFile(3); /* ~/.config/gnuplot/gnuplotrc */
 }
 // 
 // Read commands from an initialization file.

@@ -64,11 +64,11 @@ FT_BEGIN_HEADER
 
   typedef struct  GX_ItemVarDataRec_
   {
-    FT_UInt    itemCount;      /* number of delta sets per item   */
+    FT_UInt    itemCount; /* number of delta sets per item   */
     FT_UInt    regionIdxCount; /* number of region indices in this data */
-    FT_UInt*   regionIndices;  /* array of `regionCount' indices; */
+    FT_UInt*   regionIndices; /* array of `regionCount' indices; */
                                /* these index `varRegionList'     */
-    FT_Short*  deltaSet;       /* array of `itemCount' deltas     */
+    FT_Short*  deltaSet; /* array of `itemCount' deltas     */
                                /* use `innerIndex' for this array */
 
   } GX_ItemVarDataRec, *GX_ItemVarData;
@@ -78,7 +78,7 @@ FT_BEGIN_HEADER
   typedef struct  GX_AxisCoordsRec_
   {
     FT_Fixed  startCoord;
-    FT_Fixed  peakCoord;      /* zero means no effect (factor = 1) */
+    FT_Fixed  peakCoord; /* zero means no effect (factor = 1) */
     FT_Fixed  endCoord;
 
   } GX_AxisCoordsRec, *GX_AxisCoords;
@@ -86,7 +86,7 @@ FT_BEGIN_HEADER
 
   typedef struct  GX_VarRegionRec_
   {
-    GX_AxisCoords  axisList;               /* array of axisCount records */
+    GX_AxisCoords  axisList; /* array of axisCount records */
 
   } GX_VarRegionRec, *GX_VarRegion;
 
@@ -95,10 +95,10 @@ FT_BEGIN_HEADER
   typedef struct  GX_ItemVarStoreRec_
   {
     FT_UInt         dataCount;
-    GX_ItemVarData  varData;            /* array of dataCount records;     */
+    GX_ItemVarData  varData; /* array of dataCount records;     */
                                         /* use `outerIndex' for this array */
     FT_UShort     axisCount;
-    FT_UInt       regionCount;          /* total number of regions defined */
+    FT_UInt       regionCount; /* total number of regions defined */
     GX_VarRegion  varRegionList;
 
   } GX_ItemVarStoreRec, *GX_ItemVarStore;
@@ -107,8 +107,8 @@ FT_BEGIN_HEADER
   typedef struct  GX_DeltaSetIdxMapRec_
   {
     FT_UInt   mapCount;
-    FT_UInt*  outerIndex;             /* indices to item var data */
-    FT_UInt*  innerIndex;             /* indices to delta set     */
+    FT_UInt*  outerIndex; /* indices to item var data */
+    FT_UInt*  innerIndex; /* indices to delta set     */
 
   } GX_DeltaSetIdxMapRec, *GX_DeltaSetIdxMap;
 
@@ -123,16 +123,16 @@ FT_BEGIN_HEADER
    */
   typedef struct  GX_HVVarTableRec_
   {
-    GX_ItemVarStoreRec    itemStore;        /* Item Variation Store  */
-    GX_DeltaSetIdxMapRec  widthMap;         /* Advance Width Mapping */
+    GX_ItemVarStoreRec    itemStore; /* Item Variation Store  */
+    GX_DeltaSetIdxMapRec  widthMap; /* Advance Width Mapping */
 
 #if 0
-    GX_DeltaSetIdxMapRec  lsbMap;           /* not implemented */
-    GX_DeltaSetIdxMapRec  rsbMap;           /* not implemented */
+    GX_DeltaSetIdxMapRec  lsbMap; /* not implemented */
+    GX_DeltaSetIdxMapRec  rsbMap; /* not implemented */
 
-    GX_DeltaSetIdxMapRec  tsbMap;           /* not implemented */
-    GX_DeltaSetIdxMapRec  bsbMap;           /* not implemented */
-    GX_DeltaSetIdxMapRec  vorgMap;          /* not implemented */
+    GX_DeltaSetIdxMapRec  tsbMap; /* not implemented */
+    GX_DeltaSetIdxMapRec  bsbMap; /* not implemented */
+    GX_DeltaSetIdxMapRec  vorgMap; /* not implemented */
 #endif
 
   } GX_HVVarTableRec, *GX_HVVarTable;
@@ -185,7 +185,7 @@ FT_BEGIN_HEADER
     FT_UShort  outerIndex;
     FT_UShort  innerIndex;
 
-    FT_Short  unmodified;  /* values are either FT_Short or FT_UShort */
+    FT_Short  unmodified; /* values are either FT_Short or FT_UShort */
 
   } GX_ValueRec, *GX_Value;
 
@@ -202,8 +202,8 @@ FT_BEGIN_HEADER
   {
     FT_UShort  valueCount;
 
-    GX_ItemVarStoreRec  itemStore;        /* Item Variation Store  */
-    GX_Value            values;           /* Value Records   */
+    GX_ItemVarStoreRec  itemStore; /* Item Variation Store  */
+    GX_Value            values; /* Value Records   */
 
   } GX_MVarTableRec, *GX_MVarTable;
 
@@ -310,7 +310,7 @@ FT_BEGIN_HEADER
                       /* normalized_stylecoords[num_namedstyles][num_axis] */
 
     FT_Bool         avar_loaded;
-    GX_AVarSegment  avar_segment;                /* avar_segment[num_axis] */
+    GX_AVarSegment  avar_segment; /* avar_segment[num_axis] */
 
     FT_Bool         hvar_loaded;
     FT_Bool         hvar_checked;
@@ -325,10 +325,10 @@ FT_BEGIN_HEADER
     GX_MVarTable    mvar_table;
 
     FT_UInt         tuplecount;
-    FT_Fixed*       tuplecoords;      /* tuplecoords[tuplecount][num_axis] */
+    FT_Fixed*       tuplecoords; /* tuplecoords[tuplecount][num_axis] */
 
     FT_UInt         gv_glyphcnt;
-    FT_ULong*       glyphoffsets;         /* glyphoffsets[gv_glyphcnt + 1] */
+    FT_ULong*       glyphoffsets; /* glyphoffsets[gv_glyphcnt + 1] */
 
     FT_ULong        gvar_size;
 

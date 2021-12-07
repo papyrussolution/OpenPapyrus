@@ -50,13 +50,13 @@ bool _hash_init(HASH * hash, uint size, uint key_offset, uint key_length,
 {
 	hash->records = 0;
 	if(ma_init_dynamic_array_ci(&hash->array, sizeof(HASH_LINK), size, 0)) {
-		hash->free = 0;                 /* Allow call to hash_free */
+		hash->free = 0; /* Allow call to hash_free */
 		return(TRUE);
 	}
 	hash->key_offset = key_offset;
 	hash->key_length = key_length;
 	hash->blength = 1;
-	hash->current_record = NO_RECORD;       /* For the future */
+	hash->current_record = NO_RECORD; /* For the future */
 	hash->get_key = get_key;
 	hash->free = free_element;
 	hash->flags = flags;
@@ -208,9 +208,9 @@ void * hash_search(HASH * hash, const uchar * key, uint length)
 				return (pos->data);
 			}
 			if(flag) {
-				flag = 0;       /* Reset flag */
+				flag = 0; /* Reset flag */
 				if(hash_rec_mask(hash, pos, hash->blength, hash->records) != idx)
-					break;  /* Wrong link */
+					break; /* Wrong link */
 			}
 		}
 		while((idx = pos->next) != NO_RECORD);
@@ -397,7 +397,7 @@ bool hash_delete(HASH * hash, uchar * record)
 	while(pos->data != record) {
 		gpos = pos;
 		if(pos->next == NO_RECORD)
-			return 1;      /* Key not found */
+			return 1; /* Key not found */
 		pos = data+pos->next;
 	}
 
@@ -430,8 +430,8 @@ bool hash_delete(HASH * hash, uchar * record)
 	/* pos3 is where the pos should be */
 	pos3 = data+hash_mask(pos_hashnr, hash->blength, hash->records);
 	if(pos != pos3) {               /* pos is on wrong posit */
-		empty[0] = pos[0];      /* Save it here */
-		pos[0] = lastpos[0];    /* This should be here */
+		empty[0] = pos[0]; /* Save it here */
+		pos[0] = lastpos[0]; /* This should be here */
 		movelink(data, (uint)(pos-data), (uint)(pos3-data), empty_index);
 		goto exit;
 	}
@@ -444,7 +444,7 @@ bool hash_delete(HASH * hash, uchar * record)
 		}
 		idx = (uint)(pos-data); /* Link pos->next after lastpos */
 	}
-	else idx = NO_RECORD;   /* Different positions merge */
+	else idx = NO_RECORD; /* Different positions merge */
 
 	empty[0] = lastpos[0];
 	movelink(data, idx, empty_index, pos->next);
@@ -478,14 +478,14 @@ bool hash_update(HASH * hash, uchar * record, uchar * old_key, uint old_key_leng
 		blength, records);
 	new_index = hash_mask(rec_hashnr(hash, record), blength, records);
 	if(idx == new_index)
-		return 0;      /* Nothing to do (No record check) */
+		return 0; /* Nothing to do (No record check) */
 	previous = 0;
 	for(;;) {
 		if((pos = data+idx)->data == record)
 			break;
 		previous = pos;
 		if((idx = pos->next) == NO_RECORD)
-			return 1;      /* Not found in links */
+			return 1; /* Not found in links */
 	}
 	hash->current_record = NO_RECORD;
 	org_link = *pos;

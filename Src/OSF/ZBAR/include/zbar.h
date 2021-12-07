@@ -327,16 +327,16 @@ enum errmodule_t {
 };
 
 struct errinfo_t {
-	uint32 magic;         /* just in case */
-	errmodule_t module;     /* reporting module */
-	char * buf;             /* formatted and passed to application */
-	int    errnum;             /* errno for system errors */
+	uint32 magic; /* just in case */
+	errmodule_t module; /* reporting module */
+	char * buf; /* formatted and passed to application */
+	int    errnum; /* errno for system errors */
 	errsev_t sev;
 	zbar_error_t type;
-	const char * func;      /* reporting function */
-	const char * detail;    /* description */
-	char * arg_str;         /* single string argument */
-	int    arg_int;            /* single integer argument */
+	const char * func; /* reporting function */
+	const char * detail; /* description */
+	char * arg_str; /* single string argument */
+	int    arg_int; /* single integer argument */
 };
 
 #ifdef _WIN32
@@ -761,27 +761,27 @@ enum video_iomode_t {
 typedef struct video_state_s video_state_t;
 
 struct zbar_video_t {
-	errinfo_t err;          /* error reporting */
-	int fd;                 /* open camera device */
+	errinfo_t err; /* error reporting */
+	int fd; /* open camera device */
 	uint width, height; /* video frame size */
 	video_interface_t intf; /* input interface type */
-	video_iomode_t iomode;  /* video data transfer mode */
+	video_iomode_t iomode; /* video data transfer mode */
 	uint initialized : 1; /* format selected and images mapped */
 	uint active      : 1; /* current streaming state */
-	uint32 format;        /* selected fourcc */
-	uint palette;       /* v4l1 format index corresponding to format */
-	uint32 * formats;     /* 0 terminated list of supported formats */
-	ulong datalen;  /* size of image data for selected format */
-	ulong buflen;   /* total size of image data buffer */
-	void * buf;             /* image data buffer */
-	uint frame;         /* frame count */
-	zbar_mutex_t qlock;     /* lock image queue */
-	int num_images;         /* number of allocated images */
+	uint32 format; /* selected fourcc */
+	uint palette; /* v4l1 format index corresponding to format */
+	uint32 * formats; /* 0 terminated list of supported formats */
+	ulong datalen; /* size of image data for selected format */
+	ulong buflen; /* total size of image data buffer */
+	void * buf; /* image data buffer */
+	uint frame; /* frame count */
+	zbar_mutex_t qlock; /* lock image queue */
+	int num_images; /* number of allocated images */
 	zbar_image_t ** images; /* indexed list of images */
 	zbar_image_t * nq_image; /* last image enqueued */
 	zbar_image_t * dq_image; /* first image to dequeue (when ordered) */
 	zbar_image_t * shadow_image; /* special case internal double buffering */
-	video_state_t * state;  /* platform/interface specific state */
+	video_state_t * state; /* platform/interface specific state */
 #ifdef HAVE_LIBJPEG
 	struct jpeg_decompress_struct * jpeg; /* JPEG decompressor */
 	zbar_image_t * jpeg_img; /* temporary image */
@@ -849,25 +849,25 @@ struct zbar_image_t {
 	uint crop_y;
 	uint crop_w;
 	uint crop_h;
-	void * userdata;        /* user specified data associated w/image */
+	void * userdata; /* user specified data associated w/image */
 	zbar_image_cleanup_handler_t cleanup; // cleanup handler
-	refcnt_t refcnt;        /* reference count */
-	zbar_video_t * src;     /* originator */
-	int srcidx;             /* index used by originator */
-	zbar_image_t * next;    /* internal image lists */
-	uint seq;           /* page/frame sequence number */
+	refcnt_t refcnt; /* reference count */
+	zbar_video_t * src; /* originator */
+	int srcidx; /* index used by originator */
+	zbar_image_t * next; /* internal image lists */
+	uint seq; /* page/frame sequence number */
 	zbar_symbol_set_t * syms; /* decoded result set */
 };
 //
 // description of an image format
 //
 struct zbar_format_def_t {
-	uint32 format;                /* fourcc */
-	zbar_format_group_t group;      /* coarse categorization */
+	uint32 format; /* fourcc */
+	zbar_format_group_t group; /* coarse categorization */
 	union {
-		uint8 gen[4];         /* raw bytes */
+		uint8 gen[4]; /* raw bytes */
 		struct {
-			uint8 bpp;    /* bits per pixel */
+			uint8 bpp; /* bits per pixel */
 			uint8 red;
 			uint8 green;
 			uint8 blue; /* size/location a la RGB_BITS() */
@@ -1572,37 +1572,37 @@ extern int zbar_scan_image(zbar_image_scanner_t * scanner, zbar_image_t * image)
 // Codabar specific decode state
 //
 struct codabar_decoder_t {
-    uint direction : 1;     /* scan direction: 0=fwd, 1=rev */
-    uint element : 4;       /* element offset 0-7 */
-    int character : 12;         /* character position in symbol */
-    uint s7;                /* current character width */
-    uint width;             /* last character width */
-    uchar buf[6];       /* initial scan buffer */
+    uint direction : 1; /* scan direction: 0=fwd, 1=rev */
+    uint element : 4; /* element offset 0-7 */
+    int character : 12; /* character position in symbol */
+    uint s7; /* current character width */
+    uint width; /* last character width */
+    uchar buf[6]; /* initial scan buffer */
 
     uint config;
-    int configs[NUM_CFGS];      /* int valued configurations */
+    int configs[NUM_CFGS]; /* int valued configurations */
 };
 //
 // state of each parallel decode attempt
 //
 typedef struct ean_pass_s {
-    int8 state;          /* module position of w[idx] in symbol */
+    int8 state; /* module position of w[idx] in symbol */
 #define STATE_REV   0x80        /*   scan direction reversed */
 #define STATE_ADDON 0x40        /*   scanning add-on */
 #define STATE_IDX   0x3f        /*   element offset into symbol */
-    uint width;             /* width of last character */
-    uchar raw[7];       /* decode in process */
+    uint width; /* width of last character */
+    uchar raw[7]; /* decode in process */
 } ean_pass_t;
 //
 // EAN/UPC specific decode state
 //
 struct ean_decoder_t {
-    ean_pass_t pass[4];         /* state of each parallel decode attempt */
-    zbar_symbol_type_t left;    /* current holding buffer contents */
+    ean_pass_t pass[4]; /* state of each parallel decode attempt */
+    zbar_symbol_type_t left; /* current holding buffer contents */
     zbar_symbol_type_t right;
-    int direction;              /* scan direction */
-    uint s4, width;         /* character width */
-    int8 buf[18];        /* holding buffer */
+    int direction; /* scan direction */
+    uint s4, width; /* character width */
+    int8 buf[18]; /* holding buffer */
 
     int8 enable;
     uint ean13_config;
@@ -1618,97 +1618,97 @@ struct ean_decoder_t {
 // Code 128 specific decode state
 //
 struct code128_decoder_t {
-    uint direction : 1;     /* scan direction: 0=fwd/space, 1=rev/bar */
-    uint element : 3;       /* element offset 0-5 */
-    int character : 12;         /* character position in symbol */
-    uchar start;        /* start character */
-    uint s6;                /* character width */
-    uint width;             /* last character width */
+    uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
+    uint element : 3; /* element offset 0-5 */
+    int character : 12; /* character position in symbol */
+    uchar start; /* start character */
+    uint s6; /* character width */
+    uint width; /* last character width */
 
     uint config;
-    int configs[NUM_CFGS];      /* int valued configurations */
+    int configs[NUM_CFGS]; /* int valued configurations */
 };
 //
 // Code 39 specific decode state
 //
 typedef struct code39_decoder_s {
 	uint direction : 1; /* scan direction: 0=fwd, 1=rev */
-	uint element : 4;   /* element offset 0-8 */
-	int character : 12;     /* character position in symbol */
-	uint s9;            /* current character width */
-	uint width;         /* last character width */
+	uint element : 4; /* element offset 0-8 */
+	int character : 12; /* character position in symbol */
+	uint s9; /* current character width */
+	uint width; /* last character width */
 
 	uint config;
-	int configs[NUM_CFGS];  /* int valued configurations */
+	int configs[NUM_CFGS]; /* int valued configurations */
 } code39_decoder_t;
 //
 // Code 93 specific decode state
 //
 typedef struct code93_decoder_s {
 	uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
-	uint element : 3;   /* element offset 0-5 */
-	int character : 12;     /* character position in symbol */
-	uint width;         /* last character width */
-	uchar buf;      /* first character */
+	uint element : 3; /* element offset 0-5 */
+	int character : 12; /* character position in symbol */
+	uint width; /* last character width */
+	uchar buf; /* first character */
 
 	uint config;
-	int configs[NUM_CFGS];  /* int valued configurations */
+	int configs[NUM_CFGS]; /* int valued configurations */
 } code93_decoder_t;
 #define DATABAR_MAX_SEGMENTS 32
 //
 // active DataBar (partial) segment entry
 //
 typedef struct databar_segment_s {
-	signed finder : 5;      /* finder pattern */
-	uint exp : 1;       /* DataBar expanded finder */
-	uint color : 1;     /* finder coloring */
-	uint side : 1;      /* data character side of finder */
+	signed finder : 5; /* finder pattern */
+	uint exp : 1; /* DataBar expanded finder */
+	uint color : 1; /* finder coloring */
+	uint side : 1; /* data character side of finder */
 
-	uint partial : 1;   /* unpaired partial segment */
-	uint count : 7;     /* times encountered */
-	uint epoch : 8;     /* age, in characters scanned */
-	uint check : 8;     /* bar checksum */
-	signed short data;      /* decoded character data */
-	ushort width;   /* measured width of finder (14 modules) */
+	uint partial : 1; /* unpaired partial segment */
+	uint count : 7; /* times encountered */
+	uint epoch : 8; /* age, in characters scanned */
+	uint check : 8; /* bar checksum */
+	signed short data; /* decoded character data */
+	ushort width; /* measured width of finder (14 modules) */
 } databar_segment_t;
 //
 // DataBar specific decode state
 //
 typedef struct databar_decoder_s {
-	uint config;        /* decoder configuration flags */
+	uint config; /* decoder configuration flags */
 	uint config_exp;
 
-	uint csegs : 8;     /* allocated segments */
-	uint epoch : 8;     /* current scan */
+	uint csegs : 8; /* allocated segments */
+	uint epoch : 8; /* current scan */
 
 	databar_segment_t * segs; /* active segment list */
-	int8 chars[16];  /* outstanding character indices */
+	int8 chars[16]; /* outstanding character indices */
 } databar_decoder_t;
 //
 // interleaved 2 of 5 specific decode state
 //
 typedef struct i25_decoder_s {
 	uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
-	uint element : 4;   /* element offset 0-8 */
-	int character : 12;     /* character position in symbol */
-	uint s10;           /* current character width */
-	uint width;         /* last character width */
-	uchar buf[4];   /* initial scan buffer */
+	uint element : 4; /* element offset 0-8 */
+	int character : 12; /* character position in symbol */
+	uint s10; /* current character width */
+	uint width; /* last character width */
+	uchar buf[4]; /* initial scan buffer */
 
 	uint config;
-	int configs[NUM_CFGS];  /* int valued configurations */
+	int configs[NUM_CFGS]; /* int valued configurations */
 } i25_decoder_t;
 //
 // PDF417 specific decode state
 //
 typedef struct pdf417_decoder_s {
 	uint direction : 1; /* scan direction: 0=fwd/space, 1=rev/bar */
-	uint element : 3;   /* element offset 0-7 */
-	int character : 12;     /* character position in symbol */
-	uint s8;            /* character width */
+	uint element : 3; /* element offset 0-7 */
+	int character : 12; /* character position in symbol */
+	uint s8; /* character width */
 
 	uint config;
-	int configs[NUM_CFGS];  /* int valued configurations */
+	int configs[NUM_CFGS]; /* int valued configurations */
 } pdf417_decoder_t;
 //
 //
@@ -1765,8 +1765,8 @@ int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, const zbar_
 // QR Code symbol finder state
 //
 typedef struct qr_finder_s {
-	uint s5;            /* finder pattern width */
-	qr_finder_line line;    /* position info needed by decoder */
+	uint s5; /* finder pattern width */
+	qr_finder_line line; /* position info needed by decoder */
 	uint config;
 } qr_finder_t;
 //
@@ -1778,43 +1778,43 @@ typedef void (*zbar_decoder_handler_t)(zbar_decoder_t * decoder);
 // symbology independent decoder state
 //
 struct zbar_decoder_t {
-    uchar  idx;                  /* current width index */
-    uint   w[DECODE_WINDOW];          /* window of last N bar widths */
-    zbar_symbol_type_t type;            /* type of last decoded data */
-    zbar_symbol_type_t lock;            /* buffer lock */
-    uint   modifiers;                 /* symbology modifier */
-    int    direction;                      /* direction of last decoded data */
-    uint   s6;                        /* 6-element character width */
+    uchar  idx; /* current width index */
+    uint   w[DECODE_WINDOW]; /* window of last N bar widths */
+    zbar_symbol_type_t type; /* type of last decoded data */
+    zbar_symbol_type_t lock; /* buffer lock */
+    uint   modifiers; /* symbology modifier */
+    int    direction; /* direction of last decoded data */
+    uint   s6; /* 6-element character width */
     /* everything above here is automatically reset */
-    uint   buf_alloc;                 /* dynamic buffer allocation */
+    uint   buf_alloc; /* dynamic buffer allocation */
     uint   buflen;                    /* binary data length */
-    uchar * buf;                 /* decoded characters */
-    void * userdata;                     /* application data */
-    zbar_decoder_handler_t handler;     /* application callback */
+    uchar * buf; /* decoded characters */
+    void * userdata; /* application data */
+    zbar_decoder_handler_t handler; /* application callback */
     /* symbology specific state */
 #ifdef ENABLE_EAN
-    ean_decoder_t ean;                  /* EAN/UPC parallel decode attempts */
+    ean_decoder_t ean; /* EAN/UPC parallel decode attempts */
 #endif
 #ifdef ENABLE_I25
-    i25_decoder_t i25;                  /* Interleaved 2 of 5 decode state */
+    i25_decoder_t i25; /* Interleaved 2 of 5 decode state */
 #endif
 #ifdef ENABLE_DATABAR
-    databar_decoder_t databar;          /* DataBar decode state */
+    databar_decoder_t databar; /* DataBar decode state */
 #endif
 #ifdef ENABLE_CODABAR
-    codabar_decoder_t codabar;          /* Codabar decode state */
+    codabar_decoder_t codabar; /* Codabar decode state */
 #endif
 #ifdef ENABLE_CODE39
-    code39_decoder_t code39;            /* Code 39 decode state */
+    code39_decoder_t code39; /* Code 39 decode state */
 #endif
 #ifdef ENABLE_CODE93
-    code93_decoder_t code93;            /* Code 93 decode state */
+    code93_decoder_t code93; /* Code 93 decode state */
 #endif
 #ifdef ENABLE_CODE128
-    code128_decoder_t code128;          /* Code 128 decode state */
+    code128_decoder_t code128; /* Code 128 decode state */
 #endif
 #ifdef ENABLE_PDF417
-    pdf417_decoder_t pdf417;            /* PDF417 decode state */
+    pdf417_decoder_t pdf417; /* PDF417 decode state */
 #endif
 #ifdef ENABLE_QRCODE
     qr_finder_t qrf;                    /* QR Code finder state */
@@ -2290,26 +2290,26 @@ static inline void _zbar_symbol_set_add(zbar_symbol_set_t * syms, zbar_symbol_t 
 typedef struct window_state_s window_state_t;
 
 struct zbar_window_s {
-	errinfo_t err;          /* error reporting */
-	zbar_image_t * image;   /* last displayed image NB image access must be locked! */
-	uint overlay;       /* user set overlay level */
-	uint32 format;        /* output format */
+	errinfo_t err; /* error reporting */
+	zbar_image_t * image; /* last displayed image NB image access must be locked! */
+	uint overlay; /* user set overlay level */
+	uint32 format; /* output format */
 	uint width, height; /* current output size */
 	uint max_width, max_height;
-	uint32 src_format;    /* current input format */
-	uint src_width;     /* last displayed image size */
+	uint32 src_format; /* current input format */
+	uint src_width; /* last displayed image size */
 	uint src_height;
-	uint dst_width;     /* conversion target */
+	uint dst_width; /* conversion target */
 	uint dst_height;
-	uint scale_num;     /* output scaling */
+	uint scale_num; /* output scaling */
 	uint scale_den;
-	point_t scaled_offset;  /* output position and size */
+	point_t scaled_offset; /* output position and size */
 	point_t scaled_size;
-	uint32 * formats;     /* supported formats (zero terminated) */
-	zbar_mutex_t imglock;   /* lock displayed image */
+	uint32 * formats; /* supported formats (zero terminated) */
+	zbar_mutex_t imglock; /* lock displayed image */
 	void * display;
 	ulong xwin;
-	ulong time;     /* last image display in milliseconds */
+	ulong time; /* last image display in milliseconds */
 	ulong time_avg; /* average of inter-frame times */
 	window_state_t * state; /* platform/interface specific state */
 	/* interface dependent methods */

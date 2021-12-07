@@ -298,9 +298,9 @@ int GpView::ClipLine(int * x1, int * y1, int * x2, int * y2) const
 	int pos1 = ClipPoint(*x1, *y1);
 	int pos2 = ClipPoint(*x2, *y2);
 	if(!pos1 && !pos2)
-		return 1;       /* segment is totally in */
+		return 1; /* segment is totally in */
 	if(pos1 & pos2)
-		return 0;       /* segment is totally out. */
+		return 0; /* segment is totally out. */
 	/* Here part of the segment MAY be inside. test the intersection
 	 * of this segment with the 4 boundaries for hopefully 2 intersections
 	 * in. If none are found segment is totaly out.

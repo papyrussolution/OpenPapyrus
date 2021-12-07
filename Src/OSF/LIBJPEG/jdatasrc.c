@@ -22,9 +22,9 @@
 // 
 typedef struct {
 	struct jpeg_source_mgr pub; /* public fields */
-	FILE * infile;          /* source stream */
-	JOCTET * buffer;        /* start of buffer */
-	boolean start_of_file;  /* have we gotten any data yet? */
+	FILE * infile; /* source stream */
+	JOCTET * buffer; /* start of buffer */
+	boolean start_of_file; /* have we gotten any data yet? */
 } my_source_mgr;
 
 typedef my_source_mgr * my_src_ptr;

@@ -49,11 +49,11 @@ int __heap_mswap(ENV * env, PAGE * pg)
 	COMPQUIET(env, 0);
 	__db_metaswap(pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
-	SWAP32(p);              /* curregion */
-	SWAP32(p);              /* nregions */
-	SWAP32(p);              /* gbytes */
-	SWAP32(p);              /* bytes */
-	p += 93*sizeof(uint32);   /* unused */
-	SWAP32(p);              /* crypto_magic */
+	SWAP32(p); /* curregion */
+	SWAP32(p); /* nregions */
+	SWAP32(p); /* gbytes */
+	SWAP32(p); /* bytes */
+	p += 93*sizeof(uint32); /* unused */
+	SWAP32(p); /* crypto_magic */
 	return 0;
 }

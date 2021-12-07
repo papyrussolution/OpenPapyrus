@@ -8,7 +8,7 @@
 #pragma hdrstop
 
 struct ngx_http_rewrite_loc_conf_t {
-	ngx_array_t  * codes;   /* uintptr_t */
+	ngx_array_t  * codes; /* uintptr_t */
 	ngx_uint_t stack_size;
 	ngx_flag_t log;
 	ngx_flag_t uninitialized_variable_warn;

@@ -140,8 +140,8 @@ int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 			else
 				ERR_clear_error(); /* clear error */
 		}
-		i = q - p;    /* header length */
-		off += i;       /* end of data */
+		i = q - p; /* header length */
+		off += i; /* end of data */
 
 		if(inf & 1) {
 			/* no data body so go round again */

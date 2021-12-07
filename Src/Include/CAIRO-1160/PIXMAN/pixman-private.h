@@ -134,7 +134,7 @@ struct bits_image {
 	int height;
 	uint32 *  bits;
 	uint32 *  free_me;
-	int rowstride;                     /* in number of uint32's */
+	int rowstride; /* in number of uint32's */
 	fetch_scanline_t fetch_scanline_32;
 	fetch_pixel_32_t fetch_pixel_32;
 	store_scanline_t store_scanline_32;

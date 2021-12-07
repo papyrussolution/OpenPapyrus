@@ -26,9 +26,9 @@
 
 typedef struct {
 	/* Basic tables: (element [0] of each array is unused) */
-	INT32 maxcode[18];      /* largest code of length k (-1 if none) */
+	INT32 maxcode[18]; /* largest code of length k (-1 if none) */
 	/* (maxcode[17] is a sentinel to ensure jpeg_huff_decode terminates) */
-	INT32 valoffset[17];    /* huffval[] offset for codes of length k */
+	INT32 valoffset[17]; /* huffval[] offset for codes of length k */
 	/* valoffset[k] = huffval[] index of 1st symbol of code length k, less
 	 * the smallest code of length k; so given a code of length k, the
 	 * corresponding symbol is huffval[code + valoffset[k]]
@@ -64,7 +64,7 @@ typedef struct {
  * necessary.
  */
 
-typedef INT32 bit_buf_type;     /* type of bit-extraction buffer */
+typedef INT32 bit_buf_type; /* type of bit-extraction buffer */
 #define BIT_BUF_SIZE  32        /* size of buffer in bits */
 
 /* If long is > 32 bits on your machine, and shifting/masking longs is
@@ -76,7 +76,7 @@ typedef INT32 bit_buf_type;     /* type of bit-extraction buffer */
 
 typedef struct {                /* Bitreading state saved across MCUs */
 	bit_buf_type get_buffer; /* current bit-extraction buffer */
-	int bits_left;          /* # of unused bits in it */
+	int bits_left; /* # of unused bits in it */
 } bitread_perm_state;
 
 typedef struct {                /* Bitreading working state within an MCU */
@@ -88,7 +88,7 @@ typedef struct {                /* Bitreading working state within an MCU */
 	 * not in this struct, inside the inner loops.
 	 */
 	bit_buf_type get_buffer; /* current bit-extraction buffer */
-	int bits_left;          /* # of unused bits in it */
+	int bits_left; /* # of unused bits in it */
 	/* Pointer needed by jpeg_fill_bit_buffer. */
 	j_decompress_ptr cinfo; /* back link to decompress master record */
 } bitread_working_state;
@@ -185,7 +185,7 @@ slowlabel: \
  */
 
 typedef struct {
-	uint EOBRUN;            /* remaining EOBs in EOBRUN */
+	uint EOBRUN; /* remaining EOBs in EOBRUN */
 	int last_dc_val[MAX_COMPS_IN_SCAN]; /* last DC coef for each component */
 } savable_state;
 
@@ -214,7 +214,7 @@ typedef struct {
 	 * In case of suspension, we exit WITHOUT updating them.
 	 */
 	bitread_perm_state bitstate; /* Bit buffer at start of MCU */
-	savable_state saved;    /* Other state at start of MCU */
+	savable_state saved; /* Other state at start of MCU */
 
 	/* These fields are NOT loaded into local working state. */
 	boolean insufficient_data; /* set TRUE after emitting warning */
@@ -326,7 +326,7 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
 	if(*pdtbl == NULL)
 		*pdtbl = (d_derived_tbl*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(d_derived_tbl));
 	dtbl = *pdtbl;
-	dtbl->pub = htbl;       /* fill in back link */
+	dtbl->pub = htbl; /* fill in back link */
 	/* Figure C.1: make table of Huffman code length for each symbol */
 	p = 0;
 	for(l = 1; l <= 16; l++) {
@@ -562,7 +562,7 @@ static int jpeg_huff_decode(bitread_working_state * state, bit_buf_type get_buff
 
 	if(l > 16) {
 		WARNMS(state->cinfo, JWRN_HUFF_BAD_CODE);
-		return 0;       /* fake a zero as the safest result */
+		return 0; /* fake a zero as the safest result */
 	}
 
 	return htbl->pub->huffval[ (int)(code + htbl->valoffset[l]) ];
@@ -722,7 +722,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 		EOBRUN = entropy->saved.EOBRUN; /* only part of saved state we need */
 		/* There is always only one block per MCU */
 		if(EOBRUN)      /* if it's a band of zeroes... */
-			EOBRUN--;  /* ...process it now (we do nothing) */
+			EOBRUN--; /* ...process it now (we do nothing) */
 		else {
 			BITREAD_LOAD_STATE(cinfo, entropy->bitstate);
 			Se = cinfo->Se; // @v9c
@@ -792,7 +792,7 @@ METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	/* Load up working state */
 	BITREAD_LOAD_STATE(cinfo, entropy->bitstate);
 
-	p1 = 1 << cinfo->Al;    /* 1 in the bit position being coded */
+	p1 = 1 << cinfo->Al; /* 1 in the bit position being coded */
 
 	/* Outer loop handles each block in the MCU */
 
@@ -875,9 +875,9 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 						WARNMS(cinfo, JWRN_HUFF_BAD_CODE);
 					CHECK_BIT_BUFFER(br_state, 1, goto undoit);
 					if(GET_BITS(1))
-						s = p1;  /* newly nonzero coef is positive */
+						s = p1; /* newly nonzero coef is positive */
 					else
-						s = m1;  /* newly nonzero coef is negative */
+						s = m1; /* newly nonzero coef is negative */
 				}
 				else {
 					if(r != 15) {
@@ -910,7 +910,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 					}
 					else {
 						if(--r < 0)
-							break;  /* reached target zero coefficient */
+							break; /* reached target zero coefficient */
 					}
 					k++;
 				} while(k <= Se);

@@ -61,7 +61,7 @@ protected:
 		HBUINT16 endGlyphID; /* The last glyph ID in the range described by
 		 * this index entry. Must be >= startGlyphID. */
 		LNNOffsetTo<UnsizedArrayOf<HBUINT8>>
-		svgDoc;         /* Offset from the beginning of the SVG Document Index
+		svgDoc; /* Offset from the beginning of the SVG Document Index
 		 * to an SVG document. Must be non-zero. */
 		HBUINT32 svgDocLength; /* Length of the SVG document.
 		 * Must be non-zero. */
@@ -114,7 +114,7 @@ private:
 protected:
 		HBUINT16 version; /* Table version (starting at 0). */
 		LOffsetTo<SortedArrayOf<SVGDocumentIndexEntry>>
-		svgDocEntries;  /* Offset (relative to the start of the SVG table) to the
+		svgDocEntries; /* Offset (relative to the start of the SVG table) to the
 		 * SVG Documents Index. Must be non-zero. */
 		                /* Array of SVG Document Index Entries. */
 		HBUINT32 reserved; /* Set to 0. */

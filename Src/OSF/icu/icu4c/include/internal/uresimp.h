@@ -86,8 +86,8 @@ struct UResourceBundle {
     Resource fRes;
     bool fHasFallback;
     bool fIsTopLevel;
-    uint32_t fMagic1;   /* For determining if it's a stack object */
-    uint32_t fMagic2;   /* For determining if it's a stack object */
+    uint32_t fMagic1; /* For determining if it's a stack object */
+    uint32_t fMagic2; /* For determining if it's a stack object */
     int32_t fIndex;
     int32_t fSize;
 

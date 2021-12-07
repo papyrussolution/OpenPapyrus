@@ -145,8 +145,8 @@ void mdb_midl_sort(MDB_IDL ids);
 /** An ID2 is an ID/pointer pair.
  */
 typedef struct MDB_ID2 {
-	MDB_ID mid;             /**< The ID */
-	void * mptr;             /**< The pointer */
+	MDB_ID mid; /**< The ID */
+	void * mptr; /**< The pointer */
 } MDB_ID2;
 
 /** An ID2L is an ID2 List, a sorted array of ID2s.
@@ -179,10 +179,10 @@ int mdb_mid2l_append(MDB_ID2L ids, MDB_ID2 * id);
 
 #ifdef MDB_VL32
 typedef struct MDB_ID3 {
-	MDB_ID mid;  /**< The ID */
+	MDB_ID mid; /**< The ID */
 	void * mptr; /**< The pointer */
-	uint mcnt;   /**< Number of pages */
-	uint mref;   /**< Refcounter */
+	uint mcnt; /**< Number of pages */
+	uint mref; /**< Refcounter */
 } MDB_ID3;
 
 typedef MDB_ID3 * MDB_ID3L;

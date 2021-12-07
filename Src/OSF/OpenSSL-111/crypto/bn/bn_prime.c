@@ -508,9 +508,9 @@ static int witness(BIGNUM * w, const BIGNUM * a, const BIGNUM * a1, const BIGNUM
 	if(!BN_mod_exp_mont(w, w, a1_odd, a, ctx, mont)) /* w := w^a1_odd mod a */
 		return -1;
 	if(BN_is_one(w))
-		return 0;       /* probably prime */
+		return 0; /* probably prime */
 	if(BN_cmp(w, a1) == 0)
-		return 0;       /* w == -1 (mod a), 'a' is probably prime */
+		return 0; /* w == -1 (mod a), 'a' is probably prime */
 	while(--k) {
 		if(!BN_mod_mul(w, w, w, a, ctx)) /* w := w^2 mod a */
 			return -1;

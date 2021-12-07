@@ -142,7 +142,7 @@ static void cont_abs(int x, int y)
 
 TERM_PUBLIC void GRASS_options()
 {
-	GnuPlot::OptionsNull();         /* no options to begin with */
+	GnuPlot::OptionsNull(); /* no options to begin with */
 }
 
 TERM_PUBLIC void GRASS_init(GpTermEntry * pThis)
@@ -244,7 +244,7 @@ TERM_PUBLIC void GRASS_text()
 
 	R_flush();
 	R_stabilize();
-	return;                 /* device can't be used as a terminal */
+	return; /* device can't be used as a terminal */
 }
 
 TERM_PUBLIC void GRASS_vector(uint x, uint y)
@@ -315,12 +315,12 @@ TERM_PUBLIC int GRASS_text_angle(int ang)
 	extern int R_text_rotation();
 
 	R_text_rotation((float)ang);
-	return TRUE;            /* GRASS can (?) rotate text */
+	return TRUE; /* GRASS can (?) rotate text */
 }
 
 TERM_PUBLIC int GRASS_justify_text(enum JUSTIFY mode)
 {
-	return FALSE;         /* don't mess with this now */
+	return FALSE; /* don't mess with this now */
 }
 
 TERM_PUBLIC void GRASS_point(uint x, uint y, int point)

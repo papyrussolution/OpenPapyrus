@@ -346,7 +346,7 @@ static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle)
 	cl = 128;
 	size = cl        /* ngx_accept_mutex */
 	    + cl         /* ngx_connection_counter */
-	    + cl;        /* ngx_temp_number */
+	    + cl; /* ngx_temp_number */
 #if (NGX_STAT_STUB)
 	size += cl       /* ngx_stat_accepted */
 	    + cl         /* ngx_stat_handled */
@@ -354,7 +354,7 @@ static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle)
 	    + cl         /* ngx_stat_active */
 	    + cl         /* ngx_stat_reading */
 	    + cl         /* ngx_stat_writing */
-	    + cl;        /* ngx_stat_waiting */
+	    + cl; /* ngx_stat_waiting */
 #endif
 	shm.size = size;
 	ngx_str_set(&shm.name, "nginx_shared_zone");

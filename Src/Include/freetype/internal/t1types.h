@@ -75,10 +75,10 @@ typedef struct  PS_FontExtraRec_ {
 } PS_FontExtraRec;
 
 typedef struct  T1_FontRec_ {
-	PS_FontInfoRec font_info;       /* font info dictionary   */
-	PS_FontExtraRec font_extra;     /* font info extra fields */
-	PS_PrivateRec private_dict;     /* private dictionary     */
-	FT_String*       font_name;     /* top-level dictionary   */
+	PS_FontInfoRec font_info; /* font info dictionary   */
+	PS_FontExtraRec font_extra; /* font info extra fields */
+	PS_PrivateRec private_dict; /* private dictionary     */
+	FT_String*       font_name; /* top-level dictionary   */
 
 	T1_EncodingType encoding_type;
 	T1_EncodingRec encoding;
@@ -93,8 +93,8 @@ typedef struct  T1_FontRec_ {
 	FT_Hash subrs_hash;
 
 	FT_Int num_glyphs;
-	FT_String**      glyph_names;   /* array of glyph names       */
-	FT_Byte**        charstrings;   /* array of glyph charstrings */
+	FT_String**      glyph_names; /* array of glyph names       */
+	FT_Byte**        charstrings; /* array of glyph charstrings */
 	FT_UInt*         charstrings_len;
 
 	FT_Byte paint_type;
@@ -138,7 +138,7 @@ typedef struct  AFM_FontInfoRec_ {
 	FT_Fixed Descender;
 	AFM_TrackKern TrackKerns; /* free if non-NULL */
 	FT_UInt NumTrackKern;
-	AFM_KernPair KernPairs;  /* free if non-NULL */
+	AFM_KernPair KernPairs; /* free if non-NULL */
 	FT_UInt NumKernPair;
 } AFM_FontInfoRec, * AFM_FontInfo;
 

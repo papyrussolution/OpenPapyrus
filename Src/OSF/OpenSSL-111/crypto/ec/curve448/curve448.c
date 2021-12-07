@@ -42,13 +42,13 @@ static void gf_invert(gf y, const gf x, int assert_nonzero)
 {
 	mask_t ret;
 	gf t1, t2;
-	gf_sqr(t1, x);          /* o^2 */
-	ret = gf_isr(t2, t1);   /* +-1/sqrt(o^2) = +-1/o */
+	gf_sqr(t1, x); /* o^2 */
+	ret = gf_isr(t2, t1); /* +-1/sqrt(o^2) = +-1/o */
 	(void)ret;
 	if(assert_nonzero)
 		assert(ret);
 	gf_sqr(t1, t2);
-	gf_mul(t2, t1, x);      /* not direct to y in case of alias. */
+	gf_mul(t2, t1, x); /* not direct to y in case of alias. */
 	gf_copy(y, t2);
 }
 
@@ -60,7 +60,7 @@ static void point_double_internal(curve448_point_t p, const curve448_point_t q, 
 	gf a, b, c, d;
 	gf_sqr(c, q->x);
 	gf_sqr(a, q->y);
-	gf_add_nr(d, c, a);     /* 2+e */
+	gf_add_nr(d, c, a); /* 2+e */
 	gf_add_nr(p->t, q->y, q->x); /* 2+e */
 	gf_sqr(b, p->t);
 	gf_subx_nr(b, b, d, 3); /* 4+e */
@@ -396,7 +396,7 @@ c448_error_t x448_int(uint8_t out[X_PUBLIC_BYTES],
 			sb = -1;
 
 		k_t = (sb >> (t % 8)) & 1;
-		k_t = 0 - k_t;     /* set to all 0s or all 1s */
+		k_t = 0 - k_t; /* set to all 0s or all 1s */
 
 		swap ^= k_t;
 		gf_cond_swap(x2, x3, swap);
@@ -458,7 +458,7 @@ void curve448_point_mul_by_ratio_and_encode_like_x448(uint8_t
 	curve448_point_copy(q, p);
 	gf_invert(q->t, q->x, 0); /* 1/x */
 	gf_mul(q->z, q->t, q->y); /* y/x */
-	gf_sqr(q->y, q->z);     /* (y/x)^2 */
+	gf_sqr(q->y, q->z); /* (y/x)^2 */
 	gf_serialize(out, q->y, 1);
 	curve448_point_destroy(q);
 }
@@ -648,8 +648,7 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 	}
 	else if(i == control_pre[0].power && i >= 0) {
 		pniels_to_pt(combo, precmp_var[control_var[0].addend >> 1]);
-		add_niels_to_pt(combo, curve448_wnaf_base[control_pre[0].addend >> 1],
-		    i);
+		add_niels_to_pt(combo, curve448_wnaf_base[control_pre[0].addend >> 1], i);
 		contv++;
 		contp++;
 	}
@@ -658,38 +657,25 @@ void curve448_base_double_scalarmul_non_secret(curve448_point_t combo,
 		niels_to_pt(combo, curve448_wnaf_base[control_pre[0].addend >> 1]);
 		contp++;
 	}
-
 	for(i--; i >= 0; i--) {
 		int cv = (i == control_var[contv].power);
 		int cp = (i == control_pre[contp].power);
-
 		point_double_internal(combo, combo, i && !(cv || cp));
-
 		if(cv) {
 			assert(control_var[contv].addend);
-
 			if(control_var[contv].addend > 0)
-				add_pniels_to_pt(combo,
-				    precmp_var[control_var[contv].addend >> 1],
-				    i && !cp);
+				add_pniels_to_pt(combo, precmp_var[control_var[contv].addend >> 1], i && !cp);
 			else
-				sub_pniels_from_pt(combo,
-				    precmp_var[(-control_var[contv].addend)
+				sub_pniels_from_pt(combo, precmp_var[(-control_var[contv].addend)
 				    >> 1], i && !cp);
 			contv++;
 		}
-
 		if(cp) {
 			assert(control_pre[contp].addend);
-
 			if(control_pre[contp].addend > 0)
-				add_niels_to_pt(combo,
-				    curve448_wnaf_base[control_pre[contp].addend
-				    >> 1], i);
+				add_niels_to_pt(combo, curve448_wnaf_base[control_pre[contp].addend >> 1], i);
 			else
-				sub_niels_from_pt(combo,
-				    curve448_wnaf_base[(-control_pre
-				    [contp].addend) >> 1], i);
+				sub_niels_from_pt(combo, curve448_wnaf_base[(-control_pre[contp].addend) >> 1], i);
 			contp++;
 		}
 	}
@@ -710,15 +696,12 @@ void curve448_point_destroy(curve448_point_t point)
 	OPENSSL_cleanse(point, sizeof(curve448_point_t));
 }
 
-int X448(uint8_t out_shared_key[56], const uint8_t private_key[56],
-    const uint8_t peer_public_value[56])
+int X448(uint8_t out_shared_key[56], const uint8_t private_key[56], const uint8_t peer_public_value[56])
 {
-	return x448_int(out_shared_key, peer_public_value, private_key)
-	       == C448_SUCCESS;
+	return x448_int(out_shared_key, peer_public_value, private_key) == C448_SUCCESS;
 }
 
-void X448_public_from_private(uint8_t out_public_value[56],
-    const uint8_t private_key[56])
+void X448_public_from_private(uint8_t out_public_value[56], const uint8_t private_key[56])
 {
 	x448_derive_public_key(out_public_value, private_key);
 }

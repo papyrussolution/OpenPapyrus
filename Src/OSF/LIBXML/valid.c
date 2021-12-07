@@ -189,9 +189,9 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
  */
 
 typedef struct _xmlValidState {
-	xmlElement * elemDecl;         /* pointer to the content model */
-	xmlNode * P_Node;                /* pointer to the current node */
-	xmlRegExecCtxtPtr exec;         /* regexp runtime */
+	xmlElement * elemDecl; /* pointer to the content model */
+	xmlNode * P_Node; /* pointer to the current node */
+	xmlRegExecCtxtPtr exec; /* regexp runtime */
 } _xmlValidState;
 
 static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElement * elemDecl, xmlNode * P_Node) 
@@ -263,10 +263,10 @@ static int vstateVPop(xmlValidCtxtPtr ctxt)
 
 typedef struct _xmlValidState {
 	xmlElementContent * cont; /* pointer to the content model subtree */
-	xmlNode * node;        /* pointer to the current node in the list */
-	long occurs;            /* bitfield for multiple occurrences */
-	uchar depth;    /* current depth in the overall tree */
-	uchar state;    /* ROLLBACK_XXX */
+	xmlNode * node; /* pointer to the current node in the list */
+	long occurs; /* bitfield for multiple occurrences */
+	uchar depth; /* current depth in the overall tree */
+	uchar state; /* ROLLBACK_XXX */
 } _xmlValidState;
 
 #define MAX_RECURSE 25000

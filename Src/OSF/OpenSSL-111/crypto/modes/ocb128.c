@@ -391,7 +391,7 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
 		ocb_block_xor(in, pad.c, last_len, out);
 
 		/* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
-		memzero(pad.c, 16);   /* borrow pad */
+		memzero(pad.c, 16); /* borrow pad */
 		memcpy(pad.c, in, last_len);
 		pad.c[last_len] = 0x80;
 		ocb_block16_xor(&pad, &ctx->sess.checksum, &ctx->sess.checksum);
@@ -483,7 +483,7 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 		ocb_block_xor(in, pad.c, last_len, out);
 
 		/* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
-		memzero(pad.c, 16);   /* borrow pad */
+		memzero(pad.c, 16); /* borrow pad */
 		memcpy(pad.c, out, last_len);
 		pad.c[last_len] = 0x80;
 		ocb_block16_xor(&pad, &ctx->sess.checksum, &ctx->sess.checksum);

@@ -1479,7 +1479,7 @@ int __db_tas_mutex_destroy(ENV * env, db_mutex_t mutex)
 	if((ret = __db_pthread_mutex_destroy(env, mutex)) != 0)
 		return ret;
 #endif
-	COMPQUIET(mutexp, 0);        /* MUTEX_DESTROY may not be defined. */
+	COMPQUIET(mutexp, 0); /* MUTEX_DESTROY may not be defined. */
 	return 0;
 }
 //

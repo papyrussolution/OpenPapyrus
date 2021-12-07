@@ -48,7 +48,7 @@ static cairo_xlib_display_t * _cairo_xlib_display_list;
 
 static int _noop_error_handler(Display * display, XErrorEvent * event)
 {
-	return False;           /* return value is ignored */
+	return False; /* return value is ignored */
 }
 
 static void _cairo_xlib_display_finish(void * abstract_display)

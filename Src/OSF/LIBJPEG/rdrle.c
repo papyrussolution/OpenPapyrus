@@ -64,11 +64,11 @@ typedef struct _rle_source_struct * rle_source_ptr;
 typedef struct _rle_source_struct {
 	struct cjpeg_source_struct pub; /* public fields */
 
-	rle_kind visual;        /* actual type of input file */
+	rle_kind visual; /* actual type of input file */
 	jvirt_sarray_ptr image; /* virtual array to hold the image */
-	JDIMENSION row;         /* current row # in the virtual array */
-	rle_hdr header;         /* Input file information */
-	rle_pixel** rle_row;    /* holds a row returned by rle_getrow() */
+	JDIMENSION row; /* current row # in the virtual array */
+	rle_hdr header; /* Input file information */
+	rle_pixel** rle_row; /* holds a row returned by rle_getrow() */
 } rle_source_struct;
 
 /*
@@ -111,7 +111,7 @@ METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 
 	width  = source->header.xmax - source->header.xmin + 1;
 	height = source->header.ymax - source->header.ymin + 1;
-	source->header.xmin = 0;        /* realign horizontally */
+	source->header.xmin = 0; /* realign horizontally */
 	source->header.xmax = width-1;
 
 	cinfo->image_width      = width;

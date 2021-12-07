@@ -701,7 +701,7 @@ static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surf
 	    &cairo_xlib_shm_surface_backend,
 	    other->base.device,
 	    _cairo_content_from_pixman_format(format),
-	    FALSE);              /* is_vector */
+	    FALSE); /* is_vector */
 
 	if(_cairo_xlib_display_acquire(other->base.device, &display))
 		goto cleanup_shm;

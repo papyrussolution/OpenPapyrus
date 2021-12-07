@@ -254,7 +254,7 @@ static void KeccakF1600(uint64_t A[5][5])
  */
 static void Round(uint64_t A[5][5], size_t i)
 {
-	uint64_t C[5], E[2];    /* registers */
+	uint64_t C[5], E[2]; /* registers */
 	uint64_t D[5], T[2][5]; /* memory    */
 
 	assert(i < (sizeof(iotas) / sizeof(iotas[0])));

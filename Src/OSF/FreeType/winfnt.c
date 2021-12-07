@@ -808,7 +808,7 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_in
 	}
 	FT_TRACE1(( "FNT_Load_Glyph: glyph index %d\n", glyph_index ));
 	if(glyph_index > 0)
-		glyph_index--;                 /* revert to real index */
+		glyph_index--; /* revert to real index */
 	else
 		glyph_index = font->header.default_char; /* the `.notdef' glyph  */
 	new_format = FT_BOOL(font->header.version == 0x300);

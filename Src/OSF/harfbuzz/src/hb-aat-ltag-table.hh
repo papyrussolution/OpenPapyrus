@@ -47,7 +47,7 @@ namespace AAT {
 
 protected:
 		NNOffsetTo<UnsizedArrayOf<HBUINT8>>
-		tag;            /* Offset from the start of the table to
+		tag; /* Offset from the start of the table to
 		 * the beginning of the string */
 		HBUINT16 length; /* String length (in bytes) */
 public:
@@ -70,7 +70,7 @@ protected:
 		HBUINT32 version; /* Table version; currently 1 */
 		HBUINT32 flags; /* Table flags; currently none defined */
 		LArrayOf<FTStringRange>
-		tagRanges;      /* Range for each tag's string */
+		tagRanges; /* Range for each tag's string */
 public:
 		DEFINE_SIZE_ARRAY(12, tagRanges);
 	};

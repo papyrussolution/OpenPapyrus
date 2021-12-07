@@ -1617,35 +1617,25 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
     cairo_text_cluster_flags_t * cluster_flags)
 {
 	int num_chars = 0;
-	cairo_int_status_t status;
 	cairo_glyph_t * orig_glyphs;
 	cairo_text_cluster_t * orig_clusters;
-
-	status = scaled_font->status;
+	cairo_int_status_t status = scaled_font->status;
 	if(UNLIKELY(status))
 		return status;
-
 	/* A slew of sanity checks */
-
 	/* glyphs and num_glyphs can't be NULL */
-	if(glyphs     == NULL ||
-	    num_glyphs == NULL) {
+	if(glyphs     == NULL || num_glyphs == NULL) {
 		status = _cairo_error(CAIRO_STATUS_NULL_POINTER);
 		goto BAIL;
 	}
-
 	/* Special case for NULL and -1 */
 	if(utf8 == NULL && utf8_len == -1)
 		utf8_len = 0;
-
 	/* No NULLs for non-NULLs! */
-	if((utf8_len && utf8          == NULL) ||
-	    (clusters && num_clusters  == NULL) ||
-	    (clusters && cluster_flags == NULL)) {
+	if((utf8_len && utf8 == NULL) || (clusters && num_clusters  == NULL) || (clusters && cluster_flags == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NULL_POINTER);
 		goto BAIL;
 	}
-
 	/* A -1 for utf8_len means NUL-terminated */
 	if(utf8_len == -1)
 		utf8_len = strlen(utf8);

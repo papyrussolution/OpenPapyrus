@@ -48,7 +48,7 @@ struct private_data {
 	unsigned long crc;
 	uint32 mtime;
 	char            * name;
-	char eof;             /* True = found end of compressed data. */
+	char eof; /* True = found end of compressed data. */
 };
 
 /* Gzip Filter. */

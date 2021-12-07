@@ -47,12 +47,12 @@ typedef struct __db_globals {
 #endif
 	/* TAILQ_HEAD(__envq, __dbenv) envq; */
 	struct __envq envq;
-	char * db_line;       /* DB display string. */
+	char * db_line; /* DB display string. */
 	char   error_buf[40]; /* Error string buffer. */
-	int    uid_init;      /* srand set in UID generator */
-	ulong rand_next;     /* rand/srand value */
+	int    uid_init; /* srand set in UID generator */
+	ulong rand_next; /* rand/srand value */
 	uint32 fid_serial; /* file id counter */
-	int    db_errno;      /* Errno value if not available */
+	int    db_errno; /* Errno value if not available */
 	size_t num_active_pids;		/* number of entries in active_pids */
 	size_t size_active_pids;	/* allocated size of active_pids */
 	pid_t *active_pids;		/* array active pids */

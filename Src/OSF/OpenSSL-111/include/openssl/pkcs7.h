@@ -49,7 +49,7 @@ typedef struct pkcs7_recip_info_st {
 	PKCS7_ISSUER_AND_SERIAL * issuer_and_serial;
 	X509_ALGOR * key_enc_algor;
 	ASN1_OCTET_STRING * enc_key;
-	X509 * cert;            /* get the pub-key from this */
+	X509 * cert; /* get the pub-key from this */
 } PKCS7_RECIP_INFO;
 
 DEFINE_STACK_OF(PKCS7_RECIP_INFO)
@@ -57,7 +57,7 @@ DEFINE_STACK_OF(PKCS7_RECIP_INFO)
 typedef struct pkcs7_signed_st {
 	ASN1_INTEGER * version; /* version 1 */
 	STACK_OF(X509_ALGOR) *md_algs; /* md used */
-	STACK_OF(X509) *cert;   /* [ 0 ] */
+	STACK_OF(X509) *cert; /* [ 0 ] */
 	STACK_OF(X509_CRL) *crl; /* [ 1 ] */
 	STACK_OF(PKCS7_SIGNER_INFO) *signer_info;
 	struct pkcs7_st * contents;
@@ -81,7 +81,7 @@ typedef struct pkcs7_enveloped_st {
 typedef struct pkcs7_signedandenveloped_st {
 	ASN1_INTEGER * version; /* version 1 */
 	STACK_OF(X509_ALGOR) *md_algs; /* md used */
-	STACK_OF(X509) *cert;   /* [ 0 ] */
+	STACK_OF(X509) *cert; /* [ 0 ] */
 	STACK_OF(X509_CRL) *crl; /* [ 1 ] */
 	STACK_OF(PKCS7_SIGNER_INFO) *signer_info;
 	PKCS7_ENC_CONTENT * enc_data;
@@ -90,7 +90,7 @@ typedef struct pkcs7_signedandenveloped_st {
 
 typedef struct pkcs7_digest_st {
 	ASN1_INTEGER * version; /* version 0 */
-	X509_ALGOR * md;        /* md used */
+	X509_ALGOR * md; /* md used */
 	struct pkcs7_st * contents;
 	ASN1_OCTET_STRING * digest;
 } PKCS7_DIGEST;
@@ -106,7 +106,7 @@ typedef struct pkcs7_st {
 #define PKCS7_S_HEADER  0
 #define PKCS7_S_BODY    1
 #define PKCS7_S_TAIL    2
-	int state;              /* used during processing */
+	int state; /* used during processing */
 	int detached;
 	ASN1_OBJECT * type;
 	/* content as defined by the type */

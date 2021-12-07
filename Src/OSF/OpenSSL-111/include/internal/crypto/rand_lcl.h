@@ -161,11 +161,11 @@ typedef struct rand_drbg_ctr_st {
  * lifetime is intended to be restricted to a single stack frame.
  */
 struct rand_pool_st {
-    uchar *buffer;  /* points to the beginning of the random pool */
+    uchar *buffer; /* points to the beginning of the random pool */
     size_t len; /* current number of random bytes contained in the pool */
 
-    int attached;  /* true pool was attached to existing buffer */
-    int secure;    /* 1: allocated on the secure heap, 0: otherwise */
+    int attached; /* true pool was attached to existing buffer */
+    int secure; /* 1: allocated on the secure heap, 0: otherwise */
 
     size_t min_len; /* minimum number of random bytes requested */
     size_t max_len; /* maximum number of random bytes (allocated buffer size) */

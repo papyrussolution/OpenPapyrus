@@ -86,10 +86,10 @@ static char gStrBuf[256];
 
 // Static data and constants
 
-static const UChar WORLD[] = {0x30, 0x30, 0x31, 0x00};         /* "001" */
+static const UChar WORLD[] = {0x30, 0x30, 0x31, 0x00}; /* "001" */
 
-static const UChar GMT_ID[] = {0x47, 0x4D, 0x54, 0x00};         /* "GMT" */
-static const UChar UNKNOWN_ZONE_ID[] = {0x45, 0x74, 0x63, 0x2F, 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0x00};         /*
+static const UChar GMT_ID[] = {0x47, 0x4D, 0x54, 0x00}; /* "GMT" */
+static const UChar UNKNOWN_ZONE_ID[] = {0x45, 0x74, 0x63, 0x2F, 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0x00}; /*
                                                                                                                             "Etc/Unknown"
        */
 static const int32_t GMT_ID_LENGTH = 3;

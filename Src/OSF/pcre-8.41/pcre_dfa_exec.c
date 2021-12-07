@@ -2400,9 +2400,9 @@ ANYNL03:
 						    cb.capture_last     = -1;
 						    cb.callout_data     = md->callout_data;
 						    cb.mark             = NULL; /* No (*MARK) support */
-						    if((rrc = (*PUBL(callout))(&cb)) < 0) return rrc;  /* Abandon */
+						    if((rrc = (*PUBL(callout))(&cb)) < 0) return rrc; /* Abandon */
 					    }
-					    if(rrc > 0) break;  /* Fail this thread */
+					    if(rrc > 0) break; /* Fail this thread */
 					    code += PRIV(OP_lengths)[OP_CALLOUT]; /* Skip callout data */
 				    }
 
@@ -2721,7 +2721,7 @@ ANYNL03:
 					    cb.capture_last     = -1;
 					    cb.callout_data     = md->callout_data;
 					    cb.mark             = NULL; /* No (*MARK) support */
-					    if((rrc = (*PUBL(callout))(&cb)) < 0) return rrc;  /* Abandon */
+					    if((rrc = (*PUBL(callout))(&cb)) < 0) return rrc; /* Abandon */
 				    }
 				    if(rrc == 0) {
 					    ADD_ACTIVE(state_offset + PRIV(OP_lengths)[OP_CALLOUT], 0);
@@ -3191,7 +3191,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_dfa_exec(const pcre32 * argument_r
 		    offsetcount,       /* size of same */
 		    workspace,         /* workspace vector */
 		    wscount,           /* size of same */
-		    0);                /* function recurse level */
+		    0); /* function recurse level */
 
                 /* Anything other than "no match" means we are done, always; otherwise, carry
                    on only if not anchored. */

@@ -152,16 +152,16 @@ struct UHashtable {
 	UObjectDeleter * keyDeleter; /* Deletes keys when required. If NULL won't do anything */
 	UObjectDeleter * valueDeleter; /* Deletes values when required. If NULL won't do anything */
 	/* Size parameters */
-	int32_t count;  /* The number of key-value pairs in this table. 0 <= count <= length.  In practice we never let count == length (see code). */
+	int32_t count; /* The number of key-value pairs in this table. 0 <= count <= length.  In practice we never let count == length (see code). */
 	int32_t length; /* The physical size of the arrays hashes, keys and values.  Must be prime. */
 	/* Rehashing thresholds */
 	int32_t highWaterMark; /* If count > highWaterMark, rehash */
 	int32_t lowWaterMark; /* If count < lowWaterMark, rehash */
-	float highWaterRatio;   /* 0..1; high water as a fraction of length */
-	float lowWaterRatio;    /* 0..1; low water as a fraction of length */
+	float highWaterRatio; /* 0..1; high water as a fraction of length */
+	float lowWaterRatio; /* 0..1; low water as a fraction of length */
 
-	int8_t primeIndex;      /* Index into our prime table for length. length == PRIMES[primeIndex] */
-	bool allocated;   /* Was this UHashtable allocated? */
+	int8_t primeIndex; /* Index into our prime table for length. length == PRIMES[primeIndex] */
+	bool allocated; /* Was this UHashtable allocated? */
 };
 
 typedef struct UHashtable UHashtable;

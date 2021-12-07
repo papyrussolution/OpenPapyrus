@@ -22,22 +22,22 @@
 struct ossl_store_info_st {
     int type;
     union {
-        void *data;              /* used internally as generic pointer */
+        void *data; /* used internally as generic pointer */
 
         struct {
             BUF_MEM *blob;
             char *pem_name;
-        } embedded;              /* when type == OSSL_STORE_INFO_EMBEDDED */
+        } embedded; /* when type == OSSL_STORE_INFO_EMBEDDED */
 
         struct {
             char *name;
             char *desc;
-        } name;                  /* when type == OSSL_STORE_INFO_NAME */
+        } name; /* when type == OSSL_STORE_INFO_NAME */
 
-        EVP_PKEY *params;        /* when type == OSSL_STORE_INFO_PARAMS */
-        EVP_PKEY *pkey;          /* when type == OSSL_STORE_INFO_PKEY */
-        X509 *x509;              /* when type == OSSL_STORE_INFO_CERT */
-        X509_CRL *crl;           /* when type == OSSL_STORE_INFO_CRL */
+        EVP_PKEY *params; /* when type == OSSL_STORE_INFO_PARAMS */
+        EVP_PKEY *pkey; /* when type == OSSL_STORE_INFO_PKEY */
+        X509 *x509; /* when type == OSSL_STORE_INFO_CERT */
+        X509_CRL *crl; /* when type == OSSL_STORE_INFO_CRL */
     } _;
 };
 

@@ -172,9 +172,9 @@
 	typedef size_t uptrval; // generally true, except OpenVMS-64 
 #endif
 #if defined(__x86_64__)
-	typedef uint64 reg_t;        /* 64-bits in x32 mode */
+	typedef uint64 reg_t; /* 64-bits in x32 mode */
 #else
-	typedef size_t reg_t;     /* 32-bits in x32 mode */
+	typedef size_t reg_t; /* 32-bits in x32 mode */
 #endif
 // 
 // Reading and writing into memory
@@ -427,7 +427,7 @@ LZ4_FORCE_INLINE unsigned LZ4_count(const uint8 * pIn, const uint8 * pMatch, con
 // Local Constants
 //
 static const int LZ4_64Klimit = ((64 KB) + (MFLIMIT-1));
-static const uint32 LZ4_skipTrigger = 6;  /* Increase this value ==> compression run slower on incompressible data */
+static const uint32 LZ4_skipTrigger = 6; /* Increase this value ==> compression run slower on incompressible data */
 // 
 // Local Structures and types
 // 
@@ -463,7 +463,7 @@ typedef enum { noDictIssue = 0, dictSmall } dictIssue_directive;
 // 
 int LZ4_versionNumber(void) { return LZ4_VERSION_NUMBER; }
 const char* LZ4_versionString(void) { return LZ4_VERSION_STRING; }
-int LZ4_compressBound(int isize)  { return LZ4_COMPRESSBOUND(isize); }
+int LZ4_compressBound(int isize) { return LZ4_COMPRESSBOUND(isize); }
 int LZ4_sizeofState() { return LZ4_STREAMSIZE; }
 // 
 // Internal Definitions used in Tests
@@ -657,7 +657,7 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 		return 0; // Unsupported inputSize, too large (or negative)
 	if((tableType == byU16) && (inputSize>=LZ4_64Klimit)) 
 		return 0; // Size too large (not within 64K limit) 
-	if(tableType==byPtr) assert(dictDirective==noDict);   /* only supported use case with byPtr */
+	if(tableType==byPtr) assert(dictDirective==noDict); /* only supported use case with byPtr */
 	assert(acceleration >= 1);
 	lowLimit = (const uint8 *)source - (dictDirective == withPrefix64k ? dictSize : 0);
 	// Update context state 

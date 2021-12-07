@@ -197,7 +197,7 @@ static int get_char(char c, int base)
 	value = cp - valchars;
 
 	if(value >= 10 + 26)
-		value -= 26;    /* Lowercase. */
+		value -= 26; /* Lowercase. */
 #endif
 
 	if(value >= base) {

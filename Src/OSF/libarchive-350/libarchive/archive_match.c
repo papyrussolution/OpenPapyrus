@@ -67,7 +67,7 @@ struct entry_list {
 };
 
 struct id_array {
-	size_t size;                  /* Allocated size */
+	size_t size; /* Allocated size */
 	size_t count;
 	int64                 * ids;
 };

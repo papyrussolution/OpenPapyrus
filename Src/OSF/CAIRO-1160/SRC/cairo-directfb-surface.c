@@ -507,7 +507,7 @@ cairo_surface_t * cairo_directfb_surface_create(IDirectFB * dfb, IDirectFBSurfac
 	    &_cairo_dfb_surface_backend,
 	    NULL,              /* device */
 	    _directfb_format_to_content(format),
-	    FALSE);              /* is_vector */
+	    FALSE); /* is_vector */
 
 	surface->image.pixman_format = pixman_format;
 	surface->image.format = _cairo_format_from_pixman_format(pixman_format);

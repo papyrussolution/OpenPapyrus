@@ -473,7 +473,7 @@ static int __ham_check_move(DBC * dbc, uint32 add_len)
 		new_indx = NDX_INVALID;
 	}
 	/* Move lsn onto page. */
-	LSN(new_pagep) = new_lsn;       /* Structure assignment. */
+	LSN(new_pagep) = new_lsn; /* Structure assignment. */
 	if((ret = __ham_copypair(dbc, (PAGE *)hcp->page, H_KEYINDEX(hcp->indx), new_pagep, &new_indx, 0)) != 0)
 		goto err;
 	/* Update all cursors that used to point to this item. */

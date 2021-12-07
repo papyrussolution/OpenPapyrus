@@ -121,7 +121,7 @@ U_CAPI UDateFormat* U_EXPORT2 udat_open(UDateFormatStyle timeStyle,
     int32_t tzIDLength,
     const UChar * pattern,
     int32_t patternLength,
-    UErrorCode        * status)
+    UErrorCode * status)
 {
 	DateFormat * fmt;
 	if(U_FAILURE(*status)) {
@@ -329,7 +329,7 @@ U_CAPI UDate U_EXPORT2 udat_parse(const UDateFormat*        format,
     const UChar * text,
     int32_t textLength,
     int32_t * parsePos,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return (UDate)0;
 
@@ -361,7 +361,7 @@ U_CAPI void U_EXPORT2 udat_parseCalendar(const UDateFormat*    format,
     const UChar * text,
     int32_t textLength,
     int32_t * parsePos,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return;
 
@@ -475,7 +475,7 @@ U_CAPI int32_t U_EXPORT2 udat_countAvailable()
 }
 
 U_CAPI UDate U_EXPORT2 udat_get2DigitYearStart(const UDateFormat     * fmt,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	verifyIsSimpleDateFormat(fmt, status);
 	if(U_FAILURE(*status)) return (UDate)0;
@@ -484,7 +484,7 @@ U_CAPI UDate U_EXPORT2 udat_get2DigitYearStart(const UDateFormat     * fmt,
 
 U_CAPI void U_EXPORT2 udat_set2DigitYearStart(UDateFormat     * fmt,
     UDate d,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	verifyIsSimpleDateFormat(fmt, status);
 	if(U_FAILURE(*status)) return;
@@ -495,7 +495,7 @@ U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt,
     bool localized,
     UChar * result,
     int32_t resultLength,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return -1;
@@ -553,12 +553,7 @@ U_CAPI void U_EXPORT2 udat_applyPattern(UDateFormat     * format,
 		((SimpleDateFormat*)format)->applyPattern(pat);
 }
 
-U_CAPI int32_t U_EXPORT2 udat_getSymbols(const UDateFormat     * fmt,
-    UDateFormatSymbolType type,
-    int32_t index,
-    UChar                   * result,
-    int32_t resultLength,
-    UErrorCode              * status)
+U_CAPI int32_t U_EXPORT2 udat_getSymbols(const UDateFormat     * fmt, UDateFormatSymbolType type, int32_t index, UChar * result, int32_t resultLength, UErrorCode * status)
 {
 	const DateFormatSymbols * syms;
 	const SimpleDateFormat* sdtfmt;
@@ -1190,7 +1185,7 @@ static void verifyIsRelativeDateFormat(const UDateFormat* fmt, UErrorCode * stat
 U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeDate(const UDateFormat * fmt,
     UChar * result,
     int32_t resultLength,
-    UErrorCode        * status)
+    UErrorCode * status)
 {
 	verifyIsRelativeDateFormat(fmt, status);
 	if(U_FAILURE(*status)) {
@@ -1214,7 +1209,7 @@ U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeDate(const UDateFormat * fmt,
 U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeTime(const UDateFormat * fmt,
     UChar * result,
     int32_t resultLength,
-    UErrorCode        * status)
+    UErrorCode * status)
 {
 	verifyIsRelativeDateFormat(fmt, status);
 	if(U_FAILURE(*status)) {
@@ -1235,7 +1230,7 @@ U_CAPI int32_t U_EXPORT2 udat_toPatternRelativeTime(const UDateFormat * fmt,
 }
 
 U_CAPI void U_EXPORT2 udat_applyPatternRelative(UDateFormat * format, const UChar * datePattern, int32_t datePatternLength,
-    const UChar * timePattern, int32_t timePatternLength, UErrorCode  * status)
+    const UChar * timePattern, int32_t timePatternLength, UErrorCode * status)
 {
 	verifyIsRelativeDateFormat(format, status);
 	if(U_FAILURE(*status)) return;

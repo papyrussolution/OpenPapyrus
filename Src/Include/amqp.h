@@ -358,21 +358,21 @@ struct amqp_field_value_t {
 	uint8 kind; /**< the type of the entry /sa amqp_field_value_kind_t */
 	union V {
 		boolint boolean; /**< boolean type AMQP_FIELD_KIND_BOOLEAN */
-		int8   i8;              /**< int8 type AMQP_FIELD_KIND_I8 */
-		uint8  u8;             /**< uint8 type AMQP_FIELD_KIND_U8 */
-		int16  i16;            /**< int16 type AMQP_FIELD_KIND_I16 */
-		uint16 u16;           /**< uint16 type AMQP_FIELD_KIND_U16 */
-		int32  i32;            /**< int32 type AMQP_FIELD_KIND_I32 */
-		uint32 u32;           /**< uint32 type AMQP_FIELD_KIND_U32 */
-		int64  i64;            /**< int64 type AMQP_FIELD_KIND_I64 */
-		uint64 u64;           /**< uint64 type AMQP_FIELD_KIND_U64, AMQP_FIELD_KIND_TIMESTAMP */
-		float  f32;              /**< float type AMQP_FIELD_KIND_F32 */
-		double f64;             /**< double type AMQP_FIELD_KIND_F64 */
+		int8   i8; /**< int8 type AMQP_FIELD_KIND_I8 */
+		uint8  u8; /**< uint8 type AMQP_FIELD_KIND_U8 */
+		int16  i16; /**< int16 type AMQP_FIELD_KIND_I16 */
+		uint16 u16; /**< uint16 type AMQP_FIELD_KIND_U16 */
+		int32  i32; /**< int32 type AMQP_FIELD_KIND_I32 */
+		uint32 u32; /**< uint32 type AMQP_FIELD_KIND_U32 */
+		int64  i64; /**< int64 type AMQP_FIELD_KIND_I64 */
+		uint64 u64; /**< uint64 type AMQP_FIELD_KIND_U64, AMQP_FIELD_KIND_TIMESTAMP */
+		float  f32; /**< float type AMQP_FIELD_KIND_F32 */
+		double f64; /**< double type AMQP_FIELD_KIND_F64 */
 		amqp_decimal_t decimal; /**< amqp_decimal_t AMQP_FIELD_KIND_DECIMAL */
-		amqp_bytes_t bytes;     /**< amqp_bytes_t type AMQP_FIELD_KIND_UTF8, AMQP_FIELD_KIND_BYTES */
-		amqp_table_t table;     /**< amqp_table_t type AMQP_FIELD_KIND_TABLE */
-		amqp_array_t array;     /**< amqp_array_t type AMQP_FIELD_KIND_ARRAY */
-	} value;                  /**< a union of the value */
+		amqp_bytes_t bytes; /**< amqp_bytes_t type AMQP_FIELD_KIND_UTF8, AMQP_FIELD_KIND_BYTES */
+		amqp_table_t table; /**< amqp_table_t type AMQP_FIELD_KIND_TABLE */
+		amqp_array_t array; /**< amqp_array_t type AMQP_FIELD_KIND_ARRAY */
+	} value; /**< a union of the value */
 };
 /**
  * An entry in a field-table
@@ -461,8 +461,8 @@ struct amqp_frame_t {
 		} properties; // message header, a.k.a., properties, use if frame_type == AMQP_FRAME_HEADER 
 		amqp_bytes_t body_fragment; // a body fragment, use if frame_type == AMQP_FRAME_BODY 
 		struct {
-			uint8 transport_high;         /**< @internal first byte of handshake */
-			uint8 transport_low;          /**< @internal second byte of handshake */
+			uint8 transport_high; /**< @internal first byte of handshake */
+			uint8 transport_low; /**< @internal second byte of handshake */
 			uint8 protocol_version_major; /**< @internal third byte of handshake */
 			uint8 protocol_version_minor; /**< @internal fourth byte of handshake */
 		} protocol_header; // Used only when doing the initial handshake with the broker, don't use otherwise 
@@ -669,11 +669,11 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_CONNECTION_START_METHOD ((amqp_method_number_t)0x000A000A) /**< connection.start method id @internal 10, 10; 655370 */
 	/** connection.start method fields */
 	typedef struct amqp_connection_start_t_ {
-		uint8 version_major;          /**< version-major */
-		uint8 version_minor;          /**< version-minor */
+		uint8 version_major; /**< version-major */
+		uint8 version_minor; /**< version-minor */
 		amqp_table_t server_properties; /**< server-properties */
-		amqp_bytes_t mechanisms;        /**< mechanisms */
-		amqp_bytes_t locales;           /**< locales */
+		amqp_bytes_t mechanisms; /**< mechanisms */
+		amqp_bytes_t locales; /**< locales */
 	} amqp_connection_start_t;
 
 	#define AMQP_CONNECTION_START_OK_METHOD ((amqp_method_number_t)0x000A000B) /**< connection.start-ok method id @internal 10, 11; 655371 */
@@ -682,9 +682,9 @@ enum amqp_delivery_mode_enum {
 	//
 	struct amqp_connection_start_ok_t {
 		amqp_table_t client_properties; /**< client-properties */
-		amqp_bytes_t mechanism;         /**< mechanism */
-		amqp_bytes_t response;          /**< response */
-		amqp_bytes_t locale;            /**< locale */
+		amqp_bytes_t mechanism; /**< mechanism */
+		amqp_bytes_t response; /**< response */
+		amqp_bytes_t locale; /**< locale */
 	};
 
 	#define AMQP_CONNECTION_SECURE_METHOD ((amqp_method_number_t)0x000A0014) /**< connection.secure method id @internal 10, 20; 655380 */
@@ -716,20 +716,20 @@ enum amqp_delivery_mode_enum {
 	
 	struct amqp_connection_tune_t { // connection.tune method fields 
 		uint16 channel_max; /**< channel-max */
-		uint32 frame_max;   /**< frame-max */
-		uint16 heartbeat;   /**< heartbeat */
+		uint32 frame_max; /**< frame-max */
+		uint16 heartbeat; /**< heartbeat */
 	};
 	
 	struct amqp_connection_tune_ok_t { // connection.tune-ok method fields 
 		uint16 channel_max; /**< channel-max */
-		uint32 frame_max;   /**< frame-max */
-		uint16 heartbeat;   /**< heartbeat */
+		uint32 frame_max; /**< frame-max */
+		uint16 heartbeat; /**< heartbeat */
 	};
 	
 	struct amqp_connection_open_t { // connection.open method fields 
 		amqp_bytes_t virtual_host; /**< virtual-host */
 		amqp_bytes_t capabilities; /**< capabilities */
-		boolint insist;     /**< insist */
+		boolint insist; /**< insist */
 	};
 	
 	/** connection.open-ok method fields */
@@ -739,10 +739,10 @@ enum amqp_delivery_mode_enum {
 
 	/** connection.close method fields */
 	typedef struct amqp_connection_close_t_ {
-		uint16 reply_code;     /**< reply-code */
+		uint16 reply_code; /**< reply-code */
 		amqp_bytes_t reply_text; /**< reply-text */
-		uint16 class_id;       /**< class-id */
-		uint16 method_id;      /**< method-id */
+		uint16 class_id; /**< class-id */
+		uint16 method_id; /**< method-id */
 	} amqp_connection_close_t;
 
 	/** connection.close-ok method fields */
@@ -782,10 +782,10 @@ enum amqp_delivery_mode_enum {
 	
 	/** channel.close method fields */
 	typedef struct amqp_channel_close_t_ {
-		uint16 reply_code;     /**< reply-code */
+		uint16 reply_code; /**< reply-code */
 		amqp_bytes_t reply_text; /**< reply-text */
-		uint16 class_id;       /**< class-id */
-		uint16 method_id;      /**< method-id */
+		uint16 class_id; /**< class-id */
+		uint16 method_id; /**< method-id */
 	} amqp_channel_close_t;
 
 	/** channel.close-ok method fields */
@@ -795,12 +795,12 @@ enum amqp_delivery_mode_enum {
 
 	/** access.request method fields */
 	typedef struct amqp_access_request_t_ {
-		amqp_bytes_t realm;       /**< realm */
+		amqp_bytes_t realm; /**< realm */
 		boolint exclusive; /**< exclusive */
-		boolint passive;   /**< passive */
-		boolint active;    /**< active */
-		boolint write;     /**< write */
-		boolint read;      /**< read */
+		boolint passive; /**< passive */
+		boolint active; /**< active */
+		boolint write; /**< write */
+		boolint read; /**< read */
 	} amqp_access_request_t;
 
 	/** access.request-ok method fields */
@@ -811,15 +811,15 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_EXCHANGE_DECLARE_METHOD ((amqp_method_number_t)0x0028000A) /**< exchange.declare method id @internal 40, 10; 2621450 */
 	/** exchange.declare method fields */
 	typedef struct amqp_exchange_declare_t_ {
-		uint16 ticket;            /**< ticket */
-		amqp_bytes_t exchange;      /**< exchange */
-		amqp_bytes_t type;          /**< type */
-		boolint passive;     /**< passive */
-		boolint durable;     /**< durable */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t exchange; /**< exchange */
+		amqp_bytes_t type; /**< type */
+		boolint passive; /**< passive */
+		boolint durable; /**< durable */
 		boolint auto_delete; /**< auto-delete */
-		boolint internal;    /**< internal */
-		boolint nowait;      /**< nowait */
-		amqp_table_t arguments;     /**< arguments */
+		boolint internal; /**< internal */
+		boolint nowait; /**< nowait */
+		amqp_table_t arguments; /**< arguments */
 	} amqp_exchange_declare_t;
 
 	#define AMQP_EXCHANGE_DECLARE_OK_METHOD ((amqp_method_number_t)0x0028000B) /**< exchange.declare-ok method id @internal 40, 11; 2621451 */
@@ -831,10 +831,10 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_EXCHANGE_DELETE_METHOD ((amqp_method_number_t)0x00280014) /**< exchange.delete method id @internal 40, 20; 2621460 */
 	/** exchange.delete method fields */
 	typedef struct amqp_exchange_delete_t_ {
-		uint16 ticket;          /**< ticket */
-		amqp_bytes_t exchange;    /**< exchange */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t exchange; /**< exchange */
 		boolint if_unused; /**< if-unused */
-		boolint nowait;    /**< nowait */
+		boolint nowait; /**< nowait */
 	} amqp_exchange_delete_t;
 
 	#define AMQP_EXCHANGE_DELETE_OK_METHOD ((amqp_method_number_t)0x00280015) /**< exchange.delete-ok method id @internal 40, 21; 2621461 */
@@ -848,12 +848,12 @@ enum amqp_delivery_mode_enum {
 	// Descr: exchange.bind method fields 
 	//
 	struct amqp_exchange_bind_t {
-		uint16 ticket;          /**< ticket */
+		uint16 ticket; /**< ticket */
 		amqp_bytes_t destination; /**< destination */
-		amqp_bytes_t source;      /**< source */
+		amqp_bytes_t source; /**< source */
 		amqp_bytes_t routing_key; /**< routing-key */
-		boolint nowait;    /**< nowait */
-		amqp_table_t arguments;   /**< arguments */
+		boolint nowait; /**< nowait */
+		amqp_table_t arguments; /**< arguments */
 	};
 
 	#define AMQP_EXCHANGE_BIND_OK_METHOD ((amqp_method_number_t)0x0028001F) /**< exchange.bind-ok method id @internal 40, 31; 2621471 */
@@ -867,12 +867,12 @@ enum amqp_delivery_mode_enum {
 	// Descr: exchange.unbind method fields 
 	//
 	struct amqp_exchange_unbind_t {
-		uint16 ticket;          /**< ticket */
+		uint16 ticket; /**< ticket */
 		amqp_bytes_t destination; /**< destination */
-		amqp_bytes_t source;      /**< source */
+		amqp_bytes_t source; /**< source */
 		amqp_bytes_t routing_key; /**< routing-key */
-		boolint nowait;    /**< nowait */
-		amqp_table_t arguments;   /**< arguments */
+		boolint nowait; /**< nowait */
+		amqp_table_t arguments; /**< arguments */
 	};
 
 	#define AMQP_EXCHANGE_UNBIND_OK_METHOD ((amqp_method_number_t)0x00280033) /**< exchange.unbind-ok method id @internal 40, 51; 2621491 */
@@ -884,14 +884,14 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_QUEUE_DECLARE_METHOD ((amqp_method_number_t)0x0032000A) /**< queue.declare method id @internal 50, 10; 3276810 */
 	/** queue.declare method fields */
 	typedef struct amqp_queue_declare_t_ {
-		uint16 ticket;            /**< ticket */
-		amqp_bytes_t queue;         /**< queue */
-		boolint passive;     /**< passive */
-		boolint durable;     /**< durable */
-		boolint exclusive;   /**< exclusive */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
+		boolint passive; /**< passive */
+		boolint durable; /**< durable */
+		boolint exclusive; /**< exclusive */
 		boolint auto_delete; /**< auto-delete */
-		boolint nowait;      /**< nowait */
-		amqp_table_t arguments;     /**< arguments */
+		boolint nowait; /**< nowait */
+		amqp_table_t arguments; /**< arguments */
 	} amqp_queue_declare_t;
 
 	#define AMQP_QUEUE_DECLARE_OK_METHOD ((amqp_method_number_t)0x0032000B) /**< queue.declare-ok method id @internal 50, 11; 3276811 */
@@ -899,20 +899,20 @@ enum amqp_delivery_mode_enum {
 	// Descr: queue.declare-ok method fields 
 	//
 	struct amqp_queue_declare_ok_t {
-		amqp_bytes_t queue;      /**< queue */
-		uint32 message_count;  /**< message-count */
+		amqp_bytes_t queue; /**< queue */
+		uint32 message_count; /**< message-count */
 		uint32 consumer_count; /**< consumer-count */
 	};
 
 	#define AMQP_QUEUE_BIND_METHOD ((amqp_method_number_t)0x00320014) /**< queue.bind method id @internal 50, 20; 3276820 */
 	/** queue.bind method fields */
 	typedef struct amqp_queue_bind_t_ {
-		uint16 ticket;          /**< ticket */
-		amqp_bytes_t queue;       /**< queue */
-		amqp_bytes_t exchange;    /**< exchange */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
+		amqp_bytes_t exchange; /**< exchange */
 		amqp_bytes_t routing_key; /**< routing-key */
-		boolint nowait;    /**< nowait */
-		amqp_table_t arguments;   /**< arguments */
+		boolint nowait; /**< nowait */
+		amqp_table_t arguments; /**< arguments */
 	} amqp_queue_bind_t;
 
 	#define AMQP_QUEUE_BIND_OK_METHOD ((amqp_method_number_t)0x00320015) /**< queue.bind-ok method id @internal 50, 21; 3276821 */
@@ -924,8 +924,8 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_QUEUE_PURGE_METHOD ((amqp_method_number_t)0x0032001E) /**< queue.purge method id @internal 50, 30; 3276830 */
 	/** queue.purge method fields */
 	typedef struct amqp_queue_purge_t_ {
-		uint16 ticket;       /**< ticket */
-		amqp_bytes_t queue;    /**< queue */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
 		boolint nowait; /**< nowait */
 	} amqp_queue_purge_t;
 
@@ -938,11 +938,11 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_QUEUE_DELETE_METHOD ((amqp_method_number_t)0x00320028) /**< queue.delete method id @internal 50, 40; 3276840 */
 	/** queue.delete method fields */
 	typedef struct amqp_queue_delete_t_ {
-		uint16 ticket;          /**< ticket */
-		amqp_bytes_t queue;       /**< queue */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
 		boolint if_unused; /**< if-unused */
-		boolint if_empty;  /**< if-empty */
-		boolint nowait;    /**< nowait */
+		boolint if_empty; /**< if-empty */
+		boolint nowait; /**< nowait */
 	} amqp_queue_delete_t;
 
 	#define AMQP_QUEUE_DELETE_OK_METHOD ((amqp_method_number_t)0x00320029) /**< queue.delete-ok method id @internal 50, 41; 3276841 */
@@ -954,11 +954,11 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_QUEUE_UNBIND_METHOD ((amqp_method_number_t)0x00320032) /**< queue.unbind method id @internal 50, 50; 3276850 */
 	/** queue.unbind method fields */
 	typedef struct amqp_queue_unbind_t_ {
-		uint16 ticket;          /**< ticket */
-		amqp_bytes_t queue;       /**< queue */
-		amqp_bytes_t exchange;    /**< exchange */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
+		amqp_bytes_t exchange; /**< exchange */
 		amqp_bytes_t routing_key; /**< routing-key */
-		amqp_table_t arguments;   /**< arguments */
+		amqp_table_t arguments; /**< arguments */
 	} amqp_queue_unbind_t;
 
 	#define AMQP_QUEUE_UNBIND_OK_METHOD ((amqp_method_number_t)0x00320033) /**< queue.unbind-ok method id @internal 50, 51; 3276851 */
@@ -970,9 +970,9 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_BASIC_QOS_METHOD ((amqp_method_number_t)0x003C000A) /**< basic.qos method id @internal 60, 10; 3932170 */
 	/** basic.qos method fields */
 	typedef struct amqp_basic_qos_t_ {
-		uint32 prefetch_size;  /**< prefetch-size */
+		uint32 prefetch_size; /**< prefetch-size */
 		uint16 prefetch_count; /**< prefetch-count */
-		boolint global;   /**< global */
+		boolint global; /**< global */
 	} amqp_basic_qos_t;
 
 	#define AMQP_BASIC_QOS_OK_METHOD ((amqp_method_number_t)0x003C000B) /**< basic.qos-ok method id @internal 60, 11; 3932171 */
@@ -984,14 +984,14 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_BASIC_CONSUME_METHOD ((amqp_method_number_t)0x003C0014) /**< basic.consume method id @internal 60, 20; 3932180 */
 	/** basic.consume method fields */
 	typedef struct amqp_basic_consume_t_ {
-		uint16 ticket;           /**< ticket */
-		amqp_bytes_t queue;        /**< queue */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
 		amqp_bytes_t consumer_tag; /**< consumer-tag */
-		boolint no_local;   /**< no-local */
-		boolint no_ack;     /**< no-ack */
-		boolint exclusive;  /**< exclusive */
-		boolint nowait;     /**< nowait */
-		amqp_table_t arguments;    /**< arguments */
+		boolint no_local; /**< no-local */
+		boolint no_ack; /**< no-ack */
+		boolint exclusive; /**< exclusive */
+		boolint nowait; /**< nowait */
+		amqp_table_t arguments; /**< arguments */
 	} amqp_basic_consume_t;
 
 	#define AMQP_BASIC_CONSUME_OK_METHOD ((amqp_method_number_t)0x003C0015) /**< basic.consume-ok method id @internal 60, 21; 3932181 */
@@ -1004,7 +1004,7 @@ enum amqp_delivery_mode_enum {
 	/** basic.cancel method fields */
 	typedef struct amqp_basic_cancel_t_ {
 		amqp_bytes_t consumer_tag; /**< consumer-tag */
-		boolint nowait;     /**< nowait */
+		boolint nowait; /**< nowait */
 	} amqp_basic_cancel_t;
 
 	#define AMQP_BASIC_CANCEL_OK_METHOD ((amqp_method_number_t)0x003C001F) /**< basic.cancel-ok method id @internal 60, 31; 3932191 */
@@ -1016,8 +1016,8 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_BASIC_PUBLISH_METHOD ((amqp_method_number_t)0x003C0028) /**< basic.publish method id @internal 60, 40; 3932200 */
 	/** basic.publish method fields */
 	typedef struct amqp_basic_publish_t_ {
-		uint16 ticket;          /**< ticket */
-		amqp_bytes_t exchange;    /**< exchange */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t exchange; /**< exchange */
 		amqp_bytes_t routing_key; /**< routing-key */
 		boolint mandatory; /**< mandatory */
 		boolint immediate; /**< immediate */
@@ -1026,38 +1026,38 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_BASIC_RETURN_METHOD ((amqp_method_number_t)0x003C0032) /**< basic.return method id @internal 60, 50; 3932210 */
 	/** basic.return method fields */
 	typedef struct amqp_basic_return_t_ {
-		uint16 reply_code;      /**< reply-code */
-		amqp_bytes_t reply_text;  /**< reply-text */
-		amqp_bytes_t exchange;    /**< exchange */
+		uint16 reply_code; /**< reply-code */
+		amqp_bytes_t reply_text; /**< reply-text */
+		amqp_bytes_t exchange; /**< exchange */
 		amqp_bytes_t routing_key; /**< routing-key */
 	} amqp_basic_return_t;
 
 	#define AMQP_BASIC_DELIVER_METHOD ((amqp_method_number_t)0x003C003C) /**< basic.deliver method id @internal 60, 60; 3932220 */
 	/** basic.deliver method fields */
 	typedef struct amqp_basic_deliver_t_ {
-		amqp_bytes_t consumer_tag;  /**< consumer-tag */
-		uint64 delivery_tag;      /**< delivery-tag */
+		amqp_bytes_t consumer_tag; /**< consumer-tag */
+		uint64 delivery_tag; /**< delivery-tag */
 		boolint redelivered; /**< redelivered */
-		amqp_bytes_t exchange;      /**< exchange */
-		amqp_bytes_t routing_key;   /**< routing-key */
+		amqp_bytes_t exchange; /**< exchange */
+		amqp_bytes_t routing_key; /**< routing-key */
 	} amqp_basic_deliver_t;
 
 	#define AMQP_BASIC_GET_METHOD ((amqp_method_number_t)0x003C0046) /**< basic.get method id @internal 60, 70; 3932230 */
 	/** basic.get method fields */
 	typedef struct amqp_basic_get_t_ {
-		uint16 ticket;       /**< ticket */
-		amqp_bytes_t queue;    /**< queue */
+		uint16 ticket; /**< ticket */
+		amqp_bytes_t queue; /**< queue */
 		boolint no_ack; /**< no-ack */
 	} amqp_basic_get_t;
 
 	#define AMQP_BASIC_GET_OK_METHOD ((amqp_method_number_t)0x003C0047) /**< basic.get-ok method id @internal 60, 71; 3932231 */
 	/** basic.get-ok method fields */
 	typedef struct amqp_basic_get_ok_t_ {
-		uint64 delivery_tag;      /**< delivery-tag */
+		uint64 delivery_tag; /**< delivery-tag */
 		boolint redelivered; /**< redelivered */
-		amqp_bytes_t exchange;      /**< exchange */
-		amqp_bytes_t routing_key;   /**< routing-key */
-		uint32 message_count;     /**< message-count */
+		amqp_bytes_t exchange; /**< exchange */
+		amqp_bytes_t routing_key; /**< routing-key */
+		uint32 message_count; /**< message-count */
 	} amqp_basic_get_ok_t;
 
 	#define AMQP_BASIC_GET_EMPTY_METHOD ((amqp_method_number_t)0x003C0048) /**< basic.get-empty method id @internal 60, 72; 3932232 */
@@ -1069,14 +1069,14 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_BASIC_ACK_METHOD ((amqp_method_number_t)0x003C0050) /**< basic.ack method id @internal 60, 80; 3932240 */
 	/** basic.ack method fields */
 	typedef struct amqp_basic_ack_t_ {
-		uint64 delivery_tag;   /**< delivery-tag */
+		uint64 delivery_tag; /**< delivery-tag */
 		boolint multiple; /**< multiple */
 	} amqp_basic_ack_t;
 
 	#define AMQP_BASIC_REJECT_METHOD ((amqp_method_number_t)0x003C005A) /**< basic.reject method id @internal 60, 90; 3932250 */
 	/** basic.reject method fields */
 	typedef struct amqp_basic_reject_t_ {
-		uint64 delivery_tag;  /**< delivery-tag */
+		uint64 delivery_tag; /**< delivery-tag */
 		boolint requeue; /**< requeue */
 	} amqp_basic_reject_t;
 
@@ -1101,9 +1101,9 @@ enum amqp_delivery_mode_enum {
 	#define AMQP_BASIC_NACK_METHOD ((amqp_method_number_t)0x003C0078) /**< basic.nack method id @internal 60, 120; 3932280 */
 	/** basic.nack method fields */
 	typedef struct amqp_basic_nack_t_ {
-		uint64 delivery_tag;   /**< delivery-tag */
+		uint64 delivery_tag; /**< delivery-tag */
 		boolint multiple; /**< multiple */
-		boolint requeue;  /**< requeue */
+		boolint requeue; /**< requeue */
 	} amqp_basic_nack_t;
 
 	#define AMQP_TX_SELECT_METHOD ((amqp_method_number_t)0x005A000A) /**< tx.select method id @internal 90, 10; 5898250 */

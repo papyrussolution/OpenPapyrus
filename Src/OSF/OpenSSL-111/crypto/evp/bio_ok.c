@@ -96,11 +96,11 @@ typedef struct ok_struct {
 	size_t buf_off;
 	size_t buf_len_save;
 	size_t buf_off_save;
-	int cont;               /* <= 0 when finished */
+	int cont; /* <= 0 when finished */
 	int finished;
 	EVP_MD_CTX * md;
-	int blockout;           /* output block is ready */
-	int sigio;              /* must process signature */
+	int blockout; /* output block is ready */
+	int sigio; /* must process signature */
 	uchar buf[IOBS];
 } BIO_OK_CTX;
 
@@ -220,7 +220,7 @@ static int ok_read(BIO * b, char * out, int outl)
 		i = BIO_read(next, &(ctx->buf[ctx->buf_len]), n);
 
 		if(i <= 0)
-			break;  /* nothing new */
+			break; /* nothing new */
 
 		ctx->buf_len += i;
 

@@ -1755,7 +1755,7 @@ cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 	    &cairo_win32_printing_surface_backend,
 	    NULL,              /* device */
 	    CAIRO_CONTENT_COLOR_ALPHA,
-	    TRUE);              /* is_vector */
+	    TRUE); /* is_vector */
 	paginated = _cairo_paginated_surface_create(&surface->win32.base, CAIRO_CONTENT_COLOR_ALPHA, &cairo_win32_surface_paginated_backend);
 	/* paginated keeps the only reference to surface now, drop ours */
 	cairo_surface_destroy(&surface->win32.base);

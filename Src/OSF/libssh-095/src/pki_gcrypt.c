@@ -212,7 +212,7 @@ static int asn1_check_sequence(ssh_buffer buffer)
 	if((padding = ssh_buffer_get_len(buffer) - size) > 0) {
 		for(i = ssh_buffer_get_len(buffer) - size, j = (uchar *)ssh_buffer_get(buffer) + size; i; i--, j++) {
 			if(*j != padding) {  /* padding is allowed */
-				return 0;    /* but nothing else */
+				return 0; /* but nothing else */
 			}
 		}
 	}

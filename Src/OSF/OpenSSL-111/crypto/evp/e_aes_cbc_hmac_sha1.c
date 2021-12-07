@@ -21,7 +21,7 @@
 typedef struct {
 	AES_KEY ks;
 	SHA_CTX head, tail, md;
-	size_t payload_length;  /* AAD length in decrypt case */
+	size_t payload_length; /* AAD length in decrypt case */
 	union {
 		uint tls_ver;
 		uchar tls_aad[16]; /* 13 used */
@@ -272,7 +272,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA1 * key,
 		memcpy(blocks[i].c, ptr, off);
 		blocks[i].c[off] = 0x80;
 		len += 64 + 13; /* 64 is HMAC header */
-		len *= 8;       /* convert to bits */
+		len *= 8; /* convert to bits */
 		if(off < (64 - 8)) {
 #ifdef BSWAP4
 			blocks[i].d[15] = BSWAP4(len);
@@ -354,7 +354,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA1 * key,
 		len += pad + 1;
 
 		ciph_d[i].blocks = (len - processed) / 16;
-		len += 16;      /* account for explicit iv */
+		len += 16; /* account for explicit iv */
 
 		/* arrange header */
 		out0[0] = ((u8*)key->md.data)[8];

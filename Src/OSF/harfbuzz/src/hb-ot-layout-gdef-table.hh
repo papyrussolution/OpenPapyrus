@@ -103,10 +103,10 @@ namespace OT {
 
 protected:
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table -- from
+		coverage; /* Offset to Coverage table -- from
 		 * beginning of AttachList table */
 		OffsetArrayOf<AttachPoint>
-		attachPoint;            /* Array of AttachPoint tables
+		attachPoint; /* Array of AttachPoint tables
 		 * in Coverage Index order */
 public:
 		DEFINE_SIZE_ARRAY(4, attachPoint);
@@ -141,7 +141,7 @@ private:
 
 protected:
 		HBUINT16 caretValueFormat; /* Format identifier--format = 1 */
-		FWORD coordinate;       /* X or Y value, in design units */
+		FWORD coordinate; /* X or Y value, in design units */
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
@@ -212,9 +212,9 @@ public:
 
 protected:
 		HBUINT16 caretValueFormat; /* Format identifier--format = 3 */
-		FWORD coordinate;       /* X or Y value, in design units */
+		FWORD coordinate; /* X or Y value, in design units */
 		OffsetTo<Device>
-		deviceTable;            /* Offset to Device table for X or Y
+		deviceTable; /* Offset to Device table for X or Y
 		 * value--from beginning of CaretValue
 		 * table */
 public:
@@ -333,7 +333,7 @@ public:
 
 protected:
 		OffsetArrayOf<CaretValue>
-		carets;                 /* Offset array of CaretValue tables
+		carets; /* Offset array of CaretValue tables
 		 * --from beginning of LigGlyph table
 		 * --in increasing coordinate order */
 public:
@@ -399,10 +399,10 @@ public:
 
 protected:
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of LigCaretList table */
 		OffsetArrayOf<LigGlyph>
-		ligGlyph;               /* Array of LigGlyph tables
+		ligGlyph; /* Array of LigGlyph tables
 		 * in Coverage Index order */
 public:
 		DEFINE_SIZE_ARRAY(4, ligGlyph);
@@ -447,9 +447,9 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		ArrayOf<LOffsetTo<Coverage>>
-		coverage;               /* Array of long offsets to mark set
+		coverage; /* Array of long offsets to mark set
 		 * coverage tables */
 public:
 		DEFINE_SIZE_ARRAY(4, coverage);
@@ -705,31 +705,31 @@ public:
 		}
 
 protected:
-		FixedVersion<>version;  /* Version of the GDEF table--currently
+		FixedVersion<>version; /* Version of the GDEF table--currently
 		 * 0x00010003u */
 		OffsetTo<ClassDef>
-		glyphClassDef;          /* Offset to class definition table
+		glyphClassDef; /* Offset to class definition table
 		 * for glyph type--from beginning of
 		 * GDEF header (may be Null) */
 		OffsetTo<AttachList>
-		attachList;             /* Offset to list of glyphs with
+		attachList; /* Offset to list of glyphs with
 		 * attachment points--from beginning
 		 * of GDEF header (may be Null) */
 		OffsetTo<LigCaretList>
-		ligCaretList;           /* Offset to list of positioning points
+		ligCaretList; /* Offset to list of positioning points
 		 * for ligature carets--from beginning
 		 * of GDEF header (may be Null) */
 		OffsetTo<ClassDef>
-		markAttachClassDef;     /* Offset to class definition table for
+		markAttachClassDef; /* Offset to class definition table for
 		 * mark attachment type--from beginning
 		 * of GDEF header (may be Null) */
 		OffsetTo<MarkGlyphSets>
-		markGlyphSetsDef;       /* Offset to the table of mark set
+		markGlyphSetsDef; /* Offset to the table of mark set
 		 * definitions--from beginning of GDEF
 		 * header (may be NULL).  Introduced
 		 * in version 0x00010002. */
 		LOffsetTo<VariationStore>
-		varStore;               /* Offset to the table of Item Variation
+		varStore; /* Offset to the table of Item Variation
 		 * Store--from beginning of GDEF
 		 * header (may be NULL).  Introduced
 		 * in version 0x00010003. */

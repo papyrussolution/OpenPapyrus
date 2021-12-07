@@ -115,7 +115,7 @@ protected:
 		 * representation of delta-set indices. */
 		HBUINT16 mapCount; /* The number of mapping entries. */
 		UnsizedArrayOf<HBUINT8>
-		mapDataZ;       /* The delta-set index mapping data. */
+		mapDataZ; /* The delta-set index mapping data. */
 
 public:
 		DEFINE_SIZE_ARRAY(4, mapDataZ);
@@ -396,13 +396,13 @@ protected:
 		FixedVersion<>version; /* Version of the metrics variation table
 		 * initially set to 0x00010000u */
 		LOffsetTo<VariationStore>
-		varStore;       /* Offset to item variation store table. */
+		varStore; /* Offset to item variation store table. */
 		LOffsetTo<DeltaSetIndexMap>
-		advMap;         /* Offset to advance var-idx mapping. */
+		advMap; /* Offset to advance var-idx mapping. */
 		LOffsetTo<DeltaSetIndexMap>
-		lsbMap;         /* Offset to lsb/tsb var-idx mapping. */
+		lsbMap; /* Offset to lsb/tsb var-idx mapping. */
 		LOffsetTo<DeltaSetIndexMap>
-		rsbMap;         /* Offset to rsb/bsb var-idx mapping. */
+		rsbMap; /* Offset to rsb/bsb var-idx mapping. */
 
 public:
 		DEFINE_SIZE_STATIC(20);
@@ -450,7 +450,7 @@ public:
 
 protected:
 		LOffsetTo<DeltaSetIndexMap>
-		vorgMap;        /* Offset to vertical-origin var-idx mapping. */
+		vorgMap; /* Offset to vertical-origin var-idx mapping. */
 
 public:
 		DEFINE_SIZE_STATIC(24);

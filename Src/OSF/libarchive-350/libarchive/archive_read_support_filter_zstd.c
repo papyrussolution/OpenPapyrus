@@ -44,8 +44,8 @@ struct private_data {
 	uchar   * out_block;
 	size_t out_block_size;
 	int64 total_out;
-	char in_frame;             /* True = in the middle of a zstd frame. */
-	char eof;             /* True = found end of compressed data. */
+	char in_frame; /* True = in the middle of a zstd frame. */
+	char eof; /* True = found end of compressed data. */
 };
 
 /* Zstd Filter. */
@@ -99,7 +99,7 @@ static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	const unsigned zstd_magic = 0xFD2FB528U;
 	const unsigned zstd_magic_skippable_start = 0x184D2A50U;
 	const unsigned zstd_magic_skippable_mask = 0xFFFFFFF0;
-	(void)self;  /* UNUSED */
+	(void)self; /* UNUSED */
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 4, &avail);
 	if(buffer == NULL)
 		return 0;

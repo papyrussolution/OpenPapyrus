@@ -430,7 +430,7 @@ static void PICT2E_linesize()
 	}
 	_Pict2E.pict2e_size = size;
 	_Pict2E.pict2e_dotsize = static_cast<float>(size / PICT2E_UNIT);
-	_Pict2E.pict2e_moved = TRUE;            /* reset */
+	_Pict2E.pict2e_moved = TRUE; /* reset */
 }
 
 TERM_PUBLIC void PICT2E_linetype(GpTermEntry * pThis, int linetype)
@@ -538,9 +538,9 @@ static void PICT2E_dot_line(int x1, int x2, int y1, int y2)
 	}
 	else {
 		float dotspace = static_cast<float>(_Pict2E.pict2e_dotspace / PICT2E_UNIT);
-		float x, y;     /* current position */
+		float x, y; /* current position */
 		float xinc, yinc; /* increments */
-		float slope;    /* slope of line */
+		float slope; /* slope of line */
 		float lastx = -1; /* last x point plotted */
 		float lasty = -1; /* last y point plotted */
 		int numdots = 0; /* number of dots in this section */

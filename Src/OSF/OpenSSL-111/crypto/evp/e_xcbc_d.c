@@ -18,7 +18,7 @@ static int desx_cbc_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const ucha
 static int desx_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl);
 
 typedef struct {
-	DES_key_schedule ks;    /* key schedule */
+	DES_key_schedule ks; /* key schedule */
 	DES_cblock inw;
 	DES_cblock outw;
 } DESX_CBC_KEY;

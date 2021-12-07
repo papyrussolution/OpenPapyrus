@@ -43,7 +43,7 @@ const mi_page_t _mi_page_empty = {
 #endif
 
 // Empty page queues for every bin
-#define QNULL(sz)  { NULL, NULL, (sz)*sizeof(uintptr_t) }
+#define QNULL(sz) { NULL, NULL, (sz)*sizeof(uintptr_t) }
 #define MI_PAGE_QUEUES_EMPTY \
 	{ QNULL(1), \
 	  QNULL(1), QNULL(2), QNULL(3), QNULL(4), QNULL(5), QNULL(6), QNULL(7), QNULL(8), /* 8 */ \
@@ -58,7 +58,7 @@ const mi_page_t _mi_page_empty = {
 	  QNULL(MI_LARGE_OBJ_WSIZE_MAX + 1 /* 655360, Huge queue */), \
 	  QNULL(MI_LARGE_OBJ_WSIZE_MAX + 2) /* Full queue */ }
 
-#define MI_STAT_COUNT_NULL()  {0, 0, 0, 0}
+#define MI_STAT_COUNT_NULL() {0, 0, 0, 0}
 
 // Empty statistics
 #if MI_STAT>1
@@ -358,7 +358,7 @@ static void _mi_thread_done(mi_heap_t* heap) {
 	if(_mi_heap_done(heap)) return; // returns true if already ran
 }
 
-void _mi_heap_set_default_direct(mi_heap_t* heap)  {
+void _mi_heap_set_default_direct(mi_heap_t* heap) {
 	mi_assert_internal(heap != NULL);
   #if defined(MI_TLS_SLOT)
 	mi_tls_slot_set(MI_TLS_SLOT, heap);

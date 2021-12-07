@@ -81,10 +81,10 @@
 
   /* The data structure... */
   typedef struct {
-    int32_t digits;      /* Count of digits in the coefficient; >0    */
-    int32_t exponent;    /* Unadjusted exponent, unbiased, in         */
+    int32_t digits; /* Count of digits in the coefficient; >0    */
+    int32_t exponent; /* Unadjusted exponent, unbiased, in         */
                          /* range: -1999999997 through 999999999      */
-    uint8_t bits;        /* Indicator bits (see above)       */
+    uint8_t bits; /* Indicator bits (see above)       */
                          /* Coefficient, from least significant unit  */
     decNumberUnit lsu[DECNUMUNITS];
     } decNumber;

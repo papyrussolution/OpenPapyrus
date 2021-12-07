@@ -75,7 +75,7 @@ public:
 
 protected:
 		Lookup<OffsetTo<OpticalBounds>>
-		lookupTable;    /* Lookup table associating glyphs with the four
+		lookupTable; /* Lookup table associating glyphs with the four
 		 * int16 values for the left-side, top-side,
 		 * right-side, and bottom-side optical bounds. */
 public:
@@ -108,7 +108,7 @@ public:
 		}
 protected:
 		Lookup<OffsetTo<OpticalBounds>>
-		lookupTable;    /* Lookup table associating glyphs with the four
+		lookupTable; /* Lookup table associating glyphs with the four
 		 * int16 values for the left-side, top-side,
 		 * right-side, and bottom-side optical bounds. */
 public:

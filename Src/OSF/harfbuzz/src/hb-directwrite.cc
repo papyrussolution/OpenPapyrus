@@ -67,7 +67,7 @@ public:
 	{
 		return S_OK;
 	}
-	IFACEMETHOD_(ULONG, AddRef) ()  {
+	IFACEMETHOD_(ULONG, AddRef) () {
 		return 1;
 	}
 	IFACEMETHOD_(ULONG, Release) () { return 1; }
@@ -100,7 +100,7 @@ public:
 	{
 		return S_OK;
 	}
-	IFACEMETHOD_(ULONG, AddRef) ()  {
+	IFACEMETHOD_(ULONG, AddRef) () {
 		return 1;
 	}
 	IFACEMETHOD_(ULONG, Release) () {

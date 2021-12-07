@@ -1929,7 +1929,7 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 		SSLfatal(s, ssl_x509err2alert(s->verify_result), SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_CERTIFICATE_VERIFY_FAILED);
 		goto err;
 	}
-	ERR_clear_error();      /* but we keep s->verify_result */
+	ERR_clear_error(); /* but we keep s->verify_result */
 	if(i > 1) {
 		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, i);
 		goto err;

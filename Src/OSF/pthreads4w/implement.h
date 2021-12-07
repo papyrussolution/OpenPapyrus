@@ -151,11 +151,11 @@ typedef struct __ptw32_thread_t_ __ptw32_thread_t;
 
 struct __ptw32_thread_t_ {
 	unsigned __int64 seqNumber; /* Process-unique thread sequence number */
-	HANDLE threadH;         /* Win32 thread handle - POSIX thread is invalid if threadH == 0 */
-	pthread_t ptHandle;     /* This thread's permanent pthread_t handle */
+	HANDLE threadH; /* Win32 thread handle - POSIX thread is invalid if threadH == 0 */
+	pthread_t ptHandle; /* This thread's permanent pthread_t handle */
 	__ptw32_thread_t * prevReuse; /* Links threads on reuse stack */
 	volatile PThreadState state;
-	__ptw32_mcs_lock_t threadLock;  /* Used for serialised access to public thread state */
+	__ptw32_mcs_lock_t threadLock; /* Used for serialised access to public thread state */
 	__ptw32_mcs_lock_t stateLock; /* Used for async-cancel safety */
 	HANDLE cancelEvent;
 	void * exitStatus;
@@ -163,28 +163,28 @@ struct __ptw32_thread_t_ {
 	void * keys;
 	void * nextAssoc;
 #if defined(__PTW32_CLEANUP_C)
-	jmp_buf start_mark;     /* Jump buffer follows void * so should be aligned */
+	jmp_buf start_mark; /* Jump buffer follows void * so should be aligned */
 #endif                          /* __PTW32_CLEANUP_C */
 #if defined(HAVE_SIGSET_T)
 	sigset_t sigmask;
 #endif                          /* HAVE_SIGSET_T */
-	__ptw32_mcs_lock_t robustMxListLock;   /* robustMxList lock */
-	__ptw32_robust_node_t* robustMxList;       /* List of currenty held robust mutexes */
+	__ptw32_mcs_lock_t robustMxListLock; /* robustMxList lock */
+	__ptw32_robust_node_t* robustMxList; /* List of currenty held robust mutexes */
 	int ptErrno;
 	int detachState;
-	int sched_priority;     /* As set, not as currently is */
+	int sched_priority; /* As set, not as currently is */
 	int cancelState;
 	int cancelType;
 	int implicit : 1;
-	DWORD thread;           /* Windows thread ID */
+	DWORD thread; /* Windows thread ID */
 #if defined(HAVE_CPU_AFFINITY)
-	size_t cpuset;          /* Thread CPU affinity set */
+	size_t cpuset; /* Thread CPU affinity set */
 #endif
-	char * name;            /* Thread name */
+	char * name; /* Thread name */
 #if defined(_UWIN)
 	DWORD dummy[5];
 #endif
-	size_t align;           /* Force alignment if this struct is packed */
+	size_t align; /* Force alignment if this struct is packed */
 };
 /*
  * Special value to mark attribute objects as valid.
@@ -230,7 +230,7 @@ struct pthread_mutex_t_ {
 	LONG lock_idx; // Provides exclusive access to mutex state via the Interlocked* mechanism.
 		// 0: unlocked/free; 1: locked - no other waiters; -1: locked - with possible other waiters.
 	int recursive_count; // Number of unlocks a thread needs to perform before the lock is released (recursive mutexes only). 
-	int kind;               /* Mutex type. */
+	int kind; /* Mutex type. */
 	pthread_t ownerThread;
 	HANDLE event; // Mutex release notification to waiting threads. 
 	__ptw32_robust_node_t* robustNode; // Extra state for robust mutexes 
@@ -283,9 +283,9 @@ struct pthread_mutexattr_t_ {
 #define  __PTW32_SPIN_USE_MUTEX   (3)
 
 struct pthread_spinlock_t_ {
-	long interlock;         /* Locking element for multi-cpus. */
+	long interlock; /* Locking element for multi-cpus. */
 	union {
-		int cpus;       /* No. of cpus if multi cpus, or   */
+		int cpus; /* No. of cpus if multi cpus, or   */
 		pthread_mutex_t mutex; /* mutex if single cpu.            */
 	} u;
 };
@@ -296,9 +296,9 @@ struct pthread_spinlock_t_ {
 struct __ptw32_mcs_node_t_ {
 	struct __ptw32_mcs_node_t_ ** lock; /* ptr to tail of queue */
 	struct __ptw32_mcs_node_t_  * next; /* ptr to successor in queue */
-	HANDLE readyFlag;                 /* set after lock is released by
+	HANDLE readyFlag; /* set after lock is released by
 	                                     predecessor */
-	HANDLE nextFlag;                  /* set after 'next' ptr is set by
+	HANDLE nextFlag; /* set after 'next' ptr is set by
 	                                     successor */
 };
 
@@ -331,18 +331,18 @@ struct ThreadParms {
 };
 
 struct pthread_cond_t_ {
-	long nWaitersBlocked;   /* Number of threads blocked            */
-	long nWaitersGone;      /* Number of threads timed out          */
+	long nWaitersBlocked; /* Number of threads blocked            */
+	long nWaitersGone; /* Number of threads timed out          */
 	long nWaitersToUnblock; /* Number of threads to unblock         */
-	sem_t semBlockQueue;    /* Queue up threads waiting for the     */
+	sem_t semBlockQueue; /* Queue up threads waiting for the     */
 	/*   condition to become signalled      */
-	sem_t semBlockLock;     /* Semaphore that guards access to      */
+	sem_t semBlockLock; /* Semaphore that guards access to      */
 	/* | waiters blocked count/block queue  */
 	/* +-> Mandatory Sync.LEVEL-1           */
 	pthread_mutex_t mtxUnblockLock; /* Mutex that guards access to          */
 	/* | waiters (to)unblock(ed) counts     */
 	/* +-> Optional* Sync.LEVEL-2           */
-	pthread_cond_t next;    /* Doubly linked list                   */
+	pthread_cond_t next; /* Doubly linked list                   */
 	pthread_cond_t prev;
 };
 

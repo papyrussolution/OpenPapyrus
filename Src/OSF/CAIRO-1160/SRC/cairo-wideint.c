@@ -178,7 +178,7 @@ cairo_uint64_t _cairo_uint32x32_64_mul(uint32 a, uint32 b)
 	r3 = (uint32)ah * bh;
 
 	r1 += uint32_hi(r0); /* no carry possible */
-	r1 += r2;           /* but this can carry */
+	r1 += r2; /* but this can carry */
 	if(r1 < r2)         /* check */
 		r3 += uint32_carry16;
 
@@ -421,7 +421,7 @@ cairo_uint128_t _cairo_uint64x64_128_mul(cairo_uint64_t a, cairo_uint64_t b)
 	r3 = _cairo_uint32x32_64_mul(ah, bh);
 
 	r1 = _cairo_uint64_add(r1, uint64_hi(r0)); /* no carry possible */
-	r1 = _cairo_uint64_add(r1, r2);             /* but this can carry */
+	r1 = _cairo_uint64_add(r1, r2); /* but this can carry */
 	if(_cairo_uint64_lt(r1, r2))                /* check */
 		r3 = _cairo_uint64_add(r3, uint64_carry32);
 	s.hi = _cairo_uint64_add(r3, uint64_hi(r1));

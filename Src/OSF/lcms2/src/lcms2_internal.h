@@ -118,7 +118,7 @@
 // Code analysis is broken on asserts
 #ifdef _MSC_VER
 #    if(_MSC_VER >= 1500)
-#define _cmsAssert(a)  { assert((a)); __analysis_assume((a)); }
+#define _cmsAssert(a) { assert((a)); __analysis_assume((a)); }
 #     else
 #define _cmsAssert(a)   assert((a))
 #     endif

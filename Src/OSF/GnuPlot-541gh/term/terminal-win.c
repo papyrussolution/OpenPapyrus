@@ -156,7 +156,7 @@ int WIN_inifontsize = WINFONTSIZE;
 static path_points WIN_poly = {0, 0, NULL};
 
 static void WIN_add_path_point(path_points * poly, int x, int y);
-static bool WIN_docked = FALSE;  /* docked window option is "sticky" */
+static bool WIN_docked = FALSE; /* docked window option is "sticky" */
 
 static void WIN_add_path_point(path_points * poly, int x, int y)
 {
@@ -710,7 +710,7 @@ TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number)
 	/* draw point shapes later to save memory */
 	/* HBB 20010411: secure against pointtype -1 or lower */
 	if(number < -1)
-		number = -1;            /* refuse nonsense values */
+		number = -1; /* refuse nonsense values */
 	if(number >= 0)
 		number %= WIN_POINT_TYPES;
 	number += 1;

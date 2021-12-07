@@ -52,13 +52,13 @@
 struct zbar_scanner_s {
 	zbar_decoder_t * decoder; /* associated bar width decoder */
 	uint y1_min_thresh; /* minimum threshold */
-	uint x;         /* relative scan position of next sample */
-	int y0[4];          /* short circular buffer of average intensities */
-	int y1_sign;        /* slope at last crossing */
+	uint x; /* relative scan position of next sample */
+	int y0[4]; /* short circular buffer of average intensities */
+	int y1_sign; /* slope at last crossing */
 	uint y1_thresh; /* current slope threshold */
-	uint cur_edge;  /* interpolated position of tracking edge */
+	uint cur_edge; /* interpolated position of tracking edge */
 	uint last_edge; /* interpolated position of last located edge */
-	uint width;     /* last element width */
+	uint width; /* last element width */
 };
 
 zbar_scanner_t * zbar_scanner_create(zbar_decoder_t * dcode)

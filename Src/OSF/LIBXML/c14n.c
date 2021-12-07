@@ -25,10 +25,10 @@ typedef enum {
 } xmlC14NPosition;
 
 typedef struct _xmlC14NVisibleNsStack {
-	int nsCurEnd;       /* number of nodes in the set */
-	int nsPrevStart;    /* the begginning of the stack for previous visible node */
-	int nsPrevEnd;      /* the end of the stack for previous visible node */
-	int nsMax;          /* size of the array as allocated */
+	int nsCurEnd; /* number of nodes in the set */
+	int nsPrevStart; /* the begginning of the stack for previous visible node */
+	int nsPrevEnd; /* the end of the stack for previous visible node */
+	int nsMax; /* size of the array as allocated */
 	xmlNs ** nsTab; // array of ns in no particular order 
 	xmlNode ** PP_NodeTab; // array of nodes in no particular order 
 } xmlC14NVisibleNsStack, * xmlC14NVisibleNsStackPtr;

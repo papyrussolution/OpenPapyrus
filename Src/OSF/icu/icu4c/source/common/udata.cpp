@@ -95,7 +95,7 @@ static UDataMemory * gCommonICUDataArray[10] = { NULL };   // Access protected b
 
 static u_atomic_int32_t gHaveTriedToLoadCommonData = ATOMIC_INT32_T_INITIALIZER(0);  //  See extendICUData().
 
-static UHashtable  * gCommonDataCache = NULL;  /* Global hash table of opened ICU data files.  */
+static UHashtable  * gCommonDataCache = NULL; /* Global hash table of opened ICU data files.  */
 static icu::UInitOnce gCommonDataCacheInitOnce = U_INITONCE_INITIALIZER;
 
 #if !defined(ICU_DATA_DIR_WINDOWS)
@@ -122,7 +122,7 @@ static bool U_CALLCONV udata_cleanup(void)
 	}
 	gHaveTriedToLoadCommonData = 0;
 
-	return TRUE;               /* Everything was cleaned up */
+	return TRUE; /* Everything was cleaned up */
 }
 
 static bool U_CALLCONV findCommonICUDataByName(const char * inBasename, UErrorCode &err)
@@ -257,9 +257,9 @@ typedef struct DataCacheElement {
  */
 static void U_CALLCONV DataCacheElement_deleter(void * pDCEl) {
 	DataCacheElement * p = (DataCacheElement*)pDCEl;
-	udata_close(p->item);          /* unmaps storage */
-	uprv_free(p->name);            /* delete the hash key string. */
-	uprv_free(pDCEl);              /* delete 'this' */
+	udata_close(p->item); /* unmaps storage */
+	uprv_free(p->name); /* delete the hash key string. */
+	uprv_free(pDCEl); /* delete 'this' */
 }
 
 static void U_CALLCONV udata_initHashTable(UErrorCode &err) {
@@ -397,18 +397,18 @@ public:
 
 private:
 	const char * path;                         /* working path (u_icudata_Dir) */
-	const char * nextPath;                     /* path following this one */
-	const char * basename;                     /* item's basename (icudt22e_mt.res)*/
+	const char * nextPath; /* path following this one */
+	const char * basename; /* item's basename (icudt22e_mt.res)*/
 
-	StringPiece suffix;                        /* item suffix (can be null) */
+	StringPiece suffix; /* item suffix (can be null) */
 
-	uint32_t basenameLen;                      /* length of basename */
+	uint32_t basenameLen; /* length of basename */
 
-	CharString itemPath;                       /* path passed in with item name */
-	CharString pathBuffer;                     /* output path for this it'ion */
+	CharString itemPath; /* path passed in with item name */
+	CharString pathBuffer; /* output path for this it'ion */
 	CharString packageStub;                    /* example:  "/icudt28b". Will ignore that leaf in set paths. */
 
-	bool checkLastFour;                       /* if TRUE then allow paths such as '/foo/myapp.dat'
+	bool checkLastFour; /* if TRUE then allow paths such as '/foo/myapp.dat'
 	       * to match, checks last 4 chars of suffix with
 	       * last 4 of path, then previous chars. */
 };
@@ -837,7 +837,7 @@ static bool extendICUData(UErrorCode * pErr)
 			didUpdate = /* no longer using this result */
 			    setCommonICUData(&copyPData,/*  The new common data.     */
 				FALSE,    /*  No warnings if write didn't happen         */
-				pErr);    /*  setCommonICUData honors errors; NOP if error set    */
+				pErr); /*  setCommonICUData honors errors; NOP if error set    */
 		}
 
 		umtx_storeRelease(gHaveTriedToLoadCommonData, 1);
@@ -852,7 +852,7 @@ static bool extendICUData(UErrorCode * pErr)
 #if MAP_IMPLEMENTATION==MAP_STDIO
 	umtx_unlock(&extendICUDataMutex);
 #endif
-	return didUpdate;           /* Return true if ICUData pointer was updated.   */
+	return didUpdate; /* Return true if ICUData pointer was updated.   */
 	                            /*   (Could potentially have been done by another thread racing */
 	                            /*   us through here, but that's fine, we still return true    */
 	                            /*   so that current thread will also examine extended data.   */
@@ -934,7 +934,7 @@ static UDataMemory * checkDataItem(const DataHeader  * pHeader,         /* The d
     UErrorCode        * fatalErr     /* Bad error, caller should return immediately */
     )
 {
-	UDataMemory  * rDataMem = NULL;     /* the new UDataMemory, to be returned.        */
+	UDataMemory  * rDataMem = NULL; /* the new UDataMemory, to be returned.        */
 
 	if(U_FAILURE(*fatalErr)) {
 		return NULL;

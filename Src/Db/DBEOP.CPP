@@ -138,12 +138,12 @@ DBE & __stdcall operator - (DBItem & i1, DBItem & i2) { return binary_op(i1, i2,
 DBE & __stdcall operator * (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_mult);  }
 DBE & __stdcall operator / (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_div);   }
 DBE & __stdcall operator % (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_rem);   }
-DBE & __stdcall operator + (DBItem & i,  double  r)  { return binary_op(i,  r,  op_plus);  }
-DBE & __stdcall operator - (DBItem & i,  double  r)  { return binary_op(i,  r,  op_minus); }
-DBE & __stdcall operator * (DBItem & i,  double  r)  { return binary_op(i,  r,  op_mult);  }
-DBE & __stdcall operator / (DBItem & i,  double  r)  { return binary_op(i,  r,  op_div);   }
-DBE & __stdcall operator % (DBItem & i,  long    l)  { return binary_op(i,  l,  op_rem);   }
-DBE & __stdcall operator & (DBItem & i,  long    l)  { return binary_op(i,  l,  op_bw_and); }
+DBE & __stdcall operator + (DBItem & i,  double  r) { return binary_op(i,  r,  op_plus);  }
+DBE & __stdcall operator - (DBItem & i,  double  r) { return binary_op(i,  r,  op_minus); }
+DBE & __stdcall operator * (DBItem & i,  double  r) { return binary_op(i,  r,  op_mult);  }
+DBE & __stdcall operator / (DBItem & i,  double  r) { return binary_op(i,  r,  op_div);   }
+DBE & __stdcall operator % (DBItem & i,  long    l) { return binary_op(i,  l,  op_rem);   }
+DBE & __stdcall operator & (DBItem & i,  long    l) { return binary_op(i,  l,  op_bw_and); }
 DBE & __stdcall operator & (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_bw_and); }
 DBE & __stdcall operator + (double  r,  DBItem & i) { return binary_op(r,  i,  op_plus);  }
 DBE & __stdcall operator - (double  r,  DBItem & i) { return binary_op(r,  i,  op_minus); }
@@ -158,8 +158,8 @@ DBE & __stdcall operator - (DBItem & i,  LDATE   d) { DBConst c; c.init(d); retu
 DBE & __stdcall operator - (LTIME   t,  DBItem & i) { DBConst c; c.init(t); return binary_op(c, i, op_minus); }
 DBE & __stdcall operator - (DBItem & i,  LTIME   t) { DBConst c; c.init(t); return binary_op(i, c, op_minus); }
 DBE & __stdcall sstrlen(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_strlen); }
-DBE & __stdcall ltrim(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_ltrim); }
-DBE & __stdcall rtrim(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_rtrim); }
+DBE & __stdcall ltrim(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_ltrim); }
+DBE & __stdcall rtrim(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_rtrim); }
 DBE & __stdcall ltoa(DBItem & i)   { assert(i.baseType() == BTS_INT); return unary_func(i, dbq_ltoa); }
 
 DBE & __stdcall contains(DBItem & i, const char * s)
@@ -220,10 +220,10 @@ DBE & __stdcall right(DBItem & i, int n)
 	return binary_func(i, c, dbq_right);
 }
 
-DBE & __stdcall lower(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_lower); }
-DBE & __stdcall upper(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_upper); }
+DBE & __stdcall lower(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_lower); }
+DBE & __stdcall upper(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_upper); }
 DBE & __stdcall day(DBItem & i)    { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_day); }
-DBE & __stdcall month(DBItem & i)  { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_mon); }
+DBE & __stdcall month(DBItem & i) { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_mon); }
 DBE & __stdcall year(DBItem & i)   { assert(i.baseType() == BTS_DATE); return unary_func(i, dbq_year); }
 DBE & __stdcall hour(DBItem & i)   { assert(i.baseType() == BTS_TIME); return unary_func(i, dbq_hour); }
 DBE & __stdcall minute(DBItem & i) { assert(i.baseType() == BTS_TIME); return unary_func(i, dbq_minute); }
@@ -440,7 +440,7 @@ IMPL_DBE_PROC(_sub_rr) { RES(RPAR(0)-RPAR(1)); }
 IMPL_DBE_PROC(_mul_rr) { RES(RPAR(0)*RPAR(1)); }
 IMPL_DBE_PROC(_div_rr) { RES(fdivnz(RPAR(0), RPAR(1))); }
 IMPL_DBE_PROC(_and_ii) { RES(IPAR(0) & IPAR(1)); }
-IMPL_DBE_PROC(_or_ii)  { RES(IPAR(0) | IPAR(1)); }
+IMPL_DBE_PROC(_or_ii) { RES(IPAR(0) | IPAR(1)); }
 IMPL_DBE_PROC(_xor_ii) { RES(IPAR(0) ^ IPAR(1)); }
 IMPL_DBE_PROC(_not_ii) { RES(~IPAR(0)); }
 
@@ -580,8 +580,8 @@ IMPL_DBE_PROC(_upper_s)
 		RES(strupr866(SPAR(0)));
 }
 
-IMPL_DBE_PROC(_day_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(d));}
-IMPL_DBE_PROC(_mon_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(m));}
+IMPL_DBE_PROC(_day_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(d));}
+IMPL_DBE_PROC(_mon_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(m));}
 IMPL_DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(y));}
 IMPL_DBE_PROC(_weekday_d) { RES(static_cast<long>(dayofweek(&DPAR(0), 1))); }
 IMPL_DBE_PROC(_add_di) 

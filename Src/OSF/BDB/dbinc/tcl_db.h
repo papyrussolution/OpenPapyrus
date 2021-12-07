@@ -107,13 +107,13 @@ typedef struct dbtcl_info {
 		db_pgno_t pgno;		      /* For I_MP. */
 		uint32 lockid;	      /* For I_LOCK. */
 		DBTCL_EVENT_INFO *event_info; /* For I_ENV. */
-		DB_TXN_TOKEN *commit_token;   /* For I_TXN. */
+		DB_TXN_TOKEN *commit_token; /* For I_TXN. */
 	} und;
 	union data2 {
 		int anydata;
 		int pagesz;	    /* For I_MP. */
 		DB_COMPACT *c_data; /* For I_DB. */
-		db_mutex_t mutex;   /* Protects event_info (I_ENV). */
+		db_mutex_t mutex; /* Protects event_info (I_ENV). */
 	} und2;
 	DBT i_lockobj;
 	FILE *i_err;

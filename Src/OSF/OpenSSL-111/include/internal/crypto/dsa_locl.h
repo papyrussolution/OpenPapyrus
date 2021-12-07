@@ -17,10 +17,10 @@ struct dsa_st {
     int pad;
     int32_t version;
     BIGNUM *p;
-    BIGNUM *q;                  /* == 20 */
+    BIGNUM *q; /* == 20 */
     BIGNUM *g;
-    BIGNUM *pub_key;            /* y public key */
-    BIGNUM *priv_key;           /* x private key */
+    BIGNUM *pub_key; /* y public key */
+    BIGNUM *priv_key; /* x private key */
     int flags;
     /* Normally used to cache montgomery values */
     BN_MONT_CTX *method_mont_p;

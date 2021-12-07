@@ -1728,7 +1728,7 @@ namespace NCompress {
 				_unpackSize = outSize ? *outSize : static_cast<uint64>(-1LL);
 				return CodeReal(progress);
 			}
-			catch(const CInBufferException &e)  { return e.ErrorCode; }
+			catch(const CInBufferException &e) { return e.ErrorCode; }
 			catch(...) { return S_FALSE; }
 			// CNewException is possible here. But probably CNewException is caused
 			// by error in data stream.
@@ -3618,7 +3618,7 @@ namespace NCompress {
 					return E_NOTIMPL;
 				return S_OK;
 			}
-			// catch(const CInBufferException &e)  { return e.ErrorCode; }
+			// catch(const CInBufferException &e) { return e.ErrorCode; }
 			// catch(...) { return S_FALSE; }
 			catch(...) { return E_OUTOFMEMORY; }
 			// CNewException is possible here. But probably CNewException is caused

@@ -135,7 +135,7 @@ struct __db_locker { /* SHARED */
 	uint32 nlocks;		/* Number of locks held. */
 	uint32 nwrites;		/* Number of write locks held. */
 	uint32 priority;		/* Deadlock resolution priority. */
-	uint32 nrequest;             /* number of requests. */
+	uint32 nrequest; /* number of requests. */
 
 	roff_t  master_locker;		/* Locker of master transaction. */
 	roff_t  parent_locker;		/* Parent of this child. */
@@ -174,7 +174,7 @@ typedef struct __db_lockpart{ /* SHARED */
 	db_mutex_t	mtx_part;	/* mutex for partition*/
 	struct __flock free_locks; /* free lock header */
 	SH_TAILQ_HEAD(__fobj) free_objs; /* free obj header */
-	roff_t          lock_mem_off;   /* block memory for locks */
+	roff_t          lock_mem_off; /* block memory for locks */
 	roff_t          lockobj_mem_off; /* block memory for lockobjs */
 #ifdef HAVE_STATISTICS
 	DB_LOCK_PSTAT	part_stat;	/* Partition stats. */

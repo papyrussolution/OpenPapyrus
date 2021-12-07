@@ -86,8 +86,8 @@ extern "C" {
 //
 typedef size_t LZ4F_errorCode_t;
 
-LZ4FLIB_API unsigned    LZ4F_isError(LZ4F_errorCode_t code);   /**< tells when a function result is an error code */
-LZ4FLIB_API const char* LZ4F_getErrorName(LZ4F_errorCode_t code);   /**< return error code string; for debugging */
+LZ4FLIB_API unsigned    LZ4F_isError(LZ4F_errorCode_t code); /**< tells when a function result is an error code */
+LZ4FLIB_API const char* LZ4F_getErrorName(LZ4F_errorCode_t code); /**< return error code string; for debugging */
 //
 // Frame compression types
 //
@@ -156,11 +156,11 @@ typedef LZ4F_contentChecksum_t contentChecksum_t;
 // It's then possible to update selectively some parameters 
 // 
 typedef struct {
-	LZ4F_blockSizeID_t blockSizeID;       /* max64KB, max256KB, max1MB, max4MB; 0 == default */
-	LZ4F_blockMode_t blockMode;           /* LZ4F_blockLinked, LZ4F_blockIndependent; 0 == default */
+	LZ4F_blockSizeID_t blockSizeID; /* max64KB, max256KB, max1MB, max4MB; 0 == default */
+	LZ4F_blockMode_t blockMode; /* LZ4F_blockLinked, LZ4F_blockIndependent; 0 == default */
 	LZ4F_contentChecksum_t contentChecksumFlag; // 1: frame terminated with 32-bit checksum of decompressed data; 0: disabled (default) 
-	LZ4F_frameType_t frameType;           /* read-only field : LZ4F_frame or LZ4F_skippableFrame */
-	unsigned long long contentSize;       /* Size of uncompressed content ; 0 == unknown */
+	LZ4F_frameType_t frameType; /* read-only field : LZ4F_frame or LZ4F_skippableFrame */
+	unsigned long long contentSize; /* Size of uncompressed content ; 0 == unknown */
 	unsigned dictID; // Dictionary ID, sent by compressor to help decoder select correct dictionary; 0 == no dictID provided 
 	LZ4F_blockChecksum_t blockChecksumFlag; // 1: each block followed by a checksum of block's compressed data; 0: disabled (default) 
 } LZ4F_frameInfo_t;
@@ -176,9 +176,9 @@ typedef struct {
 typedef struct {
 	LZ4F_frameInfo_t frameInfo;
 	int compressionLevel; // 0: default (fast mode); values > LZ4HC_CLEVEL_MAX count as LZ4HC_CLEVEL_MAX; values < 0 trigger "fast acceleration" 
-	unsigned autoFlush;     /* 1: always flush; reduces usage of internal buffers */
+	unsigned autoFlush; /* 1: always flush; reduces usage of internal buffers */
 	unsigned favorDecSpeed; // 1: parser favors decompression speed vs compression ratio. Only works for high compression modes (>= LZ4HC_CLEVEL_OPT_MIN)  /* v1.8.2+ */
-	unsigned reserved[3];   /* must be zero for forward compatibility */
+	unsigned reserved[3]; /* must be zero for forward compatibility */
 } LZ4F_preferences_t;
 
 #define LZ4F_INIT_PREFERENCES   { LZ4F_INIT_FRAMEINFO, 0, 0, 0, { 0, 0, 0 } }    /* v1.8.3+ */
@@ -207,8 +207,8 @@ LZ4FLIB_API size_t LZ4F_compressFrame(void * dstBuffer, size_t dstCapacity, cons
 // 
 // Advanced compression functions
 // 
-typedef struct LZ4F_cctx_s LZ4F_cctx;   /* incomplete type */
-typedef LZ4F_cctx* LZ4F_compressionContext_t;   /* for compatibility with previous API version */
+typedef struct LZ4F_cctx_s LZ4F_cctx; /* incomplete type */
+typedef LZ4F_cctx* LZ4F_compressionContext_t; /* for compatibility with previous API version */
 
 typedef struct {
 	unsigned stableSrc; // 1 == src content will remain present on future calls to LZ4F_compress(); skip copying src content within tmp buffer 
@@ -300,8 +300,8 @@ LZ4FLIB_API size_t LZ4F_compressEnd(LZ4F_cctx* cctx, void * dstBuffer, size_t ds
 // 
 // Decompression functions
 // 
-typedef struct LZ4F_dctx_s LZ4F_dctx;   /* incomplete type */
-typedef LZ4F_dctx* LZ4F_decompressionContext_t;   /* compatibility with previous API versions */
+typedef struct LZ4F_dctx_s LZ4F_dctx; /* incomplete type */
+typedef LZ4F_dctx* LZ4F_decompressionContext_t; /* compatibility with previous API versions */
 
 typedef struct {
 	unsigned stableDst; // pledges that last 64KB decompressed data will remain available unmodified. This optimization skips storage operations in tmp buffers. 
@@ -387,7 +387,7 @@ LZ4FLIB_API size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* ds
  *  In which case, it's necessary to reset it, before re-using it.
  *  This method can also be used to abruptly stop any unfinished decompression,
  *  and start a new one using same context resources. */
-LZ4FLIB_API void LZ4F_resetDecompressionContext(LZ4F_dctx* dctx);   /* always successful */
+LZ4FLIB_API void LZ4F_resetDecompressionContext(LZ4F_dctx* dctx); /* always successful */
 
 #if defined (__cplusplus)
 }

@@ -75,11 +75,11 @@ namespace OT {
 			return_trace(c->check_struct(this) && version.major == 1 && magicNumber == 0x5F0F3CF5u);
 		}
 protected:
-		FixedVersion<>version;  /* Version of the head table--currently 0x00010000u for version 1.0. */
+		FixedVersion<>version; /* Version of the head table--currently 0x00010000u for version 1.0. */
 		FixedVersion<>fontRevision; /* Set by font manufacturer. */
 		HBUINT32 checkSumAdjustment; /* To compute: set it to 0, sum the entire font as HBUINT32, then store 0xB1B0AFBAu - sum. */
-		HBUINT32 magicNumber;   /* Set to 0x5F0F3CF5u. */
-		HBUINT16 flags;         /* Bit 0: Baseline for font at y=0;
+		HBUINT32 magicNumber; /* Set to 0x5F0F3CF5u. */
+		HBUINT16 flags; /* Bit 0: Baseline for font at y=0;
 		 * Bit 1: Left sidebearing point at x=0;
 		 * Bit 2: Instructions may depend on point size;
 		 * Bit 3: Force ppem to integer values for all
@@ -123,18 +123,18 @@ protected:
 		 * encoded in the cmap subtables represent proper
 		 * support for those code points.
 		 * Bit 15: Reserved, set to 0. */
-		HBUINT16 unitsPerEm;    /* Valid range is from 16 to 16384. This value
+		HBUINT16 unitsPerEm; /* Valid range is from 16 to 16384. This value
 		 * should be a power of 2 for fonts that have
 		 * TrueType outlines. */
-		LONGDATETIME created;   /* Number of seconds since 12:00 midnight,
+		LONGDATETIME created; /* Number of seconds since 12:00 midnight,
 		                           January 1, 1904. 64-bit integer */
-		LONGDATETIME modified;  /* Number of seconds since 12:00 midnight,
+		LONGDATETIME modified; /* Number of seconds since 12:00 midnight,
 		                           January 1, 1904. 64-bit integer */
-		HBINT16 xMin;           /* For all glyph bounding boxes. */
-		HBINT16 yMin;           /* For all glyph bounding boxes. */
-		HBINT16 xMax;           /* For all glyph bounding boxes. */
-		HBINT16 yMax;           /* For all glyph bounding boxes. */
-		HBUINT16 macStyle;      /* Bit 0: Bold (if set to 1);
+		HBINT16 xMin; /* For all glyph bounding boxes. */
+		HBINT16 yMin; /* For all glyph bounding boxes. */
+		HBINT16 xMax; /* For all glyph bounding boxes. */
+		HBINT16 yMax; /* For all glyph bounding boxes. */
+		HBUINT16 macStyle; /* Bit 0: Bold (if set to 1);
 		 * Bit 1: Italic (if set to 1)
 		 * Bit 2: Underline (if set to 1)
 		 * Bit 3: Outline (if set to 1)

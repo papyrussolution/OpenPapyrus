@@ -387,7 +387,7 @@ public:
 		   * for this glyph. The number of tuple variation tables
 		   * can be any number between 1 and 4095. */
 		OffsetTo<HBUINT8>
-		data;           /* Offset from the start of the GlyphVariationData table
+		data; /* Offset from the start of the GlyphVariationData table
 		 * to the serialized data. */
 		/* TupleVariationHeader tupleVariationHeaders[] *//* Array of tuple variation headers. */
 public:
@@ -712,7 +712,7 @@ protected:
 		 * multiple glyphs, as opposed to other tuple records stored
 		 * directly within a glyph variation data table. */
 		LNNOffsetTo<UnsizedArrayOf<F2DOT14>>
-		sharedTuples;   /* Offset from the start of this table to the shared tuple records.
+		sharedTuples; /* Offset from the start of this table to the shared tuple records.
 		 * Array of tuple records shared across all glyph variation data tables. */
 		HBUINT16 glyphCount; /* The number of glyphs in this font. This must match the number of
 		 * glyphs stored elsewhere in the font. */
@@ -720,10 +720,10 @@ protected:
 		 * If bit 0 is clear, the offsets are uint16; if bit 0 is set, the
 		 * offsets are uint32. */
 		LOffsetTo<GlyphVariationData>
-		dataZ;          /* Offset from the start of this table to the array of
+		dataZ; /* Offset from the start of this table to the array of
 		 * GlyphVariationData tables. */
 		UnsizedArrayOf<HBUINT8>
-		offsetZ;        /* Offsets from the start of the GlyphVariationData array
+		offsetZ; /* Offsets from the start of the GlyphVariationData array
 		 * to each GlyphVariationData table. */
 public:
 		DEFINE_SIZE_MIN(20);

@@ -83,15 +83,15 @@ public:
 
 protected:
 		LNNOffsetTo<UnsizedArrayOf<HBUINT32>>
-		paletteFlagsZ;          /* Offset from the beginning of CPAL table to
+		paletteFlagsZ; /* Offset from the beginning of CPAL table to
 		 * the Palette Type Array. Set to 0 if no array
 		 * is provided. */
 		LNNOffsetTo<UnsizedArrayOf<NameID>>
-		paletteLabelsZ;         /* Offset from the beginning of CPAL table to
+		paletteLabelsZ; /* Offset from the beginning of CPAL table to
 		 * the palette labels array. Set to 0 if no
 		 * array is provided. */
 		LNNOffsetTo<UnsizedArrayOf<NameID>>
-		colorLabelsZ;           /* Offset from the beginning of CPAL table to
+		colorLabelsZ; /* Offset from the beginning of CPAL table to
 		 * the color labels array. Set to 0
 		 * if no array is provided. */
 public:
@@ -174,17 +174,17 @@ public:
 		}
 
 protected:
-		HBUINT16 version;       /* Table version number */
+		HBUINT16 version; /* Table version number */
 		/* Version 0 */
-		HBUINT16 numColors;     /* Number of colors in each palette. */
-		HBUINT16 numPalettes;   /* Number of palettes in the table. */
+		HBUINT16 numColors; /* Number of colors in each palette. */
+		HBUINT16 numPalettes; /* Number of palettes in the table. */
 		HBUINT16 numColorRecords; /* Total number of color records, combined for
 		   * all palettes. */
 		LNNOffsetTo<UnsizedArrayOf<BGRAColor>>
-		colorRecordsZ;          /* Offset from the beginning of CPAL table to
+		colorRecordsZ; /* Offset from the beginning of CPAL table to
 		 * the first ColorRecord. */
 		UnsizedArrayOf<HBUINT16>
-		colorRecordIndicesZ;    /* Index of each palette’s first color record in
+		colorRecordIndicesZ; /* Index of each palette’s first color record in
 		 * the combined color record array. */
 /*CPALV1Tail	v1;*/
 public:

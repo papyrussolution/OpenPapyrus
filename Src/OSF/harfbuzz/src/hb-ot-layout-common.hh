@@ -325,9 +325,9 @@ private:
 			return_trace(c->check_struct(this) && offset.sanitize(c, base, &closure));
 		}
 
-		Tag tag;        /* 4-byte Tag identifier */
+		Tag tag; /* 4-byte Tag identifier */
 		OffsetTo<Type>
-		offset;         /* Offset from beginning of object holding
+		offset; /* Offset from beginning of object holding
 		 * the Record */
 public:
 		DEFINE_SIZE_STATIC(6);
@@ -663,7 +663,7 @@ protected:
 		defaultLangSys; /* Offset to DefaultLangSys table--from
 		 * beginning of Script table--may be Null */
 		RecordArrayOf<LangSys>
-		langSys;        /* Array of LangSysRecords--listed
+		langSys; /* Array of LangSysRecords--listed
 		 * alphabetically by LangSysTag */
 public:
 		DEFINE_SIZE_ARRAY_SIZED(4, langSys);
@@ -853,38 +853,20 @@ public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    characters.sanitize(c));
+			return_trace(c->check_struct(this) && characters.sanitize(c));
 		}
-
-		HBUINT16 format;        /* Format number is set to 0. */
-		NameID featUILableNameID; /* The ‘name’ table name ID that
-		   * specifies a string (or strings,
-		   * for multiple languages) for a
-		   * user-interface label for this
-		   * feature. (May be NULL.) */
-		NameID featUITooltipTextNameID; /* The ‘name’ table name ID that
-		     * specifies a string (or strings,
-		     * for multiple languages) that an
-		     * application can use for tooltip
-		     * text for this feature. (May be
-		     * nullptr.) */
-		NameID sampleTextNameID; /* The ‘name’ table name ID that
-		  * specifies sample text that
-		  * illustrates the effect of this
-		  * feature. (May be NULL.) */
-		HBUINT16 numNamedParameters; /* Number of named parameters. (May
-		   * be zero.) */
-		NameID firstParamUILabelNameID; /* The first ‘name’ table name ID
-		     * used to specify strings for
-		     * user-interface labels for the
-		     * feature parameters. (Must be zero
-		     * if numParameters is zero.) */
+		HBUINT16 format; /* Format number is set to 0. */
+		NameID featUILableNameID; /* The ‘name’ table name ID that specifies a string (or strings,
+		   * for multiple languages) for a user-interface label for this feature. (May be NULL.) */
+		NameID featUITooltipTextNameID; /* The ‘name’ table name ID that specifies a string (or strings,
+		     * for multiple languages) that an application can use for tooltip text for this feature. (May be nullptr.) */
+		NameID sampleTextNameID; /* The ‘name’ table name ID that specifies sample text that
+		  * illustrates the effect of this feature. (May be NULL.) */
+		HBUINT16 numNamedParameters; /* Number of named parameters. (May be zero.) */
+		NameID firstParamUILabelNameID; /* The first ‘name’ table name ID used to specify strings for
+		     * user-interface labels for the feature parameters. (Must be zero if numParameters is zero.) */
 		ArrayOf<HBUINT24>
-		characters;             /* Array of the Unicode Scalar Value
-		 * of the characters for which this
-		 * feature provides glyph variants.
-		 * (May be zero.) */
+		characters; /* Array of the Unicode Scalar Value of the characters for which this feature provides glyph variants. (May be zero.) */
 public:
 		DEFINE_SIZE_ARRAY(14, characters);
 	};
@@ -1051,7 +1033,7 @@ public:
 		}
 
 		OffsetTo<FeatureParams>
-		featureParams;  /* Offset to Feature Parameters table (if one
+		featureParams; /* Offset to Feature Parameters table (if one
 		 * has been defined for the feature), relative
 		 * to the beginning of the Feature Table; = Null
 		 * if not required */
@@ -1223,10 +1205,10 @@ namespace OT {
 		}
 
 private:
-		HBUINT16 lookupType;    /* Different enumerations for GSUB and GPOS */
-		HBUINT16 lookupFlag;    /* Lookup qualifiers */
+		HBUINT16 lookupType; /* Different enumerations for GSUB and GPOS */
+		HBUINT16 lookupFlag; /* Lookup qualifiers */
 		ArrayOf<Offset16>
-		subTable;               /* Array of SubTables */
+		subTable; /* Array of SubTables */
 /*HBUINT16	markFilteringSetX[HB_VAR_ARRAY];*//* Index (base 0) into GDEF mark glyph sets
  * structure. This field is only present if bit
  * UseMarkFilteringSet of lookup flags is set. */
@@ -1346,7 +1328,7 @@ private:
 protected:
 		HBUINT16 coverageFormat; /* Format identifier--format = 1 */
 		SortedArrayOf<HBGlyphID>
-		glyphArray;     /* Array of GlyphIDs--in numerical order */
+		glyphArray; /* Array of GlyphIDs--in numerical order */
 public:
 		DEFINE_SIZE_ARRAY(4, glyphArray);
 	};
@@ -1509,7 +1491,7 @@ private:
 protected:
 		HBUINT16 coverageFormat; /* Format identifier--format = 2 */
 		SortedArrayOf<RangeRecord>
-		rangeRecord;    /* Array of glyph ranges--ordered by
+		rangeRecord; /* Array of glyph ranges--ordered by
 		 * Start GlyphID. rangeCount entries
 		 * long */
 public:
@@ -1875,7 +1857,7 @@ protected:
 		HBUINT16 classFormat; /* Format identifier--format = 1 */
 		HBGlyphID startGlyph; /* First GlyphID of the classValueArray */
 		ArrayOf<HBUINT16>
-		classValue;     /* Array of Class Values--one per GlyphID */
+		classValue; /* Array of Class Values--one per GlyphID */
 public:
 		DEFINE_SIZE_ARRAY(6, classValue);
 	};
@@ -2024,7 +2006,7 @@ private:
 protected:
 		HBUINT16 classFormat; /* Format identifier--format = 2 */
 		SortedArrayOf<RangeRecord>
-		rangeRecord;    /* Array of glyph ranges--ordered by
+		rangeRecord; /* Array of glyph ranges--ordered by
 		 * Start GlyphID */
 public:
 		DEFINE_SIZE_ARRAY(4, rangeRecord);
@@ -2995,15 +2977,15 @@ private:
 		}
 
 protected:
-		HBUINT16 startSize;     /* Smallest size to correct--in ppem */
-		HBUINT16 endSize;       /* Largest size to correct--in ppem */
-		HBUINT16 deltaFormat;   /* Format of DeltaValue array data: 1, 2, or 3
+		HBUINT16 startSize; /* Smallest size to correct--in ppem */
+		HBUINT16 endSize; /* Largest size to correct--in ppem */
+		HBUINT16 deltaFormat; /* Format of DeltaValue array data: 1, 2, or 3
 		 * 1	Signed 2-bit value, 8 values per uint16
 		 * 2	Signed 4-bit value, 4 values per uint16
 		 * 3	Signed 8-bit value, 2 values per uint16
 		                         */
 		UnsizedArrayOf<HBUINT16>
-		deltaValueZ;            /* Array of compressed data */
+		deltaValueZ; /* Array of compressed data */
 public:
 		DEFINE_SIZE_ARRAY(6, deltaValueZ);
 	};
@@ -3074,7 +3056,7 @@ protected:
 		HBUINT16 reserved1;
 		HBUINT16 reserved2;
 public:
-		HBUINT16 format;        /* Format identifier */
+		HBUINT16 format; /* Format identifier */
 public:
 		DEFINE_SIZE_STATIC(6);
 	};

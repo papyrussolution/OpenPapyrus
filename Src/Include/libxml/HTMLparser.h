@@ -38,13 +38,13 @@ typedef struct _htmlElemDesc htmlElemDesc;
 typedef htmlElemDesc * htmlElemDescPtr;
 struct _htmlElemDesc {
 	const char * name; /* The tag name */
-	char startTag;  /* Whether the start tag can be implied */
-	char endTag;    /* Whether the end tag can be implied */
+	char startTag; /* Whether the start tag can be implied */
+	char endTag; /* Whether the end tag can be implied */
 	char saveEndTag; /* Whether the end tag should be saved */
-	char empty;     /* Is this an empty element ? */
-	char depr;      /* Is this a deprecated element ? */
-	char dtd;       /* 1: only in Loose DTD, 2: only Frameset one */
-	char isinline;  /* is this a block 0 or inline 1 element */
+	char empty; /* Is this an empty element ? */
+	char depr; /* Is this a deprecated element ? */
+	char dtd; /* 1: only in Loose DTD, 2: only Frameset one */
+	char isinline; /* is this a block 0 or inline 1 element */
 	const char * desc; /* the description */
 
 /* NRK Jan.2003
@@ -57,11 +57,11 @@ struct _htmlElemDesc {
  *	are allowed.  Some element relationships are not fully represented:
  *	these are flagged with the word MODIFIER
  */
-	const char ** subelts;           /* allowed sub-elements of this element */
+	const char ** subelts; /* allowed sub-elements of this element */
 	const char * defaultsubelt; /* subelement for suggested auto-repair if necessary or NULL */
-	const char ** attrs_opt;         /* Optional Attributes */
-	const char ** attrs_depr;        /* Additional deprecated attributes */
-	const char ** attrs_req;         /* Required attributes */
+	const char ** attrs_opt; /* Optional Attributes */
+	const char ** attrs_depr; /* Additional deprecated attributes */
+	const char ** attrs_req; /* Required attributes */
 };
 /*
  * Internal description of an HTML entity.

@@ -27,7 +27,7 @@ GLOBAL(void) jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t struc
 {
 	int i;
 	/* Guard against version mismatches between library and caller. */
-	cinfo->mem = NULL;      /* so jpeg_destroy knows mem mgr not called */
+	cinfo->mem = NULL; /* so jpeg_destroy knows mem mgr not called */
 	if(version != JPEG_LIB_VERSION)
 		ERREXIT2(cinfo, JERR_BAD_LIB_VERSION, JPEG_LIB_VERSION, version);
 	if(structsize != SIZEOF(struct jpeg_compress_struct))

@@ -117,15 +117,15 @@ typedef enum {
 
 #define XML_MAX_SGML_CATA_DEPTH 10
 struct _xmlCatalog {
-	xmlCatalogType type;    /* either XML or SGML */
+	xmlCatalogType type; /* either XML or SGML */
 	/*
 	 * SGML Catalogs are stored as a simple hash table of catalog entries
 	 * Catalog stack to check against overflows when building the
 	 * SGML catalog
 	 */
 	char * catalTab[XML_MAX_SGML_CATA_DEPTH]; /* stack of catals */
-	int catalNr;            /* Number of current catal streams */
-	int catalMax;           /* Max number of catal streams */
+	int catalNr; /* Number of current catal streams */
+	int catalMax; /* Max number of catal streams */
 	xmlHashTable * sgml;
 	/*
 	 * XML Catalogs are stored as a tree of Catalog entries

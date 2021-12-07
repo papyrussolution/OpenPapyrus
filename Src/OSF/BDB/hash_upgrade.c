@@ -76,7 +76,7 @@ int __ham_30_hashmeta(DB * dbp, char * real_name, uint8 * obuf)
 	 */
 	o_spares = oldmeta->spares;
 	n_spares = newmeta.spares;
-	max_entry = __db_log2(maxb+1);     /* highest spares entry in use */
+	max_entry = __db_log2(maxb+1); /* highest spares entry in use */
 	n_spares[0] = 1;
 	for(i = 1; i < NCACHED && i <= max_entry; i++)
 		n_spares[i] = 1+o_spares[i-1];

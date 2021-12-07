@@ -184,7 +184,7 @@ protected:
 			/* StretchGlyphAction stretchGlyphAction; -- Not supported by CoreText */
 			DuctileGlyphAction ductileGlyphAction;
 			RepeatedAddGlyphAction repeatedAddGlyphAction;
-		} u;            /* Data. The format of this data depends on
+		} u; /* Data. The format of this data depends on
 		 * the value of the actionType field. */
 
 public:
@@ -276,7 +276,7 @@ protected:
 		 * used as padding to guarantee longword
 		 * alignment of the following record). */
 		JustWidthDeltaEntry
-		    wdRecord;   /* The actual width delta record. */
+		    wdRecord; /* The actual width delta record. */
 
 public:
 		DEFINE_SIZE_STATIC(24);
@@ -300,9 +300,9 @@ public:
 		}
 protected:
 		ChainSubtable<ObsoleteTypes>
-		morphHeader;    /* Metamorphosis-style subtable header. */
+		morphHeader; /* Metamorphosis-style subtable header. */
 		StateTable<ObsoleteTypes, EntryData>
-		stHeader;       /* The justification insertion state table header */
+		stHeader; /* The justification insertion state table header */
 public:
 		DEFINE_SIZE_STATIC(30);
 	};
@@ -319,18 +319,18 @@ protected:
 		OffsetTo<JustificationCategory>
 		justClassTable; /* Offset to the justification category state table. */
 		OffsetTo<WidthDeltaCluster>
-		wdcTable;       /* Offset from start of justification table to start
+		wdcTable; /* Offset from start of justification table to start
 		 * of the subtable containing the width delta factors
 		 * for the glyphs in your font.
 		                 *
 		 * The width delta clusters table. */
 		OffsetTo<PostcompensationActionChain>
-		pcTable;        /* Offset from start of justification table to start
+		pcTable; /* Offset from start of justification table to start
 		 * of postcompensation subtable (set to zero if none).
 		                 *
 		 * The postcompensation subtable, if present in the font. */
 		Lookup<OffsetTo<WidthDeltaCluster>>
-		lookupTable;    /* Lookup table associating glyphs with width delta
+		lookupTable; /* Lookup table associating glyphs with width delta
 		 * clusters. See the description of Width Delta Clusters
 		 * table for details on how to interpret the lookup values. */
 
@@ -350,13 +350,13 @@ protected:
 		 * (0x00010000u for version 1.0). */
 		HBUINT16 format; /* Format of the justification table (set to 0). */
 		OffsetTo<JustificationHeader>
-		horizData;      /* Byte offset from the start of the justification table
+		horizData; /* Byte offset from the start of the justification table
 		 * to the header for tables that contain justification
 		 * information for horizontal text.
 		 * If you are not including this information,
 		 * store 0. */
 		OffsetTo<JustificationHeader>
-		vertData;       /* ditto, vertical */
+		vertData; /* ditto, vertical */
 
 public:
 		DEFINE_SIZE_STATIC(10);

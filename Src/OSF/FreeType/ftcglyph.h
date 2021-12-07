@@ -112,7 +112,7 @@ FT_BEGIN_HEADER
 
 typedef struct  FTC_FamilyRec_ {
 	FTC_MruNodeRec mrunode;
-	FT_UInt num_nodes;       /* current number of nodes in this family */
+	FT_UInt num_nodes; /* current number of nodes in this family */
 	FTC_Cache cache;
 	FTC_MruListClass clazz;
 } FTC_FamilyRec, * FTC_Family;

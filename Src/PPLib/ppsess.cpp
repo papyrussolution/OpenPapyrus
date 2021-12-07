@@ -2878,6 +2878,7 @@ int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	//
 	SETFLAG(pCfg->Flags, CFGFLG_FREEPRICE, global.Flags & CFGFLG_FREEPRICE);
 	SETFLAG(pCfg->Flags, CFGFLG_MULTICURACCT, global.Flags & CFGFLG_MULTICURACCT);
+	SETFLAG(pCfg->Flags, CFGFLG_MULTICURBILL_DISABLE, global.Flags & CFGFLG_MULTICURBILL_DISABLE); // @v11.2.7
 	pCfg->DBDiv     = global.DBDiv;
 	pCfg->BaseCurID = global.BaseCurID;
 	pCfg->BaseRateTypeID = global.BaseRateTypeID;

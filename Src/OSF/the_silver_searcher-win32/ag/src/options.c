@@ -4,8 +4,8 @@
 #pragma hdrstop
 
 const char * color_line_number = "\033[1;33m"; /* bold yellow */
-const char * color_match = "\033[30;43m";      /* black with yellow background */
-const char * color_path = "\033[1;32m";        /* bold green */
+const char * color_match = "\033[30;43m"; /* black with yellow background */
+const char * color_path = "\033[1;32m"; /* bold green */
 cli_options opts;
 
 static const lang_spec_t langs[] = {

@@ -449,7 +449,7 @@ static const char * const COUNTRIES_3[] = {
 };
 
 typedef struct CanonicalizationMap {
-	const char * id;     /* input ID */
+	const char * id; /* input ID */
 	const char * canonicalID; /* canonicalized output ID */
 } CanonicalizationMap;
 

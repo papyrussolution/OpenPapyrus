@@ -35,7 +35,7 @@ int __bam_db_create(DB * dbp)
 		return ret;
 	dbp->bt_internal = t;
 
-	t->bt_minkey = DEFMINKEYPAGE;           /* Btree */
+	t->bt_minkey = DEFMINKEYPAGE; /* Btree */
 	t->bt_compare = __bam_defcmp;
 	t->bt_prefix = __bam_defpfx;
 #ifdef HAVE_COMPRESSION

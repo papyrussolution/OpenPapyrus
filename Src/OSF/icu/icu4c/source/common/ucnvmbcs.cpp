@@ -1992,8 +1992,8 @@ static void U_CALLCONV ucnv_MBCSOpen(UConverter * cnv,
 
 	/* toUnicode */
 	cnv->toUnicodeStatus = 0; /* offset */
-	cnv->mode = 0;          /* state */
-	cnv->toULength = 0;     /* byteIndex */
+	cnv->mode = 0; /* state */
+	cnv->toULength = 0; /* byteIndex */
 
 	/* fromUnicode */
 	cnv->fromUChar32 = 0;

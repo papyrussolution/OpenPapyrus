@@ -1355,7 +1355,7 @@ protected:
 public:
 		FixedVersion<HBUINT8> version; /* Version of CFF table. set to 0x0100u */
 		OffsetTo<CFF1NameIndex, HBUINT8> nameIndex; /* headerSize = Offset to Name INDEX. */
-		HBUINT8 offSize;  /* offset size (unused?) */
+		HBUINT8 offSize; /* offset size (unused?) */
 
 public:
 		DEFINE_SIZE_STATIC(4);

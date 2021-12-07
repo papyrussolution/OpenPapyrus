@@ -22,8 +22,8 @@ U_NAMESPACE_BEGIN
  * An array of URelativeString structs is used to store the resource data loaded out of the bundle.
  */
 struct URelativeString {
-	int32_t offset;     /** offset of this item, such as, the relative date **/
-	int32_t len;        /** length of the string **/
+	int32_t offset; /** offset of this item, such as, the relative date **/
+	int32_t len; /** length of the string **/
 	const UChar * string; /** string, or NULL if not set **/
 };
 

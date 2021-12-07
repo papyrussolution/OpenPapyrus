@@ -85,12 +85,12 @@
  * state block must be first in this data structure.
  */
 typedef struct {
-	TIFFPredictorState predict;     /* predictor super class */
-	ushort nbits;           /* # of bits/code */
-	ushort maxcode;         /* maximum code for lzw_nbits */
-	ushort free_ent;        /* next free entry in hash table */
-	ulong nextdata;         /* next bits of i/o */
-	long nextbits;                  /* # of valid bits in lzw_nextdata */
+	TIFFPredictorState predict; /* predictor super class */
+	ushort nbits; /* # of bits/code */
+	ushort maxcode; /* maximum code for lzw_nbits */
+	ushort free_ent; /* next free entry in hash table */
+	ulong nextdata; /* next bits of i/o */
+	long nextbits; /* # of valid bits in lzw_nextdata */
 	int rw_mode;                    /* preserve rw_mode from init */
 } LZWBaseState;
 
@@ -102,7 +102,7 @@ typedef struct {
 /*
  * Encoding-specific state.
  */
-typedef uint16 hcode_t;                 /* codes fit in 16 bits */
+typedef uint16 hcode_t; /* codes fit in 16 bits */
 typedef struct {
 	long hash;
 	hcode_t code;
@@ -113,9 +113,9 @@ typedef struct {
  */
 typedef struct code_ent {
 	struct code_ent * next;
-	ushort length;          /* string len, including this token */
-	uchar value;            /* data value */
-	uchar firstchar;        /* first token of string */
+	ushort length; /* string len, including this token */
+	uchar value; /* data value */
+	uchar firstchar; /* first token of string */
 } code_t;
 
 typedef int (*decodeFunc)(TIFF*, uint8*, tmsize_t, uint16);
@@ -123,27 +123,27 @@ typedef int (*decodeFunc)(TIFF*, uint8*, tmsize_t, uint16);
 typedef struct {
 	LZWBaseState base;
 	/* Decoding specific data */
-	long dec_nbitsmask;             /* lzw_nbits 1 bits, right adjusted */
-	long dec_restart;               /* restart count */
+	long dec_nbitsmask; /* lzw_nbits 1 bits, right adjusted */
+	long dec_restart; /* restart count */
 #ifdef LZW_CHECKEOS
-	uint64 dec_bitsleft;            /* available bits in raw data */
+	uint64 dec_bitsleft; /* available bits in raw data */
 #endif
-	decodeFunc dec_decode;          /* regular or backwards compatible */
-	code_t* dec_codep;              /* current recognized code */
-	code_t* dec_oldcodep;           /* previously recognized code */
-	code_t* dec_free_entp;          /* next free entry */
-	code_t* dec_maxcodep;           /* max available entry */
-	code_t* dec_codetab;            /* kept separate for small machines */
+	decodeFunc dec_decode; /* regular or backwards compatible */
+	code_t* dec_codep; /* current recognized code */
+	code_t* dec_oldcodep; /* previously recognized code */
+	code_t* dec_free_entp; /* next free entry */
+	code_t* dec_maxcodep; /* max available entry */
+	code_t* dec_codetab; /* kept separate for small machines */
 
 	/* Encoding specific data */
-	int enc_oldcode;                /* last code encountered */
-	long enc_checkpoint;            /* point at which to clear table */
+	int enc_oldcode; /* last code encountered */
+	long enc_checkpoint; /* point at which to clear table */
 #define CHECK_GAP       10000           /* enc_ratio check interval */
-	long enc_ratio;                 /* current compression ratio */
-	long enc_incount;               /* (input) data bytes encoded */
-	long enc_outcount;              /* encoded (output) bytes */
-	uint8 *  enc_rawlimit;           /* bound on tif_rawdata buffer */
-	hash_t* enc_hashtab;            /* kept separate for small machines */
+	long enc_ratio; /* current compression ratio */
+	long enc_incount; /* (input) data bytes encoded */
+	long enc_outcount; /* encoded (output) bytes */
+	uint8 *  enc_rawlimit; /* bound on tif_rawdata buffer */
+	hash_t* enc_hashtab; /* kept separate for small machines */
 } LZWCodecState;
 
 #define LZWState(tif)           ((LZWBaseState*)(tif)->tif_data)
@@ -412,7 +412,7 @@ static int LZWDecode(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 				nbitsmask = MAXCODE(BITS_MIN);
 				maxcodep = sp->dec_codetab + nbitsmask-1;
 				NextCode(tif, sp, bp, code, GetNextCode);
-			} while(code == CODE_CLEAR);    /* consecutive CODE_CLEAR codes */
+			} while(code == CODE_CLEAR); /* consecutive CODE_CLEAR codes */
 			if(code == CODE_EOI)
 				break;
 			if(code > CODE_CLEAR) {
@@ -616,7 +616,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8 * op0, tmsize_t occ0, uint16 s)
 				nbitsmask = MAXCODE(BITS_MIN);
 				maxcodep = sp->dec_codetab + nbitsmask;
 				NextCode(tif, sp, bp, code, GetNextCodeCompat);
-			} while(code == CODE_CLEAR);    /* consecutive CODE_CLEAR codes */
+			} while(code == CODE_CLEAR); /* consecutive CODE_CLEAR codes */
 			if(code == CODE_EOI)
 				break;
 			if(code > CODE_CLEAR) {
@@ -759,7 +759,7 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
 	 * codes in LZWEncode and LZWPostDecode.
 	 */
 	sp->enc_rawlimit = tif->tif_rawdata + tif->tif_rawdatasize-1 - 4;
-	cl_hash(sp);            /* clear hash table */
+	cl_hash(sp); /* clear hash table */
 	sp->enc_oldcode = static_cast<hcode_t>(-1); /* generates CODE_CLEAR in LZWEncode */
 	return 1;
 }
@@ -844,7 +844,7 @@ static int LZWEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 	while(cc > 0) {
 		c = *bp++; cc--; incount++;
 		fcode = ((long)c << BITS_MAX) + ent;
-		h = (c << HSHIFT) ^ ent;        /* xor hashing */
+		h = (c << HSHIFT) ^ ent; /* xor hashing */
 #ifdef _WINDOWS
 		/*
 		 * Check hash index for an overflow.

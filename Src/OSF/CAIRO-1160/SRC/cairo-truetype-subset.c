@@ -417,7 +417,7 @@ static cairo_status_t cairo_truetype_font_write_cmap_table(cairo_truetype_font_t
 		cairo_truetype_font_write_be16(font, winansi_unicode_ranges[i].end); /* end count[] */
 	cairo_truetype_font_write_be16(font, 0xffff); /* end count[] */
 
-	cairo_truetype_font_write_be16(font, 0);    /* reserved */
+	cairo_truetype_font_write_be16(font, 0); /* reserved */
 
 	for(i = 0; i < num_ranges; i++)
 		cairo_truetype_font_write_be16(font, winansi_unicode_ranges[i].start); /* startCode[] */
@@ -425,14 +425,14 @@ static cairo_status_t cairo_truetype_font_write_cmap_table(cairo_truetype_font_t
 
 	for(i = 0; i < num_ranges; i++)
 		cairo_truetype_font_write_be16(font, 0x0000); /* delta[] */
-	cairo_truetype_font_write_be16(font, 1);    /* delta[] */
+	cairo_truetype_font_write_be16(font, 1); /* delta[] */
 
 	range_offset = num_ranges*2 + 2;
 	for(i = 0; i < num_ranges; i++) {
 		cairo_truetype_font_write_be16(font, range_offset); /* rangeOffset[] */
 		range_offset += (winansi_unicode_ranges[i].end - winansi_unicode_ranges[i].start + 1)*2 - 2;
 	}
-	cairo_truetype_font_write_be16(font, 0);    /* rangeOffset[] */
+	cairo_truetype_font_write_be16(font, 0); /* rangeOffset[] */
 
 	for(i = 0; i < num_ranges; i++) {
 		for(j = winansi_unicode_ranges[i].start; j < winansi_unicode_ranges[i].end + 1; j++) {

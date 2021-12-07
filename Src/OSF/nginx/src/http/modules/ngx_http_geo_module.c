@@ -393,27 +393,18 @@ static const char * ngx_http_geo_block(ngx_conf_t * cf, const ngx_command_t * cm
 
 		var->get_handler = ngx_http_geo_cidr_variable;
 		var->data = reinterpret_cast<uintptr_t>(geo);
-
 		ngx_destroy_pool(ctx.temp_pool);
 		ngx_destroy_pool(pool);
-
-		if(ngx_radix32tree_insert(ctx.tree, 0, 0,
-			    (uintptr_t)&ngx_http_variable_null_value)
-		    == NGX_ERROR) {
+		if(ngx_radix32tree_insert(ctx.tree, 0, 0, (uintptr_t)&ngx_http_variable_null_value) == NGX_ERROR) {
 			return NGX_CONF_ERROR;
 		}
-
 		/* NGX_BUSY is okay (default was set explicitly) */
-
 #if (NGX_HAVE_INET6)
-		if(ngx_radix128tree_insert(ctx.tree6, zero.s6_addr, zero.s6_addr,
-			    (uintptr_t)&ngx_http_variable_null_value)
-		    == NGX_ERROR) {
+		if(ngx_radix128tree_insert(ctx.tree6, zero.s6_addr, zero.s6_addr, (uintptr_t)&ngx_http_variable_null_value) == NGX_ERROR) {
 			return NGX_CONF_ERROR;
 		}
 #endif
 	}
-
 	return rv;
 }
 

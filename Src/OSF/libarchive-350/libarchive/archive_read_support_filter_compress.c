@@ -94,10 +94,10 @@ struct private_data {
 
 	/* Decompression status variables. */
 	int use_reset_code;
-	int end_of_stream;                      /* EOF status. */
+	int end_of_stream; /* EOF status. */
 	int maxcode;                            /* Largest code. */
-	int maxcode_bits;                       /* Length of largest code. */
-	int section_end_code;                      /* When to increase bits. */
+	int maxcode_bits; /* Length of largest code. */
+	int section_end_code; /* When to increase bits. */
 	int bits;                               /* Current code length. */
 	int oldcode;                            /* Previous code. */
 	int finbyte;                            /* Last byte of prev code. */

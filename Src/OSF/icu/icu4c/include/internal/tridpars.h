@@ -60,7 +60,7 @@ class TransliteratorIDParser /* not : public UObject because all methods are sta
      *
   * 'sawSource' is true if there was an explicit source in the
   * parsed id.  If there was no explicit source, then an implied
-  * source of ANY is returned and 'sawSource' is set to false.
+ * source of ANY is returned and 'sawSource' is set to false.
   * 
   * 'filter' is the parsed filter pattern, or null if there was no
   * filter.
@@ -240,7 +240,7 @@ class TransliteratorIDParser /* not : public UObject because all methods are sta
     /**
   * Given source, target, and variant strings, concatenate them into a
   * full ID.  If the source is empty, then "Any" will be used for the
-  * source, so the ID will always be of the form s-t/v or s-t.
+ * source, so the ID will always be of the form s-t/v or s-t.
      */
     static void STVtoID(const UnicodeString & source,
                         const UnicodeString & target,
@@ -300,7 +300,7 @@ class TransliteratorIDParser /* not : public UObject because all methods are sta
     /**
   * Parse an ID into component pieces.  Take IDs of the form T,
   * T/V, S-T, S-T/V, or S/V-T.  If the source is missing, return a
-  * source of ANY.
+ * source of ANY.
   * @param id the id string, in any of several forms
   * @param pos INPUT-OUTPUT parameter.  On input, pos[0] is the
   * offset of the first character to parse in id.  On output,

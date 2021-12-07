@@ -1005,7 +1005,7 @@ typedef struct  FT_FaceRec_ {
 	FT_Memory memory;
 	FT_Stream stream;
 	FT_ListRec sizes_list;
-	FT_Generic autohint;      /* face-specific auto-hinter data */
+	FT_Generic autohint; /* face-specific auto-hinter data */
 	void *  extensions; /* unused                         */
 	FT_Face_Internal internal;
 	/*@private end */
@@ -1498,15 +1498,15 @@ typedef struct FT_Size_InternalRec_*  FT_Size_Internal;
  *   ```
  */
 typedef struct  FT_Size_Metrics_ {
-	FT_UShort x_ppem;   /* horizontal pixels per EM               */
-	FT_UShort y_ppem;   /* vertical pixels per EM                 */
+	FT_UShort x_ppem; /* horizontal pixels per EM               */
+	FT_UShort y_ppem; /* vertical pixels per EM                 */
 
-	FT_Fixed x_scale;   /* scaling values used to convert font    */
-	FT_Fixed y_scale;   /* units to 26.6 fractional pixels        */
+	FT_Fixed x_scale; /* scaling values used to convert font    */
+	FT_Fixed y_scale; /* units to 26.6 fractional pixels        */
 
-	FT_Pos ascender;    /* ascender in 26.6 frac. pixels          */
-	FT_Pos descender;   /* descender in 26.6 frac. pixels         */
-	FT_Pos height;      /* text height in 26.6 frac. pixels       */
+	FT_Pos ascender; /* ascender in 26.6 frac. pixels          */
+	FT_Pos descender; /* descender in 26.6 frac. pixels         */
+	FT_Pos height; /* text height in 26.6 frac. pixels       */
 	FT_Pos max_advance; /* max horizontal advance, in 26.6 pixels */
 } FT_Size_Metrics;
 
@@ -1532,8 +1532,8 @@ typedef struct  FT_Size_Metrics_ {
  *     Metrics for this size object.  This field is read-only.
  */
 typedef struct  FT_SizeRec_ {
-	FT_Face face;            /* parent face object              */
-	FT_Generic generic;      /* generic pointer for client uses */
+	FT_Face face; /* parent face object              */
+	FT_Generic generic; /* generic pointer for client uses */
 	FT_Size_Metrics metrics; /* size metrics                    */
 	FT_Size_Internal internal;
 } FT_SizeRec;
@@ -1769,7 +1769,7 @@ typedef struct  FT_GlyphSlotRec_ {
 	FT_Library library;
 	FT_Face face;
 	FT_GlyphSlot next;
-	FT_UInt glyph_index;       /* new in 2.10; was reserved previously */
+	FT_UInt glyph_index; /* new in 2.10; was reserved previously */
 	FT_Generic generic;
 	FT_Glyph_Metrics metrics;
 	FT_Fixed linearHoriAdvance;

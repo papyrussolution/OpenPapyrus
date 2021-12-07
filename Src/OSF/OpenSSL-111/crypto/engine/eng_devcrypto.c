@@ -50,8 +50,8 @@ static int clean_devcrypto_session(struct session_op * sess)
 
 struct cipher_ctx {
 	struct session_op sess;
-	int op;                  /* COP_ENCRYPT or COP_DECRYPT */
-	ulong mode;      /* EVP_CIPH_*_MODE */
+	int op; /* COP_ENCRYPT or COP_DECRYPT */
+	ulong mode; /* EVP_CIPH_*_MODE */
 
 	/* to handle ctr mode being a stream cipher */
 	uchar partial[EVP_MAX_BLOCK_LENGTH];
@@ -785,7 +785,7 @@ void engine_load_devcrypto_int()
 	}
 
 	ENGINE_add(e);
-	ENGINE_free(e);      /* Loose our local reference */
+	ENGINE_free(e); /* Loose our local reference */
 	ERR_clear_error();
 }
 #endif // } 0 @sobolev

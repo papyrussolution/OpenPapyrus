@@ -38,8 +38,8 @@ namespace OT {
 		}
 
 public:
-		Tag valueTag;   /* Four-byte tag identifying a font-wide measure. */
-		HBUINT32 varIdx;        /* Outer/inner index into VariationStore item. */
+		Tag valueTag; /* Four-byte tag identifying a font-wide measure. */
+		HBUINT32 varIdx; /* Outer/inner index into VariationStore item. */
 
 public:
 		DEFINE_SIZE_STATIC(8);
@@ -98,9 +98,9 @@ protected:
 		  * must be greater than zero. */
 		HBUINT16 valueRecordCount; /* The number of value records — may be zero. */
 		OffsetTo<VariationStore>
-		varStore;       /* Offset to item variation store table. */
+		varStore; /* Offset to item variation store table. */
 		UnsizedArrayOf<HBUINT8>
-		valuesZ;        /* Array of value records. The records must be
+		valuesZ; /* Array of value records. The records must be
 		 * in binary order of their valueTag field. */
 
 public:

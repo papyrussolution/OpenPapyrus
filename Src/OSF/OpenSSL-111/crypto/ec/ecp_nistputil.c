@@ -191,7 +191,7 @@ void ec_GFp_nistp_recode_scalar_bits(uchar * sign,
 {
 	uchar s, d;
 
-	s = ~((in >> 5) - 1);   /* sets all bits to MSB(in), 'in' seen as
+	s = ~((in >> 5) - 1); /* sets all bits to MSB(in), 'in' seen as
 	                         * 6-bit value */
 	d = (1 << 6) - in - 1;
 	d = (d & s) | (in & ~s);

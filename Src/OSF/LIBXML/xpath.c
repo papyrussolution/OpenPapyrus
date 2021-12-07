@@ -779,9 +779,9 @@ enum xmlXPathTypeVal {
 };
 
 struct xmlXPathStepOp {
-	xmlXPathOp op;          /* The identifier of the operation */
-	int ch1;                /* First child */
-	int ch2;                /* Second child */
+	xmlXPathOp op; /* The identifier of the operation */
+	int ch1; /* First child */
+	int ch2; /* Second child */
 	int value;
 	int value2;
 	int value3;
@@ -793,12 +793,12 @@ struct xmlXPathStepOp {
 //typedef xmlXPathStepOp * xmlXPathStepOpPtr;
 
 struct _xmlXPathCompExpr {
-	int nbStep;             /* Number of steps in this expression */
-	int maxStep;            /* Maximum number of steps allocated */
+	int nbStep; /* Number of steps in this expression */
+	int maxStep; /* Maximum number of steps allocated */
 	xmlXPathStepOp * steps; /* ops for computation of this expression */
-	int last;               /* index of last step in expression */
-	xmlChar * expr;         /* the expression being computed */
-	xmlDict * dict;        /* the dictionnary to use if any */
+	int last; /* index of last step in expression */
+	xmlChar * expr; /* the expression being computed */
+	xmlDict * dict; /* the dictionnary to use if any */
 #ifdef DEBUG_EVAL_COUNTS
 	int nb;
 	xmlChar * string;
@@ -7220,7 +7220,7 @@ xmlNode * xmlXPathNextFollowing(xmlXPathParserContext * ctxt, xmlNode * cur)
 			cur = cur->P_ParentNode;
 	}
 	if(!cur)
-		return NULL;  /* ERROR */
+		return NULL; /* ERROR */
 	if(cur->next)
 		return cur->next;
 	do {
@@ -7791,7 +7791,7 @@ static void xmlXPathNameFunction(xmlXPathParserContext * ctxt, int nargs)
 		valuePush(ctxt, xmlXPathCacheNewCString(ctxt->context, ""));
 	}
 	else {
-		int i = 0;      /* Should be first in document order !!!!! */
+		int i = 0; /* Should be first in document order !!!!! */
 		switch(cur->nodesetval->PP_NodeTab[i]->type) {
 			case XML_ELEMENT_NODE:
 			case XML_ATTRIBUTE_NODE:
@@ -9446,7 +9446,7 @@ static xmlChar * xmlXPathScanName(xmlXPathParserContext * ctxt) {
 
 static void xmlXPathCompPathExpr(xmlXPathParserContext * ctxt)
 {
-	int lc = 1;       /* Should we branch to LocationPath ?         */
+	int lc = 1; /* Should we branch to LocationPath ?         */
 	xmlChar * name = NULL; /* we may have to preparse a name to find out */
 	SKIP_BLANKS;
 	if((CUR == '$') || (CUR == '(') || (IS_ASCII_DIGIT(CUR)) || (CUR == '\'') || (CUR == '"') || (CUR == '.' && IS_ASCII_DIGIT(NXT(1)))) {

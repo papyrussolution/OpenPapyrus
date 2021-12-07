@@ -2871,10 +2871,10 @@ void UnicodeStringToMultiByte2(AString &dest, const UString &src, UINT codePage)
 AString FASTCALL UnicodeStringToMultiByte(const UString &src, UINT codePage, char defaultChar, bool &defaultCharWasUsed);
 AString FASTCALL UnicodeStringToMultiByte(const UString &src, UINT codePage = CP_ACP);
 
-inline const wchar_t* GetUnicodeString(const wchar_t *u)  { return u; }
-inline const UString& GetUnicodeString(const UString &u)  { return u; }
+inline const wchar_t* GetUnicodeString(const wchar_t *u) { return u; }
+inline const UString& GetUnicodeString(const UString &u) { return u; }
 
-inline UString GetUnicodeString(const AString &a)  { return MultiByteToUnicodeString(a); }
+inline UString GetUnicodeString(const AString &a) { return MultiByteToUnicodeString(a); }
 inline UString GetUnicodeString(const char *a)     { return MultiByteToUnicodeString(a); }
 inline UString GetUnicodeString(const AString &a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
 inline UString GetUnicodeString(const char *a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
@@ -3460,7 +3460,7 @@ namespace NWindows {
 
 		class CCriticalSectionLock {
 			CCriticalSection * _object;
-			void Unlock()  { _object->Leave(); }
+			void Unlock() { _object->Leave(); }
 		public:
 			CCriticalSectionLock(CCriticalSection &object) : _object(&object) 
 			{
@@ -3497,7 +3497,7 @@ namespace NWindows {
 		CThread() { Thread_Construct(&thread); }
 		~CThread() { Close(); }
 		bool IsCreated() { return Thread_WasCreated(&thread) != 0; }
-		WRes Close()  { return Thread_Close(&thread); }
+		WRes Close() { return Thread_Close(&thread); }
 		WRes Create(THREAD_FUNC_RET_TYPE (THREAD_FUNC_CALL_TYPE * startAddress)(void *), LPVOID parameter) 
 			{ return Thread_Create(&thread, startAddress, parameter); }
 		WRes Wait() { return Thread_Wait(&thread); }
@@ -4000,7 +4000,7 @@ namespace NWindows {
 			const uint kSuperPathPrefixSize = 4;
 			const uint kSuperUncPathPrefixSize = kSuperPathPrefixSize + 4;
 
-			bool IsDevicePath(CFSTR s) throw();   /* \\.\ */
+			bool IsDevicePath(CFSTR s) throw(); /* \\.\ */
 			bool IsSuperUncPath(CFSTR s) throw(); /* \\?\UNC\ */
 			bool IsNetworkPath(CFSTR s) throw(); /* \\?\UNC\ or \\SERVER */
 
@@ -4828,7 +4828,7 @@ namespace NArchive {
 		void ReplaceToOsSlashes_Remove_TailSlash(UString &name);
 		bool HasTailSlash(const AString &name, UINT codePage);
 		#ifdef _WIN32
-			inline UString WinPathToOsPath(const UString &name)  { return name; }
+			inline UString WinPathToOsPath(const UString &name) { return name; }
 		#else
 			UString WinPathToOsPath(const UString &name);
 		#endif
@@ -6449,14 +6449,14 @@ EXTERN_C_BEGIN
 			// default = (1 << 24) 
 		uint64 reduceSize; // estimated size of data that will be compressed. default = 0xFFFFFFFF.
 			// Encoder uses this value to reduce dictionary size 
-		int lc;    /* 0 <= lc <= 8, default = 3 */
-		int lp;    /* 0 <= lp <= 4, default = 0 */
-		int pb;    /* 0 <= pb <= 4, default = 2 */
-		int algo;  /* 0 - fast, 1 - normal, default = 1 */
-		int fb;    /* 5 <= fb <= 273, default = 32 */
+		int lc; /* 0 <= lc <= 8, default = 3 */
+		int lp; /* 0 <= lp <= 4, default = 0 */
+		int pb; /* 0 <= pb <= 4, default = 2 */
+		int algo; /* 0 - fast, 1 - normal, default = 1 */
+		int fb; /* 5 <= fb <= 273, default = 32 */
 		int btMode; /* 0 - hashChain Mode, 1 - binTree mode - normal, default = 1 */
 		int numHashBytes; /* 2, 3 or 4, default = 4 */
-		uint32 mc;  /* 1 <= mc <= (1 << 30), default = 32 */
+		uint32 mc; /* 1 <= mc <= (1 << 30), default = 32 */
 		unsigned writeEndMark; /* 0 - do not write EOPM, 1 - write EOPM, default = 0 */
 		int numThreads; /* 1 or 2, default = 2 */
 	} CLzmaEncProps;
@@ -7225,7 +7225,7 @@ namespace NArchive {
 				const char kGnu_LongLink = 'K';
 				const char kGnu_LongName = 'L';
 				const char kSparse       = 'S';
-				const char kDumpDir      = 'D';     /* GNUTYPE_DUMPDIR.
+				const char kDumpDir      = 'D'; /* GNUTYPE_DUMPDIR.
 									   data: list of files created by the --incremental (-G) option
 									   Each file name is preceded by either
 									   - 'Y' (file should be in this archive)
@@ -8084,7 +8084,7 @@ private:
 	class CSequentialOutTempBufferImp : public ISequentialOutStream, public CMyUnknownImp {
 		CInOutTempBuffer *_buf;
 	public:
-		void Init(CInOutTempBuffer *buffer)  { _buf = buffer; }
+		void Init(CInOutTempBuffer *buffer) { _buf = buffer; }
 		MY_UNKNOWN_IMP
 		STDMETHOD(Write)(const void *data, uint32 size, uint32 *processedSize);
 	};

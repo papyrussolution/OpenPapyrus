@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494462
+LastSignatureCode=2147494464
 LastAutoCodeList=1,12091;102,10174;103,10072;110,10000;111,12013;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10139;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10227
 
 [SignatureList]
@@ -1981,6 +1981,7 @@ doinventoryautofill=2147494368
 doinventoryrecalcstock=2147494369
 doinventoryrecalcprices=2147494370
 doinventoryrecalcdeficit=2147494371
+dostyloqinvite=2147494464
 usepackparams=2147493800
 reportsendmail=2147485272
 obj_article=2147485273
@@ -10764,6 +10765,7 @@ styloqcommand_uuid=2147494441
 styloqcommand_objtyperestriction=2147494442
 styloqcommand_objgrouprestriction=2147494443
 styloqcommand_viewsymb=2147494444
+styloqcommand_remoteorderparam=2147494463
 styloqcommand_description=2147494445
 styloqsvcconfig=2147494196
 styloqsvcconfig_url=2147494197

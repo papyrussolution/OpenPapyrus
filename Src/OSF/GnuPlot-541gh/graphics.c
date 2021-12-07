@@ -56,7 +56,7 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 	int save_lgrid = AxS.grid_lp.l_type;
 	int save_mgrid = AxS.mgrid_lp.l_type;
 	BoundingBox * clip_save = V.P_ClipArea;
-	TermApplyLpProperties(pTerm, &Gg.border_lp);   /* border linetype */
+	TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 	Gr.LargestPolarCircle = 0.0;
 	// We used to go through this process only once, drawing both the grid lines
 	// and the axis tic labels.  Now we allow for a separate pass that redraws only
@@ -1175,11 +1175,11 @@ void GnuPlot::PlotBetweenCurves(GpTermEntry * pTerm, curve_points * plot)
 void GnuPlot::PlotSteps(GpTermEntry * pTerm, curve_points * plot)
 {
 	int i;                          /* point index */
-	int x = 0, y = 0;               /* point in terminal coordinates */
+	int x = 0, y = 0; /* point in terminal coordinates */
 	enum coord_type prev = UNDEFINED; /* type of previous point */
-	int xprev, yprev;               /* previous point coordinates */
-	int xleft, xright, ytop, ybot;  /* plot limits in terminal coords */
-	int y0 = 0;                     /* baseline */
+	int xprev, yprev; /* previous point coordinates */
+	int xleft, xright, ytop, ybot; /* plot limits in terminal coords */
+	int y0 = 0; /* baseline */
 	int style = 0;
 	// EAM April 2011:  Default to lines only, but allow filled boxes 
 	if((plot->plot_style & PLOT_STYLE_HAS_FILL) && pTerm->fillbox) {
@@ -1285,18 +1285,18 @@ static int histeps_compare(SORTFUNC_ARGS p1, SORTFUNC_ARGS p2)
 // 
 void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 {
-	int i;                  /* point index */
+	int i; /* point index */
 	int x1m, y1m, x2m, y2m; /* mapped coordinates */
-	double x, y, xn, yn;    /* point position */
-	double y_null;          /* y coordinate of histogram baseline */
-	int * gl, goodcount;    /* array to hold list of valid points */
+	double x, y, xn, yn; /* point position */
+	double y_null; /* y coordinate of histogram baseline */
+	int * gl, goodcount; /* array to hold list of valid points */
 	// preliminary count of points inside array 
 	goodcount = 0;
 	for(i = 0; i < pPlot->p_count; i++)
 		if(pPlot->points[i].type == INRANGE || pPlot->points[i].type == OUTRANGE)
 			++goodcount;
 	if(goodcount < 2)
-		return;         /* cannot pPlot less than 2 points */
+		return; /* cannot pPlot less than 2 points */
 	gl = (int *)SAlloc::M(goodcount * sizeof(int));
 	// fill gl array with indexes of valid (non-undefined) points.  
 	goodcount = 0;
@@ -1357,7 +1357,7 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 	int xM, ylowM, yhighM; // the mapped version of above 
 	int yM, xlowM, xhighM;
 	int tic = ERRORBARTIC(pTerm);
-	double halfwidth = 0;   /* Used to calculate full box width */
+	double halfwidth = 0; /* Used to calculate full box width */
 	if(oneof7(plot->plot_style, YERRORBARS, XYERRORBARS, BOXERROR, YERRORLINES, XYERRORLINES, HISTOGRAMS, FILLEDCURVES)) { // Only if term has no filled_polygon!
 		// Draw the vertical part of the bar */
 		for(i = 0; i < plot->p_count; i++) {
@@ -1510,11 +1510,11 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 // 
 void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 {
-	int i;                  /* point index */
-	int xl, xr, yb, yt;     /* point in terminal coordinates */
+	int i; /* point index */
+	int xl, xr, yb, yt; /* point in terminal coordinates */
 	double dxl, dxr, dyt;
 	enum coord_type prev = UNDEFINED; /* type of previous point */
-	int lastdef = 0;                /* most recent point that was not UNDEFINED */
+	int lastdef = 0; /* most recent point that was not UNDEFINED */
 	double dyb = 0.0;
 	// The stackheight[] array contains the y coord of the top
 	// of the stack so far for each point.
@@ -2034,11 +2034,11 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 //
 void GnuPlot::PlotFBars(GpTermEntry * pTerm, curve_points * pPlot)
 {
-	int i;                  /* point index */
-	double x;               /* position of the bar */
+	int i; /* point index */
+	double x; /* position of the bar */
 	double ylow, yhigh, yclose, yopen; /* the ends of the bars */
 	double ymedian;
-	int xM, ylowM, yhighM;  /* the mapped version of above */
+	int xM, ylowM, yhighM; /* the mapped version of above */
 	int yopenM, ycloseM, ymedianM;
 	bool low_inrange, high_inrange;
 	int tic = MAX(ERRORBARTIC(pTerm)/2, 1);
@@ -3042,7 +3042,7 @@ void GnuPlot::PlotBorder(GpTermEntry * pTerm)
 	int min, max;
 	bool border_complete = ((Gg.draw_border & 15) == 15);
 	(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_BORDER);
-	TermApplyLpProperties(pTerm, &Gg.border_lp);   /* border linetype */
+	TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 	if(border_complete)
 		newpath(pTerm);
 	// Trace border anticlockwise from upper left 
@@ -3421,8 +3421,8 @@ void GnuPlot::DoEllipse(GpTermEntry * pTerm, int dimensions, t_ellipse * pEllips
 	int junkw, junkh;
 	double cosO = cos(SMathConst::PiDiv180 * pEllipse->orientation);
 	double sinO = sin(SMathConst::PiDiv180 * pEllipse->orientation);
-	double A = pEllipse->extent.x / 2.0;   /* Major axis radius */
-	double B = pEllipse->extent.y / 2.0;   /* Minor axis radius */
+	double A = pEllipse->extent.x / 2.0; /* Major axis radius */
+	double B = pEllipse->extent.y / 2.0; /* Minor axis radius */
 	struct GpPosition pos = pEllipse->extent; /* working copy with axis info attached */
 	double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 	// Choose how many segments to draw for this ellipse 

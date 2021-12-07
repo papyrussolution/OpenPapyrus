@@ -162,9 +162,9 @@ struct asn1_string_st {
  */
 
 typedef struct ASN1_ENCODING_st {
-	uchar * enc;    /* DER encoding */
-	long len;               /* Length of encoding */
-	int modified;           /* set to 1 if 'enc' is invalid */
+	uchar * enc; /* DER encoding */
+	long len; /* Length of encoding */
+	int modified; /* set to 1 if 'enc' is invalid */
 } ASN1_ENCODING;
 
 /* Used with ASN1 LONG type: if a long is set to this it is omitted */

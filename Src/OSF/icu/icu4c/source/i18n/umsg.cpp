@@ -58,7 +58,7 @@ U_CAPI int32_t u_formatMessage(const char * locale,
     int32_t patternLength,
     UChar * result,
     int32_t resultLength,
-    UErrorCode  * status,
+    UErrorCode * status,
     ...)
 {
 	va_list ap;
@@ -74,7 +74,7 @@ U_CAPI int32_t u_formatMessage(const char * locale,
 }
 
 U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const UChar * pattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, va_list ap, UErrorCode  * status)
+    UChar * result, int32_t resultLength, va_list ap, UErrorCode * status)
 {
 	//argument checking deferred to subsequent method calls
 	UMessageFormat * fmt = umsg_open(pattern, patternLength, locale, NULL, status);
@@ -84,7 +84,7 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessage(const char * locale, const UChar * pat
 }
 
 U_CAPI int32_t u_formatMessageWithError(const char * locale, const UChar * pattern, int32_t patternLength,
-    UChar * result, int32_t resultLength, UParseError * parseError, UErrorCode  * status, ...)
+    UChar * result, int32_t resultLength, UParseError * parseError, UErrorCode * status, ...)
 {
 	va_list ap;
 	int32_t actLen;
@@ -104,7 +104,7 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char * locale,
     int32_t resultLength,
     UParseError * parseError,
     va_list ap,
-    UErrorCode  * status)
+    UErrorCode * status)
 
 {
 	//argument checking deferred to subsequent method calls
@@ -121,9 +121,9 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char * locale,
 U_CAPI void u_parseMessage(const char * locale,
     const UChar  * pattern,
     int32_t patternLength,
-    const UChar  * source,
+    const UChar * source,
     int32_t sourceLength,
-    UErrorCode   * status,
+    UErrorCode * status,
     ...)
 {
 	va_list ap;
@@ -143,7 +143,7 @@ U_CAPI void U_EXPORT2 u_vparseMessage(const char * locale,
     const UChar * source,
     int32_t sourceLength,
     va_list ap,
-    UErrorCode  * status)
+    UErrorCode * status)
 {
 	//argument checking deferred to subsequent method calls
 	UMessageFormat * fmt = umsg_open(pattern, patternLength, locale, NULL, status);
@@ -158,7 +158,7 @@ U_CAPI void u_parseMessageWithError(const char * locale,
     const UChar * source,
     int32_t sourceLength,
     UParseError * error,
-    UErrorCode  * status,
+    UErrorCode * status,
     ...)
 {
 	va_list ap;
@@ -199,7 +199,7 @@ U_CAPI UMessageFormat* U_EXPORT2 umsg_open(const UChar * pattern,
     int32_t patternLength,
     const char * locale,
     UParseError     * parseError,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	//check arguments
 	if(status==NULL || U_FAILURE(*status)) {
@@ -440,7 +440,7 @@ U_CAPI int32_t U_EXPORT2 umsg_vformat(const UMessageFormat * fmt,
 }
 
 U_CAPI void umsg_parse(const UMessageFormat * fmt,
-    const UChar    * source,
+    const UChar * source,
     int32_t sourceLength,
     int32_t * count,
     UErrorCode * status,
@@ -461,7 +461,7 @@ U_CAPI void umsg_parse(const UMessageFormat * fmt,
 }
 
 U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt,
-    const UChar    * source,
+    const UChar * source,
     int32_t sourceLength,
     int32_t * count,
     va_list ap,

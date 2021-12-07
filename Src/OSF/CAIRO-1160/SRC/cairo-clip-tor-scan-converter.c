@@ -873,7 +873,7 @@ inline static void polygon_add_edge(struct polygon * polygon, const cairo_edge_t
 		}
 	}
 	_polygon_insert_edge_into_its_y_bucket(polygon, e);
-	e->x.rem -= dy;         /* Bias the remainder for faster
+	e->x.rem -= dy; /* Bias the remainder for faster
 	 * edge advancement. */
 }
 

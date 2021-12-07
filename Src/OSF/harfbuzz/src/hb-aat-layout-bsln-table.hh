@@ -60,7 +60,7 @@ public:
 protected:
 		HBINT16 deltas[32]; /* ditto */
 		Lookup<HBUINT16>
-		lookupTable;    /* Lookup table that maps glyphs to their
+		lookupTable; /* Lookup table that maps glyphs to their
 		 * baseline values. */
 public:
 		DEFINE_SIZE_MIN(66);
@@ -99,7 +99,7 @@ protected:
 		HBGlyphID stdGlyph; /* ditto */
 		HBUINT16 ctlPoints[32]; /* ditto */
 		Lookup<HBUINT16>
-		lookupTable;    /* Lookup table that maps glyphs to their
+		lookupTable; /* Lookup table that maps glyphs to their
 		 * baseline values. */
 public:
 		DEFINE_SIZE_MIN(68);

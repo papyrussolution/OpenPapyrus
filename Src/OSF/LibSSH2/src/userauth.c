@@ -649,7 +649,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION * session, const char * u
 			uchar * newpacket;
 			/* Should *NEVER* happen, but...well.. better safe than sorry */
 			newpacket = (uchar *)LIBSSH2_REALLOC(session, session->userauth_host_packet,
-			    session->userauth_host_packet_len + 4 + (4 + session->userauth_host_method_len) + (4 + sig_len));             /* PK sigblob */
+			    session->userauth_host_packet_len + 4 + (4 + session->userauth_host_method_len) + (4 + sig_len)); /* PK sigblob */
 			if(!newpacket) {
 				LIBSSH2_FREE(session, sig);
 				LIBSSH2_FREE(session, session->userauth_host_packet);

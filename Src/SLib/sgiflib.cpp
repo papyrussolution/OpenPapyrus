@@ -194,7 +194,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	p_private->FileHandle = FileHandle;
 	p_private->File = f;
 	p_private->FileState = FILE_STATE_READ;
-	p_private->Read = NULL;    /* don't use alternate input method (TVT) */
+	p_private->Read = NULL; /* don't use alternate input method (TVT) */
 	p_giffile->UserData = NULL; /* TVT */
 	FileHandle = -1; // @sobolev
 	/*@=mustfreeonly@*/
@@ -1199,7 +1199,7 @@ static int EGifCompressLine(GifFileType * GifFile, GifPixelType * Line, int Line
 	if(Private->CrntCode == FIRST_CODE) /* Its first time! */
 		CrntCode = Line[i++];
 	else
-		CrntCode = Private->CrntCode;  /* Get last code in compression. */
+		CrntCode = Private->CrntCode; /* Get last code in compression. */
 	while(i < LineLen) { /* Decode LineLen items. */
 		Pixel = Line[i++]; /* Get next pixel from stream. */
 		/* Form a new unique key to search hash table for the code combines

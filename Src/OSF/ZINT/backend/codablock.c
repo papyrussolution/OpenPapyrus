@@ -73,7 +73,7 @@ static const char * C128Table[107] = {
 
 /* Code F Analysing-Chart */
 typedef struct sCharacterSetTable {
-	int CharacterSet;   /* Still possible character sets for actual*/
+	int CharacterSet; /* Still possible character sets for actual*/
 	int AFollowing; /* Still following Characters in Charset A */
 	int BFollowing; /* Still following Characters in Charset B */
 	int CFollowing; /* Still following Characters in Charset C */
@@ -88,9 +88,9 @@ int GetPossibleCharacterSet(uchar C)
 	if(C<='\x19')   /* Dec:31 */
 		return CodeA;
 	if(C>='0' && C<='9')
-		return ZTNum;  /* ZTNum=CodeA+CodeB+CodeC */
+		return ZTNum; /* ZTNum=CodeA+CodeB+CodeC */
 	if(C==aFNC1)
-		return ZTFNC1;  /* ZTFNC1=CodeA+CodeB+CodeC+CodeFNC1 */
+		return ZTFNC1; /* ZTFNC1=CodeA+CodeB+CodeC+CodeFNC1 */
 	if(C>='\x60' && C<='\x7f')   /* 60 to 127 */
 		return CodeB;
 	return CodeA+CodeB;
@@ -185,15 +185,15 @@ int RemainingDigits(CharacterSetTable * T, int charCur, int emptyColumns)
 
 int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRows, int * pUseColumns, int * pSet, int * pFillings)
 {
-	int fillings;   /* Number of filling characters */
+	int fillings; /* Number of filling characters */
 	int rowsCur;
 	int charCur;
 	int runChar;
 	int emptyColumns; /* Number of codes still empty in line. */
 	int emptyColumns2; /* Alternative emptyColumns to compare */
-	int fOneLiner;  /* Flag if One Liner */
-	int CPaires;    /* Number of digit pairs which may fit in the line */
-	int characterSetCur;    /* Current Character Set */
+	int fOneLiner; /* Flag if One Liner */
+	int CPaires; /* Number of digit pairs which may fit in the line */
+	int characterSetCur; /* Current Character Set */
 	int useColumns = *pUseColumns; /* Usable Characters per line */
 	SETMAX(useColumns, 3);
 	/* >>> Loop until rowsCur<44 */
@@ -231,7 +231,7 @@ int Columns2Rows(CharacterSetTable * T, uchar * data, int dataLength, int * pRow
 					pSet[charCur] = characterSetCur = CodeC;
 					/* Inkrement charCur */
 					if(T[charCur].CharacterSet!=ZTFNC1)
-						++charCur;  /* 2 Num.Digits */
+						++charCur; /* 2 Num.Digits */
 				}
 			}
 			++charCur;
@@ -393,7 +393,7 @@ int Rows2Columns(CharacterSetTable * T, uchar * data, int dataLength,
 	int useColumns;
 	int testColumns; /* To enter into Width2Rows */
 	int backupColumns = 0;
-	int fBackupOk = 0;  /* The memorysed set is o.k. */
+	int fBackupOk = 0; /* The memorysed set is o.k. */
 	int testListSize = 0;
 	int pTestList[62];
 #ifndef _MSC_VER

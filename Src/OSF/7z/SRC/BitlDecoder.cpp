@@ -20,7 +20,7 @@ namespace NBitl {
 }
 
 bool FASTCALL CBitlEncoder::Create(uint32 bufSize) { return _stream.Create(bufSize); }
-void FASTCALL CBitlEncoder::SetStream(ISequentialOutStream * outStream)  { _stream.SetStream(outStream); }
+void FASTCALL CBitlEncoder::SetStream(ISequentialOutStream * outStream) { _stream.SetStream(outStream); }
 // unsigned CBitlEncoder::GetBitPosition() const { return (8 - _bitPos); }
 uint64 CBitlEncoder::GetProcessedSize() const { return _stream.GetProcessedSize() + ((8 - _bitPos + 7) >> 3); }
 void FASTCALL CBitlEncoder::WriteByte(Byte b) { _stream.WriteByte(b); }

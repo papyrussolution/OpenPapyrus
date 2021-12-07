@@ -54,10 +54,10 @@ public:
 			return_trace(LIKELY(c->check_struct(this) && (valuesZ.sanitize(c, base, table_size))));
 		}
 protected:
-		HBFixed track;  /* Track value for this record. */
+		HBFixed track; /* Track value for this record. */
 		NameID trackNameID; /* The 'name' table index for this track. (a short word or phrase like "loose" or "very tight") */
 		NNOffsetTo<UnsizedArrayOf<FWORD>>
-		valuesZ;        /* Offset from start of tracking table to per-size tracking values for this track. */
+		valuesZ; /* Offset from start of tracking table to per-size tracking values for this track. */
 
 public:
 		DEFINE_SIZE_STATIC(8);
@@ -124,10 +124,10 @@ protected:
 		HBUINT16 nTracks; /* Number of separate tracks included in this table. */
 		HBUINT16 nSizes; /* Number of point sizes included in this table. */
 		LNNOffsetTo<UnsizedArrayOf<HBFixed>>
-		sizeTable;      /* Offset from start of the tracking table to
+		sizeTable; /* Offset from start of the tracking table to
 		 * Array[nSizes] of size values.. */
 		UnsizedArrayOf<TrackTableEntry>
-		trackTable;     /* Array[nTracks] of TrackTableEntry records. */
+		trackTable; /* Array[nTracks] of TrackTableEntry records. */
 
 public:
 		DEFINE_SIZE_ARRAY(8, trackTable);
@@ -184,10 +184,10 @@ protected:
 		 * (0x00010000u for version 1.0). */
 		HBUINT16 format; /* Format of the tracking table (set to 0). */
 		OffsetTo<TrackData>
-		horizData;      /* Offset from start of tracking table to TrackData
+		horizData; /* Offset from start of tracking table to TrackData
 		 * for horizontal text (or 0 if none). */
 		OffsetTo<TrackData>
-		vertData;       /* Offset from start of tracking table to TrackData
+		vertData; /* Offset from start of tracking table to TrackData
 		 * for vertical text (or 0 if none). */
 		HBUINT16 reserved; /* Reserved. Set to 0. */
 

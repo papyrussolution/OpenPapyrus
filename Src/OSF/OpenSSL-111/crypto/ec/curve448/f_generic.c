@@ -105,7 +105,7 @@ void gf_strong_reduce(gf a)
 	uint i;
 
 	/* first, clear high */
-	gf_weak_reduce(a);      /* Determined to have negligible perf impact. */
+	gf_weak_reduce(a); /* Determined to have negligible perf impact. */
 
 	/* now the total is less than 2p */
 

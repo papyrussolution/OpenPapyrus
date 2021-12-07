@@ -418,7 +418,7 @@ FANN_EXTERNAL Fann2 * FANN_API fann_create_sparse_array(float connection_rate, u
 		/* we do not allocate room here, but we make sure that
 		 * last_neuron - first_neuron is the number of neurons */
 		layer_it->first_neuron = NULL;
-		layer_it->last_neuron = layer_it->first_neuron + layers[i++] + 1;       /* +1 for bias */
+		layer_it->last_neuron = layer_it->first_neuron + layers[i++] + 1; /* +1 for bias */
 		ann->total_neurons += (uint)(layer_it->last_neuron - layer_it->first_neuron);
 	}
 	ann->num_output = (uint)((ann->last_layer - 1)->last_neuron - (ann->last_layer - 1)->first_neuron - 1);
@@ -774,7 +774,7 @@ FANN_EXTERNAL float * FANN_API fann_run(Fann2 * ann, float * input)
 					neurons = (layer_it - 1)->first_neuron;
 				}
 				/* unrolled loop start */
-				i = num_connections & 3;        /* same as modulo 4 */
+				i = num_connections & 3; /* same as modulo 4 */
 				switch(i) {
 					case 3: neuron_sum += fann_mult(weights[2], neurons[2].value);
 					case 2: neuron_sum += fann_mult(weights[1], neurons[1].value);
@@ -2172,7 +2172,7 @@ void fann_update_candidate_slopes(Fann2 * ann)
 		num_connections = cand_it->last_con - cand_it->first_con;
 		weights = ann->weights + cand_it->first_con;
 		/* unrolled loop start */
-		i = num_connections & 3;        /* same as modulo 4 */
+		i = num_connections & 3; /* same as modulo 4 */
 		switch(i) {
 			case 3: cand_sum += weights[2] * neurons[2].value;
 			case 2: cand_sum += weights[1] * neurons[1].value;
@@ -2448,7 +2448,7 @@ void fann_add_candidate_neuron(Fann2 * ann, Fann2::Layer * layer)
 	printf("neuron[%d] = weights[%d ... %d] activation: %s, steepness: %f\n",
 	    neuron_place - ann->first_layer->first_neuron, neuron_place->first_con,
 	    neuron_place->last_con - 1, FANN_ACTIVATIONFUNC_NAMES[neuron_place->activation_function],
-	    neuron_place->activation_steepness);       /* TODO remove */
+	    neuron_place->activation_steepness); /* TODO remove */
 #endif
 
 	candidate_con = candidate->first_con;
@@ -3593,8 +3593,8 @@ void fann_update_weights_quickprop(Fann2 * ann, uint num_data, uint first_weight
 	float * prev_train_slopes = ann->prev_train_slopes;
 	float w, prev_step, slope, prev_slope, next_step;
 	float epsilon = ann->learning_rate / num_data;
-	float decay = ann->quickprop_decay;     /*-0.0001;*/
-	float mu = ann->quickprop_mu;   /*1.75; */
+	float decay = ann->quickprop_decay; /*-0.0001;*/
+	float mu = ann->quickprop_mu; /*1.75; */
 	float shrink_factor = (mu / (1.0f + mu));
 	uint i = first_weight;
 	for(; i != past_end; i++) {
@@ -3610,7 +3610,7 @@ void fann_update_weights_quickprop(Fann2 * ann, uint num_data, uint first_weight
 				next_step += epsilon * slope;
 			/*If current slope is close to or larger than prev slope...  */
 			if(slope > (shrink_factor * prev_slope))
-				next_step += mu * prev_step;    /* Take maximum size negative step. */
+				next_step += mu * prev_step; /* Take maximum size negative step. */
 			else
 				next_step += prev_step * slope / (prev_slope - slope); // Else, use quadratic estimate.
 		}
@@ -3620,7 +3620,7 @@ void fann_update_weights_quickprop(Fann2 * ann, uint num_data, uint first_weight
 				next_step += epsilon * slope;
 			/* If current slope is close to or more neg than prev slope... */
 			if(slope < (shrink_factor * prev_slope))
-				next_step += mu * prev_step;    /* Take maximum size negative step. */
+				next_step += mu * prev_step; /* Take maximum size negative step. */
 			else
 				next_step += prev_step * slope / (prev_slope - slope); // Else, use quadratic estimate.
 		}
@@ -3661,8 +3661,8 @@ void fann_update_weights_irpropm(Fann2 * ann, uint first_weight, uint past_end)
 	float * prev_steps = ann->prev_steps;
 	float * prev_train_slopes = ann->prev_train_slopes;
 	float next_step;
-	float increase_factor = ann->rprop_increase_factor;     /*1.2; */
-	float decrease_factor = ann->rprop_decrease_factor;     /*0.5; */
+	float increase_factor = ann->rprop_increase_factor; /*1.2; */
+	float decrease_factor = ann->rprop_decrease_factor; /*0.5; */
 	float delta_min = ann->rprop_delta_min; /*0.0; */
 	float delta_max = ann->rprop_delta_max; /*50.0; */
 	for(uint i = first_weight; i != past_end; i++) {
@@ -3707,8 +3707,8 @@ void fann_update_weights_sarprop(Fann2 * ann, uint epoch, uint first_weight, uin
 	float * prev_train_slopes = ann->prev_train_slopes;
 	float prev_step, slope, prev_slope, next_step = 0, same_sign;
 	/* These should be set from variables */
-	float increase_factor = ann->rprop_increase_factor;     /*1.2; */
-	float decrease_factor = ann->rprop_decrease_factor;     /*0.5; */
+	float increase_factor = ann->rprop_increase_factor; /*1.2; */
+	float decrease_factor = ann->rprop_decrease_factor; /*0.5; */
 	/* TODO: why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
 	float delta_min = 0.000001f;
 	float delta_max = ann->rprop_delta_max; /*50.0; */
@@ -3766,7 +3766,7 @@ FANN_GET_SET(float, learning_rate)
 
 FANN_EXTERNAL void FANN_API fann_set_activation_function_hidden(Fann2 * ann, Fann2::ActivationFunc activation_function)
 {
-	Fann2::Layer * last_layer = ann->last_layer - 1;    /* -1 to not update the output layer */
+	Fann2::Layer * last_layer = ann->last_layer - 1; /* -1 to not update the output layer */
 	for(Fann2::Layer * layer_it = ann->first_layer + 1; layer_it != last_layer; layer_it++) {
 		Fann2::Neuron * last_neuron = layer_it->last_neuron;
 		for(Fann2::Neuron * neuron_it = layer_it->first_neuron; neuron_it != last_neuron; neuron_it++) {

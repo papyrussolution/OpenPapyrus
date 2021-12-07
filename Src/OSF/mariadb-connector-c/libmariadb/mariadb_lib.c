@@ -82,7 +82,7 @@
 #undef max_allowed_packet
 #undef net_buffer_length
 extern ulong max_allowed_packet; /* net.c */
-extern ulong net_buffer_length;  /* net.c */
+extern ulong net_buffer_length; /* net.c */
 
 static MYSQL_PARAMETERS mariadb_internal_parameters = {&max_allowed_packet, &net_buffer_length, 0};
 static bool mysql_client_init = 0;
@@ -231,17 +231,17 @@ static int cli_report_progress(MYSQL * mysql, uchar * packet, uint length)
 	double progress;
 	uchar * start = packet;
 	if(length < 5)
-		return 1;             /* Wrong packet */
+		return 1; /* Wrong packet */
 	if(!(mysql->options.extension && mysql->options.extension->report_progress))
-		return 0;             /* No callback, ignore packet */
-	packet++;                     /* Ignore number of strings */
+		return 0; /* No callback, ignore packet */
+	packet++; /* Ignore number of strings */
 	stage = (uint) *packet++;
 	max_stage = (uint) *packet++;
 	progress = uint3korr(packet)/1000.0;
 	packet += 3;
 	proc_length = net_field_length(&packet);
 	if(packet + proc_length > start + length)
-		return 1;             /* Wrong packet */
+		return 1; /* Wrong packet */
 	(*mysql->options.extension->report_progress)(mysql, stage, max_stage, progress, (char *)packet, proc_length);
 	return 0;
 }
@@ -330,7 +330,7 @@ int mthd_my_send_cmd(MYSQL * mysql, enum enum_server_command command, const char
 	CLEAR_CLIENT_ERROR(mysql);
 	mysql->info = 0;
 	mysql->affected_rows = ~(uint64)0;
-	ma_net_clear(net);              /* Clear receive buffer */
+	ma_net_clear(net); /* Clear receive buffer */
 	SETIFZ(arg, "");
 	if(net->extension->multi_status== COM_MULTI_ENABLED) {
 		return net_add_multi_command(net, command, (const uchar *)arg, length);
@@ -413,7 +413,7 @@ static void FASTCALL free_old_query(MYSQL * mysql)
 		ma_free_root(&mysql->field_alloc, MYF(0));
 	ma_init_alloc_root(&mysql->field_alloc, 8192, 0); /* Assume rowlength < 8192 */
 	mysql->fields = 0;
-	mysql->field_count = 0;                 /* For API */
+	mysql->field_count = 0; /* For API */
 	mysql->info = 0;
 }
 
@@ -426,7 +426,7 @@ char * getlogin(void);
 void read_user_name(char * name)
 {
 	if(geteuid() == 0)
-		strcpy(name, "root");   /* allow use of surun */
+		strcpy(name, "root"); /* allow use of surun */
 	else {
 #ifdef HAVE_GETPWUID
 		struct passwd * skr;
@@ -812,7 +812,7 @@ MYSQL_FIELD * unpack_fields(const MYSQL * mysql,
 	}
 	if(field < result + fields)
 		goto error;
-	free_rows(data);                        /* Free old data */
+	free_rows(data); /* Free old data */
 	return result;
 error:
 	free_rows(data);
@@ -877,7 +877,7 @@ MYSQL_DATA * mthd_my_read_rows(MYSQL * mysql, MYSQL_FIELD * mysql_fields,
 				}
 			}
 		}
-		cur->data[field] = to;          /* End of last field */
+		cur->data[field] = to; /* End of last field */
 		if((pkt_len = ma_net_safe_read(mysql)) == packet_error) {
 			free_rows(result);
 			return 0;
@@ -911,7 +911,7 @@ int mthd_my_read_one_row(MYSQL * mysql, uint fields, MYSQL_ROW row, ulong * leng
 	if(pkt_len <= 8 && mysql->net.read_pos[0] == 254) {
 		mysql->warning_count = uint2korr(mysql->net.read_pos + 1);
 		mysql->server_status = uint2korr(mysql->net.read_pos + 3);
-		return 1;               /* End of data */
+		return 1; /* End of data */
 	}
 	prev_pos = 0;                   /* allowed to write at packet[-1] */
 	pos = mysql->net.read_pos;
@@ -933,10 +933,10 @@ int mthd_my_read_one_row(MYSQL * mysql, uint fields, MYSQL_ROW row, ulong * leng
 			*lengths++ = len;
 		}
 		if(prev_pos)
-			*prev_pos = 0;          /* Terminate prev field */
+			*prev_pos = 0; /* Terminate prev field */
 		prev_pos = pos;
 	}
-	row[field] = (char *)prev_pos+1;         /* End of last field */
+	row[field] = (char *)prev_pos+1; /* End of last field */
 	*prev_pos = 0;                          /* Terminate last field */
 	return 0;
 }
@@ -1230,7 +1230,7 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 	else
 #endif
 	{
-		cinfo.unix_socket = 0;                  /* This is not used */
+		cinfo.unix_socket = 0; /* This is not used */
 		SETIFZ(port, mysql_port);
 		SETIFZ(host, LOCAL_HOST);
 		cinfo.host = host;
@@ -1950,7 +1950,7 @@ int mthd_my_read_query_result(MYSQL * mysql)
 	if((length = ma_net_safe_read(mysql)) == packet_error) {
 		return 1;
 	}
-	free_old_query(mysql);                  /* Free old result */
+	free_old_query(mysql); /* Free old result */
 get_info:
 	pos = (uchar *)mysql->net.read_pos;
 	if((field_count = net_field_length(&pos)) == 0)
@@ -1960,7 +1960,7 @@ get_info:
 
 		if((length = ma_net_safe_read(mysql)) == packet_error || error)
 			return -1;
-		goto get_info;                  /* Get info packet */
+		goto get_info; /* Get info packet */
 	}
 	if(!(mysql->server_status & SERVER_STATUS_AUTOCOMMIT))
 		mysql->server_status |= SERVER_STATUS_IN_TRANS;
@@ -2030,7 +2030,7 @@ MYSQL_RES * STDCALL mysql_store_result(MYSQL * mysql)
 			SET_CLIENT_ERROR(mysql, CR_COMMANDS_OUT_OF_SYNC, SQLSTATE_UNKNOWN, 0);
 		}
 		else {
-			mysql->status = MYSQL_STATUS_READY;     /* server is ready */
+			mysql->status = MYSQL_STATUS_READY; /* server is ready */
 			result = (MYSQL_RES *)SAlloc::C(1, sizeof(MYSQL_RES)+sizeof(ulong)*mysql->field_count);
 			if(!result) {
 				SET_CLIENT_ERROR(mysql, CR_OUT_OF_MEMORY, SQLSTATE_UNKNOWN, 0);
@@ -2172,14 +2172,14 @@ ulong * STDCALL mysql_fetch_lengths(MYSQL_RES * res)
 	MYSQL_ROW column, end;
 
 	if(!(column = res->current_row))
-		return 0;                       /* Something is wrong */
+		return 0; /* Something is wrong */
 	if(res->data) {
 		start = 0;
-		prev_length = 0;                /* Keep gcc happy */
+		prev_length = 0; /* Keep gcc happy */
 		lengths = res->lengths;
 		for(end = column+res->field_count+1; column != end; column++, lengths++) {
 			if(!*column) {
-				*lengths = 0;   /* Null */
+				*lengths = 0; /* Null */
 				continue;
 			}
 			if(start)               /* Found end of prev string */

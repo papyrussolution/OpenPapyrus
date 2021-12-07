@@ -223,7 +223,7 @@ size_t CRYPTO_128_wrap_pad(void * key, const uchar * icv,
 		memcpy(out, aiv, 8);
 		memzero(out + 8 + inlen, padding_len);
 		block(out, out, key);
-		ret = 16;       /* AIV + padded input */
+		ret = 16; /* AIV + padded input */
 	}
 	else {
 		memmove(out, in, inlen);

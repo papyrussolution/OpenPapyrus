@@ -98,7 +98,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 		return FALSE;
 	}
 	UDataMemory_init(pData); /* Clear the output struct. */
-	return FALSE;            /* no file access */
+	return FALSE; /* no file access */
 }
 
 U_CFUNC void uprv_unmapFile(UDataMemory * pData) {
@@ -361,8 +361,8 @@ static char * strcpy_returnEnd(char * dest, const char * src)
  *------------------------------------------------------------------------------*/
 static char * uprv_computeDirPath(const char * path, char * pathBuffer)
 {
-	char * finalSlash;       /* Ptr to last dir separator in input path, or null if none. */
-	int32_t pathLen;          /* Length of the returned directory path   */
+	char * finalSlash; /* Ptr to last dir separator in input path, or null if none. */
+	int32_t pathLen; /* Length of the returned directory path   */
 
 	finalSlash = 0;
 	if(path != 0) {

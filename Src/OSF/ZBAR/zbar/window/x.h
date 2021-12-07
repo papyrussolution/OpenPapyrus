@@ -37,9 +37,9 @@
 
 struct window_state_s {
 	ulong colors[8]; /* pre-allocated colors */
-	GC gc;                  /* graphics context */
-	Region exposed;         /* region to redraw */
-	XFontStruct * font;     /* overlay font */
+	GC gc; /* graphics context */
+	Region exposed; /* region to redraw */
+	XFontStruct * font; /* overlay font */
 	/* pre-calculated logo geometries */
 	int logo_scale;
 	ulong logo_colors[2];
@@ -48,7 +48,7 @@ struct window_state_s {
 	XRectangle logo_bars[5];
 
 #ifdef HAVE_X11_EXTENSIONS_XSHM_H
-	XShmSegmentInfo shm;    /* shared memory segment */
+	XShmSegmentInfo shm; /* shared memory segment */
 #endif
 	union {
 		XImage * x;
@@ -57,10 +57,10 @@ struct window_state_s {
 #endif
 	} img;
 
-	XID img_port;           /* current format port */
-	XID * xv_ports;         /* best port for format */
-	int num_xv_adaptors;    /* number of adaptors */
-	XID * xv_adaptors;      /* port grabbed for each adaptor */
+	XID img_port; /* current format port */
+	XID * xv_ports; /* best port for format */
+	int num_xv_adaptors; /* number of adaptors */
+	XID * xv_adaptors; /* port grabbed for each adaptor */
 };
 
 extern int _zbar_window_probe_ximage(zbar_window_t*);

@@ -51,11 +51,11 @@ typedef struct {
 	 * until we have enough to do a downsample step.
 	 */
 	JSAMPARRAY color_buf[MAX_COMPONENTS];
-	JDIMENSION rows_to_go;  /* counts rows remaining in source image */
-	int next_buf_row;       /* index of next row to store in color_buf */
+	JDIMENSION rows_to_go; /* counts rows remaining in source image */
+	int next_buf_row; /* index of next row to store in color_buf */
 #ifdef CONTEXT_ROWS_SUPPORTED   /* only needed for context case */
-	int this_row_group;     /* starting row index of group to process */
-	int next_buf_stop;      /* downsample when we reach this index */
+	int this_row_group; /* starting row index of group to process */
+	int next_buf_stop; /* downsample when we reach this index */
 #endif
 } my_prep_controller;
 
@@ -137,7 +137,7 @@ METHODDEF(void) pre_process_data(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDI
 				expand_bottom_edge(output_buf[ci], compptr->width_in_blocks * compptr->DCT_h_scaled_size, (int)(*out_row_group_ctr * numrows), (int)(out_row_groups_avail * numrows));
 			}
 			*out_row_group_ctr = out_row_groups_avail;
-			break;  /* can exit outer loop without test */
+			break; /* can exit outer loop without test */
 		}
 	}
 }

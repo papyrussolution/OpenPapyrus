@@ -120,13 +120,13 @@ typedef struct AF_GlyphHintsRec_*  AF_GlyphHints;
 #define AF_SCALER_FLAG_NO_WARPER      8U /* disable warper       */
 
 typedef struct  AF_ScalerRec_ {
-	FT_Face face;            /* source font face     */
-	FT_Fixed x_scale;        /* from font units to 1/64th device pixels */
-	FT_Fixed y_scale;        /* from font units to 1/64th device pixels */
-	FT_Pos x_delta;          /* in 1/64th device pixels    */
-	FT_Pos y_delta;          /* in 1/64th device pixels    */
+	FT_Face face; /* source font face     */
+	FT_Fixed x_scale; /* from font units to 1/64th device pixels */
+	FT_Fixed y_scale; /* from font units to 1/64th device pixels */
+	FT_Pos x_delta; /* in 1/64th device pixels    */
+	FT_Pos y_delta; /* in 1/64th device pixels    */
 	FT_Render_Mode render_mode; /* monochrome, anti-aliased, LCD, etc.     */
-	FT_UInt32 flags;         /* additional control flags, see above     */
+	FT_UInt32 flags; /* additional control flags, see above     */
 } AF_ScalerRec, * AF_Scaler;
 
 #define AF_SCALER_EQUAL_SCALES(a, b)      \
@@ -233,7 +233,7 @@ typedef struct  AF_ScriptClassRec_ {
 	AF_Script_UniRange script_uni_ranges;
 	AF_Script_UniRange script_uni_nonbase_ranges;
 	FT_Bool top_to_bottom_hinting;
-	const char*  standard_charstring;  /* for default width and height */
+	const char*  standard_charstring; /* for default width and height */
 } AF_ScriptClassRec;
 
 typedef const AF_ScriptClassRec*  AF_ScriptClass;

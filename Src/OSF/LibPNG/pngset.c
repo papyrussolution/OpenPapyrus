@@ -1138,7 +1138,7 @@ void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_infor
 			if((location & PNG_HAVE_IDAT) != 0) /* undocumented! */
 				location = PNG_AFTER_IDAT;
 			else
-				location = PNG_HAVE_IHDR;  /* also undocumented */
+				location = PNG_HAVE_IHDR; /* also undocumented */
 		}
 		info_ptr->unknown_chunks[chunk].location = check_location(png_ptr, location);
 	}
@@ -1525,7 +1525,7 @@ uint32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, const char * key, p
 				bad_character = ch;
 		}
 		else if(bad_character == 0)
-			bad_character = ch;  /* just skip it, record the first error */
+			bad_character = ch; /* just skip it, record the first error */
 	}
 
 	if(key_len > 0 && space != 0) { /* trailing space */

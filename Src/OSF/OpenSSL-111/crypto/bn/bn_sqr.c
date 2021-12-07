@@ -44,7 +44,7 @@ int bn_sqr_fixed_top(BIGNUM * r, const BIGNUM * a, BN_CTX * ctx)
 	if(rr == NULL || tmp == NULL)
 		goto err;
 
-	max = 2 * al;           /* Non-zero (from above) */
+	max = 2 * al; /* Non-zero (from above) */
 	if(bn_wexpand(rr, max) == NULL)
 		goto err;
 

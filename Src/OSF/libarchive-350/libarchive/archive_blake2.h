@@ -84,8 +84,8 @@ typedef struct blake2bp_state__ {
 BLAKE2_PACKED(struct blake2s_param__ {
 	uint8 digest_length; /* 1 */
 	uint8 key_length; /* 2 */
-	uint8 fanout;     /* 3 */
-	uint8 depth;      /* 4 */
+	uint8 fanout; /* 3 */
+	uint8 depth; /* 4 */
 	uint32 leaf_length; /* 8 */
 	uint32 node_offset; /* 12 */
 	uint16_t xof_length; /* 14 */
@@ -101,8 +101,8 @@ typedef struct blake2s_param__ blake2s_param;
 BLAKE2_PACKED(struct blake2b_param__ {
 	uint8 digest_length; /* 1 */
 	uint8 key_length; /* 2 */
-	uint8 fanout;     /* 3 */
-	uint8 depth;      /* 4 */
+	uint8 fanout; /* 3 */
+	uint8 depth; /* 4 */
 	uint32 leaf_length; /* 8 */
 	uint32 node_offset; /* 12 */
 	uint32 xof_length; /* 16 */

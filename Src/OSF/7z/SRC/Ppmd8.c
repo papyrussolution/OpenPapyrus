@@ -1097,7 +1097,7 @@ void Ppmd8_EncodeSymbol(CPpmd8 * p, int symbol)
 		do {
 			p->OrderFall++;
 			if(!p->MinContext->Suffix)
-				return;  /* EndMarker (symbol = -1) */
+				return; /* EndMarker (symbol = -1) */
 			p->MinContext = Ppmd8_GetContext(p, p->MinContext->Suffix);
 		} while(p->MinContext->NumStats == numMasked);
 		see = Ppmd8_MakeEscFreq(p, numMasked, &escFreq);

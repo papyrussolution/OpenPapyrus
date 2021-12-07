@@ -258,9 +258,9 @@ protected:
 		HBUINT16 version; /* Table version number (starts at 0). */
 		HBUINT16 numBaseGlyphs; /* Number of Base Glyph Records. */
 		LNNOffsetTo<SortedUnsizedArrayOf<BaseGlyphRecord>>
-		baseGlyphsZ;    /* Offset to Base Glyph records. */
+		baseGlyphsZ; /* Offset to Base Glyph records. */
 		LNNOffsetTo<UnsizedArrayOf<LayerRecord>>
-		layersZ;        /* Offset to Layer Records. */
+		layersZ; /* Offset to Layer Records. */
 		HBUINT16 numLayers; /* Number of Layer Records. */
 public:
 		DEFINE_SIZE_STATIC(14);

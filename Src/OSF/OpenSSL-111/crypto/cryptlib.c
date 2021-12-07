@@ -204,12 +204,12 @@ void OPENSSL_cpuid_setup(void)
 			if(GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
 				return -1;
 			if(len > 512)
-				return -1;      /* paranoia */
-			len++, len &= ~1;       /* paranoia */
+				return -1; /* paranoia */
+			len++, len &= ~1; /* paranoia */
 			name = (WCHAR*)alloca(len + sizeof(WCHAR));
 			if(!GetUserObjectInformationW(h, UOI_NAME, name, len, &len))
 				return -1;
-			len++, len &= ~1;       /* paranoia */
+			len++, len &= ~1; /* paranoia */
 			name[len / sizeof(WCHAR)] = L'\0'; /* paranoia */
 		#if 1
 			/*

@@ -301,8 +301,8 @@ void __db_errx(const ENV * env, const char * fmt, ...)
 //
 void __db_errcall(const DB_ENV * dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
-	char buf[2048];         /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
-	char sysbuf[1024];      /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char buf[2048]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char sysbuf[1024]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	char * p = buf;
 	if(fmt)
 		p += vsnprintf(buf, sizeof(buf), fmt, ap);
@@ -315,7 +315,7 @@ void __db_errcall(const DB_ENV * dbenv, int error, db_error_set_t error_set, con
 // 
 void __db_errfile(const DB_ENV * dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
-	char sysbuf[1024];      /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char sysbuf[1024]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	FILE * fp = (!dbenv || !dbenv->db_errfile) ? stderr : dbenv->db_errfile;
 	int need_sep = 0;
 	if(dbenv && dbenv->db_errpfx) {
@@ -352,7 +352,7 @@ void __db_msgadd(ENV * env, DB_MSGBUF * mbp, const char * fmt, ...)
  */
 void __db_msgadd_ap(ENV*env, DB_MSGBUF * mbp, const char * fmt, va_list ap)
 {
-	char buf[2048];         /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char buf[2048]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	size_t len = (size_t)vsnprintf(buf, sizeof(buf), fmt, ap);
 	/*
 	 * There's a heap buffer in the ENV handle we use to aggregate the
@@ -393,7 +393,7 @@ void __db_msg(const ENV * env, const char * fmt, ...)
 void __db_repmsg(const ENV * env, const char * fmt, ...)
 {
 	va_list ap;
-	char buf[2048];         /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char buf[2048]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	va_start(ap, fmt);
 	vsnprintf(buf, sizeof(buf), fmt, ap);
 	__rep_msg(env, buf);
@@ -406,7 +406,7 @@ void __db_repmsg(const ENV * env, const char * fmt, ...)
  */
 static void __db_msgcall(const DB_ENV * dbenv, const char * fmt, va_list ap)
 {
-	char buf[2048];         /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char buf[2048]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	vsnprintf(buf, sizeof(buf), fmt, ap);
 	dbenv->db_msgcall(dbenv, buf);
 }

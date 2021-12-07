@@ -47,12 +47,12 @@
 #define FT_LZW_BUFFER_SIZE  4096
 
 typedef struct  FT_LZWFileRec_ {
-	FT_Stream source;           /* parent/source stream  */
-	FT_Stream stream;           /* embedding stream      */
-	FT_Memory memory;           /* memory allocator      */
-	FT_LzwStateRec lzw;         /* lzw decompressor state      */
+	FT_Stream source; /* parent/source stream  */
+	FT_Stream stream; /* embedding stream      */
+	FT_Memory memory; /* memory allocator      */
+	FT_LzwStateRec lzw; /* lzw decompressor state      */
 
-	FT_Byte buffer[FT_LZW_BUFFER_SIZE];     /* output buffer      */
+	FT_Byte buffer[FT_LZW_BUFFER_SIZE]; /* output buffer      */
 	FT_ULong pos;                           /* position in output */
 	FT_Byte*        cursor;
 	FT_Byte*        limit;

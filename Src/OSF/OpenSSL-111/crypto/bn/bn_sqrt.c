@@ -167,7 +167,7 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	 * find some y that is not a square.
 	 */
 	if(!BN_copy(q, p))
-		goto end;       /* use 'q' as temp */
+		goto end; /* use 'q' as temp */
 	q->neg = 0;
 	i = 2;
 	do {

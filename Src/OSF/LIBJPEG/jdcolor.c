@@ -22,12 +22,12 @@
 typedef struct {
 	struct jpeg_color_deconverter pub; /* public fields */
 	/* Private state for YCbCr->RGB and BG_YCC->RGB conversion */
-	int * Cr_r_tab;         /* => table for Cr to R conversion */
-	int * Cb_b_tab;         /* => table for Cb to B conversion */
-	INT32 * Cr_g_tab;       /* => table for Cr to G conversion */
-	INT32 * Cb_g_tab;       /* => table for Cb to G conversion */
+	int * Cr_r_tab; /* => table for Cr to R conversion */
+	int * Cb_b_tab; /* => table for Cb to B conversion */
+	INT32 * Cr_g_tab; /* => table for Cr to G conversion */
+	INT32 * Cb_g_tab; /* => table for Cb to G conversion */
 	/* Private state for RGB->Y conversion */
-	INT32 * rgb_y_tab;      /* => table for RGB to Y conversion */
+	INT32 * rgb_y_tab; /* => table for RGB to Y conversion */
 } my_color_deconverter;
 
 typedef my_color_deconverter * my_cconvert_ptr;
@@ -586,7 +586,7 @@ GLOBAL(void) jinit_color_deconverter(j_decompress_ptr cinfo)
 		    break;
 	}
 	if(cinfo->quantize_colors)
-		cinfo->output_components = 1;  /* single colormapped output component */
+		cinfo->output_components = 1; /* single colormapped output component */
 	else
 		cinfo->output_components = cinfo->out_color_components;
 }

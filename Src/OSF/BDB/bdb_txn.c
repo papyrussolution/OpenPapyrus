@@ -690,7 +690,7 @@ static int __txn_close_cursors(DB_TXN * txn)
 	txn->my_cursors.tqh_first = NULL;
 	txn->my_cursors.tqh_last = NULL;
 
-	return tret;  /* Return the first error if any. */
+	return tret; /* Return the first error if any. */
 }
 /*
  * __txn_set_commit_token --

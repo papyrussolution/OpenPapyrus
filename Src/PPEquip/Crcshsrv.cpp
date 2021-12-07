@@ -3111,7 +3111,7 @@ public:
 		}
 		int EnumItems(long * pPos, Item * pItem)
 		{
-			if(pPos && *pPos < Items.getCountI())  {
+			if(pPos && *pPos < Items.getCountI()) {
 				ASSIGN_PTR(pItem, Items.at((*pPos)++));
 				return 1;
 			}

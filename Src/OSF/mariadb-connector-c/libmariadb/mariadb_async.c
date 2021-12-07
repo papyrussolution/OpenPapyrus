@@ -234,14 +234,14 @@ int my_ssl_write_async(struct mysql_async_context * b, SSL * ssl, const void * b
 	res = my_context_continue(&b->async_context);                                \
 	b->active = 0;                                                               \
 	if(res > 0)                                                                \
-		return b->events_to_wait_for;   /* (Still) suspended */       \
+		return b->events_to_wait_for; /* (Still) suspended */       \
 	b->suspended = 0;                                                            \
 	if(res < 0) {                                                                \
 		set_mariadb_error((mysql_val), CR_OUT_OF_MEMORY, unknown_sqlstate);         \
 		*ret = err_val;                                                            \
 	}                                                                           \
 	else                                                                        \
-		*ret = (b->ret_result.ok_val);    /* Finished. */               \
+		*ret = (b->ret_result.ok_val); /* Finished. */               \
 	return 0;
 
 #define MK_ASYNC_CONT_BODY_RESULTCAST(mysql_val, err_val, ok_val, result_type) \
@@ -257,14 +257,14 @@ int my_ssl_write_async(struct mysql_async_context * b, SSL * ssl, const void * b
 	res = my_context_continue(&b->async_context);                                \
 	b->active = 0;                                                               \
 	if(res > 0)                                                                \
-		return b->events_to_wait_for;   /* (Still) suspended */       \
+		return b->events_to_wait_for; /* (Still) suspended */       \
 	b->suspended = 0;                                                            \
 	if(res < 0) {                                                                \
 		set_mariadb_error((mysql_val), CR_OUT_OF_MEMORY, unknown_sqlstate);         \
 		*ret = err_val;                                                            \
 	}                                                                           \
 	else                                                                        \
-		*ret = (result_type)(b->ret_result.ok_val);    /* Finished. */               \
+		*ret = (result_type)(b->ret_result.ok_val); /* Finished. */               \
 	return 0;
 
 #define MK_ASYNC_INTERNAL_BODY_VOID_RETURN(call, invoke_args, mysql_val)      \
@@ -305,7 +305,7 @@ int my_ssl_write_async(struct mysql_async_context * b, SSL * ssl, const void * b
 	res = my_context_continue(&b->async_context);                                \
 	b->active = 0;                                                               \
 	if(res > 0)                                                                \
-		return b->events_to_wait_for;   /* (Still) suspended */       \
+		return b->events_to_wait_for; /* (Still) suspended */       \
 	b->suspended = 0;                                                            \
 	if(res < 0)                                                                \
 		set_mariadb_error((mysql_val), CR_OUT_OF_MEMORY, unknown_sqlstate);         \

@@ -897,7 +897,7 @@ int ssh_send_debug(ssh_session session, const char * message, int always_display
 			SSH2_MSG_DEBUG,
 			always_display != 0 ? 1 : 0,
 			message,
-			0);      /* empty language tag */
+			0); /* empty language tag */
 		if(rc != SSH_OK) {
 			ssh_set_error_oom(session);
 			goto error;

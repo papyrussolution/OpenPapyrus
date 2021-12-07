@@ -19,7 +19,7 @@
 
 typedef struct {
 	struct jpeg_input_controller pub; /* public fields */
-	int inheaders;          /* Nonzero until first SOS is reached */
+	int inheaders; /* Nonzero until first SOS is reached */
 } my_input_controller;
 
 typedef my_input_controller * my_inputctl_ptr;

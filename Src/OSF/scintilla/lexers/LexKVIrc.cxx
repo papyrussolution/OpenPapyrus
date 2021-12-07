@@ -281,7 +281,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    char s[100];
 				    Sci_Position wordLen = sc.currentPos - styler.GetStartSegment();
 				    if(wordLen > 99)
-					    wordLen = 99;  /* Include '\0' in buffer */
+					    wordLen = 99; /* Include '\0' in buffer */
 				    Sci_Position i;
 				    for(i = 0; i < wordLen; ++i) {
 					    s[i] = styler.SafeGetCharAt(styler.GetStartSegment() + i);

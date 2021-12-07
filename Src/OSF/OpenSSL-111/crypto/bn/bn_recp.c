@@ -72,7 +72,7 @@ int BN_mod_mul_reciprocal(BIGNUM * r, const BIGNUM * x, const BIGNUM * y,
 		ca = a;
 	}
 	else
-		ca = x;         /* Just do the mod */
+		ca = x; /* Just do the mod */
 
 	ret = BN_div_recp(NULL, r, ca, recp, ctx);
 err:

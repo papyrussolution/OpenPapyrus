@@ -110,7 +110,7 @@ typedef uchar FT_Bool;
  *   A signed 16-bit integer used to store a distance in original font
  *   units.
  */
-typedef signed short FT_FWord;      /* distance in FUnits */
+typedef signed short FT_FWord; /* distance in FUnits */
 
 /**************************************************************************
  *
@@ -121,7 +121,7 @@ typedef signed short FT_FWord;      /* distance in FUnits */
  *   An unsigned 16-bit integer used to store a distance in original font
  *   units.
  */
-typedef unsigned short FT_UFWord;     /* unsigned distance */
+typedef unsigned short FT_UFWord; /* unsigned distance */
 
 /**************************************************************************
  *

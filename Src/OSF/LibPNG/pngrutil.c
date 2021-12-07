@@ -39,7 +39,7 @@ static png_fixed_point /* PRIVATE */ png_get_fixed_point(png_structrp png_ptr, p
 {
 	uint32 uval = png_get_uint_32(buf);
 	if(uval <= PNG_UINT_31_MAX)
-		return (png_fixed_point)uval;  /* known to be in range */
+		return (png_fixed_point)uval; /* known to be in range */
 	/* The caller can turn off the warning by passing NULL. */
 	if(png_ptr)
 		png_warning(png_ptr, "PNG fixed point integer out of range");
@@ -466,7 +466,7 @@ static int png_inflate(png_structrp png_ptr, uint32 owner, int finish,
 			avail = ZLIB_IO_MAX;
 
 			if(avail_in < avail)
-				avail = (uInt)avail_in;  /* safe: < than ZLIB_IO_MAX */
+				avail = (uInt)avail_in; /* safe: < than ZLIB_IO_MAX */
 
 			avail_in -= avail;
 			png_ptr->zstream.avail_in = avail;
@@ -486,7 +486,7 @@ static int png_inflate(png_structrp png_ptr, uint32 owner, int finish,
 			}
 
 			if(avail_out < avail)
-				avail = (uInt)avail_out;  /* safe: < ZLIB_IO_MAX */
+				avail = (uInt)avail_out; /* safe: < ZLIB_IO_MAX */
 
 			png_ptr->zstream.avail_out = avail;
 			avail_out -= avail;
@@ -626,7 +626,7 @@ static int png_decompress_chunk(png_structrp png_ptr,
 						}
 
 						else if(ret == Z_OK)
-							ret = PNG_UNEXPECTED_ZLIB_RETURN;  /* for safety */
+							ret = PNG_UNEXPECTED_ZLIB_RETURN; /* for safety */
 
 						/* Free the text pointer (this is the old read_buffer on
 						 * success)
@@ -1372,7 +1372,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 			}
 
 			else
-				errmsg = "bad compression method";  /* or missing */
+				errmsg = "bad compression method"; /* or missing */
 		}
 
 		else
@@ -2480,7 +2480,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 		}
 
 		else
-			keep = PNG_HANDLE_CHUNK_NEVER;  /* insufficient memory */
+			keep = PNG_HANDLE_CHUNK_NEVER; /* insufficient memory */
 	}
 
 	else
@@ -2816,7 +2816,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep pDp, in
 				 * this.
 				 */
 				if(row_width <= pixels_per_byte)
-					break;  /* May need to restore part of the last byte */
+					break; /* May need to restore part of the last byte */
 				row_width -= pixels_per_byte;
 				++pDp;
 				++sp;
@@ -3564,7 +3564,7 @@ void /* PRIVATE */ png_read_finish_row(png_structrp png_ptr)
 				png_ptr->num_rows = (png_ptr->height + png_pass_yinc[png_ptr->pass] - 1 - png_pass_ystart[png_ptr->pass]) / png_pass_yinc[png_ptr->pass];
 			}
 			else /* if(png_ptr->transformations & PNG_INTERLACE) */
-				break;  /* libpng deinterlacing sees every row */
+				break; /* libpng deinterlacing sees every row */
 		} while(png_ptr->num_rows == 0 || png_ptr->iwidth == 0);
 		if(png_ptr->pass < 7)
 			return;

@@ -76,7 +76,7 @@ BOOL PRIV(xclass) (uint32 c, const pcre_uchar *data, BOOL utf)
 		}
 		if((*data & XCL_MAP) != 0 &&
 		    (((pcre_uint8*)(data + 1))[c/8] & (1 << (c&7))) != 0)
-			return !negated;  /* char found */
+			return !negated; /* char found */
 	}
 
 /* First skip the bit map if present. Then match against the list of Unicode
@@ -164,16 +164,12 @@ VSPACE_CASES:
 				    break;
 
 				case PT_WORD:
-				    if((PRIV(ucp_gentype)[prop->chartype] == ucp_L ||
-					    PRIV(ucp_gentype)[prop->chartype] == ucp_N || c == CHAR_UNDERSCORE)
-				    == isprop)
+				    if((PRIV(ucp_gentype)[prop->chartype] == ucp_L || PRIV(ucp_gentype)[prop->chartype] == ucp_N || c == CHAR_UNDERSCORE) == isprop)
 					    return !negated;
 				    break;
-
 				case PT_UCNC:
 				    if(c < 0xa0) {
-					    if((c == CHAR_DOLLAR_SIGN || c == CHAR_COMMERCIAL_AT ||
-						    c == CHAR_GRAVE_ACCENT) == isprop)
+					    if((c == CHAR_DOLLAR_SIGN || c == CHAR_COMMERCIAL_AT || c == CHAR_GRAVE_ACCENT) == isprop)
 						    return !negated;
 				    }
 				    else {

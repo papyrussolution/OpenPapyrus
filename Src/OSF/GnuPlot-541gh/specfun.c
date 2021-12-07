@@ -134,7 +134,7 @@
 	#endif
 #endif
 #if defined(LGAMMA) && !HAVE_DECL_SIGNGAM
-	extern int signgam;             /* this is not always declared in math.h */
+	extern int signgam; /* this is not always declared in math.h */
 #endif
 /* Use tgamma if present, otherwise use exp(ln(gamma)) */
 #ifndef TGAMMA
@@ -485,7 +485,7 @@ double lngamma(double x)
 
 	if(x < -34.0) {
 		q = -x;
-		w = lngamma(q);    /* note this modifies sgngam! */
+		w = lngamma(q); /* note this modifies sgngam! */
 		p = floor(q);
 		if(p == q) {
 lgsing:
@@ -749,7 +749,7 @@ static double humlik(double x, double y)
 	else if(abx >= xlim1) {         /* Humlicek W4 Region 1 */
 		if(rg1) {               /* First point in Region 1 */
 			rg1 = false;
-			a0 = yq + 0.5;  /* Region 1 y-dependents */
+			a0 = yq + 0.5; /* Region 1 y-dependents */
 			d0 = a0 * a0;
 			d2 = yq + yq - 1.0;
 		}
@@ -2271,7 +2271,7 @@ static double lambertw(double x)
 	int i;
 	double eps = FLT_EPSILON;
 	if(x < -exp(-1))
-		return -1;      /* error, value undefined */
+		return -1; /* error, value undefined */
 	if(fabs(x) <= eps)
 		return x;
 	if(x < 1) {
@@ -2293,7 +2293,7 @@ static double lambertw(double x)
 		if(fabs(t) < eps * (1.0 + fabs(w)))
 			return w;
 	}
-	return -1;             /* error: iteration didn't converge */
+	return -1; /* error: iteration didn't converge */
 }
 
 //void f_lambertw(union argument * /*arg*/)
@@ -3782,7 +3782,7 @@ static int CF1_ik(double v, double x, double * fv)
 	 */
 	tolerance = 2 * MACHEP;
 	tiny = 1 / sqrt(DBL_MAX);
-	C = f = tiny;           /* b0 = 0, replace with tiny */
+	C = f = tiny; /* b0 = 0, replace with tiny */
 	D = 0;
 	for(k = 1; k < MAXITER; k++) {
 		a = 1;
@@ -3831,13 +3831,13 @@ static int CF2_ik(double v, double x, double * Kv, double * Kv1)
 	 */
 	tolerance = MACHEP;
 	a = v * v - 0.25f;
-	b = 2 * (x + 1);        /* b1 */
-	D = 1 / b;              /* D1 = 1 / b1 */
-	f = delta = D;          /* f1 = delta1 = D1, coincidence */
-	prev = 0;               /* q0 */
-	current = 1;            /* q1 */
-	Q = C = -a;             /* Q1 = C1 because q1 = 1 */
-	S = 1 + Q * delta;      /* S1 */
+	b = 2 * (x + 1); /* b1 */
+	D = 1 / b; /* D1 = 1 / b1 */
+	f = delta = D; /* f1 = delta1 = D1, coincidence */
+	prev = 0; /* q0 */
+	current = 1; /* q1 */
+	Q = C = -a; /* Q1 = C1 because q1 = 1 */
+	S = 1 + Q * delta; /* S1 */
 	for(k = 2; k < MAXITER; k++) {  /* starting from 2 */
 		/* continued fraction f = z1 / z0 */
 		a -= 2 * (k - 1);
@@ -3849,7 +3849,7 @@ static int CF2_ik(double v, double x, double * Kv, double * Kv1)
 		/* series summation S = 1 + \sum_{n=1}^{\infty} C_n * z_n / z_0 */
 		q = (prev - (b - 2) * current) / a;
 		prev = current;
-		current = q;    /* forward recurrence for q */
+		current = q; /* forward recurrence for q */
 		C *= -a / k;
 		Q += C * q;
 		S += Q * delta;
@@ -3894,7 +3894,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 	}
 	if(v < 0) {
 		reflect = 1;
-		v = -v;         /* v is non-negative from here */
+		v = -v; /* v is non-negative from here */
 		kind |= need_k;
 	}
 	n = static_cast<uint>(floor(v + 0.5)); // round non-negative number 
@@ -3926,7 +3926,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 		return;
 	}
 	/* x is positive until reflection */
-	W = 1 / x;              /* Wronskian */
+	W = 1 / x; /* Wronskian */
 	if(x <= 2) {            /* x in (0, 2] */
 		temme_ik_series(u, x, &Ku, &Ku1); /* Temme series */
 	}
@@ -3963,7 +3963,7 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 		}
 	}
 	else {
-		Iv = fgetnan();    /* any value will do */
+		Iv = fgetnan(); /* any value will do */
 	}
 	if(reflect) {
 		double z = (u + n % 2);

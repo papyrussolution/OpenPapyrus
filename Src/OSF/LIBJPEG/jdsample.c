@@ -40,8 +40,8 @@ typedef struct {
 	JSAMPARRAY color_buf[MAX_COMPONENTS];
 	/* Per-component upsampling method pointers */
 	upsample1_ptr methods[MAX_COMPONENTS];
-	int next_row_out;       /* counts rows emitted from color_buf */
-	JDIMENSION rows_to_go;  /* counts rows remaining in image */
+	int next_row_out; /* counts rows emitted from color_buf */
+	JDIMENSION rows_to_go; /* counts rows remaining in image */
 	/* Height of an input row group for each component. */
 	int rowgroup_height[MAX_COMPONENTS];
 	/* These arrays save pixel expansion factors so that int_expand need not

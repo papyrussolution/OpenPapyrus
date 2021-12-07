@@ -183,7 +183,7 @@ struct fixup_entry {
 	unsigned long fflags_set;
 	size_t mac_metadata_size;
 	void                    * mac_metadata;
-	int fixup;                      /* bitmask of what needs fixing */
+	int fixup; /* bitmask of what needs fixing */
 	char                    * name;
 };
 
@@ -251,9 +251,9 @@ struct archive_write_disk {
 	/* Information about the object being restored right now. */
 	struct archive_entry    * entry; /* Entry being extracted. */
 	char                    * name; /* Name of entry, possibly edited. */
-	struct archive_string _name_data;    /* backing store for 'name' */
+	struct archive_string _name_data; /* backing store for 'name' */
 	char                    * tmpname; /* Temporary name * */
-	struct archive_string _tmpname_data;    /* backing store for 'tmpname' */
+	struct archive_string _tmpname_data; /* backing store for 'tmpname' */
 	/* Tasks remaining for this object. */
 	int todo;
 	/* Tasks deferred until end-of-archive. */
@@ -1120,7 +1120,7 @@ static int hfs_write_resource_fork_header(struct archive_write_disk * a)
 	 */
 	buff = a->resource_fork;
 	rsrc_bytes = a->compressed_rsrc_position - RSRC_F_SIZE;
-	rsrc_header_bytes = RSRC_H_SIZE + /* Header base size. */ 4 + /* Block count. */ (a->decmpfs_block_count * 8);    /* Block info */
+	rsrc_header_bytes = RSRC_H_SIZE + /* Header base size. */ 4 + /* Block count. */ (a->decmpfs_block_count * 8); /* Block info */
 	archive_be32enc(buff, 0x100);
 	archive_be32enc(buff + 4, rsrc_bytes);
 	archive_be32enc(buff + 8, rsrc_bytes - 256);
@@ -2142,7 +2142,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 	mode_t final_mode, mode;
 	int r;
 	/* these for check_symlinks_fsobj */
-	char * linkname_copy;    /* non-const copy of linkname */
+	char * linkname_copy; /* non-const copy of linkname */
 	struct stat st;
 	struct archive_string error_string;
 	int error_number;
@@ -2888,7 +2888,7 @@ static int check_symlinks(struct archive_write_disk * a)
 		    error_string.s);
 	}
 	archive_string_free(&error_string);
-	a->pst = NULL;  /* to be safe */
+	a->pst = NULL; /* to be safe */
 	return rc;
 }
 

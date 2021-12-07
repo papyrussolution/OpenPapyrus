@@ -24,7 +24,7 @@ struct ngx_http_sub_tables_t {
 };
 
 struct ngx_http_sub_loc_conf_t {
-	ngx_uint_t dynamic;             /* unsigned dynamic:1; */
+	ngx_uint_t dynamic; /* unsigned dynamic:1; */
 	ngx_array_t * pairs;
 	ngx_http_sub_tables_t   * tables;
 	ngx_hash_t types;
@@ -37,7 +37,7 @@ struct ngx_http_sub_loc_conf_t {
 struct ngx_http_sub_ctx_t {
 	ngx_str_t saved;
 	ngx_str_t looked;
-	ngx_uint_t once;               /* unsigned  once:1 */
+	ngx_uint_t once; /* unsigned  once:1 */
 	ngx_buf_t * buf;
 	u_char  * pos;
 	u_char  * copy_start;

@@ -2862,7 +2862,7 @@ int PPObjBHT::PrepareTechSessData(const char * pPath, PPID bhtTypeID)
 	}
 	filt.StatusFlags = (1 << TSESST_PENDING) | (1 << TSESST_INPROCESS);
 	THROW(view.Init_(&filt));
-	for(view.InitIteration(0); view.NextIteration(&item) > 0;)  {
+	for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 		if(!(item.Flags & TSESF_SUPERSESS)) {
 			if(bhtTypeID == PPObjBHT::btPalm && prc_obj.Search(item.PrcID, &prc_rec) > 0) {
 				DbfRecord dbf_rec(p_dbf_tbl);
@@ -3478,7 +3478,7 @@ int PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack /
 			THROW_SL(p_dbf_tbl->create(num_flds, fld_list));
 			THROW(p_dbf_tbl->open());
 		}
-		for(n = 0; ar_obj.P_Tbl->EnumBySheet(acc_sheet_id, &n, &ar_rec) > 0;)  {
+		for(n = 0; ar_obj.P_Tbl->EnumBySheet(acc_sheet_id, &n, &ar_rec) > 0;) {
 			if(!oneof3(bht_type_id, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 				p_bht_rec->PutInt(0, ar_rec.ID);
 				p_bht_rec->PutStr(1, strupr866(ar_rec.Name));

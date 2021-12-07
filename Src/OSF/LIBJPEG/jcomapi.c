@@ -64,7 +64,7 @@ GLOBAL(void) jpeg_destroy(j_common_ptr cinfo)
 	/* NB: mem pointer is NULL if memory mgr failed to initialize. */
 	if(cinfo->mem)
 		(*cinfo->mem->self_destruct)(cinfo);
-	cinfo->mem = NULL;      /* be safe if jpeg_destroy is called twice */
+	cinfo->mem = NULL; /* be safe if jpeg_destroy is called twice */
 	cinfo->global_state = 0; /* mark it destroyed */
 }
 /*

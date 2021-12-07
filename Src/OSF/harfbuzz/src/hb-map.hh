@@ -37,7 +37,7 @@ K kINVALID = hb_is_pointer(K) ? 0 : hb_is_signed(K) ? hb_int_min(K) : (K)-1,
 V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
     struct hb_hashmap_t {
 	HB_DELETE_COPY_ASSIGN(hb_hashmap_t);
-	hb_hashmap_t()  {
+	hb_hashmap_t() {
 		init();
 	}
 	~hb_hashmap_t () {

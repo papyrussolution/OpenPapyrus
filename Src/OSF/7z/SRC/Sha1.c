@@ -42,7 +42,7 @@
 	#define RX_20(rx, i) RX_5(rx, i); RX_5(rx, i + 5); RX_5(rx, i + 10); RX_5(rx, i + 15);
 #else
 	#define RX_15  { size_t i; for(i = 0; i < 15; i += 5) { RX_5(R0, i); } }
-	#define RX_20(rx, ii)  { size_t i; i = ii; for(; i < ii + 20; i += 5) { RX_5(rx, i); } }
+	#define RX_20(rx, ii) { size_t i; i = ii; for(; i < ii + 20; i += 5) { RX_5(rx, i); } }
 #endif
 
 void Sha1_Init(CSha1 * p)

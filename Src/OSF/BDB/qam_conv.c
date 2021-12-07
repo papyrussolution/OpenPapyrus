@@ -18,14 +18,14 @@ int __qam_mswap(ENV*env, PAGE * pg)
 	COMPQUIET(env, 0);
 	__db_metaswap(pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
-	SWAP32(p);              /* first_recno */
-	SWAP32(p);              /* cur_recno */
-	SWAP32(p);              /* re_len */
-	SWAP32(p);              /* re_pad */
-	SWAP32(p);              /* rec_page */
-	SWAP32(p);              /* page_ext */
-	p += 91*sizeof(uint32);   /* unused */
-	SWAP32(p);              /* crypto_magic */
+	SWAP32(p); /* first_recno */
+	SWAP32(p); /* cur_recno */
+	SWAP32(p); /* re_len */
+	SWAP32(p); /* re_pad */
+	SWAP32(p); /* rec_page */
+	SWAP32(p); /* page_ext */
+	p += 91*sizeof(uint32); /* unused */
+	SWAP32(p); /* crypto_magic */
 	return 0;
 }
 /*

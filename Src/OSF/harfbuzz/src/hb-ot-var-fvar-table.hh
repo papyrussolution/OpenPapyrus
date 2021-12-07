@@ -55,7 +55,7 @@ protected:
 		 * that provide subfamily names for this instance. */
 		HBUINT16 flags; /* Reserved for future use — set to 0. */
 		UnsizedArrayOf<HBFixed>
-		coordinatesZ;   /* The coordinates array for this instance. */
+		coordinatesZ; /* The coordinates array for this instance. */
 		//NameID	postScriptNameIDX; /*Optional. The name ID for entries in the 'name'
 		//				 * table that provide PostScript names for this
 		//				 * instance. */
@@ -142,7 +142,7 @@ protected:
 		}
 
 protected:
-		Tag axisTag;    /* Tag identifying the design variation for the axis. */
+		Tag axisTag; /* Tag identifying the design variation for the axis. */
 		HBFixed minValue; /* The minimum coordinate value for the axis. */
 		HBFixed defaultValue; /* The default coordinate value for the axis. */
 		HBFixed maxValue; /* The maximum coordinate value for the axis. */
@@ -308,7 +308,7 @@ protected:
 		FixedVersion<>version; /* Version of the fvar table
 		 * initially set to 0x00010000u */
 		OffsetTo<AxisRecord>
-		firstAxis;      /* Offset in bytes from the beginning of the table
+		firstAxis; /* Offset in bytes from the beginning of the table
 		 * to the start of the AxisRecord array. */
 		HBUINT16 reserved; /* This field is permanently reserved. Set to 2. */
 		HBUINT16 axisCount; /* The number of variation axes in the font (the

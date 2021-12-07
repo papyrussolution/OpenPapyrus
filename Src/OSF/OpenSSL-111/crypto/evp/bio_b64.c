@@ -31,11 +31,11 @@ typedef struct b64_struct {
 	 */
 	int buf_len;
 	int buf_off;
-	int tmp_len;            /* used to find the start when decoding */
-	int tmp_nl;             /* If true, scan until '\n' */
+	int tmp_len; /* used to find the start when decoding */
+	int tmp_nl; /* If true, scan until '\n' */
 	int encode;
-	int start;              /* have we started decoding yet? */
-	int cont;               /* <= 0 when finished */
+	int start; /* have we started decoding yet? */
+	int cont; /* <= 0 when finished */
 	EVP_ENCODE_CTX * base64;
 	char buf[EVP_ENCODE_LENGTH(B64_BLOCK_SIZE) + 10];
 	char tmp[B64_BLOCK_SIZE];

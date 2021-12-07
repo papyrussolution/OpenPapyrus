@@ -3344,7 +3344,7 @@ int ssl_check_srvr_ecc_cert_and_alg(X509 * x, SSL * s)
 			return 0;
 		}
 	}
-	return 1;               /* all checks are ok */
+	return 1; /* all checks are ok */
 }
 
 #endif
@@ -3790,29 +3790,21 @@ SSL * SSL_dup(SSL * s)
 	}
 	ret->shutdown = s->shutdown;
 	ret->hit = s->hit;
-
 	ret->default_passwd_callback = s->default_passwd_callback;
 	ret->default_passwd_callback_userdata = s->default_passwd_callback_userdata;
-
 	X509_VERIFY_PARAM_inherit(ret->param, s->param);
-
 	/* dup the cipher_list and cipher_list_by_id stacks */
 	if(s->cipher_list != NULL) {
 		if((ret->cipher_list = sk_SSL_CIPHER_dup(s->cipher_list)) == NULL)
 			goto err;
 	}
 	if(s->cipher_list_by_id != NULL)
-		if((ret->cipher_list_by_id = sk_SSL_CIPHER_dup(s->cipher_list_by_id))
-		    == NULL)
+		if((ret->cipher_list_by_id = sk_SSL_CIPHER_dup(s->cipher_list_by_id)) == NULL)
 			goto err;
-
 	/* Dup the client_CA list */
-	if(!dup_ca_names(&ret->ca_names, s->ca_names)
-	    || !dup_ca_names(&ret->client_ca_names, s->client_ca_names))
+	if(!dup_ca_names(&ret->ca_names, s->ca_names) || !dup_ca_names(&ret->client_ca_names, s->client_ca_names))
 		goto err;
-
 	return ret;
-
 err:
 	SSL_free(ret);
 	return NULL;
@@ -4877,7 +4869,7 @@ int ssl_validate_ct(SSL * s)
 
 	ret = s->ct_validation_callback(ctx, scts, s->ct_validation_callback_arg);
 	if(ret < 0)
-		ret = 0;        /* This function returns 0 on failure */
+		ret = 0; /* This function returns 0 on failure */
 	if(!ret)
 		SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_SSL_VALIDATE_CT,
 		    SSL_R_CALLBACK_FAILED);

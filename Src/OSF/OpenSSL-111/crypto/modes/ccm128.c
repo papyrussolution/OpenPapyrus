@@ -30,7 +30,7 @@ int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx, const uchar * nonce, size_t nlen, 
 {
 	uint L = ctx->nonce.c[0] & 7; /* the L parameter */
 	if(nlen < (14 - L))
-		return -1;      /* nonce is too short */
+		return -1; /* nonce is too short */
 
 	if(sizeof(mlen) == 8 && L >= 3) {
 		ctx->nonce.c[8] = (u8)(mlen >> (56 % (sizeof(mlen) * 8)));
@@ -147,15 +147,15 @@ int CRYPTO_ccm128_encrypt(CCM128_CONTEXT * ctx,
 		ctx->nonce.c[i] = 0;
 		n <<= 8;
 	}
-	n |= ctx->nonce.c[15];  /* reconstructed length */
+	n |= ctx->nonce.c[15]; /* reconstructed length */
 	ctx->nonce.c[15] = 1;
 
 	if(n != len)
-		return -1;      /* length mismatch */
+		return -1; /* length mismatch */
 
 	ctx->blocks += ((len + 15) >> 3) | 1;
 	if(ctx->blocks > (U64(1) << 61))
-		return -2;      /* too much data */
+		return -2; /* too much data */
 
 	while(len >= 16) {
 #if defined(STRICT_ALIGNMENT)
@@ -231,7 +231,7 @@ int CRYPTO_ccm128_decrypt(CCM128_CONTEXT * ctx,
 		ctx->nonce.c[i] = 0;
 		n <<= 8;
 	}
-	n |= ctx->nonce.c[15];  /* reconstructed length */
+	n |= ctx->nonce.c[15]; /* reconstructed length */
 	ctx->nonce.c[15] = 1;
 
 	if(n != len)
@@ -291,7 +291,7 @@ static void ctr64_add(uchar * counter, size_t inc)
 		--n;
 		val += counter[n] + (inc & 0xff);
 		counter[n] = (uchar)val;
-		val >>= 8;      /* carry bit */
+		val >>= 8; /* carry bit */
 		inc >>= 8;
 	} while(n && (inc || val));
 }
@@ -319,15 +319,15 @@ int CRYPTO_ccm128_encrypt_ccm64(CCM128_CONTEXT * ctx,
 		ctx->nonce.c[i] = 0;
 		n <<= 8;
 	}
-	n |= ctx->nonce.c[15];  /* reconstructed length */
+	n |= ctx->nonce.c[15]; /* reconstructed length */
 	ctx->nonce.c[15] = 1;
 
 	if(n != len)
-		return -1;      /* length mismatch */
+		return -1; /* length mismatch */
 
 	ctx->blocks += ((len + 15) >> 3) | 1;
 	if(ctx->blocks > (U64(1) << 61))
-		return -2;      /* too much data */
+		return -2; /* too much data */
 
 	if((n = len / 16)) {
 		(*stream)(inp, out, n, key, ctx->nonce.c, ctx->cmac.c);
@@ -383,7 +383,7 @@ int CRYPTO_ccm128_decrypt_ccm64(CCM128_CONTEXT * ctx,
 		ctx->nonce.c[i] = 0;
 		n <<= 8;
 	}
-	n |= ctx->nonce.c[15];  /* reconstructed length */
+	n |= ctx->nonce.c[15]; /* reconstructed length */
 	ctx->nonce.c[15] = 1;
 
 	if(n != len)

@@ -1888,8 +1888,10 @@ IMPL_DIALOG_SETDTS(SCalendarPicker)
 {
 	int    ok = 1;
 	RVALUEPTR(Data, pData);
-	invalidateAll(true);
-	::UpdateWindow(H());
+	if(H()) { // @v11.2.7
+		invalidateAll(true);
+		::UpdateWindow(H());
+	}
 	return ok;
 }
 	
@@ -2854,7 +2856,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			}
 			CreateLayout(ISD());
 			EvaluateLayout(p_blk->Coord);
-			invalidateAll(true);
+			// @v11.2.6 invalidateAll(true);
 			//::UpdateWindow(H());
 		}
 		else if(event.isCbSelected(CTLSEL_CALENDAR_FASTPRD)) {

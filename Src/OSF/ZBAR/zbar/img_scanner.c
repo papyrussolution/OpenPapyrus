@@ -58,28 +58,28 @@ typedef struct recycle_bucket_s {
 
 /* image scanner state */
 struct zbar_image_scanner_s {
-	zbar_scanner_t * scn;   /* associated linear intensity scanner */
+	zbar_scanner_t * scn; /* associated linear intensity scanner */
 	zbar_decoder_t * dcode; /* associated symbol decoder */
 #ifdef ENABLE_QRCODE
-	qr_reader * qr;         /* QR Code 2D reader */
+	qr_reader * qr; /* QR Code 2D reader */
 #endif
 
-	const void * userdata;  /* application data */
+	const void * userdata; /* application data */
 	/* user result callback */
 	zbar_image_data_handler_t * handler;
 
-	ulong time;     /* scan start time */
-	zbar_image_t * img;     /* currently scanning image *root* */
+	ulong time; /* scan start time */
+	zbar_image_t * img; /* currently scanning image *root* */
 	int dx, dy, du, umin, v; /* current scan direction */
 	zbar_symbol_set_t * syms; /* previous decode results */
 	/* recycled symbols in 4^n size buckets */
 	recycle_bucket_t recycle[RECYCLE_BUCKETS];
 
-	int enable_cache;       /* current result cache state */
-	zbar_symbol_t * cache;  /* inter-image result cache entries */
+	int enable_cache; /* current result cache state */
+	zbar_symbol_t * cache; /* inter-image result cache entries */
 
 	/* configuration settings */
-	uint config;        /* config flags */
+	uint config; /* config flags */
 	uint ean_config;
 	int configs[NUM_SCN_CFGS]; /* int valued configurations */
 	int sym_configs[1][NUM_SYMS]; /* per-symbology configurations */

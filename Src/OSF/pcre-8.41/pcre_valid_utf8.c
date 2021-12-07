@@ -105,7 +105,7 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 	for(p = string; length-- > 0; p++) {
 		pcre_uchar ab, c, d;
 		c = *p;
-		if(c < 128) continue;   /* ASCII character */
+		if(c < 128) continue; /* ASCII character */
 
 		if(c < 0xc0) {          /* Isolated 10xx xxxx byte */
 			*erroroffset = static_cast<int>(p - string);
@@ -120,7 +120,7 @@ int PRIV(valid_utf) (PCRE_PUCHAR string, int length, int * erroroffset)
 			*erroroffset = static_cast<int>(p - string); /* Missing bytes */
 			return ab - length; /* Codes ERR1 to ERR5 */
 		}
-		length -= ab;           /* Length remaining */
+		length -= ab; /* Length remaining */
 
 		/* Check top bits in the second byte */
 

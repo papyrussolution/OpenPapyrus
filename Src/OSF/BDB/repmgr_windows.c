@@ -199,7 +199,7 @@ static void free_wait_slot(ENV*env, int slot_index, COND_WAITERS_TABLE * table)
 {
 	DB_REP * db_rep = env->rep_handle;
 	COND_WAITER * slot = &table->array[slot_index];
-	slot->pred = NULL;      /* show it's not in use */
+	slot->pred = NULL; /* show it's not in use */
 	slot->next_free = table->first_free;
 	table->first_free = slot_index;
 }

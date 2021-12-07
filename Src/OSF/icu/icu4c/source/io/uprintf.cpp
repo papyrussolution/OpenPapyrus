@@ -190,7 +190,7 @@ u_vfprintf_u(UFILE * f,
     const UChar * patternSpecification,
     va_list ap)
 {
-	int32_t written = 0;        /* haven't written anything yet */
+	int32_t written = 0; /* haven't written anything yet */
 
 	/* parse and print the whole format string */
 	u_printf_parse(&g_stream_handler, patternSpecification, f, NULL, &f->str.fBundle, &written, ap);

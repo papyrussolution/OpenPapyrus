@@ -57,7 +57,7 @@ FT_BEGIN_HEADER
 
     FT_Byte**   stack;
     FT_Byte**   top;
-    FT_UInt     stackSize;  /* allocated size */
+    FT_UInt     stackSize; /* allocated size */
 
 #ifdef CFF_CONFIG_OPTION_OLD_ENGINE
     FT_ListRec  t2_strings;
@@ -67,7 +67,7 @@ FT_BEGIN_HEADER
     void*       object;
 
     FT_UShort   num_designs; /* a copy of `CFF_FontRecDict->num_designs' */
-    FT_UShort   num_axes;    /* a copy of `CFF_FontRecDict->num_axes'    */
+    FT_UShort   num_axes; /* a copy of `CFF_FontRecDict->num_axes'    */
 
   } CFF_ParserRec, *CFF_Parser;
 

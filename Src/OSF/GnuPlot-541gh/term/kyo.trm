@@ -76,7 +76,7 @@ TERM_PUBLIC void PRE_reset();
 #define PRE_XLAST (PRE_XMAX - 1)
 #define PRE_YLAST (PRE_YMAX - 1)
 
-enum JUSTIFY pre_justify = LEFT;        /* text is flush left */
+enum JUSTIFY pre_justify = LEFT; /* text is flush left */
 
 TERM_PUBLIC void PRE_init(GpTermEntry * pThis)
 {

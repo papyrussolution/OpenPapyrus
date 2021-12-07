@@ -153,15 +153,15 @@
 typedef struct logLuvState LogLuvState;
 
 struct logLuvState {
-	int encoder_state;                      /* 1 if encoder correctly initialized */
-	int user_datafmt;                       /* user data format */
-	int encode_meth;                        /* encoding method */
+	int encoder_state; /* 1 if encoder correctly initialized */
+	int user_datafmt; /* user data format */
+	int encode_meth; /* encoding method */
 	int pixel_size;                         /* bytes per pixel */
-	uint8 * tbuf;           /* translation buffer */
-	tmsize_t tbuflen;                       /* buffer length */
+	uint8 * tbuf; /* translation buffer */
+	tmsize_t tbuflen; /* buffer length */
 	void (* tfunc)(LogLuvState*, uint8*, tmsize_t);
-	TIFFVSetMethod vgetparent;              /* super-class method */
-	TIFFVSetMethod vsetparent;              /* super-class method */
+	TIFFVSetMethod vgetparent; /* super-class method */
+	TIFFVSetMethod vsetparent; /* super-class method */
 };
 
 #define DecoderState(tif)       (reinterpret_cast<LogLuvState *>((tif)->tif_data))
@@ -214,7 +214,7 @@ static int LogL16Decode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 					tp[i++] |= b;
 			}
 			else {                          /* non-run */
-				rc = *bp++;             /* nul is noop */
+				rc = *bp++; /* nul is noop */
 				while(--cc && rc-- && i < npixels)
 					tp[i++] |= (int16)*bp++ << shft;
 			}
@@ -326,7 +326,7 @@ static int LogLuvDecode32(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 					tp[i++] |= b;
 			}
 			else {                          /* non-run */
-				rc = *bp++;             /* nul is noop */
+				rc = *bp++; /* nul is noop */
 				while(--cc && rc-- && i < npixels)
 					tp[i++] |= (uint32)*bp++ << shft;
 			}
@@ -427,14 +427,14 @@ static int LogL16Encode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 				op = tif->tif_rawcp;
 				occ = tif->tif_rawdatasize - tif->tif_rawcc;
 			}
-			mask = 0xff << shft;            /* find next run */
+			mask = 0xff << shft; /* find next run */
 			for(beg = i; beg < npixels; beg += rc) {
 				b = (int16)(tp[beg] & mask);
 				rc = 1;
 				while(rc < 127+2 && beg+rc < npixels && (tp[beg+rc] & mask) == b)
 					rc++;
 				if(rc >= MINRUN)
-					break;          /* long enough */
+					break; /* long enough */
 			}
 			if(beg-i > 1 && beg-i < MINRUN) {
 				b = (int16)(tp[i] & mask); /*check short run */
@@ -571,7 +571,7 @@ static int LogLuvEncode32(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 				op = tif->tif_rawcp;
 				occ = tif->tif_rawdatasize - tif->tif_rawcc;
 			}
-			mask = 0xff << shft;            /* find next run */
+			mask = 0xff << shft; /* find next run */
 			for(beg = i; beg < npixels; beg += rc) {
 				b = tp[beg] & mask;
 				rc = 1;
@@ -579,10 +579,10 @@ static int LogLuvEncode32(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 				    (tp[beg+rc] & mask) == b)
 					rc++;
 				if(rc >= MINRUN)
-					break;          /* long enough */
+					break; /* long enough */
 			}
 			if(beg-i > 1 && beg-i < MINRUN) {
-				b = tp[i] & mask;       /* check short run */
+				b = tp[i] & mask; /* check short run */
 				j = i+1;
 				while((tp[j++] & mask) == b)
 					if(j == beg) {
@@ -807,7 +807,7 @@ static int oog_encode(double u, double v)          /* encode out-of-gamut chroma
 			}
 		initialized = 1;
 	}
-	i = (int)uv2ang(u, v);          /* look up hue angle */
+	i = (int)uv2ang(u, v); /* look up hue angle */
 	return (oog_table[i]);
 }
 
@@ -1460,9 +1460,9 @@ int TIFFInitSGILog(TIFF* tif, int scheme)
 	 * Override parent get/set field methods.
 	 */
 	sp->vgetparent = tif->tif_tagmethods.vgetfield;
-	tif->tif_tagmethods.vgetfield = LogLuvVGetField;   /* hook for codec tags */
+	tif->tif_tagmethods.vgetfield = LogLuvVGetField; /* hook for codec tags */
 	sp->vsetparent = tif->tif_tagmethods.vsetfield;
-	tif->tif_tagmethods.vsetfield = LogLuvVSetField;   /* hook for codec tags */
+	tif->tif_tagmethods.vsetfield = LogLuvVSetField; /* hook for codec tags */
 	return 1;
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "%s: No space for LogLuv state block", tif->tif_name);

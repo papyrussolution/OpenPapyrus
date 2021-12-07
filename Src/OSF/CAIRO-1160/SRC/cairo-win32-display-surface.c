@@ -94,7 +94,7 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 		RGBQUAD bmiColors[2];
 	} bmi_stack;
 	void * bits;
-	int num_palette = 0;    /* Quiet GCC */
+	int num_palette = 0; /* Quiet GCC */
 	int i;
 	surface->win32.dc = NULL;
 	surface->bitmap = NULL;

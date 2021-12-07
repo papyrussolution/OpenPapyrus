@@ -407,12 +407,10 @@ again:
 				goto err;
 
 			if(strcmp(psection, section) != 0) {
-				if((tv = _CONF_get_section(conf, psection))
-				    == NULL)
+				if((tv = _CONF_get_section(conf, psection)) == NULL)
 					tv = _CONF_new_section(conf, psection);
 				if(tv == NULL) {
-					CONFerr(CONF_F_DEF_LOAD_BIO,
-					    CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
+					CONFerr(CONF_F_DEF_LOAD_BIO, CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
 					goto err;
 				}
 			}

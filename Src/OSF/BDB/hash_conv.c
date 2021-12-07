@@ -63,15 +63,15 @@ int __ham_mswap(ENV * env, void * pg)
 	COMPQUIET(env, 0);
 	__db_metaswap((PAGE *)pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
-	SWAP32(p);              /* max_bucket */
-	SWAP32(p);              /* high_mask */
-	SWAP32(p);              /* low_mask */
-	SWAP32(p);              /* ffactor */
-	SWAP32(p);              /* nelem */
-	SWAP32(p);              /* h_charkey */
+	SWAP32(p); /* max_bucket */
+	SWAP32(p); /* high_mask */
+	SWAP32(p); /* low_mask */
+	SWAP32(p); /* ffactor */
+	SWAP32(p); /* nelem */
+	SWAP32(p); /* h_charkey */
 	for(i = 0; i < NCACHED; ++i)
-		SWAP32(p);      /* spares */
-	p += 59*sizeof(uint32);   /* unused */
-	SWAP32(p);              /* crypto_magic */
+		SWAP32(p); /* spares */
+	p += 59*sizeof(uint32); /* unused */
+	SWAP32(p); /* crypto_magic */
 	return 0;
 }

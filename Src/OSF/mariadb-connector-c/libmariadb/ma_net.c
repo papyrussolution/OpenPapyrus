@@ -49,7 +49,7 @@
 ulong max_allowed_packet = 1024L * 1024L * 1024L;
 ulong net_read_timeout =  NET_READ_TIMEOUT;
 ulong net_write_timeout = NET_WRITE_TIMEOUT;
-ulong net_buffer_length = 8192;  /* Default length. Enlarged if necessary */
+ulong net_buffer_length = 8192; /* Default length. Enlarged if necessary */
 
 #if !defined(_WIN32)
 	#include <sys/socket.h>
@@ -86,7 +86,7 @@ int ma_net_init(NET * net, MARIADB_PVIO* pvio)
 	net->buff_end = net->buff+(net->max_packet = net_buffer_length);
 	net->pvio = pvio;
 	net->error = 0; net->return_status = 0;
-	net->read_timeout = (uint)net_read_timeout;     /* Timeout for read */
+	net->read_timeout = (uint)net_read_timeout; /* Timeout for read */
 	net->compress_pkt_nr = net->pkt_nr = 0;
 	net->write_pos = net->read_pos = net->buff;
 	net->last_error[0] = net->sqlstate[0] = 0;
@@ -262,7 +262,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 	ssize_t length;
 	char * pos, * end;
 	if(net->error == 2)
-		return -1;             /* socket can't be used */
+		return -1; /* socket can't be used */
 	net->reading_or_writing = 2;
 #ifdef HAVE_COMPRESS
 	if(net->compress) {
@@ -289,7 +289,7 @@ int ma_net_real_write(NET * net, const char * packet, size_t len)
 	pos = (char *)packet; end = pos+len;
 	while(pos != end) {
 		if((length = ma_pvio_write(net->pvio, (uchar *)pos, (size_t)(end-pos))) <= 0) {
-			net->error = 2;         /* Close socket */
+			net->error = 2; /* Close socket */
 			net->last_errno = ER_NET_ERROR_ON_WRITE;
 			net->reading_or_writing = 0;
 #ifdef HAVE_COMPRESS
@@ -319,7 +319,7 @@ static ulong FASTCALL ma_real_read(NET * net, size_t * complen)
 	size_t remain = (net->compress ? NET_HEADER_SIZE+COMP_HEADER_SIZE : NET_HEADER_SIZE);
 	*complen = 0;
 	net->reading_or_writing = 1;
-	pos = net->buff + net->where_b;         /* net->packet -4 */
+	pos = net->buff + net->where_b; /* net->packet -4 */
 	for(i = 0; i < 2; i++) {
 		while(remain > 0) {
 			/* First read is done with non blocking mode */
@@ -482,7 +482,7 @@ else {
 	if(is_multi_packet)
 		len -= 4;
 	net->save_char = net->read_pos[len]; /* Must be saved */
-	net->read_pos[len] = 0;         /* Safeguard for mysql_use_result */
+	net->read_pos[len] = 0; /* Safeguard for mysql_use_result */
 }
 #endif
 	return (ulong)len;

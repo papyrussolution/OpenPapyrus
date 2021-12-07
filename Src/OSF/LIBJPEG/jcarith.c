@@ -22,16 +22,16 @@ typedef struct {
 	struct jpeg_entropy_encoder pub; /* public fields */
 
 	INT32 c; /* C register, base of coding interval, layout as in sec. D.1.3 */
-	INT32 a;         /* A register, normalized size of coding interval */
-	INT32 sc;  /* counter for stacked 0xFF values which might overflow */
-	INT32 zc;    /* counter for pending 0x00 output values which might *
+	INT32 a; /* A register, normalized size of coding interval */
+	INT32 sc; /* counter for stacked 0xFF values which might overflow */
+	INT32 zc; /* counter for pending 0x00 output values which might *
 	   * be discarded at the end ("Pacman" termination) */
 	int ct; /* bit shift counter, determines when next byte will be written */
-	int buffer;          /* buffer for most recent output byte != 0xFF */
+	int buffer; /* buffer for most recent output byte != 0xFF */
 	int last_dc_val[MAX_COMPS_IN_SCAN]; /* last DC coef for each component */
 	int dc_context[MAX_COMPS_IN_SCAN]; /* context index for DC conditioning */
 	uint restarts_to_go; /* MCUs left in this restart interval */
-	int next_restart_num;   /* next restart number to write (0-7) */
+	int next_restart_num; /* next restart number to write (0-7) */
 	/* Pointers to statistics areas (these workspaces have image lifespan) */
 	uchar * dc_stats[NUM_ARITH_TBLS];
 	uchar * ac_stats[NUM_ARITH_TBLS];
@@ -396,9 +396,9 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 			arith_encode(cinfo, st, 0);
 			/* Section F.1.4.4.1.2: Establish dc_context conditioning category */
 			if(m < (int)((1L << cinfo->arith_dc_L[tbl]) >> 1))
-				entropy->dc_context[ci] = 0;  /* zero diff category */
+				entropy->dc_context[ci] = 0; /* zero diff category */
 			else if(m > (int)((1L << cinfo->arith_dc_U[tbl]) >> 1))
-				entropy->dc_context[ci] += 8;  /* large diff category */
+				entropy->dc_context[ci] += 8; /* large diff category */
 			/* Figure F.9: Encoding the magnitude bit pattern of v */
 			st += 14;
 			while(m >>= 1)
@@ -703,9 +703,9 @@ METHODDEF(boolean) encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 			arith_encode(cinfo, st, 0);
 			/* Section F.1.4.4.1.2: Establish dc_context conditioning category */
 			if(m < (int)((1L << cinfo->arith_dc_L[tbl]) >> 1))
-				entropy->dc_context[ci] = 0;  /* zero diff category */
+				entropy->dc_context[ci] = 0; /* zero diff category */
 			else if(m > (int)((1L << cinfo->arith_dc_U[tbl]) >> 1))
-				entropy->dc_context[ci] += 8;  /* large diff category */
+				entropy->dc_context[ci] += 8; /* large diff category */
 			/* Figure F.9: Encoding the magnitude bit pattern of v */
 			st += 14;
 			while(m >>= 1)

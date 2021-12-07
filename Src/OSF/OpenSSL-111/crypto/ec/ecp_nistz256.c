@@ -58,7 +58,7 @@ typedef P256_POINT_AFFINE PRECOMP256_ROW[64];
 /* structure for precomputed multiples of the generator */
 struct nistz256_pre_comp_st {
 	const EC_GROUP * group; /* Parent EC_GROUP object */
-	size_t w;               /* Window size */
+	size_t w; /* Window size */
 	/*
 	 * Constant time access to the X and Y coordinates of the pre-computed,
 	 * generator multiplies, in the Montgomery domain. Pre-calculated
@@ -341,19 +341,19 @@ static void ecp_nistz256_point_add(P256_POINT * r,
 	in1infty = is_zero(in1infty);
 	in2infty = is_zero(in2infty);
 
-	ecp_nistz256_sqr_mont(Z2sqr, in2_z);    /* Z2^2 */
-	ecp_nistz256_sqr_mont(Z1sqr, in1_z);    /* Z1^2 */
+	ecp_nistz256_sqr_mont(Z2sqr, in2_z); /* Z2^2 */
+	ecp_nistz256_sqr_mont(Z1sqr, in1_z); /* Z1^2 */
 
 	ecp_nistz256_mul_mont(S1, Z2sqr, in2_z); /* S1 = Z2^3 */
 	ecp_nistz256_mul_mont(S2, Z1sqr, in1_z); /* S2 = Z1^3 */
 
-	ecp_nistz256_mul_mont(S1, S1, in1_y);   /* S1 = Y1*Z2^3 */
-	ecp_nistz256_mul_mont(S2, S2, in2_y);   /* S2 = Y2*Z1^3 */
-	ecp_nistz256_sub(R, S2, S1);            /* R = S2 - S1 */
+	ecp_nistz256_mul_mont(S1, S1, in1_y); /* S1 = Y1*Z2^3 */
+	ecp_nistz256_mul_mont(S2, S2, in2_y); /* S2 = Y2*Z1^3 */
+	ecp_nistz256_sub(R, S2, S1); /* R = S2 - S1 */
 
 	ecp_nistz256_mul_mont(U1, in1_x, Z2sqr); /* U1 = X1*Z2^2 */
 	ecp_nistz256_mul_mont(U2, in2_x, Z1sqr); /* U2 = X2*Z1^2 */
-	ecp_nistz256_sub(H, U2, U1);            /* H = U2 - U1 */
+	ecp_nistz256_sub(H, U2, U1); /* H = U2 - U1 */
 
 	/*
 	 * This should not happen during sign/ecdh, so no constant time violation
@@ -369,14 +369,14 @@ static void ecp_nistz256_point_add(P256_POINT * r,
 		}
 	}
 
-	ecp_nistz256_sqr_mont(Rsqr, R);         /* R^2 */
+	ecp_nistz256_sqr_mont(Rsqr, R); /* R^2 */
 	ecp_nistz256_mul_mont(res_z, H, in1_z); /* Z3 = H*Z1*Z2 */
-	ecp_nistz256_sqr_mont(Hsqr, H);         /* H^2 */
+	ecp_nistz256_sqr_mont(Hsqr, H); /* H^2 */
 	ecp_nistz256_mul_mont(res_z, res_z, in2_z); /* Z3 = H*Z1*Z2 */
-	ecp_nistz256_mul_mont(Hcub, Hsqr, H);   /* H^3 */
+	ecp_nistz256_mul_mont(Hcub, Hsqr, H); /* H^3 */
 
-	ecp_nistz256_mul_mont(U2, U1, Hsqr);    /* U1*H^2 */
-	ecp_nistz256_mul_by_2(Hsqr, U2);        /* 2*U1*H^2 */
+	ecp_nistz256_mul_mont(U2, U1, Hsqr); /* U1*H^2 */
+	ecp_nistz256_mul_by_2(Hsqr, U2); /* 2*U1*H^2 */
 
 	ecp_nistz256_sub(res_x, Rsqr, Hsqr);
 	ecp_nistz256_sub(res_x, res_x, Hcub);
@@ -445,24 +445,24 @@ static void ecp_nistz256_point_add_affine(P256_POINT * r,
 	in1infty = is_zero(in1infty);
 	in2infty = is_zero(in2infty);
 
-	ecp_nistz256_sqr_mont(Z1sqr, in1_z);    /* Z1^2 */
+	ecp_nistz256_sqr_mont(Z1sqr, in1_z); /* Z1^2 */
 
 	ecp_nistz256_mul_mont(U2, in2_x, Z1sqr); /* U2 = X2*Z1^2 */
-	ecp_nistz256_sub(H, U2, in1_x);         /* H = U2 - U1 */
+	ecp_nistz256_sub(H, U2, in1_x); /* H = U2 - U1 */
 
 	ecp_nistz256_mul_mont(S2, Z1sqr, in1_z); /* S2 = Z1^3 */
 
 	ecp_nistz256_mul_mont(res_z, H, in1_z); /* Z3 = H*Z1*Z2 */
 
-	ecp_nistz256_mul_mont(S2, S2, in2_y);   /* S2 = Y2*Z1^3 */
-	ecp_nistz256_sub(R, S2, in1_y);         /* R = S2 - S1 */
+	ecp_nistz256_mul_mont(S2, S2, in2_y); /* S2 = Y2*Z1^3 */
+	ecp_nistz256_sub(R, S2, in1_y); /* R = S2 - S1 */
 
-	ecp_nistz256_sqr_mont(Hsqr, H);         /* H^2 */
-	ecp_nistz256_sqr_mont(Rsqr, R);         /* R^2 */
-	ecp_nistz256_mul_mont(Hcub, Hsqr, H);   /* H^3 */
+	ecp_nistz256_sqr_mont(Hsqr, H); /* H^2 */
+	ecp_nistz256_sqr_mont(Rsqr, R); /* R^2 */
+	ecp_nistz256_mul_mont(Hcub, Hsqr, H); /* H^3 */
 
 	ecp_nistz256_mul_mont(U2, in1_x, Hsqr); /* U1*H^2 */
-	ecp_nistz256_mul_by_2(Hsqr, U2);        /* 2*U1*H^2 */
+	ecp_nistz256_mul_by_2(Hsqr, U2); /* 2*U1*H^2 */
 
 	ecp_nistz256_sub(res_x, Rsqr, Hsqr);
 	ecp_nistz256_sub(res_x, res_x, Hcub);
@@ -505,27 +505,27 @@ static void ecp_nistz256_mod_inverse(BN_ULONG r[P256_LIMBS],
 	int i;
 
 	ecp_nistz256_sqr_mont(res, in);
-	ecp_nistz256_mul_mont(p2, res, in);     /* 3*p */
+	ecp_nistz256_mul_mont(p2, res, in); /* 3*p */
 
 	ecp_nistz256_sqr_mont(res, p2);
 	ecp_nistz256_sqr_mont(res, res);
-	ecp_nistz256_mul_mont(p4, res, p2);     /* f*p */
+	ecp_nistz256_mul_mont(p4, res, p2); /* f*p */
 
 	ecp_nistz256_sqr_mont(res, p4);
 	ecp_nistz256_sqr_mont(res, res);
 	ecp_nistz256_sqr_mont(res, res);
 	ecp_nistz256_sqr_mont(res, res);
-	ecp_nistz256_mul_mont(p8, res, p4);     /* ff*p */
+	ecp_nistz256_mul_mont(p8, res, p4); /* ff*p */
 
 	ecp_nistz256_sqr_mont(res, p8);
 	for(i = 0; i < 7; i++)
 		ecp_nistz256_sqr_mont(res, res);
-	ecp_nistz256_mul_mont(p16, res, p8);    /* ffff*p */
+	ecp_nistz256_mul_mont(p16, res, p8); /* ffff*p */
 
 	ecp_nistz256_sqr_mont(res, p16);
 	for(i = 0; i < 15; i++)
 		ecp_nistz256_sqr_mont(res, res);
-	ecp_nistz256_mul_mont(p32, res, p16);   /* ffffffff*p */
+	ecp_nistz256_mul_mont(p32, res, p16); /* ffffffff*p */
 
 	ecp_nistz256_sqr_mont(res, p32);
 	for(i = 0; i < 31; i++)
@@ -586,7 +586,7 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group, P256_POINT *
 	const uint window_size = 5;
 	const uint mask = (1 << (window_size + 1)) - 1;
 	uint wvalue;
-	P256_POINT * temp;      /* place for 5 temporary points */
+	P256_POINT * temp; /* place for 5 temporary points */
 	const BIGNUM ** scalars = NULL;
 	P256_POINT(*table)[16] = NULL;
 	void * table_storage = NULL;
@@ -652,25 +652,25 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group, P256_POINT *
 		 */
 
 		ecp_nistz256_scatter_w5(row, &temp[0], 1);
-		ecp_nistz256_point_double(&temp[1], &temp[0]);      /*1+1=2  */
+		ecp_nistz256_point_double(&temp[1], &temp[0]); /*1+1=2  */
 		ecp_nistz256_scatter_w5(row, &temp[1], 2);
 		ecp_nistz256_point_add(&temp[2], &temp[1], &temp[0]); /*2+1=3  */
 		ecp_nistz256_scatter_w5(row, &temp[2], 3);
-		ecp_nistz256_point_double(&temp[1], &temp[1]);      /*2*2=4  */
+		ecp_nistz256_point_double(&temp[1], &temp[1]); /*2*2=4  */
 		ecp_nistz256_scatter_w5(row, &temp[1], 4);
-		ecp_nistz256_point_double(&temp[2], &temp[2]);      /*2*3=6  */
+		ecp_nistz256_point_double(&temp[2], &temp[2]); /*2*3=6  */
 		ecp_nistz256_scatter_w5(row, &temp[2], 6);
 		ecp_nistz256_point_add(&temp[3], &temp[1], &temp[0]); /*4+1=5  */
 		ecp_nistz256_scatter_w5(row, &temp[3], 5);
 		ecp_nistz256_point_add(&temp[4], &temp[2], &temp[0]); /*6+1=7  */
 		ecp_nistz256_scatter_w5(row, &temp[4], 7);
-		ecp_nistz256_point_double(&temp[1], &temp[1]);      /*2*4=8  */
+		ecp_nistz256_point_double(&temp[1], &temp[1]); /*2*4=8  */
 		ecp_nistz256_scatter_w5(row, &temp[1], 8);
-		ecp_nistz256_point_double(&temp[2], &temp[2]);      /*2*6=12 */
+		ecp_nistz256_point_double(&temp[2], &temp[2]); /*2*6=12 */
 		ecp_nistz256_scatter_w5(row, &temp[2], 12);
-		ecp_nistz256_point_double(&temp[3], &temp[3]);      /*2*5=10 */
+		ecp_nistz256_point_double(&temp[3], &temp[3]); /*2*5=10 */
 		ecp_nistz256_scatter_w5(row, &temp[3], 10);
-		ecp_nistz256_point_double(&temp[4], &temp[4]);      /*2*7=14 */
+		ecp_nistz256_point_double(&temp[4], &temp[4]); /*2*7=14 */
 		ecp_nistz256_scatter_w5(row, &temp[4], 14);
 		ecp_nistz256_point_add(&temp[2], &temp[2], &temp[0]); /*12+1=13*/
 		ecp_nistz256_scatter_w5(row, &temp[2], 13);
@@ -680,7 +680,7 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group, P256_POINT *
 		ecp_nistz256_scatter_w5(row, &temp[4], 15);
 		ecp_nistz256_point_add(&temp[2], &temp[1], &temp[0]); /*8+1=9  */
 		ecp_nistz256_scatter_w5(row, &temp[2], 9);
-		ecp_nistz256_point_double(&temp[1], &temp[1]);      /*2*8=16 */
+		ecp_nistz256_point_double(&temp[1], &temp[1]); /*2*8=16 */
 		ecp_nistz256_scatter_w5(row, &temp[1], 16);
 	}
 
@@ -1383,7 +1383,7 @@ static NISTZ256_PRE_COMP * ecp_nistz256_pre_comp_new(const EC_GROUP * group)
 		return ret;
 	}
 	ret->group = group;
-	ret->w = 6;             /* default */
+	ret->w = 6; /* default */
 	ret->references = 1;
 	ret->lock = CRYPTO_THREAD_lock_new();
 	if(ret->lock == NULL) {
@@ -1512,17 +1512,17 @@ static int ecp_nistz256_inv_mod_ord(const EC_GROUP * group, BIGNUM * r,
 	ecp_nistz256_ord_sqr_mont(t, table[15-1], 4); /* f0 */
 	ecp_nistz256_ord_mul_mont(t, t, table[15-1]); /* ff */
 
-	ecp_nistz256_ord_sqr_mont(out, t, 8);       /* ff00 */
-	ecp_nistz256_ord_mul_mont(out, out, t);     /* ffff */
+	ecp_nistz256_ord_sqr_mont(out, t, 8); /* ff00 */
+	ecp_nistz256_ord_mul_mont(out, out, t); /* ffff */
 
-	ecp_nistz256_ord_sqr_mont(t, out, 16);      /* ffff0000 */
-	ecp_nistz256_ord_mul_mont(t, t, out);       /* ffffffff */
+	ecp_nistz256_ord_sqr_mont(t, out, 16); /* ffff0000 */
+	ecp_nistz256_ord_mul_mont(t, t, out); /* ffffffff */
 
-	ecp_nistz256_ord_sqr_mont(out, t, 64);      /* ffffffff0000000000000000 */
-	ecp_nistz256_ord_mul_mont(out, out, t);     /* ffffffff00000000ffffffff */
+	ecp_nistz256_ord_sqr_mont(out, t, 64); /* ffffffff0000000000000000 */
+	ecp_nistz256_ord_mul_mont(out, out, t); /* ffffffff00000000ffffffff */
 
-	ecp_nistz256_ord_sqr_mont(out, out, 32);    /* ffffffff00000000ffffffff00000000 */
-	ecp_nistz256_ord_mul_mont(out, out, t);     /* ffffffff00000000ffffffffffffffff */
+	ecp_nistz256_ord_sqr_mont(out, out, 32); /* ffffffff00000000ffffffff00000000 */
+	ecp_nistz256_ord_mul_mont(out, out, t); /* ffffffff00000000ffffffffffffffff */
 
 	/*
 	 * The bottom 128 bit of the exponent are processed with fixed 4-bit window

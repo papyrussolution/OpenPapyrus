@@ -195,7 +195,7 @@ METHODDEF(void) h2v1_downsample(j_compress_ptr cinfo, jpeg_component_info * comp
 	for(inrow = 0; inrow < cinfo->max_v_samp_factor; inrow++) {
 		outptr = output_data[inrow];
 		inptr = input_data[inrow];
-		bias = 0;       /* bias = 0,1,0,1,... for successive samples */
+		bias = 0; /* bias = 0,1,0,1,... for successive samples */
 		for(outcol = 0; outcol < output_cols; outcol++) {
 			*outptr++ = (JSAMPLE)((GETJSAMPLE(*inptr) + GETJSAMPLE(inptr[1]) + bias) >> 1);
 			bias ^= 1; /* 0=>1, 1=>0 */
@@ -222,7 +222,7 @@ METHODDEF(void) h2v2_downsample(j_compress_ptr cinfo, jpeg_component_info * comp
 		JSAMPROW outptr = output_data[outrow];
 		JSAMPROW inptr0 = input_data[inrow];
 		JSAMPROW inptr1 = input_data[inrow+1];
-		int bias = 1;       /* bias = 1,2,1,2,... for successive samples */
+		int bias = 1; /* bias = 1,2,1,2,... for successive samples */
 		for(outcol = 0; outcol < output_cols; outcol++) {
 			*outptr++ = (JSAMPLE)((GETJSAMPLE(*inptr0) + GETJSAMPLE(inptr0[1]) + GETJSAMPLE(*inptr1) + GETJSAMPLE(inptr1[1]) + bias) >> 2);
 			bias ^= 3; /* 1=>2, 2=>1 */

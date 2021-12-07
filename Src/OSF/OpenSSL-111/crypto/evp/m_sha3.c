@@ -18,9 +18,9 @@ void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
 
 typedef struct {
 	uint64_t A[5][5];
-	size_t block_size;      /* cached ctx->digest->block_size */
-	size_t md_size;         /* output length, variable in XOF */
-	size_t num;             /* used bytes in below buffer */
+	size_t block_size; /* cached ctx->digest->block_size */
+	size_t md_size; /* output length, variable in XOF */
+	size_t num; /* used bytes in below buffer */
 	uchar buf[KECCAK1600_WIDTH / 8 - 32];
 	uchar pad;
 } KECCAK1600_CTX;

@@ -738,7 +738,7 @@ int __bam_vrfy_itemorder(DB * dbp, VRFY_DBINFO * vdp, DB_THREAD_INFO * ip, PAGE 
 		pip = NULL;
 	env = dbp->env;
 	ret = isbad = 0;
-	bo = NULL;                      /* Shut up compiler. */
+	bo = NULL; /* Shut up compiler. */
 	// (replaced by ctr) memzero(&dbta, sizeof(DBT));
 	F_SET(&dbta, DB_DBT_REALLOC);
 	// (replaced by ctr) memzero(&dbtb, sizeof(DBT));

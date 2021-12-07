@@ -652,7 +652,7 @@ int PPCashMachine::SyncViewSessionStat(long options)
 			stat.AmtReturn = cs_total.RetAmount;
 			sum = cs_total.Amount;
 		}
-		if(sum == 0.0)  {
+		if(sum == 0.0) {
 			SyncGetSummator(&sum);
 			SETMAX(sum, 0.0);
 		}

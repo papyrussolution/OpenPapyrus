@@ -786,7 +786,8 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	const int is_cash = BIN(P_Pack->Rec.Flags & BILLF_CASH);
 	Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 	Ptb.SetBrush(brushSynced, SPaintObj::bsSolid, GetColorRef(SClrLightsteelblue), 0);
-	if((!(LConfig.Flags & CFGFLG_MULTICURBILL_DISABLE) || pPack->Rec.CurID) && getCtrlView(CTLSEL_BILL_CUR)) {
+	const long lcfgf = LConfig.Flags;
+	if((!(lcfgf & CFGFLG_MULTICURBILL_DISABLE) || pPack->Rec.CurID) && getCtrlView(CTLSEL_BILL_CUR)) {
 		Flags |= fExtMainCurAmount;
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_AMOUNT, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT, CTL_BILL_DATE, 0, &P_Pack->Amounts);
 		addGroup(GRP_CURAMT, p_ca_grp);

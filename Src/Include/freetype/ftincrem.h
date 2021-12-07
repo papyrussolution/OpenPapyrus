@@ -113,7 +113,7 @@ typedef struct  FT_Incremental_MetricsRec_ {
 	FT_Long bearing_x;
 	FT_Long bearing_y;
 	FT_Long advance;
-	FT_Long advance_v;  /* since 2.3.12 */
+	FT_Long advance_v; /* since 2.3.12 */
 } FT_Incremental_MetricsRec;
 
 /**************************************************************************

@@ -341,7 +341,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 					found = TRUE;
 			}
 			if(!found)
-				return PARSEDATE_FAIL;  /* bad string */
+				return PARSEDATE_FAIL; /* bad string */
 			date += len;
 		}
 		else if(isdec(*date)) {
@@ -427,7 +427,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 		part++;
 	}
 	if(-1 == secnum)
-		secnum = minnum = hournum = 0;  /* no time, make it zero */
+		secnum = minnum = hournum = 0; /* no time, make it zero */
 	if((-1 == mdaynum) || (-1 == monnum) || (-1 == yearnum))
 		return PARSEDATE_FAIL; // lacks vital info, fail 
 #if SIZEOF_TIME_T < 5
@@ -442,7 +442,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 		return PARSEDATE_SOONER;
 	}
 	if((mdaynum > 31) || (monnum > 11) || (hournum > 23) || (minnum > 59) || (secnum > 60))
-		return PARSEDATE_FAIL;  /* clearly an illegal date */
+		return PARSEDATE_FAIL; /* clearly an illegal date */
 	tm.tm_sec = secnum;
 	tm.tm_min = minnum;
 	tm.tm_hour = hournum;

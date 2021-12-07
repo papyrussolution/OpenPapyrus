@@ -36,20 +36,20 @@
 struct _zip_source_win32_file_ops;
 
 struct _zip_source_win32_read_file {
-    zip_error_t error;      /* last error information */
+    zip_error_t error; /* last error information */
     int64 supports;
 	struct _zip_source_win32_file_ops * ops; // operations 
     /* reading */
-    void * fname;   /* name of file to read from - ANSI (char *) or Unicode (wchar_t *) */
-    void * h;       /* HANDLE for file to read from */
-    int    closep;  /* whether to close f on ZIP_CMD_FREE */
-    zip_stat_t st;  /* stat information passed in */
-    uint64 start;   /* start offset of data to read */
-    uint64 end;     /* end offset of data to read, 0 for up to EOF */
+    void * fname; /* name of file to read from - ANSI (char *) or Unicode (wchar_t *) */
+    void * h; /* HANDLE for file to read from */
+    int    closep; /* whether to close f on ZIP_CMD_FREE */
+    zip_stat_t st; /* stat information passed in */
+    uint64 start; /* start offset of data to read */
+    uint64 end; /* end offset of data to read, 0 for up to EOF */
     uint64 current; /* current offset */
     /* writing */
     void * tmpname; /* name of temp file - ANSI (char *) or Unicode (wchar_t *) */
-    void * hout;    /* HANDLE for output file */
+    void * hout; /* HANDLE for output file */
 };
 
 typedef struct _zip_source_win32_read_file _zip_source_win32_read_file_t;

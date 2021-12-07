@@ -45,9 +45,9 @@ namespace OT {
 			return_trace(LIKELY(c->check_struct(this) && dataZ.sanitize(c, base, dataLength)));
 		}
 protected:
-		Tag tag;        /* A tag indicating the type of metadata. */
+		Tag tag; /* A tag indicating the type of metadata. */
 		LNNOffsetTo<UnsizedArrayOf<HBUINT8>>
-		dataZ;          /* Offset in bytes from the beginning of the
+		dataZ; /* Offset in bytes from the beginning of the
 		 * metadata table to the data for this tag. */
 		HBUINT32 dataLength; /* Length of the data. The data is not required to
 		 * be padded to any byte boundary. */

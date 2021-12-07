@@ -324,7 +324,7 @@ typedef struct  FT_Face_InternalRec_ {
 	FT_Int32 random_seed;
 
 #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
-	FT_LcdFiveTapFilter lcd_weights;       /* filter weights, if any */
+	FT_LcdFiveTapFilter lcd_weights; /* filter weights, if any */
 	FT_Bitmap_LcdFilterFunc lcd_filter_func; /* filtering callback     */
 #endif
 
@@ -769,26 +769,26 @@ typedef struct  FT_DriverRec_ {
  *     otherwise it simply decrements it.
  */
 typedef struct  FT_LibraryRec_ {
-	FT_Memory memory;                /* library's memory manager */
+	FT_Memory memory; /* library's memory manager */
 
 	FT_Int version_major;
 	FT_Int version_minor;
 	FT_Int version_patch;
 
 	FT_UInt num_modules;
-	FT_Module modules[FT_MAX_MODULES];       /* module objects  */
+	FT_Module modules[FT_MAX_MODULES]; /* module objects  */
 
-	FT_ListRec renderers;            /* list of renderers        */
-	FT_Renderer cur_renderer;        /* current outline renderer */
+	FT_ListRec renderers; /* list of renderers        */
+	FT_Renderer cur_renderer; /* current outline renderer */
 	FT_Module auto_hinter;
 
 	FT_DebugHook_Func debug_hooks[4];
 
 #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
-	FT_LcdFiveTapFilter lcd_weights;       /* filter weights, if any */
+	FT_LcdFiveTapFilter lcd_weights; /* filter weights, if any */
 	FT_Bitmap_LcdFilterFunc lcd_filter_func; /* filtering callback     */
 #else
-	FT_Vector lcd_geometry[3];             /* RGB subpixel positions */
+	FT_Vector lcd_geometry[3]; /* RGB subpixel positions */
 #endif
 
 	FT_Int refcount;

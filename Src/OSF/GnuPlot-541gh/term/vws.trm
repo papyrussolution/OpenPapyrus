@@ -159,7 +159,7 @@ TERM_PUBLIC void VWS_init(GpTermEntry * pThis)
 /* the array format is easier to customize */
 
 	vd_width = 14;
-	vd_height = 10;         /* aspect sqrt(2) as DIN A paper */
+	vd_height = 10; /* aspect sqrt(2) as DIN A paper */
 
 	wc_xmin = 0.0;
 	wc_ymin = 0.0;

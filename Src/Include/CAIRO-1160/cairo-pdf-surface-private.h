@@ -127,7 +127,7 @@ typedef struct _cairo_pdf_smask_group {
 	cairo_rectangle_int_t extents;
 	cairo_pdf_resource_t group_res;
 	cairo_pdf_operation_t operation;
-	cairo_pattern_t      * source;
+	cairo_pattern_t * source;
 	cairo_pdf_resource_t source_res;
 	cairo_pattern_t      * mask;
 	cairo_path_fixed_t path;

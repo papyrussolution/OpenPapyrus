@@ -37,7 +37,7 @@ struct ec_method_st {
 	/* Various method flags */
 	int flags;
 	/* used by EC_METHOD_get_field_type: */
-	int field_type;         /* a NID */
+	int field_type; /* a NID */
 	/*
 	 * used by EC_GROUP_new, EC_GROUP_free, EC_GROUP_clear_free,
 	 * EC_GROUP_copy:
@@ -185,12 +185,12 @@ typedef struct ec_pre_comp_st EC_PRE_COMP;
 
 struct ec_group_st {
 	const EC_METHOD * meth;
-	EC_POINT * generator;   /* optional */
+	EC_POINT * generator; /* optional */
 	BIGNUM * order, * cofactor;
-	int curve_name;         /* optional NID for named curve */
-	int asn1_flag;          /* flag to control the asn1 encoding */
+	int curve_name; /* optional NID for named curve */
+	int asn1_flag; /* flag to control the asn1 encoding */
 	point_conversion_form_t asn1_form;
-	uchar * seed;   /* optional seed for parameters (appears in
+	uchar * seed; /* optional seed for parameters (appears in
 	                         * ASN1) */
 	size_t seed_len;
 	/*

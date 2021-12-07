@@ -198,8 +198,8 @@ u_vsnprintf_u(UChar * buffer,
     const UChar * patternSpecification,
     va_list ap)
 {
-	int32_t written = 0;        /* haven't written anything yet */
-	int32_t result = 0;                  /* test the return value of u_printf_parse */
+	int32_t written = 0; /* haven't written anything yet */
+	int32_t result = 0; /* test the return value of u_printf_parse */
 
 	u_localized_print_string outStr;
 

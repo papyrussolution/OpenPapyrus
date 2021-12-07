@@ -63,7 +63,7 @@ typedef pthread_t os_thread_t;
  *	TM[maxlocks]		per-lock mutex array
  */
 typedef struct {
-	db_mutex_t mutex;                       /* Mutex. */
+	db_mutex_t mutex; /* Mutex. */
 	ulong id;                              /* Holder's ID. */
 	uint wakeme;                           /* Request to awake. */
 } TM;
@@ -190,7 +190,7 @@ int main(int argc, char * argv[])
 	 * environment separately and then calls the supporting function.
 	 */
 	if(rtype == LOCKER || rtype == WAKEUP) {
-		__os_yield(env, 3, 0);          /* Let everyone catch up. */
+		__os_yield(env, 3, 0); /* Let everyone catch up. */
 		                                /* Initialize random numbers. */
 		srand((uint)time(NULL)%(uint)getpid());
 		if(tm_env_init() != 0)          /* Join the environment. */
@@ -203,9 +203,9 @@ int main(int argc, char * argv[])
 			exit(EXIT_FAILURE);
 		if((rtype == LOCKER ? locker_wait() : wakeup_wait()) != 0)
 			exit(EXIT_FAILURE);
-		data_off(gm_addr, map_fhp);     /* Detach from backing data. */
+		data_off(gm_addr, map_fhp); /* Detach from backing data. */
 
-		tm_env_close();                 /* Detach from environment. */
+		tm_env_close(); /* Detach from environment. */
 
 		exit(EXIT_SUCCESS);
 	}
@@ -285,10 +285,10 @@ int main(int argc, char * argv[])
 		if(wakeup_wait() != 0)
 			goto fail;
 	}
-	tm_mutex_stats();               /* Display run statistics. */
-	tm_mutex_destroy();             /* Destroy mutexes. */
-	data_off(gm_addr, map_fhp);     /* Detach from backing data. */
-	tm_env_close();                 /* Detach from environment. */
+	tm_mutex_stats(); /* Display run statistics. */
+	tm_mutex_destroy(); /* Destroy mutexes. */
+	data_off(gm_addr, map_fhp); /* Detach from backing data. */
+	tm_env_close(); /* Detach from environment. */
 	printf("%s: test succeeded\n", progname);
 	return EXIT_SUCCESS;
 fail:

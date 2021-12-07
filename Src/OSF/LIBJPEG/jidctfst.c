@@ -238,7 +238,7 @@ GLOBAL(void) jpeg_idct_ifast(j_decompress_ptr cinfo, jpeg_component_info * compp
 		wsptr[DCTSIZE*3] = (int)(tmp3 + tmp4);
 		wsptr[DCTSIZE*4] = (int)(tmp3 - tmp4);
 
-		inptr++;        /* advance pointers to next column */
+		inptr++; /* advance pointers to next column */
 		quantptr++;
 		wsptr++;
 	}
@@ -293,7 +293,7 @@ GLOBAL(void) jpeg_idct_ifast(j_decompress_ptr cinfo, jpeg_component_info * compp
 
 		tmp13 = (DCTELEM)wsptr[2] + (DCTELEM)wsptr[6];
 		tmp12 = MULTIPLY((DCTELEM)wsptr[2] - (DCTELEM)wsptr[6],
-		    FIX_1_414213562) - tmp13;  /* 2*c4 */
+		    FIX_1_414213562) - tmp13; /* 2*c4 */
 
 		tmp0 = tmp10 + tmp13;
 		tmp3 = tmp10 - tmp13;

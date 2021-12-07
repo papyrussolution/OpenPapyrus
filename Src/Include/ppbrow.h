@@ -1149,6 +1149,7 @@
 #define PPVCMD_CREATELINKQR                           289
 #define PPVCMD_MATCH                                  290
 #define PPVCMD_FACE                                   291
+#define PPVCMD_INVITATION                             292
 //
 // PPCMD definitions
 //
@@ -4976,9 +4977,10 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_OP_GOODSRETURN                  32970
 #define PPDV_TREEVIEW                        32971
 #define PPDV_INFO01                          32972
-#define PPDV_LOGOPAPYRUS                     32973
-#define PPDV_LOGOUDS                         32974
-#define PPDV_LOGOVK                          32975
-#define PPDV_LOGOVETIS                       32976
-#define PPDV_LOGOCHZN                        32977
+#define PPDV_INVITATIONQR01                  32973
+#define PPDV_LOGOPAPYRUS                     32974
+#define PPDV_LOGOUDS                         32975
+#define PPDV_LOGOVK                          32976
+#define PPDV_LOGOVETIS                       32977
+#define PPDV_LOGOCHZN                        32978
 

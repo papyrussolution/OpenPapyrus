@@ -125,11 +125,11 @@ int BN_mod_exp2_mont(BIGNUM * rr, const BIGNUM * a1, const BIGNUM * p1,
 
 	/* Now compute the power product, using independent windows. */
 	r_is_one = 1;
-	wvalue1 = 0;            /* The 'value' of the first window */
-	wvalue2 = 0;            /* The 'value' of the second window */
-	wpos1 = 0;              /* If wvalue1 > 0, the bottom bit of the
+	wvalue1 = 0; /* The 'value' of the first window */
+	wvalue2 = 0; /* The 'value' of the second window */
+	wpos1 = 0; /* If wvalue1 > 0, the bottom bit of the
 	                         * first window */
-	wpos2 = 0;              /* If wvalue2 > 0, the bottom bit of the
+	wpos2 = 0; /* If wvalue2 > 0, the bottom bit of the
 	                         * second window */
 
 	if(!BN_to_montgomery(r, BN_value_one(), mont, ctx))

@@ -561,8 +561,8 @@ typedef png_sPLT_entry ** png_sPLT_entrypp;
  */
 
 typedef struct png_sPLT_struct {
-	char * name;      /* palette name */
-	uint8 depth;      /* depth of palette samples */
+	char * name; /* palette name */
+	uint8 depth; /* depth of palette samples */
 	png_sPLT_entryp entries; /* palette entries */
 	png_int_32 nentries; /* number of palette entries */
 } png_sPLT_t;
@@ -589,12 +589,12 @@ typedef png_sPLT_t ** png_sPLT_tpp;
  * which is always 0 or 1, or its "compression method" which is always 0.
  */
 typedef struct png_text_struct {
-	int compression;   /* compression value: -1: tEXt, none; 0: zTXt, deflate; 1: iTXt, none; 2: iTXt, deflate  */
-	char * key;     /* keyword, 1-79 character description of "text" */
-	char * text;    /* comment, may be an empty string (ie "") or a NULL pointer */
+	int compression; /* compression value: -1: tEXt, none; 0: zTXt, deflate; 1: iTXt, none; 2: iTXt, deflate  */
+	char * key; /* keyword, 1-79 character description of "text" */
+	char * text; /* comment, may be an empty string (ie "") or a NULL pointer */
 	size_t text_length; /* length of the text string */
 	size_t itxt_length; /* length of the itxt string */
-	char * lang;    /* language code, 0-79 characters or a NULL pointer */
+	char * lang; /* language code, 0-79 characters or a NULL pointer */
 	char * lang_key; /* keyword translated UTF-8 string, 0 or more chars or a NULL pointer */
 } png_text;
 typedef png_text * png_textp;

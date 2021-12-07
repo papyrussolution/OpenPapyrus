@@ -20,7 +20,7 @@ struct ngx_http_header_val_s {
 	ngx_str_t key;
 	ngx_http_set_header_pt handler;
 	ngx_uint_t offset;
-	ngx_uint_t always;              /* unsigned  always:1 */
+	ngx_uint_t always; /* unsigned  always:1 */
 };
 
 typedef enum {

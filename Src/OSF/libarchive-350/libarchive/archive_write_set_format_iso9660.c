@@ -169,7 +169,7 @@ struct isofile {
 		 * If this entry has multi extent, `next' variable points
 		 * next content data.
 		 */
-		struct content  * next;          /* next content	*/
+		struct content  * next; /* next content	*/
 	} content, * cur_content;
 	int write_content;
 	enum {
@@ -2447,8 +2447,8 @@ static int set_SUSP_CE(uchar * p, int location, int offset, int size)
 
 	bp[1] = 'C';
 	bp[2] = 'E';
-	bp[3] = RR_CE_SIZE;     /* length	*/
-	bp[4] = 1;              /* version	*/
+	bp[3] = RR_CE_SIZE; /* length	*/
+	bp[4] = 1; /* version	*/
 	set_num_733(bp+5, location);
 	set_num_733(bp+13, offset);
 	set_num_733(bp+21, size);
@@ -2690,9 +2690,9 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'S';
 			bp[2] = 'P';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
-			bp[5] = 0xBE;  /* Check Byte	*/
-			bp[6] = 0xEF;  /* Check Byte	*/
+			bp[4] = 1; /* version	*/
+			bp[5] = 0xBE; /* Check Byte	*/
+			bp[6] = 0xEF; /* Check Byte	*/
 			bp[7] = 0;
 			bp += length;
 		}
@@ -2707,7 +2707,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		bp[1] = 'R';
 		bp[2] = 'R';
 		bp[3] = length;
-		bp[4] = 1;      /* version */
+		bp[4] = 1; /* version */
 		bp[5] = rr_flag;
 		bp += length;
 	}
@@ -2733,7 +2733,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		if(bp != NULL) {
 			bp[1] = 'N';
 			bp[2] = 'M';
-			bp[4] = 1;          /* version	*/
+			bp[4] = 1; /* version	*/
 		}
 		nmmax = extra_space(&ctl);
 		if(nmmax > 0xff)
@@ -2759,7 +2759,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			if(bp != NULL) {
 				bp[1] = 'N';
 				bp[2] = 'M';
-				bp[4] = 1;    /* version */
+				bp[4] = 1; /* version */
 			}
 		}
 		length = 5 + (int)nmlen;
@@ -2819,7 +2819,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'P';
 			bp[2] = 'X';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			/* file mode */
 			set_num_733(bp+5, mode);
 			/* file links (stat.st_nlink) */
@@ -2877,7 +2877,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		if(bp != NULL) {
 			bp[1] = 'S';
 			bp[2] = 'L';
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 		}
 		for(;;) {
 			uchar * nc, * cf,  * cl, cldmy = 0;
@@ -2960,7 +2960,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 					if(sl[0] == '/')
 						sl += 2; /* skip "/." */
 					else
-						sl++;   /* skip "." */
+						sl++; /* skip "." */
 					sl_last = '.';
 					cl = NULL;
 					continue;
@@ -3015,7 +3015,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 					/* Next 'SL' */
 					bp[1] = 'S';
 					bp[2] = 'L';
-					bp[4] = 1;    /* version */
+					bp[4] = 1; /* version */
 				}
 			}
 			else {
@@ -3082,7 +3082,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'T';
 			bp[2] = 'F';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			bp[5] = tf_flags;
 			bp += 5;
 			/* Creation time */
@@ -3130,7 +3130,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'R';
 			bp[2] = 'E';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			bp += length;
 		}
 		extra_tell_used_size(&ctl, length);
@@ -3154,7 +3154,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'P';
 			bp[2] = 'L';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			set_num_733(bp + 5,
 			    rr_parent->dir_location);
 			bp += length;
@@ -3180,7 +3180,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'C';
 			bp[2] = 'L';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			set_num_733(bp + 5,
 			    isoent->rr_child->dir_location);
 			bp += length;
@@ -3207,7 +3207,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'P';
 			bp[2] = 'N';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			dev = (uint64)archive_entry_rdev(file->entry);
 			set_num_733(bp + 5, (uint32)(dev >> 32));
 			set_num_733(bp + 13, (uint32)(dev & 0xFFFFFFFF));
@@ -3237,7 +3237,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'Z';
 			bp[2] = 'F';
 			bp[3] = length;
-			bp[4] = 1;      /* version	*/
+			bp[4] = 1; /* version	*/
 			bp[5] = 'p';
 			bp[6] = 'z';
 			bp[7] = file->zisofs.header_size;
@@ -7421,7 +7421,7 @@ static int zisofs_free(struct archive_write * a)
 }
 
 struct zisofs_extract {
-	int pz_log2_bs;              /* Log2 of block size */
+	int pz_log2_bs; /* Log2 of block size */
 	uint64 pz_uncompressed_size;
 	size_t uncompressed_buffer_size;
 

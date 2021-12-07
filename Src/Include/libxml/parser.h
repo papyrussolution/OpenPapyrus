@@ -48,24 +48,24 @@ struct xmlParserInput {
 	/* Input buffer */
 	const xmlChar * cur;          // Current char being parsed 
 	xmlParserInputBuffer * buf;   // UTF-8 encoded buffer 
-	const char * filename;        /* The file analyzed, if any */
-	const char * directory;       /* the directory/base of the file */
-	const xmlChar * base;         /* Base of the array to parse */
-	const xmlChar * end;          /* end of the array to parse */
+	const char * filename; /* The file analyzed, if any */
+	const char * directory; /* the directory/base of the file */
+	const xmlChar * base; /* Base of the array to parse */
+	const xmlChar * end; /* end of the array to parse */
 	int length;                   /* length if known */
-	int line;                     /* Current line */
-	int col;                      /* Current column */
+	int line; /* Current line */
+	int col; /* Current column */
 	/*
 	 * NOTE: consumed is only tested for equality in the parser code,
 	 *  so even if there is an overflow this should not give troubles
 	 *  for parsing very large instances.
 	 */
-	ulong consumed;       /* How many xmlChars already consumed */
+	ulong consumed; /* How many xmlChars already consumed */
 	xmlParserInputDeallocate free; /* function to deallocate the base */
-	const xmlChar * encoding;     /* the encoding string for entity */
-	const xmlChar * version;      /* the version string for entity */
-	int standalone;               /* Was that entity marked standalone */
-	int id;                       /* an unique identifier for the entity */
+	const xmlChar * encoding; /* the encoding string for entity */
+	const xmlChar * version; /* the version string for entity */
+	int standalone; /* Was that entity marked standalone */
+	int id; /* an unique identifier for the entity */
 };
 /**
  * xmlParserNodeInfo:

@@ -97,7 +97,7 @@ typedef struct  FT_Frame_Field_ {
 		FT_FIELD_OFFSET(field)      \
 	}
 
-#define FT_MAKE_EMPTY_FIELD(frame_op)  { frame_op, 0, 0 }
+#define FT_MAKE_EMPTY_FIELD(frame_op) { frame_op, 0, 0 }
 
 #define FT_FRAME_START(size)   { ft_frame_start, 0, size }
 #define FT_FRAME_END             { ft_frame_end, 0, 0 }
@@ -129,7 +129,7 @@ typedef struct  FT_Frame_Field_ {
 		FT_FIELD_OFFSET(field)   \
 	}
 
-#define FT_FRAME_SKIP_BYTES(count)  { ft_frame_skip, count, 0 }
+#define FT_FRAME_SKIP_BYTES(count) { ft_frame_skip, count, 0 }
 
 /**************************************************************************
  *

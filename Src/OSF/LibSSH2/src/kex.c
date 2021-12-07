@@ -1810,7 +1810,7 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, uchar * data, unsigned d
 	session->burn_optimistic_kexinit = *(s++);
 	/* Next uint32 in packet is all zeros (reserved) */
 	if(data_len < (uint)(s - data))
-		return -1;      /* short packet */
+		return -1; /* short packet */
 	if(kex_agree_kex_hostkey(session, kex, kex_len, hostkey, hostkey_len)) {
 		return -1;
 	}

@@ -563,8 +563,8 @@ typedef struct key_exchange_state_low_t {
 	libssh2_nonblocking_states state;
 	packet_require_state_t req_state;
 	kmdhgGPshakex_state_t exchange_state;
-	_libssh2_bn * p;        /* SSH2 defined value (p_value) */
-	_libssh2_bn * g;        /* SSH2 defined value (2) */
+	_libssh2_bn * p; /* SSH2 defined value (p_value) */
+	_libssh2_bn * g; /* SSH2 defined value (2) */
 	uchar request[13];
 	uchar * data;
 	size_t request_len;
@@ -722,20 +722,20 @@ struct transportpacket {
 	/* ------------- for incoming data --------------- */
 	uchar  buf[PACKETBUFSIZE];
 	uchar  init[5]; /* first 5 bytes of the incoming data stream, still encrypted */
-	size_t writeidx;    /* at what array index we do the next write into the buffer */
-	size_t readidx;     /* at what array index we do the next read from the buffer */
+	size_t writeidx; /* at what array index we do the next write into the buffer */
+	size_t readidx; /* at what array index we do the next read from the buffer */
 	uint32 packet_length; /* the most recent packet_length as read from the network data */
 	uint8  padding_length; /* the most recent padding_length as read from the network data */
-	size_t data_num;    /* How much of the total package that has been read so far. */
-	size_t total_num;   /* How much a total package is supposed to be, in number of bytes. A full package is packet_length + padding_length + 4 + mac_length. */
+	size_t data_num; /* How much of the total package that has been read so far. */
+	size_t total_num; /* How much a total package is supposed to be, in number of bytes. A full package is packet_length + padding_length + 4 + mac_length. */
 	uchar * payload; /* this is a pointer to a LIBSSH2_ALLOC() area to which we write decrypted data */
 	uchar * wptr; /* write pointer into the payload to where we are currently writing decrypted data */
 	/* ------------- for outgoing data --------------- */
 	uchar  outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
-	int    ototal_num;     /* size of outbuf in number of bytes */
+	int    ototal_num; /* size of outbuf in number of bytes */
 	const  uchar * odata; /* original pointer to the data */
-	size_t olen;        /* original size of the data we stored in outbuf */
-	size_t osent;       /* number of bytes already sent */
+	size_t olen; /* original size of the data we stored in outbuf */
+	size_t osent; /* number of bytes already sent */
 };
 
 struct _LIBSSH2_PUBLICKEY {
@@ -827,7 +827,7 @@ struct _LIBSSH2_SESSION {
 	int err_flags;
 	struct transportpacket packet; /* struct members for packet-level reading */
 #ifdef LIBSSH2DEBUG
-	int showmask;           /* what debug/trace messages to display */
+	int showmask; /* what debug/trace messages to display */
 	libssh2_trace_handler_func tracehandler; /* callback to display trace messages */
 	void * tracehandler_context; /* context for the trace handler */
 #endif
@@ -1334,7 +1334,7 @@ struct _LIBSSH2_SFTP_PACKET {
 	struct list_node node; /* linked list header */
 	uint32 request_id;
 	uchar * data;
-	size_t data_len;          /* payload size */
+	size_t data_len; /* payload size */
 };
 
 typedef struct _LIBSSH2_SFTP_PACKET LIBSSH2_SFTP_PACKET;
@@ -1385,11 +1385,11 @@ struct _LIBSSH2_SFTP {
 	struct list_head sftp_handles; /* a list of _LIBSSH2_SFTP_HANDLE structs */
 	uint32 last_errno;
 	/* Holder for partial packet, use in libssh2_sftp_packet_read() */
-	uchar partial_size[4];  /* buffer for size field   */
-	size_t partial_size_len;        /* size field length       */
+	uchar partial_size[4]; /* buffer for size field   */
+	size_t partial_size_len; /* size field length       */
 	uchar * partial_packet; /* The data                */
-	uint32 partial_len;           /* Desired number of bytes */
-	size_t partial_received;        /* Bytes received so far   */
+	uint32 partial_len; /* Desired number of bytes */
+	size_t partial_received; /* Bytes received so far   */
 	time_t requirev_start; /* Time that libssh2_sftp_packet_requirev() started reading */
 	libssh2_nonblocking_states open_state; /* State variables used in libssh2_sftp_open_ex() */
 	uchar * open_packet;

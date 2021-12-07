@@ -30,8 +30,8 @@
 struct blake2s_param_st {
 	uint8_t digest_length; /* 1 */
 	uint8_t key_length; /* 2 */
-	uint8_t fanout;     /* 3 */
-	uint8_t depth;      /* 4 */
+	uint8_t fanout; /* 3 */
+	uint8_t depth; /* 4 */
 	uint8_t leaf_length[4]; /* 8 */
 	uint8_t node_offset[6]; /* 14 */
 	uint8_t node_depth; /* 15 */
@@ -53,8 +53,8 @@ struct blake2s_ctx_st {
 struct blake2b_param_st {
 	uint8_t digest_length; /* 1 */
 	uint8_t key_length; /* 2 */
-	uint8_t fanout;     /* 3 */
-	uint8_t depth;      /* 4 */
+	uint8_t fanout; /* 3 */
+	uint8_t depth; /* 4 */
 	uint8_t leaf_length[4]; /* 8 */
 	uint8_t node_offset[8]; /* 16 */
 	uint8_t node_depth; /* 17 */

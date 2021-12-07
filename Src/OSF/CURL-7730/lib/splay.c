@@ -52,14 +52,14 @@ struct Curl_tree * Curl_splay(struct curltime i,
 			if(t->smaller == NULL)
 				break;
 			if(compare(i, t->smaller->key) < 0) {
-				y = t->smaller;   /* rotate smaller */
+				y = t->smaller; /* rotate smaller */
 				t->smaller = y->larger;
 				y->larger = t;
 				t = y;
 				if(t->smaller == NULL)
 					break;
 			}
-			r->smaller = t;             /* link smaller */
+			r->smaller = t; /* link smaller */
 			r = t;
 			t = t->smaller;
 		}
@@ -67,14 +67,14 @@ struct Curl_tree * Curl_splay(struct curltime i,
 			if(t->larger == NULL)
 				break;
 			if(compare(i, t->larger->key) > 0) {
-				y = t->larger;  /* rotate larger */
+				y = t->larger; /* rotate larger */
 				t->larger = y->smaller;
 				y->smaller = t;
 				t = y;
 				if(t->larger == NULL)
 					break;
 			}
-			l->larger = t;            /* link larger */
+			l->larger = t; /* link larger */
 			l = t;
 			t = t->larger;
 		}

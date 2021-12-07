@@ -90,5 +90,5 @@ void gf_mulw_unsigned(gf_s * RESTRICT cs, const gf as, uint32_t b)
 
 void gf_sqr(gf_s * RESTRICT cs, const gf as)
 {
-	gf_mul(cs, as, as);     /* Performs better with a dedicated square */
+	gf_mul(cs, as, as); /* Performs better with a dedicated square */
 }

@@ -485,7 +485,7 @@ static void LUA_set_term_vars(void)
 	lua_setfield(P_LuaS, luaterm, "TERM_CAN_MULTIPLOT");
 	lua_pushinteger(P_LuaS, TERM_CANNOT_MULTIPLOT); /* tested if stdout is redirected  */
 	lua_setfield(P_LuaS, luaterm, "TERM_CANNOT_MULTIPLOT");
-	lua_pushinteger(P_LuaS, TERM_BINARY);      /* open output file with "b"       */
+	lua_pushinteger(P_LuaS, TERM_BINARY); /* open output file with "b"       */
 	lua_setfield(P_LuaS, luaterm, "TERM_BINARY");
 	lua_pushinteger(P_LuaS, TERM_INIT_ON_REPLOT); /* call term->init() on replot     */
 	lua_setfield(P_LuaS, luaterm, "TERM_INIT_ON_REPLOT");
@@ -497,15 +497,15 @@ static void LUA_set_term_vars(void)
 	lua_setfield(P_LuaS, luaterm, "TERM_ENHANCED_TEXT");
 	lua_pushinteger(P_LuaS, TERM_NO_OUTPUTFILE); /* terminal doesn't write to a file */
 	lua_setfield(P_LuaS, luaterm, "TERM_NO_OUTPUTFILE");
-	lua_pushinteger(P_LuaS, TERM_CAN_CLIP);    /* terminal does its own clipping  */
+	lua_pushinteger(P_LuaS, TERM_CAN_CLIP); /* terminal does its own clipping  */
 	lua_setfield(P_LuaS, luaterm, "TERM_CAN_CLIP");
-	lua_pushinteger(P_LuaS, TERM_CAN_DASH);    /* terminal knows dashed lines */
+	lua_pushinteger(P_LuaS, TERM_CAN_DASH); /* terminal knows dashed lines */
 	lua_setfield(P_LuaS, luaterm, "TERM_CAN_DASH");
 	lua_pushinteger(P_LuaS, TERM_ALPHA_CHANNEL); /* alpha channel transparency      */
 	lua_setfield(P_LuaS, luaterm, "TERM_ALPHA_CHANNEL");
 	lua_pushinteger(P_LuaS, TERM_MONOCHROME); /* term is running in mono mode    */
 	lua_setfield(P_LuaS, luaterm, "TERM_MONOCHROME");
-	lua_pushinteger(P_LuaS, TERM_LINEWIDTH);   /* support for set term linewidth  */
+	lua_pushinteger(P_LuaS, TERM_LINEWIDTH); /* support for set term linewidth  */
 	lua_setfield(P_LuaS, luaterm, "TERM_LINEWIDTH");
 #ifdef TERM_FONTSCALE
 	lua_pushinteger(P_LuaS, TERM_FONTSCALE); // terminal supports fontscale

@@ -128,7 +128,7 @@ int UTF8_getc(const uchar * str, int len, ulong * val)
 int UTF8_putc(uchar * str, int len, ulong value)
 {
 	if(!str)
-		len = 6;        /* Maximum we will need */
+		len = 6; /* Maximum we will need */
 	else if(len <= 0)
 		return -1;
 	if(value < 0x80) {

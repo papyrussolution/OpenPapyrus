@@ -631,8 +631,7 @@ class U_COMMON_API ICUService : public ICUNotifier {
   * has no fallback.  If no object is found, the result of handleDefault
   * is returned.</p>
      *
-  * <p>Subclasses can override this method to further customize the 
-  * result before returning it.
+  * <p>Subclasses can override this method to further customize the result before returning it.
      *
   * @param key the key.
   * @param actualReturn a pointer to a UnicodeString to hold the matched descriptor, or NULL.

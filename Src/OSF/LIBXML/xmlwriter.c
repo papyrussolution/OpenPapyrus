@@ -75,13 +75,13 @@ struct _xmlTextWriterNsStackEntry {
 
 struct xmlTextWriter {
 	xmlOutputBuffer * out; /* output buffer */
-	xmlList * nodes;       /* element name stack */
-	xmlList * nsstack;     /* name spaces stack */
+	xmlList * nodes; /* element name stack */
+	xmlList * nsstack; /* name spaces stack */
 	int level;
-	int indent;             /* enable indent */
-	int doindent;           /* internal indent flag */
-	xmlChar * ichar;        /* indent character */
-	char qchar;             /* character used for quoting attribute values */
+	int indent; /* enable indent */
+	int doindent; /* internal indent flag */
+	xmlChar * ichar; /* indent character */
+	char qchar; /* character used for quoting attribute values */
 	xmlParserCtxt * ctxt;
 	int no_doc_free;
 	xmlDoc * doc;

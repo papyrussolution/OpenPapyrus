@@ -697,7 +697,7 @@ typedef struct {
 #define sz_xRenderQueryVersionReq   12
 
 typedef struct {
-	BYTE type;  /* X_Reply */
+	BYTE type; /* X_Reply */
 	BYTE pad1;
 	CARD16 sequenceNumber B16;
 	CARD32 length B32;
@@ -720,7 +720,7 @@ typedef struct {
 #define sz_xRenderQueryPictFormatsReq   4
 
 typedef struct {
-	BYTE type;  /* X_Reply */
+	BYTE type; /* X_Reply */
 	BYTE pad1;
 	CARD16 sequenceNumber B16;
 	CARD32 length B32;
@@ -728,7 +728,7 @@ typedef struct {
 	CARD32 numScreens B32;
 	CARD32 numDepths B32;
 	CARD32 numVisuals B32;
-	CARD32 numSubpixel B32;     /* Version 0.6 */
+	CARD32 numSubpixel B32; /* Version 0.6 */
 	CARD32 pad5 B32;
 } xRenderQueryPictFormatsReply;
 
@@ -744,7 +744,7 @@ typedef struct {
 #define sz_xRenderQueryPictIndexValuesReq   8
 
 typedef struct {
-	BYTE type;  /* X_Reply */
+	BYTE type; /* X_Reply */
 	BYTE pad1;
 	CARD16 sequenceNumber B16;
 	CARD32 length B32;
@@ -1040,12 +1040,12 @@ typedef struct {
 #define sz_xRenderQueryFiltersReq                   8
 
 typedef struct {
-	BYTE type;  /* X_Reply */
+	BYTE type; /* X_Reply */
 	BYTE pad1;
 	CARD16 sequenceNumber B16;
 	CARD32 length B32;
-	CARD32 numAliases B32;  /* LISTofCARD16 */
-	CARD32 numFilters B32;  /* LISTofSTRING8 */
+	CARD32 numAliases B32; /* LISTofCARD16 */
+	CARD32 numFilters B32; /* LISTofSTRING8 */
 	CARD32 pad2 B32;
 	CARD32 pad3 B32;
 	CARD32 pad4 B32;
@@ -1059,7 +1059,7 @@ typedef struct {
 	CARD8 renderReqType;
 	CARD16 length B16;
 	Picture picture B32;
-	CARD16 nbytes B16;          /* number of bytes in name */
+	CARD16 nbytes B16; /* number of bytes in name */
 	CARD16 pad B16;
 } xRenderSetPictureFilterReq;
 
@@ -1140,7 +1140,7 @@ typedef struct {
 	CARD16 length B16;
 	Picture pid B32;
 	xPointFixed center;
-	Fixed angle;   /* in degrees */
+	Fixed angle; /* in degrees */
 	CARD32 nStops;
 } xRenderCreateConicalGradientReq;
 

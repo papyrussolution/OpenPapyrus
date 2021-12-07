@@ -25,11 +25,11 @@ struct ngx_stream_log_op_s {
 typedef struct {
 	ngx_str_t name;
 	ngx_array_t * flushes;
-	ngx_array_t * ops;   /* array of ngx_stream_log_op_t */
+	ngx_array_t * ops; /* array of ngx_stream_log_op_t */
 } ngx_stream_log_fmt_t;
 
 typedef struct {
-	ngx_array_t formats;                 /* array of ngx_stream_log_fmt_t */
+	ngx_array_t formats; /* array of ngx_stream_log_fmt_t */
 } ngx_stream_log_main_conf_t;
 
 typedef struct {
@@ -58,11 +58,11 @@ typedef struct {
 } ngx_stream_log_t;
 
 typedef struct {
-	ngx_array_t * logs;  /* array of ngx_stream_log_t */
+	ngx_array_t * logs; /* array of ngx_stream_log_t */
 	ngx_open_file_cache_t  * open_file_cache;
 	time_t open_file_cache_valid;
 	ngx_uint_t open_file_cache_min_uses;
-	ngx_uint_t off;                      /* unsigned  off:1 */
+	ngx_uint_t off; /* unsigned  off:1 */
 } ngx_stream_log_srv_conf_t;
 
 typedef struct {

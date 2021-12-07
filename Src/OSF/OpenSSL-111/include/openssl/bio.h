@@ -225,7 +225,7 @@ const char * BIO_method_name(const BIO * b);
 int BIO_method_type(const BIO * b);
 
 typedef int BIO_info_cb (BIO *, int, int);
-typedef BIO_info_cb bio_info_cb;  /* backward compatibility */
+typedef BIO_info_cb bio_info_cb; /* backward compatibility */
 
 DEFINE_STACK_OF(BIO)
 

@@ -196,11 +196,11 @@ typedef struct  TT_HoriHeader_ {
 	FT_Short Descender;
 	FT_Short Line_Gap;
 
-	FT_UShort advance_Width_Max;   /* advance width maximum */
+	FT_UShort advance_Width_Max; /* advance width maximum */
 
 	FT_Short min_Left_Side_Bearing; /* minimum left-sb       */
 	FT_Short min_Right_Side_Bearing; /* minimum right-sb      */
-	FT_Short xMax_Extent;          /* xmax extents          */
+	FT_Short xMax_Extent; /* xmax extents          */
 	FT_Short caret_Slope_Rise;
 	FT_Short caret_Slope_Run;
 	FT_Short caret_Offset;
@@ -311,11 +311,11 @@ typedef struct  TT_VertHeader_ {
 	FT_Short Descender;
 	FT_Short Line_Gap;
 
-	FT_UShort advance_Height_Max;   /* advance height maximum */
+	FT_UShort advance_Height_Max; /* advance height maximum */
 
-	FT_Short min_Top_Side_Bearing;  /* minimum top-sb          */
+	FT_Short min_Top_Side_Bearing; /* minimum top-sb          */
 	FT_Short min_Bottom_Side_Bearing; /* minimum bottom-sb       */
-	FT_Short yMax_Extent;           /* ymax extents            */
+	FT_Short yMax_Extent; /* ymax extents            */
 	FT_Short caret_Slope_Rise;
 	FT_Short caret_Slope_Run;
 	FT_Short caret_Offset;
@@ -360,7 +360,7 @@ typedef struct  TT_VertHeader_ {
  */
 
 typedef struct  TT_OS2_ {
-	FT_UShort version;             /* 0x0001 - more or 0xFFFF */
+	FT_UShort version; /* 0x0001 - more or 0xFFFF */
 	FT_Short xAvgCharWidth;
 	FT_UShort usWeightClass;
 	FT_UShort usWidthClass;
@@ -379,10 +379,10 @@ typedef struct  TT_OS2_ {
 
 	FT_Byte panose[10];
 
-	FT_ULong ulUnicodeRange1;      /* Bits 0-31   */
-	FT_ULong ulUnicodeRange2;      /* Bits 32-63  */
-	FT_ULong ulUnicodeRange3;      /* Bits 64-95  */
-	FT_ULong ulUnicodeRange4;      /* Bits 96-127 */
+	FT_ULong ulUnicodeRange1; /* Bits 0-31   */
+	FT_ULong ulUnicodeRange2; /* Bits 32-63  */
+	FT_ULong ulUnicodeRange3; /* Bits 64-95  */
+	FT_ULong ulUnicodeRange4; /* Bits 96-127 */
 
 	FT_Char achVendID[4];
 
@@ -397,8 +397,8 @@ typedef struct  TT_OS2_ {
 
 	/* only version 1 and higher: */
 
-	FT_ULong ulCodePageRange1;     /* Bits 0-31   */
-	FT_ULong ulCodePageRange2;     /* Bits 32-63  */
+	FT_ULong ulCodePageRange1; /* Bits 0-31   */
+	FT_ULong ulCodePageRange2; /* Bits 32-63  */
 
 	/* only version 2 and higher: */
 
@@ -410,8 +410,8 @@ typedef struct  TT_OS2_ {
 
 	/* only version 5 and higher: */
 
-	FT_UShort usLowerOpticalPointSize;    /* in twips (1/20th points) */
-	FT_UShort usUpperOpticalPointSize;    /* in twips (1/20th points) */
+	FT_UShort usLowerOpticalPointSize; /* in twips (1/20th points) */
+	FT_UShort usUpperOpticalPointSize; /* in twips (1/20th points) */
 } TT_OS2;
 
 /**************************************************************************

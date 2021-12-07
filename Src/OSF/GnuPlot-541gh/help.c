@@ -97,30 +97,30 @@ void OutLine(const char * M)
 
 typedef struct line_s LINEBUF;
 struct line_s {
-	char * line;            /* the text of this line */
-	LINEBUF * next;         /* the next line */
+	char * line; /* the text of this line */
+	LINEBUF * next; /* the next line */
 };
 
 typedef struct linkey_s LINKEY;
 struct linkey_s {
-	char * key;             /* the name of this key */
-	long pos;               /* ftell position */
-	LINEBUF * text;         /* the text for this key */
-	bool primary;           /* TRUE -> is a primary name for a text block */
-	LINKEY * next;          /* the next key in linked list */
+	char * key; /* the name of this key */
+	long pos; /* ftell position */
+	LINEBUF * text; /* the text for this key */
+	bool primary; /* TRUE -> is a primary name for a text block */
+	LINKEY * next; /* the next key in linked list */
 };
 
 typedef struct key_s KEY;
 struct key_s {
-	char * key;             /* the name of this key */
-	long pos;               /* ftell position */
-	LINEBUF * text;         /* the text for this key */
-	bool primary;           /* TRUE -> is a primary name for a text block */
+	char * key; /* the name of this key */
+	long pos; /* ftell position */
+	LINEBUF * text; /* the text for this key */
+	bool primary; /* TRUE -> is a primary name for a text block */
 };
 
-static LINKEY * keylist = NULL;  /* linked list of keys */
-static KEY * keys = NULL;        /* array of keys */
-static int keycount = 0;        /* number of keys */
+static LINKEY * keylist = NULL; /* linked list of keys */
+static KEY * keys = NULL; /* array of keys */
+static int keycount = 0; /* number of keys */
 static FILE * helpfp = NULL;
 static KEY empty_key = {NULL, 0, NULL, 0};
 
@@ -138,10 +138,10 @@ static void ShowSubtopics(struct key_s * key, bool * subtopics);
 static void OutLine_InternalPager(const char * line);
 
 #if defined(PIPES)
-static FILE * outfile;           /* for unix pager, if any */
+static FILE * outfile; /* for unix pager, if any */
 #endif
-static int pagelines;           /* count for builtin pager */
-static int screensize;          /* lines on screen (got with env var) */
+static int pagelines; /* count for builtin pager */
+static int screensize; /* lines on screen (got with env var) */
 #define SCREENSIZE 24           /* lines on screen (most have at least 24) */
 
 /* help:
@@ -153,8 +153,8 @@ static int screensize;          /* lines on screen (got with env var) */
 int GnuPlot::Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */)
 {
 	static char * oldpath = NULL; /* previous help file */
-	int status;             /* result of LoadHelp */
-	KEY * key;              /* key that matches keyword */
+	int status; /* result of LoadHelp */
+	KEY * key; /* key that matches keyword */
 	/*
 	** Load the help file if necessary (say, first time we enter this routine,
 	** or if the help file changes from the last time we were called).
@@ -190,12 +190,12 @@ int GnuPlot::Help(char * pKeyword/* on this topic */, char * pPath/* from this f
 //
 static int LoadHelp(char * path)
 {
-	LINKEY * key = 0;       /* this key */
-	long pos = 0;           /* ftell location within help file */
-	char buf[MAX_LINE_LEN];         /* line from help file */
-	LINEBUF * head;         /* head of text list  */
+	LINKEY * key = 0; /* this key */
+	long pos = 0; /* ftell location within help file */
+	char buf[MAX_LINE_LEN]; /* line from help file */
+	LINEBUF * head; /* head of text list  */
 	LINEBUF * firsthead = NULL;
-	bool primary;           /* first ? line of a set is primary */
+	bool primary; /* first ? line of a set is primary */
 	bool flag;
 	if((helpfp = fopen(path, "r")) == NULL) {
 		/* can't open help file, so error exit */
@@ -243,7 +243,7 @@ static int LoadHelp(char * path)
 	fclose(helpfp);
 	// we sort the keys so we can use binary search later 
 	sortkeys();
-	return (H_FOUND);       /* ok */
+	return (H_FOUND); /* ok */
 }
 //
 // make a new line buffer and save this string there 
@@ -278,8 +278,8 @@ static LINKEY * storekey(char * key)
  */
 static void sortkeys()
 {
-	LINKEY * p, * n;        /* pointers to linked list */
-	int i;                  /* index into key array */
+	LINKEY * p, * n; /* pointers to linked list */
+	int i; /* index into key array */
 	/* allocate the array */
 	keys = (KEY*)SAlloc::M((keycount + 1) * sizeof(KEY));
 	/* copy info from list to array, freeing list */
@@ -384,7 +384,7 @@ static bool Ambiguous(KEY * key, size_t len)
 {
 	char * first;
 	char * prev;
-	bool status = FALSE;    /* assume not ambiguous */
+	bool status = FALSE; /* assume not ambiguous */
 	int compare;
 	size_t sublen;
 	if(!key->key[len])
@@ -440,15 +440,15 @@ void GnuPlot::PrintHelp(void * pKey_, bool * pSubTopics/* (in) - subtopics only?
 
 static void ShowSubtopics(KEY * key/* the topic */, bool * subtopics/* (out) are there any subtopics */)
 {
-	int subt = 0;           /* printed any subtopics yet? */
-	KEY * subkey;           /* subtopic key */
-	size_t len;             /* length of key name */
-	char line[BUFSIZ];      /* subtopic output line */
-	char * start;           /* position of subname in key name */
-	size_t sublen;                  /* length of subname */
-	char * prev = NULL;     /* the last thing we put on the list */
+	int subt = 0; /* printed any subtopics yet? */
+	KEY * subkey; /* subtopic key */
+	size_t len; /* length of key name */
+	char line[BUFSIZ]; /* subtopic output line */
+	char * start; /* position of subname in key name */
+	size_t sublen; /* length of subname */
+	char * prev = NULL; /* the last thing we put on the list */
 #define MAXSTARTS 256
-	int stopics = 0;        /* count of (and index to next) subtopic name */
+	int stopics = 0; /* count of (and index to next) subtopic name */
 	char * starts[MAXSTARTS]; /* saved positions of subnames */
 	*line = '\0';
 	len = strlen(key->key);
@@ -603,7 +603,7 @@ void GnuPlot::StartOutput()
 /* line should contain only one \n, at the end */
 void OutLine(const char * line)
 {
-	int c;                  /* dummy input char */
+	int c; /* dummy input char */
 #if defined(PIPES)
 	if(outfile != stderr) {
 		fputs(line, outfile);
@@ -631,7 +631,7 @@ void OutLine(const char * line)
  * has exited and the user is asked for a subtopic */
 void OutLine_InternalPager(const char * line)
 {
-	int c;                  /* dummy input char */
+	int c; /* dummy input char */
 #if defined(PIPES)
 	if(outfile != stderr) {
 		// do not go through external pager 

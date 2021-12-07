@@ -1,18 +1,9 @@
-/*
- ******************************************************************************
- *
+/* ubiditransform.c
  * © 2016 and later: Unicode, Inc. and others.
  * License & terms of use: http://www.unicode.org/copyright.html
- *
- ******************************************************************************
- *   file name:  ubiditransform.c
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2016jul24
  *   created by: Lina Kemmel
- *
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -63,29 +54,28 @@ typedef bool (* UBiDiAction)(UBiDiTransform *, UErrorCode *);
  * </ul>
  */
 typedef struct {
-	UBiDiLevel inLevel;                  /* input level */
-	UBiDiOrder inOrder;                  /* input order */
-	UBiDiLevel outLevel;                 /* output level */
-	UBiDiOrder outOrder;                 /* output order */
-	uint32_t digitsDir;                  /* digit shaping direction */
-	uint32_t lettersDir;                 /* letter shaping direction */
-	UBiDiLevel baseLevel;                /* paragraph level to be used with setPara */
+	UBiDiLevel inLevel; /* input level */
+	UBiDiOrder inOrder; /* input order */
+	UBiDiLevel outLevel; /* output level */
+	UBiDiOrder outOrder; /* output order */
+	uint32_t digitsDir; /* digit shaping direction */
+	uint32_t lettersDir; /* letter shaping direction */
+	UBiDiLevel baseLevel; /* paragraph level to be used with setPara */
 	const UBiDiAction actions[MAX_ACTIONS]; /* array of pointers to functions carrying out the transformation */
 } ReorderingScheme;
 
 struct UBiDiTransform {
-	UBiDi   * pBidi;        /* pointer to a UBiDi object */
+	UBiDi   * pBidi; /* pointer to a UBiDi object */
 	const ReorderingScheme  * pActiveScheme;/* effective reordering scheme */
-	UChar * src;          /* input text */
-	UChar * dest;         /* output text */
-	uint32_t srcLength;                     /* input text length - not really needed as we are zero-terminated and
-	                                           can u_strlen */
-	uint32_t srcSize;                       /* input text capacity excluding the trailing zero */
-	uint32_t destSize;                      /* output text capacity */
-	uint32_t         * pDestLength;  /* number of UChars written to dest */
-	uint32_t reorderingOptions;             /* reordering options - currently only suppot DO_MIRRORING */
-	uint32_t digits;                        /* digit option for ArabicShaping */
-	uint32_t letters;                       /* letter option for ArabicShaping */
+	UChar * src; /* input text */
+	UChar * dest; /* output text */
+	uint32_t srcLength; /* input text length - not really needed as we are zero-terminated and can u_strlen */
+	uint32_t srcSize; /* input text capacity excluding the trailing zero */
+	uint32_t destSize; /* output text capacity */
+	uint32_t * pDestLength; /* number of UChars written to dest */
+	uint32_t reorderingOptions; /* reordering options - currently only suppot DO_MIRRORING */
+	uint32_t digits; /* digit option for ArabicShaping */
+	uint32_t letters; /* letter option for ArabicShaping */
 };
 
 U_CAPI UBiDiTransform* U_EXPORT2 ubiditransform_open(UErrorCode * pErrorCode)
@@ -124,11 +114,9 @@ U_CAPI void U_EXPORT2 ubiditransform_close(UBiDiTransform * pBiDiTransform)
  */
 static bool action_resolve(UBiDiTransform * pTransform, UErrorCode * pErrorCode)
 {
-	ubidi_setPara(pTransform->pBidi, pTransform->src, pTransform->srcLength,
-	    pTransform->pActiveScheme->baseLevel, NULL, pErrorCode);
+	ubidi_setPara(pTransform->pBidi, pTransform->src, pTransform->srcLength, pTransform->pActiveScheme->baseLevel, NULL, pErrorCode);
 	return FALSE;
 }
-
 /**
  * Performs basic reordering of text (Logical -> Visual LTR).
  *
@@ -140,14 +128,11 @@ static bool action_resolve(UBiDiTransform * pTransform, UErrorCode * pErrorCode)
  */
 static bool action_reorder(UBiDiTransform * pTransform, UErrorCode * pErrorCode)
 {
-	ubidi_writeReordered(pTransform->pBidi, pTransform->dest, pTransform->destSize,
-	    static_cast<uint16_t>(pTransform->reorderingOptions), pErrorCode);
-
+	ubidi_writeReordered(pTransform->pBidi, pTransform->dest, pTransform->destSize, static_cast<uint16_t>(pTransform->reorderingOptions), pErrorCode);
 	*pTransform->pDestLength = pTransform->srcLength;
 	pTransform->reorderingOptions = UBIDI_REORDER_DEFAULT;
 	return TRUE;
 }
-
 /**
  * Sets "inverse" mode on the <code>UBiDi</code> object.
  *

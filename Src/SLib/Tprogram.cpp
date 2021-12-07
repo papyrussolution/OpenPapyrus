@@ -68,7 +68,7 @@ int TStatusWin::Update()
 	::SendMessage(hw, WM_SIZE, 0, 0);
 	HDC    hdc = ::GetDC(hw);
 	::SendMessage(hw, SB_SETBKCOLOR, 0, static_cast<LPARAM>(RGB(0xD4, 0xD0, 0xC8)));
-	for(i = 0; i < n_parts; i++)  {
+	for(i = 0; i < n_parts; i++) {
 		SIZE local_size;
 		const StItem & r_item = Items.at(i);
 		temp_buf = r_item.str;
@@ -169,7 +169,7 @@ uint TStatusWin::GetCmdByCoord(POINT coord, TStatusWin::StItem * pItem /*=0*/)
 {
 	uint   cmd = 0;
 	uint   n_parts = Items.getCount();
-	for(uint i = 0; !cmd && i < n_parts; i++)  {
+	for(uint i = 0; !cmd && i < n_parts; i++) {
 		RECT rect;
 		::SendMessage(H(), SB_GETRECT, i, reinterpret_cast<LPARAM>(&rect));
 		if(coord.x >= rect.left && coord.x <= rect.right)
@@ -1044,7 +1044,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		::RegisterClassEx(&wc);
 	}
 	// @v11.2.4 WS_EX_COMPOSITED
-	HWND   hWnd = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
+	HWND   hWnd = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(AppSymbol), SUcSwitch(AppTitle),
 		WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this);
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
 	UpdateWindow(hWnd);

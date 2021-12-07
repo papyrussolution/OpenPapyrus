@@ -55,7 +55,7 @@ void RC2_set_key(RC2_KEY * key, int len, const uchar * data, int bits)
 	uint c, d;
 
 	k = (uchar *)&(key->data[0]);
-	*k = 0;                 /* for if there is a zero length key */
+	*k = 0; /* for if there is a zero length key */
 
 	if(len > 128)
 		len = 128;

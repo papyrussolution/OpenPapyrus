@@ -38,14 +38,14 @@ typedef struct {
 		AES_KEY ks;
 	} ks;                   /* AES key schedule to use */
 
-	int key_set;            /* Set if key initialised */
-	int iv_set;             /* Set if an iv is set */
+	int key_set; /* Set if key initialised */
+	int iv_set; /* Set if an iv is set */
 	GCM128_CONTEXT gcm;
-	uchar * iv;     /* Temporary IV store */
-	int ivlen;              /* IV length */
+	uchar * iv; /* Temporary IV store */
+	int ivlen; /* IV length */
 	int taglen;
-	int iv_gen;             /* It is OK to generate IVs */
-	int tls_aad_len;        /* TLS AAD length */
+	int iv_gen; /* It is OK to generate IVs */
+	int tls_aad_len; /* TLS AAD length */
 	ctr128_f ctr;
 } EVP_AES_GCM_CTX;
 
@@ -53,7 +53,7 @@ typedef struct {
 	union {
 		double align;
 		AES_KEY ks;
-	} ks1, ks2;             /* AES key schedules to use */
+	} ks1, ks2; /* AES key schedules to use */
 
 	XTS128_CONTEXT xts;
 	void (*stream)(const uchar * in,
@@ -68,12 +68,12 @@ typedef struct {
 		AES_KEY ks;
 	} ks;                   /* AES key schedule to use */
 
-	int key_set;            /* Set if key initialised */
-	int iv_set;             /* Set if an iv is set */
-	int tag_set;            /* Set if tag is valid */
-	int len_set;            /* Set if message length set */
-	int L, M;               /* L and M parameters from RFC3610 */
-	int tls_aad_len;        /* TLS AAD length */
+	int key_set; /* Set if key initialised */
+	int iv_set; /* Set if an iv is set */
+	int tag_set; /* Set if tag is valid */
+	int len_set; /* Set if message length set */
+	int L, M; /* L and M parameters from RFC3610 */
+	int tls_aad_len; /* TLS AAD length */
 	CCM128_CONTEXT ccm;
 	ccm128_f str;
 } EVP_AES_CCM_CTX;
@@ -83,23 +83,23 @@ typedef struct {
 	union {
 		double align;
 		AES_KEY ks;
-	} ksenc;                /* AES key schedule to use for encryption */
+	} ksenc; /* AES key schedule to use for encryption */
 
 	union {
 		double align;
 		AES_KEY ks;
-	} ksdec;                /* AES key schedule to use for decryption */
+	} ksdec; /* AES key schedule to use for decryption */
 
-	int key_set;            /* Set if key initialised */
-	int iv_set;             /* Set if an iv is set */
+	int key_set; /* Set if key initialised */
+	int iv_set; /* Set if an iv is set */
 	OCB128_CONTEXT ocb;
-	uchar * iv;     /* Temporary IV store */
+	uchar * iv; /* Temporary IV store */
 	uchar tag[16];
 	uchar data_buf[16]; /* Store partial data blocks */
 	uchar aad_buf[16]; /* Store partial AAD blocks */
 	int data_buf_len;
 	int aad_buf_len;
-	int ivlen;              /* IV length */
+	int ivlen; /* IV length */
 	int taglen;
 } EVP_AES_OCB_CTX;
 #endif
@@ -2046,7 +2046,7 @@ static int s390x_aes_ccm(S390X_AES_CCM_CTX * ctx, const uchar * in,
 	ctx->aes.ccm.nonce.b[15] = 1;
 
 	if(n != len)
-		return -1;      /* length mismatch */
+		return -1; /* length mismatch */
 
 	if(enc) {
 		/* Two operations per block plus one for tag encryption */
@@ -2641,7 +2641,7 @@ static int aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 			dat->stream.ctr = (ctr128_f)HWAES_ctr32_encrypt_blocks;
 		else
 #endif
-		(void)0;        /* terminate potentially open 'else' */
+		(void)0; /* terminate potentially open 'else' */
 	}
 	else
 #endif

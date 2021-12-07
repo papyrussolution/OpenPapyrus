@@ -576,7 +576,7 @@ typedef struct {
 #define INIT_NAMES_ALLOC_NUM    5
 
 typedef st_table NameTable;
-typedef st_data_t HashDataType;   /* 1.6 st.h doesn't define st_data_t type */
+typedef st_data_t HashDataType; /* 1.6 st.h doesn't define st_data_t type */
 
 #define NAMEBUF_SIZE    24
 #define NAMEBUF_SIZE_1  25

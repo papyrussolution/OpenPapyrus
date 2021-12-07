@@ -49,11 +49,11 @@ typedef struct UConverterSharedData UConverterSharedData;
 
 /* struct with arguments for UConverterLoad and ucnv_load() */
 typedef struct {
-    int32_t size;               /* sizeof(UConverterLoadArgs) */
-    int32_t nestedLoads;        /* count nested ucnv_load() calls */
-    bool onlyTestIsLoadable;   /* input: don't actually load */
-    bool reserved0;            /* reserved - for good alignment of the pointers */
-    int16_t reserved;           /* reserved - for good alignment of the pointers */
+    int32_t size; /* sizeof(UConverterLoadArgs) */
+    int32_t nestedLoads; /* count nested ucnv_load() calls */
+    bool onlyTestIsLoadable; /* input: don't actually load */
+    bool reserved0; /* reserved - for good alignment of the pointers */
+    int16_t reserved; /* reserved - for good alignment of the pointers */
     uint32_t options;
     const char *pkg, *name, *locale;
 } UConverterLoadArgs;

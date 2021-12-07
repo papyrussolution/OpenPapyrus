@@ -311,7 +311,7 @@ typedef struct  CID_FaceDictRec_ {
 	FT_UInt len_buildchar;
 	FT_Fixed forcebold_threshold;
 	FT_Pos stroke_width;
-	FT_Fixed expansion_factor;     /* this is a duplicate of           */
+	FT_Fixed expansion_factor; /* this is a duplicate of           */
 	                               /* `private_dict->expansion_factor' */
 	FT_Byte paint_type;
 	FT_Byte font_type;

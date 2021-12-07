@@ -105,7 +105,7 @@ struct ssl_backend_data {
 
 /* Supported ciphers. */
 struct gskit_cipher {
-	const char * name;     /* Cipher name. */
+	const char * name; /* Cipher name. */
 	const char * gsktoken; /* Corresponding token for GSKit String. */
 	unsigned int versions; /* SSL version flags. */
 };

@@ -192,7 +192,7 @@ int getc_wrapper(FILE * fp)
 	#define VREPRINT VRPRNT
 #endif                          /* VRPRNT */
 static char term_chars[NCCS]; /* define characters to use with our input character handler */
-static int term_set = 0;        /* =1 if rl_termio set */
+static int term_set = 0; /* =1 if rl_termio set */
 #define special_getc(t) ansi_getc(t)
 static int ansi_getc(GpTermEntry * pTerm);
 #define DEL_ERASES_CURRENT_CHAR

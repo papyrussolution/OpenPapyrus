@@ -4615,7 +4615,7 @@ static uint32 _hash_data(const uchar * data, int length, uint32 initval)
 
 	len = length;
 	a = b = 0x9e3779b9; /* the golden ratio; an arbitrary value */
-	c = initval;     /* the previous hash value */
+	c = initval; /* the previous hash value */
 
 	while(len >= 12) {
 		a += (data[0] + ((uint32)data[1]<<8) + ((uint32)data[2]<<16) + ((uint32)data[3]<<24));

@@ -76,7 +76,7 @@
  *
  *   ```
  *     #undef FTERRORS_H_
- *     #define FT_ERRORDEF( e, v, s )  { e, s },
+ *     #define FT_ERRORDEF( e, v, s ) { e, s },
  *     #define FT_ERROR_START_LIST     {
  *     #define FT_ERROR_END_LIST       { 0, NULL } };
  *

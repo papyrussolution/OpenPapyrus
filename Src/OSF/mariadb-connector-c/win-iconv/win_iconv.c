@@ -1115,7 +1115,7 @@ static HMODULE find_imported_module_by_funcname(HMODULE hModule, const char * fu
 	DWORD_PTR Base;
 	ULONG Size;
 	PIMAGE_IMPORT_DESCRIPTOR Imp;
-	PIMAGE_THUNK_DATA Name;     /* Import Name Table */
+	PIMAGE_THUNK_DATA Name; /* Import Name Table */
 	PIMAGE_IMPORT_BY_NAME ImpName;
 	Base = (DWORD_PTR)hModule;
 	Imp = (PIMAGE_IMPORT_DESCRIPTOR)MyImageDirectoryEntryToData((LPVOID)Base, TRUE, IMAGE_DIRECTORY_ENTRY_IMPORT, &Size);

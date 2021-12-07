@@ -62,9 +62,9 @@ typedef struct {
 	struct djpeg_dest_struct pub; /* public fields */
 
 	/* Usually these two pointers point to the same place: */
-	char * iobuffer;        /* fwrite's I/O buffer */
-	JSAMPROW pixrow;        /* decompressor output buffer */
-	size_t buffer_width;    /* width of I/O buffer */
+	char * iobuffer; /* fwrite's I/O buffer */
+	JSAMPROW pixrow; /* decompressor output buffer */
+	size_t buffer_width; /* width of I/O buffer */
 	JDIMENSION samples_per_row; /* JSAMPLEs per output row */
 } ppm_dest_struct;
 

@@ -79,10 +79,10 @@ typedef uchar uint8_t;
 	#define uthash_fatal(msg) exit(-1) /* fatal error (out of memory,etc) */
 #endif
 #ifndef uthash_malloc
-	#define uthash_malloc(sz) SAlloc::M(sz) /* malloc fcn                      */
+	#define uthash_malloc(sz) SAlloc::M(sz) // malloc fcn
 #endif
 #ifndef uthash_free
-	#define uthash_free(ptr, sz) SAlloc::F(ptr) /* free fcn                        */
+	#define uthash_free(ptr, sz) SAlloc::F(ptr) // free fcn
 #endif
 #ifndef uthash_noexpand_fyi
 	#define uthash_noexpand_fyi(tbl) /* can be defined to log noexpand  */
@@ -100,7 +100,8 @@ typedef uchar uint8_t;
 
 #define HASH_FIND(hh, head, keyptr, keylen, out)                                                             \
     do {                                                                                                     \
-        unsigned _hf_bkt, _hf_hashv;                                                                         \
+        uint _hf_bkt;   \
+		uint _hf_hashv; \
         out = NULL;                                                                                          \
         if(head) {                                                                                          \
             HASH_FCN(keyptr, keylen, (head)->hh.tbl->num_buckets, _hf_hashv, _hf_bkt);                       \
@@ -177,7 +178,7 @@ typedef uchar uint8_t;
 
 #define HASH_ADD_KEYPTR(hh, head, keyptr, keylen_in, add)                                   \
     do {                                                                                    \
-        unsigned _ha_bkt;                                                                   \
+        uint _ha_bkt;                                                                   \
         (add)->hh.next = NULL;                                                              \
         (add)->hh.key = (char *)(keyptr);                                                   \
         (add)->hh.keylen = (uint)(keylen_in);                                           \
@@ -199,10 +200,7 @@ typedef uchar uint8_t;
         HASH_FSCK(hh, head);                                                                \
     } while(0)
 
-#define HASH_TO_BKT(hashv, num_bkts, bkt) \
-    do {                                  \
-        bkt = ((hashv) & (num_bkts - 1)); \
-    } while(0)
+#define HASH_TO_BKT(hashv, num_bkts, bkt) do { bkt = ((hashv) & (num_bkts - 1)); } while(0)
 
 /* delete "delptr" from the hash table.
  * "the usual" patch-up process for the app-order doubly-linked-list.
@@ -882,8 +880,7 @@ typedef uchar uint8_t;
 
 typedef struct UT_hash_bucket {
     struct UT_hash_handle *hh_head;
-    unsigned count;
-
+    uint count;
     /* expand_mult is normally set to 0. In this situation, the max chain length
     * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
     * the bucket's chain exceeds this length, bucket expansion is triggered).
@@ -896,8 +893,7 @@ typedef struct UT_hash_bucket {
     * It is better to let its chain length grow to a longer yet-still-bounded
     * value, than to do an O(n) bucket expansion too often.
     */
-    unsigned expand_mult;
-
+    uint expand_mult;
 } UT_hash_bucket;
 
 /* random signature used only to find hash tables in external analysis */
@@ -906,28 +902,25 @@ typedef struct UT_hash_bucket {
 
 typedef struct UT_hash_table {
     UT_hash_bucket *buckets;
-    unsigned num_buckets, log2_num_buckets;
-    unsigned num_items;
+    uint num_buckets;
+	uint log2_num_buckets;
+    uint num_items;
     struct UT_hash_handle *tail; /* tail hh in app order, for fast append    */
-    ptrdiff_t hho;               /* hash handle offset (byte pos of hash handle in element */
-
+    ptrdiff_t hho; /* hash handle offset (byte pos of hash handle in element */
     /* in an ideal situation (all buckets used equally), no bucket would have
     * more than ceil(#items/#buckets) items. that's the ideal chain length. */
-    unsigned ideal_chain_maxlen;
-
+    uint ideal_chain_maxlen;
     /* nonideal_items is the number of items in the hash whose chain position
     * exceeds the ideal chain maxlen. these items pay the penalty for an uneven
     * hash distribution; reaching them in a chain traversal takes >ideal steps */
-    unsigned nonideal_items;
-
+    uint nonideal_items;
     /* ineffective expands occur when a bucket doubling was performed, but
     * afterward, more than half the items in the hash had nonideal chain
     * positions. If this happens on two consecutive expansions we inhibit any
     * further expansion, as it's not helping; this happens when the hash
     * function isn't a good fit for the key domain. When expansion is inhibited
     * the hash will still work, albeit no longer in constant time. */
-    unsigned ineff_expands, noexpand;
-
+    uint ineff_expands, noexpand;
     uint32_t signature; /* used only to find hash tables in external analysis */
 #ifdef HASH_BLOOM
     uint32_t bloom_sig; /* used only to test bloom exists in external analysis */
@@ -939,13 +932,13 @@ typedef struct UT_hash_table {
 
 typedef struct UT_hash_handle {
     struct UT_hash_table *tbl;
-    void *prev;                     /* prev element in app order      */
-    void *next;                     /* next element in app order      */
+    void *prev; /* prev element in app order      */
+    void *next; /* next element in app order      */
     struct UT_hash_handle *hh_prev; /* previous hh in bucket order    */
     struct UT_hash_handle *hh_next; /* next hh in bucket order        */
-    void *key;                      /* ptr to enclosing struct's key  */
-    unsigned keylen;                /* enclosing struct's key len     */
-    unsigned hashv;                 /* result of hash-fcn(key)        */
+    void *key; /* ptr to enclosing struct's key  */
+    uint keylen; /* enclosing struct's key len     */
+    uint hashv; /* result of hash-fcn(key)        */
 } UT_hash_handle;
 
 #endif /* UTHASH_H */

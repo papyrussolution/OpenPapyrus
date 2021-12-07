@@ -878,7 +878,7 @@ int __db_vrfy_common(DB * dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, uint
 		if(dbp->type != DB_HEAP)
 			pip->type = P_HASH;
 		ret = 0;
-		goto err;       /* well, not really an err. */
+		goto err; /* well, not really an err. */
 	}
 	if(PGNO(h) != pgno) {
 		EPRINT((env, DB_STR_A("0536", "Page %lu: bad page number %lu",
@@ -1201,7 +1201,7 @@ static int __db_vrfy_freelist(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta, uint3
 			return ret;
 		if(pip->type != P_INVALID) {
 			EPRINT((env, DB_STR_A("0555", "Page %lu: non-invalid page %lu on free list", "%lu %lu"), (ulong)cur_pgno, (ulong)next_pgno));
-			ret = DB_VERIFY_BAD;      /* unsafe to continue */
+			ret = DB_VERIFY_BAD; /* unsafe to continue */
 			break;
 		}
 	}
@@ -1647,7 +1647,7 @@ static int __db_salvage_unknowns(DB * dbp, VRFY_DBINFO * vdp, void * handle, int
 				ret = t_ret;
 			break;
 		    case SALVAGE_OVERFLOW:
-			DB_ASSERT(env, 0);      /* Shouldn't ever happen. */
+			DB_ASSERT(env, 0); /* Shouldn't ever happen. */
 			break;
 		    case SALVAGE_HASH:
 			if((t_ret = __ham_salvage(dbp, vdp, pgno, h, handle, callback, flags)) != 0 && ret == 0)
@@ -1695,7 +1695,7 @@ static int __db_salvage_unknowns(DB * dbp, VRFY_DBINFO * vdp, void * handle, int
 				SETIFZ(ret, t_ret);
 			break;
 		    default:
-			DB_ASSERT(env, 0);      /* Shouldn't ever happen. */
+			DB_ASSERT(env, 0); /* Shouldn't ever happen. */
 			break;
 		}
 		if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0 && ret == 0)

@@ -1016,7 +1016,7 @@ int EC_GROUP_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 	if(group->meth->precompute_mult != 0)
 		return group->meth->precompute_mult(group, ctx);
 	else
-		return 1;       /* nothing to do, so report success */
+		return 1; /* nothing to do, so report success */
 }
 
 int EC_GROUP_have_precompute_mult(const EC_GROUP * group)
@@ -1028,7 +1028,7 @@ int EC_GROUP_have_precompute_mult(const EC_GROUP * group)
 	if(group->meth->have_precompute_mult != 0)
 		return group->meth->have_precompute_mult(group);
 	else
-		return 0;       /* cannot tell whether precomputation has
+		return 0; /* cannot tell whether precomputation has
 	                         * been performed */
 }
 

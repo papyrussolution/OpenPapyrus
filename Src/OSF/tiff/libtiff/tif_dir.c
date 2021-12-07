@@ -41,8 +41,7 @@
 
 static void setByteArray(void ** vpp, void * vp, size_t nmemb, size_t elem_size)
 {
-	SAlloc::F(*vpp);
-	*vpp = 0;
+	ZFREE(*vpp);
 	if(vp) {
 		tmsize_t bytes = (tmsize_t)(nmemb * elem_size);
 		if(elem_size && bytes / elem_size == nmemb)
@@ -103,7 +102,6 @@ static int setExtraSamples(TIFFDirectory* td, va_list ap, uint32* v)
 	td->td_extrasamples = (uint16) *v;
 	_TIFFsetShortArray(&td->td_sampleinfo, va, td->td_extrasamples);
 	return 1;
-
 #undef EXTRASAMPLE_COREL_UNASSALPHA
 }
 
@@ -123,13 +121,12 @@ static uint32 checkInkNamesString(TIFF* tif, uint32 slen, const char * s)
 			}
 			if(cp >= ep)
 				goto bad;
-			cp++;                           /* skip \0 */
+			cp++; // skip \0 
 		}
 		return ((uint32)(cp-s));
 	}
 bad:
-	TIFFErrorExt(tif->tif_clientdata, "TIFFSetField", "%s: Invalid InkNames value; expecting %d names, found %d",
-		tif->tif_name, td->td_samplesperpixel, td->td_samplesperpixel-i);
+	TIFFErrorExt(tif->tif_clientdata, "TIFFSetField", "%s: Invalid InkNames value; expecting %d names, found %d", tif->tif_name, td->td_samplesperpixel, td->td_samplesperpixel-i);
 	return 0;
 }
 
@@ -1409,7 +1406,7 @@ int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
 	TIFFFreeDirectory(tif);
 	TIFFDefaultDirectory(tif);
 	tif->tif_diroff = 0;                    /* force link on next write */
-	tif->tif_nextdiroff = 0;                /* next write must be at end */
+	tif->tif_nextdiroff = 0; /* next write must be at end */
 	tif->tif_curoff = 0;
 	tif->tif_row = (uint32) -1;
 	tif->tif_curstrip = (uint32) -1;

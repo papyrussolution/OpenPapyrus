@@ -2983,7 +2983,7 @@ void GnuPlot::SetPaletteFile()
 	// get filename 
 	if(!(file_name = TryToGetString()))
 		IntErrorCurToken("missing filename");
-	DfSetPlotMode(MODE_QUERY);   /* Needed only for binary datafiles */
+	DfSetPlotMode(MODE_QUERY); /* Needed only for binary datafiles */
 	DfOpen(file_name, 4, NULL);
 	SAlloc::F(file_name);
 	ZFREE(SmPltt.P_Gradient);
@@ -3352,8 +3352,8 @@ void GnuPlot::NewColorMap()
 	 * Initialize to min = max = 0, which means use current cbrange.
 	 * A different min/max can be written later via set_colormap();
 	 */
-	A[1].v.cmplx_val.imag = 0.0;    /* min */
-	A[2].v.cmplx_val.imag = 0.0;    /* max */
+	A[1].v.cmplx_val.imag = 0.0; /* min */
+	A[2].v.cmplx_val.imag = 0.0; /* max */
 
 	/* All other elements contain a 24 or 32 bit [A]RGB color value
 	 * generated from the current palette.
@@ -5122,8 +5122,8 @@ void GnuPlot::SetAllZeroAxis()
 //static void set_tic_prop(GpAxis * pThisAxis)
 void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 {
-	bool   all_axes = FALSE;  /* distinguish the global command "set tics" */
-	char   nocmd[12];         /* fill w/ "no"+axis_name+suffix */
+	bool   all_axes = FALSE; /* distinguish the global command "set tics" */
+	char   nocmd[12]; /* fill w/ "no"+axis_name+suffix */
 	char * cmdptr = NULL, * sfxptr = NULL;
 	AXIS_INDEX axis = (AXIS_INDEX)pThisAxis->index;
 	if(Pgm.AlmostEqualsCur("tic$s") && (axis < PARALLEL_AXES))
@@ -5639,7 +5639,7 @@ void GnuPlot::LoadTicUser(GpAxis * pAx)
 		if(!Pgm.EndOfCommand() && Pgm.EqualsCur(","))
 			Pgm.Shift(); /* loop again */
 		else
-			break;  /* hopefully ")" */
+			break; /* hopefully ")" */
 	}
 	if(Pgm.EndOfCommand() || !Pgm.EqualsCur(")")) {
 		free_marklist(pAx->ticdef.def.user);
@@ -6043,13 +6043,13 @@ void GnuPlot::ParseLightingOptions()
 	// TODO: Add separate "set" commands for these 
 	_Pm3D.pm3d_shade.ambient = 1.0;
 	_Pm3D.pm3d_shade.Phong = 5.0; /* Phong exponent */
-	_Pm3D.pm3d_shade.rot_x = 45;  /* illumination angle */
-	_Pm3D.pm3d_shade.rot_z = 85;  /* illumination angle */
+	_Pm3D.pm3d_shade.rot_x = 45; /* illumination angle */
+	_Pm3D.pm3d_shade.rot_z = 85; /* illumination angle */
 	_Pm3D.pm3d_shade.fixed = TRUE; /* TRUE means the light does not rotate */
 	_Pm3D.pm3d_shade.spec2 = 0.0; /* red specular highlights on back surface */
 	// This is what you get from simply "set pm3d lighting" 
 	_Pm3D.pm3d_shade.strength = 0.5; /* contribution of primary light source */
-	_Pm3D.pm3d_shade.spec = 0.2;  /* contribution of specular highlights */
+	_Pm3D.pm3d_shade.spec = 0.2; /* contribution of specular highlights */
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("primary")) {
 			Pgm.Shift();

@@ -21,7 +21,7 @@
 typedef struct {
 	struct jpeg_entropy_decoder pub; /* public fields */
 	INT32 c; /* C register, base of coding interval + input bit buffer */
-	INT32 a;         /* A register, normalized size of coding interval */
+	INT32 a; /* A register, normalized size of coding interval */
 	int ct; /* bit shift counter, # of bits left in bit buffer part of C */
 	/* init: ct = -16 */
 	/* run: ct = 0..7 */
@@ -102,7 +102,7 @@ static int arith_decode(j_decompress_ptr cinfo, uchar * st)
 		if(--e->ct < 0) {
 			/* Need to fetch next data byte */
 			if(cinfo->unread_marker)
-				data = 0;  /* stuff zero data */
+				data = 0; /* stuff zero data */
 			else {
 				data = get_byte(cinfo); /* read next input byte */
 				if(data == 0xFF) { /* zero stuff or marker code */
@@ -110,7 +110,7 @@ static int arith_decode(j_decompress_ptr cinfo, uchar * st)
 						data = get_byte(cinfo);
 					} while(data == 0xFF); /* swallow extra 0xFF bytes */
 					if(data == 0)
-						data = 0xFF;  /* discard stuffed zero byte */
+						data = 0xFF; /* discard stuffed zero byte */
 					else {
 						/* Note: Different from the Huffman decoder, hitting
 						 * a marker while processing the compressed data
@@ -128,7 +128,7 @@ static int arith_decode(j_decompress_ptr cinfo, uchar * st)
 				/* Need more initial bytes */
 				if(++e->ct == 0)
 					/* Got 2 initial bytes -> re-init A and exit loop */
-					e->a = 0x8000L;  /* => e->a = 0x10000L after loop exit */
+					e->a = 0x8000L; /* => e->a = 0x10000L after loop exit */
 		}
 		e->a <<= 1;
 	}
@@ -236,7 +236,7 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	}
 
 	if(entropy->ct == -1) 
-		return TRUE;  /* if error do nothing */
+		return TRUE; /* if error do nothing */
 	/* Outer loop handles each block in the MCU */
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
 		block = MCU_data[blkn];
@@ -270,7 +270,7 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 			}
 			/* Section F.1.4.4.1.2: Establish dc_context conditioning category */
 			if(m < (int)((1L << cinfo->arith_dc_L[tbl]) >> 1))
-				entropy->dc_context[ci] = 0;  /* zero diff category */
+				entropy->dc_context[ci] = 0; /* zero diff category */
 			else if(m > (int)((1L << cinfo->arith_dc_U[tbl]) >> 1))
 				entropy->dc_context[ci] = 12 + (sign * 4); /* large diff category */
 			else
@@ -311,7 +311,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 		entropy->restarts_to_go--;
 	}
 	if(entropy->ct == -1) 
-		return TRUE;  /* if error do nothing */
+		return TRUE; /* if error do nothing */
 	natural_order = cinfo->natural_order;
 	/* There is always only one block per MCU */
 	block = MCU_data[0];
@@ -323,7 +323,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	k = cinfo->Ss - 1;
 	do {
 		st = entropy->ac_stats[tbl] + 3 * k;
-		if(arith_decode(cinfo, st)) break;  /* EOB flag */
+		if(arith_decode(cinfo, st)) break; /* EOB flag */
 		for(;; ) {
 			k++;
 			if(arith_decode(cinfo, st + 1)) break;
@@ -387,7 +387,7 @@ METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	}
 
 	st = entropy->fixed_bin; /* use fixed probability estimation */
-	p1 = 1 << cinfo->Al;    /* 1 in the bit position being coded */
+	p1 = 1 << cinfo->Al; /* 1 in the bit position being coded */
 
 	/* Outer loop handles each block in the MCU */
 
@@ -420,13 +420,13 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 		entropy->restarts_to_go--;
 	}
 	if(entropy->ct == -1) 
-		return TRUE;  /* if error do nothing */
+		return TRUE; /* if error do nothing */
 	natural_order = cinfo->natural_order;
 	/* There is always only one block per MCU */
 	block = MCU_data[0];
 	tbl = cinfo->cur_comp_info[0]->ac_tbl_no;
 
-	p1 = 1 << cinfo->Al;    /* 1 in the bit position being coded */
+	p1 = 1 << cinfo->Al; /* 1 in the bit position being coded */
 	m1 = (-1) << cinfo->Al; /* -1 in the bit position being coded */
 
 	/* Establish EOBx (previous stage end-of-block) index */
@@ -439,7 +439,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	do {
 		st = entropy->ac_stats[tbl] + 3 * k;
 		if(k >= kex)
-			if(arith_decode(cinfo, st)) break;  /* EOB flag */
+			if(arith_decode(cinfo, st)) break; /* EOB flag */
 		for(;; ) {
 			thiscoef = *block + natural_order[++k];
 			if(*thiscoef) {         /* previously nonzero coef */
@@ -490,7 +490,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 		entropy->restarts_to_go--;
 	}
 	if(entropy->ct == -1) 
-		return TRUE;  /* if error do nothing */
+		return TRUE; /* if error do nothing */
 	natural_order = cinfo->natural_order;
 	/* Outer loop handles each block in the MCU */
 
@@ -528,7 +528,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 			}
 			/* Section F.1.4.4.1.2: Establish dc_context conditioning category */
 			if(m < (int)((1L << cinfo->arith_dc_L[tbl]) >> 1))
-				entropy->dc_context[ci] = 0;  /* zero diff category */
+				entropy->dc_context[ci] = 0; /* zero diff category */
 			else if(m > (int)((1L << cinfo->arith_dc_U[tbl]) >> 1))
 				entropy->dc_context[ci] = 12 + (sign * 4); /* large diff category */
 			else
@@ -553,7 +553,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 		/* Figure F.20: Decode_AC_coefficients */
 		do {
 			st = entropy->ac_stats[tbl] + 3 * k;
-			if(arith_decode(cinfo, st)) break;  /* EOB flag */
+			if(arith_decode(cinfo, st)) break; /* EOB flag */
 			for(;; ) {
 				k++;
 				if(arith_decode(cinfo, st + 1)) break;

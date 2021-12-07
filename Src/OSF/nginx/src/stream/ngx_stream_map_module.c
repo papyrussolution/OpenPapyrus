@@ -30,7 +30,7 @@ typedef struct {
 	ngx_stream_map_t map;
 	ngx_stream_complex_value_t value;
 	ngx_stream_variable_value_t  * default_value;
-	ngx_uint_t hostnames;                     /* unsigned  hostnames:1 */
+	ngx_uint_t hostnames; /* unsigned  hostnames:1 */
 } ngx_stream_map_ctx_t;
 
 static int ngx_libc_cdecl ngx_stream_map_cmp_dns_wildcards(const void * one, const void * two);

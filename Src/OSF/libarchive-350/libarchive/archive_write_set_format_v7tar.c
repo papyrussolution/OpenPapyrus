@@ -551,7 +551,7 @@ static int format_octal(int64 v, char * p, int s)
 		return -1;
 	}
 
-	p += s;         /* Start at the end and work backwards. */
+	p += s; /* Start at the end and work backwards. */
 	while(s-- > 0) {
 		*--p = (char)('0' + (v & 7));
 		v >>= 3;

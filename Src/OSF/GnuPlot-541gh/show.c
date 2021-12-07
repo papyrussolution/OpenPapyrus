@@ -496,7 +496,7 @@ void GnuPlot::ShowAll()
 void GnuPlot::ShowVersion(FILE * fp)
 {
 	// If printed to a file, we prefix everything with a hash mark to comment out the version information.
-	char prefix[6];         /* "#    " */
+	char prefix[6]; /* "#    " */
 	char * p = prefix;
 	char fmt[2048];
 	prefix[0] = '#';

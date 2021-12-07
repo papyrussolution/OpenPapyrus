@@ -1102,8 +1102,8 @@ namespace NCompress {
 			#else
 				#define DEFLATE_TRY_BEGIN try {
 				#define DEFLATE_TRY_END(res) } catch(const CSystemException &e) { res = e.ErrorCode; }	catch(...) { res = S_FALSE; }
-				// catch(const CInBufferException &e)  { res = e.ErrorCode; }
-				// catch(const CLzOutWindowException &e)  { res = e.ErrorCode; }
+				// catch(const CInBufferException &e) { res = e.ErrorCode; }
+				// catch(const CLzOutWindowException &e) { res = e.ErrorCode; }
 			#endif
 
 			CCoder::CCoderReleaser::CCoderReleaser(CCoder * coder) : _coder(coder), NeedFlush(true) 

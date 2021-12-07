@@ -71,13 +71,13 @@ static void ft_bzip2_free(FT_Memory memory, void * address)
 #define FT_BZIP2_BUFFER_SIZE  4096
 
 typedef struct  FT_BZip2FileRec_ {
-	FT_Stream source;      /* parent/source stream  */
-	FT_Stream stream;      /* embedding stream      */
-	FT_Memory memory;      /* memory allocator      */
-	bz_stream bzstream;    /* bzlib input stream    */
+	FT_Stream source; /* parent/source stream  */
+	FT_Stream stream; /* embedding stream      */
+	FT_Memory memory; /* memory allocator      */
+	bz_stream bzstream; /* bzlib input stream    */
 	FT_Byte input[FT_BZIP2_BUFFER_SIZE]; /* input read buffer  */
 	FT_Byte buffer[FT_BZIP2_BUFFER_SIZE]; /* output buffer      */
-	FT_ULong pos;                        /* position in output */
+	FT_ULong pos; /* position in output */
 	FT_Byte*   cursor;
 	FT_Byte*   limit;
 } FT_BZip2FileRec, * FT_BZip2File;

@@ -3511,7 +3511,7 @@ public:
 			if(dt_list.getCount()) {
 				BillFilt   filt;
 				uint dts_count = dt_list.getCount();
-				for(uint i = 0; i < dts_count; i++)  {
+				for(uint i = 0; i < dts_count; i++) {
 					LDATE dt = ZERODATE;
 					DateIter di;
 					BillTbl::Rec bill_rec;

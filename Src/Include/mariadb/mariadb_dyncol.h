@@ -44,7 +44,7 @@ extern "C" {
 typedef uint64 int ulonglong; /* ulong or uint64 */
 typedef long long int longlong;
 #else
-typedef unsigned long ulonglong;        /* ulong or uint64 */
+typedef unsigned long ulonglong; /* ulong or uint64 */
 typedef long longlong;
 #endif
 #define longlong_defined

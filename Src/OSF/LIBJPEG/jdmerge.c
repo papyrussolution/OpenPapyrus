@@ -51,19 +51,19 @@ typedef struct {
 	/* Pointer to routine to do actual upsampling/conversion of one row group */
 	JMETHOD(void, upmethod, (j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION in_row_group_ctr, JSAMPARRAY output_buf));
 	/* Private state for YCC->RGB conversion */
-	int * Cr_r_tab;         /* => table for Cr to R conversion */
-	int * Cb_b_tab;         /* => table for Cb to B conversion */
-	INT32 * Cr_g_tab;       /* => table for Cr to G conversion */
-	INT32 * Cb_g_tab;       /* => table for Cb to G conversion */
+	int * Cr_r_tab; /* => table for Cr to R conversion */
+	int * Cb_b_tab; /* => table for Cb to B conversion */
+	INT32 * Cr_g_tab; /* => table for Cr to G conversion */
+	INT32 * Cb_g_tab; /* => table for Cb to G conversion */
 	/* For 2:1 vertical sampling, we produce two output rows at a time.
 	 * We need a "spare" row buffer to hold the second output row if the
 	 * application provides just a one-row buffer; we also use the spare
 	 * to discard the dummy last row if the image height is odd.
 	 */
 	JSAMPROW spare_row;
-	boolean spare_full;     /* T if spare buffer is occupied */
+	boolean spare_full; /* T if spare buffer is occupied */
 	JDIMENSION out_row_width; /* samples per output row */
-	JDIMENSION rows_to_go;  /* counts rows remaining in image */
+	JDIMENSION rows_to_go; /* counts rows remaining in image */
 } my_upsampler;
 
 typedef my_upsampler * my_upsample_ptr;
@@ -150,7 +150,7 @@ METHODDEF(void) merged_2v_upsample(j_decompress_ptr cinfo, JSAMPIMAGE input_buf,
 {
 	my_upsample_ptr upsample = (my_upsample_ptr)cinfo->upsample;
 	JSAMPROW work_ptrs[2];
-	JDIMENSION num_rows;    /* number of rows returned to caller */
+	JDIMENSION num_rows; /* number of rows returned to caller */
 	if(upsample->spare_full) {
 		/* If we have a spare row saved from a previous cycle, just return it. */
 		jcopy_sample_rows(&upsample->spare_row, 0, output_buf + *out_row_ctr, 0, 1, upsample->out_row_width);

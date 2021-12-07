@@ -73,24 +73,24 @@ static const UChar gTick = 0x0027;
 static const UChar gSemicolon = 0x003b;
 static const UChar gX = 0x0078;
 
-static const UChar gMinusX[] =                  {0x2D, 0x78, 0};    /* "-x" */
+static const UChar gMinusX[] =                  {0x2D, 0x78, 0}; /* "-x" */
 static const UChar gInf[] =                     {0x49, 0x6E, 0x66, 0}; /* "Inf" */
 static const UChar gNaN[] =                     {0x4E, 0x61, 0x4E, 0}; /* "NaN" */
 
 static const UChar gDollarOpenParenthesis[] =   {0x24, 0x28, 0}; /* "$(" */
 static const UChar gClosedParenthesisDollar[] = {0x29, 0x24, 0}; /* ")$" */
 
-static const UChar gLessLess[] =                {0x3C, 0x3C, 0};    /* "<<" */
-static const UChar gLessPercent[] =             {0x3C, 0x25, 0};    /* "<%" */
-static const UChar gLessHash[] =                {0x3C, 0x23, 0};    /* "<#" */
-static const UChar gLessZero[] =                {0x3C, 0x30, 0};    /* "<0" */
-static const UChar gGreaterGreater[] =          {0x3E, 0x3E, 0};    /* ">>" */
-static const UChar gGreaterPercent[] =          {0x3E, 0x25, 0};    /* ">%" */
-static const UChar gGreaterHash[] =             {0x3E, 0x23, 0};    /* ">#" */
-static const UChar gGreaterZero[] =             {0x3E, 0x30, 0};    /* ">0" */
-static const UChar gEqualPercent[] =            {0x3D, 0x25, 0};    /* "=%" */
-static const UChar gEqualHash[] =               {0x3D, 0x23, 0};    /* "=#" */
-static const UChar gEqualZero[] =               {0x3D, 0x30, 0};    /* "=0" */
+static const UChar gLessLess[] =                {0x3C, 0x3C, 0}; /* "<<" */
+static const UChar gLessPercent[] =             {0x3C, 0x25, 0}; /* "<%" */
+static const UChar gLessHash[] =                {0x3C, 0x23, 0}; /* "<#" */
+static const UChar gLessZero[] =                {0x3C, 0x30, 0}; /* "<0" */
+static const UChar gGreaterGreater[] =          {0x3E, 0x3E, 0}; /* ">>" */
+static const UChar gGreaterPercent[] =          {0x3E, 0x25, 0}; /* ">%" */
+static const UChar gGreaterHash[] =             {0x3E, 0x23, 0}; /* ">#" */
+static const UChar gGreaterZero[] =             {0x3E, 0x30, 0}; /* ">0" */
+static const UChar gEqualPercent[] =            {0x3D, 0x25, 0}; /* "=%" */
+static const UChar gEqualHash[] =               {0x3D, 0x23, 0}; /* "=#" */
+static const UChar gEqualZero[] =               {0x3D, 0x30, 0}; /* "=0" */
 static const UChar gGreaterGreaterGreater[] =   {0x3E, 0x3E, 0x3E, 0}; /* ">>>" */
 
 static const UChar * const RULE_PREFIXES[] = {

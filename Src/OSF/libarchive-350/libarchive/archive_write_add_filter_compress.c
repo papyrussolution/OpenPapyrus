@@ -79,11 +79,11 @@ struct private_data {
 	int64 in_count, out_count, checkpoint;
 
 	int code_len;                   /* Number of bits/code. */
-	int cur_maxcode;                /* Maximum code, given n_bits. */
-	int max_maxcode;                /* Should NEVER generate this code. */
+	int cur_maxcode; /* Maximum code, given n_bits. */
+	int max_maxcode; /* Should NEVER generate this code. */
 	int hashtab [HSIZE];
 	unsigned short codetab [HSIZE];
-	int first_free;         /* First unused entry. */
+	int first_free; /* First unused entry. */
 	int compress_ratio;
 
 	int cur_code, cur_fcode;
@@ -164,11 +164,11 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	f->write = archive_compressor_compress_write;
 	f->close = archive_compressor_compress_close;
 	f->free = archive_compressor_compress_free;
-	state->max_maxcode = 0x10000;   /* Should NEVER generate this code. */
-	state->in_count = 0;            /* Length of input. */
+	state->max_maxcode = 0x10000; /* Should NEVER generate this code. */
+	state->in_count = 0; /* Length of input. */
 	state->bit_buf = 0;
 	state->bit_offset = 0;
-	state->out_count = 3;           /* Includes 3-byte header mojo. */
+	state->out_count = 3; /* Includes 3-byte header mojo. */
 	state->compress_ratio = 0;
 	state->checkpoint = CHECK_GAP;
 	state->code_len = 9;
@@ -346,7 +346,7 @@ nomatch:
 			return ret;
 		state->cur_code = c;
 		if(state->first_free < state->max_maxcode) {
-			state->codetab[i] = state->first_free++;        /* code -> hashtable */
+			state->codetab[i] = state->first_free++; /* code -> hashtable */
 			state->hashtab[i] = state->cur_fcode;
 			continue;
 		}

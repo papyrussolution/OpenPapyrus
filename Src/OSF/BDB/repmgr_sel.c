@@ -331,7 +331,7 @@ static int __repmgr_retry_connections(ENV * env)
 	while(!TAILQ_EMPTY(&db_rep->retries)) {
 		retry = TAILQ_FIRST(&db_rep->retries);
 		if(timespeccmp(&retry->time, &now, >=))
-			break;  /* since items are in time order */
+			break; /* since items are in time order */
 
 		TAILQ_REMOVE(&db_rep->retries, retry, entries);
 

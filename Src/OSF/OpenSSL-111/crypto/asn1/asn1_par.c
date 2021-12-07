@@ -74,7 +74,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 		BIO_puts(bp, "BAD RECURSION DEPTH\n");
 		return 0;
 	}
-	dump_indent = 6;        /* Because we know BIO_dump_indent() */
+	dump_indent = 6; /* Because we know BIO_dump_indent() */
 	p = *pp;
 	tot = p + length;
 	while(length > 0) {

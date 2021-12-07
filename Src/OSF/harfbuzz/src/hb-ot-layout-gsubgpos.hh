@@ -385,7 +385,7 @@ private:
 			void set_ignore_zwj(bool ignore_zwj_) { ignore_zwj = ignore_zwj_; }
 			void set_lookup_props(uint lookup_props_) { lookup_props = lookup_props_; }
 			void set_mask(hb_mask_t mask_) { mask = mask_; }
-			void set_syllable(uint8_t syllable_)  { syllable = syllable_; }
+			void set_syllable(uint8_t syllable_) { syllable = syllable_; }
 			void set_match_func(match_func_t match_func_, const void * match_data_) { match_func = match_func_; match_data = match_data_; }
 			enum may_match_t {
 				MATCH_NO,
@@ -1489,12 +1489,12 @@ public:
 		}
 
 protected:
-		HBUINT16 inputCount;    /* Total number of glyphs in input
+		HBUINT16 inputCount; /* Total number of glyphs in input
 		 * glyph sequence--includes the first
 		 * glyph */
-		HBUINT16 lookupCount;   /* Number of LookupRecords */
+		HBUINT16 lookupCount; /* Number of LookupRecords */
 		UnsizedArrayOf<HBUINT16>
-		inputZ;                 /* Array of match inputs--start with
+		inputZ; /* Array of match inputs--start with
 		 * second glyph */
 /*UnsizedArrayOf<LookupRecord>
                 lookupRecordX;*/	/* Array of LookupRecords--in
@@ -1734,12 +1734,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of table */
 		OffsetArrayOf<RuleSet>
-		ruleSet;                /* Array of RuleSet tables
+		ruleSet; /* Array of RuleSet tables
 		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, ruleSet);
@@ -1899,15 +1899,15 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 2 */
+		HBUINT16 format; /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of table */
 		OffsetTo<ClassDef>
-		classDef;               /* Offset to glyph ClassDef table--from
+		classDef; /* Offset to glyph ClassDef table--from
 		 * beginning of table */
 		OffsetArrayOf<RuleSet>
-		ruleSet;                /* Array of RuleSet tables
+		ruleSet; /* Array of RuleSet tables
 		 * ordered by class */
 public:
 		DEFINE_SIZE_ARRAY(8, ruleSet);
@@ -2041,12 +2041,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 3 */
-		HBUINT16 glyphCount;    /* Number of glyphs in the input glyph
+		HBUINT16 format; /* Format identifier--format = 3 */
+		HBUINT16 glyphCount; /* Number of glyphs in the input glyph
 		 * sequence */
-		HBUINT16 lookupCount;   /* Number of LookupRecords */
+		HBUINT16 lookupCount; /* Number of LookupRecords */
 		UnsizedArrayOf<OffsetTo<Coverage>>
-		coverageZ;              /* Array of offsets to Coverage
+		coverageZ; /* Array of offsets to Coverage
 		 * table in glyph sequence order */
 /*UnsizedArrayOf<LookupRecord>
                 lookupRecordX;*/	/* Array of LookupRecords--in
@@ -2388,18 +2388,13 @@ protected:
 
 protected:
 		ArrayOf<HBUINT16>
-		backtrack;              /* Array of backtracking values
-		 * (to be matched before the input
-		 * sequence) */
+		backtrack; /* Array of backtracking values (to be matched before the input sequence) */
 		HeadlessArrayOf<HBUINT16>
-		inputX;                 /* Array of input values (start with
-		 * second glyph) */
+		inputX; /* Array of input values (start with second glyph) */
 		ArrayOf<HBUINT16>
-		lookaheadX;             /* Array of lookahead values's (to be
-		 * matched after the input sequence) */
+		lookaheadX; /* Array of lookahead values's (to be matched after the input sequence) */
 		ArrayOf<LookupRecord>
-		lookupX;                /* Array of LookupRecords--in
-		 * design order) */
+		lookupX; /* Array of LookupRecords--in design order) */
 public:
 		DEFINE_SIZE_MIN(8);
 	};
@@ -2635,12 +2630,12 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 1 */
+		HBUINT16 format; /* Format identifier--format = 1 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of table */
 		OffsetArrayOf<ChainRuleSet>
-		ruleSet;                /* Array of ChainRuleSet tables
+		ruleSet; /* Array of ChainRuleSet tables
 		 * ordered by Coverage Index */
 public:
 		DEFINE_SIZE_ARRAY(6, ruleSet);
@@ -2843,24 +2838,24 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 2 */
+		HBUINT16 format; /* Format identifier--format = 2 */
 		OffsetTo<Coverage>
-		coverage;               /* Offset to Coverage table--from
+		coverage; /* Offset to Coverage table--from
 		 * beginning of table */
 		OffsetTo<ClassDef>
-		backtrackClassDef;      /* Offset to glyph ClassDef table
+		backtrackClassDef; /* Offset to glyph ClassDef table
 		 * containing backtrack sequence
 		 * data--from beginning of table */
 		OffsetTo<ClassDef>
-		inputClassDef;          /* Offset to glyph ClassDef
+		inputClassDef; /* Offset to glyph ClassDef
 		 * table containing input sequence
 		 * data--from beginning of table */
 		OffsetTo<ClassDef>
-		lookaheadClassDef;      /* Offset to glyph ClassDef table
+		lookaheadClassDef; /* Offset to glyph ClassDef table
 		 * containing lookahead sequence
 		 * data--from beginning of table */
 		OffsetArrayOf<ChainRuleSet>
-		ruleSet;                /* Array of ChainRuleSet tables
+		ruleSet; /* Array of ChainRuleSet tables
 		 * ordered by class */
 public:
 		DEFINE_SIZE_ARRAY(12, ruleSet);
@@ -3042,22 +3037,15 @@ public:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier--format = 3 */
+		HBUINT16 format; /* Format identifier--format = 3 */
 		OffsetArrayOf<Coverage>
-		backtrack;              /* Array of coverage tables
-		 * in backtracking sequence, in  glyph
-		 * sequence order */
+		backtrack; /* Array of coverage tables in backtracking sequence, in  glyph sequence order */
 		OffsetArrayOf<Coverage>
-		inputX;                 /* Array of coverage
-		 * tables in input sequence, in glyph
-		 * sequence order */
+		inputX; /* Array of coverage tables in input sequence, in glyph sequence order */
 		OffsetArrayOf<Coverage>
-		lookaheadX;             /* Array of coverage tables
-		 * in lookahead sequence, in glyph
-		 * sequence order */
+		lookaheadX; /* Array of coverage tables in lookahead sequence, in glyph sequence order */
 		ArrayOf<LookupRecord>
-		lookupX;                /* Array of LookupRecords--in
-		 * design order) */
+		lookupX; /* Array of LookupRecords--in design order) */
 public:
 		DEFINE_SIZE_MIN(10);
 	};
@@ -3119,7 +3107,7 @@ protected:
 		}
 
 protected:
-		HBUINT16 format;        /* Format identifier. Set to 1. */
+		HBUINT16 format; /* Format identifier. Set to 1. */
 		HBUINT16 extensionLookupType; /* Lookup type of subtable referenced
 		    * by ExtensionOffset (i.e. the
 		    * extension subtable). */
@@ -3359,13 +3347,13 @@ protected:
 		FixedVersion<>version; /* Version of the GSUB/GPOS table--initially set
 		 * to 0x00010000u */
 		OffsetTo<ScriptList>
-		scriptList;     /* ScriptList table */
+		scriptList; /* ScriptList table */
 		OffsetTo<FeatureList>
-		featureList;    /* FeatureList table */
+		featureList; /* FeatureList table */
 		OffsetTo<LookupList>
-		lookupList;     /* LookupList table */
+		lookupList; /* LookupList table */
 		LOffsetTo<FeatureVariations>
-		featureVars;    /* Offset to Feature Variations
+		featureVars; /* Offset to Feature Variations
 		                   table--from beginning of table
 		 * (may be NULL).  Introduced
 		 * in version 0x00010001. */

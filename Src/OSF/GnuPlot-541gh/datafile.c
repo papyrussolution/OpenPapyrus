@@ -175,7 +175,7 @@ const GpCoordinate blank_data_line(GpCoordinate::ctrBlank);
 //static void gpbin_filetype_function();
 //static void raw_filetype_function();
 //static void avs_filetype_function();
-static void (* binary_input_function)();     /* Will point to one of the above */
+static void (* binary_input_function)(); /* Will point to one of the above */
 static void auto_filetype_function() {} // Just a placeholder for auto    
 
 /*
@@ -737,7 +737,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	bool   set_index = FALSE, set_skip = FALSE;
 	bool   set_using = FALSE;
 	bool   set_matrix = FALSE;
-	_Df.fast_columns = 1;       /* corey@cac */
+	_Df.fast_columns = 1; /* corey@cac */
 	// close file if necessary 
 	if(_Df.data_fp) {
 		DfClose();
@@ -748,8 +748,8 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	ZFREE(_Df.df_key_title);
 	InitializeUseSpec();
 	_Df.ClearColumnHeaders();
-	_Df.df_datum = -1;          /* it will be preincremented before use */
-	_Df.df_line_number = 0;     /* ditto */
+	_Df.df_datum = -1; /* it will be preincremented before use */
+	_Df.df_line_number = 0; /* ditto */
 	_Df.df_lower_index = 0;
 	_Df.df_index_step = 1;
 	_Df.df_upper_index = MAXINT;
@@ -1165,7 +1165,7 @@ void GnuPlot::DfShowData()
 //static void plot_option_every()
 void GnuPlot::PlotOptionEvery()
 {
-	_Df.fast_columns = 0;       /* corey@cac */
+	_Df.fast_columns = 0; /* corey@cac */
 	// allow empty fields - every a:b:c::e we have already established the defaults 
 	Pgm.Shift();
 	if(!Pgm.EqualsCur(":")) {
@@ -1486,7 +1486,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 		/*{{{  check for blank lines, and reject by index/every */
 		/*{{{  skip leading spaces */
 		while(isspace((uchar)*s) && NOTSEP)
-			++s;    /* will skip the \n too, to point at \0  */
+			++s; /* will skip the \n too, to point at \0  */
 		/*}}} */
 
 		/*{{{  skip comments */
@@ -2808,7 +2808,7 @@ void GnuPlot::DfInsertScannedUseSpec(int uspec)
 typedef struct df_bin_default_columns {
 	PLOT_STYLE plot_style;
 	short excluding_gen_coords; /* Number of columns of information excluding generated coordinates. */
-	short dimen_in_2d;      /* Number of additional columns required (in 2D plot) if coordinates not generated. */
+	short dimen_in_2d; /* Number of additional columns required (in 2D plot) if coordinates not generated. */
 } df_bin_default_columns;
 df_bin_default_columns default_style_cols[] = {
 	{LINES, 1, 1},
@@ -4047,11 +4047,11 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 {
 	// For general column structured binary. 
 	static int scan_size[3];
-	static double delta[3];  /* sampling periods */
-	static double o[3];      /* add after rotations */
-	static double c[3];      /* subtract before doing rotations */
-	static double P[3][3];   /* 3D rotation matrix (perpendicular) */
-	static double R[2][2];   /* 2D rotation matrix (rotate) */
+	static double delta[3]; /* sampling periods */
+	static double o[3]; /* add after rotations */
+	static double c[3]; /* subtract before doing rotations */
+	static double P[3][3]; /* 3D rotation matrix (perpendicular) */
+	static double R[2][2]; /* 2D rotation matrix (rotate) */
 	static int read_order;
 	static off_t record_skip;
 	static bool end_of_scan_line;
@@ -4204,7 +4204,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 	while(!_Df.df_eof) {
 		/*{{{  process line */
 		bool line_okay = TRUE;
-		int output = 0;     /* how many numbers written to v[] */
+		int output = 0; /* how many numbers written to v[] */
 		int i;
 		int fread_ret = 0;
 		int m_value;

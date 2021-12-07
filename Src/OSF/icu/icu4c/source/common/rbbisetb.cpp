@@ -312,7 +312,7 @@ void RBBISetBuilder::mergeCategories(IntPair categories) {
 //  getTrieSize()    Return the size that will be required to serialize the Trie.
 //
 //-----------------------------------------------------------------------------------
-int32_t RBBISetBuilder::getTrieSize()  {
+int32_t RBBISetBuilder::getTrieSize() {
 	if(U_FAILURE(*fStatus)) {
 		return 0;
 	}

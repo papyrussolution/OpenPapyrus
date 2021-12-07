@@ -375,7 +375,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 	int sockopt_val = 0;
 	int d_errno;
 #if defined(OPENSSL_SYS_LINUX) && (defined(IP_MTU_DISCOVER) || defined(IP_MTU))
-	socklen_t sockopt_len;  /* assume that system supporting IP_MTU is
+	socklen_t sockopt_len; /* assume that system supporting IP_MTU is
 	                         * modern enough to define socklen_t */
 	socklen_t addr_len;
 	BIO_ADDR addr;

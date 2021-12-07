@@ -463,7 +463,7 @@ static size_t dynamic_column_offset_bytes_num(size_t data_length)
 		return 3;
 	if(data_length < 0x1fffffff)     /* all 1 value is reserved */
 		return 4;
-	return MAX_OFFSET_LENGTH + 1;    /* For an error generation*/
+	return MAX_OFFSET_LENGTH + 1; /* For an error generation*/
 }
 
 static size_t dynamic_column_offset_bytes_named(size_t data_length)
@@ -478,7 +478,7 @@ static size_t dynamic_column_offset_bytes_named(size_t data_length)
 	if(data_length < 0xfffffffffull)  /* all 1 value is reserved */
 #endif
 	return 5;
-	return MAX_OFFSET_LENGTH_NM + 1;  /* For an error generation */
+	return MAX_OFFSET_LENGTH_NM + 1; /* For an error generation */
 }
 
 /**
@@ -517,7 +517,7 @@ static bool type_and_offset_read_num(DYNAMIC_COLUMN_TYPE * type,
 		    lim = 0x1fffffff;
 		    break;
 		default:
-		    DBUG_ASSERT(0);             /* impossible */
+		    DBUG_ASSERT(0); /* impossible */
 		    return 1;
 	}
 	*type = (DYNAMIC_COLUMN_TYPE)((val & 0x7) + 1);
@@ -552,7 +552,7 @@ static bool type_and_offset_read_named(DYNAMIC_COLUMN_TYPE * type,
 		    break;
 		case 1:
 		default:
-		    DBUG_ASSERT(0);             /* impossible */
+		    DBUG_ASSERT(0); /* impossible */
 		    return 1;
 	}
 	*type = (DYNAMIC_COLUMN_TYPE)((val & 0xf) + 1);
@@ -920,7 +920,7 @@ static size_t dynamic_column_value_len(DYNAMIC_COLUMN_VALUE * value,
 		       and decimal.frac is 0.
 		     */
 		    if(scale < 0 || precision <= 0) {
-			    DBUG_ASSERT(0);     /* Impossible */
+			    DBUG_ASSERT(0); /* Impossible */
 			    return (size_t) ~0;
 		    }
 		    return (dynamic_column_var_uint_bytes(value->x.decimal.value.intg) +
@@ -1144,7 +1144,7 @@ static enum enum_dyncol_func_result dynamic_column_decimal_read(DYNAMIC_COLUMN_V
 	dynamic_column_prepare_decimal(store_it_here);
 	/* Decimals 0.0 is stored as a zero length string */
 	if(length == 0)
-		return ER_DYNCOL_OK;            /* value contains zero */
+		return ER_DYNCOL_OK; /* value contains zero */
 
 	intg = (int)dynamic_column_var_uint_get(data, length, &intg_len);
 	data += intg_len;
@@ -1485,7 +1485,7 @@ static enum enum_dyncol_func_result data_store(DYNAMIC_COLUMN * str, DYNAMIC_COL
 		case DYN_COL_DYNCOL:
 		    return dynamic_column_dyncol_store(str, &value->x.string.value);
 		case DYN_COL_NULL:
-		    break;                      /* Impossible */
+		    break; /* Impossible */
 		default:
 		    break;
 	}
@@ -1508,7 +1508,7 @@ static void set_fixed_header(DYNAMIC_COLUMN * str,
 	DBUG_ASSERT(column_count <= 0xffff);
 	DBUG_ASSERT(offset_size <= MAX_OFFSET_LENGTH);
 	str->str[0] = ((str->str[0] & ~DYNCOL_FLG_OFFSET) |
-	    (offset_size - 1));                 /* size of offset */
+	    (offset_size - 1)); /* size of offset */
 	int2store(str->str + 1, column_count); /* columns number */
 	DBUG_ASSERT((str->str[0] & (~DYNCOL_FLG_KNOWN)) == 0);
 }
@@ -2028,7 +2028,7 @@ static inline bool read_fixed_header(DYN_HEADER * hdr,
 	    dyncol_fmt_str :
 	    dyncol_fmt_num);
 	if((str->length < fmt_data[hdr->format].fixed_hdr))
-		return 1;                       /* Wrong header */
+		return 1; /* Wrong header */
 	hdr->offset_size = (str->str[0] & DYNCOL_FLG_OFFSET) + 1 +
 	    (hdr->format == dyncol_fmt_str ? 1 : 0);
 	hdr->column_count = uint2korr(str->str + 1);
@@ -2200,11 +2200,11 @@ static enum enum_dyncol_func_result dynamic_column_exists_internal(DYNAMIC_COLUM
 	enum enum_dyncol_func_result rc;
 	memzero(&header, sizeof(header));
 	if(str->length == 0)
-		return ER_DYNCOL_NO;            /* no columns */
+		return ER_DYNCOL_NO; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
 	if(header.column_count == 0)
-		return ER_DYNCOL_NO;            /* no columns */
+		return ER_DYNCOL_NO; /* no columns */
 	if(find_column(&header, num_key, str_key))
 		return ER_DYNCOL_FORMAT;
 	return (header.type != DYN_COL_NULL ? ER_DYNCOL_YES : ER_DYNCOL_NO);
@@ -2225,7 +2225,7 @@ enum enum_dyncol_func_result dynamic_column_list(DYNAMIC_COLUMN * str, DYNAMIC_A
 	enum enum_dyncol_func_result rc;
 	memzero(array_of_uint, sizeof(*array_of_uint)); /* In case of errors */
 	if(str->length == 0)
-		return ER_DYNCOL_OK;            /* no columns */
+		return ER_DYNCOL_OK; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
 	if(header.format != dyncol_fmt_num)
@@ -2256,9 +2256,9 @@ enum enum_dyncol_func_result mariadb_dyncol_list_num(DYNAMIC_COLUMN * str, uint 
 	uint i;
 	enum enum_dyncol_func_result rc;
 
-	(*nums) = 0; (*count) = 0;              /* In case of errors */
+	(*nums) = 0; (*count) = 0; /* In case of errors */
 	if(str->length == 0)
-		return ER_DYNCOL_OK;            /* no columns */
+		return ER_DYNCOL_OK; /* no columns */
 
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
@@ -2304,7 +2304,7 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
 	(*names) = 0; (*count) = 0;
 
 	if(str->length == 0)
-		return ER_DYNCOL_OK;            /* no columns */
+		return ER_DYNCOL_OK; /* no columns */
 
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
@@ -2527,7 +2527,7 @@ static enum enum_dyncol_func_result dynamic_column_update_copy(DYNAMIC_COLUMN * 
 		 */
 
 		while(i < add_column_count && plan[i].act == PLAN_NOP)
-			i++;                  /* skip NOP */
+			i++; /* skip NOP */
 
 		if(i == add_column_count)
 			j = end = hdr->column_count;
@@ -2541,7 +2541,7 @@ static enum enum_dyncol_func_result dynamic_column_update_copy(DYNAMIC_COLUMN * 
 				j++;
 			end = j;
 			if((plan[i].act == PLAN_REPLACE || plan[i].act == PLAN_DELETE))
-				j++;      /* data at 'j' will be removed */
+				j++; /* data at 'j' will be removed */
 		}
 
 		/*
@@ -2664,7 +2664,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_left(DYNAMIC_COLU
 		 */
 
 		while(i < add_column_count && plan[i].act == PLAN_NOP)
-			i++;                  /* skip NOP */
+			i++; /* skip NOP */
 
 		if(i == add_column_count)
 			j = end = column_count;
@@ -2678,7 +2678,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_left(DYNAMIC_COLU
 				j++;
 			end = j;
 			if((plan[i].act == PLAN_REPLACE || plan[i].act == PLAN_DELETE))
-				j++;      /* data at 'j' will be removed */
+				j++; /* data at 'j' will be removed */
 		}
 		plan[i].mv_end = end;
 
@@ -2773,7 +2773,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_left(DYNAMIC_COLU
 		 */
 
 		while(i < add_column_count && plan[i].act == PLAN_NOP)
-			i++;                  /* skip NOP */
+			i++; /* skip NOP */
 
 		j = end = plan[i].mv_end;
 		if(i != add_column_count &&
@@ -2837,7 +2837,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_right(DYNAMIC_COL
 		 */
 
 		while(i < add_column_count && plan[i].act == PLAN_NOP)
-			i++;                  /* skip NOP */
+			i++; /* skip NOP */
 
 		if(i == add_column_count)
 			j = end = column_count;
@@ -2851,7 +2851,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_right(DYNAMIC_COL
 				j++;
 			end = j;
 			if((plan[i].act == PLAN_REPLACE || plan[i].act == PLAN_DELETE))
-				j++;      /* data at 'j' will be removed */
+				j++; /* data at 'j' will be removed */
 		}
 		plan[i].mv_end = end;
 
@@ -2950,7 +2950,7 @@ static enum enum_dyncol_func_result dynamic_column_update_move_right(DYNAMIC_COL
 		 */
 
 		while(i < add_column_count && plan[i].act == PLAN_NOP)
-			i++;                  /* skip NOP */
+			i++; /* skip NOP */
 
 		j = end = plan[i].mv_end;
 		if(i != add_column_count &&
@@ -3134,7 +3134,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 		plan[i].ndelta = name_delta;
 		/* get header delta in entries */
 		plan[i].hdelta = header_delta;
-		plan[i].length = 0;             /* Length if NULL */
+		plan[i].length = 0; /* Length if NULL */
 
 		if(find_place(&header, plan[i].key, string_keys)) {
 			size_t entry_data_size, entry_name_size = 0;
@@ -3756,7 +3756,7 @@ static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN 
 	}
 
 	if(str->length == 0)
-		return ER_DYNCOL_OK;            /* no columns */
+		return ER_DYNCOL_OK; /* no columns */
 
 	if((rc = init_read_hdr(&header, str)) < 0)
 		goto err;
@@ -3871,7 +3871,7 @@ enum enum_dyncol_func_result mariadb_dyncol_unpack(DYNAMIC_COLUMN * str,
 	*count = 0; *names = 0; *vals = 0;
 
 	if(str->length == 0)
-		return ER_DYNCOL_OK;          /* no columns */
+		return ER_DYNCOL_OK; /* no columns */
 
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;

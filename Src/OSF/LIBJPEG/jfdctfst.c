@@ -212,7 +212,7 @@ GLOBAL(void) jpeg_fdct_ifast(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 		dataptr[DCTSIZE*1] = z11 + z4;
 		dataptr[DCTSIZE*7] = z11 - z4;
 
-		dataptr++;      /* advance pointer to next column */
+		dataptr++; /* advance pointer to next column */
 	}
 }
 

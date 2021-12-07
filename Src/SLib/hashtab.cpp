@@ -1645,7 +1645,7 @@ struct UT_hash_handle {
 	do {										 \
 		(tbl)->bloom_nbits = HASH_BLOOM;					       \
 		(tbl)->bloom_bv = static_cast<uint8_t *>(SAlloc::M(HASH_BLOOM_BYTELEN));		       \
-		if(!((tbl)->bloom_bv))  { uthash_fatal("out of memory"); }		     \
+		if(!((tbl)->bloom_bv)) { uthash_fatal("out of memory"); }		     \
 		memzero((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);				       \
 		(tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;				       \
 	} while(0)
@@ -1666,7 +1666,7 @@ struct UT_hash_handle {
 #define HASH_MAKE_TABLE(hh, head)						  \
 	do {										 \
 		(head)->hh.tbl = static_cast<UT_hash_table *>(SAlloc::M(sizeof(UT_hash_table))); \
-		if(!((head)->hh.tbl))  { uthash_fatal("out of memory"); }		     \
+		if(!((head)->hh.tbl)) { uthash_fatal("out of memory"); }		     \
 		memzero((head)->hh.tbl, sizeof(UT_hash_table));			       \
 		(head)->hh.tbl->tail = &((head)->hh);					       \
 		(head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;			       \
@@ -1723,7 +1723,7 @@ struct UT_hash_handle {
 	do {										 \
 		unsigned _hd_bkt;							     \
 		struct UT_hash_handle * _hd_hh_del;					      \
-		if(((delptr)->hh.prev == NULL) && ((delptr)->hh.next == NULL))  {	    \
+		if(((delptr)->hh.prev == NULL) && ((delptr)->hh.next == NULL)) {	    \
 			SAlloc::F((head)->hh.tbl->buckets); \
 			HASH_BLOOM_FREE((head)->hh.tbl);					 \
 			SAlloc::F((head)->hh.tbl);			 \
@@ -1838,7 +1838,7 @@ struct UT_hash_handle {
 		unsigned _hb_keylen = keylen;							 \
 		char * _hb_key = (char *)(key);							  \
 		(hashv) = 0;								       \
-		while(_hb_keylen--)  { (hashv) = ((hashv) * 33) + *_hb_key++; }		      \
+		while(_hb_keylen--) { (hashv) = ((hashv) * 33) + *_hb_key++; }		      \
 		bkt = (hashv) & (num_bkts-1);						       \
 	} while(0)
 

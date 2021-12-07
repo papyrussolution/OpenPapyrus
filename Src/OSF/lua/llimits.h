@@ -212,7 +212,7 @@ typedef LUAI_UACINT l_uacInt;
 ** negative result, which is equivalent to the test below.
 */
 #if !defined(luai_nummod)
-	#define luai_nummod(L, a, b, m)  { (m) = l_mathop(fmod)(a, b); if((m)*(b) < 0) (m) += (b); }
+	#define luai_nummod(L, a, b, m) { (m) = l_mathop(fmod)(a, b); if((m)*(b) < 0) (m) += (b); }
 #endif
 /* exponentiation */
 #if !defined(luai_numpow)
@@ -236,12 +236,12 @@ typedef LUAI_UACINT l_uacInt;
 	#define condmovestack(L, pre, pos)        ((void)0)
 #else
 	/* realloc stack keeping its size */
-	#define condmovestack(L, pre, pos)  { int sz_ = (L)->stacksize; pre; luaD_reallocstack((L), sz_); pos; }
+	#define condmovestack(L, pre, pos) { int sz_ = (L)->stacksize; pre; luaD_reallocstack((L), sz_); pos; }
 #endif
 #if !defined(HARDMEMTESTS)
 	#define condchangemem(L, pre, pos)        ((void)0)
 #else
-	#define condchangemem(L, pre, pos)  { if(G(L)->gcrunning) { pre; luaC_fullgc(L, 0); pos; } }
+	#define condchangemem(L, pre, pos) { if(G(L)->gcrunning) { pre; luaC_fullgc(L, 0); pos; } }
 #endif
 
 #endif

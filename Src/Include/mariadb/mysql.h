@@ -66,8 +66,8 @@ typedef struct st_ma_const_string {
 #define ST_MA_USED_MEM_DEFINED
 typedef struct st_ma_used_mem { /* struct for once_alloc */
 	struct st_ma_used_mem * next; /* Next block in use */
-	size_t left;             /* memory left in block  */
-	size_t size;             /* Size of block */
+	size_t left; /* memory left in block  */
+	size_t size; /* Size of block */
 } MA_USED_MEM;
 
 typedef struct st_ma_mem_root {
@@ -96,14 +96,14 @@ extern unsigned int mariadb_deinitialize_ssl;
 	(f)->type == MYSQL_TYPE_NEWDECIMAL || (f)->type == MYSQL_TYPE_DECIMAL)
 
 typedef struct st_mysql_field {
-	char * name;            /* Name of column */
-	char * org_name;        /* Name of original column (added after 3.23.58) */
+	char * name; /* Name of column */
+	char * org_name; /* Name of original column (added after 3.23.58) */
 	char * table;                   /* Table of column if column was a field */
-	char * org_table;       /* Name of original table (added after 3.23.58 */
-	char * db;                /* table schema (added after 3.23.58) */
-	char * catalog;           /* table catalog (added after 3.23.58) */
-	char * def;             /* Default value (set by mysql_list_fields) */
-	unsigned long length;           /* Width of column */
+	char * org_table; /* Name of original table (added after 3.23.58 */
+	char * db; /* table schema (added after 3.23.58) */
+	char * catalog; /* table catalog (added after 3.23.58) */
+	char * def; /* Default value (set by mysql_list_fields) */
+	unsigned long length; /* Width of column */
 	unsigned long max_length; /* Max width of selected set */
 	/* added after 3.23.58 */
 	unsigned int name_length;
@@ -114,15 +114,15 @@ typedef struct st_mysql_field {
 	unsigned int catalog_length;
 	unsigned int def_length;
 	/***********************/
-	unsigned int flags;     /* Div flags */
-	unsigned int decimals;  /* Number of decimals in field */
-	unsigned int charsetnr;   /* char set number (added in 4.1) */
+	unsigned int flags; /* Div flags */
+	unsigned int decimals; /* Number of decimals in field */
+	unsigned int charsetnr; /* char set number (added in 4.1) */
 	enum enum_field_types type; /* Type of field. Se mysql_com.h for types */
-	void * extension;         /* added in 4.1 */
+	void * extension; /* added in 4.1 */
 } MYSQL_FIELD;
 
-typedef char ** MYSQL_ROW;              /* return data as array of strings */
-typedef unsigned int MYSQL_FIELD_OFFSET;   /* offset to current field */
+typedef char ** MYSQL_ROW; /* return data as array of strings */
+typedef unsigned int MYSQL_FIELD_OFFSET; /* offset to current field */
 
 #define SET_CLIENT_ERROR(a, b, c, d) \
 	do { \
@@ -150,12 +150,12 @@ extern const char * SQLSTATE_UNKNOWN;
 #define MYSQL_COUNT_ERROR (~(uint64)0)
 
 typedef struct st_mysql_rows {
-	struct st_mysql_rows * next;    /* list of rows */
+	struct st_mysql_rows * next; /* list of rows */
 	MYSQL_ROW data;
 	unsigned long length;
 } MYSQL_ROWS;
 
-typedef MYSQL_ROWS * MYSQL_ROW_OFFSET;  /* offset to current row */
+typedef MYSQL_ROWS * MYSQL_ROW_OFFSET; /* offset to current row */
 
 typedef struct st_mysql_data {
 	MYSQL_ROWS * data;
@@ -307,13 +307,13 @@ struct st_mysql_options {
 	struct st_dynamic_array * init_command;
 	char * my_cnf_file, * my_cnf_group, * charset_dir, * charset_name;
 	char * ssl_key;                         /* PEM key file */
-	char * ssl_cert;                        /* PEM cert file */
+	char * ssl_cert; /* PEM cert file */
 	char * ssl_ca;                                  /* PEM CA file */
-	char * ssl_capath;                      /* PEM directory of CA-s? */
+	char * ssl_capath; /* PEM directory of CA-s? */
 	char * ssl_cipher;
 	char * shared_memory_base_name;
 	unsigned long max_allowed_packet;
-	bool use_ssl;                        /* if to use SSL or not */
+	bool use_ssl; /* if to use SSL or not */
 	bool compress, named_pipe;
 	bool reconnect, unused_1, unused_2, unused_3;
 	enum mysql_option methods_to_use;
@@ -330,7 +330,7 @@ struct st_mysql_options {
 };
 
 typedef struct st_mysql {
-	NET net;                        /* Communication parameters */
+	NET net; /* Communication parameters */
 	void  * unused_0;
 	char * host, * user, * passwd, * unix_socket, * server_version, * host_info;
 	char * info, * db;
@@ -338,9 +338,9 @@ typedef struct st_mysql {
 	MYSQL_FIELD * fields;
 	MA_MEM_ROOT field_alloc;
 	uint64 affected_rows;
-	uint64 insert_id;           /* id if insert on table with NEXTNR */
-	uint64 extra_info;          /* Used by mysqlshow */
-	unsigned long thread_id;        /* Id for connection in server */
+	uint64 insert_id; /* id if insert on table with NEXTNR */
+	uint64 extra_info; /* Used by mysqlshow */
+	unsigned long thread_id; /* Id for connection in server */
 	unsigned long packet_length;
 	unsigned int port;
 	unsigned long client_flag;
@@ -349,10 +349,10 @@ typedef struct st_mysql {
 	unsigned int field_count;
 	unsigned int server_status;
 	unsigned int server_language;
-	unsigned int warning_count;      /* warning count, added in 4.1 protocol */
+	unsigned int warning_count; /* warning count, added in 4.1 protocol */
 	struct st_mysql_options options;
 	enum mysql_status status;
-	bool free_me;                /* If free in mysql_close */
+	bool free_me; /* If free in mysql_close */
 	bool unused_1;
 	char scramble_buff[20+ 1];
 	/* madded after 3.23.58 */
@@ -373,10 +373,10 @@ typedef struct st_mysql_res {
 	MYSQL_DATA    * data;
 	MYSQL_ROWS    * data_cursor;
 	MA_MEM_ROOT field_alloc;
-	MYSQL_ROW row;                  /* If unbuffered read */
-	MYSQL_ROW current_row;          /* buffer to current row */
-	unsigned long * lengths;        /* column lengths of current row */
-	MYSQL         * handle;         /* for unbuffered reads */
+	MYSQL_ROW row; /* If unbuffered read */
+	MYSQL_ROW current_row; /* buffer to current row */
+	unsigned long * lengths; /* column lengths of current row */
+	MYSQL         * handle; /* for unbuffered reads */
 	bool eof;                    /* Used my mysql_fetch_row */
 	bool is_ps;
 } MYSQL_RES;
@@ -429,12 +429,12 @@ typedef struct st_mysql_time {
 #define MYSQL_WAIT_TIMEOUT   8
 
 typedef struct character_set {
-	unsigned int number;   /* character set number              */
-	unsigned int state;    /* character set state               */
-	const char * csname;   /* character set name                */
-	const char * name;     /* collation name                    */
-	const char * comment;  /* comment                           */
-	const char * dir;      /* character set directory           */
+	unsigned int number; /* character set number              */
+	unsigned int state; /* character set state               */
+	const char * csname; /* character set name                */
+	const char * name; /* collation name                    */
+	const char * comment; /* comment                           */
+	const char * dir; /* character set directory           */
 	unsigned int mbminlen; /* min. length for multibyte strings */
 	unsigned int mbmaxlen; /* max. length for multibyte strings */
 } MY_CHARSET_INFO;

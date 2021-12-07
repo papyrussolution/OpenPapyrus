@@ -216,7 +216,7 @@ struct xmlSchemaWildcardNs {
 typedef struct _xmlSchemaWildcard xmlSchemaWildcard;
 typedef xmlSchemaWildcard * xmlSchemaWildcardPtr;
 struct _xmlSchemaWildcard {
-    xmlSchemaTypeType type;        /* The kind of type */
+    xmlSchemaTypeType type; /* The kind of type */
     const xmlChar *id; /* Deprecated; not used */
     xmlSchemaAnnotPtr annot;
     xmlNode * P_Node;
@@ -432,7 +432,7 @@ struct _xmlSchemaElement {
  * A facet definition.
  */
 struct _xmlSchemaFacet {
-    xmlSchemaTypeType type;        /* The kind of type */
+    xmlSchemaTypeType type; /* The kind of type */
     struct _xmlSchemaFacet *next; /* the next type if in a sequence ... */
     const xmlChar * value; /* The original value */
     const xmlChar * id; /* Obsolete */
@@ -490,11 +490,11 @@ struct _xmlSchema {
     xmlHashTable * elemDecl;
     xmlHashTable * notaDecl;
     xmlHashTable * schemasImports;
-    void * _private;        /* unused by the library for users or bindings */
+    void * _private; /* unused by the library for users or bindings */
     xmlHashTable * groupDecl;
     xmlDict * dict;
-    void * includes;     /* the includes, this is opaque for now */
-    int    preserve;        /* whether to free the document */
+    void * includes; /* the includes, this is opaque for now */
+    int    preserve; /* whether to free the document */
     int    counter; /* used to give ononymous components unique names */
     xmlHashTable * idcDef; /* All identity-constraint defs. */
     void * volatiles; /* Obsolete */

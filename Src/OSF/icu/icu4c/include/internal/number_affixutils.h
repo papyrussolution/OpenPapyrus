@@ -134,7 +134,7 @@ class U_I18N_API AffixUtils {
     /**
   * Executes the unescape state machine. Replaces the unquoted characters "-", "+", "%", "‰", and
   * "¤" with the corresponding symbols provided by the {@link SymbolProvider}, and inserts the
-  * result into the FormattedStringBuilder at the requested location.
+ * result into the FormattedStringBuilder at the requested location.
      *
   * <p>Example input: "'-'¤x"; example output: "-$x"
      *

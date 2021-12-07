@@ -549,7 +549,7 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
 		 */
 
-		tmp = A;        /* keep the BIGNUM object, the value does not
+		tmp = A; /* keep the BIGNUM object, the value does not
 		                 * matter */
 
 		/* (A, B) := (B, A mod B) ... */
@@ -582,7 +582,7 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 		if(!BN_add(tmp, tmp, Y))
 			goto err;
 
-		M = Y;          /* keep the BIGNUM object, the value does not
+		M = Y; /* keep the BIGNUM object, the value does not
 		                 * matter */
 		Y = X;
 		X = tmp;

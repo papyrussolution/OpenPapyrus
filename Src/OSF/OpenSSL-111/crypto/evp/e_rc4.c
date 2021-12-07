@@ -15,7 +15,7 @@
 //#include <evp_int.h>
 
 typedef struct {
-	RC4_KEY ks;             /* working key */
+	RC4_KEY ks; /* working key */
 } EVP_RC4_KEY;
 
 #define data(ctx) ((EVP_RC4_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx))

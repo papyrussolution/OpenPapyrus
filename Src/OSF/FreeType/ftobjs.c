@@ -1660,8 +1660,8 @@ static FT_Error Mac_Read_POST_Resource(FT_Library library,
 		goto Exit;
 
 	pfb_data[0] = 0x80;
-	pfb_data[1] = 1;        /* Ascii section */
-	pfb_data[2] = 0;        /* 4-byte length, fill in later */
+	pfb_data[1] = 1; /* Ascii section */
+	pfb_data[2] = 0; /* 4-byte length, fill in later */
 	pfb_data[3] = 0;
 	pfb_data[4] = 0;
 	pfb_data[5] = 0;
@@ -3528,7 +3528,7 @@ FT_Face_GetCharVariantIsDefault(FT_Face face,
 FT_EXPORT_DEF(FT_UInt32*)
 FT_Face_GetVariantSelectors(FT_Face face)
 {
-	FT_UInt32  * result = NULL;
+	FT_UInt32 * result = NULL;
 
 	if(face) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
@@ -3546,26 +3546,19 @@ FT_Face_GetVariantSelectors(FT_Face face)
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(FT_UInt32*)
-FT_Face_GetVariantsOfChar(FT_Face face,
-    FT_ULong charcode)
+FT_EXPORT_DEF(FT_UInt32*) FT_Face_GetVariantsOfChar(FT_Face face, FT_ULong charcode)
 {
-	FT_UInt32  * result = NULL;
-
+	FT_UInt32 * result = NULL;
 	if(face) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
-
 		if(charmap) {
 			FT_CMap vcmap  = FT_CMAP(charmap);
 			FT_Memory memory = FT_FACE_MEMORY(face);
-
 			if(charcode > 0xFFFFFFFFUL) {
 				FT_TRACE1(( "FT_Face_GetVariantsOfChar: too large charcode" ));
 				FT_TRACE1(( " 0x%lx is truncated\n", charcode ));
 			}
-
-			result = vcmap->clazz->charvariant_list(vcmap, memory,
-				(FT_UInt32)charcode);
+			result = vcmap->clazz->charvariant_list(vcmap, memory, (FT_UInt32)charcode);
 		}
 	}
 	return result;
@@ -3577,7 +3570,7 @@ FT_EXPORT_DEF(FT_UInt32*)
 FT_Face_GetCharsOfVariant(FT_Face face,
     FT_ULong variantSelector)
 {
-	FT_UInt32  * result = NULL;
+	FT_UInt32 * result = NULL;
 
 	if(face) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);

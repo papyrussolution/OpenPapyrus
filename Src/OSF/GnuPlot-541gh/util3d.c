@@ -28,7 +28,7 @@ static void mat_unit(transform_matrix mat)
 
 void mat_scale(double sx, double sy, double sz, transform_matrix mat)
 {
-	mat_unit(mat);          /* Make it unit matrix. */
+	mat_unit(mat); /* Make it unit matrix. */
 	mat[0][0] = sx;
 	mat[1][1] = sy;
 	mat[2][2] = sz;
@@ -39,7 +39,7 @@ void mat_rot_x(double teta, transform_matrix mat)
 	teta *= SMathConst::PiDiv180;
 	double cos_teta = cos(teta);
 	double sin_teta = sin(teta);
-	mat_unit(mat);          /* Make it unit matrix. */
+	mat_unit(mat); /* Make it unit matrix. */
 	mat[1][1] = cos_teta;
 	mat[1][2] = -sin_teta;
 	mat[2][1] = sin_teta;
@@ -51,7 +51,7 @@ void mat_rot_z(double teta, transform_matrix mat)
 	teta *= SMathConst::PiDiv180;
 	double cos_teta = cos(teta);
 	double sin_teta = sin(teta);
-	mat_unit(mat);          /* Make it unit matrix. */
+	mat_unit(mat); /* Make it unit matrix. */
 	mat[0][0] = cos_teta;
 	mat[0][1] = -sin_teta;
 	mat[1][0] = sin_teta;
@@ -267,7 +267,7 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	double oz = p1->Pt.z;
 	double t[6];
 	double swap;
-	double x, y, z;         /* possible intersection point */
+	double x, y, z; /* possible intersection point */
 	double t_min, t_max;
 	/* nasty degenerate cases, effectively drawing to an infinity point (?)
 	   cope with them here, so don't process them as a "real" OUTRANGE point

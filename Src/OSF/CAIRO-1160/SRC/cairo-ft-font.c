@@ -145,24 +145,24 @@ typedef struct _cairo_ft_font_face cairo_ft_font_face_t;
 struct _cairo_ft_unscaled_font {
 	cairo_unscaled_font_t base;
 	boolint from_face; /* was the FT_Face provided by user? */
-	FT_Face face;       /* provided or cached face */
+	FT_Face face; /* provided or cached face */
 	/* only set if from_face is false */
 	char * filename;
 	int id;
 	/* We temporarily scale the unscaled font as needed */
 	boolint have_scale;
 	cairo_matrix_t current_scale;
-	double x_scale;         /* Extracted X scale factor */
-	double y_scale;         /* Extracted Y scale factor */
+	double x_scale; /* Extracted X scale factor */
+	double y_scale; /* Extracted Y scale factor */
 	boolint have_shape; /* true if the current scale has a non-scale component*/
 	cairo_matrix_t current_shape;
 	FT_Matrix Current_Shape;
 	uint have_color_set  : 1;
 	uint have_color      : 1; /* true if the font contains color glyphs */
-	FT_Fixed * variations;         /* variation settings that FT_Face came */
+	FT_Fixed * variations; /* variation settings that FT_Face came */
 	cairo_mutex_t mutex;
 	int lock_count;
-	cairo_ft_font_face_t * faces;   /* Linked list of faces for this font */
+	cairo_ft_font_face_t * faces; /* Linked list of faces for this font */
 };
 
 static int _cairo_ft_unscaled_font_keys_equal(const void * key_a, const void * key_b);

@@ -53,10 +53,10 @@ typedef struct _cmsTagTypeLinkedList_st {
 #define DUP_FN(x)   Type_ ## x ## _Dup
 
 // Helper macro to define a handler. Callbacks do have a fixed naming convention.
-#define TYPE_HANDLER(t, x)  { (t), READ_FN(x), WRITE_FN(x), DUP_FN(x), FREE_FN(x), NULL, 0 }
+#define TYPE_HANDLER(t, x) { (t), READ_FN(x), WRITE_FN(x), DUP_FN(x), FREE_FN(x), NULL, 0 }
 
 // Helper macro to define a MPE handler. Callbacks do have a fixed naming convention
-#define TYPE_MPE_HANDLER(t, x)  { (t), READ_FN(x), WRITE_FN(x), GenericMPEdup, GenericMPEfree, NULL, 0 }
+#define TYPE_MPE_HANDLER(t, x) { (t), READ_FN(x), WRITE_FN(x), GenericMPEdup, GenericMPEfree, NULL, 0 }
 
 // Infinites
 #define MINUS_INF   (-1E22F)

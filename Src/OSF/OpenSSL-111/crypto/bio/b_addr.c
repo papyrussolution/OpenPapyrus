@@ -624,7 +624,7 @@ int BIO_lookup(const char * host, const char * service,
 int BIO_lookup_ex(const char * host, const char * service, int lookup_type,
     int family, int socktype, int protocol, BIO_ADDRINFO ** res)
 {
-	int ret = 0;             /* Assume failure */
+	int ret = 0; /* Assume failure */
 
 	switch(family) {
 		case AF_INET:

@@ -56,9 +56,9 @@ int _zbar_event_wait(zbar_event_t * event, zbar_mutex_t * lock, zbar_timer_t * t
 	if(lock)
 		_zbar_mutex_lock(lock);
 	if(!rc)
-		return 1;  /* got event */
+		return 1; /* got event */
 	if(rc == WAIT_TIMEOUT)
-		return 0;  /* timed out */
+		return 0; /* timed out */
 	return -1; /* error (FIXME save info) */
 }
 

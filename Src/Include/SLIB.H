@@ -158,7 +158,7 @@
 #if CXX_HAS_STATIC_ASSERT
 	#define STATIC_ASSERT static_assert
 #else
-	#define STATIC_ASSERT(_boolExpr)  { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations
+	#define STATIC_ASSERT(_boolExpr) { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations
 	//#define STATIC_ASSERT assert
 #endif
 
@@ -2324,7 +2324,7 @@ private:
 #define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = 0);}
 #define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
 #define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
-#define ZFREE(p)                    FREEANDASSIGN(p, 0)
+#define ZFREE(p)                    FREEANDASSIGN((p), 0)
 //
 // Exception handling
 //
@@ -2332,13 +2332,13 @@ private:
 #define EXCEPT                 *__sexcept
 #define CALLEXCEPT()           goto __scatch;
 #define CALLEXCEPT_S(val)      {SLS.SetError(val);goto __scatch;}
-#define CALLEXCEPT_S_S(val,s)  {SLS.SetError(val, s);goto __scatch;}
+#define CALLEXCEPT_S_S(val,s) {SLS.SetError(val, s);goto __scatch;}
 #define CALLEXCEPTV(val) {*__sexcept=val;goto __scatch;}
 #define THROW(expr) {if(!(expr)){goto __scatch;}}
 #define THROWEC(expr) {if(!!(expr)){goto __scatch;}}
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
 #define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
-#define THROW_S_S(expr,val,s)  {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
+#define THROW_S_S(expr,val,s) {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
 // @v9.7.5 (useless and dangerous) #define THROW_P() {if(!_AX){goto __scatch;}}
 // @v9.7.5 (useless and dangerous) #define THROW_VP(val) {if(!_AX){*__sexcept=val;goto __scatch;}}
 // @v9.7.5 (useless and dangerous) #define THROW_L() {if(!_AX&&!_DX){goto __scatch;}}
@@ -2896,16 +2896,16 @@ public:
 };
 
 inline TYPEID GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }
-inline TYPEID GetSTypeID(int16)  { return MKSTYPE(S_INT, 2); }
+inline TYPEID GetSTypeID(int16) { return MKSTYPE(S_INT, 2); }
 inline TYPEID GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
 inline TYPEID GetSTypeID(long)   { return MKSTYPE(S_INT, 4); }
-inline TYPEID GetSTypeID(float)  { return MKSTYPE(S_FLOAT, 4); }
+inline TYPEID GetSTypeID(float) { return MKSTYPE(S_FLOAT, 4); }
 inline TYPEID GetSTypeID(double) { return MKSTYPE(S_FLOAT, 8); }
 inline TYPEID GetSTypeID(LDBL)   { return MKSTYPE(S_FLOAT, 10); }
 inline TYPEID GetSTypeID(char *,  int s) { return MKSTYPE(S_ZSTRING, s); }
-inline TYPEID GetSTypeID(LDATE)  { return MKSTYPE(S_DATE, 4); }
-inline TYPEID GetSTypeID(LTIME)  { return MKSTYPE(S_TIME, 4); }
-inline TYPEID GetSTypeID(LDATETIME)  { return MKSTYPE(S_DATETIME, 8); }
+inline TYPEID GetSTypeID(LDATE) { return MKSTYPE(S_DATE, 4); }
+inline TYPEID GetSTypeID(LTIME) { return MKSTYPE(S_TIME, 4); }
+inline TYPEID GetSTypeID(LDATETIME) { return MKSTYPE(S_DATETIME, 8); }
 DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
 int    FASTCALL btnumber(int bt);
@@ -5604,7 +5604,7 @@ void   FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize);
 //
 // Descr: Shortcut for the initializing Windows API structures
 //
-#define INITWINAPISTRUCT(p)  { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
+#define INITWINAPISTRUCT(p) { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
 #define INITWINBITMAPINFO(p) { MEMSZERO(p); p.bmiHeader.biSize = sizeof(p.bmiHeader); } // @v11.0.2
 //
 // Descr: Меняет порядок байтов двухбайтового слова
@@ -5677,7 +5677,7 @@ public:
 	IterCounter();
 	operator ulong() const { return Count; }
 	void   FASTCALL Init(ulong total = 0L);
-	void   FASTCALL SetTotal(ulong total)  { Total = total; }
+	void   FASTCALL SetTotal(ulong total) { Total = total; }
 	IterCounter & Increment() { Count++; return *this; }
 	IterCounter & FASTCALL Add(long a) { Count += a; return *this; }
 	ulong  GetTotal() const { return Total; }
@@ -6790,12 +6790,12 @@ struct CommPortParams {    // @persistent size=6
 
 struct CommPortTimeouts {
 	uint16 Get_NumTries; /* (0..32000)      */
-	uint16 Get_Delay;    /* (0..1000)       */
+	uint16 Get_Delay; /* (0..1000)       */
 	uint16 Put_NumTries; /* (0..32000)      */
-	uint16 Put_Delay;    /* (0..1000)       */
+	uint16 Put_Delay; /* (0..1000)       */
 
 	uint16 Reserve1;
-	uint16 W_Get_Delay;  /* (0..1000) Win32 */
+	uint16 W_Get_Delay; /* (0..1000) Win32 */
 	uint16 Reserve2[2];
 };
 
@@ -7449,7 +7449,7 @@ public:
 		expand(cycle);
 	}
 	T &    FASTCALL push(const T & t) { return *static_cast<T *>(SStack::push(&t)); }
-	int    FASTCALL pop(T & t)  { return SStack::pop(&t); }
+	int    FASTCALL pop(T & t) { return SStack::pop(&t); }
 	T &    FASTCALL peek() const { return *static_cast<T *>(SStack::peek()); }
 };
 //
@@ -12305,11 +12305,15 @@ double smin4(double a1, double a2, double a3, double a4);
 //
 int    FASTCALL sclamp(int v, int lo, int up);
 uint   FASTCALL sclamp(uint v, uint lo, uint up);
+int    FASTCALL sclamp(int64 v, int64 lo, int64 up);
+int    FASTCALL sclamp(uint64 v, uint64 lo, uint64 up);
 double FASTCALL sclamp(double v, double lo, double up);
 float  FASTCALL sclamp(float v, float lo, float up);
 
 int    FASTCALL sclampx(int v, int lo, int up);
 uint   FASTCALL sclampx(uint v, uint lo, uint up);
+int    FASTCALL sclampx(int64 v, int64 lo, int64 up);
+int    FASTCALL sclampx(uint64 v, uint64 lo, uint64 up);
 double FASTCALL sclampx(double v, double lo, double up);
 float  FASTCALL sclampx(float v, float lo, float up);
 
@@ -12361,9 +12365,9 @@ double FASTCALL ffrac(double v); // @>>modf
 //   0 - ERROR
 //
 int    fsplitintofractions(double value, uint fragmentation, double tolerance, double * pIntPart, double * pNumerator, double * pDenominator);
-int __forceinline fceili(double v)  { return static_cast<int>(ceil(v)); }
+int __forceinline fceili(double v) { return static_cast<int>(ceil(v)); }
 int __forceinline ffloori(double v) { return static_cast<int>(floor(v)); }
-int __forceinline fceili(float v)  { return static_cast<int>(ceil(v)); }
+int __forceinline fceili(float v) { return static_cast<int>(ceil(v)); }
 int __forceinline ffloori(float v) { return static_cast<int>(floor(v)); }
 //
 // Descr: Если sign < 0, возвращает (val-addendum)
@@ -12462,7 +12466,7 @@ int    flnfact(uint n, SMathResult * pResult);
 double Gamma(double x);
 double GammaIncompleteP(double a, double x);
 double GammaIncompleteQ(double a, double x);
-inline int fsign(double x)  { return (x >= 0.0) ? +1 : -1; }
+inline int fsign(double x) { return (x >= 0.0) ? +1 : -1; }
 inline int fsignz(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 
 // } Mathematics

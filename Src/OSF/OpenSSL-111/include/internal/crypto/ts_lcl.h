@@ -115,7 +115,7 @@ struct ESS_issuer_serial {
  * }
  */
 struct ESS_cert_id {
-    ASN1_OCTET_STRING *hash;    /* Always SHA-1 digest. */
+    ASN1_OCTET_STRING *hash; /* Always SHA-1 digest. */
     ESS_ISSUER_SERIAL *issuer_serial;
 };
 
@@ -140,7 +140,7 @@ struct ESS_signing_cert {
  */
 
 struct ESS_cert_id_v2_st {
-    X509_ALGOR *hash_alg;       /* Default: SHA-256 */
+    X509_ALGOR *hash_alg; /* Default: SHA-256 */
     ASN1_OCTET_STRING *hash;
     ESS_ISSUER_SERIAL *issuer_serial;
 };
@@ -163,23 +163,23 @@ struct TS_resp_ctx {
     EVP_PKEY *signer_key;
     const EVP_MD *signer_md;
     const EVP_MD *ess_cert_id_digest;
-    STACK_OF(X509) *certs;      /* Certs to include in signed data. */
+    STACK_OF(X509) *certs; /* Certs to include in signed data. */
     STACK_OF(ASN1_OBJECT) *policies; /* Acceptable policies. */
     ASN1_OBJECT *default_policy; /* It may appear in policies, too. */
-    STACK_OF(EVP_MD) *mds;      /* Acceptable message digests. */
-    ASN1_INTEGER *seconds;      /* accuracy, 0 means not specified. */
-    ASN1_INTEGER *millis;       /* accuracy, 0 means not specified. */
-    ASN1_INTEGER *micros;       /* accuracy, 0 means not specified. */
+    STACK_OF(EVP_MD) *mds; /* Acceptable message digests. */
+    ASN1_INTEGER *seconds; /* accuracy, 0 means not specified. */
+    ASN1_INTEGER *millis; /* accuracy, 0 means not specified. */
+    ASN1_INTEGER *micros; /* accuracy, 0 means not specified. */
     unsigned clock_precision_digits; /* fraction of seconds in time stamp
                                       * token. */
-    unsigned flags;             /* Optional info, see values above. */
+    unsigned flags; /* Optional info, see values above. */
     /* Callback functions. */
     TS_serial_cb serial_cb;
-    void *serial_cb_data;       /* User data for serial_cb. */
+    void *serial_cb_data; /* User data for serial_cb. */
     TS_time_cb time_cb;
-    void *time_cb_data;         /* User data for time_cb. */
+    void *time_cb_data; /* User data for time_cb. */
     TS_extension_cb extension_cb;
-    void *extension_cb_data;    /* User data for extension_cb. */
+    void *extension_cb_data; /* User data for extension_cb. */
     /* These members are used only while creating the response. */
     TS_REQ *request;
     TS_RESP *response;

@@ -25,9 +25,9 @@ static long enc_callback_ctrl(BIO * h, int cmd, BIO_info_cb * fps);
 typedef struct enc_struct {
 	int buf_len;
 	int buf_off;
-	int cont;               /* <= 0 when finished */
+	int cont; /* <= 0 when finished */
 	int finished;
-	int ok;                 /* bad decrypt */
+	int ok; /* bad decrypt */
 	EVP_CIPHER_CTX * cipher;
 	uchar * read_start, * read_end;
 	/*

@@ -83,7 +83,7 @@
  *
  * ```
  *   #undef FTMODERR_H_
- *   #define FT_MODERRDEF( e, v, s )  { FT_Mod_Err_ ## e, s },
+ *   #define FT_MODERRDEF( e, v, s ) { FT_Mod_Err_ ## e, s },
  *   #define FT_MODERR_START_LIST     {
  *   #define FT_MODERR_END_LIST       { 0, 0 } };
  *

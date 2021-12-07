@@ -25,7 +25,7 @@
  * 8 - 256 == 8192
  */
 static int bn_limit_bits = 0;
-static int bn_limit_num = 8;    /* (1<<bn_limit_bits) */
+static int bn_limit_num = 8; /* (1<<bn_limit_bits) */
 static int bn_limit_bits_low = 0;
 static int bn_limit_num_low = 8; /* (1<<bn_limit_bits_low) */
 static int bn_limit_bits_high = 0;

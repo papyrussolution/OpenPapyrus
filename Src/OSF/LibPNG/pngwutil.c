@@ -426,10 +426,10 @@ void /* PRIVATE */ png_free_buffer_list(png_structrp png_ptr, png_compression_bu
  * just leaked memory.)
  */
 typedef struct {
-	png_const_bytep input;        /* The uncompressed input data */
-	png_alloc_size_t input_len;   /* Its length */
-	uint32 output_len;       /* Final compressed length */
-	uint8 output[1024];        /* First block of output */
+	png_const_bytep input; /* The uncompressed input data */
+	png_alloc_size_t input_len; /* Its length */
+	uint32 output_len; /* Final compressed length */
+	uint8 output[1024]; /* First block of output */
 } compression_state;
 
 static void png_text_compress_init(compression_state * comp, png_const_bytep input,
@@ -875,7 +875,7 @@ void /* PRIVATE */ png_compress_IDAT(png_structrp png_ptr, png_const_bytep input
 		uInt avail = ZLIB_IO_MAX;
 
 		if(avail > input_len)
-			avail = (uInt)input_len;  /* safe because of the check */
+			avail = (uInt)input_len; /* safe because of the check */
 
 		png_ptr->zstream.avail_in = avail;
 		input_len -= avail;
@@ -1453,13 +1453,13 @@ void /* PRIVATE */ png_write_iTXt(png_structrp png_ptr, int compression, const c
 	 * @todo validate the language tag correctly (see the spec.)
 	 */
 	if(lang == NULL) 
-		lang = "";  /* empty language is valid */
+		lang = ""; /* empty language is valid */
 	lang_len = strlen(lang)+1;
 	if(lang_key == NULL) 
-		lang_key = "";  /* may be empty */
+		lang_key = ""; /* may be empty */
 	lang_key_len = strlen(lang_key)+1;
 	if(text == NULL) 
-		text = "";  /* may be empty */
+		text = ""; /* may be empty */
 	prefix_len = key_len;
 	if(lang_len > PNG_UINT_31_MAX-prefix_len)
 		prefix_len = PNG_UINT_31_MAX;

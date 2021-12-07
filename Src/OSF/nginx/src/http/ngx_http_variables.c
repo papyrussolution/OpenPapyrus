@@ -607,8 +607,7 @@ static ngx_int_t ngx_http_variable_cookie(ngx_http_request_t * r, ngx_http_varia
 	ngx_str_t cookie, s;
 	s.len = name->len - (sizeof("cookie_") - 1);
 	s.data = name->data + sizeof("cookie_") - 1;
-	if(ngx_http_parse_multi_header_lines(&r->headers_in.cookies, &s, &cookie)
-	    == NGX_DECLINED) {
+	if(ngx_http_parse_multi_header_lines(&r->headers_in.cookies, &s, &cookie) == NGX_DECLINED) {
 		v->not_found = 1;
 		return NGX_OK;
 	}

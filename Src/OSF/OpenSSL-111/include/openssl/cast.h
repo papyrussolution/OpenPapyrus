@@ -26,7 +26,7 @@ extern "C" {
 
 typedef struct cast_key_st {
     CAST_LONG data[32];
-    int short_key;              /* Use reduced rounds for short key */
+    int short_key; /* Use reduced rounds for short key */
 } CAST_KEY;
 
 void CAST_set_key(CAST_KEY *key, int len, const uchar *data);

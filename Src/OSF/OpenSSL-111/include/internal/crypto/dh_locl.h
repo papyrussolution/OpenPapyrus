@@ -18,9 +18,9 @@ struct dh_st {
     int version;
     BIGNUM *p;
     BIGNUM *g;
-    int32_t length;             /* optional */
-    BIGNUM *pub_key;            /* g^x % p */
-    BIGNUM *priv_key;           /* x */
+    int32_t length; /* optional */
+    BIGNUM *pub_key; /* g^x % p */
+    BIGNUM *priv_key; /* x */
     int flags;
     BN_MONT_CTX *method_mont_p;
     /* Place holders if we want to do X9.42 DH */

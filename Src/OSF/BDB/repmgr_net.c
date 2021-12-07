@@ -45,9 +45,9 @@ struct sending_msg {
 
 /* Context for a thread waiting for client acks for PERM message. */
 struct repmgr_permanence {
-	DB_LSN lsn;             /* LSN whose ack this thread is waiting for. */
-	uint threshold;        /* Number of client acks needed. */
-	int policy;             /* Ack policy to be used for this txn. */
+	DB_LSN lsn; /* LSN whose ack this thread is waiting for. */
+	uint threshold; /* Number of client acks needed. */
+	int policy; /* Ack policy to be used for this txn. */
 };
 
 #ifdef  CONFIG_TEST
@@ -1275,7 +1275,7 @@ int __repmgr_pack_netaddr(ENV * env, const char * host, uint port, repmgr_netadd
 int __repmgr_getaddr(ENV * env, const char * host, uint port, int flags /* Matches struct addrinfo declaration. */, ADDRINFO ** result)
 {
 	ADDRINFO * answer, hints;
-	char buffer[10];                /* 2**16 fits in 5 digits. */
+	char buffer[10]; /* 2**16 fits in 5 digits. */
 	/*
 	 * Ports are really 16-bit unsigned values, but it's too painful to
 	 * push that type through the API.

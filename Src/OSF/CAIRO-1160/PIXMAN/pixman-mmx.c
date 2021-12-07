@@ -533,15 +533,15 @@ static force_inline void expand_4xpacked565(__m64 vin, __m64 * vout0, __m64 * vo
 	g = _mm_or_si64(_mm_srli_pi16(g, 3), _mm_srli_pi16(g, 9));
 	b = _mm_or_si64(_mm_slli_pi16(b, 3), _mm_srli_pi16(b, 2));
 
-	r = _mm_packs_pu16(r, _mm_setzero_si64());      /* 00 00 00 00 R3 R2 R1 R0 */
-	g = _mm_packs_pu16(g, _mm_setzero_si64());      /* 00 00 00 00 G3 G2 G1 G0 */
-	b = _mm_packs_pu16(b, _mm_setzero_si64());      /* 00 00 00 00 B3 B2 B1 B0 */
+	r = _mm_packs_pu16(r, _mm_setzero_si64()); /* 00 00 00 00 R3 R2 R1 R0 */
+	g = _mm_packs_pu16(g, _mm_setzero_si64()); /* 00 00 00 00 G3 G2 G1 G0 */
+	b = _mm_packs_pu16(b, _mm_setzero_si64()); /* 00 00 00 00 B3 B2 B1 B0 */
 
-	t1 = _mm_unpacklo_pi8(r, alpha);                /* A3 R3 A2 R2 A1 R1 A0 R0 */
+	t1 = _mm_unpacklo_pi8(r, alpha); /* A3 R3 A2 R2 A1 R1 A0 R0 */
 	t0 = _mm_unpacklo_pi8(b, g);                    /* G3 B3 G2 B2 G1 B1 G0 B0 */
 
-	*vout0 = _mm_unpacklo_pi16(t0, t1);             /* A1 R1 G1 B1 A0 R0 G0 B0 */
-	*vout1 = _mm_unpackhi_pi16(t0, t1);             /* A3 R3 G3 B3 A2 R2 G2 B2 */
+	*vout0 = _mm_unpacklo_pi16(t0, t1); /* A1 R1 G1 B1 A0 R0 G0 B0 */
+	*vout1 = _mm_unpackhi_pi16(t0, t1); /* A3 R3 G3 B3 A2 R2 G2 B2 */
 }
 
 static force_inline __m64 expand8888(__m64 in, int pos)

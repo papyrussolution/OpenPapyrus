@@ -632,5 +632,5 @@ lua_Unsigned luaH_getn(Table * t)
 
 #if defined(LUA_DEBUG)
 	Node * luaH_mainposition(const Table * t, const TValue * key) { return mainposition(t, key); }
-	int    luaH_isdummy(const Table * t)  { return isdummy(t); }
+	int    luaH_isdummy(const Table * t) { return isdummy(t); }
 #endif

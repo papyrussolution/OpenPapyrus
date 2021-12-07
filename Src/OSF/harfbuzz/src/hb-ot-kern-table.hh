@@ -88,16 +88,16 @@ protected:
 		HBUINT8 kernValueCount; /* The number of kerning values. */
 		HBUINT8 leftClassCount; /* The number of left-hand classes. */
 		HBUINT8 rightClassCount; /* The number of right-hand classes. */
-		HBUINT8 flags;  /* Set to zero (reserved for future use). */
+		HBUINT8 flags; /* Set to zero (reserved for future use). */
 		UnsizedArrayOf<FWORD>
-		kernValueZ;     /* The kerning values.
+		kernValueZ; /* The kerning values.
 		 * Length kernValueCount. */
 #if 0
 		UnsizedArrayOf<HBUINT8>
-		leftClass;      /* The left-hand classes.
+		leftClass; /* The left-hand classes.
 		 * Length glyphCount. */
 		UnsizedArrayOf<HBUINT8>
-		rightClass;     /* The right-hand classes.
+		rightClass; /* The right-hand classes.
 		 * Length glyphCount. */
 		UnsizedArrayOf<HBUINT8>kernIndex;
 		/* The indices into the kernValue array.

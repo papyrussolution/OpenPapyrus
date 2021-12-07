@@ -45,7 +45,7 @@ struct private_data {
 	uchar   * out_block;
 	size_t out_block_size;
 	int64 total_out;
-	char eof;             /* True = found end of compressed data. */
+	char eof; /* True = found end of compressed data. */
 	char in_stream;
 
 	/* Following variables are used for lzip only. */

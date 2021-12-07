@@ -915,7 +915,7 @@ static cairo_surface_t * _cairo_ps_surface_create_for_stream_internal(cairo_outp
 	_cairo_surface_init(&surface->base, &cairo_ps_surface_backend,
 	    NULL,              /* device */
 	    CAIRO_CONTENT_COLOR_ALPHA,
-	    TRUE);              /* is_vector */
+	    TRUE); /* is_vector */
 	surface->final_stream = stream;
 	surface->tmpfile = tmpfile();
 	if(surface->tmpfile == NULL) {

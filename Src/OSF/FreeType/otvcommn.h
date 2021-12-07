@@ -48,7 +48,7 @@ typedef struct  OTV_ValidatorRec_ {
 
 	OTV_Validate_Func func[3];
 
-	FT_UInt extra1;             /* for passing parameters */
+	FT_UInt extra1; /* for passing parameters */
 	FT_UInt extra2;
 	FT_Bytes extra3;
 

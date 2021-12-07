@@ -91,7 +91,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			return 0;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			if((wParam >= VK_F1 && wParam <= VK_F12) || wParam == VK_ESCAPE || (wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL))))  {
+			if((wParam >= VK_F1 && wParam <= VK_F12) || wParam == VK_ESCAPE || (wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
 				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}

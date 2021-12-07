@@ -1434,12 +1434,12 @@ ZIP_EXTERN int zip_replace(zip_t * za, uint64 idx, zip_source_t * source)
 #endif
 
 struct ZipSourceBuffer {
-	uint64 fragment_size;           /* size of each fragment */
-	uint8 ** fragments;     /* pointers to fragments */
-	uint64 nfragments;      /* number of allocated fragments */
+	uint64 fragment_size; /* size of each fragment */
+	uint8 ** fragments; /* pointers to fragments */
+	uint64 nfragments; /* number of allocated fragments */
 	uint64 fragments_capacity; /* size of fragments (number of pointers) */
 	uint64 size;                    /* size of data in bytes */
-	uint64 offset;          /* current offset */
+	uint64 offset; /* current offset */
 	int    free_data;
 };
 
@@ -5775,14 +5775,14 @@ uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len, uint32 * u
 // ZIP_SOURCE_FILEP
 //
 struct ZipReadFileBlock {
-	zip_error_t error;  /* last error information */
+	zip_error_t error; /* last error information */
 	int64 supports;
 	/* reading */
-	char * fname;       /* name of file to read from */
-	FILE * f;           /* file to read from */
+	char * fname; /* name of file to read from */
+	FILE * f; /* file to read from */
 	zip_stat_t st; /* stat information passed in */
 	uint64 start; /* start offset of data to read */
-	uint64 end;   /* end offset of data to read, 0 for up to EOF */
+	uint64 end; /* end offset of data to read, 0 for up to EOF */
 	uint64 current; /* current offset */
 	/* writing */
 	char * tmpname;

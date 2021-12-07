@@ -441,7 +441,7 @@ static bool getDirProps(UBiDi * pBiDi) {
 	};
 
 	State state;
-	DirProp lastStrong = ON;        /* for default level & inverse BiDi */
+	DirProp lastStrong = ON; /* for default level & inverse BiDi */
 	/* The following stacks are used to manage isolate sequences. Those
 	   sequences may be nested, but obviously never more deeply than the
 	   maximum explicit embedding level.
@@ -776,7 +776,7 @@ static void fixN0c(BracketData * bd, int32_t openingIndex, int32_t newPropPositi
 		dirProps[openingPosition] = newProp;
 		closingPosition = -(qOpening->match);
 		dirProps[closingPosition] = newProp;
-		qOpening->match = 0;            /* prevent further changes */
+		qOpening->match = 0; /* prevent further changes */
 		fixN0c(bd, k, openingPosition, newProp);
 		fixN0c(bd, k, closingPosition, newProp);
 	}
@@ -792,7 +792,7 @@ bracketProcessClosing(BracketData * bd, int32_t openIdx, int32_t position) {
 	DirProp newProp;
 	pOpening = &bd->openings[openIdx];
 	direction = (UBiDiDirection)(pLastIsoRun->level&1);
-	stable = TRUE;      /* assume stable until proved otherwise */
+	stable = TRUE; /* assume stable until proved otherwise */
 
 	/* The stable flag is set when brackets are paired and their
 	   level is resolved and cannot be changed by what will be
@@ -823,7 +823,7 @@ bracketProcessClosing(BracketData * bd, int32_t openIdx, int32_t position) {
 		if(direction!=pOpening->contextDir)
 			newProp = static_cast<DirProp>(pOpening->contextDir); /* N0c1 */
 		else
-			newProp = static_cast<DirProp>(direction);         /* N0c2 */
+			newProp = static_cast<DirProp>(direction); /* N0c2 */
 	}
 	else {
 		/* forget this and any brackets nested within this pair */
@@ -945,14 +945,14 @@ bracketProcessChar(BracketData * bd, int32_t position) {
 	else if(dirProp==EN) {
 		pLastIsoRun->lastBase = EN;
 		if(pLastIsoRun->lastStrong==L) {
-			newProp = L;    /* W7 */
+			newProp = L; /* W7 */
 			if(!bd->isNumbersSpecial)
 				dirProps[position] = ENL;
 			pLastIsoRun->contextDir = (UBiDiDirection)L;
 			pLastIsoRun->contextPos = position;
 		}
 		else {
-			newProp = R;    /* N0 */
+			newProp = R; /* N0 */
 			if(pLastIsoRun->lastStrong==AL)
 				dirProps[position] = AN; /* W2 */
 			else
@@ -962,7 +962,7 @@ bracketProcessChar(BracketData * bd, int32_t position) {
 		}
 	}
 	else if(dirProp==AN) {
-		newProp = R;            /* N0 */
+		newProp = R; /* N0 */
 		pLastIsoRun->lastBase = AN;
 		pLastIsoRun->contextDir = (UBiDiDirection)R;
 		pLastIsoRun->contextPos = position;
@@ -1138,7 +1138,7 @@ static UBiDiDirection resolveExplicitLevels(UBiDi * pBiDi, UErrorCode * pErrorCo
 		/* both variables may carry the UBIDI_LEVEL_OVERRIDE flag to indicate the override status */
 		UBiDiLevel embeddingLevel = level, newLevel;
 		UBiDiLevel previousLevel = level; /* previous level for regular (not CC) characters */
-		int32_t lastCcPos = 0;      /* index of last effective LRx,RLx, PDx */
+		int32_t lastCcPos = 0; /* index of last effective LRx,RLx, PDx */
 
 		/* The following stack remembers the embedding level and the ISOLATE flag of level runs.
 		   stackLast points to its current entry. */
@@ -1801,14 +1801,14 @@ static const ImpTabPair impTab_INVERSE_FOR_NUMBERS_SPECIAL_WITH_MARKS = {
 #undef s
 
 typedef struct {
-	const ImpTab * pImpTab;         /* level table pointer */
-	const ImpAct * pImpAct;         /* action map array    */
-	int32_t startON;                /* start of ON sequence         */
-	int32_t startL2EN;              /* start of level 2 sequence    */
-	int32_t lastStrongRTL;          /* index of last found R or AL  */
-	int32_t state;                  /* current state       */
-	int32_t runStart;               /* start position of the run    */
-	UBiDiLevel runLevel;            /* run level before implicit solving */
+	const ImpTab * pImpTab; /* level table pointer */
+	const ImpAct * pImpAct; /* action map array    */
+	int32_t startON; /* start of ON sequence         */
+	int32_t startL2EN; /* start of level 2 sequence    */
+	int32_t lastStrongRTL; /* index of last found R or AL  */
+	int32_t state; /* current state       */
+	int32_t runStart; /* start position of the run    */
+	UBiDiLevel runLevel; /* run level before implicit solving */
 } LevState;
 
 /*------------------------------------------------------------------------*/
@@ -1889,7 +1889,7 @@ static void processPropertySeq(UBiDi * pBiDi, LevState * pLevState, uint8_t _pro
 	InsertPoints * pInsertPoints;
 	int32_t start0, k;
 
-	start0 = start;                     /* save original start position */
+	start0 = start; /* save original start position */
 	oldStateSeq = (uint8_t)pLevState->state;
 	cell = (*pImpTab)[oldStateSeq][_prop];
 	pLevState->state = GET_STATE(cell); /* isolate the new state */
@@ -2160,8 +2160,8 @@ static void resolveImplicitLevels(UBiDi * pBiDi,
 	    pBiDi->reorderingMode==UBIDI_REORDER_INVERSE_FOR_NUMBERS_SPECIAL));
 
 	/* initialize for property and levels state tables */
-	levState.startL2EN = -1;        /* used for INVERSE_LIKE_DIRECT_WITH_MARKS */
-	levState.lastStrongRTL = -1;    /* used for INVERSE_LIKE_DIRECT_WITH_MARKS */
+	levState.startL2EN = -1; /* used for INVERSE_LIKE_DIRECT_WITH_MARKS */
+	levState.lastStrongRTL = -1; /* used for INVERSE_LIKE_DIRECT_WITH_MARKS */
 	levState.runStart = start;
 	levState.runLevel = pBiDi->levels[start];
 	levState.pImpTab = (const ImpTab*)((pBiDi->pImpTabPair)->pImpTab)[levState.runLevel&1];
@@ -2192,7 +2192,7 @@ static void resolveImplicitLevels(UBiDi * pBiDi,
 		levState.state = 0;
 		processPropertySeq(pBiDi, &levState, sor, start, start);
 	}
-	start2 = start;                 /* to make Java compiler happy */
+	start2 = start; /* to make Java compiler happy */
 
 	for(i = start; i<=limit; i++) {
 		if(i>=limit) {
@@ -2242,7 +2242,7 @@ static void resolveImplicitLevels(UBiDi * pBiDi,
 		actionImp = GET_ACTIONPROPS(cell); /* isolate the action */
 		if((i==limit) && (actionImp==0)) {
 			/* there is an unprocessed sequence if its property == eor   */
-			actionImp = 1;      /* process the last sequence */
+			actionImp = 1; /* process the last sequence */
 		}
 		if(actionImp) {
 			resProp = impTabProps[oldStateImp][IMPTABPROPS_RES];
@@ -2370,9 +2370,9 @@ U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi,
 }
 
 static void setParaSuccess(UBiDi * pBiDi) {
-	pBiDi->proLength = 0;           /* forget the last context */
+	pBiDi->proLength = 0; /* forget the last context */
 	pBiDi->epiLength = 0;
-	pBiDi->pParaBiDi = pBiDi;       /* mark successful setPara */
+	pBiDi->pParaBiDi = pBiDi; /* mark successful setPara */
 }
 
 #define BIDI_MIN(x, y)   ((x)<(y) ? (x) : (y))
@@ -2414,7 +2414,7 @@ static void setParaRunsOnly(UBiDi * pBiDi, const UChar * text, int32_t length,
 		pBiDi->reorderingOptions &= ~UBIDI_OPTION_INSERT_MARKS;
 		pBiDi->reorderingOptions |= UBIDI_OPTION_REMOVE_CONTROLS;
 	}
-	paraLevel &= 1;                 /* accept only 0 or 1 */
+	paraLevel &= 1; /* accept only 0 or 1 */
 	ubidi_setPara(pBiDi, text, length, paraLevel, NULL, pErrorCode);
 	if(U_FAILURE(*pErrorCode)) {
 		goto cleanup3;
@@ -2593,7 +2593,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 	}
 
 	/* initialize the UBiDi structure */
-	pBiDi->pParaBiDi = NULL;    /* mark unfinished setPara */
+	pBiDi->pParaBiDi = NULL; /* mark unfinished setPara */
 	pBiDi->text = text;
 	pBiDi->length = pBiDi->originalLength = pBiDi->resultLength = length;
 	pBiDi->paraLevel = paraLevel;
@@ -2603,7 +2603,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 	pBiDi->dirProps = NULL;
 	pBiDi->levels = NULL;
 	pBiDi->runs = NULL;
-	pBiDi->insertPoints.size = 0;   /* clean up from last call */
+	pBiDi->insertPoints.size = 0; /* clean up from last call */
 	pBiDi->insertPoints.confirmed = 0; /* clean up from last call */
 
 	/*
@@ -2624,7 +2624,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 		pBiDi->flags = DIRPROP_FLAG_LR(paraLevel);
 		pBiDi->runCount = 0;
 		pBiDi->paraCount = 0;
-		setParaSuccess(pBiDi);  /* mark successful setPara */
+		setParaSuccess(pBiDi); /* mark successful setPara */
 		return;
 	}
 
@@ -2695,7 +2695,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 			return;
 		}
 	}
-	pBiDi->isolateCount = -1;       /* current isolates stack entry == none */
+	pBiDi->isolateCount = -1; /* current isolates stack entry == none */
 
 	/*
 	 * The steps after (X9) in the UBiDi algorithm are performed only if
@@ -2880,7 +2880,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 	else {
 		pBiDi->resultLength += pBiDi->insertPoints.size;
 	}
-	setParaSuccess(pBiDi);          /* mark successful setPara */
+	setParaSuccess(pBiDi); /* mark successful setPara */
 }
 
 U_CAPI void U_EXPORT2 ubidi_orderParagraphsLTR(UBiDi * pBiDi, bool orderParagraphsLTR) {
@@ -2973,7 +2973,7 @@ U_CAPI void U_EXPORT2 ubidi_getParagraphByIndex(const UBiDi * pBiDi, int32_t par
 	RETURN_VOID_IF_NOT_VALID_PARA_OR_LINE(pBiDi, *pErrorCode);
 	RETURN_VOID_IF_BAD_RANGE(paraIndex, 0, pBiDi->paraCount, *pErrorCode);
 
-	pBiDi = pBiDi->pParaBiDi;       /* get Para object if Line object */
+	pBiDi = pBiDi->pParaBiDi; /* get Para object if Line object */
 	if(paraIndex) {
 		paraStart = pBiDi->paras[paraIndex-1].limit;
 	}
@@ -3000,7 +3000,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_getParagraph(const UBiDi * pBiDi, int32_t charInd
 	/* pErrorCode will be checked by the call to ubidi_getParagraphByIndex */
 	RETURN_IF_NULL_OR_FAILING_ERRCODE(pErrorCode, -1);
 	RETURN_IF_NOT_VALID_PARA_OR_LINE(pBiDi, *pErrorCode, -1);
-	pBiDi = pBiDi->pParaBiDi;       /* get Para object if Line object */
+	pBiDi = pBiDi->pParaBiDi; /* get Para object if Line object */
 	RETURN_IF_BAD_RANGE(charIndex, 0, pBiDi->length, *pErrorCode, -1);
 
 	for(paraIndex = 0; charIndex>=pBiDi->paras[paraIndex].limit; paraIndex++);

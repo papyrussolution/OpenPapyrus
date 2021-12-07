@@ -44,7 +44,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	int    timelabel_textheight = 0; /* height of timestamp */
 	int    ytic_textwidth = 0; /* width of ytic labels */
 	int    y2tic_textwidth = 0; /* width of y2tic labels */
-	int    x2tic_height = 0;   /* 0 for TicIn or no x2tics, ticscale*TicV otherwise */
+	int    x2tic_height = 0; /* 0 for TicIn or no x2tics, ticscale*TicV otherwise */
 	int    xtic_textwidth = 0; /* amount by which the xtic label protrude to the right */
 	int    xtic_height = 0;
 	int    ytic_width = 0;

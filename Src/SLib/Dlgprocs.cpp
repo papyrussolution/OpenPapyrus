@@ -116,10 +116,10 @@ void TDialog::RemoveUnusedControls()
 			if(lParam) {
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
 				// @v11.2.4 {
-				{
+				/*{
 					long   exstyle = TView::GetWindowExStyle(hwndDlg);
 					TView::SetWindowProp(hwndDlg, GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
-				}
+				}*/
 				// } @v11.2.4 
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;

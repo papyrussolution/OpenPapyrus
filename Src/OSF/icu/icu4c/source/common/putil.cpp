@@ -261,7 +261,7 @@ static UDate getUTCtime_fake() {
 typedef union {
 	int64_t int64;
 	FILETIME fileTime;
-} FileTimeConversion;   /* This is like a ULARGE_INTEGER */
+} FileTimeConversion; /* This is like a ULARGE_INTEGER */
 
 /* Number of 100 nanoseconds from 1/1/1601 to 1/1/1970 */
 #define EPOCH_BIAS  INT64_C(116444736000000000)
@@ -612,9 +612,9 @@ U_CAPI int32_t U_EXPORT2 uprv_timezone()
 #if U_PLATFORM != U_PF_IPHONE
 	bool dst_checked = (tmrec.tm_isdst != 0); /* daylight savings time is checked*/
 #endif
-	t1 = mktime(&tmrec);             /* local time in seconds*/
+	t1 = mktime(&tmrec); /* local time in seconds*/
 	uprv_memcpy(&tmrec, gmtime(&t), sizeof(tmrec));
-	t2 = mktime(&tmrec);             /* GMT (or UTC) in seconds*/
+	t2 = mktime(&tmrec); /* GMT (or UTC) in seconds*/
 	tdiff = t2 - t1;
 
 #if U_PLATFORM != U_PF_IPHONE

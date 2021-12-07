@@ -150,20 +150,20 @@ static uint cgm_dashtype = 0;
 static uint cgm_color = 0;
 static uint cgm_background = 0xffffff;
 static int * cgm_polyline; /* stored polyline coordinates */
-static int cgm_coords = 0;      /* # polyline coordinates saved */
+static int cgm_coords = 0; /* # polyline coordinates saved */
 static int cgm_doing_polygon = 0; /* nonzero if creating polygon, else
                                    * creating polyline */
 /* static enum JUSTIFY cgm_justify = LEFT; */ /* unused */
-static int cgm_step_sizes[8];   /* array of currently used dash lengths in plot units */
-static int cgm_step_index = 0;  /* index into cgm_step_sizes[] */
-static int cgm_step = 0;        /* amount of current dash not yet drawn, in plot units */
-static int cgm_tic, cgm_tic707, cgm_tic866, cgm_tic500, cgm_tic1241, cgm_tic1077, cgm_tic621;   /* marker dimensions */
+static int cgm_step_sizes[8]; /* array of currently used dash lengths in plot units */
+static int cgm_step_index = 0; /* index into cgm_step_sizes[] */
+static int cgm_step = 0; /* amount of current dash not yet drawn, in plot units */
+static int cgm_tic, cgm_tic707, cgm_tic866, cgm_tic500, cgm_tic1241, cgm_tic1077, cgm_tic621; /* marker dimensions */
 struct cgm_properties {
-	double angle;           /* angle of text baseline (radians counter-clockwise from horizontal) */
-	int font_index;         /* font index */
-	int char_height;        /* character height in picture units */
+	double angle; /* angle of text baseline (radians counter-clockwise from horizontal) */
+	int font_index; /* font index */
+	int char_height; /* character height in picture units */
 	enum JUSTIFY justify_mode; /* how text is justified */
-	int edge_visibility;    /* nonzero if edge is visible */
+	int edge_visibility; /* nonzero if edge is visible */
 	int edge_color;
 	int fill_color;
 	int interior_style;
@@ -179,11 +179,11 @@ static int cgm_user_color_count = 0;
 static int cgm_user_color_max = 0;
 static int cgm_smooth_colors = 0;
 static int * cgm_user_color_table = (int *)0;
-static int cgm_maximum_color_index = 255;       /* Size of color table we will write */
+static int cgm_maximum_color_index = 255; /* Size of color table we will write */
 
 struct fontdata {
-	char * name;            /* the name of the font */
-	double width;           /* the width of the font, relative to
+	char * name; /* the name of the font */
+	double width; /* the width of the font, relative to
 	                           Times Bold Italic.  The width
 	                           adjustment can only be approximate.
 	                           Of the standard fonts, only the
@@ -256,14 +256,14 @@ static char CGM_default_font[MAX_ID_LEN+1] = {'\0'};
 /* variables to record the options */
 static char cgm_font[32] = DEFAULT_CGMFONT;
 static uint cgm_fontsize = 12;
-static uint cgm_linewidth;  /* line width in plot units */
-static uint cgm_linewidth_pt = 1;   /* line width in pt */
-static bool cgm_monochrome = FALSE;             /* colors enabled? */
+static uint cgm_linewidth; /* line width in plot units */
+static uint cgm_linewidth_pt = 1; /* line width in pt */
+static bool cgm_monochrome = FALSE; /* colors enabled? */
 static int  cgm_plotwidth = 432; /* assumed width of plot in pt. */
-static bool cgm_portrait = FALSE;       /* portrait orientation? */
-static bool cgm_rotate = TRUE;  /* text rotation enabled? */
-static bool cgm_dashed = TRUE;  /* dashed linestyles enabled? */
-static bool cgm_nofontlist_mode = FALSE;        /* omit font list? */
+static bool cgm_portrait = FALSE; /* portrait orientation? */
+static bool cgm_rotate = TRUE; /* text rotation enabled? */
+static bool cgm_dashed = TRUE; /* dashed linestyles enabled? */
+static bool cgm_nofontlist_mode = FALSE; /* omit font list? */
 
 /* prototypes for static functions */
 static void CGM_local_reset(GpTermEntry * pThis);
@@ -694,9 +694,9 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 		CGM_write_int_record(5, 34, (cgm_user_color_count*3+1)* sizeof(cgm_user_color_table[0])/CGM_ADJ, cgm_user_color_table);
 	CGM_write_int_record(5, 2, sizeof(line_type_data) / CGM_ADJ, line_type_data); /* line type 1=SOLID */
 	cgm_linewidth = cgm_linewidth_pt * CGM_PT;
-	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth);                /* line width */
-	CGM_write_int_record(5, 28, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth);                /* edge width */
-	CGM_write_int_record(5, 27,  sizeof(line_type_data) / CGM_ADJ, line_type_data);              /* edge type 1=SOLID */
+	CGM_write_int_record(5, 3, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth); /* line width */
+	CGM_write_int_record(5, 28, sizeof(cgm_linewidth) / CGM_ADJ, (int *)&cgm_linewidth); /* edge width */
+	CGM_write_int_record(5, 27,  sizeof(line_type_data) / CGM_ADJ, line_type_data); /* edge type 1=SOLID */
 	CGM_linecolor(0);
 	cgm_current = cgm_reset;
 	cgm_next.char_height = pThis->ChrV;
@@ -767,8 +767,8 @@ TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font)
 TERM_PUBLIC void CGM_text(GpTermEntry * pThis)
 {
 	CGM_flush_polyline();
-	CGM_write_int_record(0, 5, 0, NULL);    /* end picture */
-	CGM_write_int_record(0, 2, 0, NULL);    /* end metafile */
+	CGM_write_int_record(0, 5, 0, NULL); /* end picture */
+	CGM_write_int_record(0, 2, 0, NULL); /* end metafile */
 }
 
 TERM_PUBLIC void CGM_linetype(GpTermEntry * pThis, int linetype)
@@ -1001,7 +1001,7 @@ TERM_PUBLIC void CGM_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 		cgm_current.hatch_index = cgm_next.hatch_index;
 		CGM_write_int_record(5, 24, 2, &cgm_next.hatch_index);
 	}
-	cgm_next.edge_visibility = 0;   /* We draw the borders elsewhere */
+	cgm_next.edge_visibility = 0; /* We draw the borders elsewhere */
 	if(cgm_current.edge_visibility != cgm_next.edge_visibility) {
 		cgm_current.edge_visibility = cgm_next.edge_visibility;
 		CGM_write_int_record(5, 30, 2, &cgm_current.edge_visibility);
@@ -1044,10 +1044,10 @@ static void CGM_write_char_record(int _cls, int cgm_id, int numbytes, char * dat
 		CGM_write_int(numbytes);
 	}
 	if(data)
-		fwrite(data, 1, numbytes, GPT.P_GpOutFile);   /* write string */
+		fwrite(data, 1, numbytes, GPT.P_GpOutFile); /* write string */
 	else
 		for(i = 0; i<numbytes+pad; i++)
-			fputc('\0', GPT.P_GpOutFile);         /* write null bytes */
+			fputc('\0', GPT.P_GpOutFile); /* write null bytes */
 	if(pad)
 		fwrite(&paddata, 1, 1, GPT.P_GpOutFile);
 }
@@ -1059,7 +1059,7 @@ static void CGM_write_byte_record(int _cls, int cgm_id, int numbytes, char * dat
 
 	pad = numbytes & 1;
 	CGM_write_code(_cls, cgm_id, numbytes);
-	fwrite(data, 1, numbytes, GPT.P_GpOutFile);           /* write string */
+	fwrite(data, 1, numbytes, GPT.P_GpOutFile); /* write string */
 	if(pad)
 		fwrite(&paddata, 1, 1, GPT.P_GpOutFile);
 }
@@ -1135,7 +1135,7 @@ static void CGM_write_int(int value)
 	} u;
 	assert(-32768 <= value);
 	assert(value <= 32767);
-	u.c[0] = (value >> 8) & 255;    /* convert to network order */
+	u.c[0] = (value >> 8) & 255; /* convert to network order */
 	u.c[1] = value & 255;
 	fwrite(&u.s, 1, 2, GPT.P_GpOutFile);
 }
@@ -1248,7 +1248,7 @@ showit:
 	if(cgm_current.char_height != cgm_next.char_height) {
 		int h = cgm_next.char_height;
 		cgm_current.char_height = h;
-		h = h*2/3;      /* gnuplot measures fonts by the
+		h = h*2/3; /* gnuplot measures fonts by the
 		                   baseline-to-baseline distance,
 		                   while the CGM file needs the actual
 		                   height of the upper case

@@ -248,7 +248,7 @@ amqp_pool_t * FASTCALL amqp_get_or_create_channel_pool(amqp_connection_state_t c
 int FASTCALL amqp_try_recv(amqp_connection_state_t state);
 static inline int amqp_heartbeat_send(const amqp_connection_state_t state) { return state->heartbeat; }
 static inline int amqp_heartbeat_recv(const amqp_connection_state_t state) { return 2 * state->heartbeat; }
-static inline void * amqp_offset(void * data, size_t offset)  { return PTR8(data) + offset; }
+static inline void * amqp_offset(void * data, size_t offset) { return PTR8(data) + offset; }
 //
 // This macro defines the encoding and decoding functions associated with a simple type. 
 //

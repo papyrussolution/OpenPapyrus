@@ -421,8 +421,7 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
            
     /**
   * Places value and status at key if there is no value at key or if cache
-  * entry for key is in progress. Otherwise, it leaves the current value and
-  * status there.
+  * entry for key is in progress. Otherwise, it leaves the current value and status there.
   * 
   * On entry. gCacheMutex must not be held. Value must be
   * included in the reference count of the object to which it points.
@@ -432,11 +431,7 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
   * unchanged in which case they are placed in the cache on a best-effort basis.
   * Caller must call removeRef() on value.
      */
-   void _putIfAbsentAndGet(
-           const CacheKeyBase &key,
-           const SharedObject *&value,
-           UErrorCode & status) const;
-
+   void _putIfAbsentAndGet(const CacheKeyBase &key, const SharedObject *&value, UErrorCode & status) const;
     /**
   * Returns the next element in the cache round robin style.
   * Returns nullptr if the cache is empty.

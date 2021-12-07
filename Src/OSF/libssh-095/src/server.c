@@ -568,7 +568,7 @@ static int ssh_message_channel_request_open_reply_default(ssh_message msg) {
 		msg->channel_request_open.sender,
 		SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED,
 		0,             /* reason is empty string */
-		0);            /* language string */
+		0); /* language string */
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(msg->session);
 		return SSH_ERROR;

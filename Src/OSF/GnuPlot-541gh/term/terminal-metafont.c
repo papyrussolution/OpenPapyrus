@@ -104,9 +104,9 @@ static int MF_dash_index;
 static uint MF_last_x, MF_last_y;
 
 static struct {
-	int solid;              /* Is the line solid? */
-	float thickness;        /* Thickness of pen we are going to use */
-	int dashlen[4];         /* Length of individual segments; even: line; odd: gap */
+	int solid; /* Is the line solid? */
+	float thickness; /* Thickness of pen we are going to use */
+	int dashlen[4]; /* Length of individual segments; even: line; odd: gap */
 } MF_lines[10] =
 {
 	{

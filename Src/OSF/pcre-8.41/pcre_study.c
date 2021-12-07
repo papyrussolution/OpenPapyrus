@@ -82,7 +82,7 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 	int branchlength = 0;
 	pcre_uchar * cc = (pcre_uchar*)code + 1 + LINK_SIZE;
 	if((*countptr)++ > 1000) 
-		return -1;  /* too complex */
+		return -1; /* too complex */
 	if(oneof4(*code, OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS))
 		cc += IMM2_SIZE;
 	// Scan along the opcodes for this branch. If we get to the end of the

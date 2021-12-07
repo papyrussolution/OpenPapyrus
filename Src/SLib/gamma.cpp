@@ -812,8 +812,8 @@ int exp_err_e(double x, double dx, SMathResult * result)
 static int expint_E1_impl(double x, SMathResult * result, int scale)
 {
 	int    ok = 1;
-	const  double xmaxt = -SMathConst::LogMin;   /* XMAXT = -LOG (R1MACH(1)) */
-	const  double xmax  = xmaxt - log(xmaxt);    /* XMAX = XMAXT - LOG(XMAXT) */
+	const  double xmaxt = -SMathConst::LogMin; /* XMAXT = -LOG (R1MACH(1)) */
+	const  double xmax  = xmaxt - log(xmaxt); /* XMAX = XMAXT - LOG(XMAXT) */
 	/* CHECK_POINTER(result) */
 	if(x < -xmax && !scale) {
 		ok = result->SetOverflow();
@@ -1668,7 +1668,7 @@ static int gamma_inc_F_CF(double a, double x, SMathResult * result)
 {
 	int    ok = -1;
 	const  double _small = fpowi(SMathConst::Epsilon, 3);
-  	double hn = 1.0;           /* convergent */
+  	double hn = 1.0; /* convergent */
 	double Cn = 1.0 / _small;
 	double Dn = 1.0;
   	/*
@@ -1738,14 +1738,14 @@ static int gamma_inc_Q_CF(double a, double x, SMathResult * result)
 static int gamma_inc_Q_series(double a, double x, SMathResult * result)
 {
 	int    ok = -1;
-	double term1;  /* 1 - x^a/Gamma(a+1) */
-	double sum;    /* 1 + (a+1)/(a+2)(-x)/2! + (a+1)/(a+3)(-x)^2/3! + ... */
-	double term2;  /* a temporary variable used at the end */
+	double term1; /* 1 - x^a/Gamma(a+1) */
+	double sum; /* 1 + (a+1)/(a+2)(-x)/2! + (a+1)/(a+3)(-x)^2/3! + ... */
+	double term2; /* a temporary variable used at the end */
 	{
 		/*
 			Evaluate series for 1 - x^a/Gamma(a+1), small a
 		*/
-		const double pg21 = -2.404113806319188570799476;  /* PolyGamma[2,1] */
+		const double pg21 = -2.404113806319188570799476; /* PolyGamma[2,1] */
 		const double lnx  = log(x);
 		const double el   = SMathConst::Euler+lnx;
 		const double c1 = -el;

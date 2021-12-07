@@ -35,7 +35,7 @@ struct st_mysql_time;
 typedef struct st_mysql_time MYSQL_TIME;
 
 #define THROW_D(expr,val)      {if(!(expr)){DBS.SetError(val);goto __scatch;}}
-#define THROW_D_S(expr,val,s)  {if(!(expr)){DBS.SetError(val, s);goto __scatch;}}
+#define THROW_D_S(expr,val,s) {if(!(expr)){DBS.SetError(val, s);goto __scatch;}}
 #define THROW_DS(expr) {if(!(expr)){DBS.SetError(BE_SLIB, 0);goto __scatch;}}
 
 #ifndef _WIN32_WCE // {
@@ -2999,27 +2999,27 @@ struct PVDATETIME {
 };
 
 struct PVFILEINFO {
-	uchar  openMode;            /* open mode */
-	uchar  locksFlag;           /* TRUE if locked */
-	uchar  transFlag;           /* TRUE if in transaction mode */
-	uchar  tTSFlag;             /*  */
-	uchar  readOnly;            /* TRUE if opened for read-only access */
-	uchar  continuousOpsFlag;   /*  */
+	uchar  openMode; /* open mode */
+	uchar  locksFlag; /* TRUE if locked */
+	uchar  transFlag; /* TRUE if in transaction mode */
+	uchar  tTSFlag; /*  */
+	uchar  readOnly; /* TRUE if opened for read-only access */
+	uchar  continuousOpsFlag; /*  */
 	uchar  referentialIntgFlag; /*  */
-	ulong  aFLIndex;            /*  */
-	ulong  activeCursors;       /*  */
-	ulong  pageSize;            /* page size in bytes */
-	PVDATETIME openTimeStamp;  /* time when the file was open */
+	ulong  aFLIndex; /*  */
+	ulong  activeCursors; /*  */
+	ulong  pageSize; /* page size in bytes */
+	PVDATETIME openTimeStamp; /* time when the file was open */
 	uchar  Reserve;
 };
 
 struct PVFILEHDLINFO {
-	ulong   clientIndex;         /*  */
-	uchar   openMode;            /* open mode */
-	uchar   locksFlag;           /* TRUE if the file is locked */
-	uchar   waitFlag;            /* TRUE if in waiting mode */
-	ushort  transState;          /* transaction state */
-	char    userName[P_MAX_NAME_SIZE];    /* user who owns this handle */
+	ulong   clientIndex; /*  */
+	uchar   openMode; /* open mode */
+	uchar   locksFlag; /* TRUE if the file is locked */
+	uchar   waitFlag; /* TRUE if in waiting mode */
+	ushort  transState; /* transaction state */
+	char    userName[P_MAX_NAME_SIZE]; /* user who owns this handle */
 };
 
 typedef int (*PT_PvGetFileInfo)(long hConnection, char * pFileName, PVFILEINFO * pInfo);

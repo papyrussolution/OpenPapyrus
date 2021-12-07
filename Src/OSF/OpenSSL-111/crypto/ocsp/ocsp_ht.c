@@ -20,11 +20,11 @@
 /* Opaque OCSP request status structure */
 
 struct ocsp_req_ctx_st {
-	int state;              /* Current I/O state */
-	uchar * iobuf;  /* Line buffer */
-	int iobuflen;           /* Line buffer length */
-	BIO * io;               /* BIO to perform I/O with */
-	BIO * mem;              /* Memory BIO response is built into */
+	int state; /* Current I/O state */
+	uchar * iobuf; /* Line buffer */
+	int iobuflen; /* Line buffer length */
+	BIO * io; /* BIO to perform I/O with */
+	BIO * mem; /* Memory BIO response is built into */
 	ulong asn1_len; /* ASN1 length of response */
 	ulong max_resp_len; /* Maximum length of response */
 };

@@ -40,7 +40,7 @@
 
 #if defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
 /* even with gcc, the typedef won't work for 32-bit platforms */
-typedef __uint128_t uint128_t;  /* nonstandard; implemented by gcc on 64-bit
+typedef __uint128_t uint128_t; /* nonstandard; implemented by gcc on 64-bit
                                  * platforms */
 #else
 #error "Your compiler doesn't appear to support 128-bit integer types"
@@ -1121,7 +1121,7 @@ static void batch_mul(felem x_out, felem y_out, felem z_out,
 	 * of the generator (two in each of the last 28 rounds) and additions of
 	 * other points multiples (every 5th round).
 	 */
-	skip = 1;               /* save two point operations in the first
+	skip = 1; /* save two point operations in the first
 	                         * round */
 	for(i = (num_points ? 220 : 27); i >= 0; --i) {
 		/* double */

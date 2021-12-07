@@ -558,7 +558,7 @@ int ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::Rec * p
 		return PPDbSearchError();
 }
 
-IMPL_CMPFUNC(Receipt_DtOprNo_Asc, i1, i2)  { RET_CMPCASCADE2(static_cast<const ReceiptTbl::Rec *>(i1), static_cast<const ReceiptTbl::Rec *>(i2), Dt, OprNo); }
+IMPL_CMPFUNC(Receipt_DtOprNo_Asc, i1, i2) { RET_CMPCASCADE2(static_cast<const ReceiptTbl::Rec *>(i1), static_cast<const ReceiptTbl::Rec *>(i2), Dt, OprNo); }
 IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2) { RET_CMPCASCADE2(static_cast<const ReceiptTbl::Rec *>(i2), static_cast<const ReceiptTbl::Rec *>(i1), Dt, OprNo); }
 
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)

@@ -56,7 +56,7 @@ struct v3_ext_method {
 /* The following are used for raw extensions */
 	X509V3_EXT_I2R i2r;
 	X509V3_EXT_R2I r2i;
-	void * usr_data;        /* Any extension specific data */
+	void * usr_data; /* Any extension specific data */
 };
 
 typedef struct X509V3_CONF_METHOD_st {
@@ -382,7 +382,7 @@ struct ISSUING_DIST_POINT_st {
 
 typedef struct x509_purpose_st {
 	int purpose;
-	int trust;              /* Default trust ID */
+	int trust; /* Default trust ID */
 	int flags;
 	int (* check_purpose)(const struct x509_purpose_st *, const X509 *, int);
 	char * name;

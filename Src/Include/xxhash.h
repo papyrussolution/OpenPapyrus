@@ -178,7 +178,7 @@ XXH_PUBLIC_API XXH32_hash_t XXH32(const void * input, size_t length, unsigned in
 // 
 // Streaming
 // 
-typedef struct XXH32_state_s XXH32_state_t;   /* incomplete type */
+typedef struct XXH32_state_s XXH32_state_t; /* incomplete type */
 XXH_PUBLIC_API XXH32_state_t* XXH32_createState(void);
 XXH_PUBLIC_API XXH_errorcode  XXH32_freeState(XXH32_state_t* statePtr);
 XXH_PUBLIC_API void XXH32_copyState(XXH32_state_t* dst_state, const XXH32_state_t* src_state);
@@ -236,7 +236,7 @@ XXH_PUBLIC_API XXH64_hash_t XXH64(const void * input, size_t length, unsigned lo
 //
 // Streaming
 //
-typedef struct XXH64_state_s XXH64_state_t;   /* incomplete type */
+typedef struct XXH64_state_s XXH64_state_t; /* incomplete type */
 XXH_PUBLIC_API XXH64_state_t* XXH64_createState(void);
 XXH_PUBLIC_API XXH_errorcode  XXH64_freeState(XXH64_state_t* statePtr);
 XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dst_state, const XXH64_state_t* src_state);
@@ -274,8 +274,8 @@ struct XXH32_state_s {
 	XXH32_hash_t v4;
 	XXH32_hash_t mem32[4];
 	XXH32_hash_t memsize;
-	XXH32_hash_t reserved;   /* never read nor write, might be removed in a future version */
-};   /* typedef'd to XXH32_state_t */
+	XXH32_hash_t reserved; /* never read nor write, might be removed in a future version */
+}; /* typedef'd to XXH32_state_t */
 
 #ifndef XXH_NO_LONG_LONG  /* remove 64-bit support */
 	struct XXH64_state_s {
@@ -286,9 +286,9 @@ struct XXH32_state_s {
 		XXH64_hash_t v4;
 		XXH64_hash_t mem64[4];
 		XXH32_hash_t memsize;
-		XXH32_hash_t reserved32;  /* required for padding anyway */
-		XXH64_hash_t reserved64;  /* never read nor write, might be removed in a future version */
-	};   /* typedef'd to XXH64_state_t */
+		XXH32_hash_t reserved32; /* required for padding anyway */
+		XXH64_hash_t reserved64; /* never read nor write, might be removed in a future version */
+	}; /* typedef'd to XXH64_state_t */
 #endif   /* XXH_NO_LONG_LONG */
 // 
 // XXH3
@@ -397,7 +397,7 @@ typedef struct XXH3_state_s XXH3_state_t;
 #define XXH3_INTERNALBUFFER_SIZE 256
 struct XXH3_state_s {
 	XXH_ALIGN(64) XXH64_hash_t acc[8];
-	XXH_ALIGN(64) char customSecret[XXH3_SECRET_DEFAULT_SIZE];  /* used to store a custom secret generated from the seed. Makes state larger. Design might change */
+	XXH_ALIGN(64) char customSecret[XXH3_SECRET_DEFAULT_SIZE]; /* used to store a custom secret generated from the seed. Makes state larger. Design might change */
 	XXH_ALIGN(64) char buffer[XXH3_INTERNALBUFFER_SIZE];
 	XXH32_hash_t bufferedSize;
 	XXH32_hash_t nbStripesPerBlock;
@@ -408,8 +408,8 @@ struct XXH3_state_s {
 	XXH64_hash_t totalLen;
 	XXH64_hash_t seed;
 	XXH64_hash_t reserved64;
-	const void * secret;    /* note : there is some padding after, due to alignment on 64 bytes */
-};   /* typedef'd to XXH3_state_t */
+	const void * secret; /* note : there is some padding after, due to alignment on 64 bytes */
+}; /* typedef'd to XXH3_state_t */
 
 /* Streaming requires state maintenance.
  * This operation costs memory and cpu.

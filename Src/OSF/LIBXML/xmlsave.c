@@ -109,7 +109,7 @@ struct xmlSaveCtxt {
 	int    options;
 	int    level;
 	int    format;
-	char   indent[MAX_INDENT + 1];    /* array for indenting output */
+	char   indent[MAX_INDENT + 1]; /* array for indenting output */
 	int    indent_nr;
 	int    indent_size;
 	xmlCharEncodingOutputFunc escape; /* used for element content */
@@ -2325,7 +2325,7 @@ int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding)
 int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format)
 {
 	int    ret = -1;
-	if(buf)  {
+	if(buf) {
 		if(!cur || !oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			xmlOutputBufferClose(buf);
 		}

@@ -734,7 +734,7 @@ U_CAPI int32_t U_EXPORT2 usearch_getOffset(const UStringSearch * strsrch)
 U_CAPI void U_EXPORT2 usearch_setAttribute(UStringSearch        * strsrch,
     USearchAttribute attribute,
     USearchAttributeValue value,
-    UErrorCode           * status)
+    UErrorCode * status)
 {
 	if(U_SUCCESS(*status) && strsrch) {
 		switch(attribute)

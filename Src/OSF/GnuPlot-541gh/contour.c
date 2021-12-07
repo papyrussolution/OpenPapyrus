@@ -312,7 +312,7 @@ GnuPlot::ContourNode * GnuPlot::TraceContour(EdgeNode * pe_start/* edge to start
 	EdgeNode * p_next_edge;
 	PolyNode * p_poly, * PLastpoly = NULL;
 	int i;
-	EdgeNode * p_edge = pe_start;      /* first edge to start contour */
+	EdgeNode * p_edge = pe_start; /* first edge to start contour */
 	// Generate the header of the contour - the point on pe_start. 
 	if(!contr_isclosed) {
 		pe_start->is_active = FALSE;
@@ -385,7 +385,7 @@ GnuPlot::ContourNode * GnuPlot::UpdateCntrPt(EdgeNode * p_edge, double z_level)
 //static int fuzzy_equal(const ContourNode * pCntr1, const ContourNode * pCntr2)
 int GnuPlot::FuzzyEqual(const ContourNode * pCntr1, const ContourNode * pCntr2) const
 {
-	double unit_x = fabs(_Cntr.Max.x - _Cntr.Min.x);           /* reference */
+	double unit_x = fabs(_Cntr.Max.x - _Cntr.Min.x); /* reference */
 	double unit_y = fabs(_Cntr.Max.y - _Cntr.Min.y);
 	return ((fabs(pCntr1->x - pCntr2->x) < unit_x * EPSILON) && (fabs(pCntr1->y - pCntr2->y) < unit_y * EPSILON));
 }
@@ -410,14 +410,14 @@ void GnuPlot::GenTriangle(int num_isolines/* number of iso-lines input */, iso_c
 	PolyNode * pp_tail;
 	GpCoordinate * p_vrtx1;
 	GpCoordinate * p_vrtx2;
-	(*p_polys) = pp_tail = NULL;    /* clear lists */
+	(*p_polys) = pp_tail = NULL; /* clear lists */
 	(*p_edges) = pe_tail = NULL;
-	p_vrtx1 = iso_lines->points;    /* first row of vertices */
+	p_vrtx1 = iso_lines->points; /* first row of vertices */
 	p_edge1 = pe_tail = NULL; /* clear list of edges */
 	// Generate edges of first row 
 	for(j = 0; j < grid_x_max - 1; j++)
 		AddEdge(p_vrtx1 + j, p_vrtx1 + j + 1, &p_edge1, &pe_tail);
-	(*p_edges) = p_edge1;   /* update main list */
+	(*p_edges) = p_edge1; /* update main list */
 	/*
 	 * Combines vertices to edges and edges to triangles:
 	 * ==================================================
@@ -538,7 +538,7 @@ GnuPlot::EdgeNode * GnuPlot::AddEdge(GpCoordinate * point0,  /* 2 vertices input
 		}
 		(*pe_tail) = pe_temp; /* continue to last record. */
 	}
-	return pe_temp;         /* returns NULL, if no edge allocated */
+	return pe_temp; /* returns NULL, if no edge allocated */
 }
 // 
 // Generate new triangle and append it to list, but only if all edges are defined.
@@ -576,7 +576,7 @@ GnuPlot::PolyNode * GnuPlot::AddPoly(EdgeNode * edge0, EdgeNode * edge1, EdgeNod
 			(*p_poly) = pp_temp; /* start new list if empty */
 		(*pp_tail) = pp_temp; /* continue to last record. */
 	}
-	return pp_temp;         /* returns NULL, if no edge allocated */
+	return pp_temp; /* returns NULL, if no edge allocated */
 }
 //
 // Calls the (hopefully) desired interpolation/approximation routine.
@@ -693,7 +693,7 @@ void GnuPlot::PutContourCubic(ContourNode * p_cntr, double xx_min, double xx_max
 		}
 		{
 			// Calculate "num_intpol" interpolated values 
-			int num_intpol = 1 + (num_pts - 1) * _Cntr.ContourPts;   /* global: ContourPts */
+			int num_intpol = 1 + (num_pts - 1) * _Cntr.ContourPts; /* global: ContourPts */
 			IntpCubicSpline(num_pts, p_cntr, d2x, d2y, delta_t, num_intpol);
 			SAlloc::F(delta_t);
 			SAlloc::F(d2x);
@@ -770,12 +770,12 @@ static int solve_cubic_1(tri_diag m[], int n)
 	int i;
 	double m_ij, m_n, m_nn, d;
 	if(n < 1)
-		return FALSE;   /* Dimension should be at least 1 */
-	d = m[0][1];            /* D_{0,0} = M_{0,0} */
+		return FALSE; /* Dimension should be at least 1 */
+	d = m[0][1]; /* D_{0,0} = M_{0,0} */
 	if(d <= 0.)
-		return FALSE;   /* M (or D) should be positive definite */
-	m_n = m[0][0];          /*  M_{0,n-1}  */
-	m_nn = m[n-1][1];     /* M_{n-1,n-1} */
+		return FALSE; /* M (or D) should be positive definite */
+	m_n = m[0][0]; /*  M_{0,n-1}  */
+	m_nn = m[n-1][1]; /* M_{n-1,n-1} */
 	for(i = 0; i < n - 2; i++) {
 		m_ij = m[i][2]; /*  M_{i,1}  */
 		m[i][2] = m_ij / d; /* C_{i,i+1} */
@@ -861,7 +861,7 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 	// 
 	// Setup linear system:  m * x = b
 	// 
-	n = num_pts - 2;        /* Without first and last point */
+	n = num_pts - 2; /* Without first and last point */
 	if(contr_isclosed) {
 		// First and last points must be equal for closed contours 
 		delta_t[num_pts-1] = delta_t[0];
@@ -1033,7 +1033,7 @@ void GnuPlot::GenBSplineApprox(ContourNode * p_cntr, int num_of_points, int orde
 			knot_index++;
 			next_t += 1.0;
 		}
-		EvalBSpline(t, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);    /* Next pt. */
+		EvalBSpline(t, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y); /* Next pt. */
 		AddCntrPoint(x, y);
 		pts_count++;
 		// As we might have some real number round off problems we do      
@@ -1044,7 +1044,7 @@ void GnuPlot::GenBSplineApprox(ContourNode * p_cntr, int num_of_points, int orde
 	}
 	// Now do the last point 
 	EvalBSpline(t_max - EPSILON, pc_temp, num_of_points, order, knot_index, contr_isclosed, &x, &y);
-	AddCntrPoint(x, y);   /* Complete the contour. */
+	AddCntrPoint(x, y); /* Complete the contour. */
 	if(contr_isclosed) /* Update list - un-circular it. */
 		pc_tail->next = NULL;
 }

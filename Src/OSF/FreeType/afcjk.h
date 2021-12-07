@@ -76,10 +76,10 @@ FT_BEGIN_HEADER
     FT_Pos         delta;
 
     FT_UInt        width_count;                   /* number of used widths */
-    AF_WidthRec    widths[AF_CJK_MAX_WIDTHS];     /* widths array    */
-    FT_Pos         edge_distance_threshold;     /* used for creating edges */
-    FT_Pos         standard_width;           /* the default stem thickness */
-    FT_Bool        extra_light;           /* is standard width very light? */
+    AF_WidthRec    widths[AF_CJK_MAX_WIDTHS]; /* widths array    */
+    FT_Pos         edge_distance_threshold; /* used for creating edges */
+    FT_Pos         standard_width; /* the default stem thickness */
+    FT_Bool        extra_light; /* is standard width very light? */
 
     /* used for horizontal metrics too for CJK */
     FT_Bool        control_overshoot;

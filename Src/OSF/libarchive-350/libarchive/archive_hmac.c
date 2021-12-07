@@ -170,7 +170,7 @@ static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
 
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
-	(void)out_len;  /* UNUSED */
+	(void)out_len; /* UNUSED */
 
 	mbedtls_md_hmac_finish(ctx, out);
 }

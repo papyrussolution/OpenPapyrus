@@ -398,7 +398,7 @@ end:
 		}
 	}
 	response = ctx->response;
-	ctx->response = NULL;   /* Ownership will be returned to caller. */
+	ctx->response = NULL; /* Ownership will be returned to caller. */
 	ts_RESP_CTX_cleanup(ctx);
 	return response;
 }
@@ -611,7 +611,7 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 	int ret = 0;
 	PKCS7 * p7 = NULL;
 	PKCS7_SIGNER_INFO * si;
-	STACK_OF(X509) *certs;  /* Certificates to include in sc. */
+	STACK_OF(X509) *certs; /* Certificates to include in sc. */
 	ESS_SIGNING_CERT_V2 * sc2 = NULL;
 	ESS_SIGNING_CERT * sc = NULL;
 	ASN1_OBJECT * oid;
@@ -693,8 +693,8 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 		goto err;
 	}
 	TS_RESP_set_tst_info(ctx->response, p7, ctx->tst_info);
-	p7 = NULL;              /* Ownership is lost. */
-	ctx->tst_info = NULL;   /* Ownership is lost. */
+	p7 = NULL; /* Ownership is lost. */
+	ctx->tst_info = NULL; /* Ownership is lost. */
 
 	ret = 1;
 err:
@@ -765,7 +765,7 @@ static ESS_CERT_ID * ess_CERT_ID_new_init(X509 * cert, int issuer_needed)
 			goto err;
 		if(!sk_GENERAL_NAME_push(cid->issuer_serial->issuer, name))
 			goto err;
-		name = NULL;    /* Ownership is lost. */
+		name = NULL; /* Ownership is lost. */
 		ASN1_INTEGER_free(cid->issuer_serial->serial);
 		if(!(cid->issuer_serial->serial =
 		    ASN1_INTEGER_dup(X509_get_serialNumber(cert))))
@@ -911,7 +911,7 @@ static ESS_CERT_ID_V2 * ess_cert_id_v2_new_init(const EVP_MD * hash_alg, X509 * 
 			goto err;
 		if(!sk_GENERAL_NAME_push(cid->issuer_serial->issuer, name))
 			goto err;
-		name = NULL;    /* Ownership is lost. */
+		name = NULL; /* Ownership is lost. */
 		ASN1_INTEGER_free(cid->issuer_serial->serial);
 		cid->issuer_serial->serial =
 		    ASN1_INTEGER_dup(X509_get_serialNumber(cert));

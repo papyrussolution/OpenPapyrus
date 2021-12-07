@@ -213,9 +213,9 @@ FT_BEGIN_HEADER
     FT_UInt            flags;
     FT_Int             standard_advance;
 
-    FT_Int             ascent;   /* optional, bbox.yMax if not present */
-    FT_Int             descent;  /* optional, bbox.yMin if not present */
-    FT_Int             leading;  /* optional, 0 if not present   */
+    FT_Int             ascent; /* optional, bbox.yMax if not present */
+    FT_Int             descent; /* optional, bbox.yMin if not present */
+    FT_Int             leading; /* optional, 0 if not present   */
 
     PFR_DimensionRec   horizontal;
     PFR_DimensionRec   vertical;

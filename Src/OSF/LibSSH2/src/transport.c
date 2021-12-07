@@ -117,7 +117,7 @@ static int decrypt(LIBSSH2_SESSION * session, uchar * source, uchar * dest, int 
 		dest += blocksize; /* advance write pointer */
 		source += blocksize; /* advance read pointer */
 	}
-	return LIBSSH2_ERROR_NONE;     /* all is fine */
+	return LIBSSH2_ERROR_NONE; /* all is fine */
 }
 
 /*
@@ -480,7 +480,7 @@ libssh2_transport_read_point1:
 			p->total_num = 0; /* no packet buffer available */
 			return rc;
 		}
-	} while(1);             /* loop */
+	} while(1); /* loop */
 	return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
@@ -503,7 +503,7 @@ static int send_existing(LIBSSH2_SESSION * session, const uchar * data, size_t d
 		return LIBSSH2_ERROR_BAD_USE;
 	}
 
-	*ret = 1;               /* set to make our parent return */
+	*ret = 1; /* set to make our parent return */
 
 	/* number of bytes left to send */
 	length = p->ototal_num - p->osent;
@@ -536,7 +536,7 @@ static int send_existing(LIBSSH2_SESSION * session, const uchar * data, size_t d
 		return LIBSSH2_ERROR_EAGAIN;
 	}
 
-	p->osent += rc;     /* we sent away this much data */
+	p->osent += rc; /* we sent away this much data */
 
 	return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
 }
@@ -567,7 +567,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION * session, const uchar * data, size_
 	int total_length;
 #ifdef RANDOM_PADDING
 	int rand_max;
-	int seed = data[0];     /* FIXME: make this random */
+	int seed = data[0]; /* FIXME: make this random */
 #endif
 	struct transportpacket * p = &session->packet;
 	int encrypted;
@@ -612,7 +612,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION * session, const uchar * data, size_
 		/* compress directly to the target buffer */
 		rc = session->local.comp->comp(session, &p->outbuf[5], &dest_len, data, data_len, &session->local.comp_abstract);
 		if(rc)
-			return rc;  /* compression failure */
+			return rc; /* compression failure */
 		if(data2 && data2_len) {
 			/* compress directly to the target buffer right after where the
 			   previous call put data */
@@ -622,7 +622,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION * session, const uchar * data, size_
 		else
 			dest2_len = 0;
 		if(rc)
-			return rc;  /* compression failure */
+			return rc; /* compression failure */
 		data_len = dest_len + dest2_len; /* use the combined length */
 	}
 	else {
@@ -683,7 +683,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION * session, const uchar * data, size_
 		for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
 			uchar * ptr = &p->outbuf[i];
 			if(session->local.crypt->crypt(session, ptr, session->local.crypt->blocksize, &session->local.crypt_abstract))
-				return LIBSSH2_ERROR_ENCRYPT;  /* encryption failure */
+				return LIBSSH2_ERROR_ENCRYPT; /* encryption failure */
 		}
 	}
 	session->local.seqno++;
@@ -709,5 +709,5 @@ int _libssh2_transport_send(LIBSSH2_SESSION * session, const uchar * data, size_
 	/* the whole thing got sent away */
 	p->odata = NULL;
 	p->olen = 0;
-	return LIBSSH2_ERROR_NONE;     /* all is good */
+	return LIBSSH2_ERROR_NONE; /* all is good */
 }

@@ -1297,7 +1297,7 @@ void GnuPlot::FitCommand()
 		_Fit.fit_dummy_udvs[i] = Ev.AddUdvByName(_Pb.c_dummy_var[i]);
 	}
 	memzero(_Pb.fit_dummy_var, sizeof(_Pb.fit_dummy_var));
-	_Fit.func.at = PermAt();    /* parse expression and save action table */
+	_Fit.func.at = PermAt(); /* parse expression and save action table */
 	Pgm.dummy_func = NULL;
 	token2 = Pgm.GetCurTokenIdx();
 	// get filename 
@@ -1704,7 +1704,7 @@ out_of_range:
 			Eex2("could not read parameter-file \"%s\"", viafile);
 		if(!_Fit.fit_suppress_log)
 			fprintf(_Fit.log_f, "fitted parameters and initial values from file: %s\n\n", viafile);
-		SAlloc::F(viafile);          /* Free previous name, if any */
+		SAlloc::F(viafile); /* Free previous name, if any */
 		// get parameters and values out of file and ignore fixed ones 
 		while(TRUE) {
 			if(!fgets(s = sstr, sizeof(sstr), _Fit.via_f)) // EOF found 

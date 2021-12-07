@@ -29,32 +29,32 @@ typedef xmlXIncludeRef * xmlXIncludeRefPtr;
 struct _xmlXIncludeRef {
 	xmlChar * URI; /* the fully resolved resource URL */
 	xmlChar * fragment; /* the fragment in the URI */
-	xmlDoc * doc;         /* the parsed document */
-	xmlNode * ref;        /* the node making the reference in the source */
-	xmlNode * inc;        /* the included copy */
-	int xml;               /* xml or txt */
-	int count;             /* how many refs use that specific doc */
+	xmlDoc * doc; /* the parsed document */
+	xmlNode * ref; /* the node making the reference in the source */
+	xmlNode * inc; /* the included copy */
+	int xml; /* xml or txt */
+	int count; /* how many refs use that specific doc */
 	xmlXPathObject * xptr; /* the xpointer if needed */
-	int emptyFb;           /* flag to show fallback empty */
+	int emptyFb; /* flag to show fallback empty */
 };
 
 struct _xmlXIncludeCtxt {
-	xmlDoc * doc;         /* the source document */
-	int incBase;           /* the first include for this document */
-	int incNr;             /* number of includes */
-	int incMax;            /* size of includes tab */
+	xmlDoc * doc; /* the source document */
+	int incBase; /* the first include for this document */
+	int incNr; /* number of includes */
+	int incMax; /* size of includes tab */
 	xmlXIncludeRefPtr * incTab; /* array of included references */
-	int txtNr;             /* number of unparsed documents */
-	int txtMax;            /* size of unparsed documents tab */
+	int txtNr; /* number of unparsed documents */
+	int txtMax; /* size of unparsed documents tab */
 	xmlNode ** txtTab; /* array of unparsed text nodes */
 	xmlURL * txturlTab; /* array of unparsed text URLs */
 	xmlChar * url; /* the current URL processed */
-	int urlNr;             /* number of URLs stacked */
-	int urlMax;            /* size of URL stack */
-	xmlChar ** urlTab;     /* URL stack */
-	int nbErrors;          /* the number of errors detected */
-	int legacy;            /* using XINCLUDE_OLD_NS */
-	int parseFlags;        /* the flags used for parsing XML documents */
+	int urlNr; /* number of URLs stacked */
+	int urlMax; /* size of URL stack */
+	xmlChar ** urlTab; /* URL stack */
+	int nbErrors; /* the number of errors detected */
+	int legacy; /* using XINCLUDE_OLD_NS */
+	int parseFlags; /* the flags used for parsing XML documents */
 	xmlChar * base; /* the current xml:base */
 	void * _private; /* application data */
 };
@@ -1699,7 +1699,7 @@ static int xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNode * fallback, 
 		if(ctxt->nbErrors > 0)
 			ret = -1;
 		else if(ret > 0)
-			ret = 0;  /* xmlXIncludeDoProcess can return +ve number */
+			ret = 0; /* xmlXIncludeDoProcess can return +ve number */
 		xmlXIncludeFreeContext(newctxt);
 		ctxt->incTab[nr]->inc = xmlDocCopyNodeList(ctxt->doc, fallback->children);
 	}
@@ -2039,7 +2039,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode *
 			do {
 				cur = cur->P_ParentNode;
 				if(!cur || cur == tree->P_ParentNode)
-					break;  /* do */
+					break; /* do */
 				if(cur->next) {
 					cur = cur->next;
 					if(xmlXIncludeTestNode(ctxt, cur))

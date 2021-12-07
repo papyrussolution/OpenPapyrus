@@ -27,11 +27,11 @@ struct xmlDebugCtxt {
 	int    depth;      // current depth 
 	xmlDoc  * doc;     // current document
 	xmlNode * P_Node;  // current node 
-	xmlDict * dict;        /* the doc dictionnary */
-	int    check;              /* do just checkings */
-	int    errors;             /* number of errors found */
-	int    nodict;             /* if the document has no dictionnary */
-	int    options;            /* options */
+	xmlDict * dict; /* the doc dictionnary */
+	int    check; /* do just checkings */
+	int    errors; /* number of errors found */
+	int    nodict; /* if the document has no dictionnary */
+	int    options; /* options */
 };
 
 static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * pNode);
@@ -1287,7 +1287,7 @@ int xmlLsCountNode(xmlNode * pNode)
  */
 void FASTCALL xmlLsOneNode(FILE * output, xmlNode * pNode) 
 {
-	if(output)  {
+	if(output) {
 		if(!pNode) {
 			fprintf(output, "NULL\n");
 			return;

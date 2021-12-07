@@ -90,11 +90,11 @@ FT_BEGIN_HEADER
     FT_Fixed         scale;
     FT_Pos           delta;
 
-    FT_UInt          width_count;                 /* number of used widths */
+    FT_UInt          width_count; /* number of used widths */
     AF_WidthRec      widths[AF_LATIN_MAX_WIDTHS]; /* widths array    */
-    FT_Pos           edge_distance_threshold;   /* used for creating edges */
-    FT_Pos           standard_width;         /* the default stem thickness */
-    FT_Bool          extra_light;         /* is standard width very light? */
+    FT_Pos           edge_distance_threshold; /* used for creating edges */
+    FT_Pos           standard_width; /* the default stem thickness */
+    FT_Bool          extra_light; /* is standard width very light? */
 
     /* ignored for horizontal metrics */
     FT_UInt          blue_count;

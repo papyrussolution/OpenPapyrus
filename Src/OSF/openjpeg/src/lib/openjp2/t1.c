@@ -2225,7 +2225,7 @@ OPJ_BOOL opj_t1_encode_cblks(opj_tcd_t* tcd,
 	OPJ_UINT32 compno, resno, bandno, precno, cblkno;
 	opj_mutex_t* mutex = opj_mutex_create();
 
-	tile->distotile = 0;    /* fixed_quality */
+	tile->distotile = 0; /* fixed_quality */
 
 	for(compno = 0; compno < tile->numcomps; ++compno) {
 		opj_tcd_tilecomp_t* tilec = &tile->comps[compno];

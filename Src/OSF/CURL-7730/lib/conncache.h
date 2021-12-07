@@ -63,7 +63,7 @@ struct conncache {
 #endif
 
 struct connectbundle {
-	int multiuse;           /* supports multi-use */
+	int multiuse; /* supports multi-use */
 	size_t num_connections; /* Number of connections in the bundle */
 	struct Curl_llist conn_list; /* The connectdata members of the bundle */
 };

@@ -202,7 +202,7 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 			if(diff > 0) {
 				return UCOL_GREATER;
 			}
-			else if(diff < 0)  {
+			else if(diff < 0) {
 				return UCOL_LESS;
 			}
 		}

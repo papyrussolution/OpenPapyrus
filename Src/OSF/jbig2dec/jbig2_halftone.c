@@ -121,7 +121,7 @@ static Jbig2PatternDict * jbig2_decode_pattern_dict(Jbig2Ctx * ctx, Jbig2Segment
 	/* fill out the generic region decoder parameters */
 	rparams.MMR = params->HDMMR;
 	rparams.GBTEMPLATE = params->HDTEMPLATE;
-	rparams.TPGDON = 0;     /* not used if HDMMR = 1 */
+	rparams.TPGDON = 0; /* not used if HDMMR = 1 */
 	rparams.USESKIP = 0;
 	rparams.gbat[0] = -(int8_t)params->HDPW;
 	rparams.gbat[1] = 0;

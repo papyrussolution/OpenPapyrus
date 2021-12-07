@@ -127,7 +127,7 @@ protected:
 		HBUINT16 feature; /* Feature type. */
 		HBUINT16 nSettings; /* The number of records in the setting name array. */
 		LNNOffsetTo<UnsizedArrayOf<SettingName>>
-		settingTableZ;  /* Offset in bytes from the beginning of this table to
+		settingTableZ; /* Offset in bytes from the beginning of this table to
 		 * this feature's setting name array. The actual type of
 		 * record this offset refers to will depend on the
 		 * exclusivity value, as described below. */
@@ -176,7 +176,7 @@ protected:
 		HBUINT16 reserved1; /* Reserved (set to zero). */
 		HBUINT32 reserved2; /* Reserved (set to zero). */
 		SortedUnsizedArrayOf<FeatureName>
-		namesZ;         /* The feature name array. */
+		namesZ; /* The feature name array. */
 public:
 		DEFINE_SIZE_ARRAY(12, namesZ);
 	};

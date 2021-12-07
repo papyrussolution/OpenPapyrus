@@ -45,12 +45,12 @@ using namespace icu;
 struct UPlugData {
 	UPlugEntrypoint  * entrypoint;/**< plugin entrypoint */
 	uint32_t structSize; /**< initialized to the size of this structure */
-	uint32_t token;   /**< must be U_PLUG_TOKEN */
-	void * lib;       /**< plugin library, or NULL */
+	uint32_t token; /**< must be U_PLUG_TOKEN */
+	void * lib; /**< plugin library, or NULL */
 	char libName[UPLUG_NAME_MAX]; /**< library name */
-	char sym[UPLUG_NAME_MAX];  /**< plugin symbol, or NULL */
+	char sym[UPLUG_NAME_MAX]; /**< plugin symbol, or NULL */
 	char config[UPLUG_NAME_MAX]; /**< configuration data */
-	void * context;   /**< user context data */
+	void * context; /**< user context data */
 	char name[UPLUG_NAME_MAX]; /**< name of plugin */
 	UPlugLevel level; /**< level of plugin */
 	bool awaitingLoad; /**< TRUE if the plugin is awaiting a load call */
@@ -97,7 +97,7 @@ struct UPlugLibrary;
 typedef struct UPlugLibrary {
 	void * lib;                    /**< library ptr */
 	char name[UPLUG_NAME_MAX]; /**< library name */
-	uint32_t ref;                  /**< reference count */
+	uint32_t ref; /**< reference count */
 } UPlugLibrary;
 
 static UPlugLibrary staticLibraryList[UPLUG_LIBRARY_INITIAL_COUNT];
@@ -403,7 +403,7 @@ static void uplug_doUnloadPlug(UPlugData * plugToRemove, UErrorCode * status) {
 	}
 }
 
-U_CAPI void U_EXPORT2 uplug_removePlug(UPlugData * plug, UErrorCode * status)  {
+U_CAPI void U_EXPORT2 uplug_removePlug(UPlugData * plug, UErrorCode * status) {
 	UPlugData * cursor = NULL;
 	UPlugData * plugToRemove = NULL;
 	if(U_FAILURE(*status)) return;

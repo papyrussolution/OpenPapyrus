@@ -174,7 +174,7 @@ int __archive_rb_tree_insert_node(struct archive_rb_tree * rbt, struct archive_r
 	RB_SET_FATHER(self, parent);
 	RB_SET_POSITION(self, position);
 	if(parent == (struct archive_rb_node *)(void *)&rbt->rbt_root) {
-		RB_MARK_BLACK(self);            /* root is always black */
+		RB_MARK_BLACK(self); /* root is always black */
 		rebalance = F;
 	}
 	else {
@@ -584,7 +584,7 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt,
 			 */
 			RB_MARK_BLACK(parent);
 			RB_MARK_RED(brother);
-			break;          /* We're done! */
+			break; /* We're done! */
 		}
 		else {
 			/*
@@ -634,7 +634,7 @@ static void __archive_rb_tree_removal_rebalance(struct archive_rb_tree * rbt,
 				return; /* The tree may be broken. */
 			RB_MARK_BLACK(brother->rb_nodes[other]);
 			__archive_rb_tree_reparent_nodes(parent, other);
-			break;          /* We're done! */
+			break; /* We're done! */
 		}
 	}
 }

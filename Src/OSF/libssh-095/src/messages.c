@@ -720,7 +720,7 @@ static ssh_buffer ssh_msg_userauth_build_digest(ssh_session session,
 		"publickey",          /* method */
 		1,          /* has to be signed (true) */
 		ssh_string_get_char(algo),          /* pubkey algorithm */
-		str);          /* public key as a blob */
+		str); /* public key as a blob */
 
 	SSH_STRING_FREE(str);
 	if(rc != SSH_OK) {

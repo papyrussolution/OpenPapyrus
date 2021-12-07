@@ -101,7 +101,7 @@ struct archive * archive_write_new(void)                 {
 	 * TODO: Set the default block size from the format selected.
 	 */
 	a->bytes_per_block = 10240;
-	a->bytes_in_last_block = -1;    /* Default */
+	a->bytes_in_last_block = -1; /* Default */
 
 	/* Initialize a block of nulls for padding purposes. */
 	a->null_length = 1024;

@@ -126,10 +126,10 @@ TERM_PUBLIC void HPPJ_graphics(GpTermEntry * pThis)
 TERM_PUBLIC void HPPJ_text(GpTermEntry * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	int x, plane, y;        /* loop indexes */
-	int minRow, maxRow;     /* loop bounds */
-	int numBytes;           /* Number of run-length coded bytes to output */
-	int numReps;            /* Number of times the current byte is repeated */
+	int x, plane, y; /* loop indexes */
+	int minRow, maxRow; /* loop bounds */
+	int numBytes; /* Number of run-length coded bytes to output */
+	int numReps; /* Number of times the current byte is repeated */
 	fprintf(GPT.P_GpOutFile,
 	    "\
 \033E\033*t%dR\033*r%dS\

@@ -70,7 +70,7 @@ struct read_lzop {
 	size_t uncompressed_size;
 	size_t unconsumed_bytes;
 	char in_stream;
-	char eof;             /* True = found end of compressed data. */
+	char eof; /* True = found end of compressed data. */
 };
 
 #define FILTER                  0x0800

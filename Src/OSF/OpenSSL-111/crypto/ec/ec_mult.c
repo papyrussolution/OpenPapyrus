@@ -27,14 +27,14 @@
 /* structure for precomputed multiples of the generator */
 struct ec_pre_comp_st {
 	const EC_GROUP * group; /* parent EC_GROUP object */
-	size_t blocksize;       /* block size for wNAF splitting */
-	size_t numblocks;       /* max. number of blocks for which we have
+	size_t blocksize; /* block size for wNAF splitting */
+	size_t numblocks; /* max. number of blocks for which we have
 	                         * precomputation */
-	size_t w;               /* window size */
-	EC_POINT ** points;     /* array with pre-calculated multiples of
+	size_t w; /* window size */
+	EC_POINT ** points; /* array with pre-calculated multiples of
 	                         * generator: 'num' pointers to EC_POINT
 	                         * objects followed by a NULL */
-	size_t num;             /* numblocks * 2^(w-1) */
+	size_t num; /* numblocks * 2^(w-1) */
 	CRYPTO_REF_COUNT references;
 	CRYPTO_RWLOCK * lock;
 };
@@ -50,8 +50,8 @@ static EC_PRE_COMP * ec_pre_comp_new(const EC_GROUP * group)
 		return ret;
 	}
 	ret->group = group;
-	ret->blocksize = 8;     /* default */
-	ret->w = 4;             /* default */
+	ret->blocksize = 8; /* default */
+	ret->w = 4; /* default */
 	ret->references = 1;
 	ret->lock = CRYPTO_THREAD_lock_new();
 	if(ret->lock == NULL) {
@@ -406,7 +406,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 	int k;
 	int r_is_inverted = 0;
 	int r_is_at_infinity = 1;
-	size_t * wsize = NULL;  /* individual window sizes */
+	size_t * wsize = NULL; /* individual window sizes */
 	signed char ** wNAF = NULL; /* individual wNAFs */
 	size_t * wNAF_len = NULL;
 	size_t max_len = 0;
@@ -416,7 +416,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 	EC_POINT *** val_sub = NULL; /* pointers to sub-arrays of 'val' or
 	                              * 'pre_comp->points' */
 	const EC_PRE_COMP * pre_comp = NULL;
-	int num_scalar = 0;     /* flag: will be set to 1 if 'scalar' must be
+	int num_scalar = 0; /* flag: will be set to 1 if 'scalar' must be
 	                         * treated like other scalars, i.e.
 	                         * precomputation is not available */
 	int ret = 0;
@@ -651,7 +651,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		ECerr(EC_F_EC_WNAF_MUL, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-	val[num_val] = NULL;    /* pivot element */
+	val[num_val] = NULL; /* pivot element */
 
 	/* allocate points for precomputation */
 	v = val;
@@ -861,7 +861,7 @@ int ec_wNAF_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 		goto err;
 	}
 	var = points;
-	var[num] = NULL;        /* pivot */
+	var[num] = NULL; /* pivot */
 	for(i = 0; i < num; i++) {
 		if((var[i] = EC_POINT_new(group)) == NULL) {
 			ECerr(EC_F_EC_WNAF_PRECOMPUTE_MULT, ERR_R_MALLOC_FAILURE);

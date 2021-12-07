@@ -278,7 +278,7 @@ static void add_pax_attr_binary(struct archive_string * as, const char * key,
     const char * value, size_t value_len)
 {
 	int digits, i, len, next_ten;
-	char tmp[1 + 3 * sizeof(int)];  /* < 3 base-10 digits per byte */
+	char tmp[1 + 3 * sizeof(int)]; /* < 3 base-10 digits per byte */
 
 	/*-
 	 * PAX attributes have the following layout:
@@ -310,7 +310,7 @@ static void add_pax_attr_binary(struct archive_string * as, const char * key,
 		digits++;
 
 	/* Now, we have the right length so we can build the line. */
-	tmp[sizeof(tmp) - 1] = 0;       /* Null-terminate the work area. */
+	tmp[sizeof(tmp) - 1] = 0; /* Null-terminate the work area. */
 	archive_strcat(as, format_int(tmp + sizeof(tmp) - 1, len + digits));
 	archive_strappend_char(as, ' ');
 	archive_strcat(as, key);

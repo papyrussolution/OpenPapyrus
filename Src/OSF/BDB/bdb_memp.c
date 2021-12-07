@@ -5190,7 +5190,7 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 			return ret;
 		if(i == 0)
 			return 0;
-		len += sizeof(DB_MPOOL_FSTAT *);        /* Trailing NULL */
+		len += sizeof(DB_MPOOL_FSTAT *); /* Trailing NULL */
 		/* Allocate space */
 		if((ret = __os_umalloc(env, len, fspp)) != 0)
 			return ret;

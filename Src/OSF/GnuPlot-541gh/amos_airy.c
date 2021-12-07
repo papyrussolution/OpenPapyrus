@@ -140,8 +140,8 @@ void GnuPlot::F_amos_BesselK(union argument * arg)
 		z.imag = a.v.cmplx_val.imag;
 	}
 	nu = Real(Pop(&a));
-	kode = 1;       /* 1 = unscaled   2 = scaled */
-	length = NJ;    /* number of members in the returned sequence of functions */
+	kode = 1; /* 1 = unscaled   2 = scaled */
+	length = NJ; /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesk_(&z.real, &z.imag, &nu, &kode, &length, &Bk[0].real, &Bk[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
@@ -181,9 +181,9 @@ void GnuPlot::F_amos_Hankel(int k, union argument * arg)
 		z.imag = a.v.cmplx_val.imag;
 	}
 	nu = Real(Pop(&a));
-	kode = 1;       /* 1 = unscaled   2 = scaled */
-	kind = k;       /* 1 = first kind, 2 = second kind */
-	length = NJ;    /* number of members in the returned sequence of functions */
+	kode = 1; /* 1 = unscaled   2 = scaled */
+	kind = k; /* 1 = first kind, 2 = second kind */
+	length = NJ; /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesh_(&z.real, &z.imag, &nu, &kode, &kind, &length, &H[0].real, &H[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
@@ -226,8 +226,8 @@ void GnuPlot::F_amos_BesselI(union argument * arg)
 		z.imag = a.v.cmplx_val.imag;
 	}
 	nu = Real(Pop(&a));
-	kode = 1;       /* 1 = unscaled   2 = scaled */
-	length = NJ;    /* number of members in the returned sequence of functions */
+	kode = 1; /* 1 = unscaled   2 = scaled */
+	length = NJ; /* number of members in the returned sequence of functions */
 	// Fortran calling conventions! 
 	zbesi_(&z.real, &z.imag, &nu, &kode, &length, &Bi[0].real, &Bi[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
@@ -267,8 +267,8 @@ void GnuPlot::F_amos_BesselJ(union argument * arg)
 		z.imag = a.v.cmplx_val.imag;
 	}
 	nu = Real(Pop(&a));
-	kode = 1;       /* 1 = unscaled   2 = scaled */
-	length = NJ;    /* number of members in the returned sequence of functions */
+	kode = 1; /* 1 = unscaled   2 = scaled */
+	length = NJ; /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesj_(&z.real, &z.imag, &nu, &kode, &length, &Bj[0].real, &Bj[0].imag, &underflow, &ierr);
 	if(ierr != 0) {
@@ -295,7 +295,7 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 	GpValue a;
 	struct cmplx z;
 	struct cmplx By[NJ];
-	double WorkR[NJ], WorkI[NJ];    /* Scratch space for zbesy_ */
+	double WorkR[NJ], WorkI[NJ]; /* Scratch space for zbesy_ */
 	double nu;
 	int32_t kode, length, underflow, ierr;
 	/* ... unpack arguments ... */
@@ -309,8 +309,8 @@ void GnuPlot::F_amos_BesselY(union argument * arg)
 		z.imag = a.v.cmplx_val.imag;
 	}
 	nu = Real(Pop(&a));
-	kode = 1;       /* 1 = unscaled   2 = scaled */
-	length = NJ;    /* number of members in the returned sequence of functions */
+	kode = 1; /* 1 = unscaled   2 = scaled */
+	length = NJ; /* number of members in the returned sequence of functions */
 	/* Fortran calling conventions! */
 	zbesy_(&z.real, &z.imag, &nu, &kode, &length, &By[0].real, &By[0].imag, &underflow, &WorkR[0],  &WorkI[0], &ierr);
 	if(ierr != 0) {
@@ -333,9 +333,9 @@ void GnuPlot::F_amos_cexint(union argument * arg)
 	double complex z, cy;
 	double tolerance;
 	int32_t norder, kode, length, ierr;
-	Pop(&a);        /* complex z */
-	kode = 1;       /* 1 = unscaled   2 = scaled */
-	length = NJ;    /* number of members in the returned sequence of functions */
+	Pop(&a); /* complex z */
+	kode = 1; /* 1 = unscaled   2 = scaled */
+	length = NJ; /* number of members in the returned sequence of functions */
 	tolerance = 1.e-8; /* FIXME: not sure what is reasonable to ask for */
 	if(a.Type == INTGR) {
 		z = (double)a.v.int_val;
@@ -345,7 +345,7 @@ void GnuPlot::F_amos_cexint(union argument * arg)
 	}
 	if(carg(z) < -SMathConst::Pi || carg(z) > SMathConst::Pi)
 		IntError(NO_CARET, "cexint requires arg(z) in [-pi:pi]");
-	Pop(&a);        /* integer norder */
+	Pop(&a); /* integer norder */
 	if(a.Type == INTGR)
 		norder = a.v.int_val;
 	if(a.Type != INTGR || norder < 0)

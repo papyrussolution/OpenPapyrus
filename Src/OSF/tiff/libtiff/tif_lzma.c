@@ -43,16 +43,16 @@ typedef struct {
 	TIFFPredictorState predict;
 	lzma_stream stream;
 	lzma_filter filters[LZMA_FILTERS_MAX + 1];
-	lzma_options_delta opt_delta;           /* delta filter options */
-	lzma_options_lzma opt_lzma;             /* LZMA2 filter options */
+	lzma_options_delta opt_delta; /* delta filter options */
+	lzma_options_lzma opt_lzma; /* LZMA2 filter options */
 	int preset;                             /* compression level */
-	lzma_check check;                       /* type of the integrity check */
+	lzma_check check; /* type of the integrity check */
 	int state;                              /* state flags */
 #define LSTATE_INIT_DECODE 0x01
 #define LSTATE_INIT_ENCODE 0x02
 
-	TIFFVGetMethod vgetparent;             /* super-class method */
-	TIFFVSetMethod vsetparent;             /* super-class method */
+	TIFFVGetMethod vgetparent; /* super-class method */
+	TIFFVSetMethod vsetparent; /* super-class method */
 } LZMAState;
 
 #define LState(tif)             ((LZMAState*)(tif)->tif_data)
@@ -172,7 +172,7 @@ static int LZMADecode(TIFF* tif, uint8 * op, tmsize_t occ, uint16 s)
 		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %lu (short %lu bytes)", (ulong)tif->tif_row, (ulong)sp->stream.avail_out);
 		return 0;
 	}
-	tif->tif_rawcp = (uint8 *)sp->stream.next_in;  /* cast away const */
+	tif->tif_rawcp = (uint8 *)sp->stream.next_in; /* cast away const */
 	tif->tif_rawcc = sp->stream.avail_in;
 	return 1;
 }
@@ -235,7 +235,7 @@ static int LZMAEncode(TIFF* tif, uint8 * bp, tmsize_t cc, uint16 s)
 			tif->tif_rawcc = tif->tif_rawdatasize;
 			TIFFFlushData1(tif);
 			sp->stream.next_out = tif->tif_rawdata;
-			sp->stream.avail_out = (size_t)tif->tif_rawdatasize;  /* this is a safe typecast, as check is
+			sp->stream.avail_out = (size_t)tif->tif_rawdatasize; /* this is a safe typecast, as check is
 			                                                        made already in LZMAPreEncode */
 		}
 	} while(sp->stream.avail_in > 0);
@@ -358,12 +358,12 @@ int TIFFInitLZMA(TIFF* tif, int scheme)
 	 * Override parent get/set field methods.
 	 */
 	sp->vgetparent = tif->tif_tagmethods.vgetfield;
-	tif->tif_tagmethods.vgetfield = LZMAVGetField;  /* hook for codec tags */
+	tif->tif_tagmethods.vgetfield = LZMAVGetField; /* hook for codec tags */
 	sp->vsetparent = tif->tif_tagmethods.vsetfield;
-	tif->tif_tagmethods.vsetfield = LZMAVSetField;  /* hook for codec tags */
+	tif->tif_tagmethods.vsetfield = LZMAVSetField; /* hook for codec tags */
 
 	/* Default values for codec-specific fields */
-	sp->preset = LZMA_PRESET_DEFAULT;               /* default comp. level */
+	sp->preset = LZMA_PRESET_DEFAULT; /* default comp. level */
 	sp->check = LZMA_CHECK_NONE;
 	sp->state = 0;
 

@@ -71,8 +71,8 @@ static void U_CALLCONV ucnv_toUnicode_UTF8(UConverterToUnicodeArgs * args,
 
 	/* Restore size of current sequence */
 	if(cnv->toULength > 0 && myTarget < targetLimit) {
-		inBytes = cnv->mode;    /* restore # of bytes to consume */
-		i = cnv->toULength;     /* restore # of bytes consumed */
+		inBytes = cnv->mode; /* restore # of bytes to consume */
+		i = cnv->toULength; /* restore # of bytes consumed */
 		cnv->toULength = 0;
 
 		ch = cnv->toUnicodeStatus;/*Stores the previously calculated ch from a previous call*/
@@ -173,8 +173,8 @@ static void U_CALLCONV ucnv_toUnicode_UTF8_OFFSETS_LOGIC(UConverterToUnicodeArgs
 
 	/* Restore size of current sequence */
 	if(cnv->toULength > 0 && myTarget < targetLimit) {
-		inBytes = cnv->mode;    /* restore # of bytes to consume */
-		i = cnv->toULength;     /* restore # of bytes consumed */
+		inBytes = cnv->mode; /* restore # of bytes to consume */
+		i = cnv->toULength; /* restore # of bytes consumed */
 		cnv->toULength = 0;
 
 		ch = cnv->toUnicodeStatus;/*Stores the previously calculated ch from a previous call*/

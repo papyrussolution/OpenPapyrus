@@ -1308,7 +1308,7 @@ var UHTT = {
 			}
 			// set event handler
 			$(document).Evt("mouseup", function(e) {
-				//if(!_this.Blk.has(e.target).exists())  {
+				//if(!_this.Blk.has(e.target).exists()) {
 					_this.Blk.undelegate();  // reset all event handlers
 					_this.Blk.hide();        // hide it
 				//}
@@ -2023,7 +2023,7 @@ var UHTT = {
 						var status_item = status_ary[j];
 						for(var i = 0; i < L; i++) {
 							var item = placeStatusArray[i];
-							if(item.code == status_item.PlaceCode && item.status != status_item.PlaceStatus)  {
+							if(item.code == status_item.PlaceCode && item.status != status_item.PlaceStatus) {
 								item.status = status_item.PlaceStatus;
 								item.price = status_item.PlacePrice;
 							}

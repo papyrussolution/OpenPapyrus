@@ -69,7 +69,7 @@ typedef struct opj_tgt_tree {
     OPJ_UINT32  numleafsv;
     OPJ_UINT32 numnodes;
     opj_tgt_node_t *nodes;
-    OPJ_UINT32  nodes_size;     /* maximum size taken by nodes */
+    OPJ_UINT32  nodes_size; /* maximum size taken by nodes */
 } opj_tgt_tree_t;
 
 

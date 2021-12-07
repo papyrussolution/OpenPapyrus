@@ -39,9 +39,9 @@ GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl, const uin
 		temp = ((long)basic_table[i] * scale_factor + 50L) / 100L;
 		/* limit the values to the valid range */
 		if(temp <= 0L) temp = 1L;
-		if(temp > 32767L) temp = 32767L;  /* max quantizer needed for 12 bits */
+		if(temp > 32767L) temp = 32767L; /* max quantizer needed for 12 bits */
 		if(force_baseline && temp > 255L)
-			temp = 255L;  /* limit to baseline range if requested */
+			temp = 255L; /* limit to baseline range if requested */
 		(*qtblptr)->quantval[i] = (uint16)temp;
 	}
 	/* Initialize sent_table FALSE so table will be written to JPEG file. */
@@ -237,7 +237,7 @@ GLOBAL(void) jpeg_set_defaults(j_compress_ptr cinfo)
 	if(cinfo->comp_info == NULL)
 		cinfo->comp_info = (jpeg_component_info*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, MAX_COMPONENTS * SIZEOF(jpeg_component_info));
 	/* Initialize everything not dependent on the color space */
-	cinfo->scale_num = 1;   /* 1:1 scaling */
+	cinfo->scale_num = 1; /* 1:1 scaling */
 	cinfo->scale_denom = 1;
 	cinfo->data_precision = BITS_IN_JSAMPLE;
 	jpeg_set_quality(cinfo, 75, TRUE); // Set up two quantization tables using default quality of 75 
@@ -282,7 +282,7 @@ GLOBAL(void) jpeg_set_defaults(j_compress_ptr cinfo)
 	cinfo->JFIF_major_version = 1; /* Default JFIF version = 1.01 */
 	cinfo->JFIF_minor_version = 1;
 	cinfo->density_unit = 0; /* Pixel size is unknown by default */
-	cinfo->X_density = 1;   /* Pixel aspect ratio is square by default */
+	cinfo->X_density = 1; /* Pixel aspect ratio is square by default */
 	cinfo->Y_density = 1;
 	cinfo->color_transform = JCT_NONE; // No color transform 
 	jpeg_default_colorspace(cinfo); // Choose JPEG colorspace based on input space, set defaults accordingly 
@@ -465,9 +465,9 @@ GLOBAL(void) jpeg_simple_progression(j_compress_ptr cinfo)
 	else {
 		/* All-purpose script for other color spaces. */
 		if(ncomps > MAX_COMPS_IN_SCAN)
-			nscans = 6 * ncomps;  /* 2 DC + 4 AC scans per component */
+			nscans = 6 * ncomps; /* 2 DC + 4 AC scans per component */
 		else
-			nscans = 2 + 4 * ncomps;  /* 2 DC scans; 4 AC scans per component */
+			nscans = 2 + 4 * ncomps; /* 2 DC scans; 4 AC scans per component */
 	}
 	/* Allocate space for script.
 	 * We need to put it in the permanent pool in case the application performs

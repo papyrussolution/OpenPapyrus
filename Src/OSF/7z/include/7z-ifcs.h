@@ -1803,7 +1803,7 @@ namespace NBitm {
 		uint32 _value;
 		TInByte _stream;
 	public:
-		bool Create(uint32 bufSize)  { return _stream.Create(bufSize); }
+		bool Create(uint32 bufSize) { return _stream.Create(bufSize); }
 		void SetStream(ISequentialInStream * inStream) { _stream.SetStream(inStream); }
 		void Init()
 		{

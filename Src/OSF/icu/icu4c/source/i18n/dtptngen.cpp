@@ -830,7 +830,7 @@ void DateTimePatternGenerator::addICUPatterns(const Locale & locale, UErrorCode 
 	}
 }
 
-void DateTimePatternGenerator::hackTimes(const UnicodeString & hackPattern, UErrorCode & status)  {
+void DateTimePatternGenerator::hackTimes(const UnicodeString & hackPattern, UErrorCode & status) {
 	UnicodeString conflictingString;
 
 	fp->set(hackPattern);

@@ -38,7 +38,7 @@ int __env_failchk_pp(DB_ENV * dbenv, uint32 flags)
 	if(flags != 0)
 		return __db_ferr(env, "DB_ENV->failchk", 0);
 	ENV_ENTER(env, ip);
-	FAILCHK_THREAD(env, ip);        /* mark as failchk thread */
+	FAILCHK_THREAD(env, ip); /* mark as failchk thread */
 	ret = __env_failchk_int(dbenv);
 	ENV_LEAVE(env, ip);
 	return ret;

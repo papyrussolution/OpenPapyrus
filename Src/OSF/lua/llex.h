@@ -38,7 +38,7 @@ typedef union {
 	lua_Number r;
 	lua_Integer i;
 	TString * ts;
-} SemInfo;  /* semantics information */
+} SemInfo; /* semantics information */
 
 typedef struct Token {
 	int token;

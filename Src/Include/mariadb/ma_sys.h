@@ -146,7 +146,7 @@ typedef struct my_aio_result {
 	#ifdef HAVE_ERRNO_AS_DEFINE
 		//#include <errno.h>                      /* errno is a define */
 	#else
-		extern int errno;                       /* declare errno */
+		extern int errno; /* declare errno */
 	#endif
 #endif
 extern const char ** NEAR my_errmsg[];
@@ -191,9 +191,9 @@ extern int NEAR ma_umask,               /* Default creation mask  */
 NEAR ma_umask_dir,
 NEAR my_recived_signals,                /* Signals we have got */
 NEAR my_safe_to_handle_signal,            /* Set when allowed to SIGTSTP */
-NEAR ma_dont_interrupt;                 /* call remember_intr when set */
+NEAR ma_dont_interrupt; /* call remember_intr when set */
 extern bool NEAR mysys_uses_curses, ma_use_symdir;
-extern size_t lCurMemory, lMaxMemory;    /* from safemalloc */
+extern size_t lCurMemory, lMaxMemory; /* from safemalloc */
 
 extern ulong ma_default_record_cache_size;
 extern bool NEAR ma_disable_locking, NEAR ma_disable_async_io,
@@ -203,9 +203,9 @@ extern const char * charsets_dir;
 extern char * defaults_extra_file;
 typedef struct wild_file_pack   /* Struct to hold info when selecting files */
 {
-	uint wilds;             /* How many wildcards */
-	uint not_pos;           /* Start of not-theese-files */
-	my_string     * wild;   /* Pointer to wildcards */
+	uint wilds; /* How many wildcards */
+	uint not_pos; /* Start of not-theese-files */
+	my_string     * wild; /* Pointer to wildcards */
 } WF_PACK;
 
 struct my_rnd_struct {
@@ -215,8 +215,8 @@ struct my_rnd_struct {
 
 #endif
 typedef struct st_typelib { /* Different types saved here */
-	uint count;             /* How many types */
-	const char * name;              /* Name of typelib */
+	uint count; /* How many types */
+	const char * name; /* Name of typelib */
 	const char ** type_names;
 } TYPELIB;
 
@@ -265,7 +265,7 @@ typedef struct st_io_cache              /* Used when caching files */
 	my_off_t pos_in_file, end_of_file;
 	uchar * rc_pos, * rc_end, * buffer, * rc_request_pos;
 	int (* read_function)(struct st_io_cache *, uchar *, uint);
-	char * file_name;               /* if used with 'open_cached_file' */
+	char * file_name; /* if used with 'open_cached_file' */
 	char * dir, * prefix;
 	File file;
 	int seek_not_done, error;
@@ -320,13 +320,13 @@ typedef int (* qsort2_cmp)(const void *, const void *, const void *);
 #define my_b_bytes_in_cache(info) ((uint)((info)->rc_end - (info)->rc_pos))
 
 typedef struct st_changeable_var {
-	const char * name;              /* Name of variable */
-	long * varptr;                  /* Pointer to variable */
+	const char * name; /* Name of variable */
+	long * varptr; /* Pointer to variable */
 	long def_value,                 /* Default value */
 	    min_value,                  /* Min allowed value */
 	    max_value,                  /* Max allowed value */
 	    sub_size,                   /* Subtract this from given value */
-	    block_size;                 /* Value should be a mult. of this */
+	    block_size; /* Value should be a mult. of this */
 } CHANGEABLE_VAR;
 
 /* structs for ma_alloc_root */
@@ -335,8 +335,8 @@ typedef struct st_changeable_var {
 #define ST_MA_USED_MEM_DEFINED
 typedef struct st_ma_used_mem {   /* struct for once_alloc */
 	struct st_ma_used_mem * next; /* Next block in use */
-	size_t left;           /* memory left in block  */
-	size_t size;           /* Size of block */
+	size_t left; /* memory left in block  */
+	size_t size; /* Size of block */
 } MA_USED_MEM;
 
 typedef struct st_ma_mem_root {

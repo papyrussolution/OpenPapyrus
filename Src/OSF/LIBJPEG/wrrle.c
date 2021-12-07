@@ -47,8 +47,8 @@
 typedef struct {
 	struct djpeg_dest_struct pub; /* public fields */
 	jvirt_sarray_ptr image; /* virtual array to store the output image */
-	rle_map * colormap;     /* RLE-style color map, or NULL if none */
-	rle_pixel ** rle_row;   /* To pass rows to rle_putrow() */
+	rle_map * colormap; /* RLE-style color map, or NULL if none */
+	rle_pixel ** rle_row; /* To pass rows to rle_putrow() */
 } rle_dest_struct;
 
 typedef rle_dest_struct * rle_dest_ptr;
@@ -134,7 +134,7 @@ METHODDEF(void) rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	rle_dest_ptr dest = (rle_dest_ptr)dinfo;
-	rle_hdr header;         /* Output file information */
+	rle_hdr header; /* Output file information */
 	rle_pixel ** rle_row, * red, * green, * blue;
 	JSAMPROW output_row;
 	char cmapcomment[80];

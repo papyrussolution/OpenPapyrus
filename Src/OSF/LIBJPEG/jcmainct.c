@@ -28,8 +28,8 @@ typedef struct {
 
 	JDIMENSION cur_iMCU_row; /* number of current iMCU row */
 	JDIMENSION rowgroup_ctr; /* counts row groups received in iMCU row */
-	boolean suspended;      /* remember if we suspended output */
-	J_BUF_MODE pass_mode;   /* current operating mode */
+	boolean suspended; /* remember if we suspended output */
+	J_BUF_MODE pass_mode; /* current operating mode */
 
 	/* If using just a strip buffer, this points to the entire set of buffers
 	 * (we allocate one for each component).  In the full-image case, this

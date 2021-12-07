@@ -47,12 +47,9 @@ void print_cleanup_context(void)
 {
 	if(__print_context.context_prev_lines) {
 		for(size_t i = 0; i < opts.before; i++) {
-			if(__print_context.context_prev_lines[i] != NULL) {
-				SAlloc::F(__print_context.context_prev_lines[i]);
-			}
+			SAlloc::F(__print_context.context_prev_lines[i]);
 		}
-		SAlloc::F(__print_context.context_prev_lines);
-		__print_context.context_prev_lines = NULL;
+		ZFREE(__print_context.context_prev_lines);
 	}
 }
 
@@ -67,10 +64,7 @@ void print_context_append(const char * line, size_t len)
 
 void print_trailing_context(const char * path, const char * buf, size_t n) 
 {
-	char sep = '-';
-	if(opts.ackmate || opts.vimgrep) {
-		sep = ':';
-	}
+	const char sep = (opts.ackmate || opts.vimgrep) ? ':' : '-';
 	if(__print_context.lines_since_last_match != 0 && __print_context.lines_since_last_match <= opts.after) {
 		if(opts.print_path == PATH_PRINT_EACH_LINE) {
 			print_path(path, ':');
@@ -138,12 +132,9 @@ void print_file_matches(const char * path, const char * buf, const size_t buf_le
 {
 	size_t cur_match = 0;
 	ssize_t lines_to_print = 0;
-	char sep = '-';
 	size_t i, j;
-	int blanks_between_matches = opts.context || opts.after || opts.before;
-	if(opts.ackmate || opts.vimgrep) {
-		sep = ':';
-	}
+	const bool blanks_between_matches = opts.context || opts.after || opts.before;
+	const char sep = (opts.ackmate || opts.vimgrep) ? ':' : '-';
 	print_file_separator();
 	if(opts.print_path == PATH_PRINT_DEFAULT) {
 		opts.print_path = PATH_PRINT_TOP;
@@ -169,14 +160,15 @@ void print_file_matches(const char * path, const char * buf, const size_t buf_le
 			if(__print_context.lines_since_last_match > 0 && opts.before > 0) {
 				// TODO: better, but still needs work 
 				// print the previous line(s) 
+				lines_to_print = sclamp(static_cast<ssize_t>(__print_context.lines_since_last_match - (opts.after + 1)), 0, static_cast<ssize_t>(opts.before)); // @sobolev
+				/* @sobolev
 				lines_to_print = __print_context.lines_since_last_match - (opts.after + 1);
 				if(lines_to_print < 0) {
 					lines_to_print = 0;
 				}
 				else if((size_t)lines_to_print > opts.before) {
 					lines_to_print = opts.before;
-				}
-
+				} */
 				for(j = (opts.before - lines_to_print); j < opts.before; j++) {
 					__print_context.prev_line = (__print_context.last_prev_line + j) % opts.before;
 					if(__print_context.context_prev_lines[__print_context.prev_line] != NULL) {

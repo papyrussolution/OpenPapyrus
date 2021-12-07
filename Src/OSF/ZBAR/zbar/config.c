@@ -63,7 +63,7 @@ int zbar_parse_config(const char * cfgstr, zbar_symbol_type_t * sym, zbar_config
 		else if(len < 4)
 			return 1;
 		else if(!strncmp(cfgstr, "scanner", len))
-			*sym = ZBAR_PARTIAL;  /* FIXME lame */
+			*sym = ZBAR_PARTIAL; /* FIXME lame */
 		else if(!strncmp(cfgstr, "isbn13", len))
 			*sym = ZBAR_ISBN13;
 		else if(!strncmp(cfgstr, "isbn10", len))
@@ -99,7 +99,7 @@ int zbar_parse_config(const char * cfgstr, zbar_symbol_type_t * sym, zbar_config
 	if(eq)
 		len = eq - cfgstr;
 	else
-		*val = 1;  /* handle this here so we can override later */
+		*val = 1; /* handle this here so we can override later */
 	negate = 0;
 	if(len > 3 && !strncmp(cfgstr, "no-", 3)) {
 		negate = 1;

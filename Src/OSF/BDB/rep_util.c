@@ -1951,28 +1951,28 @@ void __rep_print_message(ENV*env, int eid, __rep_control_args * rp, char * str, 
 	 */
 	ftype[0] = '\0';
 	if(LF_ISSET(DB_REP_ANYWHERE))
-		strcat(ftype, " any");            /* 4 */
+		strcat(ftype, " any"); /* 4 */
 	if(FLD_ISSET(ctlflags, REPCTL_FLUSH))
-		strcat(ftype, " flush");          /* 10 */
+		strcat(ftype, " flush"); /* 10 */
 	/*
 	 * We expect most of the time the messages will indicate
 	 * group membership.  Only print if we're not already
 	 * part of a group.
 	 */
 	if(!FLD_ISSET(ctlflags, REPCTL_GROUP_ESTD))
-		strcat(ftype, " nogroup");        /* 18 */
+		strcat(ftype, " nogroup"); /* 18 */
 	if(FLD_ISSET(ctlflags, REPCTL_LEASE))
-		strcat(ftype, " lease");          /* 24 */
+		strcat(ftype, " lease"); /* 24 */
 	if(LF_ISSET(DB_REP_NOBUFFER))
-		strcat(ftype, " nobuf");          /* 30 */
+		strcat(ftype, " nobuf"); /* 30 */
 	if(FLD_ISSET(ctlflags, REPCTL_PERM))
-		strcat(ftype, " perm");           /* 35 */
+		strcat(ftype, " perm"); /* 35 */
 	if(LF_ISSET(DB_REP_REREQUEST))
-		strcat(ftype, " rereq");          /* 41 */
+		strcat(ftype, " rereq"); /* 41 */
 	if(FLD_ISSET(ctlflags, REPCTL_RESEND))
-		strcat(ftype, " resend");         /* 48 */
+		strcat(ftype, " resend"); /* 48 */
 	if(FLD_ISSET(ctlflags, REPCTL_LOG_END))
-		strcat(ftype, " logend");         /* 55 */
+		strcat(ftype, " logend"); /* 55 */
 	/*
 	 * !!!
 	 * We selectively turned on bits using different verbose settings
@@ -2110,7 +2110,7 @@ int __rep_check_goal(ENV*env, struct rep_waitgoal * goal)
 {
 	REP * rep = env->rep_handle->region;
 	LOG * lp = (LOG *)env->lg_handle->reginfo.primary;
-	int ret = DB_TIMEOUT;       /* Pessimistic, to start. */
+	int ret = DB_TIMEOUT; /* Pessimistic, to start. */
 	/*
 	 * Note that while AWAIT_LSN and AWAIT_HISTORY look similar, they are
 	 * actually quite different.  With AWAIT_LSN, the u.lsn is the LSN of

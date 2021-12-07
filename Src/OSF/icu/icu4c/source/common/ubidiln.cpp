@@ -139,7 +139,7 @@ U_CAPI void U_EXPORT2 ubidi_setLine(const UBiDi * pParaBiDi,
 	}
 
 	/* set the values in pLineBiDi from its pParaBiDi parent */
-	pLineBiDi->pParaBiDi = NULL;    /* mark unfinished setLine */
+	pLineBiDi->pParaBiDi = NULL; /* mark unfinished setLine */
 	pLineBiDi->text = pParaBiDi->text+start;
 	length = pLineBiDi->length = limit-start;
 	pLineBiDi->resultLength = pLineBiDi->originalLength = length;
@@ -1338,7 +1338,7 @@ U_CAPI void U_EXPORT2 ubidi_invertMap(const int32_t * srcMap, int32_t * destMap,
 				count++;
 			}
 		}
-		destLength++;   /* add 1 for origin 0 */
+		destLength++; /* add 1 for origin 0 */
 		if(count<destLength) {
 			/* we must fill unmatched destMap entries with -1 */
 			memset(destMap, 0xFF, destLength*sizeof(int32_t));

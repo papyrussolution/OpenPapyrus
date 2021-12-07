@@ -305,7 +305,7 @@ U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleDisplayPattern(ULocaleData * uld,
 U_CAPI int32_t U_EXPORT2 ulocdata_getLocaleSeparator(ULocaleData * uld,
     UChar * result,
     int32_t resultCapacity,
-    UErrorCode * status)  {
+    UErrorCode * status) {
 	UResourceBundle * separatorBundle;
 	int32_t len = 0;
 	const UChar * separator = NULL;

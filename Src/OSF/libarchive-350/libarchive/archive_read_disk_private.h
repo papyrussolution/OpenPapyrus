@@ -57,7 +57,7 @@ struct archive_read_disk {
 	 * we're following symlinks for the current item.  'L' mode above
 	 * sets this true, 'P' sets it false, 'H' changes it as we traverse.
 	 */
-	char	follow_symlinks;  /* Either 'L' or 'P'. */
+	char	follow_symlinks; /* Either 'L' or 'P'. */
 
 	/* Directory traversals. */
 	struct tree *tree;

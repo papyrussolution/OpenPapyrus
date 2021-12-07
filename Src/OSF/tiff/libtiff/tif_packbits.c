@@ -135,7 +135,7 @@ again:
 					    n -= 128;
 					    goto again;
 				    }
-				    *op++ = (uint8)(-(n-1));    /* encode run */
+				    *op++ = (uint8)(-(n-1)); /* encode run */
 				    *op++ = static_cast<uint8>(b);
 			    }
 			    else {                      /* extend literal */
@@ -173,7 +173,7 @@ again:
 			    *lastliteral < 126) {
 				    state = (((*lastliteral) += 2) == 127 ?
 				    BASE : LITERAL);
-				    op[-2] = op[-1];    /* replicate */
+				    op[-2] = op[-1]; /* replicate */
 			    }
 			    else
 				    state = RUN;

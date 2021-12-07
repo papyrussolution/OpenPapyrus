@@ -17,7 +17,7 @@
 typedef struct {
 	struct jpeg_color_converter pub; /* public fields */
 	/* Private state for RGB->YCC conversion */
-	INT32 * rgb_ycc_tab;    /* => table for RGB to YCbCr conversion */
+	INT32 * rgb_ycc_tab; /* => table for RGB to YCbCr conversion */
 } my_color_converter;
 
 typedef my_color_converter * my_cconvert_ptr;

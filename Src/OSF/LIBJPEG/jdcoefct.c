@@ -29,8 +29,8 @@ typedef struct {
 	struct jpeg_d_coef_controller pub; /* public fields */
 	/* These variables keep track of the current location of the input side. */
 	/* cinfo->input_iMCU_row is also used for this. */
-	JDIMENSION MCU_ctr;     /* counts MCUs processed in current row */
-	int MCU_vert_offset;    /* counts MCU rows within iMCU row */
+	JDIMENSION MCU_ctr; /* counts MCUs processed in current row */
+	int MCU_vert_offset; /* counts MCU rows within iMCU row */
 	int MCU_rows_per_iMCU_row; /* number of such rows needed */
 	/* The output side's location is represented by cinfo->output_iMCU_row. */
 
@@ -191,7 +191,7 @@ METHODDEF(int) decompress_onepass(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
  */
 METHODDEF(int) dummy_consume_data(j_decompress_ptr cinfo)
 {
-	return JPEG_SUSPENDED;  /* Always indicate nothing was done */
+	return JPEG_SUSPENDED; /* Always indicate nothing was done */
 }
 
 #ifdef D_MULTISCAN_FILES_SUPPORTED

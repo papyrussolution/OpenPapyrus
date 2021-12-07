@@ -9,7 +9,7 @@
 #pragma hdrstop
 
 struct ngx_http_uwsgi_main_conf_t {
-	ngx_array_t caches;             /* ngx_http_file_cache_t * */
+	ngx_array_t caches; /* ngx_http_file_cache_t * */
 };
 
 struct ngx_http_uwsgi_params_t {
@@ -858,7 +858,7 @@ next:
 
 static ngx_int_t ngx_http_uwsgi_reinit_request(ngx_http_request_t * r)
 {
-	ngx_http_status_t  * status;
+	ngx_http_status_t * status;
 
 	status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_uwsgi_module);
 
@@ -881,7 +881,7 @@ static ngx_int_t ngx_http_uwsgi_process_status_line(ngx_http_request_t * r)
 {
 	size_t len;
 	ngx_int_t rc;
-	ngx_http_status_t   * status;
+	ngx_http_status_t * status;
 	ngx_http_upstream_t * u;
 
 	status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_uwsgi_module);

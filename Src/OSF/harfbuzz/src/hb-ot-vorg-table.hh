@@ -107,7 +107,7 @@ protected:
 		FWORD defaultVertOriginY;
 		/* The default vertical origin. */
 		SortedArrayOf<VertOriginMetric>
-		vertYOrigins;   /* The array of vertical origins. */
+		vertYOrigins; /* The array of vertical origins. */
 
 public:
 		DEFINE_SIZE_ARRAY(8, vertYOrigins);

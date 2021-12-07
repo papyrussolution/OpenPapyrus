@@ -197,11 +197,11 @@ int LZAriTree::InitTree()  /* Initialize trees */
 		for strings that begin with character i.  These are initialized
 		to NIL.  Note there are 256 trees.
 	*/
-	if(P_RSon && P_Dad)  {
+	if(P_RSon && P_Dad) {
 		for(i = N + 1; i <= N + 256; i++)
-			P_RSon[i] = NIL;       /* root */
+			P_RSon[i] = NIL; /* root */
 		for(i = 0; i < N; i++)
-			P_Dad[i] = NIL;   /* node */
+			P_Dad[i] = NIL; /* node */
 	}
 	else
 		ok = 0;
@@ -271,7 +271,7 @@ int LZAriTree::InsertNode(int r)
 				P_RSon[P_Dad[p]] = r;
 			else
 				P_LSon[P_Dad[p]] = r;
-			P_Dad[p] = NIL;  /* remove p */
+			P_Dad[p] = NIL; /* remove p */
 		}
 	}
 	else
@@ -284,7 +284,7 @@ int LZAriTree::DeleteNode(int p)  /* Delete node p from tree */
 	int    q = 0, ok = 1;
 	if(P_RSon && P_LSon && P_Dad) {
 		if(P_Dad[p] == NIL)
-			ok = -1;  /* not in tree */
+			ok = -1; /* not in tree */
 		else {
 			if(P_RSon[p] == NIL)
 				q = P_LSon[p];
@@ -420,7 +420,7 @@ int LZAri::StartModel()  /* Initialize model */
 			P_SymFreq[sym] = 1;
 			P_SymCum[sym-1] = P_SymCum[sym] + P_SymFreq[sym];
 		}
-		P_SymFreq[0] = 0;  /* sentinel (!= P_SymFreq[1]) */
+		P_SymFreq[0] = 0; /* sentinel (!= P_SymFreq[1]) */
 		P_PositionCum[N] = 0;
 		for(int i = N; i >= 1; i--)
 			P_PositionCum[i-1] = P_PositionCum[i] + 10000 / (i + 200);

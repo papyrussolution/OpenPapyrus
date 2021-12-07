@@ -618,7 +618,7 @@ static void ssl_cipher_collect_ciphers(const SSL_METHOD * ssl_method,
 	 */
 
 	/* Get the initial list of ciphers */
-	co_list_num = 0;        /* actual count of ciphers */
+	co_list_num = 0; /* actual count of ciphers */
 	for(i = 0; i < num_of_ciphers; i++) {
 		c = ssl_method->get_cipher(i);
 		/* drop those that use any of that is not available */
@@ -720,7 +720,7 @@ static void ssl_cipher_collect_aliases(const SSL_CIPHER ** ca_list,
 		*ca_curr = (SSL_CIPHER*)(cipher_aliases + i);
 		ca_curr++;
 	}
-	*ca_curr = NULL;        /* end of list */
+	*ca_curr = NULL; /* end of list */
 }
 
 static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
@@ -738,7 +738,7 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 	    rule, alg_mkey, alg_auth, alg_enc, alg_mac, min_tls, algo_strength, strength_bits);
 #endif
 	if(rule == CIPHER_DEL || rule == CIPHER_BUMP)
-		reverse = 1;    /* needed to maintain sorting between currently deleted ciphers */
+		reverse = 1; /* needed to maintain sorting between currently deleted ciphers */
 	head = *head_p;
 	tail = *tail_p;
 	if(reverse) {
@@ -917,7 +917,7 @@ static int ssl_cipher_process_rulestr(const char * rule_str,
 		ch = *l;
 
 		if(ch == '\0')
-			break;  /* done */
+			break; /* done */
 		if(ch == '-') {
 			rule = CIPHER_DEL;
 			l++;
@@ -1172,7 +1172,7 @@ static int ssl_cipher_process_rulestr(const char * rule_str,
 				l++;
 		}
 		if(*l == '\0')
-			break;  /* done */
+			break; /* done */
 	}
 
 	return retval;
@@ -1392,7 +1392,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 	co_list = static_cast<CIPHER_ORDER *>(OPENSSL_malloc(sizeof(*co_list) * num_of_ciphers));
 	if(co_list == NULL) {
 		SSLerr(SSL_F_SSL_CREATE_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
-		return NULL;  /* Failure */
+		return NULL; /* Failure */
 	}
 
 	ssl_cipher_collect_ciphers(ssl_method, num_of_ciphers,
@@ -1506,7 +1506,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 	if(ca_list == NULL) {
 		OPENSSL_free(co_list);
 		SSLerr(SSL_F_SSL_CREATE_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
-		return NULL;  /* Failure */
+		return NULL; /* Failure */
 	}
 	ssl_cipher_collect_aliases(ca_list, num_of_group_aliases,
 	    disabled_mkey, disabled_auth, disabled_enc,

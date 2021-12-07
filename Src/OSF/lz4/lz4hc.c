@@ -480,8 +480,8 @@ LZ4_FORCE_INLINE int LZ4HC_compress_hashChain(LZ4HC_CCtx_internal* const ctx, co
 
 	/* init */
 	*srcSizePtr = 0;
-	if(limit == limitedDestSize) oend -= LASTLITERALS;               /* Hack for support LZ4 format restriction */
-	if(inputSize < LZ4_minLength) goto _last_literals;               /* Input too small, no compression (all
+	if(limit == limitedDestSize) oend -= LASTLITERALS; /* Hack for support LZ4 format restriction */
+	if(inputSize < LZ4_minLength) goto _last_literals; /* Input too small, no compression (all
 	                                                                    literals) */
 
 	/* Main Loop */

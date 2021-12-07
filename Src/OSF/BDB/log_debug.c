@@ -64,7 +64,7 @@ static int __log_printf_int(ENV * env, DB_TXN * txnid, const char * fmt, va_list
 {
 	DBT opdbt, msgdbt;
 	DB_LSN lsn;
-	char __logbuf[2048];    /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
+	char __logbuf[2048]; /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	if(!DBENV_LOGGING(env)) {
 		__db_errx(env, DB_STR("2510", "Logging not currently permitted"));
 		return EAGAIN;

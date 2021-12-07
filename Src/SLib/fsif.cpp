@@ -43,17 +43,17 @@ Modified by Anton Sobolev: Jan-2001, 2010, 2016
 
 long SearchStrInFile(FILE * fpFile, long lOffset, const char *pszStr, int ignoreCase)
 {
-	long lStatusFlag = -1l;  /* Status: -1 = not found */
-	long lPosInFile  = 0l;   /* Position in file       */
+	long lStatusFlag = -1l; /* Status: -1 = not found */
+	long lPosInFile  = 0l; /* Position in file       */
 	long lCurrentPos = 0l;
 	char * pszBuffer = NULL; /* Buffer for fileinput        */
 	int  cFound      = 0;
-	size_t data_size = 0;    /* Size of data read from file */
-	int  iSector     = 0;    /* No of blocks read           */
+	size_t data_size = 0; /* Size of data read from file */
+	int  iSector     = 0; /* No of blocks read           */
 	int  iBufferSize = BUFFERSIZE;
-	int  iNoBlocks   = 0;    /* No of blocks remaining      */
+	int  iNoBlocks   = 0; /* No of blocks remaining      */
 	int  cmp_result  = 0;
-	size_t offset      = 0;    /* local counter               */
+	size_t offset      = 0; /* local counter               */
 	size_t pattern_len = strlen(pszStr);
 
 	lPosInFile = filelength(fileno(fpFile)); // Find filesize

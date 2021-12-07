@@ -8005,7 +8005,7 @@ public:
 	}
 	virtual void display(bool toShow = true) const { DockingDlgInterface::display(toShow); }
 	void setParent(HWND parent2set) { _hParent = parent2set; }
-	void setPanelTitle(generic_string title)  { _panelTitle = title; }
+	void setPanelTitle(generic_string title) { _panelTitle = title; }
 	const TCHAR * getPanelTitle() const { return _panelTitle.c_str(); }
 	void newWorkSpace();
 	bool saveWorkspaceRequest();

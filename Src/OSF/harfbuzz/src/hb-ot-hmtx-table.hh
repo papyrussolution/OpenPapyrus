@@ -256,7 +256,7 @@ private:
 
 protected:
 		UnsizedArrayOf<LongMetric>
-		longMetricZ;    /* Paired advance width and leading
+		longMetricZ; /* Paired advance width and leading
 		 * bearing values for each glyph. The
 		 * value numOfHMetrics comes from
 		 * the 'hhea' table. If the font is

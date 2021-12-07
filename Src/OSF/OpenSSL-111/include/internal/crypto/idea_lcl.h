@@ -14,7 +14,7 @@ if(ul != 0) \
         r-=((r)>>16); \
         } \
 else \
-        r=(-(int)a-b+1);        /* assuming a or b is 0 and in range */
+        r=(-(int)a-b+1); /* assuming a or b is 0 and in range */
 
 /* NOTE - c is not incremented as per n2l */
 #define n2ln(c,l1,l2,n) { \

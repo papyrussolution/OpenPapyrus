@@ -354,7 +354,7 @@ int BN_GF2m_mod_arr(BIGNUM * r, const BIGNUM * a, const int p[])
 			z[dN] = (z[dN] << d1) >> d1;
 		else
 			z[dN] = 0;
-		z[0] ^= zz;     /* reduction t^0 component */
+		z[0] ^= zz; /* reduction t^0 component */
 
 		for(k = 1; p[k] != 0; k++) {
 			BN_ULONG tmp_ulong;
@@ -628,7 +628,7 @@ static int BN_GF2m_mod_inv_vartime(BIGNUM * r, const BIGNUM * a,
 		for(i = 0; i < top; i++)
 			cdp[i] = 0;
 		c->top = top;
-		vdp = v->d;     /* It pays off to "cache" *->d pointers,
+		vdp = v->d; /* It pays off to "cache" *->d pointers,
 		                 * because it allows optimizer to be more
 		                 * aggressive. But we don't have to "cache"
 		                 * p->d, because *p is declared 'const'... */

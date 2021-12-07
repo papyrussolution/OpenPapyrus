@@ -63,15 +63,15 @@
 // On 80x86 machines, the image arrays are too big for near pointers,
 // but the pointer arrays can fit in near memory.
 // 
-typedef JSAMPLE FAR * JSAMPROW;  /* ptr to one image row of pixel samples. */
-typedef JSAMPROW * JSAMPARRAY;   /* ptr to some rows (a 2-D sample array) */
+typedef JSAMPLE FAR * JSAMPROW; /* ptr to one image row of pixel samples. */
+typedef JSAMPROW * JSAMPARRAY; /* ptr to some rows (a 2-D sample array) */
 typedef JSAMPARRAY * JSAMPIMAGE; /* a 3-D sample array: top index is color */
 typedef JCOEF JBLOCK[DCTSIZE2]; /* one block of coefficients */
-typedef JBLOCK FAR * JBLOCKROW;  /* pointer to one row of coefficient blocks */
-typedef JBLOCKROW * JBLOCKARRAY;         /* a 2-D array of coefficient blocks */
-typedef JBLOCKARRAY * JBLOCKIMAGE;       /* a 3-D array of coefficient blocks */
+typedef JBLOCK FAR * JBLOCKROW; /* pointer to one row of coefficient blocks */
+typedef JBLOCKROW * JBLOCKARRAY; /* a 2-D array of coefficient blocks */
+typedef JBLOCKARRAY * JBLOCKIMAGE; /* a 3-D array of coefficient blocks */
 
-typedef JCOEF FAR * JCOEFPTR;    /* useful in a couple of places */
+typedef JCOEF FAR * JCOEFPTR; /* useful in a couple of places */
 
 /* Types for JPEG compression parameters and working tables. */
 
@@ -88,21 +88,21 @@ typedef struct {
 	 * You could suppress output of a table by setting this to TRUE.
 	 * (See jpeg_suppress_tables for an example.)
 	 */
-	boolean sent_table;     /* TRUE when table has been output */
+	boolean sent_table; /* TRUE when table has been output */
 } JQUANT_TBL;
 
 /* Huffman coding tables. */
 
 typedef struct {
 	/* These two fields directly represent the contents of a JPEG DHT marker */
-	uint8 bits[17];         /* bits[k] = # of symbols with codes of length k bits; bits[0] is unused */
-	uint8 huffval[256];     /* The symbols, in order of incr code length */
+	uint8 bits[17]; /* bits[k] = # of symbols with codes of length k bits; bits[0] is unused */
+	uint8 huffval[256]; /* The symbols, in order of incr code length */
 	/* This field is used only during compression.  It's initialized FALSE when
 	 * the table is created, and set TRUE when it's been output to the file.
 	 * You could suppress output of a table by setting this to TRUE.
 	 * (See jpeg_suppress_tables for an example.)
 	 */
-	boolean sent_table;     /* TRUE when table has been output */
+	boolean sent_table; /* TRUE when table has been output */
 } JHUFF_TBL;
 
 /* Basic info about one component (color channel). */
@@ -111,17 +111,17 @@ typedef struct {
 	/* These values are fixed over the whole image. */
 	/* For compression, they must be supplied by parameter setup; */
 	/* for decompression, they are read from the SOF marker. */
-	int component_id;       /* identifier for this component (0..255) */
-	int component_index;    /* its index in SOF or cinfo->comp_info[] */
-	int h_samp_factor;      /* horizontal sampling factor (1..4) */
-	int v_samp_factor;      /* vertical sampling factor (1..4) */
-	int quant_tbl_no;       /* quantization table selector (0..3) */
+	int component_id; /* identifier for this component (0..255) */
+	int component_index; /* its index in SOF or cinfo->comp_info[] */
+	int h_samp_factor; /* horizontal sampling factor (1..4) */
+	int v_samp_factor; /* vertical sampling factor (1..4) */
+	int quant_tbl_no; /* quantization table selector (0..3) */
 	/* These values may vary between scans. */
 	/* For compression, they must be supplied by parameter setup; */
 	/* for decompression, they are read from the SOS marker. */
 	/* The decompressor output side may not use these variables. */
-	int dc_tbl_no;          /* DC entropy table selector (0..3) */
-	int ac_tbl_no;          /* AC entropy table selector (0..3) */
+	int dc_tbl_no; /* DC entropy table selector (0..3) */
+	int ac_tbl_no; /* AC entropy table selector (0..3) */
 
 	/* Remaining fields should be treated as private by applications. */
 
@@ -159,12 +159,12 @@ typedef struct {
 	boolean component_needed;
 	/* These values are computed before starting a scan of the component. */
 	/* The decompressor output side may not use these variables. */
-	int MCU_width;          /* number of blocks per MCU, horizontally */
-	int MCU_height;         /* number of blocks per MCU, vertically */
-	int MCU_blocks;         /* MCU_width * MCU_height */
+	int MCU_width; /* number of blocks per MCU, horizontally */
+	int MCU_height; /* number of blocks per MCU, vertically */
+	int MCU_blocks; /* MCU_width * MCU_height */
 	int MCU_sample_width; /* MCU width in samples: MCU_width * DCT_h_scaled_size */
-	int last_col_width;     /* # of non-dummy blocks across in last MCU */
-	int last_row_height;    /* # of non-dummy blocks down in last MCU */
+	int last_col_width; /* # of non-dummy blocks across in last MCU */
+	int last_row_height; /* # of non-dummy blocks down in last MCU */
 	/* Saved quantization table for component; NULL if none yet saved.
 	 * See jdinput.c comments about the need for this information.
 	 * This field is currently used only for decompression.
@@ -176,10 +176,10 @@ typedef struct {
 /* The script for encoding a multiple-scan file is an array of these: */
 
 typedef struct {
-	int comps_in_scan;      /* number of components encoded in this scan */
+	int comps_in_scan; /* number of components encoded in this scan */
 	int component_index[MAX_COMPS_IN_SCAN]; /* their SOF/comp_info[] indexes */
-	int Ss, Se;             /* progressive JPEG spectral selection parms */
-	int Ah, Al;             /* progressive JPEG successive approx. parms */
+	int Ss, Se; /* progressive JPEG spectral selection parms */
+	int Ah, Al; /* progressive JPEG successive approx. parms */
 } jpeg_scan_info;
 
 /* The decompressor can save APPn and COM markers in a list of these: */
@@ -188,10 +188,10 @@ typedef struct jpeg_marker_struct FAR * jpeg_saved_marker_ptr;
 
 struct jpeg_marker_struct {
 	jpeg_saved_marker_ptr next; /* next in list, or NULL */
-	uint8 marker;           /* marker code: JPEG_COM, or JPEG_APP0+n */
+	uint8 marker; /* marker code: JPEG_COM, or JPEG_APP0+n */
 	uint original_length; /* # bytes of data in the file */
 	uint data_length; /* # bytes of data saved at data[] */
-	JOCTET FAR * data;      /* the data contained in the marker */
+	JOCTET FAR * data; /* the data contained in the marker */
 	/* the marker length word is not counted in data_length or original_length */
 };
 //
@@ -244,7 +244,7 @@ typedef enum {
 	struct jpeg_error_mgr * err; /* Error handler module */	\
 	struct jpeg_memory_mgr * mem; /* Memory manager module */ \
 	struct jpeg_progress_mgr * progress; /* Progress monitor, or NULL if none */ \
-	void * client_data;     /* Available for use by application */ \
+	void * client_data; /* Available for use by application */ \
 	boolean is_decompressor; /* So common code can tell which is which */ \
 	int global_state        /* For checking call sequence validity */
 
@@ -253,7 +253,7 @@ typedef enum {
  * jpeg_common_struct, only of jpeg_compress_struct and jpeg_decompress_struct.
  */
 struct jpeg_common_struct {
-	jpeg_common_fields;     /* Fields common to both master struct types */
+	jpeg_common_fields; /* Fields common to both master struct types */
 	/* Additional fields follow in an actual jpeg_compress_struct or
 	 * jpeg_decompress_struct.  All three structs must agree on these
 	 * initial fields!  (This would be a lot cleaner in C++.)
@@ -267,7 +267,7 @@ typedef struct jpeg_decompress_struct * j_decompress_ptr;
 /* Master record for a compression instance */
 
 struct jpeg_compress_struct {
-	jpeg_common_fields;     /* Fields shared with jpeg_decompress_struct */
+	jpeg_common_fields; /* Fields shared with jpeg_decompress_struct */
 	/* Destination for compressed data */
 	struct jpeg_destination_mgr * dest;
 	/* Description of source image --- these fields must be filled in by
@@ -276,9 +276,9 @@ struct jpeg_compress_struct {
 	 */
 	JDIMENSION image_width; /* input image width */
 	JDIMENSION image_height; /* input image height */
-	int input_components;   /* # of color components in input image */
+	int input_components; /* # of color components in input image */
 	J_COLOR_SPACE in_color_space; /* colorspace of input image */
-	double input_gamma;     /* image gamma of input image */
+	double input_gamma; /* image gamma of input image */
 	/* Compression parameters --- these fields must be set before calling
 	 * jpeg_start_compress().  We recommend calling jpeg_set_defaults() to
 	 * initialize everything to reasonable defaults, then changing anything
@@ -288,7 +288,7 @@ struct jpeg_compress_struct {
 	 */
 	uint   scale_num; // fraction by which to scale image 
 	uint   scale_denom; 
-	JDIMENSION jpeg_width;  /* scaled JPEG image width */
+	JDIMENSION jpeg_width; /* scaled JPEG image width */
 	JDIMENSION jpeg_height; /* scaled JPEG image height */
 	/* Dimensions of actual JPEG image that will be written to file,
 	 * derived from input dimensions by scaling factors above.
@@ -296,8 +296,8 @@ struct jpeg_compress_struct {
 	 * You can also use jpeg_calc_jpeg_dimensions() to determine these values
 	 * in advance of calling jpeg_start_compress().
 	 */
-	int data_precision;     /* bits of precision in image data */
-	int num_components;     /* # of color components in JPEG image */
+	int data_precision; /* bits of precision in image data */
+	int num_components; /* # of color components in JPEG image */
 	J_COLOR_SPACE jpeg_color_space; /* colorspace of JPEG image */
 	jpeg_component_info * comp_info; /* comp_info[i] describes component that appears i'th in SOF */
 	JQUANT_TBL * quant_tbl_ptrs[NUM_QUANT_TBLS];
@@ -311,18 +311,18 @@ struct jpeg_compress_struct {
 	uint8 arith_dc_L[NUM_ARITH_TBLS]; /* L values for DC arith-coding tables */
 	uint8 arith_dc_U[NUM_ARITH_TBLS]; /* U values for DC arith-coding tables */
 	uint8 arith_ac_K[NUM_ARITH_TBLS]; /* Kx values for AC arith-coding tables */
-	int num_scans;          /* # of entries in scan_info array */
+	int num_scans; /* # of entries in scan_info array */
 	const jpeg_scan_info * scan_info; /* script for multi-scan file, or NULL */
 	/* The default value of scan_info is NULL, which causes a single-scan
 	 * sequential JPEG file to be emitted.  To create a multi-scan file,
 	 * set num_scans and scan_info to point to an array of scan definitions.
 	 */
-	boolean raw_data_in;    /* TRUE=caller supplies downsampled data */
-	boolean arith_code;     /* TRUE=arithmetic coding, FALSE=Huffman */
+	boolean raw_data_in; /* TRUE=caller supplies downsampled data */
+	boolean arith_code; /* TRUE=arithmetic coding, FALSE=Huffman */
 	boolean optimize_coding; /* TRUE=optimize entropy encoding parms */
 	boolean CCIR601_sampling; /* TRUE=first samples are cosited */
 	boolean do_fancy_downsampling; /* TRUE=apply fancy downsampling */
-	int smoothing_factor;   /* 1..100, or 0 for no input smoothing */
+	int smoothing_factor; /* 1..100, or 0 for no input smoothing */
 	J_DCT_METHOD dct_method; /* DCT algorithm selector */
 
 	/* The restart interval can be specified in absolute MCUs by setting
@@ -331,7 +331,7 @@ struct jpeg_compress_struct {
 	 * for each scan).
 	 */
 	uint   restart_interval; /* MCUs per restart, or 0 for no restart */
-	int    restart_in_rows;    /* if > 0, MCU rows per restart interval */
+	int    restart_in_rows; /* if > 0, MCU rows per restart interval */
 	/* Parameters controlling emission of special markers. */
 	boolean write_JFIF_header; /* should a JFIF marker be written? */
 	uint8 JFIF_major_version; /* What to write for the JFIF version number */
@@ -340,9 +340,9 @@ struct jpeg_compress_struct {
 	/* into the JFIF APP0 marker.  density_unit can be 0 for unknown, */
 	/* 1 for dots/inch, or 2 for dots/cm.  Note that the pixel aspect */
 	/* ratio is defined by X_density/Y_density even when density_unit=0. */
-	uint8 density_unit;     /* JFIF code for pixel size units */
-	uint16 X_density;       /* Horizontal pixel density */
-	uint16 Y_density;       /* Vertical pixel density */
+	uint8 density_unit; /* JFIF code for pixel size units */
+	uint16 X_density; /* Horizontal pixel density */
+	uint16 Y_density; /* Vertical pixel density */
 	boolean write_Adobe_marker; /* should an Adobe marker be written? */
 	J_COLOR_TRANSFORM color_transform;
 	/* Color transform identifier, writes LSE marker if nonzero */
@@ -359,8 +359,8 @@ struct jpeg_compress_struct {
 	 * These fields are computed during compression startup
 	 */
 	boolean progressive_mode; /* TRUE if scan script uses progressive mode */
-	int max_h_samp_factor;  /* largest h_samp_factor */
-	int max_v_samp_factor;  /* largest v_samp_factor */
+	int max_h_samp_factor; /* largest h_samp_factor */
+	int max_v_samp_factor; /* largest v_samp_factor */
 	int min_DCT_h_scaled_size; /* smallest DCT_h_scaled_size of any component */
 	int min_DCT_v_scaled_size; /* smallest DCT_v_scaled_size of any component */
 	JDIMENSION total_iMCU_rows; /* # of iMCU rows to be input to coef ctlr */
@@ -373,18 +373,18 @@ struct jpeg_compress_struct {
 	 * These fields are valid during any one scan.
 	 * They describe the components and MCUs actually appearing in the scan.
 	 */
-	int comps_in_scan;      /* # of JPEG components in this scan */
+	int comps_in_scan; /* # of JPEG components in this scan */
 	jpeg_component_info * cur_comp_info[MAX_COMPS_IN_SCAN]; /* *cur_comp_info[i] describes component that appears i'th in SOS */
 	JDIMENSION MCUs_per_row; /* # of MCUs across the image */
 	JDIMENSION MCU_rows_in_scan; /* # of MCU rows in the image */
-	int blocks_in_MCU;      /* # of DCT blocks per MCU */
+	int blocks_in_MCU; /* # of DCT blocks per MCU */
 	int MCU_membership[C_MAX_BLOCKS_IN_MCU];
 	/* MCU_membership[i] is index in cur_comp_info of component owning */
 	/* i'th block in an MCU */
-	int Ss, Se, Ah, Al;     /* progressive JPEG parameters for scan */
-	int block_size;         /* the basic DCT block size: 1..16 */
+	int Ss, Se, Ah, Al; /* progressive JPEG parameters for scan */
+	int block_size; /* the basic DCT block size: 1..16 */
 	const uint8 * natural_order; /* natural-order position array */ // @sobolev int-->uint8
-	int lim_Se;             /* min( Se, DCTSIZE2-1 ) */
+	int lim_Se; /* min( Se, DCTSIZE2-1 ) */
 	/*
 	 * Links to compression subobjects (methods and private variables of modules)
 	 */
@@ -410,7 +410,7 @@ struct jpeg_decompress_struct {
 	/* Application may inspect these values to decide how to process image. */
 	JDIMENSION image_width; /* nominal image width (from SOF marker) */
 	JDIMENSION image_height; /* nominal image height */
-	int num_components;     /* # of color components in JPEG image */
+	int num_components; /* # of color components in JPEG image */
 	J_COLOR_SPACE jpeg_color_space; /* colorspace of JPEG image */
 	/* Decompression processing parameters --- these fields must be set before
 	 * calling jpeg_start_decompress().  Note that jpeg_read_header() initializes
@@ -418,9 +418,9 @@ struct jpeg_decompress_struct {
 	 */
 	J_COLOR_SPACE out_color_space; /* colorspace for output */
 	uint scale_num, scale_denom; /* fraction by which to scale image */
-	double output_gamma;    /* image gamma wanted in output */
+	double output_gamma; /* image gamma wanted in output */
 	boolean buffered_image; /* TRUE=multiple output passes */
-	boolean raw_data_out;   /* TRUE=downsampled data wanted */
+	boolean raw_data_out; /* TRUE=downsampled data wanted */
 	J_DCT_METHOD dct_method; /* IDCT algorithm selector */
 	boolean do_fancy_upsampling; /* TRUE=apply fancy upsampling */
 	boolean do_block_smoothing; /* TRUE=apply interblock smoothing */
@@ -441,11 +441,11 @@ struct jpeg_decompress_struct {
 	JDIMENSION output_width; /* scaled image width */
 	JDIMENSION output_height; /* scaled image height */
 	int out_color_components; /* # of color components in out_color_space */
-	int output_components;  /* # of color components returned */
+	int output_components; /* # of color components returned */
 	/* output_components is 1 (a colormap index) when quantizing colors;
 	 * otherwise it equals out_color_components.
 	 */
-	int rec_outbuf_height;  /* min recommended height of scanline buffer */
+	int rec_outbuf_height; /* min recommended height of scanline buffer */
 	/* If the buffer passed to jpeg_read_scanlines() is less than this many rows
 	 * high, space and time will be wasted due to unnecessary data copying.
 	 * Usually rec_outbuf_height will be 1 or 2, at most 4.
@@ -457,7 +457,7 @@ struct jpeg_decompress_struct {
 	 * The map has out_color_components rows and actual_number_of_colors columns.
 	 */
 	int actual_number_of_colors; /* number of entries in use */
-	JSAMPARRAY colormap;    /* The color map as a 2-D pixel array */
+	JSAMPARRAY colormap; /* The color map as a 2-D pixel array */
 	/* State variables: these variables indicate the progress of decompression.
 	 * The application may examine these but must not modify them.
 	 */
@@ -469,7 +469,7 @@ struct jpeg_decompress_struct {
 	/* Current input scan number and number of iMCU rows completed in scan.
 	 * These indicate the progress of the decompressor input side.
 	 */
-	int input_scan_number;  /* Number of SOS markers seen so far */
+	int input_scan_number; /* Number of SOS markers seen so far */
 	JDIMENSION input_iMCU_row; /* Number of iMCU rows completed */
 	/* The "output scan number" is the notional scan being displayed by the
 	 * output side.  The decompressor will not allow output scan/row number
@@ -500,12 +500,12 @@ struct jpeg_decompress_struct {
 	/* These parameters are never carried across datastreams, since they
 	 * are given in SOF/SOS markers or defined to be reset by SOI.
 	 */
-	int data_precision;     /* bits of precision in image data */
+	int data_precision; /* bits of precision in image data */
 	jpeg_component_info * comp_info;
 	/* comp_info[i] describes component that appears i'th in SOF */
-	boolean is_baseline;    /* TRUE if Baseline SOF0 encountered */
+	boolean is_baseline; /* TRUE if Baseline SOF0 encountered */
 	boolean progressive_mode; /* TRUE if SOFn specifies progressive mode */
-	boolean arith_code;     /* TRUE=arithmetic coding, FALSE=Huffman */
+	boolean arith_code; /* TRUE=arithmetic coding, FALSE=Huffman */
 	uint8 arith_dc_L[NUM_ARITH_TBLS]; /* L values for DC arith-coding tables */
 	uint8 arith_dc_U[NUM_ARITH_TBLS]; /* U values for DC arith-coding tables */
 	uint8 arith_ac_K[NUM_ARITH_TBLS]; /* Kx values for AC arith-coding tables */
@@ -517,11 +517,11 @@ struct jpeg_decompress_struct {
 	/* Data copied from JFIF marker; only valid if saw_JFIF_marker is TRUE: */
 	uint8 JFIF_major_version; /* JFIF version number */
 	uint8 JFIF_minor_version;
-	uint8 density_unit;     /* JFIF code for pixel size units */
-	uint16 X_density;       /* Horizontal pixel density */
-	uint16 Y_density;       /* Vertical pixel density */
+	uint8 density_unit; /* JFIF code for pixel size units */
+	uint16 X_density; /* Horizontal pixel density */
+	uint16 Y_density; /* Vertical pixel density */
 	boolean saw_Adobe_marker; /* TRUE iff an Adobe APP14 marker was found */
-	uint8 Adobe_transform;  /* Color transform code from Adobe marker */
+	uint8 Adobe_transform; /* Color transform code from Adobe marker */
 	J_COLOR_TRANSFORM color_transform;
 	/* Color transform identifier derived from LSE marker, otherwise zero */
 	boolean CCIR601_sampling; /* TRUE=first samples are cosited */
@@ -536,8 +536,8 @@ struct jpeg_decompress_struct {
 	/*
 	 * These fields are computed during decompression startup
 	 */
-	int max_h_samp_factor;  /* largest h_samp_factor */
-	int max_v_samp_factor;  /* largest v_samp_factor */
+	int max_h_samp_factor; /* largest h_samp_factor */
+	int max_v_samp_factor; /* largest v_samp_factor */
 	int min_DCT_h_scaled_size; /* smallest DCT_h_scaled_size of any component */
 	int min_DCT_v_scaled_size; /* smallest DCT_v_scaled_size of any component */
 	JDIMENSION total_iMCU_rows; /* # of iMCU rows in image */
@@ -554,21 +554,21 @@ struct jpeg_decompress_struct {
 	 * They describe the components and MCUs actually appearing in the scan.
 	 * Note that the decompressor output side must not use these fields.
 	 */
-	int comps_in_scan;      /* # of JPEG components in this scan */
+	int comps_in_scan; /* # of JPEG components in this scan */
 	jpeg_component_info * cur_comp_info[MAX_COMPS_IN_SCAN];
 	/* *cur_comp_info[i] describes component that appears i'th in SOS */
 	JDIMENSION MCUs_per_row; /* # of MCUs across the image */
 	JDIMENSION MCU_rows_in_scan; /* # of MCU rows in the image */
-	int blocks_in_MCU;      /* # of DCT blocks per MCU */
+	int blocks_in_MCU; /* # of DCT blocks per MCU */
 	int MCU_membership[D_MAX_BLOCKS_IN_MCU];
 	/* MCU_membership[i] is index in cur_comp_info of component owning */
 	/* i'th block in an MCU */
-	int Ss, Se, Ah, Al;     /* progressive JPEG parameters for scan */
+	int Ss, Se, Ah, Al; /* progressive JPEG parameters for scan */
 	/* These fields are derived from Se of first SOS marker.
 	 */
-	int block_size;         /* the basic DCT block size: 1..16 */
+	int block_size; /* the basic DCT block size: 1..16 */
 	const uint8 * natural_order; /* natural-order position array for entropy decode */ // @sobolev int-->uint8
-	int lim_Se;             /* min( Se, DCTSIZE2-1 ) for entropy decode */
+	int lim_Se; /* min( Se, DCTSIZE2-1 ) for entropy decode */
 	/* This field is shared between entropy decoder and marker parser.
 	 * It is either zero or the code of a JPEG marker that has been
 	 * read from the data source, but has not yet been processed.
@@ -624,7 +624,7 @@ struct jpeg_error_mgr {
 
 	/* Standard state variables for error facility */
 
-	int trace_level;        /* max msg_level that will be displayed */
+	int trace_level; /* max msg_level that will be displayed */
 
 	/* For recoverable corrupt-data errors, we emit a warning message,
 	 * but keep going unless emit_message chooses to abort.  emit_message
@@ -632,7 +632,7 @@ struct jpeg_error_mgr {
 	 * can check for bad data by seeing if num_warnings is nonzero at the
 	 * end of processing.
 	 */
-	long num_warnings;      /* number of corrupt-data warnings */
+	long num_warnings; /* number of corrupt-data warnings */
 
 	/* These fields point to the table(s) of error message strings.
 	 * An application can change the table pointer to switch to a different
@@ -659,17 +659,17 @@ struct jpeg_error_mgr {
 struct jpeg_progress_mgr {
 	JMETHOD(void, progress_monitor, (j_common_ptr cinfo));
 
-	long pass_counter;      /* work units completed in this pass */
-	long pass_limit;        /* total number of work units in this pass */
-	int completed_passes;   /* passes completed so far */
-	int total_passes;       /* total number of passes expected */
+	long pass_counter; /* work units completed in this pass */
+	long pass_limit; /* total number of work units in this pass */
+	int completed_passes; /* passes completed so far */
+	int total_passes; /* total number of passes expected */
 };
 
 /* Data destination object for compression */
 
 struct jpeg_destination_mgr {
 	JOCTET * next_output_byte; /* => next byte to write in buffer */
-	size_t free_in_buffer;  /* # of byte spaces remaining in buffer */
+	size_t free_in_buffer; /* # of byte spaces remaining in buffer */
 
 	JMETHOD(void, init_destination, (j_compress_ptr cinfo));
 	JMETHOD(boolean, empty_output_buffer, (j_compress_ptr cinfo));

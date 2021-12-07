@@ -108,10 +108,10 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	tif->tif_name = (char *)tif + sizeof(TIFF);
 	strcpy(tif->tif_name, name);
 	tif->tif_mode = m &~(O_CREAT|O_TRUNC);
-	tif->tif_curdir = (uint16)-1;          /* non-existent directory */
+	tif->tif_curdir = (uint16)-1; /* non-existent directory */
 	tif->tif_curoff = 0;
-	tif->tif_curstrip = static_cast<uint32>(-1);        /* invalid strip */
-	tif->tif_row = static_cast<uint32>(-1);             /* read/write pre-increment */
+	tif->tif_curstrip = static_cast<uint32>(-1); /* invalid strip */
+	tif->tif_row = static_cast<uint32>(-1); /* read/write pre-increment */
 	tif->tif_clientdata = clientdata;
 	if(!readproc || !writeproc || !seekproc || !closeproc || !sizeproc) {
 		TIFFErrorExt(clientdata, module, "One of the client procedures is NULL pointer.");
@@ -124,7 +124,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	tif->tif_sizeproc = sizeproc;
 	tif->tif_mapproc = NZOR(mapproc, _tiffDummyMapProc);
 	tif->tif_unmapproc = NZOR(unmapproc, _tiffDummyUnmapProc);
-	_TIFFSetDefaultCompressionState(tif);    /* setup default state */
+	_TIFFSetDefaultCompressionState(tif); /* setup default state */
 	/*
 	 * Default is to return data MSB2LSB and enable the
 	 * use of memory-mapped files and strip chopping when
@@ -425,7 +425,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 		    return (tif);
 	}
 bad:
-	tif->tif_mode = O_RDONLY;       /* XXX avoid flush */
+	tif->tif_mode = O_RDONLY; /* XXX avoid flush */
 	TIFFCleanup(tif);
 bad2:
 	return ((TIFF*)0);

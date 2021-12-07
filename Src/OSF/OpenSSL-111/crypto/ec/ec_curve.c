@@ -18,7 +18,7 @@
 typedef struct {
 	int field_type,         /* either NID_X9_62_prime_field or NID_X9_62_characteristic_two_field */
 	    seed_len, param_len;
-	uint cofactor;  /* promoted to BN_ULONG */
+	uint cofactor; /* promoted to BN_ULONG */
 } EC_CURVE_DATA;
 
 /* the nist prime curves */
@@ -2947,7 +2947,7 @@ static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 	seed_len = data->seed_len;
 	param_len = data->param_len;
 	params = (const uchar *)(data + 1); /* skip header */
-	params += seed_len;     /* skip seed */
+	params += seed_len; /* skip seed */
 
 	if((p = BN_bin2bn(params + 0 * param_len, param_len, NULL)) == NULL
 	    || (a = BN_bin2bn(params + 1 * param_len, param_len, NULL)) == NULL
@@ -3062,8 +3062,8 @@ size_t EC_get_builtin_curves(EC_builtin_curve * r, size_t nitems)
 /* Functions to translate between common NIST curve names and NIDs */
 
 typedef struct {
-	const char * name;      /* NIST Name of curve */
-	int nid;                /* Curve NID */
+	const char * name; /* NIST Name of curve */
+	int nid; /* Curve NID */
 } EC_NIST_NAME;
 
 static EC_NIST_NAME nist_curves[] = {
@@ -3119,12 +3119,10 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 	uchar * param_bytes = NULL;
 	const EC_CURVE_DATA * data;
 	const EC_POINT * generator = NULL;
-	const EC_METHOD * meth;
 	const BIGNUM * cofactor = NULL;
 	/* An array of BIGNUMs for (p, a, b, x, y, order) */
 	BIGNUM * bn[NUM_BN_FIELDS] = {NULL, NULL, NULL, NULL, NULL, NULL};
-
-	meth = EC_GROUP_method_of(group);
+	const EC_METHOD * meth = EC_GROUP_method_of(group);
 	if(meth == NULL)
 		return -1;
 	/* Use the optional named curve nid as a search field */
@@ -3133,9 +3131,7 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 	seed_len = EC_GROUP_get_seed_len(group);
 	seed = EC_GROUP_get0_seed(group);
 	cofactor = EC_GROUP_get0_cofactor(group);
-
 	BN_CTX_start(ctx);
-
 	/*
 	 * The built-in curves contains data fields (p, a, b, x, y, order) that are
 	 * all zero-padded to be the same size. The size of the padding is
@@ -3146,12 +3142,10 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 	len = BN_num_bytes(group->field);
 	if(len > param_len)
 		param_len = len;
-
 	/* Allocate space to store the padded data for (p, a, b, x, y, order)  */
 	param_bytes = static_cast<uchar *>(OPENSSL_malloc(param_len * NUM_BN_FIELDS));
 	if(param_bytes == NULL)
 		goto end;
-
 	/* Create the bignums */
 	for(i = 0; i < NUM_BN_FIELDS; ++i) {
 		if((bn[i] = BN_CTX_get(ctx)) == NULL)
@@ -3169,7 +3163,6 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 	    /* Get order */
 	 && EC_GROUP_get_order(group, bn[5], ctx)))
 		goto end;
-
 	/*
 	 * Convert the bignum array to bytes that are joined together to form
 	 * a single buffer that contains data for all fields.
@@ -3179,29 +3172,21 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 		if(BN_bn2binpad(bn[i], &param_bytes[i*param_len], param_len) <= 0)
 			goto end;
 	}
-
 	for(i = 0; i < curve_list_length; i++) {
 		const ec_list_element curve = curve_list[i];
-
 		data = curve.data;
 		/* Get the raw order byte data */
 		params_seed = (const uchar *)(data + 1); /* skip header */
 		params = params_seed + data->seed_len;
-
 		/* Look for unique fields in the fixed curve data */
-		if(data->field_type == field_type
-		 && param_len == data->param_len
-		 && (nid <= 0 || nid == curve.nid)
+		if(data->field_type == field_type && param_len == data->param_len && (nid <= 0 || nid == curve.nid)
 		    /* check the optional cofactor (ignore if its zero) */
-		 && (BN_is_zero(cofactor)
-		    || BN_is_word(cofactor, (const BN_ULONG)curve.data->cofactor))
+		 && (BN_is_zero(cofactor) || BN_is_word(cofactor, (const BN_ULONG)curve.data->cofactor))
 		    /* Check the optional seed (ignore if its not set) */
-		 && (data->seed_len == 0 || seed_len == 0
-		    || ((size_t)data->seed_len == seed_len
+		 && (data->seed_len == 0 || seed_len == 0 || ((size_t)data->seed_len == seed_len
 		 && memcmp(params_seed, seed, seed_len) == 0))
 		    /* Check that the groups params match the built-in curve params */
-		 && memcmp(param_bytes, params, param_len * NUM_BN_FIELDS)
-		    == 0) {
+		 && memcmp(param_bytes, params, param_len * NUM_BN_FIELDS) == 0) {
 			ret = curve.nid;
 			goto end;
 		}

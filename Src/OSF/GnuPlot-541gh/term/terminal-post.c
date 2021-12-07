@@ -56,7 +56,7 @@
 
 //#ifdef TERM_PROTO
 static bool PS_newpath = FALSE;
-static bool ENHps_opened_string = FALSE;  /* try to cut out empty ()'s */
+static bool ENHps_opened_string = FALSE; /* try to cut out empty ()'s */
 static int PS_in_textbox = 0;
 //#endif /* TERM_PROTO */
 
@@ -1422,7 +1422,7 @@ end\n\
 	    PS_SC*1.0,  /* dash length */
 	    PS_SC*1.0,  /* dash length */
 	    PS_HTIC/2.0,                /* half point width */
-	    PS_VTIC/2.0);               /* half point height */
+	    PS_VTIC/2.0); /* half point height */
 
 	/* HH: Clip to BoundingBox if the corresponding flag is toggled */
 	fprintf(GPT.P_GpPsFile,
@@ -1823,7 +1823,7 @@ void PS_vector(GpTermEntry * pThis, uint x, uint y)
 		PS_move(pThis, PS_pen_x, PS_pen_y);
 	if(strlen(rel) < strlen(abso)) {
 		fputs(rel, GPT.P_GpPsFile);
-		PS_taken++;     /* only used for debug info */
+		PS_taken++; /* only used for debug info */
 		p_gp->TPsB.PathCount += 1;
 	}
 	else {
@@ -2109,14 +2109,14 @@ void PS_point(GpTermEntry * pThis, uint x, uint y, int number)
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(p_gp->TPsB.P_Params->terminal == PSTERM_EPSLATEX && p_gp->TPsB.P_Params->oldstyle) {
 		if(number < 0)
-			number = -1;    /* negative types are all 'dot' */
+			number = -1; /* negative types are all 'dot' */
 		else
 			number %= sizeof(pointFNS_OldEPSL)/sizeof(pointFNS_OldEPSL[0]) -1;
 		fprintf(GPT.P_GpPsFile, "%d %d %s\n", x, y, pointFNS_OldEPSL[number+1]);
 	}
 	else {
 		if(number < 0)
-			number = -1;    /* negative types are all 'dot' */
+			number = -1; /* negative types are all 'dot' */
 		else
 			number %= sizeof(pointFNS)/sizeof(pointFNS[0]) -1;
 		fprintf(GPT.P_GpPsFile, "%d %d %s\n", x, y, pointFNS[number+1]);
@@ -2846,8 +2846,8 @@ static void PS_encode85(ulong tuple4, uchar * tuple5)
 /* structure to store PNG image bytes */
 typedef struct {
 	uchar * buffer; /* the buffer which holds the png data */
-	size_t size;        /* the current total buffer size */
-	size_t length;      /* the used buffer length */
+	size_t size; /* the current total buffer size */
+	size_t length; /* the used buffer length */
 } png_buffer_encode_t;
 
 /* Grab an unsigned 32 bit integer from a buffer in big-endian format.

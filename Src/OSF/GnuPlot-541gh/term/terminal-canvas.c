@@ -108,7 +108,7 @@ static int canvas_line_type = LT_UNDEFINED;
 static int canvas_dash_type = DASHTYPE_SOLID;
 static double canvas_linewidth = 1.0;
 static double canvas_dashlength_factor = 1.0;
-static double CANVAS_ps = 1;    /* pointsize multiplier */
+static double CANVAS_ps = 1; /* pointsize multiplier */
 static double CANVAS_default_fsize = 10;
 static double canvas_font_size = 10;
 static double canvas_fontscale = 1.0;
@@ -117,7 +117,7 @@ static char * canvas_justify = "";
 static int canvas_text_angle = 0;
 static int canvas_in_a_path = FALSE;
 static int already_closed = FALSE;
-static bool canvas_dashed = TRUE;               /* Version 5: dashes always enabled */
+static bool canvas_dashed = TRUE; /* Version 5: dashes always enabled */
 static t_linecap canvas_linecap = ROUNDED;
 static bool CANVAS_mouseable = FALSE;
 static bool CANVAS_standalone = TRUE;
@@ -132,7 +132,7 @@ static char * CANVAS_hypertext_text = NULL;
 // 
 static int CANVAS_imageno = 0;
 typedef struct canvas_imagefile {
-	int imageno;    /* Used to generate the internal name */
+	int imageno; /* Used to generate the internal name */
 	char * filename; /* The parallel file that it maps to  */
 	struct canvas_imagefile * next;
 } canvas_imagefile;
@@ -140,11 +140,11 @@ static canvas_imagefile * imagelist = NULL;
 
 static struct {
 	int previous_linewidth;
-	double alpha;           /* alpha channel */
-	char color[24];         /* rgba(rrr,ggg,bbb,aaaa) */
+	double alpha; /* alpha channel */
+	char color[24]; /* rgba(rrr,ggg,bbb,aaaa) */
 	char previous_color[24]; /* rgba(rrr,ggg,bbb,aaaa) */
 	char previous_fill[24]; /* rgba(rrr,ggg,bbb,aaaa) */
-	int plotno;             /* Which plot are we in? */
+	int plotno; /* Which plot are we in? */
 } canvas_state;
 
 enum CANVAS_case {
@@ -463,7 +463,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	}
 	fprintf(GPT.P_GpOutFile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
 	fprintf(GPT.P_GpOutFile, "// short forms of commands provided by gnuplot_common.js\n"
-	    "function DT  (dt)  {gnuplot.dashtype(dt);};\n"
+	    "function DT  (dt) {gnuplot.dashtype(dt);};\n"
 	    "function DS  (x,y) {gnuplot.dashstart(x,y);};\n"
 	    "function DL  (x,y) {gnuplot.dashstep(x,y);};\n"
 	    "function M   (x,y) {if (gnuplot.pattern.length > 0) DS(x,y); else gnuplot.M(x,y);};\n"

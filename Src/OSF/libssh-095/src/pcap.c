@@ -51,13 +51,13 @@
  * Just for information.
  */
 struct pcap_hdr_s {
-	uint32_t magic_number;   /* magic number */
-	uint16_t version_major;  /* major version number */
-	uint16_t version_minor;  /* minor version number */
-	int32_t thiszone;         /* GMT to local correction */
-	uint32_t sigfigs;        /* accuracy of timestamps */
-	uint32_t snaplen;        /* max length of captured packets, in octets */
-	uint32_t network;        /* data link type */
+	uint32_t magic_number; /* magic number */
+	uint16_t version_major; /* major version number */
+	uint16_t version_minor; /* minor version number */
+	int32_t thiszone; /* GMT to local correction */
+	uint32_t sigfigs; /* accuracy of timestamps */
+	uint32_t snaplen; /* max length of captured packets, in octets */
+	uint32_t network; /* data link type */
 };
 
 #define PCAP_MAGIC 0xa1b2c3d4
@@ -78,10 +78,10 @@ struct pcap_hdr_s {
  * Just for information.
  */
 struct pcaprec_hdr_s {
-	uint32_t ts_sec;         /* timestamp seconds */
-	uint32_t ts_usec;        /* timestamp microseconds */
-	uint32_t incl_len;       /* number of octets of packet saved in file */
-	uint32_t orig_len;       /* actual length of packet */
+	uint32_t ts_sec; /* timestamp seconds */
+	uint32_t ts_usec; /* timestamp microseconds */
+	uint32_t incl_len; /* number of octets of packet saved in file */
+	uint32_t orig_len; /* actual length of packet */
 };
 
 /** @private
@@ -400,7 +400,7 @@ int ssh_pcap_context_write(ssh_pcap_context ctx, enum ssh_pcap_direction directi
 		0,                   /* fragment offset */
 		64,                  /* TTL */
 		6,                   /* protocol TCP=6 */
-		0);                  /* checksum */
+		0); /* checksum */
 
 	ctx->file->ipsequence++;
 	if(rc != SSH_OK) {
@@ -483,7 +483,7 @@ int ssh_pcap_context_write(ssh_pcap_context ctx, enum ssh_pcap_direction directi
 		65535,                       /* window */
 		0,                           /* checksum */
 		0,                           /* urgent data ptr */
-		(size_t)len, data);          /* actual data */
+		(size_t)len, data); /* actual data */
 	if(rc != SSH_OK) {
 		goto error;
 	}

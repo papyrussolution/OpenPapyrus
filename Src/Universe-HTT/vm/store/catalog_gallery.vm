@@ -22,14 +22,14 @@
 		margin: 8px 6px;
 		text-align: center;
 		
-		## -moz-box-shadow: 3px 3px 5px #888888;       /* Firefox */
-		## -webkit-box-shadow: 3px 3px 5px #888888;    /* Safari, Chrome */
-		## box-shadow: 3px 3px 5px #888888;            /* CSS3 */
+		## -moz-box-shadow: 3px 3px 5px #888888; /* Firefox */
+		## -webkit-box-shadow: 3px 3px 5px #888888; /* Safari, Chrome */
+		## box-shadow: 3px 3px 5px #888888; /* CSS3 */
 		
-		-moz-border-radius: 4px;     /* Firefox */
-		-webkit-border-radius: 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 4px;   /* KHTML */
-		border-radius: 4px;          /* CSS3 */
+		-moz-border-radius: 4px; /* Firefox */
+		-webkit-border-radius: 4px; /* Safari, Chrome */
+		-khtml-border-radius: 4px; /* KHTML */
+		border-radius: 4px; /* CSS3 */
 	}
 	##
 	## Gallery item top block
@@ -41,10 +41,10 @@
 		background: white;
 		border: 1px solid;
 		border-color: #C8C9CA #9E9E9E #9E9E9E #C8C9CA;
-		-moz-border-radius: 4px 4px 0 0;     /* Firefox */
-		-webkit-border-radius: 4px 4px 0 0;  /* Safari, Chrome */
-		-khtml-border-radius: 4px 4px 0 0;   /* KHTML */
-		border-radius: 4px 4px 0 0;          /* CSS3 */
+		-moz-border-radius: 4px 4px 0 0; /* Firefox */
+		-webkit-border-radius: 4px 4px 0 0; /* Safari, Chrome */
+		-khtml-border-radius: 4px 4px 0 0; /* KHTML */
+		border-radius: 4px 4px 0 0; /* CSS3 */
 	}
 	.store-v1-gc-gallery-item-cart-count-blk {
 		display: none;

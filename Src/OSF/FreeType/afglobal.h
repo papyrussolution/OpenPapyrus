@@ -105,12 +105,12 @@ FT_BEGIN_HEADER
   typedef struct  AF_FaceGlobalsRec_
   {
     FT_Face          face;
-    FT_Long          glyph_count;    /* same as face->num_glyphs */
+    FT_Long          glyph_count; /* same as face->num_glyphs */
     FT_UShort*       glyph_styles;
 
 #ifdef FT_CONFIG_OPTION_USE_HARFBUZZ
     hb_font_t*       hb_font;
-    hb_buffer_t*     hb_buf;           /* for feature comparison */
+    hb_buffer_t*     hb_buf; /* for feature comparison */
 #endif
 
     /* per-face auto-hinter properties */
@@ -134,7 +134,7 @@ FT_BEGIN_HEADER
     /* Amount to scale down by to keep emboldened points */
     /* on the Y-axis in pre-computed blue zones.   */
     FT_Fixed         scale_down_factor;
-    AF_Module        module;         /* to access global properties */
+    AF_Module        module; /* to access global properties */
 
   } AF_FaceGlobalsRec;
 

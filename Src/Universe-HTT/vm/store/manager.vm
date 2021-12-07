@@ -158,14 +158,14 @@
 		border-width: 2px;
 		border-color: #C8C9CA #9E9E9E #9E9E9E #C8C9CA;
 		
-		## -moz-box-shadow: 3px 3px 5px #888888;       /* Firefox */
-		## -webkit-box-shadow: 3px 3px 5px #888888;    /* Safari, Chrome */
-		## box-shadow: 3px 3px 5px #888888;            /* CSS3 */
+		## -moz-box-shadow: 3px 3px 5px #888888; /* Firefox */
+		## -webkit-box-shadow: 3px 3px 5px #888888; /* Safari, Chrome */
+		## box-shadow: 3px 3px 5px #888888; /* CSS3 */
 		
-		-moz-border-radius: 4px;     /* Firefox */
-		-webkit-border-radius: 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 4px;   /* KHTML */
-		border-radius: 4px;          /* CSS3 */
+		-moz-border-radius: 4px; /* Firefox */
+		-webkit-border-radius: 4px; /* Safari, Chrome */
+		-khtml-border-radius: 4px; /* KHTML */
+		border-radius: 4px; /* CSS3 */
 		
 		cursor: pointer;
 	}
@@ -193,10 +193,10 @@
 	#frm_store_manager_items_blk {
 		margin-top: 5px;
 		
-		-moz-border-radius: 4px;     /* Firefox */
-		-webkit-border-radius: 4px;  /* Safari, Chrome */
-		-khtml-border-radius: 4px;   /* KHTML */
-		border-radius: 4px;          /* CSS3 */
+		-moz-border-radius: 4px; /* Firefox */
+		-webkit-border-radius: 4px; /* Safari, Chrome */
+		-khtml-border-radius: 4px; /* KHTML */
+		border-radius: 4px; /* CSS3 */
 		
 		/*
 		border-style: solid;

@@ -110,7 +110,7 @@ static const char * GPIC_lines[] =
 /* number of linetypes above */
 #define GPIC_NUMLINES 6
 
-static int GPIC_linecount = 0;  /* number of points in line so far */
+static int GPIC_linecount = 0; /* number of points in line so far */
 
 TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
 {

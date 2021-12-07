@@ -145,7 +145,7 @@ typedef enum {
 // Descr: A DTD Notation definition.
 //
 struct xmlNotation {
-	const xmlChar * name;     /* Notation name */
+	const xmlChar * name; /* Notation name */
 	const xmlChar * PublicID; /* Public identifier, if any */
 	const xmlChar * SystemID; /* System identifier, if any */
 };
@@ -227,22 +227,22 @@ struct xmlDtd : public XmlNodeBase {
 // Descr: An Attribute declaration in a DTD.
 // 
 struct xmlAttribute {
-	void * _private;      /* application data */
-	xmlElementType type;            /* XML_ATTRIBUTE_DECL, must be second ! */
-	const xmlChar * name;  /* Attribute name */
-	xmlNode * children;  /* NULL */
-	xmlNode * last;  /* NULL */
-	xmlDtd  * parent;  /* -> DTD */
-	xmlNode * next;  /* next sibling link  */
-	xmlNode * prev;  /* previous sibling link  */
-	xmlDoc  * doc;  /* the containing document */
-	struct xmlAttribute * nexth;  /* next in hash table */
-	xmlAttributeType atype;         /* The attribute type */
-	xmlAttributeDefault def;        /* the default */
-	const xmlChar  * defaultValue;  /* or the default value */
-	xmlEnumeration * tree;         /* or the enumeration tree if any */
-	const xmlChar * prefix;  /* the namespace prefix if any */
-	const xmlChar * elem;  /* Element holding the attribute */
+	void * _private; /* application data */
+	xmlElementType type; /* XML_ATTRIBUTE_DECL, must be second ! */
+	const xmlChar * name; /* Attribute name */
+	xmlNode * children; /* NULL */
+	xmlNode * last; /* NULL */
+	xmlDtd  * parent; /* -> DTD */
+	xmlNode * next; /* next sibling link  */
+	xmlNode * prev; /* previous sibling link  */
+	xmlDoc  * doc; /* the containing document */
+	struct xmlAttribute * nexth; /* next in hash table */
+	xmlAttributeType atype; /* The attribute type */
+	xmlAttributeDefault def; /* the default */
+	const xmlChar  * defaultValue; /* or the default value */
+	xmlEnumeration * tree; /* or the enumeration tree if any */
+	const xmlChar * prefix; /* the namespace prefix if any */
+	const xmlChar * elem; /* Element holding the attribute */
 };
 // 
 // Descr: Possible definitions of element content types.
@@ -266,8 +266,8 @@ typedef enum {
 // Descr: An XML Element content as stored after parsing an element definition in a DTD.
 // 
 struct xmlElementContent {
-	xmlElementContentType type;     /* PCDATA, ELEMENT, SEQ or OR */
-	xmlElementContentOccur ocur;    /* ONCE, OPT, MULT or PLUS */
+	xmlElementContentType type; /* PCDATA, ELEMENT, SEQ or OR */
+	xmlElementContentOccur ocur; /* ONCE, OPT, MULT or PLUS */
 	const xmlChar * name; /* Element name */
 	xmlElementContent * c1; /* first child */
 	xmlElementContent * c2; /* second child */
@@ -299,21 +299,21 @@ extern "C" {
  */
 //typedef struct _xmlElement xmlElement;
 struct xmlElement {
-	void * _private;      /* application data */
-	xmlElementType type;            /* XML_ELEMENT_DECL, must be second ! */
-	const xmlChar * name;  /* Element name */
-	xmlNode * children;  /* NULL */
-	xmlNode * last;  /* NULL */
-	xmlDtd  * parent;  /* -> DTD */
-	xmlNode * next;  /* next sibling link  */
-	xmlNode * prev;  /* previous sibling link  */
-	xmlDoc  * doc;  /* the containing document */
-	xmlElementTypeVal etype;        /* The type */
-	xmlElementContent * content;   /* the allowed element content */
-	xmlAttribute  * attributes;     /* List of the declared attributes */
-	const xmlChar * prefix;  /* the namespace prefix if any */
+	void * _private; /* application data */
+	xmlElementType type; /* XML_ELEMENT_DECL, must be second ! */
+	const xmlChar * name; /* Element name */
+	xmlNode * children; /* NULL */
+	xmlNode * last; /* NULL */
+	xmlDtd  * parent; /* -> DTD */
+	xmlNode * next; /* next sibling link  */
+	xmlNode * prev; /* previous sibling link  */
+	xmlDoc  * doc; /* the containing document */
+	xmlElementTypeVal etype; /* The type */
+	xmlElementContent * content; /* the allowed element content */
+	xmlAttribute  * attributes; /* List of the declared attributes */
+	const xmlChar * prefix; /* the namespace prefix if any */
 #ifdef LIBXML_REGEXP_ENABLED
-	xmlRegexp * contModel;         /* the validating regexp */
+	xmlRegexp * contModel; /* the validating regexp */
 #else
 	void * contModel;
 #endif
@@ -340,12 +340,12 @@ typedef xmlElementType xmlNsType;
 //typedef xmlNs * xmlNsPtr;
 
 struct xmlNs {
-	xmlNs * next;  /* next Ns link for this node  */
-	xmlNsType type;         /* global or local */
-	const xmlChar * href;   /* URL for the namespace */
+	xmlNs * next; /* next Ns link for this node  */
+	xmlNsType type; /* global or local */
+	const xmlChar * href; /* URL for the namespace */
 	const xmlChar * prefix; /* prefix for the namespace */
 	void * _private; /* application data */
-	xmlDoc * context;       /* normally an xmlDoc */
+	xmlDoc * context; /* normally an xmlDoc */
 };
 //
 // Descr: An attribute on an XML node.
@@ -353,15 +353,15 @@ struct xmlNs {
 //typedef struct _xmlAttr xmlAttr;
 struct xmlAttr {
 	void * _private; /* application data */
-	xmlElementType type;    /* XML_ATTRIBUTE_NODE, must be second ! */
+	xmlElementType type; /* XML_ATTRIBUTE_NODE, must be second ! */
 	const xmlChar * name; /* the name of the property */
 	xmlNode * children; /* the value of the property */
 	xmlNode * last; /* NULL */
 	xmlNode * parent; /* child->parent link */
 	xmlAttr * next; /* next sibling link  */
 	xmlAttr * prev; /* previous sibling link  */
-	xmlDoc  * doc;  /* the containing document */
-	xmlNs * ns;   /* pointer to the associated namespace */
+	xmlDoc  * doc; /* the containing document */
+	xmlNs * ns; /* pointer to the associated namespace */
 	xmlAttributeType atype; /* the attribute type if validating */
 	void * psvi; /* for type/PSVI informations */
 };
@@ -372,9 +372,9 @@ struct xmlAttr {
 struct xmlID {
 	xmlID * next; /* next ID */
 	const  xmlChar * value; /* The ID name */
-	xmlAttr * attr;        /* The attribute holding it */
+	xmlAttr * attr; /* The attribute holding it */
 	const xmlChar * name; /* The attribute if attr is not available */
-	int    lineno;             /* The line number if attr is not available */
+	int    lineno; /* The line number if attr is not available */
 	xmlDoc * doc; /* The document holding the ID */
 };
 
@@ -385,9 +385,9 @@ struct xmlID {
 struct xmlRef {
 	xmlRef * next; /* next Ref */
 	const xmlChar * value; /* The Ref name */
-	xmlAttr * attr;        /* The attribute holding it */
+	xmlAttr * attr; /* The attribute holding it */
 	const xmlChar * name; /* The attribute if attr is not available */
-	int lineno;             /* The line number if attr is not available */
+	int lineno; /* The line number if attr is not available */
 };
 
 //typedef xmlRef * xmlRefPtr;
@@ -410,8 +410,8 @@ struct xmlNode : public XmlNodeBase {
 	xmlAttr * properties; // properties list 
 	xmlNs * nsDef; /* namespace definitions on this node */
 	void  * psvi; /* for type/PSVI informations */
-	ushort line;    /* line number */
-	ushort extra;   /* extra data for XPath/XSLT */
+	ushort line; /* line number */
+	ushort extra; /* extra data for XPath/XSLT */
 };
 
 // @v10.5.8 typedef xmlNode * xmlNodePtr;
@@ -457,7 +457,7 @@ struct xmlDoc : public XmlNodeBase {
 	//xmlNode * prev;      // previous sibling link
 	//xmlDoc  * doc;       // autoreference to itself
 	// End of common part 
-	int compression;        /* level of zlib compression */
+	int compression; /* level of zlib compression */
 	int standalone; // standalone document (no external refs) 1 if standalone="yes", 0 if standalone="no", 
 		// -1 if there is no XML declaration, -2 if there is an XML declaration, but no standalone attribute was specified 
 	xmlDtd * intSubset; /* the document internal subset */
@@ -465,12 +465,12 @@ struct xmlDoc : public XmlNodeBase {
 	xmlNs  * oldNs; /* Global namespace, the old way */
 	const  xmlChar  * version; /* the XML version string */
 	const  xmlChar  * encoding; /* external initial encoding, if any */
-	void * ids;   /* Hash table for ID attributes if any */
-	void * refs;  /* Hash table for IDREFs attributes if any */
-	const  xmlChar  * URL;   /* The URI for that document */
-	int    charset;            /* encoding of the in-memory content actually an xmlCharEncoding */
+	void * ids; /* Hash table for ID attributes if any */
+	void * refs; /* Hash table for IDREFs attributes if any */
+	const  xmlChar  * URL; /* The URI for that document */
+	int    charset; /* encoding of the in-memory content actually an xmlCharEncoding */
 	xmlDict * dict; // dict used to allocate names or NULL 
-	void * psvi;  /* for type/PSVI informations */
+	void * psvi; /* for type/PSVI informations */
 	int    parseFlags; // set of xmlParserOption used to parse the document 
 	int    properties; // set of xmlDocProperties for this document set at the end of parsing 
 };

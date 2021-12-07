@@ -51,19 +51,19 @@ typedef enum {
    used. */
 struct POP3 {
 	curl_pp_transfer transfer;
-	char * id;        /* Message ID */
-	char * custom;    /* Custom Request */
+	char * id; /* Message ID */
+	char * custom; /* Custom Request */
 };
 
 /* pop3_conn is used for struct connection-oriented data in the connectdata
    struct */
 struct pop3_conn {
 	struct pingpong pp;
-	pop3state state;  /* Always use pop3.c:state() to change state! */
-	bool ssldone;     /* Is connect() over SSL done? */
-	size_t eob;       /* Number of bytes of the EOB (End Of Body) that
+	pop3state state; /* Always use pop3.c:state() to change state! */
+	bool ssldone; /* Is connect() over SSL done? */
+	size_t eob; /* Number of bytes of the EOB (End Of Body) that
 	                     have been received so far */
-	size_t strip;     /* Number of bytes from the start to ignore as
+	size_t strip; /* Number of bytes from the start to ignore as
 	                     non-body */
 	struct SASL sasl; /* SASL-related storage */
 	unsigned int authtypes; /* Accepted authentication types */

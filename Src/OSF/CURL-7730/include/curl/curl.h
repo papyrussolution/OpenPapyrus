@@ -147,16 +147,16 @@ typedef enum {
 
 struct curl_httppost {
 	struct curl_httppost * next; /* next entry in the list */
-	char * name;                /* pointer to allocated name */
-	long namelength;            /* length of name length */
-	char * contents;            /* pointer to allocated data contents */
-	long contentslength;        /* length of contents field, see also CURL_HTTPPOST_LARGE */
-	char * buffer;              /* pointer to allocated buffer contents */
-	long bufferlength;          /* length of buffer field */
-	char * contenttype;         /* Content-Type */
+	char * name; /* pointer to allocated name */
+	long namelength; /* length of name length */
+	char * contents; /* pointer to allocated data contents */
+	long contentslength; /* length of contents field, see also CURL_HTTPPOST_LARGE */
+	char * buffer; /* pointer to allocated buffer contents */
+	long bufferlength; /* length of buffer field */
+	char * contenttype; /* Content-Type */
 	struct curl_slist * contentheader; /* list of extra headers for this form */
 	struct curl_httppost * more; /* if one field name has more than one file, this link should link to following files */
-	long flags;                 /* as defined below */
+	long flags; /* as defined below */
 
 #define CURL_HTTPPOST_FILENAME (1<<0) /* specified content is a file name */
 #define CURL_HTTPPOST_READFILE (1<<1) /* specified content is a file name */
@@ -167,9 +167,9 @@ struct curl_httppost {
 #define CURL_HTTPPOST_CALLBACK (1<<6) /* upload file contents by using the regular read callback to get the data and pass the given pointer as custom pointer */
 #define CURL_HTTPPOST_LARGE (1<<7) /* use size in 'contentlen', added in 7.46.0 */
 
-	char * showfilename;        /* The file name to show. If not set, the actual file name will be used (if this is a file part) */
-	void * userp;               /* custom pointer used for HTTPPOST_CALLBACK posts */
-	curl_off_t contentlen;      /* alternative length of contents field. Used if CURL_HTTPPOST_LARGE is set. Added in 7.46.0 */
+	char * showfilename; /* The file name to show. If not set, the actual file name will be used (if this is a file part) */
+	void * userp; /* custom pointer used for HTTPPOST_CALLBACK posts */
+	curl_off_t contentlen; /* alternative length of contents field. Used if CURL_HTTPPOST_LARGE is set. Added in 7.46.0 */
 };
 
 /* This is a return code for the progress callback that, when returned, will
@@ -391,7 +391,7 @@ typedef int (* curl_debug_callback)(CURL * handle,      /* the handle/transfer t
     curl_infotype type,     /* what kind of data */
     char * data,           /* points to the data */
     size_t size,           /* size of the data pointed to */
-    void * userptr);       /* whatever the user please */
+    void * userptr); /* whatever the user please */
 
 /* All possible error codes from all sorts of curl functions. Future versions
    may return other values, stay prepared.
@@ -663,7 +663,7 @@ typedef enum {
 	CURLPROXY_SOCKS5_HOSTNAME = 7 /* Use the SOCKS5 protocol but pass along the
 	                                 host name rather than the IP address. added
 	                                 in 7.18.0 */
-} curl_proxytype;  /* this enum was added in 7.10 */
+} curl_proxytype; /* this enum was added in 7.10 */
 
 /*
  * Bitmasks for CURLOPT_HTTPAUTH and CURLOPT_PROXYAUTH options:
@@ -757,7 +757,7 @@ typedef int
     const struct curl_khkey * knownkey,                      /* known */
     const struct curl_khkey * foundkey,                      /* found */
     enum curl_khmatch,                       /* libcurl's view on the keys */
-    void * clientp);                      /* custom pointer passed from app */
+    void * clientp); /* custom pointer passed from app */
 
 /* parameter for the CURLOPT_USE_SSL option */
 typedef enum {
@@ -2041,8 +2041,8 @@ CURL_EXTERN int curl_strequal(const char * s1, const char * s2);
 CURL_EXTERN int curl_strnequal(const char * s1, const char * s2, size_t n);
 
 /* Mime/form handling support. */
-typedef struct curl_mime curl_mime;           /* Mime context. */
-typedef struct curl_mimepart curl_mimepart;   /* Mime part context. */
+typedef struct curl_mime curl_mime; /* Mime context. */
+typedef struct curl_mimepart curl_mimepart; /* Mime part context. */
 /*
  * NAME curl_mime_init()
  *
@@ -2417,7 +2417,7 @@ CURL_EXTERN time_t curl_getdate(const char * p, const time_t * unused);
 /* info about the certificate chain, only for OpenSSL, GnuTLS, Schannel, NSS
    and GSKit builds. Asked for with CURLOPT_CERTINFO / CURLINFO_CERTINFO */
 struct curl_certinfo {
-	int num_of_certs;       /* number of certificates with information */
+	int num_of_certs; /* number of certificates with information */
 	struct curl_slist ** certinfo; /* for each index in this array, there's a
 	                                  linked list with textual information in the
 	                                  format "name: value" */
@@ -2614,11 +2614,11 @@ typedef enum {
 #define CURLVERSION_NOW CURLVERSION_EIGHTH
 
 struct curl_version_info_data {
-	CURLversion age;    /* age of the returned struct */
+	CURLversion age; /* age of the returned struct */
 	const char * version; /* LIBCURL_VERSION */
 	unsigned int version_num; /* LIBCURL_VERSION_NUM */
-	const char * host;  /* OS/host/cpu/machine when configured */
-	int features;       /* bitmask, see defines below */
+	const char * host; /* OS/host/cpu/machine when configured */
+	int features; /* bitmask, see defines below */
 	const char * ssl_version; /* human readable string */
 	long ssl_version_num; /* not used anymore, always 0 */
 	const char * libz_version; /* human readable string */
@@ -2639,8 +2639,8 @@ struct curl_version_info_data {
 	const char * nghttp2_version; /* human readable string. */
 	const char * quic_version; /* human readable quic (+ HTTP/3) library + version or NULL */
 	/* These fields were added in CURLVERSION_SEVENTH */
-	const char * cainfo;   /* the built-in default CURLOPT_CAINFO, might be NULL */
-	const char * capath;   /* the built-in default CURLOPT_CAPATH, might be NULL */
+	const char * cainfo; /* the built-in default CURLOPT_CAINFO, might be NULL */
+	const char * capath; /* the built-in default CURLOPT_CAPATH, might be NULL */
 	/* These fields were added in CURLVERSION_EIGHTH */
 	unsigned int zstd_ver_num; /* Numeric Zstd version (MAJOR << 24) | (MINOR << 12) | PATCH */
 	const char * zstd_version; /* human readable string. */

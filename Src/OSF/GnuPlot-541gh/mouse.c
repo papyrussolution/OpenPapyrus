@@ -116,7 +116,7 @@ static const struct gen_table usual_special_keys[] = {
 };
 //
 // do we allow motion to result in a replot right now? 
-bool allowmotion = TRUE;        /* used by pm.trm, too */
+bool allowmotion = TRUE; /* used by pm.trm, too */
 //
 // bind related stuff 
 //
@@ -747,7 +747,7 @@ void GnuPlot::UpdateStatusLineWithMouseSetting(GpTermEntry * pTerm, mouse_settin
 					sp += strlen(sp);
 				}
 			}
-			*--sp = 0;      /* delete trailing space */
+			*--sp = 0; /* delete trailing space */
 		}
 		if(pTerm->put_tmptext && *s0)
 			(pTerm->put_tmptext)(pTerm, 0, s0);
@@ -1754,7 +1754,7 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 	_Mse.Pos.x = pGe->mx;
 	_Mse.Pos.y = pGe->my;
 	doubleclick = pGe->par2;
-	_Mse.Button &= ~(1 << b);    /* remove button */
+	_Mse.Button &= ~(1 << b); /* remove button */
 	if(_Mse.SettingZoomRegion)
 		return;
 	else if(_Mse.TrapRelease) { // FIXME:  This mechanism may no longer be needed 
@@ -2236,9 +2236,9 @@ int GnuPlot::BindScanLhs(bind_t * out, const char * in)
 		}
 	}
 	if(NO_KEY == out->key)
-		return 0;       /* failed */
+		return 0; /* failed */
 	else
-		return 1;       /* success */
+		return 1; /* success */
 }
 // 
 // note, that this returns a pointer
@@ -2248,7 +2248,7 @@ int GnuPlot::BindScanLhs(bind_t * out, const char * in)
 char * GnuPlot::BindFmtLhs(const bind_t * in)
 {
 	static char out[0x40];
-	out[0] = '\0';          /* empty string */
+	out[0] = '\0'; /* empty string */
 	if(!in)
 		return out;
 	if(in->modifier & Mod_Ctrl) {
@@ -2371,7 +2371,7 @@ void GnuPlot::BindDisplay(char * lhs)
 	for(ptr = _Mse.P_Bindings; ptr; ptr = ptr->next) {
 		if(BindMatches(&lhs_scanned, ptr)) {
 			BindDisplayOne(ptr);
-			break;  /* only one match */
+			break; /* only one match */
 		}
 	}
 }

@@ -177,30 +177,19 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8_t * src1, int32_t src1Le
 	return (int32_t)(p-dest);
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator    * coll,
-    const UChar * source,
-    int32_t sourceLength,
-    uint8_t        * result,
-    int32_t resultLength)
+U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const UChar * source, int32_t sourceLength, uint8_t * result, int32_t resultLength)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_GET_SORTKEY);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
-		UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, source string = %vh ", coll, source,
-		    ((sourceLength==-1 && source!=NULL) ? u_strlen(source) : sourceLength));
+		UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, source string = %vh ", coll, source, ((sourceLength==-1 && source!=NULL) ? u_strlen(source) : sourceLength));
 	}
-
-	int32_t keySize = Collator::fromUCollator(coll)->
-	    getSortKey(source, sourceLength, result, resultLength);
-
+	int32_t keySize = Collator::fromUCollator(coll)->getSortKey(source, sourceLength, result, resultLength);
 	UTRACE_DATA2(UTRACE_VERBOSE, "Sort Key = %vb", result, keySize);
 	UTRACE_EXIT_VALUE(keySize);
 	return keySize;
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll,
-    UCharIterator * iter,
-    uint32_t state[2],
-    uint8_t * dest, int32_t count,
+U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharIterator * iter, uint32_t state[2], uint8_t * dest, int32_t count,
     UErrorCode * status)
 {
 	/* error checking */
@@ -224,13 +213,13 @@ U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll,
 /**
  * Produce a bound for a given sortkey and a number of levels.
  */
-U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8_t       * source,
+U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8_t * source,
     int32_t sourceLength,
     UColBoundMode boundType,
     uint32_t noOfLevels,
-    uint8_t             * result,
+    uint8_t * result,
     int32_t resultLength,
-    UErrorCode          * status)
+    UErrorCode * status)
 {
 	// consistency checks
 	if(status == NULL || U_FAILURE(*status)) {
@@ -320,24 +309,23 @@ U_CAPI void U_EXPORT2 ucol_restoreVariableTop(UCollator * coll, const uint32_t v
 	Collator::fromUCollator(coll)->setVariableTop(varTop, *status);
 }
 
-U_CAPI void U_EXPORT2 ucol_setAttribute(UCollator * coll, UColAttribute attr, UColAttributeValue value, UErrorCode * status) {
+U_CAPI void U_EXPORT2 ucol_setAttribute(UCollator * coll, UColAttribute attr, UColAttributeValue value, UErrorCode * status) 
+{
 	if(U_FAILURE(*status) || coll == NULL) {
 		return;
 	}
-
 	Collator::fromUCollator(coll)->setAttribute(attr, value, *status);
 }
 
-U_CAPI UColAttributeValue U_EXPORT2 ucol_getAttribute(const UCollator * coll, UColAttribute attr, UErrorCode * status) {
+U_CAPI UColAttributeValue U_EXPORT2 ucol_getAttribute(const UCollator * coll, UColAttribute attr, UErrorCode * status) 
+{
 	if(U_FAILURE(*status) || coll == NULL) {
 		return UCOL_DEFAULT;
 	}
-
 	return Collator::fromUCollator(coll)->getAttribute(attr, *status);
 }
 
-U_CAPI void U_EXPORT2 ucol_setStrength(UCollator                * coll,
-    UCollationStrength strength)
+U_CAPI void U_EXPORT2 ucol_setStrength(UCollator * coll, UCollationStrength strength)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	ucol_setAttribute(coll, UCOL_STRENGTH, strength, &status);
@@ -349,61 +337,45 @@ U_CAPI UCollationStrength U_EXPORT2 ucol_getStrength(const UCollator * coll)
 	return ucol_getAttribute(coll, UCOL_STRENGTH, &status);
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getReorderCodes(const UCollator * coll,
-    int32_t * dest,
-    int32_t destCapacity,
-    UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 ucol_getReorderCodes(const UCollator * coll, int32_t * dest, int32_t destCapacity, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-
 	return Collator::fromUCollator(coll)->getReorderCodes(dest, destCapacity, *status);
 }
 
-U_CAPI void U_EXPORT2 ucol_setReorderCodes(UCollator* coll,
-    const int32_t* reorderCodes,
-    int32_t reorderCodesLength,
-    UErrorCode * status) {
+U_CAPI void U_EXPORT2 ucol_setReorderCodes(UCollator* coll, const int32_t* reorderCodes, int32_t reorderCodesLength, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return;
 	}
-
 	Collator::fromUCollator(coll)->setReorderCodes(reorderCodes, reorderCodesLength, *status);
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getEquivalentReorderCodes(int32_t reorderCode,
-    int32_t* dest,
-    int32_t destCapacity,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 ucol_getEquivalentReorderCodes(int32_t reorderCode, int32_t* dest, int32_t destCapacity, UErrorCode * pErrorCode) 
+{
 	return Collator::getEquivalentReorderCodes(reorderCode, dest, destCapacity, *pErrorCode);
 }
 
-U_CAPI void U_EXPORT2 ucol_getVersion(const UCollator* coll,
-    UVersionInfo versionInfo)
+U_CAPI void U_EXPORT2 ucol_getVersion(const UCollator* coll, UVersionInfo versionInfo)
 {
 	Collator::fromUCollator(coll)->getVersion(versionInfo);
 }
 
-U_CAPI UCollationResult U_EXPORT2 ucol_strcollIter(const UCollator    * coll,
-    UCharIterator * sIter,
-    UCharIterator * tIter,
-    UErrorCode * status)
+U_CAPI UCollationResult U_EXPORT2 ucol_strcollIter(const UCollator * coll, UCharIterator * sIter, UCharIterator * tIter, UErrorCode * status)
 {
 	if(!status || U_FAILURE(*status)) {
 		return UCOL_EQUAL;
 	}
-
 	UTRACE_ENTRY(UTRACE_UCOL_STRCOLLITER);
 	UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, sIter=%p, tIter=%p", coll, sIter, tIter);
-
 	if(sIter == NULL || tIter == NULL || coll == NULL) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		UTRACE_EXIT_VALUE_STATUS(UCOL_EQUAL, *status);
 		return UCOL_EQUAL;
 	}
-
 	UCollationResult result = Collator::fromUCollator(coll)->compare(*sIter, *tIter, *status);
-
 	UTRACE_EXIT_VALUE_STATUS(result, *status);
 	return result;
 }
@@ -411,11 +383,7 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcollIter(const UCollator    * coll,
 /*       */
 /* ucol_strcoll     Main public API string comparison function */
 /*       */
-U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator    * coll,
-    const UChar * source,
-    int32_t sourceLength,
-    const UChar * target,
-    int32_t targetLength)
+U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_STRCOLL);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
@@ -423,20 +391,14 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator    * coll,
 		UTRACE_DATA2(UTRACE_VERBOSE, "source string = %vh ", source, sourceLength);
 		UTRACE_DATA2(UTRACE_VERBOSE, "target string = %vh ", target, targetLength);
 	}
-
 	UErrorCode status = U_ZERO_ERROR;
-	UCollationResult returnVal = Collator::fromUCollator(coll)->
-	    compare(source, sourceLength, target, targetLength, status);
+	UCollationResult returnVal = Collator::fromUCollator(coll)->compare(source, sourceLength, target, targetLength, status);
 	UTRACE_EXIT_VALUE_STATUS(returnVal, status);
 	return returnVal;
 }
 
-U_CAPI UCollationResult U_EXPORT2 ucol_strcollUTF8(const UCollator * coll,
-    const char * source,
-    int32_t sourceLength,
-    const char * target,
-    int32_t targetLength,
-    UErrorCode      * status)
+U_CAPI UCollationResult U_EXPORT2 ucol_strcollUTF8(const UCollator * coll, const char * source, int32_t sourceLength,
+    const char * target, int32_t targetLength, UErrorCode * status)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_STRCOLLUTF8);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
@@ -458,39 +420,25 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcollUTF8(const UCollator * coll,
 }
 
 /* convenience function for comparing strings */
-U_CAPI bool U_EXPORT2 ucol_greater(const UCollator        * coll,
-    const UChar * source,
-    int32_t sourceLength,
-    const UChar * target,
-    int32_t targetLength)
+U_CAPI bool U_EXPORT2 ucol_greater(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
 {
-	return (ucol_strcoll(coll, source, sourceLength, target, targetLength)
-	       == UCOL_GREATER);
+	return (ucol_strcoll(coll, source, sourceLength, target, targetLength) == UCOL_GREATER);
 }
 
 /* convenience function for comparing strings */
-U_CAPI bool U_EXPORT2 ucol_greaterOrEqual(const UCollator    * coll,
-    const UChar * source,
-    int32_t sourceLength,
-    const UChar * target,
-    int32_t targetLength)
+U_CAPI bool U_EXPORT2 ucol_greaterOrEqual(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
 {
-	return (ucol_strcoll(coll, source, sourceLength, target, targetLength)
-	       != UCOL_LESS);
+	return (ucol_strcoll(coll, source, sourceLength, target, targetLength) != UCOL_LESS);
 }
 
 /* convenience function for comparing strings */
-U_CAPI bool U_EXPORT2 ucol_equal(const UCollator        * coll,
-    const UChar * source,
-    int32_t sourceLength,
-    const UChar * target,
-    int32_t targetLength)
+U_CAPI bool U_EXPORT2 ucol_equal(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
 {
-	return (ucol_strcoll(coll, source, sourceLength, target, targetLength)
-	       == UCOL_EQUAL);
+	return (ucol_strcoll(coll, source, sourceLength, target, targetLength) == UCOL_EQUAL);
 }
 
-U_CAPI void U_EXPORT2 ucol_getUCAVersion(const UCollator* coll, UVersionInfo info) {
+U_CAPI void U_EXPORT2 ucol_getUCAVersion(const UCollator* coll, UVersionInfo info) 
+{
 	const Collator * c = Collator::fromUCollator(coll);
 	if(c != NULL) {
 		UVersionInfo v;
@@ -508,7 +456,8 @@ U_CAPI void U_EXPORT2 ucol_getUCAVersion(const UCollator* coll, UVersionInfo inf
 	}
 }
 
-U_CAPI const UChar * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t * length) {
+U_CAPI const UChar * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t * length) 
+{
 	const RuleBasedCollator * rbc = RuleBasedCollator::rbcFromUCollator(coll);
 	// OK to crash if coll==NULL: We do not want to check "this" pointers.
 	if(rbc != NULL || coll == NULL) {
@@ -522,7 +471,8 @@ U_CAPI const UChar * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t * l
 	return &_NUL;
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, UChar * buffer, int32_t bufferLen) {
+U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, UChar * buffer, int32_t bufferLen) 
+{
 	UnicodeString rules;
 	const RuleBasedCollator * rbc = RuleBasedCollator::rbcFromUCollator(coll);
 	if(rbc != NULL || coll == NULL) {
@@ -537,17 +487,18 @@ U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption 
 	}
 }
 
-U_CAPI const char * U_EXPORT2 ucol_getLocale(const UCollator * coll, ULocDataLocaleType type, UErrorCode * status) {
+U_CAPI const char * U_EXPORT2 ucol_getLocale(const UCollator * coll, ULocDataLocaleType type, UErrorCode * status) 
+{
 	return ucol_getLocaleByType(coll, type, status);
 }
 
-U_CAPI const char * U_EXPORT2 ucol_getLocaleByType(const UCollator * coll, ULocDataLocaleType type, UErrorCode * status) {
+U_CAPI const char * U_EXPORT2 ucol_getLocaleByType(const UCollator * coll, ULocDataLocaleType type, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
 	UTRACE_ENTRY(UTRACE_UCOL_GETLOCALE);
 	UTRACE_DATA1(UTRACE_INFO, "coll=%p", coll);
-
 	const char * result;
 	const RuleBasedCollator * rbc = RuleBasedCollator::rbcFromUCollator(coll);
 	if(rbc == NULL && coll != NULL) {
@@ -557,13 +508,13 @@ U_CAPI const char * U_EXPORT2 ucol_getLocaleByType(const UCollator * coll, ULocD
 	else {
 		result = rbc->internalGetLocaleID(type, *status);
 	}
-
 	UTRACE_DATA1(UTRACE_INFO, "result = %s", result);
 	UTRACE_EXIT_STATUS(*status);
 	return result;
 }
 
-U_CAPI USet * U_EXPORT2 ucol_getTailoredSet(const UCollator * coll, UErrorCode * status) {
+U_CAPI USet * U_EXPORT2 ucol_getTailoredSet(const UCollator * coll, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
@@ -575,9 +526,9 @@ U_CAPI USet * U_EXPORT2 ucol_getTailoredSet(const UCollator * coll, UErrorCode *
 	return set->toUSet();
 }
 
-U_CAPI bool U_EXPORT2 ucol_equals(const UCollator * source, const UCollator * target) {
-	return source == target ||
-	       (*Collator::fromUCollator(source)) == (*Collator::fromUCollator(target));
+U_CAPI bool U_EXPORT2 ucol_equals(const UCollator * source, const UCollator * target) 
+{
+	return source == target || (*Collator::fromUCollator(source)) == (*Collator::fromUCollator(target));
 }
 
 #endif /* #if !UCONFIG_NO_COLLATION */

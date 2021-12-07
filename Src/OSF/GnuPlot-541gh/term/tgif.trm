@@ -87,7 +87,7 @@ TERM_PUBLIC void TGIF_graphics();
 TERM_PUBLIC void TGIF_move(uint ux, uint uy);
 TERM_PUBLIC void TGIF_vector(uint ux, uint uy);
 TERM_PUBLIC void TGIF_linetype(int linetype);
-TERM_PUBLIC void TGIF_put_text(uint ux, uint uy, const char * str);      /* ref point and text */
+TERM_PUBLIC void TGIF_put_text(uint ux, uint uy, const char * str); /* ref point and text */
 TERM_PUBLIC int TGIF_text_angle(int ang);
 TERM_PUBLIC int TGIF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void TGIF_point(uint ux, uint uy, int number);
@@ -136,32 +136,32 @@ TERM_PUBLIC void TGIF_filled_polygon(int, gpiPoint *);
 /* tgif driver by Werner Geppert, werner@mez.ruhr-uni-bochum.de */
 /***************************************************************************/
 /* Variables:                                                              */
-static uint uLastTgifX, uLastTgifY;     /* last Coordinate         */
-static uint uActNr;     /* current elementnumber                   */
-static uint uActPage;   /* current pagenumber                      */
+static uint uLastTgifX, uLastTgifY; /* last Coordinate         */
+static uint uActNr; /* current elementnumber                   */
+static uint uActPage; /* current pagenumber                      */
 static uint uActResolution = 100; /* resolution in percent           */
-static uint uActZoom;   /* zoom factor                             */
-static uint uActAngle;  /* current textangle                       */
-static uint uActThick;  /* actual linethickness                    */
-static double uActPointSize = 1;        /* point size                      */
-static uint uActStyle;  /* actual linestyle                        */
-static uint uActJust;   /* actual textjustification                */
-static uint uXshift;    /* actual shift x                          */
-static uint uYshift;    /* actual shift y                          */
-static uint uTgifPlotCount;     /* counts number of plots          */
-static uint uTgifPlotRow = 1, uTgifPlotCol = 1;             /* actual plot row and col   */
+static uint uActZoom; /* zoom factor                             */
+static uint uActAngle; /* current textangle                       */
+static uint uActThick; /* actual linethickness                    */
+static double uActPointSize = 1; /* point size                      */
+static uint uActStyle; /* actual linestyle                        */
+static uint uActJust; /* actual textjustification                */
+static uint uXshift; /* actual shift x                          */
+static uint uYshift; /* actual shift y                          */
+static uint uTgifPlotCount; /* counts number of plots          */
+static uint uTgifPlotRow = 1, uTgifPlotCol = 1; /* actual plot row and col   */
 static uint uTgif_win_horiz = 1, /* number of plots in x and  */
-    uTgif_win_verti = 1;  /*      y direction [x,y]         */
+    uTgif_win_verti = 1; /*      y direction [x,y]         */
 
-static double dActThick_factor = 1.0;  /* linewidth factor */
+static double dActThick_factor = 1.0; /* linewidth factor */
 static double dActThick_default = 1.0; /* default linewidth factor */
 static bool TgifUseColor = TRUE;
 
-static char sActColor[TGIF_STRLEN_MAX];         /* current color         */
-static uint uDefaultFontSize = 18;      /* default font size         */
-static uint uActFontSize = 18;  /* current font size         */
-static char sDefaultFont[TGIF_STRLEN_MAX] = "Helvetica";        /* default font          */
-static char sActFont[TGIF_STRLEN_MAX] = "Helvetica";    /* current font          */
+static char sActColor[TGIF_STRLEN_MAX]; /* current color         */
+static uint uDefaultFontSize = 18; /* default font size         */
+static uint uActFontSize = 18; /* current font size         */
+static char sDefaultFont[TGIF_STRLEN_MAX] = "Helvetica"; /* default font          */
+static char sActFont[TGIF_STRLEN_MAX] = "Helvetica"; /* current font          */
 /* static char          sActPointString[TGIF_STRLEN_MAX]; HBB: unused */
 static bool TgifSolid = FALSE;
 static bool TgifPortrait = TRUE;
@@ -606,7 +606,7 @@ TERM_PUBLIC int TGIF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 /***************************************************************************/
 TERM_PUBLIC void TGIF_point(uint ux, uint uy, int number)
 {
-	double p;       /* all pointtypes fit in a (x +/-p)x(y +/-p) box */
+	double p; /* all pointtypes fit in a (x +/-p)x(y +/-p) box */
 	double x, y;
 	x = (double)(ux + uXshift);
 	y = (double)(uYshift - uy);

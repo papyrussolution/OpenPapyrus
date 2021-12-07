@@ -565,10 +565,10 @@ typedef struct Bigint {
 		struct Bigint * next; /* to maintain free lists */
 	} p;
 
-	int k;             /* 2^k = maxwds */
-	int maxwds;        /* maximum length in 32-bit words */
-	int sign;          /* not zero if number is negative */
-	int wds;           /* current length in 32-bit words */
+	int k; /* 2^k = maxwds */
+	int maxwds; /* maximum length in 32-bit words */
+	int sign; /* not zero if number is negative */
+	int wds; /* current length in 32-bit words */
 } Bigint;
 
 /* A simple stack-memory based allocator for Bigints */
@@ -621,7 +621,7 @@ static Bigint * Balloc(int k, Stack_alloc * alloc)
  */
 static void Bfree(Bigint * v, Stack_alloc * alloc)
 {
-	char * gptr = (char *)v;                /* generic pointer */
+	char * gptr = (char *)v; /* generic pointer */
 	if(gptr < alloc->begin || gptr >= alloc->end)
 		SAlloc::F(gptr);
 	else if(v->k <= Kmax) {

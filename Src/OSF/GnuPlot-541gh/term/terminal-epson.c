@@ -371,7 +371,7 @@ static void nec_dump(GpTermEntry * pThis)
 		}
 	}
 	fputs("\r\033l", GPT.P_GpOutFile);
-	fputc('\0', GPT.P_GpOutFile);   /* set left margin to 0 */
+	fputc('\0', GPT.P_GpOutFile); /* set left margin to 0 */
 	if(p_gp->_Bmp.b_planes > 1) {
 		fprintf(GPT.P_GpOutFile, "\033r");
 		fputc('\0', GPT.P_GpOutFile); /* set color to black */
@@ -390,7 +390,7 @@ static void nec_draft_dump(GpTermEntry * pThis)
 	uint x;
 	uint plane, offset;
 	int j;
-	fputs("\033P\033l\005\r", GPT.P_GpOutFile);   /* 10cpi, left margin 5 char */
+	fputs("\033P\033l\005\r", GPT.P_GpOutFile); /* 10cpi, left margin 5 char */
 	for(j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
 		fputs("\033J\030", GPT.P_GpOutFile); /* 24/180" line feed */
 		for(plane = 0; plane < p_gp->_Bmp.b_planes; plane++) {
@@ -837,7 +837,7 @@ static void DPU414_dump(GpTermEntry * pThis)
 				    fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), GPT.P_GpOutFile);
 				    fputc((char)(*((*p_gp->_Bmp.b_p)[j-1] + x)), GPT.P_GpOutFile);
 			    }
-			    fprintf(GPT.P_GpOutFile, "\033%c\x10\r", 'J');    /* advance 16 halfdots, carriage return */
+			    fprintf(GPT.P_GpOutFile, "\033%c\x10\r", 'J'); /* advance 16 halfdots, carriage return */
 		    }
 		    break;
 		case 2:
@@ -850,11 +850,11 @@ static void DPU414_dump(GpTermEntry * pThis)
 			    for(x = 0; x < p_gp->_Bmp.b_xsize; x++) {
 				    fputc((char)(*((*p_gp->_Bmp.b_p)[j] + x)), GPT.P_GpOutFile);
 			    }
-			    fprintf(GPT.P_GpOutFile, "\033%c\x10\r", 'J');    /* advance 16 halfdots, carriage return */
+			    fprintf(GPT.P_GpOutFile, "\033%c\x10\r", 'J'); /* advance 16 halfdots, carriage return */
 		    }
 		    break;
 	}
-	fputs("\r\n\033@\r\n", GPT.P_GpOutFile);      /* reset printer */
+	fputs("\r\n\033@\r\n", GPT.P_GpOutFile); /* reset printer */
 #ifdef PC
 	fputs("Print using: COPY /B\n", stderr);
 #endif

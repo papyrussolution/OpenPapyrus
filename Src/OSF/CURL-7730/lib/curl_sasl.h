@@ -84,10 +84,10 @@ typedef enum {
 
 /* Protocol dependent SASL parameters */
 struct SASLproto {
-  const char *service;     /* The service name */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
-  size_t maxirlen;         /* Maximum initial response length */
+  const char *service; /* The service name */
+  int contcode; /* Code to receive when continuation is expected */
+  int finalcode; /* Code to receive upon authentication success */
+  size_t maxirlen; /* Maximum initial response length */
   CURLcode (*sendauth)(struct connectdata *conn,
                        const char *mech, const char *ir);
                            /* Send authentication command */
@@ -100,13 +100,13 @@ struct SASLproto {
 /* Per-connection parameters */
 struct SASL {
   const struct SASLproto *params; /* Protocol dependent parameters */
-  saslstate state;         /* Current machine state */
-  unsigned int authmechs;  /* Accepted authentication mechanisms */
-  unsigned int prefmech;   /* Preferred authentication mechanism */
-  unsigned int authused;   /* Auth mechanism used for the connection */
-  bool resetprefs;         /* For URL auth option parsing. */
-  bool mutual_auth;        /* Mutual authentication enabled (GSSAPI only) */
-  bool force_ir;           /* Protocol always supports initial response */
+  saslstate state; /* Current machine state */
+  unsigned int authmechs; /* Accepted authentication mechanisms */
+  unsigned int prefmech; /* Preferred authentication mechanism */
+  unsigned int authused; /* Auth mechanism used for the connection */
+  bool resetprefs; /* For URL auth option parsing. */
+  bool mutual_auth; /* Mutual authentication enabled (GSSAPI only) */
+  bool force_ir; /* Protocol always supports initial response */
 };
 
 /* This is used to test whether the line starts with the given mechanism */

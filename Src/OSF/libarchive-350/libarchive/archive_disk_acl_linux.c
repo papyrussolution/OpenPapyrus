@@ -50,8 +50,8 @@
 #include "archive_write_disk_private.h"
 
 typedef struct {
-	const int a_perm;       /* Libarchive permission or flag */
-	const int p_perm;       /* Platform permission or flag */
+	const int a_perm; /* Libarchive permission or flag */
+	const int p_perm; /* Platform permission or flag */
 } acl_perm_map_t;
 
 #if ARCHIVE_ACL_LIBACL
@@ -665,7 +665,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 	int ret = ARCHIVE_OK;
 
 #if !ARCHIVE_ACL_LIBRICHACL
-	(void)mode;     /* UNUSED */
+	(void)mode; /* UNUSED */
 #endif
 
 #if ARCHIVE_ACL_LIBRICHACL

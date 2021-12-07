@@ -29,8 +29,8 @@ FT_BEGIN_HEADER
 
   typedef struct  CID_Loader_
   {
-    CID_Parser  parser;          /* parser used to read the stream */
-    FT_Int      num_chars;       /* number of characters in encoding */
+    CID_Parser  parser; /* parser used to read the stream */
+    FT_Int      num_chars; /* number of characters in encoding */
 
   } CID_Loader;
 

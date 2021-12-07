@@ -1495,7 +1495,7 @@ int tls1_cbc_remove_padding(const SSL * s,
 	 * maximum amount of padding possible. (Again, the length of the record
 	 * is public information so we can use it.)
 	 */
-	to_check = 256;        /* maximum amount of padding, inc length byte. */
+	to_check = 256; /* maximum amount of padding, inc length byte. */
 	if(to_check > rec->length)
 		to_check = rec->length;
 
@@ -1975,7 +1975,7 @@ again:
 	if(bitmap == NULL) {
 		rr->length = 0;
 		RECORD_LAYER_reset_packet_length(&s->rlayer); /* dump this record */
-		goto again;     /* get another record */
+		goto again; /* get another record */
 	}
 #ifndef OPENSSL_NO_SCTP
 	/* Only do replay check if no SCTP bio */
@@ -1990,7 +1990,7 @@ again:
 		rr->length = 0;
 		rr->read = 1;
 		RECORD_LAYER_reset_packet_length(&s->rlayer); /* dump this record */
-		goto again;     /* get another record */
+		goto again; /* get another record */
 	}
 #ifndef OPENSSL_NO_SCTP
 }
@@ -2031,7 +2031,7 @@ again:
 		rr->length = 0;
 		rr->read = 1;
 		RECORD_LAYER_reset_packet_length(&s->rlayer); /* dump this record */
-		goto again;     /* get another record */
+		goto again; /* get another record */
 	}
 
 	return 1;

@@ -498,7 +498,7 @@ int pki_key_generate_dss(ssh_key key, int parameter){
 		0,                         /* seed_len */
 		NULL,                      /* counter_ret */
 		NULL,                      /* h_ret */
-		NULL);                     /* cb */
+		NULL); /* cb */
 	if(rc != 1) {
 		DSA_free(key->dsa);
 		key->dsa = NULL;

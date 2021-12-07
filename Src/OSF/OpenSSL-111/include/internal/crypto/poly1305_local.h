@@ -12,7 +12,7 @@ typedef void (*poly1305_emit_f) (void *ctx, uchar mac[16],
                                  const uint nonce[4]);
 
 struct poly1305_context {
-    double opaque[24];  /* large enough to hold internal state, declared
+    double opaque[24]; /* large enough to hold internal state, declared
                          * 'double' to ensure at least 64-bit invariant
                          * alignment across all platforms and
                          * configurations */

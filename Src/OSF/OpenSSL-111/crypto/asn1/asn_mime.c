@@ -27,13 +27,13 @@
  */
 
 struct mime_param_st {
-	char * param_name;      /* Param name e.g. "micalg" */
-	char * param_value;     /* Param value e.g. "sha1" */
+	char * param_name; /* Param name e.g. "micalg" */
+	char * param_value; /* Param value e.g. "sha1" */
 };
 
 struct mime_header_st {
-	char * name;            /* Name of line e.g. "content-type" */
-	char * value;           /* Value of line e.g. "text/plain" */
+	char * name; /* Name of line e.g. "content-type" */
+	char * value; /* Value of line e.g. "text/plain" */
 	STACK_OF(MIME_PARAM) *params; /* Zero or more parameters */
 };
 
@@ -721,7 +721,7 @@ static STACK_OF(MIME_HEADER) *mime_parse_hdr(BIO *bio)
 		else if(state == MIME_VALUE)
 			mime_hdr_addparam(mhdr, ntmp, strip_ends(q));
 		if(p == linebuf)
-			break;  /* Blank line means end of headers */
+			break; /* Blank line means end of headers */
 	}
 
 	return headers;

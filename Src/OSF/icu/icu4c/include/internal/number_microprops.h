@@ -42,8 +42,7 @@ class IntMeasures : public MaybeStackArray<int64_t, 2> {
     /**
   * Copy constructor.
      *
-  * If memory allocation fails during copying, no values are copied and
-  * status is set to U_MEMORY_ALLOCATION_ERROR.
+  * If memory allocation fails during copying, no values are copied and status is set to U_MEMORY_ALLOCATION_ERROR.
      */
     IntMeasures(const IntMeasures &other) : MaybeStackArray<int64_t, 2>() {
         this->operator = (other);

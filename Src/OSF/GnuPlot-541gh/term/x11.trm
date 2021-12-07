@@ -153,8 +153,8 @@ static void transmit_gradient(gradient_struct * gradient, int cnt);
 typedef enum { hasNoArg, hasArg } OptionArg;
 
 static struct x11opt {
-	const char * option;    /* Name of option */
-	OptionArg arg;          /* Whether option has argument */
+	const char * option; /* Name of option */
+	OptionArg arg; /* Whether option has argument */
 } X11_cmdopts[] = {
 	{ "-mono", hasNoArg}, { "-gray", hasNoArg}, { "-clear", hasNoArg},
 	{ "-tvtwm", hasNoArg}, { "-pointsize", hasArg},
@@ -1237,7 +1237,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 	do { \
 		char buffer[512]; int status; struct iosb iosb; \
 		sprintf x; \
-		if(strlen(buffer) >= MBXMXMSG)  { \
+		if(strlen(buffer) >= MBXMXMSG) { \
 			printf("buffer contents (%d char) catenated to mailbox size (%d bytes)\n", strlen(buffer), MBXMXMSG); \
 			buffer[MBXMXMSG-1] = '\0'; \
 			printf("%s\n", buffer); \
@@ -1262,7 +1262,7 @@ static void X11_atexit()
 {
 	if(X11_channel) {
 		PRINT0("R\n");
-		sleep(2);       /* Wait for subprocess to finish */
+		sleep(2); /* Wait for subprocess to finish */
 		sys$dassgn(X11_channel);
 		X11_channel = 0;
 	}
@@ -1291,7 +1291,7 @@ TERM_PUBLIC void X11_graphics(GpTermEntry * pThis)
 	static ulong windowid = 0;
 #endif
 	static enum set_encoding_id last_encoding = S_ENC_DEFAULT;
-	BEFORE_GRAPHICS;        /* kludge for crippled select */
+	BEFORE_GRAPHICS; /* kludge for crippled select */
 #ifndef USE_MOUSE
 	/* for VMS sake, keep as separate prints */
 	PRINT0("G\n");
@@ -1410,7 +1410,7 @@ TERM_PUBLIC void X11_text(GpTermEntry * pThis)
 	PRINT0("E\n");
 	FFLUSH();
 #endif
-	AFTER_TEXT;             /* kludge for crippled select */
+	AFTER_TEXT; /* kludge for crippled select */
 }
 
 TERM_PUBLIC void X11_move(uint x, uint y)
@@ -1743,7 +1743,7 @@ TERM_PUBLIC void X11_filled_polygon(int points, gpiPoint * corners)
 				fprintf(stderr, "Bad character mapping %d -> %d\n", (int)uc_tmp, sent_val);
 			i_buffer--;
 			if(!i_buffer) {
-				fputc('\n', X11_ipc);  FFLUSH();   /* End of chunk. */
+				fputc('\n', X11_ipc);  FFLUSH(); /* End of chunk. */
 				i_buffer = BINARY_MAX_CHAR_PER_TRANSFER;
 				if(point_remaining || byte_remaining)
 					fputc(X11_GR_BINARY_POLYGON, X11_ipc); /* Will be another chunk. */
@@ -2087,7 +2087,7 @@ TERM_PUBLIC void X11_image(uint M, uint N, coordval * image, gpiPoint * corner, 
 				fprintf(stderr, "Bad character mapping %d -> %d\n", (int)uc_tmp, sent_val);
 			i_buffer--;
 			if(!i_buffer) {
-				fputc('\n', X11_ipc);  FFLUSH();   /* End of chunk. */
+				fputc('\n', X11_ipc);  FFLUSH(); /* End of chunk. */
 				i_buffer = BINARY_MAX_CHAR_PER_TRANSFER;
 				if(coord_remaining || byte_remaining)
 					fputc(X11_GR_IMAGE, X11_ipc); /* Will be another chunk. */

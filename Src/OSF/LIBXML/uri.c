@@ -1901,7 +1901,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	if(URI[0] != '.') {
 		ret = xmlParseURIReference(ref, (const char *)URI);
 		if(ret != 0)
-			goto done;  /* Error in URI, return NULL */
+			goto done; /* Error in URI, return NULL */
 	}
 	else
 		ref->path = (char *)sstrdup(URI);
@@ -1918,7 +1918,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	if(base[0] != '.') {
 		ret = xmlParseURIReference(bas, (const char *)base);
 		if(ret != 0)
-			goto done;  /* Error in base, return NULL */
+			goto done; /* Error in base, return NULL */
 	}
 	else
 		bas->path = (char *)sstrdup(base);

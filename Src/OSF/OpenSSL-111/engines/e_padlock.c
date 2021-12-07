@@ -191,9 +191,9 @@ struct padlock_cipher_data {
 			uint encdec : 1;
 			int ksize : 2;
 		} b;
-	} cword;                /* Control word */
+	} cword; /* Control word */
 
-	AES_KEY ks;             /* Encryption key */
+	AES_KEY ks; /* Encryption key */
 };
 
 /* Interface to assembler module */
@@ -593,7 +593,7 @@ static int padlock_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const u
 	int key_len = EVP_CIPHER_CTX_key_length(ctx) * 8;
 	ulong mode = EVP_CIPHER_CTX_mode(ctx);
 	if(key == NULL)
-		return 0;       /* ERROR */
+		return 0; /* ERROR */
 	cdata = ALIGNED_CIPHER_DATA(ctx);
 	memzero(cdata, sizeof(*cdata));
 	/* Prepare Control word. */

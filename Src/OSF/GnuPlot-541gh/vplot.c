@@ -124,8 +124,8 @@ void GnuPlot::TessellateOneCube(GpTermEntry * pTerm, GpSurfacePoints * pPlot, in
 	t_voxel isolevel = static_cast<t_voxel>(pPlot->iso_level);
 	int N = vgrid->size;
 	int ivertex, iedge, it;
-	int corner_flags;               /* bit field */
-	int edge_flags;                 /* bit field */
+	int corner_flags; /* bit field */
+	int edge_flags; /* bit field */
 	// Make a local copy of the values at the cube corners 
 	for(ivertex = 0; ivertex < 8; ivertex++) {
 		int cx = ix + _VP.ScaledOffset[ivertex][0];

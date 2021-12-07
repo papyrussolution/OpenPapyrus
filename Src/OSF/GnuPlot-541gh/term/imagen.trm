@@ -96,28 +96,28 @@ static int IM_plot_nr = 0;
 
 static int IMAGEN_fontsize = IMAGEN_FONTSIZE;
 static int IMAGEN_familytable[36];
-static int IMAGEN_orgX;         /* absolute-pixel-ORIgin of graph page. */
+static int IMAGEN_orgX; /* absolute-pixel-ORIgin of graph page. */
 static int IMAGEN_orgY;
-static int IMAGEN_orgx;         /* absolute-pixel-ORIgin of current graph. */
+static int IMAGEN_orgx; /* absolute-pixel-ORIgin of current graph. */
 static int IMAGEN_orgy;
-static int IMAGEN_posx;         /* current drawing position (lines).    */
+static int IMAGEN_posx; /* current drawing position (lines).    */
 static int IMAGEN_posy;
 /* static int IMAGEN_inplot; */
-static int IMAGEN_xmax = IMAGEN_XMAX;   /* width of graph in pixels.    */
-static int IMAGEN_ymax = IMAGEN_YMAX;   /* height of graph in pixels.   */
-static int IMAGEN_winx = IMAGEN_XMAX;   /* width of window in pixels.   */
-static int IMAGEN_winy = IMAGEN_YMAX;   /* height of window in pixels.  */
-static int IMAGEN_hchar;        /* Height of CHAR in current font.      */
-static int IMAGEN_wchar;        /* Width of CHAR in current font.       */
-static int IMAGEN_blofs;        /* BaseLine OFfSet from bounding box.   */
-static int IMAGEN_angle = -1;   /* 0 for horizontal text, 1 for vertical */
-static int IMAGEN_portrait;     /* 0 for landscape */
-static enum JUSTIFY IMAGEN_justify = LEFT;      /* left/center/right */
+static int IMAGEN_xmax = IMAGEN_XMAX; /* width of graph in pixels.    */
+static int IMAGEN_ymax = IMAGEN_YMAX; /* height of graph in pixels.   */
+static int IMAGEN_winx = IMAGEN_XMAX; /* width of window in pixels.   */
+static int IMAGEN_winy = IMAGEN_YMAX; /* height of window in pixels.  */
+static int IMAGEN_hchar; /* Height of CHAR in current font.      */
+static int IMAGEN_wchar; /* Width of CHAR in current font.       */
+static int IMAGEN_blofs; /* BaseLine OFfSet from bounding box.   */
+static int IMAGEN_angle = -1; /* 0 for horizontal text, 1 for vertical */
+static int IMAGEN_portrait; /* 0 for landscape */
+static enum JUSTIFY IMAGEN_justify = LEFT; /* left/center/right */
 
 #define STOREPATH 100
 static uint IM_xvector[STOREPATH]; /* draw path vector of x values */
 static uint IM_yvector[STOREPATH]; /* draw path vector of y values */
-static uint IM_veclen;  /* length of allocated path vector */
+static uint IM_veclen; /* length of allocated path vector */
 static uint IM_vecpos = 0; /* current pos in vector */
 
 /* char IMPdrpattern[10][10] = { {0}, {30,10,0}, {0}, {10,30,0}, {2,20,0},

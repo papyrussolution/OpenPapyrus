@@ -70,8 +70,8 @@ namespace OT {
 			    c->check_range(this, sizeDeviceRecord)));
 		}
 
-		HBUINT8 pixelSize;              /* Pixel size for following widths (as ppem). */
-		HBUINT8 maxWidth;               /* Maximum width. */
+		HBUINT8 pixelSize; /* Pixel size for following widths (as ppem). */
+		HBUINT8 maxWidth; /* Maximum width. */
 		UnsizedArrayOf<HBUINT8>       widthsZ; /* Array of widths (numGlyphs is from the 'maxp' table). */
 public:
 		DEFINE_SIZE_ARRAY(2, widthsZ);

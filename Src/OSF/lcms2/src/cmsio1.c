@@ -497,7 +497,7 @@ cmsPipeline* _cmsReadFloatOutputTag(cmsHPROFILE hProfile, cmsTagSignature tagFlo
 		if(!cmsPipelineInsertStage(Lut, cmsAT_BEGIN, _cmsStageNormalizeToLabFloat(ContextID)))
 			goto Error;
 	}
-	else if(PCS == cmsSigXYZData)  {
+	else if(PCS == cmsSigXYZData) {
 		if(!cmsPipelineInsertStage(Lut, cmsAT_BEGIN, _cmsStageNormalizeToXyzFloat(ContextID)))
 			goto Error;
 	}
@@ -610,7 +610,7 @@ cmsPipeline* _cmsReadFloatDevicelinkTag(cmsHPROFILE hProfile, cmsTagSignature ta
 		if(!cmsPipelineInsertStage(Lut, cmsAT_BEGIN, _cmsStageNormalizeToLabFloat(ContextID)))
 			goto Error;
 	}
-	else if(spc == cmsSigXYZData)  {
+	else if(spc == cmsSigXYZData) {
 		if(!cmsPipelineInsertStage(Lut, cmsAT_BEGIN, _cmsStageNormalizeToXyzFloat(ContextID)))
 			goto Error;
 	}
@@ -619,7 +619,7 @@ cmsPipeline* _cmsReadFloatDevicelinkTag(cmsHPROFILE hProfile, cmsTagSignature ta
 		if(!cmsPipelineInsertStage(Lut, cmsAT_END, _cmsStageNormalizeFromLabFloat(ContextID)))
 			goto Error;
 	}
-	else if(PCS == cmsSigXYZData)  {
+	else if(PCS == cmsSigXYZData) {
 		if(!cmsPipelineInsertStage(Lut, cmsAT_END, _cmsStageNormalizeFromXyzFloat(ContextID)))
 			goto Error;
 	}

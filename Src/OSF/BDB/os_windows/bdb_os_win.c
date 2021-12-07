@@ -147,15 +147,15 @@ int __os_open(ENV * env, const char * name, uint32 page_size, uint32 flags, int 
 	 * specified, fail, returning EEXIST, unless we create the file.
 	 */
 	if(LF_ISSET(DB_OSO_CREATE) && LF_ISSET(DB_OSO_EXCL))
-		createflag = CREATE_NEW;        /* create only if !exist*/
+		createflag = CREATE_NEW; /* create only if !exist*/
 	else if(!LF_ISSET(DB_OSO_CREATE) && LF_ISSET(DB_OSO_TRUNC))
-		createflag = TRUNCATE_EXISTING;  /* truncate, fail if !exist */
+		createflag = TRUNCATE_EXISTING; /* truncate, fail if !exist */
 	else if(LF_ISSET(DB_OSO_TRUNC))
-		createflag = CREATE_ALWAYS;     /* create and truncate */
+		createflag = CREATE_ALWAYS; /* create and truncate */
 	else if(LF_ISSET(DB_OSO_CREATE))
-		createflag = OPEN_ALWAYS;       /* open or create */
+		createflag = OPEN_ALWAYS; /* open or create */
 	else
-		createflag = OPEN_EXISTING;     /* open only if existing */
+		createflag = OPEN_EXISTING; /* open only if existing */
 	if(LF_ISSET(DB_OSO_DSYNC)) {
 		F_SET(fhp, DB_FH_NOSYNC);
 		attr |= FILE_FLAG_WRITE_THROUGH;

@@ -2619,7 +2619,7 @@ int ti_vidya(int size, double const * const * inputs, double const * options, do
 		double short_stddev = sqrt(short_sum2 * short_div - (short_sum * short_div) * (short_sum * short_div));
 		double long_stddev = sqrt(long_sum2 * long_div - (long_sum * long_div) * (long_sum * long_div));
 		double k = short_stddev / long_stddev;
-		if(k != k) k = 0;  /* In some conditions it works out that we take the sqrt(-0.0), which gives NaN.
+		if(k != k) k = 0; /* In some conditions it works out that we take the sqrt(-0.0), which gives NaN.
 		                      That implies that k should be zero. */
 		k *= alpha;
 		val = (input[long_period-1]-val) * k + val;

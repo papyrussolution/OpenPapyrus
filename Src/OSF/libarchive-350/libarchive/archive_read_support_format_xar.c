@@ -291,7 +291,7 @@ struct unknown_tag {
 };
 
 struct xar {
-	uint64 offset;                 /* Current position in the file. */
+	uint64 offset; /* Current position in the file. */
 	int64 total;
 	uint64 h_base;
 	int end_of_file;
@@ -331,7 +331,7 @@ struct xar {
 	struct chksumwork a_sumwrk;
 	struct chksumwork e_sumwrk;
 
-	struct xar_file         * file;  /* current reading file. */
+	struct xar_file         * file; /* current reading file. */
 	struct xattr            * xattr; /* current reading extended attribute. */
 	struct heap_queue file_queue;
 	struct xar_file         * hdlink_orgs;

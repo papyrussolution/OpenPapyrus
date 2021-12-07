@@ -49,12 +49,12 @@ typedef struct _bmp_source_struct * bmp_source_ptr;
 
 typedef struct _bmp_source_struct {
 	struct cjpeg_source_struct pub; /* public fields */
-	j_compress_ptr cinfo;   /* back link saves passing separate parm */
-	JSAMPARRAY colormap;    /* BMP colormap (converted to my format) */
+	j_compress_ptr cinfo; /* back link saves passing separate parm */
+	JSAMPARRAY colormap; /* BMP colormap (converted to my format) */
 	jvirt_sarray_ptr whole_image; /* Needed to reverse row order */
-	JDIMENSION source_row;  /* Current source row number */
-	JDIMENSION row_width;   /* Physical width of scanlines in file */
-	// @v9c int bits_per_pixel;     /* remembers 8- or 24-bit format */
+	JDIMENSION source_row; /* Current source row number */
+	JDIMENSION row_width; /* Physical width of scanlines in file */
+	// @v9c int bits_per_pixel; /* remembers 8- or 24-bit format */
 	int bits_per_pixel; // remembers 8-, 24-, or 32-bit format // @v9c 
 	int cmap_length;    // colormap length // @v9c 
 } bmp_source_struct;
@@ -176,7 +176,7 @@ METHODDEF(JDIMENSION) get_32bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 		outptr[2] = *inptr++; /* can omit GETJSAMPLE() safely */
 		outptr[1] = *inptr++;
 		outptr[0] = *inptr++;
-		inptr++;        /* skip the 4th byte (Alpha channel) */
+		inptr++; /* skip the 4th byte (Alpha channel) */
 		outptr += 3;
 	}
 
@@ -244,7 +244,7 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	INT32 biCompression;
 	INT32 biXPelsPerMeter, biYPelsPerMeter;
 	INT32 biClrUsed = 0;
-	int mapentrysize = 0;   /* 0 indicates no colormap */
+	int mapentrysize = 0; /* 0 indicates no colormap */
 	INT32 bPad;
 	JDIMENSION row_width;
 	// Read and verify the bitmap file header 
@@ -346,7 +346,7 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	// Read the colormap, if any 
 	if(mapentrysize > 0) {
 		if(biClrUsed <= 0)
-			biClrUsed = 256;  /* assume it's 256 */
+			biClrUsed = 256; /* assume it's 256 */
 		else if(biClrUsed > 256)
 			ERREXIT(cinfo, JERR_BMP_BADCMAP);
 		// Allocate space to store the colormap 
@@ -403,7 +403,7 @@ GLOBAL(cjpeg_source_ptr) jinit_read_bmp(j_compress_ptr cinfo)
 {
 	/* Create module interface object */
 	bmp_source_ptr source = (bmp_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(bmp_source_struct));
-	source->cinfo = cinfo;  /* make back link for subroutines */
+	source->cinfo = cinfo; /* make back link for subroutines */
 	/* Fill in method ptrs, except get_pixel_rows which start_input sets */
 	source->pub.start_input = start_input_bmp;
 	source->pub.finish_input = finish_input_bmp;

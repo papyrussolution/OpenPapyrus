@@ -62,11 +62,11 @@ static struct RulerLineTo {
 // Status of zoom box 
 //
 static struct Zoombox {
-	bool on;        /* set to TRUE during zooming */
+	bool on; /* set to TRUE during zooming */
 	POINT from;
-	POINT to;         /* corners of the zoom box */
+	POINT to; /* corners of the zoom box */
 	LPCSTR text1;
-	LPCSTR text2;    /* texts in the corners (i.e. positions) */
+	LPCSTR text2; /* texts in the corners (i.e. positions) */
 } zoombox = { FALSE, {0, 0}, {0, 0}, NULL, NULL };
 
 // Mouse support routines 
@@ -142,7 +142,7 @@ enhstate_struct enhstate;
 
 #ifdef USE_WINGDI
 static struct {
-	HDC hdc;             /* device context */
+	HDC hdc; /* device context */
 } enhstate_gdi;
 #endif
 
@@ -647,7 +647,7 @@ void GraphEnd(GW * lpgw)
 	lpgw->locked = FALSE;
 	UpdateWindow(lpgw->hGraph);
 #ifdef USE_MOUSE
-	gp_exec_event(GE_plotdone, 0, 0, 0, 0, lpgw->Id);       /* notify main program */
+	gp_exec_event(GE_plotdone, 0, 0, 0, 0, lpgw->Id); /* notify main program */
 #endif
 }
 
@@ -1643,13 +1643,13 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	int polyi = 0; // number of points in ppt 
 	POINT * ppt; // storage of polyline/polygon-points 
 	// filled polygons and boxes 
-	uint fillstyle = 0;     /* current fill style */
-	BOOL transparent = FALSE;       /* transparent fill? */
-	double alpha = 0.;                      /* alpha for transarency */
-	int pattern = 0;                        /* patter number */
-	COLORREF fill_color = 0;        /* color to use for fills */
-	HBRUSH solid_brush = 0;         /* current solid fill brush */
-	int shadedblendcaps = SB_CONST_ALPHA;   /* displays can always do AlphaBlend */
+	uint fillstyle = 0; /* current fill style */
+	BOOL transparent = FALSE; /* transparent fill? */
+	double alpha = 0.; /* alpha for transarency */
+	int pattern = 0; /* patter number */
+	COLORREF fill_color = 0; /* color to use for fills */
+	HBRUSH solid_brush = 0; /* current solid fill brush */
+	int shadedblendcaps = SB_CONST_ALPHA; /* displays can always do AlphaBlend */
 	bool warn_no_transparent = FALSE;
 	/* images */
 	POINT corners[4];   // image corners 
@@ -1672,10 +1672,10 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	HBITMAP cb_membmp;
 	POINT cb_ofs;
 	// coordinates and lengths 
-	int xdash, ydash;                       /* the transformed coordinates */
-	int rr, rl, rt, rb;                     /* coordinates of drawing area */
+	int xdash, ydash; /* the transformed coordinates */
+	int rr, rl, rt, rb; /* coordinates of drawing area */
 	int htic, vtic;                         /* tic sizes */
-	int hshift, vshift;                     /* correction of text position */
+	int hshift, vshift; /* correction of text position */
 	/* indices */
 	int seq = 0;                            /* sequence counter for W_image and W_boxedtext */
 	int i;
@@ -1731,7 +1731,7 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 	SetTextAlign(hdc, TA_LEFT | TA_TOP);
 	// calculate text shift for horizontal text 
 	hshift = 0;
-	vshift = -lpgw->tmHeight / 2;   /* centered */
+	vshift = -lpgw->tmHeight / 2; /* centered */
 	// init layer variables 
 	lpgw->numplots = 0;
 	lpgw->hasgrid = FALSE;
@@ -2936,7 +2936,7 @@ static void CopyPrint(GW * lpgw)
 	{
 		printer = CreateDC(szDriver, szDevice, szOutput, pDevMode);
 		if(printer == NULL)
-			goto cleanup;   /* abort */
+			goto cleanup; /* abort */
 		dpiX = GetDeviceCaps(printer, LOGPIXELSX);
 		dpiY = GetDeviceCaps(printer, LOGPIXELSY);
 	}
@@ -3323,8 +3323,8 @@ typedef struct tagLS {
 	int wid;
 	HWND hwnd;
 	int pen;                                /* current pen number */
-	LOGPEN colorpen[WGNUMPENS+2];   /* logical color pens */
-	LOGPEN monopen[WGNUMPENS+2];    /* logical mono pens */
+	LOGPEN colorpen[WGNUMPENS+2]; /* logical color pens */
+	LOGPEN monopen[WGNUMPENS+2]; /* logical mono pens */
 } LS;
 typedef LS *  LPLS;
 #endif
@@ -4197,7 +4197,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    DragAcceptFiles(hwnd, TRUE);
 		    return 0;
 		case WM_ERASEBKGND:
-		    return 1;     /* we erase the background ourselves */
+		    return 1; /* we erase the background ourselves */
 		case WM_PAINT: {
 		    HDC memdc = NULL;
 		    HBITMAP oldbmp;

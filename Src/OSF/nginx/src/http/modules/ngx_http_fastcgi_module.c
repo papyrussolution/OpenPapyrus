@@ -7,7 +7,7 @@
 #pragma hdrstop
 
 typedef struct {
-	ngx_array_t caches;                 /* ngx_http_file_cache_t * */
+	ngx_array_t caches; /* ngx_http_file_cache_t * */
 } ngx_http_fastcgi_main_conf_t;
 
 typedef struct {

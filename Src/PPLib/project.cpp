@@ -126,7 +126,7 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 			getCtrlData(CTLSEL_PRJCFG_BILLOP,      &Data.Cfg.BillOpID);
 			Data.Cfg.RemindPrd.Set(0);
 			GetIntRangeInput(this, sel = CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
-			if(Data.Cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND)  {
+			if(Data.Cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND) {
 				THROW_PP(Data.Cfg.RemindPrd.low <= Data.Cfg.RemindPrd.upp && (Data.Cfg.RemindPrd.low != 0 || Data.Cfg.RemindPrd.upp != 0), PPERR_INVPERIODINPUT);
 			}
 			double beg_h = 0.0, end_h = 0.0;

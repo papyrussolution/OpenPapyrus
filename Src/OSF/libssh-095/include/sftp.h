@@ -152,7 +152,7 @@ struct sftp_status_message_struct {
     uint32_t id;
 	uint32_t status;
     ssh_string error_unused; /* not used anymore */
-    ssh_string lang_unused;  /* not used anymore */
+    ssh_string lang_unused; /* not used anymore */
     char *errormsg;
     char *langmsg;
 };
@@ -186,16 +186,16 @@ struct sftp_attributes_struct {
  * @brief SFTP statvfs structure.
  */
 struct sftp_statvfs_struct {
-  uint64_t f_bsize;   /** file system block size */
-  uint64_t f_frsize;  /** fundamental fs block size */
-  uint64_t f_blocks;  /** number of blocks (unit f_frsize) */
-  uint64_t f_bfree;   /** free blocks in file system */
-  uint64_t f_bavail;  /** free blocks for non-root */
-  uint64_t f_files;   /** total file inodes */
-  uint64_t f_ffree;   /** free file inodes */
-  uint64_t f_favail;  /** free file inodes for to non-root */
-  uint64_t f_fsid;    /** file system id */
-  uint64_t f_flag;    /** bit mask of f_flag values */
+  uint64_t f_bsize; /** file system block size */
+  uint64_t f_frsize; /** fundamental fs block size */
+  uint64_t f_blocks; /** number of blocks (unit f_frsize) */
+  uint64_t f_bfree; /** free blocks in file system */
+  uint64_t f_bavail; /** free blocks for non-root */
+  uint64_t f_files; /** total file inodes */
+  uint64_t f_ffree; /** free file inodes */
+  uint64_t f_favail; /** free file inodes for to non-root */
+  uint64_t f_fsid; /** file system id */
+  uint64_t f_flag; /** bit mask of f_flag values */
   uint64_t f_namemax; /** maximum filename length */
 };
 

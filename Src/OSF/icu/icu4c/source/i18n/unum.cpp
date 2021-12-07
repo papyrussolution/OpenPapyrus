@@ -341,7 +341,7 @@ static void parseRes(Formattable& res,
     const UChar * text,
     int32_t textLength,
     int32_t * parsePos /* 0 = start */,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status))
 		return;
@@ -365,7 +365,7 @@ static void parseRes(Formattable& res,
 }
 
 U_CAPI int32_t U_EXPORT2 unum_parse(const UNumberFormat * fmt, const UChar * text,
-    int32_t textLength, int32_t * parsePos /* 0 = start */, UErrorCode      * status)
+    int32_t textLength, int32_t * parsePos /* 0 = start */, UErrorCode * status)
 {
 	Formattable res;
 	parseRes(res, fmt, text, textLength, parsePos, status);
@@ -376,7 +376,7 @@ U_CAPI int64_t U_EXPORT2 unum_parseInt64(const UNumberFormat * fmt,
     const UChar * text,
     int32_t textLength,
     int32_t * parsePos /* 0 = start */,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	Formattable res;
 	parseRes(res, fmt, text, textLength, parsePos, status);
@@ -387,7 +387,7 @@ U_CAPI double U_EXPORT2 unum_parseDouble(const UNumberFormat * fmt,
     const UChar * text,
     int32_t textLength,
     int32_t * parsePos /* 0 = start */,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	Formattable res;
 	parseRes(res, fmt, text, textLength, parsePos, status);
@@ -400,7 +400,7 @@ U_CAPI int32_t U_EXPORT2 unum_parseDecimal(const UNumberFormat * fmt,
     int32_t * parsePos /* 0 = start */,
     char            * outBuf,
     int32_t outBufLength,
-    UErrorCode      * status)
+    UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return -1;

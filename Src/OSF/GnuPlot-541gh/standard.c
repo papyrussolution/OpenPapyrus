@@ -593,7 +593,7 @@ void GnuPlot::F_Tanh(union argument * /*arg*/)
 //void f_asinh(union argument * arg)
 void GnuPlot::F_ASinh(union argument * arg)
 {
-	GpValue a;      /* asinh(z) = -I*asin(I*z) */
+	GpValue a; /* asinh(z) = -I*asin(I*z) */
 	double alpha, beta, x, y;
 	double t;
 	int ysign;

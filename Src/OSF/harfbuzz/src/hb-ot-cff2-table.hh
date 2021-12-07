@@ -540,7 +540,7 @@ public:
 public:
 		FixedVersion<HBUINT8>         version; /* Version of CFF2 table. set to 0x0200u */
 		NNOffsetTo<TopDict, HBUINT8>  topDict; /* headerSize = Offset to Top DICT. */
-		HBUINT16 topDictSize;           /* Top DICT size */
+		HBUINT16 topDictSize; /* Top DICT size */
 
 public:
 		DEFINE_SIZE_STATIC(5);

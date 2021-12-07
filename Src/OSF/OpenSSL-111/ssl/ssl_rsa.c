@@ -605,7 +605,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 	pem_password_cb * passwd_callback;
 	void * passwd_callback_userdata;
 
-	ERR_clear_error();      /* clear error stack for
+	ERR_clear_error(); /* clear error stack for
 	                         * SSL_CTX_use_certificate() */
 
 	if(ctx != NULL) {
@@ -641,7 +641,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 		ret = SSL_use_certificate(ssl, x);
 
 	if(ERR_peek_error() != 0)
-		ret = 0;        /* Key/certificate mismatch doesn't imply
+		ret = 0; /* Key/certificate mismatch doesn't imply
 	                         * ret==0 ... */
 	if(ret) {
 		/*
@@ -790,9 +790,9 @@ static int serverinfoex_srv_add_cb(SSL * s, uint ext_type,
 		}
 		if(retval == 0)
 			return 0; /* No extension found, don't send extension */
-		return 1;       /* Send extension */
+		return 1; /* Send extension */
 	}
-	return 0;               /* No serverinfo data found, don't send
+	return 0; /* No serverinfo data found, don't send
 	                         * extension */
 }
 
@@ -948,15 +948,12 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 
 	for(num_extensions = 0;; num_extensions++) {
 		uint version;
-
-		if(PEM_read_bio(bin, &name, &header, &extension, &extension_length)
-		    == 0) {
+		if(PEM_read_bio(bin, &name, &header, &extension, &extension_length) == 0) {
 			/*
 			 * There must be at least one extension in this file
 			 */
 			if(num_extensions == 0) {
-				SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_FILE,
-				    SSL_R_NO_PEM_EXTENSIONS);
+				SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_FILE, SSL_R_NO_PEM_EXTENSIONS);
 				goto end;
 			}
 			else    /* End of file, we're done */

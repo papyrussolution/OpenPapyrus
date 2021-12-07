@@ -31,7 +31,7 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 	//if(res_id < TBaseBrowserWindow::IdBiasBrowser)
 		res_id += res_offs;
 	while(hw) {
-		if(hw != APPL->H_Desktop)  {
+		if(hw != APPL->H_Desktop) {
 			brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 			if(brw) {
 				const long _r = brw->GetResID();

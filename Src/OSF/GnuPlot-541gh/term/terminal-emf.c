@@ -309,7 +309,7 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry * pThis);
 		EMF_write_emr(40, 0x0C);                    \
 		EMF_write_long(handle);                     \
 }
-#define EMF_Ellipse(left, top, right, bottom)  {   \
+#define EMF_Ellipse(left, top, right, bottom) {   \
 		EMF_write_emr(42, 0x18);                    \
 		EMF_write_rectl(left, top, right, bottom)      \
 }
@@ -510,13 +510,13 @@ static void EMF_setfont()
 	EMF_write_emr(82, 332);
 	EMF_write_long(EMF_HANDLE_FONT);
 	EMF_write_long((long)(-_EMF.emf_fontsize * EMF_PT2HM * _EMF.emf_fontscale)); /* height */
-	EMF_write_long(0);              /* width */
+	EMF_write_long(0); /* width */
 	EMF_write_long(_EMF.emf_vert_text); /* escapement */
 	EMF_write_long(_EMF.emf_vert_text); /* orientation */
-	EMF_write_long(bold);           /* weight */
-	EMF_write_byte(italic);         /* italic */
-	EMF_write_byte(underline);      /* underline */
-	EMF_write_byte(strikeout);      /* strikeout */
+	EMF_write_long(bold); /* weight */
+	EMF_write_byte(italic); /* italic */
+	EMF_write_byte(underline); /* underline */
+	EMF_write_byte(strikeout); /* strikeout */
 	// charset: could be extended? 
 	switch(GPT._Encoding) {
 		case S_ENC_CP1250:
@@ -557,16 +557,16 @@ static void EMF_setfont()
 		EMF_write_byte(0);
 		EMF_write_byte(0);
 	}
-	EMF_write_long(0);      /* version */
-	EMF_write_long(0);      /* Style size */
-	EMF_write_long(0);      /* Match */
-	EMF_write_long(0);      /* reserved */
-	EMF_write_long(0);      /* VendorId */
-	EMF_write_long(0);      /* Culture */
+	EMF_write_long(0); /* version */
+	EMF_write_long(0); /* Style size */
+	EMF_write_long(0); /* Match */
+	EMF_write_long(0); /* reserved */
+	EMF_write_long(0); /* VendorId */
+	EMF_write_long(0); /* Culture */
 	for(i = 0; i < 10; i++)
 		EMF_write_byte(0); /* Panose (ignored) */
-	EMF_write_byte(0);      /* pad (long aligned) */
-	EMF_write_byte(0);      /* pad (long aligned) */
+	EMF_write_byte(0); /* pad (long aligned) */
+	EMF_write_byte(0); /* pad (long aligned) */
 	/* SB 20040506: End of modification */
 
 	EMF_SelectObject(EMF_HANDLE_FONT);
@@ -623,7 +623,7 @@ static void FASTCALL EMF_write_short(int value)
 static void FASTCALL EMF_write_long(ulong value)
 {
 	char c[4];
-	c[3] = (value >> 24) & 0xFFL;   /* convert to x86 order */
+	c[3] = (value >> 24) & 0xFFL; /* convert to x86 order */
 	c[2] = (value >> 16) & 0xFFL;
 	c[1] = (value >> 8) & 0xFFL;
 	c[0] = value & 0xFFL;
@@ -818,42 +818,42 @@ TERM_PUBLIC void EMF_graphics(GpTermEntry * pThis)
 	// header start 
 	_EMF.emf_record_count = 0;
 	EMF_write_emr(1, 100);
-	EMF_write_long(0);      /* rclBounds */
+	EMF_write_long(0); /* rclBounds */
 	EMF_write_long(0);
 	EMF_write_long(static_cast<ulong>(pThis->MaxX / EMF_PX2HM));
 	EMF_write_long(static_cast<ulong>(pThis->MaxY / EMF_PX2HM));
-	EMF_write_long(0);      /* rclFrame */
+	EMF_write_long(0); /* rclFrame */
 	EMF_write_long(0);
 	EMF_write_long(pThis->MaxX);
 	EMF_write_long(pThis->MaxY);
 	EMF_write_long(0x464D4520); /* signature */
 	EMF_write_long(0x00010000); /* version */
-	EMF_write_long(0);      /* nBytes */
-	EMF_write_long(0);      /* nRecords */
+	EMF_write_long(0); /* nBytes */
+	EMF_write_long(0); /* nRecords */
 	EMF_write_short(EMF_HANDLE_MAX); /* nHandles, MUST NOT BE 0 */
-	EMF_write_short(0);     /* reserved */
-	EMF_write_long(0);      /* descSize */
-	EMF_write_long(0);      /* descOff */
-	EMF_write_long(0);      /* nPalEntries */
+	EMF_write_short(0); /* reserved */
+	EMF_write_long(0); /* descSize */
+	EMF_write_long(0); /* descOff */
+	EMF_write_long(0); /* nPalEntries */
 	EMF_write_long(width); /* ref dev pixwidth, default 1024 */
 	EMF_write_long(height); /* ref dev pixheight, default 768 */
 	EMF_write_long(mmwidth); /* ref dev mwidth, default 270 */
 	EMF_write_long(mmheight); /* ref dev mheight, default 200 */
-	EMF_write_long(0);      /* cbPixelFormat  */
-	EMF_write_long(0);      /* offPixelFormat  */
-	EMF_write_long(0);      /* bOpenGL */
+	EMF_write_long(0); /* cbPixelFormat  */
+	EMF_write_long(0); /* offPixelFormat  */
+	EMF_write_long(0); /* bOpenGL */
 	_EMF.emf_graphics = TRUE;
 	// header end 
-	EMF_SetMapMode(8);      /* forcing anisotropic mode */
-	EMF_SetWindowExtEx(pThis->MaxX, pThis->MaxY);     /* setting logical (himetric) size */
-	EMF_SetViewportExtEx(static_cast<ulong>(pThis->MaxX / EMF_PX2HM), static_cast<ulong>(pThis->MaxY / EMF_PX2HM));   /* setting device (pixel) size */
+	EMF_SetMapMode(8); /* forcing anisotropic mode */
+	EMF_SetWindowExtEx(pThis->MaxX, pThis->MaxY); /* setting logical (himetric) size */
+	EMF_SetViewportExtEx(static_cast<ulong>(pThis->MaxX / EMF_PX2HM), static_cast<ulong>(pThis->MaxY / EMF_PX2HM)); /* setting device (pixel) size */
 	// Paint with background color 
 	if(_EMF.emf_background != 0xffffff)
 		EMF_fillbox(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);
 	EMF_CreatePen(EMF_HANDLE_PEN, _EMF.emf_pentype, 1, 0x000000); /* init default pen */
 	EMF_SelectObject(EMF_HANDLE_PEN);
-	EMF_SetBkMode(1);       /* transparent background for text */
-	EMF_CreateBrush(EMF_HANDLE_BRUSH, 1, 0, 0);     /* transparent brush for polygons */
+	EMF_SetBkMode(1); /* transparent background for text */
+	EMF_CreateBrush(EMF_HANDLE_BRUSH, 1, 0, 0); /* transparent brush for polygons */
 	EMF_SelectObject(EMF_HANDLE_BRUSH);
 	SAlloc::F(_EMF.emf_last_fontname); /* invalidate any previous font */
 	_EMF.emf_last_fontname = NULL;
@@ -1284,7 +1284,7 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	}
 #endif
 	if(slen <=0) 
-		return;    /* shige: 08/30 2012 */
+		return; /* shige: 08/30 2012 */
 	alen = slen;
 	EMF_flush_polyline(pThis);
 	if(_EMF.emf_textcolor != _EMF.emf_color) {
@@ -1304,17 +1304,17 @@ TERM_PUBLIC void EMF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 		EMF_write_emr(83, 76 + alen + nchars * 4); /* ExtTextOutA, ANSI char version! */
 	}
 	EMF_write_rectl(0, 0, 0, 0); /* bounding, never used */
-	EMF_write_long(1);      /* GM_Compatible mode for advanced scaling */
+	EMF_write_long(1); /* GM_Compatible mode for advanced scaling */
 	EMF_write_float(EMF_PX2HM); /* x scale */
 	EMF_write_float(EMF_PX2HM); /* y scale */
 	/* positioning... y is recentered from bottom reference set in
 	 * text align */
 	EMF_write_pointl(x + (long)((pThis->ChrV/ 2) * sin(_EMF.emf_vert_text * EMF_10THDEG2RAD)), pThis->MaxY - y + (long)(pThis->ChrV / 2 * cos(_EMF.emf_vert_text * EMF_10THDEG2RAD)));
 	EMF_write_long(nchars); /* true number of characters */
-	EMF_write_long(76);     /* offset to text */
-	EMF_write_long(0);      /* options, none */
+	EMF_write_long(76); /* offset to text */
+	EMF_write_long(0); /* options, none */
 	EMF_write_rectl(0, 0, 0, 0); /* rectangle clipping not used */
-	EMF_write_long(0);      /* offset to intercharacter spacing array */
+	EMF_write_long(0); /* offset to intercharacter spacing array */
 	                        /* can't be used since we don't know anything */
 	                        /* about the font properties being used */
 

@@ -79,13 +79,13 @@ static const size_t g_unpack_window_size = 0x20000;
 struct file_header {
 	ssize_t bytes_remaining;
 	ssize_t unpacked_size;
-	int64 last_offset;         /* Used in sanity checks. */
-	int64 last_size;           /* Used in sanity checks. */
+	int64 last_offset; /* Used in sanity checks. */
+	int64 last_size; /* Used in sanity checks. */
 
-	uint8 solid : 1;           /* Is this a solid stream? */
-	uint8 service : 1;         /* Is this file a service data? */
-	uint8 eof : 1;             /* Did we finish unpacking the file? */
-	uint8 dir : 1;             /* Is this file entry a directory? */
+	uint8 solid : 1; /* Is this a solid stream? */
+	uint8 service : 1; /* Is this file a service data? */
+	uint8 eof : 1; /* Did we finish unpacking the file? */
+	uint8 dir : 1; /* Is this file entry a directory? */
 
 	/* Optional time fields. */
 	uint64 e_mtime;
@@ -199,47 +199,47 @@ struct comp_state {
 	signed int notused : 4;
 
 	int flags;                   /* Uncompression flags. */
-	int method;                  /* Uncompression algorithm method. */
-	int version;                 /* Uncompression algorithm version. */
-	ssize_t window_size;         /* Size of window_buf. */
-	uint8* window_buf;         /* Circular buffer used during
+	int method; /* Uncompression algorithm method. */
+	int version; /* Uncompression algorithm version. */
+	ssize_t window_size; /* Size of window_buf. */
+	uint8* window_buf; /* Circular buffer used during
 	                                decompression. */
-	uint8* filtered_buf;       /* Buffer used when applying filters. */
-	const uint8* block_buf;    /* Buffer used when merging blocks. */
-	size_t window_mask;          /* Convenience field; window_size - 1. */
-	int64 write_ptr;           /* This amount of data has been unpacked
+	uint8* filtered_buf; /* Buffer used when applying filters. */
+	const uint8* block_buf; /* Buffer used when merging blocks. */
+	size_t window_mask; /* Convenience field; window_size - 1. */
+	int64 write_ptr; /* This amount of data has been unpacked
 	                                in the window buffer. */
-	int64 last_write_ptr;      /* This amount of data has been stored in
+	int64 last_write_ptr; /* This amount of data has been stored in
 	                                the output file. */
-	int64 last_unstore_ptr;    /* Counter of bytes extracted during
+	int64 last_unstore_ptr; /* Counter of bytes extracted during
 	                                unstoring. This is separate from
 	                                last_write_ptr because of how SERVICE
 	                                base blocks are handled during skipping
 	                                in solid multiarchive archives. */
-	int64 solid_offset;        /* Additional offset inside the window
+	int64 solid_offset; /* Additional offset inside the window
 	                                buffer, used in unpacking solid
 	                                archives. */
-	ssize_t cur_block_size;      /* Size of current data block. */
-	int last_len;                /* Flag used in lzss decompression. */
+	ssize_t cur_block_size; /* Size of current data block. */
+	int last_len; /* Flag used in lzss decompression. */
 
 	/* Decode tables used during lzss uncompression. */
 
 #define HUFF_BC 20
-	struct decode_table bd;      /* huffman bit lengths */
+	struct decode_table bd; /* huffman bit lengths */
 #define HUFF_NC 306
-	struct decode_table ld;      /* literals */
+	struct decode_table ld; /* literals */
 #define HUFF_DC 64
-	struct decode_table dd;      /* distances */
+	struct decode_table dd; /* distances */
 #define HUFF_LDC 16
-	struct decode_table ldd;     /* lower bits of distances */
+	struct decode_table ldd; /* lower bits of distances */
 #define HUFF_RC 44
-	struct decode_table rd;      /* repeating distances */
+	struct decode_table rd; /* repeating distances */
 #define HUFF_TABLE_SIZE (HUFF_NC + HUFF_DC + HUFF_RC + HUFF_LDC)
 
 	/* Circular deque for storing filters. */
 	struct cdeque filters;
-	int64 last_block_start;    /* Used for sanity checking. */
-	ssize_t last_block_length;   /* Used for sanity checking. */
+	int64 last_block_start; /* Used for sanity checking. */
+	ssize_t last_block_length; /* Used for sanity checking. */
 
 	/* Distance cache used during lzss uncompression. */
 	int dist_cache[4];
@@ -250,8 +250,8 @@ struct comp_state {
 
 /* Bit reader state. */
 struct bit_reader {
-	int8_t bit_addr;    /* Current bit pointer inside current byte. */
-	int in_addr;        /* Current byte pointer. */
+	int8_t bit_addr; /* Current bit pointer inside current byte. */
+	int in_addr; /* Current byte pointer. */
 };
 
 /* RARv5 block header structure. Use bf_* functions to get values from

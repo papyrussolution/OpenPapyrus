@@ -79,7 +79,7 @@ LZ4LIB_API int LZ4_compress_HC_extStateHC(void * state, const char* src, char* d
 *  Streaming Compression
 *  Bufferless synchronous API
 **************************************/
-typedef union LZ4_streamHC_u LZ4_streamHC_t;    /* incomplete type (defined later) */
+typedef union LZ4_streamHC_u LZ4_streamHC_t; /* incomplete type (defined later) */
 
 /*! LZ4_createStreamHC() and LZ4_freeStreamHC() :
  *  These functions create and release memory for LZ4 HC streaming state.
@@ -145,15 +145,15 @@ LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char* safeBuffer, int
 	struct LZ4HC_CCtx_internal {
 		uint32 hashTable[LZ4HC_HASHTABLESIZE];
 		uint16 chainTable[LZ4HC_MAXD];
-		const uint8 * end;     /* next block here to continue on current prefix */
-		const uint8 * base;    /* All index relative to this position */
+		const uint8 * end; /* next block here to continue on current prefix */
+		const uint8 * base; /* All index relative to this position */
 		const uint8 * dictBase; /* alternate base for extDict */
-		uint32 dictLimit;     /* below that point, need extDict */
-		uint32 lowLimit;      /* below that point, no more dict */
-		uint32 nextToUpdate;  /* index from which to continue dictionary update */
+		uint32 dictLimit; /* below that point, need extDict */
+		uint32 lowLimit; /* below that point, no more dict */
+		uint32 nextToUpdate; /* index from which to continue dictionary update */
 		short  compressionLevel;
 		int8   favorDecSpeed; // favor decompression speed if this flag set, otherwise, favor compression ratio 
-		int8   dirty;           /* stream has to be fully reset if this flag is set */
+		int8   dirty; /* stream has to be fully reset if this flag is set */
 		const  LZ4HC_CCtx_internal* dictCtx;
 	};
 #else
@@ -161,12 +161,12 @@ LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char* safeBuffer, int
 	struct LZ4HC_CCtx_internal {
 		unsigned int hashTable[LZ4HC_HASHTABLESIZE];
 		unsigned short chainTable[LZ4HC_MAXD];
-		const uchar* end;    /* next block here to continue on current prefix */
-		const uchar* base;   /* All index relative to this position */
+		const uchar* end; /* next block here to continue on current prefix */
+		const uchar* base; /* All index relative to this position */
 		const uchar* dictBase; /* alternate base for extDict */
-		unsigned int dictLimit;      /* below that point, need extDict */
-		unsigned int lowLimit;       /* below that point, no more dict */
-		unsigned int nextToUpdate;   /* index from which to continue dictionary update */
+		unsigned int dictLimit; /* below that point, need extDict */
+		unsigned int lowLimit; /* below that point, no more dict */
+		unsigned int nextToUpdate; /* index from which to continue dictionary update */
 		short compressionLevel;
 		char favorDecSpeed; // favor decompression speed if this flag set, otherwise, favor compression ratio 
 		char dirty;         // stream has to be fully reset if this flag is set 

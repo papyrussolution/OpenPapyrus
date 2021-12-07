@@ -144,7 +144,7 @@ typedef struct _xmlRegRange xmlRegRange;
 typedef xmlRegRange * xmlRegRangePtr;
 
 struct _xmlRegRange {
-	int neg;        /* 0 normal, 1 not, 2 exclude */
+	int neg; /* 0 normal, 1 not, 2 exclude */
 	xmlRegAtomType type;
 	int start;
 	int end;
@@ -253,9 +253,9 @@ struct xmlRegexp {
 
 struct xmlRegExecRollback {
 	xmlRegStatePtr state; /* the current state */
-	int index;      /* the index in the input stack */
+	int index; /* the index in the input stack */
 	int nextbranch; /* the next transition to explore in that state */
-	int * counts;   /* save the automata state if it has some */
+	int * counts; /* save the automata state if it has some */
 };
 
 struct xmlRegInputToken {
@@ -266,13 +266,13 @@ struct xmlRegInputToken {
 //typedef xmlRegInputToken * xmlRegInputTokenPtr;
 
 struct _xmlRegExecCtxt {
-	int status;     /* execution status != 0 indicate an error */
+	int status; /* execution status != 0 indicate an error */
 	int determinist; /* did we find an indeterministic behaviour */
 	xmlRegexp * comp; /* the compiled regexp */
 	xmlRegExecCallbacks callback;
 	void * data;
 	xmlRegState * state; /* the current state */
-	int transno;    /* the current transition on that state */
+	int transno; /* the current transition on that state */
 	int transcount; /* the number of chars in char counted transitions */
 	/*
 	 * A stack of rollback states
@@ -296,10 +296,10 @@ struct _xmlRegExecCtxt {
 	/*
 	 * error handling
 	 */
-	int errStateNo;         /* the error state number */
+	int errStateNo; /* the error state number */
 	xmlRegStatePtr errState; /* the error state */
-	xmlChar * errString;    /* the string raising the error */
-	int * errCounts;        /* counters at the error state */
+	xmlChar * errString; /* the string raising the error */
+	int * errCounts; /* counters at the error state */
 	int nbPush;
 };
 
@@ -2336,7 +2336,7 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt)
 							* transitions which indicate a conflict
 							*/
 							if(xmlFAEqualAtoms(t1->atom, t2->atom, deep) && (t1->counter == t2->counter) && (t1->count == t2->count))
-								t2->to = -1;  /* eliminated */
+								t2->to = -1; /* eliminated */
 						}
 					}
 				}
@@ -2523,7 +2523,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 			    if(range->neg == 2) {
 				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
 				    if(ret != 0)
-					    return 0;  /* excluded char */
+					    return 0; /* excluded char */
 			    }
 			    else if(range->neg) {
 				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
@@ -2535,7 +2535,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 			    else {
 				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
 				    if(ret != 0)
-					    accept = 1;  /* might still be excluded */
+					    accept = 1; /* might still be excluded */
 			    }
 		    }
 		    return (accept);
@@ -2818,7 +2818,7 @@ static int xmlFARegExec(xmlRegexp * comp, const xmlChar * content)
 						}
 						counter = &exec->comp->counters[trans->counter];
 						if(exec->counts[trans->counter] >= counter->max)
-							continue;  /* for loop on transitions */
+							continue; /* for loop on transitions */
 
 #ifdef DEBUG_REGEXP_EXEC
 						printf("Increasing count %d\n", trans->counter);
@@ -2923,7 +2923,7 @@ static int xmlFARegExec(xmlRegexp * comp, const xmlChar * content)
 					}
 					counter = &exec->comp->counters[trans->counter];
 					if(exec->counts[trans->counter] >= counter->max)
-						continue;  /* for loop on transitions */
+						continue; /* for loop on transitions */
 #ifdef DEBUG_REGEXP_EXEC
 					printf("Increasing count %d\n", trans->counter);
 #endif
@@ -5745,7 +5745,7 @@ struct _xmlExpNode {
 	uchar info; /* OR of xmlExpNodeInfo */
 	ushort key; /* the hash key */
 	uint ref; /* The number of references */
-	int c_max;      /* the maximum length it can consume */
+	int c_max; /* the maximum length it can consume */
 	xmlExpNodePtr exp_left;
 	xmlExpNodePtr next; /* the next node in the hash table or free list */
 	union {

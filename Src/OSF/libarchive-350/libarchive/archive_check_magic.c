@@ -50,7 +50,7 @@ static __LA_DEAD void diediedie(void)
 	/* Cause a breakpoint exception  */
 	DebugBreak();
 #endif
-	abort();        /* Terminate the program abnormally. */
+	abort(); /* Terminate the program abnormally. */
 }
 
 static const char * state_name(unsigned s)
@@ -84,7 +84,7 @@ static char * write_all_states(char * buff, unsigned int states)
 	buff[0] = '\0';
 	/* A trick for computing the lowest set bit. */
 	while((lowbit = states & (1 + ~states)) != 0) {
-		states &= ~lowbit;              /* Clear the low bit. */
+		states &= ~lowbit; /* Clear the low bit. */
 		strcat(buff, state_name(lowbit));
 		if(states != 0)
 			strcat(buff, "/");

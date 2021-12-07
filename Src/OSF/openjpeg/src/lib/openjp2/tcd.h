@@ -65,28 +65,28 @@ typedef struct opj_tcd_pass {
 FIXME DOC
 */
 typedef struct opj_tcd_layer {
-    OPJ_UINT32 numpasses;       /* Number of passes in the layer */
-    OPJ_UINT32 len;             /* len of information */
-    OPJ_FLOAT64 disto;          /* add for index (Cfr. Marcela) */
-    OPJ_BYTE *data;             /* data */
+    OPJ_UINT32 numpasses; /* Number of passes in the layer */
+    OPJ_UINT32 len; /* len of information */
+    OPJ_FLOAT64 disto; /* add for index (Cfr. Marcela) */
+    OPJ_BYTE *data; /* data */
 } opj_tcd_layer_t;
 
 /**
 FIXME DOC
 */
 typedef struct opj_tcd_cblk_enc {
-    OPJ_BYTE* data;               /* Data */
-    opj_tcd_layer_t* layers;      /* layer information */
-    opj_tcd_pass_t* passes;       /* information about the passes */
+    OPJ_BYTE* data; /* Data */
+    opj_tcd_layer_t* layers; /* layer information */
+    opj_tcd_pass_t* passes; /* information about the passes */
     OPJ_INT32 x0, y0, x1,
-              y1;     /* dimension of the code-blocks : left upper corner (x0, y0) right low corner (x1,y1) */
+              y1; /* dimension of the code-blocks : left upper corner (x0, y0) right low corner (x1,y1) */
     OPJ_UINT32 numbps;
     OPJ_UINT32 numlenbits;
-    OPJ_UINT32 data_size;         /* Size of allocated data buffer */
+    OPJ_UINT32 data_size; /* Size of allocated data buffer */
     OPJ_UINT32
-    numpasses;         /* number of pass already done for the code-blocks */
+    numpasses; /* number of pass already done for the code-blocks */
     OPJ_UINT32 numpassesinlayers; /* number of passes in the layer */
-    OPJ_UINT32 totalpasses;       /* total number of passes */
+    OPJ_UINT32 totalpasses; /* total number of passes */
 } opj_tcd_cblk_enc_t;
 
 
@@ -96,14 +96,14 @@ typedef struct opj_tcd_seg_data_chunk {
        So the tilepart buffer must be kept alive
        as long as we need to decode the codeblocks */
     OPJ_BYTE * data;
-    OPJ_UINT32 len;                 /* Usable length of data */
+    OPJ_UINT32 len; /* Usable length of data */
 } opj_tcd_seg_data_chunk_t;
 
 /** Segment of a code-block.
  * A segment represent a number of consecutive coding passes, without termination
  * of MQC or RAW between them. */
 typedef struct opj_tcd_seg {
-    OPJ_UINT32 len;      /* Size of data related to this segment */
+    OPJ_UINT32 len; /* Size of data related to this segment */
     /* Number of passes decoded. Including those that we skip */
     OPJ_UINT32 numpasses;
     /* Number of passes actually to be decoded. To be used for code-block decoding */
@@ -118,7 +118,7 @@ typedef struct opj_tcd_seg {
 
 /** Code-block for decoding */
 typedef struct opj_tcd_cblk_dec {
-    opj_tcd_seg_t* segs;            /* segments information */
+    opj_tcd_seg_t* segs; /* segments information */
     opj_tcd_seg_data_chunk_t* chunks; /* Array of chunks */
     /* position of the code-blocks : left upper corner (x0, y0) right low corner (x1,y1) */
     OPJ_INT32 x0, y0, x1, y1;
@@ -131,9 +131,9 @@ typedef struct opj_tcd_cblk_dec {
     OPJ_UINT32 numsegs;
     /* number of segments, to be used for code block decoding */
     OPJ_UINT32 real_num_segs;
-    OPJ_UINT32 m_current_max_segs;  /* allocated number of segs[] items */
-    OPJ_UINT32 numchunks;           /* Number of valid chunks items */
-    OPJ_UINT32 numchunksalloc;      /* Number of chunks item allocated */
+    OPJ_UINT32 m_current_max_segs; /* allocated number of segs[] items */
+    OPJ_UINT32 numchunks; /* Number of valid chunks items */
+    OPJ_UINT32 numchunksalloc; /* Number of chunks item allocated */
     /* Decoded code-block. Only used for subtile decoding. Otherwise tilec->data is directly updated */
     OPJ_INT32* decoded_data;
 } opj_tcd_cblk_dec_t;
@@ -142,15 +142,15 @@ typedef struct opj_tcd_cblk_dec {
 typedef struct opj_tcd_precinct {
     /* dimension of the precinct : left upper corner (x0, y0) right low corner (x1,y1) */
     OPJ_INT32 x0, y0, x1, y1;
-    OPJ_UINT32 cw, ch;              /* number of code-blocks, in width and height */
+    OPJ_UINT32 cw, ch; /* number of code-blocks, in width and height */
     union {                         /* code-blocks information */
         opj_tcd_cblk_enc_t* enc;
         opj_tcd_cblk_dec_t* dec;
         void *    blocks;
     } cblks;
-    OPJ_UINT32 block_size;          /* size taken by cblks (in bytes) */
-    opj_tgt_tree_t *incltree;       /* inclusion tree */
-    opj_tgt_tree_t *imsbtree;       /* IMSB tree */
+    OPJ_UINT32 block_size; /* size taken by cblks (in bytes) */
+    opj_tgt_tree_t *incltree; /* inclusion tree */
+    opj_tgt_tree_t *imsbtree; /* IMSB tree */
 } opj_tcd_precinct_t;
 
 /** Sub-band structure */
@@ -228,19 +228,19 @@ FIXME DOC
 typedef struct opj_tcd_tile {
     /* dimension of the tile : left upper corner (x0, y0) right low corner (x1,y1) */
     OPJ_INT32 x0, y0, x1, y1;
-    OPJ_UINT32 numcomps;            /* number of components in tile */
-    opj_tcd_tilecomp_t *comps;  /* Components information */
-    OPJ_INT32 numpix;               /* add fixed_quality */
-    OPJ_FLOAT64 distotile;          /* add fixed_quality */
-    OPJ_FLOAT64 distolayer[100];    /* add fixed_quality */
-    OPJ_UINT32 packno;              /* packet number */
+    OPJ_UINT32 numcomps; /* number of components in tile */
+    opj_tcd_tilecomp_t *comps; /* Components information */
+    OPJ_INT32 numpix; /* add fixed_quality */
+    OPJ_FLOAT64 distotile; /* add fixed_quality */
+    OPJ_FLOAT64 distolayer[100]; /* add fixed_quality */
+    OPJ_UINT32 packno; /* packet number */
 } opj_tcd_tile_t;
 
 /**
 FIXME DOC
 */
 typedef struct opj_tcd_image {
-    opj_tcd_tile_t *tiles;      /* Tiles information */
+    opj_tcd_tile_t *tiles; /* Tiles information */
 }
 opj_tcd_image_t;
 

@@ -47,7 +47,7 @@ uchar * _mariadb_compress_alloc(const uchar * packet, size_t * len, size_t * com
 	uchar * compbuf;
 	*complen =  *len * 120 / 100 + 12;
 	if(!(compbuf = (uchar *)SAlloc::M(*complen)))
-		return 0;                       /* Not enough memory */
+		return 0; /* Not enough memory */
 	if(compress((Bytef*)compbuf, (ulong *)complen, (Bytef*)packet, (uLong)*len) != Z_OK) {
 		SAlloc::F(compbuf);
 		return 0;
@@ -57,7 +57,7 @@ uchar * _mariadb_compress_alloc(const uchar * packet, size_t * len, size_t * com
 		SAlloc::F(compbuf);
 		return 0;
 	}
-	swap(size_t, *len, *complen);           /* *len is now packet length */
+	swap(size_t, *len, *complen); /* *len is now packet length */
 	return compbuf;
 }
 

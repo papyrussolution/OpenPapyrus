@@ -91,13 +91,13 @@ void GnuPlot::F_LambertW(union argument * arg)
 	GpValue result;
 	GpValue a;
 	struct cmplx z; /* gnuplot complex parameter z */
-	int k;          /* gnuplot integer parameter k */
+	int k; /* gnuplot integer parameter k */
 	_Dcomplex w; /* C99 _Complex representation */
-	Pop(&a);        /* Integer argument k */
+	Pop(&a); /* Integer argument k */
 	if(a.type != INTGR)
 		IntError(NO_CARET, "k must be integer");
 	k = a.v.int_val;
-	Pop(&a);        /* Complex argument z */
+	Pop(&a); /* Complex argument z */
 	if(a.type != CMPLX)
 		IntError(NO_CARET, "z must be real or complex");
 	z = a.v.cmplx_val;
@@ -170,7 +170,7 @@ _Dcomplex GnuPlot::_LambertW(_Dcomplex z, int k)
 {
 #define LAMBERT_MAXITER 300
 #define LAMBERT_CONVERGENCE 1.E-13
-	int i;          /* iteration variable */
+	int i; /* iteration variable */
 	double residual; /* target for convergence */
 	_Dcomplex w;
 	// Special cases 
@@ -305,14 +305,14 @@ void GnuPlot::F_IGamma(union argument * arg)
 	struct cmplx a; // gnuplot complex parameter a 
 	struct cmplx z; // gnuplot complex parameter z 
 	_Dcomplex w; // C99 _Complex representation 
-	Pop(&tmp);              /* Complex argument z */
+	Pop(&tmp); /* Complex argument z */
 	if(tmp.type == CMPLX)
 		z = tmp.v.cmplx_val;
 	else {
 		z.real = Real(&tmp);
 		z.imag = 0;
 	}
-	Pop(&tmp);              /* Complex argument a */
+	Pop(&tmp); /* Complex argument a */
 	if(tmp.type == CMPLX)
 		a = tmp.v.cmplx_val;
 	else {

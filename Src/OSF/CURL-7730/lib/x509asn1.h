@@ -78,12 +78,12 @@
 
 /* ASN.1 parsed element. */
 struct Curl_asn1Element {
-	const char * header;  /* Pointer to header byte. */
-	const char * beg;     /* Pointer to element data. */
-	const char * end;     /* Pointer to 1st byte after element. */
-	uchar class;  /* ASN.1 element class. */
-	uchar tag;    /* ASN.1 element tag. */
-	bool constructed;     /* Element is constructed. */
+	const char * header; /* Pointer to header byte. */
+	const char * beg; /* Pointer to element data. */
+	const char * end; /* Pointer to 1st byte after element. */
+	uchar class; /* ASN.1 element class. */
+	uchar tag; /* ASN.1 element tag. */
+	bool constructed; /* Element is constructed. */
 };
 
 /* ASN.1 OID table entry. */

@@ -35,18 +35,18 @@ typedef int (poll_handler_t)(zbar_processor_t*, int);
 /* poll information */
 typedef struct poll_desc_s {
     int num;                            /* number of descriptors */
-    struct pollfd *fds;                 /* poll descriptors */
-    poll_handler_t **handlers;          /* poll handlers */
+    struct pollfd *fds; /* poll descriptors */
+    poll_handler_t **handlers; /* poll handlers */
 } poll_desc_t;
 #endif
 
 struct processor_state_s {
 #ifdef HAVE_POLL_H
-    poll_desc_t polling;                /* polling registration */
-    poll_desc_t thr_polling;            /* thread copy */
+    poll_desc_t polling; /* polling registration */
+    poll_desc_t thr_polling; /* thread copy */
 #endif
     int kick_fds[2];                    /* poll kicker */
-    poll_handler_t *pre_poll_handler;   /* special case */
+    poll_handler_t *pre_poll_handler; /* special case */
 };
 
 

@@ -445,7 +445,7 @@ BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 #define mul_add_c(a, b, c0, c1, c2)       do {    \
 		BN_ULONG hi;                            \
 		BN_ULLONG t = (BN_ULLONG)(a)*(b);       \
-		t += c0;        /* no carry */  \
+		t += c0; /* no carry */  \
 		c0 = (BN_ULONG)Lw(t);                   \
 		hi = (BN_ULONG)Hw(t);                   \
 		c1 = (c1+hi)&BN_MASK2; if(c1<hi) c2++; \
@@ -458,7 +458,7 @@ BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 		c0 = (BN_ULONG)Lw(tt);                  \
 		hi = (BN_ULONG)Hw(tt);                  \
 		c1 = (c1+hi)&BN_MASK2; if(c1<hi) c2++; \
-		t += c0;        /* no carry */  \
+		t += c0; /* no carry */  \
 		c0 = (BN_ULONG)Lw(t);                   \
 		hi = (BN_ULONG)Hw(t);                   \
 		c1 = (c1+hi)&BN_MASK2; if(c1<hi) c2++; \
@@ -467,7 +467,7 @@ BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 #define sqr_add_c(a, i, c0, c1, c2)       do {    \
 		BN_ULONG hi;                            \
 		BN_ULLONG t = (BN_ULLONG)a[i]*a[i];     \
-		t += c0;        /* no carry */  \
+		t += c0; /* no carry */  \
 		c0 = (BN_ULONG)Lw(t);                   \
 		hi = (BN_ULONG)Hw(t);                   \
 		c1 = (c1+hi)&BN_MASK2; if(c1<hi) c2++; \

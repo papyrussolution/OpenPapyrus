@@ -22,8 +22,8 @@ static int rc2_get_asn1_type_and_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type);
 static int rc2_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);
 
 typedef struct {
-	int key_bits;           /* effective key bits */
-	RC2_KEY ks;             /* key schedule */
+	int key_bits; /* effective key bits */
+	RC2_KEY ks; /* key schedule */
 } EVP_RC2_KEY;
 
 #define data(ctx)       EVP_C_DATA(EVP_RC2_KEY, ctx)

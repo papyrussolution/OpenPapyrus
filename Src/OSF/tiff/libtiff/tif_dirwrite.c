@@ -338,7 +338,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 				return 0;
 			}
 		}
-		(*tif->tif_close)(tif);       /* shutdown encoder */
+		(*tif->tif_close)(tif); /* shutdown encoder */
 		/*
 		 * Flush any data that might have been written
 		 * by the compression close+cleanup routines.  But
@@ -597,7 +597,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 						    }
 						    break;
 							default:
-							    assert(0);       /* we should never get here */
+							    assert(0); /* we should never get here */
 							    break;
 						}
 					}
@@ -673,7 +673,7 @@ static int FASTCALL TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone,
 					    goto bad;
 				    break;
 				default:
-				    assert(0);       /* we should never get here */
+				    assert(0); /* we should never get here */
 				    break;
 			}
 		}

@@ -66,10 +66,10 @@
 
 typedef struct {
 	struct cjpeg_source_struct pub; /* public fields */
-	U_CHAR * iobuffer;      /* non-FAR pointer to I/O buffer */
-	JSAMPROW pixrow;        /* FAR pointer to same */
-	size_t buffer_width;    /* width of I/O buffer */
-	JSAMPLE * rescale;      /* => maxval-remapping array, or NULL */
+	U_CHAR * iobuffer; /* non-FAR pointer to I/O buffer */
+	JSAMPROW pixrow; /* FAR pointer to same */
+	size_t buffer_width; /* width of I/O buffer */
+	JSAMPLE * rescale; /* => maxval-remapping array, or NULL */
 	unsigned int maxval; // @v9c
 } ppm_source_struct;
 
@@ -445,9 +445,9 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	cinfo->image_height = (JDIMENSION)h;
 	source->maxval = maxval; // @v9c
 	// initialize flags to most common settings 
-	need_iobuffer = TRUE;   /* do we need an I/O buffer? */
+	need_iobuffer = TRUE; /* do we need an I/O buffer? */
 	use_raw_buffer = FALSE; /* do we map input buffer onto I/O buffer? */
-	need_rescale = TRUE;    /* do we need a rescale array? */
+	need_rescale = TRUE; /* do we need a rescale array? */
 
 	switch(c) {
 		case '2':       /* it's a text-format PGM file */

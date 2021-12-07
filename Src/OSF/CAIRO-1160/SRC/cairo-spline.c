@@ -371,7 +371,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 		double t_2_0, t_0_2;
 		double t_3_0, t_2_1_3, t_1_2_3, t_0_3;
 
-		t_1_0 = t[i];  /*      t  */
+		t_1_0 = t[i]; /*      t  */
 		t_0_1 = 1 - t_1_0; /* (1 - t) */
 
 		t_2_0 = t_1_0 * t_1_0; /*      t * t  */

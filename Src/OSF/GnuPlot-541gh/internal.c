@@ -161,12 +161,12 @@ void GnuPlot::F_Calln(union argument * x)
 void GnuPlot::F_Sum(union argument * arg)
 {
 	GpValue beg, end, varname; /* [<var> = <start>:<end>] */
-	udft_entry * udf;           /* function to evaluate */
-	udvt_entry * udv;           /* iteration variable */
-	GpValue result;        /* accummulated sum */
+	udft_entry * udf; /* function to evaluate */
+	udvt_entry * udv; /* iteration variable */
+	GpValue result; /* accummulated sum */
 	GpValue f_i;
 	int i;
-	intgr_t llsum;              /* integer sum */
+	intgr_t llsum; /* integer sum */
 	bool integer_terms = TRUE;
 	Pop(&end);
 	Pop(&beg);
@@ -567,7 +567,7 @@ void GnuPlot::F_Minus(union argument * /*arg*/)
 	GpValue a, b, result;
 	double temp;
 	__POP__(&b);
-	__POP__(&a);          /* now do a - b */
+	__POP__(&a); /* now do a - b */
 	switch(a.Type) {
 		case INTGR:
 		    switch(b.Type) {
@@ -714,7 +714,7 @@ void GnuPlot::F_Div(union argument * arg)
 {
 	GpValue a, b, result;
 	__POP__(&b);
-	__POP__(&a);          /* now do a/b */
+	__POP__(&a); /* now do a/b */
 	switch(a.Type) {
 		case INTGR:
 		    switch(b.Type) {
@@ -756,7 +756,7 @@ void GnuPlot::F_Mod(union argument * /*arg*/)
 {
 	GpValue a, b;
 	__POP__(&b);
-	__POP__(&a);          /* now do a%b */
+	__POP__(&a); /* now do a%b */
 	if(a.Type != INTGR || b.Type != INTGR)
 		IntError(NO_CARET, "non-integer operand for %%");
 	if(b.v.int_val)
@@ -774,7 +774,7 @@ void GnuPlot::F_Power(union argument * arg)
 	int i;
 	double mag, ang;
 	__POP__(&b);
-	__POP__(&a);          /* now find a**b */
+	__POP__(&a); /* now find a**b */
 	switch(a.Type) {
 		case INTGR:
 		    switch(b.Type) {
@@ -921,7 +921,7 @@ void GnuPlot::F_Factorial(union argument * /*arg*/)
 {
 	GpValue a;
 	intgr_t i;
-	__POP__(&a);          /* find a! (factorial) */
+	__POP__(&a); /* find a! (factorial) */
 	if(a.Type != INTGR)
 		IntError(NO_CARET, "factorial (!) argument must be an integer");
 	if(((sizeof(int) == sizeof(intgr_t)) && a.v.int_val <= 12) || a.v.int_val <= 20) {

@@ -436,8 +436,8 @@ static void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16],
 	 * the rem_8bit even here, but the priority is to minimize
 	 * cache footprint...
 	 */
-	u128 Hshr4[16];         /* Htable shifted right by 4 bits */
-	u8 Hshl4[16];           /* Htable shifted left by 4 bits */
+	u128 Hshr4[16]; /* Htable shifted right by 4 bits */
+	u8 Hshl4[16]; /* Htable shifted left by 4 bits */
 	static const ushort rem_8bit[256] = {
 		0x0000, 0x01C2, 0x0384, 0x0246, 0x0708, 0x06CA, 0x048C, 0x054E,
 		0x0E10, 0x0FD2, 0x0D94, 0x0C56, 0x0918, 0x08DA, 0x0A9C, 0x0B5E,
@@ -579,7 +579,7 @@ static void gcm_gmult_1bit(u64 Xi[2], const u64 H[2])
 		char little;
 	} is_endian = { 1 };
 
-	V.hi = H[0];            /* H is in host byte order, no byte swapping */
+	V.hi = H[0]; /* H is in host byte order, no byte swapping */
 	V.lo = H[1];
 
 	for(j = 0; j < 16 / sizeof(long); ++j) {
@@ -850,8 +850,8 @@ void CRYPTO_gcm128_setiv(GCM128_CONTEXT * ctx, const uchar * iv,
 	void (*gcm_gmult_p)(u64 Xi[2], const u128 Htable[16]) = ctx->gmult;
 #endif
 
-	ctx->len.u[0] = 0;      /* AAD length */
-	ctx->len.u[1] = 0;      /* message length */
+	ctx->len.u[0] = 0; /* AAD length */
+	ctx->len.u[1] = 0; /* message length */
 	ctx->ares = 0;
 	ctx->mres = 0;
 

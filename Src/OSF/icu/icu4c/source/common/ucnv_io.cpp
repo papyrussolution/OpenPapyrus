@@ -205,7 +205,7 @@ static bool U_CALLCONV ucnv_io_cleanup(void)
 	}
 	gAliasDataInitOnce.reset();
 	memzero(&gMainTable, sizeof(gMainTable));
-	return TRUE;               /* Everything was cleaned up */
+	return TRUE; /* Everything was cleaned up */
 }
 
 static void U_CALLCONV initAliasData(UErrorCode &errCode) 

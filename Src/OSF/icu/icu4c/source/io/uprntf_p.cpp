@@ -96,10 +96,10 @@ typedef struct u_printf_info {
  * Struct encapsulating a single uprintf format specification.
  */
 typedef struct u_printf_spec {
-	u_printf_spec_info fInfo;     /* Information on this spec */
-	int32_t fWidthPos;      /* Position of width in arg list */
-	int32_t fPrecisionPos;     /* Position of precision in arg list */
-	int32_t fArgPos;     /* Position of data in arg list */
+	u_printf_spec_info fInfo; /* Information on this spec */
+	int32_t fWidthPos; /* Position of width in arg list */
+	int32_t fPrecisionPos; /* Position of precision in arg list */
+	int32_t fArgPos; /* Position of data in arg list */
 } u_printf_spec;
 
 #define UPRINTF_NUM_FMT_HANDLERS 108

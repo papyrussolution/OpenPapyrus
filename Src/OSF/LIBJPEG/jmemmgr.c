@@ -94,7 +94,7 @@ typedef union small_pool_struct {
 		size_t bytes_left; /* bytes still available in this pool */
 	} hdr;
 
-	ALIGN_TYPE dummy;       /* included in union to ensure alignment */
+	ALIGN_TYPE dummy; /* included in union to ensure alignment */
 } small_pool_hdr;
 
 typedef union large_pool_struct FAR * large_pool_ptr;
@@ -106,7 +106,7 @@ typedef union large_pool_struct {
 		size_t bytes_left; /* bytes still available in this pool */
 	} hdr;
 
-	ALIGN_TYPE dummy;       /* included in union to ensure alignment */
+	ALIGN_TYPE dummy; /* included in union to ensure alignment */
 } large_pool_hdr;
 
 /*
@@ -147,18 +147,18 @@ typedef my_memory_mgr * my_mem_ptr;
  */
 
 struct jvirt_sarray_control {
-	JSAMPARRAY mem_buffer;  /* => the in-memory buffer */
+	JSAMPARRAY mem_buffer; /* => the in-memory buffer */
 	JDIMENSION rows_in_array; /* total virtual array height */
 	JDIMENSION samplesperrow; /* width of array (and of memory buffer) */
-	JDIMENSION maxaccess;   /* max rows accessed by access_virt_sarray */
+	JDIMENSION maxaccess; /* max rows accessed by access_virt_sarray */
 	JDIMENSION rows_in_mem; /* height of memory buffer */
 	JDIMENSION rowsperchunk; /* allocation chunk size in mem_buffer */
 	JDIMENSION cur_start_row; /* first logical row # in the buffer */
 	JDIMENSION first_undef_row; /* row # of first uninitialized row */
-	boolean pre_zero;       /* pre-zero mode requested? */
-	boolean dirty;          /* do current buffer contents need written? */
-	boolean b_s_open;       /* is backing-store data valid? */
-	jvirt_sarray_ptr next;  /* link to next virtual sarray control block */
+	boolean pre_zero; /* pre-zero mode requested? */
+	boolean dirty; /* do current buffer contents need written? */
+	boolean b_s_open; /* is backing-store data valid? */
+	jvirt_sarray_ptr next; /* link to next virtual sarray control block */
 	backing_store_info b_s_info; /* System-dependent control info */
 };
 
@@ -166,15 +166,15 @@ struct jvirt_barray_control {
 	JBLOCKARRAY mem_buffer; /* => the in-memory buffer */
 	JDIMENSION rows_in_array; /* total virtual array height */
 	JDIMENSION blocksperrow; /* width of array (and of memory buffer) */
-	JDIMENSION maxaccess;   /* max rows accessed by access_virt_barray */
+	JDIMENSION maxaccess; /* max rows accessed by access_virt_barray */
 	JDIMENSION rows_in_mem; /* height of memory buffer */
 	JDIMENSION rowsperchunk; /* allocation chunk size in mem_buffer */
 	JDIMENSION cur_start_row; /* first logical row # in the buffer */
 	JDIMENSION first_undef_row; /* row # of first uninitialized row */
-	boolean pre_zero;       /* pre-zero mode requested? */
-	boolean dirty;          /* do current buffer contents need written? */
-	boolean b_s_open;       /* is backing-store data valid? */
-	jvirt_barray_ptr next;  /* link to next virtual barray control block */
+	boolean pre_zero; /* pre-zero mode requested? */
+	boolean dirty; /* do current buffer contents need written? */
+	boolean b_s_open; /* is backing-store data valid? */
+	jvirt_barray_ptr next; /* link to next virtual barray control block */
 	backing_store_info b_s_info; /* System-dependent control info */
 };
 
@@ -249,7 +249,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	hdr_ptr = mem->small_list[pool_id];
 	while(hdr_ptr) {
 		if(hdr_ptr->hdr.bytes_left >= sizeofobject)
-			break;  /* found pool with enough space */
+			break; /* found pool with enough space */
 		prev_hdr_ptr = hdr_ptr;
 		hdr_ptr = hdr_ptr->hdr.next;
 	}
@@ -519,7 +519,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 		}
 	}
 	if(space_per_minheight <= 0)
-		return;         /* no unrealized arrays, no work */
+		return; /* no unrealized arrays, no work */
 	/* Determine amount of memory to actually use; this is system-dependent. */
 	avail_mem = jpeg_mem_available(cinfo, space_per_minheight, maximum_space, mem->total_space_allocated);
 	/* If the maximum space needed is available, make all the buffers full
@@ -669,7 +669,7 @@ METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr pt
 			/* use long arithmetic here to avoid overflow & unsigned problems */
 			long ltemp = (long)end_row - (long)ptr->rows_in_mem;
 			if(ltemp < 0)
-				ltemp = 0;  /* don't fall off front end of file */
+				ltemp = 0; /* don't fall off front end of file */
 			ptr->cur_start_row = (JDIMENSION)ltemp;
 		}
 		/* Read in the selected part of the array.
@@ -747,7 +747,7 @@ METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr p
 			/* use long arithmetic here to avoid overflow & unsigned problems */
 			long ltemp = (long)end_row - (long)ptr->rows_in_mem;
 			if(ltemp < 0)
-				ltemp = 0;  /* don't fall off front end of file */
+				ltemp = 0; /* don't fall off front end of file */
 			ptr->cur_start_row = (JDIMENSION)ltemp;
 		}
 		/* Read in the selected part of the array.
@@ -876,7 +876,7 @@ void jinit_memory_mgr(j_common_ptr cinfo)
 	long max_to_use;
 	int pool;
 	size_t test_mac;
-	cinfo->mem = NULL;      /* for safety if init fails */
+	cinfo->mem = NULL; /* for safety if init fails */
 	/* Check for configuration errors.
 	 * SIZEOF(ALIGN_TYPE) should be a power of 2; otherwise, it probably
 	 * doesn't reflect any real hardware alignment requirement.

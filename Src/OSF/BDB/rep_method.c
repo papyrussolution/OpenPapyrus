@@ -2246,7 +2246,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 			goto out;
 		}
 		if(ret != 0)
-			goto out;  /* Unexpected error, first read. */
+			goto out; /* Unexpected error, first read. */
 		if(commit_info->envid != hist.envid) {
 			/*
 			 * (We don't need the second read in order to make this
@@ -2270,7 +2270,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 			reasonp->u.lsn = lsn;
 		}
 		else if(ret != 0)
-			goto out;  /* Second read returned unexpeced error. */
+			goto out; /* Second read returned unexpeced error. */
 		/*
 		 * We now have the history info for the gen of the txn, and for
 		 * the subsequent gen.  All we have to do is see if the LSN is

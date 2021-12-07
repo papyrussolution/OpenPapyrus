@@ -52,7 +52,7 @@ static int __lv_vrfy_for_dbfile(DB_LOG_VRFY_INFO*, int32, int *);
 #define ON_ERROR(lvh, errv) do {                                        \
 		(lvh)->flags |= (errv);                                         \
 		if(F_ISSET((lvh), DB_LOG_VERIFY_CAF))                          \
-			ret = 0;  /* Ignore the error and continue. */            \
+			ret = 0; /* Ignore the error and continue. */            \
 		goto err;                                                       \
 } while(0)
 
@@ -1106,13 +1106,13 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 		goto err;
 	ret = ret2;
 	if(ret != 0 && ret != 1 && ret != 2 && ret != -1)
-		goto err;  /* DB operation error. */
+		goto err; /* DB operation error. */
 	if(ret != 0) {
 		/* Newly seen dbregid does not need to check life. */
 		if(ret == 1)
 			checklife = 0;
 		else if(ret == -1)
-			rmv_dblife = 1;  /* The dbreg file id is closed. */
+			rmv_dblife = 1; /* The dbreg file id is closed. */
 		else if(ret == 2) {
 			__db_errx(env, DB_STR_A("2542", "[%lu][%lu] Wrong dbreg operation sequence, opening %s for id %d which is already open.", "%lu %lu %s %d"),
 				(ulong)lsnp->file, (ulong)lsnp->Offset_, dbfname, argp->fileid);
@@ -2195,7 +2195,7 @@ int __txn_regop_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	}
 	LOG_VRFY_PROC(lvh, *lsnp, argp, INVAL_DBREGID);
 	if((ret = __del_txn_pages(lvh, argp->txnp->txnid)) != 0 && ret != DB_NOTFOUND)
-		goto err;  /* Some txns may have updated no pages. */
+		goto err; /* Some txns may have updated no pages. */
 	if((ret = __lv_on_timestamp(lvh, lsnp, argp->timestamp, DB___txn_regop)) != 0)
 		goto err;
 	if((ret = __get_txn_vrfy_info(lvh, argp->txnp->txnid, &ptvi)) != 0 && ret != DB_NOTFOUND)
@@ -2408,7 +2408,7 @@ int __txn_child_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	}
 	LOG_VRFY_PROC(lvh, *lsnp, argp, INVAL_DBREGID);
 	if((ret = __return_txn_pages(lvh, argp->child, argp->txnp->txnid)) != 0 && ret != DB_NOTFOUND)
-		goto err;  /* Some txns may have updated no pages. */
+		goto err; /* Some txns may have updated no pages. */
 	/* Update parent txn info. */
 	if((ret = __get_txn_vrfy_info(lvh, argp->txnp->txnid, &ptvi)) != 0 && ret != DB_NOTFOUND)
 		goto err;
@@ -2827,7 +2827,7 @@ static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO * lvinfo)
 	DB_LSN lsn = lvinfo->aborted_txnlsn;
 	DB_LSN slsn = lvinfo->lv_config->start_lsn;
 	if((ret = __del_txn_pages(lvinfo, lvinfo->aborted_txnid)) != 0 && ret != DB_NOTFOUND)
-		goto err;  /* Some txns may have updated no pages. */
+		goto err; /* Some txns may have updated no pages. */
 	ret = __get_txn_vrfy_info(lvinfo, lvinfo->aborted_txnid, &ptvi);
 	if(ret == DB_NOTFOUND && !F_ISSET(lvinfo, DB_LOG_VERIFY_PARTIAL)) {
 		/*
@@ -2839,7 +2839,7 @@ static int __lv_on_txn_aborted(DB_LOG_VRFY_INFO * lvinfo)
 			goto err;
 		}
 		if(ret2 != 0)
-			ret = ret2;  /* Use the same error msg below. */
+			ret = ret2; /* Use the same error msg below. */
 		__db_errx(lvinfo->dbenv->env, DB_STR_A("2566", "[%lu][%lu] Can not find an active transaction's information, txnid: %lx.", "%lu %lu %lx"),
 			(ulong)lsn.file, (ulong)lsn.Offset_, (ulong)lvinfo->aborted_txnid);
 		ON_ERROR(lvinfo, DB_LOG_VERIFY_INTERR);

@@ -195,7 +195,7 @@ struct _7zip {
 		struct file     * first;
 		struct file     ** last;
 	} file_list, empty_list;
-	struct archive_rb_tree rbtree;  /* for empty files */
+	struct archive_rb_tree rbtree; /* for empty files */
 };
 
 static int      _7z_options(struct archive_write *, const char *, const char *);
@@ -1643,8 +1643,8 @@ static int compression_end_deflate(struct archive * a, struct la_zstream * lastr
 static int compression_init_encoder_deflate(struct archive * a,
     struct la_zstream * lastrm, int level, int withheader)
 {
-	(void)level;  /* UNUSED */
-	(void)withheader;  /* UNUSED */
+	(void)level; /* UNUSED */
+	(void)withheader; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "deflate"));
@@ -1757,7 +1757,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 static int compression_init_encoder_bzip2(struct archive * a,
     struct la_zstream * lastrm, int level)
 {
-	(void)level;  /* UNUSED */
+	(void)level; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "bzip2"));
@@ -1913,7 +1913,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 static int compression_init_encoder_lzma1(struct archive * a,
     struct la_zstream * lastrm, int level)
 {
-	(void)level;  /* UNUSED */
+	(void)level; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "lzma"));
@@ -1922,7 +1922,7 @@ static int compression_init_encoder_lzma1(struct archive * a,
 static int compression_init_encoder_lzma2(struct archive * a,
     struct la_zstream * lastrm, int level)
 {
-	(void)level;  /* UNUSED */
+	(void)level; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "lzma"));

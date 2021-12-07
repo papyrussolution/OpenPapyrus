@@ -443,7 +443,7 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data,
 	}
 
 	dns = dns2;
-	dns->inuse++;   /* mark entry as in-use */
+	dns->inuse++; /* mark entry as in-use */
 	return dns;
 }
 

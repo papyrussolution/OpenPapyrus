@@ -65,12 +65,12 @@
 typedef struct {
 	TIFFPredictorState predict;
 	z_stream stream;
-	int zipquality;                        /* compression level */
+	int zipquality; /* compression level */
 	int state;                             /* state flags */
 #define ZSTATE_INIT_DECODE 0x01
 #define ZSTATE_INIT_ENCODE 0x02
-	TIFFVGetMethod vgetparent;             /* super-class method */
-	TIFFVSetMethod vsetparent;             /* super-class method */
+	TIFFVGetMethod vgetparent; /* super-class method */
+	TIFFVSetMethod vsetparent; /* super-class method */
 } ZIPState;
 
 #define ZState(tif)             ((ZIPState*)(tif)->tif_data)

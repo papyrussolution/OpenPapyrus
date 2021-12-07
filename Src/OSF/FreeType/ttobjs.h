@@ -157,12 +157,12 @@ FT_BEGIN_HEADER
    */
   typedef struct  TT_DefRecord_
   {
-    FT_Int    range;          /* in which code range is it located?     */
-    FT_Long   start;          /* where does it start?      */
-    FT_Long   end;            /* where does it end?  */
-    FT_UInt   opc;            /* function #, or instruction code  */
-    FT_Bool   active;         /* is it active?       */
-    FT_Bool   inline_delta;   /* is function that defines inline delta? */
+    FT_Int    range; /* in which code range is it located?     */
+    FT_Long   start; /* where does it start?      */
+    FT_Long   end; /* where does it end?  */
+    FT_UInt   opc; /* function #, or instruction code  */
+    FT_Bool   active; /* is it active?       */
+    FT_Bool   inline_delta; /* is function that defines inline delta? */
     FT_ULong  sph_fdef_flags; /* flags to identify special functions    */
 
   } TT_DefRecord, *TT_DefArray;
@@ -174,9 +174,9 @@ FT_BEGIN_HEADER
    */
   typedef struct  TT_Transform_
   {
-    FT_Fixed    xx, xy;     /* transformation matrix coefficients */
+    FT_Fixed    xx, xy; /* transformation matrix coefficients */
     FT_Fixed    yx, yy;
-    FT_F26Dot6  ox, oy;     /* offsets         */
+    FT_F26Dot6  ox, oy; /* offsets         */
 
   } TT_Transform;
 
@@ -253,16 +253,16 @@ FT_BEGIN_HEADER
     FT_Long     x_ratio;
     FT_Long     y_ratio;
 
-    FT_UShort   ppem;               /* maximum ppem size */
-    FT_Long     ratio;              /* current ratio     */
+    FT_UShort   ppem; /* maximum ppem size */
+    FT_Long     ratio; /* current ratio     */
     FT_Fixed    scale;
 
-    FT_F26Dot6  compensations[4];   /* device-specific compensations  */
+    FT_F26Dot6  compensations[4]; /* device-specific compensations  */
 
     FT_Bool     valid;
 
-    FT_Bool     rotated;            /* `is the glyph rotated?'-flag   */
-    FT_Bool     stretched;          /* `is the glyph stretched?'-flag */
+    FT_Bool     rotated; /* `is the glyph rotated?'-flag   */
+    FT_Bool     stretched; /* `is the glyph stretched?'-flag */
 
   } TT_Size_Metrics;
 
@@ -277,24 +277,24 @@ FT_BEGIN_HEADER
 
     /* we have our own copy of metrics so that we can modify */
     /* it without affecting auto-hinting (when used)   */
-    FT_Size_Metrics*   metrics;        /* for the current rendering mode */
+    FT_Size_Metrics*   metrics; /* for the current rendering mode */
     FT_Size_Metrics    hinted_metrics; /* for the hinted rendering mode  */
 
     TT_Size_Metrics    ttmetrics;
 
-    FT_ULong           strike_index;      /* 0xFFFFFFFF to indicate invalid */
+    FT_ULong           strike_index; /* 0xFFFFFFFF to indicate invalid */
 
 #ifdef TT_USE_BYTECODE_INTERPRETER
 
-    FT_Long            point_size;    /* for the `MPS' bytecode instruction */
+    FT_Long            point_size; /* for the `MPS' bytecode instruction */
 
     FT_UInt            num_function_defs; /* number of function definitions */
     FT_UInt            max_function_defs;
-    TT_DefArray        function_defs;     /* table of function definitions  */
+    TT_DefArray        function_defs; /* table of function definitions  */
 
-    FT_UInt            num_instruction_defs;  /* number of ins. definitions */
+    FT_UInt            num_instruction_defs; /* number of ins. definitions */
     FT_UInt            max_instruction_defs;
-    TT_DefArray        instruction_defs;      /* table of ins. definitions  */
+    TT_DefArray        instruction_defs; /* table of ins. definitions  */
 
     FT_UInt            max_func;
     FT_UInt            max_ins;
@@ -303,13 +303,13 @@ FT_BEGIN_HEADER
 
     TT_GraphicsState   GS;
 
-    FT_ULong           cvt_size;      /* the scaled control value table */
+    FT_ULong           cvt_size; /* the scaled control value table */
     FT_Long*           cvt;
 
     FT_UShort          storage_size; /* The storage area is now part of */
-    FT_Long*           storage;      /* the instance */
+    FT_Long*           storage; /* the instance */
 
-    TT_GlyphZoneRec    twilight;     /* The instance's twilight zone    */
+    TT_GlyphZoneRec    twilight; /* The instance's twilight zone    */
 
     TT_ExecContext     context;
 
@@ -331,7 +331,7 @@ FT_BEGIN_HEADER
   {
     FT_DriverRec  root;
 
-    TT_GlyphZoneRec  zone;     /* glyph loader points zone */
+    TT_GlyphZoneRec  zone; /* glyph loader points zone */
 
     FT_UInt  interpreter_version;
 
@@ -359,7 +359,7 @@ FT_BEGIN_HEADER
                 FT_Parameter*  params );
 
   FT_LOCAL( void )
-  tt_face_done( FT_Face  ttface );          /* TT_Face */
+  tt_face_done( FT_Face  ttface ); /* TT_Face */
 
 
   /**************************************************************************
@@ -367,10 +367,10 @@ FT_BEGIN_HEADER
    * Size functions
    */
   FT_LOCAL( FT_Error )
-  tt_size_init( FT_Size  ttsize );          /* TT_Size */
+  tt_size_init( FT_Size  ttsize ); /* TT_Size */
 
   FT_LOCAL( void )
-  tt_size_done( FT_Size  ttsize );          /* TT_Size */
+  tt_size_done( FT_Size  ttsize ); /* TT_Size */
 
 #ifdef TT_USE_BYTECODE_INTERPRETER
 
@@ -398,10 +398,10 @@ FT_BEGIN_HEADER
    * Driver functions
    */
   FT_LOCAL( FT_Error )
-  tt_driver_init( FT_Module  ttdriver );    /* TT_Driver */
+  tt_driver_init( FT_Module  ttdriver ); /* TT_Driver */
 
   FT_LOCAL( void )
-  tt_driver_done( FT_Module  ttdriver );    /* TT_Driver */
+  tt_driver_done( FT_Module  ttdriver ); /* TT_Driver */
 
 
   /**************************************************************************

@@ -196,7 +196,7 @@ void opj_tcd_makelayer(opj_tcd_t * tcd, OPJ_UINT32 layno, OPJ_FLOAT64 thresh, OP
 	OPJ_UINT32 compno, resno, bandno, precno, cblkno;
 	OPJ_UINT32 passno;
 	opj_tcd_tile_t * tcd_tile = tcd->tcd_image->tiles;
-	tcd_tile->distolayer[layno] = 0;    /* fixed_quality */
+	tcd_tile->distolayer[layno] = 0; /* fixed_quality */
 	for(compno = 0; compno < tcd_tile->numcomps; compno++) {
 		opj_tcd_tilecomp_t * tilec = &tcd_tile->comps[compno];
 		for(resno = 0; resno < tilec->numresolutions; resno++) {
@@ -401,8 +401,8 @@ OPJ_BOOL opj_tcd_rateallocate(opj_tcd_t * tcd,
 	OPJ_UINT32 compno, resno, bandno, precno, cblkno, layno;
 	OPJ_UINT32 passno;
 	OPJ_FLOAT64 min, max;
-	OPJ_FLOAT64 cumdisto[100];  /* fixed_quality */
-	const OPJ_FLOAT64 K = 1;            /* 1.1; fixed_quality */
+	OPJ_FLOAT64 cumdisto[100]; /* fixed_quality */
+	const OPJ_FLOAT64 K = 1; /* 1.1; fixed_quality */
 	OPJ_FLOAT64 maxSE = 0;
 
 	opj_cp_t * cp = tcd->cp;
@@ -412,7 +412,7 @@ OPJ_BOOL opj_tcd_rateallocate(opj_tcd_t * tcd,
 	min = DBL_MAX;
 	max = 0;
 
-	tcd_tile->numpix = 0;       /* fixed_quality */
+	tcd_tile->numpix = 0; /* fixed_quality */
 
 	for(compno = 0; compno < tcd_tile->numcomps; compno++) {
 		opj_tcd_tilecomp_t * tilec = &tcd_tile->comps[compno];
@@ -485,7 +485,7 @@ OPJ_BOOL opj_tcd_rateallocate(opj_tcd_t * tcd,
 		OPJ_FLOAT64 goodthresh = 0;
 		OPJ_FLOAT64 stable_thresh = 0;
 		OPJ_UINT32 i;
-		OPJ_FLOAT64 distotarget;        /* fixed_quality */
+		OPJ_FLOAT64 distotarget; /* fixed_quality */
 		/* fixed_quality */
 		distotarget = tcd_tile->distotile - ((K * maxSE) / pow((OPJ_FLOAT32)10, tcd_tcp->distoratio[layno] / 10));
 		/* Don't try to find an optimal threshold but rather take everything not included yet, if
@@ -706,7 +706,7 @@ static INLINE OPJ_BOOL opj_tcd_init_tile(opj_tcd_t * p_tcd, OPJ_UINT32 p_tile_no
 	l_image = p_tcd->image;
 	l_image_comp = p_tcd->image->comps;
 
-	p = p_tile_no % l_cp->tw;   /* tile coordinates */
+	p = p_tile_no % l_cp->tw; /* tile coordinates */
 	q = p_tile_no / l_cp->tw;
 	/*slfprintf_stderr("Tile coordinate = %d,%d\n", p, q);*/
 

@@ -79,7 +79,7 @@ FT_BASE_DEF(FT_Error) FT_Raccess_Get_HeaderInfo(FT_Library library, FT_Stream st
 	error = FT_Stream_Seek(stream, (FT_ULong)map_pos);
 	if(error)
 		return error;
-	head2[15] = (FT_Byte)( head[15] + 1 );   /* make it be different */
+	head2[15] = (FT_Byte)( head[15] + 1 ); /* make it be different */
 	error = FT_Stream_Read(stream, (FT_Byte*)head2, 16);
 	if(error)
 		return error;
@@ -99,7 +99,7 @@ FT_BASE_DEF(FT_Error) FT_Raccess_Get_HeaderInfo(FT_Library library, FT_Stream st
 
 	(void)FT_STREAM_SKIP(4     /* skip handle to next resource map */
 	    + 2                    /* skip file resource number */
-	    + 2);                  /* skip attributes */
+	    + 2); /* skip attributes */
 
 	if(FT_READ_SHORT(type_list))
 		return error;

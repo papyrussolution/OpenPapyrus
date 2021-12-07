@@ -345,7 +345,7 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 
 	uint name_table_length = OT::name::min_size +
 	    ARRAY_LENGTH(name_IDs) * OT::NameRecord::static_size +
-	    name_str_len * 2;                        /* for name data in UTF16BE form */
+	    name_str_len * 2; /* for name data in UTF16BE form */
 	uint padded_name_table_length = ((name_table_length + 3) & ~3);
 	uint name_table_offset = (length + 3) & ~3;
 

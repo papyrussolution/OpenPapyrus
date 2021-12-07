@@ -545,7 +545,7 @@ XXH_FORCE_INLINE void XXH3_accumulate_512(void * XXH_RESTRICT acc, const void * 
 	}
 
 #elif (XXH_VECTOR == XXH_VSX)
-	U64x2* const xacc =        (U64x2*)acc;       /* presumed aligned */
+	U64x2* const xacc =        (U64x2*)acc; /* presumed aligned */
 	U64x2 const* const xdata = (U64x2 const*)data; /* no alignment restriction */
 	U64x2 const* const xkey  = (U64x2 const*)key; /* no alignment restriction */
 	U64x2 const v32 = { 32,  32 };
@@ -640,7 +640,7 @@ XXH_FORCE_INLINE void XXH3_scrambleAcc(void * XXH_RESTRICT acc, const void * XXH
 #elif (XXH_VECTOR == XXH_SSE2)
 	{   
 		XXH_ALIGN(16) __m128i* const xacc = (__m128i*)acc;
-	    const __m128i* const xkey = (const __m128i*)key;         /* not really aligned, just for ptr arithmetic */
+	    const __m128i* const xkey = (const __m128i*)key; /* not really aligned, just for ptr arithmetic */
 	    const __m128i prime32 = _mm_set1_epi32((int)PRIME32_1);
 	    size_t i;
 	    for(i = 0; i < STRIPE_LEN/sizeof(__m128i); i++) {

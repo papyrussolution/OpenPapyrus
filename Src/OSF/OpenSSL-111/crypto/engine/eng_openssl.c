@@ -422,7 +422,7 @@ static EVP_PKEY * openssl_load_privkey(ENGINE * eng, const char * key_id,
 /* HMAC pkey context structure */
 
 typedef struct {
-	const EVP_MD * md;      /* MD for HMAC use */
+	const EVP_MD * md; /* MD for HMAC use */
 	ASN1_OCTET_STRING ktmp; /* Temp storage for key */
 	HMAC_CTX * ctx;
 } OSSL_HMAC_PKEY_CTX;

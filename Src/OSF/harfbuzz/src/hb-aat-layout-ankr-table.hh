@@ -72,9 +72,9 @@ protected:
 		HBUINT16 version; /* Version number (set to zero) */
 		HBUINT16 flags; /* Flags (currently unused; set to zero) */
 		LOffsetTo<Lookup<NNOffsetTo<GlyphAnchors>>>
-		lookupTable;    /* Offset to the table's lookup table */
+		lookupTable; /* Offset to the table's lookup table */
 		LNNOffsetTo<HBUINT8>
-		anchorData;     /* Offset to the glyph data table */
+		anchorData; /* Offset to the glyph data table */
 
 public:
 		DEFINE_SIZE_STATIC(12);

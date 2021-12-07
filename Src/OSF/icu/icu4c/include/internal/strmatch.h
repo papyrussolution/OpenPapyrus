@@ -176,7 +176,7 @@ class StringMatcher : public UnicodeFunctor, public UnicodeMatcher, public Unico
 
     /**
   * Returns a string representation of this replacer.  If the
-  * result of calling this function is passed to the appropriate
+ * result of calling this function is passed to the appropriate
   * parser, typically TransliteratorParser, it will produce another
   * replacer that is equal to this one.
   * @param result the string to receive the pattern.  Previous

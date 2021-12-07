@@ -161,7 +161,7 @@ static void tcpkeepalive(struct Curl_easy * data,
 
 static CURLcode singleipconnect(struct connectdata * conn,
     const struct Curl_addrinfo * ai,            /* start connecting to this */
-    int tempindex);                      /* 0 or 1 among the temp ones */
+    int tempindex); /* 0 or 1 among the temp ones */
 
 /*
  * Curl_timeleft() returns the amount of milliseconds left allowed for the

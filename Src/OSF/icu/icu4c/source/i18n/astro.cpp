@@ -202,7 +202,7 @@ const double CalendarAstronomer::PI = 3.14159265358979323846;
  * Given 'value', add or subtract 'range' until 0 <= 'value' < range.
  * The modulus operator.
  */
-inline static double normalize(double value, double range)  {
+inline static double normalize(double value, double range) {
 	return value - range * ClockMath::floorDivide(value, range);
 }
 
@@ -211,14 +211,14 @@ inline static double normalize(double value, double range)  {
  * For positive angles this is just (angle % 2pi), but the Java
  * mod operator doesn't work that way for negative numbers....
  */
-inline static double norm2PI(double angle)  {
+inline static double norm2PI(double angle) {
 	return normalize(angle, CalendarAstronomer::PI * 2.0);
 }
 
 /**
  * Normalize an angle into the range -PI - PI
  */
-inline static double normPI(double angle)  {
+inline static double normPI(double angle) {
 	return normalize(angle + CalendarAstronomer::PI, CalendarAstronomer::PI * 2.0) - CalendarAstronomer::PI;
 }
 

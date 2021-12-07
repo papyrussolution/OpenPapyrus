@@ -61,14 +61,14 @@ enum xmlRelaxNGContentType {
 };
 
 struct xmlRelaxNGGrammar {
-	xmlRelaxNGGrammar * parent;    /* the parent grammar if any */
-	xmlRelaxNGGrammar * children;  /* the children grammar if any */
+	xmlRelaxNGGrammar * parent; /* the parent grammar if any */
+	xmlRelaxNGGrammar * children; /* the children grammar if any */
 	xmlRelaxNGGrammar * next; /* the next grammar if any */
 	xmlRelaxNGDefine * start; /* <start> content */
 	xmlRelaxNGCombine combine; /* the default combine value */
-	xmlRelaxNGDefine * startList;  /* list of <start> definitions */
-	xmlHashTable * defs;   /* define* */
-	xmlHashTable * refs;   /* references */
+	xmlRelaxNGDefine * startList; /* list of <start> definitions */
+	xmlHashTable * defs; /* define* */
+	xmlHashTable * refs; /* references */
 };
 
 enum xmlRelaxNGType {
@@ -107,20 +107,20 @@ enum xmlRelaxNGType {
 #define IS_EXTERNAL_REF         (1 << 8)
 
 struct _xmlRelaxNGDefine {
-	xmlRelaxNGType type;    /* the type of definition */
-	xmlNode * P_Node;        /* the node in the source */
-	xmlChar * name;         /* the element local name if present */
-	xmlChar * ns;           /* the namespace local name if present */
-	xmlChar * value;        /* value when available */
-	void * data;            /* data lib or specific pointer */
-	xmlRelaxNGDefine * content;    /* the expected content */
+	xmlRelaxNGType type; /* the type of definition */
+	xmlNode * P_Node; /* the node in the source */
+	xmlChar * name; /* the element local name if present */
+	xmlChar * ns; /* the namespace local name if present */
+	xmlChar * value; /* value when available */
+	void * data; /* data lib or specific pointer */
+	xmlRelaxNGDefine * content; /* the expected content */
 	xmlRelaxNGDefine * parent; /* the parent definition, if any */
 	xmlRelaxNGDefine * next; /* list within grouping sequences */
 	xmlRelaxNGDefine * attrs; /* list of attributes for elements */
-	xmlRelaxNGDefine * nameClass;  /* the nameClass definition if any */
-	xmlRelaxNGDefine * nextHash;   /* next define in defs/refs hash tables */
-	short  depth;            /* used for the cycle detection */
-	short  dflags;           /* define related flags */
+	xmlRelaxNGDefine * nameClass; /* the nameClass definition if any */
+	xmlRelaxNGDefine * nextHash; /* next define in defs/refs hash tables */
+	short  depth; /* used for the cycle detection */
+	short  dflags; /* define related flags */
 	xmlRegexp * contModel; /* a compiled content model if available */
 };
 /**
@@ -129,16 +129,16 @@ struct _xmlRelaxNGDefine {
  * A RelaxNGs definition
  */
 struct _xmlRelaxNG {
-	void * _private;        /* unused by the library for users or bindings */
+	void * _private; /* unused by the library for users or bindings */
 	xmlRelaxNGGrammar * topgrammar;
 	xmlDoc * doc;
-	int idref;              /* requires idref checking */
-	xmlHashTable * defs;   /* define */
-	xmlHashTable * refs;   /* references */
+	int idref; /* requires idref checking */
+	xmlHashTable * defs; /* define */
+	xmlHashTable * refs; /* references */
 	xmlRelaxNGDocument * documents; /* all the documents loaded */
-	xmlRelaxNGInclude * includes;  /* all the includes loaded */
-	int defNr;              /* number of defines used */
-	xmlRelaxNGDefine ** defTab;   /* pointer to the allocated definitions */
+	xmlRelaxNGInclude * includes; /* all the includes loaded */
+	int defNr; /* number of defines used */
+	xmlRelaxNGDefine ** defTab; /* pointer to the allocated definitions */
 };
 
 #define XML_RELAXNG_IN_ATTRIBUTE        (1 << 0)
@@ -153,46 +153,46 @@ struct _xmlRelaxNG {
 #define XML_RELAXNG_IN_NSEXCEPT         (1 << 9)
 
 struct _xmlRelaxNGParserCtxt {
-	void * userData;        /* user specific data block */
+	void * userData; /* user specific data block */
 	xmlRelaxNGValidityErrorFunc error; /* the callback in case of errors */
-	xmlRelaxNGValidityWarningFunc warning;  /* the callback in case of warning */
+	xmlRelaxNGValidityWarningFunc warning; /* the callback in case of warning */
 	xmlStructuredErrorFunc serror;
 	xmlRelaxNGValidErr err;
-	xmlRelaxNGPtr schema;   /* The schema in use */
-	xmlRelaxNGGrammar * grammar;   /* the current grammar */
+	xmlRelaxNGPtr schema; /* The schema in use */
+	xmlRelaxNGGrammar * grammar; /* the current grammar */
 	xmlRelaxNGGrammar * parentgrammar; /* the parent grammar */
-	int flags;              /* parser flags */
-	int nbErrors;           /* number of errors at parse time */
-	int nbWarnings;         /* number of warnings at parse time */
+	int flags; /* parser flags */
+	int nbErrors; /* number of errors at parse time */
+	int nbWarnings; /* number of warnings at parse time */
 	const xmlChar * define; /* the current define scope */
 	xmlRelaxNGDefine * def; /* the current define */
 	int nbInterleaves;
-	xmlHashTable * interleaves;    /* keep track of all the interleaves */
+	xmlHashTable * interleaves; /* keep track of all the interleaves */
 	xmlRelaxNGDocument * documents; /* all the documents loaded */
-	xmlRelaxNGInclude * includes;  /* all the includes loaded */
+	xmlRelaxNGInclude * includes; /* all the includes loaded */
 	xmlChar * URL;
 	xmlDoc * document;
-	int defNr;              /* number of defines used */
-	int defMax;             /* number of defines aloocated */
-	xmlRelaxNGDefine ** defTab;   /* pointer to the allocated definitions */
+	int defNr; /* number of defines used */
+	int defMax; /* number of defines aloocated */
+	xmlRelaxNGDefine ** defTab; /* pointer to the allocated definitions */
 	const char * buffer;
 	int size;
 	/* the document stack */
 	xmlRelaxNGDocument * doc; /* Current parsed external ref */
-	int docNr;              /* Depth of the parsing stack */
-	int docMax;             /* Max depth of the parsing stack */
+	int docNr; /* Depth of the parsing stack */
+	int docMax; /* Max depth of the parsing stack */
 	xmlRelaxNGDocument ** docTab; /* array of docs */
 	/* the include stack */
 	xmlRelaxNGInclude * inc; /* Current parsed include */
-	int incNr;              /* Depth of the include parsing stack */
-	int incMax;             /* Max depth of the parsing stack */
-	xmlRelaxNGInclude ** incTab;  /* array of incs */
-	int idref;              /* requires idref checking */
+	int incNr; /* Depth of the include parsing stack */
+	int incMax; /* Max depth of the parsing stack */
+	xmlRelaxNGInclude ** incTab; /* array of incs */
+	int idref; /* requires idref checking */
 	/* used to compile content models */
 	xmlAutomata * am;       // the automata
 	xmlAutomataState * state; // used to build the automata 
-	int crng;               /* compact syntax and other flags */
-	int freedoc;            /* need to free the document */
+	int crng; /* compact syntax and other flags */
+	int freedoc; /* need to free the document */
 };
 
 #define FLAGS_IGNORABLE         1
@@ -246,8 +246,8 @@ struct xmlRelaxNGValidState {
  * A RelaxNGs container for validation state
  */
 struct xmlRelaxNGStates {
-	int nbState;            /* the number of states */
-	int maxState;           /* the size of the array */
+	int nbState; /* the number of states */
+	int maxState; /* the size of the array */
 	xmlRelaxNGValidState ** tabState;
 };
 
@@ -259,11 +259,11 @@ struct xmlRelaxNGStates {
  */
 struct xmlRelaxNGValidError {
 	xmlRelaxNGValidErr err; /* the error number */
-	int flags;              /* flags */
-	xmlNode * P_Node;        /* the current node */
-	xmlNode * seq;         /* the current child */
-	const xmlChar * arg1;   /* first arg */
-	const xmlChar * arg2;   /* second arg */
+	int flags; /* flags */
+	xmlNode * P_Node; /* the current node */
+	xmlNode * seq; /* the current child */
+	const xmlChar * arg1; /* first arg */
+	const xmlChar * arg2; /* second arg */
 };
 /**
  * xmlRelaxNGValidCtxt:
@@ -271,28 +271,28 @@ struct xmlRelaxNGValidError {
  * A RelaxNGs validation context
  */
 struct _xmlRelaxNGValidCtxt {
-	void * userData;        /* user specific data block */
+	void * userData; /* user specific data block */
 	xmlRelaxNGValidityErrorFunc error; /* the callback in case of errors */
-	xmlRelaxNGValidityWarningFunc warning;  /* the callback in case of warning */
+	xmlRelaxNGValidityWarningFunc warning; /* the callback in case of warning */
 	xmlStructuredErrorFunc serror;
-	int nbErrors;           /* number of errors in validation */
-	xmlRelaxNGPtr schema;   /* The schema in use */
-	xmlDoc * doc;          /* the document being validated */
-	int flags;              /* validation flags */
-	int depth;              /* validation depth */
-	int idref;              /* requires idref checking */
-	int errNo;              /* the first error found */
+	int nbErrors; /* number of errors in validation */
+	xmlRelaxNGPtr schema; /* The schema in use */
+	xmlDoc * doc; /* the document being validated */
+	int flags; /* validation flags */
+	int depth; /* validation depth */
+	int idref; /* requires idref checking */
+	int errNo; /* the first error found */
 	/*
 	 * Errors accumulated in branches may have to be stacked to be
 	 * provided back when it's sure they affect validation.
 	 */
-	xmlRelaxNGValidError * err;    /* Last error */
-	int errNr;              /* Depth of the error stack */
-	int errMax;             /* Max depth of the error stack */
+	xmlRelaxNGValidError * err; /* Last error */
+	int errNr; /* Depth of the error stack */
+	int errMax; /* Max depth of the error stack */
 	xmlRelaxNGValidError * errTab; /* stack of errors */
-	xmlRelaxNGValidState * state;  /* the current validation state */
+	xmlRelaxNGValidState * state; /* the current validation state */
 	xmlRelaxNGStates * states; /* the accumulated state list */
-	xmlRelaxNGStates * freeState;  /* the pool of free valid states */
+	xmlRelaxNGStates * freeState; /* the pool of free valid states */
 	int freeStatesNr;
 	int freeStatesMax;
 	xmlRelaxNGStates ** freeStates; /* the pool of free state groups */
@@ -300,34 +300,34 @@ struct _xmlRelaxNGValidCtxt {
 	 * This is used for "progressive" validation
 	 */
 	xmlRegExecCtxtPtr elem; /* the current element regexp */
-	int elemNr;             /* the number of element validated */
-	int elemMax;            /* the max depth of elements */
+	int elemNr; /* the number of element validated */
+	int elemMax; /* the max depth of elements */
 	xmlRegExecCtxtPtr * elemTab; /* the stack of regexp runtime */
-	int pstate;             /* progressive state */
-	xmlNode * pnode;       /* the current node */
+	int pstate; /* progressive state */
+	xmlNode * pnode; /* the current node */
 	xmlRelaxNGDefine * pdef; /* the non-streamable definition */
-	int perr;               /* signal error in content model outside the regexp */
+	int perr; /* signal error in content model outside the regexp */
 };
 /**
  * Structure associated to a RelaxNGs document element
  */
 struct _xmlRelaxNGInclude {
 	xmlRelaxNGInclude * next; /* keep a chain of includes */
-	xmlChar * href;         /* the normalized href value */
-	xmlDoc * doc;          /* the associated XML document */
-	xmlRelaxNGDefine * content;    /* the definitions */
-	xmlRelaxNGPtr schema;   /* the schema */
+	xmlChar * href; /* the normalized href value */
+	xmlDoc * doc; /* the associated XML document */
+	xmlRelaxNGDefine * content; /* the definitions */
+	xmlRelaxNGPtr schema; /* the schema */
 };
 /**
  * Structure associated to a RelaxNGs document element
  */
 struct _xmlRelaxNGDocument {
 	xmlRelaxNGDocument * next; /* keep a chain of documents */
-	xmlChar * href;         /* the normalized href value */
-	xmlDoc * doc;          /* the associated XML document */
-	xmlRelaxNGDefine * content;    /* the definitions */
-	xmlRelaxNGPtr schema;   /* the schema */
-	int externalRef;        /* 1 if an external ref */
+	xmlChar * href; /* the normalized href value */
+	xmlDoc * doc; /* the associated XML document */
+	xmlRelaxNGDefine * content; /* the definitions */
+	xmlRelaxNGPtr schema; /* the schema */
+	int externalRef; /* 1 if an external ref */
 };
 // 
 // Some factorized error routines

@@ -78,8 +78,8 @@ typedef enum {
 /* Writer parameters. */
 struct zlib_params {
 	zlibInitState zlib_init; /* zlib init state */
-	uInt trailerlen;     /* Remaining trailer byte count. */
-	z_stream z;          /* State structure for zlib. */
+	uInt trailerlen; /* Remaining trailer byte count. */
+	z_stream z; /* State structure for zlib. */
 };
 
 static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
@@ -145,12 +145,12 @@ static CURLcode process_trailer(struct connectdata * conn, struct zlib_params * 
 static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer * writer, zlibInitState started)
 {
 	struct zlib_params * zp = (struct zlib_params *)&writer->params;
-	z_stream * z = &zp->z;  /* zlib state structure */
+	z_stream * z = &zp->z; /* zlib state structure */
 	uInt nread = z->avail_in;
 	const Bytef * orig_in = z->next_in;
 	bool done = FALSE;
 	CURLcode result = CURLE_OK; /* Curl_client_write status */
-	char * decomp;          /* Put the decompressed data here. */
+	char * decomp; /* Put the decompressed data here. */
 	/* Check state. */
 	if(zp->zlib_init != ZLIB_INIT && zp->zlib_init != ZLIB_INFLATING && zp->zlib_init != ZLIB_INIT_GZIP && zp->zlib_init != ZLIB_GZIP_INFLATING)
 		return exit_zlib(conn, z, &zp->zlib_init, CURLE_WRITE_ERROR);
@@ -163,7 +163,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct contenc_writer 
 	/* because the buffer size is fixed, iteratively decompress and transfer to
 	   the client via downstream_write function. */
 	while(!done) {
-		int status;       /* zlib status */
+		int status; /* zlib status */
 		done = TRUE;
 
 		/* (re)set buffer for decompressed output for every iteration */

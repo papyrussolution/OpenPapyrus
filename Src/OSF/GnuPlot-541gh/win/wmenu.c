@@ -645,7 +645,7 @@ void LoadMacros(TW * lptw)
 		DrawMenuBar(lptw->hWndParent);
 	}
 	if(!lpmw->nButton)
-		goto cleanup;   /* no buttons */
+		goto cleanup; /* no buttons */
 	// create a toolbar 
 	lpmw->hToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, WS_CHILD | TBSTYLE_LIST | TBSTYLE_TOOLTIPS, 0, 0, 0, 0, lptw->hWndToolbar, (HMENU)ID_TOOLBAR, lptw->hInstance, NULL);
 	if(lpmw->hToolbar == NULL)

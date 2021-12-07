@@ -2171,7 +2171,7 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
 	_cairo_surface_init(&surface->base, &cairo_quartz_surface_backend,
 	    NULL,              /* device */
 	    content,
-	    FALSE);              /* is_vector */
+	    FALSE); /* is_vector */
 	_cairo_surface_clipper_init(&surface->clipper, _cairo_quartz_surface_clipper_intersect_clip_path);
 	/* Save our extents */
 	surface->extents.x = surface->extents.y = 0;

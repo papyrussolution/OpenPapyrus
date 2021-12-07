@@ -192,7 +192,7 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 		if(!read_values)
 			continue;
 		if(!(end = value = strchr(ptr, '='))) {
-			end = strchr(ptr, '\0');        /* Option without argument */
+			end = strchr(ptr, '\0'); /* Option without argument */
 			set_option(mysql, ptr, NULL);
 		}
 		if(!key)

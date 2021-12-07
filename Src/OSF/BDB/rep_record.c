@@ -961,7 +961,7 @@ int __rep_apply(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * r
 	ZERO_LSN(max_lsn);
 	timespecclear(&max_ts);
 	timespecset(&msg_time, rp->msg_sec, rp->msg_nsec);
-	cmp = -2;               /* OOB value that LOG_COMPARE can't return. */
+	cmp = -2; /* OOB value that LOG_COMPARE can't return. */
 
 	dblp = env->lg_handle;
 	MUTEX_LOCK(env, rep->mtx_clientdb);

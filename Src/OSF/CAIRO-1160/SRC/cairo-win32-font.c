@@ -440,8 +440,8 @@ static cairo_status_t _cairo_win32_font_face_create_for_toy(cairo_toy_font_face_
 	memcpy(logfont.lfFaceName, face_name, sizeof(uint16) * face_name_len);
 	logfont.lfFaceName[face_name_len] = 0;
 	SAlloc::F(face_name);
-	logfont.lfHeight = 0;   /* filled in later */
-	logfont.lfWidth = 0;    /* filled in later */
+	logfont.lfHeight = 0; /* filled in later */
+	logfont.lfWidth = 0; /* filled in later */
 	logfont.lfEscapement = 0; /* filled in later */
 	logfont.lfOrientation = 0; /* filled in later */
 	switch(toy_face->weight) {
@@ -1558,13 +1558,13 @@ static int _cairo_win32_font_face_keys_equal(const void * key_a, const void * ke
 {
 	const cairo_win32_font_face_t * face_a = (const cairo_win32_font_face_t *)key_a;
 	const cairo_win32_font_face_t * face_b = (const cairo_win32_font_face_t *)key_b;
-	if(face_a->logfont.lfWeight         == face_b->logfont.lfWeight &&
-	    face_a->logfont.lfItalic         == face_b->logfont.lfItalic &&
-	    face_a->logfont.lfUnderline      == face_b->logfont.lfUnderline &&
-	    face_a->logfont.lfStrikeOut      == face_b->logfont.lfStrikeOut &&
-	    face_a->logfont.lfCharSet        == face_b->logfont.lfCharSet &&
-	    face_a->logfont.lfOutPrecision   == face_b->logfont.lfOutPrecision &&
-	    face_a->logfont.lfClipPrecision  == face_b->logfont.lfClipPrecision &&
+	if(face_a->logfont.lfWeight == face_b->logfont.lfWeight &&
+	    face_a->logfont.lfItalic == face_b->logfont.lfItalic &&
+	    face_a->logfont.lfUnderline == face_b->logfont.lfUnderline &&
+	    face_a->logfont.lfStrikeOut == face_b->logfont.lfStrikeOut &&
+	    face_a->logfont.lfCharSet == face_b->logfont.lfCharSet &&
+	    face_a->logfont.lfOutPrecision == face_b->logfont.lfOutPrecision &&
+	    face_a->logfont.lfClipPrecision == face_b->logfont.lfClipPrecision &&
 	    face_a->logfont.lfPitchAndFamily == face_b->logfont.lfPitchAndFamily &&
 	    (wcscmp(face_a->logfont.lfFaceName, face_b->logfont.lfFaceName) == 0))
 		return TRUE;

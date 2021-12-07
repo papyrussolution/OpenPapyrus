@@ -38,8 +38,8 @@ U_CAPI void U_EXPORT2 u_cleanup(void)
 
 	ucln_lib_cleanup();
 
-	cmemory_cleanup();   /* undo any heap functions set by u_setMemoryFunctions(). */
-	UTRACE_EXIT();       /* Must be before utrace_cleanup(), which turns off tracing. */
+	cmemory_cleanup(); /* undo any heap functions set by u_setMemoryFunctions(). */
+	UTRACE_EXIT(); /* Must be before utrace_cleanup(), which turns off tracing. */
 /*#if U_ENABLE_TRACING*/
 	utrace_cleanup();
 /*#endif*/
