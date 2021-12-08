@@ -187,7 +187,7 @@ extern void (* my_sigtstp_cleanup)(void),
 (*my_sigtstp_restart)(void),
 (*my_abort_hook)(int);
 /* Executed when coming from shell */
-extern int NEAR ma_umask,               /* Default creation mask  */
+extern int NEAR ma_umask, /* Default creation mask  */
 NEAR ma_umask_dir,
 NEAR my_recived_signals,                /* Signals we have got */
 NEAR my_safe_to_handle_signal,            /* Set when allowed to SIGTSTP */

@@ -53,7 +53,7 @@ private:
 
 	Sci::Position bol;
 	Sci::Position tagstk[MAXTAG];  /* subpat tag stack */
-	char nfa[MAXNFA];    /* automaton */
+	char nfa[MAXNFA]; /* automaton */
 	int sta;
 	unsigned char bittab[BITBLK]; /* bit table for CCL pre-set bits */
 	int failure;

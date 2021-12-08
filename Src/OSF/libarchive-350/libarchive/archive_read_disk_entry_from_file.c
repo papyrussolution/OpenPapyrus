@@ -243,8 +243,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 		}
 		if(a->tree != NULL) {
 #ifdef HAVE_READLINKAT
-			lnklen = readlinkat(a->tree_current_dir_fd(a->tree),
-				path, linkbuffer, linkbuffer_len);
+			lnklen = readlinkat(a->tree_current_dir_fd(a->tree), path, linkbuffer, linkbuffer_len);
 #else
 			if(a->tree_enter_working_dir(a->tree) != 0) {
 				archive_set_error(&a->archive, errno, "Couldn't read link data");

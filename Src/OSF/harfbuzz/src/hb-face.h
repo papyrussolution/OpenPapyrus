@@ -64,7 +64,7 @@ HB_EXTERN uint hb_face_get_upem(const hb_face_t * face);
 HB_EXTERN void hb_face_set_glyph_count(hb_face_t * face, uint glyph_count);
 HB_EXTERN uint hb_face_get_glyph_count(const hb_face_t * face);
 HB_EXTERN uint hb_face_get_table_tags(const hb_face_t * face,
-    uint start_offset, uint * table_count/* IN/OUT */, hb_tag_t * table_tags /* OUT */);
+    uint start_offset, uint * table_count/* IN/OUT */, hb_tag_t * table_tags /*OUT*/);
 /*
  * Character set.
  */

@@ -1483,7 +1483,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 				SString json_buf;
 				ep.Flags |= DlRtm::ExportParam::fJsonStQStyle; 
 				THROW(p_js = p_rtm->ExportJson(ep));
-				THROW_SL(json_tree_to_string(p_js, json_buf));
+				THROW_SL(p_js->ToStr(json_buf));
 				rResult.Write(json_buf, json_buf.Len());
 			}
 		}
@@ -1505,7 +1505,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	SString db_symb;
 	SString filt_symb(pNamedFiltSymb);
 	SString dl600_name(pDl600Name);
-	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
 	{
 		PPNamedFiltMngr mgr;
 		PPNamedFiltPool pool(0, 1);
@@ -1553,7 +1553,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	TDialog * dlg = 0;
 	PPNamedFiltMngr nf_mngr;
 	SString db_symb;
-	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
 	dlg = new TDialog(DLG_JOB_EXPVIEW);
 	THROW(CheckDialogPtrErr(&dlg));
 	{

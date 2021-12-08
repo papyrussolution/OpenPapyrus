@@ -1406,7 +1406,7 @@ static void Test_widestrs()
 	err = U_ZERO_ERROR;
 	wl = (int32_t)uprv_wcslen(wcs);
 	cp = u_strFromWCS(rts, rtcap, &rtl, wcs, wl, &err);
-	(void)cp;    /* Suppress set but not used warning. */
+	(void)cp; /* Suppress set but not used warning. */
 	if(U_FAILURE(err)) {
 		errname = u_errorName(err);
 		fprintf(stderr, "test_widestrs: ucnv_wcstombs error: %s!\n", errname);

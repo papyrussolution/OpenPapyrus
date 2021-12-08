@@ -2236,7 +2236,13 @@ public:
 	//
 	int    SetDbName(const char * pName, const char * pSymb);
 	int    GetDbName(SString & rBuf) const;
-	int    GetDbSymb(SString & rBuf) const;
+	//
+	// Descr: Присваивает по ссылке rBuf символ базы данных.
+	// Returns:
+	//   true - объект имеет непустое значение символа базы данных, которое и присвоил ссылке rBuf
+	//   false - объект не имеет определенного непустого значения символа базы данных. rBuf на выходе пустой.
+	//
+	bool   GetDbSymb(SString & rBuf) const;
 	//
 	// Descr: Возвращает идентификатор пути к базе данных. Этот идентификатор
 	//   используется для дифференциации потоков выполнения (в многопоточном процессе) по

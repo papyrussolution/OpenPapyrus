@@ -44,11 +44,11 @@ using namespace CFF;
 bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
     uint fdCount,
     const FDSelect &src,                          /* IN */
-    uint &subset_fd_count /* OUT */,
-    uint &subset_fdselect_size /* OUT */,
-    uint &subset_fdselect_format /* OUT */,
-    hb_vector_t<code_pair_t> &fdselect_ranges /* OUT */,
-    hb_inc_bimap_t &fdmap /* OUT */)
+    uint &subset_fd_count /*OUT*/,
+    uint &subset_fdselect_size /*OUT*/,
+    uint &subset_fdselect_format /*OUT*/,
+    hb_vector_t<code_pair_t> &fdselect_ranges /*OUT*/,
+    hb_inc_bimap_t &fdmap /*OUT*/)
 {
 	subset_fd_count = 0;
 	subset_fdselect_size = 0;

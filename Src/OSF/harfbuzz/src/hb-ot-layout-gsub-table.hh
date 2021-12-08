@@ -551,8 +551,8 @@ protected:
 		}
 
 		unsigned get_alternates(unsigned start_offset,
-		    unsigned * alternate_count /* IN/OUT.  May be NULL. */,
-		    hb_codepoint_t * alternate_glyphs /* OUT.     May be NULL. */) const
+		    unsigned * alternate_count /*IN/OUT May be NULL*/,
+		    hb_codepoint_t * alternate_glyphs /*OUT May be NULL*/) const
 		{
 			if(alternates.len && alternate_count) {
 				+alternates.sub_array(start_offset, alternate_count)
@@ -642,8 +642,8 @@ public:
 
 		unsigned get_glyph_alternates(hb_codepoint_t gid,
 		    unsigned start_offset,
-		    unsigned * alternate_count /* IN/OUT.  May be NULL. */,
-		    hb_codepoint_t * alternate_glyphs /* OUT.     May be NULL. */) const
+		    unsigned * alternate_count /*IN/OUT May be NULL*/,
+		    hb_codepoint_t * alternate_glyphs /*OUT May be NULL*/) const
 		{
 			return (this+alternateSet[(this+coverage).get_coverage(gid)])
 			       .get_alternates(start_offset, alternate_count, alternate_glyphs);

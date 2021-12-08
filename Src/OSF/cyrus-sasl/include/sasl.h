@@ -208,7 +208,7 @@ typedef struct sasl_conn sasl_conn_t;
  */
 typedef struct sasl_secret {
 	unsigned long len;
-	unsigned char data[1];          /* variable sized */
+	unsigned char data[1]; /* variable sized */
 } sasl_secret_t;
 
 /* random data context structure
@@ -873,11 +873,11 @@ LIBSASL_API int sasl_idle(sasl_conn_t * conn);
 /* list of client interactions with user for caller to fill in
  */
 typedef struct sasl_interact {
-	unsigned long id;       /* same as client/user callback ID */
+	unsigned long id; /* same as client/user callback ID */
 	const char * challenge; /* presented to user (e.g. OTP challenge) */
-	const char * prompt;    /* presented to user (e.g. "Username: ") */
+	const char * prompt; /* presented to user (e.g. "Username: ") */
 	const char * defresult; /* default result string */
-	const void * result;    /* set to point to result */
+	const void * result; /* set to point to result */
 	unsigned len;           /* set to length of result */
 } sasl_interact_t;
 

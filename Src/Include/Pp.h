@@ -4729,7 +4729,7 @@ int   FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt);
 class BarcodeArray : public TSVector <BarcodeTbl::Rec> {
 public:
 	int    Add(const char * pCode, long codeType, double qtty);
-	int    Arrange();
+	void   Arrange();
 	//
 	// Descr: Возвращает единственный штрихкод из списка. Порядок предпочтения следующий:
 	//    1. Если в списке нет ни одного элемента, то rBuf = 0 и код возврата -1.
@@ -4775,7 +4775,7 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 		uint32 Reserve;
 	};
 	GoodsStockExt();
-	void   Init();
+	GoodsStockExt & Z();
 	GoodsStockExt & FASTCALL operator = (const GoodsStockExt & rSrc);
 	int    FASTCALL IsEq(const GoodsStockExt & rS) const;
 	int    IsEmpty() const;
@@ -12253,7 +12253,7 @@ public:
 		static int EditTag(const PPGdsClsPacket * pGcPack, ObjTagItem * pItem);
 		LotDimensions();
 		void   Clear();
-		SString & FASTCALL ToString(SString & rBuf) const;
+		SString & FASTCALL ToStr(SString & rBuf) const;
 		int    FASTCALL FromString(const char * pBuf);
 
 		double X;
@@ -17919,7 +17919,7 @@ public:
 		void   FASTCALL SetOuter(const StrategyResultEntry & rS); // @cs
 		double GetPeakAverage() const;
 		double GetBottomAverage() const;
-		void   ToString(long flags, int stakeSide, int optFactorSide, SString & rBuf);
+		void   ToStr(long flags, int stakeSide, int optFactorSide, SString & rBuf);
 
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
@@ -18656,7 +18656,7 @@ private:
 struct PPGdsClsProp {
 	PPGdsClsProp();
 	PPGdsClsProp & FASTCALL operator = (const PPGdsClsProp &);
-	void   Init();
+	PPGdsClsProp & Z();
 
 	char   Name[32];
 	PPID   ItemsListID;
@@ -18665,13 +18665,13 @@ struct PPGdsClsProp {
 struct PPGdsClsDim {
 	PPGdsClsDim();
 	PPGdsClsDim & FASTCALL operator = (const PPGdsClsDim &);
-	void   Init();
-	int    ToStr(int, char *, size_t);
+	PPGdsClsDim & Z();
+	SString & ToStr(SString & rBuf) const;
 	int    FromStr(int, const char *);
 
 	char   Name[32];
 	long   Scale;
-	PPIDArray ValList;
+	LongArray ValList;
 };
 
 struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
@@ -18679,6 +18679,7 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 	static long  FASTCALL UseFlagToE(long useFlag);
 	static long  FASTCALL EToUseFlag(long e);
 
+	PPGdsCls2();
 	void   SetDynGenMask(int fld, int val);
 	int    FASTCALL GetDynGenMask(int fld) const;
 
@@ -18734,7 +18735,7 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 
 struct PPGdsClsFormula {
 	PPGdsClsFormula();
-	void   Clear();
+	PPGdsClsFormula & Z();
 	int    FASTCALL PutToBuffer(SString & rBuf) const;
 	int    FASTCALL GetFromBuffer(const char * pBuf);
 	enum {
@@ -18752,7 +18753,7 @@ struct PPGdsClsFormula {
 struct PPGdsClsPacket {
 	PPGdsClsPacket();
 	PPGdsClsPacket & FASTCALL operator = (const PPGdsClsPacket &);
-	void   Init();
+	PPGdsClsPacket & Z();
 	int    FASTCALL Copy(const PPGdsClsPacket &);
 	int    CompleteGoodsPacket(PPGoodsPacket *);
 	int    GetPropName(int prop, SString & rBuf) const;
@@ -46047,11 +46048,13 @@ public:
 	static int MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson);
 	StyloQConfig();
 	StyloQConfig & Z();
+	uint  GetCount() const { return L.getCount(); }
 	int   Set(int tag, const char * pText);
 	int   Get(int tag, SString & rResult) const;
 	int   SetFeatures(uint64 ff);
 	uint64 GetFeatures() const;
 	int   FromJson(const char * pJsonText);
+	int   FromJsonObject(const SJson * pJsObj);
 	int   ToJson(SString & rResult) const;
 private:
 	StrAssocArray L;
@@ -46205,6 +46208,13 @@ public:
 	static PPIDArray & MakeLinkObjTypeList(PPIDArray & rList);
 	static int BuildSvcDbSymbMap();
 
+	struct IgnitionServerEntry {
+		SBinaryChunk Ident;
+		SString Url;
+	};
+
+	static int ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList);
+
 	StyloQCore();
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
@@ -46298,7 +46308,7 @@ public:
 		int32  ResultExpiryTimeSec; // @v11.2.5 Период истечения срока действия результата в секундах. (<=0 - undefined)
 			// Если ResultExpiryPeriodSec то клиент может пользоваться результатом запроса в течении этого времени без
 			// повторного обращения к сервису.
-		SString DbSymb;             //
+		SString DbSymb;             // Символ базы данных
 		SString Name;               // utf8
 		SString ViewSymb;           //
 		SString Description;        // utf8 Подробное описание команды
@@ -46323,7 +46333,7 @@ public:
 	const  Item * GetByUuid(const S_GUID & rUuid) const;
 	int    Set(uint idx, const Item * pItem);
 	int    Store(const char * pFileName) const;
-	int    Load(const char * pFileName);
+	int    Load(const char * pDbSymb, const char * pFileName);
 	StyloQCommandList * CreateSubListByContext(PPObjID oid) const;
 	//
 	// Descr: Формирует json-объект по списку команд для передачи клиенту.
@@ -46339,6 +46349,7 @@ public:
 	//
 	static SJson * CreateJsonForClient(const StyloQCommandList * pSelf, SJson * pParent, const char * pName, long expirationSec);
 private:
+	SString DbSymbRestriction;
 	TSCollection <Item> L;
 };
 
@@ -49719,7 +49730,7 @@ struct DL2_CI {
 	size_t Size() const;
 	int    GetStr(char * pBuf, size_t bufLen) const;
 	const  char * GetStr() const;
-	int    ToString(char * pBuf, size_t bufLen) const;
+	int    ToStr(char * pBuf, size_t bufLen) const;
 
 	dl2cit CiType;
 	union {
@@ -49968,7 +49979,7 @@ public:
 	int    Set(PPID objType, const StringSet * pSs, int32 * pId);
 	int    Get(int32 id, PPID * pObjType, ObjIdListFilt & rList);
 	int    FromString(const char * pStr, PPID & rObjType, int32 * pId);
-	int    ToString(int32 id, SString & rBuf) const;
+	int    ToStr(int32 id, SString & rBuf) const;
 private:
 	struct Item {
 		int32  Id;
@@ -52894,8 +52905,8 @@ private:
 	virtual void handleEvent(TDialog*, TEvent&);
 	virtual int setData(TDialog*, void*);
 	virtual int getData(TDialog*, void*);
-	int    RecalcQtty(TDialog * pDlg, int cargoUnit);
-	int    SetupPallet(TDialog * pDlg, int doSelect);
+	void   RecalcQtty(TDialog * pDlg, int cargoUnit);
+	void   SetupPallet(TDialog * pDlg, int doSelect);
 
 	uint   CtlselPalletType;
 	uint   CtlPallet;

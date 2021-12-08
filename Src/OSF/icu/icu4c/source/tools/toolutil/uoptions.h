@@ -53,10 +53,10 @@ struct UOption {
 	const char * longName; /* "foo" for --foo */
 	const char * value; /* output placeholder, will point to the argument string, if any */
 	UOptionFn * optionFn; /* function to be called when this option occurs */
-	void * context;     /* parameter for the function */
-	char shortName;     /* 'f' for -f */
-	char hasArg;        /* enum value: option takes no/requires/may have argument */
-	char doesOccur;     /* boolean for "this one occurred" */
+	void * context; /* parameter for the function */
+	char shortName; /* 'f' for -f */
+	char hasArg; /* enum value: option takes no/requires/may have argument */
+	char doesOccur; /* boolean for "this one occurred" */
 };
 
 /* macro for an entry in a declaration of UOption[] */

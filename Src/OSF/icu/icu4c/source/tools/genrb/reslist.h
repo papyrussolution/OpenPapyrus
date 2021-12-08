@@ -229,13 +229,13 @@ struct SResource {
      */
     virtual void collectKeys(std::function<void(int32_t)> collector) const;
 
-    int8_t   fType;     /* nominal type: fRes (when != 0xffffffff) may use subtype */
+    int8_t   fType; /* nominal type: fRes (when != 0xffffffff) may use subtype */
     bool    fWritten;  /* res_write() can exit early */
-    uint32_t fRes;      /* resource item word; RES_BOGUS=0xffffffff if not known yet */
-    int32_t fRes16;    /* Res16 version of fRes for Table, Table16, Array16; -1 if it does not fit. */
-    int32_t fKey;      /* Index into bundle->fKeys; -1 if no key. */
-    int32_t fKey16;    /* Key16 version of fKey for Table & Table16; -1 if no key or it does not fit. */
-    int      line;      /* used internally to report duplicate keys in tables */
+    uint32_t fRes; /* resource item word; RES_BOGUS=0xffffffff if not known yet */
+    int32_t fRes16; /* Res16 version of fRes for Table, Table16, Array16; -1 if it does not fit. */
+    int32_t fKey; /* Index into bundle->fKeys; -1 if no key. */
+    int32_t fKey16; /* Key16 version of fKey for Table & Table16; -1 if no key or it does not fit. */
+    int      line; /* used internally to report duplicate keys in tables */
     SResource *fNext;   /* This is for internal chaining while building */
     struct UString fComment;
 };

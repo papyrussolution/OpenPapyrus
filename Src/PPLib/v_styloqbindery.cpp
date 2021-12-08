@@ -287,7 +287,7 @@ int PPViewStyloQBindery::Invitation()
 			{
 				SJson js(SJson::tOBJECT);
 				js.InsertString("cmd", "REGISTER");
-				json_tree_to_string(&js, inv.CommandJson);
+				js.ToStr(inv.CommandJson);
 			}
 			ic.ExecuteInvitationDialog(inv);
 		}
@@ -434,9 +434,12 @@ int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	SString file_name;
+	DbProvider * p_dict = CurDict;
+	SString db_symb;
+	CALLPTRMEMB(p_dict, GetDbSymb(db_symb));
 	CALLPTRMEMB(P_DsList, freeAll());
 	if(StyloQCommandList::GetCanonicalFileName(file_name)) {
-		List.Load(file_name);
+		List.Load(db_symb, file_name);
 	}
 	THROW(MakeList(0));
 	CATCHZOK

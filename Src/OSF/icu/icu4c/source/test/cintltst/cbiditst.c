@@ -190,8 +190,8 @@ static const char columns[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
 #define TABLE_SIZE  256
 static bool tablesInitialized = FALSE;
 static UChar pseudoToUChar[TABLE_SIZE];
-static uint8_t UCharToPseudo[TABLE_SIZE];    /* used for Unicode chars < 0x0100 */
-static uint8_t UCharToPseud2[TABLE_SIZE];    /* used for Unicode chars >=0x0100 */
+static uint8_t UCharToPseudo[TABLE_SIZE]; /* used for Unicode chars < 0x0100 */
+static uint8_t UCharToPseud2[TABLE_SIZE]; /* used for Unicode chars >=0x0100 */
 
 static void buildPseudoTables(void)
 /*
@@ -2019,7 +2019,7 @@ static void testMultipleParagraphs() {
 	srcSize = 5;
 	ubidi_orderParagraphsLTR(pBidi, TRUE);
 	for(i = 0x001c; i<=0x0020; i += (0x0020-0x001c)) {
-		src[4] = (UChar)i;      /* with and without terminating B */
+		src[4] = (UChar)i; /* with and without terminating B */
 		for(j = 0x0041; j<=0x05d0; j += (0x05d0-0x0041)) {
 			src[0] = (UChar)j; /* leading 'A' or Alef */
 			for(gotLevel = 4; gotLevel<=5; gotLevel++) {
@@ -4104,7 +4104,7 @@ static void testReorderRunsOnly() {
 	log_verbose("\nEntering TestReorderRunsOnly\n\n");
 
 	if(!pL2VBiDi) {
-		ubidi_close(pBiDi);     /* in case this one was allocated */
+		ubidi_close(pBiDi); /* in case this one was allocated */
 		return;
 	}
 	ubidi_setReorderingMode(pBiDi, UBIDI_REORDER_RUNS_ONLY);
@@ -4187,8 +4187,8 @@ static void testReorderingMode() {
 	pBiDi2 = getBiDiObject();
 	pBiDi3 = getBiDiObject();
 	if(!pBiDi3) {
-		ubidi_close(pBiDi);     /* in case this one was allocated */
-		ubidi_close(pBiDi2);    /* in case this one was allocated */
+		ubidi_close(pBiDi); /* in case this one was allocated */
+		ubidi_close(pBiDi2); /* in case this one was allocated */
 		return;
 	}
 	ubidi_setInverse(pBiDi2, TRUE);

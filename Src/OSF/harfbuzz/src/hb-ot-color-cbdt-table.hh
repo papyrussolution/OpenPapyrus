@@ -53,8 +53,8 @@ namespace OT {
 		  *  Input: old number of subtables.
 		  *  Output: new number of subtables.
 		                          */
-		hb_codepoint_t start_glyph; /* OUT */
-		hb_codepoint_t end_glyph; /* OUT */
+		hb_codepoint_t start_glyph; /*OUT*/
+		hb_codepoint_t end_glyph; /*OUT*/
 	};
 
 	static inline bool _copy_data_to_cbdt(hb_vector_t<char> * cbdt_prime,
@@ -479,7 +479,7 @@ public:
 
 		void build_lookup(hb_subset_context_t * c, cblc_bitmap_size_subset_context_t * bitmap_size_context,
 		    hb_vector_t<hb_pair_t<hb_codepoint_t,
-		    const IndexSubtableRecord*>> * lookup /* OUT */) const
+		    const IndexSubtableRecord*>> * lookup /*OUT*/) const
 		{
 			bool start_glyph_is_set = false;
 			for(hb_codepoint_t new_gid = 0; new_gid < c->plan->num_output_glyphs(); new_gid++) {

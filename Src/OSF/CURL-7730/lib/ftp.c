@@ -154,12 +154,12 @@ const struct Curl_handler Curl_handler_ftp = {
 	ftp_setup_connection,      /* setup_connection */
 	ftp_do,                    /* do_it */
 	ftp_done,                  /* done */
-	ftp_do_more,               /* do_more */
-	ftp_connect,               /* connect_it */
+	ftp_do_more, /* do_more */
+	ftp_connect, /* connect_it */
 	ftp_multi_statemach,       /* connecting */
 	ftp_doing,                 /* doing */
-	ftp_getsock,               /* proto_getsock */
-	ftp_getsock,               /* doing_getsock */
+	ftp_getsock, /* proto_getsock */
+	ftp_getsock, /* doing_getsock */
 	ftp_domore_getsock,        /* domore_getsock */
 	ZERO_NULL,                 /* perform_getsock */
 	ftp_disconnect,            /* disconnect */
@@ -183,12 +183,12 @@ const struct Curl_handler Curl_handler_ftps = {
 	ftp_setup_connection,      /* setup_connection */
 	ftp_do,                    /* do_it */
 	ftp_done,                  /* done */
-	ftp_do_more,               /* do_more */
-	ftp_connect,               /* connect_it */
+	ftp_do_more, /* do_more */
+	ftp_connect, /* connect_it */
 	ftp_multi_statemach,       /* connecting */
 	ftp_doing,                 /* doing */
-	ftp_getsock,               /* proto_getsock */
-	ftp_getsock,               /* doing_getsock */
+	ftp_getsock, /* proto_getsock */
+	ftp_getsock, /* doing_getsock */
 	ftp_domore_getsock,        /* domore_getsock */
 	ZERO_NULL,                 /* perform_getsock */
 	ftp_disconnect,            /* disconnect */

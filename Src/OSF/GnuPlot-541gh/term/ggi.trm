@@ -866,8 +866,7 @@ TERM_PUBLIC int GGI_dispatch_event(const ggi_event * event)
 		case evPtrRelative:
 		    /* relative motion is not implemented. Should it ? */
 		    /*
-		     * fprintf(stderr, "%s:%d report this to <johannes@zellner.org> %d %d\n",
-		     *     __FILE__, __LINE__, event->pmove.x, event->pmove.y);
+		     * fprintf(stderr, "%s:%d report this to <johannes@zellner.org> %d %d\n", __FILE__, __LINE__, event->pmove.x, event->pmove.y);
 		     */
 		    gp_ev.type  = GE_motion;
 		    GGI_mouse_x += GGI_acceleration * event->pmove.x;

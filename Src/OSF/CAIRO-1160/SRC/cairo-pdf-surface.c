@@ -1931,38 +1931,26 @@ static cairo_int_status_t _cairo_pdf_surface_start_page(void * abstract_surface)
 	if(!surface->header_emitted) {
 		const char * version;
 		switch(surface->pdf_version) {
-			case CAIRO_PDF_VERSION_1_4:
-			    version = "1.4";
-			    break;
+			case CAIRO_PDF_VERSION_1_4: version = "1.4"; break;
 			default:
-			case CAIRO_PDF_VERSION_1_5:
-			    version = "1.5";
-			    break;
+			case CAIRO_PDF_VERSION_1_5: version = "1.5"; break;
 		}
-
-		_cairo_output_stream_printf(surface->output,
-		    "%%PDF-%s\n", version);
-		_cairo_output_stream_printf(surface->output,
-		    "%%%c%c%c%c\n", 181, 237, 174, 251);
+		_cairo_output_stream_printf(surface->output, "%%PDF-%s\n", version);
+		_cairo_output_stream_printf(surface->output, "%%%c%c%c%c\n", 181, 237, 174, 251);
 		surface->header_emitted = TRUE;
 	}
-
 	_cairo_pdf_group_resources_clear(&surface->resources);
 	surface->in_xobject = FALSE;
-
 	page = _cairo_pdf_surface_new_object(surface);
 	if(page.id == 0)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	status = _cairo_array_append(&surface->pages, &page);
 	if(UNLIKELY(status))
 		return status;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract_surface,
-    boolint has_fallbacks)
+static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract_surface, boolint has_fallbacks)
 {
 	cairo_int_status_t status;
 	cairo_pdf_surface_t * surface = static_cast<cairo_pdf_surface_t *>(abstract_surface);

@@ -39,7 +39,7 @@ static inline void _add_cff_seac_components(const OT::cff1::accelerator_t &cff, 
 #endif
 
 #ifndef HB_NO_SUBSET_LAYOUT
-static void _remap_indexes(const hb_set_t * indexes, hb_map_t * mapping /* OUT */)
+static void _remap_indexes(const hb_set_t * indexes, hb_map_t * mapping /*OUT*/)
 {
 	uint count = indexes->get_population();
 	for(auto _ : +hb_zip(indexes->iter(), hb_range(count)))
@@ -207,9 +207,9 @@ static void _populate_gids_to_retain(hb_subset_plan_t* plan,
 static void _create_old_gid_to_new_gid_map(const hb_face_t * face,
     bool retain_gids,
     const hb_set_t * all_gids_to_retain,
-    hb_map_t * glyph_map,                            /* OUT */
-    hb_map_t * reverse_glyph_map,                            /* OUT */
-    uint * num_glyphs /* OUT */)
+    hb_map_t * glyph_map,                            /*OUT*/
+    hb_map_t * reverse_glyph_map,                            /*OUT*/
+    uint * num_glyphs /*OUT*/)
 {
 	if(!retain_gids) {
 		+hb_enumerate(hb_iter(all_gids_to_retain), (hb_codepoint_t)0)

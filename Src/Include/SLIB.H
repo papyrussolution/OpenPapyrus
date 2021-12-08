@@ -2624,7 +2624,7 @@ private:
 #define SLERR_URI_OUTPUT_TOO_LARGE             573 // Some output is to large for the receiving buffer
 #define SLERR_URI_NOT_IMPLEMENTED              574 // The called function is not implemented yet
 #define SLERR_URI_RANGE_INVALID                575 // The parameters passed contained invalid ranges
-// Errors specific to ToString
+// Errors specific to ToStr
 #define SLERR_URI_TOSTRING_TOO_LONG        SLERR_URI_OUTPUT_TOO_LARGE // Deprecated, test for URI_ERROR_OUTPUT_TOO_LARGE instead
 // Errors specific to AddBaseUri
 #define SLERR_URI_ADDBASE_REL_BASE             576 // Given base is not absolute
@@ -11280,7 +11280,7 @@ struct SJson {
 	bool   IsTrue() const { return (Type == SJson::tTRUE); }
 	bool   IsFalse() const { return (Type == SJson::tFALSE); }
 	const SJson * FASTCALL FindChildByKey(const char * pKey) const;
-	int    FASTCALL ToString(SString & rBuf) const;
+	int    FASTCALL ToStr(SString & rBuf) const;
 	void   FASTCALL AssignText(const SString & rT);
 	int    Insert(const char * pTextLabel, SJson * pValue);
 	int    InsertString(const char * pTextLabel, const char * pStr);
@@ -11371,7 +11371,7 @@ void FASTCALL json_free_value(SJson ** value);
 // @return  a json_error code describing how the operation went
 //
 //enum   json_error json_tree_to_string(SJson * root, char **text);
-int    FASTCALL json_tree_to_string(const SJson * pRoot, SString & rBuf);
+// @v11.2.7 (replaced with SJson::ToStr) int    FASTCALL json_tree_to_string(const SJson * pRoot, SString & rBuf);
 //
 // Produces a JSON markup text document from a SJson document tree to a text stream
 // @param file a opened file stream

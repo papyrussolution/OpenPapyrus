@@ -54,7 +54,7 @@ enum {
     _NORM_CC_SHIFT=8,           /* UnicodeData.txt combining class in bits 15..8 */
     _NORM_CC_MASK=0xff00,
 
-    _NORM_EXTRA_SHIFT=16,               /* 16 bits for the index to UChars and other extra data */
+    _NORM_EXTRA_SHIFT=16, /* 16 bits for the index to UChars and other extra data */
     _NORM_EXTRA_INDEX_TOP=0xfc00,       /* start of surrogate specials after shift */
 
     _NORM_EXTRA_SURROGATE_MASK=0x3ff,

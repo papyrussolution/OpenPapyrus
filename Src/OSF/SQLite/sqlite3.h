@@ -1383,9 +1383,9 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 typedef struct sqlite3_vfs sqlite3_vfs;
 typedef void (* sqlite3_syscall_ptr)(void);
 struct sqlite3_vfs {
-	int iVersion;      /* Structure version number (currently 3) */
-	int szOsFile;      /* Size of subclassed sqlite3_file */
-	int mxPathname;    /* Maximum file pathname length */
+	int iVersion; /* Structure version number (currently 3) */
+	int szOsFile; /* Size of subclassed sqlite3_file */
+	int mxPathname; /* Maximum file pathname length */
 	sqlite3_vfs * pNext; /* Next registered VFS */
 	const char * zName; /* Name of this virtual file system */
 	void * pAppData;   /* Pointer to application-specific data */
@@ -1682,9 +1682,9 @@ struct sqlite3_mem_methods {
 	void *(* xMalloc)(int);  /* Memory allocation function */
 	void (* xFree)(void*);   /* Free a prior allocation */
 	void *(* xRealloc)(void*, int); /* Resize an allocation */
-	int (* xSize)(void*);    /* Return the size of an allocation */
+	int (* xSize)(void*); /* Return the size of an allocation */
 	int (* xRoundup)(int);   /* Round up request size to allocation size */
-	int (* xInit)(void*);    /* Initialize the memory allocator */
+	int (* xInit)(void*); /* Initialize the memory allocator */
 	void (* xShutdown)(void*); /* Deinitialize the memory allocator */
 	void * pAppData;         /* Argument to xInit() and xShutdown() */
 };
@@ -6912,19 +6912,19 @@ struct sqlite3_module {
 */
 struct sqlite3_index_info {
 	/* Inputs */
-	int nConstraint;     /* Number of entries in aConstraint */
+	int nConstraint; /* Number of entries in aConstraint */
 	struct sqlite3_index_constraint {
 		int iColumn;   /* Column constrained.  -1 for ROWID */
 		unsigned char op; /* Constraint operator */
 		unsigned char usable; /* True if this constraint is usable */
 		int iTermOffset; /* Used internally - xBestIndex should ignore */
-	} * aConstraint;     /* Table of WHERE clause constraints */
+	} * aConstraint; /* Table of WHERE clause constraints */
 
-	int nOrderBy;        /* Number of terms in the ORDER BY clause */
+	int nOrderBy; /* Number of terms in the ORDER BY clause */
 	struct sqlite3_index_orderby {
 		int iColumn;   /* Column number */
 		unsigned char desc; /* True for DESC.  False for ASC. */
-	} * aOrderBy;        /* The ORDER BY clause */
+	} * aOrderBy; /* The ORDER BY clause */
 
 	/* Outputs */
 	struct sqlite3_index_constraint_usage {
@@ -6932,15 +6932,15 @@ struct sqlite3_index_info {
 		unsigned char omit; /* Do not code a test for this constraint */
 	} * aConstraintUsage;
 
-	int idxNum;          /* Number used to identify the index */
-	char * idxStr;       /* String, possibly obtained from sqlite3_malloc */
+	int idxNum; /* Number used to identify the index */
+	char * idxStr; /* String, possibly obtained from sqlite3_malloc */
 	int needToFreeIdxStr; /* Free idxStr using sqlite3_free() if true */
 	int orderByConsumed; /* True if output is already ordered */
-	double estimatedCost;     /* Estimated cost of using this index */
+	double estimatedCost; /* Estimated cost of using this index */
 	/* Fields below are only available in SQLite 3.8.2 and later */
 	sqlite3_int64 estimatedRows; /* Estimated number of rows returned */
 	/* Fields below are only available in SQLite 3.9.0 and later */
-	int idxFlags;        /* Mask of SQLITE_INDEX_SCAN_* flags */
+	int idxFlags; /* Mask of SQLITE_INDEX_SCAN_* flags */
 	/* Fields below are only available in SQLite 3.10.0 and later */
 	sqlite3_uint64 colUsed; /* Input: Mask of columns used by statement */
 };
@@ -9934,7 +9934,7 @@ SQLITE_API int sqlite3_rtree_geometry_callback(sqlite3 * db,
 ** argument to callbacks registered using rtree_geometry_callback().
 */
 struct sqlite3_rtree_geometry {
-	void * pContext;          /* Copy of pContext passed to s_r_g_c() */
+	void * pContext; /* Copy of pContext passed to s_r_g_c() */
 	int nParam;               /* Size of array aParam[] */
 	sqlite3_rtree_dbl * aParam; /* Parameters passed to SQL geom function */
 	void * pUser;             /* Callback implementation user data */
@@ -9970,13 +9970,13 @@ struct sqlite3_rtree_query_info {
 	void * pUser;               /* callback can use this, if desired */
 	void (* xDelUser)(void*);   /* function to free pUser */
 	sqlite3_rtree_dbl * aCoord; /* Coordinates of node or entry to check */
-	unsigned int * anQueue;     /* Number of pending entries in the queue */
+	unsigned int * anQueue; /* Number of pending entries in the queue */
 	int nCoord;                 /* Number of coordinates */
 	int iLevel;                 /* Level of current node or entry */
 	int mxLevel;                /* The largest iLevel value in the tree */
-	sqlite3_int64 iRowid;       /* Rowid for current entry */
+	sqlite3_int64 iRowid; /* Rowid for current entry */
 	sqlite3_rtree_dbl rParentScore; /* Score of parent node */
-	int eParentWithin;          /* Visibility of parent node */
+	int eParentWithin; /* Visibility of parent node */
 	int eWithin;                /* OUT: Visibility */
 	sqlite3_rtree_dbl rScore;   /* OUT: Write the score here */
 	/* The following fields are only available in 3.8.11 and later */

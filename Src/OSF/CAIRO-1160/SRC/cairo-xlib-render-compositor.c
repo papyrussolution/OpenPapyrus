@@ -940,19 +940,13 @@ BAIL:
 	SAlloc::F(priv);
 }
 
-static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * display,
-    cairo_scaled_font_t * font)
+static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * display, cairo_scaled_font_t * font)
 {
-	cairo_xlib_font_t * priv;
 	int i;
-
-	priv = _cairo_malloc(sizeof(cairo_xlib_font_t));
+	cairo_xlib_font_t * priv = _cairo_malloc(sizeof(cairo_xlib_font_t));
 	if(UNLIKELY(priv == NULL))
 		return NULL;
-
-	_cairo_scaled_font_attach_private(font, &priv->base, display,
-	    _cairo_xlib_font_fini);
-
+	_cairo_scaled_font_attach_private(font, &priv->base, display, _cairo_xlib_font_fini);
 	priv->device = cairo_device_reference(&display->base);
 	priv->font = font;
 	cairo_list_add(&priv->link, &display->fonts);
@@ -963,13 +957,12 @@ static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * displa
 			case GLYPHSET_INDEX_ARGB32: info->format = CAIRO_FORMAT_ARGB32; break;
 			case GLYPHSET_INDEX_A8:     info->format = CAIRO_FORMAT_A8;     break;
 			case GLYPHSET_INDEX_A1:     info->format = CAIRO_FORMAT_A1;     break;
-			default:                    ASSERT_NOT_REACHED;                          break;
+			default: ASSERT_NOT_REACHED; break;
 		}
 		info->xrender_format = NULL;
 		info->glyphset = None;
 		info->to_free.count = 0;
 	}
-
 	return priv;
 }
 
@@ -979,29 +972,23 @@ static int _cairo_xlib_get_glyphset_index_for_format(cairo_format_t format)
 		return GLYPHSET_INDEX_A8;
 	if(format == CAIRO_FORMAT_A1)
 		return GLYPHSET_INDEX_A1;
-
 	assert(format == CAIRO_FORMAT_ARGB32);
 	return GLYPHSET_INDEX_ARGB32;
 }
 
-static inline cairo_xlib_font_t * _cairo_xlib_font_get(const cairo_xlib_display_t * display,
-    cairo_scaled_font_t * font)
+static inline cairo_xlib_font_t * _cairo_xlib_font_get(const cairo_xlib_display_t * display, cairo_scaled_font_t * font)
 {
 	return (cairo_xlib_font_t*)_cairo_scaled_font_find_private(font, display);
 }
 
 typedef struct {
 	cairo_scaled_glyph_private_t base;
-
 	cairo_xlib_font_glyphset_t * glyphset;
 } cairo_xlib_glyph_private_t;
 
-static void _cairo_xlib_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
-    cairo_scaled_glyph_t * glyph,
-    cairo_scaled_font_t * font)
+static void _cairo_xlib_glyph_fini(cairo_scaled_glyph_private_t * glyph_private, cairo_scaled_glyph_t * glyph, cairo_scaled_font_t * font)
 {
 	cairo_xlib_glyph_private_t * priv = (cairo_xlib_glyph_private_t*)glyph_private;
-
 	if(!font->finished) {
 		cairo_xlib_font_t * font_private;
 		struct _cairo_xlib_font_glyphset_free_glyphs * to_free;

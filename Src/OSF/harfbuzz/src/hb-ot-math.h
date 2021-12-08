@@ -178,10 +178,10 @@ HB_EXTERN hb_position_t hb_ot_math_get_glyph_top_accent_attachment(hb_font_t * f
 HB_EXTERN hb_bool_t hb_ot_math_is_glyph_extended_shape(hb_face_t * face, hb_codepoint_t glyph);
 HB_EXTERN hb_position_t hb_ot_math_get_glyph_kerning(hb_font_t * font, hb_codepoint_t glyph, hb_ot_math_kern_t kern, hb_position_t correction_height);
 HB_EXTERN uint hb_ot_math_get_glyph_variants(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
-    uint start_offset, uint * variants_count/* IN/OUT */, hb_ot_math_glyph_variant_t * variants /* OUT */);
+    uint start_offset, uint * variants_count/* IN/OUT */, hb_ot_math_glyph_variant_t * variants /*OUT*/);
 HB_EXTERN hb_position_t hb_ot_math_get_min_connector_overlap(hb_font_t * font, hb_direction_t direction);
 HB_EXTERN uint hb_ot_math_get_glyph_assembly(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
-    uint start_offset, uint * parts_count/* IN/OUT */, hb_ot_math_glyph_part_t * parts/* OUT */, hb_position_t * italics_correction /* OUT */);
+    uint start_offset, uint * parts_count/* IN/OUT */, hb_ot_math_glyph_part_t * parts/*OUT*/, hb_position_t * italics_correction /*OUT*/);
 
 HB_END_DECLS
 

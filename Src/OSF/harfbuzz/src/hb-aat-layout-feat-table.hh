@@ -54,7 +54,6 @@ namespace AAT {
 			TRACE_SANITIZE(this);
 			return_trace(LIKELY(c->check_struct(this)));
 		}
-
 protected:
 		HBUINT16 setting; /* The setting. */
 		NameID nameIndex; /* The name table index for the setting's name. */
@@ -67,10 +66,7 @@ public:
 	struct feat;
 
 	struct FeatureName {
-		int cmp(hb_aat_layout_feature_type_t key) const
-		{
-			return (int)key - (int)feature;
-		}
+		int cmp(hb_aat_layout_feature_type_t key) const { return (int)key - (int)feature; }
 		enum {
 			Exclusive   = 0x8000,/* If set, the feature settings are mutually exclusive. */
 			NotDefault  = 0x4000,/* If clear, then the setting with an index of 0 in
@@ -84,17 +80,11 @@ public:
 			 * array for this feature which should be taken
 			 * as the default. */
 		};
-
-		uint get_selector_infos(uint start_offset,
-		    uint  * selectors_count,               /* IN/OUT.  May be NULL. */
-		    hb_aat_layout_feature_selector_info_t * selectors,                     /* OUT.     May be NULL. */
-		    uint  * pdefault_index,                /* OUT.     May be NULL. */
-		    const void * base) const
+		uint get_selector_infos(uint start_offset, uint  * selectors_count/*IN/OUT May be NULL*/,
+		    hb_aat_layout_feature_selector_info_t * selectors/*OUT May be NULL*/, uint  * pdefault_index/*OUT May be NULL*/, const void * base) const
 		{
 			hb_array_t< const SettingName> settings_table = (base+settingTableZ).as_array(nSettings);
-
 			static_assert(Index::NOT_FOUND_INDEX == HB_AAT_LAYOUT_NO_SELECTOR_INDEX, "");
-
 			hb_aat_layout_feature_selector_t default_selector = HB_AAT_LAYOUT_FEATURE_SELECTOR_INVALID;
 			uint default_index = Index::NOT_FOUND_INDEX;
 			if(featureFlags & Exclusive) {
@@ -157,9 +147,9 @@ public:
 		hb_ot_name_id_t get_feature_name_id(hb_aat_layout_feature_type_t feature) const { return get_feature(feature).get_feature_name_id(); }
 		uint get_selector_infos(hb_aat_layout_feature_type_t feature_type,
 		    uint start_offset,
-		    uint  * selectors_count,               /* IN/OUT.  May be NULL. */
-		    hb_aat_layout_feature_selector_info_t * selectors,                     /* OUT.     May be NULL. */
-		    uint  * default_index /* OUT.     May be NULL. */) const
+		    uint  * selectors_count, /*IN/OUT May be NULL*/
+		    hb_aat_layout_feature_selector_info_t * selectors,                     /*OUT May be NULL*/
+		    uint  * default_index /*OUT May be NULL*/) const
 		{
 			return get_feature(feature_type).get_selector_infos(start_offset, selectors_count, selectors, default_index, this);
 		}

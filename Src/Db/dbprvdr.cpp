@@ -375,10 +375,10 @@ int DbProvider::GetDbName(SString & rBuf) const
 	return rBuf.NotEmpty() ? 1 : -1;
 }
 
-int DbProvider::GetDbSymb(SString & rBuf) const
+bool DbProvider::GetDbSymb(SString & rBuf) const
 {
 	Lb.GetAttr(DbLoginBlock::attrDbSymb, rBuf);
-	return rBuf.NotEmpty() ? 1 : -1;
+	return rBuf.NotEmpty();
 }
 
 int DbProvider::GetDataPath(SString & rBuf) const

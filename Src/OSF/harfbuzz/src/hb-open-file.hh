@@ -83,7 +83,7 @@ public:
 
 		uint get_table_tags(uint start_offset,
 		    uint * table_count,           /* IN/OUT */
-		    hb_tag_t * table_tags /* OUT */) const
+		    hb_tag_t * table_tags /*OUT*/) const
 		{
 			if(table_count) {
 				+tables.sub_array(start_offset, table_count)

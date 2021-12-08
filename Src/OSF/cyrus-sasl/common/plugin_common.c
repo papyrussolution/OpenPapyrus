@@ -607,7 +607,7 @@ int _plug_decode(decode_context_t * text,
 
 		/* append the decoded packet to the output */
 		ret = _plug_buf_alloc(text->utils, output, outputsize,
-			*outputlen + tmplen + 1);       /* +1 for NUL */
+			*outputlen + tmplen + 1); /* +1 for NUL */
 		if(ret != SASL_OK) return ret;
 
 		memcpy(*output + *outputlen, tmp, tmplen);

@@ -2400,10 +2400,10 @@ static char * _sasl_get_default_win_path(void * context __attribute__((unused)),
 	DWORD ret;
 	DWORD ValueType;            /* value type */
 	DWORD cbData;               /* value size in bytes and later number of wchars */
-	TCHAR * ValueData;          /* value */
-	DWORD cbExpandedData;       /* "expanded" value size in wchars */
+	TCHAR * ValueData; /* value */
+	DWORD cbExpandedData; /* "expanded" value size in wchars */
 	TCHAR * ExpandedValueData;  /* "expanded" value */
-	TCHAR * return_value;       /* function return value */
+	TCHAR * return_value; /* function return value */
 	TCHAR * tmp;
 
 	/* Initialization */

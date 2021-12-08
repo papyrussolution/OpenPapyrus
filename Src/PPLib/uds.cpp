@@ -1,5 +1,5 @@
 ﻿// UDS.CPP
-// Copyright (c) A.Sobolev 2020
+// Copyright (c) A.Sobolev 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -833,7 +833,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 			p_js_receipt->InsertDouble("skipLoyaltyTotal", rT.SkipLoyaltyTotal, MKSFMTD(0, 2, 0));
 			p_json_req->Insert("receipt", p_js_receipt);
 		}
-		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+		THROW_SL(p_json_req->ToStr(json_buf));
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("operations"));

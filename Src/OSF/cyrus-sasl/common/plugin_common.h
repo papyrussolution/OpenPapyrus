@@ -165,9 +165,9 @@ int _plug_make_prompts(const sasl_utils_t * utils,
 typedef struct decode_context {
 	const sasl_utils_t * utils;
 	unsigned int needsize;  /* How much of the 4-byte size do we need? */
-	char sizebuf[4];        /* Buffer to accumulate the 4-byte size */
-	unsigned int size;      /* Absolute size of the encoded packet */
-	char * buffer;          /* Buffer to accumulate an encoded packet */
+	char sizebuf[4]; /* Buffer to accumulate the 4-byte size */
+	unsigned int size; /* Absolute size of the encoded packet */
+	char * buffer; /* Buffer to accumulate an encoded packet */
 	unsigned int cursize;   /* Amount of packet data in the buffer */
 	unsigned int in_maxbuf; /* Maximum allowed size of an incoming encoded packet */
 } decode_context_t;

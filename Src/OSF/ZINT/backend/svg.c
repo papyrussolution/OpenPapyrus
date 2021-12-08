@@ -142,9 +142,8 @@ int svg_plot(struct ZintSymbol * symbol)
 				addon[r] = local_text[i];
 				r++;
 			}
-			if(local_text[i] == '+') {
+			if(local_text[i] == '+')
 				latch = 1;
-			}
 		}
 	}
 	addon[r] = '\0';
@@ -194,7 +193,6 @@ int svg_plot(struct ZintSymbol * symbol)
 	const char * p_circle_fmt   = "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n";
 	if(symbol->Std == BARCODE_MAXICODE) {
 		// Maxicode uses hexagons 
-		float ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy, mx, my;
 		textoffset = 0;
 		{
 			if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
@@ -219,20 +217,20 @@ int svg_plot(struct ZintSymbol * symbol)
 			for(i = 0; i < (uint)symbol->width; i++) {
 				if(module_is_set(symbol, r, i)) {
 					// Dump a hexagon 
-					my = r * 2.135f + 1.43f;
-					ay = my + 1.0f + yoffset;
-					by = my + 0.5f + yoffset;
-					cy = my - 0.5f + yoffset;
-					dy = my - 1.0f + yoffset;
-					ey = my - 0.5f + yoffset;
-					fy = my + 0.5f + yoffset;
-					mx = (r & 1) ? ((2.46f * i) + 1.23f + 1.23f) : ((2.46f * i) + 1.23f);
-					ax = mx + xoffset;
-					bx = mx + 0.86f + xoffset;
-					cx = mx + 0.86f + xoffset;
-					dx = mx + xoffset;
-					ex = mx - 0.86f + xoffset;
-					fx = mx - 0.86f + xoffset;
+					const float my = r * 2.135f + 1.43f;
+					const float ay = my + 1.0f + yoffset;
+					const float by = my + 0.5f + yoffset;
+					const float cy = my - 0.5f + yoffset;
+					const float dy = my - 1.0f + yoffset;
+					const float ey = my - 0.5f + yoffset;
+					const float fy = my + 0.5f + yoffset;
+					const float mx = (r & 1) ? ((2.46f * i) + 1.23f + 1.23f) : ((2.46f * i) + 1.23f);
+					const float ax = mx + xoffset;
+					const float bx = mx + 0.86f + xoffset;
+					const float cx = mx + 0.86f + xoffset;
+					const float dx = mx + xoffset;
+					const float ex = mx - 0.86f + xoffset;
+					const float fx = mx - 0.86f + xoffset;
 					fprintf(fsvg, "      <path d=\"M %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f Z\" />\n",
 					    ax * scaler, ay * scaler, bx * scaler, by * scaler, cx * scaler, cy * scaler,
 					    dx * scaler, dy * scaler, ex * scaler, ey * scaler, fx * scaler, fy * scaler);
@@ -241,8 +239,8 @@ int svg_plot(struct ZintSymbol * symbol)
 		}
 	}
 	if(symbol->Std != BARCODE_MAXICODE) {
-		/* everything else uses rectangles (or squares) */
-		/* Works from the bottom of the symbol up */
+		// everything else uses rectangles (or squares) 
+		// Works from the bottom of the symbol up 
 		int addon_latch = 0;
 		for(r = 0; r < symbol->rows; r++) {
 			this_row = r;
@@ -272,14 +270,9 @@ int svg_plot(struct ZintSymbol * symbol)
 				}
 			}
 			else {
-				/* Normal mode, with rectangles */
+				// Normal mode, with rectangles 
 				i = 0;
-				if(module_is_set(symbol, this_row, 0)) {
-					latch = 1;
-				}
-				else {
-					latch = 0;
-				}
+				latch = module_is_set(symbol, this_row, 0) ? 1 : 0;
 				do {
 					block_width = 0;
 					do {

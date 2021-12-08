@@ -146,7 +146,7 @@ public:
 
 		uint get_lang_sys_tags(uint start_offset,
 		    uint * lang_sys_count /* IN/OUT */,
-		    hb_tag_t * lang_sys_tags /* OUT */) const
+		    hb_tag_t * lang_sys_tags /*OUT*/) const
 		{
 			return langSys.get_tags(start_offset, lang_sys_count, lang_sys_tags);
 		}
@@ -209,7 +209,7 @@ public:
 		{
 			return scriptList.get_tag(i);
 		}
-		uint get_script_tags(uint start_offset, uint * script_count /* IN/OUT */, hb_tag_t * script_tags /* OUT */) const
+		uint get_script_tags(uint start_offset, uint * script_count /* IN/OUT */, hb_tag_t * script_tags /*OUT*/) const
 		{
 			return scriptList.get_tags(start_offset, script_count, script_tags);
 		}

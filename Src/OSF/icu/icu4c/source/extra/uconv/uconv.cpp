@@ -56,7 +56,7 @@ U_NAMESPACE_USE
 #define DEFAULT_BUFSZ   4096
 #define UCONVMSG "uconvmsg"
 
-static UResourceBundle *gBundle = 0;    /* Bundle containing messages. */
+static UResourceBundle *gBundle = 0; /* Bundle containing messages. */
 
 /*
  * Initialize the message bundle so that message strings can be fetched
@@ -214,7 +214,7 @@ static int printConverters(const char * pname, const char * lookfor,
 		return -1;
 	}
 	if(lookfor) {
-		num = 1;        /* We know where we want to be. */
+		num = 1; /* We know where we want to be. */
 	}
 
 	num_stds = ucnv_countStandards();

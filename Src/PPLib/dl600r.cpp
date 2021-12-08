@@ -1400,7 +1400,7 @@ int DlRtm::ExportJson(ExportParam & rParam, SString & rOutFileName)
 		{
 			SString json_buf;
 			THROW(p_js = ExportJson(rParam));
-			THROW_SL(json_tree_to_string(p_js, json_buf));
+			THROW_SL(p_js->ToStr(json_buf));
 			{
 				SFile f_out(path, SFile::mWrite);
 				f_out.WriteLine(json_buf);
@@ -1755,7 +1755,7 @@ int DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 			THROW(Helper_PutItemToJson(ExportParam(filt, 0), &root_ary));
 		}
 	}
-	THROW_SL(json_tree_to_string(&root_ary, rBuf));
+	THROW_SL(root_ary.ToStr(rBuf));
 	CATCHZOK
 	return ok;
 }
@@ -1768,7 +1768,7 @@ int DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 	{
 		PPFilt filt(ptr);
 		THROW(Helper_PutItemToJson(ExportParam(filt, 0), &root_ary));
-		THROW_SL(json_tree_to_string(&root_ary, rBuf));
+		THROW_SL(root_ary.ToStr(rBuf));
 	}
 	CATCHZOK
 	return ok;
@@ -1782,7 +1782,7 @@ int DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
 	{
 		PPFilt filt(pV);
 		THROW(Helper_PutItemToJson(ExportParam(filt, ExportParam::fIsView), &root_ary));
-		THROW_SL(json_tree_to_string(&root_ary, rBuf));
+		THROW_SL(root_ary.ToStr(rBuf));
 	}
 	CATCHZOK
 	return ok;

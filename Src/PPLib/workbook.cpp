@@ -162,7 +162,7 @@ int FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 		return 0;
 	else if(!sstreq(Rec.Symb, rS.Rec.Symb))
 		return 0;
-	else if(!sstreq(Rec.Version, rS.Rec.Version)) // @v9.3.8
+	else if(!sstreq(Rec.Version, rS.Rec.Version))
 		return 0;
 	else if(!TagL.IsEq(rS.TagL))
 		return 0;

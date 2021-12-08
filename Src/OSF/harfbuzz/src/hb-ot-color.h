@@ -63,7 +63,7 @@ typedef enum { /*< flags >*/
 } hb_ot_color_palette_flags_t;
 
 HB_EXTERN hb_ot_color_palette_flags_t hb_ot_color_palette_get_flags(const hb_face_t * face, uint palette_index);
-HB_EXTERN uint hb_ot_color_palette_get_colors(hb_face_t * face, uint palette_index, uint start_offset, uint * color_count/* IN/OUT. May be NULL. */, hb_color_t * colors/* OUT. May be NULL. */);
+HB_EXTERN uint hb_ot_color_palette_get_colors(hb_face_t * face, uint palette_index, uint start_offset, uint * color_count/*IN/OUT May be NULL*/, hb_color_t * colors/*OUT May be NULL*/);
 /*
  * Color layers.
  */
@@ -81,7 +81,7 @@ typedef struct hb_ot_color_layer_t {
 } hb_ot_color_layer_t;
 
 HB_EXTERN uint hb_ot_color_glyph_get_layers(hb_face_t * face, hb_codepoint_t glyph,
-    uint start_offset, uint * layer_count/* IN/OUT.  May be NULL. */, hb_ot_color_layer_t * layers/* OUT.     May be NULL. */);
+    uint start_offset, uint * layer_count/*IN/OUT May be NULL*/, hb_ot_color_layer_t * layers/*OUT May be NULL*/);
 /*
  * SVG
  */

@@ -48,7 +48,7 @@
  * Returns: (out) (transfer none) (array length=num_entries): Array of available name entries.
  * Since: 2.1.0
  **/
-const hb_ot_name_entry_t * hb_ot_name_list_names(hb_face_t * face, uint * num_entries /* OUT */)
+const hb_ot_name_entry_t * hb_ot_name_list_names(hb_face_t * face, uint * num_entries /*OUT*/)
 {
 	const OT::name_accelerator_t &name = *face->table.name;
 	if(num_entries) *num_entries = name.names.length;
@@ -56,7 +56,7 @@ const hb_ot_name_entry_t * hb_ot_name_list_names(hb_face_t * face, uint * num_en
 }
 
 template <typename in_utf_t, typename out_utf_t> static inline uint hb_ot_name_convert_utf(hb_bytes_t bytes,
-    uint * text_size /* IN/OUT */, typename out_utf_t::codepoint_t * text /* OUT */)
+    uint * text_size /* IN/OUT */, typename out_utf_t::codepoint_t * text /*OUT*/)
 {
 	uint src_len = bytes.length / sizeof(typename in_utf_t::codepoint_t);
 	const typename in_utf_t::codepoint_t * src = (const typename in_utf_t::codepoint_t *)bytes.arrayZ;
@@ -92,7 +92,7 @@ static inline uint hb_ot_name_get_utf(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
     uint * text_size /* IN/OUT */,
-    typename utf_t::codepoint_t * text /* OUT */)
+    typename utf_t::codepoint_t * text /*OUT*/)
 {
 	const OT::name_accelerator_t &name = *face->table.name;
 
@@ -139,7 +139,7 @@ uint hb_ot_name_get_utf8(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
     uint * text_size /* IN/OUT */,
-    char  * text /* OUT */)
+    char  * text /*OUT*/)
 {
 	return hb_ot_name_get_utf<hb_utf8_t> (face, name_id, language, text_size,
 		   (hb_utf8_t::codepoint_t*)text);
@@ -165,7 +165,7 @@ uint hb_ot_name_get_utf16(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
     uint * text_size /* IN/OUT */,
-    uint16_t * text /* OUT */)
+    uint16_t * text /*OUT*/)
 {
 	return hb_ot_name_get_utf<hb_utf16_t> (face, name_id, language, text_size, text);
 }
@@ -190,7 +190,7 @@ uint hb_ot_name_get_utf32(hb_face_t * face,
     hb_ot_name_id_t name_id,
     hb_language_t language,
     uint * text_size /* IN/OUT */,
-    uint32_t * text /* OUT */)
+    uint32_t * text /*OUT*/)
 {
 	return hb_ot_name_get_utf<hb_utf32_t> (face, name_id, language, text_size, text);
 }

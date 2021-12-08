@@ -290,7 +290,7 @@ static void testTrieUTF16(const char * testName,
 		U16_APPEND_UNSAFE(s, length, prevCP); /* start of the range */
 		values[countValues++] = value;
 		c = checkRanges[i].limit;
-		prevCP = (prevCP+c)/2;          /* middle of the range */
+		prevCP = (prevCP+c)/2; /* middle of the range */
 		U16_APPEND_UNSAFE(s, length, prevCP);
 		values[countValues++] = value;
 		prevCP = c;
@@ -412,7 +412,7 @@ static void testTrieUTF8(const char * testName,
 			values[countValues++] = value;
 		}
 		c = checkRanges[i].limit;
-		prevCP = (prevCP+c)/2;          /* middle of the range */
+		prevCP = (prevCP+c)/2; /* middle of the range */
 		U8_APPEND_UNSAFE(s, length, prevCP);
 		if(U_IS_SURROGATE(prevCP)) {
 			// A surrogate byte sequence counts as 3 single-byte errors.

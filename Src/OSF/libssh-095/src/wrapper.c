@@ -214,7 +214,7 @@ static int crypt_set_algorithms2(ssh_session session)
 	 * appropriate structure.
 	 */
 
-	/* out */
+	/*OUT*/
 	wanted = session->next_crypto->kex_methods[SSH_CRYPT_C_S];
 	for(i = 0; i < 64 && ssh_ciphertab[i].name != NULL; ++i) {
 		cmp = strcmp(wanted, ssh_ciphertab[i].name);
@@ -252,7 +252,7 @@ static int crypt_set_algorithms2(ssh_session session)
 		 * appropriate structure.
 		 */
 
-		/* out */
+		/*OUT*/
 		wanted = session->next_crypto->kex_methods[SSH_MAC_C_S];
 	}
 
@@ -372,7 +372,7 @@ int crypt_set_algorithms_server(ssh_session session){
 	 * We must scan the kex entries to find crypto algorithms and set their
 	 * appropriate structure
 	 */
-	/* out */
+	/*OUT*/
 	method = session->next_crypto->kex_methods[SSH_CRYPT_S_C];
 
 	for(i = 0; ssh_ciphertab[i].name != NULL; i++) {
@@ -406,7 +406,7 @@ int crypt_set_algorithms_server(ssh_session session){
 	}
 	else {
 		/* we must scan the kex entries to find hmac algorithms and set their appropriate structure */
-		/* out */
+		/*OUT*/
 		method = session->next_crypto->kex_methods[SSH_MAC_S_C];
 	}
 	/* HMAC algorithm selection */

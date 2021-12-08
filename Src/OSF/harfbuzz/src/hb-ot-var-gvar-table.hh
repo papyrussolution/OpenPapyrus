@@ -215,7 +215,7 @@ public:
 				data_offset = 0;
 			}
 
-			bool get_shared_indices(hb_vector_t<uint> &shared_indices /* OUT */)
+			bool get_shared_indices(hb_vector_t<uint> &shared_indices /*OUT*/)
 			{
 				if(var_data->has_shared_point_numbers()) {
 					const HBUINT8 * base = &(var_data+var_data->data);
@@ -260,8 +260,8 @@ public:
 		};
 
 		static bool get_tuple_iterator(hb_bytes_t var_data_bytes, unsigned axis_count,
-		    hb_vector_t<uint> &shared_indices /* OUT */,
-		    tuple_iterator_t * iterator /* OUT */)
+		    hb_vector_t<uint> &shared_indices /*OUT*/,
+		    tuple_iterator_t * iterator /*OUT*/)
 		{
 			iterator->init(var_data_bytes, axis_count);
 			if(!iterator->get_shared_indices(shared_indices))
@@ -274,7 +274,7 @@ public:
 		}
 
 		static bool unpack_points(const HBUINT8 *&p /* IN/OUT */,
-		    hb_vector_t<uint> &points /* OUT */,
+		    hb_vector_t<uint> &points /*OUT*/,
 		    const hb_bytes_t &bytes)
 		{
 			enum packed_point_flag_t {

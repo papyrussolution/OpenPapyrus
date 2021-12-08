@@ -1830,7 +1830,7 @@ int ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 		p_json_req->InsertString("client_secret", rBlk.CliSecret);
 		p_json_req->InsertString("user_id", rBlk.CliIdent);
 		p_json_req->InsertString("auth_type", "SIGNED_CODE");
-		THROW_SL(json_tree_to_string(p_json_req, rBuf));
+		THROW_SL(p_json_req->ToStr(rBuf));
 	}
 	CATCHZOK
 	delete p_json_req;
@@ -1848,7 +1848,7 @@ int ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SSt
 		p_json_req = new SJson(SJson::tOBJECT);
 		p_json_req->InsertString("code", pAuthCode);
 		p_json_req->InsertString("signature", code_sign);
-		THROW_SL(json_tree_to_string(p_json_req, rBuf));
+		THROW_SL(p_json_req->ToStr(rBuf));
 	}
 	CATCHZOK
 	delete p_json_req;
@@ -1880,7 +1880,7 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 			p_json_req->InsertString("product_document", data_base64_buf);
 			p_json_req->InsertString("type", temp_buf.CatChar('_').Cat("XML"));
 			p_json_req->InsertString("signature", code_sign);
-			THROW_SL(json_tree_to_string(p_json_req, rBuf));
+			THROW_SL(p_json_req->ToStr(rBuf));
 		}
 	}
 	else {
@@ -1890,7 +1890,7 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 		rReqId.Generate();
 		rReqId.ToStr(S_GUID::fmtIDL, temp_buf);
 		p_json_req->InsertString("request_id", temp_buf);
-		THROW_SL(json_tree_to_string(p_json_req, rBuf));
+		THROW_SL(p_json_req->ToStr(rBuf));
 	}
 	CATCHZOK
 	delete p_json_req;
@@ -2656,7 +2656,7 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 			}
 			p_json_req->Insert("start_from", json_new_number("0"));
 			p_json_req->Insert("count", json_new_number("100"));
-			THROW_SL(json_tree_to_string(p_json_req, req_buf));
+			THROW_SL(p_json_req->ToStr(req_buf));
 		}
 		ZDELETE(p_json_req);
 	}
@@ -2741,7 +2741,7 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 			}
 			p_json_req->Insert("start_from", json_new_number("0"));
 			p_json_req->Insert("count", json_new_number("100"));
-			THROW_SL(json_tree_to_string(p_json_req, req_buf));
+			THROW_SL(p_json_req->ToStr(req_buf));
 		}
 		ZDELETE(p_json_req);
 	}
@@ -2884,12 +2884,11 @@ int ChZnInterface::Connect(InitBlock & rIb)
 			SString signed_data;
 			THROW(GetSign(rIb, result_data.cptr(), result_data.Len(), signed_data));
 			{
-				SJson * p_json_req = new SJson(SJson::tOBJECT);
+				SJson json_req(SJson::tOBJECT);
 				temp_buf.Z().Cat(result_uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
-				p_json_req->InsertString("uuid", temp_buf);
-				p_json_req->InsertString("data", signed_data);
-				THROW_SL(json_tree_to_string(p_json_req, req_buf));
-				ZDELETE(p_json_req);
+				json_req.InsertString("uuid", temp_buf);
+				json_req.InsertString("data", signed_data);
+				THROW_SL(json_req.ToStr(req_buf));
 			}
 			{
 				InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));

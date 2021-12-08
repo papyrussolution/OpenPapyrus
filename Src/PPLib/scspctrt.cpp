@@ -184,7 +184,7 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
 			THROW_SL(p_query->InsertString("phone_number", phone_buf));
 			//THROW_SL(p_query->Insert("trust_key", json_new_string("")));
-			THROW_SL(json_tree_to_string(p_query, temp_buf));
+			THROW_SL(p_query->ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -233,7 +233,7 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 			THROW_SL(p_query = new SJson(SJson::tOBJECT));
 			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
 			THROW_SL(p_query->InsertString("code", temp_buf.Z().Cat(check_code)));
-			THROW_SL(json_tree_to_string(p_query, temp_buf));
+			THROW_SL(p_query->ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -333,7 +333,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 				}
 				THROW_SL(p_query->Insert("transactions", p_array));
 			}
-			THROW_SL(json_tree_to_string(p_query, temp_buf));
+			THROW_SL(p_query->ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -496,7 +496,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 				}
 				THROW_SL(p_query->Insert("orders", p_array));
 			}
-			THROW_SL(json_tree_to_string(p_query, temp_buf));
+			THROW_SL(p_query->ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -1318,7 +1318,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 			p_js_receipt->InsertDouble("skipLoyaltyTotal", rT.SkipLoyaltyTotal, MKSFMTD(0, 2, 0));
 			p_json_req->Insert("receipt", p_js_receipt);
 		}
-		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+		THROW_SL(p_json_req->ToStr(json_buf));
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("operations"));
@@ -1523,7 +1523,7 @@ int UdsGameInterface::CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 			p_json_req->Insert("data", p_json_data);
 		}
 		p_json_req->InsertBool("hidden", LOGIC(rItem.Flags & rItem.fHidden));
-		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+		THROW_SL(p_json_req->ToStr(json_buf));
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods"));
@@ -1612,7 +1612,7 @@ int UdsGameInterface::UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 			p_json_req->Insert("data", p_json_data);
 		}
 		p_json_req->InsertBool("hidden", LOGIC(rItem.Flags & rItem.fHidden));
-		THROW_SL(json_tree_to_string(p_json_req, json_buf));
+		THROW_SL(p_json_req->ToStr(json_buf));
 	}
 	{
 		InetUrl url((url_buf = Ib.EndPoint).SetLastDSlash().Cat("goods").SetLastDSlash().Cat(rItem.OuterId));

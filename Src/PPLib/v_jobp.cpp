@@ -310,7 +310,7 @@ int ViewJobPool()
 	SString db_symb;
 	JobPoolDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_READ, 0));
-	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
 	/*THROW(mngr.LoadPool(db_symb, &pool, 0));*/ //@erik v10.7.4
 	THROW(mngr.LoadPool2(db_symb, &pool, 0)); //@erik v10.7.4
 	THROW(CheckDialogPtrErr(&(dlg = new JobPoolDialog(&mngr, &pool))));
@@ -412,7 +412,7 @@ int PPViewJob::LoadPool()
 	SavePool();
 	ZDELETE(P_Pool);
 	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
-	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
 	//THROW(Mngr.LoadPool(db_symb, P_Pool, 0)); //@erik v10.7.4
 	THROW(Mngr.LoadPool2(db_symb, P_Pool, 0)); //@erik v10.7.4
 	Mngr.GetResourceList(0, CmdSymbList);

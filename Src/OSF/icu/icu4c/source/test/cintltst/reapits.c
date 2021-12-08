@@ -790,11 +790,11 @@ static void TestRegexCAPI() {
 	TEST_ASSERT(uregex_hasTransparentBounds(re, &status) == TRUE);
 
 	uregex_useTransparentBounds(re, FALSE, &status);
-	TEST_ASSERT(uregex_find(re, -1, &status) == TRUE);    /* No Region */
+	TEST_ASSERT(uregex_find(re, -1, &status) == TRUE); /* No Region */
 	uregex_setRegion(re, 0, 3, &status);
 	TEST_ASSERT(uregex_find(re, -1, &status) == FALSE);   /* with region, opaque bounds */
 	uregex_useTransparentBounds(re, TRUE, &status);
-	TEST_ASSERT(uregex_find(re, -1, &status) == TRUE);    /* with region, transparent bounds */
+	TEST_ASSERT(uregex_find(re, -1, &status) == TRUE); /* with region, transparent bounds */
 	TEST_ASSERT(uregex_end(re, 0, &status) == 3);
 	TEST_TEARDOWN;
 
@@ -873,8 +873,8 @@ static void TestRegexCAPI() {
 	 *  replaceAll()
 	 */
 	{
-		UChar text1[80];     /*  "Replace xaax x1x x...x." */
-		UChar text2[80];     /*  "No match Here"  */
+		UChar text1[80]; /*  "Replace xaax x1x x...x." */
+		UChar text2[80]; /*  "No match Here"  */
 		UChar replText[80];  /*  "<$1>"  */
 		UChar replText2[80]; /*  "<<$1>>"         */
 		const char * pattern = "x(.*?)x";

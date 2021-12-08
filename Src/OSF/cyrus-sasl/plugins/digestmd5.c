@@ -197,7 +197,7 @@ typedef struct reauth_cache {
 	void * mutex;
 	unsigned size;
 
-	reauth_entry_t * e;     /* fixed-size hash table of entries */
+	reauth_entry_t * e; /* fixed-size hash table of entries */
 } reauth_cache_t;
 
 /* global context for reauth use */
@@ -209,7 +209,7 @@ typedef struct digest_glob_context {
 typedef struct context {
 	int state;              /* state in the authentication we are in */
 	enum Context_type i_am; /* are we the client or server? */
-	int http_mode;          /* use RFC 2617 compatible protocol? */
+	int http_mode; /* use RFC 2617 compatible protocol? */
 	reauth_cache_t * reauth;
 	char * authid;
 	char * realm;
@@ -361,7 +361,7 @@ static bool UTF8_In_8859_1(const unsigned char * base, size_t len)
 	const unsigned char * end = base + len;
 	for(scan = base; scan < end; ++scan) {
 		if(*scan > 0xC3)
-			break;          /* abort if outside 8859-1 */
+			break; /* abort if outside 8859-1 */
 		if(*scan >= 0xC0 && *scan <= 0xC3) {
 			if(++scan == end || *scan < 0x80 || *scan > 0xBF)
 				break;
@@ -691,7 +691,7 @@ static char * quote(char * str)
 	char * p;
 	char * outp;
 	char * result;
-	int num_to_escape;      /* How many characters need escaping */
+	int num_to_escape; /* How many characters need escaping */
 
 	if(!str) return NULL;
 
@@ -807,7 +807,7 @@ static void get_pair(char ** in, char ** name, char ** value)
 #ifdef WITH_DES
 struct des_context_s {
 	des_key_schedule keysched; /* key schedule for des initialization */
-	des_cblock ivec;        /* initial vector for encoding */
+	des_cblock ivec; /* initial vector for encoding */
 	des_key_schedule keysched2; /* key schedule for 3des initialization */
 };
 
@@ -2884,7 +2884,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 
 	oparams->param_version = 0;
 
-	text->seqnum = 0;       /* for integrity/privacy */
+	text->seqnum = 0; /* for integrity/privacy */
 	text->rec_seqnum = 0;   /* for integrity/privacy */
 	text->utils = sparams->utils;
 

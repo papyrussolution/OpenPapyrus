@@ -70,7 +70,7 @@ static ngx_core_module_t ngx_events_module_ctx = { ngx_string("events"), NULL, n
 ngx_module_t ngx_events_module = {
 	NGX_MODULE_V1,
 	&ngx_events_module_ctx,            /* module context */
-	ngx_events_commands,               /* module directives */
+	ngx_events_commands, /* module directives */
 	NGX_CORE_MODULE,                   /* module type */
 	NULL,                              /* init master */
 	NULL,                              /* init module */

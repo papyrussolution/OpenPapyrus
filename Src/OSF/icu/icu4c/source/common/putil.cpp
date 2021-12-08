@@ -1133,9 +1133,7 @@ U_CAPI const char * U_EXPORT2 uprv_tzname(int n)
 			int32_t tzZoneInfoTailLen = uprv_strlen(TZZONEINFOTAIL);
 			gTimeZoneBuffer[ret] = 0;
 			char * tzZoneInfoTailPtr = uprv_strstr(gTimeZoneBuffer, TZZONEINFOTAIL);
-
-			if(tzZoneInfoTailPtr != NULL
-			 && isValidOlsonID(tzZoneInfoTailPtr + tzZoneInfoTailLen)) {
+			if(tzZoneInfoTailPtr != NULL && isValidOlsonID(tzZoneInfoTailPtr + tzZoneInfoTailLen)) {
 				return (gTimeZoneBufferPtr = tzZoneInfoTailPtr + tzZoneInfoTailLen);
 			}
 		}
@@ -1148,9 +1146,7 @@ U_CAPI const char * U_EXPORT2 uprv_tzname(int n)
 				tzInfo->defaultTZFilePtr = NULL;
 				tzInfo->defaultTZstatus = FALSE;
 				tzInfo->defaultTZPosition = 0;
-
 				gTimeZoneBufferPtr = searchForTZFile(TZZONEINFO, tzInfo);
-
 				/* Free previously allocated memory */
 				if(tzInfo->defaultTZBuffer != NULL) {
 					uprv_free(tzInfo->defaultTZBuffer);

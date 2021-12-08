@@ -1150,9 +1150,9 @@ static uint32_t    TSCC_nextSerial()
 }
 
 typedef struct {
-	uint32_t magic;        /* 0xC0FFEE to identify that the object is OK */
-	uint32_t serial;       /* minted from nextSerial, above */
-	bool wasClosed;       /* close happened on the object */
+	uint32_t magic; /* 0xC0FFEE to identify that the object is OK */
+	uint32_t serial; /* minted from nextSerial, above */
+	bool wasClosed; /* close happened on the object */
 } TSCCContext;
 
 static TSCCContext * TSCC_clone(TSCCContext * ctx)

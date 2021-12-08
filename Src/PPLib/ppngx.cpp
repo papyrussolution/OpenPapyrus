@@ -380,9 +380,8 @@ private:
 				DbProvider * p_dict = CurDict;
 				if(p_dict) {
 					p_dict->GetDbSymb(temp_buf);
-					if(temp_buf.IsEqiAscii(db_symb)) {
+					if(temp_buf.IsEqiAscii(db_symb))
 						is_logged_id = true;
-					}
 				}
 				if(!is_logged_id) {
 					Logout();

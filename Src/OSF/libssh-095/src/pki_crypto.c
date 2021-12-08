@@ -755,9 +755,9 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 
 		rc = PEM_write_bio_PrivateKey(mem,
 			pkey,
-			NULL,               /* cipher */
-			NULL,               /* kstr */
-			0,               /* klen */
+			NULL, /* cipher */
+			NULL, /* kstr */
+			0, /* klen */
 			pem_get_password,
 			&pgp);
 	}
@@ -765,9 +765,9 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		rc = PEM_write_bio_PrivateKey(mem,
 			pkey,
 			EVP_aes_128_cbc(),
-			NULL,               /* kstr */
-			0,               /* klen */
-			NULL,               /* auth_fn */
+			NULL, /* kstr */
+			0, /* klen */
+			NULL, /* auth_fn */
 			(void *)passphrase);
 	}
 	EVP_PKEY_free(pkey);

@@ -1784,7 +1784,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					}
 				}
 				{
-					THROW_SL(json_tree_to_string(p_jpack, ResultText));
+					THROW_SL(p_jpack->ToStr(ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 					json_free_value(&p_jpack);
@@ -1989,7 +1989,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					}
 				}
 				{
-					THROW_SL(json_tree_to_string(p_jpack, ResultText));
+					THROW_SL(p_jpack->ToStr(ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 					json_free_value(&p_jpack);

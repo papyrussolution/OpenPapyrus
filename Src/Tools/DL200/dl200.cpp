@@ -878,7 +878,7 @@ const char * DL2_CI::GetStr() const
 	return Len ? (const char *)(this+1) : 0;
 }
 
-int DL2_CI::ToString(char * pBuf, size_t bufLen) const
+int DL2_CI::ToStr(char * pBuf, size_t bufLen) const
 {
 	char   buf[128];
 	char * p = buf;
@@ -1051,7 +1051,7 @@ int DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 	return ok;
 }
 
-int DL2_ObjList::ToString(int32 id, SString & rBuf) const
+int DL2_ObjList::ToStr(int32 id, SString & rBuf) const
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -1380,7 +1380,7 @@ int DL2_Score::PutToStr(SString & rBuf) const
 		if(LocListID) {
 			list_buf.Z();
 			if(P_Ctx) {
-				if(!P_Ctx->Oc.ToString(LocListID, list_buf))
+				if(!P_Ctx->Oc.ToStr(LocListID, list_buf))
 					(list_buf = "@loclist").CatParStr("ERROR");
 			}
 			else
@@ -1390,7 +1390,7 @@ int DL2_Score::PutToStr(SString & rBuf) const
 		if(GoodsGrpListID) {
 			list_buf.Z();
 			if(P_Ctx) {
-				if(!P_Ctx->Oc.ToString(GoodsGrpListID, list_buf))
+				if(!P_Ctx->Oc.ToStr(GoodsGrpListID, list_buf))
 					(list_buf = "@goodsgroup").CatParStr("ERROR");
 			}
 			else
@@ -2123,7 +2123,7 @@ int DL2_Formula::Print(FILE * pStream) const
 		while(t < sz) {
 			char   buf[128];
 		    DL2_CI * p_item = (DL2_CI *)(P_Stack + p + t);
-		    p_item->ToString(buf, sizeof(buf));
+		    p_item->ToStr(buf, sizeof(buf));
 		    fprintf(pStream, "\t%s\n", buf);
 			t += (uint32)p_item->Size();
 		}
@@ -2209,10 +2209,10 @@ SLTEST_R(DL200_Account)
 		acc.Init();
 		acc.GetFromStr(strings[i]);
 		ci.Init(&acc);
-		ci.ToString(temp_buf, sizeof(temp_buf));
+		ci.ToStr(temp_buf, sizeof(temp_buf));
 		acc2.Init();
 		acc2.GetFromStr(temp_buf);
-		ci.ToString(temp_buf2, sizeof(temp_buf2));
+		ci.ToStr(temp_buf2, sizeof(temp_buf2));
 		out_buf.Z().Cat(strings[i]).Tab().Cat(temp_buf).Tab().Cat(temp_buf2).CR();
 		out.WriteLine(out_buf);
 		SLTEST_CHECK_Z(stricmp(temp_buf, temp_buf2));
@@ -2224,10 +2224,10 @@ SLTEST_R(DL200_Account)
 		size_t offs = 0;
 		sc.GetFromStr(p_test_score[i], &offs);
 		ci.Init(&sc);
-		ci.ToString(temp_buf, sizeof(temp_buf));
+		ci.ToStr(temp_buf, sizeof(temp_buf));
 		sc2.Init(&dl2_ctx);
 		sc2.GetFromStr(temp_buf, &(offs = 0));
-		ci.ToString(temp_buf2, sizeof(temp_buf2));
+		ci.ToStr(temp_buf2, sizeof(temp_buf2));
 		out_buf.Z().Cat(strings[i]).Tab().Cat(temp_buf).Tab().Cat(temp_buf2).CR();
 		out.WriteLine(out_buf);
 		SLTEST_CHECK_Z(stricmp(temp_buf, temp_buf2));

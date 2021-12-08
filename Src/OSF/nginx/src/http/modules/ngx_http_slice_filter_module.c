@@ -53,7 +53,7 @@ static ngx_command_t ngx_http_slice_filter_commands[] = {
 
 static ngx_http_module_t ngx_http_slice_filter_module_ctx = {
 	ngx_http_slice_add_variables,      /* preconfiguration */
-	ngx_http_slice_init,               /* postconfiguration */
+	ngx_http_slice_init, /* postconfiguration */
 
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */

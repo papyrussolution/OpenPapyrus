@@ -628,7 +628,7 @@ LOWERCASE:
 #include <string.h>                 /* for strchr() */
 
 /* static (global) variables that are specified as exported by getopt() */
-__declspec(dllexport) char * optarg = NULL;    /* pointer to the start of the option argument  */
+__declspec(dllexport) char * optarg = NULL; /* pointer to the start of the option argument  */
 __declspec(dllexport) int optind = 1;         /* number of the next argv[] to be evaluated    */
 __declspec(dllexport) int opterr = 1;         /* non-zero if a question mark should be returned */
 
@@ -639,7 +639,7 @@ int getopt(int argc, char * argv[], char * opstring)
 {
 	static char * pIndexPosition = NULL; /* place inside current argv string */
 	char * pArgString = NULL;   /* where to start from next */
-	char * pOptString;          /* the string in our program */
+	char * pOptString; /* the string in our program */
 
 	if(pIndexPosition != NULL) {
 		/* we last left off inside an argv string */
@@ -678,7 +678,7 @@ int getopt(int argc, char * argv[], char * opstring)
 			return EOF; /* encountered the special flag */
 		}
 
-		pArgString++;       /* look past the / or - */
+		pArgString++; /* look past the / or - */
 	}
 
 	if(':' == *pArgString) {    /* is it a colon? */
@@ -692,7 +692,7 @@ int getopt(int argc, char * argv[], char * opstring)
 		/*---------------------------------------------------------------------
 		 * The letter on the command-line wasn't any good.
 		 *-------------------------------------------------------------------*/
-		optarg = NULL;      /* no argument follows the option */
+		optarg = NULL; /* no argument follows the option */
 		pIndexPosition = NULL; /* not in the middle of anything */
 		return (opterr ? (int)'?' : (int)*pArgString);
 	}

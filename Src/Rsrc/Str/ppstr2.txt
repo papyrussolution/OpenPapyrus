@@ -4794,6 +4794,7 @@ PPTXT_VETISOUTGSTOCKENTRY           "Идентифицированая запи
 PPTXT_VETIS_SPCMARK_SRCWARENAME     "Наименования согласно номеклатуре производителя."
 PPTXT_VETIS_DOCSTATUS               "0,@{vetisdocstcreated};1,@{vetisdocstconfirmed};2,@{vetisdocstwithdrawn};3,@{vetisdocstutilized};4,@{vetisdocstfinalized};8,@{vetisdocstoutgoing_preparing};9,@{vetisdocststock}"
 PPTXT_VETIS_OUTCERTSENDING          "Отправка исходящих документов"
+PPTXT_VETIS_OUTCERTREJNOLINKBILL    "Сертификат не отправляется поскольку не имеет ссылки на документ"
 PPTXT_VETIS_OUTCERTREPLGETTING      "Получение ответов на отправку исходящих документов"
 PPTXT_VETIS_OUTCERTRGCYCLEEXIT      "Аварийный выход из цикла получения ответов на отправку исходящих документов по достижению максимума холостых итераций"
 PPTXT_PPPP_UNBLRESOLVEGOODS         "Невозможно сопоставить переданную ссылку на товар '%s'"
@@ -7642,6 +7643,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doinventoryrecalcprices             "Пересчет учетных цен"
 @doinventoryrecalcdeficit            "Пересчет дефицита"
 @dostyloqinvite                      "Приглашение Stylo-Q"
+@doselectgoodsbyserial               "Подбор товара по серийному номеру"
+@doselectgoodsbyprice                "Подбор товара по цене"
 //
 @usepackparams                       "Использовать параметры упаковки"
 @reportsendmail                      "Отправка отчета на электронную почту" // generic

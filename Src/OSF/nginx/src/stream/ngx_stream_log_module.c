@@ -107,7 +107,7 @@ static ngx_command_t ngx_stream_log_commands[] = {
 
 static ngx_stream_module_t ngx_stream_log_module_ctx = {
 	NULL,                              /* preconfiguration */
-	ngx_stream_log_init,               /* postconfiguration */
+	ngx_stream_log_init, /* postconfiguration */
 
 	ngx_stream_log_create_main_conf,   /* create main configuration */
 	NULL,                              /* init main configuration */

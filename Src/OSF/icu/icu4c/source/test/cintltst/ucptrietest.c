@@ -427,7 +427,7 @@ static void testTrieUTF16(const char * testName,
 		}
 		U_ASSERT(length < UPRV_LENGTHOF(s) && countValues < UPRV_LENGTHOF(values));
 		c = checkRanges[i].limit;
-		prevCP = (prevCP+c)/2;          /* middle of the range */
+		prevCP = (prevCP+c)/2; /* middle of the range */
 		if(!ACCIDENTAL_SURROGATE_PAIR(s, length, prevCP)) {
 			U16_APPEND_UNSAFE(s, length, prevCP);
 			values[countValues++] = value;
@@ -570,7 +570,7 @@ static void testTrieUTF8(const char * testName,
 		}
 		U_ASSERT(length < UPRV_LENGTHOF(s) && countValues < UPRV_LENGTHOF(values));
 		c = checkRanges[i].limit;
-		prevCP = (prevCP+c)/2;          /* middle of the range */
+		prevCP = (prevCP+c)/2; /* middle of the range */
 		U8_APPEND_UNSAFE(s, length, prevCP);
 		if(U_IS_SURROGATE(prevCP)) {
 			// A surrogate byte sequence counts as 3 single-byte errors.

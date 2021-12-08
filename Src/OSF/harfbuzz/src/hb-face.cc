@@ -391,7 +391,7 @@ uint hb_face_get_glyph_count(const hb_face_t * face)
  *
  * Since: 1.6.0
  **/
-uint hb_face_get_table_tags(const hb_face_t * face, uint start_offset, uint * table_count/* IN/OUT */, hb_tag_t * table_tags /* OUT */)
+uint hb_face_get_table_tags(const hb_face_t * face, uint start_offset, uint * table_count/* IN/OUT */, hb_tag_t * table_tags /*OUT*/)
 {
 	if(face->destroy != (hb_destroy_func_t)_hb_face_for_data_closure_destroy) {
 		ASSIGN_PTR(table_count, 0);

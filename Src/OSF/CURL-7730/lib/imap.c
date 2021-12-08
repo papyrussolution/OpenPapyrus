@@ -119,11 +119,11 @@ const struct Curl_handler Curl_handler_imap = {
 	imap_do,                    /* do_it */
 	imap_done,                  /* done */
 	ZERO_NULL,                  /* do_more */
-	imap_connect,               /* connect_it */
+	imap_connect, /* connect_it */
 	imap_multi_statemach,       /* connecting */
 	imap_doing,                 /* doing */
-	imap_getsock,               /* proto_getsock */
-	imap_getsock,               /* doing_getsock */
+	imap_getsock, /* proto_getsock */
+	imap_getsock, /* doing_getsock */
 	ZERO_NULL,                  /* domore_getsock */
 	ZERO_NULL,                  /* perform_getsock */
 	imap_disconnect,            /* disconnect */
@@ -147,11 +147,11 @@ const struct Curl_handler Curl_handler_imaps = {
 	imap_do,                    /* do_it */
 	imap_done,                  /* done */
 	ZERO_NULL,                  /* do_more */
-	imap_connect,               /* connect_it */
+	imap_connect, /* connect_it */
 	imap_multi_statemach,       /* connecting */
 	imap_doing,                 /* doing */
-	imap_getsock,               /* proto_getsock */
-	imap_getsock,               /* doing_getsock */
+	imap_getsock, /* proto_getsock */
+	imap_getsock, /* doing_getsock */
 	ZERO_NULL,                  /* domore_getsock */
 	ZERO_NULL,                  /* perform_getsock */
 	imap_disconnect,            /* disconnect */
@@ -171,7 +171,7 @@ const struct Curl_handler Curl_handler_imaps = {
 
 /* SASL parameters for the imap protocol */
 static const struct SASLproto saslimap = {
-	"imap",               /* The service name */
+	"imap", /* The service name */
 	'+',                  /* Code received when continuation is expected */
 	IMAP_RESP_OK,         /* Code to receive upon authentication success */
 	0,                    /* Maximum initial response length (no max) */

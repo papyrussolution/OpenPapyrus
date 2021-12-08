@@ -4030,7 +4030,7 @@ int GoodsStockExt::Pallet::IsValid() const
 
 GoodsStockExt::GoodsStockExt()
 {
-	Init();
+	Z();
 }
 
 int GoodsStockExt::IsEmpty() const
@@ -4056,7 +4056,7 @@ int FASTCALL GoodsStockExt::IsEq(const GoodsStockExt & rS) const
 		return 0;
 	else if(MinShippmQtty != rS.MinShippmQtty)
 		return 0;
-	else if(NettBruttCoeff != rS.NettBruttCoeff) // @v9.8.12
+	else if(NettBruttCoeff != rS.NettBruttCoeff)
 		return 0;
 	else if(RtlDim != rS.RtlDim)
 		return 0;
@@ -4079,7 +4079,7 @@ int GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	if(dir < 0) {
 		RtlDim.Z();
 		MinShippmQtty = 0.0;
-		NettBruttCoeff = 0.0f; // @v9.8.12
+		NettBruttCoeff = 0.0f;
 	}
 	THROW_SL(pCtx->Serialize(dir, &MinStockList, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &PltList, rBuf));
@@ -4122,11 +4122,12 @@ double GoodsStockExt::CalcVolume(double qtty) const
 void GoodsStockExt::SetVolume(double volume)
 	{ PckgDim.SetVolumeM(volume); }
 
-void GoodsStockExt::Init()
+GoodsStockExt & GoodsStockExt::Z()
 {
 	memzero(this, offsetof(GoodsStockExt, MinStockList));
 	MinStockList.clear();
 	PltList.clear();
+	return *this;
 }
 
 GoodsStockExt & FASTCALL GoodsStockExt::operator = (const GoodsStockExt & rSrc)

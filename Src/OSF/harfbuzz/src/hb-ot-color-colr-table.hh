@@ -98,8 +98,8 @@ public:
 
 		uint get_glyph_layers(hb_codepoint_t glyph,
 		    uint start_offset,
-		    uint * count,             /* IN/OUT.  May be NULL. */
-		    hb_ot_color_layer_t * layers /* OUT.     May be NULL. */) const
+		    uint * count,             /*IN/OUT May be NULL*/
+		    hb_ot_color_layer_t * layers /*OUT May be NULL*/) const
 		{
 			const BaseGlyphRecord &record = (this+baseGlyphsZ).bsearch(numBaseGlyphs, glyph);
 
@@ -135,7 +135,7 @@ public:
 			}
 
 			void closure_glyphs(hb_codepoint_t glyph,
-			    hb_set_t * related_ids /* OUT */) const
+			    hb_set_t * related_ids /*OUT*/) const
 			{
 				colr->closure_glyphs(glyph, related_ids);
 			}
@@ -145,7 +145,7 @@ private:
 		};
 
 		void closure_glyphs(hb_codepoint_t glyph,
-		    hb_set_t * related_ids /* OUT */) const
+		    hb_set_t * related_ids /*OUT*/) const
 		{
 			const BaseGlyphRecord * record = get_base_glyph_record(glyph);
 			if(!record) return;

@@ -268,7 +268,7 @@ int ACS_DREAMKAS::SendGoods(SJson ** ppJson, uint & rCount, int update, int forc
 			const char * p_debug_file_name = update ? "dreamkas-export-upd-debug.json" : "dreamkas-export-add-debug.json";
 			PPGetFilePath(PPPATH_OUT, p_debug_file_name, temp_buf);
 			SFile f_out_test(temp_buf, SFile::mAppend);
-			THROW_SL(json_tree_to_string(*ppJson, json_buf));
+			THROW_SL((*ppJson)->ToStr(json_buf));
 			if(!update) {
 				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 			}

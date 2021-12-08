@@ -272,11 +272,10 @@ int PPObjGoodsClass::PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 	int    ok = 1;
 	SString line_buf;
 	if(pDim) {
-		char   temp_str[128];
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		PPPutExtStrData(GDSCLS_EXTSTR_FLD_DIM_NAME,  line_buf, pDim->Name);
-		PPPutExtStrData(GDSCLS_EXTSTR_FLD_DIM_SCALE, line_buf, ltoa(pDim->Scale, temp_str, 10));
-		pDim->ToStr(0, temp_str, sizeof(temp_str));
-		PPPutExtStrData(GDSCLS_EXTSTR_FLD_DIM_VALS, line_buf, temp_str);
+		PPPutExtStrData(GDSCLS_EXTSTR_FLD_DIM_SCALE, line_buf, r_temp_buf.Z().Cat(pDim->Scale));
+		PPPutExtStrData(GDSCLS_EXTSTR_FLD_DIM_VALS, line_buf, pDim->ToStr(r_temp_buf));
 	}
 	ok = P_Ref->PutPropVlrString(Obj, gdsClsID, propID, line_buf);
 	return ok;
@@ -676,12 +675,10 @@ int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			char   val_str[128];
+			SString temp_buf;
 			setCtrlData(CTL_GDSCLSDIM_NAME, Data.Name);
 			setCtrlData(CTL_GDSCLSDIM_SCALE, &Data.Scale);
-			memzero(val_str, sizeof(val_str));
-			Data.ToStr(0, val_str, sizeof(val_str));
-			setCtrlData(CTL_GDSCLSDIM_VALS, val_str);
+			setCtrlString(CTL_GDSCLSDIM_VALS, Data.ToStr(temp_buf));
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -926,7 +923,7 @@ void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 {
 	PPGdsClsPacket * p_data_pack = static_cast<PPGdsClsPacket *>(pDataRec);
 	const GoodsClassData * p_cache_rec = static_cast<const GoodsClassData *>(pEntry);
-	p_data_pack->Init();
+	p_data_pack->Z();
 	p_data_pack->Rec.Tag         = PPOBJ_GOODSCLASS;
 	p_data_pack->Rec.ID          = p_cache_rec->ID;
 	p_data_pack->Rec.DefUnitID   = p_cache_rec->DefUnitID;
@@ -976,7 +973,7 @@ PPGdsClsFormula::PPGdsClsFormula() : Flags(0)
 {
 }
 
-void PPGdsClsFormula::Clear()
+PPGdsClsFormula & PPGdsClsFormula::Z()
 {
 	Flags = 0;
 	Name.Z();
@@ -984,6 +981,7 @@ void PPGdsClsFormula::Clear()
 	Var1Name.Z();
 	Var2Name.Z();
 	Var3Name.Z();
+	return *this;
 }
 
 int FASTCALL PPGdsClsFormula::PutToBuffer(SString & rBuf) const
@@ -1004,7 +1002,7 @@ int FASTCALL PPGdsClsFormula::GetFromBuffer(const char * pBuf)
 {
 	SString temp_buf;
 	const SString line_buf(pBuf);
-	Clear();
+	Z();
 	PPGetExtStrData(GDSCLS_EXTSTR_FROM_NAME, line_buf, Name);
 	PPGetExtStrData(GDSCLS_EXTSTR_FROM_FORM, line_buf, Formula);
 	PPGetExtStrData(GDSCLS_EXTSTR_FROM_PAR1, line_buf, Var1Name);
@@ -1044,7 +1042,7 @@ int PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 		return 1;
 	}
 	else {
-		pForm->Clear();
+		pForm->Z();
 		return 0;
 	}
 }

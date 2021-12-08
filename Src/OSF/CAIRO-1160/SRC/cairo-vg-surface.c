@@ -535,29 +535,18 @@ static cairo_status_t _vg_close_path(void * closure)
 		path->scount = 0;
 		path->dcount = 0;
 	}
-
 	CHECK_VG_ERRORS();
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _vg_path_from_cairo(vg_path_t * vg_path,
-    const cairo_path_fixed_t * path)
+static void _vg_path_from_cairo(vg_path_t * vg_path, const cairo_path_fixed_t * path)
 {
 	cairo_status_t status;
-
 	vg_path->scount = 0;
 	vg_path->dcount = 0;
-
-	status = _cairo_path_fixed_interpret(path,
-		_vg_move_to,
-		_vg_line_to,
-		_vg_curve_to,
-		_vg_close_path,
-		vg_path);
+	status = _cairo_path_fixed_interpret(path, _vg_move_to, _vg_line_to, _vg_curve_to, _vg_close_path, vg_path);
 	assert(status == CAIRO_STATUS_SUCCESS);
-
-	vgAppendPathData(vg_path->path,
-	    vg_path->scount, vg_path->gseg, vg_path->gdata);
+	vgAppendPathData(vg_path->path, vg_path->scount, vg_path->gseg, vg_path->gdata);
 	CHECK_VG_ERRORS();
 }
 
@@ -571,7 +560,6 @@ static boolint _vg_is_supported_operator(cairo_operator_t op)
 		case CAIRO_OPERATOR_DEST_IN:
 		case CAIRO_OPERATOR_ADD:
 		    return TRUE;
-
 		default:
 		    return FALSE;
 	}
@@ -580,21 +568,13 @@ static boolint _vg_is_supported_operator(cairo_operator_t op)
 static VGBlendMode _vg_operator(cairo_operator_t op)
 {
 	switch((int)op) {
-		case CAIRO_OPERATOR_SOURCE:
-		    return VG_BLEND_SRC;
-		case CAIRO_OPERATOR_OVER:
-		    return VG_BLEND_SRC_OVER;
-		case CAIRO_OPERATOR_IN:
-		    return VG_BLEND_SRC_IN;
-		case CAIRO_OPERATOR_DEST_OVER:
-		    return VG_BLEND_DST_OVER;
-		case CAIRO_OPERATOR_DEST_IN:
-		    return VG_BLEND_DST_IN;
-		case CAIRO_OPERATOR_ADD:
-		    return VG_BLEND_ADDITIVE;
-		default:
-		    ASSERT_NOT_REACHED;
-		    return VG_BLEND_SRC_OVER;
+		case CAIRO_OPERATOR_SOURCE: return VG_BLEND_SRC;
+		case CAIRO_OPERATOR_OVER: return VG_BLEND_SRC_OVER;
+		case CAIRO_OPERATOR_IN: return VG_BLEND_SRC_IN;
+		case CAIRO_OPERATOR_DEST_OVER: return VG_BLEND_DST_OVER;
+		case CAIRO_OPERATOR_DEST_IN: return VG_BLEND_DST_IN;
+		case CAIRO_OPERATOR_ADD: return VG_BLEND_ADDITIVE;
+		default: ASSERT_NOT_REACHED; return VG_BLEND_SRC_OVER;
 	}
 }
 
@@ -604,7 +584,6 @@ static VGFillRule _vg_fill_rule_from_cairo(cairo_fill_rule_t rule)
 		case CAIRO_FILL_RULE_EVEN_ODD: return VG_EVEN_ODD;
 		case CAIRO_FILL_RULE_WINDING: return VG_NON_ZERO;
 	}
-
 	ASSERT_NOT_REACHED;
 	return VG_NON_ZERO;
 }
@@ -615,17 +594,11 @@ static VGRenderingQuality _vg_rendering_quality_from_cairo(cairo_antialias_t aa)
 		case CAIRO_ANTIALIAS_DEFAULT:
 		case CAIRO_ANTIALIAS_SUBPIXEL:
 		case CAIRO_ANTIALIAS_GOOD:
-		case CAIRO_ANTIALIAS_BEST:
-		    return VG_RENDERING_QUALITY_BETTER;
-
+		case CAIRO_ANTIALIAS_BEST: return VG_RENDERING_QUALITY_BETTER;
 		case CAIRO_ANTIALIAS_GRAY:
-		case CAIRO_ANTIALIAS_FAST:
-		    return VG_RENDERING_QUALITY_FASTER;
-
-		case CAIRO_ANTIALIAS_NONE:
-		    return VG_RENDERING_QUALITY_NONANTIALIASED;
+		case CAIRO_ANTIALIAS_FAST: return VG_RENDERING_QUALITY_FASTER;
+		case CAIRO_ANTIALIAS_NONE: return VG_RENDERING_QUALITY_NONANTIALIASED;
 	}
-
 	ASSERT_NOT_REACHED;
 	return VG_RENDERING_QUALITY_BETTER;
 }
@@ -637,7 +610,6 @@ static VGCapStyle _vg_line_cap_from_cairo(cairo_line_cap_t cap)
 		case CAIRO_LINE_CAP_ROUND:  return VG_CAP_ROUND;
 		case CAIRO_LINE_CAP_SQUARE: return VG_CAP_SQUARE;
 	}
-
 	ASSERT_NOT_REACHED;
 	return VG_CAP_BUTT;
 }
@@ -673,7 +645,6 @@ static cairo_status_t _vg_setup_gradient_stops(cairo_vg_context_t * context,
 	VGint numstops = pattern->n_stops;
 	VGfloat * stops, stack_stops[CAIRO_STACK_ARRAY_LENGTH(VGfloat)];
 	int i;
-
 	if(numstops*5 < ARRAY_LENGTH(stack_stops)) {
 		stops = stack_stops;
 	}

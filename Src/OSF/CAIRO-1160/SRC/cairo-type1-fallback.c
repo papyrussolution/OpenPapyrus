@@ -321,8 +321,7 @@ static cairo_int_status_t cairo_type1_font_create_charstring(cairo_type1_font_t 
 	path_info.data = data;
 	path_info.type = type;
 	if(emit_path) {
-		status = _cairo_path_fixed_interpret(scaled_glyph->path, _charstring_move_to,
-			_charstring_line_to, _charstring_curve_to, _charstring_close_path, &path_info);
+		status = _cairo_path_fixed_interpret(scaled_glyph->path, _charstring_move_to, _charstring_line_to, _charstring_curve_to, _charstring_close_path, &path_info);
 		if(UNLIKELY(status))
 			return status;
 	}
@@ -333,8 +332,7 @@ static cairo_int_status_t cairo_type1_font_create_charstring(cairo_type1_font_t 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t cairo_type1_font_write_charstrings(cairo_type1_font_t * font,
-    cairo_output_stream_t * encrypted_output)
+static cairo_int_status_t cairo_type1_font_write_charstrings(cairo_type1_font_t * font, cairo_output_stream_t * encrypted_output)
 {
 	cairo_status_t status;
 	uchar zeros[] = { 0, 0, 0, 0 };
@@ -424,10 +422,7 @@ static void cairo_type1_font_write_header(cairo_type1_font_t * font, const char 
 			}
 		}
 	}
-	_cairo_output_stream_printf(font->output,
-	    "readonly def\n"
-	    "currentdict end\n"
-	    "currentfile eexec\n");
+	_cairo_output_stream_printf(font->output, "readonly def\ncurrentdict end\ncurrentfile eexec\n");
 }
 
 static cairo_status_t cairo_type1_write_stream_encrypted(void * closure, const uchar * data, uint length)

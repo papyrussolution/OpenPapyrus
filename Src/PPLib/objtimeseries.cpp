@@ -7009,7 +7009,7 @@ int PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 	return ok;
 }
 
-void  PPObjTimeSeries::StrategyResultEntry::ToString(long flags, int stakeSide, int optFactorSide, SString & rBuf)
+void  PPObjTimeSeries::StrategyResultEntry::ToStr(long flags, int stakeSide, int optFactorSide, SString & rBuf)
 {
 	rBuf.Z();
 	if(flags & 1) {
@@ -7581,7 +7581,7 @@ public:
 			else
 				LossCount++;
 		}
-		SString & FASTCALL ToString(SString & rBuf) const
+		SString & FASTCALL ToStr(SString & rBuf) const
 		{
 			rBuf.Z().CatCharN('-', 8).Space().Cat("result-after-till-date").Space().
 				CatEq("StakeCount", StakeCount).Space().CatEq("WinCount", WinCount).Space().CatEq("LossCount", LossCount);
@@ -8483,7 +8483,7 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 										}
 									}
 									if(rResultCollection.Atdr.StakeCount)
-										f_out.WriteLine(rResultCollection.Atdr.ToString(msg_buf).CR());
+										f_out.WriteLine(rResultCollection.Atdr.ToStr(msg_buf).CR());
 									f_out.Flush();
 								}
 								if(rResultCollection.Atdr.StakeCount && single_MainFrameSize >= 0 && single_InputFrameSize > 0 && single_TargetQuant > 0 && single_MaxDuckQuant > 0) {
@@ -8599,7 +8599,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 			stake_per_day = 0;
 		}
 		if(atdr.StakeCount)
-			f_out.WriteLine(atdr.ToString(msg_buf).CR());
+			f_out.WriteLine(atdr.ToStr(msg_buf).CR());
 	}
 	CATCHZOK
 	return ok;

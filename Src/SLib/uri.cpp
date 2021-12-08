@@ -2482,12 +2482,13 @@ int FASTCALL UriParserState::PushPathSegment(const char * first, const char * af
 	return ok;
 }
 
-void FASTCALL UriParserState::StopSyntax(const char * pErrorPos)
+const char * FASTCALL UriParserState::StopSyntax(const char * pErrorPos)
 {
 	CALLPTRMEMB(P_Uri, Destroy());
 	P_ErrorPos = pErrorPos;
 	SLS.SetAddedMsgString(pErrorPos); // @v10.3.10
 	ErrorCode = SLERR_URI_SYNTAX;
+	return 0;
 }
 
 void UriParserState::StopMalloc()
@@ -2605,8 +2606,7 @@ const char * FASTCALL UriParserState::ParseHierPart(const char * pFirst, const c
 const char * FASTCALL UriParserState::ParseIpFutLoop(const char * pFirst, const char * afterLast)
 {
 	if(pFirst >= afterLast) {
-		StopSyntax(pFirst);
-		return NULL;
+		return StopSyntax(pFirst);
 	}
 	else {
 		switch(*pFirst) {
@@ -2614,11 +2614,8 @@ const char * FASTCALL UriParserState::ParseIpFutLoop(const char * pFirst, const 
 			case _UT('-'): case _UT('*'): case _UT(','): case _UT('.'): case _UT(':'):
 			case _UT(';'): case _UT('\''): case _UT('_'): case _UT('~'): case _UT('+'): case _UT('='):
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
-				return ParseIpFutStopGo(pFirst+1, afterLast);
-			default:
-				StopSyntax(pFirst);
-				return NULL;
+			case URI_SET_ALPHA: return ParseIpFutStopGo(pFirst+1, afterLast);
+			default: return StopSyntax(pFirst);
 		}
 	}
 }
@@ -2649,20 +2646,16 @@ const char * FASTCALL UriParserState::ParseIpFutStopGo(const char * pFirst, cons
  */
 const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const char * afterLast)
 {
-	if(first >= afterLast) {
-		StopSyntax(first);
-		return NULL;
-	}
+	if(first >= afterLast)
+		return StopSyntax(first);
 	// 
 	// First character has already been checked before entering this rule.
 	// 
 	// switch(*first) {
 	// case _UT('v'):
 	// 
-	else if(first+1 >= afterLast) {
-		StopSyntax(first+1);
-		return NULL;
-	}
+	else if(first+1 >= afterLast)
+		return StopSyntax(first+1);
 	else {
 		switch(first[1]) {
 			case URI_SET_HEXDIG:
@@ -2671,10 +2664,8 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
 				const char * const afterHexZero = ParseHexZero(first+2, afterLast);
 				if(afterHexZero == NULL)
 					return NULL;
-				else if((afterHexZero >= afterLast) ||(*afterHexZero != _UT('.'))) {
-					StopSyntax(afterHexZero);
-					return NULL;
-				}
+				else if((afterHexZero >= afterLast) ||(*afterHexZero != _UT('.')))
+					return StopSyntax(afterHexZero);
 				else {
 					P_Uri->HostText.P_First = first; // HOST BEGIN 
 					P_Uri->HostData.ipFuture.P_First = first; // IPFUTURE BEGIN 
@@ -2688,14 +2679,10 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
 					}
 				}
 			}
-			default:
-				StopSyntax(first+1);
-				return NULL;
+			default: return StopSyntax(first+1);
 		}
 		/*
-		   default:
-				state->StopSyntax(first);
-				return NULL;
+		   default: return state->StopSyntax(first);
 		   }
 		 */
 	}
@@ -2752,8 +2739,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 	int    quadsAfterZipperCount = 0;
 	for(;; ) {
 		if(first >= afterLast) {
-			StopSyntax(first);
-			return NULL;
+			return StopSyntax(first);
 		}
 		// Inside IPv4 part? 
 		if(ip4OctetsDone > 0) {
@@ -2762,27 +2748,17 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 				switch(*first) {
 				    case URI_SET_DIGIT:
 						if(digitCount == 4) {
-							StopSyntax(first);
-							return NULL;
+							return StopSyntax(first);
 						}
 						digitHistory[digitCount++] =static_cast<uchar>(9+*first-_UT('9'));
 						break;
 				    case _UT('.'):
-						if((ip4OctetsDone == 4) || /* NOTE! */ (digitCount == 0) || (digitCount == 4)) {
-							// Invalid digit or octet count 
-							StopSyntax(first);
-							return NULL;
-						}
-						else if((digitCount > 1) && (digitHistory[0] == 0)) {
-							// Leading zero 
-							StopSyntax(first-digitCount);
-							return NULL;
-						}
-						else if((digitCount > 2) && (digitHistory[1] == 0)) {
-							// Leading zero 
-							StopSyntax(first-digitCount+1);
-							return NULL;
-						}
+						if((ip4OctetsDone == 4) || /* NOTE! */ (digitCount == 0) || (digitCount == 4))
+							return StopSyntax(first); // Invalid digit or octet count 
+						else if((digitCount > 1) && (digitHistory[0] == 0))
+							return StopSyntax(first-digitCount); // Leading zero 
+						else if((digitCount > 2) && (digitHistory[1] == 0))
+							return StopSyntax(first-digitCount+1); // Leading zero 
 						else if((digitCount == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
 							// Octet value too large 
 							if(digitHistory[0] > 2)
@@ -2799,21 +2775,12 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						ip4OctetsDone++;
 						break;
 				    case _UT(']'):
-						if((ip4OctetsDone != 3) || /* NOTE! */ (digitCount == 0) || (digitCount == 4)) {
-							// Invalid digit or octet count 
-							StopSyntax(first);
-							return NULL;
-						}
-						else if((digitCount > 1) && (digitHistory[0] == 0)) {
-							// Leading zero 
-							StopSyntax(first-digitCount);
-							return NULL;
-						}
-						else if((digitCount > 2) && (digitHistory[1] == 0)) {
-							// Leading zero
-							StopSyntax(first-digitCount+1);
-							return NULL;
-						}
+						if((ip4OctetsDone != 3) || /* NOTE! */ (digitCount == 0) || (digitCount == 4))
+							return StopSyntax(first); // Invalid digit or octet count 
+						else if((digitCount > 1) && (digitHistory[0] == 0))
+							return StopSyntax(first-digitCount); // Leading zero 
+						else if((digitCount > 2) && (digitHistory[1] == 0))
+							return StopSyntax(first-digitCount+1); // Leading zero
 						else if((digitCount == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
 							// Octet value too large
 							if(digitHistory[0] > 2)
@@ -2830,9 +2797,7 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						// Copy last IPv4 octet 
 						P_Uri->HostData.ip6->data[16-4+3] = uriGetOctetValue(digitHistory, digitCount);
 						return first+1;
-				    default:
-						StopSyntax(first);
-						return NULL;
+				    default: return StopSyntax(first);
 				}
 				first++;
 			}
@@ -2845,62 +2810,46 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 				switch(*first) {
 				    case URI_SET_HEX_LETTER_LOWER:
 						letterAmong = 1;
-						if(digitCount == 4) {
-							StopSyntax(first);
-							return NULL;
-						}
+						if(digitCount == 4)
+							return StopSyntax(first);
 						digitHistory[digitCount] = static_cast<uchar>(15+*first-_UT('f'));
 						digitCount++;
 						break;
 				    case URI_SET_HEX_LETTER_UPPER:
 						letterAmong = 1;
-						if(digitCount == 4) {
-							StopSyntax(first);
-							return NULL;
-						}
+						if(digitCount == 4)
+							return StopSyntax(first);
 						digitHistory[digitCount] = static_cast<uchar>(15+*first-_UT('F'));
 						digitCount++;
 						break;
 				    case URI_SET_DIGIT:
-						if(digitCount == 4) {
-							StopSyntax(first);
-							return NULL;
-						}
+						if(digitCount == 4)
+							return StopSyntax(first);
 						digitHistory[digitCount] = static_cast<uchar>(9+*first-_UT('9'));
 						digitCount++;
 						break;
 				    case _UT(':'):
 						{
 							int setZipper = 0;
-							if(quadsDone > 8-zipperEver) { /* Too many quads? */
-								StopSyntax(first);
-								return NULL;
-							}
-							else if(first+1 >= afterLast) { /* "::"? */
-								StopSyntax(first+1);
-								return NULL;
-							}
+							if(quadsDone > 8-zipperEver) // Too many quads? 
+								return StopSyntax(first);
+							else if(first+1 >= afterLast) // "::"? 
+								return StopSyntax(first+1);
 							else {
 								if(first[1] == _UT(':')) {
 									const int resetOffset = 2*(quadsDone+(digitCount > 0));
 									first++;
-									if(zipperEver) {
-										StopSyntax(first);
-										return NULL; // "::.+::" 
-									}
+									if(zipperEver)
+										return StopSyntax(first); // "::.+::" 
 									else {
 										// Zero everything after zipper 
 										memzero(P_Uri->HostData.ip6->data+resetOffset, 16-resetOffset);
 										setZipper = 1;
 										// ":::+"? 
-										if(first+1 >= afterLast) {
-											StopSyntax(first+1);
-											return NULL; // No ']' yet 
-										}
-										else if(first[1] == _UT(':')) {
-											StopSyntax(first+1);
-											return NULL; // ":::+ "
-										}
+										if(first+1 >= afterLast)
+											return StopSyntax(first+1); // No ']' yet 
+										else if(first[1] == _UT(':'))
+											return StopSyntax(first+1); // ":::+ "
 									}
 								}
 								if(digitCount > 0) {
@@ -2922,21 +2871,12 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						}
 						break;
 				    case _UT('.'):
-						if((quadsDone > 6) || /* NOTE */(!zipperEver &&(quadsDone < 6)) || letterAmong ||(digitCount == 0) ||(digitCount == 4)) {
-							// Invalid octet before 
-							StopSyntax(first);
-							return NULL;
-						}
-						else if((digitCount > 1) &&(digitHistory[0] == 0)) {
-							// Leading zero 
-							StopSyntax(first-digitCount);
-							return NULL;
-						}
-						else if((digitCount > 2) &&(digitHistory[1] == 0)) {
-							// Leading zero 
-							StopSyntax(first-digitCount+1);
-							return NULL;
-						}
+						if((quadsDone > 6) || /* NOTE */(!zipperEver &&(quadsDone < 6)) || letterAmong ||(digitCount == 0) ||(digitCount == 4))
+							return StopSyntax(first); // Invalid octet before 
+						else if((digitCount > 1) &&(digitHistory[0] == 0))
+							return StopSyntax(first-digitCount); // Leading zero 
+						else if((digitCount > 2) &&(digitHistory[1] == 0))
+							return StopSyntax(first-digitCount+1); // Leading zero 
 						else if((digitCount == 3) &&(100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
 							// Octet value too large 
 							if(digitHistory[0] > 2)
@@ -2955,10 +2895,8 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						walking = 0;
 						break;
 				    case _UT(']'): // Too little quads? 
-						if(!zipperEver && !((quadsDone == 7) && (digitCount > 0))) {
-							StopSyntax(first);
-							return NULL;
-						}
+						if(!zipperEver && !((quadsDone == 7) && (digitCount > 0)))
+							return StopSyntax(first);
 						if(digitCount > 0) {
 							if(zipperEver) {
 								uriWriteQuadToDoubleByte(digitHistory, digitCount, quadsAfterZipper+2*quadsAfterZipperCount);
@@ -2976,15 +2914,11 @@ const char * FASTCALL UriParserState::ParseIPv6address2(const char * first, cons
 						memcpy(P_Uri->HostData.ip6->data+16-2*quadsAfterZipperCount, quadsAfterZipper, 2*quadsAfterZipperCount);
 						P_Uri->HostText.P_AfterLast = first; /* HOST END */
 						return first+1; /* Fine */
-				    default:
-						StopSyntax(first);
-						return NULL;
+				    default: return StopSyntax(first);
 				}
 				first++;
-				if(first >= afterLast) {
-					StopSyntax(first);
-					return NULL; /* No ']' yet */
-				}
+				if(first >= afterLast)
+					return StopSyntax(first); // No ']' yet 
 			} while(walking);
 		}
 	}
@@ -3462,40 +3396,30 @@ const char * FASTCALL UriParserState::ParsePchar(const char * first, const char 
  */
 const char * FASTCALL UriParserState::ParsePctEncoded(const char * pFirst, const char * afterLast)
 {
-	if(pFirst >= afterLast) {
-		StopSyntax(pFirst);
-		return NULL;
-	}
+	if(pFirst >= afterLast)
+		return StopSyntax(pFirst);
 	// 
 	// First character has already been checked before entering this rule.
 	// switch(*first) {
 	//   case _UT('%'):
 	// 
-	else if(pFirst+1 >= afterLast) {
-		StopSyntax(pFirst+1);
-		return NULL;
-	}
+	else if(pFirst+1 >= afterLast)
+		return StopSyntax(pFirst+1);
 	else {
 		switch(pFirst[1]) {
 			case URI_SET_HEXDIG:
-				if(pFirst+2 >= afterLast) {
-					StopSyntax(pFirst+2);
-					return NULL;
-				}
+				if(pFirst+2 >= afterLast)
+					return StopSyntax(pFirst+2);
 				else {
 					switch(pFirst[2]) {
 						case URI_SET_HEXDIG: return pFirst+3;
-						default: StopSyntax(pFirst+2); return NULL;
+						default: return StopSyntax(pFirst+2);
 					}
 				}
-			default:
-				StopSyntax(pFirst+1);
-				return NULL;
+			default: return StopSyntax(pFirst+1);
 		}
 		/*
-		   default:
-				state->StopSyntax(first);
-				return NULL;
+		   default: return state->StopSyntax(first);
 		   }
 		 */
 	}
@@ -3507,23 +3431,17 @@ const char * FASTCALL UriParserState::ParsePctEncoded(const char * pFirst, const
  */
 const char * FASTCALL UriParserState::ParsePctSubUnres(const char * first, const char * afterLast)
 {
-	if(first >= afterLast) {
-		StopSyntax(first);
-		return NULL;
-	}
+	if(first >= afterLast)
+		return StopSyntax(first);
 	else {
 		switch(*first) {
-			case _UT('%'):
-				return ParsePctEncoded(first, afterLast);
+			case _UT('%'): return ParsePctEncoded(first, afterLast);
 			case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('): case _UT(')'):
 			case _UT('*'): case _UT(','): case _UT(';'): case _UT('\''): case _UT('+'):
 			case _UT('='): case _UT('-'): case _UT('.'): case _UT('_'): case _UT('~'):
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
-				return first+1;
-			default:
-				StopSyntax(first);
-				return NULL;
+			case URI_SET_ALPHA: return first+1;
+			default: return StopSyntax(first);
 		}
 	}
 }

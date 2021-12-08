@@ -57,7 +57,7 @@ typedef enum {
 } hb_ot_meta_tag_t;
 
 HB_EXTERN uint hb_ot_meta_get_entry_tags(hb_face_t * face, uint start_offset,
-    uint * entries_count/* IN/OUT.  May be NULL. */, hb_ot_meta_tag_t * entries /* OUT.     May be NULL. */);
+    uint * entries_count/*IN/OUT May be NULL*/, hb_ot_meta_tag_t * entries /*OUT May be NULL*/);
 HB_EXTERN hb_blob_t * hb_ot_meta_reference_entry(hb_face_t * face, hb_ot_meta_tag_t meta_tag);
 
 HB_END_DECLS

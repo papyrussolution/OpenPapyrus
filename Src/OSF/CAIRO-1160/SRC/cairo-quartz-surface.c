@@ -334,19 +334,12 @@ static cairo_status_t _cairo_path_to_quartz_context_close_path(void * closure)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _cairo_quartz_cairo_path_to_quartz_context(const cairo_path_fixed_t * path,
-    CGContextRef closure)
+static void _cairo_quartz_cairo_path_to_quartz_context(const cairo_path_fixed_t * path, CGContextRef closure)
 {
 	cairo_status_t status;
-
 	CGContextBeginPath(closure);
-	status = _cairo_path_fixed_interpret(path,
-		_cairo_path_to_quartz_context_move_to,
-		_cairo_path_to_quartz_context_line_to,
-		_cairo_path_to_quartz_context_curve_to,
-		_cairo_path_to_quartz_context_close_path,
-		closure);
-
+	status = _cairo_path_fixed_interpret(path, _cairo_path_to_quartz_context_move_to, _cairo_path_to_quartz_context_line_to,
+		_cairo_path_to_quartz_context_curve_to, _cairo_path_to_quartz_context_close_path, closure);
 	assert(status == CAIRO_STATUS_SUCCESS);
 }
 
@@ -358,31 +351,18 @@ static void _cairo_quartz_cairo_path_to_quartz_context(const cairo_path_fixed_t 
 static PrivateCGCompositeMode _cairo_quartz_cairo_operator_to_quartz_composite(cairo_operator_t op)
 {
 	switch(op) {
-		case CAIRO_OPERATOR_CLEAR:
-		    return kPrivateCGCompositeClear;
-		case CAIRO_OPERATOR_SOURCE:
-		    return kPrivateCGCompositeCopy;
-		case CAIRO_OPERATOR_OVER:
-		    return kPrivateCGCompositeSourceOver;
-		case CAIRO_OPERATOR_IN:
-		    return kPrivateCGCompositeSourceIn;
-		case CAIRO_OPERATOR_OUT:
-		    return kPrivateCGCompositeSourceOut;
-		case CAIRO_OPERATOR_ATOP:
-		    return kPrivateCGCompositeSourceAtop;
-		case CAIRO_OPERATOR_DEST_OVER:
-		    return kPrivateCGCompositeDestinationOver;
-		case CAIRO_OPERATOR_DEST_IN:
-		    return kPrivateCGCompositeDestinationIn;
-		case CAIRO_OPERATOR_DEST_OUT:
-		    return kPrivateCGCompositeDestinationOut;
-		case CAIRO_OPERATOR_DEST_ATOP:
-		    return kPrivateCGCompositeDestinationAtop;
-		case CAIRO_OPERATOR_XOR:
-		    return kPrivateCGCompositeXOR;
-		case CAIRO_OPERATOR_ADD:
-		    return kPrivateCGCompositePlusLighter;
-
+		case CAIRO_OPERATOR_CLEAR: return kPrivateCGCompositeClear;
+		case CAIRO_OPERATOR_SOURCE: return kPrivateCGCompositeCopy;
+		case CAIRO_OPERATOR_OVER: return kPrivateCGCompositeSourceOver;
+		case CAIRO_OPERATOR_IN: return kPrivateCGCompositeSourceIn;
+		case CAIRO_OPERATOR_OUT: return kPrivateCGCompositeSourceOut;
+		case CAIRO_OPERATOR_ATOP: return kPrivateCGCompositeSourceAtop;
+		case CAIRO_OPERATOR_DEST_OVER: return kPrivateCGCompositeDestinationOver;
+		case CAIRO_OPERATOR_DEST_IN: return kPrivateCGCompositeDestinationIn;
+		case CAIRO_OPERATOR_DEST_OUT: return kPrivateCGCompositeDestinationOut;
+		case CAIRO_OPERATOR_DEST_ATOP: return kPrivateCGCompositeDestinationAtop;
+		case CAIRO_OPERATOR_XOR: return kPrivateCGCompositeXOR;
+		case CAIRO_OPERATOR_ADD: return kPrivateCGCompositePlusLighter;
 		case CAIRO_OPERATOR_DEST:
 		case CAIRO_OPERATOR_SATURATE:
 		case CAIRO_OPERATOR_MULTIPLY:
@@ -400,8 +380,7 @@ static PrivateCGCompositeMode _cairo_quartz_cairo_operator_to_quartz_composite(c
 		case CAIRO_OPERATOR_HSL_SATURATION:
 		case CAIRO_OPERATOR_HSL_COLOR:
 		case CAIRO_OPERATOR_HSL_LUMINOSITY:
-		default:
-		    ASSERT_NOT_REACHED;
+		default: ASSERT_NOT_REACHED;
 	}
 }
 
@@ -410,62 +389,34 @@ static PrivateCGCompositeMode _cairo_quartz_cairo_operator_to_quartz_composite(c
 static CGBlendMode _cairo_quartz_cairo_operator_to_quartz_blend(cairo_operator_t op)
 {
 	switch(op) {
-		case CAIRO_OPERATOR_MULTIPLY:
-		    return kCGBlendModeMultiply;
-		case CAIRO_OPERATOR_SCREEN:
-		    return kCGBlendModeScreen;
-		case CAIRO_OPERATOR_OVERLAY:
-		    return kCGBlendModeOverlay;
-		case CAIRO_OPERATOR_DARKEN:
-		    return kCGBlendModeDarken;
-		case CAIRO_OPERATOR_LIGHTEN:
-		    return kCGBlendModeLighten;
-		case CAIRO_OPERATOR_COLOR_DODGE:
-		    return kCGBlendModeColorDodge;
-		case CAIRO_OPERATOR_COLOR_BURN:
-		    return kCGBlendModeColorBurn;
-		case CAIRO_OPERATOR_HARD_LIGHT:
-		    return kCGBlendModeHardLight;
-		case CAIRO_OPERATOR_SOFT_LIGHT:
-		    return kCGBlendModeSoftLight;
-		case CAIRO_OPERATOR_DIFFERENCE:
-		    return kCGBlendModeDifference;
-		case CAIRO_OPERATOR_EXCLUSION:
-		    return kCGBlendModeExclusion;
-		case CAIRO_OPERATOR_HSL_HUE:
-		    return kCGBlendModeHue;
-		case CAIRO_OPERATOR_HSL_SATURATION:
-		    return kCGBlendModeSaturation;
-		case CAIRO_OPERATOR_HSL_COLOR:
-		    return kCGBlendModeColor;
-		case CAIRO_OPERATOR_HSL_LUMINOSITY:
-		    return kCGBlendModeLuminosity;
-
+		case CAIRO_OPERATOR_MULTIPLY: return kCGBlendModeMultiply;
+		case CAIRO_OPERATOR_SCREEN: return kCGBlendModeScreen;
+		case CAIRO_OPERATOR_OVERLAY: return kCGBlendModeOverlay;
+		case CAIRO_OPERATOR_DARKEN: return kCGBlendModeDarken;
+		case CAIRO_OPERATOR_LIGHTEN: return kCGBlendModeLighten;
+		case CAIRO_OPERATOR_COLOR_DODGE: return kCGBlendModeColorDodge;
+		case CAIRO_OPERATOR_COLOR_BURN: return kCGBlendModeColorBurn;
+		case CAIRO_OPERATOR_HARD_LIGHT: return kCGBlendModeHardLight;
+		case CAIRO_OPERATOR_SOFT_LIGHT: return kCGBlendModeSoftLight;
+		case CAIRO_OPERATOR_DIFFERENCE: return kCGBlendModeDifference;
+		case CAIRO_OPERATOR_EXCLUSION: return kCGBlendModeExclusion;
+		case CAIRO_OPERATOR_HSL_HUE: return kCGBlendModeHue;
+		case CAIRO_OPERATOR_HSL_SATURATION: return kCGBlendModeSaturation;
+		case CAIRO_OPERATOR_HSL_COLOR: return kCGBlendModeColor;
+		case CAIRO_OPERATOR_HSL_LUMINOSITY: return kCGBlendModeLuminosity;
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
-		case CAIRO_OPERATOR_CLEAR:
-		    return kCGBlendModeClear;
-		case CAIRO_OPERATOR_SOURCE:
-		    return kCGBlendModeCopy;
-		case CAIRO_OPERATOR_OVER:
-		    return kCGBlendModeNormal;
-		case CAIRO_OPERATOR_IN:
-		    return kCGBlendModeSourceIn;
-		case CAIRO_OPERATOR_OUT:
-		    return kCGBlendModeSourceOut;
-		case CAIRO_OPERATOR_ATOP:
-		    return kCGBlendModeSourceAtop;
-		case CAIRO_OPERATOR_DEST_OVER:
-		    return kCGBlendModeDestinationOver;
-		case CAIRO_OPERATOR_DEST_IN:
-		    return kCGBlendModeDestinationIn;
-		case CAIRO_OPERATOR_DEST_OUT:
-		    return kCGBlendModeDestinationOut;
-		case CAIRO_OPERATOR_DEST_ATOP:
-		    return kCGBlendModeDestinationAtop;
-		case CAIRO_OPERATOR_XOR:
-		    return kCGBlendModeXOR;
-		case CAIRO_OPERATOR_ADD:
-		    return kCGBlendModePlusLighter;
+		case CAIRO_OPERATOR_CLEAR: return kCGBlendModeClear;
+		case CAIRO_OPERATOR_SOURCE: return kCGBlendModeCopy;
+		case CAIRO_OPERATOR_OVER: return kCGBlendModeNormal;
+		case CAIRO_OPERATOR_IN: return kCGBlendModeSourceIn;
+		case CAIRO_OPERATOR_OUT: return kCGBlendModeSourceOut;
+		case CAIRO_OPERATOR_ATOP: return kCGBlendModeSourceAtop;
+		case CAIRO_OPERATOR_DEST_OVER: return kCGBlendModeDestinationOver;
+		case CAIRO_OPERATOR_DEST_IN: return kCGBlendModeDestinationIn;
+		case CAIRO_OPERATOR_DEST_OUT: return kCGBlendModeDestinationOut;
+		case CAIRO_OPERATOR_DEST_ATOP: return kCGBlendModeDestinationAtop;
+		case CAIRO_OPERATOR_XOR: return kCGBlendModeXOR;
+		case CAIRO_OPERATOR_ADD: return kCGBlendModePlusLighter;
 #else
 		case CAIRO_OPERATOR_CLEAR:
 		case CAIRO_OPERATOR_SOURCE:
@@ -480,20 +431,16 @@ static CGBlendMode _cairo_quartz_cairo_operator_to_quartz_blend(cairo_operator_t
 		case CAIRO_OPERATOR_XOR:
 		case CAIRO_OPERATOR_ADD:
 #endif
-
 		case CAIRO_OPERATOR_DEST:
 		case CAIRO_OPERATOR_SATURATE:
-		default:
-		    ASSERT_NOT_REACHED;
+		default: ASSERT_NOT_REACHED;
 	}
 }
 
 static cairo_int_status_t _cairo_cgcontext_set_cairo_operator(CGContextRef context, cairo_operator_t op)
 {
 	CGBlendMode blendmode;
-
 	assert(op != CAIRO_OPERATOR_DEST);
-
 	/* Quartz doesn't support SATURATE at all. COLOR_DODGE and
 	 * COLOR_BURN in Quartz follow the ISO32000 definition, but cairo
 	 * uses the definition from the Adobe Supplement.  Also fallback
@@ -1002,7 +949,7 @@ static cairo_int_status_t _cairo_quartz_cairo_repeating_surface_pattern_to_quart
 		pbounds,
 		ptransform,
 		rw, rh,
-		kCGPatternTilingConstantSpacing,               /* kCGPatternTilingNoDistortion, */
+		kCGPatternTilingConstantSpacing, /* kCGPatternTilingNoDistortion, */
 		TRUE,
 		&cb);
 
@@ -2227,17 +2174,11 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
  * Since: 1.6
  **/
 
-cairo_surface_t * cairo_quartz_surface_create_for_cg_context(CGContextRef cgContext,
-    uint width,
-    uint height)
+cairo_surface_t * cairo_quartz_surface_create_for_cg_context(CGContextRef cgContext, uint width, uint height)
 {
-	cairo_quartz_surface_t * surf;
-
-	surf = _cairo_quartz_surface_create_internal(cgContext, CAIRO_CONTENT_COLOR_ALPHA,
-		width, height);
+	cairo_quartz_surface_t * surf = _cairo_quartz_surface_create_internal(cgContext, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	if(LIKELY(!surf->base.status))
 		CGContextRetain(cgContext);
-
 	return &surf->base;
 }
 
@@ -2256,9 +2197,7 @@ cairo_surface_t * cairo_quartz_surface_create_for_cg_context(CGContextRef cgCont
  *
  * Since: 1.6
  **/
-cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
-    uint width,
-    uint height)
+cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format, uint width, uint height)
 {
 	cairo_quartz_surface_t * surf;
 	CGContextRef cgc;
@@ -2267,17 +2206,13 @@ cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
 	void * imageData;
 	int stride;
 	int bitsPerComponent;
-
 	if(!_cairo_quartz_verify_surface_size(width, height))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
-
 	if(width == 0 || height == 0) {
 		return &_cairo_quartz_surface_create_internal(NULL, _cairo_content_from_format(format),
 			   width, height)->base;
 	}
-
-	if(format == CAIRO_FORMAT_ARGB32 ||
-	    format == CAIRO_FORMAT_RGB24) {
+	if(format == CAIRO_FORMAT_ARGB32 || format == CAIRO_FORMAT_RGB24) {
 		cgColorspace = CGColorSpaceCreateDeviceRGB();
 		bitinfo = kCGBitmapByteOrder32Host;
 		if(format == CAIRO_FORMAT_ARGB32)

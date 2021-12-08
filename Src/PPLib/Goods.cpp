@@ -191,7 +191,7 @@ int BarcodeArray::Add(const char * pCode, long codeType, double qtty)
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-int BarcodeArray::Arrange()
+void BarcodeArray::Arrange()
 {
 	const  BarcodeArrangeConfig & bac = DS.GetConstTLA().Bac;
 	uint   last = getCount();
@@ -204,7 +204,6 @@ int BarcodeArray::Arrange()
 				atFree(i);
 			}
 		}
-	return 1;
 }
 
 int BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
@@ -746,7 +745,7 @@ int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 	else {
 		size_t sz = 0;
 		uint   init_plt_c = 4;
-		pData->Init();
+		pData->Z();
 		sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
 		THROW_MEM(p_strg = static_cast<__GoodsStockExt *>(SAlloc::M(sz)));
 		memzero(p_strg, sizeof(*p_strg));
@@ -2653,8 +2652,8 @@ private:
 	};
 	TSCollection <GroupTermList> Gtl;
 	TSCollection <AltGrpFiltItem> Agfl;
-	GslArray      Gsl;                  // Массив складских характеристик товаров
-	UintHashTable ExcGsl;               // Список товаров, которые не имеют складского расширения //
+	GslArray      Gsl;    // Массив складских характеристик товаров
+	UintHashTable ExcGsl; // Список товаров, которые не имеют складского расширения //
 	//
 	class FglArray : public StrAssocArray {
 	public:
@@ -2778,7 +2777,7 @@ void FASTCALL GoodsCache::AssignGoodsStockExtCacheRec(const GoodsCache::StockExt
 int GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 {
 	int    ok = 0;
-	pExt->Init();
+	pExt->Z();
 	{
 		SRWLOCKER(GslLock, SReadWriteLocker::Read);
 		uint   pos = 0;

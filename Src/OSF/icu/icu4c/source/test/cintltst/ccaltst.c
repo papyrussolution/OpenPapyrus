@@ -1778,7 +1778,7 @@ static const TestWeekendDatesList testDates[] = {
 typedef struct {
 	UCalendarDaysOfWeek dayOfWeek;
 	UCalendarWeekdayType dayType;
-	int32_t transition;          /* transition time if dayType is UCAL_WEEKEND_ONSET or UCAL_WEEKEND_CEASE; else
+	int32_t transition; /* transition time if dayType is UCAL_WEEKEND_ONSET or UCAL_WEEKEND_CEASE; else
 	                                must be 0 */
 } TestDaysOfWeek;
 typedef struct {
@@ -1943,7 +1943,7 @@ typedef struct {
 	const char * locale;
 	UDate start;
 	UDate target;
-	bool progressive;     /* TRUE to compute progressive difference for each field, FALSE to reset calendar after
+	bool progressive; /* TRUE to compute progressive difference for each field, FALSE to reset calendar after
 	                          each call */
 	int32_t yDiff;
 	int32_t MDiff;
@@ -2752,12 +2752,12 @@ void TestAddRollEra0AndEraBounds() {
 typedef struct {
 	const char * descrip; /* test description */
 	const UChar * zoneName; /* pointer to zero-terminated zone name */
-	int32_t year;       /* starting point for test is gregorian calendar noon on day specified by y,M,d here */
+	int32_t year; /* starting point for test is gregorian calendar noon on day specified by y,M,d here */
 	int32_t month;
 	int32_t day;
-	bool hasPrev;      /* does it have a previous transition from starting point? If so we test inclusive from that
+	bool hasPrev; /* does it have a previous transition from starting point? If so we test inclusive from that
 	     */
-	bool hasNext;      /* does it have a next transition from starting point? If so we test inclusive from that */
+	bool hasNext; /* does it have a next transition from starting point? If so we test inclusive from that */
 } TZTransitionItem;
 
 /* have zoneGMT above */

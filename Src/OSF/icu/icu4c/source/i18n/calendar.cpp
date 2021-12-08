@@ -1986,58 +1986,52 @@ void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & statu
 
 	double delta = amount; // delta in ms
 	bool keepWallTimeInvariant = TRUE;
-
 	switch(field) {
 		case UCAL_ERA:
 		    set(field, get(field, status) + amount);
 		    pinField(UCAL_ERA, status);
 		    return;
-
 		case UCAL_YEAR:
 		case UCAL_YEAR_WOY:
-	    {
-		    // * If era=0 and years go backwards in time, change sign of amount.
-		    // * Until we have new API per #9393, we temporarily hardcode knowledge of
-		    //   which calendars have era 0 years that go backwards.
-		    // * Note that for UCAL_YEAR (but not UCAL_YEAR_WOY) we could instead handle
-		    //   this by applying the amount to the UCAL_EXTENDED_YEAR field; but since
-		    //   we would still need to handle UCAL_YEAR_WOY as below, might as well
-		    //   also handle UCAL_YEAR the same way.
-		    int32_t era = get(UCAL_ERA, status);
-		    if(era == 0) {
-			    const char * calType = getType();
-			    if(uprv_strcmp(calType,
-				"gregorian")==0 || uprv_strcmp(calType, "roc")==0 || uprv_strcmp(calType, "coptic")==0) {
-				    amount = -amount;
-			    }
-		    }
-	    }
+			{
+				// * If era=0 and years go backwards in time, change sign of amount.
+				// * Until we have new API per #9393, we temporarily hardcode knowledge of
+				//   which calendars have era 0 years that go backwards.
+				// * Note that for UCAL_YEAR (but not UCAL_YEAR_WOY) we could instead handle
+				//   this by applying the amount to the UCAL_EXTENDED_YEAR field; but since
+				//   we would still need to handle UCAL_YEAR_WOY as below, might as well
+				//   also handle UCAL_YEAR the same way.
+				int32_t era = get(UCAL_ERA, status);
+				if(era == 0) {
+					const char * calType = getType();
+					if(uprv_strcmp(calType, "gregorian")==0 || uprv_strcmp(calType, "roc")==0 || uprv_strcmp(calType, "coptic")==0) {
+						amount = -amount;
+					}
+				}
+			}
 		    // Fall through into normal handling
 		    U_FALLTHROUGH;
 		case UCAL_EXTENDED_YEAR:
 		case UCAL_MONTH:
-	    {
-		    bool oldLenient = isLenient();
-		    setLenient(TRUE);
-		    set(field, get(field, status) + amount);
-		    pinField(UCAL_DAY_OF_MONTH, status);
-		    if(oldLenient==FALSE) {
-			    complete(status); /* force recalculate */
-			    setLenient(oldLenient);
-		    }
-	    }
+			{
+				bool oldLenient = isLenient();
+				setLenient(TRUE);
+				set(field, get(field, status) + amount);
+				pinField(UCAL_DAY_OF_MONTH, status);
+				if(oldLenient==FALSE) {
+					complete(status); /* force recalculate */
+					setLenient(oldLenient);
+				}
+			}
 		    return;
-
 		case UCAL_WEEK_OF_YEAR:
 		case UCAL_WEEK_OF_MONTH:
 		case UCAL_DAY_OF_WEEK_IN_MONTH:
 		    delta *= kOneWeek;
 		    break;
-
 		case UCAL_AM_PM:
 		    delta *= 12 * kOneHour;
 		    break;
-
 		case UCAL_DAY_OF_MONTH:
 		case UCAL_DAY_OF_YEAR:
 		case UCAL_DAY_OF_WEEK:
@@ -2045,32 +2039,26 @@ void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & statu
 		case UCAL_JULIAN_DAY:
 		    delta *= kOneDay;
 		    break;
-
 		case UCAL_HOUR_OF_DAY:
 		case UCAL_HOUR:
 		    delta *= kOneHour;
 		    keepWallTimeInvariant = FALSE;
 		    break;
-
 		case UCAL_MINUTE:
 		    delta *= kOneMinute;
 		    keepWallTimeInvariant = FALSE;
 		    break;
-
 		case UCAL_SECOND:
 		    delta *= kOneSecond;
 		    keepWallTimeInvariant = FALSE;
 		    break;
-
 		case UCAL_MILLISECOND:
 		case UCAL_MILLISECONDS_IN_DAY:
 		    keepWallTimeInvariant = FALSE;
 		    break;
-
 		default:
 #if defined (U_DEBUG_CAL)
-		    fprintf(stderr, "%s:%d: ILLEGAL ARG because field %s not addable",
-			__FILE__, __LINE__, fldName(field));
+		    fprintf(stderr, "%s:%d: ILLEGAL ARG because field %s not addable", __FILE__, __LINE__, fldName(field));
 #endif
 		    status = U_ILLEGAL_ARGUMENT_ERROR;
 		    return;
@@ -2088,9 +2076,7 @@ void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & statu
 		prevOffset = get(UCAL_DST_OFFSET, status) + get(UCAL_ZONE_OFFSET, status);
 		prevWallTime = get(UCAL_MILLISECONDS_IN_DAY, status);
 	}
-
 	setTimeInMillis(getTimeInMillis(status) + delta, status);
-
 	if(keepWallTimeInvariant) {
 		int32_t newWallTime = get(UCAL_MILLISECONDS_IN_DAY, status);
 		if(newWallTime != prevWallTime) {
@@ -2180,8 +2166,7 @@ int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UEr
 			else {
 				// Field difference too large to fit into int32_t
 #if defined (U_DEBUG_CAL)
-				fprintf(stderr, "%s:%d: ILLEGAL ARG because field %s's max too large for int32_t\n",
-				    __FILE__, __LINE__, fldName(field));
+				fprintf(stderr, "%s:%d: ILLEGAL ARG because field %s's max too large for int32_t\n", __FILE__, __LINE__, fldName(field));
 #endif
 				ec = U_ILLEGAL_ARGUMENT_ERROR;
 			}
@@ -2222,8 +2207,7 @@ int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UEr
 				if(max == 0) {
 					// Field difference too large to fit into int32_t
 #if defined (U_DEBUG_CAL)
-					fprintf(stderr, "%s:%d: ILLEGAL ARG because field %s's max too large for int32_t\n",
-					    __FILE__, __LINE__, fldName(field));
+					fprintf(stderr, "%s:%d: ILLEGAL ARG because field %s's max too large for int32_t\n", __FILE__, __LINE__, fldName(field));
 #endif
 					ec = U_ILLEGAL_ARGUMENT_ERROR;
 				}
@@ -2600,8 +2584,7 @@ void Calendar::validateField(UCalendarDateFields field, UErrorCode & status) {
 		case UCAL_DAY_OF_WEEK_IN_MONTH:
 		    if(internalGet(field) == 0) {
 #if defined (U_DEBUG_CAL)
-			    fprintf(stderr, "%s:%d: ILLEGAL ARG because DOW in month cannot be 0\n",
-				__FILE__, __LINE__);
+			    fprintf(stderr, "%s:%d: ILLEGAL ARG because DOW in month cannot be 0\n", __FILE__, __LINE__);
 #endif
 			    status = U_ILLEGAL_ARGUMENT_ERROR; // "DAY_OF_WEEK_IN_MONTH cannot be zero"
 			    return;

@@ -54,8 +54,8 @@ namespace OT {
 					out->add(i);
 		}
 
-		void collect_mapping(hb_set_t * unicodes, /* OUT */
-		    hb_map_t * mapping /* OUT */) const
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/
+		    hb_map_t * mapping /*OUT*/) const
 		{
 			for(uint i = 0; i < 256; i++)
 				if(glyphIdArray[i]) {
@@ -365,8 +365,8 @@ public:
 				}
 			}
 
-			void collect_mapping(hb_set_t * unicodes, /* OUT */
-			    hb_map_t * mapping /* OUT */) const
+			void collect_mapping(hb_set_t * unicodes, /*OUT*/
+			    hb_map_t * mapping /*OUT*/) const
 			{
 				uint count = this->segCount;
 				if(count && this->startCount[count - 1] == 0xFFFFu)
@@ -421,8 +421,8 @@ public:
 			accel.collect_unicodes(out);
 		}
 
-		void collect_mapping(hb_set_t * unicodes, /* OUT */
-		    hb_map_t * mapping /* OUT */) const
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/
+		    hb_map_t * mapping /*OUT*/) const
 		{
 			accelerator_t accel(this);
 			accel.collect_mapping(unicodes, mapping);
@@ -530,8 +530,8 @@ public:
 					out->add(start + i);
 		}
 
-		void collect_mapping(hb_set_t * unicodes, /* OUT */
-		    hb_map_t * mapping /* OUT */) const
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/
+		    hb_map_t * mapping /*OUT*/) const
 		{
 			hb_codepoint_t start_cp = startCharCode;
 			uint count = glyphIdArray.len;
@@ -599,8 +599,8 @@ public:
 			}
 		}
 
-		void collect_mapping(hb_set_t * unicodes, /* OUT */
-		    hb_map_t * mapping,    /* OUT */
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/
+		    hb_map_t * mapping,    /*OUT*/
 		    unsigned num_glyphs) const
 		{
 			for(uint i = 0; i < this->groups.len; i++) {
@@ -842,8 +842,8 @@ public:
 				out->add(arrayZ[i].unicodeValue);
 		}
 
-		void collect_mapping(hb_set_t * unicodes, /* OUT */
-		    hb_map_t * mapping /* OUT */) const
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/
+		    hb_map_t * mapping /*OUT*/) const
 		{
 			uint count = len;
 			for(uint i = 0; i < count; i++) {
@@ -936,8 +936,8 @@ public:
 		}
 
 		void collect_mapping(const void * base,
-		    hb_set_t * unicodes,    /* OUT */
-		    hb_map_t * mapping /* OUT */) const
+		    hb_set_t * unicodes,    /*OUT*/
+		    hb_map_t * mapping /*OUT*/) const
 		{
 			(base+defaultUVS).collect_unicodes(unicodes);
 			(base+nonDefaultUVS).collect_mapping(unicodes, mapping);
@@ -1116,7 +1116,7 @@ public:
 			for(const VariationSelectorRecord& _ : record)
 				_.collect_unicodes(out, this);
 		}
-		void collect_mapping(hb_set_t * unicodes, /* OUT */ hb_map_t * mapping /* OUT */) const
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/ hb_map_t * mapping /*OUT*/) const
 		{
 			for(const VariationSelectorRecord& _ : record)
 				_.collect_mapping(this, unicodes, mapping);
@@ -1166,8 +1166,8 @@ public:
 			}
 		}
 
-		void collect_mapping(hb_set_t * unicodes, /* OUT */
-		    hb_map_t * mapping,    /* OUT */
+		void collect_mapping(hb_set_t * unicodes, /*OUT*/
+		    hb_map_t * mapping,    /*OUT*/
 		    unsigned num_glyphs = UINT_MAX) const
 		{
 			switch(u.format) {

@@ -816,7 +816,7 @@ retry_shape:
 			pchars + chars_offset,
 			item_chars_len,
 			glyphs_size - glyphs_offset,
-		        /* out */
+		        /*OUT*/
 			log_clusters + chars_offset,
 			char_props + chars_offset,
 			glyphs + glyphs_offset,
@@ -858,7 +858,7 @@ retry_shape:
 			glyphs + glyphs_offset,
 			glyph_props + glyphs_offset,
 			glyphs_len,
-		        /* out */
+		        /*OUT*/
 			advances + glyphs_offset,
 			offsets + glyphs_offset,
 			nullptr);

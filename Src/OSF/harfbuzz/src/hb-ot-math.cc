@@ -183,7 +183,7 @@ hb_position_t hb_ot_math_get_glyph_kerning(hb_font_t * font, hb_codepoint_t glyp
  * Since: 1.3.3
  **/
 uint hb_ot_math_get_glyph_variants(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction,
-    uint start_offset, uint * variants_count/* IN/OUT */, hb_ot_math_glyph_variant_t * variants /* OUT */)
+    uint start_offset, uint * variants_count/* IN/OUT */, hb_ot_math_glyph_variant_t * variants /*OUT*/)
 {
 	return font->face->table.MATH->get_variants().get_glyph_variants(glyph, direction, font, start_offset, variants_count, variants);
 }
@@ -235,7 +235,7 @@ hb_position_t hb_ot_math_get_min_connector_overlap(hb_font_t * font, hb_directio
  * Since: 1.3.3
  **/
 uint hb_ot_math_get_glyph_assembly(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction, uint start_offset,
-    uint * parts_count/* IN/OUT */, hb_ot_math_glyph_part_t * parts/* OUT */, hb_position_t * italics_correction /* OUT */)
+    uint * parts_count/* IN/OUT */, hb_ot_math_glyph_part_t * parts/*OUT*/, hb_position_t * italics_correction /*OUT*/)
 {
 	return font->face->table.MATH->get_variants().get_glyph_parts(glyph, direction, font, start_offset,
 		   parts_count, parts, italics_correction);

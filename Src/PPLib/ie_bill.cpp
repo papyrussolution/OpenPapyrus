@@ -3689,7 +3689,7 @@ int PPBillImporter::DoFullEdiProcess()
 	if(Flags & fTestMode)
 		ediprvimp_ctr_flags |= PPEdiProcessor::ProviderImplementation::ctrfTestMode;
 	for(SEnum en = ediprv_obj.Enum(0); en.Next(&ediprv_rec) > 0;) {
-		p_prvimp = PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags);
+		p_prvimp = (ediprv_rec.Flags & PPEdiProvider::fPassive) ? 0 : PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags);
 		if(p_prvimp) {
 			PPEdiProcessor prc(p_prvimp, &Logger);
 			PPEdiProcessor::DocumentInfo doc_inf;
@@ -3906,45 +3906,6 @@ int PPBillImporter::Run()
 	if(Flags & PPBillImporter::fUhttImport) {
 		THROW(RunUhttImport());
 	}
-	else if(Flags & PPBillImporter::fEdiImpExp) {
-		if(Flags & PPBillImporter::fFullEdiProcess) {
-			THROW(DoFullEdiProcess());
-		}
-		else {
-			//
-			// Если импортируем через EDI, то необходимо импортировать данные для всех провайдеров, указанных
-			// в impexp.ini для выбранного типа документов
-			//
-			PPIniFile ini_file(PPGetFilePathS(PPPATH_BIN, PPFILNAM_IMPEXP_INI, file_name), 0, 1, 1);
-			StringSet sects;
-			const PPBillImpExpParam preserve_bill_param = BillParam; // Запомним начальные настройки конфигурации
-			if(ini_file.GetSections(&sects) > 0) {
-				uint sect_pos = 0;
-				SString type_str;
-				// Импортируем документы, пока получаем настройки для импорта данного типа документа (BillParam.Name) (перечисление в PPTXT_EDIIMPCMD)
-				while(sects.get(&sect_pos, temp_buf)) {
-					size_t start_pos = 0;
-					uint   end_pos = 0;
-					(type_str = BillParam.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					if(temp_buf.Search("IMP@BILL@DLL_", 0, 1, &(start_pos = 0)) > 0 && temp_buf.Search(BillParam.Name, 0, 1, &(start_pos = 0)) > 0) {
-						if(!BillParam.ReadIni(&ini_file, temp_buf, 0)) {
-							PPSetError(PPERR_IMPEXPCFGRDFAULT, temp_buf);
-							Logger.LogLastError();
-						}
-						else {
-							int    r = ReadData();
-							if(r > 0)
-								Import(1);
-							else if(!r) {
-								Logger.LogLastError();
-							}
-							BillParam = preserve_bill_param;
-						}
-					}
-				}
-			}
-		}
-	}
 	else if(Flags & PPBillImporter::fEgaisImpExp) {
 		long   cflags = (Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
 		if(Flags & PPBillImporter::fEgaisVer4) { // @v11.0.12
@@ -3986,7 +3947,10 @@ int PPBillImporter::Run()
 		param.Period = Period;
 		THROW(prcssr.Run(param));
 	}
-	if(oneof3(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR
+	else if(Flags & PPBillImporter::fEdiImpExp && Flags & PPBillImporter::fFullEdiProcess) {
+		THROW(DoFullEdiProcess());
+	}
+	else if(oneof3(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR
 		DocNalogRu_Reader reader;
 		StringSet ss_files;
 		PPOprKind op_rec;
@@ -4031,7 +3995,24 @@ int PPBillImporter::Run()
 						DocNalogRu_Reader::Participant * p_buyer = p_doc->GetParticipant(EDIPARTYQ_BUYER, false);
 						SETIFZ(p_buyer, p_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));
 						{
-							if(p_seller) {
+							// @v11.2.7 {
+							struct ResolveBlock {
+								static PPID Resolve(PPBillImporter * pMaster, DocNalogRu_Reader::Participant * pParticipant, const SString & rInitBillCode, PPID acsID)
+								{
+									PPID   ar_id = 0;
+									if(pParticipant) {
+										if(pParticipant->GLN.NotEmpty())
+											pMaster->ResolveGLN(pParticipant->GLN, rInitBillCode, acsID, &ar_id, 0);
+										if(!ar_id)
+											pMaster->ResolveINN(pParticipant->INN, 0, 0, rInitBillCode, acsID, &ar_id, 0);
+									}
+									return ar_id;
+								}
+							};
+							seller_ar_id = ResolveBlock::Resolve(this, p_seller, init_bill_code, contragent_acs_id);
+							buyer_ar_id  = ResolveBlock::Resolve(this, p_buyer, init_bill_code, contragent_acs_id);
+							// } @v11.2.7 
+							/* @v11.2.7 if(p_seller) {
 								PPID   ar_id = 0;
 								if(p_seller->GLN.NotEmpty())
 									ResolveGLN(p_seller->GLN, init_bill_code, contragent_acs_id, &ar_id, 0);
@@ -4048,7 +4029,7 @@ int PPBillImporter::Run()
 									ResolveINN(p_buyer->INN, 0, 0, init_bill_code, contragent_acs_id, &ar_id, 0);
 								if(ar_id)
 									buyer_ar_id = ar_id;
-							}
+							}*/
 						}
 						pack.CreateBlank2(BillParam.ImpOpID, init_bill_date, LocID, 0);
 						if(seller_ar_id) {
@@ -4212,12 +4193,46 @@ int PPBillImporter::Run()
 		}
 	}
 	else {
+		if(Flags & PPBillImporter::fEdiImpExp) {
+			//
+			// Если импортируем через EDI, то необходимо импортировать данные для всех провайдеров, указанных
+			// в impexp.ini для выбранного типа документов
+			//
+			PPIniFile ini_file(PPGetFilePathS(PPPATH_BIN, PPFILNAM_IMPEXP_INI, file_name), 0, 1, 1);
+			StringSet sects;
+			const PPBillImpExpParam preserve_bill_param = BillParam; // Запомним начальные настройки конфигурации
+			if(ini_file.GetSections(&sects) > 0) {
+				uint sect_pos = 0;
+				SString type_str;
+				// Импортируем документы, пока получаем настройки для импорта данного типа документа (BillParam.Name) (перечисление в PPTXT_EDIIMPCMD)
+				while(sects.get(&sect_pos, temp_buf)) {
+					size_t start_pos = 0;
+					uint   end_pos = 0;
+					(type_str = BillParam.Name).Transf(CTRANSF_INNER_TO_OUTER);
+					if(temp_buf.Search("IMP@BILL@DLL_", 0, 1, &(start_pos = 0)) > 0 && temp_buf.Search(BillParam.Name, 0, 1, &(start_pos = 0)) > 0) {
+						if(!BillParam.ReadIni(&ini_file, temp_buf, 0)) {
+							PPSetError(PPERR_IMPEXPCFGRDFAULT, temp_buf);
+							Logger.LogLastError();
+						}
+						else {
+							int    r = ReadData();
+							if(r > 0)
+								Import(1);
+							else if(!r) {
+								Logger.LogLastError();
+							}
+							BillParam = preserve_bill_param;
+						}
+					}
+				}
+			}
+		}
 		THROW(ReadData());
 		THROW(Import(1));
-        for(uint i = 0; ToRemoveFiles.get(&i, file_name);) {
+		for(uint i = 0; ToRemoveFiles.get(&i, file_name);) {
 			if(fileExists(file_name))
 				SFile::Remove(file_name);
-        }
+		}
 	}
 	CATCHZOK
 	PPWaitStop();

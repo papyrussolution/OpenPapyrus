@@ -1,5 +1,6 @@
 // V_LOCTR.CPP
 // Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -29,7 +30,7 @@ PalletCtrlGroup::PalletCtrlGroup(uint ctlselPalletType, uint ctlPallet, uint ctl
 	// @v11.1.7 @ctr MEMSZERO(Data);
 }
 
-int PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
+void PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
 {
 	double src_val = 0.0;
 	if(cargoUnit == CARGOUNIT_PCKG)
@@ -53,10 +54,9 @@ int PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
 		if(Gse.ConvertCargoUnits(cargoUnit, CARGOUNIT_PALLET, pallet_type_id, src_val, &dest_val, 0) > 0) {
 			pDlg->setCtrlUInt16(CtlPalletCount, (int16)dest_val);
 		}
-	return 1;
 }
 
-int PalletCtrlGroup::SetupPallet(TDialog * pDlg, int doSelect)
+void PalletCtrlGroup::SetupPallet(TDialog * pDlg, int doSelect)
 {
 	GoodsStockExt::Pallet plt;
 	if((Data.PalletTypeID || doSelect) && Gse.GetPalletEntry(Data.PalletTypeID, &plt) > 0) {
@@ -79,7 +79,6 @@ int PalletCtrlGroup::SetupPallet(TDialog * pDlg, int doSelect)
 	pDlg->disableCtrl(CtlPckgCount, (Gse.Package <= 0.0));
 	if(Gse.Package <= 0.0)
 		pDlg->setCtrlReal(CtlPckgCount, 0.0);
-	return 1;
 }
 
 void PalletCtrlGroup::SetupGoods(TDialog * pDlg, PPID goodsID)
@@ -88,7 +87,7 @@ void PalletCtrlGroup::SetupGoods(TDialog * pDlg, PPID goodsID)
 	if(Data.GoodsID)
 		GObj.GetStockExt(Data.GoodsID, &Gse, 1);
 	else
-		Gse.Init();
+		Gse.Z();
 	Data.PalletTypeID = 0;
 	SetupPallet(pDlg, 1);
 }
@@ -136,6 +135,7 @@ int PalletCtrlGroup::getData(TDialog * pDlg, void * pData)
 }
 
 class LocTransfDialog : public TDialog {
+	DECL_DIALOG_DATA(LocTransfTbl::Rec);
 public:
 	enum {
 		grpLoc = 1,
@@ -151,22 +151,102 @@ public:
 			CTL_LOCTRANSF_PCKG, CTL_LOCTRANSF_PCKGC, CTL_LOCTRANSF_QTTY, CTLSEL_LOCTRANSF_GOODS));
 		Ptb.SetBrush(brushIllSerial, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 	}
-	int    setDTS(const LocTransfTbl::Rec * pData);
-	int    getDTS(LocTransfTbl::Rec * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		double bill_qtty = 0.0;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		Data.Qtty = fabs(Data.Qtty);
+		if(P_Pack) {
+			P_BObj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName, temp_buf);
+			if(Data.BillID && Data.RByBill) {
+				uint tipos = 0;
+				if(P_Pack->SearchTI(Data.RByBill, &tipos))
+					bill_qtty = P_Pack->ConstTI(tipos).Qtty();
+			}
+		}
+		else if(Data.BillID && Data.RByBill) {
+			BillTbl::Rec bill_rec;
+			if(P_BObj->Search(Data.BillID, &bill_rec) > 0) {
+				P_BObj->MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName, temp_buf);
+				int    rbybill = Data.RByBill-1;
+				PPTransferItem ti;
+				if(P_BObj->trfr->EnumItems(Data.BillID, &rbybill, &ti) > 0)
+					bill_qtty = ti.Qtty();
+			}
+			else
+				temp_buf.Z();
+		}
+		else
+			temp_buf.Z();
+		setStaticText(CTL_LOCTRANSF_BILLTITLE, temp_buf);
+		setCtrlReal(CTL_LOCTRANSF_BILLQTTY, bill_qtty);
+		showCtrl(CTL_LOCTRANSF_BILLQTTY, bill_qtty != 0.0);
+		temp_buf.Z().Cat(Data.Dt).Space().Cat(Data.Tm);
+		setCtrlString(CTL_LOCTRANSF_TM, temp_buf);
+		{
+			ObjIdListFilt loc_list;
+			loc_list.Add(Data.LocID);
+			LocationCtrlGroup::Rec loccg_rec(&loc_list, WarehouseID);
+			setGroupData(grpLoc, &loccg_rec);
+		}
+		AddClusterAssocDef(CTL_LOCTRANSF_OP,  0, LOCTRFROP_PUT);
+		AddClusterAssoc(CTL_LOCTRANSF_OP,  1, LOCTRFROP_GET);
+		AddClusterAssoc(CTL_LOCTRANSF_OP,  2, LOCTRFROP_INVENT);
+		SetClusterData(CTL_LOCTRANSF_OP, Data.Op);
+		SetupGoodsAndLot();
+		{
+			PalletCtrlGroup::Rec plt_rec;
+			plt_rec.PalletTypeID = Data.PalletTypeID;
+			plt_rec.PalletCount = Data.PalletCount;
+			plt_rec.Qtty = Data.Qtty;
+			plt_rec.GoodsID = Data.GoodsID;
+			setGroupData(grpPallet, &plt_rec);
+		}
+		disableCtrl(CTL_LOCTRANSF_OP, BIN(pData->RByLoc));
+		disableCtrl(CTL_LOCTRANSF_LOCCODE, BIN(pData->RByLoc));
+		disableCtrl(CTLSEL_LOCTRANSF_LOC, BIN(pData->RByLoc));
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		{
+			LocationCtrlGroup::Rec loccg_rec;
+			THROW(getGroupData(grpLoc, &loccg_rec));
+			THROW(Data.LocID = loccg_rec.LocList.GetSingle());
+		}
+		GetClusterData(CTL_LOCTRANSF_OP, &Data.Op);
+		{
+			GoodsCtrlGroup::Rec goodscg_rec;
+			getGroupData(grpGoods, &goodscg_rec);
+			Data.GoodsID = goodscg_rec.GoodsID;
+		}
+		{
+			PalletCtrlGroup::Rec plt_rec;
+			getGroupData(grpPallet, &plt_rec);
+			Data.PalletTypeID = plt_rec.PalletTypeID;
+			Data.PalletCount = plt_rec.PalletCount;
+			Data.Qtty = plt_rec.Qtty;
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupGoodsAndLot();
+	void   SetupGoodsAndLot();
 
-	LocTransfTbl::Rec Data;
 	const PPBillPacket * P_Pack;
 	PPID   WarehouseID;
 	enum {
 		dummyFirst = 1,
-		brushIllSerial // Кисть для индикации не идентифицированного серийного номера
+		brushIllSerial // РљРёСЃС‚СЊ РґР»СЏ РёРЅРґРёРєР°С†РёРё РЅРµ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅРЅРѕРіРѕ СЃРµСЂРёР№РЅРѕРіРѕ РЅРѕРјРµСЂР°
 	};
 	SPaintToolBox Ptb;
 	enum {
-		stSerialUndef  = 0x0001 // Введенный в поле CTL_LOCTRANSF_SERIAL серийный номер не идентифицирован
+		stSerialUndef  = 0x0001 // Р’РІРµРґРµРЅРЅС‹Р№ РІ РїРѕР»Рµ CTL_LOCTRANSF_SERIAL СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РЅРµ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ
 	};
 	long   State;
 	PPObjBill * P_BObj; // @notowned
@@ -194,11 +274,11 @@ IMPL_HANDLE_EVENT(LocTransfDialog)
 	else if(TVBROADCAST) {
 		if(TVCMD == cmChangedFocus) {
 			if(event.isCtlEvent(CTL_LOCTRANSF_SERIAL)) {
-				SString sn_buf;
-				getCtrlString(CTL_LOCTRANSF_SERIAL, sn_buf);
-				if(sn_buf.NotEmptyS()) {
+				SString temp_buf;
+				getCtrlString(CTL_LOCTRANSF_SERIAL, temp_buf);
+				if(temp_buf.NotEmptyS()) {
 					ReceiptTbl::Rec lot_rec;
-					if(P_BObj->SelectLotBySerial(sn_buf, 0, WarehouseID, &lot_rec) > 0) {
+					if(P_BObj->SelectLotBySerial(temp_buf, 0, WarehouseID, &lot_rec) > 0) {
 						Data.GoodsID = lot_rec.GoodsID;
 						PalletCtrlGroup * p_plt_grp = static_cast<PalletCtrlGroup *>(getGroup(grpPallet));
 						CALLPTRMEMB(p_plt_grp, SetupGoods(this, Data.GoodsID));
@@ -220,7 +300,7 @@ IMPL_HANDLE_EVENT(LocTransfDialog)
 	clearEvent(event);
 }
 
-int LocTransfDialog::SetupGoodsAndLot()
+void LocTransfDialog::SetupGoodsAndLot()
 {
 	SString temp_buf;
 	GoodsCtrlGroup::Rec goodscg_rec(0, Data.GoodsID, WarehouseID, GoodsCtrlGroup::disableEmptyGoods);
@@ -234,92 +314,6 @@ int LocTransfDialog::SetupGoodsAndLot()
 		}
 	}
 	setCtrlString(CTL_LOCTRANSF_LOTINFO, temp_buf);
-	return 1;
-}
-
-int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
-{
-	int    ok = 1;
-	double bill_qtty = 0.0;
-	SString temp_buf;
-	Data = *pData;
-	Data.Qtty = fabs(Data.Qtty);
-	if(P_Pack) {
-		P_BObj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName, temp_buf);
-		if(Data.BillID && Data.RByBill) {
-			uint tipos = 0;
-			if(P_Pack->SearchTI(Data.RByBill, &tipos))
-				bill_qtty = P_Pack->ConstTI(tipos).Qtty();
-		}
-	}
-	else if(Data.BillID && Data.RByBill) {
-		BillTbl::Rec bill_rec;
-		if(P_BObj->Search(Data.BillID, &bill_rec) > 0) {
-			P_BObj->MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName, temp_buf);
-			int    rbybill = Data.RByBill-1;
-			PPTransferItem ti;
-			if(P_BObj->trfr->EnumItems(Data.BillID, &rbybill, &ti) > 0)
-				bill_qtty = ti.Qtty();
-		}
-		else
-			temp_buf.Z();
-	}
-	else
-		temp_buf.Z();
-	setStaticText(CTL_LOCTRANSF_BILLTITLE, temp_buf);
-	setCtrlReal(CTL_LOCTRANSF_BILLQTTY, bill_qtty);
-	showCtrl(CTL_LOCTRANSF_BILLQTTY, bill_qtty != 0.0);
-	temp_buf.Z().Cat(Data.Dt).Space().Cat(Data.Tm);
-	setCtrlString(CTL_LOCTRANSF_TM, temp_buf);
-	{
-		ObjIdListFilt loc_list;
-		loc_list.Add(Data.LocID);
-		LocationCtrlGroup::Rec loccg_rec(&loc_list, WarehouseID);
-		setGroupData(grpLoc, &loccg_rec);
-	}
-	AddClusterAssocDef(CTL_LOCTRANSF_OP,  0, LOCTRFROP_PUT);
-	AddClusterAssoc(CTL_LOCTRANSF_OP,  1, LOCTRFROP_GET);
-	AddClusterAssoc(CTL_LOCTRANSF_OP,  2, LOCTRFROP_INVENT);
-	SetClusterData(CTL_LOCTRANSF_OP, Data.Op);
-	SetupGoodsAndLot();
-	{
-		PalletCtrlGroup::Rec plt_rec;
-		plt_rec.PalletTypeID = Data.PalletTypeID;
-		plt_rec.PalletCount = Data.PalletCount;
-		plt_rec.Qtty = Data.Qtty;
-		plt_rec.GoodsID = Data.GoodsID;
-		setGroupData(grpPallet, &plt_rec);
-	}
-	disableCtrl(CTL_LOCTRANSF_OP, BIN(pData->RByLoc));
-	disableCtrl(CTL_LOCTRANSF_LOCCODE, BIN(pData->RByLoc));
-	disableCtrl(CTLSEL_LOCTRANSF_LOC, BIN(pData->RByLoc));
-	return ok;
-}
-
-int LocTransfDialog::getDTS(LocTransfTbl::Rec * pData)
-{
-	int    ok = 1;
-	{
-		LocationCtrlGroup::Rec loccg_rec;
-		THROW(getGroupData(grpLoc, &loccg_rec));
-		THROW(Data.LocID = loccg_rec.LocList.GetSingle());
-	}
-	GetClusterData(CTL_LOCTRANSF_OP, &Data.Op);
-	{
-		GoodsCtrlGroup::Rec goodscg_rec;
-		getGroupData(grpGoods, &goodscg_rec);
-		Data.GoodsID = goodscg_rec.GoodsID;
-	}
-	{
-		PalletCtrlGroup::Rec plt_rec;
-		getGroupData(grpPallet, &plt_rec);
-		Data.PalletTypeID = plt_rec.PalletTypeID;
-		Data.PalletCount = plt_rec.PalletCount;
-		Data.Qtty = plt_rec.Qtty;
-	}
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERR
-	return ok;
 }
 
 int EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData) { DIALOG_PROC_BODY_P1(LocTransfDialog, pPack, pData); }
@@ -519,7 +513,7 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 				}
 			}
 			//
-			// Записи размещения, у которых не оказалось соответствия со строкой документа вставляем все равно.
+			// Р—Р°РїРёСЃРё СЂР°Р·РјРµС‰РµРЅРёСЏ, Сѓ РєРѕС‚РѕСЂС‹С… РЅРµ РѕРєР°Р·Р°Р»РѕСЃСЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ СЃРѕ СЃС‚СЂРѕРєРѕР№ РґРѕРєСѓРјРµРЅС‚Р° РІСЃС‚Р°РІР»СЏРµРј РІСЃРµ СЂР°РІРЅРѕ.
 			//
 			for(uint j = 0; j < disp_list.getCount(); j++) {
 				if(!seen_list.lsearch((long)j)) {
@@ -735,13 +729,13 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 
 	uint   brw_id = BROWSER_LOCTRANSF;
 	DBQuery * p_q = 0;
-	DBE    dbe_loc;      // Наименование ячейки
-	DBE    dbe_goods;    // Наименование товара
-	DBE    dbe_user;     // Наименование пользователя, создавшего запись
-	DBE    dbe_barcode;  // Штрихкод товара
-	DBE  * p_dbe_op = 0; // Наименование операции
-	DBE    dbe_bill;     // Номер и дата документа
-	DBE    dbe_chkloc;   // Проверка критерия Filt.LocID
+	DBE    dbe_loc;      // РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЏС‡РµР№РєРё
+	DBE    dbe_goods;    // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
+	DBE    dbe_user;     // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, СЃРѕР·РґР°РІС€РµРіРѕ Р·Р°РїРёСЃСЊ
+	DBE    dbe_barcode;  // РЁС‚СЂРёС…РєРѕРґ С‚РѕРІР°СЂР°
+	DBE  * p_dbe_op = 0; // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕРїРµСЂР°С†РёРё
+	DBE    dbe_bill;     // РќРѕРјРµСЂ Рё РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р°
+	DBE    dbe_chkloc;   // РџСЂРѕРІРµСЂРєР° РєСЂРёС‚РµСЂРёСЏ Filt.LocID
 	DBQ  * dbq = 0;
 	int    single_loc_crit = 0;
 	LocTransfTbl * t = 0;
@@ -1085,10 +1079,8 @@ int PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				ok = -1;
 				{
 					PPID   loc_id = hdr.LocID;
-					if(loc_id) {
-						if(LocObj.Edit(&loc_id, 0) == cmOK)
-							ok = 1;
-					}
+					if(loc_id && LocObj.Edit(&loc_id, 0) == cmOK)
+						ok = 1;
 				}
 				break;
 			case PPVCMD_DISPOSE:

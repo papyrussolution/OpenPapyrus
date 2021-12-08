@@ -60,7 +60,7 @@
 struct Field {
 	int32_t prefix; /**< how many characters to remove in the prefix - i.e. UCHAR_ = 5 */
 	const char * str;  /**< The actual string value */
-	int32_t num;      /**< The numeric value */
+	int32_t num; /**< The numeric value */
 };
 
 /**

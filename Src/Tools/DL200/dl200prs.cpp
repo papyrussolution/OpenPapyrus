@@ -1399,11 +1399,11 @@ int PrcssrDL200::ProcessRow(const DL2_Row * pRow)
 		}
 		else if(p_c->CiType == DL2CIT_STRING) {
 			typ = MKSTYPE(S_ZSTRING, p_c->MaxOutSize);
-			p_result->ToString(p_buf+p, p_c->MaxOutSize);
+			p_result->ToStr(p_buf+p, p_c->MaxOutSize);
 		}
 		else {
 			typ = MKSTYPE(S_ZSTRING, 36);
-			p_result->ToString(p_buf+p, 36);
+			p_result->ToStr(p_buf+p, 36);
 		}
 		p += GETSSIZE(typ);
 		delete p_result;

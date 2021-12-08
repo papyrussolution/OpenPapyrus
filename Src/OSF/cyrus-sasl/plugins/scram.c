@@ -411,7 +411,7 @@ cleanup:
 typedef struct server_context {
 	int state;
 
-	const EVP_MD * md;      /* underlying MDA */
+	const EVP_MD * md; /* underlying MDA */
 
 	char * authentication_id;
 	char * authorization_id;
@@ -1823,7 +1823,7 @@ int scram_server_plug_init(const sasl_utils_t * utils, int maxversion, int * out
 typedef struct client_context {
 	int state;
 
-	const EVP_MD * md;      /* underlying MDA */
+	const EVP_MD * md; /* underlying MDA */
 
 	sasl_secret_t * password; /* user password */
 	unsigned int free_password; /* set if we need to free the password */

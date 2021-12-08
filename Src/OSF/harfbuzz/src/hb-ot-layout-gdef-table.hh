@@ -53,7 +53,7 @@ namespace OT {
 		uint get_attach_points(hb_codepoint_t glyph_id,
 		    uint start_offset,
 		    uint * point_count /* IN/OUT */,
-		    uint * point_array /* OUT */) const
+		    uint * point_array /*OUT*/) const
 		{
 			uint index = (this+coverage).get_coverage(glyph_id);
 			if(index == NOT_COVERED) {
@@ -292,7 +292,7 @@ public:
 		    const VariationStore &var_store,
 		    unsigned start_offset,
 		    unsigned   * caret_count /* IN/OUT */,
-		    hb_position_t * caret_array /* OUT */) const
+		    hb_position_t * caret_array /*OUT*/) const
 		{
 			if(caret_count) {
 				+carets.sub_array(start_offset, caret_count)
@@ -347,7 +347,7 @@ public:
 		    const VariationStore &var_store,
 		    uint start_offset,
 		    uint * caret_count /* IN/OUT */,
-		    hb_position_t * caret_array /* OUT */) const
+		    hb_position_t * caret_array /*OUT*/) const
 		{
 			uint index = (this+coverage).get_coverage(glyph_id);
 			if(index == NOT_COVERED) {
@@ -543,7 +543,7 @@ public:
 		uint get_attach_points(hb_codepoint_t glyph_id,
 		    uint start_offset,
 		    uint * point_count /* IN/OUT */,
-		    uint * point_array /* OUT */) const
+		    uint * point_array /*OUT*/) const
 		{
 			return (this+attachList).get_attach_points(glyph_id, start_offset, point_count, point_array);
 		}
@@ -557,7 +557,7 @@ public:
 		    hb_codepoint_t glyph_id,
 		    uint start_offset,
 		    uint * caret_count /* IN/OUT */,
-		    hb_position_t * caret_array /* OUT */) const
+		    hb_position_t * caret_array /*OUT*/) const
 		{
 			return (this+ligCaretList).get_lig_carets(font,
 				   direction, glyph_id, get_var_store(),
@@ -637,7 +637,7 @@ public:
 		}
 
 		void remap_layout_variation_indices(const hb_set_t * layout_variation_indices,
-		    hb_map_t * layout_variation_idx_map /* OUT */) const
+		    hb_map_t * layout_variation_idx_map /*OUT*/) const
 		{
 			if(version.to_int() < 0x00010003u || !varStore) return;
 			if(layout_variation_indices->is_empty()) return;

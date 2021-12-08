@@ -355,9 +355,9 @@ typedef struct {
 
 /** Constants for fast and UTF-8-friendly conversion. */
 enum {
-    SBCS_FAST_MAX=0x0fff,               /* maximum code point with UTF-8-friendly SBCS runtime code, see makeconv SBCS_UTF8_MAX */
+    SBCS_FAST_MAX=0x0fff, /* maximum code point with UTF-8-friendly SBCS runtime code, see makeconv SBCS_UTF8_MAX */
     SBCS_FAST_LIMIT=SBCS_FAST_MAX+1,    /* =0x1000 */
-    MBCS_FAST_MAX=0xd7ff,               /* maximum code point with UTF-8-friendly MBCS runtime code, see makeconv MBCS_UTF8_MAX */
+    MBCS_FAST_MAX=0xd7ff, /* maximum code point with UTF-8-friendly MBCS runtime code, see makeconv MBCS_UTF8_MAX */
     MBCS_FAST_LIMIT=MBCS_FAST_MAX+1     /* =0xd800 */
 };
 

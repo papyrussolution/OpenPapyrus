@@ -1004,7 +1004,7 @@ hb_bool_t _hb_ot_shape(hb_shape_plan_t * shape_plan, hb_font_t * font, hb_buffer
  *
  * Since: 0.9.7
  **/
-void hb_ot_shape_plan_collect_lookups(hb_shape_plan_t * shape_plan, hb_tag_t table_tag, hb_set_t * lookup_indexes /* OUT */)
+void hb_ot_shape_plan_collect_lookups(hb_shape_plan_t * shape_plan, hb_tag_t table_tag, hb_set_t * lookup_indexes /*OUT*/)
 {
 	shape_plan->ot.collect_lookups(table_tag, lookup_indexes);
 }

@@ -167,7 +167,7 @@ public:
 
 		template <typename SubsetGlyph>
 		void _populate_subset_glyphs(const hb_subset_plan_t * plan,
-		    hb_vector_t<SubsetGlyph> * glyphs /* OUT */) const
+		    hb_vector_t<SubsetGlyph> * glyphs /*OUT*/) const
 		{
 			OT::glyf::accelerator_t glyf;
 			glyf.init(plan->source);
@@ -577,7 +577,7 @@ public:
 					return true;
 				}
 
-				bool get_contour_points(contour_point_vector_t &points_ /* OUT */,
+				bool get_contour_points(contour_point_vector_t &points_ /*OUT*/,
 				    bool phantom_only = false) const
 				{
 					const HBUINT16 * endPtsOfContours = &StructAfter<HBUINT16> (header);
@@ -703,7 +703,7 @@ public:
 			 * all_points includes phantom points
 			 */
 			bool get_points(hb_font_t * font, const accelerator_t &glyf_accelerator,
-			    contour_point_vector_t &all_points /* OUT */,
+			    contour_point_vector_t &all_points /*OUT*/,
 			    bool phantom_only = false,
 			    uint depth = 0) const
 			{

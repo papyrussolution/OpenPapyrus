@@ -100,7 +100,7 @@ static enum JUSTIFY GPIC_justify = LEFT;
 static const char * GPIC_lines[] =
 {
 	"thickness 1.0",        /* -2 border */
-	"dotted",               /* -1 axes */
+	"dotted", /* -1 axes */
 	"",                     /*  0 solid thin  */
 	"dotted",
 	"dashed 0.05",          /*  1 solid thick */

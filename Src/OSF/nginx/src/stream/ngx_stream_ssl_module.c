@@ -104,7 +104,7 @@ static ngx_command_t ngx_stream_ssl_commands[] = {
 
 static ngx_stream_module_t ngx_stream_ssl_module_ctx = {
 	ngx_stream_ssl_add_variables,      /* preconfiguration */
-	ngx_stream_ssl_init,               /* postconfiguration */
+	ngx_stream_ssl_init, /* postconfiguration */
 
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */

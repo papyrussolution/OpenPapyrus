@@ -972,7 +972,7 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 			{
 				SJson js(SJson::tOBJECT);
 				js.InsertString("cmd", "DTLOGIN");
-				json_tree_to_string(&js, inv.CommandJson);
+				js.ToStr(inv.CommandJson);
 			}
 			{
 				p_ic->RunStyloQServer(rsparam, &rDlb);

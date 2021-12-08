@@ -115,11 +115,11 @@ const struct Curl_handler Curl_handler_pop3 = {
 	pop3_do,                    /* do_it */
 	pop3_done,                  /* done */
 	ZERO_NULL,                  /* do_more */
-	pop3_connect,               /* connect_it */
+	pop3_connect, /* connect_it */
 	pop3_multi_statemach,       /* connecting */
 	pop3_doing,                 /* doing */
-	pop3_getsock,               /* proto_getsock */
-	pop3_getsock,               /* doing_getsock */
+	pop3_getsock, /* proto_getsock */
+	pop3_getsock, /* doing_getsock */
 	ZERO_NULL,                  /* domore_getsock */
 	ZERO_NULL,                  /* perform_getsock */
 	pop3_disconnect,            /* disconnect */
@@ -143,11 +143,11 @@ const struct Curl_handler Curl_handler_pop3s = {
 	pop3_do,                    /* do_it */
 	pop3_done,                  /* done */
 	ZERO_NULL,                  /* do_more */
-	pop3_connect,               /* connect_it */
+	pop3_connect, /* connect_it */
 	pop3_multi_statemach,       /* connecting */
 	pop3_doing,                 /* doing */
-	pop3_getsock,               /* proto_getsock */
-	pop3_getsock,               /* doing_getsock */
+	pop3_getsock, /* proto_getsock */
+	pop3_getsock, /* doing_getsock */
 	ZERO_NULL,                  /* domore_getsock */
 	ZERO_NULL,                  /* perform_getsock */
 	pop3_disconnect,            /* disconnect */

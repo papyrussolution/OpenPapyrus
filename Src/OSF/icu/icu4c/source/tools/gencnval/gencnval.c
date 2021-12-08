@@ -109,7 +109,7 @@ static char tagStore[TAG_STORE_SIZE];
 static StringBlock tagBlock = { tagStore, 0, TAG_STORE_SIZE };
 
 typedef struct {
-	uint16_t tag;       /* Index into tagStore */
+	uint16_t tag; /* Index into tagStore */
 	uint16_t totalAliasCount; /* Total aliases in this row */
 	AliasList aliasList[MAX_CONV_COUNT];
 } Tag;

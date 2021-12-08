@@ -761,7 +761,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	FOLDER         : kbF4,        TBBM_FOLDER,          "Папка клиента\tF4"
 	ARTICLES       : kbCtrlA,     PPDV_NOICON,          "@{cmd_accarticle}\tCtrl-A"
 	TASKS          : kbCtrlT,     TBBM_PRJTASK,         "Просмотр задач по персоналии\tCtrl-T"
-	VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "Просмотр персональных карт\tCtrl-S"
+	VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
 	UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
 	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
 	STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,        "@{view_staffcal}\tCtrl-E"
@@ -805,8 +805,8 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbShiftF3, "Партии по строке\tShift-F3",            PPDV_LOTS
 	kbF3,      "@{searchbybarcode}\tF3",                TBBM_BARCODE
 	kbF4,      "@{searchbyappellation}\tF4",            TBBM_ABC
-	kbCtrlF4,  "Подбор по серийному номеру\tCtrl-F4",   TBBM_SERIAL
-	kbF5,      "Подбор по цене\tF5",                    TBBM_PRICE
+	kbCtrlF4,  "@{doselectgoodsbyserial}\tCtrl-F4",     TBBM_SERIAL
+	kbF5,      "@{doselectgoodsbyprice}\tF5",           TBBM_PRICE
 	kbF6,      "Добавить из заказа\tF6",                TBBM_ADDTIFROMORD
 	kbF8,      "@{dogetfrombasket}\tF8",                TBBM_ADDTISFROMBASKET
 	kbCtrlF8,  "@{doputtobasket}\tCtrl-F8",             TBBM_ADDTISTOBASKET
@@ -821,7 +821,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbCtrlB,   "Автоматическое назначение цен реализации\tCtrl-B", PPDV_NOICON
 	kbShiftF4, "Проверить строки документа\tShift-F4",  PPDV_NOICON
 	separator
-	kbCtrlT,   "Итоги по строкам\tCtrl-T",              PPDV_SIGMA02
+	kbCtrlT,   "@{goodsbilltotal}\tCtrl-T",             PPDV_SIGMA02
 }
 
 toolbar export GOODS TB_FIRST_TOOLBAR {
@@ -1959,7 +1959,7 @@ browser CASHNODEBILL north(100), 1, 2, "@{poscheck_pl} {%s}", OWNER|GRID, 0
 		EDITITEM:    kbEnter,   PPDV_LINS02,        "Просмотр текущего чека\tEnter"
 		ADDITEM:     kbIns,     PPDV_ADDFILE02,     "Панель ввода\tInsert"
 		DELETEITEM:  kbDel,     PPDV_DELETEFILE02,  "@{doremovebill}\tDelete"
-		TOTAL:       kbF9,      PPDV_SIGMA02,       "Итоги по выборке чеков\tF9"
+		TOTAL:       kbF9,      PPDV_SIGMA02,       "@{cchecktotal}\tF9"
 		CHECKSTAT:   kbCtrlF9,  TBBM_CHECKSTAT,     "Почасовые итоги по выборке чеков\tCtrl-F9"
 	}
 }
@@ -8686,7 +8686,7 @@ reportstub OABillList		{ dl600data=NominalBList,		"Реестр документов по операции
 reportstub OBillList		{ dl600data=OperBillList,		"Реестр документов по операции"}
 reportstub ExtBillList		{ dl600data=ContentBList,		"Реестр документов по операции с содержанием"}
 reportstub DBillList		{ dl600data=DebetBillList,		"Реестр документов по операции в номинальных ценах с суммой задолженности и датой оплаты"}
-reportstub BillTotal		{ dl600data=BillTotal,			"Итоги по документам"}
+reportstub BillTotal		{ dl600data=BillTotal,			"@{total_bill}"}
 reportstub BillInfoList		{ dl600data=BillInfoList,		"Специальная информация по списку документов"}
 reportstub GoodsBillCmp		{ dl600data=GoodsBillCmp,		"@{warrant}"}
 reportstub Balance			{ dl600data=Balance,			"@{view_balance}"}

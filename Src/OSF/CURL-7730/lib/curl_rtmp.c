@@ -144,8 +144,8 @@ const struct Curl_handler Curl_handler_rtmpte = {
 	ZERO_NULL,                      /* readwrite */
 	ZERO_NULL,                      /* connection_check */
 	PORT_RTMPT,                     /* defport */
-	CURLPROTO_RTMPTE,               /* protocol */
-	CURLPROTO_RTMPTE,               /* family */
+	CURLPROTO_RTMPTE, /* protocol */
+	CURLPROTO_RTMPTE, /* family */
 	PROTOPT_NONE                    /* flags*/
 };
 
@@ -188,7 +188,7 @@ const struct Curl_handler Curl_handler_rtmpts = {
 	ZERO_NULL,                      /* readwrite */
 	ZERO_NULL,                      /* connection_check */
 	PORT_RTMPS,                     /* defport */
-	CURLPROTO_RTMPTS,               /* protocol */
+	CURLPROTO_RTMPTS, /* protocol */
 	CURLPROTO_RTMPT,                /* family */
 	PROTOPT_NONE                    /* flags*/
 };

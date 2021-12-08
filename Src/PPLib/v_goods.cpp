@@ -5537,15 +5537,15 @@ int PPALDD_GoodsClass::InitData(PPFilt & rFilt, long rsrv)
 
 			STRNSCPY(H.DimXName, gc_pack.DimX.Name);
 			H.DimXScale = (int16)gc_pack.DimX.Scale;
-			gc_pack.DimX.ToStr(0, H.DimXValues, sizeof(H.DimXValues));
+			gc_pack.DimX.ToStr(temp_buf).CopyTo(H.DimXValues, sizeof(H.DimXValues));
 
 			STRNSCPY(H.DimYName, gc_pack.DimY.Name);
 			H.DimYScale = (int16)gc_pack.DimY.Scale;
-			gc_pack.DimY.ToStr(0, H.DimYValues, sizeof(H.DimYValues));
+			gc_pack.DimY.ToStr(temp_buf).CopyTo(H.DimYValues, sizeof(H.DimYValues));
 
 			STRNSCPY(H.DimZName, gc_pack.DimZ.Name);
 			H.DimZScale = (int16)gc_pack.DimZ.Scale;
-			gc_pack.DimZ.ToStr(0, H.DimZValues, sizeof(H.DimZValues));
+			gc_pack.DimZ.ToStr(temp_buf).CopyTo(H.DimZValues, sizeof(H.DimZValues));
 
 			STRNSCPY(H.NameConv, gc_pack.NameConv);
 			STRNSCPY(H.PhUPerU_Form, gc_pack.PhUPerU_Formula);

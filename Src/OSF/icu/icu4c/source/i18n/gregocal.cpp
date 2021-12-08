@@ -315,16 +315,14 @@ void GregorianCalendar::setGregorianChange(UDate date, UErrorCode & status)
 	delete cal;
 }
 
-void GregorianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & status) {
+void GregorianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & status) 
+{
 	int32_t eyear, month, dayOfMonth, dayOfYear, unusedRemainder;
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 #if defined (U_DEBUG_CAL)
-	fprintf(stderr, "%s:%d: jd%d- (greg's %d)- [cut=%d]\n",
-	    __FILE__, __LINE__, julianDay, getGregorianDayOfYear(), fCutoverJulianDay);
+	fprintf(stderr, "%s:%d: jd%d- (greg's %d)- [cut=%d]\n", __FILE__, __LINE__, julianDay, getGregorianDayOfYear(), fCutoverJulianDay);
 #endif
 
 	if(julianDay >= fCutoverJulianDay) {
@@ -363,12 +361,10 @@ void GregorianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & stat
 #if defined (U_DEBUG_CAL)
 		//     fprintf(stderr, "%d - %d[%d] + 1\n", dayOfYear, isLeap?kLeapNumDays[month]:kNumDays[month], month
 		// );
-		//           fprintf(stderr, "%s:%d:  greg's HCF %d -> %d/%d/%d not %d/%d/%d\n",
-		//                   __FILE__, __LINE__,julianDay,
+		//           fprintf(stderr, "%s:%d:  greg's HCF %d -> %d/%d/%d not %d/%d/%d\n", __FILE__, __LINE__,julianDay,
 		//          eyear,month,dayOfMonth,
 		//          getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth()  );
-		fprintf(stderr, "%s:%d: doy %d (greg's %d)- [cut=%d]\n",
-		    __FILE__, __LINE__, dayOfYear, getGregorianDayOfYear(), fCutoverJulianDay);
+		fprintf(stderr, "%s:%d: doy %d (greg's %d)- [cut=%d]\n", __FILE__, __LINE__, dayOfYear, getGregorianDayOfYear(), fCutoverJulianDay);
 #endif
 	}
 
@@ -377,8 +373,7 @@ void GregorianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & stat
 		//from handleComputeMonthStart
 		int32_t gregShift = Grego::gregorianShift(eyear);
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr, "%s:%d:  gregorian shift %d :::  doy%d => %d [cut=%d]\n",
-		    __FILE__, __LINE__, gregShift, dayOfYear, dayOfYear+gregShift, fCutoverJulianDay);
+		fprintf(stderr, "%s:%d:  gregorian shift %d :::  doy%d => %d [cut=%d]\n", __FILE__, __LINE__, gregShift, dayOfYear, dayOfYear+gregShift, fCutoverJulianDay);
 #endif
 		dayOfYear += gregShift;
 	}
@@ -429,22 +424,18 @@ int32_t GregorianCalendar::handleComputeJulianDay(UCalendarDateFields bestField)
 	//if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {  /*  cutoverJulianDay)) { */
 	if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {   /*  cutoverJulianDay)) { */
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr, "%s:%d: jd [invert] %d\n",
-		    __FILE__, __LINE__, jd);
+		fprintf(stderr, "%s:%d: jd [invert] %d\n", __FILE__, __LINE__, jd);
 #endif
 		fInvertGregorian = TRUE;
 		jd = Calendar::handleComputeJulianDay(bestField);
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr, "%s:%d:  fIsGregorian %s, fInvertGregorian %s - ",
-		    __FILE__, __LINE__, fIsGregorian ? "T" : "F", fInvertGregorian ? "T" : "F");
-		fprintf(stderr, " jd NOW %d\n",
-		    jd);
+		fprintf(stderr, "%s:%d:  fIsGregorian %s, fInvertGregorian %s - ", __FILE__, __LINE__, fIsGregorian ? "T" : "F", fInvertGregorian ? "T" : "F");
+		fprintf(stderr, " jd NOW %d\n", jd);
 #endif
 	}
 	else {
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr, "%s:%d: jd [==] %d - %sfIsGregorian %sfInvertGregorian, %d\n",
-		    __FILE__, __LINE__, jd, fIsGregorian ? "T" : "F", fInvertGregorian ? "T" : "F", bestField);
+		fprintf(stderr, "%s:%d: jd [==] %d - %sfIsGregorian %sfInvertGregorian, %d\n", __FILE__, __LINE__, jd, fIsGregorian ? "T" : "F", fInvertGregorian ? "T" : "F", bestField);
 #endif
 	}
 
@@ -452,30 +443,24 @@ int32_t GregorianCalendar::handleComputeJulianDay(UCalendarDateFields bestField)
 		int32_t gregShift = Grego::gregorianShift(internalGet(UCAL_EXTENDED_YEAR));
 		if(bestField == UCAL_DAY_OF_YEAR) {
 #if defined (U_DEBUG_CAL)
-			fprintf(stderr, "%s:%d: [DOY%d] gregorian shift of JD %d += %d\n",
-			    __FILE__, __LINE__, fFields[bestField], jd, gregShift);
+			fprintf(stderr, "%s:%d: [DOY%d] gregorian shift of JD %d += %d\n", __FILE__, __LINE__, fFields[bestField], jd, gregShift);
 #endif
 			jd -= gregShift;
 		}
 		else if(bestField == UCAL_WEEK_OF_MONTH) {
 			int32_t weekShift = 14;
 #if defined (U_DEBUG_CAL)
-			fprintf(stderr, "%s:%d: [WOY/WOM] gregorian week shift of %d += %d\n",
-			    __FILE__, __LINE__, jd, weekShift);
+			fprintf(stderr, "%s:%d: [WOY/WOM] gregorian week shift of %d += %d\n", __FILE__, __LINE__, jd, weekShift);
 #endif
 			jd += weekShift; // shift by weeks for week based fields.
 		}
 	}
-
 	return jd;
 }
 
-int32_t GregorianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month,
-
-    bool /* useMonth */) const
+int32_t GregorianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool /* useMonth */) const
 {
 	GregorianCalendar * nonConstThis = (GregorianCalendar*)this; // cast away const
-
 	// If the month is out of range, adjust it into range, and
 	// modify the extended year value accordingly.
 	if(month < 0 || month > 11) {
@@ -488,8 +473,7 @@ int32_t GregorianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month,
 
 	nonConstThis->fIsGregorian = (eyear >= fGregorianCutoverYear);
 #if defined (U_DEBUG_CAL)
-	fprintf(stderr, "%s:%d: (hcms%d/%d) fIsGregorian %s, fInvertGregorian %s\n",
-	    __FILE__, __LINE__, eyear, month, fIsGregorian ? "T" : "F", fInvertGregorian ? "T" : "F");
+	fprintf(stderr, "%s:%d: (hcms%d/%d) fIsGregorian %s, fInvertGregorian %s\n", __FILE__, __LINE__, eyear, month, fIsGregorian ? "T" : "F", fInvertGregorian ? "T" : "F");
 #endif
 	if(fInvertGregorian) {
 		nonConstThis->fIsGregorian = !fIsGregorian;
@@ -500,8 +484,7 @@ int32_t GregorianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month,
 		// Julian calendar
 		int32_t gregShift = Grego::gregorianShift(eyear);
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr, "%s:%d: (hcms%d/%d) gregorian shift of %d += %d\n",
-		    __FILE__, __LINE__, eyear, month, julianDay, gregShift);
+		fprintf(stderr, "%s:%d: (hcms%d/%d) gregorian shift of %d += %d\n", __FILE__, __LINE__, eyear, month, julianDay, gregShift);
 #endif
 		julianDay += gregShift;
 	}
@@ -811,14 +794,12 @@ void GregorianCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCo
 			    // contains the Gregorian cutover.  We handle this special case
 			    // here.  [j81 - aliu]
 			    double monthLen = cMonthLen * kOneDay;
-			    double msIntoMonth = uprv_fmod(internalGetTime() - cMonthStart +
-				    amount * kOneDay, monthLen);
+			    double msIntoMonth = uprv_fmod(internalGetTime() - cMonthStart + amount * kOneDay, monthLen);
 			    if(msIntoMonth < 0) {
 				    msIntoMonth += monthLen;
 			    }
 #if defined (U_DEBUG_CAL)
-			    fprintf(stderr, "%s:%d: roll DOM %d  -> %.0lf ms  \n",
-				__FILE__, __LINE__, amount, cMonthLen, cMonthStart+msIntoMonth);
+			    fprintf(stderr, "%s:%d: roll DOM %d  -> %.0lf ms  \n", __FILE__, __LINE__, amount, cMonthLen, cMonthStart+msIntoMonth);
 #endif
 			    setTimeInMillis(cMonthStart + msIntoMonth, status);
 			    return;
@@ -831,8 +812,7 @@ void GregorianCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCo
 		    }
 		    else {
 #if defined (U_DEBUG_CAL)
-			    fprintf(stderr, "%s:%d: roll WOM %d ??????????????????? \n",
-				__FILE__, __LINE__, amount);
+			    fprintf(stderr, "%s:%d: roll WOM %d ??????????????????? \n", __FILE__, __LINE__, amount);
 #endif
 			    // NOTE: following copied from  the old
 			    //     GregorianCalendar::roll( WEEK_OF_MONTH )  code
@@ -1106,8 +1086,7 @@ int32_t GregorianCalendar::handleGetExtendedYear() {
 		    year = handleGetExtendedYearFromWeekFields(internalGet(UCAL_YEAR_WOY), internalGet(UCAL_WEEK_OF_YEAR));
 #if defined (U_DEBUG_CAL)
 		    //    if(internalGet(UCAL_YEAR_WOY) != year) {
-		    fprintf(stderr, "%s:%d: hGEYFWF[%d,%d] ->  %d\n",
-			__FILE__, __LINE__, internalGet(UCAL_YEAR_WOY), internalGet(UCAL_WEEK_OF_YEAR), year);
+		    fprintf(stderr, "%s:%d: hGEYFWF[%d,%d] ->  %d\n", __FILE__, __LINE__, internalGet(UCAL_YEAR_WOY), internalGet(UCAL_WEEK_OF_YEAR), year);
 		    //}
 #endif
 		    break;

@@ -320,7 +320,7 @@ typedef enum {
 	DB_LOCK_READ = 1,                 /* Shared/read. */
 	DB_LOCK_WRITE = 2,                /* Exclusive/write. */
 	DB_LOCK_WAIT = 3,                 /* Wait for event */
-	DB_LOCK_IWRITE = 4,               /* Intent exclusive/write. */
+	DB_LOCK_IWRITE = 4, /* Intent exclusive/write. */
 	DB_LOCK_IREAD = 5,                /* Intent to share/read. */
 	DB_LOCK_IWR = 6,                  /* Intent to read and write. */
 	DB_LOCK_READ_UNCOMMITTED = 7,     /* Degree 1 isolation. */

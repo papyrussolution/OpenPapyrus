@@ -777,7 +777,7 @@ static bool enumNames(UCharNames * names,
 static uint16_t writeFactorSuffix(const uint16_t * factors, uint16_t count,
     const char * s,              /* suffix elements */
     uint32_t code,
-    uint16_t indexes[8],               /* output fields from here */
+    uint16_t indexes[8], /* output fields from here */
     const char * elementBases[8], const char * elements[8],
     char * buffer, uint16_t bufferLength) {
 	uint16_t i, factor, bufferPos = 0;

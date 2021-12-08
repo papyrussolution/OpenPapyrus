@@ -225,6 +225,24 @@ uint64 StyloQConfig::GetFeatures() const
 	return L.Search(tagFeatures, &pos) ? static_cast<uint64>(satoi64(L.at_WithoutParent(pos).Txt)) : 0ULL;
 }
 
+int StyloQConfig::FromJsonObject(const SJson * pJsObj)
+{
+	int    ok = 0;
+	Z();
+	if(pJsObj && pJsObj->Type == SJson::tOBJECT) {
+		SJson * p_next = 0;
+		for(SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_next) {
+			p_next = p_cur->P_Next;
+			if(p_cur->P_Child && p_cur->P_Child->Text.NotEmpty()) {
+				int tag_id = SIntToSymbTab_GetId(StyloQConfigTagNameList, SIZEOFARRAY(StyloQConfigTagNameList), p_cur->Text);
+				if(tag_id && Set(tag_id, p_cur->P_Child->Text) > 0)
+					ok = 1;
+			}
+		}			
+	}
+	return ok;
+}
+
 int StyloQConfig::FromJson(const char * pJsonText)
 {
 	int    ok = 0;
@@ -233,17 +251,7 @@ int StyloQConfig::FromJson(const char * pJsonText)
 		SJson * p_js = 0;
 		if(json_parse_document(&p_js, pJsonText)) {
 			assert(p_js);
-			if(p_js->Type == SJson::tOBJECT) {
-				SJson * p_next = 0;
-				for(SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_next) {
-					p_next = p_cur->P_Next;
-					if(p_cur->P_Child && p_cur->P_Child->Text.NotEmpty()) {
-						int tag_id = SIntToSymbTab_GetId(StyloQConfigTagNameList, SIZEOFARRAY(StyloQConfigTagNameList), p_cur->Text);
-						if(tag_id && Set(tag_id, p_cur->P_Child->Text) > 0)
-							ok = 1;
-					}
-				}			
-			}
+			ok = FromJsonObject(p_js);
 		}
 	}
 	else
@@ -265,7 +273,7 @@ int StyloQConfig::ToJson(SString & rResult) const
 				js.InsertString(r_idx_entry.P_Symb, tag_value);
 			}
 		}
-		if(json_tree_to_string(&js, rResult))
+		if(js.ToStr(rResult))
 			ok = 1;
 	}
 	else
@@ -396,7 +404,7 @@ int StyloQFace::ToJson(SString & rResult) const
 				}
 			}
 		}
-		if(json_tree_to_string(&js, rResult))
+		if(js.ToStr(rResult))
 			ok = 1;
 	}
 	else
@@ -708,45 +716,75 @@ int StyloQCommandList::Set(uint idx, const Item * pItem)
 int StyloQCommandList::Store(const char * pFileName) const
 {
 	int    ok = 1;
+	xmlTextWriter * p_writer = 0;
 	SString temp_buf;
-	xmlTextWriter * p_writer = xmlNewTextWriterFilename(pFileName, 0);  // создание writerA
-	if(p_writer) {
-		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentTab(p_writer);
-		SXml::WDoc _doc(p_writer, cpUTF8);
+	if(DbSymbRestriction.NotEmpty()) {
+		//
+		// ≈сли сохран€емый список ограничен символом базы данных, то загружаем полный список (p_full_list),
+		// удал€ем из него команды, относ€щиес€ к символу DbSymbRestriction, включаем туда
+		// команды из нашего списка и сохран€ем уже p_full_list
+		//
+		StyloQCommandList full_list;
+		THROW(full_list.Load(0, pFileName));
+		uint i = full_list.GetCount(); 
+		if(i) do {
+			Item * p_item = full_list.Get(--i);
+			if(!p_item || p_item->DbSymb.IsEqiAscii(DbSymbRestriction)) {
+				full_list.Set(i, 0);
+			}
+		} while(i);
+		for(i = 0; i < GetCount(); i++) {
+			const Item * p_item = GetC(i);
+			if(p_item) {
+				Item * p_new_item = new Item(*p_item);
+				THROW_SL(p_new_item);
+				p_new_item->DbSymb = DbSymbRestriction;
+				THROW_SL(full_list.L.insert(p_new_item));
+			}
+		}
+		assert(full_list.DbSymbRestriction.IsEmpty());
+		THROW(full_list.Store(pFileName));
+	}
+	else {
+		THROW_LXML(p_writer = xmlNewTextWriterFilename(pFileName, 0), 0);  // создание writerA
 		{
-			SXml::WNode n_list(p_writer, "StyloQCommandList");
-			for(uint i = 0; i < GetCount(); i++) {
-				const Item * p_item = GetC(i);
-				if(p_item) {
-					SXml::WNode n_item(p_writer, "StyloQCommand");
-					n_item.PutInner("Uuid", temp_buf.Z().Cat(p_item->Uuid));
-					n_item.PutInner("Name", p_item->Name);
-					n_item.PutInner("BaseCommandID", temp_buf.Z().Cat(p_item->BaseCmdId));
-					n_item.PutInner("Flags", temp_buf.Z().Cat(p_item->Flags));
-					n_item.PutInnerSkipEmpty("DbSymb", p_item->DbSymb);
-					n_item.PutInnerSkipEmpty("ViewSymb", p_item->ViewSymb);
-					n_item.PutInnerSkipEmpty("Description", p_item->Description);
-					if(p_item->ObjTypeRestriction) {
-						n_item.PutInner("ObjTypeRestriction", temp_buf.Z().Cat(p_item->ObjTypeRestriction));
-						if(p_item->ObjGroupRestriction) {
-							n_item.PutInner("ObjGroupRestriction", temp_buf.Z().Cat(p_item->ObjGroupRestriction));
+			xmlTextWriterSetIndent(p_writer, 1);
+			xmlTextWriterSetIndentTab(p_writer);
+			SXml::WDoc _doc(p_writer, cpUTF8);
+			{
+				SXml::WNode n_list(p_writer, "StyloQCommandList");
+				for(uint i = 0; i < GetCount(); i++) {
+					const Item * p_item = GetC(i);
+					if(p_item) {
+						SXml::WNode n_item(p_writer, "StyloQCommand");
+						n_item.PutInner("Uuid", temp_buf.Z().Cat(p_item->Uuid));
+						n_item.PutInner("Name", p_item->Name);
+						n_item.PutInner("BaseCommandID", temp_buf.Z().Cat(p_item->BaseCmdId));
+						n_item.PutInner("Flags", temp_buf.Z().Cat(p_item->Flags));
+						n_item.PutInnerSkipEmpty("DbSymb", p_item->DbSymb);
+						n_item.PutInnerSkipEmpty("ViewSymb", p_item->ViewSymb);
+						n_item.PutInnerSkipEmpty("Description", p_item->Description);
+						if(p_item->ObjTypeRestriction) {
+							n_item.PutInner("ObjTypeRestriction", temp_buf.Z().Cat(p_item->ObjTypeRestriction));
+							if(p_item->ObjGroupRestriction) {
+								n_item.PutInner("ObjGroupRestriction", temp_buf.Z().Cat(p_item->ObjGroupRestriction));
+							}
 						}
-					}
-					{
-						const size_t param_len = p_item->Param.GetAvailableSize();
-						if(param_len) {
-							temp_buf.Z().EncodeMime64(static_cast<const char *>(p_item->Param.GetBuf(p_item->Param.GetRdOffs())), param_len);
-							n_item.PutInner("Param", temp_buf);						
+						{
+							const size_t param_len = p_item->Param.GetAvailableSize();
+							if(param_len) {
+								temp_buf.Z().EncodeMime64(static_cast<const char *>(p_item->Param.GetBuf(p_item->Param.GetRdOffs())), param_len);
+								n_item.PutInner("Param", temp_buf);						
+							}
 						}
-					}
-					// @v11.2.5 {
-					if(p_item->ResultExpiryTimeSec > 0) {
-						n_item.PutInner("ResultExpiryTimeSec", temp_buf.Z().Cat(p_item->ResultExpiryTimeSec));
-					}
-					// } @v11.2.5 
-					if(p_item->Vd.GetCount()) {
-						THROW(p_item->Vd.XmlWrite(p_writer));
+						// @v11.2.5 {
+						if(p_item->ResultExpiryTimeSec > 0) {
+							n_item.PutInner("ResultExpiryTimeSec", temp_buf.Z().Cat(p_item->ResultExpiryTimeSec));
+						}
+						// } @v11.2.5 
+						if(p_item->Vd.GetCount()) {
+							THROW(p_item->Vd.XmlWrite(p_writer));
+						}
 					}
 				}
 			}
@@ -757,9 +795,10 @@ int StyloQCommandList::Store(const char * pFileName) const
 	return ok;
 }
 
-int StyloQCommandList::Load(const char * pFileName)
+int StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 {
 	int    ok = 1;
+	const  SString preserve_dbsymb_restriction(DbSymbRestriction);
 	SString temp_buf;
 	SString file_name(pFileName);
 	xmlParserCtxt * p_parser = 0;
@@ -773,6 +812,7 @@ int StyloQCommandList::Load(const char * pFileName)
 	}
 	THROW(p_parser = xmlNewParserCtxt());
 	THROW_LXML(p_doc = xmlCtxtReadFile(p_parser, file_name, 0, XML_PARSE_NOENT), p_parser);
+	(DbSymbRestriction = pDbSymb).Strip();
 	L.freeAll();
 	{
 		xmlNode * p_root = xmlDocGetRootElement(p_doc);
@@ -811,13 +851,21 @@ int StyloQCommandList::Load(const char * pFileName)
 							THROW(p_new_item->Vd.XmlRead(p_cn));
 						}
 					}
-					L.insert(p_new_item);
+					if(isempty(pDbSymb) || p_new_item->DbSymb.IsEqiAscii(pDbSymb)) {
+						L.insert(p_new_item);
+					}
+					else {
+						delete p_new_item;
+					}
 					p_new_item = 0;
 				}
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		DbSymbRestriction = preserve_dbsymb_restriction;
+		ok = 0;
+	ENDCATCH
 	delete p_new_item;
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_parser);
@@ -1618,6 +1666,34 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 				mime_buf.EncodeMime64(p_entry->SvcIdent.PtrC(), p_entry->SvcIdent.Len());
 				temp_buf.Z().Cat(p_entry->DbSymb).Tab().Cat(mime_buf).Tab().CatHex(p_entry->Flags).CR();
 				f_dump.WriteLine(temp_buf);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int StyloQCore::ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	PPGetFilePath(PPPATH_BIN, "styloq_ignition_servers", temp_buf);
+	if(fileExists(temp_buf)) {
+		SFile  f_in(temp_buf, SFile::mRead);
+		SString ident_buf;
+		SString url_buf;
+		SBinaryChunk bch;
+		InetUrl url;
+		THROW_SL(f_in.IsValid());
+		while(f_in.ReadLine(temp_buf)) {
+			if(temp_buf.Chomp().Strip().Divide(' ', ident_buf, url_buf) > 0 && ident_buf.NotEmptyS() && url_buf.NotEmptyS()) {
+				if(bch.FromMime64(ident_buf) && url.Parse(url_buf) && oneof2(url.GetProtocol(), InetUrl::protHttp, InetUrl::protHttps)) {
+					IgnitionServerEntry * p_new_entry = rList.CreateNewItem();
+					THROW_SL(p_new_entry);
+					p_new_entry->Ident = bch;
+					p_new_entry->Url = url_buf;
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -3156,7 +3232,7 @@ int PPStyloQInterchange::TestDatabase()
 					}
 					js.Insert("item_list", p_array);
 				}
-				THROW_SL(js.ToString(temp_buf));
+				THROW_SL(js.ToStr(temp_buf));
 				THROW_SL(rPack.Pool.Put(SSecretTagPool::tagRawData, temp_buf.cptr(), temp_buf.Len()));
 				THROW_SL(rPack.Pool.Put((direction > 0) ? SSecretTagPool::tagClientIdent : SSecretTagPool::tagSvcIdent, Ident));
 			}
@@ -3173,7 +3249,7 @@ int PPStyloQInterchange::TestDatabase()
 				js.InsertString("key1", "val1");
 				js.InsertString("key2", "val2");
 				js.InsertString("key3", "val3");
-				THROW_SL(js.ToString(temp_buf));
+				THROW_SL(js.ToStr(temp_buf));
 				{
 					const SJson * p_c = 0;
 					p_c = js.FindChildByKey("key1");
@@ -3941,7 +4017,7 @@ int Test_StyloQInvitation()
 				SJson js(SJson::tOBJECT);
 				js.InsertString("cmd", "SomeCommand");
 				js.InsertString("arg", "SomeArgument");
-				json_tree_to_string(&js, inv_source.CommandJson);
+				js.ToStr(inv_source.CommandJson);
 			}
 			rIc.MakeInvitation(inv_source, temp_buf);
 			if(!rIc.AcceptInvitation(temp_buf, inv_result))
@@ -4033,7 +4109,7 @@ int Test_PPStyloQInterchange()
 			{
 				SJson js(SJson::tOBJECT);
 				js.InsertString("cmd", "REGISTER");
-				json_tree_to_string(&js, inv.CommandJson);
+				js.ToStr(inv.CommandJson);
 			}
 			ic.ExecuteInvitationDialog(inv);
 		}
@@ -4102,7 +4178,7 @@ int Test_PPStyloQInterchange()
 							query.InsertString("cmd", "ECHO");
 							query.InsertString("arg1", "arg1-value");
 							query.InsertString("arg2", "arg2-value");
-							json_tree_to_string(&query, cmd_buf);
+							query.ToStr(cmd_buf);
 							if(ic.Command_ClientRequest(rtb, cmd_buf, cmd_reply_buf)) {
 								SString svc_result;
 								int  reply_is_ok = 0;
@@ -4661,7 +4737,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item 
 		if(rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT) {
 			THROW(MakeRsrvPriceListResponse_ExportClients(&stp_pack, &js));
 		}
-		THROW(js.ToString(rResult));
+		THROW(js.ToStr(rResult));
 		// @debug {
 		{
 			SString out_file_name;
@@ -4678,7 +4754,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item 
 			if(rCmdItem.ResultExpiryTimeSec > 0)
 				js_decl.InsertInt("resultexpirytimesec", rCmdItem.ResultExpiryTimeSec);
 			js_decl.InsertString("displaymethod", "orderprereq");
-			THROW_SL(json_tree_to_string(&js_decl, rDocDeclaration));
+			THROW_SL(js_decl.ToStr(rDocDeclaration));
 		}
 	}
 	CATCHZOK
@@ -4746,7 +4822,7 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 				{
 					ep.Flags |= DlRtm::ExportParam::fJsonStQStyle; 
 					THROW(p_js = p_rtm->ExportJson(ep));
-					THROW_SL(json_tree_to_string(p_js, rResult));
+					THROW_SL(p_js->ToStr(rResult));
 				}
 				{
 					SJson js_decl(SJson::tOBJECT);
@@ -4758,7 +4834,7 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 					if(rCmdItem.ResultExpiryTimeSec > 0)
 						js_decl.InsertInt("resultexpirytimesec", rCmdItem.ResultExpiryTimeSec);
 					js_decl.InsertString("displaymethod", "grid");
-					THROW_SL(json_tree_to_string(&js_decl, rDocDeclaration));
+					THROW_SL(js_decl.ToStr(rDocDeclaration));
 				}
 			}
 		}
@@ -4839,12 +4915,52 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 				//p_js_reply = new SJson(SJson::tOBJECT);
 				//p_js_reply->InsertString("reply", "Hello");
 				PPLoadText(PPTXT_SQ_HELLO, reply_text_buf);
+				reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			}
+			else if(command.IsEqiAscii("advert")) { //  оманда отправл€етс€ от сервиса к сервису-медиатору дл€ того, чтобы медиатор зарегистрировал конфигурацию
+				// сервиса с целью последующей передаче интересующемус€ клиенту
+				StyloQConfig foreign_cfg;
+				for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Type == SJson::tOBJECT) {								
+						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+							if(p_obj->Text.IsEqiAscii("config")) {
+								if(foreign_cfg.FromJsonObject(p_obj->P_Child)) {
+									// @todo
+								}
+							}
+						}
+					}
+				}
+				if(foreign_cfg.GetCount()) {
+				}
+				else {
+					// @error
+				}
+			}
+			else if(command.IsEqiAscii("getforeignconfig")) { //  оманда от клиента или сервиса к сервису-медиатору дл€ получени€ конфигурации другого
+				// сервиса по его идентификатору.
+				SBinaryChunk foreign_svc_ident;
+				for(SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Type == SJson::tOBJECT) {								
+						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+							if(p_obj->Text.IsEqiAscii("foreignsvcident")) {
+								foreign_svc_ident.FromMime64(p_obj->P_Child->Text);
+							}
+						}
+					}
+				}
+				if(!!foreign_svc_ident) {
+				}
+				else {
+					// @error
+				}
 			}
 			else if(command.IsEqiAscii("quit") || command.IsEqiAscii("bye")) {
 				// «авершение сеанса
 				//p_js_reply = new SJson(SJson::tOBJECT);
 				//p_js_reply->InsertString("reply", "Bye");
 				PPLoadText(PPTXT_SQ_GOODBYE, reply_text_buf);
+				reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
 			}
 			else if(command.IsEqiAscii("getconfig") || command.IsEqiAscii("getface")) {
 				StyloQCore::StoragePacket own_pack;
@@ -4878,14 +4994,24 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 				StyloQCore::StoragePacket cli_pack;
 				StyloQCommandList full_cmd_list;
 				StyloQCommandList * p_target_cmd_list = 0;
-				THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
-				if(full_cmd_list.Load(0)) {
-					PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
-					p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid);
+
+				DbProvider * p_dict = CurDict;
+				SString db_symb;
+				if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
+					PPSetError(PPERR_SESSNAUTH);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+					PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
 				}
-				p_js_reply = StyloQCommandList::CreateJsonForClient(p_target_cmd_list, 0, 0, 4 * 3600);
-				ZDELETE(p_target_cmd_list);
-				cmd_reply_ok = true;
+				else {
+					THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
+					if(full_cmd_list.Load(db_symb, 0)) {
+						PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
+						p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid);
+					}
+					p_js_reply = StyloQCommandList::CreateJsonForClient(p_target_cmd_list, 0, 0, 4 * 3600);
+					ZDELETE(p_target_cmd_list);
+					cmd_reply_ok = true;
+				}
 			}
 			else if(command.IsEqiAscii("dtlogin")) {
 				// ƒесктоп-логин (экспериментальна€ функци€)
@@ -4935,7 +5061,14 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 				StyloQCore::StoragePacket cli_pack;
 				if(cmd_uuid.FromStr(command) && SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 					StyloQCommandList full_cmd_list;
-					if(full_cmd_list.Load(0)) {
+					DbProvider * p_dict = CurDict;
+					SString db_symb;
+					if(!p_dict || !p_dict->GetDbSymb(db_symb)) {
+						PPSetError(PPERR_SESSNAUTH);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
+						PPSetError(PPERR_SQ_CMDSETLOADINGFAULT);
+					}
+					else if(full_cmd_list.Load(db_symb, 0)) {
 						PPObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
 						const StyloQCommandList::Item * p_item = full_cmd_list.GetByUuid(cmd_uuid);
 						if(p_item) {
@@ -5016,7 +5149,7 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 			rReplyPack.P.Put(SSecretTagPool::tagRawData, reply_doc);
 		}
 		else if(p_js_reply) {
-			json_tree_to_string(p_js_reply, cmd_buf);
+			p_js_reply->ToStr(cmd_buf);
 			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
 			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
 		}
@@ -5032,7 +5165,7 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 			if(reply_text_buf.NotEmpty()) {
 				p_js_reply->InsertString("msg", reply_text_buf.Escape());
 			}
-			json_tree_to_string(p_js_reply, cmd_buf);
+			p_js_reply->ToStr(cmd_buf);
 			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
 			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
 		}
@@ -5980,7 +6113,7 @@ int _Construction_MakeRsrvPriceListResponse(PPID styloPalmID)
 		if(ok) {
 			ok = MakeRsrvPriceListResponse_ExportClients(&stp_pack, &js);
 			if(ok) {
-				if(js.ToString(js_text)) {
+				if(js.ToStr(js_text)) {
 					SString out_file_name;
 					PPGetFilePath(PPPATH_OUT, "test-stq-json.json", out_file_name);
 					SFile f_out(out_file_name, SFile::mWrite);

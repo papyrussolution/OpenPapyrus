@@ -36,7 +36,7 @@ static ngx_core_module_t ngx_errlog_module_ctx = {
 ngx_module_t ngx_errlog_module = {
 	NGX_MODULE_V1,
 	&ngx_errlog_module_ctx,            /* module context */
-	ngx_errlog_commands,               /* module directives */
+	ngx_errlog_commands, /* module directives */
 	NGX_CORE_MODULE,                   /* module type */
 	NULL,                              /* init master */
 	NULL,                              /* init module */

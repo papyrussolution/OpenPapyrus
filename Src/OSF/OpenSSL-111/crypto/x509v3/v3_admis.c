@@ -53,12 +53,12 @@ const X509V3_EXT_METHOD v3_ext_admission = {
 	0,                  /* .ext_flags = */
 	ASN1_ITEM_ref(ADMISSION_SYNTAX), /* .it = */
 	NULL, NULL, NULL, NULL,
-	NULL,               /* .i2s = */
-	NULL,               /* .s2i = */
-	NULL,               /* .i2v = */
-	NULL,               /* .v2i = */
+	NULL, /* .i2s = */
+	NULL, /* .s2i = */
+	NULL, /* .i2v = */
+	NULL, /* .v2i = */
 	&i2r_ADMISSION_SYNTAX, /* .i2r = */
-	NULL,               /* .r2i = */
+	NULL, /* .r2i = */
 	NULL                /* extension-specific data */
 };
 

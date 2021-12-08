@@ -61,7 +61,7 @@ struct propval {
     const char **values; /* list of strings, values == NULL if property not
 			  * found, *values == NULL if property found with
 			  * no values */
-    unsigned nvalues;    /* total number of value strings */
+    unsigned nvalues; /* total number of value strings */
     unsigned valsize;	 /* total size in characters of all value strings */
 };
 

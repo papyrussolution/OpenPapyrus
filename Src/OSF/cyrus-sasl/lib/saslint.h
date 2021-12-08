@@ -193,7 +193,7 @@ typedef struct mechanism {
 typedef struct mech_list {
 	const sasl_utils_t * utils; /* gotten from plug_init */
 
-	void * mutex;     /* mutex for this data */
+	void * mutex; /* mutex for this data */
 	mechanism_t * mech_list; /* list of loaded mechanisms */
 	int mech_length;  /* number of loaded mechanisms */
 } mech_list_t;
@@ -217,7 +217,7 @@ typedef struct sasl_server_conn {
 	sasl_server_params_t * sparams;
 	context_list_t * mech_contexts;
 	mechanism_t * mech_list; /* list of available mechanisms */
-	int mech_length;    /* number of available mechanisms */
+	int mech_length; /* number of available mechanisms */
 } sasl_server_conn_t;
 
 /* Client Conn Type Information */
@@ -230,7 +230,7 @@ typedef struct cmechanism {
 typedef struct cmech_list {
 	const sasl_utils_t * utils;
 
-	void * mutex;     /* mutex for this data */
+	void * mutex; /* mutex for this data */
 	cmechanism_t * mech_list; /* list of mechanisms */
 	int mech_length; /* number of mechanisms */
 } cmech_list_t;

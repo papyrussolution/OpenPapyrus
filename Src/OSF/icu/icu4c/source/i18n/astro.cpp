@@ -678,10 +678,7 @@ CalendarAstronomer::Equatorial& CalendarAstronomer::getSunPosition(CalendarAstro
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::SUMMER_SOLSTICE() {
-	return  (CalendarAstronomer::PI/2);
-}
-
+double CalendarAstronomer::SUMMER_SOLSTICE() { return (CalendarAstronomer::PI/2); }
 /**
  * Constant representing the autumnal equinox.
  * For use with {@link #getSunTime getSunTime}.
@@ -700,13 +697,11 @@ double CalendarAstronomer::SUMMER_SOLSTICE() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-double CalendarAstronomer::WINTER_SOLSTICE() {
-	return  ((CalendarAstronomer::PI*3)/2);
-}
+double CalendarAstronomer::WINTER_SOLSTICE() { return ((CalendarAstronomer::PI*3)/2); }
 
-CalendarAstronomer::AngleFunc::~AngleFunc() {
+CalendarAstronomer::AngleFunc::~AngleFunc() 
+{
 }
-
 /**
  * Find the next time at which the sun's ecliptic longitude will have
  * the desired value.
@@ -1203,7 +1198,7 @@ const CalendarAstronomer::MoonAge CalendarAstronomer::NEW_MOON() {
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
 /*const CalendarAstronomer::MoonAge CalendarAstronomer::FIRST_QUARTER() {
-   return   CalendarAstronomer::MoonAge(CalendarAstronomer::PI/2);
+   return CalendarAstronomer::MoonAge(CalendarAstronomer::PI/2);
    }*/
 
 /**
@@ -1212,30 +1207,24 @@ const CalendarAstronomer::MoonAge CalendarAstronomer::NEW_MOON() {
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-const CalendarAstronomer::MoonAge CalendarAstronomer::FULL_MOON() {
-	return CalendarAstronomer::MoonAge(CalendarAstronomer::PI);
-}
-
+const CalendarAstronomer::MoonAge CalendarAstronomer::FULL_MOON() { return CalendarAstronomer::MoonAge(CalendarAstronomer::PI); }
 /**
  * Constant representing the moon's last quarter.
  * For use with {@link #getMoonTime getMoonTime}
  * @internal
  * @deprecated ICU 2.4. This class may be removed or modified.
  */
-
 class MoonTimeAngleFunc : public CalendarAstronomer::AngleFunc {
 public:
 	virtual ~MoonTimeAngleFunc();
-	virtual double eval(CalendarAstronomer& a) override {
-		return a.getMoonAge();
-	}
+	virtual double eval(CalendarAstronomer& a) override { return a.getMoonAge(); }
 };
 
 MoonTimeAngleFunc::~MoonTimeAngleFunc() {
 }
 
 /*const CalendarAstronomer::MoonAge CalendarAstronomer::LAST_QUARTER() {
-   return  CalendarAstronomer::MoonAge((CalendarAstronomer::PI*3)/2);
+   return CalendarAstronomer::MoonAge((CalendarAstronomer::PI*3)/2);
    }*/
 
 /**

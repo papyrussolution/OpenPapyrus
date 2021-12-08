@@ -205,27 +205,16 @@ FT_Trace_Enable(void);
  */
 
 #ifdef FT_DEBUG_LEVEL_ERROR
-
 #define FT_ASSERT(condition)                                      \
-	do                                                        \
-	{                                                         \
+	do { \
 		if(!(condition ))                                   \
-			FT_Panic("assertion failed on line %d of file %s\n", \
-			    __LINE__, __FILE__);                       \
+			FT_Panic("assertion failed on line %d of file %s\n", __LINE__, __FILE__);                       \
 	} while(0)
 
-#define FT_THROW(e)                                   \
-	( FT_Throw(FT_ERR_CAT(FT_ERR_PREFIX, e),   \
-	__LINE__,                         \
-	__FILE__)                      | \
-	FT_ERR_CAT(FT_ERR_PREFIX, e)            )
-
+#define FT_THROW(e) (FT_Throw(FT_ERR_CAT(FT_ERR_PREFIX, e), __LINE__, __FILE__) | FT_ERR_CAT(FT_ERR_PREFIX, e))
 #else /* !FT_DEBUG_LEVEL_ERROR */
-
 #define FT_ASSERT(condition)  do { } while(0)
-
 #define FT_THROW(e)  FT_ERR_CAT(FT_ERR_PREFIX, e)
-
 #endif /* !FT_DEBUG_LEVEL_ERROR */
 
 /**************************************************************************
@@ -235,22 +224,13 @@ FT_Trace_Enable(void);
  */
 
 #ifdef FT_DEBUG_LEVEL_ERROR
-
 //#include "stdio.h"  /* for vfprintf() */
-
-/* print a message */
-FT_BASE(void) FT_Message(const char * fmt, ...);
-
-/* print a message and exit */
-FT_BASE(void) FT_Panic(const char * fmt, ...);
-
-/* report file name and line number of an error */
-FT_BASE(int) FT_Throw(FT_Error error, int line, const char * file);
-
+FT_BASE(void) FT_Message(const char * fmt, ...); /* print a message */
+FT_BASE(void) FT_Panic(const char * fmt, ...); /* print a message and exit */
+FT_BASE(int) FT_Throw(FT_Error error, int line, const char * file); /* report file name and line number of an error */
 #endif /* FT_DEBUG_LEVEL_ERROR */
 
 FT_BASE(void) ft_debug_init(void);
-
 FT_END_HEADER
 
 #endif /* FTDEBUG_H_ */

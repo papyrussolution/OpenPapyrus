@@ -321,10 +321,10 @@ private:
 		uint nesting_level_left;
 
 		hb_collect_glyphs_context_t(hb_face_t *face_,
-		    hb_set_t  *glyphs_before,            /* OUT.  May be NULL */
-		    hb_set_t  *glyphs_input,             /* OUT.  May be NULL */
-		    hb_set_t  *glyphs_after,             /* OUT.  May be NULL */
-		    hb_set_t  *glyphs_output,            /* OUT.  May be NULL */
+		    hb_set_t  *glyphs_before,            /*OUT  May be NULL */
+		    hb_set_t  *glyphs_input,             /*OUT  May be NULL */
+		    hb_set_t  *glyphs_after,             /*OUT  May be NULL */
+		    hb_set_t  *glyphs_output,            /*OUT  May be NULL */
 		    uint nesting_level_left_ = HB_MAX_NESTING_LEVEL) :
 			face(face_),
 			before(glyphs_before ? glyphs_before : hb_set_get_empty()),
@@ -3191,7 +3191,7 @@ private:
 		bool has_data() const { return version.to_int(); }
 		uint get_script_count() const { return (this+scriptList).len; }
 		const Tag& get_script_tag(uint i) const { return (this+scriptList).get_tag(i); }
-		uint get_script_tags(uint start_offset, uint * script_count /* IN/OUT */, hb_tag_t * script_tags /* OUT */) const
+		uint get_script_tags(uint start_offset, uint * script_count /* IN/OUT */, hb_tag_t * script_tags /*OUT*/) const
 		{
 			return (this+scriptList).get_tags(start_offset, script_count, script_tags);
 		}
@@ -3199,7 +3199,7 @@ private:
 		bool find_script_index(hb_tag_t tag, uint * index) const { return (this+scriptList).find_index(tag, index); }
 		uint get_feature_count() const { return (this+featureList).len; }
 		hb_tag_t get_feature_tag(uint i) const { return i == Index::NOT_FOUND_INDEX ? HB_TAG_NONE : (this+featureList).get_tag(i); }
-		uint get_feature_tags(uint start_offset, uint * feature_count /* IN/OUT */, hb_tag_t * feature_tags /* OUT */) const
+		uint get_feature_tags(uint start_offset, uint * feature_count /* IN/OUT */, hb_tag_t * feature_tags /*OUT*/) const
 		{
 			return (this+featureList).get_tags(start_offset, feature_count, feature_tags);
 		}
@@ -3227,7 +3227,7 @@ private:
 			return get_feature(feature_index);
 		}
 
-		void feature_variation_collect_lookups(const hb_set_t * feature_indexes, hb_set_t * lookup_indexes /* OUT */) const
+		void feature_variation_collect_lookups(const hb_set_t * feature_indexes, hb_set_t * lookup_indexes /*OUT*/) const
 		{
 #ifndef HB_NO_VAR
 			if(version.to_int() >= 0x00010001u)
@@ -3281,7 +3281,7 @@ private:
 		}
 
 		void closure_features(const hb_map_t * lookup_indexes, /* IN */
-		    hb_set_t * feature_indexes /* OUT */) const
+		    hb_set_t * feature_indexes /*OUT*/) const
 		{
 			uint feature_count = hb_min(get_feature_count(), (uint)HB_MAX_FEATURES);
 			for(uint i = 0; i < feature_count; i++) {

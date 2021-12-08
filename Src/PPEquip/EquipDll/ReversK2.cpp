@@ -227,7 +227,7 @@ struct K2FrameSt {
 	int16  BufAllocated; //
 	char   FxBuf[512];
 
-	SString & ToString(SString & rBuf) const
+	SString & ToStr(SString & rBuf) const
 	{
 		rBuf.CatEq("Addr", (ulong)H.Addr).Space().CatEq("ReqNum", (ulong)H.ReqNum).Space().CatEq("Cmd", (ulong)H.Cmd).Space().CatEq("DataLen", (ulong)H.DataLen);
 		return rBuf;
@@ -491,7 +491,7 @@ int K2Controller::K2Read(K2FrameSt & rResp)
 				ReadFile(Handle, rResp.P_Data, rResp.H.DataLen - CRC16_SZ, &ret_size, 0);
 				ReadFile(Handle, &rResp.Crc, 2, &ret_size, 0);
 				(msg_buf = "Wicked").CatDiv(':', 2).Cat("K2Read succs").CatDiv('-', 1);
-				DRVS.Log(rResp.ToString(msg_buf), 0xffff); // @debug
+				DRVS.Log(rResp.ToStr(msg_buf), 0xffff); // @debug
 			}
 			else
 				ok = 0;
@@ -554,13 +554,13 @@ uchar K2Controller::SendReq(uint16 addr, int cmd, const void * pData, size_t dat
 		THROWERR(ret_size == frame_len, K2ERR_WRITEPORTFAILED);
 		{
 			(msg_buf = "Wicked").CatDiv(':', 2).Cat("SendReq succs").CatDiv('-', 1);
-			DRVS.Log(frame_req.ToString(msg_buf), 0xffff); // @debug
+			DRVS.Log(frame_req.ToStr(msg_buf), 0xffff); // @debug
 		}
 	}
 	CATCH
 		{
 			(msg_buf = "Wicked").CatDiv(':', 2).Cat("SendReq error").CatDiv('-', 1);
-			DRVS.Log(frame_req.ToString(msg_buf), 0xffff); // @debug
+			DRVS.Log(frame_req.ToStr(msg_buf), 0xffff); // @debug
 		}
 		req_num = 0;
 	ENDCATCH;

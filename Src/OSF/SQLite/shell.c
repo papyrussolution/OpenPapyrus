@@ -440,8 +440,8 @@ static volatile int seenInterrupt = 0;
 /*
 ** Out-of-memory simulator variables
 */
-static unsigned int oomCounter = 0;    /* Simulate OOM when equals 1 */
-static unsigned int oomRepeat = 0;     /* Number of OOMs in a row */
+static unsigned int oomCounter = 0; /* Simulate OOM when equals 1 */
+static unsigned int oomRepeat = 0; /* Number of OOMs in a row */
 static void*(* defaultMalloc)(int) = 0; /* The low-level malloc routine */
 #endif /* SQLITE_DEBUG */
 
@@ -455,7 +455,7 @@ static char * Argv0;
 ** Prompt strings. Initialized in main. Settable with
 **   .prompt main continue
 */
-static char mainPrompt[20];     /* First line prompt. default: "sqlite> "*/
+static char mainPrompt[20]; /* First line prompt. default: "sqlite> "*/
 static char continuePrompt[20]; /* Continuation prompt. default: "   ...> " */
 
 /*
@@ -1485,7 +1485,7 @@ SQLITE_EXTENSION_INIT1
 typedef struct SHA3Context SHA3Context;
 struct SHA3Context {
 	union {
-		u64 s[25];    /* Keccak state. 5x5 lines of 64 bits each */
+		u64 s[25]; /* Keccak state. 5x5 lines of 64 bits each */
 		unsigned char x[1600]; /* ... or 1600 bytes */
 	} u;
 
@@ -2688,7 +2688,7 @@ typedef struct fsdir_cursor fsdir_cursor;
 typedef struct FsdirLevel FsdirLevel;
 
 struct FsdirLevel {
-	DIR * pDir;          /* From opendir() */
+	DIR * pDir; /* From opendir() */
 	char * zDir;         /* Name of directory (nul-terminated) */
 };
 
@@ -2703,7 +2703,7 @@ struct fsdir_cursor {
 	int nBase;
 
 	struct stat sStat;   /* Current lstat() results */
-	char * zPath;        /* Path to current entry */
+	char * zPath; /* Path to current entry */
 	sqlite3_int64 iRowid; /* Current rowid */
 };
 
@@ -3208,15 +3208,15 @@ struct completion_vtab {
 typedef struct completion_cursor completion_cursor;
 struct completion_cursor {
 	sqlite3_vtab_cursor base; /* Base class - must be first */
-	sqlite3 * db;        /* Database connection for this cursor */
+	sqlite3 * db; /* Database connection for this cursor */
 	int nPrefix, nLine;  /* Number of bytes in zPrefix and zLine */
-	char * zPrefix;      /* The prefix for the word we want to complete */
-	char * zLine;        /* The whole that we want to complete */
+	char * zPrefix; /* The prefix for the word we want to complete */
+	char * zLine; /* The whole that we want to complete */
 	const char * zCurrentRow; /* Current output row */
 	int szRow;           /* Length of the zCurrentRow string */
 	sqlite3_stmt * pStmt; /* Current statement */
 	sqlite3_int64 iRowid; /* The rowid */
-	int ePhase;          /* Current phase */
+	int ePhase; /* Current phase */
 	int j;               /* inter-phase counter */
 };
 
@@ -3559,7 +3559,7 @@ static int completionBestIndex(sqlite3_vtab * tab,
 	int idxNum = 0;  /* The query plan bitmask */
 	int prefixIdx = -1; /* Index of the start= constraint, or -1 if none */
 	int wholelineIdx = -1; /* Index of the stop= constraint, or -1 if none */
-	int nArg = 0;    /* Number of arguments that completeFilter() expects */
+	int nArg = 0; /* Number of arguments that completeFilter() expects */
 	const struct sqlite3_index_constraint * pConstraint;
 
 	(void)(tab); /* Unused parameter */
@@ -5560,7 +5560,7 @@ SQLITE_EXTENSION_INIT1
 typedef struct series_cursor series_cursor;
 struct series_cursor {
 	sqlite3_vtab_cursor base; /* Base class - must be first */
-	int isDesc;          /* True to count down rather than up */
+	int isDesc; /* True to count down rather than up */
 	sqlite3_int64 iRowid; /* The rowid */
 	sqlite3_int64 iValue; /* Current value ("value") */
 	sqlite3_int64 mnValue; /* Mimimum value ("start") */
@@ -5805,11 +5805,11 @@ static int seriesFilter(sqlite3_vtab_cursor * pVtabCursor,
 static int seriesBestIndex(sqlite3_vtab * tabUnused,
     sqlite3_index_info * pIdxInfo
     ){
-	int i, j;        /* Loop over constraints */
+	int i, j; /* Loop over constraints */
 	int idxNum = 0;  /* The query plan bitmask */
 	int unusableMask = 0; /* Mask of unusable constraints */
-	int nArg = 0;    /* Number of arguments that seriesFilter() expects */
-	int aIdx[3];     /* Constraints on start, stop, and step */
+	int nArg = 0; /* Number of arguments that seriesFilter() expects */
+	int aIdx[3]; /* Constraints on start, stop, and step */
 	const struct sqlite3_index_constraint * pConstraint;
 
 	/* This implementation assumes that the start, stop, and step columns
@@ -6032,7 +6032,7 @@ typedef unsigned short ReStateNumber;
 ** number of actives states is small.
 */
 typedef struct ReStateSet {
-	unsigned nState;      /* Number of current states */
+	unsigned nState; /* Number of current states */
 	ReStateNumber * aState; /* Current states */
 } ReStateSet;
 
@@ -6050,15 +6050,15 @@ struct ReInput {
 */
 typedef struct ReCompiled ReCompiled;
 struct ReCompiled {
-	ReInput sIn;          /* Regular expression text */
-	const char * zErr;    /* Error message to return */
+	ReInput sIn; /* Regular expression text */
+	const char * zErr; /* Error message to return */
 	char * aOp;           /* Operators for the virtual machine */
 	int * aArg;           /* Arguments to each operator */
 	unsigned (* xNextChar)(ReInput*); /* Next character function */
 	unsigned char zInit[12]; /* Initial text to match */
 	int nInit;            /* Number of characters in zInit */
-	unsigned nState;      /* Number of entries in aOp[] and aArg[] */
-	unsigned nAlloc;      /* Slots allocated for aOp[] and aArg[] */
+	unsigned nState; /* Number of entries in aOp[] and aArg[] */
+	unsigned nAlloc; /* Slots allocated for aOp[] and aArg[] */
 };
 
 /* Add a state to the given state set if it is not already there */
@@ -6676,7 +6676,7 @@ static void re_sql_func(sqlite3_context * context,
 	const char * zPattern; /* The regular expression */
 	const unsigned char * zStr;/* String being searched */
 	const char * zErr;  /* Compile error message */
-	int setAux = 0;     /* True to invoke sqlite3_set_auxdata() */
+	int setAux = 0; /* True to invoke sqlite3_set_auxdata() */
 
 	(void)argc; /* Unused */
 	pRe = sqlite3_get_auxdata(context, 0);
@@ -6983,11 +6983,11 @@ struct ZipfileLFH {
 
 typedef struct ZipfileEntry ZipfileEntry;
 struct ZipfileEntry {
-	ZipfileCDS cds;      /* Parsed CDS record */
-	u32 mUnixTime;       /* Modification time, in UNIX format */
+	ZipfileCDS cds; /* Parsed CDS record */
+	u32 mUnixTime; /* Modification time, in UNIX format */
 	u8 * aExtra;         /* cds.nExtra+cds.nComment bytes of extra data */
-	i64 iDataOff;        /* Offset to data in file (if aData==0) */
-	u8 * aData;          /* cds.szCompressed bytes of compressed data */
+	i64 iDataOff; /* Offset to data in file (if aData==0) */
+	u8 * aData; /* cds.szCompressed bytes of compressed data */
 	ZipfileEntry * pNext; /* Next element in in-memory CDS */
 };
 
@@ -7002,9 +7002,9 @@ struct ZipfileCsr {
 	u8 bNoop;            /* If next xNext() call is no-op */
 
 	/* Used outside of write transactions */
-	FILE * pFile;        /* Zip file */
-	i64 iNextOff;        /* Offset of next record in central directory */
-	ZipfileEOCD eocd;    /* Parse of central directory record */
+	FILE * pFile; /* Zip file */
+	i64 iNextOff; /* Offset of next record in central directory */
+	ZipfileEOCD eocd; /* Parse of central directory record */
 
 	ZipfileEntry * pFreeEntry; /* Free this list when cursor is closed or reset */
 	ZipfileEntry * pCurrent; /* Current entry */
@@ -7014,9 +7014,9 @@ struct ZipfileCsr {
 typedef struct ZipfileTab ZipfileTab;
 struct ZipfileTab {
 	sqlite3_vtab base;   /* Base class - must be first */
-	char * zFile;        /* Zip file this table accesses (may be NULL) */
-	sqlite3 * db;        /* Host database connection */
-	u8 * aBuffer;        /* Temporary buffer used for various tasks */
+	char * zFile; /* Zip file this table accesses (may be NULL) */
+	sqlite3 * db; /* Host database connection */
+	u8 * aBuffer; /* Temporary buffer used for various tasks */
 
 	ZipfileCsr * pCsrList; /* List of cursors */
 	i64 iNextCsrid;
@@ -7024,9 +7024,9 @@ struct ZipfileTab {
 	/* The following are used by write transactions only */
 	ZipfileEntry * pFirstEntry; /* Linked list of all files (if pWriteFd!=0) */
 	ZipfileEntry * pLastEntry; /* Last element in pFirstEntry list */
-	FILE * pWriteFd;     /* File handle open on zip archive */
-	i64 szCurrent;       /* Current size of zip archive */
-	i64 szOrig;          /* Size of archive at start of transaction */
+	FILE * pWriteFd; /* File handle open on zip archive */
+	i64 szCurrent; /* Current size of zip archive */
+	i64 szOrig; /* Size of archive at start of transaction */
 };
 
 /*
@@ -7886,7 +7886,7 @@ static int zipfileReadEOCD(ZipfileTab * pTab,               /* Return errors her
 
 	if(aBlob==0) {
 		i64 iOff;         /* Offset to read from */
-		i64 szFile;       /* Total size of file in bytes */
+		i64 szFile; /* Total size of file in bytes */
 		fseek(pFile, 0, SEEK_END);
 		szFile = (i64)ftell(pFile);
 		if(szFile==0) {
@@ -7993,8 +7993,8 @@ static int zipfileFilter(sqlite3_vtab_cursor * cur,
 	ZipfileTab * pTab = (ZipfileTab*)cur->pVtab;
 	ZipfileCsr * pCsr = (ZipfileCsr*)cur;
 	const char * zFile = 0;   /* Zip file to scan */
-	int rc = SQLITE_OK;       /* Return Code */
-	int bInMemory = 0;        /* True for an in-memory zipfile */
+	int rc = SQLITE_OK; /* Return Code */
+	int bInMemory = 0; /* True for an in-memory zipfile */
 
 	zipfileResetCursor(pCsr);
 
@@ -8290,7 +8290,7 @@ static int zipfileUpdate(sqlite3_vtab * pVtab,
     sqlite_int64 * pRowid
     ){
 	ZipfileTab * pTab = (ZipfileTab*)pVtab;
-	int rc = SQLITE_OK;       /* Return Code */
+	int rc = SQLITE_OK; /* Return Code */
 	ZipfileEntry * pNew = 0;  /* New in-memory CDS entry */
 
 	u32 mode = 0;             /* Mode for new entry */
@@ -8298,14 +8298,14 @@ static int zipfileUpdate(sqlite3_vtab * pVtab,
 	i64 sz = 0;               /* Uncompressed size */
 	const char * zPath = 0;   /* Path for new entry */
 	int nPath = 0;            /* strlen(zPath) */
-	const u8 * pData = 0;     /* Pointer to buffer containing content */
+	const u8 * pData = 0; /* Pointer to buffer containing content */
 	int nData = 0;            /* Size of pData buffer in bytes */
-	int iMethod = 0;          /* Compression method for new entry */
+	int iMethod = 0; /* Compression method for new entry */
 	u8 * pFree = 0;           /* Free this */
 	char * zFree = 0;         /* Also free this */
 	ZipfileEntry * pOld = 0;
 	ZipfileEntry * pOld2 = 0;
-	int bUpdate = 0;          /* True for an update that modifies "name" */
+	int bUpdate = 0; /* True for an update that modifies "name" */
 	int bIsDir = 0;
 	u32 iCrc32 = 0;
 
@@ -8709,7 +8709,7 @@ void zipfileStep(sqlite3_context * pCtx, int nVal, sqlite3_value ** apVal){
 
 	int iMethod = -1;         /* Compression method to use (0 or 8) */
 
-	const u8 * aData = 0;     /* Possibly compressed data for new entry */
+	const u8 * aData = 0; /* Possibly compressed data for new entry */
 	int nData = 0;            /* Size of aData[] in bytes */
 	int szUncompressed = 0;   /* Size of data before compression */
 	u8 * aFree = 0;           /* Free this before returning */
@@ -9315,21 +9315,21 @@ struct IdxConstraint {
 	int iCol;                 /* Constrained table column */
 	int bFlag;                /* Used by idxFindCompatible() */
 	int bDesc;                /* True if ORDER BY <expr> DESC */
-	IdxConstraint * pNext;    /* Next constraint in pEq or pRange list */
-	IdxConstraint * pLink;    /* See above */
+	IdxConstraint * pNext; /* Next constraint in pEq or pRange list */
+	IdxConstraint * pLink; /* See above */
 };
 
 /*
 ** A single scan of a single table.
 */
 struct IdxScan {
-	IdxTable * pTab;          /* Associated table object */
+	IdxTable * pTab; /* Associated table object */
 	int iDb;                  /* Database containing table zTable */
 	i64 covering;             /* Mask of columns required for cov. index */
 	IdxConstraint * pOrder;   /* ORDER BY columns */
-	IdxConstraint * pEq;      /* List of == constraints */
+	IdxConstraint * pEq; /* List of == constraints */
 	IdxConstraint * pRange;   /* List of < constraints */
-	IdxScan * pNextScan;      /* Next IdxScan object for same analysis */
+	IdxScan * pNextScan; /* Next IdxScan object for same analysis */
 };
 
 /*
@@ -9389,7 +9389,7 @@ struct IdxHashEntry {
 	char * zVal;              /* nul-terminated value string */
 	char * zVal2;             /* nul-terminated value string 2 */
 	IdxHashEntry * pHashNext; /* Next entry in same hash bucket */
-	IdxHashEntry * pNext;     /* Next entry in hash */
+	IdxHashEntry * pNext; /* Next entry in hash */
 };
 
 struct IdxHash {
@@ -9405,15 +9405,15 @@ struct sqlite3expert {
 	sqlite3 * db;             /* User database */
 	sqlite3 * dbm;            /* In-memory db for this analysis */
 	sqlite3 * dbv;            /* Vtab schema for this analysis */
-	IdxTable * pTable;        /* List of all IdxTable objects */
-	IdxScan * pScan;          /* List of scan objects */
-	IdxWrite * pWrite;        /* List of write objects */
+	IdxTable * pTable; /* List of all IdxTable objects */
+	IdxScan * pScan; /* List of scan objects */
+	IdxWrite * pWrite; /* List of write objects */
 	IdxStatement * pStatement; /* List of IdxStatement objects */
 	int bRun;                 /* True once analysis has run */
 	char ** pzErrmsg;
 	int rc;                   /* Error code from whereinfo hook */
 	IdxHash hIdx;             /* Hash containing all candidate indexes */
-	char * zCandidates;       /* For EXPERT_REPORT_CANDIDATES */
+	char * zCandidates; /* For EXPERT_REPORT_CANDIDATES */
 };
 
 /*
@@ -10674,10 +10674,10 @@ static void idxSampleFunc(sqlite3_context * pCtx,
 struct IdxRemCtx {
 	int nSlot;
 	struct IdxRemSlot {
-		int eType;        /* SQLITE_NULL, INTEGER, REAL, TEXT, BLOB */
+		int eType; /* SQLITE_NULL, INTEGER, REAL, TEXT, BLOB */
 		i64 iVal;         /* SQLITE_INTEGER value */
-		double rVal;      /* SQLITE_FLOAT value */
-		int nByte;        /* Bytes of space allocated at z */
+		double rVal; /* SQLITE_FLOAT value */
+		int nByte; /* Bytes of space allocated at z */
 		int n;            /* Size of buffer z */
 		char * z;         /* SQLITE_TEXT/BLOB value */
 	} aSlot[1];
@@ -11307,7 +11307,7 @@ typedef struct DbdataCursor DbdataCursor;
 /* Cursor object */
 struct DbdataCursor {
 	sqlite3_vtab_cursor base; /* Base class.  Must be first */
-	sqlite3_stmt * pStmt;     /* For fetching database pages */
+	sqlite3_stmt * pStmt; /* For fetching database pages */
 
 	int iPgno;                /* Current page number */
 	u8 * aPage;               /* Buffer containing page */
@@ -11326,14 +11326,14 @@ struct DbdataCursor {
 	u8 * pHdrPtr;
 	u8 * pPtr;
 
-	sqlite3_int64 iIntkey;    /* Integer key value */
+	sqlite3_int64 iIntkey; /* Integer key value */
 };
 
 /* Table object */
 struct DbdataTable {
-	sqlite3_vtab base;        /* Base class.  Must be first */
+	sqlite3_vtab base; /* Base class.  Must be first */
 	sqlite3 * db;             /* The database connection */
-	sqlite3_stmt * pStmt;     /* For fetching database pages */
+	sqlite3_stmt * pStmt; /* For fetching database pages */
 	int bPtr;                 /* True for sqlite3_dbptr table */
 };
 
@@ -12096,8 +12096,8 @@ int sqlite3_dbdata_init(sqlite3 * db,
 */
 typedef struct OpenSession OpenSession;
 struct OpenSession {
-	char * zName;      /* Symbolic name for this session */
-	int nFilter;       /* Number of xFilter rejection GLOB patterns */
+	char * zName; /* Symbolic name for this session */
+	int nFilter; /* Number of xFilter rejection GLOB patterns */
 	char ** azFilter;  /* Array of xFilter rejection GLOB patterns */
 	sqlite3_session * p; /* The open session */
 };
@@ -12113,7 +12113,7 @@ struct ExpertInfo {
 /* A single line in the EQP output */
 typedef struct EQPGraphRow EQPGraphRow;
 struct EQPGraphRow {
-	int iEqpId;     /* ID for this row */
+	int iEqpId; /* ID for this row */
 	int iParentId;  /* ID of the parent row */
 	EQPGraphRow * pNext; /* Next row in sequence */
 	char zText[1];  /* Text to display for this row */
@@ -12133,33 +12133,33 @@ struct EQPGraph {
 */
 typedef struct ShellState ShellState;
 struct ShellState {
-	sqlite3 * db;    /* The database */
+	sqlite3 * db; /* The database */
 	u8 autoExplain;  /* Automatically turn on .explain mode */
-	u8 autoEQP;      /* Run EXPLAIN QUERY PLAN prior to seach SQL stmt */
+	u8 autoEQP; /* Run EXPLAIN QUERY PLAN prior to seach SQL stmt */
 	u8 autoEQPtest;  /* autoEQP is in test mode */
 	u8 autoEQPtrace; /* autoEQP is in trace mode */
 	u8 scanstatsOn;  /* True to display scan stats before each finalize */
-	u8 openMode;     /* SHELL_OPEN_NORMAL, _APPENDVFS, or _ZIPFILE */
-	u8 doXdgOpen;    /* Invoke start/open/xdg-open in output_reset() */
-	u8 nEqpLevel;    /* Depth of the EQP output graph */
+	u8 openMode; /* SHELL_OPEN_NORMAL, _APPENDVFS, or _ZIPFILE */
+	u8 doXdgOpen; /* Invoke start/open/xdg-open in output_reset() */
+	u8 nEqpLevel; /* Depth of the EQP output graph */
 	u8 eTraceType;   /* SHELL_TRACE_* value for type of trace */
 	unsigned statsOn; /* True to display memory stats before each finalize */
 	unsigned mEqpLines; /* Mask of veritical lines in the EQP output graph */
-	int outCount;    /* Revert to stdout when reaching zero */
+	int outCount; /* Revert to stdout when reaching zero */
 	int cnt;         /* Number of records displayed so far */
-	int lineno;      /* Line number of last line read from in */
+	int lineno; /* Line number of last line read from in */
 	int openFlags;   /* Additional flags to open.  (SQLITE_OPEN_NOFOLLOW) */
-	FILE * in;       /* Read commands from this stream */
-	FILE * out;      /* Write results here */
+	FILE * in; /* Read commands from this stream */
+	FILE * out; /* Write results here */
 	FILE * traceOut; /* Output for sqlite3_trace() */
-	int nErr;        /* Number of errors seen */
-	int mode;        /* An output mode setting */
+	int nErr; /* Number of errors seen */
+	int mode; /* An output mode setting */
 	int modePrior;   /* Saved mode */
-	int cMode;       /* temporary output mode for the current query */
+	int cMode; /* temporary output mode for the current query */
 	int normalMode;  /* Output mode before ".explain on" */
 	int writableSchema; /* True if PRAGMA writable_schema=ON */
 	int showHeader;  /* True to show column names in List or Column mode */
-	int nCheck;      /* Number of ".check" commands run */
+	int nCheck; /* Number of ".check" commands run */
 	unsigned nProgress; /* Number of progress callbacks encountered */
 	unsigned mxProgress; /* Maximum progress callbacks before failing */
 	unsigned flgProgress; /* Flags for the progress callback */
@@ -12175,21 +12175,21 @@ struct ShellState {
 	char rowSepPrior[20]; /* Saved row separator */
 	int * colWidth;  /* Requested width of each column in columnar modes */
 	int * actualWidth; /* Actual width of each column */
-	int nWidth;      /* Number of slots in colWidth[] and actualWidth[] */
+	int nWidth; /* Number of slots in colWidth[] and actualWidth[] */
 	char nullValue[20]; /* The text to print when a NULL comes back from
 	                    ** the database */
 	char outfile[FILENAME_MAX]; /* Filename for *out */
 	const char * zDbFilename; /* name of the database file */
 	char * zFreeOnClose;  /* Filename to free when closing */
-	const char * zVfs;    /* Name of VFS to use */
+	const char * zVfs; /* Name of VFS to use */
 	sqlite3_stmt * pStmt; /* Current statement if any. */
-	FILE * pLog;     /* Write log output here */
+	FILE * pLog; /* Write log output here */
 	int * aiIndent;  /* Array of indents used in MODE_Explain */
-	int nIndent;     /* Size of array aiIndent[] */
-	int iIndent;     /* Index of current op in aiIndent[] */
+	int nIndent; /* Size of array aiIndent[] */
+	int iIndent; /* Index of current op in aiIndent[] */
 	EQPGraph sGraph; /* Information for the graphical EXPLAIN QUERY PLAN */
 #if defined(SQLITE_ENABLE_SESSION)
-	int nSession;       /* Number of active sessions */
+	int nSession; /* Number of active sessions */
 	OpenSession aSession[4]; /* Array of sessions.  [0] is in focus. */
 #endif
 	ExpertInfo expert;  /* Valid if previous command was ".expert OPT..." */
@@ -13917,9 +13917,9 @@ static int str_in_array(const char * zStr, const char ** azArray){
 **       and "Goto" by 2 spaces.
 */
 static void explain_data_prepare(ShellState * p, sqlite3_stmt * pSql){
-	const char * zSql;        /* The text of the SQL statement */
+	const char * zSql; /* The text of the SQL statement */
 	const char * z;           /* Used to check if this is an EXPLAIN */
-	int * abYield = 0;        /* True if op is an OP_Yield */
+	int * abYield = 0; /* True if op is an OP_Yield */
 	int nAlloc = 0;           /* Allocated size of p->aiIndent[], abYield */
 	int iOp;                  /* Index of operation in p->aiIndent[] */
 
@@ -14535,7 +14535,7 @@ static int shell_exec(ShellState * pArg,                         /* Pointer to S
     char ** pzErrMsg                        /* Error msg written here */
     ){
 	sqlite3_stmt * pStmt = NULL; /* Statement to execute. */
-	int rc = SQLITE_OK;       /* Return Code */
+	int rc = SQLITE_OK; /* Return Code */
 	int rc2;
 	const char * zLeftover;   /* Tail of unprocessed SQL */
 	sqlite3 * db = pArg->db;
@@ -16118,16 +16118,16 @@ static void test_breakpoint(void){
 typedef struct ImportCtx ImportCtx;
 struct ImportCtx {
 	const char * zFile; /* Name of the input file */
-	FILE * in;    /* Read the CSV text from this input stream */
+	FILE * in; /* Read the CSV text from this input stream */
 	int (SQLITE_CDECL *xCloser)(FILE*); /* Func to close in */
-	char * z;     /* Accumulated text for a field */
-	int n;        /* Number of bytes in z */
+	char * z; /* Accumulated text for a field */
+	int n; /* Number of bytes in z */
 	int nAlloc;   /* Space allocated for z[] */
-	int nLine;    /* Current line number */
-	int nRow;     /* Number of rows imported */
-	int nErr;     /* Number of errors encountered */
+	int nLine; /* Current line number */
+	int nRow; /* Number of rows imported */
+	int nErr; /* Number of errors encountered */
 	int bNotFirst; /* True if one or more bytes already read */
-	int cTerm;    /* Character that terminated the most recent field */
+	int cTerm; /* Character that terminated the most recent field */
 	int cColSep;  /* The column separator character.  (Usually ",") */
 	int cRowSep;  /* The row separator character.  (Usually "\n") */
 };
@@ -17206,8 +17206,8 @@ struct ArCommand {
 	u8 fromCmdLine;           /* Run from -A instead of .archive */
 	int nArg;                 /* Number of command arguments */
 	char * zSrcTable;         /* "sqlar", "zipfile($file)" or "zip" */
-	const char * zFile;       /* --file argument, or NULL */
-	const char * zDir;        /* --directory argument, or NULL */
+	const char * zFile; /* --file argument, or NULL */
+	const char * zDir; /* --directory argument, or NULL */
 	char ** azArg;            /* Array of command arguments */
 	ShellState * p;           /* Shell state */
 	sqlite3 * db;             /* Database containing the archive */
@@ -17714,7 +17714,7 @@ static int arCreateOrUpdateCommand(ArCommand * pAr,                 /* Command a
 	};
 	int i;                    /* For iterating through azFile[] */
 	int rc;                   /* Return code */
-	const char * zTab = 0;    /* SQL table into which to insert */
+	const char * zTab = 0; /* SQL table into which to insert */
 	char * zSql;
 	char zTemp[50];
 	char * zExists = 0;
@@ -18027,7 +18027,7 @@ static RecoverTable * recoverNewTable(int * pRc,                       /* IN/OUT
     int bIntkey,
     int nCol
     ){
-	sqlite3 * dbtmp = 0;      /* sqlite3 handle for testing CREATE TABLE */
+	sqlite3 * dbtmp = 0; /* sqlite3 handle for testing CREATE TABLE */
 	int rc = *pRc;
 	RecoverTable * pTab = 0;
 
@@ -18271,8 +18271,8 @@ static int recoverDatabaseCmd(ShellState * pState, int nArg, char ** azArg){
 	int nOrphan = -1;
 	RecoverTable * pOrphan = 0;
 
-	int bFreelist = 1;        /* 0 if --freelist-corrupt is specified */
-	int bRowids = 1;          /* 0 if --no-rowids */
+	int bFreelist = 1; /* 0 if --freelist-corrupt is specified */
+	int bRowids = 1; /* 0 if --no-rowids */
 	for(i = 1; i<nArg; i++) {
 		char * z = azArg[i];
 		int n;
@@ -19340,12 +19340,12 @@ static int do_meta_command(char * zLine, ShellState * p){
 		char * zTable = 0; /* Insert data into this table */
 		char * zFile = 0; /* Name of file to extra content from */
 		sqlite3_stmt * pStmt = NULL; /* A statement */
-		int nCol;       /* Number of columns in the table */
-		int nByte;      /* Number of bytes in an SQL string */
-		int i, j;       /* Loop counters */
+		int nCol; /* Number of columns in the table */
+		int nByte; /* Number of bytes in an SQL string */
+		int i, j; /* Loop counters */
 		int needCommit; /* True to COMMIT or ROLLBACK at end */
-		int nSep;       /* Number of bytes in p->colSeparator[] */
-		char * zSql;    /* An SQL statement */
+		int nSep; /* Number of bytes in p->colSeparator[] */
+		char * zSql; /* An SQL statement */
 		ImportCtx sCtx; /* Reader context */
 		char *(SQLITE_CDECL *xRead)(ImportCtx*); /* Func to read one value */
 		int eVerbose = 0; /* Larger for more console output */
@@ -20834,7 +20834,7 @@ session_syntax_error:
 		int bIsInit = 0; /* True to initialize the SELFTEST table */
 		int bVerbose = 0; /* Verbose output */
 		int bSelftestExists; /* True if SELFTEST already exists */
-		int i, k;    /* Loop counters */
+		int i, k; /* Loop counters */
 		int nTest = 0; /* Number of tests runs */
 		int nErr = 0; /* Number of errors seen */
 		ShellText str; /* Answer for a query */
@@ -20954,7 +20954,7 @@ session_syntax_error:
 	}
 	else if(c=='s' && n>=4 && strncmp(azArg[0], "sha3sum", n)==0)       {
 		const char * zLike = 0; /* Which table to checksum. 0 means everything */
-		int i;       /* Loop counter */
+		int i; /* Loop counter */
 		int bSchema = 0; /* Also hash the schema */
 		int bSeparate = 0; /* Hash each table separately */
 		int iSize = 224; /* Hash algorithm to use */
@@ -21902,13 +21902,13 @@ static int runOneSqlLine(ShellState * p, char * zSql, FILE * in, int startline){
 */
 static int process_input(ShellState * p){
 	char * zLine = 0;   /* A single input line */
-	char * zSql = 0;    /* Accumulated SQL text */
-	int nLine;          /* Length of current line */
-	int nSql = 0;       /* Bytes of zSql[] used */
-	int nAlloc = 0;     /* Allocated zSql[] space */
+	char * zSql = 0; /* Accumulated SQL text */
+	int nLine; /* Length of current line */
+	int nSql = 0; /* Bytes of zSql[] used */
+	int nAlloc = 0; /* Allocated zSql[] space */
 	int nSqlPrior = 0;  /* Bytes of zSql[] used by prior line */
 	int rc;             /* Error code */
-	int errCnt = 0;     /* Number of errors seen */
+	int errCnt = 0; /* Number of errors seen */
 	int startline = 0;  /* Line number for start of current input */
 
 	p->lineno = 0;
@@ -22268,7 +22268,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 	int readStdin = 1;
 	int nCmd = 0;
 	char ** azCmd = 0;
-	const char * zVfs = 0;    /* Value of -vfs command-line option */
+	const char * zVfs = 0; /* Value of -vfs command-line option */
 #if !SQLITE_SHELL_IS_UTF8
 	char ** argvToFree = 0;
 	int argcToFree = 0;

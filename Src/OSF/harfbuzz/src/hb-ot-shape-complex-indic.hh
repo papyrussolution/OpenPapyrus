@@ -396,7 +396,7 @@ struct hb_indic_would_substitute_feature_t {
 
 	bool would_substitute(const hb_codepoint_t * glyphs,
 	    uint glyphs_count,
-	    hb_face_t  * face) const
+	    hb_face_t * face) const
 	{
 		for(uint i = 0; i < count; i++)
 			if(hb_ot_layout_lookup_would_substitute(face, lookups[i].index, glyphs, glyphs_count, zero_context))

@@ -710,7 +710,7 @@ static UConverter * U_CALLCONV _LMBCSSafeClone(const UConverter * cnv,
  */
 
 static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subconverters, opt & locale groups */
-    ulmbcs_byte_t group,               /* The group to try */
+    ulmbcs_byte_t group, /* The group to try */
     ulmbcs_byte_t  * pStartLMBCS,             /* where to put the results */
     UChar * pUniChar,                  /* The input unicode character */
     ulmbcs_byte_t * lastConverterIndex, /* output: track last successful group used */

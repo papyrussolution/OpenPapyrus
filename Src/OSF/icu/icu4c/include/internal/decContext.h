@@ -81,7 +81,7 @@
     DEC_ROUND_HALF_EVEN,           /* 0.5 rounds to nearest even      */
     DEC_ROUND_HALF_DOWN,           /* 0.5 rounds down        */
     DEC_ROUND_DOWN,                /* round towards 0 (truncate)      */
-    DEC_ROUND_FLOOR,               /* round towards -infinity         */
+    DEC_ROUND_FLOOR, /* round towards -infinity         */
     DEC_ROUND_05UP,                /* round for reround      */
     DEC_ROUND_MAX                  /* enum must be less than this     */
     };

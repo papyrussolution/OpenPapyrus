@@ -390,8 +390,8 @@ void TrfrAnlzViewItem_AlcRep::Init()
 {
 	Item.Clear();
 	MEMSZERO(GoodsRec);
-	GCPack.Init();
-	GoodsStock.Init();
+	GCPack.Z();
+	GoodsStock.Z();
 	MEMSZERO(GoodsExt);
 	MEMSZERO(BillRec);
 	MEMSZERO(OrgLotRec);

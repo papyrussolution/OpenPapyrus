@@ -1053,7 +1053,7 @@ static const UChar gCollationBinKey[] = {
  */
 static void ures_swapResource(const UDataSwapper * ds,
     const Resource * inBundle, Resource * outBundle,
-    Resource res,               /* caller swaps res itself */
+    Resource res, /* caller swaps res itself */
     const char * key,
     TempTable * pTempTable,
     UErrorCode * pErrorCode) {

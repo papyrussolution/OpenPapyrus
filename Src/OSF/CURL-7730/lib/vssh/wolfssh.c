@@ -114,7 +114,7 @@ const struct Curl_handler Curl_handler_sftp = {
 	wssh_getsock,                   /* doing_getsock */
 	ZERO_NULL,                      /* domore_getsock */
 	wssh_perform_getsock,           /* perform_getsock */
-	wsftp_disconnect,               /* disconnect */
+	wsftp_disconnect, /* disconnect */
 	ZERO_NULL,                      /* readwrite */
 	ZERO_NULL,                      /* connection_check */
 	PORT_SSH,                       /* defport */

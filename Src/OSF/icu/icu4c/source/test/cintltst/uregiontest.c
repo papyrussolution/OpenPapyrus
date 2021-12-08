@@ -579,7 +579,7 @@ static void TestGetContainingRegionWithType()
 	}
 }
 
-static const char * expectPrefRegions0[] = { "AN", "CW", "SX", "BQ", NULL };        /* Netherlands Antilles */
+static const char * expectPrefRegions0[] = { "AN", "CW", "SX", "BQ", NULL }; /* Netherlands Antilles */
 static const char * expectPrefRegions1[] = { "CS", "RS", "ME", NULL };             /* Serbia & Montenegro */
 static const char * expectPrefRegions2[] = { "FQ", "AQ", "TF", NULL };             /* French Southern and Antarctic
                                                                                       Territories */

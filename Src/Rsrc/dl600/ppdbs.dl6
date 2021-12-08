@@ -3695,7 +3695,8 @@ table StyloQSec {
 	long   DocType;          // Тип документа (for oneof2(Kind, 6, 7))
 	int64  TimeStamp;        // Временная метка записи.
 		// Для записей типа 1, 2, 3 значение равно 0 для обеспечения уникальности индекса {Kind, BI, TimeStamp}
-	raw    Reserve[104];     // @reserve
+	long   Flags;            // @v11.2.7
+	raw    Reserve[100];     // @reserve @v11.2.7 [104]-->[100]
 	blob   VT[2048];
 index:
 	ID (unique);                                // #0

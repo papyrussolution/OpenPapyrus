@@ -677,34 +677,22 @@ SSH_PACKET_CALLBACK(channel_rcv_request) {
 		ZFREE(lang);
 		ZFREE(errmsg);
 		ZFREE(sig);
-
 		return SSH_PACKET_USED;
 	}
 	if(strcmp(request, "keepalive@openssh.com")==0) {
 		ZFREE(request);
 		SSH_LOG(SSH_LOG_PROTOCOL, "Responding to Openssh's keepalive");
-
-		rc = ssh_buffer_pack(session->out_buffer,
-			"bd",
-			SSH2_MSG_CHANNEL_FAILURE,
-			channel->remote_channel);
+		rc = ssh_buffer_pack(session->out_buffer, "bd", SSH2_MSG_CHANNEL_FAILURE, channel->remote_channel);
 		if(rc != SSH_OK) {
 			return SSH_PACKET_USED;
 		}
 		ssh_packet_send(session);
-
 		return SSH_PACKET_USED;
 	}
-
 	if(strcmp(request, "auth-agent-req@openssh.com") == 0) {
 		ZFREE(request);
 		SSH_LOG(SSH_LOG_PROTOCOL, "Received an auth-agent-req request");
-		ssh_callbacks_execute_list(channel->callbacks,
-		    ssh_channel_callbacks,
-		    channel_auth_agent_req_function,
-		    channel->session,
-		    channel);
-
+		ssh_callbacks_execute_list(channel->callbacks, ssh_channel_callbacks, channel_auth_agent_req_function, channel->session, channel);
 		return SSH_PACKET_USED;
 	}
 #ifdef WITH_SERVER
@@ -866,54 +854,36 @@ int ssh_channel_open_auth_agent(ssh_channel channel){
  *    forward the content of a socket to the channel. You still have to
  *    use channel_read and channel_write for this.
  */
-int ssh_channel_open_forward(ssh_channel channel, const char * remotehost,
-    int remoteport, const char * sourcehost, int localport) {
+int ssh_channel_open_forward(ssh_channel channel, const char * remotehost, int remoteport, const char * sourcehost, int localport) 
+{
 	ssh_session session;
 	ssh_buffer payload = NULL;
 	ssh_string str = NULL;
 	int rc = SSH_ERROR;
-
 	if(channel == NULL) {
 		return rc;
 	}
-
 	session = channel->session;
-
 	if(remotehost == NULL || sourcehost == NULL) {
 		ssh_set_error_invalid(session);
 		return rc;
 	}
-
 	payload = ssh_buffer_new();
 	if(payload == NULL) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(payload,
-		"sdsd",
-		remotehost,
-		remoteport,
-		sourcehost,
-		localport);
+	rc = ssh_buffer_pack(payload, "sdsd", remotehost, remoteport, sourcehost, localport);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = channel_open(channel,
-		"direct-tcpip",
-		CHANNEL_INITIAL_WINDOW,
-		CHANNEL_MAX_PACKET,
-		payload);
-
+	rc = channel_open(channel, "direct-tcpip", CHANNEL_INITIAL_WINDOW, CHANNEL_MAX_PACKET, payload);
 error:
 	SSH_BUFFER_FREE(payload);
 	SSH_STRING_FREE(str);
-
 	return rc;
 }
-
 /**
  * @brief Open a TCP/IP - UNIX domain socket forwarding channel.
  *
@@ -938,31 +908,23 @@ error:
  *    You still have to use channel_read and channel_write for this.
  * @warning Requires support of OpenSSH for UNIX domain socket forwarding.
  */
-int ssh_channel_open_forward_unix(ssh_channel channel,
-    const char * remotepath,
-    const char * sourcehost,
-    int localport)
+int ssh_channel_open_forward_unix(ssh_channel channel, const char * remotepath,
+    const char * sourcehost, int localport)
 {
 	ssh_session session = NULL;
 	ssh_buffer payload = NULL;
 	ssh_string str = NULL;
 	int rc = SSH_ERROR;
 	int version;
-
 	if(channel == NULL) {
 		return rc;
 	}
-
 	session = channel->session;
-
 	version = ssh_get_openssh_version(session);
 	if(version == 0) {
-		ssh_set_error(session,
-		    SSH_REQUEST_DENIED,
-		    "We're not connected to an OpenSSH server!");
+		ssh_set_error(session, SSH_REQUEST_DENIED, "We're not connected to an OpenSSH server!");
 		return SSH_ERROR;
 	}
-
 	if(remotepath == NULL || sourcehost == NULL) {
 		ssh_set_error_invalid(session);
 		return rc;
@@ -973,27 +935,15 @@ int ssh_channel_open_forward_unix(ssh_channel channel,
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(payload,
-		"ssd",
-		remotepath,
-		sourcehost,
-		localport);
+	rc = ssh_buffer_pack(payload, "ssd", remotepath, sourcehost, localport);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = channel_open(channel,
-		"direct-streamlocal@openssh.com",
-		CHANNEL_INITIAL_WINDOW,
-		CHANNEL_MAX_PACKET,
-		payload);
-
+	rc = channel_open(channel, "direct-streamlocal@openssh.com", CHANNEL_INITIAL_WINDOW, CHANNEL_MAX_PACKET, payload);
 error:
 	SSH_BUFFER_FREE(payload);
 	SSH_STRING_FREE(str);
-
 	return rc;
 }
 
@@ -1110,49 +1060,34 @@ int ssh_channel_send_eof(ssh_channel channel)
 	ssh_session session;
 	int rc = SSH_ERROR;
 	int err;
-
 	if(channel == NULL || channel->session == NULL) {
 		return rc;
 	}
-
 	/* If the EOF has already been sent we're done here. */
 	if(channel->local_eof != 0) {
 		return SSH_OK;
 	}
-
 	session = channel->session;
-
-	err = ssh_buffer_pack(session->out_buffer,
-		"bd",
-		SSH2_MSG_CHANNEL_EOF,
-		channel->remote_channel);
+	err = ssh_buffer_pack(session->out_buffer, "bd", SSH2_MSG_CHANNEL_EOF, channel->remote_channel);
 	if(err != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
 	rc = ssh_packet_send(session);
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Sent a EOF on client channel (%d:%d)",
-	    channel->local_channel,
-	    channel->remote_channel);
+	SSH_LOG(SSH_LOG_PACKET, "Sent a EOF on client channel (%d:%d)", channel->local_channel, channel->remote_channel);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
 	rc = ssh_channel_flush(channel);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}
 	channel->local_eof = 1;
-
 	return rc;
 error:
 	ssh_buffer_reinit(session->out_buffer);
-
 	return rc;
 }
-
 /**
  * @brief Close a channel.
  *
@@ -1186,45 +1121,32 @@ int ssh_channel_close(ssh_channel channel)
 	if(rc != SSH_OK) {
 		return rc;
 	}
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bd",
-		SSH2_MSG_CHANNEL_CLOSE,
-		channel->remote_channel);
+	rc = ssh_buffer_pack(session->out_buffer, "bd", SSH2_MSG_CHANNEL_CLOSE, channel->remote_channel);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
 	rc = ssh_packet_send(session);
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Sent a close on client channel (%d:%d)",
-	    channel->local_channel,
-	    channel->remote_channel);
-
+	SSH_LOG(SSH_LOG_PACKET, "Sent a close on client channel (%d:%d)", channel->local_channel, channel->remote_channel);
 	if(rc == SSH_OK) {
 		channel->state = SSH_CHANNEL_STATE_CLOSED;
 		channel->flags |= SSH_CHANNEL_FLAG_CLOSED_LOCAL;
 	}
-
 	rc = ssh_channel_flush(channel);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}
-
 	return rc;
 error:
 	ssh_buffer_reinit(session->out_buffer);
-
 	return rc;
 }
 
 /* this termination function waits for a window growing condition */
-static int ssh_channel_waitwindow_termination(void * c){
+static int ssh_channel_waitwindow_termination(void * c)
+{
 	ssh_channel channel = (ssh_channel)c;
-	if(channel->remote_window > 0 ||
-	    channel->session->session_state == SSH_SESSION_STATE_ERROR ||
-	    channel->state == SSH_CHANNEL_STATE_CLOSED)
+	if(channel->remote_window > 0 || channel->session->session_state == SSH_SESSION_STATE_ERROR || channel->state == SSH_CHANNEL_STATE_CLOSED)
 		return 1;
 	else
 		return 0;
@@ -1233,7 +1155,8 @@ static int ssh_channel_waitwindow_termination(void * c){
 /* This termination function waits until the session is not in blocked status
  * anymore, e.g. because of a key re-exchange.
  */
-static int ssh_waitsession_unblocked(void * s){
+static int ssh_waitsession_unblocked(void * s)
+{
 	ssh_session session = (ssh_session)s;
 	switch(session->session_state) {
 		case SSH_SESSION_STATE_DH:
@@ -1338,34 +1261,22 @@ static int channel_write_common(ssh_channel channel,
 		else {
 			effectivelen = len;
 		}
-
 		effectivelen = MIN(effectivelen, maxpacketlen);;
-
-		rc = ssh_buffer_pack(session->out_buffer,
-			"bd",
-			is_stderr ? SSH2_MSG_CHANNEL_EXTENDED_DATA : SSH2_MSG_CHANNEL_DATA,
-			channel->remote_channel);
+		rc = ssh_buffer_pack(session->out_buffer, "bd", is_stderr ? SSH2_MSG_CHANNEL_EXTENDED_DATA : SSH2_MSG_CHANNEL_DATA, channel->remote_channel);
 		if(rc != SSH_OK) {
 			ssh_set_error_oom(session);
 			goto error;
 		}
-
 		/* stderr message has an extra field */
 		if(is_stderr) {
-			rc = ssh_buffer_pack(session->out_buffer,
-				"d",
-				SSH2_EXTENDED_DATA_STDERR);
+			rc = ssh_buffer_pack(session->out_buffer, "d", SSH2_EXTENDED_DATA_STDERR);
 			if(rc != SSH_OK) {
 				ssh_set_error_oom(session);
 				goto error;
 			}
 		}
-
 		/* append payload data */
-		rc = ssh_buffer_pack(session->out_buffer,
-			"dP",
-			effectivelen,
-			(size_t)effectivelen, data);
+		rc = ssh_buffer_pack(session->out_buffer, "dP", effectivelen, (size_t)effectivelen, data);
 		if(rc != SSH_OK) {
 			ssh_set_error_oom(session);
 			goto error;
@@ -1583,33 +1494,24 @@ static int ssh_channel_request_termination(void * c){
 		return 0;
 }
 
-static int channel_request(ssh_channel channel, const char * request,
-    ssh_buffer buffer, int reply) {
+static int channel_request(ssh_channel channel, const char * request, ssh_buffer buffer, int reply) 
+{
 	ssh_session session = channel->session;
 	int rc = SSH_ERROR;
 	int ret;
-
 	switch(channel->request_state) {
 		case SSH_CHANNEL_REQ_STATE_NONE:
 		    break;
 		default:
 		    goto pending;
 	}
-
-	ret = ssh_buffer_pack(session->out_buffer,
-		"bdsb",
-		SSH2_MSG_CHANNEL_REQUEST,
-		channel->remote_channel,
-		request,
-		reply == 0 ? 0 : 1);
+	ret = ssh_buffer_pack(session->out_buffer, "bdsb", SSH2_MSG_CHANNEL_REQUEST, channel->remote_channel, request, reply == 0 ? 0 : 1);
 	if(ret != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
 	if(buffer != NULL) {
-		if(ssh_buffer_add_data(session->out_buffer, ssh_buffer_get(buffer),
-		    ssh_buffer_get_len(buffer)) < 0) {
+		if(ssh_buffer_add_data(session->out_buffer, ssh_buffer_get(buffer), ssh_buffer_get_len(buffer)) < 0) {
 			ssh_set_error_oom(session);
 			goto error;
 		}
@@ -1688,40 +1590,26 @@ int ssh_channel_request_pty_size(ssh_channel channel, const char * terminal,
 	ssh_session session;
 	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
 	if(channel == NULL) {
 		return SSH_ERROR;
 	}
 	session = channel->session;
-
 	if(terminal == NULL) {
 		ssh_set_error_invalid(channel->session);
 		return rc;
 	}
-
 	switch(channel->request_state) {
 		case SSH_CHANNEL_REQ_STATE_NONE:
 		    break;
 		default:
 		    goto pending;
 	}
-
 	buffer = ssh_buffer_new();
 	if(buffer == NULL) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(buffer,
-		"sdddddb",
-		terminal,
-		col,
-		row,
-		0,        /* pix */
-		0,        /* pix */
-		1,        /* add a 0byte string */
-		0);
-
+	rc = ssh_buffer_pack(buffer, "sdddddb", terminal, col, row, 0, /* pix */ 0, /* pix */ 1, /* add a 0byte string */0);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
@@ -1765,35 +1653,25 @@ int ssh_channel_request_pty(ssh_channel channel) {
  *    libssh function using the same channel/session is running at same
  *    time (not 100% threadsafe).
  */
-int ssh_channel_change_pty_size(ssh_channel channel, int cols, int rows) {
+int ssh_channel_change_pty_size(ssh_channel channel, int cols, int rows) 
+{
 	ssh_session session = channel->session;
-	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
-	buffer = ssh_buffer_new();
+	ssh_buffer buffer = ssh_buffer_new();
 	if(buffer == NULL) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(buffer,
-		"dddd",
-		cols,
-		rows,
-		0,        /* pix */
-		0 /* pix */);
+	rc = ssh_buffer_pack(buffer, "dddd", cols, rows, 0, /* pix */ 0 /* pix */);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
 	rc = channel_request(channel, "window-change", buffer, 0);
 error:
 	SSH_BUFFER_FREE(buffer);
-
 	return rc;
 }
-
 /**
  * @brief Request a shell.
  *
@@ -1843,13 +1721,11 @@ int ssh_channel_request_subsystem(ssh_channel channel, const char * subsys) {
 		default:
 		    goto pending;
 	}
-
 	buffer = ssh_buffer_new();
 	if(buffer == NULL) {
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
 	rc = ssh_buffer_pack(buffer, "s", subsys);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
@@ -1946,7 +1822,6 @@ int ssh_channel_request_x11(ssh_channel channel, int single_connection, const ch
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
 	if(cookie == NULL) {
 		c = generate_cookie();
 		if(c == NULL) {
@@ -1954,30 +1829,22 @@ int ssh_channel_request_x11(ssh_channel channel, int single_connection, const ch
 			goto error;
 		}
 	}
-
-	rc = ssh_buffer_pack(buffer,
-		"bssd",
-		single_connection == 0 ? 0 : 1,
-		protocol ? protocol : "MIT-MAGIC-COOKIE-1",
-		cookie ? cookie : c,
-		screen_number);
-	if(c != NULL) {
-		ZFREE(c);
-	}
+	rc = ssh_buffer_pack(buffer, "bssd", single_connection == 0 ? 0 : 1,
+		protocol ? protocol : "MIT-MAGIC-COOKIE-1", cookie ? cookie : c, screen_number);
+	ZFREE(c);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
 pending:
 	rc = channel_request(channel, "x11-req", buffer, 1);
-
 error:
 	SSH_BUFFER_FREE(buffer);
 	return rc;
 }
 
-static ssh_channel ssh_channel_accept(ssh_session session, int channeltype,
-    int timeout_ms, int * destination_port) {
+static ssh_channel ssh_channel_accept(ssh_session session, int channeltype, int timeout_ms, int * destination_port) 
+{
 #ifndef _WIN32
 	static const struct timespec ts = {
 		.tv_sec = 0,
@@ -1988,7 +1855,6 @@ static ssh_channel ssh_channel_accept(ssh_session session, int channeltype,
 	ssh_channel channel = NULL;
 	struct ssh_iterator * iterator;
 	int t;
-
 	/*
 	 * We sleep for 50 ms in ssh_handle_packets() and later sleep for
 	 * 50 ms. So we need to decrement by 100 ms.
@@ -2134,62 +2000,41 @@ static int ssh_global_request_termination(void * s)
  *                SSH_AGAIN if in nonblocking mode and call has
  *                to be done again.
  */
-int ssh_global_request(ssh_session session,
-    const char * request,
-    ssh_buffer buffer,
-    int reply)
+int ssh_global_request(ssh_session session, const char * request, ssh_buffer buffer, int reply)
 {
 	int rc;
-
 	switch(session->global_req_state) {
 		case SSH_CHANNEL_REQ_STATE_NONE:
 		    break;
 		default:
 		    goto pending;
 	}
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bsb",
-		SSH2_MSG_GLOBAL_REQUEST,
-		request,
-		reply == 0 ? 0 : 1);
+	rc = ssh_buffer_pack(session->out_buffer, "bsb", SSH2_MSG_GLOBAL_REQUEST, request, reply == 0 ? 0 : 1);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		rc = SSH_ERROR;
 		goto error;
 	}
-
 	if(buffer != NULL) {
-		rc = ssh_buffer_add_data(session->out_buffer,
-			ssh_buffer_get(buffer),
-			ssh_buffer_get_len(buffer));
+		rc = ssh_buffer_add_data(session->out_buffer, ssh_buffer_get(buffer), ssh_buffer_get_len(buffer));
 		if(rc < 0) {
 			ssh_set_error_oom(session);
 			rc = SSH_ERROR;
 			goto error;
 		}
 	}
-
 	session->global_req_state = SSH_CHANNEL_REQ_STATE_PENDING;
 	rc = ssh_packet_send(session);
 	if(rc == SSH_ERROR) {
 		return rc;
 	}
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Sent a SSH_MSG_GLOBAL_REQUEST %s", request);
-
+	SSH_LOG(SSH_LOG_PACKET, "Sent a SSH_MSG_GLOBAL_REQUEST %s", request);
 	if(reply == 0) {
 		session->global_req_state = SSH_CHANNEL_REQ_STATE_NONE;
-
 		return SSH_OK;
 	}
 pending:
-	rc = ssh_handle_packets_termination(session,
-		SSH_TIMEOUT_DEFAULT,
-		ssh_global_request_termination,
-		session);
-
+	rc = ssh_handle_packets_termination(session, SSH_TIMEOUT_DEFAULT, ssh_global_request_termination, session);
 	if(rc==SSH_ERROR || session->session_state == SSH_SESSION_STATE_ERROR) {
 		session->global_req_state = SSH_CHANNEL_REQ_STATE_ERROR;
 	}
@@ -2199,10 +2044,8 @@ pending:
 		    rc = SSH_OK;
 		    break;
 		case SSH_CHANNEL_REQ_STATE_DENIED:
-		    SSH_LOG(SSH_LOG_PACKET,
-			"Global request %s failed", request);
-		    ssh_set_error(session, SSH_REQUEST_DENIED,
-			"Global request %s failed", request);
+		    SSH_LOG(SSH_LOG_PACKET, "Global request %s failed", request);
+		    ssh_set_error(session, SSH_REQUEST_DENIED, "Global request %s failed", request);
 		    rc = SSH_ERROR;
 		    break;
 		case SSH_CHANNEL_REQ_STATE_ERROR:
@@ -2213,14 +2056,11 @@ pending:
 		    return SSH_AGAIN;
 	}
 	session->global_req_state = SSH_CHANNEL_REQ_STATE_NONE;
-
 	return rc;
 error:
 	ssh_buffer_reinit(session->out_buffer);
-
 	return rc;
 }
-
 /**
  * @brief Sends the "tcpip-forward" global request to ask the server to begin
  *  listening for inbound connections.
@@ -2243,42 +2083,30 @@ error:
  *                SSH_AGAIN if in nonblocking mode and call has
  *                to be done again.
  **/
-int ssh_channel_listen_forward(ssh_session session,
-    const char * address,
-    int port,
-    int * bound_port)
+int ssh_channel_listen_forward(ssh_session session, const char * address, int port, int * bound_port)
 {
 	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
 	if(session->global_req_state != SSH_CHANNEL_REQ_STATE_NONE)
 		goto pending;
-
 	buffer = ssh_buffer_new();
 	if(buffer == NULL) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(buffer,
-		"sd",
-		address ? address : "",
-		port);
+	rc = ssh_buffer_pack(buffer, "sd", address ? address : "", port);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
 pending:
 	rc = ssh_global_request(session, "tcpip-forward", buffer, 1);
-
-	/* TODO: FIXME no guarantee the last packet we received contains
-	 * that info */
+	// TODO: FIXME no guarantee the last packet we received contains that info 
 	if(rc == SSH_OK && port == 0 && bound_port != NULL) {
 		rc = ssh_buffer_unpack(session->in_buffer, "d", bound_port);
 		if(rc != SSH_OK)
 			*bound_port = 0;
 	}
-
 error:
 	SSH_BUFFER_FREE(buffer);
 	return rc;
@@ -2325,42 +2153,34 @@ ssh_channel ssh_channel_accept_forward(ssh_session session, int timeout_ms, int*
  *                SSH_AGAIN if in nonblocking mode and call has
  *                to be done again.
  */
-int ssh_channel_cancel_forward(ssh_session session,
-    const char * address,
-    int port)
+int ssh_channel_cancel_forward(ssh_session session, const char * address, int port)
 {
 	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
 	if(session->global_req_state != SSH_CHANNEL_REQ_STATE_NONE)
 		goto pending;
-
 	buffer = ssh_buffer_new();
 	if(buffer == NULL) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(buffer, "sd",
-		address ? address : "",
-		port);
+	rc = ssh_buffer_pack(buffer, "sd", address ? address : "", port);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
 pending:
 	rc = ssh_global_request(session, "cancel-tcpip-forward", buffer, 1);
-
 error:
 	SSH_BUFFER_FREE(buffer);
 	return rc;
 }
 
 /* DEPRECATED */
-int ssh_forward_cancel(ssh_session session, const char * address, int port) {
+int ssh_forward_cancel(ssh_session session, const char * address, int port) 
+{
 	return ssh_channel_cancel_forward(session, address, port);
 }
-
 /**
  * @brief Set environment variables.
  *
@@ -2398,11 +2218,7 @@ int ssh_channel_request_env(ssh_channel channel, const char * name, const char *
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(buffer,
-		"ss",
-		name,
-		value);
+	rc = ssh_buffer_pack(buffer, "ss", name, value);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
 		goto error;
@@ -2411,10 +2227,8 @@ pending:
 	rc = channel_request(channel, "env", buffer, 1);
 error:
 	SSH_BUFFER_FREE(buffer);
-
 	return rc;
 }
-
 /**
  * @brief Run a shell command without an interactive shell.
  *
@@ -2446,10 +2260,10 @@ error:
  *
  * @see ssh_channel_request_shell()
  */
-int ssh_channel_request_exec(ssh_channel channel, const char * cmd) {
+int ssh_channel_request_exec(ssh_channel channel, const char * cmd) 
+{
 	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
 	if(channel == NULL) {
 		return SSH_ERROR;
 	}
@@ -2457,7 +2271,6 @@ int ssh_channel_request_exec(ssh_channel channel, const char * cmd) {
 		ssh_set_error_invalid(channel->session);
 		return rc;
 	}
-
 	switch(channel->request_state) {
 		case SSH_CHANNEL_REQ_STATE_NONE:
 		    break;
@@ -2560,28 +2373,24 @@ error:
  * @return              SSH_OK on success, SSH_ERROR if an error occurred
  *                (including attempts to send signal via SSH-v1 session).
  */
-int ssh_channel_request_send_break(ssh_channel channel, uint32_t length) {
+int ssh_channel_request_send_break(ssh_channel channel, uint32_t length) 
+{
 	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
 	if(channel == NULL) {
 		return SSH_ERROR;
 	}
-
 	buffer = ssh_buffer_new();
 	if(buffer == NULL) {
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
 	rc = ssh_buffer_pack(buffer, "d", length);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
 	rc = channel_request(channel, "break", buffer, 0);
-
 error:
 	SSH_BUFFER_FREE(buffer);
 	return rc;
@@ -2707,13 +2516,8 @@ static int ssh_channel_read_termination(void * s)
  */
 int ssh_channel_read(ssh_channel channel, void * dest, uint32_t count, int is_stderr)
 {
-	return ssh_channel_read_timeout(channel,
-		   dest,
-		   count,
-		   is_stderr,
-		   SSH_TIMEOUT_DEFAULT);
+	return ssh_channel_read_timeout(channel, dest, count, is_stderr, SSH_TIMEOUT_DEFAULT);
 }
-
 /**
  * @brief Reads data from a channel.
  *
@@ -2737,18 +2541,13 @@ int ssh_channel_read(ssh_channel channel, void * dest, uint32_t count, int is_st
  * @warning The read function using a buffer has been renamed to
  *    channel_read_buffer().
  */
-int ssh_channel_read_timeout(ssh_channel channel,
-    void * dest,
-    uint32_t count,
-    int is_stderr,
-    int timeout_ms)
+int ssh_channel_read_timeout(ssh_channel channel, void * dest, uint32_t count, int is_stderr, int timeout_ms)
 {
 	ssh_session session;
 	ssh_buffer stdbuf;
 	uint32_t len;
 	struct ssh_channel_read_termination_struct ctx;
 	int rc;
-
 	if(channel == NULL) {
 		return SSH_ERROR;
 	}
@@ -2756,18 +2555,14 @@ int ssh_channel_read_timeout(ssh_channel channel,
 		ssh_set_error_invalid(channel->session);
 		return SSH_ERROR;
 	}
-
 	session = channel->session;
 	stdbuf = channel->stdout_buffer;
-
 	if(count == 0) {
 		return 0;
 	}
-
 	if(is_stderr) {
 		stdbuf = channel->stderr_buffer;
 	}
-
 	/*
 	 * We may have problem if the window is too small to accept as much data
 	 * as asked

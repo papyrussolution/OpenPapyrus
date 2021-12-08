@@ -47,11 +47,11 @@
 struct proppool {
 	struct proppool * next;
 
-	size_t size;      /* Size of Block */
-	size_t unused;    /* Space unused in this pool between end
+	size_t size; /* Size of Block */
+	size_t unused; /* Space unused in this pool between end
 	                   * of char ** area and beginning of char * area */
 
-	char data[1];     /* Variable Sized */
+	char data[1]; /* Variable Sized */
 };
 
 struct propctx {

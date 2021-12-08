@@ -43,36 +43,23 @@ namespace OT {
 		friend struct CPAL;
 
 private:
-		hb_ot_color_palette_flags_t get_palette_flags(const void * base,
-		    uint palette_index,
-		    uint palette_count) const
+		hb_ot_color_palette_flags_t get_palette_flags(const void * base, uint palette_index, uint palette_count) const
 		{
 			if(!paletteFlagsZ) return HB_OT_COLOR_PALETTE_FLAG_DEFAULT;
-			return (hb_ot_color_palette_flags_t)(uint32_t)
-			       (base+paletteFlagsZ).as_array(palette_count)[palette_index];
+			return (hb_ot_color_palette_flags_t)(uint32_t)(base+paletteFlagsZ).as_array(palette_count)[palette_index];
 		}
-
-		hb_ot_name_id_t get_palette_name_id(const void * base,
-		    uint palette_index,
-		    uint palette_count) const
+		hb_ot_name_id_t get_palette_name_id(const void * base, uint palette_index, uint palette_count) const
 		{
 			if(!paletteLabelsZ) return HB_OT_NAME_ID_INVALID;
 			return (base+paletteLabelsZ).as_array(palette_count)[palette_index];
 		}
-
-		hb_ot_name_id_t get_color_name_id(const void * base,
-		    uint color_index,
-		    uint color_count) const
+		hb_ot_name_id_t get_color_name_id(const void * base, uint color_index, uint color_count) const
 		{
 			if(!colorLabelsZ) return HB_OT_NAME_ID_INVALID;
 			return (base+colorLabelsZ).as_array(color_count)[color_index];
 		}
-
 public:
-		bool sanitize(hb_sanitize_context_t * c,
-		    const void * base,
-		    uint palette_count,
-		    uint color_count) const
+		bool sanitize(hb_sanitize_context_t * c, const void * base, uint palette_count, uint color_count) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this) &&
@@ -80,20 +67,10 @@ public:
 			    (!paletteLabelsZ || (base+paletteLabelsZ).sanitize(c, palette_count)) &&
 			    (!colorLabelsZ   || (base+colorLabelsZ).sanitize(c, color_count)));
 		}
-
 protected:
-		LNNOffsetTo<UnsizedArrayOf<HBUINT32>>
-		paletteFlagsZ; /* Offset from the beginning of CPAL table to
-		 * the Palette Type Array. Set to 0 if no array
-		 * is provided. */
-		LNNOffsetTo<UnsizedArrayOf<NameID>>
-		paletteLabelsZ; /* Offset from the beginning of CPAL table to
-		 * the palette labels array. Set to 0 if no
-		 * array is provided. */
-		LNNOffsetTo<UnsizedArrayOf<NameID>>
-		colorLabelsZ; /* Offset from the beginning of CPAL table to
-		 * the color labels array. Set to 0
-		 * if no array is provided. */
+		LNNOffsetTo<UnsizedArrayOf<HBUINT32>> paletteFlagsZ; /* Offset from the beginning of CPAL table to the Palette Type Array. Set to 0 if no array is provided. */
+		LNNOffsetTo<UnsizedArrayOf<NameID>> paletteLabelsZ; /* Offset from the beginning of CPAL table to the palette labels array. Set to 0 if no array is provided. */
+		LNNOffsetTo<UnsizedArrayOf<NameID>> colorLabelsZ; /* Offset from the beginning of CPAL table to the color labels array. Set to 0 if no array is provided. */
 public:
 		DEFINE_SIZE_STATIC(12);
 	};
@@ -102,43 +79,23 @@ public:
 
 	struct CPAL {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_CPAL;
-
-		bool has_data() const {
-			return numPalettes;
-		}
-
-		uint get_size() const
-		{
-			return min_size + numPalettes * sizeof(colorRecordIndicesZ[0]);
-		}
-
-		uint get_palette_count() const {
-			return numPalettes;
-		}
-
-		uint   get_color_count() const {
-			return numColors;
-		}
-
+		bool has_data() const { return numPalettes; }
+		uint get_size() const { return min_size + numPalettes * sizeof(colorRecordIndicesZ[0]); }
+		uint get_palette_count() const { return numPalettes; }
+		uint   get_color_count() const { return numColors; }
 		hb_ot_color_palette_flags_t get_palette_flags(uint palette_index) const
 		{
 			return v1().get_palette_flags(this, palette_index, numPalettes);
 		}
-
 		hb_ot_name_id_t get_palette_name_id(uint palette_index) const
 		{
 			return v1().get_palette_name_id(this, palette_index, numPalettes);
 		}
-
 		hb_ot_name_id_t get_color_name_id(uint color_index) const
 		{
 			return v1().get_color_name_id(this, color_index, numColors);
 		}
-
-		uint get_palette_colors(uint palette_index,
-		    uint start_offset,
-		    uint * color_count,               /* IN/OUT.  May be NULL. */
-		    hb_color_t * colors /* OUT.     May be NULL. */) const
+		uint get_palette_colors(uint palette_index, uint start_offset, uint * color_count/*IN/OUT May be NULL*/, hb_color_t * colors /*OUT May be NULL*/) const
 		{
 			if(UNLIKELY(palette_index >= numPalettes)) {
 				if(color_count) *color_count = 0;
@@ -162,7 +119,6 @@ private:
 			if(version == 0) return Null(CPALV1Tail);
 			return StructAfter<CPALV1Tail> (*this);
 		}
-
 public:
 		bool sanitize(hb_sanitize_context_t * c) const
 		{

@@ -1384,7 +1384,7 @@ int PPSession::Log(const char * pFileName, const char * pStr, long options)
 		if(options & LOGMSGF_DBINFO) {
 			DbProvider * p_dict = CurDict;
 			if(p_dict)
-				p_dict->GetDbSymb(temp_buf.Z());
+				p_dict->GetDbSymb(temp_buf);
 			else
 				temp_buf = "nologin";
 			item.Prefix.Cat(temp_buf).Tab();

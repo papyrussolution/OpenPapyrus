@@ -39,7 +39,7 @@ int ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagIt
 			ld.X = dlg->getCtrlReal(CTL_TAGLOTDIM_X);
 			ld.Y = dlg->getCtrlReal(CTL_TAGLOTDIM_Y);
 			ld.Z = dlg->getCtrlReal(CTL_TAGLOTDIM_Z);
-            ld.ToString(temp_buf);
+            ld.ToStr(temp_buf);
             pItem->SetStr(pItem->TagID, temp_buf);
             ok = 1;
         }
@@ -61,7 +61,7 @@ void ReceiptCore::LotDimensions::Clear()
 	MEMSZERO(Reserve);
 }
 
-SString & FASTCALL ReceiptCore::LotDimensions::ToString(SString & rBuf) const
+SString & FASTCALL ReceiptCore::LotDimensions::ToStr(SString & rBuf) const
 {
 	const long fmt = MKSFMTD(0, 6, NMBF_NOTRAILZ);
     return rBuf.Z().CatEq("x", X, fmt).Space().CatEq("y", Y, fmt).Space().CatEq("z", Z, fmt);

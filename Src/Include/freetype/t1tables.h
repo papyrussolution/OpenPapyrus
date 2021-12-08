@@ -587,7 +587,7 @@ typedef enum  PS_Dict_Keys_ {
 
 	/* conventionally in the font Private dictionary */
 	PS_DICT_NUM_SUBRS,          /* FT_Int     */
-	PS_DICT_SUBR,               /* FT_String* */
+	PS_DICT_SUBR, /* FT_String* */
 	PS_DICT_STD_HW,             /* FT_UShort  */
 	PS_DICT_STD_VW,             /* FT_UShort  */
 	PS_DICT_NUM_BLUE_VALUES,    /* FT_Byte    */

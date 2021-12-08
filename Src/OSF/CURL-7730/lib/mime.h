@@ -53,7 +53,7 @@ enum mimestate {
   MIMESTATE_CURLHEADERS,        /* In curl-generated headers. */
   MIMESTATE_USERHEADERS,        /* In caller's supplied headers. */
   MIMESTATE_EOH,                /* End of headers. */
-  MIMESTATE_BODY,               /* Placeholder. */
+  MIMESTATE_BODY, /* Placeholder. */
   MIMESTATE_BOUNDARY1,          /* In boundary prefix. */
   MIMESTATE_BOUNDARY2,          /* In boundary. */
   MIMESTATE_CONTENT,            /* In content. */

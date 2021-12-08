@@ -3284,7 +3284,7 @@ const struct Curl_ssl Curl_ssl_sectransp = {
 
 	sizeof(struct ssl_backend_data),
 
-	Curl_none_init,               /* init */
+	Curl_none_init, /* init */
 	Curl_none_cleanup,            /* cleanup */
 	Curl_sectransp_version,       /* version */
 	Curl_sectransp_check_cxn,     /* check_cxn */

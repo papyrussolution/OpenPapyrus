@@ -478,7 +478,7 @@ void _sasl_hmac_md5(const unsigned char * text /* pointer to data stream */, int
 	                                      * pass */
 	_sasl_MD5Update(&context, k_ipad, 64); /* start with inner pad */
 	_sasl_MD5Update(&context, text, text_len); /* then text of datagram */
-	_sasl_MD5Final(digest, &context);    /* finish up 1st pass */
+	_sasl_MD5Final(digest, &context); /* finish up 1st pass */
 
 	/*
 	 * perform outer MD5
@@ -488,5 +488,5 @@ void _sasl_hmac_md5(const unsigned char * text /* pointer to data stream */, int
 	_sasl_MD5Update(&context, k_opad, 64); /* start with outer pad */
 	_sasl_MD5Update(&context, digest, 16); /* then results of 1st
 	                                        * hash */
-	_sasl_MD5Final(digest, &context);    /* finish up 2nd pass */
+	_sasl_MD5Final(digest, &context); /* finish up 2nd pass */
 }

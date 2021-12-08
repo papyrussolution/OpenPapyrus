@@ -1349,10 +1349,10 @@ typedef enum { decode_full_block = 0, partial_decode = 1 } earlyEnd_directive;
 LZ4_FORCE_INLINE int LZ4_decompress_generic(const char* const src, char* const dst, int srcSize,
     int outputSize, /* If endOnInput==endOnInputSize, this value is `dstCapacity` */
     endCondition_directive endOnInput,                /* endOnOutputSize, endOnInputSize */
-    earlyEnd_directive partialDecoding,               /* full, partial */
+    earlyEnd_directive partialDecoding, /* full, partial */
     dict_directive dict,                              /* noDict, withPrefix64k, usingExtDict */
-    const uint8 * const lowPrefix,               /* always <= dst, == dst when no prefix */
-    const uint8 * const dictStart,               /* only if dict==usingExtDict */
+    const uint8 * const lowPrefix, /* always <= dst, == dst when no prefix */
+    const uint8 * const dictStart, /* only if dict==usingExtDict */
     const size_t dictSize                      /* note : = 0 if noDict */
     )
 {

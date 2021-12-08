@@ -180,7 +180,7 @@ public:
 #ifndef HB_DISABLE_DEPRECATED
 		uint get_axes_deprecated(uint start_offset,
 		    uint * axes_count /* IN/OUT */,
-		    hb_ot_var_axis_t * axes_array /* OUT */) const
+		    hb_ot_var_axis_t * axes_array /*OUT*/) const
 		{
 			if(axes_count) {
 				hb_array_t<const AxisRecord> arr = get_axes().sub_array(start_offset, axes_count);
@@ -194,7 +194,7 @@ public:
 
 		uint get_axis_infos(uint start_offset,
 		    uint * axes_count /* IN/OUT */,
-		    hb_ot_var_axis_info_t * axes_array /* OUT */) const
+		    hb_ot_var_axis_info_t * axes_array /*OUT*/) const
 		{
 			if(axes_count) {
 				hb_array_t<const AxisRecord> arr = get_axes().sub_array(start_offset, axes_count);
@@ -255,7 +255,7 @@ public:
 
 		uint get_instance_coords(uint instance_index,
 		    uint * coords_length,                /* IN/OUT */
-		    float * coords /* OUT */) const
+		    float * coords /*OUT*/) const
 		{
 			const InstanceRecord * instance = get_instance(instance_index);
 			if(UNLIKELY(!instance)) {

@@ -98,7 +98,7 @@ static ssize_t writev(SOCKET fd, const struct iovec * iov, size_t iovcnt);
 
 ssize_t writev(SOCKET fd, const struct iovec * iov, size_t iovcnt)
 {
-	ssize_t nwritten;       /* amount written */
+	ssize_t nwritten; /* amount written */
 	size_t i;
 	ssize_t nbytes = 0;
 	for(i = 0; i < iovcnt; i++) {

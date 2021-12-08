@@ -137,7 +137,7 @@ const struct Curl_handler Curl_handler_https = {
 	Curl_http_done,                 /* done */
 	ZERO_NULL,                      /* do_more */
 	Curl_http_connect,              /* connect_it */
-	https_connecting,               /* connecting */
+	https_connecting, /* connecting */
 	ZERO_NULL,                      /* doing */
 	https_getsock,                  /* proto_getsock */
 	http_getsock_do,                /* doing_getsock */

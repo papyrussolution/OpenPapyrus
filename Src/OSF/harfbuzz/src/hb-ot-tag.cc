@@ -121,7 +121,7 @@ static hb_script_t hb_ot_new_tag_to_script(hb_tag_t tag)
  * So we just do that, and handle the exceptional cases in a switch.
  */
 
-static void hb_ot_all_tags_from_script(hb_script_t script, uint * count /* IN/OUT */, hb_tag_t * tags /* OUT */)
+static void hb_ot_all_tags_from_script(hb_script_t script, uint * count /* IN/OUT */, hb_tag_t * tags /*OUT*/)
 {
 	uint i = 0;
 	hb_tag_t new_tag = hb_ot_new_tag_from_script(script);
@@ -318,9 +318,9 @@ static bool parse_private_use_subtag(const char * private_use_subtag,
 void hb_ot_tags_from_script_and_language(hb_script_t script,
     hb_language_t language,
     uint * script_count /* IN/OUT */,
-    hb_tag_t * script_tags /* OUT */,
+    hb_tag_t * script_tags /*OUT*/,
     uint * language_count /* IN/OUT */,
-    hb_tag_t * language_tags /* OUT */)
+    hb_tag_t * language_tags /*OUT*/)
 {
 	bool needs_script = true;
 
@@ -432,8 +432,8 @@ hb_language_t hb_ot_tag_to_language(hb_tag_t tag)
  **/
 void hb_ot_tags_to_script_and_language(hb_tag_t script_tag,
     hb_tag_t language_tag,
-    hb_script_t * script /* OUT */,
-    hb_language_t * language /* OUT */)
+    hb_script_t * script /*OUT*/,
+    hb_language_t * language /*OUT*/)
 {
 	hb_script_t script_out = hb_ot_tag_to_script(script_tag);
 	if(script)

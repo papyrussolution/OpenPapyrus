@@ -125,7 +125,7 @@ typedef struct UPKGOptions_ {
 	bool verbose;
 	bool quiet;
 	bool withoutAssembly;
-	bool pdsbuild;    /* for building PDS in z/OS */
+	bool pdsbuild; /* for building PDS in z/OS */
 } UPKGOptions;
 
 char * convertToNativePathSeparators(char * path);

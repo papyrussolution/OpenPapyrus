@@ -333,12 +333,9 @@ int ssh_userauth_none(ssh_session session, const char * username)
 		case SSH_PENDING_CALL_AUTH_NONE:
 		    goto pending;
 		default:
-		    ssh_set_error(session, SSH_FATAL,
-			"Wrong state (%d) during pending SSH call",
-			session->pending_call_state);
-		    return SSH_AUTH_ERROR;
+		    ssh_set_error(session, SSH_FATAL, "Wrong state (%d) during pending SSH call", session->pending_call_state); 
+			return SSH_AUTH_ERROR;
 	}
-
 	rc = ssh_userauth_request_service(session);
 	if(rc == SSH_AGAIN) {
 		return SSH_AUTH_AGAIN;
@@ -346,14 +343,8 @@ int ssh_userauth_none(ssh_session session, const char * username)
 	else if(rc == SSH_ERROR) {
 		return SSH_AUTH_ERROR;
 	}
-
 	/* request */
-	rc = ssh_buffer_pack(session->out_buffer, "bsss",
-		SSH2_MSG_USERAUTH_REQUEST,
-		username ? username : session->opts.username,
-		"ssh-connection",
-		"none"
-		);
+	rc = ssh_buffer_pack(session->out_buffer, "bsss", SSH2_MSG_USERAUTH_REQUEST, username ? username : session->opts.username, "ssh-connection", "none");
 	if(rc < 0) {
 		goto fail;
 	}
@@ -437,22 +428,16 @@ int ssh_userauth_try_publickey(ssh_session session,
 			session->pending_call_state);
 		    return SSH_ERROR;
 	}
-
 	/* Check if the given public key algorithm is allowed */
 	sig_type_c = ssh_key_get_signature_algorithm(session, pubkey->type);
 	if(sig_type_c == NULL) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "Invalid key type (unknown)");
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Invalid key type (unknown)");
 		return SSH_AUTH_DENIED;
 	}
 	if(!ssh_key_algorithm_allowed(session, sig_type_c)) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "The key algorithm '%s' is not allowed to be used by"
-		    " PUBLICKEY_ACCEPTED_TYPES configuration option",
-		    sig_type_c);
+		ssh_set_error(session, SSH_REQUEST_DENIED, "The key algorithm '%s' is not allowed to be used by PUBLICKEY_ACCEPTED_TYPES configuration option", sig_type_c);
 		return SSH_AUTH_DENIED;
 	}
-
 	rc = ssh_userauth_request_service(session);
 	if(rc == SSH_AGAIN) {
 		return SSH_AUTH_AGAIN;
@@ -460,23 +445,15 @@ int ssh_userauth_try_publickey(ssh_session session,
 	else if(rc == SSH_ERROR) {
 		return SSH_AUTH_ERROR;
 	}
-
 	/* public key */
 	rc = ssh_pki_export_pubkey_blob(pubkey, &pubkey_s);
 	if(rc < 0) {
 		goto fail;
 	}
-
 	/* request */
-	rc = ssh_buffer_pack(session->out_buffer, "bsssbsS",
-		SSH2_MSG_USERAUTH_REQUEST,
-		username ? username : session->opts.username,
-		"ssh-connection",
-		"publickey",
-		0, /* private key ? */
-		sig_type_c, /* algo */
-		pubkey_s /* public key */
-		);
+	rc = ssh_buffer_pack(session->out_buffer, "bsssbsS", SSH2_MSG_USERAUTH_REQUEST,
+		username ? username : session->opts.username, "ssh-connection", "publickey",
+		0, /* private key ? */ sig_type_c, /* algo */ pubkey_s /* public key */);
 	if(rc < 0) {
 		goto fail;
 	}
@@ -496,13 +473,11 @@ pending:
 	if(rc != SSH_AUTH_AGAIN) {
 		session->pending_call_state = SSH_PENDING_CALL_NONE;
 	}
-
 	return rc;
 fail:
 	SSH_STRING_FREE(pubkey_s);
 	ssh_set_error_oom(session);
 	ssh_buffer_reinit(session->out_buffer);
-
 	return SSH_AUTH_ERROR;
 }
 
@@ -529,55 +504,41 @@ fail:
  * authentication. The username should only be set with ssh_options_set() only
  * before you connect to the server.
  */
-int ssh_userauth_publickey(ssh_session session,
-    const char * username,
-    const ssh_key privkey)
+int ssh_userauth_publickey(ssh_session session, const char * username, const ssh_key privkey)
 {
 	ssh_string str = NULL;
 	int rc;
 	const char * sig_type_c = NULL;
 	enum ssh_keytypes_e key_type;
 	enum ssh_digest_e hash_type;
-
 	if(session == NULL) {
 		return SSH_AUTH_ERROR;
 	}
-
 	if(privkey == NULL || !ssh_key_is_private(privkey)) {
 		ssh_set_error(session, SSH_FATAL, "Invalid private key");
 		return SSH_AUTH_ERROR;
 	}
-
 	switch(session->pending_call_state) {
 		case SSH_PENDING_CALL_NONE:
 		    break;
 		case SSH_PENDING_CALL_AUTH_PUBKEY:
 		    goto pending;
 		default:
-		    ssh_set_error(session,
-			SSH_FATAL,
-			"Bad call during pending SSH call in ssh_userauth_try_publickey");
-		    return SSH_AUTH_ERROR;
+		    ssh_set_error(session, SSH_FATAL, "Bad call during pending SSH call in ssh_userauth_try_publickey"); 
+			return SSH_AUTH_ERROR;
 	}
-
 	/* Cert auth requires presenting the cert type name (*-cert@openssh.com) */
 	key_type = privkey->cert != NULL ? privkey->cert_type : privkey->type;
-
 	/* Check if the given public key algorithm is allowed */
 	sig_type_c = ssh_key_get_signature_algorithm(session, key_type);
 	if(sig_type_c == NULL) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "Invalid key type (unknown)");
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Invalid key type (unknown)");
 		return SSH_AUTH_DENIED;
 	}
 	if(!ssh_key_algorithm_allowed(session, sig_type_c)) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "The key algorithm '%s' is not allowed to be used by"
-		    " PUBLICKEY_ACCEPTED_TYPES configuration option",
-		    sig_type_c);
+		ssh_set_error(session, SSH_REQUEST_DENIED, "The key algorithm '%s' is not allowed to be used by PUBLICKEY_ACCEPTED_TYPES configuration option", sig_type_c);
 		return SSH_AUTH_DENIED;
 	}
-
 	rc = ssh_userauth_request_service(session);
 	if(rc == SSH_AGAIN) {
 		return SSH_AUTH_AGAIN;
@@ -591,38 +552,26 @@ int ssh_userauth_publickey(ssh_session session,
 	if(rc < 0) {
 		goto fail;
 	}
-
 	/* request */
-	rc = ssh_buffer_pack(session->out_buffer, "bsssbsS",
-		SSH2_MSG_USERAUTH_REQUEST,
-		username ? username : session->opts.username,
-		"ssh-connection",
-		"publickey",
-		1, /* private key */
-		sig_type_c, /* algo */
-		str /* public key or cert */
-		);
+	rc = ssh_buffer_pack(session->out_buffer, "bsssbsS", SSH2_MSG_USERAUTH_REQUEST, username ? username : session->opts.username,
+		"ssh-connection", "publickey", 1, /* private key */ sig_type_c, /* algo */ str /* public key or cert */);
 	if(rc < 0) {
 		goto fail;
 	}
 	SSH_STRING_FREE(str);
-
 	/* Get the hash type to be used in the signature based on the key type */
 	hash_type = ssh_key_type_to_hash(session, privkey->type);
-
 	/* sign the buffer with the private key */
 	str = ssh_pki_do_sign(session, session->out_buffer, privkey, hash_type);
 	if(str == NULL) {
 		goto fail;
 	}
-
 	rc = ssh_buffer_add_ssh_string(session->out_buffer, str);
 	SSH_STRING_FREE(str);
 	str = NULL;
 	if(rc < 0) {
 		goto fail;
 	}
-
 	session->auth.current_method = SSH_AUTH_METHOD_PUBLICKEY;
 	session->auth.state = SSH_AUTH_STATE_PUBKEY_AUTH_SENT;
 	session->pending_call_state = SSH_PENDING_CALL_AUTH_PUBKEY;
@@ -685,30 +634,19 @@ static int ssh_userauth_agent_publickey(ssh_session session,
 	/* Check if the given public key algorithm is allowed */
 	sig_type_c = ssh_key_get_signature_algorithm(session, pubkey->type);
 	if(sig_type_c == NULL) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "Invalid key type (unknown)");
+		ssh_set_error(session, SSH_REQUEST_DENIED, "Invalid key type (unknown)");
 		SSH_STRING_FREE(pubkey_s);
 		return SSH_AUTH_DENIED;
 	}
 	if(!ssh_key_algorithm_allowed(session, sig_type_c)) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "The key algorithm '%s' is not allowed to be used by"
-		    " PUBLICKEY_ACCEPTED_TYPES configuration option",
-		    sig_type_c);
+		ssh_set_error(session, SSH_REQUEST_DENIED, "The key algorithm '%s' is not allowed to be used by PUBLICKEY_ACCEPTED_TYPES configuration option", sig_type_c);
 		SSH_STRING_FREE(pubkey_s);
 		return SSH_AUTH_DENIED;
 	}
 
 	/* request */
-	rc = ssh_buffer_pack(session->out_buffer, "bsssbsS",
-		SSH2_MSG_USERAUTH_REQUEST,
-		username ? username : session->opts.username,
-		"ssh-connection",
-		"publickey",
-		1, /* private key */
-		sig_type_c, /* algo */
-		pubkey_s /* public key */
-		);
+	rc = ssh_buffer_pack(session->out_buffer, "bsssbsS", SSH2_MSG_USERAUTH_REQUEST, username ? username : session->opts.username,
+		"ssh-connection", "publickey", 1, /* private key */ sig_type_c, /* algo */ pubkey_s /* public key */);
 	SSH_STRING_FREE(pubkey_s);
 	if(rc < 0) {
 		goto fail;
@@ -1175,10 +1113,7 @@ int ssh_userauth_password(ssh_session session,
 		case SSH_PENDING_CALL_AUTH_PASSWORD:
 		    goto pending;
 		default:
-		    ssh_set_error(session,
-			SSH_FATAL,
-			"Wrong state (%d) during pending SSH call",
-			session->pending_call_state);
+		    ssh_set_error(session, SSH_FATAL, "Wrong state (%d) during pending SSH call", session->pending_call_state);
 		    return SSH_ERROR;
 	}
 
@@ -1189,16 +1124,9 @@ int ssh_userauth_password(ssh_session session,
 	else if(rc == SSH_ERROR) {
 		return SSH_AUTH_ERROR;
 	}
-
 	/* request */
-	rc = ssh_buffer_pack(session->out_buffer, "bsssbs",
-		SSH2_MSG_USERAUTH_REQUEST,
-		username ? username : session->opts.username,
-		"ssh-connection",
-		"password",
-		0, /* false */
-		password
-		);
+	rc = ssh_buffer_pack(session->out_buffer, "bsssbs", SSH2_MSG_USERAUTH_REQUEST, username ? username : session->opts.username,
+		"ssh-connection", "password", 0, /* false */ password);
 	if(rc < 0) {
 		goto fail;
 	}
@@ -1339,12 +1267,9 @@ void ssh_kbdint_clean(ssh_kbdint kbd) {
 /*
  * This function sends the first packet as explained in RFC 3066 section 3.1.
  */
-static int ssh_userauth_kbdint_init(ssh_session session,
-    const char * username,
-    const char * submethods)
+static int ssh_userauth_kbdint_init(ssh_session session, const char * username, const char * submethods)
 {
 	int rc;
-
 	if(session->pending_call_state == SSH_PENDING_CALL_AUTH_KBDINT_INIT) {
 		goto pending;
 	}
@@ -1352,7 +1277,6 @@ static int ssh_userauth_kbdint_init(ssh_session session,
 		ssh_set_error_invalid(session);
 		return SSH_ERROR;
 	}
-
 	rc = ssh_userauth_request_service(session);
 	if(rc == SSH_AGAIN) {
 		return SSH_AUTH_AGAIN;
@@ -1360,26 +1284,15 @@ static int ssh_userauth_kbdint_init(ssh_session session,
 	if(rc != SSH_OK) {
 		return SSH_AUTH_ERROR;
 	}
-
 	/* request */
-	rc = ssh_buffer_pack(session->out_buffer, "bsssss",
-		SSH2_MSG_USERAUTH_REQUEST,
-		username ? username : session->opts.username,
-		"ssh-connection",
-		"keyboard-interactive",
-		"", /* lang (ignore it) */
-		submethods ? submethods : ""
-		);
+	rc = ssh_buffer_pack(session->out_buffer, "bsssss", SSH2_MSG_USERAUTH_REQUEST,
+		username ? username : session->opts.username, "ssh-connection", "keyboard-interactive", "", /* lang (ignore it) */ submethods ? submethods : "");
 	if(rc < 0) {
 		goto fail;
 	}
-
 	session->auth.state = SSH_AUTH_STATE_KBDINT_SENT;
 	session->pending_call_state = SSH_PENDING_CALL_AUTH_KBDINT_INIT;
-
-	SSH_LOG(SSH_LOG_DEBUG,
-	    "Sending keyboard-interactive init request");
-
+	SSH_LOG(SSH_LOG_DEBUG, "Sending keyboard-interactive init request");
 	rc = ssh_packet_send(session);
 	if(rc == SSH_ERROR) {
 		return SSH_AUTH_ERROR;
@@ -1392,7 +1305,6 @@ pending:
 fail:
 	ssh_set_error_oom(session);
 	ssh_buffer_reinit(session->out_buffer);
-
 	return SSH_AUTH_ERROR;
 }
 
@@ -1825,13 +1737,9 @@ int ssh_userauth_gssapi(ssh_session session)
 		case SSH_PENDING_CALL_AUTH_GSSAPI_MIC:
 		    goto pending;
 		default:
-		    ssh_set_error(session,
-			SSH_FATAL,
-			"Wrong state (%d) during pending SSH call",
-			session->pending_call_state);
+		    ssh_set_error(session, SSH_FATAL, "Wrong state (%d) during pending SSH call", session->pending_call_state);
 		    return SSH_ERROR;
 	}
-
 	rc = ssh_userauth_request_service(session);
 	if(rc == SSH_AGAIN) {
 		return SSH_AUTH_AGAIN;
@@ -1840,18 +1748,15 @@ int ssh_userauth_gssapi(ssh_session session)
 		return SSH_AUTH_ERROR;
 	}
 	SSH_LOG(SSH_LOG_PROTOCOL, "Authenticating with gssapi-with-mic");
-
 	session->auth.current_method = SSH_AUTH_METHOD_GSSAPI_MIC;
 	session->auth.state = SSH_AUTH_STATE_NONE;
 	session->pending_call_state = SSH_PENDING_CALL_AUTH_GSSAPI_MIC;
 	rc = ssh_gssapi_auth_mic(session);
-
 	if(rc == SSH_AUTH_ERROR || rc == SSH_AUTH_DENIED) {
 		session->auth.state = SSH_AUTH_STATE_NONE;
 		session->pending_call_state = SSH_PENDING_CALL_NONE;
 		return rc;
 	}
-
 pending:
 	rc = ssh_userauth_get_response(session);
 	if(rc != SSH_AUTH_AGAIN) {

@@ -118,11 +118,11 @@ const struct Curl_handler Curl_handler_smtp = {
 	smtp_do,                    /* do_it */
 	smtp_done,                  /* done */
 	ZERO_NULL,                  /* do_more */
-	smtp_connect,               /* connect_it */
+	smtp_connect, /* connect_it */
 	smtp_multi_statemach,       /* connecting */
 	smtp_doing,                 /* doing */
-	smtp_getsock,               /* proto_getsock */
-	smtp_getsock,               /* doing_getsock */
+	smtp_getsock, /* proto_getsock */
+	smtp_getsock, /* doing_getsock */
 	ZERO_NULL,                  /* domore_getsock */
 	ZERO_NULL,                  /* perform_getsock */
 	smtp_disconnect,            /* disconnect */
@@ -146,11 +146,11 @@ const struct Curl_handler Curl_handler_smtps = {
 	smtp_do,                    /* do_it */
 	smtp_done,                  /* done */
 	ZERO_NULL,                  /* do_more */
-	smtp_connect,               /* connect_it */
+	smtp_connect, /* connect_it */
 	smtp_multi_statemach,       /* connecting */
 	smtp_doing,                 /* doing */
-	smtp_getsock,               /* proto_getsock */
-	smtp_getsock,               /* doing_getsock */
+	smtp_getsock, /* proto_getsock */
+	smtp_getsock, /* doing_getsock */
 	ZERO_NULL,                  /* domore_getsock */
 	ZERO_NULL,                  /* perform_getsock */
 	smtp_disconnect,            /* disconnect */
@@ -166,7 +166,7 @@ const struct Curl_handler Curl_handler_smtps = {
 
 /* SASL parameters for the smtp protocol */
 static const struct SASLproto saslsmtp = {
-	"smtp",               /* The service name */
+	"smtp", /* The service name */
 	334,                  /* Code received when continuation is expected */
 	235,                  /* Code to receive upon authentication success */
 	512 - 8,              /* Maximum initial response length (no max) */

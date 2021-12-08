@@ -80,7 +80,7 @@ static const op_info_t op_flags[PIXMAN_N_OPERATORS] =
 	{ ITER_LOCALIZED_ALPHA,  0                     },/* OVER_REVERSE */
 	{ ITER_LOCALIZED_ALPHA,  ITER_IGNORE_RGB       },/* IN */
 	{ ITER_IGNORE_RGB,       ITER_LOCALIZED_ALPHA  },/* IN_REVERSE */
-	{ ITER_LOCALIZED_ALPHA,  ITER_IGNORE_RGB       },/* OUT */
+	{ ITER_LOCALIZED_ALPHA,  ITER_IGNORE_RGB       },/*OUT*/
 	{ ITER_IGNORE_RGB,       ITER_LOCALIZED_ALPHA  },/* OUT_REVERSE */
 	{ 0,                     0                     },/* ATOP */
 	{ 0,                     0                     },/* ATOP_REVERSE */

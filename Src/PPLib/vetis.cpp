@@ -11543,6 +11543,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	}
 	// } @v10.5.9
 	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj = BillObj;
 	VetisDocumentViewItem vi;
 	PPIDArray entity_id_list;
 	PPIDArray manuf_id_list; // Список документов выхода из производства
@@ -11558,6 +11559,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	PPVetisInterface::Param param(0, Filt.LocID, 0);
 	PPVetisInterface::OutcomingList work_list; // @v10.5.9
 	VetisApplicationBlock pi_reply;
+	BillTbl::Rec link_bill_rec;
 	THROW(PPVetisInterface::SetupParam(param));
 	THROW(ifc.Init(param));
 	PPWaitStart();
@@ -11568,33 +11570,39 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 					manuf_assoc_list.Add(vi.DepDocEntityID, vi.EntityID);
 			}
 			else {
-				entity_id_list.add(vi.EntityID);
-				if(vi.Flags & VetisVetDocument::fManufIncome)
-					manuf_id_list.add(vi.EntityID);
-				else {
-					VetisEntityCore::Entity _ent;
-					S_GUID region_guid_from;
-					S_GUID region_guid_to;
-					S_GUID subp_guid;
-					long   region_id_from = 0;
-					long   region_id_to = 0;
-					if(vi.LinkFromDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkFromDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_from) > 0 &&
-						vi.LinkToDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkToDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_to) > 0) {
-						if(vi.ProductItemID && ifc.PeC.GetEntity(vi.ProductItemID, _ent) > 0) {
-							pi_reply.Clear();
-							if(ifc.GetEntityQuery2(PPVetisInterface::qtProductItemByGuid, VGuidToStr(_ent.Guid, temp_buf), pi_reply) > 0) {
-								if(pi_reply.ProductItemList.getCount()) {
-									S_GUID subp_guid = pi_reply.ProductItemList.at(0)->SubProduct.Guid;
-									regroute_list.Add(region_guid_from, region_guid_to, subp_guid, vi.EntityID);
+				if(vi.LinkBillID && p_bobj->Search(vi.LinkBillID, &link_bill_rec) > 0) { // @v11.2.7
+					entity_id_list.add(vi.EntityID);
+					if(vi.Flags & VetisVetDocument::fManufIncome)
+						manuf_id_list.add(vi.EntityID);
+					else {
+						VetisEntityCore::Entity _ent;
+						S_GUID region_guid_from;
+						S_GUID region_guid_to;
+						S_GUID subp_guid;
+						long   region_id_from = 0;
+						long   region_id_to = 0;
+						if(vi.LinkFromDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkFromDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_from) > 0 &&
+							vi.LinkToDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkToDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_to) > 0) {
+							if(vi.ProductItemID && ifc.PeC.GetEntity(vi.ProductItemID, _ent) > 0) {
+								pi_reply.Clear();
+								if(ifc.GetEntityQuery2(PPVetisInterface::qtProductItemByGuid, VGuidToStr(_ent.Guid, temp_buf), pi_reply) > 0) {
+									if(pi_reply.ProductItemList.getCount()) {
+										S_GUID subp_guid = pi_reply.ProductItemList.at(0)->SubProduct.Guid;
+										regroute_list.Add(region_guid_from, region_guid_to, subp_guid, vi.EntityID);
+									}
 								}
 							}
+							// @v11.2.5 {
+							else if(vi.SubProductID && ifc.PeC.GetEntity(vi.SubProductID, _ent) > 0) {
+								regroute_list.Add(region_guid_from, region_guid_to, _ent.Guid, vi.EntityID);
+							}
+							// } @v11.2.5 
 						}
-						// @v11.2.5 {
-						else if(vi.SubProductID && ifc.PeC.GetEntity(vi.SubProductID, _ent) > 0) {
-							regroute_list.Add(region_guid_from, region_guid_to, _ent.Guid, vi.EntityID);
-						}
-						// } @v11.2.5 
 					}
+				}
+				else {
+					PPLoadText(PPTXT_VETIS_OUTCERTREJNOLINKBILL, temp_buf);
+					logger.Log(temp_buf);
 				}
 			}
 		}

@@ -163,16 +163,16 @@ typedef struct sasl_utils {
  *
  */
 typedef struct sasl_out_params {
-	unsigned doneflag;      /* exchange complete */
+	unsigned doneflag; /* exchange complete */
 
-	const char * user;      /* canonicalized user name */
-	const char * authid;    /* canonicalized authentication id */
+	const char * user; /* canonicalized user name */
+	const char * authid; /* canonicalized authentication id */
 
-	unsigned ulen;          /* length of canonicalized user name */
-	unsigned alen;          /* length of canonicalized authid */
+	unsigned ulen; /* length of canonicalized user name */
+	unsigned alen; /* length of canonicalized authid */
 
 	/* security layer information */
-	unsigned maxoutbuf;     /* Maximum buffer size, which will
+	unsigned maxoutbuf; /* Maximum buffer size, which will
 	                           produce buffer no bigger than the
 	                           negotiated SASL maximum buffer size */
 	sasl_ssf_t mech_ssf; /* Should be set non-zero if negotiation of a
@@ -252,11 +252,11 @@ typedef struct sasl_client_params {
 	const char * iplocalport; /* server IP domain literal & port */
 	const char * ipremoteport; /* client IP domain literal & port */
 
-	unsigned servicelen;    /* length of service */
-	unsigned slen;          /* length of serverFQDN */
-	unsigned clen;          /* length of clientFQDN */
-	unsigned iploclen;      /* length of iplocalport */
-	unsigned ipremlen;      /* length of ipremoteport */
+	unsigned servicelen; /* length of service */
+	unsigned slen; /* length of serverFQDN */
+	unsigned clen; /* length of clientFQDN */
+	unsigned iploclen; /* length of iplocalport */
+	unsigned ipremlen; /* length of ipremoteport */
 
 	/* application's security requirements & info */
 	sasl_security_properties_t props;
@@ -494,12 +494,12 @@ typedef struct sasl_server_params {
 	const char * iplocalport; /* server IP domain literal & port */
 	const char * ipremoteport; /* client IP domain literal & port */
 
-	unsigned servicelen;    /* length of service */
-	unsigned applen;        /* length of appname */
-	unsigned slen;          /* length of serverFQDN */
+	unsigned servicelen; /* length of service */
+	unsigned applen; /* length of appname */
+	unsigned slen; /* length of serverFQDN */
 	unsigned urlen;         /* length of user_realm */
-	unsigned iploclen;      /* length of iplocalport */
-	unsigned ipremlen;      /* length of ipremoteport */
+	unsigned iploclen; /* length of iplocalport */
+	unsigned ipremlen; /* length of ipremoteport */
 
 	/* This indicates the level of logging desired.  See SASL_LOG_*
 	 * in sasl.h

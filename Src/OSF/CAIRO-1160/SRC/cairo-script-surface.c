@@ -1115,13 +1115,8 @@ static cairo_int_status_t _emit_subsurface_pattern(cairo_script_surface_t * surf
 	}
 	if(UNLIKELY(status))
 		return status;
-
-	_cairo_output_stream_printf(to_context(surface)->stream,
-	    "%d %d %d %d subsurface ",
-	    sub->extents.x,
-	    sub->extents.y,
-	    sub->extents.width,
-	    sub->extents.height);
+	_cairo_output_stream_printf(to_context(surface)->stream, "%d %d %d %d subsurface ",
+	    sub->extents.x, sub->extents.y, sub->extents.width, sub->extents.height);
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
@@ -1225,11 +1220,8 @@ static cairo_int_status_t _emit_pattern(cairo_script_surface_t * surface, const 
 			_cairo_output_stream_puts(ctx->stream, "\n ");
 			need_newline = FALSE;
 		}
-		_cairo_output_stream_printf(ctx->stream,
-		    " [%f %f %f %f %f %f] set-matrix\n ",
-		    pattern->matrix.xx, pattern->matrix.yx,
-		    pattern->matrix.xy, pattern->matrix.yy,
-		    pattern->matrix.x0, pattern->matrix.y0);
+		_cairo_output_stream_printf(ctx->stream, " [%f %f %f %f %f %f] set-matrix\n ",
+		    pattern->matrix.xx, pattern->matrix.yx, pattern->matrix.xy, pattern->matrix.yy, pattern->matrix.x0, pattern->matrix.y0);
 	}
 
 	/* XXX need to discriminate the user explicitly setting the default */
@@ -1238,20 +1230,14 @@ static cairo_int_status_t _emit_pattern(cairo_script_surface_t * surface, const 
 			_cairo_output_stream_puts(ctx->stream, "\n ");
 			need_newline = FALSE;
 		}
-
-		_cairo_output_stream_printf(ctx->stream,
-		    " //%s set-filter\n ",
-		    _filter_to_string(pattern->filter));
+		_cairo_output_stream_printf(ctx->stream, " //%s set-filter\n ", _filter_to_string(pattern->filter));
 	}
 	if(!is_default_extend) {
 		if(need_newline) {
 			_cairo_output_stream_puts(ctx->stream, "\n ");
 			need_newline = FALSE;
 		}
-
-		_cairo_output_stream_printf(ctx->stream,
-		    " //%s set-extend\n ",
-		    _extend_to_string(pattern->extend));
+		_cairo_output_stream_printf(ctx->stream, " //%s set-extend\n ", _extend_to_string(pattern->extend));
 	}
 	if(need_newline)
 		_cairo_output_stream_puts(ctx->stream, "\n ");
@@ -1275,29 +1261,22 @@ static cairo_int_status_t _emit_source(cairo_script_surface_t * surface, cairo_o
 	cairo_int_status_t status;
 	assert(target_is_active(surface));
 	if(op == CAIRO_OPERATOR_CLEAR) {
-		/* the source is ignored, so don't change it */
-		return CAIRO_INT_STATUS_SUCCESS;
+		return CAIRO_INT_STATUS_SUCCESS; // the source is ignored, so don't change it 
 	}
 	if(_cairo_pattern_equal(&surface->cr.current_source.base, source))
 		return CAIRO_INT_STATUS_SUCCESS;
-
 	_cairo_pattern_fini(&surface->cr.current_source.base);
-	status = _cairo_pattern_init_copy(&surface->cr.current_source.base,
-		source);
+	status = _cairo_pattern_init_copy(&surface->cr.current_source.base, source);
 	if(UNLIKELY(status))
 		return status;
-
 	status = _emit_identity(surface, &matrix_updated);
 	if(UNLIKELY(status))
 		return status;
-
 	status = _emit_pattern(surface, source);
 	if(UNLIKELY(status))
 		return status;
-
 	assert(target_is_active(surface));
-	_cairo_output_stream_puts(to_context(surface)->stream,
-	    " set-source\n");
+	_cairo_output_stream_puts(to_context(surface)->stream, " set-source\n");
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
@@ -1394,25 +1373,16 @@ static cairo_status_t _emit_path(cairo_script_surface_t * surface, const cairo_p
 		double x2 = _cairo_fixed_to_double(box.p2.x);
 		double y2 = _cairo_fixed_to_double(box.p2.y);
 		assert(x1 > -9999);
-		_cairo_output_stream_printf(ctx->stream,
-		    " %f %f %f %f rectangle",
-		    x1, y1, x2 - x1, y2 - y1);
+		_cairo_output_stream_printf(ctx->stream, " %f %f %f %f rectangle", x1, y1, x2 - x1, y2 - y1);
 		status = CAIRO_INT_STATUS_SUCCESS;
 	}
 	else if(is_fill && _cairo_path_fixed_fill_is_rectilinear(path)) {
 		status = _emit_path_boxes(surface, path);
 	}
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
-		status = _cairo_path_fixed_interpret(path,
-			_path_move_to,
-			_path_line_to,
-			_path_curve_to,
-			_path_close,
-			ctx->stream);
+		status = _cairo_path_fixed_interpret(path, _path_move_to, _path_line_to, _path_curve_to, _path_close, ctx->stream);
 	}
-
 	_cairo_output_stream_puts(ctx->stream, "\n");
-
 	return status;
 }
 

@@ -431,13 +431,13 @@ int RESearch::GetBackslashExpression(const char * pattern,
 }
 
 const char * RESearch::Compile(const char * pattern, Sci::Position length, bool caseSensitive, bool posix) noexcept {
-	char * mp = nfa;          /* nfa pointer       */
+	char * mp = nfa; /* nfa pointer       */
 	char * lp;              /* saved pointer     */
-	char * sp = nfa;          /* another one       */
+	char * sp = nfa; /* another one       */
 	char * mpMax = mp + MAXNFA - BITBLK - 10;
 
-	int tagi = 0;          /* tag stack index   */
-	int tagc = 1;          /* actual tag count  */
+	int tagi = 0; /* tag stack index   */
+	int tagc = 1; /* actual tag count  */
 
 	int n;
 	char mask;             /* xor mask -CCL/NCL */
@@ -451,7 +451,7 @@ const char * RESearch::Compile(const char * pattern, Sci::Position length, bool 
 	}
 	sta = NOP;
 
-	const char * p = pattern;     /* pattern pointer   */
+	const char * p = pattern; /* pattern pointer   */
 	for(int i = 0; i<length; i++, p++) {
 		if(mp > mpMax)
 			return badpat("Pattern too long");
@@ -874,8 +874,8 @@ Sci::Position RESearch::PMatch(const CharacterIndexer &ci, Sci::Position lp, Sci
 	Sci::Position e;                /* extra pointer for CLO  */
 	Sci::Position bp;               /* beginning of subpat... */
 	Sci::Position ep;               /* ending of subpat...    */
-	Sci::Position are;      /* to save the line ptr.  */
-	Sci::Position llp;      /* lazy lp for LCLO       */
+	Sci::Position are; /* to save the line ptr.  */
+	Sci::Position llp; /* lazy lp for LCLO       */
 
 	while((op = *ap++) != END)
 		switch(op) {

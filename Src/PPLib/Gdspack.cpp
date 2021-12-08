@@ -1,5 +1,5 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <pp.h>
 #pragma hdrstop
@@ -22,7 +22,7 @@ void PPGoodsPacket::destroy()
 	ClsDimZeroFlags = 0;
 	MEMSZERO(Rec);
 	MEMSZERO(ExtRec);
-	Stock.Init();
+	Stock.Z();
 	Codes.clear(); // @v10.0.02 freeAll()-->clear()
 	ArCodes.clear(); // @v10.0.02 freeAll()-->clear()
 	ExtString.Z();
@@ -265,10 +265,11 @@ PPGdsClsProp::PPGdsClsProp() : ItemsListID(0)
 	PTR32(Name)[0] = 0;
 }
 
-void PPGdsClsProp::Init()
+PPGdsClsProp & PPGdsClsProp::Z()
 {
-	memzero(Name, sizeof(Name));
+	PTR32(Name)[0] = 0;
 	ItemsListID = 0;
+	return *this;
 }
 
 PPGdsClsProp & FASTCALL PPGdsClsProp::operator = (const PPGdsClsProp & s)
@@ -285,11 +286,12 @@ PPGdsClsDim::PPGdsClsDim() : Scale(0)
 	PTR32(Name)[0] = 0;
 }
 
-void PPGdsClsDim::Init()
+PPGdsClsDim & PPGdsClsDim::Z()
 {
-	memzero(Name, sizeof(Name));
+	PTR32(Name)[0] = 0;
 	Scale = 0;
-	ValList.freeAll();
+	ValList.Z(); // @v11.2.7 freeAll()-->Z()
+	return *this;
 }
 
 PPGdsClsDim & FASTCALL PPGdsClsDim::operator = (const PPGdsClsDim & s)
@@ -300,26 +302,23 @@ PPGdsClsDim & FASTCALL PPGdsClsDim::operator = (const PPGdsClsDim & s)
 	return *this;
 }
 
-int PPGdsClsDim::ToStr(int, char * pBuf, size_t bufLen)
+SString & PPGdsClsDim::ToStr(SString & rBuf) const
 {
-	size_t p = 0;
+	rBuf.Z();
 	for(uint i = 0; i < ValList.getCount(); i++) {
 		if(i > 0)
-			pBuf[p++] = ',';
-		double val = (double)ValList.at(i);
+			rBuf.Comma();
+		double val = static_cast<double>(ValList.at(i));
 		if(Scale != 0)
 			val = val / fpow10i((int)Scale);
-		p += sstrlen(realfmt(val, MKSFMTD(0, Scale, NMBF_NOTRAILZ), pBuf+p));
-		if(bufLen > 0 && p >= (bufLen-8))
-			break;
+		rBuf.Cat(val, MKSFMTD(0, Scale, NMBF_NOTRAILZ));
 	}
-	pBuf[p] = 0;
-	return 1;
+	return rBuf;
 }
 
 int PPGdsClsDim::FromStr(int, const char * pBuf)
 {
-	ValList.freeAll();
+	ValList.Z(); // @v11.2.7 freeAll()-->Z()
 	char   tmp_buf[32];
 	StringSet ss(',', pBuf);
 	for(uint pos = 0; ss.get(&pos, tmp_buf, sizeof(tmp_buf));) {
@@ -356,10 +355,15 @@ int PPGdsClsDim::FromStr(int, const char * pBuf)
 #undef M
 }
 
-void   PPGdsCls::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
-int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1 << (fld-1))) ? 1 : 0; }
+PPGdsCls2::PPGdsCls2()
+{
+	THISZERO();
+}
 
-/*static*/long FASTCALL PPGdsCls::UseFlagToE(long useFlag)
+void   PPGdsCls2::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
+int    FASTCALL PPGdsCls2::GetDynGenMask(int fld) const { return (DynGenMask & (1 << (fld-1))) ? 1 : 0; }
+
+/*static*/long FASTCALL PPGdsCls2::UseFlagToE(long useFlag)
 {
 	switch(useFlag) {
 		case fUsePropKind: return eKind;
@@ -374,7 +378,7 @@ int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1
 	return 0;
 }
 
-/*static*/long FASTCALL PPGdsCls::EToUseFlag(long e)
+/*static*/long FASTCALL PPGdsCls2::EToUseFlag(long e)
 {
 	switch(e) {
 		case eKind: return fUsePropKind;
@@ -393,7 +397,7 @@ int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1
 //
 PPGdsClsPacket::PPGdsClsPacket()
 {
-	Init();
+	// @v11.2.7 Init();
 }
 
 PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & s)
@@ -402,7 +406,7 @@ PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & s)
 	return *this;
 }
 
-void PPGdsClsPacket::Init()
+PPGdsClsPacket & PPGdsClsPacket::Z()
 {
 	MEMSZERO(Rec);
 	NameConv.Z();
@@ -411,15 +415,16 @@ void PPGdsClsPacket::Init()
 	TaxMult_Formula.Z();
 	Package_Formula.Z();
 	LotDimQtty_Formula.Z();
-	PropKind.Init();
-	PropGrade.Init();
-	PropAdd.Init();
-	PropAdd2.Init();
-	DimX.Init();
-	DimY.Init();
-	DimZ.Init();
-	DimW.Init();
+	PropKind.Z();
+	PropGrade.Z();
+	PropAdd.Z();
+	PropAdd2.Z();
+	DimX.Z();
+	DimY.Z();
+	DimZ.Z();
+	DimW.Z();
 	FormulaList.freeAll();
+	return *this;
 }
 
 int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & s)

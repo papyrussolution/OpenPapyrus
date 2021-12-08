@@ -308,7 +308,7 @@ int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 		if(pDbp) {
 			SString temp_buf;
 			STRNSCPY(pScen->Name, DefaultScenName);
-			if(pDbp->GetDbSymb(temp_buf) > 0) {
+			if(pDbp->GetDbSymb(temp_buf)) {
 				STRNSCPY(pScen->DBName, temp_buf);
 				//pScen->Period = 1;
 				//pScen->NumCopies = 1;
@@ -983,8 +983,7 @@ int PrcssrDbDump::InitParam(Param * pData)
 		pData->Mode = 1;
 		if(DS.GetConstTLA().IsAuth()) {
 			pData->SpcOb = spcobQuot;
-			CurDict->GetDbSymb(pData->DbSymb);
-			if(pData->DbSymb.NotEmpty()) {
+			if(CurDict->GetDbSymb(pData->DbSymb)) {
 				int   db_id = P_Dbes->GetBySymb(pData->DbSymb, 0);
 				if(db_id > 0)
 					P_Dbes->SetSelection(db_id);

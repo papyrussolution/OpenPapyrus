@@ -426,8 +426,8 @@ typedef enum {
 
 HB_EXTERN uint hb_aat_layout_get_feature_types(hb_face_t * face,
     uint start_offset,
-    uint * feature_count,                             /* IN/OUT.  May be NULL. */
-    hb_aat_layout_feature_type_t * features /* OUT.     May be NULL. */);
+    uint * feature_count,                             /*IN/OUT May be NULL*/
+    hb_aat_layout_feature_type_t * features /*OUT May be NULL*/);
 HB_EXTERN hb_ot_name_id_t hb_aat_layout_feature_type_get_name_id(hb_face_t * face, hb_aat_layout_feature_type_t feature_type);
 
 typedef struct hb_aat_layout_feature_selector_info_t {
@@ -442,8 +442,8 @@ typedef struct hb_aat_layout_feature_selector_info_t {
 
 HB_EXTERN uint hb_aat_layout_feature_type_get_selector_infos(hb_face_t * face,
     hb_aat_layout_feature_type_t feature_type, uint start_offset,
-    uint * selector_count/* IN/OUT.  May be NULL. */,
-    hb_aat_layout_feature_selector_info_t * selectors/* OUT.     May be NULL. */, uint * default_index /* OUT.     May be NULL. */);
+    uint * selector_count/*IN/OUT May be NULL*/,
+    hb_aat_layout_feature_selector_info_t * selectors/*OUT May be NULL*/, uint * default_index /*OUT May be NULL*/);
 /*
  * morx/mort
  */

@@ -5899,7 +5899,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 		//THROW_SL(p_query->InsertString("doc_type", pDocType));
 		url.Composite(0, temp_buf);
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-		THROW_SL(json_tree_to_string(p_query, temp_buf));
+		THROW_SL(p_query->ToStr(temp_buf));
 		json_buf = temp_buf;
 		//json_buf.EncodeUrl(temp_buf, 0);
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);
@@ -6005,7 +6005,7 @@ int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 	url.SetComponent(url.cPassword, 0);
 	url.Composite(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-	THROW_SL(json_tree_to_string(p_query, temp_buf));
+	THROW_SL(p_query->ToStr(temp_buf));
 	json_buf = temp_buf;
 	//json_buf.EncodeUrl(temp_buf, 0);
 
@@ -6074,7 +6074,7 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 	THROW_SL(p_query->Insert("return_id", json_new_number(temp_buf.Z().Cat(1))));
 	url.Composite(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-	THROW_SL(json_tree_to_string(p_query, temp_buf));
+	THROW_SL(p_query->ToStr(temp_buf));
 	json_buf = temp_buf;
 	//json_buf.EncodeUrl(temp_buf, 0);
 
@@ -6374,7 +6374,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 	THROW_SL(p_query->InsertString("intDocID", pIdent->SId));
 	url.Composite(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-	THROW_SL(json_tree_to_string(p_query, temp_buf));
+	THROW_SL(p_query->ToStr(temp_buf));
 	json_buf = temp_buf;
 	//json_buf.EncodeUrl(temp_buf, 0);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "Q").CatDiv(':', 2).Cat(json_buf), LOGMSGF_TIME|LOGMSGF_USER);

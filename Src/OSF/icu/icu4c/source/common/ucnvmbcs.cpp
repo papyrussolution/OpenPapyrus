@@ -1486,7 +1486,7 @@ static bool U_CALLCONV writeStage3Roundtrip(const void * context, uint32_t value
 }
 
 static void reconstituteData(UConverterMBCSTable * mbcsTable, uint32_t stage1Length, uint32_t stage2Length,
-    uint32_t fullStage2Length,               /* lengths are numbers of units, not bytes */
+    uint32_t fullStage2Length, /* lengths are numbers of units, not bytes */
     UErrorCode * pErrorCode) 
 {
 	uint16_t * stage1;

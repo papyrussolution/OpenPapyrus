@@ -140,7 +140,7 @@ const struct Curl_handler Curl_handler_scp = {
 	"SCP",                  /* scheme */
 	myssh_setup_connection, /* setup_connection */
 	myssh_do_it,            /* do_it */
-	scp_done,               /* done */
+	scp_done, /* done */
 	ZERO_NULL,              /* do_more */
 	myssh_connect,          /* connect_it */
 	myssh_multi_statemach,  /* connecting */
@@ -152,7 +152,7 @@ const struct Curl_handler Curl_handler_scp = {
 	scp_disconnect,         /* disconnect */
 	ZERO_NULL,              /* readwrite */
 	ZERO_NULL,              /* connection_check */
-	PORT_SSH,               /* defport */
+	PORT_SSH, /* defport */
 	CURLPROTO_SCP,          /* protocol */
 	CURLPROTO_SCP,          /* family */
 	PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY /* flags */
@@ -1438,28 +1438,21 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    break;
 			    }
 			    else {
-				    failf(data, "Could not open remote file for reading: %s",
-					ssh_get_error(sshc->ssh_session));
+				    failf(data, "Could not open remote file for reading: %s", ssh_get_error(sshc->ssh_session));
 				    MOVE_TO_SFTP_CLOSE_STATE();
 				    break;
 			    }
 			    break;
-
 			case SSH_SFTP_READDIR_LINK:
 			    if(sshc->readdir_link_attrs)
 				    sftp_attributes_free(sshc->readdir_link_attrs);
-
-			    sshc->readdir_link_attrs = sftp_lstat(sshc->sftp_session,
-				    sshc->readdir_linkPath);
+			    sshc->readdir_link_attrs = sftp_lstat(sshc->sftp_session, sshc->readdir_linkPath);
 			    if(sshc->readdir_link_attrs == 0) {
-				    failf(data, "Could not read symlink for reading: %s",
-					ssh_get_error(sshc->ssh_session));
+				    failf(data, "Could not read symlink for reading: %s", ssh_get_error(sshc->ssh_session));
 				    MOVE_TO_SFTP_CLOSE_STATE();
 			    }
-
 			    if(sshc->readdir_link_attrs->name == NULL) {
-				    sshc->readdir_tmp = sftp_readlink(sshc->sftp_session,
-					    sshc->readdir_linkPath);
+				    sshc->readdir_tmp = sftp_readlink(sshc->sftp_session, sshc->readdir_linkPath);
 				    if(sshc->readdir_filename == NULL)
 					    sshc->readdir_len = 0;
 				    else

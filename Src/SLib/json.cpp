@@ -175,9 +175,105 @@ bool SJson::IsValid() const
 	return !(State & 0x0001);
 }
 
-int FASTCALL SJson::ToString(SString & rBuf) const
+int FASTCALL SJson::ToStr(SString & rBuf) const
 {
-	return json_tree_to_string(this, rBuf);
+	//return json_tree_to_string(this, rBuf);
+	int    ok = 1;
+	assert(this);
+	rBuf.Z();
+	const SJson * p_cursor = this;
+	// start the convoluted fun
+state1: // open value
+	if(p_cursor->P_Previous && p_cursor != this) { // if cursor is children and not root than it is a followup sibling
+		rBuf.Comma();
+	}
+	switch(p_cursor->Type) {
+		case SJson::tSTRING:
+			// append the "text"\0, which means 1 + wcslen(cursor->text) + 1 + 1
+			// set the new output size
+			rBuf.CatChar('\"').Cat(p_cursor->Text).CatChar('\"');
+			if(p_cursor->P_Parent) {
+				if(p_cursor->P_Parent->Type == SJson::tOBJECT)	{ // cursor is label in label:value pair
+					// error checking: if parent is object and cursor is string then cursor must have a single child
+					THROW_S(p_cursor->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE); // malformed document tree: label without value in label:value pair
+					rBuf.Colon();
+				}
+			}
+			else {	// does not have a parent
+				// is root label in label:value pair
+				THROW_S(p_cursor->P_Child, SLERR_JSON_BAD_TREE_STRUCTURE); // malformed document tree: label without value in label:value pair
+				rBuf.Colon();
+			}
+			break;
+		case SJson::tNUMBER: // must not have any children
+			// set the new size
+			rBuf.Cat(p_cursor->Text);
+			goto state2; // close value
+			break;
+		case SJson::tOBJECT:
+			rBuf.CatChar('{');
+			if(p_cursor->P_Child) {
+				p_cursor = p_cursor->P_Child;
+				goto state1; // open value
+			}
+			else
+				goto state2; // close value
+			break;
+		case SJson::tARRAY:
+			rBuf.CatChar('[');
+			if(p_cursor->P_Child) {
+				p_cursor = p_cursor->P_Child;
+				goto state1;
+			}
+			else
+				goto state2; // close value
+			break;
+		case SJson::tTRUE: // must not have any children
+			rBuf.Cat("true");
+			goto state2; // close value
+			break;
+		case SJson::tFALSE: // must not have any children
+			rBuf.Cat("false");
+			goto state2; // close value
+			break;
+		case SJson::tNULL: // must not have any children
+			rBuf.Cat("null");
+			goto state2; // close value
+			break;
+		default: 
+			CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM); 
+			break;
+	}
+	if(p_cursor->P_Child) {
+		p_cursor = p_cursor->P_Child;
+		goto state1; // open value */
+	}
+	else // does not have any children
+		goto state2; // close value
+state2: // close value
+	switch(p_cursor->Type) {
+		case SJson::tOBJECT: rBuf.CatChar('}'); break;
+		case SJson::tARRAY:  rBuf.CatChar(']'); break;
+		case SJson::tSTRING: break;
+		case SJson::tNUMBER: break;
+		case SJson::tTRUE:   break;
+		case SJson::tFALSE:  break;
+		case SJson::tNULL:   break;
+		default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM); break;
+	}
+	if(!p_cursor->P_Parent || p_cursor == this)
+		goto end;
+	else if(p_cursor->P_Next) {
+		p_cursor = p_cursor->P_Next;
+		goto state1; // open value
+	}
+	else {
+		p_cursor = p_cursor->P_Parent;
+		goto state2; // close value
+	}
+end:
+	CATCHZOK
+	return ok;
 }
 
 void FASTCALL SJson::AssignText(const SString & rT)
@@ -458,6 +554,7 @@ int SJson::InsertBool(const char * pTextLabel, bool val)
 	return Insert(pTextLabel, new SJson(val ? SJson::tTRUE : SJson::tFALSE));
 }
 
+#if 0 // @v11.2.7 (replaced with SJson::ToStr) {
 int FASTCALL json_tree_to_string(const SJson * pRoot, SString & rBuf)
 {
 	int    ok = 1;
@@ -557,6 +654,7 @@ end:
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v11.2.7 (replaced with SJson::ToStr)
 
 enum json_error json_stream_output(SJson * root, SString & rBuf)
 {
@@ -564,7 +662,6 @@ enum json_error json_stream_output(SJson * root, SString & rBuf)
 	//assert(file); // the file stream must be opened
 	SJson * cursor = root;
 	// set up the output and temporary rwstrings
-
 // start the convoluted fun
 state1: // open value
 	if(cursor->P_Previous && cursor != root) { // if cursor is children and not root than it is a followup sibling

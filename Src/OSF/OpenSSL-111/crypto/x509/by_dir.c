@@ -44,10 +44,10 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type,
 static X509_LOOKUP_METHOD x509_dir_lookup = {
 	"Load certs from files in a directory",
 	new_dir,                /* new_item */
-	free_dir,               /* free */
+	free_dir, /* free */
 	NULL,                   /* init */
 	NULL,                   /* shutdown */
-	dir_ctrl,               /* ctrl */
+	dir_ctrl, /* ctrl */
 	get_cert_by_subject,    /* get_by_subject */
 	NULL,                   /* get_by_issuer_serial */
 	NULL,                   /* get_by_fingerprint */

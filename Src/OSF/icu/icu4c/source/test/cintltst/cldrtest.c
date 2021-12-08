@@ -1470,7 +1470,7 @@ static void TestAvailableIsoCodes(void)
 	const char * lastCode = "RHD";
 	const char * zzzCode = "ZZZ";
 	UDate date1950 = (UDate)-630720000000.0;/* year 1950 */
-	UDate date1970 = (UDate)0.0;        /* year 1970 */
+	UDate date1970 = (UDate)0.0; /* year 1970 */
 	UDate date1975 = (UDate)173448000000.0; /* year 1975 */
 	UDate date1978 = (UDate)260172000000.0; /* year 1978 */
 	UDate date1981 = (UDate)346896000000.0; /* year 1981 */

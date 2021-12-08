@@ -366,8 +366,8 @@ void hb_aat_layout_track(const hb_ot_shape_plan_t * plan,
  */
 uint hb_aat_layout_get_feature_types(hb_face_t * face,
     uint start_offset,
-    uint * feature_count,                             /* IN/OUT.  May be NULL. */
-    hb_aat_layout_feature_type_t * features /* OUT.     May be NULL. */)
+    uint * feature_count,                             /*IN/OUT May be NULL*/
+    hb_aat_layout_feature_type_t * features /*OUT May be NULL*/)
 {
 	return face->table.feat->get_feature_types(start_offset, feature_count, features);
 }
@@ -404,14 +404,14 @@ hb_ot_name_id_t hb_aat_layout_feature_type_get_name_id(hb_face_t * face,
  *
  * Since: 2.2.0
  */
-uint hb_aat_layout_feature_type_get_selector_infos(hb_face_t  * face,
+uint hb_aat_layout_feature_type_get_selector_infos(hb_face_t * face,
     hb_aat_layout_feature_type_t feature_type,
     uint start_offset,
-    uint  * selector_count,                                           /* IN/OUT.  May be
+    uint  * selector_count,                                           /*IN/OUT  May be
                                                                                                          NULL. */
-    hb_aat_layout_feature_selector_info_t * selectors,                                                /* OUT.     May be
+    hb_aat_layout_feature_selector_info_t * selectors,                                                /*OUT     May be
                                                                                                          NULL. */
-    uint  * default_index /* OUT.     May be NULL. */)
+    uint  * default_index /*OUT May be NULL*/)
 {
 	return face->table.feat->get_selector_infos(feature_type, start_offset, selector_count, selectors, default_index);
 }

@@ -348,7 +348,7 @@ public:
 
 		uint get_tags(uint start_offset,
 		    uint * record_count /* IN/OUT */,
-		    hb_tag_t * record_tags /* OUT */) const
+		    hb_tag_t * record_tags /*OUT*/) const
 		{
 			if(record_count) {
 				+this->sub_array(start_offset, record_count)
@@ -469,7 +469,7 @@ public:
 
 		uint get_indexes(uint start_offset,
 		    uint * _count /* IN/OUT */,
-		    uint * _indexes /* OUT */) const
+		    uint * _indexes /*OUT*/) const
 		{
 			if(_count) {
 				+this->sub_array(start_offset, _count)
@@ -479,7 +479,7 @@ public:
 			return this->len;
 		}
 
-		void add_indexes_to(hb_set_t* output /* OUT */) const
+		void add_indexes_to(hb_set_t* output /*OUT*/) const
 		{
 			output->add_array(arrayZ, len);
 		}
@@ -498,7 +498,7 @@ public:
 
 		uint get_feature_indexes(uint start_offset,
 		    uint * feature_count /* IN/OUT */,
-		    uint * feature_indexes /* OUT */) const
+		    uint * feature_indexes /*OUT*/) const
 		{
 			return featureIndex.get_indexes(start_offset, feature_count, feature_indexes);
 		}
@@ -591,7 +591,7 @@ public:
 
 		uint get_lang_sys_tags(uint start_offset,
 		    uint * lang_sys_count /* IN/OUT */,
-		    hb_tag_t * lang_sys_tags /* OUT */) const
+		    hb_tag_t * lang_sys_tags /*OUT*/) const
 		{
 			return langSys.get_tags(start_offset, lang_sys_count, lang_sys_tags);
 		}
@@ -948,7 +948,7 @@ public:
 
 		uint get_lookup_indexes(uint start_index,
 		    uint * lookup_count /* IN/OUT */,
-		    uint * lookup_tags /* OUT */) const
+		    uint * lookup_tags /*OUT*/) const
 		{
 			return lookupIndex.get_indexes(start_index, lookup_count, lookup_tags);
 		}
@@ -2680,14 +2680,14 @@ public:
 	struct FeatureTableSubstitutionRecord {
 		friend struct FeatureTableSubstitution;
 
-		void collect_lookups(const void * base, hb_set_t * lookup_indexes /* OUT */) const
+		void collect_lookups(const void * base, hb_set_t * lookup_indexes /*OUT*/) const
 		{
 			return (base+feature).add_lookup_indexes_to(lookup_indexes);
 		}
 
 		void closure_features(const void * base,
 		    const hb_map_t * lookup_indexes,
-		    hb_set_t * feature_indexes /* OUT */) const
+		    hb_set_t * feature_indexes /*OUT*/) const
 		{
 			if((base+feature).intersects_lookup_indexes(lookup_indexes))
 				feature_indexes->add(featureIndex);
@@ -2730,7 +2730,7 @@ public:
 		}
 
 		void collect_lookups(const hb_set_t * feature_indexes,
-		    hb_set_t * lookup_indexes /* OUT */) const
+		    hb_set_t * lookup_indexes /*OUT*/) const
 		{
 			+hb_iter(substitutions)
 			| hb_filter(feature_indexes, &FeatureTableSubstitutionRecord::featureIndex)
@@ -2740,7 +2740,7 @@ public:
 		}
 
 		void closure_features(const hb_map_t * lookup_indexes,
-		    hb_set_t * feature_indexes /* OUT */) const
+		    hb_set_t * feature_indexes /*OUT*/) const
 		{
 			for(const FeatureTableSubstitutionRecord& record : substitutions)
 				record.closure_features(this, lookup_indexes, feature_indexes);
@@ -2783,14 +2783,14 @@ public:
 
 		void collect_lookups(const void * base,
 		    const hb_set_t * feature_indexes,
-		    hb_set_t * lookup_indexes /* OUT */) const
+		    hb_set_t * lookup_indexes /*OUT*/) const
 		{
 			return (base+substitutions).collect_lookups(feature_indexes, lookup_indexes);
 		}
 
 		void closure_features(const void * base,
 		    const hb_map_t * lookup_indexes,
-		    hb_set_t * feature_indexes /* OUT */) const
+		    hb_set_t * feature_indexes /*OUT*/) const
 		{
 			(base+substitutions).closure_features(lookup_indexes, feature_indexes);
 		}
@@ -2855,14 +2855,14 @@ public:
 		}
 
 		void collect_lookups(const hb_set_t * feature_indexes,
-		    hb_set_t * lookup_indexes /* OUT */) const
+		    hb_set_t * lookup_indexes /*OUT*/) const
 		{
 			for(const FeatureVariationRecord& r : varRecords)
 				r.collect_lookups(this, feature_indexes, lookup_indexes);
 		}
 
 		void closure_features(const hb_map_t * lookup_indexes,
-		    hb_set_t * feature_indexes /* OUT */) const
+		    hb_set_t * feature_indexes /*OUT*/) const
 		{
 			for(const FeatureVariationRecord& record : varRecords)
 				record.closure_features(this, lookup_indexes, feature_indexes);

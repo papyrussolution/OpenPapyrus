@@ -617,7 +617,7 @@ int ViewFiltPool()
 		PPNamedFiltMngr mngr;
 		PPNamedFiltPool pool(0, 0);
 		SString db_symb;
-		THROW_PP(p_dbdict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
+		THROW_PP(p_dbdict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
 		THROW(mngr.LoadPool2(db_symb, &pool, 0));
 		THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
 		while(ExecView(dlg) == cmOK) {

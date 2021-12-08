@@ -2560,7 +2560,7 @@ enum t_fillstyle {
 	enum t_ticseries_type {
 		TIC_COMPUTED = 1,       /* default; gnuplot figures them */
 		TIC_SERIES,             /* user-defined series */
-		TIC_USER,               /* user-defined points */
+		TIC_USER, /* user-defined points */
 		TIC_MONTH,              /* print out month names ((mo-1)%12)+1 */
 		TIC_DAY                 /* print out day of week */
 	};

@@ -934,11 +934,11 @@ private:
 HB_INTERNAL bool hb_plan_subset_cff_fdselect(const hb_subset_plan_t * plan,
     uint fdCount,
     const CFF::FDSelect &src,                         /* IN */
-    uint &subset_fd_count /* OUT */,
-    uint &subset_fdselect_size /* OUT */,
-    uint &subset_fdselect_format /* OUT */,
-    hb_vector_t<CFF::code_pair_t> &fdselect_ranges /* OUT */,
-    hb_inc_bimap_t &fdmap /* OUT */);
+    uint &subset_fd_count /*OUT*/,
+    uint &subset_fdselect_size /*OUT*/,
+    uint &subset_fdselect_format /*OUT*/,
+    hb_vector_t<CFF::code_pair_t> &fdselect_ranges /*OUT*/,
+    hb_inc_bimap_t &fdmap /*OUT*/);
 
 HB_INTERNAL bool hb_serialize_cff_fdselect(hb_serialize_context_t * c,
     uint num_glyphs,

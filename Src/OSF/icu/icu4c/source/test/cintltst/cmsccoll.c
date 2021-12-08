@@ -4205,7 +4205,7 @@ static void TestHiragana() {
 typedef struct {
 	const UChar source[MAX_TOKEN_LEN]; /* String on left */
 	const UChar target[MAX_TOKEN_LEN]; /* String on right */
-	UCollationResult result;      /* -1, 0 or +1, depending on collation */
+	UCollationResult result; /* -1, 0 or +1, depending on collation */
 } OneTestCase;
 
 /*

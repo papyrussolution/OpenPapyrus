@@ -39,7 +39,7 @@
 #define URI_ERROR_OUTPUT_TOO_LARGE         4 // Some output is to large for the receiving buffer
 #define URI_ERROR_NOT_IMPLEMENTED          8 // The called function is not implemented yet
 #define URI_ERROR_RANGE_INVALID            9 // The parameters passed contained invalid ranges
-// Errors specific to ToString 
+// Errors specific to ToStr 
 #define URI_ERROR_TOSTRING_TOO_LONG        URI_ERROR_OUTPUT_TOO_LARGE /* Deprecated, test for URI_ERROR_OUTPUT_TOO_LARGE instead */
 // Errors specific to AddBaseUri 
 #define URI_ERROR_ADDBASE_REL_BASE         5 // Given base is not absolute 
@@ -131,7 +131,8 @@ struct UriParserState {
 	const  char * FASTCALL ParseAuthority(const char * pFirst, const char * afterLast);
 	const  char * FASTCALL ParsePartHelperTwo(const char * pFirst, const char * afterLast);
 	const  char * FASTCALL ParseSegment(const char * pFirst, const char * afterLast);
-	void   FASTCALL StopSyntax(const char * pErrorPos);
+	// Returns: NULL ALWAYS!
+	const  char * FASTCALL StopSyntax(const char * pErrorPos);
 	void   StopMalloc();
 
 	UriUri * P_Uri; // Plug in the %URI structure to be filled while parsing here 
