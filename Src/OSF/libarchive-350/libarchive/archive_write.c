@@ -46,14 +46,14 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
 
 static struct archive_vtable * archive_write_vtable(void);
 
-static int      _archive_filter_code(struct archive *, int);
+static int _archive_filter_code(struct archive *, int);
 static const char * _archive_filter_name(struct archive *, int);
 static int64  _archive_filter_bytes(struct archive *, int);
 static int  _archive_write_filter_count(struct archive *);
-static int      _archive_write_close(struct archive *);
-static int      _archive_write_free(struct archive *);
-static int      _archive_write_header(struct archive *, struct archive_entry *);
-static int      _archive_write_finish_entry(struct archive *);
+static int _archive_write_close(struct archive *);
+static int _archive_write_free(struct archive *);
+static int _archive_write_header(struct archive *, struct archive_entry *);
+static int _archive_write_finish_entry(struct archive *);
 static ssize_t  _archive_write_data(struct archive *, const void *, size_t);
 
 struct archive_none {

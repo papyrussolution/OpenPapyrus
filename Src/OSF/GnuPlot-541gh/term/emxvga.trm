@@ -61,9 +61,9 @@ register_term(emxvga)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void EMXVGA_init(GpTermEntry * pThis);
+TERM_PUBLIC void EMXVGA_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void EMXVGA_reset();
-TERM_PUBLIC void EMXVGA_text(GpTermEntry * pThis);
+TERM_PUBLIC void EMXVGA_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void EMXVGA_graphics();
 TERM_PUBLIC void EMXVGA_linetype(int);
 TERM_PUBLIC void EMXVGA_move(uint, uint);
@@ -77,10 +77,10 @@ TERM_PUBLIC void EMXVGA_put_text(uint, uint, const char *);
 #define EMXVGA_XMAX 0           /* These two entries are just place holders. */
 #define EMXVGA_YMAX 0           /* The actual values will be filled in init. */
 #ifdef EMXVESA
-TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis);
+TERM_PUBLIC void EMXVESA_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void EMXVESA_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void EMXVESA_graphics();
-TERM_PUBLIC void EMXVESA_text(GpTermEntry * pThis);
+TERM_PUBLIC void EMXVESA_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void EMXVESA_reset();
 #endif
 #endif /* TERM_PROTO */
@@ -289,14 +289,13 @@ void g_string(int x0, int y0, int color, int angle, char * s)
 
 /* end of gstring.c */
 
-TERM_PUBLIC void EMXVGA_init(GpTermEntry * pThis)
+TERM_PUBLIC void EMXVGA_init(GpTermEntry_Static * pThis)
 {
 	if(!g_mode(EMXVGA_vmode)) {
 		fputs("Unable to initiate graphics.\n", stderr);
 		return;
 	}
-	pThis->MaxX = g_xsize;
-	pThis->MaxY = g_ysize;
+	pThis->SetMax(g_xsize, g_ysize);
 	lasty = g_ysize - 1;
 }
 
@@ -306,7 +305,7 @@ TERM_PUBLIC void EMXVGA_reset()
 	graphics_on = FALSE;
 }
 
-TERM_PUBLIC void EMXVGA_text(GpTermEntry * pThis)
+TERM_PUBLIC void EMXVGA_text(GpTermEntry_Static * pThis)
 {
 	if(graphics_on) {
 		emx_getch();
@@ -371,7 +370,7 @@ TERM_PUBLIC void EMXVGA_resume()
 #ifdef EMXVESA
 int emx_vesamode = G640x480x256;
 int emx_xlast, emx_ylast;
-TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void EMXVESA_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	if(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.AlmostEqualsCur("d$efault")) {
@@ -387,7 +386,7 @@ TERM_PUBLIC void EMXVESA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	slprintf(GPT._TermOptions, "%d", emx_vesamode);
 }
 
-TERM_PUBLIC void EMXVESA_init(GpTermEntry * pThis)
+TERM_PUBLIC void EMXVESA_init(GpTermEntry_Static * pThis)
 {
 	if(!g_mode(emx_vesamode))
 		pThis->P_Gp->IntError(NO_CARET, "Couldn't select graphics mode");
@@ -403,7 +402,7 @@ TERM_PUBLIC void EMXVESA_graphics()
 	g_mode(emx_vesamode);
 }
 
-TERM_PUBLIC void EMXVESA_text(GpTermEntry * pThis)
+TERM_PUBLIC void EMXVESA_text(GpTermEntry_Static * pThis)
 {
 	int ch = getch();
 	g_mode(GTEXT);

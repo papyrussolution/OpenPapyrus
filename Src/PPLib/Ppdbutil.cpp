@@ -272,10 +272,7 @@ PPBackup::~PPBackup()
 	delete P_Sync;
 }
 
-int PPBackup::IsValid() const
-{
-	return BIN(State & stValid);
-}
+bool PPBackup::IsValid() const { return LOGIC(State & stValid); }
 
 int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 	int64 totalSize, int64 /*fileSize*/, int64 totalBytesReady, int64 /*fileBytesReady*/)
@@ -785,7 +782,7 @@ public:
 
 	explicit PrcssrDbDump(PPDbEntrySet2 * pDbes);
 	~PrcssrDbDump();
-	int    IsValid() const;
+	bool   IsValid() const;
 	int    GetTableListInFile(const char * pFileName, StrAssocArray * pList);
 	int	   InitParam(Param *);
 	int	   EditParam(Param *);
@@ -1064,10 +1061,7 @@ int PrcssrDbDump::Run()
 	return ok;
 }
 
-int PrcssrDbDump::IsValid() const
-{
-	return BIN(Valid);
-}
+bool PrcssrDbDump::IsValid() const { return LOGIC(Valid); }
 
 int PrcssrDbDump::OpenStream(const char * pFileName)
 {
@@ -1145,7 +1139,7 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 	SBuffer buffer;
 	THROW(P.Mode == 0);
 	if(P.SpcOb == spcobNone) {
-		if(TblEntryList.lsearch(&tblID, &pos, PTR_CMPFUNC(long))) {
+		if(TblEntryList.lsearch(&tblID, &pos, CMPF_LONG)) {
 			const TableEntry & r_entry = *static_cast<const TableEntry *>(TblEntryList.at(pos));
 			SString tbl_name;
 			TblNameList.GetText(tblID, tbl_name);

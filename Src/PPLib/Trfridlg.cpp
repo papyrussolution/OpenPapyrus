@@ -331,7 +331,7 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 	SETFLAG(dlg->St, TrfrItemDialog::stGoodsByPrice, goods_by_price);
 	dlg->ItemNo       = itemNo;
 	dlg->P_Pack       = pPack;
-	pattern           = *p_item;
+	pattern   = *p_item;
 	p_item->GoodsID   = labs(p_item->GoodsID);
 	dlg->P_OrderItem  = pOrder;
 	THROW(dlg->setDTS(p_item));
@@ -728,7 +728,7 @@ void TrfrItemDialog::calcPrice()
 	param.VaPercent = DS.GetTLA().Lid.VaPercent;
 	if(getCtrlCost() && getCtrlData(CTL_LOT_PRICE, &param.Price) && !getCtrlView(CTL_LOT_PRICE)->IsInState(sfDisabled)) {
 		param.Cost       = Item.Cost;
-		param.Dt         = P_Pack->Rec.Dt;
+		param.Dt = P_Pack->Rec.Dt;
 		param.GoodsID    = Item.GoodsID;
 		param.InTaxGrpID = getCtrlLong(CTLSEL_LOT_INTAXGRP);
 		ushort v = getCtrlUInt16(CTL_LOT_NOVAT);

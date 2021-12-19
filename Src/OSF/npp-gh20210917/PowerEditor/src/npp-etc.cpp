@@ -103,8 +103,8 @@ namespace ReadDirectoryChangesPrivate
 	//
 	CReadChangesRequest::CReadChangesRequest(CReadChangesServer* pServer, LPCTSTR sz, BOOL b, DWORD dw, DWORD size)
 	{
-		m_pServer               = pServer;
-		m_dwFilterFlags         = dw;
+		m_pServer       = pServer;
+		m_dwFilterFlags = dw;
 		m_bIncludeChildren      = b;
 		m_wstrDirectory = sz;
 		m_hDirectory    = 0;

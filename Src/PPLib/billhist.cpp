@@ -215,7 +215,7 @@ int PPHistBillPacket::Init(const PPBillPacket * pPack)
 		PPTransferItem * p_ti = 0;
 		Head.BillID     = pPack->Rec.ID;
 		STRNSCPY(Head.Code, pPack->Rec.Code);
-		Head.Dt         = pPack->Rec.Dt;
+		Head.Dt = pPack->Rec.Dt;
 		Head.OpID       = pPack->Rec.OpID;
 		Head.LocID      = pPack->Rec.LocID;
 		Head.Object     = pPack->Rec.Object;
@@ -257,7 +257,7 @@ int PPHistBillPacket::ConvertToBillPack(PPBillPacket * pPack)
 	THROW(pPack->CreateBlank_WithoutCode(Head.OpID, Head.LinkBillID, Head.LocID, 1));
 	pPack->Rec.ID   = Head.BillID;
 	STRNSCPY(pPack->Rec.Code, Head.Code);
-	pPack->Rec.Dt         = Head.Dt;
+	pPack->Rec.Dt = Head.Dt;
 	pPack->Rec.LocID      = Head.LocID;
 	pPack->Rec.Object     = Head.Object;
 	pPack->Rec.Object2    = Head.Object2;

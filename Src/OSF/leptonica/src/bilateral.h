@@ -1,28 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 #ifndef  LEPTONICA_BILATERAL_H
 #define  LEPTONICA_BILATERAL_H
@@ -106,31 +106,29 @@
  * </pre>
  */
 
-
 /*------------------------------------------------------------------------*
- *                          Bilateral filter                              *
- *------------------------------------------------------------------------*/
+*                          Bilateral filter                              *
+*------------------------------------------------------------------------*/
 
 /*! Bilateral filter */
-struct L_Bilateral
-{
-    struct Pix     *pixs;           /*!< clone of source pix                 */
-    struct Pix     *pixsc;          /*!< downscaled pix with mirrored border */
-    int32         reduction;      /*!< 1, 2 or 4x for intermediates        */
-    float       spatial_stdev;  /*!< stdev of spatial gaussian           */
-    float       range_stdev;    /*!< stdev of range gaussian             */
-    float      *spatial;        /*!< 1D gaussian spatial kernel          */
-    float      *range;          /*!< one-sided gaussian range kernel     */
-    int32         minval;         /*!< min value in 8 bpp pix              */
-    int32         maxval;         /*!< max value in 8 bpp pix              */
-    int32         ncomps;         /*!< number of intermediate results      */
-    int32        *nc;             /*!< set of k values (size ncomps)       */
-    int32        *kindex;         /*!< mapping from intensity to lower k   */
-    float      *kfract;         /*!< mapping from intensity to fract k   */
-    struct Pixa    *pixac;          /*!< intermediate result images (PBC)    */
-    uint32     ***lineset;        /*!< lineptrs for pixac                  */
+struct L_Bilateral {
+	struct Pix     * pixs; /*!< clone of source pix                 */
+	struct Pix     * pixsc; /*!< downscaled pix with mirrored border */
+	l_int32 reduction;          /*!< 1, 2 or 4x for intermediates        */
+	float spatial_stdev; /*!< stdev of spatial gaussian           */
+	float range_stdev; /*!< stdev of range gaussian             */
+	float      * spatial; /*!< 1D gaussian spatial kernel          */
+	float      * range; /*!< one-sided gaussian range kernel     */
+	l_int32 minval;             /*!< min value in 8 bpp pix              */
+	l_int32 maxval;             /*!< max value in 8 bpp pix              */
+	l_int32 ncomps;             /*!< number of intermediate results      */
+	l_int32 * nc; /*!< set of k values (size ncomps)       */
+	l_int32 * kindex; /*!< mapping from intensity to lower k   */
+	float      * kfract; /*!< mapping from intensity to fract k   */
+	struct Pixa    * pixac; /*!< intermediate result images (PBC)    */
+	l_uint32     *** lineset; /*!< lineptrs for pixac                  */
 };
-typedef struct L_Bilateral  L_BILATERAL;
 
+typedef struct L_Bilateral L_BILATERAL;
 
 #endif  /* LEPTONICA_BILATERAL_H */

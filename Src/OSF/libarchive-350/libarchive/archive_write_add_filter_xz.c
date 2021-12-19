@@ -96,14 +96,14 @@ struct private_data {
 	uint32 crc32;
 };
 
-static int      archive_compressor_xz_options(struct archive_write_filter *,
+static int archive_compressor_xz_options(struct archive_write_filter *,
     const char *, const char *);
-static int      archive_compressor_xz_open(struct archive_write_filter *);
-static int      archive_compressor_xz_write(struct archive_write_filter *,
+static int archive_compressor_xz_open(struct archive_write_filter *);
+static int archive_compressor_xz_write(struct archive_write_filter *,
     const void *, size_t);
-static int      archive_compressor_xz_close(struct archive_write_filter *);
-static int      archive_compressor_xz_free(struct archive_write_filter *);
-static int      drive_compressor(struct archive_write_filter *,
+static int archive_compressor_xz_close(struct archive_write_filter *);
+static int archive_compressor_xz_free(struct archive_write_filter *);
+static int drive_compressor(struct archive_write_filter *,
     struct private_data *, int finishing);
 
 struct option_value {

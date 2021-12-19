@@ -57,7 +57,7 @@ enum {
 enum {
     /* general category shift==0                                0 (5 bits) */
     /* reserved                                                 5 (1 bit) */
-    UPROPS_NUMERIC_TYPE_VALUE_SHIFT=6                       /*  6 (10 bits) */
+    UPROPS_NUMERIC_TYPE_VALUE_SHIFT=6                       /* 6 (10 bits) */
 };
 
 #define GET_CATEGORY(props) ((props)&0x1f)

@@ -228,7 +228,7 @@ static const int khmer_syllable_machine_en_main = 20;
 
 static void find_syllables_khmer(hb_buffer_t * buffer)
 {
-	uint p, pe, eof, ts, te, act HB_UNUSED;
+	uint p, pe, eof, ts, te, act CXX_UNUSED_PARAM;
 	int cs;
 	hb_glyph_info_t * info = buffer->info;
 

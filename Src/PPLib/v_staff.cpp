@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -130,7 +130,7 @@ int PPViewStaffList::FetchData(PPID id)
 	}
 	else {
 		uint   pos = 0;
-		int    found = BIN(Data.lsearch(&id, &pos, CMPF_LONG) > 0);
+		const  bool found = Data.lsearch(&id, &pos, CMPF_LONG);
 		PPStaffEntry rec;
 		if(SlObj.Search(id, &rec) > 0 && CheckForFilt(rec) > 0) {
 			MakeListEntry(rec, entry);

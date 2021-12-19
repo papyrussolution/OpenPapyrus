@@ -2497,9 +2497,9 @@ int PPALDD_DebtTrnovr::InitData(PPFilt & rFilt, long rsrv)
 	H.FltRegionID    = 0; // @obsolete
 	H.FltCityID      = p_filt->CityID;
 	H.FltCatID       = p_filt->CategoryID;
-	H.Flags          = p_filt->Flags;
-	H.FltBeg         = p_filt->Period.low;
-	H.FltEnd         = p_filt->Period.upp;
+	H.Flags  = p_filt->Flags;
+	H.FltBeg = p_filt->Period.low;
+	H.FltEnd = p_filt->Period.upp;
 	H.FltExpiryBeg   = p_filt->ExpiryPeriod.low;
 	H.FltExpiryEnd   = p_filt->ExpiryPeriod.upp;
 	H.FltExpiry      = p_v->ExpiryDate;

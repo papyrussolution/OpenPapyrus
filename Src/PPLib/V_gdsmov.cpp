@@ -580,7 +580,7 @@ int PPViewGoodsMov::EditGoods(PPID goodsID)
 	if(ExecView(p_dlg) == cmOK) {
 		p_dlg->getCtrlData(CTL_PRNGOODSMOV_WHAT, &what);
 		p_dlg->getCtrlData(CTL_PRNGOODSMOV_AVPRICE, &v);
-		avprice          = BIN(v & 0x01);
+		avprice  = BIN(v & 0x01);
 		disable_grouping = BIN(v & 0x02);
 		PrintWoPacks     = BIN(v & 0x04);
 		if(what == 0)

@@ -46,7 +46,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -58,13 +58,13 @@
 //#ifdef TERM_PROTO
 // Common functions for epslatex and ps(la)tex 
 // All these routines begin with PSLATEX_ 
-extern void PSLATEX_reset(GpTermEntry * pThis);
+extern void PSLATEX_reset(GpTermEntry_Static * pThis);
 // Functions for ps(la)tex 
 // All these routines begin with PSTEX_ 
 //TERM_PUBLIC void PSTEX_reopen_output();
 //TERM_PUBLIC void PSTEX_common_init();
-TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis);
+TERM_PUBLIC void PSTEX_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void PSTEX_text(GpTermEntry_Static * pThis);
 // Functions for epslatex 
 // All these routines begin with EPSLATEX_ 
 // void EPSLATEX_reopen_output(char *);
@@ -98,7 +98,7 @@ static bool tex_color_synced = FALSE;
 // support for cairolatex 
 #ifdef HAVE_CAIROPDF
 	#define ISCAIROTERMINAL ((strcmp(term->name, "cairolatex") == 0))
-	//extern void cairotrm_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
+	//extern void cairotrm_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
 	//TERM_PUBLIC void cairotrm_linetype(int lt);
 #else
 	#define ISCAIROTERMINAL (FALSE)
@@ -120,7 +120,7 @@ static double PSLATEX_pagesize_y;
 //
 // Common functions for epslatex and ps(la)tex 
 //
-void PSLATEX_reset(GpTermEntry * pThis)
+void PSLATEX_reset(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(p_gp->TPsB.P_Params->terminal) {
@@ -162,7 +162,7 @@ void PSLATEX_reset(GpTermEntry * pThis)
 //
 // Functions for ps(la)tex 
 //
-void PSTEX_reopen_output(GpTermEntry * pThis)
+void PSTEX_reopen_output(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(GPT.P_OutStr) {
@@ -207,7 +207,7 @@ void PSTEX_reopen_output(GpTermEntry * pThis)
 	}
 }
 
-void PSTEX_common_init(GpTermEntry * pThis)
+void PSTEX_common_init(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	PSLATEX_pagesize_x = pThis->MaxX * p_gp->V.Size.x;
@@ -275,7 +275,7 @@ void PSTEX_common_init(GpTermEntry * pThis)
 	pstex_labels = (pstex_text_command *)NULL;
 }
 
-TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void PSTEX_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// ignore empty strings 
@@ -293,7 +293,7 @@ TERM_PUBLIC void PSTEX_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	}
 }
 
-TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
+TERM_PUBLIC void PSTEX_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	struct pstex_text_command * tc;
@@ -341,7 +341,7 @@ TERM_PUBLIC void PSTEX_text(GpTermEntry * pThis)
 // the common init function for the epslatex driver 
 // used by pslatex epslatex cairolatex 
 //
-void EPSLATEX_common_init(GpTermEntry * pThis)
+void EPSLATEX_common_init(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * fontfamily = NULL;
@@ -607,7 +607,7 @@ void EPSLATEX_common_init(GpTermEntry * pThis)
 	SAlloc::F(fontshape);
 }
 
-void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+void EPSLATEX_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(GPT.P_GpOutFile) {
@@ -651,7 +651,7 @@ void EPSLATEX_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 // assigns dest to outstr, so it must be allocated or NULL
 // and it must not be outstr itself !
 //
-void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
+void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, char * ext)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * psoutstr = NULL;
@@ -695,7 +695,7 @@ void EPSLATEX_reopen_output(GpTermEntry * pThis, char * ext)
 	}
 }
 
-void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+void EPSLATEX_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray;
@@ -757,7 +757,7 @@ void EPSLATEX_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 	}
 }
 
-void EPSLATEX_linetype(GpTermEntry * pThis, int linetype)
+void EPSLATEX_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	t_colorspec tempcol = {TC_LT, 0, 0.0};
 	tempcol.lt = linetype;
@@ -774,7 +774,7 @@ void EPSLATEX_linetype(GpTermEntry * pThis, int linetype)
 // The TERM_LAYER mechanism is used here to signal a difference between
 // "front" text and "back" text.
 //
-void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
+void EPSLATEX_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	static int plotno = 0;
 	switch(syncpoint) {
@@ -833,7 +833,7 @@ void EPSLATEX_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	}
 }
 
-void EPSLATEX_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
+void EPSLATEX_boxed_text(GpTermEntry_Static * pThis, uint x, uint y, int option)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(GPT.P_GpOutFile) {

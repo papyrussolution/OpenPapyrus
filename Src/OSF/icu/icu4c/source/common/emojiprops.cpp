@@ -43,7 +43,7 @@ void U_CALLCONV initSingleton(UErrorCode & errorCode)
 
 // TODO: turn this into a shared helper function
 // Requires the major version to match, and then requires at least the minor version.
-bool udata_isAcceptableMajorMinor(const UDataInfo &info, const UChar * dataFormat, uint8_t major, uint8_t minor) {
+bool udata_isAcceptableMajorMinor(const UDataInfo &info, const UChar * dataFormat, uint8 major, uint8 minor) {
 	return
 		info.size >= 20 &&
 		info.isBigEndian == U_IS_BIG_ENDIAN &&
@@ -80,7 +80,7 @@ void EmojiProps::load(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const uint8_t * inBytes = (const uint8_t*)udata_getMemory(memory);
+	const uint8 * inBytes = (const uint8*)udata_getMemory(memory);
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexesLength = inIndexes[IX_CPTRIE_OFFSET] / 4;
 	if(indexesLength <= IX_RGI_EMOJI_ZWJ_SEQUENCE_TRIE_OFFSET) {
@@ -149,7 +149,7 @@ bool EmojiProps::hasBinaryPropertyImpl(UChar32 c, UProperty which) const {
 	if(bit < 0) {
 		return false; // not a property that we support in this function
 	}
-	uint8_t bits = UCPTRIE_FAST_GET(cpTrie, UCPTRIE_8, c);
+	uint8 bits = UCPTRIE_FAST_GET(cpTrie, UCPTRIE_8, c);
 	return (bits >> bit) & 1;
 }
 

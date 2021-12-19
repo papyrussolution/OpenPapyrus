@@ -80,12 +80,11 @@
  * @return The number of Unicode characters written to <TT>stream</TT>.
  */
 typedef int32_t U_EXPORT2
-    u_printf_handler (const u_printf_stream_handler  * handler,
-
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args);
+    u_printf_handler (const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args);
 
 typedef struct u_printf_info {
 	ufmt_type_info info;
@@ -170,27 +169,20 @@ static void u_printf_reset_sign(UNumberFormat    * format,
 }
 
 /* handle a '%' */
-static int32_t u_printf_simple_percent_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_simple_percent_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
 	(void)info;
 	(void)args;
 	static const UChar PERCENT[] = { UP_PERCENT };
-
 	/* put a single '%' onto the output */
 	return handler->write(context, PERCENT, 1);
 }
 
 /* handle 's' */
-static int32_t u_printf_string_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_string_handler(const u_printf_stream_handler * handler, void * context, ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
 	UChar * s;
@@ -198,79 +190,59 @@ static int32_t u_printf_string_handler(const u_printf_stream_handler  * handler,
 	int32_t len, written;
 	int32_t argSize;
 	const char * arg = (const char *)(args[0].ptrValue);
-
 	/* convert from the default codepage to Unicode */
 	if(arg) {
 		argSize = (int32_t)strlen(arg) + 1;
 		if(argSize >= MAX_UCHAR_BUFFER_SIZE(buffer)) {
-			s = ufmt_defaultCPToUnicode(arg, argSize,
-				(UChar *)uprv_malloc(MAX_UCHAR_BUFFER_NEEDED(argSize)),
-				MAX_UCHAR_BUFFER_NEEDED(argSize));
+			s = ufmt_defaultCPToUnicode(arg, argSize, (UChar *)uprv_malloc(MAX_UCHAR_BUFFER_NEEDED(argSize)), MAX_UCHAR_BUFFER_NEEDED(argSize));
 			if(s == NULL) {
 				return 0;
 			}
 		}
 		else {
-			s = ufmt_defaultCPToUnicode(arg, argSize, buffer,
-				UPRV_LENGTHOF(buffer));
+			s = ufmt_defaultCPToUnicode(arg, argSize, buffer, UPRV_LENGTHOF(buffer));
 		}
 	}
 	else {
 		s = (UChar *)gNullStr;
 	}
 	len = u_strlen(s);
-
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
 	if(info->fPrecision != -1 && info->fPrecision < len) {
 		len = info->fPrecision;
 	}
-
 	written = handler->pad_and_justify(context, info, s, len);
-
 	/* clean up */
 	if(gNullStr != s && buffer != s) {
 		uprv_free(s);
 	}
-
 	return written;
 }
 
-static int32_t u_printf_char_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_char_handler(const u_printf_stream_handler * handler, void * context, ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
 	UChar s[U16_MAX_LENGTH+1];
 	int32_t len = 1, written;
 	unsigned char arg = (unsigned char)(args[0].int64Value);
-
 	/* convert from default codepage to Unicode */
 	ufmt_defaultCPToUnicode((const char *)&arg, 2, s, UPRV_LENGTHOF(s));
-
 	/* Remember that this may be an MBCS character */
 	if(arg != 0) {
 		len = u_strlen(s);
 	}
-
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
 	/* precision is ignored when handling a char */
-
 	written = handler->pad_and_justify(context, info, s, len);
-
 	return written;
 }
 
-static int32_t u_printf_double_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_double_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
-	double num         = (double)(args[0].doubleValue);
+	double num = (double)(args[0].doubleValue);
 	UNumberFormat  * format;
 	UChar result[UPRINTF_BUFFER_SIZE];
 	UChar prefixBuffer[UPRINTF_BUFFER_SIZE];
@@ -279,11 +251,9 @@ static int32_t u_printf_double_handler(const u_printf_stream_handler  * handler,
 	int32_t maxDecimalDigits;
 	int32_t resultLen;
 	UErrorCode status = U_ZERO_ERROR;
-
 	prefixBuffer[0] = 0;
-
 	/* mask off any necessary bits */
-	/*  if(! info->fIsLongDouble)
+	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
 
 	/* get the formatter */
@@ -339,11 +309,11 @@ static int32_t u_printf_double_handler(const u_printf_stream_handler  * handler,
 }
 
 /* HSYS */
-static int32_t u_printf_integer_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_integer_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
 	int64_t num        = args[0].int64Value;
 	UNumberFormat   * format;
@@ -404,11 +374,11 @@ static int32_t u_printf_integer_handler(const u_printf_stream_handler  * handler
 	return handler->pad_and_justify(context, info, result, resultLen);
 }
 
-static int32_t u_printf_hex_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_hex_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
 	(void)formatBundle;
 	int64_t num        = args[0].int64Value;
@@ -438,28 +408,20 @@ static int32_t u_printf_hex_handler(const u_printf_stream_handler  * handler,
 	return handler->pad_and_justify(context, info, result, len);
 }
 
-static int32_t u_printf_octal_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_octal_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
 	int64_t num        = args[0].int64Value;
 	UChar result[UPRINTF_BUFFER_SIZE];
 	int32_t len        = UPRINTF_BUFFER_SIZE;
-
 	/* mask off any necessary bits */
 	if(info->fIsShort)
 		num &= UINT16_MAX;
 	else if(!info->fIsLongLong)
 		num &= UINT32_MAX;
-
 	/* format the number, preserving the minimum # of digits */
-	ufmt_64tou(result, &len, num, 8,
-	    FALSE, /* doesn't matter for octal */
-	    info->fPrecision == -1 && info->fZero ? info->fWidth : info->fPrecision);
-
+	ufmt_64tou(result, &len, num, 8, FALSE/* doesn't matter for octal */, info->fPrecision == -1 && info->fZero ? info->fWidth : info->fPrecision);
 	/* convert to alt form, if desired */
 	if(info->fAlt && result[0] != 0x0030 && len < UPRINTF_BUFFER_SIZE - 1) {
 		/* shift the formatted string right by 1 char */
@@ -467,15 +429,10 @@ static int32_t u_printf_octal_handler(const u_printf_stream_handler  * handler,
 		result[0] = 0x0030;
 		len += 1;
 	}
-
 	return handler->pad_and_justify(context, info, result, len);
 }
 
-static int32_t u_printf_uinteger_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle    * formatBundle,
-    const u_printf_spec_info  * info,
-    const ufmt_args  * args)
+static int32_t u_printf_uinteger_handler(const u_printf_stream_handler * handler, void * context, ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	int64_t num        = args[0].int64Value;
 	UNumberFormat   * format;
@@ -523,29 +480,21 @@ static int32_t u_printf_uinteger_handler(const u_printf_stream_handler * handler
 	return handler->pad_and_justify(context, info, result, resultLen);
 }
 
-static int32_t u_printf_pointer_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_pointer_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
 	UChar result[UPRINTF_BUFFER_SIZE];
 	int32_t len  = UPRINTF_BUFFER_SIZE;
-
 	/* format the pointer in hex */
 	ufmt_ptou(result, &len, args[0].ptrValue, TRUE /*, info->fPrecision*/);
-
 	return handler->pad_and_justify(context, info, result, len);
 }
 
-static int32_t u_printf_scientific_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_scientific_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
-	double num         = (double)(args[0].doubleValue);
+	double num = (double)(args[0].doubleValue);
 	UNumberFormat   * format;
 	UChar result[UPRINTF_BUFFER_SIZE];
 	UChar prefixBuffer[UPRINTF_BUFFER_SIZE];
@@ -561,7 +510,7 @@ static int32_t u_printf_scientific_handler(const u_printf_stream_handler  * hand
 	prefixBuffer[0] = 0;
 
 	/* mask off any necessary bits */
-	/*  if(! info->fIsLongDouble)
+	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
 
 	/* get the formatter */
@@ -658,13 +607,13 @@ static int32_t u_printf_scientific_handler(const u_printf_stream_handler  * hand
 	return handler->pad_and_justify(context, info, result, resultLen);
 }
 
-static int32_t u_printf_percent_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_percent_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
-	double num         = (double)(args[0].doubleValue);
+	double num = (double)(args[0].doubleValue);
 	UNumberFormat   * format;
 	UChar result[UPRINTF_BUFFER_SIZE];
 	UChar prefixBuffer[UPRINTF_BUFFER_SIZE];
@@ -677,7 +626,7 @@ static int32_t u_printf_percent_handler(const u_printf_stream_handler  * handler
 	prefixBuffer[0] = 0;
 
 	/* mask off any necessary bits */
-	/*  if(! info->fIsLongDouble)
+	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
 
 	/* get the formatter */
@@ -732,11 +681,11 @@ static int32_t u_printf_percent_handler(const u_printf_stream_handler  * handler
 	return handler->pad_and_justify(context, info, result, resultLen);
 }
 
-static int32_t u_printf_ustring_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_ustring_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
 	(void)formatBundle;
 	int32_t len, written;
@@ -760,11 +709,11 @@ static int32_t u_printf_ustring_handler(const u_printf_stream_handler  * handler
 	return written;
 }
 
-static int32_t u_printf_uchar_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_uchar_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
 	(void)formatBundle;
 	int32_t written = 0;
@@ -780,11 +729,11 @@ static int32_t u_printf_uchar_handler(const u_printf_stream_handler  * handler,
 	return written;
 }
 
-static int32_t u_printf_scidbl_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_scidbl_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
 	u_printf_spec_info scidbl_info;
 	double num = args[0].doubleValue;
@@ -836,11 +785,11 @@ static int32_t u_printf_scidbl_handler(const u_printf_stream_handler  * handler,
 	return retVal;
 }
 
-static int32_t u_printf_count_handler(const u_printf_stream_handler  * handler,
-    void  * context,
-    ULocaleBundle     * formatBundle,
-    const u_printf_spec_info   * info,
-    const ufmt_args   * args)
+static int32_t u_printf_count_handler(const u_printf_stream_handler * handler,
+    void * context,
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
 	(void)handler;
 	(void)context;
@@ -856,11 +805,11 @@ static int32_t u_printf_count_handler(const u_printf_stream_handler  * handler,
 
 static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler,
     void * context,
-    ULocaleBundle    * formatBundle,
-    const u_printf_spec_info  * info,
-    const ufmt_args  * args)
+    ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info,
+    const ufmt_args * args)
 {
-	double num         = (double)(args[0].doubleValue);
+	double num = (double)(args[0].doubleValue);
 	UNumberFormat   * format;
 	UChar result[UPRINTF_BUFFER_SIZE];
 	UChar prefixBuffer[UPRINTF_BUFFER_SIZE];
@@ -873,7 +822,7 @@ static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler
 	prefixBuffer[0] = 0;
 
 	/* mask off any necessary bits */
-	/*  if(! info->fIsLongDouble)
+	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
 
 	/* get the formatter */
@@ -1437,13 +1386,10 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 				    break;
 			}
 		}
-
 		/* finally, get the specifier letter */
 		info->fSpec = *alias++;
 		info->fOrigSpec = info->fSpec;
-
 		/* fill in the precision and width, if specified out of line */
-
 		/* width specified out of line */
 		if(spec.fInfo.fWidth == -2) {
 			if(spec.fWidthPos == -1) {
@@ -1451,14 +1397,12 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 				info->fWidth = va_arg(ap, int32_t);
 			}
 			/* else handle positional parameter */
-
 			/* if it's negative, take the absolute value and set left alignment */
 			if(info->fWidth < 0) {
 				info->fWidth *= -1; /* Make positive */
 				info->fLeft = TRUE;
 			}
 		}
-
 		/* precision specified out of line */
 		if(info->fPrecision == -2) {
 			if(spec.fPrecisionPos == -1) {
@@ -1466,12 +1410,10 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 				info->fPrecision = va_arg(ap, int32_t);
 			}
 			/* else handle positional parameter */
-
 			/* if it's negative, set it to zero */
 			if(info->fPrecision < 0)
 				info->fPrecision = 0;
 		}
-
 		handlerNum = (uint16_t)(info->fSpec - UPRINTF_BASE_FMT_HANDLERS);
 		if(handlerNum < UPRINTF_NUM_FMT_HANDLERS) {
 			/* query the info function for argument information */

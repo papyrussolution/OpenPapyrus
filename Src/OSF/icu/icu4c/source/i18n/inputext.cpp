@@ -20,7 +20,7 @@ U_NAMESPACE_BEGIN
 #define NEW_ARRAY(type, count) (type*)uprv_malloc((count) * sizeof(type))
 #define DELETE_ARRAY(array) uprv_free((void *)(array))
 
-InputText::InputText(UErrorCode & status) : fInputBytes(NEW_ARRAY(uint8_t, BUFFER_SIZE)), // The text to be checked.  Markup will have been removed if appropriate.
+InputText::InputText(UErrorCode & status) : fInputBytes(NEW_ARRAY(uint8, BUFFER_SIZE)), // The text to be checked.  Markup will have been removed if appropriate.
 	fByteStats(NEW_ARRAY(int16_t, 256)),     // byte frequency statistics for the input text.
 	                                         //   Value is percent, not absolute.
 	fDeclaredEncoding(0),
@@ -43,7 +43,7 @@ void InputText::setText(const char * in, int32_t len)
 {
 	fInputLen  = 0;
 	fC1Bytes   = FALSE;
-	fRawInput  = (const uint8_t*)in;
+	fRawInput  = (const uint8*)in;
 	fRawLength = len == -1 ? (int32_t)uprv_strlen(in) : len;
 }
 
@@ -75,7 +75,7 @@ bool InputText::isSet() const
 void InputText::MungeInput(bool fStripTags) {
 	int srci = 0;
 	int dsti = 0;
-	uint8_t b;
+	uint8 b;
 	bool inMarkup = FALSE;
 	int32_t openTags = 0;
 	int32_t badTags  = 0;
@@ -91,7 +91,7 @@ void InputText::MungeInput(bool fStripTags) {
 		for(srci = 0; srci < fRawLength && dsti < BUFFER_SIZE; srci += 1) {
 			b = fRawInput[srci];
 
-			if(b == (uint8_t)0x3C) { /* Check for the ASCII '<' */
+			if(b == (uint8)0x3C) { /* Check for the ASCII '<' */
 				if(inMarkup) {
 					badTags += 1;
 				}
@@ -104,7 +104,7 @@ void InputText::MungeInput(bool fStripTags) {
 				fInputBytes[dsti++] = b;
 			}
 
-			if(b == (uint8_t)0x3E) { /* Check for the ASCII '>' */
+			if(b == (uint8)0x3E) { /* Check for the ASCII '>' */
 				inMarkup = FALSE;
 			}
 		}

@@ -46,7 +46,7 @@ typedef struct ecpk_parameters_st ECPKPARAMETERS;
 typedef struct ec_parameters_st ECPARAMETERS;
 
 /********************************************************************/
-/*               EC_METHODs for curves over GF(p)                   */
+/* EC_METHODs for curves over GF(p)                   */
 /********************************************************************/
 
 /** Returns the basic GFp ec methods which provides the basis for the
@@ -84,7 +84,7 @@ const EC_METHOD * EC_GFp_nistp521_method(void);
 
 #ifndef OPENSSL_NO_EC2M
 /********************************************************************/
-/*           EC_METHOD for curves over GF(2^m)                      */
+/* EC_METHOD for curves over GF(2^m)                      */
 /********************************************************************/
 
 /** Returns the basic GF2m ec method
@@ -95,7 +95,7 @@ const EC_METHOD * EC_GF2m_simple_method(void);
 #endif
 
 /********************************************************************/
-/*                   EC_GROUP functions                             */
+/*   EC_GROUP functions                             */
 /********************************************************************/
 
 /** Creates a new EC_GROUP object
@@ -378,7 +378,7 @@ EC_GROUP * EC_GROUP_new_from_ecpkparameters(const ECPKPARAMETERS * params);
 ECPKPARAMETERS * EC_GROUP_get_ecpkparameters(const EC_GROUP * group, ECPKPARAMETERS * params);
 
 /********************************************************************/
-/*               handling of internal curves                        */
+/* handling of internal curves                        */
 /********************************************************************/
 
 typedef struct {
@@ -398,7 +398,7 @@ const char * EC_curve_nid2nist(int nid);
 int EC_curve_nist2nid(const char * name);
 
 /********************************************************************/
-/*                    EC_POINT functions                            */
+/*    EC_POINT functions                            */
 /********************************************************************/
 
 /** Creates a new EC_POINT object for the specified EC_GROUP
@@ -642,7 +642,7 @@ EC_POINT * EC_POINT_hex2point(const EC_GROUP *, const char *,
     EC_POINT *, BN_CTX *);
 
 /********************************************************************/
-/*         functions for doing EC_POINT arithmetic                  */
+/* functions for doing EC_POINT arithmetic                  */
 /********************************************************************/
 
 /** Computes the sum of two EC_POINT
@@ -738,7 +738,7 @@ int EC_GROUP_precompute_mult(EC_GROUP * group, BN_CTX * ctx);
 int EC_GROUP_have_precompute_mult(const EC_GROUP * group);
 
 /********************************************************************/
-/*                       ASN1 stuff                                 */
+/*       ASN1 stuff                                 */
 /********************************************************************/
 
 DECLARE_ASN1_ITEM(ECPKPARAMETERS)
@@ -776,7 +776,7 @@ int ECPKParameters_print_fp(FILE * fp, const EC_GROUP * x, int off);
 #endif
 
 /********************************************************************/
-/*                      EC_KEY functions                            */
+/*      EC_KEY functions                            */
 /********************************************************************/
 
 /* some values for the encoding_flag */
@@ -975,7 +975,7 @@ size_t EC_KEY_priv2oct(const EC_KEY * key, uchar * buf, size_t len);
 size_t EC_KEY_priv2buf(const EC_KEY * eckey, uchar ** pbuf);
 
 /********************************************************************/
-/*        de- and encoding functions for SEC1 ECPrivateKey          */
+/* de- and encoding functions for SEC1 ECPrivateKey          */
 /********************************************************************/
 
 /** Decodes a private key from a memory buffer.
@@ -995,7 +995,7 @@ EC_KEY * d2i_ECPrivateKey(EC_KEY ** key, const uchar ** in, long len);
 int i2d_ECPrivateKey(EC_KEY * key, uchar ** out);
 
 /********************************************************************/
-/*        de- and encoding functions for EC parameters              */
+/* de- and encoding functions for EC parameters              */
 /********************************************************************/
 
 /** Decodes ec parameter from a memory buffer.
@@ -1016,8 +1016,8 @@ EC_KEY * d2i_ECParameters(EC_KEY ** key, const uchar ** in, long len);
 int i2d_ECParameters(EC_KEY * key, uchar ** out);
 
 /********************************************************************/
-/*         de- and encoding functions for EC public key             */
-/*         (octet string, not DER -- hence 'o2i' and 'i2o')         */
+/* de- and encoding functions for EC public key             */
+/* (octet string, not DER -- hence 'o2i' and 'i2o')         */
 /********************************************************************/
 
 /** Decodes a ec public key from a octet string.
@@ -1242,7 +1242,7 @@ int ECDSA_verify(int type, const uchar * dgst, int dgstlen,
 int ECDSA_size(const EC_KEY * eckey);
 
 /********************************************************************/
-/*  EC_KEY_METHOD constructors, destructors, writers and accessors  */
+/* EC_KEY_METHOD constructors, destructors, writers and accessors  */
 /********************************************************************/
 
 EC_KEY_METHOD * EC_KEY_METHOD_new(const EC_KEY_METHOD * meth);

@@ -97,13 +97,13 @@ UScriptCode hb_icu_script_from_script(hb_script_t script)
 	return USCRIPT_UNKNOWN;
 }
 
-static hb_unicode_combining_class_t hb_icu_unicode_combining_class(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_unicode_combining_class_t hb_icu_unicode_combining_class(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return (hb_unicode_combining_class_t)u_getCombiningClass(unicode);
 }
 
-static hb_unicode_general_category_t hb_icu_unicode_general_category(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_unicode_general_category_t hb_icu_unicode_general_category(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
+    hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	switch(u_getIntPropertyValue(unicode, UCHAR_GENERAL_CATEGORY)) {
 		case U_UNASSIGNED:                    return HB_UNICODE_GENERAL_CATEGORY_UNASSIGNED;
@@ -142,12 +142,12 @@ static hb_unicode_general_category_t hb_icu_unicode_general_category(hb_unicode_
 	return HB_UNICODE_GENERAL_CATEGORY_UNASSIGNED;
 }
 
-static hb_codepoint_t hb_icu_unicode_mirroring(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_codepoint_t hb_icu_unicode_mirroring(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return u_charMirror(unicode);
 }
 
-static hb_script_t hb_icu_unicode_script(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_script_t hb_icu_unicode_script(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UScriptCode scriptCode = uscript_getScript(unicode, &status);
@@ -156,7 +156,7 @@ static hb_script_t hb_icu_unicode_script(hb_unicode_funcs_t * ufuncs HB_UNUSED, 
 	return hb_icu_script_to_script(scriptCode);
 }
 
-static hb_bool_t hb_icu_unicode_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t a, hb_codepoint_t b, hb_codepoint_t * ab, void * user_data)
+static hb_bool_t hb_icu_unicode_compose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t a, hb_codepoint_t b, hb_codepoint_t * ab, void * user_data)
 {
 	const UNormalizer2 * normalizer = (const UNormalizer2*)user_data;
 	UChar32 ret = unorm2_composePair(normalizer, a, b);
@@ -165,7 +165,7 @@ static hb_bool_t hb_icu_unicode_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED, h
 	return true;
 }
 
-static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t ab,
+static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t ab,
     hb_codepoint_t * a, hb_codepoint_t * b, void * user_data)
 {
 	const UNormalizer2 * normalizer = (const UNormalizer2*)user_data;

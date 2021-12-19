@@ -120,7 +120,7 @@ private:
 	int    GetColor(const SString & rProp, SColor & rC) const;
 
 	enum {
-		psirOK          = 0x00000001,
+		psirOK  = 0x00000001,
 		psirUnknOccured = 0x10000000,
 		psirFillOccured = 0x00010000
 	};

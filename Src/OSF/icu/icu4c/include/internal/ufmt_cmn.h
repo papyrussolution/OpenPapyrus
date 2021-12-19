@@ -103,7 +103,7 @@ void
 ufmt_64tou(UChar *buffer, 
       int32_t *len,
       uint64_t     value, 
-      uint8_t     radix,
+      uint8     radix,
       bool    uselower,
       int32_t minDigits);
 

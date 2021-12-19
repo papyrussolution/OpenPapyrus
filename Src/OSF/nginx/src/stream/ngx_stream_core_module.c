@@ -330,7 +330,7 @@ static const char * ngx_stream_core_error_log(ngx_conf_t * cf, const ngx_command
 static const char * ngx_stream_core_server(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * rv;
-	void  * mconf;
+	void * mconf;
 	ngx_uint_t m;
 	ngx_conf_t pcf;
 	ngx_stream_module_t   * module;

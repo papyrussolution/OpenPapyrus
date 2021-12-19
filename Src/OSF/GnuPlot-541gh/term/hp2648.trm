@@ -56,7 +56,7 @@ register_term(hp2648)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void HP2648init(GpTermEntry * pThis);
+TERM_PUBLIC void HP2648init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void HP2648graphics();
 TERM_PUBLIC void HP2648text();
 TERM_PUBLIC void HP2648linetype(int linetype);
@@ -80,10 +80,10 @@ TERM_PUBLIC void HP2648reset();
 #define HP2648XLAST (HP2648XMAX - 1)
 #define HP2648YLAST (HP2648YMAX - 1)
 
-TERM_PUBLIC void HP2648init(GpTermEntry * pThis)
+TERM_PUBLIC void HP2648init(GpTermEntry_Static * pThis)
 {
 	fprintf(GPT.P_GpOutFile, "\033*m1m1n136,1cZ");
-/*                   1     2 3     4
+/*   1     2 3     4
         1. mode
         2. textsize=1
         3. textangle=1
@@ -94,7 +94,7 @@ TERM_PUBLIC void HP2648init(GpTermEntry * pThis)
 TERM_PUBLIC void HP2648graphics()
 {
 	fprintf(GPT.P_GpOutFile, "\033*dacZ");
-/*                   1     23
+/*   1     23
         1. mode
         2. clear graphics screen
         3. graphics video on
@@ -114,7 +114,7 @@ TERM_PUBLIC void HP2648linetype(int linetype)
 TERM_PUBLIC void HP2648move(uint x, uint y)
 {
 	fprintf(GPT.P_GpOutFile, "\033*paf%d,%dZ", x, y);
-	/*               1     23     4
+	/* 1     23     4
 	   1        plot mode
 	   2        "pen up"
 	   3        goto absolute x,y
@@ -125,7 +125,7 @@ TERM_PUBLIC void HP2648move(uint x, uint y)
 TERM_PUBLIC void HP2648vector(uint x, uint y)
 {
 	fprintf(GPT.P_GpOutFile, "\033*pbf%d,%dZ", x, y);
-	/*                     1
+	/*     1
 	   1        "pen down"
 	 */
 }

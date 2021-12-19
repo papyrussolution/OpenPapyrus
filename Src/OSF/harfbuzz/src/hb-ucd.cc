@@ -18,22 +18,22 @@
 
 #include "hb-ucd-table.hh"
 
-static hb_unicode_combining_class_t hb_ucd_combining_class(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_unicode_combining_class_t hb_ucd_combining_class(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return (hb_unicode_combining_class_t)_hb_ucd_ccc(unicode);
 }
 
-static hb_unicode_general_category_t hb_ucd_general_category(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_unicode_general_category_t hb_ucd_general_category(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return (hb_unicode_general_category_t)_hb_ucd_gc(unicode);
 }
 
-static hb_codepoint_t hb_ucd_mirroring(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_codepoint_t hb_ucd_mirroring(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return unicode + _hb_ucd_bmg(unicode);
 }
 
-static hb_script_t hb_ucd_script(hb_unicode_funcs_t * ufuncs HB_UNUSED, hb_codepoint_t unicode, void * user_data HB_UNUSED)
+static hb_script_t hb_ucd_script(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return _hb_ucd_sc_map[_hb_ucd_sc(unicode)];
 }
@@ -102,9 +102,9 @@ static int _cmp_pair_11_7_14(const void * _key, const void * _item)
 	return a < b ? -1 : a > b ? +1 : 0;
 }
 
-static hb_bool_t hb_ucd_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
+static hb_bool_t hb_ucd_compose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
     hb_codepoint_t a, hb_codepoint_t b, hb_codepoint_t * ab,
-    void * user_data HB_UNUSED)
+    void * user_data CXX_UNUSED_PARAM)
 {
 	if(_hb_ucd_compose_hangul(a, b, ab)) return true;
 
@@ -136,9 +136,9 @@ static hb_bool_t hb_ucd_compose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
 	return true;
 }
 
-static hb_bool_t hb_ucd_decompose(hb_unicode_funcs_t * ufuncs HB_UNUSED,
+static hb_bool_t hb_ucd_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
     hb_codepoint_t ab, hb_codepoint_t * a, hb_codepoint_t * b,
-    void * user_data HB_UNUSED)
+    void * user_data CXX_UNUSED_PARAM)
 {
 	if(_hb_ucd_decompose_hangul(ab, a, b)) return true;
 

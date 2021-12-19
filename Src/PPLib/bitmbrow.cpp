@@ -158,12 +158,12 @@ private:
 
 	enum {
 		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
-		stAltView          = 0x0004, // Альтернативный просмотр строк товарного документа
+		stAltView  = 0x0004, // Альтернативный просмотр строк товарного документа
 		stExpndOnReturn    = 0x0008, // Флаг устанавливается при расходном возврате
 		stUseLinkSelection = 0x0010, // При выборе товара всегда обращаться к строкам связанного документа
 		stShowLinkQtty     = 0x0020, // Показывать количество из связанного документа
-		stCtrlX            = 0x0040,
-		stAccsCost         = 0x0080, // @*BillItemBrowser::BillItemBrowser
+		stCtrlX    = 0x0040,
+		stAccsCost = 0x0080, // @*BillItemBrowser::BillItemBrowser
 		stActivateNewRow   = 0x0100, // If !0 && !EditMode then execute() calls addItem()
 		stIsModified       = 0x0400
 	};

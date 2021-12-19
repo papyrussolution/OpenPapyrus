@@ -28,6 +28,17 @@
  * \file  numafunc2.c
  * <pre>
  *
+ *      --------------------------------------
+ *      This file has these Numa utilities:
+ *         - morphological operations
+ *         - arithmetic transforms
+ *         - windowed statistical operations
+ *         - histogram extraction
+ *         - histogram comparison
+ *         - extrema finding
+ *         - frequency and crossing analysis
+ *      --------------------------------------
+
  *      Morphological (min/max) operations
  *          NUMA        *numaErode()
  *          NUMA        *numaDilate()
@@ -36,11 +47,11 @@
  *
  *      Other transforms
  *          NUMA        *numaTransform()
- *          int32      numaSimpleStats()
- *          int32      numaWindowedStats()
+ *          l_int32      numaSimpleStats()
+ *          l_int32      numaWindowedStats()
  *          NUMA        *numaWindowedMean()
  *          NUMA        *numaWindowedMeanSquare()
- *          int32      numaWindowedVariance()
+ *          l_int32      numaWindowedVariance()
  *          NUMA        *numaWindowedMedian()
  *          NUMA        *numaConvertToInt()
  *
@@ -50,34 +61,37 @@
  *          NUMA        *numaMakeHistogramClipped()
  *          NUMA        *numaRebinHistogram()
  *          NUMA        *numaNormalizeHistogram()
- *          int32      numaGetStatsUsingHistogram()
- *          int32      numaGetHistogramStats()
- *          int32      numaGetHistogramStatsOnInterval()
- *          int32      numaMakeRankFromHistogram()
- *          int32      numaHistogramGetRankFromVal()
- *          int32      numaHistogramGetValFromRank()
- *          int32      numaDiscretizeRankAndIntensity()
- *          int32      numaGetRankBinValues()
+ *          l_int32      numaGetStatsUsingHistogram()
+ *          l_int32      numaGetHistogramStats()
+ *          l_int32      numaGetHistogramStatsOnInterval()
+ *          l_int32      numaMakeRankFromHistogram()
+ *          l_int32      numaHistogramGetRankFromVal()
+ *          l_int32      numaHistogramGetValFromRank()
+ *          l_int32      numaDiscretizeSortedInBins()
+ *          l_int32      numaDiscretizeHistoInBins()
+ *          l_int32      numaGetRankBinValues()
+ *          NUMA        *numaGetUniformBinSizes()
  *
  *      Splitting a distribution
- *          int32      numaSplitDistribution()
+ *          l_int32      numaSplitDistribution()
  *
  *      Comparing histograms
- *          int32      grayHistogramsToEMD()
- *          int32      numaEarthMoverDistance()
- *          int32      grayInterHistogramStats()
+ *          l_int32      grayHistogramsToEMD()
+ *          l_int32      numaEarthMoverDistance()
+ *          l_int32      grayInterHistogramStats()
  *
  *      Extrema finding
  *          NUMA        *numaFindPeaks()
  *          NUMA        *numaFindExtrema()
- *          int32     *numaCountReversals()
+ *          NUMA        *numaFindLocForThreshold()
+ *          l_int32     *numaCountReversals()
  *
  *      Threshold crossings and frequency analysis
- *          int32      numaSelectCrossingThreshold()
+ *          l_int32      numaSelectCrossingThreshold()
  *          NUMA        *numaCrossingsByThreshold()
  *          NUMA        *numaCrossingsByPeaks()
  *          NUMA        *numaEvalBestHaarParameters()
- *          int32      numaEvalHaarSum()
+ *          l_int32      numaEvalHaarSum()
  *
  *      Generating numbers in a range under constraints
  *          NUMA        *genConstrainedNumaInRange()
@@ -88,7 +102,7 @@
  *        (see numabasic.c), never the fields directly.
  *
  *    (2) The number array holds float values.  It can also
- *        be used to store int32 values.  See numabasic.c for
+ *        be used to store l_int32 values.  See numabasic.c for
  *        details on using the accessors.  Integers larger than
  *        about 10M will lose accuracy due on retrieval due to round-off.
  *        For large integers, use the dna (array of double) instead.
@@ -123,11 +137,11 @@
 #pragma hdrstop
 
 /* bin sizes in numaMakeHistogram() */
-static const int32 BinSizeArray[] = {2, 5, 10, 20, 50, 100, 200, 500, 1000, \
-				       2000, 5000, 10000, 20000, 50000, 100000, 200000,	\
+static const l_int32 BinSizeArray[] = {2, 5, 10, 20, 50, 100, 200, 500, 1000, \
+				       2000, 5000, 10000, 20000, 50000, 100000, 200000, \
 				       500000, 1000000, 2000000, 5000000, 10000000, \
 				       200000000, 50000000, 100000000};
-static const int32 NBinSizes = 24;
+static const l_int32 NBinSizes = 24;
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_HISTO        0
@@ -142,7 +156,8 @@ static const int32 NBinSizes = 24;
  * \brief   numaErode()
  *
  * \param[in]    nas
- * \param[in]    size of sel; greater than 0, odd; origin implicitly in center
+ * \param[in]    size   of sel; greater than 0, odd.  The origin
+ *                      is implicitly in the center.
  * \return  nad eroded, or NULL on error
  *
  * <pre>
@@ -158,15 +173,15 @@ static const int32 NBinSizes = 24;
  *          by brute force.
  * </pre>
  */
-NUMA * numaErode(NUMA    * nas,
-    int32 size)
+NUMA * numaErode(NUMA * nas,
+    l_int32 size)
 {
-	int32 i, j, n, hsize, len;
+	l_int32 i, j, n, hsize, len;
 	float minval;
-	float  * fa, * fas, * fad;
+	float * fa, * fas, * fad;
 	NUMA       * nad;
 
-	PROCNAME("numaErode");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -187,7 +202,7 @@ NUMA * numaErode(NUMA    * nas,
 	n = numaGetCount(nas);
 	hsize = size / 2;
 	len = n + 2 * hsize;
-	if((fas = (float*)LEPT_CALLOC(len, sizeof(float))) == NULL)
+	if((fas = (float *)SAlloc::C(len, sizeof(float))) == NULL)
 		return (NUMA*)ERROR_PTR("fas not made", procName, NULL);
 	for(i = 0; i < hsize; i++)
 		fas[i] = 1.0e37;
@@ -207,7 +222,7 @@ NUMA * numaErode(NUMA    * nas,
 		fad[i] = minval;
 	}
 
-	LEPT_FREE(fas);
+	SAlloc::F(fas);
 	return nad;
 }
 
@@ -215,7 +230,8 @@ NUMA * numaErode(NUMA    * nas,
  * \brief   numaDilate()
  *
  * \param[in]    nas
- * \param[in]    size of sel; greater than 0, odd; origin implicitly in center
+ * \param[in]    size   of sel; greater than 0, odd.  The origin
+ *                      is implicitly in the center.
  * \return  nad dilated, or NULL on error
  *
  * <pre>
@@ -224,15 +240,15 @@ NUMA * numaErode(NUMA    * nas,
  *      (2) If size == 1, this returns a copy
  * </pre>
  */
-NUMA * numaDilate(NUMA    * nas,
-    int32 size)
+NUMA * numaDilate(NUMA * nas,
+    l_int32 size)
 {
-	int32 i, j, n, hsize, len;
+	l_int32 i, j, n, hsize, len;
 	float maxval;
-	float  * fa, * fas, * fad;
+	float * fa, * fas, * fad;
 	NUMA       * nad;
 
-	PROCNAME("numaDilate");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -253,7 +269,7 @@ NUMA * numaDilate(NUMA    * nas,
 	n = numaGetCount(nas);
 	hsize = size / 2;
 	len = n + 2 * hsize;
-	if((fas = (float*)LEPT_CALLOC(len, sizeof(float))) == NULL)
+	if((fas = (float *)SAlloc::C(len, sizeof(float))) == NULL)
 		return (NUMA*)ERROR_PTR("fas not made", procName, NULL);
 	for(i = 0; i < hsize; i++)
 		fas[i] = -1.0e37;
@@ -273,7 +289,7 @@ NUMA * numaDilate(NUMA    * nas,
 		fad[i] = maxval;
 	}
 
-	LEPT_FREE(fas);
+	SAlloc::F(fas);
 	return nad;
 }
 
@@ -281,7 +297,8 @@ NUMA * numaDilate(NUMA    * nas,
  * \brief   numaOpen()
  *
  * \param[in]    nas
- * \param[in]    size of sel; greater than 0, odd; origin implicitly in center
+ * \param[in]    size   of sel; greater than 0, odd.  The origin
+ *                      is implicitly in the center.
  * \return  nad opened, or NULL on error
  *
  * <pre>
@@ -290,12 +307,12 @@ NUMA * numaDilate(NUMA    * nas,
  *      (2) If size == 1, this returns a copy
  * </pre>
  */
-NUMA * numaOpen(NUMA    * nas,
-    int32 size)
+NUMA * numaOpen(NUMA * nas,
+    l_int32 size)
 {
-	NUMA  * nat, * nad;
+	NUMA * nat, * nad;
 
-	PROCNAME("numaOpen");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -319,8 +336,9 @@ NUMA * numaOpen(NUMA    * nas,
  * \brief   numaClose()
  *
  * \param[in]    nas
- * \param[in]    size of sel; greater than 0, odd; origin implicitly in center
- * \return  nad opened, or NULL on error
+ * \param[in]    size   of sel; greater than 0, odd.  The origin
+ *                      is implicitly in the center.
+ * \return  nad  closed, or NULL on error
  *
  * <pre>
  * Notes:
@@ -334,12 +352,12 @@ NUMA * numaOpen(NUMA    * nas,
  *          property of closing.
  * </pre>
  */
-NUMA * numaClose(NUMA    * nas,
-    int32 size)
+NUMA * numaClose(NUMA * nas,
+    l_int32 size)
 {
-	NUMA  * nab, * nat1, * nat2, * nad;
+	NUMA * nab, * nat1, * nat2, * nad;
 
-	PROCNAME("numaClose");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -370,8 +388,8 @@ NUMA * numaClose(NUMA    * nas,
  * \brief   numaTransform()
  *
  * \param[in]    nas
- * \param[in]    shift add this to each number
- * \param[in]    scale multiply each number by this
+ * \param[in]    shift    add this to each number
+ * \param[in]    scale    multiply each number by this
  * \return  nad with all values shifted and scaled, or NULL on error
  *
  * <pre>
@@ -379,15 +397,15 @@ NUMA * numaClose(NUMA    * nas,
  *      (1) Each number is shifted before scaling.
  * </pre>
  */
-NUMA * numaTransform(NUMA      * nas,
+NUMA * numaTransform(NUMA * nas,
     float shift,
     float scale)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaTransform");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -406,25 +424,25 @@ NUMA * numaTransform(NUMA      * nas,
 /*!
  * \brief   numaSimpleStats()
  *
- * \param[in]    na input numa
- * \param[in]    first first element to use
- * \param[in]    last last element to use; 0 to go to the end
- * \param[out]   pmean [optional] mean value
- * \param[out]   pvar [optional] variance
- * \param[out]   prvar [optional] rms deviation from the mean
+ * \param[in]    na       input numa
+ * \param[in]    first    first element to use
+ * \param[in]    last     last element to use; -1 to go to the end
+ * \param[out]   pmean    [optional] mean value
+ * \param[out]   pvar     [optional] variance
+ * \param[out]   prvar    [optional] rms deviation from the mean
  * \return  0 if OK, 1 on error
  */
-int32 numaSimpleStats(NUMA       * na,
-    int32 first,
-    int32 last,
-    float  * pmean,
-    float  * pvar,
-    float  * prvar)
+l_ok numaSimpleStats(NUMA       * na,
+    l_int32 first,
+    l_int32 last,
+    float * pmean,
+    float * pvar,
+    float * prvar)
 {
-	int32 i, n, ni;
+	l_int32 i, n, ni;
 	float sum, sumsq, val, mean, var;
 
-	PROCNAME("numaSimpleStats");
+	PROCNAME(__FUNCTION__);
 
 	if(pmean) *pmean = 0.0;
 	if(pvar) *pvar = 0.0;
@@ -435,12 +453,17 @@ int32 numaSimpleStats(NUMA       * na,
 		return ERROR_INT("na not defined", procName, 1);
 	if((n = numaGetCount(na)) == 0)
 		return ERROR_INT("na is empty", procName, 1);
-	if(last == 0) last = n - 1;
-	last = MIN(last, n - 1);
-	if(first > last) {
-		L_ERROR3("invalid: first(%d) > last(%d)\n", procName, first, last);
-		return 1;
+	first = MAX(0, first);
+	if(last < 0) last = n - 1;
+	if(first >= n)
+		return ERROR_INT("invalid first", procName, 1);
+	if(last >= n) {
+		L_WARNING("last = %d is beyond max index = %d; adjusting\n",
+		    procName, last, n - 1);
+		last = n - 1;
 	}
+	if(first > last)
+		return ERROR_INT("first > last\n", procName, 1);
 	ni = last - first + 1;
 	sum = sumsq = 0.0;
 	for(i = first; i <= last; i++) {
@@ -464,12 +487,12 @@ int32 numaSimpleStats(NUMA       * na,
 /*!
  * \brief   numaWindowedStats()
  *
- * \param[in]    nas input numa
- * \param[in]    wc half width of the window
- * \param[out]   pnam [optional] mean value in window
- * \param[out]   pnams [optional] mean square value in window
- * \param[out]   pnav [optional] variance in window
- * \param[out]   pnarv [optional] rms deviation from the mean
+ * \param[in]    nas     input numa
+ * \param[in]    wc      half width of the window
+ * \param[out]   pnam    [optional] mean value in window
+ * \param[out]   pnams   [optional] mean square value in window
+ * \param[out]   pnav    [optional] variance in window
+ * \param[out]   pnarv   [optional] rms deviation from the mean
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -478,11 +501,11 @@ int32 numaSimpleStats(NUMA       * na,
  *          any or all of these derived arrays.
  *      (2) These statistical measures over the values in the
  *          rectangular window are:
- *            ~ average value: \<x\>  (nam)
- *            ~ average squared value: \<x*x\> (nams)
- *            ~ variance: \<(x - \<x\>)*(x - \<x\>)\> = \<x*x\> - \<x\>*\<x\>  (nav)
+ *            ~ average value: [x]  (nam)
+ *            ~ average squared value: [x*x] (nams)
+ *            ~ variance: [(x - [x])*(x - [x])] = [x*x] - [x]*[x]  (nav)
  *            ~ square-root of variance: (narv)
- *          where the brackets \< .. \> indicate that the average value is
+ *          where the brackets [ .. ] indicate that the average value is
  *          to be taken over the window.
  *      (3) Note that the variance is just the mean square difference from
  *          the mean value; and the square root of the variance is the
@@ -492,16 +515,16 @@ int32 numaSimpleStats(NUMA       * na,
  *          end of each array.
  * </pre>
  */
-int32 numaWindowedStats(NUMA    * nas,
-    int32 wc,
+l_ok numaWindowedStats(NUMA * nas,
+    l_int32 wc,
     NUMA   ** pnam,
     NUMA   ** pnams,
     NUMA   ** pnav,
     NUMA   ** pnarv)
 {
-	NUMA  * nam, * nams;
+	NUMA * nam, * nams;
 
-	PROCNAME("numaWindowedStats");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return ERROR_INT("nas not defined", procName, 1);
@@ -532,7 +555,7 @@ int32 numaWindowedStats(NUMA    * nas,
  * \brief   numaWindowedMean()
  *
  * \param[in]    nas
- * \param[in]    wc half width of the convolution window
+ * \param[in]    wc    half width of the convolution window
  * \return  nad after low-pass filtering, or NULL on error
  *
  * <pre>
@@ -541,15 +564,15 @@ int32 numaWindowedStats(NUMA    * nas,
  *      (2) We add a mirrored border of size %wc to each end of the array.
  * </pre>
  */
-NUMA * numaWindowedMean(NUMA    * nas,
-    int32 wc)
+NUMA * numaWindowedMean(NUMA * nas,
+    l_int32 wc)
 {
-	int32 i, n, n1, width;
+	l_int32 i, n, n1, width;
 	float sum, norm;
-	float  * fa1, * fad, * suma;
+	float * fa1, * fad, * suma;
 	NUMA       * na1, * nad;
 
-	PROCNAME("numaWindowedMean");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -565,7 +588,7 @@ NUMA * numaWindowedMean(NUMA    * nas,
 	fad = numaGetFArray(nad, L_NOCOPY);
 
 	/* Make sum array; note the indexing */
-	if((suma = (float*)LEPT_CALLOC(n1 + 1, sizeof(float))) == NULL) {
+	if((suma = (float *)SAlloc::C(n1 + 1, sizeof(float))) == NULL) {
 		numaDestroy(&na1);
 		numaDestroy(&nad);
 		return (NUMA*)ERROR_PTR("suma not made", procName, NULL);
@@ -576,10 +599,12 @@ NUMA * numaWindowedMean(NUMA    * nas,
 		sum += fa1[i];
 		suma[i + 1] = sum;
 	}
-	norm = 1.0f / (2 * wc + 1);
+
+	norm = 1. / (2 * wc + 1);
 	for(i = 0; i < n; i++)
 		fad[i] = norm * (suma[width + i] - suma[i]);
-	LEPT_FREE(suma);
+
+	SAlloc::F(suma);
 	numaDestroy(&na1);
 	return nad;
 }
@@ -588,7 +613,7 @@ NUMA * numaWindowedMean(NUMA    * nas,
  * \brief   numaWindowedMeanSquare()
  *
  * \param[in]    nas
- * \param[in]    wc half width of the window
+ * \param[in]    wc    half width of the window
  * \return  nad containing windowed mean square values, or NULL on error
  *
  * <pre>
@@ -597,15 +622,15 @@ NUMA * numaWindowedMean(NUMA    * nas,
  *      (2) We add a mirrored border of size %wc to each end of the array.
  * </pre>
  */
-NUMA * numaWindowedMeanSquare(NUMA    * nas,
-    int32 wc)
+NUMA * numaWindowedMeanSquare(NUMA * nas,
+    l_int32 wc)
 {
-	int32 i, n, n1, width;
+	l_int32 i, n, n1, width;
 	float sum, norm;
-	float  * fa1, * fad, * suma;
+	float * fa1, * fad, * suma;
 	NUMA       * na1, * nad;
 
-	PROCNAME("numaWindowedMeanSquare");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -621,7 +646,7 @@ NUMA * numaWindowedMeanSquare(NUMA    * nas,
 	fad = numaGetFArray(nad, L_NOCOPY);
 
 	/* Make sum array; note the indexing */
-	if((suma = (float*)LEPT_CALLOC(n1 + 1, sizeof(float))) == NULL) {
+	if((suma = (float *)SAlloc::C(n1 + 1, sizeof(float))) == NULL) {
 		numaDestroy(&na1);
 		numaDestroy(&nad);
 		return (NUMA*)ERROR_PTR("suma not made", procName, NULL);
@@ -632,10 +657,12 @@ NUMA * numaWindowedMeanSquare(NUMA    * nas,
 		sum += fa1[i] * fa1[i];
 		suma[i + 1] = sum;
 	}
-	norm = 1.0f / (2 * wc + 1);
+
+	norm = 1. / (2 * wc + 1);
 	for(i = 0; i < n; i++)
 		fad[i] = norm * (suma[width + i] - suma[i]);
-	LEPT_FREE(suma);
+
+	SAlloc::F(suma);
 	numaDestroy(&na1);
 	return nad;
 }
@@ -643,11 +670,11 @@ NUMA * numaWindowedMeanSquare(NUMA    * nas,
 /*!
  * \brief   numaWindowedVariance()
  *
- * \param[in]    nam windowed mean values
- * \param[in]    nams windowed mean square values
- * \param[out]   pnav [optional] numa of variance -- the ms deviation
- *                     from the mean
- * \param[out]   pnarv [optional] numa of rms deviation from the mean
+ * \param[in]    nam    windowed mean values
+ * \param[in]    nams   windowed mean square values
+ * \param[out]   pnav   [optional] numa of variance -- the ms deviation
+ *                      from the mean
+ * \param[out]   pnarv  [optional] numa of rms deviation from the mean
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -658,20 +685,20 @@ NUMA * numaWindowedMeanSquare(NUMA    * nas,
  *          are returned, where the variance is the average over the
  *          window of the mean square difference of the pixel value
  *          from the mean:
- *                \<(x - \<x\>)*(x - \<x\>)\> = \<x*x\> - \<x\>*\<x\>
+ *                [(x - [x])*(x - [x])] = [x*x] - [x]*[x]
  * </pre>
  */
-int32 numaWindowedVariance(NUMA   * nam,
+l_ok numaWindowedVariance(NUMA   * nam,
     NUMA   * nams,
-    NUMA  ** pnav,
-    NUMA  ** pnarv)
+    NUMA ** pnav,
+    NUMA ** pnarv)
 {
-	int32 i, nm, nms;
+	l_int32 i, nm, nms;
 	float var;
-	float  * fam, * fams, * fav, * farv;
+	float * fam, * fams, * fav, * farv;
 	NUMA       * nav, * narv; /* variance and square root of variance */
 
-	PROCNAME("numaWindowedVariance");
+	PROCNAME(__FUNCTION__);
 
 	if(pnav) *pnav = NULL;
 	if(pnarv) *pnarv = NULL;
@@ -714,27 +741,27 @@ int32 numaWindowedVariance(NUMA   * nam,
  * \brief   numaWindowedMedian()
  *
  * \param[in]    nas
- * \param[in]    halfwin half width of window over which the median is found
+ * \param[in]    halfwin   half width of window over which the median is found
  * \return  nad after windowed median filtering, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) The requested window has width = 2 * %halfwin + 1.
  *      (2) If the input nas has less then 3 elements, return a copy.
- *      (3) If the filter is too small (%halfwin \<= 0), return a copy.
+ *      (3) If the filter is too small (%halfwin <= 0), return a copy.
  *      (4) If the filter is too large, it is reduced in size.
  *      (5) We add a mirrored border of size %halfwin to each end of
  *          the array to simplify the calculation by avoiding end-effects.
  * </pre>
  */
-NUMA * numaWindowedMedian(NUMA    * nas,
-    int32 halfwin)
+NUMA * numaWindowedMedian(NUMA * nas,
+    l_int32 halfwin)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float medval;
-	NUMA      * na1, * na2, * nad;
+	NUMA * na1, * na2, * nad;
 
-	PROCNAME("numaWindowedMedian");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -747,7 +774,7 @@ NUMA * numaWindowedMedian(NUMA    * nas,
 
 	if(halfwin > (n - 1) / 2) {
 		halfwin = (n - 1) / 2;
-		L_INFO2("reducing filter to halfwin = %d\n", procName, halfwin);
+		L_INFO("reducing filter to halfwin = %d\n", procName, halfwin);
 	}
 
 	/* Add a border to both ends */
@@ -770,16 +797,16 @@ NUMA * numaWindowedMedian(NUMA    * nas,
 /*!
  * \brief   numaConvertToInt()
  *
- * \param[in]    nas source numa
+ * \param[in]    nas   source numa
  * \return  na with all values rounded to nearest integer, or
  *              NULL on error
  */
-NUMA * numaConvertToInt(NUMA  * nas)
+NUMA * numaConvertToInt(NUMA * nas)
 {
-	int32 i, n, ival;
-	NUMA    * nad;
+	l_int32 i, n, ival;
+	NUMA * nad;
 
-	PROCNAME("numaConvertToInt");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -802,10 +829,10 @@ NUMA * numaConvertToInt(NUMA  * nas)
  * \brief   numaMakeHistogram()
  *
  * \param[in]    na
- * \param[in]    maxbins max number of histogram bins
- * \param[out]   pbinsize  size of histogram bins
- * \param[out]   pbinstart [optional] start val of minimum bin;
- *                         input NULL to force start at 0
+ * \param[in]    maxbins    max number of histogram bins
+ * \param[out]   pbinsize   [optional] size of histogram bins
+ * \param[out]   pbinstart  [optional] start val of minimum bin;
+ *                          input NULL to force start at 0
  * \return  na consisiting of histogram of integerized values,
  *              or NULL on error.
  *
@@ -816,40 +843,48 @@ NUMA * numaConvertToInt(NUMA  * nas)
  *          so the results on float data will not have high precision.
  *      (2) Specify the max number of input bins.   Then %binsize,
  *          the size of bins necessary to accommodate the input data,
- *          is returned.  It is one of the sequence:
+ *          is returned.  It is optionally returned and one of the sequence:
  *                {1, 2, 5, 10, 20, 50, ...}.
- *      (3) If \&binstart is given, all values are accommodated,
+ *      (3) If &binstart is given, all values are accommodated,
  *          and the min value of the starting bin is returned.
  *          Otherwise, all negative values are discarded and
  *          the histogram bins start at 0.
  * </pre>
  */
-NUMA * numaMakeHistogram(NUMA * na, int32 maxbins, int32 * pbinsize, int32 * pbinstart)
+NUMA * numaMakeHistogram(NUMA     * na,
+    l_int32 maxbins,
+    l_int32 * pbinsize,
+    l_int32 * pbinstart)
 {
-	int32 i, n, ival, hval;
-	int32 iminval, imaxval, range, binsize, nbins, ibin;
+	l_int32 i, n, ival, hval;
+	l_int32 iminval, imaxval, range, binsize, nbins, ibin;
 	float val, ratio;
-	NUMA      * nai, * nahist;
-	PROCNAME("numaMakeHistogram");
+	NUMA * nai, * nahist;
+
+	PROCNAME(__FUNCTION__);
+
+	if(pbinsize) *pbinsize = 0;
+	if(pbinstart) *pbinstart = 0;
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
-	if(!pbinsize)
-		return (NUMA*)ERROR_PTR("&binsize not defined", procName, NULL);
+	if(maxbins < 1)
+		return (NUMA*)ERROR_PTR("maxbins < 1", procName, NULL);
 
 	/* Determine input range */
 	numaGetMin(na, &val, NULL);
-	iminval = (int32)(val + 0.5);
+	iminval = (l_int32)(val + 0.5);
 	numaGetMax(na, &val, NULL);
-	imaxval = (int32)(val + 0.5);
+	imaxval = (l_int32)(val + 0.5);
 	if(pbinstart == NULL) { /* clip negative vals; start from 0 */
 		iminval = 0;
 		if(imaxval < 0)
 			return (NUMA*)ERROR_PTR("all values < 0", procName, NULL);
 	}
+
 	/* Determine binsize */
 	range = imaxval - iminval + 1;
 	if(range > maxbins - 1) {
-		ratio = (float)((double)range / (double)maxbins);
+		ratio = (double)range / (double)maxbins;
 		binsize = 0;
 		for(i = 0; i < NBinSizes; i++) {
 			if(ratio < BinSizeArray[i]) {
@@ -863,8 +898,9 @@ NUMA * numaMakeHistogram(NUMA * na, int32 maxbins, int32 * pbinsize, int32 * pbi
 	else {
 		binsize = 1;
 	}
-	*pbinsize = binsize;
+	if(pbinsize) *pbinsize = binsize;
 	nbins = 1 + range / binsize; /* +1 seems to be sufficient */
+
 	/* Redetermine iminval */
 	if(pbinstart && binsize > 1) {
 		if(iminval >= 0)
@@ -872,14 +908,18 @@ NUMA * numaMakeHistogram(NUMA * na, int32 maxbins, int32 * pbinsize, int32 * pbi
 		else
 			iminval = binsize * ((iminval - binsize + 1) / binsize);
 	}
-	ASSIGN_PTR(pbinstart, iminval);
+	if(pbinstart) *pbinstart = iminval;
+
 #if  DEBUG_HISTO
-	fprintf(stderr, " imaxval = %d, range = %d, nbins = %d\n", imaxval, range, nbins);
+	lept_stderr(" imaxval = %d, range = %d, nbins = %d\n",
+	    imaxval, range, nbins);
 #endif  /* DEBUG_HISTO */
+
 	/* Use integerized data for input */
 	if((nai = numaConvertToInt(na)) == NULL)
 		return (NUMA*)ERROR_PTR("nai not made", procName, NULL);
 	n = numaGetCount(nai);
+
 	/* Make histogram, converting value in input array
 	 * into a bin number for this histogram array. */
 	if((nahist = numaCreate(nbins)) == NULL) {
@@ -893,7 +933,7 @@ NUMA * numaMakeHistogram(NUMA * na, int32 maxbins, int32 * pbinsize, int32 * pbi
 		ibin = (ival - iminval) / binsize;
 		if(ibin >= 0 && ibin < nbins) {
 			numaGetIValue(nahist, ibin, &hval);
-			numaSetValue(nahist, ibin, hval + 1.0f);
+			numaSetValue(nahist, ibin, hval + 1.0);
 		}
 	}
 
@@ -904,8 +944,8 @@ NUMA * numaMakeHistogram(NUMA * na, int32 maxbins, int32 * pbinsize, int32 * pbi
 /*!
  * \brief   numaMakeHistogramAuto()
  *
- * \param[in]    na numa of floats; these may be integers
- * \param[in]    maxbins max number of histogram bins; >= 1
+ * \param[in]    na       numa of floats; these may be integers
+ * \param[in]    maxbins  max number of histogram bins; >= 1
  * \return  na consisiting of histogram of quantized float values,
  *              or NULL on error.
  *
@@ -923,14 +963,14 @@ NUMA * numaMakeHistogram(NUMA * na, int32 maxbins, int32 * pbinsize, int32 * pbi
  *          non-integer location and width, even for integer data.
  * </pre>
  */
-NUMA * numaMakeHistogramAuto(NUMA    * na,
-    int32 maxbins)
+NUMA * numaMakeHistogramAuto(NUMA * na,
+    l_int32 maxbins)
 {
-	int32 i, n, imin, imax, irange, ibin, ival, allints;
+	l_int32 i, n, imin, imax, irange, ibin, ival, allints;
 	float minval, maxval, range, binsize, fval;
-	NUMA      * nah;
+	NUMA * nah;
 
-	PROCNAME("numaMakeHistogramAuto");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
@@ -942,12 +982,12 @@ NUMA * numaMakeHistogramAuto(NUMA    * na,
 
 	/* Determine if values are all integers */
 	n = numaGetCount(na);
-	numaHasOnlyIntegers(na, maxbins, &allints);
+	numaHasOnlyIntegers(na, &allints);
 
 	/* Do simple integer binning if possible */
 	if(allints && (maxval - minval < maxbins)) {
-		imin = (int32)minval;
-		imax = (int32)maxval;
+		imin = (l_int32)minval;
+		imax = (l_int32)maxval;
 		irange = imax - imin + 1;
 		nah = numaCreate(irange);
 		numaSetCount(nah, irange); /* init */
@@ -956,10 +996,12 @@ NUMA * numaMakeHistogramAuto(NUMA    * na,
 			numaGetIValue(na, i, &ival);
 			ibin = ival - imin;
 			numaGetIValue(nah, ibin, &ival);
-			numaSetValue(nah, ibin, ival + 1.0f);
+			numaSetValue(nah, ibin, ival + 1.0);
 		}
+
 		return nah;
 	}
+
 	/* Do float binning, even if the data is integers. */
 	range = maxval - minval;
 	binsize = range / (float)maxbins;
@@ -974,11 +1016,12 @@ NUMA * numaMakeHistogramAuto(NUMA    * na,
 	numaSetParameters(nah, minval, binsize);
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &fval);
-		ibin = (int32)((fval - minval) / binsize);
+		ibin = (l_int32)((fval - minval) / binsize);
 		ibin = MIN(ibin, maxbins - 1); /* "edge" case; stay in bounds */
 		numaGetIValue(nah, ibin, &ival);
-		numaSetValue(nah, ibin, ival + 1.0f);
+		numaSetValue(nah, ibin, ival + 1.0);
 	}
+
 	return nah;
 }
 
@@ -986,8 +1029,8 @@ NUMA * numaMakeHistogramAuto(NUMA    * na,
  * \brief   numaMakeHistogramClipped()
  *
  * \param[in]    na
- * \param[in]    binsize typically 1.0
- * \param[in]    maxsize of histogram ordinate
+ * \param[in]    binsize    typically 1.0
+ * \param[in]    maxsize    of histogram ordinate
  * \return  na histogram of bins of size %binsize, starting with
  *                  the na[0] (x = 0.0 and going up to a maximum of
  *                  x = %maxsize, by increments of %binsize), or NULL on error
@@ -995,36 +1038,36 @@ NUMA * numaMakeHistogramAuto(NUMA    * na,
  * <pre>
  * Notes:
  *      (1) This simple function generates a histogram of values
- *          from na, discarding all values \< 0.0 or greater than
+ *          from na, discarding all values < 0.0 or greater than
  *          min(%maxsize, maxval), where maxval is the maximum value in na.
  *          The histogram data is put in bins of size delx = %binsize,
  *          starting at x = 0.0.  We use as many bins as are
  *          needed to hold the data.
  * </pre>
  */
-NUMA * numaMakeHistogramClipped(NUMA      * na,
+NUMA * numaMakeHistogramClipped(NUMA * na,
     float binsize,
     float maxsize)
 {
-	int32 i, n, nbins, ival, ibin;
+	l_int32 i, n, nbins, ival, ibin;
 	float val, maxval;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaMakeHistogramClipped");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
 	if(binsize <= 0.0)
 		return (NUMA*)ERROR_PTR("binsize must be > 0.0", procName, NULL);
 	if(binsize > maxsize)
-		binsize = maxsize;  /* just one bin */
+		binsize = maxsize; /* just one bin */
 
 	numaGetMax(na, &maxval, NULL);
 	n = numaGetCount(na);
 	maxsize = MIN(maxsize, maxval);
-	nbins = (int32)(maxsize / binsize) + 1;
+	nbins = (l_int32)(maxsize / binsize) + 1;
 
-/*    fprintf(stderr, "maxsize = %7.3f, nbins = %d\n", maxsize, nbins); */
+/*    lept_stderr("maxsize = %7.3f, nbins = %d\n", maxsize, nbins); */
 
 	if((nad = numaCreate(nbins)) == NULL)
 		return (NUMA*)ERROR_PTR("nad not made", procName, NULL);
@@ -1032,30 +1075,31 @@ NUMA * numaMakeHistogramClipped(NUMA      * na,
 	numaSetCount(nad, nbins); /* interpret zeroes in bins as data */
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
-		ibin = (int32)(val / binsize);
+		ibin = (l_int32)(val / binsize);
 		if(ibin >= 0 && ibin < nbins) {
 			numaGetIValue(nad, ibin, &ival);
-			numaSetValue(nad, ibin, ival + 1);
+			numaSetValue(nad, ibin, ival + 1.0);
 		}
 	}
+
 	return nad;
 }
 
 /*!
  * \brief   numaRebinHistogram()
  *
- * \param[in]    nas input histogram
- * \param[in]    newsize number of old bins contained in each new bin
+ * \param[in]    nas      input histogram
+ * \param[in]    newsize  number of old bins contained in each new bin
  * \return  nad more coarsely re-binned histogram, or NULL on error
  */
-NUMA * numaRebinHistogram(NUMA    * nas,
-    int32 newsize)
+NUMA * numaRebinHistogram(NUMA * nas,
+    l_int32 newsize)
 {
-	int32 i, j, ns, nd, index, count, val;
+	l_int32 i, j, ns, nd, index, count, val;
 	float start, oldsize;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaRebinHistogram");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -1089,20 +1133,19 @@ NUMA * numaRebinHistogram(NUMA    * nas,
 /*!
  * \brief   numaNormalizeHistogram()
  *
- * \param[in]    nas input histogram
- * \param[in]    tsum target sum of all numbers in dest histogram;
- *                    e.g., use %tsum= 1.0 if this represents a
- *                    probability distribution
+ * \param[in]    nas   input histogram
+ * \param[in]    tsum  target sum of all numbers in dest histogram; e.g., use
+ *                     %tsum= 1.0 if this represents a probability distribution
  * \return  nad normalized histogram, or NULL on error
  */
-NUMA * numaNormalizeHistogram(NUMA      * nas,
+NUMA * numaNormalizeHistogram(NUMA * nas,
     float tsum)
 {
-	int32 i, ns;
+	l_int32 i, ns;
 	float sum, factor, fval;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaNormalizeHistogram");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -1130,20 +1173,20 @@ NUMA * numaNormalizeHistogram(NUMA      * nas,
 /*!
  * \brief   numaGetStatsUsingHistogram()
  *
- * \param[in]    na an arbitrary set of numbers; not ordered and not
- *                  a histogram
- * \param[in]    maxbins the maximum number of bins to be allowed in
- *                       the histogram; use an integer larger than the
- *                       largest number in %na for consecutive integer bins
- * \param[out]   pmin [optional] min value of set
- * \param[out]   pmax [optional] max value of set
- * \param[out]   pmean [optional] mean value of set
+ * \param[in]    na        an arbitrary set of numbers; not ordered and not
+ *                         a histogram
+ * \param[in]    maxbins   the maximum number of bins to be allowed in
+ *                         the histogram; use an integer larger than the
+ *                         largest number in %na for consecutive integer bins
+ * \param[out]   pmin      [optional] min value of set
+ * \param[out]   pmax      [optional] max value of set
+ * \param[out]   pmean     [optional] mean value of set
  * \param[out]   pvariance [optional] variance
- * \param[out]   pmedian [optional] median value of set
- * \param[in]    rank in [0.0 ... 1.0]; median has a rank 0.5; ignored
- *                    if &rval == NULL
- * \param[out]   prval [optional] value in na corresponding to %rank
- * \param[out]   phisto [optional] Numa histogram; use NULL to prevent
+ * \param[out]   pmedian   [optional] median value of set
+ * \param[in]    rank      in [0.0 ... 1.0]; median has a rank 0.5;
+ *                         ignored if &rval == NULL
+ * \param[out]   prval     [optional] value in na corresponding to %rank
+ * \param[out]   phisto    [optional] Numa histogram; use NULL to prevent
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1171,26 +1214,26 @@ NUMA * numaNormalizeHistogram(NUMA      * nas,
  *          Use %maxbins == 0 to force the bin size to be 1.
  *      (6) This optionally returns the median and one arbitrary rank value.
  *          If you need several rank values, return the histogram and use
- *               numaHistogramGetValFromRank(nah, rank, \&rval)
+ *               numaHistogramGetValFromRank(nah, rank, &rval)
  *          multiple times.
  * </pre>
  */
-int32 numaGetStatsUsingHistogram(NUMA       * na,
-    int32 maxbins,
-    float  * pmin,
-    float  * pmax,
-    float  * pmean,
-    float  * pvariance,
-    float  * pmedian,
+l_ok numaGetStatsUsingHistogram(NUMA       * na,
+    l_int32 maxbins,
+    float * pmin,
+    float * pmax,
+    float * pmean,
+    float * pvariance,
+    float * pmedian,
     float rank,
-    float  * prval,
-    NUMA      ** phisto)
+    float * prval,
+    NUMA ** phisto)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float minval, maxval, fval, mean, sum;
-	NUMA      * nah;
+	NUMA * nah;
 
-	PROCNAME("numaGetStatsUsingHistogram");
+	PROCNAME(__FUNCTION__);
 
 	if(pmin) *pmin = 0.0;
 	if(pmax) *pmax = 0.0;
@@ -1244,15 +1287,15 @@ int32 numaGetStatsUsingHistogram(NUMA       * na,
 /*!
  * \brief   numaGetHistogramStats()
  *
- * \param[in]    nahisto histogram: y(x(i)), i = 0 ... nbins - 1
- * \param[in]    startx x value of first bin: x(0)
- * \param[in]    deltax x increment between bins; the bin size; x(1) - x(0)
- * \param[out]   pxmean [optional] mean value of histogram
- * \param[out]   pxmedian [optional] median value of histogram
- * \param[out]   pxmode [optional] mode value of histogram:
- *                      xmode = x(imode), where y(xmode) >= y(x(i)) for
- *                      all i != imode
- * \param[out]   pxvariance [optional] variance of x
+ * \param[in]    nahisto     histogram: y(x(i)), i = 0 ... nbins - 1
+ * \param[in]    startx      x value of first bin: x(0)
+ * \param[in]    deltax      x increment between bins; the bin size; x(1) - x(0)
+ * \param[out]   pxmean      [optional] mean value of histogram
+ * \param[out]   pxmedian    [optional] median value of histogram
+ * \param[out]   pxmode      [optional] mode value of histogram:
+ *                           xmode = x(imode), where y(xmode) >= y(x(i)) for
+ *                           all i != imode
+ * \param[out]   pxvariance  [optional] variance of x
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1264,15 +1307,15 @@ int32 numaGetStatsUsingHistogram(NUMA       * na,
  *                x(i) = startx + i * deltax
  * </pre>
  */
-int32 numaGetHistogramStats(NUMA       * nahisto,
+l_ok numaGetHistogramStats(NUMA       * nahisto,
     float startx,
     float deltax,
-    float  * pxmean,
-    float  * pxmedian,
-    float  * pxmode,
-    float  * pxvariance)
+    float * pxmean,
+    float * pxmedian,
+    float * pxmode,
+    float * pxvariance)
 {
-	PROCNAME("numaGetHistogramStats");
+	PROCNAME(__FUNCTION__);
 
 	if(pxmean) *pxmean = 0.0;
 	if(pxmedian) *pxmedian = 0.0;
@@ -1281,24 +1324,24 @@ int32 numaGetHistogramStats(NUMA       * nahisto,
 	if(!nahisto)
 		return ERROR_INT("nahisto not defined", procName, 1);
 
-	return numaGetHistogramStatsOnInterval(nahisto, startx, deltax, 0, 0,
-	    pxmean, pxmedian, pxmode,
-	    pxvariance);
+	return numaGetHistogramStatsOnInterval(nahisto, startx, deltax, 0, -1,
+		   pxmean, pxmedian, pxmode,
+		   pxvariance);
 }
 
 /*!
  * \brief   numaGetHistogramStatsOnInterval()
  *
- * \param[in]    nahisto histogram: y(x(i)), i = 0 ... nbins - 1
- * \param[in]    startx x value of first bin: x(0)
- * \param[in]    deltax x increment between bins; the bin size; x(1) - x(0)
- * \param[in]    ifirst first bin to use for collecting stats
- * \param[in]    ilast last bin for collecting stats; use 0 to go to the end
- * \param[out]   pxmean [optional] mean value of histogram
- * \param[out]   pxmedian [optional] median value of histogram
- * \param[out]   pxmode [optional] mode value of histogram:
- *                      xmode = x(imode), where y(xmode) >= y(x(i)) for
- *                      all i != imode
+ * \param[in]    nahisto    histogram: y(x(i)), i = 0 ... nbins - 1
+ * \param[in]    startx     x value of first bin: x(0)
+ * \param[in]    deltax     x increment between bins; the bin size; x(1) - x(0)
+ * \param[in]    ifirst     first bin to use for collecting stats
+ * \param[in]    ilast      last bin for collecting stats; -1 to go to the end
+ * \param[out]   pxmean     [optional] mean value of histogram
+ * \param[out]   pxmedian   [optional] median value of histogram
+ * \param[out]   pxmode     [optional] mode value of histogram:
+ *                          xmode = x(imode), where y(xmode) >= y(x(i)) for
+ *                          all i != imode
  * \param[out]   pxvariance [optional] variance of x
  * \return  0 if OK, 1 on error
  *
@@ -1311,20 +1354,20 @@ int32 numaGetHistogramStats(NUMA       * nahisto,
  *                x(i) = startx + i * deltax
  * </pre>
  */
-int32 numaGetHistogramStatsOnInterval(NUMA       * nahisto,
+l_ok numaGetHistogramStatsOnInterval(NUMA       * nahisto,
     float startx,
     float deltax,
-    int32 ifirst,
-    int32 ilast,
-    float  * pxmean,
-    float  * pxmedian,
-    float  * pxmode,
-    float  * pxvariance)
+    l_int32 ifirst,
+    l_int32 ilast,
+    float * pxmean,
+    float * pxmedian,
+    float * pxmode,
+    float * pxvariance)
 {
-	int32 i, n, imax;
+	l_int32 i, n, imax;
 	float sum, sumval, halfsum, moment, var, x, y, ymax;
 
-	PROCNAME("numaGetHistogramStatsOnInterval");
+	PROCNAME(__FUNCTION__);
 
 	if(pxmean) *pxmean = 0.0;
 	if(pxmedian) *pxmedian = 0.0;
@@ -1336,10 +1379,17 @@ int32 numaGetHistogramStatsOnInterval(NUMA       * nahisto,
 		return ERROR_INT("nothing to compute", procName, 1);
 
 	n = numaGetCount(nahisto);
-	if(ilast <= 0) ilast = n - 1;
-	if(ifirst < 0) ifirst = 0;
-	if(ifirst > ilast || ifirst > n - 1)
-		return ERROR_INT("ifirst is too large", procName, 1);
+	ifirst = MAX(0, ifirst);
+	if(ilast < 0) ilast = n - 1;
+	if(ifirst >= n)
+		return ERROR_INT("invalid ifirst", procName, 1);
+	if(ilast >= n) {
+		L_WARNING("ilast = %d is beyond max index = %d; adjusting\n",
+		    procName, ilast, n - 1);
+		ilast = n - 1;
+	}
+	if(ifirst > ilast)
+		return ERROR_INT("ifirst > ilast", procName, 1);
 	for(sum = 0.0, moment = 0.0, var = 0.0, i = ifirst; i <= ilast; i++) {
 		x = startx + i * deltax;
 		numaGetFValue(nahisto, i, &y);
@@ -1358,7 +1408,7 @@ int32 numaGetHistogramStatsOnInterval(NUMA       * nahisto,
 		*pxvariance = var / sum - moment * moment / (sum * sum);
 
 	if(pxmedian) {
-		halfsum = sum / 2.0f;
+		halfsum = sum / 2.0;
 		for(sumval = 0.0, i = ifirst; i <= ilast; i++) {
 			numaGetFValue(nahisto, i, &y);
 			sumval += y;
@@ -1388,26 +1438,26 @@ int32 numaGetHistogramStatsOnInterval(NUMA       * nahisto,
 /*!
  * \brief   numaMakeRankFromHistogram()
  *
- * \param[in]    startx xval corresponding to first element in nay
- * \param[in]    deltax x increment between array elements in nay
- * \param[in]    nasy input histogram, assumed equally spaced
- * \param[in]    npts number of points to evaluate rank function
- * \param[out]   pnax [optional] array of x values in range
- * \param[out]   pnay rank array of specified npts
+ * \param[in]    startx   xval corresponding to first element in nay
+ * \param[in]    deltax   x increment between array elements in nay
+ * \param[in]    nasy     input histogram, assumed equally spaced
+ * \param[in]    npts     number of points to evaluate rank function
+ * \param[out]   pnax     [optional] array of x values in range
+ * \param[out]   pnay     rank array of specified npts
  * \return  0 if OK, 1 on error
  */
-int32 numaMakeRankFromHistogram(float startx,
+l_ok numaMakeRankFromHistogram(float startx,
     float deltax,
-    NUMA      * nasy,
-    int32 npts,
+    NUMA * nasy,
+    l_int32 npts,
     NUMA     ** pnax,
     NUMA     ** pnay)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float sum, fval;
-	NUMA      * nan, * nar;
+	NUMA * nan, * nar;
 
-	PROCNAME("numaMakeRankFromHistogram");
+	PROCNAME(__FUNCTION__);
 
 	if(pnax) *pnax = NULL;
 	if(!pnay)
@@ -1443,9 +1493,9 @@ int32 numaMakeRankFromHistogram(float startx,
 /*!
  * \brief   numaHistogramGetRankFromVal()
  *
- * \param[in]    na histogram
- * \param[in]    rval value of input sample for which we want the rank
- * \param[out]   prank fraction of total samples below rval
+ * \param[in]    na     histogram
+ * \param[in]    rval   value of input sample for which we want the rank
+ * \param[out]   prank  fraction of total samples below rval
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1462,14 +1512,14 @@ int32 numaMakeRankFromHistogram(float startx,
  *          compute x from the Numa index i.
  * </pre>
  */
-int32 numaHistogramGetRankFromVal(NUMA       * na,
+l_ok numaHistogramGetRankFromVal(NUMA       * na,
     float rval,
-    float  * prank)
+    float * prank)
 {
-	int32 i, ibinval, n;
+	l_int32 i, ibinval, n;
 	float startval, binsize, binval, maxval, fractval, total, sum, val;
 
-	PROCNAME("numaHistogramGetRankFromVal");
+	PROCNAME(__FUNCTION__);
 
 	if(!prank)
 		return ERROR_INT("prank not defined", procName, 1);
@@ -1487,7 +1537,7 @@ int32 numaHistogramGetRankFromVal(NUMA       * na,
 	}
 
 	binval = (rval - startval) / binsize;
-	ibinval = (int32)binval;
+	ibinval = (l_int32)binval;
 	if(ibinval >= n) {
 		*prank = 1.0;
 		return 0;
@@ -1504,7 +1554,7 @@ int32 numaHistogramGetRankFromVal(NUMA       * na,
 	numaGetSum(na, &total);
 	*prank = sum / total;
 
-/*    fprintf(stderr, "binval = %7.3f, rank = %7.3f\n", binval, *prank); */
+/*    lept_stderr("binval = %7.3f, rank = %7.3f\n", binval, *prank); */
 
 	return 0;
 }
@@ -1512,9 +1562,9 @@ int32 numaHistogramGetRankFromVal(NUMA       * na,
 /*!
  * \brief   numaHistogramGetValFromRank()
  *
- * \param[in]    na histogram
- * \param[in]    rank fraction of total samples
- * \param[out]   prval approx. to the bin value
+ * \param[in]    na     histogram
+ * \param[in]    rank   fraction of total samples
+ * \param[out]   prval  approx. to the bin value
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1531,14 +1581,14 @@ int32 numaHistogramGetRankFromVal(NUMA       * na,
  *          compute x from the Numa index i.
  * </pre>
  */
-int32 numaHistogramGetValFromRank(NUMA       * na,
+l_ok numaHistogramGetValFromRank(NUMA       * na,
     float rank,
-    float  * prval)
+    float * prval)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float startval, binsize, rankcount, total, sum, fract, val;
 
-	PROCNAME("numaHistogramGetValFromRank");
+	PROCNAME(__FUNCTION__);
 
 	if(!prval)
 		return ERROR_INT("prval not defined", procName, 1);
@@ -1574,198 +1624,210 @@ int32 numaHistogramGetValFromRank(NUMA       * na,
 	 * for the histogram value at the given rank. */
 	*prval = startval + binsize * ((float)i + fract);
 
-/*    fprintf(stderr, "rank = %7.3f, val = %7.3f\n", rank, *prval); */
+/*    lept_stderr("rank = %7.3f, val = %7.3f\n", rank, *prval); */
 
 	return 0;
 }
 
 /*!
- * \brief   numaDiscretizeRankAndIntensity()
+ * \brief   numaDiscretizeSortedInBins()
  *
- * \param[in]    na normalized histogram of probability density vs intensity
- * \param[in]    nbins number of bins at which the rank is divided
- * \param[out]   pnarbin [optional] rank bin value vs intensity
- * \param[out]   pnam [optional] median intensity in a bin vs
- *                     rank bin value, with %nbins of discretized rank values
- * \param[out]   pnar [optional] rank vs intensity; this is
- *                     a cumulative norm histogram
- * \param[out]   pnabb [optional] intensity at the right bin boundary
- *                      vs rank bin
+ * \param[in]    na          sorted
+ * \param[in]    nbins       number of equal population bins (> 1)
+ * \param[out]   pnabinval   average "gray" values in each bin
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) We are inverting the rank(intensity) function to get
- *          the intensity(rank) function at %nbins equally spaced
- *          values of rank between 0.0 and 1.0.  We save integer values
- *          for the intensity.
- *      (2) We are using the word "intensity" to describe the type of
- *          array values, but any array of non-negative numbers will work.
- *      (3) The output arrays give the following mappings, where the
- *          input is a normalized histogram of array values:
- *             array values     --\>  rank bin number  (narbin)
- *             rank bin number  --\>  median array value in bin (nam)
- *             array values     --\>  cumulative norm = rank  (nar)
- *             rank bin number  --\>  array value at right bin edge (nabb)
+ *      (1) The input %na is sorted in increasing value.
+ *      (2) The output array has the following mapping:
+ *             bin number  -->  average array value in bin (nabinval)
+ *      (3) With %nbins == 100, nabinval is the average gray value in
+ *          each of the 100 equally populated bins.  It is the function
+ *                gray[100 * rank].
+ *          Thus it is the inverse of
+ *                rank[gray]
+ *      (4) Contast with numaDiscretizeHistoInBins(), where the input %na
+ *          is a histogram.
  * </pre>
  */
-int32 numaDiscretizeRankAndIntensity(NUMA    * na,
-    int32 nbins,
-    NUMA   ** pnarbin,
-    NUMA   ** pnam,
-    NUMA   ** pnar,
-    NUMA   ** pnabb)
+l_ok numaDiscretizeSortedInBins(NUMA * na,
+    l_int32 nbins,
+    NUMA   ** pnabinval)
 {
-	NUMA      * nar; /* rank value as function of intensity */
-	NUMA      * nam; /* median intensity in the rank bins */
-	NUMA      * nabb; /* rank bin right boundaries (in intensity) */
-	NUMA      * narbin; /* binned rank value as a function of intensity */
-	int32 i, j, npts, start, midfound, mcount, rightedge;
-	float sum, midrank, endrank, val;
+	NUMA * nabinval; /* average gray value in the bins */
+	NUMA * naeach;
+	l_int32 i, ntot, count, bincount, binindex, binsize;
+	float sum, val, ave;
 
-	PROCNAME("numaDiscretizeRankAndIntensity");
+	PROCNAME(__FUNCTION__);
 
-	if(pnarbin) *pnarbin = NULL;
-	if(pnam) *pnam = NULL;
-	if(pnar) *pnar = NULL;
-	if(pnabb) *pnabb = NULL;
-	if(!pnarbin && !pnam && !pnar && !pnabb)
-		return ERROR_INT("no output requested", procName, 1);
+	if(!pnabinval)
+		return ERROR_INT("&nabinval not defined", procName, 1);
+	*pnabinval = NULL;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	if(nbins < 2)
 		return ERROR_INT("nbins must be > 1", procName, 1);
 
-	/* Get cumulative normalized histogram (rank vs intensity value).
-	 * For a normalized histogram from an 8 bpp grayscale image
-	 * as input, we have 256 bins and 257 points in the
-	 * cumulative (rank) histogram. */
-	npts = numaGetCount(na);
-	if((nar = numaCreate(npts + 1)) == NULL)
-		return ERROR_INT("nar not made", procName, 1);
+	/* Get the number of items in each bin */
+	ntot = numaGetCount(na);
+	if((naeach = numaGetUniformBinSizes(ntot, nbins)) == NULL)
+		return ERROR_INT("naeach not made", procName, 1);
+
+	/* Get the average value in each bin */
 	sum = 0.0;
-	numaAddNumber(nar, sum); /* left side of first bin */
-	for(i = 0; i < npts; i++) {
+	bincount = 0;
+	binindex = 0;
+	numaGetIValue(naeach, 0, &binsize);
+	nabinval = numaCreate(nbins);
+	for(i = 0; i < ntot; i++) {
 		numaGetFValue(na, i, &val);
+		bincount++;
 		sum += val;
-		numaAddNumber(nar, sum);
-	}
-
-	nam = numaCreate(nbins);
-	narbin = numaCreate(npts);
-	nabb = numaCreate(nbins);
-	if(!nam || !narbin || !nabb) {
-		numaDestroy(&nar);
-		numaDestroy(&nam);
-		numaDestroy(&narbin);
-		numaDestroy(&nabb);
-		return ERROR_INT("numa not made", procName, 1);
-	}
-
-	/* We find the intensity value at the right edge of each of
-	 * the rank bins.  We also find the median intensity in the bin,
-	 * where approximately half the samples are lower and half are
-	 * higher.  This can be considered as a simple approximation
-	 * for the average intensity in the bin. */
-	start = 0; /* index in nar */
-	mcount = 0; /* count of median values in rank bins; not to exceed nbins */
-	for(i = 0; i < nbins; i++) {
-		midrank = (float)(i + 0.5) / (float)(nbins);
-		endrank = (float)(i + 1.0) / (float)(nbins);
-		endrank = MAX(0.0f, MIN(endrank - 0.001f, 1.0f));
-		midfound = FALSE;
-		for(j = start; j < npts; j++) { /* scan up for each bin value */
-			numaGetFValue(nar, j, &val);
-			/* Use (j == npts - 1) tests in case all weight is at top end */
-			if((!midfound && val >= midrank) || (mcount < nbins && j == npts - 1)) {
-				midfound = TRUE;
-				numaAddNumber(nam, j);
-				mcount++;
-			}
-			if((val >= endrank) || (j == npts - 1)) {
-				numaAddNumber(nabb, j);
-				if(val == endrank)
-					start = j;
-				else
-					start = j - 1;
-				break;
-			}
+		if(bincount == binsize) { /* add bin entry */
+			ave = sum / binsize;
+			numaAddNumber(nabinval, ave);
+			sum = 0.0;
+			bincount = 0;
+			binindex++;
+			if(binindex == nbins) break;
+			numaGetIValue(naeach, binindex, &binsize);
 		}
 	}
-	numaSetValue(nabb, nbins - 1, npts - 1); /* extend to max */
-	// Error checking: did we get data in all bins? 
-	if(mcount != nbins)
-		L_WARNING3("found data for %d bins; should be %d\n", procName, mcount, nbins);
-	// Generate LUT that maps from intensity to bin number 
-	start = 0;
-	for(i = 0; i < nbins; i++) {
-		numaGetIValue(nabb, i, &rightedge);
-		for(j = start; j < npts; j++) {
-			if(j <= rightedge)
-				numaAddNumber(narbin, i);
-			if(j > rightedge) {
-				start = j;
-				break;
-			}
-			if(j == npts - 1) { /* we're done */
-				start = j + 1;
-				break;
+	*pnabinval = nabinval;
+
+	numaDestroy(&naeach);
+	return 0;
+}
+
+/*!
+ * \brief   numaDiscretizeHistoInBins()
+ *
+ * \param[in]    na          histogram
+ * \param[in]    nbins       number of equal population bins (> 1)
+ * \param[out]   pnabinval   average "gray" values in each bin
+ * \param[out]   pnarank     [optional] rank value of input histogram;
+ *                           this is a cumulative norm histogram.
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) With %nbins == 100, nabinval is the average gray value in
+ *          each of the 100 equally populated bins.  It is the function
+ *                gray[100 * rank].
+ *          Thus it is the inverse of
+ *                rank[gray]
+ *          which is optionally returned in narank.
+ *      (2) The "gray value" is the index into the input histogram.
+ *      (3) The two output arrays give the following mappings, where the
+ *          input is an un-normalized histogram of array values:
+ *             bin number  -->  average array value in bin (nabinval)
+ *             array values     -->  cumulative normalized histogram (narank)
+ * </pre>
+ */
+l_ok numaDiscretizeHistoInBins(NUMA * na,
+    l_int32 nbins,
+    NUMA   ** pnabinval,
+    NUMA   ** pnarank)
+{
+	NUMA * nabinval; /* average gray value in the bins */
+	NUMA * narank; /* rank value as function of input value */
+	NUMA * naeach, * nan;
+	l_int32 i, j, k, nxvals, occup, count, bincount, binindex, binsize;
+	float sum, ave, ntot;
+
+	PROCNAME(__FUNCTION__);
+
+	if(pnarank) *pnarank = NULL;
+	if(!pnabinval)
+		return ERROR_INT("&nabinval not defined", procName, 1);
+	*pnabinval = NULL;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+	if(nbins < 2)
+		return ERROR_INT("nbins must be > 1", procName, 1);
+
+	nxvals = numaGetCount(na);
+	numaGetSum(na, &ntot);
+	occup = ntot / nxvals;
+	if(occup < 1) L_INFO("average occupancy %d < 1\n", procName, occup);
+
+	/* Get the number of items in each bin */
+	if((naeach = numaGetUniformBinSizes(ntot, nbins)) == NULL)
+		return ERROR_INT("naeach not made", procName, 1);
+
+	/* Get the average value in each bin */
+	sum = 0.0;
+	bincount = 0;
+	binindex = 0;
+	numaGetIValue(naeach, 0, &binsize);
+	nabinval = numaCreate(nbins);
+	k = 0; /* count up to ntot */
+	for(i = 0; i < nxvals; i++) {
+		numaGetIValue(na, i, &count);
+		for(j = 0; j < count; j++) {
+			k++;
+			bincount++;
+			sum += i;
+			if(bincount == binsize) { /* add bin entry */
+				ave = sum / binsize;
+				numaAddNumber(nabinval, ave);
+				sum = 0.0;
+				bincount = 0;
+				binindex++;
+				if(binindex == nbins) break;
+				numaGetIValue(naeach, binindex, &binsize);
 			}
 		}
+		if(binindex == nbins) break;
 	}
+	*pnabinval = nabinval;
+	if(binindex != nbins)
+		L_ERROR("binindex = %d != nbins = %d\n", procName, binindex, nbins);
 
-	if(pnarbin)
-		*pnarbin = narbin;
-	else
-		numaDestroy(&narbin);
-	if(pnam)
-		*pnam = nam;
-	else
-		numaDestroy(&nam);
-	if(pnar)
-		*pnar = nar;
-	else
-		numaDestroy(&nar);
-	if(pnabb)
-		*pnabb = nabb;
-	else
-		numaDestroy(&nabb);
+	/* Get cumulative normalized histogram (rank[gray value]).
+	 * This is the partial sum operating on the normalized histogram. */
+	if(pnarank) {
+		nan = numaNormalizeHistogram(na, 1.0);
+		*pnarank = numaGetPartialSums(nan);
+		numaDestroy(&nan);
+	}
+	numaDestroy(&naeach);
 	return 0;
 }
 
 /*!
  * \brief   numaGetRankBinValues()
  *
- * \param[in]    na just an array of values
- * \param[in]    nbins number of bins at which the rank is divided
- * \param[out]   pnarbin [optional] rank bin value vs array value
- * \param[out]   pnam [optional] median intensity in a bin vs
- *                     rank bin value, with %nbins of discretized rank values
+ * \param[in]    na       an array of values
+ * \param[in]    nbins    number of bins at which the rank is divided
+ * \param[out]   pnam     mean intensity in a bin vs rank bin value,
+ *                        with %nbins of discretized rank values
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) Simple interface for getting a binned rank representation
- *          of an input array of values.  This returns two mappings:
- *             array value     --\>  rank bin number  (narbin)
- *             rank bin number --\>  median array value in each rank bin (nam)
+ *          of an input array of values.  This returns:
+ *             rank bin number -->  average array value in each rank bin (nam)
+ *      (2) Uses bins either a sorted array or a histogram, depending on
+ *          the values in the array and the size of the array.
  * </pre>
  */
-int32 numaGetRankBinValues(NUMA    * na,
-    int32 nbins,
-    NUMA   ** pnarbin,
+l_ok numaGetRankBinValues(NUMA * na,
+    l_int32 nbins,
     NUMA   ** pnam)
 {
-	NUMA      * nah, * nan; /* histo and normalized histo */
-	int32 maxbins, discardval;
+	NUMA * na1;
+	l_int32 maxbins, type;
 	float maxval, delx;
 
-	PROCNAME("numaGetRankBinValues");
+	PROCNAME(__FUNCTION__);
 
-	if(pnarbin) *pnarbin = NULL;
-	if(pnam) *pnam = NULL;
-	if(!pnarbin && !pnam)
-		return ERROR_INT("no output requested", procName, 1);
+	if(!pnam)
+		return ERROR_INT("&pnam not defined", procName, 1);
+	*pnam = NULL;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	if(numaGetCount(na) == 0)
@@ -1773,23 +1835,77 @@ int32 numaGetRankBinValues(NUMA    * na,
 	if(nbins < 2)
 		return ERROR_INT("nbins must be > 1", procName, 1);
 
-	/* Get normalized histogram  */
+	/* Choose between sorted array and a histogram.
+	 * If the input array is has a small number of numbers with
+	 * a large maximum, we will sort it.  At the other extreme, if
+	 * the array has many numbers with a small maximum, such as the
+	 * values of pixels in an 8 bpp grayscale image, generate a histogram.
+	 * If type comes back as L_BIN_SORT, use a histogram. */
+	type = numaChooseSortType(na);
+	if(type == L_SHELL_SORT) { /* sort the array */
+		L_INFO("sort the array: input size = %d\n", procName, numaGetCount(na));
+		na1 = numaSort(NULL, na, L_SORT_INCREASING);
+		numaDiscretizeSortedInBins(na1, nbins, pnam);
+		numaDestroy(&na1);
+		return 0;
+	}
+
+	/* Make the histogram.  Assuming there are no negative values
+	 * in the array, if the max value in the array does not exceed
+	 * about 100000, the bin size for generating the histogram will
+	 * be 1; maxbins refers to the number of entries in the histogram. */
+	L_INFO("use a histogram: input size = %d\n", procName, numaGetCount(na));
 	numaGetMax(na, &maxval, NULL);
-	maxbins = MIN(100002, (int32)maxval + 2);
-	nah = numaMakeHistogram(na, maxbins, &discardval, NULL);
-	nan = numaNormalizeHistogram(nah, 1.0);
+	maxbins = MIN(100002, (l_int32)maxval + 2);
+	na1 = numaMakeHistogram(na, maxbins, NULL, NULL);
 
 	/* Warn if there is a scale change.  This shouldn't happen
 	 * unless the max value is above 100000.  */
-	numaGetParameters(nan, NULL, &delx);
+	numaGetParameters(na1, NULL, &delx);
 	if(delx > 1.0)
-		L_WARNING2("scale change: delx = %6.2f\n", procName, delx);
+		L_WARNING("scale change: delx = %6.2f\n", procName, delx);
 
 	/* Rank bin the results */
-	numaDiscretizeRankAndIntensity(nan, nbins, pnarbin, pnam, NULL, NULL);
-	numaDestroy(&nah);
-	numaDestroy(&nan);
+	numaDiscretizeHistoInBins(na1, nbins, pnam, NULL);
+	numaDestroy(&na1);
 	return 0;
+}
+
+/*!
+ * \brief   numaGetUniformBinSizes()
+ *
+ * \param[in]    ntotal   number of values to be split up
+ * \param[in]    nbins    number of bins
+ * \return  naeach   number of values to go in each bin, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The numbers in the bins can differ by 1.  The sum of
+ *          bin numbers in @naeach is @ntotal.
+ * </pre>
+ */
+NUMA * numaGetUniformBinSizes(l_int32 ntotal,
+    l_int32 nbins)
+{
+	l_int32 i, start, end;
+	NUMA * naeach;
+
+	PROCNAME(__FUNCTION__);
+
+	if(ntotal <= 0)
+		return (NUMA*)ERROR_PTR("ntotal <= 0", procName, NULL);
+	if(nbins <= 0)
+		return (NUMA*)ERROR_PTR("nbins <= 0", procName, NULL);
+
+	if((naeach = numaCreate(nbins)) == NULL)
+		return (NUMA*)ERROR_PTR("naeach not made", procName, NULL);
+	start = 0;
+	for(i = 0; i < nbins; i++) {
+		end = ntotal * (i + 1) / nbins;
+		numaAddNumber(naeach, end - start);
+		start = end;
+	}
+	return naeach;
 }
 
 /*----------------------------------------------------------------------*
@@ -1798,15 +1914,15 @@ int32 numaGetRankBinValues(NUMA    * na,
 /*!
  * \brief   numaSplitDistribution()
  *
- * \param[in]    na histogram
- * \param[in]    scorefract fraction of the max score, used to determine
- *                          the range over which the histogram min is searched
- * \param[out]   psplitindex [optional] index for splitting
- * \param[out]   pave1 [optional] average of lower distribution
- * \param[out]   pave2 [optional] average of upper distribution
- * \param[out]   pnum1 [optional] population of lower distribution
- * \param[out]   pnum2 [optional] population of upper distribution
- * \param[out]   pnascore [optional] for debugging; otherwise use NULL
+ * \param[in]    na           histogram
+ * \param[in]    scorefract   fraction of the max score, used to determine
+ *                            range over which the histogram min is searched
+ * \param[out]   psplitindex  [optional] index for splitting
+ * \param[out]   pave1        [optional] average of lower distribution
+ * \param[out]   pave2        [optional] average of upper distribution
+ * \param[out]   pnum1        [optional] population of lower distribution
+ * \param[out]   pnum2        [optional] population of upper distribution
+ * \param[out]   pnascore     [optional] for debugging; otherwise use NULL
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1844,23 +1960,23 @@ int32 numaGetRankBinValues(NUMA    * na,
  *          score would be 1.0.
  * </pre>
  */
-int32 numaSplitDistribution(NUMA       * na,
+l_ok numaSplitDistribution(NUMA       * na,
     float scorefract,
-    int32    * psplitindex,
-    float  * pave1,
-    float  * pave2,
-    float  * pnum1,
-    float  * pnum2,
-    NUMA      ** pnascore)
+    l_int32    * psplitindex,
+    float * pave1,
+    float * pave2,
+    float * pnum1,
+    float * pnum2,
+    NUMA ** pnascore)
 {
-	int32 i, n, bestsplit, minrange, maxrange, maxindex;
+	l_int32 i, n, bestsplit, minrange, maxrange, maxindex;
 	float ave1, ave2, ave1prev, ave2prev;
 	float num1, num2, num1prev, num2prev;
 	float val, minval, sum, fract1;
 	float norm, score, minscore, maxscore;
-	NUMA      * nascore, * naave1, * naave2, * nanum1, * nanum2;
+	NUMA * nascore, * naave1, * naave2, * nanum1, * nanum2;
 
-	PROCNAME("numaSplitDistribution");
+	PROCNAME(__FUNCTION__);
 
 	if(psplitindex) *psplitindex = 0;
 	if(pave1) *pave1 = 0.0;
@@ -1877,7 +1993,7 @@ int32 numaSplitDistribution(NUMA       * na,
 	numaGetSum(na, &sum);
 	if(sum <= 0.0)
 		return ERROR_INT("sum <= 0.0", procName, 1);
-	norm = 4.0f / ((n - 1) * (n - 1));
+	norm = 4.0 / ((float)(n - 1) * (n - 1));
 	ave1prev = 0.0;
 	numaGetHistogramStats(na, 0.0, 1.0, &ave2prev, NULL, NULL, NULL);
 	num1prev = 0.0;
@@ -1889,10 +2005,10 @@ int32 numaSplitDistribution(NUMA       * na,
 	 * score for each possible splitting.  */
 	if((nascore = numaCreate(n)) == NULL)
 		return ERROR_INT("nascore not made", procName, 1);
-	if(pave2) naave1 = numaCreate(n);
-	if(pave2) naave2 = numaCreate(n);
-	if(pnum1) nanum1 = numaCreate(n);
-	if(pnum2) nanum2 = numaCreate(n);
+	naave1 = (pave1) ? numaCreate(n) : NULL;
+	naave2 = (pave2) ? numaCreate(n) : NULL;
+	nanum1 = (pnum1) ? numaCreate(n) : NULL;
+	nanum2 = (pnum2) ? numaCreate(n) : NULL;
 	maxscore = 0.0;
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
@@ -1912,7 +2028,7 @@ int32 numaSplitDistribution(NUMA       * na,
 		if(pave1) numaAddNumber(naave1, ave1);
 		if(pave2) numaAddNumber(naave2, ave2);
 		if(pnum1) numaAddNumber(nanum1, num1);
-		if(pnum1) numaAddNumber(nanum2, num2);
+		if(pnum2) numaAddNumber(nanum2, num2);
 		if(score > maxscore) {
 			maxscore = score;
 			maxindex = i;
@@ -1926,7 +2042,7 @@ int32 numaSplitDistribution(NUMA       * na,
 	/* Next, for all contiguous scores within a specified fraction
 	 * of the max, choose the split point as the value with the
 	 * minimum in the histogram. */
-	minscore = (1.0f - scorefract) * maxscore;
+	minscore = (1. - scorefract) * maxscore;
 	for(i = maxindex - 1; i >= 0; i--) {
 		numaGetFValue(nascore, i, &val);
 		if(val < minscore)
@@ -1961,8 +2077,8 @@ int32 numaSplitDistribution(NUMA       * na,
 	if(pnum2) numaGetFValue(nanum2, bestsplit, pnum2);
 
 	if(pnascore) { /* debug mode */
-		fprintf(stderr, "minrange = %d, maxrange = %d\n", minrange, maxrange);
-		fprintf(stderr, "minval = %10.0f\n", minval);
+		lept_stderr("minrange = %d, maxrange = %d\n", minrange, maxrange);
+		lept_stderr("minval = %10.0f\n", minval);
 		gplotSimple1(nascore, GPLOT_PNG, "/tmp/lept/nascore",
 		    "Score for split distribution");
 		*pnascore = nascore;
@@ -1984,9 +2100,9 @@ int32 numaSplitDistribution(NUMA       * na,
 /*!
  * \brief   grayHistogramsToEMD()
  *
- * \param[in]    naa1, naa2 two numaa, each with one or more 256-element
- *                          histograms
- * \param[out]   pnad nad of EM distances for each histogram
+ * \param[in]    naa1, naa2    two numaa, each with one or more 256-element
+ *                             histograms
+ * \param[out]   pnad          nad of EM distances for each histogram
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2005,15 +2121,15 @@ int32 numaSplitDistribution(NUMA       * na,
  *             the set of tiles to be the final score.
  * </pre>
  */
-int32 grayHistogramsToEMD(NUMAA  * naa1,
+l_ok grayHistogramsToEMD(NUMAA  * naa1,
     NUMAA  * naa2,
-    NUMA  ** pnad)
+    NUMA ** pnad)
 {
-	int32 i, n, nt;
+	l_int32 i, n, nt;
 	float dist;
 	NUMA       * na1, * na2, * nad;
 
-	PROCNAME("grayHistogramsToEMD");
+	PROCNAME(__FUNCTION__);
 
 	if(!pnad)
 		return ERROR_INT("&nad not defined", procName, 1);
@@ -2045,8 +2161,8 @@ int32 grayHistogramsToEMD(NUMAA  * naa1,
 /*!
  * \brief   numaEarthMoverDistance()
  *
- * \param[in]    na1, na2 two numas of the same size, typically histograms
- * \param[out]   pdist EM distance
+ * \param[in]    na1, na2    two numas of the same size, typically histograms
+ * \param[out]   pdist       earthmover distance
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2069,16 +2185,16 @@ int32 grayHistogramsToEMD(NUMAA  * naa1,
  *         other end.
  * </pre>
  */
-int32 numaEarthMoverDistance(NUMA       * na1,
+l_ok numaEarthMoverDistance(NUMA       * na1,
     NUMA       * na2,
-    float  * pdist)
+    float * pdist)
 {
-	int32 n, norm, i;
+	l_int32 n, norm, i;
 	float sum1, sum2, diff, total;
-	float  * array1, * array3;
+	float * array1, * array3;
 	NUMA       * na3;
 
-	PROCNAME("numaEarthMoverDistance");
+	PROCNAME(__FUNCTION__);
 
 	if(!pdist)
 		return ERROR_INT("&dist not defined", procName, 1);
@@ -2116,12 +2232,12 @@ int32 numaEarthMoverDistance(NUMA       * na1,
 /*!
  * \brief   grayInterHistogramStats()
  *
- * \param[in]    naa numaa with two or more 256-element histograms
- * \param[in]    wc half-width of the smoothing window
- * \param[out]   pnam [optional] mean values
- * \param[out]   pnams [optional] mean square values
- * \param[out]   pnav [optional] variances
- * \param[out]   pnarv [optional] rms deviations from the mean
+ * \param[in]    naa      numaa with two or more 256-element histograms
+ * \param[in]    wc       half-width of the smoothing window
+ * \param[out]   pnam     [optional] mean values
+ * \param[out]   pnams    [optional] mean square values
+ * \param[out]   pnav     [optional] variances
+ * \param[out]   pnarv    [optional] rms deviations from the mean
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2134,11 +2250,11 @@ int32 numaEarthMoverDistance(NUMA       * na1,
  *         where each histogram is one row of the array.  The stats are
  *         then aggregated column-wise, between the histograms.
  *     (2) These stats are:
- *            ~ average value: \<v\>  (nam)
- *            ~ average squared value: \<v*v\> (nams)
- *            ~ variance: \<(v - \<v\>)*(v - \<v\>)\> = \<v*v\> - \<v\>*\<v\>  (nav)
+ *            ~ average value: <v>  (nam)
+ *            ~ average squared value: <v*v> (nams)
+ *            ~ variance: <(v - <v>)*(v - <v>)> = <v*v> - <v>*<v>  (nav)
  *            ~ square-root of variance: (narv)
- *         where the brackets \< .. \> indicate that the average value is
+ *         where the brackets < .. > indicate that the average value is
  *         to be taken over each column of the array.
  *     (3) The input histograms are optionally smoothed before these
  *         statistical operations.
@@ -2158,19 +2274,19 @@ int32 numaEarthMoverDistance(NUMA       * na1,
  *         and light photos/text/line-graphics.
  * </pre>
  */
-int32 grayInterHistogramStats(NUMAA   * naa,
-    int32 wc,
+l_ok grayInterHistogramStats(NUMAA   * naa,
+    l_int32 wc,
     NUMA   ** pnam,
     NUMA   ** pnams,
     NUMA   ** pnav,
     NUMA   ** pnarv)
 {
-	int32 i, j, n, nn;
-	float  ** arrays;
+	l_int32 i, j, n, nn;
+	float ** arrays;
 	float mean, var, rvar;
 	NUMA        * na1, * na2, * na3, * na4;
 
-	PROCNAME("grayInterHistogramStats");
+	PROCNAME(__FUNCTION__);
 
 	if(pnam) *pnam = NULL;
 	if(pnams) *pnams = NULL;
@@ -2184,7 +2300,7 @@ int32 grayInterHistogramStats(NUMAA   * naa,
 	for(i = 0; i < n; i++) {
 		nn = numaaGetNumaCount(naa, i);
 		if(nn != 256) {
-			L_ERROR3("%d numbers in numa[%d]\n", procName, nn, i);
+			L_ERROR("%d numbers in numa[%d]\n", procName, nn, i);
 			return 1;
 		}
 	}
@@ -2196,7 +2312,7 @@ int32 grayInterHistogramStats(NUMAA   * naa,
 
 	/* First, use mean smoothing, normalize each histogram,
 	 * and save all results in a 2D matrix. */
-	arrays = (float**)LEPT_CALLOC(n, sizeof(float *));
+	arrays = (float**)SAlloc::C(n, sizeof(float *));
 	for(i = 0; i < n; i++) {
 		na1 = numaaGetNuma(naa, i, L_CLONE);
 		na2 = numaWindowedMean(na1, wc);
@@ -2213,7 +2329,7 @@ int32 grayInterHistogramStats(NUMAA   * naa,
 		for(i = 0; i < n; i++) {
 			numaAddNumber(na4, arrays[i][j]);
 		}
-		numaSimpleStats(na4, 0, 0, &mean, &var, &rvar);
+		numaSimpleStats(na4, 0, -1, &mean, &var, &rvar);
 		if(pnam) numaAddNumber(*pnam, mean);
 		if(pnams) numaAddNumber(*pnams, mean * mean);
 		if(pnav) numaAddNumber(*pnav, var);
@@ -2222,8 +2338,8 @@ int32 grayInterHistogramStats(NUMAA   * naa,
 	}
 
 	for(i = 0; i < n; i++)
-		LEPT_FREE(arrays[i]);
-	LEPT_FREE(arrays);
+		SAlloc::F(arrays[i]);
+	SAlloc::F(arrays);
 	return 0;
 }
 
@@ -2233,10 +2349,10 @@ int32 grayInterHistogramStats(NUMAA   * naa,
 /*!
  * \brief   numaFindPeaks()
  *
- * \param[in]    nas     source numa
- * \param[in]    nmax    max number of peaks to be found
- * \param[in]    fract1  min fraction of peak value
- * \param[in]    fract2  min slope
+ * \param[in]    nas      source numa
+ * \param[in]    nmax     max number of peaks to be found
+ * \param[in]    fract1   min fraction of peak value
+ * \param[in]    fract2   min slope
  * \return  peak na, or NULL on error.
  *
  * <pre>
@@ -2246,17 +2362,17 @@ int32 grayInterHistogramStats(NUMAA   * naa,
  *            left edge; peak center; right edge; normalized peak area
  * </pre>
  */
-NUMA * numaFindPeaks(NUMA      * nas,
-    int32 nmax,
+NUMA * numaFindPeaks(NUMA * nas,
+    l_int32 nmax,
     float fract1,
     float fract2)
 {
-	int32 i, k, n, maxloc, lloc, rloc;
+	l_int32 i, k, n, maxloc, lloc, rloc;
 	float fmaxval, sum, total, newtotal, val, lastval;
 	float peakfract;
-	NUMA      * na, * napeak;
+	NUMA * na, * napeak;
 
-	PROCNAME("numaFindPeaks");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -2336,9 +2452,9 @@ NUMA * numaFindPeaks(NUMA      * nas,
 /*!
  * \brief   numaFindExtrema()
  *
- * \param[in]    nas input values
- * \param[in]    delta relative amount to resolve peaks and valleys
- * \param[out]   pnav [optional] values of extrema
+ * \param[in]    nas     input values
+ * \param[in]    delta   relative amount to resolve peaks and valleys
+ * \param[out]   pnav    [optional] values of extrema
  * \return  nad (locations of extrema, or NULL on error
  *
  * <pre>
@@ -2350,28 +2466,33 @@ NUMA * numaFindPeaks(NUMA      * nas,
  *          those 'bumps' to be actual peaks?  The answer: if the
  *          bump is separated from the peak by a saddle that is at
  *          least 500 feet below the bump.
- *      (3) Operationally, suppose we are looking for a peak.
- *          We are keeping the largest value we've seen since the
- *          last valley, and are looking for a value that is delta
- *          BELOW our current peak.  When we find such a value,
- *          we label the peak, use the current value to label the
- *          valley, and then do the same operation in reverse (looking
- *          for a valley).
+ *      (3) Operationally, suppose we are trying to identify a peak.
+ *          We have a previous valley, and also the largest value that
+ *          we have seen since that valley.  We can identify this as
+ *          a peak if we find a value that is delta BELOW it.  When
+ *          we find such a value, label the peak, use the current
+ *          value to label the starting point for the search for
+ *          a valley, and do the same operation in reverse.  Namely,
+ *          keep track of the lowest point seen, and look for a value
+ *          that is delta ABOVE it.  Once found, the lowest point is
+ *          labeled the valley, and continue, looking for the next peak.
  * </pre>
  */
-NUMA * numaFindExtrema(NUMA      * nas,
+NUMA * numaFindExtrema(NUMA * nas,
     float delta,
     NUMA     ** pnav)
 {
-	int32 i, n, found, loc, direction;
+	l_int32 i, n, found, loc, direction;
 	float startval, val, maxval, minval;
-	NUMA      * nav, * nad;
+	NUMA * nav, * nad;
 
-	PROCNAME("numaFindExtrema");
+	PROCNAME(__FUNCTION__);
 
 	if(pnav) *pnav = NULL;
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if(delta < 0.0)
+		return (NUMA*)ERROR_PTR("delta < 0", procName, NULL);
 
 	n = numaGetCount(nas);
 	nad = numaCreate(0);
@@ -2395,7 +2516,7 @@ NUMA * numaFindExtrema(NUMA      * nas,
 	}
 
 	if(!found)
-		return nad;  /* it's empty */
+		return nad; /* it's empty */
 
 	/* Are we looking for a peak or a valley? */
 	if(val > startval) { /* peak */
@@ -2442,12 +2563,111 @@ NUMA * numaFindExtrema(NUMA      * nas,
 }
 
 /*!
+ * \brief   numaFindLocForThreshold()
+ *
+ * \param[in]    nas      input histogram
+ * \param[in]    skip     distance to skip to check for false min; 0 for default
+ * \param[out]   pthresh  threshold value
+ * \param[out]   pfract   [optional] fraction below or at threshold
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This finds a good place to set a threshold for a histogram
+ *          of values that has two peaks.  The peaks can differ greatly
+ *          in area underneath them.  The number of buckets in the
+ *          histogram is expected to be 256 (e.g, from an 8 bpp gray image).
+ *      (2) The input histogram should have been smoothed with a window
+ *          to avoid false peak and valley detection due to noise.  For
+ *          example, see pixThresholdByHisto().
+ *      (3) A skip value can be input to determine the look-ahead distance
+ *          to ignore a false peak on the descent from the first peak.
+ *          Input 0 to use the default value (it assumes a histo size of 256).
+ *      (4) Optionally, the fractional area under the first peak can
+ *          be returned.
+ * </pre>
+ */
+l_ok numaFindLocForThreshold(NUMA       * na,
+    l_int32 skip,
+    l_int32    * pthresh,
+    float * pfract)
+{
+	l_int32 i, n, start, index, minloc;
+	float val, pval, jval, minval, sum, partsum;
+	float * fa;
+
+	PROCNAME(__FUNCTION__);
+
+	if(pfract) *pfract = 0.0;
+	if(!pthresh)
+		return ERROR_INT("&thresh not defined", procName, 1);
+	*pthresh = 0;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+	if(skip <= 0) skip = 20;
+
+	/* Look for the top of the first peak */
+	n = numaGetCount(na);
+	fa = numaGetFArray(na, L_NOCOPY);
+	pval = fa[0];
+	for(i = 1; i < n; i++) {
+		val = fa[i];
+		index = MIN(i + skip, n - 1);
+		jval = fa[index];
+		if(val < pval && jval < pval) /* near the top if not there */
+			break;
+		pval = val;
+	}
+
+	/* Look for the low point in the valley */
+	start = i;
+	pval = fa[start];
+	for(i = start + 1; i < n; i++) {
+		val = fa[i];
+		if(val <= pval) { /* going down */
+			pval = val;
+		}
+		else { /* going up */
+			index = MIN(i + skip, n - 1);
+			jval = fa[index]; /* junp ahead 20 */
+			if(val > jval) { /* still going down; jump ahead */
+				pval = jval;
+				i = index;
+			}
+			else { /* really going up; passed the min */
+				break;
+			}
+		}
+	}
+
+	/* Find the location of the minimum in the interval */
+	minloc = index; /* likely passed the min; look backward */
+	minval = fa[index];
+	for(i = index - 1; i > index - skip; i--) {
+		if(fa[i] < minval) {
+			minval = fa[i];
+			minloc = i;
+		}
+	}
+	*pthresh = minloc;
+
+	/* Find the fraction under the first peak */
+	if(pfract) {
+		numaGetSumOnInterval(na, 0, minloc, &partsum);
+		numaGetSum(na, &sum);
+		if(sum > 0.0)
+			*pfract = partsum / sum;
+	}
+	return 0;
+}
+
+/*!
  * \brief   numaCountReversals()
  *
- * \param[in]    nas input values
- * \param[in]    minreversal relative amount to resolve peaks and valleys
- * \param[out]   pnr [optional] number of reversals
- *           [out]   pnrpl ([optional] reversal density: reversals/length
+ * \param[in]    nas          input values
+ * \param[in]    minreversal  relative amount to resolve peaks and valleys
+ * \param[out]   pnr          [optional] number of reversals
+ * \param[out]   prd          [optional] reversal density: reversals/length
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2455,37 +2675,77 @@ NUMA * numaFindExtrema(NUMA      * nas,
  *      (1) The input numa is can be generated from pixExtractAlongLine().
  *          If so, the x parameters can be used to find the reversal
  *          frequency along a line.
+ *      (2) If the input numa was generated from a 1 bpp pix, the
+ *          values will be 0 and 1.  Use %minreversal == 1 to get
+ *          the number of pixel flips.  If the only values are 0 and 1,
+ *          but %minreversal > 1, set the reversal count to 0 and
+ *          issue a warning.
  * </pre>
  */
-int32 numaCountReversals(NUMA       * nas,
+l_ok numaCountReversals(NUMA       * nas,
     float minreversal,
-    int32    * pnr,
-    float  * pnrpl)
+    l_int32    * pnr,
+    float * prd)
 {
-	int32 n, nr;
-	float delx, len;
-	NUMA      * nat;
+	l_int32 i, n, nr, ival, binvals;
+	l_int32   * ia;
+	float fval, delx, len;
+	NUMA * nat;
 
-	PROCNAME("numaCountReversals");
+	PROCNAME(__FUNCTION__);
 
 	if(pnr) *pnr = 0;
-	if(pnrpl) *pnrpl = 0.0;
-	if(!pnr && !pnrpl)
-		return ERROR_INT("neither &nr nor &nrpl are defined", procName, 1);
+	if(prd) *prd = 0.0;
+	if(!pnr && !prd)
+		return ERROR_INT("neither &nr nor &rd are defined", procName, 1);
 	if(!nas)
 		return ERROR_INT("nas not defined", procName, 1);
+	if((n = numaGetCount(nas)) == 0) {
+		L_INFO("nas is empty\n", procName);
+		return 0;
+	}
+	if(minreversal < 0.0)
+		return ERROR_INT("minreversal < 0", procName, 1);
 
-	n = numaGetCount(nas);
-	nat = numaFindExtrema(nas, minreversal, NULL);
-	nr = numaGetCount(nat);
-	if(pnr) *pnr = nr;
-	if(pnrpl) {
-		numaGetParameters(nas, NULL, &delx);
-		len = delx * n;
-		*pnrpl = (float)nr / len;
+	/* Decide if the only values are 0 and 1 */
+	binvals = TRUE;
+	for(i = 0; i < n; i++) {
+		numaGetFValue(nas, i, &fval);
+		if(fval != 0.0 && fval != 1.0) {
+			binvals = FALSE;
+			break;
+		}
 	}
 
-	numaDestroy(&nat);
+	nr = 0;
+	if(binvals) {
+		if(minreversal > 1.0) {
+			L_WARNING("binary values but minreversal > 1\n", procName);
+		}
+		else {
+			ia = numaGetIArray(nas);
+			ival = ia[0];
+			for(i = 1; i < n; i++) {
+				if(ia[i] != ival) {
+					nr++;
+					ival = ia[i];
+				}
+			}
+			SAlloc::F(ia);
+		}
+	}
+	else {
+		nat = numaFindExtrema(nas, minreversal, NULL);
+		nr = numaGetCount(nat);
+		numaDestroy(&nat);
+	}
+	if(pnr) *pnr = nr;
+	if(prd) {
+		numaGetParameters(nas, NULL, &delx);
+		len = delx * n;
+		*prd = (float)nr / len;
+	}
+
 	return 0;
 }
 
@@ -2495,12 +2755,12 @@ int32 numaCountReversals(NUMA       * nas,
 /*!
  * \brief   numaSelectCrossingThreshold()
  *
- * \param[in]    nax [optional] numa of abscissa values; can be NULL
- * \param[in]    nay signal
- * \param[in]    estthresh estimated pixel threshold for crossing: e.g., for
- *                         images, white <--> black; typ. ~120
- * \param[out]   pbestthresh robust estimate of threshold to use
- * \return  0 if OK, 1 on error
+ * \param[in]    nax          [optional] numa of abscissa values; can be NULL
+ * \param[in]    nay          signal
+ * \param[in]    estthresh    estimated pixel threshold for crossing:
+ *                            e.g., for images, white <--> black; typ. ~120
+ * \param[out]   pbestthresh  robust estimate of threshold to use
+ * \return  0 if OK, 1 on error or warning
  *
  * <pre>
  * Notes:
@@ -2515,30 +2775,35 @@ int32 numaCountReversals(NUMA       * nas,
  *         in the center of this stable plateau of crossings.
  *         This can then be used with numaCrossingsByThreshold()
  *         to get a good estimate of crossing locations.
+ *     (3) If the count of nay is less than 2, a warning is issued.
  * </pre>
  */
-int32 numaSelectCrossingThreshold(NUMA       * nax,
+l_ok numaSelectCrossingThreshold(NUMA       * nax,
     NUMA       * nay,
     float estthresh,
-    float  * pbestthresh)
+    float * pbestthresh)
 {
-	int32 i, inrun, istart, iend, maxstart, maxend, runlen, maxrunlen;
-	int32 val, maxval, nmax, count;
+	l_int32 i, inrun, istart, iend, maxstart, maxend, runlen, maxrunlen;
+	l_int32 val, maxval, nmax, count;
 	float thresh, fmaxval, fmodeval;
-	NUMA      * nat, * nac;
+	NUMA * nat, * nac;
 
-	PROCNAME("numaSelectCrossingThreshold");
+	PROCNAME(__FUNCTION__);
 
 	if(!pbestthresh)
 		return ERROR_INT("&bestthresh not defined", procName, 1);
 	*pbestthresh = 0.0;
 	if(!nay)
 		return ERROR_INT("nay not defined", procName, 1);
+	if(numaGetCount(nay) < 2) {
+		L_WARNING("nay count < 2; no threshold crossing\n", procName);
+		return 1;
+	}
 
 	/* Compute the number of crossings for different thresholds */
 	nat = numaCreate(41);
 	for(i = 0; i < 41; i++) {
-		thresh = estthresh - 80.0f + 4.0f * i;
+		thresh = estthresh - 80.0 + 4.0 * i;
 		nac = numaCrossingsByThreshold(nax, nay, thresh);
 		numaAddNumber(nat, numaGetCount(nac));
 		numaDestroy(&nac);
@@ -2547,7 +2812,7 @@ int32 numaSelectCrossingThreshold(NUMA       * nax,
 	/* Find the center of the plateau of max crossings, which
 	 * extends from thresh[istart] to thresh[iend]. */
 	numaGetMax(nat, &fmaxval, NULL);
-	maxval = (int32)fmaxval;
+	maxval = (l_int32)fmaxval;
 	nmax = 0;
 	for(i = 0; i < 41; i++) {
 		numaGetIValue(nat, i, &val);
@@ -2557,12 +2822,12 @@ int32 numaSelectCrossingThreshold(NUMA       * nax,
 	if(nmax < 3) { /* likely accidental max; try the mode */
 		numaGetMode(nat, &fmodeval, &count);
 		if(count > nmax && fmodeval > 0.5 * fmaxval)
-			maxval = (int32)fmodeval;  /* use the mode */
+			maxval = (l_int32)fmodeval; /* use the mode */
 	}
 
 	inrun = FALSE;
 	iend = 40;
-	maxrunlen = 0;
+	maxrunlen = 0, maxstart = 0, maxend = 0;
 	for(i = 0; i < 41; i++) {
 		numaGetIValue(nat, i, &val);
 		if(val == maxval) {
@@ -2592,31 +2857,16 @@ int32 numaSelectCrossingThreshold(NUMA       * nax,
 		}
 	}
 
-#if 0
-	foundfirst = FALSE;
-	iend = 40;
-	for(i = 0; i < 41; i++) {
-		numaGetIValue(nat, i, &val);
-		if(val == maxval) {
-			if(!foundfirst) {
-				istart = i;
-				foundfirst = TRUE;
-			}
-		}
-		if((val != maxval) && foundfirst) {
-			iend = i - 1;
-			break;
-		}
-	}
-	nmax = iend - istart + 1;
-#endif
-	*pbestthresh = estthresh - 80.0f + 2.0f * (float)(maxstart + maxend);
+	*pbestthresh = estthresh - 80.0 + 2.0 * (float)(maxstart + maxend);
+
 #if  DEBUG_CROSSINGS
-	fprintf(stderr, "\nCrossings attain a maximum at %d thresholds, between:\n  thresh[%d] = %5.1f and thresh[%d] = %5.1f\n",
-	    nmax, maxstart, estthresh - 80.0 + 4.0 * maxstart, maxend, estthresh - 80.0 + 4.0 * maxend);
-	fprintf(stderr, "The best choice: %5.1f\n", *pbestthresh);
-	fprintf(stderr, "Number of crossings at the 41 thresholds:");
-	numaWriteStream(stderr, nat);
+	lept_stderr("\nCrossings attain a maximum at %d thresholds, between:\n"
+	    "  thresh[%d] = %5.1f and thresh[%d] = %5.1f\n",
+	    nmax, maxstart, estthresh - 80.0 + 4.0 * maxstart,
+	    maxend, estthresh - 80.0 + 4.0 * maxend);
+	lept_stderr("The best choice: %5.1f\n", *pbestthresh);
+	lept_stderr("Number of crossings at the 41 thresholds:");
+	numaWriteStderr(nat);
 #endif  /* DEBUG_CROSSINGS */
 
 	numaDestroy(&nat);
@@ -2626,9 +2876,9 @@ int32 numaSelectCrossingThreshold(NUMA       * nax,
 /*!
  * \brief   numaCrossingsByThreshold()
  *
- * \param[in]    nax [optional] numa of abscissa values; can be NULL
- * \param[in]    nay numa of ordinate values, corresponding to nax
- * \param[in]    thresh threshold value for nay
+ * \param[in]    nax     [optional] numa of abscissa values; can be NULL
+ * \param[in]    nay     numa of ordinate values, corresponding to nax
+ * \param[in]    thresh  threshold value for nay
  * \return  nad abscissa pts at threshold, or NULL on error
  *
  * <pre>
@@ -2637,16 +2887,16 @@ int32 numaSelectCrossingThreshold(NUMA       * nax,
  *          the crossing values in nad.
  * </pre>
  */
-NUMA * numaCrossingsByThreshold(NUMA      * nax,
-    NUMA      * nay,
+NUMA * numaCrossingsByThreshold(NUMA * nax,
+    NUMA * nay,
     float thresh)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float startx, delx;
 	float xval1, xval2, yval1, yval2, delta1, delta2, crossval, fract;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaCrossingsByThreshold");
+	PROCNAME(__FUNCTION__);
 
 	if(!nay)
 		return (NUMA*)ERROR_PTR("nay not defined", procName, NULL);
@@ -2656,6 +2906,7 @@ NUMA * numaCrossingsByThreshold(NUMA      * nax,
 		return (NUMA*)ERROR_PTR("nax and nay sizes differ", procName, NULL);
 
 	nad = numaCreate(0);
+	if(n < 2) return nad;
 	numaGetFValue(nay, 0, &yval1);
 	numaGetParameters(nay, &startx, &delx);
 	if(nax)
@@ -2691,9 +2942,9 @@ NUMA * numaCrossingsByThreshold(NUMA      * nax,
 /*!
  * \brief   numaCrossingsByPeaks()
  *
- * \param[in]    nax [optional] numa of abscissa values
- * \param[in]    nay numa of ordinate values, corresponding to nax
- * \param[in]    delta parameter used to identify when a new peak can be found
+ * \param[in]    nax     [optional] numa of abscissa values
+ * \param[in]    nay     numa of ordinate values, corresponding to nax
+ * \param[in]    delta   parameter used to identify when a new peak can be found
  * \return  nad abscissa pts at threshold, or NULL on error
  *
  * <pre>
@@ -2702,17 +2953,17 @@ NUMA * numaCrossingsByThreshold(NUMA      * nax,
  *          the crossing values in nad.
  * </pre>
  */
-NUMA * numaCrossingsByPeaks(NUMA      * nax,
-    NUMA      * nay,
+NUMA * numaCrossingsByPeaks(NUMA * nax,
+    NUMA * nay,
     float delta)
 {
-	int32 i, j, n, np, previndex, curindex;
+	l_int32 i, j, n, np, previndex, curindex;
 	float startx, delx;
 	float xval1, xval2, yval1, yval2, delta1, delta2;
 	float prevval, curval, thresh, crossval, fract;
-	NUMA      * nap, * nad;
+	NUMA * nap, * nad;
 
-	PROCNAME("numaCrossingsByPeaks");
+	PROCNAME(__FUNCTION__);
 
 	if(!nay)
 		return (NUMA*)ERROR_PTR("nay not defined", procName, NULL);
@@ -2727,7 +2978,7 @@ NUMA * numaCrossingsByPeaks(NUMA      * nax,
 	nap = numaFindExtrema(nay, delta, NULL);
 	numaAddNumber(nap, n - 1);
 	np = numaGetCount(nap);
-	L_INFO2("Number of crossings: %d\n", procName, np);
+	L_INFO("Number of crossings: %d\n", procName, np);
 
 	/* Do all computation in index units of nax or the delx of nay */
 	nad = numaCreate(np); /* output crossing locations, in nax units */
@@ -2737,7 +2988,7 @@ NUMA * numaCrossingsByPeaks(NUMA      * nax,
 	for(i = 0; i < np; i++) {
 		numaGetIValue(nap, i, &curindex);
 		numaGetFValue(nay, curindex, &curval);
-		thresh = (prevval + curval) / 2.0f;
+		thresh = (prevval + curval) / 2.0;
 		if(nax)
 			numaGetFValue(nax, previndex, &xval1);
 		else
@@ -2779,19 +3030,18 @@ NUMA * numaCrossingsByPeaks(NUMA      * nax,
 /*!
  * \brief   numaEvalBestHaarParameters()
  *
- * \param[in]    nas numa of non-negative signal values
- * \param[in]    relweight relative weight of (-1 comb) / (+1 comb)
- *                          contributions to the 'convolution'.  In effect,
- *                          the convolution kernel is a comb consisting of
- *                          alternating +1 and -weight.
- * \param[in]    nwidth number of widths to consider
- * \param[in]    nshift number of shifts to consider for each width
- * \param[in]    minwidth smallest width to consider
- * \param[in]    maxwidth largest width to consider
- * \param[out]   pbestwidth width giving largest score
- * \param[out]   pbestshift shift giving largest score
- * \param[out]   pbestscore [optional] convolution with
- *                          "Haar"-like comb
+ * \param[in]    nas         numa of non-negative signal values
+ * \param[in]    relweight   relative weight of (-1 comb) / (+1 comb)
+ *                           contributions to the 'convolution'.  In effect,
+ *                           the convolution kernel is a comb consisting of
+ *                           alternating +1 and -weight.
+ * \param[in]    nwidth      number of widths to consider
+ * \param[in]    nshift      number of shifts to consider for each width
+ * \param[in]    minwidth    smallest width to consider
+ * \param[in]    maxwidth    largest width to consider
+ * \param[out]   pbestwidth  width giving largest score
+ * \param[out]   pbestshift  shift giving largest score
+ * \param[out]   pbestscore  [optional] convolution with "Haar"-like comb
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2814,21 +3064,21 @@ NUMA * numaCrossingsByPeaks(NUMA      * nax,
  *          pixel projection direction.
  * </pre>
  */
-int32 numaEvalBestHaarParameters(NUMA       * nas,
+l_ok numaEvalBestHaarParameters(NUMA       * nas,
     float relweight,
-    int32 nwidth,
-    int32 nshift,
+    l_int32 nwidth,
+    l_int32 nshift,
     float minwidth,
     float maxwidth,
-    float  * pbestwidth,
-    float  * pbestshift,
-    float  * pbestscore)
+    float * pbestwidth,
+    float * pbestshift,
+    float * pbestscore)
 {
-	int32 i, j;
+	l_int32 i, j;
 	float delwidth, delshift, width, shift, score;
 	float bestwidth, bestshift, bestscore;
 
-	PROCNAME("numaEvalBestHaarParameters");
+	PROCNAME(__FUNCTION__);
 
 	if(pbestscore) *pbestscore = 0.0;
 	if(pbestwidth) *pbestwidth = 0.0;
@@ -2839,7 +3089,7 @@ int32 numaEvalBestHaarParameters(NUMA       * nas,
 		return ERROR_INT("nas not defined", procName, 1);
 
 	bestscore = bestwidth = bestshift = 0.0;
-	delwidth = (maxwidth - minwidth) / (nwidth - 1.0f);
+	delwidth = (maxwidth - minwidth) / (nwidth - 1.0);
 	for(i = 0; i < nwidth; i++) {
 		width = minwidth + delwidth * i;
 		delshift = width / (float)(nshift);
@@ -2851,7 +3101,7 @@ int32 numaEvalBestHaarParameters(NUMA       * nas,
 				bestwidth = width;
 				bestshift = shift;
 #if  DEBUG_FREQUENCY
-				fprintf(stderr, "width = %7.3f, shift = %7.3f, score = %7.3f\n",
+				lept_stderr("width = %7.3f, shift = %7.3f, score = %7.3f\n",
 				    width, shift, score);
 #endif  /* DEBUG_FREQUENCY */
 			}
@@ -2868,14 +3118,14 @@ int32 numaEvalBestHaarParameters(NUMA       * nas,
 /*!
  * \brief   numaEvalHaarSum()
  *
- * \param[in]    nas numa of non-negative signal values
- * \param[in]    width distance between +1 and -1 in convolution comb
- * \param[in]    shift phase of the comb: location of first +1
- * \param[in]    relweight relative weight of (-1 comb) / (+1 comb)
- *                          contributions to the 'convolution'.  In effect,
- *                          the convolution kernel is a comb consisting of
- *                          alternating +1 and -weight.
- * \param[out]   pscore convolution with "Haar"-like comb
+ * \param[in]    nas         numa of non-negative signal values
+ * \param[in]    width       distance between +1 and -1 in convolution comb
+ * \param[in]    shift       phase of the comb: location of first +1
+ * \param[in]    relweight   relative weight of (-1 comb) / (+1 comb)
+ *                           contributions to the 'convolution'.  In effect,
+ *                           the convolution kernel is a comb consisting of
+ *                           alternating +1 and -weight.
+ * \param[out]   pscore      convolution with "Haar"-like comb
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2894,19 +3144,19 @@ int32 numaEvalBestHaarParameters(NUMA       * nas,
  *      (3) To get a Haar-like result, use relweight = 1.0.  For detecting
  *          signals where you expect every other sample to be close to
  *          zero, as with barcodes or filtered text lines, you can
- *          use relweight \> 1.0.
+ *          use relweight > 1.0.
  * </pre>
  */
-int32 numaEvalHaarSum(NUMA       * nas,
+l_ok numaEvalHaarSum(NUMA       * nas,
     float width,
     float shift,
     float relweight,
-    float  * pscore)
+    float * pscore)
 {
-	int32 i, n, nsamp, index;
+	l_int32 i, n, nsamp, index;
 	float score, weight, val;
 
-	PROCNAME("numaEvalHaarSum");
+	PROCNAME(__FUNCTION__);
 
 	if(!pscore)
 		return ERROR_INT("&score not defined", procName, 1);
@@ -2915,15 +3165,17 @@ int32 numaEvalHaarSum(NUMA       * nas,
 		return ERROR_INT("nas not defined", procName, 1);
 	if((n = numaGetCount(nas)) < 2 * width)
 		return ERROR_INT("nas size too small", procName, 1);
+
 	score = 0.0;
-	nsamp = (int32)((n - shift) / width);
+	nsamp = (l_int32)((n - shift) / width);
 	for(i = 0; i < nsamp; i++) {
-		index = (int32)(shift + i * width);
-		weight = (i % 2) ? 1.0f : -1.0f * relweight;
+		index = (l_int32)(shift + i * width);
+		weight = (i % 2) ? 1.0 : -1.0 * relweight;
 		numaGetFValue(nas, index, &val);
 		score += weight * val;
 	}
-	*pscore = 2.0f * width * score / (float)n;
+
+	*pscore = 2.0 * width * score / (float)n;
 	return 0;
 }
 
@@ -2933,9 +3185,9 @@ int32 numaEvalHaarSum(NUMA       * nas,
 /*!
  * \brief   genConstrainedNumaInRange()
  *
- * \param[in]    first first number to choose; >= 0
- * \param[in]    last biggest possible number to reach; >= first
- * \param[in]    nmax maximum number of numbers to select; > 0
+ * \param[in]    first     first number to choose; >= 0
+ * \param[in]    last      biggest possible number to reach; >= first
+ * \param[in]    nmax      maximum number of numbers to select; > 0
  * \param[in]    use_pairs 1 = select pairs of adjacent numbers;
  *                         0 = select individual numbers
  * \return  0 if OK, 1 on error
@@ -2950,16 +3202,16 @@ int32 numaEvalHaarSum(NUMA       * nas,
  *         and you have the option of requiring pairs of adjacent numbers.
  * </pre>
  */
-NUMA * genConstrainedNumaInRange(int32 first,
-    int32 last,
-    int32 nmax,
-    int32 use_pairs)
+NUMA * genConstrainedNumaInRange(l_int32 first,
+    l_int32 last,
+    l_int32 nmax,
+    l_int32 use_pairs)
 {
-	int32 i, nsets, val;
+	l_int32 i, nsets, val;
 	float delta;
-	NUMA      * na;
+	NUMA * na;
 
-	PROCNAME("genConstrainedNumaInRange");
+	PROCNAME(__FUNCTION__);
 
 	first = MAX(0, first);
 	if(last < first)
@@ -2986,7 +3238,7 @@ NUMA * genConstrainedNumaInRange(int32 first,
 
 	na = numaCreate(nsets);
 	for(i = 0; i < nsets; i++) {
-		val = (int32)(first + i * delta + 0.5);
+		val = (l_int32)(first + i * delta + 0.5);
 		numaAddNumber(na, val);
 		if(use_pairs == 1)
 			numaAddNumber(na, val + 1);
@@ -2994,4 +3246,3 @@ NUMA * genConstrainedNumaInRange(int32 first,
 
 	return na;
 }
-

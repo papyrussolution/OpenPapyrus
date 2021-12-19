@@ -247,16 +247,13 @@ static int Translate(Texc2h *const pTexc2h, SString *const pLine)
 												}
 											}
 										}
-
 										break;
 									}
 									case TTYPE_SINGLE:
-									{
 										tag.Destroy();
 										tag.CatTagBrace(sub, TAG_OPENING);
 										pLine->Insert(pos, tag);
 										break;
-									}
 									case TTYPE_CONTAINER:
 									{
 										tag.Destroy();
@@ -293,7 +290,7 @@ static int Translate(Texc2h *const pTexc2h, SString *const pLine)
 										StringSet	ss('&', sub);
 										if(pTexc2h->TagsTab.GetRow(line_n, row) > 0) {
 											if(row.Get(1, item) > 0) {
-												while(ss.get(&npos, st) > 0) {
+												while(ss.get(&npos, st)) {
 													if(st.Divide('|', lst, rst) > 0) {
 														if(lst == item) {
 															tag.Destroy();

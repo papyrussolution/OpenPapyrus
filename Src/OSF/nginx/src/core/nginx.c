@@ -1186,7 +1186,7 @@ static const char * ngx_set_worker_processes(ngx_conf_t * cf, const ngx_command_
 static const char * ngx_load_module(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 #if (NGX_HAVE_DLOPEN)
-	void  * handle;
+	void * handle;
 	char   ** names, ** order;
 	ngx_str_t * value, file;
 	ngx_uint_t i;
@@ -1241,7 +1241,7 @@ static const char * ngx_load_module(ngx_conf_t * cf, const ngx_command_t * cmd, 
 
 static void ngx_unload_module(void * data)
 {
-	void  * handle = data;
+	void * handle = data;
 	if(ngx_dlclose((HMODULE)handle) != 0) {
 		ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, 0, ngx_dlclose_n " failed (%s)", ngx_dlerror());
 	}

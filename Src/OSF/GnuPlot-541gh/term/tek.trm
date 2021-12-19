@@ -113,7 +113,7 @@ TERM_PUBLIC void TEK40vector(uint x, uint y);
 TERM_PUBLIC void TEK40put_text(uint x, uint y, const char str[]);
 TERM_PUBLIC void TEK40reset();
 #ifdef BITGRAPH
-TERM_PUBLIC void BG_text(GpTermEntry * pThis);
+TERM_PUBLIC void BG_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void BG_put_text(uint x, uint y, const char str[]);
 #endif
 #if defined(SELANAR) || defined(BITGRAPH)
@@ -127,22 +127,22 @@ TERM_PUBLIC void KTEK40Mlinetype(int linetype);
 TERM_PUBLIC void KTEK40reset();
 #endif
 #ifdef SELANAR
-TERM_PUBLIC void SEL_init(GpTermEntry * pThis);
+TERM_PUBLIC void SEL_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void SEL_graphics();
 TERM_PUBLIC void SEL_text();
 TERM_PUBLIC void SEL_reset();
 #endif
 #ifdef SIXEL
-TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis);
-TERM_PUBLIC void SIXEL_reset(GpTermEntry * pThis);
-TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis);
-TERM_PUBLIC void SIXEL_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void SIXEL_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void SIXEL_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void SIXEL_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SIXEL_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SIXEL_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SIXEL_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SIXEL_linetype(GpTermEntry_Static * pThis, int linetype);
 TERM_PUBLIC void SIXEL_dashtype(int type, t_dashtype * custom_dash_type);
 TERM_PUBLIC void SIXEL_fillbox(int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int SIXEL_make_palette(GpTermEntry * pThis, t_sm_palette *);
-TERM_PUBLIC void SIXEL_set_color(GpTermEntry * pThis, t_colorspec * colorspec);
+TERM_PUBLIC int SIXEL_make_palette(GpTermEntry_Static * pThis, t_sm_palette *);
+TERM_PUBLIC void SIXEL_set_color(GpTermEntry_Static * pThis, t_colorspec * colorspec);
 TERM_PUBLIC void SIXEL_filled_polygon(int points, gpiPoint * corners);
 #endif
 TERM_PUBLIC void VTTEK40init();
@@ -193,7 +193,7 @@ TERM_PUBLIC void TEK40graphics()
 	term_pasthru();
 #endif /* VMS */
 	fputs("\033\014", GPT.P_GpOutFile);
-/*                   1
+/*   1
         1. clear screen
  */
 	fflush(GPT.P_GpOutFile);
@@ -206,7 +206,7 @@ TERM_PUBLIC void TEK40text()
 {
 	TEK40move(0, 12);
 	fputs("\037", GPT.P_GpOutFile);
-/*                   1
+/*   1
         1. into alphanumerics
  */
 }
@@ -267,11 +267,11 @@ TERM_PUBLIC void TEK40reset()
 #define BG_vector TEK40vector
 #define BG_reset TEK40reset
 
-TERM_PUBLIC void BG_text(GpTermEntry * pThis)
+TERM_PUBLIC void BG_text(GpTermEntry_Static * pThis)
 {
 	BG_move(0, BG_SCREEN_HEIGHT - 2 * BG_VCHAR);
 	fputs("\037", GPT.P_GpOutFile);
-/*                   1
+/*   1
         1. into alphanumerics
  */
 }
@@ -294,7 +294,7 @@ TERM_PUBLIC void BG_put_text(uint x, uint y, const char str[])
 TERM_PUBLIC void KTEK40graphics()
 {
 	fputs("\033\014", GPT.P_GpOutFile);
-/*                   1
+/*   1
         1. clear screen
  */
 	/* kermit tektronix emulation doesn't need to wait */
@@ -352,7 +352,7 @@ TERM_PUBLIC void KTEK40reset()
 
 #ifdef SELANAR
 
-TERM_PUBLIC void SEL_init(GpTermEntry * pThis)
+TERM_PUBLIC void SEL_init(GpTermEntry_Static * pThis)
 {
 	fputs("\033\062", GPT.P_GpOutFile);
 /*					1
@@ -363,7 +363,7 @@ TERM_PUBLIC void SEL_init(GpTermEntry * pThis)
 TERM_PUBLIC void SEL_graphics()
 {
 	fputs("\033[H\033[J\033\061\033\014", GPT.P_GpOutFile);
-/*                   1           2       3
+/*   1           2       3
         1. clear ANSI screen
         2. set to TEK mode
         3. clear screen
@@ -374,7 +374,7 @@ TERM_PUBLIC void SEL_text()
 {
 	TEK40move(0, 12);
 	fputs("\033\062", GPT.P_GpOutFile);
-/*                   1
+/*   1
         1. into ANSI mode
  */
 }
@@ -382,7 +382,7 @@ TERM_PUBLIC void SEL_text()
 TERM_PUBLIC void SEL_reset()
 {
 	fputs("\033\061\033\012\033\062\033[H\033[J", GPT.P_GpOutFile);
-/*                   1        2       3      4
+/*   1        2       3      4
    1       set tek mode
    2       clear screen
    3       set ansi mode
@@ -395,7 +395,7 @@ TERM_PUBLIC void SEL_reset()
 #ifdef SIXEL
 
 static int SIXEL_findslot(int rgbval);
-static void SIXEL_setfont(GpTermEntry * pThis);
+static void SIXEL_setfont(GpTermEntry_Static * pThis);
 
 #define SIXEL_XMAX  (640)
 #define SIXEL_YMAX  (480)
@@ -489,7 +489,7 @@ static struct gen_table SIXEL_opts[] =
 	{ NULL, SIXEL_OTHER }
 };
 
-TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void SIXEL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&SIXEL_opts[0])) {
@@ -507,18 +507,18 @@ TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case SIXEL_MONOCHROME:
 			    SIXEL_mode = 0;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_COLOR:
 			    SIXEL_mode = 1;
 			    // We do not change number of colors here.
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case SIXEL_COLORS:
 			    SIXEL_mode = 1;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    SIXEL_ncol = pGp->RealExpression();
 			    if(SIXEL_ncol < 0) SIXEL_ncol = 16;
@@ -530,8 +530,7 @@ TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
 					pGp->Pgm.Shift();
 					pGp->ParseTermSize(&width, &height, PIXELS);
 					if(width > 0 && height > 0) {
-						pThis->MaxX = width - 1;
-						pThis->MaxY = height - 1;
+						pThis->SetMax(width - 1, height - 1);
 					}
 				}
 				break;
@@ -542,10 +541,9 @@ TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	pThis->TicV = (pThis->MaxX < pThis->MaxY) ? pThis->MaxX/100 : pThis->MaxY/100;
-	if(pThis->TicV < 1)
-		pThis->TicV = 1;
+	SETMAX(pThis->TicV, 1);
 	pThis->TicH = pThis->TicV;
-	/* setup options string */
+	// setup options string 
 	switch(SIXEL_font) {
 		case 1: GPT._TermOptions = "small"; break;
 		case 2: GPT._TermOptions = "medium"; break;
@@ -558,7 +556,7 @@ TERM_PUBLIC void SIXEL_options(GpTermEntry * pThis, GnuPlot * pGp)
 	slprintf_cat(GPT._TermOptions, " size %d,%d", pThis->MaxX + 1, pThis->MaxY + 1);
 }
 
-TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis)
+TERM_PUBLIC void SIXEL_init(GpTermEntry_Static * pThis)
 {
 	uint xpixels = pThis->MaxX + 1;
 	uint ypixels = pThis->MaxY + 1;
@@ -575,12 +573,12 @@ TERM_PUBLIC void SIXEL_init(GpTermEntry * pThis)
 	SIXEL_setfont(pThis);
 }
 
-TERM_PUBLIC void SIXEL_reset(GpTermEntry * pThis)
+TERM_PUBLIC void SIXEL_reset(GpTermEntry_Static * pThis)
 {
 	pThis->P_Gp->BmpFreeBitmap();
 }
 
-TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis)
+TERM_PUBLIC void SIXEL_text(GpTermEntry_Static * pThis)
 {
 	int i, j, k, l, ic, n, pr, no;
 	char c, pc;
@@ -660,29 +658,26 @@ TERM_PUBLIC void SIXEL_text(GpTermEntry * pThis)
 	fflush(GPT.P_GpOutFile); /* finish the graphics */
 }
 
-static void SIXEL_setfont(GpTermEntry * pThis)
+static void SIXEL_setfont(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(SIXEL_font) {
 		case 1:
 		    p_gp->BmpCharSize(FNT5X9);
-		    pThis->ChrV = FNT5X9_VCHAR;
-		    pThis->ChrH = FNT5X9_HCHAR;
+		    pThis->SetCharSize(FNT5X9_HCHAR, FNT5X9_VCHAR);
 		    break;
 		case 2:
 		    p_gp->BmpCharSize(FNT9X17);
-		    pThis->ChrV = FNT9X17_VCHAR;
-		    pThis->ChrH = FNT9X17_HCHAR;
+		    pThis->SetCharSize(FNT9X17_HCHAR, FNT9X17_VCHAR);
 		    break;
 		case 3:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 	}
 }
 
-TERM_PUBLIC void SIXEL_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void SIXEL_graphics(GpTermEntry_Static * pThis)
 {
 	b_boxfill(pThis, FS_EMPTY, 0, 0, b_xsize, b_ysize);
 	for(int i = 0; i < SIXEL_ncol; i++) {
@@ -702,7 +697,7 @@ TERM_PUBLIC void SIXEL_graphics(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void SIXEL_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void SIXEL_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	int i;
 	if(SIXEL_mode == 0) {
@@ -747,7 +742,7 @@ TERM_PUBLIC void SIXEL_fillbox(int style, uint x1, uint y1, uint width, uint hei
 /* the palette defines all colors from the first undefined one;
    this slot region will be continuous */
 
-TERM_PUBLIC int SIXEL_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int SIXEL_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	int i, c;
 	if(palette == NULL) {
@@ -784,7 +779,7 @@ TERM_PUBLIC int SIXEL_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
  * the palette for a new color, we add this one to the palette.
  * If no more space is available - too bad.
  */
-TERM_PUBLIC void SIXEL_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
+TERM_PUBLIC void SIXEL_set_color(GpTermEntry_Static * pThis, t_colorspec * colorspec)
 {
 	int i;
 	switch(colorspec->type) {

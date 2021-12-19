@@ -41,6 +41,10 @@
  *    were made using index = 1.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -54,12 +58,12 @@ static char  mainName[] = "fmorphautogen";
     if (argc != 2 && argc != 3)
         return ERROR_INT(" Syntax:  fmorphautogen index <filename>",
                          mainName, 1);
-
     index = atoi(argv[1]);
     filename = NULL;
     if (argc == 3)
         filename = argv[2];
 
+    setLeptDebugOK(1);
     sela = selaAddBasic(NULL);
     if (fmorphautogen(sela, index, filename))
         return 1;

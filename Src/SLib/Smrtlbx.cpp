@@ -646,7 +646,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY: // данная команда практически никогда не вызывается. См. WM_DESTROY в DialogProc.
 			// Из-за этого, если список картинок валиден, то на каждом вызове диалога с таким списком теряется 4 объекта GDI.
 			/*{ // @v6.0.14 AHTOXA
-				HIMAGELIST himl = (HIMAGELIST)SendMessage(GetDlgItem(Parent, Id), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)0);
+				HIMAGELIST himl = (HIMAGELIST)::SendMessage(::GetDlgItem(Parent, Id), (UINT)TVM_SETIMAGELIST, (WPARAM)TVSIL_NORMAL, (LPARAM)0);
 				if(himl) {
 					ImageList_RemoveAll(himl);
 					ImageList_Destroy(himl);
@@ -773,7 +773,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
 								long idx = 0;
-								lptvdi->item.iImage         = -1;
+								lptvdi->item.iImage = -1;
 								lptvdi->item.iSelectedImage = -1;
 								GetImageIdxByID(lptvdi->item.lParam, &idx);
 								if(lptvdi->item.mask & TVIF_IMAGE)
@@ -1387,7 +1387,7 @@ void SmartListBox::Implement_Draw()
 	// Descr: Варианты автоматического расчета ширины колонок 
 	//
 	enum {
-		auotocalccolszNo         = 0, // Нет
+		auotocalccolszNo = 0, // Нет
 		auotocalccolszNominal    = 1, // Пропорционально номинальным значениям ширины (заданным в ресурсе)
 		auotocalccolszContent    = 2, // Пропорционально содержимому колонок
 		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок

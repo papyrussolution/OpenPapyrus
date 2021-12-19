@@ -130,7 +130,7 @@ private:
     /**
   * Maps each region to zero or more single-character partitions.
      */
-    const uint8_t *regionToPartitionsIndex;
+    const uint8 *regionToPartitionsIndex;
     const char **partitionArrays;
 
     /**

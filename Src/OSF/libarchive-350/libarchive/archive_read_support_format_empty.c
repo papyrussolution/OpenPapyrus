@@ -30,10 +30,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_empty.c 1915
 #include "archive_private.h"
 #include "archive_read_private.h"
 
-static int      archive_read_format_empty_bid(struct archive_read *, int);
-static int      archive_read_format_empty_read_data(struct archive_read *,
+static int archive_read_format_empty_bid(struct archive_read *, int);
+static int archive_read_format_empty_read_data(struct archive_read *,
     const void **, size_t *, int64 *);
-static int      archive_read_format_empty_read_header(struct archive_read *,
+static int archive_read_format_empty_read_header(struct archive_read *,
     struct archive_entry *);
 int archive_read_support_format_empty(struct archive * _a)
 {
@@ -69,8 +69,8 @@ static int archive_read_format_empty_bid(struct archive_read * a, int best_bid)
 static int archive_read_format_empty_read_header(struct archive_read * a,
     struct archive_entry * entry)
 {
-	(void)a; /* UNUSED */
-	(void)entry; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(entry);
 
 	a->archive.archive_format = ARCHIVE_FORMAT_EMPTY;
 	a->archive.archive_format_name = "Empty file";
@@ -81,10 +81,10 @@ static int archive_read_format_empty_read_header(struct archive_read * a,
 static int archive_read_format_empty_read_data(struct archive_read * a,
     const void ** buff, size_t * size, int64 * offset)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	(void)buff; /* UNUSED */
 	(void)size; /* UNUSED */
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 
 	return (ARCHIVE_EOF);
 }

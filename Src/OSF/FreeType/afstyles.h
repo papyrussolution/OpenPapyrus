@@ -25,20 +25,20 @@
   /* by a description string.  The next arguments are the    */
   /* corresponding writing system, script, blue stringset, and     */
   /* coverage.                                  */
-  /*                                            */
+  /*                            */
   /* Note that styles using `AF_COVERAGE_DEFAULT' should always    */
   /* come after styles with other coverages.  Also note that */
   /* fallback scripts only use `AF_COVERAGE_DEFAULT' for its */
   /* style.                                     */
-  /*                                            */
+  /*                            */
   /* Example:                                   */
-  /*                                            */
-  /*   STYLE( cyrl_dflt, CYRL_DFLT,             */
-  /*          "Cyrillic default style",         */
-  /*          AF_WRITING_SYSTEM_LATIN,          */
-  /*          AF_SCRIPT_CYRL,                   */
-  /*          AF_BLUE_STRINGSET_CYRL,           */
-  /*          AF_COVERAGE_DEFAULT )             */
+  /*                            */
+  /* STYLE( cyrl_dflt, CYRL_DFLT,             */
+  /* "Cyrillic default style",         */
+  /* AF_WRITING_SYSTEM_LATIN,          */
+  /* AF_SCRIPT_CYRL,                   */
+  /* AF_BLUE_STRINGSET_CYRL,           */
+  /* AF_COVERAGE_DEFAULT )             */
 
 #undef  STYLE_LATIN
 #define STYLE_LATIN( s, S, f, F, ds, df, C ) \

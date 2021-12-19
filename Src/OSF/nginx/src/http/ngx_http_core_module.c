@@ -2795,7 +2795,7 @@ static const char * ngx_http_core_limit_except(ngx_conf_t * cf, const ngx_comman
 {
 	ngx_http_core_loc_conf_t * pclcf = (ngx_http_core_loc_conf_t *)conf;
 	char  * rv;
-	void  * mconf;
+	void * mconf;
 	ngx_str_t * value;
 	ngx_uint_t i;
 	ngx_conf_t save;

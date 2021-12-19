@@ -43,6 +43,10 @@
  *    Note: this program is Unix only; it will not compile under cygwin.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
@@ -65,18 +69,22 @@ static char  mainName[] = "scaleandtile";
 	return ERROR_INT(
 	    "Syntax:  scaleandtile dirin substr depth width ncols fileout",
 	    mainName, 1);
-
     dirin = argv[1];
     substr = argv[2];
     depth = atoi(argv[3]);
     width = atoi(argv[4]);
     ncols = atoi(argv[5]);
     fileout = argv[6];
+    setLeptDebugOK(1);
+
+        /* Avoid division by zero if ncols == 0 and require a positive value. */
+    if (ncols <= 0)
+        return ERROR_INT("Expected a positive value for ncols", mainName, 1);
 
         /* Read the specified images from file */
     if ((pixa = pixaReadFiles(dirin, substr)) == NULL)
 	return ERROR_INT("safiles not made", mainName, 1);
-    fprintf(stderr, "Number of pix: %d\n", pixaGetCount(pixa));
+    lept_stderr("Number of pix: %d\n", pixaGetCount(pixa));
 
     	/* Tile them */
     pixd = pixaDisplayTiledAndScaled(pixa, depth, width, ncols,

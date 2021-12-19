@@ -886,7 +886,7 @@ static int enc_3des(context_t * text,
 
 	/* now construct the full stuff to be ciphered */
 	memcpy(output, input, inputlen);            /* text */
-	memset(output+inputlen, paddinglen, paddinglen);/* pad  */
+	memset(output+inputlen, paddinglen, paddinglen); /* pad  */
 	memcpy(output+inputlen+paddinglen, digest, 10); /* hmac */
 
 	len = inputlen+paddinglen+10;
@@ -1006,7 +1006,7 @@ static int enc_des(context_t * text,
 
 	/* now construct the full stuff to be ciphered */
 	memcpy(output, input, inputlen);            /* text */
-	memset(output+inputlen, paddinglen, paddinglen);/* pad  */
+	memset(output+inputlen, paddinglen, paddinglen); /* pad  */
 	memcpy(output+inputlen+paddinglen, digest, 10); /* hmac */
 
 	len = inputlen + paddinglen + 10;

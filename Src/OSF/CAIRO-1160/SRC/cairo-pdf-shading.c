@@ -130,29 +130,26 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 	y_scale = UINT32_MAX / (shading->decode_array[3] - y_off);
 	p = shading->data;
 	for(i = 0; i < num_patches; i++) {
-		/* edge flag */
+		// edge flag 
 		*p++ = 0;
-		/* 16 points */
+		// 16 points 
 		for(j = 0; j < 16; j++) {
 			int pi = pdf_points_order_i[j];
 			int pj = pdf_points_order_j[j];
 			cairo_point_double_t point = patch[i].points[pi][pj];
-			/* Transform the point as specified in the decode array */
+			// Transform the point as specified in the decode array 
 			point.x -= x_off;
 			point.y -= y_off;
 			point.x *= x_scale;
 			point.y *= y_scale;
-			/* Make sure that rounding errors don't cause wraparounds */
-			point.x = _cairo_restrict_value(point.x, 0, UINT32_MAX);
-			point.y = _cairo_restrict_value(point.y, 0, UINT32_MAX);
+			// Make sure that rounding errors don't cause wraparounds 
+			point.x = sclamp(point.x, 0.0, static_cast<double>(UINT32_MAX));
+			point.y = sclamp(point.y, 0.0, static_cast<double>(UINT32_MAX));
 			p = encode_point(p, &point);
 		}
-		/* 4 colors */
+		// 4 colors 
 		for(j = 0; j < 4; j++) {
-			if(is_alpha)
-				p = encode_alpha(p, &patch[i].colors[j]);
-			else
-				p = encode_color(p, &patch[i].colors[j]);
+			p = is_alpha ? encode_alpha(p, &patch[i].colors[j]) : encode_color(p, &patch[i].colors[j]);
 		}
 	}
 	assert(p == shading->data + shading->data_length);

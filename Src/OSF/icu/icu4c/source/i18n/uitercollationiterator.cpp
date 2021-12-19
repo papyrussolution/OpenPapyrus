@@ -314,7 +314,7 @@ bool FCDUIterCollationIterator::nextSegment(UErrorCode & errorCode) {
 	pos = iter.getIndex(&iter, UITER_CURRENT);
 	// Collect the characters being checked, in case they need to be normalized.
 	UnicodeString s;
-	uint8_t prevCC = 0;
+	uint8 prevCC = 0;
 	for(;;) {
 		// Fetch the next character and its fcd16 value.
 		UChar32 c = uiter_next32(&iter);
@@ -322,7 +322,7 @@ bool FCDUIterCollationIterator::nextSegment(UErrorCode & errorCode) {
 			break;
 		}
 		uint16_t fcd16 = nfcImpl.getFCD16(c);
-		uint8_t leadCC = (uint8_t)(fcd16 >> 8);
+		uint8 leadCC = (uint8)(fcd16 >> 8);
 		if(leadCC == 0 && !s.isEmpty()) {
 			// FCD boundary before this character.
 			uiter_previous32(&iter);
@@ -351,7 +351,7 @@ bool FCDUIterCollationIterator::nextSegment(UErrorCode & errorCode) {
 			pos = 0;
 			return TRUE;
 		}
-		prevCC = (uint8_t)fcd16;
+		prevCC = (uint8)fcd16;
 		if(prevCC == 0) {
 			// FCD boundary after the last character.
 			break;
@@ -404,7 +404,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 	pos = iter.getIndex(&iter, UITER_CURRENT);
 	// Collect the characters being checked, in case they need to be normalized.
 	UnicodeString s;
-	uint8_t nextCC = 0;
+	uint8 nextCC = 0;
 	for(;;) {
 		// Fetch the previous character and its fcd16 value.
 		UChar32 c = uiter_previous32(&iter);
@@ -412,7 +412,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 			break;
 		}
 		uint16_t fcd16 = nfcImpl.getFCD16(c);
-		uint8_t trailCC = (uint8_t)fcd16;
+		uint8 trailCC = (uint8)fcd16;
 		if(trailCC == 0 && !s.isEmpty()) {
 			// FCD boundary after this character.
 			uiter_next32(&iter);
@@ -444,7 +444,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 			pos = normalized.length();
 			return TRUE;
 		}
-		nextCC = (uint8_t)(fcd16 >> 8);
+		nextCC = (uint8)(fcd16 >> 8);
 		if(nextCC == 0) {
 			// FCD boundary before the following character.
 			break;

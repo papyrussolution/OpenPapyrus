@@ -122,7 +122,7 @@ struct hb_sanitize_context_t : hb_dispatch_context_t<hb_sanitize_context_t, bool
 	{
 	}
 	const char * get_name() { return "SANITIZE"; }
-	template <typename T, typename F> bool may_dispatch(const T * obj HB_UNUSED, const F * format)
+	template <typename T, typename F> bool may_dispatch(const T * obj CXX_UNUSED_PARAM, const F * format)
 	{
 		return format->sanitize(this);
 	}

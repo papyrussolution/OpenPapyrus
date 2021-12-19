@@ -37,7 +37,7 @@ CRegExp_Depricated::~CRegExp_Depricated()
 }
 
 int  CRegExp_Depricated::GetLastErr() const { return ErrCode; }
-int  CRegExp_Depricated::IsValid() const { return (ErrCode == 0); }
+bool CRegExp_Depricated::IsValid() const { return (ErrCode == 0); }
 void CRegExp_Depricated::set_invalid() { ZDELETE(P_Program); }
 
 int FASTCALL CRegExp_Depricated::operator == (const CRegExp_Depricated & rxp) const

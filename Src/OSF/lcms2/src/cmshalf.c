@@ -378,7 +378,7 @@ static const cmsUInt32Number Mantissa[2048] = {
 0x387fc000, 0x387fe000
 };
 
-static cmsUInt16Number Offset[64] = {
+static uint16 Offset[64] = {
 0x0000, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400,
 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400,
 0x0400, 0x0400, 0x0400, 0x0400, 0x0400, 0x0400,
@@ -406,7 +406,7 @@ static const cmsUInt32Number Exponent[64] = {
 0x8e000000, 0x8e800000, 0x8f000000, 0xc7800000
 };
 
-static const cmsUInt16Number Base[512] = {
+static const uint16 Base[512] = {
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -461,7 +461,7 @@ static const cmsUInt16Number Base[512] = {
 0xfc00, 0xfc00
 };
 
-static const cmsUInt8Number Shift[512] = {
+static const uint8 Shift[512] = {
 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
@@ -504,10 +504,10 @@ static const cmsUInt8Number Shift[512] = {
 0x18, 0x18, 0x18, 0x18, 0x0d
 };
 
-cmsFloat32Number CMSEXPORT _cmsHalf2Float(cmsUInt16Number h)
+float CMSEXPORT _cmsHalf2Float(uint16 h)
 {
     union {
-        cmsFloat32Number flt;
+        float flt;
         cmsUInt32Number  num;
     } out;
     int n = h >> 10;
@@ -515,10 +515,10 @@ cmsFloat32Number CMSEXPORT _cmsHalf2Float(cmsUInt16Number h)
     return out.flt;
 }
 
-cmsUInt16Number CMSEXPORT _cmsFloat2Half(cmsFloat32Number flt)
+uint16 CMSEXPORT _cmsFloat2Half(float flt)
 {
     union {
-        cmsFloat32Number flt;
+        float flt;
         cmsUInt32Number  num;
     } in;
 
@@ -528,7 +528,7 @@ cmsUInt16Number CMSEXPORT _cmsFloat2Half(cmsFloat32Number flt)
     n = in.num;
     j = (n >> 23) & 0x1ff;
 
-    return (cmsUInt16Number) ((cmsUInt32Number) Base[ j ] + (( n & 0x007fffff) >> Shift[ j ]));
+    return (uint16) ((cmsUInt32Number) Base[ j ] + (( n & 0x007fffff) >> Shift[ j ]));
 }
 
 #endif

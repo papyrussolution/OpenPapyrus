@@ -392,10 +392,10 @@ void GraphInit(GW * lpgw)
 			0, 0, 0, 0, lpgw->hWndGraph, (HMENU)ID_GRAPHSTATUS, lpgw->hInstance, lpgw);
 	if(lpgw->hStatusbar) {
 		RECT rect;
-		/* auto-adjust size */
-		SendMessage(lpgw->hStatusbar, WM_SIZE, (WPARAM)0, (LPARAM)0);
+		// auto-adjust size 
+		::SendMessage(lpgw->hStatusbar, WM_SIZE, (WPARAM)0, (LPARAM)0);
 		ShowWindow(lpgw->hStatusbar, SW_SHOWNOACTIVATE);
-		/* make room */
+		// make room 
 		GetWindowRect(lpgw->hStatusbar, &rect);
 		lpgw->StatusHeight = rect.bottom - rect.top;
 	}
@@ -414,70 +414,59 @@ void GraphInit(GW * lpgw)
 		uint num = 0;
 		UINT dpi = GetDPI();
 		TBADDBITMAP bitmap = {0};
-		SendMessage(lpgw->hToolbar, TB_SETBITMAPSIZE, (WPARAM)0, (dpi > 96) ? MAKELPARAM(24, 24) : MAKELPARAM(16, 16));
+		::SendMessage(lpgw->hToolbar, TB_SETBITMAPSIZE, (WPARAM)0, (dpi > 96) ? MAKELPARAM(24, 24) : MAKELPARAM(16, 16));
 		// load standard toolbar icons: standard, history & view 
-		SendMessage(lpgw->hToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
+		::SendMessage(lpgw->hToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
 		bitmap.hInst = HINST_COMMCTRL;
 		bitmap.nID = (dpi > 96)  ? IDB_STD_LARGE_COLOR : IDB_STD_SMALL_COLOR;
-		SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
+		::SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
 		bitmap.nID = (dpi > 96)  ? IDB_HIST_LARGE_COLOR : IDB_HIST_SMALL_COLOR;
-		SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
+		::SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
 		bitmap.nID = (dpi > 96)  ? IDB_VIEW_LARGE_COLOR : IDB_VIEW_SMALL_COLOR;
-		SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
-
-		/* create buttons */
+		::SendMessage(lpgw->hToolbar, TB_ADDBITMAP, 0, (WPARAM)&bitmap);
+		// create buttons 
 		memzero(&button, sizeof(button));
 		button.fsState = TBSTATE_ENABLED;
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX;
 		button.iString = 0;
-
-		/* copy */
+		// copy 
 		button.iBitmap = STD_COPY;
 		button.idCommand = M_COPY_CLIP;
-		ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
-
-		/* print */
+		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		// print 
 		button.iBitmap = STD_PRINT;
 		button.idCommand = M_PRINT;
-		ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
-
-		/* save as EMF */
+		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		// save as EMF 
 		button.iBitmap = STD_FILESAVE;
 		button.idCommand = M_SAVE_AS_EMF;
-		ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
-
-		/* options */
+		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		// options 
 		button.iBitmap = STD_PROPERTIES;
 		button.idCommand = 0; /* unused */
 		button.iString = (INT_PTR)TEXT("Options");
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX | BTNS_WHOLEDROPDOWN;
-		ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
-
-		/* TODO: Add the following buttons:
-		        replot/refresh, toggle grid(?), previous/next zoom, autoscale, help
-		 */
-
+		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		// TODO: Add the following buttons: replot/refresh, toggle grid(?), previous/next zoom, autoscale, help
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_NOPREFIX | BTNS_SEP;
-		ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
-
-		/* hide grid */
+		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		// hide grid 
 		button.iBitmap = STD_CUT;
 		button.idCommand = M_HIDEGRID;
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX | BTNS_CHECK;
 		button.iString = (INT_PTR)TEXT("Grid");
-		ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
-
-		/* hide graphs */
+		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+		// hide graphs 
 		for(i = 0; i < MAXPLOTSHIDE; i++) {
 			button.iBitmap = STD_CUT;
 			button.idCommand = M_HIDEPLOT + i;
 			wsprintf(buttontext, TEXT("%i"), i + 1);
 			button.iString = (UINT_PTR)buttontext;
 			button.dwData = i;
-			ret = SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
+			ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
 		}
 		// auto-resize and show 
-		SendMessage(lpgw->hToolbar, TB_AUTOSIZE, (WPARAM)0, (LPARAM)0);
+		::SendMessage(lpgw->hToolbar, TB_AUTOSIZE, (WPARAM)0, (LPARAM)0);
 		ShowWindow(lpgw->hToolbar, SW_SHOWNOACTIVATE);
 		// make room 
 		GetWindowRect(lpgw->hToolbar, &rect);
@@ -1099,7 +1088,7 @@ static uint GraphGetTextLength(GW * lpgw, HDC hdc, LPCSTR text, bool escapes)
 }
 #endif
 
-/*   local enhanced text helper functions */
+/* local enhanced text helper functions */
 #ifdef USE_WINGDI
 
 static void EnhancedSetFont()
@@ -2390,7 +2379,10 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 					     */
 					    HDC memdc;
 					    HBITMAP membmp, oldbmp;
-					    int minx, miny, maxx, maxy;
+					    long minx;
+						long miny;
+						long maxx;
+						long maxy;
 					    UINT32 width, height;
 					    BITMAPINFO bmi;
 					    UINT32 * pvBits;
@@ -2871,7 +2863,7 @@ static void CopyPrint(GW * lpgw)
 	HPROPSHEETPAGE hpsp;
 	HDC hdc;
 	uint dpiX, dpiY;
-	/* Print Property Sheet Dialog */
+	// Print Property Sheet Dialog 
 	memzero(&pr, sizeof(pr));
 	GetPlotRect(lpgw, &rect);
 	hdc = GetDC(hwnd);
@@ -2916,11 +2908,8 @@ static void CopyPrint(GW * lpgw)
 	if(pd.dwResultAction != PD_RESULT_PRINT)
 		return;
 	// Print Size Dialog results 
-	if(pr.psize.x < 0) {
-		// apply default values 
-		pr.psize.x = pr.pdef.x;
-		pr.psize.y = pr.pdef.y;
-	}
+	if(pr.psize.x < 0)
+		pr.psize = pr.pdef; // apply default values 
 	// See http://support.microsoft.com/kb/240082 
 	pDevNames = (DEVNAMES*)GlobalLock(pd.hDevNames);
 	pDevMode = (DEVMODE*)GlobalLock(pd.hDevMode);
@@ -2941,7 +2930,7 @@ static void CopyPrint(GW * lpgw)
 		dpiY = GetDeviceCaps(printer, LOGPIXELSY);
 	}
 	rect.left = MulDiv(pr.poff.x * 10, dpiX, 254);
-	rect.top = MulDiv(pr.poff.y * 10, dpiY, 254);
+	rect.top  = MulDiv(pr.poff.y * 10, dpiY, 254);
 	rect.right = rect.left + MulDiv(pr.psize.x * 10, dpiX, 254);
 	rect.bottom = rect.top + MulDiv(pr.psize.y * 10, dpiY, 254);
 	pr.hdcPrn = printer;
@@ -2952,7 +2941,7 @@ static void CopyPrint(GW * lpgw)
 	pr.hDlgPrint = CreateDialogParam(hdllInstance, TEXT("CancelDlgBox"), hwnd, PrintDlgProc, (LPARAM)&pr);
 	SetAbortProc(printer, PrintAbortProc);
 	SetWindowLongPtr(GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), GWL_STYLE, WS_CHILD | WS_VISIBLE | PBS_MARQUEE);
-	SendMessage(GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETMARQUEE, 1, 0);
+	::SendMessage(::GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETMARQUEE, 1, 0);
 #if defined(HAVE_D2D11) && !defined(DCRENDERER)
 	if(lpgw->d2d) {
 		// handle the rest in C++
@@ -3036,9 +3025,9 @@ cleanup:
 	/* make certain that the screen pen set is restored */
 	SendMessage(lpgw->hGraph, WM_COMMAND, M_REBUILDTOOLS, 0L);
 }
-
-/* ================================== */
-/*  INI file stuff */
+//
+// INI file stuff 
+//
 static void WriteGraphIni(GW * lpgw)
 {
 	RECT rect;
@@ -3092,7 +3081,7 @@ static void WriteGraphIni(GW * lpgw)
 	wsprintf(profile, TEXT("%d %d %d"), GetRValue(lpgw->background), GetGValue(lpgw->background), GetBValue(lpgw->background));
 	WritePrivateProfileString(section, TEXT("GraphBackground"), profile, file);
 #ifdef WIN_CUSTOM_PENS
-	/* now save pens */
+	// now save pens 
 	for(i = 0; i < WGNUMPENS + 2; i++) {
 		TCHAR entry[32];
 		LPLOGPEN pc;
@@ -3105,10 +3094,8 @@ static void WriteGraphIni(GW * lpgw)
 			wsprintf(entry, TEXT("Line%d"), i - 1);
 		pc = &lpgw->colorpen[i];
 		pm = &lpgw->monopen[i];
-		wsprintf(profile, TEXT("%d %d %d %d %d"), GetRValue(pc->lopnColor),
-		    GetGValue(pc->lopnColor), GetBValue(pc->lopnColor),
-		    (pc->lopnWidth.x != 1) ? -pc->lopnWidth.x : pc->lopnStyle,
-		    (pm->lopnWidth.x != 1) ? -pm->lopnWidth.x : pm->lopnStyle);
+		wsprintf(profile, TEXT("%d %d %d %d %d"), GetRValue(pc->lopnColor), GetGValue(pc->lopnColor), GetBValue(pc->lopnColor),
+		    (pc->lopnWidth.x != 1) ? -pc->lopnWidth.x : pc->lopnStyle, (pm->lopnWidth.x != 1) ? -pm->lopnWidth.x : pm->lopnStyle);
 		WritePrivateProfileString(section, entry, profile, file);
 	}
 #endif
@@ -3116,10 +3103,7 @@ static void WriteGraphIni(GW * lpgw)
 
 LPTSTR GraphDefaultFont()
 {
-	if(GetACP() == 932)  /* Japanese Shift-JIS */
-		return TEXT(WINJPFONT);
-	else
-		return TEXT(WINFONT);
+	return (GetACP() == 932/* Japanese Shift-JIS */) ? TEXT(WINJPFONT) : TEXT(WINFONT);
 }
 
 static void ReadGraphIni(GW * lpgw)
@@ -3281,7 +3265,7 @@ void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text)
 	lpgw->numtooltips++;
 	if(!lpgw->hTooltip) {
 		TOOLINFO ti;
-		/* Create new tooltip. */
+		// Create new tooltip. 
 		HWND hwnd = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, lpgw->hGraph, NULL, lpgw->hInstance, NULL);
 		lpgw->hTooltip = hwnd;
@@ -3293,9 +3277,9 @@ void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text)
 		ti.uId      = 0;
 		ti.rect     = *rect;
 		ti.lpszText = (LPTSTR)text;
-		SendMessage(hwnd, TTM_ADDTOOLW, 0, (LPARAM)(LPTOOLINFO)&ti);
-		SendMessage(hwnd, TTM_SETDELAYTIME, TTDT_INITIAL, (LPARAM)100);
-		SendMessage(hwnd, TTM_SETDELAYTIME, TTDT_RESHOW, (LPARAM)100);
+		::SendMessage(hwnd, TTM_ADDTOOLW, 0, (LPARAM)(LPTOOLINFO)&ti);
+		::SendMessage(hwnd, TTM_SETDELAYTIME, TTDT_INITIAL, (LPARAM)100);
+		::SendMessage(hwnd, TTM_SETDELAYTIME, TTDT_RESHOW, (LPARAM)100);
 		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 	}
 }
@@ -3567,7 +3551,7 @@ static void Wnd_exec_event(GW * lpgw, LPARAM lparam, char type, int par1)
 			    break;
 		}
 	}
-	if(GPT.P_Term && sstreq(GPT.P_Term->name, "windows") && ((lpgw == _WinM.P_GraphWin) || old)) {
+	if(GPT.P_Term && sstreq(GPT.P_Term->GetName(), "windows") && ((lpgw == _WinM.P_GraphWin) || old)) {
 		GetMousePosViewport(lpgw, &mx, &my);
 		gp_exec_event(type, mx, my, par1, par2, 0);
 		lastTimestamp = thisTimestamp;
@@ -3637,7 +3621,7 @@ LRESULT CALLBACK WndGraphParentProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 					if(lpgw->hStatusbar)
 						SendMessage(lpgw->hStatusbar, WM_SIZE, wParam, lParam);
 					if(lpgw->hToolbar) {
-						SendMessage(lpgw->hToolbar, WM_SIZE, wParam, lParam);
+						::SendMessage(lpgw->hToolbar, WM_SIZE, wParam, lParam);
 						/* make room */
 						GetWindowRect(lpgw->hToolbar, &rect);
 						lpgw->ToolbarHeight = rect.bottom - rect.top;
@@ -3881,7 +3865,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 							(y <= lpgw->keyboxes[i].top) && (y >= lpgw->keyboxes[i].bottom)) {
 							lpgw->hideplot[i] = !lpgw->hideplot[i];
 							if(i < MAXPLOTSHIDE)
-								SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)lpgw->hideplot[i]);
+								::SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)lpgw->hideplot[i]);
 							lpgw->buffervalid = FALSE;
 							GetClientRect(hwnd, &rect);
 							InvalidateRect(hwnd, &rect, 1);
@@ -3993,8 +3977,8 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_KEYDOWN:
 		    if(GetKeyState(VK_CONTROL) < 0 && wParam != VK_CONTROL) {
 			    switch(wParam) {
-				    case 'C': SendMessage(hwnd, WM_COMMAND, M_COPY_CLIP, 0L); break; // Ctrl-C: Copy to Clipboard 
-				    case 'S': SendMessage(hwnd, WM_COMMAND, M_SAVE_AS_EMF, 0L); break; // Ctrl-S: Save As EMF 
+				    case 'C': ::SendMessage(hwnd, WM_COMMAND, M_COPY_CLIP, 0L); break; // Ctrl-C: Copy to Clipboard 
+				    case 'S': ::SendMessage(hwnd, WM_COMMAND, M_SAVE_AS_EMF, 0L); break; // Ctrl-S: Save As EMF 
 				    case VK_END:
 						// use CTRL-END as break key 
 						GPO._Plt.ctrlc_flag = true;
@@ -4054,27 +4038,27 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    switch(LOWORD(wParam)) {
 			    case M_GRAPH_TO_TOP:
 					lpgw->graphtotop = !lpgw->graphtotop;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_COLOR:
 					lpgw->color = !lpgw->color;
 					lpgw->dashed = !lpgw->color;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					WIN_update_options();
 					return 0;
 			    case M_OVERSAMPLE:
 					lpgw->oversample = !lpgw->oversample;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_GDI:
 					lpgw->gdiplus = FALSE;
 					lpgw->d2d = FALSE;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_GDIPLUS:
 					lpgw->gdiplus = TRUE;
 					lpgw->d2d = FALSE;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_D2D:
 					lpgw->d2d = TRUE;
@@ -4087,19 +4071,19 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					}
 #endif
 					// FIXME: Need more initialisation on backend change
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_ANTIALIASING:
 					lpgw->antialiasing = !lpgw->antialiasing;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_POLYAA:
 					lpgw->polyaa = !lpgw->polyaa;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_FASTROTATE:
 					lpgw->fastrotation = !lpgw->fastrotation;
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 			    case M_CHOOSE_FONT:
 					SelFont(lpgw);
@@ -4116,16 +4100,16 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 #ifdef WIN_CUSTOM_PENS
 			    case M_LINESTYLE:
 					if(LineStyle(lpgw))
-						SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+						::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					return 0;
 #endif
 			    case M_BACKGROUND:
 					lpgw->background = GetColor(hwnd, lpgw->background);
-					SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
+					::SendMessage(hwnd, WM_COMMAND, M_REBUILDTOOLS, 0L);
 					WIN_update_options();
 					return 0;
 			    case M_HIDEGRID:
-					lpgw->hidegrid = SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
+					lpgw->hidegrid = ::SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
 					lpgw->buffervalid = FALSE;
 					GetClientRect(hwnd, &rect);
 					InvalidateRect(hwnd, &rect, 1);
@@ -4158,7 +4142,7 @@ LRESULT CALLBACK WndGraphProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    if((LOWORD(wParam) >= M_HIDEPLOT) && (LOWORD(wParam) < (M_HIDEPLOT + MAXPLOTSHIDE))) {
 			    uint button = LOWORD(wParam) - (M_HIDEPLOT);
 			    if(button < lpgw->maxhideplots)
-				    lpgw->hideplot[button] = SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
+				    lpgw->hideplot[button] = ::SendMessage(lpgw->hToolbar, TB_ISBUTTONCHECKED, LOWORD(wParam), (LPARAM)0);
 			    lpgw->buffervalid = FALSE;
 			    GetClientRect(hwnd, &rect);
 			    InvalidateRect(hwnd, &rect, 1);
@@ -4610,22 +4594,22 @@ static void UpdateToolbar(GW * lpgw)
 	uint i;
 	if(lpgw->hToolbar == NULL)
 		return;
-	SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEGRID, (LPARAM) !lpgw->hasgrid);
+	::SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEGRID, (LPARAM) !lpgw->hasgrid);
 	if(!lpgw->hasgrid) {
 		lpgw->hidegrid = FALSE;
-		SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEGRID, (LPARAM)FALSE);
+		::SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEGRID, (LPARAM)FALSE);
 	}
 	for(i = 0; i < MAX(MAXPLOTSHIDE, lpgw->maxhideplots); i++) {
 		if(i < lpgw->numplots) {
 			if(i < MAXPLOTSHIDE)
-				SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEPLOT + i, (LPARAM)FALSE);
+				::SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEPLOT + i, (LPARAM)FALSE);
 		}
 		else {
 			if(i < lpgw->maxhideplots)
 				lpgw->hideplot[i] = FALSE;
 			if(i < MAXPLOTSHIDE) {
-				SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEPLOT + i, (LPARAM)TRUE);
-				SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)FALSE);
+				::SendMessage(lpgw->hToolbar, TB_HIDEBUTTON, M_HIDEPLOT + i, (LPARAM)TRUE);
+				::SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)FALSE);
 			}
 		}
 	}
@@ -4643,19 +4627,19 @@ void GraphModifyPlots(GW * lpgw, uint ops, int plotno)
 			case MODPLOTS_INVERT_VISIBILITIES:
 			    lpgw->hideplot[i] = !lpgw->hideplot[i];
 			    changed = TRUE;
-			    SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)lpgw->hideplot[i]);
+			    ::SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)lpgw->hideplot[i]);
 			    break;
 			case MODPLOTS_SET_VISIBLE:
 			    if(lpgw->hideplot[i] == TRUE) {
 				    changed = TRUE;
-				    SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)FALSE);
+				    ::SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)FALSE);
 			    }
 			    lpgw->hideplot[i] = FALSE;
 			    break;
 			case MODPLOTS_SET_INVISIBLE:
 			    if(lpgw->hideplot[i] == FALSE) {
 				    changed = TRUE;
-				    SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)TRUE);
+				    ::SendMessage(lpgw->hToolbar, TB_CHECKBUTTON, M_HIDEPLOT + i, (LPARAM)TRUE);
 			    }
 			    lpgw->hideplot[i] = TRUE;
 			    break;

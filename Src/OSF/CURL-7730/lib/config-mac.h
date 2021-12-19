@@ -23,9 +23,9 @@
  ***************************************************************************/
 
 /* =================================================================== */
-/*                Hand crafted config file for Mac OS 9                */
+/* Hand crafted config file for Mac OS 9                */
 /* =================================================================== */
-/*  On Mac OS X you must run configure to generate curl_config.h file  */
+/* On Mac OS X you must run configure to generate curl_config.h file  */
 /* =================================================================== */
 
 #define OS "mac"

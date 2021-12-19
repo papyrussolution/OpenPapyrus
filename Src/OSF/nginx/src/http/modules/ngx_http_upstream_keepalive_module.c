@@ -25,7 +25,7 @@ typedef struct {
 typedef struct {
 	ngx_http_upstream_keepalive_srv_conf_t  * conf;
 	ngx_http_upstream_t * upstream;
-	void  * data;
+	void * data;
 	ngx_event_get_peer_pt original_get_peer;
 	ngx_event_free_peer_pt original_free_peer;
 #if (NGX_HTTP_SSL)

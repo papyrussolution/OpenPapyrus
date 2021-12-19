@@ -25,8 +25,8 @@ typedef struct _dbmeta31 {
 	uint32 magic;	/* 12-15: Magic number. */
 	uint32 version;	/* 16-19: Version. */
 	uint32 pagesize;	/* 20-23: Pagesize. */
-	uint8  unused1[1];	/*    24: Unused. */
-	uint8  type;		/*    25: Page type. */
+	uint8  unused1[1];	/* 24: Unused. */
+	uint8  type;		/* 25: Page type. */
 	uint8  unused2[2];	/* 26-27: Unused. */
 	uint32 free;		/* 28-31: Free list page number. */
 	DB_LSN    unused3;	/* 36-39: Unused. */
@@ -114,8 +114,8 @@ typedef struct _dbmeta30 {
 	uint32 magic;	/* 12-15: Magic number. */
 	uint32 version;	/* 16-19: Version. */
 	uint32 pagesize;	/* 20-23: Pagesize. */
-	uint8  unused1[1];	/*    24: Unused. */
-	uint8  type;		/*    25: Page type. */
+	uint8  unused1[1];	/* 24: Unused. */
+	uint8  type;		/* 25: Page type. */
 	uint8  unused2[2];	/* 26-27: Unused. */
 	uint32 free;		/* 28-31: Free list page number. */
 	uint32 flags;	/* 32-35: Flags: unique to each AM. */

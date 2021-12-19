@@ -123,7 +123,7 @@ static cairo_surface_t * _cairo_tee_surface_source(void * abstract_surface,
 
 static cairo_status_t _cairo_tee_surface_acquire_source_image(void * abstract_surface,
     cairo_image_surface_t ** image_out,
-    void  ** image_extra)
+    void ** image_extra)
 {
 	cairo_tee_surface_t * surface = abstract_surface;
 	cairo_surface_wrapper_t * slaves;

@@ -446,7 +446,7 @@ U_CAPI double U_EXPORT2 u_getNumericValue(UChar32 c) {
 
 U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8_t radix) {
 	int8_t value;
-	if((uint8_t)(radix-2)<=(36-2)) {
+	if((uint8)(radix-2)<=(36-2)) {
 		value = (int8_t)u_charDigitValue(ch);
 		if(value<0) {
 			/* ch is not a decimal digit, try latin letters */
@@ -471,7 +471,7 @@ U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8_t radix) {
 }
 
 U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8_t radix) {
-	if((uint8_t)(radix-2)>(36-2) || (uint32_t)digit>=(uint32_t)radix) {
+	if((uint8)(radix-2)>(36-2) || (uint32_t)digit>=(uint32_t)radix) {
 		return 0;
 	}
 	else if(digit<10) {
@@ -521,8 +521,8 @@ U_CFUNC int32_t uprv_getMaxValues(int32_t column) {
 U_CAPI void U_EXPORT2 u_charAge(UChar32 c, UVersionInfo versionArray) {
 	if(versionArray!=NULL) {
 		uint32_t version = u_getUnicodeProperties(c, 0)>>UPROPS_AGE_SHIFT;
-		versionArray[0] = (uint8_t)(version>>4);
-		versionArray[1] = (uint8_t)(version&0xf);
+		versionArray[0] = (uint8)(version>>4);
+		versionArray[1] = (uint8)(version&0xf);
 		versionArray[2] = versionArray[3] = 0;
 	}
 }

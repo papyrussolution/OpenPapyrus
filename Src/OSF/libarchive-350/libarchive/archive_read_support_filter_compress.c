@@ -119,15 +119,15 @@ struct private_data {
 	uchar stack[65300];
 };
 
-static int      compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int      compress_bidder_init(struct archive_read_filter *);
-static int      compress_bidder_free(struct archive_read_filter_bidder *);
+static int compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
+static int compress_bidder_init(struct archive_read_filter *);
+static int compress_bidder_free(struct archive_read_filter_bidder *);
 
 static ssize_t  compress_filter_read(struct archive_read_filter *, const void **);
-static int      compress_filter_close(struct archive_read_filter *);
+static int compress_filter_close(struct archive_read_filter *);
 
-static int      getbits(struct archive_read_filter *, int n);
-static int      next_code(struct archive_read_filter *);
+static int getbits(struct archive_read_filter *, int n);
+static int next_code(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
@@ -157,18 +157,16 @@ int archive_read_support_filter_compress(struct archive * _a)
 	bidder->free = compress_bidder_free;
 	return ARCHIVE_OK;
 }
-
 /*
  * Test whether we can handle this data.
  * This logic returns zero if any part of the signature fails.
  */
-static int compress_bidder_bid(struct archive_read_filter_bidder * self,
-    struct archive_read_filter * filter)
+static int compress_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	/* Shortest valid compress file is 3 bytes. */
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 3, &avail);
 	if(buffer == NULL)
@@ -195,33 +193,25 @@ static int compress_bidder_init(struct archive_read_filter * self)
 	static const size_t out_block_size = 64 * 1024;
 	void * out_block;
 	int code;
-
 	self->code = ARCHIVE_FILTER_COMPRESS;
 	self->name = "compress (.Z)";
-
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
 	out_block = SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		SAlloc::F(out_block);
 		SAlloc::F(state);
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate data for %s decompression",
-		    self->name);
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for %s decompression", self->name);
 		return ARCHIVE_FATAL;
 	}
-
 	self->data = state;
 	state->out_block_size = out_block_size;
 	state->out_block = out_block;
 	self->read = compress_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = compress_filter_close;
-
 	/* XXX MOVE THE FOLLOWING OUT OF INIT() XXX */
-
 	(void)getbits(self, 8); /* Skip first signature byte. */
 	(void)getbits(self, 8); /* Skip second signature byte. */
-
 	/* Get compression parameters. */
 	code = getbits(self, 8);
 	if((code & 0x1f) > 16) {
@@ -256,11 +246,9 @@ static int compress_bidder_init(struct archive_read_filter * self)
  */
 static ssize_t compress_filter_read(struct archive_read_filter * self, const void ** pblock)
 {
-	struct private_data * state;
 	uchar * p, * start, * end;
 	int ret;
-
-	state = (struct private_data *)self->data;
+	struct private_data * state = (struct private_data *)self->data;
 	if(state->end_of_stream) {
 		*pblock = NULL;
 		return 0;
@@ -300,7 +288,6 @@ static int compress_bidder_free(struct archive_read_filter_bidder * self)
 static int compress_filter_close(struct archive_read_filter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
-
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
 	return ARCHIVE_OK;
@@ -405,7 +392,6 @@ static int getbits(struct archive_read_filter * self, int n)
 		0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
 		0x1ff, 0x3ff, 0x7ff, 0xfff, 0x1fff, 0x3fff, 0x7fff, 0xffff
 	};
-
 	while(state->bits_avail < n) {
 		if(state->avail_in <= 0) {
 			if(state->consume_unnotified) {
@@ -425,10 +411,8 @@ static int getbits(struct archive_read_filter * self, int n)
 		state->bits_avail += 8;
 		state->bytes_in_section++;
 	}
-
 	code = state->bit_buffer;
 	state->bit_buffer >>= n;
 	state->bits_avail -= n;
-
 	return (code & mask[n]);
 }

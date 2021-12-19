@@ -64,7 +64,7 @@ PNG_ALLOCATED void * /* PRIVATE */ png_malloc_base(png_const_structrp png_ptr, p
 	 * called with big numbers.
 	 */
 #ifndef PNG_USER_MEM_SUPPORTED
-	PNG_UNUSED(png_ptr)
+	CXX_UNUSED(png_ptr);
 #endif
 	/* Some compilers complain that this is always true.  However, it
 	 * can be false when integer overflow happens.

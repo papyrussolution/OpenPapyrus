@@ -30,14 +30,12 @@
  *   Tests basic functioning of L_Dna (number array of doubles)
  */
 
-#include <math.h>
-#ifndef  _WIN32
-#include <unistd.h>
-#else
-#include <windows.h>   /* for Sleep() */
-#endif  /* _WIN32 */
-#include "allheaders.h"
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
+#include <math.h>
+#include "allheaders.h"
 
 int main(int    argc,
          char **argv)
@@ -49,6 +47,11 @@ L_DNAA       *daa1, *daa2;
 GPLOT        *gplot;
 NUMA         *na, *nahisto, *nax;
 L_REGPARAMS  *rp;
+
+#if !defined(HAVE_LIBPNG)
+    L_ERROR("This test requires libpng to run.\n", "dna_reg");
+    exit(77);
+#endif
 
     if (regTestSetup(argc, argv, &rp))
         return 1;
@@ -95,11 +98,6 @@ L_REGPARAMS  *rp;
                         "Histo example", "i", "histo[i]");
     gplotAddPlot(gplot, nax, nahisto, GPLOT_LINES, "sine");
     gplotMakeOutput(gplot);
-#ifndef  _WIN32
-    sleep(1);
-#else
-    Sleep(1000);
-#endif  /* _WIN32 */
     regTestCheckFile(rp, "/tmp/lept/regout/historoot.png");  /* 7 */
     gplotDestroy(&gplot);
     numaDestroy(&na);

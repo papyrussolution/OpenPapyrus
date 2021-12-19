@@ -1487,7 +1487,7 @@ FT_EXPORT_DEF(FT_Error) FT_Stroker_BeginSubPath(FT_Stroker stroker, FT_Vector*  
 	/* We cannot process the first point, because there is not enough      */
 	/* information regarding its corner/cap.  The latter will be processed */
 	/* in the `FT_Stroker_EndSubPath' routine.          */
-	/*                                                  */
+	/*                                  */
 	stroker->first_point  = TRUE;
 	stroker->center  = *to;
 	stroker->subpath_open = open;

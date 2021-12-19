@@ -673,7 +673,7 @@ static void ps_fetch_int16(MYSQL_BIND * r_param, const MYSQL_FIELD * const field
 static void ps_fetch_int32(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
-/*    case MYSQL_TYPE_TINY:
+/* case MYSQL_TYPE_TINY:
       ps_fetch_from_1_to_8_bytes(r_param, field, row, 1);
       break;
     case MYSQL_TYPE_YEAR:
@@ -701,7 +701,7 @@ static void ps_fetch_int32(MYSQL_BIND * r_param, const MYSQL_FIELD * const field
 static void ps_fetch_int64(MYSQL_BIND * r_param, const MYSQL_FIELD * const field, uchar ** row)
 {
 	switch(r_param->buffer_type) {
-/*    case MYSQL_TYPE_TINY:
+/* case MYSQL_TYPE_TINY:
       ps_fetch_from_1_to_8_bytes(r_param, field, row, 1);
       break;
     case MYSQL_TYPE_YEAR:
@@ -881,7 +881,7 @@ static void convert_from_double(MYSQL_BIND * r_param, const MYSQL_FIELD * field,
 	    {
 		    float fval = (float)val;
 		    memcpy(buf, &fval, sizeof(float));
-		    *r_param->error = (*(float*)buf != fval);
+		    *r_param->error = (*(float *)buf != fval);
 		    r_param->buffer_length = 4;
 	    }
 	    break;
@@ -941,7 +941,7 @@ static void ps_fetch_float(MYSQL_BIND * r_param, const MYSQL_FIELD * field, ucha
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_FLOAT:
 	    {
-		    float * value = (float*)r_param->buffer;
+		    float * value = (float *)r_param->buffer;
 		    float4get(*value, *row);
 		    r_param->buffer_length = 4;
 		    *r_param->error = 0;

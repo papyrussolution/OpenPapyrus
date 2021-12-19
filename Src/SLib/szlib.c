@@ -3704,7 +3704,7 @@ static void FASTCALL fixedtables(struct inflate_state * state)
    inflateBack() can also return Z_STREAM_ERROR if the input parameters
    are not correct, i.e. strm is Z_NULL or the state was not initialized.
  */
-int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func out, void  * out_desc)
+int ZEXPORT inflateBack(z_streamp strm, in_func in, void * in_desc, out_func out, void * out_desc)
 {
 	struct inflate_state * state;
 	const uchar * next; /* next input */
@@ -4133,13 +4133,13 @@ typedef struct config_s {
 
 #ifdef FASTEST
 static const config configuration_table[2] = {
-/*      good lazy nice chain */
+/* good lazy nice chain */
 /* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
 /* 1 */ {4,    4,  8,    4, deflate_fast}
 };                                          /* max speed, no lazy matches */
 #else
 static const config configuration_table[10] = {
-/*      good lazy nice chain */
+/* good lazy nice chain */
 /* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
 /* 1 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
 /* 2 */ {4,    5, 16,    8, deflate_fast},
@@ -6327,10 +6327,10 @@ static void pqdownheap(deflate_state * s, ct_data * tree, int k)
 static void gen_bitlen(deflate_state * s, tree_desc * desc)
 {
 	ct_data * tree        = desc->dyn_tree;
-	int max_code         = desc->max_code;
+	int max_code = desc->max_code;
 	const ct_data * stree = desc->stat_desc->static_tree;
 	const intf * extra    = desc->stat_desc->extra_bits;
-	int base             = desc->stat_desc->extra_base;
+	int base     = desc->stat_desc->extra_base;
 	int max_length       = desc->stat_desc->max_length;
 	int h; /* heap index */
 	int n, m; /* iterate over the tree elements */
@@ -6440,9 +6440,9 @@ static void gen_codes(ct_data * tree, int max_code, ushort * bl_count)
 // 
 static void build_tree(deflate_state * s, tree_desc * desc)
 {
-	ct_data * tree         = desc->dyn_tree;
+	ct_data * tree = desc->dyn_tree;
 	const ct_data * stree  = desc->stat_desc->static_tree;
-	int elems             = desc->stat_desc->elems;
+	int elems     = desc->stat_desc->elems;
 	int n, m; /* iterate over heap elements */
 	int max_code = -1; /* largest code with non zero frequency */
 	int node; /* new node being created */

@@ -30,6 +30,10 @@
  *    Test on 8 bpp grayscale (e.g., w91frag.jpg)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 static const l_int32   BIN_SIZE = 1;
@@ -47,10 +51,10 @@ static char  mainName[] = "numaranktest";
 
     if (argc != 3)
         return ERROR_INT(" Syntax:  numaranktest filein sampling", mainName, 1);
-
     filein = argv[1];
     sampling = atoi(argv[2]);
 
+    setLeptDebugOK(1);
     lept_mkdir("lept/numa");
 
     if ((pix = pixRead(filein)) == NULL)
@@ -74,7 +78,7 @@ static char  mainName[] = "numaranktest";
         numaAddNumber(nar, rank);
     }
     gplotSimple1(nar, GPLOT_PNG, "/tmp/lept/numa/rank", "rank vs val");
-    l_fileDisplay("/tmp/lept/numa/rank.png", 0, 0);
+    l_fileDisplay("/tmp/lept/numa/rank.png", 0, 0, 1.0);
 
     nav = numaCreate(0);
     for (rank = 0.0; rank <= 1.0; rank += 0.01) {
@@ -82,7 +86,7 @@ static char  mainName[] = "numaranktest";
         numaAddNumber(nav, rval);
     }
     gplotSimple1(nav, GPLOT_PNG, "/tmp/lept/numa/val", "val vs rank");
-    l_fileDisplay("/tmp/lept/numa/val.png", 750, 0);
+    l_fileDisplay("/tmp/lept/numa/val.png", 750, 0, 1.0);
 
     pixDestroy(&pix);
     numaDestroy(&na);

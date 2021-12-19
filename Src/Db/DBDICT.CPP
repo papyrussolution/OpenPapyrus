@@ -43,10 +43,7 @@ DbDictionary::~DbDictionary()
 {
 }
 
-int DbDictionary::IsValid() const
-{
-	return BIN(!(State & stError));
-}
+bool DbDictionary::IsValid() const { return !(State & stError); }
 
 /*static*/void DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options))
 {

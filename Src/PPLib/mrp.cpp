@@ -115,7 +115,7 @@ int MrpTabCore::Update(PPID id, const MrpTabTbl::Rec * pRec, int use_ta)
 		rec.LinkObjType = pRec->LinkObjType;
 		rec.LinkObjID   = pRec->LinkObjID;
 		rec.LocID       = pRec->LocID;
-		rec.Dt          = pRec->Dt;
+		rec.Dt  = pRec->Dt;
 		THROW_DB(updateRecBuf(&rec));
 		THROW(tra.Commit());
 	}
@@ -1606,7 +1606,7 @@ int PPObjMrpTab::CreateByBill(PPID * pID, const char * pName, PPID billID, int u
 	rec.LinkObjType = PPOBJ_BILL;
 	rec.LinkObjID   = billID;
 	rec.LocID       = bill_rec.LocID;
-	rec.Dt          = bill_rec.Dt;
+	rec.Dt  = bill_rec.Dt;
 	THROW(P_Tbl->Create(pID, &rec, use_ta));
 	CATCHZOK
 	return ok;
@@ -1627,7 +1627,7 @@ int PPObjMrpTab::CreateByDraftWrOff(PPID * pID, const char * pName, PPID dwoID, 
 		rec.LinkObjType = PPOBJ_DRAFTWROFF;
 		rec.LinkObjID   = dwoID;
 		rec.LocID       = locID;
-		rec.Dt          = dt;
+		rec.Dt  = dt;
 		if(P_Tbl->SearchByLink(rec.LinkObjType, rec.LinkObjID, rec.LocID, rec.Dt, &same_rec) > 0)
 			THROW(P_Tbl->Remove(same_rec.ID, 0));
 		THROW(P_Tbl->Create(pID, &rec, 0));

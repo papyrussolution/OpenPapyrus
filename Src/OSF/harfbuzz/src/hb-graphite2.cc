@@ -153,12 +153,12 @@ gr_face * hb_graphite2_face_get_gr_face(hb_face_t * face)
 
 struct hb_graphite2_font_data_t {};
 
-hb_graphite2_font_data_t * _hb_graphite2_shaper_font_data_create(hb_font_t * font HB_UNUSED)
+hb_graphite2_font_data_t * _hb_graphite2_shaper_font_data_create(hb_font_t * font CXX_UNUSED_PARAM)
 {
 	return (hb_graphite2_font_data_t*)HB_SHAPER_DATA_SUCCEEDED;
 }
 
-void _hb_graphite2_shaper_font_data_destroy(hb_graphite2_font_data_t * data HB_UNUSED)
+void _hb_graphite2_shaper_font_data_destroy(hb_graphite2_font_data_t * data CXX_UNUSED_PARAM)
 {
 }
 
@@ -169,7 +169,7 @@ void _hb_graphite2_shaper_font_data_destroy(hb_graphite2_font_data_t * data HB_U
  * Since: 0.9.10
  * Deprecated: 1.4.2
  */
-gr_font * hb_graphite2_font_get_gr_font(hb_font_t * font HB_UNUSED)
+gr_font * hb_graphite2_font_get_gr_font(hb_font_t * font CXX_UNUSED_PARAM)
 {
 	return nullptr;
 }
@@ -189,7 +189,7 @@ struct hb_graphite2_cluster_t {
 	uint advance;
 };
 
-hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
+hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,

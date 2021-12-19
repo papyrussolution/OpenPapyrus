@@ -67,7 +67,7 @@ public:
 class CharsetRecog_UTF_32 : public CharsetRecog_Unicode
 {
 protected:
-    virtual int32_t getChar(const uint8_t *input, int32_t index) const = 0;
+    virtual int32_t getChar(const uint8 *input, int32_t index) const = 0;
 public:
 
     virtual ~CharsetRecog_UTF_32();
@@ -81,7 +81,7 @@ public:
 class CharsetRecog_UTF_32_BE : public CharsetRecog_UTF_32
 {
 protected:
-    int32_t getChar(const uint8_t *input, int32_t index) const override;
+    int32_t getChar(const uint8 *input, int32_t index) const override;
 
 public:
 
@@ -94,7 +94,7 @@ public:
 class CharsetRecog_UTF_32_LE : public CharsetRecog_UTF_32
 {
 protected:
-    int32_t getChar(const uint8_t *input, int32_t index) const override;
+    int32_t getChar(const uint8 *input, int32_t index) const override;
 
 public:
     virtual ~CharsetRecog_UTF_32_LE();

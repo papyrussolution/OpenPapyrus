@@ -9,7 +9,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -21,32 +21,32 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void LUA_init(GpTermEntry * pThis);
-TERM_PUBLIC void LUA_reset(GpTermEntry * pThis);
-TERM_PUBLIC void LUA_text(GpTermEntry * pThis);
+TERM_PUBLIC void LUA_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void LUA_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void LUA_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void LUA_text(GpTermEntry_Static * pThis);
 // scale 
-TERM_PUBLIC void LUA_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void LUA_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy);
-TERM_PUBLIC void LUA_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void LUA_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int  LUA_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC int  LUA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int  LUA_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void LUA_pointsize(GpTermEntry * pThis, double ptsize);
-TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width);
-TERM_PUBLIC int  LUA_make_palette(GpTermEntry * pThis, t_sm_palette *);
-TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis);
-TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec *);
-TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
-TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
-TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int p);
-TERM_PUBLIC void LUA_boxed_text(GpTermEntry * pThis, uint, uint, int);
+TERM_PUBLIC void LUA_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void LUA_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void LUA_vector(GpTermEntry_Static * pThis, uint ux, uint uy);
+TERM_PUBLIC void LUA_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void LUA_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void LUA_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC int  LUA_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC int  LUA_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC void LUA_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void LUA_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC int  LUA_set_font(GpTermEntry_Static * pThis, const char * font);
+TERM_PUBLIC void LUA_pointsize(GpTermEntry_Static * pThis, double ptsize);
+TERM_PUBLIC void LUA_boxfill(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void LUA_linewidth(GpTermEntry_Static * pThis, double width);
+TERM_PUBLIC int  LUA_make_palette(GpTermEntry_Static * pThis, t_sm_palette *);
+TERM_PUBLIC void LUA_previous_palette(GpTermEntry_Static * pThis);
+TERM_PUBLIC void LUA_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
+TERM_PUBLIC void LUA_filled_polygon(GpTermEntry_Static * pThis, int, gpiPoint *);
+TERM_PUBLIC void LUA_image(GpTermEntry_Static * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
+TERM_PUBLIC void LUA_path(GpTermEntry_Static * pThis, int p);
+TERM_PUBLIC void LUA_boxed_text(GpTermEntry_Static * pThis, uint, uint, int);
 
 // defaults 
 #define LUA_XMAX 10000.0
@@ -438,10 +438,10 @@ static void LUA_get_term_vars(GpTermEntry * pTerm)
 	pTerm->MaxY = static_cast<uint>((lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_YMAX);
 	lua_pop(P_LuaS, 1);
 	lua_getfield(P_LuaS, luaterm, "ChrV");
-	pTerm->ChrV = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_VCHAR;
+	pTerm->CV() = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_VCHAR;
 	lua_pop(P_LuaS, 1);
 	lua_getfield(P_LuaS, luaterm, "ChrH");
-	pTerm->ChrH = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_HCHAR;
+	pTerm->CH() = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_HCHAR;
 	lua_pop(P_LuaS, 1);
 	lua_getfield(P_LuaS, luaterm, "TicV");
 	pTerm->TicV = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_VTIC;
@@ -513,7 +513,7 @@ static void LUA_set_term_vars(void)
 #endif
 }
 
-static int LUA_init_luaterm_function(GpTermEntry * pThis, const char * fnc) 
+static int LUA_init_luaterm_function(GpTermEntry_Static * pThis, const char * fnc) 
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(!P_LuaS)
@@ -594,7 +594,7 @@ static int LUA_init_lua(void)
 	SAlloc::F(script_fqn);
 	/* remember script "function" */
 	sf = lua_gettop(P_LuaS);
-	/*  lua_settop(P_LuaS, 0);*/ /* clear stack */
+	/* lua_settop(P_LuaS, 0);*/ /* clear stack */
 #if LUA_VERSION_NUM > 501
 	LUA_getfield_global(P_LuaS, "debug");
 #else
@@ -675,7 +675,7 @@ static const char* LUA_get_fillstyle(int style)
 /*
  * Handle options
  */
-TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void LUA_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char * opt_str = NULL;
 	char * s;
@@ -691,7 +691,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			}
 			need_init = 0;
 		}
-		/*  else should always be lua, so just count up ... */
+		/* else should always be lua, so just count up ... */
 		pGp->Pgm.Shift();
 	}
 	opt_str = pGp->Pgm.P_InputLine + pGp->Pgm.GetCurTokenStartIndex();
@@ -756,7 +756,7 @@ TERM_PUBLIC void LUA_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void LUA_init(GpTermEntry * pThis)
+TERM_PUBLIC void LUA_init(GpTermEntry_Static * pThis)
 {
 	if(GPT.P_GpOutFile != stdout) {
 		fseek(GPT.P_GpOutFile, 0, SEEK_SET);
@@ -773,7 +773,7 @@ TERM_PUBLIC void LUA_init(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void LUA_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void LUA_graphics(GpTermEntry_Static * pThis)
 {
 	if(LUA_init_luaterm_function(pThis, "graphics")) {
 		LUA_call_report(lua_pcall(P_LuaS, 0, 1, tb));
@@ -782,7 +782,7 @@ TERM_PUBLIC void LUA_graphics(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void LUA_text(GpTermEntry * pThis)
+TERM_PUBLIC void LUA_text(GpTermEntry_Static * pThis)
 {
 	if(LUA_init_luaterm_function(pThis, "text")) {
 		LUA_call_report(lua_pcall(P_LuaS, 0, 1, tb));
@@ -791,7 +791,7 @@ TERM_PUBLIC void LUA_text(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void LUA_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void LUA_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(LUA_init_luaterm_function(pThis, "linetype")) {
 		lua_pushinteger(P_LuaS, linetype);
@@ -801,7 +801,7 @@ TERM_PUBLIC void LUA_linetype(GpTermEntry * pThis, int linetype)
 	}
 }
 
-TERM_PUBLIC void LUA_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void LUA_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type)
 {
 	int i = 0;
 	if(LUA_init_luaterm_function(pThis, "dashtype")) {
@@ -824,7 +824,7 @@ TERM_PUBLIC void LUA_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom
 	}
 }
 
-TERM_PUBLIC void LUA_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void LUA_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(LUA_init_luaterm_function(pThis, "move")) {
 		lua_pushinteger(P_LuaS, (int)x);
@@ -835,7 +835,7 @@ TERM_PUBLIC void LUA_move(GpTermEntry * pThis, uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void LUA_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	lua_term_result = 0;
 	if(LUA_init_luaterm_function(pThis, "point")) {
@@ -850,7 +850,7 @@ TERM_PUBLIC void LUA_point(GpTermEntry * pThis, uint x, uint y, int number)
 		GnuPlot::DoPoint(pThis, x, y, number);
 }
 
-TERM_PUBLIC void LUA_pointsize(GpTermEntry * pThis, double ptsize)
+TERM_PUBLIC void LUA_pointsize(GpTermEntry_Static * pThis, double ptsize)
 {
 	if(LUA_init_luaterm_function(pThis, "pointsize")) {
 		lua_pushnumber(P_LuaS, ptsize);
@@ -860,7 +860,7 @@ TERM_PUBLIC void LUA_pointsize(GpTermEntry * pThis, double ptsize)
 	}
 }
 
-TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy)
+TERM_PUBLIC void LUA_vector(GpTermEntry_Static * pThis, uint ux, uint uy)
 {
 	if(LUA_init_luaterm_function(pThis, "vector")) {
 		lua_pushinteger(P_LuaS, (int)ux);
@@ -871,7 +871,7 @@ TERM_PUBLIC void LUA_vector(GpTermEntry * pThis, uint ux, uint uy)
 	}
 }
 
-TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void LUA_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	// if the script does not provide an `arrow' functions
 	// or if it returns `0' we fall back to `do_arrow'
@@ -898,7 +898,7 @@ TERM_PUBLIC void LUA_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint 
 		GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
 }
 
-TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
+TERM_PUBLIC void LUA_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[])
 {
 	if(LUA_init_luaterm_function(pThis, "put_text")) {
 		lua_pushinteger(P_LuaS, (int)x);
@@ -910,7 +910,7 @@ TERM_PUBLIC void LUA_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	}
 }
 
-TERM_PUBLIC int LUA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int LUA_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	if(LUA_init_luaterm_function(pThis, "justify_text")) {
 		const char * m;
@@ -929,7 +929,7 @@ TERM_PUBLIC int LUA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 	return(FALSE);
 }
 
-TERM_PUBLIC int LUA_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int LUA_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	if(LUA_init_luaterm_function(pThis, "text_angle")) {
 		lua_pushinteger(P_LuaS, ang);
@@ -941,7 +941,7 @@ TERM_PUBLIC int LUA_text_angle(GpTermEntry * pThis, int ang)
 	return((ang ? FALSE : TRUE)); /* return TRUE if called with ang==0 */
 }
 
-TERM_PUBLIC int LUA_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int LUA_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	if(LUA_init_luaterm_function(pThis, "set_font")) {
 		lua_pushstring(P_LuaS, font);
@@ -950,10 +950,10 @@ TERM_PUBLIC int LUA_set_font(GpTermEntry * pThis, const char * font)
 		lua_pop(P_LuaS, 1);
 		if(lua_term_result) {
 			lua_getfield(P_LuaS, luaterm, "ChrV");
-			pThis->ChrV = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_VCHAR;
+			pThis->CV() = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_VCHAR;
 			lua_pop(P_LuaS, 1);
 			lua_getfield(P_LuaS, luaterm, "ChrH");
-			pThis->ChrH = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_HCHAR;
+			pThis->CH() = (lua_isnumber(P_LuaS, -1)) ? (uint)lua_tonumber(P_LuaS, -1) : LUA_HCHAR;
 			lua_pop(P_LuaS, 1);
 			return TRUE;
 		}
@@ -961,7 +961,7 @@ TERM_PUBLIC int LUA_set_font(GpTermEntry * pThis, const char * font)
 	return(FALSE);
 }
 
-TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void LUA_boxfill(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	if(LUA_init_luaterm_function(pThis, "boxfill")) {
 		lua_pushstring(P_LuaS, LUA_get_fillstyle(style));
@@ -976,7 +976,7 @@ TERM_PUBLIC void LUA_boxfill(GpTermEntry * pThis, int style, uint x1, uint y1, u
 	}
 }
 
-TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width)
+TERM_PUBLIC void LUA_linewidth(GpTermEntry_Static * pThis, double width)
 {
 	if(LUA_init_luaterm_function(pThis, "linewidth")) {
 		lua_pushnumber(P_LuaS, width);
@@ -986,7 +986,7 @@ TERM_PUBLIC void LUA_linewidth(GpTermEntry * pThis, double width)
 	}
 }
 
-TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis)
+TERM_PUBLIC void LUA_previous_palette(GpTermEntry_Static * pThis)
 {
 	if(LUA_init_luaterm_function(pThis, "previous_palette")) {
 		LUA_call_report(lua_pcall(P_LuaS, 0, 1, tb));
@@ -995,7 +995,7 @@ TERM_PUBLIC void LUA_previous_palette(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void LUA_reset(GpTermEntry * pThis)
+TERM_PUBLIC void LUA_reset(GpTermEntry_Static * pThis)
 {
 	if(LUA_init_luaterm_function(pThis, "reset")) {
 		LUA_call_report(lua_pcall(P_LuaS, 0, 1, tb));
@@ -1004,7 +1004,7 @@ TERM_PUBLIC void LUA_reset(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC int LUA_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int LUA_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	if(LUA_init_luaterm_function(pThis, "make_palette")) {
 		LUA_call_report(lua_pcall(P_LuaS, 0, 1, tb));
@@ -1015,7 +1015,7 @@ TERM_PUBLIC int LUA_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	return 0; // continuous number of colours 
 }
 
-TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void LUA_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
@@ -1049,7 +1049,7 @@ TERM_PUBLIC void LUA_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	}
 }
 
-TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void LUA_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	if(LUA_init_luaterm_function(pThis, "filled_polygon")) {
 		int i;
@@ -1071,7 +1071,7 @@ TERM_PUBLIC void LUA_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 	}
 }
 
-TERM_PUBLIC void LUA_layer(GpTermEntry * pThis, t_termlayer syncpoint)
+TERM_PUBLIC void LUA_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	if(LUA_init_luaterm_function(pThis, "layer")) {
 		const char * m;
@@ -1093,7 +1093,7 @@ TERM_PUBLIC void LUA_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	}
 }
 
-TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int path)
+TERM_PUBLIC void LUA_path(GpTermEntry_Static * pThis, int path)
 {
 	if(LUA_init_luaterm_function(pThis, "path")) {
 		lua_pushinteger(P_LuaS, path);
@@ -1106,7 +1106,7 @@ TERM_PUBLIC void LUA_path(GpTermEntry * pThis, int path)
 // Lua table structure for the image pixel:
 // pixel = {{r, g, b, [, a]}, {r, g, b [, a]}, ... , {r, g, b [, a]}}
 // 
-TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image, const gpiPoint * corner, t_imagecolor color_mode) 
+TERM_PUBLIC void LUA_image(GpTermEntry_Static * pThis, uint m, uint n, coordval * image, const gpiPoint * corner, t_imagecolor color_mode) 
 {
 	if(LUA_init_luaterm_function(pThis, "image")) {
 		int i;
@@ -1181,7 +1181,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry * pThis, uint m, uint n, coordval * image
 	}
 }
 
-TERM_PUBLIC void LUA_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
+TERM_PUBLIC void LUA_boxed_text(GpTermEntry_Static * pThis, uint x, uint y, int option)
 {
 	const char * option_str = "UNKNOWN";
 	switch(option) {

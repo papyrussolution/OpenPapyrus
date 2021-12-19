@@ -35,7 +35,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -45,11 +45,11 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void HP500C_options();
-TERM_PUBLIC void HP500C_init(GpTermEntry * pThis);
-TERM_PUBLIC void HP500C_reset(GpTermEntry * pThis);
-TERM_PUBLIC void HP500C_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void HP500C_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void HP500C_text(GpTermEntry * pThis);
+TERM_PUBLIC void HP500C_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HP500C_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HP500C_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void HP500C_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HP500C_text(GpTermEntry_Static * pThis);
 /* default values for term_tbl */
 #define HP500C_75PPI_XMAX (1920/4)
 #define HP500C_75PPI_YMAX (1920/4)
@@ -99,7 +99,7 @@ static uint b_300ppi_pattern[] =
 };
 #endif
 
-TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void HP500C_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char opt[6];
 #define HPDJCERROR "expecting dots per inch size 75, 100, 150 or 300 and/or compression method"
@@ -132,82 +132,65 @@ TERM_PUBLIC void HP500C_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 		pGp->Pgm.Shift();
 	}
-	pThis->MaxX = Get_HP500C_XMAX(pGp);
-	pThis->MaxY = Get_HP500C_YMAX(pGp);
+	pThis->SetMax(Get_HP500C_XMAX(pGp), Get_HP500C_YMAX(pGp));
 	switch(hpdj_dpp) {
 		case 1:
 		    GPT._TermOptions = "300";
-		    pThis->TicV = 15;
-		    pThis->TicH = 15;
+		    pThis->SetTic(15, 15);
 		    break;
 		case 2:
 		    GPT._TermOptions = "150";
-		    pThis->TicV = 8;
-		    pThis->TicH = 8;
+		    pThis->SetTic(8, 8);
 		    break;
 		case 3:
 		    GPT._TermOptions = "100";
-		    pThis->TicV = 6;
-		    pThis->TicH = 6;
+		    pThis->SetTic(6, 6);
 		    break;
 		case 4:
 		    GPT._TermOptions = "75";
-		    pThis->TicV = 5;
-		    pThis->TicH = 5;
+		    pThis->SetTic(5, 5);
 		    break;
 	}
 	switch(HP_COMP_MODE) {
-		case 0:
-		    GPT._TermOptions.Cat(" no comp");
-		    break;
-		case 1:
-		    GPT._TermOptions.Cat(" RLE");
-		    break;
-		case 2:
-		    GPT._TermOptions.Cat(" TIFF");
-		    break;
-		case 3:         /* not implemented yet */
-		    GPT._TermOptions.Cat(" Delta Row");
-		    break;
+		case 0: GPT._TermOptions.Cat(" no comp"); break;
+		case 1: GPT._TermOptions.Cat(" RLE"); break;
+		case 2: GPT._TermOptions.Cat(" TIFF"); break;
+		case 3: GPT._TermOptions.Cat(" Delta Row"); break; /* not implemented yet */
 	}
 }
 
-TERM_PUBLIC void HP500C_init(GpTermEntry * pThis)
+TERM_PUBLIC void HP500C_init(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// HBB 980226: all changes to pThis-> fields *must* happen here, not in graphics() !
 	switch(hpdj_dpp) {
 		case 1:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 		case 2:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 		case 3:
 		    p_gp->BmpCharSize(FNT9X17);
-		    pThis->ChrV = FNT9X17_VCHAR;
-		    pThis->ChrH = FNT9X17_HCHAR;
+		    pThis->SetCharSize(FNT9X17_HCHAR, FNT9X17_VCHAR);
 		    break;
 		case 4:
 		    p_gp->BmpCharSize(FNT5X9);
-		    pThis->ChrV = FNT5X9_VCHAR;
-		    pThis->ChrH = FNT5X9_HCHAR;
+		    pThis->SetCharSize(FNT5X9_HCHAR, FNT5X9_VCHAR);
 		    break;
 	}
 }
 
-TERM_PUBLIC void HP500C_reset(GpTermEntry * pThis)
+TERM_PUBLIC void HP500C_reset(GpTermEntry_Static * pThis)
 {
 	fflush_binary(); /* Only needed for VMS */
 }
 //
 // HP DeskJet 500c routines 
 //
-TERM_PUBLIC void HP500C_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void HP500C_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(linetype < 0)
 		linetype = 7;
@@ -234,7 +217,7 @@ TERM_PUBLIC void HP500C_linetype(GpTermEntry * pThis, int linetype)
 	}
 #endif
 
-TERM_PUBLIC void HP500C_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void HP500C_graphics(GpTermEntry_Static * pThis)
 {
 	// HBB 980226: moved block of code from here to init() 
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
@@ -317,7 +300,7 @@ static int HP_nocompress(uchar * op, uchar * oe, uchar * cp)
 // 0 compression raster bitmap dump. Compatible with HP DeskJet 500
 // hopefully compatible with other HP Deskjet printers 
 //
-TERM_PUBLIC void HP500C_text(GpTermEntry * pThis)
+TERM_PUBLIC void HP500C_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row, count = 0;

@@ -30,7 +30,7 @@ bool CharsetRecog_UTF8::match(InputText* input, CharsetMatch * results) const
 	bool hasBOM = FALSE;
 	int32_t numValid = 0;
 	int32_t numInvalid = 0;
-	const uint8_t * inputBytes = input->fRawInput;
+	const uint8 * inputBytes = input->fRawInput;
 	int32_t i;
 	int32_t trailBytes = 0;
 	int32_t confidence;

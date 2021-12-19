@@ -59,7 +59,7 @@ register_term(hp2623a)
 #ifdef TERM_PROTO
 TERM_PUBLIC void HP26_vector(uint x, uint y);
 TERM_PUBLIC void HP26_move(uint x, uint y);
-TERM_PUBLIC void HP26_init(GpTermEntry * pThis);
+TERM_PUBLIC void HP26_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void HP26_graphics();
 TERM_PUBLIC void HP26_text();
 TERM_PUBLIC void HP26_reset();
@@ -379,7 +379,7 @@ TERM_PUBLIC void HP26_move(uint x, uint y)
 	return;
 }
 
-TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
+TERM_PUBLIC void HP26_init(GpTermEntry_Static * pThis)
 {
 	HP26_gnu_map[-2 + 2] = BN_create(0, 2048, DOTS); /* border */
 	HP26_gnu_map[-1 + 2] = HP26_gnu_map[-2 + 2]; /* axes */
@@ -397,7 +397,7 @@ TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
 	HP26_linetype_current = 0; /* set to force a linetype change */
 	HP26_angle = 1; /* left to right, default */
 	fputs("\033*mp1m2a2Q", GPT.P_GpOutFile);
-	/*           1 2 3 4
+	/* 1 2 3 4
 	   1.  make text upright
 	   2.  select text size 1
 	   3.  make SET the default drawing op
@@ -408,7 +408,7 @@ TERM_PUBLIC void HP26_init(GpTermEntry * pThis)
 TERM_PUBLIC void HP26_graphics()
 {
 	fputs("\033*daflsC", GPT.P_GpOutFile);
-	/*           12345
+	/* 12345
 	   1.  clear graphics display
 	   2.  shut off the alphanumeric display
 	   3.  graphics cursor off
@@ -444,7 +444,7 @@ TERM_PUBLIC void HP26_text()
 				HP26_flush(HP26_gnu_map[j]);
 	}
 	fputs("\033*deT", GPT.P_GpOutFile);
-	/*           12
+	/* 12
 	   1. turn on the alphanumeric display
 	   2. back to text mode */
 	fflush(GPT.P_GpOutFile);

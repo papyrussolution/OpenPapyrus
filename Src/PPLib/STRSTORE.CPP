@@ -440,7 +440,7 @@ const StringStore2::LangStrCollItem * FASTCALL StringStore2::GetList(int slang) 
 //#ifdef SC2C // {
 
 enum {
-	sc2eUsage            = PPERR_SC2_USAGE,             // Usage: SC2C inputFileName
+	sc2eUsage    = PPERR_SC2_USAGE,             // Usage: SC2C inputFileName
 	sc2eGrpCodeLimit     = PPERR_SC2_GRPCODELIMIT,      // Превышение максимального значения кода группы (0x7fff-1)
 	sc2eStrCodeLimit     = PPERR_SC2_STRCODELIMIT,      // Превышение максимального значения кода строки (0x7ffff-1)
 	sc2eDupSignature     = PPERR_SC2_DUPSIGNATURE,      // Дублирование сигнатуры строки
@@ -450,12 +450,12 @@ enum {
 	sc2eSrcFileOpenFault = PPERR_SC2_SRCFILEOPENFAULT,  // Ошибка открытия исходного файла
 	sc2eUnfinStrWrap     = PPERR_SC2_UNFINSTRWRAP,      // Перенос строки не завершен
 	sc2eUnexpEndOfStr    = PPERR_SC2_UNEXPENDOFSTR,     // Строка должна оканчиваться либо символом '\' либо '"'
-	sc2eStxGrp01         = PPERR_SC2_STXGRP01,          // Ошибка в определении группы строк (ожидается ']')
-	sc2eStxGrp02         = PPERR_SC2_STXGRP02,          // Ошибка в определении группы строк [symb=number]
+	sc2eStxGrp01 = PPERR_SC2_STXGRP01,          // Ошибка в определении группы строк (ожидается ']')
+	sc2eStxGrp02 = PPERR_SC2_STXGRP02,          // Ошибка в определении группы строк [symb=number]
 	sc2eStxEqAfterCode   = PPERR_SC2_STXEQAFTERCODE,    // Числовое значение не должно предшествовать символу '='
 	sc2eStxStrSymbStart  = PPERR_SC2_STXSTRSYMBSTART,   // Символ строки должен начинаться с прописной латинской буквы или '_'
 	sc2eStxStrSymbChr    = PPERR_SC2_STXSTRSYMBCHR,     // Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'
-	sc2eStxStr01         = PPERR_SC2_STXSTR01,          // Ошибка в определении строки (symb=number)
+	sc2eStxStr01 = PPERR_SC2_STXSTR01,          // Ошибка в определении строки (symb=number)
 	sc2eInvSlashX        = PPERR_SC2_INVSLASHX,         // Не оконченная конструкция '\x00'
 	sc2eInvSlashDigit    = PPERR_SC2_INVSLASHDIGIT,     // Не оконченная конструкция '\000'
 	sc2eStxLangGrp01     = PPERR_SC2_STXLANGGRP01,      // Ошибка в определении группы языка (ожидается '/')

@@ -840,13 +840,12 @@ void GnuPlot::Draw3DPointUnconditional(GpTermEntry * pTerm, const GpVertex * pV,
 	}
 	// } @sobolev 
 	if(!V.ClipPoint(x, y))
-		pTerm->point(pTerm, x, y, pLp->PtType);
+		pTerm->Pnt_(x, y, pLp->PtType);
 }
 // 
 // Moved this upward, to make optional inlining in draw3d_line easier for compilers 
 // HBB 20021128: removed GP_INLINE qualifier to avoid MSVC++ silliness 
 // 
-//void draw3d_line_unconditional(GpTermEntry * pTerm, GpVertex * v1, GpVertex * v2, lp_style_type * lp, t_colorspec color)
 void GnuPlot::Draw3DLineUnconditional(GpTermEntry * pTerm, const GpVertex * pV1, const GpVertex * pV2, const lp_style_type * lp, t_colorspec color)
 {
 	// HBB 20020312: v2 can be NULL, if this call is coming from draw_line_hidden. --> redirect to point drawing routine 
@@ -912,7 +911,7 @@ void GnuPlot::Polyline3DStart(GpTermEntry * pTerm, GpVertex * v1)
 	// EAM - This may now be unneeded. But I'm not sure. */
 	//       Perhaps the hidden3d code needs the move.   */
 	TERMCOORD(v1, x1, y1);
-	pTerm->move(pTerm, x1, y1);
+	pTerm->Mov_(x1, y1);
 }
 
 void GnuPlot::Polyline3DNext(GpTermEntry * pTerm, GpVertex * v2, lp_style_type * lp)

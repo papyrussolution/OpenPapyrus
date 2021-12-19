@@ -1,16 +1,11 @@
+// collationbuilder.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-*******************************************************************************
-* Copyright (C) 2013-2014, International Business Machines
-* Corporation and others.  All Rights Reserved.
-*******************************************************************************
-* collationbuilder.h
-*
+* Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
 * created on: 2013may06
 * created by: Markus W. Scherer
 */
-
 #ifndef __COLLATIONBUILDER_H__
 #define __COLLATIONBUILDER_H__
 

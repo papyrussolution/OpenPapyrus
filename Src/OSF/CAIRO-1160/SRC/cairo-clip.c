@@ -103,30 +103,31 @@ void FASTCALL _cairo_clip_destroy(cairo_clip_t * clip)
 	_freed_pool_put(&clip_pool, clip);
 }
 
-cairo_clip_t * _cairo_clip_copy(const cairo_clip_t * clip)
+cairo_clip_t * FASTCALL _cairo_clip_copy(const cairo_clip_t * clip)
 {
-	cairo_clip_t * copy;
-	if(clip == NULL || _cairo_clip_is_all_clipped(clip))
+	if(!clip || _cairo_clip_is_all_clipped(clip))
 		return (cairo_clip_t *)clip;
-	copy = _cairo_clip_create();
-	if(clip->path)
-		copy->path = _cairo_clip_path_reference(clip->path);
-	if(clip->num_boxes) {
-		if(clip->num_boxes == 1) {
-			copy->boxes = &copy->embedded_box;
+	else {
+		cairo_clip_t * copy = _cairo_clip_create();
+		if(clip->path)
+			copy->path = _cairo_clip_path_reference(clip->path);
+		if(clip->num_boxes) {
+			if(clip->num_boxes == 1) {
+				copy->boxes = &copy->embedded_box;
+			}
+			else {
+				copy->boxes = static_cast<cairo_box_t *>(_cairo_malloc_ab(clip->num_boxes, sizeof(cairo_box_t)));
+				if(UNLIKELY(copy->boxes == NULL))
+					return _cairo_clip_set_all_clipped(copy);
+			}
+			memcpy(copy->boxes, clip->boxes, clip->num_boxes * sizeof(cairo_box_t));
+			copy->num_boxes = clip->num_boxes;
 		}
-		else {
-			copy->boxes = static_cast<cairo_box_t *>(_cairo_malloc_ab(clip->num_boxes, sizeof(cairo_box_t)));
-			if(UNLIKELY(copy->boxes == NULL))
-				return _cairo_clip_set_all_clipped(copy);
-		}
-		memcpy(copy->boxes, clip->boxes, clip->num_boxes * sizeof(cairo_box_t));
-		copy->num_boxes = clip->num_boxes;
+		copy->extents = clip->extents;
+		copy->region = cairo_region_reference(clip->region);
+		copy->is_region = clip->is_region;
+		return copy;
 	}
-	copy->extents = clip->extents;
-	copy->region = cairo_region_reference(clip->region);
-	copy->is_region = clip->is_region;
-	return copy;
 }
 
 cairo_clip_t * _cairo_clip_copy_path(const cairo_clip_t * clip)
@@ -240,7 +241,6 @@ cairo_clip_t * _cairo_clip_intersect_clip(cairo_clip_t * clip, const cairo_clip_
 		_cairo_boxes_init_for_array(&boxes, other->boxes, other->num_boxes);
 		clip = _cairo_clip_intersect_boxes(clip, &boxes);
 	}
-
 	if(!_cairo_clip_is_all_clipped(clip)) {
 		if(other->path) {
 			if(clip->path == NULL)

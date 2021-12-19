@@ -352,10 +352,10 @@ public:
 		}
 		void extract(hb_ot_math_glyph_part_t &out, int64_t mult, hb_font_t * font) const
 		{
-			out.glyph                   = glyph;
+			out.glyph           = glyph;
 			out.start_connector_length  = font->em_mult(startConnectorLength, mult);
 			out.end_connector_length    = font->em_mult(endConnectorLength, mult);
-			out.full_advance            = font->em_mult(fullAdvance, mult);
+			out.full_advance    = font->em_mult(fullAdvance, mult);
 			static_assert((uint)HB_OT_MATH_GLYPH_PART_FLAG_EXTENDER == (uint)PartFlags::Extender, "");
 			out.flags = (hb_ot_math_glyph_part_flags_t)(uint)(partFlags & PartFlags::Defined);
 		}
@@ -464,7 +464,7 @@ public:
 			return get_glyph_construction(glyph, direction, font).get_assembly().get_parts(direction, font, start_offset, parts_count, parts, italics_correction);
 		}
 private:
-		const MathGlyphConstruction &get_glyph_construction(hb_codepoint_t glyph, hb_direction_t direction, hb_font_t * font HB_UNUSED) const
+		const MathGlyphConstruction &get_glyph_construction(hb_codepoint_t glyph, hb_direction_t direction, hb_font_t * font CXX_UNUSED_PARAM) const
 		{
 			bool vertical = HB_DIRECTION_IS_VERTICAL(direction);
 			uint count = vertical ? vertGlyphCount : horizGlyphCount;

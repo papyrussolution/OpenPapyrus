@@ -183,10 +183,7 @@ SArchive::~SArchive()
 	Close();
 }
 
-int SArchive::IsValid() const
-{
-	return BIN(H != 0);
-}
+bool SArchive::IsValid() const { return (H != 0); }
 
 int SArchive::Close()
 {

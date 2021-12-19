@@ -57,7 +57,7 @@ typedef enum {
 
 #define SEARCH_LENGTH 12
 
-static const uint8_t escSeqCompoundText[NUM_OF_CONVERTERS][5] = {
+static const uint8 escSeqCompoundText[NUM_OF_CONVERTERS][5] = {
 	/* Single */
 	{ 0x1B, 0x2D, 0x41, 0, 0 },
 	{ 0x1B, 0x2D, 0x4D, 0, 0 },
@@ -234,7 +234,7 @@ static COMPOUND_TEXT_CONVERTERS getState(int codepoint) {
 
 static COMPOUND_TEXT_CONVERTERS findStateFromEscSeq(const char * source,
     const char * sourceLimit,
-    const uint8_t* toUBytesBuffer,
+    const uint8* toUBytesBuffer,
     int32_t toUBytesBufferLength,
     UErrorCode * err) {
 	COMPOUND_TEXT_CONVERTERS state = INVALID;
@@ -378,14 +378,14 @@ static const char * U_CALLCONV _CompoundTextgetName(const UConverter * cnv) {
 
 static void U_CALLCONV UConverter_fromUnicode_CompoundText_OFFSETS(UConverterFromUnicodeArgs* args, UErrorCode * err) {
 	UConverter * cnv = args->converter;
-	uint8_t * target = (uint8_t*)args->target;
-	const uint8_t * targetLimit = (const uint8_t*)args->targetLimit;
+	uint8 * target = (uint8 *)args->target;
+	const uint8 * targetLimit = (const uint8*)args->targetLimit;
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	/* int32_t* offsets = args->offsets; */
 	UChar32 sourceChar;
 	bool useFallback = cnv->useFallback;
-	uint8_t tmpTargetBuffer[7];
+	uint8 tmpTargetBuffer[7];
 	int32_t tmpTargetBufferLength = 0;
 	COMPOUND_TEXT_CONVERTERS currentState, tmpState;
 	uint32_t pValue;
@@ -470,14 +470,14 @@ getTrail:
 							}
 						}
 						for(n = (pValueLength - 1); n >= 0; n--) {
-							tmpTargetBuffer[tmpTargetBufferLength++] = (uint8_t)(pValue >> (n * 8));
+							tmpTargetBuffer[tmpTargetBufferLength++] = (uint8)(pValue >> (n * 8));
 						}
 						break;
 					}
 				}
 			}
 			else if(tmpState == COMPOUND_TEXT_SINGLE_0) {
-				tmpTargetBuffer[tmpTargetBufferLength++] = (uint8_t)sourceChar;
+				tmpTargetBuffer[tmpTargetBufferLength++] = (uint8)sourceChar;
 			}
 			else {
 				pValueLength = ucnv_MBCSFromUChar32(myConverterData->myConverterArray[currentState],
@@ -486,7 +486,7 @@ getTrail:
 					useFallback);
 				if(pValueLength > 0) {
 					for(n = (pValueLength - 1); n >= 0; n--) {
-						tmpTargetBuffer[tmpTargetBufferLength++] = (uint8_t)(pValue >> (n * 8));
+						tmpTargetBuffer[tmpTargetBufferLength++] = (uint8)(pValue >> (n * 8));
 					}
 				}
 			}
@@ -553,7 +553,7 @@ static void U_CALLCONV UConverter_toUnicode_CompoundText_OFFSETS(UConverterToUni
 				mySourceChar = args->converter->toUBytes[0];
 			}
 			else {
-				mySourceChar = (uint8_t)*mySource;
+				mySourceChar = (uint8)*mySource;
 			}
 
 			if(mySourceChar == ESC_START) {

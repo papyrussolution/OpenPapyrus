@@ -1698,12 +1698,12 @@ struct archive_string_conv * archive_string_default_conversion_for_write(struct 
 
 #else
 struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return NULL;
 }
 
 struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return NULL;
 }
 
@@ -1756,7 +1756,7 @@ void archive_string_conversion_set_opt(struct archive_string_conv * sc, int opt)
 		     * Nothing to do for it since wchar_t on these platforms
 		     * is really Unicode.
 		     */
-		    (void)sc; /* UNUSED */
+		    CXX_UNUSED(sc);
 #else
 		    if((sc->flag & SCONV_UTF8_LIBARCHIVE_2) == 0) {
 			    sc->flag |= SCONV_UTF8_LIBARCHIVE_2;
@@ -2096,7 +2096,7 @@ static int invalid_mbs(const void * _p, size_t n, struct archive_string_conv * s
 		p += r;
 		n -= r;
 	}
-	(void)sc; /* UNUSED */
+	CXX_UNUSED(sc);
 	return 0; /* All Okey. */
 }
 
@@ -2526,7 +2526,7 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 	char * p, * endp;
 	int n, ret = 0;
 
-	(void)sc; /* UNUSED */
+	CXX_UNUSED(sc);
 
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
 		return -1;
@@ -3302,7 +3302,7 @@ static int strncat_from_utf8_libarchive2(struct archive_string * as, const void 
 #else
 	wctomb(NULL, L'\0'); // Clear the shift state before starting. 
 #endif
-	(void)sc; /* UNUSED */
+	CXX_UNUSED(sc);
 	/*
 	 * Allocate buffer for MBS.
 	 * We need this allocation here since it is possible that
@@ -3601,8 +3601,7 @@ static int best_effort_strncat_from_utf16(struct archive_string * as, const void
 	char * mbs;
 	uint32 uc;
 	int n, ret;
-
-	(void)sc; /* UNUSED */
+	CXX_UNUSED(sc);
 	/*
 	 * Other case, we should do the best effort.
 	 * If all character are ASCII(<0x7f), we can convert it.
@@ -3658,7 +3657,7 @@ static int best_effort_strncat_to_utf16(struct archive_string * as16, const void
 	size_t remaining;
 	int ret;
 
-	(void)sc; /* UNUSED */
+	CXX_UNUSED(sc);
 	/*
 	 * Other case, we should do the best effort.
 	 * If all character are ASCII(<0x7f), we can convert it.
@@ -3807,7 +3806,7 @@ int archive_mstring_get_mbs(struct archive * a, struct archive_mstring * aes, co
 int archive_mstring_get_wcs(struct archive * a, struct archive_mstring * aes, const wchar_t ** wp)
 {
 	int r, ret = 0;
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	/* Return WCS form if we already have it. */
 	if(aes->aes_set & AES_SET_WCS) {
 		*wp = aes->aes_wcs.s;

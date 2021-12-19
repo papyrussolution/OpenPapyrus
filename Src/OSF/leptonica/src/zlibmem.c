@@ -1,29 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
-
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 /*!
  * \file  zlibmem.c
@@ -46,11 +45,6 @@
  *    the background, but the bbuffer implementation is more portable.
  * </pre>
  */
-
-//#ifdef HAVE_CONFIG_H
-//#include "config_auto.h"
-//#endif  /* HAVE_CONFIG_H */
-
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -60,20 +54,19 @@
 
 #include "zlib.h"
 
-static const int32  L_BUF_SIZE = 32768;
-static const int32  ZLIB_COMPRESSION_LEVEL = 6;
+static const l_int32 L_BUF_SIZE = 32768;
+static const l_int32 ZLIB_COMPRESSION_LEVEL = 6;
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG     0
 #endif  /* ~NO_CONSOLE_IO */
 
-
 /*!
  * \brief   zlibCompress()
  *
- * \param[in]    datain byte buffer with input data
- * \param[in]    nin    number of bytes of input data
- * \param[out]   pnout  number of bytes of output data
+ * \param[in]    datain    byte buffer with input data
+ * \param[in]    nin       number of bytes of input data
+ * \param[out]   pnout     number of bytes of output data
  * \return  dataout compressed data, or NULL on error
  *
  * <pre>
@@ -89,102 +82,102 @@ static const int32  ZLIB_COMPRESSION_LEVEL = 6;
  *          compressing L_BUF_SIZE bytes of input data at a time.
  * </pre>
  */
-uint8 *
-zlibCompress(uint8  *datain,
-             size_t    nin,
-             size_t   *pnout)
+uint8 * zlibCompress(const uint8  * datain,
+    size_t nin,
+    size_t         * pnout)
 {
-uint8    *dataout;
-int32     status, success;
-int32     flush;
-size_t      nbytes;
-uint8    *bufferin, *bufferout;
-L_BBUFFER  *bbin, *bbout;
-z_stream    z;
+	uint8    * dataout;
+	l_int32 status, success;
+	l_int32 flush;
+	size_t nbytes;
+	uint8    * bufferin, * bufferout;
+	L_BBUFFER  * bbin, * bbout;
+	z_stream z;
 
-    PROCNAME("zlibCompress");
+	PROCNAME(__FUNCTION__);
 
-    if (!datain)
-        return (uint8 *)ERROR_PTR("datain not defined", procName, NULL);
+	if(!datain)
+		return (uint8 *)ERROR_PTR("datain not defined", procName, NULL);
 
-        /* Set up fixed size buffers used in z_stream */
-    bufferin = (uint8 *)LEPT_CALLOC(L_BUF_SIZE, sizeof(uint8));
-    bufferout = (uint8 *)LEPT_CALLOC(L_BUF_SIZE, sizeof(uint8));
+	/* Set up fixed size buffers used in z_stream */
+	bufferin = (uint8 *)SAlloc::C(L_BUF_SIZE, sizeof(uint8));
+	bufferout = (uint8 *)SAlloc::C(L_BUF_SIZE, sizeof(uint8));
 
-        /* Set up bbuffers and load bbin with the data */
-    bbin = bbufferCreate(datain, nin);
-    bbout = bbufferCreate(NULL, 0);
+	/* Set up bbuffers and load bbin with the data */
+	bbin = bbufferCreate(datain, nin);
+	bbout = bbufferCreate(NULL, 0);
 
-    success = TRUE;
-    if (!bufferin || !bufferout || !bbin || !bbout) {
-        L_ERROR("calloc fail for buffer\n", procName);
-        success = FALSE;
-        goto cleanup_arrays;
-    }
+	success = TRUE;
+	if(!bufferin || !bufferout || !bbin || !bbout) {
+		L_ERROR("calloc fail for buffer\n", procName);
+		success = FALSE;
+		goto cleanup_arrays;
+	}
 
-    z.zalloc = (alloc_func)0;
-    z.zfree = (free_func)0;
-    z.opaque = (voidpf)0;
+	z.zalloc = (alloc_func)0;
+	z.zfree = (free_func)0;
+	z.opaque = (voidpf)0;
 
-    z.next_in = bufferin;
-    z.avail_in = 0;
-    z.next_out = bufferout;
-    z.avail_out = L_BUF_SIZE;
+	z.next_in = bufferin;
+	z.avail_in = 0;
+	z.next_out = bufferout;
+	z.avail_out = L_BUF_SIZE;
 
-    status = deflateInit(&z, ZLIB_COMPRESSION_LEVEL);
-    if (status != Z_OK)
-      return (uint8 *)ERROR_PTR("deflateInit failed", procName, NULL);
+	status = deflateInit(&z, ZLIB_COMPRESSION_LEVEL);
+	if(status != Z_OK) {
+		L_ERROR("deflateInit failed\n", procName);
+		success = FALSE;
+		goto cleanup_arrays;
+	}
 
-    do {
-        if (z.avail_in == 0) {
-            z.next_in = bufferin;
-            bbufferWrite(bbin, bufferin, L_BUF_SIZE, &nbytes);
+	do {
+		if(z.avail_in == 0) {
+			z.next_in = bufferin;
+			bbufferWrite(bbin, bufferin, L_BUF_SIZE, &nbytes);
 #if DEBUG
-            fprintf(stderr, " wrote %lu bytes to bufferin\n",
-                    (unsigned long)nbytes);
+			lept_stderr(" wrote %zu bytes to bufferin\n", nbytes);
 #endif  /* DEBUG */
-            z.avail_in = nbytes;
-        }
-        flush = (bbin->n) ? Z_SYNC_FLUSH : Z_FINISH;
-        status = deflate(&z, flush);
+			z.avail_in = nbytes;
+		}
+		flush = (bbin->n) ? Z_SYNC_FLUSH : Z_FINISH;
+		status = deflate(&z, flush);
 #if DEBUG
-        fprintf(stderr, " status is %d, bytesleft = %u, totalout = %lu\n",
-                  status, z.avail_out, z.total_out);
+		lept_stderr(" status is %d, bytesleft = %u, totalout = %zu\n",
+		    status, z.avail_out, z.total_out);
 #endif  /* DEBUG */
-        nbytes = L_BUF_SIZE - z.avail_out;
-        if (nbytes) {
-            bbufferRead(bbout, bufferout, nbytes);
+		nbytes = L_BUF_SIZE - z.avail_out;
+		if(nbytes) {
+			bbufferRead(bbout, bufferout, nbytes);
 #if DEBUG
-            fprintf(stderr, " read %lu bytes from bufferout\n",
-                    (unsigned long)nbytes);
+			lept_stderr(" read %zu bytes from bufferout\n", nbytes);
 #endif  /* DEBUG */
-        }
-        z.next_out = bufferout;
-        z.avail_out = L_BUF_SIZE;
-    } while (flush != Z_FINISH);
+		}
+		z.next_out = bufferout;
+		z.avail_out = L_BUF_SIZE;
+	} while(flush != Z_FINISH);
 
-    deflateEnd(&z);
+	deflateEnd(&z);
 
 cleanup_arrays:
-    if (success) {
-        dataout = bbufferDestroyAndSaveData(&bbout, pnout);
-    } else {
-        dataout = NULL;
-        bbufferDestroy(&bbout);
-    }
-    bbufferDestroy(&bbin);
-    LEPT_FREE(bufferin);
-    LEPT_FREE(bufferout);
-    return dataout;
+	if(success) {
+		dataout = bbufferDestroyAndSaveData(&bbout, pnout);
+	}
+	else {
+		dataout = NULL;
+		bbufferDestroy(&bbout);
+	}
+	bbufferDestroy(&bbin);
+	SAlloc::F(bufferin);
+	SAlloc::F(bufferout);
+	return dataout;
 }
-
 
 /*!
  * \brief   zlibUncompress()
  *
- * \param[in]    datain byte buffer with compressed input data
- * \param[in]    nin    number of bytes of input data
- * \param[out]   pnout  number of bytes of output data
+ * \param[in]    datain    byte buffer with compressed input data
+ * \param[in]    nin       number of bytes of input data
+ * \param[out]   pnout     number of bytes of output data
  * \return  dataout uncompressed data, or NULL on error
  *
  * <pre>
@@ -192,82 +185,88 @@ cleanup_arrays:
  *      (1) See zlibCompress().
  * </pre>
  */
-uint8 *
-zlibUncompress(uint8  *datain,
-               size_t    nin,
-               size_t   *pnout)
+uint8 * zlibUncompress(const uint8  * datain,
+    size_t nin,
+    size_t         * pnout)
 {
-uint8    *dataout;
-uint8    *bufferin, *bufferout;
-int32     status, success;
-size_t      nbytes;
-L_BBUFFER  *bbin, *bbout;
-z_stream    z;
+	uint8    * dataout;
+	uint8    * bufferin, * bufferout;
+	l_int32 status, success;
+	size_t nbytes;
+	L_BBUFFER  * bbin, * bbout;
+	z_stream z;
 
-    PROCNAME("zlibUncompress");
+	PROCNAME(__FUNCTION__);
 
-    if (!datain)
-        return (uint8 *)ERROR_PTR("datain not defined", procName, NULL);
+	if(!datain)
+		return (uint8 *)ERROR_PTR("datain not defined", procName, NULL);
 
-        /* Set up fixed size buffers used in z_stream */
-    bufferin = (uint8 *)LEPT_CALLOC(L_BUF_SIZE, sizeof(uint8));
-    bufferout = (uint8 *)LEPT_CALLOC(L_BUF_SIZE, sizeof(uint8));
+	/* Set up fixed size buffers used in z_stream */
+	bufferin = (uint8 *)SAlloc::C(L_BUF_SIZE, sizeof(uint8));
+	bufferout = (uint8 *)SAlloc::C(L_BUF_SIZE, sizeof(uint8));
 
-        /* Set up bbuffers and load bbin with the data */
-    bbin = bbufferCreate(datain, nin);
-    bbout = bbufferCreate(NULL, 0);
+	/* Set up bbuffers and load bbin with the data */
+	bbin = bbufferCreate(datain, nin);
+	bbout = bbufferCreate(NULL, 0);
 
-    success = TRUE;
-    if (!bufferin || !bufferout || !bbin || !bbout) {
-        L_ERROR("calloc fail for buffer\n", procName);
-        success = FALSE;
-        goto cleanup_arrays;
-    }
+	success = TRUE;
+	if(!bufferin || !bufferout || !bbin || !bbout) {
+		L_ERROR("calloc fail for buffer\n", procName);
+		success = FALSE;
+		goto cleanup_arrays;
+	}
 
-    z.zalloc = (alloc_func)0;
-    z.zfree = (free_func)0;
+	z.zalloc = (alloc_func)0;
+	z.zfree = (free_func)0;
 
-    z.next_in = bufferin;
-    z.avail_in = 0;
-    z.next_out = bufferout;
-    z.avail_out = L_BUF_SIZE;
+	z.next_in = bufferin;
+	z.avail_in = 0;
+	z.next_out = bufferout;
+	z.avail_out = L_BUF_SIZE;
 
-    inflateInit(&z);
+	inflateInit(&z);
 
-    for ( ; ; ) {
-        if (z.avail_in == 0) {
-            z.next_in = bufferin;
-            bbufferWrite(bbin, bufferin, L_BUF_SIZE, &nbytes);
-/*            fprintf(stderr, " wrote %d bytes to bufferin\n", nbytes); */
-            z.avail_in = nbytes;
-        }
-        if (z.avail_in == 0)
-            break;
-        status = inflate(&z, Z_SYNC_FLUSH);
-/*        fprintf(stderr, " status is %d, bytesleft = %d, totalout = %d\n",
-                  status, z.avail_out, z.total_out); */
-        nbytes = L_BUF_SIZE - z.avail_out;
-        if (nbytes) {
-            bbufferRead(bbout, bufferout, nbytes);
-/*            fprintf(stderr, " read %d bytes from bufferout\n", nbytes); */
-        }
-        z.next_out = bufferout;
-        z.avail_out = L_BUF_SIZE;
-    }
+	for(;;) {
+		if(z.avail_in == 0) {
+			z.next_in = bufferin;
+			bbufferWrite(bbin, bufferin, L_BUF_SIZE, &nbytes);
+#if DEBUG
+			lept_stderr(" wrote %d bytes to bufferin\n", nbytes);
+#endif  /* DEBUG */
+			z.avail_in = nbytes;
+		}
+		if(z.avail_in == 0)
+			break;
+		status = inflate(&z, Z_SYNC_FLUSH);
+#if DEBUG
+		lept_stderr(" status is %d, bytesleft = %d, totalout = %d\n",
+		    status, z.avail_out, z.total_out);
+#endif  /* DEBUG */
+		nbytes = L_BUF_SIZE - z.avail_out;
+		if(nbytes) {
+			bbufferRead(bbout, bufferout, nbytes);
+#if DEBUG
+			lept_stderr(" read %d bytes from bufferout\n", nbytes);
+#endif  /* DEBUG */
+		}
+		z.next_out = bufferout;
+		z.avail_out = L_BUF_SIZE;
+	}
 
-    inflateEnd(&z);
+	inflateEnd(&z);
 
 cleanup_arrays:
-    if (success) {
-        dataout = bbufferDestroyAndSaveData(&bbout, pnout);
-    } else {
-        dataout = NULL;
-        bbufferDestroy(&bbout);
-    }
-    bbufferDestroy(&bbin);
-    LEPT_FREE(bufferin);
-    LEPT_FREE(bufferout);
-    return dataout;
+	if(success) {
+		dataout = bbufferDestroyAndSaveData(&bbout, pnout);
+	}
+	else {
+		dataout = NULL;
+		bbufferDestroy(&bbout);
+	}
+	bbufferDestroy(&bbin);
+	SAlloc::F(bufferin);
+	SAlloc::F(bufferout);
+	return dataout;
 }
 
 /* --------------------------------------------*/

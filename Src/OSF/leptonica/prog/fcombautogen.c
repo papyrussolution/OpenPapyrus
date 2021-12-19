@@ -44,6 +44,10 @@
  *    using <n> = 2.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -58,6 +62,7 @@ static char  mainName[] = "fcombautogen";
         return ERROR_INT(" Syntax:  fcombautogen index <filename>",
                          mainName, 1);
 
+    setLeptDebugOK(1);
     index = atoi(argv[1]);
     sela = selaAddDwaCombs(NULL);
 

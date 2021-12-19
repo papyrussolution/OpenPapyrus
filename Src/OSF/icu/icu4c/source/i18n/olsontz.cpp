@@ -333,8 +333,8 @@ OlsonTimeZone* OlsonTimeZone::clone() const {
 /**
  * TimeZone API.
  */
-int32_t OlsonTimeZone::getOffset(uint8_t era, int32_t year, int32_t month,
-    int32_t dom, uint8_t dow,
+int32_t OlsonTimeZone::getOffset(uint8 era, int32_t year, int32_t month,
+    int32_t dom, uint8 dow,
     int32_t millis, UErrorCode & ec) const {
 	if(month < UCAL_JANUARY || month > UCAL_DECEMBER) {
 		if(U_SUCCESS(ec)) {
@@ -352,8 +352,8 @@ int32_t OlsonTimeZone::getOffset(uint8_t era, int32_t year, int32_t month,
 /**
  * TimeZone API.
  */
-int32_t OlsonTimeZone::getOffset(uint8_t era, int32_t year, int32_t month,
-    int32_t dom, uint8_t dow,
+int32_t OlsonTimeZone::getOffset(uint8 era, int32_t year, int32_t month,
+    int32_t dom, uint8 dow,
     int32_t millis, int32_t monthLength,
     UErrorCode & ec) const {
 	if(U_FAILURE(ec)) {

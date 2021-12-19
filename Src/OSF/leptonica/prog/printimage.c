@@ -27,97 +27,132 @@
 /*
  * printimage.c
  *
- *   Syntax:  printimage filein [-P<printer> [-#<number>]
+ *   This prints an image.  It rotates and isotropically scales the image,
+ *   as necessary, to get a maximum filling when printing onto an
+ *   8.5 x 11 inch page.
  *
- *   If you want the image printed, use the standard lpr flags
- *   for either (or both) the printer and the number of copies.
+ *        Syntax:  printimage <filein> [printer, other lpr args]
  *
- *   If neither a printer nor a number of copies is specified, the
- *   only action is that a new PostScript file,
- *          /tmp/print_image.ps
- *   is generated for the image.
+ *   The simplest input would be something like
+ *        printimage myfile.jpg
+ *   This generates the PostScript file /tmp/print_image.ps, but
+ *   does not send it to a printer.
  *
- *   To get color output, you may need a special lpr flag.  In that case,
- *   first generate the PostScript file and then use a printer-dependent
- *   output flag, such as "-o ColorModel=Color" or "-o ColorModel=CMYK":
- *         lpr -P<printer> <output flag> /tmp/print_image.ps
- *   A simple way to get the flag in linux is to bring up the print-driver
- *   interface in acroread, select the color printer, select properties,
- *   select color, and look at the print command line that would be used.
+ *   If you have lpr, you can specify a printer; e.g.
+ *        printimage myfile.jpg myprinter
  *
- *   The PS file generated is level 1.  This is large, but will work
- *   on all PS printers.
+ *   You can add lpr flags.  Two useful ones are:
+ *   * to print more than one copy
+ *       -#N        (prints N copies)
+ *   * to print in color (flag is printer-dependent)
+ *       -o ColorModel=Color    or
+ *       -o ColorModel=CMYK
  *
- *   N.B.  This requires lpr.
+ *   For example, to make 3 color copies, you might use:
+ *       printimage myfile.jpg myprinter -#3 -o ColorModel=Color
+ *
+ *   By default, the intermediate PostScript file generated is
+ *   level 3 (compressed):
+ *       /tmp/print_image.ps
+ *
+ *   If your system does not have lpr, it likely has lp.  You can run
+ *   printimage to make the PostScript file, and then print with lp:
+ *       lp -d <printer> /tmp/print_image.ps
+ *       lp -d <printer> -o ColorModel=Color /tmp/print_image.ps
+ *   etc.
+ *
+ *   ***************************************************************
+ *   N.B.  If a printer is specified, this program invokes lpr via
+ *         "system'.  It could pose a security vulnerability if used
+ *         as a service in a production environment.  Consequently,
+ *         this program should only be used for debug and testing.
+ *   ***************************************************************
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include "allheaders.h"
 
-static const l_float32  FILL_FACTOR = 0.95;   /* fill factor on 8.5 x 11 page */
+#define  USE_COMPRESSED    1
 
+static const l_float32  FILL_FACTOR = 0.95;   /* fill factor on 8.5 x 11 page */
 
 int main(int    argc,
          char **argv)
 {
-char        *filein, *fname, *argp, *argn;
+char        *filein, *printer, *extra, *fname;
 char         buffer[512];
-l_int32      i, w, h, ignore;
+l_int32      i, w, h, ret, index;
 l_float32    scale;
 FILE        *fp;
-PIX         *pixs, *pixt;
+PIX         *pixs, *pix1;
+SARRAY      *sa;
 static char  mainName[] = "printimage";
 
-    if (argc < 2 || argc > 4)
+    if (argc < 2)
         return ERROR_INT(
-            " Syntax:  printimage filein [-P<printer>] [-#<number>]",
+            " Syntax:  printimage <filein> [printer, other lpr args]",
             mainName, 1);
-
-        /* parse args */
     filein = argv[1];
-    argp = argn = NULL;
-    if (argc > 2) {
-        for (i = 2; i < argc; i++) {
-            if (argv[i][1] == 'P')
-                argp = argv[i];
-            else if (argv[i][1] == '#')
-                argn = argv[i];
-        }
-    }
+    printer = (argc > 2) ? argv[2] : NULL;
 
-    lept_rm(NULL, "print_image.ps");
+    lept_stderr(
+         "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+         "   Warning: this program should only be used for testing,\n"
+         "     and not in a production environment, because of a\n"
+         "      potential vulnerability with the 'system' call.\n"
+         "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+
+    setLeptDebugOK(1);
+    (void)lept_rm(NULL, "print_image.ps");
 
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
 
     pixGetDimensions(pixs, &w, &h, NULL);
     if (w > h) {
-        pixt = pixRotate90(pixs, 1);
-        pixGetDimensions(pixt, &w, &h, NULL);
+        pix1 = pixRotate90(pixs, 1);
+        pixGetDimensions(pix1, &w, &h, NULL);
     }
     else {
-        pixt = pixClone(pixs);
+        pix1 = pixClone(pixs);
     }
     scale = L_MIN(FILL_FACTOR * 2550 / w, FILL_FACTOR * 3300 / h);
     fname = genPathname("/tmp", "print_image.ps");
+#if USE_COMPRESSED
+    index = 0;
+    pixWriteCompressedToPS(pix1, fname, (l_int32)(300. / scale), 3, &index);
+#else  /* uncompressed, level 1 */
     fp = lept_fopen(fname, "wb+");
-    pixWriteStreamPS(fp, pixt, NULL, 300, scale);
+    pixWriteStreamPS(fp, pix1, NULL, 300, scale);
     lept_fclose(fp);
+#endif  /* USE_COMPRESSED */
 
-        /* print it out */
-    if (argp && !argn) {
-        sprintf(buffer, "lpr %s %s &", argp, fname);
-        ignore = system(buffer);
-    } else if (!argp && argn) {
-        sprintf(buffer, "lpr %s %s &", argn, fname);
-        ignore = system(buffer);
-    } else if (argp && argn) {
-        sprintf(buffer, "lpr %s %s %s &", argp, argn, fname);
-        ignore = system(buffer);
+        /* Optionally print it out */
+    if (argc > 2) {
+        extra = NULL;
+        if (argc > 3) {  /* concatenate the extra args */
+            sa = sarrayCreate(0);
+            for (i = 3; i < argc; i++)
+                sarrayAddString(sa, argv[i], L_COPY);
+            extra = sarrayToString(sa, 2);
+            sarrayDestroy(&sa);
+        }
+        if (!extra) {
+            snprintf(buffer, sizeof(buffer), "lpr %s -P%s &", fname, printer);
+            ret = system(buffer);
+        } else {
+            snprintf(buffer, sizeof(buffer), "lpr %s -P%s %s &",
+                     fname, printer, extra);
+            ret = system(buffer);
+        }
+        lept_free(extra);
     }
 
     lept_free(fname);
     pixDestroy(&pixs);
-    pixDestroy(&pixt);
+    pixDestroy(&pix1);
     return 0;
 }
-

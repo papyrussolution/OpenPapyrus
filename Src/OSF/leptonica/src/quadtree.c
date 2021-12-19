@@ -29,23 +29,23 @@
  * <pre>
  *
  *      Top level quadtree linear statistics
- *          int32   pixQuadtreeMean()
- *          int32   pixQuadtreeVariance()
+ *          l_int32   pixQuadtreeMean()
+ *          l_int32   pixQuadtreeVariance()
  *
  *      Statistics in an arbitrary rectangle
- *          int32   pixMeanInRectangle()
- *          int32   pixVarianceInRectangle()
+ *          l_int32   pixMeanInRectangle()
+ *          l_int32   pixVarianceInRectangle()
  *
  *      Quadtree regions
  *          BOXAA    *boxaaQuadtreeRegions()
  *
  *      Quadtree access
- *          int32   quadtreeGetParent()
- *          int32   quadtreeGetChildren()
- *          int32   quadtreeMaxLevels()
+ *          l_int32   quadtreeGetParent()
+ *          l_int32   quadtreeGetChildren()
+ *          l_int32   quadtreeMaxLevels()
  *
  *      Display quadtree
- *          PIX      *fpixaDisplayQuadtree()
+ *          PIX *fpixaDisplayQuadtree()
  *
  *
  *  There are many other statistical quantities that can be computed
@@ -73,10 +73,10 @@
 /*!
  * \brief   pixQuadtreeMean()
  *
- * \param[in]    pixs 8 bpp, no colormap
- * \param[in]    nlevels in quadtree; max allowed depends on image size
- * \param[in]   *pix_ma input mean accumulator; can be null
- * \param[out]  *pfpixa mean values in quadtree
+ * \param[in]    pixs     8 bpp, no colormap
+ * \param[in]    nlevels  in quadtree; max allowed depends on image size
+ * \param[in]    pix_ma   input mean accumulator; can be null
+ * \param[out]   pfpixa   mean values in quadtree
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -86,20 +86,20 @@
  *          single value; level 1 has 4 values; level 2 has 16; etc.
  * </pre>
  */
-int32 pixQuadtreeMean(PIX     * pixs,
-    int32 nlevels,
-    PIX     * pix_ma,
+l_ok pixQuadtreeMean(PIX * pixs,
+    l_int32 nlevels,
+    PIX * pix_ma,
     FPIXA  ** pfpixa)
 {
-	int32 i, j, w, h, size, n;
+	l_int32 i, j, w, h, size, n;
 	float val;
 	BOX       * box;
 	BOXA      * boxa;
 	BOXAA     * baa;
 	FPIX      * fpix;
-	PIX       * pix_mac;
+	PIX * pix_mac;
 
-	PROCNAME("pixQuadtreeMean");
+	PROCNAME(__FUNCTION__);
 
 	if(!pfpixa)
 		return ERROR_INT("&fpixa not defined", procName, 1);
@@ -146,12 +146,12 @@ int32 pixQuadtreeMean(PIX     * pixs,
 /*!
  * \brief   pixQuadtreeVariance()
  *
- * \param[in]    pixs 8 bpp, no colormap
- * \param[in]    nlevels in quadtree
- * \param[in]   *pix_ma input mean accumulator; can be null
- * \param[in]   *dpix_msa input mean square accumulator; can be null
- * \param[out]  *pfpixa_v [optional] variance values in quadtree
- * \param[out]  *pfpixa_rv [optional] root variance values in quadtree
+ * \param[in]    pixs        8 bpp, no colormap
+ * \param[in]    nlevels     in quadtree
+ * \param[in]    pix_ma      input mean accumulator; can be null
+ * \param[in]    dpix_msa    input mean square accumulator; can be null
+ * \param[out]   pfpixa_v    [optional] variance values in quadtree
+ * \param[out]   pfpixa_rv   [optional] root variance values in quadtree
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -161,23 +161,23 @@ int32 pixQuadtreeMean(PIX     * pixs,
  *          and root variance values.
  * </pre>
  */
-int32 pixQuadtreeVariance(PIX     * pixs,
-    int32 nlevels,
-    PIX     * pix_ma,
+l_ok pixQuadtreeVariance(PIX * pixs,
+    l_int32 nlevels,
+    PIX * pix_ma,
     DPIX    * dpix_msa,
     FPIXA  ** pfpixa_v,
     FPIXA  ** pfpixa_rv)
 {
-	int32 i, j, w, h, size, n;
+	l_int32 i, j, w, h, size, n;
 	float var, rvar;
 	BOX       * box;
 	BOXA      * boxa;
 	BOXAA     * baa;
 	FPIX      * fpixv, * fpixrv;
-	PIX       * pix_mac; /* copy of mean accumulator */
+	PIX * pix_mac; /* copy of mean accumulator */
 	DPIX      * dpix_msac; /* msa clone */
 
-	PROCNAME("pixQuadtreeVariance");
+	PROCNAME(__FUNCTION__);
 
 	if(!pfpixa_v && !pfpixa_rv)
 		return ERROR_INT("neither &fpixav nor &fpixarv defined", procName, 1);
@@ -199,8 +199,10 @@ int32 pixQuadtreeVariance(PIX     * pixs,
 		dpix_msac = pixMeanSquareAccum(pixs);
 	else
 		dpix_msac = dpixClone(dpix_msa);
-	if(!dpix_msac)
+	if(!dpix_msac) {
+		pixDestroy(&pix_mac);
 		return ERROR_INT("dpix_msac not made", procName, 1);
+	}
 
 	if((baa = boxaaQuadtreeRegions(w, h, nlevels)) == NULL) {
 		pixDestroy(&pix_mac);
@@ -240,10 +242,10 @@ int32 pixQuadtreeVariance(PIX     * pixs,
 /*!
  * \brief   pixMeanInRectangle()
  *
- * \param[in]    pixs 8 bpp
- * \param[in]    box region to compute mean value
- * \param[in]    pixma mean accumulator
- * \param[out]   pval mean value
+ * \param[in]    pixs     8 bpp
+ * \param[in]    box      region to compute mean value
+ * \param[in]    pixma    mean accumulator
+ * \param[out]   pval     mean value
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -253,17 +255,17 @@ int32 pixQuadtreeVariance(PIX     * pixs,
  *          rectangle in O(1), independent of the size of the rectangle.
  * </pre>
  */
-int32 pixMeanInRectangle(PIX        * pixs,
+l_ok pixMeanInRectangle(PIX        * pixs,
     BOX        * box,
     PIX        * pixma,
-    float  * pval)
+    float * pval)
 {
-	int32 w, h, bx, by, bw, bh;
-	uint32 val00, val01, val10, val11;
+	l_int32 w, h, bx, by, bw, bh;
+	l_uint32 val00, val01, val10, val11;
 	float norm;
 	BOX       * boxc;
 
-	PROCNAME("pixMeanInRectangle");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
@@ -283,8 +285,9 @@ int32 pixMeanInRectangle(PIX        * pixs,
 
 	if(bw == 0 || bh == 0)
 		return ERROR_INT("no pixels in box", procName, 1);
+
 	/* Use up to 4 points in the accumulator */
-	norm = 1.0f / (bw * bh);
+	norm = 1.0 / ((float)(bw) * bh);
 	if(bx > 0 && by > 0) {
 		pixGetPixel(pixma, bx + bw - 1, by + bh - 1, &val11);
 		pixGetPixel(pixma, bx + bw - 1, by - 1, &val10);
@@ -313,12 +316,12 @@ int32 pixMeanInRectangle(PIX        * pixs,
 /*!
  * \brief   pixVarianceInRectangle()
  *
- * \param[in]    pixs 8 bpp
- * \param[in]    box region to compute variance and/or root variance
- * \param[in]    pix_ma mean accumulator
- * \param[in]    dpix_msa mean square accumulator
- * \param[out]   pvar [optional] variance
- * \param[out]   prvar [optional] root variance
+ * \param[in]    pixs        8 bpp
+ * \param[in]    box         region to compute variance and/or root variance
+ * \param[in]    pix_ma      mean accumulator
+ * \param[in]    dpix_msa    mean square accumulator
+ * \param[out]   pvar        [optional] variance
+ * \param[out]   prvar       [optional] root variance
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -329,19 +332,19 @@ int32 pixMeanInRectangle(PIX        * pixs,
  *          independent of the size of the rectangle.
  * </pre>
  */
-int32 pixVarianceInRectangle(PIX        * pixs,
+l_ok pixVarianceInRectangle(PIX        * pixs,
     BOX        * box,
     PIX        * pix_ma,
     DPIX       * dpix_msa,
-    float  * pvar,
-    float  * prvar)
+    float * pvar,
+    float * prvar)
 {
-	int32 w, h, bx, by, bw, bh;
-	uint32 val00, val01, val10, val11;
+	l_int32 w, h, bx, by, bw, bh;
+	l_uint32 val00, val01, val10, val11;
 	double dval00, dval01, dval10, dval11, mval, msval, var, norm;
 	BOX       * boxc;
 
-	PROCNAME("pixVarianceInRectangle");
+	PROCNAME(__FUNCTION__);
 
 	if(!pvar && !prvar)
 		return ERROR_INT("neither &var nor &rvar defined", procName, 1);
@@ -366,7 +369,7 @@ int32 pixVarianceInRectangle(PIX        * pixs,
 		return ERROR_INT("no pixels in box", procName, 1);
 
 	/* Use up to 4 points in the accumulators */
-	norm = 1.0 / (bw * bh);
+	norm = 1.0 / ((float)(bw) * bh);
 	if(bx > 0 && by > 0) {
 		pixGetPixel(pix_ma, bx + bw - 1, by + bh - 1, &val11);
 		pixGetPixel(pix_ma, bx + bw - 1, by - 1, &val10);
@@ -423,8 +426,8 @@ int32 pixVarianceInRectangle(PIX        * pixs,
 /*!
  * \brief   boxaaQuadtreeRegions()
  *
- * \param[in]    w, h of pix that is being quadtree-ized
- * \param[in]    nlevels in quadtree
+ * \param[in]    w, h     size of pix that is being quadtree-ized
+ * \param[in]    nlevels  number of levels in quadtree
  * \return  baa for quadtree regions at each level, or NULL on error
  *
  * <pre>
@@ -438,17 +441,17 @@ int32 pixVarianceInRectangle(PIX        * pixs,
  *          order, with LR (fast scan) and TB (slow scan).
  * </pre>
  */
-BOXAA * boxaaQuadtreeRegions(int32 w,
-    int32 h,
-    int32 nlevels)
+BOXAA * boxaaQuadtreeRegions(l_int32 w,
+    l_int32 h,
+    l_int32 nlevels)
 {
-	int32 i, j, k, maxpts, nside, nbox, bw, bh;
-	int32  * xstart, * xend, * ystart, * yend;
+	l_int32 i, j, k, maxpts, nside, nbox, bw, bh;
+	l_int32 * xstart, * xend, * ystart, * yend;
 	BOX      * box;
 	BOXA     * boxa;
 	BOXAA    * baa;
 
-	PROCNAME("boxaaQuadtreeRegions");
+	PROCNAME(__FUNCTION__);
 
 	if(nlevels < 1)
 		return (BOXAA*)ERROR_PTR("nlevels must be >= 1", procName, NULL);
@@ -459,10 +462,10 @@ BOXAA * boxaaQuadtreeRegions(int32 w,
 
 	baa = boxaaCreate(nlevels);
 	maxpts = 1 << (nlevels - 1);
-	xstart = (int32*)LEPT_CALLOC(maxpts, sizeof(int32));
-	xend = (int32*)LEPT_CALLOC(maxpts, sizeof(int32));
-	ystart = (int32*)LEPT_CALLOC(maxpts, sizeof(int32));
-	yend = (int32*)LEPT_CALLOC(maxpts, sizeof(int32));
+	xstart = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
+	xend = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
+	ystart = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
+	yend = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
 	for(k = 0; k < nlevels; k++) {
 		nside = 1 << k; /* number of boxes in each direction */
 		for(i = 0; i < nside; i++) {
@@ -473,9 +476,9 @@ BOXAA * boxaaQuadtreeRegions(int32 w,
 			if(i > 0) ystart[i]++;
 			yend[i] = (h - 1) * (i + 1) / nside;
 #if DEBUG_BOXES
-			fprintf(stderr,
-			    "k = %d, xs[%d] = %d, xe[%d] = %d, ys[%d] = %d, ye[%d] = %d\n",
-			    k, i, xstart[i], i, xend[i], i, ystart[i], i, yend[i]);
+			lept_stderr(
+				"k = %d, xs[%d] = %d, xe[%d] = %d, ys[%d] = %d, ye[%d] = %d\n",
+				k, i, xstart[i], i, xend[i], i, ystart[i], i, yend[i]);
 #endif  /* DEBUG_BOXES */
 		}
 		nbox = 1 << (2 * k);
@@ -491,10 +494,10 @@ BOXAA * boxaaQuadtreeRegions(int32 w,
 		boxaaAddBoxa(baa, boxa, L_INSERT);
 	}
 
-	LEPT_FREE(xstart);
-	LEPT_FREE(xend);
-	LEPT_FREE(ystart);
-	LEPT_FREE(yend);
+	SAlloc::F(xstart);
+	SAlloc::F(xend);
+	SAlloc::F(ystart);
+	SAlloc::F(yend);
 	return baa;
 }
 
@@ -504,9 +507,9 @@ BOXAA * boxaaQuadtreeRegions(int32 w,
 /*!
  * \brief   quadtreeGetParent()
  *
- * \param[in]    fpixa mean, variance or root variance
- * \param[in]    level, x, y of current pixel
- * \param[out]   pval parent pixel value, or 0.0 on error.
+ * \param[in]    fpixa      mean, variance or root variance
+ * \param[in]    level,     x, y of current pixel
+ * \param[out]   pval       parent pixel value, or 0.0 on error
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -517,15 +520,15 @@ BOXAA * boxaaQuadtreeRegions(int32 w,
  *             (x/2, y/2)
  * </pre>
  */
-int32 quadtreeGetParent(FPIXA      * fpixa,
-    int32 level,
-    int32 x,
-    int32 y,
-    float  * pval)
+l_ok quadtreeGetParent(FPIXA      * fpixa,
+    l_int32 level,
+    l_int32 x,
+    l_int32 y,
+    float * pval)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("quadtreeGetParent");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
@@ -544,9 +547,10 @@ int32 quadtreeGetParent(FPIXA      * fpixa,
 /*!
  * \brief   quadtreeGetChildren()
  *
- * \param[in]    fpixa mean, variance or root variance
- * \param[in]    level, x, y of current pixel
- * \param[out]   pval00, pval01, pval10, pval11  child pixel values
+ * \param[in]    fpixa            mean, variance or root variance
+ * \param[in]    level,           x, y of current pixel
+ * \param[out]   pval00, pval01,
+ *               pval10, pval11   four child pixel values
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -557,18 +561,18 @@ int32 quadtreeGetParent(FPIXA      * fpixa,
  *             (2x, 2y), (2x+1, 2y), (2x, 2y+1), (2x+1, 2y+1)
  * </pre>
  */
-int32 quadtreeGetChildren(FPIXA      * fpixa,
-    int32 level,
-    int32 x,
-    int32 y,
-    float  * pval00,
-    float  * pval10,
-    float  * pval01,
-    float  * pval11)
+l_ok quadtreeGetChildren(FPIXA      * fpixa,
+    l_int32 level,
+    l_int32 x,
+    l_int32 y,
+    float * pval00,
+    float * pval10,
+    float * pval01,
+    float * pval11)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("quadtreeGetChildren");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval00 || !pval01 || !pval10 || !pval11)
 		return ERROR_INT("&val* not all defined", procName, 1);
@@ -590,8 +594,8 @@ int32 quadtreeGetChildren(FPIXA      * fpixa,
 /*!
  * \brief   quadtreeMaxLevels()
  *
- * \param[in]    w, h of image
- * \return  maxlevels maximum number of levels allowed, or -1 on error
+ * \param[in]    w, h    dimensions of image
+ * \return  maxlevels  maximum number of levels allowed, or -1 on error
  *
  * <pre>
  * Notes:
@@ -601,10 +605,10 @@ int32 quadtreeGetChildren(FPIXA      * fpixa,
  *          having zero dimension due to integer truncation.
  * </pre>
  */
-int32 quadtreeMaxLevels(int32 w,
-    int32 h)
+l_int32 quadtreeMaxLevels(l_int32 w,
+    l_int32 h)
 {
-	int32 i, minside;
+	l_int32 i, minside;
 
 	minside = MIN(w, h);
 	for(i = 0; i < 20; i++) { /* 2^10 = one million */
@@ -621,9 +625,9 @@ int32 quadtreeMaxLevels(int32 w,
 /*!
  * \brief   fpixaDisplayQuadtree()
  *
- * \param[in]    fpixa mean, variance or root variance
- * \param[in]    factor replication factor at lowest level
- * \param[in]    fontsize 4, ... 20
+ * \param[in]    fpixa     mean, variance or root variance
+ * \param[in]    factor    replication factor at lowest level
+ * \param[in]    fontsize  4, ... 20
  * \return  pixd 8 bpp, mosaic of quadtree images, or NULL on error
  *
  * <pre>
@@ -635,23 +639,23 @@ int32 quadtreeMaxLevels(int32 w,
  * </pre>
  */
 PIX * fpixaDisplayQuadtree(FPIXA   * fpixa,
-    int32 factor,
-    int32 fontsize)
+    l_int32 factor,
+    l_int32 fontsize)
 {
 	char buf[256];
-	int32 nlevels, i, mag, w;
+	l_int32 nlevels, i, mag, w;
 	L_BMF     * bmf;
 	FPIX      * fpix;
-	PIX       * pixt1, * pixt2, * pixt3, * pixt4, * pixd;
+	PIX * pixt1, * pixt2, * pixt3, * pixt4, * pixd;
 	PIXA      * pixat;
 
-	PROCNAME("fpixaDisplayQuadtree");
+	PROCNAME(__FUNCTION__);
 
 	if(!fpixa)
-		return (PIX*)ERROR_PTR("fpixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("fpixa not defined", procName, NULL);
 
 	if((nlevels = fpixaGetCount(fpixa)) == 0)
-		return (PIX*)ERROR_PTR("pixas empty", procName, NULL);
+		return (PIX *)ERROR_PTR("pixas empty", procName, NULL);
 
 	if((bmf = bmfCreate(NULL, fontsize)) == NULL)
 		L_ERROR("bmf not made; text will not be added", procName);
@@ -662,9 +666,9 @@ PIX * fpixaDisplayQuadtree(FPIXA   * fpixa,
 		mag = factor * (1 << (nlevels - i - 1));
 		pixt2 = pixExpandReplicate(pixt1, mag);
 		pixt3 = pixConvertTo32(pixt2);
-		_snprintf(buf, sizeof(buf), "Level %d\n", i);
+		snprintf(buf, sizeof(buf), "Level %d\n", i);
 		pixt4 = pixAddSingleTextblock(pixt3, bmf, buf, 0xff000000,
-		    L_ADD_BELOW, NULL);
+			L_ADD_BELOW, NULL);
 		pixaAddPix(pixat, pixt4, L_INSERT);
 		fpixDestroy(&fpix);
 		pixDestroy(&pixt1);
@@ -678,4 +682,3 @@ PIX * fpixaDisplayQuadtree(FPIXA   * fpixa,
 	bmfDestroy(&bmf);
 	return pixd;
 }
-

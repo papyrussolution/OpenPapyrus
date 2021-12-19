@@ -325,7 +325,7 @@ static void pchars(const pcre_uchar * p, int length, FILE * f)
    rlevel            function call recursion level
 
    Returns:            > 0 => number of match offset pairs placed in offsets
-                    = 0 => offsets overflowed; longest matches are present
+            = 0 => offsets overflowed; longest matches are present
                      -1 => failed to match
                    < -1 => some kind of unexpected problem
 
@@ -2381,15 +2381,15 @@ ANYNL03:
 					    rrc = 0;
 					    if(PUBL(callout)) {
 						    PUBL(callout_block) cb;
-						    cb.version          = 1; /* Version 1 of the callout block */
+						    cb.version  = 1; /* Version 1 of the callout block */
 						    cb.callout_number   = code[LINK_SIZE+2];
 						    cb.offset_vector    = offsets;
 #if defined COMPILE_PCRE8
-						    cb.subject          = (PCRE_SPTR)start_subject;
+						    cb.subject  = (PCRE_SPTR)start_subject;
 #elif defined COMPILE_PCRE16
-						    cb.subject          = (PCRE_SPTR16)start_subject;
+						    cb.subject  = (PCRE_SPTR16)start_subject;
 #elif defined COMPILE_PCRE32
-						    cb.subject          = (PCRE_SPTR32)start_subject;
+						    cb.subject  = (PCRE_SPTR32)start_subject;
 #endif
 						    cb.subject_length   = (int)(end_subject - start_subject);
 						    cb.start_match      = (int)(current_subject - start_subject);
@@ -2399,7 +2399,7 @@ ANYNL03:
 						    cb.capture_top      = 1;
 						    cb.capture_last     = -1;
 						    cb.callout_data     = md->callout_data;
-						    cb.mark             = NULL; /* No (*MARK) support */
+						    cb.mark     = NULL; /* No (*MARK) support */
 						    if((rrc = (*PUBL(callout))(&cb)) < 0) return rrc; /* Abandon */
 					    }
 					    if(rrc > 0) break; /* Fail this thread */
@@ -2702,15 +2702,15 @@ ANYNL03:
 				    rrc = 0;
 				    if(PUBL(callout)) {
 					    PUBL(callout_block) cb;
-					    cb.version          = 1; /* Version 1 of the callout block */
+					    cb.version  = 1; /* Version 1 of the callout block */
 					    cb.callout_number   = code[1];
 					    cb.offset_vector    = offsets;
 #if defined COMPILE_PCRE8
-					    cb.subject          = (PCRE_SPTR)start_subject;
+					    cb.subject  = (PCRE_SPTR)start_subject;
 #elif defined COMPILE_PCRE16
-					    cb.subject          = (PCRE_SPTR16)start_subject;
+					    cb.subject  = (PCRE_SPTR16)start_subject;
 #elif defined COMPILE_PCRE32
-					    cb.subject          = (PCRE_SPTR32)start_subject;
+					    cb.subject  = (PCRE_SPTR32)start_subject;
 #endif
 					    cb.subject_length   = (int)(end_subject - start_subject);
 					    cb.start_match      = (int)(current_subject - start_subject);
@@ -2720,7 +2720,7 @@ ANYNL03:
 					    cb.capture_top      = 1;
 					    cb.capture_last     = -1;
 					    cb.callout_data     = md->callout_data;
-					    cb.mark             = NULL; /* No (*MARK) support */
+					    cb.mark     = NULL; /* No (*MARK) support */
 					    if((rrc = (*PUBL(callout))(&cb)) < 0) return rrc; /* Abandon */
 				    }
 				    if(rrc == 0) {
@@ -2804,7 +2804,7 @@ NEXT_ACTIVE_STATE: continue;
    wscount         size of same
 
    Returns:          > 0 => number of match offset pairs placed in offsets
-                  = 0 => offsets overflowed; longest matches are present
+          = 0 => offsets overflowed; longest matches are present
                    -1 => failed to match
                  < -1 => some kind of unexpected problem
  */

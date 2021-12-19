@@ -39,7 +39,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 	rBlk.AddedIntVal = 0;
 	rBlk.LenRange = 0;
 	rBlk.AddedStrVal.Z();
-	rBlk.Key.Clear();
+	rBlk.Key.Z();
 	SString temp_buf;
 	SStrScan scan(Code);
 	do {
@@ -1298,7 +1298,7 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
+	HW = ::CreateWindowEx(WS_EX_COMPOSITED, SUcSwitch(PPDesktop::WndClsName), SUcSwitch(title.Transf(CTRANSF_INNER_TO_OUTER)), 
 		style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this);
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
@@ -1497,7 +1497,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 		Ptb.SetBrush(brushBkg, SPaintObj::bsSolid, Ptb.GetColor(colorBkg), 0);
 	}
 	TView::SetWindowUserData(H(), static_cast<PPDesktop *>(this));
-	SetCursor(LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(0, IDC_ARROW));
 	SetFocus(H());
 	SendMessage(H(), WM_NCACTIVATE, TRUE, 0L);
 	ReleaseDC(H(), hdc);
@@ -2066,6 +2066,8 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					e.message.infoView = 0;
 					p_desk->handleEvent(e);
 					p_desk->select();
+					InvalidateRect(hWnd, 0, TRUE); // @v11.2.8
+					UpdateWindow(hWnd); // @v11.2.8
 				}
 			}
 			break;
@@ -2391,9 +2393,9 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	wc.lpszClassName = SUcSwitch(PPDesktop::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = PPDesktop::DesktopWndProc;
-	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(102));
+	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(102));
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
-	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 	return ::RegisterClassEx(&wc);
 }
 

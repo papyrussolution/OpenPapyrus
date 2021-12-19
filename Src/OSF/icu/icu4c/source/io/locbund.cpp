@@ -117,9 +117,9 @@ U_CAPI ULocaleBundle * u_locbund_init(ULocaleBundle * result, const char * loc)
             result->fNumberFormat[styleIdx] = NULL;
         }
     }
-    result->fDateFormat         = (bundle->fDateFormat == 0 ? 0 :
+    result->fDateFormat = (bundle->fDateFormat == 0 ? 0 :
         udat_clone(bundle->fDateFormat, &status));
-    result->fTimeFormat         = (bundle->fTimeFormat == 0 ? 0 :
+    result->fTimeFormat = (bundle->fTimeFormat == 0 ? 0 :
         udat_clone(bundle->fTimeFormat, &status));
 
     return result;
@@ -135,7 +135,7 @@ U_CAPI void u_locbund_close(ULocaleBundle * bundle)
 		}
 	}
 	memzero(bundle, sizeof(ULocaleBundle));
-/*    uprv_free(bundle);*/
+/* uprv_free(bundle);*/
 }
 
 U_CAPI UNumberFormat * u_locbund_getNumberFormat(ULocaleBundle * bundle, UNumberFormatStyle style)

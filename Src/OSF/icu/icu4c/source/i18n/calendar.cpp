@@ -750,24 +750,24 @@ Calendar & Calendar::operator = (const Calendar &right)
 		uprv_arrayCopy(right.fFields, fFields, UCAL_FIELD_COUNT);
 		uprv_arrayCopy(right.fIsSet, fIsSet, UCAL_FIELD_COUNT);
 		uprv_arrayCopy(right.fStamp, fStamp, UCAL_FIELD_COUNT);
-		fTime                    = right.fTime;
-		fIsTimeSet               = right.fIsTimeSet;
-		fAreAllFieldsSet         = right.fAreAllFieldsSet;
-		fAreFieldsSet            = right.fAreFieldsSet;
+		fTime            = right.fTime;
+		fIsTimeSet       = right.fIsTimeSet;
+		fAreAllFieldsSet = right.fAreAllFieldsSet;
+		fAreFieldsSet    = right.fAreFieldsSet;
 		fAreFieldsVirtuallySet   = right.fAreFieldsVirtuallySet;
-		fLenient                 = right.fLenient;
+		fLenient         = right.fLenient;
 		fRepeatedWallTime        = right.fRepeatedWallTime;
-		fSkippedWallTime         = right.fSkippedWallTime;
+		fSkippedWallTime = right.fSkippedWallTime;
 		ZDELETE(fZone);
 		if(right.fZone)
 			fZone = right.fZone->clone();
-		fFirstDayOfWeek          = right.fFirstDayOfWeek;
+		fFirstDayOfWeek  = right.fFirstDayOfWeek;
 		fMinimalDaysInFirstWeek  = right.fMinimalDaysInFirstWeek;
-		fWeekendOnset            = right.fWeekendOnset;
+		fWeekendOnset    = right.fWeekendOnset;
 		fWeekendOnsetMillis      = right.fWeekendOnsetMillis;
-		fWeekendCease            = right.fWeekendCease;
+		fWeekendCease    = right.fWeekendCease;
 		fWeekendCeaseMillis      = right.fWeekendCeaseMillis;
-		fNextStamp               = right.fNextStamp;
+		fNextStamp       = right.fNextStamp;
 		uprv_strncpy(validLocale, right.validLocale, sizeof(validLocale));
 		uprv_strncpy(actualLocale, right.actualLocale, sizeof(actualLocale));
 		validLocale[sizeof(validLocale)-1] = 0;
@@ -1260,9 +1260,9 @@ void Calendar::clear(UCalendarDateFields field)
 		UErrorCode ec = U_ZERO_ERROR;
 		computeFields(ec);
 	}
-	fFields[field]         = 0;
-	fStamp[field]         = kUnset;
-	fIsSet[field]         = FALSE;// Remove later
+	fFields[field] = 0;
+	fStamp[field] = kUnset;
+	fIsSet[field] = FALSE;// Remove later
 	fIsTimeSet = fAreFieldsSet = fAreAllFieldsSet = fAreFieldsVirtuallySet = FALSE;
 }
 
@@ -1297,7 +1297,7 @@ void Calendar::complete(UErrorCode & status)
 		if(U_FAILURE(status)) {
 			return;
 		}
-		fAreFieldsSet         = TRUE;
+		fAreFieldsSet = TRUE;
 		fAreAllFieldsSet     = TRUE;
 	}
 }
@@ -1426,13 +1426,13 @@ void Calendar::computeFields(UErrorCode & ec)
 	fFields[UCAL_DST_OFFSET] = dstOffset;
 }
 
-uint8_t Calendar::julianDayToDayOfWeek(double julian)
+uint8 Calendar::julianDayToDayOfWeek(double julian)
 {
 	// If julian is negative, then julian%7 will be negative, so we adjust
 	// accordingly.  We add 1 because Julian day 0 is Monday.
 	int8_t dayOfWeek = (int8_t)uprv_fmod(julian + 1, 7);
 
-	uint8_t result = (uint8_t)(dayOfWeek + ((dayOfWeek < 0) ? (7+UCAL_SUNDAY ) : UCAL_SUNDAY));
+	uint8 result = (uint8)(dayOfWeek + ((dayOfWeek < 0) ? (7+UCAL_SUNDAY ) : UCAL_SUNDAY));
 	return result;
 }
 
@@ -2326,7 +2326,7 @@ UCalendarDaysOfWeek Calendar::getFirstDayOfWeek(UErrorCode & /*status*/) const
 	return fFirstDayOfWeek;
 }
 
-void Calendar::setMinimalDaysInFirstWeek(uint8_t value)
+void Calendar::setMinimalDaysInFirstWeek(uint8 value)
 {
 	// Values less than 1 have the same effect as 1; values greater
 	// than 7 have the same effect as 7. However, we normalize values
@@ -2343,7 +2343,7 @@ void Calendar::setMinimalDaysInFirstWeek(uint8_t value)
 	}
 }
 
-uint8_t Calendar::getMinimalDaysInFirstWeek() const
+uint8 Calendar::getMinimalDaysInFirstWeek() const
 {
 	return fMinimalDaysInFirstWeek;
 }
@@ -3651,7 +3651,7 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 		 && 1 <= weekDataArr[2] && weekDataArr[2] <= 7
 		 && 1 <= weekDataArr[4] && weekDataArr[4] <= 7) {
 			fFirstDayOfWeek = (UCalendarDaysOfWeek)weekDataArr[0];
-			fMinimalDaysInFirstWeek = (uint8_t)weekDataArr[1];
+			fMinimalDaysInFirstWeek = (uint8)weekDataArr[1];
 			fWeekendOnset = (UCalendarDaysOfWeek)weekDataArr[2];
 			fWeekendOnsetMillis = weekDataArr[3];
 			fWeekendCease = (UCalendarDaysOfWeek)weekDataArr[4];

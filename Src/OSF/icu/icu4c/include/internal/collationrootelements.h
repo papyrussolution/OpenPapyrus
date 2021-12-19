@@ -48,7 +48,7 @@ public:
     /**
   * Mask for getting the primary range step value from a primary-range-end element.
      */
-    static const uint8_t PRIMARY_STEP_MASK = 0x7f;
+    static const uint8 PRIMARY_STEP_MASK = 0x7f;
 
     enum {
         /**

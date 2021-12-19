@@ -94,18 +94,18 @@ struct mtree {
 	char checkfs;
 };
 
-static int      bid_keycmp(const char *, const char *, ssize_t);
-static int      cleanup(struct archive_read *);
-static int      detect_form(struct archive_read *, int *);
-static int      mtree_bid(struct archive_read *, int);
-static int      parse_file(struct archive_read *, struct archive_entry *, struct mtree *, struct mtree_entry *, int *);
+static int bid_keycmp(const char *, const char *, ssize_t);
+static int cleanup(struct archive_read *);
+static int detect_form(struct archive_read *, int *);
+static int mtree_bid(struct archive_read *, int);
+static int parse_file(struct archive_read *, struct archive_entry *, struct mtree *, struct mtree_entry *, int *);
 static void     parse_escapes(char *, struct mtree_entry *);
-static int      parse_line(struct archive_read *, struct archive_entry *, struct mtree *, struct mtree_entry *, int *);
-static int      parse_keyword(struct archive_read *, struct mtree *, struct archive_entry *, struct mtree_option *, int *);
-static int      read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
+static int parse_line(struct archive_read *, struct archive_entry *, struct mtree *, struct mtree_entry *, int *);
+static int parse_keyword(struct archive_read *, struct mtree *, struct archive_entry *, struct mtree_option *, int *);
+static int read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
 static ssize_t  readline(struct archive_read *, struct mtree *, char **, ssize_t);
-static int      skip(struct archive_read * a);
-static int      read_header(struct archive_read *, struct archive_entry *);
+static int skip(struct archive_read * a);
+static int read_header(struct archive_read *, struct archive_entry *);
 static int64  mtree_atol(char **, int base);
 
 /*
@@ -554,7 +554,7 @@ static int mtree_bid(struct archive_read * a, int best_bid)
 {
 	const char * signature = "#mtree";
 	const char * p;
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 	/* Now let's look at the actual header and see if it matches. */
 	p = static_cast<const char *>(__archive_read_ahead(a, strlen(signature), NULL));
 	if(!p)

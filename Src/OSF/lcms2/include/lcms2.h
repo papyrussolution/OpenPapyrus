@@ -87,27 +87,27 @@
 #endif
 
 // Base types
-typedef uchar cmsUInt8Number;          // That is guaranteed by the C99 spec
-typedef signed char cmsInt8Number;             // That is guaranteed by the C99 spec
+//typedef uchar cmsUInt8Number_Removed; // That is guaranteed by the C99 spec
+//typedef signed char cmsInt8Number_Removed; // That is guaranteed by the C99 spec
 // IEEE float storage numbers
-typedef float cmsFloat32Number;
-typedef double cmsFloat64Number;
+//typedef float cmsFloat32Number_Removed;
+//typedef double cmsFloat64Number_Removed;
 
 // 16-bit base types
-#if(USHRT_MAX == 65535U)
-	typedef unsigned short cmsUInt16Number;
-#elif (UINT_MAX == 65535U)
-	typedef unsigned int cmsUInt16Number;
-#else
-	#error "Unable to find 16 bits unsigned type, unsupported compiler"
-#endif
-#if(SHRT_MAX == 32767)
-	typedef  short cmsInt16Number;
-#elif (INT_MAX == 32767)
-	typedef  int cmsInt16Number;
-#else
-	#error "Unable to find 16 bits signed type, unsupported compiler"
-#endif
+//#if(USHRT_MAX == 65535U)
+	//typedef unsigned short cmsUInt16Number_Removed;
+//#elif (UINT_MAX == 65535U)
+	//typedef unsigned int cmsUInt16Number_Removed;
+//#else
+	//#error "Unable to find 16 bits unsigned type, unsupported compiler"
+//#endif
+//#if(SHRT_MAX == 32767)
+	//typedef  short cmsInt16Number_Removed;
+//#elif (INT_MAX == 32767)
+	//typedef  int cmsInt16Number_Removed;
+//#else
+	//#error "Unable to find 16 bits signed type, unsupported compiler"
+//#endif
 // 32-bit base type
 #if(UINT_MAX == 4294967295U)
 	typedef unsigned int cmsUInt32Number;
@@ -142,11 +142,11 @@ typedef double cmsFloat64Number;
 #endif
 #endif
 // Handle "register" keyword
-#if defined(CMS_NO_REGISTER_KEYWORD) && !defined(CMS_DLL) && !defined(CMS_DLL_BUILD)
-	#define CMSREGISTER
-#else
-	#define CMSREGISTER register
-#endif
+//#if defined(CMS_NO_REGISTER_KEYWORD) && !defined(CMS_DLL) && !defined(CMS_DLL_BUILD)
+	//#define CMSREGISTER
+//#else
+	//#define CMSREGISTER register
+//#endif
 // In the case 64 bit numbers are not supported by the compiler
 #ifdef CMS_DONT_USE_INT64
 	typedef cmsUInt32Number cmsUInt64Number[2];
@@ -155,10 +155,10 @@ typedef double cmsFloat64Number;
 
 // Derivative types
 typedef cmsUInt32Number cmsSignature;
-typedef cmsUInt16Number cmsU8Fixed8Number;
+typedef uint16 cmsU8Fixed8Number;
 typedef cmsInt32Number cmsS15Fixed16Number;
 typedef cmsUInt32Number cmsU16Fixed16Number;
-typedef int cmsBool; // Boolean type, which will be using the native integer
+// @sobolev typedef int cmsBool_Removed; // Boolean type, which will be using the native integer
 
 // Try to detect windows
 #if defined (_WIN32) || defined(_WIN64) || defined(WIN32) || defined(_WIN32_)
@@ -262,215 +262,215 @@ typedef int cmsBool; // Boolean type, which will be using the native integer
 
 // Base ICC type definitions
 typedef enum {
-	cmsSigChromaticityType                  = 0x6368726D,// 'chrm'
-	cmsSigColorantOrderType                 = 0x636C726F,// 'clro'
-	cmsSigColorantTableType                 = 0x636C7274,// 'clrt'
-	cmsSigCrdInfoType                       = 0x63726469,// 'crdi'
-	cmsSigCurveType                         = 0x63757276,// 'curv'
-	cmsSigDataType                          = 0x64617461,// 'data'
-	cmsSigDictType                          = 0x64696374,// 'dict'
-	cmsSigDateTimeType                      = 0x6474696D,// 'dtim'
-	cmsSigDeviceSettingsType                = 0x64657673,// 'devs'
-	cmsSigLut16Type                         = 0x6d667432,// 'mft2'
-	cmsSigLut8Type                          = 0x6d667431,// 'mft1'
-	cmsSigLutAtoBType                       = 0x6d414220,// 'mAB '
-	cmsSigLutBtoAType                       = 0x6d424120,// 'mBA '
-	cmsSigMeasurementType                   = 0x6D656173,// 'meas'
-	cmsSigMultiLocalizedUnicodeType         = 0x6D6C7563,// 'mluc'
-	cmsSigMultiProcessElementType           = 0x6D706574,// 'mpet'
-	cmsSigNamedColorType                    = 0x6E636f6C,// 'ncol' -- DEPRECATED!
-	cmsSigNamedColor2Type                   = 0x6E636C32,// 'ncl2'
-	cmsSigParametricCurveType               = 0x70617261,// 'para'
-	cmsSigProfileSequenceDescType           = 0x70736571,// 'pseq'
-	cmsSigProfileSequenceIdType             = 0x70736964,// 'psid'
-	cmsSigResponseCurveSet16Type            = 0x72637332,// 'rcs2'
-	cmsSigS15Fixed16ArrayType               = 0x73663332,// 'sf32'
-	cmsSigScreeningType                     = 0x7363726E,// 'scrn'
-	cmsSigSignatureType                     = 0x73696720,// 'sig '
-	cmsSigTextType                          = 0x74657874,// 'text'
-	cmsSigTextDescriptionType               = 0x64657363,// 'desc'
-	cmsSigU16Fixed16ArrayType               = 0x75663332,// 'uf32'
-	cmsSigUcrBgType                         = 0x62666420,// 'bfd '
-	cmsSigUInt16ArrayType                   = 0x75693136,// 'ui16'
-	cmsSigUInt32ArrayType                   = 0x75693332,// 'ui32'
-	cmsSigUInt64ArrayType                   = 0x75693634,// 'ui64'
-	cmsSigUInt8ArrayType                    = 0x75693038,// 'ui08'
-	cmsSigVcgtType                          = 0x76636774,// 'vcgt'
-	cmsSigViewingConditionsType             = 0x76696577,// 'view'
-	cmsSigXYZType                           = 0x58595A20// 'XYZ '
+	cmsSigChromaticityType          = 0x6368726D,// 'chrm'
+	cmsSigColorantOrderType         = 0x636C726F,// 'clro'
+	cmsSigColorantTableType         = 0x636C7274,// 'clrt'
+	cmsSigCrdInfoType               = 0x63726469,// 'crdi'
+	cmsSigCurveType                 = 0x63757276,// 'curv'
+	cmsSigDataType                  = 0x64617461,// 'data'
+	cmsSigDictType                  = 0x64696374,// 'dict'
+	cmsSigDateTimeType              = 0x6474696D,// 'dtim'
+	cmsSigDeviceSettingsType        = 0x64657673,// 'devs'
+	cmsSigLut16Type                 = 0x6d667432,// 'mft2'
+	cmsSigLut8Type                  = 0x6d667431,// 'mft1'
+	cmsSigLutAtoBType               = 0x6d414220,// 'mAB '
+	cmsSigLutBtoAType               = 0x6d424120,// 'mBA '
+	cmsSigMeasurementType           = 0x6D656173,// 'meas'
+	cmsSigMultiLocalizedUnicodeType = 0x6D6C7563,// 'mluc'
+	cmsSigMultiProcessElementType   = 0x6D706574,// 'mpet'
+	cmsSigNamedColorType            = 0x6E636f6C,// 'ncol' -- DEPRECATED!
+	cmsSigNamedColor2Type           = 0x6E636C32,// 'ncl2'
+	cmsSigParametricCurveType       = 0x70617261,// 'para'
+	cmsSigProfileSequenceDescType   = 0x70736571,// 'pseq'
+	cmsSigProfileSequenceIdType     = 0x70736964,// 'psid'
+	cmsSigResponseCurveSet16Type    = 0x72637332,// 'rcs2'
+	cmsSigS15Fixed16ArrayType       = 0x73663332,// 'sf32'
+	cmsSigScreeningType             = 0x7363726E,// 'scrn'
+	cmsSigSignatureType             = 0x73696720,// 'sig '
+	cmsSigTextType                  = 0x74657874,// 'text'
+	cmsSigTextDescriptionType       = 0x64657363,// 'desc'
+	cmsSigU16Fixed16ArrayType       = 0x75663332,// 'uf32'
+	cmsSigUcrBgType                 = 0x62666420,// 'bfd '
+	cmsSigUInt16ArrayType           = 0x75693136,// 'ui16'
+	cmsSigUInt32ArrayType           = 0x75693332,// 'ui32'
+	cmsSigUInt64ArrayType           = 0x75693634,// 'ui64'
+	cmsSigUInt8ArrayType            = 0x75693038,// 'ui08'
+	cmsSigVcgtType                  = 0x76636774,// 'vcgt'
+	cmsSigViewingConditionsType     = 0x76696577,// 'view'
+	cmsSigXYZType                   = 0x58595A20// 'XYZ '
 } cmsTagTypeSignature;
 
 // Base ICC tag definitions
 typedef enum {
-	cmsSigAToB0Tag                          = 0x41324230,// 'A2B0'
-	cmsSigAToB1Tag                          = 0x41324231,// 'A2B1'
-	cmsSigAToB2Tag                          = 0x41324232,// 'A2B2'
-	cmsSigBlueColorantTag                   = 0x6258595A,// 'bXYZ'
-	cmsSigBlueMatrixColumnTag               = 0x6258595A,// 'bXYZ'
-	cmsSigBlueTRCTag                        = 0x62545243,// 'bTRC'
-	cmsSigBToA0Tag                          = 0x42324130,// 'B2A0'
-	cmsSigBToA1Tag                          = 0x42324131,// 'B2A1'
-	cmsSigBToA2Tag                          = 0x42324132,// 'B2A2'
-	cmsSigCalibrationDateTimeTag            = 0x63616C74,// 'calt'
-	cmsSigCharTargetTag                     = 0x74617267,// 'targ'
-	cmsSigChromaticAdaptationTag            = 0x63686164,// 'chad'
-	cmsSigChromaticityTag                   = 0x6368726D,// 'chrm'
-	cmsSigColorantOrderTag                  = 0x636C726F,// 'clro'
-	cmsSigColorantTableTag                  = 0x636C7274,// 'clrt'
-	cmsSigColorantTableOutTag               = 0x636C6F74,// 'clot'
+	cmsSigAToB0Tag                  = 0x41324230,// 'A2B0'
+	cmsSigAToB1Tag                  = 0x41324231,// 'A2B1'
+	cmsSigAToB2Tag                  = 0x41324232,// 'A2B2'
+	cmsSigBlueColorantTag           = 0x6258595A,// 'bXYZ'
+	cmsSigBlueMatrixColumnTag       = 0x6258595A,// 'bXYZ'
+	cmsSigBlueTRCTag                = 0x62545243,// 'bTRC'
+	cmsSigBToA0Tag                  = 0x42324130,// 'B2A0'
+	cmsSigBToA1Tag                  = 0x42324131,// 'B2A1'
+	cmsSigBToA2Tag                  = 0x42324132,// 'B2A2'
+	cmsSigCalibrationDateTimeTag    = 0x63616C74,// 'calt'
+	cmsSigCharTargetTag             = 0x74617267,// 'targ'
+	cmsSigChromaticAdaptationTag    = 0x63686164,// 'chad'
+	cmsSigChromaticityTag           = 0x6368726D,// 'chrm'
+	cmsSigColorantOrderTag          = 0x636C726F,// 'clro'
+	cmsSigColorantTableTag          = 0x636C7274,// 'clrt'
+	cmsSigColorantTableOutTag       = 0x636C6F74,// 'clot'
 	cmsSigColorimetricIntentImageStateTag   = 0x63696973,// 'ciis'
-	cmsSigCopyrightTag                      = 0x63707274,// 'cprt'
-	cmsSigCrdInfoTag                        = 0x63726469,// 'crdi'
-	cmsSigDataTag                           = 0x64617461,// 'data'
-	cmsSigDateTimeTag                       = 0x6474696D,// 'dtim'
-	cmsSigDeviceMfgDescTag                  = 0x646D6E64,// 'dmnd'
-	cmsSigDeviceModelDescTag                = 0x646D6464,// 'dmdd'
-	cmsSigDeviceSettingsTag                 = 0x64657673,// 'devs'
-	cmsSigDToB0Tag                          = 0x44324230,// 'D2B0'
-	cmsSigDToB1Tag                          = 0x44324231,// 'D2B1'
-	cmsSigDToB2Tag                          = 0x44324232,// 'D2B2'
-	cmsSigDToB3Tag                          = 0x44324233,// 'D2B3'
-	cmsSigBToD0Tag                          = 0x42324430,// 'B2D0'
-	cmsSigBToD1Tag                          = 0x42324431,// 'B2D1'
-	cmsSigBToD2Tag                          = 0x42324432,// 'B2D2'
-	cmsSigBToD3Tag                          = 0x42324433,// 'B2D3'
-	cmsSigGamutTag                          = 0x67616D74,// 'gamt'
-	cmsSigGrayTRCTag                        = 0x6b545243,// 'kTRC'
-	cmsSigGreenColorantTag                  = 0x6758595A,// 'gXYZ'
-	cmsSigGreenMatrixColumnTag              = 0x6758595A,// 'gXYZ'
-	cmsSigGreenTRCTag                       = 0x67545243,// 'gTRC'
-	cmsSigLuminanceTag                      = 0x6C756d69,// 'lumi'
-	cmsSigMeasurementTag                    = 0x6D656173,// 'meas'
-	cmsSigMediaBlackPointTag                = 0x626B7074,// 'bkpt'
-	cmsSigMediaWhitePointTag                = 0x77747074,// 'wtpt'
-	cmsSigNamedColorTag                     = 0x6E636f6C,// 'ncol' // Deprecated by the ICC
-	cmsSigNamedColor2Tag                    = 0x6E636C32,// 'ncl2'
-	cmsSigOutputResponseTag                 = 0x72657370,// 'resp'
+	cmsSigCopyrightTag              = 0x63707274,// 'cprt'
+	cmsSigCrdInfoTag                = 0x63726469,// 'crdi'
+	cmsSigDataTag                   = 0x64617461,// 'data'
+	cmsSigDateTimeTag               = 0x6474696D,// 'dtim'
+	cmsSigDeviceMfgDescTag          = 0x646D6E64,// 'dmnd'
+	cmsSigDeviceModelDescTag        = 0x646D6464,// 'dmdd'
+	cmsSigDeviceSettingsTag         = 0x64657673,// 'devs'
+	cmsSigDToB0Tag                  = 0x44324230,// 'D2B0'
+	cmsSigDToB1Tag                  = 0x44324231,// 'D2B1'
+	cmsSigDToB2Tag                  = 0x44324232,// 'D2B2'
+	cmsSigDToB3Tag                  = 0x44324233,// 'D2B3'
+	cmsSigBToD0Tag                  = 0x42324430,// 'B2D0'
+	cmsSigBToD1Tag                  = 0x42324431,// 'B2D1'
+	cmsSigBToD2Tag                  = 0x42324432,// 'B2D2'
+	cmsSigBToD3Tag                  = 0x42324433,// 'B2D3'
+	cmsSigGamutTag                  = 0x67616D74,// 'gamt'
+	cmsSigGrayTRCTag                = 0x6b545243,// 'kTRC'
+	cmsSigGreenColorantTag          = 0x6758595A,// 'gXYZ'
+	cmsSigGreenMatrixColumnTag      = 0x6758595A,// 'gXYZ'
+	cmsSigGreenTRCTag               = 0x67545243,// 'gTRC'
+	cmsSigLuminanceTag              = 0x6C756d69,// 'lumi'
+	cmsSigMeasurementTag            = 0x6D656173,// 'meas'
+	cmsSigMediaBlackPointTag        = 0x626B7074,// 'bkpt'
+	cmsSigMediaWhitePointTag        = 0x77747074,// 'wtpt'
+	cmsSigNamedColorTag             = 0x6E636f6C,// 'ncol' // Deprecated by the ICC
+	cmsSigNamedColor2Tag            = 0x6E636C32,// 'ncl2'
+	cmsSigOutputResponseTag         = 0x72657370,// 'resp'
 	cmsSigPerceptualRenderingIntentGamutTag = 0x72696730, // 'rig0'
-	cmsSigPreview0Tag                       = 0x70726530,// 'pre0'
-	cmsSigPreview1Tag                       = 0x70726531,// 'pre1'
-	cmsSigPreview2Tag                       = 0x70726532,// 'pre2'
-	cmsSigProfileDescriptionTag             = 0x64657363,// 'desc'
-	cmsSigProfileDescriptionMLTag           = 0x6473636d,// 'dscm'
-	cmsSigProfileSequenceDescTag            = 0x70736571,// 'pseq'
-	cmsSigProfileSequenceIdTag              = 0x70736964,// 'psid'
-	cmsSigPs2CRD0Tag                        = 0x70736430,// 'psd0'
-	cmsSigPs2CRD1Tag                        = 0x70736431,// 'psd1'
-	cmsSigPs2CRD2Tag                        = 0x70736432,// 'psd2'
-	cmsSigPs2CRD3Tag                        = 0x70736433,// 'psd3'
-	cmsSigPs2CSATag                         = 0x70733273,// 'ps2s'
-	cmsSigPs2RenderingIntentTag             = 0x70733269,// 'ps2i'
-	cmsSigRedColorantTag                    = 0x7258595A,// 'rXYZ'
-	cmsSigRedMatrixColumnTag                = 0x7258595A,// 'rXYZ'
-	cmsSigRedTRCTag                         = 0x72545243,// 'rTRC'
+	cmsSigPreview0Tag               = 0x70726530,// 'pre0'
+	cmsSigPreview1Tag               = 0x70726531,// 'pre1'
+	cmsSigPreview2Tag               = 0x70726532,// 'pre2'
+	cmsSigProfileDescriptionTag     = 0x64657363,// 'desc'
+	cmsSigProfileDescriptionMLTag   = 0x6473636d,// 'dscm'
+	cmsSigProfileSequenceDescTag    = 0x70736571,// 'pseq'
+	cmsSigProfileSequenceIdTag      = 0x70736964,// 'psid'
+	cmsSigPs2CRD0Tag                = 0x70736430,// 'psd0'
+	cmsSigPs2CRD1Tag                = 0x70736431,// 'psd1'
+	cmsSigPs2CRD2Tag                = 0x70736432,// 'psd2'
+	cmsSigPs2CRD3Tag                = 0x70736433,// 'psd3'
+	cmsSigPs2CSATag                 = 0x70733273,// 'ps2s'
+	cmsSigPs2RenderingIntentTag     = 0x70733269,// 'ps2i'
+	cmsSigRedColorantTag            = 0x7258595A,// 'rXYZ'
+	cmsSigRedMatrixColumnTag        = 0x7258595A,// 'rXYZ'
+	cmsSigRedTRCTag                 = 0x72545243,// 'rTRC'
 	cmsSigSaturationRenderingIntentGamutTag = 0x72696732, // 'rig2'
-	cmsSigScreeningDescTag                  = 0x73637264,// 'scrd'
-	cmsSigScreeningTag                      = 0x7363726E,// 'scrn'
-	cmsSigTechnologyTag                     = 0x74656368,// 'tech'
-	cmsSigUcrBgTag                          = 0x62666420,// 'bfd '
-	cmsSigViewingCondDescTag                = 0x76756564,// 'vued'
-	cmsSigViewingConditionsTag              = 0x76696577,// 'view'
-	cmsSigVcgtTag                           = 0x76636774,// 'vcgt'
-	cmsSigMetaTag                           = 0x6D657461,// 'meta'
-	cmsSigArgyllArtsTag                     = 0x61727473// 'arts'
+	cmsSigScreeningDescTag          = 0x73637264,// 'scrd'
+	cmsSigScreeningTag              = 0x7363726E,// 'scrn'
+	cmsSigTechnologyTag             = 0x74656368,// 'tech'
+	cmsSigUcrBgTag                  = 0x62666420,// 'bfd '
+	cmsSigViewingCondDescTag        = 0x76756564,// 'vued'
+	cmsSigViewingConditionsTag      = 0x76696577,// 'view'
+	cmsSigVcgtTag                   = 0x76636774,// 'vcgt'
+	cmsSigMetaTag                   = 0x6D657461,// 'meta'
+	cmsSigArgyllArtsTag             = 0x61727473// 'arts'
 } cmsTagSignature;
 
 // ICC Technology tag
 typedef enum {
-	cmsSigDigitalCamera                     = 0x6463616D,// 'dcam'
-	cmsSigFilmScanner                       = 0x6673636E,// 'fscn'
-	cmsSigReflectiveScanner                 = 0x7273636E,// 'rscn'
-	cmsSigInkJetPrinter                     = 0x696A6574,// 'ijet'
-	cmsSigThermalWaxPrinter                 = 0x74776178,// 'twax'
+	cmsSigDigitalCamera             = 0x6463616D,// 'dcam'
+	cmsSigFilmScanner               = 0x6673636E,// 'fscn'
+	cmsSigReflectiveScanner         = 0x7273636E,// 'rscn'
+	cmsSigInkJetPrinter             = 0x696A6574,// 'ijet'
+	cmsSigThermalWaxPrinter         = 0x74776178,// 'twax'
 	cmsSigElectrophotographicPrinter        = 0x6570686F,// 'epho'
-	cmsSigElectrostaticPrinter              = 0x65737461,// 'esta'
-	cmsSigDyeSublimationPrinter             = 0x64737562,// 'dsub'
-	cmsSigPhotographicPaperPrinter          = 0x7270686F,// 'rpho'
-	cmsSigFilmWriter                        = 0x6670726E,// 'fprn'
-	cmsSigVideoMonitor                      = 0x7669646D,// 'vidm'
-	cmsSigVideoCamera                       = 0x76696463,// 'vidc'
-	cmsSigProjectionTelevision              = 0x706A7476,// 'pjtv'
-	cmsSigCRTDisplay                        = 0x43525420,// 'CRT '
-	cmsSigPMDisplay                         = 0x504D4420,// 'PMD '
-	cmsSigAMDisplay                         = 0x414D4420,// 'AMD '
-	cmsSigPhotoCD                           = 0x4B504344,// 'KPCD'
-	cmsSigPhotoImageSetter                  = 0x696D6773,// 'imgs'
-	cmsSigGravure                           = 0x67726176,// 'grav'
-	cmsSigOffsetLithography                 = 0x6F666673,// 'offs'
-	cmsSigSilkscreen                        = 0x73696C6B,// 'silk'
-	cmsSigFlexography                       = 0x666C6578,// 'flex'
-	cmsSigMotionPictureFilmScanner          = 0x6D706673,// 'mpfs'
-	cmsSigMotionPictureFilmRecorder         = 0x6D706672,// 'mpfr'
+	cmsSigElectrostaticPrinter      = 0x65737461,// 'esta'
+	cmsSigDyeSublimationPrinter     = 0x64737562,// 'dsub'
+	cmsSigPhotographicPaperPrinter  = 0x7270686F,// 'rpho'
+	cmsSigFilmWriter                = 0x6670726E,// 'fprn'
+	cmsSigVideoMonitor              = 0x7669646D,// 'vidm'
+	cmsSigVideoCamera               = 0x76696463,// 'vidc'
+	cmsSigProjectionTelevision      = 0x706A7476,// 'pjtv'
+	cmsSigCRTDisplay                = 0x43525420,// 'CRT '
+	cmsSigPMDisplay                 = 0x504D4420,// 'PMD '
+	cmsSigAMDisplay                 = 0x414D4420,// 'AMD '
+	cmsSigPhotoCD                   = 0x4B504344,// 'KPCD'
+	cmsSigPhotoImageSetter          = 0x696D6773,// 'imgs'
+	cmsSigGravure                   = 0x67726176,// 'grav'
+	cmsSigOffsetLithography         = 0x6F666673,// 'offs'
+	cmsSigSilkscreen                = 0x73696C6B,// 'silk'
+	cmsSigFlexography               = 0x666C6578,// 'flex'
+	cmsSigMotionPictureFilmScanner  = 0x6D706673,// 'mpfs'
+	cmsSigMotionPictureFilmRecorder = 0x6D706672,// 'mpfr'
 	cmsSigDigitalMotionPictureCamera        = 0x646D7063,// 'dmpc'
-	cmsSigDigitalCinemaProjector            = 0x64636A70// 'dcpj'
+	cmsSigDigitalCinemaProjector    = 0x64636A70// 'dcpj'
 } cmsTechnologySignature;
 
 // ICC Color spaces
 typedef enum {
-	cmsSigXYZData                           = 0x58595A20,// 'XYZ '
-	cmsSigLabData                           = 0x4C616220,// 'Lab '
-	cmsSigLuvData                           = 0x4C757620,// 'Luv '
-	cmsSigYCbCrData                         = 0x59436272,// 'YCbr'
-	cmsSigYxyData                           = 0x59787920,// 'Yxy '
-	cmsSigRgbData                           = 0x52474220,// 'RGB '
-	cmsSigGrayData                          = 0x47524159,// 'GRAY'
-	cmsSigHsvData                           = 0x48535620,// 'HSV '
-	cmsSigHlsData                           = 0x484C5320,// 'HLS '
-	cmsSigCmykData                          = 0x434D594B,// 'CMYK'
-	cmsSigCmyData                           = 0x434D5920,// 'CMY '
-	cmsSigMCH1Data                          = 0x4D434831,// 'MCH1'
-	cmsSigMCH2Data                          = 0x4D434832,// 'MCH2'
-	cmsSigMCH3Data                          = 0x4D434833,// 'MCH3'
-	cmsSigMCH4Data                          = 0x4D434834,// 'MCH4'
-	cmsSigMCH5Data                          = 0x4D434835,// 'MCH5'
-	cmsSigMCH6Data                          = 0x4D434836,// 'MCH6'
-	cmsSigMCH7Data                          = 0x4D434837,// 'MCH7'
-	cmsSigMCH8Data                          = 0x4D434838,// 'MCH8'
-	cmsSigMCH9Data                          = 0x4D434839,// 'MCH9'
-	cmsSigMCHAData                          = 0x4D434841,// 'MCHA'
-	cmsSigMCHBData                          = 0x4D434842,// 'MCHB'
-	cmsSigMCHCData                          = 0x4D434843,// 'MCHC'
-	cmsSigMCHDData                          = 0x4D434844,// 'MCHD'
-	cmsSigMCHEData                          = 0x4D434845,// 'MCHE'
-	cmsSigMCHFData                          = 0x4D434846,// 'MCHF'
-	cmsSigNamedData                         = 0x6e6d636c,// 'nmcl'
-	cmsSig1colorData                        = 0x31434C52,// '1CLR'
-	cmsSig2colorData                        = 0x32434C52,// '2CLR'
-	cmsSig3colorData                        = 0x33434C52,// '3CLR'
-	cmsSig4colorData                        = 0x34434C52,// '4CLR'
-	cmsSig5colorData                        = 0x35434C52,// '5CLR'
-	cmsSig6colorData                        = 0x36434C52,// '6CLR'
-	cmsSig7colorData                        = 0x37434C52,// '7CLR'
-	cmsSig8colorData                        = 0x38434C52,// '8CLR'
-	cmsSig9colorData                        = 0x39434C52,// '9CLR'
-	cmsSig10colorData                       = 0x41434C52,// 'ACLR'
-	cmsSig11colorData                       = 0x42434C52,// 'BCLR'
-	cmsSig12colorData                       = 0x43434C52,// 'CCLR'
-	cmsSig13colorData                       = 0x44434C52,// 'DCLR'
-	cmsSig14colorData                       = 0x45434C52,// 'ECLR'
-	cmsSig15colorData                       = 0x46434C52,// 'FCLR'
-	cmsSigLuvKData                          = 0x4C75764B// 'LuvK'
+	cmsSigXYZData                   = 0x58595A20,// 'XYZ '
+	cmsSigLabData                   = 0x4C616220,// 'Lab '
+	cmsSigLuvData                   = 0x4C757620,// 'Luv '
+	cmsSigYCbCrData                 = 0x59436272,// 'YCbr'
+	cmsSigYxyData                   = 0x59787920,// 'Yxy '
+	cmsSigRgbData                   = 0x52474220,// 'RGB '
+	cmsSigGrayData                  = 0x47524159,// 'GRAY'
+	cmsSigHsvData                   = 0x48535620,// 'HSV '
+	cmsSigHlsData                   = 0x484C5320,// 'HLS '
+	cmsSigCmykData                  = 0x434D594B,// 'CMYK'
+	cmsSigCmyData                   = 0x434D5920,// 'CMY '
+	cmsSigMCH1Data                  = 0x4D434831,// 'MCH1'
+	cmsSigMCH2Data                  = 0x4D434832,// 'MCH2'
+	cmsSigMCH3Data                  = 0x4D434833,// 'MCH3'
+	cmsSigMCH4Data                  = 0x4D434834,// 'MCH4'
+	cmsSigMCH5Data                  = 0x4D434835,// 'MCH5'
+	cmsSigMCH6Data                  = 0x4D434836,// 'MCH6'
+	cmsSigMCH7Data                  = 0x4D434837,// 'MCH7'
+	cmsSigMCH8Data                  = 0x4D434838,// 'MCH8'
+	cmsSigMCH9Data                  = 0x4D434839,// 'MCH9'
+	cmsSigMCHAData                  = 0x4D434841,// 'MCHA'
+	cmsSigMCHBData                  = 0x4D434842,// 'MCHB'
+	cmsSigMCHCData                  = 0x4D434843,// 'MCHC'
+	cmsSigMCHDData                  = 0x4D434844,// 'MCHD'
+	cmsSigMCHEData                  = 0x4D434845,// 'MCHE'
+	cmsSigMCHFData                  = 0x4D434846,// 'MCHF'
+	cmsSigNamedData                 = 0x6e6d636c,// 'nmcl'
+	cmsSig1colorData                = 0x31434C52,// '1CLR'
+	cmsSig2colorData                = 0x32434C52,// '2CLR'
+	cmsSig3colorData                = 0x33434C52,// '3CLR'
+	cmsSig4colorData                = 0x34434C52,// '4CLR'
+	cmsSig5colorData                = 0x35434C52,// '5CLR'
+	cmsSig6colorData                = 0x36434C52,// '6CLR'
+	cmsSig7colorData                = 0x37434C52,// '7CLR'
+	cmsSig8colorData                = 0x38434C52,// '8CLR'
+	cmsSig9colorData                = 0x39434C52,// '9CLR'
+	cmsSig10colorData               = 0x41434C52,// 'ACLR'
+	cmsSig11colorData               = 0x42434C52,// 'BCLR'
+	cmsSig12colorData               = 0x43434C52,// 'CCLR'
+	cmsSig13colorData               = 0x44434C52,// 'DCLR'
+	cmsSig14colorData               = 0x45434C52,// 'ECLR'
+	cmsSig15colorData               = 0x46434C52,// 'FCLR'
+	cmsSigLuvKData                  = 0x4C75764B// 'LuvK'
 } cmsColorSpaceSignature;
 
 // ICC Profile Class
 typedef enum {
-	cmsSigInputClass                        = 0x73636E72,// 'scnr'
-	cmsSigDisplayClass                      = 0x6D6E7472,// 'mntr'
-	cmsSigOutputClass                       = 0x70727472,// 'prtr'
-	cmsSigLinkClass                         = 0x6C696E6B,// 'link'
-	cmsSigAbstractClass                     = 0x61627374,// 'abst'
-	cmsSigColorSpaceClass                   = 0x73706163,// 'spac'
-	cmsSigNamedColorClass                   = 0x6e6d636c// 'nmcl'
+	cmsSigInputClass                = 0x73636E72,// 'scnr'
+	cmsSigDisplayClass              = 0x6D6E7472,// 'mntr'
+	cmsSigOutputClass               = 0x70727472,// 'prtr'
+	cmsSigLinkClass                 = 0x6C696E6B,// 'link'
+	cmsSigAbstractClass             = 0x61627374,// 'abst'
+	cmsSigColorSpaceClass           = 0x73706163,// 'spac'
+	cmsSigNamedColorClass           = 0x6e6d636c// 'nmcl'
 } cmsProfileClassSignature;
 
 // ICC Platforms
 typedef enum {
-	cmsSigMacintosh                         = 0x4150504C,// 'APPL'
-	cmsSigMicrosoft                         = 0x4D534654,// 'MSFT'
-	cmsSigSolaris                           = 0x53554E57,// 'SUNW'
-	cmsSigSGI                               = 0x53474920,// 'SGI '
-	cmsSigTaligent                          = 0x54474E54,// 'TGNT'
-	cmsSigUnices                            = 0x2A6E6978// '*nix'   // From argyll -- Not official
+	cmsSigMacintosh                 = 0x4150504C,// 'APPL'
+	cmsSigMicrosoft                 = 0x4D534654,// 'MSFT'
+	cmsSigSolaris                   = 0x53554E57,// 'SUNW'
+	cmsSigSGI                       = 0x53474920,// 'SGI '
+	cmsSigTaligent                  = 0x54474E54,// 'TGNT'
+	cmsSigUnices                    = 0x2A6E6978// '*nix'   // From argyll -- Not official
 } cmsPlatformSignature;
 
 // Reference gamut
@@ -485,36 +485,36 @@ typedef enum {
 
 // Multi process elements types
 typedef enum {
-	cmsSigCurveSetElemType              = 0x63767374,//'cvst'
-	cmsSigMatrixElemType                = 0x6D617466,//'matf'
-	cmsSigCLutElemType                  = 0x636C7574,//'clut'
+	cmsSigCurveSetElemType      = 0x63767374,//'cvst'
+	cmsSigMatrixElemType        = 0x6D617466,//'matf'
+	cmsSigCLutElemType          = 0x636C7574,//'clut'
 
-	cmsSigBAcsElemType                  = 0x62414353,// 'bACS'
-	cmsSigEAcsElemType                  = 0x65414353,// 'eACS'
+	cmsSigBAcsElemType          = 0x62414353,// 'bACS'
+	cmsSigEAcsElemType          = 0x65414353,// 'eACS'
 
 	// Custom from here, not in the ICC Spec
-	cmsSigXYZ2LabElemType               = 0x6C327820,// 'l2x '
-	cmsSigLab2XYZElemType               = 0x78326C20,// 'x2l '
-	cmsSigNamedColorElemType            = 0x6E636C20,// 'ncl '
-	cmsSigLabV2toV4                     = 0x32203420,// '2 4 '
-	cmsSigLabV4toV2                     = 0x34203220,// '4 2 '
+	cmsSigXYZ2LabElemType       = 0x6C327820,// 'l2x '
+	cmsSigLab2XYZElemType       = 0x78326C20,// 'x2l '
+	cmsSigNamedColorElemType    = 0x6E636C20,// 'ncl '
+	cmsSigLabV2toV4             = 0x32203420,// '2 4 '
+	cmsSigLabV4toV2             = 0x34203220,// '4 2 '
 
 	// Identities
-	cmsSigIdentityElemType              = 0x69646E20,// 'idn '
+	cmsSigIdentityElemType      = 0x69646E20,// 'idn '
 
 	// Float to floatPCS
-	cmsSigLab2FloatPCS                  = 0x64326C20,// 'd2l '
-	cmsSigFloatPCS2Lab                  = 0x6C326420,// 'l2d '
-	cmsSigXYZ2FloatPCS                  = 0x64327820,// 'd2x '
-	cmsSigFloatPCS2XYZ                  = 0x78326420,// 'x2d '
-	cmsSigClipNegativesElemType         = 0x636c7020// 'clp '
+	cmsSigLab2FloatPCS          = 0x64326C20,// 'd2l '
+	cmsSigFloatPCS2Lab          = 0x6C326420,// 'l2d '
+	cmsSigXYZ2FloatPCS          = 0x64327820,// 'd2x '
+	cmsSigFloatPCS2XYZ          = 0x78326420,// 'x2d '
+	cmsSigClipNegativesElemType = 0x636c7020// 'clp '
 } cmsStageSignature;
 
 // Types of CurveElements
 typedef enum {
-	cmsSigFormulaCurveSeg               = 0x70617266,// 'parf'
-	cmsSigSampledCurveSeg               = 0x73616D66,// 'samf'
-	cmsSigSegmentedCurve                = 0x63757266// 'curf'
+	cmsSigFormulaCurveSeg       = 0x70617266,// 'parf'
+	cmsSigSampledCurveSeg       = 0x73616D66,// 'samf'
+	cmsSigSegmentedCurve        = 0x63757266// 'curf'
 } cmsCurveSegSignature;
 
 // Used in ResponseCurveType
@@ -539,17 +539,17 @@ typedef enum {
 typedef struct {
 	cmsUInt32Number len;
 	cmsUInt32Number flag;
-	cmsUInt8Number data[1];
+	uint8 data[1];
 } cmsICCData;
 
 // ICC date time
 typedef struct {
-	cmsUInt16Number year;
-	cmsUInt16Number month;
-	cmsUInt16Number day;
-	cmsUInt16Number hours;
-	cmsUInt16Number minutes;
-	cmsUInt16Number seconds;
+	uint16 year;
+	uint16 month;
+	uint16 day;
+	uint16 hours;
+	uint16 minutes;
+	uint16 seconds;
 } cmsDateTimeNumber;
 
 // ICC XYZ
@@ -561,8 +561,8 @@ typedef struct {
 
 // Profile ID as computed by MD5 algorithm
 typedef union {
-	cmsUInt8Number ID8[16];
-	cmsUInt16Number ID16[8];
+	uint8 ID8[16];
+	uint16 ID16[8];
 	cmsUInt32Number ID32[4];
 } cmsProfileID;
 
@@ -589,13 +589,13 @@ typedef struct {
 	cmsEncodedXYZNumber illuminant;          // Profile illuminant
 	cmsSignature creator;                    // Profile creator
 	cmsProfileID profileID;                  // Profile ID using MD5
-	cmsInt8Number reserved[28];              // Reserved for future use
+	int8 reserved[28];              // Reserved for future use
 } cmsICCHeader;
 
 // ICC base tag
 typedef struct {
 	cmsTagTypeSignature sig;
-	cmsInt8Number reserved[4];
+	int8 reserved[4];
 } cmsTagBase;
 
 // A tag entry in directory
@@ -897,33 +897,33 @@ typedef void * cmsHTRANSFORM;
 
 // Colorspaces
 typedef struct {
-	cmsFloat64Number X;
-	cmsFloat64Number Y;
-	cmsFloat64Number Z;
+	double X;
+	double Y;
+	double Z;
 } cmsCIEXYZ;
 
 typedef struct {
-	cmsFloat64Number x;
-	cmsFloat64Number y;
-	cmsFloat64Number Y;
+	double x;
+	double y;
+	double Y;
 } cmsCIExyY;
 
 typedef struct {
-	cmsFloat64Number L;
-	cmsFloat64Number a;
-	cmsFloat64Number b;
+	double L;
+	double a;
+	double b;
 } cmsCIELab;
 
 typedef struct {
-	cmsFloat64Number L;
-	cmsFloat64Number C;
-	cmsFloat64Number h;
+	double L;
+	double C;
+	double h;
 } cmsCIELCh;
 
 typedef struct {
-	cmsFloat64Number J;
-	cmsFloat64Number C;
-	cmsFloat64Number h;
+	double J;
+	double C;
+	double h;
 } cmsJCh;
 
 typedef struct {
@@ -953,7 +953,7 @@ typedef struct {
 	cmsUInt32Number Observer;     // 0 = unknown, 1=CIE 1931, 2=CIE 1964
 	cmsCIEXYZ Backing;            // Value of backing
 	cmsUInt32Number Geometry;     // 0=unknown, 1=45/0, 0/45 2=0d, d/0
-	cmsFloat64Number Flare;       // 0..1.0
+	double Flare;       // 0..1.0
 	cmsUInt32Number IlluminantType;
 } cmsICCMeasurementConditions;
 
@@ -991,8 +991,8 @@ CMSAPI void * CMSEXPORT cmsGetContextUserData(cmsContext ContextID);
 // Plug-In registering
 //  --------------------------------------------------------------------------------------------------
 
-CMSAPI cmsBool CMSEXPORT cmsPlugin(void * Plugin);
-CMSAPI cmsBool CMSEXPORT cmsPluginTHR(cmsContext ContextID, void * Plugin);
+CMSAPI boolint CMSEXPORT cmsPlugin(void * Plugin);
+CMSAPI boolint CMSEXPORT cmsPluginTHR(cmsContext ContextID, void * Plugin);
 CMSAPI void CMSEXPORT cmsUnregisterPlugins(void);
 CMSAPI void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID);
 
@@ -1038,8 +1038,8 @@ CMSAPI void CMSEXPORT cmsSetLogErrorHandlerTHR(cmsContext ContextID, cmsLogError
 // --------------------------------------------------------------------------------------------------------------
 
 // Returns pointers to constant structs
-CMSAPI const cmsCIEXYZ*  CMSEXPORT cmsD50_XYZ(void);
-CMSAPI const cmsCIExyY*  CMSEXPORT cmsD50_xyY(void);
+CMSAPI const cmsCIEXYZ* CMSEXPORT cmsD50_XYZ(void);
+CMSAPI const cmsCIExyY* CMSEXPORT cmsD50_xyY(void);
 
 // Colorimetric space conversions
 CMSAPI void CMSEXPORT cmsXYZ2xyY(cmsCIExyY* Dest, const cmsCIEXYZ* Source);
@@ -1050,30 +1050,26 @@ CMSAPI void CMSEXPORT cmsLab2LCh(cmsCIELCh* LCh, const cmsCIELab* Lab);
 CMSAPI void CMSEXPORT cmsLCh2Lab(cmsCIELab* Lab, const cmsCIELCh* LCh);
 
 // Encoding /Decoding on PCS
-CMSAPI void CMSEXPORT cmsLabEncoded2Float(cmsCIELab* Lab, const cmsUInt16Number wLab[3]);
-CMSAPI void CMSEXPORT cmsLabEncoded2FloatV2(cmsCIELab* Lab, const cmsUInt16Number wLab[3]);
-CMSAPI void CMSEXPORT cmsFloat2LabEncoded(cmsUInt16Number wLab[3], const cmsCIELab* Lab);
-CMSAPI void CMSEXPORT cmsFloat2LabEncodedV2(cmsUInt16Number wLab[3], const cmsCIELab* Lab);
-CMSAPI void CMSEXPORT cmsXYZEncoded2Float(cmsCIEXYZ* fxyz, const cmsUInt16Number XYZ[3]);
-CMSAPI void CMSEXPORT cmsFloat2XYZEncoded(cmsUInt16Number XYZ[3], const cmsCIEXYZ* fXYZ);
+CMSAPI void CMSEXPORT cmsLabEncoded2Float(cmsCIELab* Lab, const uint16 wLab[3]);
+CMSAPI void CMSEXPORT cmsLabEncoded2FloatV2(cmsCIELab* Lab, const uint16 wLab[3]);
+CMSAPI void CMSEXPORT cmsFloat2LabEncoded(uint16 wLab[3], const cmsCIELab* Lab);
+CMSAPI void CMSEXPORT cmsFloat2LabEncodedV2(uint16 wLab[3], const cmsCIELab* Lab);
+CMSAPI void CMSEXPORT cmsXYZEncoded2Float(cmsCIEXYZ* fxyz, const uint16 XYZ[3]);
+CMSAPI void CMSEXPORT cmsFloat2XYZEncoded(uint16 XYZ[3], const cmsCIEXYZ* fXYZ);
 
 // DeltaE metrics
-CMSAPI cmsFloat64Number CMSEXPORT cmsDeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2);
-CMSAPI cmsFloat64Number CMSEXPORT cmsCIE94DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2);
-CMSAPI cmsFloat64Number CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2);
-CMSAPI cmsFloat64Number CMSEXPORT cmsCMCdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, cmsFloat64Number l, cmsFloat64Number c);
-CMSAPI cmsFloat64Number CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1,
-    const cmsCIELab* Lab2,
-    cmsFloat64Number Kl,
-    cmsFloat64Number Kc,
-    cmsFloat64Number Kh);
+CMSAPI double CMSEXPORT cmsDeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2);
+CMSAPI double CMSEXPORT cmsCIE94DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2);
+CMSAPI double CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2);
+CMSAPI double CMSEXPORT cmsCMCdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, double l, double c);
+CMSAPI double CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, double Kl, double Kc, double Kh);
 
 // Temperature <-> Chromaticity (Black body)
-CMSAPI cmsBool CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, cmsFloat64Number TempK);
-CMSAPI cmsBool CMSEXPORT cmsTempFromWhitePoint(cmsFloat64Number* TempK, const cmsCIExyY* WhitePoint);
+CMSAPI boolint CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, double TempK);
+CMSAPI boolint CMSEXPORT cmsTempFromWhitePoint(double * TempK, const cmsCIExyY* WhitePoint);
 
 // Chromatic adaptation
-CMSAPI cmsBool CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result, const cmsCIEXYZ* SourceWhitePt,
+CMSAPI boolint CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result, const cmsCIEXYZ* SourceWhitePt,
     const cmsCIEXYZ* Illuminant,
     const cmsCIEXYZ* Value);
 
@@ -1092,10 +1088,10 @@ CMSAPI cmsBool CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result, const cmsCIEXYZ
 
 typedef struct {
 	cmsCIEXYZ whitePoint;
-	cmsFloat64Number Yb;
-	cmsFloat64Number La;
+	double Yb;
+	double La;
 	cmsUInt32Number surround;
-	cmsFloat64Number D_value;
+	double D_value;
 } cmsViewingConditions;
 
 CMSAPI cmsHANDLE CMSEXPORT cmsCIECAM02Init(cmsContext ContextID, const cmsViewingConditions* pVC);
@@ -1109,51 +1105,42 @@ CMSAPI void CMSEXPORT cmsCIECAM02Reverse(cmsHANDLE hModel, const cmsJCh* pIn,   
 // available types by using a proper plug-in. Parametric segments allow 10 parameters at most
 
 typedef struct {
-	cmsFloat32Number x0, x1;         // Domain; for x0 < x <= x1
+	float x0, x1;         // Domain; for x0 < x <= x1
 	cmsInt32Number Type;             // Parametric type, Type == 0 means sampled segment. Negative values are
 	                                 // reserved
-	cmsFloat64Number Params[10];     // Parameters if Type != 0
+	double Params[10];     // Parameters if Type != 0
 	cmsUInt32Number nGridPoints;     // Number of grid points if Type == 0
-	cmsFloat32Number*  SampledPoints;// Points to an array of floats if Type == 0
+	float*  SampledPoints;// Points to an array of floats if Type == 0
 } cmsCurveSegment;
 
 // The internal representation is none of your business.
 typedef struct _cms_curve_struct cmsToneCurve;
 
-CMSAPI cmsToneCurve*     CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,
-    cmsUInt32Number nSegments,
-    const cmsCurveSegment Segments[]);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, cmsInt32Number Type, const cmsFloat64Number Params[]);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsBuildGamma(cmsContext ContextID, cmsFloat64Number Gamma);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID,
-    cmsUInt32Number nEntries,
-    const cmsUInt16Number values[]);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID,
-    cmsUInt32Number nEntries,
-    const cmsFloat32Number values[]);
-CMSAPI void CMSEXPORT cmsFreeToneCurve(cmsToneCurve* Curve);
-CMSAPI void CMSEXPORT cmsFreeToneCurveTriple(cmsToneCurve* Curve[3]);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsDupToneCurve(const cmsToneCurve* Src);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsReverseToneCurve(const cmsToneCurve* InGamma);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsReverseToneCurveEx(cmsUInt32Number nResultSamples, const cmsToneCurve* InGamma);
-CMSAPI cmsToneCurve*     CMSEXPORT cmsJoinToneCurve(cmsContext ContextID,
-    const cmsToneCurve* X,
-    const cmsToneCurve* Y,
-    cmsUInt32Number nPoints);
-CMSAPI cmsBool CMSEXPORT cmsSmoothToneCurve(cmsToneCurve* Tab, cmsFloat64Number lambda);
-CMSAPI cmsFloat32Number CMSEXPORT cmsEvalToneCurveFloat(const cmsToneCurve* Curve, cmsFloat32Number v);
-CMSAPI cmsUInt16Number CMSEXPORT cmsEvalToneCurve16(const cmsToneCurve* Curve, cmsUInt16Number v);
-CMSAPI cmsBool CMSEXPORT cmsIsToneCurveMultisegment(const cmsToneCurve* InGamma);
-CMSAPI cmsBool CMSEXPORT cmsIsToneCurveLinear(const cmsToneCurve* Curve);
-CMSAPI cmsBool CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve* t);
-CMSAPI cmsBool CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve* t);
-CMSAPI cmsInt32Number CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve* t);
-CMSAPI cmsFloat64Number CMSEXPORT cmsEstimateGamma(const cmsToneCurve* t, cmsFloat64Number Precision);
-CMSAPI cmsFloat64Number* CMSEXPORT cmsGetToneCurveParams(const cmsToneCurve* t);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID, cmsUInt32Number nSegments, const cmsCurveSegment Segments[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, cmsInt32Number Type, const double Params[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildGamma(cmsContext ContextID, double Gamma);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, cmsUInt32Number nEntries, const uint16 values[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, cmsUInt32Number nEntries, const float values[]);
+CMSAPI void CMSEXPORT cmsFreeToneCurve(cmsToneCurve * Curve);
+CMSAPI void CMSEXPORT cmsFreeToneCurveTriple(cmsToneCurve * Curve[3]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsDupToneCurve(const cmsToneCurve * Src);
+CMSAPI cmsToneCurve * CMSEXPORT cmsReverseToneCurve(const cmsToneCurve * InGamma);
+CMSAPI cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(cmsUInt32Number nResultSamples, const cmsToneCurve * InGamma);
+CMSAPI cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCurve * X, const cmsToneCurve * Y, cmsUInt32Number nPoints);
+CMSAPI boolint CMSEXPORT cmsSmoothToneCurve(cmsToneCurve * Tab, double lambda);
+CMSAPI float CMSEXPORT cmsEvalToneCurveFloat(const cmsToneCurve * Curve, float v);
+CMSAPI uint16 CMSEXPORT cmsEvalToneCurve16(const cmsToneCurve * Curve, uint16 v);
+CMSAPI boolint CMSEXPORT cmsIsToneCurveMultisegment(const cmsToneCurve * InGamma);
+CMSAPI boolint CMSEXPORT cmsIsToneCurveLinear(const cmsToneCurve * Curve);
+CMSAPI boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t);
+CMSAPI boolint CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve * t);
+CMSAPI cmsInt32Number CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t);
+CMSAPI double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision);
+CMSAPI double * CMSEXPORT cmsGetToneCurveParams(const cmsToneCurve * t);
 
 // Tone curve tabular estimation
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve* t);
-CMSAPI const cmsUInt16Number*  CMSEXPORT cmsGetToneCurveEstimatedTable(const cmsToneCurve* t);
+CMSAPI cmsUInt32Number CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t);
+CMSAPI const uint16* CMSEXPORT cmsGetToneCurveEstimatedTable(const cmsToneCurve * t);
 
 // Implements pipelines of multi-processing elements -------------------------------------------------------------
 
@@ -1162,103 +1149,65 @@ typedef struct _cmsPipeline_struct cmsPipeline;
 typedef struct _cmsStage_struct cmsStage;
 
 // Those are hi-level pipelines
-CMSAPI cmsPipeline*      CMSEXPORT cmsPipelineAlloc(cmsContext ContextID, cmsUInt32Number InputChannels, cmsUInt32Number OutputChannels);
-CMSAPI void CMSEXPORT cmsPipelineFree(cmsPipeline* lut);
-CMSAPI cmsPipeline*      CMSEXPORT cmsPipelineDup(const cmsPipeline* Orig);
-
-CMSAPI cmsContext CMSEXPORT cmsGetPipelineContextID(const cmsPipeline* lut);
-CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineInputChannels(const cmsPipeline* lut);
-CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineOutputChannels(const cmsPipeline* lut);
-
-CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineStageCount(const cmsPipeline* lut);
-CMSAPI cmsStage*         CMSEXPORT cmsPipelineGetPtrToFirstStage(const cmsPipeline* lut);
-CMSAPI cmsStage*         CMSEXPORT cmsPipelineGetPtrToLastStage(const cmsPipeline* lut);
-
-CMSAPI void CMSEXPORT cmsPipelineEval16(const cmsUInt16Number In[], cmsUInt16Number Out[], const cmsPipeline* lut);
-CMSAPI void CMSEXPORT cmsPipelineEvalFloat(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsPipeline* lut);
-CMSAPI cmsBool CMSEXPORT cmsPipelineEvalReverseFloat(cmsFloat32Number Target[],
-    cmsFloat32Number Result[],
-    cmsFloat32Number Hint[],
-    const cmsPipeline* lut);
-CMSAPI cmsBool CMSEXPORT cmsPipelineCat(cmsPipeline* l1, const cmsPipeline* l2);
-CMSAPI cmsBool CMSEXPORT cmsPipelineSetSaveAs8bitsFlag(cmsPipeline* lut, cmsBool On);
+CMSAPI cmsPipeline * CMSEXPORT cmsPipelineAlloc(cmsContext ContextID, cmsUInt32Number InputChannels, cmsUInt32Number OutputChannels);
+CMSAPI void CMSEXPORT cmsPipelineFree(cmsPipeline * lut);
+CMSAPI cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * Orig);
+CMSAPI cmsContext CMSEXPORT cmsGetPipelineContextID(const cmsPipeline * lut);
+CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineInputChannels(const cmsPipeline * lut);
+CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineOutputChannels(const cmsPipeline * lut);
+CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineStageCount(const cmsPipeline * lut);
+CMSAPI cmsStage * CMSEXPORT cmsPipelineGetPtrToFirstStage(const cmsPipeline * lut);
+CMSAPI cmsStage * CMSEXPORT cmsPipelineGetPtrToLastStage(const cmsPipeline * lut);
+CMSAPI void CMSEXPORT cmsPipelineEval16(const uint16 In[], uint16 Out[], const cmsPipeline * lut);
+CMSAPI void CMSEXPORT cmsPipelineEvalFloat(const float In[], float Out[], const cmsPipeline * lut);
+CMSAPI boolint CMSEXPORT cmsPipelineEvalReverseFloat(float Target[], float Result[], float Hint[], const cmsPipeline * lut);
+CMSAPI boolint CMSEXPORT cmsPipelineCat(cmsPipeline * l1, const cmsPipeline * l2);
+CMSAPI boolint CMSEXPORT cmsPipelineSetSaveAs8bitsFlag(cmsPipeline * lut, boolint On);
 
 // Where to place/locate the stages in the pipeline chain
 typedef enum { cmsAT_BEGIN, cmsAT_END } cmsStageLoc;
 
-CMSAPI cmsBool CMSEXPORT cmsPipelineInsertStage(cmsPipeline* lut, cmsStageLoc loc, cmsStage* mpe);
-CMSAPI void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline* lut, cmsStageLoc loc, cmsStage** mpe);
+CMSAPI boolint CMSEXPORT cmsPipelineInsertStage(cmsPipeline * lut, cmsStageLoc loc, cmsStage * mpe);
+CMSAPI void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline * lut, cmsStageLoc loc, cmsStage ** mpe);
 
 // This function is quite useful to analyze the structure of a Pipeline and retrieve the Stage elements
 // that conform the Pipeline. It should be called with the Pipeline, the number of expected elements and
 // then a list of expected types followed with a list of double pointers to Stage elements. If
 // the function founds a match with current pipeline, it fills the pointers and returns TRUE
 // if not, returns FALSE without touching anything.
-CMSAPI cmsBool CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline* Lut, cmsUInt32Number n, ...);
+CMSAPI boolint CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline * Lut, cmsUInt32Number n, ...);
 
 // Matrix has double precision and CLUT has only float precision. That is because an ICC profile can encode
 // matrices with far more precision that CLUTS
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocIdentity(cmsContext ContextID, cmsUInt32Number nChannels);
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, cmsUInt32Number nChannels, cmsToneCurve* const Curves[]);
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID,
-    cmsUInt32Number Rows,
-    cmsUInt32Number Cols,
-    const cmsFloat64Number* Matrix,
-    const cmsFloat64Number* Offset);
-
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocCLut16bit(cmsContext ContextID,
-    cmsUInt32Number nGridPoints,
-    cmsUInt32Number inputChan,
-    cmsUInt32Number outputChan,
-    const cmsUInt16Number* Table);
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocCLutFloat(cmsContext ContextID,
-    cmsUInt32Number nGridPoints,
-    cmsUInt32Number inputChan,
-    cmsUInt32Number outputChan,
-    const cmsFloat32Number* Table);
-
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID,
-    const cmsUInt32Number clutPoints[],
-    cmsUInt32Number inputChan,
-    cmsUInt32Number outputChan,
-    const cmsUInt16Number* Table);
-CMSAPI cmsStage*         CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID,
-    const cmsUInt32Number clutPoints[],
-    cmsUInt32Number inputChan,
-    cmsUInt32Number outputChan,
-    const cmsFloat32Number* Table);
-
-CMSAPI cmsStage*         CMSEXPORT cmsStageDup(cmsStage* mpe);
-CMSAPI void CMSEXPORT cmsStageFree(cmsStage* mpe);
-CMSAPI cmsStage*         CMSEXPORT cmsStageNext(const cmsStage* mpe);
-
-CMSAPI cmsUInt32Number CMSEXPORT cmsStageInputChannels(const cmsStage* mpe);
-CMSAPI cmsUInt32Number CMSEXPORT cmsStageOutputChannels(const cmsStage* mpe);
-CMSAPI cmsStageSignature CMSEXPORT cmsStageType(const cmsStage* mpe);
-CMSAPI void *  CMSEXPORT cmsStageData(const cmsStage* mpe);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocIdentity(cmsContext ContextID, cmsUInt32Number nChannels);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, cmsUInt32Number nChannels, cmsToneCurve * const Curves[]);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID, cmsUInt32Number Rows, cmsUInt32Number Cols, const double * Matrix, const double * Offset);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bit(cmsContext ContextID, cmsUInt32Number nGridPoints, cmsUInt32Number inputChan, cmsUInt32Number outputChan, const uint16* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloat(cmsContext ContextID, cmsUInt32Number nGridPoints, cmsUInt32Number inputChan, cmsUInt32Number outputChan, const float* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID, const cmsUInt32Number clutPoints[],
+    cmsUInt32Number inputChan, cmsUInt32Number outputChan, const uint16* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID, const cmsUInt32Number clutPoints[],
+    cmsUInt32Number inputChan, cmsUInt32Number outputChan, const float* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageDup(cmsStage * mpe);
+CMSAPI void CMSEXPORT cmsStageFree(cmsStage * mpe);
+CMSAPI cmsStage * CMSEXPORT cmsStageNext(const cmsStage * mpe);
+CMSAPI cmsUInt32Number CMSEXPORT cmsStageInputChannels(const cmsStage * mpe);
+CMSAPI cmsUInt32Number CMSEXPORT cmsStageOutputChannels(const cmsStage * mpe);
+CMSAPI cmsStageSignature CMSEXPORT cmsStageType(const cmsStage * mpe);
+CMSAPI void * CMSEXPORT cmsStageData(const cmsStage * mpe);
 
 // Sampling
-typedef cmsInt32Number (* cmsSAMPLER16)   (CMSREGISTER const cmsUInt16Number In[],
-    CMSREGISTER cmsUInt16Number Out[],
-    CMSREGISTER void * Cargo);
-
-typedef cmsInt32Number (* cmsSAMPLERFLOAT)(CMSREGISTER const cmsFloat32Number In[],
-    CMSREGISTER cmsFloat32Number Out[],
-    CMSREGISTER void * Cargo);
+typedef cmsInt32Number (* cmsSAMPLER16)   (const uint16 In[], uint16 Out[], void * Cargo);
+typedef cmsInt32Number (* cmsSAMPLERFLOAT)(const float In[], float Out[], void * Cargo);
 
 // Use this flag to prevent changes being written to destination
 #define SAMPLER_INSPECT     0x01000000
-
 // For CLUT only
-CMSAPI cmsBool CMSEXPORT cmsStageSampleCLut16bit(cmsStage* mpe,    cmsSAMPLER16 Sampler, void * Cargo, cmsUInt32Number dwFlags);
-CMSAPI cmsBool CMSEXPORT cmsStageSampleCLutFloat(cmsStage* mpe, cmsSAMPLERFLOAT Sampler, void * Cargo, cmsUInt32Number dwFlags);
-
+CMSAPI boolint CMSEXPORT cmsStageSampleCLut16bit(cmsStage * mpe,    cmsSAMPLER16 Sampler, void * Cargo, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsStageSampleCLutFloat(cmsStage * mpe, cmsSAMPLERFLOAT Sampler, void * Cargo, cmsUInt32Number dwFlags);
 // Slicers
-CMSAPI cmsBool CMSEXPORT cmsSliceSpace16(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[],
-    cmsSAMPLER16 Sampler, void * Cargo);
-
-CMSAPI cmsBool CMSEXPORT cmsSliceSpaceFloat(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[],
-    cmsSAMPLERFLOAT Sampler, void * Cargo);
+CMSAPI boolint CMSEXPORT cmsSliceSpace16(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[], cmsSAMPLER16 Sampler, void * Cargo);
+CMSAPI boolint CMSEXPORT cmsSliceSpaceFloat(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[], cmsSAMPLERFLOAT Sampler, void * Cargo);
 
 // Multilocalized Unicode management
 // ---------------------------------------------------------------------------------------
@@ -1271,39 +1220,20 @@ typedef struct _cms_MLU_struct cmsMLU;
 CMSAPI cmsMLU*           CMSEXPORT cmsMLUalloc(cmsContext ContextID, cmsUInt32Number nItems);
 CMSAPI void CMSEXPORT cmsMLUfree(cmsMLU* mlu);
 CMSAPI cmsMLU*           CMSEXPORT cmsMLUdup(const cmsMLU* mlu);
-
-CMSAPI cmsBool CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu,
-    const char LanguageCode[3], const char CountryCode[3],
-    const char * ASCIIString);
-CMSAPI cmsBool CMSEXPORT cmsMLUsetWide(cmsMLU* mlu,
-    const char LanguageCode[3], const char CountryCode[3],
-    const wchar_t* WideString);
-
-CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
-    const char LanguageCode[3], const char CountryCode[3],
-    char * Buffer,    cmsUInt32Number BufferSize);
-
-CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu,
-    const char LanguageCode[3], const char CountryCode[3],
-    wchar_t* Buffer, cmsUInt32Number BufferSize);
-
-CMSAPI cmsBool CMSEXPORT cmsMLUgetTranslation(const cmsMLU* mlu,
-    const char LanguageCode[3], const char CountryCode[3],
-    char ObtainedLanguage[3], char ObtainedCountry[3]);
-
+CMSAPI boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString);
+CMSAPI boolint CMSEXPORT cmsMLUsetWide(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const wchar_t* WideString);
+CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char * Buffer,    cmsUInt32Number BufferSize);
+CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], wchar_t* Buffer, cmsUInt32Number BufferSize);
+CMSAPI boolint CMSEXPORT cmsMLUgetTranslation(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char ObtainedLanguage[3], char ObtainedCountry[3]);
 CMSAPI cmsUInt32Number CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu);
-
-CMSAPI cmsBool CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu,
-    cmsUInt32Number idx,
-    char LanguageCode[3],
-    char CountryCode[3]);
+CMSAPI boolint CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu, cmsUInt32Number idx, char LanguageCode[3], char CountryCode[3]);
 
 // Undercolorremoval & black generation
 // -------------------------------------------------------------------------------------
 
 typedef struct {
-	cmsToneCurve* Ucr;
-	cmsToneCurve* Bg;
+	cmsToneCurve * Ucr;
+	cmsToneCurve * Bg;
 	cmsMLU*       Desc;
 } cmsUcrBg;
 
@@ -1324,8 +1254,8 @@ typedef struct {
 #define cmsSPOT_CROSS           7
 
 typedef struct {
-	cmsFloat64Number Frequency;
-	cmsFloat64Number ScreenAngle;
+	double Frequency;
+	double ScreenAngle;
 	cmsUInt32Number SpotShape;
 } cmsScreeningChannel;
 
@@ -1347,19 +1277,19 @@ CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
 
 CMSAPI void CMSEXPORT cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsDupNamedColorList(const cmsNAMEDCOLORLIST* v);
-CMSAPI cmsBool CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * Name,
-    cmsUInt16Number PCS[3],
-    cmsUInt16Number Colorant[cmsMAXCHANNELS]);
+CMSAPI boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * Name,
+    uint16 PCS[3],
+    uint16 Colorant[cmsMAXCHANNELS]);
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* v);
 CMSAPI cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char * Name);
 
-CMSAPI cmsBool CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
+CMSAPI boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
     char * Name,
     char * Prefix,
     char * Suffix,
-    cmsUInt16Number* PCS,
-    cmsUInt16Number* Colorant);
+    uint16* PCS,
+    uint16* Colorant);
 
 // Retrieve named color list from transform
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsGetNamedColorList(cmsHTRANSFORM xform);
@@ -1405,7 +1335,7 @@ CMSAPI cmsHANDLE CMSEXPORT cmsDictAlloc(cmsContext ContextID);
 CMSAPI void CMSEXPORT cmsDictFree(cmsHANDLE hDict);
 CMSAPI cmsHANDLE CMSEXPORT cmsDictDup(cmsHANDLE hDict);
 
-CMSAPI cmsBool CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict,
+CMSAPI boolint CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict,
     const wchar_t* Name,
     const wchar_t* Value,
     const cmsMLU * DisplayName,
@@ -1419,17 +1349,17 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsCreateProfilePlaceholder(cmsContext ContextID);
 CMSAPI cmsContext CMSEXPORT cmsGetProfileContextID(cmsHPROFILE hProfile);
 CMSAPI cmsInt32Number CMSEXPORT cmsGetTagCount(cmsHPROFILE hProfile);
 CMSAPI cmsTagSignature CMSEXPORT cmsGetTagSignature(cmsHPROFILE hProfile, cmsUInt32Number n);
-CMSAPI cmsBool CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
+CMSAPI boolint CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write pre-formatted data
-CMSAPI void *  CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig);
-CMSAPI cmsBool CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data);
-CMSAPI cmsBool CMSEXPORT cmsLinkTag(cmsHPROFILE hProfile, cmsTagSignature sig, cmsTagSignature dest);
+CMSAPI void * CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig);
+CMSAPI boolint CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data);
+CMSAPI boolint CMSEXPORT cmsLinkTag(cmsHPROFILE hProfile, cmsTagSignature sig, cmsTagSignature dest);
 CMSAPI cmsTagSignature CMSEXPORT cmsTagLinkedTo(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write raw data
 CMSAPI cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void * Buffer, cmsUInt32Number BufferSize);
-CMSAPI cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data, cmsUInt32Number Size);
+CMSAPI boolint CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data, cmsUInt32Number Size);
 
 // Access header data
 #define cmsEmbeddedProfileFalse    0x00000000
@@ -1439,8 +1369,8 @@ CMSAPI cmsBool CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature si
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderFlags(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsGetHeaderAttributes(cmsHPROFILE hProfile, cmsUInt64Number* Flags);
-CMSAPI void CMSEXPORT cmsGetHeaderProfileID(cmsHPROFILE hProfile, cmsUInt8Number* ProfileID);
-CMSAPI cmsBool CMSEXPORT cmsGetHeaderCreationDateTime(cmsHPROFILE hProfile, struct tm * Dest);
+CMSAPI void CMSEXPORT cmsGetHeaderProfileID(cmsHPROFILE hProfile, uint8 * ProfileID);
+CMSAPI boolint CMSEXPORT cmsGetHeaderCreationDateTime(cmsHPROFILE hProfile, struct tm * Dest);
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderRenderingIntent(cmsHPROFILE hProfile);
 
 CMSAPI void CMSEXPORT cmsSetHeaderFlags(cmsHPROFILE hProfile, cmsUInt32Number Flags);
@@ -1450,7 +1380,7 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderCreator(cmsHPROFILE hProfile);
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderModel(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetHeaderModel(cmsHPROFILE hProfile, cmsUInt32Number model);
 CMSAPI void CMSEXPORT cmsSetHeaderAttributes(cmsHPROFILE hProfile, cmsUInt64Number Flags);
-CMSAPI void CMSEXPORT cmsSetHeaderProfileID(cmsHPROFILE hProfile, cmsUInt8Number* ProfileID);
+CMSAPI void CMSEXPORT cmsSetHeaderProfileID(cmsHPROFILE hProfile, uint8 * ProfileID);
 CMSAPI void CMSEXPORT cmsSetHeaderRenderingIntent(cmsHPROFILE hProfile, cmsUInt32Number RenderingIntent);
 
 CMSAPI cmsColorSpaceSignature
@@ -1462,8 +1392,8 @@ CMSAPI void CMSEXPORT cmsSetColorSpace(cmsHPROFILE hProfile, cmsColorSpaceSignat
 CMSAPI cmsProfileClassSignature
 CMSEXPORT cmsGetDeviceClass(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetDeviceClass(cmsHPROFILE hProfile, cmsProfileClassSignature sig);
-CMSAPI void CMSEXPORT cmsSetProfileVersion(cmsHPROFILE hProfile, cmsFloat64Number Version);
-CMSAPI cmsFloat64Number CMSEXPORT cmsGetProfileVersion(cmsHPROFILE hProfile);
+CMSAPI void CMSEXPORT cmsSetProfileVersion(cmsHPROFILE hProfile, double Version);
+CMSAPI double CMSEXPORT cmsGetProfileVersion(cmsHPROFILE hProfile);
 
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetEncodedICCversion(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetEncodedICCversion(cmsHPROFILE hProfile, cmsUInt32Number Version);
@@ -1473,9 +1403,9 @@ CMSAPI void CMSEXPORT cmsSetEncodedICCversion(cmsHPROFILE hProfile, cmsUInt32Num
 #define LCMS_USED_AS_OUTPUT     1
 #define LCMS_USED_AS_PROOF      2
 
-CMSAPI cmsBool CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection);
-CMSAPI cmsBool CMSEXPORT cmsIsMatrixShaper(cmsHPROFILE hProfile);
-CMSAPI cmsBool CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection);
+CMSAPI boolint CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection);
+CMSAPI boolint CMSEXPORT cmsIsMatrixShaper(cmsHPROFILE hProfile);
+CMSAPI boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection);
 
 // Translate form/to our notation to ICC
 CMSAPI cmsColorSpaceSignature CMSEXPORT _cmsICCcolorSpace(int OurNotation);
@@ -1484,8 +1414,8 @@ CMSAPI int CMSEXPORT _cmsLCMScolorSpace(cmsColorSpaceSignature ProfileSpace);
 CMSAPI cmsUInt32Number CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace);
 
 // Build a suitable formatter for the colorspace of this profile. nBytes=1 means 8 bits, nBytes=2 means 16 bits.
-CMSAPI cmsUInt32Number CMSEXPORT cmsFormatterForColorspaceOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, cmsBool lIsFloat);
-CMSAPI cmsUInt32Number CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, cmsBool lIsFloat);
+CMSAPI cmsUInt32Number CMSEXPORT cmsFormatterForColorspaceOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, boolint lIsFloat);
+CMSAPI cmsUInt32Number CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, boolint lIsFloat);
 
 // Localized info
 typedef enum {
@@ -1508,17 +1438,17 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cm
 
 typedef struct _cms_io_handler cmsIOHANDLER;
 
-CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char * FileName, const char * AccessMode);
-CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromStream(cmsContext ContextID, FILE* Stream);
-CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, cmsUInt32Number size,
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char * FileName, const char * AccessMode);
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromStream(cmsContext ContextID, FILE* Stream);
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, cmsUInt32Number size,
     const char * AccessMode);
-CMSAPI cmsIOHANDLER*     CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID);
-CMSAPI cmsIOHANDLER*     CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile);
-CMSAPI cmsBool CMSEXPORT cmsCloseIOhandler(cmsIOHANDLER* io);
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID);
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile);
+CMSAPI boolint CMSEXPORT cmsCloseIOhandler(cmsIOHANDLER* io);
 
 // MD5 message digest --------------------------------------------------------------------------------------------------
 
-CMSAPI cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile);
+CMSAPI boolint CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile);
 
 // Profile high level functions
 // ------------------------------------------------------------------------------------------
@@ -1530,12 +1460,12 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStreamTHR(cmsContext ContextID, F
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMem(const void * MemPtr, cmsUInt32Number dwSize);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void * MemPtr, cmsUInt32Number dwSize);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandlerTHR(cmsContext ContextID, cmsIOHANDLER* io);
-CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandler2THR(cmsContext ContextID, cmsIOHANDLER* io, cmsBool write);
-CMSAPI cmsBool CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile);
+CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandler2THR(cmsContext ContextID, cmsIOHANDLER* io, boolint write);
+CMSAPI boolint CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile);
 
-CMSAPI cmsBool CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileName);
-CMSAPI cmsBool CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream);
-CMSAPI cmsBool CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, cmsUInt32Number* BytesNeeded);
+CMSAPI boolint CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileName);
+CMSAPI boolint CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream);
+CMSAPI boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, cmsUInt32Number* BytesNeeded);
 CMSAPI cmsUInt32Number CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* io);
 
 // Predefined virtual profiles
@@ -1544,30 +1474,30 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile,
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateRGBProfileTHR(cmsContext ContextID,
     const cmsCIExyY* WhitePoint,
     const cmsCIExyYTRIPLE* Primaries,
-    cmsToneCurve* const TransferFunction[3]);
+    cmsToneCurve * const TransferFunction[3]);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateRGBProfile(const cmsCIExyY* WhitePoint,
     const cmsCIExyYTRIPLE* Primaries,
-    cmsToneCurve* const TransferFunction[3]);
+    cmsToneCurve * const TransferFunction[3]);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateGrayProfileTHR(cmsContext ContextID,
     const cmsCIExyY* WhitePoint,
-    const cmsToneCurve* TransferFunction);
+    const cmsToneCurve * TransferFunction);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateGrayProfile(const cmsCIExyY* WhitePoint,
-    const cmsToneCurve* TransferFunction);
+    const cmsToneCurve * TransferFunction);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID,
     cmsColorSpaceSignature ColorSpace,
-    cmsToneCurve* const TransferFunctions[]);
+    cmsToneCurve * const TransferFunctions[]);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature ColorSpace,
-    cmsToneCurve* const TransferFunctions[]);
+    cmsToneCurve * const TransferFunctions[]);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
-    cmsColorSpaceSignature ColorSpace, cmsFloat64Number Limit);
+    cmsColorSpaceSignature ColorSpace, double Limit);
 
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLink(cmsColorSpaceSignature ColorSpace, cmsFloat64Number Limit);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLink(cmsColorSpaceSignature ColorSpace, double Limit);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLab2ProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLab2Profile(const cmsCIExyY* WhitePoint);
@@ -1582,18 +1512,18 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfile(void);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
     cmsUInt32Number nLUTPoints,
-    cmsFloat64Number Bright,
-    cmsFloat64Number Contrast,
-    cmsFloat64Number Hue,
-    cmsFloat64Number Saturation,
+    double Bright,
+    double Contrast,
+    double Hue,
+    double Saturation,
     cmsUInt32Number TempSrc,
     cmsUInt32Number TempDest);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(cmsUInt32Number nLUTPoints,
-    cmsFloat64Number Bright,
-    cmsFloat64Number Contrast,
-    cmsFloat64Number Hue,
-    cmsFloat64Number Saturation,
+    double Bright,
+    double Contrast,
+    double Hue,
+    double Saturation,
     cmsUInt32Number TempSrc,
     cmsUInt32Number TempDest);
 
@@ -1601,7 +1531,7 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfileTHR(cmsContext ContextID);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfile(void);
 
 // Converts a transform to a devicelink profile
-CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, cmsFloat64Number Version, cmsUInt32Number dwFlags);
+CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, cmsUInt32Number dwFlags);
 
 // Intents ----------------------------------------------------------------------------------------------
 
@@ -1717,9 +1647,9 @@ CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateMultiprofileTransform(cmsHPROFILE hProfi
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateExtendedTransform(cmsContext ContextID,
     cmsUInt32Number nProfiles, cmsHPROFILE hProfiles[],
-    cmsBool BPC[],
+    boolint BPC[],
     cmsUInt32Number Intents[],
-    cmsFloat64Number AdaptationStates[],
+    double AdaptationStates[],
     cmsHPROFILE hGamutProfile,
     cmsUInt32Number nGamutPCSposition,
     cmsUInt32Number InputFormat,
@@ -1749,17 +1679,17 @@ CMSAPI void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
     cmsUInt32Number BytesPerPlaneIn,
     cmsUInt32Number BytesPerPlaneOut);
 
-CMSAPI void CMSEXPORT cmsSetAlarmCodes(const cmsUInt16Number NewAlarm[cmsMAXCHANNELS]);
-CMSAPI void CMSEXPORT cmsGetAlarmCodes(cmsUInt16Number NewAlarm[cmsMAXCHANNELS]);
+CMSAPI void CMSEXPORT cmsSetAlarmCodes(const uint16 NewAlarm[cmsMAXCHANNELS]);
+CMSAPI void CMSEXPORT cmsGetAlarmCodes(uint16 NewAlarm[cmsMAXCHANNELS]);
 
 CMSAPI void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID,
-    const cmsUInt16Number AlarmCodes[cmsMAXCHANNELS]);
+    const uint16 AlarmCodes[cmsMAXCHANNELS]);
 CMSAPI void CMSEXPORT cmsGetAlarmCodesTHR(cmsContext ContextID,
-    cmsUInt16Number AlarmCodes[cmsMAXCHANNELS]);
+    uint16 AlarmCodes[cmsMAXCHANNELS]);
 
 // Adaptation state for absolute colorimetric intent
-CMSAPI cmsFloat64Number CMSEXPORT cmsSetAdaptationState(cmsFloat64Number d);
-CMSAPI cmsFloat64Number CMSEXPORT cmsSetAdaptationStateTHR(cmsContext ContextID, cmsFloat64Number d);
+CMSAPI double CMSEXPORT cmsSetAdaptationState(double d);
+CMSAPI double CMSEXPORT cmsSetAdaptationStateTHR(cmsContext ContextID, double d);
 
 // Grab the ContextID from an open transform. Returns NULL if a NULL transform is passed
 CMSAPI cmsContext CMSEXPORT cmsGetTransformContextID(cmsHTRANSFORM hTransform);
@@ -1769,7 +1699,7 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsGetTransformInputFormat(cmsHTRANSFORM hTrans
 CMSAPI cmsUInt32Number CMSEXPORT cmsGetTransformOutputFormat(cmsHTRANSFORM hTransform);
 
 // For backwards compatibility
-CMSAPI cmsBool CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform,
+CMSAPI boolint CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform,
     cmsUInt32Number InputFormat,
     cmsUInt32Number OutputFormat);
 
@@ -1812,40 +1742,40 @@ CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char *
 CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cmsUInt32Number len);
 // CMSAPI cmsHANDLE        CMSEXPORT cmsIT8LoadFromIOhandler(cmsContext ContextID, cmsIOHANDLER* io);
 
-CMSAPI cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName);
-CMSAPI cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded);
+CMSAPI boolint CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName);
+CMSAPI boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded);
 // Properties
 CMSAPI const char * CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * cComment);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * cProp, const char * Str);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, cmsFloat64Number Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer);
+CMSAPI boolint CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type);
+CMSAPI boolint CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * cComment);
+CMSAPI boolint CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * cProp, const char * Str);
+CMSAPI boolint CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, double Val);
+CMSAPI boolint CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val);
+CMSAPI boolint CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer);
+CMSAPI boolint CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer);
 CMSAPI const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * cProp);
-CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp);
+CMSAPI double CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp);
 CMSAPI const char * CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey);
 CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames);
 CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames);
 // Datasets
 CMSAPI const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col);
-CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, cmsFloat64Number Val);
+CMSAPI double CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col);
+CMSAPI boolint CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val);
+CMSAPI boolint CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, double Val);
 CMSAPI const char * CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
-CMSAPI cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample, cmsFloat64Number Val);
+CMSAPI double CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample);
+CMSAPI boolint CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val);
+CMSAPI boolint CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch, const char * cSample, double Val);
 
 CMSAPI int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char * cSample);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE hIT8, int n, const char * Sample);
+CMSAPI boolint CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE hIT8, int n, const char * Sample);
 CMSAPI int CMSEXPORT cmsIT8EnumDataFormat(cmsHANDLE hIT8, char *** SampleNames);
 CMSAPI const char * CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buffer);
 CMSAPI int CMSEXPORT cmsIT8GetPatchByName(cmsHANDLE hIT8, const char * cPatch);
 // The LABEL extension
 CMSAPI int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const char * cField, const char * ExpectedType);
-CMSAPI cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample);
+CMSAPI boolint CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample);
 // Formatter for double
 CMSAPI void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char * Formatter);
 
@@ -1853,20 +1783,20 @@ CMSAPI void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char * Formatt
 
 CMSAPI cmsHANDLE CMSEXPORT cmsGBDAlloc(cmsContext ContextID);
 CMSAPI void CMSEXPORT cmsGBDFree(cmsHANDLE hGBD);
-CMSAPI cmsBool CMSEXPORT cmsGDBAddPoint(cmsHANDLE hGBD, const cmsCIELab* Lab);
-CMSAPI cmsBool CMSEXPORT cmsGDBCompute(cmsHANDLE hGDB, cmsUInt32Number dwFlags);
-CMSAPI cmsBool CMSEXPORT cmsGDBCheckPoint(cmsHANDLE hGBD, const cmsCIELab* Lab);
+CMSAPI boolint CMSEXPORT cmsGDBAddPoint(cmsHANDLE hGBD, const cmsCIELab* Lab);
+CMSAPI boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGDB, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsGDBCheckPoint(cmsHANDLE hGBD, const cmsCIELab* Lab);
 
 // Feature detection  ----------------------------------------------------------------------------------------------
 
 // Estimate the black point
-CMSAPI cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags);
-CMSAPI cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags);
 
 // Estimate total area coverage
-CMSAPI cmsFloat64Number CMSEXPORT cmsDetectTAC(cmsHPROFILE hProfile);
+CMSAPI double CMSEXPORT cmsDetectTAC(cmsHPROFILE hProfile);
 // Poor man's gamut mapping
-CMSAPI cmsBool CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab, double amax, double amin, double bmax, double bmin);
+CMSAPI boolint CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab, double amax, double amin, double bmax, double bmin);
 
 #ifndef CMS_USE_CPP_API
 #ifdef __cplusplus

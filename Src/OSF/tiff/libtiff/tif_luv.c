@@ -121,7 +121,7 @@
  *  SGILOGDATAFMT_FLOAT       = IEEE 32-bit float XYZ values
  *  SGILOGDATAFMT_16BIT	      = 16-bit integer encodings of logL, u and v
  * Raw data i/o is also possible using:
- *  SGILOGDATAFMT_RAW         = 32-bit unsigned integer with encoded pixel
+ *  SGILOGDATAFMT_RAW = 32-bit unsigned integer with encoded pixel
  * In addition, the following decoding is provided for ease of display:
  *  SGILOGDATAFMT_8BIT        = 8-bit default RGB gamma-corrected values
  *

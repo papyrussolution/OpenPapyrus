@@ -434,8 +434,8 @@ extern struct tm * gmtime_r(const time_t * const timep, struct tm * tmp);
 	#endif
 #endif
 /* ---------------------------------------------------------------- */
-/*             resolver specialty compile-time defines              */
-/*         CURLRES_* defines to use in the host*.c sources          */
+/* resolver specialty compile-time defines              */
+/* CURLRES_* defines to use in the host*.c sources          */
 /* ---------------------------------------------------------------- */
 /*
  * lcc-win32 doesn't have _beginthreadex(), lacks threads support.

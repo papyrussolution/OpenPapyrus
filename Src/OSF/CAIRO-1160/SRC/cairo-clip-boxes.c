@@ -214,7 +214,7 @@ static boolint _cairo_boxes_copy_to_clip(const cairo_boxes_t * boxes, cairo_clip
 	return TRUE;
 }
 
-cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxes_t * boxes)
+cairo_clip_t * FASTCALL _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxes_t * boxes)
 {
 	cairo_boxes_t clip_boxes;
 	cairo_box_t limits;

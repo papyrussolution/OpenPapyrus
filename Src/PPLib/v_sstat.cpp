@@ -580,7 +580,7 @@ void PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatViewIte
 	MEMSZERO(item);
 	item.GoodsID      = pRec->GoodsID;
 	STRNSCPY(item.GoodsName, pRec->GoodsName);
-	item.Dt           = pRec->Dt;
+	item.Dt   = pRec->Dt;
 	item.Count        = pRec->Count;
 	item.QttyAvg      = pRec->QttyAvg;
 	item.QttySigma    = pRec->QttySigma;

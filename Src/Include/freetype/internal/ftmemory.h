@@ -41,7 +41,7 @@ FT_BEGIN_HEADER
 /* The calculation `NULL + n' is undefined in C.  Even if the resulting */
 /* pointer doesn't get dereferenced, this causes warnings with          */
 /* sanitizers.                                                          */
-/*                                                                      */
+/*                                                      */
 /* We thus provide a macro that should be used if `base' can be NULL.   */
 #define FT_OFFSET(base, count)  ((base) ? (base) + (count) : NULL )
 
@@ -53,7 +53,7 @@ FT_BEGIN_HEADER
 #ifdef __cplusplus
 	extern "C++"
 	{
-		template <typename T> inline T* cplusplus_typeof(T*, void  * v) { return static_cast <T*> ( v ); }
+		template <typename T> inline T* cplusplus_typeof(T*, void * v) { return static_cast <T*> ( v ); }
 	}
 	#define FT_ASSIGNP(p, val)  (p) = cplusplus_typeof((p), (val))
 #else

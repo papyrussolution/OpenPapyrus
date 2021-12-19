@@ -546,10 +546,10 @@ slim_hidden_def(cairo_pattern_create_rgb);
 cairo_pattern_t * cairo_pattern_create_rgba(double red, double green, double blue, double alpha)
 {
 	cairo_color_t color;
-	red   = _cairo_restrict_value(red,   0.0, 1.0);
-	green = _cairo_restrict_value(green, 0.0, 1.0);
-	blue  = _cairo_restrict_value(blue,  0.0, 1.0);
-	alpha = _cairo_restrict_value(alpha, 0.0, 1.0);
+	red   = sclamp(red,   0.0, 1.0);
+	green = sclamp(green, 0.0, 1.0);
+	blue  = sclamp(blue,  0.0, 1.0);
+	alpha = sclamp(alpha, 0.0, 1.0);
 	_cairo_color_init_rgba(&color, red, green, blue, alpha);
 	CAIRO_MUTEX_INITIALIZE();
 	return _cairo_pattern_create_solid(&color);
@@ -1546,37 +1546,28 @@ void cairo_mesh_pattern_set_corner_color_rgb(cairo_pattern_t * pattern,
  *
  * Since: 1.12
  **/
-void cairo_mesh_pattern_set_corner_color_rgba(cairo_pattern_t * pattern,
-    uint corner_num,
-    double red, double green, double blue,
-    double alpha)
+void cairo_mesh_pattern_set_corner_color_rgba(cairo_pattern_t * pattern, uint corner_num, double red, double green, double blue, double alpha)
 {
 	cairo_mesh_pattern_t * mesh;
-
 	if(UNLIKELY(pattern->status))
 		return;
-
 	if(UNLIKELY(pattern->type != CAIRO_PATTERN_TYPE_MESH)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 		return;
 	}
-
 	if(UNLIKELY(corner_num > 3)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_INDEX);
 		return;
 	}
-
 	mesh = reinterpret_cast<cairo_mesh_pattern_t *>(pattern);
 	if(UNLIKELY(!mesh->current_patch)) {
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
-
-	red    = _cairo_restrict_value(red,    0.0, 1.0);
-	green  = _cairo_restrict_value(green,  0.0, 1.0);
-	blue   = _cairo_restrict_value(blue,   0.0, 1.0);
-	alpha  = _cairo_restrict_value(alpha,  0.0, 1.0);
-
+	red    = sclamp(red,    0.0, 1.0);
+	green  = sclamp(green,  0.0, 1.0);
+	blue   = sclamp(blue,   0.0, 1.0);
+	alpha  = sclamp(alpha,  0.0, 1.0);
 	_cairo_mesh_pattern_set_corner_color(mesh, corner_num, red, green, blue, alpha);
 }
 
@@ -1695,18 +1686,19 @@ void cairo_pattern_add_color_stop_rgb(cairo_pattern_t * pattern,
  **/
 void cairo_pattern_add_color_stop_rgba(cairo_pattern_t * pattern, double offset, double red, double green, double blue, double alpha)
 {
-	if(pattern->status)
-		return;
-	if(!oneof2(pattern->type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL)) {
-		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
-		return;
+	if(pattern->status == 0) {
+		if(!oneof2(pattern->type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL)) {
+			_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
+		}
+		else {
+			offset = sclamp(offset, 0.0, 1.0);
+			red    = sclamp(red,    0.0, 1.0);
+			green  = sclamp(green,  0.0, 1.0);
+			blue   = sclamp(blue,   0.0, 1.0);
+			alpha  = sclamp(alpha,  0.0, 1.0);
+			_cairo_pattern_add_color_stop((cairo_gradient_pattern_t*)pattern, offset, red, green, blue, alpha);
+		}
 	}
-	offset = _cairo_restrict_value(offset, 0.0, 1.0);
-	red    = _cairo_restrict_value(red,    0.0, 1.0);
-	green  = _cairo_restrict_value(green,  0.0, 1.0);
-	blue   = _cairo_restrict_value(blue,   0.0, 1.0);
-	alpha  = _cairo_restrict_value(alpha,  0.0, 1.0);
-	_cairo_pattern_add_color_stop((cairo_gradient_pattern_t*)pattern, offset, red, green, blue, alpha);
 }
 
 slim_hidden_def(cairo_pattern_add_color_stop_rgba);
@@ -1745,25 +1737,18 @@ slim_hidden_def(cairo_pattern_add_color_stop_rgba);
  *
  * Since: 1.0
  **/
-void cairo_pattern_set_matrix(cairo_pattern_t * pattern,
-    const cairo_matrix_t * matrix)
+void cairo_pattern_set_matrix(cairo_pattern_t * pattern, const cairo_matrix_t * matrix)
 {
-	cairo_matrix_t inverse;
-	cairo_status_t status;
-
-	if(pattern->status)
-		return;
-
-	if(memcmp(&pattern->matrix, matrix, sizeof(cairo_matrix_t)) == 0)
-		return;
-
-	pattern->matrix = *matrix;
-	_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_MATRIX);
-
-	inverse = *matrix;
-	status = cairo_matrix_invert(&inverse);
-	if(UNLIKELY(status))
-		status = _cairo_pattern_set_error(pattern, status);
+	if(pattern->status == 0) {
+		if(memcmp(&pattern->matrix, matrix, sizeof(cairo_matrix_t)) != 0) {
+			pattern->matrix = *matrix;
+			_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_MATRIX);
+			cairo_matrix_t inverse = *matrix;
+			cairo_status_t status = cairo_matrix_invert(&inverse);
+			if(UNLIKELY(status))
+				status = _cairo_pattern_set_error(pattern, status);
+		}
+	}
 }
 
 slim_hidden_def(cairo_pattern_set_matrix);
@@ -1781,7 +1766,6 @@ void cairo_pattern_get_matrix(const cairo_pattern_t * pattern, cairo_matrix_t * 
 {
 	*matrix = pattern->matrix;
 }
-
 /**
  * cairo_pattern_set_filter:
  * @pattern: a #cairo_pattern_t
@@ -1806,11 +1790,10 @@ void cairo_pattern_get_matrix(const cairo_pattern_t * pattern, cairo_matrix_t * 
  **/
 void cairo_pattern_set_filter(cairo_pattern_t * pattern, cairo_filter_t filter)
 {
-	if(pattern->status)
-		return;
-
-	pattern->filter = filter;
-	_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_FILTER);
+	if(pattern->status == 0) {
+		pattern->filter = filter;
+		_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_FILTER);
+	}
 }
 
 /**
@@ -1828,7 +1811,6 @@ cairo_filter_t cairo_pattern_get_filter(const cairo_pattern_t * pattern)
 {
 	return pattern->filter;
 }
-
 /**
  * cairo_pattern_set_extend:
  * @pattern: a #cairo_pattern_t
@@ -2391,7 +2373,6 @@ void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradie
 
 #undef lerp
 }
-
 /**
  * _cairo_gradient_pattern_fit_to_range:
  *
@@ -2517,35 +2498,32 @@ static void _gradient_color_average(const cairo_gradient_pattern_t * gradient, c
 		    delta0 = 1.0 + gradient->stops[1].offset - gradient->stops[end].offset;
 		    delta1 = 1.0 + gradient->stops[0].offset - gradient->stops[end-1].offset;
 		    break;
-
 		case CAIRO_EXTEND_REFLECT:
-		    /*
-		 * Sa, Sb and Sy, Sz are the first two and last two stops respectively.
-		 * The weight of the first and last stop can be computed as the area of
-		 * the following trapezoids (taken with height 1, since the whole [0-1]
-		 * will have total weight 1 this way): (b+B)*h/2
-		     *
-		 * +-------+                   +---+
-		 * |       |\                / |   |
-		 * |       | \             /   |   |
-		 * |       |  \          /     |   |
-		 * +-------+---+~~~~~~~+-------+---+
-		 * 0      Sa   Sb      Sy     Sz   1
-		     *
-		 * For the first stop: (Sa+Sb)/2
-		 * For the last stop: ((1-Sz) + (1-Sy))/2 = (2-Sy-Sz)/2
-		 * Halving the result is done after summing up all the areas.
-		     */
+		    // 
+		    // Sa, Sb and Sy, Sz are the first two and last two stops respectively.
+		    // The weight of the first and last stop can be computed as the area of
+		    // the following trapezoids (taken with height 1, since the whole [0-1]
+		    // will have total weight 1 this way): (b+B)*h/2
+		    // 
+		    // +-------+                   +---+
+		    // |       |\                / |   |
+		    // |       | \             /   |   |
+		    // |       |  \          /     |   |
+		    // +-------+---+~~~~~~~+-------+---+
+		    // 0      Sa   Sb      Sy     Sz   1
+		    // 
+		    // For the first stop: (Sa+Sb)/2
+		    // For the last stop: ((1-Sz) + (1-Sy))/2 = (2-Sy-Sz)/2
+		    // Halving the result is done after summing up all the areas.
+		    // 
 		    delta0 = gradient->stops[0].offset + gradient->stops[1].offset;
 		    delta1 = 2.0 - gradient->stops[end-1].offset - gradient->stops[end].offset;
 		    break;
-
 		case CAIRO_EXTEND_PAD:
-		    /* PAD is computed as the average of the first and last stop:
-		 *  - take both of them with weight 1 (they will be halved
-		 * after the whole sum has been computed).
-		 *  - avoid summing any of the inner stops.
-		     */
+		    // PAD is computed as the average of the first and last stop:
+		    // - take both of them with weight 1 (they will be halved
+		    // after the whole sum has been computed).
+		    // - avoid summing any of the inner stops.
 		    delta0 = delta1 = 1.0;
 		    start = end;
 		    break;
@@ -2593,11 +2571,12 @@ void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern, double * out_mi
 {
 	double alpha_min, alpha_max;
 	switch(pattern->type) {
-		case CAIRO_PATTERN_TYPE_SOLID: {
-		    const cairo_solid_pattern_t * solid = reinterpret_cast<const cairo_solid_pattern_t *>(pattern);
-		    alpha_min = alpha_max = solid->color.alpha;
-		    break;
-	    }
+		case CAIRO_PATTERN_TYPE_SOLID: 
+			{
+				const cairo_solid_pattern_t * solid = reinterpret_cast<const cairo_solid_pattern_t *>(pattern);
+				alpha_min = alpha_max = solid->color.alpha;
+			}
+			break;
 		case CAIRO_PATTERN_TYPE_LINEAR:
 		case CAIRO_PATTERN_TYPE_RADIAL: 
 			{
@@ -2612,32 +2591,30 @@ void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern, double * out_mi
 				}
 			}
 			break;
-		case CAIRO_PATTERN_TYPE_MESH: {
-		    const cairo_mesh_pattern_t * mesh = (const cairo_mesh_pattern_t *)pattern;
-		    const cairo_mesh_patch_t * patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, 0);
-		    uint i, j, n = _cairo_array_num_elements(&mesh->patches);
-		    assert(n >= 1);
-		    alpha_min = alpha_max = patch[0].colors[0].alpha;
-		    for(i = 0; i < n; i++) {
-			    for(j = 0; j < 4; j++) {
-				    if(patch[i].colors[j].alpha < alpha_min)
-					    alpha_min = patch[i].colors[j].alpha;
-				    else if(patch[i].colors[j].alpha > alpha_max)
-					    alpha_max = patch[i].colors[j].alpha;
-			    }
-		    }
-
-		    break;
-	    }
-
+		case CAIRO_PATTERN_TYPE_MESH: 
+			{
+				const cairo_mesh_pattern_t * mesh = (const cairo_mesh_pattern_t *)pattern;
+				const cairo_mesh_patch_t * patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, 0);
+				const uint n = _cairo_array_num_elements(&mesh->patches);
+				assert(n >= 1);
+				alpha_min = alpha_max = patch[0].colors[0].alpha;
+				for(uint i = 0; i < n; i++) {
+					for(uint j = 0; j < 4; j++) {
+						if(patch[i].colors[j].alpha < alpha_min)
+							alpha_min = patch[i].colors[j].alpha;
+						else if(patch[i].colors[j].alpha > alpha_max)
+							alpha_max = patch[i].colors[j].alpha;
+					}
+				}
+			}
+			break;
 		default:
 		    ASSERT_NOT_REACHED;
 		// @fallthrough
-
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    alpha_min = 0;
-		    alpha_max = 1;
+		    alpha_min = 0.0;
+		    alpha_max = 1.0;
 		    break;
 	}
 	ASSIGN_PTR(out_min, alpha_min);
@@ -2701,7 +2678,6 @@ boolint _cairo_mesh_pattern_coord_box(const cairo_mesh_pattern_t * mesh, double 
  **/
 boolint FASTCALL _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * gradient, const cairo_rectangle_int_t * extents, cairo_color_t * color)
 {
-	uint i;
 	assert(oneof2(gradient->base.type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL));
 	// TODO: radial 
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
@@ -2723,7 +2699,7 @@ boolint FASTCALL _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t
 	}
 	else
 		return FALSE;
-	for(i = 1; i < gradient->n_stops; i++)
+	for(uint i = 1; i < gradient->n_stops; i++)
 		if(!_cairo_color_stop_equal(&gradient->stops[0].color, &gradient->stops[i].color))
 			return FALSE;
 	_cairo_color_init_rgba(color, gradient->stops[0].color.red, gradient->stops[0].color.green, gradient->stops[0].color.blue, gradient->stops[0].color.alpha);
@@ -2918,7 +2894,6 @@ boolint FASTCALL _cairo_pattern_is_clear(const cairo_pattern_t * abstract_patter
 		return FALSE;
 	}
 }
-
 /*
  * Will given row of back-translation matrix work with bilinear scale?
  * This is true for scales larger than 1. Also it was judged acceptable
@@ -2927,17 +2902,14 @@ boolint FASTCALL _cairo_pattern_is_clear(const cairo_pattern_t * abstract_patter
  */
 static int use_bilinear(double x, double y, double t)
 {
-	/* This is the inverse matrix! */
-	double h = x*x + y*y;
+	// This is the inverse matrix! 
+	const double h = x*x + y*y;
 	if(h < 1.0 / (0.75 * 0.75))
 		return TRUE; /* scale > .75 */
-	if((h > 3.99 && h < 4.01) /* scale is 1/2 */
-	 && !_cairo_fixed_from_double(x*y) /* parallel to an axis */
-	 && _cairo_fixed_is_integer(_cairo_fixed_from_double(t)))
+	if((h > 3.99 && h < 4.01) /* scale is 1/2 */ && !_cairo_fixed_from_double(x*y) /* parallel to an axis */ && _cairo_fixed_is_integer(_cairo_fixed_from_double(t)))
 		return TRUE;
 	return FALSE;
 }
-
 /**
  * _cairo_pattern_analyze_filter:
  * @pattern: surface pattern
@@ -2952,23 +2924,21 @@ cairo_filter_t _cairo_pattern_analyze_filter(const cairo_pattern_t * pattern)
 		case CAIRO_FILTER_BEST:
 		case CAIRO_FILTER_BILINEAR:
 		case CAIRO_FILTER_FAST:
-		    /* If source pixels map 1:1 onto destination pixels, we do
-		 * not need to filter (and do not want to filter, since it
-		 * will cause blurriness)
-		     */
+		    // If source pixels map 1:1 onto destination pixels, we do
+		    // not need to filter (and do not want to filter, since it
+		    // will cause blurriness)
 		    if(_cairo_matrix_is_pixel_exact(&pattern->matrix)) {
 			    return CAIRO_FILTER_NEAREST;
 		    }
 		    else {
-			    /* Use BILINEAR for any scale greater than .75 instead
-			 * of GOOD. For scales of 1 and larger this is identical,
-			 * for the smaller sizes it was judged that the artifacts
-			 * were not worse than the artifacts from a box filer.
-			 * BILINEAR can also be used if the scale is exactly .5
-			 * and the translation in that direction is an integer.
-			     */
-			    if(pattern->filter == CAIRO_FILTER_GOOD && use_bilinear(pattern->matrix.xx, pattern->matrix.xy,
-					pattern->matrix.x0) && use_bilinear(pattern->matrix.yx, pattern->matrix.yy, pattern->matrix.y0))
+			    // Use BILINEAR for any scale greater than .75 instead
+			    // of GOOD. For scales of 1 and larger this is identical,
+			    // for the smaller sizes it was judged that the artifacts
+			    // were not worse than the artifacts from a box filer.
+			    // BILINEAR can also be used if the scale is exactly .5
+			    // and the translation in that direction is an integer.
+			    if(pattern->filter == CAIRO_FILTER_GOOD && use_bilinear(pattern->matrix.xx, pattern->matrix.xy, pattern->matrix.x0) && 
+					use_bilinear(pattern->matrix.yx, pattern->matrix.yy, pattern->matrix.y0))
 				    return CAIRO_FILTER_BILINEAR;
 		    }
 		    break;
@@ -2990,7 +2960,6 @@ static inline double _cairo_hypot(double x, double y)
 {
 	return hypot(x, y);
 }
-
 /**
  * _cairo_pattern_sampled_area:
  *
@@ -3008,77 +2977,71 @@ static inline double _cairo_hypot(double x, double y)
  **/
 void FASTCALL _cairo_pattern_sampled_area(const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents, cairo_rectangle_int_t * sample)
 {
-	double x1, x2, y1, y2;
 	double padx, pady;
-	/* Assume filters are interpolating, which means identity
-	   cannot change the image */
+	// Assume filters are interpolating, which means identity cannot change the image 
 	if(_cairo_matrix_is_identity(&pattern->matrix)) {
 		*sample = *extents;
 		return;
 	}
-	/* Transform the centers of the corner pixels */
-	x1 = extents->x + 0.5;
-	y1 = extents->y + 0.5;
-	x2 = x1 + (extents->width - 1);
-	y2 = y1 + (extents->height - 1);
-	_cairo_matrix_transform_bounding_box(&pattern->matrix, &x1, &y1, &x2, &y2, NULL);
-	/* How far away from center will it actually sample?
-	 * This is the distance from a transformed pixel center to the
-	 * furthest sample of reasonable size.
-	 */
-	switch(pattern->filter) {
-		case CAIRO_FILTER_NEAREST:
-		case CAIRO_FILTER_FAST:
-		    /* Correct value is zero, but when the sample is on an integer
-		 * it is unknown if the backend will sample the pixel to the
-		 * left or right. This value makes it include both possible pixels.
-		     */
-		    padx = pady = 0.004;
-		    break;
-		case CAIRO_FILTER_BILINEAR:
-		case CAIRO_FILTER_GAUSSIAN:
-		default:
-		    /* Correct value is .5 */
-		    padx = pady = 0.495;
-		    break;
-		case CAIRO_FILTER_GOOD:
-		    /* Correct value is max(width,1)*.5 */
-		    padx = _cairo_hypot(pattern->matrix.xx, pattern->matrix.xy);
-		    if(padx <= 1.0) padx = 0.495;
-		    else if(padx >= 16.0) padx = 7.92;
-		    else padx *= 0.495;
-		    pady = _cairo_hypot(pattern->matrix.yx, pattern->matrix.yy);
-		    if(pady <= 1.0) pady = 0.495;
-		    else if(pady >= 16.0) pady = 7.92;
-		    else pady *= 0.495;
-		    break;
-		case CAIRO_FILTER_BEST:
-		    /* Correct value is width*2 */
-		    padx = _cairo_hypot(pattern->matrix.xx, pattern->matrix.xy) * 1.98;
-		    if(padx > 7.92) padx = 7.92;
-		    pady = _cairo_hypot(pattern->matrix.yx, pattern->matrix.yy) * 1.98;
-		    if(pady > 7.92) pady = 7.92;
-		    break;
+	else {
+		/* Transform the centers of the corner pixels */
+		double x1 = extents->x + 0.5;
+		double y1 = extents->y + 0.5;
+		double x2 = x1 + (extents->width - 1);
+		double y2 = y1 + (extents->height - 1);
+		_cairo_matrix_transform_bounding_box(&pattern->matrix, &x1, &y1, &x2, &y2, NULL);
+		/* How far away from center will it actually sample?
+		 * This is the distance from a transformed pixel center to the
+		 * furthest sample of reasonable size.
+		 */
+		switch(pattern->filter) {
+			case CAIRO_FILTER_NEAREST:
+			case CAIRO_FILTER_FAST:
+				// Correct value is zero, but when the sample is on an integer
+				// it is unknown if the backend will sample the pixel to the
+				// left or right. This value makes it include both possible pixels.
+				padx = pady = 0.004;
+				break;
+			case CAIRO_FILTER_BILINEAR:
+			case CAIRO_FILTER_GAUSSIAN:
+			default:
+				/* Correct value is .5 */
+				padx = pady = 0.495;
+				break;
+			case CAIRO_FILTER_GOOD:
+				/* Correct value is max(width,1)*.5 */
+				padx = _cairo_hypot(pattern->matrix.xx, pattern->matrix.xy);
+				if(padx <= 1.0) padx = 0.495;
+				else if(padx >= 16.0) padx = 7.92;
+				else padx *= 0.495;
+				pady = _cairo_hypot(pattern->matrix.yx, pattern->matrix.yy);
+				if(pady <= 1.0) pady = 0.495;
+				else if(pady >= 16.0) pady = 7.92;
+				else pady *= 0.495;
+				break;
+			case CAIRO_FILTER_BEST:
+				/* Correct value is width*2 */
+				padx = _cairo_hypot(pattern->matrix.xx, pattern->matrix.xy) * 1.98;
+				if(padx > 7.92) padx = 7.92;
+				pady = _cairo_hypot(pattern->matrix.yx, pattern->matrix.yy) * 1.98;
+				if(pady > 7.92) pady = 7.92;
+				break;
+		}
+		/* round furthest samples to edge of pixels */
+		x1 = floor(x1 - padx);
+		SETMAX(x1, CAIRO_RECT_INT_MIN);
+		sample->x = static_cast<int>(x1);
+		y1 = floor(y1 - pady);
+		SETMAX(y1, CAIRO_RECT_INT_MIN);
+		sample->y = static_cast<int>(y1);
+		x2 = floor(x2 + padx) + 1.0;
+		SETMIN(x2, CAIRO_RECT_INT_MAX);
+		sample->width = static_cast<int>(x2 - x1);
+		y2 = floor(y2 + pady) + 1.0;
+		SETMIN(y2, CAIRO_RECT_INT_MAX);
+		sample->height = static_cast<int>(y2 - y1);
 	}
-
-	/* round furthest samples to edge of pixels */
-	x1 = floor(x1 - padx);
-	if(x1 < CAIRO_RECT_INT_MIN) x1 = CAIRO_RECT_INT_MIN;
-	sample->x = static_cast<int>(x1);
-
-	y1 = floor(y1 - pady);
-	if(y1 < CAIRO_RECT_INT_MIN) y1 = CAIRO_RECT_INT_MIN;
-	sample->y = static_cast<int>(y1);
-
-	x2 = floor(x2 + padx) + 1.0;
-	if(x2 > CAIRO_RECT_INT_MAX) x2 = CAIRO_RECT_INT_MAX;
-	sample->width = static_cast<int>(x2 - x1);
-
-	y2 = floor(y2 + pady) + 1.0;
-	if(y2 > CAIRO_RECT_INT_MAX) y2 = CAIRO_RECT_INT_MAX;
-	sample->height = static_cast<int>(y2 - y1);
 }
-
 /**
  * _cairo_pattern_get_extents:
  *
@@ -3103,7 +3066,6 @@ void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    goto UNBOUNDED;
-
 		case CAIRO_PATTERN_TYPE_SURFACE:
 	    {
 		    cairo_rectangle_int_t surface_extents;
@@ -3122,7 +3084,6 @@ void _cairo_pattern_get_extents(const cairo_pattern_t * pattern, cairo_rectangle
 		    goto HANDLE_FILTER;
 	    }
 	    break;
-
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
 	    {
 		    const cairo_raster_source_pattern_t * raster = (const cairo_raster_source_pattern_t*)pattern;
@@ -3201,21 +3162,16 @@ HANDLE_FILTER:
 		    y2 = MAX(cy1 + r1, cy2 + r2);
 	    }
 	    break;
-
 		case CAIRO_PATTERN_TYPE_LINEAR:
 	    {
 		    const cairo_linear_pattern_t * linear = (const cairo_linear_pattern_t*)pattern;
 		    if(pattern->extend != CAIRO_EXTEND_NONE)
 			    goto UNBOUNDED;
 		    if(_linear_pattern_is_degenerate(linear)) {
-			    /* cairo-gstate should have optimised degenerate
-			 * patterns to solid ones, so we can again ignore
-			 * them here. */
+			    // cairo-gstate should have optimised degenerate patterns to solid ones, so we can again ignore them here.
 			    goto EMPTY;
 		    }
-
-		    /* TODO: to get tight extents, use the matrix to transform
-		 * the pattern instead of transforming the extents later. */
+		    // TODO: to get tight extents, use the matrix to transform the pattern instead of transforming the extents later. 
 		    if(pattern->matrix.xy != 0. || pattern->matrix.yx != 0.)
 			    goto UNBOUNDED;
 
@@ -3234,9 +3190,7 @@ HANDLE_FILTER:
 		    else {
 			    goto  UNBOUNDED;
 		    }
-
-		    /* The current linear renderer just point-samples in the middle
-		       of the pixels, similar to the NEAREST filter: */
+		    // The current linear renderer just point-samples in the middle of the pixels, similar to the NEAREST filter:
 		    round_x = round_y = TRUE;
 	    }
 	    break;
@@ -3266,14 +3220,8 @@ HANDLE_FILTER:
 		x1 -= 0.5;
 		x2 += 0.5;
 	}
-	if(x1 < CAIRO_RECT_INT_MIN)
-		ix1 = CAIRO_RECT_INT_MIN;
-	else
-		ix1 = _cairo_lround(x1);
-	if(x2 > CAIRO_RECT_INT_MAX)
-		ix2 = CAIRO_RECT_INT_MAX;
-	else
-		ix2 = _cairo_lround(x2);
+	ix1 = (x1 < CAIRO_RECT_INT_MIN) ? CAIRO_RECT_INT_MIN : _cairo_lround(x1);
+	ix2 = (x2 > CAIRO_RECT_INT_MAX) ? CAIRO_RECT_INT_MAX : _cairo_lround(x2);
 	extents->x = ix1; extents->width  = ix2 - ix1;
 	if(is_vector && extents->width == 0 && x1 != x2)
 		extents->width += 1;
@@ -3282,38 +3230,27 @@ HANDLE_FILTER:
 		y1 -= 0.5;
 		y2 += 0.5;
 	}
-	if(y1 < CAIRO_RECT_INT_MIN)
-		iy1 = CAIRO_RECT_INT_MIN;
-	else
-		iy1 = _cairo_lround(y1);
-	if(y2 > CAIRO_RECT_INT_MAX)
-		iy2 = CAIRO_RECT_INT_MAX;
-	else
-		iy2 = _cairo_lround(y2);
+	iy1 = (y1 < CAIRO_RECT_INT_MIN) ? CAIRO_RECT_INT_MIN : _cairo_lround(y1);
+	iy2 = (y2 > CAIRO_RECT_INT_MAX) ? CAIRO_RECT_INT_MAX : _cairo_lround(y2);
 	extents->y = iy1; extents->height = iy2 - iy1;
 	if(is_vector && extents->height == 0 && y1 != y2)
 		extents->height += 1;
-
 	return;
-
 UNBOUNDED:
-	/* unbounded patterns -> 'infinite' extents */
+	// unbounded patterns -> 'infinite' extents 
 	_cairo_unbounded_rectangle_init(extents);
 	return;
-
 EMPTY:
 	extents->x = extents->y = 0;
 	extents->width = extents->height = 0;
 	return;
 }
-
 /**
  * _cairo_pattern_get_ink_extents:
  *
  * Return the "target-space" inked extents of @pattern in @extents.
  **/
-cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents)
+cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * pattern, cairo_rectangle_int_t * extents)
 {
 	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE && pattern->extend == CAIRO_EXTEND_NONE) {
 		const cairo_surface_pattern_t * surface_pattern = (const cairo_surface_pattern_t*)pattern;
@@ -3421,63 +3358,66 @@ static boolint _cairo_solid_pattern_equal(const cairo_solid_pattern_t * a, const
 
 static boolint _cairo_gradient_color_stops_equal(const cairo_gradient_pattern_t * a, const cairo_gradient_pattern_t * b)
 {
-	uint n;
 	if(a->n_stops != b->n_stops)
 		return FALSE;
-	for(n = 0; n < a->n_stops; n++) {
-		if(a->stops[n].offset != b->stops[n].offset)
-			return FALSE;
-		if(!_cairo_color_stop_equal(&a->stops[n].color, &b->stops[n].color))
-			return FALSE;
+	else {
+		for(uint n = 0; n < a->n_stops; n++) {
+			if(a->stops[n].offset != b->stops[n].offset)
+				return FALSE;
+			else if(!_cairo_color_stop_equal(&a->stops[n].color, &b->stops[n].color))
+				return FALSE;
+		}
+		return TRUE;
 	}
-	return TRUE;
 }
 
 boolint _cairo_linear_pattern_equal(const cairo_linear_pattern_t * a, const cairo_linear_pattern_t * b)
 {
 	if(a->pd1.x != b->pd1.x)
 		return FALSE;
-	if(a->pd1.y != b->pd1.y)
+	else if(a->pd1.y != b->pd1.y)
 		return FALSE;
-	if(a->pd2.x != b->pd2.x)
+	else if(a->pd2.x != b->pd2.x)
 		return FALSE;
-	if(a->pd2.y != b->pd2.y)
+	else if(a->pd2.y != b->pd2.y)
 		return FALSE;
-	return _cairo_gradient_color_stops_equal(&a->base, &b->base);
+	else 
+		return _cairo_gradient_color_stops_equal(&a->base, &b->base);
 }
 
 boolint _cairo_radial_pattern_equal(const cairo_radial_pattern_t * a, const cairo_radial_pattern_t * b)
 {
 	if(a->cd1.center.x != b->cd1.center.x)
 		return FALSE;
-	if(a->cd1.center.y != b->cd1.center.y)
+	else if(a->cd1.center.y != b->cd1.center.y)
 		return FALSE;
-	if(a->cd1.radius != b->cd1.radius)
+	else if(a->cd1.radius != b->cd1.radius)
 		return FALSE;
-	if(a->cd2.center.x != b->cd2.center.x)
+	else if(a->cd2.center.x != b->cd2.center.x)
 		return FALSE;
-	if(a->cd2.center.y != b->cd2.center.y)
+	else if(a->cd2.center.y != b->cd2.center.y)
 		return FALSE;
-	if(a->cd2.radius != b->cd2.radius)
+	else if(a->cd2.radius != b->cd2.radius)
 		return FALSE;
-	return _cairo_gradient_color_stops_equal(&a->base, &b->base);
+	else
+		return _cairo_gradient_color_stops_equal(&a->base, &b->base);
 }
 
 static boolint _cairo_mesh_pattern_equal(const cairo_mesh_pattern_t * a, const cairo_mesh_pattern_t * b)
 {
-	const cairo_mesh_patch_t * patch_a, * patch_b;
-	uint i, num_patches_a, num_patches_b;
-	num_patches_a = _cairo_array_num_elements(&a->patches);
-	num_patches_b = _cairo_array_num_elements(&b->patches);
+	const uint num_patches_a = _cairo_array_num_elements(&a->patches);
+	const uint num_patches_b = _cairo_array_num_elements(&b->patches);
 	if(num_patches_a != num_patches_b)
 		return FALSE;
-	for(i = 0; i < num_patches_a; i++) {
-		patch_a = (const cairo_mesh_patch_t *)_cairo_array_index_const(&a->patches, i);
-		patch_b = (const cairo_mesh_patch_t *)_cairo_array_index_const(&b->patches, i);
-		if(memcmp(patch_a, patch_b, sizeof(cairo_mesh_patch_t)) != 0)
-			return FALSE;
+	else {
+		for(uint i = 0; i < num_patches_a; i++) {
+			const cairo_mesh_patch_t * patch_a = (const cairo_mesh_patch_t *)_cairo_array_index_const(&a->patches, i);
+			const cairo_mesh_patch_t * patch_b = (const cairo_mesh_patch_t *)_cairo_array_index_const(&b->patches, i);
+			if(memcmp(patch_a, patch_b, sizeof(cairo_mesh_patch_t)) != 0)
+				return FALSE;
+		}
+		return TRUE;
 	}
-	return TRUE;
 }
 
 static boolint _cairo_surface_pattern_equal(const cairo_surface_pattern_t * a, const cairo_surface_pattern_t * b)

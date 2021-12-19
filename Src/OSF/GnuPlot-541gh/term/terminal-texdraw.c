@@ -29,7 +29,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -38,26 +38,26 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis);
+TERM_PUBLIC void TEXDRAW_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void TEXDRAW_options();
-TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void TEXDRAW_text(GpTermEntry * pThis);
-TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis);
-TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC void TEXDRAW_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void TEXDRAW_pointsize(GpTermEntry * pThis, double size);
-TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy);
-TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int  TEXDRAW_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int  TEXDRAW_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int  TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette *);
-TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
+TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void TEXDRAW_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void TEXDRAW_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry_Static * pThis, int dt, t_dashtype * custom_dash_pattern);
+TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry_Static * pThis, double linewidth);
+TERM_PUBLIC void TEXDRAW_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void TEXDRAW_pointsize(GpTermEntry_Static * pThis, double size);
+TERM_PUBLIC void TEXDRAW_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void TEXDRAW_vector(GpTermEntry_Static * pThis, uint ux, uint uy);
+TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC int  TEXDRAW_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  TEXDRAW_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
+TERM_PUBLIC int  TEXDRAW_make_palette(GpTermEntry_Static * pThis, t_sm_palette *);
+TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners);
 
 #define TEXDRAW_PTS_PER_INCH (72.27)
 /* resolution of printer we expect to use */
@@ -112,9 +112,9 @@ static const char * TEXDRAW_points[TEXDRAW_POINT_TYPES] = {
 static const int TEXDRAW_lines[] = {
 	2,                      /* -2 border */
 	1,                      /* -1 axes   */
-	2,                      /*  0 solid  */
-	2,                      /*  1 solid  */
-	2,                      /*  2 solid  */
+	2,                      /* 0 solid  */
+	2,                      /* 1 solid  */
+	2,                      /* 2 solid  */
 };
 
 #define TEXDRAW_NUMPAT 5
@@ -265,7 +265,7 @@ static struct gen_table TEXDRAW_opts[] = {
 	{ NULL, TEXDRAW_OTHER }
 };
 
-TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void TEXDRAW_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char size_str[80] = "";
 	int bg;
@@ -280,9 +280,8 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    _TD.TEXDRAW_lw_scale = _TD.TEXDRAW_ps = 1.0;
 			    _TD.TEXDRAW_background = 1.0;
 			    _TD.Size.Set(5.0, 3.0);
-			    pThis->MaxX = static_cast<uint>(_TD.Size.x * DOTS_PER_INCH);
-			    pThis->MaxY = static_cast<uint>(_TD.Size.y * DOTS_PER_INCH);
-			    pThis->ChrV = TEXDRAW_VCHAR;
+			    pThis->SetMax(static_cast<uint>(_TD.Size.x * DOTS_PER_INCH), static_cast<uint>(_TD.Size.y * DOTS_PER_INCH));
+			    pThis->CV() = TEXDRAW_VCHAR;
 			    pThis->TicV = TEXDRAW_VTIC;
 			    break;
 			case TEXDRAW_SIZE: {
@@ -290,9 +289,8 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    _TD.TEXDRAW_explicit_units = pGp->ParseTermSize(&width, &height, INCHES);
 			    _TD.Size.Set(width  / GpResolution, height / GpResolution);
-			    pThis->MaxX = static_cast<uint>(_TD.Size.x * DOTS_PER_INCH);
-			    pThis->MaxY = static_cast<uint>(_TD.Size.y * DOTS_PER_INCH);
-			    pThis->ChrV = TEXDRAW_VCHAR;
+			    pThis->SetMax(static_cast<uint>(_TD.Size.x * DOTS_PER_INCH), static_cast<uint>(_TD.Size.y * DOTS_PER_INCH));
+			    pThis->CV() = TEXDRAW_VCHAR;
 			    pThis->TicV = TEXDRAW_VTIC;
 			    break;
 		    }
@@ -373,7 +371,7 @@ TERM_PUBLIC void TEXDRAW_options(GpTermEntry * pThis, GnuPlot * pGp)
 	    bg, bg, bg, _TD.TEXDRAW_psarrows ? "ps" : "gp", _TD.TEXDRAW_texpoints ? "tex" : "gp", _TD.TEXDRAW_standalone ? "standalone" : "input");
 }
 
-TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis)
+TERM_PUBLIC void TEXDRAW_init(GpTermEntry_Static * pThis)
 {
 	fputs("%% GNUPLOT: LaTeX using TEXDRAW macros\n", GPT.P_GpOutFile);
 	if(_TD.TEXDRAW_standalone) {
@@ -388,7 +386,7 @@ TERM_PUBLIC void TEXDRAW_init(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry_Static * pThis)
 {
 	static char tdg1[] =
 	    "\
@@ -425,7 +423,7 @@ TERM_PUBLIC void TEXDRAW_graphics(GpTermEntry * pThis)
 	_TD.TEXDRAW_justify = _TD.TEXDRAW_last_justify = LEFT;
 }
 
-TERM_PUBLIC void TEXDRAW_text(GpTermEntry * pThis)
+TERM_PUBLIC void TEXDRAW_text(GpTermEntry_Static * pThis)
 {
 	TEXDRAW_endline();
 	// fputs("\\drawbb\n", GPT.P_GpOutFile);
@@ -434,7 +432,7 @@ TERM_PUBLIC void TEXDRAW_text(GpTermEntry * pThis)
 		fputs("\\end{figure}\n\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis)
+TERM_PUBLIC void TEXDRAW_reset(GpTermEntry_Static * pThis)
 {
 	TEXDRAW_endline();
 	_TD.Pos.Z();
@@ -442,7 +440,7 @@ TERM_PUBLIC void TEXDRAW_reset(GpTermEntry * pThis)
 		fputs("\\end{document}\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	TEXDRAW_endline();
 	if(linetype >= TEXDRAW_NUMLINES - 2)
@@ -454,7 +452,7 @@ TERM_PUBLIC void TEXDRAW_linetype(GpTermEntry * pThis, int linetype)
 		TEXDRAW_dashtype(pThis, DASHTYPE_SOLID, NULL);
 }
 
-TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
+TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry_Static * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	TEXDRAW_endline();
 	if(dt == DASHTYPE_SOLID) {
@@ -488,24 +486,24 @@ TERM_PUBLIC void TEXDRAW_dashtype(GpTermEntry * pThis, int dt, t_dashtype * cust
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void TEXDRAW_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	_TD.TEXDRAW_lw = linewidth * _TD.TEXDRAW_lw_scale;
 }
 
-TERM_PUBLIC void TEXDRAW_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void TEXDRAW_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	TEXDRAW_endline();
 	_TD.Pos.Set(x, y);
 }
 
-TERM_PUBLIC void TEXDRAW_pointsize(GpTermEntry * pThis, double size)
+TERM_PUBLIC void TEXDRAW_pointsize(GpTermEntry_Static * pThis, double size)
 {
 	// We can only scale gnuplot's native point types
 	pThis->P_Gp->TermPointSize = (size >= 0 ? size * _TD.TEXDRAW_ps : 1);
 }
 
-TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void TEXDRAW_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	char colorstr[80] = "";
 	TEXDRAW_move(pThis, x, y);
@@ -531,7 +529,7 @@ TERM_PUBLIC void TEXDRAW_point(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_vector(GpTermEntry * pThis, uint ux, uint uy)
+TERM_PUBLIC void TEXDRAW_vector(GpTermEntry_Static * pThis, uint ux, uint uy)
 {
 	if(!_TD.TEXDRAW_inline) {
 		_TD.TEXDRAW_inline = TRUE;
@@ -571,7 +569,7 @@ static void TEXDRAW_endline()
 	}
 }
 
-TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	char text;
 	char type = 'T'; // empty triangle
@@ -626,7 +624,7 @@ TERM_PUBLIC void TEXDRAW_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, u
 	_TD.Pos.Set(ex, ey);
 }
 
-TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
+TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[])
 {
 	char colorstr[80] = "";
 	TEXDRAW_endline();
@@ -651,13 +649,13 @@ TERM_PUBLIC void TEXDRAW_put_text(GpTermEntry * pThis, uint x, uint y, const cha
 		fprintf(GPT.P_GpOutFile, "\\rtext td:%d {%s%s}\n", _TD.TEXDRAW_angle, colorstr, str);
 }
 
-TERM_PUBLIC int TEXDRAW_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int TEXDRAW_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	_TD.TEXDRAW_justify = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC int TEXDRAW_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int TEXDRAW_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	while(ang < 0) 
 		ang += 360;
@@ -666,12 +664,12 @@ TERM_PUBLIC int TEXDRAW_text_angle(GpTermEntry * pThis, int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int TEXDRAW_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int TEXDRAW_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	return 0; // claim continuous colors 
 }
 
-TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void TEXDRAW_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	// Users can choose any color as long as it is black. Enables dash patterns. 
 	switch(colorspec->type) {
@@ -720,7 +718,7 @@ static double TEXDRAW_fill_gray(int style)
 	return gray;
 }
 
-TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	double gray;
 	TEXDRAW_endline();
@@ -734,7 +732,7 @@ TERM_PUBLIC void TEXDRAW_fillbox(GpTermEntry * pThis, int style, uint x1, uint y
 	fprintf(GPT.P_GpOutFile, "\\ifill f:%0.2f\n", gray);
 }
 
-TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void TEXDRAW_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	double gray;
 	int i;

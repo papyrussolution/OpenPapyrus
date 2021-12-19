@@ -2944,6 +2944,11 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					}
 				}
 			}
+			else if(p_blk->Type == MouseEvent::tMove) { // @v11.2.8
+				const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
+				if(p_lo_extra && p_lo_extra->Ident)
+					::SetCursor(::LoadCursor(0, IDC_ARROW));
+			}
 			else if(p_blk->Type == MouseEvent::tLDblClk) {
 				if(IsInState(sfModal)) {
 					if(Kind == kDate) {
@@ -3325,6 +3330,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 	return ok;
 }
 
+#if 0 // @construction finished {
 int Test_Launch_SCalendarPicker()
 {
 	int    ok = 1;
@@ -3343,3 +3349,4 @@ int Test_Launch_SCalendarPicker()
 	delete p_win;
 	return ok;
 }
+#endif // } @construction finished

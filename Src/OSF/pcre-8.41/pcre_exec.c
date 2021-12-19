@@ -1206,15 +1206,15 @@ POSSESSIVE_NON_CAPTURE:
 			    if(*ecode == OP_CALLOUT) {
 				    if(PUBL(callout)) {
 					    PUBL(callout_block) cb;
-					    cb.version          = 2; /* Version 1 of the callout block */
+					    cb.version  = 2; /* Version 1 of the callout block */
 					    cb.callout_number   = ecode[1];
 					    cb.offset_vector    = md->offset_vector;
 #if defined COMPILE_PCRE8
-					    cb.subject          = (PCRE_SPTR)md->start_subject;
+					    cb.subject  = (PCRE_SPTR)md->start_subject;
 #elif defined COMPILE_PCRE16
-					    cb.subject          = (PCRE_SPTR16)md->start_subject;
+					    cb.subject  = (PCRE_SPTR16)md->start_subject;
 #elif defined COMPILE_PCRE32
-					    cb.subject          = (PCRE_SPTR32)md->start_subject;
+					    cb.subject  = (PCRE_SPTR32)md->start_subject;
 #endif
 					    cb.subject_length   = (int)(md->end_subject - md->start_subject);
 					    cb.start_match      = (int)(mstart - md->start_subject);
@@ -1226,7 +1226,7 @@ POSSESSIVE_NON_CAPTURE:
 					    /* Internal change requires this for API compatibility. */
 					    if(cb.capture_last == 0) cb.capture_last = -1;
 					    cb.callout_data     = md->callout_data;
-					    cb.mark             = md->nomatch_mark;
+					    cb.mark     = md->nomatch_mark;
 					    if((rrc = (*PUBL(callout))(&cb)) > 0) RRETURN(MATCH_NOMATCH);
 					    if(rrc < 0) RRETURN(rrc);
 				    }
@@ -1595,15 +1595,15 @@ NEG_ASSERT_TRUE:
 			case OP_CALLOUT:
 			    if(PUBL(callout)) {
 				    PUBL(callout_block) cb;
-				    cb.version          = 2; /* Version 1 of the callout block */
+				    cb.version  = 2; /* Version 1 of the callout block */
 				    cb.callout_number   = ecode[1];
 				    cb.offset_vector    = md->offset_vector;
 #if defined COMPILE_PCRE8
-				    cb.subject          = (PCRE_SPTR)md->start_subject;
+				    cb.subject  = (PCRE_SPTR)md->start_subject;
 #elif defined COMPILE_PCRE16
-				    cb.subject          = (PCRE_SPTR16)md->start_subject;
+				    cb.subject  = (PCRE_SPTR16)md->start_subject;
 #elif defined COMPILE_PCRE32
-				    cb.subject          = (PCRE_SPTR32)md->start_subject;
+				    cb.subject  = (PCRE_SPTR32)md->start_subject;
 #endif
 				    cb.subject_length   = (int)(md->end_subject - md->start_subject);
 				    cb.start_match      = (int)(mstart - md->start_subject);
@@ -1615,7 +1615,7 @@ NEG_ASSERT_TRUE:
 			            /* Internal change requires this for API compatibility. */
 				    if(cb.capture_last == 0) cb.capture_last = -1;
 				    cb.callout_data     = md->callout_data;
-				    cb.mark             = md->nomatch_mark;
+				    cb.mark     = md->nomatch_mark;
 				    if((rrc = (*PUBL(callout))(&cb)) > 0) RRETURN(MATCH_NOMATCH);
 				    if(rrc < 0) RRETURN(rrc);
 			    }
@@ -5819,7 +5819,7 @@ static void release_match_heapframes(heapframe * frame_base)
    offsetcount     the number of elements in the vector
 
    Returns:          > 0 => success; value is the number of elements filled in
-                  = 0 => success, but offsets is not big enough
+          = 0 => success, but offsets is not big enough
                    -1 => failed to match
                  < -1 => some kind of unexpected problem
  */

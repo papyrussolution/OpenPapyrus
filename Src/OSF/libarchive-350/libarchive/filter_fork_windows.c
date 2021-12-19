@@ -183,8 +183,8 @@ fail:
 
 void __archive_check_child(int in, int out)
 {
-	(void)in; /* UNUSED */
-	(void)out; /* UNUSED */
+	CXX_UNUSED(in);
+	CXX_UNUSED(out);
 	Sleep(100);
 }
 

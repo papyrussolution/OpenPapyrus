@@ -4,19 +4,19 @@
 /* Decimal Context module         */
 /* ------------------------------------------------------------------ */
 /* Copyright (c) IBM Corporation, 2000-2012.  All rights reserved.    */
-/*     */
+/* */
 /* This software is made available under the terms of the    */
 /* ICU License -- ICU 1.8.1 and later.     */
-/*     */
+/* */
 /* The description and User's Guide ("The decNumber C Library") for   */
 /* this software is called decNumber.pdf.  This document is  */
 /* available, together with arithmetic and format specifications,     */
 /* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/*     */
+/* */
 /* Please send comments, suggestions, and corrections to the author:  */
-/*   mfc@uk.ibm.com      */
-/*   Mike Cowlishaw, IBM Fellow   */
-/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
+/* mfc@uk.ibm.com      */
+/* Mike Cowlishaw, IBM Fellow   */
+/* IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
 /* ------------------------------------------------------------------ */
 /* This module comprises the routines for handling arithmetic         */
 /* context structures.   */
@@ -36,12 +36,12 @@ static const Flag * mfctop = (Flag*)&mfcone; /* -> top byte  */
 
 /* ------------------------------------------------------------------ */
 /* decContextClearStatus -- clear bits in current status     */
-/*     */
-/*  context is the context structure to be queried  */
-/*  mask indicates the bits to be cleared (the status bit that        */
-/*    corresponds to each 1 bit in the mask is cleared)      */
-/*  returns context      */
-/*     */
+/* */
+/* context is the context structure to be queried  */
+/* mask indicates the bits to be cleared (the status bit that        */
+/* corresponds to each 1 bit in the mask is cleared)      */
+/* returns context      */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext * U_EXPORT2 uprv_decContextClearStatus(decContext * context, uInt mask) {
@@ -51,16 +51,16 @@ U_CAPI decContext * U_EXPORT2 uprv_decContextClearStatus(decContext * context, u
 
 /* ------------------------------------------------------------------ */
 /* decContextDefault -- initialize a context structure       */
-/*     */
-/*  context is the structure to be initialized      */
-/*  kind selects the required set of default values, one of: */
-/*      DEC_INIT_BASE       -- select ANSI X3-274 defaults   */
-/*      DEC_INIT_DECIMAL32  -- select IEEE 754 defaults, 32-bit       */
-/*      DEC_INIT_DECIMAL64  -- select IEEE 754 defaults, 64-bit       */
-/*      DEC_INIT_DECIMAL128 -- select IEEE 754 defaults, 128-bit      */
-/*      For any other value a valid context is returned, but with     */
-/*      Invalid_operation set in the status field.  */
-/*  returns a context structure with the appropriate initial values.  */
+/* */
+/* context is the structure to be initialized      */
+/* kind selects the required set of default values, one of: */
+/* DEC_INIT_BASE       -- select ANSI X3-274 defaults   */
+/* DEC_INIT_DECIMAL32  -- select IEEE 754 defaults, 32-bit       */
+/* DEC_INIT_DECIMAL64  -- select IEEE 754 defaults, 64-bit       */
+/* DEC_INIT_DECIMAL128 -- select IEEE 754 defaults, 128-bit      */
+/* For any other value a valid context is returned, but with     */
+/* Invalid_operation set in the status field.  */
+/* returns a context structure with the appropriate initial values.  */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int kind) {
 	/* set defaults...  */
@@ -122,10 +122,10 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextDefault(decContext * context, Int 
 
 /* ------------------------------------------------------------------ */
 /* decContextGetRounding -- return current rounding mode     */
-/*     */
-/*  context is the context structure to be queried  */
-/*  returns the rounding mode     */
-/*     */
+/* */
+/* context is the context structure to be queried  */
+/* returns the rounding mode     */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext * context) {
@@ -134,10 +134,10 @@ U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext * context) 
 
 /* ------------------------------------------------------------------ */
 /* decContextGetStatus -- return current status     */
-/*     */
-/*  context is the context structure to be queried  */
-/*  returns status       */
-/*     */
+/* */
+/* context is the context structure to be queried  */
+/* returns status       */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI uInt U_EXPORT2 uprv_decContextGetStatus(decContext * context) {
@@ -146,14 +146,14 @@ U_CAPI uInt U_EXPORT2 uprv_decContextGetStatus(decContext * context) {
 
 /* ------------------------------------------------------------------ */
 /* decContextRestoreStatus -- restore bits in current status */
-/*     */
-/*  context is the context structure to be updated  */
-/*  newstatus is the source for the bits to be restored      */
-/*  mask indicates the bits to be restored (the status bit that       */
-/*    corresponds to each 1 bit in the mask is set to the value of    */
-/*    the corresponding bit in newstatus)   */
-/*  returns context      */
-/*     */
+/* */
+/* context is the context structure to be updated  */
+/* newstatus is the source for the bits to be restored      */
+/* mask indicates the bits to be restored (the status bit that       */
+/* corresponds to each 1 bit in the mask is set to the value of    */
+/* the corresponding bit in newstatus)   */
+/* returns context      */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext * U_EXPORT2 uprv_decContextRestoreStatus(decContext * context,
@@ -165,12 +165,12 @@ U_CAPI decContext * U_EXPORT2 uprv_decContextRestoreStatus(decContext * context,
 
 /* ------------------------------------------------------------------ */
 /* decContextSaveStatus -- save bits in current status       */
-/*     */
-/*  context is the context structure to be queried  */
-/*  mask indicates the bits to be saved (the status bits that         */
-/*    correspond to each 1 bit in the mask are saved)        */
-/*  returns the AND of the mask and the current status       */
-/*     */
+/* */
+/* context is the context structure to be queried  */
+/* mask indicates the bits to be saved (the status bits that         */
+/* correspond to each 1 bit in the mask are saved)        */
+/* returns the AND of the mask and the current status       */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI uInt U_EXPORT2 uprv_decContextSaveStatus(decContext * context, uInt mask) {
@@ -179,11 +179,11 @@ U_CAPI uInt U_EXPORT2 uprv_decContextSaveStatus(decContext * context, uInt mask)
 
 /* ------------------------------------------------------------------ */
 /* decContextSetRounding -- set current rounding mode        */
-/*     */
-/*  context is the context structure to be updated  */
-/*  newround is the value which will replace the current mode         */
-/*  returns context      */
-/*     */
+/* */
+/* context is the context structure to be updated  */
+/* newround is the value which will replace the current mode         */
+/* returns context      */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext * U_EXPORT2 uprv_decContextSetRounding(decContext * context,
@@ -194,11 +194,11 @@ U_CAPI decContext * U_EXPORT2 uprv_decContextSetRounding(decContext * context,
 
 /* ------------------------------------------------------------------ */
 /* decContextSetStatus -- set status and raise trap if appropriate    */
-/*     */
-/*  context is the context structure to be updated  */
-/*  status  is the DEC_ exception code     */
-/*  returns the context structure */
-/*     */
+/* */
+/* context is the context structure to be updated  */
+/* status  is the DEC_ exception code     */
+/* returns the context structure */
+/* */
 /* Control may never return from this routine, if there is a signal   */
 /* handler and it takes a long jump.       */
 /* ------------------------------------------------------------------ */
@@ -212,17 +212,17 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatus(decContext * context, uI
 
 /* ------------------------------------------------------------------ */
 /* decContextSetStatusFromString -- set status from a string + trap   */
-/*     */
-/*  context is the context structure to be updated  */
-/*  string is a string exactly equal to one that might be returned    */
-/*            by decContextStatusToString  */
-/*     */
-/*  The status bit corresponding to the string is set, and a trap     */
-/*  is raised if appropriate.     */
-/*     */
-/*  returns the context structure, unless the string is equal to      */
-/*    DEC_Condition_MU or is not recognized.  In these cases NULL is  */
-/*    returned. */
+/* */
+/* context is the context structure to be updated  */
+/* string is a string exactly equal to one that might be returned    */
+/* by decContextStatusToString  */
+/* */
+/* The status bit corresponding to the string is set, and a trap     */
+/* is raised if appropriate.     */
+/* */
+/* returns the context structure, unless the string is equal to      */
+/* DEC_Condition_MU or is not recognized.  In these cases NULL is  */
+/* returned. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromString(decContext * context,
     const char * string) {
@@ -263,17 +263,17 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromString(decContext * c
 
 /* ------------------------------------------------------------------ */
 /* decContextSetStatusFromStringQuiet -- set status from a string     */
-/*     */
-/*  context is the context structure to be updated  */
-/*  string is a string exactly equal to one that might be returned    */
-/*            by decContextStatusToString  */
-/*     */
-/*  The status bit corresponding to the string is set; no trap is     */
-/*  raised.     */
-/*     */
-/*  returns the context structure, unless the string is equal to      */
-/*    DEC_Condition_MU or is not recognized.  In these cases NULL is  */
-/*    returned. */
+/* */
+/* context is the context structure to be updated  */
+/* string is a string exactly equal to one that might be returned    */
+/* by decContextStatusToString  */
+/* */
+/* The status bit corresponding to the string is set; no trap is     */
+/* raised.     */
+/* */
+/* returns the context structure, unless the string is equal to      */
+/* DEC_Condition_MU or is not recognized.  In these cases NULL is  */
+/* returned. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromStringQuiet(decContext * context, const char * string) 
 {
@@ -314,11 +314,11 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusFromStringQuiet(decContex
 
 /* ------------------------------------------------------------------ */
 /* decContextSetStatusQuiet -- set status without trap       */
-/*     */
-/*  context is the context structure to be updated  */
-/*  status  is the DEC_ exception code     */
-/*  returns the context structure */
-/*     */
+/* */
+/* context is the context structure to be updated  */
+/* status  is the DEC_ exception code     */
+/* returns the context structure */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusQuiet(decContext * context, uInt status) {
@@ -328,11 +328,11 @@ U_CAPI decContext *  U_EXPORT2 uprv_decContextSetStatusQuiet(decContext * contex
 
 /* ------------------------------------------------------------------ */
 /* decContextStatusToString -- convert status flags to a string       */
-/*     */
-/*  context is a context with valid status field    */
-/*     */
-/*  returns a constant string describing the condition.  If multiple  */
-/*    (or no) flags are set, a generic constant message is returned.  */
+/* */
+/* context is a context with valid status field    */
+/* */
+/* returns a constant string describing the condition.  If multiple  */
+/* (or no) flags are set, a generic constant message is returned.  */
 /* ------------------------------------------------------------------ */
 U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * context) {
 	Int status = context->status;
@@ -362,14 +362,14 @@ U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext * c
 
 /* ------------------------------------------------------------------ */
 /* decContextTestEndian -- test whether DECLITEND is set correctly    */
-/*     */
-/*  quiet is 1 to suppress message; 0 otherwise     */
-/*  returns 0 if DECLITEND is correct      */
-/*          1 if DECLITEND is incorrect and should be 1      */
-/*         -1 if DECLITEND is incorrect and should be 0      */
-/*     */
+/* */
+/* quiet is 1 to suppress message; 0 otherwise     */
+/* returns 0 if DECLITEND is correct      */
+/* 1 if DECLITEND is incorrect and should be 1      */
+/* -1 if DECLITEND is incorrect and should be 0      */
+/* */
 /* A message is displayed if the return value is not 0 and quiet==0.  */
-/*     */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 #if 0  /* ICU: Unused function. Anyway, do not call printf(). */
@@ -395,12 +395,12 @@ U_CAPI Int U_EXPORT2 uprv_decContextTestEndian(Flag quiet) {
 
 /* ------------------------------------------------------------------ */
 /* decContextTestSavedStatus -- test bits in saved status    */
-/*     */
-/*  oldstatus is the status word to be tested       */
-/*  mask indicates the bits to be tested (the oldstatus bits that     */
-/*    correspond to each 1 bit in the mask are tested)       */
-/*  returns 1 if any of the tested bits are 1, or 0 otherwise         */
-/*     */
+/* */
+/* oldstatus is the status word to be tested       */
+/* mask indicates the bits to be tested (the oldstatus bits that     */
+/* correspond to each 1 bit in the mask are tested)       */
+/* returns 1 if any of the tested bits are 1, or 0 otherwise         */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI uInt U_EXPORT2 uprv_decContextTestSavedStatus(uInt oldstatus, uInt mask) {
@@ -409,12 +409,12 @@ U_CAPI uInt U_EXPORT2 uprv_decContextTestSavedStatus(uInt oldstatus, uInt mask) 
 
 /* ------------------------------------------------------------------ */
 /* decContextTestStatus -- test bits in current status       */
-/*     */
-/*  context is the context structure to be updated  */
-/*  mask indicates the bits to be tested (the status bits that        */
-/*    correspond to each 1 bit in the mask are tested)       */
-/*  returns 1 if any of the tested bits are 1, or 0 otherwise         */
-/*     */
+/* */
+/* context is the context structure to be updated  */
+/* mask indicates the bits to be tested (the status bits that        */
+/* correspond to each 1 bit in the mask are tested)       */
+/* returns 1 if any of the tested bits are 1, or 0 otherwise         */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI uInt U_EXPORT2 uprv_decContextTestStatus(decContext * context, uInt mask) {
@@ -423,10 +423,10 @@ U_CAPI uInt U_EXPORT2 uprv_decContextTestStatus(decContext * context, uInt mask)
 
 /* ------------------------------------------------------------------ */
 /* decContextZeroStatus -- clear all status bits    */
-/*     */
-/*  context is the context structure to be updated  */
-/*  returns context      */
-/*     */
+/* */
+/* context is the context structure to be updated  */
+/* returns context      */
+/* */
 /* No error is possible. */
 /* ------------------------------------------------------------------ */
 U_CAPI decContext * U_EXPORT2 uprv_decContextZeroStatus(decContext * context) {

@@ -539,7 +539,7 @@ int PPALDD_GoodsTurnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsTrnovr);
-	I.Dt          = item.Dt;
+	I.Dt  = item.Dt;
 	I.RcptSuppl   = item.RcptSuppl;
 	I.RcptIntr    = item.RcptIntr;
 	I.RetRetail   = item.RetRetail;

@@ -2912,8 +2912,8 @@ HWND GetNextBrowser(HWND hw)
 	wc.lpszClassName = BrowserWindow::WndClsName;
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = BrowserWindow::BrowserWndProc;
-	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ 102));
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ 102));
 	wc.cbClsExtra    = BRWCLASS_CEXTRA;
 	wc.cbWndExtra    = BRWCLASS_WEXTRA;
 	return ::RegisterClassEx(&wc);

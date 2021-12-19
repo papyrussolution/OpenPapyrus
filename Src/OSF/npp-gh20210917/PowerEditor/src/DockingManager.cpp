@@ -393,7 +393,7 @@ void DockingManager::reSizeTo(RECT & rc)
 	_dockData.rcRegion[CONT_RIGHT].bottom  = _rcWork.bottom;
 
 	// create temporary rect for right container
-	RECT rcRight         = _dockData.rcRegion[CONT_RIGHT];
+	RECT rcRight = _dockData.rcRegion[CONT_RIGHT];
 
 	_vSplitter[CONT_RIGHT]->display(false);
 	if(_vContainer[CONT_RIGHT]->isVisible()) {
@@ -475,8 +475,8 @@ void DockingManager::createDockableDlg(tTbData data, int iCont, bool isVisible)
 	}
 
 	// create additional containers if necessary
-	RECT rc                      = {0, 0, 0, 0};
-	DockingCont*            pCont           = NULL;
+	RECT rc              = {0, 0, 0, 0};
+	DockingCont*            pCont   = NULL;
 
 	// if floated rect not set
 	if(memcmp(&data.rcFloat, &rc, sizeof(RECT)) == 0) {
@@ -591,7 +591,7 @@ void DockingManager::showDockableDlg(TCHAR* pszName, BOOL view)
 LRESULT DockingManager::SendNotify(HWND hWnd, UINT message)
 {
 	NMHDR nmhdr;
-	nmhdr.code              = message;
+	nmhdr.code      = message;
 	nmhdr.hwndFrom  = _hParent;
 	nmhdr.idFrom    = ::GetDlgCtrlID(_hParent);
 	::SendMessage(hWnd, WM_NOTIFY, nmhdr.idFrom, reinterpret_cast<LPARAM>(&nmhdr));
@@ -633,10 +633,10 @@ int DockingManager::getDockedContSize(int iCont)
 
 DockingCont* DockingManager::toggleActiveTb(DockingCont* pContSrc, UINT message, BOOL bNew, LPRECT prcFloat)
 {
-	tTbData TbData          = *pContSrc->getDataOfActiveTb();
+	tTbData TbData  = *pContSrc->getDataOfActiveTb();
 	int iContSrc        = GetContainer(pContSrc);
 	int iContPrev       = TbData.iPrevCont;
-	BOOL isCont          = ContExists(iContPrev);
+	BOOL isCont  = ContExists(iContPrev);
 	DockingCont*    pContTgt        = NULL;
 
 	// if new float position is given
@@ -692,12 +692,12 @@ DockingCont* DockingManager::toggleActiveTb(DockingCont* pContSrc, UINT message,
 
 DockingCont* DockingManager::toggleVisTb(DockingCont* pContSrc, UINT message, LPRECT prcFloat)
 {
-	vector<tTbData*>        vTbData         = pContSrc->getDataOfVisTb();
-	tTbData*                        pTbData         = pContSrc->getDataOfActiveTb();
+	vector<tTbData*>        vTbData = pContSrc->getDataOfVisTb();
+	tTbData*                        pTbData = pContSrc->getDataOfActiveTb();
 
 	int iContSrc        = GetContainer(pContSrc);
 	int iContPrev       = pTbData->iPrevCont;
-	BOOL isCont          = ContExists(iContPrev);
+	BOOL isCont  = ContExists(iContPrev);
 	DockingCont*            pContTgt        = NULL;
 
 	// at first hide container and resize
@@ -747,15 +747,15 @@ DockingCont* DockingManager::toggleVisTb(DockingCont* pContSrc, UINT message, LP
 
 void DockingManager::toggleActiveTb(DockingCont* pContSrc, DockingCont* pContTgt)
 {
-	tTbData TbData          = *pContSrc->getDataOfActiveTb();
+	tTbData TbData  = *pContSrc->getDataOfActiveTb();
 
 	toggleTb(pContSrc, pContTgt, TbData);
 }
 
 void DockingManager::toggleVisTb(DockingCont* pContSrc, DockingCont* pContTgt)
 {
-	vector<tTbData*>        vTbData         = pContSrc->getDataOfVisTb();
-	tTbData*                        pTbData         = pContSrc->getDataOfActiveTb();
+	vector<tTbData*>        vTbData = pContSrc->getDataOfVisTb();
+	tTbData*                        pTbData = pContSrc->getDataOfActiveTb();
 
 	// at first hide container and resize
 	pContSrc->doDialog(false);

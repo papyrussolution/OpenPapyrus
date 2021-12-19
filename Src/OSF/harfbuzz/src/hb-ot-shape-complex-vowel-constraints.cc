@@ -32,9 +32,9 @@ static void _output_with_dotted_circle(hb_buffer_t * buffer)
 	buffer->next_glyph();
 }
 
-void _hb_preprocess_text_vowel_constraints(const hb_ot_shape_plan_t * plan HB_UNUSED,
+void _hb_preprocess_text_vowel_constraints(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
-    hb_font_t * font HB_UNUSED)
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 #ifdef HB_NO_OT_SHAPE_COMPLEX_VOWEL_CONSTRAINTS
 	return;

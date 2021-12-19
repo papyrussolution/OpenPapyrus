@@ -2278,8 +2278,8 @@ void PPALDD_ProcessorView::Destroy() { DESTROY_PPVIEW_ALDD(Processor); }
 //
 struct UhttProcessorBlock {
 	enum {
-		stFetch             = 0,
-		stSet               = 0x0001,
+		stFetch     = 0,
+		stSet       = 0x0001,
 		stTSessConfigInited = 0x0002
 	};
 	UhttProcessorBlock() : PlacePos(0), State(0)

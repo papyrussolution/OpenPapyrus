@@ -1508,9 +1508,9 @@ U_CAPI int32_t U_EXPORT2 ustr_hashUCharsN(const UChar * str, int32_t length) {
 }
 
 U_CAPI int32_t U_EXPORT2 ustr_hashCharsN(const char * str, int32_t length) {
-	STRING_HASH(uint8_t, str, length, *p);
+	STRING_HASH(uint8, str, length, *p);
 }
 
 U_CAPI int32_t U_EXPORT2 ustr_hashICharsN(const char * str, int32_t length) {
-	STRING_HASH(char, str, length, (uint8_t)uprv_tolower(*p));
+	STRING_HASH(char, str, length, (uint8)uprv_tolower(*p));
 }

@@ -1,4 +1,4 @@
-/*  gb18030.h - Unicode to GB 18030 lookup table
+/* gb18030.h - Unicode to GB 18030 lookup table
 
     libzint - the open source barcode library
     Copyright (C) 2009-2016 Robin Stuart <rstuart114@gmail.com>

@@ -82,17 +82,17 @@ U_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 RBBIRuleScanner::RBBIRuleScanner(RBBIRuleBuilder * rb)
 {
-	fRB                 = rb;
-	fScanIndex          = 0;
-	fNextIndex          = 0;
-	fQuoteMode          = FALSE;
-	fLineNum            = 1;
-	fCharNum            = 0;
-	fLastChar           = 0;
+	fRB         = rb;
+	fScanIndex  = 0;
+	fNextIndex  = 0;
+	fQuoteMode  = FALSE;
+	fLineNum    = 1;
+	fCharNum    = 0;
+	fLastChar   = 0;
 
-	fStateTable         = NULL;
-	fStack[0]           = 0;
-	fStackPtr           = 0;
+	fStateTable = NULL;
+	fStack[0]   = 0;
+	fStackPtr   = 0;
 	fNodeStack[0] = NULL;
 	fNodeStackPtr       = 0;
 
@@ -101,8 +101,8 @@ RBBIRuleScanner::RBBIRuleScanner(RBBIRuleBuilder * rb)
 	fNoChainInRule      = FALSE;
 
 	fSymbolTable        = NULL;
-	fSetTable           = NULL;
-	fRuleNum            = 0;
+	fSetTable   = NULL;
+	fRuleNum    = 0;
 	fOptionStart        = 0;
 
 	// Do not check status until after all critical fields are sufficiently initialized
@@ -328,9 +328,9 @@ bool RBBIRuleScanner::doParseActions(int32_t action)
 			    catNode->fLeftChild       = thisRule;
 			    catNode->fRightChild      = endNode;
 			    fNodeStack[fNodeStackPtr] = catNode;
-			    endNode->fVal             = fRuleNum;
+			    endNode->fVal     = fRuleNum;
 			    endNode->fLookAheadEnd    = TRUE;
-			    thisRule                  = catNode;
+			    thisRule          = catNode;
 
 			    // TODO: Disable chaining out of look-ahead (hard break) rules.
 			    //   The break on rule match is forced, so there is no point in building up
@@ -373,7 +373,7 @@ bool RBBIRuleScanner::doParseActions(int32_t action)
 			    prevRules->fParent     = orNode;
 			    orNode->fRightChild    = thisRule;
 			    thisRule->fParent      = orNode;
-			    *destRules             = orNode;
+			    *destRules     = orNode;
 		    }
 		    else {
 			    // This is the first rule encountered (for this direction).
@@ -827,7 +827,7 @@ UChar32 RBBIRuleScanner::nextCharLL() {
 	if(fNextIndex >= fRB->fRules.length()) {
 		return (UChar32)-1;
 	}
-	ch         = fRB->fRules.char32At(fNextIndex);
+	ch = fRB->fRules.char32At(fNextIndex);
 	if(U_IS_SURROGATE(ch)) {
 		error(U_ILLEGAL_CHAR_FOUND);
 		return U_SENTINEL;

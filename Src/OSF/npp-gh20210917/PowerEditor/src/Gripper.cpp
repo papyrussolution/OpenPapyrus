@@ -20,11 +20,10 @@
 using namespace std;
 
 #ifndef WH_KEYBOARD_LL
-#define WH_KEYBOARD_LL 13
+	#define WH_KEYBOARD_LL 13
 #endif
-
 #ifndef WH_MOUSE_LL
-#define WH_MOUSE_LL 14
+	#define WH_MOUSE_LL 14
 #endif
 
 BOOL Gripper::_isRegistered     = FALSE;
@@ -67,10 +66,10 @@ static LRESULT CALLBACK hookProcKeyboard(int nCode, WPARAM wParam, LPARAM lParam
 Gripper::Gripper() : _hInst(0), _hParent(0), _hSelf(0), _pDockMgr(0), _pCont(0), _bPtOldValid(FALSE), _hTab(0), _hTabSource(0), _startMovingFromTab(FALSE),
 	_iItem(0), _hdc(0), _hbm(0), _hbrush(0)
 {
-	_ptOffset.x             = 0;
-	_ptOffset.y             = 0;
-	_ptOld.x                = 0;
-	_ptOld.y                = 0;
+	_ptOffset.x = 0;
+	_ptOffset.y = 0;
+	_ptOld.x = 0;
+	_ptOld.y = 0;
 	memzero(&_rcPrev, sizeof(RECT));
 	memzero(&_rcItem, sizeof(RECT));
 	memzero(&_tcItem, sizeof(TCITEM));
@@ -102,7 +101,7 @@ void Gripper::init(HINSTANCE hInst, HWND hParent)
 void Gripper::startGrip(DockingCont* pCont, DockingManager* pDockMgr)
 {
 	_pDockMgr   = pDockMgr;
-	_pCont          = pCont;
+	_pCont  = pCont;
 	_pDockMgr->getDockInfo(&_dockData);
 	if(!_isRegistered) {
 		WNDCLASS clz;
@@ -112,30 +111,17 @@ void Gripper::startGrip(DockingCont* pCont, DockingManager* pDockMgr)
 		clz.cbWndExtra = 0;
 		clz.hInstance = _hInst;
 		clz.hIcon = NULL;
-		clz.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-
+		clz.hCursor = ::LoadCursor(0, IDC_ARROW);
 		clz.hbrBackground = NULL;
 		clz.lpszMenuName = NULL;
 		clz.lpszClassName = MDLG_CLASS_NAME;
-
 		if(!::RegisterClass(&clz)) {
 			throw std::runtime_error("Gripper::startGrip : RegisterClass() function failed");
 		}
 		_isRegistered = TRUE;
 	}
-
-	_hSelf = ::CreateWindowEx(
-		0,
-		MDLG_CLASS_NAME,
-		TEXT(""), 0,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		NULL,
-		NULL,
-		_hInst,
-		(LPVOID)this);
+	_hSelf = ::CreateWindowEx(0, MDLG_CLASS_NAME, TEXT(""), 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, _hInst, (LPVOID)this);
 	hWndServer = _hSelf;
-
 	if(!_hSelf) {
 		throw std::runtime_error("Gripper::startGrip : CreateWindowEx() function return null");
 	}
@@ -144,8 +130,7 @@ void Gripper::startGrip(DockingCont* pCont, DockingManager* pDockMgr)
 LRESULT CALLBACK Gripper::staticWinProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	Gripper * pDlgMoving = NULL;
-	switch(message)
-	{
+	switch(message) {
 		case WM_NCCREATE:
 		    pDlgMoving = reinterpret_cast<Gripper *>(reinterpret_cast<LPCREATESTRUCT>(lParam)->lpCreateParams);
 		    pDlgMoving->_hSelf = hwnd;
@@ -162,22 +147,16 @@ LRESULT CALLBACK Gripper::staticWinProc(HWND hwnd, UINT message, WPARAM wParam, 
 
 LRESULT Gripper::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
+	switch(message) {
 		case WM_CREATE:
-	    {
 		    create();
 		    break;
-	    }
 		case WM_MOUSEMOVE:
 		case WM_NCMOUSEMOVE:
-	    {
 		    onMove();
 		    return TRUE;
-	    }
 		case WM_LBUTTONUP:
 		case WM_NCLBUTTONUP:
-	    {
 		    /* end hooking */
 		    if(hookMouse) {
 			    ::UnhookWindowsHookEx(hookMouse);
@@ -188,44 +167,36 @@ LRESULT Gripper::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 		    onButtonUp();
 		    ::DestroyWindow(_hSelf);
 		    return TRUE;
-	    }
 		case DMM_CANCEL_MOVE:
 	    {
-		    POINT pt                      = {0, 0};
-		    POINT ptBuf           = {0, 0};
-
+		    POINT pt = {0, 0};
+		    POINT ptBuf = {0, 0};
 		    ::GetCursorPos(&pt);
 		    getMousePoints(&pt, &ptBuf);
-
 		    /* erase last drawn rectangle */
 		    drawRectangle(NULL);
-
 		    /* end hooking */
 		    ::UnhookWindowsHookEx(hookMouse);
 		    ::UnhookWindowsHookEx(hookKeyboard);
-
 		    ::DestroyWindow(_hSelf);
 		    return FALSE;
 	    }
 		case WM_DESTROY:
-	    {
 		    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 		    ::SetWindowPos(_hParent, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 		    _pCont->focusClient();
 		    delete this;     // TODO: remove this line and delete this object outside of itself
 		    return TRUE;
-	    }
 		default:
 		    break;
 	}
-
 	return ::DefWindowProc(_hSelf, message, wParam, lParam);
 }
 
 void Gripper::create()
 {
-	RECT rc              = {0};
-	POINT pt              = {0};
+	RECT rc      = {0};
+	POINT pt      = {0};
 
 	// start hooking
 	::SetWindowPos(_pCont->getHSelf(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
@@ -251,13 +222,8 @@ void Gripper::create()
 	}
 //  Removed regarding W9x systems
 //	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-
-	// calculate the mouse pt within dialog
-	::GetCursorPos(&pt);
-
-	// get tab informations
-	initTabInformation();
-
+	::GetCursorPos(&pt); // calculate the mouse pt within dialog
+	initTabInformation(); // get tab informations
 	if(_pCont->isFloating() == true) {
 		::GetWindowRect(_pCont->getHSelf(), &rc);
 	}
@@ -265,33 +231,29 @@ void Gripper::create()
 		_pCont->getClientRect(rc);
 		::ScreenToClient(_pCont->getHSelf(), &pt);
 	}
-
 	_ptOffset.x     = pt.x - rc.left;
 	_ptOffset.y     = pt.y - rc.top;
 }
 
 void Gripper::onMove()
 {
-	POINT pt              = {0, 0};
+	POINT pt      = {0, 0};
 	POINT ptBuf   = {0, 0};
-
 	::GetCursorPos(&pt);
 	getMousePoints(&pt, &ptBuf);
-
 	/* tab reordering only when tab was selected */
 	if(_startMovingFromTab == TRUE) {
 		doTabReordering(pt);
 	}
-
 	drawRectangle(&pt);
 }
 
 void Gripper::onButtonUp()
 {
-	POINT pt                      = {0, 0};
-	POINT ptBuf           = {0, 0};
-	RECT rc                      = {0};
-	RECT rcCorr          = {0};
+	POINT pt              = {0, 0};
+	POINT ptBuf   = {0, 0};
+	RECT rc              = {0};
+	RECT rcCorr  = {0};
 
 	::GetCursorPos(&pt);
 	getMousePoints(&pt, &ptBuf);
@@ -364,10 +326,10 @@ void Gripper::onButtonUp()
 
 void Gripper::doTabReordering(POINT pt)
 {
-	vector<DockingCont*>    vCont           = _pDockMgr->getContainerInfo();
-	BOOL inTab           = FALSE;
-	HWND hTab            = NULL;
-	HWND hTabOld         = _hTab;
+	vector<DockingCont*>    vCont   = _pDockMgr->getContainerInfo();
+	BOOL inTab   = FALSE;
+	HWND hTab    = NULL;
+	HWND hTabOld = _hTab;
 	int iItemOld        = _iItem;
 
 	/* search for every tab entry */
@@ -376,7 +338,7 @@ void Gripper::doTabReordering(POINT pt)
 
 		/* search only if container is visible */
 		if(::IsWindowVisible(hTab) == TRUE) {
-			RECT rc              = {0};
+			RECT rc      = {0};
 
 			::GetWindowRect(hTab, &rc);
 
@@ -605,8 +567,8 @@ void Gripper::getMousePoints(POINT* pt, POINT* ptPrev)
 
 void Gripper::getMovingRect(POINT pt, RECT * rc)
 {
-	RECT rcCorr                  = {0};
-	DockingCont*    pContHit                = NULL;
+	RECT rcCorr          = {0};
+	DockingCont*    pContHit        = NULL;
 	/* test if mouse hits a container */
 	pContHit = contHitTest(pt);
 	if(pContHit != NULL) {
@@ -754,7 +716,7 @@ void Gripper::initTabInformation()
 	_startMovingFromTab     = _pCont->startMovingFromTab();
 	if((_startMovingFromTab == FALSE) && (::SendMessage(_hTabSource, TCM_GETITEMCOUNT, 0, 0) == 1)) {
 		_startMovingFromTab = TRUE;
-		_iItem                          = 0;
+		_iItem                  = 0;
 	}
 	else {
 		// get active tab item
@@ -765,8 +727,8 @@ void Gripper::initTabInformation()
 	::SendMessage(_hTabSource, TCM_GETITEMRECT, _iItem, reinterpret_cast<LPARAM>(&_rcItem));
 	/* store item data */
 	static TCHAR szText[64];
-	_tcItem.mask            = TCIF_PARAM | TCIF_TEXT;
-	_tcItem.pszText         = szText;
+	_tcItem.mask    = TCIF_PARAM | TCIF_TEXT;
+	_tcItem.pszText = szText;
 	_tcItem.cchTextMax      = 64;
 	::SendMessage(_hTabSource, TCM_GETITEM, _iItem, reinterpret_cast<LPARAM>(&_tcItem));
 }

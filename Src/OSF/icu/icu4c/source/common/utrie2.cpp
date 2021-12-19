@@ -87,7 +87,7 @@ static inline int32_t u8Index(const UTrie2 * trie, UChar32 c, int32_t i) {
 }
 
 U_CAPI int32_t U_EXPORT2 utrie2_internalU8NextIndex(const UTrie2 * trie, UChar32 c,
-    const uint8_t * src, const uint8_t * limit) {
+    const uint8 * src, const uint8 * limit) {
 	int32_t i, length;
 	i = 0;
 	/* support 64-bit pointers by avoiding cast of arbitrary difference */
@@ -102,7 +102,7 @@ U_CAPI int32_t U_EXPORT2 utrie2_internalU8NextIndex(const UTrie2 * trie, UChar32
 }
 
 U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32 c,
-    const uint8_t * start, const uint8_t * src) {
+    const uint8 * start, const uint8 * src) {
 	int32_t i, length;
 	/* support 64-bit pointers by avoiding cast of arbitrary difference */
 	if((src-start)<=7) {

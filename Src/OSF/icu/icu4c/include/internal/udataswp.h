@@ -152,11 +152,11 @@ struct UDataSwapper {
     /** Input endianness. @internal ICU 2.8 */
     bool inIsBigEndian;
     /** Input charset family. @see U_CHARSET_FAMILY @internal ICU 2.8 */
-    uint8_t inCharset;
+    uint8 inCharset;
     /** Output endianness. @internal ICU 2.8 */
     bool outIsBigEndian;
     /** Output charset family. @see U_CHARSET_FAMILY @internal ICU 2.8 */
-    uint8_t outCharset;
+    uint8 outCharset;
 
     /* basic functions for reading data values */
 
@@ -198,8 +198,8 @@ struct UDataSwapper {
 U_CDECL_END
 
 U_CAPI UDataSwapper * U_EXPORT2
-udata_openSwapper(bool inIsBigEndian, uint8_t inCharset,
-                  bool outIsBigEndian, uint8_t outCharset,
+udata_openSwapper(bool inIsBigEndian, uint8 inCharset,
+                  bool outIsBigEndian, uint8 outCharset,
                   UErrorCode *pErrorCode);
 
 /**
@@ -213,7 +213,7 @@ udata_openSwapper(bool inIsBigEndian, uint8_t inCharset,
  */
 U_CAPI UDataSwapper * U_EXPORT2
 udata_openSwapperForInputData(const void *data, int32_t length,
-                              bool outIsBigEndian, uint8_t outCharset,
+                              bool outIsBigEndian, uint8 outCharset,
                               UErrorCode *pErrorCode);
 
 U_CAPI void U_EXPORT2

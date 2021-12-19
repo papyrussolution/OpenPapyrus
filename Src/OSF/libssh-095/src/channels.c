@@ -1292,7 +1292,7 @@ static int channel_write_common(ssh_channel channel,
 
 		channel->remote_window -= effectivelen;
 		len -= effectivelen;
-		data = ((uint8*)data + effectivelen);
+		data = ((uint8 *)data + effectivelen);
 		if(channel->counter != NULL) {
 			channel->counter->out_bytes += effectivelen;
 		}

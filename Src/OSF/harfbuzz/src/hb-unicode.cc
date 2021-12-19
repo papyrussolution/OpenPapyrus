@@ -47,67 +47,53 @@
  * hb_unicode_funcs_t
  */
 
-static hb_unicode_combining_class_t hb_unicode_combining_class_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode HB_UNUSED,
-    void * user_data HB_UNUSED)
+static hb_unicode_combining_class_t hb_unicode_combining_class_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
+    hb_codepoint_t unicode CXX_UNUSED_PARAM,
+    void * user_data CXX_UNUSED_PARAM)
 {
 	return HB_UNICODE_COMBINING_CLASS_NOT_REORDERED;
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-static uint hb_unicode_eastasian_width_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode HB_UNUSED,
-    void * user_data HB_UNUSED)
+static uint hb_unicode_eastasian_width_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
+    hb_codepoint_t unicode CXX_UNUSED_PARAM,
+    void * user_data CXX_UNUSED_PARAM)
 {
 	return 1;
 }
 
 #endif
 
-static hb_unicode_general_category_t hb_unicode_general_category_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode HB_UNUSED,
-    void * user_data HB_UNUSED)
+static hb_unicode_general_category_t hb_unicode_general_category_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
 {
 	return HB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER;
 }
 
-static hb_codepoint_t hb_unicode_mirroring_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode,
-    void * user_data HB_UNUSED)
+static hb_codepoint_t hb_unicode_mirroring_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return unicode;
 }
 
-static hb_script_t hb_unicode_script_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t unicode HB_UNUSED,
-    void * user_data HB_UNUSED)
+static hb_script_t hb_unicode_script_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t unicode CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
 {
 	return HB_SCRIPT_UNKNOWN;
 }
 
-static hb_bool_t hb_unicode_compose_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t a HB_UNUSED,
-    hb_codepoint_t b HB_UNUSED,
-    hb_codepoint_t * ab HB_UNUSED,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_unicode_compose_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t a CXX_UNUSED_PARAM,
+    hb_codepoint_t b CXX_UNUSED_PARAM, hb_codepoint_t * ab CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
 {
 	return false;
 }
 
-static hb_bool_t hb_unicode_decompose_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t ab HB_UNUSED,
-    hb_codepoint_t * a HB_UNUSED,
-    hb_codepoint_t * b HB_UNUSED,
-    void * user_data HB_UNUSED)
+static hb_bool_t hb_unicode_decompose_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t ab CXX_UNUSED_PARAM,
+    hb_codepoint_t * a CXX_UNUSED_PARAM, hb_codepoint_t * b CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
 {
 	return false;
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-static uint hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs HB_UNUSED,
-    hb_codepoint_t u HB_UNUSED,
-    hb_codepoint_t * decomposed HB_UNUSED,
-    void * user_data HB_UNUSED)
+static uint hb_unicode_decompose_compatibility_nil(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t u CXX_UNUSED_PARAM,
+    hb_codepoint_t * decomposed CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM)
 {
 	return 0;
 }

@@ -712,13 +712,13 @@ void GnuPlot::ShowVersion(FILE * fp)
 			char * helpfile = NULL;
 			if((helpfile = getenv("GNUHELP")) == NULL)
 				helpfile = HELPFILE;
-			fprintf(stderr, "HELPFILE           = \"%s\"\n", helpfile);
+			fprintf(stderr, "HELPFILE   = \"%s\"\n", helpfile);
 #else /* _WIN32 */
-			fprintf(stderr, "HELPFILE           = \"" TCHARFMT "\"\n", _WinM.winhelpname);
+			fprintf(stderr, "HELPFILE   = \"" TCHARFMT "\"\n", _WinM.winhelpname);
 #endif
 		}
 #if defined(_WIN32) && !defined(WGP_CONSOLE)
-		fprintf(stderr, "MENUNAME           = \"" TCHARFMT "\"\n", _WinM.szMenuName);
+		fprintf(stderr, "MENUNAME   = \"" TCHARFMT "\"\n", _WinM.szMenuName);
 #endif
 #ifdef HAVE_LIBCACA
 		fprintf(stderr, "libcaca version    : %s\n", caca_get_version());
@@ -2227,7 +2227,7 @@ void GnuPlot::ShowTerm(GpTermEntry * pTerm)
 {
 	ShowAllNl();
 	if(pTerm)
-		fprintf(stderr, "   terminal type is %s %s\n", pTerm->name, GPT._TermOptions.cptr());
+		fprintf(stderr, "   terminal type is %s %s\n", pTerm->GetName(), GPT._TermOptions.cptr());
 	else
 		fputs("\tterminal type is unknown\n", stderr);
 }

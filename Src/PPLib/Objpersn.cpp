@@ -502,14 +502,14 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			sz += ext_size;
 			p_cfg = static_cast<Storage_PPPersonConfig *>(SAlloc::M(sz));
 			memzero(p_cfg, sz);
-			p_cfg->Tag               = PPOBJ_CONFIG;
-			p_cfg->ID                = PPCFG_MAIN;
-			p_cfg->Prop              = prop_cfg_id;
-			p_cfg->Flags             = pCfg->Flags;
+			p_cfg->Tag       = PPOBJ_CONFIG;
+			p_cfg->ID        = PPCFG_MAIN;
+			p_cfg->Prop      = prop_cfg_id;
+			p_cfg->Flags     = pCfg->Flags;
 			p_cfg->TradeLicRegTypeID = pCfg->TradeLicRegTypeID;
 			p_cfg->RegStaffCalID     = pCfg->RegStaffCalID;
 			p_cfg->StaffCalQuant     = pCfg->StaffCalQuant;
-			p_cfg->Ver               = DS.GetVersion();
+			p_cfg->Ver       = DS.GetVersion();
 			p_cfg->SendSmsSamePersonTimeout = pCfg->SendSmsSamePersonTimeout;
 			p_cfg->SmsProhibitedTr   = pCfg->SmsProhibitedTr; // @v10.2.3
 			if(ext_size) {
@@ -573,11 +573,11 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	}
 	if(r > 0) {
-		pCfg->Flags             = p_cfg->Flags;
+		pCfg->Flags     = p_cfg->Flags;
 		pCfg->TradeLicRegTypeID = p_cfg->TradeLicRegTypeID;
 		pCfg->RegStaffCalID     = p_cfg->RegStaffCalID;
 		pCfg->StaffCalQuant     = p_cfg->StaffCalQuant;
-		//pCfg->Ver               = p_cfg->Ver; // @vmiller
+		//pCfg->Ver       = p_cfg->Ver; // @vmiller
 		pCfg->SendSmsSamePersonTimeout = p_cfg->SendSmsSamePersonTimeout;
 		pCfg->SmsProhibitedTr   = p_cfg->SmsProhibitedTr; // @v10.2.3
 		if(p_cfg->StrPosTopFolder)
@@ -5043,10 +5043,10 @@ IMPL_HANDLE_EVENT(PsnSelAnalogDialog)
 //
 //
 enum AnalyzePersonNameResultFlags {
-	apnrfFirstName                = 0x0001,
-	apnrfPatronymic               = 0x0002,
-	apnrfLastName                 = 0x0004,
-	apnrfGenusRerum               = 0x0008, // Форма собственности "formeo"
+	apnrfFirstName        = 0x0001,
+	apnrfPatronymic       = 0x0002,
+	apnrfLastName         = 0x0004,
+	apnrfGenusRerum       = 0x0008, // Форма собственности "formeo"
 	apnrfNegotiumTaxonomyCategory = 0x0010, // Категория предприятия "entkind"
 };
 

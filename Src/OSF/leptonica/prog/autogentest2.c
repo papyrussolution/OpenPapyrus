@@ -34,6 +34,10 @@
  *  It then writes them to file and compares with the original.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 #include "autogen.137.h"    /* this must be included */
 
@@ -46,6 +50,7 @@ l_int32 main(int    argc,
 l_int32  i, same;
 PIXA    *pixa;
 
+    setLeptDebugOK(1);
     lept_mkdir("lept/auto");
 
     for (i = 0; i < 2; i++) {
@@ -53,9 +58,9 @@ PIXA    *pixa;
        pixaWrite("/tmp/lept/auto/junkpa.pa", pixa);
        filesAreIdentical("/tmp/lept/auto/junkpa.pa", files[i], &same);
        if (same)
-           fprintf(stderr, "Files are the same for %s\n", files[i]);
+           lept_stderr("Files are the same for %s\n", files[i]);
        else
-           fprintf(stderr, "Error: files are different for %s\n", files[i]);
+           lept_stderr("Error: files are different for %s\n", files[i]);
        pixaDestroy(&pixa);
     }
 

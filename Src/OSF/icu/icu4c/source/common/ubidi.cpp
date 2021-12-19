@@ -123,9 +123,9 @@ U_CAPI UBiDi * U_EXPORT2 ubidi_open(void)
 	return ubidi_openSized(0, 0, &errorCode);
 }
 
-U_CAPI UBiDi * U_EXPORT2 ubidi_openSized(int32_t maxLength, int32_t maxRunCount, UErrorCode * pErrorCode) {
+U_CAPI UBiDi * U_EXPORT2 ubidi_openSized(int32_t maxLength, int32_t maxRunCount, UErrorCode * pErrorCode) 
+{
 	UBiDi * pBiDi;
-
 	/* check the argument values */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
@@ -189,7 +189,8 @@ U_CAPI UBiDi * U_EXPORT2 ubidi_openSized(int32_t maxLength, int32_t maxRunCount,
  * which we know we don't need any more;
  * is this the best way to do this??
  */
-U_CFUNC bool ubidi_getMemory(BidiMemoryForAllocation * bidiMem, int32_t * pSize, bool mayAllocate, int32_t sizeNeeded) {
+U_CFUNC bool ubidi_getMemory(BidiMemoryForAllocation * bidiMem, int32_t * pSize, bool mayAllocate, int32_t sizeNeeded) 
+{
 	void ** pMemory = (void **)bidiMem;
 	/* check for existing memory */
 	if(*pMemory==NULL) {
@@ -1428,11 +1429,11 @@ static UBiDiDirection checkExplicitLevels(UBiDi * pBiDi, UErrorCode * pErrorCode
 #define IMPTABPROPS_RES (IMPTABPROPS_COLUMNS - 1)
 #define GET_STATEPROPS(cell) ((cell)&0x1f)
 #define GET_ACTIONPROPS(cell) ((cell)>>5)
-#define s(action, newState) ((uint8_t)(newState+(action<<5)))
+#define s(action, newState) ((uint8)(newState+(action<<5)))
 
-static const uint8_t groupProp[] =          /* dirProp regrouped */
+static const uint8 groupProp[] =          /* dirProp regrouped */
 {
-/*  L   R   EN  ES  ET  AN  CS  B   S   WS  ON  LRE LRO AL  RLE RLO PDF NSM BN  FSI LRI RLI PDI ENL ENR */
+/* L   R   EN  ES  ET  AN  CS  B   S   WS  ON  LRE LRO AL  RLE RLO PDF NSM BN  FSI LRI RLI PDI ENL ENR */
 	0,  1,  2,  7,  8,  3,  9,  6,  5,  4,  4,  10, 10, 12, 10, 10, 10, 11, 10, 4,  4,  4,  4,  13, 14
 };
 enum { DirProp_L = 0, DirProp_R = 1, DirProp_EN = 2, DirProp_AN = 3, DirProp_ON = 4, DirProp_S = 5, DirProp_B = 6 }; /*
@@ -1475,9 +1476,9 @@ enum { DirProp_L = 0, DirProp_R = 1, DirProp_EN = 2, DirProp_AN = 3, DirProp_ON 
 
 
  */
-static const uint8_t impTabProps[][IMPTABPROPS_COLUMNS] =
+static const uint8 impTabProps[][IMPTABPROPS_COLUMNS] =
 {
-/*                        L ,     R ,    EN ,    AN ,    ON ,     S ,     B ,    ES ,    ET ,    CS ,    BN ,   NSM ,
+/*        L ,     R ,    EN ,    AN ,    ON ,     S ,     B ,    ES ,    ET ,    CS ,    BN ,   NSM ,
       AL ,   ENL ,   ENR , Res */
 /* 0 Init        */ {     1,     2,     4,     5,     7,    15,    17,     7,     9,     7,     0,     7,     3,    18,    21, DirProp_ON },
 /* 1 L  */ {     1, s(1, 2), s(1, 4), s(1, 5), s(1, 7), s(1, 15), s(1, 17), s(1, 7), s(1, 9), s(1, 7),     1,     1, s(1, 3), s(1,
@@ -1529,7 +1530,7 @@ static const uint8_t impTabProps[][IMPTABPROPS_COLUMNS] =
 		      21, DirProp_AN }
 };
 
-/*  we must undef macro s because the levels tables have a different
+/* we must undef macro s because the levels tables have a different
  *  structure (4 bits for action and 4 bits for next state.
  */
 #undef s
@@ -1557,10 +1558,10 @@ static const uint8_t impTabProps[][IMPTABPROPS_COLUMNS] =
 #define IMPTABLEVELS_RES (IMPTABLEVELS_COLUMNS - 1)
 #define GET_STATE(cell) ((cell)&0x0f)
 #define GET_ACTION(cell) ((cell)>>4)
-#define s(action, newState) ((uint8_t)(newState+(action<<4)))
+#define s(action, newState) ((uint8)(newState+(action<<4)))
 
-typedef uint8_t ImpTab[][IMPTABLEVELS_COLUMNS];
-typedef uint8_t ImpAct[];
+typedef uint8 ImpTab[][IMPTABLEVELS_COLUMNS];
+typedef uint8 ImpAct[];
 
 /* FOOD FOR THOUGHT: each ImpTab should have its associated ImpAct,
  * instead of having a pair of ImpTab and a pair of ImpAct.
@@ -1608,11 +1609,11 @@ typedef struct ImpTabPair {
  */
 
 static const ImpTab impTabL_DEFAULT =   /* Even paragraph level */
-/*  In this table, conditional sequences receive the lower possible level
+/* In this table, conditional sequences receive the lower possible level
     until proven otherwise.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     0,     1,     0,     2,     0,     0,     0,  0 },
 /* 1 : R */ {     0,     1,     3,     3, s(1, 4), s(1, 4),     0,  1 },
 /* 2 : AN         */ {     0,     1,     0,     2, s(1, 5), s(1, 5),     0,  2 },
@@ -1621,11 +1622,11 @@ static const ImpTab impTabL_DEFAULT =   /* Even paragraph level */
 /* 5 : AN+ON      */ {     0, s(2, 1),     0, s(3, 2),     5,     5,     0,  0 }
 };
 static const ImpTab impTabR_DEFAULT =   /* Odd  paragraph level */
-/*  In this table, conditional sequences receive the lower possible level
+/* In this table, conditional sequences receive the lower possible level
     until proven otherwise.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     1,     0,     2,     2,     0,     0,     0,  0 },
 /* 1 : L */ {     1,     0,     1,     3, s(1, 4), s(1, 4),     0,  1 },
 /* 2 : EN/AN      */ {     1,     0,     2,     2,     0,     0,     0,  1 },
@@ -1639,11 +1640,11 @@ static const ImpTabPair impTab_DEFAULT = {{&impTabL_DEFAULT,
 					  {&impAct0, &impAct0}};
 
 static const ImpTab impTabL_NUMBERS_SPECIAL =   /* Even paragraph level */
-/*  In this table, conditional sequences receive the lower possible level
+/* In this table, conditional sequences receive the lower possible level
     until proven otherwise.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     0,     2, s(1, 1), s(1, 1),     0,     0,     0,  0 },
 /* 1 : L+EN/AN    */ {     0, s(4, 2),     1,     1,     0,     0,     0,  0 },
 /* 2 : R */ {     0,     2,     4,     4, s(1, 3), s(1, 3),     0,  1 },
@@ -1655,11 +1656,11 @@ static const ImpTabPair impTab_NUMBERS_SPECIAL = {{&impTabL_NUMBERS_SPECIAL,
 						  {&impAct0, &impAct0}};
 
 static const ImpTab impTabL_GROUP_NUMBERS_WITH_R =
-/*  In this table, EN/AN+ON sequences receive levels as if associated with R
+/* In this table, EN/AN+ON sequences receive levels as if associated with R
     until proven that there is L or sor/eor on both sides. AN is handled like EN.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 init         */ {     0,     3, s(1, 1), s(1, 1),     0,     0,     0,  0 },
 /* 1 EN/AN        */ { s(2, 0),     3,     1,     1,     2, s(2, 0), s(2, 0),  2 },
 /* 2 EN/AN+ON     */ { s(2, 0),     3,     1,     1,     2, s(2, 0), s(2, 0),  1 },
@@ -1668,11 +1669,11 @@ static const ImpTab impTabL_GROUP_NUMBERS_WITH_R =
 /* 5 R+EN/AN      */ {     0,     3,     5,     5, s(1, 4),     0,     0,  2 }
 };
 static const ImpTab impTabR_GROUP_NUMBERS_WITH_R =
-/*  In this table, EN/AN+ON sequences receive levels as if associated with R
+/* In this table, EN/AN+ON sequences receive levels as if associated with R
     until proven that there is L on both sides. AN is handled like EN.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 init         */ {     2,     0,     1,     1,     0,     0,     0,  0 },
 /* 1 EN/AN        */ {     2,     0,     1,     1,     0,     0,     0,  1 },
 /* 2 L   */ {     2,     0, s(1, 4), s(1, 4), s(1, 3),     0,     0,  1 },
@@ -1686,11 +1687,11 @@ static const ImpTabPair impTab_GROUP_NUMBERS_WITH_R = {
 };
 
 static const ImpTab impTabL_INVERSE_NUMBERS_AS_L =
-/*  This table is identical to the Default LTR table except that EN and AN are
+/* This table is identical to the Default LTR table except that EN and AN are
     handled like L.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     0,     1,     0,     0,     0,     0,     0,  0 },
 /* 1 : R */ {     0,     1,     0,     0, s(1, 4), s(1, 4),     0,  1 },
 /* 2 : AN         */ {     0,     1,     0,     0, s(1, 5), s(1, 5),     0,  2 },
@@ -1699,11 +1700,11 @@ static const ImpTab impTabL_INVERSE_NUMBERS_AS_L =
 /* 5 : AN+ON      */ { s(2, 0),     1, s(2, 0), s(2, 0),     5,     5, s(2, 0),  1 }
 };
 static const ImpTab impTabR_INVERSE_NUMBERS_AS_L =
-/*  This table is identical to the Default RTL table except that EN and AN are
+/* This table is identical to the Default RTL table except that EN and AN are
     handled like L.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     1,     0,     1,     1,     0,     0,     0,  0 },
 /* 1 : L */ {     1,     0,     1,     1, s(1, 4), s(1, 4),     0,  1 },
 /* 2 : EN/AN      */ {     1,     0,     1,     1,     0,     0,     0,  1 },
@@ -1718,11 +1719,11 @@ static const ImpTabPair impTab_INVERSE_NUMBERS_AS_L = {
 };
 
 static const ImpTab impTabR_INVERSE_LIKE_DIRECT =   /* Odd  paragraph level */
-/*  In this table, conditional sequences receive the lower possible level
+/* In this table, conditional sequences receive the lower possible level
     until proven otherwise.
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     1,     0,     2,     2,     0,     0,     0,  0 },
 /* 1 : L */ {     1,     0,     1,     2, s(1, 3), s(1, 3),     0,  1 },
 /* 2 : EN/AN      */ {     1,     0,     2,     2,     0,     0,     0,  1 },
@@ -1741,10 +1742,10 @@ static const ImpTabPair impTab_INVERSE_LIKE_DIRECT = {
 };
 
 static const ImpTab impTabL_INVERSE_LIKE_DIRECT_WITH_MARKS =
-/*  The case handled in this table is (visually):  R EN L
+/* The case handled in this table is (visually):  R EN L
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     0, s(6, 3),     0,     1,     0,     0,     0,  0 },
 /* 1 : L+AN       */ {     0, s(6, 3),     0,     1, s(1, 2), s(3, 0),     0,  4 },
 /* 2 : L+AN+ON    */ { s(2, 0), s(6, 3), s(2, 0),     1,     2, s(3, 0), s(2, 0),  3 },
@@ -1754,11 +1755,11 @@ static const ImpTab impTabL_INVERSE_LIKE_DIRECT_WITH_MARKS =
 /* 6 : R+AN       */ { s(3, 0), s(4, 3), s(5, 5),     6, s(1, 4), s(3, 0), s(3, 0),  4 }
 };
 static const ImpTab impTabR_INVERSE_LIKE_DIRECT_WITH_MARKS =
-/*  The cases handled in this table are (visually):  R EN L
+/* The cases handled in this table are (visually):  R EN L
                                                      R L AN L
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ { s(1, 3),     0,     1,     1,     0,     0,     0,  0 },
 /* 1 : R+EN/AN    */ { s(2, 3),     0,     1,     1,     2, s(4, 0),     0,  1 },
 /* 2 : R+EN/AN+ON */ { s(2, 3),     0,     1,     1,     2, s(4, 0),     0,  0 },
@@ -1782,10 +1783,10 @@ static const ImpTabPair impTab_INVERSE_FOR_NUMBERS_SPECIAL = {
 };
 
 static const ImpTab impTabL_INVERSE_FOR_NUMBERS_SPECIAL_WITH_MARKS =
-/*  The case handled in this table is (visually):  R EN L
+/* The case handled in this table is (visually):  R EN L
  */
 {
-/*                         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
+/*         L ,     R ,    EN ,    AN ,    ON ,     S ,     B , Res */
 /* 0 : init       */ {     0, s(6, 2),     1,     1,     0,     0,     0,  0 },
 /* 1 : L+EN/AN    */ {     0, s(6, 2),     1,     1,     0, s(3, 0),     0,  4 },
 /* 2 : R */ {     0, s(6, 2), s(5, 4), s(5, 4), s(1, 3), s(3, 0),     0,  3 },
@@ -1879,9 +1880,9 @@ static void setLevelsOutsideIsolates(UBiDi * pBiDi, int32_t start, int32_t limit
  * to actually store the intermediate directional properties in dirProps[].
  */
 
-static void processPropertySeq(UBiDi * pBiDi, LevState * pLevState, uint8_t _prop,
+static void processPropertySeq(UBiDi * pBiDi, LevState * pLevState, uint8 _prop,
     int32_t start, int32_t limit) {
-	uint8_t cell, oldStateSeq, actionSeq;
+	uint8 cell, oldStateSeq, actionSeq;
 	const ImpTab * pImpTab = pLevState->pImpTab;
 	const ImpAct * pImpAct = pLevState->pImpAct;
 	UBiDiLevel * levels = pBiDi->levels;
@@ -1890,7 +1891,7 @@ static void processPropertySeq(UBiDi * pBiDi, LevState * pLevState, uint8_t _pro
 	int32_t start0, k;
 
 	start0 = start; /* save original start position */
-	oldStateSeq = (uint8_t)pLevState->state;
+	oldStateSeq = (uint8)pLevState->state;
 	cell = (*pImpTab)[oldStateSeq][_prop];
 	pLevState->state = GET_STATE(cell); /* isolate the new state */
 	actionSeq = (*pImpAct)[GET_ACTION(cell)]; /* isolate the action */
@@ -2142,7 +2143,7 @@ static void resolveImplicitLevels(UBiDi * pBiDi,
 	LevState levState;
 	int32_t i, start1, start2;
 	uint16_t oldStateImp, stateImp, actionImp;
-	uint8_t gprop, resProp, cell;
+	uint8 gprop, resProp, cell;
 	bool inverseRTL;
 	DirProp nextStrongProp = R;
 	int32_t nextStrongPos = -1;
@@ -2396,7 +2397,7 @@ static void setParaRunsOnly(UBiDi * pBiDi, const UChar * text, int32_t length,
 	uint32_t saveOptions;
 
 	pBiDi->reorderingMode = UBIDI_REORDER_DEFAULT;
-	if(length==0) {
+	if(!length) {
 		ubidi_setPara(pBiDi, text, length, paraLevel, NULL, pErrorCode);
 		goto cleanup3;
 	}
@@ -2611,7 +2612,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 	 */
 	pBiDi->defaultParaLevel = IS_DEFAULT_LEVEL(paraLevel);
 
-	if(length==0) {
+	if(!length) {
 		/*
 		 * For an empty paragraph, create a UBiDi object with the paraLevel and
 		 * the flags and the direction set but without allocating zero-length arrays.

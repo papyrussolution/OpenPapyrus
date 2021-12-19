@@ -1452,7 +1452,7 @@ public:
 			SysLogMessage(LOG_NOINCOMDOC);
 			LogMessage(LOG_NOINCOMDOC);
 		}
-		MsgList.Clear();
+		MsgList.Z();
 		State &= ~stMsgList;
 		State &= ~stInit;
 		return 1;
@@ -1606,10 +1606,11 @@ SString & ImportCls::GetTempPath(const PPEdiMessageEntry & rEntry, SString & rBu
 
 int ImportCls::GetMessageList(const char * pLocalPath)
 {
-	MsgList.Clear();
+	MsgList.Z();
 
 	int    ok = -1;
-	SString file_type, box_name;
+	SString file_type;
+	SString box_name;
 	SString wildcard;
 	if(MessageType == PPEDIOP_ORDERRSP) {
 		file_type = "OrdRsp";

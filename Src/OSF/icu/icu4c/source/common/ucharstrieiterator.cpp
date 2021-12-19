@@ -100,7 +100,7 @@ UCharsTrie::Iterator::next(UErrorCode & errorCode) {
 		return FALSE;
 	}
 	const UChar * pos = pos_;
-	if(pos==NULL) {
+	if(!pos) {
 		if(stack_->isEmpty()) {
 			return FALSE;
 		}
@@ -114,7 +114,7 @@ UCharsTrie::Iterator::next(UErrorCode & errorCode) {
 		length = (int32_t)((uint32_t)length>>16);
 		if(length>1) {
 			pos = branchNext(pos, length, errorCode);
-			if(pos==NULL) {
+			if(!pos) {
 				return TRUE; // Reached a final value.
 			}
 		}
@@ -162,11 +162,11 @@ UCharsTrie::Iterator::next(UErrorCode & errorCode) {
 			return truncateAndStop();
 		}
 		if(node<kMinLinearMatch) {
-			if(node==0) {
+			if(!node) {
 				node = *pos++;
 			}
 			pos = branchNext(pos, node+1, errorCode);
-			if(pos==NULL) {
+			if(!pos) {
 				return TRUE; // Reached a final value.
 			}
 		}

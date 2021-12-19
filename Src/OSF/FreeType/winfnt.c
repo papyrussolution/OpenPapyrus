@@ -697,7 +697,7 @@ static FT_Error FNT_Face_Init(FT_Stream stream,
 			if(font->header.charset == FT_WinFNT_ID_MAC) {
 				charmap.encoding = FT_ENCODING_APPLE_ROMAN;
 				charmap.platform_id = TT_PLATFORM_MACINTOSH;
-/*        charmap.encoding_id = TT_MAC_ID_ROMAN; */
+/* charmap.encoding_id = TT_MAC_ID_ROMAN; */
 			}
 			error = FT_CMap_New(fnt_cmap_class, NULL, &charmap, NULL);
 			if(error)
@@ -865,7 +865,7 @@ static FT_Error FNT_Load_Glyph(FT_GlyphSlot slot, FT_Size size, FT_UInt glyph_in
 		}
 
 		/* note: since glyphs are stored in columns and not in rows we */
-		/*       can't use ft_glyphslot_set_bitmap  */
+		/* can't use ft_glyphslot_set_bitmap  */
 		if(FT_ALLOC_MULT(bitmap->buffer, bitmap->rows, pitch))
 			goto Exit;
 		column = (FT_Byte*)bitmap->buffer;

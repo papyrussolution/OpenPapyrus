@@ -166,15 +166,15 @@ class U_I18N_API OlsonTimeZone: public BasicTimeZone {
     /**
   * TimeZone API.  Do not call this; prefer getOffset(UDate,...).
      */
-    virtual int32_t getOffset(uint8_t era, int32_t year, int32_t month,
-                              int32_t day, uint8_t dayOfWeek,
+    virtual int32_t getOffset(uint8 era, int32_t year, int32_t month,
+                              int32_t day, uint8 dayOfWeek,
                               int32_t millis, UErrorCode & ec) const override;
 
     /**
   * TimeZone API.  Do not call this; prefer getOffset(UDate,...).
      */
-    virtual int32_t getOffset(uint8_t era, int32_t year, int32_t month,
-                              int32_t day, uint8_t dayOfWeek,
+    virtual int32_t getOffset(uint8 era, int32_t year, int32_t month,
+                              int32_t day, uint8 dayOfWeek,
                               int32_t millis, int32_t monthLength,
                               UErrorCode & ec) const override;
 
@@ -358,11 +358,11 @@ private:
     const int32_t *typeOffsets; // alias into res; do not delete
 
     /**
-  * Type description data, consisting of transitionCount uint8_t
+  * Type description data, consisting of transitionCount uint8
   * type indices (from 0..typeCount-1).
   * Length is transitionCount int16_t's.  NULL if no transitions.
      */
-    const uint8_t *typeMapData; // alias into res; do not delete
+    const uint8 *typeMapData; // alias into res; do not delete
 
     /**
   * A SimpleTimeZone that governs the behavior for date >= finalMillis.

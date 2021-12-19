@@ -1856,9 +1856,9 @@ int FASTCALL GetCommConfig(PPCommConfig * pCfg)
 	THROW(r = PPRef->GetPropMainConfig(PPPRP_COMMCFG, pCfg, sizeof(PPCommConfig)));
 	if(r <= 0) {
 		memzero(pCfg, sizeof(*pCfg));
-		pCfg->Tag          = PPOBJ_CONFIG;
-		pCfg->ID           = PPCFG_MAIN;
-		pCfg->Prop         = PPPRP_COMMCFG;
+		pCfg->Tag  = PPOBJ_CONFIG;
+		pCfg->ID   = PPCFG_MAIN;
+		pCfg->Prop = PPPRP_COMMCFG;
 		pCfg->SupplAcct.ac = DEFAC_SUPPL;
 		pCfg->SellAcct.ac  = DEFAC_SELL;
 		pCfg->CashAcct.ac  = DEFAC_CASH;

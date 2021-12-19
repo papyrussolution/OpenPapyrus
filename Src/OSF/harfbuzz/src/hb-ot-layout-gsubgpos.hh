@@ -780,7 +780,7 @@ private:
 		match_func_t match;
 	};
 
-	static inline bool intersects_glyph(const hb_set_t * glyphs, const HBUINT16 &value, const void * data HB_UNUSED)
+	static inline bool intersects_glyph(const hb_set_t * glyphs, const HBUINT16 &value, const void * data CXX_UNUSED_PARAM)
 	{
 		return glyphs->has(value);
 	}
@@ -808,7 +808,7 @@ private:
 		return true;
 	}
 
-	static inline void collect_glyph(hb_set_t * glyphs, const HBUINT16 &value, const void * data HB_UNUSED)
+	static inline void collect_glyph(hb_set_t * glyphs, const HBUINT16 &value, const void * data CXX_UNUSED_PARAM)
 	{
 		glyphs->add(value);
 	}
@@ -825,7 +825,7 @@ private:
 		(data+coverage).collect_coverage(glyphs);
 	}
 
-	static inline void collect_array(hb_collect_glyphs_context_t * c HB_UNUSED,
+	static inline void collect_array(hb_collect_glyphs_context_t * c CXX_UNUSED_PARAM,
 	    hb_set_t * glyphs,
 	    uint count,
 	    const HBUINT16 values[],
@@ -838,7 +838,7 @@ private:
 		;
 	}
 
-	static inline bool match_glyph(hb_codepoint_t glyph_id, const HBUINT16 &value, const void * data HB_UNUSED)
+	static inline bool match_glyph(hb_codepoint_t glyph_id, const HBUINT16 &value, const void * data CXX_UNUSED_PARAM)
 	{
 		return glyph_id == value;
 	}
@@ -1348,8 +1348,8 @@ public:
 	    uint inputCount,                                    /* Including the first glyph (not matched) */
 	    const HBUINT16 input[],                                    /* Array of input values--start with second glyph
 	                                                                  */
-	    uint lookupCount HB_UNUSED,
-	    const LookupRecord lookupRecord[] HB_UNUSED,
+	    uint lookupCount CXX_UNUSED_PARAM,
+	    const LookupRecord lookupRecord[] CXX_UNUSED_PARAM,
 	    ContextApplyLookupContext &lookup_context)
 	{
 		return would_match_input(c,
@@ -2165,15 +2165,15 @@ protected:
 
 	static inline bool chain_context_would_apply_lookup(hb_would_apply_context_t * c,
 	    uint backtrackCount,
-	    const HBUINT16 backtrack[] HB_UNUSED,
+	    const HBUINT16 backtrack[] CXX_UNUSED_PARAM,
 	    uint inputCount,                                          /* Including the first glyph (not matched)
 	                                                                         */
 	    const HBUINT16 input[],                                          /* Array of input values--start with second
 	                                                                        glyph */
 	    uint lookaheadCount,
-	    const HBUINT16 lookahead[] HB_UNUSED,
-	    uint lookupCount HB_UNUSED,
-	    const LookupRecord lookupRecord[] HB_UNUSED,
+	    const HBUINT16 lookahead[] CXX_UNUSED_PARAM,
+	    uint lookupCount CXX_UNUSED_PARAM,
+	    const LookupRecord lookupRecord[] CXX_UNUSED_PARAM,
 	    ChainContextApplyLookupContext &lookup_context)
 	{
 		return (c->zero_context ? !backtrackCount && !lookaheadCount : true)

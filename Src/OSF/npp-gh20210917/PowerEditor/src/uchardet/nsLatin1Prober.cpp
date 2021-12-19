@@ -94,7 +94,7 @@ static const uchar Latin1_CharToClass[] =
  */
 static const uchar Latin1ClassModel[] =
 {
-/*      UDF OTH ASC ASS ACV ACO ASV ASO  */
+/* UDF OTH ASC ASS ACV ACO ASV ASO  */
 /*UDF*/ 0,  0,  0,  0,  0,  0,  0,  0,
 /*OTH*/ 0,  3,  3,  3,  3,  3,  3,  3,
 /*ASC*/ 0,  3,  3,  3,  3,  3,  3,  3,

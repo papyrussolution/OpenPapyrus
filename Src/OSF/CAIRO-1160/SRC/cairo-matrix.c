@@ -705,7 +705,7 @@ boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
    Thus the maximum value is
 
        MAX[a*cos(θ) + b*sin(θ)] = (a² + b²)/sqrt(a² + b²)
-                                   = sqrt(a² + b²)
+                           = sqrt(a² + b²)
 
    4.  Derivation of maximum expansion
 
@@ -718,7 +718,7 @@ boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
 
        X'(θ) = X(θ) * _R_ = (cos(θ), sin(θ)) * [a b]
                                                [c d]
-             = (a*cos(θ) + c*sin(θ), b*cos(θ) + d*sin(θ)).
+     = (a*cos(θ) + c*sin(θ), b*cos(θ) + d*sin(θ)).
 
    Define
 
@@ -727,7 +727,7 @@ boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
    Thus
 
        r²(θ) = (a*cos(θ) + c*sin(θ))² + (b*cos(θ) + d*sin(θ))²
-             = (a² + b²)*cos²(θ) + (c² + d²)*sin²(θ)
+     = (a² + b²)*cos²(θ) + (c² + d²)*sin²(θ)
  + 2*(a*c + b*d)*cos(θ)*sin(θ)
 
    Now apply the double angle formulae (A) to (C) from above:
@@ -735,7 +735,7 @@ boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
        r²(θ) = (a² + b² + c² + d²)/2
  + (a² + b² - c² - d²)*cos(2*θ)/2
  + (a*c + b*d)*sin(2*θ)
-             = f + g*cos(φ) + h*sin(φ)
+     = f + g*cos(φ) + h*sin(φ)
 
    Where
 

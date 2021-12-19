@@ -43,7 +43,7 @@ struct XLikelySubtagsData {
 	UniqueCharStrings strings;
 	CharStringMap languageAliases;
 	CharStringMap regionAliases;
-	const uint8_t * trieBytes = nullptr;
+	const uint8 * trieBytes = nullptr;
 	LSR * lsrs = nullptr;
 	int32_t lsrsLength = 0;
 
@@ -628,7 +628,7 @@ int32_t XLikelySubtags::getLikelyIndex(const char * language, const char * scrip
 
 int32_t XLikelySubtags::trieNext(BytesTrie &iter, const char * s, int32_t i) {
 	UStringTrieResult result;
-	uint8_t c;
+	uint8 c;
 	if((c = s[i]) == 0) {
 		result = iter.next(u'*');
 	}
@@ -637,7 +637,7 @@ int32_t XLikelySubtags::trieNext(BytesTrie &iter, const char * s, int32_t i) {
 			c = uprv_invCharToAscii(c);
 			// EBCDIC: If s[i] is not an invariant character,
 			// then c is now 0 and will simply not match anything, which is harmless.
-			uint8_t next = s[++i];
+			uint8 next = s[++i];
 			if(next != 0) {
 				if(!USTRINGTRIE_HAS_NEXT(iter.next(c))) {
 					return -1;

@@ -75,10 +75,10 @@ TcpSocket::~TcpSocket()
 	Disconnect();
 }
 
-int TcpSocket::IsValid() const { return BIN(S != INVALID_SOCKET); }
-int TcpSocket::GetTimeout() const { return Timeout; }
-int TcpSocket::Connect(SslMode sslm, const InetAddr & rAddr) { return Helper_Connect(sslm, rAddr); }
-int TcpSocket::Connect(const InetAddr & rAddr) { return Helper_Connect(sslmNone, rAddr); }
+bool TcpSocket::IsValid() const { return (S != INVALID_SOCKET); }
+int  TcpSocket::GetTimeout() const { return Timeout; }
+int  TcpSocket::Connect(SslMode sslm, const InetAddr & rAddr) { return Helper_Connect(sslm, rAddr); }
+int  TcpSocket::Connect(const InetAddr & rAddr) { return Helper_Connect(sslmNone, rAddr); }
 
 void TcpSocket::Reset()
 {

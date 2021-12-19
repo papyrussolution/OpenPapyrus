@@ -40,7 +40,7 @@ U_CAPI int32_t U_EXPORT2 uprv_itou(UChar * buffer, int32_t capacity,
 	} while(i && length<capacity);
 
 	while(length < minwidth) {
-		buffer[length++] = (UChar)0x0030;/*zero padding */
+		buffer[length++] = (UChar)0x0030; /*zero padding */
 	}
 	/* null terminate the buffer */
 	if(length<capacity) {

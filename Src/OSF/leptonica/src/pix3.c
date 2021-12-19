@@ -38,16 +38,20 @@
  *
  *
  *    Masked operations
- *           int32     pixSetMasked()
- *           int32     pixSetMaskedGeneral()
- *           int32     pixCombineMasked()
- *           int32     pixCombineMaskedGeneral()
- *           int32     pixPaintThroughMask()
+ *           l_int32     pixSetMasked()
+ *           l_int32     pixSetMaskedGeneral()
+ *           l_int32     pixCombineMasked()
+ *           l_int32     pixCombineMaskedGeneral()
+ *           l_int32     pixPaintThroughMask()
+ *           l_int32     pixCopyWithBoxa()  -- this is boxa-directed
  *           PIX        *pixPaintSelfThroughMask()
+ *           PIX        *pixMakeMaskFromVal()
  *           PIX        *pixMakeMaskFromLUT()
+ *           PIX        *pixMakeArbMaskFromRGB()
  *           PIX        *pixSetUnderTransparency()
  *           PIX        *pixMakeAlphaFromMask()
- *           int32     pixGetColorNearMaskBoundary()
+ *           l_int32     pixGetColorNearMaskBoundary()
+ *           PIX        *pixDisplaySelectedPixels()  -- for debugging
  *
  *    One and two-image boolean operations on arbitrary depth images
  *           PIX        *pixInvert()
@@ -57,55 +61,59 @@
  *           PIX        *pixSubtract()
  *
  *    Foreground pixel counting in 1 bpp images
- *           int32     pixZero()
- *           int32     pixForegroundFraction()
+ *           l_int32     pixZero()
+ *           l_int32     pixForegroundFraction()
  *           NUMA       *pixaCountPixels()
- *           int32     pixCountPixels()
+ *           l_int32     pixCountPixels()
+ *           l_int32     pixCountPixelsInRect()
  *           NUMA       *pixCountByRow()
  *           NUMA       *pixCountByColumn()
  *           NUMA       *pixCountPixelsByRow()
  *           NUMA       *pixCountPixelsByColumn()
- *           int32     pixCountPixelsInRow()
+ *           l_int32     pixCountPixelsInRow()
  *           NUMA       *pixGetMomentByColumn()
- *           int32     pixThresholdPixelSum()
- *           int32    *makePixelSumTab8()
- *           int32    *makePixelCentroidTab8()
+ *           l_int32     pixThresholdPixelSum()
+ *           l_int32    *makePixelSumTab8()
+ *           l_int32    *makePixelCentroidTab8()
  *
  *    Average of pixel values in gray images
  *           NUMA       *pixAverageByRow()
  *           NUMA       *pixAverageByColumn()
- *           int32     pixAverageInRect()
+ *           l_int32     pixAverageInRect()
+ *
+ *    Average of pixel values in RGB images
+ *           l_int32     pixAverageInRectRGB()
  *
  *    Variance of pixel values in gray images
  *           NUMA       *pixVarianceByRow()
  *           NUMA       *pixVarianceByColumn()
- *           int32     pixVarianceInRect()
+ *           l_int32     pixVarianceInRect()
  *
  *    Average of absolute value of pixel differences in gray images
  *           NUMA       *pixAbsDiffByRow()
  *           NUMA       *pixAbsDiffByColumn()
- *           int32     pixAbsDiffInRect()
- *           int32     pixAbsDiffOnLine()
+ *           l_int32     pixAbsDiffInRect()
+ *           l_int32     pixAbsDiffOnLine()
  *
  *    Count of pixels with specific value
- *           int32     pixCountArbInRect()
+ *           l_int32     pixCountArbInRect()
  *
  *    Mirrored tiling
  *           PIX        *pixMirroredTiling()
  *
  *    Representative tile near but outside region
- *           int32     pixFindRepCloseTile()
+ *           l_int32     pixFindRepCloseTile()
  *
  *    Static helper function
- *           static BOXA    *findTileRegionsForSearch()
+ *           static BOXA *findTileRegionsForSearch()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-static BOXA * findTileRegionsForSearch(BOX * box, int32 w, int32 h,
-    int32 searchdir, int32 mindist,
-    int32 tsize, int32 ntiles);
+static BOXA * findTileRegionsForSearch(BOX * box, l_int32 w, l_int32 h,
+    l_int32 searchdir, l_int32 mindist,
+    l_int32 tsize, l_int32 ntiles);
 
 #ifndef  NO_CONSOLE_IO
 #define   EQUAL_SIZE_WARNING      0
@@ -117,9 +125,9 @@ static BOXA * findTileRegionsForSearch(BOX * box, int32 w, int32 h,
 /*!
  * \brief   pixSetMasked()
  *
- * \param[in]    pixd 1, 2, 4, 8, 16 or 32 bpp; or colormapped
- * \param[in]    pixm [optional] 1 bpp mask; no operation if NULL
- * \param[in]    val value to set at each masked pixel
+ * \param[in]   pixd   1, 2, 4, 8, 16 or 32 bpp; or colormapped
+ * \param[in]   pixm   [optional] 1 bpp mask; no operation if NULL
+ * \param[in]   val    value to set at each masked pixel
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -145,15 +153,15 @@ static BOXA * findTileRegionsForSearch(BOX * box, int32 w, int32 h,
  *          for when we use rasterop to do the painting.
  * </pre>
  */
-int32 pixSetMasked(PIX      * pixd,
-    PIX      * pixm,
-    uint32 val)
+l_ok pixSetMasked(PIX * pixd,
+    PIX * pixm,
+    l_uint32 val)
 {
-	int32 wd, hd, wm, hm, w, h, d, wpld, wplm;
-	int32 i, j, rval, gval, bval;
-	uint32  * datad, * datam, * lined, * linem;
+	l_int32 wd, hd, wm, hm, w, h, d, wpld, wplm;
+	l_int32 i, j, rval, gval, bval;
+	l_uint32  * datad, * datam, * lined, * linem;
 
-	PROCNAME("pixSetMasked");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
@@ -257,11 +265,11 @@ int32 pixSetMasked(PIX      * pixd,
 /*!
  * \brief   pixSetMaskedGeneral()
  *
- * \param[in]    pixd 8, 16 or 32 bpp
- * \param[in]    pixm [optional] 1 bpp mask; no operation if null
- * \param[in]    val value to set at each masked pixel
- * \param[in]    x, y location of UL corner of pixm relative to pixd;
- *                    can be negative
+ * \param[in]   pixd    8, 16 or 32 bpp
+ * \param[in]   pixm    [optional] 1 bpp mask; no operation if null
+ * \param[in]   val     value to set at each masked pixel
+ * \param[in]   x, y    location of UL corner of pixm relative to pixd;
+ *                      can be negative
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -283,16 +291,16 @@ int32 pixSetMasked(PIX      * pixd,
  *          in pixd.  It's somewhat baroque, but I found it amusing.
  * </pre>
  */
-int32 pixSetMaskedGeneral(PIX      * pixd,
-    PIX      * pixm,
-    uint32 val,
-    int32 x,
-    int32 y)
+l_ok pixSetMaskedGeneral(PIX * pixd,
+    PIX * pixm,
+    l_uint32 val,
+    l_int32 x,
+    l_int32 y)
 {
-	int32 wm, hm, d;
-	PIX       * pixmu, * pixc;
+	l_int32 wm, hm, d;
+	PIX * pixmu, * pixc;
 
-	PROCNAME("pixSetMaskedGeneral");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
@@ -314,8 +322,10 @@ int32 pixSetMaskedGeneral(PIX      * pixd,
 	pixRasterop(pixd, x, y, wm, hm, PIX_SRC & PIX_DST, pixmu, 0, 0);
 
 	/* Generate image with requisite color */
-	if((pixc = pixCreateTemplate(pixmu)) == NULL)
+	if((pixc = pixCreateTemplate(pixmu)) == NULL) {
+		pixDestroy(&pixmu);
 		return ERROR_INT("pixc not made", procName, 1);
+	}
 	pixSetAllArbitrary(pixc, val);
 
 	/* Invert stencil mask, and paint color color into stencil */
@@ -333,9 +343,9 @@ int32 pixSetMaskedGeneral(PIX      * pixd,
 /*!
  * \brief   pixCombineMasked()
  *
- * \param[in]    pixd 1 bpp, 8 bpp gray or 32 bpp rgb; no cmap
- * \param[in]    pixs 1 bpp, 8 bpp gray or 32 bpp rgb; no cmap
- * \param[in]    pixm [optional] 1 bpp mask; no operation if NULL
+ * \param[in]   pixd   1 bpp, 8 bpp gray or 32 bpp rgb; no cmap
+ * \param[in]   pixs   1 bpp, 8 bpp gray or 32 bpp rgb; no cmap
+ * \param[in]   pixm   [optional] 1 bpp mask; no operation if NULL
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -359,16 +369,16 @@ int32 pixSetMaskedGeneral(PIX      * pixd,
  *          is actually faster!
  * </pre>
  */
-int32 pixCombineMasked(PIX  * pixd,
+l_ok pixCombineMasked(PIX  * pixd,
     PIX  * pixs,
     PIX  * pixm)
 {
-	int32 w, h, d, ws, hs, ds, wm, hm, dm, wmin, hmin;
-	int32 wpl, wpls, wplm, i, j, val;
-	uint32  * data, * datas, * datam, * line, * lines, * linem;
-	PIX       * pixt;
+	l_int32 w, h, d, ws, hs, ds, wm, hm, dm, wmin, hmin;
+	l_int32 wpl, wpls, wplm, i, j, val;
+	l_uint32  * data, * datas, * datam, * line, * lines, * linem;
+	PIX * pixt;
 
-	PROCNAME("pixCombineMasked");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixm) /* nothing to do */
 		return 0;
@@ -440,10 +450,10 @@ int32 pixCombineMasked(PIX  * pixd,
 /*!
  * \brief   pixCombineMaskedGeneral()
  *
- * \param[in]    pixd 1 bpp, 8 bpp gray or 32 bpp rgb
- * \param[in]    pixs 1 bpp, 8 bpp gray or 32 bpp rgb
- * \param[in]    pixm [optional] 1 bpp mask
- * \param[in]    x, y origin of pixs and pixm relative to pixd; can be negative
+ * \param[in]   pixd   1 bpp, 8 bpp gray or 32 bpp rgb
+ * \param[in]   pixs   1 bpp, 8 bpp gray or 32 bpp rgb
+ * \param[in]   pixm   [optional] 1 bpp mask
+ * \param[in]   x, y   origin of pixs and pixm relative to pixd; can be negative
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -477,18 +487,18 @@ int32 pixCombineMasked(PIX  * pixd,
  *             pixDestroy(&pixm8);
  * </pre>
  */
-int32 pixCombineMaskedGeneral(PIX      * pixd,
-    PIX      * pixs,
-    PIX      * pixm,
-    int32 x,
-    int32 y)
+l_ok pixCombineMaskedGeneral(PIX * pixd,
+    PIX * pixs,
+    PIX * pixm,
+    l_int32 x,
+    l_int32 y)
 {
-	int32 d, w, h, ws, hs, ds, wm, hm, dm, wmin, hmin;
-	int32 wpl, wpls, wplm, i, j, val;
-	uint32  * data, * datas, * datam, * line, * lines, * linem;
-	PIX       * pixt;
+	l_int32 d, w, h, ws, hs, ds, wm, hm, dm, wmin, hmin;
+	l_int32 wpl, wpls, wplm, i, j, val;
+	l_uint32  * data, * datas, * datam, * line, * lines, * linem;
+	PIX * pixt;
 
-	PROCNAME("pixCombineMaskedGeneral");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixm) /* nothing to do */
 		return 0;
@@ -560,10 +570,10 @@ int32 pixCombineMaskedGeneral(PIX      * pixd,
 /*!
  * \brief   pixPaintThroughMask()
  *
- * \param[in]    pixd 1, 2, 4, 8, 16 or 32 bpp; or colormapped
- * \param[in]    pixm [optional] 1 bpp mask
- * \param[in]    x, y origin of pixm relative to pixd; can be negative
- * \param[in]    val pixel value to set at each masked pixel
+ * \param[in]   pixd   1, 2, 4, 8, 16 or 32 bpp; or colormapped
+ * \param[in]   pixm   [optional] 1 bpp mask
+ * \param[in]   x, y   origin of pixm relative to pixd; can be negative
+ * \param[in]   val    pixel value to set at each masked pixel
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -600,16 +610,16 @@ int32 pixCombineMaskedGeneral(PIX      * pixd,
  *          same and the compiler can correctly predict the jump.
  * </pre>
  */
-int32 pixPaintThroughMask(PIX      * pixd,
-    PIX      * pixm,
-    int32 x,
-    int32 y,
-    uint32 val)
+l_ok pixPaintThroughMask(PIX * pixd,
+    PIX * pixm,
+    l_int32 x,
+    l_int32 y,
+    l_uint32 val)
 {
-	int32 d, w, h, wm, hm, wpl, wplm, i, j, rval, gval, bval;
-	uint32  * data, * datam, * line, * linem;
+	l_int32 d, w, h, wm, hm, wpl, wplm, i, j, rval, gval, bval;
+	l_uint32  * data, * datam, * line, * linem;
 
-	PROCNAME("pixPaintThroughMask");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixm) /* nothing to do */
 		return 0;
@@ -707,16 +717,68 @@ int32 pixPaintThroughMask(PIX      * pixd,
 }
 
 /*!
+ * \brief   pixCopyWithBoxa()
+ *
+ * \param[in]   pixs         all depths; cmap ok
+ * \param[in]   boxa         e.g., from components of a photomask
+ * \param[in]   background   L_SET_WHITE or L_SET_BLACK
+ * \return  pixd or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Pixels from pixs are copied ("blitted") through each box into pixd.
+ *      (2) Pixels not copied are preset to either white or black.
+ *      (3) This fast and simple implementation can use rasterop because
+ *          each region to be copied is rectangular.
+ *      (4) A much slower implementation that doesn't use rasterop would make
+ *          a 1 bpp mask from the boxa and then copy, pixel by pixel,
+ *          through the mask:
+ *             pixGetDimensions(pixs, &w, &h, NULL);
+ *             pixm = pixCreate(w, h, 1);
+ *             pixm = pixMaskBoxa(pixm, pixm, boxa);
+ *             pixd = pixCreateTemplate(pixs);
+ *             pixSetBlackOrWhite(pixd, background);
+ *             pixCombineMasked(pixd, pixs, pixm);
+ *             pixDestroy(&pixm);
+ * </pre>
+ */
+PIX * pixCopyWithBoxa(PIX * pixs,
+    BOXA * boxa,
+    l_int32 background)
+{
+	l_int32 i, n, x, y, w, h;
+	PIX * pixd;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixs)
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
+	if(!boxa)
+		return (PIX *)ERROR_PTR("boxa not defined", procName, NULL);
+	if(background != L_SET_WHITE && background != L_SET_BLACK)
+		return (PIX *)ERROR_PTR("invalid background", procName, NULL);
+
+	pixd = pixCreateTemplate(pixs);
+	pixSetBlackOrWhite(pixd, background);
+	n = boxaGetCount(boxa);
+	for(i = 0; i < n; i++) {
+		boxaGetBoxGeometry(boxa, i, &x, &y, &w, &h);
+		pixRasterop(pixd, x, y, w, h, PIX_SRC, pixs, x, y);
+	}
+	return pixd;
+}
+
+/*!
  * \brief   pixPaintSelfThroughMask()
  *
- * \param[in]    pixd 8 bpp gray or 32 bpp rgb; not colormapped
- * \param[in]    pixm 1 bpp mask
- * \param[in]    x, y origin of pixm relative to pixd; must not be negative
- * \param[in]    searchdir L_HORIZ, L_VERT or L_BOTH_DIRECTIONS
- * \param[in]    mindist min distance of nearest tile edge to box; >= 0
- * \param[in]    tilesize requested size for tiling; may be reduced
- * \param[in]    ntiles number of tiles tested in each row/column
- * \param[in]    distblend distance outside the fg used for blending with pixs
+ * \param[in]   pixd       8 bpp gray or 32 bpp rgb; not colormapped
+ * \param[in]   pixm       1 bpp mask
+ * \param[in]   x, y       origin of pixm relative to pixd; must not be negative
+ * \param[in]   searchdir  L_HORIZ, L_VERT or L_BOTH_DIRECTIONS
+ * \param[in]   mindist    min distance of nearest tile edge to box; >= 0
+ * \param[in]   tilesize   requested size for tiling; may be reduced
+ * \param[in]   ntiles     number of tiles tested in each row/column
+ * \param[in]   distblend  distance outside the fg used for blending with pixs
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -740,7 +802,7 @@ int32 pixPaintThroughMask(PIX      * pixd,
  *          repeatedly with %pixm, %x and %y representing one component of
  *          the mask each time.  This would be done as follows, for an
  *          underlying image pixs and mask pixm of components to fill:
- *              Boxa *boxa = pixConnComp(pixm, \&pixa, 8);
+ *              Boxa *boxa = pixConnComp(pixm, &pixa, 8);
  *              n = boxaGetCount(boxa);
  *              for (i = 0; i < n; i++) {
  *                  Pix *pix = pixaGetPix(pixa, i, L_CLONE);
@@ -767,24 +829,24 @@ int32 pixPaintThroughMask(PIX      * pixd,
  *          edge, to blur the transition between painted and original pixels.
  * </pre>
  */
-int32 pixPaintSelfThroughMask(PIX      * pixd,
-    PIX      * pixm,
-    int32 x,
-    int32 y,
-    int32 searchdir,
-    int32 mindist,
-    int32 tilesize,
-    int32 ntiles,
-    int32 distblend)
+l_ok pixPaintSelfThroughMask(PIX * pixd,
+    PIX * pixm,
+    l_int32 x,
+    l_int32 y,
+    l_int32 searchdir,
+    l_int32 mindist,
+    l_int32 tilesize,
+    l_int32 ntiles,
+    l_int32 distblend)
 {
-	int32 w, h, d, wm, hm, dm, i, n, bx, by, bw, bh, edgeblend, retval, minside;
-	uint32 pixval;
+	l_int32 w, h, d, wm, hm, dm, i, n, bx, by, bw, bh, edgeblend, retval, minside;
+	l_uint32 pixval;
 	BOX      * box, * boxv, * boxh;
 	BOXA     * boxa;
-	PIX      * pixf, * pixv, * pixh, * pix1, * pix2, * pix3, * pix4, * pix5;
-	PIXA     * pixa;
+	PIX * pixf, * pixv, * pixh, * pix1, * pix2, * pix3, * pix4, * pix5;
+	PIXA * pixa;
 
-	PROCNAME("pixPaintSelfThroughMask");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixm) /* nothing to do */
 		return 0;
@@ -835,7 +897,7 @@ int32 pixPaintSelfThroughMask(PIX      * pixd,
 	 * is generated, which is larger than the bounding box of the c.c. */
 	edgeblend = (n == 1 && distblend > 0) ? 1 : 0;
 	if(distblend > 0 && n > 1)
-		L_WARNING2("%d components; can not blend at edges\n", procName, n);
+		L_WARNING("%d components; can not blend at edges\n", procName, n);
 	retval = 0;
 	for(i = 0; i < n; i++) {
 		if(edgeblend) {
@@ -864,7 +926,7 @@ int32 pixPaintSelfThroughMask(PIX      * pixd,
 			pix1 = pixaGetPix(pixa, i, L_CLONE);
 			pixaGetBoxGeometry(pixa, i, &bx, &by, NULL, NULL);
 			retval = pixGetColorNearMaskBoundary(pixd, pixm, box, distblend,
-			    &pixval, 0);
+				&pixval, 0);
 			pixSetMaskedGeneral(pixd, pix1, pixval, bx, by);
 			pixDestroy(&pix1);
 			boxDestroy(&box);
@@ -912,10 +974,64 @@ int32 pixPaintSelfThroughMask(PIX      * pixd,
 }
 
 /*!
+ * \brief   pixMakeMaskFromVal()
+ *
+ * \param[in]   pixs   2, 4 or 8 bpp; can be colormapped
+ * \param[in]   val    pixel value
+ * \return  pixd 1 bpp mask, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This generates a 1 bpp mask image, where a 1 is written in
+ *          the mask for each pixel in pixs that has a value %val.
+ *      (2) If no pixels have the value, an empty mask is generated.
+ * </pre>
+ */
+PIX * pixMakeMaskFromVal(PIX * pixs,
+    l_int32 val)
+{
+	l_int32 w, h, d, i, j, sval, wpls, wpld;
+	l_uint32  * datas, * datad, * lines, * lined;
+	PIX * pixd;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixs)
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
+	pixGetDimensions(pixs, &w, &h, &d);
+	if(d != 2 && d != 4 && d != 8)
+		return (PIX *)ERROR_PTR("pix not 2, 4 or 8 bpp", procName, NULL);
+
+	pixd = pixCreate(w, h, 1);
+	pixCopyResolution(pixd, pixs);
+	pixCopyInputFormat(pixd, pixs);
+	datas = pixGetData(pixs);
+	datad = pixGetData(pixd);
+	wpls = pixGetWpl(pixs);
+	wpld = pixGetWpl(pixd);
+	for(i = 0; i < h; i++) {
+		lines = datas + i * wpls;
+		lined = datad + i * wpld;
+		for(j = 0; j < w; j++) {
+			if(d == 2)
+				sval = GET_DATA_DIBIT(lines, j);
+			else if(d == 4)
+				sval = GET_DATA_QBIT(lines, j);
+			else /* d == 8 */
+				sval = GET_DATA_BYTE(lines, j);
+			if(sval == val)
+				SET_DATA_BIT(lined, j);
+		}
+	}
+
+	return pixd;
+}
+
+/*!
  * \brief   pixMakeMaskFromLUT()
  *
- * \param[in]    pixs 2, 4 or 8 bpp; can be colormapped
- * \param[in]    tab 256-entry LUT; 1 means to write to mask
+ * \param[in]   pixs   2, 4 or 8 bpp; can be colormapped
+ * \param[in]   tab    256-entry LUT; 1 means to write to mask
  * \return  pixd 1 bpp mask, or NULL on error
  *
  * <pre>
@@ -926,22 +1042,22 @@ int32 pixPaintSelfThroughMask(PIX      * pixd,
  *      (2) The LUT should be of size 256.
  * </pre>
  */
-PIX * pixMakeMaskFromLUT(PIX      * pixs,
-    int32  * tab)
+PIX * pixMakeMaskFromLUT(PIX * pixs,
+    l_int32 * tab)
 {
-	int32 w, h, d, i, j, val, wpls, wpld;
-	uint32  * datas, * datad, * lines, * lined;
-	PIX       * pixd;
+	l_int32 w, h, d, i, j, val, wpls, wpld;
+	l_uint32  * datas, * datad, * lines, * lined;
+	PIX * pixd;
 
-	PROCNAME("pixMakeMaskFromLUT");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(!tab)
-		return (PIX*)ERROR_PTR("tab not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("tab not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 2 && d != 4 && d != 8)
-		return (PIX*)ERROR_PTR("pix not 2, 4 or 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pix not 2, 4 or 8 bpp", procName, NULL);
 
 	pixd = pixCreate(w, h, 1);
 	pixCopyResolution(pixd, pixs);
@@ -969,11 +1085,58 @@ PIX * pixMakeMaskFromLUT(PIX      * pixs,
 }
 
 /*!
+ * \brief   pixMakeArbMaskFromRGB()
+ *
+ * \param[in]   pixs         32 bpp RGB
+ * \param[in]   rc, gc, bc   arithmetic factors; can be negative
+ * \param[in]   thresh       lower threshold on weighted sum of components
+ * \return  pixd 1 bpp mask, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This generates a 1 bpp mask image, where a 1 is written in
+ *          the mask for each pixel in pixs that satisfies
+ *               rc * rval + gc * gval + bc * bval > thresh
+ *          where rval is the red component, etc.
+ *      (2) Unlike with pixConvertToGray(), there are no constraints
+ *          on the color coefficients, which can be negative.  For
+ *          example, a mask that discriminates against red and in favor
+ *          of blue will have rc < 0.0 and bc > 0.0.
+ *      (3) To make the result independent of intensity (the 'V' in HSV),
+ *          select coefficients so that %thresh = 0.  Then the result
+ *          is not changed when all components are multiplied by the
+ *          same constant (as long as nothing saturates).  This can be
+ *          useful if, for example, the illumination is not uniform.
+ * </pre>
+ */
+PIX * pixMakeArbMaskFromRGB(PIX * pixs,
+    float rc,
+    float gc,
+    float bc,
+    float thresh)
+{
+	PIX  * pix1, * pix2;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixs || pixGetDepth(pixs) != 32)
+		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
+	if(thresh >= 255.0) thresh = 254.0; /* avoid 8 bit overflow */
+
+	if((pix1 = pixConvertRGBToGrayArb(pixs, rc, gc, bc)) == NULL)
+		return (PIX *)ERROR_PTR("pix1 not made", procName, NULL);
+	pix2 = pixThresholdToBinary(pix1, thresh + 1);
+	pixInvert(pix2, pix2);
+	pixDestroy(&pix1);
+	return pix2;
+}
+
+/*!
  * \brief   pixSetUnderTransparency()
  *
- * \param[in]    pixs 32 bpp rgba
- * \param[in]    val 32 bit unsigned color to use where alpha == 0
- * \param[in]    debug displays layers of pixs
+ * \param[in]   pixs    32 bpp rgba
+ * \param[in]   val     32 bit unsigned color to use where alpha == 0
+ * \param[in]   debug   displays layers of pixs
  * \return  pixd 32 bpp rgba, or NULL on error
  *
  * <pre>
@@ -1021,17 +1184,17 @@ PIX * pixMakeMaskFromLUT(PIX      * pixs,
  *          background of arbitrary color, use pixAlphaBlendUniform().
  * </pre>
  */
-PIX * pixSetUnderTransparency(PIX      * pixs,
-    uint32 val,
-    int32 debug)
+PIX * pixSetUnderTransparency(PIX * pixs,
+    l_uint32 val,
+    l_int32 debug)
 {
 	PIX  * pixg, * pixm, * pixt, * pixd;
 
-	PROCNAME("pixSetUnderTransparency");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not defined or not 32 bpp",
-		    procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined or not 32 bpp",
+			   procName, NULL);
 
 	if(pixGetSpp(pixs) != 4) {
 		L_WARNING("no alpha channel; returning a copy\n", procName);
@@ -1041,11 +1204,11 @@ PIX * pixSetUnderTransparency(PIX      * pixs,
 	/* Make a mask from the alpha component with ON pixels
 	 * wherever the alpha component is fully transparent (0).
 	 * The hard way:
-	 *     int32 *lut = (int32 *)LEPT_CALLOC(256, sizeof(int32));
+	 *     l_int32 *lut = (l_int32 *)SAlloc::C(256, sizeof(l_int32));
 	 *     lut[0] = 1;
 	 *     pixg = pixGetRGBComponent(pixs, L_ALPHA_CHANNEL);
 	 *     pixm = pixMakeMaskFromLUT(pixg, lut);
-	 *     LEPT_FREE(lut);
+	 *     SAlloc::F(lut);
 	 * But there's an easier way to set pixels in a mask where
 	 * the alpha component is 0 ...  */
 	pixg = pixGetRGBComponent(pixs, L_ALPHA_CHANNEL);
@@ -1067,9 +1230,9 @@ PIX * pixSetUnderTransparency(PIX      * pixs,
 /*!
  * \brief   pixMakeAlphaFromMask()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    dist blending distance; typically 10 - 30
- * \param[out]   pbox [optional]  use NULL to get the full size
+ * \param[in]    pixs   1 bpp
+ * \param[in]    dist   blending distance; typically 10 - 30
+ * \param[out]   pbox   [optional] use NULL to get the full size
  * \return  pixd (8 bpp gray, or NULL on error
  *
  * <pre>
@@ -1095,21 +1258,21 @@ PIX * pixSetUnderTransparency(PIX      * pixs,
  *              pix4 = pixBlendWithGrayMask(pix1, pix2, pix3, x, y);
  * </pre>
  */
-PIX * pixMakeAlphaFromMask(PIX     * pixs,
-    int32 dist,
+PIX * pixMakeAlphaFromMask(PIX * pixs,
+    l_int32 dist,
     BOX    ** pbox)
 {
-	int32 w, h;
-	BOX     * box1, * box2;
-	PIX     * pix1, * pixd;
+	l_int32 w, h;
+	BOX * box1, * box2;
+	PIX * pix1, * pixd;
 
-	PROCNAME("pixMakeAlphaFromMask");
+	PROCNAME(__FUNCTION__);
 
 	if(pbox) *pbox = NULL;
 	if(!pixs || pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 	if(dist < 0)
-		return (PIX*)ERROR_PTR("dist must be >= 0", procName, NULL);
+		return (PIX *)ERROR_PTR("dist must be >= 0", procName, NULL);
 
 	/* If requested, extract just the region to be affected by the mask */
 	if(pbox) {
@@ -1139,7 +1302,7 @@ PIX * pixMakeAlphaFromMask(PIX     * pixs,
 	/* Blur the boundary of the input mask */
 	pixInvert(pix1, pix1);
 	pixd = pixDistanceFunction(pix1, 8, 8, L_BOUNDARY_FG);
-	pixMultConstantGray(pixd, 256.0f / dist);
+	pixMultConstantGray(pixd, 256.0 / dist);
 	pixInvert(pixd, pixd);
 	pixDestroy(&pix1);
 	return pixd;
@@ -1148,12 +1311,12 @@ PIX * pixMakeAlphaFromMask(PIX     * pixs,
 /*!
  * \brief   pixGetColorNearMaskBoundary()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    pixm 1 bpp mask, full image
- * \param[in]    box region of mask; typically b.b. of a component
- * \param[in]    dist distance into BG from mask boundary to use
- * \param[out]   pval average pixel value
- * \param[in]    debug 1 to output mask images
+ * \param[in]    pixs    32 bpp rgb
+ * \param[in]    pixm    1 bpp mask, full image
+ * \param[in]    box     region of mask; typically b.b. of a component
+ * \param[in]    dist    distance into BG from mask boundary to use
+ * \param[out]   pval    average pixel value
+ * \param[in]    debug   1 to output mask images
  * \return  0 if OK, 1 on error.
  *
  * <pre>
@@ -1163,20 +1326,20 @@ PIX * pixMakeAlphaFromMask(PIX     * pixs,
  *          background of the mask image.
  * </pre>
  */
-int32 pixGetColorNearMaskBoundary(PIX       * pixs,
-    PIX       * pixm,
+l_ok pixGetColorNearMaskBoundary(PIX * pixs,
+    PIX * pixm,
     BOX       * box,
-    int32 dist,
-    uint32  * pval,
-    int32 debug)
+    l_int32 dist,
+    l_uint32  * pval,
+    l_int32 debug)
 {
 	char op[64];
-	int32 empty, bx, by;
+	l_int32 empty, bx, by;
 	float rval, gval, bval;
 	BOX       * box1, * box2;
-	PIX       * pix1, * pix2, * pix3;
+	PIX * pix1, * pix2, * pix3;
 
-	PROCNAME("pixGetColorNearMaskBoundary");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&pval not defined", procName, 1);
@@ -1201,7 +1364,7 @@ int32 pixGetColorNearMaskBoundary(PIX       * pixs,
 		pix2 = pixCopy(NULL, pix1);
 	}
 	else {
-		_snprintf(op, sizeof(op), "d%d.%d", 2 * dist, 2 * dist);
+		snprintf(op, sizeof(op), "d%d.%d", 2 * dist, 2 * dist);
 		pix2 = pixMorphSequence(pix1, op, 0);
 	}
 
@@ -1216,8 +1379,8 @@ int32 pixGetColorNearMaskBoundary(PIX       * pixs,
 		boxGetGeometry(box2, &bx, &by, NULL, NULL);
 		pixGetAverageMaskedRGB(pixs, pix3, bx, by, 1, L_MEAN_ABSVAL,
 		    &rval, &gval, &bval);
-		composeRGBPixel((int32)(rval + 0.5), (int32)(gval + 0.5),
-		    (int32)(bval + 0.5), pval);
+		composeRGBPixel((l_int32)(rval + 0.5), (l_int32)(gval + 0.5),
+		    (l_int32)(bval + 0.5), pval);
 	}
 	else {
 		L_WARNING("no pixels found\n", procName);
@@ -1226,10 +1389,10 @@ int32 pixGetColorNearMaskBoundary(PIX       * pixs,
 	if(debug) {
 		lept_rmdir("masknear"); /* erase previous images */
 		lept_mkdir("masknear");
-		pixWrite("/tmp/masknear/input.png", pix1, IFF_PNG);
-		pixWrite("/tmp/masknear/adjusted.png", pix2, IFF_PNG);
-		pixWrite("/tmp/masknear/outerfive.png", pix3, IFF_PNG);
-		fprintf(stderr, "Input box; with adjusted sides; clipped\n");
+		pixWriteDebug("/tmp/masknear/input.png", pix1, IFF_PNG);
+		pixWriteDebug("/tmp/masknear/adjusted.png", pix2, IFF_PNG);
+		pixWriteDebug("/tmp/masknear/outerfive.png", pix3, IFF_PNG);
+		lept_stderr("Input box; with adjusted sides; clipped\n");
 		boxPrintStreamInfo(stderr, box);
 		boxPrintStreamInfo(stderr, box1);
 		boxPrintStreamInfo(stderr, box2);
@@ -1243,15 +1406,66 @@ int32 pixGetColorNearMaskBoundary(PIX       * pixs,
 	return 0;
 }
 
+/*!
+ * \brief   pixDisplaySelectedPixels()
+ *
+ * \param[in]    pixs    [optional] any depth
+ * \param[in]    pixm    1 bpp mask, aligned UL corner with %pixs
+ * \param[in]    sel     [optional] pattern to paint at each pixel in pixm
+ * \param[in]    val     rgb rendering of pattern
+ * \return  pixd, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) For every fg pixel in %pixm, this paints the pattern in %sel
+ *          in color %val on a copy of %pixs.
+ *      (2) The implementation is to dilate %pixm by %sel, and then
+ *          paint through the dilated mask onto %pixs.
+ *      (3) If %pixs == NULL, it paints on a white image.
+ *      (4) If %sel == NULL, it paints only the pixels in the input %pixm.
+ *      (5) This visualization would typically be used in debugging.
+ * </pre>
+ */
+PIX * pixDisplaySelectedPixels(PIX * pixs,
+    PIX * pixm,
+    SEL      * sel,
+    l_uint32 val)
+{
+	l_int32 w, h;
+	PIX * pix1, * pix2;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixm || pixGetDepth(pixm) != 1)
+		return (PIX *)ERROR_PTR("pixm undefined or not 1 bpp", procName, NULL);
+
+	if(pixs) {
+		pix1 = pixConvertTo32(pixs);
+	}
+	else {
+		pixGetDimensions(pixm, &w, &h, NULL);
+		pix1 = pixCreate(w, h, 32);
+		pixSetAll(pix1);
+	}
+
+	if(sel)
+		pix2 = pixDilate(NULL, pixm, sel);
+	else
+		pix2 = pixClone(pixm);
+	pixSetMasked(pix1, pix2, val);
+	pixDestroy(&pix2);
+	return pix1;
+}
+
 /*-------------------------------------------------------------*
 *    One and two-image boolean ops on arbitrary depth images  *
 *-------------------------------------------------------------*/
 /*!
  * \brief   pixInvert()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs
+ * \param[in]   pixd  [optional]; this can be null, equal to pixs,
+ *                    or different from pixs
+ * \param[in]   pixs
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -1270,17 +1484,17 @@ int32 pixGetColorNearMaskBoundary(PIX       * pixs,
 PIX * pixInvert(PIX  * pixd,
     PIX  * pixs)
 {
-	PROCNAME("pixInvert");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 
 	pixRasterop(pixd, 0, 0, pixGetWidth(pixd), pixGetHeight(pixd),
-	    PIX_NOT(PIX_DST), NULL, 0, 0);       /* invert pixd */
+	    PIX_NOT(PIX_DST), NULL, 0, 0); /* invert pixd */
 
 	return pixd;
 }
@@ -1288,10 +1502,10 @@ PIX * pixInvert(PIX  * pixd,
 /*!
  * \brief   pixOr()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs1,
- *                     different from pixs1
- * \param[in]    pixs1 can be == pixd
- * \param[in]    pixs2 must be != pixd
+ * \param[in]   pixd    [optional]; this can be null, equal to pixs1,
+ *                      different from pixs1
+ * \param[in]   pixs1   can be == pixd
+ * \param[in]   pixs2   must be != pixd
  * \return  pixd always
  *
  * <pre>
@@ -1320,16 +1534,16 @@ PIX * pixOr(PIX  * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
-	PROCNAME("pixOr");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs1)
-		return (PIX*)ERROR_PTR("pixs1 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs1 not defined", procName, pixd);
 	if(!pixs2)
-		return (PIX*)ERROR_PTR("pixs2 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs2 not defined", procName, pixd);
 	if(pixd == pixs2)
-		return (PIX*)ERROR_PTR("cannot have pixs2 == pixd", procName, pixd);
+		return (PIX *)ERROR_PTR("cannot have pixs2 == pixd", procName, pixd);
 	if(pixGetDepth(pixs1) != pixGetDepth(pixs2))
-		return (PIX*)ERROR_PTR("depths of pixs* unequal", procName, pixd);
+		return (PIX *)ERROR_PTR("depths of pixs* unequal", procName, pixd);
 
 #if  EQUAL_SIZE_WARNING
 	if(!pixSizesEqual(pixs1, pixs2))
@@ -1338,7 +1552,7 @@ PIX * pixOr(PIX  * pixd,
 
 	/* Prepare pixd to be a copy of pixs1 */
 	if((pixd = pixCopy(pixd, pixs1)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not made", procName, pixd);
 
 	/* src1 | src2 --> dest */
 	pixRasterop(pixd, 0, 0, pixGetWidth(pixd), pixGetHeight(pixd),
@@ -1350,10 +1564,10 @@ PIX * pixOr(PIX  * pixd,
 /*!
  * \brief   pixAnd()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs1,
- *                     different from pixs1
- * \param[in]    pixs1 can be == pixd
- * \param[in]    pixs2 must be != pixd
+ * \param[in]   pixd    [optional]; this can be null, equal to pixs1,
+ *                      different from pixs1
+ * \param[in]   pixs1   can be == pixd
+ * \param[in]   pixs2   must be != pixd
  * \return  pixd always
  *
  * <pre>
@@ -1382,16 +1596,16 @@ PIX * pixAnd(PIX  * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
-	PROCNAME("pixAnd");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs1)
-		return (PIX*)ERROR_PTR("pixs1 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs1 not defined", procName, pixd);
 	if(!pixs2)
-		return (PIX*)ERROR_PTR("pixs2 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs2 not defined", procName, pixd);
 	if(pixd == pixs2)
-		return (PIX*)ERROR_PTR("cannot have pixs2 == pixd", procName, pixd);
+		return (PIX *)ERROR_PTR("cannot have pixs2 == pixd", procName, pixd);
 	if(pixGetDepth(pixs1) != pixGetDepth(pixs2))
-		return (PIX*)ERROR_PTR("depths of pixs* unequal", procName, pixd);
+		return (PIX *)ERROR_PTR("depths of pixs* unequal", procName, pixd);
 
 #if  EQUAL_SIZE_WARNING
 	if(!pixSizesEqual(pixs1, pixs2))
@@ -1400,7 +1614,7 @@ PIX * pixAnd(PIX  * pixd,
 
 	/* Prepare pixd to be a copy of pixs1 */
 	if((pixd = pixCopy(pixd, pixs1)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not made", procName, pixd);
 
 	/* src1 & src2 --> dest */
 	pixRasterop(pixd, 0, 0, pixGetWidth(pixd), pixGetHeight(pixd),
@@ -1412,10 +1626,10 @@ PIX * pixAnd(PIX  * pixd,
 /*!
  * \brief   pixXor()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs1,
- *                     different from pixs1
- * \param[in]    pixs1 can be == pixd
- * \param[in]    pixs2 must be != pixd
+ * \param[in]   pixd    [optional]; this can be null, equal to pixs1,
+ *                      different from pixs1
+ * \param[in]   pixs1   can be == pixd
+ * \param[in]   pixs2   must be != pixd
  * \return  pixd always
  *
  * <pre>
@@ -1444,16 +1658,16 @@ PIX * pixXor(PIX  * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
-	PROCNAME("pixXor");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs1)
-		return (PIX*)ERROR_PTR("pixs1 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs1 not defined", procName, pixd);
 	if(!pixs2)
-		return (PIX*)ERROR_PTR("pixs2 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs2 not defined", procName, pixd);
 	if(pixd == pixs2)
-		return (PIX*)ERROR_PTR("cannot have pixs2 == pixd", procName, pixd);
+		return (PIX *)ERROR_PTR("cannot have pixs2 == pixd", procName, pixd);
 	if(pixGetDepth(pixs1) != pixGetDepth(pixs2))
-		return (PIX*)ERROR_PTR("depths of pixs* unequal", procName, pixd);
+		return (PIX *)ERROR_PTR("depths of pixs* unequal", procName, pixd);
 
 #if  EQUAL_SIZE_WARNING
 	if(!pixSizesEqual(pixs1, pixs2))
@@ -1462,7 +1676,7 @@ PIX * pixXor(PIX  * pixd,
 
 	/* Prepare pixd to be a copy of pixs1 */
 	if((pixd = pixCopy(pixd, pixs1)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not made", procName, pixd);
 
 	/* src1 ^ src2 --> dest */
 	pixRasterop(pixd, 0, 0, pixGetWidth(pixd), pixGetHeight(pixd),
@@ -1474,10 +1688,10 @@ PIX * pixXor(PIX  * pixd,
 /*!
  * \brief   pixSubtract()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs1,
- *                     equal to pixs2, or different from both pixs1 and pixs2
- * \param[in]    pixs1 can be == pixd
- * \param[in]    pixs2 can be == pixd
+ * \param[in]   pixd    [optional]; this can be null, equal to pixs1,
+ *                      equal to pixs2, or different from both pixs1 and pixs2
+ * \param[in]   pixs1   can be == pixd
+ * \param[in]   pixs2   can be == pixd
  * \return  pixd always
  *
  * <pre>
@@ -1507,16 +1721,16 @@ PIX * pixSubtract(PIX  * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
-	int32 w, h;
+	l_int32 w, h;
 
-	PROCNAME("pixSubtract");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs1)
-		return (PIX*)ERROR_PTR("pixs1 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs1 not defined", procName, pixd);
 	if(!pixs2)
-		return (PIX*)ERROR_PTR("pixs2 not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs2 not defined", procName, pixd);
 	if(pixGetDepth(pixs1) != pixGetDepth(pixs2))
-		return (PIX*)ERROR_PTR("depths of pixs* unequal", procName, pixd);
+		return (PIX *)ERROR_PTR("depths of pixs* unequal", procName, pixd);
 
 #if  EQUAL_SIZE_WARNING
 	if(!pixSizesEqual(pixs1, pixs2))
@@ -1552,9 +1766,8 @@ PIX * pixSubtract(PIX  * pixd,
 /*!
  * \brief   pixZero()
  *
- * \param[in]    pix all depths; colormap OK
- * \param[out]   pempty  1 if all bits in image data field are 0;
- *                       0 otherwise
+ * \param[in]    pix     all depths; colormap OK
+ * \param[out]   pempty  1 if all bits in image data field are 0; 0 otherwise
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -1567,14 +1780,14 @@ PIX * pixSubtract(PIX  * pixd,
  *          is ignored.
  * </pre>
  */
-int32 pixZero(PIX      * pix,
-    int32  * pempty)
+l_ok pixZero(PIX * pix,
+    l_int32 * pempty)
 {
-	int32 w, h, wpl, i, j, fullwords, endbits;
-	uint32 endmask;
-	uint32  * data, * line;
+	l_int32 w, h, wpl, i, j, fullwords, endbits;
+	l_uint32 endmask;
+	l_uint32  * data, * line;
 
-	PROCNAME("pixZero");
+	PROCNAME(__FUNCTION__);
 
 	if(!pempty)
 		return ERROR_INT("&empty not defined", procName, 1);
@@ -1611,16 +1824,16 @@ int32 pixZero(PIX      * pix,
 /*!
  * \brief   pixForegroundFraction()
  *
- * \param[in]    pix 1 bpp
- * \param[out]   pfract fraction of ON pixels
+ * \param[in]    pix      1 bpp
+ * \param[out]   pfract   fraction of ON pixels
  * \return  0 if OK; 1 on error
  */
-int32 pixForegroundFraction(PIX        * pix,
-    float  * pfract)
+l_ok pixForegroundFraction(PIX        * pix,
+    float * pfract)
 {
-	int32 w, h, count;
+	l_int32 w, h, count;
 
-	PROCNAME("pixForegroundFraction");
+	PROCNAME(__FUNCTION__);
 
 	if(!pfract)
 		return ERROR_INT("&fract not defined", procName, 1);
@@ -1637,17 +1850,17 @@ int32 pixForegroundFraction(PIX        * pix,
 /*!
  * \brief   pixaCountPixels()
  *
- * \param[in]    pixa array of 1 bpp pix
+ * \param[in]    pixa    array of 1 bpp pix
  * \return  na of ON pixels in each pix, or NULL on error
  */
 NUMA * pixaCountPixels(PIXA  * pixa)
 {
-	int32 d, i, n, count;
-	int32  * tab;
+	l_int32 d, i, n, count;
+	l_int32 * tab;
 	NUMA     * na;
-	PIX      * pix;
+	PIX * pix;
 
-	PROCNAME("pixaCountPixels");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
 		return (NUMA*)ERROR_PTR("pix not defined", procName, NULL);
@@ -1661,9 +1874,9 @@ NUMA * pixaCountPixels(PIXA  * pixa)
 	if(d != 1)
 		return (NUMA*)ERROR_PTR("pixa not 1 bpp", procName, NULL);
 
-	tab = makePixelSumTab8();
 	if((na = numaCreate(n)) == NULL)
 		return (NUMA*)ERROR_PTR("na not made", procName, NULL);
+	tab = makePixelSumTab8();
 	for(i = 0; i < n; i++) {
 		pix = pixaGetPix(pixa, i, L_CLONE);
 		pixCountPixels(pix, &count, tab);
@@ -1671,44 +1884,40 @@ NUMA * pixaCountPixels(PIXA  * pixa)
 		pixDestroy(&pix);
 	}
 
-	LEPT_FREE(tab);
+	SAlloc::F(tab);
 	return na;
 }
 
 /*!
  * \brief   pixCountPixels()
  *
- * \param[in]    pix 1 bpp
- * \param[out]   pcount count of ON pixels
- * \param[in]    tab8  [optional] 8-bit pixel lookup table
+ * \param[in]    pixs     1 bpp
+ * \param[out]   pcount   count of ON pixels
+ * \param[in]    tab8     [optional] 8-bit pixel lookup table
  * \return  0 if OK; 1 on error
  */
-int32 pixCountPixels(PIX      * pix,
-    int32  * pcount,
-    int32  * tab8)
+l_ok pixCountPixels(PIX * pixs,
+    l_int32 * pcount,
+    l_int32 * tab8)
 {
-	uint32 endmask;
-	int32 w, h, wpl, i, j;
-	int32 fullwords, endbits, sum;
-	int32   * tab;
-	uint32  * data;
+	l_uint32 endmask;
+	l_int32 w, h, wpl, i, j;
+	l_int32 fullwords, endbits, sum;
+	l_int32   * tab;
+	l_uint32  * data;
 
-	PROCNAME("pixCountPixels");
+	PROCNAME(__FUNCTION__);
 
 	if(!pcount)
 		return ERROR_INT("&count not defined", procName, 1);
 	*pcount = 0;
-	if(!pix || pixGetDepth(pix) != 1)
-		return ERROR_INT("pix not defined or not 1 bpp", procName, 1);
+	if(!pixs || pixGetDepth(pixs) != 1)
+		return ERROR_INT("pixs not defined or not 1 bpp", procName, 1);
 
-	if(!tab8)
-		tab = makePixelSumTab8();
-	else
-		tab = tab8;
-
-	pixGetDimensions(pix, &w, &h, NULL);
-	wpl = pixGetWpl(pix);
-	data = pixGetData(pix);
+	tab = (tab8) ? tab8 : makePixelSumTab8();
+	pixGetDimensions(pixs, &w, &h, NULL);
+	wpl = pixGetWpl(pixs);
+	data = pixGetData(pixs);
 	fullwords = w >> 5;
 	endbits = w & 31;
 	endmask = (endbits == 0) ? 0 : (0xffffffffU << (32 - endbits));
@@ -1716,7 +1925,7 @@ int32 pixCountPixels(PIX      * pix,
 	sum = 0;
 	for(i = 0; i < h; i++, data += wpl) {
 		for(j = 0; j < fullwords; j++) {
-			uint32 word = data[j];
+			l_uint32 word = data[j];
 			if(word) {
 				sum += tab[word & 0xff] +
 				    tab[(word >> 8) & 0xff] +
@@ -1725,7 +1934,7 @@ int32 pixCountPixels(PIX      * pix,
 			}
 		}
 		if(endbits) {
-			uint32 word = data[j] & endmask;
+			l_uint32 word = data[j] & endmask;
 			if(word) {
 				sum += tab[word & 0xff] +
 				    tab[(word >> 8) & 0xff] +
@@ -1736,16 +1945,54 @@ int32 pixCountPixels(PIX      * pix,
 	}
 	*pcount = sum;
 
-	if(!tab8)
-		LEPT_FREE(tab);
+	if(!tab8) SAlloc::F(tab);
+	return 0;
+}
+
+/*!
+ * \brief   pixCountPixelsInRect()
+ *
+ * \param[in]    pixs     1 bpp
+ * \param[in]    box      (can be null)
+ * \param[out]   pcount   count of ON pixels
+ * \param[in]    tab8     [optional] 8-bit pixel lookup table
+ * \return  0 if OK; 1 on error
+ */
+l_ok pixCountPixelsInRect(PIX * pixs,
+    BOX      * box,
+    l_int32 * pcount,
+    l_int32 * tab8)
+{
+	l_int32 bx, by, bw, bh;
+	PIX * pix1;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pcount)
+		return ERROR_INT("&count not defined", procName, 1);
+	*pcount = 0;
+	if(!pixs || pixGetDepth(pixs) != 1)
+		return ERROR_INT("pixs not defined or not 1 bpp", procName, 1);
+
+	if(box) {
+		boxGetGeometry(box, &bx, &by, &bw, &bh);
+		pix1 = pixCreate(bw, bh, 1);
+		pixRasterop(pix1, 0, 0, bw, bh, PIX_SRC, pixs, bx, by);
+		pixCountPixels(pix1, pcount, tab8);
+		pixDestroy(&pix1);
+	}
+	else {
+		pixCountPixels(pixs, pcount, tab8);
+	}
+
 	return 0;
 }
 
 /*!
  * \brief   pixCountByRow()
  *
- * \param[in]    pix 1 bpp
- * \param[in]    box [optional] clipping box for count; can be null
+ * \param[in]   pix   1 bpp
+ * \param[in]   box   [optional] clipping box for count; can be null
  * \return  na of number of ON pixels by row, or NULL on error
  *
  * <pre>
@@ -1754,14 +2001,14 @@ int32 pixCountPixels(PIX      * pix,
  *          numaUniformSampling() on the result of this function.
  * </pre>
  */
-NUMA * pixCountByRow(PIX      * pix,
+NUMA * pixCountByRow(PIX * pix,
     BOX      * box)
 {
-	int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
-	uint32  * line, * data;
-	NUMA      * na;
+	l_int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
+	l_uint32  * line, * data;
+	NUMA * na;
 
-	PROCNAME("pixCountByRow");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 1)
 		return (NUMA*)ERROR_PTR("pix undefined or not 1 bpp", procName, NULL);
@@ -1770,7 +2017,7 @@ NUMA * pixCountByRow(PIX      * pix,
 
 	pixGetDimensions(pix, &w, &h, NULL);
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 
 	if((na = numaCreate(bh)) == NULL)
@@ -1794,8 +2041,8 @@ NUMA * pixCountByRow(PIX      * pix,
 /*!
  * \brief   pixCountByColumn()
  *
- * \param[in]    pix 1 bpp
- * \param[in]    box [optional] clipping box for count; can be null
+ * \param[in]   pix   1 bpp
+ * \param[in]   box   [optional] clipping box for count; can be null
  * \return  na of number of ON pixels by column, or NULL on error
  *
  * <pre>
@@ -1804,14 +2051,14 @@ NUMA * pixCountByRow(PIX      * pix,
  *          numaUniformSampling() on the result of this function.
  * </pre>
  */
-NUMA * pixCountByColumn(PIX      * pix,
+NUMA * pixCountByColumn(PIX * pix,
     BOX      * box)
 {
-	int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
-	uint32  * line, * data;
-	NUMA      * na;
+	l_int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
+	l_uint32  * line, * data;
+	NUMA * na;
 
-	PROCNAME("pixCountByColumn");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 1)
 		return (NUMA*)ERROR_PTR("pix undefined or not 1 bpp", procName, NULL);
@@ -1820,7 +2067,7 @@ NUMA * pixCountByColumn(PIX      * pix,
 
 	pixGetDimensions(pix, &w, &h, NULL);
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 
 	if((na = numaCreate(bw)) == NULL)
@@ -1844,53 +2091,50 @@ NUMA * pixCountByColumn(PIX      * pix,
 /*!
  * \brief   pixCountPixelsByRow()
  *
- * \param[in]    pix 1 bpp
- * \param[in]    tab8  [optional] 8-bit pixel lookup table
+ * \param[in]   pix   1 bpp
+ * \param[in]   tab8  [optional] 8-bit pixel lookup table
  * \return  na of counts, or NULL on error
  */
-NUMA * pixCountPixelsByRow(PIX      * pix,
-    int32  * tab8)
+NUMA * pixCountPixelsByRow(PIX * pix,
+    l_int32 * tab8)
 {
-	int32 h, i, count;
-	int32  * tab;
+	l_int32 h, i, count;
+	l_int32 * tab;
 	NUMA     * na;
 
-	PROCNAME("pixCountPixelsByRow");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 1)
 		return (NUMA*)ERROR_PTR("pix undefined or not 1 bpp", procName, NULL);
 
-	if(!tab8)
-		tab = makePixelSumTab8();
-	else
-		tab = tab8;
-
 	h = pixGetHeight(pix);
 	if((na = numaCreate(h)) == NULL)
 		return (NUMA*)ERROR_PTR("na not made", procName, NULL);
+
+	tab = (tab8) ? tab8 : makePixelSumTab8();
 	for(i = 0; i < h; i++) {
 		pixCountPixelsInRow(pix, i, &count, tab);
 		numaAddNumber(na, count);
 	}
 
-	if(!tab8) LEPT_FREE(tab);
+	if(!tab8) SAlloc::F(tab);
 	return na;
 }
 
 /*!
  * \brief   pixCountPixelsByColumn()
  *
- * \param[in]    pix 1 bpp
+ * \param[in]   pix   1 bpp
  * \return  na of counts in each column, or NULL on error
  */
 NUMA * pixCountPixelsByColumn(PIX  * pix)
 {
-	int32 i, j, w, h, wpl;
-	uint32   * line, * data;
-	float  * array;
+	l_int32 i, j, w, h, wpl;
+	l_uint32   * line, * data;
+	float * array;
 	NUMA       * na;
 
-	PROCNAME("pixCountPixelsByColumn");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 1)
 		return (NUMA*)ERROR_PTR("pix undefined or not 1 bpp", procName, NULL);
@@ -1916,24 +2160,24 @@ NUMA * pixCountPixelsByColumn(PIX  * pix)
 /*!
  * \brief   pixCountPixelsInRow()
  *
- * \param[in]    pix 1 bpp
- * \param[in]    row number
- * \param[out]   pcount sum of ON pixels in raster line
- * \param[in]    tab8  [optional] 8-bit pixel lookup table
+ * \param[in]    pix     1 bpp
+ * \param[in]    row     number
+ * \param[out]   pcount  sum of ON pixels in raster line
+ * \param[in]    tab8    [optional] 8-bit pixel lookup table
  * \return  0 if OK; 1 on error
  */
-int32 pixCountPixelsInRow(PIX      * pix,
-    int32 row,
-    int32  * pcount,
-    int32  * tab8)
+l_ok pixCountPixelsInRow(PIX * pix,
+    l_int32 row,
+    l_int32 * pcount,
+    l_int32 * tab8)
 {
-	uint32 word, endmask;
-	int32 j, w, h, wpl;
-	int32 fullwords, endbits, sum;
-	int32   * tab;
-	uint32  * line;
+	l_uint32 word, endmask;
+	l_int32 j, w, h, wpl;
+	l_int32 fullwords, endbits, sum;
+	l_int32   * tab;
+	l_uint32  * line;
 
-	PROCNAME("pixCountPixelsInRow");
+	PROCNAME(__FUNCTION__);
 
 	if(!pcount)
 		return ERROR_INT("&count not defined", procName, 1);
@@ -1950,11 +2194,7 @@ int32 pixCountPixelsInRow(PIX      * pix,
 	endbits = w & 31;
 	endmask = (endbits == 0) ? 0 : (0xffffffffU << (32 - endbits));
 
-	if(!tab8)
-		tab = makePixelSumTab8();
-	else
-		tab = tab8;
-
+	tab = (tab8) ? tab8 : makePixelSumTab8();
 	sum = 0;
 	for(j = 0; j < fullwords; j++) {
 		word = line[j];
@@ -1976,27 +2216,26 @@ int32 pixCountPixelsInRow(PIX      * pix,
 	}
 	*pcount = sum;
 
-	if(!tab8)
-		LEPT_FREE(tab);
+	if(!tab8) SAlloc::F(tab);
 	return 0;
 }
 
 /*!
  * \brief   pixGetMomentByColumn()
  *
- * \param[in]    pix 1 bpp
- * \param[in]    order of moment, either 1 or 2
+ * \param[in]   pix     1 bpp
+ * \param[in]   order   of moment, either 1 or 2
  * \return  na of first moment of fg pixels, by column, or NULL on error
  */
-NUMA * pixGetMomentByColumn(PIX     * pix,
-    int32 order)
+NUMA * pixGetMomentByColumn(PIX * pix,
+    l_int32 order)
 {
-	int32 i, j, w, h, wpl;
-	uint32   * line, * data;
-	float  * array;
+	l_int32 i, j, w, h, wpl;
+	l_uint32   * line, * data;
+	float * array;
 	NUMA       * na;
 
-	PROCNAME("pixGetMomentByColumn");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 1)
 		return (NUMA*)ERROR_PTR("pix undefined or not 1 bpp", procName, NULL);
@@ -2028,11 +2267,11 @@ NUMA * pixGetMomentByColumn(PIX     * pix,
 /*!
  * \brief   pixThresholdPixelSum()
  *
- * \param[in]    pix 1 bpp
- * \param[in]    thresh threshold
- * \param[out]   pabove 1 if above threshold;
- *                      0 if equal to or less than threshold
- * \param[in]    tab8  [optional] 8-bit pixel lookup table
+ * \param[in]    pix      1 bpp
+ * \param[in]    thresh   threshold
+ * \param[out]   pabove   1 if above threshold;
+ *                        0 if equal to or less than threshold
+ * \param[in]    tab8     [optional] 8-bit pixel lookup table
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -2044,18 +2283,18 @@ NUMA * pixGetMomentByColumn(PIX     * pix,
  *          pixels before returning.
  * </pre>
  */
-int32 pixThresholdPixelSum(PIX      * pix,
-    int32 thresh,
-    int32  * pabove,
-    int32  * tab8)
+l_ok pixThresholdPixelSum(PIX * pix,
+    l_int32 thresh,
+    l_int32 * pabove,
+    l_int32 * tab8)
 {
-	uint32 word, endmask;
-	int32   * tab;
-	int32 w, h, wpl, i, j;
-	int32 fullwords, endbits, sum;
-	uint32  * line, * data;
+	l_uint32 word, endmask;
+	l_int32   * tab;
+	l_int32 w, h, wpl, i, j;
+	l_int32 fullwords, endbits, sum;
+	l_uint32  * line, * data;
 
-	PROCNAME("pixThresholdPixelSum");
+	PROCNAME(__FUNCTION__);
 
 	if(!pabove)
 		return ERROR_INT("&above not defined", procName, 1);
@@ -2063,11 +2302,7 @@ int32 pixThresholdPixelSum(PIX      * pix,
 	if(!pix || pixGetDepth(pix) != 1)
 		return ERROR_INT("pix not defined or not 1 bpp", procName, 1);
 
-	if(!tab8)
-		tab = makePixelSumTab8();
-	else
-		tab = tab8;
-
+	tab = (tab8) ? tab8 : makePixelSumTab8();
 	pixGetDimensions(pix, &w, &h, NULL);
 	wpl = pixGetWpl(pix);
 	data = pixGetData(pix);
@@ -2098,21 +2333,19 @@ int32 pixThresholdPixelSum(PIX      * pix,
 		}
 		if(sum > thresh) {
 			*pabove = 1;
-			if(!tab8)
-				LEPT_FREE(tab);
+			if(!tab8) SAlloc::F(tab);
 			return 0;
 		}
 	}
 
-	if(!tab8)
-		LEPT_FREE(tab);
+	if(!tab8) SAlloc::F(tab);
 	return 0;
 }
 
 /*!
  * \brief   makePixelSumTab8()
  *
- * \return  table of 256 int32, or NULL on error
+ * \return  table of 256 l_int32.
  *
  * <pre>
  * Notes:
@@ -2120,17 +2353,13 @@ int32 pixThresholdPixelSum(PIX      * pix,
  *          in the 8 bit index.
  * </pre>
  */
-int32 * makePixelSumTab8(void)
+l_int32 * makePixelSumTab8(void)
 {
 	uint8 byte;
-	int32 i;
-	int32  * tab;
+	l_int32 i;
+	l_int32 * tab;
 
-	PROCNAME("makePixelSumTab8");
-
-	if((tab = (int32*)LEPT_CALLOC(256, sizeof(int32))) == NULL)
-		return (int32*)ERROR_PTR("tab not made", procName, NULL);
-
+	tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
 	for(i = 0; i < 256; i++) {
 		byte = (uint8)i;
 		tab[i] = (byte & 0x1) +
@@ -2142,14 +2371,13 @@ int32 * makePixelSumTab8(void)
 		    ((byte >> 6) & 0x1) +
 		    ((byte >> 7) & 0x1);
 	}
-
 	return tab;
 }
 
 /*!
  * \brief   makePixelCentroidTab8()
  *
- * \return  table of 256 int32, or NULL on error
+ * \return  table of 256 l_int32.
  *
  * <pre>
  * Notes:
@@ -2163,16 +2391,12 @@ int32 * makePixelSumTab8(void)
  *          to have position 7.
  * </pre>
  */
-int32 * makePixelCentroidTab8(void)
+l_int32 * makePixelCentroidTab8(void)
 {
-	int32 i;
-	int32  * tab;
+	l_int32 i;
+	l_int32 * tab;
 
-	PROCNAME("makePixelCentroidTab8");
-
-	if((tab = (int32*)LEPT_CALLOC(256, sizeof(int32))) == NULL)
-		return (int32*)ERROR_PTR("tab not made", procName, NULL);
-
+	tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
 	tab[0] = 0;
 	tab[1] = 7;
 	for(i = 2; i < 4; i++) {
@@ -2196,7 +2420,6 @@ int32 * makePixelCentroidTab8(void)
 	for(i = 128; i < 256; i++) {
 		tab[i] = tab[i - 128];
 	}
-
 	return tab;
 }
 
@@ -2206,9 +2429,9 @@ int32 * makePixelCentroidTab8(void)
 /*!
  * \brief   pixAverageByRow()
  *
- * \param[in]    pix 8 or 16 bpp; no colormap
- * \param[in]    box [optional] clipping box for sum; can be null
- * \param[in]    type L_WHITE_IS_MAX, L_BLACK_IS_MAX
+ * \param[in]   pix    8 or 16 bpp; no colormap
+ * \param[in]   box    [optional] clipping box for sum; can be null
+ * \param[in]   type   L_WHITE_IS_MAX, L_BLACK_IS_MAX
  * \return  na of pixel averages by row, or NULL on error
  *
  * <pre>
@@ -2219,16 +2442,16 @@ int32 * makePixelCentroidTab8(void)
  *          value (0xff for 8 bpp, 0xffff for 16 bpp) and white get 0.
  * </pre>
  */
-NUMA * pixAverageByRow(PIX     * pix,
-    BOX     * box,
-    int32 type)
+NUMA * pixAverageByRow(PIX * pix,
+    BOX * box,
+    l_int32 type)
 {
-	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
-	uint32  * line, * data;
+	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
+	l_uint32  * line, * data;
 	double norm, sum;
-	NUMA      * na;
+	NUMA * na;
 
-	PROCNAME("pixAverageByRow");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix)
 		return (NUMA*)ERROR_PTR("pix not defined", procName, NULL);
@@ -2241,7 +2464,7 @@ NUMA * pixAverageByRow(PIX     * pix,
 		return (NUMA*)ERROR_PTR("pix colormapped", procName, NULL);
 
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 
 	norm = 1. / (float)bw;
@@ -2274,9 +2497,9 @@ NUMA * pixAverageByRow(PIX     * pix,
 /*!
  * \brief   pixAverageByColumn()
  *
- * \param[in]    pix 8 or 16 bpp; no colormap
- * \param[in]    box [optional] clipping box for sum; can be null
- * \param[in]    type L_WHITE_IS_MAX, L_BLACK_IS_MAX
+ * \param[in]   pix   8 or 16 bpp; no colormap
+ * \param[in]   box   [optional] clipping box for sum; can be null
+ * \param[in]   type  L_WHITE_IS_MAX, L_BLACK_IS_MAX
  * \return  na of pixel averages by column, or NULL on error
  *
  * <pre>
@@ -2287,16 +2510,16 @@ NUMA * pixAverageByRow(PIX     * pix,
  *          value (0xff for 8 bpp, 0xffff for 16 bpp) and white get 0.
  * </pre>
  */
-NUMA * pixAverageByColumn(PIX     * pix,
-    BOX     * box,
-    int32 type)
+NUMA * pixAverageByColumn(PIX * pix,
+    BOX * box,
+    l_int32 type)
 {
-	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
-	uint32   * line, * data;
+	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
+	l_uint32   * line, * data;
 	float norm, sum;
 	NUMA       * na;
 
-	PROCNAME("pixAverageByColumn");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix)
 		return (NUMA*)ERROR_PTR("pix not defined", procName, NULL);
@@ -2310,13 +2533,13 @@ NUMA * pixAverageByColumn(PIX     * pix,
 		return (NUMA*)ERROR_PTR("pix colormapped", procName, NULL);
 
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 
 	if((na = numaCreate(bw)) == NULL)
 		return (NUMA*)ERROR_PTR("na not made", procName, NULL);
 	numaSetParameters(na, xstart, 1);
-	norm = 1.0f / (float)bh;
+	norm = 1. / (float)bh;
 	data = pixGetData(pix);
 	wpl = pixGetWpl(pix);
 	for(j = xstart; j < xend; j++) {
@@ -2346,53 +2569,202 @@ NUMA * pixAverageByColumn(PIX     * pix,
 /*!
  * \brief   pixAverageInRect()
  *
- * \param[in]    pix 1, 2, 4, 8 bpp; not cmapped
- * \param[in]    box [optional] if null, use entire image
- * \param[out]   pave average of pixel values in region
- * \return  0 if OK; 1 on error
+ * \param[in]    pixs     1, 2, 4, 8 bpp; not cmapped
+ * \param[in]    pixm     [optional] 1 bpp mask; if null, use all pixels
+ * \param[in]    box      [optional] if null, use entire image
+ * \param[in]    minval   ignore values less than this
+ * \param[in]    maxval   ignore values greater than this
+ * \param[in]    subsamp  subsample factor: integer; use 1 for all pixels
+ * \param[out]   pave     average of pixel values under consideration
+ * \return  0 if OK; 1 on error; 2 if all pixels are filtered out
+ *
+ * <pre>
+ * Notes:
+ *      (1) The average is computed with 4 optional filters: a rectangle,
+ *          a mask, a contiguous set of range values, and subsampling.
+ *          In practice you might use only one or two of these.
+ *      (2) The mask %pixm is a blocking mask: only count pixels in the bg.
+ *          If it exists, alignment is assumed at UL corner and computation
+ *          is over the minimum intersection of %pixs and %pixm.
+ *          If you want the average of pixels under the mask fg, invert it.
+ *      (3) Set the range limits %minval = 0 and %maxval = 255 to use
+ *          all non-masked pixels (regardless of value) in the average.
+ *      (4) If no pixels are used in the averaging, the returned average
+ *          value is 0 and the function returns 2.  This is not an error,
+ *          but it says to disregard the returned average value.
+ *      (5) For example, to average all pixels in a given clipping rect %box,
+ *              pixAverageInRect(pixs, NULL, box, 0, 255, 1, &aveval);
+ * </pre>
  */
-int32 pixAverageInRect(PIX        * pix,
+l_ok pixAverageInRect(PIX        * pixs,
+    PIX        * pixm,
     BOX        * box,
-    float  * pave)
+    l_int32 minval,
+    l_int32 maxval,
+    l_int32 subsamp,
+    float * pave)
 {
-	int32 w, h, d, wpl, i, j, xstart, xend, ystart, yend, bw, bh;
-	uint32  * data, * line;
-	double ave;
+	l_int32 w, h, d, wpls, wm, hm, dm, wplm, val, count;
+	l_int32 i, j, xstart, xend, ystart, yend;
+	l_uint32  * datas, * datam, * lines, * linem;
+	double sum;
 
-	PROCNAME("pixAverageInRect");
+	PROCNAME(__FUNCTION__);
 
 	if(!pave)
 		return ERROR_INT("&ave not defined", procName, 1);
 	*pave = 0;
-	if(!pix)
-		return ERROR_INT("pix not defined", procName, 1);
-	pixGetDimensions(pix, &w, &h, &d);
+	if(!pixs)
+		return ERROR_INT("pixs not defined", procName, 1);
+	if(pixGetColormap(pixs) != NULL)
+		return ERROR_INT("pixs is colormapped", procName, 1);
+	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1 && d != 2 && d != 4 && d != 8)
-		return ERROR_INT("pix not 1, 2, 4 or 8 bpp", procName, 1);
-	if(pixGetColormap(pix) != NULL)
-		return ERROR_INT("pix is colormapped", procName, 1);
+		return ERROR_INT("pixs not 1, 2, 4 or 8 bpp", procName, 1);
+	if(pixm) {
+		pixGetDimensions(pixm, &wm, &hm, &dm);
+		if(dm != 1)
+			return ERROR_INT("pixm not 1 bpp", procName, 1);
+		w = MIN(w, wm);
+		h = MIN(h, hm);
+	}
+	if(subsamp < 1)
+		return ERROR_INT("subsamp must be >= 1", procName, 1);
 
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    NULL, NULL) == 1)
 		return ERROR_INT("invalid clipping box", procName, 1);
 
-	wpl = pixGetWpl(pix);
-	data = pixGetData(pix);
-	ave = 0;
-	for(i = ystart; i < yend; i++) {
-		line = data + i * wpl;
-		for(j = xstart; j < xend; j++) {
+	datas = pixGetData(pixs);
+	wpls = pixGetWpl(pixs);
+	if(pixm) {
+		datam = pixGetData(pixm);
+		wplm = pixGetWpl(pixm);
+	}
+	sum = 0.0;
+	count = 0;
+	for(i = ystart; i < yend; i += subsamp) {
+		lines = datas + i * wpls;
+		if(pixm)
+			linem = datam + i * wplm;
+		for(j = xstart; j < xend; j += subsamp) {
+			if(pixm && (GET_DATA_BIT(linem, j) == 1))
+				continue;
 			if(d == 1)
-				ave += GET_DATA_BIT(line, j);
+				val = GET_DATA_BIT(lines, j);
 			else if(d == 2)
-				ave += GET_DATA_DIBIT(line, j);
+				val = GET_DATA_DIBIT(lines, j);
 			else if(d == 4)
-				ave += GET_DATA_QBIT(line, j);
+				val = GET_DATA_QBIT(lines, j);
 			else /* d == 8 */
-				ave += GET_DATA_BYTE(line, j);
+				val = GET_DATA_BYTE(lines, j);
+			if(val >= minval && val <= maxval) {
+				sum += val;
+				count++;
+			}
 		}
 	}
-	*pave = (float)(ave / (bw * bh));
+
+	if(count == 0)
+		return 2; /* not an error; don't use the average value (0.0) */
+	*pave = sum / (float)count;
+	return 0;
+}
+
+/*-------------------------------------------------------------*
+*             Average of pixel values in RGB images           *
+*-------------------------------------------------------------*/
+/*!
+ * \brief   pixAverageInRectRGB()
+ *
+ * \param[in]    pixs     rgb; not cmapped
+ * \param[in]    pixm     [optional] 1 bpp mask; if null, use all pixels
+ * \param[in]    box      [optional] if null, use entire image
+ * \param[in]    subsamp  subsample factor: integer; use 1 for all pixels
+ * \param[out]   pave     average color of pixel values under consideration,
+ *                        in format 0xrrggbb00.
+ * \return  0 if OK; 1 on error; 2 if all pixels are filtered out
+ *
+ * <pre>
+ * Notes:
+ *      (1) The average is computed with 3 optional filters: a rectangle,
+ *          a mask, and subsampling.
+ *          In practice you might use only one or two of these.
+ *      (2) The mask %pixm is a blocking mask: only count pixels in the bg.
+ *          If it exists, alignment is assumed at UL corner and computation
+ *          is over the minimum intersection of %pixs and %pixm.
+ *          If you want the average of pixels under the mask fg, invert it.
+ *      (3) If no pixels are used in the averaging, the returned average
+ *          value is 0 and the function returns 2.  This is not an error,
+ *          but it says to disregard the returned average value.
+ *      (4) For example, to average all pixels in a given clipping rect %box,
+ *              pixAverageInRectRGB(pixs, NULL, box, 1, &aveval);
+ * </pre>
+ */
+l_ok pixAverageInRectRGB(PIX * pixs,
+    PIX * pixm,
+    BOX       * box,
+    l_int32 subsamp,
+    l_uint32  * pave)
+{
+	l_int32 w, h, wpls, wm, hm, dm, wplm, i, j, xstart, xend, ystart, yend;
+	l_int32 rval, gval, bval, rave, gave, bave, count;
+	l_uint32  * datas, * datam, * lines, * linem;
+	l_uint32 pixel;
+	double rsum, gsum, bsum;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pave)
+		return ERROR_INT("&ave not defined", procName, 1);
+	*pave = 0;
+	if(!pixs || pixGetDepth(pixs) != 32)
+		return ERROR_INT("pixs undefined or not 32 bpp", procName, 1);
+	pixGetDimensions(pixs, &w, &h, NULL);
+	if(pixm) {
+		pixGetDimensions(pixm, &wm, &hm, &dm);
+		if(dm != 1)
+			return ERROR_INT("pixm not 1 bpp", procName, 1);
+		w = MIN(w, wm);
+		h = MIN(h, hm);
+	}
+	if(subsamp < 1)
+		return ERROR_INT("subsamp must be >= 1", procName, 1);
+
+	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
+	    NULL, NULL) == 1)
+		return ERROR_INT("invalid clipping box", procName, 1);
+
+	datas = pixGetData(pixs);
+	wpls = pixGetWpl(pixs);
+	if(pixm) {
+		datam = pixGetData(pixm);
+		wplm = pixGetWpl(pixm);
+	}
+	rsum = gsum = bsum = 0.0;
+	count = 0;
+	for(i = ystart; i < yend; i += subsamp) {
+		lines = datas + i * wpls;
+		if(pixm)
+			linem = datam + i * wplm;
+		for(j = xstart; j < xend; j += subsamp) {
+			if(pixm && (GET_DATA_BIT(linem, j) == 1))
+				continue;
+			pixel = *(lines + j);
+			extractRGBValues(pixel, &rval, &gval, &bval);
+			rsum += rval;
+			gsum += gval;
+			bsum += bval;
+			count++;
+		}
+	}
+
+	if(count == 0)
+		return 2; /* not an error */
+	rave = (l_uint32)(rsum / (double)count);
+	gave = (l_uint32)(gsum / (double)count);
+	bave = (l_uint32)(bsum / (double)count);
+	composeRGBPixel(rave, gave, bave, pave);
 	return 0;
 }
 
@@ -2402,8 +2774,8 @@ int32 pixAverageInRect(PIX        * pix,
 /*!
  * \brief   pixVarianceByRow()
  *
- * \param[in]    pix 8 or 16 bpp; no colormap
- * \param[in]    box [optional] clipping box for variance; can be null
+ * \param[in]   pix   8 or 16 bpp; no colormap
+ * \param[in]   box   [optional] clipping box for variance; can be null
  * \return  na of rmsdev by row, or NULL on error
  *
  * <pre>
@@ -2414,15 +2786,15 @@ int32 pixAverageInRect(PIX        * pix,
  *          This is the square root of the variance.
  * </pre>
  */
-NUMA * pixVarianceByRow(PIX     * pix,
-    BOX     * box)
+NUMA * pixVarianceByRow(PIX * pix,
+    BOX * box)
 {
-	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
-	uint32   * line, * data;
+	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
+	l_uint32   * line, * data;
 	double sum1, sum2, norm, ave, var, rootvar;
 	NUMA       * na;
 
-	PROCNAME("pixVarianceByRow");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix)
 		return (NUMA*)ERROR_PTR("pix not defined", procName, NULL);
@@ -2433,7 +2805,7 @@ NUMA * pixVarianceByRow(PIX     * pix,
 		return (NUMA*)ERROR_PTR("pix colormapped", procName, NULL);
 
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 
 	if((na = numaCreate(bh)) == NULL)
@@ -2451,7 +2823,7 @@ NUMA * pixVarianceByRow(PIX     * pix,
 			else /* d == 16 */
 				val = GET_DATA_TWO_BYTES(line, j);
 			sum1 += val;
-			sum2 += val * val;
+			sum2 += (double)(val) * val;
 		}
 		ave = norm * sum1;
 		var = norm * sum2 - ave * ave;
@@ -2465,8 +2837,8 @@ NUMA * pixVarianceByRow(PIX     * pix,
 /*!
  * \brief   pixVarianceByColumn()
  *
- * \param[in]    pix 8 or 16 bpp; no colormap
- * \param[in]    box [optional] clipping box for variance; can be null
+ * \param[in]   pix   8 or 16 bpp; no colormap
+ * \param[in]   box   [optional] clipping box for variance; can be null
  * \return  na of rmsdev by column, or NULL on error
  *
  * <pre>
@@ -2477,15 +2849,15 @@ NUMA * pixVarianceByRow(PIX     * pix,
  *          This is the square root of the variance.
  * </pre>
  */
-NUMA * pixVarianceByColumn(PIX     * pix,
-    BOX     * box)
+NUMA * pixVarianceByColumn(PIX * pix,
+    BOX * box)
 {
-	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
-	uint32   * line, * data;
+	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
+	l_uint32   * line, * data;
 	double sum1, sum2, norm, ave, var, rootvar;
 	NUMA       * na;
 
-	PROCNAME("pixVarianceByColumn");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix)
 		return (NUMA*)ERROR_PTR("pix not defined", procName, NULL);
@@ -2496,7 +2868,7 @@ NUMA * pixVarianceByColumn(PIX     * pix,
 		return (NUMA*)ERROR_PTR("pix colormapped", procName, NULL);
 
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 
 	if((na = numaCreate(bw)) == NULL)
@@ -2514,7 +2886,7 @@ NUMA * pixVarianceByColumn(PIX     * pix,
 			else /* d == 16 */
 				val = GET_DATA_TWO_BYTES(line, j);
 			sum1 += val;
-			sum2 += val * val;
+			sum2 += (double)(val) * val;
 		}
 		ave = norm * sum1;
 		var = norm * sum2 - ave * ave;
@@ -2528,20 +2900,20 @@ NUMA * pixVarianceByColumn(PIX     * pix,
 /*!
  * \brief   pixVarianceInRect()
  *
- * \param[in]    pix 1, 2, 4, 8 bpp; not cmapped
- * \param[in]    box [optional] if null, use entire image
- * \param[out]   prootvar sqrt variance of pixel values in region
+ * \param[in]    pix       1, 2, 4, 8 bpp; not cmapped
+ * \param[in]    box       [optional] if null, use entire image
+ * \param[out]   prootvar  sqrt variance of pixel values in region
  * \return  0 if OK; 1 on error
  */
-int32 pixVarianceInRect(PIX        * pix,
+l_ok pixVarianceInRect(PIX        * pix,
     BOX        * box,
-    float  * prootvar)
+    float * prootvar)
 {
-	int32 w, h, d, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val;
-	uint32  * data, * line;
+	l_int32 w, h, d, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val;
+	l_uint32  * data, * line;
 	double sum1, sum2, norm, ave, var;
 
-	PROCNAME("pixVarianceInRect");
+	PROCNAME(__FUNCTION__);
 
 	if(!prootvar)
 		return ERROR_INT("&rootvar not defined", procName, 1);
@@ -2555,7 +2927,7 @@ int32 pixVarianceInRect(PIX        * pix,
 		return ERROR_INT("pix is colormapped", procName, 1);
 
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return ERROR_INT("invalid clipping box", procName, 1);
 
 	wpl = pixGetWpl(pix);
@@ -2567,26 +2939,26 @@ int32 pixVarianceInRect(PIX        * pix,
 			if(d == 1) {
 				val = GET_DATA_BIT(line, j);
 				sum1 += val;
-				sum2 += val * val;
+				sum2 += (double)(val) * val;
 			}
 			else if(d == 2) {
 				val = GET_DATA_DIBIT(line, j);
 				sum1 += val;
-				sum2 += val * val;
+				sum2 += (double)(val) * val;
 			}
 			else if(d == 4) {
 				val = GET_DATA_QBIT(line, j);
 				sum1 += val;
-				sum2 += val * val;
+				sum2 += (double)(val) * val;
 			}
 			else { /* d == 8 */
 				val = GET_DATA_BYTE(line, j);
 				sum1 += val;
-				sum2 += val * val;
+				sum2 += (double)(val) * val;
 			}
 		}
 	}
-	norm = 1.0 / (bw * bh);
+	norm = 1.0 / ((double)(bw) * bh);
 	ave = norm * sum1;
 	var = norm * sum2 - ave * ave;
 	*prootvar = (float)sqrt(var);
@@ -2599,8 +2971,8 @@ int32 pixVarianceInRect(PIX        * pix,
 /*!
  * \brief   pixAbsDiffByRow()
  *
- * \param[in]    pix 8 bpp; no colormap
- * \param[in]    box [optional] clipping box for region; can be null
+ * \param[in]   pix   8 bpp; no colormap
+ * \param[in]   box   [optional] clipping box for region; can be null
  * \return  na of abs val pixel difference averages by row, or NULL on error
  *
  * <pre>
@@ -2614,12 +2986,12 @@ int32 pixVarianceInRect(PIX        * pix,
 NUMA * pixAbsDiffByRow(PIX  * pix,
     BOX  * box)
 {
-	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
-	uint32  * line, * data;
+	l_int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
+	l_uint32  * line, * data;
 	double norm, sum;
-	NUMA      * na;
+	NUMA * na;
 
-	PROCNAME("pixAbsDiffByRow");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 8)
 		return (NUMA*)ERROR_PTR("pix undefined or not 8 bpp", procName, NULL);
@@ -2628,7 +3000,7 @@ NUMA * pixAbsDiffByRow(PIX  * pix,
 
 	pixGetDimensions(pix, &w, &h, NULL);
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 	if(bw < 2)
 		return (NUMA*)ERROR_PTR("row width must be >= 2", procName, NULL);
@@ -2657,8 +3029,8 @@ NUMA * pixAbsDiffByRow(PIX  * pix,
 /*!
  * \brief   pixAbsDiffByColumn()
  *
- * \param[in]    pix 8 bpp; no colormap
- * \param[in]    box [optional] clipping box for region; can be null
+ * \param[in]   pix   8 bpp; no colormap
+ * \param[in]   box   [optional] clipping box for region; can be null
  * \return  na of abs val pixel difference averages by column,
  *              or NULL on error
  *
@@ -2673,12 +3045,12 @@ NUMA * pixAbsDiffByRow(PIX  * pix,
 NUMA * pixAbsDiffByColumn(PIX  * pix,
     BOX  * box)
 {
-	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
-	uint32  * line, * data;
+	l_int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
+	l_uint32  * line, * data;
 	double norm, sum;
-	NUMA      * na;
+	NUMA * na;
 
-	PROCNAME("pixAbsDiffByColumn");
+	PROCNAME(__FUNCTION__);
 
 	if(!pix || pixGetDepth(pix) != 8)
 		return (NUMA*)ERROR_PTR("pix undefined or not 8 bpp", procName, NULL);
@@ -2687,7 +3059,7 @@ NUMA * pixAbsDiffByColumn(PIX  * pix,
 
 	pixGetDimensions(pix, &w, &h, NULL);
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return (NUMA*)ERROR_PTR("invalid clipping box", procName, NULL);
 	if(bh < 2)
 		return (NUMA*)ERROR_PTR("column height must be >= 2", procName, NULL);
@@ -2717,10 +3089,10 @@ NUMA * pixAbsDiffByColumn(PIX  * pix,
 /*!
  * \brief   pixAbsDiffInRect()
  *
- * \param[in]    pix 8 bpp; not cmapped
- * \param[in]    box [optional] if null, use entire image
- * \param[in]    dir differences along L_HORIZONTAL_LINE or L_VERTICAL_LINE
- * \param[out]   pabsdiff average of abs diff pixel values in region
+ * \param[in]   pix       8 bpp; not cmapped
+ * \param[in]   box       [optional] if null, use entire image
+ * \param[in]   dir       differences along L_HORIZONTAL_LINE or L_VERTICAL_LINE
+ * \param[out]  pabsdiff  average of abs diff pixel values in region
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -2731,16 +3103,16 @@ NUMA * pixAbsDiffByColumn(PIX  * pix,
  *             column:  dir == L_VERTICAL_LINE
  * </pre>
  */
-int32 pixAbsDiffInRect(PIX        * pix,
+l_ok pixAbsDiffInRect(PIX        * pix,
     BOX        * box,
-    int32 dir,
-    float  * pabsdiff)
+    l_int32 dir,
+    float * pabsdiff)
 {
-	int32 w, h, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val0, val1;
-	uint32  * data, * line;
+	l_int32 w, h, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val0, val1;
+	l_uint32  * data, * line;
 	double norm, sum;
 
-	PROCNAME("pixAbsDiffInRect");
+	PROCNAME(__FUNCTION__);
 
 	if(!pabsdiff)
 		return ERROR_INT("&absdiff not defined", procName, 1);
@@ -2754,7 +3126,7 @@ int32 pixAbsDiffInRect(PIX        * pix,
 
 	pixGetDimensions(pix, &w, &h, NULL);
 	if(boxClipToRectangleParams(box, w, h, &xstart, &ystart, &xend, &yend,
-		    &bw, &bh) == 1)
+	    &bw, &bh) == 1)
 		return ERROR_INT("invalid clipping box", procName, 1);
 
 	wpl = pixGetWpl(pix);
@@ -2793,10 +3165,10 @@ int32 pixAbsDiffInRect(PIX        * pix,
 /*!
  * \brief   pixAbsDiffOnLine()
  *
- * \param[in]    pix 8 bpp; not cmapped
- * \param[in]    x1, y1 first point; x1 <= x2, y1 <= y2
- * \param[in]    x2, y2 first point
- * \param[out]   pabsdiff average of abs diff pixel values on line
+ * \param[in]    pix        8 bpp; not cmapped
+ * \param[in]    x1, y1     first point; x1 <= x2, y1 <= y2
+ * \param[in]    x2, y2     first point
+ * \param[out]   pabsdiff   average of abs diff pixel values on line
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -2807,17 +3179,17 @@ int32 pixAbsDiffInRect(PIX        * pix,
  *      (2) If horizontal, require x1 < x2; if vertical, require y1 < y2.
  * </pre>
  */
-int32 pixAbsDiffOnLine(PIX        * pix,
-    int32 x1,
-    int32 y1,
-    int32 x2,
-    int32 y2,
-    float  * pabsdiff)
+l_ok pixAbsDiffOnLine(PIX        * pix,
+    l_int32 x1,
+    l_int32 y1,
+    l_int32 x2,
+    l_int32 y2,
+    float * pabsdiff)
 {
-	int32 w, h, i, j, dir, size, sum;
-	uint32 val0, val1;
+	l_int32 w, h, i, j, dir, size, sum;
+	l_uint32 val0, val1;
 
-	PROCNAME("pixAbsDiffOnLine");
+	PROCNAME(__FUNCTION__);
 
 	if(!pabsdiff)
 		return ERROR_INT("&absdiff not defined", procName, 1);
@@ -2847,7 +3219,7 @@ int32 pixAbsDiffOnLine(PIX        * pix,
 		pixGetPixel(pix, x1, y1, &val0);
 		for(j = x1 + 1; j <= x2; j++) {
 			pixGetPixel(pix, j, y1, &val1);
-			sum += L_ABS((int32)val1 - (int32)val0);
+			sum += L_ABS((l_int32)val1 - (l_int32)val0);
 			val0 = val1;
 		}
 	}
@@ -2860,7 +3232,7 @@ int32 pixAbsDiffOnLine(PIX        * pix,
 		pixGetPixel(pix, x1, y1, &val0);
 		for(i = y1 + 1; i <= y2; i++) {
 			pixGetPixel(pix, x1, i, &val1);
-			sum += L_ABS((int32)val1 - (int32)val0);
+			sum += L_ABS((l_int32)val1 - (l_int32)val0);
 			val0 = val1;
 		}
 	}
@@ -2874,12 +3246,12 @@ int32 pixAbsDiffOnLine(PIX        * pix,
 /*!
  * \brief   pixCountArbInRect()
  *
- * \param[in]    pixs 8 bpp, or colormapped
- * \param[in]    box [optional] over which count is made;
- *                    use entire image if NULL
- * \param[in]    val pixel value to count
- * \param[in]    factor subsampling factor; integer >= 1
- * \param[out]   pcount count; estimate it if factor > 1
+ * \param[in]    pixs     8 bpp, or colormapped
+ * \param[in]    box      [optional] over which count is made;
+ *                        use entire image if NULL
+ * \param[in]    val      pixel value to count
+ * \param[in]    factor   subsampling factor; integer >= 1
+ * \param[out]   pcount   count; estimate it if factor > 1
  * \return  na histogram, or NULL on error
  *
  * <pre>
@@ -2890,16 +3262,16 @@ int32 pixAbsDiffOnLine(PIX        * pix,
  *          If %factor > 1, multiply the count by %factor * %factor.
  * </pre>
  */
-int32 pixCountArbInRect(PIX      * pixs,
+l_int32 pixCountArbInRect(PIX * pixs,
     BOX      * box,
-    int32 val,
-    int32 factor,
-    int32  * pcount)
+    l_int32 val,
+    l_int32 factor,
+    l_int32 * pcount)
 {
-	int32 i, j, bx, by, bw, bh, w, h, wpl, pixval;
-	uint32  * data, * line;
+	l_int32 i, j, bx, by, bw, bh, w, h, wpl, pixval;
+	l_uint32  * data, * line;
 
-	PROCNAME("pixCountArbInRect");
+	PROCNAME(__FUNCTION__);
 
 	if(!pcount)
 		return ERROR_INT("&count not defined", procName, 1);
@@ -2908,7 +3280,7 @@ int32 pixCountArbInRect(PIX      * pixs,
 		return ERROR_INT("pixs not defined", procName, 1);
 	if(pixGetDepth(pixs) != 8 && !pixGetColormap(pixs))
 		return ERROR_INT("pixs neither 8 bpp nor colormapped",
-		    procName, 1);
+			   procName, 1);
 	if(factor < 1)
 		return ERROR_INT("sampling factor < 1", procName, 1);
 
@@ -2949,8 +3321,8 @@ int32 pixCountArbInRect(PIX      * pixs,
 /*!
  * \brief   pixMirroredTiling()
  *
- * \param[in]    pixs 8 or 32 bpp, small tile; to be replicated
- * \param[in]    w, h dimensions of output pix
+ * \param[in]   pixs   8 or 32 bpp, small tile; to be replicated
+ * \param[in]   w, h   dimensions of output pix
  * \return  pixd usually larger pix, mirror-tiled with pixs,
  *              or NULL on error
  *
@@ -2967,25 +3339,25 @@ int32 pixCountArbInRect(PIX      * pixs,
  *                  -----------------
  * </pre>
  */
-PIX * pixMirroredTiling(PIX     * pixs,
-    int32 w,
-    int32 h)
+PIX * pixMirroredTiling(PIX * pixs,
+    l_int32 w,
+    l_int32 h)
 {
-	int32 wt, ht, d, i, j, nx, ny;
-	PIX      * pixd, * pixsfx, * pixsfy, * pixsfxy, * pix;
+	l_int32 wt, ht, d, i, j, nx, ny;
+	PIX * pixd, * pixsfx, * pixsfy, * pixsfxy, * pix;
 
-	PROCNAME("pixMirroredTiling");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &wt, &ht, &d);
 	if(wt <= 0 || ht <= 0)
-		return (PIX*)ERROR_PTR("pixs size illegal", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs size illegal", procName, NULL);
 	if(d != 8 && d != 32)
-		return (PIX*)ERROR_PTR("depth not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("depth not 32 bpp", procName, NULL);
 
 	if((pixd = pixCreate(w, h, d)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixCopySpp(pixd, pixs);
 
 	nx = (w + wt - 1) / wt;
@@ -3015,14 +3387,14 @@ PIX * pixMirroredTiling(PIX     * pixs,
 /*!
  * \brief   pixFindRepCloseTile()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    box region of pixs to search around
- * \param[in]    searchdir L_HORIZ or L_VERT; direction to search
- * \param[in]    mindist min distance of selected tile edge from box; >= 0
- * \param[in]    tsize tile size; > 1; even; typically ~50
- * \param[in]    ntiles number of tiles tested in each row/column
- * \param[out]   pboxtile region of best tile
- * \param[in]    debug 1 for debug output
+ * \param[in]    pixs       32 bpp rgb
+ * \param[in]    box        region of pixs to search around
+ * \param[in]    searchdir  L_HORIZ or L_VERT; direction to search
+ * \param[in]    mindist    min distance of selected tile edge from box; >= 0
+ * \param[in]    tsize      tile size; > 1; even; typically ~50
+ * \param[in]    ntiles     number of tiles tested in each row/column
+ * \param[out]   pboxtile   region of best tile
+ * \param[in]    debug 1    for debug output
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -3040,24 +3412,24 @@ PIX * pixMirroredTiling(PIX     * pixs,
  *          the height of %box and %tsize, with the 50% overlap..
  * </pre>
  */
-int32 pixFindRepCloseTile(PIX     * pixs,
-    BOX     * box,
-    int32 searchdir,
-    int32 mindist,
-    int32 tsize,
-    int32 ntiles,
+l_ok pixFindRepCloseTile(PIX * pixs,
+    BOX * box,
+    l_int32 searchdir,
+    l_int32 mindist,
+    l_int32 tsize,
+    l_int32 ntiles,
     BOX    ** pboxtile,
-    int32 debug)
+    l_int32 debug)
 {
-	int32 w, h, i, n, bestindex;
+	l_int32 w, h, i, n, bestindex;
 	float var_of_mean, median_of_mean, median_of_stdev, mean_val, stdev_val;
 	float mindels, bestdelm, delm, dels, mean, stdev;
 	BOXA      * boxa;
-	NUMA      * namean, * nastdev;
-	PIX       * pix, * pixg;
+	NUMA * namean, * nastdev;
+	PIX * pix, * pixg;
 	PIXA      * pixa;
 
-	PROCNAME("pixFindRepCloseTile");
+	PROCNAME(__FUNCTION__);
 
 	if(!pboxtile)
 		return ERROR_INT("&boxtile not defined", procName, 1);
@@ -3073,11 +3445,14 @@ int32 pixFindRepCloseTile(PIX     * pixs,
 	if(tsize < 2)
 		return ERROR_INT("tsize must be > 1", procName, 1);
 	if(ntiles > 7) {
-		L_WARNING2("ntiles = %d; larger than suggested max of 7\n", procName, ntiles);
+		L_WARNING("ntiles = %d; larger than suggested max of 7\n",
+		    procName, ntiles);
 	}
+
 	/* Locate tile regions */
 	pixGetDimensions(pixs, &w, &h, NULL);
-	boxa = findTileRegionsForSearch(box, w, h, searchdir, mindist, tsize, ntiles);
+	boxa = findTileRegionsForSearch(box, w, h, searchdir, mindist,
+		tsize, ntiles);
 	if(!boxa)
 		return ERROR_INT("no tiles found", procName, 1);
 
@@ -3088,7 +3463,7 @@ int32 pixFindRepCloseTile(PIX     * pixs,
 	nastdev = numaCreate(n);
 	for(i = 0; i < n; i++) {
 		pix = pixaGetPix(pixa, i, L_CLONE);
-		pixg = pixConvertRGBToGray(pix, 0.33f, 0.34f, 0.33f);
+		pixg = pixConvertRGBToGray(pix, 0.33, 0.34, 0.33);
 		pixGetAverageMasked(pixg, NULL, 0, 0, 1, L_MEAN_ABSVAL, &mean);
 		pixGetAverageMasked(pixg, NULL, 0, 0, 1, L_STANDARD_DEVIATION, &stdev);
 		numaAddNumber(namean, mean);
@@ -3125,7 +3500,7 @@ int32 pixFindRepCloseTile(PIX     * pixs,
 		if(delm < 1.01) {
 			if(dels < mindels) {
 				if(debug) {
-					fprintf(stderr, "i = %d, mean = %7.3f, delm = %7.3f,"
+					lept_stderr("i = %d, mean = %7.3f, delm = %7.3f,"
 					    " stdev = %7.3f, dels = %7.3f\n",
 					    i, mean_val, delm, stdev_val, dels);
 				}
@@ -3138,12 +3513,14 @@ int32 pixFindRepCloseTile(PIX     * pixs,
 	*pboxtile = boxaGetBox(boxa, bestindex, L_COPY);
 
 	if(debug) {
-		L_INFO2("median of mean = %7.3f\n", procName, median_of_mean);
-		L_INFO2("standard dev of mean = %7.3f\n", procName, sqrt(var_of_mean));
-		L_INFO2("median of stdev = %7.3f\n", procName, median_of_stdev);
-		L_INFO2("best tile: index = %d\n", procName, bestindex);
-		L_INFO2("delta from median in units of stdev = %5.3f\n", procName, bestdelm);
-		L_INFO2("stdev as fraction of median stdev = %5.3f\n", procName, mindels);
+		L_INFO("median of mean = %7.3f\n", procName, median_of_mean);
+		L_INFO("standard dev of mean = %7.3f\n", procName, sqrt(var_of_mean));
+		L_INFO("median of stdev = %7.3f\n", procName, median_of_stdev);
+		L_INFO("best tile: index = %d\n", procName, bestindex);
+		L_INFO("delta from median in units of stdev = %5.3f\n",
+		    procName, bestdelm);
+		L_INFO("stdev as fraction of median stdev = %5.3f\n",
+		    procName, mindels);
 	}
 
 	numaDestroy(&namean);
@@ -3156,12 +3533,12 @@ int32 pixFindRepCloseTile(PIX     * pixs,
 /*!
  * \brief   findTileRegionsForSearch()
  *
- * \param[in]    box region of Pix to search around
- * \param[in]    w, h dimensions of Pix
- * \param[in]    searchdir L_HORIZ or L_VERT; direction to search
- * \param[in]    mindist min distance of selected tile edge from box; >= 0
- * \param[in]    tsize tile size; > 1; even; typically ~50
- * \param[in]    ntiles number of tiles tested in each row/column
+ * \param[in]   box        region of Pix to search around
+ * \param[in]   w, h       dimensions of Pix
+ * \param[in]   searchdir  L_HORIZ or L_VERT; direction to search
+ * \param[in]   mindist    min distance of selected tile edge from box; >= 0
+ * \param[in]   tsize      tile size; > 1; even; typically ~50
+ * \param[in]   ntiles     number of tiles tested in each row/column
  * \return  boxa if OK, or NULL on error
  *
  * <pre>
@@ -3169,25 +3546,25 @@ int32 pixFindRepCloseTile(PIX     * pixs,
  *      (1) See calling function pixfindRepCloseTile().
  * </pre>
  */
-static BOXA * findTileRegionsForSearch(BOX     * box,
-    int32 w,
-    int32 h,
-    int32 searchdir,
-    int32 mindist,
-    int32 tsize,
-    int32 ntiles)
+static BOXA * findTileRegionsForSearch(BOX * box,
+    l_int32 w,
+    l_int32 h,
+    l_int32 searchdir,
+    l_int32 mindist,
+    l_int32 tsize,
+    l_int32 ntiles)
 {
-	int32 bx, by, bw, bh, left, right, top, bot, i, j, nrows, ncols;
-	int32 x0, y0, x, y, w_avail, w_needed, h_avail, h_needed, t_avail;
-	BOX     * box1;
-	BOXA    * boxa;
+	l_int32 bx, by, bw, bh, left, right, top, bot, i, j, nrows, ncols;
+	l_int32 x0, y0, x, y, w_avail, w_needed, h_avail, h_needed, t_avail;
+	BOX * box1;
+	BOXA * boxa;
 
-	PROCNAME("findTileRegionsForSearch");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
-		return (BOXA*)ERROR_PTR("box not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("box not defined", procName, NULL);
 	if(ntiles == 0)
-		return (BOXA*)ERROR_PTR("no tiles requested", procName, NULL);
+		return (BOXA *)ERROR_PTR("no tiles requested", procName, NULL);
 
 	boxGetGeometry(box, &bx, &by, &bw, &bh);
 	if(searchdir == L_HORIZ) {
@@ -3196,15 +3573,16 @@ static BOXA * findTileRegionsForSearch(BOX     * box,
 		left = bx; /* distance to left of box */
 		right = w - bx - bw + 1; /* distance to right of box */
 		w_avail = MAX(left, right) - mindist;
-		if(tsize & 1) tsize++;  /* be sure it's even */
+		if(tsize & 1) tsize++; /* be sure it's even */
 		if(w_avail < tsize) {
-			L_ERROR3("tsize = %d, w_avail = %d\n", procName, tsize, w_avail);
+			L_ERROR("tsize = %d, w_avail = %d\n", procName, tsize, w_avail);
 			return NULL;
 		}
 		w_needed = tsize + (ntiles - 1) * (tsize / 2);
 		if(w_needed > w_avail) {
 			t_avail = 1 + 2 * (w_avail - tsize) / tsize;
-			L_WARNING3("ntiles = %d; room for only %d\n", procName, ntiles, t_avail);
+			L_WARNING("ntiles = %d; room for only %d\n", procName,
+			    ntiles, t_avail);
 			ntiles = t_avail;
 			w_needed = tsize + (ntiles - 1) * (tsize / 2);
 		}
@@ -3231,13 +3609,14 @@ static BOXA * findTileRegionsForSearch(BOX     * box,
 		bot = h - by - bh + 1; /* distance below box */
 		h_avail = MAX(top, bot) - mindist;
 		if(h_avail < tsize) {
-			L_ERROR3("tsize = %d, h_avail = %d\n", procName, tsize, h_avail);
+			L_ERROR("tsize = %d, h_avail = %d\n", procName, tsize, h_avail);
 			return NULL;
 		}
 		h_needed = tsize + (ntiles - 1) * (tsize / 2);
 		if(h_needed > h_avail) {
 			t_avail = 1 + 2 * (h_avail - tsize) / tsize;
-			L_WARNING3("ntiles = %d; room for only %d\n", procName, ntiles, t_avail);
+			L_WARNING("ntiles = %d; room for only %d\n", procName,
+			    ntiles, t_avail);
 			ntiles = t_avail;
 			h_needed = tsize + (ntiles - 1) * (tsize / 2);
 		}
@@ -3260,4 +3639,3 @@ static BOXA * findTileRegionsForSearch(BOX     * box,
 	}
 	return boxa;
 }
-

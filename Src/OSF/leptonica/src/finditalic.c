@@ -25,15 +25,17 @@
 *====================================================================*/
 
 /*
- * finditalic.c
+ * \file  finditalic.c
+ * <pre>
  *
- *      int32   pixItalicWords()
+ *      l_int32   pixItalicWords()
  *
  *    Locate italic words.  This is an example of the use of
  *    hit-miss binary morphology with binary reconstruction
  *    (filling from a seed into a mask).
  *
  *    To see how this works, run with prog/italic.png.
+ * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
@@ -77,11 +79,11 @@ static const char * str_ital3 = " x"
 /*!
  * \brief   pixItalicWords()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    boxaw [optional] word bounding boxes; can be NULL
- * \param[in]    pixw [optional] word box mask; can be NULL
- * \param[out]   pboxa boxa of italic words
- * \param[in]    debugflag 1 for debug output; 0 otherwise
+ * \param[in]    pixs       1 bpp
+ * \param[in]    boxaw      [optional] word bounding boxes; can be NULL
+ * \param[in]    pixw       [optional] word box mask; can be NULL
+ * \param[out]   pboxa      boxa of italic words
+ * \param[in]    debugflag  1 for debug output; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -106,24 +108,25 @@ static const char * str_ital3 = " x"
  *          more appropriate for a typical font scanned at 200 ppi.
  * </pre>
  */
-int32 pixItalicWords(PIX     * pixs,
-    BOXA    * boxaw,
-    PIX     * pixw,
+l_ok pixItalicWords(PIX * pixs,
+    BOXA * boxaw,
+    PIX * pixw,
     BOXA   ** pboxa,
-    int32 debugflag)
+    l_int32 debugflag)
 {
 	char opstring[32];
-	int32 size;
-	BOXA    * boxa;
-	PIX     * pixsd, * pixm, * pixd;
+	l_int32 size;
+	BOXA * boxa;
+	PIX * pixsd, * pixm, * pixd;
 	SEL     * sel_ital1, * sel_ital2, * sel_ital3;
 
-	PROCNAME("pixItalicWords");
+	PROCNAME(__FUNCTION__);
 
-	if(!pixs)
-		return ERROR_INT("pixs not defined", procName, 1);
 	if(!pboxa)
 		return ERROR_INT("&boxa not defined", procName, 1);
+	*pboxa = NULL;
+	if(!pixs)
+		return ERROR_INT("pixs not defined", procName, 1);
 	if(boxaw && pixw)
 		return ERROR_INT("both boxaw and pixw are defined", procName, 1);
 
@@ -140,6 +143,7 @@ int32 pixItalicWords(PIX     * pixs,
 	pixOpen(pixsd, pixsd, sel_ital3);
 
 	/* Make the word mask.  Use input boxes or mask if given. */
+	size = 0; /* init */
 	if(boxaw) {
 		pixm = pixCreateTemplate(pixs);
 		pixMaskBoxa(pixm, pixm, boxaw, L_SET_PIXELS);
@@ -148,9 +152,9 @@ int32 pixItalicWords(PIX     * pixs,
 		pixm = pixClone(pixw);
 	}
 	else {
-		pixWordMaskByDilation(pixs, 20, NULL, &size);
-		L_INFO2("dilation size = %d\n", procName, size);
-		_snprintf(opstring, sizeof(opstring), "d1.5 + c%d.1", size);
+		pixWordMaskByDilation(pixs, NULL, &size, NULL);
+		L_INFO("dilation size = %d\n", procName, size);
+		snprintf(opstring, sizeof(opstring), "d1.5 + c%d.1", size);
 		pixm = pixMorphSequence(pixs, opstring, 0);
 	}
 
@@ -162,37 +166,35 @@ int32 pixItalicWords(PIX     * pixs,
 
 	if(debugflag) {
 		/* Save results at at 2x reduction */
-		int32 res, upper;
-		BOXA  * boxat;
+		l_int32 res, upper;
+		lept_mkdir("lept/ital");
+		BOXA * boxat;
 		GPLOT * gplot;
-		NUMA  * na;
-		PIXA  * pad;
-		PIX   * pix1, * pix2, * pix3;
-		pad = pixaCreate(0);
+		NUMA * na;
+		PIXA  * pixa1;
+		PIX * pix1, * pix2, * pix3;
+		pixa1 = pixaCreate(0);
 		boxat = pixConnComp(pixm, NULL, 8);
-		boxaWrite("/tmp/ital.ba", boxat);
-		pixSaveTiledOutline(pixs, pad, 0.5, 1, 20, 2, 32); /* orig */
-		pixSaveTiledOutline(pixsd, pad, 0.5, 1, 20, 2, 0); /* seed */
+		boxaWriteDebug("/tmp/lept/ital/ital.ba", boxat);
+		pixaAddPix(pixa1, pixs, L_COPY); /* orig */
+		pixaAddPix(pixa1, pixsd, L_COPY); /* seed */
 		pix1 = pixConvertTo32(pixm);
 		pixRenderBoxaArb(pix1, boxat, 3, 255, 0, 0);
-		pixSaveTiledOutline(pix1, pad, 0.5, 1, 20, 2, 0); /* mask + outline */
-		pixDestroy(&pix1);
-		pixSaveTiledOutline(pixd, pad, 0.5, 1, 20, 2, 0); /* ital mask */
+		pixaAddPix(pixa1, pix1, L_INSERT); /* mask + outline */
+		pixaAddPix(pixa1, pixd, L_COPY); /* ital mask */
 		pix1 = pixConvertTo32(pixs);
 		pixRenderBoxaArb(pix1, boxa, 3, 255, 0, 0);
-		pixSaveTiledOutline(pix1, pad, 0.5, 1, 20, 2, 0); /* orig + outline */
-		pixDestroy(&pix1);
+		pixaAddPix(pixa1, pix1, L_INSERT); /* orig + outline */
 		pix1 = pixCreateTemplate(pixs);
 		pix2 = pixSetBlackOrWhiteBoxa(pix1, boxa, L_SET_BLACK);
 		pixCopy(pix1, pixs);
 		pix3 = pixDilateBrick(NULL, pixs, 3, 3);
 		pixCombineMasked(pix1, pix3, pix2);
-		pixSaveTiledOutline(pix1, pad, 0.5, 1, 20, 2, 0); /* ital bolded */
-		pixDestroy(&pix1);
+		pixaAddPix(pixa1, pix1, L_INSERT); /* ital bolded */
 		pixDestroy(&pix2);
 		pixDestroy(&pix3);
-		pix2 = pixaDisplay(pad, 0, 0);
-		pixWrite("/tmp/ital.png", pix2, IFF_PNG);
+		pix2 = pixaDisplayTiledInColumns(pixa1, 1, 0.5, 20, 2);
+		pixWriteDebug("/tmp/lept/ital/ital.png", pix2, IFF_PNG);
 		pixDestroy(&pix2);
 
 		/* Assuming the image represents 6 inches of actual page width,
@@ -200,9 +202,12 @@ int32 pixItalicWords(PIX     * pixs,
 		 *    (width of pixs in pixels) / 6
 		 * and the images have been saved at half this resolution.   */
 		res = pixGetWidth(pixs) / 12;
-		L_INFO2("resolution = %d\n", procName, res);
-		pixaConvertToPdf(pad, res, 1.0, L_FLATE_ENCODE, 75, "Italic Finder", "/tmp/ital.pdf");
-		pixaDestroy(&pad);
+		L_INFO("resolution = %d\n", procName, res);
+		l_pdfSetDateAndVersion(0);
+		pixaConvertToPdf(pixa1, res, 1.0, L_FLATE_ENCODE, 75, "Italic Finder",
+		    "/tmp/lept/ital/ital.pdf");
+		l_pdfSetDateAndVersion(1);
+		pixaDestroy(&pixa1);
 		boxaDestroy(&boxat);
 
 		/* Plot histogram of horizontal white run sizes.  A small
@@ -214,9 +219,9 @@ int32 pixItalicWords(PIX     * pixs,
 		upper = MAX(30, 3 * size);
 		na = pixRunHistogramMorph(pix1, L_RUN_OFF, L_HORIZ, upper);
 		pixDestroy(&pix1);
-		gplot = gplotCreate("/tmp/runhisto", GPLOT_PNG,
-		    "Histogram of horizontal runs of white pixels, vs length",
-		    "run length", "number of runs");
+		gplot = gplotCreate("/tmp/lept/ital/runhisto", GPLOT_PNG,
+			"Histogram of horizontal runs of white pixels, vs length",
+			"run length", "number of runs");
 		gplotAddPlot(gplot, NULL, na, GPLOT_LINES, "plot1");
 		gplotMakeOutput(gplot);
 		gplotDestroy(&gplot);
@@ -231,4 +236,3 @@ int32 pixItalicWords(PIX     * pixs,
 	pixDestroy(&pixd);
 	return 0;
 }
-

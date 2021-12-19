@@ -81,9 +81,9 @@ void addHashtableTest(TestNode** root) {
  *********************************************************************/
 
 static void TestBasic() {
-	static const char one[4] =   {0x6F, 0x6E, 0x65, 0};/* "one" */
-	static const char one2[4] =  {0x6F, 0x6E, 0x65, 0};/* Get around compiler optimizations */
-	static const char two[4] =   {0x74, 0x77, 0x6F, 0};/* "two" */
+	static const char one[4] =   {0x6F, 0x6E, 0x65, 0}; /* "one" */
+	static const char one2[4] =  {0x6F, 0x6E, 0x65, 0}; /* Get around compiler optimizations */
+	static const char two[4] =   {0x74, 0x77, 0x6F, 0}; /* "two" */
 	static const char three[6] = {0x74, 0x68, 0x72, 0x65, 0x65, 0}; /* "three" */
 	static const char omega[6] = {0x6F, 0x6D, 0x65, 0x67, 0x61, 0}; /* "omega" */
 	UErrorCode status = U_ZERO_ERROR;
@@ -190,12 +190,12 @@ static void TestOtherAPI() {
 
 	/* Use the correct type when cast to void * */
 	static const UChar one[4] = {0x006F, 0x006E, 0x0065, 0}; /* L"one" */
-	static const UChar one2[4]  = {0x006F, 0x006E, 0x0065, 0};/* Get around compiler optimizations */
+	static const UChar one2[4]  = {0x006F, 0x006E, 0x0065, 0}; /* Get around compiler optimizations */
 	static const UChar two[4] = {0x0074, 0x0077, 0x006F, 0}; /* L"two" */
-	static const UChar two2[4]  = {0x0074, 0x0077, 0x006F, 0};/* L"two" */
+	static const UChar two2[4]  = {0x0074, 0x0077, 0x006F, 0}; /* L"two" */
 	static const UChar three[6] = {0x0074, 0x0068, 0x0072, 0x0065, 0x0065, 0}; /* L"three" */
-	static const UChar four[6]  = {0x0066, 0x006F, 0x0075, 0x0072, 0};/* L"four" */
-	static const UChar five[6]  = {0x0066, 0x0069, 0x0076, 0x0065, 0};/* L"five" */
+	static const UChar four[6]  = {0x0066, 0x006F, 0x0075, 0x0072, 0}; /* L"four" */
+	static const UChar five[6]  = {0x0066, 0x0069, 0x0076, 0x0065, 0}; /* L"five" */
 	static const UChar five2[6] = {0x0066, 0x0069, 0x0076, 0x0065, 0}; /* L"five" */
 
 	hash = uhash_open(uhash_hashUChars, uhash_compareUChars, NULL,  &status);

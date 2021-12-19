@@ -63,7 +63,7 @@ typedef struct {
 
 typedef void (*UConverterLoad) (UConverterSharedData *sharedData,
                                 UConverterLoadArgs *pArgs,
-                                const uint8_t *raw, UErrorCode *pErrorCode);
+                                const uint8 *raw, UErrorCode *pErrorCode);
 typedef void (*UConverterUnload) (UConverterSharedData *sharedData);
 
 typedef void (*UConverterOpen) (UConverter *cnv, UConverterLoadArgs *pArgs, UErrorCode *pErrorCode);

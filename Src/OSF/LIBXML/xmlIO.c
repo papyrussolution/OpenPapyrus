@@ -1375,7 +1375,7 @@ static void * xmlCreateZMemBuff(int compression)
 {
 	xmlZMemBuffPtr buff = NULL;
 	if((compression >= 1) && (compression <= 9)) {
-		/*  Create the control and data areas  */
+		/* Create the control and data areas  */
 		buff = SAlloc::M(sizeof( xmlZMemBuff ));
 		if(buff == NULL) {
 			xmlIOErrMemory("creating buffer context");
@@ -1402,7 +1402,7 @@ static void * xmlCreateZMemBuff(int compression)
 				}
 				else {
 					int hdr_lgth;
-					/*  Set the header data.  The CRC will be needed for the trailer  */
+					/* Set the header data.  The CRC will be needed for the trailer  */
 					buff->crc = crc32(0L, NULL, 0);
 					hdr_lgth = snprintf( (char *)buff->zbuff, buff->size, "%c%c%c%c%c%c%c%c%c%c", GZ_MAGIC1, GZ_MAGIC2, Z_DEFLATED,
 						0, 0, 0, 0, 0, 0, LXML_ZLIB_OS_CODE);
@@ -1519,11 +1519,11 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 	int z_err;
 	if(( buff == NULL ) || ( data_ref == NULL ) )
 		return ( -1 );
-	/*  Need to loop until compression output buffers are flushed  */
+	/* Need to loop until compression output buffers are flushed  */
 	do {
 		z_err = deflate(&buff->zctrl, Z_FINISH);
 		if(z_err == Z_OK) {
-			/*  In this case Z_OK means more buffer space needed  */
+			/* In this case Z_OK means more buffer space needed  */
 
 			if(xmlZMemBuffExtend(buff, buff->size) == -1)
 				return ( -1 );
@@ -1531,10 +1531,10 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 	}
 	while(z_err == Z_OK);
 
-	/*  If the compression state is not Z_STREAM_END, some error occurred  */
+	/* If the compression state is not Z_STREAM_END, some error occurred  */
 
 	if(z_err == Z_STREAM_END) {
-		/*  Need to append the gzip data trailer  */
+		/* Need to append the gzip data trailer  */
 
 		if(buff->zctrl.avail_out < ( 2 * sizeof( unsigned long ) ) ) {
 			if(xmlZMemBuffExtend(buff, (2 * sizeof(ulong))) == -1)
@@ -1562,7 +1562,7 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-#endif  /*  HAVE_ZLIB_H  */
+#endif  /* HAVE_ZLIB_H  */
 
 #ifdef LIBXML_OUTPUT_ENABLED
 /**
@@ -1660,7 +1660,7 @@ void * xmlIOHTTPOpenW(const char * post_uri, int compression)
 		else
 	#endif
 		{
-			/*  Any character conversions should have been done before this  */
+			/* Any character conversions should have been done before this  */
 			ctxt->doc_buff = xmlAllocOutputBufferInternal(NULL);
 		}
 		if(ctxt->doc_buff == NULL) {
@@ -1725,7 +1725,7 @@ static int xmlIOHTTPWrite(void * context, const char * buffer, int len)
 	if(!ctxt || (ctxt->doc_buff == NULL) || (buffer == NULL))
 		return ( -1 );
 	if(len > 0) {
-		/*  Use gzwrite or fwrite as previously setup in the open call  */
+		/* Use gzwrite or fwrite as previously setup in the open call  */
 #ifdef HAVE_ZLIB_H
 		if(ctxt->compression > 0)
 			len = xmlZMemBuffAppend(ctxt->doc_buff, buffer, len);
@@ -1778,7 +1778,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 	void * http_ctxt = NULL;
 	if(( ctxt == NULL ) || ( http_mthd == NULL ) )
 		return ( -1 );
-	/*  Retrieve the content from the appropriate buffer  */
+	/* Retrieve the content from the appropriate buffer  */
 #ifdef HAVE_ZLIB_H
 	if(ctxt->compression > 0) {
 		content_lgth = xmlZMemBuffGetContent(ctxt->doc_buff, &http_content);
@@ -1787,7 +1787,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 	else
 #endif
 	{
-		/*  Pull the data out of the memory output buffer  */
+		/* Pull the data out of the memory output buffer  */
 		xmlOutputBuffer * dctxt = (xmlOutputBuffer *)ctxt->doc_buff;
 		http_content = (char *)xmlBufContent(dctxt->buffer);
 		content_lgth = xmlBufUse(dctxt->buffer);
@@ -1801,7 +1801,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 		http_ctxt = xmlNanoHTTPMethod(ctxt->uri, http_mthd, http_content, &content_type, content_encoding, content_lgth);
 		if(http_ctxt) {
 #ifdef DEBUG_HTTP
-			/*  If testing/debugging - dump reply with request content  */
+			/* If testing/debugging - dump reply with request content  */
 
 			FILE * tst_file = NULL;
 			char buffer[ 4096 ];
@@ -1834,7 +1834,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 				}
 				SAlloc::F(dump_name);
 			}
-#endif  /*  DEBUG_HTTP  */
+#endif  /* DEBUG_HTTP  */
 			http_rtn = xmlNanoHTTPReturnCode(http_ctxt);
 			if(( http_rtn >= 200) && (http_rtn < 300 ) )
 				close_rc = 0;
@@ -1851,7 +1851,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 			SAlloc::F(content_type);
 		}
 	}
-	/*  Final cleanups  */
+	/* Final cleanups  */
 	xmlFreeHTTPWriteCtxt(ctxt);
 	return ( close_rc );
 }
@@ -2073,7 +2073,7 @@ void xmlRegisterDefaultOutputCallbacks()
  */
 void xmlRegisterHTTPPostCallbacks()
 {
-	/*  Register defaults if not done previously  */
+	/* Register defaults if not done previously  */
 	if(xmlOutputCallbackInitialized == 0)
 		xmlRegisterDefaultOutputCallbacks();
 	xmlRegisterOutputCallbacks(xmlIOHTTPMatch, xmlIOHTTPDfltOpenW, xmlIOHTTPWrite, xmlIOHTTPClosePost);
@@ -2412,7 +2412,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 		for(i = xmlOutputCallbackNr - 1; i >= 0; i--) {
 			if(xmlOutputCallbackTable[i].matchcallback && (xmlOutputCallbackTable[i].matchcallback(unescaped) != 0)) {
 #if defined(LIBXML_HTTP_ENABLED) && defined(HAVE_ZLIB_H)
-				/*  Need to pass compression parameter into HTTP open calls  */
+				/* Need to pass compression parameter into HTTP open calls  */
 				if(xmlOutputCallbackTable[i].matchcallback == xmlIOHTTPMatch)
 					context = xmlIOHTTPOpenW(unescaped, compression);
 				else
@@ -2445,7 +2445,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 		for(i = xmlOutputCallbackNr - 1; i >= 0; i--) {
 			if(xmlOutputCallbackTable[i].matchcallback && xmlOutputCallbackTable[i].matchcallback(URI)) {
 #if defined(LIBXML_HTTP_ENABLED) && defined(HAVE_ZLIB_H)
-				/*  Need to pass compression parameter into HTTP open calls  */
+				/* Need to pass compression parameter into HTTP open calls  */
 				if(xmlOutputCallbackTable[i].matchcallback == xmlIOHTTPMatch)
 					context = xmlIOHTTPOpenW(URI, compression);
 				else

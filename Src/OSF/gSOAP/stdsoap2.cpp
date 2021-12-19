@@ -111,7 +111,7 @@ SOAP_SOURCE_STAMP("@(#) stdsoap2.c ver 2.8.8 2012-02-20 00:00:00 GMT")
 #ifndef SOAP_UNKNOWN_CHAR
 	#define SOAP_UNKNOWN_CHAR (127)
 #endif
-/*      EOF=-1 */
+/* EOF=-1 */
 #define SOAP_LT (soap_wchar)(-2) /* XML-specific '<' */
 #define SOAP_TT (soap_wchar)(-3) /* XML-specific '</' */
 #define SOAP_GT (soap_wchar)(-4) /* XML-specific '>' */
@@ -12758,7 +12758,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
 		memcpy(soap->z_buf, soap->buf, SOAP_BUFLEN);
 		/* should not chunk over plain transport, so why bother to check? */
 		/* if ((soap->mode & SOAP_IO) == SOAP_IO_CHUNK) */
-		/*   soap->z_buflen = soap->bufidx; */
+		/* soap->z_buflen = soap->bufidx; */
 		/* else */
 		soap->d_stream->next_in = (Byte *)(soap->z_buf+soap->bufidx);
 		soap->d_stream->avail_in = (uint)(soap->buflen-soap->bufidx);

@@ -142,7 +142,7 @@ LPWSTR lb_substr(LB * lb, uint offset, uint count)
 	return retval;
 }
 
-/*  lb_subattr:
+/* lb_subattr:
  *  get a sub-range of attribute from the line buffer,
  *  this result has to bee free'd afterwards!
  */
@@ -282,7 +282,7 @@ LB * sb_get(SB * sb, uint index)
 	return line;
 }
 
-/*  sb_get_last:
+/* sb_get_last:
  *  retrieve last line buffer
  */
 LB * sb_get_last(SB * sb)
@@ -351,7 +351,7 @@ uint sb_calc_length(SB * sb)
 	return lines;
 }
 
-/*  sb_resize:
+/* sb_resize:
  *  change the maximum number of lines in the screen buffer to <size>
  *  discard lines at the top if necessary
  */

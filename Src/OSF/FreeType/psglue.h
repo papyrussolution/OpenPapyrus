@@ -92,7 +92,7 @@ FT_BEGIN_HEADER
 
 
   /* A common structure for all callback parameters.    */
-  /*                                                    */
+  /*                                    */
   /* Some members may be unused.  For example, `pt0' is not used for */
   /* `moveTo' and `pt3' is not used for `quadTo'.  The initial point `pt0' */
   /* is included for each path element for generality; curve conversions   */

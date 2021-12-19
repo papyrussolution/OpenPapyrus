@@ -946,8 +946,8 @@ UDate CalendarAstronomer::getSunRiseSet(bool rise)
 //        // needed because we know e has a sufficiently small value.  Next compute
 //        // the true anomaly, v, and the distance, r:
 //        //
-//        /*      r * cos(v)  =  */ double A  =  cos(E*DEG_RAD) - e;
-//        /*      r * ::sin(v)  =  */ double B  =  ::sqrt(1 - e*e) * ::sin(E*DEG_RAD);
+//        /* r * cos(v)  =  */ double A  =  cos(E*DEG_RAD) - e;
+//        /* r * ::sin(v)  =  */ double B  =  ::sqrt(1 - e*e) * ::sin(E*DEG_RAD);
 //        //
 //        // and
 //        //

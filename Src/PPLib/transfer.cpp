@@ -174,10 +174,10 @@ int Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 	if(ti->LotID == 0) {
 		ReceiptTbl::Rec lot_rec;
 		// @v10.6.10 @ctr MEMSZERO(lot_rec);
-		lot_rec.ID          = forceID;
+		lot_rec.ID  = forceID;
 		lot_rec.BillID      = ti->BillID;
 		lot_rec.LocID       = ti->LocID;
-		lot_rec.Dt          = ti->Date;
+		lot_rec.Dt  = ti->Date;
 		lot_rec.PrevLotID   = prev_lot;
 		lot_rec.GoodsID     = ti->GoodsID;
 		lot_rec.QCertID     = ti->QCert;
@@ -2660,7 +2660,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 				save_dis     = ti->Discount;
 				ti->Price   -= ti->Discount;
 				ti->Discount = 0;
-				sav          = 1;
+				sav  = 1;
 				THROW(UpdateReceipt(rec.LotID, ti, ti->LotID, fUpdEnableUpdChildLot));
 			}
 			else if(rec.LotID) {

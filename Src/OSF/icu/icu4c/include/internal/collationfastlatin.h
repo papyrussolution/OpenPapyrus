@@ -215,18 +215,18 @@ public:
                                 const UChar *right, int32_t rightLength);
 
     static int32_t compareUTF8(const uint16_t *table, const uint16_t *primaries, int32_t options,
-                               const uint8_t *left, int32_t leftLength,
-                               const uint8_t *right, int32_t rightLength);
+                               const uint8 *left, int32_t leftLength,
+                               const uint8 *right, int32_t rightLength);
 
 private:
     static uint32_t lookup(const uint16_t *table, UChar32 c);
     static uint32_t lookupUTF8(const uint16_t *table, UChar32 c,
-                               const uint8_t *s8, int32_t &sIndex, int32_t sLength);
+                               const uint8 *s8, int32_t &sIndex, int32_t sLength);
     static uint32_t lookupUTF8Unsafe(const uint16_t *table, UChar32 c,
-                                     const uint8_t *s8, int32_t &sIndex);
+                                     const uint8 *s8, int32_t &sIndex);
 
     static uint32_t nextPair(const uint16_t *table, UChar32 c, uint32_t ce,
-                             const UChar *s16, const uint8_t *s8, int32_t &sIndex, int32_t &sLength);
+                             const UChar *s16, const uint8 *s8, int32_t &sIndex, int32_t &sLength);
 
     static inline uint32_t getPrimaries(uint32_t variableTop, uint32_t pair) {
         uint32_t ce = pair & 0xffff;

@@ -35,7 +35,7 @@
  *    in color.
  *
  *    The sels are then used to identify and remove the components
- *    in a page image in which thay are found.  We demonstrate
+ *    in a page image in which they are found.  We demonstrate
  *    the ability to find these components are reductions from 4 to 16x.
  *    (16x is extreme -- don't do this at home!)  The results are displayed
  *    with the matched pattern either highlighted or removed.
@@ -43,6 +43,10 @@
  *    Some of these Sels are also made by livre_hmt.c for figures
  *    in the Document Image Applications chapter.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include "allheaders.h"
 
@@ -130,13 +134,13 @@ SEL     *selhm;
         pixr = pixClone(pix);
     else if (red == 8)
         pixr = pixReduceRankBinaryCascade(pix, 2, 0, 0, 0);
-    else if (red == 16)
+    else  /* red == 16 */
         pixr = pixReduceRankBinaryCascade(pix, 2, 2, 0, 0);
     pixDestroy(&pix);
 
     startTimer();
     pixhmt = pixHMT(NULL, pixr, selhm);
-    fprintf(stderr, "Time to find patterns = %7.3f\n", stopTimer());
+    lept_stderr("Time to find patterns = %7.3f\n", stopTimer());
 
         /* Color each instance at full res */
     selGetParameters(selhm, NULL, NULL, &cy, &cx);

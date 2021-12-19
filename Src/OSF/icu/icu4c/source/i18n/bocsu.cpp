@@ -26,29 +26,29 @@
  * encode one difference value -0x10ffff..+0x10ffff in 1..4 bytes,
  * preserving lexical order
  */
-static uint8_t * u_writeDiff(int32_t diff, uint8_t * p) 
+static uint8 * u_writeDiff(int32_t diff, uint8 * p) 
 {
 	if(diff>=SLOPE_REACH_NEG_1) {
 		if(diff<=SLOPE_REACH_POS_1) {
-			*p++ = (uint8_t)(SLOPE_MIDDLE+diff);
+			*p++ = (uint8)(SLOPE_MIDDLE+diff);
 		}
 		else if(diff<=SLOPE_REACH_POS_2) {
-			*p++ = (uint8_t)(SLOPE_START_POS_2+(diff/SLOPE_TAIL_COUNT));
-			*p++ = (uint8_t)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
+			*p++ = (uint8)(SLOPE_START_POS_2+(diff/SLOPE_TAIL_COUNT));
+			*p++ = (uint8)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
 		}
 		else if(diff<=SLOPE_REACH_POS_3) {
-			p[2] = (uint8_t)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
+			p[2] = (uint8)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
 			diff /= SLOPE_TAIL_COUNT;
-			p[1] = (uint8_t)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
-			*p = (uint8_t)(SLOPE_START_POS_3+(diff/SLOPE_TAIL_COUNT));
+			p[1] = (uint8)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
+			*p = (uint8)(SLOPE_START_POS_3+(diff/SLOPE_TAIL_COUNT));
 			p += 3;
 		}
 		else {
-			p[3] = (uint8_t)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
+			p[3] = (uint8)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
 			diff /= SLOPE_TAIL_COUNT;
-			p[2] = (uint8_t)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
+			p[2] = (uint8)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
 			diff /= SLOPE_TAIL_COUNT;
-			p[1] = (uint8_t)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
+			p[1] = (uint8)(SLOPE_MIN+diff%SLOPE_TAIL_COUNT);
 			*p = SLOPE_MAX;
 			p += 4;
 		}
@@ -57,24 +57,24 @@ static uint8_t * u_writeDiff(int32_t diff, uint8_t * p)
 		int32_t m;
 		if(diff>=SLOPE_REACH_NEG_2) {
 			NEGDIVMOD(diff, SLOPE_TAIL_COUNT, m);
-			*p++ = (uint8_t)(SLOPE_START_NEG_2+diff);
-			*p++ = (uint8_t)(SLOPE_MIN+m);
+			*p++ = (uint8)(SLOPE_START_NEG_2+diff);
+			*p++ = (uint8)(SLOPE_MIN+m);
 		}
 		else if(diff>=SLOPE_REACH_NEG_3) {
 			NEGDIVMOD(diff, SLOPE_TAIL_COUNT, m);
-			p[2] = (uint8_t)(SLOPE_MIN+m);
+			p[2] = (uint8)(SLOPE_MIN+m);
 			NEGDIVMOD(diff, SLOPE_TAIL_COUNT, m);
-			p[1] = (uint8_t)(SLOPE_MIN+m);
-			*p = (uint8_t)(SLOPE_START_NEG_3+diff);
+			p[1] = (uint8)(SLOPE_MIN+m);
+			*p = (uint8)(SLOPE_START_NEG_3+diff);
 			p += 3;
 		}
 		else {
 			NEGDIVMOD(diff, SLOPE_TAIL_COUNT, m);
-			p[3] = (uint8_t)(SLOPE_MIN+m);
+			p[3] = (uint8)(SLOPE_MIN+m);
 			NEGDIVMOD(diff, SLOPE_TAIL_COUNT, m);
-			p[2] = (uint8_t)(SLOPE_MIN+m);
+			p[2] = (uint8)(SLOPE_MIN+m);
 			NEGDIVMOD(diff, SLOPE_TAIL_COUNT, m);
-			p[1] = (uint8_t)(SLOPE_MIN+m);
+			p[1] = (uint8)(SLOPE_MIN+m);
 			*p = SLOPE_MIN;
 			p += 4;
 		}
@@ -106,7 +106,7 @@ U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t 
 	int32_t i = 0;
 	while(i<length) {
 		char * buffer = sink.GetAppendBuffer(1, length*2, scratch, (int32_t)sizeof(scratch), &capacity);
-		uint8_t * p;
+		uint8 * p;
 		// We must have capacity>=SLOPE_MAX_BYTES in case u_writeDiff() writes that much,
 		// but we do not want to force the sink.GetAppendBuffer() to allocate
 		// for a large min_capacity because we might actually only write one byte.
@@ -114,8 +114,8 @@ U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t 
 			buffer = scratch;
 			capacity = (int32_t)sizeof(scratch);
 		}
-		p = reinterpret_cast<uint8_t *>(buffer);
-		uint8_t * lastSafe = p+capacity-SLOPE_MAX_BYTES;
+		p = reinterpret_cast<uint8 *>(buffer);
+		uint8 * lastSafe = p+capacity-SLOPE_MAX_BYTES;
 		while(i<length && p<=lastSafe) {
 			if(prev<0x4e00 || prev>=0xa000) {
 				prev = (prev&~0x7f)-SLOPE_REACH_NEG_1;
@@ -139,7 +139,7 @@ U_CFUNC UChar32 u_writeIdenticalLevelRun(UChar32 prev, const UChar * s, int32_t 
 				prev = c;
 			}
 		}
-		sink.Append(buffer, (int32_t)(p-reinterpret_cast<uint8_t *>(buffer)));
+		sink.Append(buffer, (int32_t)(p-reinterpret_cast<uint8 *>(buffer)));
 	}
 	return prev;
 }

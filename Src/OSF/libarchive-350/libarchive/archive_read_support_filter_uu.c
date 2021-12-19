@@ -49,13 +49,13 @@ struct uudecode {
 #define ST_IGNORE       4
 };
 
-static int      uudecode_bidder_bid(struct archive_read_filter_bidder *,
+static int uudecode_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter * filter);
-static int      uudecode_bidder_init(struct archive_read_filter *);
+static int uudecode_bidder_init(struct archive_read_filter *);
 
 static ssize_t  uudecode_filter_read(struct archive_read_filter *,
     const void **);
-static int      uudecode_filter_close(struct archive_read_filter *);
+static int uudecode_filter_close(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
@@ -252,7 +252,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
 	int l;
 	int firstline;
 	size_t nbytes_read;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	b = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 1, &avail));
 	if(b == NULL)
 		return 0;

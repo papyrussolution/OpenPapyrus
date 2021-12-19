@@ -33,7 +33,7 @@ int __rep_env_create(DB_ENV * dbenv)
 	db_rep->bytes = REP_DEFAULT_THROTTLE;
 	DB_TIMEOUT_TO_TIMESPEC(DB_REP_REQUEST_GAP, &db_rep->request_gap);
 	DB_TIMEOUT_TO_TIMESPEC(DB_REP_MAX_GAP, &db_rep->max_gap);
-	db_rep->elect_timeout = 2*US_PER_SEC;                   /*  2 seconds */
+	db_rep->elect_timeout = 2*US_PER_SEC;                   /* 2 seconds */
 	db_rep->chkpt_delay = 30*US_PER_SEC;                    /* 30 seconds */
 	db_rep->my_priority = DB_REP_DEFAULT_PRIORITY;
 	/*

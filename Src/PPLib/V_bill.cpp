@@ -747,7 +747,7 @@ PPViewBill::PoolInsertionParam::PoolInsertionParam() : Verb(2), AddedBillKind(bb
 {
 }
 
-PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL, 0, 0), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
+PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL, implUseQuickTagEditFunc, 0), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
 	P_BObj(BillObj), State(0), P_IterState(0), LastSelID(0)
 {
 }
@@ -5867,6 +5867,13 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					else
 						State |= stCtrlX;
 				}
+				/*else if(PTR8C(pHdr)[0] == '/') {
+					if(State & stTagPreKey) {
+						//
+					}
+					else
+						State |= stTagPreKey;
+				}*/
 				else
 					State &= ~stCtrlX;
 				break;
@@ -5889,14 +5896,6 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkPayments)) > 0)
 					update = 1;
 				break;
-			/* @v10.3.5 case PPVCMD_RECKON:
-				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkReckon)) > 0)
-					update = 1;
-				break;
-			case PPVCMD_RENTA:
-				if((ok = ViewPayments(hdr.ID, LinkedBillFilt::lkCharge)) > 0)
-					update = 1;
-				break; */
 			case PPVCMD_GOODSRET:
 				ok = -1;
 				if(r_cfg.Cash) {
@@ -5943,8 +5942,6 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 						ViewGoodsBillCmp(hdr.ID, rh_bill_list, 0);
 				}
 				break;
-			// @v10.3.5 case PPVCMD_ATTACHBILLTOORD:   ok = AttachBillToOrder(hdr.ID); break;
-			// @v10.3.5 case PPVCMD_ATTACHBILLTODRAFT: ok = AttachBillToDraft(hdr.ID, pBrw); break;
 			case PPVCMD_ATTACHBILLTOBILL:  ok = AttachBill(hdr.ID, pBrw); break; // @v10.3.5
 			case PPVCMD_TRANSMIT:          ok = Transmit(hdr.ID, 0); break;
 			case PPVCMD_TRANSMITCHARRY:    ok = Transmit(hdr.ID, 1); break;
@@ -5954,23 +5951,10 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			case PPVCMD_PRINTINFOLIST:     ok = PrintBillInfoList(); break;
 			case PPVCMD_PRINTALLBILLS:     ok = PrintAllBills(); break;
 			case PPVCMD_POSPRINTBYBILL:    ok = P_BObj->PosPrintByBill(hdr.ID); break;
-			// @v10.0.0 case PPVCMD_PRINTCHECK:        ok = PrintBill(hdr.ID, 0); break;
-			/* @v10.0.0
-			case PPVCMD_PRINTZEROCHECK:
-				ok = -1;
-				if(r_cfg.Cash) {
-					P_BObj->PrintCheck(0, 0);
-					ok = 1;
-				}
-				break;
-			*/
 			case PPVCMD_CREATEMRPTAB:
 				if(hdr.ID)
 					ok = CreateMrpTab(hdr.ID);
 				break;
-			/* case PPVCMD_TOTAL:
-				ok = ViewTotal();
-				break; */
 			case PPVCMD_CHECKSTAT:
 				if(r_cfg.Cash) {
 					PPCashMachine * cm = PPCashMachine::CreateInstance(r_cfg.Cash);
@@ -5997,6 +5981,15 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 						PPError();
 					else
 						update = 1;
+				}
+				break;
+			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+				//
+				{
+					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
+					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_BILL, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS: // @v10.3.5
@@ -7057,7 +7050,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 		I.MainPrice = p_ti->NetPrice();
 	}
 	I.ExtPrice     = ext_price;
-	I.Qtty         = p_ti->Qtty();
+	I.Qtty = p_ti->Qtty();
 	upp = p_ti->UnitPerPack;
 	if(upp <= 0.0) {
 		GoodsStockExt gse;
@@ -7151,7 +7144,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			TaxAmountIDs tai;
 
 			p_ext->Rec = rec;
-			H.ID         = rec.ID;
+			H.ID = rec.ID;
 			H.ArticleID  = rec.Object;
 			H.Object2ID  = rec.Object2;
 			H.LocID      = rec.LocID;
@@ -7169,7 +7162,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			H.Flags    = rec.Flags;
 			H.fNeedPayment = BIN(rec.Flags & BILLF_NEEDPAYMENT);
 			H.fPayout      = BIN(rec.Flags & BILLF_PAYOUT);
-			H.fWL          = BIN(rec.Flags & BILLF_WHITELABEL);
+			H.fWL  = BIN(rec.Flags & BILLF_WHITELABEL);
 			H.DueDate      = rec.DueDate;
 			H.Amount   = BR2(rec.Amount);
 			amtt_obj.GetTaxAmountIDs(&tai, 1);
@@ -7692,7 +7685,7 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 	MEMSZERO(H);
 	H.BillID     = rec.ID;
 	H.LinkBillID = rec.LinkBillID;
-	H.Dt         = rec.Dt;
+	H.Dt = rec.Dt;
 	H.ArticleID  = object_id;
 	H.LocID      = rec.LocID;
 	H.ExpendFlag = 0; // Приход (под вопросом, но переоценка и корректировка в большинстве случаев трактуются как приход)
@@ -8554,7 +8547,7 @@ int PPALDD_AdvanceRep::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.Rcp2Text, p_pack->P_AdvRep->Rcp[1].Text);
 		H.Rcp2Dt  = p_pack->P_AdvRep->Rcp[1].Dt;
 		H.Rcp2Amt = p_pack->P_AdvRep->Rcp[1].Amount;
-		H.InRest         = p_pack->P_AdvRep->InRest;
+		H.InRest = p_pack->P_AdvRep->InRest;
 		H.RcpAmount      = p_pack->P_AdvRep->RcpAmount;
 		H.ExpAmount      = p_pack->P_AdvRep->ExpAmount;
 		H.OutRest        = p_pack->P_AdvRep->OutRest;
@@ -8883,22 +8876,22 @@ int PPALDD_BillInfo::InitData(PPFilt & rFilt, long rsrv)
 	const  long f = p_pack->Rec.Flags;
 	H.BillID = p_pack->Rec.ID;
 	H.fTotalDiscount     = BIN(f & BILLF_TOTALDISCOUNT);
-	H.fGReceipt          = BIN(f & BILLF_GRECEIPT);
-	H.fGExpend           = BIN(f & BILLF_GEXPEND);
-	H.fGReval            = BIN(f & BILLF_GREVAL);
-	H.fGModif            = BIN(f & BILLF_GMODIF);
+	H.fGReceipt  = BIN(f & BILLF_GRECEIPT);
+	H.fGExpend   = BIN(f & BILLF_GEXPEND);
+	H.fGReval    = BIN(f & BILLF_GREVAL);
+	H.fGModif    = BIN(f & BILLF_GMODIF);
 	H.fClosedOrder       = BIN(f & BILLF_CLOSEDORDER);
-	H.fCash              = BIN(f & BILLF_CASH);
-	H.fCCheck            = BIN(f & BILLF_CHECK);
-	H.fNoAturn           = BIN(f & BILLF_NOATURN);
-	H.fRmvExcise         = BIN(f & BILLF_RMVEXCISE);
+	H.fCash      = BIN(f & BILLF_CASH);
+	H.fCCheck    = BIN(f & BILLF_CHECK);
+	H.fNoAturn   = BIN(f & BILLF_NOATURN);
+	H.fRmvExcise = BIN(f & BILLF_RMVEXCISE);
 	H.fFixedAmounts      = BIN(f & BILLF_FIXEDAMOUNTS);
-	H.fFreight           = BIN(f & BILLF_FREIGHT);
-	H.fRent              = BIN(f & BILLF_RENT);
-	H.fRecon             = BIN(f & BILLF_RECKON);
-	H.fBanking           = BIN(f & BILLF_BANKING);
-	H.fShipped           = BIN(f & BILLF_SHIPPED);
-	H.fWritedOff         = BIN(f & BILLF_WRITEDOFF);
+	H.fFreight   = BIN(f & BILLF_FREIGHT);
+	H.fRent      = BIN(f & BILLF_RENT);
+	H.fRecon     = BIN(f & BILLF_RECKON);
+	H.fBanking   = BIN(f & BILLF_BANKING);
+	H.fShipped   = BIN(f & BILLF_SHIPPED);
+	H.fWritedOff = BIN(f & BILLF_WRITEDOFF);
 	H.fCSessWrOff        = BIN(f & BILLF_CSESSWROFF);
 	H.fAdvanceRep        = BIN(f & BILLF_ADVANCEREP);
 	H.fTGGLexCsNPrice    = BIN(f & BILLF_TGGLEXCSNPRICE);
@@ -8922,7 +8915,7 @@ int PPALDD_BillInfo::NextIteration(PPIterID iterId)
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 	if(n < p_pack->Amounts.getCount()) {
 		const AmtEntry & r_amt = p_pack->Amounts.at(n);
-		I.nn         = n + 1;
+		I.nn = n + 1;
 		I.AmountID   = r_amt.AmtTypeID;
 		I.CurrencyID = r_amt.CurID;
 		I.Amount     = r_amt.Amt;
@@ -8985,29 +8978,29 @@ int PPALDD_BillInfoList::NextIteration(PPIterID iterId)
 		const long f = p_bilpd->P_Pack->Rec.Flags;
 		I.BillID = p_bilpd->P_Pack->Rec.ID;
 		I.fTotalDiscount     = BIN(f & BILLF_TOTALDISCOUNT);
-		I.fGReceipt          = BIN(f & BILLF_GRECEIPT);
-		I.fGExpend           = BIN(f & BILLF_GEXPEND);
-		I.fGReval            = BIN(f & BILLF_GREVAL);
-		I.fGModif            = BIN(f & BILLF_GMODIF);
+		I.fGReceipt  = BIN(f & BILLF_GRECEIPT);
+		I.fGExpend   = BIN(f & BILLF_GEXPEND);
+		I.fGReval    = BIN(f & BILLF_GREVAL);
+		I.fGModif    = BIN(f & BILLF_GMODIF);
 		I.fClosedOrder       = BIN(f & BILLF_CLOSEDORDER);
-		I.fCash              = BIN(f & BILLF_CASH);
-		I.fCCheck            = BIN(f & BILLF_CHECK);
-		I.fNoAturn           = BIN(f & BILLF_NOATURN);
-		I.fRmvExcise         = BIN(f & BILLF_RMVEXCISE);
+		I.fCash      = BIN(f & BILLF_CASH);
+		I.fCCheck    = BIN(f & BILLF_CHECK);
+		I.fNoAturn   = BIN(f & BILLF_NOATURN);
+		I.fRmvExcise = BIN(f & BILLF_RMVEXCISE);
 		I.fFixedAmounts      = BIN(f & BILLF_FIXEDAMOUNTS);
-		I.fFreight           = BIN(f & BILLF_FREIGHT);
-		I.fRent              = BIN(f & BILLF_RENT);
-		I.fRecon             = BIN(f & BILLF_RECKON);
-		I.fBanking           = BIN(f & BILLF_BANKING);
-		I.fShipped           = BIN(f & BILLF_SHIPPED);
-		I.fWritedOff         = BIN(f & BILLF_WRITEDOFF);
+		I.fFreight   = BIN(f & BILLF_FREIGHT);
+		I.fRent      = BIN(f & BILLF_RENT);
+		I.fRecon     = BIN(f & BILLF_RECKON);
+		I.fBanking   = BIN(f & BILLF_BANKING);
+		I.fShipped   = BIN(f & BILLF_SHIPPED);
+		I.fWritedOff = BIN(f & BILLF_WRITEDOFF);
 		I.fCSessWrOff        = BIN(f & BILLF_CSESSWROFF);
 		I.fAdvanceRep        = BIN(f & BILLF_ADVANCEREP);
 		I.fTGGLexCsNPrice    = BIN(f & BILLF_TGGLEXCSNPRICE);
 		I.fTSessWrOff        = BIN(f & BILLF_TSESSWROFF);
 		if(n < p_bilpd->P_Pack->Amounts.getCount()) {
 			AmtEntry amt = p_bilpd->P_Pack->Amounts.at(n);
-			I.nn         = n + 1;
+			I.nn = n + 1;
 			I.AmountID   = amt.AmtTypeID;
 			I.CurrencyID = amt.CurID;
 			I.Amount     = amt.Amt;

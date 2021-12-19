@@ -1,4 +1,4 @@
-/*  hanxin.h - definitions for Han Xin code
+/* hanxin.h - definitions for Han Xin code
 
     libzint - the open source barcode library
     Copyright (C) 2009-2016 Robin Stuart <rstuart114@gmail.com>

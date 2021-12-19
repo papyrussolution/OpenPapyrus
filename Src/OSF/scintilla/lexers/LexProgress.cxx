@@ -457,7 +457,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			}
 			else if(isoperator(sc.ch)) {
 				sc.SetState(SCE_ABL_OPERATOR);
-				/*    This code allows highlight of handles. Alas, it would cause the phrase "last-event:function"
+				/* This code allows highlight of handles. Alas, it would cause the phrase "last-event:function"
 				   to be recognized as a BlockBegin */
 				isSentenceStart = false;
 			}

@@ -339,8 +339,8 @@ U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds,
 
 /* API functions ------------------------------------------------------------ */
 
-U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapper(bool inIsBigEndian, uint8_t inCharset,
-    bool outIsBigEndian, uint8_t outCharset,
+U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapper(bool inIsBigEndian, uint8 inCharset,
+    bool outIsBigEndian, uint8 outCharset,
     UErrorCode * pErrorCode) {
 	UDataSwapper * swapper;
 
@@ -395,7 +395,7 @@ U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapper(bool inIsBigEndian, uint8_t in
 }
 
 U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapperForInputData(const void * data, int32_t length,
-    bool outIsBigEndian, uint8_t outCharset,
+    bool outIsBigEndian, uint8 outCharset,
     UErrorCode * pErrorCode) {
 	const DataHeader * pHeader;
 	uint16_t headerSize, infoSize;

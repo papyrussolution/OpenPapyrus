@@ -373,7 +373,7 @@ typedef bool U_CALLCONV
 
 static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
     UConverterLoadArgs * pArgs,
-    const uint8_t * raw,
+    const uint8 * raw,
     UErrorCode * pErrorCode);
 
 static void U_CALLCONV ucnv_MBCSUnload(UConverterSharedData * sharedData);
@@ -564,7 +564,7 @@ enum SISO_Option {
 
 typedef enum SISO_Option SISO_Option;
 
-static int32_t getSISOBytes(SISO_Option option, uint32_t cnvOption, uint8_t * value) {
+static int32_t getSISOBytes(SISO_Option option, uint32_t cnvOption, uint8 * value) {
 	int32_t SISOLength = 0;
 
 	switch(option) {
@@ -908,7 +908,7 @@ U_CFUNC void ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData
 	}
 	else {
 		const uint32_t * stage2;
-		const uint8_t * stage3, * bytes;
+		const uint8 * stage3, * bytes;
 		uint32_t st3Multiplier;
 		uint32_t value;
 		bool useFallback;
@@ -955,7 +955,7 @@ U_CFUNC void ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData
 									    stage3 += st3Multiplier;
 								    }
 								    else if(useFallback) {
-									    uint8_t b = 0;
+									    uint8 b = 0;
 									    switch(st3Multiplier) {
 										    case 4:
 											b |= *stage3++;
@@ -1018,7 +1018,7 @@ U_CFUNC void ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData
 								    if(((st3&1)!=0 || useFallback) &&
 									(uint16_t)((value = *((const uint16_t*)stage3)) - 0xa1a1)<=
 									(0xfefe - 0xa1a1) &&
-									(uint8_t)(value-0xa1)<=(0xfe - 0xa1)
+									(uint8)(value-0xa1)<=(0xfe - 0xa1)
 									) {
 									    sa->add(sa->set, c);
 								    }
@@ -1033,7 +1033,7 @@ U_CFUNC void ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData
 								    if(((st3&1)!=0 || useFallback) &&
 									(uint16_t)((value = *((const uint16_t*)stage3))-0xa1a1)<=
 									(0xfdfe - 0xa1a1) &&
-									(uint8_t)(value-0xa1)<=(0xfe - 0xa1)
+									(uint8)(value-0xa1)<=(0xfe - 0xa1)
 									) {
 									    sa->add(sa->set, c);
 								    }
@@ -1105,7 +1105,7 @@ static void U_CALLCONV ucnv_MBCSGetUnicodeSet(const UConverter * cnv,
 static UChar32 _extFromU(UConverter * cnv, const UConverterSharedData * sharedData,
     UChar32 cp,
     const UChar ** source, const UChar * sourceLimit,
-    uint8_t ** target, const uint8_t * targetLimit,
+    uint8 ** target, const uint8 * targetLimit,
     int32_t ** offsets, int32_t sourceIndex,
     bool flush,
     UErrorCode * pErrorCode) {
@@ -1170,7 +1170,7 @@ static UChar32 _extFromU(UConverter * cnv, const UConverterSharedData * sharedDa
  */
 static int8_t _extToU(UConverter * cnv, const UConverterSharedData * sharedData,
     int8_t length,
-    const uint8_t ** source, const uint8_t * sourceLimit,
+    const uint8 ** source, const uint8 * sourceLimit,
     UChar ** target, const UChar * targetLimit,
     int32_t ** offsets, int32_t sourceIndex,
     bool flush,
@@ -1258,11 +1258,11 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 	UConverterMBCSTable * mbcsTable;
 
 	const uint16_t * table, * results;
-	const uint8_t * bytes;
+	const uint8 * bytes;
 
 	int32_t(*newStateTable)[256];
 	uint16_t * newResults;
-	uint8_t * p;
+	uint8 * p;
 	char * name;
 
 	uint32_t stage2Entry;
@@ -1349,7 +1349,7 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 	    mbcsTable->countStates*1024+
 	    sizeofFromUBytes+
 	    UCNV_MAX_CONVERTER_NAME_LENGTH+20;
-	p = (uint8_t*)uprv_malloc(size);
+	p = (uint8 *)uprv_malloc(size);
 	if(p==NULL) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
@@ -1388,7 +1388,7 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 	icu::umtx_lock(NULL);
 	if(mbcsTable->swapLFNLStateTable==NULL) {
 		mbcsTable->swapLFNLStateTable = newStateTable;
-		mbcsTable->swapLFNLFromUnicodeBytes = (uint8_t*)newResults;
+		mbcsTable->swapLFNLFromUnicodeBytes = (uint8 *)newResults;
 		mbcsTable->swapLFNLName = name;
 
 		newStateTable = NULL;
@@ -1409,12 +1409,12 @@ static bool U_CALLCONV writeStage3Roundtrip(const void * context, uint32_t value
 	UConverterMBCSTable * mbcsTable = (UConverterMBCSTable*)context;
 	const uint16_t * table;
 	uint32_t * stage2;
-	uint8_t * bytes, * p;
+	uint8 * bytes, * p;
 	UChar32 c;
 	int32_t i, st3;
 
 	table = mbcsTable->fromUnicodeTable;
-	bytes = (uint8_t*)mbcsTable->fromUnicodeBytes;
+	bytes = (uint8 *)mbcsTable->fromUnicodeBytes;
 
 	/* for EUC outputTypes, modify the value like genmbcs.c's transformEUC() */
 	switch(mbcsTable->outputType) {
@@ -1466,9 +1466,9 @@ static bool U_CALLCONV writeStage3Roundtrip(const void * context, uint32_t value
 			case MBCS_OUTPUT_3:
 			case MBCS_OUTPUT_4_EUC:
 			    p += st3*3;
-			    p[0] = (uint8_t)(value>>16);
-			    p[1] = (uint8_t)(value>>8);
-			    p[2] = (uint8_t)value;
+			    p[0] = (uint8)(value>>16);
+			    p[1] = (uint8)(value>>8);
+			    p[2] = (uint8)value;
 			    break;
 			case MBCS_OUTPUT_4:
 			    ((uint32_t*)p)[st3] = value;
@@ -1492,7 +1492,7 @@ static void reconstituteData(UConverterMBCSTable * mbcsTable, uint32_t stage1Len
 	uint16_t * stage1;
 	uint32_t * stage2;
 	uint32_t dataLength = stage1Length*2+fullStage2Length*4+mbcsTable->fromUBytesLength;
-	mbcsTable->reconstitutedData = (uint8_t*)uprv_malloc(dataLength);
+	mbcsTable->reconstitutedData = (uint8 *)uprv_malloc(dataLength);
 	if(mbcsTable->reconstitutedData==NULL) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return;
@@ -1508,7 +1508,7 @@ static void reconstituteData(UConverterMBCSTable * mbcsTable, uint32_t stage1Len
 	    stage2Length*4);
 
 	mbcsTable->fromUnicodeTable = stage1;
-	mbcsTable->fromUnicodeBytes = (uint8_t*)(stage2+fullStage2Length);
+	mbcsTable->fromUnicodeBytes = (uint8 *)(stage2+fullStage2Length);
 
 	/* indexes into stage 2 count from the bottom of the fromUnicodeTable */
 	stage2 = (uint32_t*)stage1;
@@ -1559,7 +1559,7 @@ static void reconstituteData(UConverterMBCSTable * mbcsTable, uint32_t stage1Len
 
 static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
     UConverterLoadArgs * pArgs,
-    const uint8_t * raw,
+    const uint8 * raw,
     UErrorCode * pErrorCode) {
 	UDataInfo info;
 	UConverterMBCSTable * mbcsTable = &sharedData->mbcs;
@@ -1581,7 +1581,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
 		return;
 	}
 
-	mbcsTable->outputType = (uint8_t)header->flags;
+	mbcsTable->outputType = (uint8)header->flags;
 	if(noFromU && mbcsTable->outputType==MBCS_OUTPUT_1) {
 		*pErrorCode = U_INVALID_TABLE_FORMAT;
 		return;
@@ -1692,7 +1692,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
 				    MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_CHANGE_ONLY &&
 				    MBCS_ENTRY_FINAL_STATE(entry)!=0
 				    ) {
-					mbcsTable->dbcsOnlyState = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry);
+					mbcsTable->dbcsOnlyState = (uint8)MBCS_ENTRY_FINAL_STATE(entry);
 
 					mbcsTable->outputType = MBCS_OUTPUT_DBCS_ONLY;
 				}
@@ -1733,7 +1733,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
 					state[i] = MBCS_ENTRY_FINAL(0, MBCS_STATE_ILLEGAL, 0);
 				}
 				mbcsTable->stateTable = (const int32_t(*)[256])newStateTable;
-				mbcsTable->countStates = (uint8_t)(count+1);
+				mbcsTable->countStates = (uint8)(count+1);
 				mbcsTable->stateTableOwned = TRUE;
 
 				mbcsTable->outputType = MBCS_OUTPUT_DBCS_ONLY;
@@ -1775,14 +1775,14 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
 			return;
 		}
 
-		mbcsTable->countStates = (uint8_t)header->countStates;
+		mbcsTable->countStates = (uint8)header->countStates;
 		mbcsTable->countToUFallbacks = header->countToUFallbacks;
 		mbcsTable->stateTable = (const int32_t(*)[256])(raw+headerLength*4);
 		mbcsTable->toUFallbacks = (const _MBCSToUFallback*)(mbcsTable->stateTable+header->countStates);
 		mbcsTable->unicodeCodeUnits = (const uint16_t*)(raw+header->offsetToUCodeUnits);
 
 		mbcsTable->fromUnicodeTable = (const uint16_t*)(raw+header->offsetFromUTable);
-		mbcsTable->fromUnicodeBytes = (const uint8_t*)(raw+header->offsetFromUBytes);
+		mbcsTable->fromUnicodeBytes = (const uint8*)(raw+header->offsetFromUBytes);
 		mbcsTable->fromUBytesLength = header->fromUBytesLength;
 
 		/*
@@ -1793,7 +1793,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData,
 		udata_getInfo((UDataMemory*)sharedData->dataMemory, &info);
 		if(info.formatVersion[0]>6 || (info.formatVersion[0]==6 && info.formatVersion[1]>=1)) {
 			/* mask off possible future extensions to be safe */
-			mbcsTable->unicodeMask = (uint8_t)(sharedData->staticData->unicodeMask&3);
+			mbcsTable->unicodeMask = (uint8)(sharedData->staticData->unicodeMask&3);
 		}
 		else {
 			/* for older versions, assume worst case: contains anything possible (prevent
@@ -1913,7 +1913,7 @@ static void U_CALLCONV ucnv_MBCSOpen(UConverter * cnv,
     UErrorCode * pErrorCode) {
 	UConverterMBCSTable * mbcsTable;
 	const int32_t * extIndexes;
-	uint8_t outputType;
+	uint8 outputType;
 	int8_t maxBytesPerUChar;
 
 	if(pArgs->onlyTestIsLoadable) {
@@ -2048,7 +2048,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetFallback(UConverterMBCSTable * mbcsTable, 
 static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
@@ -2059,12 +2059,12 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 
 	int32_t entry;
 	UChar c;
-	uint8_t action;
+	uint8 action;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -2115,7 +2115,7 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 		 * An if-else-if chain provides more reliable performance for
 		 * the most common cases compared to a switch.
 		 */
-		action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+		action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 		if(action==MBCS_STATE_VALID_DIRECT_20 ||
 		    (action==MBCS_STATE_FALLBACK_DIRECT_20 && UCNV_TO_U_USE_FALLBACK(cnv))
 		    ) {
@@ -2182,7 +2182,7 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				&offsets, sourceIndex,
 				pArgs->flush,
 				pErrorCode);
-			sourceIndex += 1+(int32_t)(source-(const uint8_t*)pArgs->source);
+			sourceIndex += 1+(int32_t)(source-(const uint8*)pArgs->source);
 
 			if(U_FAILURE(*pErrorCode)) {
 				/* not mappable or buffer overflow */
@@ -2206,7 +2206,7 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 static void ucnv_MBCSSingleToBMPWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit, * lastSource;
+	const uint8 * source, * sourceLimit, * lastSource;
 	UChar * target;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
@@ -2216,12 +2216,12 @@ static void ucnv_MBCSSingleToBMPWithOffsets(UConverterToUnicodeArgs * pArgs,
 	int32_t sourceIndex;
 
 	int32_t entry;
-	uint8_t action;
+	uint8 action;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -2238,7 +2238,7 @@ static void ucnv_MBCSSingleToBMPWithOffsets(UConverterToUnicodeArgs * pArgs,
 	lastSource = source;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8_t, we need only one counter
+	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -2341,7 +2341,7 @@ unrolled:
 		 * An if-else-if chain provides more reliable performance for
 		 * the most common cases compared to a switch.
 		 */
-		action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+		action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 		if(action==MBCS_STATE_FALLBACK_DIRECT_16) {
 			if(UCNV_TO_U_USE_FALLBACK(cnv)) {
 				/* output BMP code point */
@@ -2428,7 +2428,7 @@ unrolled:
 	pArgs->offsets = offsets;
 }
 
-static bool hasValidTrailBytes(const int32_t (*stateTable)[256], uint8_t state) {
+static bool hasValidTrailBytes(const int32_t (*stateTable)[256], uint8 state) {
 	const int32_t * row = stateTable[state];
 	int32_t b, entry;
 	/* First test for final entries in this state for some commonly valid byte values. */
@@ -2457,7 +2457,7 @@ static bool hasValidTrailBytes(const int32_t (*stateTable)[256], uint8_t state) 
 	for(b = 0; b<=0xff; ++b) {
 		entry = row[b];
 		if(MBCS_ENTRY_IS_TRANSITION(entry) &&
-		    hasValidTrailBytes(stateTable, (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry))
+		    hasValidTrailBytes(stateTable, (uint8)MBCS_ENTRY_TRANSITION_STATE(entry))
 		    ) {
 			return TRUE;
 		}
@@ -2470,14 +2470,14 @@ static bool hasValidTrailBytes(const int32_t (*stateTable)[256], uint8_t state) 
  * Recurse for transition states, because here we don't want to say that
  * b is a lead byte if all byte sequences that start with b are illegal.
  */
-static bool isSingleOrLead(const int32_t (*stateTable)[256], uint8_t state, bool isDBCSOnly, uint8_t b) {
+static bool isSingleOrLead(const int32_t (*stateTable)[256], uint8 state, bool isDBCSOnly, uint8 b) {
 	const int32_t * row = stateTable[state];
 	int32_t entry = row[b];
 	if(MBCS_ENTRY_IS_TRANSITION(entry)) { /* lead byte */
-		return hasValidTrailBytes(stateTable, (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry));
+		return hasValidTrailBytes(stateTable, (uint8)MBCS_ENTRY_TRANSITION_STATE(entry));
 	}
 	else {
-		uint8_t action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+		uint8 action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 		if(action==MBCS_STATE_CHANGE_ONLY && isDBCSOnly) {
 			return FALSE; /* SI/SO are illegal for DBCS-only conversion */
 		}
@@ -2490,7 +2490,7 @@ static bool isSingleOrLead(const int32_t (*stateTable)[256], uint8_t state, bool
 U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
@@ -2499,15 +2499,15 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 	const uint16_t * unicodeCodeUnits;
 
 	uint32_t offset;
-	uint8_t state;
+	uint8 state;
 	int8_t byteIndex;
-	uint8_t * bytes;
+	uint8 * bytes;
 
 	int32_t sourceIndex, nextSourceIndex;
 
 	int32_t entry;
 	UChar c;
-	uint8_t action;
+	uint8 action;
 
 	/* use optimized function if possible */
 	cnv = pArgs->converter;
@@ -2535,8 +2535,8 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 	}
 
 	/* set up the local pointers */
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -2559,7 +2559,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 	 * then load the DBCS state from the MBCS data
 	 * (dbcsOnlyState==0 if it is not a DBCS-only converter)
 	 */
-	if((state = (uint8_t)(cnv->mode))==0) {
+	if((state = (uint8)(cnv->mode))==0) {
 		state = cnv->sharedData->mbcs.dbcsOnlyState;
 	}
 
@@ -2589,7 +2589,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				do {
 					entry = stateTable[state][*source];
 					if(MBCS_ENTRY_IS_TRANSITION(entry)) {
-						state = (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry);
+						state = (uint8)MBCS_ENTRY_TRANSITION_STATE(entry);
 						offset = MBCS_ENTRY_TRANSITION_OFFSET(entry);
 
 						++source;
@@ -2600,7 +2600,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 						    ) {
 							++source;
 							*target++ = c;
-							state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
+							state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
 							      */
 							offset = 0;
 						}
@@ -2616,7 +2616,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 							/* output BMP code point */
 							++source;
 							*target++ = (UChar)MBCS_ENTRY_FINAL_VALUE_16(entry);
-							state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
+							state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
 							      */
 						}
 						else {
@@ -2630,7 +2630,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				do {
 					entry = stateTable[state][*source];
 					if(MBCS_ENTRY_IS_TRANSITION(entry)) {
-						state = (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry);
+						state = (uint8)MBCS_ENTRY_TRANSITION_STATE(entry);
 						offset = MBCS_ENTRY_TRANSITION_OFFSET(entry);
 
 						++source;
@@ -2645,7 +2645,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 								*offsets++ = sourceIndex;
 								sourceIndex = (nextSourceIndex += 2);
 							}
-							state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
+							state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
 							      */
 							offset = 0;
 						}
@@ -2666,7 +2666,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 								*offsets++ = sourceIndex;
 								sourceIndex = ++nextSourceIndex;
 							}
-							state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
+							state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
 							      */
 						}
 						else {
@@ -2699,7 +2699,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 		}
 
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
-			state = (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry);
+			state = (uint8)MBCS_ENTRY_TRANSITION_STATE(entry);
 			offset += MBCS_ENTRY_TRANSITION_OFFSET(entry);
 			continue;
 		}
@@ -2708,13 +2708,13 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 		cnv->mode = state;
 
 		/* set the next state early so that we can reuse the entry variable */
-		state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
+		state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
 
 		/*
 		 * An if-else-if chain provides more reliable performance for
 		 * the most common cases compared to a switch.
 		 */
-		action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+		action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 		if(action==MBCS_STATE_VALID_16) {
 			offset += MBCS_ENTRY_FINAL_VALUE_16(entry);
 			c = unicodeCodeUnits[offset];
@@ -2837,7 +2837,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 			}
 			else {
 				/* SI/SO are illegal for DBCS-only conversion */
-				state = (uint8_t)(cnv->mode); /* restore the previous state */
+				state = (uint8)(cnv->mode); /* restore the previous state */
 
 				/* callback(illegal) */
 				*pErrorCode = U_ILLEGAL_CHAR_FOUND;
@@ -2889,7 +2889,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				if(i<byteIndex) {
 					/* Back out some bytes. */
 					int8_t backOutDistance = byteIndex-i;
-					int32_t bytesFromThisBuffer = (int32_t)(source-(const uint8_t*)pArgs->source);
+					int32_t bytesFromThisBuffer = (int32_t)(source-(const uint8*)pArgs->source);
 					byteIndex = i; /* length of reported illegal byte sequence */
 					if(backOutDistance<=bytesFromThisBuffer) {
 						source -= backOutDistance;
@@ -2899,7 +2899,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 						cnv->preToULength = (int8_t)(bytesFromThisBuffer-backOutDistance);
 						/* preToULength is negative! */
 						uprv_memcpy(cnv->preToU, bytes+i, -cnv->preToULength);
-						source = (const uint8_t*)pArgs->source;
+						source = (const uint8*)pArgs->source;
 					}
 				}
 			}
@@ -2914,7 +2914,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				&offsets, sourceIndex,
 				pArgs->flush,
 				pErrorCode);
-			sourceIndex = nextSourceIndex += (int32_t)(source-(const uint8_t*)pArgs->source);
+			sourceIndex = nextSourceIndex += (int32_t)(source-(const uint8*)pArgs->source);
 
 			if(U_FAILURE(*pErrorCode)) {
 				/* not mappable or buffer overflow */
@@ -2942,15 +2942,15 @@ static UChar32 ucnv_MBCSSingleGetNextUChar(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const int32_t(*stateTable)[256];
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 
 	int32_t entry;
-	uint8_t action;
+	uint8 action;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	if((cnv->options&UCNV_OPTION_SWAP_LFNL)!=0) {
 		stateTable = (const int32_t(*)[256])cnv->sharedData->mbcs.swapLFNLStateTable;
 	}
@@ -2975,7 +2975,7 @@ static UChar32 ucnv_MBCSSingleGetNextUChar(UConverterToUnicodeArgs * pArgs,
 		 * An if-else-if chain provides more reliable performance for
 		 * the most common cases compared to a switch.
 		 */
-		action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+		action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 		if(action==MBCS_STATE_VALID_DIRECT_20 ||
 		    (action==MBCS_STATE_FALLBACK_DIRECT_20 && UCNV_TO_U_USE_FALLBACK(cnv))
 		    ) {
@@ -3031,17 +3031,17 @@ static UChar32 ucnv_MBCSSingleGetNextUChar(UConverterToUnicodeArgs * pArgs,
 static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit, * lastSource;
+	const uint8 * source, * sourceLimit, * lastSource;
 
 	const int32_t(*stateTable)[256];
 	const uint16_t * unicodeCodeUnits;
 
 	uint32_t offset;
-	uint8_t state;
+	uint8 state;
 
 	int32_t entry;
 	UChar32 c;
-	uint8_t action;
+	uint8 action;
 
 	/* use optimized function if possible */
 	cnv = pArgs->converter;
@@ -3064,8 +3064,8 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 	}
 
 	/* set up the local pointers */
-	source = lastSource = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = lastSource = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 
 	if((cnv->options&UCNV_OPTION_SWAP_LFNL)!=0) {
 		stateTable = (const int32_t(*)[256])cnv->sharedData->mbcs.swapLFNLStateTable;
@@ -3083,7 +3083,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 	 * then load the DBCS state from the MBCS data
 	 * (dbcsOnlyState==0 if it is not a DBCS-only converter)
 	 */
-	if((state = (uint8_t)(cnv->mode))==0) {
+	if((state = (uint8)(cnv->mode))==0) {
 		state = cnv->sharedData->mbcs.dbcsOnlyState;
 	}
 
@@ -3092,7 +3092,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 	while(source<sourceLimit) {
 		entry = stateTable[state][*source++];
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
-			state = (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry);
+			state = (uint8)MBCS_ENTRY_TRANSITION_STATE(entry);
 			offset += MBCS_ENTRY_TRANSITION_OFFSET(entry);
 
 			/* optimization for 1/2-byte input and BMP output */
@@ -3102,7 +3102,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 			    (c = unicodeCodeUnits[offset+MBCS_ENTRY_FINAL_VALUE_16(entry)])<0xfffe
 			    ) {
 				++source;
-				state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
+				state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
 				/* output BMP code point */
 				break;
 			}
@@ -3112,13 +3112,13 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 			cnv->mode = state;
 
 			/* set the next state early so that we can reuse the entry variable */
-			state = (uint8_t)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
+			state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
 
 			/*
 			 * An if-else-if chain provides more reliable performance for
 			 * the most common cases compared to a switch.
 			 */
-			action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+			action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 			if(action==MBCS_STATE_VALID_DIRECT_16) {
 				/* output BMP code point */
 				c = (UChar)MBCS_ENTRY_FINAL_VALUE_16(entry);
@@ -3181,7 +3181,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 				 */
 				if(cnv->sharedData->mbcs.dbcsOnlyState!=0) {
 					/* SI/SO are illegal for DBCS-only conversion */
-					state = (uint8_t)(cnv->mode); /* restore the previous state */
+					state = (uint8)(cnv->mode); /* restore the previous state */
 
 					/* callback(illegal) */
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
@@ -3228,7 +3228,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 	if(c<0) {
 		if(U_SUCCESS(*pErrorCode) && source==sourceLimit && lastSource<source) {
 			/* incomplete character byte sequence */
-			uint8_t * bytes = cnv->toUBytes;
+			uint8 * bytes = cnv->toUBytes;
 			cnv->toULength = (int8_t)(source-lastSource);
 			do {
 				*bytes++ = *lastSource++;
@@ -3244,7 +3244,7 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
 			 *   we stop the illegal sequence before the first one of those.
 			 */
 			bool isDBCSOnly = (bool)(cnv->sharedData->mbcs.dbcsOnlyState!=0);
-			uint8_t * bytes = cnv->toUBytes;
+			uint8 * bytes = cnv->toUBytes;
 			*bytes++ = *lastSource++; /* first byte */
 			if(lastSource==source) {
 				cnv->toULength = 1;
@@ -3288,9 +3288,9 @@ static UChar32 U_CALLCONV ucnv_MBCSGetNextUChar(UConverterToUnicodeArgs * pArgs,
  * It does not handle conversion extensions (_extToU()).
  */
 U_CFUNC UChar32 ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData * sharedData,
-    uint8_t b, bool useFallback) {
+    uint8 b, bool useFallback) {
 	int32_t entry;
-	uint8_t action;
+	uint8 action;
 
 	entry = sharedData->mbcs.stateTable[0][b];
 	/* MBCS_ENTRY_IS_FINAL(entry) */
@@ -3304,7 +3304,7 @@ U_CFUNC UChar32 ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData * sharedD
 	 * An if-else-if chain provides more reliable performance for
 	 * the most common cases compared to a switch.
 	 */
-	action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+	action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 	if(action==MBCS_STATE_VALID_DIRECT_20) {
 		/* output supplementary code point */
 		return 0x10000+MBCS_ENTRY_FINAL_VALUE(entry);
@@ -3357,7 +3357,7 @@ U_CFUNC UChar32 ucnv_MBCSSimpleGetNextUChar(UConverterSharedData * sharedData,
 	const uint16_t * unicodeCodeUnits;
 
 	uint32_t offset;
-	uint8_t state, action;
+	uint8 state, action;
 
 	UChar32 c;
 	int32_t i, entry;
@@ -3377,7 +3377,7 @@ U_CFUNC UChar32 ucnv_MBCSSimpleGetNextUChar(UConverterSharedData * sharedData,
 	/* use optimized function if possible */
 	if(sharedData->mbcs.countStates==1) {
 		if(length==1) {
-			return ucnv_MBCSSingleSimpleGetNextUChar(sharedData, (uint8_t)*source, useFallback);
+			return ucnv_MBCSSingleSimpleGetNextUChar(sharedData, (uint8)*source, useFallback);
 		}
 		else {
 			return 0xffff; /* illegal: more than a single byte for an SBCS converter */
@@ -3395,9 +3395,9 @@ U_CFUNC UChar32 ucnv_MBCSSimpleGetNextUChar(UConverterSharedData * sharedData,
 
 	/* conversion loop */
 	for(i = 0;;) {
-		entry = stateTable[state][(uint8_t)source[i++]];
+		entry = stateTable[state][(uint8)source[i++]];
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
-			state = (uint8_t)MBCS_ENTRY_TRANSITION_STATE(entry);
+			state = (uint8)MBCS_ENTRY_TRANSITION_STATE(entry);
 			offset += MBCS_ENTRY_TRANSITION_OFFSET(entry);
 
 			if(i==length) {
@@ -3409,7 +3409,7 @@ U_CFUNC UChar32 ucnv_MBCSSimpleGetNextUChar(UConverterSharedData * sharedData,
 			 * An if-else-if chain provides more reliable performance for
 			 * the most common cases compared to a switch.
 			 */
-			action = (uint8_t)(MBCS_ENTRY_FINAL_ACTION(entry));
+			action = (uint8)(MBCS_ENTRY_FINAL_ACTION(entry));
 			if(action==MBCS_STATE_VALID_16) {
 				offset += MBCS_ENTRY_FINAL_VALUE_16(entry);
 				c = unicodeCodeUnits[offset];
@@ -3508,13 +3508,13 @@ static void ucnv_MBCSDoubleFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pA
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
 
 	const uint16_t * table;
 	const uint16_t * mbcsIndex;
-	const uint8_t * bytes;
+	const uint8 * bytes;
 
 	UChar32 c;
 
@@ -3523,7 +3523,7 @@ static void ucnv_MBCSDoubleFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pA
 	uint32_t stage2Entry;
 	uint32_t asciiRoundtrips;
 	uint32_t value;
-	uint8_t unicodeMask;
+	uint8 unicodeMask;
 
 	/* use optimized function if possible */
 	cnv = pArgs->converter;
@@ -3532,7 +3532,7 @@ static void ucnv_MBCSDoubleFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pA
 	/* set up the local pointers */
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -3576,7 +3576,7 @@ static void ucnv_MBCSDoubleFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pA
 			c = *source++;
 			++nextSourceIndex;
 			if(c<=0x7f && IS_ASCII_ROUNDTRIP(c, asciiRoundtrips)) {
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				if(offsets) {
 					*offsets++ = sourceIndex;
 					sourceIndex = nextSourceIndex;
@@ -3693,16 +3693,16 @@ unassigned:
 			/* from the first if in the loop we know that targetCapacity>0 */
 			if(value<=0xff) {
 				/* this is easy because we know that there is enough space */
-				*target++ = (uint8_t)value;
+				*target++ = (uint8)value;
 				if(offsets) {
 					*offsets++ = sourceIndex;
 				}
 				--targetCapacity;
 			}
 			else { /* length==2 */
-				*target++ = (uint8_t)(value>>8);
+				*target++ = (uint8)(value>>8);
 				if(2<=targetCapacity) {
-					*target++ = (uint8_t)value;
+					*target++ = (uint8)value;
 					if(offsets) {
 						*offsets++ = sourceIndex;
 						*offsets++ = sourceIndex;
@@ -3750,7 +3750,7 @@ static void ucnv_MBCSSingleFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pA
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
 
@@ -3768,7 +3768,7 @@ static void ucnv_MBCSSingleFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pA
 	cnv = pArgs->converter;
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -3866,7 +3866,7 @@ getTrail:
 				/* assigned, write the output character bytes from value and length */
 				/* length==1 */
 				/* this is easy because we know that there is enough space */
-				*target++ = (uint8_t)value;
+				*target++ = (uint8)value;
 				if(offsets) {
 					*offsets++ = sourceIndex;
 				}
@@ -3934,7 +3934,7 @@ static void ucnv_MBCSSingleFromBMPWithOffsets(UConverterFromUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit, * lastSource;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
 
@@ -3952,7 +3952,7 @@ static void ucnv_MBCSSingleFromBMPWithOffsets(UConverterFromUnicodeArgs * pArgs,
 	cnv = pArgs->converter;
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -3982,7 +3982,7 @@ static void ucnv_MBCSSingleFromBMPWithOffsets(UConverterFromUnicodeArgs * pArgs,
 	lastSource = source;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8_t, we need only one counter
+	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -4007,16 +4007,16 @@ unrolled:
 		do {
 			c = *source++;
 			andedValues = value = MBCS_SINGLE_RESULT_FROM_U(table, results, c);
-			*target++ = (uint8_t)value;
+			*target++ = (uint8)value;
 			c = *source++;
 			andedValues &= value = MBCS_SINGLE_RESULT_FROM_U(table, results, c);
-			*target++ = (uint8_t)value;
+			*target++ = (uint8)value;
 			c = *source++;
 			andedValues &= value = MBCS_SINGLE_RESULT_FROM_U(table, results, c);
-			*target++ = (uint8_t)value;
+			*target++ = (uint8)value;
 			c = *source++;
 			andedValues &= value = MBCS_SINGLE_RESULT_FROM_U(table, results, c);
-			*target++ = (uint8_t)value;
+			*target++ = (uint8)value;
 
 			/* were all 4 entries really valid? */
 			if(andedValues<minValue) {
@@ -4058,7 +4058,7 @@ unrolled:
 		 */
 		/* convert the Unicode code point in c into codepage bytes */
 		if(c<=0x7f && IS_ASCII_ROUNDTRIP(c, asciiRoundtrips)) {
-			*target++ = (uint8_t)c;
+			*target++ = (uint8)c;
 			--targetCapacity;
 			c = 0;
 			continue;
@@ -4069,7 +4069,7 @@ unrolled:
 			/* assigned, write the output character bytes from value and length */
 			/* length==1 */
 			/* this is easy because we know that there is enough space */
-			*target++ = (uint8_t)value;
+			*target++ = (uint8)value;
 			--targetCapacity;
 
 			/* normal end of conversion: prepare for a new character */
@@ -4135,7 +4135,7 @@ getTrail:
 		lastSource = source;
 		c = _extFromU(cnv, cnv->sharedData,
 			c, &source, sourceLimit,
-			&target, (const uint8_t*)(pArgs->targetLimit),
+			&target, (const uint8*)(pArgs->targetLimit),
 			&offsets, sourceIndex,
 			pArgs->flush,
 			pErrorCode);
@@ -4163,7 +4163,7 @@ getTrail:
 #endif
 	}
 
-	if(U_SUCCESS(*pErrorCode) && source<sourceLimit && target>=(uint8_t*)pArgs->targetLimit) {
+	if(U_SUCCESS(*pErrorCode) && source<sourceLimit && target>=(uint8 *)pArgs->targetLimit) {
 		/* target is full */
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 	}
@@ -4198,14 +4198,14 @@ U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
 
 	const uint16_t * table;
 	const uint16_t * mbcsIndex;
-	const uint8_t * p, * bytes;
-	uint8_t outputType;
+	const uint8 * p, * bytes;
+	uint8 outputType;
 
 	UChar32 c;
 
@@ -4215,11 +4215,11 @@ U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
 	uint32_t asciiRoundtrips;
 	uint32_t value;
 	/* Shift-In and Shift-Out byte sequences differ by encoding scheme. */
-	uint8_t siBytes[2] = {0, 0};
-	uint8_t soBytes[2] = {0, 0};
-	uint8_t siLength, soLength;
+	uint8 siBytes[2] = {0, 0};
+	uint8 soBytes[2] = {0, 0};
+	uint8 siLength, soLength;
 	int32_t length = 0, prevLength;
-	uint8_t unicodeMask;
+	uint8 unicodeMask;
 
 	cnv = pArgs->converter;
 
@@ -4255,7 +4255,7 @@ U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
 	/* set up the local pointers */
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -4295,8 +4295,8 @@ U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
 	nextSourceIndex = 0;
 
 	/* Get the SI/SO character for the converter */
-	siLength = static_cast<uint8_t>(getSISOBytes(SI, cnv->options, siBytes));
-	soLength = static_cast<uint8_t>(getSISOBytes(SO, cnv->options, soBytes));
+	siLength = static_cast<uint8>(getSISOBytes(SI, cnv->options, siBytes));
+	soLength = static_cast<uint8>(getSISOBytes(SO, cnv->options, soBytes));
 
 	/* conversion loop */
 	/*
@@ -4334,7 +4334,7 @@ U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
 			c = *source++;
 			++nextSourceIndex;
 			if(c<=0x7f && IS_ASCII_ROUNDTRIP(c, asciiRoundtrips)) {
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				if(offsets) {
 					*offsets++ = sourceIndex;
 					prevSourceIndex = sourceIndex;
@@ -4833,16 +4833,16 @@ unassigned:
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 4:
-						    *target++ = (uint8_t)(value>>24);
+						    *target++ = (uint8)(value>>24);
 						    U_FALLTHROUGH;
 						case 3:
-						    *target++ = (uint8_t)(value>>16);
+						    *target++ = (uint8)(value>>16);
 						    U_FALLTHROUGH;
 						case 2:
-						    *target++ = (uint8_t)(value>>8);
+						    *target++ = (uint8)(value>>8);
 						    U_FALLTHROUGH;
 						case 1:
-						    *target++ = (uint8_t)value;
+						    *target++ = (uint8)value;
 						    U_FALLTHROUGH;
 						default:
 						    /* will never occur */
@@ -4853,19 +4853,19 @@ unassigned:
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 4:
-						    *target++ = (uint8_t)(value>>24);
+						    *target++ = (uint8)(value>>24);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 3:
-						    *target++ = (uint8_t)(value>>16);
+						    *target++ = (uint8)(value>>16);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 2:
-						    *target++ = (uint8_t)(value>>8);
+						    *target++ = (uint8)(value>>8);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 1:
-						    *target++ = (uint8_t)value;
+						    *target++ = (uint8)value;
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						default:
@@ -4876,7 +4876,7 @@ unassigned:
 				targetCapacity -= length;
 			}
 			else {
-				uint8_t * charErrorBuffer;
+				uint8 * charErrorBuffer;
 
 				/*
 				 * We actually do this backwards here:
@@ -4886,17 +4886,17 @@ unassigned:
 				 */
 				/* we know that 1<=targetCapacity<length<=4 */
 				length -= targetCapacity;
-				charErrorBuffer = (uint8_t*)cnv->charErrorBuffer;
+				charErrorBuffer = (uint8 *)cnv->charErrorBuffer;
 				switch(length) {
 					/* each branch falls through to the next one */
 					case 3:
-					    *charErrorBuffer++ = (uint8_t)(value>>16);
+					    *charErrorBuffer++ = (uint8)(value>>16);
 					    U_FALLTHROUGH;
 					case 2:
-					    *charErrorBuffer++ = (uint8_t)(value>>8);
+					    *charErrorBuffer++ = (uint8)(value>>8);
 					    U_FALLTHROUGH;
 					case 1:
-					    *charErrorBuffer = (uint8_t)value;
+					    *charErrorBuffer = (uint8)value;
 					    U_FALLTHROUGH;
 					default:
 					    /* will never occur */
@@ -4909,19 +4909,19 @@ unassigned:
 				switch(targetCapacity) {
 					/* each branch falls through to the next one */
 					case 3:
-					    *target++ = (uint8_t)(value>>16);
+					    *target++ = (uint8)(value>>16);
 					    if(offsets) {
 						    *offsets++ = sourceIndex;
 					    }
 					    U_FALLTHROUGH;
 					case 2:
-					    *target++ = (uint8_t)(value>>8);
+					    *target++ = (uint8)(value>>8);
 					    if(offsets) {
 						    *offsets++ = sourceIndex;
 					    }
 					    U_FALLTHROUGH;
 					case 1:
-					    *target++ = (uint8_t)value;
+					    *target++ = (uint8)value;
 					    if(offsets) {
 						    *offsets++ = sourceIndex;
 					    }
@@ -4969,15 +4969,15 @@ unassigned:
 	    ) {
 		/* EBCDIC_STATEFUL ending with DBCS: emit an SI to return the output stream to SBCS */
 		if(targetCapacity>0) {
-			*target++ = (uint8_t)siBytes[0];
+			*target++ = (uint8)siBytes[0];
 			if(siLength == 2) {
 				if(targetCapacity<2) {
-					cnv->charErrorBuffer[0] = (uint8_t)siBytes[1];
+					cnv->charErrorBuffer[0] = (uint8)siBytes[1];
 					cnv->charErrorBufferLength = 1;
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 				}
 				else {
-					*target++ = (uint8_t)siBytes[1];
+					*target++ = (uint8)siBytes[1];
 				}
 			}
 			if(offsets) {
@@ -4987,9 +4987,9 @@ unassigned:
 		}
 		else {
 			/* target is full */
-			cnv->charErrorBuffer[0] = (uint8_t)siBytes[0];
+			cnv->charErrorBuffer[0] = (uint8)siBytes[0];
 			if(siLength == 2) {
-				cnv->charErrorBuffer[1] = (uint8_t)siBytes[1];
+				cnv->charErrorBuffer[1] = (uint8)siBytes[1];
 			}
 			cnv->charErrorBufferLength = siLength;
 			*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -5031,7 +5031,7 @@ U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData,
 	const uint16_t * table;
 #if 0
 /* #if 0 because this is not currently used in ICU - reduce code, increase code coverage */
-	const uint8_t * p;
+	const uint8 * p;
 #endif
 	uint32_t stage2Entry;
 	uint32_t value;
@@ -5228,8 +5228,8 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
     UConverterToUnicodeArgs * pToUArgs,
     UErrorCode * pErrorCode) {
 	UConverter * utf8, * cnv;
-	const uint8_t * source, * sourceLimit;
-	uint8_t * target;
+	const uint8 * source, * sourceLimit;
+	uint8 * target;
 	int32_t targetCapacity;
 
 	const uint16_t * table, * sbcsIndex;
@@ -5238,7 +5238,7 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 	int8_t oldToULength, toULength, toULimit;
 
 	UChar32 c;
-	uint8_t b, t1, t2;
+	uint8 b, t1, t2;
 
 	uint32_t asciiRoundtrips;
 	uint16_t value, minValue = 0;
@@ -5247,9 +5247,9 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 	/* set up the local pointers */
 	utf8 = pToUArgs->converter;
 	cnv = pFromUArgs->converter;
-	source = (uint8_t*)pToUArgs->source;
-	sourceLimit = (uint8_t*)pToUArgs->sourceLimit;
-	target = (uint8_t*)pFromUArgs->target;
+	source = (uint8 *)pToUArgs->source;
+	sourceLimit = (uint8 *)pToUArgs->sourceLimit;
+	target = (uint8 *)pFromUArgs->target;
 	targetCapacity = (int32_t)(pFromUArgs->targetLimit-pFromUArgs->target);
 
 	table = cnv->sharedData->mbcs.fromUnicodeTable;
@@ -5292,12 +5292,12 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 		// sequence from the previous buffer.
 		int32_t length = (int32_t)(sourceLimit-source) - (toULimit-oldToULength);
 		if(length>0) {
-			uint8_t b1 = *(sourceLimit-1);
+			uint8 b1 = *(sourceLimit-1);
 			if(U8_IS_SINGLE(b1)) {
 				// common ASCII character
 			}
 			else if(U8_IS_TRAIL(b1) && length>=2) {
-				uint8_t b2 = *(sourceLimit-2);
+				uint8 b2 = *(sourceLimit-2);
 				if(0xe0<=b2 && b2<0xf0 && U8_IS_VALID_LEAD3_AND_T1(b2, b1)) {
 					// truncated 3-byte sequence
 					sourceLimit -= 2;
@@ -5342,7 +5342,7 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 			if(U8_IS_SINGLE(b)) {
 				/* convert ASCII */
 				if(IS_ASCII_ROUNDTRIP(b, asciiRoundtrips)) {
-					*target++ = (uint8_t)b;
+					*target++ = (uint8)b;
 					--targetCapacity;
 					continue;
 				}
@@ -5355,13 +5355,13 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 				if(b<0xe0) {
 					if( /* handle U+0080..U+07FF inline */
 						b>=0xc2 &&
-						(t1 = (uint8_t)(*source-0x80)) <= 0x3f
+						(t1 = (uint8)(*source-0x80)) <= 0x3f
 						) {
 						c = b&0x1f;
 						++source;
 						value = SBCS_RESULT_FROM_UTF8(sbcsIndex, results, c, t1);
 						if(value>=minValue) {
-							*target++ = (uint8_t)value;
+							*target++ = (uint8)value;
 							--targetCapacity;
 							continue;
 						}
@@ -5375,14 +5375,14 @@ static void U_CALLCONV ucnv_SBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 				}
 				else if(b==0xe0) {
 					if( /* handle U+0800..U+0FFF inline */
-						(t1 = (uint8_t)(source[0]-0x80)) <= 0x3f && t1 >= 0x20 &&
-						(t2 = (uint8_t)(source[1]-0x80)) <= 0x3f
+						(t1 = (uint8)(source[0]-0x80)) <= 0x3f && t1 >= 0x20 &&
+						(t2 = (uint8)(source[1]-0x80)) <= 0x3f
 						) {
 						c = t1;
 						source += 2;
 						value = SBCS_RESULT_FROM_UTF8(sbcsIndex, results, c, t2);
 						if(value>=minValue) {
-							*target++ = (uint8_t)value;
+							*target++ = (uint8)value;
 							--targetCapacity;
 							continue;
 						}
@@ -5413,7 +5413,7 @@ moreBytes:
 						 * sequences at the end.
 						 * See ticket #7492.
 						 */
-						if(source<(uint8_t*)pToUArgs->sourceLimit) {
+						if(source<(uint8 *)pToUArgs->sourceLimit) {
 							b = *source;
 							if(icu::UTF8::isValidTrail(c, b, toULength, toULimit)) {
 								++source;
@@ -5475,7 +5475,7 @@ moreBytes:
 
 			if(value>=minValue) {
 				/* output the mapping for c */
-				*target++ = (uint8_t)value;
+				*target++ = (uint8)value;
 				--targetCapacity;
 			}
 			else {
@@ -5532,7 +5532,7 @@ moreBytes:
 	 */
 	if(U_SUCCESS(*pErrorCode) &&
 	    cnv->preFromUFirstCP<0 &&
-	    source<(sourceLimit = (uint8_t*)pToUArgs->sourceLimit)) {
+	    source<(sourceLimit = (uint8 *)pToUArgs->sourceLimit)) {
 		c = utf8->toUBytes[0] = b = *source++;
 		toULength = 1;
 		toULimit = U8_COUNT_BYTES(b);
@@ -5554,8 +5554,8 @@ static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
     UConverterToUnicodeArgs * pToUArgs,
     UErrorCode * pErrorCode) {
 	UConverter * utf8, * cnv;
-	const uint8_t * source, * sourceLimit;
-	uint8_t * target;
+	const uint8 * source, * sourceLimit;
+	uint8 * target;
 	int32_t targetCapacity;
 
 	const uint16_t * table, * mbcsIndex;
@@ -5564,7 +5564,7 @@ static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 	int8_t oldToULength, toULength, toULimit;
 
 	UChar32 c;
-	uint8_t b, t1, t2;
+	uint8 b, t1, t2;
 
 	uint32_t stage2Entry;
 	uint32_t asciiRoundtrips;
@@ -5574,9 +5574,9 @@ static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 	/* set up the local pointers */
 	utf8 = pToUArgs->converter;
 	cnv = pFromUArgs->converter;
-	source = (uint8_t*)pToUArgs->source;
-	sourceLimit = (uint8_t*)pToUArgs->sourceLimit;
-	target = (uint8_t*)pFromUArgs->target;
+	source = (uint8 *)pToUArgs->source;
+	sourceLimit = (uint8 *)pToUArgs->sourceLimit;
+	target = (uint8 *)pFromUArgs->target;
 	targetCapacity = (int32_t)(pFromUArgs->targetLimit-pFromUArgs->target);
 
 	table = cnv->sharedData->mbcs.fromUnicodeTable;
@@ -5611,12 +5611,12 @@ static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 		// sequence from the previous buffer.
 		int32_t length = (int32_t)(sourceLimit-source) - (toULimit-oldToULength);
 		if(length>0) {
-			uint8_t b1 = *(sourceLimit-1);
+			uint8 b1 = *(sourceLimit-1);
 			if(U8_IS_SINGLE(b1)) {
 				// common ASCII character
 			}
 			else if(U8_IS_TRAIL(b1) && length>=2) {
-				uint8_t b2 = *(sourceLimit-2);
+				uint8 b2 = *(sourceLimit-2);
 				if(0xe0<=b2 && b2<0xf0 && U8_IS_VALID_LEAD3_AND_T1(b2, b1)) {
 					// truncated 3-byte sequence
 					sourceLimit -= 2;
@@ -5660,7 +5660,7 @@ static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 					if( /* handle U+0800..U+D7FF inline */
 						b<=0xed && // do not assume maxFastUChar>0xd7ff
 						U8_IS_VALID_LEAD3_AND_T1(b, t1 = source[0]) &&
-						(t2 = (uint8_t)(source[1]-0x80)) <= 0x3f
+						(t2 = (uint8)(source[1]-0x80)) <= 0x3f
 						) {
 						c = ((b&0xf)<<6)|(t1&0x3f);
 						source += 2;
@@ -5677,7 +5677,7 @@ static void U_CALLCONV ucnv_DBCSFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 				else {
 					if( /* handle U+0080..U+07FF inline */
 						b>=0xc2 &&
-						(t1 = (uint8_t)(*source-0x80)) <= 0x3f
+						(t1 = (uint8)(*source-0x80)) <= 0x3f
 						) {
 						c = b&0x1f;
 						++source;
@@ -5707,7 +5707,7 @@ moreBytes:
 						 * sequences at the end.
 						 * See ticket #7492.
 						 */
-						if(source<(uint8_t*)pToUArgs->sourceLimit) {
+						if(source<(uint8 *)pToUArgs->sourceLimit) {
 							b = *source;
 							if(icu::UTF8::isValidTrail(c, b, toULength, toULimit)) {
 								++source;
@@ -5782,13 +5782,13 @@ moreBytes:
 			/* from the first if in the loop we know that targetCapacity>0 */
 			if(value<=0xff) {
 				/* this is easy because we know that there is enough space */
-				*target++ = (uint8_t)value;
+				*target++ = (uint8)value;
 				--targetCapacity;
 			}
 			else { /* length==2 */
-				*target++ = (uint8_t)(value>>8);
+				*target++ = (uint8)(value>>8);
 				if(2<=targetCapacity) {
-					*target++ = (uint8_t)value;
+					*target++ = (uint8)value;
 					targetCapacity -= 2;
 				}
 				else {
@@ -5857,7 +5857,7 @@ unassigned:
 	 */
 	if(U_SUCCESS(*pErrorCode) &&
 	    cnv->preFromUFirstCP<0 &&
-	    source<(sourceLimit = (uint8_t*)pToUArgs->sourceLimit)) {
+	    source<(sourceLimit = (uint8 *)pToUArgs->sourceLimit)) {
 		c = utf8->toUBytes[0] = b = *source++;
 		toULength = 1;
 		toULimit = U8_COUNT_BYTES(b);
@@ -5895,7 +5895,7 @@ static void U_CALLCONV ucnv_MBCSGetStarters(const UConverter * cnv,
  * to check whether a byte is a lead byte.
  */
 U_CFUNC bool ucnv_MBCSIsLeadByte(UConverterSharedData * sharedData, char byte) {
-	return (bool)MBCS_ENTRY_IS_TRANSITION(sharedData->mbcs.stateTable[0][(uint8_t)byte]);
+	return (bool)MBCS_ENTRY_IS_TRANSITION(sharedData->mbcs.stateTable[0][(uint8)byte]);
 }
 
 static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs,

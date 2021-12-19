@@ -116,9 +116,9 @@ static void TestOpenFromSource()
 {
 	// No TEST_SETUP because that calls uspoof_open().
 	UErrorCode status = U_ZERO_ERROR;
-	char       * confusables;
+	char * confusables;
 	int confusablesLength = 0;
-	char       * confusablesWholeScript;
+	char * confusablesWholeScript;
 	int confusablesWholeScriptLength = 0;
 	FILE       * f;
 	UParseError pe;
@@ -126,7 +126,7 @@ static void TestOpenFromSource()
 	int32_t checkResults;
 	USpoofChecker * rsc;
 	const char * dataSrcDir = ctest_dataSrcDir();
-	char       * fileName = (char *)SAlloc::M(strlen(dataSrcDir) + 100);
+	char * fileName = (char *)SAlloc::M(strlen(dataSrcDir) + 100);
 	strcpy(fileName, dataSrcDir);
 	strcat(fileName, U_FILE_SEP_STRING "unidata" U_FILE_SEP_STRING "confusables.txt");
 	f = fopen(fileName, "rb");

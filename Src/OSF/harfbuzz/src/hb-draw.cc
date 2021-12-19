@@ -93,24 +93,24 @@ void hb_draw_funcs_set_close_path_func(hb_draw_funcs_t * funcs, hb_draw_close_pa
 	funcs->close_path = close_path;
 }
 
-static void _move_to_nil(hb_position_t to_x HB_UNUSED, hb_position_t to_y HB_UNUSED, void * user_data HB_UNUSED) {
+static void _move_to_nil(hb_position_t to_x CXX_UNUSED_PARAM, hb_position_t to_y CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM) {
 }
 
-static void _line_to_nil(hb_position_t to_x HB_UNUSED, hb_position_t to_y HB_UNUSED, void * user_data HB_UNUSED) {
+static void _line_to_nil(hb_position_t to_x CXX_UNUSED_PARAM, hb_position_t to_y CXX_UNUSED_PARAM, void * user_data CXX_UNUSED_PARAM) {
 }
 
-static void _quadratic_to_nil(hb_position_t control_x HB_UNUSED, hb_position_t control_y HB_UNUSED,
-    hb_position_t to_x HB_UNUSED, hb_position_t to_y HB_UNUSED,
-    void * user_data HB_UNUSED) {
+static void _quadratic_to_nil(hb_position_t control_x CXX_UNUSED_PARAM, hb_position_t control_y CXX_UNUSED_PARAM,
+    hb_position_t to_x CXX_UNUSED_PARAM, hb_position_t to_y CXX_UNUSED_PARAM,
+    void * user_data CXX_UNUSED_PARAM) {
 }
 
-static void _cubic_to_nil(hb_position_t control1_x HB_UNUSED, hb_position_t control1_y HB_UNUSED,
-    hb_position_t control2_x HB_UNUSED, hb_position_t control2_y HB_UNUSED,
-    hb_position_t to_x HB_UNUSED, hb_position_t to_y HB_UNUSED,
-    void * user_data HB_UNUSED) {
+static void _cubic_to_nil(hb_position_t control1_x CXX_UNUSED_PARAM, hb_position_t control1_y CXX_UNUSED_PARAM,
+    hb_position_t control2_x CXX_UNUSED_PARAM, hb_position_t control2_y CXX_UNUSED_PARAM,
+    hb_position_t to_x CXX_UNUSED_PARAM, hb_position_t to_y CXX_UNUSED_PARAM,
+    void * user_data CXX_UNUSED_PARAM) {
 }
 
-static void _close_path_nil(void * user_data HB_UNUSED) {
+static void _close_path_nil(void * user_data CXX_UNUSED_PARAM) {
 }
 
 /**

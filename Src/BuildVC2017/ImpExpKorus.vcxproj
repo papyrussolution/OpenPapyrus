@@ -790,6 +790,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPEquip\EquipDll\ImpExpKorus.cpp" />
+    <ClCompile Include="..\PPLib\ppedi-base.cpp" />
     <ClCompile Include="..\Soap\Client\Korus\korusC.cpp" />
     <ClCompile Include="..\Soap\Client\Korus\korusEDIWebServiceSoapProxy.cpp" />
   </ItemGroup>

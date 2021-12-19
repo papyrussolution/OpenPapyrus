@@ -295,13 +295,13 @@ static uint32 * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32 * 
 					double pdx, pdy, invv2, b, c;
 					invv2 = 1. * pixman_fixed_1 / v.vector[2];
 					pdx = v.vector[0] * invv2 - radial->c1.x;
-					/*    / pixman_fixed_1 */
+					/* / pixman_fixed_1 */
 					pdy = v.vector[1] * invv2 - radial->c1.y;
-					/*    / pixman_fixed_1 */
+					/* / pixman_fixed_1 */
 					b = fdot(pdx, pdy, radial->c1.radius, radial->delta.x, radial->delta.y, radial->delta.radius);
-					/*  / pixman_fixed_1 / pixman_fixed_1 */
+					/* / pixman_fixed_1 / pixman_fixed_1 */
 					c = fdot(pdx, pdy, -radial->c1.radius, pdx, pdy, radial->c1.radius);
-					/*  / pixman_fixed_1 / pixman_fixed_1 */
+					/* / pixman_fixed_1 / pixman_fixed_1 */
 					*buffer = radial_compute_color(radial->a, b, c, radial->inva,
 						radial->delta.radius, radial->mindr, &walker, image->common.repeat);
 				}

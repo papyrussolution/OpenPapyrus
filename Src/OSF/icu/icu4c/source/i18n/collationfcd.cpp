@@ -16,7 +16,7 @@
 
 U_NAMESPACE_BEGIN
 
-const uint8_t CollationFCD::lcccIndex[2048] = {
+const uint8 CollationFCD::lcccIndex[2048] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 0, 0, 0, 0,
 	0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 5, 6, 7, 0,
@@ -159,7 +159,7 @@ const uint32_t CollationFCD::lcccBits[73] = {
 	0x3ffff, 0x3800, 0x80000, 1, 0xc19d0000, 2, 0x400000, 0xc0000fd, 0x5108000
 };
 
-const uint8_t CollationFCD::tcccIndex[2048] = {
+const uint8 CollationFCD::tcccIndex[2048] = {
 	0, 0, 0, 0, 0, 0, 2, 3, 4, 5, 6, 7, 0, 8, 9, 0xa,
 	0xb, 0xc, 0, 0, 0, 0, 0, 0, 1, 1, 0xd, 0xe, 0xf, 0x10, 0x11, 0,
 	0x12, 0x13, 0x14, 0x15, 0x16, 0, 0x17, 0x18, 0, 0, 0, 0, 0x19, 0x1a, 0x1b, 0,

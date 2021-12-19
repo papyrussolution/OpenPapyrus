@@ -289,26 +289,26 @@ struct cab {
 	struct lzx_stream xstrm;
 };
 
-static int      archive_read_format_cab_bid(struct archive_read *, int);
-static int      archive_read_format_cab_options(struct archive_read *,
+static int archive_read_format_cab_bid(struct archive_read *, int);
+static int archive_read_format_cab_options(struct archive_read *,
     const char *, const char *);
-static int      archive_read_format_cab_read_header(struct archive_read *,
+static int archive_read_format_cab_read_header(struct archive_read *,
     struct archive_entry *);
-static int      archive_read_format_cab_read_data(struct archive_read *,
+static int archive_read_format_cab_read_data(struct archive_read *,
     const void **, size_t *, int64 *);
-static int      archive_read_format_cab_read_data_skip(struct archive_read *);
-static int      archive_read_format_cab_cleanup(struct archive_read *);
+static int archive_read_format_cab_read_data_skip(struct archive_read *);
+static int archive_read_format_cab_cleanup(struct archive_read *);
 
-static int      cab_skip_sfx(struct archive_read *);
+static int cab_skip_sfx(struct archive_read *);
 static time_t   cab_dos_time(const uchar *);
-static int      cab_read_data(struct archive_read *, const void **,
+static int cab_read_data(struct archive_read *, const void **,
     size_t *, int64 *);
-static int      cab_read_header(struct archive_read *);
+static int cab_read_header(struct archive_read *);
 static uint32 cab_checksum_cfdata_4(const void *, size_t bytes, uint32);
 static uint32 cab_checksum_cfdata(const void *, size_t bytes, uint32);
 static void     cab_checksum_update(struct archive_read *, size_t);
-static int      cab_checksum_finish(struct archive_read *);
-static int      cab_next_cfdata(struct archive_read *);
+static int cab_checksum_finish(struct archive_read *);
+static int cab_next_cfdata(struct archive_read *);
 static const void * cab_read_ahead_cfdata(struct archive_read *, ssize_t *);
 static const void * cab_read_ahead_cfdata_none(struct archive_read *, ssize_t *);
 static const void * cab_read_ahead_cfdata_deflate(struct archive_read *,
@@ -317,18 +317,18 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read *,
     ssize_t *);
 static int64  cab_consume_cfdata(struct archive_read *, int64);
 static int64  cab_minimum_consume_cfdata(struct archive_read *, int64);
-static int      lzx_decode_init(struct lzx_stream *, int);
-static int      lzx_read_blocks(struct lzx_stream *, int);
-static int      lzx_decode_blocks(struct lzx_stream *, int);
+static int lzx_decode_init(struct lzx_stream *, int);
+static int lzx_read_blocks(struct lzx_stream *, int);
+static int lzx_decode_blocks(struct lzx_stream *, int);
 static void     lzx_decode_free(struct lzx_stream *);
 static void     lzx_translation(struct lzx_stream *, void *, size_t, uint32);
 static void     lzx_cleanup_bitstream(struct lzx_stream *);
-static int      lzx_decode(struct lzx_stream *, int);
-static int      lzx_read_pre_tree(struct lzx_stream *);
-static int      lzx_read_bitlen(struct lzx_stream *, struct lzx_dec::huffman *, int);
-static int      lzx_huffman_init(struct lzx_dec::huffman *, size_t, int);
+static int lzx_decode(struct lzx_stream *, int);
+static int lzx_read_pre_tree(struct lzx_stream *);
+static int lzx_read_bitlen(struct lzx_stream *, struct lzx_dec::huffman *, int);
+static int lzx_huffman_init(struct lzx_dec::huffman *, size_t, int);
 static void     lzx_huffman_free(struct lzx_dec::huffman *);
-static int      lzx_make_huffman_table(struct lzx_dec::huffman *);
+static int lzx_make_huffman_table(struct lzx_dec::huffman *);
 static inline int lzx_decode_huffman(struct lzx_dec::huffman *, unsigned);
 
 int archive_read_support_format_cab(struct archive * _a)
@@ -2032,7 +2032,7 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
  *    bytes. */
 #define lzx_br_read_ahead_0(strm, br, n)        \
 	(lzx_br_has((br), (n)) || lzx_br_fillup(strm, br))
-/*  True  : the cache buffer has some bits as much as we need.
+/* True  : the cache buffer has some bits as much as we need.
  *  False : there are no enough bits in the cache buffer to be used,
  *    we have to get following bytes if we could. */
 #define lzx_br_read_ahead(strm, br, n)  \

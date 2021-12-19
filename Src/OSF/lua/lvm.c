@@ -326,7 +326,7 @@ static int LEnum(const TValue * l, const TValue * r) {
 		if(ttisfloat(r))
 			return luai_numle(lf, fltvalue(r)); /* both are float */
 		else if(luai_numisnan(lf)) /* 'r' is int and 'l' is float */
-			return 0; /*  NaN <= i is always false */
+			return 0; /* NaN <= i is always false */
 		else /* without NaN, (l <= r)  <-->  not(r < l) */
 			return !LTintfloat(ivalue(r), lf); /* not (r < l) ? */
 	}

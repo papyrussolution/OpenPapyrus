@@ -134,7 +134,7 @@ int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 	if(len == 0)
 		return 1;
 	l = (c->Nl + (((HASH_LONG)len) << 3)) & 0xffffffffUL;
-	if(l < c->Nl)           /* overflow */
+	if(l < c->Nl) /* overflow */
 		c->Nh++;
 	c->Nh += (HASH_LONG)(len >> 29); /* might cause compiler warning on 16-bit */
 	c->Nl = l;

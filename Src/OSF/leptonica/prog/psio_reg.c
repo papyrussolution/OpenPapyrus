@@ -36,19 +36,23 @@
  *      - Flate compressed (gzip compression)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
-char *WeaselNames[] = {(char *)"weasel2.4c.png",
-                       (char *)"weasel2.4g.png",
-                       (char *)"weasel2.png",
-                       (char *)"weasel4.11c.png",
-                       (char *)"weasel4.8g.png",
-                       (char *)"weasel4.16g.png",
-                       (char *)"weasel8.16g.png",
-                       (char *)"weasel8.149g.png",
-                       (char *)"weasel8.240c.png",
-                       (char *)"weasel8.png",
-                       (char *)"weasel32.png"};
+static const char *WeaselNames[] = {"weasel2.4c.png",
+                                    "weasel2.4g.png",
+                                    "weasel2.png",
+                                    "weasel4.11c.png",
+                                    "weasel4.8g.png",
+                                    "weasel4.16g.png",
+                                    "weasel8.16g.png",
+                                    "weasel8.149g.png",
+                                    "weasel8.240c.png",
+                                    "weasel8.png",
+                                    "weasel32.png"};
 int main(int    argc,
          char **argv)
 {
@@ -61,8 +65,28 @@ PIXA         *pixa;
 SARRAY       *sa;
 L_REGPARAMS  *rp;
 
+#if !defined(HAVE_LIBPNG)
+    L_ERROR("This test requires libpng to run.\n", "psio_reg");
+    exit(77);
+#endif
+#if !defined(HAVE_LIBJPEG)
+    L_ERROR("This test requires libjpeg to run.\n", "psio_reg");
+    exit(77);
+#endif
+#if !defined(HAVE_LIBTIFF)
+    L_ERROR("This test requires libtiff to run.\n", "psio_reg");
+    exit(77);
+#endif
+
     if (regTestSetup(argc, argv, &rp))
         return 1;
+
+#if !USE_PSIO
+    lept_stderr("psio writing is not enabled\n"
+                "See environ.h: #define USE_PSIO 1\n\n");
+    regTestCleanup(rp);
+    return 0;
+#endif  /* abort */
 
     factor = 0.95;
 

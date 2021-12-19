@@ -121,10 +121,10 @@ typedef struct  SFNT_HeaderRec_ {
  *     The table length (in bytes).
  */
 typedef struct  TT_TableRec_ {
-	FT_ULong Tag; /*        table type */
-	FT_ULong CheckSum; /*    table checksum */
+	FT_ULong Tag; /* table type */
+	FT_ULong CheckSum; /* table checksum */
 	FT_ULong Offset; /* table file offset */
-	FT_ULong Length; /*      table length */
+	FT_ULong Length; /* table length */
 } TT_TableRec, * TT_Table;
 
 /**************************************************************************
@@ -984,7 +984,7 @@ typedef enum TT_SbitTableType_ {
 /* the presence (and validity) of the functionality provided   */
 /* by those tables.  The following flag macros are for the     */
 /* field `variation_support'.                                  */
-/*                                                             */
+/*                                             */
 /* Note that `fvar' gets checked immediately at font loading,  */
 /* while the other features are only loaded if MM support is   */
 /* actually requested.                                         */

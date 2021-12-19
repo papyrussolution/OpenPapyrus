@@ -102,7 +102,7 @@ namespace OT {
 #endif
 		uint get_len() const { return hb_popcount((uint)*this); }
 		uint get_size() const { return get_len() * Value::static_size; }
-		bool apply_value(hb_ot_apply_context_t * c, const void  * base, const Value * values, hb_glyph_position_t   &glyph_pos) const
+		bool apply_value(hb_ot_apply_context_t * c, const void * base, const Value * values, hb_glyph_position_t   &glyph_pos) const
 		{
 			bool ret = false;
 			uint format = *this;
@@ -307,7 +307,7 @@ public:
 	    const hb_map_t * layout_variation_idx_map);
 
 	struct AnchorFormat1 {
-		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id HB_UNUSED,
+		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id CXX_UNUSED_PARAM,
 		    float * x, float * y) const
 		{
 			hb_font_t * font = c->font;
@@ -380,7 +380,7 @@ public:
 	};
 
 	struct AnchorFormat3 {
-		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id HB_UNUSED, float * x, float * y) const
+		void get_anchor(hb_ot_apply_context_t * c, hb_codepoint_t glyph_id CXX_UNUSED_PARAM, float * x, float * y) const
 		{
 			hb_font_t * font = c->font;
 			*x = font->em_fscale_x(xCoordinate);
@@ -2310,15 +2310,15 @@ protected:
 		friend struct PosLookup;
 
 		enum Type {
-			Single              = 1,
-			Pair                = 2,
-			Cursive             = 3,
-			MarkBase            = 4,
-			MarkLig             = 5,
-			MarkMark            = 6,
-			Context             = 7,
+			Single      = 1,
+			Pair        = 2,
+			Cursive     = 3,
+			MarkBase    = 4,
+			MarkLig     = 5,
+			MarkMark    = 6,
+			Context     = 7,
 			ChainContext        = 8,
-			Extension           = 9
+			Extension   = 9
 		};
 
 		template <typename context_t, typename ... Ts>
@@ -2520,19 +2520,19 @@ public:
 		}
 	}
 
-	void GPOS::position_start(hb_font_t * font HB_UNUSED, hb_buffer_t * buffer)
+	void GPOS::position_start(hb_font_t * font CXX_UNUSED_PARAM, hb_buffer_t * buffer)
 	{
 		uint count = buffer->len;
 		for(uint i = 0; i < count; i++)
 			buffer->pos[i].attach_chain() = buffer->pos[i].attach_type() = 0;
 	}
 
-	void GPOS::position_finish_advances(hb_font_t * font HB_UNUSED, hb_buffer_t * buffer HB_UNUSED)
+	void GPOS::position_finish_advances(hb_font_t * font CXX_UNUSED_PARAM, hb_buffer_t * buffer CXX_UNUSED_PARAM)
 	{
 		//_hb_buffer_assert_gsubgpos_vars (buffer);
 	}
 
-	void GPOS::position_finish_offsets(hb_font_t * font HB_UNUSED, hb_buffer_t * buffer)
+	void GPOS::position_finish_offsets(hb_font_t * font CXX_UNUSED_PARAM, hb_buffer_t * buffer)
 	{
 		_hb_buffer_assert_gsubgpos_vars(buffer);
 

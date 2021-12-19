@@ -182,10 +182,10 @@ void GoodsRestTotal::Init()
 
 GoodsRestTotal & FASTCALL GoodsRestTotal::operator = (const GoodsRestTotal & src)
 {
-	Count         = src.Count;
+	Count = src.Count;
 	Quantity      = src.Quantity;
 	PhQtty        = src.PhQtty;
-	Order         = src.Order;
+	Order = src.Order;
 	SumCost       = src.SumCost;
 	SumPrice      = src.SumPrice;
 	SumCVat       = src.SumCVat;
@@ -898,7 +898,7 @@ double PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcptItem *
 	// @v10.8.0 @ctr MEMSZERO(item);
 	for(; ok < 0 && DraftRcptList.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
 		item = DraftRcptList.at(pos);
-		if(ExclDraftRcptList.lsearch(&item, 0, PTR_CMPFUNC(_2long)) <= 0) {
+		if(!ExclDraftRcptList.lsearch(&item, 0, PTR_CMPFUNC(_2long))) {
 			ExclDraftRcptList.Add(item.GoodsID, item.LocID, 0);
 			ASSIGN_PTR(pIdx, pos);
 			ASSIGN_PTR(pItem, item);
@@ -946,9 +946,9 @@ double PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftR
 	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
 	// @v10.8.0 @ctr MEMSZERO(item);
-	for(; ok < 0 && UncompleteSessQttyList.lsearch(&goodsID, &pos, PTR_CMPFUNC(long)) > 0; pos++) {
+	for(; ok < 0 && UncompleteSessQttyList.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
 		item = DraftRcptList.at(pos);
-		if(ExclUncompleteSessQttyList.lsearch(&item, 0, PTR_CMPFUNC(_2long)) <= 0) {
+		if(!ExclUncompleteSessQttyList.lsearch(&item, 0, PTR_CMPFUNC(_2long))) {
 			ExclUncompleteSessQttyList.Add(item.GoodsID, item.LocID, 0);
 			ASSIGN_PTR(pIdx, pos);
 			ASSIGN_PTR(pItem, item);
@@ -991,7 +991,7 @@ int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::Cac
 				P_Tbl->data.UnitPerPack = rItem.UnitPerPack;
 			r_rec.Quantity    = rItem.Rest;
 			r_rec.PhQtty      = rItem.PhRest;
-			r_rec.Ord         = rItem.Order;
+			r_rec.Ord = rItem.Order;
 			r_rec.Cost        = (Flags & fAccsCost) ? rItem.Cost : 0.0;
 			r_rec.Price       = rItem.Price;
 			r_rec.DraftRcpt   = rItem.DraftRcpt;
@@ -1067,7 +1067,7 @@ int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::Cac
 			}
 			rec.Quantity    = rItem.Rest;
 			rec.PhQtty      = rItem.PhRest;
-			rec.Ord         = rItem.Order;
+			rec.Ord = rItem.Order;
 			rec.Cost        = (Flags & fAccsCost) ? rItem.Cost : 0.0;
 			rec.Price       = rItem.Price;
 			rec.Deficit     = rItem.Deficit;
@@ -2866,11 +2866,11 @@ int PPViewGoodsRest::InitAppBuff(const TempGoodsRestTbl::Rec * pRec, GoodsRestVi
 		pItem->GoodsGrpID   = pRec->GoodsGrp;
 		IterGrpName.CopyTo(pItem->GoodsGrpName, sizeof(pItem->GoodsGrpName));
 		pItem->UnitPerPack  = pRec->UnitPerPack;
-		pItem->Rest         = pRec->Quantity;
+		pItem->Rest = pRec->Quantity;
 		pItem->Deficit      = pRec->Deficit;
 		pItem->PhRest       = pRec->PhQtty;
 		pItem->Order        = pRec->Ord;
-		pItem->Cost         = (Flags & fAccsCost) ? pRec->Cost : 0.0;
+		pItem->Cost = (Flags & fAccsCost) ? pRec->Cost : 0.0;
 		pItem->Price        = pRec->Price;
 		pItem->SumCost      = pItem->Cost * pItem->Rest;
 		pItem->SumPrice     = pItem->Price * pItem->Rest;
@@ -4094,7 +4094,7 @@ int PPViewGoodsRest::SetContractPrices()
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			uint   pos = 0;
 			double cost = 0.0;
-			if(suppl_cost_ary.lsearch(&item.GoodsID, &pos, PTR_CMPFUNC(long)) > 0) {
+			if(suppl_cost_ary.lsearch(&item.GoodsID, &pos, CMPF_LONG)) {
 				_E * p_e = static_cast<_E *>(suppl_cost_ary.at(pos));
 				p_e->Cost = (item.Cost < p_e->Cost) ? item.Cost : p_e->Cost;
 			}
@@ -4300,7 +4300,7 @@ int PPALDD_GoodsRest::InitData(PPFilt & rFilt, long rsrv)
 	INIT_PPVIEW_ALDD_DATA_U(GoodsRest, rsrv);
 	p_v->AllocInnerIterItem(); // @v11.0.4
 	MEMSZERO(H);
-	H.Dt         = p_filt->Date;
+	H.Dt = p_filt->Date;
 	H.FltPrgnBeg = p_filt->PrgnPeriod.low;
 	H.FltPrgnEnd = p_filt->PrgnPeriod.upp;
 	H.FltLocID   = p_filt->LocList.GetSingle();
@@ -4418,7 +4418,7 @@ int PPALDD_GoodsRestTotal::InitData(PPFilt & rFilt, long rsrv)
 	H.FltSupplID    = p_data->P_Filt->SupplID;
 	H.FltGoodsGrpID = p_data->P_Filt->GoodsGrpID;
 	H.FltQuotKindID = p_data->P_Filt->QuotKindID;
-	H.Flags         = p_data->P_Filt->Flags;
+	H.Flags = p_data->P_Filt->Flags;
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

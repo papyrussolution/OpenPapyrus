@@ -298,7 +298,7 @@ static const LIBSSH2_CRYPT_METHOD * _libssh2_crypt_methods[] = {
 #endif /* LIBSSH2_CAST */
 #if LIBSSH2_3DES
 	&libssh2_crypt_method_3des_cbc,
-#endif /*  LIBSSH2_DES */
+#endif /* LIBSSH2_DES */
 #ifdef LIBSSH2_CRYPT_NONE
 	&libssh2_crypt_method_none,
 #endif

@@ -23,7 +23,7 @@ struct BdtTestItem {
 	{
 	}
 	enum {
-		fIn         = 0x0001,
+		fIn = 0x0001,
 		fOut        = 0x0002,
 		fKey        = 0x0004,
 		fSalt       = 0x0008,
@@ -36,7 +36,7 @@ struct BdtTestItem {
 		fPassphrase = 0x0400,
 		fSeek       = 0x0800,
 		fNonce      = 0x1000,
-		fAD         = 0x2000 // @v10.5.11
+		fAD = 0x2000 // @v10.5.11
 	};
 	struct Buffer : private SBaseBuffer {
 	public:
@@ -256,8 +256,8 @@ uint32 FASTCALL SlHash::PJW(const void * pData, size_t len)
 {
 	const uint BitsInUnsignedInt = (uint)(sizeof(uint) * 8);
 	const uint ThreeQuarters     = (uint)((BitsInUnsignedInt  * 3) / 4);
-	const uint OneEighth         = (uint)(BitsInUnsignedInt / 8);
-	const uint HighBits          = (uint)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
+	const uint OneEighth = (uint)(BitsInUnsignedInt / 8);
+	const uint HighBits  = (uint)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
 	uint32 hash = 0;
 	uint32 test = 0;
 	for(uint i = 0; i < len; i++) {
@@ -3476,7 +3476,7 @@ public:
 	};
 	enum {
 		fFixedSize     = 0x0001, // Результат операции имеет фиксированных конечный размер
-		fKey           = 0x0002, // Операция требует ключа
+		fKey   = 0x0002, // Операция требует ключа
 		fWriteAtFinish = 0x0004, // Результат операции записывается в буфер во время вызова метода Finish()
 		fReversible    = 0x0008  // Обратимая функция  
 	};
@@ -4753,12 +4753,12 @@ public:
 
 		BMK_testXXH3(NULL,           0, 0,       0); /* zero-length hash is always 0 */
 		BMK_testXXH3(NULL,           0, prime64, 0);
-		BMK_testXXH3(sanityBuffer,   1, 0,       0x7198D737CFE7F386ULL); /*  1 -  3 */
-		BMK_testXXH3(sanityBuffer,   1, prime64, 0xB70252DB7161C2BDULL); /*  1 -  3 */
-		BMK_testXXH3(sanityBuffer,   6, 0,       0x22CBF5F3E1F6257CULL); /*  4 -  8 */
-		BMK_testXXH3(sanityBuffer,   6, prime64, 0x6398631C12AB94CEULL); /*  4 -  8 */
-		BMK_testXXH3(sanityBuffer,  12, 0,       0xD5361CCEEBB5A0CCULL); /*  9 - 16 */
-		BMK_testXXH3(sanityBuffer,  12, prime64, 0xC4C125E75A808C3DULL); /*  9 - 16 */
+		BMK_testXXH3(sanityBuffer,   1, 0,       0x7198D737CFE7F386ULL); /* 1 -  3 */
+		BMK_testXXH3(sanityBuffer,   1, prime64, 0xB70252DB7161C2BDULL); /* 1 -  3 */
+		BMK_testXXH3(sanityBuffer,   6, 0,       0x22CBF5F3E1F6257CULL); /* 4 -  8 */
+		BMK_testXXH3(sanityBuffer,   6, prime64, 0x6398631C12AB94CEULL); /* 4 -  8 */
+		BMK_testXXH3(sanityBuffer,  12, 0,       0xD5361CCEEBB5A0CCULL); /* 9 - 16 */
+		BMK_testXXH3(sanityBuffer,  12, prime64, 0xC4C125E75A808C3DULL); /* 9 - 16 */
 		BMK_testXXH3(sanityBuffer,  24, 0,       0x46796F3F78B20F6BULL); /* 17 - 32 */
 		BMK_testXXH3(sanityBuffer,  24, prime64, 0x60171A7CD0A44C10ULL); /* 17 - 32 */
 		BMK_testXXH3(sanityBuffer,  48, 0,       0xD8D4D3590D136E11ULL); /* 33 - 64 */
@@ -4784,9 +4784,9 @@ public:
 			const void * const secret = sanityBuffer + 7;
 			const size_t secretSize = XXH3_SECRET_SIZE_MIN + 11;
 			BMK_testXXH3_withSecret(NULL,           0, secret, secretSize, 0); /* zero-length hash is always 0 */
-			BMK_testXXH3_withSecret(sanityBuffer,   1, secret, secretSize, 0x7F69735D618DB3F0ULL); /*  1 -  3 */
-			BMK_testXXH3_withSecret(sanityBuffer,   6, secret, secretSize, 0xBFCC7CB1B3554DCEULL); /*  6 -  8 */
-			BMK_testXXH3_withSecret(sanityBuffer,  12, secret, secretSize, 0x8C50DC90AC9206FCULL); /*  9 - 16 */
+			BMK_testXXH3_withSecret(sanityBuffer,   1, secret, secretSize, 0x7F69735D618DB3F0ULL); /* 1 -  3 */
+			BMK_testXXH3_withSecret(sanityBuffer,   6, secret, secretSize, 0xBFCC7CB1B3554DCEULL); /* 6 -  8 */
+			BMK_testXXH3_withSecret(sanityBuffer,  12, secret, secretSize, 0x8C50DC90AC9206FCULL); /* 9 - 16 */
 			BMK_testXXH3_withSecret(sanityBuffer,  24, secret, secretSize, 0x1CD2C2EE9B9A0928ULL); /* 17 - 32 */
 			BMK_testXXH3_withSecret(sanityBuffer,  48, secret, secretSize, 0xA785256D9D65D514ULL); /* 33 - 64 */
 			BMK_testXXH3_withSecret(sanityBuffer,  80, secret, secretSize, 0x6F3053360D21BBB7ULL); /* 65 - 96 */

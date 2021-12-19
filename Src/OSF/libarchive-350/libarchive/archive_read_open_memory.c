@@ -41,8 +41,8 @@ struct read_memory_data {
 	ssize_t read_size;
 };
 
-static int      memory_read_close(struct archive *, void *);
-static int      memory_read_open(struct archive *, void *);
+static int memory_read_close(struct archive *, void *);
+static int memory_read_open(struct archive *, void *);
 static int64  memory_read_seek(struct archive *, void *, int64 offset, int whence);
 static int64  memory_read_skip(struct archive *, void *, int64 request);
 static ssize_t  memory_read(struct archive *, void *, const void ** buff);
@@ -81,7 +81,7 @@ int archive_read_open_memory2(struct archive * a, const void * buff, size_t size
  */
 static int memory_read_open(struct archive * a, void * client_data)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	(void)client_data; /* UNUSED */
 	return ARCHIVE_OK;
 }
@@ -98,7 +98,7 @@ static ssize_t memory_read(struct archive * a, void * client_data, const void **
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 	ssize_t size;
 
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	*buff = mine->p;
 	size = mine->end - mine->p;
 	if(size > mine->read_size)
@@ -116,7 +116,7 @@ static int64 memory_read_skip(struct archive * a, void * client_data, int64 skip
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	if((int64)skip > (int64)(mine->end - mine->p))
 		skip = mine->end - mine->p;
 	/* Round down to block size. */
@@ -133,7 +133,7 @@ static int64 memory_read_seek(struct archive * a, void * client_data, int64 offs
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	switch(whence) {
 		case SEEK_SET:
 		    mine->p = mine->start + offset;
@@ -164,7 +164,7 @@ static int64 memory_read_seek(struct archive * a, void * client_data, int64 offs
 static int memory_read_close(struct archive * a, void * client_data)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	SAlloc::F(mine);
 	return ARCHIVE_OK;
 }

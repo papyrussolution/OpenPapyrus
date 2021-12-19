@@ -1,4 +1,4 @@
-/*  pcfutil.h
+/* pcfutil.h
 
     FreeType font driver for pcf fonts
 

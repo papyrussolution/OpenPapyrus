@@ -31,8 +31,8 @@ U_CDECL_BEGIN
 
 /* constants for UCMapping.moveFlag */
 enum {
-    UCM_MOVE_TO_EXT=1,
-    UCM_REMOVE_MAPPING=2
+	UCM_MOVE_TO_EXT = 1,
+	UCM_REMOVE_MAPPING = 2
 };
 
 /*
@@ -51,136 +51,104 @@ enum {
  *   Same values as in the source file after |
  */
 typedef struct UCMapping {
-    UChar32 u;
-    union {
-        uint32_t idx;
-        uint8_t bytes[4];
-    } b;
-    int8_t uLen, bLen, f, moveFlag;
+	UChar32 u;
+	union {
+		uint32_t idx;
+		uint8_t bytes[4];
+	} b;
+
+	int8_t uLen, bLen, f, moveFlag;
 } UCMapping;
 
 /* constants for UCMTable.flagsType */
 enum {
-    UCM_FLAGS_INITIAL,  /* no mappings parsed yet */
-    UCM_FLAGS_EXPLICIT, /* .ucm file has mappings with | fallback indicators */
-    UCM_FLAGS_IMPLICIT, /* .ucm file has mappings without | fallback indicators, later wins */
-    UCM_FLAGS_MIXED     /* both implicit and explicit */
+	UCM_FLAGS_INITIAL, /* no mappings parsed yet */
+	UCM_FLAGS_EXPLICIT, /* .ucm file has mappings with | fallback indicators */
+	UCM_FLAGS_IMPLICIT, /* .ucm file has mappings without | fallback indicators, later wins */
+	UCM_FLAGS_MIXED /* both implicit and explicit */
 };
 
 typedef struct UCMTable {
-    UCMapping *mappings;
-    int32_t mappingsCapacity, mappingsLength;
+	UCMapping * mappings;
+	int32_t mappingsCapacity, mappingsLength;
 
-    UChar32 *codePoints;
-    int32_t codePointsCapacity, codePointsLength;
+	UChar32 * codePoints;
+	int32_t codePointsCapacity, codePointsLength;
 
-    uint8_t *bytes;
-    int32_t bytesCapacity, bytesLength;
+	uint8_t * bytes;
+	int32_t bytesCapacity, bytesLength;
 
-    /* index map for mapping by bytes first */
-    int32_t *reverseMap;
+	/* index map for mapping by bytes first */
+	int32_t * reverseMap;
 
-    uint8_t unicodeMask;
-    int8_t flagsType; /* UCM_FLAGS_INITIAL etc. */
-    bool isSorted;
+	uint8_t unicodeMask;
+	int8_t flagsType; /* UCM_FLAGS_INITIAL etc. */
+	bool isSorted;
 } UCMTable;
 
 enum {
-    MBCS_STATE_FLAG_DIRECT=1,
-    MBCS_STATE_FLAG_SURROGATES,
+	MBCS_STATE_FLAG_DIRECT = 1,
+	MBCS_STATE_FLAG_SURROGATES,
 
-    MBCS_STATE_FLAG_READY=16
+	MBCS_STATE_FLAG_READY = 16
 };
 
 typedef struct UCMStates {
-    int32_t stateTable[MBCS_MAX_STATE_COUNT][256];
-    uint32_t stateFlags[MBCS_MAX_STATE_COUNT],
-             stateOffsetSum[MBCS_MAX_STATE_COUNT];
-
-    int32_t countStates, minCharLength, maxCharLength, countToUCodeUnits;
-    int8_t conversionType, outputType;
+	int32_t stateTable[MBCS_MAX_STATE_COUNT][256];
+	uint32_t stateFlags[MBCS_MAX_STATE_COUNT];
+	uint32_t stateOffsetSum[MBCS_MAX_STATE_COUNT];
+	int32_t countStates;
+	int32_t minCharLength;
+	int32_t maxCharLength;
+	int32_t countToUCodeUnits;
+	int8_t conversionType;
+	int8_t outputType;
 } UCMStates;
 
 typedef struct UCMFile {
-    UCMTable *base, *ext;
-    UCMStates states;
-
-    char baseName[UCNV_MAX_CONVERTER_NAME_LENGTH];
+	UCMTable * base, * ext;
+	UCMStates states;
+	char baseName[UCNV_MAX_CONVERTER_NAME_LENGTH];
 } UCMFile;
 
 /* simple accesses ---------------------------------------------------------- */
 
-#define UCM_GET_CODE_POINTS(t, m) \
-    (((m)->uLen==1) ? &(m)->u : (t)->codePoints+(m)->u)
-
-#define UCM_GET_BYTES(t, m) \
-    (((m)->bLen<=4) ? (m)->b.bytes : (t)->bytes+(m)->b.idx)
+#define UCM_GET_CODE_POINTS(t, m) (((m)->uLen==1) ? &(m)->u : (t)->codePoints+(m)->u)
+#define UCM_GET_BYTES(t, m) (((m)->bLen<=4) ? (m)->b.bytes : (t)->bytes+(m)->b.idx)
 
 /* APIs --------------------------------------------------------------------- */
 
-U_CAPI UCMFile * U_EXPORT2
-ucm_open();
-
-U_CAPI void U_EXPORT2
-ucm_close(UCMFile *ucm);
-
-U_CAPI bool U_EXPORT2
-ucm_parseHeaderLine(UCMFile *ucm,
-                    char *line, char **pKey, char **pValue);
+U_CAPI UCMFile * U_EXPORT2 ucm_open();
+U_CAPI void U_EXPORT2 ucm_close(UCMFile * ucm);
+U_CAPI bool U_EXPORT2 ucm_parseHeaderLine(UCMFile * ucm, char * line, char ** pKey, char ** pValue);
 
 /* @return -1 illegal bytes  0 suitable for base table  1 needs to go into extension table */
-U_CAPI int32_t U_EXPORT2
-ucm_mappingType(UCMStates *baseStates,
-                UCMapping *m,
-                UChar32 codePoints[UCNV_EXT_MAX_UCHARS],
-                uint8_t bytes[UCNV_EXT_MAX_BYTES]);
+U_CAPI int32_t U_EXPORT2 ucm_mappingType(UCMStates * baseStates, UCMapping * m,
+    UChar32 codePoints[UCNV_EXT_MAX_UCHARS], uint8_t bytes[UCNV_EXT_MAX_BYTES]);
 
 /* add a mapping to the base or extension table as appropriate */
-U_CAPI bool U_EXPORT2
-ucm_addMappingAuto(UCMFile *ucm, bool forBase, UCMStates *baseStates,
-                   UCMapping *m,
-                   UChar32 codePoints[UCNV_EXT_MAX_UCHARS],
-                   uint8_t bytes[UCNV_EXT_MAX_BYTES]);
-
-U_CAPI bool U_EXPORT2
-ucm_addMappingFromLine(UCMFile *ucm, const char *line, bool forBase, UCMStates *baseStates);
-
-
-U_CAPI UCMTable * U_EXPORT2
-ucm_openTable();
-
-U_CAPI void U_EXPORT2
-ucm_closeTable(UCMTable *table);
-
-U_CAPI void U_EXPORT2
-ucm_resetTable(UCMTable *table);
-
-U_CAPI void U_EXPORT2
-ucm_sortTable(UCMTable *t);
-
+U_CAPI bool U_EXPORT2 ucm_addMappingAuto(UCMFile * ucm, bool forBase, UCMStates * baseStates,
+    UCMapping * m, UChar32 codePoints[UCNV_EXT_MAX_UCHARS], uint8_t bytes[UCNV_EXT_MAX_BYTES]);
+U_CAPI bool U_EXPORT2 ucm_addMappingFromLine(UCMFile * ucm, const char * line, bool forBase, UCMStates * baseStates);
+U_CAPI UCMTable * U_EXPORT2 ucm_openTable();
+U_CAPI void U_EXPORT2 ucm_closeTable(UCMTable * table);
+U_CAPI void U_EXPORT2 ucm_resetTable(UCMTable * table);
+U_CAPI void U_EXPORT2 ucm_sortTable(UCMTable * t);
 /*
  * Remove mappings with their move flag set from the base table
  * and move some of them (with UCM_MOVE_TO_EXT) to the extension table.
  */
-U_CAPI void U_EXPORT2
-ucm_moveMappings(UCMTable *base, UCMTable *ext);
-
+U_CAPI void U_EXPORT2 ucm_moveMappings(UCMTable * base, UCMTable * ext);
 /**
  * Read a table from a .ucm file, from after the CHARMAP line to
  * including the END CHARMAP line.
  */
-U_CAPI void U_EXPORT2
-ucm_readTable(UCMFile *ucm, FileStream* convFile,
-              bool forBase, UCMStates *baseStates,
-              UErrorCode *pErrorCode);
-
+U_CAPI void U_EXPORT2 ucm_readTable(UCMFile * ucm, FileStream* convFile, bool forBase, UCMStates * baseStates, UErrorCode * pErrorCode);
 /**
  * Check the validity of mappings against a base table's states;
  * necessary for extension-only tables that were read before their base tables.
  */
-U_CAPI bool U_EXPORT2
-ucm_checkValidity(UCMTable *ext, UCMStates *baseStates);
-
+U_CAPI bool U_EXPORT2 ucm_checkValidity(UCMTable * ext, UCMStates * baseStates);
 /**
  * Check a base table against an extension table.
  * Set the moveTarget!=NULL if it is possible to move mappings from the base.
@@ -225,56 +193,23 @@ ucm_checkValidity(UCMTable *ext, UCMStates *baseStates);
  *
  * @return FALSE in case of an irreparable error
  */
-U_CAPI bool U_EXPORT2
-ucm_checkBaseExt(UCMStates *baseStates, UCMTable *base, UCMTable *ext,
-                 UCMTable *moveTarget, bool intersectBase);
-
-U_CAPI void U_EXPORT2
-ucm_printTable(UCMTable *table, FILE *f, bool byUnicode);
-
-U_CAPI void U_EXPORT2
-ucm_printMapping(UCMTable *table, UCMapping *m, FILE *f);
-
-
-U_CAPI void U_EXPORT2
-ucm_addState(UCMStates *states, const char *s);
-
-U_CAPI void U_EXPORT2
-ucm_processStates(UCMStates *states, bool ignoreSISOCheck);
-
-U_CAPI int32_t U_EXPORT2
-ucm_countChars(UCMStates *states,
-               const uint8_t *bytes, int32_t length);
-
-
-U_CAPI int8_t U_EXPORT2
-ucm_parseBytes(uint8_t bytes[UCNV_EXT_MAX_BYTES], const char *line, const char **ps);
-
-U_CAPI bool U_EXPORT2
-ucm_parseMappingLine(UCMapping *m,
-                     UChar32 codePoints[UCNV_EXT_MAX_UCHARS],
-                     uint8_t bytes[UCNV_EXT_MAX_BYTES],
-                     const char *line);
-
-U_CAPI void U_EXPORT2
-ucm_addMapping(UCMTable *table,
-               UCMapping *m,
-               UChar32 codePoints[UCNV_EXT_MAX_UCHARS],
-               uint8_t bytes[UCNV_EXT_MAX_BYTES]);
+U_CAPI bool U_EXPORT2 ucm_checkBaseExt(UCMStates * baseStates, UCMTable * base, UCMTable * ext, UCMTable * moveTarget, bool intersectBase);
+U_CAPI void U_EXPORT2 ucm_printTable(UCMTable * table, FILE * f, bool byUnicode);
+U_CAPI void U_EXPORT2 ucm_printMapping(UCMTable * table, UCMapping * m, FILE * f);
+U_CAPI void U_EXPORT2 ucm_addState(UCMStates * states, const char * s);
+U_CAPI void U_EXPORT2 ucm_processStates(UCMStates * states, bool ignoreSISOCheck);
+U_CAPI int32_t U_EXPORT2 ucm_countChars(UCMStates * states, const uint8_t * bytes, int32_t length);
+U_CAPI int8_t U_EXPORT2 ucm_parseBytes(uint8_t bytes[UCNV_EXT_MAX_BYTES], const char * line, const char ** ps);
+U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m, UChar32 codePoints[UCNV_EXT_MAX_UCHARS],
+    uint8_t bytes[UCNV_EXT_MAX_BYTES], const char * line);
+U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 codePoints[UCNV_EXT_MAX_UCHARS], uint8_t bytes[UCNV_EXT_MAX_BYTES]);
 
 /* very makeconv-specific functions ----------------------------------------- */
 
 /* finalize and optimize states after the toUnicode mappings are processed */
-U_CAPI void U_EXPORT2
-ucm_optimizeStates(UCMStates *states,
-                   uint16_t **pUnicodeCodeUnits,
-                   _MBCSToUFallback *toUFallbacks, int32_t countToUFallbacks,
-                   bool verbose);
-
+U_CAPI void U_EXPORT2 ucm_optimizeStates(UCMStates * states, uint16_t ** pUnicodeCodeUnits, _MBCSToUFallback * toUFallbacks, int32_t countToUFallbacks, bool verbose);
 /* moved here because it is used inside ucmstate.c */
-U_CAPI int32_t U_EXPORT2
-ucm_findFallback(_MBCSToUFallback *toUFallbacks, int32_t countToUFallbacks,
-                 uint32_t offset);
+U_CAPI int32_t U_EXPORT2 ucm_findFallback(_MBCSToUFallback * toUFallbacks, int32_t countToUFallbacks, uint32_t offset);
 
 /* very rptp2ucm-specific functions ----------------------------------------- */
 
@@ -286,17 +221,11 @@ ucm_findFallback(_MBCSToUFallback *toUFallbacks, int32_t countToUFallbacks,
  * Output: fromUTable will contain the union of mappings with the correct
  * precision flags, and be sorted.
  */
-U_CAPI void U_EXPORT2
-ucm_mergeTables(UCMTable *fromUTable, UCMTable *toUTable,
-                const uint8_t *subchar, int32_t subcharLength,
-                uint8_t subchar1);
-
-U_CAPI bool U_EXPORT2
-ucm_separateMappings(UCMFile *ucm, bool isSISO);
+U_CAPI void U_EXPORT2 ucm_mergeTables(UCMTable * fromUTable, UCMTable * toUTable, const uint8_t * subchar, int32_t subcharLength, uint8_t subchar1);
+U_CAPI bool U_EXPORT2 ucm_separateMappings(UCMFile * ucm, bool isSISO);
 
 U_CDECL_END
 
 #endif
 
 #endif
-

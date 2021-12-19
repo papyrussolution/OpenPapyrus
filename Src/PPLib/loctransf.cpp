@@ -481,13 +481,13 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_t
 		}
 		else {
 			THROW(PrepareRec(loc_id, rBlk.BillID, &rec));
-			rbyloc           = rec.RByLoc;
-			rec.Op           = rBlk.Op;
+			rbyloc   = rec.RByLoc;
+			rec.Op   = rBlk.Op;
 			rec.GoodsID      = rBlk.GoodsID;
 			rec.LotID        = rBlk.LotID;
 			rec.PalletTypeID = rBlk.PalletTypeID;
 			rec.PalletCount  = rBlk.PalletCount;
-			rec.Qtty         = rBlk.Qtty;
+			rec.Qtty = rBlk.Qtty;
 			rec.RByBill      = rBlk.RByBill; // ahtoxa
 
 			if(rBlk.LotID) {

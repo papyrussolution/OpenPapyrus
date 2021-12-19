@@ -144,24 +144,24 @@ are implementing).
 */
 
 const uint32 PRIV(ucp_gbtable[]) = {
-   (1<<ucp_gbLF),                                           /*  0 CR */
-   0,                                                       /*  1 LF */
-   0,                                                       /*  2 Control */
-   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark),                /*  3 Extend */
-   (1<<ucp_gbExtend)|(1<<ucp_gbPrepend)|                    /*  4 Prepend */
+   (1<<ucp_gbLF),                                           /* 0 CR */
+   0,                                                       /* 1 LF */
+   0,                                                       /* 2 Control */
+   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark),                /* 3 Extend */
+   (1<<ucp_gbExtend)|(1<<ucp_gbPrepend)|                    /* 4 Prepend */
      (1<<ucp_gbSpacingMark)|(1<<ucp_gbL)|
      (1<<ucp_gbV)|(1<<ucp_gbT)|(1<<ucp_gbLV)|
      (1<<ucp_gbLVT)|(1<<ucp_gbOther),
 
-   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark),                /*  5 SpacingMark */
-   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbL)|   /*  6 L */
+   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark),                /* 5 SpacingMark */
+   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbL)|   /* 6 L */
      (1<<ucp_gbV)|(1<<ucp_gbLV)|(1<<ucp_gbLVT),
 
-   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbV)|   /*  7 V */
+   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbV)|   /* 7 V */
      (1<<ucp_gbT),
 
-   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbT),   /*  8 T */
-   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbV)|   /*  9 LV */
+   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbT),   /* 8 T */
+   (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbV)|   /* 9 LV */
      (1<<ucp_gbT),
 
    (1<<ucp_gbExtend)|(1<<ucp_gbSpacingMark)|(1<<ucp_gbT),   /* 10 LVT */

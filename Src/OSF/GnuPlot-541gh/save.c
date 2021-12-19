@@ -169,7 +169,7 @@ void GnuPlot::SaveTerm(GpTermEntry * pTerm, FILE * fp)
 	// reset the options to startup defaults. This may have to be
 	// changed on a per-terminal driver basis... 
 	if(pTerm)
-		fprintf(fp, "set terminal %s %s\n", pTerm->name, GPT._TermOptions.cptr());
+		fprintf(fp, "set terminal %s %s\n", pTerm->GetName(), GPT._TermOptions.cptr());
 	else
 		fputs("set terminal unknown\n", fp);
 	// output will still be written in commented form.  Otherwise, the risk of overwriting files is just too high */
@@ -229,7 +229,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 	// opinions are split as to whether we save term and outfile
 	// as a compromise, we output them as comments !
 	if(GPT.P_Term)
-		fprintf(fp, "# set terminal %s %s\n", GPT.P_Term->name, GPT._TermOptions.cptr());
+		fprintf(fp, "# set terminal %s %s\n", GPT.P_Term->GetName(), GPT._TermOptions.cptr());
 	else
 		fputs("# set terminal unknown\n", fp);
 	if(GPT.P_OutStr)

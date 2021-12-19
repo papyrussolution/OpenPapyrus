@@ -856,11 +856,11 @@ void GnuPlot::ClearCommand(GpTermEntry * pTerm)
 {
 	TermStartPlot(pTerm);
 	if(GPT.Flags & GpTerminalBlock::fMultiplot && pTerm->fillbox) {
-		int xx1 = static_cast<int>(V.Offset.x * pTerm->MaxX);
-		int yy1 = static_cast<int>(V.Offset.y * pTerm->MaxY);
-		uint width  = static_cast<uint>(V.Size.x * pTerm->MaxX);
-		uint height = static_cast<uint>(V.Size.y * pTerm->MaxY);
-		(pTerm->fillbox)(pTerm, 0, xx1, yy1, width, height);
+		int xx1 = static_cast<int>(pTerm->MulMaxX(V.Offset.x));
+		int yy1 = static_cast<int>(pTerm->MulMaxY(V.Offset.y));
+		uint width  = static_cast<uint>(pTerm->MulMaxX(V.Size.x));
+		uint height = static_cast<uint>(pTerm->MulMaxY(V.Size.y));
+		pTerm->FillBox_(0, xx1, yy1, width, height);
 	}
 	TermEndPlot(pTerm);
 	GpU.screen_ok = FALSE;
@@ -1604,7 +1604,7 @@ void GnuPlot::PlotCommand(GpTermEntry * pTerm)
 	PlotRequest(pTerm);
 	// Clear "hidden" flag for any plots that may have been toggled off 
 	if(pTerm->modify_plots)
-		pTerm->modify_plots(MODPLOTS_SET_VISIBLE, -1);
+		pTerm->modify_plots(pTerm, MODPLOTS_SET_VISIBLE, -1);
 	SET_CURSOR_ARROW;
 }
 
@@ -1857,7 +1857,7 @@ void GnuPlot::ReplotCommand(GpTermEntry * pTerm)
 			IntErrorCurToken("use 'set term' to set terminal type first");
 		Pgm.Shift();
 		SET_CURSOR_WAIT;
-		if(pTerm->flags & TERM_INIT_ON_REPLOT)
+		if(pTerm->CheckFlag(TERM_INIT_ON_REPLOT))
 			pTerm->init(pTerm);
 		ReplotRequest(pTerm);
 		SET_CURSOR_ARROW;
@@ -1979,7 +1979,7 @@ void GnuPlot::SPlotCommand(GpTermEntry * pTerm)
 	Plot3DRequest(pTerm);
 	// Clear "hidden" flag for any plots that may have been toggled off 
 	if(pTerm->modify_plots)
-		pTerm->modify_plots(MODPLOTS_SET_VISIBLE, -1);
+		pTerm->modify_plots(pTerm, MODPLOTS_SET_VISIBLE, -1);
 	SET_CURSOR_ARROW;
 }
 //
@@ -2170,7 +2170,7 @@ void GnuPlot::ToggleCommand(GpTermEntry * pTerm)
 		plotno = IntExpression() - 1;
 	}
 	if(pTerm->modify_plots)
-		pTerm->modify_plots(MODPLOTS_INVERT_VISIBILITIES, plotno);
+		pTerm->modify_plots(pTerm, MODPLOTS_INVERT_VISIBILITIES, plotno);
 }
 
 //void update_command()

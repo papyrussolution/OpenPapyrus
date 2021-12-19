@@ -194,8 +194,8 @@ struct PrnDlgAns {
 		aExportTDDO
 	};
 	enum {
-		fForceDDF          = 0x0001,
-		fEMail             = 0x0002, // Действителен при Dest == aExport
+		fForceDDF  = 0x0001,
+		fEMail     = 0x0002, // Действителен при Dest == aExport
 		fUseDuplexPrinting = 0x0004  // Дуплексная печать
 	};
 	long   Dest;
@@ -311,7 +311,7 @@ public:
 	explicit SReport(const char *);
 	SReport(uint rezID, long flags /* INIREPF_XXX */);
 	~SReport();
-	int    IsValid() const;
+	bool   IsValid() const;
 	void   disableGrouping();
 	int    addField(int id, TYPEID typ, long fmt, uint rptfmt, char * nam);
 	int    setAggrToField(int fld, int aggr, int dpnd);
@@ -355,7 +355,7 @@ public:
 		PrintingNoAsk   = 0x0010,
 		NoRepError      = 0x0020, // Не выдавать сообщение об ошибке
 		XmlExport       = 0x0040, // Экспорт в XML
-		Preview         = 0x0080  // Предварительный просмотр
+		Preview = 0x0080  // Предварительный просмотр
 	};
 	SString Name;
 	SString DataName;

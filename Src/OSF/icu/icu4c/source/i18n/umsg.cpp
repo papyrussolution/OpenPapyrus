@@ -119,7 +119,7 @@ U_CAPI int32_t U_EXPORT2 u_vformatMessageWithError(const char * locale,
 //  2. Just assume the user passed in enough arguments.
 //  3. Iterate through each formattable returned, and assign to the arguments
 U_CAPI void u_parseMessage(const char * locale,
-    const UChar  * pattern,
+    const UChar * pattern,
     int32_t patternLength,
     const UChar * source,
     int32_t sourceLength,

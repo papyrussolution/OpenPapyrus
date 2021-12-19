@@ -2236,7 +2236,7 @@ static void TestResourceLevelAliasing() {
 	const char * testdatapath = NULL;
 	const UChar * string = NULL, * sequence = NULL;
 	/*const uint8_t *binary = NULL, *binSequence = NULL;*/
-	int32_t strLen = 0, seqLen = 0;/*, binLen = 0, binSeqLen = 0;*/
+	int32_t strLen = 0, seqLen = 0; /*, binLen = 0, binSeqLen = 0;*/
 	char buffer[100];
 	char * s;
 

@@ -39,13 +39,13 @@
  *           void      boxDestroy()
  *
  *      Box accessors
- *           int32   boxGetGeometry()
- *           int32   boxSetGeometry()
- *           int32   boxGetSideLocations()
- *           int32   boxSetSideLocations()
- *           int32   boxGetRefcount()
- *           int32   boxChangeRefcount()
- *           int32   boxIsValid()
+ *           l_int32   boxGetGeometry()
+ *           l_int32   boxSetGeometry()
+ *           l_int32   boxGetSideLocations()
+ *           l_int32   boxSetSideLocations()
+ *           l_int32   boxGetRefcount()
+ *           l_int32   boxChangeRefcount()
+ *           l_int32   boxIsValid()
  *
  *      Boxa creation, copy, destruction
  *           BOXA     *boxaCreate()
@@ -53,27 +53,27 @@
  *           void      boxaDestroy()
  *
  *      Boxa array extension
- *           int32   boxaAddBox()
- *           int32   boxaExtendArray()
- *           int32   boxaExtendArrayToSize()
+ *           l_int32   boxaAddBox()
+ *           l_int32   boxaExtendArray()
+ *           l_int32   boxaExtendArrayToSize()
  *
  *      Boxa accessors
- *           int32   boxaGetCount()
- *           int32   boxaGetValidCount()
+ *           l_int32   boxaGetCount()
+ *           l_int32   boxaGetValidCount()
  *           BOX      *boxaGetBox()
  *           BOX      *boxaGetValidBox()
  *           NUMA     *boxaFindInvalidBoxes()
- *           int32   boxaGetBoxGeometry()
- *           int32   boxaIsFull()
+ *           l_int32   boxaGetBoxGeometry()
+ *           l_int32   boxaIsFull()
  *
  *      Boxa array modifiers
- *           int32   boxaReplaceBox()
- *           int32   boxaInsertBox()
- *           int32   boxaRemoveBox()
- *           int32   boxaRemoveBoxAndSave()
+ *           l_int32   boxaReplaceBox()
+ *           l_int32   boxaInsertBox()
+ *           l_int32   boxaRemoveBox()
+ *           l_int32   boxaRemoveBoxAndSave()
  *           BOXA     *boxaSaveValid()
- *           int32   boxaInitFull()
- *           int32   boxaClear()
+ *           l_int32   boxaInitFull()
+ *           l_int32   boxaClear()
  *
  *      Boxaa creation, copy, destruction
  *           BOXAA    *boxaaCreate()
@@ -81,58 +81,62 @@
  *           void      boxaaDestroy()
  *
  *      Boxaa array extension
- *           int32   boxaaAddBoxa()
- *           int32   boxaaExtendArray()
- *           int32   boxaaExtendArrayToSize()
+ *           l_int32   boxaaAddBoxa()
+ *           l_int32   boxaaExtendArray()
+ *           l_int32   boxaaExtendArrayToSize()
  *
  *      Boxaa accessors
- *           int32   boxaaGetCount()
- *           int32   boxaaGetBoxCount()
+ *           l_int32   boxaaGetCount()
+ *           l_int32   boxaaGetBoxCount()
  *           BOXA     *boxaaGetBoxa()
  *           BOX      *boxaaGetBox()
  *
  *      Boxaa array modifiers
- *           int32   boxaaInitFull()
- *           int32   boxaaExtendWithInit()
- *           int32   boxaaReplaceBoxa()
- *           int32   boxaaInsertBoxa()
- *           int32   boxaaRemoveBoxa()
- *           int32   boxaaAddBox()
+ *           l_int32   boxaaInitFull()
+ *           l_int32   boxaaExtendWithInit()
+ *           l_int32   boxaaReplaceBoxa()
+ *           l_int32   boxaaInsertBoxa()
+ *           l_int32   boxaaRemoveBoxa()
+ *           l_int32   boxaaAddBox()
  *
  *      Boxaa serialized I/O
  *           BOXAA    *boxaaReadFromFiles()
  *           BOXAA    *boxaaRead()
  *           BOXAA    *boxaaReadStream()
  *           BOXAA    *boxaaReadMem()
- *           int32   boxaaWrite()
- *           int32   boxaaWriteStream()
- *           int32   boxaaWriteMem()
+ *           l_int32   boxaaWrite()
+ *           l_int32   boxaaWriteStream()
+ *           l_int32   boxaaWriteMem()
  *
  *      Boxa serialized I/O
  *           BOXA     *boxaRead()
  *           BOXA     *boxaReadStream()
  *           BOXA     *boxaReadMem()
- *           int32   boxaWrite()
- *           int32   boxaWriteStream()
- *           int32   boxaWriteMem()
+ *           l_int32   boxaWriteDebug()
+ *           l_int32   boxaWrite()
+ *           l_int32   boxaWriteStream()
+ *           l_int32   boxaWriteStderr()
+ *           l_int32   boxaWriteMem()
  *
  *      Box print (for debug)
- *           int32   boxPrintStreamInfo()
+ *           l_int32   boxPrintStreamInfo()
  *
  *   Most functions use only valid boxes, which are boxes that have both
- *   width and height \> 0.  However, a few functions, such as
- *   boxaGetMedian() do not assume that all boxes are valid.  For any
+ *   width and height > 0.  However, a few functions, such as
+ *   boxaGetMedianVals() do not assume that all boxes are valid.  For any
  *   function that can use a boxa with invalid boxes, it is convenient
  *   to use these accessors:
  *       boxaGetValidCount()   :  count of valid boxes
  *       boxaGetValidBox()     :  returns NULL for invalid boxes
  * </pre>
  */
-
 #include "allheaders.h"
 #pragma hdrstop
 
-static const int32 INITIAL_PTR_ARRAYSIZE = 20;    /*!< n'import quoi */
+/* Bounds on array sizes */
+static const size_t MaxBoxaPtrArraySize = 10000000;
+static const size_t MaxBoxaaPtrArraySize = 1000000;
+static const size_t InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 /*---------------------------------------------------------------------*
 *                  Box creation, destruction and copy                 *
@@ -159,14 +163,14 @@ static const int32 INITIAL_PTR_ARRAYSIZE = 20;    /*!< n'import quoi */
  *          which returns NULL if either w or h is 0.
  * </pre>
  */
-BOX * boxCreate(int32 x,
-    int32 y,
-    int32 w,
-    int32 h)
+BOX * boxCreate(l_int32 x,
+    l_int32 y,
+    l_int32 w,
+    l_int32 h)
 {
 	BOX  * box;
 
-	PROCNAME("boxCreate");
+	PROCNAME(__FUNCTION__);
 
 	if(w < 0 || h < 0)
 		return (BOX*)ERROR_PTR("w and h not both >= 0", procName, NULL);
@@ -183,11 +187,9 @@ BOX * boxCreate(int32 x,
 			return (BOX*)ERROR_PTR("y < 0 and box off +quad", procName, NULL);
 	}
 
-	if((box = (BOX*)LEPT_CALLOC(1, sizeof(BOX))) == NULL)
-		return (BOX*)ERROR_PTR("box not made", procName, NULL);
+	box = (BOX*)SAlloc::C(1, sizeof(BOX));
 	boxSetGeometry(box, x, y, w, h);
 	box->refcount = 1;
-
 	return box;
 }
 
@@ -202,12 +204,12 @@ BOX * boxCreate(int32 x,
  *      (1) This returns NULL if either w = 0 or h = 0.
  * </pre>
  */
-BOX * boxCreateValid(int32 x,
-    int32 y,
-    int32 w,
-    int32 h)
+BOX * boxCreateValid(l_int32 x,
+    l_int32 y,
+    l_int32 w,
+    l_int32 h)
 {
-	PROCNAME("boxCreateValid");
+	PROCNAME(__FUNCTION__);
 
 	if(w <= 0 || h <= 0)
 		return (BOX*)ERROR_PTR("w and h not both > 0", procName, NULL);
@@ -224,13 +226,12 @@ BOX * boxCopy(BOX  * box)
 {
 	BOX  * boxc;
 
-	PROCNAME("boxCopy");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return (BOX*)ERROR_PTR("box not defined", procName, NULL);
 
 	boxc = boxCreate(box->x, box->y, box->w, box->h);
-
 	return boxc;
 }
 
@@ -242,7 +243,7 @@ BOX * boxCopy(BOX  * box)
  */
 BOX * boxClone(BOX  * box)
 {
-	PROCNAME("boxClone");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return (BOX*)ERROR_PTR("box not defined", procName, NULL);
@@ -254,7 +255,7 @@ BOX * boxClone(BOX  * box)
 /*!
  * \brief   boxDestroy()
  *
- * \param[in,out]   pbox will be set to null before returning
+ * \param[in,out]   pbox     will be set to null before returning
  * \return  void
  *
  * <pre>
@@ -267,7 +268,7 @@ void boxDestroy(BOX  ** pbox)
 {
 	BOX  * box;
 
-	PROCNAME("boxDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(pbox == NULL) {
 		L_WARNING("ptr address is null!\n", procName);
@@ -278,9 +279,8 @@ void boxDestroy(BOX  ** pbox)
 
 	boxChangeRefcount(box, -1);
 	if(boxGetRefcount(box) <= 0)
-		LEPT_FREE(box);
+		SAlloc::F(box);
 	*pbox = NULL;
-	return;
 }
 
 /*---------------------------------------------------------------------*
@@ -293,9 +293,13 @@ void boxDestroy(BOX  ** pbox)
  * \param[out]   px, py, pw, ph [optional]  each can be null
  * \return  0 if OK, 1 on error
  */
-int32 boxGetGeometry(BOX * box, int32  * px, int32  * py, int32  * pw, int32  * ph)
+l_ok boxGetGeometry(BOX      * box,
+    l_int32 * px,
+    l_int32 * py,
+    l_int32 * pw,
+    l_int32 * ph)
 {
-	PROCNAME("boxGetGeometry");
+	PROCNAME(__FUNCTION__);
 
 	if(px) *px = 0;
 	if(py) *py = 0;
@@ -314,12 +318,16 @@ int32 boxGetGeometry(BOX * box, int32  * px, int32  * py, int32  * pw, int32  * 
  * \brief   boxSetGeometry()
  *
  * \param[in]    box
- * \param[in]    x, y, w, h  [optional]  use -1 to leave unchanged
+ * \param[in]    x, y, w, h     [optional] use -1 to leave unchanged
  * \return  0 if OK, 1 on error
  */
-int32 boxSetGeometry(BOX * box, int32 x, int32 y, int32 w, int32 h)
+l_ok boxSetGeometry(BOX * box,
+    l_int32 x,
+    l_int32 y,
+    l_int32 w,
+    l_int32 h)
 {
-	PROCNAME("boxSetGeometry");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return ERROR_INT("box not defined", procName, 1);
@@ -334,7 +342,7 @@ int32 boxSetGeometry(BOX * box, int32 x, int32 y, int32 w, int32 h)
  * \brief   boxGetSideLocations()
  *
  * \param[in]    box
- * \param[out]   pl, pt, pr, pb [optional]  each can be null
+ * \param[out]   pl, pt, pr, pb     [optional] each can be null
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -342,15 +350,15 @@ int32 boxSetGeometry(BOX * box, int32 x, int32 y, int32 w, int32 h)
  *      (1) All returned values are within the box.
  * </pre>
  */
-int32 boxGetSideLocations(BOX      * box,
-    int32  * pl,
-    int32  * pr,
-    int32  * pt,
-    int32  * pb)
+l_ok boxGetSideLocations(BOX      * box,
+    l_int32 * pl,
+    l_int32 * pr,
+    l_int32 * pt,
+    l_int32 * pb)
 {
-	int32 x, y, w, h;
+	l_int32 x, y, w, h;
 
-	PROCNAME("boxGetSideLocations");
+	PROCNAME(__FUNCTION__);
 
 	if(pl) *pl = 0;
 	if(pr) *pr = 0;
@@ -371,18 +379,18 @@ int32 boxGetSideLocations(BOX      * box,
  * \brief   boxSetSideLocations()
  *
  * \param[in]    box
- * \param[in]    l, r, t, b  [optional] use -1 to leave unchanged
+ * \param[in]    l, r, t, b     [optional] use -1 to leave unchanged
  * \return  0 if OK, 1 on error
  */
-int32 boxSetSideLocations(BOX     * box,
-    int32 l,
-    int32 r,
-    int32 t,
-    int32 b)
+l_ok boxSetSideLocations(BOX * box,
+    l_int32 l,
+    l_int32 r,
+    l_int32 t,
+    l_int32 b)
 {
-	int32 x, y, w, h;
+	l_int32 x, y, w, h;
 
-	PROCNAME("boxSetSideLocations");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return ERROR_INT("box not defined", procName, 1);
@@ -396,12 +404,13 @@ int32 boxSetSideLocations(BOX     * box,
 
 /*!
  * \brief  Return the current reference count of %box
- * \param[in]     box ptr to Box
+ *
+ * \param[in]     box
  * \return   refcount
  */
-int32 boxGetRefcount(BOX  * box)
+l_int32 boxGetRefcount(BOX  * box)
 {
-	PROCNAME("boxGetRefcount");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return ERROR_INT("box not defined", procName, UNDEF);
@@ -411,14 +420,15 @@ int32 boxGetRefcount(BOX  * box)
 
 /*!
  * \brief  Adjust the current references count of %box by %delta
+ *
  * \param[in]     box ptr to box
  * \param[in]     delta adjustment, usually -1 or 1
  * \return  0 if OK, 1 on error
  */
-int32 boxChangeRefcount(BOX     * box,
-    int32 delta)
+l_ok boxChangeRefcount(BOX * box,
+    l_int32 delta)
 {
-	PROCNAME("boxChangeRefcount");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return ERROR_INT("box not defined", procName, 1);
@@ -431,13 +441,13 @@ int32 boxChangeRefcount(BOX     * box,
  * \brief   boxIsValid()
  *
  * \param[in]    box
- * \param[out]   pvalid 1 if valid; 0 otherwise
+ * \param[out]   pvalid    1 if valid; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-int32 boxIsValid(BOX      * box,
-    int32  * pvalid)
+l_ok boxIsValid(BOX      * box,
+    l_int32 * pvalid)
 {
-	PROCNAME("boxIsValid");
+	PROCNAME(__FUNCTION__);
 
 	if(!pvalid)
 		return ERROR_INT("&valid not defined", procName, 1);
@@ -456,27 +466,26 @@ int32 boxIsValid(BOX      * box,
 /*!
  * \brief   boxaCreate()
  *
- * \param[in]    n  initial number of ptrs
+ * \param[in]    n    initial number of ptrs; 0 for default
  * \return  boxa, or NULL on error
  */
-BOXA * boxaCreate(int32 n)
+BOXA * boxaCreate(l_int32 n)
 {
-	BOXA  * boxa;
+	BOXA * boxa;
 
-	PROCNAME("boxaCreate");
+	PROCNAME(__FUNCTION__);
 
-	if(n <= 0)
-		n = INITIAL_PTR_ARRAYSIZE;
+	if(n <= 0 || n > MaxBoxaPtrArraySize)
+		n = InitialPtrArraySize;
 
-	if((boxa = (BOXA*)LEPT_CALLOC(1, sizeof(BOXA))) == NULL)
-		return (BOXA*)ERROR_PTR("boxa not made", procName, NULL);
+	boxa = (BOXA *)SAlloc::C(1, sizeof(BOXA));
 	boxa->n = 0;
 	boxa->nalloc = n;
 	boxa->refcount = 1;
-
-	if((boxa->box = (BOX**)LEPT_CALLOC(n, sizeof(BOX *))) == NULL)
-		return (BOXA*)ERROR_PTR("boxa ptrs not made", procName, NULL);
-
+	if((boxa->box = (BOX**)SAlloc::C(n, sizeof(BOX *))) == NULL) {
+		boxaDestroy(&boxa);
+		return (BOXA *)ERROR_PTR("boxa ptrs not made", procName, NULL);
+	}
 	return boxa;
 }
 
@@ -484,7 +493,7 @@ BOXA * boxaCreate(int32 n)
  * \brief   boxaCopy()
  *
  * \param[in]    boxa
- * \param[in]    copyflag L_COPY, L_CLONE, L_COPY_CLONE
+ * \param[in]    copyflag    L_COPY, L_CLONE, L_COPY_CLONE
  * \return  new boxa, or NULL on error
  *
  * <pre>
@@ -493,17 +502,17 @@ BOXA * boxaCreate(int32 n)
  *      (2) The copy-clone makes a new boxa that holds clones of each box.
  * </pre>
  */
-BOXA * boxaCopy(BOXA    * boxa,
-    int32 copyflag)
+BOXA * boxaCopy(BOXA * boxa,
+    l_int32 copyflag)
 {
-	int32 i;
-	BOX     * boxc;
-	BOXA    * boxac;
+	l_int32 i;
+	BOX * boxc;
+	BOXA * boxac;
 
-	PROCNAME("boxaCopy");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
-		return (BOXA*)ERROR_PTR("boxa not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxa not defined", procName, NULL);
 
 	if(copyflag == L_CLONE) {
 		boxa->refcount++;
@@ -511,10 +520,10 @@ BOXA * boxaCopy(BOXA    * boxa,
 	}
 
 	if(copyflag != L_COPY && copyflag != L_COPY_CLONE)
-		return (BOXA*)ERROR_PTR("invalid copyflag", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid copyflag", procName, NULL);
 
 	if((boxac = boxaCreate(boxa->nalloc)) == NULL)
-		return (BOXA*)ERROR_PTR("boxac not made", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxac not made", procName, NULL);
 	for(i = 0; i < boxa->n; i++) {
 		if(copyflag == L_COPY)
 			boxc = boxaGetBox(boxa, i, L_COPY);
@@ -528,7 +537,7 @@ BOXA * boxaCopy(BOXA    * boxa,
 /*!
  * \brief   boxaDestroy()
  *
- * \param[in,out]   pboxa will be set to null before returning
+ * \param[in,out]   pboxa    will be set to null before returning
  * \return  void
  *
  * <pre>
@@ -537,12 +546,12 @@ BOXA * boxaCopy(BOXA    * boxa,
  *      (2) Always nulls the input ptr.
  * </pre>
  */
-void boxaDestroy(BOXA  ** pboxa)
+void boxaDestroy(BOXA ** pboxa)
 {
-	int32 i;
-	BOXA    * boxa;
+	l_int32 i;
+	BOXA * boxa;
 
-	PROCNAME("boxaDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(pboxa == NULL) {
 		L_WARNING("ptr address is null!\n", procName);
@@ -557,30 +566,29 @@ void boxaDestroy(BOXA  ** pboxa)
 	if(boxa->refcount <= 0) {
 		for(i = 0; i < boxa->n; i++)
 			boxDestroy(&boxa->box[i]);
-		LEPT_FREE(boxa->box);
-		LEPT_FREE(boxa);
+		SAlloc::F(boxa->box);
+		SAlloc::F(boxa);
 	}
 
 	*pboxa = NULL;
-	return;
 }
 
 /*!
  * \brief   boxaAddBox()
  *
  * \param[in]    boxa
- * \param[in]    box  to be added
- * \param[in]    copyflag L_INSERT, L_COPY, L_CLONE
+ * \param[in]    box         to be added
+ * \param[in]    copyflag    L_INSERT, L_COPY, L_CLONE
  * \return  0 if OK, 1 on error
  */
-int32 boxaAddBox(BOXA    * boxa,
-    BOX     * box,
-    int32 copyflag)
+l_ok boxaAddBox(BOXA * boxa,
+    BOX * box,
+    l_int32 copyflag)
 {
-	int32 n;
-	BOX     * boxc;
+	l_int32 n;
+	BOX * boxc;
 
-	PROCNAME("boxaAddBox");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
@@ -599,11 +607,15 @@ int32 boxaAddBox(BOXA    * boxa,
 		return ERROR_INT("boxc not made", procName, 1);
 
 	n = boxaGetCount(boxa);
-	if(n >= boxa->nalloc)
-		boxaExtendArray(boxa);
+	if(n >= boxa->nalloc) {
+		if(boxaExtendArray(boxa)) {
+			if(copyflag != L_INSERT)
+				boxDestroy(&boxc);
+			return ERROR_INT("extension failed", procName, 1);
+		}
+	}
 	boxa->box[n] = boxc;
 	boxa->n++;
-
 	return 0;
 }
 
@@ -618,9 +630,9 @@ int32 boxaAddBox(BOXA    * boxa,
  *      (1) Reallocs with doubled size of ptr array.
  * </pre>
  */
-int32 boxaExtendArray(BOXA  * boxa)
+l_ok boxaExtendArray(BOXA * boxa)
 {
-	PROCNAME("boxaExtendArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
@@ -632,24 +644,39 @@ int32 boxaExtendArray(BOXA  * boxa)
  * \brief   boxaExtendArrayToSize()
  *
  * \param[in]    boxa
- * \param[in]    size new size of boxa array
+ * \param[in]    size     new size of boxa ptr array
  * \return  0 if OK; 1 on error
  *
  * <pre>
  * Notes:
  *      (1) If necessary, reallocs new boxa ptr array to %size.
+ *      (2) The max number of box ptrs is 10M.
  * </pre>
  */
-int32 boxaExtendArrayToSize(BOXA * boxa, int32 size)
+l_ok boxaExtendArrayToSize(BOXA   * boxa,
+    size_t size)
 {
-	PROCNAME("boxaExtendArrayToSize");
+	size_t oldsize, newsize;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
-	if(size > boxa->nalloc) {
-		if((boxa->box = (BOX**)reallocNew((void**)&boxa->box, sizeof(BOX *) * boxa->nalloc, size * sizeof(BOX *))) == NULL)
-			return ERROR_INT("new ptr array not returned", procName, 1);
-		boxa->nalloc = size;
+	if(boxa->nalloc > MaxBoxaPtrArraySize) /* belt & suspenders */
+		return ERROR_INT("boxa has too many ptrs", procName, 1);
+	if(size > MaxBoxaPtrArraySize)
+		return ERROR_INT("size > 10M box ptrs; too large", procName, 1);
+	if(size <= boxa->nalloc) {
+		L_INFO("size too small; no extension\n", procName);
+		return 0;
 	}
+
+	oldsize = boxa->nalloc * sizeof(BOX *);
+	newsize = size * sizeof(BOX *);
+	if((boxa->box = (BOX**)reallocNew((void**)&boxa->box,
+	    oldsize, newsize)) == NULL)
+		return ERROR_INT("new ptr array not returned", procName, 1);
+	boxa->nalloc = size;
 	return 0;
 }
 
@@ -662,9 +689,10 @@ int32 boxaExtendArrayToSize(BOXA * boxa, int32 size)
  * \param[in]    boxa
  * \return  count of all boxes; 0 if no boxes or on error
  */
-int32 boxaGetCount(BOXA  * boxa)
+l_int32 boxaGetCount(BOXA * boxa)
 {
-	PROCNAME("boxaGetCount");
+	PROCNAME(__FUNCTION__);
+
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 0);
 	return boxa->n;
@@ -676,13 +704,15 @@ int32 boxaGetCount(BOXA  * boxa)
  * \param[in]    boxa
  * \return  count of valid boxes; 0 if no valid boxes or on error
  */
-int32 boxaGetValidCount(BOXA  * boxa)
+l_int32 boxaGetValidCount(BOXA * boxa)
 {
-	int32 n, i, w, h, count;
+	l_int32 n, i, w, h, count;
 
-	PROCNAME("boxaGetValidCount");
+	PROCNAME(__FUNCTION__);
+
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 0);
+
 	n = boxaGetCount(boxa);
 	for(i = 0, count = 0; i < n; i++) {
 		boxaGetBoxGeometry(boxa, i, NULL, NULL, &w, &h);
@@ -696,13 +726,16 @@ int32 boxaGetValidCount(BOXA  * boxa)
  * \brief   boxaGetBox()
  *
  * \param[in]    boxa
- * \param[in]    index  to the index-th box
- * \param[in]    accessflag  L_COPY or L_CLONE
+ * \param[in]    index        to the index-th box
+ * \param[in]    accessflag   L_COPY or L_CLONE
  * \return  box, or NULL on error
  */
-BOX * boxaGetBox(BOXA * boxa, int32 index, int32 accessflag)
+BOX * boxaGetBox(BOXA * boxa,
+    l_int32 index,
+    l_int32 accessflag)
 {
-	PROCNAME("boxaGetBox");
+	PROCNAME(__FUNCTION__);
+
 	if(!boxa)
 		return (BOX*)ERROR_PTR("boxa not defined", procName, NULL);
 	if(index < 0 || index >= boxa->n)
@@ -720,28 +753,28 @@ BOX * boxaGetBox(BOXA * boxa, int32 index, int32 accessflag)
  * \brief   boxaGetValidBox()
  *
  * \param[in]    boxa
- * \param[in]    index  to the index-th box
- * \param[in]    accessflag  L_COPY or L_CLONE
+ * \param[in]    index        to the index-th box
+ * \param[in]    accessflag   L_COPY or L_CLONE
  * \return  box, or NULL if box is not valid or on error
  *
  * <pre>
  * Notes:
  *      (1) This returns NULL for an invalid box in a boxa.
- *          For a box to be valid, both the width and height must be \> 0.
+ *          For a box to be valid, both the width and height must be > 0.
  *      (2) We allow invalid boxes, with w = 0 or h = 0, as placeholders
  *          in boxa for which the index of the box in the boxa is important.
  *          This is an atypical situation; usually you want to put only
  *          valid boxes in a boxa.
  * </pre>
  */
-BOX * boxaGetValidBox(BOXA    * boxa,
-    int32 index,
-    int32 accessflag)
+BOX * boxaGetValidBox(BOXA * boxa,
+    l_int32 index,
+    l_int32 accessflag)
 {
-	int32 w, h;
-	BOX     * box;
+	l_int32 w, h;
+	BOX * box;
 
-	PROCNAME("boxaGetValidBox");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return (BOX*)ERROR_PTR("boxa not defined", procName, NULL);
@@ -760,12 +793,12 @@ BOX * boxaGetValidBox(BOXA    * boxa,
  * \param[in]    boxa
  * \return  na   numa of invalid boxes; NULL if there are none or on error
  */
-NUMA * boxaFindInvalidBoxes(BOXA  * boxa)
+NUMA * boxaFindInvalidBoxes(BOXA * boxa)
 {
-	int32 i, n, w, h;
-	NUMA    * na;
+	l_int32 i, n, w, h;
+	NUMA * na;
 
-	PROCNAME("boxaFindInvalidBoxes");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return (NUMA*)ERROR_PTR("boxa not defined", procName, NULL);
@@ -787,20 +820,20 @@ NUMA * boxaFindInvalidBoxes(BOXA  * boxa)
  * \brief   boxaGetBoxGeometry()
  *
  * \param[in]    boxa
- * \param[in]    index  to the index-th box
- * \param[out]   px, py, pw, ph [optional]  each can be null
+ * \param[in]    index            to the index-th box
+ * \param[out]   px, py, pw, ph   [optional] each can be null
  * \return  0 if OK, 1 on error
  */
-int32 boxaGetBoxGeometry(BOXA     * boxa,
-    int32 index,
-    int32  * px,
-    int32  * py,
-    int32  * pw,
-    int32  * ph)
+l_ok boxaGetBoxGeometry(BOXA     * boxa,
+    l_int32 index,
+    l_int32 * px,
+    l_int32 * py,
+    l_int32 * pw,
+    l_int32 * ph)
 {
 	BOX  * box;
 
-	PROCNAME("boxaGetBoxGeometry");
+	PROCNAME(__FUNCTION__);
 
 	if(px) *px = 0;
 	if(py) *py = 0;
@@ -822,16 +855,16 @@ int32 boxaGetBoxGeometry(BOXA     * boxa,
  * \brief   boxaIsFull()
  *
  * \param[in]    boxa
- * \param[out]   pfull 1 if boxa is full
+ * \param[out]   pfull    1 if boxa is full; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-int32 boxaIsFull(BOXA     * boxa,
-    int32  * pfull)
+l_ok boxaIsFull(BOXA     * boxa,
+    l_int32 * pfull)
 {
-	int32 i, n, full;
-	BOX     * box;
+	l_int32 i, n, full;
+	BOX * box;
 
-	PROCNAME("boxaIsFull");
+	PROCNAME(__FUNCTION__);
 
 	if(!pfull)
 		return ERROR_INT("&full not defined", procName, 1);
@@ -859,21 +892,22 @@ int32 boxaIsFull(BOXA     * boxa,
  * \brief   boxaReplaceBox()
  *
  * \param[in]    boxa
- * \param[in]    index  to the index-th box
- * \param[in]    box insert to replace existing one
+ * \param[in]    index     to the index-th box
+ * \param[in]    box       insert this box to replace existing one
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) In-place replacement of one box.
+ *      (1) In-place replacement of one box; the input %box is now
+ *          owned by the boxa.
  *      (2) The previous box at that location, if any, is destroyed.
  * </pre>
  */
-int32 boxaReplaceBox(BOXA    * boxa,
-    int32 index,
-    BOX     * box)
+l_ok boxaReplaceBox(BOXA * boxa,
+    l_int32 index,
+    BOX * box)
 {
-	PROCNAME("boxaReplaceBox");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
@@ -891,13 +925,13 @@ int32 boxaReplaceBox(BOXA    * boxa,
  * \brief   boxaInsertBox()
  *
  * \param[in]    boxa
- * \param[in]    index location in boxa to insert new value
- * \param[in]    box new box to be inserted
+ * \param[in]    index    location in boxa to insert new value
+ * \param[in]    box      new box to be inserted; the boxa now owns it
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This shifts box[i] --\> box[i + 1] for all i \>= index,
+ *      (1) This shifts box[i] --> box[i + 1] for all i >= index,
  *          and then inserts box as box[index].
  *      (2) To insert at the beginning of the array, set index = 0.
  *      (3) To append to the array, it's easier to use boxaAddBox().
@@ -905,31 +939,34 @@ int32 boxaReplaceBox(BOXA    * boxa,
  *          because the function is O(n).
  * </pre>
  */
-int32 boxaInsertBox(BOXA    * boxa,
-    int32 index,
-    BOX     * box)
+l_ok boxaInsertBox(BOXA * boxa,
+    l_int32 index,
+    BOX * box)
 {
-	int32 i, n;
+	l_int32 i, n;
 	BOX    ** array;
 
-	PROCNAME("boxaInsertBox");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
 	n = boxaGetCount(boxa);
-	if(index < 0 || index > n)
-		return ERROR_INT("index not in {0...n}", procName, 1);
+	if(index < 0 || index > n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n);
+		return 1;
+	}
 	if(!box)
 		return ERROR_INT("box not defined", procName, 1);
 
-	if(n >= boxa->nalloc)
-		boxaExtendArray(boxa);
+	if(n >= boxa->nalloc) {
+		if(boxaExtendArray(boxa))
+			return ERROR_INT("extension failed", procName, 1);
+	}
 	array = boxa->box;
 	boxa->n++;
 	for(i = n; i > index; i--)
 		array[i] = array[i - 1];
 	array[index] = box;
-
 	return 0;
 }
 
@@ -937,72 +974,56 @@ int32 boxaInsertBox(BOXA    * boxa,
  * \brief   boxaRemoveBox()
  *
  * \param[in]    boxa
- * \param[in]    index of box to be removed
+ * \param[in]    index    of box to be removed and destroyed
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This removes box[index] and then shifts
- *          box[i] --\> box[i - 1] for all i \> index.
+ *          box[i] --> box[i - 1] for all i > index.
  *      (2) It should not be used repeatedly to remove boxes from
  *          large arrays, because the function is O(n).
  * </pre>
  */
-int32 boxaRemoveBox(BOXA    * boxa,
-    int32 index)
+l_ok boxaRemoveBox(BOXA * boxa,
+    l_int32 index)
 {
-	int32 i, n;
-	BOX    ** array;
-
-	PROCNAME("boxaRemoveBox");
-
-	if(!boxa)
-		return ERROR_INT("boxa not defined", procName, 1);
-	n = boxaGetCount(boxa);
-	if(index < 0 || index >= n)
-		return ERROR_INT("index not in {0...n - 1}", procName, 1);
-
-	array = boxa->box;
-	boxDestroy(&array[index]);
-	for(i = index + 1; i < n; i++)
-		array[i - 1] = array[i];
-	array[n - 1] = NULL;
-	boxa->n--;
-
-	return 0;
+	return boxaRemoveBoxAndSave(boxa, index, NULL);
 }
 
 /*!
  * \brief   boxaRemoveBoxAndSave()
  *
  * \param[in]    boxa
- * \param[in]    index of box to be removed
- * \param[out]   pbox [optional] removed box
+ * \param[in]    index     of box to be removed
+ * \param[out]   pbox      [optional] removed box
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This removes box[index] and then shifts
- *          box[i] --\> box[i - 1] for all i \> index.
+ *          box[i] --> box[i - 1] for all i > index.
  *      (2) It should not be used repeatedly to remove boxes from
  *          large arrays, because the function is O(n).
  * </pre>
  */
-int32 boxaRemoveBoxAndSave(BOXA    * boxa,
-    int32 index,
+l_ok boxaRemoveBoxAndSave(BOXA * boxa,
+    l_int32 index,
     BOX    ** pbox)
 {
-	int32 i, n;
+	l_int32 i, n;
 	BOX    ** array;
 
-	PROCNAME("boxaRemoveBoxAndSave");
+	PROCNAME(__FUNCTION__);
 
 	if(pbox) *pbox = NULL;
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
 	n = boxaGetCount(boxa);
-	if(index < 0 || index >= n)
-		return ERROR_INT("index not in {0...n - 1}", procName, 1);
+	if(index < 0 || index >= n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n - 1);
+		return 1;
+	}
 
 	if(pbox)
 		*pbox = boxaGetBox(boxa, index, L_CLONE);
@@ -1020,7 +1041,7 @@ int32 boxaRemoveBoxAndSave(BOXA    * boxa,
  * \brief   boxaSaveValid()
  *
  * \param[in]    boxas
- * \param[in]    copyflag L_COPY or L_CLONE
+ * \param[in]    copyflag    L_COPY or L_CLONE
  * \return  boxad if OK, NULL on error
  *
  * <pre>
@@ -1028,19 +1049,19 @@ int32 boxaRemoveBoxAndSave(BOXA    * boxa,
  *      (1) This makes a copy/clone of each valid box.
  * </pre>
  */
-BOXA * boxaSaveValid(BOXA    * boxas,
-    int32 copyflag)
+BOXA * boxaSaveValid(BOXA * boxas,
+    l_int32 copyflag)
 {
-	int32 i, n;
-	BOX     * box;
-	BOXA    * boxad;
+	l_int32 i, n;
+	BOX * box;
+	BOXA * boxad;
 
-	PROCNAME("boxaSaveValid");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 	if(copyflag != L_COPY && copyflag != L_CLONE)
-		return (BOXA*)ERROR_PTR("invalid copyflag", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid copyflag", procName, NULL);
 
 	n = boxaGetCount(boxas);
 	boxad = boxaCreate(n);
@@ -1055,8 +1076,8 @@ BOXA * boxaSaveValid(BOXA    * boxas,
 /*!
  * \brief   boxaInitFull()
  *
- * \param[in]    boxa typically empty
- * \param[in]    box [optional] to be replicated into the entire ptr array
+ * \param[in]    boxa    typically empty
+ * \param[in]    box     [optional] to be replicated into the entire ptr array
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1078,7 +1099,7 @@ BOXA * boxaSaveValid(BOXA    * boxas,
  *             Boxa *boxa = boxaCreate(max);
  *             Box *box = boxCreate(...);
  *             boxaInitFull(boxa, box);
- *             boxDestroy(\&box);
+ *             boxDestroy(&box);
  *          If we have an existing boxa with a smaller ptr array, it can
  *          be reused for up to max boxes:
  *             boxaExtendArrayToSize(boxa, max);
@@ -1090,13 +1111,13 @@ BOXA * boxaSaveValid(BOXA    * boxas,
  *          use boxaGetValidBox() to return NULL for the invalid boxes.
  * </pre>
  */
-int32 boxaInitFull(BOXA  * boxa,
+l_ok boxaInitFull(BOXA * boxa,
     BOX   * box)
 {
-	int32 i, n;
-	BOX     * boxt;
+	l_int32 i, n;
+	BOX * boxt;
 
-	PROCNAME("boxaInitFull");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
@@ -1125,11 +1146,11 @@ int32 boxaInitFull(BOXA  * boxa,
  *          to null.  The number of allocated boxes, n, is set to 0.
  * </pre>
  */
-int32 boxaClear(BOXA  * boxa)
+l_ok boxaClear(BOXA * boxa)
 {
-	int32 i, n;
+	l_int32 i, n;
 
-	PROCNAME("boxaClear");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
@@ -1147,34 +1168,33 @@ int32 boxaClear(BOXA  * boxa)
 /*!
  * \brief   boxaaCreate()
  *
- * \param[in]    n size of boxa ptr array to be alloc'd; 0 for default
+ * \param[in]    n     size of boxa ptr array to be alloc'd; 0 for default
  * \return  baa, or NULL on error
  */
-BOXAA * boxaaCreate(int32 n)
+BOXAA * boxaaCreate(l_int32 n)
 {
 	BOXAA  * baa;
 
-	PROCNAME("boxaaCreate");
+	PROCNAME(__FUNCTION__);
 
-	if(n <= 0)
-		n = INITIAL_PTR_ARRAYSIZE;
+	if(n <= 0 || n > MaxBoxaaPtrArraySize)
+		n = InitialPtrArraySize;
 
-	if((baa = (BOXAA*)LEPT_CALLOC(1, sizeof(BOXAA))) == NULL)
-		return (BOXAA*)ERROR_PTR("baa not made", procName, NULL);
-	if((baa->boxa = (BOXA**)LEPT_CALLOC(n, sizeof(BOXA *))) == NULL)
+	baa = (BOXAA*)SAlloc::C(1, sizeof(BOXAA));
+	if((baa->boxa = (BOXA**)SAlloc::C(n, sizeof(BOXA *))) == NULL) {
+		boxaaDestroy(&baa);
 		return (BOXAA*)ERROR_PTR("boxa ptr array not made", procName, NULL);
-
+	}
 	baa->nalloc = n;
 	baa->n = 0;
-
 	return baa;
 }
 
 /*!
  * \brief   boxaaCopy()
  *
- * \param[in]    baas input boxaa to be copied
- * \param[in]    copyflag L_COPY, L_CLONE
+ * \param[in]    baas       input boxaa to be copied
+ * \param[in]    copyflag   L_COPY, L_CLONE
  * \return  baad new boxaa, composed of copies or clones of the boxa
  *                    in baas, or NULL on error
  *
@@ -1185,13 +1205,13 @@ BOXAA * boxaaCreate(int32 n)
  * </pre>
  */
 BOXAA * boxaaCopy(BOXAA   * baas,
-    int32 copyflag)
+    l_int32 copyflag)
 {
-	int32 i, n;
-	BOXA    * boxa;
+	l_int32 i, n;
+	BOXA * boxa;
 	BOXAA   * baad;
 
-	PROCNAME("boxaaCopy");
+	PROCNAME(__FUNCTION__);
 
 	if(!baas)
 		return (BOXAA*)ERROR_PTR("baas not defined", procName, NULL);
@@ -1211,14 +1231,14 @@ BOXAA * boxaaCopy(BOXAA   * baas,
 /*!
  * \brief   boxaaDestroy()
  *
- * \param[in,out]   pbaa will be set to null before returning
+ * \param[in,out]   pbaa     will be set to null before returning
  */
 void boxaaDestroy(BOXAA  ** pbaa)
 {
-	int32 i;
+	l_int32 i;
 	BOXAA   * baa;
 
-	PROCNAME("boxaaDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(pbaa == NULL) {
 		L_WARNING("ptr address is NULL!\n", procName);
@@ -1230,11 +1250,9 @@ void boxaaDestroy(BOXAA  ** pbaa)
 
 	for(i = 0; i < baa->n; i++)
 		boxaDestroy(&baa->boxa[i]);
-	LEPT_FREE(baa->boxa);
-	LEPT_FREE(baa);
+	SAlloc::F(baa->boxa);
+	SAlloc::F(baa);
 	*pbaa = NULL;
-
-	return;
 }
 
 /*--------------------------------------------------------------------------*
@@ -1244,18 +1262,18 @@ void boxaaDestroy(BOXAA  ** pbaa)
  * \brief   boxaaAddBoxa()
  *
  * \param[in]    baa
- * \param[in]    ba     to be added
- * \param[in]    copyflag  L_INSERT, L_COPY, L_CLONE
+ * \param[in]    ba         to be added
+ * \param[in]    copyflag   L_INSERT, L_COPY, L_CLONE
  * \return  0 if OK, 1 on error
  */
-int32 boxaaAddBoxa(BOXAA   * baa,
-    BOXA    * ba,
-    int32 copyflag)
+l_ok boxaaAddBoxa(BOXAA   * baa,
+    BOXA * ba,
+    l_int32 copyflag)
 {
-	int32 n;
-	BOXA    * bac;
+	l_int32 n;
+	BOXA * bac;
 
-	PROCNAME("boxaaAddBoxa");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
@@ -1270,8 +1288,10 @@ int32 boxaaAddBoxa(BOXAA   * baa,
 		bac = boxaCopy(ba, copyflag);
 
 	n = boxaaGetCount(baa);
-	if(n >= baa->nalloc)
-		boxaaExtendArray(baa);
+	if(n >= baa->nalloc) {
+		if(boxaaExtendArray(baa))
+			return ERROR_INT("extension failed", procName, 1);
+	}
 	baa->boxa[n] = bac;
 	baa->n++;
 	return 0;
@@ -1282,50 +1302,60 @@ int32 boxaaAddBoxa(BOXAA   * baa,
  *
  * \param[in]    baa
  * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Doubles the size of the boxa ptr array.
+ *      (2) The max number of boxa ptrs is 1 million.
+ * </pre>
  */
-int32 boxaaExtendArray(BOXAA  * baa)
+l_ok boxaaExtendArray(BOXAA  * baa)
 {
-	PROCNAME("boxaaExtendArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
 
-	if((baa->boxa = (BOXA**)reallocNew((void**)&baa->boxa,
-			    sizeof(BOXA *) * baa->nalloc,
-			    2 * sizeof(BOXA *) * baa->nalloc)) == NULL)
-		return ERROR_INT("new ptr array not returned", procName, 1);
-
-	baa->nalloc *= 2;
-	return 0;
+	return boxaaExtendArrayToSize(baa, 2 * baa->nalloc);
 }
 
 /*!
  * \brief   boxaaExtendArrayToSize()
  *
  * \param[in]    baa
- * \param[in]    size new size of boxa array
+ * \param[in]    size     new size of boxa array
  * \return  0 if OK; 1 on error
  *
  * <pre>
  * Notes:
  *      (1) If necessary, reallocs the boxa ptr array to %size.
+ *      (2) %size limited to 1M boxa ptrs.
  * </pre>
  */
-int32 boxaaExtendArrayToSize(BOXAA   * baa,
-    int32 size)
+l_ok boxaaExtendArrayToSize(BOXAA   * baa,
+    l_int32 size)
 {
-	PROCNAME("boxaaExtendArrayToSize");
+	size_t oldsize, newsize;
+
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
-
-	if(size > baa->nalloc) {
-		if((baa->boxa = (BOXA**)reallocNew((void**)&baa->boxa,
-				    sizeof(BOXA *) * baa->nalloc,
-				    size * sizeof(BOXA *))) == NULL)
-			return ERROR_INT("new ptr array not returned", procName, 1);
-		baa->nalloc = size;
+	if(baa->nalloc > MaxBoxaaPtrArraySize) /* belt & suspenders */
+		return ERROR_INT("baa has too many ptrs", procName, 1);
+	if(size > MaxBoxaaPtrArraySize)
+		return ERROR_INT("size > 1M boxa ptrs; too large", procName, 1);
+	if(size <= baa->nalloc) {
+		L_INFO("size too small; no extension\n", procName);
+		return 0;
 	}
+
+	oldsize = baa->nalloc * sizeof(BOXA *);
+	newsize = size * sizeof(BOXA *);
+	if((baa->boxa = (BOXA**)reallocNew((void**)&baa->boxa,
+	    oldsize, newsize)) == NULL)
+		return ERROR_INT("new ptr array not returned", procName, 1);
+	baa->nalloc = size;
 	return 0;
 }
 
@@ -1338,9 +1368,10 @@ int32 boxaaExtendArrayToSize(BOXAA   * baa,
  * \param[in]    baa
  * \return  count number of boxa, or 0 if no boxa or on error
  */
-int32 boxaaGetCount(BOXAA  * baa)
+l_int32 boxaaGetCount(BOXAA  * baa)
 {
-	PROCNAME("boxaaGetCount");
+	PROCNAME(__FUNCTION__);
+
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 0);
 	return baa->n;
@@ -1352,12 +1383,12 @@ int32 boxaaGetCount(BOXAA  * baa)
  * \param[in]    baa
  * \return  count number of boxes, or 0 if no boxes or on error
  */
-int32 boxaaGetBoxCount(BOXAA  * baa)
+l_int32 boxaaGetBoxCount(BOXAA  * baa)
 {
-	BOXA    * boxa;
-	int32 n, sum, i;
+	BOXA * boxa;
+	l_int32 n, sum, i;
 
-	PROCNAME("boxaaGetBoxCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 0);
@@ -1376,25 +1407,25 @@ int32 boxaaGetBoxCount(BOXAA  * baa)
  * \brief   boxaaGetBoxa()
  *
  * \param[in]    baa
- * \param[in]    index  to the index-th boxa
+ * \param[in]    index        to the index-th boxa
  * \param[in]    accessflag   L_COPY or L_CLONE
  * \return  boxa, or NULL on error
  */
 BOXA * boxaaGetBoxa(BOXAA   * baa,
-    int32 index,
-    int32 accessflag)
+    l_int32 index,
+    l_int32 accessflag)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("boxaaGetBoxa");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
-		return (BOXA*)ERROR_PTR("baa not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("baa not defined", procName, NULL);
 	n = boxaaGetCount(baa);
 	if(index < 0 || index >= n)
-		return (BOXA*)ERROR_PTR("index not valid", procName, NULL);
+		return (BOXA *)ERROR_PTR("index not valid", procName, NULL);
 	if(accessflag != L_COPY && accessflag != L_CLONE)
-		return (BOXA*)ERROR_PTR("invalid accessflag", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid accessflag", procName, NULL);
 
 	return boxaCopy(baa->boxa[index], accessflag);
 }
@@ -1403,20 +1434,20 @@ BOXA * boxaaGetBoxa(BOXAA   * baa,
  * \brief   boxaaGetBox()
  *
  * \param[in]    baa
- * \param[in]    iboxa  index into the boxa array in the boxaa
- * \param[in]    ibox  index into the box array in the boxa
+ * \param[in]    iboxa        index into the boxa array in the boxaa
+ * \param[in]    ibox         index into the box array in the boxa
  * \param[in]    accessflag   L_COPY or L_CLONE
  * \return  box, or NULL on error
  */
 BOX * boxaaGetBox(BOXAA   * baa,
-    int32 iboxa,
-    int32 ibox,
-    int32 accessflag)
+    l_int32 iboxa,
+    l_int32 ibox,
+    l_int32 accessflag)
 {
 	BOX   * box;
-	BOXA  * boxa;
+	BOXA * boxa;
 
-	PROCNAME("boxaaGetBox");
+	PROCNAME(__FUNCTION__);
 
 	if((boxa = boxaaGetBoxa(baa, iboxa, L_CLONE)) == NULL)
 		return (BOX*)ERROR_PTR("boxa not retrieved", procName, NULL);
@@ -1432,8 +1463,8 @@ BOX * boxaaGetBox(BOXAA   * baa,
 /*!
  * \brief   boxaaInitFull()
  *
- * \param[in]    baa typically empty
- * \param[in]    boxa to be replicated into the entire ptr array
+ * \param[in]    baa      typically empty
+ * \param[in]    boxa     to be replicated into the entire ptr array
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1442,27 +1473,30 @@ BOX * boxaaGetBox(BOXAA   * baa,
  *          with copies of %boxa.  Any existing boxa are destroyed.
  *          After this operation, the number of boxa is equal to
  *          the number of allocated ptrs.
- *      (2) Note that we use boxaaReplaceBox() instead of boxaInsertBox().
- *          They both have the same effect when inserting into a NULL ptr
- *          in the boxa ptr array
+ *      (2) Note that we use boxaaReplaceBoxa() which replaces a boxa,
+ *          instead of boxaaInsertBoxa(), which is O(n) and shifts all
+ *          the boxa pointers from the insertion point to the end.
  *      (3) Example usage.  This function is useful to prepare for a
  *          random insertion (or replacement) of boxa into a boxaa.
  *          To randomly insert boxa into a boxaa, up to some index "max":
  *             Boxaa *baa = boxaaCreate(max);
  *               // initialize the boxa
  *             Boxa *boxa = boxaCreate(...);
- *             ...  [optionally fix with boxes]
+ *             ...  [optionally fill with boxes]
  *             boxaaInitFull(baa, boxa);
  *          A typical use is to initialize the array with empty boxa,
  *          and to replace only a subset that must be aligned with
  *          something else, such as a pixa.
  * </pre>
  */
-int32 boxaaInitFull(BOXAA  * baa, BOXA   * boxa)
+l_ok boxaaInitFull(BOXAA  * baa,
+    BOXA   * boxa)
 {
-	int32 i, n;
-	BOXA    * boxat;
-	PROCNAME("boxaaInitFull");
+	l_int32 i, n;
+	BOXA * boxat;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
 	if(!boxa)
@@ -1482,7 +1516,7 @@ int32 boxaaInitFull(BOXAA  * baa, BOXA   * boxa)
  *
  * \param[in]    baa
  * \param[in]    maxindex
- * \param[in]    boxa to be replicated into the extended ptr array
+ * \param[in]    boxa       to be replicated into the extended ptr array
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1493,13 +1527,13 @@ int32 boxaaInitFull(BOXAA  * baa, BOXA   * boxa)
  *          Typically, boxa will be empty.
  * </pre>
  */
-int32 boxaaExtendWithInit(BOXAA   * baa,
-    int32 maxindex,
-    BOXA    * boxa)
+l_ok boxaaExtendWithInit(BOXAA   * baa,
+    l_int32 maxindex,
+    BOXA * boxa)
 {
-	int32 i, n;
+	l_int32 i, n;
 
-	PROCNAME("boxaaExtendWithInit");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
@@ -1509,7 +1543,8 @@ int32 boxaaExtendWithInit(BOXAA   * baa,
 	/* Extend the ptr array if necessary */
 	n = boxaaGetCount(baa);
 	if(maxindex < n) return 0;
-	boxaaExtendArrayToSize(baa, maxindex + 1);
+	if(boxaaExtendArrayToSize(baa, maxindex + 1))
+		return ERROR_INT("extension failed", procName, 1);
 
 	/* Fill the new entries with copies of boxa */
 	for(i = n; i <= maxindex; i++)
@@ -1521,8 +1556,8 @@ int32 boxaaExtendWithInit(BOXAA   * baa,
  * \brief   boxaaReplaceBoxa()
  *
  * \param[in]    baa
- * \param[in]    index  to the index-th boxa
- * \param[in]    boxa insert and replace any existing one
+ * \param[in]    index    to the index-th boxa
+ * \param[in]    boxa     insert and replace any existing one
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1532,13 +1567,13 @@ int32 boxaaExtendWithInit(BOXAA   * baa,
  *      (2) If the index is invalid, return 1 (error)
  * </pre>
  */
-int32 boxaaReplaceBoxa(BOXAA   * baa,
-    int32 index,
-    BOXA    * boxa)
+l_ok boxaaReplaceBoxa(BOXAA   * baa,
+    l_int32 index,
+    BOXA * boxa)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("boxaaReplaceBoxa");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
@@ -1557,45 +1592,49 @@ int32 boxaaReplaceBoxa(BOXAA   * baa,
  * \brief   boxaaInsertBoxa()
  *
  * \param[in]    baa
- * \param[in]    index location in boxaa to insert new boxa
- * \param[in]    boxa new boxa to be inserted
+ * \param[in]    index    location in boxaa to insert new boxa
+ * \param[in]    boxa     new boxa to be inserted
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This shifts boxa[i] --\> boxa[i + 1] for all i \>= index,
- *          and then inserts boxa as boxa[index].
- *      (2) To insert at the beginning of the array, set index = 0.
- *      (3) To append to the array, it's easier to use boxaaAddBoxa().
+ *      (1) This shifts boxa[i] --> boxa[i + 1] for all i >= index,
+ *          and then inserts boxa as boxa[index].  It is typically used
+ *          when %baa is full of boxa.
+ *      (2) To insert at the beginning of the array, set %index = 0.
+ *      (3) To append to the array, it is equivalent to boxaaAddBoxa().
  *      (4) This should not be used repeatedly to insert into large arrays,
  *          because the function is O(n).
  * </pre>
  */
-int32 boxaaInsertBoxa(BOXAA   * baa,
-    int32 index,
-    BOXA    * boxa)
+l_ok boxaaInsertBoxa(BOXAA   * baa,
+    l_int32 index,
+    BOXA * boxa)
 {
-	int32 i, n;
+	l_int32 i, n;
 	BOXA   ** array;
 
-	PROCNAME("boxaaInsertBoxa");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
 	n = boxaaGetCount(baa);
-	if(index < 0 || index > n)
-		return ERROR_INT("index not in {0...n}", procName, 1);
+	if(index < 0 || index > n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n);
+		return 1;
+	}
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
 
-	if(n >= baa->nalloc)
-		boxaaExtendArray(baa);
+	if(n >= baa->nalloc) {
+		if(boxaaExtendArray(baa))
+			return ERROR_INT("extension failed", procName, 1);
+	}
 	array = baa->boxa;
 	baa->n++;
 	for(i = n; i > index; i--)
 		array[i] = array[i - 1];
 	array[index] = boxa;
-
 	return 0;
 }
 
@@ -1603,25 +1642,25 @@ int32 boxaaInsertBoxa(BOXAA   * baa,
  * \brief   boxaaRemoveBoxa()
  *
  * \param[in]    baa
- * \param[in]    index  of the boxa to be removed
+ * \param[in]    index   of the boxa to be removed and destroyed
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This removes boxa[index] and then shifts
- *          boxa[i] --\> boxa[i - 1] for all i \> index.
+ *          boxa[i] --> boxa[i - 1] for all i > index.
  *      (2) The removed boxaa is destroyed.
  *      (2) This should not be used repeatedly on large arrays,
  *          because the function is O(n).
  * </pre>
  */
-int32 boxaaRemoveBoxa(BOXAA   * baa,
-    int32 index)
+l_ok boxaaRemoveBoxa(BOXAA   * baa,
+    l_int32 index)
 {
-	int32 i, n;
+	l_int32 i, n;
 	BOXA   ** array;
 
-	PROCNAME("boxaaRemoveBox");
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
@@ -1643,9 +1682,9 @@ int32 boxaaRemoveBoxa(BOXAA   * baa,
  * \brief   boxaaAddBox()
  *
  * \param[in]    baa
- * \param[in]    index of boxa with boxaa
- * \param[in]    box to be added
- * \param[in]    accessflag L_INSERT, L_COPY or L_CLONE
+ * \param[in]    index       of boxa with boxaa
+ * \param[in]    box         to be added
+ * \param[in]    accessflag  L_INSERT, L_COPY or L_CLONE
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1653,14 +1692,14 @@ int32 boxaaRemoveBoxa(BOXAA   * baa,
  *      (1) Adds to an existing boxa only.
  * </pre>
  */
-int32 boxaaAddBox(BOXAA   * baa,
-    int32 index,
-    BOX     * box,
-    int32 accessflag)
+l_ok boxaaAddBox(BOXAA   * baa,
+    l_int32 index,
+    BOX * box,
+    l_int32 accessflag)
 {
-	int32 n;
-	BOXA    * boxa;
-	PROCNAME("boxaaAddBox");
+	l_int32 n;
+	BOXA * boxa;
+	PROCNAME(__FUNCTION__);
 
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
@@ -1682,10 +1721,10 @@ int32 boxaaAddBox(BOXAA   * baa,
 /*!
  * \brief   boxaaReadFromFiles()
  *
- * \param[in]    dirname directory
- * \param[in]    substr [optional] substring filter on filenames; can be NULL
- * \param[in]    first 0-based
- * \param[in]    nfiles use 0 for everything from %first to the end
+ * \param[in]    dirname   directory
+ * \param[in]    substr    [optional] substring filter on filenames; can be NULL
+ * \param[in]    first     0-based
+ * \param[in]    nfiles    use 0 for everything from %first to the end
  * \return  baa, or NULL on error or if no boxa files are found.
  *
  * <pre>
@@ -1699,33 +1738,38 @@ int32 boxaaAddBox(BOXAA   * baa,
  *          sorted in increasing order.
  * </pre>
  */
-BOXAA * boxaaReadFromFiles(const char  * dirname,
-    const char  * substr,
-    int32 first,
-    int32 nfiles)
+BOXAA * boxaaReadFromFiles(const char * dirname,
+    const char * substr,
+    l_int32 first,
+    l_int32 nfiles)
 {
-	char    * fname;
-	int32 i, n;
-	BOXA    * boxa;
+	char * fname;
+	l_int32 i, n;
+	BOXA * boxa;
 	BOXAA   * baa;
-	SARRAY  * sa;
-	PROCNAME("boxaaReadFromFiles");
+	SARRAY * sa;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!dirname)
 		return (BOXAA*)ERROR_PTR("dirname not defined", procName, NULL);
+
 	sa = getSortedPathnamesInDirectory(dirname, substr, first, nfiles);
 	if(!sa || ((n = sarrayGetCount(sa)) == 0)) {
 		sarrayDestroy(&sa);
 		return (BOXAA*)ERROR_PTR("no pixa files found", procName, NULL);
 	}
+
 	baa = boxaaCreate(n);
 	for(i = 0; i < n; i++) {
 		fname = sarrayGetString(sa, i, L_NOCOPY);
 		if((boxa = boxaRead(fname)) == NULL) {
-			L_ERROR2("boxa not read for %d-th file", procName, i);
+			L_ERROR("boxa not read for %d-th file", procName, i);
 			continue;
 		}
 		boxaaAddBoxa(baa, boxa, L_INSERT);
 	}
+
 	sarrayDestroy(&sa);
 	return baa;
 }
@@ -1736,41 +1780,44 @@ BOXAA * boxaaReadFromFiles(const char  * dirname,
  * \param[in]    filename
  * \return  boxaa, or NULL on error
  */
-BOXAA * boxaaRead(const char  * filename)
+BOXAA * boxaaRead(const char * filename)
 {
 	FILE   * fp;
 	BOXAA  * baa;
 
-	PROCNAME("boxaaRead");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return (BOXAA*)ERROR_PTR("filename not defined", procName, NULL);
+
 	if((fp = fopenReadStream(filename)) == NULL)
 		return (BOXAA*)ERROR_PTR("stream not opened", procName, NULL);
-
-	if((baa = boxaaReadStream(fp)) == NULL) {
-		fclose(fp);
-		return (BOXAA*)ERROR_PTR("boxaa not read", procName, NULL);
-	}
-
+	baa = boxaaReadStream(fp);
 	fclose(fp);
+	if(!baa)
+		return (BOXAA*)ERROR_PTR("boxaa not read", procName, NULL);
 	return baa;
 }
 
 /*!
  * \brief   boxaaReadStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    input file stream
  * \return  boxaa, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) It is OK for the boxaa to be empty (n == 0).
+ * </pre>
  */
-BOXAA * boxaaReadStream(FILE  * fp)
+BOXAA * boxaaReadStream(FILE * fp)
 {
-	int32 n, i, x, y, w, h, version;
-	int32 ignore;
-	BOXA    * boxa;
+	l_int32 n, i, x, y, w, h, version;
+	l_int32 ignore;
+	BOXA * boxa;
 	BOXAA   * baa;
 
-	PROCNAME("boxaaReadStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return (BOXAA*)ERROR_PTR("stream not defined", procName, NULL);
@@ -1781,34 +1828,44 @@ BOXAA * boxaaReadStream(FILE  * fp)
 		return (BOXAA*)ERROR_PTR("invalid boxa version", procName, NULL);
 	if(fscanf(fp, "Number of boxa = %d\n", &n) != 1)
 		return (BOXAA*)ERROR_PTR("not a boxaa file", procName, NULL);
+	if(n < 0)
+		return (BOXAA*)ERROR_PTR("num boxa ptrs < 0", procName, NULL);
+	if(n > MaxBoxaaPtrArraySize)
+		return (BOXAA*)ERROR_PTR("too many boxa ptrs", procName, NULL);
+	if(n == 0) L_INFO("the boxaa is empty\n", procName);
 
 	if((baa = boxaaCreate(n)) == NULL)
 		return (BOXAA*)ERROR_PTR("boxaa not made", procName, NULL);
-
 	for(i = 0; i < n; i++) {
 		if(fscanf(fp, "\nBoxa[%d] extent: x = %d, y = %d, w = %d, h = %d",
-			    &ignore, &x, &y, &w, &h) != 5)
+		    &ignore, &x, &y, &w, &h) != 5) {
+			boxaaDestroy(&baa);
 			return (BOXAA*)ERROR_PTR("boxa descr not valid", procName, NULL);
-		if((boxa = boxaReadStream(fp)) == NULL)
+		}
+		if((boxa = boxaReadStream(fp)) == NULL) {
+			boxaaDestroy(&baa);
 			return (BOXAA*)ERROR_PTR("boxa not made", procName, NULL);
+		}
 		boxaaAddBoxa(baa, boxa, L_INSERT);
 	}
-
 	return baa;
 }
 
 /*!
  * \brief   boxaaReadMem()
  *
- * \param[in]    data  serialization of boxaa; in ascii
- * \param[in]    size  of data in bytes; can use strlen to get it
+ * \param[in]    data     serialization of boxaa; in ascii
+ * \param[in]    size     of data in bytes; can use strlen to get it
  * \return  baa, or NULL on error
  */
-BOXAA * boxaaReadMem(const uint8  * data, size_t size)
+BOXAA * boxaaReadMem(const uint8  * data,
+    size_t size)
 {
 	FILE   * fp;
 	BOXAA  * baa;
-	PROCNAME("boxaaReadMem");
+
+	PROCNAME(__FUNCTION__);
+
 	if(!data)
 		return (BOXAA*)ERROR_PTR("data not defined", procName, NULL);
 	if((fp = fopenReadFromMemory(data, size)) == NULL)
@@ -1827,10 +1884,14 @@ BOXAA * boxaaReadMem(const uint8  * data, size_t size)
  * \param[in]    baa
  * \return  0 if OK, 1 on error
  */
-int32 boxaaWrite(const char  * filename, BOXAA * baa)
+l_ok boxaaWrite(const char * filename,
+    BOXAA       * baa)
 {
-	FILE  * fp;
-	PROCNAME("boxaaWrite");
+	l_int32 ret;
+	FILE * fp;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
 	if(!baa)
@@ -1838,28 +1899,28 @@ int32 boxaaWrite(const char  * filename, BOXAA * baa)
 
 	if((fp = fopenWriteStream(filename, "w")) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
-	if(boxaaWriteStream(fp, baa))
-		return ERROR_INT("baa not written to stream", procName, 1);
+	ret = boxaaWriteStream(fp, baa);
 	fclose(fp);
-
+	if(ret)
+		return ERROR_INT("baa not written to stream", procName, 1);
 	return 0;
 }
 
 /*!
  * \brief   boxaaWriteStream()
  *
- * \param[in]   fp file stream
+ * \param[in]   fp    output file stream
  * \param[in]   baa
  * \return  0 if OK, 1 on error
  */
-int32 boxaaWriteStream(FILE   * fp,
+l_ok boxaaWriteStream(FILE   * fp,
     BOXAA  * baa)
 {
-	int32 n, i, x, y, w, h;
-	BOX     * box;
-	BOXA    * boxa;
+	l_int32 n, i, x, y, w, h;
+	BOX * box;
+	BOXA * boxa;
 
-	PROCNAME("boxaaWriteStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 1);
@@ -1887,8 +1948,8 @@ int32 boxaaWriteStream(FILE   * fp,
 /*!
  * \brief   boxaaWriteMem()
  *
- * \param[out]   pdata  data of serialized boxaa; ascii
- * \param[out]   psize  size of returned data
+ * \param[out]   pdata    data of serialized boxaa; ascii
+ * \param[out]   psize    size of returned data
  * \param[in]    baa
  * \return  0 if OK, 1 on error
  *
@@ -1897,14 +1958,14 @@ int32 boxaaWriteStream(FILE   * fp,
  *      (1) Serializes a boxaa in memory and puts the result in a buffer.
  * </pre>
  */
-int32 boxaaWriteMem(uint8  ** pdata,
-    size_t    * psize,
+l_ok boxaaWriteMem(uint8  ** pdata,
+    size_t * psize,
     BOXAA     * baa)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("boxaaWriteMem");
+	PROCNAME(__FUNCTION__);
 
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
@@ -1919,8 +1980,11 @@ int32 boxaaWriteMem(uint8  ** pdata,
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = boxaaWriteStream(fp, baa);
+	fputc('\0', fp);
+	fclose(fp);
+	*psize = *psize - 1;
 #else
-	L_WARNING("work-around: writing to a temp file\n", procName);
+	L_INFO("work-around: writing to a temp file\n", procName);
   #ifdef _WIN32
 	if((fp = fopenWriteWinTempfile()) == NULL)
 		return ERROR_INT("tmpfile stream not opened", procName, 1);
@@ -1931,8 +1995,8 @@ int32 boxaaWriteMem(uint8  ** pdata,
 	ret = boxaaWriteStream(fp, baa);
 	rewind(fp);
 	*pdata = l_binaryReadStream(fp, psize);
-#endif  /* HAVE_FMEMOPEN */
 	fclose(fp);
+#endif  /* HAVE_FMEMOPEN */
 	return ret;
 }
 
@@ -1945,88 +2009,128 @@ int32 boxaaWriteMem(uint8  ** pdata,
  * \param[in]    filename
  * \return  boxa, or NULL on error
  */
-BOXA * boxaRead(const char  * filename)
+BOXA * boxaRead(const char * filename)
 {
-	FILE  * fp;
-	BOXA  * boxa;
+	FILE * fp;
+	BOXA * boxa;
 
-	PROCNAME("boxaRead");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
-		return (BOXA*)ERROR_PTR("filename not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("filename not defined", procName, NULL);
+
 	if((fp = fopenReadStream(filename)) == NULL)
-		return (BOXA*)ERROR_PTR("stream not opened", procName, NULL);
-
-	if((boxa = boxaReadStream(fp)) == NULL) {
-		fclose(fp);
-		return (BOXA*)ERROR_PTR("boxa not read", procName, NULL);
-	}
-
+		return (BOXA *)ERROR_PTR("stream not opened", procName, NULL);
+	boxa = boxaReadStream(fp);
 	fclose(fp);
+	if(!boxa)
+		return (BOXA *)ERROR_PTR("boxa not read", procName, NULL);
 	return boxa;
 }
 
 /*!
  * \brief   boxaReadStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp   input file stream
  * \return  boxa, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) It is OK for the boxa to be empty (n == 0).
+ * </pre>
  */
-BOXA * boxaReadStream(FILE  * fp)
+BOXA * boxaReadStream(FILE * fp)
 {
-	int32 n, i, x, y, w, h, version;
-	int32 ignore;
-	BOX     * box;
-	BOXA    * boxa;
+	l_int32 n, i, x, y, w, h, version;
+	l_int32 ignore;
+	BOX * box;
+	BOXA * boxa;
 
-	PROCNAME("boxaReadStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
-		return (BOXA*)ERROR_PTR("stream not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("stream not defined", procName, NULL);
 
 	if(fscanf(fp, "\nBoxa Version %d\n", &version) != 1)
-		return (BOXA*)ERROR_PTR("not a boxa file", procName, NULL);
+		return (BOXA *)ERROR_PTR("not a boxa file", procName, NULL);
 	if(version != BOXA_VERSION_NUMBER)
-		return (BOXA*)ERROR_PTR("invalid boxa version", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid boxa version", procName, NULL);
 	if(fscanf(fp, "Number of boxes = %d\n", &n) != 1)
-		return (BOXA*)ERROR_PTR("not a boxa file", procName, NULL);
+		return (BOXA *)ERROR_PTR("not a boxa file", procName, NULL);
+	if(n < 0)
+		return (BOXA *)ERROR_PTR("num box ptrs < 0", procName, NULL);
+	if(n > MaxBoxaPtrArraySize)
+		return (BOXA *)ERROR_PTR("too many box ptrs", procName, NULL);
+	if(n == 0) L_INFO("the boxa is empty\n", procName);
 
 	if((boxa = boxaCreate(n)) == NULL)
-		return (BOXA*)ERROR_PTR("boxa not made", procName, NULL);
-
+		return (BOXA *)ERROR_PTR("boxa not made", procName, NULL);
 	for(i = 0; i < n; i++) {
 		if(fscanf(fp, "  Box[%d]: x = %d, y = %d, w = %d, h = %d\n",
-			    &ignore, &x, &y, &w, &h) != 5)
-			return (BOXA*)ERROR_PTR("box descr not valid", procName, NULL);
-		if((box = boxCreate(x, y, w, h)) == NULL)
-			return (BOXA*)ERROR_PTR("box not made", procName, NULL);
+		    &ignore, &x, &y, &w, &h) != 5) {
+			boxaDestroy(&boxa);
+			return (BOXA *)ERROR_PTR("box descr not valid", procName, NULL);
+		}
+		box = boxCreate(x, y, w, h);
 		boxaAddBox(boxa, box, L_INSERT);
 	}
-
 	return boxa;
 }
 
 /*!
  * \brief   boxaReadMem()
  *
- * \param[in]    data  serialization of boxa; in ascii
- * \param[in]    size  of data in bytes; can use strlen to get it
+ * \param[in]    data    serialization of boxa; in ascii
+ * \param[in]    size    of data in bytes; can use strlen to get it
  * \return  boxa, or NULL on error
  */
-BOXA * boxaReadMem(const uint8  * data, size_t size)
+BOXA * boxaReadMem(const uint8  * data,
+    size_t size)
 {
-	FILE  * fp;
-	BOXA  * boxa;
-	PROCNAME("boxaReadMem");
+	FILE * fp;
+	BOXA * boxa;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!data)
-		return (BOXA*)ERROR_PTR("data not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("data not defined", procName, NULL);
 	if((fp = fopenReadFromMemory(data, size)) == NULL)
-		return (BOXA*)ERROR_PTR("stream not opened", procName, NULL);
+		return (BOXA *)ERROR_PTR("stream not opened", procName, NULL);
 
 	boxa = boxaReadStream(fp);
 	fclose(fp);
 	if(!boxa) L_ERROR("boxa not read\n", procName);
 	return boxa;
+}
+
+/*!
+ * \brief   boxaWriteDebug()
+ *
+ * \param[in]    filename
+ * \param[in]    boxa
+ * \return  0 if OK; 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Debug version, intended for use in the library when writing
+ *          to files in a temp directory with names that are compiled in.
+ *          This is used instead of boxaWrite() for all such library calls.
+ *      (2) The global variable LeptDebugOK defaults to 0, and can be set
+ *          or cleared by the function setLeptDebugOK().
+ * </pre>
+ */
+l_ok boxaWriteDebug(const char * filename,
+    BOXA        * boxa)
+{
+	PROCNAME(__FUNCTION__);
+
+	if(LeptDebugOK) {
+		return boxaWrite(filename, boxa);
+	}
+	else {
+		L_INFO("write to named temp file %s is disabled\n", procName, filename);
+		return 0;
+	}
 }
 
 /*!
@@ -2036,10 +2140,14 @@ BOXA * boxaReadMem(const uint8  * data, size_t size)
  * \param[in]    boxa
  * \return  0 if OK, 1 on error
  */
-int32 boxaWrite(const char  * filename, BOXA * boxa)
+l_ok boxaWrite(const char * filename,
+    BOXA        * boxa)
 {
-	FILE  * fp;
-	PROCNAME("boxaWrite");
+	l_int32 ret;
+	FILE * fp;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
 	if(!boxa)
@@ -2047,9 +2155,10 @@ int32 boxaWrite(const char  * filename, BOXA * boxa)
 
 	if((fp = fopenWriteStream(filename, "w")) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
-	if(boxaWriteStream(fp, boxa))
-		return ERROR_INT("boxa not written to stream", procName, 1);
+	ret = boxaWriteStream(fp, boxa);
 	fclose(fp);
+	if(ret)
+		return ERROR_INT("boxa not written to stream", procName, 1);
 
 	return 0;
 }
@@ -2057,22 +2166,22 @@ int32 boxaWrite(const char  * filename, BOXA * boxa)
 /*!
  * \brief   boxaWriteStream()
  *
- * \param[in]   fp file stream
+ * \param[in]   fp     file stream; use NULL for stderr
  * \param[in]   boxa
  * \return  0 if OK, 1 on error
  */
-int32 boxaWriteStream(FILE  * fp,
-    BOXA  * boxa)
+l_ok boxaWriteStream(FILE * fp,
+    BOXA * boxa)
 {
-	int32 n, i;
-	BOX     * box;
+	l_int32 n, i;
+	BOX * box;
 
-	PROCNAME("boxaWriteStream");
+	PROCNAME(__FUNCTION__);
 
-	if(!fp)
-		return ERROR_INT("stream not defined", procName, 1);
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
+	if(!fp)
+		return boxaWriteStderr(boxa);
 
 	n = boxaGetCount(boxa);
 	fprintf(fp, "\nBoxa Version %d\n", BOXA_VERSION_NUMBER);
@@ -2088,10 +2197,39 @@ int32 boxaWriteStream(FILE  * fp,
 }
 
 /*!
+ * \brief   boxaWriteStderr()
+ *
+ * \param[in]   boxa
+ * \return  0 if OK, 1 on error
+ */
+l_ok boxaWriteStderr(BOXA * boxa)
+{
+	l_int32 n, i;
+	BOX * box;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!boxa)
+		return ERROR_INT("boxa not defined", procName, 1);
+
+	n = boxaGetCount(boxa);
+	lept_stderr("\nBoxa Version %d\n", BOXA_VERSION_NUMBER);
+	lept_stderr("Number of boxes = %d\n", n);
+	for(i = 0; i < n; i++) {
+		if((box = boxaGetBox(boxa, i, L_CLONE)) == NULL)
+			return ERROR_INT("box not found", procName, 1);
+		lept_stderr("  Box[%d]: x = %d, y = %d, w = %d, h = %d\n",
+		    i, box->x, box->y, box->w, box->h);
+		boxDestroy(&box);
+	}
+	return 0;
+}
+
+/*!
  * \brief   boxaWriteMem()
  *
- * \param[out]   pdata data of serialized boxa; ascii
- * \param[out]   psize size of returned data
+ * \param[out]   pdata   data of serialized boxa; ascii
+ * \param[out]   psize   size of returned data
  * \param[in]    boxa
  * \return  0 if OK, 1 on error
  *
@@ -2100,14 +2238,14 @@ int32 boxaWriteStream(FILE  * fp,
  *      (1) Serializes a boxa in memory and puts the result in a buffer.
  * </pre>
  */
-int32 boxaWriteMem(uint8  ** pdata,
-    size_t    * psize,
+l_ok boxaWriteMem(uint8  ** pdata,
+    size_t * psize,
     BOXA      * boxa)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("boxaWriteMem");
+	PROCNAME(__FUNCTION__);
 
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
@@ -2122,8 +2260,11 @@ int32 boxaWriteMem(uint8  ** pdata,
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = boxaWriteStream(fp, boxa);
+	fputc('\0', fp);
+	fclose(fp);
+	*psize = *psize - 1;
 #else
-	L_WARNING("work-around: writing to a temp file\n", procName);
+	L_INFO("work-around: writing to a temp file\n", procName);
   #ifdef _WIN32
 	if((fp = fopenWriteWinTempfile()) == NULL)
 		return ERROR_INT("tmpfile stream not opened", procName, 1);
@@ -2134,8 +2275,8 @@ int32 boxaWriteMem(uint8  ** pdata,
 	ret = boxaWriteStream(fp, boxa);
 	rewind(fp);
 	*pdata = l_binaryReadStream(fp, psize);
-#endif  /* HAVE_FMEMOPEN */
 	fclose(fp);
+#endif  /* HAVE_FMEMOPEN */
 	return ret;
 }
 
@@ -2145,7 +2286,7 @@ int32 boxaWriteMem(uint8  ** pdata,
 /*!
  * \brief   boxPrintStreamInfo()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    file stream; use NULL for stderr
  * \param[in]    box
  * \return  0 if OK, 1 on error
  *
@@ -2155,16 +2296,21 @@ int32 boxaWriteMem(uint8  ** pdata,
  *          write to file if you want to read the data back.
  * </pre>
  */
-int32 boxPrintStreamInfo(FILE  * fp, BOX   * box)
+l_ok boxPrintStreamInfo(FILE * fp,
+    BOX   * box)
 {
-	PROCNAME("boxPrintStreamInfo");
-	if(!fp)
-		return ERROR_INT("stream not defined", procName, 1);
+	PROCNAME(__FUNCTION__);
+
 	if(!box)
 		return ERROR_INT("box not defined", procName, 1);
 
-	fprintf(fp, " Box: x = %d, y = %d, w = %d, h = %d\n",
-	    box->x, box->y, box->w, box->h);
+	if(!fp) { /* output to stderr */
+		lept_stderr(" Box: x = %d, y = %d, w = %d, h = %d\n",
+		    box->x, box->y, box->w, box->h);
+	}
+	else {
+		fprintf(fp, " Box: x = %d, y = %d, w = %d, h = %d\n",
+		    box->x, box->y, box->w, box->h);
+	}
 	return 0;
 }
-

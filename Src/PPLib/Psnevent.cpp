@@ -2247,7 +2247,7 @@ int PPALDD_PsnEventItem::InitData(PPFilt & rFilt, long rsrv)
 		H.PersonID   = p_pack->Rec.PersonID;
 		H.SecondID   = p_pack->Rec.SecondID;
 		H.RegisterID = p_pack->Reg.ID;
-		H.Dt         = p_pack->Rec.Dt;
+		H.Dt = p_pack->Rec.Dt;
 		if(p_pack->Reg.ID && reg_obj.Search(p_pack->Reg.ID, &reg_rec) > 0) {
 			long  duration;
 			if(reg_rec.Dt.getclass() == LDATE::cNormal && reg_rec.Expiry.getclass() == LDATE::cNormal &&

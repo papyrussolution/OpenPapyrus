@@ -737,7 +737,7 @@ FT_EXPORT_DEF(FT_Error) FT_Bitmap_Blend(FT_Library library, const FT_Bitmap*  so
 			return FT_THROW(Invalid_Argument);
 		}
 		/* TODO: provide an in-buffer solution for large bitmaps */
-		/*       to avoid allocation of a new buffer       */
+		/* to avoid allocation of a new buffer       */
 		if(FT_ALLOC(buffer, new_pitch * (int)final_rows))
 			goto Error;
 

@@ -518,9 +518,9 @@ SimpleDateFormat& SimpleDateFormat::operator = (const SimpleDateFormat& other)
 	if(other.fSymbols)
 		fSymbols = new DateFormatSymbols(*other.fSymbols);
 
-	fDefaultCenturyStart         = other.fDefaultCenturyStart;
+	fDefaultCenturyStart = other.fDefaultCenturyStart;
 	fDefaultCenturyStartYear     = other.fDefaultCenturyStartYear;
-	fHaveDefaultCentury          = other.fHaveDefaultCentury;
+	fHaveDefaultCentury  = other.fHaveDefaultCentury;
 
 	fPattern = other.fPattern;
 	fHasMinute = other.fHasMinute;

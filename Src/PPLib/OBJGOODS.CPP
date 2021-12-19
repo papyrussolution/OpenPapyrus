@@ -4025,8 +4025,7 @@ int PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 //
 //
 //
-int GoodsStockExt::Pallet::IsValid() const
-	{ return BIN(PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0); }
+bool GoodsStockExt::Pallet::IsValid() const { return (PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0); }
 
 GoodsStockExt::GoodsStockExt()
 {

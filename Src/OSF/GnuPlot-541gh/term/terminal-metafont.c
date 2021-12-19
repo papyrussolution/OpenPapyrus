@@ -40,7 +40,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -65,17 +65,17 @@
 #define MF_HCHAR (MF_DPI*53/10/72)
 #define MF_VCHAR (MF_DPI*11/72)
 
-TERM_PUBLIC void MF_init(GpTermEntry * pThis);
-TERM_PUBLIC void MF_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void MF_text(GpTermEntry * pThis);
-TERM_PUBLIC int  MF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int  MF_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void MF_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void MF_reset(GpTermEntry * pThis);
+TERM_PUBLIC void MF_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void MF_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void MF_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC int  MF_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  MF_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void MF_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void MF_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void MF_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void MF_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void MF_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void MF_reset(GpTermEntry_Static * pThis);
 
 #define GOT_MF_PROTO
 //#endif /* TERM_PROTO */
@@ -142,7 +142,7 @@ static struct {
 	/* dash: line,     gap,      line,     gap      */
 };
 
-TERM_PUBLIC void MF_init(GpTermEntry * pThis)
+TERM_PUBLIC void MF_init(GpTermEntry_Static * pThis)
 {
 	MF_char_code = 0;
 	MF_ang = 0;
@@ -302,7 +302,7 @@ arrowhead = (-7pt,-2pt){dir30}..(-6pt,0pt)..\
 	    GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void MF_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void MF_graphics(GpTermEntry_Static * pThis)
 {
 	fprintf(GPT.P_GpOutFile, "\n\nbeginchar(%d,%gin#,%gin#,0);\n", MF_char_code, MF_xsize, MF_ysize);
 	MF_char_code++;
@@ -310,24 +310,24 @@ TERM_PUBLIC void MF_graphics(GpTermEntry * pThis)
 	MF_picked_up_pen = 0;
 }
 
-TERM_PUBLIC void MF_text(GpTermEntry * pThis)
+TERM_PUBLIC void MF_text(GpTermEntry_Static * pThis)
 {
 	fputs("endchar;\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC int MF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int MF_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	MF_justify = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC int MF_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int MF_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	MF_ang = (ang > 0) ? 90 : 0;
 	return TRUE;
 }
 
-TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void MF_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(linetype >= 8)
 		linetype %= 8;
@@ -347,7 +347,7 @@ TERM_PUBLIC void MF_linetype(GpTermEntry * pThis, int linetype)
 	MF_is_solid = MF_lines[MF_line_type].solid;
 }
 
-TERM_PUBLIC void MF_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void MF_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	MF_last_x = x;
 	MF_last_y = y;
@@ -355,7 +355,7 @@ TERM_PUBLIC void MF_move(GpTermEntry * pThis, uint x, uint y)
 	MF_dist_left = MF_lines[MF_line_type].dashlen[MF_dash_index];
 }
 
-TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void MF_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(MF_is_solid) {
 		if(x == MF_last_x && y == MF_last_y)
@@ -410,7 +410,7 @@ TERM_PUBLIC void MF_vector(GpTermEntry * pThis, uint x, uint y)
 	MF_last_y = y;
 }
 
-TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void MF_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	int delta_x, delta_y;
 	MF_move(pThis, sx, sy);
@@ -422,7 +422,7 @@ TERM_PUBLIC void MF_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint e
 	}
 }
 
-TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void MF_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	// ignore empty strings 
 	if(isempty(str)) {
@@ -445,7 +445,7 @@ TERM_PUBLIC void MF_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 	}
 }
 
-TERM_PUBLIC void MF_reset(GpTermEntry * pThis)
+TERM_PUBLIC void MF_reset(GpTermEntry_Static * pThis)
 {
 	fputs("end.\n", GPT.P_GpOutFile);
 }

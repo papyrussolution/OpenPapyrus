@@ -75,7 +75,7 @@ void RBBIDataWrapper::init0() {
 	fReverseTable = NULL;
 	fRuleSource   = NULL;
 	fRuleStatusTable = NULL;
-	fTrie         = NULL;
+	fTrie = NULL;
 	fUDataMem     = NULL;
 	fRefCount     = 0;
 	fDontFreeData = TRUE;
@@ -104,7 +104,7 @@ void RBBIDataWrapper::init(const RBBIDataHeader * data, UErrorCode & status) {
 
 	fTrie = ucptrie_openFromBinary(UCPTRIE_TYPE_FAST,
 		UCPTRIE_VALUE_BITS_ANY,
-		(uint8_t*)data + fHeader->fTrie,
+		(uint8 *)data + fHeader->fTrie,
 		fHeader->fTrieLen,
 		nullptr,                              // *actual length
 		&status);
@@ -328,7 +328,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 	//
 	// Get the RRBI Data Header, and check that it appears to be OK.
 	//
-	const uint8_t * inBytes = (const uint8_t*)inData+headerSize;
+	const uint8 * inBytes = (const uint8*)inData+headerSize;
 	RBBIDataHeader * rbbiDH = (RBBIDataHeader*)inBytes;
 	if(ds->readUInt32(rbbiDH->fMagic) != 0xb1a0 ||
 	    !RBBIDataWrapper::isDataVersionAcceptable(rbbiDH->fFormatVersion) ||
@@ -362,7 +362,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 	//                 we need to reference the header to locate the data, and an
 	//                 inplace swap of the header leaves it unusable.
 	//
-	uint8_t         * outBytes = (uint8_t*)outData + headerSize;
+	uint8         * outBytes = (uint8 *)outData + headerSize;
 	RBBIDataHeader  * outputDH = (RBBIDataHeader*)outBytes;
 
 	int32_t tableStartOffset;

@@ -20,7 +20,7 @@ public:
 			CloseServiceHandle(H);
 	}
 	operator SC_HANDLE () const { return H; }
-	int    IsValid() const { return BIN(H); }
+	bool   IsValid() const { return LOGIC(H); }
 private:
 	SC_HANDLE H;
 };
@@ -69,10 +69,7 @@ WinService::~WinService()
 		CloseServiceHandle(H);
 }
 
-int WinService::IsValid() const
-{
-	return BIN(H);
-}
+bool WinService::IsValid() const { return LOGIC(H); }
 
 int WinService::Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw)
 {

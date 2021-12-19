@@ -47,7 +47,7 @@
 /* we do deal with glyph variants by detecting a non-initial dot in    */
 /* the name, as in `A.swash' or `e.final'; in this case, the     */
 /* VARIANT_BIT is set in the return value.          */
-/*                                                  */
+/*                                  */
 static FT_UInt32 ps_unicode_value(const char * glyph_name)
 {
 	/* If the name begins with `uni', then the glyph name may be a */
@@ -59,7 +59,7 @@ static FT_UInt32 ps_unicode_value(const char * glyph_name)
 		/* hexadecimal.                          */
 
 		/* XXX: Add code to deal with ligatures, i.e. glyph names like */
-		/*      `uniXXXXYYYYZZZZ'...                */
+		/* `uniXXXXYYYYZZZZ'...                */
 
 		FT_Int count;
 		FT_UInt32 value = 0;

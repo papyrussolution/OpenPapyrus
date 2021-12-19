@@ -1164,7 +1164,7 @@ void GoodsListDialog::updateList()
 //
 //
 //
-PPViewGoods::PPViewGoods() : PPView(0, &Filt, PPVIEW_GOODS, 0, 0), P_TempTbl(0), P_Iter(0)
+PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagEditFunc, 0), P_TempTbl(0), P_Iter(0) // @v11.2.8 0-->&GObj; implUseQuickTagEditFunc
 {
 	Filt.GrpID = 0;
 	//CurrentViewOrder = OrdByDefault;
@@ -1189,7 +1189,7 @@ void PPViewGoods::RemoveTempAltGroup()
 	}
 }
 
-PPObjGoods * PPViewGoods::GetObj() { return &GObj; }
+// @v11.2.8 PPObjGoods * PPViewGoods::GetObj() { return &GObj; }
 int PPViewGoods::IsAltFltGroup() { return (Filt.GrpID > 0 && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0); }
 int PPViewGoods::IsGenGoodsFlt() { return (Filt.GrpID > 0 && Filt.Flags & GoodsFilt::fGenGoods); }
 
@@ -2872,9 +2872,9 @@ struct GoodsRecoverParam {
 	{
 	}
 	enum {
-		fCorrect          = 0x0001, // Исправлять ошибки
+		fCorrect  = 0x0001, // Исправлять ошибки
 		fCheckAlcoAttribs = 0x0002, // Проверять алкогольные атрибуты
-		fBarcode          = 0x0004  // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру 
+		fBarcode  = 0x0004  // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру 
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	long   Flags;
@@ -3768,10 +3768,10 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				{
 					char c = *static_cast<const char *>(pHdr);
 					if(isdec(c)) {
-						int    r = 0;
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;
-						if((r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0)) > 0) {
+						const  int r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0);
+						if(r > 0) {
 							CALLPTRMEMB(pBrw, search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0));
 						}
 						else if(r != -1 && pBrw)
@@ -3839,6 +3839,15 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					ok = GObj.ReplaceGoods(eub);
 					if(ok > 0)
 						UpdateTempTable(0, pBrw);
+				}
+				break;
+			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+				//
+				{
+					const PPID * p_id = static_cast<const PPID *>(pBrw->getCurItem());
+					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_GOODS, DEREFPTRORZ(p_id)), pHdr/*(LongArray *)*/);
 				}
 				break;
 			case PPVCMD_TAGS:
@@ -5478,7 +5487,7 @@ int PPALDD_GoodsTaxGrp::InitData(PPFilt & rFilt, long rsrv)
 		PPGoodsTax rec;
 		PPObjGoodsTax gtobj;
 		if(gtobj.Search(rFilt.ID, &rec) > 0) {
-			H.ID         = rec.ID;
+			H.ID = rec.ID;
 			H.VAT        = rec.VAT;
 			H.Excise     = rec.Excise;
 			H.SalesTax   = rec.SalesTax;
@@ -5513,14 +5522,14 @@ int PPALDD_GoodsClass::InitData(PPFilt & rFilt, long rsrv)
 		PPObjGoodsClass gc_obj;
 		if(gc_obj.GetPacket(rFilt.ID, &gc_pack) > 0) {
 			SString temp_buf;
-			H.ID             = gc_pack.Rec.ID;
+			H.ID     = gc_pack.Rec.ID;
 			STRNSCPY(H.Name, gc_pack.Rec.Name);
 			H.DefGrpID       = gc_pack.Rec.DefGrpID;
 			H.DefUnitID      = gc_pack.Rec.DefUnitID;
 			H.DefPhUnitID    = gc_pack.Rec.DefPhUnitID;
 			H.DefTaxGrpID    = gc_pack.Rec.DefTaxGrpID;
 			H.DefGoodsTypeID = gc_pack.Rec.DefGoodsTypeID;
-			H.Flags          = gc_pack.Rec.Flags;
+			H.Flags  = gc_pack.Rec.Flags;
 			H.DynGenMask     = gc_pack.Rec.DynGenMask;
 
 			STRNSCPY(H.PropKindNam, gc_pack.PropKind.Name);

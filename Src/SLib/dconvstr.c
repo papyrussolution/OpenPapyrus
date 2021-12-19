@@ -1455,11 +1455,11 @@ static inline void multiply_128(uint64 u, uint64 v, uint64 * w)
 	uint64 t  = u0 * v0;
 	uint64 w0 = t & 0xFFFFFFFFULL;
 	uint64 k  = t >> 32;
-	t            = u1 * v0 + k;
+	t    = u1 * v0 + k;
 	uint64 w1 = t & 0xFFFFFFFFULL;
 	uint64 w2 = t >> 32;
-	t            = u0 * v1 + w1;
-	k            = t >> 32;
+	t    = u0 * v1 + w1;
+	k    = t >> 32;
 	w[0] = (t << 32) + w0;
 	w[1] = u1 * v1 + w2 + k;
 #endif
@@ -1746,8 +1746,8 @@ static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_na
 	const uint64 input_mantissa = (input_bits & ((1ULL << 52) - 1ULL));
 	// 2. Handle special case: NaN
 	if(input_exponent == 0x7FFULL && input_mantissa != 0) {
-		*out_is_nan          = 1;
-		*out_sign            = 0;
+		*out_is_nan  = 1;
+		*out_sign    = 0;
 		*out_is_infinity     = 0;
 		*out_binary_exponent = 0;
 		*out_binary_mantissa = 0;
@@ -2309,7 +2309,7 @@ int STDCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd,
 		//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
 		uint8  parsed_digits[20];
 		int    n_parsed_digits        = 0;       // number of digits in parsed_digits[]
-		int32  exponent               = 0;
+		int32  exponent       = 0;
 		int32  exponent_offset        = 0;
 		int    flag_negative_mantissa = 0;
 		int    flag_negative_exponent = 0;

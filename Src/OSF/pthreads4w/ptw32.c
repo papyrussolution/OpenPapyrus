@@ -429,7 +429,7 @@ INLINE void __ptw32_mcs_flag_wait(HANDLE * flag)
  */
 #if defined (__PTW32_BUILD_INLINED)
 	INLINE
-#endif /*  __PTW32_BUILD_INLINED */
+#endif /* __PTW32_BUILD_INLINED */
 void __ptw32_mcs_lock_acquire(__ptw32_mcs_lock_t * lock, __ptw32_mcs_local_node_t * node)
 {
 	node->lock = lock;
@@ -505,7 +505,7 @@ int __ptw32_mcs_lock_try_acquire(__ptw32_mcs_lock_t * lock, __ptw32_mcs_local_no
  */
 #if defined (__PTW32_BUILD_INLINED)
 INLINE
-#endif /*  __PTW32_BUILD_INLINED */
+#endif /* __PTW32_BUILD_INLINED */
 void __ptw32_mcs_node_transfer(__ptw32_mcs_local_node_t * new_node, __ptw32_mcs_local_node_t * old_node)
 {
 	new_node->lock = old_node->lock;
@@ -685,7 +685,7 @@ void __ptw32_processTerminate()
 
 #if defined (__PTW32_BUILD_INLINED)
 	INLINE
-#endif /*  __PTW32_BUILD_INLINED */
+#endif /* __PTW32_BUILD_INLINED */
 DWORD __ptw32_relmillisecs(const struct timespec * abstime)
 {
 	DWORD milliseconds;

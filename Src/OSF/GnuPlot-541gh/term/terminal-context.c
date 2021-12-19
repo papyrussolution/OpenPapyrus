@@ -81,7 +81,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -91,28 +91,28 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void CONTEXT_options();
-TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis);
-TERM_PUBLIC void CONTEXT_reset(GpTermEntry * pThis);
-TERM_PUBLIC void CONTEXT_text(GpTermEntry * pThis);
-TERM_PUBLIC void CONTEXT_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void CONTEXT_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void CONTEXT_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void CONTEXT_linetype(GpTermEntry * pThis, int lt);
-TERM_PUBLIC void CONTEXT_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  CONTEXT_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC int  CONTEXT_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC void CONTEXT_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void CONTEXT_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC int  CONTEXT_set_font(GpTermEntry * pThis, const char * font); /* "font,size" */
-TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry * pThis, double pointsize);
-TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height); // clear part of multiplot
+TERM_PUBLIC void CONTEXT_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CONTEXT_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CONTEXT_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CONTEXT_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CONTEXT_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void CONTEXT_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void CONTEXT_linetype(GpTermEntry_Static * pThis, int lt);
+TERM_PUBLIC void CONTEXT_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC int  CONTEXT_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC int  CONTEXT_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC void CONTEXT_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void CONTEXT_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC int  CONTEXT_set_font(GpTermEntry_Static * pThis, const char * font); /* "font,size" */
+TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry_Static * pThis, double pointsize);
+TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height); // clear part of multiplot
 TERM_PUBLIC void CONTEXT_fill(int style);
-TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int  CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
+TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry_Static * pThis, double linewidth);
+TERM_PUBLIC int  CONTEXT_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
 /* TERM_PUBLIC void CONTEXT_previous_palette(); do we need it? */
-TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
-TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
+TERM_PUBLIC void CONTEXT_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
+TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners);
+TERM_PUBLIC void CONTEXT_image(GpTermEntry_Static * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
 
 /* Metapost < 1.750 can only deal with numbers between 2^{-16} and 2^12=4069 */
 /* scale is 1cm = 1000 units */
@@ -160,11 +160,11 @@ static const char CONTEXT_term_patch[]   = "0";
 static const char CONTEXT_term_date[]    = "2011-11-05";
 
 static void CONTEXT_params_reset();
-static void CONTEXT_adjust_dimensions(GpTermEntry * pThis);
+static void CONTEXT_adjust_dimensions(GpTermEntry_Static * pThis);
 static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int to_size, double * fontsize);
 static void CONTEXT_startpath();
 static void CONTEXT_endpath();
-static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette);
+static void CONTEXT_write_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
 static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt);
 
 /* Each number is divided by 100 (1/100th of a point is drawn) */
@@ -347,7 +347,7 @@ static void CONTEXT_params_reset()
  *
  * Parses "set term context [options]".
  */
-TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void CONTEXT_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char   * tmp_string;
 	char tmp_term_options[MAX_LINE_LEN+1] = "";
@@ -425,12 +425,12 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    CONTEXT_params.color = TRUE;
 			    /* just mimic other terminals; no idea what it does;
 			       at the moment monochrome is not fully implemented either */
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    break;
 			case CONTEXT_OPT_MONOCHROME:
 			    pGp->Pgm.Shift();
 			    CONTEXT_params.color = FALSE;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    break;
 			case CONTEXT_OPT_DASHED:
 			    pGp->Pgm.Shift();
@@ -623,7 +623,7 @@ TERM_PUBLIC void CONTEXT_options(GpTermEntry * pThis, GnuPlot * pGp)
  * - PDF & binary terminals start a new file
  * - PS & TeX-based terminals continue
  */
-TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
+TERM_PUBLIC void CONTEXT_init(GpTermEntry_Static * pThis)
 {
 	time_t now;
 	char timebuffer[100];
@@ -795,7 +795,7 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry * pThis)
 //
 // finish writing the file
 //
-TERM_PUBLIC void CONTEXT_reset(GpTermEntry * pThis)
+TERM_PUBLIC void CONTEXT_reset(GpTermEntry_Static * pThis)
 {
 	/* we only have to end the document if this is a stand-alone graphic */
 	if(CONTEXT_params.standalone) {
@@ -819,7 +819,7 @@ TERM_PUBLIC void CONTEXT_reset(GpTermEntry * pThis)
 //
 // Ends the current graphic.
 //
-TERM_PUBLIC void CONTEXT_text(GpTermEntry * pThis)
+TERM_PUBLIC void CONTEXT_text(GpTermEntry_Static * pThis)
 {
 	/* close and draw the current path first */
 	if(CONTEXT_path_count > 0)
@@ -837,7 +837,7 @@ TERM_PUBLIC void CONTEXT_text(GpTermEntry * pThis)
 //
 // Starts a new graphic.
 //
-TERM_PUBLIC void CONTEXT_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void CONTEXT_graphics(GpTermEntry_Static * pThis)
 {
 	/* standalone graphic is a whole-page graphic */
 	if(CONTEXT_params.standalone) {
@@ -933,7 +933,7 @@ static void CONTEXT_endpath()
 // If we're still in the middle of path construction and location differs,
 // it strokes the old path.
 //
-TERM_PUBLIC void CONTEXT_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void CONTEXT_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	/* we seem to be there already */
 	if((x == CONTEXT_posx) && (y == CONTEXT_posy))
@@ -968,7 +968,7 @@ static void CONTEXT_startpath()
  * that wouldn't draw anything in MetaPost or PS.
  * (I hope that I got that part right, but I'm not completely sure.)
  */
-TERM_PUBLIC void CONTEXT_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void CONTEXT_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	/* this is zero-length line (or a dot)
 	 *
@@ -1010,7 +1010,7 @@ TERM_PUBLIC void CONTEXT_vector(GpTermEntry * pThis, uint x, uint y)
  *   it resets only the color.
  * - If linetype was changed, it sets the new linetype
  */
-TERM_PUBLIC void CONTEXT_linetype(GpTermEntry * pThis, int lt)
+TERM_PUBLIC void CONTEXT_linetype(GpTermEntry_Static * pThis, int lt)
 {
 	// reset the color in case it has been changed in CONTEXT_set_color() 
 	if(CONTEXT_old_linetype != lt || CONTEXT_color_changed) {
@@ -1025,7 +1025,7 @@ TERM_PUBLIC void CONTEXT_linetype(GpTermEntry * pThis, int lt)
 /*
  * Places text labels.
  */
-TERM_PUBLIC void CONTEXT_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
+TERM_PUBLIC void CONTEXT_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[])
 {
 	const char * s; /* pointer to string */
 	int alignment = 0;
@@ -1070,7 +1070,7 @@ TERM_PUBLIC void CONTEXT_put_text(GpTermEntry * pThis, uint x, uint y, const cha
  *
  * Saves text angle to be used for text labels.
  */
-TERM_PUBLIC int CONTEXT_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int CONTEXT_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	CONTEXT_ang = ang;
 	return TRUE;
@@ -1082,7 +1082,7 @@ TERM_PUBLIC int CONTEXT_text_angle(GpTermEntry * pThis, int ang)
  *
  * Saves horizontal text justification (left/middle/right) to be used for text labels.
  */
-TERM_PUBLIC int CONTEXT_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int CONTEXT_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	CONTEXT_justify = mode;
 	return TRUE;
@@ -1100,7 +1100,7 @@ TERM_PUBLIC int CONTEXT_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
  * At first this routine took care of that, but now it's up to the high-level
  * user interface to switch between the last two options.
  */
-TERM_PUBLIC void CONTEXT_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void CONTEXT_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	/* finish the current line first before the move */
 	if(CONTEXT_path_count > 0)
@@ -1117,7 +1117,7 @@ TERM_PUBLIC void CONTEXT_point(GpTermEntry * pThis, uint x, uint y, int number)
  *
  * Currently it just calls the default gnuplot function for drawing arrows.
  */
-TERM_PUBLIC void CONTEXT_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head)
+TERM_PUBLIC void CONTEXT_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head)
 {
 	GnuPlot::DoArrow(pThis, sx, sy, ex, ey, head);
 }
@@ -1159,21 +1159,16 @@ static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int t
  *   using CONTEXT_fontsize in points (from CONTEXT_params.fontsize) and CONTEXT_params.scale_text
  * - sets xmax and ymax based on CONTEXT_params.xsize and CONTEXT_params.ysize
  */
-static void CONTEXT_adjust_dimensions(GpTermEntry * pThis)
+static void CONTEXT_adjust_dimensions(GpTermEntry_Static * pThis)
 {
-	/* sets vertical dimension of characters based on current fontsize in pt */
-	pThis->ChrV = (uint)((double)CONTEXT_DPI * CONTEXT_fontsize / 72.27 * CONTEXT_params.scale_text + 0.5);
-	/* based on proportions of LM digits at 12pt */
-	pThis->ChrH = (uint)(CONTEXT_LM_H_TO_V_RATIO * pThis->ChrV + 0.5);
-
-	/* we might want to fix CONTEXT_DPI in case that the figure becomes too big */
+	// CharWidth - based on proportions of LM digits at 12pt; CharHieght - sets vertical dimension of characters based on current fontsize in pt
+	pThis->SetCharSize((uint)(CONTEXT_LM_H_TO_V_RATIO * pThis->CV() + 0.5), (uint)((double)CONTEXT_DPI * CONTEXT_fontsize / 72.27 * CONTEXT_params.scale_text + 0.5));
+	// we might want to fix CONTEXT_DPI in case that the figure becomes too big 
 	if(CONTEXT_params.unit == INCHES) {
-		pThis->MaxX = (uint)((double)CONTEXT_DPI  * CONTEXT_params.xsize + 0.5);
-		pThis->MaxY = (uint)((double)CONTEXT_DPI  * CONTEXT_params.ysize + 0.5);
+		pThis->SetMax((uint)((double)CONTEXT_DPI  * CONTEXT_params.xsize + 0.5), (uint)((double)CONTEXT_DPI  * CONTEXT_params.ysize + 0.5));
 	}
 	else {
-		pThis->MaxX = (uint)((double)CONTEXT_DPCM * CONTEXT_params.xsize + 0.5);
-		pThis->MaxY = (uint)((double)CONTEXT_DPCM * CONTEXT_params.ysize + 0.5);
+		pThis->SetMax((uint)((double)CONTEXT_DPCM * CONTEXT_params.xsize + 0.5), (uint)((double)CONTEXT_DPCM * CONTEXT_params.ysize + 0.5));
 	}
 }
 
@@ -1200,7 +1195,7 @@ static void CONTEXT_adjust_dimensions(GpTermEntry * pThis)
  * The two are joined in CONTEXT_font_explicit for the usage in
  *   \sometxt[gp][fontname,fontsize]{label}
  */
-TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int CONTEXT_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	char tmp_fontstring[MAX_ID_LEN+1] = "";
 	// saves font name & family to CONTEXT_font 
@@ -1231,7 +1226,7 @@ TERM_PUBLIC int CONTEXT_set_font(GpTermEntry * pThis, const char * font)
  * The base point size is defined "somewhere else":
  * - depends on the font[size] used when "texpoints" option is on
  */
-TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry * pThis, double pointsize)
+TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry_Static * pThis, double pointsize)
 {
 	/*
 	 * my first thought was not to allow negative sizes of points,
@@ -1253,7 +1248,7 @@ TERM_PUBLIC void CONTEXT_pointsize(GpTermEntry * pThis, double pointsize)
 // Creates the path for the rectangle and calls the CONTEXT_fill(style)
 // routine (shared with CONTEXT_filled_polygon) to actually fill that shape
 //
-TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void CONTEXT_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	/* close and draw the current path first */
 	if(CONTEXT_path_count > 0)
@@ -1338,7 +1333,7 @@ TERM_PUBLIC void CONTEXT_fill(int style)
  * scale line width (similar to pointsize)
  * remembers the values locally (no serious need for that actually) and writes them into file
  */
-TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void CONTEXT_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	if(linewidth < 0)
 		linewidth = 1.0;
@@ -1382,7 +1377,7 @@ static void CONTEXT_write_palette_gradient(gradient_struct * gradient, int cnt)
  * ---------------------
  *
  */
-static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette)
+static void CONTEXT_write_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(palette == NULL)
@@ -1439,7 +1434,7 @@ static void CONTEXT_write_palette(GpTermEntry * pThis, t_sm_palette * palette)
  * 3. available: some negative values of max_colors for whatever
  *    can be useful
  */
-TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	if(palette == NULL)
 		return 0; // ConTeXt can do continuous colors 
@@ -1466,7 +1461,7 @@ TERM_PUBLIC int CONTEXT_make_palette(GpTermEntry * pThis, t_sm_palette * palette
  *    double value;   // used for TC_CB and TC_FRAC
  * } t_colorspec;
  */
-TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void CONTEXT_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray, r, g, b;
@@ -1526,7 +1521,7 @@ TERM_PUBLIC void CONTEXT_set_color(GpTermEntry * pThis, const t_colorspec * colo
  *
  * Draws a polygon with the fill color set by set_color, and no border.
  */
-TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	int i;
 	/* nothing to be filled if less than 3 points */
@@ -1606,7 +1601,7 @@ TERM_PUBLIC void CONTEXT_filled_polygon(GpTermEntry * pThis, int points, gpiPoin
  *      two possible approaches: drawing rectangles & creating proper image
  *      it might require one additional level of abstraction like gp_image(...)
  */
-TERM_PUBLIC void CONTEXT_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void CONTEXT_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {
 	int i, k, line_length, components_per_color;
 	rgb_color color;

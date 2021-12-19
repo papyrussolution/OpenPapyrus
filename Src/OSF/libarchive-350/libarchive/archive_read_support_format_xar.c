@@ -360,59 +360,59 @@ struct xmlattr_list {
 	struct xmlattr  ** last;
 };
 
-static int      xar_bid(struct archive_read *, int);
-static int      xar_read_header(struct archive_read *, struct archive_entry *);
-static int      xar_read_data(struct archive_read *, const void **, size_t *, int64 *);
-static int      xar_read_data_skip(struct archive_read *);
-static int      xar_cleanup(struct archive_read *);
-static int      move_reading_point(struct archive_read *, uint64);
-static int      rd_contents_init(struct archive_read *, enum enctype, int, int);
-static int      rd_contents(struct archive_read *, const void **, size_t *, size_t *, uint64);
+static int xar_bid(struct archive_read *, int);
+static int xar_read_header(struct archive_read *, struct archive_entry *);
+static int xar_read_data(struct archive_read *, const void **, size_t *, int64 *);
+static int xar_read_data_skip(struct archive_read *);
+static int xar_cleanup(struct archive_read *);
+static int move_reading_point(struct archive_read *, uint64);
+static int rd_contents_init(struct archive_read *, enum enctype, int, int);
+static int rd_contents(struct archive_read *, const void **, size_t *, size_t *, uint64);
 static uint64 atol10(const char *, size_t);
 static int64  atol8(const char *, size_t);
 static size_t   atohex(uchar *, size_t, const char *, size_t);
 static time_t   parse_time(const char * p, size_t n);
-static int      heap_add_entry(struct archive_read * a, struct heap_queue *, struct xar_file *);
+static int heap_add_entry(struct archive_read * a, struct heap_queue *, struct xar_file *);
 static struct xar_file * heap_get_entry(struct heap_queue *);
-static int      add_link(struct archive_read *, struct xar *, struct xar_file *);
+static int add_link(struct archive_read *, struct xar *, struct xar_file *);
 static void     checksum_init(struct archive_read *, int, int);
 static void     checksum_update(struct archive_read *, const void *, size_t, const void *, size_t);
-static int      checksum_final(struct archive_read *, const void *, size_t, const void *, size_t);
+static int checksum_final(struct archive_read *, const void *, size_t, const void *, size_t);
 static void     checksum_cleanup(struct archive_read *);
-static int      decompression_init(struct archive_read *, enum enctype);
-static int      decompress(struct archive_read *, const void **, size_t *, const void *, size_t *);
-static int      decompression_cleanup(struct archive_read *);
+static int decompression_init(struct archive_read *, enum enctype);
+static int decompress(struct archive_read *, const void **, size_t *, const void *, size_t *);
+static int decompression_cleanup(struct archive_read *);
 static void     xmlattr_cleanup(struct xmlattr_list *);
-static int      file_new(struct archive_read *, struct xar *, struct xmlattr_list *);
+static int file_new(struct archive_read *, struct xar *, struct xmlattr_list *);
 static void     file_free(struct xar_file *);
-static int      xattr_new(struct archive_read *, struct xar *, struct xmlattr_list *);
+static int xattr_new(struct archive_read *, struct xar *, struct xmlattr_list *);
 static void     xattr_free(struct xattr *);
-static int      getencoding(struct xmlattr_list *);
-static int      getsumalgorithm(struct xmlattr_list *);
-static int      unknowntag_start(struct archive_read *, struct xar *, const char *);
+static int getencoding(struct xmlattr_list *);
+static int getsumalgorithm(struct xmlattr_list *);
+static int unknowntag_start(struct archive_read *, struct xar *, const char *);
 static void     unknowntag_end(struct xar *, const char *);
-static int      xml_start(struct archive_read *, const char *, struct xmlattr_list *);
+static int xml_start(struct archive_read *, const char *, struct xmlattr_list *);
 static void     xml_end(void *, const char *);
 static void     xml_data(void *, const char *, int);
-static int      xml_parse_file_flags(struct xar *, const char *);
-static int      xml_parse_file_ext2(struct xar *, const char *);
+static int xml_parse_file_flags(struct xar *, const char *);
+static int xml_parse_file_ext2(struct xar *, const char *);
 #if defined(HAVE_LIBXML_XMLREADER_H)
-static int      xml2_xmlattr_setup(struct archive_read *, struct xmlattr_list *, xmlTextReader *);
-static int      xml2_read_cb(void *, char *, int);
-static int      xml2_close_cb(void *);
+static int xml2_xmlattr_setup(struct archive_read *, struct xmlattr_list *, xmlTextReader *);
+static int xml2_read_cb(void *, char *, int);
+static int xml2_close_cb(void *);
 static void     xml2_error_hdr(void *, const char *, xmlParserSeverities, xmlTextReaderLocatorPtr);
-static int      xml2_read_toc(struct archive_read *);
+static int xml2_read_toc(struct archive_read *);
 #elif defined(HAVE_BSDXML_H) || defined(HAVE_EXPAT_H)
 struct expat_userData {
 	int state;
 	struct archive_read * archive;
 };
 
-static int      expat_xmlattr_setup(struct archive_read *, struct xmlattr_list *, const XML_Char **);
+static int expat_xmlattr_setup(struct archive_read *, struct xmlattr_list *, const XML_Char **);
 static void     expat_start_cb(void *, const XML_Char *, const XML_Char **);
 static void     expat_end_cb(void *, const XML_Char *);
 static void     expat_data_cb(void *, const XML_Char *, int);
-static int      expat_read_toc(struct archive_read *);
+static int expat_read_toc(struct archive_read *);
 #endif
 
 int archive_read_support_format_xar(struct archive * _a)
@@ -453,7 +453,7 @@ static int xar_bid(struct archive_read * a, int best_bid)
 {
 	const uchar * b;
 	int bid;
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 	b = static_cast<const uchar *>(__archive_read_ahead(a, HEADER_SIZE, NULL));
 	if(b == NULL)
 		return -1;

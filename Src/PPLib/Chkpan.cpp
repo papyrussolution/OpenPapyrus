@@ -1273,7 +1273,7 @@ double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 {
 	double rest = 0.0;
 	if(GetCc().CalcGoodsRest(goodsID, getcurdate_(), GetCnLocID(goodsID), &rest)) { // @v10.8.10 LConfig.OperDate-->getcurdate_()
-		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG) > 0; pos++)
+		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG); pos++)
 			rest -= P.at(pos).Quantity;
 		if(checkInputBuffer && P.HasCur()) {
 			const CCheckItem & r_buf_item = P.GetCurC();
@@ -3210,7 +3210,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					if(!temp_buf.IsEqiAscii("yes"))
 						AltRegisterID = 0;
 				}
-				ScaleID         = scn.ScaleID;
+				ScaleID = scn.ScaleID;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;
 				scn.GetRoundParam(&R);
 				SETFLAG(Flags, fSelSerial, scn.ExtFlags & CASHFX_SELSERIALBYGOODS);
@@ -5037,12 +5037,12 @@ private:
 	uint   pos = 0;
 	SmartListBox * p_view = GetLeftList();
 	SArray * p_rl = GetRight(), * p_ll = GetLeft();
-	if(p_view->getCurID(&id) && id && p_ll->lsearch(&id, &pos, CMPF_LONG, 0) > 0) {
+	if(p_view->getCurID(&id) && id && p_ll->lsearch(&id, &pos, CMPF_LONG, 0)) {
 		double qtty = 0.0;
 		ListItem * p_litem = static_cast<ListItem *>(p_ll->at(pos));
 		if(InputQttyDialog(0, 0, &(qtty = p_litem->Quantity)) > 0 && qtty > 0.0) {
 			qtty = (qtty > p_litem->Quantity) ? p_litem->Quantity : qtty;
-			if(p_rl->lsearch(p_litem, &pos, CMPF_LONG, 0) > 0) {
+			if(p_rl->lsearch(p_litem, &pos, CMPF_LONG, 0)) {
 				ListItem * p_ritem = static_cast<ListItem *>(p_rl->at(pos));
 				p_ritem->Quantity += qtty;
 			}
@@ -5071,10 +5071,10 @@ private:
 	SmartListBox * p_lb = GetRightList();
 	SArray * p_rl = GetRight();
 	SArray * p_ll = GetLeft();
-	if(p_lb && p_lb->getCurID(&id) && id && p_rl->lsearch(&id, &pos, CMPF_LONG, 0) > 0) {
+	if(p_lb && p_lb->getCurID(&id) && id && p_rl->lsearch(&id, &pos, CMPF_LONG, 0)) {
 		uint lpos = 0;
 		ListItem * p_ritem = static_cast<ListItem *>(p_rl->at(pos));
-		if(p_ll->lsearch(p_ritem, &lpos, CMPF_LONG, 0) > 0) {
+		if(p_ll->lsearch(p_ritem, &lpos, CMPF_LONG, 0)) {
 			ListItem * p_litem = static_cast<ListItem *>(p_ll->at(lpos));
 			p_litem->Quantity += p_ritem->Quantity;
 		}
@@ -5212,7 +5212,7 @@ int SelCheckListDialog::SplitCheck()
 						*static_cast<CCheckTbl::Rec *>(&v_item) = pack.Rec;
 						v_item.TableCode = pack.Ext.TableNo;
 						v_item.AgentID   = pack.Ext.SalerID;
-						THROW_SL(ChkList.lsearch(&chk_id, &pos, CMPF_LONG, 0) > 0);
+						THROW_SL(ChkList.lsearch(&chk_id, &pos, CMPF_LONG, 0));
 						THROW_SL(ChkList.atFree(pos));
 						THROW_SL(ChkList.insert(&v_item));
 						MEMSZERO(v_item);
@@ -5242,7 +5242,7 @@ int SelCheckListDialog::UniteChecks()
 		TSVector <CCheckViewItem> list;
 		THROW_PP(!P_AddParam || P_AddParam->Rights & CheckPaneDialog::orfMergeChecks, PPERR_NORIGHTS);
 		list.copy(ChkList);
-		THROW_SL(list.lsearch(&chk1_id, &pos, PTR_CMPFUNC(long)) > 0);
+		THROW_SL(list.lsearch(&chk1_id, &pos, CMPF_LONG));
 		list.atFree(pos);
 		uint dlg_id = (DlgFlags & fLarge) ? DLG_SELSUSCHECK_L : DLG_SELSUSCHECK;
 		THROW(CheckDialogPtr(&(dlg = new SelCheckListDialog(dlg_id, &list, 1, P_Srv, P_AddParam))));
@@ -5281,14 +5281,14 @@ int SelCheckListDialog::UniteChecks()
 					*static_cast<CCheckTbl::Rec *>(&v_item) = pack1.Rec;
 					v_item.TableCode = pack1.Ext.TableNo;
 					v_item.AgentID   = pack1.Ext.SalerID;
-					THROW_SL(ChkList.lsearch(&chk1_id, &(pos = 0), CMPF_LONG, 0) > 0);
+					THROW_SL(ChkList.lsearch(&chk1_id, &(pos = 0), CMPF_LONG, 0));
 					THROW_SL(ChkList.atInsert(pos, &v_item));
 					THROW_SL(ChkList.atFree(pos + 1));
-					THROW_SL(ChkList.lsearch(&check2.CheckID, &(pos = 0), CMPF_LONG, 0) > 0);
+					THROW_SL(ChkList.lsearch(&check2.CheckID, &(pos = 0), CMPF_LONG, 0));
 					THROW_SL(ChkList.atFree(pos));
 					LastChkID = 0;
 					if(P_Box) {
-						THROW_SL(ChkList.lsearch(&pack1.Rec.ID, &(pos = 0), CMPF_LONG, 0) > 0);
+						THROW_SL(ChkList.lsearch(&pack1.Rec.ID, &(pos = 0), CMPF_LONG, 0));
 						P_Box->focusItem(pos);
 					}
 				}
@@ -8387,13 +8387,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 	int    ok = -1;
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
-	PPObjGoodsType gt_obj;
-	PPGoodsType gt_rec;
-	if(GObj.Fetch(goodsID, &goods_rec) > 0) {
+	if(GObj.Fetch(goodsID, &goods_rec) > 0) { // @v11.2.8 CheckMatrix
 		const  PPID sc_id = CSt.GetID();
-		if(goods_rec.GoodsTypeID)
-			gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec);
-		if(goodsID == GetChargeGoodsID(sc_id)) {
+		if(CnExtFlags & CASHFX_USEGOODSMATRIX && !GObj.CheckMatrix(goodsID, GetCnLocID(goodsID), 0, 0)) { // @v11.2.8
+			ok = MessageError(-1, 0, eomBeep | eomPopup/*eomStatusLine*/);
+		}
+		else if(goodsID == GetChargeGoodsID(sc_id)) {
 			// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
 			ok = (sc_id && ScObj.IsCreditCard(sc_id)) ? 1 : MessageError(PPERR_INVUSAGECHARGEGOODS, 0, eomStatusLine);
 		}
@@ -8404,6 +8403,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 		}
 		if(ok) {
 			SaComplex complex;
+			PPObjGoodsType gt_obj;
+			PPGoodsType gt_rec;
+			if(goods_rec.GoodsTypeID)
+				gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec);
 			//PPGoodsStruc partial_struc;
 			/*if(LoadPartialStruc(goodsID, partial_struc) > 0) {
 				AcceptRow(0);
@@ -8807,6 +8810,10 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 		if(CnFlags & CASHF_SELALLGOODS)
 			egsd_flags |= ExtGoodsSelDialog::fForceExhausted;
+		// @v11.2.8 {
+		if(CnExtFlags & CASHFX_USEGOODSMATRIX)
+			egsd_flags |= ExtGoodsSelDialog::fForceMatrixUsage;
+		// } @v11.2.8 
 		SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(GetCashOp(), 0, egsd_flags));
 		if(CheckDialogPtrErr(&P_EGSDlg)) {
 			PPWaitStart();
@@ -8914,6 +8921,9 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 						else
 							ok = MessageError(PPERR_CHZN_MARKEDQTTY, 0, eomBeep|eomStatusLine);
 					}
+				}
+				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO && rQtty == 10.0) { // @v11.2.8
+					// ok: блок сигарет (это - очевидный hardcoded-костыль, но пока ничего умнее нет)
 				}
 				else {
 					if(rQtty != 1.0) {
@@ -10749,7 +10759,7 @@ int CPosProcessor::AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckIt
 	sa_item.Qtty = fabs(rItem.Quantity);
 	sa_item.Price = fabs(rItem.Price);
 	uint pos = 0;
-	if(rList.lsearch(&rItem.GoodsID, &pos, PTR_CMPFUNC(long))) {
+	if(rList.lsearch(&rItem.GoodsID, &pos, CMPF_LONG)) {
 		SaSaleItem & r_sa_item = rList.at(pos);
 		double qtty = r_sa_item.Qtty + fabs(rItem.Quantity);
 		r_sa_item.Price = ((r_sa_item.Price * r_sa_item.Qtty) + (sa_item.Price * sa_item.Qtty)) / qtty;

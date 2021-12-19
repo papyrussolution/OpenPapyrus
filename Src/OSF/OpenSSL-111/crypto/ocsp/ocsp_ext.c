@@ -375,7 +375,7 @@ err:
 	return x;
 }
 
-/*   AcceptableResponses ::= SEQUENCE OF OBJECT IDENTIFIER */
+/* AcceptableResponses ::= SEQUENCE OF OBJECT IDENTIFIER */
 X509_EXTENSION * OCSP_accept_responses_new(char ** oids)
 {
 	int nid;
@@ -395,7 +395,7 @@ err:
 	return x;
 }
 
-/*  ArchiveCutoff ::= GeneralizedTime */
+/* ArchiveCutoff ::= GeneralizedTime */
 X509_EXTENSION * OCSP_archive_cutoff_new(char * tim)
 {
 	X509_EXTENSION * x = NULL;

@@ -80,7 +80,7 @@ int PPBizScTemplPacket::GetCol(PPID colId, uint * pPos, PPBizScTemplCol * pCol)
 {
 	int  ok = 1;
 	uint pos = 0;
-	if(colId && Cols.lsearch(&colId, &pos, PTR_CMPFUNC(long)) > 0) {
+	if(colId && Cols.lsearch(&colId, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pPos, pos);
 		ASSIGN_PTR(pCol, Cols.at(pos));
 		ok = 1;
@@ -160,7 +160,7 @@ int PPBizScTemplPacket::GetRow(PPID rowId, uint * pPos, PPBizScTemplRow * pRow)
 {
 	int  ok = -1;
 	uint pos = 0;
-	if(rowId && Rows.lsearch(&rowId, &pos, PTR_CMPFUNC(long)) > 0) {
+	if(rowId && Rows.lsearch(&rowId, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pPos, pos);
 		ASSIGN_PTR(pRow, Rows.at(pos));
 		ok = 1;
@@ -224,7 +224,7 @@ int PPBizScTemplPacket::UpdateCell(uint * pPos, PPBizScTemplCell * pCell)
 		if(pCell->Id == 0)
 			ok = AddCell(&pos, pCell);
 		else {
-			THROW(Cells.lsearch(&pCell->Id, &pos, PTR_CMPFUNC(long)) > 0);
+			THROW(Cells.lsearch(&pCell->Id, &pos, CMPF_LONG));
 			Cells.at(pos) = *pCell;
 
 		}

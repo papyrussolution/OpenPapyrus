@@ -409,7 +409,7 @@ struct xmlNode : public XmlNodeBase {
 	xmlChar * content; // the content 
 	xmlAttr * properties; // properties list 
 	xmlNs * nsDef; /* namespace definitions on this node */
-	void  * psvi; /* for type/PSVI informations */
+	void * psvi; /* for type/PSVI informations */
 	ushort line; /* line number */
 	ushort extra; /* extra data for XPath/XSLT */
 };
@@ -434,14 +434,14 @@ struct xmlNode : public XmlNodeBase {
  * Some of them are linked to similary named xmlParserOption
  */
 typedef enum {
-	XML_DOC_WELLFORMED          = 1<<0, /* document is XML well formed */
-	XML_DOC_NSVALID             = 1<<1, /* document is Namespace valid */
-	XML_DOC_OLD10               = 1<<2, /* parsed with old XML-1.0 parser */
-	XML_DOC_DTDVALID            = 1<<3, /* DTD validation was successful */
-	XML_DOC_XINCLUDE            = 1<<4, /* XInclude substitution was done */
-	XML_DOC_USERBUILT           = 1<<5, /* Document was built using the API and not by parsing an instance */
-	XML_DOC_INTERNAL            = 1<<6, /* built for internal processing */
-	XML_DOC_HTML                = 1<<7 /* parsed or built HTML document */
+	XML_DOC_WELLFORMED  = 1<<0, /* document is XML well formed */
+	XML_DOC_NSVALID     = 1<<1, /* document is Namespace valid */
+	XML_DOC_OLD10       = 1<<2, /* parsed with old XML-1.0 parser */
+	XML_DOC_DTDVALID    = 1<<3, /* DTD validation was successful */
+	XML_DOC_XINCLUDE    = 1<<4, /* XInclude substitution was done */
+	XML_DOC_USERBUILT   = 1<<5, /* Document was built using the API and not by parsing an instance */
+	XML_DOC_INTERNAL    = 1<<6, /* built for internal processing */
+	XML_DOC_HTML        = 1<<7 /* parsed or built HTML document */
 } xmlDocProperties;
 // 
 // Descr: An XML document

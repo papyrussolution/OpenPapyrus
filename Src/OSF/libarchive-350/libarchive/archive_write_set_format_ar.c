@@ -61,17 +61,17 @@ struct ar_w {
 #define AR_fmag_offset 58
 #define AR_fmag_size 2
 
-static int               archive_write_set_format_ar(struct archive_write *);
-static int               archive_write_ar_header(struct archive_write *,
+static int          archive_write_set_format_ar(struct archive_write *);
+static int          archive_write_ar_header(struct archive_write *,
     struct archive_entry *);
 static ssize_t           archive_write_ar_data(struct archive_write *,
     const void * buff, size_t s);
-static int               archive_write_ar_free(struct archive_write *);
-static int               archive_write_ar_close(struct archive_write *);
-static int               archive_write_ar_finish_entry(struct archive_write *);
+static int          archive_write_ar_free(struct archive_write *);
+static int          archive_write_ar_close(struct archive_write *);
+static int          archive_write_ar_finish_entry(struct archive_write *);
 static const char       * ar_basename(const char * path);
-static int               format_octal(int64 v, char * p, int s);
-static int               format_decimal(int64 v, char * p, int s);
+static int          format_octal(int64 v, char * p, int s);
+static int          format_decimal(int64 v, char * p, int s);
 
 int archive_write_set_format_ar_bsd(struct archive * _a)
 {

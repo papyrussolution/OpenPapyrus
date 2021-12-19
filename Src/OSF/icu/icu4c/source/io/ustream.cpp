@@ -57,7 +57,7 @@ U_IO_API STD_OSTREAM & U_EXPORT2 operator<<(STD_OSTREAM& stream, const UnicodeSt
 		}
 	}
 
-/*    stream.flush();*/
+/* stream.flush();*/
 	return stream;
 }
 
@@ -152,7 +152,7 @@ STOP_READING:
 		u_releaseDefaultConverter(converter);
 	}
 
-/*    stream.flush();*/
+/* stream.flush();*/
 	return stream;
 }
 

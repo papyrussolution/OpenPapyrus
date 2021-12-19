@@ -32,7 +32,7 @@
 U_CDECL_BEGIN
 static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
-	const uint8_t * source;
+	const uint8 * source;
 	UChar * target;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
@@ -40,7 +40,7 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 	int32_t sourceIndex;
 
 	/* set up the local pointers */
-	source = (const uint8_t*)pArgs->source;
+	source = (const uint8*)pArgs->source;
 	target = pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -48,10 +48,10 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 	sourceIndex = 0;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8_t, we need only one counter
+	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
-	length = (int32_t)((const uint8_t*)pArgs->sourceLimit-source);
+	length = (int32_t)((const uint8*)pArgs->sourceLimit-source);
 	if(length<=targetCapacity) {
 		targetCapacity = length;
 	}
@@ -118,8 +118,8 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 /* This is a table-less and callback-less version of ucnv_MBCSSingleGetNextUChar(). */
 static UChar32 U_CALLCONV _Latin1GetNextUChar(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
-	const uint8_t * source = (const uint8_t*)pArgs->source;
-	if(source<(const uint8_t*)pArgs->sourceLimit) {
+	const uint8 * source = (const uint8*)pArgs->source;
+	if(source<(const uint8*)pArgs->sourceLimit) {
 		pArgs->source = (const char *)(source+1);
 		return *source;
 	}
@@ -134,7 +134,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target, * oldTarget;
+	uint8 * target, * oldTarget;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
 
@@ -147,7 +147,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	cnv = pArgs->converter;
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = oldTarget = (uint8_t*)pArgs->target;
+	target = oldTarget = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -165,7 +165,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	sourceIndex = cp==0 ? 0 : -1;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8_t, we need only one counter
+	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -187,37 +187,37 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 		loops = count = targetCapacity>>4;
 		do {
 			oredChars = u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 			oredChars |= u = *source++;
-			*target++ = (uint8_t)u;
+			*target++ = (uint8)u;
 
 			/* were all 16 entries really valid? */
 			if(oredChars>max) {
@@ -259,7 +259,7 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	c = 0;
 	while(targetCapacity>0 && (c = *source++)<=max) {
 		/* convert the Unicode code point */
-		*target++ = (uint8_t)c;
+		*target++ = (uint8)c;
 		--targetCapacity;
 	}
 
@@ -309,7 +309,7 @@ noMoreInput:
 		}
 	}
 
-	if(U_SUCCESS(*pErrorCode) && source<sourceLimit && target>=(uint8_t*)pArgs->targetLimit) {
+	if(U_SUCCESS(*pErrorCode) && source<sourceLimit && target>=(uint8 *)pArgs->targetLimit) {
 		/* target is full */
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 	}
@@ -325,18 +325,18 @@ static void U_CALLCONV ucnv_Latin1FromUTF8(UConverterFromUnicodeArgs * pFromUArg
     UConverterToUnicodeArgs * pToUArgs,
     UErrorCode * pErrorCode) {
 	UConverter * utf8;
-	const uint8_t * source, * sourceLimit;
-	uint8_t * target;
+	const uint8 * source, * sourceLimit;
+	uint8 * target;
 	int32_t targetCapacity;
 
 	UChar32 c;
-	uint8_t b, t1;
+	uint8 b, t1;
 
 	/* set up the local pointers */
 	utf8 = pToUArgs->converter;
-	source = (uint8_t*)pToUArgs->source;
-	sourceLimit = (uint8_t*)pToUArgs->sourceLimit;
-	target = (uint8_t*)pFromUArgs->target;
+	source = (uint8 *)pToUArgs->source;
+	sourceLimit = (uint8 *)pToUArgs->sourceLimit;
+	target = (uint8 *)pFromUArgs->target;
 	targetCapacity = (int32_t)(pFromUArgs->targetLimit-pFromUArgs->target);
 
 	/* get the converter state from the UTF-8 UConverter */
@@ -351,9 +351,9 @@ static void U_CALLCONV ucnv_Latin1FromUTF8(UConverterFromUnicodeArgs * pFromUArg
 			*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 			return;
 		}
-		else if(c>=0xc2 && c<=0xc3 && (t1 = (uint8_t)(*source-0x80)) <= 0x3f) {
+		else if(c>=0xc2 && c<=0xc3 && (t1 = (uint8)(*source-0x80)) <= 0x3f) {
 			++source;
-			*target++ = (uint8_t)(((c&3)<<6)|t1);
+			*target++ = (uint8)(((c&3)<<6)|t1);
 			--targetCapacity;
 
 			utf8->toUnicodeStatus = 0;
@@ -384,15 +384,15 @@ static void U_CALLCONV ucnv_Latin1FromUTF8(UConverterFromUnicodeArgs * pFromUArg
 			b = *source++;
 			if(U8_IS_SINGLE(b)) {
 				/* convert ASCII */
-				*target++ = (uint8_t)b;
+				*target++ = (uint8)b;
 				--targetCapacity;
 			}
 			else if( /* handle U+0080..U+00FF inline */
 				b>=0xc2 && b<=0xc3 &&
-				(t1 = (uint8_t)(*source-0x80)) <= 0x3f
+				(t1 = (uint8)(*source-0x80)) <= 0x3f
 				) {
 				++source;
-				*target++ = (uint8_t)(((b&3)<<6)|t1);
+				*target++ = (uint8)(((b&3)<<6)|t1);
 				--targetCapacity;
 			}
 			else {
@@ -417,7 +417,7 @@ static void U_CALLCONV ucnv_Latin1FromUTF8(UConverterFromUnicodeArgs * pFromUArg
 	 * For Latin-1, there is at most exactly one lead byte because of the
 	 * smaller sourceLimit adjustment logic.
 	 */
-	if(U_SUCCESS(*pErrorCode) && source<(sourceLimit = (uint8_t*)pToUArgs->sourceLimit)) {
+	if(U_SUCCESS(*pErrorCode) && source<(sourceLimit = (uint8 *)pToUArgs->sourceLimit)) {
 		utf8->toUnicodeStatus = utf8->toUBytes[0] = b = *source++;
 		utf8->toULength = 1;
 		utf8->mode = U8_COUNT_BYTES(b);
@@ -485,18 +485,18 @@ U_CDECL_BEGIN
 /* This is a table-less version of ucnv_MBCSSingleToBMPWithOffsets(). */
 static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target, * oldTarget;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
 
 	int32_t sourceIndex;
 
-	uint8_t c;
+	uint8 c;
 
 	/* set up the local pointers */
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = oldTarget = pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
@@ -505,7 +505,7 @@ static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	sourceIndex = 0;
 
 	/*
-	 * since the conversion here is 1:1 UChar:uint8_t, we need only one counter
+	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -594,11 +594,11 @@ static void U_CALLCONV _ASCIIToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 /* This is a table-less version of ucnv_MBCSSingleGetNextUChar(). */
 static UChar32 U_CALLCONV _ASCIIGetNextUChar(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
-	const uint8_t * source;
-	uint8_t b;
+	const uint8 * source;
+	uint8 b;
 
-	source = (const uint8_t*)pArgs->source;
-	if(source<(const uint8_t*)pArgs->sourceLimit) {
+	source = (const uint8*)pArgs->source;
+	if(source<(const uint8*)pArgs->sourceLimit) {
 		b = *source++;
 		pArgs->source = (const char *)source;
 		if(b<=0x7f) {
@@ -622,11 +622,11 @@ static UChar32 U_CALLCONV _ASCIIGetNextUChar(UConverterToUnicodeArgs * pArgs,
 static void U_CALLCONV ucnv_ASCIIFromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
     UConverterToUnicodeArgs * pToUArgs,
     UErrorCode * pErrorCode) {
-	const uint8_t * source, * sourceLimit;
-	uint8_t * target;
+	const uint8 * source, * sourceLimit;
+	uint8 * target;
 	int32_t targetCapacity, length;
 
-	uint8_t c;
+	uint8 c;
 
 	if(pToUArgs->converter->toULength > 0) {
 		/* no handling of partial UTF-8 characters here, fall back to pivoting */
@@ -635,13 +635,13 @@ static void U_CALLCONV ucnv_ASCIIFromUTF8(UConverterFromUnicodeArgs * pFromUArgs
 	}
 
 	/* set up the local pointers */
-	source = (const uint8_t*)pToUArgs->source;
-	sourceLimit = (const uint8_t*)pToUArgs->sourceLimit;
-	target = (uint8_t*)pFromUArgs->target;
+	source = (const uint8*)pToUArgs->source;
+	sourceLimit = (const uint8*)pToUArgs->sourceLimit;
+	target = (uint8 *)pFromUArgs->target;
 	targetCapacity = (int32_t)(pFromUArgs->targetLimit-pFromUArgs->target);
 
 	/*
-	 * since the conversion here is 1:1 uint8_t:uint8_t, we need only one counter
+	 * since the conversion here is 1:1 uint8:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
 	 */
 	length = (int32_t)(sourceLimit-source);
@@ -652,7 +652,7 @@ static void U_CALLCONV ucnv_ASCIIFromUTF8(UConverterFromUnicodeArgs * pFromUArgs
 	/* unroll the loop with the most common case */
 	if(targetCapacity>=16) {
 		int32_t count, loops;
-		uint8_t oredChars;
+		uint8 oredChars;
 
 		loops = count = targetCapacity>>4;
 		do {
@@ -697,7 +697,7 @@ static void U_CALLCONV ucnv_ASCIIFromUTF8(UConverterFromUnicodeArgs * pFromUArgs
 		/* non-ASCII character, handle in standard converter */
 		*pErrorCode = U_USING_DEFAULT_WARNING;
 	}
-	else if(source<sourceLimit && target>=(const uint8_t*)pFromUArgs->targetLimit) {
+	else if(source<sourceLimit && target>=(const uint8*)pFromUArgs->targetLimit) {
 		/* target is full */
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 	}

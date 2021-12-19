@@ -133,10 +133,7 @@ FILE * xfdopen(int fd, char const * mode)
 {
 	FILE * res = _fdopen(fd, mode);
 	if(!res)
-		error(EXIT_FAILURE, get_errno(),
-		    /* On a separate line to please the "unmarked_diagnostics"
-		       syntax-check. */
-		    "fdopen");
+		error(EXIT_FAILURE, get_errno(), /* On a separate line to please the "unmarked_diagnostics" syntax-check. */"fdopen");
 	return res;
 }
 
@@ -147,7 +144,6 @@ char * map_file_name(char const * filename)
 {
 	if(!filename)
 		return NULL;
-
 	struct prefix_map const * p = NULL;
 	if(prefix_maps) {
 		void const * ptr;
@@ -160,10 +156,8 @@ char * map_file_name(char const * filename)
 		}
 		gl_list_iterator_free(&iter);
 	}
-
 	if(!p)
 		return xstrdup(filename);
-
 	size_t oldprefix_len = strlen(p->oldprefix);
 	size_t newprefix_len = strlen(p->newprefix);
 	char * s = (char *)xmalloc(newprefix_len + strlen(filename) - oldprefix_len + 1);
@@ -234,23 +228,14 @@ static void compute_exts_from_src(const char * ext)
    If there is no *EXT, *TAB is NULL.  Otherwise, *TAB points to
    '.tab' or '_tab' if present right before *EXT, or is NULL. *TAB
    cannot be equal to *BASE.
-
    None are allocated, they are simply pointers to parts of FILE_NAME.
    Examples:
-
-   '/tmp/foo.tab.c' -> *BASE = 'foo.tab.c', *TAB = '.tab.c', *EXT =
-   '.c'
-
+   '/tmp/foo.tab.c' -> *BASE = 'foo.tab.c', *TAB = '.tab.c', *EXT = '.c'
    'foo.c' -> *BASE = 'foo.c', *TAB = NULL, *EXT = '.c'
-
    'tab.c' -> *BASE = 'tab.c', *TAB = NULL, *EXT = '.c'
-
    '.tab.c' -> *BASE = '.tab.c', *TAB = NULL, *EXT = '.c'
-
    'foo.tab' -> *BASE = 'foo.tab', *TAB = NULL, *EXT = '.tab'
-
    'foo_tab' -> *BASE = 'foo_tab', *TAB = NULL, *EXT = NULL
-
    'foo' -> *BASE = 'foo', *TAB = NULL, *EXT = NULL.  */
 #include <mbstring.h>
 

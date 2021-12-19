@@ -27,7 +27,7 @@
 
 #ifdef CMS_USE_BIG_ENDIAN
 
-static void byteReverse(cmsUInt8Number * buf, cmsUInt32Number longs)
+static void byteReverse(uint8 * buf, cmsUInt32Number longs)
 {
 	do {
 		cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number *)buf);
@@ -43,7 +43,7 @@ static void byteReverse(cmsUInt8Number * buf, cmsUInt32Number longs)
 typedef struct {
 	cmsUInt32Number buf[4];
 	cmsUInt32Number bits[2];
-	cmsUInt8Number in[64];
+	uint8 in[64];
 	cmsContext ContextID;
 } _cmsMD5;
 
@@ -56,7 +56,7 @@ typedef struct {
 
 static void cmsMD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
 {
-	CMSREGISTER cmsUInt32Number a, b, c, d;
+	cmsUInt32Number a, b, c, d;
 
 	a = buf[0];
 	b = buf[1];
@@ -154,7 +154,7 @@ cmsHANDLE CMSEXPORT cmsMD5alloc(cmsContext ContextID)
 	return (cmsHANDLE)ctx;
 }
 
-void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const cmsUInt8Number* buf, cmsUInt32Number len)
+void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number len)
 {
 	_cmsMD5 * ctx = (_cmsMD5*)Handle;
 	cmsUInt32Number t = ctx->bits[0];
@@ -163,7 +163,7 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const cmsUInt8Number* buf, cmsUInt32N
 	ctx->bits[1] += len >> 29;
 	t = (t >> 3) & 0x3f;
 	if(t) {
-		cmsUInt8Number * p = (cmsUInt8Number *)ctx->in + t;
+		uint8 * p = (uint8 *)ctx->in + t;
 		t = 64 - t;
 		if(len < t) {
 			memmove(p, buf, len);
@@ -194,7 +194,7 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 {
 	_cmsMD5* ctx = (_cmsMD5*)Handle;
 	cmsUInt32Number count;
-	cmsUInt8Number * p;
+	uint8 * p;
 	count = (ctx->bits[0] >> 3) & 0x3F;
 	p = ctx->in + count;
 	*p++ = 0x80;
@@ -214,7 +214,7 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 	((cmsUInt32Number *)ctx->in)[15] = ctx->bits[1];
 
 	cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
-	byteReverse((cmsUInt8Number *)ctx->buf, 4);
+	byteReverse((uint8 *)ctx->buf, 4);
 	memmove(ProfileID->ID8, ctx->buf, 16);
 	_cmsFree(ctx->ContextID, ctx);
 }
@@ -223,11 +223,11 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 // In the header, rendering intentent, attributes and ID should be set to zero
 // before computing MD5 checksum (per 6.1.13 in ICC spec)
 
-cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
+boolint CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 {
 	cmsContext ContextID;
 	cmsUInt32Number BytesNeeded;
-	cmsUInt8Number* Mem = NULL;
+	uint8 * Mem = NULL;
 	cmsHANDLE MD5 = NULL;
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	_cmsICCPROFILE Keep;
@@ -243,7 +243,7 @@ cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 	if(!cmsSaveProfileToMem(hProfile, NULL, &BytesNeeded)) 
 		goto Error;
 	// Allocate memory
-	Mem = (cmsUInt8Number *)_cmsMalloc(ContextID, BytesNeeded);
+	Mem = (uint8 *)_cmsMalloc(ContextID, BytesNeeded);
 	if(Mem == NULL) 
 		goto Error;
 	// Save to temporary storage

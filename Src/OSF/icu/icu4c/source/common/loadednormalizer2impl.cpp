@@ -73,7 +73,7 @@ void LoadedNormalizer2Impl::load(const char * packageName, const char * name, UE
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const uint8_t * inBytes = (const uint8_t*)udata_getMemory(memory);
+	const uint8 * inBytes = (const uint8*)udata_getMemory(memory);
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexesLength = inIndexes[IX_NORM_TRIE_OFFSET]/4;
 	if(indexesLength<=IX_MIN_LCCC_CP) {
@@ -96,7 +96,7 @@ void LoadedNormalizer2Impl::load(const char * packageName, const char * name, UE
 
 	// smallFCD: new in formatVersion 2
 	offset = nextOffset;
-	const uint8_t * inSmallFCD = inBytes+offset;
+	const uint8 * inSmallFCD = inBytes+offset;
 
 	init(inIndexes, ownedTrie, inExtraData, inSmallFCD);
 }

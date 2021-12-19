@@ -54,7 +54,7 @@ CollationKey::CollationKey() : UObject(), fFlagAndLength(0), fHashCode(kEmptyHas
 }
 
 // Create a collation key from a bit array.
-CollationKey::CollationKey(const uint8_t* newValues, int32_t count) : UObject(), fFlagAndLength(count), fHashCode(kInvalidHashCode)
+CollationKey::CollationKey(const uint8* newValues, int32_t count) : UObject(), fFlagAndLength(count), fHashCode(kInvalidHashCode)
 {
 	if(count < 0 || (newValues == NULL && count != 0) ||
 	    (count > getCapacity() && reallocate(count, 0) == NULL)) {
@@ -94,8 +94,8 @@ CollationKey::~CollationKey()
 	}
 }
 
-uint8_t * CollationKey::reallocate(int32_t newCapacity, int32_t length) {
-	uint8_t * newBytes = static_cast<uint8_t *>(uprv_malloc(newCapacity));
+uint8 * CollationKey::reallocate(int32_t newCapacity, int32_t length) {
+	uint8 * newBytes = static_cast<uint8 *>(uprv_malloc(newCapacity));
 	if(newBytes == NULL) {
 		return NULL;
 	}
@@ -174,8 +174,8 @@ Collator::EComparisonResult CollationKey::compareTo(const CollationKey& target) 
 UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode & status) const
 {
 	if(U_SUCCESS(status)) {
-		const uint8_t * src = getBytes();
-		const uint8_t * tgt = target.getBytes();
+		const uint8 * src = getBytes();
+		const uint8 * tgt = target.getBytes();
 
 		// are we comparing the same string
 		if(src == tgt)
@@ -216,9 +216,9 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 
 #ifdef U_USE_COLLATION_KEY_DEPRECATES
 // Create a copy of the byte array.
-uint8_t* CollationKey::toByteArray(int32_t& count) const
+uint8* CollationKey::toByteArray(int32_t& count) const
 {
-	uint8_t * result = (uint8_t*)uprv_malloc(sizeof(uint8_t) * fCount);
+	uint8 * result = (uint8 *)uprv_malloc(sizeof(uint8) * fCount);
 
 	if(result == NULL) {
 		count = 0;
@@ -235,7 +235,7 @@ uint8_t* CollationKey::toByteArray(int32_t& count) const
 
 #endif
 
-static int32_t computeHashCode(const uint8_t * key, int32_t length) {
+static int32_t computeHashCode(const uint8 * key, int32_t length) {
 	const char * s = reinterpret_cast<const char *>(key);
 	int32_t hash;
 	if(s == NULL || length == 0) {
@@ -267,7 +267,7 @@ int32_t CollationKey::hashCode() const
 
 U_NAMESPACE_END
 
-U_CAPI int32_t U_EXPORT2 ucol_keyHashCode(const uint8_t * key,
+U_CAPI int32_t U_EXPORT2 ucol_keyHashCode(const uint8 * key,
     int32_t length)
 {
 	return icu::computeHashCode(key, length);

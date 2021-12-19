@@ -37,10 +37,7 @@ int FASTCALL SWaitableObject::operator == (const SWaitableObject & s) const
 	return BIN(H == s.H);
 }
 
-int SWaitableObject::IsValid() const
-{
-	return BIN(H);
-}
+bool SWaitableObject::IsValid() const { return LOGIC(H); }
 
 int FASTCALL SWaitableObject::Wait(long timeout)
 {

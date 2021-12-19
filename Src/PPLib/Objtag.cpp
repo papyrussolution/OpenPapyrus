@@ -1052,6 +1052,19 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 				disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
 			}
 			setCtrlString(CTL_OBJTAG_TYPE, typ_name_buf);
+			// @v11.2.8 {
+			if(Data.Rec.HotKey) {
+				SString buf;
+				uint32 hk = 0;
+				KeyDownCommand kc;
+				kc.Code = LoWord(Data.Rec.HotKey);
+				kc.State = HiWord(Data.Rec.HotKey);
+				if(kc.GetKeyName(buf, 0/*onlySpecKeys*/) > 0) {
+					kc.GetKeyName(buf);
+				}
+				setCtrlString(CTL_OBJTAG_HOTKEY, buf);
+			}
+			// } @v11.2.8 
 			disableCtrl(CTL_OBJTAG_TYPE, 1);
 			enableCommand(cmaMore, Data.Rec.TagDataType == OTTYP_ENUM);
 			return 1;
@@ -1091,6 +1104,21 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 				}
 				clearEvent(event);
 			}
+			// @v11.2.8 {
+			else if(event.isCmd(cmWinKeyDown)) {
+				if(isCurrCtlID(CTL_OBJTAG_HOTKEY)) {
+					SString buf;
+					uint32 hk = 0;
+					const KeyDownCommand * p_cmd = static_cast<const KeyDownCommand *>(event.message.infoPtr);
+					if(p_cmd && p_cmd->GetKeyName(buf, 0/*onlySpecKeys*/) > 0) {
+						p_cmd->GetKeyName(buf);
+						hk = MakeLong(p_cmd->Code, p_cmd->State);
+					}
+					setCtrlString(CTL_OBJTAG_HOTKEY, buf);
+					Data.Rec.HotKey = hk;
+				}
+			}
+			// } @v11.2.8 
 		}
 		int CheckRecursion(PPID id, PPID grpID)
 		{
@@ -1394,12 +1422,27 @@ StrAssocArray * PPObjTag::MakeStrAssocList(void * extraPtr)
 int PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 {
 	int    ok  = -1;
-	SEnum en = P_Ref->Enum(Obj, 0);
 	PPObjectTag rec;
-	while(en.Next(&rec)) {
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if((rec.Flags & mask) == mask) {
 			rList.addUnique(rec.ID);
 			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPObjTag::GetListByHotKey(uint32 keyCode, PPID objType, PPIDArray & rList) // @v11.2.8
+{
+	rList.Z();
+	int    ok  = -1;
+	if(keyCode) {
+		PPObjectTag rec;
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+			if(rec.HotKey == keyCode && (!objType || objType == rec.ObjTypeID)) {
+				rList.addUnique(rec.ID);
+				ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -3272,8 +3315,8 @@ void TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	PPObjectTag   * p_tag = static_cast<PPObjectTag *>(pDataRec);
 	const TagCacheEntry * p_cr  = static_cast<const TagCacheEntry *>(pEntry);
 	memzero(p_tag, sizeof(PPObjectTag));
-	p_tag->Tag         = PPOBJ_TAG;
-	p_tag->ID          = p_cr->ID;
+	p_tag->Tag = PPOBJ_TAG;
+	p_tag->ID  = p_cr->ID;
    	p_tag->Flags       = p_cr->Flags;
    	p_tag->LinkObjGrp  = p_cr->LinkObjGrp;
 	p_tag->TagEnumID   = p_cr->TagEnumID;

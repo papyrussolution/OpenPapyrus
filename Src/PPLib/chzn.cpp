@@ -546,7 +546,7 @@ public:
 	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
 	//
 	enum {
-		doctypUnkn                               = 0,
+		doctypUnkn                       = 0,
 		doctypMdlpResult                   		 = 200,
 		doctypMdlpQueryKizInfo             		 = 210,
 		doctypMdlpKizInfo                  		 = 211,
@@ -554,34 +554,34 @@ public:
 		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
 		doctypMdlpReceiveOrder             		 = 416,
 		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
-		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
-		doctypMdlpRetailSale                     = 511, // @v11.0.1
+		doctypMdlpMoveUnregisteredOrder  = 441, // @v11.2.0
+		doctypMdlpRetailSale             = 511, // @v11.0.1
 		doctypMdlpReceiveOrderNotification 		 = 602,
-		doctypMdlpAccept                         = 701,
-		doctypMdlpPosting                        = 702, // @v10.9.7
+		doctypMdlpAccept                 = 701,
+		doctypMdlpPosting                = 702, // @v10.9.7
 		//
 		// Следующие типы определены для интерфейса ГИС МТ. Для них нет заданных внешним сервисом числовых значений
 		//
-		doctGisMt_OstDescription                 = 1001,
-		doctGisMt_Aggregation                    = 1002,
-		doctGisMt_Disaggregation                 = 1003,
-		doctGisMt_Reaggregation                  = 1004,
-		doctGisMt_LpIntroduceGoods               = 1005,
-		doctGisMt_LkIndiCommissioning            = 1006,
-		doctGisMt_LpGoodsImport                  = 1007,
-		doctGisMt_Crossborder                    = 1008,
+		doctGisMt_OstDescription         = 1001,
+		doctGisMt_Aggregation            = 1002,
+		doctGisMt_Disaggregation         = 1003,
+		doctGisMt_Reaggregation          = 1004,
+		doctGisMt_LpIntroduceGoods       = 1005,
+		doctGisMt_LkIndiCommissioning    = 1006,
+		doctGisMt_LpGoodsImport          = 1007,
+		doctGisMt_Crossborder            = 1008,
 		doctGisMt_LpIntroduceGoodsCrossborderCSD = 1009,
-		doctGisMt_IntroduceOST                   = 1010,
+		doctGisMt_IntroduceOST           = 1010,
 		doctGisMt_LkContractCommissioning        = 1011,
-		doctGisMt_LpReturn                       = 1012,
-		doctGisMt_LpShipGoods                    = 1013,
-		doctGisMt_LpShipReceipt                  = 1014,
-		doctGisMt_LpCancelShipment               = 1015,
-		doctGisMt_LpAcceptGoods                  = 1016,
-		doctGisMt_LkReceipt                      = 1017,
-		doctGisMt_LkRemark                       = 1018,
-		doctGisMt_KmCancellation                 = 1019,
-		doctGisMt_AppliedKmCancellation          = 1020
+		doctGisMt_LpReturn               = 1012,
+		doctGisMt_LpShipGoods            = 1013,
+		doctGisMt_LpShipReceipt          = 1014,
+		doctGisMt_LpCancelShipment       = 1015,
+		doctGisMt_LpAcceptGoods          = 1016,
+		doctGisMt_LkReceipt              = 1017,
+		doctGisMt_LkRemark               = 1018,
+		doctGisMt_KmCancellation         = 1019,
+		doctGisMt_AppliedKmCancellation  = 1020
 	};
 	struct Packet {
 		struct ErrorItem {

@@ -115,7 +115,7 @@ public:
 private:
     ZoneMeta(); // Prevent construction.
     static UVector* createMetazoneMappings(const UnicodeString & tzid);
-    static UnicodeString & formatCustomID(uint8_t hour, uint8_t min, uint8_t sec, bool negative, UnicodeString & id);
+    static UnicodeString & formatCustomID(uint8 hour, uint8 min, uint8 sec, bool negative, UnicodeString & id);
     static const UChar * getShortIDFromCanonical(const UChar * canonicalID);
 };
 

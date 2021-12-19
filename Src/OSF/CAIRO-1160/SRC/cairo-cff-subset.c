@@ -779,7 +779,7 @@ static cairo_int_status_t cairo_cff_font_read_private_dict(cairo_cff_font_t * fo
     cairo_hash_table_t * private_dict,
     cairo_array_t * local_sub_index,
     int * local_sub_bias,
-    boolint  ** local_subs_used,
+    boolint ** local_subs_used,
     double * default_width,
     double * nominal_width,
     uchar * ptr,

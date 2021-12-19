@@ -34,10 +34,10 @@
  *      Helpers
  *          static PARTEL   *partelCreate()
  *          static void      partelDestroy()
- *          static int32   partelSetSize()
+ *          static l_int32   partelSetSize()
  *          static BOXA     *boxaGenerateSubboxes()
  *          static BOX      *boxaSelectPivotBox()
- *          static int32   boxaCheckIfOverlapIsSmall()
+ *          static l_int32   boxaCheckIfOverlapIsSmall()
  *          BOXA            *boxaPruneSortedOnOverlap()
  * </pre>
  */
@@ -55,15 +55,15 @@ typedef struct PartitionElement PARTEL;
 
 static PARTEL * partelCreate(BOX * box);
 static void partelDestroy(PARTEL ** ppartel);
-static int32 partelSetSize(PARTEL * partel, int32 sortflag);
-static BOXA * boxaGenerateSubboxes(BOX * box, BOXA * boxa, int32 maxperim,
+static l_int32 partelSetSize(PARTEL * partel, l_int32 sortflag);
+static BOXA * boxaGenerateSubboxes(BOX * box, BOXA * boxa, l_int32 maxperim,
     float fract);
-static BOX * boxaSelectPivotBox(BOX * box, BOXA * boxa, int32 maxperim,
+static BOX * boxaSelectPivotBox(BOX * box, BOXA * boxa, l_int32 maxperim,
     float fract);
-static int32 boxCheckIfOverlapIsBig(BOX * box, BOXA * boxa,
+static l_int32 boxCheckIfOverlapIsBig(BOX * box, BOXA * boxa,
     float maxoverlap);
 
-static const int32 DEFAULT_MAX_POPS = 20000;   /* a big number! */
+static const l_int32 DefaultMaxPops = 20000;
 
 #ifndef  NO_CONSOLE_IO
 #define  OUTPUT_HEAP_STATS   0
@@ -75,24 +75,24 @@ static const int32 DEFAULT_MAX_POPS = 20000;   /* a big number! */
 /*!
  * \brief   boxaGetWhiteblocks()
  *
- * \param[in]    boxas typically, a set of bounding boxes of fg components
- * \param[in]    box initial region; typically including all boxes in boxas;
- *                   if null, it computes the region to include all boxes
- *                   in boxas
- * \param[in]    sortflag L_SORT_BY_WIDTH, L_SORT_BY_HEIGHT,
- *                        L_SORT_BY_MIN_DIMENSION, L_SORT_BY_MAX_DIMENSION,
- *                        L_SORT_BY_PERIMETER, L_SORT_BY_AREA
- * \param[in]    maxboxes maximum number of output whitespace boxes; e.g., 100
- * \param[in]    maxoverlap maximum fractional overlap of a box by any
- *                          of the larger boxes; e.g., 0.2
- * \param[in]    maxperim maximum half-perimeter, in pixels, for which
- *                        pivot is selected by proximity to box centroid;
- *                        e.g., 200
- * \param[in]    fract fraction of box diagonal that is an acceptable
- *                     distance from the box centroid to select the pivot;
- *                     e.g., 0.2
- * \param[in]    maxpops maximum number of pops from the heap; use 0 as default
- * \return  boxa of sorted whitespace boxes, or NULL on error
+ * \param[in]    boxas        typ. a set of bounding boxes of fg components
+ * \param[in]    box          initial region; typically including all boxes
+ *                            in boxas; if null, it computes the region to
+ *                            include all boxes in boxas
+ * \param[in]    sortflag     L_SORT_BY_WIDTH, L_SORT_BY_HEIGHT,
+ *                            L_SORT_BY_MIN_DIMENSION, L_SORT_BY_MAX_DIMENSION,
+ *                            L_SORT_BY_PERIMETER, L_SORT_BY_AREA
+ * \param[in]    maxboxes     max number of output whitespace boxes; e.g., 100
+ * \param[in]    maxoverlap   maximum fractional overlap of a box by any
+ *                            of the larger boxes; e.g., 0.2
+ * \param[in]    maxperim     maximum half-perimeter, in pixels, for which
+ *                            pivot is selected by proximity to box centroid;
+ *                            e.g., 200
+ * \param[in]    fract        fraction of box diagonal that is an acceptable
+ *                            distance from the box centroid to select
+ *                            the pivot; e.g., 0.2
+ * \param[in]    maxpops      max number of pops from the heap; use 0 as default
+ * \return  boxa  of sorted whitespace boxes, or NULL on error
  *
  * <pre>
  * Notes:
@@ -127,7 +127,7 @@ static const int32 DEFAULT_MAX_POPS = 20000;   /* a big number! */
  *          as having a reasonable proximity to the rectangle centroid.
  *      (6) Use fract in the range [0.0 ... 1.0].  Set fract = 0.0
  *          to choose the small box nearest the centroid as the pivot.
- *          If you choose fract \> 0.0, it is suggested that you call
+ *          If you choose fract > 0.0, it is suggested that you call
  *          boxaPermuteRandom() first, to permute the boxes (see usage below).
  *          This should reduce the search time for each of the pivot boxes.
  *      (7) Choose maxpops to be the maximum number of rectangles that
@@ -145,9 +145,16 @@ static const int32 DEFAULT_MAX_POPS = 20000;   /* a big number! */
  *          as a pivot, as the partitioning continues, at no time will
  *          any of the whitespace inside this component be part of a
  *          rectangle with zero overlapping boxes.  Thus, the interiors
- *           of all boxes are necessarily excluded from the union of
- *           the returned whitespace boxes.
- *     (10) USAGE: One way to accommodate to this weakness is to remove such
+ *          of all boxes are necessarily excluded from the union of
+ *          the returned whitespace boxes.
+ *     (10) It should be noted that the algorithm puts a large number
+ *          of partels on the queue.  Setting a limit of X partels to
+ *          remove from the queue, one typically finds that there will be
+ *          several times that number (say, 2X - 3X) left on the queue.
+ *          For an efficient algorithm to find the largest white or
+ *          or black rectangles, without permitting them to overlap,
+ *          see pixFindLargeRectangles().
+ *     (11) USAGE: One way to accommodate to this weakness is to remove such
  *          large b.b. before starting the computation.  For example,
  *          if 'box' is an input image region containing 'boxa' b.b. of c.c.:
  *
@@ -179,36 +186,36 @@ static const int32 DEFAULT_MAX_POPS = 20000;   /* a big number! */
  */
 BOXA * boxaGetWhiteblocks(BOXA      * boxas,
     BOX       * box,
-    int32 sortflag,
-    int32 maxboxes,
+    l_int32 sortflag,
+    l_int32 maxboxes,
     float maxoverlap,
-    int32 maxperim,
+    l_int32 maxperim,
     float fract,
-    int32 maxpops)
+    l_int32 maxpops)
 {
-	int32 i, w, h, n, nsub, npush, npop;
-	BOX     * boxsub;
-	BOXA    * boxa, * boxa4, * boxasub, * boxad;
+	l_int32 i, w, h, n, nsub, npush, npop;
+	BOX * boxsub;
+	BOXA * boxa, * boxa4, * boxasub, * boxad;
 	PARTEL  * partel;
 	L_HEAP  * lh;
 
-	PROCNAME("boxaGetWhiteblocks");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 	if(sortflag != L_SORT_BY_WIDTH && sortflag != L_SORT_BY_HEIGHT &&
 	    sortflag != L_SORT_BY_MIN_DIMENSION &&
 	    sortflag != L_SORT_BY_MAX_DIMENSION &&
 	    sortflag != L_SORT_BY_PERIMETER && sortflag != L_SORT_BY_AREA)
-		return (BOXA*)ERROR_PTR("invalid sort flag", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid sort flag", procName, NULL);
 	if(maxboxes < 1) {
 		maxboxes = 1;
 		L_WARNING("setting maxboxes = 1\n", procName);
 	}
 	if(maxoverlap < 0.0 || maxoverlap > 1.0)
-		return (BOXA*)ERROR_PTR("invalid maxoverlap", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid maxoverlap", procName, NULL);
 	if(maxpops == 0)
-		maxpops = DEFAULT_MAX_POPS;
+		maxpops = DefaultMaxPops;
 
 	if(!box) {
 		boxaGetExtent(boxas, &w, &h, NULL);
@@ -222,16 +229,18 @@ BOXA * boxaGetWhiteblocks(BOXA      * boxas,
 	partelSetSize(partel, sortflag);
 	lheapAdd(lh, partel);
 
+	npush = 1;
+	npop = 0;
 	boxad = boxaCreate(0);
-
-	npush = npop = 0;
 	while(1) {
 		if((partel = (PARTEL*)lheapRemove(lh)) == NULL) /* we're done */
 			break;
 
 		npop++; /* How many boxes have we retrieved from the queue? */
-		if(npop > maxpops)
+		if(npop > maxpops) {
+			partelDestroy(&partel);
 			break;
+		}
 
 		/* Extract the contents */
 		boxa = boxaCopy(partel->boxa, L_CLONE);
@@ -266,16 +275,17 @@ BOXA * boxaGetWhiteblocks(BOXA      * boxas,
 		}
 		npush += nsub; /* How many boxes have we put on the queue? */
 
-/*        boxaWriteStream(stderr, boxa4); */
+/*        boxaWriteStderr(boxa4); */
 
 		boxaDestroy(&boxa4);
 		boxaDestroy(&boxa);
 	}
 
 #if  OUTPUT_HEAP_STATS
-	fprintf(stderr, "Heap statistics:\n");
-	fprintf(stderr, "  Number of boxes pushed: %d\n", npush);
-	fprintf(stderr, "  Number of boxes popped: %d\n", npop);
+	lept_stderr("Heap statistics:\n");
+	lept_stderr("  Number of boxes pushed: %d\n", npush);
+	lept_stderr("  Number of boxes popped: %d\n", npop);
+	lept_stderr("  Number of boxes on heap: %d\n", lheapGetCount(lh));
 #endif  /* OUTPUT_HEAP_STATS */
 
 	/* Clean up the heap */
@@ -292,18 +302,14 @@ BOXA * boxaGetWhiteblocks(BOXA      * boxas,
 /*!
  * \brief   partelCreate()
  *
- * \param[in]    box region; inserts a copy
+ * \param[in]    box    region; inserts a copy
  * \return  partel, or NULL on error
  */
 static PARTEL * partelCreate(BOX  * box)
 {
 	PARTEL  * partel;
 
-	PROCNAME("partelCreate");
-
-	if((partel = (PARTEL*)LEPT_CALLOC(1, sizeof(PARTEL))) == NULL)
-		return (PARTEL*)ERROR_PTR("partel not made", procName, NULL);
-
+	partel = (PARTEL*)SAlloc::C(1, sizeof(PARTEL));
 	partel->box = boxCopy(box);
 	return partel;
 }
@@ -311,14 +317,14 @@ static PARTEL * partelCreate(BOX  * box)
 /*!
  * \brief   partelDestroy()
  *
- * \param[in,out]   ppartel will be set to null before returning
+ * \param[in,out]   ppartel   contents will be set to null before returning
  * \return  void
  */
 static void partelDestroy(PARTEL  ** ppartel)
 {
 	PARTEL  * partel;
 
-	PROCNAME("partelDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(ppartel == NULL) {
 		L_WARNING("ptr address is null!\n", procName);
@@ -330,7 +336,7 @@ static void partelDestroy(PARTEL  ** ppartel)
 
 	boxDestroy(&partel->box);
 	boxaDestroy(&partel->boxa);
-	LEPT_FREE(partel);
+	SAlloc::F(partel);
 	*ppartel = NULL;
 	return;
 }
@@ -339,17 +345,17 @@ static void partelDestroy(PARTEL  ** ppartel)
  * \brief   partelSetSize()
  *
  * \param[in]    partel
- * \param[in]    sortflag L_SORT_BY_WIDTH, L_SORT_BY_HEIGHT,
- *                        L_SORT_BY_MIN_DIMENSION, L_SORT_BY_MAX_DIMENSION,
- *                        L_SORT_BY_PERIMETER, L_SORT_BY_AREA
+ * \param[in]    sortflag   L_SORT_BY_WIDTH, L_SORT_BY_HEIGHT,
+ *                          L_SORT_BY_MIN_DIMENSION, L_SORT_BY_MAX_DIMENSION,
+ *                          L_SORT_BY_PERIMETER, L_SORT_BY_AREA
  * \return  0 if OK, 1 on error
  */
-static int32 partelSetSize(PARTEL  * partel,
-    int32 sortflag)
+static l_int32 partelSetSize(PARTEL  * partel,
+    l_int32 sortflag)
 {
-	int32 w, h;
+	l_int32 w, h;
 
-	PROCNAME("partelSetSize");
+	PROCNAME(__FUNCTION__);
 
 	if(!partel)
 		return ERROR_INT("partel not defined", procName, 1);
@@ -375,31 +381,32 @@ static int32 partelSetSize(PARTEL  * partel,
 /*!
  * \brief   boxaGenerateSubboxes()
  *
- * \param[in]    box region to be split into up to four overlapping subregions
- * \param[in]    boxa boxes of rectangles intersecting the box
- * \param[in]    maxperim maximum half-perimeter for which pivot
- *                        is selected by proximity to box centroid
- * \param[in]    fract fraction of box diagonal that is an acceptable
- *                     distance from the box centroid to select the pivot
- * \return  boxa of four or less overlapping subrectangles of the box,
- *              or NULL on error
+ * \param[in]    box         region to be split into up to four overlapping
+ *                           subregions
+ * \param[in]    boxa        boxes of rectangles intersecting the box
+ * \param[in]    maxperim    maximum half-perimeter for which pivot
+ *                           is selected by proximity to box centroid
+ * \param[in]    fract       fraction of box diagonal that is an acceptable
+ *                           distance from the box centroid to select the pivot
+ * \return  boxa             of four or less overlapping subrectangles of
+ *                           the box, or NULL on error
  */
 static BOXA * boxaGenerateSubboxes(BOX       * box,
     BOXA      * boxa,
-    int32 maxperim,
+    l_int32 maxperim,
     float fract)
 {
-	int32 x, y, w, h, xp, yp, wp, hp;
-	BOX     * boxp; /* pivot box */
-	BOX     * boxsub;
-	BOXA    * boxa4;
+	l_int32 x, y, w, h, xp, yp, wp, hp;
+	BOX * boxp; /* pivot box */
+	BOX * boxsub;
+	BOXA * boxa4;
 
-	PROCNAME("boxaGenerateSubboxes");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
-		return (BOXA*)ERROR_PTR("box not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("box not defined", procName, NULL);
 	if(!boxa)
-		return (BOXA*)ERROR_PTR("boxa not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxa not defined", procName, NULL);
 
 	boxa4 = boxaCreate(4);
 	boxp = boxaSelectPivotBox(box, boxa, maxperim, fract);
@@ -429,14 +436,14 @@ static BOXA * boxaGenerateSubboxes(BOX       * box,
 /*!
  * \brief   boxaSelectPivotBox()
  *
- * \param[in]    box containing box; to be split by the pivot box
- * \param[in]    boxa boxes of rectangles, from which 1 is to be chosen
- * \param[in]    maxperim maximum half-perimeter for which pivot
- *                        is selected by proximity to box centroid
- * \param[in]    fract fraction of box diagonal that is an acceptable
- *                     distance from the box centroid to select the pivot
- * \return  box pivot box for subdivision into 4 rectangles, or
- *                   NULL on error
+ * \param[in]    box        containing box; to be split by the pivot box
+ * \param[in]    boxa       boxes of rectangles, from which 1 is to be chosen
+ * \param[in]    maxperim   maximum half-perimeter for which pivot
+ *                          is selected by proximity to box centroid
+ * \param[in]    fract      fraction of box diagonal that is an acceptable
+ *                          distance from the box centroid to select the pivot
+ * \return  box             pivot box for subdivision into 4 rectangles,
+ *                          or NULL on error
  *
  * <pre>
  * Notes:
@@ -462,15 +469,15 @@ static BOXA * boxaGenerateSubboxes(BOX       * box,
  */
 static BOX * boxaSelectPivotBox(BOX       * box,
     BOXA      * boxa,
-    int32 maxperim,
+    l_int32 maxperim,
     float fract)
 {
-	int32 i, n, bw, bh, w, h;
-	int32 smallfound, minindex, perim, minsize;
+	l_int32 i, n, bw, bh, w, h;
+	l_int32 smallfound, minindex, perim, minsize;
 	float delx, dely, mindist, threshdist, dist, x, y, cx, cy;
 	BOX       * boxt;
 
-	PROCNAME("boxaSelectPivotBox");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return (BOX*)ERROR_PTR("box not defined", procName, NULL);
@@ -531,22 +538,22 @@ static BOX * boxaSelectPivotBox(BOX       * box,
 /*!
  * \brief   boxCheckIfOverlapIsBig()
  *
- * \param[in]    box to be tested
- * \param[in]    boxa of boxes already stored
- * \param[in]    maxoverlap maximum fractional overlap of the input box
- *                          by any of the boxes in boxa
- * \return  0 if box has small overlap with every box in boxa;
+ * \param[in]    box          to be tested
+ * \param[in]    boxa         of boxes already stored
+ * \param[in]    maxoverlap   maximum fractional overlap of the input box
+ *                            by any of the boxes in boxa
+ * \return      0 if box has small overlap with every box in boxa;
  *              1 otherwise or on error
  */
-static int32 boxCheckIfOverlapIsBig(BOX       * box,
+static l_int32 boxCheckIfOverlapIsBig(BOX       * box,
     BOXA      * boxa,
     float maxoverlap)
 {
-	int32 i, n, bigoverlap;
+	l_int32 i, n, bigoverlap;
 	float fract;
 	BOX       * boxt;
 
-	PROCNAME("boxCheckIfOverlapIsBig");
+	PROCNAME(__FUNCTION__);
 
 	if(!box)
 		return ERROR_INT("box not defined", procName, 1);
@@ -576,9 +583,9 @@ static int32 boxCheckIfOverlapIsBig(BOX       * box,
 /*!
  * \brief   boxaPruneSortedOnOverlap()
  *
- * \param[in]    boxas sorted by size in decreasing order
- * \param[in]    maxoverlap maximum fractional overlap of a box by any
- *                          of the larger boxes
+ * \param[in]    boxas        sorted by size in decreasing order
+ * \param[in]    maxoverlap   maximum fractional overlap of a box by any
+ *                            of the larger boxes
  * \return  boxad pruned, or NULL on error
  *
  * <pre>
@@ -594,17 +601,17 @@ static int32 boxCheckIfOverlapIsBig(BOX       * box,
 BOXA * boxaPruneSortedOnOverlap(BOXA      * boxas,
     float maxoverlap)
 {
-	int32 i, j, n, remove;
+	l_int32 i, j, n, remove;
 	float fract;
 	BOX       * box1, * box2;
 	BOXA      * boxad;
 
-	PROCNAME("boxaPruneSortedOnOverlap");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 	if(maxoverlap < 0.0 || maxoverlap > 1.0)
-		return (BOXA*)ERROR_PTR("invalid maxoverlap", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid maxoverlap", procName, NULL);
 
 	n = boxaGetCount(boxas);
 	if(n == 0 || maxoverlap == 1.0)
@@ -633,4 +640,3 @@ BOXA * boxaPruneSortedOnOverlap(BOXA      * boxas,
 
 	return boxad;
 }
-

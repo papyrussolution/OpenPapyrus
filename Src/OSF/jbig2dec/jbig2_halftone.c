@@ -297,7 +297,7 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 	/* C.5 step 3. decode loop */
 	while(j > 0) {
 		j--;
-		/*  C.5 step 3. (a) */
+		/* C.5 step 3. (a) */
 		if(GSMMR) {
 			code = jbig2_decode_halftone_mmr(ctx, &rparams, data + consumed_bytes, size - consumed_bytes, GSPLANES[j], &consumed_bytes);
 		}
@@ -315,7 +315,7 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 		for(i = 0; i < stride * GSH; ++i)
 			GSPLANES[j]->data[i] ^= GSPLANES[j + 1]->data[i];
 
-		/*  C.5 step 3. (c) */
+		/* C.5 step 3. (c) */
 	}
 
 	/* allocate GSVALS */
@@ -337,7 +337,7 @@ static uint16_t ** jbig2_decode_gray_scale_image(Jbig2Ctx * ctx, Jbig2Segment * 
 		}
 	}
 
-	/*  C.5 step 4.  */
+	/* C.5 step 4.  */
 	for(x = 0; x < GSW; ++x) {
 		for(y = 0; y < GSH; ++y) {
 			GSVALS[x][y] = 0;

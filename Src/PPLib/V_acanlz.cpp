@@ -2386,7 +2386,7 @@ int PPALDD_AccAnlz::InitData(PPFilt & rFilt, long rsrv)
 	H.FltEnd       = p_filt->Period.upp;
 	PPFormatPeriod(&p_filt->Period, temp_buf).CopyTo(H.FltPeriod, sizeof(H.FltPeriod));
 	H.ExpiryDate   = p_v->ExpiryDate;
-	H.Aco          = (int16)p_filt->Aco;
+	H.Aco  = (int16)p_filt->Aco;
 	H.CorAco       = (int16)p_filt->CorAco;
 	H.FltCycle     = p_filt->Cycl.Cycle;
 	H.FltNumCycles = p_filt->Cycl.NumCycles;
@@ -2484,7 +2484,7 @@ int PPALDD_AccturnList::InitData(PPFilt & rFilt, long rsrv)
 	H.GrpAco       = p_filt->GrpAco;
 	H.FltCycle     = p_filt->Cycl.Cycle;
 	H.FltNumCycles = p_filt->Cycl.NumCycles;
-	H.Aco          = p_filt->Aco;
+	H.Aco  = p_filt->Aco;
 	H.FltDbtAc     = p_filt->DbtAcct.ac;
 	H.FltDbtSb     = p_filt->DbtAcct.sb;
 	H.FltDbtAr     = p_filt->DbtAcct.ar;
@@ -2689,8 +2689,8 @@ int PPALDD_CurRateView::InitData(PPFilt & rFilt, long rsrv)
 	H.FltCurID       = p_filt->CurID;
 	H.FltBaseCurID   = p_filt->BaseCurID;
 	H.FltRateTypeID  = p_filt->RateTypeID;
-	H.FltBeg         = p_filt->Period.low;
-	H.FltEnd         = p_filt->Period.upp;
+	H.FltBeg = p_filt->Period.low;
+	H.FltEnd = p_filt->Period.upp;
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
@@ -2705,7 +2705,7 @@ int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 	I.CurID      = item.CurID;
 	I.BaseCurID  = item.RelCurID;
 	I.RateTypeID = item.RateTypeID;
-	I.Dt         = item.Dt;
+	I.Dt = item.Dt;
 	I.Rate       = item.Rate;
 	FINISH_PPVIEW_ALDD_ITER();
 }

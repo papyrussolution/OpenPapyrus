@@ -65,7 +65,7 @@ FT_BEGIN_HEADER
  */
 
 // 
-/*                        B A S I C   T Y P E S                          */
+/*        B A S I C   T Y P E S                          */
 // 
 
 /**************************************************************************
@@ -339,7 +339,7 @@ typedef struct  FT_Bitmap_Size_ {
 } FT_Bitmap_Size;
 
 // 
-/*                     O B J E C T   C L A S S E S                       */
+/*     O B J E C T   C L A S S E S                       */
 // 
 
 /**************************************************************************
@@ -778,7 +778,7 @@ typedef struct  FT_CharMapRec_ {
 } FT_CharMapRec;
 
 // 
-/*                 B A S E   O B J E C T   C L A S S E S                 */
+/* B A S E   O B J E C T   C L A S S E S                 */
 // 
 
 /**************************************************************************
@@ -1791,7 +1791,7 @@ typedef struct  FT_GlyphSlotRec_ {
 } FT_GlyphSlotRec;
 
 // 
-/*                         F U N C T I O N S                             */
+/*         F U N C T I O N S                             */
 // 
 
 /**************************************************************************

@@ -30,7 +30,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -39,17 +39,17 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void COREL_init(GpTermEntry * pThis);
-TERM_PUBLIC void COREL_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void COREL_text(GpTermEntry * pThis);
-TERM_PUBLIC void COREL_reset(GpTermEntry * pThis);
-TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  COREL_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC int  COREL_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC void COREL_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void COREL_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void COREL_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void COREL_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void COREL_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void COREL_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void COREL_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void COREL_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void COREL_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC int  COREL_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC int  COREL_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
 #define CORELD_XMAX  5960       /* 8.2 inches wide */
 #define CORELD_YMAX  7200       /* 10 inches high  */
 #define CORELD_VTIC  (CORELD_YMAX/80)
@@ -93,7 +93,7 @@ static struct gen_table COREL_opts[] =
 	{ NULL, COREL_OTHER }
 };
 
-TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void COREL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	GpValue a;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -126,8 +126,7 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    // We have font size specified 
 				    corel_fontsize = (int)pGp->Real(pGp->ConstExpress(&a));
 				    pGp->Pgm.Shift();
-				    pThis->ChrV = (uint)(corel_fontsize * COREL_SC);
-				    pThis->ChrH = (uint)(corel_fontsize * COREL_SC * 6 / 10);
+				    pThis->SetCharSize((uint)(corel_fontsize * COREL_SC * 6 / 10), (uint)(corel_fontsize * COREL_SC));
 			    }
 			    break;
 		}
@@ -140,10 +139,8 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			corel_ymax = (uint)(pGp->Real(pGp->ConstExpress(&a)) * 720);
 			pGp->Pgm.Shift();
 		}
-		pThis->MaxX = corel_xmax;
-		pThis->MaxY = corel_ymax;
-		pThis->TicV = corel_ymax / 80;
-		pThis->TicH = corel_ymax / 80;
+		pThis->SetMax(corel_xmax, corel_ymax);
+		pThis->SetTic(corel_ymax / 80);
 	}
 	if(!pGp->Pgm.EndOfCommand()) {
 		corel_lw = static_cast<float>(pGp->Real(pGp->ConstExpress(&a)) * COREL_SC);
@@ -153,7 +150,7 @@ TERM_PUBLIC void COREL_options(GpTermEntry * pThis, GnuPlot * pGp)
 	    corel_fontsize, corel_xmax / 720.0, corel_ymax / 720.0, corel_lw / COREL_SC);
 }
 
-TERM_PUBLIC void COREL_init(GpTermEntry * pThis)
+TERM_PUBLIC void COREL_init(GpTermEntry_Static * pThis)
 {
 	fprintf(GPT.P_GpOutFile,
 	    "\
@@ -173,13 +170,13 @@ TERM_PUBLIC void COREL_init(GpTermEntry * pThis)
 	    (int)((corel_ymax) / COREL_SC + 0.5 + CORELD_YOFF));
 }
 
-TERM_PUBLIC void COREL_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void COREL_graphics(GpTermEntry_Static * pThis)
 {
 	corel_path_count = 0;
 	corel_stroke = FALSE;
 }
 
-TERM_PUBLIC void COREL_text(GpTermEntry * pThis)
+TERM_PUBLIC void COREL_text(GpTermEntry_Static * pThis)
 {
 	if(corel_stroke) {
 		fputs("S\n", GPT.P_GpOutFile);
@@ -188,12 +185,12 @@ TERM_PUBLIC void COREL_text(GpTermEntry * pThis)
 	corel_path_count = 0;
 }
 
-TERM_PUBLIC void COREL_reset(GpTermEntry * pThis)
+TERM_PUBLIC void COREL_reset(GpTermEntry_Static * pThis)
 {
 	fputs("%%Trailer\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void COREL_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(corel_stroke) {
 		fputs("S\n", GPT.P_GpOutFile);
@@ -335,7 +332,7 @@ TERM_PUBLIC void COREL_linetype(GpTermEntry * pThis, int linetype)
 	corel_path_count = 0;
 }
 
-TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void COREL_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(corel_stroke)
 		fputs("S\n", GPT.P_GpOutFile);
@@ -344,7 +341,7 @@ TERM_PUBLIC void COREL_move(GpTermEntry * pThis, uint x, uint y)
 	corel_stroke = TRUE;
 }
 
-TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void COREL_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	fprintf(GPT.P_GpOutFile, "%.2f %.2f l\n", x / COREL_SC, y / COREL_SC);
 	corel_path_count += 1;
@@ -355,7 +352,7 @@ TERM_PUBLIC void COREL_vector(GpTermEntry * pThis, uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void COREL_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	char ch;
 	if(corel_stroke) {
@@ -394,13 +391,13 @@ TERM_PUBLIC void COREL_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	corel_path_count = 0;
 }
 
-TERM_PUBLIC int COREL_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int COREL_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	corel_ang = ang;
 	return TRUE;
 }
 
-TERM_PUBLIC int COREL_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int COREL_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	corel_justify = mode;
 	return TRUE;

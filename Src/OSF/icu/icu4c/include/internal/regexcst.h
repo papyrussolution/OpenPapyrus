@@ -20,9 +20,9 @@ U_NAMESPACE_BEGIN
 //
 // Character classes for regex pattern scanning.
 //
-    static const uint8_t kRuleSet_digit_char = 128;
-    static const uint8_t kRuleSet_ascii_letter = 129;
-    static const uint8_t kRuleSet_rule_char = 130;
+    static const uint8 kRuleSet_digit_char = 128;
+    static const uint8 kRuleSet_ascii_letter = 129;
+    static const uint8 kRuleSet_rule_char = 130;
     constexpr uint32_t kRuleSet_count = 131-128;
 
 enum Regex_PatternParseAction {
@@ -140,9 +140,9 @@ enum Regex_PatternParseAction {
 //-------------------------------------------------------------------------------
 struct RegexTableEl {
     Regex_PatternParseAction fAction;
-    uint8_t fCharClass;       // 0-127: an individual ASCII character; 128-255:  character class index
-    uint8_t fNextState;       // 0-250: normal next-state numbers; 255: pop next-state from stack.
-    uint8_t fPushState;
+    uint8 fCharClass;       // 0-127: an individual ASCII character; 128-255:  character class index
+    uint8 fNextState;       // 0-250: normal next-state numbers; 255: pop next-state from stack.
+    uint8 fPushState;
     bool fNextChar;
 };
 

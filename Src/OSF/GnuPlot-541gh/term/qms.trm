@@ -56,9 +56,9 @@ register_term(qms)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void QMS_init(GpTermEntry * pThis);
+TERM_PUBLIC void QMS_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void QMS_graphics();
-TERM_PUBLIC void QMS_text(GpTermEntry * pThis);
+TERM_PUBLIC void QMS_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void QMS_linetype(int linetype);
 TERM_PUBLIC void QMS_move(uint x, uint y);
 TERM_PUBLIC void QMS_vector(uint x2, uint y2);
@@ -81,11 +81,11 @@ TERM_PUBLIC void QMS_reset();
 #ifdef TERM_BODY
 static int qms_line = 0; /* to remember current line type */
 
-TERM_PUBLIC void QMS_init(GpTermEntry * pThis)
+TERM_PUBLIC void QMS_init(GpTermEntry_Static * pThis)
 {
 	/* This was just ^IOL, but at Rutgers at least we need some more stuff */
 	fputs("^PY^-\n^IOL\n^ISYNTAX00000^F^IB11000^IJ00000^IT00000\n", GPT.P_GpOutFile);
-	/*     ^ QUIC on    ^set defaults  ^ set bottom,top,left margins
+	/* ^ QUIC on    ^set defaults  ^ set bottom,top,left margins
 	 *      ^landscape         ^free format
 	 */
 
@@ -98,15 +98,15 @@ TERM_PUBLIC void QMS_init(GpTermEntry * pThis)
 TERM_PUBLIC void QMS_graphics()
 {
 	fputs("^IGV\n", GPT.P_GpOutFile);
-	/*     ^enter graphics vector mode */
+	/* ^enter graphics vector mode */
 }
 
-TERM_PUBLIC void QMS_text(GpTermEntry * pThis)
+TERM_PUBLIC void QMS_text(GpTermEntry_Static * pThis)
 {
 /* added ^-, because ^, after an ^I command doesn't actually print a page */
 /* Did anybody try this code out?  [uhh...-cdk] */
 	fputs("^IGE\n^-^,", GPT.P_GpOutFile);
-	/*     ^exit graphics vector mode
+	/* ^exit graphics vector mode
 	 *     ^pass terminator
 	 *       ^print page
 	 */
@@ -155,13 +155,13 @@ TERM_PUBLIC void QMS_linetype(int linetype)
 TERM_PUBLIC void QMS_move(uint x, uint y)
 {
 	fprintf(GPT.P_GpOutFile, "^U%05d:%05d\n", 1000 + x, QMS_YLAST + 1000 - y);
-	/*                   ^pen up vector*/
+	/*   ^pen up vector*/
 }
 
 TERM_PUBLIC void QMS_vector(uint x2, uint y2)
 {
 	fprintf(GPT.P_GpOutFile, "^D%05d:%05d\n", 1000 + x2, QMS_YLAST + 1000 - y2);
-	/*                  ^pen down vector*/
+	/*  ^pen down vector*/
 }
 
 TERM_PUBLIC void QMS_put_text(uint x, uint y, const char str[])
@@ -183,7 +183,7 @@ TERM_PUBLIC void QMS_put_text(uint x, uint y, const char str[])
 TERM_PUBLIC void QMS_reset()
 {
 	fputs("^PN^-\n", GPT.P_GpOutFile);
-	/*     ^QUIC off */
+	/* ^QUIC off */
 }
 
 #endif /* TERM_BODY */

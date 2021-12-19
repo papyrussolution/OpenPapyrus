@@ -135,8 +135,8 @@ inline bool appendResult(int32_t cpLength, int32_t result, const UChar * s,
 }
 
 // See unicode/utf8.h U8_APPEND_UNSAFE().
-inline uint8_t getTwoByteLead(UChar32 c) { return (uint8_t)((c >> 6) | 0xc0); }
-inline uint8_t getTwoByteTrail(UChar32 c) { return (uint8_t)((c & 0x3f) | 0x80); }
+inline uint8 getTwoByteLead(UChar32 c) { return (uint8)((c >> 6) | 0xc0); }
+inline uint8 getTwoByteTrail(UChar32 c) { return (uint8)((c & 0x3f) | 0x80); }
 
 UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8_t dir) {
 	UCaseContext * csc = (UCaseContext*)context;
@@ -159,13 +159,13 @@ UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8_t dir) {
 
 	if(dir<0) {
 		if(csc->start<csc->index) {
-			U8_PREV((const uint8_t*)csc->p, csc->start, csc->index, c);
+			U8_PREV((const uint8*)csc->p, csc->start, csc->index, c);
 			return c;
 		}
 	}
 	else {
 		if(csc->index<csc->limit) {
-			U8_NEXT((const uint8_t*)csc->p, csc->index, csc->limit, c);
+			U8_NEXT((const uint8*)csc->p, csc->index, csc->limit, c);
 			return c;
 		}
 	}
@@ -177,7 +177,7 @@ UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8_t dir) {
  * caseLocale < 0: Case-folds [srcStart..srcLimit[.
  */
 void toLower(int32_t caseLocale, uint32_t options,
-    const uint8_t * src, UCaseContext * csc, int32_t srcStart, int32_t srcLimit,
+    const uint8 * src, UCaseContext * csc, int32_t srcStart, int32_t srcLimit,
     icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) {
 	const int8_t * latinToLower;
 	if(caseLocale == UCASE_LOC_ROOT ||
@@ -201,7 +201,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 				c = U_SENTINEL;
 				break;
 			}
-			uint8_t lead = src[srcIndex++];
+			uint8 lead = src[srcIndex++];
 			if(lead <= 0x7f) {
 				int8_t d = latinToLower[lead];
 				if(d == LatinCase::EXC) {
@@ -223,7 +223,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 				continue;
 			}
 			else if(lead < 0xe3) {
-				uint8_t t;
+				uint8 t;
 				if(0xc2 <= lead && lead <= 0xc5 && srcIndex < srcLimit &&
 				    (t = src[srcIndex] - 0x80) <= 0x3f) {
 					// U+0080..U+017F
@@ -298,7 +298,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 }
 
 void toUpper(int32_t caseLocale, uint32_t options,
-    const uint8_t * src, UCaseContext * csc, int32_t srcLength,
+    const uint8 * src, UCaseContext * csc, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) {
 	const int8_t * latinToUpper;
 	if(caseLocale == UCASE_LOC_TURKISH) {
@@ -319,7 +319,7 @@ void toUpper(int32_t caseLocale, uint32_t options,
 				c = U_SENTINEL;
 				break;
 			}
-			uint8_t lead = src[srcIndex++];
+			uint8 lead = src[srcIndex++];
 			if(lead <= 0x7f) {
 				int8_t d = latinToUpper[lead];
 				if(d == LatinCase::EXC) {
@@ -341,7 +341,7 @@ void toUpper(int32_t caseLocale, uint32_t options,
 				continue;
 			}
 			else if(lead < 0xe3) {
-				uint8_t t;
+				uint8 t;
 				if(0xc2 <= lead && lead <= 0xc5 && srcIndex < srcLength &&
 				    (t = src[srcIndex] - 0x80) <= 0x3f) {
 					// U+0080..U+017F
@@ -414,7 +414,7 @@ void toUpper(int32_t caseLocale, uint32_t options,
 #if !UCONFIG_NO_BREAK_ITERATION
 
 U_CFUNC void U_CALLCONV ucasemap_internalUTF8ToTitle(int32_t caseLocale, uint32_t options, BreakIterator * iter,
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     ByteSink &sink, icu::Edits * edits,
     UErrorCode & errorCode) {
 	if(!ustrcase_checkTitleAdjustmentOptions(options, errorCode)) {
@@ -544,7 +544,7 @@ U_CFUNC void U_CALLCONV ucasemap_internalUTF8ToTitle(int32_t caseLocale, uint32_
 
 U_NAMESPACE_BEGIN
 namespace GreekUpper {
-bool isFollowedByCasedLetter(const uint8_t * s, int32_t i, int32_t length) {
+bool isFollowedByCasedLetter(const uint8 * s, int32_t i, int32_t length) {
 	while(i < length) {
 		UChar32 c;
 		U8_NEXT(s, i, length, c);
@@ -564,7 +564,7 @@ bool isFollowedByCasedLetter(const uint8_t * s, int32_t i, int32_t length) {
 
 // Keep this consistent with the UTF-16 version in ustrcase.cpp and the Java version in CaseMap.java.
 void toUpper(uint32_t options,
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     ByteSink &sink, Edits * edits,
     UErrorCode & errorCode) {
 	uint32_t state = 0;
@@ -660,14 +660,14 @@ void toUpper(uint32_t options,
 				int32_t i2 = i + 2;
 				if((data & HAS_EITHER_DIALYTIKA) != 0) {
 					change |= (i2 + 2) > nextIndex ||
-					    src[i2] != (uint8_t)u8"\u0308"[0] ||
-					    src[i2 + 1] != (uint8_t)u8"\u0308"[1];
+					    src[i2] != (uint8)u8"\u0308"[0] ||
+					    src[i2 + 1] != (uint8)u8"\u0308"[1];
 					i2 += 2;
 				}
 				if(addTonos) {
 					change |= (i2 + 2) > nextIndex ||
-					    src[i2] != (uint8_t)u8"\u0301"[0] ||
-					    src[i2 + 1] != (uint8_t)u8"\u0301"[1];
+					    src[i2] != (uint8)u8"\u0301"[0] ||
+					    src[i2 + 1] != (uint8)u8"\u0301"[1];
 					i2 += 2;
 				}
 				int32_t oldLength = nextIndex - i;
@@ -723,7 +723,7 @@ void toUpper(uint32_t options,
 U_NAMESPACE_END
 
 static void U_CALLCONV ucasemap_internalUTF8ToLower(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits,
     UErrorCode & errorCode) {
 	UCaseContext csc = UCASECONTEXT_INITIALIZER;
@@ -736,7 +736,7 @@ static void U_CALLCONV ucasemap_internalUTF8ToLower(int32_t caseLocale, uint32_t
 }
 
 static void U_CALLCONV ucasemap_internalUTF8ToUpper(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits,
     UErrorCode & errorCode) {
 	if(caseLocale == UCASE_LOC_GREEK) {
@@ -754,7 +754,7 @@ static void U_CALLCONV ucasemap_internalUTF8ToUpper(int32_t caseLocale, uint32_t
 }
 
 static void U_CALLCONV ucasemap_internalUTF8Fold(int32_t /* caseLocale */, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits,
     UErrorCode & errorCode) {
 	toLower(
@@ -786,7 +786,7 @@ void ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERA
 		edits->reset();
 	}
 	stringCaseMapper(caseLocale, options, UCASEMAP_BREAK_ITERATOR
-		    (const uint8_t *) src, srcLength, sink, edits, errorCode);
+		    (const uint8 *) src, srcLength, sink, edits, errorCode);
 	sink.Flush();
 	if(U_SUCCESS(errorCode)) {
 		if(edits != nullptr) {
@@ -832,7 +832,7 @@ int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_IT
 		edits->reset();
 	}
 	stringCaseMapper(caseLocale, options, UCASEMAP_BREAK_ITERATOR
-		    (const uint8_t *) src, srcLength, sink, edits, errorCode);
+		    (const uint8 *) src, srcLength, sink, edits, errorCode);
 	sink.Flush();
 	if(U_SUCCESS(errorCode)) {
 		if(sink.Overflowed()) {

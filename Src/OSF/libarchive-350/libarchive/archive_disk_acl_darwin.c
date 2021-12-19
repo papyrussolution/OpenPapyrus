@@ -516,7 +516,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 {
 	int ret = ARCHIVE_OK;
 
-	(void)mode; /* UNUSED */
+	CXX_UNUSED(mode);
 
 	if((archive_acl_types(abstract_acl) &
 	    ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0) {

@@ -35,8 +35,8 @@ struct write_memory_data {
 	uchar * buff;
 };
 
-static int      memory_write_free(struct archive *, void *);
-static int      memory_write_open(struct archive *, void *);
+static int memory_write_free(struct archive *, void *);
+static int memory_write_open(struct archive *, void *);
 static ssize_t  memory_write(struct archive *, void *, const void * buff, size_t);
 
 /*
@@ -91,7 +91,7 @@ static ssize_t memory_write(struct archive * a, void * client_data, const void *
 
 static int memory_write_free(struct archive * a, void * client_data)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	if(mine == NULL)
 		return ARCHIVE_OK;

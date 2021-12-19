@@ -228,7 +228,7 @@ void TDialog::RemoveUnusedControls()
 		case WM_LBUTTONDBLCLK:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				event.what              = TEvent::evMouseDown;
+				event.what      = TEvent::evMouseDown;
 				event.mouse.buttons     = static_cast<uchar>(wParam);
 				event.mouse.WhereX      = LOWORD(lParam);
 				event.mouse.WhereY      = HIWORD(lParam);
@@ -288,23 +288,22 @@ void TDialog::RemoveUnusedControls()
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);
 			return 0;
 		case WM_USER_KEYDOWN:
-			{
-				if((wParam >= VK_F1 && wParam <= VK_F12) || (wParam >= 48 && wParam <= 57) || (wParam >= 65 && wParam <= 90) || (wParam >= 97 && wParam <= 122)) {
-					TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-					KeyDownCommand key_cmd;
-					key_cmd.State = 0;
-					if(GetKeyState(VK_MENU) & 0x8000)
-						key_cmd.State |= KeyDownCommand::stateAlt;
-					if(GetKeyState(VK_CONTROL) & 0x8000)
-						key_cmd.State |= KeyDownCommand::stateCtrl;
-					if(GetKeyState(VK_SHIFT) & 0x8000)
-						key_cmd.State |= KeyDownCommand::stateShift;
-					key_cmd.Code = static_cast<uint16>(wParam);
-					event.what = TEvent::evCommand;
-					event.message.command = cmWinKeyDown;
-					event.message.infoPtr = &key_cmd;
-					p_dlg->handleEvent(event);
-				}
+			// @v11.2.8 if((wParam >= VK_F1 && wParam <= VK_F12) || (wParam >= 48 && wParam <= 57) || (wParam >= 65 && wParam <= 90) || (wParam >= 97 && wParam <= 122)) {
+			if(checkirangef(wParam, VK_F1, VK_F12) || checkirangef(wParam, 48, 57) || checkirangef(wParam, 65, 90) || checkirangef(wParam, 97, 122)) { // @v11.2.8 
+				TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+				KeyDownCommand key_cmd;
+				key_cmd.State = 0;
+				if(GetKeyState(VK_MENU) & 0x8000)
+					key_cmd.State |= KeyDownCommand::stateAlt;
+				if(GetKeyState(VK_CONTROL) & 0x8000)
+					key_cmd.State |= KeyDownCommand::stateCtrl;
+				if(GetKeyState(VK_SHIFT) & 0x8000)
+					key_cmd.State |= KeyDownCommand::stateShift;
+				key_cmd.Code = static_cast<uint16>(wParam);
+				event.what = TEvent::evCommand;
+				event.message.command = cmWinKeyDown;
+				event.message.infoPtr = &key_cmd;
+				p_dlg->handleEvent(event);
 			}
 			return 0;
 		case WM_CHAR:

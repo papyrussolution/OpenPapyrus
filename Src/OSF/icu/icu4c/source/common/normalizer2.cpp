@@ -60,7 +60,7 @@ UChar32 Normalizer2::composePair(UChar32, UChar32) const {
 	return U_SENTINEL;
 }
 
-uint8_t Normalizer2::getCombiningClass(UChar32 /*c*/) const {
+uint8 Normalizer2::getCombiningClass(UChar32 /*c*/) const {
 	return 0;
 }
 
@@ -476,7 +476,7 @@ U_CAPI UChar32 U_EXPORT2 unorm2_composePair(const UNormalizer2 * norm2, UChar32 
 	return reinterpret_cast<const Normalizer2 *>(norm2)->composePair(a, b);
 }
 
-U_CAPI uint8_t U_EXPORT2 unorm2_getCombiningClass(const UNormalizer2 * norm2, UChar32 c) {
+U_CAPI uint8 U_EXPORT2 unorm2_getCombiningClass(const UNormalizer2 * norm2, UChar32 c) {
 	return reinterpret_cast<const Normalizer2 *>(norm2)->getCombiningClass(c);
 }
 
@@ -536,7 +536,7 @@ U_CAPI bool U_EXPORT2 unorm2_isInert(const UNormalizer2 * norm2, UChar32 c) {
 
 // Some properties APIs ---------------------------------------------------- ***
 
-U_CAPI uint8_t U_EXPORT2 u_getCombiningClass(UChar32 c) {
+U_CAPI uint8 U_EXPORT2 u_getCombiningClass(UChar32 c) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const Normalizer2 * nfd = Normalizer2::getNFDInstance(errorCode);
 	if(U_SUCCESS(errorCode)) {

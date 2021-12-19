@@ -440,7 +440,7 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	int   ok = 1, reply;
 	int   quite = 0, cancel = 0;
 	HANDLE desthdl = 0;
-	void  * p_buf  = 0;
+	void * p_buf  = 0;
 	uint32 flen;
 	uint32 buflen = SMEGABYTE(4);
 	uint32 len, bytes_read_write;

@@ -369,17 +369,17 @@ struct iso9660 {
 	uchar null[2048];
 };
 
-static int      archive_read_format_iso9660_bid(struct archive_read *, int);
-static int      archive_read_format_iso9660_options(struct archive_read *,
+static int archive_read_format_iso9660_bid(struct archive_read *, int);
+static int archive_read_format_iso9660_options(struct archive_read *,
     const char *, const char *);
-static int      archive_read_format_iso9660_cleanup(struct archive_read *);
-static int      archive_read_format_iso9660_read_data(struct archive_read *,
+static int archive_read_format_iso9660_cleanup(struct archive_read *);
+static int archive_read_format_iso9660_read_data(struct archive_read *,
     const void **, size_t *, int64 *);
-static int      archive_read_format_iso9660_read_data_skip(struct archive_read *);
-static int      archive_read_format_iso9660_read_header(struct archive_read *,
+static int archive_read_format_iso9660_read_data_skip(struct archive_read *);
+static int archive_read_format_iso9660_read_header(struct archive_read *,
     struct archive_entry *);
 static const char * build_pathname(struct archive_string *, struct file_info *, int);
-static int      build_pathname_utf16be(uchar *, size_t, size_t *,
+static int build_pathname_utf16be(uchar *, size_t, size_t *,
     struct file_info *);
 #if DEBUG
 static void     dump_isodirrec(FILE *, const uchar * isodirrec);
@@ -387,26 +387,26 @@ static void     dump_isodirrec(FILE *, const uchar * isodirrec);
 static time_t   time_from_tm(struct tm *);
 static time_t   isodate17(const uchar *);
 static time_t   isodate7(const uchar *);
-static int      isBootRecord(struct iso9660 *, const uchar *);
-static int      isVolumePartition(struct iso9660 *, const uchar *);
-static int      isVDSetTerminator(struct iso9660 *, const uchar *);
-static int      isJolietSVD(struct iso9660 *, const uchar *);
-static int      isSVD(struct iso9660 *, const uchar *);
-static int      isEVD(struct iso9660 *, const uchar *);
-static int      isPVD(struct iso9660 *, const uchar *);
-static int      next_cache_entry(struct archive_read *, struct iso9660 *,
+static int isBootRecord(struct iso9660 *, const uchar *);
+static int isVolumePartition(struct iso9660 *, const uchar *);
+static int isVDSetTerminator(struct iso9660 *, const uchar *);
+static int isJolietSVD(struct iso9660 *, const uchar *);
+static int isSVD(struct iso9660 *, const uchar *);
+static int isEVD(struct iso9660 *, const uchar *);
+static int isPVD(struct iso9660 *, const uchar *);
+static int next_cache_entry(struct archive_read *, struct iso9660 *,
     struct file_info **);
-static int      next_entry_seek(struct archive_read *, struct iso9660 *,
+static int next_entry_seek(struct archive_read *, struct iso9660 *,
     struct file_info **);
 static struct file_info * parse_file_info(struct archive_read * a,
     struct file_info * parent, const uchar * isodirrec,
     size_t reclen);
-static int      parse_rockridge(struct archive_read * a,
+static int parse_rockridge(struct archive_read * a,
     struct file_info * file, const uchar * start,
     const uchar * end);
-static int      register_CE(struct archive_read * a, int32_t location,
+static int register_CE(struct archive_read * a, int32_t location,
     struct file_info * file);
-static int      read_CE(struct archive_read * a, struct iso9660 * iso9660);
+static int read_CE(struct archive_read * a, struct iso9660 * iso9660);
 static void     parse_rockridge_NM1(struct file_info *,
     const uchar *, int);
 static void     parse_rockridge_SL1(struct file_info *,
@@ -425,7 +425,7 @@ static inline struct file_info * rede_get_entry(struct file_info *);
 static inline void cache_add_entry(struct iso9660 * iso9660,
     struct file_info * file);
 static inline struct file_info * cache_get_entry(struct iso9660 * iso9660);
-static int      heap_add_entry(struct archive_read * a, struct heap_queue * heap,
+static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
     struct file_info * file, uint64 key);
 static struct file_info * heap_get_entry(struct heap_queue * heap);
 
@@ -582,7 +582,7 @@ static int isNull(struct iso9660 * iso9660, const uchar * h, unsigned offset, un
 
 static int isBootRecord(struct iso9660 * iso9660, const uchar * h)
 {
-	(void)iso9660; /* UNUSED */
+	CXX_UNUSED(iso9660);
 	/* Type of the Volume Descriptor Boot Record must be 0. */
 	if(h[0] != 0)
 		return 0;
@@ -590,51 +590,41 @@ static int isBootRecord(struct iso9660 * iso9660, const uchar * h)
 	/* Volume Descriptor Version must be 1. */
 	if(h[6] != 1)
 		return 0;
-
 	return 1;
 }
 
 static int isVolumePartition(struct iso9660 * iso9660, const uchar * h)
 {
 	int32_t location;
-
 	/* Type of the Volume Partition Descriptor must be 3. */
 	if(h[0] != 3)
 		return 0;
-
 	/* Volume Descriptor Version must be 1. */
 	if(h[6] != 1)
 		return 0;
 	/* Unused Field */
 	if(h[7] != 0)
 		return 0;
-
 	location = archive_le32dec(h + 72);
-	if(location <= SYSTEM_AREA_BLOCK ||
-	    location >= iso9660->volume_block)
+	if(location <= SYSTEM_AREA_BLOCK || location >= iso9660->volume_block)
 		return 0;
 	if((uint32)location != archive_be32dec(h + 76))
 		return 0;
-
 	return 1;
 }
 
 static int isVDSetTerminator(struct iso9660 * iso9660, const uchar * h)
 {
-	(void)iso9660; /* UNUSED */
-
+	CXX_UNUSED(iso9660);
 	/* Type of the Volume Descriptor Set Terminator must be 255. */
 	if(h[0] != 255)
 		return 0;
-
 	/* Volume Descriptor Version must be 1. */
 	if(h[6] != 1)
 		return 0;
-
 	/* Reserved field must be 0. */
 	if(!isNull(iso9660, h, 7, 2048-7))
 		return 0;
-
 	return 1;
 }
 
@@ -643,20 +633,15 @@ static int isJolietSVD(struct iso9660 * iso9660, const uchar * h)
 	const uchar * p;
 	ssize_t logical_block_size;
 	int32_t volume_block;
-
-	/* Check if current sector is a kind of Supplementary Volume
-	 * Descriptor. */
+	// Check if current sector is a kind of Supplementary Volume Descriptor. 
 	if(!isSVD(iso9660, h))
 		return 0;
-
 	/* FIXME: do more validations according to joliet spec. */
-
 	/* check if this SVD contains joliet extension! */
 	p = h + SVD_escape_sequences_offset;
 	/* N.B. Joliet spec says p[1] == '\\', but.... */
 	if(p[0] == '%' && p[1] == '/') {
 		int level = 0;
-
 		if(p[2] == '@')
 			level = 1;
 		else if(p[2] == 'C')
@@ -670,11 +655,8 @@ static int isJolietSVD(struct iso9660 * iso9660, const uchar * h)
 	}
 	else   /* not joliet */
 		return 0;
-
-	logical_block_size =
-	    archive_le16dec(h + SVD_logical_block_size_offset);
+	logical_block_size = archive_le16dec(h + SVD_logical_block_size_offset);
 	volume_block = archive_le32dec(h + SVD_volume_space_size_offset);
-
 	iso9660->logical_block_size = logical_block_size;
 	iso9660->volume_block = volume_block;
 	iso9660->volume_size = logical_block_size * (uint64)volume_block;
@@ -682,7 +664,6 @@ static int isJolietSVD(struct iso9660 * iso9660, const uchar * h)
 	p = h + SVD_root_directory_record_offset;
 	iso9660->joliet.location = archive_le32dec(p + DR_extent_offset);
 	iso9660->joliet.size = archive_le32dec(p + DR_size_offset);
-
 	return (48);
 }
 
@@ -693,7 +674,7 @@ static int isSVD(struct iso9660 * iso9660, const uchar * h)
 	int32_t volume_block;
 	int32_t location;
 
-	(void)iso9660; /* UNUSED */
+	CXX_UNUSED(iso9660);
 
 	/* Type 2 means it's a SVD. */
 	if(h[SVD_type_offset] != 2)
@@ -751,7 +732,7 @@ static int isEVD(struct iso9660 * iso9660, const uchar * h)
 	int32_t volume_block;
 	int32_t location;
 
-	(void)iso9660; /* UNUSED */
+	CXX_UNUSED(iso9660);
 
 	/* Type of the Enhanced Volume Descriptor must be 2. */
 	if(h[PVD_type_offset] != 2)
@@ -1341,7 +1322,7 @@ static int archive_read_format_iso9660_read_data_skip(struct archive_read * a)
 {
 	/* Because read_next_header always does an explicit skip
 	 * to the next entry, we don't need to do anything here. */
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return ARCHIVE_OK;
 }
 
@@ -1557,7 +1538,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 {
 	(void)buff; /* UNUSED */
 	(void)size; /* UNUSED */
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "zisofs is not supported on this platform.");
 	return ARCHIVE_FAILED;
 }

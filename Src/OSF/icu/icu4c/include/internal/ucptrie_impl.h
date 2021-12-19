@@ -157,7 +157,7 @@ U_CFUNC void umutablecptrie_setName(UMutableCPTrie *builder, const char *name);
  * uint16_t index[header.indexLength];
  * uintXY_t data[header.dataLength];
  *
- * The trie data array is an array of uint16_t, uint32_t, or uint8_t,
+ * The trie data array is an array of uint16_t, uint32_t, or uint8,
  * specified via the UCPTrieValueWidth when building the trie.
  * The data array is 32-bit-aligned for uint32_t, otherwise 16-bit-aligned.
  * The overall length of the trie data is a multiple of 4 bytes.

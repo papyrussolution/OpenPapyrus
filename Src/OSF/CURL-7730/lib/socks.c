@@ -667,7 +667,7 @@ CONNECT_AUTH_INIT:
 			    proxy_password_len = 0;
 		    }
 
-		    /*   username/password request looks like
+		    /* username/password request looks like
 		     * +----+------+----------+------+----------+
 		     * |VER | ULEN |  UNAME   | PLEN |  PASSWD  |
 		     * +----+------+----------+------+----------+

@@ -41,14 +41,13 @@
 #define cmsmin(a, b) (((a) < (b)) ? (a) : (b))
 
 // Used to mark special pointers
-void DebugMemDontCheckThis(void *Ptr);
+void DebugMemDontCheckThis(void * Ptr);
 
-
-cmsBool STDCALL IsGoodVal(const char *title, cmsFloat64Number in, cmsFloat64Number out, cmsFloat64Number max);
-cmsBool STDCALL IsGoodFixed15_16(const char *title, cmsFloat64Number in, cmsFloat64Number out);
-cmsBool IsGoodFixed8_8(const char *title, cmsFloat64Number in, cmsFloat64Number out);
-cmsBool STDCALL IsGoodWord(const char *title, cmsUInt16Number in, cmsUInt16Number out);
-cmsBool STDCALL IsGoodWordPrec(const char *title, cmsUInt16Number in, cmsUInt16Number out, cmsUInt16Number maxErr);
+boolint STDCALL IsGoodVal(const char * title, double in, double out, double max);
+boolint STDCALL IsGoodFixed15_16(const char * title, double in, double out);
+boolint IsGoodFixed8_8(const char * title, double in, double out);
+boolint STDCALL IsGoodWord(const char * title, uint16 in, uint16 out);
+boolint STDCALL IsGoodWordPrec(const char * title, uint16 in, uint16 out, uint16 maxErr);
 
 void* PluginMemHandler(void);
 cmsContext WatchDogContext(void* usr);
@@ -58,7 +57,7 @@ void Die(const char* Reason, ...);
 void Dot(void);
 void Fail(const char* frm, ...);
 void SubTest(const char* frm, ...);
-void TestMemoryLeaks(cmsBool ok);
+void TestMemoryLeaks(boolint ok);
 void Say(const char* str);
 
 // Plug-in tests
@@ -78,9 +77,7 @@ cmsInt32Number CheckTransformPlugin(void);
 cmsInt32Number CheckMutexPlugin(void);
 cmsInt32Number CheckMethodPackDoublesFromFloat(void);
 
-
 // Zoo
 void CheckProfileZOO(void);
 
 #endif
-

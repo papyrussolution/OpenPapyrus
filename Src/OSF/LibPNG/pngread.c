@@ -206,7 +206,7 @@ void PNGAPI png_read_update_info(png_structrp png_ptr, png_inforp info_ptr)
 #ifdef PNG_READ_TRANSFORMS_SUPPORTED
 			png_read_transform_info(png_ptr, info_ptr);
 #else
-			PNG_UNUSED(info_ptr)
+			CXX_UNUSED(info_ptr);
 #endif
 		}
 		// New in 1.6.0 this avoids the bug of doing the initializations twice 
@@ -970,27 +970,18 @@ void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transfor
 	png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
 	if(info_ptr->row_pointers == NULL) {
 		uint32 iptr;
-
-		info_ptr->row_pointers = png_voidcast(png_bytepp, png_malloc(png_ptr,
-			    info_ptr->height * (sizeof(png_bytep))));
-
+		info_ptr->row_pointers = png_voidcast(png_bytepp, png_malloc(png_ptr, info_ptr->height * (sizeof(png_bytep))));
 		for(iptr = 0; iptr<info_ptr->height; iptr++)
 			info_ptr->row_pointers[iptr] = NULL;
-
 		info_ptr->free_me |= PNG_FREE_ROWS;
-
 		for(iptr = 0; iptr < info_ptr->height; iptr++)
-			info_ptr->row_pointers[iptr] = png_voidcast(png_bytep,
-			    png_malloc(png_ptr, info_ptr->rowbytes));
+			info_ptr->row_pointers[iptr] = png_voidcast(png_bytep, png_malloc(png_ptr, info_ptr->rowbytes));
 	}
-
 	png_read_image(png_ptr, info_ptr->row_pointers);
 	info_ptr->valid |= PNG_INFO_IDAT;
-
 	/* Read rest of file, and get additional chunks in info_ptr - REQUIRED */
 	png_read_end(png_ptr, info_ptr);
-
-	PNG_UNUSED(params)
+	CXX_UNUSED(params);
 }
 
 #endif /* INFO_IMAGE */
@@ -1512,17 +1503,17 @@ static void png_create_colormap_entry(png_image_read_control * display,
 
 	/* Store the value. */
 	{
-#     ifdef PNG_FORMAT_AFIRST_SUPPORTED
+#ifdef PNG_FORMAT_AFIRST_SUPPORTED
 		const int afirst = (image->format & PNG_FORMAT_FLAG_AFIRST) != 0 &&
 		    (image->format & PNG_FORMAT_FLAG_ALPHA) != 0;
-#     else
+#else
 #define afirst 0
-#     endif
-#     ifdef PNG_FORMAT_BGR_SUPPORTED
+#endif
+#ifdef PNG_FORMAT_BGR_SUPPORTED
 		const int bgr = (image->format & PNG_FORMAT_FLAG_BGR) != 0 ? 2 : 0;
-#     else
+#else
 #define bgr 0
-#     endif
+#endif
 
 		if(output_encoding == P_LINEAR) {
 			png_uint_16p entry = png_voidcast(png_uint_16p, display->colormap);
@@ -1596,12 +1587,12 @@ static void png_create_colormap_entry(png_image_read_control * display,
 			}
 		}
 
-#     ifdef afirst
+#ifdef afirst
 #undef afirst
-#     endif
-#     ifdef bgr
+#endif
+#ifdef bgr
 #undef bgr
-#     endif
+#endif
 	}
 }
 
@@ -3162,7 +3153,7 @@ static int png_image_read_direct(void * argument)
 		 */
 		png_set_alpha_mode_fixed(png_ptr, mode, output_gamma);
 
-#     ifdef PNG_FORMAT_BGR_SUPPORTED
+#ifdef PNG_FORMAT_BGR_SUPPORTED
 		if((change & PNG_FORMAT_FLAG_BGR) != 0) {
 			/* Check only the output format; PNG is never BGR; don't do this if
 			 * the output is gray, but fix up the 'format' value in that case.
@@ -3175,9 +3166,9 @@ static int png_image_read_direct(void * argument)
 
 			change &= ~PNG_FORMAT_FLAG_BGR;
 		}
-#     endif
+#endif
 
-#     ifdef PNG_FORMAT_AFIRST_SUPPORTED
+#ifdef PNG_FORMAT_AFIRST_SUPPORTED
 		if((change & PNG_FORMAT_FLAG_AFIRST) != 0) {
 			/* Only relevant if there is an alpha channel - it's particularly
 			 * important to handle this correctly because do_local_compose may
@@ -3197,7 +3188,7 @@ static int png_image_read_direct(void * argument)
 
 			change &= ~PNG_FORMAT_FLAG_AFIRST;
 		}
-#     endif
+#endif
 
 		/* If the *output* is 16-bit then we need to check for a byte-swap on this
 		 * architecture.
@@ -3268,7 +3259,7 @@ static int png_image_read_direct(void * argument)
 
 			info_format |= PNG_FORMAT_FLAG_AFIRST;
 		}
-#     endif
+#endif
 
 		/* This is actually an internal error. */
 		if(info_format != format)

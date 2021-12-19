@@ -70,7 +70,7 @@ cairo_private cairo_clip_path_t * _cairo_clip_path_reference(cairo_clip_path_t *
 cairo_private void FASTCALL _cairo_clip_path_destroy(cairo_clip_path_t * clip_path);
 cairo_private void FASTCALL _cairo_clip_destroy(cairo_clip_t * clip);
 cairo_private extern const cairo_clip_t __cairo_clip_all;
-cairo_private cairo_clip_t * _cairo_clip_copy(const cairo_clip_t * clip);
+cairo_private cairo_clip_t * FASTCALL _cairo_clip_copy(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * _cairo_clip_copy_region(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * _cairo_clip_copy_path(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * _cairo_clip_translate(cairo_clip_t * clip, int tx, int ty);
@@ -80,7 +80,7 @@ cairo_private boolint _cairo_clip_equal(const cairo_clip_t * clip_a, const cairo
 cairo_private cairo_clip_t * _cairo_clip_intersect_rectangle(cairo_clip_t * clip, const cairo_rectangle_int_t * rectangle);
 cairo_private cairo_clip_t * _cairo_clip_intersect_clip(cairo_clip_t * clip, const cairo_clip_t * other);
 cairo_private cairo_clip_t * _cairo_clip_intersect_box(cairo_clip_t * clip, const cairo_box_t * box);
-cairo_private cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxes_t * boxes);
+cairo_private cairo_clip_t * FASTCALL _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxes_t * boxes);
 cairo_private cairo_clip_t * _cairo_clip_intersect_rectilinear_path(cairo_clip_t * clip, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias);
 cairo_private cairo_clip_t * _cairo_clip_intersect_path(cairo_clip_t * clip, const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias);
 cairo_private const cairo_rectangle_int_t * FASTCALL _cairo_clip_get_extents(const cairo_clip_t * clip);

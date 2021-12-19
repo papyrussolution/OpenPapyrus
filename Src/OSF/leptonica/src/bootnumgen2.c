@@ -1,28 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 /*!
  * \file  bootnumgen2.c
@@ -39,24 +39,23 @@
  *       L_STRCODE  *strc;
  *       strc = strcodeCreate(102);   // arbitrary integer
  *       strcodeGenerate(strc, "recog/digits/bootnum2.pa", "PIXA");
- *       strcodeFinalize(\&strc, ".");
+ *       strcodeFinalize(&strc, ".");
  *
  *   The two output files, autogen.102.c and autogen.102.h, were
  *   then slightly edited and merged into this file.
  *
  *   Call this way:
- *       Pixa  *pixa = (PIXA *)l_bootnum_gen2();
+ *       PIXA  *pixa = l_bootnum_gen2();   (C)
+ *       Pixa  *pixa = l_bootnum_gen2();   (C++)
  * </pre>
  */
-
-//#include <string.h>
 #include "allheaders.h"
 #pragma hdrstop
 
 /*---------------------------------------------------------------------*/
 /*                         Serialized string                           */
 /*---------------------------------------------------------------------*/
-static const char *l_bootnum2 =
+static const char * l_bootnum2 =
     "eJy1nAlUUun//y9eBNOrF3dUBFxKsw00t1xA0dRWc6xsR22x3XanTEANtExtmdJqUlu+U00z"
     "ZautglczS1NbZqysRMvMagbTihS5f1DxO+d3+58Dzvl20jgcq/eL+zyf9+f5PJ/nMYxcnhRL"
     "n7Vk/Ybla9fQ3Q2nbVodt2Q9fe1SeuLyJHoAnenuaWgYvPb/8zNxa5OWbFD9FMNQ/ePzGAsm"
@@ -254,14 +253,13 @@ static const char *l_bootnum2 =
     "xCqUg1aQGdpTigPCERez2i3vg74DoJsrD3EqhGqmgvoEnvqQewx/eOTOk1W7y/wTTxDiwaR5"
     "Zi3Ws0ZwTNc5uO/YCXnyjpsvULJthpc+WEsuSLH77dVpXmw3MN3SbXYy1wX5J8X/A4d2+ho=";
 
-
 /*---------------------------------------------------------------------*/
 /*                      Auto-generated deserializer                    */
 /*---------------------------------------------------------------------*/
 /*!
  * \brief   l_bootnum_gen2()
  *
- * \return   pixa  of labelled digits
+ * \return   pixa  of labeled digits
  *
  * <pre>
  * Call this way:
@@ -269,21 +267,18 @@ static const char *l_bootnum2 =
  *      Pixa  *pixa = l_bootnum_gen2();   (C++)
  * </pre>
  */
-PIXA *
-l_bootnum_gen2(void)
+PIXA * l_bootnum_gen2(void)
 {
-uint8  *data1, *data2;
-int32   size1;
-size_t    size2;
-PIXA     *pixa;
+	uint8  * data1, * data2;
+	l_int32 size1;
+	size_t size2;
+	PIXA * pixa;
 
-    lept_mkdir("lept/auto");
-
-        /* Unencode selected string, write to file, and read it */
-    data1 = decodeBase64(l_bootnum2, strlen(l_bootnum2), &size1);
-    data2 = zlibUncompress(data1, size1, &size2);
-    pixa = pixaReadMem(data2, size2);
-    lept_free(data1);
-    lept_free(data2);
-    return pixa;
+	/* Unencode selected string, write to file, and read it */
+	data1 = decodeBase64(l_bootnum2, strlen(l_bootnum2), &size1);
+	data2 = zlibUncompress(data1, size1, &size2);
+	pixa = pixaReadMem(data2, size2);
+	lept_free(data1);
+	lept_free(data2);
+	return pixa;
 }

@@ -1,14 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- * Copyright (c) 2004-2011, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
+ * Copyright (c) 2004-2011, International Business Machines Corporation and others.  All Rights Reserved.
  * Author: Alan Liu
  * Created: March 22 2004
  * Since: ICU 3.0
- **********************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop

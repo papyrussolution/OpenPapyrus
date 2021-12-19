@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 /* ================================================================ */
-/*                Hand crafted config file for OS/400               */
+/* Hand crafted config file for OS/400               */
 /* ================================================================ */
 
 #pragma enum(int)
@@ -559,7 +559,7 @@
 #define CURL_CA_BUNDLE  "/QIBM/UserData/ICSS/Cert/Server/DEFAULT.KDB"
 
 /* ---------------------------------------------------------------- */
-/*                       ADDITIONAL DEFINITIONS                     */
+/*       ADDITIONAL DEFINITIONS                     */
 /* ---------------------------------------------------------------- */
 
 /* The following must be defined BEFORE system header files inclusion. */

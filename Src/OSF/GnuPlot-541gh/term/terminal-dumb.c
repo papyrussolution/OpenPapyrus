@@ -25,7 +25,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -56,7 +56,7 @@ static struct gen_table DUMB_opts[] = {
 	{ NULL, DUMB_OTHER }
 };
 
-TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void DUMB_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int x, y;
 	int cmd;
@@ -75,12 +75,12 @@ TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case DUMB_ENH:
 			    pGp->Pgm.Shift();
 			    pThis->put_text = ENHdumb_put_text;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case DUMB_NOENH:
 			    pGp->Pgm.Shift();
 			    pThis->put_text = DUMB_put_text;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 #endif
 			case DUMB_ASPECT:
@@ -95,8 +95,7 @@ TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 					x = 1;
 			    if(y <= 0) 
 					y = 1;
-			    pThis->TicH = x;
-			    pThis->TicV = y;
+			    pThis->SetTic(x, y);
 			    break;
 			case DUMB_ANSI:
 			case DUMB_ANSI256:
@@ -148,7 +147,7 @@ TERM_PUBLIC void DUMB_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 }
 
-static void dumb_set_pixel(GpTermEntry * pThis, int x, int y, int v)
+static void dumb_set_pixel(GpTermEntry_Static * pThis, int x, int y, int v)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * charpixel;
@@ -163,7 +162,7 @@ static void dumb_set_pixel(GpTermEntry * pThis, int x, int y, int v)
 	}
 }
 
-void DUMB_init(GpTermEntry * pThis)
+void DUMB_init(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int size = (p_gp->TDumbB.PtMax.x+1) * (p_gp->TDumbB.PtMax.y+1);
@@ -173,7 +172,7 @@ void DUMB_init(GpTermEntry * pThis)
 #endif
 }
 
-void DUMB_graphics(GpTermEntry * pThis)
+void DUMB_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int size = (p_gp->TDumbB.PtMax.x+1) * (p_gp->TDumbB.PtMax.y+1);
@@ -188,7 +187,7 @@ void DUMB_graphics(GpTermEntry * pThis)
 	}
 }
 
-void DUMB_text(GpTermEntry * pThis)
+void DUMB_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, y, i;
@@ -225,7 +224,7 @@ void DUMB_text(GpTermEntry * pThis)
 	fflush(GPT.P_GpOutFile);
 }
 
-void DUMB_reset(GpTermEntry * pThis)
+void DUMB_reset(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	SAlloc::F(p_gp->TDumbB.P_Matrix);
@@ -236,7 +235,7 @@ void DUMB_reset(GpTermEntry * pThis)
 #endif
 }
 
-void DUMB_linetype(GpTermEntry * pThis, int linetype)
+void DUMB_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	static char pen_type[7] = { '*', '#', '$', '%', '@', '&', '=' };
@@ -258,19 +257,19 @@ void DUMB_linetype(GpTermEntry * pThis, int linetype)
 #endif
 }
 
-void DUMB_move(GpTermEntry * pThis, uint x, uint y)
+void DUMB_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->TDumbB.Pt.x = x;
 	p_gp->TDumbB.Pt.y = y;
 }
 
-void DUMB_point(GpTermEntry * pThis, uint x, uint y, int point)
+void DUMB_point(GpTermEntry_Static * pThis, uint x, uint y, int point)
 {
 	dumb_set_pixel(pThis, x, y, point == -1 ? '.' : point % 26 + 'A');
 }
 
-void DUMB_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
+void DUMB_vector(GpTermEntry_Static * pThis, uint arg_x, uint arg_y)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x = arg_x; // we need signed int, since unsigned-signed=unsigned and 
@@ -350,7 +349,7 @@ void DUMB_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 	p_gp->TDumbB.Pt.Set(x, y);
 }
 
-static void utf8_copy_one(GpTermEntry * pThis, char * dest, const char * orig)
+static void utf8_copy_one(GpTermEntry_Static * pThis, char * dest, const char * orig)
 {
 	const char * nextchar = orig;
 	ulong wch;
@@ -370,7 +369,7 @@ static void utf8_copy_one(GpTermEntry * pThis, char * dest, const char * orig)
 	}
 }
 
-void DUMB_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+void DUMB_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(static_cast<int>(y) <= p_gp->TDumbB.PtMax.y) {
@@ -386,7 +385,7 @@ void DUMB_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 	}
 }
 
-TERM_PUBLIC void DUMB_arrow(GpTermEntry * pThis, uint usx, uint usy, uint uex, uint uey, int head)  /* mostly ignored */
+TERM_PUBLIC void DUMB_arrow(GpTermEntry_Static * pThis, uint usx, uint usy, uint uex, uint uey, int head)  /* mostly ignored */
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// we have GOT to ditch this unsigned coord madness! 
@@ -443,7 +442,7 @@ static uint ENHdumb_xsave, ENHdumb_ysave;
 #define ENHdumb_font ""
 static double ENHdumb_base;
 
-void ENHdumb_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void ENHdumb_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// There are two special cases:
@@ -475,7 +474,7 @@ void ENHdumb_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double 
 	}
 }
 
-void ENHdumb_FLUSH(GpTermEntry * pThis)
+void ENHdumb_FLUSH(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * str = p_gp->Enht.Text; // The fragment to print 
@@ -505,7 +504,7 @@ void ENHdumb_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+void ENHdumb_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int length;
@@ -544,11 +543,11 @@ void ENHdumb_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 #endif /* NO_DUMB_ENHANCED_SUPPORT */
 
 #ifndef NO_DUMB_COLOR_SUPPORT
-	int DUMB_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+	int DUMB_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 	{
 		return 0; // report continuous colors 
 	}
-	void DUMB_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+	void DUMB_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 	{
 		memcpy(&pThis->P_Gp->TDumbB.Color, colorspec, sizeof(t_colorspec));
 	}
@@ -562,7 +561,7 @@ static int dumb_float_compare(const void * elem1, const void * elem2)
 //
 // adopted copy from caca.trm 
 //
-TERM_PUBLIC void dumb_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void dumb_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char save_pen;

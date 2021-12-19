@@ -32,9 +32,9 @@ constexpr int32_t ASCII_I_LIMIT = ASCII_LIMIT >> UCPTRIE_SHIFT_3;
 constexpr int32_t SMALL_DATA_BLOCKS_PER_BMP_BLOCK = (1 << (UCPTRIE_FAST_SHIFT - UCPTRIE_SHIFT_3));
 
 // Flag values for data blocks.
-constexpr uint8_t ALL_SAME = 0;
-constexpr uint8_t MIXED = 1;
-constexpr uint8_t SAME_AS = 2;
+constexpr uint8 ALL_SAME = 0;
+constexpr uint8 MIXED = 1;
+constexpr uint8 SAME_AS = 2;
 
 /** Start with allocation of 16k data entries. */
 constexpr int32_t INITIAL_DATA_LENGTH = ((int32_t)1 << 14);
@@ -49,10 +49,10 @@ constexpr int32_t MEDIUM_DATA_LENGTH = ((int32_t)1 << 17);
 constexpr int32_t MAX_DATA_LENGTH = UNICODE_LIMIT;
 
 // Flag values for index-3 blocks while compacting/building.
-constexpr uint8_t I3_NULL = 0;
-constexpr uint8_t I3_BMP = 1;
-constexpr uint8_t I3_16 = 2;
-constexpr uint8_t I3_18 = 3;
+constexpr uint8 I3_NULL = 0;
+constexpr uint8 I3_BMP = 1;
+constexpr uint8 I3_16 = 2;
+constexpr uint8 I3_18 = 3;
 
 constexpr int32_t INDEX_3_18BIT_BLOCK_LENGTH = UCPTRIE_INDEX_3_BLOCK_LENGTH + UCPTRIE_INDEX_3_BLOCK_LENGTH / 8;
 
@@ -115,7 +115,7 @@ public:
 private:
 	/** Temporary array while building the final data. */
 	uint16_t * index16 = nullptr;
-	uint8_t flags[UNICODE_LIMIT >> UCPTRIE_SHIFT_3];
+	uint8 flags[UNICODE_LIMIT >> UCPTRIE_SHIFT_3];
 };
 
 MutableCodePointTrie::MutableCodePointTrie(uint32_t iniValue, uint32_t errValue, UErrorCode & errorCode) :
@@ -1372,7 +1372,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 	int32_t indexLength = index3Start;
 	for(int32_t i = iStart; i < iLimit; i += UCPTRIE_INDEX_3_BLOCK_LENGTH) {
 		int32_t i3;
-		uint8_t f = flags[i];
+		uint8 f = flags[i];
 		if(f == I3_NULL && i3FirstNull < 0) {
 			// First index-3 null block. Write & overlap it like a normal block, then remember it.
 			f = dataNullOffset <= 0xffff ? I3_16 : I3_18;
@@ -1719,7 +1719,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 	length += sizeof(UCPTrie);
 	U_ASSERT((length & 3) == 0);
 
-	uint8_t * bytes = (uint8_t*)uprv_malloc(length);
+	uint8 * bytes = (uint8 *)uprv_malloc(length);
 	if(bytes == nullptr) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		clear();
@@ -1778,7 +1778,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 		    // Write 8-bit data values.
 		    trie->data.ptr8 = bytes;
 		    for(int32_t i = dataLength; i > 0; --i) {
-			    *bytes++ = (uint8_t)*p++;
+			    *bytes++ = (uint8)*p++;
 		    }
 		    break;
 		default:

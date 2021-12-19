@@ -18,7 +18,7 @@ You can use .lzma86 extension, if you write that stream to file.
 .lzma86 header (14 bytes):
   Offset Size  Description
     0     1    = 0 - no filter, pure LZMA
-               = 1 - x86 filter + LZMA
+       = 1 - x86 filter + LZMA
     1     1    lc, lp and pb in encoded form
     2     4    dictSize (little endian)
     6     8    uncompressed size (little endian)

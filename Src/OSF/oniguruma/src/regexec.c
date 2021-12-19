@@ -812,8 +812,8 @@ extern void onig_region_init(OnigRegion* region)
 {
 	region->num_regs     = 0;
 	region->allocated    = 0;
-	region->beg          = (int*)0;
-	region->end          = (int*)0;
+	region->beg  = (int*)0;
+	region->end  = (int*)0;
 	region->history_root = (OnigCaptureTreeNode*)0;
 }
 
@@ -880,19 +880,19 @@ extern void onig_region_copy(OnigRegion* to, OnigRegion* from)
 
 #ifdef USE_CALLOUT
 #define CALLOUT_BODY(func, ain, aname_id, anum, user, args, result) do { \
-		args.in            = (ain); \
+		args.in    = (ain); \
 		args.name_id       = (aname_id); \
-		args.num           = anum; \
-		args.regex         = reg; \
+		args.num   = anum; \
+		args.regex = reg; \
 		args.string        = str; \
 		args.string_end    = end; \
-		args.start         = sstart; \
+		args.start = sstart; \
 		args.right_range   = right_range; \
 		args.current       = s; \
 		args.retry_in_match_counter = retry_in_match_counter; \
-		args.msa           = msa; \
+		args.msa   = msa; \
 		args.stk_base      = stk_base; \
-		args.stk           = stk; \
+		args.stk   = stk; \
 		args.mem_start_stk = mem_start_stk; \
 		args.mem_end_stk   = mem_end_stk; \
 		result = (func)(&args, user); \
@@ -1300,7 +1300,7 @@ extern int onig_initialize_match_param(OnigMatchParam* mp)
 	mp->retraction_callout_of_contents = DefaultRetractionCallout;
 	mp->match_at_call_counter  = 0;
 	mp->callout_user_data      = 0;
-	mp->callout_data           = 0;
+	mp->callout_data   = 0;
 	mp->callout_data_alloc_num = 0;
 #endif
 	return ONIG_NORMAL;
@@ -5254,7 +5254,7 @@ extern int onig_regset_new(OnigRegSet** rset, int n, regex_t* regs[])
 static void update_regset_by_reg(OnigRegSet* set, regex_t* reg)
 {
 	if(set->n == 1) {
-		set->enc          = reg->enc;
+		set->enc  = reg->enc;
 		set->anchor       = reg->anchor;
 		set->anc_dmin     = reg->anc_dist_min;
 		set->anc_dmax     = reg->anc_dist_max;

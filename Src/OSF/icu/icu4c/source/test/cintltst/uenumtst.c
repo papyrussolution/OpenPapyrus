@@ -133,7 +133,7 @@ static const UEnumeration emptyPartialEnumerator = {
 static const UChar _first[] = {102, 105, 114, 115, 116, 0}; /* "first"  */
 static const UChar _second[] = {115, 101, 99, 111, 110, 100, 0}; /* "second" */
 static const UChar _third[] = {116, 104, 105, 114, 100, 0}; /* "third"  */
-static const UChar _fourth[] = {102, 111, 117, 114, 116, 104, 0};/* "fourth" */
+static const UChar _fourth[] = {102, 111, 117, 114, 116, 104, 0}; /* "fourth" */
 
 static const UChar * test2[] = {
 	_first, _second, _third, _fourth

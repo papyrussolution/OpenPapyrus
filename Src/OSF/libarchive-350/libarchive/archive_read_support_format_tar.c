@@ -147,46 +147,46 @@ struct tar {
 	int realsize_override;
 };
 
-static int      archive_block_is_null(const char * p);
+static int archive_block_is_null(const char * p);
 static char     * base64_decode(const char *, size_t, size_t *);
-static int      gnu_add_sparse_entry(struct archive_read *, struct tar *, int64 offset, int64 remaining);
+static int gnu_add_sparse_entry(struct archive_read *, struct tar *, int64 offset, int64 remaining);
 static void     gnu_clear_sparse_list(struct tar *);
-static int      gnu_sparse_old_read(struct archive_read *, struct tar *, const struct archive_entry_header_gnutar * header, size_t *);
-static int      gnu_sparse_old_parse(struct archive_read *, struct tar *, const struct gnu_sparse * sparse, int length);
-static int      gnu_sparse_01_parse(struct archive_read *, struct tar *, const char *);
+static int gnu_sparse_old_read(struct archive_read *, struct tar *, const struct archive_entry_header_gnutar * header, size_t *);
+static int gnu_sparse_old_parse(struct archive_read *, struct tar *, const struct gnu_sparse * sparse, int length);
+static int gnu_sparse_01_parse(struct archive_read *, struct tar *, const char *);
 static ssize_t  gnu_sparse_10_read(struct archive_read *, struct tar *, size_t *);
-static int      header_Solaris_ACL(struct archive_read *,  struct tar *, struct archive_entry *, const void *, size_t *);
-static int      header_common(struct archive_read *,  struct tar *, struct archive_entry *, const void *);
-static int      header_old_tar(struct archive_read *, struct tar *, struct archive_entry *, const void *);
-static int      header_pax_extensions(struct archive_read *, struct tar *, struct archive_entry *, const void *, size_t *);
-static int      header_pax_global(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
-static int      header_longlink(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
-static int      header_longname(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
-static int      read_mac_metadata_blob(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
-static int      header_volume(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
-static int      header_ustar(struct archive_read *, struct tar *, struct archive_entry *, const void * h);
-static int      header_gnutar(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
-static int      archive_read_format_tar_bid(struct archive_read *, int);
-static int      archive_read_format_tar_options(struct archive_read *, const char *, const char *);
-static int      archive_read_format_tar_cleanup(struct archive_read *);
-static int      archive_read_format_tar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
-static int      archive_read_format_tar_skip(struct archive_read * a);
-static int      archive_read_format_tar_read_header(struct archive_read *, struct archive_entry *);
-static int      checksum(struct archive_read *, const void *);
-static int      pax_attribute(struct archive_read *, struct tar *, struct archive_entry *, const char * key, const char * value, size_t value_length);
-static int      pax_attribute_acl(struct archive_read *, struct tar *, struct archive_entry *, const char *, int);
-static int      pax_attribute_xattr(struct archive_entry *, const char *, const char *);
-static int      pax_header(struct archive_read *, struct tar *, struct archive_entry *, struct archive_string *);
+static int header_Solaris_ACL(struct archive_read *,  struct tar *, struct archive_entry *, const void *, size_t *);
+static int header_common(struct archive_read *,  struct tar *, struct archive_entry *, const void *);
+static int header_old_tar(struct archive_read *, struct tar *, struct archive_entry *, const void *);
+static int header_pax_extensions(struct archive_read *, struct tar *, struct archive_entry *, const void *, size_t *);
+static int header_pax_global(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
+static int header_longlink(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
+static int header_longname(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
+static int read_mac_metadata_blob(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
+static int header_volume(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
+static int header_ustar(struct archive_read *, struct tar *, struct archive_entry *, const void * h);
+static int header_gnutar(struct archive_read *, struct tar *, struct archive_entry *, const void * h, size_t *);
+static int archive_read_format_tar_bid(struct archive_read *, int);
+static int archive_read_format_tar_options(struct archive_read *, const char *, const char *);
+static int archive_read_format_tar_cleanup(struct archive_read *);
+static int archive_read_format_tar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
+static int archive_read_format_tar_skip(struct archive_read * a);
+static int archive_read_format_tar_read_header(struct archive_read *, struct archive_entry *);
+static int checksum(struct archive_read *, const void *);
+static int pax_attribute(struct archive_read *, struct tar *, struct archive_entry *, const char * key, const char * value, size_t value_length);
+static int pax_attribute_acl(struct archive_read *, struct tar *, struct archive_entry *, const char *, int);
+static int pax_attribute_xattr(struct archive_entry *, const char *, const char *);
+static int pax_header(struct archive_read *, struct tar *, struct archive_entry *, struct archive_string *);
 static void     pax_time(const char *, int64 * sec, long * nanos);
 static ssize_t  readline(struct archive_read *, struct tar *, const char **, ssize_t limit, size_t *);
-static int      read_body_to_string(struct archive_read *, struct tar *, struct archive_string *, const void * h, size_t *);
-static int      solaris_sparse_parse(struct archive_read *, struct tar *, struct archive_entry *, const char *);
+static int read_body_to_string(struct archive_read *, struct tar *, struct archive_string *, const void * h, size_t *);
+static int solaris_sparse_parse(struct archive_read *, struct tar *, struct archive_entry *, const char *);
 static int64  tar_atol(const char *, size_t);
 static int64  tar_atol10(const char *, size_t);
 static int64  tar_atol256(const char *, size_t);
 static int64  tar_atol8(const char *, size_t);
-static int      tar_read_header(struct archive_read *, struct tar *, struct archive_entry *, size_t *);
-static int      tohex(int c);
+static int tar_read_header(struct archive_read *, struct tar *, struct archive_entry *, size_t *);
+static int tohex(int c);
 static char     * url_decode(const char *);
 static void     tar_flush_unconsumed(struct archive_read *, size_t *);
 
@@ -296,7 +296,7 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	int bid;
 	const char * h;
 	const struct archive_entry_header_ustar * header;
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 	bid = 0;
 	/* Now let's look at the actual header and see if it matches. */
 	h = static_cast<const char *>(__archive_read_ahead(a, 512, NULL));
@@ -801,7 +801,7 @@ static int checksum(struct archive_read * a, const void * h)
 	const struct archive_entry_header_ustar * header;
 	int check, sum;
 	size_t i;
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	bytes = (const uchar *)h;
 	header = (const struct archive_entry_header_ustar *)h;
 	/* Checksum field must hold an octal number */
@@ -2355,7 +2355,7 @@ static int solaris_sparse_parse(struct archive_read * a, struct tar * tar,
 	int64 start, end;
 	int hole = 1;
 
-	(void)entry; /* UNUSED */
+	CXX_UNUSED(entry);
 
 	end = 0;
 	if(*p == ' ')

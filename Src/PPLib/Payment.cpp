@@ -1342,7 +1342,7 @@ void CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double debt, d
 	TotalDebt  = debt;
 	PaymAmount = paym;
 	BillDt     = pRec->Dt;
-	Dt         = ZERODATE;
+	Dt = ZERODATE;
 	ForceBillID = 0;
 	SelectedBillID = 0;
 	ResultBillList.clear();

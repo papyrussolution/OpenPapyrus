@@ -1,17 +1,9 @@
+// utext.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  utext.cpp
+ *   Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2005apr12
  *   created by: Markus W. Scherer
  */
@@ -588,24 +580,24 @@ U_CAPI UText * U_EXPORT2 utext_setup(UText * ut, int32_t extraSpace, UErrorCode 
 
 		// Initialize all remaining fields of the UText.
 		//
-		ut->context             = NULL;
+		ut->context     = NULL;
 		ut->chunkContents       = NULL;
-		ut->p                   = NULL;
-		ut->q                   = NULL;
-		ut->r                   = NULL;
-		ut->a                   = 0;
-		ut->b                   = 0;
-		ut->c                   = 0;
-		ut->chunkOffset         = 0;
-		ut->chunkLength         = 0;
+		ut->p           = NULL;
+		ut->q           = NULL;
+		ut->r           = NULL;
+		ut->a           = 0;
+		ut->b           = 0;
+		ut->c           = 0;
+		ut->chunkOffset = 0;
+		ut->chunkLength = 0;
 		ut->chunkNativeStart    = 0;
 		ut->chunkNativeLimit    = 0;
 		ut->nativeIndexingLimit = 0;
 		ut->providerProperties  = 0;
-		ut->privA               = 0;
-		ut->privB               = 0;
-		ut->privC               = 0;
-		ut->privP               = NULL;
+		ut->privA       = 0;
+		ut->privB       = 0;
+		ut->privC       = 0;
+		ut->privP       = NULL;
 		if(ut->pExtra!=NULL && ut->extraSize>0)
 			memzero(ut->pExtra, ut->extraSize);
 	}
@@ -827,12 +819,12 @@ struct UTF8Buf {
 	                                             //   because of the way indexing works when the array is
 	                                             //   filled backwards during a reverse iteration.  Thus,
 	                                             //   the additional extra size.
-	uint8_t mapToNative[UTF8_TEXT_CHUNK_SIZE+4]; // map UChar index in buf to
+	uint8 mapToNative[UTF8_TEXT_CHUNK_SIZE+4]; // map UChar index in buf to
 	                                             //  native offset from bufNativeStart.
 	                                             //  Requires two extra slots,
 	                                             //    one for a supplementary starting in the last normal position,
 	                                             //    and one for an entry for the buffer limit position.
-	uint8_t mapToUChars[UTF8_TEXT_CHUNK_SIZE*3+6]; // Map native offset from bufNativeStart to
+	uint8 mapToUChars[UTF8_TEXT_CHUNK_SIZE*3+6]; // Map native offset from bufNativeStart to
 	                                               //   corresponding offset in filled part of buf.
 	int32_t align;
 };
@@ -873,7 +865,7 @@ static bool U_CALLCONV utf8TextAccess(UText * ut, int64_t index, bool forward) {
 	//         call the named block as if it were a function();
 	//         return;
 	//
-	const uint8_t * s8 = (const uint8_t*)ut->context;
+	const uint8 * s8 = (const uint8*)ut->context;
 	UTF8Buf * u8b = NULL;
 	int32_t length = ut->b;      // Length of original utf-8
 	int32_t ix = (int32_t)index; // Requested index, trimmed to 32 bits.
@@ -1059,7 +1051,7 @@ swapBuffers:
 		ut->q = ut->p;
 		ut->p = u8b;
 		ut->chunkContents       = &u8b->buf[u8b->bufStartIdx];
-		ut->chunkLength         = u8b->bufLimitIdx - u8b->bufStartIdx;
+		ut->chunkLength = u8b->bufLimitIdx - u8b->bufStartIdx;
 		ut->chunkNativeStart    = u8b->bufNativeStart;
 		ut->chunkNativeLimit    = u8b->bufNativeLimit;
 		ut->nativeIndexingLimit = u8b->bufNILimit;
@@ -1090,7 +1082,7 @@ swapBuffersAndFail:
 	ut->q = ut->p;
 	ut->p = u8b;
 	ut->chunkContents       = &u8b->buf[u8b->bufStartIdx];
-	ut->chunkLength         = u8b->bufLimitIdx - u8b->bufStartIdx;
+	ut->chunkLength = u8b->bufLimitIdx - u8b->bufStartIdx;
 	ut->chunkNativeStart    = u8b->bufNativeStart;
 	ut->chunkNativeLimit    = u8b->bufNativeLimit;
 	ut->nativeIndexingLimit = u8b->bufNILimit;
@@ -1143,8 +1135,8 @@ fillForward:
 		}
 
 		UChar * buf = u8b_swap->buf;
-		uint8_t * mapToNative  = u8b_swap->mapToNative;
-		uint8_t * mapToUChars  = u8b_swap->mapToUChars;
+		uint8 * mapToNative  = u8b_swap->mapToNative;
+		uint8 * mapToUChars  = u8b_swap->mapToUChars;
 		int32_t destIx       = 0;
 		int32_t srcIx        = ix;
 		bool seenNonAscii = FALSE;
@@ -1157,8 +1149,8 @@ fillForward:
 				// Special case ASCII range for speed.
 				//   zero is excluded to simplify bounds checking.
 				buf[destIx] = (UChar)c;
-				mapToNative[destIx] = (uint8_t)(srcIx - ix);
-				mapToUChars[srcIx-ix]  = (uint8_t)destIx;
+				mapToNative[destIx] = (uint8)(srcIx - ix);
+				mapToUChars[srcIx-ix]  = (uint8)destIx;
 				srcIx++;
 				destIx++;
 			}
@@ -1180,11 +1172,11 @@ fillForward:
 
 				U16_APPEND_UNSAFE(buf, destIx, c);
 				do {
-					mapToNative[dIx++] = (uint8_t)(cIx - ix);
+					mapToNative[dIx++] = (uint8)(cIx - ix);
 				} while(dIx < destIx);
 
 				do {
-					mapToUChars[cIx++ - ix] = (uint8_t)dIxSaved;
+					mapToUChars[cIx++ - ix] = (uint8)dIxSaved;
 				} while(cIx < srcIx);
 			}
 			if(srcIx>=strLen) {
@@ -1194,8 +1186,8 @@ fillForward:
 
 		//  store Native <--> Chunk Map entries for the end of the buffer.
 		//    There is no actual character here, but the index position is valid.
-		mapToNative[destIx] = (uint8_t)(srcIx - ix);
-		mapToUChars[srcIx - ix] = (uint8_t)destIx;
+		mapToNative[destIx] = (uint8)(srcIx - ix);
+		mapToUChars[srcIx - ix] = (uint8)destIx;
 
 		//  fill in Buffer descriptor
 		u8b_swap->bufNativeStart     = ix;
@@ -1209,8 +1201,8 @@ fillForward:
 
 		// Set UText chunk to refer to this buffer.
 		ut->chunkContents       = buf;
-		ut->chunkOffset         = 0;
-		ut->chunkLength         = u8b_swap->bufLimitIdx;
+		ut->chunkOffset = 0;
+		ut->chunkLength = u8b_swap->bufLimitIdx;
 		ut->chunkNativeStart    = u8b_swap->bufNativeStart;
 		ut->chunkNativeLimit    = u8b_swap->bufNativeLimit;
 		ut->nativeIndexingLimit = u8b_swap->bufNILimit;
@@ -1250,8 +1242,8 @@ fillReverse:
 		ut->p = u8b_swap;
 
 		UChar * buf = u8b_swap->buf;
-		uint8_t * mapToNative = u8b_swap->mapToNative;
-		uint8_t * mapToUChars = u8b_swap->mapToUChars;
+		uint8 * mapToNative = u8b_swap->mapToNative;
+		uint8 * mapToUChars = u8b_swap->mapToUChars;
 		int32_t toUCharsMapStart = ix - sizeof(UTF8Buf::mapToUChars) + 1;
 		// Note that toUCharsMapStart can be negative. Happens when the remaining
 		// text from current position to the beginning is less than the buffer size.
@@ -1267,8 +1259,8 @@ fillReverse:
 		// Map to/from Native Indexes, fill in for the position at the end of
 		//   the buffer.
 		//
-		mapToNative[destIx] = (uint8_t)(srcIx - toUCharsMapStart);
-		mapToUChars[srcIx - toUCharsMapStart] = (uint8_t)destIx;
+		mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
+		mapToUChars[srcIx - toUCharsMapStart] = (uint8)destIx;
 
 		// Fill the chunk buffer
 		// Work backwards, filling from the end of the buffer towards the front.
@@ -1283,8 +1275,8 @@ fillReverse:
 				// Special case ASCII range for speed.
 				buf[destIx] = (UChar)c;
 				U_ASSERT(toUCharsMapStart <= srcIx);
-				mapToUChars[srcIx - toUCharsMapStart] = (uint8_t)destIx;
-				mapToNative[destIx] = (uint8_t)(srcIx - toUCharsMapStart);
+				mapToUChars[srcIx - toUCharsMapStart] = (uint8)destIx;
+				mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
 			}
 			else {
 				// General case, handle everything non-ASCII.
@@ -1301,18 +1293,18 @@ fillReverse:
 				// Store the character in UTF-16 buffer.
 				if(c<0x10000) {
 					buf[destIx] = (UChar)c;
-					mapToNative[destIx] = (uint8_t)(srcIx - toUCharsMapStart);
+					mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
 				}
 				else {
-					buf[destIx]         = U16_TRAIL(c);
-					mapToNative[destIx] = (uint8_t)(srcIx - toUCharsMapStart);
+					buf[destIx] = U16_TRAIL(c);
+					mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
 					buf[--destIx] = U16_LEAD(c);
-					mapToNative[destIx] = (uint8_t)(srcIx - toUCharsMapStart);
+					mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
 				}
 
 				// Fill in the map from native indexes to UChars buf index.
 				do {
-					mapToUChars[sIx-- - toUCharsMapStart] = (uint8_t)destIx;
+					mapToUChars[sIx-- - toUCharsMapStart] = (uint8)destIx;
 				} while(sIx >= srcIx);
 				U_ASSERT(toUCharsMapStart <= (srcIx+1));
 
@@ -1327,12 +1319,12 @@ fillReverse:
 		u8b_swap->bufNativeLimit     = ix;
 		u8b_swap->bufStartIdx        = destIx;
 		u8b_swap->bufLimitIdx        = UTF8_TEXT_CHUNK_SIZE+2;
-		u8b_swap->bufNILimit         = bufNILimit - u8b_swap->bufStartIdx;
+		u8b_swap->bufNILimit = bufNILimit - u8b_swap->bufStartIdx;
 		u8b_swap->toUCharsMapStart   = toUCharsMapStart;
 
 		ut->chunkContents       = &buf[u8b_swap->bufStartIdx];
-		ut->chunkLength         = u8b_swap->bufLimitIdx - u8b_swap->bufStartIdx;
-		ut->chunkOffset         = ut->chunkLength;
+		ut->chunkLength = u8b_swap->bufLimitIdx - u8b_swap->bufStartIdx;
+		ut->chunkOffset = ut->chunkLength;
 		ut->chunkNativeStart    = u8b_swap->bufNativeStart;
 		ut->chunkNativeLimit    = u8b_swap->bufNativeLimit;
 		ut->nativeIndexingLimit = u8b_swap->bufNILimit;
@@ -1358,7 +1350,7 @@ static UChar * utext_strFromUTF8(UChar * dest,
 	UChar32 ch = 0;
 	int32_t index = 0;
 	int32_t reqLength = 0;
-	uint8_t* pSrc = (uint8_t*)src;
+	uint8* pSrc = (uint8 *)src;
 
 	while((index < srcLength)&&(pDest<pDestLimit)) {
 		ch = pSrc[index++];
@@ -1429,7 +1421,7 @@ static int32_t U_CALLCONV utf8TextExtract(UText * ut,
 	// adjust the incoming indexes to land on code point boundaries if needed.
 	//    adjust by no more than three, because that is the largest number of trail bytes
 	//    in a well formed UTF8 character.
-	const uint8_t * buf = (const uint8_t*)ut->context;
+	const uint8 * buf = (const uint8*)ut->context;
 	int i;
 	if(start32 < ut->chunkNativeLimit) {
 		for(i = 0; i<3; i++) {
@@ -2184,11 +2176,11 @@ U_CAPI UText * U_EXPORT2 utext_openConstUnicodeString(UText * ut, const UnicodeS
 	//           The flag settings disable writing, so having the functions in
 	//           the table is harmless.
 	if(U_SUCCESS(*status)) {
-		ut->pFuncs              = &unistrFuncs;
-		ut->context             = s;
+		ut->pFuncs      = &unistrFuncs;
+		ut->context     = s;
 		ut->providerProperties  = I32_FLAG(UTEXT_PROVIDER_STABLE_CHUNKS);
 		ut->chunkContents       = s->getBuffer();
-		ut->chunkLength         = s->length();
+		ut->chunkLength = s->length();
 		ut->chunkNativeStart    = 0;
 		ut->chunkNativeLimit    = ut->chunkLength;
 		ut->nativeIndexingLimit = ut->chunkLength;
@@ -2258,7 +2250,7 @@ static int64_t U_CALLCONV ucstrTextLength(UText * ut) {
 		// null terminated, we don't yet know the length. Scan for it.
 		//    Access is not convenient for doing this
 		//    because the current iteration position can't be changed.
-		const UChar  * str = (const UChar *)ut->context;
+		const UChar * str = (const UChar *)ut->context;
 		for(;;) {
 			if(str[ut->chunkNativeLimit] == 0) {
 				break;
@@ -2402,10 +2394,10 @@ static int32_t U_CALLCONV ucstrTextExtract(UText * ut,
 			// Just hit the end of a null-terminated string.
 			ut->a = si;   // set string length for this UText
 			ut->chunkNativeLimit    = si;
-			ut->chunkLength         = si;
+			ut->chunkLength = si;
 			ut->nativeIndexingLimit = si;
-			strLength               = si;
-			limit32                 = si;
+			strLength       = si;
+			limit32         = si;
 			break;
 		}
 		U_ASSERT(di>=0); /* to ensure di never exceeds INT32_MAX, which must not happen logically */
@@ -2485,18 +2477,18 @@ U_CAPI UText * U_EXPORT2 utext_openUChars(UText * ut, const UChar * s, int64_t l
 	}
 	ut = utext_setup(ut, 0, status);
 	if(U_SUCCESS(*status)) {
-		ut->pFuncs               = &ucstrFuncs;
-		ut->context              = s;
+		ut->pFuncs       = &ucstrFuncs;
+		ut->context      = s;
 		ut->providerProperties   = I32_FLAG(UTEXT_PROVIDER_STABLE_CHUNKS);
 		if(length==-1) {
 			ut->providerProperties |= I32_FLAG(UTEXT_PROVIDER_LENGTH_IS_EXPENSIVE);
 		}
-		ut->a                    = length;
+		ut->a            = length;
 		ut->chunkContents        = s;
 		ut->chunkNativeStart     = 0;
 		ut->chunkNativeLimit     = length>=0 ? length : 0;
-		ut->chunkLength          = (int32_t)ut->chunkNativeLimit;
-		ut->chunkOffset          = 0;
+		ut->chunkLength  = (int32_t)ut->chunkNativeLimit;
+		ut->chunkOffset  = 0;
 		ut->nativeIndexingLimit  = ut->chunkLength;
 	}
 	return ut;
@@ -2713,14 +2705,14 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, CharacterIterat
 	int32_t extraSpace = 2 * CIBufSize * sizeof(UChar);
 	ut = utext_setup(ut, extraSpace, status);
 	if(U_SUCCESS(*status)) {
-		ut->pFuncs                = &charIterFuncs;
-		ut->context              = ci;
+		ut->pFuncs        = &charIterFuncs;
+		ut->context      = ci;
 		ut->providerProperties   = 0;
-		ut->a                    = ci->endIndex();// Length of text
-		ut->p                    = ut->pExtra;    // First buffer
-		ut->b                    = -1;            // Native index of first buffer contents
-		ut->q                    = (UChar *)ut->pExtra+CIBufSize;// Second buffer
-		ut->c                    = -1;            // Native index of second buffer contents
+		ut->a            = ci->endIndex();// Length of text
+		ut->p            = ut->pExtra;    // First buffer
+		ut->b            = -1;            // Native index of first buffer contents
+		ut->q            = (UChar *)ut->pExtra+CIBufSize;// Second buffer
+		ut->c            = -1;            // Native index of second buffer contents
 
 		// Initialize current chunk contents to be empty.
 		//   First access will fault something in.
@@ -2730,9 +2722,9 @@ U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, CharacterIterat
 		//          zero without Access() thinking that the chunk is valid.
 		ut->chunkContents        = (UChar *)ut->p;
 		ut->chunkNativeStart     = -1;
-		ut->chunkOffset          = 1;
+		ut->chunkOffset  = 1;
 		ut->chunkNativeLimit     = 0;
-		ut->chunkLength          = 0;
+		ut->chunkLength  = 0;
 		ut->nativeIndexingLimit  = ut->chunkOffset;// enables native indexing
 	}
 	return ut;

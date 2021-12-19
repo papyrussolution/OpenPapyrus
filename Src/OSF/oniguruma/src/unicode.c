@@ -818,10 +818,10 @@ enum EGCB_TYPE {
 	EGCB_Prepend = 5,
 	EGCB_Regional_Indicator = 6,
 	EGCB_SpacingMark = 7,
-	EGCB_ZWJ         = 8,
+	EGCB_ZWJ = 8,
 #if 0
 	/* obsoleted */
-	EGCB_E_Base         = 9,
+	EGCB_E_Base = 9,
 	EGCB_E_Base_GAZ     = 10,
 	EGCB_E_Modifier     = 11,
 	EGCB_Glue_After_Zwj = 12,

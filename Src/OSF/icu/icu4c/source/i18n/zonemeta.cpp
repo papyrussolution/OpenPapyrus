@@ -105,18 +105,18 @@ U_CDECL_END
 
 #define ZID_KEY_MAX 128
 
-static const char gMetaZones[]          = "metaZones";
+static const char gMetaZones[]  = "metaZones";
 static const char gMetazoneInfo[] = "metazoneInfo";
 static const char gMapTimezonesTag[] = "mapTimezones";
 
 static const char gKeyTypeData[]        = "keyTypeData";
 static const char gTypeAliasTag[] = "typeAlias";
-static const char gTypeMapTag[]         = "typeMap";
+static const char gTypeMapTag[] = "typeMap";
 static const char gTimezoneTag[]        = "timezone";
 
 static const char gPrimaryZonesTag[] = "primaryZones";
 
-static const char gWorldTag[]           = "001";
+static const char gWorldTag[]   = "001";
 
 static const UChar gWorld[] = {0x30, 0x30, 0x31, 0x00}; // "001"
 
@@ -841,20 +841,20 @@ TimeZone* ZoneMeta::createCustomTimeZone(int32_t offset) {
 		negative = TRUE;
 		tmp = -offset;
 	}
-	uint8_t hour, min, sec;
+	uint8 hour, min, sec;
 
 	tmp /= 1000;
-	sec = static_cast<uint8_t>(tmp % 60);
+	sec = static_cast<uint8>(tmp % 60);
 	tmp /= 60;
-	min = static_cast<uint8_t>(tmp % 60);
-	hour = static_cast<uint8_t>(tmp / 60);
+	min = static_cast<uint8>(tmp % 60);
+	hour = static_cast<uint8>(tmp / 60);
 
 	UnicodeString zid;
 	formatCustomID(hour, min, sec, negative, zid);
 	return new SimpleTimeZone(offset, zid);
 }
 
-UnicodeString &ZoneMeta::formatCustomID(uint8_t hour, uint8_t min, uint8_t sec, bool negative, UnicodeString & id) {
+UnicodeString &ZoneMeta::formatCustomID(uint8 hour, uint8 min, uint8 sec, bool negative, UnicodeString & id) {
 	// Create normalized time zone ID - GMT[+|-]HH:mm[:ss]
 	id.setTo(gCustomTzPrefix, -1);
 	if(hour != 0 || min != 0) {

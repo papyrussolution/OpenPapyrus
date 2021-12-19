@@ -371,7 +371,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 						gbi.Price       = pi->Price;
 						gbi.UnitPerPack = pi->UnitPerPack;
 						gbi.Expiry      = pi->Expiry;
-						gbi.Num         = i;
+						gbi.Num = i;
 						THROW_SL(items.insert(&gbi));
 					}
 					PPGoodsBasket head;
@@ -418,7 +418,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 				for(i = 0; i < prev_items.getCount(); i++) {
 					uint pos = 0;
 					gbi = *static_cast<const PPGoodsBasketItem *>(prev_items.at(i));
-					if(items.lsearch(&gbi.ItemGoodsID, &pos, PTR_CMPFUNC(long), offsetof(PPGoodsBasketItem, ItemGoodsID))) {
+					if(items.lsearch(&gbi.ItemGoodsID, &pos, CMPF_LONG, offsetof(PPGoodsBasketItem, ItemGoodsID))) {
 						const PPGoodsBasketItem * p_list_item = static_cast<const PPGoodsBasketItem *>(items.at(pos));
 						found_pos_list.add(static_cast<long>(pos));
 						if(p_list_item->Flags != gbi.Flags || p_list_item->Quantity != gbi.Quantity ||

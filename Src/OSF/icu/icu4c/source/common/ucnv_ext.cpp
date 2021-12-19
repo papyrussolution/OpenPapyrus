@@ -31,7 +31,7 @@
 /*
  * @return lookup value for the byte, if found; else 0
  */
-static inline uint32_t ucnv_extFindToU(const uint32_t * toUSection, int32_t length, uint8_t byte) {
+static inline uint32_t ucnv_extFindToU(const uint32_t * toUSection, int32_t length, uint8 byte) {
 	uint32_t word0, word;
 	int32_t i, start, limit;
 
@@ -126,7 +126,7 @@ static int32_t ucnv_extMatchToU(const int32_t * cx, int8_t sisoState,
 
 	uint32_t value, matchValue;
 	int32_t i, j, idx, length, matchLength;
-	uint8_t b;
+	uint8 b;
 
 	if(cx==NULL || cx[UCNV_EXT_TO_U_LENGTH]<=0) {
 		return 0; /* no extension data, no match */
@@ -178,10 +178,10 @@ static int32_t ucnv_extMatchToU(const int32_t * cx, int8_t sisoState,
 
 		/* match pre[] then src[] */
 		if(i<preLength) {
-			b = (uint8_t)pre[i++];
+			b = (uint8)pre[i++];
 		}
 		else if(j<srcLength) {
-			b = (uint8_t)src[j++];
+			b = (uint8)src[j++];
 		}
 		else {
 			/* all input consumed, partial match */
@@ -687,8 +687,8 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
     char ** target, const char * targetLimit,
     int32_t ** offsets, int32_t srcIndex,
     UErrorCode * pErrorCode) {
-	uint8_t buffer[1+UCNV_EXT_MAX_BYTES];
-	const uint8_t * result;
+	uint8 buffer[1+UCNV_EXT_MAX_BYTES];
+	const uint8 * result;
 	int32_t length, prevLength;
 
 	length = UCNV_EXT_FROM_U_GET_LENGTH(value);
@@ -702,16 +702,16 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
 		 * extension mappings, and it is much simpler.
 		 * Offset and overflow handling are only done once this way.
 		 */
-		uint8_t * p = buffer+1; /* reserve buffer[0] for shiftByte below */
+		uint8 * p = buffer+1; /* reserve buffer[0] for shiftByte below */
 		switch(length) {
 			case 3:
-			    *p++ = (uint8_t)(value>>16);
+			    *p++ = (uint8)(value>>16);
 			    U_FALLTHROUGH;
 			case 2:
-			    *p++ = (uint8_t)(value>>8);
+			    *p++ = (uint8)(value>>8);
 			    U_FALLTHROUGH;
 			case 1:
-			    *p++ = (uint8_t)value;
+			    *p++ = (uint8)value;
 			    U_FALLTHROUGH;
 			default:
 			    break; /* will never occur */
@@ -719,23 +719,23 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
 		result = buffer+1;
 	}
 	else {
-		result = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_BYTES_INDEX, uint8_t)+value;
+		result = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_BYTES_INDEX, uint8)+value;
 	}
 
 	/* with correct data we have length>0 */
 
 	if((prevLength = cnv->fromUnicodeStatus)!=0) {
 		/* handle SI/SO stateful output */
-		uint8_t shiftByte;
+		uint8 shiftByte;
 
 		if(prevLength>1 && length==1) {
 			/* change from double-byte mode to single-byte */
-			shiftByte = (uint8_t)UCNV_SI;
+			shiftByte = (uint8)UCNV_SI;
 			cnv->fromUnicodeStatus = 1;
 		}
 		else if(prevLength==1 && length>1) {
 			/* change from single-byte mode to double-byte */
-			shiftByte = (uint8_t)UCNV_SO;
+			shiftByte = (uint8)UCNV_SO;
 			cnv->fromUnicodeStatus = 2;
 		}
 		else {
@@ -856,7 +856,7 @@ U_CFUNC int32_t ucnv_extSimpleMatchFromU(const int32_t * cx,
 		}
 		else if(length==4) {
 			/* de-serialize a 4-byte result */
-			const uint8_t * result = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_BYTES_INDEX, uint8_t)+value;
+			const uint8 * result = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_BYTES_INDEX, uint8)+value;
 			*pValue =
 			    ((uint32_t)result[0]<<24)|
 			    ((uint32_t)result[1]<<16)|
@@ -1138,7 +1138,7 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
 								    if(!(UCNV_EXT_FROM_U_GET_LENGTH(value)==2 &&
 									(uint16_t)((value = UCNV_EXT_FROM_U_GET_DATA(value))-0xa1a1)<=
 									(0xfefe - 0xa1a1) &&
-									(uint8_t)(value-0xa1)<=(0xfe - 0xa1))) {
+									(uint8)(value-0xa1)<=(0xfe - 0xa1))) {
 									    continue;
 								    }
 								    break;
@@ -1146,7 +1146,7 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
 								    if(!(UCNV_EXT_FROM_U_GET_LENGTH(value)==2 &&
 									(uint16_t)((value = UCNV_EXT_FROM_U_GET_DATA(value))-0xa1a1)<=
 									(0xfdfe - 0xa1a1) &&
-									(uint8_t)(value-0xa1)<=(0xfe - 0xa1))) {
+									(uint8)(value-0xa1)<=(0xfe - 0xa1))) {
 									    continue;
 								    }
 								    break;

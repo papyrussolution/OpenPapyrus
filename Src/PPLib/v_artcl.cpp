@@ -56,7 +56,7 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 		if(AgtProp == ARTPRP_CLIAGT2) { // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
 			if(ArObj.GetClientAgreement(arID, cli_agt, 0) > 0) {
 				rec.ArID        = arID;
-				rec.Beg         = cli_agt.BegDt;
+				rec.Beg = cli_agt.BegDt;
 				rec.Expiry      = cli_agt.Expiry;
 				rec.DefPayTerm  = cli_agt.DefPayPeriod;
 				rec.DefAgentID    = cli_agt.DefAgentID;
@@ -65,7 +65,7 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 				rec.MaxDiscount   = cli_agt.MaxDscnt;
 				rec.MaxCredit     = cli_agt.MaxCredit;
 				rec.ExtObjectID   = cli_agt.ExtObjectID;
-				rec.Flags         = cli_agt.Flags;
+				rec.Flags = cli_agt.Flags;
 				STRNSCPY(rec.Code, cli_agt.Code_); // @v10.2.9 Code-->Code2 // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
 				InitDebtLim(&rec, &cli_agt);
 				r = 1;
@@ -74,7 +74,7 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 		else if(AgtProp == ARTPRP_SUPPLAGT) {
 			if(ArObj.GetSupplAgreement(arID, &suppl_agt, 0) > 0) {
 				rec.ArID        = arID;
-				rec.Beg         = suppl_agt.BegDt;
+				rec.Beg = suppl_agt.BegDt;
 				rec.Expiry      = suppl_agt.Expiry;
 				rec.DefPayTerm  = suppl_agt.DefPayPeriod;
 				rec.DefDlvrTerm = suppl_agt.DefDlvrTerm;
@@ -111,7 +111,7 @@ int PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, const PPClientAgreement
 		for(uint i = 0; i < lim_count; i++) {
 			uint   pos = 0;
 			long   debt_dim_id = P_DebtDimList->Get(i).Id;
-			if(pCliAgt->DebtLimList.lsearch(&debt_dim_id, &pos, PTR_CMPFUNC(long)) > 0) {
+			if(pCliAgt->DebtLimList.lsearch(&debt_dim_id, &pos, CMPF_LONG)) {
 				PPClientAgreement::DebtLimit dbt_lim = pCliAgt->DebtLimList.at(pos);
 				SETFLAG(pRec->StopFlags, 1 << i, dbt_lim.Flags & PPClientAgreement::DebtLimit::fStop);
 				*reinterpret_cast<double *>(p_mc + sizeof(double)*i) = dbt_lim.Limit;
@@ -182,7 +182,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 								TempArAgtTbl::Rec rec;
 								// @v10.7.9 @ctr MEMSZERO(rec);
 								rec.ArID        = cli_agt.ClientID;
-								rec.Beg         = cli_agt.BegDt;
+								rec.Beg = cli_agt.BegDt;
 								rec.Expiry      = cli_agt.Expiry;
 								rec.DefPayTerm  = cli_agt.DefPayPeriod;
 								rec.DefAgentID    = cli_agt.DefAgentID;
@@ -191,7 +191,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 								rec.MaxDiscount   = cli_agt.MaxDscnt;
 								rec.MaxCredit     = cli_agt.MaxCredit;
 								rec.ExtObjectID   = cli_agt.ExtObjectID;
-								rec.Flags         = cli_agt.Flags;
+								rec.Flags = cli_agt.Flags;
 								STRNSCPY(rec.Code, cli_agt.Code_);
 								InitDebtLim(&rec, &cli_agt);
 								THROW_DB(bei.insert(&rec));
@@ -214,7 +214,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							PPClientAgreement cli_agt;
 							PPObjArticle::PropToClientAgt(&r_pt.data, &cli_agt, 1);
 							rec.ArID        = cli_agt.ClientID;
-							rec.Beg         = cli_agt.BegDt;
+							rec.Beg = cli_agt.BegDt;
 							rec.Expiry      = cli_agt.Expiry;
 							rec.DefPayTerm  = cli_agt.DefPayPeriod;
 							rec.DefAgentID    = cli_agt.DefAgentID;
@@ -223,7 +223,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							rec.MaxDiscount   = cli_agt.MaxDscnt;
 							rec.MaxCredit     = cli_agt.MaxCredit;
 							rec.ExtObjectID   = cli_agt.ExtObjectID;
-							rec.Flags         = cli_agt.Flags;
+							rec.Flags = cli_agt.Flags;
 							STRNSCPY(rec.Code, cli_agt.Code_); // @v10.2.9 Code-->Code2 // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
 							InitDebtLim(&rec, &cli_agt);
 							THROW_DB(bei.insert(&rec));
@@ -270,7 +270,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 								TempArAgtTbl::Rec rec;
 								// @v10.7.9 @ctr MEMSZERO(rec);
 								rec.ArID        = suppl_agt.SupplID;
-								rec.Beg         = suppl_agt.BegDt;
+								rec.Beg = suppl_agt.BegDt;
 								rec.Expiry      = suppl_agt.Expiry;
 								rec.DefPayTerm  = suppl_agt.DefPayPeriod;
 								rec.DefDlvrTerm = suppl_agt.DefDlvrTerm;

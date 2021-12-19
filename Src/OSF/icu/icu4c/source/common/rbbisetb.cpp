@@ -40,73 +40,53 @@
 U_NAMESPACE_BEGIN
 
 const int32_t kMaxCharCategoriesFor8BitsTrie = 255;
-//------------------------------------------------------------------------
 //
 //   Constructor
 //
-//------------------------------------------------------------------------
-RBBISetBuilder::RBBISetBuilder(RBBIRuleBuilder * rb)
+RBBISetBuilder::RBBISetBuilder(RBBIRuleBuilder * rb) :
+	fRB(rb), fStatus(rb->fStatus), fRangeList(nullptr), fMutableTrie(nullptr), fTrie(nullptr), fTrieSize(0), fGroupCount(0), fSawBOF(false)
 {
-	fRB             = rb;
-	fStatus         = rb->fStatus;
-	fRangeList      = nullptr;
-	fMutableTrie    = nullptr;
-	fTrie           = nullptr;
-	fTrieSize       = 0;
-	fGroupCount     = 0;
-	fSawBOF         = false;
 }
-
-//------------------------------------------------------------------------
 //
 //   Destructor
 //
-//------------------------------------------------------------------------
 RBBISetBuilder::~RBBISetBuilder()
 {
 	RangeDescriptor   * nextRangeDesc;
-
 	// Walk through & delete the linked list of RangeDescriptors
 	for(nextRangeDesc = fRangeList; nextRangeDesc!=NULL;) {
 		RangeDescriptor * r = nextRangeDesc;
 		nextRangeDesc      = r->fNext;
 		delete r;
 	}
-
 	ucptrie_close(fTrie);
 	umutablecptrie_close(fMutableTrie);
 }
-
-//------------------------------------------------------------------------
 //
 //   build          Build the list of non-overlapping character ranges
 //                  from the Unicode Sets.
 //
-//------------------------------------------------------------------------
 void RBBISetBuilder::buildRanges() {
 	RBBINode        * usetNode;
 	RangeDescriptor * rlRange;
-
-	if(fRB->fDebugEnv && uprv_strstr(fRB->fDebugEnv, "usets")) {
+	if(fRB->fDebugEnv && uprv_strstr(fRB->fDebugEnv, "usets")) 
+	{
 		printSets();
 	}
-
 	//
 	//  Initialize the process by creating a single range encompassing all characters
 	//  that is in no sets.
 	//
-	fRangeList                = new RangeDescriptor(*fStatus);// will check for status here
+	fRangeList = new RangeDescriptor(*fStatus);// will check for status here
 	if(fRangeList == NULL) {
 		*fStatus = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
 	fRangeList->fStartChar    = 0;
 	fRangeList->fEndChar      = 0x10ffff;
-
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
-
 	//
 	//  Find the set of non-overlapping ranges of characters
 	//
@@ -116,12 +96,10 @@ void RBBISetBuilder::buildRanges() {
 		if(usetNode==NULL) {
 			break;
 		}
-
-		UnicodeSet      * inputSet             = usetNode->fInputSet;
+		UnicodeSet * inputSet = usetNode->fInputSet;
 		int32_t inputSetRangeCount   = inputSet->getRangeCount();
 		int inputSetRangeIndex   = 0;
-		rlRange              = fRangeList;
-
+		rlRange = fRangeList;
 		for(;;) {
 			if(inputSetRangeIndex >= inputSetRangeCount) {
 				break;
@@ -338,7 +316,7 @@ int32_t RBBISetBuilder::getTrieSize() {
 //                    getTrieSize() MUST be called first.
 //
 //-----------------------------------------------------------------------------------
-void RBBISetBuilder::serializeTrie(uint8_t * where) {
+void RBBISetBuilder::serializeTrie(uint8 * where) {
 	ucptrie_toBinary(fTrie,
 	    where,                         // Buffer
 	    fTrieSize,                     // Capacity
@@ -608,22 +586,16 @@ RangeDescriptor::RangeDescriptor(UErrorCode & status) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 }
-
-//-------------------------------------------------------------------------------------
 //
 //  RangeDesriptor Destructor
 //
-//-------------------------------------------------------------------------------------
 RangeDescriptor::~RangeDescriptor() 
 {
 	ZDELETE(fIncludesSets);
 }
-
-//-------------------------------------------------------------------------------------
 //
 //  RangeDesriptor::split()
 //
-//-------------------------------------------------------------------------------------
 void RangeDescriptor::split(UChar32 where, UErrorCode & status) {
 	U_ASSERT(where>fStartChar && where<=fEndChar);
 	RangeDescriptor * nr = new RangeDescriptor(*this, status);
@@ -642,8 +614,6 @@ void RangeDescriptor::split(UChar32 where, UErrorCode & status) {
 	nr->fNext      = this->fNext;
 	this->fNext    = nr;
 }
-
-//-------------------------------------------------------------------------------------
 //
 //   RangeDescriptor::isDictionaryRange
 //
@@ -657,8 +627,8 @@ void RangeDescriptor::split(UChar32 where, UErrorCode & status) {
 //                   "dictionary" just once, rather than looking it
 //                   up by name every time.
 //
-//-------------------------------------------------------------------------------------
-bool RangeDescriptor::isDictionaryRange() {
+bool RangeDescriptor::isDictionaryRange() 
+{
 	static const char16_t * dictionary = u"dictionary";
 	for(int32_t i = 0; i<fIncludesSets->size(); i++) {
 		RBBINode * usetNode  = (RBBINode*)fIncludesSets->elementAt(i);

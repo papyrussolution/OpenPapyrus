@@ -58,9 +58,9 @@ register_term(gpic)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void GPIC_init(GpTermEntry * pThis);
-TERM_PUBLIC void GPIC_graphics(GpTermEntry * pThis);
+TERM_PUBLIC void GPIC_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void GPIC_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void GPIC_graphics(GpTermEntry_Static * pThis);
 TERM_PUBLIC void GPIC_text();
 TERM_PUBLIC void GPIC_linetype(int linetype);
 TERM_PUBLIC void GPIC_move(uint x, uint y);
@@ -101,10 +101,10 @@ static const char * GPIC_lines[] =
 {
 	"thickness 1.0",        /* -2 border */
 	"dotted", /* -1 axes */
-	"",                     /*  0 solid thin  */
+	"",                     /* 0 solid thin  */
 	"dotted",
-	"dashed 0.05",          /*  1 solid thick */
-	"dashed 0.075",         /*  2 solid Thick */
+	"dashed 0.05",          /* 1 solid thick */
+	"dashed 0.075",         /* 2 solid Thick */
 };
 
 /* number of linetypes above */
@@ -112,7 +112,7 @@ static const char * GPIC_lines[] =
 
 static int GPIC_linecount = 0; /* number of points in line so far */
 
-TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void GPIC_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	float x, y;
 	GpValue a;
@@ -129,13 +129,13 @@ TERM_PUBLIC void GPIC_options(GpTermEntry * pThis, GnuPlot * pGp)
 	slprintf(GPT._TermOptions, "Origin is at (%f,%f)", GPIC_x, GPIC_y);
 }
 
-TERM_PUBLIC void GPIC_init(GpTermEntry * pThis)
+TERM_PUBLIC void GPIC_init(GpTermEntry_Static * pThis)
 {
 	GPIC_linetype(-1);
 	fputs(".\\\"GNUPLOT: GROFF picture using the gpic preprocessor\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void GPIC_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void GPIC_graphics(GpTermEntry_Static * pThis)
 {
 	fprintf(GPT.P_GpOutFile, ".PS %f %f\n", GPIC_coord(pThis->MaxX), GPIC_coord(pThis->MaxY));
 	fprintf(GPT.P_GpOutFile, "x=%f; y=%f\n", GPIC_x, GPIC_y);

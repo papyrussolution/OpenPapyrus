@@ -732,7 +732,7 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION * session, uchar ** method
 	}
 	RSA_free(rsa);
 	memcpy(method_buf, "ssh-rsa", 7);
-	*method         = method_buf;
+	*method = method_buf;
 	*method_len     = 7;
 	*pubkeydata     = key;
 	*pubkeydata_len = key_len;
@@ -768,7 +768,7 @@ static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION * session, uchar ** method
 	}
 	DSA_free(dsa);
 	memcpy(method_buf, "ssh-dss", 7);
-	*method         = method_buf;
+	*method = method_buf;
 	*method_len     = 7;
 	*pubkeydata     = key;
 	*pubkeydata_len = key_len;

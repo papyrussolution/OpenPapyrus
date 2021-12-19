@@ -1163,8 +1163,8 @@ int PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec 
 	MEMSZERO(rec);
 	rec.SeqID      = -1;
 	rec.FuncID     = func_id;
-	rec.Dt         = rRec.Dt;
-	rec.Tm         = rRec.Tm;
+	rec.Dt = rRec.Dt;
+	rec.Tm = rRec.Tm;
 	rec.Clock      = rRec.Clock;
 	rec.Flags      = rRec.Flags;
 	rec.Factor1    = rRec.Factor1;

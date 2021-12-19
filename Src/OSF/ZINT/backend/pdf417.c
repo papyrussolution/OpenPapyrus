@@ -1,6 +1,6 @@
 /* pdf417.c - Handles PDF417 stacked symbology */
 
-/*  Zint - A barcode generating program using libpng
+/* Zint - A barcode generating program using libpng
     Copyright (C) 2008-2016 Robin Stuart <rstuart114@gmail.com>
     Portions Copyright (C) 2004 Grandzebu
     Bug Fixes thanks to KL Chin <klchin@users.sourceforge.net>
@@ -31,7 +31,7 @@
     SUCH DAMAGE.
  */
 
-/*  This code is adapted from "Code barre PDF 417 / PDF 417 barcode" v2.5.0
+/* This code is adapted from "Code barre PDF 417 / PDF 417 barcode" v2.5.0
     which is Copyright (C) 2004 (Grandzebu).
     The original code can be downloaded from http://grandzebu.net/index.php */
 
@@ -426,7 +426,7 @@ void byteprocess(int * chainemc, int * mclength, uchar chaine[], int start, int 
 				}
 				*mclength += 5;
 			}
-			else { /*  If it remain a group of less than 6 bytes   */
+			else { /* If it remain a group of less than 6 bytes   */
 				len += chunkLen;
 				while(chunkLen--) {
 					chainemc[(*mclength)++] = chaine[start++];

@@ -2030,7 +2030,7 @@ int SCS_SHTRIHFRF::SetupTables()
 		THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_SAVESTRING, 0));
 	}
 	*/
-	/*    Современные версии Штриха запрещают редактирование таблицы перевода времени
+	/* Современные версии Штриха запрещают редактирование таблицы перевода времени
 	THROW(ReadValueFromTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 		DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, &auto_timing));
 	// Установка автоматического перевода времени

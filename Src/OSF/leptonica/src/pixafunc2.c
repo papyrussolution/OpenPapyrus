@@ -29,46 +29,54 @@
  * <pre>
  *
  *      Pixa display (render into a pix)
- *           PIX      *pixaDisplay()
- *           PIX      *pixaDisplayOnColor()
- *           PIX      *pixaDisplayRandomCmap()
- *           PIX      *pixaDisplayLinearly()
- *           PIX      *pixaDisplayOnLattice()
- *           PIX      *pixaDisplayUnsplit()
- *           PIX      *pixaDisplayTiled()
- *           PIX      *pixaDisplayTiledInRows()
- *           PIX      *pixaDisplayTiledInColumns()
- *           PIX      *pixaDisplayTiledAndScaled()
- *           PIX      *pixaDisplayTiledWithText()
- *           PIX      *pixaDisplayTiledByIndex()
+ *           PIX *pixaDisplay()
+ *           PIX *pixaDisplayRandomCmap()
+ *           PIX *pixaDisplayLinearly()
+ *           PIX *pixaDisplayOnLattice()
+ *           PIX *pixaDisplayUnsplit()
+ *           PIX *pixaDisplayTiled()
+ *           PIX *pixaDisplayTiledInRows()
+ *           PIX *pixaDisplayTiledInColumns()
+ *           PIX *pixaDisplayTiledAndScaled()
+ *           PIX *pixaDisplayTiledWithText()
+ *           PIX *pixaDisplayTiledByIndex()
+ *
+ *      Pixa pair display (render into a pix)
+ *           PIX *pixaDisplayPairTiledInColumns()
  *
  *      Pixaa display (render into a pix)
- *           PIX      *pixaaDisplay()
- *           PIX      *pixaaDisplayByPixa()
- *           PIXA     *pixaaDisplayTiledAndScaled()
+ *           PIX *pixaaDisplay()
+ *           PIX *pixaaDisplayByPixa()
+ *           PIXA *pixaaDisplayTiledAndScaled()
  *
  *      Conversion of all pix to specified type (e.g., depth)
- *           PIXA     *pixaConvertTo1()
- *           PIXA     *pixaConvertTo8()
- *           PIXA     *pixaConvertTo8Color()
- *           PIXA     *pixaConvertTo32()
+ *           PIXA *pixaConvertTo1()
+ *           PIXA *pixaConvertTo8()
+ *           PIXA *pixaConvertTo8Colormap()
+ *           PIXA *pixaConvertTo32()
  *
- *      Pixa constrained selection
- *           PIXA     *pixaConstrainedSelect()
+ *      Pixa constrained selection and pdf generation
+ *           PIXA *pixaConstrainedSelect()
+ *           l_int32   pixaSelectToPdf()
+ *
+ *      Generate pixa from tiled images
+ *           PIXA *pixaMakeFromTiledPixa()
+ *           PIXA *pixaMakeFromTiledPix()
+ *           l_int32   pixGetTileCount()
  *
  *      Pixa display into multiple tiles
- *           PIXA     *pixaDisplayMultiTiled()
+ *           PIXA *pixaDisplayMultiTiled()
  *
  *      Split pixa into files
- *           int32   pixaSplitIntoFiles()
+ *           l_int32   pixaSplitIntoFiles()
  *
  *      Tile N-Up
- *           int32   convertToNUpFiles()
- *           PIXA     *convertToNUpPixa()
- *           PIXA     *pixaConvertToNUpPixa()
+ *           l_int32   convertToNUpFiles()
+ *           PIXA *convertToNUpPixa()
+ *           PIXA *pixaConvertToNUpPixa()
  *
  *      Render two pixa side-by-side for comparison                   *
- *           int32   pixaCompareInPdf()
+ *           l_int32   pixaCompareInPdf()
  *
  *  We give twelve pixaDisplay*() methods for tiling a pixa in a pix.
  *  Some work for 1 bpp input; others for any input depth.
@@ -86,8 +94,6 @@
  *        can be used to reconstruct a pix that has been broken into
  *        components, if the boxes represents the positions of the
  *        components in the original image.
- *    pixaDisplayOnColor()
- *        pixaDisplay() with choice of background color.
  *    pixaDisplayRandomCmap()
  *        This also uses the boxes to lay out each pix.  However, it creates
  *        a colormapped dest, where each 1 bpp pix is given a randomly
@@ -143,6 +149,10 @@
  *        in an associated numa.  All pix with the same index value are
  *        rendered in the same column.  Text in the pix text field are
  *        rendered below the pix.
+ *
+ *  To render mosaics of images in a pixaa, display functions are
+ *  provided that handle situations where the images are all scaled to
+ *  the same size, or the number of images on each row needs to vary.
  * </pre>
  */
 #include "allheaders.h"
@@ -155,8 +165,8 @@
  * \brief   pixaDisplay()
  *
  * \param[in]    pixa
- * \param[in]    w, h if set to 0, determines the size from the
- *                    b.b. of the components in pixa
+ * \param[in]    w, h    if set to 0, the size is determined from the
+ *                       bounding box of the components in pixa
  * \return  pix, or NULL on error
  *
  * <pre>
@@ -172,21 +182,21 @@
  * </pre>
  */
 PIX * pixaDisplay(PIXA    * pixa,
-    int32 w,
-    int32 h)
+    l_int32 w,
+    l_int32 h)
 {
-	int32 i, n, d, xb, yb, wb, hb, res;
-	BOXA    * boxa;
-	PIX     * pixt, * pixd;
+	l_int32 i, n, d, xb, yb, wb, hb, res;
+	BOXA * boxa;
+	PIX * pix1, * pixd;
 
-	PROCNAME("pixaDisplay");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 
 	n = pixaGetCount(pixa);
 	if(n == 0 && w == 0 && h == 0)
-		return (PIX*)ERROR_PTR("no components; no size", procName, NULL);
+		return (PIX *)ERROR_PTR("no components; no size", procName, NULL);
 	if(n == 0) {
 		L_WARNING("no components; returning empty 1 bpp pix\n", procName);
 		return pixCreate(w, h, 1);
@@ -199,17 +209,17 @@ PIX * pixaDisplay(PIXA    * pixa,
 		boxaGetExtent(boxa, &w, &h, NULL);
 		boxaDestroy(&boxa);
 		if(w == 0 || h == 0)
-			return (PIX*)ERROR_PTR("no associated boxa", procName, NULL);
+			return (PIX *)ERROR_PTR("no associated boxa", procName, NULL);
 	}
 
 	/* Use the first pix in pixa to determine depth and resolution  */
-	pixt = pixaGetPix(pixa, 0, L_CLONE);
-	d = pixGetDepth(pixt);
-	res = pixGetXRes(pixt);
-	pixDestroy(&pixt);
+	pix1 = pixaGetPix(pixa, 0, L_CLONE);
+	d = pixGetDepth(pix1);
+	res = pixGetXRes(pix1);
+	pixDestroy(&pix1);
 
 	if((pixd = pixCreate(w, h, d)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixSetResolution(pixd, res, res);
 	if(d > 1)
 		pixSetAll(pixd);
@@ -218,147 +228,54 @@ PIX * pixaDisplay(PIXA    * pixa,
 			L_WARNING("no box found!\n", procName);
 			continue;
 		}
-		pixt = pixaGetPix(pixa, i, L_CLONE);
+		pix1 = pixaGetPix(pixa, i, L_CLONE);
 		if(d == 1)
-			pixRasterop(pixd, xb, yb, wb, hb, PIX_PAINT, pixt, 0, 0);
+			pixRasterop(pixd, xb, yb, wb, hb, PIX_PAINT, pix1, 0, 0);
 		else
-			pixRasterop(pixd, xb, yb, wb, hb, PIX_SRC, pixt, 0, 0);
-		pixDestroy(&pixt);
-	}
-
-	return pixd;
-}
-
-/*!
- * \brief   pixaDisplayOnColor()
- *
- * \param[in]    pixa
- * \param[in]    w, h if set to 0, determines the size from the
- *                    b.b. of the components in pixa
- * \param[in]    bgcolor background color to use
- * \return  pix, or NULL on error
- *
- * <pre>
- * Notes:
- *      (1) This uses the boxes to place each pix in the rendered composite.
- *      (2) Set w = h = 0 to use the b.b. of the components to determine
- *          the size of the returned pix.
- *      (3) If any pix in %pixa are colormapped, or if the pix have
- *          different depths, it returns a 32 bpp pix.  Otherwise,
- *          the depth of the returned pixa equals that of the pix in %pixa.
- *      (4) If the pixa is empty, return null.
- * </pre>
- */
-PIX * pixaDisplayOnColor(PIXA     * pixa,
-    int32 w,
-    int32 h,
-    uint32 bgcolor)
-{
-	int32 i, n, xb, yb, wb, hb, hascmap, maxdepth, same, res;
-	BOXA    * boxa;
-	PIX     * pix1, * pix2, * pixd;
-	PIXA    * pixat;
-
-	PROCNAME("pixaDisplayOnColor");
-
-	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
-	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
-
-	/* If w and h are not input, determine the minimum size
-	 * required to contain the origin and all c.c. */
-	if(w == 0 || h == 0) {
-		boxa = pixaGetBoxa(pixa, L_CLONE);
-		boxaGetExtent(boxa, &w, &h, NULL);
-		boxaDestroy(&boxa);
-	}
-
-	/* If any pix have colormaps, or if they have different depths,
-	 * generate rgb */
-	pixaAnyColormaps(pixa, &hascmap);
-	pixaGetDepthInfo(pixa, &maxdepth, &same);
-	if(hascmap || !same) {
-		maxdepth = 32;
-		pixat = pixaCreate(n);
-		for(i = 0; i < n; i++) {
-			pix1 = pixaGetPix(pixa, i, L_CLONE);
-			pix2 = pixConvertTo32(pix1);
-			pixaAddPix(pixat, pix2, L_INSERT);
-			pixDestroy(&pix1);
-		}
-	}
-	else {
-		pixat = pixaCopy(pixa, L_CLONE);
-	}
-
-	/* Make the output pix and set the background color */
-	if((pixd = pixCreate(w, h, maxdepth)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
-	if((maxdepth == 1 && bgcolor > 0) ||
-	    (maxdepth == 2 && bgcolor >= 0x3) ||
-	    (maxdepth == 4 && bgcolor >= 0xf) ||
-	    (maxdepth == 8 && bgcolor >= 0xff) ||
-	    (maxdepth == 16 && bgcolor >= 0xffff) ||
-	    (maxdepth == 32 && bgcolor >= 0xffffff00)) {
-		pixSetAll(pixd);
-	}
-	else if(bgcolor > 0) {
-		pixSetAllArbitrary(pixd, bgcolor);
-	}
-
-	/* Blit each pix into its place */
-	for(i = 0; i < n; i++) {
-		if(pixaGetBoxGeometry(pixat, i, &xb, &yb, &wb, &hb)) {
-			L_WARNING("no box found!\n", procName);
-			continue;
-		}
-		pix1 = pixaGetPix(pixat, i, L_CLONE);
-		if(i == 0) res = pixGetXRes(pix1);
-		pixRasterop(pixd, xb, yb, wb, hb, PIX_SRC, pix1, 0, 0);
+			pixRasterop(pixd, xb, yb, wb, hb, PIX_SRC, pix1, 0, 0);
 		pixDestroy(&pix1);
 	}
-	pixSetResolution(pixd, res, res);
 
-	pixaDestroy(&pixat);
 	return pixd;
 }
 
 /*!
  * \brief   pixaDisplayRandomCmap()
  *
- * \param[in]    pixa of 1 bpp components, with boxa
- * \param[in]    w, h if set to 0, determines the size from the
- *                    b.b. of the components in pixa
- * \return  pix 8 bpp, cmapped, with random colors on the components,
- *              or NULL on error
+ * \param[in]    pixa    1 bpp regions, with boxa delineating those regions
+ * \param[in]    w, h    if set to 0, the size is determined from the
+ *                       bounding box of the components in pixa
+ * \return  pix   8 bpp, cmapped, with random colors assigned to each region,
+ *                or NULL on error.
  *
  * <pre>
  * Notes:
  *      (1) This uses the boxes to place each pix in the rendered composite.
- *      (2) By default, the background color is: black, cmap index 0.
+ *          The fg of each pix in %pixa, such as a single connected
+ *          component or a line of text, is given a random color.
+ *      (2) By default, the background color is black (cmap index 0).
  *          This can be changed by pixcmapResetColor()
  * </pre>
  */
 PIX * pixaDisplayRandomCmap(PIXA    * pixa,
-    int32 w,
-    int32 h)
+    l_int32 w,
+    l_int32 h)
 {
-	int32 i, n, maxdepth, index, xb, yb, wb, hb, res;
+	l_int32 i, n, same, maxd, index, xb, yb, wb, hb, res;
 	BOXA     * boxa;
-	PIX      * pixs, * pixt, * pixd;
+	PIX * pixs, * pix1, * pixd;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixaDisplayRandomCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
-	pixaVerifyDepth(pixa, &maxdepth);
-	if(maxdepth != 1)
-		return (PIX*)ERROR_PTR("not all components are 1 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
+	pixaVerifyDepth(pixa, &same, &maxd);
+	if(maxd > 1)
+		return (PIX *)ERROR_PTR("not all components are 1 bpp", procName, NULL);
 
 	/* If w and h are not input, determine the minimum size required
 	 * to contain the origin and all c.c. */
@@ -370,7 +287,7 @@ PIX * pixaDisplayRandomCmap(PIXA    * pixa,
 
 	/* Set up an 8 bpp dest pix, with a colormap with 254 random colors */
 	if((pixd = pixCreate(w, h, 8)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	cmap = pixcmapCreateRandom(8, 1, 1);
 	pixSetColormap(pixd, cmap);
 
@@ -380,10 +297,10 @@ PIX * pixaDisplayRandomCmap(PIXA    * pixa,
 		pixaGetBoxGeometry(pixa, i, &xb, &yb, &wb, &hb);
 		pixs = pixaGetPix(pixa, i, L_CLONE);
 		if(i == 0) res = pixGetXRes(pixs);
-		pixt = pixConvert1To8(NULL, pixs, 0, index);
-		pixRasterop(pixd, xb, yb, wb, hb, PIX_PAINT, pixt, 0, 0);
+		pix1 = pixConvert1To8(NULL, pixs, 0, index);
+		pixRasterop(pixd, xb, yb, wb, hb, PIX_PAINT, pix1, 0, 0);
 		pixDestroy(&pixs);
-		pixDestroy(&pixt);
+		pixDestroy(&pix1);
 	}
 
 	pixSetResolution(pixd, res, res);
@@ -394,14 +311,14 @@ PIX * pixaDisplayRandomCmap(PIXA    * pixa,
  * \brief   pixaDisplayLinearly()
  *
  * \param[in]    pixas
- * \param[in]    direction L_HORIZ or L_VERT
- * \param[in]    scalefactor applied to every pix; use 1.0 for no scaling
- * \param[in]    background 0 for white, 1 for black; this is the color
- *                 of the spacing between the images
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of black border added to each image;
- *                      use 0 for no border
- * \param[out]   pboxa [optional] location of images in output pix
+ * \param[in]    direction    L_HORIZ or L_VERT
+ * \param[in]    scalefactor  applied to every pix; use 1.0 for no scaling
+ * \param[in]    background   0 for white, 1 for black; this is the color
+ *                            of the spacing between the images
+ * \param[in]    spacing      between images, and on outside
+ * \param[in]    border       width of black border added to each image;
+ *                            use 0 for no border
+ * \param[out]   pboxa        [optional] location of images in output pix
  * \return  pix of composite images, or NULL on error
  *
  * <pre>
@@ -413,25 +330,25 @@ PIX * pixaDisplayRandomCmap(PIXA    * pixa,
  * </pre>
  */
 PIX * pixaDisplayLinearly(PIXA      * pixas,
-    int32 direction,
+    l_int32 direction,
     float scalefactor,
-    int32 background,                     /* not used */
-    int32 spacing,
-    int32 border,
+    l_int32 background,                     /* not used */
+    l_int32 spacing,
+    l_int32 border,
     BOXA     ** pboxa)
 {
-	int32 i, n, x, y, w, h, size, depth, bordval;
-	BOX     * box;
-	PIX     * pix1, * pix2, * pix3, * pixd;
+	l_int32 i, n, x, y, w, h, size, depth, bordval;
+	BOX * box;
+	PIX * pix1, * pix2, * pix3, * pixd;
 	PIXA    * pixa1, * pixa2;
 
-	PROCNAME("pixaDisplayLinearly");
+	PROCNAME(__FUNCTION__);
 
 	if(pboxa) *pboxa = NULL;
 	if(!pixas)
-		return (PIX*)ERROR_PTR("pixas not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixas not defined", procName, NULL);
 	if(direction != L_HORIZ && direction != L_VERT)
-		return (PIX*)ERROR_PTR("invalid direction", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid direction", procName, NULL);
 
 	/* Make sure all pix are at the same depth */
 	pixa1 = pixaConvertToSameDepth(pixas);
@@ -445,7 +362,7 @@ PIX * pixaDisplayLinearly(PIXA      * pixas,
 	x = y = 0;
 	for(i = 0; i < n; i++) {
 		if((pix1 = pixaGetPix(pixa1, i, L_CLONE)) == NULL) {
-			L_WARNING2("missing pix at index %d\n", procName, i);
+			L_WARNING("missing pix at index %d\n", procName, i);
 			continue;
 		}
 
@@ -486,10 +403,10 @@ PIX * pixaDisplayLinearly(PIXA      * pixas,
  * \brief   pixaDisplayOnLattice()
  *
  * \param[in]    pixa
- * \param[in]    cellw lattice cell width
- * \param[in]    cellh lattice cell height
- * \param[out]   pncols [optional] number of columns in output lattice
- * \param[out]   pboxa [optional] location of images in lattice
+ * \param[in]    cellw    lattice cell width
+ * \param[in]    cellh    lattice cell height
+ * \param[out]   pncols   [optional] number of columns in output lattice
+ * \param[out]   pboxa    [optional] location of images in lattice
  * \return  pix of composite images, or NULL on error
  *
  * <pre>
@@ -500,40 +417,44 @@ PIX * pixaDisplayLinearly(PIXA      * pixas,
  *      (2) If any pix has a colormap, all pix are rendered in rgb.
  *      (3) This is useful when putting bitmaps of components,
  *          such as characters, into a single image.
- *      (4) The boxa gives the location of each image.  The UL corner
+ *      (4) Save the number of tiled images in the text field of the pix,
+ *          in the format: n = %d.  This survives write/read into png files,
+ *          for example.
+ *      (5) The boxa gives the location of each image.  The UL corner
  *          of each image is on a lattice cell corner.  Omitted images
  *          (due to size) are assigned an invalid width and height of 0.
  * </pre>
  */
-PIX * pixaDisplayOnLattice(PIXA     * pixa,
-    int32 cellw,
-    int32 cellh,
-    int32  * pncols,
-    BOXA    ** pboxa)
+PIX * pixaDisplayOnLattice(PIXA * pixa,
+    l_int32 cellw,
+    l_int32 cellh,
+    l_int32 * pncols,
+    BOXA ** pboxa)
 {
-	int32 n, nw, nh, w, h, d, wt, ht, res;
-	int32 index, i, j, hascmap;
-	BOX     * box;
-	BOXA    * boxa;
-	PIX     * pix1, * pix2, * pixd;
+	char buf[16];
+	l_int32 n, nw, nh, w, h, d, wt, ht, res, samedepth;
+	l_int32 index, i, j, hascmap;
+	BOX * box;
+	BOXA * boxa;
+	PIX * pix1, * pix2, * pixd;
 	PIXA    * pixa1;
 
-	PROCNAME("pixaDisplayOnLattice");
+	PROCNAME(__FUNCTION__);
 
 	if(pncols) *pncols = 0;
 	if(pboxa) *pboxa = NULL;
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 
-	/* If any pix have colormaps, generate rgb */
+	/* If any pix have colormaps, or if the depths differ, generate rgb */
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 	pixaAnyColormaps(pixa, &hascmap);
-	if(hascmap) {
+	pixaVerifyDepth(pixa, &samedepth, NULL);
+	if(hascmap || !samedepth) {
 		pixa1 = pixaCreate(n);
 		for(i = 0; i < n; i++) {
 			pix1 = pixaGetPix(pixa, i, L_CLONE);
-			if(i == 0) res = pixGetXRes(pix1);
 			pix2 = pixConvertTo32(pix1);
 			pixaAddPix(pixa1, pix2, L_INSERT);
 			pixDestroy(&pix1);
@@ -542,22 +463,25 @@ PIX * pixaDisplayOnLattice(PIXA     * pixa,
 	else {
 		pixa1 = pixaCopy(pixa, L_CLONE);
 	}
-	boxa = boxaCreate(n);
 
 	/* Have number of rows and columns approximately equal */
-	nw = (int32)sqrt((double)n);
+	nw = (l_int32)sqrt((double)n);
 	nh = (n + nw - 1) / nw;
 	w = cellw * nw;
 	h = cellh * nh;
 
-	/* Use the first pix in pixa to determine the output depth.  */
-	pixaGetPixDimensions(pixa1, 0, NULL, NULL, &d);
+	/* Use the first pix to determine output depth and resolution  */
+	pix1 = pixaGetPix(pixa1, 0, L_CLONE);
+	d = pixGetDepth(pix1);
+	res = pixGetXRes(pix1);
+	pixDestroy(&pix1);
 	if((pixd = pixCreate(w, h, d)) == NULL) {
 		pixaDestroy(&pixa1);
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 	pixSetBlackOrWhite(pixd, L_SET_WHITE);
 	pixSetResolution(pixd, res, res);
+	boxa = boxaCreate(n);
 
 	/* Tile the output */
 	index = 0;
@@ -566,18 +490,24 @@ PIX * pixaDisplayOnLattice(PIXA     * pixa,
 			pix1 = pixaGetPix(pixa1, index, L_CLONE);
 			pixGetDimensions(pix1, &wt, &ht, NULL);
 			if(wt > cellw || ht > cellh) {
-				L_INFO4("pix(%d) omitted; size %dx%x\n", procName, index, wt, ht);
+				L_INFO("pix(%d) omitted; size %dx%x\n", procName, index,
+				    wt, ht);
 				box = boxCreate(0, 0, 0, 0);
 				boxaAddBox(boxa, box, L_INSERT);
 				pixDestroy(&pix1);
 				continue;
 			}
-			pixRasterop(pixd, j * cellw, i * cellh, wt, ht, PIX_SRC, pix1, 0, 0);
+			pixRasterop(pixd, j * cellw, i * cellh, wt, ht,
+			    PIX_SRC, pix1, 0, 0);
 			box = boxCreate(j * cellw, i * cellh, wt, ht);
 			boxaAddBox(boxa, box, L_INSERT);
 			pixDestroy(&pix1);
 		}
 	}
+
+	/* Save the number of tiles in the text field */
+	snprintf(buf, sizeof(buf), "n = %d", boxaGetCount(boxa));
+	pixSetText(pixd, buf);
 
 	if(pncols) *pncols = nw;
 	if(pboxa)
@@ -592,8 +522,8 @@ PIX * pixaDisplayOnLattice(PIXA     * pixa,
  * \brief   pixaDisplayUnsplit()
  *
  * \param[in]    pixa
- * \param[in]    nx   number of mosaic cells horizontally
- * \param[in]    ny   number of mosaic cells vertically
+ * \param[in]    nx           number of mosaic cells horizontally
+ * \param[in]    ny           number of mosaic cells vertically
  * \param[in]    borderwidth  of added border on all sides
  * \param[in]    bordercolor  in our RGBA format: 0xrrggbbaa
  * \return  pix of tiled images, or NULL on error
@@ -611,26 +541,26 @@ PIX * pixaDisplayOnLattice(PIXA     * pixa,
  *          colormapped, have the same colormap.
  * </pre>
  */
-PIX * pixaDisplayUnsplit(PIXA     * pixa,
-    int32 nx,
-    int32 ny,
-    int32 borderwidth,
-    uint32 bordercolor)
+PIX * pixaDisplayUnsplit(PIXA * pixa,
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 borderwidth,
+    l_uint32 bordercolor)
 {
-	int32 w, h, d, wt, ht;
-	int32 i, j, k, x, y, n;
-	PIX     * pixt, * pixd;
+	l_int32 w, h, d, wt, ht;
+	l_int32 i, j, k, x, y, n;
+	PIX * pix1, * pixd;
 
-	PROCNAME("pixaDisplayUnsplit");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 	if(nx <= 0 || ny <= 0)
-		return (PIX*)ERROR_PTR("nx and ny must be > 0", procName, NULL);
+		return (PIX *)ERROR_PTR("nx and ny must be > 0", procName, NULL);
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 	if(n != nx * ny)
-		return (PIX*)ERROR_PTR("n != nx * ny", procName, NULL);
+		return (PIX *)ERROR_PTR("n != nx * ny", procName, NULL);
 	borderwidth = MAX(0, borderwidth);
 
 	pixaGetPixDimensions(pixa, 0, &wt, &ht, &d);
@@ -638,10 +568,10 @@ PIX * pixaDisplayUnsplit(PIXA     * pixa,
 	h = ny * (ht + 2 * borderwidth);
 
 	if((pixd = pixCreate(w, h, d)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
-	pixt = pixaGetPix(pixa, 0, L_CLONE);
-	pixCopyColormap(pixd, pixt);
-	pixDestroy(&pixt);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
+	pix1 = pixaGetPix(pixa, 0, L_CLONE);
+	pixCopyColormap(pixd, pix1);
+	pixDestroy(&pix1);
 	if(borderwidth > 0)
 		pixSetAllArbitrary(pixd, bordercolor);
 
@@ -649,9 +579,9 @@ PIX * pixaDisplayUnsplit(PIXA     * pixa,
 	for(i = 0, k = 0; i < ny; i++) {
 		x = borderwidth;
 		for(j = 0; j < nx; j++, k++) {
-			pixt = pixaGetPix(pixa, k, L_CLONE);
-			pixRasterop(pixd, x, y, wt, ht, PIX_SRC, pixt, 0, 0);
-			pixDestroy(&pixt);
+			pix1 = pixaGetPix(pixa, k, L_CLONE);
+			pixRasterop(pixd, x, y, wt, ht, PIX_SRC, pix1, 0, 0);
+			pixDestroy(&pix1);
 			x += wt + 2 * borderwidth;
 		}
 		y += ht + 2 * borderwidth;
@@ -664,8 +594,8 @@ PIX * pixaDisplayUnsplit(PIXA     * pixa,
  * \brief   pixaDisplayTiled()
  *
  * \param[in]    pixa
- * \param[in]    maxwidth of output image
- * \param[in]    background 0 for white, 1 for black
+ * \param[in]    maxwidth     of output image
+ * \param[in]    background   0 for white, 1 for black
  * \param[in]    spacing
  * \return  pix of tiled images, or NULL on error
  *
@@ -685,24 +615,25 @@ PIX * pixaDisplayUnsplit(PIXA     * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiled(PIXA    * pixa,
-    int32 maxwidth,
-    int32 background,
-    int32 spacing)
+    l_int32 maxwidth,
+    l_int32 background,
+    l_int32 spacing)
 {
-	int32 wmax, hmax, wd, hd, d, hascmap, res, same;
-	int32 i, j, n, ni, ncols, nrows;
-	int32 ystart, xstart, wt, ht;
-	PIX     * pix1, * pix2, * pixd;
+	l_int32 wmax, hmax, wd, hd, d, hascmap, res, same;
+	l_int32 i, j, n, ni, ncols, nrows;
+	l_int32 ystart, xstart, wt, ht;
+	PIX * pix1, * pix2, * pixd;
 	PIXA    * pixa1;
 
-	PROCNAME("pixaDisplayTiled");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
+	spacing = MAX(spacing, 0);
+	if((n = pixaGetCount(pixa)) == 0)
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 
 	/* If any pix have colormaps, generate rgb */
-	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
 	pixaAnyColormaps(pixa, &hascmap);
 	if(hascmap) {
 		pixa1 = pixaCreate(n);
@@ -721,20 +652,20 @@ PIX * pixaDisplayTiled(PIXA    * pixa,
 	pixaGetDepthInfo(pixa1, &d, &same);
 	if(!same) {
 		pixaDestroy(&pixa1);
-		return (PIX*)ERROR_PTR("depths not equal", procName, NULL);
+		return (PIX *)ERROR_PTR("depths not equal", procName, NULL);
 	}
 	pixaSizeRange(pixa1, NULL, NULL, &wmax, &hmax);
 
 	/* Get the number of rows and columns and the output image size */
-	spacing = MAX(spacing, 0);
-	ncols = (int32)((float)(maxwidth - spacing) /
+	ncols = (l_int32)((float)(maxwidth - spacing) /
 	    (float)(wmax + spacing));
+	ncols = MAX(ncols, 1);
 	nrows = (n + ncols - 1) / ncols;
 	wd = wmax * ncols + spacing * (ncols + 1);
 	hd = hmax * nrows + spacing * (nrows + 1);
 	if((pixd = pixCreate(wd, hd, d)) == NULL) {
 		pixaDestroy(&pixa1);
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 
 	/* Reset the background color if necessary */
@@ -763,14 +694,14 @@ PIX * pixaDisplayTiled(PIXA    * pixa,
  * \brief   pixaDisplayTiledInRows()
  *
  * \param[in]    pixa
- * \param[in]    outdepth output depth: 1, 8 or 32 bpp
- * \param[in]    maxwidth of output image
- * \param[in]    scalefactor applied to every pix; use 1.0 for no scaling
- * \param[in]    background 0 for white, 1 for black; this is the color
- *                 of the spacing between the images
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of black border added to each image;
- *                      use 0 for no border
+ * \param[in]    outdepth     output depth: 1, 8 or 32 bpp
+ * \param[in]    maxwidth     of output image
+ * \param[in]    scalefactor  applied to every pix; use 1.0 for no scaling
+ * \param[in]    background   0 for white, 1 for black; this is the color
+ *                            of the spacing between the images
+ * \param[in]    spacing      between images, and on outside
+ * \param[in]    border       width of black border added to each image;
+ *                            use 0 for no border
  * \return  pixd of tiled images, or NULL on error
  *
  * <pre>
@@ -793,44 +724,44 @@ PIX * pixaDisplayTiled(PIXA    * pixa,
  *            pix1 = pixaDisplayTiledInRows(pixa1, 1, 1500, 1.0, 0, 30, 0);
  *            char *boxatxt = pixGetText(pix1);
  *            boxa1 = boxaReadMem((uint8 *)boxatxt, strlen(boxatxt));
- *            pixa2 = pixaCreateFromBoxa(pix1, boxa1, NULL);
+ *            pixa2 = pixaCreateFromBoxa(pix1, boxa1, 0, 0, NULL);
  * </pre>
  */
 PIX * pixaDisplayTiledInRows(PIXA      * pixa,
-    int32 outdepth,
-    int32 maxwidth,
+    l_int32 outdepth,
+    l_int32 maxwidth,
     float scalefactor,
-    int32 background,
-    int32 spacing,
-    int32 border)
+    l_int32 background,
+    l_int32 spacing,
+    l_int32 border)
 {
-	int32 h; /* cumulative height over all the rows */
-	int32 w; /* cumulative height in the current row */
-	int32 bordval, wtry, wt, ht;
-	int32 irow; /* index of current pix in current row */
-	int32 wmaxrow; /* width of the largest row */
-	int32 maxh; /* max height in row */
-	int32 i, j, index, n, x, y, nrows, ninrow, res;
+	l_int32 h; /* cumulative height over all the rows */
+	l_int32 w; /* cumulative height in the current row */
+	l_int32 bordval, wtry, wt, ht;
+	l_int32 irow; /* index of current pix in current row */
+	l_int32 wmaxrow; /* width of the largest row */
+	l_int32 maxh; /* max height in row */
+	l_int32 i, j, index, n, x, y, nrows, ninrow, res;
 	size_t size;
 	uint8  * data;
 	BOXA     * boxa;
 	NUMA     * nainrow; /* number of pix in the row */
 	NUMA     * namaxh; /* height of max pix in the row */
-	PIX      * pix, * pixn, * pixt, * pixd;
-	PIXA     * pixan;
+	PIX * pix, * pixn, * pix1, * pixd;
+	PIXA * pixan;
 
-	PROCNAME("pixaDisplayTiledInRows");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 	if(outdepth != 1 && outdepth != 8 && outdepth != 32)
-		return (PIX*)ERROR_PTR("outdepth not in {1, 8, 32}", procName, NULL);
-	if(border < 0)
-		border = 0;
+		return (PIX *)ERROR_PTR("outdepth not in {1, 8, 32}", procName, NULL);
+	spacing = MAX(spacing, 0);
+	border = MAX(border, 0);
 	if(scalefactor <= 0.0) scalefactor = 1.0;
 
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 
 	/* Normalize depths, scale, remove colormaps; optionally add border */
 	pixan = pixaCreate(n);
@@ -848,24 +779,24 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
 		pixDestroy(&pix);
 
 		if(scalefactor != 1.0)
-			pixt = pixScale(pixn, scalefactor, scalefactor);
+			pix1 = pixScale(pixn, scalefactor, scalefactor);
 		else
-			pixt = pixClone(pixn);
+			pix1 = pixClone(pixn);
 		if(border)
-			pixd = pixAddBorder(pixt, border, bordval);
+			pixd = pixAddBorder(pix1, border, bordval);
 		else
-			pixd = pixClone(pixt);
+			pixd = pixClone(pix1);
 		pixDestroy(&pixn);
-		pixDestroy(&pixt);
+		pixDestroy(&pix1);
 
 		pixaAddPix(pixan, pixd, L_INSERT);
 	}
 	if(pixaGetCount(pixan) != n) {
 		n = pixaGetCount(pixan);
-		L_WARNING2("only got %d components\n", procName, n);
+		L_WARNING("only got %d components\n", procName, n);
 		if(n == 0) {
 			pixaDestroy(&pixan);
-			return (PIX*)ERROR_PTR("no components", procName, NULL);
+			return (PIX *)ERROR_PTR("no components", procName, NULL);
 		}
 	}
 
@@ -903,7 +834,7 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
 		numaDestroy(&nainrow);
 		numaDestroy(&namaxh);
 		pixaDestroy(&pixan);
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 
 	/* Reset the background color if necessary */
@@ -928,16 +859,16 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
 			}
 			pixGetDimensions(pix, &wt, &ht, NULL);
 			boxaAddBox(boxa, boxCreate(x + border, y + border,
-				    wt - 2 * border, ht - 2 *border), L_INSERT);
+			    wt - 2 * border, ht - 2 *border), L_INSERT);
 			pixRasterop(pixd, x, y, wt, ht, PIX_SRC, pix, 0, 0);
 			pixDestroy(&pix);
 			x += wt + spacing;
 		}
 		y += maxh + spacing;
 	}
-	boxaWriteMem(&data, &size, boxa);
-	pixSetText(pixd, (char*)data); /* data is ascii */
-	LEPT_FREE(data);
+	if(boxaWriteMem(&data, &size, boxa) == 0)
+		pixSetText(pixd, (char*)data); /* data is ascii */
+	SAlloc::F(data);
 	boxaDestroy(&boxa);
 
 	numaDestroy(&nainrow);
@@ -950,16 +881,16 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
  * \brief   pixaDisplayTiledInColumns()
  *
  * \param[in]    pixas
- * \param[in]    nx number of columns in output image
- * \param[in]    scalefactor applied to every pix; use 1.0 for no scaling
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of black border added to each image;
- *                      use 0 for no border
+ * \param[in]    nx           number of columns in output image
+ * \param[in]    scalefactor  applied to every pix; use 1.0 for no scaling
+ * \param[in]    spacing      between images, and on outside; can be < 0
+ * \param[in]    border       width of black border added to each image;
+ *                            use 0 for no border
  * \return  pixd of tiled images, or NULL on error
  *
  * <pre>
  * Notes:
- *      (1) This renders a pixa to a single image with 3 columns of
+ *      (1) This renders a pixa to a single image with &nx columns of
  *          subimages.  The background color is white, and each row
  *          is tiled such that the top of each pix is aligned and
  *          each pix is separated by 'spacing' from the next one.
@@ -980,29 +911,27 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
-    int32 nx,
+    l_int32 nx,
     float scalefactor,
-    int32 spacing,
-    int32 border)
+    l_int32 spacing,
+    l_int32 border)
 {
-	int32 i, j, index, n, x, y, nrows, wb, hb, w, h, maxd, maxh, bordval, res;
+	l_int32 i, j, index, n, x, y, nrows, wb, hb, w, h, maxd, maxh, bordval, res;
 	size_t size;
 	uint8  * data;
 	BOX      * box;
 	BOXA     * boxa;
-	PIX      * pix1, * pix2, * pix3, * pixd;
-	PIXA     * pixa1, * pixa2;
+	PIX * pix1, * pix2, * pix3, * pixd;
+	PIXA * pixa1, * pixa2;
 
-	PROCNAME("pixaDisplayTiledInColumns");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
-		return (PIX*)ERROR_PTR("pixas not defined", procName, NULL);
-	if(border < 0)
-		border = 0;
+		return (PIX *)ERROR_PTR("pixas not defined", procName, NULL);
+	border = MAX(border, 0);
 	if(scalefactor <= 0.0) scalefactor = 1.0;
-
 	if((n = pixaGetCount(pixas)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 
 	/* Convert to same depth, if necessary */
 	pixa1 = pixaConvertToSameDepth(pixas);
@@ -1030,10 +959,10 @@ PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
 	pixaDestroy(&pixa1);
 	if(pixaGetCount(pixa2) != n) {
 		n = pixaGetCount(pixa2);
-		L_WARNING2("only got %d components\n", procName, n);
+		L_WARNING("only got %d components\n", procName, n);
 		if(n == 0) {
 			pixaDestroy(&pixa2);
-			return (PIX*)ERROR_PTR("no components", procName, NULL);
+			return (PIX *)ERROR_PTR("no components", procName, NULL);
 		}
 	}
 
@@ -1058,13 +987,13 @@ PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
 
 	/* Render the output pix */
 	boxaGetExtent(boxa, &w, &h, NULL);
-	pixd = pixaDisplay(pixa2, w, h);
+	pixd = pixaDisplay(pixa2, w + spacing, h + spacing);
 	pixSetResolution(pixd, res, res);
 
 	/* Save the boxa in the text field of the output pix */
-	boxaWriteMem(&data, &size, boxa);
-	pixSetText(pixd, (char*)data); /* data is ascii */
-	LEPT_FREE(data);
+	if(boxaWriteMem(&data, &size, boxa) == 0)
+		pixSetText(pixd, (char*)data); /* data is ascii */
+	SAlloc::F(data);
 
 	pixaDestroy(&pixa2);
 	return pixd;
@@ -1074,14 +1003,14 @@ PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
  * \brief   pixaDisplayTiledAndScaled()
  *
  * \param[in]    pixa
- * \param[in]    outdepth output depth: 1, 8 or 32 bpp
- * \param[in]    tilewidth each pix is scaled to this width
- * \param[in]    ncols number of tiles in each row
- * \param[in]    background 0 for white, 1 for black; this is the color
- *                 of the spacing between the images
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image;
- *                      use 0 for no border
+ * \param[in]    outdepth    output depth: 1, 8 or 32 bpp
+ * \param[in]    tilewidth   each pix is scaled to this width
+ * \param[in]    ncols       number of tiles in each row
+ * \param[in]    background  0 for white, 1 for black; this is the color
+ *                           of the spacing between the images
+ * \param[in]    spacing     between images, and on outside
+ * \param[in]    border      width of additional black border on each image;
+ *                           use 0 for no border
  * \return  pix of tiled images, or NULL on error
  *
  * <pre>
@@ -1095,31 +1024,33 @@ PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
  * </pre>
  */
 PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
-    int32 outdepth,
-    int32 tilewidth,
-    int32 ncols,
-    int32 background,
-    int32 spacing,
-    int32 border)
+    l_int32 outdepth,
+    l_int32 tilewidth,
+    l_int32 ncols,
+    l_int32 background,
+    l_int32 spacing,
+    l_int32 border)
 {
-	int32 x, y, w, h, wd, hd, d, res;
-	int32 i, n, nrows, maxht, ninrow, irow, bordval;
-	int32   * rowht;
+	l_int32 x, y, w, h, wd, hd, d, res;
+	l_int32 i, n, nrows, maxht, ninrow, irow, bordval;
+	l_int32   * rowht;
 	float scalefact;
-	PIX       * pix, * pixn, * pixt, * pixb, * pixd;
+	PIX * pix, * pixn, * pix1, * pixb, * pixd;
 	PIXA      * pixan;
 
-	PROCNAME("pixaDisplayTiledAndScaled");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 	if(outdepth != 1 && outdepth != 8 && outdepth != 32)
-		return (PIX*)ERROR_PTR("outdepth not in {1, 8, 32}", procName, NULL);
+		return (PIX *)ERROR_PTR("outdepth not in {1, 8, 32}", procName, NULL);
+	if(ncols <= 0)
+		return (PIX *)ERROR_PTR("ncols must be > 0", procName, NULL);
+	spacing = MAX(spacing, 0);
 	if(border < 0 || border > tilewidth / 5)
 		border = 0;
-
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 
 	/* Normalize scale and depth for each pix; optionally add border */
 	pixan = pixaCreate(n);
@@ -1131,17 +1062,17 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
 		pixGetDimensions(pix, &w, &h, &d);
 		scalefact = (float)(tilewidth - 2 * border) / (float)w;
 		if(d == 1 && outdepth > 1 && scalefact < 1.0)
-			pixt = pixScaleToGray(pix, scalefact);
+			pix1 = pixScaleToGray(pix, scalefact);
 		else
-			pixt = pixScale(pix, scalefact, scalefact);
+			pix1 = pixScale(pix, scalefact, scalefact);
 
 		if(outdepth == 1)
-			pixn = pixConvertTo1(pixt, 128);
+			pixn = pixConvertTo1(pix1, 128);
 		else if(outdepth == 8)
-			pixn = pixConvertTo8(pixt, FALSE);
+			pixn = pixConvertTo8(pix1, FALSE);
 		else /* outdepth == 32 */
-			pixn = pixConvertTo32(pixt);
-		pixDestroy(&pixt);
+			pixn = pixConvertTo32(pix1);
+		pixDestroy(&pix1);
 
 		if(border)
 			pixb = pixAddBorder(pixn, border, bordval);
@@ -1154,14 +1085,16 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
 	}
 	if((n = pixaGetCount(pixan)) == 0) { /* should not have changed! */
 		pixaDestroy(&pixan);
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 	}
 
 	/* Determine the size of each row and of pixd */
 	wd = tilewidth * ncols + spacing * (ncols + 1);
 	nrows = (n + ncols - 1) / ncols;
-	if((rowht = (int32*)LEPT_CALLOC(nrows, sizeof(int32))) == NULL)
-		return (PIX*)ERROR_PTR("rowht array not made", procName, NULL);
+	if((rowht = (l_int32*)SAlloc::C(nrows, sizeof(l_int32))) == NULL) {
+		pixaDestroy(&pixan);
+		return (PIX *)ERROR_PTR("rowht array not made", procName, NULL);
+	}
 	maxht = 0;
 	ninrow = 0;
 	irow = 0;
@@ -1212,7 +1145,7 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
 	}
 
 	pixaDestroy(&pixan);
-	LEPT_FREE(rowht);
+	SAlloc::F(rowht);
 	return pixd;
 }
 
@@ -1220,13 +1153,13 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
  * \brief   pixaDisplayTiledWithText()
  *
  * \param[in]    pixa
- * \param[in]    maxwidth of output image
- * \param[in]    scalefactor applied to every pix; use 1.0 for no scaling
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of black border added to each image;
- *                      use 0 for no border
- * \param[in]    fontsize 4, 6, ... 20
- * \param[in]    textcolor 0xrrggbb00
+ * \param[in]    maxwidth     of output image
+ * \param[in]    scalefactor  applied to every pix; use 1.0 for no scaling
+ * \param[in]    spacing      between images, and on outside
+ * \param[in]    border       width of black border added to each image;
+ *                            use 0 for no border
+ * \param[in]    fontsize     4, 6, ... 20
+ * \param[in]    textcolor    0xrrggbb00
  * \return  pixd of tiled images, or NULL on error
  *
  * <pre>
@@ -1244,38 +1177,36 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiledWithText(PIXA      * pixa,
-    int32 maxwidth,
+    l_int32 maxwidth,
     float scalefactor,
-    int32 spacing,
-    int32 border,
-    int32 fontsize,
-    uint32 textcolor)
+    l_int32 spacing,
+    l_int32 border,
+    l_int32 fontsize,
+    l_uint32 textcolor)
 {
 	char buf[128];
 	char     * textstr;
-	int32 i, n, maxw;
+	l_int32 i, n, maxw;
 	L_BMF    * bmf;
-	PIX      * pix1, * pix2, * pix3, * pix4, * pixd;
-	PIXA     * pixad;
+	PIX * pix1, * pix2, * pix3, * pix4, * pixd;
+	PIXA * pixad;
 
-	PROCNAME("pixaDisplayTiledWithText");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 	if(maxwidth <= 0)
-		return (PIX*)ERROR_PTR("invalid maxwidth", procName, NULL);
-	if(border < 0)
-		border = 0;
-	if(scalefactor <= 0.0) {
-		L_WARNING("invalid scalefactor; setting to 1.0\n", procName);
-		scalefactor = 1.0;
-	}
+		return (PIX *)ERROR_PTR("invalid maxwidth", procName, NULL);
+	spacing = MAX(spacing, 0);
+	border = MAX(border, 0);
+	if(scalefactor <= 0.0) scalefactor = 1.0;
 	if(fontsize < 4 || fontsize > 20 || (fontsize & 1)) {
-		int32 fsize = MAX(MIN(fontsize, 20), 4);
+		l_int32 fsize = MAX(MIN(fontsize, 20), 4);
 		if(fsize & 1) fsize--;
-		L_WARNING3("changed fontsize from %d to %d\n", procName, fontsize, fsize);
+		L_WARNING("changed fontsize from %d to %d\n", procName,
+		    fontsize, fsize);
 		fontsize = fsize;
 	}
 
@@ -1288,13 +1219,13 @@ PIX * pixaDisplayTiledWithText(PIXA      * pixa,
 	for(i = 0; i < n; i++) {
 		pix1 = pixaGetPix(pixa, i, L_CLONE);
 		pix2 = pixConvertTo32(pix1);
-		pix3 = pixAddBorderGeneral(pix2, spacing, spacing, spacing,
-		    spacing, 0xffffff00);
+		pix3 = pixAddBorderGeneral(pix2, spacing / 2, spacing / 2, spacing / 2,
+			spacing / 2, 0xffffff00);
 		textstr = pixGetText(pix1);
 		if(textstr && strlen(textstr) > 0) {
-			_snprintf(buf, sizeof(buf), "%s", textstr);
+			snprintf(buf, sizeof(buf), "%s", textstr);
 			pix4 = pixAddSingleTextblock(pix3, bmf, buf, textcolor,
-			    L_ADD_BELOW, NULL);
+				L_ADD_BELOW, NULL);
 		}
 		else {
 			pix4 = pixClone(pix3);
@@ -1307,7 +1238,7 @@ PIX * pixaDisplayTiledWithText(PIXA      * pixa,
 	bmfDestroy(&bmf);
 
 	pixd = pixaDisplayTiledInRows(pixad, 32, maxwidth, scalefactor,
-	    0, 10, border);
+		0, spacing, border);
 	pixaDestroy(&pixad);
 	return pixd;
 }
@@ -1316,13 +1247,13 @@ PIX * pixaDisplayTiledWithText(PIXA      * pixa,
  * \brief   pixaDisplayTiledByIndex()
  *
  * \param[in]    pixa
- * \param[in]    na numa with indices corresponding to the pix in pixa
- * \param[in]    width each pix is scaled to this width
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of black border added to each image;
- *                      use 0 for no border
- * \param[in]    fontsize 4, 6, ... 20
- * \param[in]    textcolor 0xrrggbb00
+ * \param[in]    na         numa with indices corresponding to the pix in pixa
+ * \param[in]    width      each pix is scaled to this width
+ * \param[in]    spacing    between images, and on outside
+ * \param[in]    border     width of black border added to each image;
+ *                          use 0 for no border
+ * \param[in]    fontsize   4, 6, ... 20
+ * \param[in]    textcolor  0xrrggbb00
  * \return  pixd of tiled images, or NULL on error
  *
  * <pre>
@@ -1340,44 +1271,45 @@ PIX * pixaDisplayTiledWithText(PIXA      * pixa,
  *      (4) All pix are converted to 32 bpp.
  * </pre>
  */
-PIX * pixaDisplayTiledByIndex(PIXA     * pixa,
+PIX * pixaDisplayTiledByIndex(PIXA * pixa,
     NUMA     * na,
-    int32 width,
-    int32 spacing,
-    int32 border,
-    int32 fontsize,
-    uint32 textcolor)
+    l_int32 width,
+    l_int32 spacing,
+    l_int32 border,
+    l_int32 fontsize,
+    l_uint32 textcolor)
 {
 	char buf[128];
 	char     * textstr;
-	int32 i, n, x, y, w, h, yval, index;
+	l_int32 i, n, x, y, w, h, yval, index;
 	float maxindex;
 	L_BMF     * bmf;
 	BOX       * box;
-	NUMA      * nay; /* top of the next pix to add in that column */
-	PIX       * pix1, * pix2, * pix3, * pix4, * pix5, * pixd;
+	NUMA * nay; /* top of the next pix to add in that column */
+	PIX * pix1, * pix2, * pix3, * pix4, * pix5, * pixd;
 	PIXA      * pixad;
 
-	PROCNAME("pixaDisplayTiledByIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, NULL);
 	if(!na)
-		return (PIX*)ERROR_PTR("na not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("na not defined", procName, NULL);
 	if((n = pixaGetCount(pixa)) == 0)
-		return (PIX*)ERROR_PTR("no pixa components", procName, NULL);
+		return (PIX *)ERROR_PTR("no pixa components", procName, NULL);
 	if(n != numaGetCount(na))
-		return (PIX*)ERROR_PTR("pixa and na counts differ", procName, NULL);
+		return (PIX *)ERROR_PTR("pixa and na counts differ", procName, NULL);
 	if(width <= 0)
-		return (PIX*)ERROR_PTR("invalid width", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid width", procName, NULL);
 	if(width < 20)
-		L_WARNING2("very small width: %d\n", procName, width);
-	if(border < 0)
-		border = 0;
+		L_WARNING("very small width: %d\n", procName, width);
+	spacing = MAX(spacing, 0);
+	border = MAX(border, 0);
 	if(fontsize < 4 || fontsize > 20 || (fontsize & 1)) {
-		int32 fsize = MAX(MIN(fontsize, 20), 4);
+		l_int32 fsize = MAX(MIN(fontsize, 20), 4);
 		if(fsize & 1) fsize--;
-		L_WARNING3("changed fontsize from %d to %d\n", procName, fontsize, fsize);
+		L_WARNING("changed fontsize from %d to %d\n", procName,
+		    fontsize, fsize);
 		fontsize = fsize;
 	}
 
@@ -1395,7 +1327,7 @@ PIX * pixaDisplayTiledByIndex(PIXA     * pixa,
 		pix4 = pixAddBorderGeneral(pix3, border, border, border, border, 0);
 		textstr = pixGetText(pix1);
 		if(textstr && strlen(textstr) > 0) {
-			_snprintf(buf, sizeof(buf), "%s", textstr);
+			snprintf(buf, sizeof(buf), "%s", textstr);
 			pix5 = pixAddTextlines(pix4, bmf, textstr, textcolor, L_ADD_BELOW);
 		}
 		else {
@@ -1423,14 +1355,194 @@ PIX * pixaDisplayTiledByIndex(PIXA     * pixa,
 }
 
 /*---------------------------------------------------------------------*
+*                         Pixa pair display                           *
+*---------------------------------------------------------------------*/
+/*!
+ * \brief   pixaDisplayPairTiledInColumns()
+ *
+ * \param[in]    pixas1
+ * \param[in]    pixas2
+ * \param[in]    nx           number of columns in output image
+ * \param[in]    scalefactor  applied to every pix; use 1.0 for no scaling
+ * \param[in]    spacing1     between images within a pair
+ * \param[in]    spacing2     between image pairs, and on outside
+ * \param[in]    border1      width of black border added to each image;
+ *                            use 0 for no border
+ * \param[in]    border2      width of black border added to each image pair.
+ *                            use 0 for no border
+ * \param[in]    fontsize     to print index below each pair. Valid set is
+ *                            {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
+ * \param[in]    startindex   index for the first pair; ignore if %fontsize= 0
+ * \param[in]    sa           [optional] array of text strings to display
+ * \return  pixd of tiled images, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This renders a pair of pixa in a single image with &nx columns of
+ *          tiled pairs.  The background color is white, and each row
+ *          is tiled such that the top of each pix is aligned.
+ *          The pix are displayed in pairs, taken from the input pixas.
+ *          Input %pixas1 and %pixas2 must have the same count of pix.
+ *      (2) If %fontsize != 0, text is displayed below each pair, and the
+ *          output depth is 32 bpp.  If %sa is defined, the text is taken
+ *          sequentially from %sa; otherwise, an integer is displayed with
+ *          numbers chosen consecutively starting with %startindex.
+ *      (3) If %fontsize == 0, the output depth is determined by the largest
+ *          depth required by the pix in the pixa.  Colormaps are removed.
+ *      (4) Start with these values and tune for aesthetics:
+ *            %nx = 5, %spacing1 = %spacing2 = 15, %border1 = %border2 = 2,
+ *            %fontsize = 8.
+ * </pre>
+ */
+PIX * pixaDisplayPairTiledInColumns(PIXA      * pixas1,
+    PIXA      * pixas2,
+    l_int32 nx,
+    float scalefactor,
+    l_int32 spacing1,
+    l_int32 spacing2,
+    l_int32 border1,
+    l_int32 border2,
+    l_int32 fontsize,
+    l_int32 startindex,
+    SARRAY    * sa)
+{
+	l_int32 i, n, w, maxd, maxd1, maxd2, res, text;
+	NUMA * na;
+	PIX * pixs1, * pixs2, * pix1, * pix2, * pix3, * pix4;
+	PIX * pix5, * pix6, * pix7, * pix8, * pix9;
+	PIXA    * pixa1, * pixa2;
+	SARRAY * sa1;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas1)
+		return (PIX *)ERROR_PTR("pixas1 not defined", procName, NULL);
+	if(!pixas2)
+		return (PIX *)ERROR_PTR("pixas2 not defined", procName, NULL);
+	spacing1 = MAX(spacing1, 0);
+	spacing2 = MAX(spacing2, 0);
+	border1 = MAX(border1, 0);
+	border2 = MAX(border2, 0);
+	if(scalefactor <= 0.0) scalefactor = 1.0;
+	if((n = pixaGetCount(pixas1)) == 0)
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
+	if(n != pixaGetCount(pixas2))
+		return (PIX *)ERROR_PTR("pixa sizes differ", procName, NULL);
+	text = (fontsize <= 0) ? 0 : 1;
+	if(text && (fontsize < 4 || fontsize > 20 || (fontsize & 1))) {
+		l_int32 fsize = MAX(MIN(fontsize, 20), 4);
+		if(fsize & 1) fsize--;
+		L_WARNING("changed fontsize from %d to %d\n", procName,
+		    fontsize, fsize);
+		fontsize = fsize;
+	}
+
+	/* Convert to same depth, if necessary */
+	if(text) { /* adding color text; convert to 32 bpp */
+		maxd = 32;
+	}
+	else {
+		pixaGetRenderingDepth(pixas1, &maxd1);
+		pixaGetRenderingDepth(pixas2, &maxd2);
+		maxd = MAX(maxd1, maxd2);
+	}
+
+	/* Optionally scale and add borders to each pair;
+	   then combine the pairs and add outer border.  */
+	pixa1 = pixaCreate(n);
+	for(i = 0; i < n; i++) {
+		pixs1 = pixaGetPix(pixas1, i, L_CLONE);
+		pixs2 = pixaGetPix(pixas2, i, L_CLONE);
+		if(!pixs1 || !pixs2) continue;
+		if(maxd == 1) {
+			pix1 = pixClone(pixs1);
+			pix2 = pixClone(pixs2);
+		}
+		else if(maxd == 8) {
+			pix1 = pixConvertTo8(pixs1, 0);
+			pix2 = pixConvertTo8(pixs2, 0);
+		}
+		else { /* maxd == 32 */
+			pix1 = pixConvertTo32(pixs1);
+			pix2 = pixConvertTo32(pixs2);
+		}
+		pixDestroy(&pixs1);
+		pixDestroy(&pixs2);
+		if(scalefactor != 1.0) {
+			pix3 = pixScale(pix1, scalefactor, scalefactor);
+			pix4 = pixScale(pix2, scalefactor, scalefactor);
+		}
+		else {
+			pix3 = pixClone(pix1);
+			pix4 = pixClone(pix2);
+		}
+		pixDestroy(&pix1);
+		pixDestroy(&pix2);
+		if(border1) {
+			pix5 = pixAddBlackOrWhiteBorder(pix3, border1, border1, border1,
+				border1, L_GET_BLACK_VAL);
+			pix6 = pixAddBlackOrWhiteBorder(pix4, border1, border1, border1,
+				border1, L_GET_BLACK_VAL);
+		}
+		else {
+			pix5 = pixClone(pix3);
+			pix6 = pixClone(pix4);
+		}
+		if(i == 0) res = pixGetXRes(pix3);
+		pixDestroy(&pix3);
+		pixDestroy(&pix4);
+		if(spacing1) { /* white border */
+			pix7 = pixAddBlackOrWhiteBorder(pix5, spacing1 / 2, spacing1 / 2,
+				spacing1 / 2, spacing1 / 2, L_GET_WHITE_VAL);
+			pix8 = pixAddBlackOrWhiteBorder(pix6, spacing1 / 2, spacing1 / 2,
+				spacing1 / 2, spacing1 / 2, L_GET_WHITE_VAL);
+		}
+		else {
+			pix7 = pixClone(pix5);
+			pix8 = pixClone(pix6);
+		}
+		pixDestroy(&pix5);
+		pixDestroy(&pix6);
+		pixa2 = pixaCreate(2);
+		pixaAddPix(pixa2, pix7, L_INSERT);
+		pixaAddPix(pixa2, pix8, L_INSERT);
+		pix9 = pixaDisplayTiledInColumns(pixa2, 2, 1.0, 0, 0);
+		pixaAddPix(pixa1, pix9, L_INSERT);
+		pixaDestroy(&pixa2);
+	}
+
+	if(!text) {
+		pix1 = pixaDisplayTiledInColumns(pixa1, nx, 1.0, spacing2, border2);
+	}
+	else {
+		if(sa) {
+			pixaSetText(pixa1, NULL, sa);
+		}
+		else {
+			n = pixaGetCount(pixa1);
+			na = numaMakeSequence(startindex, 1, n);
+			sa1 = numaConvertToSarray(na, 4, 0, 0, L_INTEGER_VALUE);
+			pixaSetText(pixa1, NULL, sa1);
+			numaDestroy(&na);
+			sarrayDestroy(&sa1);
+		}
+		pixaSizeRange(pixa1, NULL, NULL, &w, NULL);
+		pix1 = pixaDisplayTiledWithText(pixa1, w * (nx + 1), 1.0, spacing2,
+			border2, fontsize, 0xff000000);
+	}
+	pixaDestroy(&pixa1);
+	return pix1;
+}
+
+/*---------------------------------------------------------------------*
 *                              Pixaa Display                          *
 *---------------------------------------------------------------------*/
 /*!
  * \brief   pixaaDisplay()
  *
  * \param[in]    paa
- * \param[in]    w, h if set to 0, determines the size from the
- *                    b.b. of the components in paa
+ * \param[in]    w, h   if set to 0, the size is determined from the
+ *                      bounding box of the components in pixa
  * \return  pix, or NULL on error
  *
  * <pre>
@@ -1441,23 +1553,23 @@ PIX * pixaDisplayTiledByIndex(PIXA     * pixa,
  * </pre>
  */
 PIX * pixaaDisplay(PIXAA   * paa,
-    int32 w,
-    int32 h)
+    l_int32 w,
+    l_int32 h)
 {
-	int32 i, j, n, nbox, na, d, wmax, hmax, x, y, xb, yb, wb, hb;
-	BOXA    * boxa1; /* top-level boxa */
-	BOXA    * boxa;
-	PIX     * pixt, * pixd;
+	l_int32 i, j, n, nbox, na, d, wmax, hmax, x, y, xb, yb, wb, hb;
+	BOXA * boxa1; /* top-level boxa */
+	BOXA * boxa;
+	PIX * pix1, * pixd;
 	PIXA    * pixa;
 
-	PROCNAME("pixaaDisplay");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
-		return (PIX*)ERROR_PTR("paa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("paa not defined", procName, NULL);
 
 	n = pixaaGetCount(paa, NULL);
 	if(n == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 
 	/* If w and h not input, determine the minimum size required
 	 * to contain the origin and all c.c. */
@@ -1485,13 +1597,15 @@ PIX * pixaaDisplay(PIXAA   * paa,
 
 	/* Get depth from first pix */
 	pixa = pixaaGetPixa(paa, 0, L_CLONE);
-	pixt = pixaGetPix(pixa, 0, L_CLONE);
-	d = pixGetDepth(pixt);
+	pix1 = pixaGetPix(pixa, 0, L_CLONE);
+	d = pixGetDepth(pix1);
 	pixaDestroy(&pixa);
-	pixDestroy(&pixt);
+	pixDestroy(&pix1);
 
-	if((pixd = pixCreate(w, h, d)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+	if((pixd = pixCreate(w, h, d)) == NULL) {
+		boxaDestroy(&boxa1);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
+	}
 
 	x = y = 0;
 	for(i = 0; i < n; i++) {
@@ -1501,9 +1615,9 @@ PIX * pixaaDisplay(PIXAA   * paa,
 		na = pixaGetCount(pixa);
 		for(j = 0; j < na; j++) {
 			pixaGetBoxGeometry(pixa, j, &xb, &yb, &wb, &hb);
-			pixt = pixaGetPix(pixa, j, L_CLONE);
-			pixRasterop(pixd, x + xb, y + yb, wb, hb, PIX_PAINT, pixt, 0, 0);
-			pixDestroy(&pixt);
+			pix1 = pixaGetPix(pixa, j, L_CLONE);
+			pixRasterop(pixd, x + xb, y + yb, wb, hb, PIX_PAINT, pix1, 0, 0);
+			pixDestroy(&pix1);
 		}
 		pixaDestroy(&pixa);
 	}
@@ -1515,146 +1629,82 @@ PIX * pixaaDisplay(PIXAA   * paa,
 /*!
  * \brief   pixaaDisplayByPixa()
  *
- * \param[in]    paa with pix that may have different depths
- * \param[in]    xspace between pix in pixa
- * \param[in]    yspace between pixa
- * \param[in]    maxw max width of output pix
- * \return  pixd, or NULL on error
+ * \param[in]    paa
+ * \param[in]    maxnx        maximum number of columns for rendering each pixa
+ * \param[in]    scalefactor  applied to every pix; use 1.0 for no scaling
+ * \param[in]    hspacing     between images on a row (in the pixa)
+ * \param[in]    vspacing     between tiles rows, each corresponding to a pixa
+ * \param[in]    border       width of black border added to each image;
+ *                            use 0 for no border
+ * \return  pixd of images in %paa, tiled by pixa in row-major order
  *
  * <pre>
  * Notes:
- *      (1) Displays each pixa on a line (or set of lines),
- *          in order from top to bottom.  Within each pixa,
- *          the pix are displayed in order from left to right.
- *      (2) The sizes and depths of each pix can differ.  The output pix
- *          has a depth equal to the max depth of all the pix.
- *      (3) This ignores the boxa of the paa.
+ *      (1) This renders a pixaa into a single image.  The pix from each pixa
+ *          are rendered on a row.  If the number of pix in the pixa is
+ *          larger than %maxnx, the pix will be rendered into more than 1 row.
+ *          To insure that each pixa is rendered into one row, use %maxnx
+ *          at least as large as the max number of pix in the pixa.
+ *      (2) Each row is tiled such that the top of each pix is aligned and
+ *          each pix is separated by %hspacing from the next one.
+ *          A black border can be added to each pix.
+ *      (3) The resulting pix from each row are then rendered vertically,
+ *          separated by %vspacing from each other.
+ *      (4) The output depth is determined by the largest depth of all
+ *          the pix in %paa. Colormaps are removed.
  * </pre>
  */
-PIX * pixaaDisplayByPixa(PIXAA   * paa,
-    int32 xspace,
-    int32 yspace,
-    int32 maxw)
+PIX * pixaaDisplayByPixa(PIXAA     * paa,
+    l_int32 maxnx,
+    float scalefactor,
+    l_int32 hspacing,
+    l_int32 vspacing,
+    l_int32 border)
 {
-	int32 i, j, npixa, npix, same, use_maxw, x, y, w, h, hindex;
-	int32 maxwidth, maxdepth, width, lmaxh, lmaxw;
-	int32  * harray;
-	NUMA     * nah;
-	PIX      * pix, * pixt, * pixd;
-	PIXA     * pixa;
+	l_int32 i, n, vs;
+	PIX * pix1, * pix2;
+	PIXA    * pixa1, * pixa2;
 
-	PROCNAME("pixaaDisplayByPixa");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
-		return (PIX*)ERROR_PTR("paa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("paa not defined", procName, NULL);
+	if(scalefactor <= 0.0) scalefactor = 1.0;
+	if(hspacing < 0) hspacing = 0;
+	if(vspacing < 0) vspacing = 0;
+	if(border < 0) border = 0;
 
-	if((npixa = pixaaGetCount(paa, NULL)) == 0)
-		return (PIX*)ERROR_PTR("no components", procName, NULL);
-	same = pixaaVerifyDepth(paa, &maxdepth);
-	if(!same && maxdepth < 8)
-		return (PIX*)ERROR_PTR("depths differ; max < 8", procName, NULL);
+	if((n = pixaaGetCount(paa, NULL)) == 0)
+		return (PIX *)ERROR_PTR("no components", procName, NULL);
 
-	/* Be sure the widest box fits in the output pix */
-	pixaaSizeRange(paa, NULL, NULL, &maxwidth, NULL);
-	if(maxwidth > maxw) {
-		L_WARNING("maxwidth > maxw; using maxwidth\n", procName);
-		maxw = maxwidth;
+	/* Vertical spacing of amount %hspacing is also added at this step */
+	pixa2 = pixaCreate(0);
+	for(i = 0; i < n; i++) {
+		pixa1 = pixaaGetPixa(paa, i, L_CLONE);
+		pix1 = pixaDisplayTiledInColumns(pixa1, maxnx, scalefactor,
+			hspacing, border);
+		pixaAddPix(pixa2, pix1, L_INSERT);
+		pixaDestroy(&pixa1);
 	}
 
-	/* Get size of output pix.  The width is the minimum of the
-	 * maxw and the largest pixa line width.  The height is whatever
-	 * it needs to be to accommodate all pixa. */
-	lmaxw = 0; /* widest line found */
-	use_maxw = FALSE;
-	nah = numaCreate(0); /* store height of each line */
-	y = yspace;
-	for(i = 0; i < npixa; i++) {
-		pixa = pixaaGetPixa(paa, i, L_CLONE);
-		npix = pixaGetCount(pixa);
-		if(npix == 0) {
-			pixaDestroy(&pixa);
-			continue;
-		}
-		x = xspace;
-		lmaxh = 0; /* max height found in the line */
-		for(j = 0; j < npix; j++) {
-			pix = pixaGetPix(pixa, j, L_CLONE);
-			pixGetDimensions(pix, &w, &h, NULL);
-			if(x + w >= maxw) { /* start new line */
-				x = xspace;
-				y += lmaxh + yspace;
-				numaAddNumber(nah, lmaxh);
-				lmaxh = 0;
-				use_maxw = TRUE;
-			}
-			x += w + xspace;
-			lmaxh = MAX(h, lmaxh);
-			lmaxw = MAX(lmaxw, x);
-			pixDestroy(&pix);
-		}
-		y += lmaxh + yspace;
-		numaAddNumber(nah, lmaxh);
-		pixaDestroy(&pixa);
-	}
-	width = (use_maxw) ? maxw : lmaxw;
-
-	if((pixd = pixCreate(width, y, maxdepth)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
-
-	/* Now layout the pix by pixa */
-	y = yspace;
-	harray = numaGetIArray(nah);
-	hindex = 0;
-	for(i = 0; i < npixa; i++) {
-		x = xspace;
-		pixa = pixaaGetPixa(paa, i, L_CLONE);
-		npix = pixaGetCount(pixa);
-		if(npix == 0) {
-			pixaDestroy(&pixa);
-			continue;
-		}
-		for(j = 0; j < npix; j++) {
-			pix = pixaGetPix(pixa, j, L_CLONE);
-			if(pixGetDepth(pix) != maxdepth) {
-				if(maxdepth == 8)
-					pixt = pixConvertTo8(pix, 0);
-				else /* 32 bpp */
-					pixt = pixConvertTo32(pix);
-			}
-			else {
-				pixt = pixClone(pix);
-			}
-			pixGetDimensions(pixt, &w, &h, NULL);
-			if(x + w >= maxw) { /* start new line */
-				x = xspace;
-				y += harray[hindex++] + yspace;
-			}
-			pixRasterop(pixd, x, y, w, h, PIX_PAINT, pixt, 0, 0);
-			pixDestroy(&pix);
-			pixDestroy(&pixt);
-			x += w + xspace;
-		}
-		y += harray[hindex++] + yspace;
-		pixaDestroy(&pixa);
-	}
-	LEPT_FREE(harray);
-
-	numaDestroy(&nah);
-	return pixd;
+	vs = vspacing - 2 * hspacing;
+	pix2 = pixaDisplayTiledInColumns(pixa2, 1, scalefactor, vs, 0);
+	pixaDestroy(&pixa2);
+	return pix2;
 }
 
 /*!
  * \brief   pixaaDisplayTiledAndScaled()
  *
  * \param[in]    paa
- * \param[in]    outdepth output depth: 1, 8 or 32 bpp
- * \param[in]    tilewidth each pix is scaled to this width
- * \param[in]    ncols number of tiles in each row
- * \param[in]    background 0 for white, 1 for black; this is the color
- *                 of the spacing between the images
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image;
- *                      use 0 for no border
+ * \param[in]    outdepth    output depth: 1, 8 or 32 bpp
+ * \param[in]    tilewidth   each pix is scaled to this width
+ * \param[in]    ncols       number of tiles in each row
+ * \param[in]    background  0 for white, 1 for black; this is the color
+ *                           of the spacing between the images
+ * \param[in]    spacing     between images, and on outside
+ * \param[in]    border      width of additional black border on each image;
+ *                           use 0 for no border
  * \return  pixa of tiled images, one image for each pixa in
  *                    the paa, or NULL on error
  *
@@ -1666,23 +1716,25 @@ PIX * pixaaDisplayByPixa(PIXAA   * paa,
  * </pre>
  */
 PIXA * pixaaDisplayTiledAndScaled(PIXAA   * paa,
-    int32 outdepth,
-    int32 tilewidth,
-    int32 ncols,
-    int32 background,
-    int32 spacing,
-    int32 border)
+    l_int32 outdepth,
+    l_int32 tilewidth,
+    l_int32 ncols,
+    l_int32 background,
+    l_int32 spacing,
+    l_int32 border)
 {
-	int32 i, n;
-	PIX     * pix;
+	l_int32 i, n;
+	PIX * pix;
 	PIXA    * pixa, * pixad;
 
-	PROCNAME("pixaaDisplayTiledAndScaled");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
 		return (PIXA*)ERROR_PTR("paa not defined", procName, NULL);
 	if(outdepth != 1 && outdepth != 8 && outdepth != 32)
 		return (PIXA*)ERROR_PTR("outdepth not in {1, 8, 32}", procName, NULL);
+	if(ncols <= 0)
+		return (PIXA*)ERROR_PTR("ncols must be > 0", procName, NULL);
 	if(border < 0 || border > tilewidth / 5)
 		border = 0;
 
@@ -1693,7 +1745,7 @@ PIXA * pixaaDisplayTiledAndScaled(PIXAA   * paa,
 	for(i = 0; i < n; i++) {
 		pixa = pixaaGetPixa(paa, i, L_CLONE);
 		pix = pixaDisplayTiledAndScaled(pixa, outdepth, tilewidth, ncols,
-		    background, spacing, border);
+			background, spacing, border);
 		pixaAddPix(pixad, pix, L_INSERT);
 		pixaDestroy(&pixa);
 	}
@@ -1708,18 +1760,18 @@ PIXA * pixaaDisplayTiledAndScaled(PIXAA   * paa,
  * \brief   pixaConvertTo1()
  *
  * \param[in]    pixas
- * \param[in]    thresh threshold for final binarization from 8 bpp gray
+ * \param[in]    thresh    threshold for final binarization from 8 bpp gray
  * \return  pixad, or NULL on error
  */
 PIXA * pixaConvertTo1(PIXA    * pixas,
-    int32 thresh)
+    l_int32 thresh)
 {
-	int32 i, n;
-	BOXA    * boxa;
-	PIX     * pix1, * pix2;
+	l_int32 i, n;
+	BOXA * boxa;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaConvertTo1");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1742,7 +1794,7 @@ PIXA * pixaConvertTo1(PIXA    * pixas,
  * \brief   pixaConvertTo8()
  *
  * \param[in]    pixas
- * \param[in]    cmapflag 1 to give pixd a colormap; 0 otherwise
+ * \param[in]    cmapflag   1 to give pixd a colormap; 0 otherwise
  * \return  pixad each pix is 8 bpp, or NULL on error
  *
  * <pre>
@@ -1751,14 +1803,14 @@ PIXA * pixaConvertTo1(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaConvertTo8(PIXA    * pixas,
-    int32 cmapflag)
+    l_int32 cmapflag)
 {
-	int32 i, n;
-	BOXA    * boxa;
-	PIX     * pix1, * pix2;
+	l_int32 i, n;
+	BOXA * boxa;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaConvertTo8");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1778,26 +1830,26 @@ PIXA * pixaConvertTo8(PIXA    * pixas,
 }
 
 /*!
- * \brief   pixaConvertTo8Color()
+ * \brief   pixaConvertTo8Colormap()
  *
  * \param[in]    pixas
- * \param[in]    dither 1 to dither if necessary; 0 otherwise
+ * \param[in]    dither   1 to dither if necessary; 0 otherwise
  * \return  pixad each pix is 8 bpp, or NULL on error
  *
  * <pre>
  * Notes:
- *      (1) See notes for pixConvertTo8Color(), applied to each pix in pixas.
+ *      (1) See notes for pixConvertTo8Colormap(), applied to each pix in pixas.
  * </pre>
  */
-PIXA * pixaConvertTo8Color(PIXA    * pixas,
-    int32 dither)
+PIXA * pixaConvertTo8Colormap(PIXA    * pixas,
+    l_int32 dither)
 {
-	int32 i, n;
-	BOXA    * boxa;
-	PIX     * pix1, * pix2;
+	l_int32 i, n;
+	BOXA * boxa;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaConvertTo8Color");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1806,7 +1858,7 @@ PIXA * pixaConvertTo8Color(PIXA    * pixas,
 	pixad = pixaCreate(n);
 	for(i = 0; i < n; i++) {
 		pix1 = pixaGetPix(pixas, i, L_CLONE);
-		pix2 = pixConvertTo8Color(pix1, dither);
+		pix2 = pixConvertTo8Colormap(pix1, dither);
 		pixaAddPix(pixad, pix2, L_INSERT);
 		pixDestroy(&pix1);
 	}
@@ -1825,16 +1877,18 @@ PIXA * pixaConvertTo8Color(PIXA    * pixas,
  * <pre>
  * Notes:
  *      (1) See notes for pixConvertTo32(), applied to each pix in pixas.
+ *      (2) This can be used to allow 1 bpp pix in a pixa to be displayed
+ *          with color.
  * </pre>
  */
-PIXA * pixaConvertTo32(PIXA    * pixas)
+PIXA * pixaConvertTo32(PIXA  * pixas)
 {
-	int32 i, n;
-	BOXA    * boxa;
-	PIX     * pix1, * pix2;
+	l_int32 i, n;
+	BOXA * boxa;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaConvertTo32");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1860,13 +1914,13 @@ PIXA * pixaConvertTo32(PIXA    * pixas)
  * \brief   pixaConstrainedSelect()
  *
  * \param[in]    pixas
- * \param[in]    first first index to choose; >= 0
- * \param[in]    last biggest possible index to reach;
- *                    use -1 to go to the end; otherwise, last >= first
- * \param[in]    nmax maximum number of pix to select; > 0
- * \param[in]    use_pairs 1 = select pairs of adjacent pix;
- *                         0 = select individual pix
- * \param[in]    copyflag L_COPY, L_CLONE
+ * \param[in]    first      first index to choose; >= 0
+ * \param[in]    last       biggest possible index to reach;
+ *                          use -1 to go to the end; otherwise, last >= first
+ * \param[in]    nmax       maximum number of pix to select; > 0
+ * \param[in]    use_pairs  1 = select pairs of adjacent pix;
+ *                          0 = select individual pix
+ * \param[in]    copyflag   L_COPY, L_CLONE
  * \return  pixad if OK, NULL on error
  *
  * <pre>
@@ -1879,25 +1933,24 @@ PIXA * pixaConvertTo32(PIXA    * pixas)
  * </pre>
  */
 PIXA * pixaConstrainedSelect(PIXA    * pixas,
-    int32 first,
-    int32 last,
-    int32 nmax,
-    int32 use_pairs,
-    int32 copyflag)
+    l_int32 first,
+    l_int32 last,
+    l_int32 nmax,
+    l_int32 use_pairs,
+    l_int32 copyflag)
 {
-	int32 i, n, nselect, index;
-	NUMA    * na;
-	PIX     * pix1;
+	l_int32 i, n, nselect, index;
+	NUMA * na;
+	PIX * pix1;
 	PIXA    * pixad;
 
-	PROCNAME("pixaConstrainedSelect");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
 	n = pixaGetCount(pixas);
-	if(last == -1)
-		last = n - 1;
 	first = MAX(0, first);
+	last = (last < 0) ? n - 1 : MIN(n - 1, last);
 	if(last < first)
 		return (PIXA*)ERROR_PTR("last < first!", procName, NULL);
 	if(nmax < 1)
@@ -1915,19 +1968,300 @@ PIXA * pixaConstrainedSelect(PIXA    * pixas,
 	return pixad;
 }
 
+/*!
+ * \brief   pixaSelectToPdf()
+ *
+ * \param[in]    pixas
+ * \param[in]    first     first index to choose; >= 0
+ * \param[in]    last      biggest possible index to reach;
+ *                         use -1 to go to the end; otherwise, last >= first
+ * \param[in]    res       override the resolution of each input image, in ppi;
+ *                         use 0 to respect the resolution embedded in the input
+ * \param[in]    scalefactor   scaling factor applied to each image; > 0.0
+ * \param[in]    type      encoding type (L_JPEG_ENCODE, L_G4_ENCODE,
+ *                         L_FLATE_ENCODE, or 0 for default
+ * \param[in]    quality   used for JPEG only; 0 for default (75)
+ * \param[in]    color     of numbers added to each image (e.g., 0xff000000)
+ * \param[in]    fontsize  to print number below each image.  The valid set
+ *                         is {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
+ * \param[in]    fileout   pdf file of all images
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This writes a pdf of the selected images from %pixas, one to
+ *          a page.  They are optionally scaled and annotated with the
+ *          index printed to the left of the image.
+ *      (2) If the input images are 1 bpp and you want the numbers to be
+ *          in color, first promote each pix to 8 bpp with a colormap:
+ *                pixa1 = pixaConvertTo8(pixas, 1);
+ *          and then call this function with the specified color
+ * </pre>
+ */
+l_ok pixaSelectToPdf(PIXA        * pixas,
+    l_int32 first,
+    l_int32 last,
+    l_int32 res,
+    float scalefactor,
+    l_int32 type,
+    l_int32 quality,
+    l_uint32 color,
+    l_int32 fontsize,
+    const char * fileout)
+{
+	l_int32 n;
+	L_BMF   * bmf;
+	NUMA * na;
+	PIXA    * pixa1, * pixa2;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return ERROR_INT("pixas not defined", procName, 1);
+	if(type < 0 || type > L_FLATE_ENCODE) {
+		L_WARNING("invalid compression type; using default\n", procName);
+		type = 0;
+	}
+	if(!fileout)
+		return ERROR_INT("fileout not defined", procName, 1);
+
+	/* Select from given range */
+	n = pixaGetCount(pixas);
+	first = MAX(0, first);
+	last = (last < 0) ? n - 1 : MIN(n - 1, last);
+	if(first > last) {
+		L_ERROR("first = %d > last = %d\n", procName, first, last);
+		return 1;
+	}
+	pixa1 = pixaSelectRange(pixas, first, last, L_CLONE);
+
+	/* Optionally add index numbers */
+	bmf = (fontsize <= 0) ? NULL : bmfCreate(NULL, fontsize);
+	if(bmf) {
+		na = numaMakeSequence(first, 1.0, last - first + 1);
+		pixa2 = pixaAddTextNumber(pixa1, bmf, na, color, L_ADD_LEFT);
+		numaDestroy(&na);
+	}
+	else {
+		pixa2 = pixaCopy(pixa1, L_CLONE);
+	}
+	pixaDestroy(&pixa1);
+	bmfDestroy(&bmf);
+
+	pixaConvertToPdf(pixa2, res, scalefactor, type, quality, NULL, fileout);
+	pixaDestroy(&pixa2);
+	return 0;
+}
+
 /*---------------------------------------------------------------------*
-*                     Pixa display into multiple tiles                *
+*                    Generate pixa from tiled images                  *
+*---------------------------------------------------------------------*/
+/*!
+ * \brief   pixaMakeFromTiledPixa()
+ *
+ * \param[in]    pixas    of mosaiced templates, one for each digit
+ * \param[in]    w        width of samples (use 0 for default = 20)
+ * \param[in]    h        height of samples (use 0 for default = 30)
+ * \param[in]    nsamp    number of requested samples (use 0 for default = 100)
+ * \return  pixa of individual, scaled templates, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This converts from a compressed representation of 1 bpp digit
+ *          templates to a pixa where each pix has a single labeled template.
+ *      (2) The mosaics hold 100 templates each, and the number of templates
+ *          %nsamp selected for each digit can be between 1 and 100.
+ *      (3) Each mosaic has the number of images written in the text field,
+ *          and the i-th pix contains samples of the i-th digit.  That value
+ *          is written into the text field of each template in the output.
+ * </pre>
+ */
+PIXA * pixaMakeFromTiledPixa(PIXA    * pixas,
+    l_int32 w,
+    l_int32 h,
+    l_int32 nsamp)
+{
+	char buf[8];
+	l_int32 ntiles, i;
+	PIX * pix1;
+	PIXA    * pixad, * pixa1;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(nsamp > 1000)
+		return (PIXA*)ERROR_PTR("nsamp too large; typ. 100", procName, NULL);
+
+	if(w <= 0) w = 20;
+	if(h <= 0) h = 30;
+	if(nsamp <= 0) nsamp = 100;
+
+	/* pixas has 10 pix of mosaic'd digits.  Each of these images
+	 * must be extracted into a pixa of templates, where each template
+	 * is labeled with the digit value, and then selectively
+	 * concatenated into an output pixa. */
+	pixad = pixaCreate(10 * nsamp);
+	for(i = 0; i < 10; i++) {
+		pix1 = pixaGetPix(pixas, i, L_CLONE);
+		pixGetTileCount(pix1, &ntiles);
+		if(nsamp > ntiles)
+			L_WARNING("requested %d; only %d tiles\n", procName, nsamp, ntiles);
+		pixa1 = pixaMakeFromTiledPix(pix1, w, h, 0, nsamp, NULL);
+		snprintf(buf, sizeof(buf), "%d", i);
+		pixaSetText(pixa1, buf, NULL);
+		pixaJoin(pixad, pixa1, 0, -1);
+		pixaDestroy(&pixa1);
+		pixDestroy(&pix1);
+	}
+	return pixad;
+}
+
+/*!
+ * \brief   pixaMakeFromTiledPix()
+ *
+ * \param[in]    pixs        any depth; colormap OK
+ * \param[in]    w           width of each tile
+ * \param[in]    h           height of each tile
+ * \param[in]    start       first tile to use
+ * \param[in]    num         number of tiles; use 0 to go to the end
+ * \param[in]    boxa        [optional] location of rectangular regions
+ *                           to be extracted
+ * \return  pixa if OK, NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Operations that generate a pix by tiling from a pixa, and
+ *          the inverse that generate a pixa from tiles of a pix,
+ *          are useful.  One such pair is pixaDisplayUnsplit() and
+ *          pixaSplitPix().  This function is a very simple one that
+ *          generates a pixa from tiles of a pix. There are two cases:
+ *            - the tiles can all be the same size (the inverse of
+ *              pixaDisplayOnLattice(), or
+ *            - the tiles can differ in size, where there is an
+ *              associated boxa (the inverse of pixaCreateFromBoxa().
+ *      (2) If all tiles are the same size, %w by %h, use %boxa = NULL.
+ *          If the tiles differ in size, use %boxa to extract the
+ *          individual images (%w and %h are then ignored).
+ *      (3) If the pix was made by pixaDisplayOnLattice(), the number
+ *          of tiled images is written into the text field, in the format
+ *               n = <number>.
+ *      (4) Typical usage: a set of character templates all scaled to
+ *          the same size can be stored on a lattice of that size in
+ *          a pix, and this function can regenerate the pixa.  If the
+ *          templates differ in size, a boxa generated when the tiled
+ *          pix was made can be used to indicate the location of
+ *          the templates.
+ * </pre>
+ */
+PIXA * pixaMakeFromTiledPix(PIX * pixs,
+    l_int32 w,
+    l_int32 h,
+    l_int32 start,
+    l_int32 num,
+    BOXA * boxa)
+{
+	l_int32 i, j, k, ws, hs, d, nx, ny, n, n_isvalid, ntiles, nmax;
+	PIX * pix1;
+	PIXA * pixa1;
+	PIXCMAP  * cmap;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixs)
+		return (PIXA*)ERROR_PTR("pixs not defined", procName, NULL);
+	if(!boxa && (w <= 0 || h <= 0))
+		return (PIXA*)ERROR_PTR("w and h must be > 0", procName, NULL);
+
+	if(boxa) /* general case */
+		return pixaCreateFromBoxa(pixs, boxa, start, num, NULL);
+
+	/* All tiles are the same size */
+	pixGetDimensions(pixs, &ws, &hs, &d);
+	nx = ws / w;
+	ny = hs / h;
+	if(nx < 1 || ny < 1)
+		return (PIXA*)ERROR_PTR("invalid dimensions", procName, NULL);
+	if(nx * w != ws || ny * h != hs)
+		L_WARNING("some tiles will be clipped\n", procName);
+
+	/* Check the text field of the pix.  It may tell how many
+	 * tiles hold valid data.  If a valid value is not found,
+	 * assume all (nx * ny) tiles are valid.  */
+	pixGetTileCount(pixs, &n);
+	n_isvalid = (n <= nx * ny && n > nx * (ny - 1)) ? TRUE : FALSE;
+	ntiles = (n_isvalid) ? n : nx * ny;
+	nmax = ntiles - start; /* max available from start */
+	num = (num == 0) ? nmax : MIN(num, nmax);
+
+	/* Extract the tiles */
+	if((pixa1 = pixaCreate(num)) == NULL) {
+		return (PIXA*)ERROR_PTR("pixa1 not made", procName, NULL);
+	}
+	cmap = pixGetColormap(pixs);
+	for(i = 0, k = 0; i < ny; i++) {
+		for(j = 0; j < nx; j++, k++) {
+			if(k < start) continue;
+			if(k >= start + num) break;
+			pix1 = pixCreate(w, h, d);
+			if(cmap) pixSetColormap(pix1, pixcmapCopy(cmap));
+			pixRasterop(pix1, 0, 0, w, h, PIX_SRC, pixs, j * w, i * h);
+			pixaAddPix(pixa1, pix1, L_INSERT);
+		}
+	}
+	return pixa1;
+}
+
+/*!
+ * \brief   pixGetTileCount()
+ *
+ * \param[in]    pix
+ * \param[out]  *pn     number embedded in pix text field
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) If the pix was made by pixaDisplayOnLattice(), the number
+ *          of tiled images is written into the text field, in the format
+ *               n = <number>.
+ *      (2) This returns 0 if the data is not in the text field, or on error.
+ * </pre>
+ */
+l_ok pixGetTileCount(PIX * pix,
+    l_int32 * pn)
+{
+	char * text;
+	l_int32 n;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pn)
+		return ERROR_INT("&n not defined", procName, 1);
+	*pn = 0;
+	if(!pix)
+		return ERROR_INT("pix not defined", procName, 1);
+
+	text = pixGetText(pix);
+	if(text && strlen(text) > 4) {
+		if(sscanf(text, "n = %d", &n) == 1)
+			*pn = n;
+	}
+	return 0;
+}
+
+/*---------------------------------------------------------------------*
+*                    Pixa display into multiple tiles                 *
 *---------------------------------------------------------------------*/
 /*!
  * \brief   pixaDisplayMultiTiled()
  *
  * \param[in]    pixas
- * \param[in]    nx, ny in [1, ... 50], tiling factors in each direction
- * \param[in]    maxw, maxh max sizes to keep
- * \param[in]    scalefactor scale each image by this
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image;
- *                      use 0 for no border
+ * \param[in]    nx, ny       in [1, ... 50], tiling factors in each direction
+ * \param[in]    maxw, maxh   max sizes to keep
+ * \param[in]    scalefactor  scale each image by this
+ * \param[in]    spacing      between images, and on outside
+ * \param[in]    border       width of additional black border on each image;
+ *                            use 0 for no border
  * \return  pixad if OK, NULL on error
  *
  * <pre>
@@ -1940,19 +2274,19 @@ PIXA * pixaConstrainedSelect(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
-    int32 nx,
-    int32 ny,
-    int32 maxw,
-    int32 maxh,
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 maxw,
+    l_int32 maxh,
     float scalefactor,
-    int32 spacing,
-    int32 border)
+    l_int32 spacing,
+    l_int32 border)
 {
-	int32 n, i, j, ntile, nout, index;
-	PIX     * pix1, * pix2;
+	l_int32 n, i, j, ntile, nout, index;
+	PIX * pix1, * pix2;
 	PIXA    * pixa1, * pixa2, * pixad;
 
-	PROCNAME("pixaDisplayMultiTiled");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1969,7 +2303,7 @@ PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
 		maxw = (maxw == 0) ? 1000000 : maxw;
 		maxh = (maxh == 0) ? 1000000 : maxh;
 		pixa1 = pixaSelectBySize(pixas, maxw, maxh, L_SELECT_IF_BOTH,
-		    L_SELECT_IF_LTE, NULL);
+			L_SELECT_IF_LTE, NULL);
 		n = pixaGetCount(pixa1);
 	}
 
@@ -1983,7 +2317,7 @@ PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
 			pixaAddPix(pixa2, pix1, L_INSERT);
 		}
 		pix2 = pixaDisplayTiledInColumns(pixa2, nx, scalefactor, spacing,
-		    border);
+			border);
 		pixaAddPix(pixad, pix2, L_INSERT);
 		pixaDestroy(&pixa2);
 	}
@@ -1999,12 +2333,13 @@ PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
  * \brief   pixaSplitIntoFiles()
  *
  * \param[in]    pixas
- * \param[in]    nsplit split pixas into this number of pixa; >= 2
- * \param[in]    scale scalefactor applied to each pix
- * \param[in]    outwidth the maxwidth parameter of tiled images for write_pix
- * \param[in]    write_pixa 1 to write the split pixa as separate files
- * \param[in]    write_pix 1 to write tiled images of the split pixa
- * \param[in]    write_pdf 1 to write pdfs of the split pixa
+ * \param[in]    nsplit       split pixas into this number of pixa; >= 2
+ * \param[in]    scale        scalefactor applied to each pix
+ * \param[in]    outwidth     the maxwidth parameter of tiled images
+ *                            for write_pix
+ * \param[in]    write_pixa  1 to write the split pixa as separate files
+ * \param[in]    write_pix   1 to write tiled images of the split pixa
+ * \param[in]    write_pdf   1 to write pdfs of the split pixa
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2016,20 +2351,20 @@ PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
  *          full resolution.
  * </pre>
  */
-int32 pixaSplitIntoFiles(PIXA      * pixas,
-    int32 nsplit,
+l_ok pixaSplitIntoFiles(PIXA      * pixas,
+    l_int32 nsplit,
     float scale,
-    int32 outwidth,
-    int32 write_pixa,
-    int32 write_pix,
-    int32 write_pdf)
+    l_int32 outwidth,
+    l_int32 write_pixa,
+    l_int32 write_pix,
+    l_int32 write_pdf)
 {
 	char buf[64];
-	int32 i, j, index, n, nt;
-	PIX     * pix1, * pix2;
+	l_int32 i, j, index, n, nt;
+	PIX * pix1, * pix2;
 	PIXA    * pixa1;
 
-	PROCNAME("pixaSplitIntoFiles");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return ERROR_INT("pixas not defined", procName, 1);
@@ -2042,7 +2377,7 @@ int32 pixaSplitIntoFiles(PIXA      * pixas,
 
 	lept_mkdir("lept/split");
 	n = (nt + nsplit - 1) / nsplit;
-	fprintf(stderr, "nt = %d, n = %d, nsplit = %d\n", nt, n, nsplit);
+	lept_stderr("nt = %d, n = %d, nsplit = %d\n", nt, n, nsplit);
 	for(i = 0, index = 0; i < nsplit; i++) {
 		pixa1 = pixaCreate(n);
 		for(j = 0; j < n && index < nt; j++, index++) {
@@ -2052,17 +2387,17 @@ int32 pixaSplitIntoFiles(PIXA      * pixas,
 			pixDestroy(&pix1);
 		}
 		if(write_pixa) {
-			_snprintf(buf, sizeof(buf), "/tmp/lept/split/split%d.pa", i + 1);
-			pixaWrite(buf, pixa1);
+			snprintf(buf, sizeof(buf), "/tmp/lept/split/split%d.pa", i + 1);
+			pixaWriteDebug(buf, pixa1);
 		}
 		if(write_pix) {
-			_snprintf(buf, sizeof(buf), "/tmp/lept/split/split%d.tif", i + 1);
+			snprintf(buf, sizeof(buf), "/tmp/lept/split/split%d.tif", i + 1);
 			pix1 = pixaDisplayTiledInRows(pixa1, 1, outwidth, 1.0, 0, 20, 2);
-			pixWrite(buf, pix1, IFF_TIFF_G4);
+			pixWriteDebug(buf, pix1, IFF_TIFF_G4);
 			pixDestroy(&pix1);
 		}
 		if(write_pdf) {
-			_snprintf(buf, sizeof(buf), "/tmp/lept/split/split%d.pdf", i + 1);
+			snprintf(buf, sizeof(buf), "/tmp/lept/split/split%d.pdf", i + 1);
 			pixaConvertToPdf(pixa1, 0, 1.0, L_G4_ENCODE, 0, buf, buf);
 		}
 		pixaDestroy(&pixa1);
@@ -2077,16 +2412,16 @@ int32 pixaSplitIntoFiles(PIXA      * pixas,
 /*!
  * \brief   convertToNUpFiles()
  *
- * \param[in]    dir full path to directory of images
- * \param[in]    substr [optional] can be null
- * \param[in]    nx, ny in [1, ... 50], tiling factors in each direction
- * \param[in]    tw target width, in pixels; must be >= 20
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image;
- *                      use 0 for no border
- * \param[in]    fontsize to print tail of filename with image.  Valid set is
- *                        {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
- * \param[in]    outdir subdirectory of /tmp to put N-up tiled images
+ * \param[in]    dir        full path to directory of images
+ * \param[in]    substr     [optional] can be null
+ * \param[in]    nx, ny     in [1, ... 50], tiling factors in each direction
+ * \param[in]    tw         target width, in pixels; must be >= 20
+ * \param[in]    spacing    between images, and on outside
+ * \param[in]    border     width of additional black border on each image;
+ *                          use 0 for no border
+ * \param[in]    fontsize   to print tail of filename with image.  Valid set is
+ *                          {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
+ * \param[in]    outdir     subdirectory of /tmp to put N-up tiled images
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2103,21 +2438,21 @@ int32 pixaSplitIntoFiles(PIXA      * pixas,
  *          rendered below it.
  * </pre>
  */
-int32 convertToNUpFiles(const char  * dir,
-    const char  * substr,
-    int32 nx,
-    int32 ny,
-    int32 tw,
-    int32 spacing,
-    int32 border,
-    int32 fontsize,
-    const char  * outdir)
+l_ok convertToNUpFiles(const char * dir,
+    const char * substr,
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 tw,
+    l_int32 spacing,
+    l_int32 border,
+    l_int32 fontsize,
+    const char * outdir)
 {
-	int32 d, format;
+	l_int32 d, format;
 	char rootpath[256];
 	PIXA    * pixa;
 
-	PROCNAME("convertToNUpFiles");
+	PROCNAME(__FUNCTION__);
 
 	if(!dir)
 		return ERROR_INT("dir not defined", procName, 1);
@@ -2129,7 +2464,7 @@ int32 convertToNUpFiles(const char  * dir,
 		return ERROR_INT("outdir not defined", procName, 1);
 
 	pixa = convertToNUpPixa(dir, substr, nx, ny, tw, spacing, border,
-	    fontsize);
+		fontsize);
 	if(!pixa)
 		return ERROR_INT("pixa not made", procName, 1);
 
@@ -2147,15 +2482,15 @@ int32 convertToNUpFiles(const char  * dir,
 /*!
  * \brief   convertToNUpPixa()
  *
- * \param[in]    dir full path to directory of images
- * \param[in]    substr [optional] can be null
- * \param[in]    nx, ny in [1, ... 50], tiling factors in each direction
- * \param[in]    tw target width, in pixels; must be >= 20
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image;
- *                      use 0 for no border
- * \param[in]    fontsize to print tail of filename with image.  Valid set is
- *                        {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
+ * \param[in]    dir       full path to directory of images
+ * \param[in]    substr    [optional] can be null
+ * \param[in]    nx, ny    in [1, ... 50], tiling factors in each direction
+ * \param[in]    tw        target width, in pixels; must be >= 20
+ * \param[in]    spacing   between images, and on outside
+ * \param[in]    border    width of additional black border on each image;
+ *                         use 0 for no border
+ * \param[in]    fontsize  to print tail of filename with image.  Valid set is
+ *                         {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -2163,21 +2498,21 @@ int32 convertToNUpFiles(const char  * dir,
  *      (1) See notes for convertToNUpFiles()
  * </pre>
  */
-PIXA * convertToNUpPixa(const char  * dir,
-    const char  * substr,
-    int32 nx,
-    int32 ny,
-    int32 tw,
-    int32 spacing,
-    int32 border,
-    int32 fontsize)
+PIXA * convertToNUpPixa(const char * dir,
+    const char * substr,
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 tw,
+    l_int32 spacing,
+    l_int32 border,
+    l_int32 fontsize)
 {
-	int32 i, n;
-	char    * fname, * tail;
+	l_int32 i, n;
+	char * fname, * tail;
 	PIXA    * pixa1, * pixa2;
-	SARRAY  * sa1, * sa2;
+	SARRAY * sa1, * sa2;
 
-	PROCNAME("convertToNUpPixa");
+	PROCNAME(__FUNCTION__);
 
 	if(!dir)
 		return (PIXA*)ERROR_PTR("dir not defined", procName, NULL);
@@ -2199,7 +2534,7 @@ PIXA * convertToNUpPixa(const char  * dir,
 	}
 	sarrayDestroy(&sa1);
 	pixa2 = pixaConvertToNUpPixa(pixa1, sa2, nx, ny, tw, spacing,
-	    border, fontsize);
+		border, fontsize);
 	pixaDestroy(&pixa1);
 	sarrayDestroy(&sa2);
 	return pixa2;
@@ -2209,14 +2544,14 @@ PIXA * convertToNUpPixa(const char  * dir,
  * \brief   pixaConvertToNUpPixa()
  *
  * \param[in]    pixas
- * \param[in]    sa  [optional] array of strings associated with each pix
- * \param[in]    nx, ny in [1, ... 50], tiling factors in each direction
- * \param[in]    tw target width, in pixels; must be >= 20
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image;
- *                      use 0 for no border
- * \param[in]    fontsize to print string with each image.  Valid set is
- *                        {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
+ * \param[in]    sa        [optional] array of strings associated with each pix
+ * \param[in]    nx, ny    in [1, ... 50], tiling factors in each direction
+ * \param[in]    tw        target width, in pixels; must be >= 20
+ * \param[in]    spacing   between images, and on outside
+ * \param[in]    border    width of additional black border on each image;
+ *                         use 0 for no border
+ * \param[in]    fontsize  to print string with each image.  Valid set is
+ *                         {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -2228,21 +2563,21 @@ PIXA * convertToNUpPixa(const char  * dir,
  * </pre>
  */
 PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
-    SARRAY  * sa,
-    int32 nx,
-    int32 ny,
-    int32 tw,
-    int32 spacing,
-    int32 border,
-    int32 fontsize)
+    SARRAY * sa,
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 tw,
+    l_int32 spacing,
+    l_int32 border,
+    l_int32 fontsize)
 {
-	int32 i, j, k, nt, n2, nout, d;
+	l_int32 i, j, k, nt, n2, nout, d;
 	char      * str;
 	L_BMF     * bmf;
-	PIX       * pix1, * pix2, * pix3, * pix4;
+	PIX * pix1, * pix2, * pix3, * pix4;
 	PIXA      * pixa1, * pixad;
 
-	PROCNAME("pixaConvertToNUpPixa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -2255,8 +2590,10 @@ PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
 
 	nt = pixaGetCount(pixas);
 	if(sa && (sarrayGetCount(sa) != nt)) {
-		L_WARNING3("pixa size %d not equal to sarray size %d\n", procName, nt, sarrayGetCount(sa));
+		L_WARNING("pixa size %d not equal to sarray size %d\n", procName,
+		    nt, sarrayGetCount(sa));
 	}
+
 	n2 = nx * ny;
 	nout = (nt + n2 - 1) / n2;
 	pixad = pixaCreate(nout);
@@ -2269,7 +2606,7 @@ PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
 			if(bmf && sa) {
 				str = sarrayGetString(sa, j, L_NOCOPY);
 				pix3 = pixAddTextlines(pix2, bmf, str, 0xff000000,
-				    L_ADD_BELOW);
+					L_ADD_BELOW);
 			}
 			else {
 				pix3 = pixClone(pix2);
@@ -2286,7 +2623,7 @@ PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
 		/* Add 2 * border to image width to prevent scaling */
 		pixaGetRenderingDepth(pixa1, &d);
 		pix4 = pixaDisplayTiledAndScaled(pixa1, d, tw + 2 * border, nx, 0,
-		    spacing, border);
+			spacing, border);
 		pixaAddPix(pixad, pix4, L_INSERT);
 		pixaDestroy(&pixa1);
 	}
@@ -2303,14 +2640,14 @@ PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
  *
  * \param[in]    pixa1
  * \param[in]    pixa2
- * \param[in]    nx, ny in [1, ... 20], tiling factors in each direction
- * \param[in]    tw target width, in pixels; must be >= 20
- * \param[in]    spacing  between images, and on outside
- * \param[in]    border width of additional black border on each image
- *                      and on each pair; use 0 for no border
- * \param[in]    fontsize to print index of each pair of images.  Valid set
- *                        is {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
- * \param[in]    fileout  output pdf file
+ * \param[in]    nx, ny     in [1, ... 20], tiling factors in each direction
+ * \param[in]    tw         target width, in pixels; must be >= 20
+ * \param[in]    spacing    between images, and on outside
+ * \param[in]    border     width of additional black border on each image
+ *                          and on each pair; use 0 for no border
+ * \param[in]    fontsize   to print index of each pair of images.  Valid set
+ *                          is {4,6,8,10,12,14,16,18,20}.  Use 0 to disable.
+ * \param[in]    fileout    output pdf file
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2337,21 +2674,21 @@ PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
  *          is printed out below each pair.
  * </pre>
  */
-int32 pixaCompareInPdf(PIXA        * pixa1,
+l_ok pixaCompareInPdf(PIXA        * pixa1,
     PIXA        * pixa2,
-    int32 nx,
-    int32 ny,
-    int32 tw,
-    int32 spacing,
-    int32 border,
-    int32 fontsize,
-    const char  * fileout)
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 tw,
+    l_int32 spacing,
+    l_int32 border,
+    l_int32 fontsize,
+    const char * fileout)
 {
-	int32 n1, n2, npairs;
+	l_int32 n1, n2, npairs;
 	PIXA    * pixa3, * pixa4, * pixa5;
-	SARRAY  * sa;
+	SARRAY * sa;
 
-	PROCNAME("pixaCompareInPdf");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa1 || !pixa2)
 		return ERROR_INT("pixa1 and pixa2 not both defined", procName, 1);
@@ -2368,7 +2705,9 @@ int32 pixaCompareInPdf(PIXA        * pixa1,
 	if(n1 == 0 || n2 == 0)
 		return ERROR_INT("at least one pixa is empty", procName, 1);
 	if(n1 != n2)
-		L_WARNING3("sizes (%d, %d) differ; using the minimum in interleave\n", procName, n1, n2);
+		L_WARNING("sizes (%d, %d) differ; using the minimum in interleave\n",
+		    procName, n1, n2);
+
 	/* Interleave the input pixa */
 	if((pixa3 = pixaInterleave(pixa1, pixa2, L_CLONE)) == NULL)
 		return ERROR_INT("pixa3 not made", procName, 1);
@@ -2380,7 +2719,9 @@ int32 pixaCompareInPdf(PIXA        * pixa1,
 	/* Label the pairs and mosaic into pages without further scaling */
 	npairs = pixaGetCount(pixa4);
 	sa = (fontsize > 0) ? sarrayGenerateIntegers(npairs) : NULL;
-	pixa5 = pixaConvertToNUpPixa(pixa4, sa, nx, ny, 2 * tw + 4 * border + spacing, spacing, border, fontsize);
+	pixa5 = pixaConvertToNUpPixa(pixa4, sa, nx, ny,
+		2 * tw + 4 * border + spacing,
+		spacing, border, fontsize);
 	pixaDestroy(&pixa4);
 	sarrayDestroy(&sa);
 
@@ -2389,4 +2730,3 @@ int32 pixaCompareInPdf(PIXA        * pixa1,
 	pixaDestroy(&pixa5);
 	return 0;
 }
-

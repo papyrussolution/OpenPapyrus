@@ -162,8 +162,8 @@ int GnuPlot::DrawClipLine(GpTermEntry * pTerm, int x1, int y1, int x2, int y2)
 {
 	const int state = V.ClipLine(&x1, &y1, &x2, &y2);
 	if(state != 0) {
-		pTerm->move(pTerm, x1, y1);
-		pTerm->vector(pTerm, x2, y2);
+		pTerm->Mov_(x1, y1);
+		pTerm->Vec_(x2, y2);
 	}
 	return state;
 }
@@ -182,7 +182,7 @@ void GnuPlot::DrawClipPolygon(GpTermEntry * pTerm, int points, gpiPoint * p)
 		int y1 = p[0].y;
 		int pos1 = V.ClipPoint(x1, y1);
 		if(!pos1) // move to first point if it is inside 
-			pTerm->move(pTerm, x1, y1);
+			pTerm->Mov_(x1, y1);
 		newpath(pTerm);
 		for(int i = 1; i < points; i++) {
 			int x2 = p[i].x;
@@ -192,8 +192,8 @@ void GnuPlot::DrawClipPolygon(GpTermEntry * pTerm, int points, gpiPoint * p)
 			if(clip_ret) {
 				// there is a line to draw 
 				if(pos1) // first vertex was recalculated, move to new start point 
-					pTerm->move(pTerm, x1, y1);
-				pTerm->vector(pTerm, x2, y2);
+					pTerm->Mov_(x1, y1);
+				pTerm->Vec_(x2, y2);
 			}
 			else {
 				continuous = false; // Path is not continuous; make sure closepath is not called 
@@ -243,7 +243,7 @@ void GnuPlot::DrawClipArrow(GpTermEntry * pTerm, double dsx, double dsy, double 
 	if(dx < 25 && dy < 25) {
 		// draw the body of the vector (rounding errors are a problem) 
 		if(dx > 1 || dy > 1)
-			if(!((pTerm->flags & TERM_IS_LATEX)))
+			if(!pTerm->CheckFlag(TERM_IS_LATEX))
 				pTerm->arrow(pTerm, sx, sy, ex, ey, SHAFT_ONLY | head);
 		// if we're not supposed to be drawing any heads, we're done 
 		if((head & BOTH_HEADS) == NOHEAD)
@@ -406,16 +406,16 @@ int GpView::ClipLine(int * x1, int * y1, int * x2, int * y2) const
 // 
 static bool vertex_is_inside(gpiPoint test_vertex, const gpiPoint * clip_boundary)
 {
-	if(clip_boundary[1].x > clip_boundary[0].x)           /*bottom edge*/
+	if(clip_boundary[1].x > clip_boundary[0].x) /*bottom edge*/
 		if(test_vertex.y >= clip_boundary[0].y) 
 			return TRUE;
-	if(clip_boundary[1].x < clip_boundary[0].x)           /*top edge*/
+	if(clip_boundary[1].x < clip_boundary[0].x) /*top edge*/
 		if(test_vertex.y <= clip_boundary[0].y) 
 			return TRUE;
-	if(clip_boundary[1].y > clip_boundary[0].y)           /*right edge*/
+	if(clip_boundary[1].y > clip_boundary[0].y) /*right edge*/
 		if(test_vertex.x <= clip_boundary[1].x) 
 			return TRUE;
-	if(clip_boundary[1].y < clip_boundary[0].y)           /*left edge*/
+	if(clip_boundary[1].y < clip_boundary[0].y) /*left edge*/
 		if(test_vertex.x >= clip_boundary[1].x) 
 			return TRUE;
 	return FALSE;
@@ -612,12 +612,12 @@ void GnuPlot::DrawPolarClipLine(GpTermEntry * pTerm, double xbeg, double ybeg, d
 				goto outside;
 		}
 		// Draw the part of the line inside the bounding circle 
-		pTerm->move(pTerm, MapiX(x1), MapiY(y1));
-		pTerm->vector(pTerm, MapiX(x2), MapiY(y2));
+		pTerm->Mov_(MapiX(x1), MapiY(y1));
+		pTerm->Vec_(MapiX(x2), MapiY(y2));
 		// @fallthrough 
 outside:
 		// Leave current position at unclipped endpoint 
-		pTerm->move(pTerm, MapiX(xend), MapiY(yend));
+		pTerm->Mov_(MapiX(xend), MapiY(yend));
 	}
 }
 //
@@ -650,7 +650,7 @@ void GnuPlot::ApplyPm3DColor(GpTermEntry * pTerm, const t_colorspec * tc)
 		// (2) Choose any color you want so long as it is black
 		// (3) Convert colors to gray scale (NTSC?)
 		// Monochrome terminals are still allowed to display rgb variable colors 
-		if(pTerm->flags & TERM_MONOCHROME && tc->value >= 0)
+		if(pTerm->CheckFlag(TERM_MONOCHROME) && tc->value >= 0)
 			pTerm->set_color(pTerm, &black);
 		else
 			pTerm->set_color(pTerm, tc);
@@ -687,7 +687,7 @@ void GnuPlot::ApplyPm3DColor(GpTermEntry * pTerm, const t_colorspec * tc)
 void GnuPlot::ResetTextColor(GpTermEntry * pTerm, const t_colorspec * tc)
 {
 	if(tc->type != TC_DEFAULT)
-		pTerm->linetype(pTerm, LT_BLACK);
+		pTerm->SetLineType_(LT_BLACK);
 }
 
 void default_arrow_style(struct arrow_style_type * arrow)
@@ -744,8 +744,8 @@ void free_labels(text_label * pLabel)
 void GnuPlot::GetOffsets(GpTermEntry * pTerm, text_label * pLabel, int * pHTic, int * pVTic)
 {
 	if(pLabel->lp_properties.flags & LP_SHOW_POINTS) {
-		*pHTic = static_cast<int>(Gg.PointSize * pTerm->TicH * 0.5);
-		*pVTic = static_cast<int>(Gg.PointSize * pTerm->TicV * 0.5);
+		*pHTic = static_cast<int>(pTerm->MulTicH(Gg.PointSize * 0.5));
+		*pVTic = static_cast<int>(pTerm->MulTicV(Gg.PointSize * 0.5));
 	}
 	else {
 		*pHTic = 0;
@@ -801,7 +801,7 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 			pTerm->boxed_text(pTerm, x + htic, y + vtic, TEXTBOX_INIT);
 		if(pLabel->rotate && (*pTerm->text_angle)(pTerm, pLabel->rotate)) {
 			WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
-			pTerm->text_angle(pTerm, 0);
+			pTerm->SetTextAngle_(0);
 		}
 		else {
 			WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
@@ -818,9 +818,9 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 			// Init for each of fill and border 
 			if(!textbox->noborder)
 				pTerm->boxed_text(pTerm, x + htic, y + vtic, TEXTBOX_INIT);
-			if(pLabel->rotate && pTerm->text_angle(pTerm, pLabel->rotate)) {
+			if(pLabel->rotate && pTerm->SetTextAngle_(pLabel->rotate)) {
 				WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, pLabel->rotate, pLabel->font);
-				pTerm->text_angle(pTerm, 0);
+				pTerm->SetTextAngle_(0);
 			}
 			else
 				WriteMultiline(pTerm, x + htic, y + vtic, pLabel->text, pLabel->pos, (VERT_JUSTIFY)justify, 0, pLabel->font);
@@ -837,7 +837,7 @@ void GnuPlot::WriteLabel(GpTermEntry * pTerm, int x, int y, text_label * pLabel)
 	// WriteMultiline() clips text to on_page; do the same for any point 
 	if((pLabel->lp_properties.flags & LP_SHOW_POINTS) && on_page(pTerm, x, y)) {
 		TermApplyLpProperties(pTerm, &pLabel->lp_properties);
-		pTerm->point(pTerm, x, y, pLabel->lp_properties.PtType);
+		pTerm->Pnt_(x, y, pLabel->lp_properties.PtType);
 		// the default label color is that of border 
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
@@ -887,7 +887,7 @@ void GnuPlot::DoTimeLabel(GpTermEntry * pTerm, int x, int y)
 	char str[MAX_LINE_LEN+1];
 	time_t now;
 	if(Gg.LblTime.rotate == 0 && !Gg.TimeLabelBottom)
-		y -= pTerm->ChrV;
+		y -= pTerm->CV();
 	time(&now);
 	strftime(str, MAX_LINE_LEN, Gg.LblTime.text, localtime(&now));
 	temp.text = str;

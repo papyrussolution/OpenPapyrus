@@ -305,10 +305,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 /*static*/int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
 	{ return Helper_Execute(viewID, pFilt, flags, 0, extraPtr); }
 
-PPObject * PPView::GetObj() const
-{
-	return P_Obj;
-}
+PPObject * PPView::GetObj() const { return P_Obj; }
 //
 //
 //
@@ -1752,6 +1749,37 @@ void PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rC
 		ASSIGN_PTR(pBuf, 0);
 }
 
+int PPView::Helper_ProcessQuickTagEdit(PPObjID oid, const void * pHdrPtr /*(LongArray *)*/)
+{
+	int    ok = -1;
+	if(pHdrPtr && oid.Obj && oid.Id) {
+		const LongArray * p_tag_id_list = static_cast<const LongArray *>(pHdrPtr);
+		const uint lc = p_tag_id_list->getCount();
+		if(lc > 0 && lc < 20) { // Ограничение 20 частично страхует от случая, когда вместо указателя на LongArray нам подсунули что-то иное
+			PPID tag_id = 0;
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			for(uint i = 0; !tag_id && i < lc; i++) {
+				if(tag_obj.Fetch(p_tag_id_list->get(i), &tag_rec) > 0 && tag_rec.ObjTypeID == oid.Obj)
+					tag_id = tag_rec.ID;
+			}
+			if(tag_id) {
+				ObjTagItem tag_item;
+				ObjTagCore & r_ot = PPRef->Ot;
+				if(r_ot.GetTag(oid.Obj, oid.Id, tag_id, &tag_item) > 0 || tag_item.Init(tag_id)) {
+					if(EditObjTagItem(oid.Obj, oid.Id, &tag_item, 0) > 0) {
+						if(r_ot.PutTag(oid.Obj, oid.Id, &tag_item, 1))
+							ok = 1;
+						else
+							PPError();
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPView::Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void * pItem1, const void * pItem2)
 {
 	int    sn = 0;
@@ -2527,40 +2555,70 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		if(TVKEYDOWN) {
 			if(oneof3(TVKEY, kbEnter, kbIns, kbDel))
 				skip_inherited_processing = 1;
-			else if(TVKEY == kbF10)
+			else if(P_View && VbState & vbsTagPreKey) {
+				const void * p_row = getCurItem();
+				if(p_row) { // Если текущий элемент не выделен то нечего и редактировать будет - пропускаем
+					PPObject * p_obj = P_View->GetObj();
+					const PPID obj_type = p_obj ? p_obj->Obj : 0;
+					PPObjTag tag_obj;
+					LongArray tag_list;
+					KeyDownCommand kc;
+					kc.Code  = LoWord(event.keyDown.keyCode);
+					kc.State = HiWord(event.keyDown.keyCode);
+					if(oneof2(kc.State, 0, KeyDownCommand::stateShift) && isasciialpha(kc.Code)) {
+						kc.Code = toupper(kc.Code);
+					}
+					uint32 final_code = MakeLong(kc.Code, kc.State);
+					if(tag_obj.GetListByHotKey(/*event.keyDown.keyCode*/final_code, obj_type, tag_list) > 0) {
+						assert(tag_list.getCount());
+						P_View->ProcessCommand(PPVCMD_QUICKTAGEDIT, &tag_list, this);
+					}
+				}
+				VbState &= ~vbsTagPreKey;
+				clearEvent(event);
+			}
+			else if(TVKEY == kbF10 && !(VbState & vbsKbF10)) { // @v11.2.8 !(VbState & vbsKbF10)
 				VbState |= vbsKbF10;
+				VbState &= ~vbsTagPreKey;
+			}
 			else {
 				const  int c = TVCHR;
 				if(c) {
-					if(isalnum(c) || c == '*') {
-						if(VbState & vbsKbF10 && oneof2(c, 'x', 'X')) {
-							Export();
-							clearEvent(event);
+					if(c == '/' && P_View && P_View->GetImplementFlags() & PPView::implUseQuickTagEditFunc && !(VbState & vbsTagPreKey)) { // @v11.2.8
+						VbState |= vbsTagPreKey;
+					}
+					else {
+						if(isalnum(c) || c == '*') {
+							if(VbState & vbsKbF10 && oneof2(c, 'x', 'X')) {
+								Export();
+								clearEvent(event);
+							}
+							else if(P_View) {
+								char   temp_buf[32];
+								temp_buf[0] = c;
+								temp_buf[1] = 0;
+								r = P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this);
+								if(r != -2) {
+									if(r > 0)
+										updateView();
+									clearEvent(event);
+								}
+							}
 						}
-						else if(P_View) {
-							char   temp_buf[32];
-							temp_buf[0] = c;
-							temp_buf[1] = 0;
-							r = P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this);
-							if(r != -2) {
-								if(r > 0)
-									updateView();
+						else {
+							KeyDownCommand kd;
+							char   b[4];
+							b[0] = c;
+							b[1] = 0;
+							SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+							r_temp_buf_u.CopyFromMb_OUTER(b, 1);
+							uint   tc = kd.SetCharU(r_temp_buf_u.C(0)) ? kd.GetChar() : 0; 
+							if(VbState & vbsKbF10 && oneof2(tc, 'x', 'X')) {
+								Export();
 								clearEvent(event);
 							}
 						}
-					}
-					else {
-						KeyDownCommand kd;
-						char   b[4];
-						b[0] = c;
-						b[1] = 0;
-						SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-						r_temp_buf_u.CopyFromMb_OUTER(b, 1);
-						uint   tc = kd.SetCharU(r_temp_buf_u.C(0)) ? kd.GetChar() : 0; 
-						if(VbState & vbsKbF10 && oneof2(tc, 'x', 'X')) {
-							Export();
-							clearEvent(event);
-						}
+						VbState &= ~vbsTagPreKey;
 					}
 					VbState &= ~vbsKbF10;
 				}

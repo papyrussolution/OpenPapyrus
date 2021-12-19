@@ -25,14 +25,14 @@ U_NAMESPACE_BEGIN
 #define MZ_PREFIX_LEN 5
 
 static const char gZoneStrings[]        = "zoneStrings";
-static const char gMZPrefix[]           = "meta:";
+static const char gMZPrefix[]   = "meta:";
 
-static const char EMPTY[]               = "<empty>";   // place holder for empty ZNames
+static const char EMPTY[]       = "<empty>";   // place holder for empty ZNames
 static const char DUMMY_LOADER[]        = "<dummy>";   // place holder for dummy ZNamesLoader
-static const UChar NO_NAME[]            = { 0 };   // for empty no-fallback time zone names
+static const UChar NO_NAME[]    = { 0 };   // for empty no-fallback time zone names
 
 // stuff for TZDBTimeZoneNames
-static const char * TZDBNAMES_KEYS[]               = {"ss", "sd"};
+static const char * TZDBNAMES_KEYS[]       = {"ss", "sd"};
 static const int32_t TZDBNAMES_KEYS_SIZE = UPRV_LENGTHOF(TZDBNAMES_KEYS);
 
 static UMutex gDataMutex;
@@ -346,7 +346,7 @@ void TextTrieMap::buildTrie(UErrorCode & status) {
 	if(fLazyContents != NULL) {
 		for(int32_t i = 0; i<fLazyContents->size(); i += 2) {
 			const UChar * key = (UChar *)fLazyContents->elementAt(i);
-			void  * val = fLazyContents->elementAt(i+1);
+			void * val = fLazyContents->elementAt(i+1);
 			UnicodeString keyString(TRUE, key, -1); // Aliasing UnicodeString constructor.
 			putImpl(keyString, val, status);
 		}
@@ -1710,11 +1710,11 @@ void TimeZoneNamesImpl::internalLoadAllDisplayNames(UErrorCode & status) {
 	}
 }
 
-static const UChar gEtcPrefix[]         = { 0x45, 0x74, 0x63, 0x2F }; // "Etc/"
+static const UChar gEtcPrefix[] = { 0x45, 0x74, 0x63, 0x2F }; // "Etc/"
 static const int32_t gEtcPrefixLen      = 4;
 static const UChar gSystemVPrefix[] = { 0x53, 0x79, 0x73, 0x74, 0x65, 0x6D, 0x56, 0x2F }; // "SystemV/
 static const int32_t gSystemVPrefixLen  = 8;
-static const UChar gRiyadh8[]           = { 0x52, 0x69, 0x79, 0x61, 0x64, 0x68, 0x38 }; // "Riyadh8"
+static const UChar gRiyadh8[]   = { 0x52, 0x69, 0x79, 0x61, 0x64, 0x68, 0x38 }; // "Riyadh8"
 static const int32_t gRiyadh8Len       = 7;
 
 UnicodeString & U_EXPORT2 TimeZoneNamesImpl::getDefaultExemplarLocationName(const UnicodeString & tzID, UnicodeString & name) {

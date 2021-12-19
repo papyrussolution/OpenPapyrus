@@ -649,7 +649,7 @@ static force_inline void bilinear_pad_repeat_get_scanline_bounds(int32 source_im
  *		       pixman_fixed_t     vx,
  *		       pixman_fixed_t     unit_x,
  *		       pixman_fixed_t     max_vx,
- *		       boolint      zero_src)
+ *		       boolint zero_src)
  *
  * Where:
  *  dst                 - destination scanline buffer for storing results

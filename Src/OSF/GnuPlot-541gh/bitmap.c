@@ -807,7 +807,7 @@ void GnuPlot::GpBitmap::Putc(uint x, uint y, int c, uint c_angle)
 //
 // set b_linemask to b_pattern[linetype]
 //
-void b_setlinetype(GpTermEntry * pThis, int linetype)
+void b_setlinetype(GpTermEntry_Static * pThis, int linetype)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(linetype >= 7)
@@ -820,21 +820,21 @@ void b_setlinetype(GpTermEntry * pThis, int linetype)
 //
 // set l_lw to linewidth
 //
-void b_linewidth(GpTermEntry * pThis, double linewidth)
+void b_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	pThis->P_Gp->_Bmp.b_lw = linewidth;
 }
 //
 // set b_value to value
 //
-void b_setvalue(GpTermEntry * pThis, uint value)
+void b_setvalue(GpTermEntry_Static * pThis, uint value)
 {
 	pThis->P_Gp->_Bmp.b_value = value;
 }
 //
 // move to (x,y)
 //
-void b_move(GpTermEntry * pThis, uint x, uint y)
+void b_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->_Bmp.b_currx = x;
@@ -843,7 +843,7 @@ void b_move(GpTermEntry * pThis, uint x, uint y)
 //
 // draw to (x,y) with color b_value
 //
-void b_vector(GpTermEntry * pThis, uint x, uint y)
+void b_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// We can't clip properly, but we can refuse to draw out of bounds 
@@ -855,7 +855,7 @@ void b_vector(GpTermEntry * pThis, uint x, uint y)
 //
 // put text str at (x,y) with color b_value and rotation b_angle
 //
-void b_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+void b_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(p_gp->_Bmp.b_angle == 1)
@@ -874,14 +874,14 @@ void b_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 	}
 }
 
-int b_text_angle(GpTermEntry * pThis, int ang)
+int b_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	pThis->P_Gp->_Bmp.b_angle = (uint)(ang ? 1 : 0);
 	return TRUE;
 }
 
 // New function by ULIG 
-void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
+void b_boxfill(GpTermEntry_Static * pThis, int style, uint x, uint y, uint w, uint h)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	uint ix, iy;
@@ -945,7 +945,7 @@ void b_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
 //
 // code from sixeltek terminal by Erik Olofsen 
 //
-void b_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+void b_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int i;

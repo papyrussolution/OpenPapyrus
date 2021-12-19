@@ -276,7 +276,7 @@ void TProgram::DelItemFromMenu(void * ptr)
 						INITWINAPISTRUCT(t_i);
 						t_i.uFlags      = TTF_SUBCLASS;
 						t_i.hwnd        = hwnd_tab;
-						t_i.uId         = reinterpret_cast<UINT_PTR>(ptr);
+						t_i.uId = reinterpret_cast<UINT_PTR>(ptr);
 						t_i.rect        = rc_item;
 						t_i.hinst       = TProgram::GetInst();
 						::SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, reinterpret_cast<LPARAM>(&t_i));
@@ -520,8 +520,9 @@ int TProgram::GetClientRect(RECT * pClientRC)
 void TProgram::SizeMainWnd(HWND hw)
 {
 	// @todo Use layout
-	if(P_Toolbar && hw == H_MainWnd)
+	if(P_Toolbar && hw == H_MainWnd) {
 		P_Toolbar->OnMainSize();
+	}
 	RECT   rc_client;
 	MEMSZERO(rc_client);
 	CALLPTRMEMB(P_Stw, Update());
@@ -556,8 +557,20 @@ void TProgram::SizeMainWnd(HWND hw)
 		GetTreeRect(_rc);
 		_rc.right -= _rc.left;
 		if(hw != h_tree) {
+			//const long tree_wnd_style = TView::GetWindowStyle(h_tree);
+			int  tw_top = rc_client.top;
+			int  tw_bottom = rc_client.bottom;
+			{
+				RECT rc_dt;
+				if(H_Desktop && GetWindowRect(H_Desktop, &rc_dt)) {
+					tw_top = rc_dt.top;
+					//tw_bottom = rc_dt.bottom;
+				}
+			}
+			//if(tree_wnd_style & WS_POPUP) {
+			//}
 			SETMIN(_rc.right, rc_client.right / 2);
-			::MoveWindow(h_tree, rc_client.left, rc_client.top, _rc.right, rc_client.bottom, 1);
+			::MoveWindow(h_tree, rc_client.left, tw_top, _rc.right, tw_bottom, 1);
 		}
 		rc_client.left  += _rc.right;
 		rc_client.right -= _rc.right;
@@ -1032,8 +1045,8 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.lpszClassName = SUcSwitch(AppSymbol);
 		wc.hInstance     = hInstance;
 		wc.lpfnWndProc   = static_cast<WNDPROC>(MainWndProc);
-		wc.style         = CS_HREDRAW | CS_VREDRAW;
-		wc.hIcon         = H_Icon;
+		wc.style = CS_HREDRAW | CS_VREDRAW;
+		wc.hIcon = H_Icon;
 		{
 			// @v10.7.8 wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_GRAYTEXT);
 			HBRUSH hbr_bkg = ::CreateSolidBrush(RGB(0x20, 0x63, 0x9b)); // @v10.7.8
@@ -2395,10 +2408,8 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				font = ::CreateFontIndirect(&log_font);
 				delete_font = 1;
 			}
-			else {
-				HCURSOR arrow_cursor = LoadCursor(NULL, IDC_ARROW);
-				SetCursor(arrow_cursor);
-			}
+			else
+				::SetCursor(::LoadCursor(0, IDC_ARROW));
 			SetTextColor(pDi->hDC, p_item->TextColor);
 			old_font = static_cast<HFONT>(::SelectObject(pDi->hDC, font));
 			InflateRect(&out_r, -1, -1);

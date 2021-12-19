@@ -118,35 +118,25 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 			goto bail;
 	}
 	else {
-		cairo_surface_t * parent_surface;
 		cairo_rectangle_int_t extents;
 		boolint bounded, is_empty;
-
-		parent_surface = _cairo_gstate_get_target(cr->gstate);
-
+		cairo_surface_t * parent_surface = _cairo_gstate_get_target(cr->gstate);
 		if(UNLIKELY(parent_surface->status))
 			return parent_surface->status;
 		if(UNLIKELY(parent_surface->finished))
 			return _cairo_error(CAIRO_STATUS_SURFACE_FINISHED);
-
 		/* Get the extents that we'll use in creating our new group surface */
 		bounded = _cairo_surface_get_extents(parent_surface, &extents);
 		if(clip)
 			/* XXX: This assignment just fixes a compiler warning? */
-			is_empty = _cairo_rectangle_intersect(&extents,
-				_cairo_clip_get_extents(clip));
-
+			is_empty = _cairo_rectangle_intersect(&extents, _cairo_clip_get_extents(clip));
 		if(!bounded) {
 			/* XXX: Generic solution? */
 			group_surface = cairo_recording_surface_create(content, NULL);
 			extents.x = extents.y = 0;
 		}
 		else {
-			group_surface = _cairo_surface_create_scratch(parent_surface,
-				content,
-				extents.width,
-				extents.height,
-				CAIRO_COLOR_TRANSPARENT);
+			group_surface = _cairo_surface_create_scratch(parent_surface, content, extents.width, extents.height, CAIRO_COLOR_TRANSPARENT);
 		}
 		status = group_surface->status;
 		if(UNLIKELY(status))
@@ -217,10 +207,10 @@ static boolint _current_source_matches_solid(const cairo_pattern_t * pattern, do
 	cairo_color_t color;
 	if(pattern->type != CAIRO_PATTERN_TYPE_SOLID)
 		return FALSE;
-	red   = _cairo_restrict_value(red,   0.0, 1.0);
-	green = _cairo_restrict_value(green, 0.0, 1.0);
-	blue  = _cairo_restrict_value(blue,  0.0, 1.0);
-	alpha = _cairo_restrict_value(alpha, 0.0, 1.0);
+	red   = sclamp(red,   0.0, 1.0);
+	green = sclamp(green, 0.0, 1.0);
+	blue  = sclamp(blue,  0.0, 1.0);
+	alpha = sclamp(alpha, 0.0, 1.0);
 	_cairo_color_init_rgba(&color, red, green, blue, alpha);
 	return _cairo_color_equal(&color, &(reinterpret_cast<const cairo_solid_pattern_t *>(pattern))->color);
 }

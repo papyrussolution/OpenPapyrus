@@ -99,7 +99,7 @@ U_CAPI char U_EXPORT2 uprv_asciitolower(char c)
 
 U_CAPI char U_EXPORT2 uprv_ebcdictolower(char c) 
 {
-	if((0xc1<=(uint8_t)c && (uint8_t)c<=0xc9) || (0xd1<=(uint8_t)c && (uint8_t)c<=0xd9) || (0xe2<=(uint8_t)c && (uint8_t)c<=0xe9)) {
+	if((0xc1<=(uint8)c && (uint8)c<=0xc9) || (0xd1<=(uint8)c && (uint8)c<=0xd9) || (0xe2<=(uint8)c && (uint8)c<=0xe9)) {
 		c = (char)(c-0x40);
 	}
 	return c;
@@ -133,7 +133,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_integerToString(char * buffer, int32_t v, int
 {
 	char tbuf[30];
 	int32_t tbx    = sizeof(tbuf);
-	uint8_t digit;
+	uint8 digit;
 	int32_t length = 0;
 	uint32_t uval;
 	U_ASSERT(radix>=2 && radix<=16);
@@ -146,7 +146,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_integerToString(char * buffer, int32_t v, int
 	tbx = sizeof(tbuf)-1;
 	tbuf[tbx] = 0; /* We are generating the digits backwards.  Null term the end. */
 	do {
-		digit = (uint8_t)(uval % radix);
+		digit = (uint8)(uval % radix);
 		tbuf[--tbx] = (char)(T_CString_itosOffset(digit));
 		uval  = uval / radix;
 	} while(uval != 0);
@@ -164,7 +164,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_int64ToString(char * buffer, int64_t v, uint3
 {
 	char tbuf[30];
 	int32_t tbx    = sizeof(tbuf);
-	uint8_t digit;
+	uint8 digit;
 	int32_t length = 0;
 	uint64_t uval;
 	U_ASSERT(radix>=2 && radix<=16);
@@ -178,7 +178,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_int64ToString(char * buffer, int64_t v, uint3
 	tbx = sizeof(tbuf)-1;
 	tbuf[tbx] = 0; /* We are generating the digits backwards.  Null term the end. */
 	do {
-		digit = (uint8_t)(uval % radix);
+		digit = (uint8)(uval % radix);
 		tbuf[--tbx] = (char)(T_CString_itosOffset(digit));
 		uval  = uval / radix;
 	} while(uval != 0);

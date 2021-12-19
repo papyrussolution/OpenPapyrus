@@ -393,7 +393,7 @@ int DlMacro::Subst(const char * pSymb, SString & rResult) const
 {
 	SString pat(pSymb);
 	pat.Comma();
-	for(uint pos = 0; S.get(&pos, rResult) > 0;)
+	for(uint pos = 0; S.get(&pos, rResult);)
 		if(rResult.CmpPrefix(pat, 0) == 0) {
 			rResult.ShiftLeft(pat.Len());
 			return 1;

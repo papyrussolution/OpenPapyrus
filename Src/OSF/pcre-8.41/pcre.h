@@ -123,10 +123,10 @@ extern "C" {
 #define PCRE_ANCHORED           0x00000010  /* C4 E D   */
 #define PCRE_DOLLAR_ENDONLY     0x00000020  /* C2       */
 #define PCRE_EXTRA              0x00000040  /* C1       */
-#define PCRE_NOTBOL             0x00000080  /*    E D J */
-#define PCRE_NOTEOL             0x00000100  /*    E D J */
+#define PCRE_NOTBOL             0x00000080  /* E D J */
+#define PCRE_NOTEOL             0x00000100  /* E D J */
 #define PCRE_UNGREEDY           0x00000200  /* C1       */
-#define PCRE_NOTEMPTY           0x00000400  /*    E D J */
+#define PCRE_NOTEMPTY           0x00000400  /* E D J */
 #define PCRE_UTF8               0x00000800  /* C4        )          */
 #define PCRE_UTF16              0x00000800  /* C4        ) Synonyms */
 #define PCRE_UTF32              0x00000800  /* C4        )          */
@@ -135,16 +135,16 @@ extern "C" {
 #define PCRE_NO_UTF16_CHECK     0x00002000  /* C1 E D J  ) Synonyms */
 #define PCRE_NO_UTF32_CHECK     0x00002000  /* C1 E D J  )          */
 #define PCRE_AUTO_CALLOUT       0x00004000  /* C1       */
-#define PCRE_PARTIAL_SOFT       0x00008000  /*    E D J  ) Synonyms */
-#define PCRE_PARTIAL            0x00008000  /*    E D J  )          */
+#define PCRE_PARTIAL_SOFT       0x00008000  /* E D J  ) Synonyms */
+#define PCRE_PARTIAL            0x00008000  /* E D J  )          */
 
 /* This pair use the same bit. */
 #define PCRE_NEVER_UTF          0x00010000  /* C1        ) Overlaid */
-#define PCRE_DFA_SHORTEST       0x00010000  /*      D    ) Overlaid */
+#define PCRE_DFA_SHORTEST       0x00010000  /* D    ) Overlaid */
 
 /* This pair use the same bit. */
 #define PCRE_NO_AUTO_POSSESS    0x00020000  /* C1        ) Overlaid */
-#define PCRE_DFA_RESTART        0x00020000  /*      D    ) Overlaid */
+#define PCRE_DFA_RESTART        0x00020000  /* D    ) Overlaid */
 
 #define PCRE_FIRSTLINE          0x00040000  /* C3       */
 #define PCRE_DUPNAMES           0x00080000  /* C1       */
@@ -158,8 +158,8 @@ extern "C" {
 #define PCRE_JAVASCRIPT_COMPAT  0x02000000  /* C5       */
 #define PCRE_NO_START_OPTIMIZE  0x04000000  /* C2 E D    ) Synonyms */
 #define PCRE_NO_START_OPTIMISE  0x04000000  /* C2 E D    )          */
-#define PCRE_PARTIAL_HARD       0x08000000  /*    E D J */
-#define PCRE_NOTEMPTY_ATSTART   0x10000000  /*    E D J */
+#define PCRE_PARTIAL_HARD       0x08000000  /* E D J */
+#define PCRE_NOTEMPTY_ATSTART   0x10000000  /* E D J */
 #define PCRE_UCP                0x20000000  /* C3       */
 // 
 // Exec-time and get/set-time error codes 

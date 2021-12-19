@@ -110,4 +110,4 @@
 	#define HAVE_SIGNAL_H
 	#define HAVE_C_INLINE
 #endif
-#endif /*  __PTW32_CONFIG_H */
+#endif /* __PTW32_CONFIG_H */

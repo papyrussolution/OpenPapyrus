@@ -33,12 +33,16 @@
  *    (1) The Sel is displayed with the hit and miss elements in color.
  *
  *    (2) We produce several 4 bpp colormapped renditions,
- *        with the matched pattern either hightlighted or removed.
+ *        with the matched pattern either highlighted or removed.
  *
  *    (3) For figures in the Document Image Applications chapter:
  *           fig 7:  livre_hmt 1 8
  *           fig 8:  livre_hmt 2 4
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include "allheaders.h"
 
@@ -68,6 +72,8 @@ static char  mainName[] = "livre_hmt";
     patno = atoi(argv[1]);
     reduction = atoi(argv[2]);
 
+    setLeptDebugOK(1);
+    lept_mkdir("lept/livre");
     if ((pixs = pixRead(patname[patno])) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
     if (reduction != 4 && reduction != 8 && reduction != 16)
@@ -77,7 +83,7 @@ static char  mainName[] = "livre_hmt";
         pixt = pixReduceRankBinaryCascade(pixs, 4, 4, 0, 0);
     else if (reduction == 8)
         pixt = pixReduceRankBinaryCascade(pixs, 4, 4, 2, 0);
-    else if (reduction == 16)
+    else  /* reduction == 16 */
         pixt = pixReduceRankBinaryCascade(pixs, 4, 4, 2, 2);
 
         /* Make a hit-miss sel */
@@ -85,13 +91,13 @@ static char  mainName[] = "livre_hmt";
         selhm = pixGenerateSelBoundary(pixt, 2, 2, 20, 30, 1, 1, 0, 0, &pixp);
     else if (reduction == 8)
         selhm = pixGenerateSelBoundary(pixt, 1, 2, 6, 12, 1, 1, 0, 0, &pixp);
-    else if (reduction == 16)
+    else  /* reduction == 16 */
         selhm = pixGenerateSelBoundary(pixt, 1, 1, 4, 8, 0, 0, 0, 0, &pixp);
 
         /* Display the sel */
     pixsel = pixDisplayHitMissSel(pixp, selhm, 7, HitColor, MissColor);
-    pixDisplay(pixsel, 200, 200);
-    pixWrite("/tmp/lept/pixsel1", pixsel, IFF_PNG);
+    pixDisplay(pixsel, 1000, 300);
+    pixWrite("/tmp/lept/livre/pixsel1", pixsel, IFF_PNG);
 
         /* Use the Sel to find all instances in the page */
     pix = pixRead("tribune-page-4x.png");  /* 4x reduced */
@@ -99,28 +105,28 @@ static char  mainName[] = "livre_hmt";
         pixr = pixClone(pix);
     else if (reduction == 8)
         pixr = pixReduceRankBinaryCascade(pix, 2, 0, 0, 0);
-    else if (reduction == 16)
+    else  /* reduction == 16 */
         pixr = pixReduceRankBinaryCascade(pix, 2, 2, 0, 0);
 
     startTimer();
     pixhmt = pixHMT(NULL, pixr, selhm);
-    fprintf(stderr, "Time to find patterns = %7.3f\n", stopTimer());
+    lept_stderr("Time to find patterns = %7.3f\n", stopTimer());
 
         /* Color each instance at full res */
     selGetParameters(selhm, NULL, NULL, &cy, &cx);
     pixd1 = pixDisplayMatchedPattern(pixr, pixp, pixhmt,
                                      cx, cy, 0x0000ff00, 1.0, 5);
-    pixWrite("/tmp/lept/pixd11", pixd1, IFF_PNG);
+    pixWrite("/tmp/lept/livre/pixd11", pixd1, IFF_PNG);
 
         /* Color each instance at 0.5 scale */
     pixd2 = pixDisplayMatchedPattern(pixr, pixp, pixhmt,
                                      cx, cy, 0x0000ff00, 0.5, 5);
-    pixWrite("/tmp/lept/pixd12", pixd2, IFF_PNG);
+    pixWrite("/tmp/lept/livre/pixd12", pixd2, IFF_PNG);
 
         /* Remove each instance from the input image */
     pixd3 = pixCopy(NULL, pixr);
     pixRemoveMatchedPattern(pixd3, pixp, pixhmt, cx, cy, 1);
-    pixWrite("/tmp/lept/pixr1", pixd3, IFF_PNG);
+    pixWrite("/tmp/lept/livre/pixr1", pixd3, IFF_PNG);
 
     pixa = pixaCreate(2);
     pixaAddPix(pixa, pixs, L_CLONE);
@@ -128,8 +134,8 @@ static char  mainName[] = "livre_hmt";
     cols = (patno == 1) ? 1 : 2;
     width = (patno == 1) ? 800 : 400;
     pixd = pixaDisplayTiledAndScaled(pixa, 32, width, cols, 0, 30, 2);
-    pixWrite("/tmp/lept/hmt.png", pixd, IFF_PNG);
-    pixDisplay(pixd, 0, 300);
+    pixWrite("/tmp/lept/livre/hmt.png", pixd, IFF_PNG);
+    pixDisplay(pixd, 1000, 600);
 
     selDestroy(&selhm);
     pixDestroy(&pixp);

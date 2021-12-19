@@ -43,7 +43,7 @@ using namespace icu;
  */
 
 struct UPlugData {
-	UPlugEntrypoint  * entrypoint;/**< plugin entrypoint */
+	UPlugEntrypoint  * entrypoint; /**< plugin entrypoint */
 	uint32_t structSize; /**< initialized to the size of this structure */
 	uint32_t token; /**< must be U_PLUG_TOKEN */
 	void * lib; /**< plugin library, or NULL */
@@ -71,7 +71,7 @@ struct UPlugData {
  */
 static int32_t uplug_removeEntryAt(void * list, int32_t listSize, int32_t memberSize, int32_t itemToRemove) 
 {
-	uint8_t * bytePtr = (uint8_t*)list;
+	uint8 * bytePtr = (uint8 *)list;
 	/* get rid of some bad cases first */
 	if(listSize<1) {
 		return listSize;

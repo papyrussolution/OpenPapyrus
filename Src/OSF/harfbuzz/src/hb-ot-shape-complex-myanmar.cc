@@ -101,9 +101,9 @@ enum myanmar_syllable_type_t {
 
 #include "hb-ot-shape-complex-myanmar-machine.hh"
 
-static void setup_masks_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static void setup_masks_myanmar(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
-    hb_font_t * font HB_UNUSED)
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, myanmar_category);
 	HB_BUFFER_ALLOCATE_VAR(buffer, myanmar_position);
@@ -117,8 +117,8 @@ static void setup_masks_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
 		set_myanmar_properties(info[i]);
 }
 
-static void setup_syllables_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED,
+static void setup_syllables_myanmar(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	find_syllables_myanmar(buffer);
@@ -222,8 +222,8 @@ static void initial_reordering_consonant_syllable(hb_buffer_t * buffer,
 	buffer->sort(start, end, compare_myanmar_order);
 }
 
-static void reorder_syllable_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_face_t * face HB_UNUSED,
+static void reorder_syllable_myanmar(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_face_t * face CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
     uint start, uint end)
 {
@@ -241,7 +241,7 @@ static void reorder_syllable_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
 	}
 }
 
-static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static inline void insert_dotted_circles_myanmar(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer)
 {

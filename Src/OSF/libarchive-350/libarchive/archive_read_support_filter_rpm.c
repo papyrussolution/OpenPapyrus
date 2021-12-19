@@ -49,13 +49,13 @@ struct rpm {
 
 #define RPM_LEAD_SIZE   96      /* Size of 'Lead' section. */
 
-static int      rpm_bidder_bid(struct archive_read_filter_bidder *,
+static int rpm_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      rpm_bidder_init(struct archive_read_filter *);
+static int rpm_bidder_init(struct archive_read_filter *);
 
 static ssize_t  rpm_filter_read(struct archive_read_filter *,
     const void **);
-static int      rpm_filter_close(struct archive_read_filter *);
+static int rpm_filter_close(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
@@ -91,7 +91,7 @@ static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archi
 	const uchar * b;
 	ssize_t avail;
 	int bits_checked;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	b = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 8, &avail));
 	if(b == NULL)
 		return 0;

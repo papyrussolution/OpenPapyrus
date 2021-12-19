@@ -192,7 +192,7 @@ enum use_syllable_type_t {
 
 static void setup_masks_use(const hb_ot_shape_plan_t * plan,
     hb_buffer_t * buffer,
-    hb_font_t * font HB_UNUSED)
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 	const use_shape_plan_t * use_plan = (const use_shape_plan_t*)plan->data;
 
@@ -293,7 +293,7 @@ static void setup_topographical_masks(const hb_ot_shape_plan_t * plan,
 }
 
 static void setup_syllables_use(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font HB_UNUSED,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	find_syllables_use(buffer);
@@ -304,7 +304,7 @@ static void setup_syllables_use(const hb_ot_shape_plan_t * plan,
 }
 
 static void record_rphf_use(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font HB_UNUSED,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	const use_shape_plan_t * use_plan = (const use_shape_plan_t*)plan->data;
@@ -324,8 +324,8 @@ static void record_rphf_use(const hb_ot_shape_plan_t * plan,
 	}
 }
 
-static void record_pref_use(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED,
+static void record_pref_use(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	hb_glyph_info_t * info = buffer->info;
@@ -423,7 +423,7 @@ static void reorder_syllable_use(hb_buffer_t * buffer, uint start, uint end)
 	}
 }
 
-static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static inline void insert_dotted_circles_use(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer)
 {

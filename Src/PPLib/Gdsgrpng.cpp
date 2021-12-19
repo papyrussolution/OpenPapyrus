@@ -581,7 +581,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 			entry.LotDate       = pEntry->LotDate;
 			entry.LotTaxGrpID   = lot_tax_grp_id;
 			entry.GoodsTaxGrpID = goods_tax_grp_id;
-			entry.Flags         = (flags & ~(GGEF_PRICEWOTAXES | GGEF_INTERNAL));
+			entry.Flags = (flags & ~(GGEF_PRICEWOTAXES | GGEF_INTERNAL));
 		}
 		else
 			entry.Flags = (flags & ~(GGEF_VATFREE|GGEF_TOGGLESTAX|GGEF_PRICEWOTAXES|GGEF_INTERNAL|GGEF_LOCVATFREE));

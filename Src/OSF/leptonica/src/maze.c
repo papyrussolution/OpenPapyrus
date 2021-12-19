@@ -1,28 +1,29 @@
 /*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*====================================================================*/
+ -  Copyright (C) 2001 Leptonica.  All rights reserved.
+ -
+ -  Redistribution and use in source and binary forms, with or without
+ -  modification, are permitted provided that the following conditions
+ -  are met:
+ -  1. Redistributions of source code must retain the above copyright
+ -     notice, this list of conditions and the following disclaimer.
+ -  2. Redistributions in binary form must reproduce the above
+ -     copyright notice, this list of conditions and the following
+ -     disclaimer in the documentation and/or other materials
+ -     provided with the distribution.
+ -
+ -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+ -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *====================================================================*/
+
 
 /*!
  * \file maze.c
@@ -41,55 +42,45 @@
  *          static MAZEEL   *mazeelCreate()
  *
  *          PIX             *pixSearchBinaryMaze()
- *          static int32   localSearchForBackground()
+ *          static l_int32   localSearchForBackground()
  *
  *      Generalizing a maze to a grayscale image, the search is
  *      now for the "shortest" or least cost path, for some given
  *      cost function.
  *
  *          PIX             *pixSearchGrayMaze()
- *
- *
- *      Elegant method for finding largest white (or black) rectangle
- *      in an image.
- *
- *          int32          pixFindLargestRectangle()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-//#ifdef _WIN32
-//#include <time.h>
-//#endif  /* _WIN32 */
+static const l_int32  MinMazeWidth = 50;
+static const l_int32  MinMazeHeight = 50;
 
-static const int32 MIN_MAZE_WIDTH = 50;
-static const int32 MIN_MAZE_HEIGHT = 50;
-
-static const float DEFAULT_WALL_PROBABILITY = 0.65;
-static const float DEFAULT_ANISOTROPY_RATIO = 0.25;
+static const float  DefaultWallProbability = 0.65;
+static const float  DefaultAnisotropyRatio = 0.25;
 
 enum {  /* direction from parent to newly created element */
-	START_LOC = 0,
-	DIR_NORTH = 1,
-	DIR_SOUTH = 2,
-	DIR_WEST = 3,
-	DIR_EAST = 4
+    START_LOC = 0,
+    DIR_NORTH = 1,
+    DIR_SOUTH = 2,
+    DIR_WEST = 3,
+    DIR_EAST = 4
 };
 
 struct MazeElement {
-	float distance;
-	int32 x;
-	int32 y;
-	uint32 val; /* value of maze pixel at this location */
-	int32 dir; /* direction from parent to child */
+    float  distance;
+    l_int32    x;
+    l_int32    y;
+    l_uint32   val;  /* value of maze pixel at this location */
+    l_int32    dir;  /* direction from parent to child */
 };
+typedef struct MazeElement  MAZEEL;
 
-typedef struct MazeElement MAZEEL;
 
-static MAZEEL * mazeelCreate(int32 x, int32 y, int32 dir);
-static int32 localSearchForBackground(PIX  * pix, int32  * px,
-    int32  * py, int32 maxrad);
+static MAZEEL *mazeelCreate(l_int32  x, l_int32  y, l_int32  dir);
+static l_int32 localSearchForBackground(PIX  *pix, l_int32 *px,
+                                        l_int32 *py, l_int32  maxrad);
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_PATH    0
@@ -97,8 +88,8 @@ static int32 localSearchForBackground(PIX  * pix, int32  * px,
 #endif  /* ~NO_CONSOLE_IO */
 
 /*---------------------------------------------------------------------*
-*             Binary maze generation as cellular automaton            *
-*---------------------------------------------------------------------*/
+ *             Binary maze generation as cellular automaton            *
+ *---------------------------------------------------------------------*/
 /*!
  * \brief   generateBinaryMaze()
  *
@@ -141,158 +132,158 @@ static int32 localSearchForBackground(PIX  * pix, int32  * px,
  *          GET_DATA* and SET_DATA* macros.
  * </pre>
  */
-PIX * generateBinaryMaze(int32 w,
-    int32 h,
-    int32 xi,
-    int32 yi,
-    float wallps,
-    float ranis)
+PIX *
+generateBinaryMaze(l_int32  w,
+                   l_int32  h,
+                   l_int32  xi,
+                   l_int32  yi,
+                   float  wallps,
+                   float  ranis)
 {
-	int32 x, y, dir;
-	uint32 val;
-	float frand, wallpf, testp;
-	MAZEEL    * el, * elp;
-	PIX       * pixd; /* the destination maze */
-	PIX       * pixm; /* for bookkeeping, to indicate pixels already visited */
-	L_QUEUE   * lq;
+l_int32    x, y, dir;
+l_uint32   val;
+float  frand, wallpf, testp;
+MAZEEL    *el, *elp;
+PIX *pixd;  /* the destination maze */
+PIX *pixm;  /* for bookkeeping, to indicate pixels already visited */
+L_QUEUE   *lq;
 
-	/* On Windows, seeding is apparently necessary to get decent mazes.
-	 * Windows rand() returns a value up to 2^15 - 1, whereas unix
-	 * rand() returns a value up to 2^31 - 1.  Therefore the generated
-	 * mazes will differ on the two platforms. */
+    /* On Windows, seeding is apparently necessary to get decent mazes.
+     * Windows rand() returns a value up to 2^15 - 1, whereas unix
+     * rand() returns a value up to 2^31 - 1.  Therefore the generated
+     * mazes will differ on the two platforms. */
 #ifdef _WIN32
-	srand(28*333);
+    srand(28*333);
 #endif /* _WIN32 */
 
-	if(w < MIN_MAZE_WIDTH)
-		w = MIN_MAZE_WIDTH;
-	if(h < MIN_MAZE_HEIGHT)
-		h = MIN_MAZE_HEIGHT;
-	if(xi <= 0 || xi >= w)
-		xi = w / 6;
-	if(yi <= 0 || yi >= h)
-		yi = h / 5;
-	if(wallps < 0.05 || wallps > 0.95)
-		wallps = DEFAULT_WALL_PROBABILITY;
-	if(ranis < 0.05 || ranis > 1.0)
-		ranis = DEFAULT_ANISOTROPY_RATIO;
-	wallpf = wallps * ranis;
+    if (w < MinMazeWidth)
+        w = MinMazeWidth;
+    if (h < MinMazeHeight)
+        h = MinMazeHeight;
+    if (xi <= 0 || xi >= w)
+        xi = w / 6;
+    if (yi <= 0 || yi >= h)
+        yi = h / 5;
+    if (wallps < 0.05 || wallps > 0.95)
+        wallps = DefaultWallProbability;
+    if (ranis < 0.05 || ranis > 1.0)
+        ranis = DefaultAnisotropyRatio;
+    wallpf = wallps * ranis;
 
 #if  DEBUG_MAZE
-	fprintf(stderr, "(w, h) = (%d, %d), (xi, yi) = (%d, %d)\n", w, h, xi, yi);
-	fprintf(stderr, "Using: prob(wall) = %7.4f, anisotropy factor = %7.4f\n",
-	    wallps, ranis);
+    lept_stderr("(w, h) = (%d, %d), (xi, yi) = (%d, %d)\n", w, h, xi, yi);
+    lept_stderr("Using: prob(wall) = %7.4f, anisotropy factor = %7.4f\n",
+                wallps, ranis);
 #endif  /* DEBUG_MAZE */
 
-	/* These are initialized to OFF */
-	pixd = pixCreate(w, h, 1);
-	pixm = pixCreate(w, h, 1);
+        /* These are initialized to OFF */
+    pixd = pixCreate(w, h, 1);
+    pixm = pixCreate(w, h, 1);
 
-	lq = lqueueCreate(0);
+    lq = lqueueCreate(0);
 
-	/* Prime the queue with the first pixel; it is OFF */
-	el = mazeelCreate(xi, yi, START_LOC);
-	pixSetPixel(pixm, xi, yi, 1); /* mark visited */
-	lqueueAdd(lq, el);
+        /* Prime the queue with the first pixel; it is OFF */
+    el = mazeelCreate(xi, yi, START_LOC);
+    pixSetPixel(pixm, xi, yi, 1);  /* mark visited */
+    lqueueAdd(lq, el);
 
-	/* While we're at it ... */
-	while(lqueueGetCount(lq) > 0) {
-		elp = (MAZEEL*)lqueueRemove(lq);
-		x = elp->x;
-		y = elp->y;
-		dir = elp->dir;
-		if(x > 0) { /* check west */
-			pixGetPixel(pixm, x - 1, y, &val);
-			if(val == 0) { /* not yet visited */
-				pixSetPixel(pixm, x - 1, y, 1); /* mark visited */
-				frand = (float)rand() / (float)RAND_MAX;
-				testp = wallps;
-				if(dir == DIR_WEST)
-					testp = wallpf;
-				if(frand <= testp) { /* make it a wall */
-					pixSetPixel(pixd, x - 1, y, 1);
-				}
-				else { /* not a wall */
-					el = mazeelCreate(x - 1, y, DIR_WEST);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		if(y > 0) { /* check north */
-			pixGetPixel(pixm, x, y - 1, &val);
-			if(val == 0) { /* not yet visited */
-				pixSetPixel(pixm, x, y - 1, 1); /* mark visited */
-				frand = (float)rand() / (float)RAND_MAX;
-				testp = wallps;
-				if(dir == DIR_NORTH)
-					testp = wallpf;
-				if(frand <= testp) { /* make it a wall */
-					pixSetPixel(pixd, x, y - 1, 1);
-				}
-				else { /* not a wall */
-					el = mazeelCreate(x, y - 1, DIR_NORTH);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		if(x < w - 1) { /* check east */
-			pixGetPixel(pixm, x + 1, y, &val);
-			if(val == 0) { /* not yet visited */
-				pixSetPixel(pixm, x + 1, y, 1); /* mark visited */
-				frand = (float)rand() / (float)RAND_MAX;
-				testp = wallps;
-				if(dir == DIR_EAST)
-					testp = wallpf;
-				if(frand <= testp) { /* make it a wall */
-					pixSetPixel(pixd, x + 1, y, 1);
-				}
-				else { /* not a wall */
-					el = mazeelCreate(x + 1, y, DIR_EAST);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		if(y < h - 1) { /* check south */
-			pixGetPixel(pixm, x, y + 1, &val);
-			if(val == 0) { /* not yet visited */
-				pixSetPixel(pixm, x, y + 1, 1); /* mark visited */
-				frand = (float)rand() / (float)RAND_MAX;
-				testp = wallps;
-				if(dir == DIR_SOUTH)
-					testp = wallpf;
-				if(frand <= testp) { /* make it a wall */
-					pixSetPixel(pixd, x, y + 1, 1);
-				}
-				else { /* not a wall */
-					el = mazeelCreate(x, y + 1, DIR_SOUTH);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		LEPT_FREE(elp);
-	}
+        /* While we're at it ... */
+    while (lqueueGetCount(lq) > 0) {
+        elp = (MAZEEL *)lqueueRemove(lq);
+        x = elp->x;
+        y = elp->y;
+        dir = elp->dir;
+        if (x > 0) {  /* check west */
+            pixGetPixel(pixm, x - 1, y, &val);
+            if (val == 0) {  /* not yet visited */
+                pixSetPixel(pixm, x - 1, y, 1);  /* mark visited */
+                frand = (float)rand() / (float)RAND_MAX;
+                testp = wallps;
+                if (dir == DIR_WEST)
+                    testp = wallpf;
+                if (frand <= testp) {  /* make it a wall */
+                    pixSetPixel(pixd, x - 1, y, 1);
+                } else {  /* not a wall */
+                    el = mazeelCreate(x - 1, y, DIR_WEST);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        if (y > 0) {  /* check north */
+            pixGetPixel(pixm, x, y - 1, &val);
+            if (val == 0) {  /* not yet visited */
+                pixSetPixel(pixm, x, y - 1, 1);  /* mark visited */
+                frand = (float)rand() / (float)RAND_MAX;
+                testp = wallps;
+                if (dir == DIR_NORTH)
+                    testp = wallpf;
+                if (frand <= testp) {  /* make it a wall */
+                    pixSetPixel(pixd, x, y - 1, 1);
+                } else {  /* not a wall */
+                    el = mazeelCreate(x, y - 1, DIR_NORTH);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        if (x < w - 1) {  /* check east */
+            pixGetPixel(pixm, x + 1, y, &val);
+            if (val == 0) {  /* not yet visited */
+                pixSetPixel(pixm, x + 1, y, 1);  /* mark visited */
+                frand = (float)rand() / (float)RAND_MAX;
+                testp = wallps;
+                if (dir == DIR_EAST)
+                    testp = wallpf;
+                if (frand <= testp) {  /* make it a wall */
+                    pixSetPixel(pixd, x + 1, y, 1);
+                } else {  /* not a wall */
+                    el = mazeelCreate(x + 1, y, DIR_EAST);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        if (y < h - 1) {  /* check south */
+            pixGetPixel(pixm, x, y + 1, &val);
+            if (val == 0) {  /* not yet visited */
+                pixSetPixel(pixm, x, y + 1, 1);  /* mark visited */
+                frand = (float)rand() / (float)RAND_MAX;
+                testp = wallps;
+                if (dir == DIR_SOUTH)
+                    testp = wallpf;
+                if (frand <= testp) {  /* make it a wall */
+                    pixSetPixel(pixd, x, y + 1, 1);
+                } else {  /* not a wall */
+                    el = mazeelCreate(x, y + 1, DIR_SOUTH);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        SAlloc::F(elp);
+    }
 
-	lqueueDestroy(&lq, TRUE);
-	pixDestroy(&pixm);
-	return pixd;
+    lqueueDestroy(&lq, TRUE);
+    pixDestroy(&pixm);
+    return pixd;
 }
 
-static MAZEEL * mazeelCreate(int32 x,
-    int32 y,
-    int32 dir)
+
+static MAZEEL *
+mazeelCreate(l_int32  x,
+             l_int32  y,
+             l_int32  dir)
 {
-	MAZEEL * el;
+MAZEEL *el;
 
-	el = (MAZEEL*)LEPT_CALLOC(1, sizeof(MAZEEL));
-	el->x = x;
-	el->y = y;
-	el->dir = dir;
-	return el;
+    el = (MAZEEL *)SAlloc::C(1, sizeof(MAZEEL));
+    el->x = x;
+    el->y = y;
+    el->dir = dir;
+    return el;
 }
+
 
 /*---------------------------------------------------------------------*
-*                           Binary maze search                        *
-*---------------------------------------------------------------------*/
+ *                           Binary maze search                        *
+ *---------------------------------------------------------------------*/
 /*!
  * \brief   pixSearchBinaryMaze()
  *
@@ -338,184 +329,184 @@ static MAZEEL * mazeelCreate(int32 x,
  *          minimum paths, any one of which can be chosen this way.
  * </pre>
  */
-PTA * pixSearchBinaryMaze(PIX     * pixs,
-    int32 xi,
-    int32 yi,
-    int32 xf,
-    int32 yf,
-    PIX    ** ppixd)
+PTA *
+pixSearchBinaryMaze(PIX     *pixs,
+                    l_int32  xi,
+                    l_int32  yi,
+                    l_int32  xf,
+                    l_int32  yf,
+                    PIX    **ppixd)
 {
-	int32 i, j, x, y, w, h, d, found;
-	uint32 val, rpixel, gpixel, bpixel;
-	void     ** lines1, ** linem1, ** linep8, ** lined32;
-	MAZEEL    * el, * elp;
-	PIX       * pixd; /* the shortest path written on the maze image */
-	PIX       * pixm; /* for bookkeeping, to indicate pixels already visited */
-	PIX       * pixp; /* for bookkeeping, to indicate direction to parent */
-	L_QUEUE   * lq;
-	PTA       * pta;
+l_int32    i, j, x, y, w, h, d, found;
+l_uint32   val, rpixel, gpixel, bpixel;
+void     **lines1, **linem1, **linep8, **lined32;
+MAZEEL    *el, *elp;
+PIX *pixd;  /* the shortest path written on the maze image */
+PIX *pixm;  /* for bookkeeping, to indicate pixels already visited */
+PIX *pixp;  /* for bookkeeping, to indicate direction to parent */
+L_QUEUE   *lq;
+PTA       *pta;
 
-	PROCNAME("pixSearchBinaryMaze");
+    PROCNAME(__FUNCTION__);
 
-	if(ppixd) *ppixd = NULL;
-	if(!pixs)
-		return (PTA*)ERROR_PTR("pixs not defined", procName, NULL);
-	pixGetDimensions(pixs, &w, &h, &d);
-	if(d != 1)
-		return (PTA*)ERROR_PTR("pixs not 1 bpp", procName, NULL);
-	if(xi <= 0 || xi >= w)
-		return (PTA*)ERROR_PTR("xi not valid", procName, NULL);
-	if(yi <= 0 || yi >= h)
-		return (PTA*)ERROR_PTR("yi not valid", procName, NULL);
-	pixGetPixel(pixs, xi, yi, &val);
-	if(val != 0)
-		return (PTA*)ERROR_PTR("(xi,yi) not bg pixel", procName, NULL);
-	pixd = NULL;
-	pta = NULL;
+    if (ppixd) *ppixd = NULL;
+    if (!pixs)
+        return (PTA *)ERROR_PTR("pixs not defined", procName, NULL);
+    pixGetDimensions(pixs, &w, &h, &d);
+    if (d != 1)
+        return (PTA *)ERROR_PTR("pixs not 1 bpp", procName, NULL);
+    if (xi <= 0 || xi >= w)
+        return (PTA *)ERROR_PTR("xi not valid", procName, NULL);
+    if (yi <= 0 || yi >= h)
+        return (PTA *)ERROR_PTR("yi not valid", procName, NULL);
+    pixGetPixel(pixs, xi, yi, &val);
+    if (val != 0)
+        return (PTA *)ERROR_PTR("(xi,yi) not bg pixel", procName, NULL);
+    pixd = NULL;
+    pta = NULL;
 
-	/* Find a bg pixel near input point (xf, yf) */
-	localSearchForBackground(pixs, &xf, &yf, 5);
+        /* Find a bg pixel near input point (xf, yf) */
+    localSearchForBackground(pixs, &xf, &yf, 5);
 
 #if  DEBUG_MAZE
-	fprintf(stderr, "(xi, yi) = (%d, %d), (xf, yf) = (%d, %d)\n",
-	    xi, yi, xf, yf);
+    lept_stderr("(xi, yi) = (%d, %d), (xf, yf) = (%d, %d)\n",
+                xi, yi, xf, yf);
 #endif  /* DEBUG_MAZE */
 
-	pixm = pixCreate(w, h, 1); /* initialized to OFF */
-	pixp = pixCreate(w, h, 8); /* direction to parent stored as enum val */
-	lines1 = pixGetLinePtrs(pixs, NULL);
-	linem1 = pixGetLinePtrs(pixm, NULL);
-	linep8 = pixGetLinePtrs(pixp, NULL);
+    pixm = pixCreate(w, h, 1);  /* initialized to OFF */
+    pixp = pixCreate(w, h, 8);  /* direction to parent stored as enum val */
+    lines1 = pixGetLinePtrs(pixs, NULL);
+    linem1 = pixGetLinePtrs(pixm, NULL);
+    linep8 = pixGetLinePtrs(pixp, NULL);
 
-	lq = lqueueCreate(0);
+    lq = lqueueCreate(0);
 
-	/* Prime the queue with the first pixel; it is OFF */
-	el = mazeelCreate(xi, yi, 0); /* don't need direction here */
-	pixSetPixel(pixm, xi, yi, 1); /* mark visited */
-	lqueueAdd(lq, el);
+        /* Prime the queue with the first pixel; it is OFF */
+    el = mazeelCreate(xi, yi, 0);  /* don't need direction here */
+    pixSetPixel(pixm, xi, yi, 1);  /* mark visited */
+    lqueueAdd(lq, el);
 
-	/* Fill up the pix storing directions to parents,
-	 * stopping when we hit the point (xf, yf)  */
-	found = FALSE;
-	while(lqueueGetCount(lq) > 0) {
-		elp = (MAZEEL*)lqueueRemove(lq);
-		x = elp->x;
-		y = elp->y;
-		if(x == xf && y == yf) {
-			found = TRUE;
-			LEPT_FREE(elp);
-			break;
-		}
+        /* Fill up the pix storing directions to parents,
+         * stopping when we hit the point (xf, yf)  */
+    found = FALSE;
+    while (lqueueGetCount(lq) > 0) {
+        elp = (MAZEEL *)lqueueRemove(lq);
+        x = elp->x;
+        y = elp->y;
+        if (x == xf && y == yf) {
+            found = TRUE;
+            SAlloc::F(elp);
+            break;
+        }
 
-		if(x > 0) { /* check to west */
-			val = GET_DATA_BIT(linem1[y], x - 1);
-			if(val == 0) { /* not yet visited */
-				SET_DATA_BIT(linem1[y], x - 1); /* mark visited */
-				val = GET_DATA_BIT(lines1[y], x - 1);
-				if(val == 0) { /* bg, not a wall */
-					SET_DATA_BYTE(linep8[y], x - 1, DIR_EAST); /* parent E */
-					el = mazeelCreate(x - 1, y, 0);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		if(y > 0) { /* check north */
-			val = GET_DATA_BIT(linem1[y - 1], x);
-			if(val == 0) { /* not yet visited */
-				SET_DATA_BIT(linem1[y - 1], x); /* mark visited */
-				val = GET_DATA_BIT(lines1[y - 1], x);
-				if(val == 0) { /* bg, not a wall */
-					SET_DATA_BYTE(linep8[y - 1], x, DIR_SOUTH); /* parent S */
-					el = mazeelCreate(x, y - 1, 0);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		if(x < w - 1) { /* check east */
-			val = GET_DATA_BIT(linem1[y], x + 1);
-			if(val == 0) { /* not yet visited */
-				SET_DATA_BIT(linem1[y], x + 1); /* mark visited */
-				val = GET_DATA_BIT(lines1[y], x + 1);
-				if(val == 0) { /* bg, not a wall */
-					SET_DATA_BYTE(linep8[y], x + 1, DIR_WEST); /* parent W */
-					el = mazeelCreate(x + 1, y, 0);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		if(y < h - 1) { /* check south */
-			val = GET_DATA_BIT(linem1[y + 1], x);
-			if(val == 0) { /* not yet visited */
-				SET_DATA_BIT(linem1[y + 1], x); /* mark visited */
-				val = GET_DATA_BIT(lines1[y + 1], x);
-				if(val == 0) { /* bg, not a wall */
-					SET_DATA_BYTE(linep8[y + 1], x, DIR_NORTH); /* parent N */
-					el = mazeelCreate(x, y + 1, 0);
-					lqueueAdd(lq, el);
-				}
-			}
-		}
-		LEPT_FREE(elp);
-	}
+        if (x > 0) {  /* check to west */
+            val = GET_DATA_BIT(linem1[y], x - 1);
+            if (val == 0) {  /* not yet visited */
+                SET_DATA_BIT(linem1[y], x - 1);  /* mark visited */
+                val = GET_DATA_BIT(lines1[y], x - 1);
+                if (val == 0) {  /* bg, not a wall */
+                    SET_DATA_BYTE(linep8[y], x - 1, DIR_EAST);  /* parent E */
+                    el = mazeelCreate(x - 1, y, 0);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        if (y > 0) {  /* check north */
+            val = GET_DATA_BIT(linem1[y - 1], x);
+            if (val == 0) {  /* not yet visited */
+                SET_DATA_BIT(linem1[y - 1], x);  /* mark visited */
+                val = GET_DATA_BIT(lines1[y - 1], x);
+                if (val == 0) {  /* bg, not a wall */
+                    SET_DATA_BYTE(linep8[y - 1], x, DIR_SOUTH);  /* parent S */
+                    el = mazeelCreate(x, y - 1, 0);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        if (x < w - 1) {  /* check east */
+            val = GET_DATA_BIT(linem1[y], x + 1);
+            if (val == 0) {  /* not yet visited */
+                SET_DATA_BIT(linem1[y], x + 1);  /* mark visited */
+                val = GET_DATA_BIT(lines1[y], x + 1);
+                if (val == 0) {  /* bg, not a wall */
+                    SET_DATA_BYTE(linep8[y], x + 1, DIR_WEST);  /* parent W */
+                    el = mazeelCreate(x + 1, y, 0);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        if (y < h - 1) {  /* check south */
+            val = GET_DATA_BIT(linem1[y + 1], x);
+            if (val == 0) {  /* not yet visited */
+                SET_DATA_BIT(linem1[y + 1], x);  /* mark visited */
+                val = GET_DATA_BIT(lines1[y + 1], x);
+                if (val == 0) {  /* bg, not a wall */
+                    SET_DATA_BYTE(linep8[y + 1], x, DIR_NORTH);  /* parent N */
+                    el = mazeelCreate(x, y + 1, 0);
+                    lqueueAdd(lq, el);
+                }
+            }
+        }
+        SAlloc::F(elp);
+    }
 
-	lqueueDestroy(&lq, TRUE);
-	pixDestroy(&pixm);
-	LEPT_FREE(linem1);
+    lqueueDestroy(&lq, TRUE);
+    pixDestroy(&pixm);
+    SAlloc::F(linem1);
 
-	if(ppixd) {
-		pixd = pixUnpackBinary(pixs, 32, 1);
-		*ppixd = pixd;
-	}
-	composeRGBPixel(255, 0, 0, &rpixel); /* start point */
-	composeRGBPixel(0, 255, 0, &gpixel);
-	composeRGBPixel(0, 0, 255, &bpixel); /* end point */
+    if (ppixd) {
+        pixd = pixUnpackBinary(pixs, 32, 1);
+        *ppixd = pixd;
+    }
+    composeRGBPixel(255, 0, 0, &rpixel);  /* start point */
+    composeRGBPixel(0, 255, 0, &gpixel);
+    composeRGBPixel(0, 0, 255, &bpixel);  /* end point */
 
-	if(found) {
-		L_INFO(" Path found\n", procName);
-		pta = ptaCreate(0);
-		x = xf;
-		y = yf;
-		while(1) {
-			ptaAddPt(pta, x, y);
-			if(x == xi && y == yi)
-				break;
-			if(pixd) /* write 'gpixel' onto the path */
-				pixSetPixel(pixd, x, y, gpixel);
-			pixGetPixel(pixp, x, y, &val);
-			if(val == DIR_NORTH)
-				y--;
-			else if(val == DIR_SOUTH)
-				y++;
-			else if(val == DIR_EAST)
-				x++;
-			else if(val == DIR_WEST)
-				x--;
-		}
-	}
-	else {
-		L_INFO(" No path found\n", procName);
-		if(pixd) { /* paint all visited locations */
-			lined32 = pixGetLinePtrs(pixd, NULL);
-			for(i = 0; i < h; i++) {
-				for(j = 0; j < w; j++) {
-					val = GET_DATA_BYTE(linep8[i], j);
-					if(val != 0 && pixd)
-						SET_DATA_FOUR_BYTES(lined32[i], j, gpixel);
-				}
-			}
-			LEPT_FREE(lined32);
-		}
-	}
-	if(pixd) {
-		pixSetPixel(pixd, xi, yi, rpixel);
-		pixSetPixel(pixd, xf, yf, bpixel);
-	}
+    if (found) {
+        L_INFO(" Path found\n", procName);
+        pta = ptaCreate(0);
+        x = xf;
+        y = yf;
+        while (1) {
+            ptaAddPt(pta, x, y);
+            if (x == xi && y == yi)
+                break;
+            if (pixd)  /* write 'gpixel' onto the path */
+                pixSetPixel(pixd, x, y, gpixel);
+            pixGetPixel(pixp, x, y, &val);
+            if (val == DIR_NORTH)
+                y--;
+            else if (val == DIR_SOUTH)
+                y++;
+            else if (val == DIR_EAST)
+                x++;
+            else if (val == DIR_WEST)
+                x--;
+        }
+    } else {
+        L_INFO(" No path found\n", procName);
+        if (pixd) {  /* paint all visited locations */
+            lined32 = pixGetLinePtrs(pixd, NULL);
+            for (i = 0; i < h; i++) {
+                for (j = 0; j < w; j++) {
+                    if (GET_DATA_BYTE(linep8[i], j) != 0)
+                        SET_DATA_FOUR_BYTES(lined32[i], j, gpixel);
+                }
+            }
+            SAlloc::F(lined32);
+        }
+    }
+    if (pixd) {
+        pixSetPixel(pixd, xi, yi, rpixel);
+        pixSetPixel(pixd, xf, yf, bpixel);
+    }
 
-	pixDestroy(&pixp);
-	LEPT_FREE(lines1);
-	LEPT_FREE(linep8);
-	return pta;
+    pixDestroy(&pixp);
+    SAlloc::F(lines1);
+    SAlloc::F(linep8);
+    return pta;
 }
+
 
 /*!
  * \brief   localSearchForBackground()
@@ -525,60 +516,63 @@ PTA * pixSearchBinaryMaze(PIX     * pixs,
  * \param[in]    maxrad max distance to search from starting location
  * \return  0 if bg pixel found; 1 if not found
  */
-static int32 localSearchForBackground(PIX  * pix,
-    int32  * px,
-    int32  * py,
-    int32 maxrad)
+static l_int32
+localSearchForBackground(PIX  *pix,
+                         l_int32 *px,
+                         l_int32 *py,
+                         l_int32  maxrad)
 {
-	int32 x, y, w, h, r, i, j;
-	uint32 val;
+l_int32   x, y, w, h, r, i, j;
+l_uint32  val;
 
-	x = *px;
-	y = *py;
-	pixGetPixel(pix, x, y, &val);
-	if(val == 0) return 0;
+    x = *px;
+    y = *py;
+    pixGetPixel(pix, x, y, &val);
+    if (val == 0) return 0;
 
-	/* For each value of r, restrict the search to the boundary
-	 * pixels in a square centered on (x,y), clipping to the
-	 * image boundaries if necessary.  */
-	pixGetDimensions(pix, &w, &h, NULL);
-	for(r = 1; r < maxrad; r++) {
-		for(i = -r; i <= r; i++) {
-			if(y + i < 0 || y + i >= h)
-				continue;
-			for(j = -r; j <= r; j++) {
-				if(x + j < 0 || x + j >= w)
-					continue;
-				if(L_ABS(i) != r && L_ABS(j) != r) /* not on "r ring" */
-					continue;
-				pixGetPixel(pix, x + j, y + i, &val);
-				if(val == 0) {
-					*px = x + j;
-					*py = y + i;
-					return 0;
-				}
-			}
-		}
-	}
-	return 1;
+        /* For each value of r, restrict the search to the boundary
+         * pixels in a square centered on (x,y), clipping to the
+         * image boundaries if necessary.  */
+    pixGetDimensions(pix, &w, &h, NULL);
+    for (r = 1; r < maxrad; r++) {
+        for (i = -r; i <= r; i++) {
+            if (y + i < 0 || y + i >= h)
+                continue;
+            for (j = -r; j <= r; j++) {
+                if (x + j < 0 || x + j >= w)
+                    continue;
+                if (L_ABS(i) != r && L_ABS(j) != r)  /* not on "r ring" */
+                    continue;
+                pixGetPixel(pix, x + j, y + i, &val);
+                if (val == 0) {
+                    *px = x + j;
+                    *py = y + i;
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
 }
 
+
+
 /*---------------------------------------------------------------------*
-*                            Gray maze search                         *
-*---------------------------------------------------------------------*/
+ *                            Gray maze search                         *
+ *---------------------------------------------------------------------*/
 /*!
  * \brief   pixSearchGrayMaze()
  *
- * \param[in]    pixs 1 bpp, maze
- * \param[in]    xi, yi  beginning point; use same initial point
- *                       that was used to generate the maze
- * \param[in]    xf, yf  end point, or close to it
- * \param[out]   ppixd [optional] maze with path illustrated, or
- *                     if no path possible, the part of the maze
- *                     that was searched
- * \return  pta shortest path, or NULL if either no path
- *              exists or on error
+ * \param[in]    pixs     1 bpp maze; w and h must be >= 50
+ * \param[in]    xi, yi   beginning point; use same initial point
+ *                        that was used to generate the maze
+ * \param[in]    xf, yf   end point, or close to it
+ * \param[out]   ppixd    [optional] maze with path illustrated, or
+ *                        if no path possible, the part of the maze
+ *                        that was searched
+ * \return  pta   shortest path, or NULL if either no path exists or on error
  *
+ * <pre>
  *  Commentary:
  *      Consider first a slight generalization of the binary maze
  *      search problem.  Suppose that you can go through walls,
@@ -718,366 +712,192 @@ static int32 localSearchForBackground(PIX  * pix,
  *      after all the pixels of the path have been visited and placed
  *      on the queue, multiple times for many of them.  So that's the
  *      price for not ordering the queue!
- */
-PTA * pixSearchGrayMaze(PIX     * pixs,
-    int32 xi,
-    int32 yi,
-    int32 xf,
-    int32 yf,
-    PIX    ** ppixd)
-{
-	int32 x, y, w, h, d;
-	uint32 val, valr, vals, rpixel, gpixel, bpixel;
-	void    ** lines8, ** liner32, ** linep8;
-	int32 cost, dist, distparent, sival, sivals;
-	MAZEEL   * el, * elp;
-	PIX      * pixd; /* optionally plot the path on this RGB version of pixs */
-	PIX      * pixr; /* for bookkeeping, to indicate the minimum distance */
-	            /* to pixels already visited */
-	PIX      * pixp; /* for bookkeeping, to indicate direction to parent */
-	L_HEAP   * lh;
-	PTA      * pta;
-
-	PROCNAME("pixSearchGrayMaze");
-
-	if(ppixd) *ppixd = NULL;
-	if(!pixs)
-		return (PTA*)ERROR_PTR("pixs not defined", procName, NULL);
-	pixGetDimensions(pixs, &w, &h, &d);
-	if(d != 8)
-		return (PTA*)ERROR_PTR("pixs not 8 bpp", procName, NULL);
-	if(xi <= 0 || xi >= w)
-		return (PTA*)ERROR_PTR("xi not valid", procName, NULL);
-	if(yi <= 0 || yi >= h)
-		return (PTA*)ERROR_PTR("yi not valid", procName, NULL);
-	pixd = NULL;
-	pta = NULL;
-
-	/* Allocate stuff */
-	pixr = pixCreate(w, h, 32);
-	pixSetAll(pixr); /* initialize to max value */
-	pixp = pixCreate(w, h, 8); /* direction to parent stored as enum val */
-	lines8 = pixGetLinePtrs(pixs, NULL);
-	linep8 = pixGetLinePtrs(pixp, NULL);
-	liner32 = pixGetLinePtrs(pixr, NULL);
-	lh = lheapCreate(0, L_SORT_INCREASING); /* always remove closest pixels */
-
-	/* Prime the heap with the first pixel */
-	pixGetPixel(pixs, xi, yi, &val);
-	el = mazeelCreate(xi, yi, 0); /* don't need direction here */
-	el->distance = 0;
-	pixGetPixel(pixs, xi, yi, &val);
-	el->val = val;
-	pixSetPixel(pixr, xi, yi, 0); /* distance is 0 */
-	lheapAdd(lh, el);
-
-	/* Breadth-first search with priority queue (implemented by
-	   a heap), labeling direction to parents in pixp and minimum
-	   distance to visited pixels in pixr.  Stop when we pull
-	   the destination point (xf, yf) off the queue. */
-	while(lheapGetCount(lh) > 0) {
-		elp = (MAZEEL*)lheapRemove(lh);
-		if(!elp) {
-			L_ERROR("heap broken!!\n", procName);
-			goto cleanup_stuff;
-		}
-		x = elp->x;
-		y = elp->y;
-		if(x == xf && y == yf) { /* exit condition */
-			LEPT_FREE(elp);
-			break;
-		}
-		distparent = (int32)elp->distance;
-		val = elp->val;
-		sival = val;
-
-		if(x > 0) { /* check to west */
-			vals = GET_DATA_BYTE(lines8[y], x - 1);
-			valr = GET_DATA_FOUR_BYTES(liner32[y], x - 1);
-			sivals = (int32)vals;
-			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
-			dist = distparent + cost;
-			if(dist < valr) { /* shortest path so far to this pixel */
-				SET_DATA_FOUR_BYTES(liner32[y], x - 1, dist); /* new dist */
-				SET_DATA_BYTE(linep8[y], x - 1, DIR_EAST); /* parent to E */
-				el = mazeelCreate(x - 1, y, 0);
-				el->val = vals;
-				el->distance = dist;
-				lheapAdd(lh, el);
-			}
-		}
-		if(y > 0) { /* check north */
-			vals = GET_DATA_BYTE(lines8[y - 1], x);
-			valr = GET_DATA_FOUR_BYTES(liner32[y - 1], x);
-			sivals = (int32)vals;
-			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
-			dist = distparent + cost;
-			if(dist < valr) { /* shortest path so far to this pixel */
-				SET_DATA_FOUR_BYTES(liner32[y - 1], x, dist); /* new dist */
-				SET_DATA_BYTE(linep8[y - 1], x, DIR_SOUTH); /* parent to S */
-				el = mazeelCreate(x, y - 1, 0);
-				el->val = vals;
-				el->distance = dist;
-				lheapAdd(lh, el);
-			}
-		}
-		if(x < w - 1) { /* check east */
-			vals = GET_DATA_BYTE(lines8[y], x + 1);
-			valr = GET_DATA_FOUR_BYTES(liner32[y], x + 1);
-			sivals = (int32)vals;
-			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
-			dist = distparent + cost;
-			if(dist < valr) { /* shortest path so far to this pixel */
-				SET_DATA_FOUR_BYTES(liner32[y], x + 1, dist); /* new dist */
-				SET_DATA_BYTE(linep8[y], x + 1, DIR_WEST); /* parent to W */
-				el = mazeelCreate(x + 1, y, 0);
-				el->val = vals;
-				el->distance = dist;
-				lheapAdd(lh, el);
-			}
-		}
-		if(y < h - 1) { /* check south */
-			vals = GET_DATA_BYTE(lines8[y + 1], x);
-			valr = GET_DATA_FOUR_BYTES(liner32[y + 1], x);
-			sivals = (int32)vals;
-			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
-			dist = distparent + cost;
-			if(dist < valr) { /* shortest path so far to this pixel */
-				SET_DATA_FOUR_BYTES(liner32[y + 1], x, dist); /* new dist */
-				SET_DATA_BYTE(linep8[y + 1], x, DIR_NORTH); /* parent to N */
-				el = mazeelCreate(x, y + 1, 0);
-				el->val = vals;
-				el->distance = dist;
-				lheapAdd(lh, el);
-			}
-		}
-		LEPT_FREE(elp);
-	}
-
-	lheapDestroy(&lh, TRUE);
-
-	if(ppixd) {
-		pixd = pixConvert8To32(pixs);
-		*ppixd = pixd;
-	}
-	composeRGBPixel(255, 0, 0, &rpixel); /* start point */
-	composeRGBPixel(0, 255, 0, &gpixel);
-	composeRGBPixel(0, 0, 255, &bpixel); /* end point */
-
-	x = xf;
-	y = yf;
-	pta = ptaCreate(0);
-	while(1) { /* write path onto pixd */
-		ptaAddPt(pta, x, y);
-		if(x == xi && y == yi)
-			break;
-		if(pixd)
-			pixSetPixel(pixd, x, y, gpixel);
-		pixGetPixel(pixp, x, y, &val);
-		if(val == DIR_NORTH)
-			y--;
-		else if(val == DIR_SOUTH)
-			y++;
-		else if(val == DIR_EAST)
-			x++;
-		else if(val == DIR_WEST)
-			x--;
-		pixGetPixel(pixr, x, y, &val);
-
-#if  DEBUG_PATH
-		fprintf(stderr, "(x,y) = (%d, %d); dist = %d\n", x, y, val);
-#endif  /* DEBUG_PATH */
-	}
-	if(pixd) {
-		pixSetPixel(pixd, xi, yi, rpixel);
-		pixSetPixel(pixd, xf, yf, bpixel);
-	}
-
-cleanup_stuff:
-	lheapDestroy(&lh, TRUE);
-	pixDestroy(&pixp);
-	pixDestroy(&pixr);
-	LEPT_FREE(lines8);
-	LEPT_FREE(linep8);
-	LEPT_FREE(liner32);
-	return pta;
-}
-
-/*---------------------------------------------------------------------*
-*                      Largest rectangle in an image                  *
-*---------------------------------------------------------------------*/
-/*!
- * \brief   pixFindLargestRectangle()
- *
- * \param[in]    pixs  1 bpp
- * \param[in]    polarity 0 within background, 1 within foreground
- * \param[out]   pbox largest rectangle, either by area or
- *                    by perimeter
- * \param[in]    debugfile filename where to write output image with
-                           rectangle drawn on it
- * \return  0 if OK, 1 on error
- *
- * <pre>
- * Notes:
- *      (1) Why is this here?  This is a simple and elegant solution to
- *          a problem in computational geometry that at first appears
- *          quite difficult: what is the largest rectangle that can
- *          be placed in the image, covering only pixels of one polarity
- *          (bg or fg)?  The solution is O(n), where n is the number
- *          of pixels in the image, and it requires nothing more than
- *          using a simple recursion relation in a single sweep of the image.
- *      (2) In a sweep from UL to LR with left-to-right being the fast
- *          direction, calculate the largest white rectangle at (x, y),
- *          using previously calculated values at pixels #1 and #2:
- *             #1:    (x, y - 1)
- *             #2:    (x - 1, y)
- *          We also need the most recent "black" pixels that were seen
- *          in the current row and column.
- *          Consider the largest area.  There are only two possibilities:
- *             (a)  Min(w(1), horizdist) * (h(1) + 1)
- *             (b)  Min(h(2), vertdist) * (w(2) + 1)
- *          where
- *             horizdist: the distance from the rightmost "black" pixel seen
- *                        in the current row across to the current pixel
- *             vertdist: the distance from the lowest "black" pixel seen
- *                       in the current column down to the current pixel
- *          and we choose the Max of (a) and (b).
- *      (3) To convince yourself that these recursion relations are correct,
- *          it helps to draw the maximum rectangles at #1 and #2.
- *          Then for #1, you try to extend the rectangle down one line,
- *          so that the height is h(1) + 1.  Do you get the full
- *          width of #1, w(1)?  It depends on where the black pixels are
- *          in the current row.  You know the final width is bounded by w(1)
- *          and w(2) + 1, but the actual value depends on the distribution
- *          of black pixels in the current row that are at a distance
- *          from the current pixel that is between these limits.
- *          We call that value "horizdist", and the area is then given
- *          by the expression (a) above.  Using similar reasoning for #2,
- *          where you attempt to extend the rectangle to the right
- *          by 1 pixel, you arrive at (b).  The largest rectangle is
- *          then found by taking the Max.
  * </pre>
  */
-int32 pixFindLargestRectangle(PIX         * pixs,
-    int32 polarity,
-    BOX        ** pbox,
-    const char  * debugfile)
+PTA *
+pixSearchGrayMaze(PIX     *pixs,
+                  l_int32  xi,
+                  l_int32  yi,
+                  l_int32  xf,
+                  l_int32  yf,
+                  PIX    **ppixd)
 {
-	int32 i, j, w, h, d, wpls, val;
-	int32 wp, hp, w1, w2, h1, h2, wmin, hmin, area1, area2;
-	int32 xmax, ymax; /* LR corner of the largest rectangle */
-	int32 maxarea, wmax, hmax, vertdist, horizdist, prevfg;
-	int32   * lowestfg;
-	uint32  * datas, * lines;
-	uint32 ** linew, ** lineh;
-	BOX       * box;
-	PIX       * pixw, * pixh; /* keeps the width and height for the largest */
-	                    /* rectangles whose LR corner is located there. */
+l_int32   x, y, w, h, d;
+l_uint32  val, valr, vals, rpixel, gpixel, bpixel;
+void    **lines8, **liner32, **linep8;
+l_int32   cost, dist, distparent, sival, sivals;
+MAZEEL   *el, *elp;
+PIX *pixd;  /* optionally plot the path on this RGB version of pixs */
+PIX *pixr;  /* for bookkeeping, to indicate the minimum distance */
+                 /* to pixels already visited */
+PIX *pixp;  /* for bookkeeping, to indicate direction to parent */
+L_HEAP   *lh;
+PTA *pta;
 
-	PROCNAME("pixFindLargestRectangle");
+    PROCNAME(__FUNCTION__);
 
-	if(!pbox)
-		return ERROR_INT("&box not defined", procName, 1);
-	*pbox = NULL;
-	if(!pixs)
-		return ERROR_INT("pixs not defined", procName, 1);
-	pixGetDimensions(pixs, &w, &h, &d);
-	if(d != 1)
-		return ERROR_INT("pixs not 1 bpp", procName, 1);
-	if(polarity != 0 && polarity != 1)
-		return ERROR_INT("invalid polarity", procName, 1);
+    if (ppixd) *ppixd = NULL;
+    if (!pixs)
+        return (PTA *)ERROR_PTR("pixs not defined", procName, NULL);
+    pixGetDimensions(pixs, &w, &h, &d);
+    if (w < 50 || h < 50)
+        return (PTA *)ERROR_PTR("too small: w and h not >= 50", procName, NULL);
+    if (d != 8)
+        return (PTA *)ERROR_PTR("pixs not 8 bpp", procName, NULL);
+    if (xi <= 0 || xi >= w)
+        return (PTA *)ERROR_PTR("xi not valid", procName, NULL);
+    if (yi <= 0 || yi >= h)
+        return (PTA *)ERROR_PTR("yi not valid", procName, NULL);
+    pixd = NULL;
+    pta = NULL;
 
-	/* Initialize lowest "fg" seen so far for each column */
-	lowestfg = (int32*)LEPT_CALLOC(w, sizeof(int32));
-	for(i = 0; i < w; i++)
-		lowestfg[i] = -1;
+        /* Allocate stuff */
+    pixr = pixCreate(w, h, 32);
+    pixSetAll(pixr);  /* initialize to max value */
+    pixp = pixCreate(w, h, 8);  /* direction to parent stored as enum val */
+    lines8 = pixGetLinePtrs(pixs, NULL);
+    linep8 = pixGetLinePtrs(pixp, NULL);
+    liner32 = pixGetLinePtrs(pixr, NULL);
+    lh = lheapCreate(0, L_SORT_INCREASING);  /* always remove closest pixels */
 
-	/* The combination (val ^ polarity) is the color for which we
-	 * are searching for the maximum rectangle.  For polarity == 0,
-	 * we search in the bg (white). */
-	pixw = pixCreate(w, h, 32); /* stores width */
-	pixh = pixCreate(w, h, 32); /* stores height */
-	linew = (uint32**)pixGetLinePtrs(pixw, NULL);
-	lineh = (uint32**)pixGetLinePtrs(pixh, NULL);
-	datas = pixGetData(pixs);
-	wpls = pixGetWpl(pixs);
-	maxarea = xmax = ymax = wmax = hmax = 0;
-	for(i = 0; i < h; i++) {
-		lines = datas + i * wpls;
-		prevfg = -1;
-		for(j = 0; j < w; j++) {
-			val = GET_DATA_BIT(lines, j);
-			if((val ^ polarity) == 0) { /* bg (0) if polarity == 0, etc. */
-				if(i == 0 && j == 0) {
-					wp = hp = 1;
-				}
-				else if(i == 0) {
-					wp = linew[i][j - 1] + 1;
-					hp = 1;
-				}
-				else if(j == 0) {
-					wp = 1;
-					hp = lineh[i - 1][j] + 1;
-				}
-				else {
-					/* Expand #1 prev rectangle down */
-					w1 = linew[i - 1][j];
-					h1 = lineh[i - 1][j];
-					horizdist = j - prevfg;
-					wmin = MIN(w1, horizdist); /* width of new rectangle */
-					area1 = wmin * (h1 + 1);
+        /* Prime the heap with the first pixel */
+    pixGetPixel(pixs, xi, yi, &val);
+    el = mazeelCreate(xi, yi, 0);  /* don't need direction here */
+    el->distance = 0;
+    pixGetPixel(pixs, xi, yi, &val);
+    el->val = val;
+    pixSetPixel(pixr, xi, yi, 0);  /* distance is 0 */
+    lheapAdd(lh, el);
 
-					/* Expand #2 prev rectangle to right */
-					w2 = linew[i][j - 1];
-					h2 = lineh[i][j - 1];
-					vertdist = i - lowestfg[j];
-					hmin = MIN(h2, vertdist); /* height of new rectangle */
-					area2 = hmin * (w2 + 1);
+        /* Breadth-first search with priority queue (implemented by
+           a heap), labeling direction to parents in pixp and minimum
+           distance to visited pixels in pixr.  Stop when we pull
+           the destination point (xf, yf) off the queue. */
+    while (lheapGetCount(lh) > 0) {
+        elp = (MAZEEL *)lheapRemove(lh);
+        if (!elp) {
+            L_ERROR("heap broken!!\n", procName);
+            goto cleanup_stuff;
+        }
+        x = elp->x;
+        y = elp->y;
+        if (x == xf && y == yf) {  /* exit condition */
+            SAlloc::F(elp);
+            break;
+        }
+        distparent = (l_int32)elp->distance;
+        val = elp->val;
+        sival = val;
 
-					if(area1 > area2) {
-						wp = wmin;
-						hp = h1 + 1;
-					}
-					else {
-						wp = w2 + 1;
-						hp = hmin;
-					}
-				}
-			}
-			else { /* fg (1) if polarity == 0; bg (0) if polarity == 1 */
-				prevfg = j;
-				lowestfg[j] = i;
-				wp = hp = 0;
-			}
-			linew[i][j] = wp;
-			lineh[i][j] = hp;
-			if(wp * hp > maxarea) {
-				maxarea = wp * hp;
-				xmax = j;
-				ymax = i;
-				wmax = wp;
-				hmax = hp;
-			}
-		}
-	}
+        if (x > 0) {  /* check to west */
+            vals = GET_DATA_BYTE(lines8[y], x - 1);
+            valr = GET_DATA_FOUR_BYTES(liner32[y], x - 1);
+            sivals = (l_int32)vals;
+            cost = 1 + L_ABS(sivals - sival);  /* cost to move to this pixel */
+            dist = distparent + cost;
+            if (dist < valr) {  /* shortest path so far to this pixel */
+                SET_DATA_FOUR_BYTES(liner32[y], x - 1, dist);  /* new dist */
+                SET_DATA_BYTE(linep8[y], x - 1, DIR_EAST);  /* parent to E */
+                el = mazeelCreate(x - 1, y, 0);
+                el->val = vals;
+                el->distance = dist;
+                lheapAdd(lh, el);
+            }
+        }
+        if (y > 0) {  /* check north */
+            vals = GET_DATA_BYTE(lines8[y - 1], x);
+            valr = GET_DATA_FOUR_BYTES(liner32[y - 1], x);
+            sivals = (l_int32)vals;
+            cost = 1 + L_ABS(sivals - sival);  /* cost to move to this pixel */
+            dist = distparent + cost;
+            if (dist < valr) {  /* shortest path so far to this pixel */
+                SET_DATA_FOUR_BYTES(liner32[y - 1], x, dist);  /* new dist */
+                SET_DATA_BYTE(linep8[y - 1], x, DIR_SOUTH);  /* parent to S */
+                el = mazeelCreate(x, y - 1, 0);
+                el->val = vals;
+                el->distance = dist;
+                lheapAdd(lh, el);
+            }
+        }
+        if (x < w - 1) {  /* check east */
+            vals = GET_DATA_BYTE(lines8[y], x + 1);
+            valr = GET_DATA_FOUR_BYTES(liner32[y], x + 1);
+            sivals = (l_int32)vals;
+            cost = 1 + L_ABS(sivals - sival);  /* cost to move to this pixel */
+            dist = distparent + cost;
+            if (dist < valr) {  /* shortest path so far to this pixel */
+                SET_DATA_FOUR_BYTES(liner32[y], x + 1, dist);  /* new dist */
+                SET_DATA_BYTE(linep8[y], x + 1, DIR_WEST);  /* parent to W */
+                el = mazeelCreate(x + 1, y, 0);
+                el->val = vals;
+                el->distance = dist;
+                lheapAdd(lh, el);
+            }
+        }
+        if (y < h - 1) {  /* check south */
+            vals = GET_DATA_BYTE(lines8[y + 1], x);
+            valr = GET_DATA_FOUR_BYTES(liner32[y + 1], x);
+            sivals = (l_int32)vals;
+            cost = 1 + L_ABS(sivals - sival);  /* cost to move to this pixel */
+            dist = distparent + cost;
+            if (dist < valr) {  /* shortest path so far to this pixel */
+                SET_DATA_FOUR_BYTES(liner32[y + 1], x, dist);  /* new dist */
+                SET_DATA_BYTE(linep8[y + 1], x, DIR_NORTH);  /* parent to N */
+                el = mazeelCreate(x, y + 1, 0);
+                el->val = vals;
+                el->distance = dist;
+                lheapAdd(lh, el);
+            }
+        }
+        SAlloc::F(elp);
+    }
 
-	/* Translate from LR corner to Box coords (UL corner, w, h) */
-	box = boxCreate(xmax - wmax + 1, ymax - hmax + 1, wmax, hmax);
-	*pbox = box;
+    lheapDestroy(&lh, TRUE);
 
-	if(debugfile) {
-		PIX  * pixdb;
-		pixdb = pixConvertTo8(pixs, TRUE);
-		pixRenderHashBoxArb(pixdb, box, 6, 2, L_NEG_SLOPE_LINE, 1, 255, 0, 0);
-		pixWrite(debugfile, pixdb, IFF_PNG);
-		pixDestroy(&pixdb);
-	}
+    if (ppixd) {
+        pixd = pixConvert8To32(pixs);
+        *ppixd = pixd;
+    }
+    composeRGBPixel(255, 0, 0, &rpixel);  /* start point */
+    composeRGBPixel(0, 255, 0, &gpixel);
+    composeRGBPixel(0, 0, 255, &bpixel);  /* end point */
 
-	LEPT_FREE(linew);
-	LEPT_FREE(lineh);
-	LEPT_FREE(lowestfg);
-	pixDestroy(&pixw);
-	pixDestroy(&pixh);
-	return 0;
+    x = xf;
+    y = yf;
+    pta = ptaCreate(0);
+    while (1) {  /* write path onto pixd */
+        ptaAddPt(pta, x, y);
+        if (x == xi && y == yi)
+            break;
+        if (pixd)
+            pixSetPixel(pixd, x, y, gpixel);
+        pixGetPixel(pixp, x, y, &val);
+        if (val == DIR_NORTH)
+            y--;
+        else if (val == DIR_SOUTH)
+            y++;
+        else if (val == DIR_EAST)
+            x++;
+        else if (val == DIR_WEST)
+            x--;
+        pixGetPixel(pixr, x, y, &val);
+
+#if  DEBUG_PATH
+        lept_stderr("(x,y) = (%d, %d); dist = %d\n", x, y, val);
+#endif  /* DEBUG_PATH */
+
+    }
+    if (pixd) {
+        pixSetPixel(pixd, xi, yi, rpixel);
+        pixSetPixel(pixd, xf, yf, bpixel);
+    }
+
+cleanup_stuff:
+    lheapDestroy(&lh, TRUE);
+    pixDestroy(&pixp);
+    pixDestroy(&pixr);
+    SAlloc::F(lines8);
+    SAlloc::F(linep8);
+    SAlloc::F(liner32);
+    return pta;
 }
-

@@ -77,7 +77,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 
 <h2 align=center>Version Notes for Leptonica</h2>
-<h3 align=center>25 Jan 2016</h3>
+<h3 align=center>22 Sept 2021</h3>
 
 <hr>
 <h2 align=center>  <IMG SRC="moller52.jpg" border=1 ALIGN_MIDDLE> </h2>
@@ -89,6 +89,362 @@ They are <i>not</i> a complete listing of the modifications.
 
 <pre>
 
+1.82.0  Sept 22, 2021
+        * Fix issue-585: reading tiff rgb with tiffbpl = 1.5 * packedbpl.
+        * Fix issue-586: failure to properly wrap tiff-g4 in pdf without
+          transcoding.  The fix is to do transcoding for tiff-g4, as was
+          done before April 2021.
+
+1.81.1  June 11, 2021
+        * Added choice of codec (JP2 or J2K) when writing jp2k files.
+        * Fix use of hashmap with key based on dna.
+
+1.81.0  June 6, 2021
+        * Fixed problems with tiff pdf wrapping photometry.
+        * Fixed scaling issues in prog/cleanpdf for printing.
+        * New progs: tiffpdftest, hashtest
+        * Fixed uninitialized data error in pixAddBorderGeneral() and
+          pixRemoveBorderGeneral()
+        * Rewrote Numa functions that discretize into bins.  Have
+          binning by both sorting and histogram. 
+        * Rewrote and simplified pixGetRankColorArray() and pixGetBinnedColor().
+        * Added tests to prog/rankbin_reg.c.
+        * Simplified fpixCopy() and dpixCopy(), and functions that use them.
+        * Check input for bilateral transforms.
+        * Add function for splitting a file evenly by lines. 
+        * Check input for getFilenamesInDirectory()
+        * Many new fuzzers.
+        * Use size_t for all size inputs to ascii85 encoding/decoding
+        * New regression tests: encoding_reg.c, binmorph6_reg.c,
+          flipdetect_reg.c
+        * Reworked concatpdf for generality, using the Poppler package.
+        * Removed dwa flipdetection from the library.  All the dwa code
+          is now in flipdetectdwa.c.notused.  Likewise prog/flipselgen.c
+          is retained for completeness, renamed flipselgen.c.notused,
+          and is not compiled.
+        * Added hashmap utility (hashmap.c, hashmap.h).
+        * Removed functions using dnahash on strings, pts and doubles.
+        * Improved the speed of hashing for strings and doubles.
+        * Added function for tiling images in pairs for comparison.
+        * Added null terminations to serialized strings written to memory,
+          preventing buffer overrun by strlen() [fixed by Stefan Weil].
+        * No longer use "NoInit" versions of pix creation in leptonica.
+          because they risk reading uninitialized data.  These functions
+          remain in the library because they are in use in applications.
+        * Add two composite binarization functions, from prog/binarize_set.
+        * Giulio Lunati fixed pnm reading to work with stdin input.
+        * Removed several of the boxa compare and modify functions.
+        * Implemented reading jpeg200 data encded in j2k "codestream" format.
+          Can now read data in both jp2 and j2k.
+
+1.80.0  28 July 2020
+        * Improve bmp handling of 1 bpp images and sanity checking of params.
+        * Add function to display all rgb gamut colors
+        * in Makefile.am, use option serial-tests to avoid races in testing
+        * Make m4 subdirectory and add ax_split_version.m4 there
+        * Simple function for hue-invariant mapping (pixMapWithInvariantHue)
+        * Fixed bug in limit of ptra size when used for sorting by bins.
+        * Use hashmap to count pixel colors in RGB(A) images.
+        * Convert hashtest program to regression test hash_reg.
+        * Convert croptest program to regression test crop_reg.
+        * New color segmentation by region growing (colorfill.c)
+        * New regression tests: colorfill_reg, circle_reg, ccbord_reg.
+        * Set maxima for all allocations for common leptonica data structures.
+        * Don't fail when downscaling 2, 4, 8, and 32 bpp images, even
+          to one pixel, invoking pixScaleSmooth().
+        * New functions that select 1 bpp components based on their area.
+        * Incremental addition to sorted array of numbers.
+        * new prog/fuzzing directory for oss-fuzz based fuzzing programs
+        * use of pixcmapIsValid() with extra argument to determine validity
+          with the pix it is attached to.
+        * Use lept_stderr() in all programs in the prog directory.
+        * New program rasteroptest() for thorough testing of rasterop functions.
+        * Removed the pixSaveTiled*() functions
+        * Stubbed pixDisplayWrite().  Last used in tesseract 3.04.01 (2/2016).
+
+1.79.0  1 Jan 2020
+        * Clean up auto-generation of files; removed 'register'
+        * Some fixes for issues identified by fuzzer
+        * New source files: checkerboard.c
+        * New programs: replacebytes.c, webpanimio_reg.c, partifytest.c,
+          rectangle_reg.c, lowsat_reg.c, rotate_it.c, scale_it.c, dewarp_it.c,
+          pdfio1_reg.c, pdfio2_reg.c, checkerboard_reg.c, underlinetest.c.
+        * Convert to standard reg test: heap_reg.c, pixa1_reg.c, smallpix_reg.c
+        * Improve data checking when reading image file headers
+          (pnm, png, jpeg, tiff)
+        * Fix some bugs in pnm reading
+        * Fix inconsistencies with the encoding type flags in pdf writing
+        * Allow tiff to write images with colormaps
+        * Fix errors in PS code; made some functions static
+        * Add code for animated webp (requires webp mux and demux libraries)
+        * Add "partify" application for separating parts in a musical score
+        * Enable tif read/write of gray+alpha and rgba; filter out tiff
+          pixels that are not uint and compression by tile
+        * Apply consistent formatting of static const variables
+        * Add programs for scaling, rotation and deskew, named dewkew_it,
+          rotate_it and scale_it, for useful operations on arbitrary images.
+        * Convert pdfiotest program to two regression tests: pdfio1_reg
+          and pdfio2_reg.
+        * Remove all use of strncat; use stringCat().
+        * New functions from removing outliers in sequences of boxes.
+        * Generalize pixAverageInRect(): mask, region and range filters,
+          and subsampling.  New pixAverageInRectRGB().
+        * Fix int overflow bug in pixMedianCut(); required new heap accessor.
+        * New pixMultiplyGray() allows pix to be multiplied by an array (or
+          another pix)
+        * Better routines for counting color.
+        * Lossless conversion for RGB to cmap with not more than 256 colors.
+        * New histo based global thresholding: pixThresholdByHisto().
+        * Allow most reg tests to run even if external libraries are not
+          available.
+        * New one-line gplot functions that return a pix.
+        * New application to find where corners meet in a checkerboard.
+        * Add utility functions for painting through mask in cmap pix,
+          creating a hit-miss sela from a color pix, equality of two pta.
+        * Proper handling of 1 bpp colormap tiffs: remove when reading,
+          preserve when writing.
+        * Deprecate three pixSaveTile*() functions; removed all calls to
+          these from the library and progs.
+        * Include auto_config.h explicitly in all src and prog files.
+        * Improve input data checking for bmp files.
+        * Added pixAutoPhotoinvert() for tesseract, to automatically photo-
+          invert text regions where the background is black and text is white.
+
+1.78.0  21 Mar 19
+        * Various improvements in handling boxa sequences and transforms.
+        * New regression tests: boxa4_reg, string_reg
+        * New function for copying a pix, filtered by a boxa.
+        * Modify histogram method for image comparison.
+        * More careful attention to invalid boxes in box geometry functions.
+        * Better string and array functions for search and replace.
+        * Convenience functions for generating simple masks.
+        * Allow pdf writing of jp2k images, in full generality.
+        * Allow writing compressed ps images for printing.
+        * Modified enum comments to include a suggested enum name.
+        * New program: imagetops
+
+1.77.0  14 Dec 18
+        Here is the current status of CVE issues with leptonica; see
+          https://security-tracker.debian.org/tracker/source-package/leptonlib
+        * CVE-2018-7442: potential injection attack because '/' is allowed
+          in gplot rootdir.
+          Functions using this command have been disabled by default in the 
+          distribution, starting with 1.76.0.  As for the specific issue, it 
+          is impossible to specify a general path without using the standard
+          directory subdivider '/'.
+        * CVE-2018-7186: number of characters not limited in fscanf or sscanf,
+          allowing possible attack with buffer overflow.
+          This has been fixed in 1.75.3.
+        * CVE-2018-3836: command injection vulnerability in gplotMakeOutput().
+          This has been fixed in 1.75.3, using stringCheckForChars() to block
+          rootnames containing any of: ;&|>"?*$()/<
+        * CVE-2017-18196: duplicated path components.
+          This was fixed in 1.75.3.
+        * CVE-2018-7441: hardcoded /tmp pathnames.
+          These are all wrapped in special debug functions that are not
+          enabled by default in the distribution, starting with 1.76.0.
+        * CVE-2018-7247: input 'rootname' can overflow a buffer.
+          This was fixed in 1.76.0, using snprintf().
+        * CVE-2018-7440: command injection in gplotMakeOutput using $(command).
+          Fixed in 1.75.3, which blocks '$' as well as 11 other characters.
+        Wrapped the few 'system' calls in an extra layer of debug code.
+        More coverity scan fixes; defects are about 1 per 10,000 source lines.
+        New regression tests: numa1_reg, numa2_reg, lowaccess_reg,
+          pixmem_reg.
+        New non-regression test programs: histoduptest
+        Juergen Buchmueller is working on Lua bindings.  He typedef'd l_ok
+          and used it in 1100 functions that return a success/failure status.
+          He also helped clean up remaining issues in the doxygen-generated
+          documentation.
+        Using a packed struct for bmp headers to avoid crash on
+          some big-endians.
+        Fixed a bug in the prototype parser for xtractprotos that was
+          surfaced by a typedef declaration for the bmp headers.
+        Cleaned up IOS guards to avoid compiling a system(3) call on IOS.
+        Renamed autobuild --> autogen.sh
+        Added some basic pixa functions for rotation and translation.
+        Added an iterative method to find rectangular coverings for
+          arbitrary connected components.
+        Converted two tests to reg tests running in alltests_reg:
+          ptra1_reg, ptra2_reg
+        Enabled read/write for standard jpeg compressed tiff images.
+        Enabled reading for the old (deprecated) jpeg-encoded tiffs.
+        Fix range selectors for pixa, pixaa, boxa, boxaa, pta:
+          Now, last = -1 goes to the end.
+        When reading tiff --> pix, insert IMAGEDESCRIPTION into text field.
+        Converted iotest to reg test iomisc_reg; added to alltests_reg
+        Converted rasterop_reg into a standard regression test; added
+          to alltests_reg.
+        Converted boxa2_reg and fhmtauto_reg into standard regression tests;
+          added to alltests_reg.
+        Split boxa sequence functions out of boxfunc4.c, into a new boxfunc5.c.
+        Simplified bmp header and made reading more clearly endian
+          agnostic (Juergen Buchmueller)
+        New boxa3_reg regression test. This tests sequences of boxes
+          by two new boxfunctions in boxfunc5.c.
+        New bootnumgen4.c for more digit templates.
+        Rename prog/recog_bootnum.c --> prog/recog_bootname1.c
+        New in prog: recog_bootnum2.c, recog_bootnum3.c, recogtest7.c
+        Fixed uninitialized data in pixCentroid() on 1 bpp pix.
+        New reg test: bytea_reg.c.  (removed byteatest.c)
+        Fixed bug in non-transcoding pdf generation from 1 bpp png.
+        Added LGTM to static analyzers that run over the library.
+
+1.76.0  1 May 18
+        Modify infrastructure to fix outstanding security issues. By default,
+          you can no longer create temp directories and temp files whose
+          names are known to the compiler.  Also, prevent "system" calls,
+          which were used for image display and gnuplot.
+        Replaced remaining sprintf() with snprintf() in prog tests.
+        Added non-transcoding functions for generating pdf from jpeg pixacomp
+        Add control of jpeg quality from pixWriteMem() and pixWriteStream()
+        Fixed getFilenamesInDirectory() to properly identify directories
+        Prevent size overflow in calloc for kernel; cleaned it up fpix and dpix
+        bmp reading now accepts negative height
+        Simplified splitimage2pdf; it no longer uses ps2pdf
+        Remove name-mangling WRITE_AS_NAMED compile option.
+        Removed 2 deprecated write functions.
+        Added these regression tests:
+           locminmax_reg, speckle_reg, watershed_reg,
+
+1.75.3  15 Feb 18
+        Fixed some coverity scan issues.
+        Autotools fix to check for png if enabling gnuplot (James Le Cuirot).
+
+1.75.2  11 Feb 18
+        Converted several progs to standard regression tests.
+        Added these tests to the alltests_reg suite:
+         adaptnorm_reg, binmorph1_reg, binmorph3_reg, equal_reg,
+         extrema_reg, grayfill_reg, falsecolor_reg, grayquant_reg.
+        Autotools fix for restricting giflib to 5.1+, and allowing
+        openjpeg 2.3 (James Le Cuirot).
+
+1.75.1  31 Jan 18
+        Simpler and more accurate function for finding word masks from
+        text image; better debugging and more thorough testing.
+        Added to regression test set: prog/italic_reg
+        Fix for potential injection attack using gplot rootdir.
+        Bug fix for bmp reading to set opacity.
+
+1.75.0  24 Jan 18
+        This is a new version, for major Ubuntu release 18.04.
+        $TMPDIR path rewriting turned off on Unix; only used for Windows.
+        Added pix conversion to depth 2 and 4.  We now have general
+          converters to 1, 2, 4, 8, 16 and 32 bpp. 
+        Modified giflib to use read/write from/to memory; no temp files;
+          no longer support versions before 5.1.
+        Move most low-level code from separate files to their callers;
+          about 30 of them became static.
+        Improved table detection on scanned page images (tests: pageseg_reg.c)
+        Added support for write/compare regression tests for files.
+        Modified printimage for more flexibility.
+        Enable lookup by key on comma-separated key/value text file.
+        Update README.html for building with Visual Studio.
+        Improved functions for getting pixel averages in RGB images
+        Simplified and speedup of unsharp masking.
+        New function for detecting and correcting text orientation. 
+        Remove slow sharpening operation when not appropriate during scaling.
+        Better handling of gplots with 0 or 1 data point.
+        Coverity scan fixes.
+        Modified jpeg2000 header to use openjpeg 2.3.
+        Improved depth accessors for pixa and pixaa; added size accessors
+          for pixa and pixaa.
+        Bug fix in webp interface on read error.
+        New function that finds the closest boxes in a boxa to any particular
+          box, in each of 4 directions.
+        New regression tests in automated sequence: blend5_reg, quadtree_reg,
+        wordboxes_reg.
+        New program: textorient
+        Removed programs: snapcolortest
+
+1.74.4  11 Jun 17
+        Converted two progs to reg tests
+        New version because 1.74.3 had some spurious files (xtractprotos,
+        endianness.h)
+
+1.74.3  9 Jun 17
+        Coverity scan fixes.
+        Several fixes for running on Windows, including subtle one with tiff
+        encoding depending on pad bits.
+        Utility and test if a page image likely has a table.
+        Remove use of pixCreateTemplateNoInit() where it may cause problems.
+        Make release 'configure-make ready'
+
+1.74.2  19 May 17
+        Many simplifications and improvements to recognizer.
+        Cleanup of doxygen comments
+        Encoded pdf title in escape 4-byte hex (for safety)
+        Fixed several hundered coverity scan possible leaks
+        Added about 20 regression tests to the automated set.
+        Improved vertical alignment of dewarp.
+        Implemented preliminary method for correcting dewarp foreshortening
+        due to page curvature.
+        Improved multipage tiff reading and writing.
+        Added a new version of textline finding.
+        Fixed bug in fast 2D sharpening code (used in some scaling ops)
+        BMP i/o rewritten to implement memory version directly.
+        PNG i/o functions added for encoding and decoding directly to memory.
+        Method for finding light color regions on scanned page images.
+
+1.74.1  3 Jan 17
+        Configuration changes to support the patch number in the
+        version (major.minor.patch).
+        Removed all remaining pixDisplayWrite() calls in prog/.
+        Cleaned up and/or promoted about 15 programs to full regression
+        tests.  There are now 95 tests in the regression set.
+        Over half the initial coverity scan warnings have been removed.
+
+1.74.0 10 Dec 16
+       Leptonica development was moved to github.  The master is at:
+          github.com/danbloomberg/leptonica
+       Egor Pugin is the maintainer of the site.
+       A very large number of changes have been made.  Some of them follow;
+       details can be found in the git commit messages.
+       Static makefiles modified to work with gnu*9 and c*9.
+       Modify SET macros to work on windows.
+       New modes for RGB --> gray conversion.
+       New functions added for displaying a pix from a pixa.
+       Split out sort/hash/set/map functions for dna, sarray and pta.
+       More robust horizontal deskew on multi-column page images.
+       Improve webpio_reg test.
+       Remove X11 display for gplot; it is no longer supported.
+       Remove most sleep calls, which were put in for gplot; no longer needed.
+       Removed use of gthumb in library.
+       Removed use of pixDisplayWrite() in the library; still in some progs.
+       Improved test for endianness in makefile.static; no longer requires
+       any local files or building and running a program.
+       Modified all files for doxygen output (spearheaded by
+          Juergen Buchmueller)
+       Improved plotting of the boxes in a boxa.
+       Replaced the slow point hash function with a simple fast one.
+       Added pam (4 component) format writing to pnmio.c (Juergen Buchmueller)
+       Improved rendering of pixa in side/by/sides.
+       Better utilities for pixa and pixacomp.
+       Add read/write serialization functions from/to memory for all
+       the major data structures that do not already have them.
+       More serialized boot recognizers stored as self-generating code.
+       Cleaned up generating an adapted recognizer from the boot recognizer.
+       Simplified temp file naming; removed most instances of named
+       temp files from non-debug code; use tmpfile() and a wrapper
+       l_makeTempFilename().
+       Simplify and streamline multipage tiff reading (Jeff Breidenbach).
+       Improvement of Otsu thresholding.
+       Recognize outstanding contributors to leptonica over the years.
+       New gif mem read/write interface that avoids writing a temp file,
+       contributed by Tobias Peirick.
+       Use double arrays (dna) instead of float (numa) for set ops.
+       Enrolled in coverity scan to find potential bugs (Stefan Weil
+       managed it). Fixed about 200 of them, mostly potential memory
+       leaks from early function exit.
+       Cleanup of gray quantization functions and tests.
+       Refactored connectivity-conserving operations, to make them more useful.
+       Provided methods for measuring and regularizing the width of strokes.
+       Removed viewfiles.c from library; code is now in prog htmlviewer.c.
+       Better debugging in page segmentation (pageseg.c)
+       Deprecated the pixDisplayWrite*() debugging methods.
+       Added about 15 regression tests to the framework in alltests_reg.c
+       Final mods for compatibility with tesseract 4.00.
+           
 1.73   25 Jan 16
        All lept_* functions have been rewritten to avoid path rewrites for
        output to temp files, which were introduced in 1.72.
@@ -151,7 +507,7 @@ They are <i>not</i> a complete listing of the modifications.
        alltests_reg now has 66 tests.
 
 1.71   18 Jun 14
-       This version supports tesseract 3.0.4.  In particular, 3.0.4
+       This version supports tesseract 3.04.  In particular, 3.04
         has automatic conversion of a set of scanned images, either in a
         directory or coming directly from a scanner, into pdf with injected
         text.  This is something we've wanted to do for several years!
@@ -1209,7 +1565,7 @@ They are <i>not</i> a complete listing of the modifications.
        Compiled everything with g++ to make strictly ansi C compatible.
        Added interface gplotFromFile() for simple file-based plotting with 
        gnuplot 3.7.2.   Added functions to convert 2, 4 and 8 bpp
-       color-mapped (i.e., palletted) images to 24 bpp color or
+       color-mapped (i.e., paletted) images to 24 bpp color or
        8 bpp grayscale.  Added several jbig2 application cores that
        only require a simple wrapper to make into programs.
 

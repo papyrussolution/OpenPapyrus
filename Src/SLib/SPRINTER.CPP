@@ -452,7 +452,7 @@ SPrinter * getDefaultPrinter()
 	_printer.device     = 0;
 	strcpy(_printer.port, "LPT1");
 	_printer.prnport    = 0;
-	_printer.fd         = -1;
+	_printer.fd = -1;
 	_printer.pgl        = 0;	// 66;
 	_printer.pgw        = 255;
 	_printer.leftMarg   = 0;
@@ -478,7 +478,7 @@ SPrinter::SPrinter()
 	topMarg    = 0;
 	bottomMarg = 0;
 	options    = SPRN_EJECTAFTER;
-	fd         = -1;
+	fd = -1;
 }
 
 SPrinter::~SPrinter()

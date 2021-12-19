@@ -86,7 +86,7 @@ void ExploreIEEE754()
 
 //int IsValidIEEE(double v) { return _finite(v) ? 1 : 0; }
 
-int IsValidIEEE(double v)
+bool IsValidIEEE(double v)
 {
 	// _FPCLASS_SNAN	Signaling NaN
 	// _FPCLASS_QNAN	Quiet NaN
@@ -98,7 +98,7 @@ int IsValidIEEE(double v)
 	// _FPCLASS_PD		Positive denormalized
 	// _FPCLASS_PN		Positive normalized non-zero
 	// _FPCLASS_PINF	Positive infinity (+INF)
-	int    c = _fpclass(v);
+	const int c = _fpclass(v);
 	return oneof6(c, _FPCLASS_NN, _FPCLASS_ND, _FPCLASS_NZ, _FPCLASS_PZ, _FPCLASS_PD, _FPCLASS_PN);
 }
 
@@ -154,37 +154,36 @@ float  fgetnanf()   { return ((float)(INFINITY * 0.0f)); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
-int    FASTCALL smin(int a, int b) { return MIN(a, b); }
-int    FASTCALL smax(int a, int b) { return MAX(a, b); }
-int64  FASTCALL smin(int64 a, int64 b)   { return MIN(a, b); }
-int64  FASTCALL smax(int64 a, int64 b)   { return MAX(a, b); }
-uint   FASTCALL smin(uint a, uint b)     { return MIN(a, b); }
-uint   FASTCALL smax(uint a, uint b)     { return MAX(a, b); }
-uint64 FASTCALL smin(uint64 a, uint64 b) { return MIN(a, b); }
-uint64 FASTCALL smax(uint64 a, uint64 b) { return MAX(a, b); }
-double FASTCALL smin(double a, double b) { return MIN(a, b); }
-double FASTCALL smax(double a, double b) { return MAX(a, b); }
-float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
-float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
+//int    FASTCALL smin(int a, int b) { return MIN(a, b); }
+//int    FASTCALL smax(int a, int b) { return MAX(a, b); }
+//int64  FASTCALL smin(int64 a, int64 b)   { return MIN(a, b); }
+//int64  FASTCALL smax(int64 a, int64 b)   { return MAX(a, b); }
+//uint   FASTCALL smin(uint a, uint b)     { return MIN(a, b); }
+//uint   FASTCALL smax(uint a, uint b)     { return MAX(a, b); }
+//uint64 FASTCALL smin(uint64 a, uint64 b) { return MIN(a, b); }
+//uint64 FASTCALL smax(uint64 a, uint64 b) { return MAX(a, b); }
+//double FASTCALL smin(double a, double b) { return MIN(a, b); }
+//double FASTCALL smax(double a, double b) { return MAX(a, b); }
+//float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
+//float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
 
 double smax3(double a1, double a2, double a3) { return smax(MAX(a1, a2), a3); }
 double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a2), MAX(a3, a4)); }
 double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
 double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
 
-int    FASTCALL sclamp(int v, int lo, int up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-int    FASTCALL sclamp(int64 v, int64 lo, int64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-int    FASTCALL sclamp(uint64 v, uint64 lo, uint64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
-
-int    FASTCALL sclampx(int v, int lo, int up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-uint   FASTCALL sclampx(uint v, uint lo, uint up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-int    FASTCALL sclampx(int64 v, int64 lo, int64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-int    FASTCALL sclampx(uint64 v, uint64 lo, uint64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-double FASTCALL sclampx(double v, double lo, double up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-float  FASTCALL sclampx(float v, float lo, float up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//int    FASTCALL sclamp(int v, int lo, int up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+//uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+//int64  FASTCALL sclamp(int64 v, int64 lo, int64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+//uint64 FASTCALL sclamp(uint64 v, uint64 lo, uint64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+//double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+//float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
+//int    FASTCALL sclampx(int v, int lo, int up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//uint   FASTCALL sclampx(uint v, uint lo, uint up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//int64  FASTCALL sclampx(int64 v, int64 lo, int64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//uint64 FASTCALL sclampx(uint64 v, uint64 lo, uint64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//double FASTCALL sclampx(double v, double lo, double up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//float  FASTCALL sclampx(float v, float lo, float up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return (static_cast<double>(v)) / 100.0; }

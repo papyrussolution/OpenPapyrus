@@ -1,4 +1,4 @@
-/*  sjis.h - Unicode to Shift JIS lookup table
+/* sjis.h - Unicode to Shift JIS lookup table
 
     libzint - the open source barcode library
     Copyright (C) 2009-2016 Robin Stuart <rstuart114@gmail.com>

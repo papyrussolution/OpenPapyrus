@@ -140,20 +140,20 @@ static const char template_header[] = {
 	0, 0, 0, 0, 0, 0, 0
 };
 
-static int      archive_write_gnutar_options(struct archive_write *,
+static int archive_write_gnutar_options(struct archive_write *,
     const char *, const char *);
-static int      archive_format_gnutar_header(struct archive_write *, char h[512],
+static int archive_format_gnutar_header(struct archive_write *, char h[512],
     struct archive_entry *, int tartype);
-static int      archive_write_gnutar_header(struct archive_write *,
+static int archive_write_gnutar_header(struct archive_write *,
     struct archive_entry * entry);
 static ssize_t  archive_write_gnutar_data(struct archive_write * a, const void * buff,
     size_t s);
-static int      archive_write_gnutar_free(struct archive_write *);
-static int      archive_write_gnutar_close(struct archive_write *);
-static int      archive_write_gnutar_finish_entry(struct archive_write *);
-static int      format_256(int64, char *, int);
-static int      format_number(int64, char *, int size, int maxsize);
-static int      format_octal(int64, char *, int);
+static int archive_write_gnutar_free(struct archive_write *);
+static int archive_write_gnutar_close(struct archive_write *);
+static int archive_write_gnutar_finish_entry(struct archive_write *);
+static int format_256(int64, char *, int);
+static int format_number(int64, char *, int size, int maxsize);
+static int format_octal(int64, char *, int);
 
 /*
  * Set output format to 'GNU tar' format.

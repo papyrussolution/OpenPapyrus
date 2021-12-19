@@ -36,14 +36,14 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_cpio.c 201170 2
 
 static ssize_t  archive_write_cpio_data(struct archive_write *,
     const void * buff, size_t s);
-static int      archive_write_cpio_close(struct archive_write *);
-static int      archive_write_cpio_free(struct archive_write *);
-static int      archive_write_cpio_finish_entry(struct archive_write *);
-static int      archive_write_cpio_header(struct archive_write *, struct archive_entry *);
-static int      archive_write_cpio_options(struct archive_write *, const char *, const char *);
-static int      format_octal(int64, void *, int);
+static int archive_write_cpio_close(struct archive_write *);
+static int archive_write_cpio_free(struct archive_write *);
+static int archive_write_cpio_finish_entry(struct archive_write *);
+static int archive_write_cpio_header(struct archive_write *, struct archive_entry *);
+static int archive_write_cpio_options(struct archive_write *, const char *, const char *);
+static int format_octal(int64, void *, int);
 static int64  format_octal_recursive(int64, char *, int);
-static int      write_header(struct archive_write *, struct archive_entry *);
+static int write_header(struct archive_write *, struct archive_entry *);
 
 struct cpio {
 	uint64 entry_bytes_remaining;

@@ -30,6 +30,10 @@
  *   Returns information about the image data file
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -42,6 +46,7 @@ static char  mainName[] = "fileinfo";
         return ERROR_INT(" Syntax:  fileinfo filein", mainName, 1);
     filein = argv[1];
 
+    setLeptDebugOK(1);
     writeImageFileInfo(filein, stderr, 0);
     return 0;
 }

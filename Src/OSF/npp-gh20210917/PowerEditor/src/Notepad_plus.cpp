@@ -846,9 +846,9 @@ void Notepad_plus::saveDockingParams()
 	NppGUI & nppGUI = (NppParameters::getInstance()).getNppGUI();
 
 	// Save the docking information
-	nppGUI._dockingData._leftWidth          = _dockingManager.getDockedContSize(CONT_LEFT);
-	nppGUI._dockingData._rightWidth         = _dockingManager.getDockedContSize(CONT_RIGHT);
-	nppGUI._dockingData._topHeight          = _dockingManager.getDockedContSize(CONT_TOP);
+	nppGUI._dockingData._leftWidth  = _dockingManager.getDockedContSize(CONT_LEFT);
+	nppGUI._dockingData._rightWidth = _dockingManager.getDockedContSize(CONT_RIGHT);
+	nppGUI._dockingData._topHeight  = _dockingManager.getDockedContSize(CONT_TOP);
 	nppGUI._dockingData._bottomHight        = _dockingManager.getDockedContSize(CONT_BOTTOM);
 
 	// clear the container tab information (active tab)
@@ -5082,8 +5082,8 @@ bool Notepad_plus::getIntegralDockingData(tTbData & dockData, int & iCont, bool 
 		const PluginDlgDockingInfo & pddi = dockingData._pluginDockInfo[i];
 
 		if(!generic_stricmp(pddi._name.c_str(), dockData.pszModuleName) && (pddi._internalID == dockData.dlgID)) {
-			iCont                           = pddi._currContainer;
-			isVisible                       = pddi._isVisible;
+			iCont                   = pddi._currContainer;
+			isVisible               = pddi._isVisible;
 			dockData.iPrevCont      = pddi._prevContainer;
 
 			if(dockData.iPrevCont != -1) {

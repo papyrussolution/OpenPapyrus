@@ -125,7 +125,7 @@ UnicodeString & Quantifier::toPattern(UnicodeString & result,
 /**
  * Implement UnicodeMatcher
  */
-bool Quantifier::matchesIndexValue(uint8_t v) const {
+bool Quantifier::matchesIndexValue(uint8 v) const {
 	return (minCount == 0) || matcher->toMatcher()->matchesIndexValue(v);
 }
 

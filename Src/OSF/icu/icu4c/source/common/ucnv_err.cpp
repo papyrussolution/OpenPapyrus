@@ -437,7 +437,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 			uniValueString[valueStringLength++] = (UChar)UNICODE_X_CODEPOINT; /* adding X */
 			valueStringLength += uprv_itou(uniValueString + valueStringLength,
 				VALUE_STRING_LENGTH - valueStringLength,
-				(uint8_t)codeUnits[i++],
+				(uint8)codeUnits[i++],
 				16,
 				2);
 		}
@@ -451,7 +451,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 				    uniValueString[valueStringLength++] = (UChar)UNICODE_HASH_CODEPOINT; /* adding # */
 				    valueStringLength += uprv_itou(uniValueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint8_t)codeUnits[i++],
+					    (uint8)codeUnits[i++],
 					    10,
 					    0);
 				    uniValueString[valueStringLength++] = (UChar)UNICODE_SEMICOLON_CODEPOINT; /* adding
@@ -466,7 +466,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 				    uniValueString[valueStringLength++] = (UChar)UNICODE_X_LOW_CODEPOINT; /* adding x */
 				    valueStringLength += uprv_itou(uniValueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint8_t)codeUnits[i++],
+					    (uint8)codeUnits[i++],
 					    16,
 					    0);
 				    uniValueString[valueStringLength++] = (UChar)UNICODE_SEMICOLON_CODEPOINT; /* adding
@@ -479,7 +479,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 				    uniValueString[valueStringLength++] = (UChar)UNICODE_X_LOW_CODEPOINT; /* adding x */
 				    valueStringLength += uprv_itou(uniValueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint8_t)codeUnits[i++],
+					    (uint8)codeUnits[i++],
 					    16,
 					    2);
 			    }
@@ -492,7 +492,7 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 				    uniValueString[valueStringLength++] = (UChar)UNICODE_X_CODEPOINT; /* adding X */
 				    uprv_itou(uniValueString + valueStringLength,
 					VALUE_STRING_LENGTH - valueStringLength,
-					(uint8_t)codeUnits[i++],
+					(uint8)codeUnits[i++],
 					16,
 					2);
 				    valueStringLength += 2;

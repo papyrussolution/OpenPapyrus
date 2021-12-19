@@ -1,4 +1,4 @@
-/*  gridmtx.c - Grid Matrix
+/* gridmtx.c - Grid Matrix
 
     libzint - the open source barcode library
     Copyright (C) 2009-2016 Robin Stuart <rstuart114@gmail.com>

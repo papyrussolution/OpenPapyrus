@@ -17,7 +17,7 @@
 #ifndef U_ASSERT_H
 #define U_ASSERT_H
 
-/* utypes.h is included to get the proper define for uint8_t */
+/* utypes.h is included to get the proper define for uint8 */
 #include "unicode/utypes.h"
 /* for abort */
 #include <stdlib.h>

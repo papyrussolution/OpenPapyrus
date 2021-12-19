@@ -287,7 +287,7 @@ static int _warc_finish_entry(struct archive_write * a)
 
 static int _warc_close(struct archive_write * a)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return ARCHIVE_OK;
 }
 

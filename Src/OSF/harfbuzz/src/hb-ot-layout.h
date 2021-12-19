@@ -87,7 +87,7 @@ typedef enum {
 	HB_OT_LAYOUT_GLYPH_CLASS_UNCLASSIFIED = 0,
 	HB_OT_LAYOUT_GLYPH_CLASS_BASE_GLYPH   = 1,
 	HB_OT_LAYOUT_GLYPH_CLASS_LIGATURE     = 2,
-	HB_OT_LAYOUT_GLYPH_CLASS_MARK         = 3,
+	HB_OT_LAYOUT_GLYPH_CLASS_MARK = 3,
 	HB_OT_LAYOUT_GLYPH_CLASS_COMPONENT    = 4
 } hb_ot_layout_glyph_class_t;
 
@@ -354,13 +354,13 @@ HB_EXTERN uint hb_ot_layout_feature_get_characters(hb_face_t * face, hb_tag_t ta
  * Since: 2.6.0
  */
 typedef enum {
-	HB_OT_LAYOUT_BASELINE_TAG_ROMAN                       = HB_TAG('r', 'o', 'm', 'n'),
-	HB_OT_LAYOUT_BASELINE_TAG_HANGING                     = HB_TAG('h', 'a', 'n', 'g'),
+	HB_OT_LAYOUT_BASELINE_TAG_ROMAN               = HB_TAG('r', 'o', 'm', 'n'),
+	HB_OT_LAYOUT_BASELINE_TAG_HANGING             = HB_TAG('h', 'a', 'n', 'g'),
 	HB_OT_LAYOUT_BASELINE_TAG_IDEO_FACE_BOTTOM_OR_LEFT    = HB_TAG('i', 'c', 'f', 'b'),
 	HB_OT_LAYOUT_BASELINE_TAG_IDEO_FACE_TOP_OR_RIGHT      = HB_TAG('i', 'c', 'f', 't'),
 	HB_OT_LAYOUT_BASELINE_TAG_IDEO_EMBOX_BOTTOM_OR_LEFT   = HB_TAG('i', 'd', 'e', 'o'),
 	HB_OT_LAYOUT_BASELINE_TAG_IDEO_EMBOX_TOP_OR_RIGHT     = HB_TAG('i', 'd', 't', 'p'),
-	HB_OT_LAYOUT_BASELINE_TAG_MATH                        = HB_TAG('m', 'a', 't', 'h'),
+	HB_OT_LAYOUT_BASELINE_TAG_MATH                = HB_TAG('m', 'a', 't', 'h'),
 
 	_HB_OT_LAYOUT_BASELINE_TAG_MAX_VALUE = HB_TAG_MAX_SIGNED /*< skip >*/
 } hb_ot_layout_baseline_tag_t;

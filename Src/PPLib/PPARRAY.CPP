@@ -822,7 +822,7 @@ int SurKeyArray::Add(long * pID, const void * pData, size_t dataLen)
 int SurKeyArray::Remove(long id)
 {
 	uint pos = 0;
-	if(lsearch(&id, &pos, PTR_CMPFUNC(long))) {
+	if(lsearch(&id, &pos, CMPF_LONG)) {
 		atFree(pos);
 		return 1;
 	}
@@ -833,7 +833,7 @@ int SurKeyArray::Remove(long id)
 const void * SurKeyArray::Get(long id, size_t * pDataLen) const
 {
 	uint pos = 0;
-	if(lsearch(&id, &pos, PTR_CMPFUNC(long))) {
+	if(lsearch(&id, &pos, CMPF_LONG)) {
 		const SurKey * p_item = static_cast<const SurKey *>(at(pos));
 		ASSIGN_PTR(pDataLen, p_item->Val.Size);
 		return p_item->Val.P_Buf;

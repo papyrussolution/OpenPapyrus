@@ -283,7 +283,7 @@ int PPViewStyloQBindery::Invitation()
 		}
 		int rsr = ic.RunStyloQServer(rsparam, 0);
 		if(rsr != 0) {
-			PPStyloQInterchange::Invitation inv(rsparam);
+			PPStyloQInterchange::InterchangeParam inv(rsparam);
 			{
 				SJson js(SJson::tOBJECT);
 				js.InsertString("cmd", "REGISTER");

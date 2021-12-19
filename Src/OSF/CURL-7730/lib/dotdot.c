@@ -86,7 +86,7 @@ char * Curl_dedotdotify(const char * input)
 		*queryp = 0;
 
 	do {
-		/*  A.  If the input buffer begins with a prefix of "../" or "./", then
+		/* A.  If the input buffer begins with a prefix of "../" or "./", then
 		    remove that prefix from the input buffer; otherwise, */
 
 		if(!strncmp("./", clone, 2)) {
@@ -98,7 +98,7 @@ char * Curl_dedotdotify(const char * input)
 			clen -= 3;
 		}
 
-		/*  B.  if the input buffer begins with a prefix of "/./" or "/.", where
+		/* B.  if the input buffer begins with a prefix of "/./" or "/.", where
 		    "."  is a complete path segment, then replace that prefix with "/" in
 		    the input buffer; otherwise, */
 		else if(!strncmp("/./", clone, 3)) {
@@ -111,7 +111,7 @@ char * Curl_dedotdotify(const char * input)
 			clen -= 1;
 		}
 
-		/*  C.  if the input buffer begins with a prefix of "/../" or "/..", where
+		/* C.  if the input buffer begins with a prefix of "/../" or "/..", where
 		    ".." is a complete path segment, then replace that prefix with "/" in
 		    the input buffer and remove the last segment and its preceding "/" (if
 		    any) from the output buffer; otherwise, */
@@ -140,7 +140,7 @@ char * Curl_dedotdotify(const char * input)
 			*outptr = 0; /* null-terminate where it stops */
 		}
 
-		/*  D.  if the input buffer consists only of "." or "..", then remove
+		/* D.  if the input buffer consists only of "." or "..", then remove
 		    that from the input buffer; otherwise, */
 
 		else if(!strcmp(".", clone) || !strcmp("..", clone)) {
@@ -149,7 +149,7 @@ char * Curl_dedotdotify(const char * input)
 		}
 
 		else {
-			/*  E.  move the first path segment in the input buffer to the end of
+			/* E.  move the first path segment in the input buffer to the end of
 			    the output buffer, including the initial "/" character (if any) and
 			    any subsequent characters up to, but not including, the next "/"
 			    character or the end of the input buffer. */

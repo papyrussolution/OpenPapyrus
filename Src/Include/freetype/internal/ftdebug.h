@@ -33,7 +33,7 @@ FT_BEGIN_HEADER
 
 /* force the definition of FT_DEBUG_LEVEL_ERROR if FT_DEBUG_LEVEL_TRACE */
 /* is already defined; this simplifies the following #ifdefs            */
-/*                                                                      */
+/*                                                      */
 #ifdef FT_DEBUG_LEVEL_TRACE
 #undef  FT_DEBUG_LEVEL_ERROR
 #define FT_DEBUG_LEVEL_ERROR
@@ -90,7 +90,7 @@ extern int*  ft_trace_levels;
 
 #else /* !FT_DEBUG_LEVEL_TRACE */
 
-#define FT_TRACE(level, varformat)  do { } while(0)           /* nothing */
+#define FT_TRACE(level, varformat)  do { } while(0) /* nothing */
 
 #endif /* !FT_DEBUG_LEVEL_TRACE */
 
@@ -193,7 +193,7 @@ FT_Trace_Enable(void);
 
 #else  /* !FT_DEBUG_LEVEL_ERROR */
 
-#define FT_ERROR(varformat)  do { } while(0)           /* nothing */
+#define FT_ERROR(varformat)  do { } while(0) /* nothing */
 
 #endif /* !FT_DEBUG_LEVEL_ERROR */
 

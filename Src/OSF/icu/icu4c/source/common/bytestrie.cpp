@@ -23,7 +23,7 @@ BytesTrie::~BytesTrie() {
 }
 
 // lead byte already shifted right by 1.
-int32_t BytesTrie::readValue(const uint8_t * pos, int32_t leadByte) 
+int32_t BytesTrie::readValue(const uint8 * pos, int32_t leadByte) 
 {
 	int32_t value;
 	if(leadByte<kMinTwoByteValueLead)
@@ -39,7 +39,7 @@ int32_t BytesTrie::readValue(const uint8_t * pos, int32_t leadByte)
 	return value;
 }
 
-const uint8_t * BytesTrie::jumpByDelta(const uint8_t * pos) 
+const uint8 * BytesTrie::jumpByDelta(const uint8 * pos) 
 {
 	int32_t delta = *pos++;
 	if(delta<kMinTwoByteDeltaLead) {
@@ -65,8 +65,8 @@ const uint8_t * BytesTrie::jumpByDelta(const uint8_t * pos)
 
 UStringTrieResult BytesTrie::current() const 
 {
-	const uint8_t * pos = pos_;
-	if(pos==NULL) {
+	const uint8 * pos = pos_;
+	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;
 	}
 	else {
@@ -75,10 +75,10 @@ UStringTrieResult BytesTrie::current() const
 	}
 }
 
-UStringTrieResult BytesTrie::branchNext(const uint8_t * pos, int32_t length, int32_t inByte) 
+UStringTrieResult BytesTrie::branchNext(const uint8 * pos, int32_t length, int32_t inByte) 
 {
 	// Branch according to the current byte.
-	if(length==0) {
+	if(!length) {
 		length = *pos++;
 	}
 	++length;
@@ -152,7 +152,8 @@ UStringTrieResult BytesTrie::branchNext(const uint8_t * pos, int32_t length, int
 	}
 }
 
-UStringTrieResult BytesTrie::nextImpl(const uint8_t * pos, int32_t inByte) {
+UStringTrieResult BytesTrie::nextImpl(const uint8 * pos, int32_t inByte) 
+{
 	for(;;) {
 		int32_t node = *pos++;
 		if(node<kMinLinearMatch) {
@@ -187,9 +188,10 @@ UStringTrieResult BytesTrie::nextImpl(const uint8_t * pos, int32_t inByte) {
 	return USTRINGTRIE_NO_MATCH;
 }
 
-UStringTrieResult BytesTrie::next(int32_t inByte) {
-	const uint8_t * pos = pos_;
-	if(pos==NULL) {
+UStringTrieResult BytesTrie::next(int32_t inByte) 
+{
+	const uint8 * pos = pos_;
+	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;
 	}
 	if(inByte<0) {
@@ -218,8 +220,8 @@ UStringTrieResult BytesTrie::next(const char * s, int32_t sLength) {
 		// Empty input.
 		return current();
 	}
-	const uint8_t * pos = pos_;
-	if(pos==NULL) {
+	const uint8 * pos = pos_;
+	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;
 	}
 	int32_t length = remainingMatchLength_; // Actual remaining match length minus 1.
@@ -324,7 +326,7 @@ UStringTrieResult BytesTrie::next(const char * s, int32_t sLength) {
 	}
 }
 
-const uint8_t * BytesTrie::findUniqueValueFromBranch(const uint8_t * pos, int32_t length, bool haveUniqueValue, int32_t &uniqueValue) 
+const uint8 * BytesTrie::findUniqueValueFromBranch(const uint8 * pos, int32_t length, bool haveUniqueValue, int32_t &uniqueValue) 
 {
 	while(length>kMaxBranchLinearSubNodeLength) {
 		++pos; // ignore the comparison byte
@@ -362,16 +364,16 @@ const uint8_t * BytesTrie::findUniqueValueFromBranch(const uint8_t * pos, int32_
 	return pos+1; // ignore the last comparison byte
 }
 
-bool BytesTrie::findUniqueValue(const uint8_t * pos, bool haveUniqueValue, int32_t &uniqueValue) 
+bool BytesTrie::findUniqueValue(const uint8 * pos, bool haveUniqueValue, int32_t &uniqueValue) 
 {
 	for(;;) {
 		int32_t node = *pos++;
 		if(node<kMinLinearMatch) {
-			if(node==0) {
+			if(!node) {
 				node = *pos++;
 			}
 			pos = findUniqueValueFromBranch(pos, node+1, haveUniqueValue, uniqueValue);
-			if(pos==NULL) {
+			if(!pos) {
 				return FALSE;
 			}
 			haveUniqueValue = TRUE;
@@ -402,8 +404,8 @@ bool BytesTrie::findUniqueValue(const uint8_t * pos, bool haveUniqueValue, int32
 
 int32_t BytesTrie::getNextBytes(ByteSink &out) const 
 {
-	const uint8_t * pos = pos_;
-	if(pos==NULL) {
+	const uint8 * pos = pos_;
+	if(!pos) {
 		return 0;
 	}
 	if(remainingMatchLength_>=0) {
@@ -422,7 +424,7 @@ int32_t BytesTrie::getNextBytes(ByteSink &out) const
 		}
 	}
 	if(node<kMinLinearMatch) {
-		if(node==0) {
+		if(!node) {
 			node = *pos++;
 		}
 		getNextBranchBytes(pos, ++node, out);
@@ -435,7 +437,7 @@ int32_t BytesTrie::getNextBytes(ByteSink &out) const
 	}
 }
 
-void BytesTrie::getNextBranchBytes(const uint8_t * pos, int32_t length, ByteSink &out) 
+void BytesTrie::getNextBranchBytes(const uint8 * pos, int32_t length, ByteSink &out) 
 {
 	while(length>kMaxBranchLinearSubNodeLength) {
 		++pos; // ignore the comparison byte

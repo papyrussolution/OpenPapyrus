@@ -639,7 +639,6 @@ IMPL_HANDLE_EVENT(TDialog)
 							clearEvent(event);
 						}
 						break;*/
-	// @v9.6.6 #ifndef NDEBUG // {
 					case cmResize:
 						if(event.message.infoPtr) {
 							if(!(DlgFlags & fMouseResizing))
@@ -673,7 +672,6 @@ IMPL_HANDLE_EVENT(TDialog)
 						*/
 						// } @v9.6.6 
 						break;
-	// @v9.6.6 #endif // } !NDEBUG
 				}
 				break;
 		}

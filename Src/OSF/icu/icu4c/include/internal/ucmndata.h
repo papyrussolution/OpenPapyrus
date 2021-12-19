@@ -35,8 +35,8 @@
 
 typedef struct  {
     uint16_t    headerSize;
-    uint8_t     magic1;
-    uint8_t     magic2;
+    uint8     magic1;
+    uint8     magic2;
 } MappedData;
 
 

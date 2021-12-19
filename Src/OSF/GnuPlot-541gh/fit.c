@@ -866,7 +866,7 @@ void GnuPlot::GpFit::ShowResults(double chisq, double last_chisq, double * pA, d
 			Dblfn("%-15.15s = %-15g\n", par_name[k], pA[k] * scale_params[k]);
 	}
 	else {
-		int ndf          = num_data - num_params;
+		int ndf  = num_data - num_params;
 		double stdfit    = sqrt(chisq/ndf);
 		double pvalue    = 1.0 - chisq_cdf(ndf, chisq);
 		Dblfn("degrees of freedom    (FIT_NDF)                        : %d\n", ndf);

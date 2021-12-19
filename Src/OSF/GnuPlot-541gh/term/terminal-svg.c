@@ -60,7 +60,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -69,36 +69,36 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void SVG_init(GpTermEntry * pThis);
-TERM_PUBLIC void SVG_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void SVG_text(GpTermEntry * pThis);
-TERM_PUBLIC void SVG_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void SVG_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void SVG_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void SVG_reset(GpTermEntry * pThis);
-TERM_PUBLIC int SVG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int SVG_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
-TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC void SVG_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void SVG_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SVG_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SVG_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SVG_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void SVG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void SVG_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void SVG_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void SVG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void SVG_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC int SVG_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int SVG_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void SVG_point(GpTermEntry_Static * pThis, uint x, uint y, int pointstyle);
+TERM_PUBLIC int SVG_set_font(GpTermEntry_Static * pThis, const char * font);
 // TERM_PUBLIC void SVG_pointsize(double pointsize); 
-TERM_PUBLIC void SVG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void SVG_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette *);
-TERM_PUBLIC void SVG_previous_palette(GpTermEntry * pThis);
-TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec *);
-TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
-TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
-TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char *, double, double, bool, bool, int);
-TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis);
-TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint, uint, const char *);
-TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int);
-TERM_PUBLIC void SVG_path(GpTermEntry * pThis, int p);
-TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int, const char *);
+TERM_PUBLIC void SVG_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void SVG_linewidth(GpTermEntry_Static * pThis, double linewidth);
+TERM_PUBLIC int SVG_make_palette(GpTermEntry_Static * pThis, t_sm_palette *);
+TERM_PUBLIC void SVG_previous_palette(GpTermEntry_Static * pThis);
+TERM_PUBLIC void SVG_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
+TERM_PUBLIC void SVG_filled_polygon(GpTermEntry_Static * pThis, int, gpiPoint *);
+TERM_PUBLIC void SVG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint);
+TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, char *, double, double, bool, bool, int);
+TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry_Static * pThis);
+TERM_PUBLIC void ENHsvg_put_text(GpTermEntry_Static * pThis, uint, uint, const char *);
+TERM_PUBLIC void ENHsvg_writec(GpTermEntry_Static * pThis, int);
+TERM_PUBLIC void SVG_path(GpTermEntry_Static * pThis, int p);
+TERM_PUBLIC void SVG_hypertext(GpTermEntry_Static * pThis, int, const char *);
 #ifdef WRITE_PNG_IMAGE
-	TERM_PUBLIC void SVG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
+	TERM_PUBLIC void SVG_image(GpTermEntry_Static * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode);
 	static int SVG_imageno = 0;
 #endif
 #define SVG_SCALE       100.    /* Coordinate accuracy is 1/SVG_SCALE pixel */
@@ -184,7 +184,7 @@ static void SVG_GroupFilledOpen();
 static void SVG_GroupFilledClose();
 static void SVG_StyleColor(const char *);
 static void SVG_StyleFillColor();
-static void SVG_local_reset(GpTermEntry * pThis);
+static void SVG_local_reset(GpTermEntry_Static * pThis);
 static void SVG_DefineFillPattern(int fillpat);
 
 /* Stuff for enhanced text mode */
@@ -327,7 +327,7 @@ static void SVG_AddSpaceOrNewline()
 		fputs(" ", GPT.P_GpOutFile);
 }
 
-static void SVG_SetFont(GpTermEntry * pThis, const char * name, double size)
+static void SVG_SetFont(GpTermEntry_Static * pThis, const char * name, double size)
 {
 	if(name != SVG_fontNameCur) {
 		SAlloc::F(SVG_fontNameCur);
@@ -343,8 +343,7 @@ static void SVG_SetFont(GpTermEntry * pThis, const char * name, double size)
 	SVG_fontDescent = (SVG_fontSizeCur * 0.25 * SVG_SCALE);
 	SVG_fontLeading = (SVG_fontSizeCur * 0.35 * SVG_SCALE);
 	SVG_fontAvWidth = (SVG_fontSizeCur * 0.70 * SVG_SCALE);
-	pThis->ChrH = static_cast<uint>(SVG_fontAvWidth);
-	pThis->ChrV = static_cast<uint>((SVG_fontAscent + SVG_fontDescent + SVG_fontLeading));
+	pThis->SetCharSize(static_cast<uint>(SVG_fontAvWidth), static_cast<uint>((SVG_fontAscent + SVG_fontDescent + SVG_fontLeading)));
 }
 
 static void SVG_GroupFilledOpen()
@@ -432,7 +431,7 @@ static void SVG_DefineFillPattern(int fillpat)
 	}
 }
 
-static void SVG_MoveForced(GpTermEntry * pThis, uint x, uint y)
+static void SVG_MoveForced(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(SVG_path_count > 512)
 		SVG_PathClose();
@@ -446,7 +445,7 @@ static void SVG_MoveForced(GpTermEntry * pThis, uint x, uint y)
 // 
 // SVG_options
 // 
-TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void SVG_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal settings.         
@@ -519,13 +518,13 @@ TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
 			pGp->Pgm.Shift();
 			pThis->put_text = ENHsvg_put_text;
-			pThis->flags |= TERM_ENHANCED_TEXT;
+			pThis->SetFlag(TERM_ENHANCED_TEXT);
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
 			pGp->Pgm.Shift();
 			pThis->put_text = SVG_put_text;
-			pThis->flags &= ~TERM_ENHANCED_TEXT;
+			pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("fn$ame") || pGp->Pgm.AlmostEqualsCur("font")) {
@@ -643,7 +642,7 @@ TERM_PUBLIC void SVG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 }
 
-static void SVG_local_reset(GpTermEntry * pThis)
+static void SVG_local_reset(GpTermEntry_Static * pThis)
 {
 	SVG_xSize = static_cast<uint>(SVG_XMAX);
 	SVG_ySize = static_cast<uint>(SVG_YMAX);
@@ -660,10 +659,10 @@ static void SVG_local_reset(GpTermEntry * pThis)
 	SVG_animate = false;
 	// Default to enhanced text 
 	pThis->put_text = ENHsvg_put_text;
-	pThis->flags |= TERM_ENHANCED_TEXT;
+	pThis->SetFlag(TERM_ENHANCED_TEXT);
 }
 
-TERM_PUBLIC void SVG_init(GpTermEntry * pThis)
+TERM_PUBLIC void SVG_init(GpTermEntry_Static * pThis)
 {
 	/* setup pens*/
 	SVG_pens[0].width = SVG_LineWidth;
@@ -702,19 +701,17 @@ TERM_PUBLIC void SVG_init(GpTermEntry * pThis)
 	if(SVG_background >= 0)
 		sprintf(SVG_pens[0].color, "#%2.2X%2.2X%2.2X", (SVG_background >> 16)&0xff, (SVG_background >> 8)&0xff, (SVG_background)&0xff);
 	SVG_LineType = LT_NODRAW;
-	/* set xmax, ymax*/
-	pThis->MaxX = SVG_xSize;
-	pThis->MaxY = SVG_ySize;
+	// set xmax, ymax
+	pThis->SetMax(SVG_xSize, SVG_ySize);
 	// set current font, including ChrH and ChrV 
 	SVG_SetFont(pThis, SVG_fontNameCur, SVG_fontSizeCur);
 	// set TicH, TicV
-	pThis->TicH = pThis->ChrV / 2;
-	pThis->TicV = pThis->ChrV / 2;
+	pThis->SetTic(pThis->CV() / 2);
 }
 //
 // write file header
 //
-static void SVG_write_preamble(GpTermEntry * pThis)
+static void SVG_write_preamble(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int len;
@@ -855,27 +852,27 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	    "\n"
 	    /* dot: */
 	    "\t<circle id='gpDot' r='0.5' stroke-width='0.5' stroke='currentColor'/>\n"
-	    /*  0 plus */
+	    /* 0 plus */
 	    "\t<path id='gpPt0' stroke-width='%.3f' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>\n"
-	    /*  1 X */
+	    /* 1 X */
 	    "\t<path id='gpPt1' stroke-width='%.3f' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>\n"
-	    /*  2 star */
+	    /* 2 star */
 	    "\t<path id='gpPt2' stroke-width='%.3f' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>\n"
-	    /*  3 box */
+	    /* 3 box */
 	    "\t<rect id='gpPt3' stroke-width='%.3f' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>\n"
-	    /*  4 box                   filled */
+	    /* 4 box                   filled */
 	    "\t<rect id='gpPt4' stroke-width='%.3f' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>\n"
-	    /*  5 circle */
+	    /* 5 circle */
 	    "\t<circle id='gpPt5' stroke-width='%.3f' stroke='currentColor' cx='0' cy='0' r='1'/>\n"
-	    /*  6 circle (disk)         filled */
+	    /* 6 circle (disk)         filled */
 	    "\t<use xlink:href='#gpPt5' id='gpPt6' fill='currentColor' stroke='none'/>\n"
-	    /*  7 triangle */
+	    /* 7 triangle */
 	    "\t<path id='gpPt7' stroke-width='%.3f' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>\n"
-	    /*  8 triangle  filled */
+	    /* 8 triangle  filled */
 	    "\t<use xlink:href='#gpPt7' id='gpPt8' fill='currentColor' stroke='none'/>\n"
-	    /*  9 upside down triangle */
+	    /* 9 upside down triangle */
 	    "\t<use xlink:href='#gpPt7' id='gpPt9' stroke='currentColor' transform='rotate(180)'/>\n"
-	    /*  10 upside down triangle filled */
+	    /* 10 upside down triangle filled */
 	    "\t<use xlink:href='#gpPt9' id='gpPt10' fill='currentColor' stroke='none'/>\n"
 	    /* 11 diamond */
 	    "\t<use xlink:href='#gpPt3' id='gpPt11' stroke='currentColor' transform='rotate(45)'/>\n"
@@ -902,7 +899,7 @@ static void SVG_write_preamble(GpTermEntry * pThis)
 	    "</defs>\n", stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, stroke_width, SVG_pens[0].color);
 }
 
-TERM_PUBLIC void SVG_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void SVG_graphics(GpTermEntry_Static * pThis)
 {
 	SVG_write_preamble(pThis);
 	// We must force a new group with fill:none in order for multiple 
@@ -917,7 +914,7 @@ TERM_PUBLIC void SVG_graphics(GpTermEntry * pThis)
 	SVG_xLast = SVG_yLast = UINT_MAX;
 }
 
-static void svg_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js_name)
+static void svg_mouse_param(GpTermEntry_Static * pThis, char * gp_name, const char * js_name)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	udvt_entry * udv;
@@ -933,7 +930,7 @@ static void svg_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js
 	}
 }
 
-TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
+TERM_PUBLIC void SVG_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	SVG_PathClose();
@@ -1088,11 +1085,11 @@ TERM_PUBLIC void SVG_text(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void SVG_reset(GpTermEntry * pThis)
+TERM_PUBLIC void SVG_reset(GpTermEntry_Static * pThis)
 {
 }
 
-TERM_PUBLIC void SVG_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void SVG_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	SVG_color_mode = TC_DEFAULT;
 	if(TRUE || linetype != SVG_LineType) {
@@ -1107,7 +1104,7 @@ TERM_PUBLIC void SVG_linetype(GpTermEntry * pThis, int linetype)
 		SVG_dashpattern = NULL;
 }
 
-TERM_PUBLIC void SVG_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void SVG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type)
 {
 	int d, j;
 	double empirical_scale = 0.50;
@@ -1154,7 +1151,7 @@ TERM_PUBLIC void SVG_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom
 	}
 }
 
-TERM_PUBLIC void SVG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void SVG_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[4];
 	corner[0].x = x1;        corner[0].y = y1;
@@ -1165,7 +1162,7 @@ TERM_PUBLIC void SVG_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, u
 	SVG_filled_polygon(pThis, 4, corner);
 }
 
-TERM_PUBLIC void SVG_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void SVG_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	if(linewidth != SVG_LineWidth) {
 		short k;
@@ -1178,14 +1175,14 @@ TERM_PUBLIC void SVG_linewidth(GpTermEntry * pThis, double linewidth)
 	}
 }
 
-TERM_PUBLIC void SVG_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void SVG_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(x != SVG_xLast || y != SVG_yLast) {
 		SVG_MoveForced(pThis, x, y);
 	}
 }
 
-TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void SVG_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(x != SVG_xLast || y != SVG_yLast) {
 		if(!SVG_pathIsOpen) {
@@ -1202,7 +1199,7 @@ TERM_PUBLIC void SVG_vector(GpTermEntry * pThis, uint x, uint y)
 // 
 // SVG_point
 // 
-TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void SVG_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char color_spec[0x40];
@@ -1238,20 +1235,20 @@ TERM_PUBLIC void SVG_point(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC int SVG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int SVG_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	SVG_TextJust = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC int SVG_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int SVG_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	// Can only do pure horizontal or vertical 
 	SVG_TextAngle = ang;
 	return TRUE;
 }
 
-TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void SVG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	char * alignment;
 	double vertical_offset;
@@ -1323,7 +1320,7 @@ TERM_PUBLIC void SVG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	}
 }
 
-TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int SVG_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	if(!font || !(*font)) {
 		SAlloc::F(SVG_fontNameCur);
@@ -1368,7 +1365,7 @@ TERM_PUBLIC int SVG_set_font(GpTermEntry * pThis, const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int SVG_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	SVG_GroupFilledClose();
 	if(palette) { // svg can do continuous colors 
@@ -1382,7 +1379,7 @@ TERM_PUBLIC int SVG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void SVG_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	rgb255_color rgb255;
@@ -1420,12 +1417,12 @@ TERM_PUBLIC void SVG_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	return;
 }
 
-TERM_PUBLIC void SVG_previous_palette(GpTermEntry * pThis)
+TERM_PUBLIC void SVG_previous_palette(GpTermEntry_Static * pThis)
 {
 	SVG_GroupFilledClose();
 }
 
-TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint* corners)
+TERM_PUBLIC void SVG_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint* corners)
 {
 	int i;
 	int fillpar = corners->style >> 4;
@@ -1465,7 +1462,7 @@ TERM_PUBLIC void SVG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint* c
 	fputs("'/>\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
+TERM_PUBLIC void SVG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * name = NULL;
@@ -1532,7 +1529,7 @@ TERM_PUBLIC void SVG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
         SVG_image
    ------------------------------------------------------------------------------------------------------------------------------------*/
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void SVG_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void SVG_image(GpTermEntry_Static * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	SVG_PathClose();
@@ -1568,7 +1565,7 @@ static double ENHsvg_base = 0.0;
 static bool ENHsvg_opened_string = FALSE;
 static int ENHsvg_charcount = 0;
 
-TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	/* overprint = 1 means print the base text (leave position in center)
@@ -1651,7 +1648,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 	}
 }
 
-TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
+TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * s = p_gp->Enht.Text;
@@ -1689,7 +1686,7 @@ TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void ENHsvg_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// We need local copies of the starting font properties 
@@ -1742,7 +1739,7 @@ TERM_PUBLIC void ENHsvg_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	return;
 }
 
-TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int c)
+TERM_PUBLIC void ENHsvg_writec(GpTermEntry_Static * pThis, int c)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// Kludge for phantom box accounting 
@@ -1781,7 +1778,7 @@ TERM_PUBLIC void ENHsvg_writec(GpTermEntry * pThis, int c)
 		ENHsvg_FLUSH(pThis);
 }
 
-TERM_PUBLIC void SVG_path(GpTermEntry * pThis, int p)
+TERM_PUBLIC void SVG_path(GpTermEntry_Static * pThis, int p)
 {
 	switch(p) {
 		case 1: // Close path 
@@ -1793,7 +1790,7 @@ TERM_PUBLIC void SVG_path(GpTermEntry * pThis, int p)
 	}
 }
 
-TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int type, const char * text)
+TERM_PUBLIC void SVG_hypertext(GpTermEntry_Static * pThis, int type, const char * text)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(type) {
@@ -1842,7 +1839,7 @@ TERM_PUBLIC void SVG_hypertext(GpTermEntry * pThis, int type, const char * text)
 	}
 }
 
-TERM_PUBLIC void SVG_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
+TERM_PUBLIC void SVG_boxed_text(GpTermEntry_Static * pThis, uint x, uint y, int option)
 {
 	switch(option) {
 		case TEXTBOX_INIT:

@@ -452,7 +452,7 @@ static UResourceDataEntry * getPoolEntry(const char * path, UErrorCode * status)
 }
 
 /* INTERNAL: */
-/*   CAUTION:  resbMutex must be locked when calling this function! */
+/* CAUTION:  resbMutex must be locked when calling this function! */
 static UResourceDataEntry * findFirstExisting(const char * path, char * name, const char * defaultLocale,
     bool * isRoot, bool * hasChopped, bool * isDefault, UErrorCode * status) {
 	UResourceDataEntry * r = NULL;
@@ -1440,9 +1440,9 @@ U_CAPI const char * U_EXPORT2 ures_getUTF8String(const UResourceBundle * resB,
 	return ures_toUTF8String(s16, length16, dest, pLength, forceCopy, status);
 }
 
-U_CAPI const uint8_t* U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int32_t* len,
+U_CAPI const uint8* U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int32_t* len,
     UErrorCode *   status) {
-	const uint8_t * p;
+	const uint8 * p;
 	if(status==NULL || U_FAILURE(*status)) {
 		return NULL;
 	}

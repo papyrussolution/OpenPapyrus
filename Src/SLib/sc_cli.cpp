@@ -1,5 +1,5 @@
 // SC_CLI.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2017, 2019, 2020, 2021
 // Part of StyloConduit project
 // Экспорт/Импорт клиентов
 //
@@ -292,9 +292,8 @@ IMPL_CMPFUNC(SCDBObjClientDebtTempRec, i1, i2)
 		return 0;
 }
 
-SCDBObjClientDebt::SCDBObjClientDebt(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjClientDebt::SCDBObjClientDebt(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_CliDebtTbl(0)
 {
-	P_CliDebtTbl = 0;
 }
 
 SCDBObjClientDebt::~SCDBObjClientDebt()
@@ -304,16 +303,9 @@ SCDBObjClientDebt::~SCDBObjClientDebt()
 
 int SCDBObjClientDebt::Init(const char * pExpPath, const char * pImpPath)
 {
-	/* @v9.5.7 
-	char   path[MAXPATH], fname[MAXPATH];
-	setLastSlash(STRNSCPY(path, pExpPath));
-	P_CliDebtTbl = new DbfTable(strcat(STRNSCPY(fname, path), "sp_clidb.dbf")); 
-	*/
-	// @v9.5.7 {
 	SString file_name;
 	(file_name = pExpPath).SetLastSlash().Cat("sp_clidb.dbf");
 	P_CliDebtTbl = new DbfTable(file_name);
-	// } @v9.5.7 
 	return ReadData();
 }
 

@@ -123,10 +123,10 @@ typedef struct SCSUData {
 
 	/* state machine state - toUnicode */
 	bool toUIsSingleByteMode;
-	uint8_t toUState;
+	uint8 toUState;
 	int8_t toUQuoteWindow, toUDynamicWindow;
-	uint8_t toUByteOne;
-	uint8_t toUPadding[3];
+	uint8 toUByteOne;
+	uint8 toUPadding[3];
 
 	/* state machine state - fromUnicode */
 	bool fromUIsSingleByteMode;
@@ -139,7 +139,7 @@ typedef struct SCSUData {
 	 * recently used.
 	 * At nextWindowUseIndex-1 there is the most recently used window.
 	 */
-	uint8_t locale;
+	uint8 locale;
 	int8_t nextWindowUseIndex;
 	int8_t windowUse[8];
 } SCSUData;
@@ -229,24 +229,24 @@ static void U_CALLCONV _SCSUToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	SCSUData * scsu;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
 	bool isSingleByteMode;
-	uint8_t state, byteOne;
+	uint8 state, byteOne;
 	int8_t quoteWindow, dynamicWindow;
 
 	int32_t sourceIndex, nextSourceIndex;
 
-	uint8_t b;
+	uint8 b;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
 	scsu = (SCSUData*)cnv->extraInfo;
 
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -450,7 +450,7 @@ singleByteMode:
 				    goto fastSingle;
 				case definePairOne:
 				    dynamicWindow = (int8_t)((b>>5)&7);
-				    byteOne = (uint8_t)(b&0x1f);
+				    byteOne = (uint8)(b&0x1f);
 				    cnv->toUBytes[1] = b;
 				    cnv->toULength = 2;
 				    state = definePairTwo;
@@ -470,7 +470,7 @@ singleByteMode:
 				    else if(b<gapThreshold) {
 					    scsu->toUDynamicOffsets[dynamicWindow] = b<<7UL;
 				    }
-				    else if((uint8_t)(b-gapThreshold)<(reservedStart-gapThreshold)) {
+				    else if((uint8)(b-gapThreshold)<(reservedStart-gapThreshold)) {
 					    scsu->toUDynamicOffsets[dynamicWindow] = (b<<7UL)+gapOffset;
 				    }
 				    else if(b>=fixedThreshold) {
@@ -492,7 +492,7 @@ singleByteMode:
 		/* fast path for Unicode mode */
 		if(state==readCommand) {
 fastUnicode:
-			while(source+1<sourceLimit && target<targetLimit && (uint8_t)((b = * source)-UC0)>(Urs-UC0)) {
+			while(source+1<sourceLimit && target<targetLimit && (uint8)((b = * source)-UC0)>(Urs-UC0)) {
 				*target++ = (UChar)((b<<8)|source[1]);
 				if(offsets) {
 					*offsets++ = sourceIndex;
@@ -515,7 +515,7 @@ fastUnicode:
 			++nextSourceIndex;
 			switch(state) {
 				case readCommand:
-				    if((uint8_t)(b-UC0)>(Urs-UC0)) {
+				    if((uint8)(b-UC0)>(Urs-UC0)) {
 					    byteOne = b;
 					    cnv->toUBytes[0] = b;
 					    cnv->toULength = 1;
@@ -607,21 +607,21 @@ static void U_CALLCONV _SCSUToUnicode(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	SCSUData * scsu;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	bool isSingleByteMode;
-	uint8_t state, byteOne;
+	uint8 state, byteOne;
 	int8_t quoteWindow, dynamicWindow;
 
-	uint8_t b;
+	uint8 b;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
 	scsu = (SCSUData*)cnv->extraInfo;
 
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 
@@ -780,7 +780,7 @@ singleByteMode:
 				    goto fastSingle;
 				case definePairOne:
 				    dynamicWindow = (int8_t)((b>>5)&7);
-				    byteOne = (uint8_t)(b&0x1f);
+				    byteOne = (uint8)(b&0x1f);
 				    cnv->toUBytes[1] = b;
 				    cnv->toULength = 2;
 				    state = definePairTwo;
@@ -799,7 +799,7 @@ singleByteMode:
 				    else if(b<gapThreshold) {
 					    scsu->toUDynamicOffsets[dynamicWindow] = b<<7UL;
 				    }
-				    else if((uint8_t)(b-gapThreshold)<(reservedStart-gapThreshold)) {
+				    else if((uint8)(b-gapThreshold)<(reservedStart-gapThreshold)) {
 					    scsu->toUDynamicOffsets[dynamicWindow] = (b<<7UL)+gapOffset;
 				    }
 				    else if(b>=fixedThreshold) {
@@ -820,7 +820,7 @@ singleByteMode:
 		/* fast path for Unicode mode */
 		if(state==readCommand) {
 fastUnicode:
-			while(source+1<sourceLimit && target<targetLimit && (uint8_t)((b = * source)-UC0)>(Urs-UC0)) {
+			while(source+1<sourceLimit && target<targetLimit && (uint8)((b = * source)-UC0)>(Urs-UC0)) {
 				*target++ = (UChar)((b<<8)|source[1]);
 				source += 2;
 			}
@@ -837,7 +837,7 @@ fastUnicode:
 			b = *source++;
 			switch(state) {
 				case readCommand:
-				    if((uint8_t)(b-UC0)>(Urs-UC0)) {
+				    if((uint8)(b-UC0)>(Urs-UC0)) {
 					    byteOne = b;
 					    cnv->toUBytes[0] = b;
 					    cnv->toULength = 1;
@@ -1059,12 +1059,12 @@ static void U_CALLCONV _SCSUFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	UConverter * cnv;
 	SCSUData * scsu;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
 
 	bool isSingleByteMode;
-	uint8_t dynamicWindow;
+	uint8 dynamicWindow;
 	uint32_t currentOffset;
 
 	uint32_t c, delta;
@@ -1086,7 +1086,7 @@ static void U_CALLCONV _SCSUFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	/* set up the local pointers */
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -1121,7 +1121,7 @@ loop:
 
 			if((c-0x20)<=0x5f) {
 				/* pass US-ASCII graphic character through */
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				if(offsets) {
 					*offsets++ = sourceIndex;
 				}
@@ -1131,7 +1131,7 @@ loop:
 				if((1UL<<c)&0x2601 /* binary 0010 0110 0000 0001, check for b==0xd || b==0xa || b==9 ||
 				                      b==0 */                                                                  ) {
 					/* CR/LF/TAB/NUL */
-					*target++ = (uint8_t)c;
+					*target++ = (uint8)c;
 					if(offsets) {
 						*offsets++ = sourceIndex;
 					}
@@ -1146,7 +1146,7 @@ loop:
 			}
 			else if((delta = c-currentOffset)<=0x7f) {
 				/* use the current dynamic window */
-				*target++ = (uint8_t)(delta|0x80);
+				*target++ = (uint8)(delta|0x80);
 				if(offsets) {
 					*offsets++ = sourceIndex;
 				}
@@ -1188,7 +1188,7 @@ getTrailSingle:
 				/* compress supplementary character U+10000..U+10ffff */
 				if((delta = c-currentOffset)<=0x7f) {
 					/* use the current dynamic window */
-					*target++ = (uint8_t)(delta|0x80);
+					*target++ = (uint8)(delta|0x80);
 					if(offsets) {
 						*offsets++ = sourceIndex;
 					}
@@ -1217,7 +1217,7 @@ getTrailSingle:
 				else {
 					/* change to Unicode mode and output this (lead, trail) pair */
 					isSingleByteMode = FALSE;
-					*target++ = (uint8_t)SCU;
+					*target++ = (uint8)SCU;
 					if(offsets) {
 						*offsets++ = sourceIndex;
 					}
@@ -1320,8 +1320,8 @@ getTrailSingle:
 			if((uint32_t)(c-0x3400)<(0xd800-0x3400)) {
 				/* not compressible, write character directly */
 				if(targetCapacity>=2) {
-					*target++ = (uint8_t)(c>>8);
-					*target++ = (uint8_t)c;
+					*target++ = (uint8)(c>>8);
+					*target++ = (uint8)c;
 					if(offsets) {
 						*offsets++ = sourceIndex;
 						*offsets++ = sourceIndex;
@@ -1477,16 +1477,16 @@ outputBytes:
 			switch(length) {
 				/* each branch falls through to the next one */
 				case 4:
-				    *target++ = (uint8_t)(c>>24);
+				    *target++ = (uint8)(c>>24);
 				    U_FALLTHROUGH;
 				case 3:
-				    *target++ = (uint8_t)(c>>16);
+				    *target++ = (uint8)(c>>16);
 				    U_FALLTHROUGH;
 				case 2:
-				    *target++ = (uint8_t)(c>>8);
+				    *target++ = (uint8)(c>>8);
 				    U_FALLTHROUGH;
 				case 1:
-				    *target++ = (uint8_t)c;
+				    *target++ = (uint8)c;
 				    U_FALLTHROUGH;
 				default:
 				    /* will never occur */
@@ -1497,19 +1497,19 @@ outputBytes:
 			switch(length) {
 				/* each branch falls through to the next one */
 				case 4:
-				    *target++ = (uint8_t)(c>>24);
+				    *target++ = (uint8)(c>>24);
 				    *offsets++ = sourceIndex;
 				    U_FALLTHROUGH;
 				case 3:
-				    *target++ = (uint8_t)(c>>16);
+				    *target++ = (uint8)(c>>16);
 				    *offsets++ = sourceIndex;
 				    U_FALLTHROUGH;
 				case 2:
-				    *target++ = (uint8_t)(c>>8);
+				    *target++ = (uint8)(c>>8);
 				    *offsets++ = sourceIndex;
 				    U_FALLTHROUGH;
 				case 1:
-				    *target++ = (uint8_t)c;
+				    *target++ = (uint8)c;
 				    *offsets++ = sourceIndex;
 				    U_FALLTHROUGH;
 				default:
@@ -1525,7 +1525,7 @@ outputBytes:
 		goto loop;
 	}
 	else {
-		uint8_t * p;
+		uint8 * p;
 
 		/*
 		 * We actually do this backwards here:
@@ -1536,20 +1536,20 @@ outputBytes:
 		/* we know that 0<=targetCapacity<length<=4 */
 		/* targetCapacity==0 when SCU+supplementary where SCU used up targetCapacity==1 */
 		length -= targetCapacity;
-		p = (uint8_t*)cnv->charErrorBuffer;
+		p = (uint8 *)cnv->charErrorBuffer;
 		switch(length) {
 			/* each branch falls through to the next one */
 			case 4:
-			    *p++ = (uint8_t)(c>>24);
+			    *p++ = (uint8)(c>>24);
 			    U_FALLTHROUGH;
 			case 3:
-			    *p++ = (uint8_t)(c>>16);
+			    *p++ = (uint8)(c>>16);
 			    U_FALLTHROUGH;
 			case 2:
-			    *p++ = (uint8_t)(c>>8);
+			    *p++ = (uint8)(c>>8);
 			    U_FALLTHROUGH;
 			case 1:
-			    *p = (uint8_t)c;
+			    *p = (uint8)c;
 			    U_FALLTHROUGH;
 			default:
 			    /* will never occur */
@@ -1562,19 +1562,19 @@ outputBytes:
 		switch(targetCapacity) {
 			/* each branch falls through to the next one */
 			case 3:
-			    *target++ = (uint8_t)(c>>16);
+			    *target++ = (uint8)(c>>16);
 			    if(offsets) {
 				    *offsets++ = sourceIndex;
 			    }
 			    U_FALLTHROUGH;
 			case 2:
-			    *target++ = (uint8_t)(c>>8);
+			    *target++ = (uint8)(c>>8);
 			    if(offsets) {
 				    *offsets++ = sourceIndex;
 			    }
 			    U_FALLTHROUGH;
 			case 1:
-			    *target++ = (uint8_t)c;
+			    *target++ = (uint8)c;
 			    if(offsets) {
 				    *offsets++ = sourceIndex;
 			    }
@@ -1603,11 +1603,11 @@ static void U_CALLCONV _SCSUFromUnicode(UConverterFromUnicodeArgs * pArgs,
 	UConverter * cnv;
 	SCSUData * scsu;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 
 	bool isSingleByteMode;
-	uint8_t dynamicWindow;
+	uint8 dynamicWindow;
 	uint32_t currentOffset;
 
 	uint32_t c, delta;
@@ -1627,7 +1627,7 @@ static void U_CALLCONV _SCSUFromUnicode(UConverterFromUnicodeArgs * pArgs,
 	/* set up the local pointers */
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 
 	/* get the state machine state */
@@ -1656,14 +1656,14 @@ loop:
 
 			if((c-0x20)<=0x5f) {
 				/* pass US-ASCII graphic character through */
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				--targetCapacity;
 			}
 			else if(c<0x20) {
 				if((1UL<<c)&0x2601 /* binary 0010 0110 0000 0001, check for b==0xd || b==0xa || b==9 ||
 				                      b==0 */                                                                  ) {
 					/* CR/LF/TAB/NUL */
-					*target++ = (uint8_t)c;
+					*target++ = (uint8)c;
 					--targetCapacity;
 				}
 				else {
@@ -1675,7 +1675,7 @@ loop:
 			}
 			else if((delta = c-currentOffset)<=0x7f) {
 				/* use the current dynamic window */
-				*target++ = (uint8_t)(delta|0x80);
+				*target++ = (uint8)(delta|0x80);
 				--targetCapacity;
 			}
 			else if(U16_IS_SURROGATE(c)) {
@@ -1713,7 +1713,7 @@ getTrailSingle:
 				/* compress supplementary character U+10000..U+10ffff */
 				if((delta = c-currentOffset)<=0x7f) {
 					/* use the current dynamic window */
-					*target++ = (uint8_t)(delta|0x80);
+					*target++ = (uint8)(delta|0x80);
 					--targetCapacity;
 				}
 				else if((window = getWindow(scsu->fromUDynamicOffsets, c))>=0) {
@@ -1739,7 +1739,7 @@ getTrailSingle:
 				else {
 					/* change to Unicode mode and output this (lead, trail) pair */
 					isSingleByteMode = FALSE;
-					*target++ = (uint8_t)SCU;
+					*target++ = (uint8)SCU;
 					--targetCapacity;
 					c = ((uint32_t)lead<<16)|trail;
 					length = 4;
@@ -1837,8 +1837,8 @@ getTrailSingle:
 			if((uint32_t)(c-0x3400)<(0xd800-0x3400)) {
 				/* not compressible, write character directly */
 				if(targetCapacity>=2) {
-					*target++ = (uint8_t)(c>>8);
-					*target++ = (uint8_t)c;
+					*target++ = (uint8)(c>>8);
+					*target++ = (uint8)c;
 					targetCapacity -= 2;
 				}
 				else {
@@ -1986,16 +1986,16 @@ outputBytes:
 		switch(length) {
 			/* each branch falls through to the next one */
 			case 4:
-			    *target++ = (uint8_t)(c>>24);
+			    *target++ = (uint8)(c>>24);
 			    U_FALLTHROUGH;
 			case 3:
-			    *target++ = (uint8_t)(c>>16);
+			    *target++ = (uint8)(c>>16);
 			    U_FALLTHROUGH;
 			case 2:
-			    *target++ = (uint8_t)(c>>8);
+			    *target++ = (uint8)(c>>8);
 			    U_FALLTHROUGH;
 			case 1:
-			    *target++ = (uint8_t)c;
+			    *target++ = (uint8)c;
 			    U_FALLTHROUGH;
 			default:
 			    /* will never occur */
@@ -2008,7 +2008,7 @@ outputBytes:
 		goto loop;
 	}
 	else {
-		uint8_t * p;
+		uint8 * p;
 
 		/*
 		 * We actually do this backwards here:
@@ -2019,20 +2019,20 @@ outputBytes:
 		/* we know that 0<=targetCapacity<length<=4 */
 		/* targetCapacity==0 when SCU+supplementary where SCU used up targetCapacity==1 */
 		length -= targetCapacity;
-		p = (uint8_t*)cnv->charErrorBuffer;
+		p = (uint8 *)cnv->charErrorBuffer;
 		switch(length) {
 			/* each branch falls through to the next one */
 			case 4:
-			    *p++ = (uint8_t)(c>>24);
+			    *p++ = (uint8)(c>>24);
 			    U_FALLTHROUGH;
 			case 3:
-			    *p++ = (uint8_t)(c>>16);
+			    *p++ = (uint8)(c>>16);
 			    U_FALLTHROUGH;
 			case 2:
-			    *p++ = (uint8_t)(c>>8);
+			    *p++ = (uint8)(c>>8);
 			    U_FALLTHROUGH;
 			case 1:
-			    *p = (uint8_t)c;
+			    *p = (uint8)c;
 			    U_FALLTHROUGH;
 			default:
 			    /* will never occur */
@@ -2045,13 +2045,13 @@ outputBytes:
 		switch(targetCapacity) {
 			/* each branch falls through to the next one */
 			case 3:
-			    *target++ = (uint8_t)(c>>16);
+			    *target++ = (uint8)(c>>16);
 			    U_FALLTHROUGH;
 			case 2:
-			    *target++ = (uint8_t)(c>>8);
+			    *target++ = (uint8)(c>>8);
 			    U_FALLTHROUGH;
 			case 1:
-			    *target++ = (uint8_t)c;
+			    *target++ = (uint8)c;
 			    U_FALLTHROUGH;
 			default:
 			    break;

@@ -25,7 +25,7 @@ GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing) : 
 	ENDCATCH
 }
 
-int   GoodsToObjAssoc::IsValid() const { return !BIN(Flags & fError); }
+bool  GoodsToObjAssoc::IsValid() const { return !(Flags & fError); }
 GoodsToObjAssoc::operator const LAssocArray & () const { return List; }
 uint  GoodsToObjAssoc::GetCount() const { return List.getCount(); }
 const LAssoc & FASTCALL GoodsToObjAssoc::at(uint pos) const { return List.at(pos); }

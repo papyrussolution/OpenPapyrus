@@ -108,7 +108,7 @@ typedef uint32 zip_flags_t;
 #define ZIP_FL_ENC_STRICT     128u /* follow specification strictly */
 #define ZIP_FL_LOCAL	      256u /* in local header */
 #define ZIP_FL_CENTRAL	      512u /* in central directory */
-/*                           1024u    reserved for internal use */
+/*           1024u    reserved for internal use */
 #define ZIP_FL_ENC_UTF_8     2048u /* string is UTF-8 encoded */
 #define ZIP_FL_ENC_CP437     4096u /* string is CP437 encoded */
 #define ZIP_FL_OVERWRITE     8192u /* zip_file_add: if file with name exists, overwrite (replace) it */

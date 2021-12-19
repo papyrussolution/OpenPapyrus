@@ -120,7 +120,6 @@ static int onig2posix_error_code(int code)
 		{ ONIGERR_VERY_INEFFICIENT_PATTERN,                   REG_BADPAT },
 		{ ONIGERR_LIBRARY_IS_NOT_INITIALIZED,                 REG_EONIG_INTERNAL }
 	};
-
 	if(code >= 0) 
 		return 0;
 	else {
@@ -132,7 +131,7 @@ static int onig2posix_error_code(int code)
 	}
 }
 
-extern int onig_posix_regcomp(onig_posix_regex_t* reg, const char * pattern, int posix_options)
+/*extern*/int onig_posix_regcomp(onig_posix_regex_t* reg, const char * pattern, int posix_options)
 {
 	int r, len;
 	OnigSyntaxType* syntax = OnigDefaultSyntax;
@@ -157,7 +156,7 @@ extern int onig_posix_regcomp(onig_posix_regex_t* reg, const char * pattern, int
 	return 0;
 }
 
-extern int onig_posix_regexec(onig_posix_regex_t* reg, const char * str, size_t nmatch, onig_posix_regmatch_t pmatch[], int posix_options)
+/*extern*/int onig_posix_regexec(onig_posix_regex_t* reg, const char * str, size_t nmatch, onig_posix_regmatch_t pmatch[], int posix_options)
 {
 	int r, i, len;
 	uchar * end;
@@ -205,13 +204,13 @@ extern int onig_posix_regexec(onig_posix_regex_t* reg, const char * str, size_t 
 	return r;
 }
 
-extern void onig_posix_regfree(onig_posix_regex_t* reg)
+/*extern*/void onig_posix_regfree(onig_posix_regex_t* reg)
 {
 	onig_free(ONIG_C(reg));
 	reg->onig = (void *)0;
 }
 
-extern void onig_posix_reg_set_encoding(int mb_code)
+/*extern*/void onig_posix_reg_set_encoding(int mb_code)
 {
 	OnigEncoding enc;
 	switch(mb_code) {
@@ -227,7 +226,7 @@ extern void onig_posix_reg_set_encoding(int mb_code)
 	onigenc_set_default_encoding(enc);
 }
 
-extern int onig_posix_reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
+/*extern*/int onig_posix_reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
 {
 	return onig_name_to_group_numbers(ONIG_C(reg), name, name_end, nums);
 }
@@ -244,7 +243,7 @@ static int i_wrapper(const uchar * name, const uchar * name_end, int ng, int* gs
 	return (*warg->func)(name, name_end, ng, gs, warg->reg, warg->arg);
 }
 
-extern int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *), void * arg)
+/*extern*/int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *), void * arg)
 {
 	i_wrap warg;
 	warg.func = func;
@@ -253,44 +252,44 @@ extern int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (*func)(cons
 	return onig_foreach_name(ONIG_C(reg), i_wrapper, &warg);
 }
 
-extern int onig_posix_reg_number_of_names(onig_posix_regex_t* reg)
+/*extern*/int onig_posix_reg_number_of_names(onig_posix_regex_t* reg)
 {
 	return onig_number_of_names(ONIG_C(reg));
 }
 
 #ifdef USE_BINARY_COMPATIBLE_POSIX_API
 
-extern int regcomp(onig_posix_regex_t* reg, const char * pattern, int posix_options)
+/*extern*/int regcomp(onig_posix_regex_t* reg, const char * pattern, int posix_options)
 {
 	return onig_posix_regcomp(reg, pattern, posix_options);
 }
 
-extern int regexec(onig_posix_regex_t* reg, const char * str, size_t nmatch, onig_posix_regmatch_t pmatch[], int posix_options)
+/*extern*/int regexec(onig_posix_regex_t* reg, const char * str, size_t nmatch, onig_posix_regmatch_t pmatch[], int posix_options)
 {
 	return onig_posix_regexec(reg, str, nmatch, pmatch, posix_options);
 }
 
-extern void regfree(onig_posix_regex_t* reg)
+/*extern*/void regfree(onig_posix_regex_t* reg)
 {
 	onig_posix_regfree(reg);
 }
 
-extern void reg_set_encoding(int mb_code)
+/*extern*/void reg_set_encoding(int mb_code)
 {
 	onig_posix_reg_set_encoding(mb_code);
 }
 
-extern int reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
+/*extern*/int reg_name_to_group_numbers(onig_posix_regex_t* reg, const uchar * name, const uchar * name_end, int** nums)
 {
 	return onig_posix_reg_name_to_group_numbers(reg, name, name_end, nums);
 }
 
-extern int reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *), void * arg)
+/*extern*/int reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const uchar *, const uchar *, int, int*, onig_posix_regex_t*, void *), void * arg)
 {
 	return onig_posix_reg_foreach_name(reg, func, arg);
 }
 
-extern int reg_number_of_names(onig_posix_regex_t* reg)
+/*extern*/int reg_number_of_names(onig_posix_regex_t* reg)
 {
 	return onig_posix_reg_number_of_names(reg);
 }

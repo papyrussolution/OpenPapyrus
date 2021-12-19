@@ -105,7 +105,7 @@ bool CollationKeyByteSink::Resize(int32_t appendCapacity, int32_t length) {
 	if(newCapacity < 200) {
 		newCapacity = 200;
 	}
-	uint8_t * newBuffer = key_.reallocate(newCapacity, length);
+	uint8 * newBuffer = key_.reallocate(newCapacity, length);
 	if(newBuffer == NULL) {
 		SetNotOk();
 		return FALSE;
@@ -128,7 +128,7 @@ RuleBasedCollator::RuleBasedCollator(const RuleBasedCollator &other)
 	cacheEntry->addRef();
 }
 
-RuleBasedCollator::RuleBasedCollator(const uint8_t * bin, int32_t length,
+RuleBasedCollator::RuleBasedCollator(const uint8 * bin, int32_t length,
     const RuleBasedCollator * base, UErrorCode & errorCode)
 	: data(NULL),
 	settings(NULL),
@@ -776,8 +776,8 @@ UCollationResult RuleBasedCollator::compareUTF8(const StringPiece &left, const S
 	if(U_FAILURE(errorCode)) {
 		return UCOL_EQUAL;
 	}
-	const uint8_t * leftBytes = reinterpret_cast<const uint8_t *>(left.data());
-	const uint8_t * rightBytes = reinterpret_cast<const uint8_t *>(right.data());
+	const uint8 * leftBytes = reinterpret_cast<const uint8 *>(left.data());
+	const uint8 * rightBytes = reinterpret_cast<const uint8 *>(right.data());
 	if((leftBytes == NULL && !left.empty()) || (rightBytes == NULL && !right.empty())) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return UCOL_EQUAL;
@@ -807,8 +807,8 @@ UCollationResult RuleBasedCollator::internalCompareUTF8(const char * left, int32
 			leftLength = static_cast<int32_t>(uprv_strlen(left));
 		}
 	}
-	return doCompare(reinterpret_cast<const uint8_t *>(left), leftLength,
-		   reinterpret_cast<const uint8_t *>(right), rightLength, errorCode);
+	return doCompare(reinterpret_cast<const uint8 *>(left), leftLength,
+		   reinterpret_cast<const uint8 *>(right), rightLength, errorCode);
 }
 
 namespace {
@@ -936,7 +936,7 @@ private:
 
 class UTF8NFDIterator : public NFDIterator {
 public:
-	UTF8NFDIterator(const uint8_t * text, int32_t textLength)
+	UTF8NFDIterator(const uint8 * text, int32_t textLength)
 		: s(text), pos(0), length(textLength) {
 	}
 
@@ -950,14 +950,14 @@ protected:
 		return c;
 	}
 
-	const uint8_t * s;
+	const uint8 * s;
 	int32_t pos;
 	int32_t length;
 };
 
 class FCDUTF8NFDIterator : public NFDIterator {
 public:
-	FCDUTF8NFDIterator(const CollationData * data, const uint8_t * text, int32_t textLength)
+	FCDUTF8NFDIterator(const CollationData * data, const uint8 * text, int32_t textLength)
 		: u8ci(data, FALSE, text, 0, textLength) {
 	}
 
@@ -1172,8 +1172,8 @@ UCollationResult RuleBasedCollator::doCompare(const UChar * left, int32_t leftLe
 	}
 }
 
-UCollationResult RuleBasedCollator::doCompare(const uint8_t * left, int32_t leftLength,
-    const uint8_t * right, int32_t rightLength,
+UCollationResult RuleBasedCollator::doCompare(const uint8 * left, int32_t leftLength,
+    const uint8 * right, int32_t rightLength,
     UErrorCode & errorCode) const {
 	// U_FAILURE(errorCode) checked by caller.
 	if(left == right && leftLength == rightLength) {
@@ -1183,7 +1183,7 @@ UCollationResult RuleBasedCollator::doCompare(const uint8_t * left, int32_t left
 	// Identical-prefix test.
 	int32_t equalPrefixLength = 0;
 	if(leftLength < 0) {
-		uint8_t c;
+		uint8 c;
 		while((c = left[equalPrefixLength]) == right[equalPrefixLength]) {
 			if(c == 0) {
 				return UCOL_EQUAL;
@@ -1413,16 +1413,16 @@ CollationKey &RuleBasedCollator::getCollationKey(const UChar * s, int32_t length
 }
 
 int32_t RuleBasedCollator::getSortKey(const UnicodeString & s,
-    uint8_t * dest, int32_t capacity) const {
+    uint8 * dest, int32_t capacity) const {
 	return getSortKey(s.getBuffer(), s.length(), dest, capacity);
 }
 
 int32_t RuleBasedCollator::getSortKey(const UChar * s, int32_t length,
-    uint8_t * dest, int32_t capacity) const {
+    uint8 * dest, int32_t capacity) const {
 	if((s == NULL && length != 0) || capacity < 0 || (dest == NULL && capacity > 0)) {
 		return 0;
 	}
-	uint8_t noDest[1] = { 0 };
+	uint8 noDest[1] = { 0 };
 	if(dest == NULL) {
 		// Distinguish pure preflighting from an allocation error.
 		dest = noDest;
@@ -1542,7 +1542,7 @@ private:
 }  // namespace
 
 int32_t RuleBasedCollator::internalNextSortKeyPart(UCharIterator * iter, uint32_t state[2],
-    uint8_t * dest, int32_t count, UErrorCode & errorCode) const {
+    uint8 * dest, int32_t count, UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}

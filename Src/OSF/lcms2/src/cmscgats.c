@@ -92,7 +92,7 @@ typedef struct _OwnedMem {
 
 // Suballocator
 typedef struct _SubAllocator {
-	cmsUInt8Number* Block;
+	uint8 * Block;
 	cmsUInt32Number BlockSize;
 	cmsUInt32Number Used;
 } SUBALLOCATOR;
@@ -132,7 +132,7 @@ typedef struct {
 	int ch;                               // Current character
 
 	cmsInt32Number inum;                  // integer value
-	cmsFloat64Number dnum;                // real value
+	double dnum;                // real value
 
 	char id[MAXID];                       // identifier
 	char str[MAXSTR];                     // string
@@ -149,7 +149,7 @@ typedef struct {
 
 	char *          MemoryBlock;           // The stream if holded in memory
 
-	char DoubleFormatter[MAXID];          // Printf-like 'cmsFloat64Number' formatter
+	char DoubleFormatter[MAXID];          // Printf-like 'double' formatter
 
 	cmsContext ContextID;                 // The threading context
 } cmsIT8;
@@ -158,8 +158,8 @@ typedef struct {
 typedef struct {
 	FILE* stream;   // For save-to-file behaviour
 
-	cmsUInt8Number* Base;
-	cmsUInt8Number* Ptr;        // For save-to-mem behaviour
+	uint8 * Base;
+	uint8 * Ptr;        // For save-to-mem behaviour
 	cmsUInt32Number Used;
 	cmsUInt32Number Max;
 } SAVESTREAM;
@@ -354,31 +354,31 @@ static const char * PredefinedSampleID[] = {
 static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size);
 
 // Checks whatever c is a separator
-static cmsBool isseparator(int c)
+static boolint isseparator(int c)
 {
 	return (c == ' ') || (c == '\t');
 }
 
 // Checks whatever c is a valid identifier char
-static cmsBool ismiddle(int c)
+static boolint ismiddle(int c)
 {
 	return (!isseparator(c) && (c != '#') && (c !='\"') && (c != '\'') && (c > 32) && (c < 127));
 }
 
 // Checks whatsever c is a valid identifier middle char.
-static cmsBool isidchar(int c)
+static boolint isidchar(int c)
 {
 	return isalnum(c) || ismiddle(c);
 }
 
 // Checks whatsever c is a valid identifier first char.
-static cmsBool isfirstidchar(int c)
+static boolint isfirstidchar(int c)
 {
 	return !isdigit(c) && ismiddle(c);
 }
 
 // Guess whether the supplied path looks like an absolute path
-static cmsBool isabsolutepath(const char * path)
+static boolint isabsolutepath(const char * path)
 {
 	char ThreeChars[4];
 	if(!path)
@@ -398,7 +398,7 @@ static cmsBool isabsolutepath(const char * path)
 
 // Makes a file path based on a given reference path
 // NOTE: this function doesn't check if the path exists or even if it's legal
-static cmsBool BuildAbsolutePath(const char * relPath, const char * basePath, char * buffer, cmsUInt32Number MaxLen)
+static boolint BuildAbsolutePath(const char * relPath, const char * basePath, char * buffer, cmsUInt32Number MaxLen)
 {
 	char * tail;
 	cmsUInt32Number len;
@@ -431,7 +431,7 @@ static const char * NoMeta(const char * str)
 }
 
 // Syntax error
-static cmsBool SynError(cmsIT8* it8, const char * Txt, ...)
+static boolint SynError(cmsIT8* it8, const char * Txt, ...)
 {
 	char Buffer[256], ErrMsg[1024];
 	va_list args;
@@ -448,7 +448,7 @@ static cmsBool SynError(cmsIT8* it8, const char * Txt, ...)
 }
 
 // Check if current symbol is same as specified. issue an error else.
-static cmsBool Check(cmsIT8* it8, SYMBOL sy, const char * Err)
+static boolint Check(cmsIT8* it8, SYMBOL sy, const char * Err)
 {
 	if(it8->sy != sy)
 		return SynError(it8, NoMeta(Err));
@@ -493,28 +493,28 @@ static SYMBOL BinSrchKey(const char * id)
 }
 
 // 10 ^n
-static cmsFloat64Number xpow10(int n)
+static double xpow10(int n)
 {
-	return pow(10, (cmsFloat64Number)n);
+	return pow(10, (double)n);
 }
 
 //  Reads a Real number, tries to follow from integer number
 static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 {
-	it8->dnum = (cmsFloat64Number)inum;
+	it8->dnum = (double)inum;
 	while(isdigit(it8->ch)) {
-		it8->dnum = (cmsFloat64Number)it8->dnum * 10.0 + (cmsFloat64Number)(it8->ch - '0');
+		it8->dnum = (double)it8->dnum * 10.0 + (double)(it8->ch - '0');
 		NextCh(it8);
 	}
 
 	if(it8->ch == '.') {     // Decimal point
-		cmsFloat64Number frac = 0.0; // fraction
+		double frac = 0.0; // fraction
 		int prec = 0;             // precision
 
 		NextCh(it8);       // Eats dec. point
 
 		while(isdigit(it8->ch)) {
-			frac = frac * 10.0 + (cmsFloat64Number)(it8->ch - '0');
+			frac = frac * 10.0 + (double)(it8->ch - '0');
 			prec++;
 			NextCh(it8);
 		}
@@ -541,7 +541,7 @@ static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 		while(isdigit(it8->ch)) {
 			cmsInt32Number digit = (it8->ch - '0');
 
-			if((cmsFloat64Number)e * 10.0 + (cmsFloat64Number)digit < (cmsFloat64Number)+2147483647.0)
+			if((double)e * 10.0 + (double)digit < (double)+2147483647.0)
 				e = e * 10 + digit;
 
 			NextCh(it8);
@@ -555,9 +555,9 @@ static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 // Parses a float number
 // This can not call directly atof because it uses locale dependent
 // parsing, while CCMX files always use . as decimal separator
-static cmsFloat64Number ParseFloatNumber(const char * Buffer)
+static double ParseFloatNumber(const char * Buffer)
 {
-	cmsFloat64Number dnum = 0.0;
+	double dnum = 0.0;
 	int sign = 1;
 
 	// keep safe
@@ -574,7 +574,7 @@ static cmsFloat64Number ParseFloatNumber(const char * Buffer)
 	}
 
 	if(*Buffer == '.') {
-		cmsFloat64Number frac = 0.0; // fraction
+		double frac = 0.0; // fraction
 		int prec = 0;             // precision
 
 		if(*Buffer) Buffer++;
@@ -608,36 +608,29 @@ static cmsFloat64Number ParseFloatNumber(const char * Buffer)
 		e = 0;
 		while(*Buffer && isdigit((int)*Buffer)) {
 			cmsInt32Number digit = (*Buffer - '0');
-
-			if((cmsFloat64Number)e * 10.0 + digit < (cmsFloat64Number)+2147483647.0)
+			if((double)e * 10.0 + digit < (double)+2147483647.0)
 				e = e * 10 + digit;
-
 			if(*Buffer) Buffer++;
 		}
-
 		e = sgn*e;
 		dnum = dnum * xpow10(e);
 	}
-
 	return sign * dnum;
 }
 
 // Reads next symbol
 static void InSymbol(cmsIT8* it8)
 {
-	CMSREGISTER char * idptr;
-	CMSREGISTER int k;
+	char * idptr;
+	int k;
 	SYMBOL key;
 	int sng;
-
 	do {
 		while(isseparator(it8->ch))
 			NextCh(it8);
-
 		if(isfirstidchar(it8->ch)) {   // Identifier
 			k = 0;
 			idptr = it8->id;
-
 			do {
 				if(++k < MAXID) *idptr++ = (char)it8->ch;
 
@@ -673,8 +666,8 @@ static void InSymbol(cmsIT8* it8)
 						if(it8->ch >= 'A' && it8->ch <= 'F') j = it8->ch -'A'+10;
 						else j = it8->ch - '0';
 
-						if((cmsFloat64Number)it8->inum * 16.0 + (cmsFloat64Number)j >
-						    (cmsFloat64Number)+2147483647.0) {
+						if((double)it8->inum * 16.0 + (double)j >
+						    (double)+2147483647.0) {
 							SynError(it8, "Invalid hexadecimal number");
 							return;
 						}
@@ -692,7 +685,7 @@ static void InSymbol(cmsIT8* it8)
 					while(it8->ch == '0' || it8->ch == '1') {
 						j = it8->ch - '0';
 
-						if((cmsFloat64Number)it8->inum * 2.0 + j > (cmsFloat64Number)+2147483647.0) {
+						if((double)it8->inum * 2.0 + j > (double)+2147483647.0) {
 							SynError(it8, "Invalid binary number");
 							return;
 						}
@@ -707,7 +700,7 @@ static void InSymbol(cmsIT8* it8)
 			while(isdigit(it8->ch)) {
 				cmsInt32Number digit = (it8->ch - '0');
 
-				if((cmsFloat64Number)it8->inum * 10.0 + (cmsFloat64Number)digit > (cmsFloat64Number) +2147483647.0) {
+				if((double)it8->inum * 10.0 + (double)digit > (double) +2147483647.0) {
 					ReadReal(it8, it8->inum);
 					it8->sy = SDNUM;
 					it8->dnum *= sign;
@@ -855,7 +848,7 @@ static void InSymbol(cmsIT8* it8)
 }
 
 // Checks end of line separator
-static cmsBool CheckEOLN(cmsIT8* it8)
+static boolint CheckEOLN(cmsIT8* it8)
 {
 	if(!Check(it8, SEOLN, "Expected separator")) return FALSE;
 	while(it8->sy == SEOLN)
@@ -880,7 +873,7 @@ static void SkipEOLN(cmsIT8* it8)
 }
 
 // Returns a string holding current value
-static cmsBool GetVal(cmsIT8* it8, char * Buffer, cmsUInt32Number max, const char * ErrorTitle)
+static boolint GetVal(cmsIT8* it8, char * Buffer, cmsUInt32Number max, const char * ErrorTitle)
 {
 	switch(it8->sy) {
 		case SEOLN: // Empty value
@@ -931,8 +924,7 @@ void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 }
 
 // Allocates a chunk of data, keep linked list
-static
-void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
+static void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
 {
 	OWNEDMEM* ptr1;
 	void * ptr = _cmsMallocZero(it8->ContextID, size);
@@ -953,7 +945,7 @@ void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
 static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 {
 	cmsUInt32Number Free = it8->Allocator.BlockSize - it8->Allocator.Used;
-	cmsUInt8Number* ptr;
+	uint8 * ptr;
 	size = _cmsALIGNMEM(size);
 	if(size > Free) {
 		if(it8->Allocator.BlockSize == 0)
@@ -966,7 +958,7 @@ static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 			it8->Allocator.BlockSize = size;
 
 		it8->Allocator.Used = 0;
-		it8->Allocator.Block = (cmsUInt8Number *)AllocBigBlock(it8, it8->Allocator.BlockSize);
+		it8->Allocator.Block = (uint8 *)AllocBigBlock(it8, it8->Allocator.BlockSize);
 	}
 
 	ptr = it8->Allocator.Block + it8->Allocator.Used;
@@ -987,7 +979,7 @@ static char * AllocString(cmsIT8* it8, const char * str)
 
 // Searches through linked list
 
-static cmsBool IsAvailableOnList(KEYVALUE* p, const char * Key, const char * Subkey, KEYVALUE** LastPtr)
+static boolint IsAvailableOnList(KEYVALUE* p, const char * Key, const char * Subkey, KEYVALUE** LastPtr)
 {
 	ASSIGN_PTR(LastPtr, p);
 	for(; p != NULL; p = p->Next) {
@@ -1161,14 +1153,14 @@ const char * CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8)
 	return GetTable((cmsIT8*)hIT8)->SheetType;
 }
 
-cmsBool CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type)
+boolint CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type)
 {
 	TABLE* t = GetTable((cmsIT8*)hIT8);
 	strnzcpy(t->SheetType, Type, MAXSTR);
 	return TRUE;
 }
 
-cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * Val)
+boolint CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	if(isempty(Val))
@@ -1177,7 +1169,7 @@ cmsBool CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * Val)
 }
 
 // Sets a property
-cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * Key, const char * Val)
+boolint CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * Key, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	if(!Val) return FALSE;
@@ -1185,7 +1177,7 @@ cmsBool CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * Key, const c
 	return AddToList(it8, &GetTable(it8)->HeaderList, Key, NULL, Val, WRITE_STRINGIFY) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, cmsFloat64Number Val)
+boolint CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, double Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buffer[1024];
@@ -1193,7 +1185,7 @@ cmsBool CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, cmsFl
 	return AddToList(it8, &GetTable(it8)->HeaderList, cProp, NULL, Buffer, WRITE_UNCOOKED) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val)
+boolint CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buffer[1024];
@@ -1201,13 +1193,13 @@ cmsBool CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUI
 	return AddToList(it8, &GetTable(it8)->HeaderList, cProp, NULL, Buffer, WRITE_HEXADECIMAL) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer)
+boolint CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	return AddToList(it8, &GetTable(it8)->HeaderList, Key, NULL, Buffer, WRITE_UNCOOKED) != NULL;
 }
 
-cmsBool CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer)
+boolint CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
@@ -1226,7 +1218,7 @@ const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * Key)
 	return NULL;
 }
 
-cmsFloat64Number CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp)
+double CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp)
 {
 	const char * v = cmsIT8GetProperty(hIT8, cProp);
 
@@ -1272,7 +1264,7 @@ static const char * GetDataFormat(cmsIT8* it8, int n)
 	return NULL;
 }
 
-static cmsBool SetDataFormat(cmsIT8* it8, int n, const char * label)
+static boolint SetDataFormat(cmsIT8* it8, int n, const char * label)
 {
 	TABLE* t = GetTable(it8);
 	if(!t->DataFormat)
@@ -1289,7 +1281,7 @@ static cmsBool SetDataFormat(cmsIT8* it8, int n, const char * label)
 	return TRUE;
 }
 
-cmsBool CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE h, int n, const char * Sample)
+boolint CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE h, int n, const char * Sample)
 {
 	cmsIT8* it8 = (cmsIT8*)h;
 	return SetDataFormat(it8, n, Sample);
@@ -1325,7 +1317,7 @@ static char * GetData(cmsIT8* it8, int nSet, int nField)
 	return t->Data [nSet * nSamples + nField];
 }
 
-static cmsBool SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
+static boolint SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
 {
 	TABLE* t = GetTable(it8);
 
@@ -1520,7 +1512,7 @@ static void WriteData(SAVESTREAM* fp, cmsIT8* it8)
 }
 
 // Saves whole file
-cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName)
+boolint CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName)
 {
 	SAVESTREAM sd;
 	cmsUInt32Number i;
@@ -1539,14 +1531,14 @@ cmsBool CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName)
 }
 
 // Saves to memory
-cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded)
+boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded)
 {
 	SAVESTREAM sd;
 	cmsUInt32Number i;
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	memzero(&sd, sizeof(sd));
 	sd.stream = NULL;
-	sd.Base   = (cmsUInt8Number *)MemPtr;
+	sd.Base   = (uint8 *)MemPtr;
 	sd.Ptr    = sd.Base;
 	sd.Used = 0;
 	if(sd.Base)
@@ -1572,7 +1564,7 @@ cmsBool CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number
 
 // -------------------------------------------------------------- Higher level parsing
 
-static cmsBool DataFormatSection(cmsIT8* it8)
+static boolint DataFormatSection(cmsIT8* it8)
 {
 	int iField = 0;
 	TABLE* t = GetTable(it8);
@@ -1606,7 +1598,7 @@ static cmsBool DataFormatSection(cmsIT8* it8)
 	return TRUE;
 }
 
-static cmsBool DataSection(cmsIT8* it8)
+static boolint DataSection(cmsIT8* it8)
 {
 	int iField = 0;
 	int iSet   = 0;
@@ -1651,7 +1643,7 @@ static cmsBool DataSection(cmsIT8* it8)
 	return TRUE;
 }
 
-static cmsBool HeaderSection(cmsIT8* it8)
+static boolint HeaderSection(cmsIT8* it8)
 {
 	char VarName[MAXID];
 	char Buffer[MAXSTR];
@@ -1765,7 +1757,7 @@ static void ReadType(cmsIT8* it8, char * SheetTypePtr)
 	*SheetTypePtr = 0;
 }
 
-static cmsBool ParseIT8(cmsIT8* it8, cmsBool nosheet)
+static boolint ParseIT8(cmsIT8* it8, boolint nosheet)
 {
 	char * SheetTypePtr = it8->Tab[0].SheetType;
 
@@ -1904,7 +1896,7 @@ static void CookPointers(cmsIT8* it8)
 // Try to infere if the file is a CGATS/IT8 file at all. Read first line
 // that should be something like some printable characters plus a \n
 // returns 0 if this is not like a CGATS, or an integer otherwise. This integer is the number of words in first line?
-static int IsMyBlock(const cmsUInt8Number* Buffer, cmsUInt32Number n)
+static int IsMyBlock(const uint8 * Buffer, cmsUInt32Number n)
 {
 	int words = 1, space = 0, quot = 0;
 	cmsUInt32Number i;
@@ -1940,11 +1932,11 @@ static int IsMyBlock(const cmsUInt8Number* Buffer, cmsUInt32Number n)
 	return 0;
 }
 
-static cmsBool IsMyFile(const char * FileName)
+static boolint IsMyFile(const char * FileName)
 {
 	FILE * fp;
 	cmsUInt32Number Size;
-	cmsUInt8Number Ptr[133];
+	uint8 Ptr[133];
 
 	fp = fopen(FileName, "rt");
 	if(!fp) {
@@ -1971,7 +1963,7 @@ cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cm
 	int type;
 	_cmsAssert(Ptr != NULL);
 	_cmsAssert(len != 0);
-	type = IsMyBlock((const cmsUInt8Number*)Ptr, len);
+	type = IsMyBlock((const uint8 *)Ptr, len);
 	if(type == 0) 
 		return NULL;
 	hIT8 = cmsIT8Alloc(ContextID);
@@ -2183,7 +2175,7 @@ const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col)
 	return GetData(it8, row, col);
 }
 
-cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col)
+double CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col)
 {
 	const char * Buffer;
 
@@ -2194,7 +2186,7 @@ cmsFloat64Number CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int c
 	return ParseFloatNumber(Buffer);
 }
 
-cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val)
+boolint CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
@@ -2203,7 +2195,7 @@ cmsBool CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const ch
 	return SetData(it8, row, col, Val);
 }
 
-cmsBool CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, cmsFloat64Number Val)
+boolint CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, double Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buff[256];
@@ -2235,7 +2227,7 @@ const char * CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const 
 	return GetData(it8, iSet, iField);
 }
 
-cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE it8, const char * cPatch, const char * cSample)
+double CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE it8, const char * cPatch, const char * cSample)
 {
 	const char * Buffer;
 
@@ -2244,7 +2236,7 @@ cmsFloat64Number CMSEXPORT cmsIT8GetDataDbl(cmsHANDLE it8, const char * cPatch, 
 	return ParseFloatNumber(Buffer);
 }
 
-cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val)
+boolint CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char * cSample, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int iField, iSet;
@@ -2283,9 +2275,9 @@ cmsBool CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char 
 	return SetData(it8, iSet, iField, Val);
 }
 
-cmsBool CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch,
+boolint CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch,
     const char * cSample,
-    cmsFloat64Number Val)
+    double Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buff[256];
@@ -2352,7 +2344,7 @@ int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const cha
 	return cmsIT8SetTable(hIT8, nTable);
 }
 
-cmsBool CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample)
+boolint CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int pos;

@@ -4462,7 +4462,7 @@ int PPALDD_CCheckView::InitData(PPFilt & rFilt, long rsrv)
 	H.FltGoodsGrpID  = p_filt->GoodsGrpID;
 	H.FltGoodsID     = p_filt->GoodsID;
 	H.FltSCardID     = p_filt->SCardID;
-	H.FltGrp         = p_filt->Grp;
+	H.FltGrp = p_filt->Grp;
 	H.FltTableNo     = (int16)p_filt->TableCode;
 	H.FltAgentID     = p_filt->AgentID;
 	H.AmountQuant    = p_filt->AmountQuant;
@@ -4579,7 +4579,7 @@ int PPALDD_CCheckViewDetail::NextIteration(long iterId)
     I.RByCheck  = static_cast<int16>(item.RByCheck);
     I.LineQueue = static_cast<int16>(item.LineQueue);
 	I.lfPrinted       = BIN(item.LineFlags & cifIsPrinted);
-	I.lfGift          = BIN(item.LineFlags & cifGift);
+	I.lfGift  = BIN(item.LineFlags & cifGift);
 	I.lfUsedByGift    = BIN(item.LineFlags & cifUsedByGift);
 	I.lfQuotedByGift  = BIN(item.LineFlags & cifQuotedByGift);
 	I.lfPartOfComplex = BIN(item.LineFlags & cifPartOfComplex);
@@ -4708,7 +4708,7 @@ int PPALDD_CCheckDetail::NextIteration(PPIterID iterId)
 		I.LineGrpN = item.LineGrpN;
 		I.LineQueue = item.Queue;
 		I.fPrinted       = BIN(item.Flags & cifIsPrinted);
-		I.fGift          = BIN(item.Flags & cifGift);
+		I.fGift  = BIN(item.Flags & cifGift);
 		I.fUsedByGift    = BIN(item.Flags & cifUsedByGift);
 		I.fQuotedByGift  = BIN(item.Flags & cifQuotedByGift);
 		I.fPartOfComplex = BIN(item.Flags & cifPartOfComplex);

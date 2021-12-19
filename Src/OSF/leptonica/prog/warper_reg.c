@@ -28,6 +28,10 @@
  *   warper_reg.c
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <math.h>
 #include "allheaders.h"
 
@@ -36,10 +40,10 @@ static void DisplayCaptcha(PIXA *pixac, PIX *pixs, l_int32 nterms,
                            l_uint32 seed, l_int32 newline);
 
 static const l_int32 size = 4;
-static const l_float32 xmag[] = {3.0, 4.0, 5.0, 7.0};
-static const l_float32 ymag[] = {5.0, 6.0, 8.0, 10.0};
-static const l_float32 xfreq[] = {0.11, 0.10, 0.10, 0.12};
-static const l_float32 yfreq[] = {0.11, 0.13, 0.13, 0.15};
+static const l_float32 xmag[] = {3.0f, 4.0f, 5.0f, 7.0f};
+static const l_float32 ymag[] = {5.0f, 6.0f, 8.0f, 10.0f};
+static const l_float32 xfreq[] = {0.11f, 0.10f, 0.10f, 0.12f};
+static const l_float32 yfreq[] = {0.11f, 0.13f, 0.13f, 0.15f};
 static const l_int32 nx[] = {4, 3, 2, 1};
 static const l_int32 ny[] = {4, 3, 2, 1};
 
@@ -67,7 +71,7 @@ L_REGPARAMS  *rp;
             newline = (i % 10 == 0) ? 1 : 0;
             DisplayResult(pixac, &pixd, newline);
         }
-        pixd = pixaDisplay(pixac, 0, 0);
+        pixd = pixaDisplayTiledInColumns(pixac, 10, 1.0, 20, 0);
         regTestWritePixAndCheck(rp, pixd, IFF_PNG);
         pixDisplayWithTitle(pixd, 100, 100, NULL, rp->display);
         pixaDestroy(&pixac);
@@ -83,7 +87,7 @@ L_REGPARAMS  *rp;
             newline = (i % 10 == 0) ? 1 : 0;
             DisplayCaptcha(pixac, pixs, k, 7 * i, newline);
         }
-        pixd = pixaDisplay(pixac, 0, 0);
+        pixd = pixaDisplayTiledInColumns(pixac, 10, 1.0, 20, 0);
         regTestWritePixAndCheck(rp, pixd, IFF_PNG);
         pixDisplayWithTitle(pixd, 100, 100, NULL, rp->display);
         pixaDestroy(&pixac);
@@ -101,15 +105,14 @@ DisplayResult(PIXA    *pixac,
               l_int32  newline)
 {
 l_uint32  color;
-PIX      *pixt;
+PIX      *pix1;
 
     color = 0;
     color = ((rand() >> 16) & 0xff) << L_RED_SHIFT |
             ((rand() >> 16) & 0xff) << L_GREEN_SHIFT |
             ((rand() >> 16) & 0xff) << L_BLUE_SHIFT;
-    pixt = pixColorizeGray(*ppixd, color, 0);
-    pixSaveTiled(pixt, pixac, 1.0, newline, 20, 32);
-    pixDestroy(&pixt);
+    pix1 = pixColorizeGray(*ppixd, color, 0);
+    pixaAddPix(pixac, pix1, L_INSERT);
     pixDestroy(ppixd);
     return;
 }
@@ -130,7 +133,6 @@ PIX      *pixd;
             ((rand() >> 16) & 0xff) << L_GREEN_SHIFT |
             ((rand() >> 16) & 0xff) << L_BLUE_SHIFT;
     pixd = pixSimpleCaptcha(pixs, 25, nterms, seed, color, 0);
-    pixSaveTiled(pixd, pixac, 1.0, newline, 20, 32);
-    pixDestroy(&pixd);
+    pixaAddPix(pixac, pixd, L_INSERT);
     return;
 }

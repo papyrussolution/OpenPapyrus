@@ -55,7 +55,7 @@ public:
 
 	template <typename T, typename H>
 	struct hmtxvmtx {
-		bool sanitize(hb_sanitize_context_t * c HB_UNUSED) const
+		bool sanitize(hb_sanitize_context_t * c CXX_UNUSED_PARAM) const
 		{
 			TRACE_SANITIZE(this);
 			/* We don't check for anything specific here.  The users of the

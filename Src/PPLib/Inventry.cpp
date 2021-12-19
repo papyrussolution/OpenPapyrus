@@ -1057,14 +1057,14 @@ int InventoryConversion::InitPackets()
 	if(invOpEx.WrDnOp) {
 		THROW(wrDnPack.CreateBlank(invOpEx.WrDnOp, 0, invPack.Rec.LocID, !transaction));
 		wrDnPack.Rec.LinkBillID = invPack.Rec.ID;
-		wrDnPack.Rec.Dt         = invPack.Rec.Dt;
+		wrDnPack.Rec.Dt = invPack.Rec.Dt;
 		wrDnPack.Rec.LocID      = invPack.Rec.LocID;
 		wrDnPack.Rec.Object     = invOpEx.WrDnObj;
 	}
 	if(invOpEx.WrUpOp) {
 		THROW(wrUpPack.CreateBlank(invOpEx.WrUpOp, 0, invPack.Rec.LocID, !transaction));
 		wrUpPack.Rec.LinkBillID = invPack.Rec.ID;
-		wrUpPack.Rec.Dt         = invPack.Rec.Dt;
+		wrUpPack.Rec.Dt = invPack.Rec.Dt;
 		wrUpPack.Rec.LocID      = invPack.Rec.LocID;
 		wrUpPack.Rec.Object     = invOpEx.WrUpObj;
 	}

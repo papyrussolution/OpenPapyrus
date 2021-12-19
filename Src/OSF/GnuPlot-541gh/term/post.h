@@ -7,10 +7,10 @@
 // Needed by terminals which output postscript (post.trm and pslatex.trm)
 //
 #ifdef PSLATEX_DRIVER
-	extern void PSTEX_common_init(GpTermEntry * pThis);
-	extern void PSTEX_reopen_output(GpTermEntry * pThis);
-	extern void EPSLATEX_common_init(GpTermEntry * pThis);
-	extern void EPSLATEX_reopen_output(GpTermEntry * pThis, char *);
+	extern void PSTEX_common_init(GpTermEntry_Static * pThis);
+	extern void PSTEX_reopen_output(GpTermEntry_Static * pThis);
+	extern void EPSLATEX_common_init(GpTermEntry_Static * pThis);
+	extern void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, char *);
 #endif
 
 #define PS_POINT_TYPES 8

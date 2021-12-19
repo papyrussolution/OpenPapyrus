@@ -45,7 +45,7 @@ uint32_t UTF8CollationIterator::handleNextCE32(UChar32 &c, UErrorCode & /*errorC
 		// ASCII 00..7F
 		return trie->data32[c];
 	}
-	uint8_t t1, t2;
+	uint8 t1, t2;
 	if(0xe0 <= c && c < 0xf0 &&
 	    ((pos + 1) < length || length < 0) &&
 	    U8_IS_VALID_LEAD3_AND_T1(c, t1 = u8[pos]) &&
@@ -150,7 +150,7 @@ uint32_t FCDUTF8CollationIterator::handleNextCE32(UChar32 &c, UErrorCode & error
 				// ASCII 00..7F
 				return trie->data32[c];
 			}
-			uint8_t t1, t2;
+			uint8 t1, t2;
 			if(0xe0 <= c && c < 0xf0 &&
 			    ((pos + 1) < length || length < 0) &&
 			    U8_IS_VALID_LEAD3_AND_T1(c, t1 = u8[pos]) &&
@@ -401,14 +401,14 @@ bool FCDUTF8CollationIterator::nextSegment(UErrorCode & errorCode) {
 	int32_t segmentStart = pos;
 	// Collect the characters being checked, in case they need to be normalized.
 	UnicodeString s;
-	uint8_t prevCC = 0;
+	uint8 prevCC = 0;
 	for(;;) {
 		// Fetch the next character and its fcd16 value.
 		int32_t cpStart = pos;
 		UChar32 c;
 		U8_NEXT_OR_FFFD(u8, pos, length, c);
 		uint16_t fcd16 = nfcImpl.getFCD16(c);
-		uint8_t leadCC = (uint8_t)(fcd16 >> 8);
+		uint8 leadCC = (uint8)(fcd16 >> 8);
 		if(leadCC == 0 && cpStart != segmentStart) {
 			// FCD boundary before this character.
 			pos = cpStart;
@@ -435,7 +435,7 @@ bool FCDUTF8CollationIterator::nextSegment(UErrorCode & errorCode) {
 			pos = 0;
 			return TRUE;
 		}
-		prevCC = (uint8_t)fcd16;
+		prevCC = (uint8)fcd16;
 		if(pos == length || prevCC == 0) {
 			// FCD boundary after the last character.
 			break;
@@ -485,14 +485,14 @@ bool FCDUTF8CollationIterator::previousSegment(UErrorCode & errorCode) {
 	int32_t segmentLimit = pos;
 	// Collect the characters being checked, in case they need to be normalized.
 	UnicodeString s;
-	uint8_t nextCC = 0;
+	uint8 nextCC = 0;
 	for(;;) {
 		// Fetch the previous character and its fcd16 value.
 		int32_t cpLimit = pos;
 		UChar32 c;
 		U8_PREV_OR_FFFD(u8, 0, pos, c);
 		uint16_t fcd16 = nfcImpl.getFCD16(c);
-		uint8_t trailCC = (uint8_t)fcd16;
+		uint8 trailCC = (uint8)fcd16;
 		if(trailCC == 0 && cpLimit != segmentLimit) {
 			// FCD boundary after this character.
 			pos = cpLimit;
@@ -522,7 +522,7 @@ bool FCDUTF8CollationIterator::previousSegment(UErrorCode & errorCode) {
 			pos = normalized.length();
 			return TRUE;
 		}
-		nextCC = (uint8_t)(fcd16 >> 8);
+		nextCC = (uint8)(fcd16 >> 8);
 		if(pos == 0 || nextCC == 0) {
 			// FCD boundary before the following character.
 			break;

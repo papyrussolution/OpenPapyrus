@@ -369,7 +369,7 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 		P_SymToChar   = new int16[N_CHAR+1];
 		P_Tree        = new LZAriTree;
 		P_Header      = new LZAriFileHeader;
-		P_Src         = new char[MAXPATH];
+		P_Src = new char[MAXPATH];
 		P_Dest        = new char[MAXPATH];
 		SLS.SetAddedMsgString(pSrc);
 		THROW_V(P_SymFreq && P_SymCum && P_PositionCum && P_CharToSym && P_SymToChar && P_Tree && P_Header, SLERR_NOMEM);
@@ -796,12 +796,12 @@ int LZAri::GetFileInfo(int compress)
 			while((len = fread(p_buf, 1, buf_size, P_InFile)) > 0)
 				crc = _crc32.Calc(crc, p_buf, len);
 			rewind(P_InFile);
-			P_Header->FileSize          = (long)fs.Size;
+			P_Header->FileSize  = (long)fs.Size;
 			P_Header->FileCreatDateTime = fs.CrtTime;
 			P_Header->FileLAccDateTime  = fs.AccsTime;
 			P_Header->FileLModDateTime  = fs.ModTime;
-			P_Header->CRC               = (long)crc;
-			P_Header->Signature         = LZARI_SIGNATURE;
+			P_Header->CRC       = (long)crc;
+			P_Header->Signature = LZARI_SIGNATURE;
 			filename.CopyTo(P_Header->FileName, sizeof(P_Header->FileName));
 		}
 		else {

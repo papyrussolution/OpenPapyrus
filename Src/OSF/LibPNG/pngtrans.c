@@ -49,9 +49,9 @@ void PNGAPI png_set_packing(png_structrp png_ptr)
 		return;
 	if(png_ptr->bit_depth < 8) {
 		png_ptr->transformations |= PNG_PACK;
-#     ifdef PNG_WRITE_SUPPORTED
+#ifdef PNG_WRITE_SUPPORTED
 		png_ptr->usr_bit_depth = 8;
-#     endif
+#endif
 	}
 }
 
@@ -112,7 +112,7 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 	 * operation and therefore to do more checking here for a valid call.
 	 */
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0) {
-#     ifdef PNG_READ_FILLER_SUPPORTED
+#ifdef PNG_READ_FILLER_SUPPORTED
 		/* On read png_set_filler is always valid, regardless of the base PNG
 		 * format, because other transformations can give a format where the
 		 * filler code can execute (basically an 8 or 16-bit component RGB or G
@@ -122,15 +122,14 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 		 * confusion in the past.)  The filler is only used in the read code.
 		 */
 		png_ptr->filler = (png_uint_16)filler;
-#     else
+#else
 		png_app_error(png_ptr, "png_set_filler not supported on read");
-		PNG_UNUSED(filler) /* not used in the write case */
+		CXX_UNUSED(filler); // not used in the write case
 		return;
-#     endif
+#endif
 	}
-
 	else { /* write */
-#     ifdef PNG_WRITE_FILLER_SUPPORTED
+#ifdef PNG_WRITE_FILLER_SUPPORTED
 		/* On write the usr_channels parameter must be set correctly at the
 		 * start to record the number of channels in the app-supplied data.
 		 */
@@ -156,10 +155,10 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 			    png_app_error(png_ptr, "png_set_filler: inappropriate color type");
 			    return;
 		}
-#     else
+#else
 		png_app_error(png_ptr, "png_set_filler not supported on write");
 		return;
-#     endif
+#endif
 	}
 
 	/* Here on success - libpng supports the operation, set the transformation

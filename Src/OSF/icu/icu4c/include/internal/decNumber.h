@@ -4,19 +4,19 @@
 /* Decimal Number arithmetic module header */
 /* ------------------------------------------------------------------ */
 /* Copyright (c) IBM Corporation, 2000-2010.   All rights reserved.   */
-/*     */
+/* */
 /* This software is made available under the terms of the    */
 /* ICU License -- ICU 1.8.1 and later.     */
-/*     */
+/* */
 /* The description and User's Guide ("The decNumber C Library") for   */
 /* this software is called decNumber.pdf.  This document is  */
 /* available, together with arithmetic and format specifications,     */
 /* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/*     */
+/* */
 /* Please send comments, suggestions, and corrections to the author:  */
-/*   mfc@uk.ibm.com      */
-/*   Mike Cowlishaw, IBM Fellow   */
-/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
+/* mfc@uk.ibm.com      */
+/* Mike Cowlishaw, IBM Fellow   */
+/* IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
 /* ------------------------------------------------------------------ */
 
 /* Modified version, for use from within ICU.
@@ -70,7 +70,7 @@
   /* The size (integer data type) of each unit is determined by the   */
   /* number of digits it will hold.        */
   #if   DECDPUN<=2
-    #define decNumberUnit uint8_t
+    #define decNumberUnit uint8
   #elif DECDPUN<=4
     #define decNumberUnit uint16_t
   #else
@@ -84,28 +84,28 @@
     int32_t digits; /* Count of digits in the coefficient; >0    */
     int32_t exponent; /* Unadjusted exponent, unbiased, in         */
                          /* range: -1999999997 through 999999999      */
-    uint8_t bits; /* Indicator bits (see above)       */
+    uint8 bits; /* Indicator bits (see above)       */
                          /* Coefficient, from least significant unit  */
     decNumberUnit lsu[DECNUMUNITS];
     } decNumber;
 
   /* Notes:     */
   /* 1. If digits is > DECDPUN then there will one or more   */
-  /*    decNumberUnits immediately following the first element of lsu.*/
-  /*    These contain the remaining (more significant) digits of the  */
-  /*    number, and may be in the lsu array, or may be guaranteed by  */
-  /*    some other mechanism (such as being contained in another      */
-  /*    structure, or being overlaid on dynamically allocated         */
-  /*    storage).        */
-  /*   */
-  /*    Each integer of the coefficient (except potentially the last) */
-  /*    contains DECDPUN digits (e.g., a value in the range 0 through */
-  /*    99999999 if DECDPUN is 8, or 0 through 999 if DECDPUN is 3).  */
-  /*   */
+  /* decNumberUnits immediately following the first element of lsu.*/
+  /* These contain the remaining (more significant) digits of the  */
+  /* number, and may be in the lsu array, or may be guaranteed by  */
+  /* some other mechanism (such as being contained in another      */
+  /* structure, or being overlaid on dynamically allocated         */
+  /* storage).        */
+  /* */
+  /* Each integer of the coefficient (except potentially the last) */
+  /* contains DECDPUN digits (e.g., a value in the range 0 through */
+  /* 99999999 if DECDPUN is 8, or 0 through 999 if DECDPUN is 3).  */
+  /* */
   /* 2. A decNumber converted to a string may need up to digits+14    */
-  /*    characters.  The worst cases (non-exponential and exponential */
-  /*    formats) are -0.00000{9...}# and -9.{9...}E+999999999#        */
-  /*    (where # is '\0')         */
+  /* characters.  The worst cases (non-exponential and exponential */
+  /* formats) are -0.00000{9...}# and -9.{9...}E+999999999#        */
+  /* (where # is '\0')         */
 
 
   /* ---------------------------------------------------------------- */
@@ -119,8 +119,8 @@
   U_CAPI char * U_EXPORT2 uprv_decNumberToEngString(const decNumber *, char *);
   U_CAPI uint32_t    U_EXPORT2 uprv_decNumberToUInt32(const decNumber *, decContext *);
   U_CAPI int32_t U_EXPORT2 uprv_decNumberToInt32(const decNumber *, decContext *);
-  U_CAPI uint8_t   * U_EXPORT2 uprv_decNumberGetBCD(const decNumber *, uint8_t *);
-  U_CAPI decNumber * U_EXPORT2 uprv_decNumberSetBCD(decNumber *, const uint8_t *, uint32_t);
+  U_CAPI uint8   * U_EXPORT2 uprv_decNumberGetBCD(const decNumber *, uint8 *);
+  U_CAPI decNumber * U_EXPORT2 uprv_decNumberSetBCD(decNumber *, const uint8 *, uint32_t);
 
   /* Operators and elementary functions    */
   U_CAPI decNumber * U_EXPORT2 uprv_decNumberAbs(decNumber *, const decNumber *, decContext *);

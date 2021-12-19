@@ -1,14 +1,9 @@
+// collationruleparser.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationruleparser.cpp
- *
+ * Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * (replaced the former ucol_tok.cpp)
- *
  * created on: 2013apr10
  * created by: Markus W. Scherer
  */
@@ -55,10 +50,7 @@ CollationRuleParser::CollationRuleParser(const CollationData * base, UErrorCode 
 CollationRuleParser::~CollationRuleParser() {
 }
 
-void CollationRuleParser::parse(const UnicodeString & ruleString,
-    CollationSettings &outSettings,
-    UParseError * outParseError,
-    UErrorCode & errorCode) {
+void CollationRuleParser::parse(const UnicodeString & ruleString, CollationSettings &outSettings, UParseError * outParseError, UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -74,7 +66,8 @@ void CollationRuleParser::parse(const UnicodeString & ruleString,
 	parse(ruleString, errorCode);
 }
 
-void CollationRuleParser::parse(const UnicodeString & ruleString, UErrorCode & errorCode) {
+void CollationRuleParser::parse(const UnicodeString & ruleString, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -895,11 +888,11 @@ void CollationRuleParser::setParseError(const char * reason, UErrorCode & errorC
 	}
 }
 
-void CollationRuleParser::setErrorContext() {
+void CollationRuleParser::setErrorContext() 
+{
 	if(parseError == NULL) {
 		return;
 	}
-
 	// Note: This relies on the calling code maintaining the ruleIndex
 	// at a position that is useful for debugging.
 	// For example, at the beginning of a reset or relation etc.
@@ -930,13 +923,13 @@ void CollationRuleParser::setErrorContext() {
 	parseError->postContext[length] = 0;
 }
 
-bool CollationRuleParser::isSyntaxChar(UChar32 c) {
-	return 0x21 <= c && c <= 0x7e &&
-	       (c <= 0x2f || (0x3a <= c && c <= 0x40) ||
-	       (0x5b <= c && c <= 0x60) || (0x7b <= c));
+bool CollationRuleParser::isSyntaxChar(UChar32 c) 
+{
+	return 0x21 <= c && c <= 0x7e && (c <= 0x2f || (0x3a <= c && c <= 0x40) || (0x5b <= c && c <= 0x60) || (0x7b <= c));
 }
 
-int32_t CollationRuleParser::skipWhiteSpace(int32_t i) const {
+int32_t CollationRuleParser::skipWhiteSpace(int32_t i) const 
+{
 	while(i < rules->length() && PatternProps::isWhiteSpace(rules->charAt(i))) {
 		++i;
 	}

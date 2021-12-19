@@ -40,16 +40,13 @@ IMPL_CMPFUNC(_2int64, i1, i2)
 //
 // Check Range
 //
-int FASTCALL checkirange(long nmb, long low, long upp)
+bool STDCALL checkirange(long nmb, long low, long upp)
 {
 	if(nmb >= low && nmb <= upp)
-		return 1;
+		return true;
 	else {
-#ifndef _WIN32_WCE // {
-		SString msg_buf;
-		SLS.SetError(SLERR_BOUNDS, msg_buf.CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
-#endif // } _WIN32_WCE
-		return 0;
+		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
+		return false;
 	}
 }
 
@@ -63,10 +60,7 @@ int FASTCALL checkupper(uint nmb, uint upper)
 	if(nmb < upper)
 		return 1;
 	else {
-#ifndef _WIN32_WCE // {
-		SString msg_buf;
-		SLS.SetError(SLERR_BOUNDS, msg_buf.CatChar('[').Cat(0L).CatCharN('.', 2).Cat(upper).CatChar(']'));
-#endif // } _WIN32_WCE
+		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(0L).CatCharN('.', 2).Cat(upper).CatChar(']'));
 		return 0;
 	}
 }
@@ -76,10 +70,7 @@ int FASTCALL checkfrange(double nmb, double low, double upp)
 	if((low == 0.0 && upp == 0.0) || (nmb >= low && nmb <= upp))
 		return 1;
 	else {
-#ifndef _WIN32_WCE // {
-		SString msg_buf;
-		SLS.SetError(SLERR_BOUNDS, msg_buf.CatChar('[').Cat(low, NMBF_NOTRAILZ).CatCharN('.', 2).Cat(upp, NMBF_NOTRAILZ).CatChar(']'));
-#endif // } _WIN32_WCE
+		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low, NMBF_NOTRAILZ).CatCharN('.', 2).Cat(upp, NMBF_NOTRAILZ).CatChar(']'));
 		return 0;
 	}
 }
@@ -89,11 +80,7 @@ int FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp)
 	if((!low || dt >= low) && (!upp || dt <= upp))
 		return 1;
 	else {
-#ifndef _WIN32_WCE // {
-		SString msg_buf;
-		SLS.SetError(SLERR_BOUNDS, msg_buf.CatChar('[').Cat(low, DATF_DMY|DATF_CENTURY).
-			CatCharN('.', 2).Cat(upp, DATF_DMY|DATF_CENTURY).CatChar(']'));
-#endif // } _WIN32_WCE
+		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low, DATF_DMY|DATF_CENTURY).CatCharN('.', 2).Cat(upp, DATF_DMY|DATF_CENTURY).CatChar(']'));
 		return 0;
 	}
 }

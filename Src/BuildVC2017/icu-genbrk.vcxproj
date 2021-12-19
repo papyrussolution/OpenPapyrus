@@ -280,9 +280,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\osf\icu\icu4c\source\tools\genbrk\genbrk.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="icu-toolutil.vcxproj">
       <Project>{6b231032-3cb5-4eed-9210-810d666a23a0}</Project>
     </ProjectReference>
@@ -301,6 +298,9 @@
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\icu\icu4c\source\tools\genbrk.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

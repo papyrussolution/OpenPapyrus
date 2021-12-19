@@ -313,8 +313,7 @@
 
 /* Version information for png.h - this should match the version in png.c */
 #define PNG_LIBPNG_VER_STRING "1.6.23"
-#define PNG_HEADER_VERSION_STRING \
-	" libpng version 1.6.23 - June 9, 2016\n"
+#define PNG_HEADER_VERSION_STRING " libpng version 1.6.23 - June 9, 2016\n"
 
 #define PNG_LIBPNG_VER_SONUM   16
 #define PNG_LIBPNG_VER_DLLNUM  16
@@ -356,15 +355,10 @@
  * the library has been built.
  */
 #ifndef PNGLCONF_H
-/* If pnglibconf.h is missing, you can
- * copy scripts/pnglibconf.h.prebuilt to pnglibconf.h
- */
-#include "pnglibconf.h"
+	#include "pnglibconf.h" // If pnglibconf.h is missing, you can copy scripts/pnglibconf.h.prebuilt to pnglibconf.h
 #endif
-
 #ifndef PNG_VERSION_INFO_ONLY
-/* Machine specific configuration. */
-	#include "pngconf.h"
+	#include "pngconf.h" // Machine specific configuration
 #endif
 
 /*
@@ -555,7 +549,7 @@ typedef png_sPLT_entry * png_sPLT_entryp;
 typedef const png_sPLT_entry * png_const_sPLT_entryp;
 typedef png_sPLT_entry ** png_sPLT_entrypp;
 
-/*  When the depth of the sPLT palette is 8 bits, the color and alpha samples
+/* When the depth of the sPLT palette is 8 bits, the color and alpha samples
  *  occupy the LSB of their respective members, and the MSB of each member
  *  is zero-filled.  The frequency member always occupies the full 16 bits.
  */
@@ -939,11 +933,8 @@ PNG_EXPORTA(5, png_structp, png_create_write_struct,
     png_error_ptr warn_fn),
     PNG_ALLOCATED);
 
-PNG_EXPORT(6, size_t, png_get_compression_buffer_size,
-    (png_const_structrp png_ptr));
-
-PNG_EXPORT(7, void, png_set_compression_buffer_size, (png_structrp png_ptr,
-    size_t size));
+PNG_EXPORT(6, size_t, png_get_compression_buffer_size, (png_const_structrp png_ptr));
+PNG_EXPORT(7, void, png_set_compression_buffer_size, (png_structrp png_ptr, size_t size));
 
 /* Moved from pngconf.h in 1.4.0 and modified to ensure setjmp/longjmp
  * match up.
@@ -956,10 +947,8 @@ PNG_EXPORT(7, void, png_set_compression_buffer_size, (png_structrp png_ptr,
  * allocated by the library - the call will return NULL on a mismatch
  * indicating an ABI mismatch.
  */
-PNG_EXPORT(8, jmp_buf*, png_set_longjmp_fn, (png_structrp png_ptr,
-    png_longjmp_ptr longjmp_fn, size_t jmp_buf_size));
-#define png_jmpbuf(png_ptr) \
-	(*png_set_longjmp_fn((png_ptr), longjmp, (sizeof(jmp_buf))))
+PNG_EXPORT(8, jmp_buf*, png_set_longjmp_fn, (png_structrp png_ptr, png_longjmp_ptr longjmp_fn, size_t jmp_buf_size));
+#define png_jmpbuf(png_ptr) (*png_set_longjmp_fn((png_ptr), longjmp, (sizeof(jmp_buf))))
 #else
 #define png_jmpbuf(png_ptr) \
 	(LIBPNG_WAS_COMPILED_WITH__PNG_NO_SETJMP)
@@ -1552,7 +1541,7 @@ PNG_EXPORT(226, void, png_set_text_compression_method, (png_structrp png_ptr,
 
 #ifdef PNG_STDIO_SUPPORTED
 /* Initialize the input/output for the PNG file to the default functions. */
-PNG_EXPORT(74, void, png_init_io, (png_structrp png_ptr, png_FILE_p fp));
+PNG_EXPORT(74, void, png_init_io, (png_structrp png_ptr, FILE * fp));
 #endif
 
 /* Replace the (error and abort), and warning functions with user
@@ -1563,8 +1552,7 @@ PNG_EXPORT(74, void, png_init_io, (png_structrp png_ptr, png_FILE_p fp));
  * default function will be used.
  */
 
-PNG_EXPORT(75, void, png_set_error_fn, (png_structrp png_ptr,
-    void * error_ptr, png_error_ptr error_fn, png_error_ptr warning_fn));
+PNG_EXPORT(75, void, png_set_error_fn, (png_structrp png_ptr, void * error_ptr, png_error_ptr error_fn, png_error_ptr warning_fn));
 
 /* Return the user pointer associated with the error functions */
 PNG_EXPORT(76, void *, png_get_error_ptr, (png_const_structrp png_ptr));
@@ -1726,7 +1714,7 @@ PNG_EXPORT(99, void, png_data_freer, (png_const_structrp png_ptr, png_inforp inf
 #ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
 	#define PNG_FREE_UNKN 0x0200U
 #endif
-/*      PNG_FREE_LIST 0x0400U   removed in 1.6.0 because it is ignored */
+/* PNG_FREE_LIST 0x0400U   removed in 1.6.0 because it is ignored */
 #define PNG_FREE_PLTE 0x1000U
 #define PNG_FREE_TRNS 0x2000U
 #define PNG_FREE_TEXT 0x4000U
@@ -1918,46 +1906,28 @@ PNG_FIXED_EXPORT(233, void, png_set_cHRM_XYZ_fixed, (png_const_structrp png_ptr,
 #endif
 
 #ifdef PNG_gAMA_SUPPORTED
-PNG_FP_EXPORT(137, uint32, png_get_gAMA, (png_const_structrp png_ptr,
-    png_const_inforp info_ptr, double * file_gamma))
-PNG_FIXED_EXPORT(138, uint32, png_get_gAMA_fixed,
-    (png_const_structrp png_ptr, png_const_inforp info_ptr,
-    png_fixed_point *int_file_gamma))
+	PNG_FP_EXPORT(137, uint32, png_get_gAMA, (png_const_structrp png_ptr, png_const_inforp info_ptr, double * file_gamma))
+	PNG_FIXED_EXPORT(138, uint32, png_get_gAMA_fixed, (png_const_structrp png_ptr, png_const_inforp info_ptr, png_fixed_point *int_file_gamma))
 #endif
-
 #ifdef PNG_gAMA_SUPPORTED
-PNG_FP_EXPORT(139, void, png_set_gAMA, (png_const_structrp png_ptr,
-    png_inforp info_ptr, double file_gamma))
-PNG_FIXED_EXPORT(140, void, png_set_gAMA_fixed, (png_const_structrp png_ptr,
-    png_inforp info_ptr, png_fixed_point int_file_gamma))
+	// @sobolev PNG_FP_EXPORT(139, void, png_set_gAMA, (png_const_structrp png_ptr, png_inforp info_ptr, double file_gamma))
+	void PNGAPI png_set_gAMA(png_const_structrp png_ptr, png_inforp info_ptr, double file_gamma); // @sobolev
+	PNG_FIXED_EXPORT(140, void, png_set_gAMA_fixed, (png_const_structrp png_ptr, png_inforp info_ptr, png_fixed_point int_file_gamma))
 #endif
-
 #ifdef PNG_hIST_SUPPORTED
-PNG_EXPORT(141, uint32, png_get_hIST, (png_const_structrp png_ptr,
-    png_inforp info_ptr, png_uint_16p *hist));
+	PNG_EXPORT(141, uint32, png_get_hIST, (png_const_structrp png_ptr, png_inforp info_ptr, png_uint_16p *hist));
 #endif
-
 #ifdef PNG_hIST_SUPPORTED
-PNG_EXPORT(142, void, png_set_hIST, (png_const_structrp png_ptr,
-    png_inforp info_ptr, png_const_uint_16p hist));
+	PNG_EXPORT(142, void, png_set_hIST, (png_const_structrp png_ptr, png_inforp info_ptr, png_const_uint_16p hist));
 #endif
-
-PNG_EXPORT(143, uint32, png_get_IHDR, (png_const_structrp png_ptr,
-    png_const_inforp info_ptr, uint32 *width, uint32 *height,
-    int * bit_depth, int * color_type, int * interlace_method,
-    int * compression_method, int * filter_method));
-
-PNG_EXPORT(144, void, png_set_IHDR, (png_const_structrp png_ptr,
-    png_inforp info_ptr, uint32 width, uint32 height, int bit_depth,
-    int color_type, int interlace_method, int compression_method,
-    int filter_method));
-
+PNG_EXPORT(143, uint32, png_get_IHDR, (png_const_structrp png_ptr, png_const_inforp info_ptr, uint32 *width, uint32 *height,
+    int * bit_depth, int * color_type, int * interlace_method, int * compression_method, int * filter_method));
+PNG_EXPORT(144, void, png_set_IHDR, (png_const_structrp png_ptr, png_inforp info_ptr, uint32 width, uint32 height, int bit_depth,
+    int color_type, int interlace_method, int compression_method, int filter_method));
 #ifdef PNG_oFFs_SUPPORTED
-PNG_EXPORT(145, uint32, png_get_oFFs, (png_const_structrp png_ptr,
-    png_const_inforp info_ptr, png_int_32 *offset_x, png_int_32 *offset_y,
+PNG_EXPORT(145, uint32, png_get_oFFs, (png_const_structrp png_ptr, png_const_inforp info_ptr, png_int_32 *offset_x, png_int_32 *offset_y,
     int * unit_type));
 #endif
-
 #ifdef PNG_oFFs_SUPPORTED
 PNG_EXPORT(146, void, png_set_oFFs, (png_const_structrp png_ptr,
     png_inforp info_ptr, png_int_32 offset_x, png_int_32 offset_y,

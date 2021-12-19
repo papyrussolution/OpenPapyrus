@@ -1312,16 +1312,11 @@ void SImageBuffer::Palette::SetAlpha(uint8 alpha)
 		P_Buf[i] = ((alpha << 24) | (P_Buf[i] & 0x00ffffff));
 }
 
-uint SImageBuffer::Palette::GetCount() const
-	{ return Count; }
-size_t SImageBuffer::Palette::GetSize() const
-	{ return (Count * sizeof(uint32)); }
-uint32 FASTCALL SImageBuffer::Palette::GetColor(uint idx) const
-	{ return (idx < Count) ? P_Buf[idx] : 0; }
-void * SImageBuffer::Palette::GetBuffer() // really private
-	{ return P_Buf; }
-const uint32 * SImageBuffer::Palette::GetBufferC() const // really private
-	{ return (const uint32 *)P_Buf; }
+uint SImageBuffer::Palette::GetCount() const { return Count; }
+size_t SImageBuffer::Palette::GetSize() const { return (Count * sizeof(uint32)); }
+uint32 FASTCALL SImageBuffer::Palette::GetColor(uint idx) const { return (idx < Count) ? P_Buf[idx] : 0; }
+void * SImageBuffer::Palette::GetBuffer() { return P_Buf; } // really private 
+const uint32 * SImageBuffer::Palette::GetBufferC() const { return (const uint32 *)P_Buf; } // really private
 //
 //
 //
@@ -1329,10 +1324,7 @@ SImageBuffer::PixF::PixF(int s) : S(s)
 {
 }
 
-int SImageBuffer::PixF::IsValid() const
-{
-	return (GetBpp() != 0);
-}
+bool SImageBuffer::PixF::IsValid() const { return (GetBpp() != 0); }
 
 uint SImageBuffer::PixF::GetBpp() const
 {
@@ -3058,13 +3050,11 @@ int SImageBuffer::LoadGif(SFile & rF)
             const SColorRGB & r_entry = p_color_map->Colors[i];
 			palette.SetRGB(i, r_entry.R, r_entry.G, r_entry.B);
 		}
-		// @v9.6.11 {
 		{
 			const uint _stride = F.GetStride(S.x);
 			THROW(_stride);
 			THROW(Alloc(_stride * p_gf->SHeight));
 		}
-		// } @v9.6.11
 		for(i = 0; i < p_gf->SHeight; i++)
 			THROW(AddLines(p_buffer[i], fmt, 1, &palette));
 	}
@@ -3333,8 +3323,8 @@ LPBITMAPINFOHEADER CopyDibHdr(IN UPBITMAPINFOHEADER upbih, OUT LPSTR * lplpBits,
 			break;
 		case sizeof(BITMAPCOREHEADER):
 			// Convert the BITMAPCOREHEADER to a BITMAPINFOHEADER
-			Fake.bih.biSize          = sizeof(BITMAPINFOHEADER);
-			Fake.bih.biWidth         = upbch->bcWidth;
+			Fake.bih.biSize  = sizeof(BITMAPINFOHEADER);
+			Fake.bih.biWidth = upbch->bcWidth;
 			Fake.bih.biHeight        = upbch->bcHeight;
 			Fake.bih.biPlanes        = upbch->bcPlanes;
 			Fake.bih.biBitCount      = upbch->bcBitCount;
@@ -3357,8 +3347,8 @@ LPBITMAPINFOHEADER CopyDibHdr(IN UPBITMAPINFOHEADER upbih, OUT LPSTR * lplpBits,
 			if(upOldIcoCur->bType == BMR_ICON || upOldIcoCur->bType == BMR_CURSOR) {
 				// Convert OLDICON/OLDCURSOR header to BITMAPINFHEADER
 				//RIPMSG0(RIP_WARNING, "USER32:Converting a OLD header. - email sanfords if you see this");
-				Fake.bih.biSize          = sizeof(BITMAPINFOHEADER);
-				Fake.bih.biWidth         = upOldIcoCur->cx;
+				Fake.bih.biSize  = sizeof(BITMAPINFOHEADER);
+				Fake.bih.biWidth = upOldIcoCur->cx;
 				Fake.bih.biHeight        = upOldIcoCur->cy * 2;
 				Fake.bih.biPlanes        =
 				Fake.bih.biBitCount      = 1;
@@ -3510,7 +3500,7 @@ HBITMAP ConvertDIBBitmap(IN /*UPBITMAPINFOHEADER*/LPBITMAPINFOHEADER upbih, IN  
 			ChangeDibColors(lpbihNew, LR_flags & ~LR_MONOCHROME);
 		bPlanesDesired = gpsi->Planes;
 		bppDesired     = gpsi->BitsPixel;
-		fMono          = LR_flags & LR_MONOCHROME;
+		fMono  = LR_flags & LR_MONOCHROME;
 	}
 	if(fMono) {
 		bPlanesDesired =

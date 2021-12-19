@@ -348,7 +348,7 @@ static const char * ngx_http_rewrite_break(ngx_conf_t * cf, const ngx_command_t 
 static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
-	void  * mconf;
+	void * mconf;
 	char  * rv;
 	u_char   * elts;
 	ngx_uint_t i;

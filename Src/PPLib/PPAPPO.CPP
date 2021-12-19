@@ -36,10 +36,10 @@ int TSessionMaintenance(); // @v11.0.4
 // } @prototype
 //
 //
-/*static*/ const char * PPRegKeys::PrefSettings          = "Software\\Papyrus\\Pref";   // @declared(pp.h)
+/*static*/ const char * PPRegKeys::PrefSettings  = "Software\\Papyrus\\Pref";   // @declared(pp.h)
 /*static*/ const char * PPRegKeys::PrefBasketSelSettings = "Software\\Papyrus\\Pref\\BasketSel"; // @declared(pp.h)
-/*static*/ const char * PPRegKeys::SysSettings           = "Software\\Papyrus\\System";   // @declared(pp.h)
-/*static*/ const char * PPRegKeys::Sessions              = "Software\\Papyrus\\Sessions"; // @declared(pp.h)
+/*static*/ const char * PPRegKeys::SysSettings   = "Software\\Papyrus\\System";   // @declared(pp.h)
+/*static*/ const char * PPRegKeys::Sessions      = "Software\\Papyrus\\Sessions"; // @declared(pp.h)
 //
 //
 //
@@ -968,7 +968,7 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 					ASSIGN_PTR(p_new_entry, rpe);
 				}
 			}
-			PPStyloQInterchange::Invitation inv(rsparam);
+			PPStyloQInterchange::InterchangeParam inv(rsparam);
 			{
 				SJson js(SJson::tOBJECT);
 				js.InsertString("cmd", "DTLOGIN");

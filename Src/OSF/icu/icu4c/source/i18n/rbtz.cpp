@@ -347,8 +347,8 @@ RuleBasedTimeZone* RuleBasedTimeZone::clone() const {
 	return new RuleBasedTimeZone(*this);
 }
 
-int32_t RuleBasedTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis, UErrorCode & status) const {
+int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis, UErrorCode & status) const {
 	if(U_FAILURE(status)) {
 		return 0;
 	}
@@ -362,8 +362,8 @@ int32_t RuleBasedTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, i
 	}
 }
 
-int32_t RuleBasedTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t /*dayOfWeek*/, int32_t millis,
+int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 /*dayOfWeek*/, int32_t millis,
     int32_t /*monthLength*/, UErrorCode & status) const {
 	// dayOfWeek and monthLength are unused
 	if(U_FAILURE(status)) {

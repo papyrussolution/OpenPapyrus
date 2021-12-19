@@ -20,7 +20,7 @@ LPWSTR szPauseClass = L"wgnuplot_pause";
 struct WID {
 	BOOL used;
 	HWND hwnd;
-	void  * ptr;
+	void * ptr;
 };
 
 struct WID * widptr = NULL;

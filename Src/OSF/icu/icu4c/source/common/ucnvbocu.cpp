@@ -154,19 +154,19 @@
  */
 static const int8_t
 bocu1ByteToTrail[BOCU1_MIN] = {
-/*  0     1     2     3     4     5     6     7    */
+/* 0     1     2     3     4     5     6     7    */
 	-1,   0x00, 0x01, 0x02, 0x03, 0x04, 0x05, -1,
 
-/*  8     9     a     b     c     d     e     f    */
+/* 8     9     a     b     c     d     e     f    */
 	-1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
 
-/*  10    11    12    13    14    15    16    17   */
+/* 10    11    12    13    14    15    16    17   */
 	0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
 
-/*  18    19    1a    1b    1c    1d    1e    1f   */
+/* 18    19    1a    1b    1c    1d    1e    1f   */
 	0x0e, 0x0f, -1,   -1,   0x10, 0x11, 0x12, 0x13,
 
-/*  20   */
+/* 20   */
 	-1
 };
 
@@ -177,13 +177,13 @@ bocu1ByteToTrail[BOCU1_MIN] = {
  */
 static const int8_t
     bocu1TrailToByte[BOCU1_TRAIL_CONTROLS_COUNT] = {
-/*  0     1     2     3     4     5     6     7    */
+/* 0     1     2     3     4     5     6     7    */
 	0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x10, 0x11,
 
-/*  8     9     a     b     c     d     e     f    */
+/* 8     9     a     b     c     d     e     f    */
 	0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,
 
-/*  10    11    12    13   */
+/* 10    11    12    13   */
 	0x1c, 0x1d, 0x1e, 0x1f
 };
 
@@ -396,7 +396,7 @@ static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * 
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
 
@@ -408,7 +408,7 @@ static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * 
 	cnv = pArgs->converter;
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
 
@@ -440,7 +440,7 @@ fastSingle:
 			if(c!=0x20) {
 				prev = BOCU1_ASCII_PREV;
 			}
-			*target++ = (uint8_t)c;
+			*target++ = (uint8)c;
 			*offsets++ = nextSourceIndex++;
 			++source;
 			--targetCapacity;
@@ -449,7 +449,7 @@ fastSingle:
 			diff = c-prev;
 			if(DIFF_IS_SINGLE(diff)) {
 				prev = BOCU1_SIMPLE_PREV(c);
-				*target++ = (uint8_t)PACK_SINGLE_DIFF(diff);
+				*target++ = (uint8)PACK_SINGLE_DIFF(diff);
 				*offsets++ = nextSourceIndex++;
 				++source;
 				--targetCapacity;
@@ -460,7 +460,7 @@ fastSingle:
 		}
 	}
 	/* restore real values */
-	targetCapacity = (int32_t)((const uint8_t*)pArgs->targetLimit-target);
+	targetCapacity = (int32_t)((const uint8*)pArgs->targetLimit-target);
 	sourceIndex = nextSourceIndex; /* wrong if offsets==NULL but does not matter */
 
 	/* regular loop for all cases */
@@ -478,7 +478,7 @@ fastSingle:
 				if(c!=0x20) {
 					prev = BOCU1_ASCII_PREV;
 				}
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				*offsets++ = sourceIndex;
 				--targetCapacity;
 
@@ -517,7 +517,7 @@ getTrail:
 			diff = c-prev;
 			prev = BOCU1_PREV(c);
 			if(DIFF_IS_SINGLE(diff)) {
-				*target++ = (uint8_t)PACK_SINGLE_DIFF(diff);
+				*target++ = (uint8)PACK_SINGLE_DIFF(diff);
 				*offsets++ = sourceIndex;
 				--targetCapacity;
 				sourceIndex = nextSourceIndex;
@@ -540,8 +540,8 @@ getTrail:
 					NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 					diff += BOCU1_START_NEG_2;
 				}
-				*target++ = (uint8_t)diff;
-				*target++ = (uint8_t)BOCU1_TRAIL_TO_BYTE(m);
+				*target++ = (uint8)diff;
+				*target++ = (uint8)BOCU1_TRAIL_TO_BYTE(m);
 				*offsets++ = sourceIndex;
 				*offsets++ = sourceIndex;
 				targetCapacity -= 2;
@@ -559,18 +559,18 @@ getTrail:
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 4:
-						    *target++ = (uint8_t)(diff>>24);
+						    *target++ = (uint8)(diff>>24);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 3:
-						    *target++ = (uint8_t)(diff>>16);
+						    *target++ = (uint8)(diff>>16);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 2:
-						    *target++ = (uint8_t)(diff>>8);
+						    *target++ = (uint8)(diff>>8);
 						    *offsets++ = sourceIndex;
 						    /* case 1: handled above */
-						    *target++ = (uint8_t)diff;
+						    *target++ = (uint8)diff;
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						default:
@@ -581,7 +581,7 @@ getTrail:
 					sourceIndex = nextSourceIndex;
 				}
 				else {
-					uint8_t * charErrorBuffer;
+					uint8 * charErrorBuffer;
 
 					/*
 					 * We actually do this backwards here:
@@ -591,17 +591,17 @@ getTrail:
 					 */
 					/* we know that 1<=targetCapacity<length<=4 */
 					length -= targetCapacity;
-					charErrorBuffer = (uint8_t*)cnv->charErrorBuffer;
+					charErrorBuffer = (uint8 *)cnv->charErrorBuffer;
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 3:
-						    *charErrorBuffer++ = (uint8_t)(diff>>16);
+						    *charErrorBuffer++ = (uint8)(diff>>16);
 						    U_FALLTHROUGH;
 						case 2:
-						    *charErrorBuffer++ = (uint8_t)(diff>>8);
+						    *charErrorBuffer++ = (uint8)(diff>>8);
 						    U_FALLTHROUGH;
 						case 1:
-						    *charErrorBuffer = (uint8_t)diff;
+						    *charErrorBuffer = (uint8)diff;
 						    U_FALLTHROUGH;
 						default:
 						    /* will never occur */
@@ -614,15 +614,15 @@ getTrail:
 					switch(targetCapacity) {
 						/* each branch falls through to the next one */
 						case 3:
-						    *target++ = (uint8_t)(diff>>16);
+						    *target++ = (uint8)(diff>>16);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 2:
-						    *target++ = (uint8_t)(diff>>8);
+						    *target++ = (uint8)(diff>>8);
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						case 1:
-						    *target++ = (uint8_t)diff;
+						    *target++ = (uint8)diff;
 						    *offsets++ = sourceIndex;
 						    U_FALLTHROUGH;
 						default:
@@ -665,7 +665,7 @@ static void U_CALLCONV _Bocu1FromUnicode(UConverterFromUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target;
+	uint8 * target;
 	int32_t targetCapacity;
 
 	int32_t prev, c, diff;
@@ -674,7 +674,7 @@ static void U_CALLCONV _Bocu1FromUnicode(UConverterFromUnicodeArgs * pArgs,
 	cnv = pArgs->converter;
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
+	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 
 	/* get the converter state from UConverter */
@@ -701,13 +701,13 @@ fastSingle:
 			if(c!=0x20) {
 				prev = BOCU1_ASCII_PREV;
 			}
-			*target++ = (uint8_t)c;
+			*target++ = (uint8)c;
 		}
 		else {
 			diff = c-prev;
 			if(DIFF_IS_SINGLE(diff)) {
 				prev = BOCU1_SIMPLE_PREV(c);
-				*target++ = (uint8_t)PACK_SINGLE_DIFF(diff);
+				*target++ = (uint8)PACK_SINGLE_DIFF(diff);
 			}
 			else {
 				break;
@@ -717,7 +717,7 @@ fastSingle:
 		--targetCapacity;
 	}
 	/* restore real values */
-	targetCapacity = (int32_t)((const uint8_t*)pArgs->targetLimit-target);
+	targetCapacity = (int32_t)((const uint8*)pArgs->targetLimit-target);
 
 	/* regular loop for all cases */
 	while(source<sourceLimit) {
@@ -733,7 +733,7 @@ fastSingle:
 				if(c!=0x20) {
 					prev = BOCU1_ASCII_PREV;
 				}
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				--targetCapacity;
 				continue;
 			}
@@ -768,7 +768,7 @@ getTrail:
 			diff = c-prev;
 			prev = BOCU1_PREV(c);
 			if(DIFF_IS_SINGLE(diff)) {
-				*target++ = (uint8_t)PACK_SINGLE_DIFF(diff);
+				*target++ = (uint8)PACK_SINGLE_DIFF(diff);
 				--targetCapacity;
 				if(c<0x3000) {
 					goto fastSingle;
@@ -789,8 +789,8 @@ getTrail:
 					NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 					diff += BOCU1_START_NEG_2;
 				}
-				*target++ = (uint8_t)diff;
-				*target++ = (uint8_t)BOCU1_TRAIL_TO_BYTE(m);
+				*target++ = (uint8)diff;
+				*target++ = (uint8)BOCU1_TRAIL_TO_BYTE(m);
 				targetCapacity -= 2;
 			}
 			else {
@@ -805,14 +805,14 @@ getTrail:
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 4:
-						    *target++ = (uint8_t)(diff>>24);
+						    *target++ = (uint8)(diff>>24);
 						    U_FALLTHROUGH;
 						case 3:
-						    *target++ = (uint8_t)(diff>>16);
+						    *target++ = (uint8)(diff>>16);
 						    /* case 2: handled above */
-						    *target++ = (uint8_t)(diff>>8);
+						    *target++ = (uint8)(diff>>8);
 						    /* case 1: handled above */
-						    *target++ = (uint8_t)diff;
+						    *target++ = (uint8)diff;
 						    U_FALLTHROUGH;
 						default:
 						    /* will never occur */
@@ -821,7 +821,7 @@ getTrail:
 					targetCapacity -= length;
 				}
 				else {
-					uint8_t * charErrorBuffer;
+					uint8 * charErrorBuffer;
 
 					/*
 					 * We actually do this backwards here:
@@ -831,17 +831,17 @@ getTrail:
 					 */
 					/* we know that 1<=targetCapacity<length<=4 */
 					length -= targetCapacity;
-					charErrorBuffer = (uint8_t*)cnv->charErrorBuffer;
+					charErrorBuffer = (uint8 *)cnv->charErrorBuffer;
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 3:
-						    *charErrorBuffer++ = (uint8_t)(diff>>16);
+						    *charErrorBuffer++ = (uint8)(diff>>16);
 						    U_FALLTHROUGH;
 						case 2:
-						    *charErrorBuffer++ = (uint8_t)(diff>>8);
+						    *charErrorBuffer++ = (uint8)(diff>>8);
 						    U_FALLTHROUGH;
 						case 1:
-						    *charErrorBuffer = (uint8_t)diff;
+						    *charErrorBuffer = (uint8)diff;
 						    U_FALLTHROUGH;
 						default:
 						    /* will never occur */
@@ -854,13 +854,13 @@ getTrail:
 					switch(targetCapacity) {
 						/* each branch falls through to the next one */
 						case 3:
-						    *target++ = (uint8_t)(diff>>16);
+						    *target++ = (uint8)(diff>>16);
 						    U_FALLTHROUGH;
 						case 2:
-						    *target++ = (uint8_t)(diff>>8);
+						    *target++ = (uint8)(diff>>8);
 						    U_FALLTHROUGH;
 						case 1:
-						    *target++ = (uint8_t)diff;
+						    *target++ = (uint8)diff;
 						    U_FALLTHROUGH;
 						default:
 						    /* will never occur */
@@ -982,7 +982,7 @@ static inline int32_t decodeBocu1TrailByte(int32_t count, int32_t b) {
 static void U_CALLCONV _Bocu1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
@@ -990,14 +990,14 @@ static void U_CALLCONV _Bocu1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	int32_t prev, count, diff, c;
 
 	int8_t byteIndex;
-	uint8_t * bytes;
+	uint8 * bytes;
 
 	int32_t sourceIndex, nextSourceIndex;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -1124,7 +1124,7 @@ fastSingle:
 			 * with the partial difference value from the lead byte and
 			 * with the number of trail bytes.
 			 */
-			bytes[0] = (uint8_t)c;
+			bytes[0] = (uint8)c;
 			byteIndex = 1;
 
 			diff = decodeBocu1LeadByte(c);
@@ -1215,19 +1215,19 @@ endloop:
 static void U_CALLCONV _Bocu1ToUnicode(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 
 	int32_t prev, count, diff, c;
 
 	int8_t byteIndex;
-	uint8_t * bytes;
+	uint8 * bytes;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 
@@ -1339,7 +1339,7 @@ fastSingle:
 			 * with the partial difference value from the lead byte and
 			 * with the number of trail bytes.
 			 */
-			bytes[0] = (uint8_t)c;
+			bytes[0] = (uint8)c;
 			byteIndex = 1;
 
 			diff = decodeBocu1LeadByte(c);

@@ -205,11 +205,11 @@ static char * u_bottomNBytesOfDouble(double* d, int n)
 
 #if IEEE_754
 static bool u_signBit(double d) {
-	uint8_t hiByte;
+	uint8 hiByte;
 #if U_IS_BIG_ENDIAN
-	hiByte = *(uint8_t*)&d;
+	hiByte = *(uint8 *)&d;
 #else
-	hiByte = *(((uint8_t*)&d) + sizeof(double) - 1);
+	hiByte = *(((uint8 *)&d) + sizeof(double) - 1);
 #endif
 	return (hiByte & 0x80) != 0;
 }
@@ -1395,7 +1395,7 @@ static void U_CALLCONV dataDirectoryInitFn() {
 	/* First try to get the environment variable */
 #     if U_PLATFORM_HAS_WINUWP_API == 0  // Windows UWP does not support getenv
 	path = getenv("ICU_DATA");
-#     endif
+#endif
 #   endif
 
 	/* ICU_DATA_DIR may be set as a compile option.
@@ -2172,7 +2172,7 @@ U_CAPI void U_EXPORT2 u_versionFromString(UVersionInfo versionArray, const char 
 	}
 	if(versionString!=NULL) {
 		for(;;) {
-			versionArray[part] = (uint8_t)uprv_strtoul(versionString, &end, 10);
+			versionArray[part] = (uint8)uprv_strtoul(versionString, &end, 10);
 			if(end==versionString || ++part==U_MAX_VERSION_LENGTH || *end!=U_VERSION_DELIMITER) {
 				break;
 			}
@@ -2201,7 +2201,7 @@ U_CAPI void U_EXPORT2 u_versionFromUString(UVersionInfo versionArray, const UCha
 U_CAPI void U_EXPORT2 u_versionToString(const UVersionInfo versionArray, char * versionString) 
 {
 	uint16_t count, part;
-	uint8_t field;
+	uint8 field;
 	if(versionString==NULL) {
 		return;
 	}

@@ -438,12 +438,12 @@ void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_in
 			                                         function */
 				(png_ptr, /* png_ptr */
 			    row_info, /* row_info: */
-			    /*  uint32 width;       width of row */
-			    /*  size_t rowbytes;     number of bytes in row */
-			    /*  uint8 color_type;     color type of pixels */
-			    /*  uint8 bit_depth;      bit depth of samples */
-			    /*  uint8 channels;       number of channels (1-4) */
-			    /*  uint8 pixel_depth;    bits per pixel (depth*channels) */
+			    /* uint32 width;       width of row */
+			    /* size_t rowbytes;     number of bytes in row */
+			    /* uint8 color_type;     color type of pixels */
+			    /* uint8 bit_depth;      bit depth of samples */
+			    /* uint8 channels;       number of channels (1-4) */
+			    /* uint8 pixel_depth;    bits per pixel (depth*channels) */
 			    png_ptr->row_buf + 1); /* start of pixel data for row */
 #endif
 

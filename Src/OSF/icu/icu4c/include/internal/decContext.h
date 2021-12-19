@@ -4,19 +4,19 @@
 /* Decimal Context module header  */
 /* ------------------------------------------------------------------ */
 /* Copyright (c) IBM Corporation, 2000-2011.   All rights reserved.   */
-/*     */
+/* */
 /* This software is made available under the terms of the    */
 /* ICU License -- ICU 1.8.1 and later.     */
-/*     */
+/* */
 /* The description and User's Guide ("The decNumber C Library") for   */
 /* this software is called decNumber.pdf.  This document is  */
 /* available, together with arithmetic and format specifications,     */
 /* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/*     */
+/* */
 /* Please send comments, suggestions, and corrections to the author:  */
-/*   mfc@uk.ibm.com      */
-/*   Mike Cowlishaw, IBM Fellow   */
-/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
+/* mfc@uk.ibm.com      */
+/* Mike Cowlishaw, IBM Fellow   */
+/* IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
 /* ------------------------------------------------------------------ */
 
 /* Modified version, for use from within ICU.
@@ -32,23 +32,23 @@
 #include "unicode/utypes.h"
 #include "putilimp.h"
 
-/*     */
+/* */
 /* Context variables must always have valid values: */
-/*     */
-/*  status   -- [any bits may be cleared, but not set, by user]       */
-/*  round    -- must be one of the enumerated rounding modes */
-/*     */
+/* */
+/* status   -- [any bits may be cleared, but not set, by user]       */
+/* round    -- must be one of the enumerated rounding modes */
+/* */
 /* The following variables are implied for fixed size formats (i.e.,  */
 /* they are ignored) but should still be set correctly in case used   */
 /* with decNumber functions:      */
-/*     */
-/*  clamp    -- must be either 0 or 1      */
-/*  digits   -- must be in the range 1 through 999999999     */
-/*  emax     -- must be in the range 0 through 999999999     */
-/*  emin     -- must be in the range 0 through -999999999    */
-/*  extended -- must be either 0 or 1 [present only if DECSUBSET]     */
-/*  traps    -- only defined bits may be set        */
-/*     */
+/* */
+/* clamp    -- must be either 0 or 1      */
+/* digits   -- must be in the range 1 through 999999999     */
+/* emax     -- must be in the range 0 through 999999999     */
+/* emin     -- must be in the range 0 through -999999999    */
+/* extended -- must be either 0 or 1 [present only if DECSUBSET]     */
+/* traps    -- only defined bits may be set        */
+/* */
 /* ------------------------------------------------------------------ */
 
 #if !defined(DECCONTEXT)
@@ -94,9 +94,9 @@
     enum     rounding round; /* rounding mode */
     uint32_t traps; /* trap-enabler flags     */
     uint32_t status; /* status flags  */
-    uint8_t  clamp; /* flag: apply IEEE exponent clamp */
+    uint8  clamp; /* flag: apply IEEE exponent clamp */
     #if DECSUBSET
-    uint8_t  extended; /* flag: special-values allowed    */
+    uint8  extended; /* flag: special-values allowed    */
     #endif
     } decContext;
 
@@ -262,7 +262,7 @@
   U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusFromStringQuiet(decContext *, const char *);
   U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusQuiet(decContext *, uint32_t);
   U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext *);
-  U_CAPI int32_t U_EXPORT2 uprv_decContextTestEndian(uint8_t);
+  U_CAPI int32_t U_EXPORT2 uprv_decContextTestEndian(uint8);
   U_CAPI uint32_t      U_EXPORT2 uprv_decContextTestSavedStatus(uint32_t, uint32_t);
   U_CAPI uint32_t      U_EXPORT2 uprv_decContextTestStatus(decContext *, uint32_t);
   U_CAPI decContext  * U_EXPORT2 uprv_decContextZeroStatus(decContext *);

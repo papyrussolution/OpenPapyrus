@@ -320,8 +320,8 @@ void PPViewLot::IterData::Reset()
 //
 //
 //
-PPViewLot::PPViewLot() : PPView(0, &Filt, PPVIEW_LOT, 0, 0), P_BObj(BillObj), State(0), P_Tbl(&P_BObj->trfr->Rcpt),
-	P_TempTbl(0), P_SpoilTbl(0), P_PplBlkBeg(0), P_PplBlkEnd(0)
+PPViewLot::PPViewLot() : PPView(0, &Filt, PPVIEW_LOT, implUseQuickTagEditFunc, 0), // @v11.2.8 implUseQuickTagEditFunc
+	P_BObj(BillObj), State(0), P_Tbl(&P_BObj->trfr->Rcpt), P_TempTbl(0), P_SpoilTbl(0), P_PplBlkBeg(0), P_PplBlkEnd(0)
 {
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 }
@@ -1450,6 +1450,15 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 			case PPVCMD_DORETURN: ok = P_BObj->AddRetBillByLot(lot_id); break;
 			case PPVCMD_MOVLOTOP: ok = MovLotOps(lot_id); break;
 			case PPVCMD_DORECOVER: ok = RecoverLots(); break;
+			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+				//
+				{
+					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
+					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_LOT, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+				}
+				break;
 			case PPVCMD_TAGS: ok = EditObjTagValList(PPOBJ_LOT, lot_id, 0); break;
 			case PPVCMD_EXTUPDATE:
 				ok = -1;
@@ -2027,7 +2036,7 @@ int PPViewLot::InitIteration(IterOrder order)
 			dbq = &(*dbq && P_Tbl->CloseDate >= Filt.Operation.low);
 		if(single_loc_id && Filt.ClosedTag) {
 			if(Filt.GoodsID) {
-				idx          = 3;
+				idx  = 3;
 				k.k3.Closed  = (Filt.ClosedTag == 1) ? 0 : 1;
 				k.k3.GoodsID = q_goods_id;
 				k.k3.LocID   = single_loc_id;
@@ -2045,7 +2054,7 @@ int PPViewLot::InitIteration(IterOrder order)
 				}
 			}
 			else {
-				idx          = 7;
+				idx  = 7;
 				k.k7.LocID   = single_loc_id;
 				k.k7.Closed  = (Filt.ClosedTag == 1) ? 0 : 1;
 				k.k7.Dt      = Filt.Period.low;
@@ -2062,7 +2071,7 @@ int PPViewLot::InitIteration(IterOrder order)
 			k.k5.Dt    = Filt.Period.low;
 		}
 		else if(Filt.QCertID || (Filt.Flags & LotFilt::fWithoutQCert)) {
-			idx          = 6;
+			idx  = 6;
 			k.k6.QCertID = Filt.QCertID;
 			k.k6.Dt      = Filt.Period.low;
 		}

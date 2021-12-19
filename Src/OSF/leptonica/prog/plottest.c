@@ -32,6 +32,10 @@
  *     the plot commands and data required for input to gnuplot.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include <math.h>
 
@@ -68,6 +72,7 @@ static char  mainName[] = "plottest";
     if (argc != 1)
         return ERROR_INT(" Syntax:  plottest", mainName, 1);
 
+    setLeptDebugOK(1);
     lept_mkdir("lept/plot");
 
         /* Generate plot data */
@@ -96,7 +101,7 @@ static char  mainName[] = "plottest";
     pngname = genPathname("/tmp/lept/plot", "set1.png");
     stringReplace(&gplot1->outname, pngname);
     gplotMakeOutput(gplot1);
-    l_fileDisplay("/tmp/lept/plot/set1.png", 100, 100);
+    l_fileDisplay("/tmp/lept/plot/set1.png", 100, 100, 1.0);
     lept_free(pngname);
 
         /* Test gplot serialization */
@@ -109,14 +114,14 @@ static char  mainName[] = "plottest";
     str1 = (char *)l_binaryRead("/tmp/lept/plot/plot1.gp", &size1);
     str2 = (char *)l_binaryRead("/tmp/lept/plot/plot2.gp", &size2);
     if (size1 != size2)
-        fprintf(stderr, "Error: size1 = %lu, size2 = %lu\n",
-                (unsigned long)size1, (unsigned long)size2);
+        lept_stderr("Error: size1 = %lu, size2 = %lu\n",
+                    (unsigned long)size1, (unsigned long)size2);
     else
-        fprintf(stderr, "Correct: size1 = size2 = %lu\n", (unsigned long)size1);
-    if (strcmp(str1, str2))
-        fprintf(stderr, "Error: str1 != str2\n");
+        lept_stderr("Correct: size1 = size2 = %lu\n", (unsigned long)size1);
+    if (strcmp(str1, str2) != 0)
+        lept_stderr("Error: str1 != str2\n");
     else
-        fprintf(stderr, "Correct: str1 == str2\n");
+        lept_stderr("Correct: str1 == str2\n");
     lept_free(str1);
     lept_free(str2);
 
@@ -137,7 +142,7 @@ static char  mainName[] = "plottest";
     if ((gplot5 = gplotRead("/tmp/lept/plot/plot4.gp")) == NULL)
         return ERROR_INT("gplotRead failure!", mainName, 1);
     gplotMakeOutput(gplot5);
-    l_fileDisplay("/tmp/lept/plot/set2.png", 750, 100);
+    l_fileDisplay("/tmp/lept/plot/set2.png", 750, 100, 1.0);
 
     gplotDestroy(&gplot1);
     gplotDestroy(&gplot2);

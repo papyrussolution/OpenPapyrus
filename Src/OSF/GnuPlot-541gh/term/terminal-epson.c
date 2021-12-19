@@ -24,7 +24,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -66,9 +66,9 @@
 #endif /* TERM_REGISTER */
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
+TERM_PUBLIC void EPSON_reset(GpTermEntry_Static * pThis);
 #if defined(EPS180) || defined(EPS60) || defined(EPSONP) || defined(TANDY60) || defined(OKIDATA)
-	TERM_PUBLIC void EPSON_init(GpTermEntry * pThis);
+	TERM_PUBLIC void EPSON_init(GpTermEntry_Static * pThis);
 	#if defined(EPS60) || defined(EPSONP) || defined(TANDY60) || defined(OKIDATA)
 		#define EPSONVCHAR              FNT5X9_VCHAR
 		#define EPSONHCHAR              FNT5X9_HCHAR
@@ -77,14 +77,14 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
 		#ifdef EPSONP
 			#define EPSONXMAX       512
 			#define EPSONYMAX       384
-			TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis);
-			TERM_PUBLIC void EPSON_text(GpTermEntry * pThis);
+			TERM_PUBLIC void EPSON_graphics(GpTermEntry_Static * pThis);
+			TERM_PUBLIC void EPSON_text(GpTermEntry_Static * pThis);
 		#endif /* EPSONP */
 	#endif /* four drivers */
 #endif /* all five */
 #ifdef EPS180
-	TERM_PUBLIC void EPS180_graphics(GpTermEntry * pThis);
-	TERM_PUBLIC void EPS180_text(GpTermEntry * pThis);
+	TERM_PUBLIC void EPS180_graphics(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void EPS180_text(GpTermEntry_Static * pThis);
 	#define EPSON180VCHAR           FNT13X25_VCHAR
 	#define EPSON180HCHAR           FNT13X25_HCHAR
 	#define EPSON180VTIC            18
@@ -97,23 +97,23 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
 	// make the total dimensions 8 inches by 5 inches 
 	#define EPS60XMAX       480
 	#define EPS60YMAX       360
-	TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis);
+	TERM_PUBLIC void EPS60_graphics(GpTermEntry_Static * pThis);
 	#ifdef TANDY60
-		TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis);
+		TERM_PUBLIC void TANDY60_text(GpTermEntry_Static * pThis);
 	#endif /* TANDY60 */
 	#ifdef OKIDATA
-		TERM_PUBLIC void OKIDATA_text(GpTermEntry * pThis);
+		TERM_PUBLIC void OKIDATA_text(GpTermEntry_Static * pThis);
 	#endif /* OKIDATA */
 	#ifdef EPS60
-		TERM_PUBLIC void EPS60_text(GpTermEntry * pThis);
+		TERM_PUBLIC void EPS60_text(GpTermEntry_Static * pThis);
 	#endif /* EPS60 */
 #endif /* all three */
 #ifdef NEC
 	TERM_PUBLIC void NEC_options();
-	TERM_PUBLIC void NEC_init(GpTermEntry * pThis);
-	TERM_PUBLIC void NEC_graphics(GpTermEntry * pThis);
-	TERM_PUBLIC void NEC_text(GpTermEntry * pThis);
-	TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype);
+	TERM_PUBLIC void NEC_init(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void NEC_graphics(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void NEC_text(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void NEC_linetype(GpTermEntry_Static * pThis, int linetype);
 	#define NECXMAX 400
 	#define NECYMAX 320
 	#define NECVCHAR                FNT5X9_VCHAR
@@ -122,10 +122,10 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
 	#define NECHTIC         6
 #endif /* NEC */
 #ifdef STARC
-	TERM_PUBLIC void STARC_init(GpTermEntry * pThis);
-	TERM_PUBLIC void STARC_graphics(GpTermEntry * pThis);
-	TERM_PUBLIC void STARC_text(GpTermEntry * pThis);
-	TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype);
+	TERM_PUBLIC void STARC_init(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void STARC_graphics(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void STARC_text(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void STARC_linetype(GpTermEntry_Static * pThis, int linetype);
 	#define STARCXMAX       512
 	#define STARCYMAX       384
 	#define STARCVCHAR              FNT5X9_VCHAR
@@ -134,11 +134,11 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
 	#define STARCHTIC               6
 #endif /* STARC */
 #ifdef DPU414
-	TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp);
-	TERM_PUBLIC void DPU414_init(GpTermEntry * pThis);
-	TERM_PUBLIC void DPU414_graphics(GpTermEntry * pThis);
-	TERM_PUBLIC void DPU414_text(GpTermEntry * pThis);
-	TERM_PUBLIC void DPU414_setfont(GpTermEntry * pThis);
+	TERM_PUBLIC void DPU414_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+	TERM_PUBLIC void DPU414_init(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void DPU414_graphics(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void DPU414_text(GpTermEntry_Static * pThis);
+	TERM_PUBLIC void DPU414_setfont(GpTermEntry_Static * pThis);
 	#define DPU414XMAX      (640)
 	#define DPU414YMAX      (480)
 	#define DPU414VCHAR     FNT5X9_VCHAR
@@ -151,7 +151,7 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis);
 #ifndef TERM_PROTO_ONLY
 #ifdef TERM_BODY
 
-TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis)
+TERM_PUBLIC void EPSON_reset(GpTermEntry_Static * pThis)
 {
 	fflush_binary(); /* Only needed for VMS */
 }
@@ -164,23 +164,23 @@ TERM_PUBLIC void EPSON_reset(GpTermEntry * pThis)
 /* On PC, print using 'copy file /b lpt1:', do NOT use 'print' */
 /* EPSON_init changes gpoutfile to binary mode on PC's */
 
-static void epson_dump(GpTermEntry * pThis);
+static void epson_dump(GpTermEntry_Static * pThis);
 
 #define EPSONXLAST (EPSONXMAX - 1)
 #define EPSONYLAST (EPSONYMAX - 1)
 
-TERM_PUBLIC void EPSON_init(GpTermEntry * pThis)
+TERM_PUBLIC void EPSON_init(GpTermEntry_Static * pThis)
 {
 }
 
-TERM_PUBLIC void EPSON_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void EPSON_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
 	p_gp->BmpMakeBitmap((uint)(EPSONXMAX * p_gp->V.Size.x), (uint)(EPSONYMAX * p_gp->V.Size.y), 1);
 }
 
-TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
+TERM_PUBLIC void EPSON_text(GpTermEntry_Static * pThis)
 {
 	epson_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
@@ -188,7 +188,7 @@ TERM_PUBLIC void EPSON_text(GpTermEntry * pThis)
 //
 // output file must be binary mode for epson_dump 
 //
-static void epson_dump(GpTermEntry * pThis)
+static void epson_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
@@ -218,8 +218,8 @@ static void epson_dump(GpTermEntry * pThis)
 
 #ifdef NEC
 
-static void nec_dump(GpTermEntry * pThis);
-static void nec_draft_dump(GpTermEntry * pThis);
+static void nec_dump(GpTermEntry_Static * pThis);
+static void nec_draft_dump(GpTermEntry_Static * pThis);
 
 #define NECXLAST (NECXMAX - 1)
 #define NECYLAST (NECYMAX - 1)
@@ -240,7 +240,7 @@ static struct gen_table NEC_opts[] =
 	{ NULL, NEC_OTHER }
 };
 
-TERM_PUBLIC void NEC_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void NEC_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// default 
@@ -277,18 +277,18 @@ TERM_PUBLIC void NEC_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void NEC_init(GpTermEntry * pThis)
+TERM_PUBLIC void NEC_init(GpTermEntry_Static * pThis)
 {
 }
 
-TERM_PUBLIC void NEC_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void NEC_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
 	p_gp->BmpMakeBitmap((uint)(NECXMAX * p_gp->V.Size.x), (uint)(NECYMAX * p_gp->V.Size.y), (NECmode == 'c' ? 4 : 1));
 }
 
-TERM_PUBLIC void NEC_text(GpTermEntry * pThis)
+TERM_PUBLIC void NEC_text(GpTermEntry_Static * pThis)
 {
 	if(NECmode == 'd') {
 		nec_draft_dump(pThis);
@@ -299,7 +299,7 @@ TERM_PUBLIC void NEC_text(GpTermEntry * pThis)
 	pThis->P_Gp->BmpFreeBitmap();
 }
 
-TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void NEC_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(NECmode == 'c') {
 		if(linetype >= 6)
@@ -313,7 +313,7 @@ TERM_PUBLIC void NEC_linetype(GpTermEntry * pThis, int linetype)
 //
 // output file must be binary mode for nec_dump 
 //
-static void nec_dump(GpTermEntry * pThis)
+static void nec_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	uint x;
@@ -384,7 +384,7 @@ static void nec_dump(GpTermEntry * pThis)
 //
 // output file must be binary mode for nec_dump 
 //
-static void nec_draft_dump(GpTermEntry * pThis)
+static void nec_draft_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	uint x;
@@ -430,7 +430,7 @@ static void nec_draft_dump(GpTermEntry * pThis)
 /* On PC, print using 'copy file /b lpt1:', do NOT use 'print' */
 /* STARC_init changes gpoutfile to binary mode on PC's */
 
-static void STARC_dump(GpTermEntry * pThis);
+static void STARC_dump(GpTermEntry_Static * pThis);
 
 #define STARCXLAST (STARCXMAX - 1)
 #define STARCYLAST (STARCYMAX - 1)
@@ -439,24 +439,24 @@ static void STARC_dump(GpTermEntry * pThis);
 static uint STARCcolor[] = { 1, 8, 4, 2, 10, 12, 6, 14 };
 static uint STARCpcolor[] = { 0, 2, 1, 4 };
 
-TERM_PUBLIC void STARC_init(GpTermEntry * pThis)
+TERM_PUBLIC void STARC_init(GpTermEntry_Static * pThis)
 {
 }
 
-TERM_PUBLIC void STARC_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void STARC_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
 	p_gp->BmpMakeBitmap((uint)(STARCXMAX * p_gp->V.Size.x), (uint)(STARCYMAX * p_gp->V.Size.y), 4);
 }
 
-TERM_PUBLIC void STARC_text(GpTermEntry * pThis)
+TERM_PUBLIC void STARC_text(GpTermEntry_Static * pThis)
 {
 	STARC_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
 }
 
-TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void STARC_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(linetype >= 6)
 		linetype %= 6;
@@ -465,7 +465,7 @@ TERM_PUBLIC void STARC_linetype(GpTermEntry * pThis, int linetype)
 //
 // output file must be binary mode for STARC_dump 
 //
-static void STARC_dump(GpTermEntry * pThis)
+static void STARC_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	for(int j = (p_gp->_Bmp.b_ysize / 8) - 1; j >= 0; j--) {
@@ -499,19 +499,19 @@ static void STARC_dump(GpTermEntry * pThis)
 
 #ifdef EPS180
 
-static void eps180_dump(GpTermEntry * pThis);
+static void eps180_dump(GpTermEntry_Static * pThis);
 
 #define EPS180XLAST (EPS180XMAX - 1)
 #define EPS180YLAST (EPS180YMAX - 1)
 
-TERM_PUBLIC void EPS180_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void EPS180_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT13X25);
 	p_gp->BmpMakeBitmap((uint)(EPS180XMAX * p_gp->V.Size.x), (uint)(EPS180YMAX * p_gp->V.Size.y), 1);
 }
 
-TERM_PUBLIC void EPS180_text(GpTermEntry * pThis)
+TERM_PUBLIC void EPS180_text(GpTermEntry_Static * pThis)
 {
 	eps180_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
@@ -519,7 +519,7 @@ TERM_PUBLIC void EPS180_text(GpTermEntry * pThis)
 //
 // output file must be binary mode for eps180_dump 
 //
-static void eps180_dump(GpTermEntry * pThis)
+static void eps180_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// reset, set line spacing to 24/180", and move left margin 
@@ -546,19 +546,19 @@ static void eps180_dump(GpTermEntry * pThis)
 
 #ifdef EPS60
 
-static void eps60_dump(GpTermEntry * pThis);
+static void eps60_dump(GpTermEntry_Static * pThis);
 
 #define EPS60XLAST (EPS60XMAX - 1)
 #define EPS60YLAST (EPS60YMAX - 1)
 
-TERM_PUBLIC void EPS60_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void EPS60_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	p_gp->BmpCharSize(FNT5X9);
 	p_gp->BmpMakeBitmap((uint)(EPS60XMAX * p_gp->V.Size.x), (uint)(EPS60YMAX * p_gp->V.Size.y), 1);
 }
 
-TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
+TERM_PUBLIC void EPS60_text(GpTermEntry_Static * pThis)
 {
 	eps60_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
@@ -566,7 +566,7 @@ TERM_PUBLIC void EPS60_text(GpTermEntry * pThis)
 //
 // output file must be binary mode for eps60_dump 
 //
-static void eps60_dump(GpTermEntry * pThis)
+static void eps60_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	fprintf(GPT.P_GpOutFile, "\033%c\030", '3'); /* set line spacing 24/216" = 8 dots */
@@ -593,7 +593,7 @@ static void eps60_dump(GpTermEntry * pThis)
    of codes to swap the Tandy printer into IBM mode and back
    into Tandy mode.  For a Tandy already in IBM mode, use EPS60. */
 
-TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis)
+TERM_PUBLIC void TANDY60_text(GpTermEntry_Static * pThis)
 {
 #ifdef PC
 	fputs("Inserting Tandy/IBM mode conversion codes\n", stderr);
@@ -613,9 +613,9 @@ TERM_PUBLIC void TANDY60_text(GpTermEntry * pThis)
 
 #ifdef OKIDATA
 
-static void okidata_dump(GpTermEntry * pThis);
+static void okidata_dump(GpTermEntry_Static * pThis);
 
-TERM_PUBLIC void OKIDATA_text(GpTermEntry * pThis)
+TERM_PUBLIC void OKIDATA_text(GpTermEntry_Static * pThis)
 {
 	okidata_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
@@ -659,7 +659,7 @@ static int OKIDATAbitrev_tbl[] =
 //
 // output file must be binary mode for okidata_dump 
 //
-static void okidata_dump(GpTermEntry * pThis)
+static void okidata_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char cur_char;
@@ -688,7 +688,7 @@ static void okidata_dump(GpTermEntry * pThis)
 
 #ifdef DPU414
 
-static void DPU414_dump(GpTermEntry * pThis);
+static void DPU414_dump(GpTermEntry_Static * pThis);
 
 static int DPU414_font = 2; /* medium font */
 static int DPU414_quality = 1; /* normal */
@@ -709,7 +709,7 @@ static struct gen_table DPU414_opts[] =
 	{ NULL, DPU414_OTHER }
 };
 
-TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void DPU414_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	DPU414_font = 2;
 	DPU414_quality = 1;
@@ -758,45 +758,40 @@ TERM_PUBLIC void DPU414_options(GpTermEntry * pThis, GnuPlot * pGp)
 	switch(DPU414_quality) {
 		case 1:
 		    GPT._TermOptions.Cat(" normal");
-		    pThis->MaxX = DPU414XMAX;
-		    pThis->MaxY = DPU414YMAX;
+		    pThis->SetMax(DPU414XMAX, DPU414YMAX);
 		    break;
 		case 2:
 		    GPT._TermOptions.Cat(" draft");
-		    pThis->MaxX = DPU414XMAX / 2;
-		    pThis->MaxY = DPU414YMAX / 2;
+		    pThis->SetMax(DPU414XMAX / 2, DPU414YMAX / 2);
 		    break;
 	}
 }
 
-TERM_PUBLIC void DPU414_init(GpTermEntry * pThis)
+TERM_PUBLIC void DPU414_init(GpTermEntry_Static * pThis)
 {
 	DPU414_setfont(pThis);
 }
 
-TERM_PUBLIC void DPU414_setfont(GpTermEntry * pThis)
+TERM_PUBLIC void DPU414_setfont(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(DPU414_font) {
 		case 1:
 		    p_gp->BmpCharSize(FNT5X9);
-		    pThis->ChrV = FNT5X9_VCHAR;
-		    pThis->ChrH = FNT5X9_HCHAR;
+		    pThis->SetCharSize(FNT5X9_HCHAR, FNT5X9_VCHAR);
 		    break;
 		case 2:
 		    p_gp->BmpCharSize(FNT9X17);
-		    pThis->ChrV = FNT9X17_VCHAR;
-		    pThis->ChrH = FNT9X17_HCHAR;
+		    pThis->SetCharSize(FNT9X17_HCHAR, FNT9X17_VCHAR);
 		    break;
 		case 3:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 	}
 }
 
-TERM_PUBLIC void DPU414_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void DPU414_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(DPU414_quality) {
@@ -804,20 +799,19 @@ TERM_PUBLIC void DPU414_graphics(GpTermEntry * pThis)
 		    p_gp->BmpMakeBitmap((uint)(DPU414XMAX * p_gp->V.Size.x), (uint)(DPU414YMAX * p_gp->V.Size.y), 1);
 		    break;
 		case 2:
-		    pThis->MaxX = DPU414XMAX / 2;
-		    pThis->MaxY = DPU414YMAX / 2;
+		    pThis->SetMax(DPU414XMAX / 2, DPU414YMAX / 2);
 		    p_gp->BmpMakeBitmap((uint)(DPU414XMAX / 2 * p_gp->V.Size.x), (uint)(DPU414YMAX / 2 * p_gp->V.Size.y), 1);
 		    break;
 	}
 }
 
-TERM_PUBLIC void DPU414_text(GpTermEntry * pThis)
+TERM_PUBLIC void DPU414_text(GpTermEntry_Static * pThis)
 {
 	DPU414_dump(pThis);
 	pThis->P_Gp->BmpFreeBitmap();
 }
 
-static void DPU414_dump(GpTermEntry * pThis)
+static void DPU414_dump(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	uint x;

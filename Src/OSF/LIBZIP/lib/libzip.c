@@ -3529,7 +3529,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 	else {
 		de->uncomp_size = st.size;
 		if((st.valid & ZIP_STAT_COMP_SIZE) == 0) {
-			if(( ((de->comp_method == ZIP_CM_DEFLATE || ZIP_CM_IS_DEFAULT(de->comp_method)) && st.size > MAX_DEFLATE_SIZE_32)
+			if((((de->comp_method == ZIP_CM_DEFLATE || ZIP_CM_IS_DEFAULT(de->comp_method)) && st.size > MAX_DEFLATE_SIZE_32)
 				    || (de->comp_method != ZIP_CM_STORE && de->comp_method != ZIP_CM_DEFLATE &&
 					    !ZIP_CM_IS_DEFAULT(de->comp_method))))
 				flags |= ZIP_FL_FORCE_ZIP64;

@@ -475,7 +475,7 @@ FILE * GnuPlot::LoadPath_fopen(const char * filename, const char * mode)
 void GnuPlot::PushTerminal(int isInteractive)
 {
 	if(GPT.P_Term) {
-		FREEANDASSIGN(P_PushTermName, sstrdup(GPT.P_Term->name));
+		FREEANDASSIGN(P_PushTermName, sstrdup(GPT.P_Term->GetName()));
 		FREEANDASSIGN(P_PushTermOpts, sstrdup(GPT._TermOptions));
 		if(isInteractive)
 			fprintf(stderr, "   pushed terminal %s %s\n", P_PushTermName, P_PushTermOpts);
@@ -509,7 +509,7 @@ void GnuPlot::PopTerminal()
 		DoStringAndFree(s);
 		_Plt.interactive = LOGIC(i);
 		if(_Plt.interactive)
-			fprintf(stderr, "   restored terminal is %s %s\n", GPT.P_Term->name, (GPT._TermOptions.NotEmpty() ? GPT._TermOptions.cptr() : ""));
+			fprintf(stderr, "   restored terminal is %s %s\n", GPT.P_Term->GetName(), (GPT._TermOptions.NotEmpty() ? GPT._TermOptions.cptr() : ""));
 	}
 	else
 		fprintf(stderr, "No terminal has been pushed yet\n");

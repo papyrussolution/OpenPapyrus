@@ -1678,7 +1678,7 @@ static int record()
 			    }
 			    return 1;
 #endif
-			case 'O': /*   Modify plots */
+			case 'O': /* Modify plots */
 #ifdef PIPE_IPC
 			    if(!pipe_died)
 #endif
@@ -2028,7 +2028,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		XSetFillStyle(dpy, fill_gc, FillStippled);
 		XFillRectangle(dpy, plot->pixmap, fill_gc, box->left, box->ybot, box->right - box->left, box->ytop - box->ybot);
 	}
-	/*   X11_vector(x, y) - draw vector  */
+	/* X11_vector(x, y) - draw vector  */
 	if(*buffer == 'V') {
 		x = strtol(strx, &stry, 0);
 		y = strtol(stry, NULL, 0);
@@ -2066,7 +2066,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		polyline_size = 0;
 	}
 
-	/*   X11_move(x, y) - move  */
+	/* X11_move(x, y) - move  */
 	if(*buffer == 'M') {
 		cx = strtol(strx, &stry, 0);
 		cy = strtol(stry, NULL, 0);
@@ -2104,7 +2104,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		}
 	}
 
-	/*   X11_put_text(x, y, str) - draw text   */
+	/* X11_put_text(x, y, str) - draw text   */
 	else if(*buffer == 'T') {
 		/* Enhanced text mode added November 2003 - Ethan A Merritt */
 		int x_offset = 0, y_offset = 0, v_offset = 0;
@@ -2310,14 +2310,14 @@ static void exec_cmd(plot_struct * plot, char * command)
 			}
 		}
 	}
-	/*   X11_justify_text(mode) - set text justification mode  */
+	/* X11_justify_text(mode) - set text justification mode  */
 	else if(*buffer == 'J')
 		sscanf(buffer, "J%d", (int *)&plot->jmode);
 
 	else if(*buffer == 'A')
 		sscanf(buffer + 1, "%lf", &plot->angle);
 
-	/*  X11_linewidth(plot->lwidth) - set line width */
+	/* X11_linewidth(plot->lwidth) - set line width */
 	else if(*buffer == 'W')
 		sscanf(buffer + 1, "%d", &plot->user_width);
 
@@ -2337,7 +2337,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		XSetLineAttributes(dpy, gc, plot->lwidth, plot->type, CapButt, JoinBevel);
 	}
 
-	/*   X11_linetype(plot->type) - set line type  */
+	/* X11_linetype(plot->type) - set line type  */
 	else if(*buffer == 'L') {
 		sscanf(buffer, "L%d", &plot->lt);
 
@@ -2380,7 +2380,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		plot->current_rgb = plot->cmap->rgbcolors[plot->lt + 3];
 		current_gc = &gc;
 	}
-	/*   X11_point(number) - draw a point */
+	/* X11_point(number) - draw a point */
 	else if(*buffer == 'P') {
 		int point;
 		point = strtol(buffer+1, &strx, 0);
@@ -3208,7 +3208,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 	}
 
 #if defined(USE_MOUSE) && defined(MOUSE_ALL_WINDOWS)
-	/*   Axis scaling information to save for later mouse clicks */
+	/* Axis scaling information to save for later mouse clicks */
 	else if(*buffer == 'S') {
 		int axis, axis_mask;
 
@@ -3230,7 +3230,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 	}
 #endif
 
-	/*   X11_layer(syncpoint) */
+	/* X11_layer(syncpoint) */
 	else if(*buffer == 'Y') {
 		int layer;
 		sscanf(&buffer[1], "%d", &layer);
@@ -3261,7 +3261,7 @@ static void exec_cmd(plot_struct * plot, char * command)
 		}
 	}
 
-	/*   Switch to a different color map */
+	/* Switch to a different color map */
 	else if(*buffer == 'e') {
 		if(have_pm3d) {
 			/* Get colormap index and choose find the appropriate cmap */
@@ -5275,7 +5275,7 @@ static void pr_dashes()
 	int n, j, l, ok;
 	char option[20], * v;
 
-/*  Version 5 - always enabled
+/* Version 5 - always enabled
     if (pr_GetR(db, ".dashed")) {
         dashedlines = (!strncasecmp(value.addr, "on", 2) || !strncasecmp(value.addr, "true", 4));
     }

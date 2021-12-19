@@ -192,7 +192,7 @@ static int32_t _internal_toASCII(const UChar * src, int32_t srcLength,
 	// too.
 	UChar b1Stack[MAX_LABEL_BUFFER_SIZE], b2Stack[MAX_LABEL_BUFFER_SIZE];
 	//initialize pointers to stack buffers
-	UChar  * b1 = b1Stack, * b2 = b2Stack;
+	UChar * b1 = b1Stack, * b2 = b2Stack;
 	int32_t b1Len = 0, b2Len,
 	    b1Capacity = MAX_LABEL_BUFFER_SIZE,
 	    b2Capacity = MAX_LABEL_BUFFER_SIZE,
@@ -399,7 +399,7 @@ static int32_t _internal_toUnicode(const UChar * src, int32_t srcLength,
 	UChar b1Stack[MAX_LABEL_BUFFER_SIZE], b2Stack[MAX_LABEL_BUFFER_SIZE], b3Stack[MAX_LABEL_BUFFER_SIZE];
 
 	//initialize pointers to stack buffers
-	UChar  * b1 = b1Stack, * b2 = b2Stack, * b1Prime = NULL, * b3 = b3Stack;
+	UChar * b1 = b1Stack, * b2 = b2Stack, * b1Prime = NULL, * b3 = b3Stack;
 	int32_t b1Len = 0, b2Len, b1PrimeLen, b3Len,
 	    b1Capacity = MAX_LABEL_BUFFER_SIZE,
 	    b2Capacity = MAX_LABEL_BUFFER_SIZE,

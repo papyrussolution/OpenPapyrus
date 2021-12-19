@@ -2094,7 +2094,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 				THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
 				pb.Coord.bottom = rTokResult.ToLong();
 				THROW_PP_S(NextToken(rFile, rTokResult) == tokEOL, PPERR_TOKENEXPECTED, "EOL");
-				THROW_PP_S(PictList.lsearch(&pb.Id, 0, PTR_CMPFUNC(long)) == 0, PPERR_SLIPFMT_DUPPICTID, pb.Id);
+				THROW_PP_S(PictList.lsearch(&pb.Id, 0, CMPF_LONG) == 0, PPERR_SLIPFMT_DUPPICTID, pb.Id);
 				THROW_SL(PictList.insert(&pb));
 			}
 			THROW_SL(pZone->insert(p_entry));
@@ -2375,7 +2375,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 					THROW_PP_S(NextToken(file, tok_result) == tokNumber, PPERR_TOKENEXPECTED, "number");
 					pb.Coord.bottom = tok_result.ToLong();
 					THROW_PP_S(NextToken(file, tok_result) == tokEOL, PPERR_TOKENEXPECTED, "EOL");
-					THROW_PP_S(PictList.lsearch(&pb.Id, 0, PTR_CMPFUNC(long)) == 0, PPERR_SLIPFMT_DUPPICTID, pb.Id);
+					THROW_PP_S(PictList.lsearch(&pb.Id, 0, CMPF_LONG) == 0, PPERR_SLIPFMT_DUPPICTID, pb.Id);
 					THROW_SL(PictList.insert(&pb));
 					token = 0;
 				}

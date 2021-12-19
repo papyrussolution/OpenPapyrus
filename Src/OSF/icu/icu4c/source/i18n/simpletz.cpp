@@ -146,7 +146,7 @@ void SimpleTimeZone::construct(int32_t rawOffsetGMT,
 	this->startTime      = savingsStartTime;
 	this->startTimeMode  = savingsStartTimeMode;
 	this->endMonth       = savingsEndMonth;
-	this->endDay         = savingsEndDay;
+	this->endDay = savingsEndDay;
 	this->endDayOfWeek   = savingsEndDayOfWeek;
 	this->endTime        = savingsEndTime;
 	this->endTimeMode    = savingsEndTimeMode;
@@ -187,7 +187,7 @@ SimpleTimeZone &SimpleTimeZone::operator = (const SimpleTimeZone &right)
 		startTimeMode  = right.startTimeMode;
 		startMode      = right.startMode;
 		endMonth       = right.endMonth;
-		endDay         = right.endDay;
+		endDay = right.endDay;
 		endDayOfWeek   = right.endDayOfWeek;
 		endTime        = right.endTime;
 		endTimeMode    = right.endTimeMode;
@@ -334,8 +334,8 @@ void SimpleTimeZone::setEndRule(int32_t month, int32_t dayOfMonth, int32_t dayOf
 	    -dayOfWeek, time, mode, status);
 }
 
-int32_t SimpleTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis, UErrorCode & status) const
+int32_t SimpleTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis, UErrorCode & status) const
 {
 	// Check the month before calling Grego::monthLength(). This
 	// duplicates the test that occurs in the 7-argument getOffset(),
@@ -352,8 +352,8 @@ int32_t SimpleTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int3
 	return getOffset(era, year, month, day, dayOfWeek, millis, Grego::monthLength(year, month), status);
 }
 
-int32_t SimpleTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis,
+int32_t SimpleTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis,
     int32_t /*monthLength*/, UErrorCode & status) const
 {
 	// Check the month before calling Grego::monthLength(). This
@@ -378,8 +378,8 @@ int32_t SimpleTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int3
 		   status);
 }
 
-int32_t SimpleTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis,
+int32_t SimpleTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis,
     int32_t monthLength, int32_t prevMonthLength,
     UErrorCode & status) const
 {
@@ -463,7 +463,7 @@ void SimpleTimeZone::getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExis
 	Grego::dayToFields(day, year, month, dom, dow);
 
 	savingsDST = getOffset(GregorianCalendar::AD, year, month, dom,
-		(uint8_t)dow, millis,
+		(uint8)dow, millis,
 		Grego::monthLength(year, month),
 		status) - rawOffsetGMT;
 	if(U_FAILURE(status)) {
@@ -492,7 +492,7 @@ void SimpleTimeZone::getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExis
 		millis = (int32_t)(date - day * U_MILLIS_PER_DAY);
 		Grego::dayToFields(day, year, month, dom, dow);
 		savingsDST = getOffset(GregorianCalendar::AD, year, month, dom,
-			(uint8_t)dow, millis,
+			(uint8)dow, millis,
 			Grego::monthLength(year, month),
 			status) - rawOffsetGMT;
 	}

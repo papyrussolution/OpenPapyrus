@@ -34,7 +34,7 @@ int32_t getIndex(const int32_t * indexes, int32_t length, int32_t i) {
 }
 }  // namespace
 
-void CollationDataReader::read(const CollationTailoring * base, const uint8_t * inBytes, int32_t inLength,
+void CollationDataReader::read(const CollationTailoring * base, const uint8 * inBytes, int32_t inLength,
     CollationTailoring &tailoring, UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
@@ -132,7 +132,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8_t * 
 	// There should be a reorder table only if there are reorder codes.
 	// However, when there are reorder codes the reorder table may be omitted to reduce
 	// the data size.
-	const uint8_t * reorderTable = NULL;
+	const uint8 * reorderTable = NULL;
 	index = IX_REORDER_TABLE_OFFSET;
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;

@@ -19,7 +19,7 @@ public:
 			lmSwitchTo
 		};
 		enum {
-			fLockAutoExit               = 0x0001,
+			fLockAutoExit       = 0x0001,
 			fCloseButtonInMinimizeState = 0x0002  // Кнопка "Закрыть" находится в состоянии "Свернуть"
 		};
 		State() : Mode(lmNone), Status(0), Flags(0), PhnSvcID(0), PersonID(0), SCardID(0), LocID(0), SinceUp(getcurdatetime_()),

@@ -97,14 +97,14 @@ ft_validator_run(FT_Validator valid);
 /* Sets the error field in a validator, then calls `longjmp' to return */
 /* to high-level caller.  Using `setjmp/longjmp' avoids many stupid    */
 /* error checks within the validation routines.                        */
-/*                                                                     */
+/*                                                     */
 FT_BASE(void)
 ft_validator_error(FT_Validator valid,
     FT_Error error);
 
 /* Calls ft_validate_error.  Assumes that the `valid' local variable */
 /* holds a pointer to the current validator object.                  */
-/*                                                                   */
+/*                                                   */
 #define FT_INVALID(_error)  FT_INVALID_(_error)
 #define FT_INVALID_(_error) \
 	ft_validator_error(valid, FT_THROW(_error))

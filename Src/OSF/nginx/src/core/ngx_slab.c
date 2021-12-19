@@ -117,7 +117,7 @@ void ngx_slab_init(ngx_slab_pool_t * pool)
 
 void * ngx_slab_alloc(ngx_slab_pool_t * pool, size_t size)
 {
-	void  * p;
+	void * p;
 	ngx_shmtx_lock(&pool->mutex);
 	p = ngx_slab_alloc_locked(pool, size);
 	ngx_shmtx_unlock(&pool->mutex);
@@ -279,7 +279,7 @@ done:
 
 void * ngx_slab_calloc(ngx_slab_pool_t * pool, size_t size)
 {
-	void  * p;
+	void * p;
 	ngx_shmtx_lock(&pool->mutex);
 	p = ngx_slab_calloc_locked(pool, size);
 	ngx_shmtx_unlock(&pool->mutex);
@@ -288,7 +288,7 @@ void * ngx_slab_calloc(ngx_slab_pool_t * pool, size_t size)
 
 void * ngx_slab_calloc_locked(ngx_slab_pool_t * pool, size_t size)
 {
-	void  * p = ngx_slab_alloc_locked(pool, size);
+	void * p = ngx_slab_alloc_locked(pool, size);
 	if(p) {
 		memzero(p, size);
 	}

@@ -1432,41 +1432,41 @@ static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t
 	else if(sslerr == SSL_ERROR_SSL) {
 		n = ERR_GET_REASON(ERR_peek_error());
 		/* handshake failures */
-		if(n == SSL_R_BAD_CHANGE_CIPHER_SPEC                 /*  103 */
-		    || n == SSL_R_BLOCK_CIPHER_PAD_IS_WRONG          /*  129 */
-		    || n == SSL_R_DIGEST_CHECK_FAILED                /*  149 */
-		    || n == SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST      /*  151 */
-		    || n == SSL_R_EXCESSIVE_MESSAGE_SIZE             /*  152 */
-		    || n == SSL_R_LENGTH_MISMATCH                    /*  159 */
+		if(n == SSL_R_BAD_CHANGE_CIPHER_SPEC                 /* 103 */
+		    || n == SSL_R_BLOCK_CIPHER_PAD_IS_WRONG          /* 129 */
+		    || n == SSL_R_DIGEST_CHECK_FAILED                /* 149 */
+		    || n == SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST      /* 151 */
+		    || n == SSL_R_EXCESSIVE_MESSAGE_SIZE             /* 152 */
+		    || n == SSL_R_LENGTH_MISMATCH                    /* 159 */
 #ifdef SSL_R_NO_CIPHERS_PASSED
-		    || n == SSL_R_NO_CIPHERS_PASSED                  /*  182 */
+		    || n == SSL_R_NO_CIPHERS_PASSED                  /* 182 */
 #endif
-		    || n == SSL_R_NO_CIPHERS_SPECIFIED               /*  183 */
-		    || n == SSL_R_NO_COMPRESSION_SPECIFIED           /*  187 */
-		    || n == SSL_R_NO_SHARED_CIPHER                   /*  193 */
-		    || n == SSL_R_RECORD_LENGTH_MISMATCH             /*  213 */
+		    || n == SSL_R_NO_CIPHERS_SPECIFIED               /* 183 */
+		    || n == SSL_R_NO_COMPRESSION_SPECIFIED           /* 187 */
+		    || n == SSL_R_NO_SHARED_CIPHER                   /* 193 */
+		    || n == SSL_R_RECORD_LENGTH_MISMATCH             /* 213 */
 #ifdef SSL_R_PARSE_TLSEXT
-		    || n == SSL_R_PARSE_TLSEXT                       /*  227 */
+		    || n == SSL_R_PARSE_TLSEXT                       /* 227 */
 #endif
-		    || n == SSL_R_UNEXPECTED_MESSAGE                 /*  244 */
-		    || n == SSL_R_UNEXPECTED_RECORD                  /*  245 */
-		    || n == SSL_R_UNKNOWN_ALERT_TYPE                 /*  246 */
-		    || n == SSL_R_UNKNOWN_PROTOCOL                   /*  252 */
-		    || n == SSL_R_WRONG_VERSION_NUMBER               /*  267 */
-		    || n == SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC /*  281 */
+		    || n == SSL_R_UNEXPECTED_MESSAGE                 /* 244 */
+		    || n == SSL_R_UNEXPECTED_RECORD                  /* 245 */
+		    || n == SSL_R_UNKNOWN_ALERT_TYPE                 /* 246 */
+		    || n == SSL_R_UNKNOWN_PROTOCOL                   /* 252 */
+		    || n == SSL_R_WRONG_VERSION_NUMBER               /* 267 */
+		    || n == SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC /* 281 */
 #ifdef SSL_R_RENEGOTIATE_EXT_TOO_LONG
-		    || n == SSL_R_RENEGOTIATE_EXT_TOO_LONG           /*  335 */
-		    || n == SSL_R_RENEGOTIATION_ENCODING_ERR         /*  336 */
-		    || n == SSL_R_RENEGOTIATION_MISMATCH             /*  337 */
+		    || n == SSL_R_RENEGOTIATE_EXT_TOO_LONG           /* 335 */
+		    || n == SSL_R_RENEGOTIATION_ENCODING_ERR         /* 336 */
+		    || n == SSL_R_RENEGOTIATION_MISMATCH             /* 337 */
 #endif
 #ifdef SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED
-		    || n == SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED /*  338 */
+		    || n == SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED /* 338 */
 #endif
 #ifdef SSL_R_SCSV_RECEIVED_WHEN_RENEGOTIATING
-		    || n == SSL_R_SCSV_RECEIVED_WHEN_RENEGOTIATING   /*  345 */
+		    || n == SSL_R_SCSV_RECEIVED_WHEN_RENEGOTIATING   /* 345 */
 #endif
 #ifdef SSL_R_INAPPROPRIATE_FALLBACK
-		    || n == SSL_R_INAPPROPRIATE_FALLBACK             /*  373 */
+		    || n == SSL_R_INAPPROPRIATE_FALLBACK             /* 373 */
 #endif
 		    || n == 1000 /* SSL_R_SSLV3_ALERT_CLOSE_NOTIFY */
 #ifdef SSL_R_SSLV3_ALERT_UNEXPECTED_MESSAGE

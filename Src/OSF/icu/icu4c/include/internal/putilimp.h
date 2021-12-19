@@ -566,7 +566,7 @@ inline int32_t pinCapacity(T * dest, int32_t capacity) {
 
 #endif   // __cplusplus
 
-/*  Dynamic Library Functions */
+/* Dynamic Library Functions */
 
 typedef void (UVoidFunction)();
 

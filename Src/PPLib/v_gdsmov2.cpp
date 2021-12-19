@@ -88,7 +88,7 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	temp_filt.SupplID      = Filt.SupplID;
 	temp_filt.GoodsGrpID   = Filt.GoodsGrpID;
 	temp_filt.SupplAgentID = Filt.SupplAgentID; // AHTOXA
-	temp_filt.OpID         = Filt.OpID;
+	temp_filt.OpID = Filt.OpID;
 	SETFLAG(temp_filt.Flags, OPG_LABELONLY, Filt.Flags & GoodsMovFilt::fLabelOnly);
 	temp_filt.Flags |= (OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES | OPG_PROCESSGENOP);
 	if(Filt.Flags & GoodsMovFilt::fCostWoVat)
@@ -133,7 +133,7 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 						rec.Price    = p_entry->Sign * p_entry->Price;
 						rec.Discount = p_entry->Sign * p_entry->Discount;
 						rec.Amount   = p_entry->Sign * (rec.Price - rec.Discount);
-						if(gds_op_list.lsearch(&rec, &pos, PTR_CMPFUNC(long), sizeof(long)) > 0) {
+						if(gds_op_list.lsearch(&rec, &pos, CMPF_LONG, sizeof(long))) {
 							TempGoodsMov2Tbl::Rec * p_rec = static_cast<TempGoodsMov2Tbl::Rec *>(gds_op_list.at(pos));
 							p_rec->Qtty     += rec.Qtty;
 							p_rec->Cost     += rec.Cost;

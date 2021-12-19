@@ -18,12 +18,10 @@
 
 U_NAMESPACE_BEGIN
 
-BytesTrie::Iterator::Iterator(const void * trieBytes, int32_t maxStringLength,
-    UErrorCode & errorCode)
-	: bytes_(static_cast<const uint8_t *>(trieBytes)),
-	pos_(bytes_), initialPos_(bytes_),
-	remainingMatchLength_(-1), initialRemainingMatchLength_(-1),
-	str_(NULL), maxLength_(maxStringLength), value_(0), stack_(NULL) {
+BytesTrie::Iterator::Iterator(const void * trieBytes, int32_t maxStringLength, UErrorCode & errorCode) : 
+	bytes_(static_cast<const uint8 *>(trieBytes)), pos_(bytes_), initialPos_(bytes_),
+	remainingMatchLength_(-1), initialRemainingMatchLength_(-1), str_(NULL), maxLength_(maxStringLength), value_(0), stack_(NULL) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -40,12 +38,10 @@ BytesTrie::Iterator::Iterator(const void * trieBytes, int32_t maxStringLength,
 	}
 }
 
-BytesTrie::Iterator::Iterator(const BytesTrie &trie, int32_t maxStringLength,
-    UErrorCode & errorCode)
-	: bytes_(trie.bytes_), pos_(trie.pos_), initialPos_(trie.pos_),
-	remainingMatchLength_(trie.remainingMatchLength_),
-	initialRemainingMatchLength_(trie.remainingMatchLength_),
-	str_(NULL), maxLength_(maxStringLength), value_(0), stack_(NULL) {
+BytesTrie::Iterator::Iterator(const BytesTrie &trie, int32_t maxStringLength, UErrorCode & errorCode) : 
+	bytes_(trie.bytes_), pos_(trie.pos_), initialPos_(trie.pos_), remainingMatchLength_(trie.remainingMatchLength_),
+	initialRemainingMatchLength_(trie.remainingMatchLength_), str_(NULL), maxLength_(maxStringLength), value_(0), stack_(NULL) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -71,7 +67,8 @@ BytesTrie::Iterator::Iterator(const BytesTrie &trie, int32_t maxStringLength,
 	}
 }
 
-BytesTrie::Iterator::~Iterator() {
+BytesTrie::Iterator::~Iterator() 
+{
 	delete str_;
 	delete stack_;
 }
@@ -91,16 +88,15 @@ BytesTrie::Iterator & BytesTrie::Iterator::reset()
 	return *this;
 }
 
-bool
-BytesTrie::Iterator::hasNext() const { return pos_!=NULL || !stack_->isEmpty(); }
+bool BytesTrie::Iterator::hasNext() const { return pos_!=NULL || !stack_->isEmpty(); }
 
-bool
-BytesTrie::Iterator::next(UErrorCode & errorCode) {
+bool BytesTrie::Iterator::next(UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	const uint8_t * pos = pos_;
-	if(pos==NULL) {
+	const uint8 * pos = pos_;
+	if(!pos) {
 		if(stack_->isEmpty()) {
 			return FALSE;
 		}
@@ -114,7 +110,7 @@ BytesTrie::Iterator::next(UErrorCode & errorCode) {
 		length = (int32_t)((uint32_t)length>>16);
 		if(length>1) {
 			pos = branchNext(pos, length, errorCode);
-			if(pos==NULL) {
+			if(!pos) {
 				return TRUE; // Reached a final value.
 			}
 		}
@@ -145,11 +141,11 @@ BytesTrie::Iterator::next(UErrorCode & errorCode) {
 			return truncateAndStop();
 		}
 		if(node<kMinLinearMatch) {
-			if(node==0) {
+			if(!node) {
 				node = *pos++;
 			}
 			pos = branchNext(pos, node+1, errorCode);
-			if(pos==NULL) {
+			if(!pos) {
 				return TRUE; // Reached a final value.
 			}
 		}
@@ -157,8 +153,7 @@ BytesTrie::Iterator::next(UErrorCode & errorCode) {
 			// Linear-match node, append length bytes to str_.
 			int32_t length = node-kMinLinearMatch+1;
 			if(maxLength_>0 && str_->length()+length>maxLength_) {
-				str_->append(reinterpret_cast<const char *>(pos),
-				    maxLength_-str_->length(), errorCode);
+				str_->append(reinterpret_cast<const char *>(pos), maxLength_-str_->length(), errorCode);
 				return truncateAndStop();
 			}
 			str_->append(reinterpret_cast<const char *>(pos), length, errorCode);
@@ -167,21 +162,21 @@ BytesTrie::Iterator::next(UErrorCode & errorCode) {
 	}
 }
 
-StringPiece
-BytesTrie::Iterator::getString() const {
+StringPiece BytesTrie::Iterator::getString() const 
+{
 	return str_ == NULL ? StringPiece() : str_->toStringPiece();
 }
 
-bool
-BytesTrie::Iterator::truncateAndStop() {
+bool BytesTrie::Iterator::truncateAndStop() 
+{
 	pos_ = NULL;
 	value_ = -1; // no real value for str
 	return TRUE;
 }
 
 // Branch node, needs to take the first outbound edge and push state for the rest.
-const uint8_t *
-BytesTrie::Iterator::branchNext(const uint8_t *pos, int32_t length, UErrorCode & errorCode) {
+const uint8 * BytesTrie::Iterator::branchNext(const uint8 *pos, int32_t length, UErrorCode & errorCode) 
+{
 	while(length>kMaxBranchLinearSubNodeLength) {
 		++pos; // ignore the comparison byte
 		// Push state for the greater-or-equal edge.
@@ -193,7 +188,7 @@ BytesTrie::Iterator::branchNext(const uint8_t *pos, int32_t length, UErrorCode &
 	}
 	// List of key-value pairs where values are either final values or jump deltas.
 	// Read the first (key, value) pair.
-	uint8_t trieByte = *pos++;
+	uint8 trieByte = *pos++;
 	int32_t node = *pos++;
 	bool isFinal = (bool)(node&kValueIsFinal);
 	int32_t value = readValue(pos, node>>1);

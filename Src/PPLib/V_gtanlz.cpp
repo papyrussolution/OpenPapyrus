@@ -728,11 +728,11 @@ int FASTCALL PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pIte
 			if(pItem) {
 				const TempGoodsTaxAnlzTbl::Rec & r_rec = P_TempTbl->data;
 				memzero(pItem, sizeof(GoodsTaxAnalyzeViewItem));
-				pItem->Dt           = r_rec.Dt;
+				pItem->Dt   = r_rec.Dt;
 				pItem->GoodsID      = r_rec.GoodsID;
 				pItem->GoodsGrpID   = r_rec.GoodsGrpID;
 				pItem->P_GoodsGrpName = IterGrpName;
-				pItem->Qtty         = r_rec.Qtty;
+				pItem->Qtty = r_rec.Qtty;
 				pItem->PhQtty       = r_rec.PhQtty;
 				pItem->TrnovrCost   = r_rec.TrnovrCost;
 				pItem->TrnovrPrice  = r_rec.TrnovrPrice;
@@ -746,7 +746,7 @@ int FASTCALL PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pIte
 				pItem->IncVATSum    = r_rec.IncVATSum;
 				pItem->STaxSum      = r_rec.STaxSum;
 				pItem->ExpQtty      = r_rec.ExpQtty;
-				pItem->Rest         = r_rec.Rest;
+				pItem->Rest = r_rec.Rest;
 				STRNSCPY(pItem->BillNo, r_rec.BillNo);
 				STRNSCPY(pItem->Name, r_rec.Name);
 				STRNSCPY(pItem->TaxStr, r_rec.TaxStr);
@@ -1103,7 +1103,7 @@ int PPALDD_GoodsTaxAnlz::InitData(PPFilt & rFilt, long rsrv)
 	H.FltFlags   = p_filt->Flags;
 	H.fNozeroExciseOnly = BIN(p_filt->Flags & GoodsTaxAnalyzeFilt::fNozeroExciseOnly);
 	H.fLabelOnly        = BIN(p_filt->Flags & GoodsTaxAnalyzeFilt::fLabelOnly);
-	H.fByGroups         = BIN(p_filt->Sgg & sggGroup);
+	H.fByGroups = BIN(p_filt->Sgg & sggGroup);
 	// AHTOXA {
 	SetInOutVAT(&H.VATRate1, &H.VATSumIn1, &H.VATSumOut1, &H.PTrnovr1, &H.Discount1, p_inout_vat_list, 0);
 	SetInOutVAT(&H.VATRate2, &H.VATSumIn2, &H.VATSumOut2, &H.PTrnovr2, &H.Discount2, p_inout_vat_list, 1);
@@ -1189,22 +1189,22 @@ int PPALDD_GTaxAnlzTotal::InitData(PPFilt & rFilt, long rsrv)
 	}
 	else
 		return 0;
-	H.Count            = p_data->P_Total->Count;
+	H.Count    = p_data->P_Total->Count;
 	H.TrnovrCost       = p_data->P_Total->TrnovrCost;
 	H.TrnovrPrice      = p_data->P_Total->TrnovrPrice;
-	H.Income           = p_data->P_Total->Income;
+	H.Income   = p_data->P_Total->Income;
 	H.ExciseSum        = p_data->P_Total->ExciseSum;
-	H.C_VATSum         = p_data->P_Total->C_VATSum;
-	H.VATSum           = p_data->P_Total->VATSum;
+	H.C_VATSum = p_data->P_Total->C_VATSum;
+	H.VATSum   = p_data->P_Total->VATSum;
 	H.IncVATSum        = p_data->P_Total->IncVATSum;
-	H.STaxSum          = p_data->P_Total->STaxSum;
+	H.STaxSum  = p_data->P_Total->STaxSum;
 
-	H.FltBeg           = p_data->P_Filt->Period.low;
-	H.FltEnd           = p_data->P_Filt->Period.upp;
+	H.FltBeg   = p_data->P_Filt->Period.low;
+	H.FltEnd   = p_data->P_Filt->Period.upp;
 	H.FltLotsBeg       = p_data->P_Filt->LotsPeriod.low;
 	H.FltLotsEnd       = p_data->P_Filt->LotsPeriod.upp;
-	H.FltLocID         = p_data->P_Filt->LocID;
-	H.FltOpID          = p_data->P_Filt->OpID;
+	H.FltLocID = p_data->P_Filt->LocID;
+	H.FltOpID  = p_data->P_Filt->OpID;
 	H.FltGoodsGrpID    = p_data->P_Filt->GoodsGrpID;
 	H.FltSupplID       = p_data->P_Filt->SupplID;
 	H.FltSupplAgentID  = p_data->P_Filt->SupplAgentID;

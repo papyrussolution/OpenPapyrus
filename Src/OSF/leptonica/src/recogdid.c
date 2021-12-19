@@ -29,27 +29,27 @@
  * <pre>
  *
  *      Top-level identification
- *         int32           recogDecode()
+ *         BOXA             *recogDecode()
  *
  *      Generate decoding arrays
- *         int32           recogMakeDecodingArrays()
- *         static int32    recogMakeDecodingArray()
+ *         static l_int32    recogPrepareForDecoding()
+ *         static l_int32    recogMakeDecodingArray()
  *
  *      Dynamic programming for best path
- *         int32           recogRunViterbi()
- *         int32           recogRescoreDidResult()
- *         static PIX       *recogShowPath()
+ *         static l_int32    recogRunViterbi()
+ *         static l_int32    recogRescoreDidResult()
+ *         static PIX *recogShowPath()
  *
  *      Create/destroy temporary DID data
- *         int32           recogCreateDid()
- *         int32           recogDestroyDid()
+ *         l_int32           recogCreateDid()
+ *         l_int32           recogDestroyDid()
  *
  *      Various helpers
- *         int32           recogDidExists()
+ *         l_int32           recogDidExists()
  *         L_RDID           *recogGetDid()
- *         static int32    recogGetWindowedArea()
- *         int32           recogSetChannelParams()
- *         static int32    recogTransferRchToDid()
+ *         static l_int32    recogGetWindowedArea()
+ *         l_int32           recogSetChannelParams()
+ *         static l_int32    recogTransferRchToDid()
  *
  *  See recogbasic.c for examples of training a recognizer, which is
  *  required before it can be used for document image decoding.
@@ -63,7 +63,7 @@
  *  an image from a message, and the MAP message is derived from the
  *  observed image using Bayes' theorem.  This approach can also be used
  *  to build the model, using the iterative expectation/maximization
- *  method from labelled but errorful data.
+ *  method from labeled but errorful data.
  *
  *  In a little more detail: The model comprises three things: the ideal
  *  printed character templates, the independent bit-flip noise model, and
@@ -155,17 +155,20 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static int32 recogMakeDecodingArray(L_RECOG * recog, int32 index,
-    int32 debug);
-static int32 recogRescoreDidResult(L_RECOG * recog, PIX ** ppixdb);
-static PIX * recogShowPath(L_RECOG * recog, int32 select);
-static int32 recogGetWindowedArea(L_RECOG * recog, int32 index,
-    int32 x, int32 * pdely, int32 * pwsum);
-static int32 recogTransferRchToDid(L_RECOG * recog, int32 x, int32 y);
+static l_int32 recogPrepareForDecoding(L_RECOG * recog, PIX * pixs,
+    l_int32 debug);
+static l_int32 recogMakeDecodingArray(L_RECOG * recog, l_int32 index,
+    l_int32 debug);
+static l_int32 recogRunViterbi(L_RECOG * recog, PIX ** ppixdb);
+static l_int32 recogRescoreDidResult(L_RECOG * recog, PIX ** ppixdb);
+static PIX * recogShowPath(L_RECOG * recog, l_int32 select);
+static l_int32 recogGetWindowedArea(L_RECOG * recog, l_int32 index,
+    l_int32 x, l_int32 * pdely, l_int32 * pwsum);
+static l_int32 recogTransferRchToDid(L_RECOG * recog, l_int32 x, l_int32 y);
 
 /* Parameters for modeling the decoding */
-static const float SetwidthFraction = 0.95f;
-static const int32 MaxYShift = 1;
+static const float SetwidthFraction = 0.95;
+static const l_int32 MaxYShift = 1;
 
 /* Channel parameters.  alpha[0] is the probability that a bg pixel
  * is OFF.  alpha[1] is the probability that level 1 fg is ON.
@@ -182,85 +185,112 @@ static const float DefaultAlpha4[] = {0.95f, 0.9f, 0.75f, 0.25f};
 /*!
  * \brief   recogDecode()
  *
- * \param[in]    recog with LUT's pre-computed
- * \param[in]    pixs typically of multiple touching characters, 1 bpp
- * \param[in]    nlevels of templates; 2 for now
- * \param[out]   ppixdb [optional] debug result; can be null
- * \return  0 if OK, 1 on error
+ * \param[in]    recog      with LUT's pre-computed
+ * \param[in]    pixs       typically of multiple touching characters, 1 bpp
+ * \param[in]    nlevels    of templates; 2 for now
+ * \param[out]   ppixdb     [optional] debug result; can be null
+ * \return  boxa  segmentation of pixs into characters, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The input pixs has been filtered so that it is likely to be
+ *          composed of more than one touching character.  Specifically,
+ *          its height can only slightly exceed that of the tallest
+ *          unscaled template, the width is somewhat larger than the
+ *          width of the widest unscaled template, and the w/h aspect ratio
+ *          is bounded by max_wh_ratio.
+ *      (2) This uses the DID mechanism with labeled templates to
+ *          segment the input %pixs.  The resulting segmentation is
+ *          returned.  (It is given by did->boxa).
+ *      (3) In debug mode, the Viterbi path is rescored based on all
+ *          the templates.  In non-debug mode, the same procedure is
+ *          carried out by recogIdentifyPix() on the result of the
+ *          segmentation.
+ * </pre>
  */
-int32 recogDecode(L_RECOG  * recog,
-    PIX      * pixs,
-    int32 nlevels,
-    PIX     ** ppixdb)
+BOXA * recogDecode(L_RECOG  * recog,
+    PIX * pixs,
+    l_int32 nlevels,
+    PIX ** ppixdb)
 {
-	int32 debug;
-	PIX     * pixt;
+	l_int32 debug;
+	PIX * pix1;
 	PIXA    * pixa;
 
-	PROCNAME("recogDecode");
+	PROCNAME(__FUNCTION__);
 
 	if(ppixdb) *ppixdb = NULL;
 	if(!recog)
-		return ERROR_INT("recog not defined", procName, 1);
+		return (BOXA *)ERROR_PTR("recog not defined", procName, NULL);
 	if(!pixs || pixGetDepth(pixs) != 1)
-		return ERROR_INT("pixs not defined or not 1 bpp", procName, 1);
+		return (BOXA *)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 	if(!recog->train_done)
-		return ERROR_INT("training not finished", procName, 1);
+		return (BOXA *)ERROR_PTR("training not finished", procName, NULL);
 	if(nlevels != 2)
-		return ERROR_INT("nlevels != 2 (for now)", procName, 1);
+		return (BOXA *)ERROR_PTR("nlevels != 2 (for now)", procName, NULL);
 
-	pixa = (ppixdb) ? pixaCreate(2) : NULL;
 	debug = (ppixdb) ? 1 : 0;
-	if(recogMakeDecodingArrays(recog, pixs, debug))
-		return ERROR_INT("error making arrays", procName, 1);
-
+	if(recogPrepareForDecoding(recog, pixs, debug))
+		return (BOXA *)ERROR_PTR("error making arrays", procName, NULL);
 	recogSetChannelParams(recog, nlevels);
 
-	if(recogRunViterbi(recog, &pixt))
-		return ERROR_INT("error in viterbi", procName, 1);
-	if(ppixdb) pixaAddPix(pixa, pixt, L_INSERT);
+	/* Normal path; just run Viterbi */
+	if(!debug) {
+		if(recogRunViterbi(recog, NULL) == 0)
+			return boxaCopy(recog->did->boxa, L_COPY);
+		else
+			return (BOXA *)ERROR_PTR("error in Viterbi", procName, NULL);
+	}
 
-	if(recogRescoreDidResult(recog, &pixt))
-		return ERROR_INT("error in rescoring", procName, 1);
-	if(ppixdb) pixaAddPix(pixa, pixt, L_INSERT);
-
-	*ppixdb = pixaDisplayTiledInRows(pixa, 32, 2 * pixGetWidth(pixt) + 100,
-	    1.0, 0, 30, 2);
+	/* Debug path */
+	if(recogRunViterbi(recog, &pix1))
+		return (BOXA *)ERROR_PTR("error in viterbi", procName, NULL);
+	pixa = pixaCreate(2);
+	pixaAddPix(pixa, pix1, L_INSERT);
+	if(recogRescoreDidResult(recog, &pix1)) {
+		pixaDestroy(&pixa);
+		return (BOXA *)ERROR_PTR("error in rescoring", procName, NULL);
+	}
+	pixaAddPix(pixa, pix1, L_INSERT);
+	*ppixdb = pixaDisplayTiledInRows(pixa, 32, 2 * pixGetWidth(pix1) + 100,
+		1.0, 0, 30, 2);
 	pixaDestroy(&pixa);
-	return 0;
+	return boxaCopy(recog->did->boxa, L_COPY);
 }
 
 /*------------------------------------------------------------------------*
 *                       Generate decoding arrays                         *
 *------------------------------------------------------------------------*/
 /*!
- * \brief   recogMakeDecodingArrays()
+ * \brief   recogPrepareForDecoding()
  *
- * \param[in]    recog with LUT's pre-computed
- * \param[in]    pixs typically of multiple touching characters, 1 bpp
- * \param[in]    debug 1 for debug output; 0 otherwise
+ * \param[in]    recog    with LUT's pre-computed
+ * \param[in]    pixs     typically of multiple touching characters, 1 bpp
+ * \param[in]    debug    1 for debug output; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) Generates the bit-and sum arrays for each character template
- *          along pixs.  These are used in the dynamic programming step.
- *      (2) Previous arrays are destroyed and the new arrays are allocated.
- *      (3) The values are saved in the scoring arrays at the left edge
- *          of the template.  They are used in the viterbi process
+ *      (1) Binarizes and crops input %pixs.
+ *      (2) Removes previous L_RDID struct and makes a new one.
+ *      (3) Generates the bit-and sum arrays for each character template
+ *          at each pixel position in %pixs.  These are used in the
+ *          Viterbi dynamic programming step.
+ *      (4) The values are saved in the scoring arrays at the left edge
+ *          of the template.  They are used in the Viterbi process
  *          at the setwidth position (which is near the RHS of the template
  *          as it is positioned on pixs) in the generated trellis.
  * </pre>
  */
-int32 recogMakeDecodingArrays(L_RECOG  * recog,
-    PIX      * pixs,
-    int32 debug)
+static l_int32 recogPrepareForDecoding(L_RECOG  * recog,
+    PIX * pixs,
+    l_int32 debug)
 {
-	int32 i;
-	PIX     * pix1;
+	l_int32 i;
+	PIX * pix1;
 	L_RDID  * did;
 
-	PROCNAME("recogMakeDecodingArrays");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
@@ -268,6 +298,9 @@ int32 recogMakeDecodingArrays(L_RECOG  * recog,
 		return ERROR_INT("pixs not defined or not 1 bpp", procName, 1);
 	if(!recog->train_done)
 		return ERROR_INT("training not finished", procName, 1);
+
+	if(!recog->ave_done)
+		recogAverageSamples(&recog, 0);
 
 	/* Binarize and crop to foreground if necessary */
 	if((pix1 = recogProcessToIdentify(recog, pixs, 0)) == NULL)
@@ -297,8 +330,8 @@ int32 recogMakeDecodingArrays(L_RECOG  * recog,
  * \brief   recogMakeDecodingArray()
  *
  * \param[in]    recog
- * \param[in]    index of averaged template
- * \param[in]    debug 1 for debug output; 0 otherwise
+ * \param[in]    index     of averaged template
+ * \param[in]    debug     1 for debug output; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -308,18 +341,18 @@ int32 recogMakeDecodingArrays(L_RECOG  * recog,
  *          of the template as it is positioned on pixs.
  * </pre>
  */
-static int32 recogMakeDecodingArray(L_RECOG  * recog,
-    int32 index,
-    int32 debug)
+static l_int32 recogMakeDecodingArray(L_RECOG  * recog,
+    l_int32 index,
+    l_int32 debug)
 {
-	int32 i, j, w1, h1, w2, h2, nx, ycent2, count, maxcount, maxdely;
-	int32 sum, moment, dely, shifty;
-	int32  * counta, * delya, * ycent1, * arraysum, * arraymoment, * sumtab;
+	l_int32 i, j, w1, h1, w2, h2, nx, ycent2, count, maxcount, maxdely;
+	l_int32 sum, moment, dely, shifty;
+	l_int32 * counta, * delya, * ycent1, * arraysum, * arraymoment, * sumtab;
 	NUMA     * nasum, * namoment;
-	PIX      * pix1, * pix2, * pix3;
+	PIX * pix1, * pix2, * pix3;
 	L_RDID   * did;
 
-	PROCNAME("recogMakeDecodingArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
@@ -334,7 +367,7 @@ static int32 recogMakeDecodingArray(L_RECOG  * recog,
 	pix2 = pixaGetPix(recog->pixa_u, index, L_CLONE);
 	pixGetDimensions(pix2, &w2, &h2, NULL);
 	if(w1 < w2) {
-		L_INFO4("w1 = %d < w2 = %d for index %d\n", procName, w1, w2, index);
+		L_INFO("w1 = %d < w2 = %d for index %d\n", procName, w1, w2, index);
 		pixDestroy(&pix2);
 		return 0;
 	}
@@ -349,7 +382,7 @@ static int32 recogMakeDecodingArray(L_RECOG  * recog,
 	/* Set up the array for ycent1.  This gives the y-centroid location
 	 * for a window of width w2, starting at location i. */
 	nx = w1 - w2 + 1; /* number of positions w2 can be placed in w1 */
-	ycent1 = (int32*)LEPT_CALLOC(nx, sizeof(int32));
+	ycent1 = (l_int32*)SAlloc::C(nx, sizeof(l_int32));
 	arraysum = numaGetIArray(nasum);
 	arraymoment = numaGetIArray(namoment);
 	for(i = 0, sum = 0, moment = 0; i < w2; i++) {
@@ -373,8 +406,9 @@ static int32 recogMakeDecodingArray(L_RECOG  * recog,
 	 *  (3) AND pix1 with pix3. */
 	pix3 = pixCreate(w2, h1, 1);
 	for(i = 0; i < nx; i++) {
-		shifty = (int32)(ycent1[i] - ycent2 + 0.5);
+		shifty = (l_int32)(ycent1[i] - ycent2 + 0.5);
 		maxcount = 0;
+		maxdely = 0;
 		for(j = -MaxYShift; j <= MaxYShift; j++) {
 			pixClearAll(pix3);
 			dely = shifty + j; /* amount pix2 is shifted relative to pix1 */
@@ -393,9 +427,9 @@ static int32 recogMakeDecodingArray(L_RECOG  * recog,
 
 	pixDestroy(&pix2);
 	pixDestroy(&pix3);
-	LEPT_FREE(ycent1);
-	LEPT_FREE(arraysum);
-	LEPT_FREE(arraymoment);
+	SAlloc::F(ycent1);
+	SAlloc::F(arraysum);
+	SAlloc::F(arraymoment);
 	return 0;
 }
 
@@ -405,13 +439,16 @@ static int32 recogMakeDecodingArray(L_RECOG  * recog,
 /*!
  * \brief   recogRunViterbi()
  *
- * \param[in]    recog with LUT's pre-computed
- * \param[out]   ppixdb [optional] debug result; can be null
+ * \param[in]    recog     with LUT's pre-computed
+ * \param[out]   ppixdb    [optional] debug result; can be null
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This is recursive, in that
+ *      (1) This can be used when the templates are unscaled.  It works by
+ *          matching the average, unscaled templates of each class to
+ *          all positions.
+ *      (2) It is recursive, in that
  *          (a) we compute the score successively at all pixel positions x,
  *          (b) to compute the score at x in the trellis, for each
  *              template we look backwards to (x - setwidth) to get the
@@ -420,21 +457,28 @@ static int32 recogMakeDecodingArray(L_RECOG  * recog,
  *              score that maximizes the sum of the score at (x - setwidth)
  *              and the log-likelihood for the template to be printed with
  *              its LHS there.
+ *      (3) The primary output is a boxa of the locations for splitting
+ *          the input image.  These locations are used later to split the
+ *          image and send the pieces individually for recognition.
+ *          This can be done in either recogIdentifyMultiple(), or
+ *          for debugging in recogRescoreDidResult().
  * </pre>
  */
-int32 recogRunViterbi(L_RECOG  * recog,
-    PIX     ** ppixdb)
+static l_int32 recogRunViterbi(L_RECOG  * recog,
+    PIX ** ppixdb)
 {
-	int32 i, w1, x, narray, minsetw, first, templ, xloc, dely, counts, area1;
-	int32 besttempl, spacetempl;
-	int32    * setw, * didtempl;
-	int32    * area2; /* must be freed */
+	l_int32 i, w1, w2, h1, xnz, x, narray, minsetw;
+	l_int32 first, templ, xloc, dely, counts, area1;
+	l_int32 besttempl, spacetempl;
+	l_int32    * setw, * didtempl;
+	l_int32    * area2; /* must be freed */
 	float prevscore, matchscore, maxscore, correl;
-	float  * didscore;
-	PIX        * pixt;
+	float * didscore;
+	BOX        * box;
+	PIX        * pix1;
 	L_RDID     * did;
 
-	PROCNAME("recogRunViterbi");
+	PROCNAME(__FUNCTION__);
 
 	if(ppixdb) *ppixdb = NULL;
 	if(!recog)
@@ -444,11 +488,8 @@ int32 recogRunViterbi(L_RECOG  * recog,
 	if(did->fullarrays == 0)
 		return ERROR_INT("did full arrays not made", procName, 1);
 
-	/* The score array is initialized to 0.0.  As we proceed to
-	* the left, the log likelihood for the partial paths goes
-	* negative, and we prune for the max (least negative) path.
-	* No matches will be computed until we reach x = min(setwidth);
-	* until then first == TRUE after looping over templates. */
+	/* Compute the minimum setwidth. Bad templates with very small
+	 * width can cause havoc because the setwidth is too small. */
 	w1 = did->size;
 	narray = did->narray;
 	spacetempl = narray;
@@ -458,13 +499,19 @@ int32 recogRunViterbi(L_RECOG  * recog,
 		if(setw[i] < minsetw)
 			minsetw = setw[i];
 	}
-	if(minsetw <= 0) {
-		L_ERROR("minsetw <= 0; shouldn't happen\n", procName);
-		minsetw = 1;
-	}
+	if(minsetw <= 2)
+		return ERROR_INT("minsetw <= 2; bad templates", procName, 1);
+
+	/* The score array is initialized to 0.0.  As we proceed to
+	* the left, the log likelihood for the partial paths goes
+	* negative, and we prune for the max (least negative) path.
+	* No matches will be computed until we reach x = min(setwidth);
+	* until then first == TRUE after looping over templates. */
 	didscore = did->trellisscore;
 	didtempl = did->trellistempl;
 	area2 = numaGetIArray(recog->nasum_u);
+	besttempl = 0; /* just tells compiler it is initialized */
+	maxscore = 0.0; /* ditto */
 	for(x = minsetw; x < w1; x++) { /* will always get a score */
 		first = TRUE;
 		for(i = 0; i < narray; i++) {
@@ -501,6 +548,7 @@ int32 recogRunViterbi(L_RECOG  * recog,
 	for(x = w1 - 1; x >= 0; x--) {
 		if(didtempl[x] != spacetempl) break;
 	}
+	h1 = pixGetHeight(did->pixs);
 	while(x > 0) {
 		if(didtempl[x] == spacetempl) { /* skip over spaces */
 			x--;
@@ -511,54 +559,60 @@ int32 recogRunViterbi(L_RECOG  * recog,
 		if(xloc < 0) break;
 		counts = did->counta[templ][xloc]; /* bit-and counts */
 		recogGetWindowedArea(recog, templ, xloc, &dely, &area1);
-		correl = (counts * counts) / (float)(area2[templ] * area1);
-		pixt = pixaGetPix(recog->pixa_u, templ, L_CLONE);
+		correl = ((float)(counts) * counts) /
+		    (float)(area2[templ] * area1);
+		pix1 = pixaGetPix(recog->pixa_u, templ, L_CLONE);
+		w2 = pixGetWidth(pix1);
 		numaAddNumber(did->natempl, templ);
 		numaAddNumber(did->naxloc, xloc);
 		numaAddNumber(did->nadely, dely);
-		numaAddNumber(did->nawidth, pixGetWidth(pixt));
+		numaAddNumber(did->nawidth, pixGetWidth(pix1));
 		numaAddNumber(did->nascore, correl);
-		pixDestroy(&pixt);
+		xnz = MAX(xloc, 0);
+		box = boxCreate(xnz, dely, w2, h1);
+		boxaAddBox(did->boxa, box, L_INSERT);
+		pixDestroy(&pix1);
 		x = xloc;
 	}
 
 	if(ppixdb) {
-		numaWriteStream(stderr, did->natempl);
-		numaWriteStream(stderr, did->naxloc);
-		numaWriteStream(stderr, did->nadely);
-		numaWriteStream(stderr, did->nawidth);
-		numaWriteStream(stderr, did->nascore);
+		numaWriteStderr(did->natempl);
+		numaWriteStderr(did->naxloc);
+		numaWriteStderr(did->nadely);
+		numaWriteStderr(did->nawidth);
+		numaWriteStderr(did->nascore);
+		boxaWriteStderr(did->boxa);
 		*ppixdb = recogShowPath(recog, 0);
 	}
 
-	LEPT_FREE(area2);
+	SAlloc::F(area2);
 	return 0;
 }
 
 /*!
  * \brief   recogRescoreDidResult()
  *
- * \param[in]    recog with LUT's pre-computed
- * \param[out]   ppixdb [optional] debug result; can be null
+ * \param[in]    recog     with LUT's pre-computed
+ * \param[out]   ppixdb    [optional] debug result; can be null
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This does correlation matching with all templates using the
- *          viterbi path segmentation.
+ *      (1) This does correlation matching with all unscaled templates,
+ *          using the character segmentation determined by the Viterbi path.
  * </pre>
  */
-static int32 recogRescoreDidResult(L_RECOG  * recog,
-    PIX     ** ppixdb)
+static l_int32 recogRescoreDidResult(L_RECOG  * recog,
+    PIX ** ppixdb)
 {
-	int32 i, n, w2, h1, templ, x, xloc, dely, index;
+	l_int32 i, n, sample, x, dely, index;
 	char      * text;
 	float score;
 	BOX       * box1;
-	PIX       * pixs, * pix1;
+	PIX * pixs, * pix1;
 	L_RDID    * did;
 
-	PROCNAME("recogRescoreDidResult");
+	PROCNAME(__FUNCTION__);
 
 	if(ppixdb) *ppixdb = NULL;
 	if(!recog)
@@ -571,30 +625,22 @@ static int32 recogRescoreDidResult(L_RECOG  * recog,
 		return ERROR_INT("no elements in path", procName, 1);
 
 	pixs = did->pixs;
-	h1 = pixGetHeight(pixs);
 	for(i = 0; i < n; i++) {
-		numaGetIValue(did->natempl, i, &templ);
-		numaGetIValue(did->naxloc, i, &xloc);
-		numaGetIValue(did->nadely, i, &dely);
-		pixaGetPixDimensions(recog->pixa_u, templ, &w2, NULL, NULL);
-		/* TODO: try to fix xloc - 4, etc. */
-		x = MAX(xloc, 0);
-		box1 = boxCreate(x, dely, w2, h1);
+		box1 = boxaGetBox(did->boxa, i, L_COPY);
+		boxGetGeometry(box1, &x, &dely, NULL, NULL);
 		pix1 = pixClipRectangle(pixs, box1, NULL);
 		recogIdentifyPix(recog, pix1, NULL);
 		recogTransferRchToDid(recog, x, dely);
 		if(ppixdb) {
 			rchExtract(recog->rch, &index, &score, &text,
-			    NULL, NULL, NULL, NULL);
-			fprintf(stderr, "text = %s, index = %d, score = %5.3f\n",
-			    text, index, score);
+			    &sample, NULL, NULL, NULL);
+			lept_stderr("text = %s, index = %d, sample = %d,"
+			    " score = %5.3f\n", text, index, sample, score);
 		}
 		pixDestroy(&pix1);
 		boxDestroy(&box1);
-		LEPT_FREE(text);
+		SAlloc::F(text);
 	}
-
-/*    numaWriteStream(stderr, recog->did->nadely_r);  */
 
 	if(ppixdb)
 		*ppixdb = recogShowPath(recog, 1);
@@ -605,27 +651,27 @@ static int32 recogRescoreDidResult(L_RECOG  * recog,
 /*!
  * \brief   recogShowPath()
  *
- * \param[in]    recog with LUT's pre-computed
- * \param[in]    select 0 for Viterbi; 1 for rescored
+ * \param[in]    recog     with LUT's pre-computed
+ * \param[in]    select    0 for Viterbi; 1 for rescored
  * \return  pix debug output), or NULL on error
  */
 static PIX * recogShowPath(L_RECOG  * recog,
-    int32 select)
+    l_int32 select)
 {
 	char textstr[16];
-	int32 i, n, index, xloc, dely;
+	l_int32 i, j, n, index, xloc, dely;
 	float score;
 	L_BMF     * bmf;
-	NUMA      * natempl_s, * nascore_s, * naxloc_s, * nadely_s;
-	PIX       * pixs, * pix0, * pix1, * pix2, * pix3, * pix4, * pix5;
+	NUMA * natempl_s, * nasample_s, * nascore_s, * naxloc_s, * nadely_s;
+	PIX * pixs, * pix0, * pix1, * pix2, * pix3, * pix4, * pix5;
 	L_RDID    * did;
 
-	PROCNAME("recogShowPath");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
-		return (PIX*)ERROR_PTR("recog not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("recog not defined", procName, NULL);
 	if((did = recogGetDid(recog)) == NULL)
-		return (PIX*)ERROR_PTR("did not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("did not defined", procName, NULL);
 
 	bmf = bmfCreate(NULL, 8);
 	pixs = pixScale(did->pixs, 4.0, 4.0);
@@ -639,6 +685,7 @@ static PIX * recogShowPath(L_RECOG  * recog,
 	}
 	else { /* rescored */
 		natempl_s = did->natempl_r;
+		nasample_s = did->nasample_r;
 		nascore_s = did->nascore_r;
 		naxloc_s = did->naxloc_r;
 		nadely_s = did->nadely_r;
@@ -647,12 +694,18 @@ static PIX * recogShowPath(L_RECOG  * recog,
 	n = numaGetCount(natempl_s);
 	for(i = 0; i < n; i++) {
 		numaGetIValue(natempl_s, i, &index);
-		pix2 = pixaGetPix(recog->pixa_u, index, L_CLONE);
+		if(select == 0) {
+			pix2 = pixaGetPix(recog->pixa_u, index, L_CLONE);
+		}
+		else {
+			numaGetIValue(nasample_s, i, &j);
+			pix2 = pixaaGetPix(recog->pixaa_u, index, j, L_CLONE);
+		}
 		pix3 = pixScale(pix2, 4.0, 4.0);
 		pix4 = pixErodeBrick(NULL, pix3, 5, 5);
 		pixXor(pix4, pix4, pix3);
 		numaGetFValue(nascore_s, i, &score);
-		_snprintf(textstr, sizeof(textstr), "%5.3f", score);
+		snprintf(textstr, sizeof(textstr), "%5.3f", score);
 		pix5 = pixAddTextlines(pix4, bmf, textstr, 1, L_ADD_BELOW);
 		numaGetIValue(naxloc_s, i, &xloc);
 		numaGetIValue(nadely_s, i, &dely);
@@ -675,17 +728,17 @@ static PIX * recogShowPath(L_RECOG  * recog,
  * \brief   recogCreateDid()
  *
  * \param[in]    recog
- * \param[in]    pixs of 1 bpp image to match
+ * \param[in]    pixs     of 1 bpp image to match
  * \return  0 if OK, 1 on error
  */
-int32 recogCreateDid(L_RECOG  * recog,
-    PIX      * pixs)
+l_ok recogCreateDid(L_RECOG  * recog,
+    PIX * pixs)
 {
-	int32 i;
-	PIX         * pixt;
+	l_int32 i;
+	PIX * pix1;
 	L_RDID  * did;
 
-	PROCNAME("recogCreateDid");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
@@ -694,7 +747,7 @@ int32 recogCreateDid(L_RECOG  * recog,
 
 	recogDestroyDid(recog);
 
-	did = (L_RDID*)LEPT_CALLOC(1, sizeof(L_RDID));
+	did = (L_RDID*)SAlloc::C(1, sizeof(L_RDID));
 	recog->did = did;
 	did->pixs = pixClone(pixs);
 	did->narray = recog->setsize;
@@ -703,31 +756,33 @@ int32 recogCreateDid(L_RECOG  * recog,
 	did->naxloc = numaCreate(5);
 	did->nadely = numaCreate(5);
 	did->nawidth = numaCreate(5);
+	did->boxa = boxaCreate(5);
 	did->nascore = numaCreate(5);
 	did->natempl_r = numaCreate(5);
+	did->nasample_r = numaCreate(5);
 	did->naxloc_r = numaCreate(5);
 	did->nadely_r = numaCreate(5);
 	did->nawidth_r = numaCreate(5);
 	did->nascore_r = numaCreate(5);
 
 	/* Make the arrays */
-	did->setwidth = (int32*)LEPT_CALLOC(did->narray, sizeof(int32));
-	did->counta = (int32**)LEPT_CALLOC(did->narray, sizeof(int32 *));
-	did->delya = (int32**)LEPT_CALLOC(did->narray, sizeof(int32 *));
-	did->beta = (float*)LEPT_CALLOC(5, sizeof(float));
-	did->gamma = (float*)LEPT_CALLOC(5, sizeof(float));
-	did->trellisscore = (float*)LEPT_CALLOC(did->size, sizeof(float));
-	did->trellistempl = (int32*)LEPT_CALLOC(did->size, sizeof(int32));
+	did->setwidth = (l_int32*)SAlloc::C(did->narray, sizeof(l_int32));
+	did->counta = (l_int32**)SAlloc::C(did->narray, sizeof(l_int32 *));
+	did->delya = (l_int32**)SAlloc::C(did->narray, sizeof(l_int32 *));
+	did->beta = (float *)SAlloc::C(5, sizeof(float));
+	did->gamma = (float *)SAlloc::C(5, sizeof(float));
+	did->trellisscore = (float *)SAlloc::C(did->size, sizeof(float));
+	did->trellistempl = (l_int32*)SAlloc::C(did->size, sizeof(l_int32));
 	for(i = 0; i < did->narray; i++) {
-		did->counta[i] = (int32*)LEPT_CALLOC(did->size, sizeof(int32));
-		did->delya[i] = (int32*)LEPT_CALLOC(did->size, sizeof(int32));
+		did->counta[i] = (l_int32*)SAlloc::C(did->size, sizeof(l_int32));
+		did->delya[i] = (l_int32*)SAlloc::C(did->size, sizeof(l_int32));
 	}
 
 	/* Populate the setwidth array */
 	for(i = 0; i < did->narray; i++) {
-		pixt = pixaGetPix(recog->pixa_u, i, L_CLONE);
-		did->setwidth[i] = (int32)(SetwidthFraction * pixGetWidth(pixt));
-		pixDestroy(&pixt);
+		pix1 = pixaGetPix(recog->pixa_u, i, L_CLONE);
+		did->setwidth[i] = (l_int32)(SetwidthFraction * pixGetWidth(pix1));
+		pixDestroy(&pix1);
 	}
 
 	return 0;
@@ -745,12 +800,12 @@ int32 recogCreateDid(L_RECOG  * recog,
  *          only be destroyed using this function.
  * </pre>
  */
-int32 recogDestroyDid(L_RECOG  * recog)
+l_ok recogDestroyDid(L_RECOG  * recog)
 {
-	int32 i;
+	l_int32 i;
 	L_RDID  * did;
 
-	PROCNAME("recogDestroyDid");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
@@ -760,16 +815,16 @@ int32 recogDestroyDid(L_RECOG  * recog)
 		return ERROR_INT("ptr array is null; shouldn't happen!", procName, 1);
 
 	for(i = 0; i < did->narray; i++) {
-		LEPT_FREE(did->counta[i]);
-		LEPT_FREE(did->delya[i]);
+		SAlloc::F(did->counta[i]);
+		SAlloc::F(did->delya[i]);
 	}
-	LEPT_FREE(did->setwidth);
-	LEPT_FREE(did->counta);
-	LEPT_FREE(did->delya);
-	LEPT_FREE(did->beta);
-	LEPT_FREE(did->gamma);
-	LEPT_FREE(did->trellisscore);
-	LEPT_FREE(did->trellistempl);
+	SAlloc::F(did->setwidth);
+	SAlloc::F(did->counta);
+	SAlloc::F(did->delya);
+	SAlloc::F(did->beta);
+	SAlloc::F(did->gamma);
+	SAlloc::F(did->trellisscore);
+	SAlloc::F(did->trellistempl);
 	pixDestroy(&did->pixs);
 	numaDestroy(&did->nasum);
 	numaDestroy(&did->namoment);
@@ -777,13 +832,15 @@ int32 recogDestroyDid(L_RECOG  * recog)
 	numaDestroy(&did->naxloc);
 	numaDestroy(&did->nadely);
 	numaDestroy(&did->nawidth);
+	boxaDestroy(&did->boxa);
 	numaDestroy(&did->nascore);
 	numaDestroy(&did->natempl_r);
+	numaDestroy(&did->nasample_r);
 	numaDestroy(&did->naxloc_r);
 	numaDestroy(&did->nadely_r);
 	numaDestroy(&did->nawidth_r);
 	numaDestroy(&did->nascore_r);
-	LEPT_FREE(did);
+	SAlloc::F(did);
 	recog->did = NULL;
 	return 0;
 }
@@ -797,9 +854,9 @@ int32 recogDestroyDid(L_RECOG  * recog)
  * \param[in]    recog
  * \return  1 if recog->did exists; 0 if not or on error.
  */
-int32 recogDidExists(L_RECOG  * recog)
+l_int32 recogDidExists(L_RECOG  * recog)
 {
-	PROCNAME("recogDidExists");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 0);
@@ -819,10 +876,10 @@ int32 recogDidExists(L_RECOG  * recog)
  */
 L_RDID * recogGetDid(L_RECOG  * recog)
 {
-	int32 i;
+	l_int32 i;
 	L_RDID  * did;
 
-	PROCNAME("recogGetDid");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return (L_RDID*)ERROR_PTR("recog not defined", procName, NULL);
@@ -830,11 +887,11 @@ L_RDID * recogGetDid(L_RECOG  * recog)
 		return (L_RDID*)ERROR_PTR("did not defined", procName, NULL);
 	if(!did->counta || !did->delya)
 		return (L_RDID*)ERROR_PTR("did array ptrs not defined",
-		    procName, NULL);
+			   procName, NULL);
 	for(i = 0; i < did->narray; i++) {
 		if(!did->counta[i] || !did->delya[i])
 			return (L_RDID*)ERROR_PTR("did arrays not defined",
-			    procName, NULL);
+				   procName, NULL);
 	}
 
 	return did;
@@ -844,10 +901,10 @@ L_RDID * recogGetDid(L_RECOG  * recog)
  * \brief   recogGetWindowedArea()
  *
  * \param[in]    recog
- * \param[in]    index of template
- * \param[in]    x pixel position of left hand edge of template
- * \param[out]   pdely y shift of template relative to pix1
- * \param[out]   pwsum number of fg pixels in window of pixs
+ * \param[in]    index     of template
+ * \param[in]    x pixel   position of left hand edge of template
+ * \param[out]   pdely     y shift of template relative to pix1
+ * \param[out]   pwsum     number of fg pixels in window of pixs
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -855,22 +912,22 @@ L_RDID * recogGetDid(L_RECOG  * recog)
  *      (1) This is called after the best path has been found through
  *          the trellis, in order to produce a correlation that can be used
  *          to evaluate the confidence we have in the identification.
- *          The correlation is |1 \& 2|^2 / (|1| * |2|).
- *          |1 \& 2| is given by the count array, |2| is found from
+ *          The correlation is |1 & 2|^2 / (|1| * |2|).
+ *          |1 & 2| is given by the count array, |2| is found from
  *          nasum_u[], and |1| is wsum returned from this function.
  * </pre>
  */
-static int32 recogGetWindowedArea(L_RECOG  * recog,
-    int32 index,
-    int32 x,
-    int32  * pdely,
-    int32  * pwsum)
+static l_int32 recogGetWindowedArea(L_RECOG  * recog,
+    l_int32 index,
+    l_int32 x,
+    l_int32 * pdely,
+    l_int32 * pwsum)
 {
-	int32 w1, h1, w2, h2;
-	PIX     * pix1, * pix2, * pixt;
+	l_int32 w1, h1, w2, h2;
+	PIX * pix1, * pix2, * pixt;
 	L_RDID  * did;
 
-	PROCNAME("recogGetWindowedArea");
+	PROCNAME(__FUNCTION__);
 
 	if(pdely) *pdely = 0;
 	if(pwsum) *pwsum = 0;
@@ -890,7 +947,7 @@ static int32 recogGetWindowedArea(L_RECOG  * recog,
 	pix2 = pixaGetPix(recog->pixa_u, index, L_CLONE);
 	pixGetDimensions(pix2, &w2, &h2, NULL);
 	if(w1 < w2) {
-		L_INFO2("template %d too small\n", procName, index);
+		L_INFO("template %d too small\n", procName, index);
 		pixDestroy(&pix2);
 		return 0;
 	}
@@ -922,14 +979,14 @@ static int32 recogGetWindowedArea(L_RECOG  * recog,
  *          fg templates), we use beta[1-3] and gamma[1-3].
  * </pre>
  */
-int32 recogSetChannelParams(L_RECOG  * recog,
-    int32 nlevels)
+l_ok recogSetChannelParams(L_RECOG  * recog,
+    l_int32 nlevels)
 {
-	int32 i;
-	const float  * da;
+	l_int32 i;
+	const float * da;
 	L_RDID           * did;
 
-	PROCNAME("recogSetChannelParams");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
@@ -943,9 +1000,10 @@ int32 recogSetChannelParams(L_RECOG  * recog,
 		return ERROR_INT("nlevels not 2 or 4", procName, 1);
 
 	for(i = 1; i < nlevels; i++) {
-		did->beta[i] = log((1.0f - da[i]) / da[0]);
-		did->gamma[i] = log(da[0] * da[i] / ((1.0f - da[0]) * (1.0f - da[i])));
-		fprintf(stderr, "beta[%d] = %7.3f, gamma[%d] = %7.3f\n", i, did->beta[i], i, did->gamma[i]);
+		did->beta[i] = log((1.0 - da[i]) / da[0]);
+		did->gamma[i] = log(da[0] * da[i] / ((1.0 - da[0]) * (1.0 - da[i])));
+/*        lept_stderr("beta[%d] = %7.3f, gamma[%d] = %7.3f\n",
+                      i, did->beta[i], i, did->gamma[i]);  */
 	}
 
 	return 0;
@@ -954,9 +1012,9 @@ int32 recogSetChannelParams(L_RECOG  * recog,
 /*!
  * \brief   recogTransferRchToDid()
  *
- * \param[in]    recog with rch and did defined
- * \param[in]    x left edge of extracted region, relative to decoded line
- * \param[in]    y top edge of extracted region, relative to input image
+ * \param[in]    recog   with rch and did defined
+ * \param[in]    x       left edge of extracted region, relative to decoded line
+ * \param[in]    y       top edge of extracted region, relative to input image
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -965,14 +1023,14 @@ int32 recogSetChannelParams(L_RECOG  * recog,
  *          to the rescored did arrays.
  * </pre>
  */
-static int32 recogTransferRchToDid(L_RECOG  * recog,
-    int32 x,
-    int32 y)
+static l_int32 recogTransferRchToDid(L_RECOG  * recog,
+    l_int32 x,
+    l_int32 y)
 {
 	L_RDID  * did;
 	L_RCH   * rch;
 
-	PROCNAME("recogTransferRchToDid");
+	PROCNAME(__FUNCTION__);
 
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
@@ -982,10 +1040,10 @@ static int32 recogTransferRchToDid(L_RECOG  * recog,
 		return ERROR_INT("rch not defined", procName, 1);
 
 	numaAddNumber(did->natempl_r, rch->index);
+	numaAddNumber(did->nasample_r, rch->sample);
 	numaAddNumber(did->naxloc_r, rch->xloc + x);
 	numaAddNumber(did->nadely_r, rch->yloc + y);
 	numaAddNumber(did->nawidth_r, rch->width);
 	numaAddNumber(did->nascore_r, rch->score);
 	return 0;
 }
-

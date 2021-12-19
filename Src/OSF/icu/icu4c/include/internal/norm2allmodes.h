@@ -141,7 +141,7 @@ public:
         return impl.composePair(a, b);
     }
 
-    virtual uint8_t
+    virtual uint8
     getCombiningClass(UChar32 c) const U_OVERRIDE {
         return impl.getCC(impl.getNorm16(c));
     }
@@ -214,7 +214,7 @@ private:
         if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
             edits->reset();
         }
-        const uint8_t *s = reinterpret_cast<const uint8_t *>(src.data());
+        const uint8 *s = reinterpret_cast<const uint8 *>(src.data());
         impl.decomposeUTF8(options, s, s + src.length(), &sink, edits, errorCode);
         sink.Flush();
     }
@@ -223,8 +223,8 @@ private:
         if(U_FAILURE(errorCode)) {
             return false;
         }
-        const uint8_t *s = reinterpret_cast<const uint8_t *>(sp.data());
-        const uint8_t *sLimit = s + sp.length();
+        const uint8 *s = reinterpret_cast<const uint8 *>(sp.data());
+        const uint8 *sLimit = s + sp.length();
         return sLimit == impl.decomposeUTF8(0, s, sLimit, nullptr, nullptr, errorCode);
     }
 
@@ -270,7 +270,7 @@ private:
         if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
             edits->reset();
         }
-        const uint8_t *s = reinterpret_cast<const uint8_t *>(src.data());
+        const uint8 *s = reinterpret_cast<const uint8 *>(src.data());
         impl.composeUTF8(options, onlyContiguous, s, s + src.length(),
                          &sink, edits, errorCode);
         sink.Flush();
@@ -305,7 +305,7 @@ private:
         if(U_FAILURE(errorCode)) {
             return false;
         }
-        const uint8_t *s = reinterpret_cast<const uint8_t *>(sp.data());
+        const uint8 *s = reinterpret_cast<const uint8 *>(sp.data());
         return impl.composeUTF8(0, onlyContiguous, s, s + sp.length(), nullptr, nullptr, errorCode);
     }
     virtual UNormalizationCheckResult

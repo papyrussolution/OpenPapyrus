@@ -1,5 +1,5 @@
 // V_GLOBUS.CPP
-// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020
+// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020, 2021
 //
 // PPViewGlobalUserAcc
 //
@@ -19,7 +19,7 @@ GlobalUserAccFilt & FASTCALL GlobalUserAccFilt::operator = (const GlobalUserAccF
 	return *this;
 }
 
-PPViewGlobalUserAcc::PPViewGlobalUserAcc() : PPView(&ObjGlobAcc, &Filt, PPVIEW_GLOBALUSERACC, 0, 0), P_TempTbl(0)
+PPViewGlobalUserAcc::PPViewGlobalUserAcc() : PPView(&ObjGlobAcc, &Filt, PPVIEW_GLOBALUSERACC, implUseQuickTagEditFunc, 0), P_TempTbl(0) // @v11.2.8 implUseQuickTagEditFunc
 {
 }
 
@@ -34,11 +34,7 @@ TempGlobUserAccTbl::Rec & PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserA
 	rTempRec.PersonID = rRec.PersonID;
 	rTempRec.Flags    = rRec.Flags;
 	STRNSCPY(rTempRec.Name, rRec.Name);
-	{
-		SString temp_buf;
-		rRec.LocalDbUuid.ToStr(0, temp_buf);
-		temp_buf.CopyTo(rTempRec.Guid, sizeof(rTempRec.Guid));
-	}
+	rRec.LocalDbUuid.ToStr(0, SLS.AcquireRvlStr()).CopyTo(rTempRec.Guid, sizeof(rTempRec.Guid));
 	return rTempRec;
 }
 
@@ -169,6 +165,15 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = (ObjGlobAcc.Edit(&(id = 0), 0) == cmOK) ? 1 : -1;
+				break;
+			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+				//
+				{
+					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
+					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_GLOBALUSERACC, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+				}
 				break;
 			case PPVCMD_TAGS:
 				if(id)

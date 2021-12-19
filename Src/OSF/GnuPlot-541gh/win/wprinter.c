@@ -523,7 +523,7 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPCTSTR szFileName)
 			pr.bUserAbort = FALSE;
 			pr.szTitle = szAppName;
 			pr.hDlgPrint = CreateDialogParam(hdllInstance, TEXT("CancelDlgBox"), hwnd, PrintDlgProc, (LPARAM)&pr);
-			SendMessage(GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETRANGE32, 0, lsize);
+			::SendMessage(::GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETRANGE32, 0, lsize);
 			di.pDocName = szAppName;
 			di.pOutputFile = NULL;
 			di.pDatatype = TEXT("RAW");
@@ -535,7 +535,7 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPCTSTR szFileName)
 					if(dwBytesWritten > 0) {
 						wsprintf(pcdone, TEXT("%d%% done"), (int)(ldone * 100 / lsize));
 						SetWindowText(GetDlgItem(pr.hDlgPrint, CANCEL_PCDONE), pcdone);
-						SendMessage(GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETPOS, ldone, 0);
+						::SendMessage(::GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETPOS, ldone, 0);
 					}
 					else if(ret == 0) {
 						SetWindowText(GetDlgItem(pr.hDlgPrint, CANCEL_PCDONE), TEXT("Error writing to printer!"));

@@ -1403,7 +1403,7 @@ int  TestUdsInterface();
 int  SrpTest();
 int  Test_PPStyloQInterchange();
 int  Test_StyloQInvitation();
-int  Test_Launch_SCalendarPicker();
+// @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
 
 extern int OnigTestSyntax_main(FILE * fOut);
@@ -1475,10 +1475,10 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
-	Test_StyloQInvitation();
-	Test_StrAssocTree();
-	//Test_Launch_SCalendarPicker();
-	//Test_PPStyloQInterchange();
+	Test_PPStyloQInterchange();
+	//Test_StyloQInvitation();
+	//Test_StrAssocTree();
+	// @construction finished Test_Launch_SCalendarPicker();
 	/*{
 		SSecretTagPool stp;
 		stp.GeneratePrivateKey(2048);

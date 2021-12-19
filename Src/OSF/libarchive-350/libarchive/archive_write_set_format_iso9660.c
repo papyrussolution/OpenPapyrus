@@ -236,7 +236,7 @@ struct isoent {
 	 *   on primary, mb_len and id_len are always the same.
 	 *   on joliet, mb_len and id_len are different.
 	 */
-	char                    * identifier;
+	char * identifier;
 	int ext_off;
 	int ext_len;
 	int id_len;
@@ -870,25 +870,25 @@ enum char_type {
 	D_CHAR
 };
 
-static int      iso9660_options(struct archive_write *,
+static int iso9660_options(struct archive_write *,
     const char *, const char *);
-static int      iso9660_write_header(struct archive_write *,
+static int iso9660_write_header(struct archive_write *,
     struct archive_entry *);
 static ssize_t  iso9660_write_data(struct archive_write *,
     const void *, size_t);
-static int      iso9660_finish_entry(struct archive_write *);
-static int      iso9660_close(struct archive_write *);
-static int      iso9660_free(struct archive_write *);
+static int iso9660_finish_entry(struct archive_write *);
+static int iso9660_close(struct archive_write *);
+static int iso9660_free(struct archive_write *);
 
 static void     get_system_identitier(char *, size_t);
 static void     set_str(uchar *, const char *, size_t, char,
     const char *);
 static inline int joliet_allowed_char(uchar, uchar);
-static int      set_str_utf16be(struct archive_write *, uchar *,
+static int set_str_utf16be(struct archive_write *, uchar *,
     const char *, size_t, uint16_t, enum vdc);
-static int      set_str_a_characters_bp(struct archive_write *,
+static int set_str_a_characters_bp(struct archive_write *,
     uchar *, int, int, const char *, enum vdc);
-static int      set_str_d_characters_bp(struct archive_write *,
+static int set_str_d_characters_bp(struct archive_write *,
     uchar *, int, int, const char *, enum  vdc);
 static void     set_VD_bp(uchar *, enum VD_type, uchar);
 static inline void set_unused_field_bp(uchar *, int, int);
@@ -898,27 +898,27 @@ static void     extra_close_record(struct ctl_extr_rec *, int);
 static uchar * extra_next_record(struct ctl_extr_rec *, int);
 static uchar * extra_get_record(struct isoent *, int *, int *, int *);
 static void     extra_tell_used_size(struct ctl_extr_rec *, int);
-static int      extra_setup_location(struct isoent *, int);
-static int      set_directory_record_rr(uchar *, int, struct isoent *, struct iso9660 *, enum dir_rec_type);
-static int      set_directory_record(uchar *, size_t, struct isoent *, struct iso9660 *, enum dir_rec_type, enum iso9660::vdd::vdd_type);
+static int extra_setup_location(struct isoent *, int);
+static int set_directory_record_rr(uchar *, int, struct isoent *, struct iso9660 *, enum dir_rec_type);
+static int set_directory_record(uchar *, size_t, struct isoent *, struct iso9660 *, enum dir_rec_type, enum iso9660::vdd::vdd_type);
 static inline int get_dir_rec_size(struct iso9660 *, struct isoent *, enum dir_rec_type, enum iso9660::vdd::vdd_type);
 static inline uchar * wb_buffptr(struct archive_write *);
-static int      wb_write_out(struct archive_write *);
-static int      wb_consume(struct archive_write *, size_t);
+static int wb_write_out(struct archive_write *);
+static int wb_consume(struct archive_write *, size_t);
 #ifdef HAVE_ZLIB_H
-static int      wb_set_offset(struct archive_write *, int64);
+static int wb_set_offset(struct archive_write *, int64);
 #endif
-static int      write_null(struct archive_write *, size_t);
-static int      write_VD_terminator(struct archive_write *);
-static int      set_file_identifier(uchar *, int, int, enum vdc, struct archive_write *, struct iso9660::vdd *,
+static int write_null(struct archive_write *, size_t);
+static int write_VD_terminator(struct archive_write *);
+static int set_file_identifier(uchar *, int, int, enum vdc, struct archive_write *, struct iso9660::vdd *,
     struct archive_string *, const char *, int, enum char_type);
-static int      write_VD(struct archive_write *, struct iso9660::vdd *);
-static int      write_VD_boot_record(struct archive_write *);
-static int      write_information_block(struct archive_write *);
-static int      write_path_table(struct archive_write *, int, struct iso9660::vdd *);
-static int      write_directory_descriptors(struct archive_write *, struct iso9660::vdd *);
-static int      write_file_descriptors(struct archive_write *);
-static int      write_rr_ER(struct archive_write *);
+static int write_VD(struct archive_write *, struct iso9660::vdd *);
+static int write_VD_boot_record(struct archive_write *);
+static int write_information_block(struct archive_write *);
+static int write_path_table(struct archive_write *, int, struct iso9660::vdd *);
+static int write_directory_descriptors(struct archive_write *, struct iso9660::vdd *);
+static int write_file_descriptors(struct archive_write *);
+static int write_rr_ER(struct archive_write *);
 static void     calculate_path_table_size(struct iso9660::vdd *);
 
 static void     isofile_init_entry_list(struct iso9660 *);
@@ -929,39 +929,39 @@ static void     isofile_add_data_file(struct iso9660 *, struct isofile *);
 static struct isofile * isofile_new(struct archive_write *,
     struct archive_entry *);
 static void     isofile_free(struct isofile *);
-static int      isofile_gen_utility_names(struct archive_write *,
+static int isofile_gen_utility_names(struct archive_write *,
     struct isofile *);
-static int      isofile_register_hardlink(struct archive_write *,
+static int isofile_register_hardlink(struct archive_write *,
     struct isofile *);
 static void     isofile_connect_hardlink_files(struct iso9660 *);
 static void     isofile_init_hardlinks(struct iso9660 *);
 static void     isofile_free_hardlinks(struct iso9660 *);
 
 static struct isoent * isoent_new(struct isofile *);
-static int      isoent_clone_tree(struct archive_write *,
+static int isoent_clone_tree(struct archive_write *,
     struct isoent **, struct isoent *);
 static void     _isoent_free(struct isoent * isoent);
 static void     isoent_free_all(struct isoent *);
 static struct isoent * isoent_create_virtual_dir(struct archive_write *,
     struct iso9660 *, const char *);
-static int      isoent_cmp_node(const struct archive_rb_node *,
+static int isoent_cmp_node(const struct archive_rb_node *,
     const struct archive_rb_node *);
-static int      isoent_cmp_key(const struct archive_rb_node *,
+static int isoent_cmp_key(const struct archive_rb_node *,
     const void *);
-static int      isoent_add_child_head(struct isoent *, struct isoent *);
-static int      isoent_add_child_tail(struct isoent *, struct isoent *);
+static int isoent_add_child_head(struct isoent *, struct isoent *);
+static int isoent_add_child_tail(struct isoent *, struct isoent *);
 static void     isoent_remove_child(struct isoent *, struct isoent *);
 static void     isoent_setup_directory_location(struct iso9660 *, int, struct iso9660::vdd *);
 static void     isoent_setup_file_location(struct iso9660 *, int);
-static int      get_path_component(char *, size_t, const char *);
-static int      isoent_tree(struct archive_write *, struct isoent **);
+static int get_path_component(char *, size_t, const char *);
+static int isoent_tree(struct archive_write *, struct isoent **);
 static struct isoent * isoent_find_child(struct isoent *, const char *);
 static struct isoent * isoent_find_entry(struct isoent *, const char *);
 static void     idr_relaxed_filenames(char *);
 static void     idr_init(struct iso9660 *, struct iso9660::vdd *, struct idr *);
 static void     idr_cleanup(struct idr *);
-static int      idr_ensure_poolsize(struct archive_write *, struct idr *, int);
-static int      idr_start(struct archive_write *, struct idr *,
+static int idr_ensure_poolsize(struct archive_write *, struct idr *, int);
+static int idr_start(struct archive_write *, struct idr *,
     int, int, int, int, const struct archive_rb_tree_ops *);
 static void     idr_register(struct idr *, struct isoent *, int,
     int);
@@ -969,39 +969,39 @@ static void     idr_extend_identifier(struct idr::idrent *, int, int);
 static void     idr_resolve(struct idr *, void (*)(uchar *, int));
 static void     idr_set_num(uchar *, int);
 static void     idr_set_num_beutf16(uchar *, int);
-static int      isoent_gen_iso9660_identifier(struct archive_write *,
+static int isoent_gen_iso9660_identifier(struct archive_write *,
     struct isoent *, struct idr *);
-static int      isoent_gen_joliet_identifier(struct archive_write *,
+static int isoent_gen_joliet_identifier(struct archive_write *,
     struct isoent *, struct idr *);
-static int      isoent_cmp_iso9660_identifier(const struct isoent *,
+static int isoent_cmp_iso9660_identifier(const struct isoent *,
     const struct isoent *);
-static int      isoent_cmp_node_iso9660(const struct archive_rb_node *,
+static int isoent_cmp_node_iso9660(const struct archive_rb_node *,
     const struct archive_rb_node *);
-static int      isoent_cmp_key_iso9660(const struct archive_rb_node *,
+static int isoent_cmp_key_iso9660(const struct archive_rb_node *,
     const void *);
-static int      isoent_cmp_joliet_identifier(const struct isoent *,
+static int isoent_cmp_joliet_identifier(const struct isoent *,
     const struct isoent *);
-static int      isoent_cmp_node_joliet(const struct archive_rb_node *,
+static int isoent_cmp_node_joliet(const struct archive_rb_node *,
     const struct archive_rb_node *);
-static int      isoent_cmp_key_joliet(const struct archive_rb_node *,
+static int isoent_cmp_key_joliet(const struct archive_rb_node *,
     const void *);
 static inline void path_table_add_entry(struct iso9660::vdd::path_table *, struct isoent *);
 static inline struct isoent * path_table_last_entry(struct iso9660::vdd::path_table *);
-static int      isoent_make_path_table(struct archive_write *);
-static int      isoent_find_out_boot_file(struct archive_write *,
+static int isoent_make_path_table(struct archive_write *);
+static int isoent_find_out_boot_file(struct archive_write *,
     struct isoent *);
-static int      isoent_create_boot_catalog(struct archive_write *,
+static int isoent_create_boot_catalog(struct archive_write *,
     struct isoent *);
 static size_t   fd_boot_image_size(int);
-static int      make_boot_catalog(struct archive_write *);
-static int      setup_boot_information(struct archive_write *);
+static int make_boot_catalog(struct archive_write *);
+static int setup_boot_information(struct archive_write *);
 
-static int      zisofs_init(struct archive_write *, struct isofile *);
+static int zisofs_init(struct archive_write *, struct isofile *);
 static void     zisofs_detect_magic(struct archive_write *, const void *, size_t);
-static int      zisofs_write_to_temp(struct archive_write *, const void *, size_t);
-static int      zisofs_finish_entry(struct archive_write *);
-static int      zisofs_rewind_boot_file(struct archive_write *);
-static int      zisofs_free(struct archive_write *);
+static int zisofs_write_to_temp(struct archive_write *, const void *, size_t);
+static int zisofs_finish_entry(struct archive_write *);
+static int zisofs_rewind_boot_file(struct archive_write *);
+static int zisofs_free(struct archive_write *);
 
 int archive_write_set_format_iso9660(struct archive * _a)
 {
@@ -2158,7 +2158,7 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
 }
 
 static const char a_characters_map[0x80] = {
-/*  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
+/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 00-0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 10-1F */
 	1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,/* 20-2F */
@@ -2170,7 +2170,7 @@ static const char a_characters_map[0x80] = {
 };
 
 static const char a1_characters_map[0x80] = {
-/*  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
+/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 00-0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 10-1F */
 	1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,/* 20-2F */
@@ -2182,7 +2182,7 @@ static const char a1_characters_map[0x80] = {
 };
 
 static const char d_characters_map[0x80] = {
-/*  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
+/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 00-0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 10-1F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 20-2F */
@@ -2194,7 +2194,7 @@ static const char d_characters_map[0x80] = {
 };
 
 static const char d1_characters_map[0x80] = {
-/*  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
+/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F          */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 00-0F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 10-1F */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,/* 20-2F */
@@ -2429,7 +2429,7 @@ static void set_time_915(uchar * p, time_t t)
 static int set_SUSP_CE(uchar * p, int location, int offset, int size)
 {
 	uchar * bp = p -1;
-	/*  Extend the System Use Area
+	/* Extend the System Use Area
 	 *   "CE" Format:
 	 *         len  ver
 	 *    +----+----+----+----+-----------+-----------+
@@ -7766,13 +7766,13 @@ static int zisofs_rewind_boot_file(struct archive_write * a)
 
 static int zisofs_finish_entry(struct archive_write * a)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return ARCHIVE_OK;
 }
 
 static int zisofs_free(struct archive_write * a)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return ARCHIVE_OK;
 }
 

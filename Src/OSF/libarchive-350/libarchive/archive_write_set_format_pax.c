@@ -63,21 +63,21 @@ static void              add_pax_attr(struct archive_string *, const char * key,
 static void              add_pax_attr_binary(struct archive_string *, const char * key, const char * value, size_t value_len);
 static void              add_pax_attr_int(struct archive_string *, const char * key, int64 value);
 static void              add_pax_attr_time(struct archive_string *, const char * key, int64 sec, unsigned long nanos);
-static int               add_pax_acl(struct archive_write *, struct archive_entry *, struct pax *, int);
+static int          add_pax_acl(struct archive_write *, struct archive_entry *, struct pax *, int);
 static ssize_t           archive_write_pax_data(struct archive_write *, const void *, size_t);
-static int               archive_write_pax_close(struct archive_write *);
-static int               archive_write_pax_free(struct archive_write *);
-static int               archive_write_pax_finish_entry(struct archive_write *);
-static int               archive_write_pax_header(struct archive_write *, struct archive_entry *);
-static int               archive_write_pax_options(struct archive_write *, const char *, const char *);
+static int          archive_write_pax_close(struct archive_write *);
+static int          archive_write_pax_free(struct archive_write *);
+static int          archive_write_pax_finish_entry(struct archive_write *);
+static int          archive_write_pax_header(struct archive_write *, struct archive_entry *);
+static int          archive_write_pax_options(struct archive_write *, const char *, const char *);
 static char             * base64_encode(const char * src, size_t len);
 static char             * build_gnu_sparse_name(char * dest, const char * src);
 static char             * build_pax_attribute_name(char * dest, const char * src);
 static char             * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert);
 static char             * format_int(char * dest, int64);
-static int               has_non_ASCII(const char *);
+static int          has_non_ASCII(const char *);
 static void              sparse_list_clear(struct pax *);
-static int               sparse_list_add(struct pax *, int64, int64);
+static int          sparse_list_add(struct pax *, int64, int64);
 static char             * url_encode(const char * in);
 
 /*

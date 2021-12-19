@@ -24,7 +24,7 @@ U_NAMESPACE_BEGIN
  * @param escapeSequences the byte escape sequences to test for.
  * @return match quality, in the range of 0-100.
  */
-int32_t CharsetRecog_2022::match_2022(const uint8_t * text, int32_t textLen, const uint8_t escapeSequences[][5], int32_t escapeSequences_length) const
+int32_t CharsetRecog_2022::match_2022(const uint8 * text, int32_t textLen, const uint8 escapeSequences[][5], int32_t escapeSequences_length) const
 {
 	int32_t j;
 	int32_t escN;
@@ -37,7 +37,7 @@ int32_t CharsetRecog_2022::match_2022(const uint8_t * text, int32_t textLen, con
 		if(text[i] == 0x1B) {
 			escN = 0;
 			while(escN < escapeSequences_length) {
-				const uint8_t * seq = escapeSequences[escN];
+				const uint8 * seq = escapeSequences[escN];
 				int32_t seq_length = (int32_t)uprv_strlen((const char *)seq);
 
 				if(textLen-i >= seq_length) {
@@ -87,7 +87,7 @@ scanInput:
 	return quality;
 }
 
-static const uint8_t escapeSequences_2022JP[][5] = {
+static const uint8 escapeSequences_2022JP[][5] = {
 	{0x1b, 0x24, 0x28, 0x43, 0x00}, // KS X 1001:1992
 	{0x1b, 0x24, 0x28, 0x44, 0x00}, // JIS X 212-1990
 	{0x1b, 0x24, 0x40, 0x00, 0x00}, // JIS C 6226-1978
@@ -103,9 +103,9 @@ static const uint8_t escapeSequences_2022JP[][5] = {
 };
 
 #if !UCONFIG_ONLY_HTML_CONVERSION
-static const uint8_t escapeSequences_2022KR[][5] = { {0x1b, 0x24, 0x29, 0x43, 0x00} };
+static const uint8 escapeSequences_2022KR[][5] = { {0x1b, 0x24, 0x29, 0x43, 0x00} };
 
-static const uint8_t escapeSequences_2022CN[][5] = {
+static const uint8 escapeSequences_2022CN[][5] = {
 	{0x1b, 0x24, 0x29, 0x41, 0x00}, // GB 2312-80
 	{0x1b, 0x24, 0x29, 0x47, 0x00}, // CNS 11643-1992 Plane 1
 	{0x1b, 0x24, 0x2A, 0x48, 0x00}, // CNS 11643-1992 Plane 2

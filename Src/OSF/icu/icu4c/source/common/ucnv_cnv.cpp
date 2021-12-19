@@ -79,7 +79,7 @@ U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv,
 			t = (char *)cnv->charErrorBuffer;
 			cnv->charErrorBufferLength = (int8_t)length;
 			do {
-				*t++ = (uint8_t)*bytes++;
+				*t++ = (uint8)*bytes++;
 			} while(--length>0);
 		}
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;

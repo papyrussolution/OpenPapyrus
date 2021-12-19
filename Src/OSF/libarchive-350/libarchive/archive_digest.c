@@ -222,22 +222,22 @@ static int __archive_md5final(archive_md5_ctx * ctx, void * md)
 #else
 	static int __archive_md5init(archive_md5_ctx * ctx)
 	{
-		(void)ctx; /* UNUSED */
+		CXX_UNUSED(ctx);
 		return ARCHIVE_FAILED;
 	}
 
 	static int __archive_md5update(archive_md5_ctx * ctx, const void * indata, size_t insize)
 	{
-		(void)ctx; /* UNUSED */
-		(void)indata; /* UNUSED */
-		(void)insize; /* UNUSED */
+		CXX_UNUSED(ctx);
+		CXX_UNUSED(indata);
+		CXX_UNUSED(insize);
 		return ARCHIVE_FAILED;
 	}
 
 	static int __archive_md5final(archive_md5_ctx * ctx, void * md)
 	{
-		(void)ctx; /* UNUSED */
-		(void)md; /* UNUSED */
+		CXX_UNUSED(ctx);
+		CXX_UNUSED(md);
 		return ARCHIVE_FAILED;
 	}
 #endif
@@ -351,22 +351,22 @@ static int __archive_ripemd160final(archive_rmd160_ctx * ctx, void * md)
 #else
 	static int __archive_ripemd160init(archive_rmd160_ctx * ctx)
 	{
-		(void)ctx; /* UNUSED */
+		CXX_UNUSED(ctx);
 		return ARCHIVE_FAILED;
 	}
 
 	static int __archive_ripemd160update(archive_rmd160_ctx * ctx, const void * indata, size_t insize)
 	{
-		(void)ctx; /* UNUSED */
-		(void)indata; /* UNUSED */
-		(void)insize; /* UNUSED */
+		CXX_UNUSED(ctx);
+		CXX_UNUSED(indata);
+		CXX_UNUSED(insize);
 		return ARCHIVE_FAILED;
 	}
 
 	static int __archive_ripemd160final(archive_rmd160_ctx * ctx, void * md)
 	{
-		(void)ctx; /* UNUSED */
-		(void)md; /* UNUSED */
+		CXX_UNUSED(ctx);
+		CXX_UNUSED(md);
 		return ARCHIVE_FAILED;
 	}
 #endif
@@ -518,22 +518,22 @@ static int __archive_ripemd160final(archive_rmd160_ctx * ctx, void * md)
 #else
 	static int __archive_sha1init(archive_sha1_ctx * ctx)
 	{
-		(void)ctx; /* UNUSED */
+		CXX_UNUSED(ctx);
 		return ARCHIVE_FAILED;
 	}
 
 	static int __archive_sha1update(archive_sha1_ctx * ctx, const void * indata, size_t insize)
 	{
-		(void)ctx; /* UNUSED */
-		(void)indata; /* UNUSED */
-		(void)insize; /* UNUSED */
+		CXX_UNUSED(ctx);
+		CXX_UNUSED(indata);
+		CXX_UNUSED(insize);
 		return ARCHIVE_FAILED;
 	}
 
 	static int __archive_sha1final(archive_sha1_ctx * ctx, void * md)
 	{
-		(void)ctx; /* UNUSED */
-		(void)md; /* UNUSED */
+		CXX_UNUSED(ctx);
+		CXX_UNUSED(md);
 		return ARCHIVE_FAILED;
 	}
 #endif
@@ -644,18 +644,12 @@ static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
 static int __archive_sha256init(archive_sha256_ctx * ctx)
 {
 	mbedtls_sha256_init(ctx);
-	if(mbedtls_sha256_starts_ret(ctx, 0) == 0)
-		return ARCHIVE_OK;
-	else
-		return ARCHIVE_FATAL;
+	return (mbedtls_sha256_starts_ret(ctx, 0) == 0) ? ARCHIVE_OK : ARCHIVE_FATAL;
 }
 
 static int __archive_sha256update(archive_sha256_ctx * ctx, const void * indata, size_t insize)
 {
-	if(mbedtls_sha256_update_ret(ctx, indata, insize) == 0)
-		return ARCHIVE_OK;
-	else
-		return ARCHIVE_FATAL;
+	return (mbedtls_sha256_update_ret(ctx, indata, insize) == 0) ? ARCHIVE_OK : ARCHIVE_FATAL;
 }
 
 static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
@@ -676,13 +670,11 @@ static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
 		sha256_init(ctx);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_sha256update(archive_sha256_ctx * ctx, const void * indata, size_t insize)
 	{
 		sha256_update(ctx, insize, indata);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
 	{
 		sha256_digest(ctx, SHA256_DIGEST_SIZE, md);
@@ -730,22 +722,22 @@ static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
 #else
 static int __archive_sha256init(archive_sha256_ctx * ctx)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 	return ARCHIVE_FAILED;
 }
 
 static int __archive_sha256update(archive_sha256_ctx * ctx, const void * indata, size_t insize)
 {
-	(void)ctx; /* UNUSED */
-	(void)indata; /* UNUSED */
-	(void)insize; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(indata);
+	CXX_UNUSED(insize);
 	return ARCHIVE_FAILED;
 }
 
 static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
 {
-	(void)ctx; /* UNUSED */
-	(void)md; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(md);
 	return ARCHIVE_FAILED;
 }
 
@@ -758,13 +750,11 @@ static int __archive_sha256final(archive_sha256_ctx * ctx, void * md)
 		SHA384_Init(ctx);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_sha384update(archive_sha384_ctx * ctx, const void * indata, size_t insize)
 	{
 		SHA384_Update(ctx, indata, insize);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_sha384final(archive_sha384_ctx * ctx, void * md)
 	{
 		SHA384_Final(md, ctx);
@@ -911,22 +901,22 @@ static int __archive_sha384final(archive_sha384_ctx * ctx, void * md)
 
 static int __archive_sha384init(archive_sha384_ctx * ctx)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 	return ARCHIVE_FAILED;
 }
 
 static int __archive_sha384update(archive_sha384_ctx * ctx, const void * indata, size_t insize)
 {
-	(void)ctx; /* UNUSED */
-	(void)indata; /* UNUSED */
-	(void)insize; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(indata);
+	CXX_UNUSED(insize);
 	return ARCHIVE_FAILED;
 }
 
 static int __archive_sha384final(archive_sha384_ctx * ctx, void * md)
 {
-	(void)ctx; /* UNUSED */
-	(void)md; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(md);
 	return ARCHIVE_FAILED;
 }
 #endif
@@ -1114,22 +1104,22 @@ static int __archive_sha512final(archive_sha512_ctx * ctx, void * md)
 
 static int __archive_sha512init(archive_sha512_ctx * ctx)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 	return ARCHIVE_FAILED;
 }
 
 static int __archive_sha512update(archive_sha512_ctx * ctx, const void * indata, size_t insize)
 {
-	(void)ctx; /* UNUSED */
-	(void)indata; /* UNUSED */
-	(void)insize; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(indata);
+	CXX_UNUSED(insize);
 	return ARCHIVE_FAILED;
 }
 
 static int __archive_sha512final(archive_sha512_ctx * ctx, void * md)
 {
-	(void)ctx; /* UNUSED */
-	(void)md; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(md);
 	return ARCHIVE_FAILED;
 }
 

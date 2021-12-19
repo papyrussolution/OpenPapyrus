@@ -787,28 +787,32 @@ int DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, void * ex
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	CopyParams cp;
-	SString src_file_name;
-	SString backup_path;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
-	(backup_path = pData->CopyPath).Strip().SetLastSlash().Cat(pData->SubDir).Strip();
-	if(GetCopyParams(pData, &cp)) {
-		for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
-			SFile::Remove(src_file_name);
-			if(pData->DestSize != pData->SrcSize) {
-				SPathStruc::ReplaceExt(src_file_name, "BT_", 1);
+	if(pData->CopyPath.NotEmpty()) { // @v11.2.8
+		CopyParams cp;
+		SString backup_path;
+		(backup_path = pData->CopyPath).Strip().SetLastSlash().Cat(pData->SubDir).Strip();
+		if(GetCopyParams(pData, &cp)) {
+			SString src_file_name;
+			for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
 				SFile::Remove(src_file_name);
+				if(pData->DestSize != pData->SrcSize) {
+					SPathStruc::ReplaceExt(src_file_name, "BT_", 1);
+					SFile::Remove(src_file_name);
+				}
 			}
+			RemoveDir(cp.Path);
+			THROW(InfoF->RemoveRecord(pData->Set, pData->ID));
+			LogMessage(fnLog, BACKUPLOG_SUC_REMOVE, /*pData->CopyPath*/backup_path, extraPtr);
 		}
-		RemoveDir(cp.Path);
-		THROW(InfoF->RemoveRecord(pData->Set, pData->ID));
-		LogMessage(fnLog, BACKUPLOG_SUC_REMOVE, /*pData->CopyPath*/backup_path, extraPtr);
+		else {
+			InfoF->RemoveRecord(pData->Set, pData->ID);
+			LogMessage(fnLog, BACKUPLOG_ERR_REMOVE, backup_path, extraPtr);
+			ok = 0;
+		}
 	}
-	else {
-		InfoF->RemoveRecord(pData->Set, pData->ID);
-		LogMessage(fnLog, BACKUPLOG_ERR_REMOVE, backup_path, extraPtr);
-		ok = 0;
-	}
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }

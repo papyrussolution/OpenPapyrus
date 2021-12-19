@@ -1848,7 +1848,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 					}
 					continue;
 				}
-				/*  deal with smooth */
+				/* deal with smooth */
 				if(Pgm.AlmostEqualsCur("s$mooth")) {
 					int found_token;
 					if(set_smooth) {

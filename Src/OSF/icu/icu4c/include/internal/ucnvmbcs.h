@@ -137,7 +137,7 @@
  * struct _MBCSHeader (see the definition in this header file below)
  * contains 32-bit fields as follows:
  * 8 values:
- *  0   uint8_t[4]  MBCS version in UVersionInfo format (currently 4.3.x.0)
+ *  0   uint8[4]  MBCS version in UVersionInfo format (currently 4.3.x.0)
  *  1   uint32_t    countStates
  *  2   uint32_t    countToUFallbacks
  *  3   uint32_t    offsetToUCodeUnits
@@ -219,7 +219,7 @@
  *         uint16_t fromUBytes[fromUBytesLength/2];
  *     } else if(!(options&MBCS_OPT_NO_FROM_U)) {
  *         -- DBCS, MBCS, EBCDIC_STATEFUL, ... 2/3/4 bytes result, see ucnvmbcs.c
- *         uint8_t fromUBytes[fromUBytesLength]; or
+ *         uint8 fromUBytes[fromUBytesLength]; or
  *         uint16_t fromUBytes[fromUBytesLength/2]; or
  *         uint32_t fromUBytes[fromUBytesLength/4];
  *     } else {
@@ -369,7 +369,7 @@ enum {
  */
 typedef struct UConverterMBCSTable {
     /* toUnicode */
-    uint8_t countStates, dbcsOnlyState, stateTableOwned;
+    uint8 countStates, dbcsOnlyState, stateTableOwned;
     uint32_t countToUFallbacks;
 
     const int32_t (*stateTable)/*[countStates]*/[256];
@@ -381,10 +381,10 @@ typedef struct UConverterMBCSTable {
     const uint16_t *fromUnicodeTable;
     const uint16_t *mbcsIndex; /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
     uint16_t sbcsIndex[SBCS_FAST_LIMIT>>6]; /* for fast conversion from low BMP to SBCS (utf8Friendly data) */
-    const uint8_t *fromUnicodeBytes;
-    uint8_t *swapLFNLFromUnicodeBytes; /* for swaplfnl */
+    const uint8 *fromUnicodeBytes;
+    uint8 *swapLFNLFromUnicodeBytes; /* for swaplfnl */
     uint32_t fromUBytesLength;
-    uint8_t outputType, unicodeMask;
+    uint8 outputType, unicodeMask;
     bool utf8Friendly; /* for utf8Friendly data */
     UChar maxFastUChar; /* for utf8Friendly data */
 
@@ -392,7 +392,7 @@ typedef struct UConverterMBCSTable {
     uint32_t asciiRoundtrips;
 
     /* reconstituted data that was omitted from the .cnv file */
-    uint8_t *reconstitutedData;
+    uint8 *reconstitutedData;
 
     /* converter name for swaplfnl */
     char *swapLFNLName;
@@ -504,7 +504,7 @@ ucnv_MBCSSimpleGetNextUChar(UConverterSharedData *sharedData,
  */
 U_CFUNC UChar32
 ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData *sharedData,
-                              uint8_t b, bool useFallback);
+                              uint8 b, bool useFallback);
 
 /**
  * This macro version of _MBCSSingleSimpleGetNextUChar() gets a code point from a byte.
@@ -513,7 +513,7 @@ ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData *sharedData,
  * returns fallback values.
  */
 #define _MBCS_SINGLE_SIMPLE_GET_NEXT_BMP(sharedData, b) \
-    (UChar)MBCS_ENTRY_FINAL_VALUE_16((sharedData)->mbcs.stateTable[0][(uint8_t)(b)])
+    (UChar)MBCS_ENTRY_FINAL_VALUE_16((sharedData)->mbcs.stateTable[0][(uint8)(b)])
 
 /**
  * This is an internal function that allows other converter implementations
@@ -524,7 +524,7 @@ ucnv_MBCSIsLeadByte(UConverterSharedData *sharedData, char byte);
 
 /** This is a macro version of _MBCSIsLeadByte(). */
 #define _MBCS_IS_LEAD_BYTE(sharedData, byte) \
-    (bool)MBCS_ENTRY_IS_TRANSITION((sharedData)->mbcs.stateTable[0][(uint8_t)(byte)])
+    (bool)MBCS_ENTRY_IS_TRANSITION((sharedData)->mbcs.stateTable[0][(uint8)(byte)])
 
 /*
  * This is another simple conversion function for internal use by other

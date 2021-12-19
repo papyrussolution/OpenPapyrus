@@ -125,7 +125,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 	    data->set.str[STRING_PROXY_SERVICE_NAME] : "rcmd";
 	const size_t serviceptr_length = strlen(serviceptr);
 
-	/*   GSS-API request looks like
+	/* GSS-API request looks like
 	 * +----+------+-----+----------------+
 	 * |VER | MTYP | LEN |     TOKEN      |
 	 * +----+------+----------------------+
@@ -231,7 +231,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 
 		/* analyse response */
 
-		/*   GSS-API response looks like
+		/* GSS-API response looks like
 		 * +----+------+-----+----------------+
 		 * |VER | MTYP | LEN |     TOKEN      |
 		 * +----+------+----------------------+

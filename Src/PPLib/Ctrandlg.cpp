@@ -90,13 +90,13 @@ void CurTransBillDialog::swapCurrencies()
 	getCurGroupData(ctlgroupInCurAmt);
 	getCurGroupData(ctlgroupOutCurAmt);
 	getCtrlData(CTL_BILL_CTRATE, &Data.TransitCRate);
-	tmp_id            = Data.InCurID;
+	tmp_id    = Data.InCurID;
 	Data.InCurID      = Data.OutCurID;
 	Data.OutCurID     = tmp_id;
-	tmp_val           = Data.InCurAmount;
+	tmp_val   = Data.InCurAmount;
 	Data.InCurAmount  = Data.OutCurAmount;
 	Data.OutCurAmount = tmp_val;
-	tmp_val           = Data.InCRate;
+	tmp_val   = Data.InCRate;
 	Data.InCRate      = Data.OutCRate;
 	Data.OutCRate     = tmp_val;
 

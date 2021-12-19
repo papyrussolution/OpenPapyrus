@@ -67,9 +67,9 @@ RuleBasedBreakIterator::RuleBasedBreakIterator(RBBIDataHeader* data, UErrorCode 
 
 //
 //  Construct from precompiled binary rules (tables).  This constructor is public API,
-//  taking the rules as a (const uint8_t *) to match the type produced by getBinaryRules().
+//  taking the rules as a (const uint8 *) to match the type produced by getBinaryRules().
 //
-RuleBasedBreakIterator::RuleBasedBreakIterator(const uint8_t * compiledRules,
+RuleBasedBreakIterator::RuleBasedBreakIterator(const uint8 * compiledRules,
     uint32_t ruleLength,
     UErrorCode     &status)
 	: fSCharIter(UnicodeString())
@@ -256,27 +256,24 @@ RuleBasedBreakIterator& RuleBasedBreakIterator::operator = (const RuleBasedBreak
 //
 void RuleBasedBreakIterator::init(UErrorCode & status) 
 {
-	fCharIter             = nullptr;
-	fData                 = nullptr;
-	fPosition             = 0;
-	fRuleStatusIndex      = 0;
-	fDone                 = false;
+	fCharIter = nullptr;
+	fData = nullptr;
+	fPosition = 0;
+	fRuleStatusIndex = 0;
+	fDone = false;
 	fDictionaryCharCount  = 0;
 	fLanguageBreakEngines = nullptr;
 	fUnhandledBreakEngine = nullptr;
-	fBreakCache           = nullptr;
-	fDictionaryCache      = nullptr;
-	fLookAheadMatches     = nullptr;
-
+	fBreakCache = nullptr;
+	fDictionaryCache = nullptr;
+	fLookAheadMatches = nullptr;
 	// Note: IBM xlC is unable to assign or initialize member fText from UTEXT_INITIALIZER.
-	// fText                 = UTEXT_INITIALIZER;
+	// fText         = UTEXT_INITIALIZER;
 	static const UText initializedUText = UTEXT_INITIALIZER;
 	uprv_memcpy(&fText, &initializedUText, sizeof(UText));
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	utext_openUChars(&fText, NULL, 0, &status);
 	fDictionaryCache = new DictionaryCache(this, status);
 	fBreakCache      = new BreakCache(this, status);
@@ -730,12 +727,12 @@ int32_t RuleBasedBreakIterator::handleNext() {
 
 	RowType             * row;
 	UChar32 c;
-	int32_t result             = 0;
+	int32_t result     = 0;
 	int32_t initialPosition    = 0;
 	const RBBIStateTable * statetable       = fData->fForwardTable;
-	const char * tableData          = statetable->fTableData;
+	const char * tableData  = statetable->fTableData;
 	uint32_t tableRowLen        = statetable->fRowLen;
-	uint32_t dictStart          = statetable->fDictCategoriesStart;
+	uint32_t dictStart  = statetable->fDictCategoriesStart;
     #ifdef RBBI_DEBUG
 	if(gTrace) {
 		RBBIDebugPuts("Handle Next   pos   char  state category");
@@ -751,8 +748,8 @@ int32_t RuleBasedBreakIterator::handleNext() {
 	// if we're already at the end of the text, return DONE.
 	initialPosition = fPosition;
 	UTEXT_SETNATIVEINDEX(&fText, initialPosition);
-	result          = initialPosition;
-	c               = UTEXT_NEXT32(&fText);
+	result  = initialPosition;
+	c       = UTEXT_NEXT32(&fText);
 	if(c==U_SENTINEL) {
 		fDone = TRUE;
 		return UBRK_DONE;
@@ -909,7 +906,7 @@ int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
 	uint16_t category        = 0;
 	RowType            * row;
 	UChar32 c;
-	int32_t result          = 0;
+	int32_t result  = 0;
 
 	const RBBIStateTable * stateTable = fData->fReverseTable;
 	UTEXT_SETNATIVEINDEX(&fText, fromPosition);
@@ -1014,12 +1011,12 @@ int32_t RuleBasedBreakIterator::getRuleStatusVec(int32_t * fillInVec, int32_t ca
 //                         for use by build system tools that save the data
 //                         for standard iterator types.
 //
-const uint8_t * RuleBasedBreakIterator::getBinaryRules(uint32_t &length) 
+const uint8 * RuleBasedBreakIterator::getBinaryRules(uint32_t &length) 
 {
-	const uint8_t * retPtr = NULL;
+	const uint8 * retPtr = NULL;
 	length = 0;
 	if(fData != NULL) {
-		retPtr = (const uint8_t*)fData->fHeader;
+		retPtr = (const uint8*)fData->fHeader;
 		length = fData->fHeader->fLength;
 	}
 	return retPtr;

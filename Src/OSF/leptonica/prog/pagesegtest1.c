@@ -31,34 +31,40 @@
  *                   pageseg1.tif, pageseg2.tif, pageseg3.tif, pageseg4.tif
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
          char **argv)
 {
 PIX         *pixs, *pixhm, *pixtm, *pixtb, *pixd;
-PIXA        *pixa;
+PIXA        *pixadb;
 char        *filein;
 static char  mainName[] = "pagesegtest1";
 
     if (argc != 2)
         return ERROR_INT(" Syntax:  pagesegtest1 filein", mainName, 1);
-
     filein = argv[1];
+    setLeptDebugOK(1);
+
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
 
-    pixGetRegionsBinary(pixs, &pixhm, &pixtm, &pixtb, 1);
+    pixadb = pixaCreate(0);
+    pixGetRegionsBinary(pixs, &pixhm, &pixtm, &pixtb, pixadb);
     pixDestroy(&pixhm);
     pixDestroy(&pixtm);
     pixDestroy(&pixtb);
     pixDestroy(&pixs);
 
         /* Display intermediate images in a single image */
-    pixa = pixaReadFiles("/tmp", "junk_write");
-    pixd = pixaDisplayTiledAndScaled(pixa, 32, 400, 4, 0, 20, 3);
-    pixWrite("/tmp/segstuff.png", pixd, IFF_PNG);
-    pixaDestroy(&pixa);
+    lept_mkdir("lept/pagseg");
+    pixd = pixaDisplayTiledAndScaled(pixadb, 32, 400, 4, 0, 20, 3);
+    pixWrite("/tmp/lept/pageseg/debug.png", pixd, IFF_PNG);
+    pixaDestroy(&pixadb);
     pixDestroy(&pixd);
     return 0;
 }

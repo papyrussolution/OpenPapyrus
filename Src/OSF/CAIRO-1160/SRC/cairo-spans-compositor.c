@@ -762,165 +762,116 @@ static cairo_int_status_t FASTCALL clip_and_composite_boxes(const cairo_spans_co
 		cairo_polygon_t polygon;
 		cairo_fill_rule_t fill_rule;
 		cairo_antialias_t antialias;
-		cairo_clip_t * clip;
-
-		clip = _cairo_clip_copy(extents->clip);
+		cairo_clip_t * clip = _cairo_clip_copy(extents->clip);
 		clip = _cairo_clip_intersect_boxes(clip, boxes);
 		if(_cairo_clip_is_all_clipped(clip))
 			return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
-		status = _cairo_clip_get_polygon(clip, &polygon,
-			&fill_rule, &antialias);
+		status = _cairo_clip_get_polygon(clip, &polygon, &fill_rule, &antialias);
 		_cairo_clip_path_destroy(clip->path);
 		clip->path = NULL;
 		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS)) {
 			cairo_clip_t * saved_clip = extents->clip;
 			extents->clip = clip;
-
-			status = clip_and_composite_polygon(compositor, extents, &polygon,
-				fill_rule, antialias);
-
+			status = clip_and_composite_polygon(compositor, extents, &polygon, fill_rule, antialias);
 			clip = extents->clip;
 			extents->clip = saved_clip;
-
 			_cairo_polygon_fini(&polygon);
 		}
 		_cairo_clip_destroy(clip);
-
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED)
 			return status;
 	}
-
 	if(boxes->is_pixel_aligned) {
 		status = composite_aligned_boxes(compositor, extents, boxes);
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED)
 			return status;
 	}
-
 	status = composite_boxes(compositor, extents, boxes);
 	if(status != CAIRO_INT_STATUS_UNSUPPORTED)
 		return status;
-
 	status = _cairo_polygon_init_boxes(&polygon, boxes);
 	if(UNLIKELY(status))
 		return status;
-
-	status = composite_polygon(compositor, extents, &polygon,
-		CAIRO_FILL_RULE_WINDING,
-		CAIRO_ANTIALIAS_DEFAULT);
+	status = composite_polygon(compositor, extents, &polygon, CAIRO_FILL_RULE_WINDING, CAIRO_ANTIALIAS_DEFAULT);
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }
 
-static cairo_int_status_t clip_and_composite_polygon(const cairo_spans_compositor_t * compositor,
-    cairo_composite_rectangles_t * extents,
-    cairo_polygon_t * polygon,
-    cairo_fill_rule_t fill_rule,
-    cairo_antialias_t antialias)
+static cairo_int_status_t clip_and_composite_polygon(const cairo_spans_compositor_t * compositor, cairo_composite_rectangles_t * extents,
+    cairo_polygon_t * polygon, cairo_fill_rule_t fill_rule, cairo_antialias_t antialias)
 {
 	cairo_int_status_t status;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	/* XXX simply uses polygon limits.point extemities, tessellation? */
 	status = trim_extents_to_polygon(extents, polygon);
 	if(UNLIKELY(status))
 		return status;
-
 	if(_cairo_polygon_is_empty(polygon)) {
 		cairo_boxes_t boxes;
-
 		if(extents->is_bounded)
 			return CAIRO_STATUS_SUCCESS;
-
 		_cairo_boxes_init(&boxes);
 		extents->bounded.width = extents->bounded.height = 0;
 		return fixup_unbounded_boxes(compositor, extents, &boxes);
 	}
-
 	if(extents->is_bounded && extents->clip->path) {
 		cairo_polygon_t clipper;
 		cairo_antialias_t clip_antialias;
 		cairo_fill_rule_t clip_fill_rule;
-
-		TRACE((stderr, "%s - combining shape with clip polygon\n",
-		    __FUNCTION__));
-
-		status = _cairo_clip_get_polygon(extents->clip,
-			&clipper,
-			&clip_fill_rule,
-			&clip_antialias);
+		TRACE((stderr, "%s - combining shape with clip polygon\n", __FUNCTION__));
+		status = _cairo_clip_get_polygon(extents->clip, &clipper, &clip_fill_rule, &clip_antialias);
 		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS)) {
-			cairo_clip_t * old_clip;
-
 			if(clip_antialias == antialias) {
-				status = _cairo_polygon_intersect(polygon, fill_rule,
-					&clipper, clip_fill_rule);
+				status = _cairo_polygon_intersect(polygon, fill_rule, &clipper, clip_fill_rule);
 				_cairo_polygon_fini(&clipper);
 				if(UNLIKELY(status))
 					return status;
-
-				old_clip = extents->clip;
-				extents->clip = _cairo_clip_copy_region(extents->clip);
-				_cairo_clip_destroy(old_clip);
-
-				status = trim_extents_to_polygon(extents, polygon);
-				if(UNLIKELY(status))
-					return status;
-
-				fill_rule = CAIRO_FILL_RULE_WINDING;
+				else {
+					cairo_clip_t * old_clip = extents->clip;
+					extents->clip = _cairo_clip_copy_region(extents->clip);
+					_cairo_clip_destroy(old_clip);
+					status = trim_extents_to_polygon(extents, polygon);
+					if(UNLIKELY(status))
+						return status;
+					fill_rule = CAIRO_FILL_RULE_WINDING;
+				}
 			}
 			else {
 				_cairo_polygon_fini(&clipper);
 			}
 		}
 	}
-
-	return composite_polygon(compositor, extents,
-		   polygon, fill_rule, antialias);
+	return composite_polygon(compositor, extents, polygon, fill_rule, antialias);
 }
 
 /* high-level compositor interface */
-
-static cairo_int_status_t _cairo_spans_compositor_paint(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents)
+static cairo_int_status_t _cairo_spans_compositor_paint(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents)
 {
 	const cairo_spans_compositor_t * compositor = (cairo_spans_compositor_t*)_compositor;
 	cairo_boxes_t boxes;
 	cairo_int_status_t status;
-
 	TRACE_FUNCTION_SIMPLE();
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
 	status = clip_and_composite_boxes(compositor, extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
-
 	return status;
 }
 
-static cairo_int_status_t _cairo_spans_compositor_mask(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents)
+static cairo_int_status_t _cairo_spans_compositor_mask(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents)
 {
 	const cairo_spans_compositor_t * compositor = (cairo_spans_compositor_t*)_compositor;
 	cairo_int_status_t status;
 	cairo_boxes_t boxes;
-
 	TRACE_FUNCTION_SIMPLE();
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
 	status = clip_and_composite_boxes(compositor, extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
-
 	return status;
 }
 
-static cairo_int_status_t _cairo_spans_compositor_stroke(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents,
-    const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_antialias_t antialias)
+static cairo_int_status_t _cairo_spans_compositor_stroke(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents,
+    const cairo_path_fixed_t * path, const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse,
+    double tolerance, cairo_antialias_t antialias)
 {
 	const cairo_spans_compositor_t * compositor = (cairo_spans_compositor_t*)_compositor;
 	cairo_int_status_t status;
@@ -938,7 +889,6 @@ static cairo_int_status_t _cairo_spans_compositor_stroke(const cairo_compositor_
 			status = clip_and_composite_boxes(compositor, extents, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}
-
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 		cairo_polygon_t polygon;
 		cairo_fill_rule_t fill_rule = CAIRO_FILL_RULE_WINDING;

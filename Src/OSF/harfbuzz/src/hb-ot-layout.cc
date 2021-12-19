@@ -318,7 +318,7 @@ uint hb_ot_layout_get_ligature_carets(hb_font_t * font,
 /*
  * GSUB/GPOS
  */
-bool OT::GSUB::is_blocklisted(hb_blob_t *blob HB_UNUSED, hb_face_t *face) const
+bool OT::GSUB::is_blocklisted(hb_blob_t *blob CXX_UNUSED_PARAM, hb_face_t *face) const
 {
 #ifdef HB_NO_OT_LAYOUT_BLACKLIST
 	return false;
@@ -326,7 +326,7 @@ bool OT::GSUB::is_blocklisted(hb_blob_t *blob HB_UNUSED, hb_face_t *face) const
 	return false;
 }
 
-bool OT::GPOS::is_blocklisted(hb_blob_t *blob HB_UNUSED, hb_face_t *face HB_UNUSED) const
+bool OT::GPOS::is_blocklisted(hb_blob_t *blob CXX_UNUSED_PARAM, hb_face_t *face CXX_UNUSED_PARAM) const
 {
 #ifdef HB_NO_OT_LAYOUT_BLACKLIST
 	return false;

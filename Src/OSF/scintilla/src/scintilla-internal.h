@@ -595,7 +595,7 @@ private:
 	enum {
 		fInCallTipMode   = 0x0001,
 		fUseStyleCallTip = 0x0002, // if true, STYLE_CALLTIP should be used
-		fAbove           = 0x0004  // if true, display calltip above text
+		fAbove   = 0x0004  // if true, display calltip above text
 	};
 	long   Flags;
 };
@@ -868,8 +868,8 @@ public:
 	enum {
 		dfInsertionSet       = 0x0001,
 		dfMatchesValid       = 0x0002,
-		dfUseTabs            = 0x0004,
-		dfTabIndents         = 0x0008,
+		dfUseTabs    = 0x0004,
+		dfTabIndents = 0x0008,
 		dfBackspaceUnindents = 0x0010
 	};
 	bool   IsDocFlag(uint f) const { return LOGIC(DocFlags & f); }
@@ -2105,13 +2105,13 @@ public:
 	bool imeCaretBlockOverride;
 	*/
 	enum {
-		fHideSelection           = 0x0001,
+		fHideSelection   = 0x0001,
 		fDrawOverstrikeCaret     = 0x0002,
 		//
 		// In bufferedDraw mode, graphics operations are drawn to a pixmap and then copied to
 		// the screen. This avoids flashing but is about 30% slower. 
 		//
-		fBufferedDraw            = 0x0004,
+		fBufferedDraw    = 0x0004,
 		fAdditionalCaretsBlink   = 0x0008,
 		fAdditionalCaretsVisible = 0x0010,
 		fImeCaretBlockOverride   = 0x0020,
@@ -2203,9 +2203,9 @@ private:
 class AutoComplete {
 public:
 	enum {
-		fActive           = 0x0001,
+		fActive   = 0x0001,
 		fCancelAtStartPos = 0x0002, /// Should autocompletion be canceled if editor's currentPos <= startPos?
-		fAutoHide         = 0x0004,
+		fAutoHide = 0x0004,
 		fDropRestOfWord   = 0x0008,
 		fIgnoreCase       = 0x0010,
 		fChooseSingle     = 0x0020
@@ -2498,24 +2498,24 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	//bool   convertPastes;
 
 	enum {
-		fHasFocus                        = 0x00000001,
-		fMouseDownCaptures               = 0x00000002,
-		fMouseWheelCaptures              = 0x00000004,
+		fHasFocus                = 0x00000001,
+		fMouseDownCaptures       = 0x00000002,
+		fMouseWheelCaptures      = 0x00000004,
 		fHorizontalScrollBarVisible      = 0x00000008,
 		fVerticalScrollBarVisible        = 0x00000010,
-		fEndAtLastLine                   = 0x00000020,
+		fEndAtLastLine           = 0x00000020,
 		fMouseSelectionRectangularSwitch = 0x00000040,
-		fMultipleSelection               = 0x00000080,
+		fMultipleSelection       = 0x00000080,
 		fAdditionalSelectionTyping       = 0x00000100,
-		fDwelling                        = 0x00000200,
-		fDropWentOutside                 = 0x00000400,
-		fPaintAbandonedByStyling         = 0x00000800,
-		fPaintingAllText                 = 0x00001000,
-		fWillRedrawAll                   = 0x00002000,
-		fNeedIdleStyling                 = 0x00004000,
-		fRecordingMacro                  = 0x00008000,
-		fConvertPastes                   = 0x00010000,
-		fStylesValid                     = 0x00020000 // @internal Style resources may be expensive to allocate 
+		fDwelling                = 0x00000200,
+		fDropWentOutside         = 0x00000400,
+		fPaintAbandonedByStyling = 0x00000800,
+		fPaintingAllText         = 0x00001000,
+		fWillRedrawAll           = 0x00002000,
+		fNeedIdleStyling         = 0x00004000,
+		fRecordingMacro          = 0x00008000,
+		fConvertPastes           = 0x00010000,
+		fStylesValid             = 0x00020000 // @internal Style resources may be expensive to allocate 
 			// so are cached between uses. When a style attribute is changed, this cache is flushed. 
 	};
 	uint32 Flags;

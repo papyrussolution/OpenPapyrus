@@ -94,7 +94,7 @@ public:
     int32_t getDictCategoriesStart() const; // First char category that includes $dictionary, or
                                              // last category + 1 if there are no dictionary categories.
     int32_t getTrieSize() /*const*/;        // Size in bytes of the serialized Trie.
-    void   serializeTrie(uint8_t *where);  // write out the serialized Trie.
+    void   serializeTrie(uint8 *where);  // write out the serialized Trie.
     UChar32 getFirstChar(int32_t val) const;
     bool    sawBOF() const;                 // Indicate whether any references to the {bof} pseudo
                                              //   character were encountered.
@@ -116,24 +116,18 @@ public:
 #endif
 
 private:
-    RBBIRuleBuilder       *fRB;             // The RBBI Rule Compiler that owns us.
-    UErrorCode *fStatus;
-
-    RangeDescriptor       *fRangeList;      // Head of the linked list of RangeDescriptors
-
-    UMutableCPTrie        *fMutableTrie;    // The mapping TRIE that is the end result of processing
-    UCPTrie               *fTrie;           //  the Unicode Sets.
-    uint32_t               fTrieSize;
-
+    RBBIRuleBuilder * fRB; // The RBBI Rule Compiler that owns us.
+    UErrorCode * fStatus;
+    RangeDescriptor * fRangeList;      // Head of the linked list of RangeDescriptors
+    UMutableCPTrie * fMutableTrie;    // The mapping TRIE that is the end result of processing
+    UCPTrie * fTrie;           //  the Unicode Sets.
+    uint32_t fTrieSize;
     // Number of range groups, which are groups of ranges that are in the same original UnicodeSets.
     int32_t fGroupCount;
-
     // The number of the first dictionary char category.
     // If there are no Dictionary categories, set to the last category + 1.
     int32_t fDictCategoriesStart;
-
-    bool                 fSawBOF;
-
+    bool   fSawBOF;
     RBBISetBuilder(const RBBISetBuilder &other); // forbid copying of this class
     RBBISetBuilder & operator = (const RBBISetBuilder &other); // forbid copying of this class
 };

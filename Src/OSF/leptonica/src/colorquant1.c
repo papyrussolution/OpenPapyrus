@@ -52,25 +52,25 @@
  *
  *        which calls
  *          static CQCELL  ***octreeGenerateAndPrune()
- *          static PIX       *pixOctreeQuantizePixels()
+ *          static PIX *pixOctreeQuantizePixels()
  *
  *        which calls
- *          static int32    octreeFindColorCell()
+ *          static l_int32    octreeFindColorCell()
  *
  *      Helper cqcell functions
  *          static CQCELL  ***cqcellTreeCreate()
  *          static void       cqcellTreeDestroy()
  *
  *      Helper index functions
- *          int32           makeRGBToIndexTables()
+ *          l_int32           makeRGBToIndexTables()
  *          void              getOctcubeIndexFromRGB()
  *          static void       getRGBFromOctcube()
- *          static int32    getOctcubeIndices()
- *          static int32    octcubeGetCount()
+ *          static l_int32    getOctcubeIndices()
+ *          static l_int32    octcubeGetCount()
  *
  *  (2) Adaptive octree quantization based on population at a fixed level
  *          PIX              *pixOctreeQuantByPopulation()
- *          static int32    pixDitherOctindexWithCmap()
+ *          static l_int32    pixDitherOctindexWithCmap()
  *
  *  (3) Adaptive octree quantization to 4 and 8 bpp with specified
  *      number of output colors in colormap
@@ -94,26 +94,25 @@
  *  (8) Color quantize RGB image using existing colormap
  *          PIX              *pixQuantFromCmap()  [high-level wrapper]
  *          PIX              *pixOctcubeQuantFromCmap()
- *          static PIX       *pixOctcubeQuantFromCmapLUT()
+ *          static PIX *pixOctcubeQuantFromCmapLUT()
  *
  *      Generation of octcube histogram
  *          NUMA             *pixOctcubeHistogram()
  *
  *      Get filled octcube table from colormap
- *          int32          *pixcmapToOctcubeLUT()
+ *          l_int32          *pixcmapToOctcubeLUT()
  *
  *      Strip out unused elements in colormap
- *          int32           pixRemoveUnusedColors()
+ *          l_int32           pixRemoveUnusedColors()
  *
  *      Find number of occupied octcubes at the specified level
- *          int32           pixNumberOccupiedOctcubes()
+ *          l_int32           pixNumberOccupiedOctcubes()
  *
  *  Notes:
  *        Leptonica also provides color quantization using a modified
  *        form of median cut.  See colorquant2.c for details.
  * </pre>
  */
-
 #include "allheaders.h"
 #pragma hdrstop
 /*
@@ -121,7 +120,7 @@
  *   This data structure is used for pixOctreeColorQuant(),
  *   a color octree that adjusts to the color distribution
  *   in the image that is being quantized.  The best settings
- *   are with CQ_NLEVELS = 6 and DITHERING set on.
+ *   are with CqNLevels = 6 and DITHERING set on.
  *
  * Notes:
  *      (1) the CTE (color table entry) index is sequentially
@@ -154,22 +153,22 @@
  * </pre>
  */
 struct ColorQuantCell {
-	int32 rc, gc, bc;   /* center values                              */
-	int32 n;            /* number of samples in this cell             */
-	int32 index;        /* CTE (color table entry) index              */
-	int32 nleaves;      /* # of leaves contained at next lower level  */
-	int32 bleaf;        /* boolean: 0 if not a leaf, 1 if so          */
+	l_int32 rc, gc, bc; /* center values                              */
+	l_int32 n;            /* number of samples in this cell             */
+	l_int32 index; /* CTE (color table entry) index              */
+	l_int32 nleaves; /* # of leaves contained at next lower level  */
+	l_int32 bleaf; /* boolean: 0 if not a leaf, 1 if so          */
 };
 
 typedef struct ColorQuantCell CQCELL;
 
 /* Constants for pixOctreeColorQuant() */
-static const int32 CQ_NLEVELS = 5;    /* only 4, 5 and 6 are allowed */
-static const int32 CQ_RESERVED_COLORS = 64;   /* to allow for level 2 */
-                                                /* remainder CTEs */
-static const int32 EXTRA_RESERVED_COLORS = 25;   /* to avoid running out */
-static const int32 TREE_GEN_WIDTH = 350;   /* big enough for good stats */
-static const int32 MIN_DITHER_SIZE = 250;   /* don't dither if smaller */
+static const l_int32 CqNLevels = 5; /* only 4, 5 and 6 are allowed */
+static const l_int32 CqReservedColors = 64; /* to allow for level 2 */
+                                                 /* remainder CTEs */
+static const l_int32 ExtraReservedColors = 25; /* to avoid running out */
+static const l_int32 TreeGenWidth = 350; /* big enough for good stats */
+static const l_int32 MinDitherSize = 250; /* don't dither if smaller */
 
 /*
  * <pre>
@@ -186,9 +185,9 @@ static const int32 MIN_DITHER_SIZE = 250;   /* don't dither if smaller */
  * */
 struct OctcubeQuantCell {
 	float n;               /* number of samples in this cell       */
-	int32 octindex;          /* octcube index                        */
-	int32 rcum, gcum, bcum;  /* cumulative values                    */
-	int32 rval, gval, bval;  /* average values                       */
+	l_int32 octindex; /* octcube index                        */
+	l_int32 rcum, gcum, bcum;  /* cumulative values                    */
+	l_int32 rval, gval, bval;  /* average values                       */
 };
 
 typedef struct OctcubeQuantCell OQCELL;
@@ -200,11 +199,11 @@ typedef struct OctcubeQuantCell OQCELL;
  * </pre>
  */
 struct L_OctcubePop {
-	float npix;       /* parameter on which to sort  */
-	int32 index;        /* octcube index at assigned level */
-	int32 rval;         /* mean red value of pixels in octcube */
-	int32 gval;         /* mean green value of pixels in octcube */
-	int32 bval;         /* mean blue value of pixels in octcube */
+	float npix; /* parameter on which to sort  */
+	l_int32 index; /* octcube index at assigned level */
+	l_int32 rval; /* mean red value of pixels in octcube */
+	l_int32 gval; /* mean green value of pixels in octcube */
+	l_int32 bval; /* mean blue value of pixels in octcube */
 };
 
 typedef struct L_OctcubePop L_OCTCUBE_POP;
@@ -220,40 +219,40 @@ typedef struct L_OctcubePop L_OCTCUBE_POP;
  * </pre>
  */
 
-static const int32 FIXED_DIF_CAP = 0;
-static const int32 POP_DIF_CAP = 40;
+static const l_int32 FIXED_DIF_CAP = 0;
+static const l_int32 POP_DIF_CAP = 40;
 
 /* Static octree helper function */
-static int32 octreeFindColorCell(int32 octindex, CQCELL *** cqcaa,
-    int32 * pindex, int32 * prval,
-    int32 * pgval, int32 * pbval);
+static l_int32 octreeFindColorCell(l_int32 octindex, CQCELL *** cqcaa,
+    l_int32 * pindex, l_int32 * prval,
+    l_int32 * pgval, l_int32 * pbval);
 
 /* Static cqcell functions */
-static CQCELL *** octreeGenerateAndPrune(PIX * pixs, int32 colors,
-    int32 reservedcolors,
+static CQCELL *** octreeGenerateAndPrune(PIX * pixs, l_int32 colors,
+    l_int32 reservedcolors,
     PIXCMAP ** pcmap);
 static PIX * pixOctreeQuantizePixels(PIX * pixs, CQCELL *** cqcaa,
-    int32 ditherflag);
+    l_int32 ditherflag);
 static CQCELL *** cqcellTreeCreate(void);
 static void cqcellTreeDestroy(CQCELL **** pcqcaa);
 
 /* Static helper octcube index functions */
-static void getRGBFromOctcube(int32 cubeindex, int32 level,
-    int32 * prval, int32 * pgval, int32 * pbval);
-static int32 getOctcubeIndices(int32 rgbindex, int32 level,
-    int32 * pbindex, int32 * psindex);
-static int32 octcubeGetCount(int32 level, int32 * psize);
+static void getRGBFromOctcube(l_int32 cubeindex, l_int32 level,
+    l_int32 * prval, l_int32 * pgval, l_int32 * pbval);
+static l_int32 getOctcubeIndices(l_int32 rgbindex, l_int32 level,
+    l_int32 * pbindex, l_int32 * psindex);
+static l_int32 octcubeGetCount(l_int32 level, l_int32 * psize);
 
 /* Static function to perform octcube-indexed dithering */
-static int32 pixDitherOctindexWithCmap(PIX * pixs, PIX * pixd, uint32 * rtab,
-    uint32 * gtab, uint32 * btab,
-    int32 * carray, int32 difcap);
+static l_int32 pixDitherOctindexWithCmap(PIX * pixs, PIX * pixd, l_uint32 * rtab,
+    l_uint32 * gtab, l_uint32 * btab,
+    l_int32 * carray, l_int32 difcap);
 
 /* Static function to perform octcube-based quantizing from colormap */
 static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs, PIXCMAP * cmap,
-    int32 mindepth, int32 * cmaptab,
-    uint32 * rtab, uint32 * gtab,
-    uint32 * btab);
+    l_int32 mindepth, l_int32 * cmaptab,
+    l_uint32 * rtab, l_uint32 * gtab,
+    l_uint32 * btab);
 
 #ifndef   NO_CONSOLE_IO
 #define   DEBUG_COLORQUANT      0
@@ -270,10 +269,10 @@ static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs, PIXCMAP * cmap,
 /*!
  * \brief   pixOctreeColorQuant()
  *
- * \param[in]    pixs  32 bpp; 24-bit color
- * \param[in]    colors  in colormap; some number in range [128 ... 256];
- *                      the actual number of colors used will be smaller
- * \param[in]    ditherflag  1 to dither, 0 otherwise
+ * \param[in]    pixs         32 bpp; 24-bit color
+ * \param[in]    colors       in colormap; some number in range [128 ... 256];
+ *                            the actual number of colors used will be smaller
+ * \param[in]    ditherflag   1 to dither, 0 otherwise
  * \return  pixd 8 bpp with colormap, or NULL on error
  *
  * <pre>
@@ -525,34 +524,38 @@ static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs, PIXCMAP * cmap,
  *      such images, turn it off.
  * </pre>
  */
-PIX * pixOctreeColorQuant(PIX * pixs, int32 colors, int32 ditherflag)
+PIX * pixOctreeColorQuant(PIX * pixs,
+    l_int32 colors,
+    l_int32 ditherflag)
 {
-	PROCNAME("pixOctreeColorQuant");
+	PROCNAME(__FUNCTION__);
+
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(colors < 128 || colors > 240) /* further restricted */
-		return (PIX*)ERROR_PTR("colors must be in [128, 240]", procName, NULL);
-	return pixOctreeColorQuantGeneral(pixs, colors, ditherflag, 0.01f, 0.01f);
+		return (PIX *)ERROR_PTR("colors must be in [128, 240]", procName, NULL);
+
+	return pixOctreeColorQuantGeneral(pixs, colors, ditherflag, 0.01, 0.01);
 }
 
 /*!
  * \brief   pixOctreeColorQuantGeneral()
  *
- * \param[in]    pixs  32 bpp; 24-bit color
- * \param[in]    colors  in colormap; some number in range [128 ... 240];
- *                      the actual number of colors used will be smaller
- * \param[in]    ditherflag  1 to dither, 0 otherwise
- * \param[in]    validthresh minimum fraction of pixels neither near white
- *                           nor black, required for color quantization;
- *                           typically ~0.01, but smaller for images that have
- *                           color but are nearly all white
- * \param[in]    colorthresh minimum fraction of pixels with color that are
- *                           not near white or black, that are required
- *                           for color quantization; typ. ~0.01, but smaller
- *                           for images that have color along with a
- *                           significant fraction of gray
+ * \param[in]    pixs          32 bpp; 24-bit color
+ * \param[in]    colors        in colormap; some number in range [128 ... 240];
+ *                             the actual number of colors used will be smaller
+ * \param[in]    ditherflag    1 to dither, 0 otherwise
+ * \param[in]    validthresh   minimum fraction of pixels neither near white
+ *                             nor black, required for color quantization;
+ *                             typically ~0.01, but smaller for images that have
+ *                             color but are nearly all white
+ * \param[in]    colorthresh   minimum fraction of pixels with color that are
+ *                             not near white or black, that are required
+ *                             for color quantization; typ. ~0.01, but smaller
+ *                             for images that have color along with a
+ *                             significant fraction of gray
  * \return  pixd 8 bit with colormap, or NULL on error
  *
  * <pre>
@@ -585,28 +588,28 @@ PIX * pixOctreeColorQuant(PIX * pixs, int32 colors, int32 ditherflag)
  *          intermediate gray pixels or that have many such gray pixels.
  * </pre>
  */
-PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
-    int32 colors,
-    int32 ditherflag,
+PIX * pixOctreeColorQuantGeneral(PIX * pixs,
+    l_int32 colors,
+    l_int32 ditherflag,
     float validthresh,
     float colorthresh)
 {
-	int32 w, h, minside, factor, index, rval, gval, bval;
+	l_int32 w, h, minside, factor, index, rval, gval, bval;
 	float scalefactor;
 	float pixfract; /* fraction neither near white nor black */
 	float colorfract; /* fraction with color of the pixfract population */
 	CQCELL  *** cqcaa;
-	PIX       * pixd, * pixsub;
+	PIX * pixd, * pixsub;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixOctreeColorQuantGeneral");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(colors < 128 || colors > 240)
-		return (PIX*)ERROR_PTR("colors must be in [128, 240]", procName, NULL);
+		return (PIX *)ERROR_PTR("colors must be in [128, 240]", procName, NULL);
 
 	/* Determine if the image has sufficient color content for
 	 *   octree quantization, based on the input thresholds.
@@ -620,9 +623,10 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
 		factor = MAX(1, minside / 400);
 		pixColorFraction(pixs, 20, 244, 20, factor, &pixfract, &colorfract);
 		if(pixfract * colorfract < validthresh * colorthresh) {
-			L_INFO3("\n  Pixel fraction neither white nor black = %6.3f"
+			L_INFO("\n  Pixel fraction neither white nor black = %6.3f"
 			    "\n  Color fraction of those pixels = %6.3f"
-			    "\n  Quantizing to 8 bpp gray\n", procName, pixfract, colorfract);
+			    "\n  Quantizing to 8 bpp gray\n",
+			    procName, pixfract, colorfract);
 			return pixConvertTo8(pixs, 1);
 		}
 	}
@@ -631,8 +635,8 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
 	}
 
 	/* Conditionally subsample to speed up the first pass */
-	if(w > TREE_GEN_WIDTH) {
-		scalefactor = (float)TREE_GEN_WIDTH / (float)w;
+	if(w > TreeGenWidth) {
+		scalefactor = (float)TreeGenWidth / (float)w;
 		pixsub = pixScaleBySampling(pixs, scalefactor, scalefactor);
 	}
 	else {
@@ -640,14 +644,14 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
 	}
 
 	/* Drop the number of requested colors if image is very small */
-	if(w < MIN_DITHER_SIZE && h < MIN_DITHER_SIZE)
+	if(w < MinDitherSize && h < MinDitherSize)
 		colors = MIN(colors, 220);
 
 	/* Make the pruned octree */
-	cqcaa = octreeGenerateAndPrune(pixsub, colors, CQ_RESERVED_COLORS, &cmap);
+	cqcaa = octreeGenerateAndPrune(pixsub, colors, CqReservedColors, &cmap);
 	if(!cqcaa) {
 		pixDestroy(&pixsub);
-		return (PIX*)ERROR_PTR("tree not made", procName, NULL);
+		return (PIX *)ERROR_PTR("tree not made", procName, NULL);
 	}
 #if DEBUG_COLORQUANT
 	L_INFO(" Colors requested = %d\n", procName, colors);
@@ -655,7 +659,7 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
 #endif  /* DEBUG_COLORQUANT */
 
 	/* Do not dither if image is very small */
-	if(w < MIN_DITHER_SIZE && h < MIN_DITHER_SIZE && ditherflag == 1) {
+	if(w < MinDitherSize && h < MinDitherSize && ditherflag == 1) {
 		L_INFO("Small image: dithering turned off\n", procName);
 		ditherflag = 0;
 	}
@@ -666,7 +670,7 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
 	if((pixd = pixOctreeQuantizePixels(pixs, cqcaa, ditherflag)) == NULL) {
 		pixDestroy(&pixsub);
 		cqcellTreeDestroy(&cqcaa);
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 
 	/* Attach colormap and copy res */
@@ -695,9 +699,9 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
  * \brief   octreeGenerateAndPrune()
  *
  * \param[in]    pixs
- * \param[in]    colors number of colors to use between 128 and 256
- * \param[in]    reservedcolors number of reserved colors
- * \param[out]   pcmap  made and returned
+ * \param[in]    colors           number of colors to use between 128 and 256
+ * \param[in]    reservedcolors   number of reserved colors
+ * \param[out]   pcmap            colormap returned
  * \return  octree, colormap and number of colors used, or NULL
  *              on error
  *
@@ -707,31 +711,31 @@ PIX * pixOctreeColorQuantGeneral(PIX       * pixs,
  *          of colors requested, but it will not be larger than 256
  * </pre>
  */
-static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
-    int32 colors,
-    int32 reservedcolors,
+static CQCELL *** octreeGenerateAndPrune(PIX * pixs,
+    l_int32 colors,
+    l_int32 reservedcolors,
     PIXCMAP  ** pcmap)
 {
-	int32 rval, gval, bval, cindex;
-	int32 level, ncells, octindex;
-	int32 w, h, wpls;
-	int32 i, j, isub;
-	int32 npix; /* number of remaining pixels to be assigned */
-	int32 ncolor; /* number of remaining color cells to be used */
-	int32 ppc; /* ave number of pixels left for each color cell */
-	int32 rv, gv, bv;
+	l_int32 rval, gval, bval, cindex;
+	l_int32 level, ncells, octindex;
+	l_int32 w, h, wpls;
+	l_int32 i, j, isub;
+	l_int32 npix; /* number of remaining pixels to be assigned */
+	l_int32 ncolor; /* number of remaining color cells to be used */
+	l_int32 ppc; /* ave number of pixels left for each color cell */
+	l_int32 rv, gv, bv;
 	float thresholdFactor[] = {0.01f, 0.01f, 1.0f, 1.0f, 1.0f, 1.0f};
 	float thresh; /* factor of ppc for this level */
-	uint32  * datas, * lines;
-	uint32  * rtab, * gtab, * btab;
+	l_uint32 * datas, * lines;
+	l_uint32 * rtab, * gtab, * btab;
 	CQCELL  *** cqcaa; /* one array for each octree level */
 	CQCELL   ** cqca, ** cqcasub;
 	CQCELL    * cqc, * cqcsub;
 	PIXCMAP   * cmap;
-	NUMA      * nat; /* accumulates levels for threshold cells */
-	NUMA      * nar; /* accumulates levels for residual cells */
+	NUMA * nat; /* accumulates levels for threshold cells */
+	NUMA * nar; /* accumulates levels for residual cells */
 
-	PROCNAME("octreeGenerateAndPrune");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return (CQCELL***)ERROR_PTR("pixs not defined", procName, NULL);
@@ -747,7 +751,7 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 
 	/* Make the canonical index tables */
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, CQ_NLEVELS);
+	makeRGBToIndexTables(CqNLevels, &rtab, &gtab, &btab);
 
 	/* Generate an 8 bpp cmap (max size 256) */
 	cmap = pixcmapCreate(8);
@@ -755,14 +759,14 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	npix = w * h; /* initialize to all pixels */
-	ncolor = colors - reservedcolors - EXTRA_RESERVED_COLORS;
+	ncolor = colors - reservedcolors - ExtraReservedColors;
 	ppc = npix / ncolor;
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 
-	/* Accumulate the centers of each cluster at level CQ_NLEVELS */
-	ncells = 1 << (3 * CQ_NLEVELS);
-	cqca = cqcaa[CQ_NLEVELS];
+	/* Accumulate the centers of each cluster at level CqNLevels */
+	ncells = 1 << (3 * CqNLevels);
+	cqca = cqcaa[CqNLevels];
 	for(i = 0; i < h; i++) {
 		lines = datas + i * wpls;
 		for(j = 0; j < w; j++) {
@@ -778,7 +782,7 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 	nar = numaCreate(0);
 
 	/* Prune back from the lowest level and generate the colormap */
-	for(level = CQ_NLEVELS - 1; level >= 2; level--) {
+	for(level = CqNLevels - 1; level >= 2; level--) {
 		thresh = thresholdFactor[level];
 		cqca = cqcaa[level];
 		cqcasub = cqcaa[level + 1];
@@ -822,17 +826,17 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 					else if(ncolor + reservedcolors > 0)
 						ppc = npix / (ncolor + reservedcolors);
 					else
-						ppc = 1000000;  /* make it big */
+						ppc = 1000000; /* make it big */
 					numaAddNumber(nat, level + 1);
 
 #if  DEBUG_OCTCUBE_CMAP
-					fprintf(stderr, "Exceeds threshold: colors used = %d, colors remaining = %d\n",
+					lept_stderr("Exceeds threshold: colors used = %d, colors remaining = %d\n",
 					    cmap->n, ncolor + reservedcolors);
-					fprintf(stderr, "  cell with %d pixels, npix = %d, ppc = %d\n",
+					lept_stderr("  cell with %d pixels, npix = %d, ppc = %d\n",
 					    cqcsub->n, npix, ppc);
-					fprintf(stderr, "  index = %d, level = %d, subindex = %d\n",
+					lept_stderr("  index = %d, level = %d, subindex = %d\n",
 					    i, level, j);
-					fprintf(stderr, "  rv = %d, gv = %d, bv = %d\n", rv, gv, bv);
+					lept_stderr("  rv = %d, gv = %d, bv = %d\n", rv, gv, bv);
 #endif  /* DEBUG_OCTCUBE_CMAP */
 				}
 			}
@@ -861,7 +865,7 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 						    procName);
 						/* This is very bad.  It will only cause trouble
 						 * with dithering, and we try to avoid it with
-						 * EXTRA_RESERVED_PIXELS. */
+						 * ExtraReservedColors. */
 						pixcmapGetNearestIndex(cmap, rv, gv, bv, &cindex);
 						cqc->index = cindex; /* assign to the nearest */
 						pixcmapGetColor(cmap, cindex, &rval, &gval, &bval);
@@ -876,16 +880,16 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 					else if(ncolor + reservedcolors > 0)
 						ppc = npix / (ncolor + reservedcolors);
 					else
-						ppc = 1000000;  /* make it big */
+						ppc = 1000000; /* make it big */
 					numaAddNumber(nar, level);
 
 #if  DEBUG_OCTCUBE_CMAP
-					fprintf(stderr, "By remainder: colors used = %d, colors remaining = %d\n",
+					lept_stderr("By remainder: colors used = %d, colors remaining = %d\n",
 					    cmap->n, ncolor + reservedcolors);
-					fprintf(stderr, "  cell with %d pixels, npix = %d, ppc = %d\n",
+					lept_stderr("  cell with %d pixels, npix = %d, ppc = %d\n",
 					    cqc->n, npix, ppc);
-					fprintf(stderr, "  index = %d, level = %d\n", i, level);
-					fprintf(stderr, "  rv = %d, gv = %d, bv = %d\n", rv, gv, bv);
+					lept_stderr("  index = %d, level = %d\n", i, level);
+					lept_stderr("  rv = %d, gv = %d, bv = %d\n", rv, gv, bv);
 #endif  /* DEBUG_OCTCUBE_CMAP */
 				}
 			}
@@ -901,9 +905,9 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 
 #if  PRINT_OCTCUBE_STATS
 	{
-		int32 tc[] = {0, 0, 0, 0, 0, 0, 0};
-		int32 rc[] = {0, 0, 0, 0, 0, 0, 0};
-		int32 nt, nr, ival;
+		l_int32 tc[] = {0, 0, 0, 0, 0, 0, 0};
+		l_int32 rc[] = {0, 0, 0, 0, 0, 0, 0};
+		l_int32 nt, nr, ival;
 
 		nt = numaGetCount(nat);
 		nr = numaGetCount(nar);
@@ -915,20 +919,20 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 			numaGetIValue(nar, i, &ival);
 			rc[ival]++;
 		}
-		fprintf(stderr, " Threshold cells formed: %d\n", nt);
-		for(i = 1; i < CQ_NLEVELS + 1; i++)
-			fprintf(stderr, "   level %d:  %d\n", i, tc[i]);
-		fprintf(stderr, "\n Residual cells formed: %d\n", nr);
-		for(i = 0; i < CQ_NLEVELS; i++)
-			fprintf(stderr, "   level %d:  %d\n", i, rc[i]);
+		lept_stderr(" Threshold cells formed: %d\n", nt);
+		for(i = 1; i < CqNLevels + 1; i++)
+			lept_stderr("   level %d:  %d\n", i, tc[i]);
+		lept_stderr("\n Residual cells formed: %d\n", nr);
+		for(i = 0; i < CqNLevels; i++)
+			lept_stderr("   level %d:  %d\n", i, rc[i]);
 	}
 #endif  /* PRINT_OCTCUBE_STATS */
 
 	numaDestroy(&nat);
 	numaDestroy(&nar);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 
 	return cqcaa;
 }
@@ -936,9 +940,9 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
 /*!
  * \brief   pixOctreeQuantizePixels()
  *
- * \param[in]    pixs 32 bpp
- * \param[in]    cqcaa octree in array format
- * \param[in]    ditherflag 1 for dithering, 0 for no dithering
+ * \param[in]    pixs         32 bpp
+ * \param[in]    cqcaa        octree in array format
+ * \param[in]    ditherflag   1 for dithering, 0 for no dithering
  * \return  pixd or NULL on error
  *
  * <pre>
@@ -956,36 +960,36 @@ static CQCELL *** octreeGenerateAndPrune(PIX       * pixs,
  *          or 1/2048 of the color range.
  * </pre>
  */
-static PIX * pixOctreeQuantizePixels(PIX       * pixs,
+static PIX * pixOctreeQuantizePixels(PIX * pixs,
     CQCELL  *** cqcaa,
-    int32 ditherflag)
+    l_int32 ditherflag)
 {
 	uint8   * bufu8r, * bufu8g, * bufu8b;
-	int32 rval, gval, bval;
-	int32 octindex, index;
-	int32 val1, val2, val3, dif;
-	int32 w, h, wpls, wpld, i, j, success;
-	int32 rc, gc, bc;
-	int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
-	uint32  * rtab, * gtab, * btab;
-	uint32  * datas, * datad, * lines, * lined;
-	PIX       * pixd;
+	l_int32 rval, gval, bval;
+	l_int32 octindex, index;
+	l_int32 val1, val2, val3, dif;
+	l_int32 w, h, wpls, wpld, i, j, success;
+	l_int32 rc, gc, bc;
+	l_int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
+	l_uint32 * rtab, * gtab, * btab;
+	l_uint32 * datas, * datad, * lines, * lined;
+	PIX * pixd;
 
-	PROCNAME("pixOctreeQuantizePixels");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs must be 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs must be 32 bpp", procName, NULL);
 	if(!cqcaa)
-		return (PIX*)ERROR_PTR("cqcaa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("cqcaa not defined", procName, NULL);
 
 	/* Make output 8 bpp palette image */
 	pixGetDimensions(pixs, &w, &h, NULL);
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 	if((pixd = pixCreate(w, h, 8)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixCopyResolution(pixd, pixs);
 	pixCopyInputFormat(pixd, pixs);
 	datad = pixGetData(pixd);
@@ -993,7 +997,7 @@ static PIX * pixOctreeQuantizePixels(PIX       * pixs,
 
 	/* Make the canonical index tables */
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, CQ_NLEVELS);
+	makeRGBToIndexTables(CqNLevels, &rtab, &gtab, &btab);
 
 	/* Traverse tree from root, looking for lowest cube
 	 * that is a leaf, and set dest pix to its
@@ -1016,15 +1020,15 @@ static PIX * pixOctreeQuantizePixels(PIX       * pixs,
 		success = TRUE;
 		bufu8r = bufu8g = bufu8b = NULL;
 		buf1r = buf1g = buf1b = buf2r = buf2g = buf2b = NULL;
-		bufu8r = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-		bufu8g = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-		bufu8b = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-		buf1r = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf1g = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf1b = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf2r = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf2g = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf2b = (int32*)LEPT_CALLOC(w, sizeof(int32));
+		bufu8r = (uint8 *)SAlloc::C(w, sizeof(uint8));
+		bufu8g = (uint8 *)SAlloc::C(w, sizeof(uint8));
+		bufu8b = (uint8 *)SAlloc::C(w, sizeof(uint8));
+		buf1r = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf1g = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf1b = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf2r = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf2g = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf2b = (l_int32*)SAlloc::C(w, sizeof(l_int32));
 		if(!bufu8r || !bufu8g || !bufu8b || !buf1r || !buf1g ||
 		    !buf1b || !buf2r || !buf2g || !buf2b) {
 			L_ERROR("buffer not made\n", procName);
@@ -1072,7 +1076,7 @@ static PIX * pixOctreeQuantizePixels(PIX       * pixs,
 						buf2r[j] = MIN(16383, val2);
 						buf2r[j + 1] = MIN(16383, val3);
 					}
-					else if(dif < 0) {
+					else {
 						buf1r[j + 1] = MAX(0, val1);
 						buf2r[j] = MAX(0, val2);
 						buf2r[j + 1] = MAX(0, val3);
@@ -1089,7 +1093,7 @@ static PIX * pixOctreeQuantizePixels(PIX       * pixs,
 						buf2g[j] = MIN(16383, val2);
 						buf2g[j + 1] = MIN(16383, val3);
 					}
-					else if(dif < 0) {
+					else {
 						buf1g[j + 1] = MAX(0, val1);
 						buf2g[j] = MAX(0, val2);
 						buf2g[j + 1] = MAX(0, val3);
@@ -1106,7 +1110,7 @@ static PIX * pixOctreeQuantizePixels(PIX       * pixs,
 						buf2b[j] = MIN(16383, val2);
 						buf2b[j + 1] = MIN(16383, val3);
 					}
-					else if(dif < 0) {
+					else {
 						buf1b[j + 1] = MAX(0, val1);
 						buf2b[j] = MAX(0, val2);
 						buf2b[j + 1] = MAX(0, val3);
@@ -1135,21 +1139,21 @@ static PIX * pixOctreeQuantizePixels(PIX       * pixs,
 		}
 
 buffer_cleanup:
-		LEPT_FREE(bufu8r);
-		LEPT_FREE(bufu8g);
-		LEPT_FREE(bufu8b);
-		LEPT_FREE(buf1r);
-		LEPT_FREE(buf1g);
-		LEPT_FREE(buf1b);
-		LEPT_FREE(buf2r);
-		LEPT_FREE(buf2g);
-		LEPT_FREE(buf2b);
+		SAlloc::F(bufu8r);
+		SAlloc::F(bufu8g);
+		SAlloc::F(bufu8b);
+		SAlloc::F(buf1r);
+		SAlloc::F(buf1g);
+		SAlloc::F(buf1b);
+		SAlloc::F(buf2r);
+		SAlloc::F(buf2g);
+		SAlloc::F(buf2b);
 		if(!success) pixDestroy(&pixd);
 	}
 
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return pixd;
 }
 
@@ -1174,19 +1178,19 @@ buffer_cleanup:
  *          error-diffusion dithering algorithm.
  * </pre>
  */
-static int32 octreeFindColorCell(int32 octindex,
+static l_int32 octreeFindColorCell(l_int32 octindex,
     CQCELL  *** cqcaa,
-    int32   * pindex,
-    int32   * prval,
-    int32   * pgval,
-    int32   * pbval)
+    l_int32   * pindex,
+    l_int32   * prval,
+    l_int32   * pgval,
+    l_int32   * pbval)
 {
-	int32 level;
-	int32 baseindex, subindex;
+	l_int32 level;
+	l_int32 baseindex, subindex;
 	CQCELL  * cqc, * cqcsub;
 
 	/* Use rgb values stored in the cubes; a little faster */
-	for(level = 2; level < CQ_NLEVELS; level++) {
+	for(level = 2; level < CqNLevels; level++) {
 		getOctcubeIndices(octindex, level, &baseindex, &subindex);
 		cqc = cqcaa[level][baseindex];
 		cqcsub = cqcaa[level + 1][subindex];
@@ -1197,7 +1201,7 @@ static int32 octreeFindColorCell(int32 octindex,
 			*pbval = cqc->bc;
 			break;
 		}
-		else if(level == CQ_NLEVELS - 1) { /* reached the bottom */
+		else if(level == CqNLevels - 1) { /* reached the bottom */
 			*pindex = cqcsub->index;
 			*prval = cqcsub->rc;
 			*pgval = cqcsub->gc;
@@ -1208,8 +1212,8 @@ static int32 octreeFindColorCell(int32 octindex,
 
 #if 0
 	/* Generate rgb values for each cube on the fly; slower */
-	for(level = 2; level < CQ_NLEVELS; level++) {
-		int32 rv, gv, bv;
+	for(level = 2; level < CqNLevels; level++) {
+		l_int32 rv, gv, bv;
 		getOctcubeIndices(octindex, level, &baseindex, &subindex);
 		cqc = cqcaa[level][baseindex];
 		cqcsub = cqcaa[level + 1][subindex];
@@ -1221,7 +1225,7 @@ static int32 octreeFindColorCell(int32 octindex,
 			*pbval = bv;
 			break;
 		}
-		else if(level == CQ_NLEVELS - 1) { /* reached the bottom */
+		else if(level == CqNLevels - 1) { /* reached the bottom */
 			getRGBFromOctcube(subindex, level + 1, &rv, &gv, &bv);
 			*pindex = cqcsub->index;
 			*prval = rv;
@@ -1245,28 +1249,20 @@ static int32 octreeFindColorCell(int32 octindex,
  */
 static CQCELL *** cqcellTreeCreate(void)
 {
-	int32 level, ncells, i;
+	l_int32 level, ncells, i;
 	CQCELL  *** cqcaa;
 	CQCELL   ** cqca; /* one array for each octree level */
 
-	PROCNAME("cqcellTreeCreate");
+	PROCNAME(__FUNCTION__);
 
 	/* Make array of accumulation cell arrays from levels 1 to 5 */
-	if((cqcaa = (CQCELL***)LEPT_CALLOC(CQ_NLEVELS + 1, sizeof(CQCELL **)))
-	    == NULL)
-		return (CQCELL***)ERROR_PTR("cqcaa not made", procName, NULL);
-	for(level = 0; level <= CQ_NLEVELS; level++) {
+	cqcaa = (CQCELL***)SAlloc::C(CqNLevels + 1, sizeof(CQCELL **));
+	for(level = 0; level <= CqNLevels; level++) {
 		ncells = 1 << (3 * level);
-		if((cqca = (CQCELL**)LEPT_CALLOC(ncells, sizeof(CQCELL *))) == NULL) {
-			cqcellTreeDestroy(&cqcaa);
-			return (CQCELL***)ERROR_PTR("cqca not made", procName, NULL);
-		}
+		cqca = (CQCELL**)SAlloc::C(ncells, sizeof(CQCELL *));
 		cqcaa[level] = cqca;
 		for(i = 0; i < ncells; i++) {
-			if((cqca[i] = (CQCELL*)LEPT_CALLOC(1, sizeof(CQCELL))) == NULL) {
-				cqcellTreeDestroy(&cqcaa);
-				return (CQCELL***)ERROR_PTR("cqc not made", procName, NULL);
-			}
+			cqca[i] = (CQCELL*)SAlloc::C(1, sizeof(CQCELL));
 		}
 	}
 
@@ -1276,15 +1272,15 @@ static CQCELL *** cqcellTreeCreate(void)
 /*!
  * \brief   cqcellTreeDestroy()
  *
- * \param[in,out]   pcqcaa to be nulled
+ * \param[in,out]   pcqcaa   will be set to null before returning
  */
 static void cqcellTreeDestroy(CQCELL  **** pcqcaa)
 {
-	int32 level, ncells, i;
+	l_int32 level, ncells, i;
 	CQCELL  *** cqcaa;
 	CQCELL   ** cqca;
 
-	PROCNAME("cqcellTreeDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(pcqcaa == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
@@ -1294,14 +1290,14 @@ static void cqcellTreeDestroy(CQCELL  **** pcqcaa)
 	if((cqcaa = *pcqcaa) == NULL)
 		return;
 
-	for(level = 0; level <= CQ_NLEVELS; level++) {
+	for(level = 0; level <= CqNLevels; level++) {
 		cqca = cqcaa[level];
 		ncells = 1 << (3 * level);
 		for(i = 0; i < ncells; i++)
-			LEPT_FREE(cqca[i]);
-		LEPT_FREE(cqca);
+			SAlloc::F(cqca[i]);
+		SAlloc::F(cqca);
 	}
-	LEPT_FREE(cqcaa);
+	SAlloc::F(cqcaa);
 	*pcqcaa = NULL;
 
 	return;
@@ -1313,8 +1309,8 @@ static void cqcellTreeDestroy(CQCELL  **** pcqcaa)
 /*!
  * \brief   makeRGBToIndexTables()
  *
- * \param[out]   prtab, pgtab, pbtab  tables
- * \param[in]    cqlevels can be 1, 2, 3, 4, 5 or 6
+ * \param[in]    cqlevels               can be 1, 2, 3, 4, 5 or 6
+ * \param[out]   prtab, pgtab, pbtab    tables
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -1339,24 +1335,26 @@ static void cqcellTreeDestroy(CQCELL  **** pcqcaa)
  *  of the rgb color.
  * </pre>
  */
-int32 makeRGBToIndexTables(uint32  ** prtab,
-    uint32  ** pgtab,
-    uint32  ** pbtab,
-    int32 cqlevels)
+l_ok makeRGBToIndexTables(l_int32 cqlevels,
+    l_uint32  ** prtab,
+    l_uint32  ** pgtab,
+    l_uint32  ** pbtab)
 {
-	int32 i;
-	uint32  * rtab, * gtab, * btab;
+	l_int32 i;
+	l_uint32 * rtab, * gtab, * btab;
 
-	PROCNAME("makeRGBToIndexTables");
+	PROCNAME(__FUNCTION__);
 
 	if(cqlevels < 1 || cqlevels > 6)
 		return ERROR_INT("cqlevels must be in {1,...6}", procName, 1);
-
 	if(!prtab || !pgtab || !pbtab)
 		return ERROR_INT("not all &tabs defined", procName, 1);
-	rtab = (uint32*)LEPT_CALLOC(256, sizeof(uint32));
-	gtab = (uint32*)LEPT_CALLOC(256, sizeof(uint32));
-	btab = (uint32*)LEPT_CALLOC(256, sizeof(uint32));
+
+	rtab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	gtab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	btab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	if(!rtab || !gtab || !btab)
+		return ERROR_INT("calloc fail for tab", procName, 1);
 	*prtab = rtab;
 	*pgtab = gtab;
 	*pbtab = btab;
@@ -1380,47 +1378,47 @@ int32 makeRGBToIndexTables(uint32  ** prtab,
 		case 3:
 		    for(i = 0; i < 256; i++) {
 			    rtab[i] = ((i << 1) & 0x0100) | ((i >> 1) & 0x0020) |
-			    ((i >> 3) & 0x0004);
+				((i >> 3) & 0x0004);
 			    gtab[i] = (i & 0x0080) | ((i >> 2) & 0x0010) |
-			    ((i >> 4) & 0x0002);
+				((i >> 4) & 0x0002);
 			    btab[i] = ((i >> 1) & 0x0040) | ((i >> 3) & 0x0008) |
-			    ((i >> 5) & 0x0001);
+				((i >> 5) & 0x0001);
 		    }
 		    break;
 		case 4:
 		    for(i = 0; i < 256; i++) {
 			    rtab[i] = ((i << 4) & 0x0800) | ((i << 2) & 0x0100) |
-			    (i & 0x0020) | ((i >> 2) & 0x0004);
+				(i & 0x0020) | ((i >> 2) & 0x0004);
 			    gtab[i] = ((i << 3) & 0x0400) | ((i << 1) & 0x0080) |
-			    ((i >> 1) & 0x0010) | ((i >> 3) & 0x0002);
+				((i >> 1) & 0x0010) | ((i >> 3) & 0x0002);
 			    btab[i] = ((i << 2) & 0x0200) | (i & 0x0040) |
-			    ((i >> 2) & 0x0008) | ((i >> 4) & 0x0001);
+				((i >> 2) & 0x0008) | ((i >> 4) & 0x0001);
 		    }
 		    break;
 		case 5:
 		    for(i = 0; i < 256; i++) {
 			    rtab[i] = ((i << 7) & 0x4000) | ((i << 5) & 0x0800) |
-			    ((i << 3) & 0x0100) | ((i << 1) & 0x0020) |
-			    ((i >> 1) & 0x0004);
+				((i << 3) & 0x0100) | ((i << 1) & 0x0020) |
+				((i >> 1) & 0x0004);
 			    gtab[i] = ((i << 6) & 0x2000) | ((i << 4) & 0x0400) |
-			    ((i << 2) & 0x0080) | (i & 0x0010) |
-			    ((i >> 2) & 0x0002);
+				((i << 2) & 0x0080) | (i & 0x0010) |
+				((i >> 2) & 0x0002);
 			    btab[i] = ((i << 5) & 0x1000) | ((i << 3) & 0x0200) |
-			    ((i << 1) & 0x0040) | ((i >> 1) & 0x0008) |
-			    ((i >> 3) & 0x0001);
+				((i << 1) & 0x0040) | ((i >> 1) & 0x0008) |
+				((i >> 3) & 0x0001);
 		    }
 		    break;
 		case 6:
 		    for(i = 0; i < 256; i++) {
 			    rtab[i] = ((i << 10) & 0x20000) | ((i << 8) & 0x4000) |
-			    ((i << 6) & 0x0800) | ((i << 4) & 0x0100) |
-			    ((i << 2) & 0x0020) | (i & 0x0004);
+				((i << 6) & 0x0800) | ((i << 4) & 0x0100) |
+				((i << 2) & 0x0020) | (i & 0x0004);
 			    gtab[i] = ((i << 9) & 0x10000) | ((i << 7) & 0x2000) |
-			    ((i << 5) & 0x0400) | ((i << 3) & 0x0080) |
-			    ((i << 1) & 0x0010) | ((i >> 1) & 0x0002);
+				((i << 5) & 0x0400) | ((i << 3) & 0x0080) |
+				((i << 1) & 0x0010) | ((i >> 1) & 0x0002);
 			    btab[i] = ((i << 8) & 0x8000) | ((i << 6) & 0x1000) |
-			    ((i << 4) & 0x0200) | ((i << 2) & 0x0040) |
-			    (i & 0x0008) | ((i >> 2) & 0x0001);
+				((i << 4) & 0x0200) | ((i << 2) & 0x0040) |
+				(i & 0x0008) | ((i >> 2) & 0x0001);
 		    }
 		    break;
 		default:
@@ -1435,7 +1433,7 @@ int32 makeRGBToIndexTables(uint32  ** prtab,
  * \brief   getOctcubeIndexFromRGB()
  *
  * \param[in]    rval, gval, bval
- * \param[in]    rtab, gtab, btab  generated with makeRGBToIndexTables()
+ * \param[in]    rtab, gtab, btab    generated with makeRGBToIndexTables()
  * \param[out]   pindex found index
  * \return  void
  *
@@ -1444,13 +1442,13 @@ int32 makeRGBToIndexTables(uint32  ** prtab,
  *      No error checking!
  * </pre>
  */
-void getOctcubeIndexFromRGB(int32 rval,
-    int32 gval,
-    int32 bval,
-    uint32  * rtab,
-    uint32  * gtab,
-    uint32  * btab,
-    uint32  * pindex)
+void getOctcubeIndexFromRGB(l_int32 rval,
+    l_int32 gval,
+    l_int32 bval,
+    l_uint32 * rtab,
+    l_uint32 * gtab,
+    l_uint32 * btab,
+    l_uint32 * pindex)
 {
 	*pindex = rtab[rval] | gtab[gval] | btab[bval];
 	return;
@@ -1488,13 +1486,13 @@ void getOctcubeIndexFromRGB(int32 rval,
  *          octcube are: rval = 11100000, gval = 10100000, bval = 01100000
  * </pre>
  */
-static void getRGBFromOctcube(int32 cubeindex,
-    int32 level,
-    int32  * prval,
-    int32  * pgval,
-    int32  * pbval)
+static void getRGBFromOctcube(l_int32 cubeindex,
+    l_int32 level,
+    l_int32 * prval,
+    l_int32 * pgval,
+    l_int32 * pbval)
 {
-	int32 rgbindex;
+	l_int32 rgbindex;
 
 	/* Bring to format in 21 bits: (r7 g7 b7 r6 g6 b6 ...) */
 	/* This is valid for levels from 0 to 6 */
@@ -1531,18 +1529,18 @@ static void getRGBFromOctcube(int32 cubeindex,
  * \brief   getOctcubeIndices()
  *
  * \param[in]    rgbindex
- * \param[in]    level octree level 0, 1, 2, 3, 4, 5
- * \param[out]   pbindex base index index at the octree level
- * \param[out]   psindex sub index index at the next lower level
+ * \param[in]    level     octree level 0, 1, 2, 3, 4, 5
+ * \param[out]   pbindex   base index index at the octree level
+ * \param[out]   psindex   sub index index at the next lower level
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *  for CQ_NLEVELS = 6, the full RGB index is in the form:
+ *  for CqNLevels = 6, the full RGB index is in the form:
  *     index = (0[13] 0 r7 g7 b7 r6 g6 b6 r5 g5 b5 r4 g4 b4 r3 g3 b3 r2 g2 b2)
- *  for CQ_NLEVELS = 5, the full RGB index is in the form:
+ *  for CqNLevels = 5, the full RGB index is in the form:
  *     index = (0[16] 0 r7 g7 b7 r6 g6 b6 r5 g5 b5 r4 g4 b4 r3 g3 b3)
- *  for CQ_NLEVELS = 4, the full RGB index is in the form:
+ *  for CqNLevels = 4, the full RGB index is in the form:
  *     index = (0[19] 0 r7 g7 b7 r6 g6 b6 r5 g5 b5 r4 g4 b4)
  *
  *  The base index is the index of the octcube at the level given,
@@ -1563,31 +1561,31 @@ static void getRGBFromOctcube(int32 cubeindex,
  *                            r2 g2 b2)
  * </pre>
  */
-static int32 getOctcubeIndices(int32 rgbindex,
-    int32 level,
-    int32  * pbindex,
-    int32  * psindex)
+static l_int32 getOctcubeIndices(l_int32 rgbindex,
+    l_int32 level,
+    l_int32 * pbindex,
+    l_int32 * psindex)
 {
-	PROCNAME("getOctcubeIndex");
+	PROCNAME(__FUNCTION__);
 
-	if(level < 0 || level > CQ_NLEVELS - 1)
+	if(level < 0 || level > CqNLevels - 1)
 		return ERROR_INT("level must be in e.g., [0 ... 5]", procName, 1);
 	if(!pbindex)
 		return ERROR_INT("&bindex not defined", procName, 1);
 	if(!psindex)
 		return ERROR_INT("&sindex not defined", procName, 1);
 
-	*pbindex = rgbindex >> (3 * (CQ_NLEVELS - level));
-	*psindex = rgbindex >> (3 * (CQ_NLEVELS - 1 - level));
+	*pbindex = rgbindex >> (3 * (CqNLevels - level));
+	*psindex = rgbindex >> (3 * (CqNLevels - 1 - level));
 	return 0;
 }
 
 /*!
  * \brief   octcubeGetCount()
  *
- * \param[in]    level valid values are in [1,...6]; there are 2^level
- *                     cubes along each side of the rgb cube
- * \param[out]   psize 2^(3 * level) cubes in the entire rgb cube
+ * \param[in]    level   valid values are in [1,...6]; there are 2^level
+ *                       cubes along each side of the rgb cube
+ * \param[out]   psize   2^(3 * level) cubes in the entire rgb cube
  * \return   0 if OK, 1 on error.  Caller must check!
  *
  * <pre>
@@ -1595,10 +1593,10 @@ static int32 getOctcubeIndices(int32 rgbindex,
  *     size:    8       64       512     4098     32784   262272
  * </pre>
  */
-static int32 octcubeGetCount(int32 level,
-    int32  * psize)
+static l_int32 octcubeGetCount(l_int32 level,
+    l_int32 * psize)
 {
-	PROCNAME("octcubeGetCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!psize)
 		return ERROR_INT("&size not defined", procName, 1);
@@ -1615,10 +1613,10 @@ static int32 octcubeGetCount(int32 level,
 /*!
  * \brief   pixOctreeQuantByPopulation()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    level significant bits for each of RGB; valid for {3,4},
- *                     Use 0 for default (level 4; recommended
- * \param[in]    ditherflag  1 to dither, 0 otherwise
+ * \param[in]    pixs         32 bpp rgb
+ * \param[in]    level        significant bits for each of RGB; valid for {3,4}.
+ *                            Use 0 for default (level 4; recommended
+ * \param[in]    ditherflag   1 to dither, 0 otherwise
  * \return  pixd quantized to octcubes or NULL on error
  *
  * <pre>
@@ -1667,48 +1665,48 @@ static int32 octcubeGetCount(int32 level,
  *          usually give better results.
  * </pre>
  */
-PIX * pixOctreeQuantByPopulation(PIX     * pixs,
-    int32 level,
-    int32 ditherflag)
+PIX * pixOctreeQuantByPopulation(PIX * pixs,
+    l_int32 level,
+    l_int32 ditherflag)
 {
-	int32 w, h, wpls, wpld, i, j, depth, size, ncolors, index;
-	int32 rval, gval, bval;
-	int32        * rarray, * garray, * barray, * narray, * iarray;
-	uint32 octindex, octindex2;
-	uint32       * rtab, * gtab, * btab, * rtab2, * gtab2, * btab2;
-	uint32       * lines, * lined, * datas, * datad;
+	l_int32 w, h, wpls, wpld, i, j, depth, size, ncolors, index;
+	l_int32 rval, gval, bval;
+	l_int32 * rarray, * garray, * barray, * narray, * iarray;
+	l_uint32 octindex, octindex2;
+	l_uint32       * rtab, * gtab, * btab, * rtab2, * gtab2, * btab2;
+	l_uint32       * lines, * lined, * datas, * datad;
 	L_OCTCUBE_POP  * opop;
 	L_HEAP         * lh;
 	PIX            * pixd;
 	PIXCMAP        * cmap;
 
-	PROCNAME("pixOctreeQuantByPopulation");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(level == 0) level = 4;
 	if(level < 3 || level > 4)
-		return (PIX*)ERROR_PTR("level not in {3,4}", procName, NULL);
+		return (PIX *)ERROR_PTR("level not in {3,4}", procName, NULL);
 
 	/* Do not dither if image is very small */
 	pixGetDimensions(pixs, &w, &h, NULL);
-	if(w < MIN_DITHER_SIZE && h < MIN_DITHER_SIZE && ditherflag == 1) {
+	if(w < MinDitherSize && h < MinDitherSize && ditherflag == 1) {
 		L_INFO("Small image: dithering turned off\n", procName);
 		ditherflag = 0;
 	}
 
 	if(octcubeGetCount(level, &size)) /* array size = 2 ** (3 * level) */
-		return (PIX*)ERROR_PTR("size not returned", procName, NULL);
+		return (PIX *)ERROR_PTR("size not returned", procName, NULL);
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, level);
+	makeRGBToIndexTables(level, &rtab, &gtab, &btab);
 
 	pixd = NULL;
-	narray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	rarray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	garray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	barray = (int32*)LEPT_CALLOC(size, sizeof(int32));
+	narray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	rarray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	garray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	barray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
 	if(!narray || !rarray || !garray || !barray)
 		goto array_cleanup;
 
@@ -1796,7 +1794,7 @@ PIX * pixOctreeQuantByPopulation(PIX     * pixs,
 	lh = lheapCreate(500, L_SORT_DECREASING);
 	for(i = 0; i < size; i++) {
 		if(narray[i] > 0) {
-			opop = (L_OCTCUBE_POP*)LEPT_CALLOC(1, sizeof(L_OCTCUBE_POP));
+			opop = (L_OCTCUBE_POP*)SAlloc::C(1, sizeof(L_OCTCUBE_POP));
 			opop->npix = (float)narray[i];
 			opop->index = i;
 			opop->rval = rarray[i];
@@ -1808,7 +1806,7 @@ PIX * pixOctreeQuantByPopulation(PIX     * pixs,
 
 	/* Take the top 192.  These will form the first 192 colors
 	 * in the cmap.  iarray[i] holds the index into the cmap. */
-	iarray = (int32*)LEPT_CALLOC(size, sizeof(int32));
+	iarray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
 	for(i = 0; i < 192; i++) {
 		opop = (L_OCTCUBE_POP*)lheapRemove(lh);
 		if(!opop) break;
@@ -1816,16 +1814,16 @@ PIX * pixOctreeQuantByPopulation(PIX     * pixs,
 		iarray[opop->index] = i + 1; /* +1 to avoid storing 0 */
 
 #if DEBUG_POP
-		fprintf(stderr, "i = %d, n = %6.0f, (r,g,b) = (%d %d %d)\n",
+		lept_stderr("i = %d, n = %6.0f, (r,g,b) = (%d %d %d)\n",
 		    i, opop->npix, opop->rval, opop->gval, opop->bval);
 #endif  /* DEBUG_POP */
 
-		LEPT_FREE(opop);
+		SAlloc::F(opop);
 	}
 
 	/* Make the octindex tables for level 2, and reuse rarray, etc. */
 	rtab2 = gtab2 = btab2 = NULL;
-	makeRGBToIndexTables(&rtab2, &gtab2, &btab2, 2);
+	makeRGBToIndexTables(2, &rtab2, &gtab2, &btab2);
 	for(i = 0; i < 64; i++) {
 		narray[i] = 0;
 		rarray[i] = 0;
@@ -1844,12 +1842,12 @@ PIX * pixOctreeQuantByPopulation(PIX     * pixs,
 		gval = opop->gval;
 		bval = opop->bval;
 		octindex2 = rtab2[rval] | gtab2[gval] | btab2[bval];
-		narray[octindex2] += (int32)opop->npix;
-		rarray[octindex2] += (int32)opop->npix * rval;
-		garray[octindex2] += (int32)opop->npix * gval;
-		barray[octindex2] += (int32)opop->npix * bval;
+		narray[octindex2] += (l_int32)opop->npix;
+		rarray[octindex2] += (l_int32)opop->npix * rval;
+		garray[octindex2] += (l_int32)opop->npix * gval;
+		barray[octindex2] += (l_int32)opop->npix * bval;
 		iarray[opop->index] = 192 + octindex2 + 1; /* +1 to avoid storing 0 */
-		LEPT_FREE(opop);
+		SAlloc::F(opop);
 	}
 	lheapDestroy(&lh, TRUE);
 
@@ -1867,9 +1865,9 @@ PIX * pixOctreeQuantByPopulation(PIX     * pixs,
 			}
 		}
 	}
-	LEPT_FREE(rtab2);
-	LEPT_FREE(gtab2);
-	LEPT_FREE(btab2);
+	SAlloc::F(rtab2);
+	SAlloc::F(gtab2);
+	SAlloc::F(btab2);
 
 	/* Average the colors from the residuals in each level 2 octcube,
 	 * and add these 64 values to the colormap. */
@@ -1905,23 +1903,23 @@ PIX * pixOctreeQuantByPopulation(PIX     * pixs,
 
 #if DEBUG_POP
 	for(i = 0; i < size / 16; i++) {
-		int32 j;
+		l_int32 j;
 		for(j = 0; j < 16; j++)
-			fprintf(stderr, "%d ", iarray[16 * i + j]);
-		fprintf(stderr, "\n");
+			lept_stderr("%d ", iarray[16 * i + j]);
+		lept_stderr("\n");
 	}
 #endif  /* DEBUG_POP */
 
-	LEPT_FREE(iarray);
+	SAlloc::F(iarray);
 
 array_cleanup:
-	LEPT_FREE(narray);
-	LEPT_FREE(rarray);
-	LEPT_FREE(garray);
-	LEPT_FREE(barray);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(narray);
+	SAlloc::F(rarray);
+	SAlloc::F(garray);
+	SAlloc::F(barray);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 
 	return pixd;
 }
@@ -1929,11 +1927,12 @@ array_cleanup:
 /*!
  * \brief   pixDitherOctindexWithCmap()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    pixd 8 bpp cmapped
- * \param[in]    rtab, gtab, btab tables from rval to octindex
- * \param[in]    indexmap array mapping octindex to cmap index
- * \param[in]    difcap max allowed dither transfer; use 0 for infinite cap
+ * \param[in]    pixs               32 bpp rgb
+ * \param[in]    pixd               8 bpp cmapped
+ * \param[in]    rtab, gtab, btab   tables from rval to octindex
+ * \param[in]    indexmap           array mapping octindex to cmap index
+ * \param[in]    difcap             max allowed dither transfer;
+ *                                  use 0 for infinite cap
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1958,23 +1957,23 @@ array_cleanup:
  *          the 1-off indexing assumed to be in that table.
  * </pre>
  */
-static int32 pixDitherOctindexWithCmap(PIX       * pixs,
-    PIX       * pixd,
-    uint32  * rtab,
-    uint32  * gtab,
-    uint32  * btab,
-    int32   * indexmap,
-    int32 difcap)
+static l_int32 pixDitherOctindexWithCmap(PIX * pixs,
+    PIX * pixd,
+    l_uint32 * rtab,
+    l_uint32 * gtab,
+    l_uint32 * btab,
+    l_int32   * indexmap,
+    l_int32 difcap)
 {
 	uint8   * bufu8r, * bufu8g, * bufu8b;
-	int32 i, j, w, h, wpld, octindex, cmapindex, success;
-	int32 rval, gval, bval, rc, gc, bc;
-	int32 dif, val1, val2, val3;
-	int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
-	uint32  * datad, * lined;
+	l_int32 i, j, w, h, wpld, octindex, cmapindex, success;
+	l_int32 rval, gval, bval, rc, gc, bc;
+	l_int32 dif, val1, val2, val3;
+	l_int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
+	l_uint32 * datad, * lined;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixDitherOctindexWithCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return ERROR_INT("pixs undefined or not 32 bpp", procName, 1);
@@ -1991,15 +1990,15 @@ static int32 pixDitherOctindexWithCmap(PIX       * pixs,
 	success = TRUE;
 	bufu8r = bufu8g = bufu8b = NULL;
 	buf1r = buf1g = buf1b = buf2r = buf2g = buf2b = NULL;
-	bufu8r = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-	bufu8g = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-	bufu8b = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-	buf1r = (int32*)LEPT_CALLOC(w, sizeof(int32));
-	buf1g = (int32*)LEPT_CALLOC(w, sizeof(int32));
-	buf1b = (int32*)LEPT_CALLOC(w, sizeof(int32));
-	buf2r = (int32*)LEPT_CALLOC(w, sizeof(int32));
-	buf2g = (int32*)LEPT_CALLOC(w, sizeof(int32));
-	buf2b = (int32*)LEPT_CALLOC(w, sizeof(int32));
+	bufu8r = (uint8 *)SAlloc::C(w, sizeof(uint8));
+	bufu8g = (uint8 *)SAlloc::C(w, sizeof(uint8));
+	bufu8b = (uint8 *)SAlloc::C(w, sizeof(uint8));
+	buf1r = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+	buf1g = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+	buf1b = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+	buf2r = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+	buf2g = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+	buf2b = (l_int32*)SAlloc::C(w, sizeof(l_int32));
 	if(!bufu8r || !bufu8g || !bufu8b || !buf1r || !buf1g ||
 	    !buf1b || !buf2r || !buf2g || !buf2b) {
 		L_ERROR("buffer not made\n", procName);
@@ -2054,7 +2053,7 @@ static int32 pixDitherOctindexWithCmap(PIX       * pixs,
 					buf2r[j] = MIN(16383, val2);
 					buf2r[j + 1] = MIN(16383, val3);
 				}
-				else if(dif < 0) {
+				else {
 					buf1r[j + 1] = MAX(0, val1);
 					buf2r[j] = MAX(0, val2);
 					buf2r[j + 1] = MAX(0, val3);
@@ -2075,7 +2074,7 @@ static int32 pixDitherOctindexWithCmap(PIX       * pixs,
 					buf2g[j] = MIN(16383, val2);
 					buf2g[j + 1] = MIN(16383, val3);
 				}
-				else if(dif < 0) {
+				else {
 					buf1g[j + 1] = MAX(0, val1);
 					buf2g[j] = MAX(0, val2);
 					buf2g[j + 1] = MAX(0, val3);
@@ -2096,7 +2095,7 @@ static int32 pixDitherOctindexWithCmap(PIX       * pixs,
 					buf2b[j] = MIN(16383, val2);
 					buf2b[j + 1] = MIN(16383, val3);
 				}
-				else if(dif < 0) {
+				else {
 					buf1b[j + 1] = MAX(0, val1);
 					buf2b[j] = MAX(0, val2);
 					buf2b[j + 1] = MAX(0, val3);
@@ -2125,15 +2124,15 @@ static int32 pixDitherOctindexWithCmap(PIX       * pixs,
 	}
 
 buffer_cleanup:
-	LEPT_FREE(bufu8r);
-	LEPT_FREE(bufu8g);
-	LEPT_FREE(bufu8b);
-	LEPT_FREE(buf1r);
-	LEPT_FREE(buf1g);
-	LEPT_FREE(buf1b);
-	LEPT_FREE(buf2r);
-	LEPT_FREE(buf2g);
-	LEPT_FREE(buf2b);
+	SAlloc::F(bufu8r);
+	SAlloc::F(bufu8g);
+	SAlloc::F(bufu8b);
+	SAlloc::F(buf1r);
+	SAlloc::F(buf1g);
+	SAlloc::F(buf1b);
+	SAlloc::F(buf2r);
+	SAlloc::F(buf2g);
+	SAlloc::F(buf2b);
 
 	return (success) ? 0 : 1;
 }
@@ -2144,11 +2143,11 @@ buffer_cleanup:
 /*!
  * \brief   pixOctreeQuantNumColors()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    maxcolors 8 to 256; the actual number of colors used
- *                         may be less than this
- * \param[in]    subsample factor for computing color distribution;
- *                         use 0 for default
+ * \param[in]    pixs        32 bpp rgb
+ * \param[in]    maxcolors   8 to 256; the actual number of colors used
+ *                           may be less than this
+ * \param[in]    subsample   factor for computing color distribution;
+ *                           use 0 for default
  * \return  pixd 4 or 8 bpp, colormapped, or NULL on error
  *
  * <pre>
@@ -2230,28 +2229,36 @@ buffer_cleanup:
  *  by a colormap for octcubes at level 3 only.
  * </pre>
  */
-PIX * pixOctreeQuantNumColors(PIX     * pixs,
-    int32 maxcolors,
-    int32 subsample)
+PIX * pixOctreeQuantNumColors(PIX * pixs,
+    l_int32 maxcolors,
+    l_int32 subsample)
 {
-	int32 w, h, minside, bpp, wpls, wpld, i, j, actualcolors;
-	int32 rval, gval, bval, nbase, nextra, maxlevel, ncubes, val;
-	int32   * lut1, * lut2;
-	uint32 index;
-	uint32  * lines, * lined, * datas, * datad, * pspixel;
-	uint32  * rtab, * gtab, * btab;
+	l_int32 w, h, minside, bpp, wpls, wpld, i, j, actualcolors;
+	l_int32 rval, gval, bval, nbase, nextra, maxlevel, ncubes, val;
+	l_int32   * lut1, * lut2;
+	l_uint32 index;
+	l_uint32 * lines, * lined, * datas, * datad, * pspixel;
+	l_uint32 * rtab, * gtab, * btab;
 	OQCELL    * oqc;
 	OQCELL   ** oqca;
 	L_HEAP    * lh;
-	PIX       * pixd;
+	PIX * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixOctreeQuantNumColors");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+	if(maxcolors < 8) {
+		L_WARNING("max colors < 8; setting to 8\n", procName);
+		maxcolors = 8;
+	}
+	if(maxcolors > 256) {
+		L_WARNING("max colors > 256; setting to 256\n", procName);
+		maxcolors = 256;
+	}
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	datas = pixGetData(pixs);
@@ -2261,7 +2268,7 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 		subsample = MAX(1, minside / 200);
 	}
 
-	if(maxcolors >= 8 && maxcolors <= 16) {
+	if(maxcolors <= 16) {
 		bpp = 4;
 		pixd = pixCreate(w, h, bpp);
 		maxlevel = 2;
@@ -2269,7 +2276,7 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 		nbase = 8;
 		nextra = maxcolors - nbase;
 	}
-	else if(maxcolors < 64) {
+	else if(maxcolors <= 64) {
 		bpp = 8;
 		pixd = pixCreate(w, h, bpp);
 		maxlevel = 2;
@@ -2277,16 +2284,13 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 		nbase = 8;
 		nextra = maxcolors - nbase;
 	}
-	else if(maxcolors >= 64 && maxcolors <= 256) {
+	else { /* maxcolors <= 256 */
 		bpp = 8;
 		pixd = pixCreate(w, h, bpp);
 		maxlevel = 3;
 		ncubes = 512; /* 2^9 */
 		nbase = 64;
 		nextra = maxcolors - nbase;
-	}
-	else {
-		return (PIX*)ERROR_PTR("maxcolors not in {8...256}", procName, NULL);
 	}
 
 	pixCopyResolution(pixd, pixs);
@@ -2299,17 +2303,17 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 	*----------------------------------------------------------*/
 	if(nextra == 0) {
 		/* prepare the OctcubeQuantCell array */
-		if((oqca = (OQCELL**)LEPT_CALLOC(nbase, sizeof(OQCELL *))) == NULL) {
+		if((oqca = (OQCELL**)SAlloc::C(nbase, sizeof(OQCELL *))) == NULL) {
 			pixDestroy(&pixd);
-			return (PIX*)ERROR_PTR("oqca not made", procName, NULL);
+			return (PIX *)ERROR_PTR("oqca not made", procName, NULL);
 		}
 		for(i = 0; i < nbase; i++) {
-			oqca[i] = (OQCELL*)LEPT_CALLOC(1, sizeof(OQCELL));
+			oqca[i] = (OQCELL*)SAlloc::C(1, sizeof(OQCELL));
 			oqca[i]->n = 0.0;
 		}
 
 		rtab = gtab = btab = NULL;
-		makeRGBToIndexTables(&rtab, &gtab, &btab, maxlevel - 1);
+		makeRGBToIndexTables(maxlevel - 1, &rtab, &gtab, &btab);
 
 		/* Go through the entire image, gathering statistics and
 		 * assigning pixels to their quantized value */
@@ -2323,8 +2327,8 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 				extractRGBValues(*pspixel, &rval, &gval, &bval);
 				getOctcubeIndexFromRGB(rval, gval, bval,
 				    rtab, gtab, btab, &index);
-/*                fprintf(stderr, "rval = %d, gval = %d, bval = %d,"
-                                " index = %d\n", rval, gval, bval, index); */
+/*                lept_stderr("rval = %d, gval = %d, bval = %d,"
+                              " index = %d\n", rval, gval, bval, index); */
 				if(bpp == 4)
 					SET_DATA_QBIT(lined, j, index);
 				else /* bpp == 8 */
@@ -2343,9 +2347,9 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 		for(i = 0; i < nbase; i++) {
 			oqc = oqca[i];
 			if(oqc->n != 0) {
-				oqc->rval = (int32)(oqc->rcum / oqc->n);
-				oqc->gval = (int32)(oqc->gcum / oqc->n);
-				oqc->bval = (int32)(oqc->bcum / oqc->n);
+				oqc->rval = (l_int32)(oqc->rcum / oqc->n);
+				oqc->gval = (l_int32)(oqc->gcum / oqc->n);
+				oqc->bval = (l_int32)(oqc->bcum / oqc->n);
 			}
 			else {
 				getRGBFromOctcube(i, maxlevel - 1, &oqc->rval,
@@ -2355,11 +2359,11 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 		}
 
 		for(i = 0; i < nbase; i++)
-			LEPT_FREE(oqca[i]);
-		LEPT_FREE(oqca);
-		LEPT_FREE(rtab);
-		LEPT_FREE(gtab);
-		LEPT_FREE(btab);
+			SAlloc::F(oqca[i]);
+		SAlloc::F(oqca);
+		SAlloc::F(rtab);
+		SAlloc::F(gtab);
+		SAlloc::F(btab);
 		return pixd;
 	}
 
@@ -2369,19 +2373,16 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 	* the colormap.                                              *
 	*------------------------------------------------------------*/
 	/* Prepare the OctcubeQuantCell array */
-	if((oqca = (OQCELL**)LEPT_CALLOC(ncubes, sizeof(OQCELL *))) == NULL) {
-		pixDestroy(&pixd);
-		return (PIX*)ERROR_PTR("oqca not made", procName, NULL);
-	}
+	oqca = (OQCELL**)SAlloc::C(ncubes, sizeof(OQCELL *));
 	for(i = 0; i < ncubes; i++) {
-		oqca[i] = (OQCELL*)LEPT_CALLOC(1, sizeof(OQCELL));
+		oqca[i] = (OQCELL*)SAlloc::C(1, sizeof(OQCELL));
 		oqca[i]->n = 0.0;
 	}
 
 	/* Make the tables to map color to the octindex,
 	 * of which there are 'ncubes' at 'maxlevel' */
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, maxlevel);
+	makeRGBToIndexTables(maxlevel, &rtab, &gtab, &btab);
 
 	/* Estimate the color distribution; we want to find the
 	 * most popular nextra colors at 'maxlevel' */
@@ -2403,12 +2404,12 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 	lh = lheapCreate(512, L_SORT_DECREASING);
 	for(i = 0; i < ncubes; i++)
 		lheapAdd(lh, oqca[i]);
-	LEPT_FREE(oqca); /* don't need this array */
+	SAlloc::F(oqca); /* don't need this array */
 
 	/* Prepare a new OctcubeQuantCell array, with maxcolors cells  */
-	oqca = (OQCELL**)LEPT_CALLOC(maxcolors, sizeof(OQCELL *));
+	oqca = (OQCELL**)SAlloc::C(maxcolors, sizeof(OQCELL *));
 	for(i = 0; i < nbase; i++) { /* make nbase cells */
-		oqca[i] = (OQCELL*)LEPT_CALLOC(1, sizeof(OQCELL));
+		oqca[i] = (OQCELL*)SAlloc::C(1, sizeof(OQCELL));
 		oqca[i]->n = 0.0;
 	}
 
@@ -2427,13 +2428,13 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 
 	/* Generate a lookup table from octindex at maxlevel
 	 * to color table index */
-	lut1 = (int32*)LEPT_CALLOC(ncubes, sizeof(int32));
+	lut1 = (l_int32*)SAlloc::C(ncubes, sizeof(l_int32));
 	for(i = 0; i < nextra; i++)
 		lut1[oqca[nbase + i]->octindex] = nbase + i;
 	for(index = 0; index < ncubes; index++) {
 		if(lut1[index] == 0) /* not one of the extras; need to assign */
-			lut1[index] = index >> 3;  /* remove the least significant bits */
-/*        fprintf(stderr, "lut1[%d] = %d\n", index, lut1[index]); */
+			lut1[index] = index >> 3; /* remove the least significant bits */
+/*        lept_stderr("lut1[%d] = %d\n", index, lut1[index]); */
 	}
 
 	/* Go through the entire image, gathering statistics and
@@ -2447,8 +2448,8 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 			pspixel = lines + j;
 			extractRGBValues(*pspixel, &rval, &gval, &bval);
 			getOctcubeIndexFromRGB(rval, gval, bval, rtab, gtab, btab, &index);
-/*            fprintf(stderr, "rval = %d, gval = %d, bval = %d, index = %d\n",
-                    rval, gval, bval, index); */
+/*            lept_stderr("rval = %d, gval = %d, bval = %d, index = %d\n",
+                          rval, gval, bval, index); */
 			val = lut1[index];
 			switch(bpp) {
 				case 4:
@@ -2458,7 +2459,9 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 				    SET_DATA_BYTE(lined, j, val);
 				    break;
 				default:
-				    return (PIX*)ERROR_PTR("bpp not 4 or 8!", procName, NULL);
+				    SAlloc::F(oqca);
+				    SAlloc::F(lut1);
+				    return (PIX *)ERROR_PTR("bpp not 4 or 8!", procName, NULL);
 				    break;
 			}
 			oqca[val]->n += 1.0;
@@ -2471,7 +2474,7 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 	/* Compute averages, set up a colormap, and make a second
 	 * lut that converts from the color values currently in
 	 * the image to a minimal set */
-	lut2 = (int32*)LEPT_CALLOC(ncubes, sizeof(int32));
+	lut2 = (l_int32*)SAlloc::C(ncubes, sizeof(l_int32));
 	cmap = pixcmapCreate(bpp);
 	pixSetColormap(pixd, cmap);
 	for(i = 0, index = 0; i < maxcolors; i++) {
@@ -2479,15 +2482,15 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 		lut2[i] = index;
 		if(oqc->n == 0) /* no occupancy; don't bump up index */
 			continue;
-		oqc->rval = (int32)(oqc->rcum / oqc->n);
-		oqc->gval = (int32)(oqc->gcum / oqc->n);
-		oqc->bval = (int32)(oqc->bcum / oqc->n);
+		oqc->rval = (l_int32)(oqc->rcum / oqc->n);
+		oqc->gval = (l_int32)(oqc->gcum / oqc->n);
+		oqc->bval = (l_int32)(oqc->bcum / oqc->n);
 		pixcmapAddColor(cmap, oqc->rval, oqc->gval, oqc->bval);
 		index++;
 	}
 /*    pixcmapWriteStream(stderr, cmap); */
 	actualcolors = pixcmapGetCount(cmap);
-/*    fprintf(stderr, "Number of different colors = %d\n", actualcolors); */
+/*    lept_stderr("Number of different colors = %d\n", actualcolors); */
 
 	/* Last time through the image; use the lookup table to
 	 * remap the pixel value to the minimal colormap */
@@ -2511,14 +2514,14 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 
 	if(oqca) {
 		for(i = 0; i < maxcolors; i++)
-			LEPT_FREE(oqca[i]);
+			SAlloc::F(oqca[i]);
 	}
-	LEPT_FREE(oqca);
-	LEPT_FREE(lut1);
-	LEPT_FREE(lut2);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(oqca);
+	SAlloc::F(lut1);
+	SAlloc::F(lut2);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return pixd;
 }
 
@@ -2528,11 +2531,11 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
 /*!
  * \brief   pixOctcubeQuantMixedWithGray()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    depth of output pix
- * \param[in]    graylevels grayscale
- * \param[in]    delta threshold for deciding if a pix is color or grayscale
- * \return  pixd quantized to octcube and gray levels or NULL on error
+ * \param[in]    pixs        32 bpp rgb
+ * \param[in]    depth       of output pix
+ * \param[in]    graylevels  graylevels (must be > 1)
+ * \param[in]    delta       threshold for deciding if a pix is color or gray
+ * \return  pixd     quantized to octcube and gray levels or NULL on error
  *
  * <pre>
  * Notes:
@@ -2554,58 +2557,61 @@ PIX * pixOctreeQuantNumColors(PIX     * pixs,
  *          of allowed gray levels: for 4 bpp, 8; for 8 bpp, 192.
  * </pre>
  */
-PIX * pixOctcubeQuantMixedWithGray(PIX     * pixs,
-    int32 depth,
-    int32 graylevels,
-    int32 delta)
+PIX * pixOctcubeQuantMixedWithGray(PIX * pixs,
+    l_int32 depth,
+    l_int32 graylevels,
+    l_int32 delta)
 {
-	int32 w, h, wpls, wpld, i, j, size, octlevels;
-	int32 rval, gval, bval, del, val, midval;
-	int32   * carray, * rarray, * garray, * barray;
-	int32   * tabval;
-	uint32 octindex;
-	uint32  * rtab, * gtab, * btab;
-	uint32  * lines, * lined, * datas, * datad;
-	PIX       * pixd;
+	l_int32 w, h, wpls, wpld, i, j, size, octlevels;
+	l_int32 rval, gval, bval, del, val, midval;
+	l_int32   * carray, * rarray, * garray, * barray;
+	l_int32   * tabval;
+	l_uint32 octindex;
+	l_uint32 * rtab, * gtab, * btab;
+	l_uint32 * lines, * lined, * datas, * datad;
+	PIX * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixOctcubeQuantMixedWithGray");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+	if(graylevels < 2)
+		return (PIX *)ERROR_PTR("invalid graylevels", procName, NULL);
 	if(depth == 4) {
 		octlevels = 1;
 		size = 8; /* 2 ** 3 */
 		if(graylevels > 8)
-			return (PIX*)ERROR_PTR("max 8 gray levels", procName, NULL);
+			return (PIX *)ERROR_PTR("max 8 gray levels", procName, NULL);
 	}
 	else if(depth == 8) {
 		octlevels = 2;
 		size = 64; /* 2 ** 6 */
 		if(graylevels > 192)
-			return (PIX*)ERROR_PTR("max 192 gray levels", procName, NULL);
+			return (PIX *)ERROR_PTR("max 192 gray levels", procName, NULL);
 	}
 	else {
-		return (PIX*)ERROR_PTR("output depth not 4 or 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("output depth not 4 or 8 bpp", procName, NULL);
 	}
 
 	pixd = NULL;
 
 	/* Make octcube index tables */
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, octlevels);
+	makeRGBToIndexTables(octlevels, &rtab, &gtab, &btab);
 
 	/* Make octcube arrays for storing points in each cube */
-	carray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	rarray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	garray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	barray = (int32*)LEPT_CALLOC(size, sizeof(int32));
+	carray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	rarray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	garray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	barray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
 
 	/* Make lookup table, using computed thresholds  */
 	tabval = makeGrayQuantIndexTable(graylevels);
-	if(!carray || !rarray || !garray || !barray || !tabval) {
+	if(!rtab || !gtab || !btab ||
+	    !carray || !rarray || !garray || !barray || !tabval) {
 		L_ERROR("calloc fail for an array\n", procName);
 		goto array_cleanup;
 	}
@@ -2620,7 +2626,7 @@ PIX * pixOctcubeQuantMixedWithGray(PIX     * pixs,
 	pixCopyInputFormat(pixd, pixs);
 	cmap = pixcmapCreate(depth);
 	for(j = 0; j < size; j++) /* reserve octcube colors */
-		pixcmapAddColor(cmap, 1, 1, 1);  /* a color that won't be used */
+		pixcmapAddColor(cmap, 1, 1, 1); /* a color that won't be used */
 	for(j = 0; j < graylevels; j++) { /* set grayscale colors */
 		val = (255 * j) / (graylevels - 1);
 		pixcmapAddColor(cmap, val, val, val);
@@ -2698,14 +2704,14 @@ PIX * pixOctcubeQuantMixedWithGray(PIX     * pixs,
 	}
 
 array_cleanup:
-	LEPT_FREE(carray);
-	LEPT_FREE(rarray);
-	LEPT_FREE(garray);
-	LEPT_FREE(barray);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
-	LEPT_FREE(tabval);
+	SAlloc::F(carray);
+	SAlloc::F(rarray);
+	SAlloc::F(garray);
+	SAlloc::F(barray);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
+	SAlloc::F(tabval);
 
 	return pixd;
 }
@@ -2716,8 +2722,8 @@ array_cleanup:
 /*!
  * \brief   pixFixedOctcubeQuant256()
  *
- * \param[in]    pixs  32 bpp; 24-bit color
- * \param[in]    ditherflag  1 for dithering; 0 for no dithering
+ * \param[in]    pixs         32 bpp; 24-bit color
+ * \param[in]    ditherflag   1 for dithering; 0 for no dithering
  * \return  pixd 8 bit with colormap, or NULL on error
  *
  * <pre>
@@ -2776,28 +2782,28 @@ array_cleanup:
  *  blending of colors.
  * </pre>
  */
-PIX * pixFixedOctcubeQuant256(PIX     * pixs,
-    int32 ditherflag)
+PIX * pixFixedOctcubeQuant256(PIX * pixs,
+    l_int32 ditherflag)
 {
 	uint8 index;
-	int32 rval, gval, bval;
-	int32 w, h, wpls, wpld, i, j, cindex;
-	uint32  * rtab, * gtab, * btab;
-	int32   * itab;
-	uint32  * datas, * datad, * lines, * lined;
-	PIX       * pixd;
+	l_int32 rval, gval, bval;
+	l_int32 w, h, wpls, wpld, i, j, cindex;
+	l_uint32 * rtab, * gtab, * btab;
+	l_int32   * itab;
+	l_uint32 * datas, * datad, * lines, * lined;
+	PIX * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixFixedOctcubeQuant256");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 
 	/* Do not dither if image is very small */
 	pixGetDimensions(pixs, &w, &h, NULL);
-	if(w < MIN_DITHER_SIZE && h < MIN_DITHER_SIZE && ditherflag == 1) {
+	if(w < MinDitherSize && h < MinDitherSize && ditherflag == 1) {
 		L_INFO("Small image: dithering turned off\n", procName);
 		ditherflag = 0;
 	}
@@ -2823,7 +2829,7 @@ PIX * pixFixedOctcubeQuant256(PIX     * pixs,
 	wpls = pixGetWpl(pixs);
 	if((pixd = pixCreate(w, h, 8)) == NULL) {
 		pixcmapDestroy(&cmap);
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 	pixSetColormap(pixd, cmap);
 	pixCopyResolution(pixd, pixs);
@@ -2851,10 +2857,14 @@ PIX * pixFixedOctcubeQuant256(PIX     * pixs,
 		 * itab[], that simply compensates for the -1 in
 		 * pixDitherOctindexWithCmap().   No cap is required on
 		 * the propagated difference.  */
-		rtab = (uint32*)LEPT_CALLOC(256, sizeof(uint32));
-		gtab = (uint32*)LEPT_CALLOC(256, sizeof(uint32));
-		btab = (uint32*)LEPT_CALLOC(256, sizeof(uint32));
-		itab = (int32*)LEPT_CALLOC(256, sizeof(int32));
+		rtab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+		gtab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+		btab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+		itab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+		if(!rtab || !gtab || !btab || !itab) {
+			pixDestroy(&pixd);
+			return (PIX *)ERROR_PTR("calloc fail for table", procName, NULL);
+		}
 		for(i = 0; i < 256; i++) {
 			rtab[i] = i & 0xe0;
 			gtab[i] = (i >> 3) & 0x1c;
@@ -2863,10 +2873,10 @@ PIX * pixFixedOctcubeQuant256(PIX     * pixs,
 		}
 		pixDitherOctindexWithCmap(pixs, pixd, rtab, gtab, btab, itab,
 		    FIXED_DIF_CAP);
-		LEPT_FREE(rtab);
-		LEPT_FREE(gtab);
-		LEPT_FREE(btab);
-		LEPT_FREE(itab);
+		SAlloc::F(rtab);
+		SAlloc::F(gtab);
+		SAlloc::F(btab);
+		SAlloc::F(itab);
 	}
 
 	return pixd;
@@ -2878,8 +2888,8 @@ PIX * pixFixedOctcubeQuant256(PIX     * pixs,
 /*!
  * \brief   pixFewColorsOctcubeQuant1()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    level significant bits for each of RGB; valid in [1...6]
+ * \param[in]    pixs    32 bpp rgb
+ * \param[in]    level   significant bits for each of RGB; valid in [1...6]
  * \return  pixd quantized to octcube or NULL on error
  *
  * <pre>
@@ -2905,38 +2915,38 @@ PIX * pixFixedOctcubeQuant256(PIX     * pixs,
  *          because it generates the histogram internally.
  * </pre>
  */
-PIX * pixFewColorsOctcubeQuant1(PIX     * pixs,
-    int32 level)
+PIX * pixFewColorsOctcubeQuant1(PIX * pixs,
+    l_int32 level)
 {
-	int32 w, h, wpls, wpld, i, j, depth, size, ncolors, index;
-	int32 rval, gval, bval;
-	int32   * carray, * rarray, * garray, * barray;
-	uint32 octindex;
-	uint32  * rtab, * gtab, * btab;
-	uint32  * lines, * lined, * datas, * datad, * pspixel;
-	PIX       * pixd;
+	l_int32 w, h, wpls, wpld, i, j, depth, size, ncolors, index;
+	l_int32 rval, gval, bval;
+	l_int32   * carray, * rarray, * garray, * barray;
+	l_uint32 octindex;
+	l_uint32 * rtab, * gtab, * btab;
+	l_uint32 * lines, * lined, * datas, * datad, * pspixel;
+	PIX * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixFewColorsOctcubeQuant1");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(level < 1 || level > 6)
-		return (PIX*)ERROR_PTR("invalid level", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid level", procName, NULL);
 
 	pixd = NULL;
 
 	if(octcubeGetCount(level, &size)) /* array size = 2 ** (3 * level) */
-		return (PIX*)ERROR_PTR("size not returned", procName, NULL);
+		return (PIX *)ERROR_PTR("size not returned", procName, NULL);
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, level);
+	makeRGBToIndexTables(level, &rtab, &gtab, &btab);
 
-	carray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	rarray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	garray = (int32*)LEPT_CALLOC(size, sizeof(int32));
-	barray = (int32*)LEPT_CALLOC(size, sizeof(int32));
+	carray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	rarray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	garray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
+	barray = (l_int32*)SAlloc::C(size, sizeof(l_int32));
 	if(!carray || !rarray || !garray || !barray) {
 		L_ERROR("calloc fail for an array\n", procName);
 		goto array_cleanup;
@@ -2965,7 +2975,7 @@ PIX * pixFewColorsOctcubeQuant1(PIX     * pixs,
 			ncolors++;
 	}
 	if(ncolors > 256) {
-		L_WARNING2("%d colors found; more than 256\n", procName, ncolors);
+		L_WARNING("%d colors found; more than 256\n", procName, ncolors);
 		goto array_cleanup;
 	}
 	if(ncolors <= 4)
@@ -3020,26 +3030,26 @@ PIX * pixFewColorsOctcubeQuant1(PIX     * pixs,
 	}
 
 array_cleanup:
-	LEPT_FREE(carray);
-	LEPT_FREE(rarray);
-	LEPT_FREE(garray);
-	LEPT_FREE(barray);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(carray);
+	SAlloc::F(rarray);
+	SAlloc::F(garray);
+	SAlloc::F(barray);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return pixd;
 }
 
 /*!
  * \brief   pixFewColorsOctcubeQuant2()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    level of octcube indexing, for histogram: 3, 4, 5, 6
- * \param[in]    na histogram of pixel occupation in octree leaves at
- *                  given level
- * \param[in]    ncolors number of occupied octree leaves at given level
- * \param[out]   pnerrors [optional] num of pixels not exactly
- *                        represented in the colormap
+ * \param[in]    pixs       32 bpp rgb
+ * \param[in]    level      of octcube indexing, for histogram: 3, 4, 5, 6
+ * \param[in]    na         histogram of pixel occupation in octree leaves
+ *                          at given level
+ * \param[in]    ncolors    number of occupied octree leaves at given level
+ * \param[out]   pnerrors   [optional] num of pixels not exactly
+ *                          represented in the colormap
  * \return  pixd 2, 4 or 8 bpp with colormap, or NULL on error
  *
  * <pre>
@@ -3073,33 +3083,33 @@ array_cleanup:
  *          that color is lossless.
  * </pre>
  */
-PIX * pixFewColorsOctcubeQuant2(PIX      * pixs,
-    int32 level,
+PIX * pixFewColorsOctcubeQuant2(PIX * pixs,
+    l_int32 level,
     NUMA     * na,
-    int32 ncolors,
-    int32  * pnerrors)
+    l_int32 ncolors,
+    l_int32 * pnerrors)
 {
-	int32 w, h, wpls, wpld, i, j, nerrors;
-	int32 ncubes, depth, cindex, oval;
-	int32 rval, gval, bval;
-	int32   * octarray;
-	uint32 octindex;
-	uint32  * rtab, * gtab, * btab;
-	uint32  * lines, * lined, * datas, * datad, * ppixel;
-	uint32  * colorarray;
-	PIX       * pixd;
+	l_int32 w, h, wpls, wpld, i, j, nerrors;
+	l_int32 ncubes, depth, cindex, oval;
+	l_int32 rval, gval, bval;
+	l_int32   * octarray;
+	l_uint32 octindex;
+	l_uint32 * rtab, * gtab, * btab;
+	l_uint32 * lines, * lined, * datas, * datad, * ppixel;
+	l_uint32 * colorarray;
+	PIX * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixFewColorsOctcubeQuant2");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(level < 3 || level > 6)
-		return (PIX*)ERROR_PTR("level not in {4, 5, 6}", procName, NULL);
+		return (PIX *)ERROR_PTR("level not in {4, 5, 6}", procName, NULL);
 	if(ncolors > 256)
-		return (PIX*)ERROR_PTR("ncolors > 256", procName, NULL);
+		return (PIX *)ERROR_PTR("ncolors > 256", procName, NULL);
 	if(pnerrors)
 		*pnerrors = UNDEF;
 
@@ -3108,16 +3118,16 @@ PIX * pixFewColorsOctcubeQuant2(PIX      * pixs,
 	/* Represent the image with a set of leaf octcubes
 	 * at 'level', one for each color. */
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, level);
+	makeRGBToIndexTables(level, &rtab, &gtab, &btab);
 
 	/* The octarray will give a ptr from the octcube to the colorarray */
 	ncubes = numaGetCount(na);
-	octarray = (int32*)LEPT_CALLOC(ncubes, sizeof(int32));
+	octarray = (l_int32*)SAlloc::C(ncubes, sizeof(l_int32));
 
 	/* The colorarray will hold the colors of the first pixel
 	 * that lands in the leaf octcube.  After filling, it is
 	 * used to generate the colormap.  */
-	colorarray = (uint32*)LEPT_CALLOC(ncolors + 1, sizeof(uint32));
+	colorarray = (l_uint32*)SAlloc::C(ncolors + 1, sizeof(l_uint32));
 	if(!octarray || !colorarray) {
 		L_ERROR("octarray or colorarray not made\n", procName);
 		goto cleanup_arrays;
@@ -3178,9 +3188,9 @@ PIX * pixFewColorsOctcubeQuant2(PIX      * pixs,
 		*pnerrors = nerrors;
 
 #if  DEBUG_FEW_COLORS
-	fprintf(stderr, "ncubes = %d, ncolors = %d\n", ncubes, ncolors);
+	lept_stderr("ncubes = %d, ncolors = %d\n", ncubes, ncolors);
 	for(i = 0; i < ncolors; i++)
-		fprintf(stderr, "color[%d] = %x\n", i, colorarray[i + 1]);
+		lept_stderr("color[%d] = %x\n", i, colorarray[i + 1]);
 #endif  /* DEBUG_FEW_COLORS */
 
 	/* Make the colormap. */
@@ -3193,11 +3203,11 @@ PIX * pixFewColorsOctcubeQuant2(PIX      * pixs,
 	pixSetColormap(pixd, cmap);
 
 cleanup_arrays:
-	LEPT_FREE(octarray);
-	LEPT_FREE(colorarray);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(octarray);
+	SAlloc::F(colorarray);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 
 	return pixd;
 }
@@ -3205,21 +3215,21 @@ cleanup_arrays:
 /*!
  * \brief   pixFewColorsOctcubeQuantMixed()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    level significant octcube bits for each of RGB;
- *                     valid in [1...6]; use 0 for default
- * \param[in]    darkthresh threshold near black; if the lightest component
- *                          is below this, the pixel is not considered to
- *                          be gray or color; uses 0 for default
- * \param[in]    lightthresh threshold near white; if the darkest component
- *                           is above this, the pixel is not considered to
- *                           be gray or color; use 0 for default
- * \param[in]    diffthresh thresh for the max difference between component
- *                          values; for differences below this, the pixel
- *                          is considered to be gray; use 0 for default
- * \param[in]    minfract min fraction of pixels for gray histo bin;
- *                        use 0.0 for default
- * \param[in]    maxspan max size of gray histo bin; use 0 for default
+ * \param[in]    pixs          32 bpp rgb
+ * \param[in]    level         significant octcube bits for each of RGB;
+ *                             valid in [1...6]; use 0 for default
+ * \param[in]    darkthresh    threshold near black; if the lightest component
+ *                             is below this, the pixel is not considered to
+ *                             be gray or color; uses 0 for default
+ * \param[in]    lightthresh   threshold near white; if the darkest component
+ *                             is above this, the pixel is not considered to
+ *                             be gray or color; use 0 for default
+ * \param[in]    diffthresh    thresh for the max difference between component
+ *                             values; for differences below this, the pixel
+ *                             is considered to be gray; use 0 for default
+ * \param[in]    minfract      min fraction of pixels for gray histo bin;
+ *                             use 0.0 for default
+ * \param[in]    maxspan       max size of gray histo bin; use 0 for default
  * \return  pixd 8 bpp, quantized to octcube for pixels that are
  *                    not gray; gray pixels are quantized separately
  *                    over the full gray range, or NULL on error
@@ -3261,44 +3271,46 @@ cleanup_arrays:
  *          both in size and appearance.  But it is a bit slower.
  * </pre>
  */
-PIX * pixFewColorsOctcubeQuantMixed(PIX       * pixs,
-    int32 level,
-    int32 darkthresh,
-    int32 lightthresh,
-    int32 diffthresh,
+PIX * pixFewColorsOctcubeQuantMixed(PIX * pixs,
+    l_int32 level,
+    l_int32 darkthresh,
+    l_int32 lightthresh,
+    l_int32 diffthresh,
     float minfract,
-    int32 maxspan)
+    l_int32 maxspan)
 {
-	int32 i, j, w, h, wplc, wplm, wpld, ncolors, index;
-	int32 rval, gval, bval, val, minval, maxval;
-	int32   * lut;
-	uint32  * datac, * datam, * datad, * linec, * linem, * lined;
-	PIX       * pixc, * pixm, * pixg, * pixd;
+	l_int32 i, j, w, h, wplc, wplm, wpld, ncolors, index;
+	l_int32 rval, gval, bval, val, minval, maxval;
+	l_int32   * lut;
+	l_uint32 * datac, * datam, * datad, * linec, * linem, * lined;
+	PIX * pix1, * pixc, * pixm, * pixg, * pixd;
 	PIXCMAP   * cmap, * cmapd;
 
-	PROCNAME("pixFewColorsOctcubeQuantMixed");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
 	if(level <= 0) level = 3;
 	if(level > 6)
-		return (PIX*)ERROR_PTR("invalid level", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid level", procName, NULL);
 	if(darkthresh <= 0) darkthresh = 20;
 	if(lightthresh <= 0) lightthresh = 244;
 	if(diffthresh <= 0) diffthresh = 20;
-	if(minfract <= 0.0) minfract = 0.05f;
+	if(minfract <= 0.0) minfract = 0.05;
 	if(maxspan <= 2) maxspan = 15;
 
 	/* Start with a simple fixed octcube quantizer. */
-	if((pixc = pixFewColorsOctcubeQuant1(pixs, level)) == NULL)
-		return (PIX*)ERROR_PTR("too many colors", procName, NULL);
+	if((pix1 = pixFewColorsOctcubeQuant1(pixs, level)) == NULL)
+		return (PIX *)ERROR_PTR("too many colors", procName, NULL);
+	pixc = pixConvertTo8(pix1, 1); /* must be 8 bpp */
+	pixDestroy(&pix1);
 
 	/* Identify and save color entries in the colormap.  Set up a LUT
 	 * that returns -1 for any gray pixel. */
 	cmap = pixGetColormap(pixc);
 	ncolors = pixcmapGetCount(cmap);
 	cmapd = pixcmapCreate(8);
-	lut = (int32*)LEPT_CALLOC(256, sizeof(int32));
+	lut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
 	for(i = 0; i < 256; i++)
 		lut[i] = -1;
 	for(i = 0, index = 0; i < ncolors; i++) {
@@ -3351,7 +3363,7 @@ PIX * pixFewColorsOctcubeQuantMixed(PIX       * pixs,
 	pixg = pixConvertTo8(pixs, 0);
 	pixGrayQuantFromHisto(pixd, pixg, pixm, minfract, maxspan);
 
-	LEPT_FREE(lut);
+	SAlloc::F(lut);
 	pixDestroy(&pixc);
 	pixDestroy(&pixm);
 	pixDestroy(&pixg);
@@ -3364,8 +3376,8 @@ PIX * pixFewColorsOctcubeQuantMixed(PIX       * pixs,
 /*!
  * \brief   pixFixedOctcubeQuantGenRGB()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    level significant bits for each of r,g,b
+ * \param[in]    pixs    32 bpp rgb
+ * \param[in]    level   significant bits for each of r,g,b
  * \return  pixd rgb; quantized to octcube centers, or NULL on error
  *
  * <pre>
@@ -3377,27 +3389,27 @@ PIX * pixFewColorsOctcubeQuantMixed(PIX       * pixs,
  *          not quantized to the average of the pixels in that octcube.
  * </pre>
  */
-PIX * pixFixedOctcubeQuantGenRGB(PIX     * pixs,
-    int32 level)
+PIX * pixFixedOctcubeQuantGenRGB(PIX * pixs,
+    l_int32 level)
 {
-	int32 w, h, wpls, wpld, i, j;
-	int32 rval, gval, bval;
-	uint32 octindex;
-	uint32  * rtab, * gtab, * btab;
-	uint32  * lines, * lined, * datas, * datad;
-	PIX       * pixd;
+	l_int32 w, h, wpls, wpld, i, j;
+	l_int32 rval, gval, bval;
+	l_uint32 octindex;
+	l_uint32 * rtab, * gtab, * btab;
+	l_uint32 * lines, * lined, * datas, * datad;
+	PIX * pixd;
 
-	PROCNAME("pixFixedOctcubeQuantGenRGB");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(level < 1 || level > 6)
-		return (PIX*)ERROR_PTR("level not in {1,...6}", procName, NULL);
+		return (PIX *)ERROR_PTR("level not in {1,...6}", procName, NULL);
 
-	if(makeRGBToIndexTables(&rtab, &gtab, &btab, level))
-		return (PIX*)ERROR_PTR("tables not made", procName, NULL);
+	if(makeRGBToIndexTables(level, &rtab, &gtab, &btab))
+		return (PIX *)ERROR_PTR("tables not made", procName, NULL);
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	pixd = pixCreate(w, h, 32);
@@ -3418,9 +3430,9 @@ PIX * pixFixedOctcubeQuantGenRGB(PIX     * pixs,
 		}
 	}
 
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return pixd;
 }
 
@@ -3430,11 +3442,11 @@ PIX * pixFixedOctcubeQuantGenRGB(PIX     * pixs,
 /*!
  * \brief   pixQuantFromCmap()
  *
- * \param[in]    pixs  8 bpp grayscale without cmap, or 32 bpp rgb
- * \param[in]    cmap  to quantize to; insert copy into dest pix
- * \param[in]    mindepth minimum depth of pixd: can be 2, 4 or 8 bpp
- * \param[in]    level of octcube used for finding nearest color in cmap
- * \param[in]    metric L_MANHATTAN_DISTANCE, L_EUCLIDEAN_DISTANCE
+ * \param[in]    pixs       8 bpp grayscale without cmap, or 32 bpp rgb
+ * \param[in]    cmap       to quantize to; insert copy into dest pix
+ * \param[in]    mindepth   minimum depth of pixd: can be 2, 4 or 8 bpp
+ * \param[in]    level      of octcube used for finding nearest color in cmap
+ * \param[in]    metric     L_MANHATTAN_DISTANCE, L_EUCLIDEAN_DISTANCE
  * \return  pixd  2, 4 or 8 bpp, colormapped, or NULL on error
  *
  * <pre>
@@ -3448,38 +3460,38 @@ PIX * pixFixedOctcubeQuantGenRGB(PIX     * pixs,
  *          removed from the cmap before quantizing pixs.
  * </pre>
  */
-PIX * pixQuantFromCmap(PIX      * pixs,
+PIX * pixQuantFromCmap(PIX * pixs,
     PIXCMAP  * cmap,
-    int32 mindepth,
-    int32 level,
-    int32 metric)
+    l_int32 mindepth,
+    l_int32 level,
+    l_int32 metric)
 {
-	int32 d;
+	l_int32 d;
 
-	PROCNAME("pixQuantFromCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(mindepth != 2 && mindepth != 4 && mindepth != 8)
-		return (PIX*)ERROR_PTR("invalid mindepth", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid mindepth", procName, NULL);
 	d = pixGetDepth(pixs);
 	if(d == 8)
 		return pixGrayQuantFromCmap(pixs, cmap, mindepth);
 	else if(d == 32)
 		return pixOctcubeQuantFromCmap(pixs, cmap, mindepth,
-		    level, metric);
+			   level, metric);
 	else
-		return (PIX*)ERROR_PTR("d not 8 or 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("d not 8 or 32 bpp", procName, NULL);
 }
 
 /*!
  * \brief   pixOctcubeQuantFromCmap()
  *
- * \param[in]    pixs  32 bpp rgb
- * \param[in]    cmap  to quantize to; insert copy into dest pix
- * \param[in]    mindepth minimum depth of pixd: can be 2, 4 or 8 bpp
- * \param[in]    level of octcube used for finding nearest color in cmap
- * \param[in]    metric L_MANHATTAN_DISTANCE, L_EUCLIDEAN_DISTANCE
+ * \param[in]    pixs       32 bpp rgb
+ * \param[in]    cmap       to quantize to; insert copy into dest pix
+ * \param[in]    mindepth   minimum depth of pixd: can be 2, 4 or 8 bpp
+ * \param[in]    level      of octcube used for finding nearest color in cmap
+ * \param[in]    metric     L_MANHATTAN_DISTANCE, L_EUCLIDEAN_DISTANCE
  * \return  pixd  2, 4 or 8 bpp, colormapped, or NULL on error
  *
  * <pre>
@@ -3534,54 +3546,54 @@ PIX * pixQuantFromCmap(PIX      * pixs,
  *          so one would not typically use the low-level version.
  * </pre>
  */
-PIX * pixOctcubeQuantFromCmap(PIX      * pixs,
+PIX * pixOctcubeQuantFromCmap(PIX * pixs,
     PIXCMAP  * cmap,
-    int32 mindepth,
-    int32 level,
-    int32 metric)
+    l_int32 mindepth,
+    l_int32 level,
+    l_int32 metric)
 {
-	int32   * cmaptab;
-	uint32  * rtab, * gtab, * btab;
-	PIX       * pixd;
+	l_int32   * cmaptab;
+	l_uint32 * rtab, * gtab, * btab;
+	PIX * pixd;
 
-	PROCNAME("pixOctcubeQuantFromCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(!cmap)
-		return (PIX*)ERROR_PTR("cmap not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("cmap not defined", procName, NULL);
 	if(mindepth != 2 && mindepth != 4 && mindepth != 8)
-		return (PIX*)ERROR_PTR("invalid mindepth", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid mindepth", procName, NULL);
 	if(level < 1 || level > 6)
-		return (PIX*)ERROR_PTR("level not in {1...6}", procName, NULL);
+		return (PIX *)ERROR_PTR("level not in {1...6}", procName, NULL);
 	if(metric != L_MANHATTAN_DISTANCE && metric != L_EUCLIDEAN_DISTANCE)
-		return (PIX*)ERROR_PTR("invalid metric", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid metric", procName, NULL);
 
 	/* Set up the tables to map rgb to the nearest colormap index */
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, level);
+	makeRGBToIndexTables(level, &rtab, &gtab, &btab);
 	cmaptab = pixcmapToOctcubeLUT(cmap, level, metric);
 
 	pixd = pixOctcubeQuantFromCmapLUT(pixs, cmap, mindepth,
-	    cmaptab, rtab, gtab, btab);
+		cmaptab, rtab, gtab, btab);
 
-	LEPT_FREE(cmaptab);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(cmaptab);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return pixd;
 }
 
 /*!
  * \brief   pixOctcubeQuantFromCmapLUT()
  *
- * \param[in]    pixs  32 bpp rgb
- * \param[in]    cmap  to quantize to; insert copy into dest pix
- * \param[in]    mindepth minimum depth of pixd: can be 2, 4 or 8 bpp
- * \param[in]    cmaptab  table mapping from octindex to colormap index
- * \param[in]    rtab, gtab, btab tables mapping from RGB to octindex
+ * \param[in]    pixs              32 bpp rgb
+ * \param[in]    cmap              to quantize to; insert copy into dest pix
+ * \param[in]    mindepth          minimum depth of pixd: can be 2, 4 or 8 bpp
+ * \param[in]    cmaptab           table mapping from octindex to colormap index
+ * \param[in]    rtab, gtab, btab  tables mapping from RGB to octindex
  * \return  pixd  2, 4 or 8 bpp, colormapped, or NULL on error
  *
  * <pre>
@@ -3598,40 +3610,40 @@ PIX * pixOctcubeQuantFromCmap(PIX      * pixs,
  *          a colormapped pix that uses the specified colormap.
  * </pre>
  */
-static PIX * pixOctcubeQuantFromCmapLUT(PIX       * pixs,
+static PIX * pixOctcubeQuantFromCmapLUT(PIX * pixs,
     PIXCMAP   * cmap,
-    int32 mindepth,
-    int32   * cmaptab,
-    uint32  * rtab,
-    uint32  * gtab,
-    uint32  * btab)
+    l_int32 mindepth,
+    l_int32   * cmaptab,
+    l_uint32 * rtab,
+    l_uint32 * gtab,
+    l_uint32 * btab)
 {
-	int32 i, j, w, h, depth, wpls, wpld;
-	int32 rval, gval, bval, index;
-	uint32 octindex;
-	uint32  * lines, * lined, * datas, * datad;
-	PIX       * pixd;
+	l_int32 i, j, w, h, depth, wpls, wpld;
+	l_int32 rval, gval, bval, index;
+	l_uint32 octindex;
+	l_uint32 * lines, * lined, * datas, * datad;
+	PIX * pixd;
 	PIXCMAP   * cmapc;
 
-	PROCNAME("pixOctcubeQuantFromCmapLUT");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(!cmap)
-		return (PIX*)ERROR_PTR("cmap not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("cmap not defined", procName, NULL);
 	if(mindepth != 2 && mindepth != 4 && mindepth != 8)
-		return (PIX*)ERROR_PTR("invalid mindepth", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid mindepth", procName, NULL);
 	if(!rtab || !gtab || !btab || !cmaptab)
-		return (PIX*)ERROR_PTR("tables not all defined", procName, NULL);
+		return (PIX *)ERROR_PTR("tables not all defined", procName, NULL);
 
 	/* Init dest pix (with minimum bpp depending on cmap) */
 	pixcmapGetMinDepth(cmap, &depth);
 	depth = MAX(depth, mindepth);
 	pixGetDimensions(pixs, &w, &h, NULL);
 	if((pixd = pixCreate(w, h, depth)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	cmapc = pixcmapCopy(cmap);
 	pixSetColormap(pixd, cmapc);
 	pixCopyResolution(pixd, pixs);
@@ -3670,9 +3682,9 @@ static PIX * pixOctcubeQuantFromCmapLUT(PIX       * pixs,
 /*!
  * \brief   pixOctcubeHistogram()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    level significant bits for each of RGB; valid in [1...6]
- * \param[out]   pncolors [optional] number of occupied cubes
+ * \param[in]    pixs       32 bpp rgb
+ * \param[in]    level      significant bits for each of RGB; valid in [1...6]
+ * \param[out]   pncolors   [optional] number of occupied cubes
  * \return  numa histogram of color pixels, or NULL on error
  *
  * <pre>
@@ -3680,19 +3692,19 @@ static PIX * pixOctcubeQuantFromCmapLUT(PIX       * pixs,
  *      (1) Input NULL for &ncolors to prevent computation and return value.
  * </pre>
  */
-NUMA * pixOctcubeHistogram(PIX      * pixs,
-    int32 level,
-    int32  * pncolors)
+NUMA * pixOctcubeHistogram(PIX * pixs,
+    l_int32 level,
+    l_int32 * pncolors)
 {
-	int32 size, i, j, w, h, wpl, ncolors, val;
-	int32 rval, gval, bval;
-	uint32 octindex;
-	uint32   * rtab, * gtab, * btab;
-	uint32   * data, * line;
-	float  * array;
+	l_int32 size, i, j, w, h, wpl, ncolors, val;
+	l_int32 rval, gval, bval;
+	l_uint32 octindex;
+	l_uint32   * rtab, * gtab, * btab;
+	l_uint32   * data, * line;
+	float * array;
 	NUMA       * na;
 
-	PROCNAME("pixOctcubeHistogram");
+	PROCNAME(__FUNCTION__);
 
 	if(pncolors) *pncolors = 0;
 	if(!pixs)
@@ -3707,7 +3719,7 @@ NUMA * pixOctcubeHistogram(PIX      * pixs,
 	if(octcubeGetCount(level, &size)) /* array size = 2 ** (3 * level) */
 		return (NUMA*)ERROR_PTR("size not returned", procName, NULL);
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, level);
+	makeRGBToIndexTables(level, &rtab, &gtab, &btab);
 
 	if((na = numaCreate(size)) == NULL) {
 		L_ERROR("na not made\n", procName);
@@ -3728,7 +3740,7 @@ NUMA * pixOctcubeHistogram(PIX      * pixs,
 			    (level == 4 && octindex > 4097) ||
 			    (level == 5 && octindex > 32783) ||
 			    (level == 6 && octindex > 262271)) {
-				fprintf(stderr, "level = %d, octindex = %d, index error!\n",
+				lept_stderr("level = %d, octindex = %d, index error!\n",
 				    level, octindex);
 				continue;
 			}
@@ -3747,9 +3759,9 @@ NUMA * pixOctcubeHistogram(PIX      * pixs,
 	}
 
 cleanup_arrays:
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return na;
 }
 
@@ -3760,8 +3772,8 @@ cleanup_arrays:
  * \brief   pixcmapToOctcubeLUT()
  *
  * \param[in]    cmap
- * \param[in]    level significant bits for each of RGB; valid in [1...6]
- * \param[in]    metric L_MANHATTAN_DISTANCE, L_EUCLIDEAN_DISTANCE
+ * \param[in]    level    significant bits for each of RGB; valid in [1...6]
+ * \param[in]    metric   L_MANHATTAN_DISTANCE, L_EUCLIDEAN_DISTANCE
  * \return  tab[2**3 * level]
  *
  * <pre>
@@ -3801,27 +3813,27 @@ cleanup_arrays:
  *          of colors and the number of levels can be small (e.g., level = 3).
  * </pre>
  */
-int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
-    int32 level,
-    int32 metric)
+l_int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
+    l_int32 level,
+    l_int32 metric)
 {
-	int32 i, k, size, ncolors, mindist, dist, mincolor, index;
-	int32 rval, gval, bval; /* color at center of the octcube */
-	int32   * rmap, * gmap, * bmap, * tab;
+	l_int32 i, k, size, ncolors, mindist, dist, mincolor, index;
+	l_int32 rval, gval, bval; /* color at center of the octcube */
+	l_int32   * rmap, * gmap, * bmap, * tab;
 
-	PROCNAME("pixcmapToOctcubeLUT");
+	PROCNAME(__FUNCTION__);
 
 	if(!cmap)
-		return (int32*)ERROR_PTR("cmap not defined", procName, NULL);
+		return (l_int32*)ERROR_PTR("cmap not defined", procName, NULL);
 	if(level < 1 || level > 6)
-		return (int32*)ERROR_PTR("level not in {1...6}", procName, NULL);
+		return (l_int32*)ERROR_PTR("level not in {1...6}", procName, NULL);
 	if(metric != L_MANHATTAN_DISTANCE && metric != L_EUCLIDEAN_DISTANCE)
-		return (int32*)ERROR_PTR("invalid metric", procName, NULL);
+		return (l_int32*)ERROR_PTR("invalid metric", procName, NULL);
 
 	if(octcubeGetCount(level, &size)) /* array size = 2 ** (3 * level) */
-		return (int32*)ERROR_PTR("size not returned", procName, NULL);
-	if((tab = (int32*)LEPT_CALLOC(size, sizeof(int32))) == NULL)
-		return (int32*)ERROR_PTR("tab not allocated", procName, NULL);
+		return (l_int32*)ERROR_PTR("size not returned", procName, NULL);
+	if((tab = (l_int32*)SAlloc::C(size, sizeof(l_int32))) == NULL)
+		return (l_int32*)ERROR_PTR("tab not allocated", procName, NULL);
 
 	ncolors = pixcmapGetCount(cmap);
 	pixcmapToArrays(cmap, &rmap, &gmap, &bmap, NULL);
@@ -3863,9 +3875,9 @@ int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
 		tab[(1 << (3 * level)) - 1] = index;
 	}
 
-	LEPT_FREE(rmap);
-	LEPT_FREE(gmap);
-	LEPT_FREE(bmap);
+	SAlloc::F(rmap);
+	SAlloc::F(gmap);
+	SAlloc::F(bmap);
 	return tab;
 }
 
@@ -3875,7 +3887,7 @@ int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
 /*!
  * \brief   pixRemoveUnusedColors()
  *
- * \param[in]    pixs  colormapped
+ * \param[in]    pixs   colormapped
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -3886,15 +3898,15 @@ int32 * pixcmapToOctcubeLUT(PIXCMAP  * cmap,
  *          image pixels are re-numbered.
  * </pre>
  */
-int32 pixRemoveUnusedColors(PIX  * pixs)
+l_ok pixRemoveUnusedColors(PIX  * pixs)
 {
-	int32 i, j, w, h, d, nc, wpls, val, newval, index, zerofound;
-	int32 rval, gval, bval;
-	uint32   * datas, * lines;
-	int32    * histo, * map1, * map2;
+	l_int32 i, j, w, h, d, nc, wpls, val, newval, index, zerofound;
+	l_int32 rval, gval, bval;
+	l_uint32   * datas, * lines;
+	l_int32    * histo, * map1, * map2;
 	PIXCMAP    * cmap, * cmapd;
 
-	PROCNAME("pixRemoveUnusedColors");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -3907,7 +3919,7 @@ int32 pixRemoveUnusedColors(PIX  * pixs)
 
 	/* Find which indices are actually used */
 	nc = pixcmapGetCount(cmap);
-	if((histo = (int32*)LEPT_CALLOC(nc, sizeof(int32))) == NULL)
+	if((histo = (l_int32*)SAlloc::C(nc, sizeof(l_int32))) == NULL)
 		return ERROR_INT("histo not made", procName, 1);
 	pixGetDimensions(pixs, &w, &h, NULL);
 	wpls = pixGetWpl(pixs);
@@ -3927,6 +3939,7 @@ int32 pixRemoveUnusedColors(PIX  * pixs)
 				    val = GET_DATA_BYTE(lines, j);
 				    break;
 				default:
+				    SAlloc::F(histo);
 				    return ERROR_INT("switch ran off end!", procName, 1);
 			}
 			if(val >= nc) {
@@ -3946,15 +3959,13 @@ int32 pixRemoveUnusedColors(PIX  * pixs)
 		}
 	}
 	if(!zerofound) {
-		LEPT_FREE(histo);
+		SAlloc::F(histo);
 		return 0;
 	}
 
 	/* Generate mapping tables between indices */
-	if((map1 = (int32*)LEPT_CALLOC(nc, sizeof(int32))) == NULL)
-		return ERROR_INT("map1 not made", procName, 1);
-	if((map2 = (int32*)LEPT_CALLOC(nc, sizeof(int32))) == NULL)
-		return ERROR_INT("map2 not made", procName, 1);
+	map1 = (l_int32*)SAlloc::C(nc, sizeof(l_int32));
+	map2 = (l_int32*)SAlloc::C(nc, sizeof(l_int32));
 	index = 0;
 	for(i = 0; i < nc; i++) {
 		if(histo[i] != 0) {
@@ -3994,14 +4005,17 @@ int32 pixRemoveUnusedColors(PIX  * pixs)
 				    SET_DATA_BYTE(lines, j, newval);
 				    break;
 				default:
+				    SAlloc::F(histo);
+				    SAlloc::F(map1);
+				    SAlloc::F(map2);
 				    return ERROR_INT("switch ran off end!", procName, 1);
 			}
 		}
 	}
 
-	LEPT_FREE(histo);
-	LEPT_FREE(map1);
-	LEPT_FREE(map2);
+	SAlloc::F(histo);
+	SAlloc::F(map1);
+	SAlloc::F(map2);
 	return 0;
 }
 
@@ -4011,13 +4025,13 @@ int32 pixRemoveUnusedColors(PIX  * pixs)
 /*!
  * \brief   pixNumberOccupiedOctcubes()
  *
- * \param[in]    pix 32 bpp
- * \param[in]    level of octcube
- * \param[in]    mincount minimum num pixels in an octcube to be counted;
- *                        -1 to not use
- * \param[in]    minfract minimum fract of pixels in an octcube to be
- *                        counted; -1 to not use
- * \param[out]   pncolors number of occupied octcubes
+ * \param[in]    pix        32 bpp
+ * \param[in]    level      of octcube
+ * \param[in]    mincount   minimum num pixels in an octcube to be counted;
+ *                          -1 to not use
+ * \param[in]    minfract   minimum fract of pixels in an octcube to be
+ *                          counted; -1 to not use
+ * \param[out]   pncolors   number of occupied octcubes
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -4028,18 +4042,18 @@ int32 pixRemoveUnusedColors(PIX  * pixs)
  *          Setting %minfract == 0.0 is taken to mean the same thing.
  * </pre>
  */
-int32 pixNumberOccupiedOctcubes(PIX       * pix,
-    int32 level,
-    int32 mincount,
+l_ok pixNumberOccupiedOctcubes(PIX * pix,
+    l_int32 level,
+    l_int32 mincount,
     float minfract,
-    int32   * pncolors)
+    l_int32   * pncolors)
 {
-	int32 i, j, w, h, d, wpl, ncolors, size, octindex;
-	int32 rval, gval, bval;
-	int32   * carray;
-	uint32  * data, * line, * rtab, * gtab, * btab;
+	l_int32 i, j, w, h, d, wpl, ncolors, size, octindex;
+	l_int32 rval, gval, bval;
+	l_int32   * carray;
+	l_uint32 * data, * line, * rtab, * gtab, * btab;
 
-	PROCNAME("pixNumberOccupiedOctcubes");
+	PROCNAME(__FUNCTION__);
 
 	if(!pncolors)
 		return ERROR_INT("&ncolors not defined", procName, 1);
@@ -4056,13 +4070,13 @@ int32 pixNumberOccupiedOctcubes(PIX       * pix,
 	if(mincount == 0 || minfract == 0.0)
 		mincount = 1;
 	else if(minfract > 0.0)
-		mincount = MIN(1, (int32)(minfract * w * h));
+		mincount = MIN(1, (l_int32)(minfract * w * h));
 
 	if(octcubeGetCount(level, &size)) /* array size = 2 ** (3 * level) */
 		return ERROR_INT("size not returned", procName, 1);
 	rtab = gtab = btab = NULL;
-	makeRGBToIndexTables(&rtab, &gtab, &btab, level);
-	if((carray = (int32*)LEPT_CALLOC(size, sizeof(int32))) == NULL) {
+	makeRGBToIndexTables(level, &rtab, &gtab, &btab);
+	if((carray = (l_int32*)SAlloc::C(size, sizeof(l_int32))) == NULL) {
 		L_ERROR("carray not made\n", procName);
 		goto cleanup_arrays;
 	}
@@ -4087,10 +4101,9 @@ int32 pixNumberOccupiedOctcubes(PIX       * pix,
 	*pncolors = ncolors;
 
 cleanup_arrays:
-	LEPT_FREE(carray);
-	LEPT_FREE(rtab);
-	LEPT_FREE(gtab);
-	LEPT_FREE(btab);
+	SAlloc::F(carray);
+	SAlloc::F(rtab);
+	SAlloc::F(gtab);
+	SAlloc::F(btab);
 	return 0;
 }
-

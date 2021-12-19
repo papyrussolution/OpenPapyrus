@@ -1,29 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
-
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 /*!
  * \file kernel.c
@@ -37,12 +36,12 @@
  *            L_KERNEL   *kernelCopy()
  *
  *         Accessors:
- *            int32     kernelGetElement()
- *            int32     kernelSetElement()
- *            int32     kernelGetParameters()
- *            int32     kernelSetOrigin()
- *            int32     kernelGetSum()
- *            int32     kernelGetMinMax()
+ *            l_int32     kernelGetElement()
+ *            l_int32     kernelSetElement()
+ *            l_int32     kernelGetParameters()
+ *            l_int32     kernelSetOrigin()
+ *            l_int32     kernelGetSum()
+ *            l_int32     kernelGetMinMax()
  *
  *         Normalize/invert
  *            L_KERNEL   *kernelNormalize()
@@ -54,8 +53,8 @@
  *         Serialized I/O
  *            L_KERNEL   *kernelRead()
  *            L_KERNEL   *kernelReadStream()
- *            int32     kernelWrite()
- *            int32     kernelWriteStream()
+ *            l_int32     kernelWrite()
+ *            l_int32     kernelWriteStream()
  *
  *         Making a kernel from a compiled string
  *            L_KERNEL   *kernelCreateFromString()
@@ -82,9 +81,12 @@
 #include "allheaders.h"
 #pragma hdrstop
 
+/* Array size must be > 0 and not larger than this */
+static const l_uint32 MaxArraySize = 100000;
+
 /*------------------------------------------------------------------------*
- *                           Create / Destroy                             *
- *------------------------------------------------------------------------*/
+*                           Create / Destroy                             *
+*------------------------------------------------------------------------*/
 /*!
  * \brief   kernelCreate()
  *
@@ -96,91 +98,97 @@
  *      (1) kernelCreate() initializes all values to 0.
  *      (2) After this call, (cy,cx) and nonzero data values must be
  *          assigned.
+ *      (2) The number of kernel elements must be less than 2^29.
  * </pre>
  */
-L_KERNEL *
-kernelCreate(int32  height,
-             int32  width)
+L_KERNEL * kernelCreate(l_int32 height,
+    l_int32 width)
 {
-L_KERNEL  *kel;
+	l_uint64 size64;
+	L_KERNEL  * kel;
 
-    PROCNAME("kernelCreate");
+	PROCNAME(__FUNCTION__);
 
-    if ((kel = (L_KERNEL *)LEPT_CALLOC(1, sizeof(L_KERNEL))) == NULL)
-        return (L_KERNEL *)ERROR_PTR("kel not made", procName, NULL);
-    kel->sy = height;
-    kel->sx = width;
-    if ((kel->data = create2dFloatArray(height, width)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("data not allocated", procName, NULL);
+	if(width <= 0)
+		return (L_KERNEL*)ERROR_PTR("width must be > 0", procName, NULL);
+	if(height <= 0)
+		return (L_KERNEL*)ERROR_PTR("height must be > 0", procName, NULL);
 
-    return kel;
+	/* Avoid overflow in malloc arg */
+	size64 = (l_uint64)width * (l_uint64)height;
+	if(size64 >= (1LL << 29)) {
+		L_ERROR("requested width = %d, height = %d\n", procName, width, height);
+		return (L_KERNEL*)ERROR_PTR("size >= 2^29", procName, NULL);
+	}
+
+	kel = (L_KERNEL*)SAlloc::C(1, sizeof(L_KERNEL));
+	kel->sy = height;
+	kel->sx = width;
+	if((kel->data = create2dFloatArray(height, width)) == NULL) {
+		SAlloc::F(kel);
+		return (L_KERNEL*)ERROR_PTR("data not allocated", procName, NULL);
+	}
+	return kel;
 }
-
 
 /*!
  * \brief   kernelDestroy()
  *
- * \param[in,out]   pkel to be nulled
+ * \param[in,out]   pkel    will be set to null before returning
  * \return  void
  */
-void
-kernelDestroy(L_KERNEL  **pkel)
+void kernelDestroy(L_KERNEL  ** pkel)
 {
-int32    i;
-L_KERNEL  *kel;
+	l_int32 i;
+	L_KERNEL  * kel;
 
-    PROCNAME("kernelDestroy");
+	PROCNAME(__FUNCTION__);
 
-    if (pkel == NULL)  {
-        L_WARNING("ptr address is NULL!\n", procName);
-        return;
-    }
-    if ((kel = *pkel) == NULL)
-        return;
+	if(pkel == NULL) {
+		L_WARNING("ptr address is NULL!\n", procName);
+		return;
+	}
+	if((kel = *pkel) == NULL)
+		return;
 
-    for (i = 0; i < kel->sy; i++)
-        LEPT_FREE(kel->data[i]);
-    LEPT_FREE(kel->data);
-    LEPT_FREE(kel);
-
-    *pkel = NULL;
-    return;
+	for(i = 0; i < kel->sy; i++)
+		SAlloc::F(kel->data[i]);
+	SAlloc::F(kel->data);
+	SAlloc::F(kel);
+	*pkel = NULL;
 }
-
 
 /*!
  * \brief   kernelCopy()
  *
- * \param[in]    kels source kernel
- * \return  keld copy of kels, or NULL on error
+ * \param[in]    kels    source kernel
+ * \return  keld   copy of kels, or NULL on error
  */
-L_KERNEL *
-kernelCopy(L_KERNEL  *kels)
+L_KERNEL * kernelCopy(L_KERNEL  * kels)
 {
-int32    i, j, sx, sy, cx, cy;
-L_KERNEL  *keld;
+	l_int32 i, j, sx, sy, cx, cy;
+	L_KERNEL  * keld;
 
-    PROCNAME("kernelCopy");
+	PROCNAME(__FUNCTION__);
 
-    if (!kels)
-        return (L_KERNEL *)ERROR_PTR("kels not defined", procName, NULL);
+	if(!kels)
+		return (L_KERNEL*)ERROR_PTR("kels not defined", procName, NULL);
 
-    kernelGetParameters(kels, &sy, &sx, &cy, &cx);
-    if ((keld = kernelCreate(sy, sx)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("keld not made", procName, NULL);
-    keld->cy = cy;
-    keld->cx = cx;
-    for (i = 0; i < sy; i++)
-        for (j = 0; j < sx; j++)
-            keld->data[i][j] = kels->data[i][j];
+	kernelGetParameters(kels, &sy, &sx, &cy, &cx);
+	if((keld = kernelCreate(sy, sx)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("keld not made", procName, NULL);
+	keld->cy = cy;
+	keld->cx = cx;
+	for(i = 0; i < sy; i++)
+		for(j = 0; j < sx; j++)
+			keld->data[i][j] = kels->data[i][j];
 
-    return keld;
+	return keld;
 }
 
-
 /*----------------------------------------------------------------------*
- *                               Accessors                              *
- *----------------------------------------------------------------------*/
+*                               Accessors                              *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelGetElement()
  *
@@ -190,28 +198,26 @@ L_KERNEL  *keld;
  * \param[out]   pval
  * \return  0 if OK; 1 on error
  */
-int32
-kernelGetElement(L_KERNEL   *kel,
-                 int32     row,
-                 int32     col,
-                 float  *pval)
+l_ok kernelGetElement(L_KERNEL   * kel,
+    l_int32 row,
+    l_int32 col,
+    float * pval)
 {
-    PROCNAME("kernelGetElement");
+	PROCNAME(__FUNCTION__);
 
-    if (!pval)
-        return ERROR_INT("&val not defined", procName, 1);
-    *pval = 0;
-    if (!kel)
-        return ERROR_INT("kernel not defined", procName, 1);
-    if (row < 0 || row >= kel->sy)
-        return ERROR_INT("kernel row out of bounds", procName, 1);
-    if (col < 0 || col >= kel->sx)
-        return ERROR_INT("kernel col out of bounds", procName, 1);
+	if(!pval)
+		return ERROR_INT("&val not defined", procName, 1);
+	*pval = 0;
+	if(!kel)
+		return ERROR_INT("kernel not defined", procName, 1);
+	if(row < 0 || row >= kel->sy)
+		return ERROR_INT("kernel row out of bounds", procName, 1);
+	if(col < 0 || col >= kel->sx)
+		return ERROR_INT("kernel col out of bounds", procName, 1);
 
-    *pval = kel->data[row][col];
-    return 0;
+	*pval = kel->data[row][col];
+	return 0;
 }
-
 
 /*!
  * \brief   kernelSetElement()
@@ -222,165 +228,155 @@ kernelGetElement(L_KERNEL   *kel,
  * \param[in]    val
  * \return  0 if OK; 1 on error
  */
-int32
-kernelSetElement(L_KERNEL  *kel,
-                 int32    row,
-                 int32    col,
-                 float  val)
+l_ok kernelSetElement(L_KERNEL  * kel,
+    l_int32 row,
+    l_int32 col,
+    float val)
 {
-    PROCNAME("kernelSetElement");
+	PROCNAME(__FUNCTION__);
 
-    if (!kel)
-        return ERROR_INT("kel not defined", procName, 1);
-    if (row < 0 || row >= kel->sy)
-        return ERROR_INT("kernel row out of bounds", procName, 1);
-    if (col < 0 || col >= kel->sx)
-        return ERROR_INT("kernel col out of bounds", procName, 1);
+	if(!kel)
+		return ERROR_INT("kel not defined", procName, 1);
+	if(row < 0 || row >= kel->sy)
+		return ERROR_INT("kernel row out of bounds", procName, 1);
+	if(col < 0 || col >= kel->sx)
+		return ERROR_INT("kernel col out of bounds", procName, 1);
 
-    kel->data[row][col] = val;
-    return 0;
+	kel->data[row][col] = val;
+	return 0;
 }
-
 
 /*!
  * \brief   kernelGetParameters()
  *
- * \param[in]    kel  kernel
- * \param[out]   psy, psx, pcy, pcx [optional]  each can be null
+ * \param[in]    kel                  kernel
+ * \param[out]   psy, psx, pcy, pcx   [optional] each can be null
  * \return  0 if OK, 1 on error
  */
-int32
-kernelGetParameters(L_KERNEL  *kel,
-                    int32   *psy,
-                    int32   *psx,
-                    int32   *pcy,
-                    int32   *pcx)
+l_ok kernelGetParameters(L_KERNEL  * kel,
+    l_int32   * psy,
+    l_int32   * psx,
+    l_int32   * pcy,
+    l_int32   * pcx)
 {
-    PROCNAME("kernelGetParameters");
+	PROCNAME(__FUNCTION__);
 
-    if (psy) *psy = 0;
-    if (psx) *psx = 0;
-    if (pcy) *pcy = 0;
-    if (pcx) *pcx = 0;
-    if (!kel)
-        return ERROR_INT("kernel not defined", procName, 1);
-    if (psy) *psy = kel->sy;
-    if (psx) *psx = kel->sx;
-    if (pcy) *pcy = kel->cy;
-    if (pcx) *pcx = kel->cx;
-    return 0;
+	if(psy) *psy = 0;
+	if(psx) *psx = 0;
+	if(pcy) *pcy = 0;
+	if(pcx) *pcx = 0;
+	if(!kel)
+		return ERROR_INT("kernel not defined", procName, 1);
+	if(psy) *psy = kel->sy;
+	if(psx) *psx = kel->sx;
+	if(pcy) *pcy = kel->cy;
+	if(pcx) *pcx = kel->cx;
+	return 0;
 }
-
 
 /*!
  * \brief   kernelSetOrigin()
  *
- * \param[in]    kel  kernel
+ * \param[in]    kel       kernel
  * \param[in]    cy, cx
  * \return  0 if OK; 1 on error
  */
-int32
-kernelSetOrigin(L_KERNEL  *kel,
-                int32    cy,
-                int32    cx)
+l_ok kernelSetOrigin(L_KERNEL  * kel,
+    l_int32 cy,
+    l_int32 cx)
 {
-    PROCNAME("kernelSetOrigin");
+	PROCNAME(__FUNCTION__);
 
-    if (!kel)
-        return ERROR_INT("kel not defined", procName, 1);
-    kel->cy = cy;
-    kel->cx = cx;
-    return 0;
+	if(!kel)
+		return ERROR_INT("kel not defined", procName, 1);
+	kel->cy = cy;
+	kel->cx = cx;
+	return 0;
 }
-
 
 /*!
  * \brief   kernelGetSum()
  *
- * \param[in]    kel  kernel
- * \param[out]   psum sum of all kernel values
+ * \param[in]    kel      kernel
+ * \param[out]   psum     sum of all kernel values
  * \return  0 if OK, 1 on error
  */
-int32
-kernelGetSum(L_KERNEL   *kel,
-             float  *psum)
+l_ok kernelGetSum(L_KERNEL   * kel,
+    float * psum)
 {
-int32    sx, sy, i, j;
+	l_int32 sx, sy, i, j;
 
-    PROCNAME("kernelGetSum");
+	PROCNAME(__FUNCTION__);
 
-    if (!psum)
-        return ERROR_INT("&sum not defined", procName, 1);
-    *psum = 0.0;
-    if (!kel)
-        return ERROR_INT("kernel not defined", procName, 1);
+	if(!psum)
+		return ERROR_INT("&sum not defined", procName, 1);
+	*psum = 0.0;
+	if(!kel)
+		return ERROR_INT("kernel not defined", procName, 1);
 
-    kernelGetParameters(kel, &sy, &sx, NULL, NULL);
-    for (i = 0; i < sy; i++) {
-        for (j = 0; j < sx; j++) {
-            *psum += kel->data[i][j];
-        }
-    }
-    return 0;
+	kernelGetParameters(kel, &sy, &sx, NULL, NULL);
+	for(i = 0; i < sy; i++) {
+		for(j = 0; j < sx; j++) {
+			*psum += kel->data[i][j];
+		}
+	}
+	return 0;
 }
-
 
 /*!
  * \brief   kernelGetMinMax()
  *
- * \param[in]    kel  kernel
- * \param[out]   pmin [optional] minimum value
- * \param[out]   pmax [optional] maximum value
+ * \param[in]    kel      kernel
+ * \param[out]   pmin     [optional] minimum value
+ * \param[out]   pmax     [optional] maximum value
  * \return  0 if OK, 1 on error
  */
-int32
-kernelGetMinMax(L_KERNEL   *kel,
-                float  *pmin,
-                float  *pmax)
+l_ok kernelGetMinMax(L_KERNEL   * kel,
+    float * pmin,
+    float * pmax)
 {
-int32    sx, sy, i, j;
-float  val, minval, maxval;
+	l_int32 sx, sy, i, j;
+	float val, minval, maxval;
 
-    PROCNAME("kernelGetMinmax");
+	PROCNAME(__FUNCTION__);
 
-    if (!pmin && !pmax)
-        return ERROR_INT("neither &min nor &max defined", procName, 1);
-    if (pmin) *pmin = 0.0;
-    if (pmax) *pmax = 0.0;
-    if (!kel)
-        return ERROR_INT("kernel not defined", procName, 1);
+	if(!pmin && !pmax)
+		return ERROR_INT("neither &min nor &max defined", procName, 1);
+	if(pmin) *pmin = 0.0;
+	if(pmax) *pmax = 0.0;
+	if(!kel)
+		return ERROR_INT("kernel not defined", procName, 1);
 
-    kernelGetParameters(kel, &sy, &sx, NULL, NULL);
-    minval = 10000000.0;
-    maxval = -10000000.0;
-    for (i = 0; i < sy; i++) {
-        for (j = 0; j < sx; j++) {
-            val = kel->data[i][j];
-            if (val < minval)
-                minval = val;
-            if (val > maxval)
-                maxval = val;
-        }
-    }
-    if (pmin)
-        *pmin = minval;
-    if (pmax)
-        *pmax = maxval;
+	kernelGetParameters(kel, &sy, &sx, NULL, NULL);
+	minval = 10000000.0;
+	maxval = -10000000.0;
+	for(i = 0; i < sy; i++) {
+		for(j = 0; j < sx; j++) {
+			val = kel->data[i][j];
+			if(val < minval)
+				minval = val;
+			if(val > maxval)
+				maxval = val;
+		}
+	}
+	if(pmin)
+		*pmin = minval;
+	if(pmax)
+		*pmax = maxval;
 
-    return 0;
+	return 0;
 }
 
-
 /*----------------------------------------------------------------------*
- *                          Normalize/Invert                            *
- *----------------------------------------------------------------------*/
+*                          Normalize/Invert                            *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelNormalize()
  *
- * \param[in]    kels source kel, to be normalized
- * \param[in]    normsum desired sum of elements in keld
- * \return  keld normalized version of kels, or NULL on error
- *                   or if sum of elements is very close to 0)
+ * \param[in]    kels      source kel, to be normalized
+ * \param[in]    normsum   desired sum of elements in keld
+ * \return  keld   normalized version of kels, or NULL on error
+ *                 or if sum of elements is very close to 0)
  *
  * <pre>
  * Notes:
@@ -389,45 +385,43 @@ float  val, minval, maxval;
  *          return a copy of the input kernel, with a warning.
  * </pre>
  */
-L_KERNEL *
-kernelNormalize(L_KERNEL  *kels,
-                float  normsum)
+L_KERNEL * kernelNormalize(L_KERNEL  * kels,
+    float normsum)
 {
-int32    i, j, sx, sy, cx, cy;
-float  sum, factor;
-L_KERNEL  *keld;
+	l_int32 i, j, sx, sy, cx, cy;
+	float sum, factor;
+	L_KERNEL  * keld;
 
-    PROCNAME("kernelNormalize");
+	PROCNAME(__FUNCTION__);
 
-    if (!kels)
-        return (L_KERNEL *)ERROR_PTR("kels not defined", procName, NULL);
+	if(!kels)
+		return (L_KERNEL*)ERROR_PTR("kels not defined", procName, NULL);
 
-    kernelGetSum(kels, &sum);
-    if (L_ABS(sum) < 0.00001) {
-        L_WARNING("null sum; not normalizing; returning a copy\n", procName);
-        return kernelCopy(kels);
-    }
+	kernelGetSum(kels, &sum);
+	if(L_ABS(sum) < 0.00001) {
+		L_WARNING("null sum; not normalizing; returning a copy\n", procName);
+		return kernelCopy(kels);
+	}
 
-    kernelGetParameters(kels, &sy, &sx, &cy, &cx);
-    if ((keld = kernelCreate(sy, sx)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("keld not made", procName, NULL);
-    keld->cy = cy;
-    keld->cx = cx;
+	kernelGetParameters(kels, &sy, &sx, &cy, &cx);
+	if((keld = kernelCreate(sy, sx)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("keld not made", procName, NULL);
+	keld->cy = cy;
+	keld->cx = cx;
 
-    factor = normsum / sum;
-    for (i = 0; i < sy; i++)
-        for (j = 0; j < sx; j++)
-            keld->data[i][j] = factor * kels->data[i][j];
+	factor = normsum / sum;
+	for(i = 0; i < sy; i++)
+		for(j = 0; j < sx; j++)
+			keld->data[i][j] = factor * kels->data[i][j];
 
-    return keld;
+	return keld;
 }
-
 
 /*!
  * \brief   kernelInvert()
  *
- * \param[in]    kels source kel, to be inverted
- * \return  keld spatially inverted, about the origin, or NULL on error
+ * \param[in]    kels   source kel, to be inverted
+ * \return  keld   spatially inverted, about the origin, or NULL on error
  *
  * <pre>
  * Notes:
@@ -435,208 +429,201 @@ L_KERNEL  *keld;
  *          a "correlation" operation is done between the kernel and the image.
  * </pre>
  */
-L_KERNEL *
-kernelInvert(L_KERNEL  *kels)
+L_KERNEL * kernelInvert(L_KERNEL  * kels)
 {
-int32    i, j, sx, sy, cx, cy;
-L_KERNEL  *keld;
+	l_int32 i, j, sx, sy, cx, cy;
+	L_KERNEL  * keld;
 
-    PROCNAME("kernelInvert");
+	PROCNAME(__FUNCTION__);
 
-    if (!kels)
-        return (L_KERNEL *)ERROR_PTR("kels not defined", procName, NULL);
+	if(!kels)
+		return (L_KERNEL*)ERROR_PTR("kels not defined", procName, NULL);
 
-    kernelGetParameters(kels, &sy, &sx, &cy, &cx);
-    if ((keld = kernelCreate(sy, sx)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("keld not made", procName, NULL);
-    keld->cy = sy - 1 - cy;
-    keld->cx = sx - 1 - cx;
+	kernelGetParameters(kels, &sy, &sx, &cy, &cx);
+	if((keld = kernelCreate(sy, sx)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("keld not made", procName, NULL);
+	keld->cy = sy - 1 - cy;
+	keld->cx = sx - 1 - cx;
 
-    for (i = 0; i < sy; i++)
-        for (j = 0; j < sx; j++)
-            keld->data[i][j] = kels->data[sy - 1 - i][sx - 1 - j];
+	for(i = 0; i < sy; i++)
+		for(j = 0; j < sx; j++)
+			keld->data[i][j] = kels->data[sy - 1 - i][sx - 1 - j];
 
-    return keld;
+	return keld;
 }
 
-
 /*----------------------------------------------------------------------*
- *                            Helper function                           *
- *----------------------------------------------------------------------*/
+*                            Helper function                           *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   create2dFloatArray()
  *
- * \param[in]    sy rows == height
- * \param[in]    sx columns == width
+ * \param[in]    sy   rows == height
+ * \param[in]    sx   columns == width
  * \return  doubly indexed array i.e., an array of sy row pointers,
  *              each of which points to an array of sx floats
  *
  * <pre>
  * Notes:
- *      (1) The array[sy][sx] is indexed in standard "matrix notation",
+ *      (1) The array[%sy][%sx] is indexed in standard "matrix notation",
  *          with the row index first.
+ *      (2) The caller kernelCreate() limits the size to < 2^29 pixels.
  * </pre>
  */
-float **
-create2dFloatArray(int32  sy,
-                   int32  sx)
+float ** create2dFloatArray(l_int32 sy,
+    l_int32 sx)
 {
-int32      i;
-float  **array;
+	l_int32 i;
+	float ** array;
 
-    PROCNAME("create2dFloatArray");
+	PROCNAME(__FUNCTION__);
 
-    if ((array = (float **)LEPT_CALLOC(sy, sizeof(float *))) == NULL)
-        return (float **)ERROR_PTR("ptr array not made", procName, NULL);
+	if(sx <= 0 || sx > MaxArraySize)
+		return (float**)ERROR_PTR("sx out of bounds", procName, NULL);
+	if(sy <= 0 || sy > MaxArraySize)
+		return (float**)ERROR_PTR("sy out of bounds", procName, NULL);
 
-    for (i = 0; i < sy; i++) {
-        if ((array[i] = (float *)LEPT_CALLOC(sx, sizeof(float)))
-            == NULL)
-            return (float **)ERROR_PTR("array not made", procName, NULL);
-    }
-
-    return array;
+	array = (float**)SAlloc::C(sy, sizeof(float *));
+	for(i = 0; i < sy; i++)
+		array[i] = (float *)SAlloc::C(sx, sizeof(float));
+	return array;
 }
 
-
 /*----------------------------------------------------------------------*
- *                            Kernel serialized I/O                     *
- *----------------------------------------------------------------------*/
+*                            Kernel serialized I/O                     *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelRead()
  *
- * \param[in]    fname filename
+ * \param[in]    fname    filename
  * \return  kernel, or NULL on error
  */
-L_KERNEL *
-kernelRead(const char  *fname)
+L_KERNEL * kernelRead(const char * fname)
 {
-FILE      *fp;
-L_KERNEL  *kel;
+	FILE * fp;
+	L_KERNEL  * kel;
 
-    PROCNAME("kernelRead");
+	PROCNAME(__FUNCTION__);
 
-    if (!fname)
-        return (L_KERNEL *)ERROR_PTR("fname not defined", procName, NULL);
+	if(!fname)
+		return (L_KERNEL*)ERROR_PTR("fname not defined", procName, NULL);
 
-    if ((fp = fopenReadStream(fname)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("stream not opened", procName, NULL);
-    if ((kel = kernelReadStream(fp)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("kel not returned", procName, NULL);
-    fclose(fp);
+	if((fp = fopenReadStream(fname)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("stream not opened", procName, NULL);
+	if((kel = kernelReadStream(fp)) == NULL) {
+		fclose(fp);
+		return (L_KERNEL*)ERROR_PTR("kel not returned", procName, NULL);
+	}
+	fclose(fp);
 
-    return kel;
+	return kel;
 }
-
 
 /*!
  * \brief   kernelReadStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    file stream
  * \return  kernel, or NULL on error
  */
-L_KERNEL *
-kernelReadStream(FILE  *fp)
+L_KERNEL * kernelReadStream(FILE * fp)
 {
-int32    sy, sx, cy, cx, i, j, ret, version, ignore;
-L_KERNEL  *kel;
+	l_int32 sy, sx, cy, cx, i, j, ret, version, ignore;
+	L_KERNEL  * kel;
 
-    PROCNAME("kernelReadStream");
+	PROCNAME(__FUNCTION__);
 
-    if (!fp)
-        return (L_KERNEL *)ERROR_PTR("stream not defined", procName, NULL);
+	if(!fp)
+		return (L_KERNEL*)ERROR_PTR("stream not defined", procName, NULL);
 
-    ret = fscanf(fp, "  Kernel Version %d\n", &version);
-    if (ret != 1)
-        return (L_KERNEL *)ERROR_PTR("not a kernel file", procName, NULL);
-    if (version != KERNEL_VERSION_NUMBER)
-        return (L_KERNEL *)ERROR_PTR("invalid kernel version", procName, NULL);
+	ret = fscanf(fp, "  Kernel Version %d\n", &version);
+	if(ret != 1)
+		return (L_KERNEL*)ERROR_PTR("not a kernel file", procName, NULL);
+	if(version != KERNEL_VERSION_NUMBER)
+		return (L_KERNEL*)ERROR_PTR("invalid kernel version", procName, NULL);
 
-    if (fscanf(fp, "  sy = %d, sx = %d, cy = %d, cx = %d\n",
-            &sy, &sx, &cy, &cx) != 4)
-        return (L_KERNEL *)ERROR_PTR("dimensions not read", procName, NULL);
+	if(fscanf(fp, "  sy = %d, sx = %d, cy = %d, cx = %d\n",
+	    &sy, &sx, &cy, &cx) != 4)
+		return (L_KERNEL*)ERROR_PTR("dimensions not read", procName, NULL);
+	if(sx > MaxArraySize || sy > MaxArraySize) {
+		L_ERROR("sx = %d or sy = %d > %d\n", procName, sx, sy, MaxArraySize);
+		return NULL;
+	}
+	if((kel = kernelCreate(sy, sx)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
+	kernelSetOrigin(kel, cy, cx);
 
-    if ((kel = kernelCreate(sy, sx)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("kel not made", procName, NULL);
-    kernelSetOrigin(kel, cy, cx);
+	for(i = 0; i < sy; i++) {
+		for(j = 0; j < sx; j++)
+			ignore = fscanf(fp, "%15f", &kel->data[i][j]);
+		ignore = fscanf(fp, "\n");
+	}
+	ignore = fscanf(fp, "\n");
 
-    for (i = 0; i < sy; i++) {
-        for (j = 0; j < sx; j++)
-            ignore = fscanf(fp, "%15f", &kel->data[i][j]);
-        ignore = fscanf(fp, "\n");
-    }
-    ignore = fscanf(fp, "\n");
-
-    return kel;
+	return kel;
 }
-
 
 /*!
  * \brief   kernelWrite()
  *
- * \param[in]    fname output file
- * \param[in]    kel kernel
+ * \param[in]    fname    output file
+ * \param[in]    kel      kernel
  * \return  0 if OK, 1 on error
  */
-int32
-kernelWrite(const char  *fname,
-            L_KERNEL    *kel)
+l_ok kernelWrite(const char * fname,
+    L_KERNEL    * kel)
 {
-FILE  *fp;
+	FILE * fp;
 
-    PROCNAME("kernelWrite");
+	PROCNAME(__FUNCTION__);
 
-    if (!fname)
-        return ERROR_INT("fname not defined", procName, 1);
-    if (!kel)
-        return ERROR_INT("kel not defined", procName, 1);
+	if(!fname)
+		return ERROR_INT("fname not defined", procName, 1);
+	if(!kel)
+		return ERROR_INT("kel not defined", procName, 1);
 
-    if ((fp = fopenWriteStream(fname, "wb")) == NULL)
-        return ERROR_INT("stream not opened", procName, 1);
-    kernelWriteStream(fp, kel);
-    fclose(fp);
+	if((fp = fopenWriteStream(fname, "wb")) == NULL)
+		return ERROR_INT("stream not opened", procName, 1);
+	kernelWriteStream(fp, kel);
+	fclose(fp);
 
-    return 0;
+	return 0;
 }
-
 
 /*!
  * \brief   kernelWriteStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    file stream
  * \param[in]    kel
  * \return  0 if OK, 1 on error
  */
-int32
-kernelWriteStream(FILE      *fp,
-                  L_KERNEL  *kel)
+l_ok kernelWriteStream(FILE * fp,
+    L_KERNEL  * kel)
 {
-int32  sx, sy, cx, cy, i, j;
+	l_int32 sx, sy, cx, cy, i, j;
 
-    PROCNAME("kernelWriteStream");
+	PROCNAME(__FUNCTION__);
 
-    if (!fp)
-        return ERROR_INT("stream not defined", procName, 1);
-    if (!kel)
-        return ERROR_INT("kel not defined", procName, 1);
-    kernelGetParameters(kel, &sy, &sx, &cy, &cx);
+	if(!fp)
+		return ERROR_INT("stream not defined", procName, 1);
+	if(!kel)
+		return ERROR_INT("kel not defined", procName, 1);
+	kernelGetParameters(kel, &sy, &sx, &cy, &cx);
 
-    fprintf(fp, "  Kernel Version %d\n", KERNEL_VERSION_NUMBER);
-    fprintf(fp, "  sy = %d, sx = %d, cy = %d, cx = %d\n", sy, sx, cy, cx);
-    for (i = 0; i < sy; i++) {
-        for (j = 0; j < sx; j++)
-            fprintf(fp, "%15.4f", kel->data[i][j]);
-        fprintf(fp, "\n");
-    }
-    fprintf(fp, "\n");
+	fprintf(fp, "  Kernel Version %d\n", KERNEL_VERSION_NUMBER);
+	fprintf(fp, "  sy = %d, sx = %d, cy = %d, cx = %d\n", sy, sx, cy, cx);
+	for(i = 0; i < sy; i++) {
+		for(j = 0; j < sx; j++)
+			fprintf(fp, "%15.4f", kel->data[i][j]);
+		fprintf(fp, "\n");
+	}
+	fprintf(fp, "\n");
 
-    return 0;
+	return 0;
 }
 
-
 /*----------------------------------------------------------------------*
- *                 Making a kernel from a compiled string               *
- *----------------------------------------------------------------------*/
+*                 Making a kernel from a compiled string               *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelCreateFromString()
  *
@@ -659,56 +646,55 @@ int32  sx, sy, cx, cy, i, j;
  *                  " 20   50   20 ";
  * </pre>
  */
-L_KERNEL *
-kernelCreateFromString(int32      h,
-                       int32      w,
-                       int32      cy,
-                       int32      cx,
-                       const char  *kdata)
+L_KERNEL * kernelCreateFromString(l_int32 h,
+    l_int32 w,
+    l_int32 cy,
+    l_int32 cx,
+    const char * kdata)
 {
-int32    n, i, j, index;
-float  val;
-L_KERNEL  *kel;
-NUMA      *na;
+	l_int32 n, i, j, index;
+	float val;
+	L_KERNEL  * kel;
+	NUMA * na;
 
-    PROCNAME("kernelCreateFromString");
+	PROCNAME(__FUNCTION__);
 
-    if (h < 1)
-        return (L_KERNEL *)ERROR_PTR("height must be > 0", procName, NULL);
-    if (w < 1)
-        return (L_KERNEL *)ERROR_PTR("width must be > 0", procName, NULL);
-    if (cy < 0 || cy >= h)
-        return (L_KERNEL *)ERROR_PTR("cy invalid", procName, NULL);
-    if (cx < 0 || cx >= w)
-        return (L_KERNEL *)ERROR_PTR("cx invalid", procName, NULL);
+	if(h < 1)
+		return (L_KERNEL*)ERROR_PTR("height must be > 0", procName, NULL);
+	if(w < 1)
+		return (L_KERNEL*)ERROR_PTR("width must be > 0", procName, NULL);
+	if(cy < 0 || cy >= h)
+		return (L_KERNEL*)ERROR_PTR("cy invalid", procName, NULL);
+	if(cx < 0 || cx >= w)
+		return (L_KERNEL*)ERROR_PTR("cx invalid", procName, NULL);
 
-    kel = kernelCreate(h, w);
-    kernelSetOrigin(kel, cy, cx);
-    na = parseStringForNumbers(kdata, " \t\n");
-    n = numaGetCount(na);
-    if (n != w * h) {
-        numaDestroy(&na);
-        fprintf(stderr, "w = %d, h = %d, num ints = %d\n", w, h, n);
-        return (L_KERNEL *)ERROR_PTR("invalid integer data", procName, NULL);
-    }
+	kel = kernelCreate(h, w);
+	kernelSetOrigin(kel, cy, cx);
+	na = parseStringForNumbers(kdata, " \t\n");
+	n = numaGetCount(na);
+	if(n != w * h) {
+		kernelDestroy(&kel);
+		numaDestroy(&na);
+		lept_stderr("w = %d, h = %d, num ints = %d\n", w, h, n);
+		return (L_KERNEL*)ERROR_PTR("invalid integer data", procName, NULL);
+	}
 
-    index = 0;
-    for (i = 0; i < h; i++) {
-        for (j = 0; j < w; j++) {
-            numaGetFValue(na, index, &val);
-            kernelSetElement(kel, i, j, val);
-            index++;
-        }
-    }
+	index = 0;
+	for(i = 0; i < h; i++) {
+		for(j = 0; j < w; j++) {
+			numaGetFValue(na, index, &val);
+			kernelSetElement(kel, i, j, val);
+			index++;
+		}
+	}
 
-    numaDestroy(&na);
-    return kel;
+	numaDestroy(&na);
+	return kel;
 }
 
-
 /*----------------------------------------------------------------------*
- *                Making a kernel from a simple file format             *
- *----------------------------------------------------------------------*/
+*                Making a kernel from a simple file format             *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelCreateFromFile()
  *
@@ -744,89 +730,102 @@ NUMA      *na;
  * \endcode
  * </pre>
  */
-L_KERNEL *
-kernelCreateFromFile(const char  *filename)
+L_KERNEL * kernelCreateFromFile(const char * filename)
 {
-char      *filestr, *line;
-int32    nlines, i, j, first, index, w, h, cx, cy, n;
-float  val;
-size_t     size;
-NUMA      *na, *nat;
-SARRAY    *sa;
-L_KERNEL  *kel;
+	char      * filestr, * line;
+	l_int32 nlines, i, j, first, index, w, h, cx, cy, n;
+	float val;
+	size_t size;
+	NUMA * na, * nat;
+	SARRAY    * sa;
+	L_KERNEL  * kel;
 
-    PROCNAME("kernelCreateFromFile");
+	PROCNAME(__FUNCTION__);
 
-    if (!filename)
-        return (L_KERNEL *)ERROR_PTR("filename not defined", procName, NULL);
+	if(!filename)
+		return (L_KERNEL*)ERROR_PTR("filename not defined", procName, NULL);
 
-    filestr = (char *)l_binaryRead(filename, &size);
-    sa = sarrayCreateLinesFromString(filestr, 1);
-    LEPT_FREE(filestr);
-    nlines = sarrayGetCount(sa);
+	if((filestr = (char*)l_binaryRead(filename, &size)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("file not found", procName, NULL);
+	if(size == 0) {
+		SAlloc::F(filestr);
+		return (L_KERNEL*)ERROR_PTR("file is empty", procName, NULL);
+	}
 
-        /* Find the first data line. */
-    for (i = 0; i < nlines; i++) {
-        line = sarrayGetString(sa, i, L_NOCOPY);
-        if (line[0] != '#') {
-            first = i;
-            break;
-        }
-    }
+	sa = sarrayCreateLinesFromString(filestr, 1);
+	SAlloc::F(filestr);
+	nlines = sarrayGetCount(sa);
 
-        /* Find the kernel dimensions and origin location. */
-    line = sarrayGetString(sa, first, L_NOCOPY);
-    if (sscanf(line, "%d %d", &h, &w) != 2)
-        return (L_KERNEL *)ERROR_PTR("error reading h,w", procName, NULL);
-    line = sarrayGetString(sa, first + 1, L_NOCOPY);
-    if (sscanf(line, "%d %d", &cy, &cx) != 2)
-        return (L_KERNEL *)ERROR_PTR("error reading cy,cx", procName, NULL);
+	/* Find the first data line. */
+	for(i = 0, first = 0; i < nlines; i++) {
+		line = sarrayGetString(sa, i, L_NOCOPY);
+		if(line[0] != '#') {
+			first = i;
+			break;
+		}
+	}
 
-        /* Extract the data.  This ends when we reach eof, or when we
-         * encounter a line of data that is either a null string or
-         * contains just a newline. */
-    na = numaCreate(0);
-    for (i = first + 2; i < nlines; i++) {
-        line = sarrayGetString(sa, i, L_NOCOPY);
-        if (line[0] == '\0' || line[0] == '\n' || line[0] == '#')
-            break;
-        nat = parseStringForNumbers(line, " \t\n");
-        numaJoin(na, nat, 0, -1);
-        numaDestroy(&nat);
-    }
-    sarrayDestroy(&sa);
+	/* Find the kernel dimensions and origin location. */
+	line = sarrayGetString(sa, first, L_NOCOPY);
+	if(sscanf(line, "%d %d", &h, &w) != 2) {
+		sarrayDestroy(&sa);
+		return (L_KERNEL*)ERROR_PTR("error reading h,w", procName, NULL);
+	}
+	if(h > MaxArraySize || w > MaxArraySize) {
+		L_ERROR("h = %d or w = %d > %d\n", procName, h, w, MaxArraySize);
+		sarrayDestroy(&sa);
+		return NULL;
+	}
+	line = sarrayGetString(sa, first + 1, L_NOCOPY);
+	if(sscanf(line, "%d %d", &cy, &cx) != 2) {
+		sarrayDestroy(&sa);
+		return (L_KERNEL*)ERROR_PTR("error reading cy,cx", procName, NULL);
+	}
 
-    n = numaGetCount(na);
-    if (n != w * h) {
-        numaDestroy(&na);
-        fprintf(stderr, "w = %d, h = %d, num ints = %d\n", w, h, n);
-        return (L_KERNEL *)ERROR_PTR("invalid integer data", procName, NULL);
-    }
+	/* Extract the data.  This ends when we reach eof, or when we
+	 * encounter a line of data that is either a null string or
+	 * contains just a newline. */
+	na = numaCreate(0);
+	for(i = first + 2; i < nlines; i++) {
+		line = sarrayGetString(sa, i, L_NOCOPY);
+		if(line[0] == '\0' || line[0] == '\n' || line[0] == '#')
+			break;
+		nat = parseStringForNumbers(line, " \t\n");
+		numaJoin(na, nat, 0, -1);
+		numaDestroy(&nat);
+	}
+	sarrayDestroy(&sa);
 
-    kel = kernelCreate(h, w);
-    kernelSetOrigin(kel, cy, cx);
-    index = 0;
-    for (i = 0; i < h; i++) {
-        for (j = 0; j < w; j++) {
-            numaGetFValue(na, index, &val);
-            kernelSetElement(kel, i, j, val);
-            index++;
-        }
-    }
+	n = numaGetCount(na);
+	if(n != w * h) {
+		numaDestroy(&na);
+		lept_stderr("w = %d, h = %d, num ints = %d\n", w, h, n);
+		return (L_KERNEL*)ERROR_PTR("invalid integer data", procName, NULL);
+	}
 
-    numaDestroy(&na);
-    return kel;
+	kel = kernelCreate(h, w);
+	kernelSetOrigin(kel, cy, cx);
+	index = 0;
+	for(i = 0; i < h; i++) {
+		for(j = 0; j < w; j++) {
+			numaGetFValue(na, index, &val);
+			kernelSetElement(kel, i, j, val);
+			index++;
+		}
+	}
+
+	numaDestroy(&na);
+	return kel;
 }
 
-
 /*----------------------------------------------------------------------*
- *                       Making a kernel from a Pix                     *
- *----------------------------------------------------------------------*/
+*                       Making a kernel from a Pix                     *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelCreateFromPix()
  *
  * \param[in]    pix
- * \param[in]    cy, cx origin of kernel
+ * \param[in]    cy, cx    origin of kernel
  * \return  kernel, or NULL on error
  *
  * <pre>
@@ -834,50 +833,48 @@ L_KERNEL  *kel;
  *      (1) The origin must be positive and within the dimensions of the pix.
  * </pre>
  */
-L_KERNEL *
-kernelCreateFromPix(PIX         *pix,
-                    int32      cy,
-                    int32      cx)
+L_KERNEL * kernelCreateFromPix(PIX         * pix,
+    l_int32 cy,
+    l_int32 cx)
 {
-int32    i, j, w, h, d;
-uint32   val;
-L_KERNEL  *kel;
+	l_int32 i, j, w, h, d;
+	l_uint32 val;
+	L_KERNEL  * kel;
 
-    PROCNAME("kernelCreateFromPix");
+	PROCNAME(__FUNCTION__);
 
-    if (!pix)
-        return (L_KERNEL *)ERROR_PTR("pix not defined", procName, NULL);
-    pixGetDimensions(pix, &w, &h, &d);
-    if (d != 8)
-        return (L_KERNEL *)ERROR_PTR("pix not 8 bpp", procName, NULL);
-    if (cy < 0 || cx < 0 || cy >= h || cx >= w)
-        return (L_KERNEL *)ERROR_PTR("(cy, cx) invalid", procName, NULL);
+	if(!pix)
+		return (L_KERNEL*)ERROR_PTR("pix not defined", procName, NULL);
+	pixGetDimensions(pix, &w, &h, &d);
+	if(d != 8)
+		return (L_KERNEL*)ERROR_PTR("pix not 8 bpp", procName, NULL);
+	if(cy < 0 || cx < 0 || cy >= h || cx >= w)
+		return (L_KERNEL*)ERROR_PTR("(cy, cx) invalid", procName, NULL);
 
-    kel = kernelCreate(h, w);
-    kernelSetOrigin(kel, cy, cx);
-    for (i = 0; i < h; i++) {
-        for (j = 0; j < w; j++) {
-            pixGetPixel(pix, j, i, &val);
-            kernelSetElement(kel, i, j, (float)val);
-        }
-    }
+	kel = kernelCreate(h, w);
+	kernelSetOrigin(kel, cy, cx);
+	for(i = 0; i < h; i++) {
+		for(j = 0; j < w; j++) {
+			pixGetPixel(pix, j, i, &val);
+			kernelSetElement(kel, i, j, (float)val);
+		}
+	}
 
-    return kel;
+	return kel;
 }
 
-
 /*----------------------------------------------------------------------*
- *                     Display a kernel in a pix                        *
- *----------------------------------------------------------------------*/
+*                     Display a kernel in a pix                        *
+*----------------------------------------------------------------------*/
 /*!
  * \brief   kernelDisplayInPix()
  *
- * \param[in]    kel kernel
- * \param[in]    size of grid interiors; odd; either 1 or a minimum size
- *                    of 17 is enforced
- * \param[in]    gthick grid thickness; either 0 or a minimum size of 2
- *                      is enforced
- * \return  pix display of kernel, or NULL on error
+ * \param[in]    kel       kernel
+ * \param[in]    size      of grid interiors; odd; either 1 or a minimum size
+ *                         of 17 is enforced
+ * \param[in]    gthick    grid thickness; either 0 or a minimum size of 2
+ *                         is enforced
+ * \return  pix   display of kernel, or NULL on error
  *
  * <pre>
  * Notes:
@@ -895,158 +892,155 @@ L_KERNEL  *kel;
  *          2D content kernel.
  * </pre>
  */
-PIX *
-kernelDisplayInPix(L_KERNEL     *kel,
-                   int32       size,
-                   int32       gthick)
+PIX * kernelDisplayInPix(L_KERNEL     * kel,
+    l_int32 size,
+    l_int32 gthick)
 {
-int32    i, j, w, h, sx, sy, cx, cy, width, x0, y0;
-int32    normval;
-float  minval, maxval, max, val, norm;
-PIX       *pixd, *pixt0, *pixt1;
+	l_int32 i, j, w, h, sx, sy, cx, cy, width, x0, y0;
+	l_int32 normval;
+	float minval, maxval, max, val, norm;
+	PIX * pixd, * pixt0, * pixt1;
 
-    PROCNAME("kernelDisplayInPix");
+	PROCNAME(__FUNCTION__);
 
-    if (!kel)
-        return (PIX *)ERROR_PTR("kernel not defined", procName, NULL);
+	if(!kel)
+		return (PIX *)ERROR_PTR("kernel not defined", procName, NULL);
 
-        /* Normalize the max value to be 255 for display */
-    kernelGetParameters(kel, &sy, &sx, &cy, &cx);
-    kernelGetMinMax(kel, &minval, &maxval);
-    max = MAX(maxval, -minval);
-    if (max == 0.0)
-        return (PIX *)ERROR_PTR("kernel elements all 0.0", procName, NULL);
-    norm = 255. / (float)max;
+	/* Normalize the max value to be 255 for display */
+	kernelGetParameters(kel, &sy, &sx, &cy, &cx);
+	kernelGetMinMax(kel, &minval, &maxval);
+	max = MAX(maxval, -minval);
+	if(max == 0.0)
+		return (PIX *)ERROR_PTR("kernel elements all 0.0", procName, NULL);
+	norm = 255. / (float)max;
 
-        /* Handle the 1 element/pixel case; typically with large kernels */
-    if (size == 1 && gthick == 0) {
-        pixd = pixCreate(sx, sy, 8);
-        for (i = 0; i < sy; i++) {
-            for (j = 0; j < sx; j++) {
-                kernelGetElement(kel, i, j, &val);
-                normval = (int32)(norm * L_ABS(val));
-                pixSetPixel(pixd, j, i, normval);
-            }
-        }
-        return pixd;
-    }
+	/* Handle the 1 element/pixel case; typically with large kernels */
+	if(size == 1 && gthick == 0) {
+		pixd = pixCreate(sx, sy, 8);
+		for(i = 0; i < sy; i++) {
+			for(j = 0; j < sx; j++) {
+				kernelGetElement(kel, i, j, &val);
+				normval = (l_int32)(norm * L_ABS(val));
+				pixSetPixel(pixd, j, i, normval);
+			}
+		}
+		return pixd;
+	}
 
-        /* Enforce the constraints for the grid line version */
-    if (size < 17) {
-        L_WARNING("size < 17; setting to 17\n", procName);
-        size = 17;
-    }
-    if (size % 2 == 0)
-        size++;
-    if (gthick < 2) {
-        L_WARNING("grid thickness < 2; setting to 2\n", procName);
-        gthick = 2;
-    }
+	/* Enforce the constraints for the grid line version */
+	if(size < 17) {
+		L_WARNING("size < 17; setting to 17\n", procName);
+		size = 17;
+	}
+	if(size % 2 == 0)
+		size++;
+	if(gthick < 2) {
+		L_WARNING("grid thickness < 2; setting to 2\n", procName);
+		gthick = 2;
+	}
 
-    w = size * sx + gthick * (sx + 1);
-    h = size * sy + gthick * (sy + 1);
-    pixd = pixCreate(w, h, 8);
+	w = size * sx + gthick * (sx + 1);
+	h = size * sy + gthick * (sy + 1);
+	pixd = pixCreate(w, h, 8);
 
-        /* Generate grid lines */
-    for (i = 0; i <= sy; i++)
-        pixRenderLine(pixd, 0, gthick / 2 + i * (size + gthick),
-                      w - 1, gthick / 2 + i * (size + gthick),
-                      gthick, L_SET_PIXELS);
-    for (j = 0; j <= sx; j++)
-        pixRenderLine(pixd, gthick / 2 + j * (size + gthick), 0,
-                      gthick / 2 + j * (size + gthick), h - 1,
-                      gthick, L_SET_PIXELS);
+	/* Generate grid lines */
+	for(i = 0; i <= sy; i++)
+		pixRenderLine(pixd, 0, gthick / 2 + i * (size + gthick),
+		    w - 1, gthick / 2 + i * (size + gthick),
+		    gthick, L_SET_PIXELS);
+	for(j = 0; j <= sx; j++)
+		pixRenderLine(pixd, gthick / 2 + j * (size + gthick), 0,
+		    gthick / 2 + j * (size + gthick), h - 1,
+		    gthick, L_SET_PIXELS);
 
-        /* Generate mask for each element */
-    pixt0 = pixCreate(size, size, 1);
-    pixSetAll(pixt0);
+	/* Generate mask for each element */
+	pixt0 = pixCreate(size, size, 1);
+	pixSetAll(pixt0);
 
-        /* Generate crossed lines for origin pattern */
-    pixt1 = pixCreate(size, size, 1);
-    width = size / 8;
-    pixRenderLine(pixt1, size / 2, (int32)(0.12 * size),
-                           size / 2, (int32)(0.88 * size),
-                           width, L_SET_PIXELS);
-    pixRenderLine(pixt1, (int32)(0.15 * size), size / 2,
-                           (int32)(0.85 * size), size / 2,
-                           width, L_FLIP_PIXELS);
-    pixRasterop(pixt1, size / 2 - width, size / 2 - width,
-                2 * width, 2 * width, PIX_NOT(PIX_DST), NULL, 0, 0);
+	/* Generate crossed lines for origin pattern */
+	pixt1 = pixCreate(size, size, 1);
+	width = size / 8;
+	pixRenderLine(pixt1, size / 2, (l_int32)(0.12 * size),
+	    size / 2, (l_int32)(0.88 * size),
+	    width, L_SET_PIXELS);
+	pixRenderLine(pixt1, (l_int32)(0.15 * size), size / 2,
+	    (l_int32)(0.85 * size), size / 2,
+	    width, L_FLIP_PIXELS);
+	pixRasterop(pixt1, size / 2 - width, size / 2 - width,
+	    2 * width, 2 * width, PIX_NOT(PIX_DST), NULL, 0, 0);
 
-        /* Paste the patterns in */
-    y0 = gthick;
-    for (i = 0; i < sy; i++) {
-        x0 = gthick;
-        for (j = 0; j < sx; j++) {
-            kernelGetElement(kel, i, j, &val);
-            normval = (int32)(norm * L_ABS(val));
-            pixSetMaskedGeneral(pixd, pixt0, normval, x0, y0);
-            if (i == cy && j == cx)
-                pixPaintThroughMask(pixd, pixt1, x0, y0, 255 - normval);
-            x0 += size + gthick;
-        }
-        y0 += size + gthick;
-    }
+	/* Paste the patterns in */
+	y0 = gthick;
+	for(i = 0; i < sy; i++) {
+		x0 = gthick;
+		for(j = 0; j < sx; j++) {
+			kernelGetElement(kel, i, j, &val);
+			normval = (l_int32)(norm * L_ABS(val));
+			pixSetMaskedGeneral(pixd, pixt0, normval, x0, y0);
+			if(i == cy && j == cx)
+				pixPaintThroughMask(pixd, pixt1, x0, y0, 255 - normval);
+			x0 += size + gthick;
+		}
+		y0 += size + gthick;
+	}
 
-    pixDestroy(&pixt0);
-    pixDestroy(&pixt1);
-    return pixd;
+	pixDestroy(&pixt0);
+	pixDestroy(&pixt1);
+	return pixd;
 }
 
-
 /*------------------------------------------------------------------------*
- *                     Parse string to extract numbers                    *
- *------------------------------------------------------------------------*/
+*                     Parse string to extract numbers                    *
+*------------------------------------------------------------------------*/
 /*!
  * \brief   parseStringForNumbers()
  *
- * \param[in]    str string containing numbers; not changed
- * \param[in]    seps string of characters that can be used between ints
- * \return  numa of numbers found, or NULL on error
+ * \param[in]    str     string containing numbers; not changed
+ * \param[in]    seps    string of characters that can be used between ints
+ * \return  numa   of numbers found, or NULL on error
  *
  * <pre>
  * Notes:
  *     (1) The numbers can be ints or floats.
  * </pre>
  */
-NUMA *
-parseStringForNumbers(const char  *str,
-                      const char  *seps)
+NUMA * parseStringForNumbers(const char * str,
+    const char * seps)
 {
-char      *newstr, *head, *tail;
-float  val;
-NUMA      *na;
+	char      * newstr, * head;
+	char      * tail = NULL;
+	float val;
+	NUMA * na;
 
-    PROCNAME("parseStringForNumbers");
+	PROCNAME(__FUNCTION__);
 
-    if (!str)
-        return (NUMA *)ERROR_PTR("str not defined", procName, NULL);
+	if(!str)
+		return (NUMA*)ERROR_PTR("str not defined", procName, NULL);
 
-    newstr = stringNew(str);  /* to enforce const-ness of str */
-    na = numaCreate(0);
-    head = strtokSafe(newstr, seps, &tail);
-    val = atof(head);
-    numaAddNumber(na, val);
-    LEPT_FREE(head);
-    while ((head = strtokSafe(NULL, seps, &tail)) != NULL) {
-        val = atof(head);
-        numaAddNumber(na, val);
-        LEPT_FREE(head);
-    }
+	newstr = stringNew(str); /* to enforce const-ness of str */
+	na = numaCreate(0);
+	head = strtokSafe(newstr, seps, &tail);
+	val = atof(head);
+	numaAddNumber(na, val);
+	SAlloc::F(head);
+	while((head = strtokSafe(NULL, seps, &tail)) != NULL) {
+		val = atof(head);
+		numaAddNumber(na, val);
+		SAlloc::F(head);
+	}
 
-    LEPT_FREE(newstr);
-    return na;
+	SAlloc::F(newstr);
+	return na;
 }
 
-
 /*------------------------------------------------------------------------*
- *                        Simple parametric kernels                       *
- *------------------------------------------------------------------------*/
+*                        Simple parametric kernels                       *
+*------------------------------------------------------------------------*/
 /*!
  * \brief   makeFlatKernel()
  *
  * \param[in]    height, width
- * \param[in]    cy, cx origin of kernel
+ * \param[in]    cy, cx          origin of kernel
  * \return  kernel, or NULL on error
  *
  * <pre>
@@ -1055,94 +1049,92 @@ NUMA      *na;
  *          in the block convolution functions.
  *      (2) The kernel origin (%cy, %cx) is typically placed as near
  *          the center of the kernel as possible.  If height and
- *          width are odd, then using cy = height / 2 and
- *          cx = width / 2 places the origin at the exact center.
+ *          width are odd, then using %cy = height / 2 and
+ *          %cx = width / 2 places the origin at the exact center.
  *      (3) This returns a normalized kernel.
  * </pre>
  */
-L_KERNEL *
-makeFlatKernel(int32  height,
-               int32  width,
-               int32  cy,
-               int32  cx)
+L_KERNEL * makeFlatKernel(l_int32 height,
+    l_int32 width,
+    l_int32 cy,
+    l_int32 cx)
 {
-int32    i, j;
-float  normval;
-L_KERNEL  *kel;
+	l_int32 i, j;
+	float normval;
+	L_KERNEL  * kel;
 
-    PROCNAME("makeFlatKernel");
+	PROCNAME(__FUNCTION__);
 
-    if ((kel = kernelCreate(height, width)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("kel not made", procName, NULL);
-    kernelSetOrigin(kel, cy, cx);
-    normval = 1.0 / (float)(height * width);
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            kernelSetElement(kel, i, j, normval);
-        }
-    }
+	if((kel = kernelCreate(height, width)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
+	kernelSetOrigin(kel, cy, cx);
+	normval = 1.0 / (float)(height * width);
+	for(i = 0; i < height; i++) {
+		for(j = 0; j < width; j++) {
+			kernelSetElement(kel, i, j, normval);
+		}
+	}
 
-    return kel;
+	return kel;
 }
-
 
 /*!
  * \brief   makeGaussianKernel()
  *
- * \param[in]    halfheight, halfwidth sx = 2 * halfwidth + 1, etc
- * \param[in]    stdev standard deviation
- * \param[in]    max value at (cx,cy)
+ * \param[in]    halfh     sy = 2 * halfh + 1
+ * \param[in]    halfw     sx = 2 * halfw + 1
+ * \param[in]    stdev     standard deviation
+ * \param[in]    max       value at (cx,cy)
  * \return  kernel, or NULL on error
  *
  * <pre>
  * Notes:
- *      (1) The kernel size (sx, sy) = (2 * halfwidth + 1, 2 * halfheight + 1).
- *      (2) The kernel center (cx, cy) = (halfwidth, halfheight).
- *      (3) The halfwidth and halfheight are typically equal, and
+ *      (1) The kernel size (sx, sy) = (2 * %halfw + 1, 2 * %halfh + 1)
+ *      (2) The kernel center (cx, cy) = (%halfw, %halfh).
+ *      (3) %halfw and %halfh are typically equal, and
  *          are typically several times larger than the standard deviation.
  *      (4) If pixConvolve() is invoked with normalization (the sum of
  *          kernel elements = 1.0), use 1.0 for max (or any number that's
  *          not too small or too large).
  * </pre>
  */
-L_KERNEL *
-makeGaussianKernel(int32    halfheight,
-                   int32    halfwidth,
-                   float  stdev,
-                   float  max)
+L_KERNEL * makeGaussianKernel(l_int32 halfh,
+    l_int32 halfw,
+    float stdev,
+    float max)
 {
-int32    sx, sy, i, j;
-float  val;
-L_KERNEL  *kel;
+	l_int32 sx, sy, i, j;
+	float val;
+	L_KERNEL  * kel;
 
-    PROCNAME("makeGaussianKernel");
+	PROCNAME(__FUNCTION__);
 
-    sx = 2 * halfwidth + 1;
-    sy = 2 * halfheight + 1;
-    if ((kel = kernelCreate(sy, sx)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("kel not made", procName, NULL);
-    kernelSetOrigin(kel, halfheight, halfwidth);
-    for (i = 0; i < sy; i++) {
-        for (j = 0; j < sx; j++) {
-            val = expf(-(float)((i - halfheight) * (i - halfheight) +
-                                    (j - halfwidth) * (j - halfwidth)) /
-                        (2. * stdev * stdev));
-            kernelSetElement(kel, i, j, max * val);
-        }
-    }
+	sx = 2 * halfw + 1;
+	sy = 2 * halfh + 1;
+	if((kel = kernelCreate(sy, sx)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
+	kernelSetOrigin(kel, halfh, halfw);
+	for(i = 0; i < sy; i++) {
+		for(j = 0; j < sx; j++) {
+			val = expf(-(float)((i - halfh) * (i - halfh) +
+				(j - halfw) * (j - halfw)) /
+				(2. * stdev * stdev));
+			kernelSetElement(kel, i, j, max * val);
+		}
+	}
 
-    return kel;
+	return kel;
 }
-
 
 /*!
  * \brief   makeGaussianKernelSep()
  *
- * \param[in]    halfheight, halfwidth sx = 2 * halfwidth + 1, etc
- * \param[in]    stdev standard deviation
- * \param[in]    max value at (cx,cy)
- * \param[out]   pkelx x part of kernel
- * \param[out]   pkely y part of kernel
+ * \param[in]    halfh     sy = 2 * halfh + 1
+ * \param[in]    halfw     sx = 2 * halfw + 1
+ * \param[in]    stdev     standard deviation
+ * \param[in]    max       value at (cx,cy)
+ * \param[out]   pkelx     x part of kernel
+ * \param[out]   pkely     y part of kernel
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1152,38 +1144,37 @@ L_KERNEL  *kel;
  *          normalized and un-normalized convolution will be the same
  *          as when convolving with pixConvolve() using the full kernel.
  *      (3) The trick for the un-normalized convolution is to have the
- *          product of the two kernel elemets at (cx,cy) be equal to max,
- *          not max**2.  That's why the max for kely is 1.0.  If instead
- *          we use sqrt(max) for both, the results are slightly less
+ *          product of the two kernel elements at (cx,cy) be equal to %max,
+ *          not max**2.  That's why %max for kely is 1.0.  If instead
+ *          we use sqrt(%max) for both, the results are slightly less
  *          accurate, when compared to using the full kernel in
  *          makeGaussianKernel().
  * </pre>
  */
-int32
-makeGaussianKernelSep(int32    halfheight,
-                      int32    halfwidth,
-                      float  stdev,
-                      float  max,
-                      L_KERNEL **pkelx,
-                      L_KERNEL **pkely)
+l_ok makeGaussianKernelSep(l_int32 halfh,
+    l_int32 halfw,
+    float stdev,
+    float max,
+    L_KERNEL ** pkelx,
+    L_KERNEL ** pkely)
 {
-    PROCNAME("makeGaussianKernelSep");
+	PROCNAME(__FUNCTION__);
 
-    if (!pkelx || !pkely)
-        return ERROR_INT("&kelx and &kely not defined", procName, 1);
+	if(!pkelx || !pkely)
+		return ERROR_INT("&kelx and &kely not defined", procName, 1);
 
-    *pkelx = makeGaussianKernel(0, halfwidth, stdev, max);
-    *pkely = makeGaussianKernel(halfheight, 0, stdev, 1.0);
-    return 0;
+	*pkelx = makeGaussianKernel(0, halfw, stdev, max);
+	*pkely = makeGaussianKernel(halfh, 0, stdev, 1.0);
+	return 0;
 }
-
 
 /*!
  * \brief   makeDoGKernel()
  *
- * \param[in]    halfheight, halfwidth sx = 2 * halfwidth + 1, etc
- * \param[in]    stdev standard deviation of narrower gaussian
- * \param[in]    ratio of stdev for wide filter to stdev for narrow one
+ * \param[in]    halfh     sy = 2 * halfh + 1
+ * \param[in]    halfw     sx = 2 * halfw + 1
+ * \param[in]    stdev     standard deviation of narrower gaussian
+ * \param[in]    ratio     of stdev for wide filter to stdev for narrow one
  * \return  kernel, or NULL on error
  *
  * <pre>
@@ -1194,46 +1185,45 @@ makeGaussianKernelSep(int32    halfheight,
  *          frequencies passed by the narrow gaussian but stopped
  *          by the wide one.See:
  *               http://en.wikipedia.org/wiki/Difference_of_Gaussians
- *      (2) The kernel size (sx, sy) = (2 * halfwidth + 1, 2 * halfheight + 1).
- *      (3) The kernel center (cx, cy) = (halfwidth, halfheight).
- *      (4) The halfwidth and halfheight are typically equal, and
- *          are typically several times larger than the standard deviation.
- *      (5) The ratio is the ratio of standard deviations of the wide
- *          to narrow gaussian.  It must be \>= 1.0; 1.0 is a no-op.
+ *      (2) The kernel size (sx, sy) = (2 * halfw + 1, 2 * halfh + 1).
+ *      (3) The kernel center (cx, cy) = (halfw, halfh).
+ *      (4) %halfw and %halfh are typically equal, and are typically
+ *          several times larger than the standard deviation.
+ *      (5) %ratio is the ratio of standard deviations of the wide
+ *          to narrow gaussian.  It must be >= 1.0; 1.0 is a no-op.
  *      (6) Because the kernel is a null sum, it must be invoked without
  *          normalization in pixConvolve().
  * </pre>
  */
-L_KERNEL *
-makeDoGKernel(int32    halfheight,
-              int32    halfwidth,
-              float  stdev,
-              float  ratio)
+L_KERNEL * makeDoGKernel(l_int32 halfh,
+    l_int32 halfw,
+    float stdev,
+    float ratio)
 {
-int32    sx, sy, i, j;
-float  pi, squaredist, highnorm, lownorm, val;
-L_KERNEL  *kel;
+	l_int32 sx, sy, i, j;
+	float pi, squaredist, highnorm, lownorm, val;
+	L_KERNEL  * kel;
 
-    PROCNAME("makeDoGKernel");
+	PROCNAME(__FUNCTION__);
 
-    sx = 2 * halfwidth + 1;
-    sy = 2 * halfheight + 1;
-    if ((kel = kernelCreate(sy, sx)) == NULL)
-        return (L_KERNEL *)ERROR_PTR("kel not made", procName, NULL);
-    kernelSetOrigin(kel, halfheight, halfwidth);
+	sx = 2 * halfw + 1;
+	sy = 2 * halfh + 1;
+	if((kel = kernelCreate(sy, sx)) == NULL)
+		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
+	kernelSetOrigin(kel, halfh, halfw);
 
-    pi = 3.1415926535;
-    for (i = 0; i < sy; i++) {
-        for (j = 0; j < sx; j++) {
-            squaredist = (float)((i - halfheight) * (i - halfheight) +
-                                     (j - halfwidth) * (j - halfwidth));
-            highnorm = 1. / (2 * stdev * stdev);
-            lownorm = highnorm / (ratio * ratio);
-            val = (highnorm / pi) * expf(-(highnorm * squaredist))
-                  - (lownorm / pi) * expf(-(lownorm * squaredist));
-            kernelSetElement(kel, i, j, val);
-        }
-    }
+	pi = 3.1415926535;
+	for(i = 0; i < sy; i++) {
+		for(j = 0; j < sx; j++) {
+			squaredist = (float)((i - halfh) * (i - halfh) +
+			    (j - halfw) * (j - halfw));
+			highnorm = 1. / (2 * stdev * stdev);
+			lownorm = highnorm / (ratio * ratio);
+			val = (highnorm / pi) * expf(-(highnorm * squaredist))
+			    - (lownorm / pi) * expf(-(lownorm * squaredist));
+			kernelSetElement(kel, i, j, val);
+		}
+	}
 
-    return kel;
+	return kel;
 }

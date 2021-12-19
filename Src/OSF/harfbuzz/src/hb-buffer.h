@@ -92,8 +92,8 @@ typedef struct hb_glyph_info_t {
  * Since: 1.5.0
  */
 typedef enum { /*< flags >*/
-	HB_GLYPH_FLAG_UNSAFE_TO_BREAK         = 0x00000001,
-	HB_GLYPH_FLAG_DEFINED                 = 0x00000001/* OR of all defined flags */
+	HB_GLYPH_FLAG_UNSAFE_TO_BREAK = 0x00000001,
+	HB_GLYPH_FLAG_DEFINED         = 0x00000001/* OR of all defined flags */
 } hb_glyph_flags_t;
 
 HB_EXTERN hb_glyph_flags_t hb_glyph_info_get_glyph_flags(const hb_glyph_info_t * info);
@@ -222,9 +222,9 @@ HB_EXTERN void hb_buffer_guess_segment_properties(hb_buffer_t * buffer);
  * Since: 0.9.20
  */
 typedef enum { /*< flags >*/
-	HB_BUFFER_FLAG_DEFAULT                        = 0x00000000u,
-	HB_BUFFER_FLAG_BOT                            = 0x00000001u,/* Beginning-of-text */
-	HB_BUFFER_FLAG_EOT                            = 0x00000002u,/* End-of-text */
+	HB_BUFFER_FLAG_DEFAULT                = 0x00000000u,
+	HB_BUFFER_FLAG_BOT                    = 0x00000001u,/* Beginning-of-text */
+	HB_BUFFER_FLAG_EOT                    = 0x00000002u,/* End-of-text */
 	HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES    = 0x00000004u,
 	HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES      = 0x00000008u,
 	HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE    = 0x00000010u
@@ -247,7 +247,7 @@ HB_EXTERN hb_buffer_flags_t hb_buffer_get_flags(const hb_buffer_t * buffer);
 typedef enum {
 	HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES    = 0,
 	HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS   = 1,
-	HB_BUFFER_CLUSTER_LEVEL_CHARACTERS            = 2,
+	HB_BUFFER_CLUSTER_LEVEL_CHARACTERS    = 2,
 	HB_BUFFER_CLUSTER_LEVEL_DEFAULT = HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES
 } hb_buffer_cluster_level_t;
 
@@ -309,13 +309,13 @@ HB_EXTERN void hb_buffer_normalize_glyphs(hb_buffer_t * buffer);
  * Since: 0.9.20
  */
 typedef enum { /*< flags >*/
-	HB_BUFFER_SERIALIZE_FLAG_DEFAULT              = 0x00000000u,
-	HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS          = 0x00000001u,
-	HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS         = 0x00000002u,
+	HB_BUFFER_SERIALIZE_FLAG_DEFAULT      = 0x00000000u,
+	HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS  = 0x00000001u,
+	HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS = 0x00000002u,
 	HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES       = 0x00000004u,
 	HB_BUFFER_SERIALIZE_FLAG_GLYPH_EXTENTS        = 0x00000008u,
-	HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS          = 0x00000010u,
-	HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES          = 0x00000020u
+	HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS  = 0x00000010u,
+	HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES  = 0x00000020u
 } hb_buffer_serialize_flags_t;
 
 /**
@@ -347,7 +347,7 @@ HB_EXTERN hb_bool_t hb_buffer_deserialize_glyphs(hb_buffer_t * buffer, const cha
  */
 
 typedef enum { /*< flags >*/
-	HB_BUFFER_DIFF_FLAG_EQUAL                     = 0x0000,
+	HB_BUFFER_DIFF_FLAG_EQUAL             = 0x0000,
 
 	/* Buffers with different content_type cannot be meaningfully compared
 	 * in any further detail. */
@@ -356,20 +356,20 @@ typedef enum { /*< flags >*/
 	/* For buffers with differing length, the per-glyph comparison is not
 	 * attempted, though we do still scan reference for dottedcircle / .notdef
 	 * glyphs. */
-	HB_BUFFER_DIFF_FLAG_LENGTH_MISMATCH           = 0x0002,
+	HB_BUFFER_DIFF_FLAG_LENGTH_MISMATCH   = 0x0002,
 
 	/* We want to know if dottedcircle / .notdef glyphs are present in the
 	 * reference, as we may not care so much about other differences in this
 	 * case. */
-	HB_BUFFER_DIFF_FLAG_NOTDEF_PRESENT            = 0x0004,
+	HB_BUFFER_DIFF_FLAG_NOTDEF_PRESENT    = 0x0004,
 	HB_BUFFER_DIFF_FLAG_DOTTED_CIRCLE_PRESENT     = 0x0008,
 
 	/* If the buffers have the same length, we compare them glyph-by-glyph
 	 * and report which aspect(s) of the glyph info/position are different. */
 	HB_BUFFER_DIFF_FLAG_CODEPOINT_MISMATCH        = 0x0010,
-	HB_BUFFER_DIFF_FLAG_CLUSTER_MISMATCH          = 0x0020,
+	HB_BUFFER_DIFF_FLAG_CLUSTER_MISMATCH  = 0x0020,
 	HB_BUFFER_DIFF_FLAG_GLYPH_FLAGS_MISMATCH      = 0x0040,
-	HB_BUFFER_DIFF_FLAG_POSITION_MISMATCH         = 0x0080
+	HB_BUFFER_DIFF_FLAG_POSITION_MISMATCH = 0x0080
 } hb_buffer_diff_flags_t;
 
 /* Compare the contents of two buffers, report types of differences. */

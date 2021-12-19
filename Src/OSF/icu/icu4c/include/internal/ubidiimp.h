@@ -34,24 +34,24 @@
 #   undef ES
 #endif
 
-typedef uint8_t DirProp;
+typedef uint8 DirProp;
 typedef uint32_t Flags;
 
-/*  Comparing the description of the BiDi algorithm with this implementation
+/* Comparing the description of the BiDi algorithm with this implementation
     is easier with the same names for the BiDi types in the code as there.
     See UCharDirection in uchar.h .
 */
 enum {
-    L=  U_LEFT_TO_RIGHT,                /*  0 */
-    R=  U_RIGHT_TO_LEFT,                /*  1 */
-    EN= U_EUROPEAN_NUMBER,              /*  2 */
-    ES= U_EUROPEAN_NUMBER_SEPARATOR,    /*  3 */
-    ET= U_EUROPEAN_NUMBER_TERMINATOR,   /*  4 */
-    AN= U_ARABIC_NUMBER,                /*  5 */
-    CS= U_COMMON_NUMBER_SEPARATOR,      /*  6 */
-    B=  U_BLOCK_SEPARATOR,              /*  7 */
-    S=  U_SEGMENT_SEPARATOR,            /*  8 */
-    WS= U_WHITE_SPACE_NEUTRAL,          /*  9 */
+    L=  U_LEFT_TO_RIGHT,                /* 0 */
+    R=  U_RIGHT_TO_LEFT,                /* 1 */
+    EN= U_EUROPEAN_NUMBER,              /* 2 */
+    ES= U_EUROPEAN_NUMBER_SEPARATOR,    /* 3 */
+    ET= U_EUROPEAN_NUMBER_TERMINATOR,   /* 4 */
+    AN= U_ARABIC_NUMBER,                /* 5 */
+    CS= U_COMMON_NUMBER_SEPARATOR,      /* 6 */
+    B=  U_BLOCK_SEPARATOR,              /* 7 */
+    S=  U_SEGMENT_SEPARATOR,            /* 8 */
+    WS= U_WHITE_SPACE_NEUTRAL,          /* 9 */
     ON= U_OTHER_NEUTRAL,                /* 10 */
     LRE=U_LEFT_TO_RIGHT_EMBEDDING,      /* 11 */
     LRO=U_LEFT_TO_RIGHT_OVERRIDE,       /* 12 */
@@ -70,7 +70,7 @@ enum {
     dirPropCount
 };
 
-/*  Sometimes, bit values are more appropriate
+/* Sometimes, bit values are more appropriate
     to deal with directionality properties.
     Abbreviations in these macro names refer to names
     used in the BiDi algorithm.
@@ -163,7 +163,7 @@ typedef struct Opening {
     int32_t contextPos; /* position of last strong char found before opening */
     uint16_t flags; /* bits for L or R/AL found within the pair */
     UBiDiDirection contextDir; /* L or R according to last strong char before opening */
-    uint8_t filler; /* to complete a nice multiple of 4 chars */
+    uint8 filler; /* to complete a nice multiple of 4 chars */
 } Opening;
 
 typedef struct IsoRun {

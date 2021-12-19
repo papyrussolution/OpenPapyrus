@@ -31,29 +31,29 @@
  *      Solve a sudoku by brute force search
  *
  *      Read input data from file or string
- *          int32         *sudokuReadFile()
- *          int32         *sudokuReadString()
+ *          l_int32         *sudokuReadFile()
+ *          l_int32         *sudokuReadString()
  *
  *      Create/destroy
  *          L_SUDOKU        *sudokuCreate()
  *          void             sudokuDestroy()
  *
  *      Solve the puzzle
- *          int32          sudokuSolve()
- *          static int32   sudokuValidState()
- *          static int32   sudokuNewGuess()
- *          static int32   sudokuTestState()
+ *          l_int32          sudokuSolve()
+ *          static l_int32   sudokuValidState()
+ *          static l_int32   sudokuNewGuess()
+ *          static l_int32   sudokuTestState()
  *
  *      Test for uniqueness
- *          int32          sudokuTestUniqueness()
- *          static int32   sudokuCompareState()
- *          static int32  *sudokuRotateArray()
+ *          l_int32          sudokuTestUniqueness()
+ *          static l_int32   sudokuCompareState()
+ *          static l_int32 *sudokuRotateArray()
  *
  *      Generation
  *          L_SUDOKU        *sudokuGenerate()
  *
  *      Output
- *          int32          sudokuOutput()
+ *          l_int32          sudokuOutput()
  *
  *  Solving sudokus is a somewhat addictive pastime.  The rules are
  *  simple but it takes just enough concentration to make it rewarding
@@ -139,22 +139,26 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static int32 sudokuValidState(int32  * state);
-static int32 sudokuNewGuess(L_SUDOKU  * sud);
-static int32 sudokuTestState(int32  * state, int32 index);
-static int32 sudokuCompareState(L_SUDOKU  * sud1, L_SUDOKU  * sud2, int32 quads, int32  * psame);
-static int32 * sudokuRotateArray(int32  * array, int32 quads);
+static l_int32 sudokuValidState(l_int32 * state);
+static l_int32 sudokuNewGuess(L_SUDOKU  * sud);
+static l_int32 sudokuTestState(l_int32 * state, l_int32 index);
+static l_int32 sudokuCompareState(L_SUDOKU  * sud1, L_SUDOKU  * sud2,
+    l_int32 quads, l_int32 * psame);
+static l_int32 * sudokuRotateArray(l_int32 * array, l_int32 quads);
 
-/* An example of a valid solution */
-static const char valid_solution[] = "3 8 7 2 6 4 1 9 5 "
-    "2 6 5 8 9 1 4 3 7 "
-    "1 4 9 5 3 7 6 8 2 "
-    "5 2 3 7 1 6 8 4 9 "
-    "7 1 6 9 4 8 2 5 3 "
-    "8 9 4 3 5 2 7 1 6 "
-    "9 7 2 1 8 5 3 6 4 "
-    "4 3 1 6 7 9 5 2 8 "
-    "6 5 8 4 2 3 9 7 1 ";
+/* --------------------------------------------------------------- */
+/*               An example of a valid solution                    */
+/* --------------------------------------------------------------- *
+   static const char valid_solution[] = "3 8 7 2 6 4 1 9 5 "
+                                     "2 6 5 8 9 1 4 3 7 "
+                                     "1 4 9 5 3 7 6 8 2 "
+                                     "5 2 3 7 1 6 8 4 9 "
+                                     "7 1 6 9 4 8 2 5 3 "
+                                     "8 9 4 3 5 2 7 1 6 "
+                                     "9 7 2 1 8 5 3 6 4 "
+                                     "4 3 1 6 7 9 5 2 8 "
+                                     "6 5 8 4 2 3 9 7 1 ";
+ */
 
 /*---------------------------------------------------------------------*
 *               Read input data from file or string                   *
@@ -162,7 +166,7 @@ static const char valid_solution[] = "3 8 7 2 6 4 1 9 5 "
 /*!
  * \brief   sudokuReadFile()
  *
- * \param[in]    filename of formatted sudoku file
+ * \param[in]    filename     formatted sudoku file
  * \return  array of 81 numbers, or NULL on error
  *
  * <pre>
@@ -173,19 +177,19 @@ static const char valid_solution[] = "3 8 7 2 6 4 1 9 5 "
  *            by a space
  * </pre>
  */
-int32 * sudokuReadFile(const char  * filename)
+l_int32 * sudokuReadFile(const char * filename)
 {
 	char     * str, * strj;
 	uint8  * data;
-	int32 i, j, nlines, val, index, error;
-	int32  * array;
+	l_int32 i, j, nlines, val, index, error;
+	l_int32 * array;
 	size_t size;
-	SARRAY   * saline, * sa1, * sa2;
+	SARRAY * saline, * sa1, * sa2;
 
-	PROCNAME("sudokuReadFile");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
-		return (int32*)ERROR_PTR("filename not defined", procName, NULL);
+		return (l_int32*)ERROR_PTR("filename not defined", procName, NULL);
 	data = l_binaryRead(filename, &size);
 	sa1 = sarrayCreateLinesFromString((char*)data, 0);
 	sa2 = sarrayCreate(9);
@@ -197,18 +201,19 @@ int32 * sudokuReadFile(const char  * filename)
 		if(str[0] != '#')
 			sarrayAddString(sa2, str, L_COPY);
 	}
-	LEPT_FREE(data);
+	SAlloc::F(data);
 	sarrayDestroy(&sa1);
 	nlines = sarrayGetCount(sa2);
 	if(nlines != 9) {
 		sarrayDestroy(&sa2);
-		L_ERROR2("file has %d lines\n", procName, nlines);
-		return (int32*)ERROR_PTR("invalid file", procName, NULL);
+		L_ERROR("file has %d lines\n", procName, nlines);
+		return (l_int32*)ERROR_PTR("invalid file", procName, NULL);
 	}
+
 	/* Read the data into the array, verifying that each data
 	 * line has 9 numbers. */
 	error = FALSE;
-	array = (int32*)LEPT_CALLOC(81, sizeof(int32));
+	array = (l_int32*)SAlloc::C(81, sizeof(l_int32));
 	for(i = 0, index = 0; i < 9; i++) {
 		str = sarrayGetString(sa2, i, L_NOCOPY);
 		saline = sarrayCreateWordsFromString(str);
@@ -230,8 +235,8 @@ int32 * sudokuReadFile(const char  * filename)
 	sarrayDestroy(&sa2);
 
 	if(error) {
-		LEPT_FREE(array);
-		return (int32*)ERROR_PTR("invalid data", procName, NULL);
+		SAlloc::F(array);
+		return (l_int32*)ERROR_PTR("invalid data", procName, NULL);
 	}
 
 	return array;
@@ -240,7 +245,7 @@ int32 * sudokuReadFile(const char  * filename)
 /*!
  * \brief   sudokuReadString()
  *
- * \param[in]    str of input data
+ * \param[in]    str     formatted input data
  * \return  array of 81 numbers, or NULL on error
  *
  * <pre>
@@ -249,33 +254,35 @@ int32 * sudokuReadFile(const char  * filename)
  *          by 81 spaces.
  * </pre>
  */
-int32 * sudokuReadString(const char  * str)
+l_int32 * sudokuReadString(const char * str)
 {
-	int32 i;
-	int32  * array;
+	l_int32 i;
+	l_int32 * array;
 
-	PROCNAME("sudokuReadString");
+	PROCNAME(__FUNCTION__);
 
 	if(!str)
-		return (int32*)ERROR_PTR("str not defined", procName, NULL);
+		return (l_int32*)ERROR_PTR("str not defined", procName, NULL);
 
 	/* Read in the initial solution */
-	array = (int32*)LEPT_CALLOC(81, sizeof(int32));
+	array = (l_int32*)SAlloc::C(81, sizeof(l_int32));
 	for(i = 0; i < 81; i++) {
-		if(sscanf(str + 2 * i, "%d ", &array[i]) != 1)
-			return (int32*)ERROR_PTR("invalid format", procName, NULL);
+		if(sscanf(str + 2 * i, "%d ", &array[i]) != 1) {
+			SAlloc::F(array);
+			return (l_int32*)ERROR_PTR("invalid format", procName, NULL);
+		}
 	}
 
 	return array;
 }
 
 /*---------------------------------------------------------------------*
-*                        Create/destroy sudoku                        *
+*                       Create/destroy sudoku                         *
 *---------------------------------------------------------------------*/
 /*!
  * \brief   sudokuCreate()
  *
- * \param[in]    array of 81 numbers, 9 rows of 9 numbers each
+ * \param[in]    array   81 numbers, 9 rows of 9 numbers each
  * \return  l_sudoku, or NULL on error
  *
  * <pre>
@@ -286,25 +293,21 @@ int32 * sudokuReadString(const char  * str)
  *          data has 81 numbers in 9 rows.
  * </pre>
  */
-L_SUDOKU * sudokuCreate(int32  * array)
+L_SUDOKU * sudokuCreate(l_int32 * array)
 {
-	int32 i, val, locs_index;
+	l_int32 i, val, locs_index;
 	L_SUDOKU  * sud;
 
-	PROCNAME("sudokuCreate");
+	PROCNAME(__FUNCTION__);
 
 	if(!array)
 		return (L_SUDOKU*)ERROR_PTR("array not defined", procName, NULL);
 
 	locs_index = 0; /* into locs array */
-	if((sud = (L_SUDOKU*)LEPT_CALLOC(1, sizeof(L_SUDOKU))) == NULL)
-		return (L_SUDOKU*)ERROR_PTR("sud not made", procName, NULL);
-	if((sud->locs = (int32*)LEPT_CALLOC(81, sizeof(int32))) == NULL)
-		return (L_SUDOKU*)ERROR_PTR("su state array not made", procName, NULL);
-	if((sud->init = (int32*)LEPT_CALLOC(81, sizeof(int32))) == NULL)
-		return (L_SUDOKU*)ERROR_PTR("su init array not made", procName, NULL);
-	if((sud->state = (int32*)LEPT_CALLOC(81, sizeof(int32))) == NULL)
-		return (L_SUDOKU*)ERROR_PTR("su state array not made", procName, NULL);
+	sud = (L_SUDOKU*)SAlloc::C(1, sizeof(L_SUDOKU));
+	sud->locs = (l_int32*)SAlloc::C(81, sizeof(l_int32));
+	sud->init = (l_int32*)SAlloc::C(81, sizeof(l_int32));
+	sud->state = (l_int32*)SAlloc::C(81, sizeof(l_int32));
 	for(i = 0; i < 81; i++) {
 		val = array[i];
 		sud->init[i] = val;
@@ -321,14 +324,14 @@ L_SUDOKU * sudokuCreate(int32  * array)
 /*!
  * \brief   sudokuDestroy()
  *
- * \param[in,out]   psud to be nulled
+ * \param[in,out]   psud    will be set to null before returning
  * \return  void
  */
 void sudokuDestroy(L_SUDOKU  ** psud)
 {
 	L_SUDOKU  * sud;
 
-	PROCNAME("sudokuDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(psud == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
@@ -337,13 +340,11 @@ void sudokuDestroy(L_SUDOKU  ** psud)
 	if((sud = *psud) == NULL)
 		return;
 
-	LEPT_FREE(sud->locs);
-	LEPT_FREE(sud->init);
-	LEPT_FREE(sud->state);
-	LEPT_FREE(sud);
-
+	SAlloc::F(sud->locs);
+	SAlloc::F(sud->init);
+	SAlloc::F(sud->state);
+	SAlloc::F(sud);
 	*psud = NULL;
-	return;
 }
 
 /*---------------------------------------------------------------------*
@@ -352,13 +353,13 @@ void sudokuDestroy(L_SUDOKU  ** psud)
 /*!
  * \brief   sudokuSolve()
  *
- * \param[in]    sud l_sudoku starting in initial state
+ * \param[in]    sud     l_sudoku starting in initial state
  * \return  1 on success, 0 on failure to solve note reversal of
  *              typical unix returns
  */
-int32 sudokuSolve(L_SUDOKU  * sud)
+l_int32 sudokuSolve(L_SUDOKU  * sud)
 {
-	PROCNAME("sudokuSolve");
+	PROCNAME(__FUNCTION__);
 
 	if(!sud)
 		return ERROR_INT("sud not defined", procName, 0);
@@ -374,18 +375,18 @@ int32 sudokuSolve(L_SUDOKU  * sud)
 	}
 
 	if(sud->failure == TRUE) {
-		fprintf(stderr, "Failure after %d guesses\n", sud->nguess);
+		lept_stderr("Failure after %d guesses\n", sud->nguess);
 		return 0;
 	}
 
-	fprintf(stderr, "Solved after %d guesses\n", sud->nguess);
+	lept_stderr("Solved after %d guesses\n", sud->nguess);
 	return 1;
 }
 
 /*!
  * \brief   sudokuValidState()
  *
- * \param[in]    state array of size 81
+ * \param[in]    state    array of size 81
  * \return  1 if valid, 0 if invalid
  *
  * <pre>
@@ -395,11 +396,11 @@ int32 sudokuSolve(L_SUDOKU  * sud)
  *          All values of 0 are ignored.
  * </pre>
  */
-static int32 sudokuValidState(int32  * state)
+static l_int32 sudokuValidState(l_int32 * state)
 {
-	int32 i;
+	l_int32 i;
 
-	PROCNAME("sudokuValidState");
+	PROCNAME(__FUNCTION__);
 
 	if(!state)
 		return ERROR_INT("state not defined", procName, 0);
@@ -415,7 +416,7 @@ static int32 sudokuValidState(int32  * state)
 /*!
  * \brief   sudokuNewGuess()
  *
- * \param[in]    sud l_sudoku
+ * \param[in]    sud    l_sudoku
  * \return  0 if OK; 1 if no solution is possible
  *
  * <pre>
@@ -430,10 +431,10 @@ static int32 sudokuValidState(int32  * state)
  *          exhaust possibilities for the first location.
  * </pre>
  */
-static int32 sudokuNewGuess(L_SUDOKU  * sud)
+static l_int32 sudokuNewGuess(L_SUDOKU  * sud)
 {
-	int32 index, val, valid;
-	int32  * locs, * state;
+	l_int32 index, val, valid;
+	l_int32 * locs, * state;
 
 	locs = sud->locs;
 	state = sud->state;
@@ -468,15 +469,15 @@ static int32 sudokuNewGuess(L_SUDOKU  * sud)
 /*!
  * \brief   sudokuTestState()
  *
- * \param[in]    state current state: array of 81 values
- * \param[in]    index into state element that we are testing
+ * \param[in]    state    current state: array of 81 values
+ * \param[in]    index    into state element that we are testing
  * \return  1 if valid; 0 if invalid no error checking
  */
-static int32 sudokuTestState(int32  * state,
-    int32 index)
+static l_int32 sudokuTestState(l_int32 * state,
+    l_int32 index)
 {
-	int32 i, j, val, row, rowstart, rowend, col;
-	int32 blockrow, blockcol, blockstart, rowindex, locindex;
+	l_int32 i, j, val, row, rowstart, rowend, col;
+	l_int32 blockrow, blockcol, blockstart, rowindex, locindex;
 
 	if((val = state[index]) == 0) /* automatically valid */
 		return 1;
@@ -528,8 +529,8 @@ static int32 sudokuTestState(int32  * state,
 /*!
  * \brief   sudokuTestUniqueness()
  *
- * \param[in]    array of 81 numbers, 9 lines of 9 numbers each
- * \param[out]   punique 1 if unique, 0 if not
+ * \param[in]    array     of 81 numbers, 9 lines of 9 numbers each
+ * \param[out]   punique   1 if unique, 0 if not
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -541,14 +542,14 @@ static int32 sudokuTestState(int32  * state,
  *          most likely to be unique.
  * </pre>
  */
-int32 sudokuTestUniqueness(int32  * array,
-    int32  * punique)
+l_ok sudokuTestUniqueness(l_int32 * array,
+    l_int32 * punique)
 {
-	int32 same1, same2, same3;
-	int32   * array1, * array2, * array3;
+	l_int32 same1, same2, same3;
+	l_int32   * array1, * array2, * array3;
 	L_SUDOKU  * sud, * sud1, * sud2, * sud3;
 
-	PROCNAME("sudokuTestUniqueness");
+	PROCNAME(__FUNCTION__);
 
 	if(!punique)
 		return ERROR_INT("&unique not defined", procName, 1);
@@ -577,19 +578,19 @@ int32 sudokuTestUniqueness(int32  * array,
 	sudokuDestroy(&sud1);
 	sudokuDestroy(&sud2);
 	sudokuDestroy(&sud3);
-	LEPT_FREE(array1);
-	LEPT_FREE(array2);
-	LEPT_FREE(array3);
+	SAlloc::F(array1);
+	SAlloc::F(array2);
+	SAlloc::F(array3);
 	return 0;
 }
 
 /*!
  * \brief   sudokuCompareState()
  *
- * \param[in]    sud1, sud2
- * \param[in]    quads rotation of sud2 input with respect to sud1,
- *                    in units of 90 degrees cw
- * \param[out]   psame 1 if all 4 results are identical; 0 otherwise
+ * \param[in]    sud1, sud2  two l_Sudoku states (solutions)
+ * \param[in]    quads       rotation of sud2 input with respect to sud1,
+ *                           in units of 90 degrees cw
+ * \param[out]   psame       1 if all 4 results are identical; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -600,15 +601,15 @@ int32 sudokuTestUniqueness(int32  * array,
  *          solution to sud2.
  * </pre>
  */
-static int32 sudokuCompareState(L_SUDOKU  * sud1,
+static l_int32 sudokuCompareState(L_SUDOKU  * sud1,
     L_SUDOKU  * sud2,
-    int32 quads,
-    int32   * psame)
+    l_int32 quads,
+    l_int32   * psame)
 {
-	int32 i, same;
-	int32  * array;
+	l_int32 i, same;
+	l_int32 * array;
 
-	PROCNAME("sudokuCompareState");
+	PROCNAME(__FUNCTION__);
 
 	if(!psame)
 		return ERROR_INT("&same not defined", procName, 1);
@@ -630,31 +631,31 @@ static int32 sudokuCompareState(L_SUDOKU  * sud1,
 		}
 	}
 	*psame = same;
-	LEPT_FREE(array);
+	SAlloc::F(array);
 	return 0;
 }
 
 /*!
  * \brief   sudokuRotateArray()
  *
- * \param[in]    array of 81 numbers; 9 lines of 9 numbers each
- * \param[in]    quads 1-3; number of 90 degree cw rotations
+ * \param[in]    array     81 numbers; 9 lines of 9 numbers each
+ * \param[in]    quads     1-3; number of 90 degree cw rotations
  * \return  rarray rotated array, or NULL on error
  */
-static int32 * sudokuRotateArray(int32  * array,
-    int32 quads)
+static l_int32 * sudokuRotateArray(l_int32 * array,
+    l_int32 quads)
 {
-	int32 i, j, sindex, dindex;
-	int32  * rarray;
+	l_int32 i, j, sindex, dindex;
+	l_int32 * rarray;
 
-	PROCNAME("sudokuRotateArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!array)
-		return (int32*)ERROR_PTR("array not defined", procName, NULL);
+		return (l_int32*)ERROR_PTR("array not defined", procName, NULL);
 	if(quads < 1 || quads > 3)
-		return (int32*)ERROR_PTR("valid quads in {1,2,3}", procName, NULL);
+		return (l_int32*)ERROR_PTR("valid quads in {1,2,3}", procName, NULL);
 
-	rarray = (int32*)LEPT_CALLOC(81, sizeof(int32));
+	rarray = (l_int32*)SAlloc::C(81, sizeof(l_int32));
 	if(quads == 1) {
 		for(j = 0, dindex = 0; j < 9; j++) {
 			for(i = 8; i >= 0; i--) {
@@ -689,10 +690,10 @@ static int32 * sudokuRotateArray(int32  * array,
 /*!
  * \brief   sudokuGenerate()
  *
- * \param[in]    array of 81 numbers, 9 rows of 9 numbers each
- * \param[in]    seed random number
- * \param[in]    minelems min non-zero elements allowed; <= 80
- * \param[in]    maxtries max tries to remove a number and get a valid sudoku
+ * \param[in]    array      81 numbers, 9 rows of 9 numbers each
+ * \param[in]    seed       random number
+ * \param[in]    minelems   min non-zero elements allowed; <= 80
+ * \param[in]    maxtries   max tries to remove a number and get a valid sudoku
  * \return  l_sudoku, or NULL on error
  *
  * <pre>
@@ -706,15 +707,15 @@ static int32 * sudokuRotateArray(int32  * array,
  *      (3) No sudoku is known with less than 17 nonzero elements.
  * </pre>
  */
-L_SUDOKU * sudokuGenerate(int32  * array,
-    int32 seed,
-    int32 minelems,
-    int32 maxtries)
+L_SUDOKU * sudokuGenerate(l_int32 * array,
+    l_int32 seed,
+    l_int32 minelems,
+    l_int32 maxtries)
 {
-	int32 index, sector, nzeros, removefirst, tries, val, oldval, unique;
+	l_int32 index, sector, nzeros, removefirst, tries, val, oldval, unique;
 	L_SUDOKU  * sud, * testsud;
 
-	PROCNAME("sudokuGenerate");
+	PROCNAME(__FUNCTION__);
 
 	if(!array)
 		return (L_SUDOKU*)ERROR_PTR("array not defined", procName, NULL);
@@ -730,7 +731,7 @@ L_SUDOKU * sudokuGenerate(int32  * array,
 	sector = 0;
 	removefirst = MIN(30, 81 - minelems);
 	while(nzeros < removefirst) {
-		genRandomIntegerInRange(9, 0, &val);
+		genRandomIntOnInterval(0, 8, 0, &val);
 		index = 27 * (sector / 3) + 3 * (sector % 3) +
 		    9 * (val / 3) + (val % 3);
 		if(array[index] == 0) continue;
@@ -761,13 +762,13 @@ L_SUDOKU * sudokuGenerate(int32  * array,
 		if(81 - nzeros <= minelems) break;
 
 		if(tries == 0) {
-			fprintf(stderr, "Trying %d zeros\n", nzeros);
+			lept_stderr("Trying %d zeros\n", nzeros);
 			tries = 1;
 		}
 
 		/* Choose an element to be zeroed.  We choose one
 		 * at random in succession from each of the nine sectors. */
-		genRandomIntegerInRange(9, 0, &val);
+		genRandomIntOnInterval(0, 8, 0, &val);
 		index = 27 * (sector / 3) + 3 * (sector % 3) +
 		    9 * (val / 3) + (val % 3);
 		sector++;
@@ -797,11 +798,11 @@ L_SUDOKU * sudokuGenerate(int32  * array,
 		}
 		else { /* accept this */
 			tries = 0;
-			fprintf(stderr, "Have %d zeros\n", nzeros);
+			lept_stderr("Have %d zeros\n", nzeros);
 			nzeros++;
 		}
 	}
-	fprintf(stderr, "Final: nelems = %d\n", 81 - nzeros);
+	lept_stderr("Final: nelems = %d\n", 81 - nzeros);
 
 	/* Show that we can recover the solution */
 	sud = sudokuCreate(array);
@@ -818,9 +819,9 @@ L_SUDOKU * sudokuGenerate(int32  * array,
 /*!
  * \brief   sudokuOutput()
  *
- * \param[in]    sud l_sudoku at any stage
- * \param[in]    arraytype L_SUDOKU_INIT, L_SUDOKU_STATE
- * \return  void
+ * \param[in]    sud          l_sudoku at any stage
+ * \param[in]    arraytype    L_SUDOKU_INIT, L_SUDOKU_STATE
+ * \return  0 if OK; 1 on error
  *
  * <pre>
  * Notes:
@@ -828,13 +829,13 @@ L_SUDOKU * sudokuGenerate(int32  * array,
  *          of the solution.
  * </pre>
  */
-int32 sudokuOutput(L_SUDOKU  * sud,
-    int32 arraytype)
+l_int32 sudokuOutput(L_SUDOKU  * sud,
+    l_int32 arraytype)
 {
-	int32 i, j;
-	int32  * array;
+	l_int32 i, j;
+	l_int32 * array;
 
-	PROCNAME("sudokuOutput");
+	PROCNAME(__FUNCTION__);
 
 	if(!sud)
 		return ERROR_INT("sud not defined", procName, 1);
@@ -847,10 +848,8 @@ int32 sudokuOutput(L_SUDOKU  * sud,
 
 	for(i = 0; i < 9; i++) {
 		for(j = 0; j < 9; j++)
-			fprintf(stderr, "%d ", array[9 * i + j]);
-		fprintf(stderr, "\n");
+			lept_stderr("%d ", array[9 * i + j]);
+		lept_stderr("\n");
 	}
-
 	return 0;
 }
-

@@ -82,11 +82,11 @@ RegexPattern &RegexPattern::operator = (const RegexPattern &other) {
 		return *this;
 	}
 
-	fFlags            = other.fFlags;
+	fFlags    = other.fFlags;
 	fLiteralText      = other.fLiteralText;
 	fMinMatchLen      = other.fMinMatchLen;
 	fFrameSize        = other.fFrameSize;
-	fDataSize         = other.fDataSize;
+	fDataSize = other.fDataSize;
 
 	fStartType        = other.fStartType;
 	fInitialStringIdx = other.fInitialStringIdx;
@@ -153,16 +153,16 @@ RegexPattern &RegexPattern::operator = (const RegexPattern &other) {
 //
 //--------------------------------------------------------------------------
 void RegexPattern::init() {
-	fFlags            = 0;
+	fFlags    = 0;
 	fCompiledPat      = 0;
 	fLiteralText.remove();
-	fSets             = NULL;
-	fSets8            = NULL;
+	fSets     = NULL;
+	fSets8    = NULL;
 	fDeferredStatus = U_ZERO_ERROR;
 	fMinMatchLen      = 0;
 	fFrameSize        = 0;
-	fDataSize         = 0;
-	fGroupMap         = NULL;
+	fDataSize = 0;
+	fGroupMap = NULL;
 	fStartType        = START_NO_INFO;
 	fInitialStringIdx = 0;
 	fInitialStringLen = 0;
@@ -172,11 +172,11 @@ void RegexPattern::init() {
 	fNeedsAltInput    = FALSE;
 	fNamedCaptureMap  = NULL;
 
-	fPattern          = NULL;// will be set later
+	fPattern  = NULL;// will be set later
 	fPatternString    = NULL;// may be set later
 	fCompiledPat      = new UVector64(fDeferredStatus);
-	fGroupMap         = new UVector32(fDeferredStatus);
-	fSets             = new UVector(fDeferredStatus);
+	fGroupMap = new UVector32(fDeferredStatus);
+	fSets     = new UVector(fDeferredStatus);
 	fInitialChars     = new UnicodeSet;
 	fInitialChars8    = new Regex8BitSet;
 	if(U_FAILURE(fDeferredStatus)) {
@@ -646,8 +646,8 @@ void RegexPattern::dumpOp(int32_t index) const {
 	(void)index; // Suppress warnings in non-debug build.
 #if defined(REGEX_DEBUG)
 	static const char * const opNames[] = {URX_OPCODE_NAMES};
-	int32_t op          = fCompiledPat->elementAti(index);
-	int32_t val         = URX_VAL(op);
+	int32_t op  = fCompiledPat->elementAti(index);
+	int32_t val = URX_VAL(op);
 	int32_t type        = URX_TYPE(op);
 	int32_t pinnedType  = type;
 	if((uint32_t)pinnedType >= UPRV_LENGTHOF(opNames)) {

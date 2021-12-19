@@ -188,7 +188,7 @@ static void U_CALLCONV UConverter_toUnicode_HZ_OFFSETS_LOGIC(UConverterToUnicode
 						    *err = U_ILLEGAL_ESCAPE_SEQUENCE;
 						    args->converter->toUCallbackReason = UCNV_IRREGULAR;
 						    args->converter->toUBytes[0] = UCNV_TILDE;
-						    args->converter->toUBytes[1] = static_cast<uint8_t>(mySourceChar);
+						    args->converter->toUBytes[1] = static_cast<uint8>(mySourceChar);
 						    args->converter->toULength = 2;
 						    args->target = myTarget;
 						    args->source = mySource;
@@ -221,7 +221,7 @@ static void U_CALLCONV UConverter_toUnicode_HZ_OFFSETS_LOGIC(UConverterToUnicode
 					    }
 					    else {
 						    /* Include the current byte in the illegal sequence. */
-						    args->converter->toUBytes[1] = static_cast<uint8_t>(mySourceChar);
+						    args->converter->toUBytes[1] = static_cast<uint8>(mySourceChar);
 						    args->converter->toULength = 2;
 					    }
 					    args->target = myTarget;
@@ -260,8 +260,8 @@ static void U_CALLCONV UConverter_toUnicode_HZ_OFFSETS_LOGIC(UConverterToUnicode
 					 * we report only the first byte as the illegal sequence.
 					 * Otherwise we convert or report the pair of bytes.
 					 */
-					leadIsOk = (uint8_t)(leadByte - 0x21) <= (0x7d - 0x21);
-					trailIsOk = (uint8_t)(mySourceChar - 0x21) <= (0x7e - 0x21);
+					leadIsOk = (uint8)(leadByte - 0x21) <= (0x7d - 0x21);
+					trailIsOk = (uint8)(mySourceChar - 0x21) <= (0x7e - 0x21);
 					if(leadIsOk && trailIsOk) {
 						tempBuf[0] = (char)(leadByte+0x80);
 						tempBuf[1] = (char)(mySourceChar+0x80);
@@ -316,12 +316,12 @@ static void U_CALLCONV UConverter_toUnicode_HZ_OFFSETS_LOGIC(UConverterToUnicode
 					*err = U_ILLEGAL_CHAR_FOUND;
 				}
 				if(mySourceChar > 0xff) {
-					args->converter->toUBytes[0] = (uint8_t)(mySourceChar >> 8);
-					args->converter->toUBytes[1] = (uint8_t)mySourceChar;
+					args->converter->toUBytes[0] = (uint8)(mySourceChar >> 8);
+					args->converter->toUBytes[1] = (uint8)mySourceChar;
 					args->converter->toULength = 2;
 				}
 				else {
-					args->converter->toUBytes[0] = (uint8_t)mySourceChar;
+					args->converter->toUBytes[0] = (uint8)mySourceChar;
 					args->converter->toULength = 1;
 				}
 				break;
@@ -385,7 +385,7 @@ static void U_CALLCONV UConverter_fromUnicode_HZ_OFFSETS_LOGIC(UConverterFromUni
 				/* we can only use lead bytes 21..7D and trail bytes 21..7E */
 				if(length == 2 &&
 				    (uint16_t)(targetUniChar - 0xa1a1) <= (0xfdfe - 0xa1a1) &&
-				    (uint8_t)(targetUniChar - 0xa1) <= (0xfe - 0xa1)
+				    (uint8)(targetUniChar - 0xa1) <= (0xfe - 0xa1)
 				    ) {
 					targetUniChar -= 0x8080;
 				}

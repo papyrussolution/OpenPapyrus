@@ -30,11 +30,11 @@ public:
 		int32_t offset = stringOffset;
 		int32_t length;
 		if(offset>=0) {
-			length = (uint8_t)strings[offset++];
+			length = (uint8)strings[offset++];
 		}
 		else {
 			offset = ~offset;
-			length = ((int32_t)(uint8_t)strings[offset]<<8)|(uint8_t)strings[offset+1];
+			length = ((int32_t)(uint8)strings[offset]<<8)|(uint8)strings[offset+1];
 			offset += 2;
 		}
 		return StringPiece(strings.data()+offset, length);
@@ -43,11 +43,11 @@ public:
 	int32_t getStringLength(const CharString &strings) const {
 		int32_t offset = stringOffset;
 		if(offset>=0) {
-			return (uint8_t)strings[offset];
+			return (uint8)strings[offset];
 		}
 		else {
 			offset = ~offset;
-			return ((int32_t)(uint8_t)strings[offset]<<8)|(uint8_t)strings[offset+1];
+			return ((int32_t)(uint8)strings[offset]<<8)|(uint8)strings[offset+1];
 		}
 	}
 
@@ -275,7 +275,7 @@ int32_t BytesTrieBuilder::getElementStringLength(int32_t i) const {
 }
 
 UChar BytesTrieBuilder::getElementUnit(int32_t i, int32_t byteIndex) const {
-	return (uint8_t)elements[i].charAt(byteIndex, *strings);
+	return (uint8)elements[i].charAt(byteIndex, *strings);
 }
 
 int32_t BytesTrieBuilder::getElementValue(int32_t i) const {
@@ -357,7 +357,8 @@ StringTrieBuilder::Node * BytesTrieBuilder::createLinearMatchNode(int32_t i, int
 		nextNode);
 }
 
-bool BytesTrieBuilder::ensureCapacity(int32_t length) {
+bool BytesTrieBuilder::ensureCapacity(int32_t length) 
+{
 	if(bytes==NULL) {
 		return FALSE; // previous memory allocation had failed
 	}
@@ -374,8 +375,7 @@ bool BytesTrieBuilder::ensureCapacity(int32_t length) {
 			bytesCapacity = 0;
 			return FALSE;
 		}
-		uprv_memcpy(newBytes+(newCapacity-bytesLength),
-		    bytes+(bytesCapacity-bytesLength), bytesLength);
+		uprv_memcpy(newBytes+(newCapacity-bytesLength), bytes+(bytesCapacity-bytesLength), bytesLength);
 		uprv_free(bytes);
 		bytes = newBytes;
 		bytesCapacity = newCapacity;
@@ -383,7 +383,8 @@ bool BytesTrieBuilder::ensureCapacity(int32_t length) {
 	return TRUE;
 }
 
-int32_t BytesTrieBuilder::write(int32_t byte) {
+int32_t BytesTrieBuilder::write(int32_t byte) 
+{
 	int32_t newLength = bytesLength+1;
 	if(ensureCapacity(newLength)) {
 		bytesLength = newLength;

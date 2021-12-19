@@ -18,7 +18,7 @@ CashNodeFilt & FASTCALL CashNodeFilt::operator = (const CashNodeFilt & s)
 	return *this;
 }
 
-PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE, PPView::implDontEditNullFilter, 0), P_TempTbl(0)
+PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE, implDontEditNullFilter|implUseQuickTagEditFunc, 0), P_TempTbl(0) // @v11.2.8 implUseQuickTagEditFunc
 {
 	PPLoadText(PPTXT_CMT, CashTypeNames);
 	// @vmiller {
@@ -310,6 +310,16 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 					ok = 1;
 				}
 				break;
+			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+				//
+				{
+					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
+					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_CASHNODE, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+				}
+				break;
+			case PPVCMD_TAGS: ok = EditObjTagValList(PPOBJ_CASHNODE, id, 0); break; // @v11.2.8
 		}
 	}
 	if(ok > 0 && oneof3(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM)) {

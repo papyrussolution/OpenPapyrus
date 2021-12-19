@@ -197,7 +197,7 @@ struct xmlAutomataState {
 	int maxTrans;
 	int nbTrans;
 	xmlRegTrans * trans;
-	/*  knowing states ponting to us can speed things up */
+	/* knowing states ponting to us can speed things up */
 	int maxTransTo;
 	int nbTransTo;
 	int * transTo;

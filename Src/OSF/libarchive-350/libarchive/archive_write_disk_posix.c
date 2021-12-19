@@ -184,7 +184,7 @@ struct fixup_entry {
 	size_t mac_metadata_size;
 	void                    * mac_metadata;
 	int fixup; /* bitmask of what needs fixing */
-	char                    * name;
+	char * name;
 };
 
 /*
@@ -250,9 +250,9 @@ struct archive_write_disk {
 
 	/* Information about the object being restored right now. */
 	struct archive_entry    * entry; /* Entry being extracted. */
-	char                    * name; /* Name of entry, possibly edited. */
+	char * name; /* Name of entry, possibly edited. */
 	struct archive_string _name_data; /* backing store for 'name' */
-	char                    * tmpname; /* Temporary name * */
+	char * tmpname; /* Temporary name * */
 	struct archive_string _tmpname_data; /* backing store for 'tmpname' */
 	/* Tasks remaining for this object. */
 	int todo;
@@ -299,7 +299,7 @@ struct archive_write_disk {
 	uint32 compressed_rsrc_position;
 	uint32 compressed_rsrc_position_v;
 	/* Buffer for uncompressed data. */
-	char                    * uncompressed_buffer;
+	char * uncompressed_buffer;
 	size_t block_remaining_bytes;
 	size_t file_remaining_bytes;
 #ifdef HAVE_ZLIB_H
@@ -353,49 +353,49 @@ struct archive_write_disk {
 
 #define HFS_BLOCKS(s)   ((s) >> 12)
 
-static int      la_opendirat(int, const char *);
-static int      la_mktemp(struct archive_write_disk *);
+static int la_opendirat(int, const char *);
+static int la_mktemp(struct archive_write_disk *);
 static void     fsobj_error(int *, struct archive_string *, int, const char *,
     const char *);
-static int      check_symlinks_fsobj(char *, int *, struct archive_string *,
+static int check_symlinks_fsobj(char *, int *, struct archive_string *,
     int);
-static int      check_symlinks(struct archive_write_disk *);
-static int      create_filesystem_object(struct archive_write_disk *);
+static int check_symlinks(struct archive_write_disk *);
+static int create_filesystem_object(struct archive_write_disk *);
 static struct fixup_entry * current_fixup(struct archive_write_disk *,
     const char * pathname);
 #if defined(HAVE_FCHDIR) && defined(PATH_MAX)
 static void     edit_deep_directories(struct archive_write_disk * ad);
 #endif
-static int      cleanup_pathname_fsobj(char *, int *, struct archive_string *,
+static int cleanup_pathname_fsobj(char *, int *, struct archive_string *,
     int);
-static int      cleanup_pathname(struct archive_write_disk *);
-static int      create_dir(struct archive_write_disk *, char *);
-static int      create_parent_dir(struct archive_write_disk *, char *);
+static int cleanup_pathname(struct archive_write_disk *);
+static int create_dir(struct archive_write_disk *, char *);
+static int create_parent_dir(struct archive_write_disk *, char *);
 static ssize_t  hfs_write_data_block(struct archive_write_disk *,
     const char *, size_t);
-static int      fixup_appledouble(struct archive_write_disk *, const char *);
-static int      older(struct stat *, struct archive_entry *);
-static int      restore_entry(struct archive_write_disk *);
-static int      set_mac_metadata(struct archive_write_disk *, const char *,
+static int fixup_appledouble(struct archive_write_disk *, const char *);
+static int older(struct stat *, struct archive_entry *);
+static int restore_entry(struct archive_write_disk *);
+static int set_mac_metadata(struct archive_write_disk *, const char *,
     const void *, size_t);
-static int      set_xattrs(struct archive_write_disk *);
-static int      clear_nochange_fflags(struct archive_write_disk *);
-static int      set_fflags(struct archive_write_disk *);
-static int      set_fflags_platform(struct archive_write_disk *, int fd, const char * name, mode_t mode, unsigned long fflags_set, unsigned long fflags_clear);
-static int      set_ownership(struct archive_write_disk *);
-static int      set_mode(struct archive_write_disk *, int mode);
-static int      set_time(int, int, const char *, time_t, long, time_t, long);
-static int      set_times(struct archive_write_disk *, int, int, const char *, time_t, long, time_t, long, time_t, long, time_t, long);
-static int      set_times_from_entry(struct archive_write_disk *);
+static int set_xattrs(struct archive_write_disk *);
+static int clear_nochange_fflags(struct archive_write_disk *);
+static int set_fflags(struct archive_write_disk *);
+static int set_fflags_platform(struct archive_write_disk *, int fd, const char * name, mode_t mode, unsigned long fflags_set, unsigned long fflags_clear);
+static int set_ownership(struct archive_write_disk *);
+static int set_mode(struct archive_write_disk *, int mode);
+static int set_time(int, int, const char *, time_t, long, time_t, long);
+static int set_times(struct archive_write_disk *, int, int, const char *, time_t, long, time_t, long, time_t, long, time_t, long);
+static int set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
 static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
 static struct archive_vtable * archive_write_disk_vtable(void);
 
-static int      _archive_write_disk_close(struct archive *);
-static int      _archive_write_disk_free(struct archive *);
-static int      _archive_write_disk_header(struct archive *, struct archive_entry *);
+static int _archive_write_disk_close(struct archive *);
+static int _archive_write_disk_free(struct archive *);
+static int _archive_write_disk_header(struct archive *, struct archive_entry *);
 static int64  _archive_write_disk_filter_bytes(struct archive *, int);
-static int      _archive_write_disk_finish_entry(struct archive *);
+static int _archive_write_disk_finish_entry(struct archive *);
 static ssize_t  _archive_write_disk_data(struct archive *, const void *, size_t);
 static ssize_t  _archive_write_disk_data_block(struct archive *, const void *, size_t, int64);
 
@@ -495,7 +495,7 @@ static struct archive_vtable * archive_write_disk_vtable(void)
 static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	(void)n; /* UNUSED */
+	CXX_UNUSED(n);
 	if(n == -1 || n == 0)
 		return (a->total_bytes_written);
 	return -1;
@@ -3269,7 +3269,7 @@ static int set_time(int fd, int mode, const char * name,
 	 * on fds and symlinks.
 	 */
 	struct timespec ts[2];
-	(void)mode; /* UNUSED */
+	CXX_UNUSED(mode);
 	ts[0].tv_sec = atime;
 	ts[0].tv_nsec = atime_nsec;
 	ts[1].tv_sec = mtime;
@@ -3296,10 +3296,10 @@ static int set_time(int fd, int mode, const char * name,
 	if(fd >= 0)
 		return (futimes(fd, times));
 #else
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(fd);
 #endif
 #ifdef HAVE_LUTIMES
-	(void)mode; /* UNUSED */
+	CXX_UNUSED(mode);
 	return (lutimes(name, times));
 #else
 	if(S_ISLNK(mode))
@@ -3313,8 +3313,8 @@ static int set_time(int fd, int mode, const char * name,
 	 * does not support fds or symlinks.
 	 */
 	struct utimbuf times;
-	(void)fd; /* UNUSED */
-	(void)name; /* UNUSED */
+	CXX_UNUSED(fd);
+	CXX_UNUSED(name);
 	(void)atime_nsec; /* UNUSED */
 	(void)mtime_nsec; /* UNUSED */
 	times.actime = atime;
@@ -3327,9 +3327,9 @@ static int set_time(int fd, int mode, const char * name,
 	/*
 	 * We don't know how to set the time on this platform.
 	 */
-	(void)fd; /* UNUSED */
-	(void)mode; /* UNUSED */
-	(void)name; /* UNUSED */
+	CXX_UNUSED(fd);
+	CXX_UNUSED(mode);
+	CXX_UNUSED(name);
 	(void)atime_nsec; /* UNUSED */
 	(void)mtime_nsec; /* UNUSED */
 	return ARCHIVE_WARN;
@@ -3694,7 +3694,7 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 	    | SF_NOUNLINK
 #endif
 	;
-	(void)mode; /* UNUSED */
+	CXX_UNUSED(mode);
 
 	if(set == 0  && clear == 0)
 		return ARCHIVE_OK;
@@ -3849,15 +3849,14 @@ cleanup:
  * Of course, some systems have neither BSD chflags() nor Linux' flags
  * support through ioctl().
  */
-static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name,
-    mode_t mode, unsigned long set, unsigned long clear)
+static int set_fflags_platform(struct archive_write_disk * a, int fd, const char * name, mode_t mode, unsigned long set, unsigned long clear)
 {
-	(void)a; /* UNUSED */
-	(void)fd; /* UNUSED */
-	(void)name; /* UNUSED */
-	(void)mode; /* UNUSED */
-	(void)set; /* UNUSED */
-	(void)clear; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(fd);
+	CXX_UNUSED(name);
+	CXX_UNUSED(mode);
+	CXX_UNUSED(set);
+	CXX_UNUSED(clear);
 	return ARCHIVE_OK;
 }
 
@@ -3868,17 +3867,17 @@ static int set_fflags_platform(struct archive_write_disk * a, int fd, const char
 static int set_mac_metadata(struct archive_write_disk * a, const char * pathname,
     const void * metadata, size_t metadata_size)
 {
-	(void)a; /* UNUSED */
-	(void)pathname; /* UNUSED */
-	(void)metadata; /* UNUSED */
-	(void)metadata_size; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(pathname);
+	CXX_UNUSED(metadata);
+	CXX_UNUSED(metadata_size);
 	return ARCHIVE_OK;
 }
 
 static int fixup_appledouble(struct archive_write_disk * a, const char * pathname)
 {
-	(void)a; /* UNUSED */
-	(void)pathname; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(pathname);
 	return ARCHIVE_OK;
 }
 
@@ -4408,11 +4407,11 @@ static int older(struct stat * st, struct archive_entry * entry)
 int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
     struct archive_acl * abstract_acl, __LA_MODE_T mode)
 {
-	(void)a; /* UNUSED */
-	(void)fd; /* UNUSED */
-	(void)name; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(fd);
+	CXX_UNUSED(name);
 	(void)abstract_acl; /* UNUSED */
-	(void)mode; /* UNUSED */
+	CXX_UNUSED(mode);
 	return ARCHIVE_OK;
 }
 

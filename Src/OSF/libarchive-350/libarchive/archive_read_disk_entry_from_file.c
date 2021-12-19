@@ -114,9 +114,9 @@ static int setup_sparse_fiemap(struct archive_read_disk *, struct archive_entry 
 #if !ARCHIVE_ACL_SUPPORT
 int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	(void)a; /* UNUSED */
-	(void)entry; /* UNUSED */
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(entry);
+	CXX_UNUSED(fd);
 	return ARCHIVE_OK;
 }
 
@@ -315,7 +315,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	const char * name, * tempdir;
 	struct archive_string tempfile;
 
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(fd);
 
 	name = archive_read_disk_entry_setup_path(a, entry, NULL);
 	if(name == NULL)
@@ -391,9 +391,9 @@ cleanup:
 static int setup_mac_metadata(struct archive_read_disk * a,
     struct archive_entry * entry, int * fd)
 {
-	(void)a; /* UNUSED */
-	(void)entry; /* UNUSED */
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(entry);
+	CXX_UNUSED(fd);
 	return ARCHIVE_OK;
 }
 
@@ -730,9 +730,9 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  */
 static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	(void)a; /* UNUSED */
-	(void)entry; /* UNUSED */
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(entry);
+	CXX_UNUSED(fd);
 	return ARCHIVE_OK;
 }
 
@@ -951,14 +951,11 @@ static int setup_sparse(struct archive_read_disk * a,
 		}
 		if(off_s == 0 && off_e == size)
 			break; /* This is not sparse. */
-		archive_entry_sparse_add_entry(entry, off_s,
-		    off_e - off_s);
+		archive_entry_sparse_add_entry(entry, off_s, off_e - off_s);
 		off_s = off_e;
 	}
-
 	if(check_fully_sparse) {
-		if(lseek(*fd, 0, SEEK_HOLE) == 0 &&
-		    lseek(*fd, 0, SEEK_END) == size) {
+		if(lseek(*fd, 0, SEEK_HOLE) == 0 && lseek(*fd, 0, SEEK_END) == size) {
 			/* Fully sparse file; insert a zero-length "data" entry */
 			archive_entry_sparse_add_entry(entry, 0, 0);
 		}
@@ -975,9 +972,9 @@ exit_setup_sparse:
  */
 static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	(void)a; /* UNUSED */
-	(void)entry; /* UNUSED */
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(a);
+	CXX_UNUSED(entry);
+	CXX_UNUSED(fd);
 	return ARCHIVE_OK;
 }
 

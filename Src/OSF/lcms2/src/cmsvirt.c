@@ -30,10 +30,10 @@
 // -----------------------------------------------------------------------------------
 
 static
-cmsBool SetTextTags(cmsHPROFILE hProfile, const wchar_t* Description)
+boolint SetTextTags(cmsHPROFILE hProfile, const wchar_t* Description)
 {
 	cmsMLU * DescriptionMLU, * CopyrightMLU;
-	cmsBool rc = FALSE;
+	boolint rc = FALSE;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 
 	DescriptionMLU  = cmsMLUalloc(ContextID, 1);
@@ -59,9 +59,9 @@ Error:
 }
 
 static
-cmsBool  SetSeqDescTag(cmsHPROFILE hProfile, const char * Model)
+boolint SetSeqDescTag(cmsHPROFILE hProfile, const char * Model)
 {
-	cmsBool rc = FALSE;
+	boolint rc = FALSE;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsSEQ* Seq = cmsAllocProfileSequenceDescription(ContextID, 1);
 
@@ -98,7 +98,7 @@ Error:
 cmsHPROFILE CMSEXPORT cmsCreateRGBProfileTHR(cmsContext ContextID,
     const cmsCIExyY* WhitePoint,
     const cmsCIExyYTRIPLE* Primaries,
-    cmsToneCurve* const TransferFunction[3])
+    cmsToneCurve * const TransferFunction[3])
 {
 	cmsHPROFILE hICC;
 	cmsMAT3 MColorants;
@@ -202,7 +202,7 @@ Error:
 
 cmsHPROFILE CMSEXPORT cmsCreateRGBProfile(const cmsCIExyY* WhitePoint,
     const cmsCIExyYTRIPLE* Primaries,
-    cmsToneCurve* const TransferFunction[3])
+    cmsToneCurve * const TransferFunction[3])
 {
 	return cmsCreateRGBProfileTHR(NULL, WhitePoint, Primaries, TransferFunction);
 }
@@ -210,7 +210,7 @@ cmsHPROFILE CMSEXPORT cmsCreateRGBProfile(const cmsCIExyY* WhitePoint,
 // This function creates a profile based on White point and transfer function.
 cmsHPROFILE CMSEXPORT cmsCreateGrayProfileTHR(cmsContext ContextID,
     const cmsCIExyY* WhitePoint,
-    const cmsToneCurve* TransferFunction)
+    const cmsToneCurve * TransferFunction)
 {
 	cmsHPROFILE hICC;
 	cmsCIEXYZ tmp;
@@ -256,16 +256,16 @@ Error:
 }
 
 cmsHPROFILE CMSEXPORT cmsCreateGrayProfile(const cmsCIExyY* WhitePoint,
-    const cmsToneCurve* TransferFunction)
+    const cmsToneCurve * TransferFunction)
 {
 	return cmsCreateGrayProfileTHR(NULL, WhitePoint, TransferFunction);
 }
 
 // This is a devicelink operating in the target colorspace with as many transfer functions as components
 
-cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID, cmsColorSpaceSignature ColorSpace, cmsToneCurve* const TransferFunctions[])
+cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID, cmsColorSpaceSignature ColorSpace, cmsToneCurve * const TransferFunctions[])
 {
-	cmsPipeline* Pipeline;
+	cmsPipeline * Pipeline;
 	cmsUInt32Number nChannels;
 	cmsHPROFILE hICC = cmsCreateProfilePlaceholder(ContextID);
 	if(!hICC)
@@ -302,7 +302,7 @@ Error:
 	return NULL;
 }
 
-cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature ColorSpace, cmsToneCurve* const TransferFunctions[])
+cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature ColorSpace, cmsToneCurve * const TransferFunctions[])
 {
 	return cmsCreateLinearizationDeviceLinkTHR(NULL, ColorSpace, TransferFunctions);
 }
@@ -323,10 +323,10 @@ cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature Co
 //     M = Ratio * M
 //     Y = Ratio * Y
 //     K: Does not change
-static int InkLimitingSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
+static int InkLimitingSampler(const uint16 In[], uint16 Out[], void * Cargo)
 {
-	cmsFloat64Number InkLimit = *(cmsFloat64Number*)Cargo;
-	cmsFloat64Number SumCMY, SumCMYK, Ratio;
+	double InkLimit = *(double *)Cargo;
+	double SumCMY, SumCMYK, Ratio;
 	InkLimit = (InkLimit * 655.35);
 	SumCMY   = In[0]  + In[1] + In[2];
 	SumCMYK  = SumCMY + In[3];
@@ -350,11 +350,11 @@ static int InkLimitingSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTE
 
 cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
     cmsColorSpaceSignature ColorSpace,
-    cmsFloat64Number Limit)
+    double Limit)
 {
 	cmsHPROFILE hICC;
-	cmsPipeline* LUT;
-	cmsStage* CLUT;
+	cmsPipeline * LUT;
+	cmsStage * CLUT;
 	cmsUInt32Number nChannels;
 
 	if(ColorSpace != cmsSigCmykData) {
@@ -418,7 +418,7 @@ Error:
 	return NULL;
 }
 
-cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLink(cmsColorSpaceSignature ColorSpace, cmsFloat64Number Limit)
+cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLink(cmsColorSpaceSignature ColorSpace, double Limit)
 {
 	return cmsCreateInkLimitingDeviceLinkTHR(NULL, ColorSpace, Limit);
 }
@@ -427,7 +427,7 @@ cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLink(cmsColorSpaceSignature Colo
 cmsHPROFILE CMSEXPORT cmsCreateLab2ProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint)
 {
 	cmsHPROFILE hProfile;
-	cmsPipeline* LUT = NULL;
+	cmsPipeline * LUT = NULL;
 
 	hProfile = cmsCreateRGBProfileTHR(ContextID, WhitePoint == NULL ? cmsD50_xyY() : WhitePoint, NULL, NULL);
 	if(hProfile == NULL) return NULL;
@@ -472,7 +472,7 @@ cmsHPROFILE CMSEXPORT cmsCreateLab2Profile(const cmsCIExyY* WhitePoint)
 cmsHPROFILE CMSEXPORT cmsCreateLab4ProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint)
 {
 	cmsHPROFILE hProfile;
-	cmsPipeline* LUT = NULL;
+	cmsPipeline * LUT = NULL;
 
 	hProfile = cmsCreateRGBProfileTHR(ContextID, WhitePoint == NULL ? cmsD50_xyY() : WhitePoint, NULL, NULL);
 	if(hProfile == NULL) return NULL;
@@ -517,7 +517,7 @@ cmsHPROFILE CMSEXPORT cmsCreateLab4Profile(const cmsCIExyY* WhitePoint)
 cmsHPROFILE CMSEXPORT cmsCreateXYZProfileTHR(cmsContext ContextID)
 {
 	cmsHPROFILE hProfile;
-	cmsPipeline* LUT = NULL;
+	cmsPipeline * LUT = NULL;
 
 	hProfile = cmsCreateRGBProfileTHR(ContextID, cmsD50_xyY(), NULL, NULL);
 	if(hProfile == NULL) return NULL;
@@ -574,9 +574,9 @@ cmsHPROFILE CMSEXPORT cmsCreateXYZProfile(void)
 //    B = ((B'sRGB + 0.055) / 1.055)^2.4
 
 static
-cmsToneCurve* Build_sRGBGamma(cmsContext ContextID)
+cmsToneCurve * Build_sRGBGamma(cmsContext ContextID)
 {
-	cmsFloat64Number Parameters[5];
+	double Parameters[5];
 
 	Parameters[0] = 2.4;
 	Parameters[1] = 1. / 1.055;
@@ -596,7 +596,7 @@ cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfileTHR(cmsContext ContextID)
 		{0.3000, 0.6000, 1.0},
 		{0.1500, 0.0600, 1.0}
 	};
-	cmsToneCurve* Gamma22[3];
+	cmsToneCurve * Gamma22[3];
 	cmsHPROFILE hsRGB;
 
 	// cmsWhitePointFromTemp(&D65, 6504);
@@ -621,16 +621,16 @@ cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfile(void)
 }
 
 typedef struct {
-	cmsFloat64Number Brightness;
-	cmsFloat64Number Contrast;
-	cmsFloat64Number Hue;
-	cmsFloat64Number Saturation;
-	cmsBool lAdjustWP;
+	double Brightness;
+	double Contrast;
+	double Hue;
+	double Saturation;
+	boolint lAdjustWP;
 	cmsCIEXYZ WPsrc, WPdest;
 } BCHSWADJUSTS, * LPBCHSWADJUSTS;
 
 static
-int bchswSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
+int bchswSampler(const uint16 In[], uint16 Out[], void * Cargo)
 {
 	cmsCIELab LabIn, LabOut;
 	cmsCIELCh LChIn, LChOut;
@@ -667,18 +667,18 @@ int bchswSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Nu
 
 cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
     cmsUInt32Number nLUTPoints,
-    cmsFloat64Number Bright,
-    cmsFloat64Number Contrast,
-    cmsFloat64Number Hue,
-    cmsFloat64Number Saturation,
+    double Bright,
+    double Contrast,
+    double Hue,
+    double Saturation,
     cmsUInt32Number TempSrc,
     cmsUInt32Number TempDest)
 {
 	cmsHPROFILE hICC;
-	cmsPipeline* Pipeline;
+	cmsPipeline * Pipeline;
 	BCHSWADJUSTS bchsw;
 	cmsCIExyY WhitePnt;
-	cmsStage* CLUT;
+	cmsStage * CLUT;
 	cmsUInt32Number Dimensions[MAX_INPUT_DIMENSIONS];
 	cmsUInt32Number i;
 
@@ -747,10 +747,10 @@ Error:
 }
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(cmsUInt32Number nLUTPoints,
-    cmsFloat64Number Bright,
-    cmsFloat64Number Contrast,
-    cmsFloat64Number Hue,
-    cmsFloat64Number Saturation,
+    double Bright,
+    double Contrast,
+    double Hue,
+    double Saturation,
     cmsUInt32Number TempSrc,
     cmsUInt32Number TempDest)
 {
@@ -762,12 +762,12 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(cmsUInt32Number nLUTP
 cmsHPROFILE CMSEXPORT cmsCreateNULLProfileTHR(cmsContext ContextID)
 {
 	cmsHPROFILE hProfile;
-	cmsPipeline* LUT = NULL;
-	cmsStage* PostLin;
-	cmsStage* OutLin;
-	cmsToneCurve* EmptyTab[3];
-	cmsUInt16Number Zero[2] = { 0, 0 };
-	const cmsFloat64Number PickLstarMatrix[] = { 1, 0, 0 };
+	cmsPipeline * LUT = NULL;
+	cmsStage * PostLin;
+	cmsStage * OutLin;
+	cmsToneCurve * EmptyTab[3];
+	uint16 Zero[2] = { 0, 0 };
+	const double PickLstarMatrix[] = { 1, 0, 0 };
 
 	hProfile = cmsCreateProfilePlaceholder(ContextID);
 	if(!hProfile)                       // can't allocate
@@ -919,7 +919,7 @@ Error:
 // This structure holds information about which MPU can be stored on a profile based on the version
 
 typedef struct {
-	cmsBool IsV4;                      // Is a V4 tag?
+	boolint IsV4;                      // Is a V4 tag?
 	cmsTagSignature RequiredTag;       // Set to 0 for both types
 	cmsTagTypeSignature LutType;       // The LUT type
 	int nTypes;                        // Number of types (up to 5)
@@ -949,9 +949,9 @@ static const cmsAllowedLUT AllowedLUTTypes[] = {
 
 // Check a single entry
 static
-cmsBool CheckOne(const cmsAllowedLUT* Tab, const cmsPipeline* Lut)
+boolint CheckOne(const cmsAllowedLUT* Tab, const cmsPipeline * Lut)
 {
-	cmsStage* mpe;
+	cmsStage * mpe;
 	int n;
 
 	for(n = 0, mpe = Lut->Elements; mpe != NULL; mpe = mpe->Next, n++) {
@@ -963,7 +963,7 @@ cmsBool CheckOne(const cmsAllowedLUT* Tab, const cmsPipeline* Lut)
 }
 
 static
-const cmsAllowedLUT* FindCombination(const cmsPipeline* Lut, cmsBool IsV4, cmsTagSignature DestinationTag)
+const cmsAllowedLUT* FindCombination(const cmsPipeline * Lut, boolint IsV4, cmsTagSignature DestinationTag)
 {
 	cmsUInt32Number n;
 
@@ -980,14 +980,14 @@ const cmsAllowedLUT* FindCombination(const cmsPipeline* Lut, cmsBool IsV4, cmsTa
 }
 
 // Does convert a transform into a device link profile
-cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, cmsFloat64Number Version, cmsUInt32Number dwFlags)
+cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, cmsUInt32Number dwFlags)
 {
 	cmsHPROFILE hProfile = NULL;
 	cmsUInt32Number FrmIn, FrmOut, ChansIn, ChansOut;
 	int ColorSpaceBitsIn, ColorSpaceBitsOut;
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
-	cmsPipeline* LUT = NULL;
-	cmsStage* mpe;
+	cmsPipeline * LUT = NULL;
+	cmsStage * mpe;
 	cmsContext ContextID = cmsGetTransformContextID(hTransform);
 	const cmsAllowedLUT* AllowedLUT;
 	cmsTagSignature DestinationTag;
@@ -1061,8 +1061,8 @@ cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, cmsFloat
 
 	// If no way, then force CLUT that for sure can be written
 	if(AllowedLUT == NULL) {
-		cmsStage* FirstStage;
-		cmsStage* LastStage;
+		cmsStage * FirstStage;
+		cmsStage * LastStage;
 
 		dwFlags |= cmsFLAGS_FORCE_CLUT;
 		_cmsOptimizePipeline(ContextID, &LUT, xform->RenderingIntent, &FrmIn, &FrmOut, &dwFlags);

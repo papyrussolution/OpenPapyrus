@@ -1,22 +1,13 @@
+// ustdio.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File ustdio.c
- *
+ *   Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   11/18/98    stephen     Creation.
  *   03/12/99    stephen     Modified for new C API.
  *   07/19/99    stephen     Fixed read() and gets()
- ******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -57,11 +48,9 @@ static const uint32_t DELIMITERS_LEN = 1;
 
 #if !UCONFIG_NO_TRANSLITERATION
 
-U_CAPI UTransliterator* U_EXPORT2 u_fsettransliterator(UFILE * file, UFileDirection direction,
-    UTransliterator * adopt, UErrorCode * status)
+U_CAPI UTransliterator* U_EXPORT2 u_fsettransliterator(UFILE * file, UFileDirection direction, UTransliterator * adopt, UErrorCode * status)
 {
 	UTransliterator * old = NULL;
-
 	if(U_FAILURE(*status)) {
 		return adopt;
 	}
@@ -176,7 +165,7 @@ static const UChar * u_file_translit(UFILE * f, const UChar * src, int32_t * cou
 
 		/* now: start/limit point to the transliterated text */
 		/* Transliterated is [buffer..pos.start) */
-		*count            = pos.start;
+		*count    = pos.start;
 		f->fTranslit->pos = pos.start;
 		f->fTranslit->length = pos.limit;
 
@@ -273,7 +262,7 @@ U_CAPI UChar32 U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001
 
 U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const UChar * chars,
     int32_t count,
-    UFILE   * f,
+    UFILE * f,
     bool flushIO,
     bool flushTranslit)
 {
@@ -358,7 +347,7 @@ U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const UChar * chars,
 U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
 u_file_write(const UChar * chars,
     int32_t count,
-    UFILE     * f)
+    UFILE * f)
 {
 	return u_file_write_flush(chars, count, f, FALSE, FALSE);
 }
@@ -444,10 +433,7 @@ void ufile_fill_uchar_buffer(UFILE * f)
 	str->fLimit  = myTarget;
 }
 
-U_CAPI UChar * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fgets(UChar * s,
-    int32_t n,
-    UFILE * f)
+U_CAPI UChar * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fgets(UChar * s, int32_t n, UFILE * f)
 {
 	int32_t dataSize;
 	int32_t count;
@@ -456,7 +442,6 @@ u_fgets(UChar * s,
 	UChar * sItr;
 	UChar currDelim = 0;
 	u_localized_string * str;
-
 	if(n <= 0) {
 		/* Caller screwed up. We need to write the null terminatior. */
 		return NULL;
@@ -649,15 +634,11 @@ u_fungetc(UChar32 ch,
 	return ch;
 }
 
-U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_file_read(UChar * chars,
-    int32_t count,
-    UFILE     * f)
+U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_file_read(UChar * chars, int32_t count, UFILE * f)
 {
 	int32_t dataSize;
 	int32_t read = 0;
 	u_localized_string * str = &f->str;
-
 	do {
 		/* determine the amount of data in the buffer */
 		dataSize = (int32_t)(str->fLimit - str->fPos);
@@ -666,23 +647,17 @@ u_file_read(UChar * chars,
 			ufile_fill_uchar_buffer(f);
 			dataSize = (int32_t)(str->fLimit - str->fPos);
 		}
-
 		/* Make sure that we don't read too much */
 		if(dataSize > (count - read)) {
 			dataSize = count - read;
 		}
-
 		/* copy the current data in the buffer */
 		memcpy(chars + read, str->fPos, dataSize * sizeof(UChar));
-
 		/* update number of items read */
 		read += dataSize;
-
 		/* update the current buffer position */
 		str->fPos += dataSize;
-	}
-	while(dataSize != 0 && read < count);
-
+	} while(dataSize != 0 && read < count);
 	return read;
 }
 

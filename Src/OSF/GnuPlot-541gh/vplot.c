@@ -15,7 +15,7 @@
 
 #ifdef VOXEL_GRID_SUPPORT
 
-/*            Data structures for tessellation
+/* Data structures for tessellation
  *      ===============================
  * We offer a choice of two tessellation tables.
  * One is Heller's table originally derived for use with marching cubes.
@@ -74,10 +74,10 @@ void GnuPlot::VPlotPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot, double l
 					set_color(pTerm, Cb2Gray(*voxel));
 				// This code is also used for "splot ... with dots" 
 				if(pPlot->plot_style == DOTS)
-					pTerm->point(pTerm, x, y, -1);
+					pTerm->Pnt_(x, y, -1);
 				// The normal case 
 				else if(pPlot->lp_properties.PtType >= 0)
-					pTerm->point(pTerm, x, y, pPlot->lp_properties.PtType);
+					pTerm->Pnt_(x, y, pPlot->lp_properties.PtType);
 			}
 		}
 	}

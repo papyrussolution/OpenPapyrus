@@ -1,22 +1,12 @@
+// PKGTYPES.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**************************************************************************
- *
- *   Copyright (C) 2000-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ***************************************************************************
- *   file name:  pkgdata.c
- *   encoding:   ANSI X3.4 (1968)
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000may16
- *   created by: Steven \u24C7 Loomis
- *
- *  common types for pkgdata
- */
-
+// Copyright (C) 2000-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   ANSI X3.4 (1968)
+// created on: 2000may16
+// created by: Steven \u24C7 Loomis
+// common types for pkgdata
+// 
 #ifndef _PKGTYPES
 #define _PKGTYPES
 
@@ -28,7 +18,7 @@
 struct _CharList;
 
 typedef struct _CharList {
-	const char       * str;
+	const char * str;
 	struct _CharList * next;
 } CharList;
 
@@ -37,17 +27,14 @@ typedef struct _CharList {
  *quotes
  */
 const char * pkg_writeCharList(FileStream * s, CharList * l, const char * delim, int32_t quoted);
-
 /*
  * Same, but use line breaks. quoted: -1 remove, 0 as is, 1 add quotes
  */
 const char * pkg_writeCharListWrap(FileStream * s, CharList * l, const char * delim, const char * brk, int32_t quoted);
-
 /*
  * Count items . 0 if null
  */
 uint32_t pkg_countCharList(CharList * l);
-
 /*
  * Prepend string to CharList. Str is adopted!
  */
@@ -102,10 +89,10 @@ void pkg_sttc_writeReadme(struct UPKGOptions_ * opt, const char * libName, UErro
  */
 
 typedef struct UPKGOptions_ {
-	CharList   * fileListFiles;/* list of files containing files for inclusion in the package */
-	CharList   * filePaths;/* All the files, with long paths */
+	CharList   * fileListFiles; /* list of files containing files for inclusion in the package */
+	CharList   * filePaths; /* All the files, with long paths */
 	CharList   * files;  /* All the files */
-	CharList   * outFiles;/* output files [full paths] */
+	CharList   * outFiles; /* output files [full paths] */
 
 	const char * shortName; /* name of what we're building */
 	const char * cShortName; /* name of what we're building as a C identifier */
@@ -133,25 +120,23 @@ char * convertToNativePathSeparators(char * path);
 /* set up common defines for library naming */
 
 #if U_PLATFORM_HAS_WIN32_API
-# ifndef UDATA_SO_SUFFIX
-#  define UDATA_SO_SUFFIX ".dll"
-# endif
-#define LIB_PREFIX ""
-#define LIB_STATIC_PREFIX ""
-#define OBJ_SUFFIX ".obj"
-#define UDATA_LIB_SUFFIX ".lib"
-
+	#ifndef UDATA_SO_SUFFIX
+		#define UDATA_SO_SUFFIX ".dll"
+	#endif
+	#define LIB_PREFIX ""
+	#define LIB_STATIC_PREFIX ""
+	#define OBJ_SUFFIX ".obj"
+	#define UDATA_LIB_SUFFIX ".lib"
 #elif U_PLATFORM == U_PF_CYGWIN
-#define LIB_PREFIX "cyg"
-#define LIB_STATIC_PREFIX "lib"
-#define OBJ_SUFFIX ".o"
-#define UDATA_LIB_SUFFIX ".a"
-
+	#define LIB_PREFIX "cyg"
+	#define LIB_STATIC_PREFIX "lib"
+	#define OBJ_SUFFIX ".o"
+	#define UDATA_LIB_SUFFIX ".a"
 #else  /* POSIX? */
-#define LIB_PREFIX "lib"
-#define LIB_STATIC_PREFIX "lib"
-#define OBJ_SUFFIX ".o"
-#define UDATA_LIB_SUFFIX ".a"
+	#define LIB_PREFIX "lib"
+	#define LIB_STATIC_PREFIX "lib"
+	#define OBJ_SUFFIX ".o"
+	#define UDATA_LIB_SUFFIX ".a"
 #endif
 
 #define ASM_SUFFIX ".s"
@@ -160,9 +145,7 @@ char * convertToNativePathSeparators(char * path);
 #define UDATA_CMN_PREFIX ""
 #define UDATA_CMN_SUFFIX ".dat"
 #define UDATA_CMN_INTERMEDIATE_SUFFIX "_dat"
-
 #define ICUDATA_RES_FILE "icudata.res"
-
 #define PKGDATA_DERIVED_PATH '\t'
 
 #endif

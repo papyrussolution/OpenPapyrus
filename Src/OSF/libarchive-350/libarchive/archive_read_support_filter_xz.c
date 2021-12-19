@@ -65,8 +65,8 @@ struct private_data {
 
 /* Combined lzip/lzma/xz filter */
 static ssize_t  xz_filter_read(struct archive_read_filter *, const void **);
-static int      xz_filter_close(struct archive_read_filter *);
-static int      xz_lzma_bidder_init(struct archive_read_filter *);
+static int xz_filter_close(struct archive_read_filter *);
+static int xz_lzma_bidder_init(struct archive_read_filter *);
 
 #endif
 
@@ -76,16 +76,16 @@ static int      xz_lzma_bidder_init(struct archive_read_filter *);
  * can give better error messages.)  So the bid framework here gets
  * compiled even if no lzma library is available.
  */
-static int      xz_bidder_bid(struct archive_read_filter_bidder *,
+static int xz_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      xz_bidder_init(struct archive_read_filter *);
-static int      lzma_bidder_bid(struct archive_read_filter_bidder *,
+static int xz_bidder_init(struct archive_read_filter *);
+static int lzma_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      lzma_bidder_init(struct archive_read_filter *);
-static int      lzip_has_member(struct archive_read_filter *);
-static int      lzip_bidder_bid(struct archive_read_filter_bidder *,
+static int lzma_bidder_init(struct archive_read_filter *);
+static int lzip_has_member(struct archive_read_filter *);
+static int lzip_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      lzip_bidder_init(struct archive_read_filter *);
+static int lzip_bidder_init(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
@@ -194,7 +194,7 @@ static int xz_bidder_bid(struct archive_read_filter_bidder * self, struct archiv
 {
 	const uchar * buffer;
 	ssize_t avail;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 6, &avail));
 	if(buffer == NULL)
 		return 0;
@@ -225,7 +225,7 @@ static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	uint32 dicsize;
 	uint64 uncompressed_size;
 	int bits_checked;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 14, &avail));
 	if(buffer == NULL)
 		return 0;
@@ -352,7 +352,7 @@ static int lzip_has_member(struct archive_read_filter * filter)
 static int lzip_bidder_bid(struct archive_read_filter_bidder * self,
     struct archive_read_filter * filter)
 {
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	return (lzip_has_member(filter));
 }
 

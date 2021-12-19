@@ -56,20 +56,20 @@ enum {
 	URX_RESERVED_OP   = 0, // For multi-operand ops, most non-first words.
 	URX_RESERVED_OP_N = 255, // For multi-operand ops, negative operand values.
 	URX_BACKTRACK     = 1, // Force a backtrack, as if a match test had failed.
-	URX_END           = 2,
+	URX_END   = 2,
 	URX_ONECHAR       = 3,// Value field is the 21 bit unicode char to match
 	URX_STRING        = 4, // Value field is index of string start
 	URX_STRING_LEN    = 5, // Value field is string length (code units)
 	URX_STATE_SAVE    = 6, // Value field is pattern position to push
-	URX_NOP           = 7,
+	URX_NOP   = 7,
 	URX_START_CAPTURE = 8, // Value field is capture group number.
 	URX_END_CAPTURE   = 9, // Value field is capture group number
 	URX_STATIC_SETREF = 10, // Value field is index of set in array of sets.
 	URX_SETREF        = 11,// Value field is index of set in array of sets.
 	URX_DOTANY        = 12,
-	URX_JMP           = 13,// Value field is destination position in
+	URX_JMP   = 13,// Value field is destination position in
 	//   the pattern.
-	URX_FAIL          = 14,// Stop match operation,  No match.
+	URX_FAIL  = 14,// Stop match operation,  No match.
 
 	URX_JMP_SAV       = 15,// Operand:  JMP destination location
 	URX_BACKSLASH_B   = 16,// Value field:  0:  \b    1:  \B
@@ -82,7 +82,7 @@ enum {
 
 	URX_DOTANY_ALL    = 21,// ., in the . matches any mode.
 	URX_BACKSLASH_D   = 22,// Value field:  0:  \d    1:  \D
-	URX_CARET         = 23,// Value field:  1:  multi-line mode.
+	URX_CARET = 23,// Value field:  1:  multi-line mode.
 	URX_DOLLAR        = 24,// Also for \Z
 
 	URX_CTR_INIT      = 25,// Counter Inits for {Interval} loops.
@@ -109,13 +109,13 @@ enum {
 
 	URX_STO_SP        = 32,// Store the stack ptr.  Operand is location within
 	                       //   matcher data (not stack data) to store it.
-	URX_LD_SP         = 33,// Load the stack pointer.  Operand is location
+	URX_LD_SP = 33,// Load the stack pointer.  Operand is location
 	                       //   to load from.
 	URX_BACKREF       = 34,// Back Reference.  Parameter is the index of the
 	                       //   capture group variables in the state stack frame.
 	URX_STO_INP_LOC   = 35,// Store the input location.  Operand is location
 	                       //   within the matcher stack frame.
-	URX_JMPX          = 36,// Conditional JMP.
+	URX_JMPX  = 36,// Conditional JMP.
 	                      //   First Operand:  JMP target location.
 	                      //   Second Operand:  Data location containing an
 	                      //     input position.  If current input position ==
@@ -376,7 +376,7 @@ private:
 };
 
 // Case folded UChar * string iterator.
-//  Wraps a UChar  *, provides a case-folded enumeration over its contents.
+//  Wraps a UChar *, provides a case-folded enumeration over its contents.
 //  Used in implementing case insensitive matching constructs.
 //  Implementation in rematch.cpp
 

@@ -1222,14 +1222,14 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 						p_bizsc_rec->LocalDbUuid     = xml_guid;
 						p_bizsc_rec->LocalUserID     = xml_rec.UserID;
 						p_bizsc_rec->ActualDate      = xml_rec.ActualDate;
-						p_bizsc_rec->Dtm.d           = xml_rec.Dt;
+						p_bizsc_rec->Dtm.d   = xml_rec.Dt;
 						strtotime(xml_rec.Tm, 0, &p_bizsc_rec->Dtm.t);
 						p_bizsc_rec->LocalScoreID    = xml_rec.ScoreID;
 						p_bizsc_rec->LocalScoreName  = xml_rec.ScoreName;
 						p_bizsc_rec->LocalScoreDescr = xml_rec.ScoreDescr;
-						p_bizsc_rec->Flags           = xml_rec.Flags;
-						p_bizsc_rec->Val             = xml_rec.Val;
-						p_bizsc_rec->StrVal          = xml_rec.Str;
+						p_bizsc_rec->Flags   = xml_rec.Flags;
+						p_bizsc_rec->Val     = xml_rec.Val;
+						p_bizsc_rec->StrVal  = xml_rec.Str;
 						THROW_SL(bizsc_list.insert(p_bizsc_rec));
 					}
 				}
@@ -2259,8 +2259,8 @@ int PPALDD_BizScoreValView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(BizScoreVal);
 	I.ActualDate = item.ActualDate;
-	I.Dt         = item.Dt;
-	I.Tm         = item.Tm;
+	I.Dt = item.Dt;
+	I.Tm = item.Tm;
 	{
 		S_GUID dbuuid;
 		DbProvider * p_dict = CurDict;

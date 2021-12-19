@@ -1,4 +1,4 @@
-/*  NOTICE: Change of Copyright Status
+/* NOTICE: Change of Copyright Status
  *
  *  The author of this module, Carsten Grammes, has expressed in
  *  personal email that he has no more interest in this code, and

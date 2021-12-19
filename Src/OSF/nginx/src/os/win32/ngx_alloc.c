@@ -22,7 +22,7 @@ void * ngx_alloc(size_t size, ngx_log_t * log)
 
 void * ngx_calloc(size_t size, ngx_log_t * log)
 {
-	void  * p = ngx_alloc(size, log);
+	void * p = ngx_alloc(size, log);
 	if(p) {
 		memzero(p, size);
 	}

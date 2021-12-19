@@ -1450,10 +1450,10 @@ static int TIFFWriteDirectoryTagShortLong(TIFF* tif, uint32* ndir, TIFFDirEntry*
 }
 
 /************************************************************************/
-/*                TIFFWriteDirectoryTagLongLong8Array()                 */
-/*                                                                      */
-/*      Write out LONG8 array as LONG8 for BigTIFF or LONG for          */
-/*      Classic TIFF with some checking.                                */
+/* TIFFWriteDirectoryTagLongLong8Array()                 */
+/*                                                      */
+/* Write out LONG8 array as LONG8 for BigTIFF or LONG for          */
+/* Classic TIFF with some checking.                                */
 /************************************************************************/
 
 static int TIFFWriteDirectoryTagLongLong8Array(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint64* value)
@@ -1495,9 +1495,9 @@ static int TIFFWriteDirectoryTagLongLong8Array(TIFF* tif, uint32* ndir, TIFFDirE
 }
 
 /************************************************************************/
-/*                 TIFFWriteDirectoryTagIfdIfd8Array()                  */
-/*                                                                      */
-/*      Write either IFD8 or IFD array depending on file type.          */
+/* TIFFWriteDirectoryTagIfdIfd8Array()                  */
+/*                                                      */
+/* Write either IFD8 or IFD array depending on file type.          */
 /************************************************************************/
 
 static int TIFFWriteDirectoryTagIfdIfd8Array(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint64* value)
@@ -2294,16 +2294,16 @@ static int TIFFLinkDirectory(TIFF * tif)
 }
 
 /************************************************************************/
-/*                          TIFFRewriteField()                          */
-/*                                                                      */
-/*      Rewrite a field in the directory on disk without regard to      */
-/*      updating the TIFF directory structure in memory.  Currently     */
-/*      only supported for field that already exist in the on-disk      */
-/*      directory.  Mainly used for updating stripoffset /              */
-/*      stripbytecount values after the directory is already on         */
-/*      disk.                                                           */
-/*                                                                      */
-/*      Returns zero on failure, and one on success.                    */
+/*          TIFFRewriteField()                          */
+/*                                                      */
+/* Rewrite a field in the directory on disk without regard to      */
+/* updating the TIFF directory structure in memory.  Currently     */
+/* only supported for field that already exist in the on-disk      */
+/* directory.  Mainly used for updating stripoffset /              */
+/* stripbytecount values after the directory is already on         */
+/* disk.                                                           */
+/*                                                      */
+/* Returns zero on failure, and one on success.                    */
 /************************************************************************/
 
 int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t count, void * data)
@@ -2323,12 +2323,12 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	TIFFDataType datatype;
 
 /* -------------------------------------------------------------------- */
-/*      Find field definition.                                          */
+/* Find field definition.                                          */
 /* -------------------------------------------------------------------- */
 	/*fip =*/ TIFFFindField(tif, tag, TIFF_ANY);
 
 /* -------------------------------------------------------------------- */
-/*      Do some checking this is a straight forward case.               */
+/* Do some checking this is a straight forward case.               */
 /* -------------------------------------------------------------------- */
 	if(isMapped(tif) ) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Memory mapped files not currently supported for this operation.");
@@ -2340,7 +2340,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	}
 
 /* -------------------------------------------------------------------- */
-/*      Read the directory entry count.                                 */
+/* Read the directory entry count.                                 */
 /* -------------------------------------------------------------------- */
 	if(!SeekOK(tif, tif->tif_diroff)) {
 		TIFFErrorExt(tif->tif_clientdata, module, "%s: Seek error accessing TIFF directory", tif->tif_name);
@@ -2371,7 +2371,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	}
 
 /* -------------------------------------------------------------------- */
-/*      Read through directory to find target tag.                      */
+/* Read through directory to find target tag.                      */
 /* -------------------------------------------------------------------- */
 	while(dircount > 0) {
 		if(!ReadOK(tif, direntry_raw, dirsize)) {
@@ -2390,7 +2390,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 		return 0;
 	}
 /* -------------------------------------------------------------------- */
-/*      Extract the type, count and offset for this entry.              */
+/* Extract the type, count and offset for this entry.              */
 /* -------------------------------------------------------------------- */
 	memcpy(&entry_type, direntry_raw + 2, sizeof(uint16));
 	if(tif->tif_flags&TIFF_SWAB)
@@ -2415,7 +2415,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 			TIFFSwabLong8(&entry_offset);
 	}
 /* -------------------------------------------------------------------- */
-/*      What data type do we want to write this as?                     */
+/* What data type do we want to write this as?                     */
 /* -------------------------------------------------------------------- */
 	if(TIFFDataWidth(in_datatype) == 8 && !(tif->tif_flags&TIFF_BIGTIFF) ) {
 		if(in_datatype == TIFF_LONG8)
@@ -2430,8 +2430,8 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	else
 		datatype = in_datatype;
 /* -------------------------------------------------------------------- */
-/*      Prepare buffer of actual data to write.  This includes          */
-/*      swabbing as needed.                                             */
+/* Prepare buffer of actual data to write.  This includes          */
+/* swabbing as needed.                                             */
 /* -------------------------------------------------------------------- */
 	buf_to_write = static_cast<uint8 *>(_TIFFCheckMalloc(tif, count, TIFFDataWidth(datatype), "for field buffer."));
 	if(!buf_to_write)
@@ -2469,7 +2469,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	}
 
 /* -------------------------------------------------------------------- */
-/*      Is this a value that fits into the directory entry?             */
+/* Is this a value that fits into the directory entry?             */
 /* -------------------------------------------------------------------- */
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		if(TIFFDataWidth(datatype) * count <= 4) {
@@ -2484,9 +2484,9 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 		}
 	}
 /* -------------------------------------------------------------------- */
-/*      If the tag type, and count match, then we just write it out     */
-/*      over the old values without altering the directory entry at     */
-/*      all.                                                            */
+/* If the tag type, and count match, then we just write it out     */
+/* over the old values without altering the directory entry at     */
+/* all.                                                            */
 /* -------------------------------------------------------------------- */
 	if(entry_count == (uint64)count && entry_type == (uint16)datatype) {
 		if(!SeekOK(tif, entry_offset)) {
@@ -2504,7 +2504,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	}
 
 /* -------------------------------------------------------------------- */
-/*      Otherwise, we write the new tag data at the end of the file.    */
+/* Otherwise, we write the new tag data at the end of the file.    */
 /* -------------------------------------------------------------------- */
 	if(!value_in_entry) {
 		entry_offset = TIFFSeekFile(tif, 0, SEEK_END);
@@ -2521,7 +2521,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 	buf_to_write = 0;
 
 /* -------------------------------------------------------------------- */
-/*      Adjust the directory entry.                                     */
+/* Adjust the directory entry.                                     */
 /* -------------------------------------------------------------------- */
 	entry_type = datatype;
 	memcpy(direntry_raw + 2, &entry_type, sizeof(uint16));
@@ -2546,7 +2546,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 			TIFFSwabLong8( (uint64 *)(direntry_raw + 12));
 	}
 /* -------------------------------------------------------------------- */
-/*      Write the directory entry out to disk.                          */
+/* Write the directory entry out to disk.                          */
 /* -------------------------------------------------------------------- */
 	if(!SeekOK(tif, read_offset)) {
 		TIFFErrorExt(tif->tif_clientdata, module, "%s: Seek error accessing TIFF directory", tif->tif_name);

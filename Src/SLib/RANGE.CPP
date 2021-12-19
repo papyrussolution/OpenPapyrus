@@ -116,7 +116,7 @@ int IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
 
 int IntRange::Clamp(int v) const
 {
-	return sclamp(v, low, upp);
+	return sclamp(static_cast<int32>(v), low, upp);
 }
 
 SString & IntRange::Format(long fmt, SString & rBuf) const
@@ -177,12 +177,12 @@ bool   RealRange::IsNegative() const { return (low < 0.0 && upp < 0.0); }
 bool   RealRange::IsNormalized() const { return (low <= upp); }
 bool   RealRange::IsStrictlyNormalized() const { return (low < upp); }
 RealRange & FASTCALL RealRange::operator = (const IntRange & rS) { return Set((double)rS.low, (double)rS.upp); }
-int FASTCALL RealRange::IsEq(const RealRange & rS) const { return BIN(low == rS.low && upp == rS.upp); }
-int FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
-int FASTCALL RealRange::GreaterThan(double v) const { return (low > v && upp > v); }
-int  FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEq(rS); }
-bool RealRange::IsZero() const { return (low == 0.0 && upp == 0.0); }
-bool RealRange::CheckVal(double v) const { return (low == 0.0 || v >= low) && (upp == 0.0 || v <= upp); }
+bool   FASTCALL RealRange::IsEq(const RealRange & rS) const { return (low == rS.low && upp == rS.upp); }
+bool   FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }
+bool   FASTCALL RealRange::GreaterThan(double v) const { return (low > v && upp > v); }
+bool   FASTCALL RealRange::operator != (const RealRange & rS) const { return !IsEq(rS); }
+bool   RealRange::IsZero() const { return (low == 0.0 && upp == 0.0); }
+bool   RealRange::CheckVal(double v) const { return (low == 0.0 || v >= low) && (upp == 0.0 || v <= upp); }
 
 bool RealRange::CheckValEps(double val, double eps) const
 {

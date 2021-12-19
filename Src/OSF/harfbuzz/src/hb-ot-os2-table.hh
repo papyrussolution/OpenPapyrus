@@ -126,16 +126,16 @@ public:
 		}
 
 		enum selection_flag_t {
-			ITALIC              = 1u<<0,
-			UNDERSCORE          = 1u<<1,
-			NEGATIVE            = 1u<<2,
-			OUTLINED            = 1u<<3,
-			STRIKEOUT           = 1u<<4,
-			BOLD                = 1u<<5,
-			REGULAR             = 1u<<6,
+			ITALIC      = 1u<<0,
+			UNDERSCORE  = 1u<<1,
+			NEGATIVE    = 1u<<2,
+			OUTLINED    = 1u<<3,
+			STRIKEOUT   = 1u<<4,
+			BOLD        = 1u<<5,
+			REGULAR     = 1u<<6,
 			USE_TYPO_METRICS    = 1u<<7,
-			WWS                 = 1u<<8,
-			OBLIQUE             = 1u<<9
+			WWS         = 1u<<8,
+			OBLIQUE     = 1u<<9
 		};
 
 		bool        is_italic() const {
@@ -153,11 +153,11 @@ public:
 		enum width_class_t {
 			FWIDTH_ULTRA_CONDENSED      = 1,/* 50% */
 			FWIDTH_EXTRA_CONDENSED      = 2,/* 62.5% */
-			FWIDTH_CONDENSED            = 3,/* 75% */
+			FWIDTH_CONDENSED    = 3,/* 75% */
 			FWIDTH_SEMI_CONDENSED       = 4,/* 87.5% */
-			FWIDTH_NORMAL               = 5,/* 100% */
+			FWIDTH_NORMAL       = 5,/* 100% */
 			FWIDTH_SEMI_EXPANDED        = 6,/* 112.5% */
-			FWIDTH_EXPANDED             = 7,/* 125% */
+			FWIDTH_EXPANDED     = 7,/* 125% */
 			FWIDTH_EXTRA_EXPANDED       = 8,/* 150% */
 			FWIDTH_ULTRA_EXPANDED       = 9/* 200% */
 		};
@@ -245,13 +245,13 @@ public:
 
 		/* https://github.com/Microsoft/Font-Validator/blob/520aaae/OTFontFileVal/val_OS2.cs#L644-L681 */
 		enum font_page_t {
-			FONT_PAGE_HEBREW            = 0xB100,/* Hebrew Windows 3.1 font page */
+			FONT_PAGE_HEBREW    = 0xB100,/* Hebrew Windows 3.1 font page */
 			FONT_PAGE_SIMP_ARABIC       = 0xB200,/* Simplified Arabic Windows 3.1 font page */
 			FONT_PAGE_TRAD_ARABIC       = 0xB300,/* Traditional Arabic Windows 3.1 font page */
 			FONT_PAGE_OEM_ARABIC        = 0xB400,/* OEM Arabic Windows 3.1 font page */
 			FONT_PAGE_SIMP_FARSI        = 0xBA00,/* Simplified Farsi Windows 3.1 font page */
 			FONT_PAGE_TRAD_FARSI        = 0xBB00,/* Traditional Farsi Windows 3.1 font page */
-			FONT_PAGE_THAI              = 0xDE00/* Thai Windows 3.1 font page */
+			FONT_PAGE_THAI      = 0xDE00/* Thai Windows 3.1 font page */
 		};
 
 		font_page_t get_font_page() const

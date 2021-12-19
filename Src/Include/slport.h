@@ -714,6 +714,8 @@
 	#endif
 	#if CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM
 		#define CXX_UNUSED_PARAM __attribute__((__unused__))
+	#elif defined(_MSC_VER) // https://github.com/harfbuzz/harfbuzz/issues/635 
+		#define CXX_UNUSED_PARAM __pragma(warning(suppress: 4100 4101))
 	#else
 		#define CXX_UNUSED_PARAM 
 	#endif

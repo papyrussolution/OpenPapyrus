@@ -601,7 +601,7 @@ void SlSession::ReleaseThread()
 // (inlined) SlThreadLocalArea & SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 // (inlined) const SlThreadLocalArea & SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 
-int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
+bool FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 {
 	const int sock_err = (errCode == SLERR_SOCK_WINSOCK) ? WSAGetLastError() : 0;
 	SlThreadLocalArea & r_tla = GetTLA();
@@ -615,10 +615,10 @@ int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 		r_tla.AddedMsgString = pAddedMsg;
 		r_tla.LastSockErr = sock_err;
 	}
-	return 0;
+	return false;
 }
 
-int FASTCALL SlSession::SetError(int errCode)
+bool FASTCALL SlSession::SetError(int errCode)
 {
 	const int sock_err = (errCode == SLERR_SOCK_WINSOCK) ? WSAGetLastError() : 0;
 	SlThreadLocalArea & r_tla = GetTLA();
@@ -630,10 +630,10 @@ int FASTCALL SlSession::SetError(int errCode)
 		r_tla.AddedMsgString = 0;
 		r_tla.LastSockErr = sock_err;
 	}
-	return 0;
+	return false;
 }
 
-int FASTCALL SlSession::SetOsError(const char * pAddedMsg)
+bool FASTCALL SlSession::SetOsError(const char * pAddedMsg)
 {
 	const int last_err = ::GetLastError();
 	SlThreadLocalArea & r_tla = GetTLA();
@@ -645,7 +645,7 @@ int FASTCALL SlSession::SetOsError(const char * pAddedMsg)
 		r_tla.LastOsErr = last_err;
 		r_tla.AddedMsgString = pAddedMsg;
 	}
-	return 0;
+	return false;
 }
 
 int    SlSession::GetOsError() const { return GetConstTLA().LastOsErr; }

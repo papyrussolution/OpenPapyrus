@@ -23,9 +23,9 @@
 
 /* global variables used by the C and C++ message formatting API. */
 
-extern const UChar  *g_umsgTypeList[];
-extern const UChar  *g_umsgModifierList[];
-extern const UChar  *g_umsgDateModifierList[];
+extern const UChar *g_umsgTypeList[];
+extern const UChar *g_umsgModifierList[];
+extern const UChar *g_umsgDateModifierList[];
 extern const int32_t g_umsgListLength;
 
 extern const UChar g_umsg_number[];

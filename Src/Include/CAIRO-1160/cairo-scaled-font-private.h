@@ -80,7 +80,7 @@ struct _cairo_scaled_font {
 	cairo_matrix_t font_matrix; /* font space => user space */
 	cairo_matrix_t ctm; /* user space => device space */
 	cairo_font_options_t options;
-	uint placeholder : 1; /*  protected by fontmap mutex */
+	uint placeholder : 1; /* protected by fontmap mutex */
 	uint holdover : 1;
 	uint finished : 1;
 	/* "live" scaled_font members */

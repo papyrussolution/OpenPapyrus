@@ -2339,10 +2339,6 @@ private:
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
 #define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
 #define THROW_S_S(expr,val,s) {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_P() {if(!_AX){goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_VP(val) {if(!_AX){*__sexcept=val;goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_L() {if(!_AX&&!_DX){goto __scatch;}}
-// @v9.7.5 (useless and dangerous) #define THROW_VL(val) {if(!_AX&&!_DX){*__sexcept=val;goto __scatch;}}
 #define CATCH                  goto __sendcatch;__scatch:
 #define ENDCATCH               __sendcatch:;
 #define CATCHZOK               \
@@ -2988,9 +2984,9 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define NMBF_DELAPOSTR NMBF_TRIAPOSTR  // @obsolete (still used in resource)
 #define NMBF_DELSPACE  NMBF_TRISPACE   // @obsolete (still used in resource)
 #define NMBF_NOTRAILZ  0x0080  // Обрезать незначащие нули после десятичной точки
-#define NMBF_DECCOMMA  0x0100  // @v9.4.3 Десятичный разделитель - запятая ',', иначе - точка '.'
-#define NMBF_EXPLFLOAT 0x0200  // @v9.7.8 Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
-#define NMBF_OMITEPS   0x0400  // @v9.8.0 Если за очередной десятичной цифрой следует OMITEPSDITITS или больше '9' либо '0' то
+#define NMBF_DECCOMMA  0x0100  // Десятичный разделитель - запятая ',', иначе - точка '.'
+#define NMBF_EXPLFLOAT 0x0200  // Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
+#define NMBF_OMITEPS   0x0400  // Если за очередной десятичной цифрой следует OMITEPSDITITS или больше '9' либо '0' то
 	// число форматируется с округлением до ближайшей соседней десятичной цифры с заменой последующих на нули.
 	// Например:
 	// 369,9000000000001  --> 369,9000000000000
@@ -3200,9 +3196,9 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	// Descr: Возвращает true если low < upp
 	//
 	bool   IsStrictlyNormalized() const;
-	int    FASTCALL IsEq(const RealRange & rS) const;
-	int    FASTCALL LessThan(double v) const;
-	int    FASTCALL GreaterThan(double v) const;
+	bool   FASTCALL IsEq(const RealRange & rS) const;
+	bool   FASTCALL LessThan(double v) const;
+	bool   FASTCALL GreaterThan(double v) const;
 	double GetDistance() const;
 	//
 	// Descr: Возвращает наименьшее значение из (low, upp)
@@ -3214,7 +3210,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	double GetActualUpp() const;
 	RealRange & Z();
 	RealRange & FASTCALL operator = (const IntRange & rS);
-	int    FASTCALL operator != (const RealRange & rS) const;
+	bool   FASTCALL operator != (const RealRange & rS) const;
 	//
 	// Descr: Проверяет значение v на принадлежность закрытому диапазону [low..upp]
 	//
@@ -3378,7 +3374,11 @@ struct TimeRange { // @persistent
 // Descr: Проверяет число nmb на принадлежность диапазону [low, upp].
 //   Принадлежность включительная (т.е. если число равно одной из границ, то условие выполняется).
 //
-int    FASTCALL checkirange(long nmb, long low, long upp);
+bool   STDCALL checkirange(long nmb, long low, long upp);
+//
+// Descr: То же, что и checkirange но не инициирует ошибку SLIB (для тех случаев, когда производительность важна)
+//
+inline bool checkirangef(long nmb, long low, long upp) { return (nmb >= low && nmb <= upp); }
 int    FASTCALL inrangeordefault(int val, int low, int upp, int def);
 long   FASTCALL inrangeordefault(long val, long low, long upp, long def);
 uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def);
@@ -3400,8 +3400,8 @@ int    FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp);
 struct USize { // @noctr @novtbl
 	USize & Set(double s, int unit = 0, int dir = DIREC_UNKN);
 	void   SetInvalid();
-	int    IsValid() const;
-	int    operator !() const { return !IsValid(); }
+	bool   IsValid() const;
+	bool   operator !() const { return !IsValid(); }
 	operator double() const { return S; }
 	enum {
 		fmtDefault = 0,
@@ -3879,7 +3879,7 @@ public:
 		torfDoubleComma = 0x0002, // Допускается разделитель ,,
 		torfColon       = 0x0004, // Допускается разделитель :
 		torfHyphen      = 0x0008, // Допускается разделитель -
-		torfAny         = (torfDoubleDot|torfDoubleComma|torfColon|torfHyphen)
+		torfAny = (torfDoubleDot|torfDoubleComma|torfColon|torfHyphen)
 	};
 	//
 	// Descr: Преобразует строку this к целочисленному диапазону.
@@ -4481,10 +4481,10 @@ struct SPathStruc {
 	// Descr: Флаги функции SPathStruc::NormalizePath
 	//
 	enum {
-		npfUpper            = 0x0001, // Все символы приводятся к верхнему регистру (иначе - к нижнему)
-		npfSlash            = 0x0002, // Все обратные слэши заменяются на прямые (иначе - все обратные)
-		npfOEM              = 0x0004, // Входящая строка pPath - в OEM-кодировке
-		npfKeepCase         = 0x0008, // Не меняет регистр символов
+		npfUpper    = 0x0001, // Все символы приводятся к верхнему регистру (иначе - к нижнему)
+		npfSlash    = 0x0002, // Все обратные слэши заменяются на прямые (иначе - все обратные)
+		npfOEM      = 0x0004, // Входящая строка pPath - в OEM-кодировке
+		npfKeepCase = 0x0008, // Не меняет регистр символов
 		npfCompensateDotDot = 0x0010  // @v11.2.4 Компенсировать ".." в середине пути если это возможно
 			// Например: d:/abc/123/.. может быть заменено на d:/abc
 	};
@@ -5739,13 +5739,13 @@ public:
 	explicit STempBuffer(size_t sz);
 	~STempBuffer();
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
-	int    IsValid() const;
+	bool   IsValid() const;
 	size_t GetSize() const;
 	operator char * ();
 	operator const char * () const;
 	const  uchar * ucptr() const;
 	const  char  * cptr() const;
-	const  void  * vcptr() const;
+	const  void * vcptr() const;
 	void * vptr();
 	void * vptr(size_t offs);
 	int    FASTCALL Alloc(size_t sz);
@@ -5767,7 +5767,7 @@ public:
 	SBinaryChunk(const SBinaryChunk & rS);
 	~SBinaryChunk();
 	SBinaryChunk & FASTCALL operator = (const SBinaryChunk & rS);
-	int    FASTCALL IsEq(const SBinaryChunk & rS) const;
+	bool   FASTCALL IsEq(const SBinaryChunk & rS) const;
 	//
 	// Descr: Сравнивает на равенство экземпляр this с участком памяти pData длиной len.
 	//   Для выполнения равенства len должна быть равна this->Len() и данные pData должны
@@ -5775,10 +5775,10 @@ public:
 	//   Если len == 0 и this->Len() == 0, то равенство выполняется независимо от значений
 	//   pData, this->P_Buf и данных по этим указателям.
 	//
-	int    FASTCALL IsEq(const void * pData, size_t len) const;
+	bool   FASTCALL IsEq(const void * pData, size_t len) const;
 	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
-	int   operator !() const { return Len() == 0; }
+	bool   operator !() const { return Len() == 0; }
 	size_t Len() const;
 	const void * PtrC() const;
 	const void * PtrC(size_t offs) const;
@@ -5792,6 +5792,17 @@ public:
 	//   *this
 	//
 	SBinaryChunk & Randomize(size_t len);
+	//
+	// Descr: Преобразует все байты отрезка в строку в "сыром" виде. То есть, каждый байт
+	//   передается в строку как есть. Предполагается, что вызывающая функция знает что делает
+	//   и в отрезке действительно хранятся вразумительные символы.
+	// Returns:
+	//   true - передача осущетсвлена успешно
+	//   false - ошибка. Пока нет причин для такого возврата. В дальнейшем планируется добавить
+	//     дополнительный аргумент в функцию с целью ограничить потециальный вред от необоснованного
+	//     вызова - то есть, проверку внутреннего содержимого отрезка.
+	//
+	bool   ToRawStr(SString & rBuf) const;
 	//
 	// Descr: Кодирует содержимое буфера в формате mime64 и результат вносит в строку rBuf.
 	//
@@ -5879,7 +5890,7 @@ public:
 	// Desct: Возвращает 0 если в объекте произошла ошибка.
 	// Note: non-const поскольку устанавливает флаг fError в случае обнаружения ошибки
 	//
-	int    IsValid();
+	bool   IsValid();
 	//
 	// Descr: Сравнивает буфер this c буфером rS.
 	//   Сравнение осуществляется бинарным сопоставлением между участками памяти this->P_Buf[0..this->WrOffs-1]
@@ -6039,8 +6050,8 @@ public:
 	// Descr: Функция выясняет эквивалентен ли экземпляр rS экземпляру this.
 	//   Сравнение осуществляется по каждому отрезку, находящемуся в this.
 	//
-	int    FASTCALL IsEq(const SBinarySet & rS) const;
-	int    IsValid() const;
+	bool   FASTCALL IsEq(const SBinarySet & rS) const;
+	bool   IsValid() const;
 	int    Ensure(size_t size);
 	//
 	// Descr: Реализует сериализацию объекта в буфер rBuf.
@@ -6120,9 +6131,9 @@ private:
 	//
 	// Descr: Функция одновременно проверяет валидность экземпляра и получает список идентификаторов,
 	//   которые в нем хранятся.
-	//   Используется и для обеих целей.
+	//   Используется для обеих целей.
 	//
-	int    FASTCALL Helper_GetChunkIdList(LongArray * pList) const;
+	bool   FASTCALL Helper_GetChunkIdList(LongArray * pList) const;
 	struct H { // Заголовок всего пула
 		uint32 Magic;
 		uint32 Flags;
@@ -6355,33 +6366,33 @@ public:
 		tagSvcCommand        	   =  9,  // Заголовок сервисной команды
 		tagSvcCommandParam   	   = 10,  // Параметры сервисной команды
 		tagSvcCapabities     	   = 11,  // Опции возможностей сервиса
-		tagClientIdent             = 12,  // Идентификатор клиента
-		tagSelfyFace               = 13,  // Собственный лик (json. see StyloQFace)
+		tagClientIdent     = 12,  // Идентификатор клиента
+		tagSelfyFace       = 13,  // Собственный лик (json. see StyloQFace)
 		tagSrpVerifierSalt   	   = 14,  //
 		tagSrpVerifier       	   = 15,  //
 		tagSrpA              	   = 16,  // user-->host tagPublicIdent:tagSrpA
-		tagSrpB                    = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
-		tagSrpM                    = 18,  // user-->host tagSrpM
-		tagSrpHAMK                 = 19,  // host-->user tagSrpHAMK
-		tagPrimaryRN               = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин
-		tagAG                      = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
-		tagFPI                     = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
-		tagRawData                 = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
-		tagReplyStatus             = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
-		tagReplyStatusText         = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
+		tagSrpB            = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
+		tagSrpM            = 18,  // user-->host tagSrpM
+		tagSrpHAMK         = 19,  // host-->user tagSrpHAMK
+		tagPrimaryRN       = 20,  // Первичное очень большое случайное число, используемое для генерации уникальных для данной инсталляции величин
+		tagAG              = 21,  // Дополнительное значение, используемое при генерации публичных идентификаторов
+		tagFPI             = 22,  // Фейковый публичный сервисный идентификатор, для генерации собственного публичного идентификатора
+		tagRawData         = 23,  // "Сырые" данные, прикрепленные к пакету (для передачи по сети)
+		tagReplyStatus     = 24,  // int32   Статус ответа. 0 - OK, !0 - error_code
+		tagReplyStatusText = 25,  // zstring Текстовое описание статуса ответа. Если tagReplyStatus == 0, то текста может не быть либо это какое-либо
 			// приветствие или иной малозначительный текст.
 		tagSessionExpirPeriodSec   = 26,  // uint32  Период истечения срока действия сессии в секундах.
 		tagSessionPublicKeyOther   = 27,  // Публичный ключ сессии обмена данными противоположной стороны (в случае, если необходимо хранить
 			// в одном пуле и свой и чужой публичные ключи, свой идентифицируется как tagSessionPublicKey, чужой - tagSessionPublicKeyOther
-		tagFace                    = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
-		tagConfig                  = 29,  // json Конфигурация
-		tagPrivateConfig           = 30,  // @reserve json Приватная конфигурация //
-		tagRoundTripIdent          = 31,  // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
+		tagFace            = 28,  // Параметры представления контрагента (json. see StyloQFace). Собственный лик хранится по тегу tagSelfyFace
+		tagConfig          = 29,  // json Конфигурация
+		tagPrivateConfig   = 30,  // @reserve json Приватная конфигурация //
+		tagRoundTripIdent  = 31,  // @v11.1.12 Идентификатор сеанса обмена. Генерируется на стороне инициатора обмена (обычно, клиент)
 			// и применяется для сопоставления запросов потокам при асинхронном режиме. Полагаю, в большинстве случаев это будет просто GUID
-		tagDocDeclaration          = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData
-		tagSvcLoclAddendum         = 33,  // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
+		tagDocDeclaration  = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData
+		tagSvcLoclAddendum = 33,  // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
 			// Участвует в формировании символа очереди в случае MQB-обмена.
-		tagAssignedFaceRef         = 34   // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
+		tagAssignedFaceRef = 34   // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
 			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
 	};
 	SSecretTagPool();
@@ -6923,7 +6934,7 @@ enum {
 	// Кольцевой стек увеличивается до размера delta единственный раз, а
 	// затем при достижении лимита, запись осуществляется в начало массива.
 	//
-	aryRing         = 0x20,
+	aryRing = 0x20,
 	aryMorePerform  = 0x40  // @v9.1.1 @construction Поведенческий флаг: функции массива принимают меры для увеличения
 		// производительности за счет большего объема используемой памяти
 };
@@ -7066,9 +7077,9 @@ public:
 	//   просматривается со смещения ofs.
 	//
 	int    imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
-	int    bsearch(const void * key, uint * pIdx, CompFunc, size_t ofs, void * pExtraData) const;
-	int    bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
-	int    lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	bool   bsearch(const void * key, uint * pIdx, CompFunc, size_t ofs, void * pExtraData) const;
+	bool   bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
+	bool   lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	void   sort(CompFunc fcmp, void * pExtraData = 0);
 	void   sort2(CompFunc fcmp, void * pExtraData = 0);
 	double sumDouble(uint offs, uint firstIdx, uint lastIdx) const;
@@ -7087,7 +7098,7 @@ protected:
 	int    FASTCALL CopyS(const SVectorBase & rS);
 	int    FASTCALL expand(uint numNewRecs);
 	int    Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
-	int    isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
+	bool   isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
 
 	uint   count;   // Количество элементов, находящихся в массиве
 	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
@@ -7121,7 +7132,7 @@ public:
 	//   то считает, что объекты не равны. Если эта проверка успешна, то сравнивает
 	//   побайтно все элементы массивов.
 	//
-	int    FASTCALL IsEq(const SVector & src) const;
+	bool   FASTCALL IsEq(const SVector & src) const;
 	//
 	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
 	//   сдвигаются на одну позицию вниз.
@@ -7210,7 +7221,7 @@ public:
 	//   Для массивов с признаками aryPtrContainer и aryEachItem возвращает 0 (считает, что
 	//   невозможно корректно побайтно сравнить такие объекты).
 	//
-	int    FASTCALL IsEq(const SArray & src) const;
+	bool   FASTCALL IsEq(const SArray & src) const;
 	//
 	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
 	//   сдвигаются на одну позицию вниз.
@@ -7591,7 +7602,7 @@ public:
 	int    FASTCALL bsearch(long) const;
 	int    FASTCALL lsearch(long) const;
 	int    isList() const;
-	int    FASTCALL IsEq(const LongArray *) const;
+	bool   FASTCALL IsEq(const LongArray *) const;
 	long   FASTCALL get(uint) const;
 	long   getSingle() const;
 	long   getLast() const;
@@ -7952,8 +7963,8 @@ class UUIDAssocArray : public TSVector <UUIDAssoc> {
 public:
 	UUIDAssocArray();
 	int    Add(long key, const S_GUID & rVal, uint * pPos);
-	int    Search(long key, S_GUID * pVal, uint * pPos) const;
-	int    SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
+	bool   Search(long key, S_GUID * pVal, uint * pPos) const;
+	bool   SearchVal(const S_GUID_Base &, long * pKey, uint * pPos) const;
 	int    GetMaxKey(long * pMaxKey, uint * pPos) const;
 };
 #endif // } _WIN32_WCE
@@ -8048,7 +8059,7 @@ public:
 	//   1 - массивы равны
 	//   0 - массивы не равны
 	//
-	int    FASTCALL IsEq(const StrAssocArray & src) const;
+	bool   FASTCALL IsEq(const StrAssocArray & src) const;
 	uint   getCount() const { return LAssocArray::count; }
 	uint   getPointer() const;
 	uint   setPointer(uint p);
@@ -8254,6 +8265,8 @@ protected:
 //   Соответственно, есть и ограничения: 
 //     -- ключевой элемент строго не нулевой
 //     -- дубликаты по ключу не допускаются
+// Note: Судя по всему, этот класс будет использоваться только для отображения ирерархических структур в списках и т.д. 
+//   По-этому он включает ряд полей для "заточки" под этот вариант использования.
 //
 class StrAssocTree : private SStrGroup {
 private:
@@ -8261,7 +8274,7 @@ private:
 	public:
 		class BaseList : public TSArray <ENTRY> {
 		public:
-			BaseList();
+			BaseList(const ENTRY * pParent);
 			BaseList(const BaseList & rS);
 			BaseList & Z();
 			int    FASTCALL Copy(const BaseList & rS);
@@ -8269,6 +8282,7 @@ private:
 			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
 			int    Implement_Add(int32 key, uint strP);
 			ENTRY * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const;
+			ENTRY * Implement_SearchByText(const char * pText) const;
 			void   Implement_SortByID();
 			void   Implement_SortByText(void * pMaster);
 			//
@@ -8279,17 +8293,21 @@ private:
 			bool   FASTCALL ValidateEntryPtr(const void * pEntry) const;
 		private:
 			virtual void FASTCALL freeItem(void * pItem);
+			const ENTRY * P_Parent;
 		};
 
-		int32  Key;
-		uint32 StrP;
-		BaseList * P_Children;
-
 		ENTRY();
-		ENTRY(int32 key, uint32 strP);
+		ENTRY(const BaseList * pParent, int32 key, uint32 strP, uintptr_t extra);
 		void   Destroy();
 		int    FASTCALL Copy(const ENTRY & rS);
 		uint   GetCount() const;
+		//
+		int32  Key;
+		uint32 StrP;
+		uint32 Flags;
+		BaseList * P_Children;
+		const BaseList * P_ParentList;
+		uintptr_t ExtraPtr;
 	};
 public:
 	StrAssocTree();
@@ -8300,6 +8318,8 @@ public:
 	bool   HasChildren(long id) const;
 	bool   Search(long id, long * pParentId, SString * pBuf) const;
 	SHandle FASTCALL Search(long id) const;
+	SHandle SearchByText(const char * pTxt, int ignoreCase) const;
+	SHandle SearchByText(const char * pTxt, CompFunc fcmp) const;
 	bool   Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const;
 	//
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
@@ -9076,7 +9096,7 @@ public:
 	int    FASTCALL Add(uint32);
 	int    Add(uint count, const uint32 * pSrc);
 	int    FASTCALL IsEq(const SV_Uint32 & rPat) const;
-	int    Search(uint val, uint * pPos) const;
+	bool   Search(uint val, uint * pPos) const;
 	uint   GetCount() const;
 	uint32 FASTCALL Get(uint idx) const;
 	uint32 operator [] (size_t idx) const { return Get(static_cast<uint>(idx)); }
@@ -9310,10 +9330,10 @@ public:
 		cpuarchARM     = 0x04000000,
 	};
 	enum CpuFeature {
-		cpuftr_NONE                = 0,
-		cpuftr_CPU_MASK            = 0x1f000000,
-		cpuftr_X86                 = 0x01000000,
-		cpuftr_ARM                 = 0x04000000,
+		cpuftr_NONE        = 0,
+		cpuftr_CPU_MASK    = 0x1f000000,
+		cpuftr_X86         = 0x01000000,
+		cpuftr_ARM         = 0x04000000,
 		//
 		// x86 CPU features are constructed as:
 		//   (cpuftr_X86 | (eax << 16) | (ret_reg << 8) | (bit_position)
@@ -9323,140 +9343,140 @@ public:
 		//
 		// We should have information for inputs of EAX=0-7 w/ ECX=0.
 		//
-		cpuftr_X86_FPU             = 0x01010300,
-		cpuftr_X86_VME             = 0x01010301,
-		cpuftr_X86_DE              = 0x01010302,
-		cpuftr_X86_PSE             = 0x01010303,
-		cpuftr_X86_TSC             = 0x01010304,
-		cpuftr_X86_MSR             = 0x01010305,
-		cpuftr_X86_PAE             = 0x01010306,
-		cpuftr_X86_MCE             = 0x01010307,
-		cpuftr_X86_CX8             = 0x01010308,
-		cpuftr_X86_APIC            = 0x01010309,
-		cpuftr_X86_SEP             = 0x0101030b,
-		cpuftr_X86_MTRR            = 0x0101030c,
-		cpuftr_X86_PGE             = 0x0101030d,
-		cpuftr_X86_MCA             = 0x0101030e,
-		cpuftr_X86_CMOV            = 0x0101030f,
-		cpuftr_X86_PAT             = 0x01010310,
-		cpuftr_X86_PSE_36          = 0x01010311,
-		cpuftr_X86_PSN             = 0x01010312,
-		cpuftr_X86_CLFSH           = 0x01010313,
-		cpuftr_X86_DS              = 0x01010314,
-		cpuftr_X86_ACPI            = 0x01010316,
-		cpuftr_X86_MMX             = 0x01010317,
-		cpuftr_X86_FXSR            = 0x01010318,
-		cpuftr_X86_SSE             = 0x01010319,
-		cpuftr_X86_SSE2            = 0x0101031a,
-		cpuftr_X86_SS              = 0x0101031b,
-		cpuftr_X86_HTT             = 0x0101031c,
-		cpuftr_X86_TM              = 0x0101031d,
-		cpuftr_X86_IA64            = 0x0101031e,
-		cpuftr_X86_PBE             = 0x0101031f,
+		cpuftr_X86_FPU     = 0x01010300,
+		cpuftr_X86_VME     = 0x01010301,
+		cpuftr_X86_DE      = 0x01010302,
+		cpuftr_X86_PSE     = 0x01010303,
+		cpuftr_X86_TSC     = 0x01010304,
+		cpuftr_X86_MSR     = 0x01010305,
+		cpuftr_X86_PAE     = 0x01010306,
+		cpuftr_X86_MCE     = 0x01010307,
+		cpuftr_X86_CX8     = 0x01010308,
+		cpuftr_X86_APIC    = 0x01010309,
+		cpuftr_X86_SEP     = 0x0101030b,
+		cpuftr_X86_MTRR    = 0x0101030c,
+		cpuftr_X86_PGE     = 0x0101030d,
+		cpuftr_X86_MCA     = 0x0101030e,
+		cpuftr_X86_CMOV    = 0x0101030f,
+		cpuftr_X86_PAT     = 0x01010310,
+		cpuftr_X86_PSE_36  = 0x01010311,
+		cpuftr_X86_PSN     = 0x01010312,
+		cpuftr_X86_CLFSH   = 0x01010313,
+		cpuftr_X86_DS      = 0x01010314,
+		cpuftr_X86_ACPI    = 0x01010316,
+		cpuftr_X86_MMX     = 0x01010317,
+		cpuftr_X86_FXSR    = 0x01010318,
+		cpuftr_X86_SSE     = 0x01010319,
+		cpuftr_X86_SSE2    = 0x0101031a,
+		cpuftr_X86_SS      = 0x0101031b,
+		cpuftr_X86_HTT     = 0x0101031c,
+		cpuftr_X86_TM      = 0x0101031d,
+		cpuftr_X86_IA64    = 0x0101031e,
+		cpuftr_X86_PBE     = 0x0101031f,
 
-		cpuftr_X86_SSE3            = 0x01010200,
+		cpuftr_X86_SSE3    = 0x01010200,
 		cpuftr_X86_PCLMULQDQ       = 0x01010201,
-		cpuftr_X86_DTES64          = 0x01010202,
-		cpuftr_X86_MONITOR         = 0x01010203,
-		cpuftr_X86_DS_CPL          = 0x01010204,
-		cpuftr_X86_VMX             = 0x01010205,
-		cpuftr_X86_SMX             = 0x01010206,
-		cpuftr_X86_EST             = 0x01010207,
-		cpuftr_X86_TM2             = 0x01010208,
-		cpuftr_X86_SSSE3           = 0x01010209,
-		cpuftr_X86_CNXT_ID         = 0x0101020a,
-		cpuftr_X86_SDBG            = 0x0101020b,
-		cpuftr_X86_FMA             = 0x0101020c,
-		cpuftr_X86_CX16            = 0x0101020d,
-		cpuftr_X86_XTPR            = 0x0101020e,
-		cpuftr_X86_PDCM            = 0x0101020f,
-		cpuftr_X86_PCID            = 0x01010211,
-		cpuftr_X86_DCA             = 0x01010212,
-		cpuftr_X86_SSE4_1          = 0x01010213,
-		cpuftr_X86_SSE4_2          = 0x01010214,
-		cpuftr_X86_X2APIC          = 0x01010215,
-		cpuftr_X86_MOVBE           = 0x01010216,
-		cpuftr_X86_POPCNT          = 0x01010217,
+		cpuftr_X86_DTES64  = 0x01010202,
+		cpuftr_X86_MONITOR = 0x01010203,
+		cpuftr_X86_DS_CPL  = 0x01010204,
+		cpuftr_X86_VMX     = 0x01010205,
+		cpuftr_X86_SMX     = 0x01010206,
+		cpuftr_X86_EST     = 0x01010207,
+		cpuftr_X86_TM2     = 0x01010208,
+		cpuftr_X86_SSSE3   = 0x01010209,
+		cpuftr_X86_CNXT_ID = 0x0101020a,
+		cpuftr_X86_SDBG    = 0x0101020b,
+		cpuftr_X86_FMA     = 0x0101020c,
+		cpuftr_X86_CX16    = 0x0101020d,
+		cpuftr_X86_XTPR    = 0x0101020e,
+		cpuftr_X86_PDCM    = 0x0101020f,
+		cpuftr_X86_PCID    = 0x01010211,
+		cpuftr_X86_DCA     = 0x01010212,
+		cpuftr_X86_SSE4_1  = 0x01010213,
+		cpuftr_X86_SSE4_2  = 0x01010214,
+		cpuftr_X86_X2APIC  = 0x01010215,
+		cpuftr_X86_MOVBE   = 0x01010216,
+		cpuftr_X86_POPCNT  = 0x01010217,
 		cpuftr_X86_TSC_DEADLINE    = 0x01010218,
-		cpuftr_X86_AES             = 0x01010219,
-		cpuftr_X86_XSAVE           = 0x0101021a,
-		cpuftr_X86_OSXSAVE         = 0x0101021b,
-		cpuftr_X86_AVX             = 0x0101021c,
-		cpuftr_X86_F16C            = 0x0101021d,
-		cpuftr_X86_RDRND           = 0x0101021e,
+		cpuftr_X86_AES     = 0x01010219,
+		cpuftr_X86_XSAVE   = 0x0101021a,
+		cpuftr_X86_OSXSAVE = 0x0101021b,
+		cpuftr_X86_AVX     = 0x0101021c,
+		cpuftr_X86_F16C    = 0x0101021d,
+		cpuftr_X86_RDRND   = 0x0101021e,
 		cpuftr_X86_HYPERVISOR      = 0x0101021f,
 
 		cpuftr_X86_FSGSBASE        = 0x01070100,
-		cpuftr_X86_TSC_ADJ         = 0x01070101,
-		cpuftr_X86_SGX             = 0x01070102,
-		cpuftr_X86_BMI1            = 0x01070103,
-		cpuftr_X86_HLE             = 0x01070104,
-		cpuftr_X86_AVX2            = 0x01070105,
-		cpuftr_X86_SMEP            = 0x01070107,
-		cpuftr_X86_BMI2            = 0x01070108,
-		cpuftr_X86_ERMS            = 0x01070109,
-		cpuftr_X86_INVPCID         = 0x0107010a,
-		cpuftr_X86_RTM             = 0x0107010b,
-		cpuftr_X86_PQM             = 0x0107010c,
-		cpuftr_X86_MPX             = 0x0107010e,
-		cpuftr_X86_PQE             = 0x0107010f,
-		cpuftr_X86_AVX512F         = 0x01070110,
+		cpuftr_X86_TSC_ADJ = 0x01070101,
+		cpuftr_X86_SGX     = 0x01070102,
+		cpuftr_X86_BMI1    = 0x01070103,
+		cpuftr_X86_HLE     = 0x01070104,
+		cpuftr_X86_AVX2    = 0x01070105,
+		cpuftr_X86_SMEP    = 0x01070107,
+		cpuftr_X86_BMI2    = 0x01070108,
+		cpuftr_X86_ERMS    = 0x01070109,
+		cpuftr_X86_INVPCID = 0x0107010a,
+		cpuftr_X86_RTM     = 0x0107010b,
+		cpuftr_X86_PQM     = 0x0107010c,
+		cpuftr_X86_MPX     = 0x0107010e,
+		cpuftr_X86_PQE     = 0x0107010f,
+		cpuftr_X86_AVX512F = 0x01070110,
 		cpuftr_X86_AVX512DQ        = 0x01070111,
-		cpuftr_X86_RDSEED          = 0x01070112,
-		cpuftr_X86_ADX             = 0x01070113,
-		cpuftr_X86_SMAP            = 0x01070114,
+		cpuftr_X86_RDSEED  = 0x01070112,
+		cpuftr_X86_ADX     = 0x01070113,
+		cpuftr_X86_SMAP    = 0x01070114,
 		cpuftr_X86_AVX512IFMA      = 0x01070115,
-		cpuftr_X86_PCOMMIT         = 0x01070116,
+		cpuftr_X86_PCOMMIT = 0x01070116,
 		cpuftr_X86_CLFLUSHOPT      = 0x01070117,
-		cpuftr_X86_CLWB            = 0x01070118,
+		cpuftr_X86_CLWB    = 0x01070118,
 		cpuftr_X86_INTEL_PT        = 0x01070119,
 		cpuftr_X86_AVX512PF        = 0x0107011a,
 		cpuftr_X86_AVX512ER        = 0x0107011b,
 		cpuftr_X86_AVX512CD        = 0x0107011c,
-		cpuftr_X86_SHA             = 0x0107011d,
+		cpuftr_X86_SHA     = 0x0107011d,
 		cpuftr_X86_AVX512BW        = 0x0107011e,
 		cpuftr_X86_AVX512VL        = 0x0107011f,
 
 		cpuftr_X86_PREFETCHWT1     = 0x01070200,
 		cpuftr_X86_AVX512VBMI      = 0x01070201,
-		cpuftr_X86_UMIP            = 0x01070202,
-		cpuftr_X86_PKU             = 0x01070203,
-		cpuftr_X86_OSPKE           = 0x01070204,
+		cpuftr_X86_UMIP    = 0x01070202,
+		cpuftr_X86_PKU     = 0x01070203,
+		cpuftr_X86_OSPKE   = 0x01070204,
 		cpuftr_X86_AVX512VPOPCNTDQ = 0x0107020e,
-		cpuftr_X86_RDPID           = 0x01070215,
-		cpuftr_X86_SGX_LC          = 0x0107021e,
+		cpuftr_X86_RDPID   = 0x01070215,
+		cpuftr_X86_SGX_LC  = 0x0107021e,
 
 		cpuftr_X86_AVX512_4VNNIW   = 0x01070302,
 		cpuftr_X86_AVX512_4FMAPS   = 0x01070303,
 
-		cpuftr_ARM_SWP             = cpuftr_ARM | 1,
-		cpuftr_ARM_HALF            = cpuftr_ARM | 2,
-		cpuftr_ARM_THUMB           = cpuftr_ARM | 3,
-		cpuftr_ARM_26BIT           = cpuftr_ARM | 4,
+		cpuftr_ARM_SWP     = cpuftr_ARM | 1,
+		cpuftr_ARM_HALF    = cpuftr_ARM | 2,
+		cpuftr_ARM_THUMB   = cpuftr_ARM | 3,
+		cpuftr_ARM_26BIT   = cpuftr_ARM | 4,
 		cpuftr_ARM_FAST_MULT       = cpuftr_ARM | 5,
-		cpuftr_ARM_FPA             = cpuftr_ARM | 6,
-		cpuftr_ARM_VFP             = cpuftr_ARM | 7,
-		cpuftr_ARM_EDSP            = cpuftr_ARM | 8,
-		cpuftr_ARM_JAVA            = cpuftr_ARM | 9,
-		cpuftr_ARM_IWMMXT          = cpuftr_ARM | 10,
-		cpuftr_ARM_CRUNCH          = cpuftr_ARM | 11,
-		cpuftr_ARM_THUMBEE         = cpuftr_ARM | 12,
-		cpuftr_ARM_NEON            = cpuftr_ARM | 13,
-		cpuftr_ARM_VFPV3           = cpuftr_ARM | 14,
+		cpuftr_ARM_FPA     = cpuftr_ARM | 6,
+		cpuftr_ARM_VFP     = cpuftr_ARM | 7,
+		cpuftr_ARM_EDSP    = cpuftr_ARM | 8,
+		cpuftr_ARM_JAVA    = cpuftr_ARM | 9,
+		cpuftr_ARM_IWMMXT  = cpuftr_ARM | 10,
+		cpuftr_ARM_CRUNCH  = cpuftr_ARM | 11,
+		cpuftr_ARM_THUMBEE = cpuftr_ARM | 12,
+		cpuftr_ARM_NEON    = cpuftr_ARM | 13,
+		cpuftr_ARM_VFPV3   = cpuftr_ARM | 14,
 		cpuftr_ARM_VFPV3D16        = cpuftr_ARM | 15,
-		cpuftr_ARM_TLS             = cpuftr_ARM | 16,
-		cpuftr_ARM_VFPV4           = cpuftr_ARM | 17,
-		cpuftr_ARM_IDIVA           = cpuftr_ARM | 18,
-		cpuftr_ARM_IDIVT           = cpuftr_ARM | 19,
-		cpuftr_ARM_VFPD32          = cpuftr_ARM | 20,
-		cpuftr_ARM_LPAE            = cpuftr_ARM | 21,
-		cpuftr_ARM_EVTSTRM         = cpuftr_ARM | 22,
+		cpuftr_ARM_TLS     = cpuftr_ARM | 16,
+		cpuftr_ARM_VFPV4   = cpuftr_ARM | 17,
+		cpuftr_ARM_IDIVA   = cpuftr_ARM | 18,
+		cpuftr_ARM_IDIVT   = cpuftr_ARM | 19,
+		cpuftr_ARM_VFPD32  = cpuftr_ARM | 20,
+		cpuftr_ARM_LPAE    = cpuftr_ARM | 21,
+		cpuftr_ARM_EVTSTRM = cpuftr_ARM | 22,
 
-		cpuftr_ARM_AES             = cpuftr_ARM | 0x0100 | 1,
-		cpuftr_ARM_PMULL           = cpuftr_ARM | 0x0100 | 2,
-		cpuftr_ARM_SHA1            = cpuftr_ARM | 0x0100 | 3,
-		cpuftr_ARM_SHA2            = cpuftr_ARM | 0x0100 | 4,
-		cpuftr_ARM_CRC32           = cpuftr_ARM | 0x0100 | 5
+		cpuftr_ARM_AES     = cpuftr_ARM | 0x0100 | 1,
+		cpuftr_ARM_PMULL   = cpuftr_ARM | 0x0100 | 2,
+		cpuftr_ARM_SHA1    = cpuftr_ARM | 0x0100 | 3,
+		cpuftr_ARM_SHA2    = cpuftr_ARM | 0x0100 | 4,
+		cpuftr_ARM_CRC32   = cpuftr_ARM | 0x0100 | 5
 	};
 	enum {
 		fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
@@ -9517,38 +9537,38 @@ public:
 
 	enum {
 		crmCrAllways      = (1 << 6),
-		crmCrNew          = (2 << 6),
+		crmCrNew  = (2 << 6),
 		crmOpenAllways    = (3 << 6),
 		crmOpenExist      = (4 << 6),
 		crmTrancateExist  = (5 << 6)
 	};
 
 	enum {
-		mAccsRead         = 0x00000001,
+		mAccsRead = 0x00000001,
 		mAccsWrite        = 0x00000002,
-		mAccsExec         = 0x00000004,
-		mShrRead          = 0x00000008,
-		mShrWrite         = 0x00000010,
+		mAccsExec = 0x00000004,
+		mShrRead  = 0x00000008,
+		mShrWrite = 0x00000010,
 		mShrDelete        = 0x00000020,
 		mCreationMask     = 0x00000040|0x00000080|0x00000100,
-		mAttrArch         = 0x00000200,
+		mAttrArch = 0x00000200,
 		mAttrEncrypt      = 0x00000400,
 		mAttrHidden       = 0x00000800,
 		mAttrNormal       = 0x00001000,
 		mAttrNoIndex      = 0x00002000,
 		mAttrOffline      = 0x00004000,
-		mAttrRO           = 0x00008000,
-		mAttrSys          = 0x00010000,
-		mAttrTemp         = 0x00020000,
+		mAttrRO   = 0x00008000,
+		mAttrSys  = 0x00010000,
+		mAttrTemp = 0x00020000,
 		mFBackupSemantics = 0x00040000,
 		mFPosixSemantics  = 0x00080000,
 		mFDelOnClose      = 0x00100000,
-		mFNoBuff          = 0x00200000,
+		mFNoBuff  = 0x00200000,
 		mFOpenNoRecall    = 0x00400000,
 		mFOpenReparsePt   = 0x00800000,
 		mFOverlapped      = 0x01000000,
 		mFRandomAccs      = 0x02000000,
-		mFSeqScan         = 0x04000000,
+		mFSeqScan = 0x04000000,
 		mFWriteThrough    = 0x08000000
 	};
 	enum {
@@ -9556,7 +9576,7 @@ public:
 		mSecCtxTracking   = 0x00000002,
 		mSecDelegation    = 0x00000004,
 		mSecEffOnly       = 0x00000008,
-		mSecIdent         = 0x00000010,
+		mSecIdent = 0x00000010,
 		mSecImpersonation = 0x00000020
 	};
 
@@ -9659,7 +9679,7 @@ public:
 	SFile(const char * pName, long mode);
 	SFile(SBuffer & rBuf, long mode);
 	~SFile();
-	int    IsValid() const;
+	bool   IsValid() const;
 	operator FILE * ();
 	operator SBuffer * ();
 	//
@@ -9910,7 +9930,7 @@ public:
 	~SArchive();
 	int    Open(int type, const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
 	int    Close();
-	int    IsValid() const;
+	bool   IsValid() const;
 	//
 	// Descr: Возвращает количество файлов в архиве
 	//
@@ -9993,19 +10013,19 @@ public:
 		mtExample
 	};
 	enum {
-		Unkn             =  0,  //
-		Txt              =  1,  //
-		Jpeg             =  2,  //
-		Png              =  3,  //
-		Tiff             =  4,  //
-		Gif              =  5,  //
-		Bmp              =  6,  //
-		Ico              =  7,  //
-		Cur              =  8,  //
-		Svg              =  9,  //
-		Html             = 10,  //
-		Xml              = 11,  //
-		Ini              = 12,  //
+		Unkn     =  0,  //
+		Txt      =  1,  //
+		Jpeg     =  2,  //
+		Png      =  3,  //
+		Tiff     =  4,  //
+		Gif      =  5,  //
+		Bmp      =  6,  //
+		Ico      =  7,  //
+		Cur      =  8,  //
+		Svg      =  9,  //
+		Html     = 10,  //
+		Xml      = 11,  //
+		Ini      = 12,  //
 		TxtBomUTF8       = 13,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomUTF16BE    = 14,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomUTF16LE    = 15,  // Текстовый файл с сигнатурой типа кодировка (BOM)
@@ -10017,109 +10037,109 @@ public:
 		TxtBomSCSU       = 21,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomBOCU1      = 22,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomGB18030    = 23,  // Текстовый файл с сигнатурой типа кодировка (BOM)
-		Latex            = 24,  // LATEX
-		Pdf              = 25,  //
-		Rtf              = 26,  //
-		Mdb              = 27,  //
-		AccDb            = 28,  // Access
-		WbXml            = 29,  // Binary XML
-		Wmf              = 30,  //
-		Eps              = 31,  //
-		Hlp              = 32,  //
-		Ppd              = 33,  // PostScript
-		PList            = 34,  // Property List
-		Mat              = 35,  // Matlab
-		Pdb              = 36,  //
-		WcbffOld         = 37,  // Windows Compound Binary File Format
-		Zip              = 38,  // Archive
-		Rar              = 39,  // Archive
-		Gz               = 40,  // Archive
-		Tar              = 41,  // Archive
-		Bz2              = 42,  // Archive
-		SevenZ           = 43,  // Archive
-		Xz               = 44,  // Archive
-		Z                = 45,  // Archive
-		Cab              = 46,  // Archive
-		Arj              = 47,  // Archive
-		Lzh              = 48,  // Archive
-		Xar              = 49,  // Archive
-		Pmd              = 50,  // Archive
-		Deb              = 51,  // Archive
-		Rpm              = 52,  // Archive
-		Chm              = 53,  // Archive
-		Iso              = 54,  // Archive
-		Vhd              = 55,  // Archive
-		Wim              = 56,  // Archive
-		Mdf              = 57,  // Archive
-		Nri              = 58,  // Archive
-		Swf              = 59,  // Archive
-		Mar              = 60,  // Archive
-		Mkv              = 61,  // Video
-		Avi              = 62,  // Video
-		Mp4              = 63,  // Video
-		Wmv              = 64,  // Video
-		Mpg              = 65,  // Video
-		Flv              = 66,  // Video
-		Mov              = 67,  // Video
-		F4f              = 68,  // Video
-		Class            = 69,  // binary:class 0:CAFEBABE
-		Exe              = 70,  // binary:exe   0:4D5A
-		Dll              = 71,  // binary:dll   0:4D5A
-		Pcap             = 72,  // binary:pcap  0:D4C3B2A1
-		Pyo              = 73,  // binary:pyo   0:03F30D0A
-		So               = 74,  // binary:so    0:7F454C46
-		Mo               = 75,  // binary:mo    0:DE120495
-		Mui              = 76,  // binary:mui   0:50413330
-		Cat              = 77,  // binary:cat   0:30 6:2A864886
-		Xsb              = 78,  // binary:xsb   0:DA7ABABE
-		Key              = 79,  // binary:key   0:4B4C737727
-		Sq3              = 80,  // binary:sq3   0:53514C697465
-		Qst              = 81,  // binary:qst   0:0401C4030000 binary:qst   0:040180040000
-		Crx              = 82,  // binary:crx   0:43723234
-		Utx              = 83,  // binary:utx   0:4C0069006E006500610067006500
-		Rx3              = 84,  // binary:rx3   0:52583362
-		Kdc              = 85,  // binary:kdc   0:44494646
-		Xnb              = 86,  // binary:xnb   0:584E42
-		Blp              = 87,  // binary:blp   0:424C5031 binary:blp   0:424C5032
-		Big              = 88,  // binary:big   0:42494746
-		Mdl              = 89,  // binary:mdl   0:49445354
-		Spr              = 90,  // binary:spr   0:CDCC8C3F
-		Sfo              = 91,  // binary:sfo   0:00505346
-		Mpq              = 92,  // binary:mpq   0:4D50511A
-		Nes              = 93,  // binary:nes   0:4E45531A
-		Dmp              = 94,  // binary:dmp   0:4D444D5093A7
-		Dex              = 95,  // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-		Gim              = 96,  // binary:gim   0:4D49472E30302E31505350
-		Amxx             = 97,  // binary:amxx  0:58584D41
-		Sln              = 98,  // Visual Studio Solution
-		VCProj           = 99,  // Visual Studio Project
-		Asm              = 100, // Assempbler source file
-		C                = 101, // C source file
-		CPP              = 102, // CPP source file
-		H                = 103, // C header file
-		Perl             = 104, // perl source code
-		Php              = 105, // php source code
-		Java             = 106, // java source code
-		Py               = 107, // Python source code
+		Latex    = 24,  // LATEX
+		Pdf      = 25,  //
+		Rtf      = 26,  //
+		Mdb      = 27,  //
+		AccDb    = 28,  // Access
+		WbXml    = 29,  // Binary XML
+		Wmf      = 30,  //
+		Eps      = 31,  //
+		Hlp      = 32,  //
+		Ppd      = 33,  // PostScript
+		PList    = 34,  // Property List
+		Mat      = 35,  // Matlab
+		Pdb      = 36,  //
+		WcbffOld = 37,  // Windows Compound Binary File Format
+		Zip      = 38,  // Archive
+		Rar      = 39,  // Archive
+		Gz       = 40,  // Archive
+		Tar      = 41,  // Archive
+		Bz2      = 42,  // Archive
+		SevenZ   = 43,  // Archive
+		Xz       = 44,  // Archive
+		Z        = 45,  // Archive
+		Cab      = 46,  // Archive
+		Arj      = 47,  // Archive
+		Lzh      = 48,  // Archive
+		Xar      = 49,  // Archive
+		Pmd      = 50,  // Archive
+		Deb      = 51,  // Archive
+		Rpm      = 52,  // Archive
+		Chm      = 53,  // Archive
+		Iso      = 54,  // Archive
+		Vhd      = 55,  // Archive
+		Wim      = 56,  // Archive
+		Mdf      = 57,  // Archive
+		Nri      = 58,  // Archive
+		Swf      = 59,  // Archive
+		Mar      = 60,  // Archive
+		Mkv      = 61,  // Video
+		Avi      = 62,  // Video
+		Mp4      = 63,  // Video
+		Wmv      = 64,  // Video
+		Mpg      = 65,  // Video
+		Flv      = 66,  // Video
+		Mov      = 67,  // Video
+		F4f      = 68,  // Video
+		Class    = 69,  // binary:class 0:CAFEBABE
+		Exe      = 70,  // binary:exe   0:4D5A
+		Dll      = 71,  // binary:dll   0:4D5A
+		Pcap     = 72,  // binary:pcap  0:D4C3B2A1
+		Pyo      = 73,  // binary:pyo   0:03F30D0A
+		So       = 74,  // binary:so    0:7F454C46
+		Mo       = 75,  // binary:mo    0:DE120495
+		Mui      = 76,  // binary:mui   0:50413330
+		Cat      = 77,  // binary:cat   0:30 6:2A864886
+		Xsb      = 78,  // binary:xsb   0:DA7ABABE
+		Key      = 79,  // binary:key   0:4B4C737727
+		Sq3      = 80,  // binary:sq3   0:53514C697465
+		Qst      = 81,  // binary:qst   0:0401C4030000 binary:qst   0:040180040000
+		Crx      = 82,  // binary:crx   0:43723234
+		Utx      = 83,  // binary:utx   0:4C0069006E006500610067006500
+		Rx3      = 84,  // binary:rx3   0:52583362
+		Kdc      = 85,  // binary:kdc   0:44494646
+		Xnb      = 86,  // binary:xnb   0:584E42
+		Blp      = 87,  // binary:blp   0:424C5031 binary:blp   0:424C5032
+		Big      = 88,  // binary:big   0:42494746
+		Mdl      = 89,  // binary:mdl   0:49445354
+		Spr      = 90,  // binary:spr   0:CDCC8C3F
+		Sfo      = 91,  // binary:sfo   0:00505346
+		Mpq      = 92,  // binary:mpq   0:4D50511A
+		Nes      = 93,  // binary:nes   0:4E45531A
+		Dmp      = 94,  // binary:dmp   0:4D444D5093A7
+		Dex      = 95,  // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+		Gim      = 96,  // binary:gim   0:4D49472E30302E31505350
+		Amxx     = 97,  // binary:amxx  0:58584D41
+		Sln      = 98,  // Visual Studio Solution
+		VCProj   = 99,  // Visual Studio Project
+		Asm      = 100, // Assempbler source file
+		C        = 101, // C source file
+		CPP      = 102, // CPP source file
+		H        = 103, // C header file
+		Perl     = 104, // perl source code
+		Php      = 105, // php source code
+		Java     = 106, // java source code
+		Py       = 107, // Python source code
 		UnixShell        = 108, // Unix Shell script
-		Msi              = 109, // Microsoft Installer package
-		TxtUtf8          = 110, // Текст в формате utf8
-		TxtAscii         = 111, // Текст в котором только ASCII-символы
-		Log              = 112, // Файл журнала (by ext only)
+		Msi      = 109, // Microsoft Installer package
+		TxtUtf8  = 110, // Текст в формате utf8
+		TxtAscii = 111, // Текст в котором только ASCII-символы
+		Log      = 112, // Файл журнала (by ext only)
 		Properties       = 113, // Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
-		Css              = 114, // CSS
+		Css      = 114, // CSS
 		JavaScript       = 115, // JS
-		Json             = 116, //
-		Pbxproj          = 117, // Файл проекта xcode
+		Json     = 116, //
+		Pbxproj  = 117, // Файл проекта xcode
 		PapyruDbDivXchg  = 118, // Приватный формат проекта Papyrus: файл обмена данными между разделами
-		Csv              = 119, // @v10.8.0 comma-separated-values
-		Xsd              = 120, // @v10.8.0 xml-schema-documentation
-		Gravity          = 121, // @v10.8.2 gravity-source (язык gravity)
+		Csv      = 119, // @v10.8.0 comma-separated-values
+		Xsd      = 120, // @v10.8.0 xml-schema-documentation
+		Gravity  = 121, // @v10.8.2 gravity-source (язык gravity)
 		VCProjFilers     = 122, // @v10.9.9 Visual Studio Project Filters
 		VCProjUser       = 123, // @v10.9.9 Visual Studio Project User
 		CodeBlocks_Cbp   = 124, // @v10.9.9 Code::Blocks Project File
-		M4               = 125, // @v10.9.9 m4 Macroprocessor
-		Tsv              = 126, // @v10.9.9 tab-separated-values
+		M4       = 125, // @v10.9.9 m4 Macroprocessor
+		Tsv      = 126, // @v10.9.9 tab-separated-values
 
 		FirstUser        = 10000
 	};
@@ -10182,7 +10202,7 @@ public:
 	// Descr: Флаги состояния объекта
 	//
 	enum {
-		fEmpty          = 0x0001,
+		fEmpty  = 0x0001,
 		fAsciiOnly      = 0x0002,
 		fLegalUtf8Only  = 0x0004,
 		fMiscEolf       = 0x0008,
@@ -10269,10 +10289,10 @@ public:
 	};
 	enum {
 		cccNot_Reordered        =   0, // Spacing and enclosing marks; also many vowel and consonant signs, even if nonspacing
-		cccOverlay              =   1, // Marks which overlay a base letter or symbol
-		cccNukta                =   7, // Diacritic nukta marks in Brahmi-derived scripts
-		cccKana_Voicing         =   8, // Hiragana/Katakana voicing marks
-		cccVirama               =   9, // Viramas
+		cccOverlay      =   1, // Marks which overlay a base letter or symbol
+		cccNukta        =   7, // Diacritic nukta marks in Brahmi-derived scripts
+		cccKana_Voicing =   8, // Hiragana/Katakana voicing marks
+		cccVirama       =   9, // Viramas
 		cccAttached_Below_Left  = 200, // Marks attached at the bottom left
 		cccAttached_Below       = 202, // Marks attached directly below
 		cccAttached_BottomRight = 204, // Marks attached at the bottom right
@@ -10281,16 +10301,16 @@ public:
 		cccAttached_TopLeft     = 212, // Marks attached at the top left
 		cccAttached_Above       = 214, // Marks attached directly above
 		cccAttached_Above_Right = 216, // Marks attached at the top right
-		cccBelow_Left           = 218, // Distinct marks at the bottom left
-		cccBelow                = 220, // Distinct marks directly below
-		cccBelow_Right          = 222, // Distinct marks at the bottom right
-		cccLeft                 = 224, // Distinct marks to the left
-		cccRight                = 226, // Distinct marks to the right
-		cccAbove_Left           = 228, // Distinct marks at the top left
-		cccAbove                = 230, // Distinct marks directly above
-		cccAbove_Right          = 232, // Distinct marks at the top right
-		cccDouble_Below         = 233, // Distinct marks subtending two bases
-		cccDouble_Above         = 234, // Distinct marks extending above two bases
+		cccBelow_Left   = 218, // Distinct marks at the bottom left
+		cccBelow        = 220, // Distinct marks directly below
+		cccBelow_Right  = 222, // Distinct marks at the bottom right
+		cccLeft         = 224, // Distinct marks to the left
+		cccRight        = 226, // Distinct marks to the right
+		cccAbove_Left   = 228, // Distinct marks at the top left
+		cccAbove        = 230, // Distinct marks directly above
+		cccAbove_Right  = 232, // Distinct marks at the top right
+		cccDouble_Below = 233, // Distinct marks subtending two bases
+		cccDouble_Above = 234, // Distinct marks extending above two bases
 		cccIota_Subscript       = 240  // Greek iota subscript only
 	};
 	enum {
@@ -10699,7 +10719,7 @@ public:
 		syntaxOniguruma
 	};
 	enum {
-		fIgnoreCase                         = 0x00000001,
+		fIgnoreCase                 = 0x00000001,
 		fExtend           	   				= 0x00000002,
 		fMultiLine        	   				= 0x00000004,
 		fSingleLine       	   				= 0x00000008,
@@ -10723,7 +10743,7 @@ public:
 		fSpaceIsAscii          				= 0x00080000,
 		fPosixIsAscii          				= 0x00100000,
 		fTextSegmentExtendedGraphemeCluster = 0x00200000,
-		fTextSegmentWord                    = 0x00400000,
+		fTextSegmentWord            = 0x00400000,
 	};
 	struct FindResult : public TSVector <IntRange> {
 		FindResult & Z();
@@ -10751,7 +10771,7 @@ public:
 	int    Find(SStrScan * pScan, uint flags);
 	int    Find(SStrScan * pScan);
 	Error  GetLastErr() const;
-	int    IsValid() const;
+	bool   IsValid() const;
 private:
 	void * H;
 	Error LastErr;
@@ -10767,7 +10787,7 @@ public:
 	int    Find(const char * pText);            // TRUE if regexp in char * arg
 	int    Find(SStrScan *);
 	int    GetLastErr() const;
-	int    IsValid() const;
+	bool   IsValid() const;
 	//
 	// Descr: Returns index into the searched string that corresponds to the  beginning pointer
 	//
@@ -11492,7 +11512,7 @@ typedef TSVector <unsigned long> UlongArray;
 	#define INFINITY HUGE_VAL
 #endif
 // } @v10.9.1
-int    IsValidIEEE(double);
+bool   IsValidIEEE(double);
 int    FASTCALL fisnan(double);
 int    fisnanf(float);
 int    fisinf(double);
@@ -11741,7 +11761,7 @@ public:
 class StatBase {
 public:
 	enum {
-		fExt          = 0x0001, // Рассчитывать дополнительные статистики
+		fExt  = 0x0001, // Рассчитывать дополнительные статистики
 		fGammaTest    = 0x0002, // Выполнить тест на гамма-распределение
 		fGaussianTest = 0x0004, // @unimplemented Выполнить тест на нормальное распределение
 		fStoreVals    = 0x0008  // Сохранять значения в Series
@@ -12271,18 +12291,20 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 //
 //
-int    FASTCALL smin(int a, int b);
-int    FASTCALL smax(int a, int b);
-int64  FASTCALL smin(int64 a, int64 b);
-int64  FASTCALL smax(int64 a, int64 b);
-uint   FASTCALL smin(uint a, uint b);
-uint   FASTCALL smax(uint a, uint b);
-uint64 FASTCALL smin(uint64 a, uint64 b);
-uint64 FASTCALL smax(uint64 a, uint64 b);
-double FASTCALL smin(double a, double b);
-double FASTCALL smax(double a, double b);
-float  FASTCALL smax(float a, float b);
-float  FASTCALL smin(float a, float b);
+//int    FASTCALL smin(int a, int b);
+//int    FASTCALL smax(int a, int b);
+//int64  FASTCALL smin(int64 a, int64 b);
+//int64  FASTCALL smax(int64 a, int64 b);
+//uint   FASTCALL smin(uint a, uint b);
+//uint   FASTCALL smax(uint a, uint b);
+//uint64 FASTCALL smin(uint64 a, uint64 b);
+//uint64 FASTCALL smax(uint64 a, uint64 b);
+//double FASTCALL smin(double a, double b);
+//double FASTCALL smax(double a, double b);
+//float  FASTCALL smax(float a, float b);
+//float  FASTCALL smin(float a, float b);
+template <class T> T smin(T a, T b) { return MIN(a, b); }
+template <class T> T smax(T a, T b) { return MAX(a, b); }
 //
 // Descr: Возвращает максимум 3-х аргументов.
 //
@@ -12303,19 +12325,21 @@ double smin4(double a1, double a2, double a3, double a4);
 // Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
 // Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)
 //
-int    FASTCALL sclamp(int v, int lo, int up);
-uint   FASTCALL sclamp(uint v, uint lo, uint up);
-int    FASTCALL sclamp(int64 v, int64 lo, int64 up);
-int    FASTCALL sclamp(uint64 v, uint64 lo, uint64 up);
-double FASTCALL sclamp(double v, double lo, double up);
-float  FASTCALL sclamp(float v, float lo, float up);
+//int    FASTCALL sclamp(int v, int lo, int up);
+//uint   FASTCALL sclamp(uint v, uint lo, uint up);
+//int64  FASTCALL sclamp(int64 v, int64 lo, int64 up);
+//uint64 FASTCALL sclamp(uint64 v, uint64 lo, uint64 up);
+//double FASTCALL sclamp(double v, double lo, double up);
+//float  FASTCALL sclamp(float v, float lo, float up);
+//int    FASTCALL sclampx(int v, int lo, int up);
+//uint   FASTCALL sclampx(uint v, uint lo, uint up);
+//int64  FASTCALL sclampx(int64 v, int64 lo, int64 up);
+//uint64 FASTCALL sclampx(uint64 v, uint64 lo, uint64 up);
+//double FASTCALL sclampx(double v, double lo, double up);
+//float  FASTCALL sclampx(float v, float lo, float up);
 
-int    FASTCALL sclampx(int v, int lo, int up);
-uint   FASTCALL sclampx(uint v, uint lo, uint up);
-int    FASTCALL sclampx(int64 v, int64 lo, int64 up);
-int    FASTCALL sclampx(uint64 v, uint64 lo, uint64 up);
-double FASTCALL sclampx(double v, double lo, double up);
-float  FASTCALL sclampx(float v, float lo, float up);
+template <class T> T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+template <class T> T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
@@ -12898,7 +12922,7 @@ struct UiRelRect { // @noctr
 //
 //
 enum SColourCollection { // 0x00rrggbb
-	SClrAliceblue            = 0x00f0f8ff,
+	SClrAliceblue    = 0x00f0f8ff,
 	SClrAntiquewhite   		 = 0x00faebd7,
 	SClrAqua           		 = 0x0000ffff,
 	SClrAquamarine     		 = 0x007fffd4,
@@ -12923,7 +12947,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrDarkcyan       		 = 0x00008b8b,
 	SClrDarkgoldenrod  		 = 0x00b8860b,
 	SClrDarkgrey       		 = 0x00555555,
-	SClrDarkgrey_npp         = 0x00404040, // @v11.1.12 darkGrey according to notepad++
+	SClrDarkgrey_npp = 0x00404040, // @v11.1.12 darkGrey according to notepad++
 	SClrDarkgreen      		 = 0x00006400,
 	SClrDarkkhaki      		 = 0x00bdb76b,
 	SClrDarkmagenta    		 = 0x008b008b,
@@ -12964,7 +12988,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrLightcoral     		 = 0x00f08080,
 	SClrLightcyan      		 = 0x00e0ffff,
 	SClrLightgoldenrodyellow = 0x00fafad2,
-	SClrLightgreen           = 0x0090ee90,
+	SClrLightgreen   = 0x0090ee90,
 	SClrLightgrey       	 = 0x00d3d3d3,
 	SClrLightpink       	 = 0x00ffb6c1,
 	SClrLightsalmon     	 = 0x00ffa07a,
@@ -12988,7 +13012,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrMediumspringgreen 	 = 0x0000fa9a,
 	SClrMediumturquoise   	 = 0x0048d1cc,
 	SClrMediumvioletred   	 = 0x00c71585,
-	SClrMidnightblue         = 0x00191970,
+	SClrMidnightblue = 0x00191970,
 	SClrMintcream     		 = 0x00f5fffa, // Очень светло-голубой //
 	SClrMistyrose     		 = 0x00ffe4e1, // Нежно-розовый
 	SClrNavajowhite   		 = 0x00ffdead, // Телесный
@@ -13078,10 +13102,10 @@ struct SColorBase { // @persistent
 	SColorBase FASTCALL Set(uint v);
 	SColorBase PremultiplyAlpha();
 	enum {
-		fmtHEX                 = 1, // #rrggbb
-		fmtRGB                 = 2, // rgb(rr, gg, bb)
+		fmtHEX         = 1, // #rrggbb
+		fmtRGB         = 2, // rgb(rr, gg, bb)
 		fmtRgbHexWithoutPrefix = 3, // rrggbb
-		fmtName                = 0x1000
+		fmtName        = 0x1000
 	};
 	int    FASTCALL FromStr(const char *);
 	SString & ToStr(SString & rBuf, int format = fmtHEX) const;
@@ -13422,7 +13446,7 @@ class SIniFile {
 public:
 	explicit SIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
 	~SIniFile();
-	int    IsValid() const; // Вызывать после конструктора
+	bool   IsValid() const; // Вызывать после конструктора
 	SCodepageIdent GetCp() const { return Cp; }
 	long   GetFlags() const;
 	long   SetFlag(long f, int set);
@@ -13572,7 +13596,7 @@ class STabFile {
 public:
 	STabFile();
 	STabFile(const char * pFileName, int updateMode = 0);
-	int    IsValid() const;
+	bool   IsValid() const;
 	int    Open(const char * pFileName, int updateMode);
 	int    Close();
 	int    GetTabList(StringSet * pResult);
@@ -13744,7 +13768,7 @@ public:
 	static SVerT GetVersion(const char * pFileName);
 	explicit SDynLibrary(const char * pFileName = 0);
 	~SDynLibrary();
-	int    IsValid() const;
+	bool   IsValid() const;
 	int    FASTCALL Load(const char * pFileName);
 	FARPROC FASTCALL GetProcAddr(const char * pProcName);
 	FARPROC FASTCALL GetProcAddr(const char * pProcName, int unicodeSuffix);
@@ -13819,8 +13843,8 @@ public:
 	WinService(const WinServiceMngr &, const char * pServiceName, long desiredAccess = SERVICE_ALL_ACCESS);
 	~WinService();
 	operator SC_HANDLE () const { return H; }
-	int    IsValid() const;
-	const SString & GetName() const;
+	bool   IsValid() const;
+	const  SString & GetName() const;
 	int    Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw);
 	//
 	// Descr: Удаляет сервис из базы данных сервисов.
@@ -13966,7 +13990,7 @@ class SWaitableObject {
 public:
 	SWaitableObject();
 	virtual ~SWaitableObject();
-	int    IsValid() const;
+	bool   IsValid() const;
 	operator HANDLE() const { return H; }
 	int    FASTCALL operator == (const SWaitableObject &) const;
 	//
@@ -14767,17 +14791,17 @@ public:
 	void   FASTCALL SetExecutionContext(const char * pInfo);
 	void   FASTCALL SetAddedMsgString(const char *);
 	//
-	// Returns: 0
+	// Returns: false
 	//
-	int    FASTCALL SetError(int errCode, const char * pAddedMsg);
+	bool   FASTCALL SetError(int errCode, const char * pAddedMsg);
 	//
-	// Returns: 0
+	// Returns: false
 	//
-	int    FASTCALL SetError(int errCode);
+	bool   FASTCALL SetError(int errCode);
 	//
-	// Returns: 0
+	// Returns: false
 	//
-	int    FASTCALL SetOsError(const char * pAddedMsg = 0);
+	bool   FASTCALL SetOsError(const char * pAddedMsg = 0);
 	int    GetOsError() const;
 	const  SString & GetAddedMsgString() const;
 	int    LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);
@@ -14926,7 +14950,7 @@ public:
 	SImage();
 	~SImage();
 	int    Init();
-	int    IsValid() const;
+	bool   IsValid() const;
 	int    Load(const char * pPicPath);
 	int    LoadThumbnailImage(const char * pPicPath, int width, int height);
 	int    Draw(HWND hWnd, const char * pPicPath, RECT *, int clear = 1, int use2Koeff = 0);
@@ -15031,8 +15055,8 @@ struct SViewPort : public FRect {
 		parMax
 	};
 	enum {
-		fEmpty         = 0x0001, // ViewPort не определен
-		fSlice         = 0x0002, // else Meet
+		fEmpty = 0x0001, // ViewPort не определен
+		fSlice = 0x0002, // else Meet
 		fDontScale     = 0x0004, // Не масштабировать объект
 		fDontEnlarge   = 0x0008, // Не увеличивать объект (можно только уменьшать)
 	};
@@ -15097,7 +15121,7 @@ public:
 		static uint32 FASTCALL UniformToGrayscale(uint32 u);
 		static COLORREF FASTCALL UniformToRGB(uint32 u);
 		explicit PixF(int s/* = 0*/);
-		int    IsValid() const;
+		bool   IsValid() const;
 		uint   GetBpp() const;
 		uint   FASTCALL GetStride(uint width) const;
 		int    GetUniform(const void * pSrc, void * pUniformBuf, uint width, const Palette * pPalette) const;
@@ -15210,7 +15234,7 @@ public:
 	};
 	enum {
 		fOuterToolbox = 0x0001, // Объект использует внешний SPaintToolBox. Используется порожденными классами.
-		fDraw         = 0x0002, // Устанавливается классом SDraw для того,
+		fDraw = 0x0002, // Устанавливается классом SDraw для того,
 			// чтобы члены контейнера могли распознать его как родителя, имеющего специфические атрибуты (SPaintToolBox, например).
 		fDefinedSize  = 0x0004, // @!{SDrawFigure::SetSize} Размер элемента определен из-вне (то есть, он не должен рассчитываться).
 		fNullBrush    = 0x0008, // @v9.7.10 Без заливки (IdBrush игнорируется)
@@ -15767,7 +15791,7 @@ struct SGeoPosLL { // @persistent
 	int    FASTCALL operator == (const SGeoPosLL & rS) const;
 	int    FASTCALL operator != (const SGeoPosLL & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
-	int    IsValid() const;
+	bool   IsValid() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
 
@@ -15793,7 +15817,7 @@ public:
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
 	int    Set(double lat, double lon);
 	int    SetInt(long lat, long lon);
-	int    IsValid() const;
+	bool   IsValid() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
 private:
@@ -15878,7 +15902,7 @@ public:
 	// Descr: mask values for the \e caps argument to geod_lineinit()
 	//
 	enum /*geod_mask*/ {
-		GEOD_NONE         = 0U,                     // Calculate nothing
+		GEOD_NONE = 0U,                     // Calculate nothing
 		GEOD_LATITUDE     = 1U<<7  | 0U,            // Calculate latitude
 		GEOD_LONGITUDE    = 1U<<8  | 1U<<3,         // Calculate longitude
 		GEOD_AZIMUTH      = 1U<<9  | 0U,            // Calculate azimuth
@@ -15886,8 +15910,8 @@ public:
 		GEOD_DISTANCE_IN  = 1U<<11 | 1U<<0 | 1U<<1, // Allow distance as input
 		GEOD_REDUCEDLENGTH= 1U<<12 | 1U<<0 | 1U<<2, // Calculate reduced length
 		GEOD_GEODESICSCALE= 1U<<13 | 1U<<0 | 1U<<2, // Calculate geodesic scale
-		GEOD_AREA         = 1U<<14 | 1U<<4,         // Calculate reduced length
-		GEOD_ALL          = 0x7F80U| 0x1FU          // Calculate everything
+		GEOD_AREA = 1U<<14 | 1U<<4,         // Calculate reduced length
+		GEOD_ALL  = 0x7F80U| 0x1FU          // Calculate everything
 	};
 	//
 	// Descr: flag values for the \e flags argument to geod_gendirect() and geod_genposition()

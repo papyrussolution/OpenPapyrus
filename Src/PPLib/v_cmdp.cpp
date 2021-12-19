@@ -464,10 +464,7 @@ private:
 		}
 		virtual int delItem(long pos, long id)
 		{
-			int    r = -1;
-			if(pos >= 0 && pos < (long)Data.GetCount())
-				r = Data.SetItem(pos, 0);
-			return r;
+			return (pos >= 0 && pos < (long)Data.GetCount()) ? Data.SetItem(pos, 0) : -1;
 		}
 		int    EditCommandAssoc(long pos, PPDesktopAssocCmd * pAsscCmd, PPDesktopAssocCmdPool * pCmdList)
 		{
@@ -1539,7 +1536,7 @@ void MenuResToMenu(PPCommandFolder * pFold, LAssocArray * pCmdDescrs, TVRez * re
 			long menu_cm = mit.mtID;
 			PPCommand cmd;
 			(cmd.Name = mit.mtString).Transf(CTRANSF_OUTER_TO_INNER);
-			if(pCmdDescrs->lsearch(&menu_cm, &pos, CMPF_LONG, sizeof(long)) > 0)
+			if(pCmdDescrs->lsearch(&menu_cm, &pos, CMPF_LONG, sizeof(long)))
 				cmd.CmdID = pCmdDescrs->at(pos).Key;
 			pFold->Add(-1, static_cast<const PPCommandItem *>(&cmd));
 			if(mit.mtOption & MF_END)

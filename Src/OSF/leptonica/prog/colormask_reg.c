@@ -32,13 +32,17 @@
  *   peaks in HS.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
          char **argv)
 {
 l_int32       i, j, x, y, rval, gval, bval;
-l_uint32      pixel;
+l_uint32      pixel1, pixel2;
 l_float32     frval, fgval, fbval;
 NUMA         *nahue, *nasat, *napk;
 PIX          *pixs, *pixhsv, *pixh, *pixg, *pixf, *pixd, *pixr;
@@ -46,6 +50,11 @@ PIX          *pix1, *pix2, *pix3;
 PIXA         *pixa, *pixapk;
 PTA          *ptapk;
 L_REGPARAMS  *rp;
+
+#if !defined(HAVE_LIBPNG)
+    L_ERROR("This test requires libpng to run.\n", "colormask_reg");
+    exit(77);
+#endif
 
     if (regTestSetup(argc, argv, &rp))
         return 1;
@@ -57,8 +66,8 @@ L_REGPARAMS  *rp;
         for (j = 0; j < 650; j++) {
             gval = 255 - j / 30;
             bval = 70 + j / 30;
-            composeRGBPixel(rval, gval, bval, &pixel);
-            pixSetPixel(pixs, j, i, pixel);
+            composeRGBPixel(rval, gval, bval, &pixel1);
+            pixSetPixel(pixs, j, i, pixel1);
         }
     }
 
@@ -105,7 +114,7 @@ L_REGPARAMS  *rp;
         /* Find all the peaks */
     pixFindHistoPeaksHSV(pixh, L_HS_HISTO, 20, 20, 6, 2.0,
                          &ptapk, &napk, &pixapk);
-    numaWriteStream(stderr, napk);
+    numaWriteStderr(napk);
     ptaWriteStream(stderr, ptapk, 1);
     pixd = pixaDisplayTiledInRows(pixapk, 32, 1400, 1.0, 0, 30, 2);
     regTestWritePixAndCheck(rp, pixd, IFF_PNG);  /* 4 */
@@ -124,17 +133,19 @@ L_REGPARAMS  *rp;
         pixGetAverageMaskedRGB(pixr, pix1, 0, 0, 1, L_MEAN_ABSVAL,
                                &frval, &fgval, &fbval);
         composeRGBPixel((l_int32)frval, (l_int32)fgval, (l_int32)fbval,
-                        &pixel);
+                        &pixel1);
+        pixGetPixelAverage(pixr, pix1, 0, 0, 1, &pixel2);
+        regTestCompareValues(rp, pixel1 >> 8, pixel2 >> 8, 0.0);  /* 5 - 10 */
         pix2 = pixCreateTemplate(pixr);
         pixSetAll(pix2);
-        pixPaintThroughMask(pix2, pix1, 0, 0, pixel);
+        pixPaintThroughMask(pix2, pix1, 0, 0, pixel1);
         pixaAddPix(pixa, pix2, L_INSERT);
         pix3 = pixCreateTemplate(pixr);
-        pixSetAllArbitrary(pix3, pixel);
+        pixSetAllArbitrary(pix3, pixel1);
         pixaAddPix(pixa, pix3, L_INSERT);
     }
     pixd = pixaDisplayTiledAndScaled(pixa, 32, 225, 3, 0, 30, 3);
-    regTestWritePixAndCheck(rp, pixd, IFF_PNG);  /* 5 */
+    regTestWritePixAndCheck(rp, pixd, IFF_PNG);  /* 8 */
     pixDisplayWithTitle(pixd, 600, 0, "Masks over peaks", rp->display);
     pixDestroy(&pixs);
     pixDestroy(&pixr);

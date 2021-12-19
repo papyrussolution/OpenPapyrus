@@ -87,8 +87,8 @@ namespace {
 int32_t swapFormatVersion3(const UDataSwapper * ds,
     const void * inData, int32_t length, void * outData,
     UErrorCode * pErrorCode) {
-	const uint8_t * inBytes;
-	uint8_t * outBytes;
+	const uint8 * inBytes;
+	uint8 * outBytes;
 
 	const UCATableHeader * inHeader;
 	UCATableHeader * outHeader;
@@ -105,8 +105,8 @@ int32_t swapFormatVersion3(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8_t*)inData;
-	outBytes = (uint8_t*)outData;
+	inBytes = (const uint8*)inData;
+	outBytes = (uint8 *)outData;
 
 	inHeader = (const UCATableHeader*)inData;
 	outHeader = (UCATableHeader*)outData;
@@ -225,7 +225,7 @@ int32_t swapFormatVersion3(const UDataSwapper * ds,
 			    outBytes+header.endExpansionCE, pErrorCode);
 		}
 
-		/* expansionCESize, unsafeCP, contrEndCP: uint8_t[], no need to swap */
+		/* expansionCESize, unsafeCP, contrEndCP: uint8[], no need to swap */
 
 		/* swap UCA constants */
 		if(header.UCAConsts!=0) {
@@ -313,8 +313,8 @@ int32_t swapFormatVersion4(const UDataSwapper * ds,
 		return 0;
 	}
 
-	const uint8_t * inBytes = (const uint8_t*)inData;
-	uint8_t * outBytes = (uint8_t*)outData;
+	const uint8 * inBytes = (const uint8*)inData;
+	uint8 * outBytes = (uint8 *)outData;
 
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexes[IX_TOTAL_SIZE+1];
@@ -542,8 +542,8 @@ U_CAPI int32_t U_EXPORT2 ucol_swapInverseUCA(const UDataSwapper * ds,
 	const UDataInfo * pInfo;
 	int32_t headerSize;
 
-	const uint8_t * inBytes;
-	uint8_t * outBytes;
+	const uint8 * inBytes;
+	uint8 * outBytes;
 
 	const InverseUCATableHeader * inHeader;
 	InverseUCATableHeader * outHeader;
@@ -577,8 +577,8 @@ U_CAPI int32_t U_EXPORT2 ucol_swapInverseUCA(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8_t*)inData+headerSize;
-	outBytes = (uint8_t*)outData+headerSize;
+	inBytes = (const uint8*)inData+headerSize;
+	outBytes = (uint8 *)outData+headerSize;
 
 	inHeader = (const InverseUCATableHeader*)inBytes;
 	outHeader = (InverseUCATableHeader*)outBytes;

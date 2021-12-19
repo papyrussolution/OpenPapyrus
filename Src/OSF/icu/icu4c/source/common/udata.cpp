@@ -111,8 +111,8 @@ static bool U_CALLCONV udata_cleanup(void)
 	int32_t i;
 
 	if(gCommonDataCache) {          /* Delete the cache of user data mappings.  */
-		uhash_close(gCommonDataCache); /*   Table owns the contents, and will delete them. */
-		gCommonDataCache = NULL; /*   Cleanup is not thread safe.       */
+		uhash_close(gCommonDataCache); /* Table owns the contents, and will delete them. */
+		gCommonDataCache = NULL; /* Cleanup is not thread safe.       */
 	}
 	gCommonDataCacheInitOnce.reset();
 
@@ -150,9 +150,9 @@ static bool U_CALLCONV findCommonICUDataByName(const char * inBasename, UErrorCo
 /*
  * setCommonICUData.   Set a UDataMemory to be the global ICU Data
  */
-static bool setCommonICUData(UDataMemory * pData,     /*  The new common data.  Belongs to caller, we copy it. */
-    bool warn,                          /*  If true, set USING_DEFAULT warning if ICUData was    */
-                                         /*    changed by another thread before we got to it.     */
+static bool setCommonICUData(UDataMemory * pData,     /* The new common data.  Belongs to caller, we copy it. */
+    bool warn,                          /* If true, set USING_DEFAULT warning if ICUData was    */
+                                         /* changed by another thread before we got to it.     */
     UErrorCode * pErr)
 {
 	UDataMemory  * newCommonData = UDataMemory_createNewInstance(pErr);
@@ -162,10 +162,10 @@ static bool setCommonICUData(UDataMemory * pData,     /*  The new common data.  
 		return FALSE;
 	}
 
-	/*  For the assignment, other threads must cleanly see either the old   */
-	/*    or the new, not some partially initialized new.  The old can not be        */
-	/*    deleted - someone may still have a pointer to it lying around in  */
-	/*    their locals.        */
+	/* For the assignment, other threads must cleanly see either the old   */
+	/* or the new, not some partially initialized new.  The old can not be        */
+	/* deleted - someone may still have a pointer to it lying around in  */
+	/* their locals.        */
 	UDatamemory_assign(newCommonData, pData);
 	umtx_lock(NULL);
 	for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray); ++i) {
@@ -273,7 +273,7 @@ static void U_CALLCONV udata_initHashTable(UErrorCode &err) {
 	ucln_common_registerCleanup(UCLN_COMMON_UDATA, udata_cleanup);
 }
 
-/*   udata_getCacheHashTable()
+/* udata_getCacheHashTable()
  *     Get the hash table used to store the data cache entries.
  *     Lazy create it if it doesn't yet exist.
  */
@@ -648,8 +648,8 @@ extern "C" const DataHeader U_DATA_API U_ICUDATA_ENTRY_POINT; //
 *                       just return the cached UDataMem object.        *
 *                                                                      *
 *----------------------------------------------------------------------*/
-static UDataMemory * openCommonData(const char * path,          /*  Path from OpenChoice? */
-    int32_t commonDataIndex,              /*  ICU Data (index >= 0) if path == NULL */
+static UDataMemory * openCommonData(const char * path,          /* Path from OpenChoice? */
+    int32_t commonDataIndex,              /* ICU Data (index >= 0) if path == NULL */
     UErrorCode * pErrorCode)
 {
 	UDataMemory tData;
@@ -711,7 +711,7 @@ static UDataMemory * openCommonData(const char * path,          /*  Path from Op
 	/* request is NOT for ICU Data.  */
 
 	/* Find the base name portion of the supplied path.   */
-	/*   inBasename will be left pointing somewhere within the original path string.      */
+	/* inBasename will be left pointing somewhere within the original path string.      */
 	inBasename = findBasename(path);
 #ifdef UDATA_DEBUG
 	fprintf(stderr, "inBasename = %s\n", inBasename);
@@ -719,7 +719,7 @@ static UDataMemory * openCommonData(const char * path,          /*  Path from Op
 
 	if(*inBasename==0) {
 		/* no basename.     This will happen if the original path was a directory name,   */
-		/*    like  "a/b/c/".   (Fallback to separate files will still work.)    */
+		/* like  "a/b/c/".   (Fallback to separate files will still work.)    */
 #ifdef UDATA_DEBUG
 		fprintf(stderr, "ocd: no basename in %s, bailing.\n", path);
 #endif
@@ -730,8 +730,8 @@ static UDataMemory * openCommonData(const char * path,          /*  Path from Op
 	}
 
 	/* Is the requested common data file already open and cached?   */
-	/*   Note that the cache is keyed by the base name only.  The rest of the path,   */
-	/*     if any, is not considered.    */
+	/* Note that the cache is keyed by the base name only.  The rest of the path,   */
+	/* if any, is not considered.    */
 	UDataMemory  * dataToReturn = udata_findCachedData(inBasename, *pErrorCode);
 	if(dataToReturn != NULL || U_FAILURE(*pErrorCode)) {
 		return dataToReturn;
@@ -818,8 +818,8 @@ static bool extendICUData(UErrorCode * pErr)
 	if(!umtx_loadAcquire(gHaveTriedToLoadCommonData)) {
 		/* See if we can explicitly open a .dat file for the ICUData. */
 		pData = openCommonData(
-			U_ICUDATA_NAME,       /*  "icudt20l" , for example. */
-			-1,                   /*  Pretend we're not opening ICUData  */
+			U_ICUDATA_NAME,       /* "icudt20l" , for example. */
+			-1,                   /* Pretend we're not opening ICUData  */
 			pErr);
 
 		/* How about if there is no pData, eh... */
@@ -828,16 +828,16 @@ static bool extendICUData(UErrorCode * pErr)
 		if(pData != NULL) {
 			UDatamemory_assign(&copyPData, pData);
 			copyPData.map = 0; /* The mapping for this data is owned by the hash table */
-			copyPData.mapAddr = 0; /*   which will unmap it when ICU is shut down.         */
+			copyPData.mapAddr = 0; /* which will unmap it when ICU is shut down.         */
 			                       /* CommonICUData is also unmapped when ICU is shut down.*/
 			                       /* To avoid unmapping the data twice, zero out the map  */
-			                       /*   fields in the UDataMemory that we're assigning     */
-			                       /*   to CommonICUData.       */
+			                       /* fields in the UDataMemory that we're assigning     */
+			                       /* to CommonICUData.       */
 
 			didUpdate = /* no longer using this result */
-			    setCommonICUData(&copyPData,/*  The new common data.     */
-				FALSE,    /*  No warnings if write didn't happen         */
-				pErr); /*  setCommonICUData honors errors; NOP if error set    */
+			    setCommonICUData(&copyPData,/* The new common data.     */
+				FALSE,    /* No warnings if write didn't happen         */
+				pErr); /* setCommonICUData honors errors; NOP if error set    */
 		}
 
 		umtx_storeRelease(gHaveTriedToLoadCommonData, 1);
@@ -853,9 +853,9 @@ static bool extendICUData(UErrorCode * pErr)
 	umtx_unlock(&extendICUDataMutex);
 #endif
 	return didUpdate; /* Return true if ICUData pointer was updated.   */
-	                            /*   (Could potentially have been done by another thread racing */
-	                            /*   us through here, but that's fine, we still return true    */
-	                            /*   so that current thread will also examine extended data.   */
+	                            /* (Could potentially have been done by another thread racing */
+	                            /* us through here, but that's fine, we still return true    */
+	                            /* so that current thread will also examine extended data.   */
 }
 
 /*----------------------------------------------------------------------*
@@ -925,12 +925,12 @@ U_CAPI void U_EXPORT2 udata_setAppData(const char * path, const void * data, UEr
 static UDataMemory * checkDataItem(const DataHeader  * pHeader,         /* The data item to be checked.
        */
     UDataMemoryIsAcceptable  * isAcceptable,/* App's call-back function  */
-    void   * context,     /*   pass-thru param for above.       */
-    const char * type,        /*   pass-thru param for above.       */
-    const char * name,        /*   pass-thru param for above.       */
+    void   * context,     /* pass-thru param for above.       */
+    const char * type,        /* pass-thru param for above.       */
+    const char * name,        /* pass-thru param for above.       */
     UErrorCode        * nonFatalErr, /* Error code if this data was not acceptable  */
-                                            /*   but openChoice should continue with       */
-                                            /*   trying to get data from fallback path.    */
+                                            /* but openChoice should continue with       */
+                                            /* trying to get data from fallback path.    */
     UErrorCode        * fatalErr     /* Bad error, caller should return immediately */
     )
 {
@@ -953,7 +953,7 @@ static UDataMemory * checkDataItem(const DataHeader  * pHeader,         /* The d
 	else {
 		/* the data is not acceptable, look further */
 		/* If we eventually find something good, this errorcode will be */
-		/*    cleared out. */
+		/* cleared out. */
 		*nonFatalErr = U_INVALID_FORMAT_ERROR;
 	}
 	return rDataMem;

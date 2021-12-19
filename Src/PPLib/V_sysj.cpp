@@ -1176,8 +1176,8 @@ PPALDD_DESTRUCTOR(SysJournal) { Destroy(); }
 int PPALDD_SysJournal::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(SysJournal, rsrv);
-	H.FltBeg          = p_filt->Period.low;
-	H.FltEnd          = p_filt->Period.upp;
+	H.FltBeg  = p_filt->Period.low;
+	H.FltEnd  = p_filt->Period.upp;
 	H.FltUserID       = p_filt->UserID;
 	H.FltObjType      = p_filt->ObjType;
 	H.FltAction       = p_filt->ActionIDList.getSingle();

@@ -40,10 +40,7 @@ int PPBudgetPacket::EnumItems(uint * pIdx, BudgetItemTbl::Rec * pRec)
 
 int PPBudgetPacket::AddItem(BudgetItemTbl::Rec * pRec)
 {
-	int    ok = -1;
-	if(pRec && Items.lsearch(&pRec->ID, 0, PTR_CMPFUNC(long)) <= 0)
-		ok = Items.insert(pRec);
-	return ok;
+	return (pRec && !Items.lsearch(&pRec->ID, 0, CMPF_LONG)) ? Items.insert(pRec) : -1;
 }
 
 int PPBudgetPacket::UpdateItem(uint pos, BudgetItemTbl::Rec * pRec)
@@ -59,7 +56,7 @@ int PPBudgetPacket::UpdateItem(uint pos, BudgetItemTbl::Rec * pRec)
 int PPBudgetPacket::DelItem(uint pos, PPID id)
 {
 	uint p = 0;
-	if(id && Items.lsearch(&id, &p, PTR_CMPFUNC(long)) > 0)
+	if(id && Items.lsearch(&id, &p, CMPF_LONG))
 		Items.atFree(p);
 	else if(pos < Items.getCount())
 		Items.atFree(pos);
@@ -802,7 +799,7 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 	else
 		Data.freeAll();
 	// @v10.6.4 MEMSZERO(rec);
-	if(Data.lsearch(&InitID, &pos, PTR_CMPFUNC(long)) > 0)
+	if(Data.lsearch(&InitID, &pos, CMPF_LONG))
 		rec = Data.at(pos);
 	for(uint i = 0; rec.ID == 0 && i < Data.getCount(); i++) {
 		rec = Data.at(i);
@@ -929,7 +926,7 @@ int PPObjBudget::InitItemsCycleList(const BudgetItemTbl::Rec * pRec, BudgetItems
 			THROW(ItemsTbl.GetItemsByBudget(pRec->BudgetID, pRec->Acc, pRec->Kind, &list));
 			for(uint i = 0; i < list.getCount(); i++) {
 				uint p = 0;
-				if(pList->lsearch(&list.at(i).Dt.v, &p, PTR_CMPFUNC(long), offsetof(BudgetItemTbl::Rec, Dt)) > 0)
+				if(pList->lsearch(&list.at(i).Dt.v, &p, CMPF_LONG, offsetof(BudgetItemTbl::Rec, Dt)))
 					pList->at(p) = list.at(i);
 			}
 		}

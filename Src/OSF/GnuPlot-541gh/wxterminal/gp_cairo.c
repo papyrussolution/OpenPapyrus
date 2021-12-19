@@ -324,7 +324,7 @@ void gp_cairo_set_linewidth(plot_struct * plot, double linewidth)
 	FPRINTF((stderr, "set_linewidth %lf\n", linewidth));
 	gp_cairo_stroke(plot); // stroke any open path 
 	gp_cairo_end_polygon(plot); // draw any open polygon set 
-	if(sstreq(GPT.P_Term->name, "pdfcairo"))
+	if(sstreq(GPT.P_Term->GetName(), "pdfcairo"))
 		linewidth *= 2;
 	if(linewidth < 0.20)    /* Admittedly arbitrary */
 		linewidth = 0.20;
@@ -494,7 +494,7 @@ void gp_cairo_set_dashtype(plot_struct * plot, int type, t_dashtype * custom_das
 		/* Convert to internal representation */
 		int i;
 		double empirical_scale;
-		if(sstreq(GPT.P_Term->name, "pngcairo"))
+		if(sstreq(GPT.P_Term->GetName(), "pngcairo"))
 			empirical_scale = 0.25;
 		else
 			empirical_scale = 0.55;
@@ -1656,7 +1656,7 @@ void gp_cairo_fill_pattern(plot_struct * plot, int fillstyle, int fillpar)
 	else
 		cairo_set_source_rgb(pattern_cr, 1.0, 1.0, 1.0);
 	cairo_paint(pattern_cr);
-	if(sstreq(GPT.P_Term->name, "pdfcairo")) /* Work-around for poor scaling in cairo */
+	if(sstreq(GPT.P_Term->GetName(), "pdfcairo")) /* Work-around for poor scaling in cairo */
 		cairo_set_line_width(pattern_cr, PATTERN_SIZE/150.);
 	else
 		cairo_set_line_width(pattern_cr, PATTERN_SIZE/50.);

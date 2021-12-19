@@ -1086,7 +1086,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 		0x80000029, /* 1000 0000 0000 0000  0000 0000 0010 1001 */
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0x80000000, /* 1000 0000 0000 0000  0000 0000 0000 0000 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1102,7 +1102,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 		0x88000869, /* 1000 1000 0000 0000  0000 1000 0110 1001 */
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0x80000000, /* 1000 0000 0000 0000  0000 0000 0000 0000 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1116,7 +1116,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 		0xfc009fff, /* 1111 1100 0000 0000  1001 1111 1111 1111 */
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x78000001, /* 0111 1000 0000 0000  0000 0000 0000 0001 */
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0xb8000001, /* 1011 1000 0000 0000  0000 0000 0000 0001 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1130,7 +1130,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 		0x000000ad, /* 0000 0000 0000 0000  0000 0000 1010 1101 */
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0x80000000, /* 1000 0000 0000 0000  0000 0000 0000 0000 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1144,7 +1144,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 		0x00000085, /* 0000 0000 0000 0000  0000 0000 1000 0101 */
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0x80000000, /* 1000 0000 0000 0000  0000 0000 0000 0000 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1158,7 +1158,7 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 		0x00000021, /* 0000 0000 0000 0000  0000 0000 0010 0001 */
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */
 		0x00000000, /* 0000 0000 0000 0000  0000 0000 0000 0000 */

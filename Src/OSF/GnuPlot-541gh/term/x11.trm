@@ -281,7 +281,7 @@ static int parse_driver(const char * cmd)
 	return nr;
 }
 
-/*   X11_args - scan gnuplot command line for standard X Toolkit options
+/* X11_args - scan gnuplot command line for standard X Toolkit options
  * called from plot.c so must not be TERM_PUBLIC (which may be static)
  */
 
@@ -519,12 +519,12 @@ TERM_PUBLIC void X11_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case X11_ENHANCED:
 			    pThis->put_text = ENHX11_put_text;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    pGp->Pgm.Shift();
 			    break;
 			case X11_NOENHANCED:
 			    pThis->put_text = X11_put_text;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    pGp->Pgm.Shift();
 			    break;
 			case X11_SIZE:
@@ -882,7 +882,7 @@ TERM_PUBLIC int X11_waitforinput(GpTermEntry * pThis, int options)
 		/* When taking input from the console, we are willing to wait here	*/
 		/* until the next character is typed. But if input is from a script	*/
 		/* we just want to check for hotkeys or mouse input and then leave	*/
-		/*  again without waiting on stdin.					*/
+		/* again without waiting on stdin.					*/
 		if(options == TERM_ONLY_CHECK_MOUSING) {
 			timeout = &one_msec;
 			one_msec.tv_sec = 0;
@@ -1229,7 +1229,7 @@ TERM_PUBLIC void X11_init(GpTermEntry * pThis)
 	}
 }
 
-/*   We use $QIO in order to avoid buffering problems, although it might
+/* We use $QIO in order to avoid buffering problems, although it might
  *   work  as well with simple Fprintf calls.
  */
 
@@ -1356,15 +1356,14 @@ TERM_PUBLIC void X11_graphics(GpTermEntry * pThis)
 		PRINT0("Qg\n");
 		FFLUSH();
 		if(X11_ymax_saved > 0.0) {
-			/* use saved sizes if they're valid */
-			pThis->ChrH = X11_hchar_saved;
-			pThis->ChrV = X11_vchar_saved;
-			pThis->TicH = pThis->TicV = X11_vchar_saved / 2.5;
+			// use saved sizes if they're valid 
+			pThis->SetCharSize(X11_hchar_saved, X11_vchar_saved);
+			pThis->SetTic(X11_vchar_saved / 2.5);
 			pThis->MaxY = X11_ymax_saved;
 		}
 	}
 #endif
-	/* Force default font at start of plot */
+	// Force default font at start of plot 
 	*X11_last_font_used = '\01';
 	X11_set_default_font();
 	X11_set_font("");

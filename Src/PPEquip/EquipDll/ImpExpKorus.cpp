@@ -2080,7 +2080,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 //
 int ImportCls::ListMessageBox(uint messageType)
 {
-	MsgList.Clear();
+	MsgList.Z();
 	int    ok = -1;
 	uint   pos = 0;
 	xmlTextReader * p_xml_ptr = 0;

@@ -2251,8 +2251,8 @@ int TCPIPMToledo::SetConnection()
 		long   res;
 		struct sockaddr_in sin;
 		THROW_PP((SocketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != INVALID_SOCKET, PPERR_SCALE_NOSYNC);
-		sin.sin_family           = AF_INET;
-		sin.sin_port             = htons(3001);
+		sin.sin_family   = AF_INET;
+		sin.sin_port     = htons(3001);
 		sin.sin_addr.S_un.S_addr = inet_addr(port_buf);
 		memzero(send_timeout, sizeof(send_timeout));
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
@@ -3425,8 +3425,8 @@ int Bizerba::SetConnection()
 		long   res;
 		struct sockaddr_in sin;
 		THROW_PP((SocketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != INVALID_SOCKET, PPERR_SCALE_NOSYNC);
-		sin.sin_family           = AF_INET;
-		sin.sin_port             = htons(1025);
+		sin.sin_family   = AF_INET;
+		sin.sin_port     = htons(1025);
 		sin.sin_addr.S_un.S_addr = inet_addr(port_buf);
 		memzero(send_timeout, sizeof(send_timeout));
 		memzero(rcv_timeout,  sizeof(rcv_timeout));

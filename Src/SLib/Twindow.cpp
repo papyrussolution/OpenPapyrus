@@ -763,7 +763,7 @@ int __cdecl TWindow::SetCtrlsFont(const char * pFontName, int height, ...)
 			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
 			if(ok > 0)
 				while((ctrl_id = va_arg(vl, long)) != 0)
-					::SendMessage(GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
+					::SendMessage(::GetDlgItem(H(), ctrl_id), WM_SETFONT, reinterpret_cast<WPARAM>(new_font), TRUE);
 		}
 	}
 	va_end(vl);
@@ -1238,7 +1238,7 @@ int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const c
 	int SRectLayout::IsEmpty(long itemId) const
 	{
 		uint   pos = 0;
-		return WinList.lsearch(&itemId, &pos, PTR_CMPFUNC(long)) ? 0 : 1;
+		return WinList.lsearch(&itemId, &pos, CMPF_LONG) ? 0 : 1;
 	}
 
 	int SRectLayout::InsertWindow(long itemId, TView * pView, int minWidth, int minHeight)
@@ -1354,8 +1354,8 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		wc.lpszClassName = P_SLibWindowBaseClsName;
 		wc.hInstance     = h_inst;
 		wc.lpfnWndProc   = TWindowBase::WndProc;
-		wc.style         = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
-		wc.hIcon         = iconId ? ::LoadIcon(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
+		wc.style = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
+		wc.hIcon = iconId ? ::LoadIcon(h_inst, MAKEINTRESOURCE(/*ICON_MAIN_P2*/ /*102*/iconId)) : 0;
 		wc.cbClsExtra    = BRWCLASS_CEXTRA;
 		wc.cbWndExtra    = BRWCLASS_WEXTRA;
 		return ::RegisterClassEx(&wc);

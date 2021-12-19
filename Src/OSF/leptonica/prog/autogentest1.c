@@ -44,6 +44,10 @@
  *  need to specify the file type (e.g., "PIXA")
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 #include <string.h>
 
@@ -59,6 +63,8 @@ l_int32 main(int    argc,
 l_int32     i;
 L_STRCODE  *strc;
 
+    setLeptDebugOK(1);
+
         /* Method 1: generate autogen.137.c and autogen.137.h  */
     strc = strcodeCreate(137);
     for (i = 0; i < 2; i++)
@@ -66,7 +72,7 @@ L_STRCODE  *strc;
     strcodeFinalize(&strc, NULL);
 
         /* Method 2: generate autogen.138.c and autogen.138.c  */
-    l_binaryWrite("/tmp/lept/auto/fontnames.txt", "w", (char *)filetext,
+    l_binaryWrite("/tmp/lept/auto/fontnames.txt", "w", filetext,
                   strlen(filetext));
     strcodeCreateFromFile("/tmp/lept/auto/fontnames.txt", 138, NULL);
     return 0;

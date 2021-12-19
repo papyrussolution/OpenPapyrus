@@ -166,7 +166,7 @@ public:
 
 	Array1D(int32_t d1, UErrorCode & status)
 		: memory_(uprv_malloc(d1 * sizeof(float))),
-		data_((float*)memory_), d1_(d1) {
+		data_((float *)memory_), d1_(d1) {
 		if(U_SUCCESS(status)) {
 			if(memory_ == nullptr) {
 				status = U_MEMORY_ALLOCATION_ERROR;
@@ -309,7 +309,7 @@ public:
 
 	Array2D(int32_t d1, int32_t d2, UErrorCode & status)
 		: memory_(uprv_malloc(d1 * d2 * sizeof(float))),
-		data_((float*)memory_), d1_(d1), d2_(d2) {
+		data_((float *)memory_), d1_(d1), d2_(d2) {
 		if(U_SUCCESS(status)) {
 			if(memory_ == nullptr) {
 				status = U_MEMORY_ALLOCATION_ERROR;

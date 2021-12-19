@@ -471,8 +471,8 @@ void PPGoodsImpExpParam::Clear()
 	PhUnitID      = 0;
 	DefParentID   = 0;
 	RcptOpID      = 0;
-	Flags         = 0;
-	LocID         = 0;
+	Flags = 0;
+	LocID = 0;
 	MatrixAction  = 0;
 	SubCode.Z();
 }

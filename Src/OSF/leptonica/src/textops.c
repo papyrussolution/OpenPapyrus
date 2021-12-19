@@ -31,21 +31,21 @@
  *    Font layout
  *       PIX             *pixAddSingleTextblock()
  *       PIX             *pixAddTextlines()
- *       int32          pixSetTextblock()
- *       int32          pixSetTextline()
+ *       l_int32          pixSetTextblock()
+ *       l_int32          pixSetTextline()
  *       PIXA            *pixaAddTextNumber()
  *       PIXA            *pixaAddTextlines()
- *       int32          pixaAddPixWithText()
+ *       l_int32          pixaAddPixWithText()
  *
  *    Text size estimation and partitioning
  *       SARRAY          *bmfGetLineStrings()
  *       NUMA            *bmfGetWordWidths()
- *       int32          bmfGetStringWidth()
+ *       l_int32          bmfGetStringWidth()
  *
  *    Text splitting
  *       SARRAY          *splitStringToParagraphs()
- *       static int32   stringAllWhitespace()
- *       static int32   stringLeadingWhitespace()
+ *       static l_int32   stringAllWhitespace()
+ *       static l_int32   stringLeadingWhitespace()
  *
  *    This is a simple utility to put text on images.  One font and style
  *    is provided, with a variety of pt sizes.  For example, to put a
@@ -73,8 +73,8 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static int32 stringAllWhitespace(char * textstr, int32 * pval);
-static int32 stringLeadingWhitespace(char * textstr, int32 * pval);
+static l_int32 stringAllWhitespace(char * textstr, l_int32 * pval);
+static l_int32 stringLeadingWhitespace(char * textstr, l_int32 * pval);
 
 /*---------------------------------------------------------------------*
 *                                 Font layout                         *
@@ -82,15 +82,16 @@ static int32 stringLeadingWhitespace(char * textstr, int32 * pval);
 /*!
  * \brief   pixAddSingleTextblock()
  *
- * \param[in]    pixs input pix; colormap ok
- * \param[in]    bmf bitmap font data
- * \param[in]    textstr [optional] text string to be added
- * \param[in]    val color to set the text
- * \param[in]    location L_ADD_ABOVE, L_ADD_AT_TOP, L_ADD_AT_BOT, L_ADD_BELOW
- * \param[out]   poverflow [optional] 1 if text overflows
- *                         allocated region and is clipped; 0 otherwise
- * \return  pixd new pix with rendered text, or either a copy
- *                    or NULL on error
+ * \param[in]    pixs        input pix; colormap ok
+ * \param[in]    bmf         bitmap font data
+ * \param[in]    textstr     [optional] text string to be added
+ * \param[in]    val         color to set the text
+ * \param[in]    location    L_ADD_ABOVE, L_ADD_AT_TOP,
+ *                           L_ADD_AT_BOT, L_ADD_BELOW
+ * \param[out]   poverflow   [optional] 1 if text overflows allocated
+ *                           region and is clipped; 0 otherwise
+ * \return  pixd   new pix with rendered text, or either a copy,
+ *                 or NULL on error
  *
  * <pre>
  * Notes:
@@ -110,27 +111,27 @@ static int32 stringLeadingWhitespace(char * textstr, int32 * pval);
  */
 PIX * pixAddSingleTextblock(PIX         * pixs,
     L_BMF       * bmf,
-    const char  * textstr,
-    uint32 val,
-    int32 location,
-    int32     * poverflow)
+    const char * textstr,
+    l_uint32 val,
+    l_int32 location,
+    l_int32     * poverflow)
 {
 	char     * linestr;
-	int32 w, h, d, i, y, xstart, ystart, extra, spacer, rval, gval, bval;
-	int32 nlines, htext, ovf, overflow, offset, index;
-	uint32 textcolor;
-	PIX      * pixd;
+	l_int32 w, h, d, i, y, xstart, ystart, extra, spacer, rval, gval, bval;
+	l_int32 nlines, htext, ovf, overflow, offset, index;
+	l_uint32 textcolor;
+	PIX * pixd;
 	PIXCMAP  * cmap, * cmapd;
-	SARRAY   * salines;
+	SARRAY * salines;
 
-	PROCNAME("pixAddSingleTextblock");
+	PROCNAME(__FUNCTION__);
 
 	if(poverflow) *poverflow = 0;
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(location != L_ADD_ABOVE && location != L_ADD_AT_TOP &&
 	    location != L_ADD_AT_BOT && location != L_ADD_BELOW)
-		return (PIX*)ERROR_PTR("invalid location", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid location", procName, NULL);
 	if(!bmf) {
 		L_ERROR("no bitmap fonts; returning a copy\n", procName);
 		return pixCopy(NULL, pixs);
@@ -138,7 +139,7 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
 	if(!textstr)
 		textstr = pixGetText(pixs);
 	if(!textstr) {
-		L_ERROR("no textstring defined; returning a copy\n", procName);
+		L_WARNING("no textstring defined; returning a copy\n", procName);
 		return pixCopy(NULL, pixs);
 	}
 
@@ -160,10 +161,10 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
 	else if(d == 32 && val < 256)
 		val = 0x80808000;
 
-	xstart = (int32)(0.1 * w);
+	xstart = (l_int32)(0.1 * w);
 	salines = bmfGetLineStrings(bmf, textstr, w - 2 * xstart, 0, &htext);
 	if(!salines)
-		return (PIX*)ERROR_PTR("line string sa not made", procName, NULL);
+		return (PIX *)ERROR_PTR("line string sa not made", procName, NULL);
 	nlines = sarrayGetCount(salines);
 
 	/* Add white border if required */
@@ -172,6 +173,8 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
 		extra = htext + 2 * spacer;
 		pixd = pixCreate(w, h + extra, d);
 		pixCopyColormap(pixd, pixs);
+		pixCopyResolution(pixd, pixs);
+		pixCopyText(pixd, pixs);
 		pixSetBlackOrWhite(pixd, L_BRING_IN_WHITE);
 		if(location == L_ADD_ABOVE)
 			pixRasterop(pixd, 0, extra, w, h, PIX_SRC, pixs, 0, 0);
@@ -226,6 +229,7 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
 			overflow = 1;
 	}
 	if(poverflow) *poverflow = overflow;
+
 	sarrayDestroy(&salines);
 	return pixd;
 }
@@ -233,13 +237,13 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
 /*!
  * \brief   pixAddTextlines()
  *
- * \param[in]    pixs input pix; colormap ok
- * \param[in]    bmf bitmap font data
- * \param[in]    textstr [optional] text string to be added
- * \param[in]    val color to set the text
- * \param[in]    location L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
- * \return  pixd new pix with rendered text, or either a copy
- *                    or NULL on error
+ * \param[in]    pixs        input pix; colormap ok
+ * \param[in]    bmf         bitmap font data
+ * \param[in]    textstr     [optional] text string to be added
+ * \param[in]    val         color to set the text
+ * \param[in]    location    L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
+ * \return  pixd   new pix with rendered text, or either a copy,
+ *                 or NULL on error
  *
  * <pre>
  * Notes:
@@ -261,30 +265,37 @@ PIX * pixAddSingleTextblock(PIX         * pixs,
  *      (5) Typical usage is for labelling a pix with some text data.
  * </pre>
  */
-PIX * pixAddTextlines(PIX * pixs, L_BMF * bmf, const char  * textstr, uint32 val, int32 location)
+PIX * pixAddTextlines(PIX         * pixs,
+    L_BMF       * bmf,
+    const char * textstr,
+    l_uint32 val,
+    l_int32 location)
 {
 	char     * str;
-	int32 i, w, h, d, rval, gval, bval, index;
-	int32 wline, wtext, htext, wadd, hadd, spacer, hbaseline, nlines;
-	uint32 textcolor;
-	PIX      * pixd;
+	l_int32 i, w, h, d, rval, gval, bval, index;
+	l_int32 wline, wtext, htext, wadd, hadd, spacer, hbaseline, nlines;
+	l_uint32 textcolor;
+	PIX * pixd;
 	PIXCMAP  * cmap, * cmapd;
-	SARRAY   * sa;
-	PROCNAME("pixAddTextlines");
+	SARRAY * sa;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(location != L_ADD_ABOVE && location != L_ADD_BELOW &&
 	    location != L_ADD_LEFT && location != L_ADD_RIGHT)
-		return (PIX*)ERROR_PTR("invalid location", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid location", procName, NULL);
 	if(!bmf) {
 		L_ERROR("no bitmap fonts; returning a copy\n", procName);
 		return pixCopy(NULL, pixs);
 	}
-	if(!textstr)
-		textstr = pixGetText(pixs);
 	if(!textstr) {
-		L_ERROR("no textstring defined; returning a copy\n", procName);
-		return pixCopy(NULL, pixs);
+		textstr = pixGetText(pixs);
+		if(!textstr) {
+			L_WARNING("no textstring defined; returning a copy\n", procName);
+			return pixCopy(NULL, pixs);
+		}
 	}
 
 	/* Make sure the "color" value for the text will work
@@ -318,13 +329,16 @@ PIX * pixAddTextlines(PIX * pixs, L_BMF * bmf, const char  * textstr, uint32 val
 			wtext = wline;
 	}
 	hbaseline = bmf->baselinetab[93];
-	htext = (int32)(1.5 * hbaseline * nlines);
+	htext = 1.5 * hbaseline * nlines;
+
 	/* Add white border */
 	spacer = 10; /* pixels away from the added border */
 	if(location == L_ADD_ABOVE || location == L_ADD_BELOW) {
 		hadd = htext + 2 * spacer;
 		pixd = pixCreate(w, h + hadd, d);
 		pixCopyColormap(pixd, pixs);
+		pixCopyResolution(pixd, pixs);
+		pixCopyText(pixd, pixs);
 		pixSetBlackOrWhite(pixd, L_BRING_IN_WHITE);
 		if(location == L_ADD_ABOVE)
 			pixRasterop(pixd, 0, hadd, w, h, PIX_SRC, pixs, 0, 0);
@@ -335,6 +349,8 @@ PIX * pixAddTextlines(PIX * pixs, L_BMF * bmf, const char  * textstr, uint32 val
 		wadd = wtext + 2 * spacer;
 		pixd = pixCreate(w + wadd, h, d);
 		pixCopyColormap(pixd, pixs);
+		pixCopyResolution(pixd, pixs);
+		pixCopyText(pixd, pixs);
 		pixSetBlackOrWhite(pixd, L_BRING_IN_WHITE);
 		if(location == L_ADD_LEFT)
 			pixRasterop(pixd, wadd, 0, w, h, PIX_SRC, pixs, 0, 0);
@@ -354,19 +370,29 @@ PIX * pixAddTextlines(PIX * pixs, L_BMF * bmf, const char  * textstr, uint32 val
 	else {
 		textcolor = val;
 	}
+
 	/* Add the text */
 	for(i = 0; i < nlines; i++) {
 		str = sarrayGetString(sa, i, L_NOCOPY);
 		bmfGetStringWidth(bmf, str, &wtext);
 		if(location == L_ADD_ABOVE)
-			pixSetTextline(pixd, bmf, str, textcolor, (w - wtext) / 2, (int32)(spacer + hbaseline * (1 + 1.5 * i)), NULL, NULL);
+			pixSetTextline(pixd, bmf, str, textcolor,
+			    (w - wtext) / 2, spacer + hbaseline * (1 + 1.5 * i),
+			    NULL, NULL);
 		else if(location == L_ADD_BELOW)
-			pixSetTextline(pixd, bmf, str, textcolor, (w - wtext) / 2, (int32)(h + spacer + hbaseline * (1 + 1.5 * i)), NULL, NULL);
+			pixSetTextline(pixd, bmf, str, textcolor,
+			    (w - wtext) / 2, h + spacer +
+			    hbaseline * (1 + 1.5 * i), NULL, NULL);
 		else if(location == L_ADD_LEFT)
-			pixSetTextline(pixd, bmf, str, textcolor, spacer, (int32)((h - htext) / 2 + hbaseline * (1 + 1.5 * i)), NULL, NULL);
+			pixSetTextline(pixd, bmf, str, textcolor,
+			    spacer, (h - htext) / 2 + hbaseline * (1 + 1.5 * i),
+			    NULL, NULL);
 		else /* location == L_ADD_RIGHT */
-			pixSetTextline(pixd, bmf, str, textcolor, w + spacer, (int32)((h - htext) / 2 + hbaseline * (1 + 1.5 * i)), NULL, NULL);
+			pixSetTextline(pixd, bmf, str, textcolor,
+			    w + spacer, (h - htext) / 2 +
+			    hbaseline * (1 + 1.5 * i), NULL, NULL);
 	}
+
 	sarrayDestroy(&sa);
 	return pixd;
 }
@@ -374,16 +400,16 @@ PIX * pixAddTextlines(PIX * pixs, L_BMF * bmf, const char  * textstr, uint32 val
 /*!
  * \brief   pixSetTextblock()
  *
- * \param[in]    pixs input image
- * \param[in]    bmf bitmap font data
- * \param[in]    textstr block text string to be set
- * \param[in]    val color to set the text
- * \param[in]    x0 left edge for each line of text
- * \param[in]    y0 baseline location for the first text line
- * \param[in]    wtext max width of each line of generated text
- * \param[in]    firstindent indentation of first line, in x-widths
- * \param[out]   poverflow [optional] 0 if text is contained in
- *                         input pix; 1 if it is clipped
+ * \param[in]    pixs          input image
+ * \param[in]    bmf           bitmap font data
+ * \param[in]    textstr       block text string to be set
+ * \param[in]    val           color to set the text
+ * \param[in]    x0            left edge for each line of text
+ * \param[in]    y0            baseline location for the first text line
+ * \param[in]    wtext         max width of each line of generated text
+ * \param[in]    firstindent   indentation of first line, in x-widths
+ * \param[out]   poverflow     [optional] 0 if text is contained in input pix;
+ *                             1 if it is clipped
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -402,22 +428,22 @@ PIX * pixAddTextlines(PIX * pixs, L_BMF * bmf, const char  * textstr, uint32 val
  *          the requested color, or something similar to it.
  * </pre>
  */
-int32 pixSetTextblock(PIX         * pixs,
+l_ok pixSetTextblock(PIX         * pixs,
     L_BMF       * bmf,
-    const char  * textstr,
-    uint32 val,
-    int32 x0,
-    int32 y0,
-    int32 wtext,
-    int32 firstindent,
-    int32     * poverflow)
+    const char * textstr,
+    l_uint32 val,
+    l_int32 x0,
+    l_int32 y0,
+    l_int32 wtext,
+    l_int32 firstindent,
+    l_int32     * poverflow)
 {
 	char     * linestr;
-	int32 d, h, i, w, x, y, nlines, htext, xwidth, wline, ovf, overflow;
-	SARRAY   * salines;
+	l_int32 d, h, i, w, x, y, nlines, htext, xwidth, wline, ovf, overflow;
+	SARRAY * salines;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixSetTextblock");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -486,15 +512,15 @@ int32 pixSetTextblock(PIX         * pixs,
 /*!
  * \brief   pixSetTextline()
  *
- * \param[in]    pixs input image
- * \param[in]    bmf bitmap font data
- * \param[in]    textstr text string to be set on the line
- * \param[in]    val color to set the text
- * \param[in]    x0 left edge for first char
- * \param[in]    y0 baseline location for all text on line
- * \param[out]   pwidth [optional] width of generated text
- * \param[out]   poverflow [optional] 0 if text is contained in
- *                         input pix; 1 if it is clipped
+ * \param[in]    pixs        input image
+ * \param[in]    bmf         bitmap font data
+ * \param[in]    textstr     text string to be set on the line
+ * \param[in]    val         color to set the text
+ * \param[in]    x0          left edge for first char
+ * \param[in]    y0          baseline location for all text on line
+ * \param[out]   pwidth      [optional] width of generated text
+ * \param[out]   poverflow   [optional] 0 if text is contained in input pix;
+ *                           1 if it is clipped
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -513,22 +539,22 @@ int32 pixSetTextblock(PIX         * pixs,
  *          the requested color, or something similar to it.
  * </pre>
  */
-int32 pixSetTextline(PIX         * pixs,
+l_ok pixSetTextline(PIX         * pixs,
     L_BMF       * bmf,
-    const char  * textstr,
-    uint32 val,
-    int32 x0,
-    int32 y0,
-    int32     * pwidth,
-    int32     * poverflow)
+    const char * textstr,
+    l_uint32 val,
+    l_int32 x0,
+    l_int32 y0,
+    l_int32     * pwidth,
+    l_int32     * poverflow)
 {
 	char chr;
-	int32 d, i, x, w, nchar, baseline, index, rval, gval, bval;
-	uint32 textcolor;
-	PIX      * pix;
+	l_int32 d, i, x, w, nchar, baseline, index, rval, gval, bval;
+	l_uint32 textcolor;
+	PIX * pix;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixSetTextline");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -567,7 +593,7 @@ int32 pixSetTextline(PIX         * pixs,
 	x = x0;
 	for(i = 0; i < nchar; i++) {
 		chr = textstr[i];
-		if((int32)chr == 10) continue;  /* NL */
+		if((l_int32)chr == 10) continue; /* NL */
 		pix = bmfGetPix(bmf, chr);
 		bmfGetBaseline(bmf, chr, &baseline);
 		pixPaintThroughMask(pixs, pix, x, y0 - baseline, textcolor);
@@ -586,12 +612,12 @@ int32 pixSetTextline(PIX         * pixs,
 /*!
  * \brief   pixaAddTextNumber()
  *
- * \param[in]    pixas input pixa; colormap ok
- * \param[in]    bmf bitmap font data
- * \param[in]    na [optional] number array; use 1 ... n if null
- * \param[in]    val color to set the text
- * \param[in]    location L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
- * \return  pixad new pixa with rendered numbers, or NULL on error
+ * \param[in]    pixas      input pixa; colormap ok
+ * \param[in]    bmf        bitmap font data
+ * \param[in]    na         [optional] number array; use 1 ... n if null
+ * \param[in]    val        color to set the text
+ * \param[in]    location   L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
+ * \return  pixad   new pixa with rendered numbers, or NULL on error
  *
  * <pre>
  * Notes:
@@ -609,18 +635,18 @@ int32 pixSetTextline(PIX         * pixs,
  *          the requested color, or something similar to it.
  * </pre>
  */
-PIXA * pixaAddTextNumber(PIXA     * pixas,
+PIXA * pixaAddTextNumber(PIXA * pixas,
     L_BMF    * bmf,
     NUMA     * na,
-    uint32 val,
-    int32 location)
+    l_uint32 val,
+    l_int32 location)
 {
 	char textstr[128];
-	int32 i, n, index;
-	PIX     * pix1, * pix2;
+	l_int32 i, n, index;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaAddTextNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -638,7 +664,7 @@ PIXA * pixaAddTextNumber(PIXA     * pixas,
 			numaGetIValue(na, i, &index);
 		else
 			index = i + 1;
-		_snprintf(textstr, sizeof(textstr), "%d", index);
+		snprintf(textstr, sizeof(textstr), "%d", index);
 		pix2 = pixAddTextlines(pix1, bmf, textstr, val, location);
 		pixaAddPix(pixad, pix2, L_INSERT);
 		pixDestroy(&pix1);
@@ -650,12 +676,13 @@ PIXA * pixaAddTextNumber(PIXA     * pixas,
 /*!
  * \brief   pixaAddTextlines()
  *
- * \param[in]    pixas input pixa; colormap ok
- * \param[in]    bmf bitmap font data
- * \param[in]    sa [optional] sarray; use text embedded in each pix if null
- * \param[in]    val color to set the text
- * \param[in]    location L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
- * \return  pixad new pixa with rendered text, or NULL on error
+ * \param[in]    pixas      input pixa; colormap ok
+ * \param[in]    bmf        bitmap font data
+ * \param[in]    sa         [optional] sarray; use text embedded in
+ *                          each pix if null
+ * \param[in]    val        color to set the text
+ * \param[in]    location   L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
+ * \return  pixad   new pixa with rendered text, or NULL on error
  *
  * <pre>
  * Notes:
@@ -676,18 +703,18 @@ PIXA * pixaAddTextNumber(PIXA     * pixas,
  *          the requested color, or something similar to it.
  * </pre>
  */
-PIXA * pixaAddTextlines(PIXA     * pixas,
+PIXA * pixaAddTextlines(PIXA * pixas,
     L_BMF    * bmf,
-    SARRAY   * sa,
-    uint32 val,
-    int32 location)
+    SARRAY * sa,
+    l_uint32 val,
+    l_int32 location)
 {
-	char    * textstr;
-	int32 i, n, nstr;
-	PIX     * pix1, * pix2;
+	char * textstr;
+	l_int32 i, n, nstr;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaAddTextlines");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -701,7 +728,7 @@ PIXA * pixaAddTextlines(PIXA     * pixas,
 	pixad = pixaCreate(n);
 	nstr = (sa) ? sarrayGetCount(sa) : 0;
 	if(nstr > 0 && nstr < n)
-		L_WARNING3("There are %d strings and %d pix\n", procName, nstr, n);
+		L_WARNING("There are %d strings and %d pix\n", procName, nstr, n);
 	for(i = 0; i < n; i++) {
 		pix1 = pixaGetPix(pixas, i, L_CLONE);
 		if(i < nstr)
@@ -720,12 +747,12 @@ PIXA * pixaAddTextlines(PIXA     * pixas,
  * \brief   pixaAddPixWithText()
  *
  * \param[in]    pixa
- * \param[in]    pixs any depth, colormap ok
- * \param[in]    reduction integer subsampling factor
- * \param[in]    bmf [optional] bitmap font data
- * \param[in]    textstr [optional] text string to be added
- * \param[in]    val color to set the text
- * \param[in]    location L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
+ * \param[in]    pixs       any depth, colormap ok
+ * \param[in]    reduction  integer subsampling factor
+ * \param[in]    bmf        [optional] bitmap font data
+ * \param[in]    textstr    [optional] text string to be added
+ * \param[in]    val        color to set the text
+ * \param[in]    location   L_ADD_ABOVE, L_ADD_BELOW, L_ADD_LEFT, L_ADD_RIGHT
  * \return  0 if OK, 1 on error.
  *
  * <pre>
@@ -740,40 +767,41 @@ PIXA * pixaAddTextlines(PIXA     * pixas,
  *      (4) If %textstr == NULL, use the text field in the pix.
  *      (5) In general, the text string can be written in multiple lines;
  *          use newlines as the separators.
- *      (6) Typical usage is for debugging, where the pixa of labelled images
+ *      (6) Typical usage is for debugging, where the pixa of labeled images
  *          is used to generate a pdf.  Suggest using 1.0 for scalefactor.
  * </pre>
  */
-int32 pixaAddPixWithText(PIXA        * pixa,
+l_ok pixaAddPixWithText(PIXA        * pixa,
     PIX         * pixs,
-    int32 reduction,
+    l_int32 reduction,
     L_BMF       * bmf,
-    const char  * textstr,
-    uint32 val,
-    int32 location)
+    const char * textstr,
+    l_uint32 val,
+    l_int32 location)
 {
-	int32 d;
+	l_int32 d;
 	L_BMF    * bmf8;
-	PIX      * pix1, * pix2, * pix3;
+	PIX * pix1, * pix2, * pix3;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixaAddPixWithText");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
 		return ERROR_INT("pixa not defined", procName, 1);
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
-	if(!textstr) {
-		textstr = pixGetText(pixs);
-		if(!textstr) {
-			L_ERROR("no textstring defined; inserting copy", procName);
-			pixaAddPix(pixa, pixs, L_COPY);
-			return 1;
-		}
-	}
 	if(location != L_ADD_ABOVE && location != L_ADD_BELOW &&
 	    location != L_ADD_LEFT && location != L_ADD_RIGHT)
 		return ERROR_INT("invalid location", procName, 1);
+
+	if(!textstr) {
+		textstr = pixGetText(pixs);
+		if(!textstr) {
+			L_WARNING("no textstring defined; inserting copy", procName);
+			pixaAddPix(pixa, pixs, L_COPY);
+			return 0;
+		}
+	}
 
 	/* Default font size is 8. */
 	bmf8 = (bmf) ? bmf : bmfCreate(NULL, 8);
@@ -796,11 +824,11 @@ int32 pixaAddPixWithText(PIXA        * pixa,
 	pix3 = pixAddTextlines(pix2, bmf, textstr, val, location);
 	pixDestroy(&pix1);
 	pixDestroy(&pix2);
+	if(!bmf) bmfDestroy(&bmf8);
 	if(!pix3)
 		return ERROR_INT("pix3 not made", procName, 1);
 
 	pixaAddPix(pixa, pix3, L_INSERT);
-	if(!bmf) bmfDestroy(&bmf8);
 	return 0;
 }
 
@@ -812,9 +840,9 @@ int32 pixaAddPixWithText(PIXA        * pixa,
  *
  * \param[in]    bmf
  * \param[in]    textstr
- * \param[in]    maxw max width of a text line in pixels
- * \param[in]    firstindent indentation of first line, in x-widths
- * \param[out]   ph height required to hold text bitmap
+ * \param[in]    maxw          max width of a text line in pixels
+ * \param[in]    firstindent   indentation of first line, in x-widths
+ * \param[out]   ph            height required to hold text bitmap
  * \return  sarray of text strings for each line, or NULL on error
  *
  * <pre>
@@ -824,36 +852,39 @@ int32 pixaAddPixWithText(PIXA        * pixa,
  * </pre>
  */
 SARRAY * bmfGetLineStrings(L_BMF       * bmf,
-    const char  * textstr,
-    int32 maxw,
-    int32 firstindent,
-    int32     * ph)
+    const char * textstr,
+    l_int32 maxw,
+    l_int32 firstindent,
+    l_int32     * ph)
 {
-	char    * linestr;
-	int32 i, ifirst, sumw, newsum, w, nwords, nlines, len, xwidth;
-	NUMA    * na;
-	SARRAY  * sa, * sawords;
+	char * linestr;
+	l_int32 i, ifirst, sumw, newsum, w, nwords, nlines, len, xwidth;
+	NUMA * na;
+	SARRAY * sa, * sawords;
 
-	PROCNAME("bmfGetLineStrings");
+	PROCNAME(__FUNCTION__);
 
 	if(!bmf)
-		return (SARRAY*)ERROR_PTR("bmf not defined", procName, NULL);
+		return (SARRAY *)ERROR_PTR("bmf not defined", procName, NULL);
 	if(!textstr)
-		return (SARRAY*)ERROR_PTR("teststr not defined", procName, NULL);
+		return (SARRAY *)ERROR_PTR("teststr not defined", procName, NULL);
 
 	if((sawords = sarrayCreateWordsFromString(textstr)) == NULL)
-		return (SARRAY*)ERROR_PTR("sawords not made", procName, NULL);
+		return (SARRAY *)ERROR_PTR("sawords not made", procName, NULL);
 
-	if((na = bmfGetWordWidths(bmf, textstr, sawords)) == NULL)
-		return (SARRAY*)ERROR_PTR("na not made", procName, NULL);
+	if((na = bmfGetWordWidths(bmf, textstr, sawords)) == NULL) {
+		sarrayDestroy(&sawords);
+		return (SARRAY *)ERROR_PTR("na not made", procName, NULL);
+	}
 	nwords = numaGetCount(na);
-	if(nwords == 0)
-		return (SARRAY*)ERROR_PTR("no words in textstr", procName, NULL);
+	if(nwords == 0) {
+		sarrayDestroy(&sawords);
+		numaDestroy(&na);
+		return (SARRAY *)ERROR_PTR("no words in textstr", procName, NULL);
+	}
 	bmfGetWidth(bmf, 'x', &xwidth);
 
-	if((sa = sarrayCreate(0)) == NULL)
-		return (SARRAY*)ERROR_PTR("sa not made", procName, NULL);
-
+	sa = sarrayCreate(0);
 	ifirst = 0;
 	numaGetIValue(na, 0, &w);
 	sumw = firstindent * xwidth + w;
@@ -866,7 +897,7 @@ SARRAY * bmfGetLineStrings(L_BMF       * bmf,
 				continue;
 			len = strlen(linestr);
 			if(len > 0) /* it should always be */
-				linestr[len - 1] = '\0';  /* remove the last space */
+				linestr[len - 1] = '\0'; /* remove the last space */
 			sarrayAddString(sa, linestr, L_INSERT);
 			ifirst = i;
 			sumw = w;
@@ -890,19 +921,19 @@ SARRAY * bmfGetLineStrings(L_BMF       * bmf,
  *
  * \param[in]    bmf
  * \param[in]    textstr
- * \param[in]    sa of individual words
- * \return  numa of word lengths in pixels for the font represented
- *                    by the bmf, or NULL on error
+ * \param[in]    sa        of individual words
+ * \return  numa  of word lengths in pixels for the font represented
+ *                by the bmf, or NULL on error
  */
 NUMA * bmfGetWordWidths(L_BMF       * bmf,
-    const char  * textstr,
-    SARRAY      * sa)
+    const char * textstr,
+    SARRAY * sa)
 {
-	char    * wordstr;
-	int32 i, nwords, width;
-	NUMA    * na;
+	char * wordstr;
+	l_int32 i, nwords, width;
+	NUMA * na;
 
-	PROCNAME("bmfGetWordWidths");
+	PROCNAME(__FUNCTION__);
 
 	if(!bmf)
 		return (NUMA*)ERROR_PTR("bmf not defined", procName, NULL);
@@ -929,21 +960,26 @@ NUMA * bmfGetWordWidths(L_BMF       * bmf,
  *
  * \param[in]    bmf
  * \param[in]    textstr
- * \param[out]   pw width of text string, in pixels for the
- *                 font represented by the bmf
+ * \param[out]   pw        width of text string, in pixels for the
+ *                         font represented by the bmf
  * \return  0 if OK, 1 on error
  */
-int32 bmfGetStringWidth(L_BMF * bmf, const char * textstr, int32 * pw)
+l_ok bmfGetStringWidth(L_BMF       * bmf,
+    const char * textstr,
+    l_int32     * pw)
 {
 	char chr;
-	int32 i, w, width, nchar;
-	PROCNAME("bmfGetStringWidth");
+	l_int32 i, w, width, nchar;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!bmf)
 		return ERROR_INT("bmf not defined", procName, 1);
 	if(!textstr)
 		return ERROR_INT("teststr not defined", procName, 1);
 	if(!pw)
 		return ERROR_INT("&w not defined", procName, 1);
+
 	nchar = strlen(textstr);
 	w = 0;
 	for(i = 0; i < nchar; i++) {
@@ -953,6 +989,7 @@ int32 bmfGetStringWidth(L_BMF * bmf, const char * textstr, int32 * pw)
 			w += width + bmf->kernwidth;
 	}
 	w -= bmf->kernwidth; /* remove last one */
+
 	*pw = w;
 	return 0;
 }
@@ -963,24 +1000,25 @@ int32 bmfGetStringWidth(L_BMF * bmf, const char * textstr, int32 * pw)
 /*!
  * \brief   splitStringToParagraphs()
  *
- * \param[in]    textstr text string
- * \param[in]    splitflag see enum in bmf.h; valid values in {1,2,3}
- * \return  sarray where each string is a paragraph of the input,
- *                      or NULL on error.
+ * \param[in]    textstr     text string
+ * \param[in]    splitflag   see enum in bmf.h; valid values in {1,2,3}
+ * \return  sarray  where each string is a paragraph of the input,
+ *                  or NULL on error.
  */
-SARRAY * splitStringToParagraphs(char * textstr, int32 splitflag)
+SARRAY * splitStringToParagraphs(char * textstr,
+    l_int32 splitflag)
 {
-	char    * linestr, * parastring;
-	int32 nlines, i, allwhite, leadwhite;
-	SARRAY  * salines, * satemp, * saout;
+	char * linestr, * parastring;
+	l_int32 nlines, i, allwhite, leadwhite;
+	SARRAY * salines, * satemp, * saout;
 
-	PROCNAME("splitStringToParagraphs");
+	PROCNAME(__FUNCTION__);
 
 	if(!textstr)
-		return (SARRAY*)ERROR_PTR("textstr not defined", procName, NULL);
+		return (SARRAY *)ERROR_PTR("textstr not defined", procName, NULL);
 
 	if((salines = sarrayCreateLinesFromString(textstr, 1)) == NULL)
-		return (SARRAY*)ERROR_PTR("salines not made", procName, NULL);
+		return (SARRAY *)ERROR_PTR("salines not made", procName, NULL);
 	nlines = sarrayGetCount(salines);
 	saout = sarrayCreate(0);
 	satemp = sarrayCreate(0);
@@ -1004,23 +1042,29 @@ SARRAY * splitStringToParagraphs(char * textstr, int32 splitflag)
 	parastring = sarrayToString(satemp, 1); /* add nl to each line */
 	sarrayAddString(saout, parastring, L_INSERT);
 	sarrayDestroy(&satemp);
+	sarrayDestroy(&salines);
 	return saout;
 }
+
 /*!
  * \brief   stringAllWhitespace()
  *
- * \param[in]    textstr text string
- * \param[out]   pval 1 if all whitespace; 0 otherwise
+ * \param[in]    textstr   text string
+ * \param[out]   pval      1 if all whitespace; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-static int32 stringAllWhitespace(char * textstr, int32  * pval)
+static l_int32 stringAllWhitespace(char     * textstr,
+    l_int32 * pval)
 {
-	int32 len, i;
-	PROCNAME("stringAllWhitespace");
+	l_int32 len, i;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!textstr)
 		return ERROR_INT("textstr not defined", procName, 1);
 	if(!pval)
 		return ERROR_INT("&va not defined", procName, 1);
+
 	len = strlen(textstr);
 	*pval = 1;
 	for(i = 0; i < len; i++) {
@@ -1031,23 +1075,27 @@ static int32 stringAllWhitespace(char * textstr, int32  * pval)
 	}
 	return 0;
 }
+
 /*!
  * \brief   stringLeadingWhitespace()
  *
- * \param[in]    textstr text string
- * \param[out]   pval 1 if leading char is [space] or [tab]; 0 otherwise
+ * \param[in]    textstr   text string
+ * \param[out]   pval      1 if leading char is [space] or [tab]; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-static int32 stringLeadingWhitespace(char * textstr, int32  * pval)
+static l_int32 stringLeadingWhitespace(char     * textstr,
+    l_int32 * pval)
 {
-	PROCNAME("stringLeadingWhitespace");
+	PROCNAME(__FUNCTION__);
+
 	if(!textstr)
 		return ERROR_INT("textstr not defined", procName, 1);
 	if(!pval)
 		return ERROR_INT("&va not defined", procName, 1);
+
 	*pval = 0;
 	if(textstr[0] == ' ' || textstr[0] == '\t')
 		*pval = 1;
+
 	return 0;
 }
-

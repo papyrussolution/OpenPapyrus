@@ -91,7 +91,7 @@
    dealing with these units of LMBCS code units:
 
  */
-typedef uint8_t ulmbcs_byte_t;
+typedef uint8 ulmbcs_byte_t;
 
 /*
    Most of the values less than 0x20 are reserved in LMBCS to announce
@@ -555,8 +555,8 @@ static ulmbcs_byte_t FindLMBCSLocale(const char * LocaleID)
 
 typedef struct {
 	UConverterSharedData * OptGrpConverter[ULMBCS_GRP_LAST+1]; /* Converter per Opt. grp. */
-	uint8_t OptGroup; /* default Opt. grp. for this LMBCS session */
-	uint8_t localeConverterIndex; /* reasonable locale match for index */
+	uint8 OptGroup; /* default Opt. grp. for this LMBCS session */
+	uint8 localeConverterIndex; /* reasonable locale match for index */
 }
 
 UConverterDataLMBCS;
@@ -787,8 +787,8 @@ static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subco
 static size_t LMBCSConvertUni(ulmbcs_byte_t * pLMBCS, UChar uniChar)
 {
 	/* encode into LMBCS Unicode range */
-	uint8_t LowCh =   (uint8_t)(uniChar & 0x00FF);
-	uint8_t HighCh  = (uint8_t)(uniChar >> 8);
+	uint8 LowCh =   (uint8)(uniChar & 0x00FF);
+	uint8 HighCh  = (uint8)(uniChar >> 8);
 
 	*pLMBCS++ = ULMBCS_GRP_UNICODE;
 
@@ -984,7 +984,7 @@ static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs*     args,
 			   common code will move this to target if we get called back with
 			   enough target room
 			 */
-			uint8_t * pErrorBuffer = args->converter->charErrorBuffer;
+			uint8 * pErrorBuffer = args->converter->charErrorBuffer;
 			*err = U_BUFFER_OVERFLOW_ERROR;
 			args->converter->charErrorBufferLength = (int8_t)bytes_written;
 			while(bytes_written--) {
@@ -1001,8 +1001,8 @@ static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs*     args,
 /* A function to call when we are looking at the Unicode group byte in LMBCS */
 static UChar GetUniFromLMBCSUni(char const ** ppLMBCSin)  /* Called with LMBCS-style Unicode byte stream */
 {
-	uint8_t HighCh = *(*ppLMBCSin)++; /* Big-endian Unicode in LMBCS compatibility group*/
-	uint8_t LowCh  = *(*ppLMBCSin)++;
+	uint8 HighCh = *(*ppLMBCSin)++; /* Big-endian Unicode in LMBCS compatibility group*/
+	uint8 LowCh  = *(*ppLMBCSin)++;
 
 	if(HighCh == ULMBCS_UNICOMPATZERO) {
 		HighCh = LowCh;

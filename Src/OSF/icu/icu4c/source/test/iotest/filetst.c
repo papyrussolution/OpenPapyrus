@@ -774,9 +774,9 @@ static void TestLineCount(const char * prefixLine, const char * line, int32_t nu
 static void TestfgetsNewLineCount() {
 	/* This makes sure that lines are correctly handled between buffer boundaries. */
 	TestLineCount("\n", "\n", 1024); /* Unix newlines */
-	TestLineCount("\r\n", "\r\n", 1024);/* Windows newlines */
-	TestLineCount("a\r\n", "\r\n", 1024);/* Windows newlines offset by 1 byte */
-	TestLineCount("\r\n", "a\r\n", 1024);/* Windows newlines offset with data */
+	TestLineCount("\r\n", "\r\n", 1024); /* Windows newlines */
+	TestLineCount("a\r\n", "\r\n", 1024); /* Windows newlines offset by 1 byte */
+	TestLineCount("\r\n", "a\r\n", 1024); /* Windows newlines offset with data */
 	TestLineCount("\n", "a\n", 1024); /* Unix newlines offset with data */
 	TestLineCount("\n", "\r\n", 1024); /* a mixed number of lines. */
 }

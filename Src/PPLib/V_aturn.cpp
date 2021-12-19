@@ -10,7 +10,7 @@ class TempAssoc {
 public:
 	static TempAssoc * CreateInstance();
 	TempAssoc();
-	int    IsValid() const;
+	bool   IsValid() const { return LOGIC(P_Tbl); }
 	int    Add(PPID prmrID, PPID scndID);
 	int    EnumPrmr(PPID * pPrmrID);
 	int    GetList(PPID prmrID, PPIDArray *);
@@ -31,11 +31,6 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempAssoc);
 
 TempAssoc::TempAssoc() : P_Tbl(CreateTempFile())
 {
-}
-
-int TempAssoc::IsValid() const
-{
-	return BIN(P_Tbl);
 }
 
 int TempAssoc::Add(PPID prmrID, PPID scndID)

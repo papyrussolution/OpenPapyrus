@@ -26,12 +26,12 @@
 
 U_NAMESPACE_BEGIN
 
-uint8_t * RuleBasedCollator::cloneRuleData(int32_t &length, UErrorCode & errorCode) const 
+uint8 * RuleBasedCollator::cloneRuleData(int32_t &length, UErrorCode & errorCode) const 
 {
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	LocalMemory<uint8_t> buffer((uint8_t*)uprv_malloc(20000));
+	LocalMemory<uint8> buffer((uint8 *)uprv_malloc(20000));
 	if(buffer.isNull()) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
@@ -51,7 +51,7 @@ uint8_t * RuleBasedCollator::cloneRuleData(int32_t &length, UErrorCode & errorCo
 	return buffer.orphan();
 }
 
-int32_t RuleBasedCollator::cloneBinary(uint8_t * dest, int32_t capacity, UErrorCode & errorCode) const 
+int32_t RuleBasedCollator::cloneBinary(uint8 * dest, int32_t capacity, UErrorCode & errorCode) const 
 {
 	int32_t indexes[CollationDataReader::IX_TOTAL_SIZE + 1];
 	return CollationDataWriter::writeTailoring(*tailoring, *settings, indexes, dest, capacity, errorCode);
@@ -72,13 +72,13 @@ static const UDataInfo dataInfo = {
 };
 
 int32_t CollationDataWriter::writeBase(const CollationData & data, const CollationSettings &settings,
-    const void * rootElements, int32_t rootElementsLength, int32_t indexes[], uint8_t * dest, int32_t capacity, UErrorCode & errorCode) 
+    const void * rootElements, int32_t rootElementsLength, int32_t indexes[], uint8 * dest, int32_t capacity, UErrorCode & errorCode) 
 {
 	return write(TRUE, NULL, data, settings, rootElements, rootElementsLength, indexes, dest, capacity, errorCode);
 }
 
 int32_t CollationDataWriter::writeTailoring(const CollationTailoring &t, const CollationSettings &settings,
-    int32_t indexes[], uint8_t * dest, int32_t capacity, UErrorCode & errorCode) 
+    int32_t indexes[], uint8 * dest, int32_t capacity, UErrorCode & errorCode) 
 {
 	return write(FALSE, t.version, *t.data, settings, NULL, 0, indexes, dest, capacity, errorCode);
 }
@@ -86,7 +86,7 @@ int32_t CollationDataWriter::writeTailoring(const CollationTailoring &t, const C
 int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
     const CollationData & data, const CollationSettings &settings,
     const void * rootElements, int32_t rootElementsLength,
-    int32_t indexes[], uint8_t * dest, int32_t capacity,
+    int32_t indexes[], uint8 * dest, int32_t capacity,
     UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return 0;
@@ -333,7 +333,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 	return headerSize + totalSize;
 }
 
-void STDCALL CollationDataWriter::copyData(const int32_t indexes[], int32_t startIndex, const void * src, uint8_t * dest) 
+void STDCALL CollationDataWriter::copyData(const int32_t indexes[], int32_t startIndex, const void * src, uint8 * dest) 
 {
 	const int32_t start = indexes[startIndex];
 	const int32_t limit = indexes[startIndex + 1];

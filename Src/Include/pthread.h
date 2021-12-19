@@ -387,17 +387,17 @@ enum { /* pthread_attr_{get,set}detachstate
 	/*
 	 * pthread_attr_{get,set}inheritsched
 	 */
-	PTHREAD_INHERIT_SCHED         = 0,
+	PTHREAD_INHERIT_SCHED = 0,
 	PTHREAD_EXPLICIT_SCHED        = 1,/* Default */
 	/*
 	 * pthread_{get,set}scope
 	 */
-	PTHREAD_SCOPE_PROCESS         = 0,
-	PTHREAD_SCOPE_SYSTEM          = 1,/* Default */
+	PTHREAD_SCOPE_PROCESS = 0,
+	PTHREAD_SCOPE_SYSTEM  = 1,/* Default */
 	/*
 	 * pthread_setcancelstate paramters
 	 */
-	PTHREAD_CANCEL_ENABLE         = 0,/* Default */
+	PTHREAD_CANCEL_ENABLE = 0,/* Default */
 	PTHREAD_CANCEL_DISABLE        = 1,
 	/*
 	 * pthread_setcanceltype parameters
@@ -413,8 +413,8 @@ enum { /* pthread_attr_{get,set}detachstate
 	/*
 	 * pthread_mutexattr_{get,set}robust
 	 */
-	PTHREAD_MUTEX_STALLED         = 0,/* Default */
-	PTHREAD_MUTEX_ROBUST          = 1,
+	PTHREAD_MUTEX_STALLED = 0,/* Default */
+	PTHREAD_MUTEX_ROBUST  = 1,
 	/*
 	 * pthread_barrier_wait
 	 */
@@ -774,7 +774,7 @@ __PTW32_DLLPORT struct timespec *  __PTW32_CDECL pthread_win32_getabstime_np(str
 __PTW32_DLLPORT int __PTW32_CDECL pthread_win32_test_features_np(int);
 enum __ptw32_features {
 	__PTW32_SYSTEM_INTERLOCKED_COMPARE_EXCHANGE = 0x0001,   /* System provides it. */
-	__PTW32_ALERTABLE_ASYNC_CANCEL              = 0x0002/* Can cancel blocked threads. */
+	__PTW32_ALERTABLE_ASYNC_CANCEL      = 0x0002/* Can cancel blocked threads. */
 };
 /*
  * Register a system time change with the library.

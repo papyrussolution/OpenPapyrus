@@ -177,7 +177,7 @@ static void getPrefixSuffix(const char * src, int32_t srcLength,
 				i++;
 				break;
 			}
-			i++;/* the prefix contains the separator */
+			i++; /* the prefix contains the separator */
 			*suffix = src + i;
 			break;
 		}

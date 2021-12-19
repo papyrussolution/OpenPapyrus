@@ -82,17 +82,13 @@
 
 #define GIS_EPSILON 0.0000001
 
-static int IsGeoPosValid(double lat, double lon)
+static bool IsGeoPosValid(double lat, double lon)
 {
-	int    ok = 1;
-	if(lat < -90.0 || lat > 90.0) {
-		SLS.SetError(SLERR_INVGEOLATITUDE);
-		ok = 0;
-	}
-	else if(lon < -180.0 || lon > 180.0) {
-		SLS.SetError(SLERR_INVGEOLONGITUDE);
-		ok = 0;
-	}
+	int    ok = true;
+	if(lat < -90.0 || lat > 90.0)
+		ok = SLS.SetError(SLERR_INVGEOLATITUDE);
+	else if(lon < -180.0 || lon > 180.0)
+		ok = SLS.SetError(SLERR_INVGEOLONGITUDE);
 	return ok;
 }
 
@@ -167,7 +163,7 @@ int FASTCALL SGeoPosLL::Cmp(const SGeoPosLL & s) const
 	}
 }
 
-int SGeoPosLL::IsValid() const { return IsGeoPosValid(Lat, Lon); }
+bool SGeoPosLL::IsValid() const { return IsGeoPosValid(Lat, Lon); }
 SString & FASTCALL SGeoPosLL::ToStr(SString & rBuf) const { return GeoPosToStr(Lat, Lon, rBuf); }
 int FASTCALL SGeoPosLL::FromStr(const char * pStr) { return GeoPosFromStr(pStr, Lat, Lon); }
 //
@@ -256,7 +252,7 @@ int SGeoPosLL_Int::SetInt(long lat, long lon)
 	return IsValid();
 }
 
-int SGeoPosLL_Int::IsValid() const { return IsGeoPosValid(GetLat(), GetLon()); }
+bool SGeoPosLL_Int::IsValid() const { return IsGeoPosValid(GetLat(), GetLon()); }
 SString & FASTCALL SGeoPosLL_Int::ToStr(SString & rBuf) const { return GeoPosToStr(GetLat(), GetLon(), rBuf); }
 
 int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)

@@ -1699,7 +1699,7 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 		}
 	}
 #else
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 #endif
 	pathname =  file->pathname.s;
 	if(strcmp(pathname, ".") == 0) {

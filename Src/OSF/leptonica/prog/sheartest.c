@@ -32,6 +32,10 @@
  *     where angle is expressed in degrees
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 #define   NTIMES   10
@@ -49,6 +53,8 @@ static char  mainName[] = "sheartest";
         return ERROR_INT(" Syntax:  sheartest filein angle fileout",
                          mainName, 1);
 
+    setLeptDebugOK(1);
+
         /* Compare in-place H shear with H shear to a new pix */
     pixt1 = pixRead("marge.jpg");
     pixGetDimensions(pixt1, &w, &h, NULL);
@@ -56,9 +62,9 @@ static char  mainName[] = "sheartest";
     pixHShearIP(pixt1, (l_int32)(0.3 * h), 0.17, L_BRING_IN_WHITE);
     pixEqual(pixt1, pixt2, &same);
     if (same)
-        fprintf(stderr, "Correct for H shear\n");
+        lept_stderr("Correct for H shear\n");
     else
-        fprintf(stderr, "Error for H shear\n");
+        lept_stderr("Error for H shear\n");
     pixDestroy(&pixt1);
     pixDestroy(&pixt2);
 
@@ -69,9 +75,9 @@ static char  mainName[] = "sheartest";
     pixVShearIP(pixt1, (l_int32)(0.3 * w), 0.17, L_BRING_IN_WHITE);
     pixEqual(pixt1, pixt2, &same);
     if (same)
-        fprintf(stderr, "Correct for V shear\n");
+        lept_stderr("Correct for V shear\n");
     else
-        fprintf(stderr, "Error for V shear\n");
+        lept_stderr("Error for V shear\n");
     pixDestroy(&pixt1);
     pixDestroy(&pixt2);
 

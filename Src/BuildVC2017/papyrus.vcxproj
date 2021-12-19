@@ -1695,6 +1695,7 @@
     <ClInclude Include="..\Include\Ppdefs.h" />
     <ClInclude Include="..\Include\ppdrvapi.h" />
     <ClInclude Include="..\Include\PPDS.H" />
+    <ClInclude Include="..\Include\ppedi.h" />
     <ClInclude Include="..\Include\PPMENU.H" />
     <ClInclude Include="..\Include\ppsoapclient.h" />
     <ClInclude Include="..\Include\Report.h" />

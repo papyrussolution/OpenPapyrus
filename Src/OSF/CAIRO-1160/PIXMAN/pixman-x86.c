@@ -35,12 +35,12 @@
  */
 
 typedef enum {
-	X86_MMX                     = (1 << 0),
-	X86_MMX_EXTENSIONS          = (1 << 1),
-	X86_SSE                     = (1 << 2) | X86_MMX_EXTENSIONS,
-	X86_SSE2                    = (1 << 3),
-	X86_CMOV                    = (1 << 4),
-	X86_SSSE3                   = (1 << 5)
+	X86_MMX             = (1 << 0),
+	X86_MMX_EXTENSIONS  = (1 << 1),
+	X86_SSE             = (1 << 2) | X86_MMX_EXTENSIONS,
+	X86_SSE2            = (1 << 3),
+	X86_CMOV            = (1 << 4),
+	X86_SSSE3           = (1 << 5)
 } cpu_features_t;
 
 #ifdef HAVE_GETISAX

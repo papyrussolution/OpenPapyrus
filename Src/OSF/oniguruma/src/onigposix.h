@@ -32,8 +32,10 @@
 #include <stddef.h>
 #endif
 
+#define ONIG_STATIC // @sobolev
+
 #ifdef __cplusplus
-extern "C" {
+// @sobolev extern "C" {
 #endif
 
 /* options */
@@ -89,29 +91,32 @@ typedef struct {
 
 #ifndef P_
 #if defined(__STDC__) || defined(_WIN32)
-# define P_(args) args
+	#define P_(args) args
 #else
-# define P_(args) ()
+	#define P_(args) ()
 #endif
 #endif
 
 #ifndef ONIG_STATIC
-#ifndef ONIG_EXTERN
-#if defined(_WIN32) && !defined(__GNUC__)
-#if defined(ONIGURUMA_EXPORT)
-#define ONIG_EXTERN   extern __declspec(dllexport)
+	#ifndef ONIG_EXTERN
+		#if defined(_WIN32) && !defined(__GNUC__)
+			#if defined(ONIGURUMA_EXPORT)
+				#define ONIG_EXTERN   extern __declspec(dllexport)
+			#else
+				#define ONIG_EXTERN   extern __declspec(dllimport)
+			#endif
+		#endif
+	#endif
+	#ifndef ONIG_EXTERN
+		#define ONIG_EXTERN   extern
+	#endif
 #else
-#define ONIG_EXTERN   extern __declspec(dllimport)
+	#ifdef __cplusplus
+		#define ONIG_EXTERN
+	#else
+		#define ONIG_EXTERN   extern
+	#endif
 #endif
-#endif
-#endif
-#ifndef ONIG_EXTERN
-#define ONIG_EXTERN   extern
-#endif
-#else
-#define ONIG_EXTERN   extern
-#endif
-
 #ifndef ONIGURUMA_H
 typedef unsigned int OnigOptionType;
 
@@ -123,15 +128,15 @@ typedef struct {
 	OnigOptionType options; /* default option */
 } OnigSyntaxType;
 
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPosixBasic;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPosixExtended;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxEmacs;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxGrep;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxGnuRegex;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxJava;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPerl;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxRuby;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxOniguruma;
+extern OnigSyntaxType OnigSyntaxPosixBasic;
+extern OnigSyntaxType OnigSyntaxPosixExtended;
+extern OnigSyntaxType OnigSyntaxEmacs;
+extern OnigSyntaxType OnigSyntaxGrep;
+extern OnigSyntaxType OnigSyntaxGnuRegex;
+extern OnigSyntaxType OnigSyntaxJava;
+extern OnigSyntaxType OnigSyntaxPerl;
+extern OnigSyntaxType OnigSyntaxRuby;
+extern OnigSyntaxType OnigSyntaxOniguruma;
 
 /* predefined syntaxes (see regsyntax.c) */
 #define ONIG_SYNTAX_POSIX_BASIC        (&OnigSyntaxPosixBasic)
@@ -146,27 +151,26 @@ ONIG_EXTERN OnigSyntaxType OnigSyntaxOniguruma;
 /* default syntax */
 #define ONIG_SYNTAX_DEFAULT             OnigDefaultSyntax
 
-ONIG_EXTERN OnigSyntaxType*  OnigDefaultSyntax;
+extern OnigSyntaxType * OnigDefaultSyntax;
 
-ONIG_EXTERN int onig_set_default_syntax P_((OnigSyntaxType* syntax));
-ONIG_EXTERN void onig_copy_syntax P_((OnigSyntaxType* to, OnigSyntaxType* from));
-ONIG_EXTERN const char* onig_version P_((void));
-ONIG_EXTERN const char* onig_copyright P_((void));
-ONIG_EXTERN int onig_end P_((void));
+ONIG_EXTERN int onig_set_default_syntax(OnigSyntaxType* syntax);
+ONIG_EXTERN void onig_copy_syntax(OnigSyntaxType* to, OnigSyntaxType* from);
+ONIG_EXTERN const char* onig_version(void);
+ONIG_EXTERN const char* onig_copyright(void);
+ONIG_EXTERN int onig_end(void);
 
 #endif /* ONIGURUMA_H */
 
-ONIG_EXTERN int onig_posix_regcomp P_((onig_posix_regex_t* reg, const char* pat, int options));
-ONIG_EXTERN int onig_posix_regexec P_((onig_posix_regex_t* reg, const char* str, size_t nmatch, onig_posix_regmatch_t* matches, int options));
-ONIG_EXTERN void onig_posix_regfree P_((onig_posix_regex_t* reg));
-ONIG_EXTERN size_t onig_posix_regerror P_((int code, const onig_posix_regex_t* reg, char* buf, size_t size));
+ONIG_EXTERN int onig_posix_regcomp(onig_posix_regex_t* reg, const char* pat, int options);
+ONIG_EXTERN int onig_posix_regexec(onig_posix_regex_t* reg, const char* str, size_t nmatch, onig_posix_regmatch_t* matches, int options);
+ONIG_EXTERN void onig_posix_regfree(onig_posix_regex_t* reg);
+ONIG_EXTERN size_t onig_posix_regerror(int code, const onig_posix_regex_t* reg, char* buf, size_t size);
 
 /* extended API */
-ONIG_EXTERN void onig_posix_reg_set_encoding P_((int enc));
-ONIG_EXTERN int onig_posix_reg_name_to_group_numbers P_((onig_posix_regex_t* reg, const unsigned char* name, const unsigned char* name_end, int** nums));
-ONIG_EXTERN int onig_posix_reg_foreach_name P_((onig_posix_regex_t* reg, int (* func)(const unsigned char*,
-    const unsigned char*, int, int*, onig_posix_regex_t*, void*), void* arg));
-ONIG_EXTERN int onig_posix_reg_number_of_names P_((onig_posix_regex_t* reg));
+ONIG_EXTERN void onig_posix_reg_set_encoding(int enc);
+ONIG_EXTERN int onig_posix_reg_name_to_group_numbers(onig_posix_regex_t* reg, const unsigned char* name, const unsigned char* name_end, int** nums);
+ONIG_EXTERN int onig_posix_reg_foreach_name(onig_posix_regex_t* reg, int (* func)(const unsigned char*, const unsigned char*, int, int*, onig_posix_regex_t*, void*), void* arg);
+ONIG_EXTERN int onig_posix_reg_number_of_names(onig_posix_regex_t* reg);
 
 /* aliases */
 #define regex_t    onig_posix_regex_t
@@ -182,7 +186,7 @@ ONIG_EXTERN int onig_posix_reg_number_of_names P_((onig_posix_regex_t* reg));
 #define reg_number_of_names       onig_posix_reg_number_of_names
 
 #ifdef __cplusplus
-}
+// @sobolev }
 #endif
 
 #endif /* ONIGPOSIX_H */

@@ -4364,11 +4364,11 @@ void RegexTest::PerlTestsUTF8() {
 	UParseError pe;
 	LocalUConverterPointer UTF8Converter(ucnv_open("UTF-8", &status));
 	UText patternText = UTEXT_INITIALIZER;
-	char       * patternChars = NULL;
+	char * patternChars = NULL;
 	int32_t patternLength;
 	int32_t patternCapacity = 0;
 	UText inputText = UTEXT_INITIALIZER;
-	char       * inputChars = NULL;
+	char * inputChars = NULL;
 	int32_t inputLength;
 	int32_t inputCapacity = 0;
 

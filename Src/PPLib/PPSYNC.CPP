@@ -22,10 +22,7 @@ PPSync::~PPSync()
 		close(Handle);
 }
 
-bool PPSync::IsValid() const
-{
-	return (Handle >= 0);
-}
+bool PPSync::IsValid() const { return (Handle >= 0); }
 
 int FASTCALL PPSync::CheckOffset(ulong offs) const
 {

@@ -49,15 +49,12 @@ static void ReadAllTags(cmsHPROFILE h)
 }
 
 // Read all tags on a profile given by its handle
-static
-void ReadAllRAWTags(cmsHPROFILE h)
+static void ReadAllRAWTags(cmsHPROFILE h)
 {
-	cmsInt32Number i, n;
 	cmsTagSignature sig;
 	cmsInt32Number len;
-
-	n = cmsGetTagCount(h);
-	for(i = 0; i < n; i++) {
+	cmsInt32Number n = cmsGetTagCount(h);
+	for(cmsInt32Number i = 0; i < n; i++) {
 		sig = cmsGetTagSignature(h, i);
 		len = cmsReadRawTag(h, sig, NULL, 0);
 	}
@@ -87,7 +84,7 @@ static void PrintAllInfos(cmsHPROFILE h)
 static void ReadAllLUTS(cmsHPROFILE h)
 {
 	cmsCIEXYZ Black;
-	cmsPipeline* a = _cmsReadInputLUT(h, INTENT_PERCEPTUAL);
+	cmsPipeline * a = _cmsReadInputLUT(h, INTENT_PERCEPTUAL);
 	if(a) cmsPipelineFree(a);
 	a = _cmsReadInputLUT(h, INTENT_RELATIVE_COLORIMETRIC);
 	if(a) cmsPipelineFree(a);
@@ -129,29 +126,22 @@ static void ReadAllLUTS(cmsHPROFILE h)
 
 // Check one specimen in the ZOO
 
-static
-cmsInt32Number CheckSingleSpecimen(const char * Profile)
+static cmsInt32Number CheckSingleSpecimen(const char * Profile)
 {
 	char BuffSrc[256];
 	char BuffDst[256];
 	cmsHPROFILE h;
-
 	sprintf(BuffSrc, "%s%s", ZOOfolder, Profile);
 	sprintf(BuffDst, "%s%s", ZOOwrite,  Profile);
-
 	h = cmsOpenProfileFromFile(BuffSrc, "r");
 	if(h == NULL) return 0;
-
 	printf("%s\n", Profile);
-
 	PrintAllInfos(h);
 	ReadAllTags(h);
 	ReadAllLUTS(h);
 	// ReadAllRAWTags(h);
-
 	cmsSaveProfileToFile(h, BuffDst);
 	cmsCloseProfile(h);
-
 	h = cmsOpenProfileFromFile(BuffDst, "r");
 	if(h == NULL) return 0;
 	ReadAllTags(h);
@@ -161,29 +151,23 @@ cmsInt32Number CheckSingleSpecimen(const char * Profile)
 	return 1;
 }
 
-static
-cmsInt32Number CheckRAWSpecimen(const char * Profile)
+static cmsInt32Number CheckRAWSpecimen(const char * Profile)
 {
 	char BuffSrc[256];
 	char BuffDst[256];
 	cmsHPROFILE h;
-
 	sprintf(BuffSrc, "%s%s", ZOOfolder, Profile);
 	sprintf(BuffDst, "%s%s", ZOORawWrite,  Profile);
-
 	h = cmsOpenProfileFromFile(BuffSrc, "r");
 	if(h == NULL) return 0;
-
 	ReadAllTags(h);
 	ReadAllRAWTags(h);
 	cmsSaveProfileToFile(h, BuffDst);
 	cmsCloseProfile(h);
-
 	h = cmsOpenProfileFromFile(BuffDst, "r");
 	if(h == NULL) return 0;
 	ReadAllTags(h);
 	cmsCloseProfile(h);
-
 	return 1;
 }
 

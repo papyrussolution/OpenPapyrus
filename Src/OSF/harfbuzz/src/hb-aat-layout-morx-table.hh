@@ -52,24 +52,24 @@ namespace AAT {
 		struct driver_context_t {
 			static constexpr bool in_place = true;
 			enum Flags {
-				MarkFirst         = 0x8000,/* If set, make the current glyph the first
+				MarkFirst = 0x8000,/* If set, make the current glyph the first
 				 * glyph to be rearranged. */
 				DontAdvance       = 0x4000,/* If set, don't advance to the next glyph
 				 * before going to the new state. This means
 				 * that the glyph index doesn't change, even
 				 * if the glyph at that index has changed. */
-				MarkLast          = 0x2000,/* If set, make the current glyph the last
+				MarkLast  = 0x2000,/* If set, make the current glyph the last
 				 * glyph to be rearranged. */
-				Reserved          = 0x1FF0,/* These bits are reserved and should be set to 0. */
-				Verb              = 0x000F,/* The type of rearrangement specified. */
+				Reserved  = 0x1FF0,/* These bits are reserved and should be set to 0. */
+				Verb      = 0x000F,/* The type of rearrangement specified. */
 			};
 
-			driver_context_t(const RearrangementSubtable *table HB_UNUSED) :
+			driver_context_t(const RearrangementSubtable *table CXX_UNUSED_PARAM) :
 				ret(false),
 				start(0), end(0) {
 			}
 
-			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED,
+			bool is_actionable(StateTableDriver<Types, EntryData> * driver CXX_UNUSED_PARAM,
 			    const Entry<EntryData> &entry)
 			{
 				return (entry.flags & Verb) && start < end;
@@ -194,10 +194,10 @@ public:
 		struct driver_context_t {
 			static constexpr bool in_place = true;
 			enum Flags {
-				SetMark           = 0x8000,/* If set, make the current glyph the marked glyph. */
+				SetMark   = 0x8000,/* If set, make the current glyph the marked glyph. */
 				DontAdvance       = 0x4000,/* If set, don't advance to the next glyph before
 				 * going to the new state. */
-				Reserved          = 0x3FFF,/* These bits are reserved and should be set to 0. */
+				Reserved  = 0x3FFF,/* These bits are reserved and should be set to 0. */
 			};
 
 			driver_context_t(const ContextualSubtable *table_,
@@ -343,11 +343,11 @@ public:
 		enum Flags {
 			SetComponent        = 0x8000,/* Push this glyph onto the component stack for
 			 * eventual processing. */
-			DontAdvance         = 0x4000,/* Leave the glyph pointer at this glyph for the
+			DontAdvance = 0x4000,/* Leave the glyph pointer at this glyph for the
 			                         next iteration. */
 			PerformAction       = 0x2000,/* Use the ligActionIndex to process a ligature
 			 * group. */
-			Reserved            = 0x1FFF,/* These bits are reserved and should be set to 0. */
+			Reserved    = 0x1FFF,/* These bits are reserved and should be set to 0. */
 		};
 
 		struct EntryData {
@@ -373,9 +373,9 @@ public:
 		enum Flags {
 			SetComponent        = 0x8000,/* Push this glyph onto the component stack for
 			 * eventual processing. */
-			DontAdvance         = 0x4000,/* Leave the glyph pointer at this glyph for the
+			DontAdvance = 0x4000,/* Leave the glyph pointer at this glyph for the
 			                         next iteration. */
-			Offset              = 0x3FFF,/* Byte offset from beginning of subtable to the
+			Offset      = 0x3FFF,/* Byte offset from beginning of subtable to the
 			 * ligature action list. This value must be a
 			 * multiple of 4. */
 		};
@@ -428,7 +428,7 @@ public:
 				match_length(0) {
 			}
 
-			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED,
+			bool is_actionable(StateTableDriver<Types, EntryData> * driver CXX_UNUSED_PARAM,
 			    const Entry<EntryData> &entry)
 			{
 				return LigatureEntryT::performAction(entry);
@@ -615,7 +615,7 @@ public:
 		struct driver_context_t {
 			static constexpr bool in_place = false;
 			enum Flags {
-				SetMark           = 0x8000,/* If set, mark the current glyph. */
+				SetMark   = 0x8000,/* If set, mark the current glyph. */
 				DontAdvance       = 0x4000,/* If set, don't advance to the next glyph before
 				 * going to the new state.  This does not mean
 				 * that the glyph pointed to is the same one as
@@ -669,7 +669,7 @@ public:
 				insertionAction(table+table->insertionAction) {
 			}
 
-			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED,
+			bool is_actionable(StateTableDriver<Types, EntryData> * driver CXX_UNUSED_PARAM,
 			    const Entry<EntryData> &entry)
 			{
 				return (entry.flags & (CurrentInsertCount | MarkedInsertCount)) &&
@@ -827,26 +827,26 @@ public:
 		}
 
 		enum Coverage {
-			Vertical            = 0x80,/* If set, this subtable will only be applied
+			Vertical    = 0x80,/* If set, this subtable will only be applied
 			 * to vertical text. If clear, this subtable
 			 * will only be applied to horizontal text. */
-			Backwards           = 0x40,/* If set, this subtable will process glyphs
+			Backwards   = 0x40,/* If set, this subtable will process glyphs
 			 * in descending order. If clear, it will
 			 * process the glyphs in ascending order. */
 			AllDirections       = 0x20,/* If set, this subtable will be applied to
 			 * both horizontal and vertical text (i.e.
 			 * the state of bit 0x80000000 is ignored). */
-			Logical             = 0x10,/* If set, this subtable will process glyphs
+			Logical     = 0x10,/* If set, this subtable will process glyphs
 			 * in logical order (or reverse logical order,
 			 * depending on the value of bit 0x80000000). */
 		};
 
 		enum Type {
 			Rearrangement       = 0,
-			Contextual          = 1,
-			Ligature            = 2,
+			Contextual  = 1,
+			Ligature    = 2,
 			Noncontextual       = 4,
-			Insertion           = 5
+			Insertion   = 5
 		};
 
 		template <typename context_t, typename ... Ts>
@@ -1008,7 +1008,7 @@ skip:
 			return length;
 		}
 
-		bool sanitize(hb_sanitize_context_t * c, uint version HB_UNUSED) const
+		bool sanitize(hb_sanitize_context_t * c, uint version CXX_UNUSED_PARAM) const
 		{
 			TRACE_SANITIZE(this);
 			if(!length.sanitize(c) ||

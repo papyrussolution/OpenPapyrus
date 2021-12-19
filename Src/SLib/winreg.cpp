@@ -55,14 +55,14 @@ int FASTCALL SDynLibrary::Load(const char * pFileName)
 	}
 }
 
-int SDynLibrary::IsValid() const
+bool SDynLibrary::IsValid() const
 {
 	if(H)
-		return 1;
+		return true;
 	else {
 		if(SLS.GetTLA().LastErr != SLERR_DLLLOADFAULT)
 			SLS.SetError(SLERR_DLLLOADFAULT, "");
-		return 0;
+		return false;
 	}
 }
 

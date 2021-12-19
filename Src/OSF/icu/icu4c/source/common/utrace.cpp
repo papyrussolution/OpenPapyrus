@@ -1,14 +1,9 @@
+// utrace.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 2003-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  utrace.c
+ *   Copyright (C) 2003-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -24,10 +19,10 @@ static const void   * gTraceContext   = NULL;
  * \var utrace_level
  * Trace level variable. Negative for "off".
  */
-static int32_t
-    utrace_level = UTRACE_ERROR;
+static int32_t utrace_level = UTRACE_ERROR;
 
-U_CAPI void U_EXPORT2 utrace_entry(int32_t fnNumber) {
+U_CAPI void U_EXPORT2 utrace_entry(int32_t fnNumber) 
+{
 	if(pTraceEntryFunc != NULL) {
 		(*pTraceEntryFunc)(gTraceContext, fnNumber);
 	}
@@ -39,11 +34,11 @@ static const char gExitFmtStatus[] = "Returns.  Status = %d.";
 static const char gExitFmtValueStatus[]  = "Returns %d.  Status = %d.";
 static const char gExitFmtPtrStatus[] = "Returns %d.  Status = %p.";
 
-U_CAPI void U_EXPORT2 utrace_exit(int32_t fnNumber, int32_t returnType, ...) {
+U_CAPI void U_EXPORT2 utrace_exit(int32_t fnNumber, int32_t returnType, ...) 
+{
 	if(pTraceExitFunc != NULL) {
 		va_list args;
 		const char * fmt;
-
 		switch(returnType) {
 			case 0:
 			    fmt = gExitFmt;
@@ -63,7 +58,6 @@ U_CAPI void U_EXPORT2 utrace_exit(int32_t fnNumber, int32_t returnType, ...) {
 			default:
 			    UPRV_UNREACHABLE_EXIT;
 		}
-
 		va_start(args, returnType);
 		(*pTraceExitFunc)(gTraceContext, fnNumber, fmt, args);
 		va_end(args);
@@ -127,7 +121,7 @@ static void outputHexBytes(int64_t val, int32_t charsToOutput,
 static void outputPtrBytes(void * val, char * outBuf, int32_t * outIx, int32_t capacity) {
 	uint32_t i;
 	int32_t incVal = 1; /* +1 for big endian, -1 for little endian */
-	char * p     = (char *)&val;/* point to current byte to output in the ptr val  */
+	char * p     = (char *)&val; /* point to current byte to output in the ptr val  */
 
 #if !U_IS_BIG_ENDIAN
 	/* Little Endian.  Move p to most significant end of the value      */
@@ -183,7 +177,7 @@ U_CAPI int32_t U_EXPORT2 utrace_vformat(char * outBuf, int32_t capacity, int32_t
 	int64_t longArg = 0;
 	char * ptrArg;
 
-	/*   Loop runs once for each character in the format string.
+	/* Loop runs once for each character in the format string.
 	 */
 	for(;;) {
 		fmtC = fmt[fmtIx++];
@@ -224,31 +218,31 @@ U_CAPI int32_t U_EXPORT2 utrace_vformat(char * outBuf, int32_t capacity, int32_t
 			    break;
 
 			case 'b':
-			    /*  8 bit int  */
+			    /* 8 bit int  */
 			    intArg = va_arg(args, int);
 			    outputHexBytes(intArg, 2, outBuf, &outIx, capacity);
 			    break;
 
 			case 'h':
-			    /*  16 bit int  */
+			    /* 16 bit int  */
 			    intArg = va_arg(args, int);
 			    outputHexBytes(intArg, 4, outBuf, &outIx, capacity);
 			    break;
 
 			case 'd':
-			    /*  32 bit int  */
+			    /* 32 bit int  */
 			    intArg = va_arg(args, int);
 			    outputHexBytes(intArg, 8, outBuf, &outIx, capacity);
 			    break;
 
 			case 'l':
-			    /*  64 bit long  */
+			    /* 64 bit long  */
 			    longArg = va_arg(args, int64_t);
 			    outputHexBytes(longArg, 16, outBuf, &outIx, capacity);
 			    break;
 
 			case 'p':
-			    /*  Pointers.   */
+			    /* Pointers.   */
 			    ptrArg = va_arg(args, char *);
 			    outputPtrBytes(ptrArg, outBuf, &outIx, capacity);
 			    break;
@@ -414,15 +408,13 @@ U_CFUNC bool utrace_cleanup()
 	return TRUE;
 }
 
-static const char * const
-trFnName[] = {
+static const char * const trFnName[] = {
 	"u_init",
 	"u_cleanup",
 	NULL
 };
 
-static const char * const
-trConvNames[] = {
+static const char * const trConvNames[] = {
 	"ucnv_open",
 	"ucnv_openPackage",
 	"ucnv_openAlgorithmic",
@@ -434,8 +426,7 @@ trConvNames[] = {
 	NULL
 };
 
-static const char * const
-trCollNames[] = {
+static const char * const trCollNames[] = {
 	"ucol_open",
 	"ucol_close",
 	"ucol_strcoll",
@@ -448,8 +439,7 @@ trCollNames[] = {
 	NULL
 };
 
-static const char * const
-trResDataNames[] = {
+static const char * const trResDataNames[] = {
 	"resc",
 	"bundle-open",
 	"file-open",
@@ -457,7 +447,8 @@ trResDataNames[] = {
 	NULL
 };
 
-U_CAPI const char * U_EXPORT2 utrace_functionName(int32_t fnNumber) {
+U_CAPI const char * U_EXPORT2 utrace_functionName(int32_t fnNumber) 
+{
 	if(UTRACE_FUNCTION_START <= fnNumber && fnNumber < UTRACE_FUNCTION_LIMIT) {
 		return trFnName[fnNumber];
 	}

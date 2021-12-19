@@ -496,6 +496,9 @@ cd $(SolutionDir)
 			<File
 				RelativePath="..\Soap\Client\Korus\korusEDIWebServiceSoapProxy.cpp">
 			</File>
+			<File
+				RelativePath="..\PPLib\ppedi-base.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

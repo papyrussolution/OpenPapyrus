@@ -174,8 +174,8 @@ U_CAPI void U_EXPORT2 vzone_writeSimple(VZone* zone, UDate time, UChar * & resul
  * @param status     Output param to filled in with a success or an error.
  * @return           The offset in milliseconds to add to GMT to get local time.
  */
-U_CAPI int32_t U_EXPORT2 vzone_getOffset(VZone* zone, uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis, UErrorCode & status);
+U_CAPI int32_t U_EXPORT2 vzone_getOffset(VZone* zone, uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis, UErrorCode & status);
 
 /**
  * Gets the time zone offset, for current date, modified in case of
@@ -196,8 +196,8 @@ U_CAPI int32_t U_EXPORT2 vzone_getOffset(VZone* zone, uint8_t era, int32_t year,
  * @param status     Output param to filled in with a success or an error.
  * @return           The offset in milliseconds to add to GMT to get local time.
  */
-U_CAPI int32_t U_EXPORT2 vzone_getOffset2(VZone* zone, uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis,
+U_CAPI int32_t U_EXPORT2 vzone_getOffset2(VZone* zone, uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis,
     int32_t monthLength, UErrorCode & status);
 
 /**

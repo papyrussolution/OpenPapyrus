@@ -32,8 +32,7 @@
 // and deallocator have different context owners
 // --------------------------------------------------------------------------------------------------
 
-static
-cmsContext DupContext(cmsContext src, void * Data)
+static cmsContext DupContext(cmsContext src, void * Data)
 {
 	cmsContext cpy = cmsDupContext(src, Data);
 	DebugMemDontCheckThis(cpy);
@@ -48,11 +47,9 @@ cmsContext DupContext(cmsContext src, void * Data)
 cmsInt32Number CheckAllocContext(void)
 {
 	cmsContext c1, c2, c3, c4;
-
 	c1 = cmsCreateContext(NULL, NULL);              // This creates a context by using the normal malloc
 	DebugMemDontCheckThis(c1);
 	cmsDeleteContext(c1);
-
 	c2 = cmsCreateContext(PluginMemHandler(), NULL); // This creates a context by using the debug malloc
 	DebugMemDontCheckThis(c2);
 	cmsDeleteContext(c2);
@@ -139,10 +136,10 @@ cmsInt32Number CheckSimpleContext(void)
 cmsInt32Number CheckAlarmColorsContext(void)
 {
 	cmsInt32Number rc = 0;
-	const cmsUInt16Number codes[] =
+	const uint16 codes[] =
 	{0x0000, 0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666, 0x7777, 0x8888, 0x9999, 0xaaaa, 0xbbbb, 0xcccc, 0xdddd, 0xeeee,
 	 0xffff};
-	cmsUInt16Number out[16];
+	uint16 out[16];
 	cmsContext c1, c2, c3;
 	int i;
 
@@ -179,7 +176,7 @@ cmsInt32Number CheckAdaptationStateContext(void)
 {
 	cmsInt32Number rc = 0;
 	cmsContext c1, c2, c3;
-	cmsFloat64Number old1, old2;
+	double old1, old2;
 
 	old1 =  cmsSetAdaptationStateTHR(NULL, -1);
 
@@ -211,11 +208,11 @@ cmsInt32Number CheckAdaptationStateContext(void)
 // --------------------------------------------------------------------------------------------------
 
 // This fake interpolation takes always the closest lower node in the interpolation table for 1D
-static void Fake1Dfloat(const cmsFloat32Number Value[], cmsFloat32Number Output[], const cmsInterpParams* p)
+static void Fake1Dfloat(const float Value[], float Output[], const cmsInterpParams* p)
 {
-	cmsFloat32Number val2;
+	float val2;
 	int cell;
-	const cmsFloat32Number* LutTable = (const cmsFloat32Number*)p->Table;
+	const float* LutTable = (const float*)p->Table;
 	// Clip upper values
 	if(Value[0] >= 1.0) {
 		Output[0] = LutTable[p->Domain[0]];
@@ -227,7 +224,7 @@ static void Fake1Dfloat(const cmsFloat32Number Value[], cmsFloat32Number Output[
 }
 
 // This fake interpolation just uses scrambled negated indexes for output
-static void Fake3D16(const cmsUInt16Number Input[], cmsUInt16Number Output[], const struct _cms_interp_struc * /*p*/)
+static void Fake3D16(const uint16 Input[], uint16 Output[], const struct _cms_interp_struc * /*p*/)
 {
 	Output[0] =  0xFFFF - Input[2];
 	Output[1] =  0xFFFF - Input[1];
@@ -238,7 +235,7 @@ static void Fake3D16(const cmsUInt16Number Input[], cmsUInt16Number Output[], co
 cmsInterpFunction my_Interpolators_Factory(cmsUInt32Number nInputChannels, cmsUInt32Number nOutputChannels, cmsUInt32Number dwFlags)
 {
 	cmsInterpFunction Interpolation;
-	cmsBool IsFloat = (dwFlags & CMS_LERP_FLAGS_FLOAT);
+	boolint IsFloat = (dwFlags & CMS_LERP_FLAGS_FLOAT);
 	// Initialize the return to zero as a non-supported mark
 	memzero(&Interpolation, sizeof(Interpolation));
 	// For 1D to 1D and floating point
@@ -262,9 +259,9 @@ static cmsPluginInterpolation InterpPluginSample = {
 // This is the check code for 1D interpolation plug-in
 cmsInt32Number CheckInterp1DPlugin(void)
 {
-	cmsToneCurve* Sampled1D = NULL;
+	cmsToneCurve * Sampled1D = NULL;
 	cmsContext cpy = NULL;
-	const cmsFloat32Number tab[] = { 0.0f, 0.10f, 0.20f, 0.30f, 0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f, 1.00f }; // A
+	const float tab[] = { 0.0f, 0.10f, 0.20f, 0.30f, 0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f, 1.00f }; // A
 	                                                                                                               // straight
 	                                                                                                               // line
 	// 1st level context
@@ -318,11 +315,11 @@ Error:
 // Checks the 3D interpolation
 cmsInt32Number CheckInterp3DPlugin(void)
 {
-	cmsPipeline* p;
-	cmsStage* clut;
+	cmsPipeline * p;
+	cmsStage * clut;
 	cmsContext ctx;
-	cmsUInt16Number In[3], Out[3];
-	cmsUInt16Number identity[] = {
+	uint16 In[3], Out[3];
+	uint16 identity[] = {
 		0,       0,       0,
 		0,       0,       0xffff,
 		0,       0xffff,  0,
@@ -401,11 +398,11 @@ Error:
 #define TYPE_TAN  1020
 #define TYPE_709  709
 
-static cmsFloat64Number my_fns(cmsInt32Number Type,
-    const cmsFloat64Number Params[],
-    cmsFloat64Number R)
+static double my_fns(cmsInt32Number Type,
+    const double Params[],
+    double R)
 {
-	cmsFloat64Number Val;
+	double Val;
 	switch(Type) {
 		case TYPE_SIN:
 		    Val = Params[0]* sin(R * M_PI);
@@ -429,33 +426,25 @@ static cmsFloat64Number my_fns(cmsInt32Number Type,
 	return Val;
 }
 
-static
-cmsFloat64Number my_fns2(cmsInt32Number Type,
-    const cmsFloat64Number Params[],
-    cmsFloat64Number R)
+static double my_fns2(cmsInt32Number Type, const double Params[], double R)
 {
-	cmsFloat64Number Val;
+	double Val;
 	switch(Type) {
 		case TYPE_TAN:
 		    Val = Params[0]* tan(R * M_PI);
 		    break;
-
 		case -TYPE_TAN:
 		    Val = atan(R) / (M_PI * Params[0]);
 		    break;
-
 		default: return -1.0;
 	}
-
 	return Val;
 }
 
 static double Rec709Math(int Type, const double Params[], double R)
 {
 	double Fun = 0;
-
-	switch(Type)
-	{
+	switch(Type) {
 		case 709:
 
 		    if(R <= (Params[3]*Params[4])) Fun = R / Params[3];
@@ -479,8 +468,7 @@ cmsPluginParametricCurves Rec709Plugin = {
 	1, {TYPE_709}, {5}, Rec709Math
 };
 
-static
-cmsPluginParametricCurves CurvePluginSample = {
+static cmsPluginParametricCurves CurvePluginSample = {
 	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL },
 
 	2,                   // nFunctions
@@ -489,8 +477,7 @@ cmsPluginParametricCurves CurvePluginSample = {
 	my_fns               // Evaluator
 };
 
-static
-cmsPluginParametricCurves CurvePluginSample2 = {
+static cmsPluginParametricCurves CurvePluginSample2 = {
 	{ cmsPluginMagicNumber, 2060, cmsPluginParametricCurveSig, NULL },
 
 	1,                   // nFunctions
@@ -507,12 +494,12 @@ cmsInt32Number CheckParametricCurvePlugin(void)
 	cmsContext ctx = NULL;
 	cmsContext cpy = NULL;
 	cmsContext cpy2 = NULL;
-	cmsToneCurve* sinus;
-	cmsToneCurve* cosinus;
-	cmsToneCurve* tangent;
-	cmsToneCurve* reverse_sinus;
-	cmsToneCurve* reverse_cosinus;
-	cmsFloat64Number scale = 1.0;
+	cmsToneCurve * sinus;
+	cmsToneCurve * cosinus;
+	cmsToneCurve * tangent;
+	cmsToneCurve * reverse_sinus;
+	cmsToneCurve * reverse_cosinus;
+	double scale = 1.0;
 
 	ctx = WatchDogContext(NULL);
 
@@ -580,25 +567,25 @@ Error:
 
 #define TYPE_RGB_565  (COLORSPACE_SH(PT_RGB)|CHANNELS_SH(3)|BYTES_SH(0) | (1 << 23))
 
-cmsUInt8Number * my_Unroll565(struct _cmstransform_struct * /*nfo*/, cmsUInt16Number wIn[], cmsUInt8Number * accum, cmsUInt32Number /*_stride*/)
+uint8 * my_Unroll565(struct _cmstransform_struct * /*nfo*/, uint16 wIn[], uint8 * accum, cmsUInt32Number /*_stride*/)
 {
-	cmsUInt16Number pixel = *(cmsUInt16Number*)accum; // Take whole pixel
+	uint16 pixel = *(uint16*)accum; // Take whole pixel
 	double r = floor(((double)(pixel & 31) * 65535.0) / 31.0 + 0.5);
 	double g = floor((((pixel >> 5) & 63) * 65535.0) / 63.0 + 0.5);
 	double b = floor((((pixel >> 11) & 31) * 65535.0) / 31.0 + 0.5);
-	wIn[2] = (cmsUInt16Number)r;
-	wIn[1] = (cmsUInt16Number)g;
-	wIn[0] = (cmsUInt16Number)b;
+	wIn[2] = (uint16)r;
+	wIn[1] = (uint16)g;
+	wIn[0] = (uint16)b;
 	return accum + 2;
 }
 
-cmsUInt8Number * my_Pack565(_cmsTRANSFORM * /*info*/, cmsUInt16Number wOut[], cmsUInt8Number* output, cmsUInt32Number /*_stride*/)
+uint8 * my_Pack565(_cmsTRANSFORM * /*info*/, uint16 wOut[], uint8 * output, cmsUInt32Number /*_stride*/)
 {
 	const int r = (int)floor(( wOut[2] * 31) / 65535.0 + 0.5);
 	const int g = (int)floor(( wOut[1] * 63) / 65535.0 + 0.5);
 	const int b = (int)floor(( wOut[0] * 31) / 65535.0 + 0.5);
-	cmsUInt16Number pixel = (r & 31)  | (( g & 63) << 5) | ((b & 31) << 11);
-	*(cmsUInt16Number*)output = pixel;
+	uint16 pixel = (r & 31)  | (( g & 63) << 5) | ((b & 31) << 11);
+	*(uint16*)output = pixel;
 	return output + 2;
 }
 
@@ -629,8 +616,8 @@ cmsInt32Number CheckFormattersPlugin(void)
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
-	cmsUInt16Number stream[] = { 0xffffU, 0x1234U, 0x0000U, 0x33ddU };
-	cmsUInt16Number result[4];
+	uint16 stream[] = { 0xffffU, 0x1234U, 0x0000U, 0x33ddU };
+	uint16 result[4];
 	int i;
 	cmsPluginTHR(ctx, &FormattersPluginSample);
 	cpy = DupContext(ctx, NULL);
@@ -664,7 +651,7 @@ static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	return Ptr;
 }
 
-static cmsBool Type_int_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number /*nItems*/)
+static boolint Type_int_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * Ptr, cmsUInt32Number /*nItems*/)
 {
 	return _cmsWriteUInt32Number(io, *(cmsUInt32Number *)Ptr);
 }
@@ -779,21 +766,21 @@ Error:
 // --------------------------------------------------------------------------------------------------
 #define SigNegateType ((cmsStageSignature)0x6E202020)
 
-static void EvaluateNegate(const cmsFloat32Number In[], cmsFloat32Number Out[], const cmsStage * /*pMpe*/)
+static void EvaluateNegate(const float In[], float Out[], const cmsStage * /*pMpe*/)
 {
 	Out[0] = 1.0f - In[0];
 	Out[1] = 1.0f - In[1];
 	Out[2] = 1.0f - In[2];
 }
 
-static cmsStage* StageAllocNegate(cmsContext ContextID)
+static cmsStage * StageAllocNegate(cmsContext ContextID)
 {
 	return _cmsStageAllocPlaceholder(ContextID, SigNegateType, 3, 3, EvaluateNegate, NULL, NULL, NULL);
 }
 
 static void * Type_negate_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsUInt32Number* nItems, cmsUInt32Number /*SizeOfTag*/)
 {
-	cmsUInt16Number Chans;
+	uint16 Chans;
 	if(!_cmsReadUInt16Number(io, &Chans)) return NULL;
 	if(Chans != 3) return NULL;
 
@@ -801,7 +788,7 @@ static void * Type_negate_Read(struct _cms_typehandler_struct* self, cmsIOHANDLE
 	return StageAllocNegate(self->ContextID);
 }
 
-static cmsBool Type_negate_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * /*Ptr*/, cmsUInt32Number /*nItems*/)
+static boolint Type_negate_Write(struct _cms_typehandler_struct * /*pSelf*/, cmsIOHANDLER* io, void * /*Ptr*/, cmsUInt32Number /*nItems*/)
 {
 	if(!_cmsWriteUInt16Number(io, 3)) return FALSE;
 	return TRUE;
@@ -822,8 +809,8 @@ cmsInt32Number CheckMPEPlugin(void)
 	cmsUInt32Number rc = 0;
 	char * data = NULL;
 	cmsUInt32Number clen = 0;
-	cmsFloat32Number In[3], Out[3];
-	cmsPipeline* pipe;
+	float In[3], Out[3];
+	cmsPipeline * pipe;
 
 	ctx = WatchDogContext(NULL);
 	cmsPluginTHR(ctx, &MPEPluginSample);
@@ -885,7 +872,7 @@ cmsInt32Number CheckMPEPlugin(void)
 		Fail("Open profile failed");
 		goto Error;
 	}
-	pipe = (cmsPipeline*)cmsReadTag(h, cmsSigDToB3Tag);
+	pipe = (cmsPipeline *)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe != NULL) {
 		// Unsupported stage, should fail
 		Fail("read tag/context switching failed");
@@ -901,7 +888,7 @@ cmsInt32Number CheckMPEPlugin(void)
 	// Get rid of data
 	SAlloc::F(data);
 	data = NULL;
-	pipe = (cmsPipeline*)cmsReadTag(h, cmsSigDToB3Tag);
+	pipe = (cmsPipeline *)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe == NULL) {
 		Fail("Read tag/conext switching failed (2)");
 		return 0;
@@ -929,14 +916,14 @@ Error:
 // Optimization plugin check:
 // --------------------------------------------------------------------------------------------------
 
-static void FastEvaluateCurves(const cmsUInt16Number In[], cmsUInt16Number Out[], const void * /*pData*/)
+static void FastEvaluateCurves(const uint16 In[], uint16 Out[], const void * /*pData*/)
 {
 	Out[0] = In[0];
 }
 
-static cmsBool MyOptimize(cmsPipeline** Lut, cmsUInt32Number /*Intent*/, cmsUInt32Number * /*InputFormat*/, cmsUInt32Number * /*OutputFormat*/, cmsUInt32Number* dwFlags)
+static boolint MyOptimize(cmsPipeline ** Lut, cmsUInt32Number /*Intent*/, cmsUInt32Number * /*InputFormat*/, cmsUInt32Number * /*OutputFormat*/, cmsUInt32Number* dwFlags)
 {
-	cmsStage* mpe;
+	cmsStage * mpe;
 	_cmsStageToneCurvesData* Data;
 	//  Only curves in this LUT? All are identities?
 	for(mpe = cmsPipelineGetPtrToFirstStage(*Lut); mpe != NULL; mpe = cmsStageNext(mpe)) {
@@ -963,9 +950,9 @@ cmsInt32Number CheckOptimizationPlugin(void)
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
-	cmsUInt8Number In[] = { 10, 20, 30, 40 };
-	cmsUInt8Number Out[4];
-	cmsToneCurve* Linear[1];
+	uint8 In[] = { 10, 20, 30, 40 };
+	uint8 Out[4];
+	cmsToneCurve * Linear[1];
 	cmsHPROFILE h;
 	int i;
 
@@ -1007,36 +994,20 @@ cmsInt32Number CheckOptimizationPlugin(void)
 
 #define INTENT_DECEPTIVE   300
 
-static
-cmsPipeline*  MyNewIntent(cmsContext ContextID,
-    cmsUInt32Number nProfiles,
-    cmsUInt32Number TheIntents[],
-    cmsHPROFILE hProfiles[],
-    cmsBool BPC[],
-    cmsFloat64Number AdaptationStates[],
-    cmsUInt32Number dwFlags)
+static cmsPipeline *  MyNewIntent(cmsContext ContextID, cmsUInt32Number nProfiles, cmsUInt32Number TheIntents[],
+    cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], cmsUInt32Number dwFlags)
 {
-	cmsPipeline*    Result;
+	cmsPipeline *    Result;
 	cmsUInt32Number ICCIntents[256];
 	cmsUInt32Number i;
-
 	for(i = 0; i < nProfiles; i++)
-		ICCIntents[i] = (TheIntents[i] == INTENT_DECEPTIVE) ? INTENT_PERCEPTUAL :
-		    TheIntents[i];
-
+		ICCIntents[i] = (TheIntents[i] == INTENT_DECEPTIVE) ? INTENT_PERCEPTUAL : TheIntents[i];
 	if(cmsGetColorSpace(hProfiles[0]) != cmsSigGrayData ||
 	    cmsGetColorSpace(hProfiles[nProfiles-1]) != cmsSigGrayData)
-		return _cmsDefaultICCintents(ContextID, nProfiles,
-			   ICCIntents, hProfiles,
-			   BPC, AdaptationStates,
-			   dwFlags);
-
+		return _cmsDefaultICCintents(ContextID, nProfiles, ICCIntents, hProfiles, BPC, AdaptationStates, dwFlags);
 	Result = cmsPipelineAlloc(ContextID, 1, 1);
 	if(Result == NULL) return NULL;
-
-	cmsPipelineInsertStage(Result, cmsAT_BEGIN,
-	    cmsStageAllocIdentity(ContextID, 1));
-
+	cmsPipelineInsertStage(Result, cmsAT_BEGIN, cmsStageAllocIdentity(ContextID, 1));
 	return Result;
 }
 
@@ -1053,10 +1024,10 @@ cmsInt32Number CheckIntentPlugin(void)
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
 	cmsHPROFILE h1, h2;
-	cmsToneCurve* Linear1;
-	cmsToneCurve* Linear2;
-	cmsUInt8Number In[] = { 10, 20, 30, 40 };
-	cmsUInt8Number Out[4];
+	cmsToneCurve * Linear1;
+	cmsToneCurve * Linear2;
+	uint8 In[] = { 10, 20, 30, 40 };
+	uint8 Out[4];
 	int i;
 
 	cmsPluginTHR(ctx, &IntentPluginSample);
@@ -1096,11 +1067,11 @@ cmsInt32Number CheckIntentPlugin(void)
 static void TrancendentalTransform(struct _cmstransform_struct * /*CMM*/, const void * /*pInputBuffer*/, void * OutputBuffer, cmsUInt32Number Size, cmsUInt32Number /*_stride*/)
 {
 	for(cmsUInt32Number i = 0; i < Size; i++) {
-		((cmsUInt8Number*)OutputBuffer)[i] = 0x42;
+		((uint8 *)OutputBuffer)[i] = 0x42;
 	}
 }
 
-cmsBool  TransformFactory(_cmsTransformFn* xformPtr, void ** /*ppUserData*/, _cmsFreeUserDataFn * /*pFreePrivateDataFn*/,
+boolint TransformFactory(_cmsTransformFn* xformPtr, void ** /*ppUserData*/, _cmsFreeUserDataFn * /*pFreePrivateDataFn*/,
     cmsPipeline ** /*ppLut*/, cmsUInt32Number * /*pInputFormat*/, cmsUInt32Number* OutputFormat, cmsUInt32Number * /*dwFlags*/)
 
 {
@@ -1125,9 +1096,9 @@ cmsInt32Number CheckTransformPlugin(void)
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
-	cmsUInt8Number In[] = { 10, 20, 30, 40 };
-	cmsUInt8Number Out[4];
-	cmsToneCurve* Linear;
+	uint8 In[] = { 10, 20, 30, 40 };
+	uint8 Out[4];
+	cmsToneCurve * Linear;
 	cmsHPROFILE h;
 	int i;
 	cmsPluginTHR(ctx, &FullTransformPluginSample);
@@ -1172,7 +1143,7 @@ static void MyMtxDestroy(cmsContext id, void * mtx)
 	_cmsFree(id, mtx);
 }
 
-static cmsBool MyMtxLock(cmsContext /*id*/, void * mtx)
+static boolint MyMtxLock(cmsContext /*id*/, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	mtx_->nlocks++;
@@ -1193,9 +1164,9 @@ cmsInt32Number CheckMutexPlugin(void)
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
-	cmsUInt8Number In[] = { 10, 20, 30, 40 };
-	cmsUInt8Number Out[4];
-	cmsToneCurve* Linear;
+	uint8 In[] = { 10, 20, 30, 40 };
+	uint8 Out[4];
+	cmsToneCurve * Linear;
 	cmsHPROFILE h;
 	int i;
 	cmsPluginTHR(ctx, &MutexPluginSample);
@@ -1221,12 +1192,12 @@ cmsInt32Number CheckMethodPackDoublesFromFloat(void)
 	cmsContext ctx = WatchDogContext(NULL);
 	cmsHTRANSFORM xform;
 	cmsHTRANSFORM l_pFakeProfileLAB;
-	cmsFloat64Number l_D_OutputColorArrayBlack[8];
-	cmsFloat64Number l_D_OutputColorArrayBlue[8];
+	double l_D_OutputColorArrayBlack[8];
+	double l_D_OutputColorArrayBlue[8];
 	cmsCIELab LabInBlack;
 	cmsCIELab LabInBlue;
-	cmsUInt16Number Lab_UI16_Black[3];
-	cmsUInt16Number Lab_UI16_Blue[3];
+	uint16 Lab_UI16_Black[3];
+	uint16 Lab_UI16_Blue[3];
 	cmsHPROFILE OutputCMYKProfile;
 	cmsUInt32Number l_UI32_OutputFormat;
 	cmsPluginTHR(ctx, &FullTransformPluginSample);

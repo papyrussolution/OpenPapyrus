@@ -277,7 +277,7 @@ u_fclose(UFILE * file)
 }
 
 U_CAPI FILE * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fgetfile(UFILE     * f)
+u_fgetfile(UFILE * f)
 {
 	return f->fFile;
 }

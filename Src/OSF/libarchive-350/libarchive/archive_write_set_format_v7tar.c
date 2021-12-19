@@ -111,17 +111,17 @@ static const char template_header[] = {
 
 static ssize_t  archive_write_v7tar_data(struct archive_write * a, const void * buff,
     size_t s);
-static int      archive_write_v7tar_free(struct archive_write *);
-static int      archive_write_v7tar_close(struct archive_write *);
-static int      archive_write_v7tar_finish_entry(struct archive_write *);
-static int      archive_write_v7tar_header(struct archive_write *,
+static int archive_write_v7tar_free(struct archive_write *);
+static int archive_write_v7tar_close(struct archive_write *);
+static int archive_write_v7tar_finish_entry(struct archive_write *);
+static int archive_write_v7tar_header(struct archive_write *,
     struct archive_entry * entry);
-static int      archive_write_v7tar_options(struct archive_write *,
+static int archive_write_v7tar_options(struct archive_write *,
     const char *, const char *);
-static int      format_256(int64, char *, int);
-static int      format_number(int64, char *, int size, int max, int strict);
-static int      format_octal(int64, char *, int);
-static int      format_header_v7tar(struct archive_write *, char h[512],
+static int format_256(int64, char *, int);
+static int format_number(int64, char *, int size, int max, int strict);
+static int format_octal(int64, char *, int);
+static int format_header_v7tar(struct archive_write *, char h[512],
     struct archive_entry *, int, struct archive_string_conv *);
 
 /*

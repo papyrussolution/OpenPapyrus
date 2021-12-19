@@ -418,7 +418,7 @@ int ossl_ecdsa_verify_sig(const uchar * dgst, int dgst_len,
 		ECerr(EC_F_OSSL_ECDSA_VERIFY_SIG, ERR_R_BN_LIB);
 		goto err;
 	}
-	/*  if the signature is correct u1 is equal to sig->r */
+	/* if the signature is correct u1 is equal to sig->r */
 	ret = (BN_ucmp(u1, sig->r) == 0);
 err:
 	BN_CTX_end(ctx);

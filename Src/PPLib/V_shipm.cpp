@@ -508,7 +508,7 @@ int PPALDD_ShipmAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_ShipmAnlz::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(ShipmAnalyze);
-	I.BillID         = item.BillID;
+	I.BillID = item.BillID;
 	I.GoodsID        = item.GoodsID;
 	I.OrderQtty      = item.OrderQtty;
 	I.OrderAmount    = item.OrderAmount;

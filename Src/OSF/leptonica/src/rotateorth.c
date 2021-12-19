@@ -62,19 +62,19 @@ static uint8 * makeReverseByteTab4(void);
 /*!
  * \brief   pixRotateOrth()
  *
- * \param[in]    pixs all depths
- * \param[in]    quads 0-3; number of 90 degree cw rotations
+ * \param[in]    pixs       all depths
+ * \param[in]    quads      0-3; number of 90 degree cw rotations
  * \return  pixd, or NULL on error
  */
-PIX * pixRotateOrth(PIX     * pixs,
-    int32 quads)
+PIX * pixRotateOrth(PIX * pixs,
+    l_int32 quads)
 {
-	PROCNAME("pixRotateOrth");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(quads < 0 || quads > 3)
-		return (PIX*)ERROR_PTR("quads not in {0,1,2,3}", procName, NULL);
+		return (PIX *)ERROR_PTR("quads not in {0,1,2,3}", procName, NULL);
 
 	if(quads == 0)
 		return pixCopy(NULL, pixs);
@@ -92,9 +92,9 @@ PIX * pixRotateOrth(PIX     * pixs,
 /*!
  * \brief   pixRotate180()
  *
- * \param[in]    pixd  [optional]; can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs all depths
+ * \param[in]    pixd    [optional]; can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    all depths
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -116,20 +116,20 @@ PIX * pixRotateOrth(PIX     * pixs,
 PIX * pixRotate180(PIX  * pixd,
     PIX  * pixs)
 {
-	int32 d;
+	l_int32 d;
 
-	PROCNAME("pixRotate180");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	d = pixGetDepth(pixs);
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX*)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-		    procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
+			   procName, NULL);
 
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 
 	pixFlipLR(pixd, pixd);
 	pixFlipTB(pixd, pixd);
@@ -142,8 +142,8 @@ PIX * pixRotate180(PIX  * pixd,
 /*!
  * \brief   pixRotate90()
  *
- * \param[in]    pixs all depths
- * \param[in]    direction 1 = clockwise,  -1 = counter-clockwise
+ * \param[in]    pixs         all depths
+ * \param[in]    direction    clockwise = 1, counterclockwise = -1
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -153,31 +153,32 @@ PIX * pixRotate180(PIX  * pixd,
  *      (2) The direction must be either 1 (cw) or -1 (ccw).
  * </pre>
  */
-PIX * pixRotate90(PIX     * pixs,
-    int32 direction)
+PIX * pixRotate90(PIX * pixs,
+    l_int32 direction)
 {
-	int32 wd, hd, d, wpls, wpld;
-	int32 i, j, k, m, iend, nswords;
-	uint32 val, word;
-	uint32  * lines, * datas, * lined, * datad;
-	PIX       * pixd;
+	l_int32 wd, hd, d, wpls, wpld;
+	l_int32 i, j, k, m, iend, nswords;
+	l_uint32 val, word;
+	l_uint32  * lines, * datas, * lined, * datad;
+	PIX * pixd;
 
-	PROCNAME("pixRotate90");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &hd, &wd, &d); /* note: reversed */
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX*)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-		    procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
+			   procName, NULL);
 	if(direction != 1 && direction != -1)
-		return (PIX*)ERROR_PTR("invalid direction", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid direction", procName, NULL);
 
 	if((pixd = pixCreate(wd, hd, d)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixCopyColormap(pixd, pixs);
 	pixCopyResolution(pixd, pixs);
 	pixCopyInputFormat(pixd, pixs);
+	pixCopySpp(pixd, pixs);
 
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
@@ -270,7 +271,7 @@ PIX * pixRotate90(PIX     * pixs,
 			    break;
 			default:
 			    pixDestroy(&pixd);
-			    L_ERROR2("illegal depth: %d\n", procName, d);
+			    L_ERROR("illegal depth: %d\n", procName, d);
 			    break;
 		}
 	}
@@ -360,7 +361,7 @@ PIX * pixRotate90(PIX     * pixs,
 			    break;
 			default:
 			    pixDestroy(&pixd);
-			    L_ERROR2("illegal depth: %d\n", procName, d);
+			    L_ERROR("illegal depth: %d\n", procName, d);
 			    break;
 		}
 	}
@@ -374,9 +375,9 @@ PIX * pixRotate90(PIX     * pixs,
 /*!
  * \brief   pixFlipLR()
  *
- * \param[in]    pixd  [optional]; can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs all depths
+ * \param[in]    pixd    [optional]; can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    all depths
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -395,7 +396,7 @@ PIX * pixRotate90(PIX     * pixs,
  *      (4) If an existing pixd is not the same size as pixs, the
  *          image data will be reallocated.
  *      (5) The pixel access routines allow a trivial implementation.
- *          However, for d \< 8, it is more efficient to right-justify
+ *          However, for d < 8, it is more efficient to right-justify
  *          each line to a 32-bit boundary and then extract bytes and
  *          do pixel reversing.   In those cases, as in the 180 degree
  *          rotation, we right-shift the data (if necessary) to
@@ -404,10 +405,10 @@ PIX * pixRotate90(PIX     * pixs,
  *          the pixels in each byte using a table.  These functions
  *          for 1, 2 and 4 bpp were tested against the "trivial"
  *          version (shown here for 4 bpp):
- *              for (i = 0; i \< h; i++) {
+ *              for (i = 0; i < h; i++) {
  *                  line = data + i * wpl;
  *                  memcpy(buffer, line, bpl);
- *                    for (j = 0; j \< w; j++) {
+ *                    for (j = 0; j < w; j++) {
  *                      val = GET_DATA_QBIT(buffer, w - 1 - j);
  *                        SET_DATA_QBIT(line, j, val);
  *                  }
@@ -418,23 +419,23 @@ PIX * pixFlipLR(PIX  * pixd,
     PIX  * pixs)
 {
 	uint8   * tab;
-	int32 w, h, d, wpl;
-	int32 extra, shift, databpl, bpl, i, j;
-	uint32 val;
-	uint32  * line, * data, * buffer;
+	l_int32 w, h, d, wpl;
+	l_int32 extra, shift, databpl, bpl, i, j;
+	l_uint32 val;
+	l_uint32  * line, * data, * buffer;
 
-	PROCNAME("pixFlipLR");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX*)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-		    procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
+			   procName, NULL);
 
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 
 	data = pixGetData(pixd);
 	wpl = pixGetWpl(pixd);
@@ -455,8 +456,10 @@ PIX * pixFlipLR(PIX  * pixd,
 	}
 
 	/* Possibly inplace assigning return val, so on failure return pixd */
-	if((buffer = (uint32*)LEPT_CALLOC(wpl, sizeof(uint32))) == NULL)
-		return (PIX*)ERROR_PTR("buffer not made", procName, pixd);
+	if((buffer = (l_uint32*)SAlloc::C(wpl, sizeof(l_uint32))) == NULL) {
+		if(tab) SAlloc::F(tab);
+		return (PIX *)ERROR_PTR("buffer not made", procName, pixd);
+	}
 
 	bpl = 4 * wpl;
 	switch(d)
@@ -548,12 +551,12 @@ PIX * pixFlipLR(PIX  * pixd,
 		    break;
 		default:
 		    pixDestroy(&pixd);
-		    L_ERROR2("illegal depth: %d\n", procName, d);
+		    L_ERROR("illegal depth: %d\n", procName, d);
 		    break;
 	}
 
-	LEPT_FREE(buffer);
-	if(tab) LEPT_FREE(tab);
+	SAlloc::F(buffer);
+	if(tab) SAlloc::F(tab);
 	return pixd;
 }
 
@@ -563,9 +566,9 @@ PIX * pixFlipLR(PIX  * pixd,
 /*!
  * \brief   pixFlipTB()
  *
- * \param[in]    pixd  [optional]; can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs all depths
+ * \param[in]    pixd   [optional]; can be null, equal to pixs,
+ *                      or different from pixs
+ * \param[in]    pixs   all depths
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -591,27 +594,27 @@ PIX * pixFlipLR(PIX  * pixd,
 PIX * pixFlipTB(PIX  * pixd,
     PIX  * pixs)
 {
-	int32 h, d, wpl, i, k, h2, bpl;
-	uint32  * linet, * lineb;
-	uint32  * data, * buffer;
+	l_int32 h, d, wpl, i, k, h2, bpl;
+	l_uint32  * linet, * lineb;
+	l_uint32  * data, * buffer;
 
-	PROCNAME("pixFlipTB");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, NULL, &h, &d);
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
-		return (PIX*)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
-		    procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not in {1,2,4,8,16,32} bpp",
+			   procName, NULL);
 
 	/* Prepare pixd for in-place operation */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 
 	data = pixGetData(pixd);
 	wpl = pixGetWpl(pixd);
-	if((buffer = (uint32*)LEPT_CALLOC(wpl, sizeof(uint32))) == NULL)
-		return (PIX*)ERROR_PTR("buffer not made", procName, pixd);
+	if((buffer = (l_uint32*)SAlloc::C(wpl, sizeof(l_uint32))) == NULL)
+		return (PIX *)ERROR_PTR("buffer not made", procName, pixd);
 
 	h2 = h / 2;
 	bpl = 4 * wpl;
@@ -623,7 +626,7 @@ PIX * pixFlipTB(PIX  * pixd,
 		memcpy(lineb, buffer, bpl);
 	}
 
-	LEPT_FREE(buffer);
+	SAlloc::F(buffer);
 	return pixd;
 }
 
@@ -639,14 +642,10 @@ PIX * pixFlipTB(PIX  * pixd,
  */
 static uint8 * makeReverseByteTab1(void)
 {
-	int32 i;
+	l_int32 i;
 	uint8  * tab;
 
-	PROCNAME("makeReverseByteTab1");
-
-	if((tab = (uint8*)LEPT_CALLOC(256, sizeof(uint8))) == NULL)
-		return (uint8*)ERROR_PTR("calloc fail for tab", procName, NULL);
-
+	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
 	for(i = 0; i < 256; i++)
 		tab[i] = ((0x80 & i) >> 7) |
 		    ((0x40 & i) >> 5) |
@@ -656,7 +655,6 @@ static uint8 * makeReverseByteTab1(void)
 		    ((0x04 & i) << 3) |
 		    ((0x02 & i) << 5) |
 		    ((0x01 & i) << 7);
-
 	return tab;
 }
 
@@ -669,14 +667,10 @@ static uint8 * makeReverseByteTab1(void)
  */
 static uint8 * makeReverseByteTab2(void)
 {
-	int32 i;
+	l_int32 i;
 	uint8  * tab;
 
-	PROCNAME("makeReverseByteTab2");
-
-	if((tab = (uint8*)LEPT_CALLOC(256, sizeof(uint8))) == NULL)
-		return (uint8*)ERROR_PTR("calloc fail for tab", procName, NULL);
-
+	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
 	for(i = 0; i < 256; i++)
 		tab[i] = ((0xc0 & i) >> 6) |
 		    ((0x30 & i) >> 2) |
@@ -694,16 +688,11 @@ static uint8 * makeReverseByteTab2(void)
  */
 static uint8 * makeReverseByteTab4(void)
 {
-	int32 i;
+	l_int32 i;
 	uint8  * tab;
 
-	PROCNAME("makeReverseByteTab4");
-
-	if((tab = (uint8*)LEPT_CALLOC(256, sizeof(uint8))) == NULL)
-		return (uint8*)ERROR_PTR("calloc fail for tab", procName, NULL);
-
+	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
 	for(i = 0; i < 256; i++)
 		tab[i] = ((0xf0 & i) >> 4) | ((0x0f & i) << 4);
 	return tab;
 }
-

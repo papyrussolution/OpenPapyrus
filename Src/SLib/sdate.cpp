@@ -2203,8 +2203,7 @@ SString & DateRepeating::Format(int fmt, SString & rBuf) const
 						_first = 0;
 					}
 				}
-				// @v9.4.9 rBuf.TrimRight().ToOem().CatDiv(';', 2);
-				rBuf.TrimRight().Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9
+				rBuf.TrimRight().Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2);
 			}
 			break;
 		case PRD_MONTH:
@@ -2226,8 +2225,7 @@ SString & DateRepeating::Format(int fmt, SString & rBuf) const
 				}
 				if(num_prd)
 					rBuf.CatDiv('-', 1).Cat(num_prd).CatDiv(';', 2);
-				// @v9.4.9 rBuf.Cat(buf).ToOem().CatDiv(';', 2);
-				rBuf.Cat(buf).Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2); // @v9.4.9
+				rBuf.Cat(buf).Transf(CTRANSF_OUTER_TO_INNER).CatDiv(';', 2);
 			}
 			break;
 		case PRD_ANNUAL:
@@ -2764,10 +2762,10 @@ static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint6
 	// year because then we can't recognize cases where we're given a year
 	// before 1601.
 	//
-	uint32 year         = pTimeFields->Y;
+	uint32 year = pTimeFields->Y;
 	uint32 month        = pTimeFields->M-1;
-	uint32 day          = pTimeFields->D-1;
-	uint32 hour         = pTimeFields->Hr;
+	uint32 day  = pTimeFields->D-1;
+	uint32 hour = pTimeFields->Hr;
 	uint32 minute       = pTimeFields->Mn;
 	uint32 second       = pTimeFields->Sc;
 	uint32 milliseconds = pTimeFields->MSc;

@@ -43,6 +43,10 @@
  *    Note: this program is Unix only; it will not compile under cygwin.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
@@ -61,13 +65,13 @@ static char  mainName[] = "maketile";
         return ERROR_INT(
             "Syntax:  maketile dirin depth scale width background fileout",
             mainName, 1);
-
     dirin = argv[1];
     depth = atoi(argv[2]);
     scale = atof(argv[3]);
     width = atoi(argv[4]);
     background = atoi(argv[5]);
     fileout = argv[6];
+    setLeptDebugOK(1);
 
         /* capture the filenames in the input directory; ignore directories */
     if ((safiles = getFilenamesInDirectory(dirin)) == NULL)
@@ -88,15 +92,15 @@ static char  mainName[] = "maketile";
             continue;
         }
         if (pixGetHeight(pix) > 5000) {
-            fprintf(stderr, "%s too tall\n", fname);
+            lept_stderr("%s too tall\n", fname);
             continue;
         }
         pixt = pixScale(pix, scale, scale);
         pixaAddPix(pixa, pixt, L_INSERT);
         pixDestroy(&pix);
-/*        fprintf(stderr, "%d..", i); */
+/*        lept_stderr("%d..", i); */
     }
-    fprintf(stderr, "\n");
+    lept_stderr("\n");
 
         /* tile them */
     pixd = pixaDisplayTiled(pixa, width, background, 15);

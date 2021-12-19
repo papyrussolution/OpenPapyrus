@@ -235,10 +235,10 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 	//int levelMinCurrent   = levelCurrent;
 	int levelMinCurrentElse = levelCurrent; //< Used for folding at 'else'
 	int levelMinCurrentBegin = levelCurrent; //< Used for folding at 'begin'
-	int levelNext         = levelCurrent;
+	int levelNext = levelCurrent;
 
 	/***************************************/
-	Sci_Position lastStart         = 0;
+	Sci_Position lastStart = 0;
 	char prevWord[32]     = "";
 
 	/***************************************/
@@ -283,24 +283,24 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 		}
 	}
 
-	char chNext          = styler[startPos];
-	char chPrev          = '\0';
+	char chNext  = styler[startPos];
+	char chPrev  = '\0';
 	char chNextNonBlank;
 	int styleNext       = styler.StyleAt(startPos);
 	//Platform::DebugPrintf("Line[%04d] Prev[%20s] ************************* Level[%x]\n", lineCurrent+1, prevWord, levelCurrent);
 
 	/***************************************/
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
-		char ch         = chNext;
-		chNext          = styler.SafeGetCharAt(i + 1);
-		chPrev          = styler.SafeGetCharAt(i - 1);
+		char ch = chNext;
+		chNext  = styler.SafeGetCharAt(i + 1);
+		chPrev  = styler.SafeGetCharAt(i - 1);
 		chNextNonBlank  = chNext;
 		Sci_PositionU j  = i+1;
 		while(IsABlank(chNextNonBlank) && j<endPos) {
 			j++;
 			chNextNonBlank = styler.SafeGetCharAt(j);
 		}
-		int style           = styleNext;
+		int style   = styleNext;
 		styleNext       = styler.StyleAt(i + 1);
 		bool atEOL      = (ch == '\r' && chNext != '\n') || (ch == '\n');
 

@@ -72,7 +72,7 @@ typedef size_t MemoryMap;
 #   endif
 
 #   if MAP_IMPLEMENTATION==MAP_390DLL
-/*   No memory mapping for 390 batch mode.  Fake it using dll loading.  */
+/* No memory mapping for 390 batch mode.  Fake it using dll loading.  */
 #       include <dll.h>
 #       define LIB_PREFIX "lib"
 #       define LIB_SUFFIX ".dll"
@@ -107,7 +107,7 @@ U_CFUNC void uprv_unmapFile(UDataMemory * pData) {
 
 #elif MAP_IMPLEMENTATION==MAP_WIN32
 U_CFUNC bool uprv_mapFile(UDataMemory * pData, /* Fill in with info on the result doing the mapping. */
-                                                /*   Output only; any original contents are cleared.  */
+                                                /* Output only; any original contents are cleared.  */
     const char * path,          /* File path to be opened/mapped.   */
     UErrorCode * status         /* Error status, used to report out-of-memory errors. */
     )
@@ -318,7 +318,7 @@ U_CFUNC void uprv_unmapFile(UDataMemory * pData) {
 }
 
 #elif MAP_IMPLEMENTATION==MAP_390DLL
-/*  390 specific Library Loading.
+/* 390 specific Library Loading.
  *  This is the only platform left that dynamically loads an ICU Data Library.
  *  All other platforms use .data files when dynamic loading is required, but
  *  this turn out to be awkward to support in 390 batch mode.

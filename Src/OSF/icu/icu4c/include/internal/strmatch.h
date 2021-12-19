@@ -140,7 +140,7 @@ class StringMatcher : public UnicodeFunctor, public UnicodeMatcher, public Unico
   * @return     true if this matcher will match a character c, 
   *             where c & 0xFF == v
      */
-    virtual bool matchesIndexValue(uint8_t v) const override;
+    virtual bool matchesIndexValue(uint8 v) const override;
 
     /**
   * Implement UnicodeMatcher

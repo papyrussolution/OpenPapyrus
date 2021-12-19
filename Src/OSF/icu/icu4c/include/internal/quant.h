@@ -88,7 +88,7 @@ class Quantifier : public UnicodeFunctor, public UnicodeMatcher {
   * @param v    the given index value.
   * @return     true if this rule matches the given index value.
      */
-    virtual bool matchesIndexValue(uint8_t v) const override;
+    virtual bool matchesIndexValue(uint8 v) const override;
 
     /**
   * Implement UnicodeMatcher

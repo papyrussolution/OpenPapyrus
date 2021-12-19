@@ -444,7 +444,7 @@ static CURLcode mbed_connect_step1(struct connectdata * conn,
 	mbedtls_ssl_set_bio(&backend->ssl, &conn->sock[sockindex],
 	    mbedtls_net_send,
 	    mbedtls_net_recv,
-	    NULL /*  rev_timeout() */);
+	    NULL /* rev_timeout() */);
 
 	mbedtls_ssl_conf_ciphersuites(&backend->config,
 	    mbedtls_ssl_list_ciphersuites());

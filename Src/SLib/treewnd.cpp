@@ -651,7 +651,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		strnzcpy(title_buf, SUcSwitch(pTitle), SIZEOFARRAY(title_buf));
 		const  size_t title_len = sstrlen(title_buf);
 		TVINSERTSTRUCT is;
-		is.hParent         = TVI_ROOT;
+		is.hParent = TVI_ROOT;
 		is.hInsertAfter    = TVI_LAST;
 		is.item.mask       = TVIF_TEXT | TVIF_PARAM;
 		is.item.lParam     = reinterpret_cast<LPARAM>(ptr);

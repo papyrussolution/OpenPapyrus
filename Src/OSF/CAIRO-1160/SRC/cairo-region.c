@@ -264,7 +264,8 @@ cairo_box_t * _cairo_region_get_boxes(const cairo_region_t * region, int * nbox)
 		nbox = 0;
 		return NULL;
 	}
-	return (cairo_box_t*)pixman_region32_rectangles(CONST_CAST &region->rgn, nbox);
+	else
+		return (cairo_box_t*)pixman_region32_rectangles(CONST_CAST &region->rgn, nbox);
 }
 
 /**
@@ -308,19 +309,21 @@ slim_hidden_def(cairo_region_create_rectangle);
  *
  * Since: 1.10
  **/
-cairo_region_t * cairo_region_copy(const cairo_region_t * original)
+cairo_region_t * FASTCALL cairo_region_copy(const cairo_region_t * original)
 {
-	cairo_region_t * copy;
 	if(original != NULL && original->status)
 		return (cairo_region_t *)&_cairo_region_nil;
-	copy = cairo_region_create();
-	if(UNLIKELY(copy->status))
-		return copy;
-	if(original != NULL && !pixman_region32_copy(&copy->rgn, CONST_CAST &original->rgn)) {
-		cairo_region_destroy(copy);
-		return (cairo_region_t *)&_cairo_region_nil;
+	else {
+		cairo_region_t * copy = cairo_region_create();
+		if(UNLIKELY(copy->status))
+			return copy;
+		else if(original != NULL && !pixman_region32_copy(&copy->rgn, CONST_CAST &original->rgn)) {
+			cairo_region_destroy(copy);
+			return (cairo_region_t *)&_cairo_region_nil;
+		}
+		else
+			return copy;
 	}
-	return copy;
 }
 
 slim_hidden_def(cairo_region_copy);
@@ -358,16 +361,13 @@ slim_hidden_def(cairo_region_reference);
  *
  * Since: 1.10
  **/
-void cairo_region_destroy(cairo_region_t * region)
+void FASTCALL cairo_region_destroy(cairo_region_t * region)
 {
 	if(region == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&region->ref_count))
 		return;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&region->ref_count));
-
 	if(!_cairo_reference_count_dec_and_test(&region->ref_count))
 		return;
-
 	_cairo_region_fini(region);
 	SAlloc::F(region);
 }

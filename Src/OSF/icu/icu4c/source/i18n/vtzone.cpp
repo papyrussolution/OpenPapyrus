@@ -120,7 +120,7 @@ static int32_t parseAsciiDigits(const UnicodeString & str, int32_t start, int32_
 	return sign * num;
 }
 
-static UnicodeString & appendAsciiDigits(int32_t number, uint8_t length, UnicodeString & str) {
+static UnicodeString & appendAsciiDigits(int32_t number, uint8 length, UnicodeString & str) {
 	bool negative = FALSE;
 	int32_t digits[10]; // max int32_t is 10 decimal digits
 	int32_t i;
@@ -138,7 +138,7 @@ static UnicodeString & appendAsciiDigits(int32_t number, uint8_t length, Unicode
 			digits[i++] = number % 10;
 			number /= 10;
 		} while(number != 0);
-		length = static_cast<uint8_t>(i);
+		length = static_cast<uint8>(i);
 	}
 	else {
 		// fixed digits
@@ -1209,13 +1209,13 @@ VTimeZone* VTimeZone::clone() const {
 	return new VTimeZone(*this);
 }
 
-int32_t VTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis, UErrorCode & status) const {
+int32_t VTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis, UErrorCode & status) const {
 	return tz->getOffset(era, year, month, day, dayOfWeek, millis, status);
 }
 
-int32_t VTimeZone::getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-    uint8_t dayOfWeek, int32_t millis,
+int32_t VTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+    uint8 dayOfWeek, int32_t millis,
     int32_t monthLength, UErrorCode & status) const {
 	return tz->getOffset(era, year, month, day, dayOfWeek, millis, monthLength, status);
 }

@@ -120,7 +120,7 @@ static bool is_zero_width_char(hb_font_t * font,
 	return hb_font_get_glyph(font, unicode, 0, &glyph) && hb_font_get_glyph_h_advance(font, glyph) == 0;
 }
 
-static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
     hb_font_t * font)
 {
@@ -374,7 +374,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan HB_UNUSED,
 
 static void setup_masks_hangul(const hb_ot_shape_plan_t * plan,
     hb_buffer_t * buffer,
-    hb_font_t * font HB_UNUSED)
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 	const hangul_shape_plan_t * hangul_plan = (const hangul_shape_plan_t*)plan->data;
 

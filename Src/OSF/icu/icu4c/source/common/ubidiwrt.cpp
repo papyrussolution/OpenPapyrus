@@ -372,7 +372,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
 		return 0;
 	}
 
-	if(length==0) {
+	if(!length) {
 		/* nothing to do */
 		return u_terminateUChars(dest, destSize, 0, pErrorCode);
 	}

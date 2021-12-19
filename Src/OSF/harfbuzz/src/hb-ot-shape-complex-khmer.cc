@@ -182,9 +182,9 @@ enum khmer_syllable_type_t {
 
 #include "hb-ot-shape-complex-khmer-machine.hh"
 
-static void setup_masks_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static void setup_masks_khmer(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
-    hb_font_t * font HB_UNUSED)
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, khmer_category);
 
@@ -197,8 +197,8 @@ static void setup_masks_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
 		set_khmer_properties(info[i]);
 }
 
-static void setup_syllables_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED,
+static void setup_syllables_khmer(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	find_syllables_khmer(buffer);
@@ -210,7 +210,7 @@ static void setup_syllables_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
  * https://docs.microsoft.com/en-us/typography/script-development/devanagari */
 
 static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
-    hb_face_t * face HB_UNUSED,
+    hb_face_t * face CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
     uint start, uint end)
 {
@@ -300,7 +300,7 @@ static void reorder_syllable_khmer(const hb_ot_shape_plan_t * plan,
 	}
 }
 
-static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer)
 {

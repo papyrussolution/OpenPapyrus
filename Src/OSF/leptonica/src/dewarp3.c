@@ -31,18 +31,18 @@
  *    Applying and stripping the page disparity model
  *
  *      Apply disparity array to pix
- *          int32            dewarpaApplyDisparity()
- *          static int32     dewarpaApplyInit()
+ *          l_int32            dewarpaApplyDisparity()
+ *          static l_int32     dewarpaApplyInit()
  *          static PIX        *pixApplyVertDisparity()
  *          static PIX        *pixApplyHorizDisparity()
  *
  *      Apply disparity array to boxa
- *          int32            dewarpaApplyDisparityBoxa()
+ *          l_int32            dewarpaApplyDisparityBoxa()
  *          static BOXA       *boxaApplyDisparity()
  *
  *      Stripping out data and populating full res disparity
- *          int32            dewarpMinimize()
- *          int32            dewarpPopulateFullRes()
+ *          l_int32            dewarpMinimize()
+ *          l_int32            dewarpPopulateFullRes()
  *
  *      Static functions not presently in use
  *          static FPIX       *fpixSampledDisparity()
@@ -53,13 +53,13 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static int32 dewarpaApplyInit(L_DEWARPA * dewa, int32 pageno, PIX * pixs,
-    int32 x, int32 y, L_DEWARP ** pdew,
+static l_int32 dewarpaApplyInit(L_DEWARPA * dewa, l_int32 pageno, PIX * pixs,
+    l_int32 x, l_int32 y, L_DEWARP ** pdew,
     const char * debugfile);
-static PIX * pixApplyVertDisparity(L_DEWARP * dew, PIX * pixs, int32 grayin);
-static PIX * pixApplyHorizDisparity(L_DEWARP * dew, PIX * pixs, int32 grayin);
-static BOXA * boxaApplyDisparity(L_DEWARP * dew, BOXA * boxa, int32 direction,
-    int32 mapdir);
+static PIX * pixApplyVertDisparity(L_DEWARP * dew, PIX * pixs, l_int32 grayin);
+static PIX * pixApplyHorizDisparity(L_DEWARP * dew, PIX * pixs, l_int32 grayin);
+static BOXA * boxaApplyDisparity(L_DEWARP * dew, BOXA * boxa, l_int32 direction,
+    l_int32 mapdir);
 
 /*----------------------------------------------------------------------*
 *                 Apply warping disparity array to pixa                *
@@ -68,13 +68,13 @@ static BOXA * boxaApplyDisparity(L_DEWARP * dew, BOXA * boxa, int32 direction,
  * \brief   dewarpaApplyDisparity()
  *
  * \param[in]    dewa
- * \param[in]    pageno of page model to be used; may be a ref model
- * \param[in]    pixs image to be modified; can be 1, 8 or 32 bpp
- * \param[in]    grayin gray value, from 0 to 255, for pixels brought in;
- *                      use -1 to use pixels on the boundary of pixs
- * \param[in]    x, y origin for generation of disparity arrays
- * \param[out]   ppixd disparity corrected image
- * \param[in]    debugfile use NULL to skip writing this
+ * \param[in]    pageno      of page model to be used; may be a ref model
+ * \param[in]    pixs        image to be modified; can be 1, 8 or 32 bpp
+ * \param[in]    grayin      gray value, from 0 to 255, for pixels brought in;
+ *                           use -1 to use pixels on the boundary of pixs
+ * \param[in]    x, y        origin for generation of disparity arrays
+ * \param[out]   ppixd       disparity corrected image
+ * \param[in]    debugfile   use NULL to skip writing this
  * \return  0 if OK, 1 on error no models or ref models available
  *
  * <pre>
@@ -107,19 +107,19 @@ static BOXA * boxaApplyDisparity(L_DEWARP * dew, BOXA * boxa, int32 direction,
  *          these hold approximately 16 bytes for each pixel in pixs.
  * </pre>
  */
-int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
-    int32 pageno,
+l_ok dewarpaApplyDisparity(L_DEWARPA   * dewa,
+    l_int32 pageno,
     PIX         * pixs,
-    int32 grayin,
-    int32 x,
-    int32 y,
+    l_int32 grayin,
+    l_int32 x,
+    l_int32 y,
     PIX        ** ppixd,
-    const char  * debugfile)
+    const char * debugfile)
 {
-	L_DEWARP  * dew1, * dew;
-	PIX       * pixv, * pixh;
+	L_DEWARP * dew1, * dew;
+	PIX * pixv, * pixh;
 
-	PROCNAME("dewarpaApplyDisparity");
+	PROCNAME(__FUNCTION__);
 
 	/* Initialize the output with the input, so we'll have that
 	 * in case we can't apply the page model. */
@@ -127,7 +127,7 @@ int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
 		return ERROR_INT("&pixd not defined", procName, 1);
 	*ppixd = pixClone(pixs);
 	if(grayin > 255) {
-		L_WARNING2("invalid grayin = %d; clipping at 255\n", procName, grayin);
+		L_WARNING("invalid grayin = %d; clipping at 255\n", procName, grayin);
 		grayin = 255;
 	}
 
@@ -146,14 +146,14 @@ int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
 		pixDisplayWithTitle(pixv, 300, 0, "pixv", 1);
 		lept_rmdir("lept/dewapply"); /* remove previous images */
 		lept_mkdir("lept/dewapply");
-		pixWrite("/tmp/lept/dewapply/001.png", pixs, IFF_PNG);
-		pixWrite("/tmp/lept/dewapply/002.png", pixv, IFF_PNG);
+		pixWriteDebug("/tmp/lept/dewapply/001.png", pixs, IFF_PNG);
+		pixWriteDebug("/tmp/lept/dewapply/002.png", pixv, IFF_PNG);
 	}
 
 	/* Optionally, correct for horizontal disparity */
 	if(dewa->useboth && dew->hsuccess && !dew->skip_horiz) {
 		if(dew->hvalid == FALSE) {
-			L_INFO2("invalid horiz model for page %d\n", procName, pageno);
+			L_INFO("invalid horiz model for page %d\n", procName, pageno);
 		}
 		else {
 			if((pixh = pixApplyHorizDisparity(dew, pixv, grayin)) != NULL) {
@@ -161,11 +161,12 @@ int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
 				*ppixd = pixh;
 				if(debugfile) {
 					pixDisplayWithTitle(pixh, 600, 0, "pixh", 1);
-					pixWrite("/tmp/lept/dewapply/003.png", pixh, IFF_PNG);
+					pixWriteDebug("/tmp/lept/dewapply/003.png", pixh, IFF_PNG);
 				}
 			}
 			else {
-				L_ERROR2("horiz disparity failed on page %d\n", procName, pageno);
+				L_ERROR("horiz disparity failed on page %d\n",
+				    procName, pageno);
 			}
 		}
 	}
@@ -173,8 +174,9 @@ int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
 	if(debugfile) {
 		dew1 = dewarpaGetDewarp(dewa, pageno);
 		dewarpDebug(dew1, "lept/dewapply", 0);
-		convertFilesToPdf("/tmp/lept/dewapply", NULL, 135, 1.0, 0, 0, "Dewarp Apply Disparity", debugfile);
-		fprintf(stderr, "pdf file: %s\n", debugfile);
+		convertFilesToPdf("/tmp/lept/dewapply", NULL, 250, 1.0, 0, 0,
+		    "Dewarp Apply Disparity", debugfile);
+		lept_stderr("pdf file: %s\n", debugfile);
 	}
 
 	/* Get rid of the large full res disparity arrays */
@@ -187,11 +189,11 @@ int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
  * \brief   dewarpaApplyInit()
  *
  * \param[in]    dewa
- * \param[in]    pageno of page model to be used; may be a ref model
- * \param[in]    pixs image to be modified; can be 1, 8 or 32 bpp
- * \param[in]    x, y origin for generation of disparity arrays
- * \param[out]   pdew dewarp to be used for this page
- * \param[in]    debugfile use NULL to skip writing this
+ * \param[in]    pageno      of page model to be used; may be a ref model
+ * \param[in]    pixs        image to be modified; can be 1, 8 or 32 bpp
+ * \param[in]    x, y        origin for generation of disparity arrays
+ * \param[out]   pdew        dewarp to be used for this page
+ * \param[in]    debugfile   use NULL to skip writing this
  * \return  0 if OK, 1 on error no models or ref models available
  *
  * <pre>
@@ -205,19 +207,19 @@ int32 dewarpaApplyDisparity(L_DEWARPA   * dewa,
  *          the 'skip_horiz' field in the %dew for this page.
  * </pre>
  */
-static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
-    int32 pageno,
+static l_int32 dewarpaApplyInit(L_DEWARPA   * dewa,
+    l_int32 pageno,
     PIX         * pixs,
-    int32 x,
-    int32 y,
+    l_int32 x,
+    l_int32 y,
     L_DEWARP   ** pdew,
-    const char  * debugfile)
+    const char * debugfile)
 {
-	int32 ncols, debug;
-	L_DEWARP  * dew1, * dew2;
-	PIX       * pix1;
+	l_int32 ncols, debug;
+	L_DEWARP * dew1, * dew2;
+	PIX * pix1;
 
-	PROCNAME("dewarpaApplyInit");
+	PROCNAME(__FUNCTION__);
 
 	if(!pdew)
 		return ERROR_INT("&dew not defined", procName, 1);
@@ -241,7 +243,7 @@ static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
 	/* Check for the existence of a valid model; we don't expect
 	 * all pages to have them. */
 	if((dew1 = dewarpaGetDewarp(dewa, pageno)) == NULL) {
-		L_INFO2("no valid dew model for page %d\n", procName, pageno);
+		L_INFO("no valid dew model for page %d\n", procName, pageno);
 		return 1;
 	}
 
@@ -260,10 +262,11 @@ static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
 	 * only apply vertical disparity. */
 	if(dewa->useboth && dewa->check_columns) {
 		pix1 = pixConvertTo1(pixs, 140);
-		pixCountTextColumns(pix1, 0.3f, 0.5f, 0.1f, &ncols, NULL);
+		pixCountTextColumns(pix1, 0.3, 0.5, 0.1, &ncols, NULL);
 		pixDestroy(&pix1);
 		if(ncols > 1) {
-			L_INFO2("found %d columns; not correcting horiz disparity\n", procName, ncols);
+			L_INFO("found %d columns; not correcting horiz disparity\n",
+			    procName, ncols);
 			dew2->skip_horiz = TRUE;
 		}
 		else {
@@ -282,10 +285,10 @@ static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
  * \brief   pixApplyVertDisparity()
  *
  * \param[in]    dew
- * \param[in]    pixs 1, 8 or 32 bpp
- * \param[in]    grayin gray value, from 0 to 255, for pixels brought in;
- *                      use -1 to use pixels on the boundary of pixs
- * \return  pixd modified to remove vertical disparity, or NULL on error
+ * \param[in]    pixs     1, 8 or 32 bpp
+ * \param[in]    grayin   gray value, from 0 to 255, for pixels brought in;
+ *                        use -1 to use pixels on the boundary of pixs
+ * \return  pixd   modified to remove vertical disparity, or NULL on error
  *
  * <pre>
  * Notes:
@@ -297,32 +300,32 @@ static int32 dewarpaApplyInit(L_DEWARPA   * dewa,
  *          boundary of the source image.
  * </pre>
  */
-static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
-    PIX       * pixs,
-    int32 grayin)
+static PIX * pixApplyVertDisparity(L_DEWARP * dew,
+    PIX * pixs,
+    l_int32 grayin)
 {
-	int32 i, j, w, h, d, fw, fh, wpld, wplf, isrc, val8;
-	uint32   * datad, * lined;
-	float  * dataf, * linef;
+	l_int32 i, j, w, h, d, fw, fh, wpld, wplf, isrc, val8;
+	l_uint32   * datad, * lined;
+	float * dataf, * linef;
 	void      ** lineptrs;
 	FPIX       * fpix;
 	PIX        * pixd;
 
-	PROCNAME("pixApplyVertDisparity");
+	PROCNAME(__FUNCTION__);
 
 	if(!dew)
-		return (PIX*)ERROR_PTR("dew not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("dew not defined", procName, NULL);
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1 && d != 8 && d != 32)
-		return (PIX*)ERROR_PTR("pix not 1, 8 or 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pix not 1, 8 or 32 bpp", procName, NULL);
 	if((fpix = dew->fullvdispar) == NULL)
-		return (PIX*)ERROR_PTR("fullvdispar not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("fullvdispar not defined", procName, NULL);
 	fpixGetDimensions(fpix, &fw, &fh);
 	if(fw < w || fh < h) {
-		fprintf(stderr, "fw = %d, w = %d, fh = %d, h = %d\n", fw, w, fh, h);
-		return (PIX*)ERROR_PTR("invalid fpix size", procName, NULL);
+		lept_stderr("fw = %d, w = %d, fh = %d, h = %d\n", fw, w, fh, h);
+		return (PIX *)ERROR_PTR("invalid fpix size", procName, NULL);
 	}
 
 	/* Two choices for requested pixels outside pixs: (1) use pixels'
@@ -340,7 +343,7 @@ static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
 			lined = datad + i * wpld;
 			linef = dataf + i * wplf;
 			for(j = 0; j < w; j++) {
-				isrc = (int32)(i - linef[j] + 0.5);
+				isrc = (l_int32)(i - linef[j] + 0.5);
 				if(grayin < 0) /* use value at boundary if outside */
 					isrc = MIN(MAX(isrc, 0), h - 1);
 				if(isrc >= 0 && isrc < h) { /* remains gray if outside */
@@ -356,7 +359,7 @@ static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
 			lined = datad + i * wpld;
 			linef = dataf + i * wplf;
 			for(j = 0; j < w; j++) {
-				isrc = (int32)(i - linef[j] + 0.5);
+				isrc = (l_int32)(i - linef[j] + 0.5);
 				if(grayin < 0)
 					isrc = MIN(MAX(isrc, 0), h - 1);
 				if(isrc >= 0 && isrc < h) {
@@ -372,7 +375,7 @@ static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
 			lined = datad + i * wpld;
 			linef = dataf + i * wplf;
 			for(j = 0; j < w; j++) {
-				isrc = (int32)(i - linef[j] + 0.5);
+				isrc = (l_int32)(i - linef[j] + 0.5);
 				if(grayin < 0)
 					isrc = MIN(MAX(isrc, 0), h - 1);
 				if(isrc >= 0 && isrc < h)
@@ -381,7 +384,7 @@ static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
 		}
 	}
 
-	LEPT_FREE(lineptrs);
+	SAlloc::F(lineptrs);
 	return pixd;
 }
 
@@ -389,11 +392,11 @@ static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
  * \brief   pixApplyHorizDisparity()
  *
  * \param[in]    dew
- * \param[in]    pixs 1, 8 or 32 bpp
- * \param[in]    grayin gray value, from 0 to 255, for pixels brought in;
- *                      use -1 to use pixels on the boundary of pixs
- * \return  pixd modified to remove horizontal disparity if possible,
- *              or NULL on error.
+ * \param[in]    pixs     1, 8 or 32 bpp
+ * \param[in]    grayin   gray value, from 0 to 255, for pixels brought in;
+ *                        use -1 to use pixels on the boundary of pixs
+ * \return  pixd   modified to remove horizontal disparity if possible,
+ *                 or NULL on error.
  *
  * <pre>
  * Notes:
@@ -407,31 +410,31 @@ static PIX * pixApplyVertDisparity(L_DEWARP  * dew,
  *          a clone of %pixs.
  * </pre>
  */
-static PIX * pixApplyHorizDisparity(L_DEWARP  * dew,
-    PIX       * pixs,
-    int32 grayin)
+static PIX * pixApplyHorizDisparity(L_DEWARP * dew,
+    PIX * pixs,
+    l_int32 grayin)
 {
-	int32 i, j, w, h, d, fw, fh, wpls, wpld, wplf, jsrc, val8;
-	uint32   * datas, * lines, * datad, * lined;
-	float  * dataf, * linef;
+	l_int32 i, j, w, h, d, fw, fh, wpls, wpld, wplf, jsrc, val8;
+	l_uint32   * datas, * lines, * datad, * lined;
+	float * dataf, * linef;
 	FPIX       * fpix;
 	PIX        * pixd;
 
-	PROCNAME("pixApplyHorizDisparity");
+	PROCNAME(__FUNCTION__);
 
 	if(!dew)
-		return (PIX*)ERROR_PTR("dew not defined", procName, pixs);
+		return (PIX *)ERROR_PTR("dew not defined", procName, pixs);
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1 && d != 8 && d != 32)
-		return (PIX*)ERROR_PTR("pix not 1, 8 or 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pix not 1, 8 or 32 bpp", procName, NULL);
 	if((fpix = dew->fullhdispar) == NULL)
-		return (PIX*)ERROR_PTR("fullhdispar not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("fullhdispar not defined", procName, NULL);
 	fpixGetDimensions(fpix, &fw, &fh);
 	if(fw < w || fh < h) {
-		fprintf(stderr, "fw = %d, w = %d, fh = %d, h = %d\n", fw, w, fh, h);
-		return (PIX*)ERROR_PTR("invalid fpix size", procName, NULL);
+		lept_stderr("fw = %d, w = %d, fh = %d, h = %d\n", fw, w, fh, h);
+		return (PIX *)ERROR_PTR("invalid fpix size", procName, NULL);
 	}
 
 	/* Two choices for requested pixels outside pixs: (1) use pixels'
@@ -451,7 +454,7 @@ static PIX * pixApplyHorizDisparity(L_DEWARP  * dew,
 			lined = datad + i * wpld;
 			linef = dataf + i * wplf;
 			for(j = 0; j < w; j++) {
-				jsrc = (int32)(j - linef[j] + 0.5);
+				jsrc = (l_int32)(j - linef[j] + 0.5);
 				if(grayin < 0) /* use value at boundary if outside */
 					jsrc = MIN(MAX(jsrc, 0), w - 1);
 				if(jsrc >= 0 && jsrc < w) { /* remains gray if outside */
@@ -467,7 +470,7 @@ static PIX * pixApplyHorizDisparity(L_DEWARP  * dew,
 			lined = datad + i * wpld;
 			linef = dataf + i * wplf;
 			for(j = 0; j < w; j++) {
-				jsrc = (int32)(j - linef[j] + 0.5);
+				jsrc = (l_int32)(j - linef[j] + 0.5);
 				if(grayin < 0)
 					jsrc = MIN(MAX(jsrc, 0), w - 1);
 				if(jsrc >= 0 && jsrc < w) {
@@ -483,7 +486,7 @@ static PIX * pixApplyHorizDisparity(L_DEWARP  * dew,
 			lined = datad + i * wpld;
 			linef = dataf + i * wplf;
 			for(j = 0; j < w; j++) {
-				jsrc = (int32)(j - linef[j] + 0.5);
+				jsrc = (l_int32)(j - linef[j] + 0.5);
 				if(grayin < 0)
 					jsrc = MIN(MAX(jsrc, 0), w - 1);
 				if(jsrc >= 0 && jsrc < w)
@@ -502,15 +505,15 @@ static PIX * pixApplyHorizDisparity(L_DEWARP  * dew,
  * \brief   dewarpaApplyDisparityBoxa()
  *
  * \param[in]    dewa
- * \param[in]    pageno of page model to be used; may be a ref model
- * \param[in]    pixs initial pix reference; for alignment and debugging
- * \param[in]    boxas boxa to be mapped
- * \param[in]    mapdir 1 if mapping forward from original to dewarped;
- *                      0 if backward
- * \param[in]    x, y origin for generation of disparity arrays with
- *                    respect to the source region
- * \param[out]   pboxad disparity corrected boxa
- * \param[in]    debugfile use NULL to skip writing this
+ * \param[in]    pageno      of page model to be used; may be a ref model
+ * \param[in]    pixs        initial pix reference; for alignment and debugging
+ * \param[in]    boxas       boxa to be mapped
+ * \param[in]    mapdir      1 if mapping forward from original to dewarped;
+ *                           0 if backward
+ * \param[in]    x, y        origin for generation of disparity arrays with
+ *                           respect to the source region
+ * \param[out]   pboxad      disparity corrected boxa
+ * \param[in]    debugfile   use NULL to skip writing this
  * \return  0 if OK, 1 on error no models or ref models available
  *
  * <pre>
@@ -526,22 +529,22 @@ static PIX * pixApplyHorizDisparity(L_DEWARP  * dew,
  *      (4) If an error occurs, a copy of the input boxa is returned.
  * </pre>
  */
-int32 dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
-    int32 pageno,
+l_ok dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
+    l_int32 pageno,
     PIX         * pixs,
     BOXA        * boxas,
-    int32 mapdir,
-    int32 x,
-    int32 y,
+    l_int32 mapdir,
+    l_int32 x,
+    l_int32 y,
     BOXA       ** pboxad,
-    const char  * debugfile)
+    const char * debugfile)
 {
-	int32 debug_out;
-	L_DEWARP  * dew1, * dew;
+	l_int32 debug_out;
+	L_DEWARP * dew1, * dew;
 	BOXA      * boxav, * boxah;
-	PIX       * pixv, * pixh;
+	PIX * pixv, * pixh;
 
-	PROCNAME("dewarpaApplyDisparityBoxa");
+	PROCNAME(__FUNCTION__);
 
 	/* Initialize the output with the input, so we'll have that
 	 * in case we can't apply the page model. */
@@ -571,24 +574,24 @@ int32 dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
 		lept_mkdir("lept/dewboxa");
 		pix1 = pixConvertTo32(pixs);
 		pixRenderBoxaArb(pix1, boxas, 2, 255, 0, 0);
-		pixWrite("/tmp/lept/dewboxa/01.png", pix1, IFF_PNG);
+		pixWriteDebug("/tmp/lept/dewboxa/01.png", pix1, IFF_PNG);
 		pixDestroy(&pix1);
 		pixv = pixApplyVertDisparity(dew, pixs, 255);
 		pix1 = pixConvertTo32(pixv);
 		pixRenderBoxaArb(pix1, boxav, 2, 0, 255, 0);
-		pixWrite("/tmp/lept/dewboxa/02.png", pix1, IFF_PNG);
+		pixWriteDebug("/tmp/lept/dewboxa/02.png", pix1, IFF_PNG);
 		pixDestroy(&pix1);
 	}
 
 	/* Optionally, correct for horizontal disparity */
 	if(dewa->useboth && dew->hsuccess && !dew->skip_horiz) {
 		if(dew->hvalid == FALSE) {
-			L_INFO2("invalid horiz model for page %d\n", procName, pageno);
+			L_INFO("invalid horiz model for page %d\n", procName, pageno);
 		}
 		else {
 			boxah = boxaApplyDisparity(dew, boxav, L_HORIZ, mapdir);
 			if(!boxah) {
-				L_ERROR2("horiz disparity fails on page %d\n", procName, pageno);
+				L_ERROR("horiz disparity fails on page %d\n", procName, pageno);
 			}
 			else {
 				boxaDestroy(pboxad);
@@ -598,7 +601,7 @@ int32 dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
 					pixh = pixApplyHorizDisparity(dew, pixv, 255);
 					pix1 = pixConvertTo32(pixh);
 					pixRenderBoxaArb(pix1, boxah, 2, 0, 0, 255);
-					pixWrite("/tmp/lept/dewboxa/03.png", pix1, IFF_PNG);
+					pixWriteDebug("/tmp/lept/dewboxa/03.png", pix1, IFF_PNG);
 					pixDestroy(&pixh);
 					pixDestroy(&pix1);
 				}
@@ -612,7 +615,7 @@ int32 dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
 		dewarpDebug(dew1, "lept/dewapply", 0);
 		convertFilesToPdf("/tmp/lept/dewboxa", NULL, 135, 1.0, 0, 0,
 		    "Dewarp Apply Disparity Boxa", debugfile);
-		fprintf(stderr, "Dewarp Apply Disparity Boxa pdf file: %s\n",
+		lept_stderr("Dewarp Apply Disparity Boxa pdf file: %s\n",
 		    debugfile);
 	}
 
@@ -627,38 +630,38 @@ int32 dewarpaApplyDisparityBoxa(L_DEWARPA   * dewa,
  *
  * \param[in]    dew
  * \param[in]    boxa
- * \param[in]    direction L_HORIZ or L_VERT
- * \param[in]    mapdir 1 if mapping forward from original to dewarped;
- *                      0 if backward
- * \return  boxad modified by the disparity, or NULL on error
+ * \param[in]    direction   L_HORIZ or L_VERT
+ * \param[in]    mapdir      1 if mapping forward from original to dewarped;
+ *                           0 if backward
+ * \return  boxad   modified by the disparity, or NULL on error
  */
-static BOXA * boxaApplyDisparity(L_DEWARP  * dew,
+static BOXA * boxaApplyDisparity(L_DEWARP * dew,
     BOXA      * boxa,
-    int32 direction,
-    int32 mapdir)
+    l_int32 direction,
+    l_int32 mapdir)
 {
-	int32 x, y, w, h, ib, ip, nbox, wpl;
+	l_int32 x, y, w, h, ib, ip, nbox, wpl;
 	float xn, yn;
-	float  * data, * line;
+	float * data, * line;
 	BOX        * boxs, * boxd;
 	BOXA       * boxad;
 	FPIX       * fpix;
 	PTA        * ptas, * ptad;
 
-	PROCNAME("boxaApplyDisparity");
+	PROCNAME(__FUNCTION__);
 
 	if(!dew)
-		return (BOXA*)ERROR_PTR("dew not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("dew not defined", procName, NULL);
 	if(!boxa)
-		return (BOXA*)ERROR_PTR("boxa not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxa not defined", procName, NULL);
 	if(direction == L_VERT)
 		fpix = dew->fullvdispar;
 	else if(direction == L_HORIZ)
 		fpix = dew->fullhdispar;
 	else
-		return (BOXA*)ERROR_PTR("invalid direction", procName, NULL);
+		return (BOXA *)ERROR_PTR("invalid direction", procName, NULL);
 	if(!fpix)
-		return (BOXA*)ERROR_PTR("full disparity not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("full disparity not defined", procName, NULL);
 	fpixGetDimensions(fpix, &w, &h);
 
 	/* Clip the output to the positive quadrant because all box
@@ -717,11 +720,11 @@ static BOXA * boxaApplyDisparity(L_DEWARP  * dew,
  *          resolution arrays can be reconstructed.
  * </pre>
  */
-int32 dewarpMinimize(L_DEWARP  * dew)
+l_ok dewarpMinimize(L_DEWARP * dew)
 {
-	L_DEWARP  * dewt;
+	L_DEWARP * dewt;
 
-	PROCNAME("dewarpMinimize");
+	PROCNAME(__FUNCTION__);
 
 	if(!dew)
 		return ERROR_INT("dew not defined", procName, 1);
@@ -746,8 +749,8 @@ int32 dewarpMinimize(L_DEWARP  * dew)
  * \brief   dewarpPopulateFullRes()
  *
  * \param[in]    dew
- * \param[in]    pix [optional], to give size of actual image
- * \param[in]    x, y origin for generation of disparity arrays
+ * \param[in]    pix     [optional], to give size of actual image
+ * \param[in]    x, y    origin for generation of disparity arrays
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -764,22 +767,22 @@ int32 dewarpMinimize(L_DEWARP  * dew)
  *              relative to pixs.  Thus, (x,y) gives the amount of
  *              slope extension in (left, top).  The (right, bottom)
  *              extension is then determined by the size of pixs and
- *              (x,y); the values should never be \< 0.
+ *              (x,y); the values should never be < 0.
  *          (b) If the arrays exist and pixs is too large, the existing
  *              full res arrays are destroyed and new ones are made,
  *              again using (x,y) to determine the extension in the
  *              four directions.
  * </pre>
  */
-int32 dewarpPopulateFullRes(L_DEWARP  * dew,
-    PIX       * pix,
-    int32 x,
-    int32 y)
+l_ok dewarpPopulateFullRes(L_DEWARP * dew,
+    PIX * pix,
+    l_int32 x,
+    l_int32 y)
 {
-	int32 width, height, fw, fh, deltaw, deltah, redfactor;
+	l_int32 width, height, fw, fh, deltaw, deltah, redfactor;
 	FPIX       * fpixt1, * fpixt2;
 
-	PROCNAME("dewarpPopulateFullRes");
+	PROCNAME(__FUNCTION__);
 
 	if(!dew)
 		return ERROR_INT("dew not defined", procName, 1);
@@ -819,7 +822,7 @@ int32 dewarpPopulateFullRes(L_DEWARP  * dew,
 	 * extending it as required to make it big enough.  Use x,y
 	 * to determine the amounts on each side. */
 	if(!dew->fullvdispar) {
-		fpixt1 = fpixCopy(NULL, dew->sampvdispar);
+		fpixt1 = fpixCopy(dew->sampvdispar);
 		if(redfactor == 2)
 			fpixAddMultConstant(fpixt1, 0.0, (float)redfactor);
 		fpixt2 = fpixScaleByInteger(fpixt1, dew->sampling * redfactor);
@@ -829,7 +832,7 @@ int32 dewarpPopulateFullRes(L_DEWARP  * dew,
 		}
 		else {
 			dew->fullvdispar = fpixAddSlopeBorder(fpixt2, x, deltaw - x,
-			    y, deltah - y);
+				y, deltah - y);
 			fpixDestroy(&fpixt2);
 		}
 	}
@@ -838,7 +841,7 @@ int32 dewarpPopulateFullRes(L_DEWARP  * dew,
 	* doesn't exist.  Do this even if useboth == 1, but
 	* not if required to skip running horizontal disparity. */
 	if(!dew->fullhdispar && dew->samphdispar && !dew->skip_horiz) {
-		fpixt1 = fpixCopy(NULL, dew->samphdispar);
+		fpixt1 = fpixCopy(dew->samphdispar);
 		if(redfactor == 2)
 			fpixAddMultConstant(fpixt1, 0.0, (float)redfactor);
 		fpixt2 = fpixScaleByInteger(fpixt1, dew->sampling * redfactor);
@@ -848,7 +851,7 @@ int32 dewarpPopulateFullRes(L_DEWARP  * dew,
 		}
 		else {
 			dew->fullhdispar = fpixAddSlopeBorder(fpixt2, x, deltaw - x,
-			    y, deltah - y);
+				y, deltah - y);
 			fpixDestroy(&fpixt2);
 		}
 	}
@@ -863,9 +866,9 @@ int32 dewarpPopulateFullRes(L_DEWARP  * dew,
 /*!
  * \brief   fpixSampledDisparity()
  *
- * \param[in]    fpixs full resolution disparity model
- * \param[in]    sampling sampling factor
- * \return  fpixd sampled disparity model, or NULL on error
+ * \param[in]    fpixs      full resolution disparity model
+ * \param[in]    sampling   sampling factor
+ * \return  fpixd   sampled disparity model, or NULL on error
  *
  * <pre>
  * Notes:
@@ -884,13 +887,13 @@ int32 dewarpPopulateFullRes(L_DEWARP  * dew,
  * </pre>
  */
 static FPIX * fpixSampledDisparity(FPIX    * fpixs,
-    int32 sampling)
+    l_int32 sampling)
 {
-	int32 w, h, wd, hd, i, j, is, js;
+	l_int32 w, h, wd, hd, i, j, is, js;
 	float val;
 	FPIX      * fpixd;
 
-	PROCNAME("fpixSampledDisparity");
+	PROCNAME(__FUNCTION__);
 
 	if(!fpixs)
 		return (FPIX*)ERROR_PTR("fpixs not defined", procName, NULL);
@@ -917,13 +920,15 @@ static FPIX * fpixSampledDisparity(FPIX    * fpixs,
 	return fpixd;
 }
 
+static const float DefaultSlopeFactor = 0.1; /* just a guess; fix it */
+
 /*!
  * \brief   fpixExtraHorizDisparity()
  *
- * \param[in]    fpixv vertical disparity model
- * \param[in]    factor conversion factor for vertical disparity slope;
- *                      use 0 for default
- * \param[out]   pxwid extra width to be added to dewarped pix
+ * \param[in]    fpixv    vertical disparity model
+ * \param[in]    factor   conversion factor for vertical disparity slope;
+ *                        use 0 for default
+ * \param[out]   pxwid    extra width to be added to dewarped pix
  * \return  fpixh, or NULL on error
  *
  * <pre>
@@ -934,30 +939,30 @@ static FPIX * fpixSampledDisparity(FPIX    * fpixs,
  *          horizontal disparity determined by the left and right
  *          ends of textlines.
  *      (2) Usage:
- *            int32 xwid = [extra width to be added to fpix and image]
- *            FPix *fpix = fpixExtraHorizDisparity(dew-\>fullvdispar, 0, \&xwid);
- *            fpixLinearCombination(dew-\>fullhdispar, dew-\>fullhdispar,
+ *            l_int32 xwid = [extra width to be added to fpix and image]
+ *            FPix *fpix = fpixExtraHorizDisparity(dew->fullvdispar, 0, &xwid);
+ *            fpixLinearCombination(dew->fullhdispar, dew->fullhdispar,
  *                                  fpix, 1.0, 1.0);
  * </pre>
  */
 static FPIX * fpixExtraHorizDisparity(FPIX      * fpixv,
     float factor,
-    int32   * pxwid)
+    l_int32   * pxwid)
 {
-	int32 w, h, i, j, fw, wpl, maxloc;
+	l_int32 w, h, i, j, fw, wpl, maxloc;
 	float val1, val2, vdisp, vdisp0, maxval;
-	float  * data, * line, * fadiff;
+	float * data, * line, * fadiff;
 	NUMA       * nadiff;
 	FPIX       * fpixh;
 
-	PROCNAME("fpixExtraHorizDisparity");
+	PROCNAME(__FUNCTION__);
 
 	if(!fpixv)
 		return (FPIX*)ERROR_PTR("fpixv not defined", procName, NULL);
 	if(!pxwid)
 		return (FPIX*)ERROR_PTR("&xwid not defined", procName, NULL);
 	if(factor == 0.0)
-		factor = DEFAULT_SLOPE_FACTOR;
+		factor = DefaultSlopeFactor;
 
 	/* Estimate horizontal disparity from the vertical disparity
 	 * difference between the top and bottom, normalized to the
@@ -975,7 +980,7 @@ static FPIX * fpixExtraHorizDisparity(FPIX      * fpixv,
 		numaAddNumber(nadiff, vdisp);
 	}
 	numaGetMax(nadiff, &maxval, &maxloc);
-	*pxwid = (int32)(maxval + 0.5);
+	*pxwid = (l_int32)(maxval + 0.5);
 
 	fw = w + *pxwid;
 	fpixh = fpixCreate(fw, h);

@@ -30,23 +30,23 @@
  *
  *      Stream interface
  *          PIX             *pixReadStreamPnm()
- *          int32          readHeaderPnm()
- *          int32          freadHeaderPnm()
- *          int32          pixWriteStreamPnm()
- *          int32          pixWriteStreamAsciiPnm()
- *          int32          pixWriteStreamPam()
+ *          l_int32          readHeaderPnm()
+ *          l_int32          freadHeaderPnm()
+ *          l_int32          pixWriteStreamPnm()
+ *          l_int32          pixWriteStreamAsciiPnm()
+ *          l_int32          pixWriteStreamPam()
  *
  *      Read/write to memory
  *          PIX             *pixReadMemPnm()
- *          int32          readHeaderMemPnm()
- *          int32          pixWriteMemPnm()
- *          int32          pixWriteMemPam()
+ *          l_int32          readHeaderMemPnm()
+ *          l_int32          pixWriteMemPnm()
+ *          l_int32          pixWriteMemPam()
  *
  *      Local helpers
- *          static int32   pnmReadNextAsciiValue();
- *          static int32   pnmReadNextNumber();
- *          static int32   pnmReadNextString();
- *          static int32   pnmSkipCommentLines();
+ *          static l_int32   pnmReadNextAsciiValue();
+ *          static l_int32   pnmReadNextNumber();
+ *          static l_int32   pnmReadNextString();
+ *          static l_int32   pnmSkipCommentLines();
  *
  *      These are here by popular demand, with the help of Mattias
  *      Kregert (mattias@kregert.se), who provided the first implementation.
@@ -106,13 +106,14 @@
  *
  *      Writing P7 format is currently selected for 32-bpp with alpha
  *      channel, i.e. for Pix which have spp == 4, using pixWriteStreamPam().
+ *
  *      Jürgen Buchmüller provided the implementation for the P7 (pam) format.
+ *
+ *      Giulio Lunati made an elegant reimplementation of the static helper
+ *      functions using fscanf() instead of fseek(), so that it works with
+ *      pnm data from stdin.
  * </pre>
  */
-//#ifdef HAVE_CONFIG_H
-//#include "config_auto.h"
-//#endif  /* HAVE_CONFIG_H */
-//#include <ctype.h>
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -120,14 +121,14 @@
 #if  USE_PNMIO   /* defined in environ.h */
 /* --------------------------------------------*/
 
-static int32 pnmReadNextAsciiValue(FILE  * fp, int32 * pval);
-static int32 pnmReadNextNumber(FILE * fp, int32 * pval);
-static int32 pnmReadNextString(FILE * fp, char * buff, int32 size);
-static int32 pnmSkipCommentLines(FILE  * fp);
+static l_int32 pnmReadNextAsciiValue(FILE * fp, l_int32 * pval);
+static l_int32 pnmReadNextNumber(FILE * fp, l_int32 * pval);
+static l_int32 pnmReadNextString(FILE * fp, char * buff, l_int32 size);
+static l_int32 pnmSkipCommentLines(FILE * fp);
 
 /* a sanity check on the size read from file */
-static const int32 MAX_PNM_WIDTH = 100000;
-static const int32 MAX_PNM_HEIGHT = 100000;
+static const l_int32 MAX_PNM_WIDTH = 100000;
+static const l_int32 MAX_PNM_HEIGHT = 100000;
 
 /*--------------------------------------------------------------------*
 *                          Stream interface                          *
@@ -135,35 +136,40 @@ static const int32 MAX_PNM_HEIGHT = 100000;
 /*!
  * \brief   pixReadStreamPnm()
  *
- * \param[in]    fp file stream opened for read
+ * \param[in]    fp   file stream opened for read
  * \return  pix, or NULL on error
  */
-PIX * pixReadStreamPnm(FILE  * fp)
+PIX * pixReadStreamPnm(FILE * fp)
 {
 	uint8 val8, rval8, gval8, bval8, aval8, mask8;
-	uint16 val16, rval16, gval16, bval16, aval16, mask16;
-	int32 w, h, d, bps, spp, bpl, wpl, i, j, type;
-	int32 val, rval, gval, bval;
-	uint32 rgbval;
-	uint32  * line, * data;
-	PIX       * pix;
+	uint16 val16, rval16, gval16, bval16, aval16;
+	l_int32 w, h, d, bps, spp, bpl, wpl, i, j, type;
+	l_int32 val, rval, gval, bval;
+	l_uint32 rgbval;
+	l_uint32  * line, * data;
+	PIX * pix;
 
-	PROCNAME("pixReadStreamPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
-		return (PIX*)ERROR_PTR("fp not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("fp not defined", procName, NULL);
 
 	if(freadHeaderPnm(fp, &w, &h, &d, &type, &bps, &spp))
-		return (PIX*)ERROR_PTR("header read failed", procName, NULL);
+		return (PIX *)ERROR_PTR("header read failed", procName, NULL);
 	if(bps < 1 || bps > 16)
-		return (PIX*)ERROR_PTR("invalid bps", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid bps", procName, NULL);
 	if(spp < 1 || spp > 4)
-		return (PIX*)ERROR_PTR("invalid spp", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid spp", procName, NULL);
 	if((pix = pixCreate(w, h, d)) == NULL)
-		return (PIX*)ERROR_PTR("pix not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pix not made", procName, NULL);
 	pixSetInputFormat(pix, IFF_PNM);
 	data = pixGetData(pix);
 	wpl = pixGetWpl(pix);
+
+	/* If type == 6 and bps == 16, we use the code in type 7
+	 * to read 6 bytes/pixel from the input file. */
+	if(type == 6 && bps == 16)
+		type = 7;
 
 	switch(type) {
 		case 1:
@@ -171,8 +177,10 @@ PIX * pixReadStreamPnm(FILE  * fp)
 		    /* Old "ASCII" binary or gray format */
 		    for(i = 0; i < h; i++) {
 			    for(j = 0; j < w; j++) {
-				    if(pnmReadNextAsciiValue(fp, &val))
-					    return (PIX*)ERROR_PTR("read abend", procName, pix);
+				    if(pnmReadNextAsciiValue(fp, &val)) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read abend", procName, NULL);
+				    }
 				    pixSetPixel(pix, j, i, val);
 			    }
 		    }
@@ -182,12 +190,18 @@ PIX * pixReadStreamPnm(FILE  * fp)
 		    /* Old "ASCII" rgb format */
 		    for(i = 0; i < h; i++) {
 			    for(j = 0; j < w; j++) {
-				    if(pnmReadNextAsciiValue(fp, &rval))
-					    return (PIX*)ERROR_PTR("read abend", procName, pix);
-				    if(pnmReadNextAsciiValue(fp, &gval))
-					    return (PIX*)ERROR_PTR("read abend", procName, pix);
-				    if(pnmReadNextAsciiValue(fp, &bval))
-					    return (PIX*)ERROR_PTR("read abend", procName, pix);
+				    if(pnmReadNextAsciiValue(fp, &rval)) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read abend", procName, NULL);
+				    }
+				    if(pnmReadNextAsciiValue(fp, &gval)) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read abend", procName, NULL);
+				    }
+				    if(pnmReadNextAsciiValue(fp, &bval)) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read abend", procName, NULL);
+				    }
 				    composeRGBPixel(rval, gval, bval, &rgbval);
 				    pixSetPixel(pix, j, i, rgbval);
 			    }
@@ -200,8 +214,10 @@ PIX * pixReadStreamPnm(FILE  * fp)
 		    for(i = 0; i < h; i++) {
 			    line = data + i * wpl;
 			    for(j = 0; j < bpl; j++) {
-				    if(fread(&val8, 1, 1, fp) != 1)
-					    return (PIX*)ERROR_PTR("read error in 4", procName, pix);
+				    if(fread(&val8, 1, 1, fp) != 1) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read error in 4", procName, NULL);
+				    }
 				    SET_DATA_BYTE(line, j, val8);
 			    }
 		    }
@@ -213,8 +229,10 @@ PIX * pixReadStreamPnm(FILE  * fp)
 			    line = data + i * wpl;
 			    if(d != 16) {
 				    for(j = 0; j < w; j++) {
-					    if(fread(&val8, 1, 1, fp) != 1)
-						    return (PIX*)ERROR_PTR("error in 5", procName, pix);
+					    if(fread(&val8, 1, 1, fp) != 1) {
+						    pixDestroy(&pix);
+						    return (PIX *)ERROR_PTR("error in 5", procName, NULL);
+					    }
 					    if(d == 2)
 						    SET_DATA_DIBIT(line, j, val8);
 					    else if(d == 4)
@@ -225,8 +243,10 @@ PIX * pixReadStreamPnm(FILE  * fp)
 			    }
 			    else { /* d == 16 */
 				    for(j = 0; j < w; j++) {
-					    if(fread(&val16, 2, 1, fp) != 1)
-						    return (PIX*)ERROR_PTR("16 bpp error", procName, pix);
+					    if(fread(&val16, 2, 1, fp) != 1) {
+						    pixDestroy(&pix);
+						    return (PIX *)ERROR_PTR("16 bpp error", procName, NULL);
+					    }
 					    SET_DATA_TWO_BYTES(line, j, val16);
 				    }
 			    }
@@ -234,24 +254,29 @@ PIX * pixReadStreamPnm(FILE  * fp)
 		    break;
 
 		case 6:
-		    /* "raw" format, type == 6; rgb */
+		    /* "raw" format, type == 6; 8 bps, rgb */
 		    for(i = 0; i < h; i++) {
 			    line = data + i * wpl;
 			    for(j = 0; j < wpl; j++) {
-				    if(fread(&rval8, 1, 1, fp) != 1)
-					    return (PIX*)ERROR_PTR("read error type 6",
-					    procName, pix);
-				    if(fread(&gval8, 1, 1, fp) != 1)
-					    return (PIX*)ERROR_PTR("read error type 6",
-					    procName, pix);
-				    if(fread(&bval8, 1, 1, fp) != 1)
-					    return (PIX*)ERROR_PTR("read error type 6",
-					    procName, pix);
+				    if(fread(&rval8, 1, 1, fp) != 1) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read error type 6",
+						       procName, NULL);
+				    }
+				    if(fread(&gval8, 1, 1, fp) != 1) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read error type 6",
+						       procName, NULL);
+				    }
+				    if(fread(&bval8, 1, 1, fp) != 1) {
+					    pixDestroy(&pix);
+					    return (PIX *)ERROR_PTR("read error type 6",
+						       procName, NULL);
+				    }
 				    composeRGBPixel(rval8, gval8, bval8, &rgbval);
 				    line[j] = rgbval;
 			    }
 		    }
-		    pixSetSpp(pix, 4);
 		    break;
 
 		case 7:
@@ -262,11 +287,13 @@ PIX * pixReadStreamPnm(FILE  * fp)
 				    case 1: /* 1, 2, 4, 8 bpp grayscale */
 					for(i = 0; i < h; i++) {
 						for(j = 0; j < w; j++) {
-							if(fread(&val8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
+							if(fread(&val8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
 							val8 = val8 & mask8;
-							if(bps == 1) val8 ^= 1;  /* white-is-1 photometry */
+							if(bps == 1) val8 ^= 1; /* white-is-1 photometry */
 							pixSetPixel(pix, j, i, val8);
 						}
 					}
@@ -275,12 +302,16 @@ PIX * pixReadStreamPnm(FILE  * fp)
 				    case 2: /* 1, 2, 4, 8 bpp grayscale + alpha */
 					for(i = 0; i < h; i++) {
 						for(j = 0; j < w; j++) {
-							if(fread(&val8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&aval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
+							if(fread(&val8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&aval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
 							val8 = val8 & mask8;
 							aval8 = aval8 & mask8;
 							composeRGBAPixel(val8, val8, val8, aval8, &rgbval);
@@ -294,15 +325,21 @@ PIX * pixReadStreamPnm(FILE  * fp)
 					for(i = 0; i < h; i++) {
 						line = data + i * wpl;
 						for(j = 0; j < wpl; j++) {
-							if(fread(&rval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&gval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&bval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
+							if(fread(&rval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&gval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&bval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
 							rval8 = rval8 & mask8;
 							gval8 = gval8 & mask8;
 							bval8 = bval8 & mask8;
@@ -316,18 +353,26 @@ PIX * pixReadStreamPnm(FILE  * fp)
 					for(i = 0; i < h; i++) {
 						line = data + i * wpl;
 						for(j = 0; j < wpl; j++) {
-							if(fread(&rval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&gval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&bval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&aval8, 1, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
+							if(fread(&rval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&gval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&bval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&aval8, 1, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
 							rval8 = rval8 & mask8;
 							gval8 = gval8 & mask8;
 							bval8 = bval8 & mask8;
@@ -341,31 +386,41 @@ PIX * pixReadStreamPnm(FILE  * fp)
 			    }
 		    }
 		    else { /* bps == 16 */
-			    mask16 = (1 << 16) - 1;
+			   /* I have only seen one example that is type 6, 16 bps.
+			    * It was 3 spp (rgb), and the 8 bps of real data was stored
+			    * in the second byte.  In the following, I make the wild
+			    * assumption that for all 16 bpp pnm/pam files, we can
+			    * take the second byte. */
 			    switch(spp) {
-				    case 1: /* 16 bpp grayscale */
+				    case 1: /* 16 bps grayscale */
 					for(i = 0; i < h; i++) {
 						for(j = 0; j < w; j++) {
-							if(fread(&val16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							val8 = (val16 & mask16) >> 8;
+							if(fread(&val16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							val8 = val16 & 0xff;
 							pixSetPixel(pix, j, i, val8);
 						}
 					}
 					break;
 
-				    case 2: /* 16 bpp grayscale + alpha */
+				    case 2: /* 16 bps grayscale + alpha */
 					for(i = 0; i < h; i++) {
 						for(j = 0; j < w; j++) {
-							if(fread(&val16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&aval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							val8 = (val16 & mask16) >> 8;
-							aval8 = (aval16 & mask16) >> 8;
+							if(fread(&val16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&aval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							val8 = val16 & 0xff;
+							aval8 = aval16 & 0xff;
 							composeRGBAPixel(val8, val8, val8, aval8, &rgbval);
 							pixSetPixel(pix, j, i, rgbval);
 						}
@@ -373,48 +428,62 @@ PIX * pixReadStreamPnm(FILE  * fp)
 					pixSetSpp(pix, 4);
 					break;
 
-				    case 3: /* 16bpp rgb */
+				    case 3: /* 16bps rgb */
 					for(i = 0; i < h; i++) {
 						line = data + i * wpl;
 						for(j = 0; j < wpl; j++) {
-							if(fread(&rval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&gval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&bval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							rval8 = (rval16 & mask16) >> 8;
-							gval8 = (gval16 & mask16) >> 8;
-							bval8 = (bval16 & mask16) >> 8;
+							if(fread(&rval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&gval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&bval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							rval8 = rval16 & 0xff;
+							gval8 = gval16 & 0xff;
+							bval8 = bval16 & 0xff;
 							composeRGBPixel(rval8, gval8, bval8, &rgbval);
 							line[j] = rgbval;
 						}
 					}
 					break;
 
-				    case 4: /* 16bpp rgba */
+				    case 4: /* 16bps rgba */
 					for(i = 0; i < h; i++) {
 						line = data + i * wpl;
 						for(j = 0; j < wpl; j++) {
-							if(fread(&rval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&gval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&bval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							if(fread(&aval16, 2, 1, fp) != 1)
-								return (PIX*)ERROR_PTR("read error type 7",
-							    procName, pix);
-							rval8 = (rval16 & mask16) >> 8;
-							gval8 = (gval16 & mask16) >> 8;
-							bval8 = (bval16 & mask16) >> 8;
-							aval8 = (aval16 & mask16) >> 8;
+							if(fread(&rval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&gval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&bval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							if(fread(&aval16, 2, 1, fp) != 1) {
+								pixDestroy(&pix);
+								return (PIX *)ERROR_PTR("read error type 7",
+									   procName, NULL);
+							}
+							rval8 = rval16 & 0xff;
+							gval8 = gval16 & 0xff;
+							bval8 = bval16 & 0xff;
+							aval8 = aval16 & 0xff;
 							composeRGBAPixel(rval8, gval8, bval8, aval8, &rgbval);
 							line[j] = rgbval;
 						}
@@ -432,26 +501,26 @@ PIX * pixReadStreamPnm(FILE  * fp)
  * \brief   readHeaderPnm()
  *
  * \param[in]    filename
- * \param[out]   pw [optional]
- * \param[out]   ph [optional]
- * \param[out]   pd [optional]
- * \param[out]   ptype [optional] pnm type
- * \param[out]   pbps [optional]  bits/sample
- * \param[out]   pspp [optional]  samples/pixel
+ * \param[out]   pw       [optional]
+ * \param[out]   ph       [optional]
+ * \param[out]   pd       [optional]
+ * \param[out]   ptype    [optional] pnm type
+ * \param[out]   pbps     [optional] bits/sample
+ * \param[out]   pspp     [optional] samples/pixel
  * \return  0 if OK, 1 on error
  */
-int32 readHeaderPnm(const char * filename,
-    int32    * pw,
-    int32    * ph,
-    int32    * pd,
-    int32    * ptype,
-    int32    * pbps,
-    int32    * pspp)
+l_ok readHeaderPnm(const char * filename,
+    l_int32    * pw,
+    l_int32    * ph,
+    l_int32    * pd,
+    l_int32    * ptype,
+    l_int32    * pbps,
+    l_int32    * pspp)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("readHeaderPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(pw) *pw = 0;
 	if(ph) *ph = 0;
@@ -472,29 +541,29 @@ int32 readHeaderPnm(const char * filename,
 /*!
  * \brief   freadHeaderPnm()
  *
- * \param[in]    fp file stream opened for read
- * \param[out]   pw [optional]
- * \param[out]   ph [optional]
- * \param[out]   pd [optional]
- * \param[out]   ptype [optional] pnm type
- * \param[out]   pbps [optional]  bits/sample
- * \param[out]   pspp [optional]  samples/pixel
+ * \param[in]    fp     file stream opened for read
+ * \param[out]   pw     [optional]
+ * \param[out]   ph     [optional]
+ * \param[out]   pd     [optional]
+ * \param[out]   ptype  [optional] pnm type
+ * \param[out]   pbps   [optional]  bits/sample
+ * \param[out]   pspp   [optional]  samples/pixel
  * \return  0 if OK, 1 on error
  */
-int32 freadHeaderPnm(FILE     * fp,
-    int32  * pw,
-    int32  * ph,
-    int32  * pd,
-    int32  * ptype,
-    int32  * pbps,
-    int32  * pspp)
+l_ok freadHeaderPnm(FILE * fp,
+    l_int32 * pw,
+    l_int32 * ph,
+    l_int32 * pd,
+    l_int32 * ptype,
+    l_int32 * pbps,
+    l_int32 * pspp)
 {
 	char tag[16], tupltype[32];
-	int32 i, w, h, d, bps, spp, type;
-	int32 maxval;
-	int32 ch;
+	l_int32 i, w, h, d, bps, spp, type;
+	l_int32 maxval;
+	l_int32 ch;
 
-	PROCNAME("freadHeaderPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(pw) *pw = 0;
 	if(ph) *ph = 0;
@@ -550,7 +619,7 @@ int32 freadHeaderPnm(FILE     * fp,
 			}
 		}
 		if(w <= 0 || h <= 0 || w > MAX_PNM_WIDTH || h > MAX_PNM_HEIGHT) {
-			L_INFO3("invalid size: w = %d, h = %d\n", procName, w, h);
+			L_INFO("invalid size: w = %d, h = %d\n", procName, w, h);
 			return 1;
 		}
 		if(maxval == 1) {
@@ -569,7 +638,7 @@ int32 freadHeaderPnm(FILE     * fp,
 			d = bps = 16;
 		}
 		else {
-			L_INFO2("invalid maxval = %d\n", procName, maxval);
+			L_INFO("invalid maxval = %d\n", procName, maxval);
 			return 1;
 		}
 		switch(spp) {
@@ -583,7 +652,7 @@ int32 freadHeaderPnm(FILE     * fp,
 			    d = 32;
 			    break;
 			default:
-			    L_INFO2("invalid depth = %d\n", procName, spp);
+			    L_INFO("invalid depth = %d\n", procName, spp);
 			    return 1;
 		}
 	}
@@ -591,7 +660,7 @@ int32 freadHeaderPnm(FILE     * fp,
 		if(fscanf(fp, "%d %d\n", &w, &h) != 2)
 			return ERROR_INT("invalid read for w,h", procName, 1);
 		if(w <= 0 || h <= 0 || w > MAX_PNM_WIDTH || h > MAX_PNM_HEIGHT) {
-			L_INFO3("invalid size: w = %d, h = %d\n", procName, w, h);
+			L_INFO("invalid size: w = %d, h = %d\n", procName, w, h);
 			return 1;
 		}
 
@@ -625,7 +694,7 @@ int32 freadHeaderPnm(FILE     * fp,
 				d = 16;
 			}
 			else {
-				fprintf(stderr, "maxval = %d\n", maxval);
+				lept_stderr("maxval = %d\n", maxval);
 				return ERROR_INT("invalid maxval", procName, 1);
 			}
 			bps = d;
@@ -634,11 +703,13 @@ int32 freadHeaderPnm(FILE     * fp,
 		else { /* type == 3 || type == 6; this is rgb  */
 			if(pnmReadNextNumber(fp, &maxval))
 				return ERROR_INT("invalid read for maxval (3,6)", procName, 1);
-			if(maxval != 255)
-				L_WARNING2("unexpected maxval = %d\n", procName, maxval);
+			if(maxval != 255 && maxval != 0xffff) {
+				L_ERROR("unexpected maxval = %d\n", procName, maxval);
+				return 1;
+			}
+			bps = (maxval == 255) ? 8 : 16;
 			d = 32;
 			spp = 3;
-			bps = 8;
 		}
 	}
 	if(pw) *pw = w;
@@ -653,8 +724,8 @@ int32 freadHeaderPnm(FILE     * fp,
 /*!
  * \brief   pixWriteStreamPnm()
  *
- * \param[in]    fp file stream opened for write
- * \param[in]    pix
+ * \param[in]   fp    file stream opened for write
+ * \param[in]   pix
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -667,17 +738,17 @@ int32 freadHeaderPnm(FILE     * fp,
  *          write them out as a packed array of bytes (3 to a pixel).
  * </pre>
  */
-int32 pixWriteStreamPnm(FILE  * fp,
-    PIX   * pix)
+l_ok pixWriteStreamPnm(FILE * fp,
+    PIX * pix)
 {
 	uint8 val8;
 	uint8 pel[4];
 	uint16 val16;
-	int32 h, w, d, ds, i, j, wpls, bpl, filebpl, writeerror, maxval;
-	uint32  * pword, * datas, * lines;
-	PIX       * pixs;
+	l_int32 h, w, d, ds, i, j, wpls, bpl, filebpl, writeerror, maxval;
+	l_uint32  * pword, * datas, * lines;
+	PIX * pixs;
 
-	PROCNAME("pixWriteStreamPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("fp not defined", procName, 1);
@@ -779,8 +850,8 @@ int32 pixWriteStreamPnm(FILE  * fp,
 /*!
  * \brief   pixWriteStreamAsciiPnm()
  *
- * \param[in]    fp file stream opened for write
- * \param[in]    pix
+ * \param[in]   fp    file stream opened for write
+ * \param[in]   pix
  * \return  0 if OK; 1 on error
  *
  *  Writes "ASCII" format only:
@@ -788,16 +859,16 @@ int32 pixWriteStreamPnm(FILE  * fp,
  *      2, 4, 8, 16 bpp, no colormap or grayscale colormap --> pgm P2
  *      2, 4, 8 bpp with color-valued colormap, or rgb --> rgb ppm P3
  */
-int32 pixWriteStreamAsciiPnm(FILE  * fp,
-    PIX   * pix)
+l_ok pixWriteStreamAsciiPnm(FILE * fp,
+    PIX * pix)
 {
 	char buffer[256];
 	uint8 cval[3];
-	int32 h, w, d, ds, i, j, k, maxval, count;
-	uint32 val;
-	PIX       * pixs;
+	l_int32 h, w, d, ds, i, j, k, maxval, count;
+	l_uint32 val;
+	PIX * pixs;
 
-	PROCNAME("pixWriteStreamAsciiPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("fp not defined", procName, 1);
@@ -846,22 +917,22 @@ int32 pixWriteStreamAsciiPnm(FILE  * fp,
 			for(j = 0; j < w; j++) {
 				pixGetPixel(pixs, j, i, &val);
 				if(ds == 2) {
-					sprintf(buffer, "%1d ", val);
+					snprintf(buffer, sizeof(buffer), "%1d ", val);
 					fwrite(buffer, 1, 2, fp);
 					count += 2;
 				}
 				else if(ds == 4) {
-					sprintf(buffer, "%2d ", val);
+					snprintf(buffer, sizeof(buffer), "%2d ", val);
 					fwrite(buffer, 1, 3, fp);
 					count += 3;
 				}
 				else if(ds == 8) {
-					sprintf(buffer, "%3d ", val);
+					snprintf(buffer, sizeof(buffer), "%3d ", val);
 					fwrite(buffer, 1, 4, fp);
 					count += 4;
 				}
 				else { /* ds == 16 */
-					sprintf(buffer, "%5d ", val);
+					snprintf(buffer, sizeof(buffer), "%5d ", val);
 					fwrite(buffer, 1, 6, fp);
 					count += 6;
 				}
@@ -883,7 +954,7 @@ int32 pixWriteStreamAsciiPnm(FILE  * fp,
 				cval[1] = GET_DATA_BYTE(&val, COLOR_GREEN);
 				cval[2] = GET_DATA_BYTE(&val, COLOR_BLUE);
 				for(k = 0; k < 3; k++) {
-					sprintf(buffer, "%3d ", cval[k]);
+					snprintf(buffer, sizeof(buffer), "%3d ", cval[k]);
 					fwrite(buffer, 1, 4, fp);
 					count += 4;
 					if(count >= 60) {
@@ -902,8 +973,8 @@ int32 pixWriteStreamAsciiPnm(FILE  * fp,
 /*!
  * \brief   pixWriteStreamPam()
  *
- * \param[in]    fp file stream opened for write
- * \param[in]    pix
+ * \param[in]   fp    file stream opened for write
+ * \param[in]   pix
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -913,18 +984,18 @@ int32 pixWriteStreamAsciiPnm(FILE  * fp,
  *          write them out as a packed array of bytes (3 to a pixel).
  * </pre>
  */
-int32 pixWriteStreamPam(FILE  * fp,
-    PIX   * pix)
+l_ok pixWriteStreamPam(FILE * fp,
+    PIX * pix)
 {
 	uint8 val8;
 	uint8 pel[8];
 	uint16 val16;
-	int32 h, w, d, ds, i, j;
-	int32 wpls, spps, filebpl, writeerror, maxval;
-	uint32  * pword, * datas, * lines;
-	PIX       * pixs;
+	l_int32 h, w, d, ds, i, j;
+	l_int32 wpls, spps, filebpl, writeerror, maxval;
+	l_uint32  * pword, * datas, * lines;
+	PIX * pixs;
 
-	PROCNAME("pixWriteStreamPam");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("fp not defined", procName, 1);
@@ -1078,8 +1149,8 @@ int32 pixWriteStreamPam(FILE  * fp,
 /*!
  * \brief   pixReadMemPnm()
  *
- * \param[in]    data const; pnm-encoded
- * \param[in]    size of data
+ * \param[in]   data   const; pnm-encoded
+ * \param[in]   size   of data
  * \return  pix, or NULL on error
  *
  * <pre>
@@ -1090,15 +1161,15 @@ int32 pixWriteStreamPam(FILE  * fp,
 PIX * pixReadMemPnm(const uint8  * data,
     size_t size)
 {
-	FILE  * fp;
-	PIX   * pix;
+	FILE * fp;
+	PIX * pix;
 
-	PROCNAME("pixReadMemPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
-		return (PIX*)ERROR_PTR("data not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("data not defined", procName, NULL);
 	if((fp = fopenReadFromMemory(data, size)) == NULL)
-		return (PIX*)ERROR_PTR("stream not opened", procName, NULL);
+		return (PIX *)ERROR_PTR("stream not opened", procName, NULL);
 	pix = pixReadStreamPnm(fp);
 	fclose(fp);
 	if(!pix) L_ERROR("pix not read\n", procName);
@@ -1108,29 +1179,29 @@ PIX * pixReadMemPnm(const uint8  * data,
 /*!
  * \brief   readHeaderMemPnm()
  *
- * \param[in]    data const; pnm-encoded
- * \param[in]    size of data
- * \param[out]   pw [optional]
- * \param[out]   ph [optional]
- * \param[out]   pd [optional]
- * \param[out]   ptype [optional] pnm type
- * \param[out]   pbps [optional]  bits/sample
- * \param[out]   pspp [optional]  samples/pixel
+ * \param[in]    data    const; pnm-encoded
+ * \param[in]    size    of data
+ * \param[out]   pw      [optional]
+ * \param[out]   ph      [optional]
+ * \param[out]   pd      [optional]
+ * \param[out]   ptype   [optional] pnm type
+ * \param[out]   pbps    [optional] bits/sample
+ * \param[out]   pspp    [optional] samples/pixel
  * \return  0 if OK, 1 on error
  */
-int32 readHeaderMemPnm(const uint8  * data,
+l_ok readHeaderMemPnm(const uint8  * data,
     size_t size,
-    int32        * pw,
-    int32        * ph,
-    int32        * pd,
-    int32        * ptype,
-    int32        * pbps,
-    int32        * pspp)
+    l_int32 * pw,
+    l_int32 * ph,
+    l_int32 * pd,
+    l_int32 * ptype,
+    l_int32 * pbps,
+    l_int32 * pspp)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("readHeaderMemPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
 		return ERROR_INT("data not defined", procName, 1);
@@ -1147,8 +1218,8 @@ int32 readHeaderMemPnm(const uint8  * data,
 /*!
  * \brief   pixWriteMemPnm()
  *
- * \param[out]   pdata data of PNM image
- * \param[out]   psize size of returned data
+ * \param[out]   pdata   data of PNM image
+ * \param[out]   psize   size of returned data
  * \param[in]    pix
  * \return  0 if OK, 1 on error
  *
@@ -1158,14 +1229,14 @@ int32 readHeaderMemPnm(const uint8  * data,
  *          memory instead of to a file stream.
  * </pre>
  */
-int32 pixWriteMemPnm(uint8  ** pdata,
-    size_t    * psize,
-    PIX       * pix)
+l_ok pixWriteMemPnm(uint8  ** pdata,
+    size_t * psize,
+    PIX * pix)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("pixWriteMemPnm");
+	PROCNAME(__FUNCTION__);
 
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
@@ -1180,8 +1251,11 @@ int32 pixWriteMemPnm(uint8  ** pdata,
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = pixWriteStreamPnm(fp, pix);
+	fputc('\0', fp);
+	fclose(fp);
+	*psize = *psize - 1;
 #else
-	L_WARNING("work-around: writing to a temp file\n", procName);
+	L_INFO("work-around: writing to a temp file\n", procName);
   #ifdef _WIN32
 	if((fp = fopenWriteWinTempfile()) == NULL)
 		return ERROR_INT("tmpfile stream not opened", procName, 1);
@@ -1192,16 +1266,16 @@ int32 pixWriteMemPnm(uint8  ** pdata,
 	ret = pixWriteStreamPnm(fp, pix);
 	rewind(fp);
 	*pdata = l_binaryReadStream(fp, psize);
-#endif  /* HAVE_FMEMOPEN */
 	fclose(fp);
+#endif  /* HAVE_FMEMOPEN */
 	return ret;
 }
 
 /*!
  * \brief   pixWriteMemPam()
  *
- * \param[out]   pdata data of PAM image
- * \param[out]   psize size of returned data
+ * \param[out]   pdata   data of PAM image
+ * \param[out]   psize   size of returned data
  * \param[in]    pix
  * \return  0 if OK, 1 on error
  *
@@ -1211,14 +1285,14 @@ int32 pixWriteMemPnm(uint8  ** pdata,
  *          memory instead of to a file stream.
  * </pre>
  */
-int32 pixWriteMemPam(uint8  ** pdata,
-    size_t    * psize,
-    PIX       * pix)
+l_ok pixWriteMemPam(uint8  ** pdata,
+    size_t * psize,
+    PIX * pix)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("pixWriteMemPam");
+	PROCNAME(__FUNCTION__);
 
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
@@ -1233,8 +1307,11 @@ int32 pixWriteMemPam(uint8  ** pdata,
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = pixWriteStreamPam(fp, pix);
+	fputc('\0', fp);
+	fclose(fp);
+	*psize = *psize - 1;
 #else
-	L_WARNING("work-around: writing to a temp file\n", procName);
+	L_INFO("work-around: writing to a temp file\n", procName);
   #ifdef _WIN32
 	if((fp = fopenWriteWinTempfile()) == NULL)
 		return ERROR_INT("tmpfile stream not opened", procName, 1);
@@ -1245,8 +1322,8 @@ int32 pixWriteMemPam(uint8  ** pdata,
 	ret = pixWriteStreamPam(fp, pix);
 	rewind(fp);
 	*pdata = l_binaryReadStream(fp, psize);
-#endif  /* HAVE_FMEMOPEN */
 	fclose(fp);
+#endif  /* HAVE_FMEMOPEN */
 	return ret;
 }
 
@@ -1261,56 +1338,59 @@ int32 pixWriteMemPam(uint8  ** pdata,
  *  Notes:
  *      (1) This reads the next sample value in ASCII from the file.
  */
-static int32 pnmReadNextAsciiValue(FILE     * fp,
-    int32  * pval)
+static l_int32 pnmReadNextAsciiValue(FILE * fp,
+    l_int32 * pval)
 {
-	int32 c, ignore;
+	l_int32 c, ignore;
 
-	PROCNAME("pnmReadNextAsciiValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0;
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
-	do { /* skip whitespace */
-		if((c = fgetc(fp)) == EOF)
-			return 1;
-	} while(c == ' ' || c == '\t' || c == '\n' || c == '\r');
 
-	fseek(fp, -1L, SEEK_CUR);    /* back up one byte */
-	ignore = fscanf(fp, "%d", pval);
+	if(EOF == fscanf(fp, " "))
+		return 1;
+	if(1 != fscanf(fp, "%d", pval))
+		return 1;
+
 	return 0;
 }
 
 /*!
  * \brief   pnmReadNextNumber()
  *
- * \param[in]    fp file stream
- * \param[out]   pval value as an integer
+ * \param[in]    fp    file stream
+ * \param[out]   pval  value as an integer
  * \return  0 if OK, 1 on error or EOF.
  *
  * <pre>
  * Notes:
  *      (1) This reads the next set of numeric chars, returning
- *          the value and swallowing the trailing whitespace character.
- *          This is needed to read the maxval in the header, which
- *          precedes the binary data.
+ *          the value and swallowing initial whitespaces and ONE
+ *          trailing whitespace character.  This is needed to read
+ *          the maxval in the header, which precedes the binary data.
  * </pre>
  */
-static int32 pnmReadNextNumber(FILE     * fp,
-    int32  * pval)
+static l_int32 pnmReadNextNumber(FILE * fp,
+    l_int32 * pval)
 {
 	char buf[8];
-	int32 i, c, foundws;
+	l_int32 i, c, foundws;
 
-	PROCNAME("pnmReadNextNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0;
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
+
+	/* Swallow whitespace */
+	if(fscanf(fp, " ") == EOF)
+		return ERROR_INT("end of file reached", procName, 1);
 
 	/* The ASCII characters for the number are followed by exactly
 	 * one whitespace character. */
@@ -1339,80 +1419,49 @@ static int32 pnmReadNextNumber(FILE     * fp,
 /*!
  * \brief   pnmReadNextString()
  *
- * \param[in]    fp file stream
- * \param[out]   buff pointer to the string buffer
- * \param[in]    size max. number of charactes in buffer
+ * \param[in]    fp    file stream
+ * \param[out]   buff  pointer to the string buffer
+ * \param[in]    size  max. number of characters in buffer
  * \return  0 if OK, 1 on error or EOF.
  *
  * <pre>
  * Notes:
- *      (1) This reads the next set of alphanumeric chars,
- *          returning the string and swallowing the trailing
- *          whitespace characters.
- *          This is needed to read header lines, which precede
- *          the P7 format binary data.
+ *      (1) This reads the next set of alphanumeric chars, returning the string.
+ *          This is needed to read header lines, which precede the P7
+ *          format binary data.
  * </pre>
  */
-static int32 pnmReadNextString(FILE    * fp,
-    char    * buff,
-    int32 size)
+static l_int32 pnmReadNextString(FILE * fp,
+    char * buff,
+    l_int32 size)
 {
-	int32 i, c;
+	l_int32 i, c;
+	char fmtString[6]; /* must contain "%9999s" [*] */
 
-	PROCNAME("pnmReadNextString");
+	PROCNAME(__FUNCTION__);
 
 	if(!buff)
 		return ERROR_INT("buff not defined", procName, 1);
 	*buff = '\0';
-	if(!fp)
-		return ERROR_INT("stream not open", procName, 1);
+	if(size > 10000) /* size - 1 has > 4 digits [*]  */
+		return ERROR_INT("size is too big", procName, 1);
 	if(size <= 0)
 		return ERROR_INT("size is too small", procName, 1);
+	if(!fp)
+		return ERROR_INT("stream not open", procName, 1);
 
-	do { /* skip whitespace */
-		if((c = fgetc(fp)) == EOF)
-			return ERROR_INT("end of file reached", procName, 1);
-	} while(c == ' ' || c == '\t' || c == '\n' || c == '\r');
+	/* Skip whitespace */
+	if(fscanf(fp, " ") == EOF)
+		return 1;
 
-	/* Comment lines are allowed to appear
-	 * anywhere in the header lines */
-	if(c == '#') {
-		do { /* each line starting with '#' */
-			do { /* this entire line */
-				if((c = fgetc(fp)) == EOF)
-					return ERROR_INT("end of file reached", procName, 1);
-			} while(c != '\n');
-			if((c = fgetc(fp)) == EOF)
-				return ERROR_INT("end of file reached", procName, 1);
-		} while(c == '#');
-	}
+	/* Comment lines are allowed to appear anywhere in the header lines */
+	if(pnmSkipCommentLines(fp))
+		return ERROR_INT("end of file reached", procName, 1);
 
-	/* The next string ends when there is
-	 * a whitespace character following. */
-	for(i = 0; i < size - 1; i++) {
-		if(c == ' ' || c == '\t' || c == '\n' || c == '\r')
-			break;
-		buff[i] = c;
-		if((c = fgetc(fp)) == EOF)
-			return ERROR_INT("end of file reached", procName, 1);
-	}
-	buff[i] = '\0';
+	snprintf(fmtString, 6, "%%%ds", size-1);
+	if(fscanf(fp, fmtString, buff) == EOF)
+		return 1;
 
-	/* Back up one byte */
-	fseek(fp, -1L, SEEK_CUR);
-	if(i >= size - 1)
-		return ERROR_INT("buff size too small", procName, 1);
-
-	/* Skip over trailing spaces and tabs */
-	for(;; ) {
-		if((c = fgetc(fp)) == EOF)
-			return ERROR_INT("end of file reached", procName, 1);
-		if(c != ' ' && c != '\t')
-			break;
-	}
-
-	/* Back up one byte */
-	fseek(fp, -1L, SEEK_CUR);
 	return 0;
 }
 
@@ -1424,30 +1473,25 @@ static int32 pnmReadNextString(FILE    * fp,
  *  Notes:
  *      (1) Comment lines begin with '#'
  *      (2) Usage: caller should check return value for EOF
+ *      (3) The previous implementation used fseek(fp, -1L, SEEK_CUR)
+ *          to back up one character, which doesn't work with stdin.
  */
-static int32 pnmSkipCommentLines(FILE  * fp)
+static l_int32 pnmSkipCommentLines(FILE * fp)
 {
-	int32 c;
+	l_int32 i;
+	char c;
 
-	PROCNAME("pnmSkipCommentLines");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
-	if((c = fgetc(fp)) == EOF)
-		return 1;
-	if(c == '#') {
-		do { /* each line starting with '#' */
-			do { /* this entire line */
-				if((c = fgetc(fp)) == EOF)
-					return 1;
-			} while(c != '\n');
-			if((c = fgetc(fp)) == EOF)
+	while((i = fscanf(fp, "#%c", &c))) {
+		if(i == EOF) return 1;
+		while(c != '\n') {
+			if(fscanf(fp, "%c", &c) == EOF)
 				return 1;
-		} while(c == '#');
+		}
 	}
-
-	/* Back up one byte */
-	fseek(fp, -1L, SEEK_CUR);
 	return 0;
 }
 

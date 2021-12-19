@@ -127,23 +127,23 @@ struct VetisGenericVersioningEntity : public VetisGenericEntity {
 		fLast   = 0x0002
 	};
 	enum {
-		verstatusCreated                  = 100, // CREATED - Запись создана.
+		verstatusCreated          = 100, // CREATED - Запись создана.
 		verstatusCreatedWhenQuenchVetCert = 101, // CREATED_WHEN_QUENCH_VETCERTIFICATE - Запись создана путем гашения ВС (импорт).
 		verstatusCreatedWhenQuenchVetDoc  = 102, // CREATED_WHEN_QUENCH_VETDOCUMENT - Запись создана путем гашения ВСД.
 		verstatusCreatedByOperation       = 103, // CREATED_BY_OPERATION - Запись создана в результате производственной операции.
-		verstatusCreatedWhenMerge         = 110, // CREATED_WHEN_MERGE - Запись создана в результате объединения двух или более других.
-		verstatusCreatedWhenSplit         = 120, // CREATED_WHEN_SPLIT - Запись создана в результате разделения другой.
-		verstatusUpdated                  = 200, // UPDATED - В запись были внесены изменения.
-		verstatusWithdrawn                = 201, // WITHDRAWN - Запись журнала аннулирована.
+		verstatusCreatedWhenMerge = 110, // CREATED_WHEN_MERGE - Запись создана в результате объединения двух или более других.
+		verstatusCreatedWhenSplit = 120, // CREATED_WHEN_SPLIT - Запись создана в результате разделения другой.
+		verstatusUpdated          = 200, // UPDATED - В запись были внесены изменения.
+		verstatusWithdrawn        = 201, // WITHDRAWN - Запись журнала аннулирована.
 		verstatusUpdatedWhetWritingOff    = 202, // UPDATED_WHEN_WRITINGOFF - Запись продукции изменена путём списания. Необязательно, чтобы продукция была списана полностью, может быть списана и часть объёма.
 		verstatusUpdatedWhenAttach        = 230, // UPDATED_WHEN_ATTACH - Запись была обновлена в результате присоединения другой.
 		verstatusUpdatedWhenAttachAuto    = 231, // UPDATED_WHEN_ATTACH_AUTOMATIC - Запись была обновлена в результате присоединения другой.
-		verstatusUpdatedWhenFork          = 240, // UPDATED_WHEN_FORK - Запись была обновлена в результате отделения от неё другой.
+		verstatusUpdatedWhenFork  = 240, // UPDATED_WHEN_FORK - Запись была обновлена в результате отделения от неё другой.
 		verstatusRestoredAfterDelete      = 250, // RESTORED_AFTER_DELETE - Запись была восстановлена после удаления.
-		verstatusMoved                    = 300, // MOVED - Запись была перемещена в другую группу (для иерархических справочников).
-		verstatusDeleted                  = 400, // DELETED - Запись была удалена.
-		verstatusDeletedWhenMerge         = 410, // DELETED_WHEN_MERGE - Запись была удалена в результате объединения.
-		verstatusDeletedWhenSplit         = 420, // DELETED_WHEN_SPLIT - Запись была удалена в результате разделения.
+		verstatusMoved            = 300, // MOVED - Запись была перемещена в другую группу (для иерархических справочников).
+		verstatusDeleted          = 400, // DELETED - Запись была удалена.
+		verstatusDeletedWhenMerge = 410, // DELETED_WHEN_MERGE - Запись была удалена в результате объединения.
+		verstatusDeletedWhenSplit = 420, // DELETED_WHEN_SPLIT - Запись была удалена в результате разделения.
 		verstatusDeletedWhenAttach        = 430, // DELETED_WHEN_ATTACH - Запись была удалена в результате присоединения.
 	};
 	long   Flags;
@@ -528,14 +528,14 @@ enum VetisTransportStorageType { // @persistent (vetis - идентификац�
 };
 
 enum VetisProductType {
-	vptUndef         = 0,
-	vptMeat          = 1, // 1 Мясо и мясопродукты.
+	vptUndef = 0,
+	vptMeat  = 1, // 1 Мясо и мясопродукты.
 	vptFeedStuff     = 2, // 2 Корма и кормовые добавки.
 	vptAnimal        = 3, // 3 Живые животные.
 	vptMedicine      = 4, // 4 Лекарственные средства.
-	vptFood          = 5, // 5 Пищевые продукты.
+	vptFood  = 5, // 5 Пищевые продукты.
 	vptNonFood       = 6, // 6 Непищевые продукты и другое.
-	vptFish          = 7, // 7 Рыба и морепродукты.
+	vptFish  = 7, // 7 Рыба и морепродукты.
 	vptDontReqPermit = 8 // 8 Продукция, не требующая разрешения.
 };
 
@@ -668,7 +668,7 @@ struct VetisProductItem : public VetisNamedGenericVersioningEntity {
 	}
 	enum {
 		fCorrespondsToGost = 0x00010000,
-		fIsPublic          = 0x00020000
+		fIsPublic  = 0x00020000
 	};
 	PPID   EntityID;   // ID элемента в собственной базе данных (VetisEntityTbl)
 	PPID   NativeGoodsID;
@@ -1322,9 +1322,9 @@ struct VetisVetDocument : public VetisDocument {
 	LDATETIME LastUpdateDate;
 	//
 	enum {
-		waybilltTTN         = 1,
+		waybilltTTN = 1,
 		waybilltConsignment = 2,
-		waybilltCMR         = 3,
+		waybilltCMR = 3,
 		waybilltAvia        = 4
 	};
 	int    WayBillType;
@@ -3226,9 +3226,9 @@ public:
 		Param(PPID mainOrgID, PPID locID, long flags);
 		Param & Z();
 		enum {
-			fTestContour           = 0x0001,
+			fTestContour   = 0x0001,
 			fSkipLocInitialization = 0x0002,
-			fLogTalk               = 0x0004  // @v11.1.6 Если установлен, то пишется журнал общения с сервисами VETIS (vetis-talk.log)
+			fLogTalk       = 0x0004  // @v11.1.6 Если установлен, то пишется журнал общения с сервисами VETIS (vetis-talk.log)
 		};
 		long   Flags;
 		PPID   MainOrgID;
@@ -3297,7 +3297,7 @@ public:
 				}
 				else {
 					assert(LastQueueN > 0);
-					if(!lsearch(&rEntry.PrepEntityID, 0, PTR_CMPFUNC(long))) {
+					if(!lsearch(&rEntry.PrepEntityID, 0, CMPF_LONG)) {
 						uint last_qidx_with_orgdoc = 0;
 						for(uint qidx = 1; qidx <= LastQueueN; qidx++) {
 							for(uint i = 0; i < getCount(); i++) {
@@ -3308,12 +3308,7 @@ public:
 								}
 							}
 						}
-						if(last_qidx_with_orgdoc) {
-							target_qidx = last_qidx_with_orgdoc+1;
-						}
-						else {
-							target_qidx = LastQueueN;
-						}
+						target_qidx = last_qidx_with_orgdoc ? (last_qidx_with_orgdoc+1) : LastQueueN;
 					}
 				}
 				if(target_qidx > 0) {
@@ -5224,10 +5219,8 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 											n_rp.PutInner(SXml::nst("vd", "sqnId"), temp_buf.Z().Cat(++rp_no));
 											if(p_rp->P_Enterprise) {
 												SXml::WNode n_ent(srb, SXml::nst("vd", "enterprise"));
-												if(!!p_rp->P_Enterprise->Uuid) {
-												}
-												if(!!p_rp->P_Enterprise->Guid) {
-												}
+												PutNonZeroUuid(n_ent, "bs", p_rp->P_Enterprise->Uuid);
+												PutNonZeroGuid(n_ent, "bs", p_rp->P_Enterprise->Guid);
 											}
 											else if(p_rp->P_Location) {
 												SXml::WNode n_loc(srb, SXml::nst("vd", "location"));
@@ -8545,14 +8538,14 @@ struct VetisTestParam {
 	{
 	}
 	enum {
-		fRcptProductRef           = 0x0001,
+		fRcptProductRef   = 0x0001,
 		fRcptEnterpriseRef        = 0x0002,
 		fRcptBusinessEntityRef    = 0x0004,
-		fRcptUnitRef              = 0x0008,
-		fRcptPurposeRef           = 0x0010,
-		fRcptCountryRef           = 0x0020,
-		fRcptRegionRef            = 0x0040,
-		fRcptLocalityRef          = 0x0080,
+		fRcptUnitRef      = 0x0008,
+		fRcptPurposeRef   = 0x0010,
+		fRcptCountryRef   = 0x0020,
+		fRcptRegionRef    = 0x0040,
+		fRcptLocalityRef  = 0x0080,
 		fRcptStockEntryList       = 0x0100,
 		fRcptProductChangesList   = 0x0200,
 		fRcptSubProductChangesList = 0x0400
@@ -11164,11 +11157,11 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_checkexpiry_ii)
 int PPViewVetisDocument::DynFuncEntityTextFld      = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_entitytextfld_ip, 2, BTS_INT, BTS_PTR);
 int PPViewVetisDocument::DynFuncBMembTextFld       = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_businessmembtextfld_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
 int PPViewVetisDocument::DynFuncProductItemTextFld = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_productitemtextfld_iiiiip, 6, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_PTR);
-int PPViewVetisDocument::DynFuncVetDStatus         = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdstatus_i, 1, BTS_INT);
-int PPViewVetisDocument::DynFuncVetDForm           = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdform_i, 1, BTS_INT);
-int PPViewVetisDocument::DynFuncVetDType           = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
+int PPViewVetisDocument::DynFuncVetDStatus = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdstatus_i, 1, BTS_INT);
+int PPViewVetisDocument::DynFuncVetDForm   = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdform_i, 1, BTS_INT);
+int PPViewVetisDocument::DynFuncVetDType   = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
 int PPViewVetisDocument::DynFuncVetStockByDoc      = DbqFuncTab::RegisterDynR(BTS_REAL,   dbqf_vetis_vetstockbydoc_i, 2, BTS_INT, BTS_PTR);
-int PPViewVetisDocument::DynFuncVetUUID            = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
+int PPViewVetisDocument::DynFuncVetUUID    = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
 int PPViewVetisDocument::DynFuncCheckExpiry        = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checkexpiry_ii, 2, BTS_INT64_, BTS_INT64_);  // @v10.6.3
 
 DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -11486,6 +11479,7 @@ public:
 	}
 	S_GUID RegionGuid_From;
 	S_GUID RegionGuid_To;
+	S_GUID LocGuid_To; // @v11.2.8 GUID предприятия-получателя (точка доставки)
 	UuidArray SubProductGuidList;
 	PPIDArray SrcIdList; // Список локальных идентификаторов записей подготовки расхода, которым соответствует данное отношение
 	TSCollection <VetisRouteSectionR13nRules> R13RulesList;
@@ -11493,20 +11487,28 @@ public:
 
 class _VetisRegionRoutArray : public TSCollection <_VetisRegionRouteEntry> {
 public:
-	void   Add(const S_GUID & rRegFrom, const S_GUID & rRegTo, const S_GUID & rSubp, PPID srcRecID)
+	void   Add(const S_GUID & rRegFrom, const S_GUID & rRegTo, const S_GUID & rLocGuid_To, const S_GUID & rSubp, PPID srcRecID)
 	{
 		if(!!rRegFrom && !!rRegTo) {
 			uint   found_pos = 0;
 			for(uint i = 0; !found_pos && i < getCount(); i++) {
 				const _VetisRegionRouteEntry * p_entry = at(i);
 				assert(p_entry);
-				if(p_entry && p_entry->RegionGuid_From == rRegFrom && p_entry->RegionGuid_To == rRegTo)
-					found_pos = i+1;
+				if(p_entry) {
+					// @v11.2.8 Переводим идентификацию региональных маршрутов на склад-получатель вместо регион-получатель
+					if(p_entry->RegionGuid_From == rRegFrom) {
+						if(p_entry->LocGuid_To == rLocGuid_To)
+							found_pos = i+1;
+						/*else if(p_entry->RegionGuid_To == rRegTo)
+							found_pos = i+1;*/
+					}
+				}
 			}
 			if(!found_pos) {
 				_VetisRegionRouteEntry * p_new_entry = CreateNewItem();
 				p_new_entry->RegionGuid_From = rRegFrom;
 				p_new_entry->RegionGuid_To = rRegTo;
+				p_new_entry->LocGuid_To = rLocGuid_To; // @v11.2.8
 				if(!!rSubp)
 					p_new_entry->SubProductGuidList.insert(&rSubp);
 				if(srcRecID)
@@ -11516,8 +11518,9 @@ public:
 				assert(found_pos <= getCount());
 				_VetisRegionRouteEntry * p_entry = at(found_pos-1);
 				assert(p_entry->RegionGuid_From == rRegFrom);
-				assert(p_entry->RegionGuid_To == rRegTo);
-				if(!!rSubp && p_entry->SubProductGuidList.lsearch(&rSubp, 0, PTR_CMPFUNC(S_GUID)))
+				// @v11.2.8 assert(p_entry->RegionGuid_To == rRegTo);
+				assert(p_entry->LocGuid_To == rLocGuid_To); // @v11.2.9
+				if(!!rSubp && !p_entry->SubProductGuidList.lsearch(&rSubp, 0, PTR_CMPFUNC(S_GUID)))
 					p_entry->SubProductGuidList.insert(&rSubp);
 				if(srcRecID)
 					p_entry->SrcIdList.add(srcRecID);
@@ -11579,24 +11582,27 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 						S_GUID region_guid_from;
 						S_GUID region_guid_to;
 						S_GUID subp_guid;
+						S_GUID loc_guid_to;
 						long   region_id_from = 0;
 						long   region_id_to = 0;
-						if(vi.LinkFromDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkFromDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_from) > 0 &&
-							vi.LinkToDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkToDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_to) > 0) {
-							if(vi.ProductItemID && ifc.PeC.GetEntity(vi.ProductItemID, _ent) > 0) {
-								pi_reply.Clear();
-								if(ifc.GetEntityQuery2(PPVetisInterface::qtProductItemByGuid, VGuidToStr(_ent.Guid, temp_buf), pi_reply) > 0) {
-									if(pi_reply.ProductItemList.getCount()) {
-										S_GUID subp_guid = pi_reply.ProductItemList.at(0)->SubProduct.Guid;
-										regroute_list.Add(region_guid_from, region_guid_to, subp_guid, vi.EntityID);
+						if(p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkToDlvrLocID, PPTAG_LOC_VETIS_GUID, loc_guid_to) > 0) { // @v11.2.8
+							if(vi.LinkFromDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkFromDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_from) > 0 &&
+								vi.LinkToDlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, vi.LinkToDlvrLocID, PPTAG_LOC_VETIS_REGIONGUID, region_guid_to) > 0) {
+								if(vi.ProductItemID && ifc.PeC.GetEntity(vi.ProductItemID, _ent) > 0) {
+									pi_reply.Clear();
+									if(ifc.GetEntityQuery2(PPVetisInterface::qtProductItemByGuid, VGuidToStr(_ent.Guid, temp_buf), pi_reply) > 0) {
+										if(pi_reply.ProductItemList.getCount()) {
+											S_GUID subp_guid = pi_reply.ProductItemList.at(0)->SubProduct.Guid;
+											regroute_list.Add(region_guid_from, region_guid_to, loc_guid_to, subp_guid, vi.EntityID);
+										}
 									}
 								}
+								// @v11.2.5 {
+								else if(vi.SubProductID && ifc.PeC.GetEntity(vi.SubProductID, _ent) > 0) {
+									regroute_list.Add(region_guid_from, region_guid_to, loc_guid_to, _ent.Guid, vi.EntityID);
+								}
+								// } @v11.2.5 
 							}
-							// @v11.2.5 {
-							else if(vi.SubProductID && ifc.PeC.GetEntity(vi.SubProductID, _ent) > 0) {
-								regroute_list.Add(region_guid_from, region_guid_to, _ent.Guid, vi.EntityID);
-							}
-							// } @v11.2.5 
 						}
 					}
 				}
@@ -11639,6 +11645,8 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 							p_new_sp->P_Location = new VetisLocation;
 							p_new_sp->P_Location->Address.Country.Guid.FromStr(P_VetisGuid_Country_Ru);
 							p_new_sp->P_Location->Address.Region.Guid = p_rrl_item->RegionGuid_To;
+							p_new_sp->P_Enterprise = new VetisEnterprise;
+							p_new_sp->P_Enterprise->Guid = p_rrl_item->LocGuid_To;
 						}
 						if(ifc.CheckShipmentRegionalizationOperation(p_rrl_item->SubProductGuidList, srplist, _regionalization_ent_reply) > 0) {
 							TSCollection_Copy(p_rrl_item->R13RulesList, _regionalization_ent_reply.R13RulesList);

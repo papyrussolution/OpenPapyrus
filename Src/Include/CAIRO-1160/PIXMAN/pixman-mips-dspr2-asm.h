@@ -377,13 +377,13 @@ LEAF_MIPS32R2(symbol)                                   \
                           d_8888,  \
                           maskLSR, \
                           scratch1, scratch2, scratch3
-    replv.ph          \m_8,      \m_8                 /*   0 | M | 0 | M */
-    muleu_s.ph.qbl    \scratch1, \s_8888,   \m_8      /*    A*M  |  R*M */
-    muleu_s.ph.qbr    \scratch2, \s_8888,   \m_8      /*    G*M  |  B*M */
+    replv.ph          \m_8,      \m_8                 /* 0 | M | 0 | M */
+    muleu_s.ph.qbl    \scratch1, \s_8888,   \m_8      /* A*M  |  R*M */
+    muleu_s.ph.qbr    \scratch2, \s_8888,   \m_8      /* G*M  |  B*M */
     shra_r.ph         \scratch3, \scratch1, 8
     shra_r.ph         \d_8888,   \scratch2, 8
-    and               \scratch3, \scratch3, \maskLSR  /*   0 |A*M| 0 |R*M */
-    and               \d_8888,   \d_8888,   \maskLSR  /*   0 |G*M| 0 |B*M */
+    and               \scratch3, \scratch3, \maskLSR  /* 0 |A*M| 0 |R*M */
+    and               \d_8888,   \d_8888,   \maskLSR  /* 0 |G*M| 0 |B*M */
     addq.ph           \scratch1, \scratch1, \scratch3 /* A*M+A*M | R*M+R*M */
     addq.ph           \scratch2, \scratch2, \d_8888   /* G*M+G*M | B*M+B*M */
     shra_r.ph         \scratch1, \scratch1, 8
@@ -405,12 +405,12 @@ LEAF_MIPS32R2(symbol)                                   \
                               maskLSR, \
                               scratch1, scratch2, scratch3, \
                               scratch4, scratch5, scratch6
-    replv.ph          \m1_8,     \m1_8                /*  0 | M1 | 0 | M1 */
-    replv.ph          \m2_8,     \m2_8                /*  0 | M2 | 0 | M2 */
-    muleu_s.ph.qbl    \scratch1, \s1_8888,  \m1_8     /*  A1*M1  |  R1*M1 */
-    muleu_s.ph.qbr    \scratch2, \s1_8888,  \m1_8     /*  G1*M1  |  B1*M1 */
-    muleu_s.ph.qbl    \scratch3, \s2_8888,  \m2_8     /*  A2*M2  |  R2*M2 */
-    muleu_s.ph.qbr    \scratch4, \s2_8888,  \m2_8     /*  G2*M2  |  B2*M2 */
+    replv.ph          \m1_8,     \m1_8                /* 0 | M1 | 0 | M1 */
+    replv.ph          \m2_8,     \m2_8                /* 0 | M2 | 0 | M2 */
+    muleu_s.ph.qbl    \scratch1, \s1_8888,  \m1_8     /* A1*M1  |  R1*M1 */
+    muleu_s.ph.qbr    \scratch2, \s1_8888,  \m1_8     /* G1*M1  |  B1*M1 */
+    muleu_s.ph.qbl    \scratch3, \s2_8888,  \m2_8     /* A2*M2  |  R2*M2 */
+    muleu_s.ph.qbr    \scratch4, \s2_8888,  \m2_8     /* G2*M2  |  B2*M2 */
     shra_r.ph         \scratch5, \scratch1, 8
     shra_r.ph         \d1_8888,  \scratch2, 8
     shra_r.ph         \scratch6, \scratch3, 8
@@ -441,14 +441,14 @@ LEAF_MIPS32R2(symbol)                                   \
                             d_8888,  \
                             maskLSR, \
                             scratch1, scratch2, scratch3, scratch4
-    preceu.ph.qbl     \scratch1, \m_8888              /*   0 | A | 0 | R */
-    preceu.ph.qbr     \scratch2, \m_8888              /*   0 | G | 0 | B */
-    muleu_s.ph.qbl    \scratch3, \s_8888,   \scratch1 /*    A*A  |  R*R */
-    muleu_s.ph.qbr    \scratch4, \s_8888,   \scratch2 /*    G*G  |  B*B */
+    preceu.ph.qbl     \scratch1, \m_8888              /* 0 | A | 0 | R */
+    preceu.ph.qbr     \scratch2, \m_8888              /* 0 | G | 0 | B */
+    muleu_s.ph.qbl    \scratch3, \s_8888,   \scratch1 /* A*A  |  R*R */
+    muleu_s.ph.qbr    \scratch4, \s_8888,   \scratch2 /* G*G  |  B*B */
     shra_r.ph         \scratch1, \scratch3, 8
     shra_r.ph         \scratch2, \scratch4, 8
-    and               \scratch1, \scratch1, \maskLSR  /*   0 |A*A| 0 |R*R */
-    and               \scratch2, \scratch2, \maskLSR  /*   0 |G*G| 0 |B*B */
+    and               \scratch1, \scratch1, \maskLSR  /* 0 |A*A| 0 |R*R */
+    and               \scratch2, \scratch2, \maskLSR  /* 0 |G*G| 0 |B*B */
     addq.ph           \scratch1, \scratch1, \scratch3
     addq.ph           \scratch2, \scratch2, \scratch4
     shra_r.ph         \scratch1, \scratch1, 8
@@ -471,22 +471,22 @@ LEAF_MIPS32R2(symbol)                                   \
                                 maskLSR,  \
                                 scratch1, scratch2, scratch3, \
                                 scratch4, scratch5, scratch6
-    preceu.ph.qbl     \scratch1, \m1_8888             /*   0 | A | 0 | R */
-    preceu.ph.qbr     \scratch2, \m1_8888             /*   0 | G | 0 | B */
-    preceu.ph.qbl     \scratch3, \m2_8888             /*   0 | A | 0 | R */
-    preceu.ph.qbr     \scratch4, \m2_8888             /*   0 | G | 0 | B */
-    muleu_s.ph.qbl    \scratch5, \s1_8888,  \scratch1 /*    A*A  |  R*R */
-    muleu_s.ph.qbr    \scratch6, \s1_8888,  \scratch2 /*    G*G  |  B*B */
-    muleu_s.ph.qbl    \scratch1, \s2_8888,  \scratch3 /*    A*A  |  R*R */
-    muleu_s.ph.qbr    \scratch2, \s2_8888,  \scratch4 /*    G*G  |  B*B */
+    preceu.ph.qbl     \scratch1, \m1_8888             /* 0 | A | 0 | R */
+    preceu.ph.qbr     \scratch2, \m1_8888             /* 0 | G | 0 | B */
+    preceu.ph.qbl     \scratch3, \m2_8888             /* 0 | A | 0 | R */
+    preceu.ph.qbr     \scratch4, \m2_8888             /* 0 | G | 0 | B */
+    muleu_s.ph.qbl    \scratch5, \s1_8888,  \scratch1 /* A*A  |  R*R */
+    muleu_s.ph.qbr    \scratch6, \s1_8888,  \scratch2 /* G*G  |  B*B */
+    muleu_s.ph.qbl    \scratch1, \s2_8888,  \scratch3 /* A*A  |  R*R */
+    muleu_s.ph.qbr    \scratch2, \s2_8888,  \scratch4 /* G*G  |  B*B */
     shra_r.ph         \scratch3, \scratch5, 8
     shra_r.ph         \scratch4, \scratch6, 8
     shra_r.ph         \d1_8888,  \scratch1, 8
     shra_r.ph         \d2_8888,  \scratch2, 8
-    and               \scratch3, \scratch3, \maskLSR  /*   0 |A*A| 0 |R*R */
-    and               \scratch4, \scratch4, \maskLSR  /*   0 |G*G| 0 |B*B */
-    and               \d1_8888,  \d1_8888,  \maskLSR  /*   0 |A*A| 0 |R*R */
-    and               \d2_8888,  \d2_8888,  \maskLSR  /*   0 |G*G| 0 |B*B */
+    and               \scratch3, \scratch3, \maskLSR  /* 0 |A*A| 0 |R*R */
+    and               \scratch4, \scratch4, \maskLSR  /* 0 |G*G| 0 |B*B */
+    and               \d1_8888,  \d1_8888,  \maskLSR  /* 0 |A*A| 0 |R*R */
+    and               \d2_8888,  \d2_8888,  \maskLSR  /* 0 |G*G| 0 |B*B */
     addq.ph           \scratch3, \scratch3, \scratch5
     addq.ph           \scratch4, \scratch4, \scratch6
     addq.ph           \d1_8888,  \d1_8888,  \scratch1

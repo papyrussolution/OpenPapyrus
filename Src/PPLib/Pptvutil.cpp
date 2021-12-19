@@ -4092,7 +4092,7 @@ PersonListCtrlGroup::PersonListCtrlGroup(uint ctlsel, uint ctlSelPsnKind, uint c
 	Ctlsel        = ctlsel;
 	CtlselPsnKind = ctlSelPsnKind;
 	CmPsnList     = cmPsnList;
-	Flags         = flags;
+	Flags = flags;
 }
 
 PersonListCtrlGroup::~PersonListCtrlGroup()
@@ -5329,21 +5329,22 @@ int ResolveGoodsDialog::ResolveGoods(PPID resolveGoodsID, uint firstGoodsPos)
 	int    ok = -1;
 	if(resolveGoodsID > 0 && firstGoodsPos >= 0 && firstGoodsPos < Data.getCount()) {
 		PPID   goods_id = Data.at(firstGoodsPos).GoodsID;
-		char   barcode[24], goods_name[128];
+		char   barcode[48];
+		char   goods_name[256];
 		memzero(barcode, sizeof(barcode));
 		memzero(goods_name, sizeof(goods_name));
 		STRNSCPY(barcode, Data.at(firstGoodsPos).Barcode);
 		STRNSCPY(goods_name, Data.at(firstGoodsPos).GoodsName);
 		if(goods_id) {
-			for(uint p = 0; Data.lsearch(&goods_id, &p, PTR_CMPFUNC(long), offsetof(ResolveGoodsItem, GoodsID)) > 0; p++)
+			for(uint p = 0; Data.lsearch(&goods_id, &p, CMPF_LONG, offsetof(ResolveGoodsItem, GoodsID)); p++)
 				Data.at(p).ResolvedGoodsID = resolveGoodsID;
 		}
 		else if(sstrlen(barcode) && strcmp(barcode, "0") != 0) {
-			for(uint p = 0; Data.lsearch(barcode, &p, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, Barcode)) > 0; p++)
+			for(uint p = 0; Data.lsearch(barcode, &p, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, Barcode)); p++)
 				Data.at(p).ResolvedGoodsID = resolveGoodsID;
 		}
 		else if(sstrlen(goods_name)) {
-			for(uint p = 0; Data.lsearch(goods_name, &p, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, GoodsName)) > 0; p++)
+			for(uint p = 0; Data.lsearch(goods_name, &p, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, GoodsName)); p++)
 				Data.at(p).ResolvedGoodsID = resolveGoodsID;
 		}
 		else
@@ -6455,7 +6456,7 @@ int SendMailDialog::setupList()
 	long   pos = -1, id = -1;
 	SString path;
 	if(PPOpenFile(PPTXT_FILPAT_ALL, path, 0, 0) > 0) {
-		if(Data.FilesList.lsearch(path.cptr(), 0, PTR_CMPFUNC(PcharNoCase)) <= 0) {
+		if(!Data.FilesList.lsearch(path.cptr(), 0, PTR_CMPFUNC(PcharNoCase))) {
 			Data.FilesList.insert(newStr(path));
 			id = pos = Data.FilesList.getCount() - 1;
 			ok = 1;
@@ -6475,7 +6476,7 @@ int SendMailDialog::setupList()
 		SString path(Data.FilesList.at(pos));
 		if(PPOpenFile(PPTXT_FILPAT_ALL, path,  0, 0) > 0) {
 			uint p = 0;
-			if(Data.FilesList.lsearch(path.cptr(), &p, PTR_CMPFUNC(PcharNoCase)) > 0 && p != pos)
+			if(Data.FilesList.lsearch(path.cptr(), &p, PTR_CMPFUNC(PcharNoCase)) && p != pos)
 				PPError(PPERR_ITEMALREADYEXISTS);
 			else {
 				Data.FilesList.atFree(pos);

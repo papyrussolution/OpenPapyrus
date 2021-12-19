@@ -98,7 +98,7 @@ int BN_kronecker(const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 	while(1) {
 		/* Cohen's step 3: */
 
-		/*  B  is positive and odd */
+		/* B  is positive and odd */
 
 		if(BN_is_zero(A)) {
 			ret = BN_is_one(B) ? ret : 0;

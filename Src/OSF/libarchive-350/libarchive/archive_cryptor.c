@@ -346,14 +346,12 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 {
 	if((ctx->ctx = EVP_CIPHER_CTX_new()) == NULL)
 		return -1;
-
 	switch(key_len) {
 		case 16: ctx->type = EVP_aes_128_ecb(); break;
 		case 24: ctx->type = EVP_aes_192_ecb(); break;
 		case 32: ctx->type = EVP_aes_256_ecb(); break;
 		default: ctx->type = NULL; return -1;
 	}
-
 	ctx->key_len = key_len;
 	memcpy(ctx->key, key, key_len);
 	memzero(ctx->nonce, sizeof(ctx->nonce));
@@ -398,21 +396,21 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 /* Stub */
 static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)
 {
-	(void)ctx; /* UNUSED */
-	(void)key; /* UNUSED */
-	(void)key_len; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(key);
+	CXX_UNUSED(key_len);
 	return -1;
 }
 
 static int aes_ctr_encrypt_counter(archive_crypto_ctx * ctx)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 	return -1;
 }
 
 static int aes_ctr_release(archive_crypto_ctx * ctx)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 	return 0;
 }
 
@@ -421,11 +419,11 @@ static int aes_ctr_release(archive_crypto_ctx * ctx)
 #ifdef ARCHIVE_CRYPTOR_STUB
 static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size_t in_len, uint8 * const out, size_t * out_len)
 {
-	(void)ctx; /* UNUSED */
-	(void)in; /* UNUSED */
-	(void)in_len; /* UNUSED */
-	(void)out; /* UNUSED */
-	(void)out_len; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(in);
+	CXX_UNUSED(in_len);
+	CXX_UNUSED(out);
+	CXX_UNUSED(out_len);
 	aes_ctr_encrypt_counter(ctx); /* UNUSED */ /* Fix unused function warning */
 	return -1;
 }
@@ -434,15 +432,13 @@ static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size
 static void aes_ctr_increase_counter(archive_crypto_ctx * ctx)
 {
 	uint8 * const nonce = ctx->nonce;
-	int j;
-	for(j = 0; j < 8; j++) {
+	for(int j = 0; j < 8; j++) {
 		if(++nonce[j])
 			break;
 	}
 }
 
-static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in,
-    size_t in_len, uint8 * const out, size_t * out_len)
+static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size_t in_len, uint8 * const out, size_t * out_len)
 {
 	uint8 * const ebuf = ctx->encr_buf;
 	unsigned pos = ctx->encr_pos;

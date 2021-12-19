@@ -127,7 +127,7 @@ int getc_wrapper(FILE * fp)
 #if defined(_IBMR2) || defined(alliant)
 	#define SGTTY
 #endif
-/*  submitted by Francois.Dagorn@cicb.fr */
+/* submitted by Francois.Dagorn@cicb.fr */
 #ifdef SGTTY
 	#include <sgtty.h>
 	static struct sgttyb orig_termio;
@@ -1369,9 +1369,9 @@ static void set_termio()
 #ifdef VREPRINT
 		term_chars[VREPRINT] = orig_termio.c_cc[VREPRINT];
 #    else                       /* not VREPRINT */
-#     ifdef VRPRNT
+#ifdef VRPRNT
 		term_chars[VRPRNT] = orig_termio.c_cc[VRPRNT];
-#     endif                     /* VRPRNT */
+#endif                     /* VRPRNT */
 #    endif                      /* not VREPRINT */
 		term_chars[VSUSP] = orig_termio.c_cc[VSUSP];
 

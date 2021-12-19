@@ -75,7 +75,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -85,27 +85,27 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void CGM_options();
-TERM_PUBLIC void CGM_init(GpTermEntry * pThis);
-TERM_PUBLIC void CGM_reset(GpTermEntry * pThis);
-TERM_PUBLIC void CGM_text(GpTermEntry * pThis);
-TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void CGM_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void CGM_dashed_vector(GpTermEntry * pThis, uint ux, uint uy);
-TERM_PUBLIC void CGM_solid_vector(GpTermEntry * pThis, uint ux, uint uy);
-TERM_PUBLIC void CGM_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void CGM_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CGM_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CGM_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CGM_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CGM_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void CGM_dashed_vector(GpTermEntry_Static * pThis, uint ux, uint uy);
+TERM_PUBLIC void CGM_solid_vector(GpTermEntry_Static * pThis, uint ux, uint uy);
+TERM_PUBLIC void CGM_linetype(GpTermEntry_Static * pThis, int linetype);
 TERM_PUBLIC void CGM_linecolor(int color);
-TERM_PUBLIC void CGM_dashtype(GpTermEntry * pThis, int dashtype);
-TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width);
-TERM_PUBLIC void CGM_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  CGM_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC int  CGM_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int  CGM_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void CGM_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC int  CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
-TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec *);
-TERM_PUBLIC void CGM_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corner);
-TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size);
+TERM_PUBLIC void CGM_dashtype(GpTermEntry_Static * pThis, int dashtype);
+TERM_PUBLIC void CGM_linewidth(GpTermEntry_Static * pThis, double width);
+TERM_PUBLIC void CGM_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC int  CGM_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC int  CGM_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  CGM_set_font(GpTermEntry_Static * pThis, const char * font);
+TERM_PUBLIC void CGM_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void CGM_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC int  CGM_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
+TERM_PUBLIC void CGM_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
+TERM_PUBLIC void CGM_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corner);
+TERM_PUBLIC void CGM_set_pointsize(GpTermEntry_Static * pThis, double size);
 #define FATAL(msg) { fprintf(stderr, "%s\nFile %s line %d\n", msg, __FILE__, __LINE__); exit(EXIT_FAILURE); }
 #define CGM_LARGE 32767
 #define CGM_SMALL 32767/18*13   /* aspect ratio 1:.7222 */
@@ -266,7 +266,7 @@ static bool cgm_dashed = TRUE; /* dashed linestyles enabled? */
 static bool cgm_nofontlist_mode = FALSE; /* omit font list? */
 
 /* prototypes for static functions */
-static void CGM_local_reset(GpTermEntry * pThis);
+static void CGM_local_reset(GpTermEntry_Static * pThis);
 static void CGM_flush_polyline();
 static void CGM_flush_polygon();
 static void CGM_write_char_record(int _cls, int cgm_id, int length, char * data);
@@ -309,7 +309,7 @@ static struct gen_table CGM_opts[] =
 	{ NULL, CGM_OTHER }
 };
 
-TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void CGM_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char * string;
 	// Annoying hack to handle the case of 'set termoption' after 
@@ -336,12 +336,12 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CGM_MONOCHROME:
 			    cgm_monochrome = TRUE;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case CGM_COLOR:
 			    cgm_monochrome = FALSE;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case CGM_ROTATE:
@@ -458,18 +458,15 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	if(cgm_portrait) {
-		pThis->MaxX = CGM_SMALL - CGM_MARGIN;
-		pThis->MaxY = CGM_LARGE - CGM_MARGIN;
+		pThis->SetMax(CGM_SMALL - CGM_MARGIN, CGM_LARGE - CGM_MARGIN);
 	}
 	else {
-		pThis->MaxX = CGM_LARGE - CGM_MARGIN;
-		pThis->MaxY = CGM_SMALL - CGM_MARGIN;
+		pThis->SetMax(CGM_LARGE - CGM_MARGIN, CGM_SMALL - CGM_MARGIN);
 	}
-	{ // cgm_font, cgm_fontsize, and/or pThis->ChrV may have changed 
+	{ // cgm_font, cgm_fontsize, and/or pThis->CV() may have changed 
 		double w;
 		CGM_find_font(cgm_font, strlen(cgm_font), &w);
-		pThis->ChrV = (uint)(cgm_fontsize*CGM_PT);
-		pThis->ChrH = (uint)(cgm_fontsize*CGM_PT*.527*w);
+		pThis->SetCharSize((uint)(cgm_fontsize*CGM_PT*.527*w), (uint)(cgm_fontsize*CGM_PT));
 	}
 	sprintf(CGM_default_font, "%s,%d", cgm_font, cgm_fontsize);
 	// CGM_default_font holds the font and size set at 'set term' 
@@ -502,14 +499,13 @@ TERM_PUBLIC void CGM_options(GpTermEntry * pThis, GnuPlot * pGp)
 	cgm_initialized = TRUE;
 }
 
-static void CGM_local_reset(GpTermEntry * pThis)
+static void CGM_local_reset(GpTermEntry_Static * pThis)
 {
 	double w;
 	strcpy(cgm_font, DEFAULT_CGMFONT);
 	CGM_find_font(cgm_font, strlen(cgm_font), &w);
 	cgm_fontsize = 12;
-	pThis->ChrV = (uint)(cgm_fontsize * CGM_PT);
-	pThis->ChrH = (uint)(cgm_fontsize * CGM_PT * .527 * w);
+	pThis->SetCharSize((uint)(cgm_fontsize * CGM_PT * 0.527 * w), (uint)(cgm_fontsize * CGM_PT));
 	cgm_linewidth_pt = 1;
 	cgm_monochrome = FALSE;
 	cgm_plotwidth = 6 * 72;
@@ -521,7 +517,7 @@ static void CGM_local_reset(GpTermEntry * pThis)
 	cgm_user_color_count = 0;
 }
 
-TERM_PUBLIC void CGM_init(GpTermEntry * pThis)
+TERM_PUBLIC void CGM_init(GpTermEntry_Static * pThis)
 {
 	cgm_posx = cgm_posy = 0;
 	cgm_linetype = 0;
@@ -531,7 +527,7 @@ TERM_PUBLIC void CGM_init(GpTermEntry * pThis)
 	cgm_polyline = (int *)SAlloc::M(CGM_MAX_SEGMENTS*sizeof(int));
 }
 
-TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void CGM_graphics(GpTermEntry_Static * pThis)
 {
 	//struct GpTermEntry * t = term;
 	static int version_data[] = { 1 };
@@ -699,7 +695,7 @@ TERM_PUBLIC void CGM_graphics(GpTermEntry * pThis)
 	CGM_write_int_record(5, 27,  sizeof(line_type_data) / CGM_ADJ, line_type_data); /* edge type 1=SOLID */
 	CGM_linecolor(0);
 	cgm_current = cgm_reset;
-	cgm_next.char_height = pThis->ChrV;
+	cgm_next.char_height = pThis->CV();
 	CGM_write_int_record(5, 22, 2, interior_style_data);
 	CGM_write_int_record(5, 24, 2, hatch_index_data);
 	{
@@ -731,7 +727,7 @@ static int CGM_find_font(const char * name, int numchar, double * relwidth)
 	return 0;
 }
 
-TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int CGM_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	int size, font_index;
 	const char * comma = strchr(font, ',');
@@ -757,21 +753,20 @@ TERM_PUBLIC int CGM_set_font(GpTermEntry * pThis, const char * font)
 	if(comma)
 		sscanf(comma + 1, "%d", &size);
 	if(size > 0) {
-		pThis->ChrV = size * CGM_PT;
-		pThis->ChrH = static_cast<uint>(size * CGM_PT * 0.527 * width);
+		pThis->SetCharSize(static_cast<uint>(size * CGM_PT * 0.527 * width), size * CGM_PT);
 	}
-	cgm_next.char_height = pThis->ChrV;
+	cgm_next.char_height = pThis->CV();
 	return TRUE;
 }
 
-TERM_PUBLIC void CGM_text(GpTermEntry * pThis)
+TERM_PUBLIC void CGM_text(GpTermEntry_Static * pThis)
 {
 	CGM_flush_polyline();
 	CGM_write_int_record(0, 5, 0, NULL); /* end picture */
 	CGM_write_int_record(0, 2, 0, NULL); /* end metafile */
 }
 
-TERM_PUBLIC void CGM_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void CGM_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	SETMAX(linetype, LT_NODRAW);
 	if(linetype == cgm_linetype)
@@ -813,7 +808,7 @@ TERM_PUBLIC void CGM_linecolor(int linecolor)
 	CGM_write_int_record(5, 14, 2, (int *)&cgm_color); /* text color */
 }
 
-TERM_PUBLIC void CGM_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void CGM_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	gpiPoint corner[5];
 	corner[0].x = x1;        corner[0].y = y1;
@@ -825,7 +820,7 @@ TERM_PUBLIC void CGM_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, u
 	CGM_filled_polygon(pThis, 5, corner);
 }
 
-TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width)
+TERM_PUBLIC void CGM_linewidth(GpTermEntry_Static * pThis, double width)
 {
 	if(width <= 0)
 		width = 0.5;
@@ -838,7 +833,7 @@ TERM_PUBLIC void CGM_linewidth(GpTermEntry * pThis, double width)
 	}
 }
 
-TERM_PUBLIC void CGM_dashtype(GpTermEntry * pThis, int dashtype)
+TERM_PUBLIC void CGM_dashtype(GpTermEntry_Static * pThis, int dashtype)
 {
 	int i, j;
 	/* Each group of 8 entries in dot_length[] defines a dash
@@ -880,7 +875,7 @@ TERM_PUBLIC void CGM_dashtype(GpTermEntry * pThis, int dashtype)
 	cgm_step_index = 1;
 }
 
-TERM_PUBLIC void CGM_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void CGM_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	SETMIN(x, pThis->MaxX);
 	SETMIN(y, pThis->MaxY);
@@ -891,7 +886,7 @@ TERM_PUBLIC void CGM_move(GpTermEntry * pThis, uint x, uint y)
 	cgm_posy = y;
 }
 
-TERM_PUBLIC int CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int CGM_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	if(palette) {
 		int i, k;
@@ -915,7 +910,7 @@ TERM_PUBLIC int CGM_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	}
 }
 
-TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void CGM_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT) {
 		CGM_linecolor(colorspec->lt);
@@ -948,7 +943,7 @@ TERM_PUBLIC void CGM_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	}
 }
 
-TERM_PUBLIC void CGM_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corner)
+TERM_PUBLIC void CGM_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corner)
 {
 	/* Note: This implementation cannot handle polygons with more than
 	 * about 8190 edges.  The best fix is to implement continuation
@@ -1145,7 +1140,7 @@ static void CGM_write_int(int value)
 // lines of significant width (even 1 pt) always come out solid.
 // Therefore, we implement dashed lines here instead. 
 //
-TERM_PUBLIC void CGM_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
+TERM_PUBLIC void CGM_dashed_vector(GpTermEntry_Static * pThis, uint ux, uint uy)
 {
 	int xa, ya;
 	int dx, dy, adx, ady;
@@ -1191,7 +1186,7 @@ TERM_PUBLIC void CGM_dashed_vector(GpTermEntry * pThis, uint ux, uint uy)
 	cgm_step -= (int)remain;
 }
 
-TERM_PUBLIC void CGM_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
+TERM_PUBLIC void CGM_solid_vector(GpTermEntry_Static * pThis, uint ux, uint uy)
 {
 	SETMIN(ux, pThis->MaxX);
 	SETMIN(uy, pThis->MaxY);
@@ -1215,7 +1210,7 @@ TERM_PUBLIC void CGM_solid_vector(GpTermEntry * pThis, uint ux, uint uy)
 	cgm_posy = uy;
 }
 
-TERM_PUBLIC void CGM_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
+TERM_PUBLIC void CGM_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[])
 {
 	static int where[3] = { 0, 0, 1 }; // the final "1" signals that this is the last text in the string 
 	const char * s = str;
@@ -1278,7 +1273,7 @@ showit:
 	cgm_posx = cgm_posy = -2000;
 }
 
-TERM_PUBLIC int CGM_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int CGM_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	if(cgm_rotate) {
 		cgm_next.angle = ang * SMathConst::PiDiv180;
@@ -1288,19 +1283,19 @@ TERM_PUBLIC int CGM_text_angle(GpTermEntry * pThis, int ang)
 		return ang ? FALSE : TRUE;
 }
 
-TERM_PUBLIC int CGM_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int CGM_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	cgm_next.justify_mode = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC void CGM_reset(GpTermEntry * pThis)
+TERM_PUBLIC void CGM_reset(GpTermEntry_Static * pThis)
 {
 	cgm_posx = cgm_posy = 0;
 	SAlloc::F(cgm_polyline);
 }
 
-TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void CGM_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	int old_dashtype;
 	if(number < 0) {        /* draw dot */
@@ -1417,7 +1412,7 @@ TERM_PUBLIC void CGM_point(GpTermEntry * pThis, uint x, uint y, int number)
 	CGM_dashtype(pThis, old_dashtype);
 }
 
-TERM_PUBLIC void CGM_set_pointsize(GpTermEntry * pThis, double size)
+TERM_PUBLIC void CGM_set_pointsize(GpTermEntry_Static * pThis, double size)
 {
 	/* Markers were chosen to have approximately equal
 	   areas.  Dimensions are as follows, in units of

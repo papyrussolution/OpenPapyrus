@@ -32,7 +32,7 @@ struct ExtensionListEntry : public icu::UMemory {
 
 #define MAXEXTLANG 3
 typedef struct ULanguageTag {
-	char * buf;/* holding parsed subtags */
+	char * buf; /* holding parsed subtags */
 	const char * language;
 	const char * extlang[MAXEXTLANG];
 	const char * script;
@@ -89,7 +89,7 @@ static const char LOCALE_TYPE_YES[] = "yes";
 
  */
 static const char * const LEGACY[] = {
-/*  legacy          preferred */
+/* legacy          preferred */
 	"art-lojban",   "jbo",
 	"en-gb-oed",    "en-gb-oxendict",
 	"i-ami",        "ami",
@@ -180,7 +180,7 @@ static const char * const REDUNDANT[] = {
    Make sure that 2-letter language subtags come before 3-letter subtags.
  */
 static const char DEPRECATEDLANGS[][4] = {
-/*  deprecated  new */
+/* deprecated  new */
 	"in",       "id",
 	"iw",       "he",
 	"ji",       "yi",
@@ -270,7 +270,7 @@ static const char DEPRECATEDLANGS[][4] = {
    awk -n '/Subtag/ {printf("    \"%s\",       ", $2);} /Preferred/ {printf("\"%s\",\n", $2);}'
  */
 static const char DEPRECATEDREGIONS[][3] = {
-/*  deprecated  new */
+/* deprecated  new */
 	"BU",       "MM",
 	"DD",       "DE",
 	"FX",       "FR",

@@ -191,7 +191,7 @@ UnicodeString & StringMatcher::toPattern(UnicodeString & result,
 /**
  * Implement UnicodeMatcher
  */
-bool StringMatcher::matchesIndexValue(uint8_t v) const {
+bool StringMatcher::matchesIndexValue(uint8 v) const {
 	if(pattern.length() == 0) {
 		return TRUE;
 	}

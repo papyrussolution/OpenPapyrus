@@ -28,30 +28,45 @@
  * \file  numafunc1.c
  * <pre>
  *
+ *      --------------------------------------
+ *      This file has these Numa utilities:
+ *         - arithmetic operations
+ *         - simple data analysis
+ *         - generation of special sequences
+ *         - permutations
+ *         - interpolation
+ *         - sorting
+ *         - data analysis requiring sorting
+ *         - joins and rearrangements
+ *      --------------------------------------
+ *
  *      Arithmetic and logic
  *          NUMA        *numaArithOp()
  *          NUMA        *numaLogicalOp()
  *          NUMA        *numaInvert()
- *          int32      numaSimilar()
- *          int32      numaAddToNumber()
+ *          l_int32      numaSimilar()
+ *          l_int32      numaAddToNumber()
  *
  *      Simple extractions
- *          int32      numaGetMin()
- *          int32      numaGetMax()
- *          int32      numaGetSum()
+ *          l_int32      numaGetMin()
+ *          l_int32      numaGetMax()
+ *          l_int32      numaGetSum()
  *          NUMA        *numaGetPartialSums()
- *          int32      numaGetSumOnInterval()
- *          int32      numaHasOnlyIntegers()
+ *          l_int32      numaGetSumOnInterval()
+ *          l_int32      numaHasOnlyIntegers()
+ *          l_int32      numaGetMean()
+ *          l_int32      numaGetMeanAbsval()
  *          NUMA        *numaSubsample()
  *          NUMA        *numaMakeDelta()
  *          NUMA        *numaMakeSequence()
  *          NUMA        *numaMakeConstant()
- *          NUMA        *numaMakeAbsValue()
+ *          NUMA        *numaMakeAbsval()
  *          NUMA        *numaAddBorder()
  *          NUMA        *numaAddSpecifiedBorder()
  *          NUMA        *numaRemoveBorder()
- *          int32      numaGetNonzeroRange()
- *          int32      numaGetCountRelativeToZero()
+ *          l_int32      numaCountNonzeroRuns()
+ *          l_int32      numaGetNonzeroRange()
+ *          l_int32      numaGetCountRelativeToZero()
  *          NUMA        *numaClipToInterval()
  *          NUMA        *numaMakeThresholdIndicator()
  *          NUMA        *numaUniformSampling()
@@ -64,44 +79,47 @@
  *          NUMA        *numaGetEdgeValues()
  *
  *      Interpolation
- *          int32      numaInterpolateEqxVal()
- *          int32      numaInterpolateEqxInterval()
- *          int32      numaInterpolateArbxVal()
- *          int32      numaInterpolateArbxInterval()
+ *          l_int32      numaInterpolateEqxVal()
+ *          l_int32      numaInterpolateEqxInterval()
+ *          l_int32      numaInterpolateArbxVal()
+ *          l_int32      numaInterpolateArbxInterval()
  *
  *      Functions requiring interpolation
- *          int32      numaFitMax()
- *          int32      numaDifferentiateInterval()
- *          int32      numaIntegrateInterval()
+ *          l_int32      numaFitMax()
+ *          l_int32      numaDifferentiateInterval()
+ *          l_int32      numaIntegrateInterval()
  *
  *      Sorting
  *          NUMA        *numaSortGeneral()
  *          NUMA        *numaSortAutoSelect()
  *          NUMA        *numaSortIndexAutoSelect()
- *          int32      numaChooseSortType()
+ *          l_int32      numaChooseSortType()
  *          NUMA        *numaSort()
  *          NUMA        *numaBinSort()
  *          NUMA        *numaGetSortIndex()
  *          NUMA        *numaGetBinSortIndex()
  *          NUMA        *numaSortByIndex()
- *          int32      numaIsSorted()
- *          int32      numaSortPair()
+ *          l_int32      numaIsSorted()
+ *          l_int32      numaSortPair()
  *          NUMA        *numaInvertMap()
+ *          l_int32      numaAddSorted()
+ *          l_int32      numaFindSortedLoc()
  *
  *      Random permutation
  *          NUMA        *numaPseudorandomSequence()
  *          NUMA        *numaRandomPermutation()
  *
  *      Functions requiring sorting
- *          int32      numaGetRankValue()
- *          int32      numaGetMedian()
- *          int32      numaGetBinnedMedian()
- *          int32      numaGetMode()
- *          int32      numaGetMedianVariation()
+ *          l_int32      numaGetRankValue()
+ *          l_int32      numaGetMedian()
+ *          l_int32      numaGetBinnedMedian()
+ *          l_int32      numaGetMeanDevFromMedian()
+ *          l_int32      numaGetMedianDevFromMedian()
+ *          l_int32      numaGetMode()
  *
  *      Rearrangements
- *          int32      numaJoin()
- *          int32      numaaJoin()
+ *          l_int32      numaJoin()
+ *          l_int32      numaaJoin()
  *          NUMA        *numaaFlattenToNuma()
  *
  *    Things to remember when using the Numa:
@@ -110,7 +128,7 @@
  *        (see numabasic.c), never the fields directly.
  *
  *    (2) The number array holds float values.  It can also
- *        be used to store int32 values.  See numabasic.c for
+ *        be used to store l_int32 values.  See numabasic.c for
  *        details on using the accessors.
  *
  *    (3) If you use numaCreate(), no numbers are stored and the size is 0.
@@ -131,30 +149,30 @@
 /*!
  * \brief   numaArithOp()
  *
- * \param[in]    nad [optional] can be null or equal to na1 (in-place
+ * \param[in]    nad     [optional] can be null or equal to na1 (in-place
  * \param[in]    na1
  * \param[in]    na2
- * \param[in]    op L_ARITH_ADD, L_ARITH_SUBTRACT,
- *                  L_ARITH_MULTIPLY, L_ARITH_DIVIDE
+ * \param[in]    op      L_ARITH_ADD, L_ARITH_SUBTRACT,
+ *                       L_ARITH_MULTIPLY, L_ARITH_DIVIDE
  * \return  nad always: operation applied to na1 and na2
  *
  * <pre>
  * Notes:
  *      (1) The sizes of na1 and na2 must be equal.
  *      (2) nad can only null or equal to na1.
- *      (3) To add a constant to a numa, or to multipy a numa by
+ *      (3) To add a constant to a numa, or to multiply a numa by
  *          a constant, use numaTransform().
  * </pre>
  */
-NUMA * numaArithOp(NUMA    * nad,
-    NUMA    * na1,
-    NUMA    * na2,
-    int32 op)
+NUMA * numaArithOp(NUMA * nad,
+    NUMA * na1,
+    NUMA * na2,
+    l_int32 op)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val1, val2;
 
-	PROCNAME("numaArithOp");
+	PROCNAME(__FUNCTION__);
 
 	if(!na1 || !na2)
 		return (NUMA*)ERROR_PTR("na1, na2 not both defined", procName, nad);
@@ -195,7 +213,7 @@ NUMA * numaArithOp(NUMA    * nad,
 			    numaSetValue(nad, i, val1 / val2);
 			    break;
 			default:
-			    fprintf(stderr, " Unknown arith op: %d\n", op);
+			    lept_stderr(" Unknown arith op: %d\n", op);
 			    return nad;
 		}
 	}
@@ -206,10 +224,10 @@ NUMA * numaArithOp(NUMA    * nad,
 /*!
  * \brief   numaLogicalOp()
  *
- * \param[in]    nad [optional] can be null or equal to na1 (in-place
+ * \param[in]    nad     [optional] can be null or equal to na1 (in-place
  * \param[in]    na1
  * \param[in]    na2
- * \param[in]    op L_UNION, L_INTERSECTION, L_SUBTRACTION, L_EXCLUSIVE_OR
+ * \param[in]    op      L_UNION, L_INTERSECTION, L_SUBTRACTION, L_EXCLUSIVE_OR
  * \return  nad always: operation applied to na1 and na2
  *
  * <pre>
@@ -224,14 +242,14 @@ NUMA * numaArithOp(NUMA    * nad,
  *          are integers, we use (val1 && !val2).
  * </pre>
  */
-NUMA * numaLogicalOp(NUMA    * nad,
-    NUMA    * na1,
-    NUMA    * na2,
-    int32 op)
+NUMA * numaLogicalOp(NUMA * nad,
+    NUMA * na1,
+    NUMA * na2,
+    l_int32 op)
 {
-	int32 i, n, val1, val2, val;
+	l_int32 i, n, val1, val2, val;
 
-	PROCNAME("numaLogicalOp");
+	PROCNAME(__FUNCTION__);
 
 	if(!na1 || !na2)
 		return (NUMA*)ERROR_PTR("na1, na2 not both defined", procName, nad);
@@ -251,6 +269,8 @@ NUMA * numaLogicalOp(NUMA    * nad,
 	for(i = 0; i < n; i++) {
 		numaGetIValue(nad, i, &val1);
 		numaGetIValue(na2, i, &val2);
+		val1 = (val1 == 0) ? 0 : 1;
+		val2 = (val2 == 0) ? 0 : 1;
 		switch(op) {
 			case L_UNION:
 			    val = (val1 || val2) ? 1 : 0;
@@ -265,11 +285,11 @@ NUMA * numaLogicalOp(NUMA    * nad,
 			    numaSetValue(nad, i, val);
 			    break;
 			case L_EXCLUSIVE_OR:
-			    val = ((val1 && !val2) || (!val1 && val2)) ? 1 : 0;
+			    val = (val1 != val2) ? 1 : 0;
 			    numaSetValue(nad, i, val);
 			    break;
 			default:
-			    fprintf(stderr, " Unknown logical op: %d\n", op);
+			    lept_stderr(" Unknown logical op: %d\n", op);
 			    return nad;
 		}
 	}
@@ -280,7 +300,7 @@ NUMA * numaLogicalOp(NUMA    * nad,
 /*!
  * \brief   numaInvert()
  *
- * \param[in]    nad [optional] can be null or equal to nas (in-place
+ * \param[in]    nad    [optional] can be null or equal to nas (in-place
  * \param[in]    nas
  * \return  nad always: 'inverts' nas
  *
@@ -293,12 +313,12 @@ NUMA * numaLogicalOp(NUMA    * nad,
  *              anything else  -->   0
  * </pre>
  */
-NUMA * numaInvert(NUMA  * nad,
-    NUMA  * nas)
+NUMA * numaInvert(NUMA * nad,
+    NUMA * nas)
 {
-	int32 i, n, val;
+	l_int32 i, n, val;
 
-	PROCNAME("numaInvert");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, nad);
@@ -316,7 +336,6 @@ NUMA * numaInvert(NUMA  * nad,
 			val = 0;
 		numaSetValue(nad, i, val);
 	}
-
 	return nad;
 }
 
@@ -325,8 +344,8 @@ NUMA * numaInvert(NUMA  * nad,
  *
  * \param[in]    na1
  * \param[in]    na2
- * \param[in]    maxdiff use 0.0 for exact equality
- * \param[out]   psimilar 1 if similar; 0 if different
+ * \param[in]    maxdiff    use 0.0 for exact equality
+ * \param[out]   psimilar   1 if similar; 0 if different
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -336,15 +355,15 @@ NUMA * numaInvert(NUMA  * nad,
  *          arrays to be identified.
  * </pre>
  */
-int32 numaSimilar(NUMA      * na1,
-    NUMA      * na2,
+l_int32 numaSimilar(NUMA * na1,
+    NUMA * na2,
     float maxdiff,
-    int32   * psimilar)
+    l_int32   * psimilar)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val1, val2;
 
-	PROCNAME("numaSimilar");
+	PROCNAME(__FUNCTION__);
 
 	if(!psimilar)
 		return ERROR_INT("&similar not defined", procName, 1);
@@ -369,9 +388,9 @@ int32 numaSimilar(NUMA      * na1,
 /*!
  * \brief   numaAddToNumber()
  *
- * \param[in]    na source numa
- * \param[in]    index element to be changed
- * \param[in]    val new value to be added
+ * \param[in]    na       source numa
+ * \param[in]    index    element to be changed
+ * \param[in]    val      new value to be added
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -383,19 +402,22 @@ int32 numaSimilar(NUMA      * na1,
  *          array, initialized to 0.0, using numaMakeConstant().
  * </pre>
  */
-int32 numaAddToNumber(NUMA      * na,
-    int32 index,
+l_ok numaAddToNumber(NUMA * na,
+    l_int32 index,
     float val)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("numaAddToNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
-	n = numaGetCount(na);
-	if(index < 0 || index >= n)
-		return ERROR_INT("index not in {0...n - 1}", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+	if(index < 0 || index >= n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n - 1);
+		return 1;
+	}
 
 	na->array[index] += val;
 	return 0;
@@ -407,19 +429,19 @@ int32 numaAddToNumber(NUMA      * na,
 /*!
  * \brief   numaGetMin()
  *
- * \param[in]    na source numa
- * \param[out]   pminval [optional] min value
- * \param[out]   piminloc [optional] index of min location
+ * \param[in]    na        source numa
+ * \param[out]   pminval   [optional] min value
+ * \param[out]   piminloc  [optional] index of min location
  * \return  0 if OK; 1 on error
  */
-int32 numaGetMin(NUMA       * na,
-    float  * pminval,
-    int32    * piminloc)
+l_ok numaGetMin(NUMA       * na,
+    float * pminval,
+    l_int32    * piminloc)
 {
-	int32 i, n, iminloc;
+	l_int32 i, n, iminloc;
 	float val, minval;
 
-	PROCNAME("numaGetMin");
+	PROCNAME(__FUNCTION__);
 
 	if(!pminval && !piminloc)
 		return ERROR_INT("nothing to do", procName, 1);
@@ -427,10 +449,11 @@ int32 numaGetMin(NUMA       * na,
 	if(piminloc) *piminloc = 0;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
 
 	minval = +1000000000.;
 	iminloc = 0;
-	n = numaGetCount(na);
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
 		if(val < minval) {
@@ -447,19 +470,19 @@ int32 numaGetMin(NUMA       * na,
 /*!
  * \brief   numaGetMax()
  *
- * \param[in]    na source numa
- * \param[out]   pmaxval [optional] max value
- * \param[out]   pimaxloc [optional] index of max location
+ * \param[in]    na        source numa
+ * \param[out]   pmaxval   [optional] max value
+ * \param[out]   pimaxloc  [optional] index of max location
  * \return  0 if OK; 1 on error
  */
-int32 numaGetMax(NUMA       * na,
-    float  * pmaxval,
-    int32    * pimaxloc)
+l_ok numaGetMax(NUMA       * na,
+    float * pmaxval,
+    l_int32    * pimaxloc)
 {
-	int32 i, n, imaxloc;
+	l_int32 i, n, imaxloc;
 	float val, maxval;
 
-	PROCNAME("numaGetMax");
+	PROCNAME(__FUNCTION__);
 
 	if(!pmaxval && !pimaxloc)
 		return ERROR_INT("nothing to do", procName, 1);
@@ -467,10 +490,11 @@ int32 numaGetMax(NUMA       * na,
 	if(pimaxloc) *pimaxloc = 0;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
 
 	maxval = -1000000000.;
 	imaxloc = 0;
-	n = numaGetCount(na);
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
 		if(val > maxval) {
@@ -487,25 +511,27 @@ int32 numaGetMax(NUMA       * na,
 /*!
  * \brief   numaGetSum()
  *
- * \param[in]    na source numa
- * \param[out]   psum sum of values
+ * \param[in]    na     source numa
+ * \param[out]   psum   sum of values
  * \return  0 if OK, 1 on error
  */
-int32 numaGetSum(NUMA       * na,
-    float  * psum)
+l_ok numaGetSum(NUMA       * na,
+    float * psum)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val, sum;
 
-	PROCNAME("numaGetSum");
+	PROCNAME(__FUNCTION__);
 
-	if(!na)
-		return ERROR_INT("na not defined", procName, 1);
 	if(!psum)
 		return ERROR_INT("&sum not defined", procName, 1);
+	*psum = 0;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
 
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
 	sum = 0.0;
-	n = numaGetCount(na);
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
 		sum += val;
@@ -517,7 +543,7 @@ int32 numaGetSum(NUMA       * na,
 /*!
  * \brief   numaGetPartialSums()
  *
- * \param[in]    na source numa
+ * \param[in]    na    source numa
  * \return  nasum, or NULL on error
  *
  * <pre>
@@ -528,18 +554,19 @@ int32 numaGetSum(NUMA       * na,
  *          insert a 0.0 at the beginning of the nasum array.
  * </pre>
  */
-NUMA * numaGetPartialSums(NUMA  * na)
+NUMA * numaGetPartialSums(NUMA * na)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val, sum;
-	NUMA      * nasum;
+	NUMA * nasum;
 
-	PROCNAME("numaGetPartialSums");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
 
-	n = numaGetCount(na);
+	if((n = numaGetCount(na)) == 0)
+		L_WARNING("na is empty\n", procName);
 	nasum = numaCreate(n);
 	sum = 0.0;
 	for(i = 0; i < n; i++) {
@@ -553,35 +580,39 @@ NUMA * numaGetPartialSums(NUMA  * na)
 /*!
  * \brief   numaGetSumOnInterval()
  *
- * \param[in]    na source numa
- * \param[in]    first beginning index
- * \param[in]    last final index
- * \param[out]   psum sum of values in the index interval range
+ * \param[in]    na      source numa
+ * \param[in]    first   beginning index
+ * \param[in]    last    final index; use -1 to go to the end
+ * \param[out]   psum    sum of values in the index interval range
  * \return  0 if OK, 1 on error
  */
-int32 numaGetSumOnInterval(NUMA       * na,
-    int32 first,
-    int32 last,
-    float  * psum)
+l_ok numaGetSumOnInterval(NUMA       * na,
+    l_int32 first,
+    l_int32 last,
+    float * psum)
 {
-	int32 i, n, truelast;
+	l_int32 i, n;
 	float val, sum;
 
-	PROCNAME("numaGetSumOnInterval");
+	PROCNAME(__FUNCTION__);
 
-	if(!na)
-		return ERROR_INT("na not defined", procName, 1);
 	if(!psum)
 		return ERROR_INT("&sum not defined", procName, 1);
 	*psum = 0.0;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
 
 	sum = 0.0;
-	n = numaGetCount(na);
-	if(first >= n) /* not an error */
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+	if(first < 0) first = 0;
+	if(first >= n || last < -1) /* not an error */
 		return 0;
-	truelast = MIN(last, n - 1);
+	if(last == -1)
+		last = n - 1;
+	last = MIN(last, n - 1);
 
-	for(i = first; i <= truelast; i++) {
+	for(i = first; i <= last; i++) {
 		numaGetFValue(na, i, &val);
 		sum += val;
 	}
@@ -592,25 +623,17 @@ int32 numaGetSumOnInterval(NUMA       * na,
 /*!
  * \brief   numaHasOnlyIntegers()
  *
- * \param[in]    na source numa
- * \param[in]    maxsamples maximum number of samples to check
- * \param[out]   pallints 1 if all sampled values are ints; else 0
+ * \param[in]    na           source numa
+ * \param[out]   pallints     1 if all sampled values are ints; else 0
  * \return  0 if OK, 1 on error
- *
- * <pre>
- * Notes:
- *      (1) Set %maxsamples == 0 to check every integer in na.  Otherwise,
- *          this samples no more than %maxsamples.
- * </pre>
  */
-int32 numaHasOnlyIntegers(NUMA     * na,
-    int32 maxsamples,
-    int32  * pallints)
+l_ok numaHasOnlyIntegers(NUMA     * na,
+    l_int32 * pallints)
 {
-	int32 i, n, incr;
+	l_int32 i, n;
 	float val;
 
-	PROCNAME("numaHasOnlyIntegers");
+	PROCNAME(__FUNCTION__);
 
 	if(!pallints)
 		return ERROR_INT("&allints not defined", procName, 1);
@@ -619,19 +642,71 @@ int32 numaHasOnlyIntegers(NUMA     * na,
 		return ERROR_INT("na not defined", procName, 1);
 
 	if((n = numaGetCount(na)) == 0)
-		return ERROR_INT("na empty", procName, 1);
-	if(maxsamples <= 0)
-		incr = 1;
-	else
-		incr = (int32)((n + maxsamples - 1) / maxsamples);
-	for(i = 0; i < n; i += incr) {
+		return ERROR_INT("na is empty", procName, 1);
+	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
-		if(val != (int32)val) {
+		if(val != (l_int32)val) {
 			*pallints = FALSE;
 			return 0;
 		}
 	}
+	return 0;
+}
 
+/*!
+ * \brief   numaGetMean()
+ *
+ * \param[in]    na     source numa
+ * \param[out]   pave   average of values
+ * \return  0 if OK, 1 on error
+ */
+l_ok numaGetMean(NUMA       * na,
+    float * pave)
+{
+	l_int32 n;
+	float sum;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pave)
+		return ERROR_INT("&ave not defined", procName, 1);
+	*pave = 0;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+
+	numaGetSum(na, &sum);
+	*pave = sum / n;
+	return 0;
+}
+
+/*!
+ * \brief   numaGetMeanAbsval()
+ *
+ * \param[in]    na         source numa
+ * \param[out]   paveabs    average of absolute values
+ * \return  0 if OK, 1 on error
+ */
+l_ok numaGetMeanAbsval(NUMA       * na,
+    float * paveabs)
+{
+	l_int32 n;
+	NUMA * na1;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!paveabs)
+		return ERROR_INT("&aveabs not defined", procName, 1);
+	*paveabs = 0;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+
+	na1 = numaMakeAbsval(NULL, na);
+	numaGetMean(na1, paveabs);
+	numaDestroy(&na1);
 	return 0;
 }
 
@@ -639,17 +714,17 @@ int32 numaHasOnlyIntegers(NUMA     * na,
  * \brief   numaSubsample()
  *
  * \param[in]    nas
- * \param[in]    subfactor subsample factor, >= 1
+ * \param[in]    subfactor    subsample factor, >= 1
  * \return  nad evenly sampled values from nas, or NULL on error
  */
-NUMA * numaSubsample(NUMA    * nas,
-    int32 subfactor)
+NUMA * numaSubsample(NUMA * nas,
+    l_int32 subfactor)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaSubsample");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -657,7 +732,8 @@ NUMA * numaSubsample(NUMA    * nas,
 		return (NUMA*)ERROR_PTR("subfactor < 1", procName, NULL);
 
 	nad = numaCreate(0);
-	n = numaGetCount(nas);
+	if((n = numaGetCount(nas)) == 0)
+		L_WARNING("nas is empty\n", procName);
 	for(i = 0; i < n; i++) {
 		if(i % subfactor != 0) continue;
 		numaGetFValue(nas, i, &val);
@@ -670,24 +746,29 @@ NUMA * numaSubsample(NUMA    * nas,
 /*!
  * \brief   numaMakeDelta()
  *
- * \param[in]    nas input numa
+ * \param[in]    nas    input numa
  * \return  numa of difference values val[i+1] - val[i],
  *                    or NULL on error
  */
-NUMA * numaMakeDelta(NUMA  * nas)
+NUMA * numaMakeDelta(NUMA * nas)
 {
-	int32 i, n, prev, cur;
-	NUMA    * nad;
+	l_int32 i, n;
+	float prev, cur;
+	NUMA * nad;
 
-	PROCNAME("numaMakeDelta");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
-	n = numaGetCount(nas);
+	if((n = numaGetCount(nas)) < 2) {
+		L_WARNING("n < 2; returning empty numa\n", procName);
+		return numaCreate(1);
+	}
+
 	nad = numaCreate(n - 1);
-	prev = 0;
+	numaGetFValue(nas, 0, &prev);
 	for(i = 1; i < n; i++) {
-		numaGetIValue(nas, i, &cur);
+		numaGetFValue(nas, i, &cur);
 		numaAddNumber(nad, cur - prev);
 		prev = cur;
 	}
@@ -699,18 +780,18 @@ NUMA * numaMakeDelta(NUMA  * nas)
  *
  * \param[in]    startval
  * \param[in]    increment
- * \param[in]    size of sequence
+ * \param[in]    size        of sequence
  * \return  numa of sequence of evenly spaced values, or NULL on error
  */
 NUMA * numaMakeSequence(float startval,
     float increment,
-    int32 size)
+    l_int32 size)
 {
-	int32 i;
+	l_int32 i;
 	float val;
-	NUMA      * na;
+	NUMA * na;
 
-	PROCNAME("numaMakeSequence");
+	PROCNAME(__FUNCTION__);
 
 	if((na = numaCreate(size)) == NULL)
 		return (NUMA*)ERROR_PTR("na not made", procName, NULL);
@@ -719,7 +800,6 @@ NUMA * numaMakeSequence(float startval,
 		val = startval + i * increment;
 		numaAddNumber(na, val);
 	}
-
 	return na;
 }
 
@@ -727,31 +807,31 @@ NUMA * numaMakeSequence(float startval,
  * \brief   numaMakeConstant()
  *
  * \param[in]    val
- * \param[in]    size of numa
+ * \param[in]    size     of numa
  * \return  numa of given size with all entries equal to 'val',
  *              or NULL on error
  */
 NUMA * numaMakeConstant(float val,
-    int32 size)
+    l_int32 size)
 {
 	return numaMakeSequence(val, 0.0, size);
 }
 
 /*!
- * \brief   numaMakeAbsValue()
+ * \brief   numaMakeAbsval()
  *
- * \param[in]    nad can be null for new array, or the same as nas for inplace
- * \param[in]    nas input numa
+ * \param[in]    nad   can be null for new array, or the same as nas for inplace
+ * \param[in]    nas   input numa
  * \return  nad with all numbers being the absval of the input,
  *              or NULL on error
  */
-NUMA * numaMakeAbsValue(NUMA  * nad,
-    NUMA  * nas)
+NUMA * numaMakeAbsval(NUMA * nad,
+    NUMA * nas)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float val;
 
-	PROCNAME("numaMakeAbsValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -773,21 +853,22 @@ NUMA * numaMakeAbsValue(NUMA  * nad,
  * \brief   numaAddBorder()
  *
  * \param[in]    nas
- * \param[in]    left, right number of elements to add on each side
- * \param[in]    val initialize border elements
+ * \param[in]    left    number of elements to add before the start
+ * \param[in]    right   number of elements to add after the end
+ * \param[in]    val     initialize border elements
  * \return  nad with added elements at left and right, or NULL on error
  */
-NUMA * numaAddBorder(NUMA      * nas,
-    int32 left,
-    int32 right,
+NUMA * numaAddBorder(NUMA * nas,
+    l_int32 left,
+    l_int32 right,
     float val)
 {
-	int32 i, n, len;
+	l_int32 i, n, len;
 	float startx, delx;
-	float  * fas, * fad;
+	float * fas, * fad;
 	NUMA       * nad;
 
-	PROCNAME("numaAddBorder");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -813,20 +894,21 @@ NUMA * numaAddBorder(NUMA      * nas,
  * \brief   numaAddSpecifiedBorder()
  *
  * \param[in]    nas
- * \param[in]    left, right number of elements to add on each side
- * \param[in]    type L_CONTINUED_BORDER, L_MIRRORED_BORDER
+ * \param[in]    left    number of elements to add before the start
+ * \param[in]    right   number of elements to add after the end
+ * \param[in]    type    L_CONTINUED_BORDER, L_MIRRORED_BORDER
  * \return  nad with added elements at left and right, or NULL on error
  */
-NUMA * numaAddSpecifiedBorder(NUMA    * nas,
-    int32 left,
-    int32 right,
-    int32 type)
+NUMA * numaAddSpecifiedBorder(NUMA * nas,
+    l_int32 left,
+    l_int32 right,
+    l_int32 type)
 {
-	int32 i, n;
-	float  * fa;
+	l_int32 i, n;
+	float * fa;
 	NUMA       * nad;
 
-	PROCNAME("numaAddSpecifiedBorder");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -863,19 +945,20 @@ NUMA * numaAddSpecifiedBorder(NUMA    * nas,
  * \brief   numaRemoveBorder()
  *
  * \param[in]    nas
- * \param[in]    left, right number of elements to remove from each side
+ * \param[in]    left    number of elements to remove from the start
+ * \param[in]    right   number of elements to remove up to the end
  * \return  nad with removed elements at left and right, or NULL on error
  */
-NUMA * numaRemoveBorder(NUMA      * nas,
-    int32 left,
-    int32 right)
+NUMA * numaRemoveBorder(NUMA * nas,
+    l_int32 left,
+    l_int32 right)
 {
-	int32 i, n, len;
+	l_int32 i, n, len;
 	float startx, delx;
-	float  * fas, * fad;
+	float * fas, * fad;
 	NUMA       * nad;
 
-	PROCNAME("numaRemoveBorder");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -899,29 +982,71 @@ NUMA * numaRemoveBorder(NUMA      * nas,
 }
 
 /*!
- * \brief   numaGetNonzeroRange()
+ * \brief   numaCountNonzeroRuns()
  *
- * \param[in]    na source numa
- * \param[in]    eps largest value considered to be zero
- * \param[out]   pfirst, plast interval of array indices
- *                             where values are nonzero
- * \return  0 if OK, 1 on error or if no nonzero range is found.
+ * \param[in]    na      e.g., of pixel counts in rows or columns
+ * \param[out]   pcount  number of nonzero runs
+ * \return  0 if OK, 1 on error
  */
-int32 numaGetNonzeroRange(NUMA      * na,
-    float eps,
-    int32   * pfirst,
-    int32   * plast)
+l_ok numaCountNonzeroRuns(NUMA     * na,
+    l_int32 * pcount)
 {
-	int32 n, i, found;
-	float val;
+	l_int32 n, i, val, count, inrun;
 
-	PROCNAME("numaGetNonzeroRange");
+	PROCNAME(__FUNCTION__);
 
+	if(!pcount)
+		return ERROR_INT("&count not defined", procName, 1);
+	*pcount = 0;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+
+	count = 0;
+	inrun = FALSE;
+	for(i = 0; i < n; i++) {
+		numaGetIValue(na, i, &val);
+		if(!inrun && val > 0) {
+			count++;
+			inrun = TRUE;
+		}
+		else if(inrun && val == 0) {
+			inrun = FALSE;
+		}
+	}
+	*pcount = count;
+	return 0;
+}
+
+/*!
+ * \brief   numaGetNonzeroRange()
+ *
+ * \param[in]    na              source numa
+ * \param[in]    eps             largest value considered to be zero
+ * \param[out]   pfirst, plast   interval of array indices
+ *                               where values are nonzero
+ * \return  0 if OK, 1 on error or if no nonzero range is found.
+ */
+l_ok numaGetNonzeroRange(NUMA * na,
+    float eps,
+    l_int32   * pfirst,
+    l_int32   * plast)
+{
+	l_int32 n, i, found;
+	float val;
+
+	PROCNAME(__FUNCTION__);
+
+	if(pfirst) *pfirst = 0;
+	if(plast) *plast = 0;
 	if(!pfirst || !plast)
 		return ERROR_INT("pfirst and plast not both defined", procName, 1);
-	n = numaGetCount(na);
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+
 	found = FALSE;
 	for(i = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
@@ -949,26 +1074,28 @@ int32 numaGetNonzeroRange(NUMA      * na,
 /*!
  * \brief   numaGetCountRelativeToZero()
  *
- * \param[in]    na source numa
- * \param[in]    type L_LESS_THAN_ZERO, L_EQUAL_TO_ZERO, L_GREATER_THAN_ZERO
- * \param[out]   pcount count of values of given type
+ * \param[in]    na      source numa
+ * \param[in]    type    L_LESS_THAN_ZERO, L_EQUAL_TO_ZERO, L_GREATER_THAN_ZERO
+ * \param[out]   pcount  count of values of given type
  * \return  0 if OK, 1 on error
  */
-int32 numaGetCountRelativeToZero(NUMA     * na,
-    int32 type,
-    int32  * pcount)
+l_ok numaGetCountRelativeToZero(NUMA     * na,
+    l_int32 type,
+    l_int32 * pcount)
 {
-	int32 n, i, count;
+	l_int32 n, i, count;
 	float val;
 
-	PROCNAME("numaGetCountRelativeToZero");
+	PROCNAME(__FUNCTION__);
 
 	if(!pcount)
 		return ERROR_INT("&count not defined", procName, 1);
 	*pcount = 0;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
-	n = numaGetCount(na);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+
 	for(i = 0, count = 0; i < n; i++) {
 		numaGetFValue(na, i, &val);
 		if(type == L_LESS_THAN_ZERO && val < 0.0)
@@ -987,7 +1114,8 @@ int32 numaGetCountRelativeToZero(NUMA     * na,
  * \brief   numaClipToInterval()
  *
  * \param[in]    nas
- * \param[in]    first, last clipping interval
+ * \param[in]    first    >= 0; <= last
+ * \param[in]    last
  * \return  numa with the same values as the input, but clipped
  *              to the specified interval
  *
@@ -1000,43 +1128,45 @@ int32 numaGetCountRelativeToZero(NUMA     * na,
  *        values to its nonzero range.
  * </pre>
  */
-NUMA * numaClipToInterval(NUMA    * nas,
-    int32 first,
-    int32 last)
+NUMA * numaClipToInterval(NUMA * nas,
+    l_int32 first,
+    l_int32 last)
 {
-	int32 n, i, truelast;
-	float val;
-	NUMA      * nad;
+	l_int32 n, i;
+	float val, startx, delx;
+	NUMA * nad;
 
-	PROCNAME("numaClipToInterval");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
-	if(first > last)
+	if((n = numaGetCount(nas)) == 0)
+		return (NUMA*)ERROR_PTR("nas is empty", procName, NULL);
+	if(first < 0 || first > last)
 		return (NUMA*)ERROR_PTR("range not valid", procName, NULL);
-
-	n = numaGetCount(nas);
 	if(first >= n)
 		return (NUMA*)ERROR_PTR("no elements in range", procName, NULL);
-	truelast = MIN(last, n - 1);
-	if((nad = numaCreate(truelast - first + 1)) == NULL)
+
+	last = MIN(last, n - 1);
+	if((nad = numaCreate(last - first + 1)) == NULL)
 		return (NUMA*)ERROR_PTR("nad not made", procName, NULL);
-	for(i = first; i <= truelast; i++) {
+	for(i = first; i <= last; i++) {
 		numaGetFValue(nas, i, &val);
 		numaAddNumber(nad, val);
 	}
-
+	numaGetParameters(nas, &startx, &delx);
+	numaSetParameters(nad, startx + first * delx, delx);
 	return nad;
 }
 
 /*!
  * \brief   numaMakeThresholdIndicator()
  *
- * \param[in]    nas input numa
- * \param[in]    thresh threshold value
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]  : nad indicator array: values are 0 and 1
+ * \param[in]    nas      input numa
+ * \param[in]    thresh   threshold value
+ * \param[in]    type     L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                        L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \return   nad : indicator array: values are 0 and 1
  *
  * <pre>
  * Notes:
@@ -1045,19 +1175,21 @@ NUMA * numaClipToInterval(NUMA    * nas,
  *          is recorded in nad.
  * </pre>
  */
-NUMA * numaMakeThresholdIndicator(NUMA      * nas,
+NUMA * numaMakeThresholdIndicator(NUMA * nas,
     float thresh,
-    int32 type)
+    l_int32 type)
 {
-	int32 n, i, ival;
+	l_int32 n, i, ival;
 	float fval;
-	NUMA      * nai;
+	NUMA * nai;
 
-	PROCNAME("numaMakeThresholdIndicator");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
-	n = numaGetCount(nas);
+	if((n = numaGetCount(nas)) == 0)
+		return (NUMA*)ERROR_PTR("nas is empty", procName, NULL);
+
 	nai = numaCreate(n);
 	for(i = 0; i < n; i++) {
 		numaGetFValue(nas, i, &fval);
@@ -1089,9 +1221,9 @@ NUMA * numaMakeThresholdIndicator(NUMA      * nas,
 /*!
  * \brief   numaUniformSampling()
  *
- * \param[in]    nas input numa
- * \param[in]    nsamp number of samples
- * \param[in]  : nad resampled array, or NULL on error
+ * \param[in]    nas     input numa
+ * \param[in]    nsamp   number of samples
+ * \return  nad : resampled array, or NULL on error
  *
  * <pre>
  * Notes:
@@ -1099,22 +1231,23 @@ NUMA * numaMakeThresholdIndicator(NUMA      * nas,
  *          equal divisions.
  * </pre>
  */
-NUMA * numaUniformSampling(NUMA    * nas,
-    int32 nsamp)
+NUMA * numaUniformSampling(NUMA * nas,
+    l_int32 nsamp)
 {
-	int32 n, i, j, ileft, iright;
+	l_int32 n, i, j, ileft, iright;
 	float left, right, binsize, lfract, rfract, sum, startx, delx;
-	float  * array;
+	float * array;
 	NUMA       * nad;
 
-	PROCNAME("numaUniformSampling");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if((n = numaGetCount(nas)) == 0)
+		return (NUMA*)ERROR_PTR("nas is empty", procName, NULL);
 	if(nsamp <= 0)
 		return (NUMA*)ERROR_PTR("nsamp must be > 0", procName, NULL);
 
-	n = numaGetCount(nas);
 	nad = numaCreate(nsamp);
 	array = numaGetFArray(nas, L_NOCOPY);
 	binsize = (float)n / (float)nsamp;
@@ -1124,11 +1257,11 @@ NUMA * numaUniformSampling(NUMA    * nas,
 	for(i = 0; i < nsamp; i++) {
 		sum = 0.0;
 		right = left + binsize;
-		ileft = (int32)left;
+		ileft = (l_int32)left;
 		lfract = 1.0 - left + ileft;
 		if(lfract >= 1.0) /* on left bin boundary */
 			lfract = 0.0;
-		iright = (int32)right;
+		iright = (l_int32)right;
 		rfract = right - iright;
 		iright = MIN(iright, n - 1);
 		if(ileft == iright) { /* both are within the same original sample */
@@ -1152,9 +1285,9 @@ NUMA * numaUniformSampling(NUMA    * nas,
 /*!
  * \brief   numaReverse()
  *
- * \param[in]    nad [optional] can be null or equal to nas
- * \param[in]    nas input numa
- * \param[in]  : nad reversed, or NULL on error
+ * \param[in]    nad    [optional] can be null or equal to nas
+ * \param[in]    nas    input numa
+ * \return  nad : reversed, or NULL on error
  *
  * <pre>
  * Notes:
@@ -1163,13 +1296,13 @@ NUMA * numaUniformSampling(NUMA    * nas,
  *            nad = numaReverse(NULL, nas);  // makes a new one
  * </pre>
  */
-NUMA * numaReverse(NUMA  * nad,
-    NUMA  * nas)
+NUMA * numaReverse(NUMA * nad,
+    NUMA * nas)
 {
-	int32 n, i;
+	l_int32 n, i;
 	float val1, val2;
 
-	PROCNAME("numaReverse");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
@@ -1205,10 +1338,10 @@ NUMA * numaReverse(NUMA  * nad,
 /*!
  * \brief   numaLowPassIntervals()
  *
- * \param[in]    nas input numa
- * \param[in]    thresh threshold fraction of max; in [0.0 ... 1.0]
- * \param[in]    maxn for normalizing; set maxn = 0.0 to use the max in nas
- * \param[in]  : nad interval abscissa pairs, or NULL on error
+ * \param[in]    nas      input numa
+ * \param[in]    thresh   threshold fraction of max; in [0.0 ... 1.0]
+ * \param[in]    maxn     for normalizing; set maxn = 0.0 to use the max in nas
+ * \return  nad : interval abscissa pairs, or NULL on error
  *
  * <pre>
  * Notes:
@@ -1217,24 +1350,25 @@ NUMA * numaReverse(NUMA  * nad,
  *          value.
  * </pre>
  */
-NUMA * numaLowPassIntervals(NUMA      * nas,
+NUMA * numaLowPassIntervals(NUMA * nas,
     float thresh,
     float maxn)
 {
-	int32 n, i, inrun;
+	l_int32 n, i, inrun;
 	float maxval, threshval, fval, startx, delx, x0, x1;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaLowPassIntervals");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if((n = numaGetCount(nas)) == 0)
+		return (NUMA*)ERROR_PTR("nas is empty", procName, NULL);
 	if(thresh < 0.0 || thresh > 1.0)
 		return (NUMA*)ERROR_PTR("invalid thresh", procName, NULL);
 
 	/* The input threshold is a fraction of the max.
 	 * The first entry in nad is the value of the max. */
-	n = numaGetCount(nas);
 	if(maxn == 0.0)
 		numaGetMax(nas, &maxval, NULL);
 	else
@@ -1271,11 +1405,11 @@ NUMA * numaLowPassIntervals(NUMA      * nas,
 /*!
  * \brief   numaThresholdEdges()
  *
- * \param[in]    nas input numa
- * \param[in]    thresh1 low threshold as fraction of max; in [0.0 ... 1.0]
- * \param[in]    thresh2 high threshold as fraction of max; in [0.0 ... 1.0]
- * \param[in]    maxn for normalizing; set maxn = 0.0 to use the max in nas
- * \param[in]  : nad edge interval triplets, or NULL on error
+ * \param[in]    nas      input numa
+ * \param[in]    thresh1  low threshold as fraction of max; in [0.0 ... 1.0]
+ * \param[in]    thresh2  high threshold as fraction of max; in [0.0 ... 1.0]
+ * \param[in]    maxn     for normalizing; set maxn = 0.0 to use the max in nas
+ * \return  nad   edge interval triplets, or NULL on error
  *
  * <pre>
  * Notes:
@@ -1292,20 +1426,22 @@ NUMA * numaLowPassIntervals(NUMA      * nas,
  *          band.
  * </pre>
  */
-NUMA * numaThresholdEdges(NUMA      * nas,
+NUMA * numaThresholdEdges(NUMA * nas,
     float thresh1,
     float thresh2,
     float maxn)
 {
-	int32 n, i, istart, inband, output, sign;
-	int32 startbelow, below, above, belowlast, abovelast;
+	l_int32 n, i, istart, inband, output, sign;
+	l_int32 startbelow, below, above, belowlast, abovelast;
 	float maxval, threshval1, threshval2, fval, startx, delx, x0, x1;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaThresholdEdges");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if((n = numaGetCount(nas)) == 0)
+		return (NUMA*)ERROR_PTR("nas is empty", procName, NULL);
 	if(thresh1 < 0.0 || thresh1 > 1.0 || thresh2 < 0.0 || thresh2 > 1.0)
 		return (NUMA*)ERROR_PTR("invalid thresholds", procName, NULL);
 	if(thresh2 < thresh1)
@@ -1314,7 +1450,6 @@ NUMA * numaThresholdEdges(NUMA      * nas,
 	/* The input thresholds are fractions of the max.
 	 * The first entry in nad is the value of the max used
 	 * here for normalization. */
-	n = numaGetCount(nas);
 	if(maxn == 0.0)
 		numaGetMax(nas, &maxval, NULL);
 	else
@@ -1411,24 +1546,25 @@ NUMA * numaThresholdEdges(NUMA      * nas,
 /*!
  * \brief   numaGetSpanValues()
  *
- * \param[in]    na numa that is output of numaLowPassIntervals()
- * \param[in]    span span number, zero-based
- * \param[out]   pstart [optional] location of start of transition
- * \param[out]   pend [optional] location of end of transition
- * \param[in]  : 0 if OK, 1 on error
+ * \param[in]    na       numa that is output of numaLowPassIntervals()
+ * \param[in]    span     span number, zero-based
+ * \param[out]   pstart   [optional] location of start of transition
+ * \param[out]   pend     [optional] location of end of transition
+ * \return  0 if OK, 1 on error
  */
-int32 numaGetSpanValues(NUMA    * na,
-    int32 span,
-    int32 * pstart,
-    int32 * pend)
+l_int32 numaGetSpanValues(NUMA * na,
+    l_int32 span,
+    l_int32 * pstart,
+    l_int32 * pend)
 {
-	int32 n, nspans;
+	l_int32 n, nspans;
 
-	PROCNAME("numaGetSpanValues");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
-	n = numaGetCount(na);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
 	if(n % 2 != 1)
 		return ERROR_INT("n is not odd", procName, 1);
 	nspans = n / 2;
@@ -1443,27 +1579,28 @@ int32 numaGetSpanValues(NUMA    * na,
 /*!
  * \brief   numaGetEdgeValues()
  *
- * \param[in]    na numa that is output of numaThresholdEdges()
- * \param[in]    edge edge number, zero-based
- * \param[out]   pstart [optional] location of start of transition
- * \param[out]   pend [optional] location of end of transition
- * \param[out]   psign [optional] transition sign: +1 is rising,
- *                     -1 is falling
- * \param[in]  : 0 if OK, 1 on error
+ * \param[in]    na       numa that is output of numaThresholdEdges()
+ * \param[in]    edge     edge number, zero-based
+ * \param[out]   pstart   [optional] location of start of transition
+ * \param[out]   pend     [optional] location of end of transition
+ * \param[out]   psign    [optional] transition sign: +1 is rising,
+ *                        -1 is falling
+ * \return  0 if OK, 1 on error
  */
-int32 numaGetEdgeValues(NUMA    * na,
-    int32 edge,
-    int32 * pstart,
-    int32 * pend,
-    int32 * psign)
+l_int32 numaGetEdgeValues(NUMA * na,
+    l_int32 edge,
+    l_int32 * pstart,
+    l_int32 * pend,
+    l_int32 * psign)
 {
-	int32 n, nedges;
+	l_int32 n, nedges;
 
-	PROCNAME("numaGetEdgeValues");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
-	n = numaGetCount(na);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
 	if(n % 3 != 1)
 		return ERROR_INT("n % 3 is not 1", procName, 1);
 	nedges = (n - 1) / 3;
@@ -1482,12 +1619,12 @@ int32 numaGetEdgeValues(NUMA    * na,
 /*!
  * \brief   numaInterpolateEqxVal()
  *
- * \param[in]    startx xval corresponding to first element in array
- * \param[in]    deltax x increment between array elements
- * \param[in]    nay  numa of ordinate values, assumed equally spaced
- * \param[in]    type L_LINEAR_INTERP, L_QUADRATIC_INTERP
+ * \param[in]    startx   xval corresponding to first element in array
+ * \param[in]    deltax   x increment between array elements
+ * \param[in]    nay      numa of ordinate values, assumed equally spaced
+ * \param[in]    type     L_LINEAR_INTERP, L_QUADRATIC_INTERP
  * \param[in]    xval
- * \param[out]   pyval interpolated value
+ * \param[out]   pyval    interpolated value
  * \return  0 if OK, 1 on error e.g., if xval is outside range
  *
  * <pre>
@@ -1506,18 +1643,18 @@ int32 numaGetEdgeValues(NUMA    * na,
  *
  * </pre>
  */
-int32 numaInterpolateEqxVal(float startx,
+l_ok numaInterpolateEqxVal(float startx,
     float deltax,
     NUMA       * nay,
-    int32 type,
+    l_int32 type,
     float xval,
-    float  * pyval)
+    float * pyval)
 {
-	int32 i, n, i1, i2, i3;
+	l_int32 i, n, i1, i2, i3;
 	float x1, x2, x3, fy1, fy2, fy3, d1, d2, d3, del, fi, maxx;
-	float  * fa;
+	float * fa;
 
-	PROCNAME("numaInterpolateEqxVal");
+	PROCNAME(__FUNCTION__);
 
 	if(!pyval)
 		return ERROR_INT("&yval not defined", procName, 1);
@@ -1528,8 +1665,7 @@ int32 numaInterpolateEqxVal(float startx,
 		return ERROR_INT("deltax not > 0", procName, 1);
 	if(type != L_LINEAR_INTERP && type != L_QUADRATIC_INTERP)
 		return ERROR_INT("invalid interp type", procName, 1);
-	n = numaGetCount(nay);
-	if(n < 2)
+	if((n = numaGetCount(nay)) < 2)
 		return ERROR_INT("not enough points", procName, 1);
 	if(type == L_QUADRATIC_INTERP && n == 2) {
 		type = L_LINEAR_INTERP;
@@ -1541,7 +1677,7 @@ int32 numaInterpolateEqxVal(float startx,
 
 	fa = numaGetFArray(nay, L_NOCOPY);
 	fi = (xval - startx) / deltax;
-	i = (int32)fi;
+	i = (l_int32)fi;
 	del = fi - i;
 	if(del == 0.0) { /* no interpolation required */
 		*pyval = fa[i];
@@ -1581,11 +1717,11 @@ int32 numaInterpolateEqxVal(float startx,
 /*!
  * \brief   numaInterpolateArbxVal()
  *
- * \param[in]    nax numa of abscissa values
- * \param[in]    nay numa of ordinate values, corresponding to nax
- * \param[in]    type L_LINEAR_INTERP, L_QUADRATIC_INTERP
+ * \param[in]    nax    numa of abscissa values
+ * \param[in]    nay    numa of ordinate values, corresponding to nax
+ * \param[in]    type   L_LINEAR_INTERP, L_QUADRATIC_INTERP
  * \param[in]    xval
- * \param[out]   pyval interpolated value
+ * \param[out]   pyval  interpolated value
  * \return  0 if OK, 1 on error e.g., if xval is outside range
  *
  * <pre>
@@ -1598,18 +1734,18 @@ int32 numaInterpolateEqxVal(float startx,
  *          for formulas.
  * </pre>
  */
-int32 numaInterpolateArbxVal(NUMA       * nax,
+l_ok numaInterpolateArbxVal(NUMA       * nax,
     NUMA       * nay,
-    int32 type,
+    l_int32 type,
     float xval,
-    float  * pyval)
+    float * pyval)
 {
-	int32 i, im, nx, ny, i1, i2, i3;
+	l_int32 i, im, nx, ny, i1, i2, i3;
 	float delu, dell, fract, d1, d2, d3;
 	float minx, maxx;
-	float  * fax, * fay;
+	float * fax, * fay;
 
-	PROCNAME("numaInterpolateArbxVal");
+	PROCNAME(__FUNCTION__);
 
 	if(!pyval)
 		return ERROR_INT("&yval not defined", procName, 1);
@@ -1645,6 +1781,8 @@ int32 numaInterpolateArbxVal(NUMA       * nax,
 		*pyval = fay[0];
 		return 0;
 	}
+	im = 0;
+	dell = 0.0;
 	for(i = 1; i < nx; i++) {
 		delu = fax[i] - xval;
 		if(delu >= 0.0) { /* we've passed it */
@@ -1687,15 +1825,15 @@ int32 numaInterpolateArbxVal(NUMA       * nax,
 /*!
  * \brief   numaInterpolateEqxInterval()
  *
- * \param[in]    startx xval corresponding to first element in nas
- * \param[in]    deltax x increment between array elements in nas
- * \param[in]    nasy  numa of ordinate values, assumed equally spaced
- * \param[in]    type L_LINEAR_INTERP, L_QUADRATIC_INTERP
- * \param[in]    x0 start value of interval
- * \param[in]    x1 end value of interval
- * \param[in]    npts number of points to evaluate function in interval
- * \param[out]   pnax [optional] array of x values in interval
- * \param[out]   pnay array of y values in interval
+ * \param[in]    startx    xval corresponding to first element in nas
+ * \param[in]    deltax    x increment between array elements in nas
+ * \param[in]    nasy      numa of ordinate values, assumed equally spaced
+ * \param[in]    type      L_LINEAR_INTERP, L_QUADRATIC_INTERP
+ * \param[in]    x0        start value of interval
+ * \param[in]    x1        end value of interval
+ * \param[in]    npts      number of points to evaluate function in interval
+ * \param[out]   pnax      [optional] array of x values in interval
+ * \param[out]   pnay      array of y values in interval
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1712,21 +1850,21 @@ int32 numaInterpolateArbxVal(NUMA       * nax,
  *          output interpolated array nay.
  * </pre>
  */
-int32 numaInterpolateEqxInterval(float startx,
+l_ok numaInterpolateEqxInterval(float startx,
     float deltax,
-    NUMA      * nasy,
-    int32 type,
+    NUMA * nasy,
+    l_int32 type,
     float x0,
     float x1,
-    int32 npts,
+    l_int32 npts,
     NUMA     ** pnax,
     NUMA     ** pnay)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float x, yval, maxx, delx;
 	NUMA       * nax, * nay;
 
-	PROCNAME("numaInterpolateEqxInterval");
+	PROCNAME(__FUNCTION__);
 
 	if(pnax) *pnax = NULL;
 	if(!pnay)
@@ -1734,11 +1872,12 @@ int32 numaInterpolateEqxInterval(float startx,
 	*pnay = NULL;
 	if(!nasy)
 		return ERROR_INT("nasy not defined", procName, 1);
+	if((n = numaGetCount(nasy)) < 2)
+		return ERROR_INT("n < 2", procName, 1);
 	if(deltax <= 0.0)
 		return ERROR_INT("deltax not > 0", procName, 1);
 	if(type != L_LINEAR_INTERP && type != L_QUADRATIC_INTERP)
 		return ERROR_INT("invalid interp type", procName, 1);
-	n = numaGetCount(nasy);
 	if(type == L_QUADRATIC_INTERP && n == 2) {
 		type = L_LINEAR_INTERP;
 		L_WARNING("only 2 points; using linear interp\n", procName);
@@ -1773,14 +1912,14 @@ int32 numaInterpolateEqxInterval(float startx,
 /*!
  * \brief   numaInterpolateArbxInterval()
  *
- * \param[in]    nax numa of abscissa values
- * \param[in]    nay numa of ordinate values, corresponding to nax
- * \param[in]    type L_LINEAR_INTERP, L_QUADRATIC_INTERP
- * \param[in]    x0 start value of interval
- * \param[in]    x1 end value of interval
- * \param[in]    npts number of points to evaluate function in interval
- * \param[out]   pnadx [optional] array of x values in interval
- * \param[out]   pnady array of y values in interval
+ * \param[in]    nax     numa of abscissa values
+ * \param[in]    nay     numa of ordinate values, corresponding to nax
+ * \param[in]    type    L_LINEAR_INTERP, L_QUADRATIC_INTERP
+ * \param[in]    x0      start value of interval
+ * \param[in]    x1      end value of interval
+ * \param[in]    npts    number of points to evaluate function in interval
+ * \param[out]   pnadx   [optional] array of x values in interval
+ * \param[out]   pnady   array of y values in interval
  * \return  0 if OK, 1 on error e.g., if x0 or x1 is outside range
  *
  * <pre>
@@ -1798,22 +1937,22 @@ int32 numaInterpolateEqxInterval(float startx,
  *          for formulas.
  * </pre>
  */
-int32 numaInterpolateArbxInterval(NUMA       * nax,
+l_ok numaInterpolateArbxInterval(NUMA       * nax,
     NUMA       * nay,
-    int32 type,
+    l_int32 type,
     float x0,
     float x1,
-    int32 npts,
-    NUMA      ** pnadx,
-    NUMA      ** pnady)
+    l_int32 npts,
+    NUMA ** pnadx,
+    NUMA ** pnady)
 {
-	int32 i, im, j, nx, ny, i1, i2, i3, sorted;
-	int32    * index;
+	l_int32 i, im, j, nx, ny, i1, i2, i3, sorted;
+	l_int32    * index;
 	float del, xval, yval, excess, fract, minx, maxx, d1, d2, d3;
-	float  * fax, * fay;
+	float * fax, * fay;
 	NUMA       * nasx, * nasy, * nadx, * nady;
 
-	PROCNAME("numaInterpolateArbxInterval");
+	PROCNAME(__FUNCTION__);
 
 	if(pnadx) *pnadx = NULL;
 	if(!pnady)
@@ -1857,8 +1996,11 @@ int32 numaInterpolateArbxInterval(NUMA       * nax,
 	fay = numaGetFArray(nasy, L_NOCOPY);
 
 	/* Get array of indices into fax for interpolated locations */
-	if((index = (int32*)LEPT_CALLOC(npts, sizeof(int32))) == NULL)
+	if((index = (l_int32*)SAlloc::C(npts, sizeof(l_int32))) == NULL) {
+		numaDestroy(&nasx);
+		numaDestroy(&nasy);
 		return ERROR_INT("ind not made", procName, 1);
+	}
 	del = (x1 - x0) / (npts - 1.0);
 	for(i = 0, j = 0; j < nx && i < npts; i++) {
 		xval = x0 + i * del;
@@ -1915,7 +2057,7 @@ int32 numaInterpolateArbxInterval(NUMA       * nax,
 		numaAddNumber(nady, yval);
 	}
 
-	LEPT_FREE(index);
+	SAlloc::F(index);
 	numaDestroy(&nasx);
 	numaDestroy(&nasy);
 	return 0;
@@ -1927,12 +2069,12 @@ int32 numaInterpolateArbxInterval(NUMA       * nax,
 /*!
  * \brief   numaFitMax()
  *
- * \param[in]    na  numa of ordinate values, to fit a max to
- * \param[out]   pmaxval max value
- * \param[in]    naloc [optional] associated numa of abscissa values
- * \param[out]   pmaxloc abscissa value that gives max value in na;
- *                   if naloc == null, this is given as an interpolated
- *                   index value
+ * \param[in]    na       numa of ordinate values, to fit a max to
+ * \param[out]   pmaxval  max value
+ * \param[in]    naloc    [optional] associated numa of abscissa values
+ * \param[out]   pmaxloc  abscissa value that gives max value in na;
+ *                        if naloc == null, this is given as an interpolated
+ *                        index value
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -1956,28 +2098,28 @@ int32 numaInterpolateArbxInterval(NUMA       * nax,
  *       y'(x) = 2x(c1+c2+c3) - c1(x2+x3) - c2(x1+x3) - c3(x1+x2) = 0
  * </pre>
  */
-int32 numaFitMax(NUMA       * na,
-    float  * pmaxval,
+l_ok numaFitMax(NUMA       * na,
+    float * pmaxval,
     NUMA       * naloc,
-    float  * pmaxloc)
+    float * pmaxloc)
 {
 	float val;
 	float smaxval; /* start value of maximum sample, before interpolating */
-	int32 n, imaxloc;
+	l_int32 n, imaxloc;
 	float x1, x2, x3, y1, y2, y3, c1, c2, c3, a, b, xmax, ymax;
 
-	PROCNAME("numaFitMax");
+	PROCNAME(__FUNCTION__);
 
-	*pmaxval = *pmaxloc = 0.0; /* init */
-
+	if(pmaxval) *pmaxval = 0.0;
+	if(pmaxloc) *pmaxloc = 0.0;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
 	if(!pmaxval)
 		return ERROR_INT("&maxval not defined", procName, 1);
 	if(!pmaxloc)
 		return ERROR_INT("&maxloc not defined", procName, 1);
-
-	n = numaGetCount(na);
 	if(naloc) {
 		if(n != numaGetCount(naloc))
 			return ERROR_INT("na and naloc of unequal size", procName, 1);
@@ -2045,13 +2187,13 @@ int32 numaFitMax(NUMA       * na,
 /*!
  * \brief   numaDifferentiateInterval()
  *
- * \param[in]    nax numa of abscissa values
- * \param[in]    nay numa of ordinate values, corresponding to nax
- * \param[in]    x0 start value of interval
- * \param[in]    x1 end value of interval
- * \param[in]    npts number of points to evaluate function in interval
- * \param[out]   pnadx [optional] array of x values in interval
- * \param[out]   pnady array of derivatives in interval
+ * \param[in]    nax     numa of abscissa values
+ * \param[in]    nay     numa of ordinate values, corresponding to nax
+ * \param[in]    x0      start value of interval
+ * \param[in]    x1      end value of interval
+ * \param[in]    npts    number of points to evaluate function in interval
+ * \param[out]   pnadx   [optional] array of x values in interval
+ * \param[out]   pnady   array of derivatives in interval
  * \return  0 if OK, 1 on error e.g., if x0 or x1 is outside range
  *
  * <pre>
@@ -2062,20 +2204,20 @@ int32 numaFitMax(NUMA       * na,
  *      (2) Caller should check for valid return.
  * </pre>
  */
-int32 numaDifferentiateInterval(NUMA       * nax,
+l_ok numaDifferentiateInterval(NUMA       * nax,
     NUMA       * nay,
     float x0,
     float x1,
-    int32 npts,
-    NUMA      ** pnadx,
-    NUMA      ** pnady)
+    l_int32 npts,
+    NUMA ** pnadx,
+    NUMA ** pnady)
 {
-	int32 i, nx, ny;
+	l_int32 i, nx, ny;
 	float minx, maxx, der, invdel;
-	float  * fay;
+	float * fay;
 	NUMA       * nady, * naiy;
 
-	PROCNAME("numaDifferentiateInterval");
+	PROCNAME(__FUNCTION__);
 
 	if(pnadx) *pnadx = NULL;
 	if(!pnady)
@@ -2102,7 +2244,7 @@ int32 numaDifferentiateInterval(NUMA       * nax,
 
 	/* Generate interpolated array over specified interval */
 	if(numaInterpolateArbxInterval(nax, nay, L_LINEAR_INTERP, x0, x1,
-		    npts, pnadx, &naiy))
+	    npts, pnadx, &naiy))
 		return ERROR_INT("interpolation failed", procName, 1);
 
 	nady = numaCreate(npts);
@@ -2127,12 +2269,12 @@ int32 numaDifferentiateInterval(NUMA       * nax,
 /*!
  * \brief   numaIntegrateInterval()
  *
- * \param[in]    nax numa of abscissa values
- * \param[in]    nay numa of ordinate values, corresponding to nax
- * \param[in]    x0 start value of interval
- * \param[in]    x1 end value of interval
- * \param[in]    npts number of points to evaluate function in interval
- * \param[out]   psum integral of function over interval
+ * \param[in]    nax     numa of abscissa values
+ * \param[in]    nay     numa of ordinate values, corresponding to nax
+ * \param[in]    x0      start value of interval
+ * \param[in]    x1      end value of interval
+ * \param[in]    npts    number of points to evaluate function in interval
+ * \param[out]   psum    integral of function over interval
  * \return  0 if OK, 1 on error e.g., if x0 or x1 is outside range
  *
  * <pre>
@@ -2143,19 +2285,19 @@ int32 numaDifferentiateInterval(NUMA       * nax,
  *      (2) Caller should check for valid return.
  * </pre>
  */
-int32 numaIntegrateInterval(NUMA       * nax,
+l_ok numaIntegrateInterval(NUMA       * nax,
     NUMA       * nay,
     float x0,
     float x1,
-    int32 npts,
-    float  * psum)
+    l_int32 npts,
+    float * psum)
 {
-	int32 i, nx, ny;
+	l_int32 i, nx, ny;
 	float minx, maxx, sum, del;
-	float  * fay;
+	float * fay;
 	NUMA       * naiy;
 
-	PROCNAME("numaIntegrateInterval");
+	PROCNAME(__FUNCTION__);
 
 	if(!psum)
 		return ERROR_INT("&sum not defined", procName, 1);
@@ -2181,7 +2323,7 @@ int32 numaIntegrateInterval(NUMA       * nax,
 
 	/* Generate interpolated array over specified interval */
 	if(numaInterpolateArbxInterval(nax, nay, L_LINEAR_INTERP, x0, x1,
-		    npts, NULL, &naiy))
+	    npts, NULL, &naiy))
 		return ERROR_INT("interpolation failed", procName, 1);
 
 	del = (x1 - x0) / ((float)npts - 1.0);
@@ -2203,14 +2345,14 @@ int32 numaIntegrateInterval(NUMA       * nax,
 /*!
  * \brief   numaSortGeneral()
  *
- * \param[in]    na        source numa
- * \param[out]   pnasort   [optional] sorted numa
- * \param[out]   pnaindex  [optional] index of elements in na associated
- *                         with each element of nasort
- * \param[out]   pnainvert [optional] index of elements in nasort associated
- *                         with each element of na
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \param[in]    sorttype  L_SHELL_SORT or L_BIN_SORT
+ * \param[in]    na          source numa
+ * \param[out]   pnasort     [optional] sorted numa
+ * \param[out]   pnaindex    [optional] index of elements in na associated
+ *                           with each element of nasort
+ * \param[out]   pnainvert   [optional] index of elements in nasort associated
+ *                           with each element of na
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
+ * \param[in]    sorttype    L_SHELL_SORT or L_BIN_SORT
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2229,34 +2371,39 @@ int32 numaIntegrateInterval(NUMA       * nax,
  *          Note that naindex is a LUT into na for the sorted array values,
  *          and nainvert directly gives the sorted index values for the
  *          input array.  It is useful to view naindex is as a map:
- *                 0  --\>  2
- *                 1  --\>  3
- *                 2  --\>  1
- *                 3  --\>  0
- *                 4  --\>  4
+ *                 0  -->  2
+ *                 1  -->  3
+ *                 2  -->  1
+ *                 3  -->  0
+ *                 4  -->  4
  *          and nainvert, the inverse of this map:
- *                 0  --\>  3
- *                 1  --\>  2
- *                 2  --\>  0
- *                 3  --\>  1
- *                 4  --\>  4
+ *                 0  -->  3
+ *                 1  -->  2
+ *                 2  -->  0
+ *                 3  -->  1
+ *                 4  -->  4
  *
  *          We can write these relations symbolically as:
  *              nasort[i] = na[naindex[i]]
  *              na[i] = nasort[nainvert[i]]
  * </pre>
  */
-int32 numaSortGeneral(NUMA    * na,
+l_ok numaSortGeneral(NUMA * na,
     NUMA   ** pnasort,
     NUMA   ** pnaindex,
     NUMA   ** pnainvert,
-    int32 sortorder,
-    int32 sorttype)
+    l_int32 sortorder,
+    l_int32 sorttype)
 {
-	NUMA  * naindex;
+	l_int32 isize;
+	float size;
+	NUMA * naindex = NULL;
 
-	PROCNAME("numaSortGeneral");
+	PROCNAME(__FUNCTION__);
 
+	if(pnasort) *pnasort = NULL;
+	if(pnaindex) *pnaindex = NULL;
+	if(pnainvert) *pnainvert = NULL;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
@@ -2265,14 +2412,21 @@ int32 numaSortGeneral(NUMA    * na,
 		return ERROR_INT("invalid sort type", procName, 1);
 	if(!pnasort && !pnaindex && !pnainvert)
 		return ERROR_INT("nothing to do", procName, 1);
-	if(pnasort) *pnasort = NULL;
-	if(pnaindex) *pnaindex = NULL;
-	if(pnainvert) *pnainvert = NULL;
+
+	if(sorttype == L_BIN_SORT) {
+		numaGetMax(na, &size, NULL);
+		isize = (l_int32)size;
+		if(isize > MaxInitPtraSize - 1) {
+			L_WARNING("array too large; using shell sort\n", procName);
+			sorttype = L_SHELL_SORT;
+		}
+		else {
+			naindex = numaGetBinSortIndex(na, sortorder);
+		}
+	}
 
 	if(sorttype == L_SHELL_SORT)
 		naindex = numaGetSortIndex(na, sortorder);
-	else /* sorttype == L_BIN_SORT */
-		naindex = numaGetBinSortIndex(na, sortorder);
 
 	if(pnasort)
 		*pnasort = numaSortByIndex(na, naindex);
@@ -2288,8 +2442,8 @@ int32 numaSortGeneral(NUMA    * na,
 /*!
  * \brief   numaSortAutoSelect()
  *
- * \param[in]    nas input numa
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
+ * \param[in]    nas
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
  * \return  naout output sorted numa, or NULL on error
  *
  * <pre>
@@ -2298,32 +2452,37 @@ int32 numaSortGeneral(NUMA    * na,
  *          the number of elements in nas and the dynamic range.
  * </pre>
  */
-NUMA * numaSortAutoSelect(NUMA    * nas,
-    int32 sortorder)
+NUMA * numaSortAutoSelect(NUMA * nas,
+    l_int32 sortorder)
 {
-	int32 type;
+	l_int32 type;
 
-	PROCNAME("numaSortAutoSelect");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if(numaGetCount(nas) == 0) {
+		L_WARNING("nas is empty; returning copy\n", procName);
+		return numaCopy(nas);
+	}
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
 		return (NUMA*)ERROR_PTR("invalid sort order", procName, NULL);
 
 	type = numaChooseSortType(nas);
-	if(type == L_SHELL_SORT)
-		return numaSort(NULL, nas, sortorder);
-	else if(type == L_BIN_SORT)
-		return numaBinSort(nas, sortorder);
-	else
+	if(type != L_SHELL_SORT && type != L_BIN_SORT)
 		return (NUMA*)ERROR_PTR("invalid sort type", procName, NULL);
+
+	if(type == L_BIN_SORT)
+		return numaBinSort(nas, sortorder);
+	else /* shell sort */
+		return numaSort(NULL, nas, sortorder);
 }
 
 /*!
  * \brief   numaSortIndexAutoSelect()
  *
  * \param[in]    nas
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
+ * \param[in]    sortorder     L_SORT_INCREASING or L_SORT_DECREASING
  * \return  nad indices of nas, sorted by value in nas, or NULL on error
  *
  * <pre>
@@ -2332,32 +2491,36 @@ NUMA * numaSortAutoSelect(NUMA    * nas,
  *          the number of elements in nas and the dynamic range.
  * </pre>
  */
-NUMA * numaSortIndexAutoSelect(NUMA    * nas,
-    int32 sortorder)
+NUMA * numaSortIndexAutoSelect(NUMA * nas,
+    l_int32 sortorder)
 {
-	int32 type;
+	l_int32 type;
 
-	PROCNAME("numaSortIndexAutoSelect");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if(numaGetCount(nas) == 0) {
+		L_WARNING("nas is empty; returning copy\n", procName);
+		return numaCopy(nas);
+	}
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
 		return (NUMA*)ERROR_PTR("invalid sort order", procName, NULL);
-
 	type = numaChooseSortType(nas);
-	if(type == L_SHELL_SORT)
-		return numaGetSortIndex(nas, sortorder);
-	else if(type == L_BIN_SORT)
-		return numaGetBinSortIndex(nas, sortorder);
-	else
+	if(type != L_SHELL_SORT && type != L_BIN_SORT)
 		return (NUMA*)ERROR_PTR("invalid sort type", procName, NULL);
+
+	if(type == L_BIN_SORT)
+		return numaGetBinSortIndex(nas, sortorder);
+	else /* shell sort */
+		return numaGetSortIndex(nas, sortorder);
 }
 
 /*!
  * \brief   numaChooseSortType()
  *
- * \param[in]    nas to be sorted
- * \return  sorttype L_SHELL_SORT or L_BIN_SORT, or UNDEF on error.
+ * \param[in]    nas     to be sorted
+ * \return  sorttype  L_SHELL_SORT or L_BIN_SORT, or UNDEF on error.
  *
  * <pre>
  * Notes:
@@ -2366,65 +2529,61 @@ NUMA * numaSortIndexAutoSelect(NUMA    * nas,
  *      (2) If there are negative values in nas, it selects shell sort.
  * </pre>
  */
-int32 numaChooseSortType(NUMA  * nas)
+l_int32 numaChooseSortType(NUMA * nas)
 {
-	int32 n, type;
+	l_int32 n;
 	float minval, maxval;
 
-	PROCNAME("numaChooseSortType");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return ERROR_INT("nas not defined", procName, UNDEF);
 
+	/* If small histogram or negative values; use shell sort */
 	numaGetMin(nas, &minval, NULL);
 	n = numaGetCount(nas);
-
-	/* Very small histogram; use shell sort */
-	if(minval < 0.0 || n < 200) {
-		L_INFO("Shell sort chosen\n", procName);
+	if(minval < 0.0 || n < 200)
 		return L_SHELL_SORT;
-	}
 
-	/* Need to compare nlog(n) with maxval.  The factor of 0.003
-	 * was determined by comparing times for different histogram
-	 * sizes and maxval.  It is very small because binsort is fast
-	 * and shell sort gets slow for large n. */
+	/* If large maxval, use shell sort */
 	numaGetMax(nas, &maxval, NULL);
-	if(n * log((float)n) < 0.003 * maxval) {
-		type = L_SHELL_SORT;
-		L_INFO("Shell sort chosen\n", procName);
-	}
-	else {
-		type = L_BIN_SORT;
-		L_INFO("Bin sort chosen\n", procName);
-	}
-	return type;
+	if(maxval > MaxInitPtraSize - 1)
+		return L_SHELL_SORT;
+
+	/* Otherwise, need to compare nlog(n) with maxval.
+	 * The factor of 0.003 was determined by comparing times for
+	 * different histogram sizes and maxval.  It is very small
+	 * because binsort is fast and shell sort gets slow for large n. */
+	if(n * log((float)n) < 0.003 * maxval)
+		return L_SHELL_SORT;
+	else
+		return L_BIN_SORT;
 }
 
 /*!
  * \brief   numaSort()
  *
- * \param[in]    naout output numa; can be NULL or equal to nain
- * \param[in]    nain input numa
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \return  naout output sorted numa, or NULL on error
+ * \param[in]    naout       output numa; can be NULL or equal to nain
+ * \param[in]    nain        input numa
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
+ * \return  naout   output sorted numa, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Set naout = nain for in-place; otherwise, set naout = NULL.
- *      (2) Source: Shell sort, modified from K\&R, 2nd edition, p.62.
+ *      (2) Source: Shell sort, modified from K&R, 2nd edition, p.62.
  *          Slow but simple O(n logn) sort.
  * </pre>
  */
-NUMA * numaSort(NUMA    * naout,
-    NUMA    * nain,
-    int32 sortorder)
+NUMA * numaSort(NUMA * naout,
+    NUMA * nain,
+    l_int32 sortorder)
 {
-	int32 i, n, gap, j;
+	l_int32 i, n, gap, j;
 	float tmp;
-	float  * array;
+	float * array;
 
-	PROCNAME("numaSort");
+	PROCNAME(__FUNCTION__);
 
 	if(!nain)
 		return (NUMA*)ERROR_PTR("nain not defined", procName, NULL);
@@ -2436,6 +2595,10 @@ NUMA * numaSort(NUMA    * naout,
 		naout = numaCopy(nain);
 	else if(nain != naout)
 		return (NUMA*)ERROR_PTR("invalid: not in-place", procName, NULL);
+	if((n = numaGetCount(naout)) == 0) {
+		L_WARNING("naout is empty\n", procName);
+		return naout;
+	}
 	array = naout->array; /* operate directly on the array */
 	n = numaGetCount(naout);
 
@@ -2444,9 +2607,9 @@ NUMA * numaSort(NUMA    * naout,
 		for(i = gap; i < n; i++) {
 			for(j = i - gap; j >= 0; j -= gap) {
 				if((sortorder == L_SORT_INCREASING &&
-					    array[j] > array[j + gap]) ||
+				    array[j] > array[j + gap]) ||
 				    (sortorder == L_SORT_DECREASING &&
-					    array[j] < array[j + gap])) {
+				    array[j] < array[j + gap])) {
 					tmp = array[j];
 					array[j] = array[j + gap];
 					array[j + gap] = tmp;
@@ -2461,10 +2624,10 @@ NUMA * numaSort(NUMA    * naout,
 /*!
  * \brief   numaBinSort()
  *
- * \param[in]    nas of non-negative integers with a max that is
- *                   typically less than 50,000
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \return  na sorted, or NULL on error
+ * \param[in]    nas         of non-negative integers with a max that can
+ *                           not exceed (MaxInitPtraSize - 1)
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
+ * \return  na   sorted, or NULL on error
  *
  * <pre>
  * Notes:
@@ -2473,21 +2636,28 @@ NUMA * numaSort(NUMA    * naout,
  *          arrays containing very large integer values.  For such
  *          arrays, use a standard general sort function like
  *          numaSort().
+ *      (2) You can use numaSortAutoSelect() to decide which sorting
+ *          method to use.
  * </pre>
  */
-NUMA * numaBinSort(NUMA    * nas,
-    int32 sortorder)
+NUMA * numaBinSort(NUMA * nas,
+    l_int32 sortorder)
 {
-	NUMA  * nat, * nad;
+	NUMA * nat, * nad;
 
-	PROCNAME("numaBinSort");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if(numaGetCount(nas) == 0) {
+		L_WARNING("nas is empty; returning copy\n", procName);
+		return numaCopy(nas);
+	}
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
 		return (NUMA*)ERROR_PTR("invalid sort order", procName, NULL);
 
-	nat = numaGetBinSortIndex(nas, sortorder);
+	if((nat = numaGetBinSortIndex(nas, sortorder)) == NULL)
+		return (NUMA*)ERROR_PTR("bin sort failed", procName, NULL);
 	nad = numaSortByIndex(nas, nat);
 	numaDestroy(&nat);
 	return nad;
@@ -2496,32 +2666,38 @@ NUMA * numaBinSort(NUMA    * nas,
 /*!
  * \brief   numaGetSortIndex()
  *
- * \param[in]    na source numa
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \return  na giving an array of indices that would sort
+ * \param[in]    na          source numa
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
+ * \return  na  giving an array of indices that would sort
  *              the input array, or NULL on error
  */
-NUMA * numaGetSortIndex(NUMA    * na,
-    int32 sortorder)
+NUMA * numaGetSortIndex(NUMA * na,
+    l_int32 sortorder)
 {
-	int32 i, n, gap, j;
+	l_int32 i, n, gap, j;
 	float tmp;
-	float  * array; /* copy of input array */
-	float  * iarray; /* array of indices */
+	float * array; /* copy of input array */
+	float * iarray; /* array of indices */
 	NUMA       * naisort;
 
-	PROCNAME("numaGetSortIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
+	if(numaGetCount(na) == 0) {
+		L_WARNING("na is empty\n", procName);
+		return numaCreate(1);
+	}
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
 		return (NUMA*)ERROR_PTR("invalid sortorder", procName, NULL);
 
 	n = numaGetCount(na);
 	if((array = numaGetFArray(na, L_COPY)) == NULL)
 		return (NUMA*)ERROR_PTR("array not made", procName, NULL);
-	if((iarray = (float*)LEPT_CALLOC(n, sizeof(float))) == NULL)
+	if((iarray = (float *)SAlloc::C(n, sizeof(float))) == NULL) {
+		SAlloc::F(array);
 		return (NUMA*)ERROR_PTR("iarray not made", procName, NULL);
+	}
 	for(i = 0; i < n; i++)
 		iarray[i] = i;
 
@@ -2530,9 +2706,9 @@ NUMA * numaGetSortIndex(NUMA    * na,
 		for(i = gap; i < n; i++) {
 			for(j = i - gap; j >= 0; j -= gap) {
 				if((sortorder == L_SORT_INCREASING &&
-					    array[j] > array[j + gap]) ||
+				    array[j] > array[j + gap]) ||
 				    (sortorder == L_SORT_DECREASING &&
-					    array[j] < array[j + gap])) {
+				    array[j] < array[j + gap])) {
 					tmp = array[j];
 					array[j] = array[j + gap];
 					array[j + gap] = tmp;
@@ -2548,18 +2724,18 @@ NUMA * numaGetSortIndex(NUMA    * na,
 	for(i = 0; i < n; i++)
 		numaAddNumber(naisort, iarray[i]);
 
-	LEPT_FREE(array);
-	LEPT_FREE(iarray);
+	SAlloc::F(array);
+	SAlloc::F(iarray);
 	return naisort;
 }
 
 /*!
  * \brief   numaGetBinSortIndex()
  *
- * \param[in]    nas of non-negative integers with a max that is typically
- *                   less than 1,000,000
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \return  na sorted, or NULL on error
+ * \param[in]    nas         of non-negative integers with a max that can
+ *                           not exceed (MaxInitPtraSize - 1)
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
+ * \return  na  sorted, or NULL on error
  *
  * <pre>
  * Notes:
@@ -2570,22 +2746,38 @@ NUMA * numaGetSortIndex(NUMA    * na,
  *          arrays containing very large integer values.  For such
  *          arrays, use a standard general sort function like
  *          numaGetSortIndex().
+ *      (3) You can use numaSortIndexAutoSelect() to decide which
+ *          sorting method to use.
  * </pre>
  */
-NUMA * numaGetBinSortIndex(NUMA    * nas,
-    int32 sortorder)
+NUMA * numaGetBinSortIndex(NUMA * nas,
+    l_int32 sortorder)
 {
-	int32 i, n, isize, ival, imax;
-	float size;
-	NUMA      * na, * nai, * nad;
+	l_int32 i, n, isize, ival, imax;
+	float minsize, size;
+	NUMA * na, * nai, * nad;
 	L_PTRA    * paindex;
 
-	PROCNAME("numaGetBinSortIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if(numaGetCount(nas) == 0) {
+		L_WARNING("nas is empty\n", procName);
+		return numaCreate(1);
+	}
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
 		return (NUMA*)ERROR_PTR("invalid sort order", procName, NULL);
+	numaGetMin(nas, &minsize, NULL);
+	if(minsize < 0)
+		return (NUMA*)ERROR_PTR("nas has negative numbers", procName, NULL);
+	numaGetMax(nas, &size, NULL);
+	isize = (l_int32)size;
+	if(isize > MaxInitPtraSize - 1) {
+		L_ERROR("array too large: %d elements > max size = %d\n",
+		    procName, isize, MaxInitPtraSize - 1);
+		return NULL;
+	}
 
 	/* Set up a ptra holding numa at indices for which there
 	 * are values in nas.  Suppose nas has the value 230 at index
@@ -2595,10 +2787,6 @@ NUMA * numaGetBinSortIndex(NUMA    * nas,
 	 * in the ptra).  When finished, the ptra can be scanned for numa,
 	 * and the original indices in the nas can be read out.  In this
 	 * way, the ptra effectively sorts the input numbers in the nas. */
-	numaGetMax(nas, &size, NULL);
-	isize = (int32)size;
-	if(isize > 1000000)
-		L_WARNING2("large array: %d elements\n", procName, isize);
 	paindex = ptraCreate(isize + 1);
 	n = numaGetCount(nas);
 	for(i = 0; i < n; i++) {
@@ -2627,7 +2815,7 @@ NUMA * numaGetBinSortIndex(NUMA    * nas,
 	else { /* L_SORT_DECREASING */
 		for(i = imax; i >= 0; i--) {
 			na = (NUMA*)ptraRemoveLast(paindex);
-			if(!na) break;  /* they've all been removed */
+			if(!na) break; /* they've all been removed */
 			numaJoin(nad, na, 0, -1);
 			numaDestroy(&na);
 		}
@@ -2641,24 +2829,31 @@ NUMA * numaGetBinSortIndex(NUMA    * nas,
  * \brief   numaSortByIndex()
  *
  * \param[in]    nas
- * \param[in]    naindex na that maps from the new numa to the input numa
- * \return  nad sorted, or NULL on error
+ * \param[in]    naindex     na that maps from the new numa to the input numa
+ * \return  nad  sorted, or NULL on error
  */
-NUMA * numaSortByIndex(NUMA  * nas,
-    NUMA  * naindex)
+NUMA * numaSortByIndex(NUMA * nas,
+    NUMA * naindex)
 {
-	int32 i, n, index;
+	l_int32 i, n, ni, index;
 	float val;
-	NUMA      * nad;
+	NUMA * nad;
 
-	PROCNAME("numaSortByIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
 	if(!naindex)
 		return (NUMA*)ERROR_PTR("naindex not defined", procName, NULL);
-
 	n = numaGetCount(nas);
+	ni = numaGetCount(naindex);
+	if(n != ni)
+		return (NUMA*)ERROR_PTR("numa sizes differ", procName, NULL);
+	if(n == 0) {
+		L_WARNING("nas is empty\n", procName);
+		return numaCopy(nas);
+	}
+
 	nad = numaCreate(n);
 	for(i = 0; i < n; i++) {
 		numaGetIValue(naindex, i, &index);
@@ -2673,8 +2868,8 @@ NUMA * numaSortByIndex(NUMA  * nas,
  * \brief   numaIsSorted()
  *
  * \param[in]    nas
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \param[out]   psorted 1 if sorted; 0 if not
+ * \param[in]    sortorder   L_SORT_INCREASING or L_SORT_DECREASING
+ * \param[out]   psorted     1 if sorted; 0 if not
  * \return  1 if OK; 0 on error
  *
  * <pre>
@@ -2684,20 +2879,25 @@ NUMA * numaSortByIndex(NUMA  * nas,
  *          sorted, and a sort operation can be avoided.
  * </pre>
  */
-int32 numaIsSorted(NUMA     * nas,
-    int32 sortorder,
-    int32  * psorted)
+l_int32 numaIsSorted(NUMA     * nas,
+    l_int32 sortorder,
+    l_int32 * psorted)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float prevval, val;
 
-	PROCNAME("numaIsSorted");
+	PROCNAME(__FUNCTION__);
 
 	if(!psorted)
 		return ERROR_INT("&sorted not defined", procName, 1);
 	*psorted = FALSE;
 	if(!nas)
 		return ERROR_INT("nas not defined", procName, 1);
+	if((n = numaGetCount(nas))== 0) {
+		L_WARNING("nas is empty\n", procName);
+		*psorted = TRUE;
+		return 0;
+	}
 	if(sortorder != L_SORT_INCREASING && sortorder != L_SORT_DECREASING)
 		return ERROR_INT("invalid sortorder", procName, 1);
 
@@ -2717,10 +2917,10 @@ int32 numaIsSorted(NUMA     * nas,
 /*!
  * \brief   numaSortPair()
  *
- * \param[in]    nax, nay input arrays
- * \param[in]    sortorder L_SORT_INCREASING or L_SORT_DECREASING
- * \param[out]   pnasx sorted
- * \param[out]   pnasy sorted exactly in order of nasx
+ * \param[in]    nax, nay     input arrays
+ * \param[in]    sortorder    L_SORT_INCREASING or L_SORT_DECREASING
+ * \param[out]   pnasx        sorted
+ * \param[out]   pnasy        sorted exactly in order of nasx
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2729,16 +2929,16 @@ int32 numaIsSorted(NUMA     * nas,
  *          together, using nax as the key for sorting.
  * </pre>
  */
-int32 numaSortPair(NUMA    * nax,
-    NUMA    * nay,
-    int32 sortorder,
+l_ok numaSortPair(NUMA * nax,
+    NUMA * nay,
+    l_int32 sortorder,
     NUMA   ** pnasx,
     NUMA   ** pnasy)
 {
-	int32 sorted;
-	NUMA    * naindex;
+	l_int32 sorted;
+	NUMA * naindex;
 
-	PROCNAME("numaSortPair");
+	PROCNAME(__FUNCTION__);
 
 	if(pnasx) *pnasx = NULL;
 	if(pnasy) *pnasy = NULL;
@@ -2770,7 +2970,7 @@ int32 numaSortPair(NUMA    * nax,
  * \brief   numaInvertMap()
  *
  * \param[in]    nas
- * \return  nad the inverted map, or NULL on error or if not invertible
+ * \return  nad  the inverted map, or NULL on error or if not invertible
  *
  * <pre>
  * Notes:
@@ -2779,20 +2979,23 @@ int32 numaSortPair(NUMA    * nax,
  *          of another array.
  * </pre>
  */
-NUMA * numaInvertMap(NUMA  * nas)
+NUMA * numaInvertMap(NUMA * nas)
 {
-	int32 i, n, val, error;
-	int32  * test;
+	l_int32 i, n, val, error;
+	l_int32 * test;
 	NUMA     * nad;
 
-	PROCNAME("numaInvertMap");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if((n = numaGetCount(nas)) == 0) {
+		L_WARNING("nas is empty\n", procName);
+		return numaCopy(nas);
+	}
 
-	n = numaGetCount(nas);
 	nad = numaMakeConstant(0.0, n);
-	test = (int32*)LEPT_CALLOC(n, sizeof(int32));
+	test = (l_int32*)SAlloc::C(n, sizeof(l_int32));
 	error = 0;
 	for(i = 0; i < n; i++) {
 		numaGetIValue(nas, i, &val);
@@ -2810,7 +3013,7 @@ NUMA * numaInvertMap(NUMA  * nas)
 		}
 	}
 
-	LEPT_FREE(test);
+	SAlloc::F(test);
 	if(error) {
 		numaDestroy(&nad);
 		return (NUMA*)ERROR_PTR("nas not invertible", procName, NULL);
@@ -2819,15 +3022,140 @@ NUMA * numaInvertMap(NUMA  * nas)
 	return nad;
 }
 
+/*!
+ * \brief   numaAddSorted()
+ *
+ * \param[in]    na     sorted input
+ * \param[in]    val    value to be inserted in sorted order
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The input %na is sorted.  This function determines the
+ *          sort order of %na and inserts %val into the array.
+ * </pre>
+ */
+l_ok numaAddSorted(NUMA * na,
+    float val)
+{
+	l_int32 index;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+
+	if(numaFindSortedLoc(na, val, &index) == 1)
+		return ERROR_INT("insert failure", procName, 1);
+	numaInsertNumber(na, index, val);
+	return 0;
+}
+
+/*!
+ * \brief   numaFindSortedLoc()
+ *
+ * \param[in]    na     sorted input
+ * \param[in]    val    value to be inserted in sorted order
+ * \param[out]  *ploc   index location to insert @val
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The input %na is sorted.  This determines the sort order of @na,
+ *          either increasing or decreasing, and does a binary search for the
+ *          location to insert %val into the array.  The search is O(log n).
+ *      (2) The index returned is the location to insert into the array.
+ *          The value at the index, and all values to the right, are
+ *          moved to the right (increasing their index location by 1).
+ *      (3) If n is the size of %na, *ploc can be anything in [0 ... n].
+ *          if *ploc == 0, the value is inserted at the beginning of the
+ *          array; if *ploc == n, it is inserted at the end.
+ *      (4) If the size of %na is 1, insert with an increasing sort.
+ * </pre>
+ */
+l_ok numaFindSortedLoc(NUMA * na,
+    float val,
+    l_int32   * pindex)
+{
+	l_int32 n, increasing, lindex, rindex, midindex;
+	float val0, valn, valmid;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pindex)
+		return ERROR_INT("&index not defined", procName, 1);
+	*pindex = 0;
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+
+	n = numaGetCount(na);
+	if(n == 0) return 0;
+	numaGetFValue(na, 0, &val0);
+	if(n == 1) { /* use increasing sort order */
+		if(val >= val0)
+			*pindex = 1;
+		return 0;
+	}
+
+	/* -----------------  n >= 2 ----------------- */
+	numaGetFValue(na, n - 1, &valn);
+	increasing = (valn >= val0) ? 1 : 0; /* sort order */
+
+	/* Check if outside bounds of existing array */
+	if(increasing) {
+		if(val < val0) {
+			*pindex = 0;
+			return 0;
+		}
+		else if(val > valn) {
+			*pindex = n;
+			return 0;
+		}
+	}
+	else { /* decreasing */
+		if(val > val0) {
+			*pindex = 0;
+			return 0;
+		}
+		else if(val < valn) {
+			*pindex = n;
+			return 0;
+		}
+	}
+
+	/* Within bounds of existing array; search */
+	lindex = 0;
+	rindex = n - 1;
+	while(1) {
+		midindex = (lindex + rindex) / 2;
+		if(midindex == lindex || midindex == rindex) break;
+		numaGetFValue(na, midindex, &valmid);
+		if(increasing) {
+			if(val > valmid)
+				lindex = midindex;
+			else
+				rindex = midindex;
+		}
+		else { /* decreasing */
+			if(val > valmid)
+				rindex = midindex;
+			else
+				lindex = midindex;
+		}
+	}
+	*pindex = rindex;
+	return 0;
+}
+
 /*----------------------------------------------------------------------*
 *                          Random permutation                          *
 *----------------------------------------------------------------------*/
 /*!
  * \brief   numaPseudorandomSequence()
  *
- * \param[in]    size of sequence
- * \param[in]    seed for random number generation
- * \return  na pseudorandom on {0,...,size - 1}, or NULL on error
+ * \param[in]    size     of sequence
+ * \param[in]    seed     for random number generation
+ * \return  na  pseudorandom on [0,...,size - 1], or NULL on error
  *
  * <pre>
  * Notes:
@@ -2837,25 +3165,25 @@ NUMA * numaInvertMap(NUMA  * nas)
  *          from 0 to size - 1.
  * </pre>
  */
-NUMA * numaPseudorandomSequence(int32 size,
-    int32 seed)
+NUMA * numaPseudorandomSequence(l_int32 size,
+    l_int32 seed)
 {
-	int32 i, index, temp;
-	int32  * array;
+	l_int32 i, index, temp;
+	l_int32 * array;
 	NUMA     * na;
 
-	PROCNAME("numaPseudorandomSequence");
+	PROCNAME(__FUNCTION__);
 
 	if(size <= 0)
 		return (NUMA*)ERROR_PTR("size <= 0", procName, NULL);
 
-	if((array = (int32*)LEPT_CALLOC(size, sizeof(int32))) == NULL)
+	if((array = (l_int32*)SAlloc::C(size, sizeof(l_int32))) == NULL)
 		return (NUMA*)ERROR_PTR("array not made", procName, NULL);
 	for(i = 0; i < size; i++)
 		array[i] = i;
 	srand(seed);
 	for(i = size - 1; i > 0; i--) {
-		index = (int32)((i + 1) * ((double)rand() / (double)RAND_MAX));
+		index = (l_int32)((i + 1) * ((double)rand() / (double)RAND_MAX));
 		index = MIN(index, i);
 		temp = array[i];
 		array[i] = array[index];
@@ -2863,30 +3191,33 @@ NUMA * numaPseudorandomSequence(int32 size,
 	}
 
 	na = numaCreateFromIArray(array, size);
-	LEPT_FREE(array);
+	SAlloc::F(array);
 	return na;
 }
 
 /*!
  * \brief   numaRandomPermutation()
  *
- * \param[in]    nas input array
- * \param[in]    seed for random number generation
- * \return  nas randomly shuffled array, or NULL on error
+ * \param[in]    nas    input array
+ * \param[in]    seed   for random number generation
+ * \return  nas  randomly shuffled array, or NULL on error
  */
-NUMA * numaRandomPermutation(NUMA    * nas,
-    int32 seed)
+NUMA * numaRandomPermutation(NUMA * nas,
+    l_int32 seed)
 {
-	int32 i, index, size;
+	l_int32 i, index, size;
 	float val;
-	NUMA      * naindex, * nad;
+	NUMA * naindex, * nad;
 
-	PROCNAME("numaRandomPermutation");
+	PROCNAME(__FUNCTION__);
 
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
+	if((size = numaGetCount(nas)) == 0) {
+		L_WARNING("nas is empty\n", procName);
+		return numaCopy(nas);
+	}
 
-	size = numaGetCount(nas);
 	naindex = numaPseudorandomSequence(size, seed);
 	nad = numaCreate(size);
 	for(i = 0; i < size; i++) {
@@ -2894,7 +3225,6 @@ NUMA * numaRandomPermutation(NUMA    * nas,
 		numaGetFValue(nas, index, &val);
 		numaAddNumber(nad, val);
 	}
-
 	numaDestroy(&naindex);
 	return nad;
 }
@@ -2905,11 +3235,11 @@ NUMA * numaRandomPermutation(NUMA    * nas,
 /*!
  * \brief   numaGetRankValue()
  *
- * \param[in]    na source numa
- * \param[in]    fract use 0.0 for smallest, 1.0 for largest
- * \param[in]    nasort [optional] increasing sorted version of na
- * \param[in]    usebins 0 for general sort; 1 for bin sort
- * \param[out]   pval  rank val
+ * \param[in]    na        source numa
+ * \param[in]    fract     use 0.0 for smallest, 1.0 for largest
+ * \param[in]    nasort    [optional] increasing sorted version of na
+ * \param[in]    usebins   0 for general sort; 1 for bin sort
+ * \param[out]   pval      rank val
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -2929,27 +3259,26 @@ NUMA * numaRandomPermutation(NUMA    * nas,
  *          instead of O(nlogn) for general sort routines.
  * </pre>
  */
-int32 numaGetRankValue(NUMA       * na,
+l_ok numaGetRankValue(NUMA       * na,
     float fract,
     NUMA       * nasort,
-    int32 usebins,
-    float  * pval)
+    l_int32 usebins,
+    float * pval)
 {
-	int32 n, index;
-	NUMA    * nas;
+	l_int32 n, index;
+	NUMA * nas;
 
-	PROCNAME("numaGetRankValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0.0; /* init */
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na empty", procName, 1);
 	if(fract < 0.0 || fract > 1.0)
 		return ERROR_INT("fract not in [0.0 ... 1.0]", procName, 1);
-	n = numaGetCount(na);
-	if(n == 0)
-		return ERROR_INT("na empty", procName, 1);
 
 	if(nasort) {
 		nas = nasort;
@@ -2962,7 +3291,7 @@ int32 numaGetRankValue(NUMA       * na,
 		if(!nas)
 			return ERROR_INT("nas not made", procName, 1);
 	}
-	index = (int32)(fract * (float)(n - 1) + 0.5);
+	index = (l_int32)(fract * (float)(n - 1) + 0.5);
 	numaGetFValue(nas, index, pval);
 
 	if(!nasort) numaDestroy(&nas);
@@ -2972,8 +3301,8 @@ int32 numaGetRankValue(NUMA       * na,
 /*!
  * \brief   numaGetMedian()
  *
- * \param[in]    na source numa
- * \param[out]   pval  median value
+ * \param[in]    na     source numa
+ * \param[out]   pval   median value
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -2982,16 +3311,16 @@ int32 numaGetRankValue(NUMA       * na,
  *          sorting and finding the middle value in the sorted array.
  * </pre>
  */
-int32 numaGetMedian(NUMA       * na,
-    float  * pval)
+l_ok numaGetMedian(NUMA       * na,
+    float * pval)
 {
-	PROCNAME("numaGetMedian");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0.0; /* init */
-	if(!na)
-		return ERROR_INT("na not defined", procName, 1);
+	if(!na || numaGetCount(na) == 0)
+		return ERROR_INT("na not defined or empty", procName, 1);
 
 	return numaGetRankValue(na, 0.5, NULL, 0, pval);
 }
@@ -2999,8 +3328,8 @@ int32 numaGetMedian(NUMA       * na,
 /*!
  * \brief   numaGetBinnedMedian()
  *
- * \param[in]    na source numa
- * \param[out]   pval  integer median value
+ * \param[in]    na      source numa
+ * \param[out]   pval    integer median value
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -3011,19 +3340,19 @@ int32 numaGetMedian(NUMA       * na,
  *          this should be used.  Otherwise, use numaGetMedian().
  * </pre>
  */
-int32 numaGetBinnedMedian(NUMA     * na,
-    int32  * pval)
+l_ok numaGetBinnedMedian(NUMA     * na,
+    l_int32 * pval)
 {
-	int32 ret;
+	l_int32 ret;
 	float fval;
 
-	PROCNAME("numaGetBinnedMedian");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0; /* init */
-	if(!na)
-		return ERROR_INT("na not defined", procName, 1);
+	if(!na || numaGetCount(na) == 0)
+		return ERROR_INT("na not defined or empty", procName, 1);
 
 	ret = numaGetRankValue(na, 0.5, NULL, 1, &fval);
 	*pval = lept_roundftoi(fval);
@@ -3031,10 +3360,93 @@ int32 numaGetBinnedMedian(NUMA     * na,
 }
 
 /*!
+ * \brief   numaGetMeanDevFromMedian()
+ *
+ * \param[in]      na     source numa
+ * \param[in]      med    median value
+ * \param[out]     pdev   average absolute value deviation from median value
+ * \return  0 if OK; 1 on error
+ */
+l_ok numaGetMeanDevFromMedian(NUMA       * na,
+    float med,
+    float * pdev)
+{
+	l_int32 i, n;
+	float val, dev;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pdev)
+		return ERROR_INT("&dev not defined", procName, 1);
+	*pdev = 0.0; /* init */
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+	if((n = numaGetCount(na)) == 0)
+		return ERROR_INT("na is empty", procName, 1);
+
+	dev = 0.0;
+	for(i = 0; i < n; i++) {
+		numaGetFValue(na, i, &val);
+		dev += L_ABS(val - med);
+	}
+	*pdev = dev / (float)n;
+	return 0;
+}
+
+/*!
+ * \brief   numaGetMedianDevFromMedian()
+ *
+ * \param[in]    na        source numa
+ * \param[out]   pmed      [optional] median value
+ * \param[out]   pdev      median deviation from median val
+ * \return  0 if OK; 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Finds the median of the absolute value of the deviation from
+ *          the median value in the array.  Why take the absolute value?
+ *          Consider the case where you have values equally distributed
+ *          about both sides of a median value.  Without taking the absolute
+ *          value of the differences, you will get 0 for the deviation,
+ *          and this is not useful.
+ * </pre>
+ */
+l_ok numaGetMedianDevFromMedian(NUMA       * na,
+    float * pmed,
+    float * pdev)
+{
+	l_int32 n, i;
+	float val, med;
+	NUMA * nadev;
+
+	PROCNAME(__FUNCTION__);
+
+	if(pmed) *pmed = 0.0;
+	if(!pdev)
+		return ERROR_INT("&dev not defined", procName, 1);
+	*pdev = 0.0;
+	if(!na || numaGetCount(na) == 0)
+		return ERROR_INT("na not defined or empty", procName, 1);
+
+	numaGetMedian(na, &med);
+	if(pmed) *pmed = med;
+	n = numaGetCount(na);
+	nadev = numaCreate(n);
+	for(i = 0; i < n; i++) {
+		numaGetFValue(na, i, &val);
+		numaAddNumber(nadev, L_ABS(val - med));
+	}
+	numaGetMedian(nadev, pdev);
+
+	numaDestroy(&nadev);
+	return 0;
+}
+
+/*!
  * \brief   numaGetMode()
  *
- * \param[in]    na source numa
- * \param[out]   pval  mode val
+ * \param[in]    na      source numa
+ * \param[out]   pval    mode val
  * \param[out]   pcount  [optional] mode count
  * \return  0 if OK; 1 on error
  *
@@ -3046,16 +3458,16 @@ int32 numaGetBinnedMedian(NUMA     * na,
  *      (2) Optionally, also returns that count.
  * </pre>
  */
-int32 numaGetMode(NUMA       * na,
-    float  * pval,
-    int32    * pcount)
+l_ok numaGetMode(NUMA       * na,
+    float * pval,
+    l_int32    * pcount)
 {
-	int32 i, n, maxcount, prevcount;
+	l_int32 i, n, maxcount, prevcount;
 	float val, maxval, prevval;
-	float  * array;
+	float * array;
 	NUMA       * nasort;
 
-	PROCNAME("numaGetMode");
+	PROCNAME(__FUNCTION__);
 
 	if(pcount) *pcount = 0;
 	if(!pval)
@@ -3064,7 +3476,7 @@ int32 numaGetMode(NUMA       * na,
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	if((n = numaGetCount(na)) == 0)
-		return 1;
+		return ERROR_INT("na is empty", procName, 1);
 
 	if((nasort = numaSort(NULL, na, L_SORT_DECREASING)) == NULL)
 		return ERROR_INT("nas not made", procName, 1);
@@ -3106,65 +3518,16 @@ int32 numaGetMode(NUMA       * na,
 	return 0;
 }
 
-/*!
- * \brief   numaGetMedianVariation()
- *
- * \param[in]    na source numa
- * \param[out]   pmedval  [optional] median value
- * \param[out]   pmedvar  median variation from median val
- * \return  0 if OK; 1 on error
- *
- * <pre>
- * Notes:
- *      (1) Finds the median of the absolute value of the variation from
- *          the median value in the array.  Why take the absolute value?
- *          Consider the case where you have values equally distributed
- *          about both sides of a median value.  Without taking the absolute
- *          value of the differences, you will get 0 for the variation,
- *          and this is not useful.
- * </pre>
- */
-int32 numaGetMedianVariation(NUMA       * na,
-    float  * pmedval,
-    float  * pmedvar)
-{
-	int32 n, i;
-	float val, medval;
-	NUMA      * navar;
-
-	PROCNAME("numaGetMedianVar");
-
-	if(pmedval) *pmedval = 0.0;
-	if(!pmedvar)
-		return ERROR_INT("&medvar not defined", procName, 1);
-	*pmedvar = 0.0;
-	if(!na)
-		return ERROR_INT("na not defined", procName, 1);
-
-	numaGetMedian(na, &medval);
-	if(pmedval) *pmedval = medval;
-	n = numaGetCount(na);
-	navar = numaCreate(n);
-	for(i = 0; i < n; i++) {
-		numaGetFValue(na, i, &val);
-		numaAddNumber(navar, L_ABS(val - medval));
-	}
-	numaGetMedian(navar, pmedvar);
-
-	numaDestroy(&navar);
-	return 0;
-}
-
 /*----------------------------------------------------------------------*
 *                            Rearrangements                            *
 *----------------------------------------------------------------------*/
 /*!
  * \brief   numaJoin()
  *
- * \param[in]    nad  dest numa; add to this one
- * \param[in]    nas  [optional] source numa; add from this one
- * \param[in]    istart  starting index in nas
- * \param[in]    iend  ending index in nas; use -1 to cat all
+ * \param[in]    nad      dest numa; add to this one
+ * \param[in]    nas      [optional] source numa; add from this one
+ * \param[in]    istart   starting index in nas
+ * \param[in]    iend     ending index in nas; use -1 to cat all
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -3174,15 +3537,15 @@ int32 numaGetMedianVariation(NUMA       * na,
  *      (3) if nas == NULL, this is a no-op
  * </pre>
  */
-int32 numaJoin(NUMA    * nad,
-    NUMA    * nas,
-    int32 istart,
-    int32 iend)
+l_ok numaJoin(NUMA * nad,
+    NUMA * nas,
+    l_int32 istart,
+    l_int32 iend)
 {
-	int32 n, i;
+	l_int32 n, i;
 	float val;
 
-	PROCNAME("numaJoin");
+	PROCNAME(__FUNCTION__);
 
 	if(!nad)
 		return ERROR_INT("nad not defined", procName, 1);
@@ -3208,10 +3571,10 @@ int32 numaJoin(NUMA    * nad,
 /*!
  * \brief   numaaJoin()
  *
- * \param[in]    naad  dest naa; add to this one
- * \param[in]    naas  [optional] source naa; add from this one
- * \param[in]    istart  starting index in nas
- * \param[in]    iend  ending index in naas; use -1 to cat all
+ * \param[in]    naad     dest naa; add to this one
+ * \param[in]    naas     [optional] source naa; add from this one
+ * \param[in]    istart   starting index in nas
+ * \param[in]    iend     ending index in naas; use -1 to cat all
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -3221,15 +3584,15 @@ int32 numaJoin(NUMA    * nad,
  *      (3) if naas == NULL, this is a no-op
  * </pre>
  */
-int32 numaaJoin(NUMAA   * naad,
+l_ok numaaJoin(NUMAA   * naad,
     NUMAA   * naas,
-    int32 istart,
-    int32 iend)
+    l_int32 istart,
+    l_int32 iend)
 {
-	int32 n, i;
-	NUMA    * na;
+	l_int32 n, i;
+	NUMA * na;
 
-	PROCNAME("numaaJoin");
+	PROCNAME(__FUNCTION__);
 
 	if(!naad)
 		return ERROR_INT("naad not defined", procName, 1);
@@ -3269,11 +3632,11 @@ int32 numaaJoin(NUMAA   * naad,
  */
 NUMA * numaaFlattenToNuma(NUMAA  * naa)
 {
-	int32 i, nalloc;
-	NUMA    * na, * nad;
+	l_int32 i, nalloc;
+	NUMA * na, * nad;
 	NUMA   ** array;
 
-	PROCNAME("numaaFlattenToNuma");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return (NUMA*)ERROR_PTR("naa not defined", procName, NULL);
@@ -3289,4 +3652,3 @@ NUMA * numaaFlattenToNuma(NUMAA  * naa)
 
 	return nad;
 }
-

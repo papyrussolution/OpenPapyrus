@@ -544,7 +544,7 @@ enum doh_slots {
 
 	/* for example */
 	/* #ifdef WANT_DOH_FOOBAR_TXT */
-	/*   DOH_PROBE_SLOT_FOOBAR_TXT, */
+	/* DOH_PROBE_SLOT_FOOBAR_TXT, */
 	/* #endif */
 
 	/* AFTER all slot definitions, establish how many we have */
@@ -762,7 +762,7 @@ struct Curl_handler {
 #define CONNCHECK_KEEPALIVE (1<<1)       /* Perform any keepalive function. */
 
 #define CONNRESULT_NONE 0                /* No extra information. */
-#define CONNRESULT_DEAD (1<<0)           /* The connection is dead. */
+#define CONNRESULT_DEAD (1<<0) /* The connection is dead. */
 
 #ifdef USE_RECV_BEFORE_SEND_WORKAROUND
 struct postponed_data {

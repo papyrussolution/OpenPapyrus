@@ -416,7 +416,7 @@ void UTS46::processUTF8(StringPiece src,
 				return;
 			}
 			char c = srcArray[i];
-			if((int8_t)c<0) { // (uint8_t)c>0x7f
+			if((int8_t)c<0) { // (uint8)c>0x7f
 				break;
 			}
 			int cData = asciiData[(int)c]; // Cast: gcc warns about indexing with a char.

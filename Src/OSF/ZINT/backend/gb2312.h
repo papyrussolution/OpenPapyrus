@@ -1,4 +1,4 @@
-/*  gb2312.h - Unicode to GB 2312-1980 lookup table
+/* gb2312.h - Unicode to GB 2312-1980 lookup table
 
     libzint - the open source barcode library
     Copyright (C) 2009-2016 Robin Stuart <rstuart114@gmail.com>

@@ -273,7 +273,7 @@ public:
 				default: return_trace(false);
 			}
 		}
-		bool get_extents(hb_glyph_extents_t * extents HB_UNUSED) const
+		bool get_extents(hb_glyph_extents_t * extents CXX_UNUSED_PARAM) const
 		{
 			switch(u.header.indexFormat) {
 				case 2: case 5: /* TODO */

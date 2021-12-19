@@ -130,7 +130,7 @@ static bool getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION * zoneInfo, const UChar
 		SYSTEMTIME standardDate;
 		if(getSystemTimeInformation(tz, daylightDate, standardDate, bias, daylightBias, standardBias)) {
 			memzero(zoneInfo, sizeof(TIME_ZONE_INFORMATION)); // We do not set standard/daylight names, so nullify first.
-			zoneInfo->Bias          = bias;
+			zoneInfo->Bias  = bias;
 			zoneInfo->DaylightBias  = daylightBias;
 			zoneInfo->StandardBias  = standardBias;
 			zoneInfo->DaylightDate  = daylightDate;

@@ -36,8 +36,12 @@
  *                     2 (break down into multiple steps)
  *
  *   Default image is cat.035.jpg.
- *   Others are 1555.007.jpg, shearer.148.tif, etc.
+ *   Others are 1555.007.jpg, shearer.148.tif, lapide.052.100.jpg, etc.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include "allheaders.h"
 
@@ -46,7 +50,7 @@
 l_int32 main(int    argc,
              char **argv)
 {
-l_int32      method, pageno;
+l_int32      d, method, pageno;
 L_DEWARP    *dew1;
 L_DEWARPA   *dewa;
 PIX         *pixs, *pixn, *pixg, *pixb, *pixd;
@@ -55,7 +59,6 @@ static char  mainName[] = "dewarptest2";
     if (argc != 2 && argc != 4)
         return ERROR_INT("Syntax: dewarptest2 method [image pageno]",
                          mainName, 1);
-
     if (argc == 2) {
         pixs = pixRead("cat.035.jpg");
         pageno = 35;
@@ -67,26 +70,38 @@ static char  mainName[] = "dewarptest2";
     if (!pixs)
         return ERROR_INT("image not read", mainName, 1);
     method = atoi(argv[1]);
+
+    setLeptDebugOK(1);
     lept_mkdir("lept/dewarp");
 
     if (method == 1) {  /* Use single page dewarp function */
         dewarpSinglePage(pixs, 0, 1, 1, 0, &pixd, NULL, 1);
-        pixDisplay(pixd, 100, 100);
     } else {  /* Break down into multiple steps; require min of only 8 lines */
         dewa = dewarpaCreate(40, 30, 1, 8, 50);
         dewarpaUseBothArrays(dewa, 1);
         dewarpaSetCheckColumns(dewa, 0);
+        d = pixGetDepth(pixs);
 
 #if NORMALIZE
             /* Normalize for varying background and binarize */
-        pixn = pixBackgroundNormSimple(pixs, NULL, NULL);
-        pixg = pixConvertRGBToGray(pixn, 0.5, 0.3, 0.2);
-        pixb = pixThresholdToBinary(pixg, 130);
-        pixDestroy(&pixn);
+        if (d > 1) {
+            pixn = pixBackgroundNormSimple(pixs, NULL, NULL);
+            pixg = pixConvertRGBToGray(pixn, 0.5, 0.3, 0.2);
+            pixb = pixThresholdToBinary(pixg, 130);
+            pixDestroy(&pixn);
+            pixDestroy(&pixg);
+        } else {
+            pixb = pixClone(pixs);
+        }
 #else
             /* Don't normalize; just threshold and clean edges */
-        pixg = pixConvertTo8(pixs, 0);
-        pixb = pixThresholdToBinary(pixg, 100);
+        if (d > 1) {
+            pixg = pixConvertTo8(pixs, 0);
+            pixb = pixThresholdToBinary(pixg, 100);
+            pixDestroy(&pixg);
+        } else {
+            pixb = pixClone(pixs);
+        }
         pixSetOrClearBorder(pixb, 30, 30, 40, 40, PIX_CLR);
 #endif
 
@@ -94,12 +109,11 @@ static char  mainName[] = "dewarptest2";
         dew1 = dewarpCreate(pixb, pageno);
         dewarpaInsertDewarp(dewa, dew1);
         dewarpBuildPageModel(dew1, "/tmp/lept/dewarp/test2_model.pdf");
-        dewarpaApplyDisparity(dewa, pageno, pixg, -1, 0, 0, &pixd,
+        dewarpaApplyDisparity(dewa, pageno, pixb, -1, 0, 0, &pixd,
                               "/tmp/lept/dewarp/test2_apply.pdf");
 
         dewarpaInfo(stderr, dewa);
         dewarpaDestroy(&dewa);
-        pixDestroy(&pixg);
         pixDestroy(&pixb);
     }
 

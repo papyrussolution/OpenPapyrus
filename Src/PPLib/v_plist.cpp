@@ -512,7 +512,7 @@ int PPPriceListImporter::Run()
 				found = 1;
 		}
 		if(found) {
-			if(Rows.lsearch(&pl_rec, 0, PTR_CMPFUNC(long)) <= 0)
+			if(!Rows.lsearch(&pl_rec, 0, CMPF_LONG))
 				THROW_SL(Rows.insert(&pl_rec));
 		}
 		else {
@@ -532,7 +532,7 @@ int PPPriceListImporter::Run()
 			for(i = 0; i < unres_goods_list.getCount(); i++) {
 				pl_rec = UnResolvedRows.at(i);
 				pl_rec.GoodsID = unres_goods_list.at(i).ResolvedGoodsID;
-				if(pl_rec.GoodsID && Rows.lsearch(&pl_rec, 0, PTR_CMPFUNC(long)) <= 0) {
+				if(pl_rec.GoodsID && !Rows.lsearch(&pl_rec, 0, CMPF_LONG)) {
 					THROW_SL(Rows.insert(&pl_rec));
 				}
 				else if(!pl_rec.GoodsID) {
@@ -1054,7 +1054,7 @@ int PPViewPriceList::NextIterationByList(PriceListViewItem * pItem)
 			GObj.GetRetailGoodsInfo(goods_id, Filt.LocID, &rgi);
 			pItem->PListID      = 0;
 			pItem->LineNo       = i;
-			pItem->LN           = i;
+			pItem->LN   = i;
 			pItem->GoodsGrpID   = goods_rec.ParentID;
 			pItem->GoodsID      = goods_id;
 			pItem->QuotKindID   = 0;
@@ -1099,7 +1099,7 @@ int FASTCALL PPViewPriceList::NextIteration(PriceListViewItem * pItem)
 					PriceLineTbl::Rec & rec = p_tbl->data;
 					pItem->PListID      = rec.ListID;
 					pItem->LineNo       = rec.LineNo;
-					pItem->LN           = Counter;
+					pItem->LN   = Counter;
 					pItem->GoodsGrpID   = rec.GoodsGrpID;
 					pItem->GoodsID      = rec.GoodsID;
 					pItem->QuotKindID   = rec.QuotKindID;
@@ -1111,7 +1111,7 @@ int FASTCALL PPViewPriceList::NextIteration(PriceListViewItem * pItem)
 					pItem->AddPrice2    = rec.AddPrice2;
 					pItem->AddPrice3    = rec.AddPrice3;
 					pItem->Expiry       = rec.Expiry;
-					pItem->Rest         = rec.Rest;
+					pItem->Rest = rec.Rest;
 					pItem->GoodsGrpName_ = IterGrpName_;
 					pItem->GoodsCode    = rec.GoodsCode;
 					pItem->GoodsName_   = rec.Name;
@@ -2914,7 +2914,7 @@ int PPALDD_PriceListData::InitData(PPFilt & rFilt, long rsrv)
 	H.FltManufID    = p_filt->ManufID;
 	p_filt->Memo.CopyTo(H.PLMemo, sizeof(H.PLMemo));
 	H.PListID      = p_filt->PListID;
-	H.Date         = p_filt->Dt;
+	H.Date = p_filt->Dt;
 	H.FltAddPct    = p_filt->PctAdd;
 	H.fByQuot      = BIN(p_filt->Flags & PLISTF_BYQUOT);
 	H.fPresentOnly = BIN(p_filt->Flags & PLISTF_PRESENTONLY);
@@ -2934,7 +2934,7 @@ int PPALDD_PriceListData::InitIteration(PPIterID iterId, int sortId, long /*rsrv
 int PPALDD_PriceListData::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PriceList);
-	I.LN          = item.LN;
+	I.LN  = item.LN;
 	I.QCertID     = item.QCertID;
 	I.GoodsGrpID  = item.GoodsGrpID;
 	I.GoodsID     = item.GoodsID;

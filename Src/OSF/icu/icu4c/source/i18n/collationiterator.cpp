@@ -629,7 +629,7 @@ uint32_t CollationIterator::nextCE32FromDiscontiguousContraction(const Collation
 		return ce32;
 	}
 	++lookAhead;
-	uint8_t prevCC = (uint8_t)fcd16;
+	uint8 prevCC = (uint8)fcd16;
 	fcd16 = d->getFCD16(nextCp);
 	if(fcd16 <= 0xff) {
 		// The next code point after c is a starter (S2.1.1 "process each non-starter").
@@ -688,7 +688,7 @@ uint32_t CollationIterator::nextCE32FromDiscontiguousContraction(const Collation
 			// No match for "S + C", skip C.
 			skipped->skip(c);
 			skipped->resetToTrieState(suffixes);
-			prevCC = (uint8_t)fcd16;
+			prevCC = (uint8)fcd16;
 		}
 		if((c = nextSkippedCodePoint(errorCode)) < 0) {
 			break;

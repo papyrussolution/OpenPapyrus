@@ -1,12 +1,8 @@
+// collationtest.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2012-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationtest.cpp
- *
+ * Copyright (C) 2012-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2012apr27
  * created by: Markus W. Scherer
  */

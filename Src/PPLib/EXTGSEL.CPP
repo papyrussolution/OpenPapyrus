@@ -279,6 +279,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags);
 	SETFLAGBYSAMPLE(Flags, fHideGeneric, flags); // @v10.7.7
+	SETFLAGBYSAMPLE(Flags, fForceMatrixUsage, flags); // @v11.2.8
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
 	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_EXTGSEL_LIST));
@@ -327,7 +328,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 			showCtrl(CTL_EXTGSEL_BRAND, 0);
 		}
 	}
-	if((r_cfg.Flags & CFGFLG_USEGOODSMATRIX) && OpID && CheckOpFlags(OpID, OPKF_RESTRICTBYMTX))
+	if((Flags & fForceMatrixUsage) || ((r_cfg.Flags & CFGFLG_USEGOODSMATRIX) && OpID && CheckOpFlags(OpID, OPKF_RESTRICTBYMTX)))
 		Flags |= fMatrix;
 	if(initGoodsID)
 		updateList(0);

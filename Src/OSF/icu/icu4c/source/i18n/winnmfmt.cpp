@@ -252,9 +252,9 @@ Win32NumberFormat &Win32NumberFormat::operator = (const Win32NumberFormat &other
 	}                                  // self-assignment: no-op
 	NumberFormat::operator = (other);
 
-	this->fCurrency          = other.fCurrency;
-	this->fLocale            = other.fLocale;
-	this->fLCID              = other.fLCID;
+	this->fCurrency  = other.fCurrency;
+	this->fLocale    = other.fLocale;
+	this->fLCID      = other.fLCID;
 	this->fFractionDigitsSet = other.fFractionDigitsSet;
 	this->fWindowsLocaleName = other.fWindowsLocaleName == NULL ? NULL : new UnicodeString(*other.fWindowsLocaleName);
 

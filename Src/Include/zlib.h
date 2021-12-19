@@ -398,8 +398,8 @@ typedef uInt uIntf;
 typedef uLong uLongf;
 #ifdef STDC
 	typedef void const * voidpc;
-	typedef void  * voidpf;
-	typedef void  * voidp;
+	typedef void * voidpf;
+	typedef void * voidp;
 #else
 	typedef Byte const * voidpc;
 	typedef Byte  * voidpf;

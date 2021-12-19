@@ -1214,8 +1214,8 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 				sp.Merge(path);
 			}
 			/*
-				dfactCopy           = 0, // скопировать файл pFileName в каждый из каталогов экспорта
-				dfactDelete         = 1, // удалить файлы с именем, заданным параметром pFileName
+				dfactCopy   = 0, // скопировать файл pFileName в каждый из каталогов экспорта
+				dfactDelete = 1, // удалить файлы с именем, заданным параметром pFileName
 				dfactCheckExistence = 2, // проверить наличие файла с именем, заданным параметром pFileName
 				dfactCheckDestPaths = 3  // проверить доступность каталогов назначения на запись
 			*/

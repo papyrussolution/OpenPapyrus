@@ -81,8 +81,8 @@ uint32 PNGAPI png_get_x_pixels_per_meter(png_const_structrp png_ptr, png_const_i
 			return (info_ptr->x_pixels_per_unit);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -96,8 +96,8 @@ uint32 PNGAPI png_get_y_pixels_per_meter(png_const_structrp png_ptr, png_const_i
 			return (info_ptr->y_pixels_per_unit);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -111,8 +111,8 @@ uint32 PNGAPI png_get_pixels_per_meter(png_const_structrp png_ptr, png_const_inf
 			return (info_ptr->x_pixels_per_unit);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -127,8 +127,8 @@ float PNGAPI png_get_pixel_aspect_ratio(png_const_structrp png_ptr, png_const_in
 			return ((float)((float)info_ptr->y_pixels_per_unit / (float)info_ptr->x_pixels_per_unit));
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return ((float)0.0);
 }
@@ -149,8 +149,8 @@ png_fixed_point PNGAPI png_get_pixel_aspect_ratio_fixed(png_const_structrp png_p
 			return res;
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -166,8 +166,8 @@ png_int_32 PNGAPI png_get_x_offset_microns(png_const_structrp png_ptr, png_const
 			return (info_ptr->x_offset);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -181,8 +181,8 @@ png_int_32 PNGAPI png_get_y_offset_microns(png_const_structrp png_ptr, png_const
 			return (info_ptr->y_offset);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -196,8 +196,8 @@ png_int_32 PNGAPI png_get_x_offset_pixels(png_const_structrp png_ptr, png_const_
 			return (info_ptr->x_offset);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -211,8 +211,8 @@ png_int_32 PNGAPI png_get_y_offset_pixels(png_const_structrp png_ptr, png_const_
 			return (info_ptr->y_offset);
 	}
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(info_ptr);
 #endif
 	return 0;
 }
@@ -519,7 +519,6 @@ uint32 PNGAPI png_get_gAMA_fixed(png_const_structrp png_ptr, png_const_inforp in
 	}
 	return 0;
 }
-
 #endif
 
 #ifdef PNG_FLOATING_POINT_SUPPORTED

@@ -32,12 +32,12 @@
  */
 struct hb_fallback_face_data_t {};
 
-hb_fallback_face_data_t * _hb_fallback_shaper_face_data_create(hb_face_t * face HB_UNUSED)
+hb_fallback_face_data_t * _hb_fallback_shaper_face_data_create(hb_face_t * face CXX_UNUSED_PARAM)
 {
 	return (hb_fallback_face_data_t*)HB_SHAPER_DATA_SUCCEEDED;
 }
 
-void _hb_fallback_shaper_face_data_destroy(hb_fallback_face_data_t * data HB_UNUSED)
+void _hb_fallback_shaper_face_data_destroy(hb_fallback_face_data_t * data CXX_UNUSED_PARAM)
 {
 }
 
@@ -47,12 +47,12 @@ void _hb_fallback_shaper_face_data_destroy(hb_fallback_face_data_t * data HB_UNU
 
 struct hb_fallback_font_data_t {};
 
-hb_fallback_font_data_t * _hb_fallback_shaper_font_data_create(hb_font_t * font HB_UNUSED)
+hb_fallback_font_data_t * _hb_fallback_shaper_font_data_create(hb_font_t * font CXX_UNUSED_PARAM)
 {
 	return (hb_fallback_font_data_t*)HB_SHAPER_DATA_SUCCEEDED;
 }
 
-void _hb_fallback_shaper_font_data_destroy(hb_fallback_font_data_t * data HB_UNUSED)
+void _hb_fallback_shaper_font_data_destroy(hb_fallback_font_data_t * data CXX_UNUSED_PARAM)
 {
 }
 
@@ -60,11 +60,11 @@ void _hb_fallback_shaper_font_data_destroy(hb_fallback_font_data_t * data HB_UNU
  * shaper
  */
 
-hb_bool_t _hb_fallback_shape(hb_shape_plan_t * shape_plan HB_UNUSED,
+hb_bool_t _hb_fallback_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer,
-    const hb_feature_t * features HB_UNUSED,
-    uint num_features HB_UNUSED)
+    const hb_feature_t * features CXX_UNUSED_PARAM,
+    uint num_features CXX_UNUSED_PARAM)
 {
 	/* TODO
 	 *

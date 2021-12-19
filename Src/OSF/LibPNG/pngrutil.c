@@ -976,7 +976,7 @@ void /* PRIVATE */ png_handle_IEND(png_structrp png_ptr, png_inforp info_ptr, ui
 	png_crc_finish(png_ptr, length);
 	if(length != 0)
 		png_chunk_benign_error(png_ptr, "invalid");
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(info_ptr);
 }
 
 #ifdef PNG_READ_gAMA_SUPPORTED
@@ -2415,9 +2415,9 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	 * function.
 	 */
 #ifndef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
-#     ifdef PNG_SET_UNKNOWN_CHUNKS_SUPPORTED
+#ifdef PNG_SET_UNKNOWN_CHUNKS_SUPPORTED
 	keep = png_chunk_unknown_handling(png_ptr, png_ptr->chunk_name);
-#     endif
+#endif
 #endif
 
 	/* One of the following methods will read the chunk or skip it (at least one
@@ -2510,7 +2510,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 #else
 #     ifndef PNG_READ_USER_CHUNKS_SUPPORTED
 #error no method to support READ_UNKNOWN_CHUNKS
-#     endif
+#endif
 
 	{
 		/* If here there is no read callback pointer set and no support is
@@ -2533,7 +2533,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	if(keep == PNG_HANDLE_CHUNK_ALWAYS ||
 	    (keep == PNG_HANDLE_CHUNK_IF_SAFE &&
 		    PNG_CHUNK_ANCILLARY(png_ptr->chunk_name))) {
-#     ifdef PNG_USER_LIMITS_SUPPORTED
+#ifdef PNG_USER_LIMITS_SUPPORTED
 		switch(png_ptr->user_chunk_cache_max) {
 			case 2:
 			    png_ptr->user_chunk_cache_max = 1;
@@ -2562,9 +2562,8 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 #endif
 	}
 #else /* no store support: the chunk must be handled by the user callback */
-	PNG_UNUSED(info_ptr)
+	CXX_UNUSED(info_ptr);
 #endif
-
 	/* Regardless of the error handling below the cached data (if any) can be
 	 * freed now.  Notice that the data is not freed if there is a png_error, but
 	 * it will be freed by destroy_read_struct.
@@ -2572,12 +2571,11 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	if(png_ptr->unknown_chunk.data)
 		png_free(png_ptr, png_ptr->unknown_chunk.data);
 	png_ptr->unknown_chunk.data = NULL;
-
 #else /* !PNG_READ_UNKNOWN_CHUNKS_SUPPORTED */
 	/* There is no support to read an unknown chunk, so just skip it. */
 	png_crc_finish(png_ptr, length);
-	PNG_UNUSED(info_ptr)
-	PNG_UNUSED(keep)
+	CXX_UNUSED(info_ptr);
+	CXX_UNUSED(keep);
 #endif /* !READ_UNKNOWN_CHUNKS */
 
 	/* Check for unhandled critical chunks */
@@ -3210,7 +3208,7 @@ void /* PRIVATE */ png_do_read_interlace(png_row_infop row_info, png_bytep row, 
 		row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth, final_width);
 	}
 #ifndef PNG_READ_PACKSWAP_SUPPORTED
-	PNG_UNUSED(transformations) /* Silence compiler warning */
+	CXX_UNUSED(transformations); // Silence compiler warning
 #endif
 }
 
@@ -3221,7 +3219,7 @@ static void png_read_filter_row_sub(png_row_infop row_info, png_bytep row, png_c
 	size_t istop = row_info->rowbytes;
 	uint bpp = (row_info->pixel_depth + 7) >> 3;
 	png_bytep rp = row + bpp;
-	PNG_UNUSED(prev_row)
+	CXX_UNUSED(prev_row);
 	for(size_t i = bpp; i < istop; i++) {
 		*rp = (uint8)(((int)(*rp) + (int)(*(rp-bpp))) & 0xff);
 		rp++;

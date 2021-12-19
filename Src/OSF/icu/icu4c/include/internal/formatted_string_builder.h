@@ -55,10 +55,10 @@ class U_I18N_API FormattedStringBuilder : public UMemory {
     // literals can be directly passed as a Field type.
     // Exported as U_I18N_API so it can be used by other exports on Windows.
     struct U_I18N_API Field {
-        uint8_t bits;
+        uint8 bits;
 
         Field() = default;
-        constexpr Field(uint8_t category, uint8_t field);
+        constexpr Field(uint8 category, uint8 field);
 
         inline UFieldCategory getCategory() const;
         inline int32_t getField() const;
@@ -219,11 +219,11 @@ static_assert(
     std::is_pod<FormattedStringBuilder::Field>::value,
     "Field should be a POD type for efficient initialization");
 
-constexpr FormattedStringBuilder::Field::Field(uint8_t category, uint8_t field)
+constexpr FormattedStringBuilder::Field::Field(uint8 category, uint8 field)
     : bits((
         U_ASSERT(category <= 0xf),
         U_ASSERT(field <= 0xf),
-        static_cast<uint8_t>((category << 4) | field)
+        static_cast<uint8>((category << 4) | field)
     )) {}
 
 /**

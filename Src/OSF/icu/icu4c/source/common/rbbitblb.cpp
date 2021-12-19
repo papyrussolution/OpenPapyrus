@@ -95,7 +95,7 @@ void RBBITableBuilder::buildForwardTable()
 		bofTop->fRightChild = fTree;
 		bofLeaf->fParent    = bofTop;
 		bofLeaf->fVal       = 2;// Reserved value for {bof}.
-		fTree               = bofTop;
+		fTree       = bofTop;
 	}
 
 	//
@@ -979,7 +979,7 @@ void RBBITableBuilder::setAdd(UVector * dest, UVector * source) {
 	U_ASSERT(!source->hasDeleter());
 	int32_t destOriginalSize = dest->size();
 	int32_t sourceSize       = source->size();
-	int32_t di           = 0;
+	int32_t di   = 0;
 	MaybeStackArray<void *, 16> destArray, sourceArray; // Handle small cases without malloc
 	void ** destPtr, ** sourcePtr;
 	void ** destLim, ** sourceLim;
@@ -1313,7 +1313,7 @@ void RBBITableBuilder::exportTable(void * where)
 	table->fLookAheadResultsSize = fLASlotsInUse == ACCEPTING_UNCONDITIONAL ? 0 : fLASlotsInUse + 1;
 	table->fFlags     = 0;
 	if(use8BitsForTable()) {
-		table->fRowLen    = offsetof(RBBIStateTableRow8, fNextState) + sizeof(uint8_t) * catCount;
+		table->fRowLen    = offsetof(RBBIStateTableRow8, fNextState) + sizeof(uint8) * catCount;
 		table->fFlags  |= RBBI_8BITS_ROWS;
 	}
 	else {
@@ -1523,7 +1523,7 @@ void RBBITableBuilder::exportSafeTable(void * where)
 	table->fNumStates = fSafeTable->size();
 	table->fFlags     = 0;
 	if(use8BitsForSafeTable()) {
-		table->fRowLen    = offsetof(RBBIStateTableRow8, fNextState) + sizeof(uint8_t) * catCount;
+		table->fRowLen    = offsetof(RBBIStateTableRow8, fNextState) + sizeof(uint8) * catCount;
 		table->fFlags  |= RBBI_8BITS_ROWS;
 	}
 	else {
@@ -1540,7 +1540,7 @@ void RBBITableBuilder::exportSafeTable(void * where)
 			r8->fTagsIdx    = 0;
 			for(col = 0; col<catCount; col++) {
 				U_ASSERT(rowString->charAt(col) <= kMaxStateFor8BitsTable);
-				r8->fNextState[col] = static_cast<uint8_t>(rowString->charAt(col));
+				r8->fNextState[col] = static_cast<uint8>(rowString->charAt(col));
 			}
 		}
 		else {

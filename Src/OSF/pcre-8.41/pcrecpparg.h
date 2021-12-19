@@ -151,17 +151,17 @@ inline bool Arg::Parse(const char * str, int n) const {
   inline Arg CRadix(type* ptr) { \
     return Arg(ptr, Arg::parse_ ## name ## _cradix); }
 
-MAKE_INTEGER_PARSER(short,              short)     /*                        */
-MAKE_INTEGER_PARSER(unsigned short,     ushort)    /*                        */
+MAKE_INTEGER_PARSER(short,              short)     /*        */
+MAKE_INTEGER_PARSER(unsigned short,     ushort)    /*        */
 MAKE_INTEGER_PARSER(int,                int)       /* Don't use semicolons   */
 MAKE_INTEGER_PARSER(uint,       uint)      /* after these statement  */
 MAKE_INTEGER_PARSER(long,               long)      /* because they can cause */
 MAKE_INTEGER_PARSER(unsigned long,      ulong)     /* compiler warnings if   */
 #if 1                          /* the checking level is  */
 MAKE_INTEGER_PARSER(long long,          longlong)  /* turned up high enough. */
-#endif                                             /*                        */
-#if 1                         /*                        */
-MAKE_INTEGER_PARSER(unsigned long long, ulonglong) /*                        */
+#endif                                             /*        */
+#if 1                         /*        */
+MAKE_INTEGER_PARSER(unsigned long long, ulonglong) /*        */
 #endif
 
 #undef PCRE_IS_SET

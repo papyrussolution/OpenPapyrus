@@ -2503,5 +2503,5 @@ cairo_surface_t * _cairo_int_surface_create_in_error(cairo_int_status_t status)
 	}
 }
 
-/*  LocalWords:  rasterized
+/* LocalWords:  rasterized
  */

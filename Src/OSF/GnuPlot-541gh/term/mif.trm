@@ -95,16 +95,16 @@ register_term(mif)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void MIF_init(GpTermEntry * pThis);
+TERM_PUBLIC void MIF_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void MIF_graphics();
-TERM_PUBLIC void MIF_text(GpTermEntry * pThis);
+TERM_PUBLIC void MIF_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void MIF_linetype(int linetype);
 TERM_PUBLIC void MIF_move(uint x, uint y);
 TERM_PUBLIC void MIF_vector(uint x, uint y);
 TERM_PUBLIC void MIF_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC int MIF_text_angle(int ang);
 TERM_PUBLIC void MIF_reset();
-TERM_PUBLIC void MIF_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void MIF_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
 TERM_PUBLIC int MIF_justify_text(enum JUSTIFY mode);
 TERM_PUBLIC void MIF_point(uint x, uint y, int number);
 TERM_PUBLIC void MIF_boxfill(int style, uint x1, uint y1, uint width, uint height);
@@ -142,7 +142,7 @@ static void mif_put_point(uint x, uint y, int np);
 
 static struct mif_line {        /* Line point structure specification */
 	float fpos_x; /* Line point X coordinate */
-	float fpos_y; /*            Y coordinate */
+	float fpos_y; /* Y coordinate */
 	struct mif_line * next; /* Pointer to next line point */
 	struct mif_line * prev; /* Pointer to previous line point */
 } mif_line =
@@ -257,7 +257,7 @@ static struct gen_table MIF_opts[] =
 /** Routine/s **/
 
 /* Called when this terminal type is set in order to parse options */
-TERM_PUBLIC void MIF_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void MIF_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&MIF_opts[0])) {
@@ -449,7 +449,7 @@ TERM_PUBLIC void MIF_point(uint x, uint y, int number)
 }
 
 /* Set up a MIF output file */
-TERM_PUBLIC void MIF_init(GpTermEntry * pThis)
+TERM_PUBLIC void MIF_init(GpTermEntry_Static * pThis)
 {
 	int i;
 	/* Process if not inside a MIF file and Frame */
@@ -569,7 +569,7 @@ TERM_PUBLIC void MIF_graphics()
 }
 
 /* Stop plotting a Frame (-> text mode) */
-TERM_PUBLIC void MIF_text(GpTermEntry * pThis)
+TERM_PUBLIC void MIF_text(GpTermEntry_Static * pThis)
 {
 	int i;
 	/* Process if inside a Frame */

@@ -96,7 +96,7 @@ static void ColouriseA68kDoc(Sci_PositionU startPos, Sci_Position length, int in
 	WordList &registers = *keywordlists[1];
 	WordList &directive = *keywordlists[2];
 	WordList &extInstruction = *keywordlists[3];
-	WordList &alert          = *keywordlists[4];
+	WordList &alert  = *keywordlists[4];
 	WordList &doxygenKeyword = *keywordlists[5];
 
 	// Instanciate a context for our source

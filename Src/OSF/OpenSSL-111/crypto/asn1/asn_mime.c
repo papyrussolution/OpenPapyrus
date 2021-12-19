@@ -58,7 +58,7 @@ static MIME_PARAM * mime_param_find(MIME_HEADER * hdr, const char * name);
 static void mime_hdr_free(MIME_HEADER * hdr);
 
 #define MAX_SMLEN 1024
-#define mime_debug(x)           /* x */
+#define mime_debug(x) /* x */
 
 /* Output an ASN1 structure in BER format streaming if necessary */
 

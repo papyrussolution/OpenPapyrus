@@ -1074,8 +1074,8 @@ void GnuPlot::ClosePrinter(GpTermEntry * pTerm, FILE * outfile)
 #else
 	hwnd = GetDesktopWindow();
 #endif
-	if(pTerm->name)
-		wsprintf(title, TEXT("gnuplot graph (%hs)"), pTerm->name);
+	if(pTerm->GetName())
+		wsprintf(title, TEXT("gnuplot graph (%hs)"), pTerm->GetName());
 	else
 		_tcscpy(title, TEXT("gnuplot graph"));
 	DumpPrinter(hwnd, title, SUcSwitch(win_prntmp));
@@ -1091,17 +1091,17 @@ void GnuPlot::ScreenDump(GpTermEntry * pTerm)
 		IntErrorCurToken("");
 	}
 	else {
-		if(sstreq(pTerm->name, "windows"))
+		if(sstreq(pTerm->GetName(), "windows"))
 			GraphPrint(_WinM.P_GraphWin);
 #ifdef WXWIDGETS
-		else if(sstreq(pTerm->name, "wxt"))
+		else if(sstreq(pTerm->GetName(), "wxt"))
 			wxt_screen_dump();
 #endif
 #ifdef QTTERM
-		//else if (sstreq(pTerm->name, "qt"))
+		//else if (sstreq(pTerm->GetName(), "qt"))
 #endif
 		else
-			IntErrorCurToken("screendump not supported for terminal `%s`", pTerm->name);
+			IntErrorCurToken("screendump not supported for terminal `%s`", pTerm->GetName());
 	}
 }
 

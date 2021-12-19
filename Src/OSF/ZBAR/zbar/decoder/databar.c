@@ -533,11 +533,9 @@ static void merge_segment(databar_decoder_t * db, databar_segment_t * seg)
 	const uint csegs = db->csegs;
 	for(uint i = 0; i < csegs; i++) {
 		databar_segment_t * s = db->segs + i;
-		if(s != seg && s->finder == seg->finder && s->exp == seg->exp &&
-		    s->color == seg->color && s->side == seg->side &&
-		    s->data == seg->data && s->check == seg->check &&
-		    check_width(seg->width, s->width, 14)) {
-			/* merge with existing segment */
+		if(s != seg && s->finder == seg->finder && s->exp == seg->exp && s->color == seg->color && s->side == seg->side &&
+		    s->data == seg->data && s->check == seg->check && check_width(seg->width, s->width, 14)) {
+			// merge with existing segment 
 			uint cnt = s->count;
 			if(cnt < 0x7f)
 				cnt++;
@@ -587,17 +585,13 @@ static inline zbar_symbol_type_t match_segment(zbar_decoder_t * dcode, databar_s
 				if(chkf > 8)
 					chkf--;
 				chks = (seg->check + s0->check + s1->check) % 79;
-				if(chkf >= chks)
-					chk = chkf - chks;
-				else
-					chk = 79 + chkf - chks;
+				chk  = (chkf >= chks) ? (chkf - chks) : (79 + chkf - chks);
 				dbprintf(2, " chk=(%d,%d) => %d", chkf, chks, chk);
 				age1 = (((db->epoch - s0->epoch) & 0xff) + ((db->epoch - s1->epoch) & 0xff));
 				for(uint i2 = i1 + 1; i2 < csegs; i2++) {
 					databar_segment_t * s2 = db->segs + i2;
 					uint cnt, age2, age;
-					if(i2 == i0 || s2->finder != s1->finder || s2->exp ||
-						s2->color != s1->color || s2->side == s1->side ||
+					if(i2 == i0 || s2->finder != s1->finder || s2->exp || s2->color != s1->color || s2->side == s1->side ||
 						s2->check != chk || (s2->partial && s2->count < 4) ||
 						!check_width(seg->width, s2->width, 14))
 						continue;
@@ -643,9 +637,8 @@ static inline zbar_symbol_type_t match_segment(zbar_decoder_t * dcode, databar_s
 static uint lookup_sequence(databar_segment_t * seg, int fixed, int seq[22])
 {
 	uint n = seg->data / 211;
-	uint i;
 	const uchar * p;
-	i = (n + 1) / 2 + 1;
+	uint i = (n + 1) / 2 + 1;
 	n += 4;
 	i = (i * i) / 4;
 	dbprintf(2, " {%d,%d:", i, n);
@@ -911,7 +904,6 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 		sig1 += sum;
 		if(!i)
 			break;
-
 		e = decode_e(pair_width(dcode, off), s, n);
 		if(e < 0)
 			return ZBAR_NONE;
@@ -923,16 +915,12 @@ static zbar_symbol_type_t decode_char(zbar_decoder_t * dcode, databar_segment_t 
 			emin[0] = sum;
 		sig0 += sum;
 	}
-
 	int diff = emin[~n & 1];
 	diff = diff + (diff << 4);
 	diff = diff + (diff << 8);
-
 	sig0 -= diff;
 	sig1 += diff;
-
 	dbprintf(2, " emin=%d,%d el=%04x/%04x", emin[0], emin[1], sig0, sig1);
-
 	uint sum0 = sig0 + (sig0 >> 8);
 	uint sum1 = sig1 + (sig1 >> 8);
 	sum0 += sum0 >> 4;
@@ -1161,7 +1149,6 @@ zbar_symbol_type_t _zbar_decode_databar(zbar_decoder_t * dcode)
 		seg->width = pair->width;
 		seg->epoch = db->epoch;
 	}
-
 	sym = decode_char(dcode, seg, 1, 1);
 	if(!sym) {
 		seg->finder = -1;
@@ -1171,7 +1158,6 @@ zbar_symbol_type_t _zbar_decode_databar(zbar_decoder_t * dcode)
 	else
 		db->epoch++;
 	dbprintf(2, "\n");
-
 	return (sym);
 }
 

@@ -201,7 +201,7 @@ typedef void U_CALLCONV
 #if !UCONFIG_NO_BREAK_ITERATION
     icu::BreakIterator * iter,
 #endif
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits,
     UErrorCode & errorCode);
 
@@ -210,7 +210,7 @@ typedef void U_CALLCONV
 /** Implements UTF8CaseMapper. */
 U_CFUNC void U_CALLCONV ucasemap_internalUTF8ToTitle(int32_t caseLocale, uint32_t options,
     icu::BreakIterator * iter,
-    const uint8_t * src, int32_t srcLength,
+    const uint8 * src, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits,
     UErrorCode & errorCode);
 

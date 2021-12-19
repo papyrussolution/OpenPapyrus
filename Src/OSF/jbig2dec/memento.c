@@ -1971,9 +1971,9 @@ static void * do_malloc(size_t s, int eventType)
 	memblk->rawsize       = s;
 	memblk->sequence      = memento.sequence;
 	memblk->lastCheckedOK = memblk->sequence;
-	memblk->flags         = 0;
-	memblk->label         = 0;
-	memblk->child         = MEMENTO_CHILD_MAGIC;
+	memblk->flags = 0;
+	memblk->label = 0;
+	memblk->child = MEMENTO_CHILD_MAGIC;
 	memblk->sibling       = MEMENTO_SIBLING_MAGIC;
 #ifdef MEMENTO_DETAILS
 	memblk->details       = NULL;

@@ -849,7 +849,7 @@ int PPObjStaffList::Edit(PPID * pID, void * extraPtr)
 			pack.Rec.OrgID      = static_cast<const Filt *>(extraPtr)->OrgID;
 			pack.Rec.DivisionID = static_cast<const Filt *>(extraPtr)->DivID;
 		}
-		pack.Rec.Rank         = 100;
+		pack.Rec.Rank = 100;
 		pack.Rec.VacancyCount = 1;
 	}
 	if(EditDialog(&pack) > 0) {
@@ -1420,11 +1420,11 @@ int PPALDD_StaffNom::InitData(PPFilt & rFilt, long rsrv)
 		PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(Extra[0].Ptr);
 		PPStaffEntry rec;
 		if(p_obj->Search(rFilt.ID, &rec) > 0) {
-			H.ID           = rec.ID;
+			H.ID   = rec.ID;
 			H.OrgID        = rec.OrgID;
 			H.DivID        = rec.DivisionID;
 			H.ChargeGrpID  = rec.ChargeGrpID;
-			H.Rank         = rec.Rank;
+			H.Rank = rec.Rank;
 			H.Flags        = rec.Flags;
 			H.VacancyCount = rec.VacancyCount;
 			H.VacancyBusy  = rec.VacancyBusy;
@@ -1460,10 +1460,10 @@ int PPALDD_PersonPost::InitData(PPFilt & rFilt, long rsrv)
 		PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(Extra[0].Ptr);
 		PersonPostTbl::Rec rec;
 		if(p_obj->SearchPost(rFilt.ID, &rec) > 0) {
-			H.ID           = rec.ID;
+			H.ID   = rec.ID;
 			H.StaffID      = rec.StaffID;
 			H.PersonID     = rec.PersonID;
-			H.Dt           = rec.Dt;
+			H.Dt   = rec.Dt;
 			H.Finish       = rec.Finish;
 			H.ChargeGrpID  = rec.ChargeGrpID;
 			H.Flags        = rec.Flags;
@@ -1562,7 +1562,7 @@ int32 DL6ICLS_PPObjStaff::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	THROW_PP_S(p_outer_rec->RecTag == ppoStaff, PPERR_INVSTRUCTAG, "ppoStaff");
 	pack.Rec.OrgID        = p_outer_rec->OrgID;
 	pack.Rec.DivisionID   = p_outer_rec->DivisionID;
-	pack.Rec.Rank         = p_outer_rec->Rank;
+	pack.Rec.Rank = p_outer_rec->Rank;
 	pack.Rec.Flags        = p_outer_rec->Flags;
 	pack.Rec.FixedStaff   = p_outer_rec->FixedStaff;
 	pack.Rec.ChargeGrpID  = p_outer_rec->ChargeGrpID;
@@ -1588,7 +1588,7 @@ int32 DL6ICLS_PPObjStaff::Update(int32 id, long flags, PPYOBJREC rec)
 	THROW(p_obj->GetPacket(id, &pack) > 0);
 	// noupd pack.Rec.OrgID        = p_outer_rec->OrgID;
 	// noupd pack.Rec.DivisionID   = p_outer_rec->DivisionID;
-	pack.Rec.Rank         = p_outer_rec->Rank;
+	pack.Rec.Rank = p_outer_rec->Rank;
 	pack.Rec.Flags        = p_outer_rec->Flags;
 	// noupd pack.Rec.FixedStaff   = p_outer_rec->FixedStaff;
 	pack.Rec.ChargeGrpID  = p_outer_rec->ChargeGrpID;

@@ -3088,7 +3088,7 @@ void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 	if(P_TrAnlzTbl) {
 		PersonTbl::Rec psn_rec;
 		const TempTrfrAnlzTbl::Rec & r_rec = P_TrAnlzTbl->data;
-		pItem->Dt         = r_rec.Dt;
+		pItem->Dt = r_rec.Dt;
 		pItem->OprNo      = r_rec.OprNo;
 		pItem->BillID     = r_rec.BillID;
 		pItem->BillCode_  = r_rec.BillCode;
@@ -3977,7 +3977,7 @@ int PPALDD_TrfrAnlzBase::InitData(PPFilt & rFilt, long rsrv)
 	H.FltObjectID   = p_filt->ArList.GetSingle();
 	H.FltGoodsGrpID = p_filt->GoodsGrpID;
 	H.FltGoodsID    = p_filt->GoodsID;
-	H.Flags         = p_filt->Flags;
+	H.Flags = p_filt->Flags;
 	H.fLabelOnly    = BIN(p_filt->Flags & TrfrAnlzFilt::fLabelOnly);
 	H.Grp = p_filt->Grp;
 	H.Sgg = p_filt->Sgg;

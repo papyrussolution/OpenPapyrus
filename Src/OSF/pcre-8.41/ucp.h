@@ -68,16 +68,16 @@ enum {
    the number to 16 or more, the code will have to be rewritten. */
 
 enum {
-	ucp_gbCR,          /*  0 */
-	ucp_gbLF,          /*  1 */
-	ucp_gbControl,     /*  2 */
-	ucp_gbExtend,      /*  3 */
-	ucp_gbPrepend,     /*  4 */
-	ucp_gbSpacingMark, /*  5 */
-	ucp_gbL,           /*  6 Hangul syllable type L */
-	ucp_gbV,           /*  7 Hangul syllable type V */
-	ucp_gbT,           /*  8 Hangul syllable type T */
-	ucp_gbLV,          /*  9 Hangul syllable type LV */
+	ucp_gbCR,          /* 0 */
+	ucp_gbLF,          /* 1 */
+	ucp_gbControl,     /* 2 */
+	ucp_gbExtend,      /* 3 */
+	ucp_gbPrepend,     /* 4 */
+	ucp_gbSpacingMark, /* 5 */
+	ucp_gbL,           /* 6 Hangul syllable type L */
+	ucp_gbV,           /* 7 Hangul syllable type V */
+	ucp_gbT,           /* 8 Hangul syllable type T */
+	ucp_gbLV,          /* 9 Hangul syllable type LV */
 	ucp_gbLVT,         /* 10 Hangul syllable type LVT */
 	ucp_gbRegionalIndicator, /* 11 */
 	ucp_gbOther        /* 12 */

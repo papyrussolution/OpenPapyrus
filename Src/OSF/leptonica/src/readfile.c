@@ -31,29 +31,29 @@
  *      Top-level functions for reading images from file
  *           PIXA      *pixaReadFiles()
  *           PIXA      *pixaReadFilesSA()
- *           PIX       *pixRead()
- *           PIX       *pixReadWithHint()
- *           PIX       *pixReadIndexed()
- *           PIX       *pixReadStream()
+ *           PIX *pixRead()
+ *           PIX *pixReadWithHint()
+ *           PIX *pixReadIndexed()
+ *           PIX *pixReadStream()
  *
  *      Read header information from file
- *           int32    pixReadHeader()
+ *           l_int32    pixReadHeader()
  *
  *      Format finders
- *           int32    findFileFormat()
- *           int32    findFileFormatStream()
- *           int32    findFileFormatBuffer()
- *           int32    fileFormatIsTiff()
+ *           l_int32    findFileFormat()
+ *           l_int32    findFileFormatStream()
+ *           l_int32    findFileFormatBuffer()
+ *           l_int32    fileFormatIsTiff()
  *
  *      Read from memory
- *           PIX       *pixReadMem()
- *           int32    pixReadHeaderMem()
+ *           PIX *pixReadMem()
+ *           l_int32    pixReadHeaderMem()
  *
  *      Output image file information
  *           void       writeImageFileInfo()
  *
  *      Test function for I/O with different formats
- *           int32    ioFormatTest()
+ *           l_int32    ioFormatTest()
  *
  *  Supported file formats:
  *  (1) Reading is supported without any external libraries:
@@ -70,10 +70,6 @@
  *  (3) Other file types will get an "unknown format" error.
  * </pre>
  */
-//#ifdef HAVE_CONFIG_H
-//#include "config_auto.h"
-//#endif  /* HAVE_CONFIG_H */
-
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -87,16 +83,20 @@ static const char * FILE_RLE  =  "/tmp/lept/format/file_rle.tif";
 static const char * FILE_PB   =  "/tmp/lept/format/file_packbits.tif";
 static const char * FILE_LZW  =  "/tmp/lept/format/file_lzw.tif";
 static const char * FILE_ZIP  =  "/tmp/lept/format/file_zip.tif";
+static const char * FILE_TIFF_JPEG =  "/tmp/lept/format/file_jpeg.tif";
 static const char * FILE_TIFF =  "/tmp/lept/format/file.tif";
 static const char * FILE_JPG  =  "/tmp/lept/format/file.jpg";
 static const char * FILE_GIF  =  "/tmp/lept/format/file.gif";
 static const char * FILE_WEBP =  "/tmp/lept/format/file.webp";
 static const char * FILE_JP2K =  "/tmp/lept/format/file.jp2";
 
+/* There are two jp2 formats, and two codecs associated with them:
+ *    OPJ_CODEC_J2K (L_J2K_CODEC) is associated with JP2K_CODESTREAM
+ *    OPJ_CODEC_JP2 (L_JP2_CODEC) is associated with JP2K_IMAGE_DATA    */
 static const unsigned char JP2K_CODESTREAM[4] = { 0xff, 0x4f, 0xff, 0x51 };
-static const unsigned char JP2K_IMAGE_DATA[12] = { 0x00, 0x00, 0x00, 0x0C,
-						   0x6A, 0x50, 0x20, 0x20,
-						   0x0D, 0x0A, 0x87, 0x0A };
+static const unsigned char JP2K_IMAGE_DATA[12] = { 0x00, 0x00, 0x00, 0x0c,
+						   0x6a, 0x50, 0x20, 0x20,
+						   0x0d, 0x0a, 0x87, 0x0a };
 
 /*---------------------------------------------------------------------*
 *          Top-level functions for reading images from file           *
@@ -105,7 +105,7 @@ static const unsigned char JP2K_IMAGE_DATA[12] = { 0x00, 0x00, 0x00, 0x0C,
  * \brief   pixaReadFiles()
  *
  * \param[in]    dirname
- * \param[in]    substr [optional] substring filter on filenames; can be null
+ * \param[in]    substr   [optional] substring filter on filenames; can be null
  * \return  pixa, or NULL on error
  *
  * <pre>
@@ -117,13 +117,13 @@ static const unsigned char JP2K_IMAGE_DATA[12] = { 0x00, 0x00, 0x00, 0x0C,
  *          all filenames are read into the Pixa.
  * </pre>
  */
-PIXA * pixaReadFiles(const char  * dirname,
-    const char  * substr)
+PIXA * pixaReadFiles(const char * dirname,
+    const char * substr)
 {
 	PIXA    * pixa;
-	SARRAY  * sa;
+	SARRAY * sa;
 
-	PROCNAME("pixaReadFiles");
+	PROCNAME(__FUNCTION__);
 
 	if(!dirname)
 		return (PIXA*)ERROR_PTR("dirname not defined", procName, NULL);
@@ -139,17 +139,17 @@ PIXA * pixaReadFiles(const char  * dirname,
 /*!
  * \brief   pixaReadFilesSA()
  *
- * \param[in]    sa full pathnames for all files
+ * \param[in]    sa     full pathnames for all files
  * \return  pixa, or NULL on error
  */
-PIXA * pixaReadFilesSA(SARRAY  * sa)
+PIXA * pixaReadFilesSA(SARRAY * sa)
 {
-	char    * str;
-	int32 i, n;
-	PIX     * pix;
+	char * str;
+	l_int32 i, n;
+	PIX * pix;
 	PIXA    * pixa;
 
-	PROCNAME("pixaReadFilesSA");
+	PROCNAME(__FUNCTION__);
 
 	if(!sa)
 		return (PIXA*)ERROR_PTR("sa not defined", procName, NULL);
@@ -159,7 +159,7 @@ PIXA * pixaReadFilesSA(SARRAY  * sa)
 	for(i = 0; i < n; i++) {
 		str = sarrayGetString(sa, i, L_NOCOPY);
 		if((pix = pixRead(str)) == NULL) {
-			L_WARNING2("pix not read from file %s\n", procName, str);
+			L_WARNING("pix not read from file %s\n", procName, str);
 			continue;
 		}
 		pixaAddPix(pixa, pix, L_INSERT);
@@ -171,7 +171,7 @@ PIXA * pixaReadFilesSA(SARRAY  * sa)
 /*!
  * \brief   pixRead()
  *
- * \param[in]    filename with full pathname or in local directory
+ * \param[in]    filename    with full pathname or in local directory
  * \return  pix if OK; NULL on error
  *
  * <pre>
@@ -179,30 +179,33 @@ PIXA * pixaReadFilesSA(SARRAY  * sa)
  *      (1) See at top of file for supported formats.
  * </pre>
  */
-PIX * pixRead(const char  * filename)
+PIX * pixRead(const char * filename)
 {
-	FILE  * fp;
-	PIX   * pix;
-	PROCNAME("pixRead");
+	FILE * fp;
+	PIX * pix;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!filename)
-		return (PIX*)ERROR_PTR("filename not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("filename not defined", procName, NULL);
+
 	if((fp = fopenReadStream(filename)) == NULL) {
-		L_ERROR2("image file not found: %s\n", procName, filename);
+		L_ERROR("image file not found: %s\n", procName, filename);
 		return NULL;
 	}
-	if((pix = pixReadStream(fp, 0)) == NULL) {
-		fclose(fp);
-		return (PIX*)ERROR_PTR("pix not read", procName, NULL);
-	}
+	pix = pixReadStream(fp, 0);
 	fclose(fp);
+	if(!pix)
+		return (PIX *)ERROR_PTR("pix not read", procName, NULL);
 	return pix;
 }
 
 /*!
  * \brief   pixReadWithHint()
  *
- * \param[in]    filename with full pathname or in local directory
- * \param[in]    hint bitwise OR of L_HINT_* values for jpeg; use 0 for no hint
+ * \param[in]    filename    with full pathname or in local directory
+ * \param[in]    hint        bitwise OR of L_HINT_* values for jpeg;
+ *                           use 0 for no hint
  * \return  pix if OK; NULL on error
  *
  * <pre>
@@ -211,32 +214,32 @@ PIX * pixRead(const char  * filename)
  *          Use 0 for no hinting.
  * </pre>
  */
-PIX * pixReadWithHint(const char  * filename,
-    int32 hint)
+PIX * pixReadWithHint(const char * filename,
+    l_int32 hint)
 {
-	FILE  * fp;
-	PIX   * pix;
+	FILE * fp;
+	PIX * pix;
 
-	PROCNAME("pixReadWithHint");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
-		return (PIX*)ERROR_PTR("filename not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("filename not defined", procName, NULL);
 
 	if((fp = fopenReadStream(filename)) == NULL)
-		return (PIX*)ERROR_PTR("image file not found", procName, NULL);
+		return (PIX *)ERROR_PTR("image file not found", procName, NULL);
 	pix = pixReadStream(fp, hint);
 	fclose(fp);
 
 	if(!pix)
-		return (PIX*)ERROR_PTR("image not returned", procName, NULL);
+		return (PIX *)ERROR_PTR("image not returned", procName, NULL);
 	return pix;
 }
 
 /*!
  * \brief   pixReadIndexed()
  *
- * \param[in]    sa string array of full pathnames
- * \param[in]    index into pathname array
+ * \param[in]    sa      string array of full pathnames
+ * \param[in]    index   into pathname array
  * \return  pix if OK; null if not found
  *
  * <pre>
@@ -260,32 +263,38 @@ PIX * pixReadWithHint(const char  * filename,
  *          example of usage.
  * </pre>
  */
-PIX * pixReadIndexed(SARRAY  * sa, int32 index)
+PIX * pixReadIndexed(SARRAY * sa,
+    l_int32 index)
 {
-	char    * fname;
-	int32 n;
-	PIX     * pix;
-	PROCNAME("pixReadIndexed");
+	char * fname;
+	l_int32 n;
+	PIX * pix;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!sa)
-		return (PIX*)ERROR_PTR("sa not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("sa not defined", procName, NULL);
 	n = sarrayGetCount(sa);
 	if(index < 0 || index >= n)
-		return (PIX*)ERROR_PTR("index out of bounds", procName, NULL);
+		return (PIX *)ERROR_PTR("index out of bounds", procName, NULL);
+
 	fname = sarrayGetString(sa, index, L_NOCOPY);
 	if(fname[0] == '\0')
 		return NULL;
+
 	if((pix = pixRead(fname)) == NULL) {
-		L_ERROR2("pix not read from file %s\n", procName, fname);
+		L_ERROR("pix not read from file %s\n", procName, fname);
 		return NULL;
 	}
+
 	return pix;
 }
 
 /*!
  * \brief   pixReadStream()
  *
- * \param[in]    fp file stream
- * \param[in]    hint bitwise OR of L_HINT_* values for jpeg; use 0 for no hint
+ * \param[in]    fp      file stream
+ * \param[in]    hint    bitwise OR of L_HINT_* values for jpeg; 0 for no hint
  * \return  pix if OK; NULL on error
  *
  * <pre>
@@ -293,17 +302,18 @@ PIX * pixReadIndexed(SARRAY  * sa, int32 index)
  *      (1) The hint only applies to jpeg.
  * </pre>
  */
-PIX * pixReadStream(FILE    * fp,
-    int32 hint)
+PIX * pixReadStream(FILE * fp,
+    l_int32 hint)
 {
-	int32 format, ret;
+	l_int32 format, ret, valid;
 	uint8  * comment;
-	PIX      * pix;
+	PIX * pix;
+	PIXCMAP  * cmap;
 
-	PROCNAME("pixReadStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
-		return (PIX*)ERROR_PTR("stream not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("stream not defined", procName, NULL);
 	pix = NULL;
 
 	findFileFormatStream(fp, &format);
@@ -311,21 +321,21 @@ PIX * pixReadStream(FILE    * fp,
 	{
 		case IFF_BMP:
 		    if((pix = pixReadStreamBmp(fp)) == NULL)
-			    return (PIX*)ERROR_PTR("bmp: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("bmp: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_JFIF_JPEG:
 		    if((pix = pixReadStreamJpeg(fp, 0, 1, NULL, hint)) == NULL)
-			    return (PIX*)ERROR_PTR("jpeg: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("jpeg: no pix returned", procName, NULL);
 		    ret = fgetJpegComment(fp, &comment);
 		    if(!ret && comment)
 			    pixSetText(pix, (char*)comment);
-		    LEPT_FREE(comment);
+		    SAlloc::F(comment);
 		    break;
 
 		case IFF_PNG:
 		    if((pix = pixReadStreamPng(fp)) == NULL)
-			    return (PIX*)ERROR_PTR("png: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("png: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_TIFF:
@@ -335,43 +345,60 @@ PIX * pixReadStream(FILE    * fp,
 		case IFF_TIFF_G4:
 		case IFF_TIFF_LZW:
 		case IFF_TIFF_ZIP:
+		case IFF_TIFF_JPEG:
 		    if((pix = pixReadStreamTiff(fp, 0)) == NULL) /* page 0 by default */
-			    return (PIX*)ERROR_PTR("tiff: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("tiff: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_PNM:
 		    if((pix = pixReadStreamPnm(fp)) == NULL)
-			    return (PIX*)ERROR_PTR("pnm: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("pnm: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_GIF:
 		    if((pix = pixReadStreamGif(fp)) == NULL)
-			    return (PIX*)ERROR_PTR("gif: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("gif: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_JP2:
 		    if((pix = pixReadStreamJp2k(fp, 1, NULL, 0, 0)) == NULL)
-			    return (PIX*)ERROR_PTR("jp2: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("jp2: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_WEBP:
 		    if((pix = pixReadStreamWebP(fp)) == NULL)
-			    return (PIX*)ERROR_PTR("webp: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("webp: no pix returned", procName, NULL);
 		    break;
+
+		case IFF_PS:
+		    L_ERROR("PostScript reading is not supported\n", procName);
+		    return NULL;
+
+		case IFF_LPDF:
+		    L_ERROR("Pdf reading is not supported\n", procName);
+		    return NULL;
 
 		case IFF_SPIX:
 		    if((pix = pixReadStreamSpix(fp)) == NULL)
-			    return (PIX*)ERROR_PTR("spix: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("spix: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_UNKNOWN:
-		    return (PIX*)ERROR_PTR("Unknown format: no pix returned",
-		    procName, NULL);
+		    return (PIX *)ERROR_PTR("Unknown format: no pix returned",
+			       procName, NULL);
 		    break;
 	}
 
-	if(pix)
+	if(pix) {
 		pixSetInputFormat(pix, format);
+		if((cmap = pixGetColormap(pix))) {
+			pixcmapIsValid(cmap, pix, &valid);
+			if(!valid) {
+				pixDestroy(&pix);
+				return (PIX *)ERROR_PTR("invalid colormap", procName, NULL);
+			}
+		}
+	}
 	return pix;
 }
 
@@ -381,12 +408,12 @@ PIX * pixReadStream(FILE    * fp,
 /*!
  * \brief   pixReadHeader()
  *
- * \param[in]    filename with full pathname or in local directory
- * \param[out]   pformat [optional] file format
- * \param[out]   pw, ph [optional] width and height
- * \param[out]   pbps [optional] bits/sample
- * \param[out]   pspp [optional] samples/pixel 1, 3 or 4
- * \param[out]   piscmap [optional] 1 if cmap exists; 0 otherwise
+ * \param[in]    filename    with full pathname or in local directory
+ * \param[out]   pformat     [optional] file format
+ * \param[out]   pw, ph      [optional] width and height
+ * \param[out]   pbps        [optional] bits/sample
+ * \param[out]   pspp        [optional] samples/pixel 1, 3 or 4
+ * \param[out]   piscmap     [optional] 1 if cmap exists; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -396,20 +423,20 @@ PIX * pixReadStream(FILE    * fp,
  *          from which we extract the "header" information.
  * </pre>
  */
-int32 pixReadHeader(const char  * filename,
-    int32     * pformat,
-    int32     * pw,
-    int32     * ph,
-    int32     * pbps,
-    int32     * pspp,
-    int32     * piscmap)
+l_ok pixReadHeader(const char * filename,
+    l_int32     * pformat,
+    l_int32     * pw,
+    l_int32     * ph,
+    l_int32     * pbps,
+    l_int32     * pspp,
+    l_int32     * piscmap)
 {
-	int32 format, ret, w, h, d, bps, spp, iscmap;
-	int32 type; /* ignored */
-	FILE    * fp;
-	PIX     * pix;
+	l_int32 format, ret, w, h, d, bps, spp, iscmap;
+	l_int32 type; /* ignored */
+	FILE * fp;
+	PIX * pix;
 
-	PROCNAME("pixReadHeader");
+	PROCNAME(__FUNCTION__);
 
 	if(pw) *pw = 0;
 	if(ph) *ph = 0;
@@ -459,9 +486,10 @@ int32 pixReadHeader(const char  * filename,
 		case IFF_TIFF_G4:
 		case IFF_TIFF_LZW:
 		case IFF_TIFF_ZIP:
+		case IFF_TIFF_JPEG:
 		    /* Reading page 0 by default; possibly redefine format */
 		    ret = readHeaderTiff(filename, 0, &w, &h, &bps, &spp, NULL, &iscmap,
-		    &format);
+			    &format);
 		    if(ret)
 			    return ERROR_INT("tiff: no header info returned", procName, 1);
 		    break;
@@ -483,7 +511,7 @@ int32 pixReadHeader(const char  * filename,
 		    break;
 
 		case IFF_JP2:
-		    ret = readHeaderJp2k(filename, &w, &h, &bps, &spp);
+		    ret = readHeaderJp2k(filename, &w, &h, &bps, &spp, NULL);
 		    break;
 
 		case IFF_WEBP:
@@ -492,6 +520,14 @@ int32 pixReadHeader(const char  * filename,
 		    bps = 8;
 		    break;
 
+		case IFF_PS:
+		    if(pformat) *pformat = format;
+		    return ERROR_INT("PostScript reading is not supported\n", procName, 1);
+
+		case IFF_LPDF:
+		    if(pformat) *pformat = format;
+		    return ERROR_INT("Pdf reading is not supported\n", procName, 1);
+
 		case IFF_SPIX:
 		    ret = readHeaderSpix(filename, &w, &h, &bps, &spp, &iscmap);
 		    if(ret)
@@ -499,10 +535,11 @@ int32 pixReadHeader(const char  * filename,
 		    break;
 
 		case IFF_UNKNOWN:
-		    L_ERROR2("unknown format in file %s\n", procName, filename);
+		    L_ERROR("unknown format in file %s\n", procName, filename);
 		    return 1;
 		    break;
 	}
+
 	if(pw) *pw = w;
 	if(ph) *ph = h;
 	if(pbps) *pbps = bps;
@@ -519,16 +556,16 @@ int32 pixReadHeader(const char  * filename,
  * \brief   findFileFormat()
  *
  * \param[in]    filename
- * \param[out]   pformat found format
+ * \param[out]   pformat    found format
  * \return  0 if OK, 1 on error or if format is not recognized
  */
-int32 findFileFormat(const char  * filename,
-    int32     * pformat)
+l_ok findFileFormat(const char * filename,
+    l_int32     * pformat)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("findFileFormat");
+	PROCNAME(__FUNCTION__);
 
 	if(!pformat)
 		return ERROR_INT("&format not defined", procName, 1);
@@ -546,8 +583,8 @@ int32 findFileFormat(const char  * filename,
 /*!
  * \brief   findFileFormatStream()
  *
- * \param[in]    fp file stream
- * \param[out]   pformat found format
+ * \param[in]    fp        file stream
+ * \param[out]   pformat   found format
  * \return  0 if OK, 1 on error or if format is not recognized
  *
  * <pre>
@@ -555,13 +592,13 @@ int32 findFileFormat(const char  * filename,
  *      (1) Important: Side effect -- this resets fp to BOF.
  * </pre>
  */
-int32 findFileFormatStream(FILE     * fp,
-    int32  * pformat)
+l_ok findFileFormatStream(FILE * fp,
+    l_int32 * pformat)
 {
-	uint8 firstbytes[12];
-	int32 format;
+	uint8 firstbytes[13];
+	l_int32 format;
 
-	PROCNAME("findFileFormatStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!pformat)
 		return ERROR_INT("&format not defined", procName, 1);
@@ -573,8 +610,9 @@ int32 findFileFormatStream(FILE     * fp,
 	if(fnbytesInFile(fp) < 12)
 		return ERROR_INT("truncated file", procName, 1);
 
-	if(fread((char*)&firstbytes, 1, 12, fp) != 12)
+	if(fread(&firstbytes, 1, 12, fp) != 12)
 		return ERROR_INT("failed to read first 12 bytes of file", procName, 1);
+	firstbytes[12] = 0;
 	rewind(fp);
 
 	findFileFormatBuffer(firstbytes, &format);
@@ -592,8 +630,8 @@ int32 findFileFormatStream(FILE     * fp,
 /*!
  * \brief   findFileFormatBuffer()
  *
- * \param[in]    buf byte buffer at least 12 bytes in size; we can't check
- * \param[out]   pformat found format
+ * \param[in]    buf       byte buffer at least 12 bytes in size; we can't check
+ * \param[out]   pformat   found format
  * \return  0 if OK, 1 on error or if format is not recognized
  *
  * <pre>
@@ -604,12 +642,12 @@ int32 findFileFormatStream(FILE     * fp,
  *          compression is then determined using findTiffCompression().
  * </pre>
  */
-int32 findFileFormatBuffer(const uint8  * buf,
-    int32        * pformat)
+l_ok findFileFormatBuffer(const uint8  * buf,
+    l_int32 * pformat)
 {
 	uint16 twobytepw;
 
-	PROCNAME("findFileFormatBuffer");
+	PROCNAME(__FUNCTION__);
 
 	if(!pformat)
 		return ERROR_INT("&format not defined", procName, 1);
@@ -687,8 +725,8 @@ int32 findFileFormatBuffer(const uint8  * buf,
 	}
 
 	/* Check for both types of jp2k file */
-	if(strncmp((const char*)buf, (char*)JP2K_CODESTREAM, 4) == 0 ||
-	    strncmp((const char*)buf, (char*)JP2K_IMAGE_DATA, 12) == 0) {
+	if(memcmp(buf, JP2K_CODESTREAM, 4) == 0 ||
+	    memcmp(buf, JP2K_IMAGE_DATA, 12) == 0) {
 		*pformat = IFF_JP2;
 		return 0;
 	}
@@ -697,6 +735,21 @@ int32 findFileFormatBuffer(const uint8  * buf,
 	if(buf[0] == 'R' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == 'F' &&
 	    buf[8] == 'W' && buf[9] == 'E' && buf[10] == 'B' && buf[11] == 'P') {
 		*pformat = IFF_WEBP;
+		return 0;
+	}
+
+	/* Check for ps */
+	if(buf[0] == '%' && buf[1] == '!' && buf[2] == 'P' && buf[3] == 'S' &&
+	    buf[4] == '-' && buf[5] == 'A' && buf[6] == 'd' && buf[7] == 'o' &&
+	    buf[8] == 'b' && buf[9] == 'e') {
+		*pformat = IFF_PS;
+		return 0;
+	}
+
+	/* Check for pdf */
+	if(buf[0] == '%' && buf[1] == 'P' && buf[2] == 'D' && buf[3] == 'F' &&
+	    buf[4] == '-' && buf[5] == '1') {
+		*pformat = IFF_LPDF;
 		return 0;
 	}
 
@@ -713,14 +766,14 @@ int32 findFileFormatBuffer(const uint8  * buf,
 /*!
  * \brief   fileFormatIsTiff()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    file stream
  * \return  1 if file is tiff; 0 otherwise or on error
  */
-int32 fileFormatIsTiff(FILE  * fp)
+l_int32 fileFormatIsTiff(FILE * fp)
 {
-	int32 format;
+	l_int32 format;
 
-	PROCNAME("fileFormatIsTiff");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 0);
@@ -729,7 +782,7 @@ int32 fileFormatIsTiff(FILE  * fp)
 	if(format == IFF_TIFF || format == IFF_TIFF_PACKBITS ||
 	    format == IFF_TIFF_RLE || format == IFF_TIFF_G3 ||
 	    format == IFF_TIFF_G4 || format == IFF_TIFF_LZW ||
-	    format == IFF_TIFF_ZIP)
+	    format == IFF_TIFF_ZIP || format == IFF_TIFF_JPEG)
 		return 1;
 	else
 		return 0;
@@ -741,8 +794,8 @@ int32 fileFormatIsTiff(FILE  * fp)
 /*!
  * \brief   pixReadMem()
  *
- * \param[in]    data const; encoded
- * \param[in]    size size of data
+ * \param[in]    data    const; encoded
+ * \param[in]    size    size of data
  * \return  pix, or NULL on error
  *
  * <pre>
@@ -750,8 +803,8 @@ int32 fileFormatIsTiff(FILE  * fp)
  *      (1) This is a variation of pixReadStream(), where the data is read
  *          from a memory buffer rather than a file.
  *      (2) On windows, this only reads tiff formatted files directly from
- *          memory.  For other formats, it write to a temp file and
- *          decompress from file.
+ *          memory.  For other formats, it writes to a temp file and
+ *          decompresses from file.
  *      (3) findFileFormatBuffer() requires up to 12 bytes to decide on
  *          the format.  That determines the constraint here.  But in
  *          fact the data must contain the entire compressed string for
@@ -761,15 +814,16 @@ int32 fileFormatIsTiff(FILE  * fp)
 PIX * pixReadMem(const uint8  * data,
     size_t size)
 {
-	int32 format;
-	PIX     * pix;
+	l_int32 format, valid;
+	PIX * pix;
+	PIXCMAP  * cmap;
 
-	PROCNAME("pixReadMem");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
-		return (PIX*)ERROR_PTR("data not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("data not defined", procName, NULL);
 	if(size < 12)
-		return (PIX*)ERROR_PTR("size < 12", procName, NULL);
+		return (PIX *)ERROR_PTR("size < 12", procName, NULL);
 	pix = NULL;
 
 	findFileFormatBuffer(data, &format);
@@ -777,17 +831,17 @@ PIX * pixReadMem(const uint8  * data,
 	{
 		case IFF_BMP:
 		    if((pix = pixReadMemBmp(data, size)) == NULL)
-			    return (PIX*)ERROR_PTR("bmp: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("bmp: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_JFIF_JPEG:
 		    if((pix = pixReadMemJpeg(data, size, 0, 1, NULL, 0)) == NULL)
-			    return (PIX*)ERROR_PTR("jpeg: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("jpeg: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_PNG:
 		    if((pix = pixReadMemPng(data, size)) == NULL)
-			    return (PIX*)ERROR_PTR("png: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("png: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_TIFF:
@@ -799,61 +853,77 @@ PIX * pixReadMem(const uint8  * data,
 		case IFF_TIFF_ZIP:
 		    /* Reading page 0 by default */
 		    if((pix = pixReadMemTiff(data, size, 0)) == NULL)
-			    return (PIX*)ERROR_PTR("tiff: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("tiff: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_PNM:
 		    if((pix = pixReadMemPnm(data, size)) == NULL)
-			    return (PIX*)ERROR_PTR("pnm: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("pnm: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_GIF:
 		    if((pix = pixReadMemGif(data, size)) == NULL)
-			    return (PIX*)ERROR_PTR("gif: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("gif: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_JP2:
 		    if((pix = pixReadMemJp2k(data, size, 1, NULL, 0, 0)) == NULL)
-			    return (PIX*)ERROR_PTR("jp2k: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("jp2k: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_WEBP:
 		    if((pix = pixReadMemWebP(data, size)) == NULL)
-			    return (PIX*)ERROR_PTR("webp: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("webp: no pix returned", procName, NULL);
 		    break;
+
+		case IFF_PS:
+		    L_ERROR("PostScript reading is not supported\n", procName);
+		    return NULL;
+
+		case IFF_LPDF:
+		    L_ERROR("Pdf reading is not supported\n", procName);
+		    return NULL;
 
 		case IFF_SPIX:
 		    if((pix = pixReadMemSpix(data, size)) == NULL)
-			    return (PIX*)ERROR_PTR("spix: no pix returned", procName, NULL);
+			    return (PIX *)ERROR_PTR("spix: no pix returned", procName, NULL);
 		    break;
 
 		case IFF_UNKNOWN:
-		    return (PIX*)ERROR_PTR("Unknown format: no pix returned",
-		    procName, NULL);
+		    return (PIX *)ERROR_PTR("Unknown format: no pix returned",
+			       procName, NULL);
 		    break;
 	}
 
 	/* Set the input format.  For tiff reading from memory we lose
-	 * the actual input format; for 1 bpp, default to G4.  */
+	 * the actual input format; for 1 bpp, default to G4.  Also
+	 * verify that the colormap is valid.  */
 	if(pix) {
 		if(format == IFF_TIFF && pixGetDepth(pix) == 1)
 			format = IFF_TIFF_G4;
 		pixSetInputFormat(pix, format);
+		if((cmap = pixGetColormap(pix))) {
+			pixcmapIsValid(cmap, pix, &valid);
+			if(!valid) {
+				pixDestroy(&pix);
+				return (PIX *)ERROR_PTR("invalid colormap", procName, NULL);
+			}
+		}
+		pixSetPadBits(pix, 0);
 	}
-
 	return pix;
 }
 
 /*!
  * \brief   pixReadHeaderMem()
  *
- * \param[in]    data const; encoded
- * \param[in]    size size of data
- * \param[out]   pformat [optional] image format
- * \param[out]   pw, ph [optional] width and height
- * \param[out]   pbps [optional] bits/sample
- * \param[out]   pspp [optional] samples/pixel 1, 3 or 4
- * \param[out]   piscmap [optional] 1 if cmap exists; 0 otherwise
+ * \param[in]    data       const; encoded
+ * \param[in]    size       size of data
+ * \param[out]   pformat    [optional] image format
+ * \param[out]   pw, ph     [optional] width and height
+ * \param[out]   pbps       [optional] bits/sample
+ * \param[out]   pspp       [optional] samples/pixel 1, 3 or 4
+ * \param[out]   piscmap    [optional] 1 if cmap exists; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -865,24 +935,24 @@ PIX * pixReadMem(const uint8  * data,
  *          png, it requires less than 30 bytes, but for jpeg it can
  *          require most of the compressed file.  In practice, the data
  *          is typically the entire compressed file in memory.
- *      (3) findFileFormatBuffer() requires up to 8 bytes to decide on
+ *      (3) findFileFormatBuffer() requires up to 12 bytes to decide on
  *          the format, which we require.
  * </pre>
  */
-int32 pixReadHeaderMem(const uint8  * data,
+l_ok pixReadHeaderMem(const uint8  * data,
     size_t size,
-    int32        * pformat,
-    int32        * pw,
-    int32        * ph,
-    int32        * pbps,
-    int32        * pspp,
-    int32        * piscmap)
+    l_int32 * pformat,
+    l_int32 * pw,
+    l_int32 * ph,
+    l_int32 * pbps,
+    l_int32 * pspp,
+    l_int32 * piscmap)
 {
-	int32 format, ret, w, h, d, bps, spp, iscmap;
-	int32 type; /* not used */
-	PIX     * pix;
+	l_int32 format, ret, w, h, d, bps, spp, iscmap;
+	l_int32 type; /* not used */
+	PIX * pix;
 
-	PROCNAME("pixReadHeaderMem");
+	PROCNAME(__FUNCTION__);
 
 	if(pw) *pw = 0;
 	if(ph) *ph = 0;
@@ -893,8 +963,8 @@ int32 pixReadHeaderMem(const uint8  * data,
 	iscmap = 0; /* init to false */
 	if(!data)
 		return ERROR_INT("data not defined", procName, 1);
-	if(size < 8)
-		return ERROR_INT("size < 8", procName, 1);
+	if(size < 12)
+		return ERROR_INT("size < 12", procName, 1);
 
 	findFileFormatBuffer(data, &format);
 
@@ -929,9 +999,10 @@ int32 pixReadHeaderMem(const uint8  * data,
 		case IFF_TIFF_G4:
 		case IFF_TIFF_LZW:
 		case IFF_TIFF_ZIP:
+		case IFF_TIFF_JPEG:
 		    /* Reading page 0 by default; possibly redefine format */
 		    ret = readHeaderMemTiff(data, size, 0, &w, &h, &bps, &spp,
-		    NULL, &iscmap, &format);
+			    NULL, &iscmap, &format);
 		    if(ret)
 			    return ERROR_INT("tiff: no header info returned", procName, 1);
 		    break;
@@ -953,7 +1024,7 @@ int32 pixReadHeaderMem(const uint8  * data,
 		    break;
 
 		case IFF_JP2:
-		    ret = readHeaderMemJp2k(data, size, &w, &h, &bps, &spp);
+		    ret = readHeaderMemJp2k(data, size, &w, &h, &bps, &spp, NULL);
 		    break;
 
 		case IFF_WEBP:
@@ -961,9 +1032,17 @@ int32 pixReadHeaderMem(const uint8  * data,
 		    ret = readHeaderMemWebP(data, size, &w, &h, &spp);
 		    break;
 
+		case IFF_PS:
+		    if(pformat) *pformat = format;
+		    return ERROR_INT("PostScript reading is not supported\n", procName, 1);
+
+		case IFF_LPDF:
+		    if(pformat) *pformat = format;
+		    return ERROR_INT("Pdf reading is not supported\n", procName, 1);
+
 		case IFF_SPIX:
-		    ret = sreadHeaderSpix((uint32*)data, &w, &h, &bps,
-		    &spp, &iscmap);
+		    ret = sreadHeaderSpix((l_uint32*)data, size, &w, &h, &bps,
+			    &spp, &iscmap);
 		    if(ret)
 			    return ERROR_INT("pnm: no header info returned", procName, 1);
 		    break;
@@ -991,7 +1070,7 @@ extern const char * ImageFileFormatExtensions[];
  * \brief   writeImageFileInfo()
  *
  * \param[in]    filename    input file
- * \param[in]    fp          output file stream
+ * \param[in]    fpout       output file stream
  * \param[in]    headeronly  1 to read only the header; 0 to read both
  *                           the header and the input file
  * \return  0 if OK; 1 on error
@@ -1001,32 +1080,40 @@ extern const char * ImageFileFormatExtensions[];
  *      (1) If headeronly == 0 and the image has spp == 4,this will
  *          also call pixDisplayLayersRGBA() to display the image
  *          in three views.
+ *      (2) This is a debug function that changes the value of
+ *          var_PNG_STRIP_16_TO_8 to 1 (the default).
  * </pre>
  */
-int32 writeImageFileInfo(const char  * filename,
+l_ok writeImageFileInfo(const char * filename,
     FILE        * fpout,
-    int32 headeronly)
+    l_int32 headeronly)
 {
 	char     * text;
-	int32 w, h, d, wpl, count, npages, color;
-	int32 format, bps, spp, iscmap, xres, yres, transparency;
-	FILE     * fpin;
-	PIX      * pix, * pixt;
+	l_int32 w, h, d, wpl, count, npages, color;
+	l_int32 format, bps, spp, iscmap, xres, yres, transparency;
+	FILE * fpin;
+	PIX * pix, * pixt;
 	PIXCMAP  * cmap;
-	PROCNAME("writeImageFileInfo");
+
+	PROCNAME(__FUNCTION__);
+
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
 	if(!fpout)
 		return ERROR_INT("stream not defined", procName, 1);
-	l_pngSetReadStrip16To8(1); /* to preserve 16 bpp if format is png */
+
 	/* Read the header */
 	if(pixReadHeader(filename, &format, &w, &h, &bps, &spp, &iscmap)) {
-		L_ERROR2("failure to read header of %s\n", procName, filename);
+		L_ERROR("failure to read header of %s\n", procName, filename);
 		return 1;
 	}
-	fprintf(fpout, "===============================================\nReading the header:\n");
-	fprintf(fpout, "  input image format type: %s\n", ImageFileFormatExtensions[format]);
-	fprintf(fpout, "  w = %d, h = %d, bps = %d, spp = %d, iscmap = %d\n", w, h, bps, spp, iscmap);
+	fprintf(fpout, "===============================================\n"
+	    "Reading the header:\n");
+	fprintf(fpout, "  input image format type: %s\n",
+	    ImageFileFormatExtensions[format]);
+	fprintf(fpout, "  w = %d, h = %d, bps = %d, spp = %d, iscmap = %d\n",
+	    w, h, bps, spp, iscmap);
+
 	findFileFormat(filename, &format);
 	if(format == IFF_JP2) {
 		fpin = lept_fopen(filename, "rb");
@@ -1065,8 +1152,13 @@ int32 writeImageFileInfo(const char  * filename,
 	 * has transparency in a colormap, we convert it to RGBA. */
 	fprintf(fpout, "===============================================\n"
 	    "Reading the full image:\n");
+
+	/* Preserve 16 bpp if the format is png */
+	if(format == IFF_PNG && bps == 16)
+		l_pngSetReadStrip16To8(0);
+
 	if((pix = pixRead(filename)) == NULL) {
-		L_ERROR2("failure to read full image of %s\n", procName, filename);
+		L_ERROR("failure to read full image of %s\n", procName, filename);
 		return 1;
 	}
 
@@ -1074,9 +1166,13 @@ int32 writeImageFileInfo(const char  * filename,
 	pixGetDimensions(pix, &w, &h, &d);
 	wpl = pixGetWpl(pix);
 	spp = pixGetSpp(pix);
-	fprintf(fpout, "  input image format type: %s\n", ImageFileFormatExtensions[format]);
-	fprintf(fpout, "  w = %d, h = %d, d = %d, spp = %d, wpl = %d\n", w, h, d, spp, wpl);
-	fprintf(fpout, "  xres = %d, yres = %d\n", pixGetXRes(pix), pixGetYRes(pix));
+	fprintf(fpout, "  input image format type: %s\n",
+	    ImageFileFormatExtensions[format]);
+	fprintf(fpout, "  w = %d, h = %d, d = %d, spp = %d, wpl = %d\n",
+	    w, h, d, spp, wpl);
+	fprintf(fpout, "  xres = %d, yres = %d\n",
+	    pixGetXRes(pix), pixGetYRes(pix));
+
 	text = pixGetText(pix);
 	if(text) /*  not null */
 		fprintf(fpout, "  text: %s\n", text);
@@ -1109,7 +1205,8 @@ int32 writeImageFileInfo(const char  * filename,
 	if(d == 1) {
 		pixCountPixels(pix, &count, NULL);
 		pixGetDimensions(pix, &w, &h, NULL);
-		fprintf(fpout, "  1 bpp: foreground pixel fraction ON/Total = %g\n", (float)count / (float)(w * h));
+		fprintf(fpout, "  1 bpp: foreground pixel fraction ON/Total = %g\n",
+		    (float)count / (float)(w * h));
 	}
 	fprintf(fpout, "===============================================\n");
 
@@ -1118,10 +1215,13 @@ int32 writeImageFileInfo(const char  * filename,
 	 * result when a white background is visible through the
 	 * transparency layer. */
 	if(pixGetSpp(pix) == 4) {
-		pixt = pixDisplayLayersRGBA(pix, 0xffffff00, 600);
+		pixt = pixDisplayLayersRGBA(pix, 0xffffff00, 600.0);
 		pixDisplay(pixt, 100, 100);
 		pixDestroy(&pixt);
 	}
+
+	if(format == IFF_PNG && bps == 16)
+		l_pngSetReadStrip16To8(1); /* return to default if format is png */
 
 	pixDestroy(&pix);
 	return 0;
@@ -1133,7 +1233,7 @@ int32 writeImageFileInfo(const char  * filename,
 /*!
  * \brief   ioFormatTest()
  *
- * \param[in]    filename input file
+ * \param[in]    filename    input image file
  * \return  0 if OK; 1 on error or if the test fails
  *
  * <pre>
@@ -1152,15 +1252,15 @@ int32 writeImageFileInfo(const char  * filename,
  *          or HAVE_LIBTIFF are 0, respectively.
  * </pre>
  */
-int32 ioFormatTest(const char  * filename)
+l_ok ioFormatTest(const char * filename)
 {
-	int32 w, h, d, depth, equal, problems;
+	l_int32 w, h, d, depth, equal, problems;
 	float diff;
 	BOX       * box;
-	PIX       * pixs, * pixc, * pix1, * pix2;
+	PIX * pixs, * pixc, * pix1, * pix2;
 	PIXCMAP   * cmap;
 
-	PROCNAME("ioFormatTest");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
@@ -1214,7 +1314,7 @@ int32 ioFormatTest(const char  * filename)
 			pix2 = pixClone(pix1);
 		pixEqual(pixc, pix2, &equal);
 		if(!equal) {
-			L_INFO2("   **** bad bmp image: d = %d ****\n", procName, d);
+			L_INFO("   **** bad bmp image: d = %d ****\n", procName, d);
 			problems = TRUE;
 		}
 		pixDestroy(&pix1);
@@ -1227,7 +1327,7 @@ int32 ioFormatTest(const char  * filename)
 		pix1 = pixRead(FILE_BMP);
 		pixEqual(pixc, pix1, &equal);
 		if(!equal) {
-			L_INFO2("   **** bad bmp image: d = %d ****\n", procName, d);
+			L_INFO("   **** bad bmp image: d = %d ****\n", procName, d);
 			problems = TRUE;
 		}
 		pixDestroy(&pix1);
@@ -1243,7 +1343,7 @@ int32 ioFormatTest(const char  * filename)
 		pix1 = pixRead(FILE_PNG);
 		pixEqual(pixc, pix1, &equal);
 		if(!equal) {
-			L_INFO2("   **** bad png image: d = %d ****\n", procName, d);
+			L_INFO("   **** bad png image: d = %d ****\n", procName, d);
 			problems = TRUE;
 		}
 		pixDestroy(&pix1);
@@ -1296,6 +1396,39 @@ int32 ioFormatTest(const char  * filename)
 		problems = TRUE;
 	}
 	pixDestroy(&pix1);
+
+	/* tiff jpeg encoding works for grayscale and rgb */
+	if(d == 8 || d == 32) {
+		PIX  * pixc1;
+		L_INFO("write/read jpeg compressed tiff\n", procName);
+		if(d == 8 && pixGetColormap(pixc)) {
+			pixc1 = pixRemoveColormap(pixc, REMOVE_CMAP_BASED_ON_SRC);
+			pixWrite(FILE_TIFF_JPEG, pixc1, IFF_TIFF_JPEG);
+			if((pix1 = pixRead(FILE_TIFF_JPEG)) == NULL) {
+				L_INFO(" did not read FILE_TIFF_JPEG\n", procName);
+				problems = TRUE;
+			}
+			pixDestroy(&pixc1);
+		}
+		else {
+			pixWrite(FILE_TIFF_JPEG, pixc, IFF_TIFF_JPEG);
+			pix1 = pixRead(FILE_TIFF_JPEG);
+			if(d == 8) {
+				pixCompareGray(pix1, pixc, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
+				    NULL, NULL);
+			}
+			else {
+				pixCompareRGB(pix1, pixc, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
+				    NULL, NULL);
+			}
+			if(diff > 8.0) {
+				L_INFO("   **** bad tiff jpeg compressed image: "
+				    "d = %d, diff = %5.2f ****\n", procName, d, diff);
+				problems = TRUE;
+			}
+		}
+		pixDestroy(&pix1);
+	}
 
 	/* tiff g4, g3, rle and packbits work for 1 bpp */
 	if(d == 1) {
@@ -1357,7 +1490,7 @@ int32 ioFormatTest(const char  * filename)
 		pix2 = pixClone(pixc);
 	pixEqual(pix1, pix2, &equal);
 	if(!equal) {
-		L_INFO2("   **** bad pnm image: d = %d ****\n", procName, d);
+		L_INFO("   **** bad pnm image: d = %d ****\n", procName, d);
 		problems = TRUE;
 	}
 	pixDestroy(&pix1);
@@ -1394,13 +1527,16 @@ int32 ioFormatTest(const char  * filename)
 	pixWrite(FILE_JPG, pix1, IFF_JFIF_JPEG);
 	pix2 = pixRead(FILE_JPG);
 	if(depth == 8) {
-		pixCompareGray(pix1, pix2, L_COMPARE_ABS_DIFF, 0, NULL, &diff, NULL, NULL);
+		pixCompareGray(pix1, pix2, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
+		    NULL, NULL);
 	}
 	else {
-		pixCompareRGB(pix1, pix2, L_COMPARE_ABS_DIFF, 0, NULL, &diff, NULL, NULL);
+		pixCompareRGB(pix1, pix2, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
+		    NULL, NULL);
 	}
 	if(diff > 8.0) {
-		L_INFO3("   **** bad jpeg image: d = %d, diff = %5.2f ****\n", procName, depth, diff);
+		L_INFO("   **** bad jpeg image: d = %d, diff = %5.2f ****\n",
+		    procName, depth, diff);
 		problems = TRUE;
 	}
 	pixDestroy(&pix1);
@@ -1447,7 +1583,7 @@ int32 ioFormatTest(const char  * filename)
 		pixCompareRGB(pix1, pix2, L_COMPARE_ABS_DIFF, 0, NULL, &diff,
 		    NULL, NULL);
 	}
-	fprintf(stderr, "diff = %7.3f\n", diff);
+	lept_stderr("diff = %7.3f\n", diff);
 	if(diff > 7.0) {
 		L_INFO("   **** bad jp2k image: d = %d, diff = %5.2f ****\n",
 		    procName, depth, diff);
@@ -1464,4 +1600,3 @@ int32 ioFormatTest(const char  * filename)
 	pixDestroy(&pixs);
 	return problems;
 }
-

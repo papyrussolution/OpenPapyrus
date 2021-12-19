@@ -2453,7 +2453,7 @@ int PiritEquip::RunCheck(int opertype)
 										str.Z();
 									CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
-								str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_ANSI|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
+								str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								if(Check.CheckNum > 0)

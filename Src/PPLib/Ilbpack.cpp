@@ -1284,8 +1284,8 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			// @v11.1.12 STRNSCPY(bpack.Rec.Code, BillCore::GetCode(bill_code));
 			STRNSCPY(bpack.Rec.Code, Rec.Code); // @v11.1.12 
 		}
-		bpack.Rec.ID         = Rec.ID;
-		bpack.Rec.Dt         = Rec.Dt;
+		bpack.Rec.ID = Rec.ID;
+		bpack.Rec.Dt = Rec.Dt;
 		bpack.Rec.BillNo     = Rec.BillNo;
 		bpack.Rec.DueDate    = Rec.DueDate;
 		bpack.Rec.StatusID   = Rec.StatusID;

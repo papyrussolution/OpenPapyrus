@@ -372,7 +372,7 @@ int32_t LocaleDistance::getFallbackRegionDistance(BytesTrie &iter, uint64_t star
 }
 
 int32_t LocaleDistance::trieNext(BytesTrie &iter, const char * s, bool wantValue) {
-	uint8_t c;
+	uint8 c;
 	if((c = *s) == 0) {
 		return -1; // no empty subtags in the distance data
 	}
@@ -380,7 +380,7 @@ int32_t LocaleDistance::trieNext(BytesTrie &iter, const char * s, bool wantValue
 		c = uprv_invCharToAscii(c);
 		// EBCDIC: If *s is not an invariant character,
 		// then c is now 0 and will simply not match anything, which is harmless.
-		uint8_t next = *++s;
+		uint8 next = *++s;
 		if(next != 0) {
 			if(!USTRINGTRIE_HAS_NEXT(iter.next(c))) {
 				return -1;

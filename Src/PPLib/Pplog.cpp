@@ -92,12 +92,12 @@ private:
 {
 	WNDCLASSEX wc;
 	INITWINAPISTRUCT(wc);
-	wc.style         = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
+	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
 	wc.lpfnWndProc   = LogListWindowSCI::WndProc;
 	wc.cbClsExtra    = BRWCLASS_CEXTRA;
 	wc.cbWndExtra    = BRWCLASS_WEXTRA;
 	wc.hInstance     = hInst;
-	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
+	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
 	wc.lpszClassName = LogListWindowSCI::WndClsName;
 #if !defined(_PPDLL) && !defined(_PPSERVER)

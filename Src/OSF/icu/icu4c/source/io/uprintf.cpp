@@ -68,7 +68,7 @@ static int32_t u_printf_pad_and_justify(void   * context,
     const UChar * result,
     int32_t resultLen)
 {
-	UFILE   * output = (UFILE*)context;
+	UFILE * output = (UFILE*)context;
 	int32_t written, i;
 
 	/* pad and justify, if needed */

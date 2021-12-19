@@ -40,7 +40,7 @@ static int l_checkmode(const char * mode) {
 ** =======================================================
 */
 
-#if !defined(l_popen)           /* { */
+#if !defined(l_popen) /* { */
 
 #if defined(LUA_USE_POSIX)      /* { */
 
@@ -87,7 +87,7 @@ static int l_checkmode(const char * mode) {
 ** =======================================================
 */
 
-#if !defined(l_fseek)           /* { */
+#if !defined(l_fseek) /* { */
 
 #if defined(LUA_USE_POSIX)      /* { */
 

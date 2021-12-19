@@ -26,7 +26,7 @@
 #if !UCONFIG_NO_TRANSLITERATION
 
 typedef struct {
-	UChar  * buffer; /* Beginning of buffer */
+	UChar * buffer; /* Beginning of buffer */
 	int32_t capacity; /* Capacity of buffer */
 	int32_t pos; /* Beginning of untranslitted data */
 	int32_t length; /* Length *from beginning of buffer* of untranslitted data */
@@ -49,7 +49,7 @@ struct UFILE {
 	UFILETranslitBuffer * fTranslit;
 #endif
 	FILE        * fFile; /* the actual filesystem interface */
-	UConverter  * fConverter;/* for codeset conversion */
+	UConverter  * fConverter; /* for codeset conversion */
 	u_localized_string str; /* struct to handle strings for number formatting */
 	UChar fUCBuffer[UFILE_UCHARBUFFER_SIZE]; /* buffer used for toUnicode */
 	bool fOwnFile; /* true if fFile should be closed */

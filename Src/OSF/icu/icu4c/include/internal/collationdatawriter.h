@@ -1,12 +1,8 @@
+// collationdatawriter.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2013-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationdatawriter.h
- *
+ * Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2013aug06
  * created by: Markus W. Scherer
  */
@@ -30,14 +26,14 @@ class U_I18N_API CollationDataWriter /* all static */ {
 public:
 	static int32_t writeBase(const CollationData & data, const CollationSettings &settings,
 	    const void * rootElements, int32_t rootElementsLength,
-	    int32_t indexes[], uint8_t * dest, int32_t capacity, UErrorCode & errorCode);
+	    int32_t indexes[], uint8 * dest, int32_t capacity, UErrorCode & errorCode);
 	static int32_t writeTailoring(const CollationTailoring &t, const CollationSettings &settings,
-	    int32_t indexes[], uint8_t * dest, int32_t capacity, UErrorCode & errorCode);
+	    int32_t indexes[], uint8 * dest, int32_t capacity, UErrorCode & errorCode);
 private:
 	CollationDataWriter(); // no constructor
 	static int32_t write(bool isBase, const UVersionInfo dataVersion, const CollationData & data, const CollationSettings &settings,
-	    const void * rootElements, int32_t rootElementsLength, int32_t indexes[], uint8_t * dest, int32_t capacity, UErrorCode & errorCode);
-	static void STDCALL copyData(const int32_t indexes[], int32_t startIndex, const void * src, uint8_t * dest);
+	    const void * rootElements, int32_t rootElementsLength, int32_t indexes[], uint8 * dest, int32_t capacity, UErrorCode & errorCode);
+	static void STDCALL copyData(const int32_t indexes[], int32_t startIndex, const void * src, uint8 * dest);
 };
 
 U_NAMESPACE_END

@@ -318,27 +318,26 @@ void png_formatted_warning(png_const_structrp png_ptr, png_warning_parameters p,
 void PNGAPI png_benign_error(png_const_structrp png_ptr, const char * error_message)
 {
 	if((png_ptr->flags & PNG_FLAG_BENIGN_ERRORS_WARN) != 0) {
-#     ifdef PNG_READ_SUPPORTED
+#ifdef PNG_READ_SUPPORTED
 		if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 &&
 		    png_ptr->chunk_name != 0)
 			png_chunk_warning(png_ptr, error_message);
 		else
-#     endif
+#endif
 		png_warning(png_ptr, error_message);
 	}
 
 	else {
-#     ifdef PNG_READ_SUPPORTED
+#ifdef PNG_READ_SUPPORTED
 		if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 &&
 		    png_ptr->chunk_name != 0)
 			png_chunk_error(png_ptr, error_message);
 		else
-#     endif
+#endif
 		png_error(png_ptr, error_message);
 	}
-
 #ifndef PNG_ERROR_TEXT_SUPPORTED
-	PNG_UNUSED(error_message)
+	CXX_UNUSED(error_message);
 #endif
 }
 
@@ -348,9 +347,8 @@ void /* PRIVATE */ png_app_warning(png_const_structrp png_ptr, const char * erro
 		png_warning(png_ptr, error_message);
 	else
 		png_error(png_ptr, error_message);
-
 #ifndef PNG_ERROR_TEXT_SUPPORTED
-	PNG_UNUSED(error_message)
+	CXX_UNUSED(error_message);
 #endif
 }
 
@@ -360,9 +358,8 @@ void /* PRIVATE */ png_app_error(png_const_structrp png_ptr, const char * error_
 		png_warning(png_ptr, error_message);
 	else
 		png_error(png_ptr, error_message);
-
 #ifndef PNG_ERROR_TEXT_SUPPORTED
-	PNG_UNUSED(error_message)
+	CXX_UNUSED(error_message);
 #endif
 }
 
@@ -448,7 +445,7 @@ void /*PNGAPI*/FASTCALL png_chunk_benign_error(png_const_structrp png_ptr, const
 	else
 		png_chunk_error(png_ptr, error_message);
 #ifndef PNG_ERROR_TEXT_SUPPORTED
-	PNG_UNUSED(error_message)
+	CXX_UNUSED(error_message);
 #endif
 }
 
@@ -458,7 +455,7 @@ void /*PNGAPI*/FASTCALL png_chunk_benign_error(png_const_structrp png_ptr, const
 void /* PRIVATE */ png_chunk_report(png_const_structrp png_ptr, const char * message, int error)
 {
 #ifndef PNG_WARNINGS_SUPPORTED
-	PNG_UNUSED(message)
+	CXX_UNUSED(message);
 #endif
 	// This is always supported, but for just read or just write it
 	// unconditionally does the right thing.
@@ -630,7 +627,7 @@ static PNG_NORETURN void /* PRIVATE */ png_default_error(png_const_structrp png_
 		slfprintf_stderr(PNG_STRING_NEWLINE);
 	}
 #else
-	PNG_UNUSED(error_message) /* Make compiler happy */
+	CXX_UNUSED(error_message); /* Make compiler happy */
 #endif
 	png_longjmp(png_ptr, 1);
 }
@@ -641,8 +638,8 @@ PNG_NORETURN void PNGAPI png_longjmp(png_const_structrp png_ptr, int val)
 	if(png_ptr && png_ptr->longjmp_fn != NULL && png_ptr->jmp_buf_ptr != NULL)
 		png_ptr->longjmp_fn(*png_ptr->jmp_buf_ptr, val);
 #else
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(val)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(val);
 #endif
 	/* If control reaches this point, png_longjmp() must not return. The only
 	 * choice is to terminate the whole process (or maybe the thread); to do
@@ -688,9 +685,9 @@ static void /* PRIVATE */ png_default_warning(png_const_structrp png_ptr, const 
 		slfprintf_stderr(PNG_STRING_NEWLINE);
 	}
 #else
-	PNG_UNUSED(warning_message) /* Make compiler happy */
+	CXX_UNUSED(warning_message); /* Make compiler happy */
 #endif
-	PNG_UNUSED(png_ptr) /* Make compiler happy */
+	CXX_UNUSED(png_ptr); // Make compiler happy 
 }
 
 #endif /* WARNINGS */
@@ -708,7 +705,7 @@ void PNGAPI png_set_error_fn(png_structrp png_ptr, void * error_ptr, png_error_p
 #ifdef PNG_WARNINGS_SUPPORTED
 		png_ptr->warning_fn = warning_fn;
 #else
-		PNG_UNUSED(warning_fn)
+		CXX_UNUSED(warning_fn);
 #endif
 	}
 }

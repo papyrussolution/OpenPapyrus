@@ -6,12 +6,12 @@
 #pragma hdrstop
 
 /* A C-program for MT19937: Integer version (1999/10/28)          */
-/*  genrand() generates one pseudorandom unsigned integer (32bit) */
+/* genrand() generates one pseudorandom unsigned integer (32bit) */
 /* which is uniformly distributed among 0 to 2^32-1  for each     */
 /* call. sgenrand(seed) sets initial values to the working area   */
 /* of 624 words. Before genrand(), sgenrand(seed) must be         */
 /* called once. (seed is any 32-bit integer.)                     */
-/*   Coded by Takuji Nishimura, considering the suggestions by    */
+/* Coded by Takuji Nishimura, considering the suggestions by    */
 /* Topher Cooper and Marc Rieffel in July-Aug. 1997.              */
 
 /* This library is free software under the Artistic license:       */
@@ -97,10 +97,10 @@ static void __db_sgenrand(ulong seed, ulong mt[], int * mtip)
 /* there are 2^19937-1 possible states as an intial state.           */
 /* This function allows to choose any of 2^19937-1 ones.             */
 /* Essential bits in "seed_array[]" is following 19937 bits:         */
-/*  (seed_array[0]&UPPER_MASK), seed_array[1], ..., seed_array[N-1]. */
+/* (seed_array[0]&UPPER_MASK), seed_array[1], ..., seed_array[N-1]. */
 /* (seed_array[0]&LOWER_MASK) is discarded.                          */
 /* Theoretically,                                                    */
-/*  (seed_array[0]&UPPER_MASK), seed_array[1], ..., seed_array[N-1]  */
+/* (seed_array[0]&UPPER_MASK), seed_array[1], ..., seed_array[N-1]  */
 /* can take any values except all zeros.                             */
 static void __db_lsgenrand(ulong seed_array[], ulong mt[], int * mtip)
 /* the length of seed_array[] must be at least N */

@@ -37,7 +37,7 @@ int CMSEXPORT cmsGetEncodedCMMversion(void)
 // compare two strings ignoring case
 int CMSEXPORT cmsstrcasecmp(const char * s1, const char * s2)
 {
-	CMSREGISTER const uchar * us1 = (const uchar *)s1,
+	const uchar * us1 = (const uchar *)s1,
 	    * us2 = (const uchar *)s2;
 
 	while(toupper(*us1) == toupper(*us2++))
@@ -81,7 +81,7 @@ long int CMSEXPORT cmsfilelength(FILE* f)
 // required to be implemented: malloc, realloc and free, although the user may want to
 // replace the optional mallocZero, calloc and dup as well.
 
-cmsBool   _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase* Plugin);
+boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase* Plugin);
 
 // *********************************************************************************
 
@@ -92,7 +92,7 @@ static void * _cmsMallocDefaultFn(cmsContext ContextID, cmsUInt32Number size)
 	if(size > MAX_MEMORY_FOR_ALLOC) 
 		return NULL; // Never allow over maximum
 	return (void *)SAlloc::M(size);
-	cmsUNUSED_PARAMETER(ContextID);
+	CXX_UNUSED(ContextID);
 }
 
 // Generic allocate & zero
@@ -112,7 +112,7 @@ static void _cmsFreeDefaultFn(cmsContext ContextID, void * Ptr)
 	// avoid the check, but it is here just in case...
 	if(Ptr) 
 		SAlloc::F(Ptr);
-	cmsUNUSED_PARAMETER(ContextID);
+	CXX_UNUSED(ContextID);
 }
 
 // The default realloc function. Again it checks for exploits. If Ptr is NULL,
@@ -122,7 +122,7 @@ static void * _cmsReallocDefaultFn(cmsContext ContextID, void * Ptr, cmsUInt32Nu
 	if(size > MAX_MEMORY_FOR_ALLOC) 
 		return NULL; // Never realloc over 512Mb
 	return SAlloc::R(Ptr, size);
-	cmsUNUSED_PARAMETER(ContextID);
+	CXX_UNUSED(ContextID);
 }
 
 // The default calloc function. Allocates an array of num elements, each one of size bytes
@@ -194,7 +194,7 @@ void _cmsInstallAllocFunctions(cmsPluginMemHandler* Plugin, _cmsMemPluginChunkTy
 }
 
 // Plug-in replacement entry
-cmsBool  _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data)
+boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data)
 {
 	cmsPluginMemHandler* Plugin = (cmsPluginMemHandler*)Data;
 	_cmsMemPluginChunkType* ptr;
@@ -270,8 +270,7 @@ void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, cmsUInt32Num
 // this way have be freed at once. Next function allocates a single chunk for linked list
 // I prefer this method over realloc due to the big inpact on xput realloc may have if
 // memory is being swapped to disk. This approach is safer (although that may not be true on all platforms)
-static
-_cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32Number Initial)
+static _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32Number Initial)
 {
 	_cmsSubAllocator_chunk* chunk;
 	// 20K by default
@@ -281,7 +280,7 @@ _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32N
 	if(chunk == NULL) 
 		return NULL;
 	// Initialize values
-	chunk->Block     = (cmsUInt8Number *)_cmsMalloc(ContextID, Initial);
+	chunk->Block     = (uint8 *)_cmsMalloc(ContextID, Initial);
 	if(chunk->Block == NULL) {
 		// Something went wrong
 		_cmsFree(ContextID, chunk);
@@ -326,7 +325,7 @@ void _cmsSubAllocDestroy(_cmsSubAllocator* sub)
 void *  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
 {
 	cmsUInt32Number Free = sub->h->BlockSize - sub->h->Used;
-	cmsUInt8Number* ptr;
+	uint8 * ptr;
 	size = _cmsALIGNMEM(size);
 	// Check for memory. If there is no room, allocate a new chunk of double memory size.
 	if(size > Free) {
@@ -393,26 +392,21 @@ void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx,
 }
 
 // The default error logger does nothing.
-static
-void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text)
+static void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text)
 {
 	// slfprintf_stderr("[lcms]: %s\n", Text);
 	// fflush(stderr);
-	cmsUNUSED_PARAMETER(ContextID);
-	cmsUNUSED_PARAMETER(ErrorCode);
-	cmsUNUSED_PARAMETER(Text);
+	CXX_UNUSED(ContextID);
+	CXX_UNUSED(ErrorCode);
+	CXX_UNUSED(Text);
 }
 
 // Change log error, context based
 void CMSEXPORT cmsSetLogErrorHandlerTHR(cmsContext ContextID, cmsLogErrorHandlerFunction Fn)
 {
 	_cmsLogErrorChunkType* lhg = (_cmsLogErrorChunkType*)_cmsContextGetClientChunk(ContextID, Logger);
-	if(lhg != NULL) {
-		if(Fn == NULL)
-			lhg->LogErrorHandler = DefaultLogErrorHandlerFunction;
-		else
-			lhg->LogErrorHandler = Fn;
-	}
+	if(lhg)
+		lhg->LogErrorHandler = Fn ? Fn : DefaultLogErrorHandlerFunction;
 }
 
 // Change log error, legacy
@@ -464,15 +458,15 @@ static void defMtxDestroy(cmsContext id, void * mtx)
 	_cmsFree(id, mtx);
 }
 
-static cmsBool defMtxLock(cmsContext id, void * mtx)
+static boolint defMtxLock(cmsContext id, void * mtx)
 {
-	cmsUNUSED_PARAMETER(id);
+	CXX_UNUSED(id);
 	return _cmsLockPrimitive((_cmsMutex*)mtx) == 0;
 }
 
 static void defMtxUnlock(cmsContext id, void * mtx)
 {
-	cmsUNUSED_PARAMETER(id);
+	CXX_UNUSED(id);
 	_cmsUnlockPrimitive((_cmsMutex*)mtx);
 }
 
@@ -488,7 +482,7 @@ void _cmsAllocMutexPluginChunk(struct _cmsContext_struct* ctx, const struct _cms
 }
 
 // Register new ways to transform
-cmsBool  _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
+boolint _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
 {
 	cmsPluginMutex* Plugin = (cmsPluginMutex*)Data;
 	_cmsMutexPluginChunkType* ctx = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
@@ -529,7 +523,7 @@ void CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void * mtx)
 	}
 }
 
-cmsBool CMSEXPORT _cmsLockMutex(cmsContext ContextID, void * mtx)
+boolint CMSEXPORT _cmsLockMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
 	if(ptr->LockMutexPtr == NULL) return TRUE;

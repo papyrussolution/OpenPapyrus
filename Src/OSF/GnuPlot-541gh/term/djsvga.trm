@@ -53,7 +53,7 @@
 #include "driver.h"
 
 #ifdef TERM_REGISTER
-register_term(djsvga)           /* no ; */
+register_term(djsvga) /* no ; */
 #endif
 
 #ifdef TERM_PROTO
@@ -65,30 +65,30 @@ register_term(djsvga)           /* no ; */
 #define DJSVGA_VTIC 4
 #define DJSVGA_HTIC 4
 
-TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis);
-TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis);
+TERM_PUBLIC void DJSVGA_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void DJSVGA_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void DJSVGA_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void DJSVGA_reset();
-TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void DJSVGA_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
 TERM_PUBLIC void DJSVGA_linetype(int linetype);
 TERM_PUBLIC void DJSVGA_dashtype(int type, t_dashtype * custom_dash_pattern);
 TERM_PUBLIC void DJSVGA_move(uint x, uint y);
 TERM_PUBLIC void DJSVGA_vector(uint x, uint y);
 TERM_PUBLIC int DJSVGA_angle(int ang);
-TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void DJSVGA_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC int DJSVGA_set_font(GpTermEntry * pThis, const char * fontname);
+TERM_PUBLIC int DJSVGA_set_font(GpTermEntry_Static * pThis, const char * fontname);
 TERM_PUBLIC void DJSVGA_suspend();
-TERM_PUBLIC void DJSVGA_resume(GpTermEntry * pThis);
+TERM_PUBLIC void DJSVGA_resume(GpTermEntry_Static * pThis);
 TERM_PUBLIC void DJSVGA_fillbox(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void DJSVGA_linewidth(double linewidth);
-TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry * pThis);
+TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry_Static * pThis);
 
 #ifdef USE_MOUSE
 #if (defined(MGRX_XWIN) || defined(_WIN32))
-	TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry * pThis, int mode); /* only required for xwin and win32 */
+	TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry_Static * pThis, int mode); /* only required for xwin and win32 */
 #endif
 TERM_PUBLIC void DJSVGA_put_tmptext(int location, const char str[]);
 TERM_PUBLIC void DJSVGA_set_ruler(int x, int y);
@@ -248,7 +248,7 @@ static struct gen_table DJSVGA_opts[] = {
 	{ NULL, DJSVGA_OTHER }
 };
 
-TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void DJSVGA_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char * font = NULL;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -256,12 +256,12 @@ TERM_PUBLIC void DJSVGA_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case DJSVGA_ENH:
 			    pGp->Pgm.Shift();
 			    pThis->put_text = DJSVGA_enhanced_put_text;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case DJSVGA_NOENH:
 			    pGp->Pgm.Shift();
 			    pThis->put_text = DJSVGA_put_text;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case DJSVGA_BACKGROUND:
 			    pGp->Pgm.Shift();
@@ -335,7 +335,7 @@ static GP_INLINE GrFont * grx_default_font()
 #endif
 }
 
-TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
+TERM_PUBLIC void DJSVGA_init(GpTermEntry_Static * pThis)
 {
 	int i, on, r, g, b, medium = 170, low = 85;
 #ifdef DJGPP
@@ -388,7 +388,7 @@ TERM_PUBLIC void DJSVGA_init(GpTermEntry * pThis)
 	dj_initialized = TRUE;
 }
 
-TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void DJSVGA_graphics(GpTermEntry_Static * pThis)
 {
 #ifdef MSDOS
 #ifdef USE_MOUSE
@@ -444,7 +444,7 @@ TERM_PUBLIC void DJSVGA_graphics(GpTermEntry * pThis)
 #endif
 }
 
-TERM_PUBLIC void DJSVGA_text(GpTermEntry * pThis)
+TERM_PUBLIC void DJSVGA_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 #ifdef USE_MOUSE
@@ -583,7 +583,7 @@ TERM_PUBLIC int DJSVGA_make_palette(t_sm_palette * palette)
 	return 0; /* can do RGB colors */
 }
 
-TERM_PUBLIC void DJSVGA_color(GpTermEntry * pThis, t_colorspec * colorspec)
+TERM_PUBLIC void DJSVGA_color(GpTermEntry_Static * pThis, t_colorspec * colorspec)
 {
 	DJSVGA_flush_line();
 	switch(colorspec->type) {
@@ -695,7 +695,7 @@ TERM_PUBLIC int DJSVGA_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int DJSVGA_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	// save for reference in enhanced text processing 
 	dj_justify = mode;
@@ -765,7 +765,7 @@ GrFont * DJSVGA_LoadFont(const char * name)
 	return font;
 }
 
-TERM_PUBLIC int DJSVGA_set_font(GpTermEntry * pThis, const char * fontspec)
+TERM_PUBLIC int DJSVGA_set_font(GpTermEntry_Static * pThis, const char * fontspec)
 {
 	char fontname[DJSVGAFONTLEN];
 	GrFont * font = NULL;
@@ -828,8 +828,8 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry * pThis, const char * fontspec)
 		const char text[] = "0123456789";
 		int len = strlen(text);
 		/* Note: ASCII test string, no need to convert encoding */
-		pThis->ChrH = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
-		pThis->ChrV = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
+		pThis->CH() = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
+		pThis->CV() = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
 	}
 	return res;
 }
@@ -961,7 +961,7 @@ static int dj_x;
 static int dj_y;
 static bool dj_sizeonly;
 
-TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char filename[DJSVGAFONTLEN];
@@ -985,7 +985,7 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 		// Start new text fragment 
 		p_gp->Enht.P_CurText = &p_gp->Enht.Text[0];
 		/* Scale fractional font height to vertical units of display */
-		dj_enhanced_base = base * pThis->ChrV;
+		dj_enhanced_base = base * pThis->CV();
 		/* Keep track of whether we are supposed to show this string */
 		dj_enhanced_show = showflag;
 		/* 0/1/2  no overprint / 1st pass / 2nd pass */
@@ -1029,13 +1029,13 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry * pThis, char * fontname, doub
 			const char text[] = "0123456789";
 			int len = strlen(text);
 			/* Note: ASCII test string, no need to convert encoding */
-			pThis->ChrH = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
-			pThis->ChrV = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
+			pThis->CH() = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
+			pThis->CV() = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
 		}
 	}
 }
 
-TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry * pThis)
+TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * str = p_gp->Enht.Text; /* The fragment to print */
@@ -1141,7 +1141,7 @@ TERM_PUBLIC void DJSVGA_enhanced_flush(GpTermEntry * pThis)
 	dj_enhanced_opened_string = FALSE;
 }
 
-TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void DJSVGA_enhanced_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const char * original_string = str;
@@ -1206,7 +1206,7 @@ TERM_PUBLIC void DJSVGA_suspend()
 	DJSVGA_text();
 }
 
-TERM_PUBLIC void DJSVGA_resume(GpTermEntry * pThis)
+TERM_PUBLIC void DJSVGA_resume(GpTermEntry_Static * pThis)
 {
 	DJSVGA_graphics(pThis);
 	GrBitBltNC(0, 0, 0, DJSVGA_context, 0, 0, GrMaxX(), GrMaxY(), GrWRITE);
@@ -1370,13 +1370,13 @@ TERM_PUBLIC void DJSVGA_linewidth(double linewidth)
 	dj_linewidth = linewidth;
 }
 
-TERM_PUBLIC void DJSVGA_pointsize(GpTermEntry * pThis, double size)
+TERM_PUBLIC void DJSVGA_pointsize(GpTermEntry_Static * pThis, double size)
 {
 	DJSVGA_flush_line();
 	pThis->P_Gp->TermPointSize = (size >= 0 ? dj_pointscale * size : 1.);
 }
 
-TERM_PUBLIC void DJSVGA_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void DJSVGA_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	GrContext ctxt;
 	// FIXME: GrImage is deprecated as of MGRX 1.3.4.
@@ -1901,7 +1901,7 @@ static bool grx_check_event()
 #endif
 
 #if defined(MGRX_XWIN) || defined(_WIN32)
-TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry * pThis, int mode)
+TERM_PUBLIC int DJSVGA_waitforinput(GpTermEntry_Static * pThis, int mode)
 {
 	if(mode == TERM_ONLY_CHECK_MOUSING) {
 		if(dj_initialized)

@@ -1,5 +1,6 @@
 // PPEDI.H
-// Copyright (c) A.Sobolev 2015
+// Copyright (c) A.Sobolev 2015, 2021
+// @codepage UTF-8
 //
 #ifndef __PPEDI_H // {
 #define __PPEDI_H
@@ -7,145 +8,87 @@
 #include <sxml.h>
 #include <ppdefs.h>
 
-struct PPEdiMessageEntry {
-	PPEdiMessageEntry()
-	{
-		THISZERO();
-	}
+struct PPEdiMessageEntry { // @flat
+	PPEdiMessageEntry();
 	enum {
 		statusUnkn = 0,
 		statusNew  = 1
 	};
-	int    ID;             // Идентификатор сообщения, инициализируемый дравером конкретного провайдера (не зависимо от провайдера)
-    int    EdiOp;          // Тип EDI-операции
-    LDATETIME Dtm;         // Время создания/модификации сообщения
-    S_GUID Uuid;           // GUID сообщения
+	int    ID;             // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ, РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРјС‹Р№ РґСЂР°РІРµСЂРѕРј РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїСЂРѕРІР°Р№РґРµСЂР° (РЅРµ Р·Р°РІРёСЃРёРјРѕ РѕС‚ РїСЂРѕРІР°Р№РґРµСЂР°)
+    int    EdiOp;          // РўРёРї EDI-РѕРїРµСЂР°С†РёРё
+    LDATETIME Dtm;         // Р’СЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ/РјРѕРґРёС„РёРєР°С†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ
+    S_GUID Uuid;           // GUID СЃРѕРѕР±С‰РµРЅРёСЏ
     long   Status;         // PPEdiMessageEntry::statusXXX
-    long   Flags;          // Флаги
-    long   PrvFlags;       // Флаги, специфичные для конкретного провайдера
-    char   Code[24];       // Код сообщения (номер документа)
+    long   Flags;          // Р¤Р»Р°РіРё
+    long   PrvFlags;       // Р¤Р»Р°РіРё, СЃРїРµС†РёС„РёС‡РЅС‹Рµ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїСЂРѕРІР°Р№РґРµСЂР°
+    char   Code[24];       // РљРѕРґ СЃРѕРѕР±С‰РµРЅРёСЏ (РЅРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°)
     char   SenderCode[24];
     char   RcvrCode[24];
-    char   Box[64];        // Если хранение сообщений дифференцировано по боксам, то здесь может быть имя бокса для сообщения
-    char   SId[128];       // Символьный идентификатор (может быть именем файла)
+    char   Box[64];        // Р•СЃР»Рё С…СЂР°РЅРµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёР№ РґРёС„С„РµСЂРµРЅС†РёСЂРѕРІР°РЅРѕ РїРѕ Р±РѕРєСЃР°Рј, С‚Рѕ Р·РґРµСЃСЊ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёРјСЏ Р±РѕРєСЃР° РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ
+    char   SId[128];       // РЎРёРјРІРѕР»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ (РјРѕР¶РµС‚ Р±С‹С‚СЊ РёРјРµРЅРµРј С„Р°Р№Р»Р°)
 };
 
-class PPEdiMessageList : public TSArray <PPEdiMessageEntry> {
+class PPEdiMessageList : public TSVector <PPEdiMessageEntry> {
 public:
-	PPEdiMessageList() : TSArray <PPEdiMessageEntry>()
-	{
-		LastId = 0;
-	}
-	PPEdiMessageList & Clear()
-	{
-		freeAll();
-		// LastId не обнуляем с целью обеспечения уникальности идентификаторов для разных сессий
-		return *this;
-	}
-	int    SearchId(int id, uint * pPos) const
-	{
-		return lsearch(&id, pPos, CMPF_LONG);
-	}
-	int    Add(const PPEdiMessageEntry & rEntry)
-	{
-		PPEdiMessageEntry new_entry;
-		new_entry = rEntry;
-		LastId++;
-		SETIFZ(new_entry.ID, LastId);
-		return insert(&new_entry);
-	}
+	PPEdiMessageList();
+	PPEdiMessageList & Z();
+	int    SearchId(int id, uint * pPos) const;
+	int    Add(const PPEdiMessageEntry & rEntry);
 private:
     int    LastId;
 };
 
 class SEancomXmlSegment : public SXml {
 public:
-	SEancomXmlSegment(const xmlNode * pNode = 0);
+	explicit SEancomXmlSegment(const xmlNode * pNode = 0);
 	int    operator !() const;
 
 	enum {
 		refON = 1, // "ON" Order number
         refIT,     // "IT" Internal customer number
         refYC1,    // "YC1" Additional party identification (EAN code)
-        refABT,    // "ABT" Custom declaration number (RUS: номер ГТД в SG17)
+        refABT,    // "ABT" Custom declaration number (RUS: РЅРѕРјРµСЂ Р“РўР” РІ SG17)
         refIV      // "IV"
 	};
 	struct REF {
-		REF() : Type(0)
-		{
-		}
-		REF & Clear()
-		{
-			Type = 0;
-			Text.Z();
-			return *this;
-		}
+		REF();
+		REF & Z();
         int    Type;
         SString Text;
 	};
 	enum {
-		dtmMsg    = 137,     // Дата/время документа/сообщения //
-		dtmRef    = 171,     // Ссылочная дата/время (дата документа, на который ссылается это сообщение)
-		dtmSched  = 358,     // Планируемая дата/время
+		dtmMsg    = 137,     // Р”Р°С‚Р°/РІСЂРµРјСЏ РґРѕРєСѓРјРµРЅС‚Р°/СЃРѕРѕР±С‰РµРЅРёСЏ //
+		dtmRef    = 171,     // РЎСЃС‹Р»РѕС‡РЅР°СЏ РґР°С‚Р°/РІСЂРµРјСЏ (РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р°, РЅР° РєРѕС‚РѕСЂС‹Р№ СЃСЃС‹Р»Р°РµС‚СЃСЏ СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ)
+		dtmSched  = 358,     // РџР»Р°РЅРёСЂСѓРµРјР°СЏ РґР°С‚Р°/РІСЂРµРјСЏ
 		dtmDlvr   = 35,      // Delivery date/time actual
 		dtmRcpt   = 50,      // Goods receipt date/time
-		dtmExpiry = 361,     // Дата истечения срока годности
-		dtmExpiryDays = 36   // Срок годности в днях
+		dtmExpiry = 361,     // Р”Р°С‚Р° РёСЃС‚РµС‡РµРЅРёСЏ СЃСЂРѕРєР° РіРѕРґРЅРѕСЃС‚Рё
+		dtmExpiryDays = 36   // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё РІ РґРЅСЏС…
 	};
 	struct DTM {
-		DTM() : Type(0), Dtm(ZERODATETIME), Days(0)
-		{
-		}
-		DTM & Clear()
-		{
-			Type = 0;
-			Dtm = ZERODATETIME;
-			Days = 0;
-			return *this;
-		}
+		DTM();
+		DTM & Z();
 		int    Type; // dtmXXX
 		LDATETIME Dtm;
 		int    Days;
 	};
 	struct MOA {
-		MOA() : Type(0), Value(0.0)
-		{
-			CurrencySymb[0] = 0;
-		}
-		MOA & Clear()
-		{
-			Type = 0;
-			CurrencySymb[0] = 0;
-			Value = 0.0;
-			return *this;
-		}
+		MOA();
+		MOA & Z();
 		int    Type;
 		char   CurrencySymb[8];
 		double Value;
 	};
 	enum {
-		nadSU = 1, // Поставщик
-		nadBY,     // Покупатель
+		nadSU = 1, // РџРѕСЃС‚Р°РІС‰РёРє
+		nadBY,     // РџРѕРєСѓРїР°С‚РµР»СЊ
 		nadDP,     // Delivery Party
 		nadUD,     // Ultimate Delivery party
-		nadIV      // Плательщик
+		nadIV      // РџР»Р°С‚РµР»СЊС‰РёРє
 	};
 	struct NAD {
-		NAD()
-		{
-			Clear();
-		}
-		NAD & Clear()
-		{
-			Type = 0;
-			GLN[0] = 0;
-			CountryCode[0] = 0;
-			PostalCode[0] = 0;
-			Name = 0;
-			City = 0;
-			Address = 0;
-			return *this;
-		}
+		NAD();
+		NAD & Z();
         int    Type;
         char   GLN[20];
         char   CountryCode[8];
@@ -153,6 +96,9 @@ public:
         SString Name;
         SString City;
         SString Address;
+	};
+	struct LIN {
+		SString Ident; // E1082
 	};
 
 	int    GetNext(SEancomXmlSegment & rSeg);

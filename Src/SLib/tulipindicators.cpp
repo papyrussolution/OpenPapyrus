@@ -1514,7 +1514,7 @@ int ti_trima(int size, double const * const * inputs, double const * options, do
 		weight_sum += lead_sum;
 		/* 1 2 3 4 5 5 4 3 2 */
 		weight_sum -= trail_sum;
-		/*   1 2 3 4 5 4 3 2 */
+		/* 1 2 3 4 5 4 3 2 */
 		/* weight_sum       1 2 3 4 5 4 3 2 1 */
 		/* lead_sum                   1 1 1 1 */
 		/* trail_sum        1 1 1 1 1        */

@@ -455,7 +455,7 @@ static bool put_header_entry_named(DYN_HEADER * hdr,
 
 static size_t dynamic_column_offset_bytes_num(size_t data_length)
 {
-	if(data_length < 0x1f)           /* all 1 value is reserved */
+	if(data_length < 0x1f) /* all 1 value is reserved */
 		return 1;
 	if(data_length < 0x1fff)         /* all 1 value is reserved */
 		return 2;
@@ -468,7 +468,7 @@ static size_t dynamic_column_offset_bytes_num(size_t data_length)
 
 static size_t dynamic_column_offset_bytes_named(size_t data_length)
 {
-	if(data_length < 0xfff)           /* all 1 value is reserved */
+	if(data_length < 0xfff) /* all 1 value is reserved */
 		return 2;
 	if(data_length < 0xfffff)         /* all 1 value is reserved */
 		return 3;

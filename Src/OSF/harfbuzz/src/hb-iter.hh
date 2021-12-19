@@ -142,10 +142,10 @@ public:
 
 		protected:
 		hb_iter_t() = default;
-	hb_iter_t(const hb_iter_t &o HB_UNUSED) = default;
-	hb_iter_t(hb_iter_t &&o HB_UNUSED) = default;
-	hb_iter_t& operator = (const hb_iter_t &o HB_UNUSED) = default;
-	hb_iter_t& operator = (hb_iter_t &&o HB_UNUSED) = default;
+	hb_iter_t(const hb_iter_t &o CXX_UNUSED_PARAM) = default;
+	hb_iter_t(hb_iter_t &&o CXX_UNUSED_PARAM) = default;
+	hb_iter_t& operator = (const hb_iter_t &o CXX_UNUSED_PARAM) = default;
+	hb_iter_t& operator = (hb_iter_t &&o CXX_UNUSED_PARAM) = default;
 };
 
 #define HB_ITER_USING(Name) \
@@ -276,10 +276,10 @@ public:
 
 protected:
 	hb_iter_fallback_mixin_t() = default;
-	hb_iter_fallback_mixin_t(const hb_iter_fallback_mixin_t &o HB_UNUSED) = default;
-	hb_iter_fallback_mixin_t(hb_iter_fallback_mixin_t &&o HB_UNUSED) = default;
-	hb_iter_fallback_mixin_t& operator = (const hb_iter_fallback_mixin_t &o HB_UNUSED) = default;
-	hb_iter_fallback_mixin_t& operator = (hb_iter_fallback_mixin_t &&o HB_UNUSED) = default;
+	hb_iter_fallback_mixin_t(const hb_iter_fallback_mixin_t &o CXX_UNUSED_PARAM) = default;
+	hb_iter_fallback_mixin_t(hb_iter_fallback_mixin_t &&o CXX_UNUSED_PARAM) = default;
+	hb_iter_fallback_mixin_t& operator = (const hb_iter_fallback_mixin_t &o CXX_UNUSED_PARAM) = default;
+	hb_iter_fallback_mixin_t& operator = (hb_iter_fallback_mixin_t &&o CXX_UNUSED_PARAM) = default;
 };
 
 template <typename iter_t, typename item_t = typename iter_t::__item_t__>
@@ -288,10 +288,10 @@ template <typename iter_t, typename item_t = typename iter_t::__item_t__>
     hb_iter_fallback_mixin_t<iter_t, item_t> {
 protected:
 	hb_iter_with_fallback_t() = default;
-	hb_iter_with_fallback_t(const hb_iter_with_fallback_t &o HB_UNUSED) = default;
-	hb_iter_with_fallback_t(hb_iter_with_fallback_t &&o HB_UNUSED) = default;
-	hb_iter_with_fallback_t& operator = (const hb_iter_with_fallback_t &o HB_UNUSED) = default;
-	hb_iter_with_fallback_t& operator = (hb_iter_with_fallback_t &&o HB_UNUSED) = default;
+	hb_iter_with_fallback_t(const hb_iter_with_fallback_t &o CXX_UNUSED_PARAM) = default;
+	hb_iter_with_fallback_t(hb_iter_with_fallback_t &&o CXX_UNUSED_PARAM) = default;
+	hb_iter_with_fallback_t& operator = (const hb_iter_with_fallback_t &o CXX_UNUSED_PARAM) = default;
+	hb_iter_with_fallback_t& operator = (hb_iter_with_fallback_t &&o CXX_UNUSED_PARAM) = default;
 };
 
 /*

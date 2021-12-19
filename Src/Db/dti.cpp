@@ -1,5 +1,5 @@
 // DTI.CPP
-// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020
+// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020, 2021
 //
 // DTI
 //
@@ -109,10 +109,7 @@ PervasiveDBCatalog::~PervasiveDBCatalog()
 	}
 }
 
-int PervasiveDBCatalog::IsValid() const
-{
-	return BIN(State & sValid);
-}
+bool PervasiveDBCatalog::IsValid() const { return LOGIC(State & sValid); }
 
 static int GetServerNameFromUncPath(const char * pUncPath, SString & rServerName)
 {

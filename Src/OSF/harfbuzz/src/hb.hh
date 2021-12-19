@@ -233,13 +233,13 @@
 	#define HB_CONST_FUNC
 	#define HB_PRINTF_FUNC(format_idx, arg_idx)
 #endif
-#if defined(__GNUC__) && (__GNUC__ >= 4) || (__clang__)
-	#define HB_UNUSED       __attribute__((unused))
-#elif defined(_MSC_VER) /* https://github.com/harfbuzz/harfbuzz/issues/635 */
-	#define HB_UNUSED __pragma(warning(suppress: 4100 4101))
-#else
-	#define HB_UNUSED
-#endif
+// @sobolev #if defined(__GNUC__) && (__GNUC__ >= 4) || (__clang__)
+// @sobolev 	#define HB_UNUSED_Removed       __attribute__((unused))
+// @sobolev #elif defined(_MSC_VER) /* https://github.com/harfbuzz/harfbuzz/issues/635 */
+// @sobolev 	#define HB_UNUSED_Removed __pragma(warning(suppress: 4100 4101))
+// @sobolev #else
+// @sobolev 	#define HB_UNUSED_Removed
+// @sobolev #endif
 #ifndef HB_INTERNAL
 # if !defined(HB_NO_VISIBILITY) && !defined(__MINGW32__) && !defined(__CYGWIN__) && !defined(_MSC_VER) && !defined(__SUNPRO_CC)
 #  define HB_INTERNAL __attribute__((__visibility__("hidden")))
@@ -370,7 +370,7 @@
 #ifndef HB_NO_ERRNO
 	//#include <errno.h>
 #else
-	static int HB_UNUSED _hb_errno = 0;
+	static int CXX_UNUSED_PARAM _hb_errno = 0;
 	#undef errno
 	#define errno _hb_errno
 #endif

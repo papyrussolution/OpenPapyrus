@@ -66,7 +66,7 @@ typedef struct {
 
 struct UBiDiTransform {
 	UBiDi   * pBidi; /* pointer to a UBiDi object */
-	const ReorderingScheme  * pActiveScheme;/* effective reordering scheme */
+	const ReorderingScheme  * pActiveScheme; /* effective reordering scheme */
 	UChar * src; /* input text */
 	UChar * dest; /* output text */
 	uint32_t srcLength; /* input text length - not really needed as we are zero-terminated and can u_strlen */

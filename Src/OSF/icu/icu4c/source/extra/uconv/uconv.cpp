@@ -57,7 +57,6 @@ U_NAMESPACE_USE
 #define UCONVMSG "uconvmsg"
 
 static UResourceBundle *gBundle = 0; /* Bundle containing messages. */
-
 /*
  * Initialize the message bundle so that message strings can be fetched
  * by u_wmsg().

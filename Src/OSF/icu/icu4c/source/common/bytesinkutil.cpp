@@ -50,7 +50,7 @@ bool ByteSinkUtil::appendChange(int32_t length, const char16_t * s16, int32_t s1
 	return TRUE;
 }
 
-bool ByteSinkUtil::appendChange(const uint8_t * s, const uint8_t * limit,
+bool ByteSinkUtil::appendChange(const uint8 * s, const uint8 * limit,
     const char16_t * s16, int32_t s16Length,
     ByteSink &sink, Edits * edits, UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
@@ -75,12 +75,12 @@ void ByteSinkUtil::appendCodePoint(int32_t length, UChar32 c, ByteSink &sink, Ed
 
 namespace {
 // See unicode/utf8.h U8_APPEND_UNSAFE().
-inline uint8_t getTwoByteLead(UChar32 c) {
-	return (uint8_t)((c >> 6) | 0xc0);
+inline uint8 getTwoByteLead(UChar32 c) {
+	return (uint8)((c >> 6) | 0xc0);
 }
 
-inline uint8_t getTwoByteTrail(UChar32 c) {
-	return (uint8_t)((c & 0x3f) | 0x80);
+inline uint8 getTwoByteTrail(UChar32 c) {
+	return (uint8)((c & 0x3f) | 0x80);
 }
 }  // namespace
 
@@ -90,7 +90,7 @@ void ByteSinkUtil::appendTwoBytes(UChar32 c, ByteSink &sink) {
 	sink.Append(s8, 2);
 }
 
-void ByteSinkUtil::appendNonEmptyUnchanged(const uint8_t * s, int32_t length,
+void ByteSinkUtil::appendNonEmptyUnchanged(const uint8 * s, int32_t length,
     ByteSink &sink, uint32_t options, Edits * edits) {
 	U_ASSERT(length > 0);
 	if(edits != nullptr) {
@@ -101,7 +101,7 @@ void ByteSinkUtil::appendNonEmptyUnchanged(const uint8_t * s, int32_t length,
 	}
 }
 
-bool ByteSinkUtil::appendUnchanged(const uint8_t * s, const uint8_t * limit,
+bool ByteSinkUtil::appendUnchanged(const uint8 * s, const uint8 * limit,
     ByteSink &sink, uint32_t options, Edits * edits,
     UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {

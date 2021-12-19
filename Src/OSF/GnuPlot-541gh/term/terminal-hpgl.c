@@ -57,7 +57,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -68,42 +68,42 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void HPGL_options();
-TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void HPGL_init(GpTermEntry * pThis);
+TERM_PUBLIC void PCL_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void HPGL_init(GpTermEntry_Static * pThis);
 /* TERM_PUBLIC void HPGL2_init(); */
-TERM_PUBLIC void PCL_init(GpTermEntry * pThis);
-TERM_PUBLIC void HPGL_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void HPGL2_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void PCL_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void HPGL_text(GpTermEntry * pThis);
-/* TERM_PUBLIC void HPGL2_text(GpTermEntry * pThis); */
-TERM_PUBLIC void PCL_text(GpTermEntry * pThis);
-TERM_PUBLIC void HPGL_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void HPGL2_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void HPGL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void HPGL2_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void HPGL_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void HPGL_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void HPGL2_move(GpTermEntry * pThis, uint x, uint y);
+TERM_PUBLIC void PCL_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPGL_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPGL2_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PCL_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPGL_text(GpTermEntry_Static * pThis);
+/* TERM_PUBLIC void HPGL2_text(GpTermEntry_Static * pThis); */
+TERM_PUBLIC void PCL_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPGL_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void HPGL2_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void HPGL_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void HPGL2_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void HPGL_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void HPGL_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void HPGL2_move(GpTermEntry_Static * pThis, uint x, uint y);
 TERM_PUBLIC void HPGL2_encode(int d);
-TERM_PUBLIC int  HPGL_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC int  HPGL2_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void HPGL_reset(GpTermEntry * pThis);
+TERM_PUBLIC int  HPGL_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC int  HPGL2_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void HPGL_reset(GpTermEntry_Static * pThis);
 /* TERM_PUBLIC void HPGL2_reset(); */
-TERM_PUBLIC void PCL_reset(GpTermEntry * pThis);
-TERM_PUBLIC int  HPGL2_justify_text(GpTermEntry * pThis, enum JUSTIFY just);
-TERM_PUBLIC int  HPGL2_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void HPGL2_pointsize(GpTermEntry * pThis, double size);
-TERM_PUBLIC void HPGL2_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC void HPGL2_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
-TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int HPGL2_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
-TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis);
+TERM_PUBLIC void PCL_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC int  HPGL2_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY just);
+TERM_PUBLIC int  HPGL2_set_font(GpTermEntry_Static * pThis, const char * font);
+TERM_PUBLIC void HPGL2_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void HPGL2_neg_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void HPGL2_pointsize(GpTermEntry_Static * pThis, double size);
+TERM_PUBLIC void HPGL2_linewidth(GpTermEntry_Static * pThis, double linewidth);
+TERM_PUBLIC void HPGL2_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners);
+TERM_PUBLIC void HPGL2_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
+TERM_PUBLIC int HPGL2_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
+TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC void HPGL2_enh_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry_Static * pThis);
 #define GOT_HPGL_PROTO
 //#endif /* TERM_PROTO */
 
@@ -208,13 +208,13 @@ TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis);
  */
 
 static void HPGL2_put_text_here(const char * str, bool centeralign);
-static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double size);
+static int HPGL2_set_font_size(GpTermEntry_Static * pThis, const char * font, double size);
 static int HPGL2_map_encoding();
 static void HPGL2_end_poly();
-static void HPGL2_dot(GpTermEntry * pThis, int x, int y);
-static void HPGL2_diamond(GpTermEntry * pThis, int x, int y, int htic, int vtic);
-static void HPGL2_filled_diamond(GpTermEntry * pThis, int x, int y, int htic, int vtic);
-static void HPGL2_pentagon(GpTermEntry * pThis, int x, int y, int htic, int vtic);
+static void HPGL2_dot(GpTermEntry_Static * pThis, int x, int y);
+static void HPGL2_diamond(GpTermEntry_Static * pThis, int x, int y, int htic, int vtic);
+static void HPGL2_filled_diamond(GpTermEntry_Static * pThis, int x, int y, int htic, int vtic);
+static void HPGL2_pentagon(GpTermEntry_Static * pThis, int x, int y, int htic, int vtic);
 
 /*
  * Data structures for options
@@ -639,7 +639,7 @@ static float HPGL2_enh_fontscale = 1;
 static int HPGL_numpen;
 static int HPGL_eject;
 
-TERM_PUBLIC void HPGL_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void HPGL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	HPGL_numpen = 6; /* default to six pens */
 	HPGL_eject = 0; /* default to no eject */
@@ -743,7 +743,7 @@ static bool almost_equal_string(const char * test, const char * str)
 	return (after || str[i] == '$' || !str[i]);
 }
 
-TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PCL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int i;
 	SETIFZ(PCL_mode.name, PCL_mode_table[0].name);
@@ -812,29 +812,29 @@ TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    HPGL2_linewidth_scale = pGp->FloatExpression();
 			    if(HPGL2_linewidth_scale <= 0)
-				    HPGL2_linewidth_scale = 1.0;
+				    HPGL2_linewidth_scale = 1.0f;
 			    break;
 			    break;
 			case HPGL2_POINTSIZE:
 			    pGp->Pgm.Shift();
 			    HPGL2_pointscale =  pGp->FloatExpression();
 			    if(HPGL2_pointscale <= 0)
-				    HPGL2_pointscale = 1.0;
+				    HPGL2_pointscale = 1.0f;
 			    break;
 			case HPGL2_FONTSCALE:
 			    pGp->Pgm.Shift();
 			    HPGL2_fontscale =  pGp->FloatExpression();
 			    if(HPGL2_fontscale <= 0)
-				    HPGL2_fontscale = 1.0;
+				    HPGL2_fontscale = 1.0f;
 			    break;
 			case HPGL2_ENHANCED:
 			    pGp->Pgm.Shift();
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    pThis->put_text = HPGL2_enh_put_text;
 			    break;
 			case HPGL2_NOENHANCED:
 			    pGp->Pgm.Shift();
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    pThis->put_text = HPGL2_put_text;
 			    break;
 			case PCL_LANDSCAPE:
@@ -928,7 +928,7 @@ TERM_PUBLIC void PCL_options(GpTermEntry * pThis, GnuPlot * pGp)
 	    HPGL2_linewidth_scale, HPGL2_pointscale, HPGL2_fontscale);
 }
 
-TERM_PUBLIC void HPGL_init(GpTermEntry * pThis)
+TERM_PUBLIC void HPGL_init(GpTermEntry_Static * pThis)
 {
 }
 
@@ -936,7 +936,7 @@ TERM_PUBLIC void HPGL_init(GpTermEntry * pThis)
    {
    } */
 
-TERM_PUBLIC void PCL_init(GpTermEntry * pThis)
+TERM_PUBLIC void PCL_init(GpTermEntry_Static * pThis)
 {
 	//
 	// Reset printer, set to one copy, orientation of user's choice.
@@ -944,13 +944,11 @@ TERM_PUBLIC void PCL_init(GpTermEntry * pThis)
 	//
 	if(PCL_landscape) {
 		fprintf(GPT.P_GpOutFile, "\033E\033&l1X%s\n", PCL_mode_table[0].command);
-		pThis->MaxX = PCL_mode.xmax;
-		pThis->MaxY = PCL_mode.ymax;
+		pThis->SetMax(PCL_mode.xmax, PCL_mode.ymax);
 	}
 	else {
 		fprintf(GPT.P_GpOutFile, "\033E\033&l1X%s\n", PCL_mode_table[1].command);
-		pThis->MaxX = PCL_mode.ymax;
-		pThis->MaxY = PCL_mode.xmax;
+		pThis->SetMax(PCL_mode.ymax, PCL_mode.xmax);
 	}
 	if(GPT._Encoding == S_ENC_UTF8)
 		fputs("\033&t83P\n", GPT.P_GpOutFile);
@@ -960,7 +958,7 @@ TERM_PUBLIC void PCL_init(GpTermEntry * pThis)
 	fputs("\033%0B", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void HPGL_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void HPGL_graphics(GpTermEntry_Static * pThis)
 {
 	fputs("\033.Y\n\033.I81;;17:\033.N;19:\033.M500:\n", GPT.P_GpOutFile);
 /*	       1
@@ -1016,15 +1014,14 @@ static int HPGL2_map_encoding()
 	}
 }
 
-TERM_PUBLIC void HPGL2_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void HPGL2_graphics(GpTermEntry_Static * pThis)
 {
 /*
  * IN - Initialize
  * SP - Select pen
  * SD - Set default font
  */
-	pThis->ChrV = static_cast<uint>((int)HPGL_PUPI * HPGL2_point_size * HPGL2_fontscale / 72);
-	pThis->ChrH = pThis->ChrV * 2 / 3;
+	pThis->SetCharSize(pThis->CV() * 2 / 3, static_cast<uint>((int)HPGL_PUPI * HPGL2_point_size * HPGL2_fontscale / 72));
 	fprintf(GPT.P_GpOutFile, "INNP8SP1SD1,%d,2,%d,", HPGL2_map_encoding(), HPGL2_font->spacing);
 	HPGL2_pen = 1;
 	if(HPGL2_font->spacing)
@@ -1060,7 +1057,7 @@ UL7,4,4,4,4,0,4,4,4,4,4,0,4,4,4,4,4,0,4;\n",
 	HPGL_penstate = UP; /* Pen is up */
 }
 
-TERM_PUBLIC void PCL_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void PCL_graphics(GpTermEntry_Static * pThis)
 {
 /*
  * Enter HPGL/2 graphics mode
@@ -1069,7 +1066,7 @@ TERM_PUBLIC void PCL_graphics(GpTermEntry * pThis)
 	HPGL2_graphics(pThis);
 }
 
-TERM_PUBLIC void HPGL_text(GpTermEntry * pThis)
+TERM_PUBLIC void HPGL_text(GpTermEntry_Static * pThis)
 {
 	if(HPGL_eject == 0) {
 		fputs("PUSP0;\033.Z\n\0", GPT.P_GpOutFile);
@@ -1092,7 +1089,7 @@ TERM_PUBLIC void HPGL_text(GpTermEntry * pThis)
 }
 
 #if 0                           /* not used */
-void HPGL2_text(GpTermEntry * pThis)
+void HPGL2_text(GpTermEntry_Static * pThis)
 {
 	HPGL2_end_poly();
 /*
@@ -1104,14 +1101,14 @@ void HPGL2_text(GpTermEntry * pThis)
 
 #endif
 
-TERM_PUBLIC void PCL_text(GpTermEntry * pThis)
+TERM_PUBLIC void PCL_text(GpTermEntry_Static * pThis)
 {
 	HPGL2_end_poly();
 	// Go into PCL mode and eject the page
 	fputs("\033%1A\033&l0H\n\0", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void HPGL_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void HPGL_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(linetype < -2)
 		linetype = LT_BLACK;
@@ -1125,7 +1122,7 @@ TERM_PUBLIC void HPGL_linetype(GpTermEntry * pThis, int linetype)
 	}
 }
 
-TERM_PUBLIC void HPGL2_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void HPGL2_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	t_colorspec colorspec;
 	HPGL2_end_poly();
@@ -1155,7 +1152,7 @@ TERM_PUBLIC void HPGL2_linetype(GpTermEntry * pThis, int linetype)
 	/* } */
 }
 
-TERM_PUBLIC void HPGL2_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern)
+TERM_PUBLIC void HPGL2_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_pattern)
 {
 	HPGL2_end_poly();
 	if(type > 0) { /* predefined linetype */
@@ -1193,7 +1190,7 @@ TERM_PUBLIC void HPGL2_dashtype(GpTermEntry * pThis, int type, t_dashtype * cust
 		}
 }
 
-TERM_PUBLIC void HPGL_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void HPGL_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	if(HPGL_ang == 1)
 		HPGL_move(pThis, x + HPGL_VCHAR / 4, y);
@@ -1223,7 +1220,7 @@ TERM_PUBLIC void HPGL_put_text(GpTermEntry * pThis, uint x, uint y, const char *
 		fprintf(GPT.P_GpOutFile, "LB%s\003\n", str);
 }
 
-TERM_PUBLIC void HPGL2_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void HPGL2_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	// Position the pen
 	HPGL2_move(pThis, x, y);
@@ -1320,7 +1317,7 @@ static void HPGL2_put_text_here(const char * str, bool centeralign)
  * Some early HPGL plotters (e.g. HP7220C) require the
  * Pen Up/Down and Pen (move) Absolute commands to be separate.
  */
-TERM_PUBLIC void HPGL_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void HPGL_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(HPGL_x != x || HPGL_y != y) { /* only move if necessary */
 		fprintf(GPT.P_GpOutFile, "PU;PA%d,%d;\n", x, y);
@@ -1330,7 +1327,7 @@ TERM_PUBLIC void HPGL_move(GpTermEntry * pThis, uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void HPGL_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void HPGL_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if(HPGL_penstate != DOWN) {
 		fprintf(GPT.P_GpOutFile, "PD;PA%d,%d;\n", x, y);
@@ -1342,7 +1339,7 @@ TERM_PUBLIC void HPGL_vector(GpTermEntry * pThis, uint x, uint y)
 	HPGL_y = y;
 }
 
-TERM_PUBLIC void HPGL2_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void HPGL2_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	int dx, dy;
 	if(HPGL2_in_pe) {
@@ -1379,7 +1376,7 @@ TERM_PUBLIC void HPGL2_move(GpTermEntry * pThis, uint x, uint y)
 	HPGL_y = y;
 }
 
-TERM_PUBLIC void HPGL2_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void HPGL2_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	int dx, dy;
 	if(HPGL2_in_pe) {
@@ -1419,9 +1416,9 @@ TERM_PUBLIC void HPGL2_vector(GpTermEntry * pThis, uint x, uint y)
 	HPGL_y = y;
 }
 
-static FORCEINLINE void HPGL2_move_R(GpTermEntry * pThis, double x, double y) { return HPGL2_move(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
-static FORCEINLINE void HPGL2_vector_R(GpTermEntry * pThis, double x, double y) { return HPGL2_vector(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
-static FORCEINLINE void HPGL2_vector_I(GpTermEntry * pThis, int x, int y) { return HPGL2_vector(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
+static FORCEINLINE void HPGL2_move_R(GpTermEntry_Static * pThis, double x, double y) { return HPGL2_move(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
+static FORCEINLINE void HPGL2_vector_R(GpTermEntry_Static * pThis, double x, double y) { return HPGL2_vector(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
+static FORCEINLINE void HPGL2_vector_I(GpTermEntry_Static * pThis, int x, int y) { return HPGL2_vector(pThis, static_cast<uint>(x), static_cast<uint>(y)); }
 /*
  * Routine to encode position in base 32 or base 64 characters
  */
@@ -1451,7 +1448,7 @@ static void HPGL2_end_poly()
 	}
 }
 
-TERM_PUBLIC int HPGL_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int HPGL_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	HPGL_ang = (ang == -90 || ang == 270) ? -1 : (ang ? 1 : 0);
 	if(HPGL_ang == 0)               /* Horizontal */
@@ -1463,7 +1460,7 @@ TERM_PUBLIC int HPGL_text_angle(GpTermEntry * pThis, int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int HPGL2_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int HPGL2_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	HPGL2_end_poly();
 	while(ang < 0) {
@@ -1484,7 +1481,7 @@ TERM_PUBLIC int HPGL2_text_angle(GpTermEntry * pThis, int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC void HPGL_reset(GpTermEntry * pThis)
+TERM_PUBLIC void HPGL_reset(GpTermEntry_Static * pThis)
 {
 /*
  * do nothing
@@ -1504,7 +1501,7 @@ void HPGL2_reset()
 
 #endif
 
-TERM_PUBLIC void PCL_reset(GpTermEntry * pThis)
+TERM_PUBLIC void PCL_reset(GpTermEntry_Static * pThis)
 {
 	/*
 	 * Return to PCL mode
@@ -1513,7 +1510,7 @@ TERM_PUBLIC void PCL_reset(GpTermEntry * pThis)
 	fputs("\033%0A\033E\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC int HPGL2_justify_text(GpTermEntry * pThis, enum JUSTIFY just)
+TERM_PUBLIC int HPGL2_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY just)
 {
 	HPGL2_end_poly();
 	HPGL2_justification = just;
@@ -1526,7 +1523,7 @@ TERM_PUBLIC int HPGL2_justify_text(GpTermEntry * pThis, enum JUSTIFY just)
 	return 1;
 }
 
-TERM_PUBLIC int HPGL2_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int HPGL2_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	char name[MAX_ID_LEN+1];
 	int sep;
@@ -1548,7 +1545,7 @@ TERM_PUBLIC int HPGL2_set_font(GpTermEntry * pThis, const char * font)
 	return HPGL2_set_font_size(pThis, name, size);
 }
 
-static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double size)
+static int HPGL2_set_font_size(GpTermEntry_Static * pThis, const char * font, double size)
 {
 	//struct GpTermEntry * t = term;
 	int i;
@@ -1577,8 +1574,7 @@ static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double si
 	HPGL2_point_size_current = size;
 	HPGL2_is_italic = italic;
 	HPGL2_is_bold = bold;
-	pThis->ChrV = static_cast<uint>(HPGL_PUPI * HPGL2_point_size_current * scale / 72);
-	pThis->ChrH = pThis->ChrV * 2 / 3;
+	pThis->SetCharSize(pThis->CV() * 2 / 3, static_cast<uint>(HPGL_PUPI * HPGL2_point_size_current * scale / 72));
 	fprintf(GPT.P_GpOutFile, "SD1,%d,2,%d,", HPGL2_map_encoding(), HPGL2_font->spacing);
 	if(HPGL2_font->spacing) {
 		HPGL2_font->height = HPGL2_point_size_current;
@@ -1593,13 +1589,13 @@ static int HPGL2_set_font_size(GpTermEntry * pThis, const char * font, double si
 	return TRUE;
 }
 
-static void HPGL2_dot(GpTermEntry * pThis, int x, int y)
+static void HPGL2_dot(GpTermEntry_Static * pThis, int x, int y)
 {
 	HPGL2_move(pThis, x, y);
 	HPGL2_vector(pThis, x, y);
 }
 
-static void HPGL2_diamond(GpTermEntry * pThis, int x, int y, int htic, int vtic)
+static void HPGL2_diamond(GpTermEntry_Static * pThis, int x, int y, int htic, int vtic)
 {
 	HPGL2_move(pThis, x - htic, y);
 	HPGL2_vector(pThis, x, y - vtic);
@@ -1608,7 +1604,7 @@ static void HPGL2_diamond(GpTermEntry * pThis, int x, int y, int htic, int vtic)
 	HPGL2_vector(pThis, x - htic, y);
 }
 
-static void HPGL2_filled_diamond(GpTermEntry * pThis, int x, int y, int htic, int vtic)
+static void HPGL2_filled_diamond(GpTermEntry_Static * pThis, int x, int y, int htic, int vtic)
 {
 	HPGL2_move(pThis, x - htic, y);
 	HPGL2_end_poly();
@@ -1621,7 +1617,7 @@ static void HPGL2_filled_diamond(GpTermEntry * pThis, int x, int y, int htic, in
 	fputs("PM2;FP;\n", GPT.P_GpOutFile);
 }
 
-static void HPGL2_pentagon(GpTermEntry * pThis, int x, int y, int htic, int vtic)
+static void HPGL2_pentagon(GpTermEntry_Static * pThis, int x, int y, int htic, int vtic)
 {
 	HPGL2_move(pThis, x, y + (3 * vtic / 4));
 	HPGL2_vector_R(pThis, x - (cos(0.1 * acos(-1)) * 3 * htic / 4), y + (sin(0.1 * acos(-1)) * 3 * vtic / 4));
@@ -1631,7 +1627,7 @@ static void HPGL2_pentagon(GpTermEntry * pThis, int x, int y, int htic, int vtic
 	HPGL2_vector_R(pThis, x, y + (3 * vtic / 4));
 }
 
-TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void HPGL2_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	int htic, vtic;
 	int htic2, vtic2;
@@ -2361,7 +2357,7 @@ TERM_PUBLIC void HPGL2_point(GpTermEntry * pThis, uint x, uint y, int number)
  * longer possible with newer gnuplot versions.  They are remapped above to
  * the range 100-120.
  */
-TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void HPGL2_neg_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	int htic = (int)(HPGL2_psize * PCL_HTIC / 2);
 	int vtic = (int)(HPGL2_psize * PCL_VTIC / 2);
@@ -2664,12 +2660,12 @@ TERM_PUBLIC void HPGL2_neg_point(GpTermEntry * pThis, uint x, uint y, int number
 	}
 }
 
-TERM_PUBLIC void HPGL2_pointsize(GpTermEntry * pThis, double size)
+TERM_PUBLIC void HPGL2_pointsize(GpTermEntry_Static * pThis, double size)
 {
 	HPGL2_psize = (size >= 0 ? size : 1) * HPGL2_pointscale;
 }
 
-TERM_PUBLIC void HPGL2_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void HPGL2_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	double save_lw = HPGL2_lw;
 	HPGL2_end_poly();
@@ -2683,7 +2679,7 @@ TERM_PUBLIC void HPGL2_linewidth(GpTermEntry * pThis, double linewidth)
 		HPGL2_pentype = LT_UNDEFINED;
 }
 
-TERM_PUBLIC void HPGL2_fillbox(GpTermEntry * pThis, int fillstyle, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void HPGL2_fillbox(GpTermEntry_Static * pThis, int fillstyle, uint x1, uint y1, uint width, uint height)
 {
 	/* fillpar:
 	 * - solid   : 0 - 100
@@ -2743,7 +2739,7 @@ TERM_PUBLIC void HPGL2_fillbox(GpTermEntry * pThis, int fillstyle, uint x1, uint
 	}
 }
 
-TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	int fillpar = corners->style >> 4;
 	int style = corners->style & 0xf;
@@ -2813,7 +2809,7 @@ TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry * pThis, int points, gpiPoint 
 	}
 }
 
-TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void HPGL2_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
@@ -2873,14 +2869,14 @@ TERM_PUBLIC void HPGL2_set_color(GpTermEntry * pThis, const t_colorspec * colors
 	}
 }
 
-TERM_PUBLIC int HPGL2_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int HPGL2_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	if(palette == NULL)
 		return 0;
 	return 0;
 }
 
-TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
+TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[])
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	enum JUSTIFY just = HPGL2_justification;
@@ -2972,7 +2968,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry * pThis, uint x, uint y, const c
 	HPGL2_set_font(pThis, "");
 }
 
-TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void HPGL2_enh_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const int scale = static_cast<int>(0.9 * HPGL_PUPI / 72.0); // scaling of base offset 
@@ -3015,7 +3011,7 @@ TERM_PUBLIC void HPGL2_enh_open(GpTermEntry * pThis, char * fontname, double fon
 	}
 }
 
-TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry * pThis)
+TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(HPGL2_opened_string) {

@@ -503,9 +503,9 @@ public:
 
 		enum GlyphClasses {
 			UnclassifiedGlyph   = 0,
-			BaseGlyph           = 1,
+			BaseGlyph   = 1,
 			LigatureGlyph       = 2,
-			MarkGlyph           = 3,
+			MarkGlyph   = 3,
 			ComponentGlyph      = 4
 		};
 

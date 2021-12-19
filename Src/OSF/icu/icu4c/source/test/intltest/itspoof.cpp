@@ -537,7 +537,7 @@ void IntlTestSpoof::testScriptSet() {
 
 void IntlTestSpoof::testRestrictionLevel() {
 	struct Test {
-		const char         * fId;
+		const char * fId;
 		URestrictionLevel fExpectedRestrictionLevel;
 	} tests[] = {
 		{"\\u0061\\u03B3\\u2665", USPOOF_UNRESTRICTIVE},

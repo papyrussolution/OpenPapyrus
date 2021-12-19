@@ -183,7 +183,7 @@ public:
 		fAllowDupName = 0x0002, // При добавлении полей класс не следит за тем, чтобы их наименования были уникальными внутри записи.
 		fNamesToUpper = 0x0004, // При добавлении полей их наименования переводятся в верхний регистр.
 			// Это гарантирует уникальность наименований полей не зависимо от регистра.
-		fEnum         = 0x0008, // Структура-перечисление. Общий размер составляет sizeof(uint32)
+		fEnum = 0x0008, // Структура-перечисление. Общий размер составляет sizeof(uint32)
 			// Значение каждого варианта хранится как EnumVal поля.
 		fNoData       = 0x0010  // Запись не является представлением сплошного пространства полей.
 			// То есть, с записью невозможно сопоставить пространство данных. Речь идет о
@@ -518,7 +518,7 @@ class XmlDbFile {
 public:
 	struct Param { // @persistent
 		enum {
-			fUseDTD         = 0x00000001L,
+			fUseDTD = 0x00000001L,
 			fUtf8Codepage   = 0x00000002L,
 			fHaveSubRec     = 0x00000004L,
 			fSkipEntityList = 0x00000008L  // Не выводить в выходном файле список сущностей
@@ -651,7 +651,7 @@ public:
 			// сопоставление элементов SdRecord с элементами записи осуществляется по этим именам
 			// (без учета регистра символов).
 			// В противном случае сопоставление идет по порядку следования записей и элементов SdRecord.
-		fCpOem         = 0x0002, // Текст имеет кодировку OEM
+		fCpOem = 0x0002, // Текст имеет кодировку OEM
 		fQuotText      = 0x0004, // Текстовые поля обрамлены двойными кавычками
 		fVerticalRec   = 0x0008, // Вертикальная ориентация записей
 		fOneRecPerFile = 0x0010  // Одна запись в файле
@@ -1446,7 +1446,7 @@ public:
 	SSqlStmt(DbProvider * pDb, const char * pText);
 	~SSqlStmt();
 	int    SetText(const char * pText);
-	int    IsValid() const;
+	bool   IsValid() const;
 	//
 	// Descr: Инициализирует подстановочные буферы для связывания переменных
 	//   SQL-оператора.
@@ -1571,7 +1571,7 @@ struct DbTableStat {
 	//   в этой структуре.
 	//
 	enum {
-		iID         = 0x0001,
+		iID = 0x0001,
 		iOwnerLevel = 0x0002,
 		iFlags      = 0x0004,
 		iName       = 0x0008,
@@ -1958,7 +1958,7 @@ public:
 	};
 	virtual int GetListOfTables(long options, StrAssocArray * pList) = 0;
 
-	int    IsValid() const;
+	bool   IsValid() const;
 protected:
 	enum {
 		stError  = 0x0001
@@ -2197,7 +2197,7 @@ public:
 	virtual int Exec(SSqlStmt & rS, uint count, int mode);
 	virtual int Describe(SSqlStmt & rS, SdRecord &);
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
-	int    IsValid() const;
+	bool   IsValid() const;
 	long   GetState() const { return State; }
 	long   GetCapability() const { return Capability; }
 	int    LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
@@ -2654,12 +2654,13 @@ private:
 		OH() : H(0), T(0)
 		{
 		}
-		int    IsValid() const { return (T != 0); }
-		int    operator !() const { return (T == 0); }
-		void   Clear()
+		bool   IsValid() const { return (T != 0); }
+		bool   operator !() const { return (T == 0); }
+		OH     Z()
 		{
 			H = 0;
 			T = 0;
+			return *this;
 		}
 		operator uint32 () const;
 		operator void * () const { return H; }
@@ -2688,7 +2689,7 @@ private:
 		OD() : H(0), T(0)
 		{
 		}
-		int    operator !() const { return (T == 0); }
+		bool   operator !() const { return (T == 0); }
 		operator OCIDateTime * () const { return static_cast<OCIDateTime *>(H); }    // OCI_DTYPE_TIMESTAMP
 		operator OCIRowid * () const { return static_cast<OCIRowid*>(H); }           // OCI_DTYPE_ROWID
 		operator OCILobLocator * () const { return static_cast<OCILobLocator*>(H); } // OCI_DTYPE_LOB
@@ -3008,19 +3009,19 @@ struct PVFILEINFO {
 	uchar  openMode; /* open mode */
 	uchar  locksFlag; /* TRUE if locked */
 	uchar  transFlag; /* TRUE if in transaction mode */
-	uchar  tTSFlag; /*  */
+	uchar  tTSFlag; /* */
 	uchar  readOnly; /* TRUE if opened for read-only access */
-	uchar  continuousOpsFlag; /*  */
-	uchar  referentialIntgFlag; /*  */
-	ulong  aFLIndex; /*  */
-	ulong  activeCursors; /*  */
+	uchar  continuousOpsFlag; /* */
+	uchar  referentialIntgFlag; /* */
+	ulong  aFLIndex; /* */
+	ulong  activeCursors; /* */
 	ulong  pageSize; /* page size in bytes */
 	PVDATETIME openTimeStamp; /* time when the file was open */
 	uchar  Reserve;
 };
 
 struct PVFILEHDLINFO {
-	ulong   clientIndex; /*  */
+	ulong   clientIndex; /* */
 	uchar   openMode; /* open mode */
 	uchar   locksFlag; /* TRUE if the file is locked */
 	uchar   waitFlag; /* TRUE if in waiting mode */
@@ -3041,7 +3042,7 @@ class PervasiveDBCatalog {
 public:
 	PervasiveDBCatalog();
 	~PervasiveDBCatalog();
-	int    IsValid() const;
+	bool   IsValid() const;
 	int    Connect(const char * pServerName, char * pUser_name, char * pPassword);
 	int    Disconnect();
 	int    CreateDB(const char * pEntryName, const char * pDict, const char * pData);
@@ -4318,16 +4319,16 @@ public:
 	//   Поле состояния возвращается функцией GetState()
 	//
 	enum {
-		stError            = 0x0001,
-		stLoggedIn         = 0x0002,
-		stReadOnly         = 0x0004, // Экземпляр базы данных создан в режиме READ-ONLY
+		stError    = 0x0001,
+		stLoggedIn = 0x0002,
+		stReadOnly = 0x0004, // Экземпляр базы данных создан в режиме READ-ONLY
 		stWriteStatOnClose = 0x0008, // При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
 		stExclusive        = 0x0010  // @v10.0.12 База данных открыта в эксклюзивном режиме
 	};
 	enum {
-		oRecover          = 0x00000001,
-		oPrivate          = 0x00000002, // окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
-		oReadOnly         = 0x00000004, // База данных открывается в режиме READ-ONLY
+		oRecover  = 0x00000001,
+		oPrivate  = 0x00000002, // окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
+		oReadOnly = 0x00000004, // База данных открывается в режиме READ-ONLY
 		oWriteStatOnClose = 0x00000008, // При закрытии базы сохранять статистику по таблицам
 		oExclusive        = 0x00000010, // @v10.0.12 База данных открывается в эксклюзивном режиме
 	};

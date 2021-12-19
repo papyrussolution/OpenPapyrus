@@ -1514,12 +1514,12 @@ enum {
 	OP_SOD,      /* 1 Start of data: \A */
 	OP_SOM,      /* 2 Start of match (subject + offset): \G */
 	OP_SET_SOM,  /* 3 Set start of match (\K) */
-	OP_NOT_WORD_BOUNDARY, /*  4 \B */
-	OP_WORD_BOUNDARY, /*  5 \b */
-	OP_NOT_DIGIT,    /*  6 \D */
-	OP_DIGIT,        /*  7 \d */
-	OP_NOT_WHITESPACE, /*  8 \S */
-	OP_WHITESPACE,   /*  9 \s */
+	OP_NOT_WORD_BOUNDARY, /* 4 \B */
+	OP_WORD_BOUNDARY, /* 5 \b */
+	OP_NOT_DIGIT,    /* 6 \D */
+	OP_DIGIT,        /* 7 \d */
+	OP_NOT_WHITESPACE, /* 8 \S */
+	OP_WHITESPACE,   /* 9 \s */
 	OP_NOT_WORDCHAR, /* 10 \W */
 	OP_WORDCHAR,     /* 11 \w */
 
@@ -1958,7 +1958,7 @@ struct real_pcre8_or_16 {
 	pcre_uint16 dummy2; /* To ensure size is a multiple of 8 */
 	pcre_uint16 dummy3; /* To ensure size is a multiple of 8 */
 	const pcre_uint8 * tables; /* Pointer to tables or NULL for std */
-	void  * nullpad; /* NULL padding */
+	void * nullpad; /* NULL padding */
 };
 
 // @sobolev typedef struct real_pcre8_or_16 real_pcre8_or_16;
@@ -1983,7 +1983,7 @@ typedef struct real_pcre32 {
 	pcre_uint16 ref_count; /* Reference count */
 	pcre_uint16 dummy; /* To ensure size is a multiple of 8 */
 	const pcre_uint8 * tables; /* Pointer to tables or NULL for std */
-	void  * nullpad; /* NULL padding */
+	void * nullpad; /* NULL padding */
 } real_pcre32;
 
 #if defined COMPILE_PCRE8
@@ -2168,12 +2168,12 @@ typedef struct match_data {
 	eptrblock * eptrchain; /* Chain of eptrblocks for tail recursions */
 	int eptrn; /* Next free eptrblock */
 	recursion_info * recursive; /* Linked list of recursion data */
-	void  * callout_data; /* To pass back to callouts */
+	void * callout_data; /* To pass back to callouts */
 	const pcre_uchar * mark; /* Mark pointer to pass back on success */
 	const pcre_uchar * nomatch_mark; /* Mark pointer to pass back on failure */
 	const pcre_uchar * once_target; /* Where to back up to for atomic groups */
 #ifdef NO_RECURSE
-	void  * match_frames_base; // For remembering malloc'd frames 
+	void * match_frames_base; // For remembering malloc'd frames 
 #endif
 } match_data;
 //

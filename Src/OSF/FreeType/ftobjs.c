@@ -141,7 +141,7 @@ FT_BASE_DEF(void) ft_validator_error(FT_Validator valid, FT_Error error)
 // 
 
 /* create a new input stream from an FT_Open_Args structure */
-/*                                       */
+/*                       */
 FT_BASE_DEF(FT_Error)
 FT_Stream_New(FT_Library library,
     const FT_Open_Args*  args,
@@ -761,7 +761,7 @@ FT_Load_Glyph(FT_Face face,
 
 			/* the check for `num_locations' assures that we actually    */
 			/* test for instructions in a TTF and not in a CFF-based OTF */
-			/*                                        */
+			/*                        */
 			/* since `maxSizeOfInstructions' might be unreliable, we     */
 			/* check the size of the `fpgm' and `prep' tables, too --    */
 			/* the assumption is that there don't exist real TTFs where  */
@@ -777,10 +777,10 @@ FT_Load_Glyph(FT_Face face,
 	if(autohint) {
 		FT_AutoHinter_Interface hinting;
 		/* try to load embedded bitmaps first if available      */
-		/*                                         */
+		/*                         */
 		/* XXX: This is really a temporary hack that should disappear */
-		/*      promptly with FreeType 2.1!        */
-		/*                                         */
+		/* promptly with FreeType 2.1!        */
+		/*                         */
 		if(FT_HAS_FIXED_SIZES(face) && ( load_flags & FT_LOAD_NO_BITMAP ) == 0) {
 			error = driver->clazz->load_glyph(slot, face->size, glyph_index, load_flags | FT_LOAD_SBITS_ONLY);
 			if(!error && slot->format == FT_GLYPH_FORMAT_BITMAP)
@@ -1112,7 +1112,7 @@ static FT_Error find_unicode_charmap(FT_Face face)
 	for(; --cur >= first;) {
 		if(cur[0]->encoding == FT_ENCODING_UNICODE) {
 			/* XXX If some new encodings to represent UCS-4 are added, */
-			/*     they should be added here.       */
+			/* they should be added here.       */
 			if(( cur[0]->platform_id == TT_PLATFORM_MICROSOFT &&
 			    cur[0]->encoding_id == TT_MS_ID_UCS_4        ) || 
 			    ( cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE &&
@@ -1322,24 +1322,24 @@ FT_New_Memory_Face(FT_Library library,
 
 /* The behavior here is very similar to that in base/ftmac.c, but it     */
 /* is designed to work on non-mac systems, so no mac specific calls.     */
-/*                                                    */
+/*                                    */
 /* We look at the file and determine if it is a mac dfont file or a mac  */
 /* resource file, or a macbinary file containing a mac resource file.    */
-/*                                                    */
+/*                                    */
 /* Unlike ftmac I'm not going to look at a `FOND'.  I don't really see   */
 /* the point, especially since there may be multiple `FOND' resources.   */
 /* Instead I'll just look for `sfnt' and `POST' resources, ordered as    */
 /* they occur in the file.                            */
-/*                                                    */
+/*                                    */
 /* Note that multiple `POST' resources do not mean multiple postscript   */
 /* fonts; they all get jammed together to make what is essentially a     */
 /* pfb file.                                          */
-/*                                                    */
+/*                                    */
 /* We aren't interested in `NFNT' or `FONT' bitmap resources.      */
-/*                                                    */
+/*                                    */
 /* As soon as we get an `sfnt' load it into memory and pass it off to    */
 /* FT_Open_Face.                                      */
-/*                                                    */
+/*                                    */
 /* If we have a (set of) `POST' resources, massage them into a (memory)  */
 /* pfb file and pass that to FT_Open_Face.  (As with ftmac.c I'm not     */
 /* going to try to save the kerning info.  After all that lives in the   */
@@ -1603,7 +1603,7 @@ Exit:
 /* one lump which gets passed on to the type1 driver.       */
 /* Here can be only one PostScript font in a file so face_index   */
 /* must be 0 (or -1).                          */
-/*                                             */
+/*                             */
 static FT_Error Mac_Read_POST_Resource(FT_Library library,
     FT_Stream stream,
     FT_Long    * offsets,
@@ -1803,7 +1803,7 @@ Exit:
 /* (TrueType/OpenType) resources in this file.  Look through   */
 /* them for the one indicated by face_index, load it into mem, */
 /* pass it on to the truetype driver, and return it.     */
-/*                                          */
+/*                          */
 static FT_Error Mac_Read_sfnt_Resource(FT_Library library,
     FT_Stream stream,
     FT_Long    * offsets,
@@ -1873,7 +1873,7 @@ Exit:
 /* header.  In a resource fork the first 16 bytes are repeated */
 /* at the location specified by bytes 4-7.  In a dfont bytes   */
 /* 4-7 point to 16 bytes of zeroes instead. */
-/*                                          */
+/*                          */
 static FT_Error IsMacResource(FT_Library library,
     FT_Stream stream,
     FT_Long resource_offset,
@@ -1927,7 +1927,7 @@ static FT_Error IsMacResource(FT_Library library,
 
 /* Check for a valid macbinary header, and if we find one   */
 /* check that the (flattened) resource fork in it is valid. */
-/*                                       */
+/*                       */
 static FT_Error IsMacBinary(FT_Library library,
     FT_Stream stream,
     FT_Long face_index,
@@ -2040,7 +2040,7 @@ static FT_Error load_face_in_embedded_rfork(FT_Library library, FT_Stream stream
 /* Is this an old style resource fork? (in data)    */
 /* Else call load_face_in_embedded_rfork to try extra rules      */
 /* (defined in `ftrfork.c').                  */
-/*                                            */
+/*                            */
 static FT_Error load_mac_face(FT_Library library,
     FT_Stream stream,
     FT_Long face_index,
@@ -3143,7 +3143,7 @@ FT_Select_Charmap(FT_Face face,
 
 	/* FT_ENCODING_UNICODE is special.  We try to find the `best' Unicode */
 	/* charmap available, i.e., one with UCS-4 characters, if possible.   */
-	/*                                                 */
+	/*                                 */
 	/* This is done by find_unicode_charmap() above, to share code. */
 	if(encoding == FT_ENCODING_UNICODE)
 		return find_unicode_charmap(face);

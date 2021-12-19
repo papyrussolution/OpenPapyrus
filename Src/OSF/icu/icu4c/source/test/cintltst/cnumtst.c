@@ -811,7 +811,7 @@ static void TestNumberFormat()
 		const char * parseExpected = "1.234567890098765432112345679E+19";
 		const char * parseExpected2 = "3.4567890098765432112345679E+17";
 		int32_t resultSize    = 0;
-		int32_t parsePos      = 0;/* Output parameter for Parse operations. */
+		int32_t parsePos      = 0; /* Output parameter for Parse operations. */
 	#define DESTCAPACITY 100
 		UChar dest[DESTCAPACITY];
 		char desta[DESTCAPACITY];

@@ -39,7 +39,7 @@ void addDateForRgrTest(TestNode** root)
 	addTest(root, &Test4073003, "tsformat/cdtrgtst/Test4073003");
 	addTest(root, &Test4162071, "tsformat/cdtrgtst/Test4162071");
 	addTest(root, &Test714,     "tsformat/cdtrgtst/Test714");
-	addTest(root, &Test_GEec,   "tsformat/cdtrgtst/Test_GEec");/* tests for format chars GEec, jitterbugs 5726 6072
+	addTest(root, &Test_GEec,   "tsformat/cdtrgtst/Test_GEec"); /* tests for format chars GEec, jitterbugs 5726 6072
 	                                                             6585 */
 }
 

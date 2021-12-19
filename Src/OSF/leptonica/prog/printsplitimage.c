@@ -34,30 +34,46 @@
  *
  *   If printer is not specified, the only action is that the
  *   image is split into a set of tiles, and these are written
- *   out as a set of uncompressed (i.e., very large) level 1
- *   PostScript files.  The images in the PostScript files are
- *   scaled to each fill an 8.5 x 11 inch page, up to the
- *   FILLING_FACTOR fraction in each direction.
+ *   out as a set of compressed (level 3) Postscript files.
+ *   The images in the PostScript files are scaled to each fill
+ *   an 8.5 x 11 inch page, up to the FILLING_FACTOR fraction
+ *    in each direction.
  *
- *   If printer is specified, these are printed on separate pages.
- *   We do this (separate, uncompressed PostScript pages) because
- *   this is the lowest common denominator: many PostScript printers
- *   will not print multi-page PostScript of images, or images that
- *   are level 2 compressed.  Hard to believe, but true.
+ *   If printer is specified, these are printed on separate pages,
+ *   because some printers cannot print multi-page Postscript of images.
+ *
+ *   If your system does not have lpr, it likely has lp.  You can run
+ *   printsplitimage to make the PostScript files, and print them with lp:
+ *       lp -d <printer> /tmp/lept/split/image0.ps
+ *       lp -d <printer> /tmp/lept/split/image1.ps
+ *       ...
+ *   To print in color, see prog/printimage.c.
+ *
+ *   ***************************************************************
+ *   N.B.  If a printer is specified, this program invokes lpr via
+ *         "system'.  It could pose a security vulnerability if used
+ *         as a service in a production environment.  Consequently,
+ *         this program should only be used for debug and testing.
+ *   ***************************************************************
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include "allheaders.h"
 
+#define  USE_COMPRESSED    1
+
     /* fill factor on 8.5 x 11 inch output page */
 static const l_float32   FILL_FACTOR = 0.95;
-
 
 int main(int    argc,
          char **argv)
 {
 char        *filein, *fname, *printer;
 char         buf[512];
-l_int32      nx, ny, i, w, h, ws, hs, n, ignore;
+l_int32      nx, ny, i, w, h, ws, hs, n, ignore, index;
 l_float32    scale;
 FILE        *fp;
 PIX         *pixs, *pixt, *pixr;
@@ -68,15 +84,21 @@ static char  mainName[] = "printsplitimage";
     if (argc != 4 && argc != 5)
         return ERROR_INT(" Syntax:  printsplitimage filein nx ny [printer]",
                          mainName, 1);
-
     filein = argv[1];
     nx = atoi(argv[2]);
     ny = atoi(argv[3]);
-    if (argc == 5)
-        printer = argv[4];
+    printer = (argc == 5) ? argv[4] : NULL;
 
-    lept_rmdir("split");
-    lept_mkdir("split");
+    lept_stderr(
+         "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+         "   Warning: this program should only be used for testing,\n"
+         "     and not in a production environment, because of a\n"
+         "      potential vulnerability with the 'system' call.\n"
+         "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+
+    setLeptDebugOK(1);
+    lept_rmdir("lept/split");
+    lept_mkdir("lept/split");
 
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
@@ -96,20 +118,26 @@ static char  mainName[] = "printsplitimage";
         pixt = pixaGetPix(pixa, i, L_CLONE);
         pixGetDimensions(pixt, &w, &h, NULL);
         scale = L_MIN(FILL_FACTOR * 2550 / w, FILL_FACTOR * 3300 / h);
-        sprintf(buf, "image%d.ps", i);
-        fname = genPathname("/tmp/split", buf);
-        fprintf(stderr, "fname: %s\n", fname);
+        snprintf(buf, sizeof(buf), "image%d.ps", i);
+        fname = genPathname("/tmp/lept/split", buf);
+        lept_stderr("fname: %s\n", fname);
         sarrayAddString(sa, fname, L_INSERT);
+#if USE_COMPRESSED
+        index = 0;
+        pixWriteCompressedToPS(pixt, fname, (l_int32)(300. / scale), 3, &index);
+        index = 0;  /* write each out to a separate file */
+#else  /* uncompressed, level 1 */
         fp = lept_fopen(fname, "wb+");
         pixWriteStreamPS(fp, pixt, NULL, 300, scale);
         lept_fclose(fp);
+#endif  /* USE_COMPRESSED */
         pixDestroy(&pixt);
     }
 
     if (argc == 5) {
         for (i = 0; i < n; i++) {
             fname = sarrayGetString(sa, i, L_NOCOPY);
-            sprintf(buf, "lpr -P%s %s &", printer, fname);
+            snprintf(buf, sizeof(buf), "lpr -P%s %s &", printer, fname);
             ignore = system(buf);
         }
     }

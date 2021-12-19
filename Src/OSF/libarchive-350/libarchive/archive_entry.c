@@ -852,13 +852,9 @@ int archive_entry_update_hardlink_utf8(struct archive_entry * entry, const char 
 	return 0;
 }
 
-int _archive_entry_copy_hardlink_l(struct archive_entry * entry,
-    const char * target, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_hardlink_l(struct archive_entry * entry, const char * target, size_t len, struct archive_string_conv * sc)
 {
-	int r;
-
-	r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink,
-		target, len, sc);
+	int r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink, target, len, sc);
 	if(target != NULL && r == 0)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
@@ -974,11 +970,9 @@ int archive_entry_update_link_utf8(struct archive_entry * entry, const char * ta
 {
 	int r;
 	if(entry->ae_set & AE_SET_SYMLINK)
-		r = archive_mstring_update_utf8(entry->archive,
-			&entry->ae_symlink, target);
+		r = archive_mstring_update_utf8(entry->archive, &entry->ae_symlink, target);
 	else
-		r = archive_mstring_update_utf8(entry->archive,
-			&entry->ae_hardlink, target);
+		r = archive_mstring_update_utf8(entry->archive, &entry->ae_hardlink, target);
 	if(r == 0)
 		return 1;
 	if(errno == ENOMEM)
@@ -986,17 +980,13 @@ int archive_entry_update_link_utf8(struct archive_entry * entry, const char * ta
 	return 0;
 }
 
-int _archive_entry_copy_link_l(struct archive_entry * entry,
-    const char * target, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_link_l(struct archive_entry * entry, const char * target, size_t len, struct archive_string_conv * sc)
 {
 	int r;
-
 	if(entry->ae_set & AE_SET_SYMLINK)
-		r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink,
-			target, len, sc);
+		r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink, target, len, sc);
 	else
-		r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink,
-			target, len, sc);
+		r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink, target, len, sc);
 	return r;
 }
 
@@ -1170,13 +1160,9 @@ int archive_entry_update_symlink_utf8(struct archive_entry * entry, const char *
 	return 0;
 }
 
-int _archive_entry_copy_symlink_l(struct archive_entry * entry,
-    const char * linkname, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_symlink_l(struct archive_entry * entry, const char * linkname, size_t len, struct archive_string_conv * sc)
 {
-	int r;
-
-	r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink,
-		linkname, len, sc);
+	int r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink, linkname, len, sc);
 	if(linkname != NULL && r == 0)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
@@ -1391,12 +1377,9 @@ int archive_entry_acl_reset(struct archive_entry * entry, int want_type)
  * Return the next ACL entry in the list.  Fake entries for the
  * standard permissions and include them in the returned list.
  */
-int archive_entry_acl_next(struct archive_entry * entry, int want_type, int * type,
-    int * permset, int * tag, int * id, const char ** name)
+int archive_entry_acl_next(struct archive_entry * entry, int want_type, int * type, int * permset, int * tag, int * id, const char ** name)
 {
-	int r;
-	r = archive_acl_next(entry->archive, &entry->acl, want_type, type,
-		permset, tag, id, name);
+	int r = archive_acl_next(entry->archive, &entry->acl, want_type, type, permset, tag, id, name);
 	if(r == ARCHIVE_FATAL && errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return r;

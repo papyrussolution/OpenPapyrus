@@ -10,11 +10,11 @@
  */
 /* This file implements the terminal and printer display for gnuplot  */
 /* under Microsoft Windows.                                           */
-/*                                                                    */
+/*                                                    */
 /* The modifications to allow Gnuplot to run under Windows were made  */
 /* by Maurice Castro (maurice@bruce.cs.monash.edu.au)                 */
 /* and Russell Lang (rjl@monu1.cc.monash.edu.au)         19 Nov 1992  */
-/*                                                                    */
+/*                                                    */
 // Edit this file with tabstop=4 (vi :se ts=4)                        */
 //
 // adapted to the new terminal layout by Stefan Bodewig (Dec. 1995)
@@ -28,7 +28,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -37,41 +37,41 @@
 #endif
 // @experimental #ifdef TERM_PROTO
 TERM_PUBLIC void WIN_options();
-TERM_PUBLIC void WIN_init(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_reset(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_text(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void WIN_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt);
-TERM_PUBLIC void WIN_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  WIN_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int  WIN_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void WIN_resume(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double);
-TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth);
+TERM_PUBLIC void WIN_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void WIN_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void WIN_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void WIN_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void WIN_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void WIN_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void WIN_linetype(GpTermEntry_Static * pThis, int lt);
+TERM_PUBLIC void WIN_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_pattern);
+TERM_PUBLIC void WIN_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC int  WIN_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  WIN_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void WIN_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void WIN_resume(GpTermEntry_Static * pThis);
+TERM_PUBLIC void WIN_set_pointsize(GpTermEntry_Static * pThis, double);
+TERM_PUBLIC void WIN_linewidth(GpTermEntry_Static * pThis, double linewidth);
 #ifdef USE_MOUSE
-	TERM_PUBLIC void WIN_set_ruler(GpTermEntry * pThis, int, int);
-	TERM_PUBLIC void WIN_set_cursor(GpTermEntry * pThis, int, int, int);
-	TERM_PUBLIC void WIN_put_tmptext(GpTermEntry * pThis, int, const char str[]);
-	TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char[]);
+	TERM_PUBLIC void WIN_set_ruler(GpTermEntry_Static * pThis, int, int);
+	TERM_PUBLIC void WIN_set_cursor(GpTermEntry_Static * pThis, int, int, int);
+	TERM_PUBLIC void WIN_put_tmptext(GpTermEntry_Static * pThis, int, const char str[]);
+	TERM_PUBLIC void WIN_set_clipboard(GpTermEntry_Static * pThis, const char[]);
 	#ifdef WGP_CONSOLE
-		TERM_PUBLIC int WIN_waitforinput(GpTermEntry * pThis, int);
+		TERM_PUBLIC int WIN_waitforinput(GpTermEntry_Static * pThis, int);
 	#endif
 #endif
-TERM_PUBLIC int WIN_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
-TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec *);
-TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners);
-TERM_PUBLIC void WIN_boxfill(GpTermEntry * pThis, int, uint, uint, uint, uint);
-TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font);
-TERM_PUBLIC void WIN_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry * pThis);
-TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
-TERM_PUBLIC void WIN_layer(GpTermEntry * pThis, t_termlayer syncpoint);
-TERM_PUBLIC void WIN_hypertext(GpTermEntry * pThis, int type, const char * text);
-TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno);
+TERM_PUBLIC int WIN_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
+TERM_PUBLIC void WIN_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
+TERM_PUBLIC void WIN_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners);
+TERM_PUBLIC void WIN_boxfill(GpTermEntry_Static * pThis, int, uint, uint, uint, uint);
+TERM_PUBLIC int WIN_set_font(GpTermEntry_Static * pThis, const char * font);
+TERM_PUBLIC void WIN_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry_Static * pThis);
+TERM_PUBLIC void WIN_image(GpTermEntry_Static * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
+TERM_PUBLIC void WIN_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint);
+TERM_PUBLIC void WIN_hypertext(GpTermEntry_Static * pThis, int type, const char * text);
+TERM_PUBLIC void WIN_modify_plots(GpTermEntry_Static * pThis, uint operations, int plotno);
 // Initialization values - guess now, scale later 
 #define WIN_XMAX (24000)
 #define WIN_YMAX (18000)
@@ -187,7 +187,7 @@ static void FASTCALL WIN_flush_line(path_points * poly)
 	}
 }
 
-TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void WIN_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	GpWinMainBlock & r_winm = _WinM;
 	char * s;
@@ -271,11 +271,11 @@ TERM_PUBLIC void WIN_options(GpTermEntry * pThis, GnuPlot * pGp)
 				break;
 			case WIN_ENHANCED:
 			    pGp->Pgm.Shift();
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case WIN_NOENHANCED:
 			    pGp->Pgm.Shift();
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case WIN_FONTSCALE: 
 				{
@@ -571,7 +571,7 @@ void WIN_update_options()
 	// update term_options 
 	slprintf(GPT._TermOptions, "%i %s %s %s %s %s", p_gr_win->Id, p_gr_win->color ? "color" : "monochrome",
 	    p_gr_win->dashed ? "dashed" : "solid", p_gr_win->rounded ? "rounded" : "butt",
-	    GPT.P_Term->flags & TERM_ENHANCED_TEXT ? "enhanced" : "noenhanced", p_gr_win->bDocked ? "docked" : "standalone");
+	    GPT.P_Term->CheckFlag(TERM_ENHANCED_TEXT) ? "enhanced" : "noenhanced", p_gr_win->bDocked ? "docked" : "standalone");
 #ifndef WGP_CONSOLE
 	if(p_gr_win->bDocked) {
 		char buf[128];
@@ -608,7 +608,7 @@ void WIN_update_options()
 	}
 }
 
-TERM_PUBLIC void WIN_init(GpTermEntry * pThis)
+TERM_PUBLIC void WIN_init(GpTermEntry_Static * pThis)
 {
 	if(!_WinM.P_GraphWin->hWndGraph) {
 		_WinM.P_GraphWin->MaxS.Set(WIN_XMAX, WIN_YMAX);
@@ -619,30 +619,28 @@ TERM_PUBLIC void WIN_init(GpTermEntry * pThis)
 	WIN_term = pThis;
 }
 
-TERM_PUBLIC void WIN_reset(GpTermEntry * pThis)
+TERM_PUBLIC void WIN_reset(GpTermEntry_Static * pThis)
 {
 }
 
-TERM_PUBLIC void WIN_text(GpTermEntry * pThis)
+TERM_PUBLIC void WIN_text(GpTermEntry_Static * pThis)
 {
 	WIN_flush_line(&WIN_poly);
 	GraphEnd(_WinM.P_GraphWin);
 }
 
-TERM_PUBLIC void WIN_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void WIN_graphics(GpTermEntry_Static * pThis)
 {
 	GraphStart(_WinM.P_GraphWin, pThis->P_Gp->Gg.PointSize);
 	// Fix up the text size if the user has resized the window. 
-	pThis->ChrH = _WinM.P_GraphWin->ChrS.x;
-	pThis->ChrV = _WinM.P_GraphWin->ChrS.y;
-	pThis->TicH = _WinM.P_GraphWin->TicS.x;
-	pThis->TicV = _WinM.P_GraphWin->TicS.y;
+	pThis->SetCharSize(_WinM.P_GraphWin->ChrS.x, _WinM.P_GraphWin->ChrS.y);
+	pThis->SetTic(_WinM.P_GraphWin->TicS.x, _WinM.P_GraphWin->TicS.y);
 	WIN_last_linetype = LT_NODRAW; // HBB 20000813: linetype caching 
 	// Save current text encoding 
 	_WinM.P_GraphWin->Op(W_text_encoding, GPT._Encoding, 0, NULL);
 }
 
-TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void WIN_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	// terminate current path only if we move to a disconnected position 
 	if((WIN_poly.n > 0) && ((WIN_poly.point[WIN_poly.n-1].x != x) || (WIN_poly.point[WIN_poly.n-1].y != y))) {
@@ -651,7 +649,7 @@ TERM_PUBLIC void WIN_move(GpTermEntry * pThis, uint x, uint y)
 	WIN_add_path_point(&WIN_poly, x, y);
 }
 
-TERM_PUBLIC void WIN_vector(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void WIN_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	if((WIN_poly.n == 0) || (WIN_poly.point[WIN_poly.n-1].x != x) || (WIN_poly.point[WIN_poly.n-1].y != y)) {
 		if(WIN_poly.n == 0) {
@@ -663,7 +661,7 @@ TERM_PUBLIC void WIN_vector(GpTermEntry * pThis, uint x, uint y)
 	}
 }
 
-TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt)
+TERM_PUBLIC void WIN_linetype(GpTermEntry_Static * pThis, int lt)
 {
 	if(lt != WIN_last_linetype) {
 		WIN_flush_line(&WIN_poly);
@@ -672,13 +670,13 @@ TERM_PUBLIC void WIN_linetype(GpTermEntry * pThis, int lt)
 	}
 }
 
-TERM_PUBLIC void WIN_dashtype(GpTermEntry * pThis, int dt, t_dashtype * custom_dash_pattern)
+TERM_PUBLIC void WIN_dashtype(GpTermEntry_Static * pThis, int dt, t_dashtype * custom_dash_pattern)
 {
 	WIN_flush_line(&WIN_poly);
 	_WinM.P_GraphWin->OpSize(W_dash_type, dt, 0, (char *)custom_dash_pattern, sizeof(t_dashtype));
 }
 
-TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void WIN_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	WIN_flush_line(&WIN_poly);
 	if(!isempty(str)) {
@@ -691,20 +689,20 @@ TERM_PUBLIC void WIN_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	}
 }
 
-TERM_PUBLIC int WIN_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int WIN_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	_WinM.P_GraphWin->Op(W_justify, mode, 0, NULL);
 	return TRUE;
 }
 
-TERM_PUBLIC int WIN_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int WIN_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	if(_WinM.P_GraphWin->rotate)
 		_WinM.P_GraphWin->Op(W_text_angle, ang, 0, NULL);
 	return _WinM.P_GraphWin->rotate;
 }
 
-TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void WIN_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	WIN_flush_line(&WIN_poly);
 	/* draw point shapes later to save memory */
@@ -717,12 +715,12 @@ TERM_PUBLIC void WIN_point(GpTermEntry * pThis, uint x, uint y, int number)
 	_WinM.P_GraphWin->Op(W_dot + number, x, y, NULL);
 }
 
-TERM_PUBLIC void WIN_resume(GpTermEntry * pThis)
+TERM_PUBLIC void WIN_resume(GpTermEntry_Static * pThis)
 {
 	GraphResume(_WinM.P_GraphWin);
 }
 
-TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double s)
+TERM_PUBLIC void WIN_set_pointsize(GpTermEntry_Static * pThis, double s)
 {
 	if(s < 0.0) 
 		s = 1.0;
@@ -730,7 +728,7 @@ TERM_PUBLIC void WIN_set_pointsize(GpTermEntry * pThis, double s)
 	_WinM.P_GraphWin->Op(W_pointsize, static_cast<UINT>(100 * s), 0, NULL);
 }
 
-TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void WIN_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	// TODO: line width caching
 	WIN_flush_line(&WIN_poly);
@@ -744,28 +742,28 @@ TERM_PUBLIC void WIN_linewidth(GpTermEntry * pThis, double linewidth)
  * come from OS/2 :-))
  */
 
-TERM_PUBLIC void WIN_put_tmptext(GpTermEntry * pThis, int i, const char str[])
+TERM_PUBLIC void WIN_put_tmptext(GpTermEntry_Static * pThis, int i, const char str[])
 {
 	Graph_put_tmptext(_WinM.P_GraphWin, i, str);
 }
 
-TERM_PUBLIC void WIN_set_ruler(GpTermEntry * pThis, int x, int y)
+TERM_PUBLIC void WIN_set_ruler(GpTermEntry_Static * pThis, int x, int y)
 {
 	Graph_set_ruler(_WinM.P_GraphWin, x, y);
 }
 
-TERM_PUBLIC void WIN_set_cursor(GpTermEntry * pThis, int c, int x, int y)
+TERM_PUBLIC void WIN_set_cursor(GpTermEntry_Static * pThis, int c, int x, int y)
 {
 	Graph_set_cursor(_WinM.P_GraphWin, c, x, y);
 }
 
-TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char s[])
+TERM_PUBLIC void WIN_set_clipboard(GpTermEntry_Static * pThis, const char s[])
 {
 	Graph_set_clipboard(_WinM.P_GraphWin, s);
 }
 
 #ifdef WGP_CONSOLE
-	TERM_PUBLIC int WIN_waitforinput(GpTermEntry * pThis, int options)
+	TERM_PUBLIC int WIN_waitforinput(GpTermEntry_Static * pThis, int options)
 	{
 		// Not required: message handling already done elsewhere. 
 		return (options == TERM_ONLY_CHECK_MOUSING) ? '\0' : ConsoleGetch();
@@ -775,7 +773,7 @@ TERM_PUBLIC void WIN_set_clipboard(GpTermEntry * pThis, const char s[])
 //
 // Note: this used to be a verbatim copy of PM_image (pm.trm) with only minor changes
 //
-TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void WIN_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {
 	PBYTE rgb_image;
 	uint image_size;
@@ -862,7 +860,7 @@ TERM_PUBLIC void WIN_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 	SAlloc::F(rgb_image);
 }
 
-TERM_PUBLIC int WIN_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int WIN_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	// Win can do continuous colors. However, we round them only to WIN_PAL_COLORS levels
 	// in order to pass an integer to GraphOp; it also reasonably limits
@@ -872,7 +870,7 @@ TERM_PUBLIC int WIN_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	return WIN_PAL_COLORS;
 }
 
-TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void WIN_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	// TODO: color caching
 	WIN_flush_line(&WIN_poly);
@@ -898,7 +896,7 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	WIN_last_linetype = LT_NODRAW;
 }
 
-TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void WIN_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	_WinM.P_GraphWin->Op(W_fillstyle, corners->style, 0, NULL);
 	// Eliminate duplicate polygon points. 
@@ -909,7 +907,7 @@ TERM_PUBLIC void WIN_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 	_WinM.P_GraphWin->Op(W_filled_polygon_draw, points, 0, NULL);
 }
 
-TERM_PUBLIC void WIN_boxfill(GpTermEntry * pThis, int style, uint xleft, uint ybottom, uint width, uint height)
+TERM_PUBLIC void WIN_boxfill(GpTermEntry_Static * pThis, int style, uint xleft, uint ybottom, uint width, uint height)
 {
 	WIN_flush_line(&WIN_poly);
 	// split into multiple commands to squeeze through all the necessary info 
@@ -918,7 +916,7 @@ TERM_PUBLIC void WIN_boxfill(GpTermEntry * pThis, int style, uint xleft, uint yb
 	_WinM.P_GraphWin->Op(W_boxfill, xleft + width, ybottom + height, NULL);
 }
 
-TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int WIN_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	// Note: defer the determination of default font name and default font size until drawgraph() is executed. 
 	if(isempty(font)) {
@@ -950,17 +948,17 @@ TERM_PUBLIC int WIN_set_font(GpTermEntry * pThis, const char * font)
 // BM: new callback functions for enhanced text
 // These are only stubs that call functions in wgraph.c.
 //
-TERM_PUBLIC void WIN_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void WIN_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GraphEnhancedOpen(pThis, fontname, fontsize, base, widthflag, showflag, overprint);
 }
 
-TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry * pThis)
+TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry_Static * pThis)
 {
 	GraphEnhancedFlush();
 }
 
-TERM_PUBLIC void WIN_layer(GpTermEntry * pThis, t_termlayer syncpoint)
+TERM_PUBLIC void WIN_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	WIN_flush_line(&WIN_poly);
 	// ignore LAYER_RESET in multiplot mode 
@@ -969,19 +967,19 @@ TERM_PUBLIC void WIN_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 	_WinM.P_GraphWin->Op(W_layer, syncpoint, 0, NULL);
 }
 
-TERM_PUBLIC void WIN_hypertext(GpTermEntry * pThis, int type, const char * text)
+TERM_PUBLIC void WIN_hypertext(GpTermEntry_Static * pThis, int type, const char * text)
 {
 	WIN_flush_line(&WIN_poly);
 	_WinM.P_GraphWin->Op(W_hypertext, type, 0, text);
 }
 
-TERM_PUBLIC void WIN_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
+TERM_PUBLIC void WIN_boxed_text(GpTermEntry_Static * pThis, uint x, uint y, int option)
 {
 	_WinM.P_GraphWin->Op(W_boxedtext, option, 0, NULL);
 	_WinM.P_GraphWin->Op(W_boxedtext, x, y, NULL);
 }
 
-TERM_PUBLIC void WIN_modify_plots(uint operations, int plotno)
+TERM_PUBLIC void WIN_modify_plots(GpTermEntry_Static * pThis, uint operations, int plotno)
 {
 	GraphModifyPlots(_WinM.P_GraphWin, operations, plotno);
 }

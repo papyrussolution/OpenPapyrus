@@ -28,7 +28,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -39,14 +39,14 @@
 
 //#ifdef TERM_PROTO
 TERM_PUBLIC void HPLJII_options();
-TERM_PUBLIC void HPLJII_init(GpTermEntry * pThis);
-TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void HPLJII_text(GpTermEntry * pThis);
-TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void HPLJII_reset(GpTermEntry * pThis);
-TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis);
+TERM_PUBLIC void HPLJII_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPLJII_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPLJII_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPLJII_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void HPLJII_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void HPLJII_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPDJ_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void HPDJ_text(GpTermEntry_Static * pThis);
 // default values for term_tbl 
 #define HPLJII_75PPI_XMAX (1920/4)
 #define HPLJII_75PPI_YMAX (1920/4)
@@ -74,14 +74,14 @@ static uint HPLJII_YMAX_(const GnuPlot * pGp) { return (8*(uint)(pGp->V.Size.y*1
 #define HPLJII_POP_CURSOR fputs("\033&f1S", GPT.P_GpOutFile) // Restore cursor position 
 #define HPLJII_COURIER fputs("\033(0N\033(s0p10.0h12.0v0s0b3T\033&l6D", GPT.P_GpOutFile) // be sure to use courier font with 6lpi and 10cpi 
 
-static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int ang);
+static void HPLJII_putc(GpTermEntry_Static * pThis, uint x, uint y, int c, int ang);
 // bm_pattern not appropriate for 300ppi graphics 
 #ifndef GOT_300_PATTERN
 	#define GOT_300_PATTERN
 	static uint b_300ppi_pattern[] = { 0xffff, 0x1111, 0xffff, 0x3333, 0x0f0f, 0x3f3f, 0x0fff, 0x00ff, 0x33ff };
 #endif
 
-TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void HPLJII_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char opt[4];
 	int parse_error = 0;
@@ -114,41 +114,35 @@ TERM_PUBLIC void HPLJII_options(GpTermEntry * pThis, GnuPlot * pGp)
 			pGp->Pgm.Shift();
 		}
 	}
-	pThis->MaxX = HPLJII_XMAX_(pGp);
-	pThis->MaxY = HPLJII_YMAX_(pGp);
+	pThis->SetMax(HPLJII_XMAX_(pGp), HPLJII_YMAX_(pGp));
 	switch(hplj_dpp) {
 		case 1:
 		    GPT._TermOptions = "300";
-		    pThis->TicV = 15;
-		    pThis->TicH = 15;
+		    pThis->SetTic(15);
 		    break;
 		case 2:
 		    GPT._TermOptions = "150";
-		    pThis->TicV = 8;
-		    pThis->TicH = 8;
+		    pThis->SetTic(8);
 		    break;
 		case 3:
 		    GPT._TermOptions = "100";
-		    pThis->TicV = 6;
-		    pThis->TicH = 6;
+		    pThis->SetTic(6);
 		    break;
 		case 4:
 		    GPT._TermOptions = "75";
-		    pThis->TicV = 5;
-		    pThis->TicH = 5;
+		    pThis->SetTic(5);
 		    break;
 	}
 	if(parse_error)
 		pGp->IntErrorCurToken("expecting dots per inch size 75, 100, 150 or 300");
 }
 
-TERM_PUBLIC void HPLJII_init(GpTermEntry * pThis)
+TERM_PUBLIC void HPLJII_init(GpTermEntry_Static * pThis)
 {
-	pThis->ChrV = HPLJII_VCHAR;
-	pThis->ChrH = HPLJII_HCHAR;
+	pThis->SetCharSize(HPLJII_HCHAR, HPLJII_VCHAR);
 }
 
-TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void HPLJII_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	HPLJII_COURIER;
@@ -160,7 +154,7 @@ TERM_PUBLIC void HPLJII_graphics(GpTermEntry * pThis)
 //
 // HPLJIItext by rjl - no compression 
 //
-TERM_PUBLIC void HPLJII_text(GpTermEntry * pThis)
+TERM_PUBLIC void HPLJII_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	fprintf(GPT.P_GpOutFile, "\033*t%dR", HPLJII_PPI);
@@ -179,7 +173,7 @@ TERM_PUBLIC void HPLJII_text(GpTermEntry * pThis)
 	putc('\f', GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void HPLJII_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(hplj_dpp == 1) {
@@ -194,7 +188,7 @@ TERM_PUBLIC void HPLJII_linetype(GpTermEntry * pThis, int linetype)
 	}
 }
 
-TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void HPLJII_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(p_gp->_Bmp.b_angle) {
@@ -217,7 +211,7 @@ TERM_PUBLIC void HPLJII_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	}
 }
 
-static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int/*ang*/)
+static void HPLJII_putc(GpTermEntry_Static * pThis, uint x, uint y, int c, int/*ang*/)
 {
 	HPLJII_POP_CURSOR;
 	HPLJII_PUSH_CURSOR;
@@ -226,36 +220,32 @@ static void HPLJII_putc(GpTermEntry * pThis, uint x, uint y, int c, int/*ang*/)
 	fputc(c, GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void HPLJII_reset(GpTermEntry * pThis)
+TERM_PUBLIC void HPLJII_reset(GpTermEntry_Static * pThis)
 {
 	fflush_binary(); /* Only needed for VMS */
 }
 //
 // HP DeskJet routines 
 //
-TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void HPDJ_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(hplj_dpp) {
 		case 1:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 		case 2:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 		case 3:
 		    p_gp->BmpCharSize(FNT9X17);
-		    pThis->ChrV = FNT9X17_VCHAR;
-		    pThis->ChrH = FNT9X17_HCHAR;
+		    pThis->SetCharSize(FNT9X17_HCHAR, FNT9X17_VCHAR);
 		    break;
 		case 4:
 		    p_gp->BmpCharSize(FNT5X9);
-		    pThis->ChrV = FNT5X9_VCHAR;
-		    pThis->ChrH = FNT5X9_HCHAR;
+		    pThis->SetCharSize(FNT5X9_HCHAR, FNT5X9_VCHAR);
 		    break;
 	}
 	// rotate plot -90 degrees by reversing XMAX and YMAX and by setting b_rastermode to TRUE 
@@ -266,7 +256,7 @@ TERM_PUBLIC void HPDJ_graphics(GpTermEntry * pThis)
 // 0 compression raster bitmap dump. Compatible with HP DeskJet 500
 // hopefully compatible with other HP Deskjet printers
 //
-TERM_PUBLIC void HPDJ_text(GpTermEntry * pThis)
+TERM_PUBLIC void HPDJ_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;

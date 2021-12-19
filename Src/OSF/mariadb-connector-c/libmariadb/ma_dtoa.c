@@ -843,7 +843,7 @@ static ULong powers5[] =
 
 static Bigint p5_a[] =
 {
-	/*  { x } - k - maxwds - sign - wds */
+	/* { x } - k - maxwds - sign - wds */
 	{ { powers5 }, 1, 1, 0, 1 },
 	{ { powers5 + 1 }, 1, 1, 0, 1 },
 	{ { powers5 + 2 }, 1, 2, 0, 2 },

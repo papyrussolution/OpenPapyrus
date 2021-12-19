@@ -1306,21 +1306,21 @@ bool LegalIndic::is(const UnicodeString & sourceString) const {
 
 LegalIndic::LegalIndic() {
 	UErrorCode status = U_ZERO_ERROR;
-	vowelSignSet.addAll(UnicodeSet("[\\u0902\\u0903\\u0904\\u093e-\\u094c\\u0962\\u0963]", status));/* Devanagari */
-	vowelSignSet.addAll(UnicodeSet("[\\u0982\\u0983\\u09be-\\u09cc\\u09e2\\u09e3\\u09D7]", status));/* Bengali */
-	vowelSignSet.addAll(UnicodeSet("[\\u0a02\\u0a03\\u0a3e-\\u0a4c\\u0a62\\u0a63\\u0a70\\u0a71]", status));/*
+	vowelSignSet.addAll(UnicodeSet("[\\u0902\\u0903\\u0904\\u093e-\\u094c\\u0962\\u0963]", status)); /* Devanagari */
+	vowelSignSet.addAll(UnicodeSet("[\\u0982\\u0983\\u09be-\\u09cc\\u09e2\\u09e3\\u09D7]", status)); /* Bengali */
+	vowelSignSet.addAll(UnicodeSet("[\\u0a02\\u0a03\\u0a3e-\\u0a4c\\u0a62\\u0a63\\u0a70\\u0a71]", status)); /*
 	                                                                                                          Gurmukhi
 	       */
-	vowelSignSet.addAll(UnicodeSet("[\\u0a82\\u0a83\\u0abe-\\u0acc\\u0ae2\\u0ae3]", status));/* Gujarati */
-	vowelSignSet.addAll(UnicodeSet("[\\u0b02\\u0b03\\u0b3e-\\u0b4c\\u0b62\\u0b63\\u0b56\\u0b57]", status));/* Oriya
+	vowelSignSet.addAll(UnicodeSet("[\\u0a82\\u0a83\\u0abe-\\u0acc\\u0ae2\\u0ae3]", status)); /* Gujarati */
+	vowelSignSet.addAll(UnicodeSet("[\\u0b02\\u0b03\\u0b3e-\\u0b4c\\u0b62\\u0b63\\u0b56\\u0b57]", status)); /* Oriya
 	       */
-	vowelSignSet.addAll(UnicodeSet("[\\u0b82\\u0b83\\u0bbe-\\u0bcc\\u0be2\\u0be3\\u0bd7]", status));/* Tamil */
-	vowelSignSet.addAll(UnicodeSet("[\\u0c02\\u0c03\\u0c3e-\\u0c4c\\u0c62\\u0c63\\u0c55\\u0c56]", status));/* Telugu
+	vowelSignSet.addAll(UnicodeSet("[\\u0b82\\u0b83\\u0bbe-\\u0bcc\\u0be2\\u0be3\\u0bd7]", status)); /* Tamil */
+	vowelSignSet.addAll(UnicodeSet("[\\u0c02\\u0c03\\u0c3e-\\u0c4c\\u0c62\\u0c63\\u0c55\\u0c56]", status)); /* Telugu
 	       */
-	vowelSignSet.addAll(UnicodeSet("[\\u0c82\\u0c83\\u0cbe-\\u0ccc\\u0ce2\\u0ce3\\u0cd5\\u0cd6]", status));/*
+	vowelSignSet.addAll(UnicodeSet("[\\u0c82\\u0c83\\u0cbe-\\u0ccc\\u0ce2\\u0ce3\\u0cd5\\u0cd6]", status)); /*
 	                                                                                                          Kannada
 	       */
-	vowelSignSet.addAll(UnicodeSet("[\\u0d02\\u0d03\\u0d3e-\\u0d4c\\u0d62\\u0d63\\u0d57]", status));/* Malayalam */
+	vowelSignSet.addAll(UnicodeSet("[\\u0d02\\u0d03\\u0d3e-\\u0d4c\\u0d62\\u0d63\\u0d57]", status)); /* Malayalam */
 
 	avagraha.addAll(UnicodeSet("[\\u093d\\u09bd\\u0abd\\u0b3d\\u0cbd]", status));
 	nukta.addAll(UnicodeSet("[\\u093c\\u09bc\\u0a3c\\u0abc\\u0b3c\\u0cbc]", status));

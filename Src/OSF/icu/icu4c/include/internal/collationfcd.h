@@ -125,8 +125,8 @@ public:
 private:
     CollationFCD();  // No instantiation.
 
-    static const uint8_t lcccIndex[2048];
-    static const uint8_t tcccIndex[2048];
+    static const uint8 lcccIndex[2048];
+    static const uint8 tcccIndex[2048];
     static const uint32_t lcccBits[];
     static const uint32_t tcccBits[];
 };

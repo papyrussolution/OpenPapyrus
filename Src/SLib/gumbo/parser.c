@@ -73,7 +73,7 @@ static GumboParseFlags & ResetFlag(GumboParseFlags & rV, const GumboParseFlags f
 	return rV;
 }
 
-#define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
+// @v11.2.8 #define AVOID_UNUSED_VARIABLE_WARNING_Removed(i) (void)(i)
 #define GUMBO_STRING(literal) { literal, sizeof(literal) - 1 }
 #define TERMINATOR            { "", 0 }
 
@@ -2201,7 +2201,7 @@ static bool handle_in_head(GumboParser * parser, GumboToken* token)
 			}
 			else if(tag_is(token, kEndTag, GUMBO_TAG_HEAD)) {
 				GumboNode * head = pop_current_node(parser);
-				AVOID_UNUSED_VARIABLE_WARNING(head);
+				CXX_UNUSED(head);
 				assert(node_html_tag_is(head, GUMBO_TAG_HEAD));
 				set_insertion_mode(parser, GUMBO_INSERTION_MODE_AFTER_HEAD);
 				return true;
@@ -2272,7 +2272,7 @@ static bool handle_in_head_noscript(GumboParser * parser, GumboToken* token)
 	else if(tag_is(token, kEndTag, GUMBO_TAG_NOSCRIPT)) {
 		const GumboNode* node = pop_current_node(parser);
 		assert(node_html_tag_is(node, GUMBO_TAG_NOSCRIPT));
-		AVOID_UNUSED_VARIABLE_WARNING(node);
+		CXX_UNUSED(node);
 		set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD);
 		return true;
 	}
@@ -2296,7 +2296,7 @@ static bool handle_in_head_noscript(GumboParser * parser, GumboToken* token)
 				parser_add_parse_error(parser, token);
 				const GumboNode * node = pop_current_node(parser);
 				assert(node_html_tag_is(node, GUMBO_TAG_NOSCRIPT));
-				AVOID_UNUSED_VARIABLE_WARNING(node);
+				CXX_UNUSED(node);
 				set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD);
 				parser->_parser_state->_reprocess_current_token = true;
 				return false;

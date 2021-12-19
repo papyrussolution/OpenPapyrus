@@ -79,7 +79,7 @@ public:
 
 	enum {
 		fAlwaysSearchBySubStr = 0x0001,
-		fFreeText             = 0x0002 // @v10.7.7 Текст в основной строке вводится свободно без вызова окна поиска
+		fFreeText     = 0x0002 // @v10.7.7 Текст в основной строке вводится свободно без вызова окна поиска
 	};
 //protected:
 	long   Flags;
@@ -109,7 +109,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 		stateShift = 0x0004
 	};
 	//KeyDownCommand();
-	void   Clear();
+	KeyDownCommand & Z();
 	int    FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
 	operator long() const { return *reinterpret_cast<const long *>(this); }
 	int    GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
@@ -317,7 +317,7 @@ struct TEvent {
 	struct Message {
 		uint   command;
 		union {
-			void  * infoPtr;
+			void * infoPtr;
 			TView * infoView;
 			LPARAM  LP;
 		};
@@ -480,10 +480,10 @@ public:
 	// Элементы скроллируемого списка индексируются номерами [0..(ItemCount-1)]
 	//
 	enum {
-		fDisabled            = 0x0001,
-		fUsePaging           = 0x0002,
-		fReverse             = 0x0004,
-		fUseCursor           = 0x0008,  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
+		fDisabled    = 0x0001,
+		fUsePaging   = 0x0002,
+		fReverse     = 0x0004,
+		fUseCursor   = 0x0008,  // Если установлен, то применяется понятие текущего элемента (ItemIdxCurrent).
 			// Текущий элемент может перемещаться в пределах страницы без сдвига фрейма.
 			// При отсутствии текущего элемента любое движение вызывает смещение фрейма.
 		fFirstPageMoveToEdge = 0x0010   // При по-страничном перемещении (PageDown, PageUp) первое перемещение
@@ -521,18 +521,18 @@ private:
 
 struct SUiLayoutParam { // @persistent
 	enum {
-		fContainerRow             = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
-		fContainerCol             = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
+		fContainerRow     = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
+		fContainerCol     = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
 			// if fContainerRow && fContainerCol, then no direction
 		fContainerReverseDir      = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
-		fContainerWrap            = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
+		fContainerWrap    = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
 		fContainerWrapReverse     = 0x0010, // ignored if !(Flags & fWrap)
 		fEntryPositionAbsolute    = 0x0020, // else Relative
-		fNominalDefL              = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
-		fNominalDefT              = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
-		fNominalDefR              = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
-		fNominalDefB              = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
-		fEvaluateScroller         = 0x0400  // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
+		fNominalDefL      = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
+		fNominalDefT      = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
+		fNominalDefR      = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
+		fNominalDefB      = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
+		fEvaluateScroller = 0x0400  // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
 			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
 			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю SUiLayout::Result::P_Scrlr.
 	};
@@ -741,7 +741,7 @@ public:
 
 	struct Result { // @persistent @size=24
 		enum {
-			fNotFit         = 0x0001, // Элемент не уместился в контейнер
+			fNotFit = 0x0001, // Элемент не уместился в контейнер
 			fDegradedWidth  = 0x0002, // Ширина элемента деградировала (меньше или равна 0)
 			fDegradedHeight = 0x0004  // Высота элемента деградировала (меньше или равна 0)
 		};
@@ -792,7 +792,7 @@ public:
 
 	struct Param {
 		enum {
-			fPaginate                = 0x0001, // Рассчитывать раскладку по страницам.
+			fPaginate        = 0x0001, // Рассчитывать раскладку по страницам.
 			fStopOnFirstUnfittedItem = 0x0002  // Остановить расчет на первом невместившемся элементе
 		};
 		Param() : Flags(0), FirstItemIndex(0), ForceWidth(0.0f), ForceHeight(0.0f)
@@ -1098,7 +1098,7 @@ public:
 	enum {
 		psSolid       = PS_SOLID,      // The pen is solid. (==0)
 		psDash        = PS_DASH,       // The pen is dashed. This style is valid only when the pen width is one or less in device units.
-		psDot         = PS_DOT,        // The pen is dotted. This style is valid only when the pen width is one or less in device units.
+		psDot = PS_DOT,        // The pen is dotted. This style is valid only when the pen width is one or less in device units.
 		psDashDot     = PS_DASHDOT,    // The pen has alternating dashes and dots. This style is valid only when the pen width is one or less in device units.
 		psDashDotDot  = PS_DASHDOTDOT, // The pen has alternating dashes and double dots. This style is valid only when the pen width is one or less in device units.
 		psNull        = PS_NULL,       // The pen is invisible.
@@ -1112,7 +1112,7 @@ public:
 	//
 	enum {
 		bsSolid        = BS_SOLID,       // Solid brush
-		bsNull         = BS_NULL,        // Hollow brush
+		bsNull = BS_NULL,        // Hollow brush
 		bsHatched      = BS_HATCHED,     // Hatched brush
 		bsPattern      = BS_PATTERN,     // Pattern brush defined by a memory bitmap
 		bsDibPattern   = BS_DIBPATTERN,  // A pattern brush defined by a device-independent bitmap (DIB) specification.
@@ -1559,7 +1559,7 @@ public:
 	enum {
 		fUnlimX        = 0x0001,
 		fUnlimY        = 0x0002,
-		fWrap          = 0x0004, //
+		fWrap  = 0x0004, //
 		fNoClip        = 0x0008, // Не ограничивать отрисовку границами
 		fOneLine       = 0x0010, // Выводить текст в одну строку (не переносить и игнорировать переводы каретки)
 		fPrecBkg       = 0x0020, // Закрашивать фон строго по тексту (в противном случае закрашивается вся область,
@@ -2649,7 +2649,7 @@ private:
 
 	const  SString ClsName;     // Window class name
 	enum {
-		wbsMDI                  = 0x0001,
+		wbsMDI          = 0x0001,
 		wbsUserSettingsChanged  = 0x0002,
 		wbsMouseTrackRegistered = 0x0004
 	};
@@ -2879,7 +2879,7 @@ public:
 	// Descr: Опции функции GetTextLayout()
 	//
 	enum {
-		gtloBoundsOnly            = 0x0001, // Если объект требует отрисовки текста, то
+		gtloBoundsOnly    = 0x0001, // Если объект требует отрисовки текста, то
 			// функция обязана возвратить STextLayout в котором только определены границы текста.
 		gtloQueryForArrangeObject = 0x0002  // Если флаг установлен, то функция должна
 			// вернуть >0 если текст следует учесть при автоматической ранжировки
@@ -2943,8 +2943,8 @@ public:
 	void   SetLayoutContainerIdent(const char * pIdent);
 
 	enum {
-		stCurrent            = 0x0001,
-		stSelected           = 0x0002,
+		stCurrent    = 0x0001,
+		stSelected   = 0x0002,
 		stContainerCandidate = 0x0004  // @v10.9.6 Объект является кандидатом на превращение в контейнера-владельца для какого-либо иного объекта
 	};
 	enum {
@@ -2954,7 +2954,7 @@ public:
 		oBackground     = 0x0008, // Фоновый объект. Такой объект может быть только один. Его размер равен размеру ватмана.
 			// При добавлении нового объекта с этим признаком, предыдущий уничтожается.
 		oSelectable     = 0x0010, // Объект может быть выбран в окне, режим которого предполагает выбор некоторого объекта.
-		oFrame          = 0x0020, // Активной частью объекта является только рамка.
+		oFrame  = 0x0020, // Активной частью объекта является только рамка.
 		oMultSelectable = 0x0040, // Объект может быть включен в список множественного выбора объектов
 		oContainer      = 0x0080  // @v10.9.6 Объект является контейнером. Это, в том числе, означает, что
 			// иной объект может быть включен в этот контейнер.
@@ -3005,11 +3005,11 @@ class TWhatman { // @persistent
 public:
 	struct Param {
 		enum {
-			fRule               = 0x0001, // Отображать линейки
-			fGrid               = 0x0002, // Отображать сетку
+			fRule       = 0x0001, // Отображать линейки
+			fGrid       = 0x0002, // Отображать сетку
 			fDisableMoveObj     = 0x0004, // Объекты нельзя перемещать, даже если конкретный объект допускает это
 			fDisableReszObj     = 0x0008, // Объекты нельзя изменять в размерах, даже если конкретный объект допускает это
-			fSnapToGrid         = 0x0010, // При перемещении или изменении размеров объектов притягивать их координаты к решетке
+			fSnapToGrid = 0x0010, // При перемещении или изменении размеров объектов притягивать их координаты к решетке
 				// (действует только если установлен флаг fGrid).
 			fOneClickActivation = 0x0020  // Объект (TWhatmanObject::oSelectable)
 				// активируется одним кликом мыши (вместо двойного щелчка).
@@ -3327,7 +3327,7 @@ public:
 		fCascade       = 0x0008,
 		fResizeable    = 0x0010,
 		fMouseResizing = 0x0020,
-		fLarge         = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
+		fLarge = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
 		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
 	};
 
@@ -3563,7 +3563,7 @@ protected:
 	enum {
 		stValidStr      = 0x0001,
 		stDisableDelSel = 0x0002,
-		stPaste         = 0x0004, // Текущий текст в поле включает в себя данные, введенные копированием из буфера
+		stPaste = 0x0004, // Текущий текст в поле включает в себя данные, введенные копированием из буфера
 		stSerialized    = 0x0008  // Текущий текст был введен "символ-за-символом"
 	};
 	long   InlSt;
@@ -4008,11 +4008,11 @@ public:
 	//   Для доступа к состоянию используйте метод HasState(SmartListBox::stXXX)
 	//
 	enum {
-		stTreeList                   = 0x0001,  // Древовидный список
-		stOwnerDraw                  = 0x0002,  // Диалог-владелец списка сам реализует функцию перерисовки
-		stDataFounded                = 0x0004,  // Признак того, что (def->setData() != 0)
-		stLButtonDown                = 0x0008,  // Левая кнопка мыши нажата на списке
-		stInited                     = 0x0010,  // Выставляется функцией SmartListBox::onInit.
+		stTreeList           = 0x0001,  // Древовидный список
+		stOwnerDraw          = 0x0002,  // Диалог-владелец списка сам реализует функцию перерисовки
+		stDataFounded        = 0x0004,  // Признак того, что (def->setData() != 0)
+		stLButtonDown        = 0x0008,  // Левая кнопка мыши нажата на списке
+		stInited             = 0x0010,  // Выставляется функцией SmartListBox::onInit.
 		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
 		stOmitSearchByFirstChar      = 0x0040,  // Не обрабатывать ввод символа как сигнал к поиску
 	};
@@ -4264,7 +4264,7 @@ private:
 	enum {
 		stExecSemaphore = 0x0001, // Признак того, что (def->setData() != 0)
 		stDataFounded   = 0x0002, // Если P_Def == 0 и в комбо-боксе удаляют данные, то установлен
-		stUndef         = 0x0004,
+		stUndef = 0x0004,
 		stNoDefZero     = 0x0008
 	};
 	long   State;
@@ -4343,7 +4343,7 @@ public:
 	explicit TToolbar(HWND hw, DWORD style = 0);
 	~TToolbar();
 	void   DestroyHWND();
-	BOOL   IsValid() const;
+	bool   IsValid() const;
 	int    GetCurrPos() const;
 	HWND   H() const;
 	HWND   GetToolbarHWND() const;
@@ -4435,29 +4435,29 @@ class UserInterfaceSettings { // @persistent @store(WinReg[HKCU\Software\Papyrus
 public:
 	static const char * SubKey;  // "Software\\Papyrus\\UI";
 	enum {
-		fDontExitBrowserByEsc            = 0x00000001,
-		fShowShortcuts                   = 0x00000002,
+		fDontExitBrowserByEsc    = 0x00000001,
+		fShowShortcuts           = 0x00000002,
 		fAddToBasketItemCurBrwItemAsQtty = 0x00000004, // При добавлении в корзину новой позиции из отчета в качестве начального количества использовать текущую ячейку в активном броузере
-		fShowBizScoreOnDesktop           = 0x00000008, // Отображать бизнес показатели на рабочем столе
-		fDisableNotFoundWindow           = 0x00000010, // Не отображать окно "Не найдено" при поиске в таблицах
-		fUpdateReminder                  = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
-		fTcbInterlaced                   = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
-		fShowLeftTree                    = 0x00000080, // Показывать древовидную навигацию в левой части окна
-		// @v10.9.3 fShowObjectsInLeftWindow         = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
-		fDisableBeep                     = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
-		fBasketItemFocusPckg             = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
+		fShowBizScoreOnDesktop   = 0x00000008, // Отображать бизнес показатели на рабочем столе
+		fDisableNotFoundWindow   = 0x00000010, // Не отображать окно "Не найдено" при поиске в таблицах
+		fUpdateReminder          = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
+		fTcbInterlaced           = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
+		fShowLeftTree            = 0x00000080, // Показывать древовидную навигацию в левой части окна
+		// @v10.9.3 fShowObjectsInLeftWindow = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
+		fDisableBeep             = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
+		fBasketItemFocusPckg     = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
 			// количество упаковок (а не единиц, как по умолчанию).
-		fOldModifSignSelection           = 0x00000800, // Использовать технику выбора знака для строки документа модификации
+		fOldModifSignSelection   = 0x00000800, // Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
-		fPollVoipService                 = 0x00001000, // Опрашивать VoIP сервис для обработки событий вызовов и звонков
-		fExtGoodsSelMainName             = 0x00002000, // В списке расширенного выбора товара всегда показывать полные наименования товаров
+		fPollVoipService         = 0x00001000, // Опрашивать VoIP сервис для обработки событий вызовов и звонков
+		fExtGoodsSelMainName     = 0x00002000, // В списке расширенного выбора товара всегда показывать полные наименования товаров
 			// Эта опция потенциально способно ускорить выборку поскольку не будет вынуждать программу лишний раз обращаться к записи товара
 			// когда сокращенное наименование не совпадает с полным (see PPObjGoods::_Selector2()).
-		fEnalbeBillMultiPrint            = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
-		fDisableBillMultiPrint           = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fEnalbeBillMultiPrint    = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fDisableBillMultiPrint   = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
-		fExtGoodsSelHideGenerics         = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
-		fStringHistoryDisabled           = 0x00020000, // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
+		fExtGoodsSelHideGenerics = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
+		fStringHistoryDisabled   = 0x00020000, // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
 		fDateTimePickerBefore1124        = 0x00040000  // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
 	};
 	enum {
@@ -4687,8 +4687,8 @@ public:
         tbiButtonBrush_F    = 50, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
         tbiButtonPen_F      = 60, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
 		//
-		tbiBlackPen         = 70,
-		tbiWhitePen         = 71,
+		tbiBlackPen = 70,
+		tbiWhitePen = 71,
 		//
 		tbiInvalInpBrush    = 80, // Кисть для индикации недопустимого ввода данных
 		tbiInvalInp2Brush   = 81, // Кисть для индикации недопустимого ввода данных (вариант 2)
@@ -4809,12 +4809,12 @@ public:
 		fShowOnCursor      = 0x00000002,
 		fTextAlignLeft     = 0x00000010, // Текст выравнивается по левой границе окна. В противном случае - по центру.
 		fCloseOnMouseLeave = 0x00000100,
-		fOpaque            = 0x00000200, // Не прозрачный фон
+		fOpaque    = 0x00000200, // Не прозрачный фон
 		fSizeByText        = 0x00000400,
 		fChildWindow       = 0x00000800,
-		fTopmost           = 0x00001000,
+		fTopmost   = 0x00001000,
 		fPreserveFocus     = 0x00002000,
-		fLargeText         = 0x00004000, // Крупный текст (default * 2)
+		fLargeText = 0x00004000, // Крупный текст (default * 2)
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
 		fShowOnRUCorner    = 0x00010000, // @v10.9.0 Отображать окно в правом верхнем углу
 	};
@@ -5130,7 +5130,7 @@ public:
 	// @v10.9.11 void   SetToolbarID(uint toolbarID);
 
 	enum {
-		IdBiasBrowser          = 0x00100000,
+		IdBiasBrowser  = 0x00100000,
 		IdBiasTimeChunkBrowser = 0x00200000,
 		IdBiasTextBrowser      = 0x00800000
 	};
@@ -5166,7 +5166,7 @@ public:
 		int    FASTCALL SetLeftBottomCornerColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftTopCornerColor(COLORREF c); // returns strictly 1
 		enum {
-			fCorner           = 0x0001,
+			fCorner   = 0x0001,
 			fLeftBottomCorner = 0x0002,
 			fRightFigCircle   = 0x0004,
 			fRightFigTriangle = 0x0008 // @v11.1.12
@@ -5809,7 +5809,7 @@ public:
 	// Descr: Флаги загрузки файла и сохранения файлов
 	//
 	enum {
-		ofReadOnly          = 0x0001,
+		ofReadOnly  = 0x0001,
 		ofInteractiveSaveAs = 0x0002
 	};
 	//

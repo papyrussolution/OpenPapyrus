@@ -123,7 +123,7 @@ OnigSyntaxType OnigSyntaxRuby = {
 	}
 };
 
-OnigSyntaxType*  OnigDefaultSyntax = ONIG_SYNTAX_ONIGURUMA;
+OnigSyntaxType * OnigDefaultSyntax = ONIG_SYNTAX_ONIGURUMA;
 
 typedef enum {
 	CS_VALUE,
@@ -1290,7 +1290,7 @@ clear:
 			for(i = t->num; i < t->alloc; i++) {
 				t->e[i].name       = NULL;
 				t->e[i].name_len   = 0;
-				t->e[i].id         = 0;
+				t->e[i].id = 0;
 			}
 		}
 		e = &(t->e[t->num]);
@@ -1416,13 +1416,13 @@ int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType callout_type, uch
 	}
 
 	fe = GlobalCalloutNameList->v + id;
-	fe->type         = callout_type;
-	fe->in           = in;
+	fe->type = callout_type;
+	fe->in   = in;
 	fe->start_func   = start_func;
 	fe->end_func     = end_func;
 	fe->arg_num      = arg_num;
 	fe->opt_arg_num  = opt_arg_num;
-	fe->name         = e->name;
+	fe->name = e->name;
 
 	for(i = 0; i < arg_num; i++) {
 		fe->arg_types[i] = arg_types[i];
@@ -1728,10 +1728,10 @@ static void scan_env_clear(ScanEnv* env)
 	env->max_parse_depth  = 0;
 #endif
 	env->backref_num      = 0;
-	env->keep_num         = 0;
-	env->id_num           = 0;
+	env->keep_num = 0;
+	env->id_num   = 0;
 	env->save_alloc_num   = 0;
-	env->saves            = 0;
+	env->saves    = 0;
 }
 
 static int scan_env_add_mem_entry(ScanEnv* env)
@@ -2198,9 +2198,9 @@ static Node* node_new_quantifier(int lower, int upper, int by_number)
 	CHECK_NULL_RETURN(node);
 
 	NODE_SET_TYPE(node, NODE_QUANT);
-	QUANT_(node)->lower            = lower;
-	QUANT_(node)->upper            = upper;
-	QUANT_(node)->greedy           = 1;
+	QUANT_(node)->lower    = lower;
+	QUANT_(node)->upper    = upper;
+	QUANT_(node)->greedy   = 1;
 	QUANT_(node)->emptiness        = BODY_IS_NOT_EMPTY;
 	QUANT_(node)->head_exact       = NULL_NODE;
 	QUANT_(node)->next_head_exact  = NULL_NODE;
@@ -2427,14 +2427,14 @@ static int reg_callout_list_entry(ScanEnv* env, int* rnum)
 		ext->callout_list_alloc = alloc;
 	}
 	e = ext->callout_list + (num - 1);
-	e->flag             = 0;
-	e->of               = (OnigCalloutOf)0;
-	e->in               = ONIG_CALLOUT_OF_CONTENTS;
-	e->type             = (OnigCalloutType)0;
+	e->flag     = 0;
+	e->of       = (OnigCalloutOf)0;
+	e->in       = ONIG_CALLOUT_OF_CONTENTS;
+	e->type     = (OnigCalloutType)0;
 	e->tag_start        = 0;
-	e->tag_end          = 0;
+	e->tag_end  = 0;
 	e->start_func       = 0;
-	e->end_func         = 0;
+	e->end_func = 0;
 	e->u.arg.num        = 0;
 	e->u.arg.passed_num = 0;
 	ext->callout_num = num;
@@ -2447,8 +2447,8 @@ static int node_new_callout(Node ** node, OnigCalloutOf callout_of, int num, int
 	*node = node_new();
 	CHECK_NULL_RETURN_MEMERR(*node);
 	NODE_SET_TYPE(*node, NODE_GIMMICK);
-	GIMMICK_(*node)->id          = id;
-	GIMMICK_(*node)->num         = num;
+	GIMMICK_(*node)->id  = id;
+	GIMMICK_(*node)->num = num;
 	GIMMICK_(*node)->type        = GIMMICK_CALLOUT;
 	GIMMICK_(*node)->detail_type = (int)callout_of;
 
@@ -2463,47 +2463,33 @@ static int make_text_segment(Node ** node, ScanEnv* env)
 	int i;
 	Node* x;
 	Node* ns[2];
-
 	/* \X == (?>\O(?:\Y\O)*) */
-
 	ns[1] = NULL_NODE;
-
 	r = ONIGERR_MEMORY;
 	ns[0] = node_new_anchor_with_options(ANCR_NO_TEXT_SEGMENT_BOUNDARY, env->options);
 	if(IS_NULL(ns[0])) goto err;
-
 	r = node_new_true_anychar(&ns[1]);
 	if(r != 0) goto err1;
-
 	x = make_list(2, ns);
 	if(IS_NULL(x)) goto err;
 	ns[0] = x;
 	ns[1] = NULL_NODE;
-
 	x = node_new_quantifier(0, INFINITE_REPEAT, TRUE);
 	if(IS_NULL(x)) goto err;
-
 	NODE_BODY(x) = ns[0];
 	ns[0] = NULL_NODE;
 	ns[1] = x;
-
 	r = node_new_true_anychar(&ns[0]);
 	if(r != 0) goto err1;
-
 	x = make_list(2, ns);
 	if(IS_NULL(x)) goto err;
-
 	ns[0] = x;
 	ns[1] = NULL_NODE;
-
 	x = node_new_bag(BAG_STOP_BACKTRACK);
 	if(IS_NULL(x)) goto err;
-
 	NODE_BODY(x) = ns[0];
-
 	*node = x;
 	return ONIG_NORMAL;
-
 err:
 	r = ONIGERR_MEMORY;
 err1:
@@ -2512,8 +2498,7 @@ err1:
 }
 
 static int make_absent_engine(Node ** node, int pre_save_right_id, Node* absent,
-    Node* step_one, int lower, int upper, int possessive,
-    int is_range_cutter, ScanEnv* env)
+    Node* step_one, int lower, int upper, int possessive, int is_range_cutter, ScanEnv* env)
 {
 	int r;
 	int i;
@@ -2803,8 +2788,7 @@ err:
 	return r;
 }
 
-static int make_absent_tree(Node ** node, Node* absent, Node* expr, int is_range_cutter,
-    ScanEnv* env)
+static int make_absent_tree(Node ** node, Node* absent, Node* expr, int is_range_cutter, ScanEnv* env)
 {
 	int r;
 	int i;
@@ -2812,20 +2796,16 @@ static int make_absent_tree(Node ** node, Node* absent, Node* expr, int is_range
 	int possessive;
 	Node* x;
 	Node* ns[7];
-
 	r = ONIGERR_MEMORY;
 	for(i = 0; i < 7; i++) ns[i] = NULL_NODE;
 	ns[4] = expr; ns[5] = absent;
-
 	if(is_range_cutter == 0) {
 		Node* quant;
 		Node* body;
-
 		if(expr == NULL_NODE) {
 			/* default expr \O* */
 			quant = node_new_quantifier(0, INFINITE_REPEAT, FALSE);
 			if(IS_NULL(quant)) goto err0;
-
 			r = node_new_true_anychar(&body);
 			if(r != 0) {
 				onig_node_free(quant);
@@ -2837,44 +2817,32 @@ static int make_absent_tree(Node ** node, Node* absent, Node* expr, int is_range
 		else {
 			if(is_simple_one_char_repeat(expr, &quant, &body, &possessive, env)) {
 simple:
-				r = make_absent_tree_for_simple_one_char_repeat(node, absent, quant,
-					body, possessive, env);
+				r = make_absent_tree_for_simple_one_char_repeat(node, absent, quant, body, possessive, env);
 				onig_node_free(quant);
 				if(r != 0) {
 					ns[4] = NULL_NODE;
 					onig_node_free(body);
 					goto err;
 				}
-
 				return ONIG_NORMAL;
 			}
 		}
 	}
-
 	r = node_new_save_gimmick(&ns[0], SAVE_RIGHT_RANGE, env);
 	if(r != 0) goto err;
-
 	id1 = GIMMICK_(ns[0])->id;
-
 	r = node_new_save_gimmick(&ns[1], SAVE_S, env);
 	if(r != 0) goto err;
-
 	id2 = GIMMICK_(ns[1])->id;
-
 	r = node_new_true_anychar(&ns[3]);
 	if(r != 0) goto err;
-
 	possessive = 1;
-	r = make_absent_engine(&ns[2], id1, absent, ns[3], 0, INFINITE_REPEAT,
-		possessive, is_range_cutter, env);
+	r = make_absent_engine(&ns[2], id1, absent, ns[3], 0, INFINITE_REPEAT, possessive, is_range_cutter, env);
 	if(r != 0) goto err;
-
 	ns[3] = NULL_NODE;
 	ns[5] = NULL_NODE;
-
 	r = node_new_update_var_gimmick(&ns[3], UPDATE_VAR_S_FROM_STACK, id2, env);
 	if(r != 0) goto err;
-
 	if(is_range_cutter != 0) {
 		x = make_list(4, ns);
 		if(IS_NULL(x)) goto err0;
@@ -5695,10 +5663,8 @@ end:
 	return 0;
 }
 
-static int add_ctype_to_cc_by_range_limit(CClassNode* cc, int ctype ARG_UNUSED, int not,
-    OnigEncoding enc ARG_UNUSED,
-    OnigCodePoint sb_out,
-    const OnigCodePoint mbr[], OnigCodePoint limit)
+static int add_ctype_to_cc_by_range_limit(CClassNode* cc, int ctype ARG_UNUSED, int not, OnigEncoding enc ARG_UNUSED,
+    OnigCodePoint sb_out, const OnigCodePoint mbr[], OnigCodePoint limit)
 {
 	int i, r;
 	OnigCodePoint j;
@@ -5789,33 +5755,27 @@ end:
 
 static int add_ctype_to_cc(CClassNode* cc, int ctype, int not, ScanEnv* env)
 {
-	int c, r;
-	int ascii_mode;
+	int c;
 	int is_single;
 	const OnigCodePoint * ranges;
 	OnigCodePoint limit;
 	OnigCodePoint sb_out;
 	OnigEncoding enc = env->enc;
-
-	ascii_mode = OPTON_IS_ASCII_MODE_CTYPE(ctype, env->options);
-
-	r = ONIGENC_GET_CTYPE_CODE_RANGE(enc, ctype, &sb_out, &ranges);
+	int ascii_mode = OPTON_IS_ASCII_MODE_CTYPE(ctype, env->options);
+	int r = ONIGENC_GET_CTYPE_CODE_RANGE(enc, ctype, &sb_out, &ranges);
 	if(r == 0) {
 		if(ascii_mode == 0)
 			r = add_ctype_to_cc_by_range(cc, ctype, not, env->enc, sb_out, ranges);
 		else
-			r = add_ctype_to_cc_by_range_limit(cc, ctype, not, env->enc, sb_out,
-				ranges, ASCII_LIMIT);
+			r = add_ctype_to_cc_by_range_limit(cc, ctype, not, env->enc, sb_out, ranges, ASCII_LIMIT);
 		return r;
 	}
 	else if(r != ONIG_NO_SUPPORT_CONFIG) {
 		return r;
 	}
-
 	r = 0;
 	is_single = ONIGENC_IS_SINGLEBYTE(enc);
 	limit = ascii_mode ? ASCII_LIMIT : SINGLE_BYTE_SIZE;
-
 	switch(ctype) {
 		case ONIGENC_CTYPE_ALPHA:
 		case ONIGENC_CTYPE_BLANK:
@@ -6951,8 +6911,8 @@ static int prs_callout_of_name(Node ** np, int cterm, uchar ** src, uchar * end,
 	r = node_new_callout(&node, ONIG_CALLOUT_OF_NAME, num, name_id, env);
 	if(r != ONIG_NORMAL) goto err_clear;
 
-	e->of         = ONIG_CALLOUT_OF_NAME;
-	e->in         = in;
+	e->of = ONIG_CALLOUT_OF_NAME;
+	e->in = in;
 	e->name_id    = name_id;
 	e->type       = onig_get_callout_type_by_name_id(name_id);
 	e->start_func = onig_get_callout_start_func_by_name_id(name_id);
@@ -7015,7 +6975,7 @@ group:
 			case '=':
 			    *np = node_new_anchor(ANCR_PREC_READ);
 			    break;
-			case '!': /*         preceding read */
+			case '!': /* preceding read */
 			    *np = node_new_anchor(ANCR_PREC_READ_NOT);
 			    break;
 			case '>': /* (?>...) stop backtrack */
@@ -8336,8 +8296,8 @@ int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * end, rege
 #endif
 	reg->string_pool        = 0;
 	reg->string_pool_end    = 0;
-	reg->num_mem            = 0;
-	reg->num_repeat         = 0;
+	reg->num_mem    = 0;
+	reg->num_repeat = 0;
 	reg->num_empty_check    = 0;
 	reg->repeat_range_alloc = 0;
 	reg->repeat_range       = (RepeatRange*)NULL;
@@ -8345,11 +8305,11 @@ int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * end, rege
 	scan_env_clear(env);
 	env->options        = reg->options;
 	env->case_fold_flag = reg->case_fold_flag;
-	env->enc            = reg->enc;
-	env->syntax         = reg->syntax;
+	env->enc    = reg->enc;
+	env->syntax = reg->syntax;
 	env->pattern        = (uchar *)pattern;
 	env->pattern_end    = (uchar *)end;
-	env->reg            = reg;
+	env->reg    = reg;
 	*root = NULL;
 	if(!ONIGENC_IS_VALID_MBC_STRING(env->enc, pattern, end))
 		return ONIGERR_INVALID_WIDE_CHAR_VALUE;
@@ -8378,6 +8338,6 @@ int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * end, rege
 
 void onig_scan_env_set_error_string(ScanEnv* env, int ecode ARG_UNUSED, uchar * arg, uchar * arg_end)
 {
-	env->error     = arg;
+	env->error = arg;
 	env->error_end = arg_end;
 }

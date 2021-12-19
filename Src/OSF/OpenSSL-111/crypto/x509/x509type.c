@@ -31,7 +31,7 @@ int X509_certificate_type(const X509 * x, const EVP_PKEY * pkey)
 	switch(EVP_PKEY_id(pk)) {
 		case EVP_PKEY_RSA:
 		    ret = EVP_PK_RSA | EVP_PKT_SIGN;
-/*              if(!sign only extension) */
+/* if(!sign only extension) */
 		    ret |= EVP_PKT_ENC;
 		    break;
 		case EVP_PKEY_RSA_PSS:

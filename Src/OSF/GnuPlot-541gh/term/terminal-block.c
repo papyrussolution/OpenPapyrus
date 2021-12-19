@@ -9,7 +9,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -18,16 +18,16 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis);
-TERM_PUBLIC void BLOCK_reset(GpTermEntry * pThis);
-TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis);
-TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point);
-TERM_PUBLIC void BLOCK_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void BLOCK_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color);
+TERM_PUBLIC void BLOCK_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void BLOCK_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void BLOCK_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void BLOCK_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void BLOCK_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void BLOCK_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void BLOCK_point(GpTermEntry_Static * pThis, uint x, uint y, int point);
+TERM_PUBLIC void BLOCK_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void BLOCK_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void BLOCK_set_color(GpTermEntry_Static * pThis, const t_colorspec * color);
 //#endif
 
 #ifndef TERM_PROTO_ONLY
@@ -61,7 +61,7 @@ struct BLOCK_modeinfo_entry {
 #define USQR(a) (((uint)a)*((uint)a))
 
 // internal functions for color mapping 
-static void to_rgb255(GpTermEntry * pThis, int v, rgb255_color * rgb255);
+static void to_rgb255(GpTermEntry_Static * pThis, int v, rgb255_color * rgb255);
 
 static int BLOCK_mode = BLOCK_MODE_QUAD;
 static int BLOCK_xchars = BLOCK_XMAX;
@@ -112,7 +112,7 @@ static struct gen_table BLOCK_opts[] = {
 	{ NULL, BLOCK_OTHER }
 };
 
-TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void BLOCK_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int cmd;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -120,11 +120,11 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 #ifndef NO_DUMB_ENHANCED_SUPPORT
 			case BLOCK_ENH:
 			    pGp->Pgm.Shift();
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case BLOCK_NOENH:
 			    pGp->Pgm.Shift();
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 #endif
 			case BLOCK_DOT:
@@ -148,14 +148,14 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    pGp->TDumbB.ColorMode = DUMB_ANSIRGB;
 #ifndef NO_DUMB_COLOR_SUPPORT
 			    pThis->make_palette = DUMB_make_palette;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 #endif
 			    break;
 			case BLOCK_NOCOLOR:
 			    pGp->Pgm.Shift();
 			    pGp->TDumbB.ColorMode = 0;
 			    pThis->make_palette = NULL;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    break;
 			case BLOCK_OPTIMIZE:
 			    pGp->Pgm.Shift();
@@ -187,8 +187,7 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 		}
 	}
 	// initialize terminal canvas size
-	pThis->MaxX = BLOCK_modeinfo[BLOCK_mode].cellx * BLOCK_xchars - 1;
-	pThis->MaxY = BLOCK_modeinfo[BLOCK_mode].celly * BLOCK_ychars - 1;
+	pThis->SetMax(BLOCK_modeinfo[BLOCK_mode].cellx * BLOCK_xchars - 1, BLOCK_modeinfo[BLOCK_mode].celly * BLOCK_ychars - 1);
 	// init options string
 	{
 		const char * mode_strings[] = { "dot", "half", "halfh", "quadrants", "sextants", "braille" };
@@ -199,7 +198,7 @@ TERM_PUBLIC void BLOCK_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
+TERM_PUBLIC void BLOCK_init(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// LSB is "opacity" 
@@ -227,14 +226,13 @@ TERM_PUBLIC void BLOCK_init(GpTermEntry * pThis)
 		    p_gp->BmpMakeBitmap(pThis->MaxX + 1, pThis->MaxY + 1, 25);
 		    break;
 	}
-	pThis->ChrH = BLOCK_modeinfo[BLOCK_mode].cellx;
-	pThis->ChrV = BLOCK_modeinfo[BLOCK_mode].celly;
+	pThis->SetCharSize(BLOCK_modeinfo[BLOCK_mode].cellx, BLOCK_modeinfo[BLOCK_mode].celly);
 	// FIXME: is this correct or should the -1 go?
 	p_gp->TDumbB.PtMax.Set(BLOCK_xchars - 1, BLOCK_ychars - 1);
 	DUMB_init(pThis);
 }
 
-TERM_PUBLIC void BLOCK_reset(GpTermEntry * pThis)
+TERM_PUBLIC void BLOCK_reset(GpTermEntry_Static * pThis)
 {
 	pThis->P_Gp->BmpFreeBitmap();
 	DUMB_reset(pThis);
@@ -309,7 +307,7 @@ const int sext_pat[] = {
 const int nsext_pats = sizeof(sext_pat) / sizeof(int);
 
 #ifndef NO_DUMB_COLOR_SUPPORT
-static void to_rgb255(GpTermEntry * pThis, int v, rgb255_color * rgb255)
+static void to_rgb255(GpTermEntry_Static * pThis, int v, rgb255_color * rgb255)
 {
 	switch(pThis->P_Gp->TDumbB.ColorMode) {
 		case DUMB_ANSIRGB:
@@ -344,7 +342,7 @@ static void to_rgb255(GpTermEntry * pThis, int v, rgb255_color * rgb255)
 	}
 }
 
-static const char * ansi_bg_colorstring(GpTermEntry * pThis, t_colorspec * color)
+static const char * ansi_bg_colorstring(GpTermEntry_Static * pThis, t_colorspec * color)
 {
 	if(pThis->P_Gp->TDumbB.ColorMode == DUMB_ANSI) {
 		// This needs special attention due to multiple attributes being used.
@@ -379,7 +377,7 @@ static const char * ansi_bg_colorstring(GpTermEntry * pThis, t_colorspec * color
 
 #endif
 
-TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
+TERM_PUBLIC void BLOCK_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * line;
@@ -642,7 +640,7 @@ TERM_PUBLIC void BLOCK_text(GpTermEntry * pThis)
 	fflush(GPT.P_GpOutFile); /* finish the graphics */
 }
 
-TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void BLOCK_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	b_boxfill(pThis, FS_EMPTY, 0, 0, pThis->MaxX, pThis->MaxY);
@@ -654,7 +652,7 @@ TERM_PUBLIC void BLOCK_graphics(GpTermEntry * pThis)
 		p_gp->Gg.KeyT.height_fix = 1;
 }
 
-TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void BLOCK_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	int xd = x / BLOCK_modeinfo[BLOCK_mode].cellx;
 	int yd = y / BLOCK_modeinfo[BLOCK_mode].celly;
@@ -666,7 +664,7 @@ TERM_PUBLIC void BLOCK_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	DUMB_put_text(pThis, xd, yd, str);
 }
 
-TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point)
+TERM_PUBLIC void BLOCK_point(GpTermEntry_Static * pThis, uint x, uint y, int point)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int xd = x / BLOCK_modeinfo[BLOCK_mode].cellx;
@@ -699,7 +697,7 @@ TERM_PUBLIC void BLOCK_point(GpTermEntry * pThis, uint x, uint y, int point)
 	}
 }
 
-TERM_PUBLIC void BLOCK_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void BLOCK_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	t_colorspec color;
 	// set dash pattern
@@ -715,7 +713,7 @@ TERM_PUBLIC void BLOCK_linetype(GpTermEntry * pThis, int linetype)
 	DUMB_linetype(pThis, linetype);
 }
 
-TERM_PUBLIC void BLOCK_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void BLOCK_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type)
 {
 	if(type >= 0)
 		;
@@ -726,7 +724,7 @@ TERM_PUBLIC void BLOCK_dashtype(GpTermEntry * pThis, int type, t_dashtype * cust
 	b_setlinetype(pThis, type);
 }
 
-TERM_PUBLIC void BLOCK_set_color(GpTermEntry * pThis, const t_colorspec * color)
+TERM_PUBLIC void BLOCK_set_color(GpTermEntry_Static * pThis, const t_colorspec * color)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(color->type) {

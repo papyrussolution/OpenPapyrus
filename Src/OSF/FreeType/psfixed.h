@@ -79,7 +79,7 @@ FT_BEGIN_HEADER
   typedef enum  CF2_NumberType_
   {
     CF2_NumberFixed,    /* 16.16 */
-    CF2_NumberFrac,     /*  2.30 */
+    CF2_NumberFrac,     /* 2.30 */
     CF2_NumberInt       /* 32.0  */
 
   } CF2_NumberType;

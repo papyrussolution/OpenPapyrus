@@ -57,7 +57,7 @@
                         trailer
                         CRLF
 
-       chunk          = chunk-size [ chunk-extension ] CRLF
+       chunk  = chunk-size [ chunk-extension ] CRLF
                         chunk-data CRLF
        chunk-size     = 1*HEX
        last-chunk     = 1*("0") [ chunk-extension ] CRLF

@@ -568,7 +568,7 @@ int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 	THROW(CheckRights(ARTRT_CLIAGT));
 	if(pAgt) {
 		MEMSZERO(_agt);
-		_agt.Tag          = PPOBJ_ARTICLE;
+		_agt.Tag  = PPOBJ_ARTICLE;
 		_agt.ArtID        = id;
 		_agt.PropID       = ARTPRP_CLIAGT;
 		_agt.Flags        = ((pAgt->Flags & ~AGTF_LOADED) | AGTF_DDLIST715);
@@ -682,7 +682,7 @@ IMPL_HANDLE_EVENT(DebtLimListDialog)
 		uint pos = 0;
 		long id = 0L;
 		getSelection(&id);
-		if(id > 0 && Data.lsearch(&id, &pos, PTR_CMPFUNC(long)) > 0) {
+		if(id > 0 && Data.lsearch(&id, &pos, CMPF_LONG)) {
 			long fstop = PPClientAgreement::DebtLimit::fStop;
 			long flags = Data.at(pos).Flags;
 			SETFLAG(Data.at(pos).Flags, fstop, !(flags & fstop));
@@ -1490,15 +1490,15 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 /*static*/int FASTCALL PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt)
 {
 	const _PPSupplAgt & r_agt = *reinterpret_cast<const _PPSupplAgt *>(&rPropRec);
-	pAgt->SupplID         = r_agt.ArtID;
-	pAgt->Flags           = (r_agt.Flags | AGTF_LOADED);
-	pAgt->BegDt           = r_agt.BegDt;
-	pAgt->Expiry          = r_agt.Expiry;
+	pAgt->SupplID = r_agt.ArtID;
+	pAgt->Flags   = (r_agt.Flags | AGTF_LOADED);
+	pAgt->BegDt   = r_agt.BegDt;
+	pAgt->Expiry  = r_agt.Expiry;
 	pAgt->DefPayPeriod    = r_agt.DefPayPeriod;
 	pAgt->DefAgentID      = r_agt.DefAgentID;
 	pAgt->CostQuotKindID  = r_agt.CostQuotKindID;
 	pAgt->DefDlvrTerm     = r_agt.DefDlvrTerm;
-	pAgt->PctRet          = r_agt.PctRet;
+	pAgt->PctRet  = r_agt.PctRet;
 	pAgt->PurchaseOpID    = r_agt.PurchaseOpID;
 	pAgt->DevUpQuotKindID = r_agt.DevUpQuotKindID;
 	pAgt->DevDnQuotKindID = r_agt.DevDnQuotKindID;
@@ -1603,17 +1603,17 @@ int PPObjArticle::PutSupplAgreement(PPID id, PPSupplAgreement * pAgt, int use_ta
 		_PPSupplAgt _agt;
 		if(pAgt) {
 			MEMSZERO(_agt);
-			_agt.Tag             = PPOBJ_ARTICLE;
-			_agt.ArtID           = id;
-			_agt.PropID          = ARTPRP_SUPPLAGT;
-			_agt.Flags           = (pAgt->Flags & ~AGTF_LOADED);
-			_agt.BegDt           = pAgt->BegDt;
-			_agt.Expiry          = pAgt->Expiry;
+			_agt.Tag     = PPOBJ_ARTICLE;
+			_agt.ArtID   = id;
+			_agt.PropID  = ARTPRP_SUPPLAGT;
+			_agt.Flags   = (pAgt->Flags & ~AGTF_LOADED);
+			_agt.BegDt   = pAgt->BegDt;
+			_agt.Expiry  = pAgt->Expiry;
 			_agt.DefPayPeriod    = pAgt->DefPayPeriod;
 			_agt.DefAgentID      = pAgt->DefAgentID;
 			_agt.CostQuotKindID  = pAgt->CostQuotKindID;
 			_agt.DefDlvrTerm     = pAgt->DefDlvrTerm;
-			_agt.PctRet          = pAgt->PctRet;
+			_agt.PctRet  = pAgt->PctRet;
 			_agt.PurchaseOpID    = pAgt->PurchaseOpID;
 			_agt.DevUpQuotKindID = pAgt->DevUpQuotKindID;
 			_agt.DevDnQuotKindID = pAgt->DevDnQuotKindID;

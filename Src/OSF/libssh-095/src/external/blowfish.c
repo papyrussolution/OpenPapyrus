@@ -645,7 +645,7 @@ void main()
 	for(i = 0; i < 10; i++)
 		data[i] = i;
 
-	ssh_blf_key(&c, (uint8*)key, 5);
+	ssh_blf_key(&c, (uint8 *)key, 5);
 	ssh_blf_enc(&c, data, 5);
 	ssh_blf_dec(&c, data, 1);
 	ssh_blf_dec(&c, data + 2, 4);
@@ -653,7 +653,7 @@ void main()
 	report(data, 10);
 
 	/* Second test */
-	ssh_blf_key(&c, (uint8*)key2, strlen(key2));
+	ssh_blf_key(&c, (uint8 *)key2, strlen(key2));
 	ssh_blf_enc(&c, data2, 1);
 	printf("\nShould read as: 0x324ed0fe 0xf413a203.\n");
 	report(data2, 2);

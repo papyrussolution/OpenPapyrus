@@ -57,7 +57,7 @@ enum prec_level {
 	PREC_LOGICAL_OR  = 110,// ||                                      (1 case)
 	PREC_LOGICAL_AND = 120, // &&                                      (1 case)
 	PREC_COMPARISON  = 130,// < <= > >= == != === !== ~=             (9 cases)
-	PREC_ISA         = 132,// isa                                     (1 case)
+	PREC_ISA = 132,// isa                                     (1 case)
 	PREC_RANGE       = 135,// ..< ...                                (2 cases)
 	PREC_TERM        = 140,// + - | ^                                (4 cases)
 	PREC_FACTOR      = 150,// * / % &                                (4 cases)

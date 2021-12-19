@@ -28,11 +28,11 @@ __FBSDID("$FreeBSD$");
 #include "archive_write_private.h"
 #include "archive_options_private.h"
 
-static int      archive_set_format_option(struct archive * a,
+static int archive_set_format_option(struct archive * a,
     const char * m, const char * o, const char * v);
-static int      archive_set_filter_option(struct archive * a,
+static int archive_set_filter_option(struct archive * a,
     const char * m, const char * o, const char * v);
-static int      archive_set_option(struct archive * a,
+static int archive_set_option(struct archive * a,
     const char * m, const char * o, const char * v);
 
 int archive_write_set_format_option(struct archive * a, const char * m, const char * o,

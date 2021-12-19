@@ -37,6 +37,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
     /* Input variables */
@@ -61,7 +65,7 @@ BOXAA       *baa;
 NUMA        *nai;
 NUMAA       *naa;
 SARRAY      *safiles;
-PIX         *pixs, *pixt1, *pixt2, *pixd;
+PIX         *pixs, *pix1, *pix2, *pixd;
 PIXCMAP     *cmap;
 static char  mainName[] = "wordsinorder";
 
@@ -69,10 +73,8 @@ static char  mainName[] = "wordsinorder";
         return ERROR_INT(
             " Syntax: wordsinorder dirin rootname [firstpage, npages]",
             mainName, 1);
-
     dirin = argv[1];
     rootname = argv[2];
-
     if (argc == 3) {
         firstpage = 0;
         npages = 0;
@@ -81,6 +83,7 @@ static char  mainName[] = "wordsinorder";
         firstpage = atoi(argv[3]);
         npages = atoi(argv[4]);
     }
+    setLeptDebugOK(1);
 
         /* Compute the word bounding boxes at 2x reduction, along with
          * the textlines that they are in. */
@@ -94,24 +97,26 @@ static char  mainName[] = "wordsinorder";
             L_WARNING("image file %d not read\n", mainName, i);
             continue;
         }
-        pixGetWordBoxesInTextlines(pixs, 2, MIN_WORD_WIDTH, MIN_WORD_HEIGHT,
+        pix1 = pixReduceRankBinary2(pixs, 1, NULL);
+        pixGetWordBoxesInTextlines(pix1, MIN_WORD_WIDTH, MIN_WORD_HEIGHT,
                                    MAX_WORD_WIDTH, MAX_WORD_HEIGHT,
                                    &boxa, &nai);
         boxaaAddBoxa(baa, boxa, L_INSERT);
         numaaAddNuma(naa, nai, L_INSERT);
+        pixDestroy(&pix1);
 
 #if  RENDER_PAGES
             /* Show the results on a 2x reduced image, where each
              * word is outlined and the color of the box depends on the
              * computed textline. */
-        pixt1 = pixReduceRankBinary2(pixs, 2, NULL);
-        pixGetDimensions(pixt1, &w, &h, NULL);
+        pix1 = pixReduceRankBinary2(pixs, 2, NULL);
+        pixGetDimensions(pix1, &w, &h, NULL);
         pixd = pixCreate(w, h, 8);
         cmap = pixcmapCreateRandom(8, 1, 1);  /* first color is black */
         pixSetColormap(pixd, cmap);
 
-        pixt2 = pixUnpackBinary(pixt1, 8, 1);
-        pixRasterop(pixd, 0, 0, w, h, PIX_SRC | PIX_DST, pixt2, 0, 0);
+        pix2 = pixUnpackBinary(pix1, 8, 1);
+        pixRasterop(pixd, 0, 0, w, h, PIX_SRC | PIX_DST, pix2, 0, 0);
         ncomp = boxaGetCount(boxa);
         for (j = 0; j < ncomp; j++) {
             box = boxaGetBox(boxa, j, L_CLONE);
@@ -123,10 +128,10 @@ static char  mainName[] = "wordsinorder";
         }
 
         snprintf(filename, BUF_SIZE, "%s.%05d", rootname, i);
-        fprintf(stderr, "filename: %s\n", filename);
+        lept_stderr("filename: %s\n", filename);
         pixWrite(filename, pixd, IFF_PNG);
-        pixDestroy(&pixt1);
-        pixDestroy(&pixt2);
+        pixDestroy(&pix1);
+        pixDestroy(&pix2);
         pixDestroy(&pixs);
         pixDestroy(&pixd);
 #endif  /* RENDER_PAGES */

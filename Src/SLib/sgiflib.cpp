@@ -877,7 +877,7 @@ int DGifCloseFile(GifFileType * GifFile)
 	GifFreeExtensions(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks);
 	Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_READABLE(Private)) {
-		/* This file was NOT open for reading: */
+		// This file was NOT open for reading:
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
 		return GIF_ERROR;
 	}
@@ -892,7 +892,47 @@ int DGifCloseFile(GifFileType * GifFile)
 	//
 #ifndef __COVERITY__
 	SAlloc::F(GifFile);
-#endif /* __COVERITY__ */
+#endif
+	return GIF_OK;
+}
+//
+// This routine should be called last, to close the GIF file.
+//
+int DGifCloseFile2(GifFileType * GifFile, int * pErrorCode)
+{
+	GifFilePrivateType * Private;
+	if(GifFile == NULL || GifFile->Private == NULL)
+		return GIF_ERROR;
+	if(GifFile->Image.ColorMap) {
+		GifFreeMapObject(GifFile->Image.ColorMap);
+		GifFile->Image.ColorMap = NULL;
+	}
+	if(GifFile->SColorMap) {
+		GifFreeMapObject(GifFile->SColorMap);
+		GifFile->SColorMap = NULL;
+	}
+	if(GifFile->SavedImages) {
+		GifFreeSavedImages(GifFile);
+		GifFile->SavedImages = NULL;
+	}
+	GifFreeExtensions(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks);
+	Private = (GifFilePrivateType *) GifFile->Private;
+	if(!IS_READABLE(Private)) {
+		// This file was NOT open for reading:
+		ASSIGN_PTR(pErrorCode, D_GIF_ERR_NOT_READABLE);
+		SAlloc::F((char *)GifFile->Private);
+		SAlloc::F(GifFile);
+		return GIF_ERROR;
+	}
+	if(Private->File && (fclose(Private->File) != 0)) {
+		ASSIGN_PTR(pErrorCode, D_GIF_ERR_CLOSE_FAILED);
+		SAlloc::F((char *)GifFile->Private);
+		SAlloc::F(GifFile);
+		return GIF_ERROR;
+	}
+	SAlloc::F((char *)GifFile->Private);
+	SAlloc::F(GifFile);
+	ASSIGN_PTR(pErrorCode, D_GIF_SUCCEEDED);
 	return GIF_OK;
 }
 // 

@@ -92,10 +92,10 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 		/* the last buffer ended with a lead surrogate, output the surrogate pair */
 		++source;
 		--length;
-		target[0] = (uint8_t)(c>>8);
-		target[1] = (uint8_t)c;
-		target[2] = (uint8_t)(trail>>8);
-		target[3] = (uint8_t)trail;
+		target[0] = (uint8)(c>>8);
+		target[1] = (uint8)c;
+		target[2] = (uint8)(trail>>8);
+		target[3] = (uint8)trail;
 		target += 4;
 		targetCapacity -= 4;
 		if(offsets) {
@@ -123,17 +123,17 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 			while(count>0) {
 				c = *source++;
 				if(U16_IS_SINGLE(c)) {
-					target[0] = (uint8_t)(c>>8);
-					target[1] = (uint8_t)c;
+					target[0] = (uint8)(c>>8);
+					target[1] = (uint8)c;
 					target += 2;
 				}
 				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 && U16_IS_TRAIL(trail = *source)) {
 					++source;
 					--count;
-					target[0] = (uint8_t)(c>>8);
-					target[1] = (uint8_t)c;
-					target[2] = (uint8_t)(trail>>8);
-					target[3] = (uint8_t)trail;
+					target[0] = (uint8)(c>>8);
+					target[1] = (uint8)c;
+					target[2] = (uint8)(trail>>8);
+					target[3] = (uint8)trail;
 					target += 4;
 				}
 				else {
@@ -146,8 +146,8 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 			while(count>0) {
 				c = *source++;
 				if(U16_IS_SINGLE(c)) {
-					target[0] = (uint8_t)(c>>8);
-					target[1] = (uint8_t)c;
+					target[0] = (uint8)(c>>8);
+					target[1] = (uint8)c;
 					target += 2;
 					*offsets++ = sourceIndex;
 					*offsets++ = sourceIndex++;
@@ -155,10 +155,10 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 && U16_IS_TRAIL(trail = *source)) {
 					++source;
 					--count;
-					target[0] = (uint8_t)(c>>8);
-					target[1] = (uint8_t)c;
-					target[2] = (uint8_t)(trail>>8);
-					target[3] = (uint8_t)trail;
+					target[0] = (uint8)(c>>8);
+					target[1] = (uint8)c;
+					target[2] = (uint8)(trail>>8);
+					target[3] = (uint8)trail;
 					target += 4;
 					*offsets++ = sourceIndex;
 					*offsets++ = sourceIndex;
@@ -262,7 +262,7 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source;
+	const uint8 * source;
 	UChar * target;
 	int32_t * offsets;
 
@@ -275,8 +275,8 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 	}
 
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	length = (int32_t)((const uint8_t*)pArgs->sourceLimit-source);
+	source = (const uint8*)pArgs->source;
+	length = (int32_t)((const uint8*)pArgs->sourceLimit-source);
 	if(length<=0 && cnv->toUnicodeStatus==0) {
 		/* no input, nothing to do */
 		return;
@@ -301,12 +301,12 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		 * and the preceding, unmatched lead surrogate was put into toUBytes[]
 		 * for error handling
 		 */
-		cnv->toUBytes[0] = (uint8_t)cnv->toUnicodeStatus;
+		cnv->toUBytes[0] = (uint8)cnv->toUnicodeStatus;
 		cnv->toULength = 1;
 		cnv->toUnicodeStatus = 0;
 	}
 	if((count = cnv->toULength)!=0) {
-		uint8_t * p = cnv->toUBytes;
+		uint8 * p = cnv->toUBytes;
 		do {
 			p[count++] = *source++;
 			++sourceIndex;
@@ -362,7 +362,7 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 
 					/* back out reading the code unit after it */
-					if(((const uint8_t*)pArgs->source-source)>=2) {
+					if(((const uint8*)pArgs->source-source)>=2) {
 						source -= 2;
 					}
 					else {
@@ -459,8 +459,8 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		 * - source or target too short
 		 * - or the surrogate is unmatched
 		 */
-		cnv->toUBytes[0] = (uint8_t)(c>>8);
-		cnv->toUBytes[1] = (uint8_t)c;
+		cnv->toUBytes[0] = (uint8)(c>>8);
+		cnv->toUBytes[1] = (uint8)c;
 		cnv->toULength = 2;
 
 		if(U16_IS_SURROGATE_LEAD(c)) {
@@ -513,15 +513,15 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 }
 
 static UChar32 U_CALLCONV _UTF16BEGetNextUChar(UConverterToUnicodeArgs * pArgs, UErrorCode * err) {
-	const uint8_t * s, * sourceLimit;
+	const uint8 * s, * sourceLimit;
 	UChar32 c;
 
 	if(pArgs->converter->mode<8) {
 		return UCNV_GET_NEXT_UCHAR_USE_TO_U;
 	}
 
-	s = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	s = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 
 	if(s>=sourceLimit) {
 		/* no input */
@@ -561,7 +561,7 @@ static UChar32 U_CALLCONV _UTF16BEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 			}
 			else {
 				/* too few (2 or 3) bytes for a surrogate pair: truncated code point */
-				uint8_t * bytes = pArgs->converter->toUBytes;
+				uint8 * bytes = pArgs->converter->toUBytes;
 				s -= 2;
 				pArgs->converter->toULength = (int8_t)(sourceLimit-s);
 				do {
@@ -579,7 +579,7 @@ static UChar32 U_CALLCONV _UTF16BEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 
 		if(c<0) {
 			/* write the unmatched surrogate */
-			uint8_t * bytes = pArgs->converter->toUBytes;
+			uint8 * bytes = pArgs->converter->toUBytes;
 			pArgs->converter->toULength = 2;
 			*bytes = *(s-2);
 			bytes[1] = *(s-1);
@@ -720,10 +720,10 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 		/* the last buffer ended with a lead surrogate, output the surrogate pair */
 		++source;
 		--length;
-		target[0] = (uint8_t)c;
-		target[1] = (uint8_t)(c>>8);
-		target[2] = (uint8_t)trail;
-		target[3] = (uint8_t)(trail>>8);
+		target[0] = (uint8)c;
+		target[1] = (uint8)(c>>8);
+		target[2] = (uint8)trail;
+		target[3] = (uint8)(trail>>8);
 		target += 4;
 		targetCapacity -= 4;
 		if(offsets) {
@@ -751,17 +751,17 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 			while(count>0) {
 				c = *source++;
 				if(U16_IS_SINGLE(c)) {
-					target[0] = (uint8_t)c;
-					target[1] = (uint8_t)(c>>8);
+					target[0] = (uint8)c;
+					target[1] = (uint8)(c>>8);
 					target += 2;
 				}
 				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 && U16_IS_TRAIL(trail = *source)) {
 					++source;
 					--count;
-					target[0] = (uint8_t)c;
-					target[1] = (uint8_t)(c>>8);
-					target[2] = (uint8_t)trail;
-					target[3] = (uint8_t)(trail>>8);
+					target[0] = (uint8)c;
+					target[1] = (uint8)(c>>8);
+					target[2] = (uint8)trail;
+					target[3] = (uint8)(trail>>8);
 					target += 4;
 				}
 				else {
@@ -774,8 +774,8 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 			while(count>0) {
 				c = *source++;
 				if(U16_IS_SINGLE(c)) {
-					target[0] = (uint8_t)c;
-					target[1] = (uint8_t)(c>>8);
+					target[0] = (uint8)c;
+					target[1] = (uint8)(c>>8);
 					target += 2;
 					*offsets++ = sourceIndex;
 					*offsets++ = sourceIndex++;
@@ -783,10 +783,10 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 && U16_IS_TRAIL(trail = *source)) {
 					++source;
 					--count;
-					target[0] = (uint8_t)c;
-					target[1] = (uint8_t)(c>>8);
-					target[2] = (uint8_t)trail;
-					target[3] = (uint8_t)(trail>>8);
+					target[0] = (uint8)c;
+					target[1] = (uint8)(c>>8);
+					target[2] = (uint8)trail;
+					target[3] = (uint8)(trail>>8);
 					target += 4;
 					*offsets++ = sourceIndex;
 					*offsets++ = sourceIndex;
@@ -890,7 +890,7 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source;
+	const uint8 * source;
 	UChar * target;
 	int32_t * offsets;
 
@@ -903,8 +903,8 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 	}
 
 	cnv = pArgs->converter;
-	source = (const uint8_t*)pArgs->source;
-	length = (int32_t)((const uint8_t*)pArgs->sourceLimit-source);
+	source = (const uint8*)pArgs->source;
+	length = (int32_t)((const uint8*)pArgs->sourceLimit-source);
 	if(length<=0 && cnv->toUnicodeStatus==0) {
 		/* no input, nothing to do */
 		return;
@@ -929,12 +929,12 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		 * and the preceding, unmatched lead surrogate was put into toUBytes[]
 		 * for error handling
 		 */
-		cnv->toUBytes[0] = (uint8_t)cnv->toUnicodeStatus;
+		cnv->toUBytes[0] = (uint8)cnv->toUnicodeStatus;
 		cnv->toULength = 1;
 		cnv->toUnicodeStatus = 0;
 	}
 	if((count = cnv->toULength)!=0) {
-		uint8_t * p = cnv->toUBytes;
+		uint8 * p = cnv->toUBytes;
 		do {
 			p[count++] = *source++;
 			++sourceIndex;
@@ -990,7 +990,7 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 
 					/* back out reading the code unit after it */
-					if(((const uint8_t*)pArgs->source-source)>=2) {
+					if(((const uint8*)pArgs->source-source)>=2) {
 						source -= 2;
 					}
 					else {
@@ -1087,8 +1087,8 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		 * - source or target too short
 		 * - or the surrogate is unmatched
 		 */
-		cnv->toUBytes[0] = (uint8_t)c;
-		cnv->toUBytes[1] = (uint8_t)(c>>8);
+		cnv->toUBytes[0] = (uint8)c;
+		cnv->toUBytes[1] = (uint8)(c>>8);
 		cnv->toULength = 2;
 
 		if(U16_IS_SURROGATE_LEAD(c)) {
@@ -1141,15 +1141,15 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 }
 
 static UChar32 U_CALLCONV _UTF16LEGetNextUChar(UConverterToUnicodeArgs * pArgs, UErrorCode * err) {
-	const uint8_t * s, * sourceLimit;
+	const uint8 * s, * sourceLimit;
 	UChar32 c;
 
 	if(pArgs->converter->mode<8) {
 		return UCNV_GET_NEXT_UCHAR_USE_TO_U;
 	}
 
-	s = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	s = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 
 	if(s>=sourceLimit) {
 		/* no input */
@@ -1189,7 +1189,7 @@ static UChar32 U_CALLCONV _UTF16LEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 			}
 			else {
 				/* too few (2 or 3) bytes for a surrogate pair: truncated code point */
-				uint8_t * bytes = pArgs->converter->toUBytes;
+				uint8 * bytes = pArgs->converter->toUBytes;
 				s -= 2;
 				pArgs->converter->toULength = (int8_t)(sourceLimit-s);
 				do {
@@ -1207,7 +1207,7 @@ static UChar32 U_CALLCONV _UTF16LEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 
 		if(c<0) {
 			/* write the unmatched surrogate */
-			uint8_t * bytes = pArgs->converter->toUBytes;
+			uint8 * bytes = pArgs->converter->toUBytes;
 			pArgs->converter->toULength = 2;
 			*bytes = *(s-2);
 			bytes[1] = *(s-1);
@@ -1396,7 +1396,7 @@ static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	int32_t * offsets = pArgs->offsets;
 
 	int32_t state, offsetDelta;
-	uint8_t b;
+	uint8 b;
 
 	state = cnv->mode;
 
@@ -1410,7 +1410,7 @@ static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	while(source<sourceLimit && U_SUCCESS(*pErrorCode)) {
 		switch(state) {
 			case 0:
-			    cnv->toUBytes[0] = (uint8_t)*source++;
+			    cnv->toUBytes[0] = (uint8)*source++;
 			    cnv->toULength = 1;
 			    state = 1;
 			    break;

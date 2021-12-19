@@ -632,10 +632,8 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 	if(U_FAILURE(*pErrorCode)) {
 		return;
 	}
-
 	staticData = &data->staticData;
 	states = &data->ucm->states;
-
 	if(dataIsBase) {
 		/*
 		 * Build a normal .cnv file with a base table
@@ -645,29 +643,21 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 		if(data->cnvData==NULL) {
 			*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		}
-		else if(!data->cnvData->isValid(data->cnvData,
-		    staticData->subChar, staticData->subCharLen)
-		    ) {
+		else if(!data->cnvData->isValid(data->cnvData, staticData->subChar, staticData->subCharLen)) {
 			fprintf(stderr, "       the substitution character byte sequence is illegal in this codepage structure!\n");
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 		}
-		else if(staticData->subChar1!=0 &&
-		    !data->cnvData->isValid(data->cnvData, &staticData->subChar1, 1)
-		    ) {
+		else if(staticData->subChar1!=0 && !data->cnvData->isValid(data->cnvData, &staticData->subChar1, 1)) {
 			fprintf(stderr, "       the subchar1 byte is illegal in this codepage structure!\n");
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 		}
-		else if(
-			data->ucm->ext->mappingsLength>0 &&
-			!ucm_checkBaseExt(states, data->ucm->base, data->ucm->ext, data->ucm->ext, FALSE)
-			) {
+		else if(data->ucm->ext->mappingsLength>0 && !ucm_checkBaseExt(states, data->ucm->base, data->ucm->ext, data->ucm->ext, false)) {
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 		}
 		else if(data->ucm->base->flagsType&UCM_FLAGS_EXPLICIT) {
 			/* sort the table so that it can be turned into UTF-8-friendly data */
 			ucm_sortTable(data->ucm->base);
 		}
-
 		if(U_SUCCESS(*pErrorCode)) {
 			if(
 				/* add the base table after ucm_checkBaseExt()! */
@@ -770,27 +760,21 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 						fallbackFlags |= 2;
 					}
 				}
-
 				if(fallbackFlags&1) {
 					staticData->hasFromUnicodeFallback = TRUE;
 				}
 				if(fallbackFlags&2) {
 					staticData->hasToUnicodeFallback = TRUE;
 				}
-
 				if(1!=ucm_countChars(baseStates, staticData->subChar, staticData->subCharLen)) {
-					fprintf(stderr,
-					    "       the substitution character byte sequence is illegal in this codepage structure!\n");
+					fprintf(stderr, "       the substitution character byte sequence is illegal in this codepage structure!\n");
 					*pErrorCode = U_INVALID_TABLE_FORMAT;
 				}
 				else if(staticData->subChar1!=0 && 1!=ucm_countChars(baseStates, &staticData->subChar1, 1)) {
 					fprintf(stderr, "       the subchar1 byte is illegal in this codepage structure!\n");
 					*pErrorCode = U_INVALID_TABLE_FORMAT;
 				}
-				else if(
-					!ucm_checkValidity(data->ucm->ext, baseStates) ||
-					!ucm_checkBaseExt(baseStates, baseData.ucm->base, data->ucm->ext, data->ucm->ext, FALSE)
-					) {
+				else if(!ucm_checkValidity(data->ucm->ext, baseStates) || !ucm_checkBaseExt(baseStates, baseData.ucm->base, data->ucm->ext, data->ucm->ext, false)) {
 					*pErrorCode = U_INVALID_TABLE_FORMAT;
 				}
 				else {

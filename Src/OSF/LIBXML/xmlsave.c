@@ -2119,7 +2119,7 @@ void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * d
 	int dummy = 0;
 	xmlOutputBuffer * out_buff = NULL;
 	xmlCharEncodingHandler * conv_hdlr = NULL;
-	SETIFZ(doc_txt_len, &dummy); /*  Continue, caller just won't get length */
+	SETIFZ(doc_txt_len, &dummy); /* Continue, caller just won't get length */
 	if(doc_txt_ptr == NULL) {
 		*doc_txt_len = 0;
 	}

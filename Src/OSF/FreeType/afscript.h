@@ -25,7 +25,7 @@
   /* by a description string.  Then comes the corresponding HarfBuzz  */
   /* script name tag, followed by a string of standard characters (to */
   /* derive the standard width and height of stems).     */
-  /*                                               */
+  /*                               */
   /* Note that fallback scripts only have a default style, thus we    */
   /* use `HB_SCRIPT_INVALID' as the HarfBuzz script name tag for      */
   /* them.                                         */

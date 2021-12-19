@@ -321,7 +321,7 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
 				// matchesIndexValue check.  In practice this happens
 				// rarely, so we seldom treat this code path.
 				TransliterationRule* r = (TransliterationRule*)ruleVector->elementAt(j);
-				if(r->matchesIndexValue((uint8_t)x)) {
+				if(r->matchesIndexValue((uint8)x)) {
 					v.addElementX(r, status);
 				}
 			}

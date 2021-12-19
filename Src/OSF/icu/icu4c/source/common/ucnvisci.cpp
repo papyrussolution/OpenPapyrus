@@ -154,7 +154,7 @@ static const LookupDataStruct lookupInitialData[] = {
  * Bit 0 (value 1): PNJ consonant
  * Bit 1 (value 2): PNJ Bindi Tippi
  */
-static const uint8_t pnjMap[80] = {
+static const uint8 pnjMap[80] = {
 	/* 0A00..0A0F */
 	0, 0, 0, 0, 0, 2, 0, 2,  0, 0, 0, 0, 0, 0, 0, 0,
 	/* 0A10..0A1F */
@@ -290,7 +290,7 @@ static void U_CALLCONV _ISCIIReset(UConverter * cnv, UConverterResetChoice choic
  * to use uint16_t and give each of the 9 Unicode/script blocks its own bit.
  */
 
-static const uint8_t validityTable[128] = {
+static const uint8 validityTable[128] = {
 /* This state table is tool generated please do not edit unless you know exactly what you are doing */
 /* Note: This table was edited to mirror the Windows XP implementation */
 /*ISCII:Valid:Unicode */
@@ -833,13 +833,13 @@ static const uint16_t nuktaSpecialCases[][2] = {
 		/* write the targetUniChar  to target */                                                  \
 		if(target < targetLimit) {                                                                   \
 			if(targetByteUnit <= 0xFF) {                                                             \
-				*(target)++ = (uint8_t)(targetByteUnit);                                            \
+				*(target)++ = (uint8)(targetByteUnit);                                            \
 				if(offsets) {                                                                        \
 					*(offsets++) = offset;                                                          \
 				}                                                                                   \
 			}else {                                                                                  \
 				if(targetByteUnit > 0xFFFF) {                                                      \
-					*(target)++ = (uint8_t)(targetByteUnit>>16);                                    \
+					*(target)++ = (uint8)(targetByteUnit>>16);                                    \
 					if(offsets) {                                                                  \
 						--offset;                                                                   \
 						*(offsets++) = offset;                                                      \
@@ -847,23 +847,23 @@ static const uint16_t nuktaSpecialCases[][2] = {
 				}                                                                                   \
 				if(!(target < targetLimit)) {                                                      \
 					args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =    \
-					    (uint8_t)(targetByteUnit >> 8);                                 \
+					    (uint8)(targetByteUnit >> 8);                                 \
 					args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =    \
-					    (uint8_t)targetByteUnit;                                        \
+					    (uint8)targetByteUnit;                                        \
 					*err = U_BUFFER_OVERFLOW_ERROR;                                                 \
 				} else {                                                                            \
-					*(target)++ = (uint8_t)(targetByteUnit>>8);                                     \
+					*(target)++ = (uint8)(targetByteUnit>>8);                                     \
 					if(offsets) {                                                                    \
 						*(offsets++) = offset;                                                      \
 					}                                                                               \
 					if(target < targetLimit) {                                                       \
-						*(target)++ = (uint8_t)targetByteUnit;                                    \
+						*(target)++ = (uint8)targetByteUnit;                                    \
 						if(offsets) {                                                                \
 							*(offsets++) = offset;                      \
 						}                                                                           \
 					}else {                                                                          \
 						args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] = \
-						    (uint8_t)(targetByteUnit);                                     \
+						    (uint8)(targetByteUnit);                                     \
 						*err = U_BUFFER_OVERFLOW_ERROR;                                             \
 					}                                                                               \
 				}                                                                                   \
@@ -871,14 +871,14 @@ static const uint16_t nuktaSpecialCases[][2] = {
 		}else {                                                                                      \
 			if(targetByteUnit & 0xFF0000) {                                                        \
 				args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =        \
-				    (uint8_t)(targetByteUnit >>16);                                        \
+				    (uint8)(targetByteUnit >>16);                                        \
 			}                                                                                       \
 			if(targetByteUnit & 0xFF00) {                                                            \
 				args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =        \
-				    (uint8_t)(targetByteUnit >>8);                                         \
+				    (uint8)(targetByteUnit >>8);                                         \
 			}                                                                                       \
 			args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =            \
-			    (uint8_t)(targetByteUnit);                                             \
+			    (uint8)(targetByteUnit);                                             \
 			*err = U_BUFFER_OVERFLOW_ERROR;                                                         \
 		}                                                                                           \
 } UPRV_BLOCK_MACRO_END
@@ -921,7 +921,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 		/* Write the language code following LF only if LF is not the last character. */
 		if(args->converter->fromUnicodeStatus == LF) {
 			targetByteUnit = ATR<<8;
-			targetByteUnit += (uint8_t)lookupInitialData[range].isciiLang;
+			targetByteUnit += (uint8)lookupInitialData[range].isciiLang;
 			args->converter->fromUnicodeStatus = 0x0000;
 			/* now append ATR and language code */
 			WRITE_TO_TARGET_FROM_U(args, offsets, source, target, targetLimit, targetByteUnit, err);
@@ -1003,10 +1003,10 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 				    }
 
 				    /* get the target byte unit */
-				    targetByteUnit = fromUnicodeTable[(uint8_t)sourceChar];
+				    targetByteUnit = fromUnicodeTable[(uint8)sourceChar];
 
 				    /* is the code point valid in current script? */
-				    if((validityTable[(uint8_t)sourceChar] & converterData->currentMaskFromUnicode)==0) {
+				    if((validityTable[(uint8)sourceChar] & converterData->currentMaskFromUnicode)==0) {
 					    /* Vocallic RR is assigned in ISCII Telugu and Unicode */
 					    if(converterData->currentDeltaFromUnicode!=(TELUGU_DELTA) || sourceChar!=VOCALLIC_RR) {
 						    targetByteUnit = missingCharMarker;
@@ -1019,7 +1019,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 					     */
 					    uint32_t temp = 0;
 					    temp = (uint16_t)(ATR<<8);
-					    temp += (uint16_t)((uint8_t)lookupInitialData[range].isciiLang);
+					    temp += (uint16_t)((uint8)lookupInitialData[range].isciiLang);
 					    /* reset */
 					    deltaChanged = FALSE;
 					    /* now append ATR and language code */
@@ -1188,7 +1188,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 	const char * sourceLimit = args->sourceLimit;
 	const UChar * targetLimit = args->targetLimit;
 	uint32_t targetUniChar = 0x0000;
-	uint8_t sourceChar = 0x0000;
+	uint8 sourceChar = 0x0000;
 	UConverterDataISCII* data;
 	UChar32* toUnicodeStatus = NULL;
 	UChar32 tempTargetUniChar = 0x0000;
@@ -1202,7 +1202,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 	}
 	data = (UConverterDataISCII*)(args->converter->extraInfo);
 	contextCharToUnicode = &data->contextCharToUnicode; /* contains previous ISCII codepoint visited */
-	toUnicodeStatus = (UChar32*)&args->converter->toUnicodeStatus;/* contains the mapping to Unicode of the above codepoint*/
+	toUnicodeStatus = (UChar32*)&args->converter->toUnicodeStatus; /* contains the mapping to Unicode of the above codepoint*/
 	while(U_SUCCESS(*err) && source<sourceLimit) {
 		targetUniChar = missingCharMarker;
 
@@ -1216,7 +1216,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 				 */
 
 				/* check if the sourceChar is supported script range*/
-				if((uint8_t)(PNJ-sourceChar)<=PNJ-DEV) {
+				if((uint8)(PNJ-sourceChar)<=PNJ-DEV) {
 					data->currentDeltaToUnicode = (uint16_t)(lookupTable[sourceChar & 0x0F][0] * DELTA);
 					data->currentMaskToUnicode = (MaskEnum)lookupTable[sourceChar & 0x0F][1];
 				}
@@ -1242,13 +1242,13 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 			}
 			else if(*contextCharToUnicode==EXT) {
 				/* check if sourceChar is in 0xA1-0xEE range */
-				if((uint8_t)(EXT_RANGE_END - sourceChar) <= (EXT_RANGE_END - EXT_RANGE_BEGIN)) {
+				if((uint8)(EXT_RANGE_END - sourceChar) <= (EXT_RANGE_END - EXT_RANGE_BEGIN)) {
 					/* We currently support only Anudatta and Devanagari abbreviation sign */
 					if(sourceChar==0xBF || sourceChar == 0xB8) {
 						targetUniChar = (sourceChar==0xBF) ? DEV_ABBR_SIGN : DEV_ANUDATTA;
 
 						/* find out if the mapping is valid in this state */
-						if(validityTable[(uint8_t)targetUniChar] & data->currentMaskToUnicode) {
+						if(validityTable[(uint8)targetUniChar] & data->currentMaskToUnicode) {
 							*contextCharToUnicode = NO_CHAR_MARKER;
 
 							/* Write the previous toUnicodeStatus, this was delayed to
@@ -1385,7 +1385,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 				    found = FALSE;
 				    for(; i<vowelSignESpecialCases[0][0]; i++) {
 					    U_ASSERT(i<UPRV_LENGTHOF(vowelSignESpecialCases));
-					    if(vowelSignESpecialCases[i][0]==(uint8_t)*contextCharToUnicode) {
+					    if(vowelSignESpecialCases[i][0]==(uint8)*contextCharToUnicode) {
 						    targetUniChar = vowelSignESpecialCases[i][1];
 						    found = TRUE;
 						    break;
@@ -1393,7 +1393,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 				    }
 				    if(found) {
 					    /* find out if the mapping is valid in this state */
-					    if(validityTable[(uint8_t)targetUniChar] & data->currentMaskToUnicode) {
+					    if(validityTable[(uint8)targetUniChar] & data->currentMaskToUnicode) {
 						    /*targetUniChar += data->currentDeltaToUnicode ;*/
 						    *contextCharToUnicode = NO_CHAR_MARKER;
 						    *toUnicodeStatus = missingCharMarker;
@@ -1479,7 +1479,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 					    i = 1;
 					    found = FALSE;
 					    for(; i<nuktaSpecialCases[0][0]; i++) {
-						    if(nuktaSpecialCases[i][0]==(uint8_t)
+						    if(nuktaSpecialCases[i][0]==(uint8)
 							*contextCharToUnicode) {
 							    targetUniChar = nuktaSpecialCases[i][1];
 							    found = TRUE;
@@ -1488,7 +1488,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 					    }
 					    if(found) {
 						    /* find out if the mapping is valid in this state */
-						    if(validityTable[(uint8_t)targetUniChar] & data->currentMaskToUnicode) {
+						    if(validityTable[(uint8)targetUniChar] & data->currentMaskToUnicode) {
 							    /*targetUniChar += data->currentDeltaToUnicode ;*/
 							    *contextCharToUnicode = NO_CHAR_MARKER;
 							    *toUnicodeStatus = missingCharMarker;
@@ -1611,7 +1611,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 				 */
 				*err = U_INVALID_CHAR_FOUND;
 __callback_label:
-				args->converter->toUBytes[0] = (uint8_t)sourceChar;
+				args->converter->toUBytes[0] = (uint8)sourceChar;
 				args->converter->toULength = 1;
 				break;
 			}
@@ -1626,7 +1626,7 @@ __callback_label:
 		UConverter * cnv = args->converter;
 		if(*contextCharToUnicode==ATR || *contextCharToUnicode==EXT || *contextCharToUnicode==ISCII_INV) {
 			/* set toUBytes[] */
-			cnv->toUBytes[0] = (uint8_t)*contextCharToUnicode;
+			cnv->toUBytes[0] = (uint8)*contextCharToUnicode;
 			cnv->toULength = 1;
 
 			/* avoid looping on truncated sequences */
@@ -1696,13 +1696,13 @@ static void U_CALLCONV _ISCIIGetUnicodeSet(const UConverter * cnv,
 	(void)which;
 	(void)pErrorCode;
 	int32_t idx, script;
-	uint8_t mask;
+	uint8 mask;
 
 	/* Since all ISCII versions allow switching to other ISCII
 	   scripts, we add all roundtrippable characters to this set. */
 	sa->addRange(sa->set, 0, ASCII_END);
 	for(script = DEVANAGARI; script <= MALAYALAM; script++) {
-		mask = (uint8_t)(lookupInitialData[script].maskEnum);
+		mask = (uint8)(lookupInitialData[script].maskEnum);
 		for(idx = 0; idx < DELTA; idx++) {
 			/* added check for TELUGU character */
 			if((validityTable[idx] & mask) || (script==TELUGU && idx==0x31)) {

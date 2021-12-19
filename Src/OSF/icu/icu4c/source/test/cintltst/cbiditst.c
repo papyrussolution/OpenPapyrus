@@ -255,17 +255,17 @@ static void buildPseudoTables(void)
 	pseudoToUChar[(uint8_t)'?'] = 0x003F;    UCharToPseudo[0x3F] = (uint8_t)'?';
 	pseudoToUChar[(uint8_t)'\\'] = 0x005C;    UCharToPseudo[0x5C] = (uint8_t)'\\';
 	/* initialize specially used characters */
-	pseudoToUChar[(uint8_t)'`'] = 0x0300;    UCharToPseud2[0x00] = (uint8_t)'`';/* NSM */
-	pseudoToUChar[(uint8_t)'@'] = 0x200E;    UCharToPseud2[0x0E] = (uint8_t)'@';/* LRM */
-	pseudoToUChar[(uint8_t)'&'] = 0x200F;    UCharToPseud2[0x0F] = (uint8_t)'&';/* RLM */
-	pseudoToUChar[(uint8_t)'_'] = 0x001F;    UCharToPseudo[0x1F] = (uint8_t)'_';/* S   */
-	pseudoToUChar[(uint8_t)'|'] = 0x2029;    UCharToPseud2[0x29] = (uint8_t)'|';/* B   */
-	pseudoToUChar[(uint8_t)'['] = 0x202A;    UCharToPseud2[0x2A] = (uint8_t)'[';/* LRE */
-	pseudoToUChar[(uint8_t)']'] = 0x202B;    UCharToPseud2[0x2B] = (uint8_t)']';/* RLE */
-	pseudoToUChar[(uint8_t)'^'] = 0x202C;    UCharToPseud2[0x2C] = (uint8_t)'^';/* PDF */
-	pseudoToUChar[(uint8_t)'{'] = 0x202D;    UCharToPseud2[0x2D] = (uint8_t)'{';/* LRO */
-	pseudoToUChar[(uint8_t)'}'] = 0x202E;    UCharToPseud2[0x2E] = (uint8_t)'}';/* RLO */
-	pseudoToUChar[(uint8_t)'~'] = 0x007F;    UCharToPseudo[0x7F] = (uint8_t)'~';/* BN  */
+	pseudoToUChar[(uint8_t)'`'] = 0x0300;    UCharToPseud2[0x00] = (uint8_t)'`'; /* NSM */
+	pseudoToUChar[(uint8_t)'@'] = 0x200E;    UCharToPseud2[0x0E] = (uint8_t)'@'; /* LRM */
+	pseudoToUChar[(uint8_t)'&'] = 0x200F;    UCharToPseud2[0x0F] = (uint8_t)'&'; /* RLM */
+	pseudoToUChar[(uint8_t)'_'] = 0x001F;    UCharToPseudo[0x1F] = (uint8_t)'_'; /* S   */
+	pseudoToUChar[(uint8_t)'|'] = 0x2029;    UCharToPseud2[0x29] = (uint8_t)'|'; /* B   */
+	pseudoToUChar[(uint8_t)'['] = 0x202A;    UCharToPseud2[0x2A] = (uint8_t)'['; /* LRE */
+	pseudoToUChar[(uint8_t)']'] = 0x202B;    UCharToPseud2[0x2B] = (uint8_t)']'; /* RLE */
+	pseudoToUChar[(uint8_t)'^'] = 0x202C;    UCharToPseud2[0x2C] = (uint8_t)'^'; /* PDF */
+	pseudoToUChar[(uint8_t)'{'] = 0x202D;    UCharToPseud2[0x2D] = (uint8_t)'{'; /* LRO */
+	pseudoToUChar[(uint8_t)'}'] = 0x202E;    UCharToPseud2[0x2E] = (uint8_t)'}'; /* RLO */
+	pseudoToUChar[(uint8_t)'~'] = 0x007F;    UCharToPseudo[0x7F] = (uint8_t)'~'; /* BN  */
 	/* initialize western digits */
 	for(i = 0, uchar = 0x0030; i < 6; i++, uchar++) {
 		c = (uint8_t)columns[i];

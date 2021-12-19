@@ -95,19 +95,19 @@ enum ISCodepage {
 // (за исключением префикса iff).
 //
 enum IFileFormat {
-	iffUnkn             =  0,
-	iffTxt              =  1,
-	iffJpeg             =  2,
-	iffPng              =  3,
-	iffTiff             =  4,
-	iffGif              =  5,
-	iffBmp              =  6,
-	iffIco              =  7,
-	iffCur              =  8,
-	iffSvg              =  9,
-	iffHtml             = 10,  // @v8.1.0
-	iffXml              = 11,  // @v8.1.0
-	iffIni              = 12,  // @v8.1.0
+	iffUnkn     =  0,
+	iffTxt      =  1,
+	iffJpeg     =  2,
+	iffPng      =  3,
+	iffTiff     =  4,
+	iffGif      =  5,
+	iffBmp      =  6,
+	iffIco      =  7,
+	iffCur      =  8,
+	iffSvg      =  9,
+	iffHtml     = 10,  // @v8.1.0
+	iffXml      = 11,  // @v8.1.0
+	iffIni      = 12,  // @v8.1.0
 	iffTxtBomUTF8       = 13,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
 	iffTxtBomUTF16BE    = 14,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
 	iffTxtBomUTF16LE    = 15,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
@@ -119,99 +119,99 @@ enum IFileFormat {
 	iffTxtBomSCSU       = 21,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
 	iffTxtBomBOCU1      = 22,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
 	iffTxtBomGB18030    = 23,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-	iffLatex            = 24,  // @v8.8.3 LATEX
-	iffPdf              = 25,
-	iffRtf              = 26,
-	iffMdb              = 27,
-	iffAccDb            = 28,  // Access
-	iffWbXml            = 29,  // Binary XML
-	iffWmf              = 30,
-	iffEps              = 31,
-	iffHlp              = 32,
-	iffPpd              = 33,  // PostScript
-	iffPList            = 34,  // Property List
-	iffMat              = 35,  // Matlab
-	iffPdb              = 36,
-	iffWcbffOld         = 37,  // Windows Compound Binary File Format
-	iffZip              = 38,  // @v9.0.0 Archive
-	iffRar              = 39,  // @v9.0.0 Archive
-	iffGz               = 40,  // @v9.0.0 Archive
-	iffTar              = 41,  // @v9.0.0 Archive
-	iffBz2              = 42,  // @v9.0.0 Archive
-	iffSevenZ           = 43,  // @v9.0.0 Archive
-	iffXz               = 44,  // @v9.0.0 Archive
-	iffZ                = 45,  // @v9.0.0 Archive
-	iffCab              = 46,  // @v9.0.0 Archive
-	iffArj              = 47,  // @v9.0.0 Archive
-	iffLzh              = 48,  // @v9.0.0 Archive
-	iffXar              = 49,  // @v9.0.0 Archive
-	iffPmd              = 50,  // @v9.0.0 Archive
-	iffDeb              = 51,  // @v9.0.0 Archive
-	iffRpm              = 52,  // @v9.0.0 Archive
-	iffChm              = 53,  // @v9.0.0 Archive
-	iffIso              = 54,  // @v9.0.0 Archive
-	iffVhd              = 55,  // @v9.0.0 Archive
-	iffWim              = 56,  // @v9.0.0 Archive
-	iffMdf              = 57,  // @v9.0.0 Archive
-	iffNri              = 58,  // @v9.0.0 Archive
-	iffSwf              = 59,  // @v9.0.0 Archive
-	iffMar              = 60,  // @v9.0.0 Archive
-	iffMkv              = 61,  // @v9.0.9 Video
-	iffAvi              = 62,  // @v9.0.9 Video
-	iffMp4              = 63,  // @v9.0.9 Video
-	iffWmv              = 64,  // @v9.0.9 Video
-	iffMpg              = 65,  // @v9.0.9 Video
-	iffFlv              = 66,  // @v9.0.9 Video
-	iffMov              = 67,  // @v9.0.9 Video
-	iffF4f              = 68,  // @v9.0.9 Video
-	iffClass            = 69,  // @v9.0.9 binary:class 0:CAFEBABE
-	iffExe              = 70,  // @v9.0.9 binary:exe   0:4D5A
-	iffDll              = 71,  // @v9.0.9 binary:dll   0:4D5A
-	iffPcap             = 72,  // @v9.0.9 binary:pcap  0:D4C3B2A1
-	iffPyo              = 73,  // @v9.0.9 binary:pyo   0:03F30D0A
-	iffSo               = 74,  // @v9.0.9 binary:so    0:7F454C46
-	iffMo               = 75,  // @v9.0.9 binary:mo    0:DE120495
-	iffMui              = 76,  // @v9.0.9 binary:mui   0:50413330
-	iffCat              = 77,  // @v9.0.9 binary:cat   0:30 6:2A864886
-	iffXsb              = 78,  // @v9.0.9 binary:xsb   0:DA7ABABE
-	iffKey              = 79,  // @v9.0.9 binary:key   0:4B4C737727
-	iffSq3              = 80,  // @v9.0.9 binary:sq3   0:53514C697465
-	iffQst              = 81,  // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-	iffCrx              = 82,  // @v9.0.9 binary:crx   0:43723234
-	iffUtx              = 83,  // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
-	iffRx3              = 84,  // @v9.0.9 binary:rx3   0:52583362
-	iffKdc              = 85,  // @v9.0.9 binary:kdc   0:44494646
-	iffXnb              = 86,  // @v9.0.9 binary:xnb   0:584E42
-	iffBlp              = 87,  // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-	iffBig              = 88,  // @v9.0.9 binary:big   0:42494746
-	iffMdl              = 89,  // @v9.0.9 binary:mdl   0:49445354
-	iffSpr              = 90,  // @v9.0.9 binary:spr   0:CDCC8C3F
-	iffSfo              = 91,  // @v9.0.9 binary:sfo   0:00505346
-	iffMpq              = 92,  // @v9.0.9 binary:mpq   0:4D50511A
-	iffNes              = 93,  // @v9.0.9 binary:nes   0:4E45531A
-	iffDmp              = 94,  // @v9.0.9 binary:dmp   0:4D444D5093A7
-	iffDex              = 95,  // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-	iffGim              = 96,  // @v9.0.9 binary:gim   0:4D49472E30302E31505350
-	iffAmxx             = 97,  // @v9.0.9 binary:amxx  0:58584D41
-	iffSln              = 98,  // Visual Studio Solution
-	iffVCProj           = 99,  // Visual Studio Project
-	iffAsm              = 100, // Assempbler source file
-	iffC                = 101, // C source file
-	iffCPP              = 102, // CPP source file
-	iffH                = 103, // C header file
-	iffPerl             = 104, // perl source code
-	iffPhp              = 105, // php source code
-	iffJava             = 106, // java source code
-	iffPy               = 107, // Python source code
+	iffLatex    = 24,  // @v8.8.3 LATEX
+	iffPdf      = 25,
+	iffRtf      = 26,
+	iffMdb      = 27,
+	iffAccDb    = 28,  // Access
+	iffWbXml    = 29,  // Binary XML
+	iffWmf      = 30,
+	iffEps      = 31,
+	iffHlp      = 32,
+	iffPpd      = 33,  // PostScript
+	iffPList    = 34,  // Property List
+	iffMat      = 35,  // Matlab
+	iffPdb      = 36,
+	iffWcbffOld = 37,  // Windows Compound Binary File Format
+	iffZip      = 38,  // @v9.0.0 Archive
+	iffRar      = 39,  // @v9.0.0 Archive
+	iffGz       = 40,  // @v9.0.0 Archive
+	iffTar      = 41,  // @v9.0.0 Archive
+	iffBz2      = 42,  // @v9.0.0 Archive
+	iffSevenZ   = 43,  // @v9.0.0 Archive
+	iffXz       = 44,  // @v9.0.0 Archive
+	iffZ        = 45,  // @v9.0.0 Archive
+	iffCab      = 46,  // @v9.0.0 Archive
+	iffArj      = 47,  // @v9.0.0 Archive
+	iffLzh      = 48,  // @v9.0.0 Archive
+	iffXar      = 49,  // @v9.0.0 Archive
+	iffPmd      = 50,  // @v9.0.0 Archive
+	iffDeb      = 51,  // @v9.0.0 Archive
+	iffRpm      = 52,  // @v9.0.0 Archive
+	iffChm      = 53,  // @v9.0.0 Archive
+	iffIso      = 54,  // @v9.0.0 Archive
+	iffVhd      = 55,  // @v9.0.0 Archive
+	iffWim      = 56,  // @v9.0.0 Archive
+	iffMdf      = 57,  // @v9.0.0 Archive
+	iffNri      = 58,  // @v9.0.0 Archive
+	iffSwf      = 59,  // @v9.0.0 Archive
+	iffMar      = 60,  // @v9.0.0 Archive
+	iffMkv      = 61,  // @v9.0.9 Video
+	iffAvi      = 62,  // @v9.0.9 Video
+	iffMp4      = 63,  // @v9.0.9 Video
+	iffWmv      = 64,  // @v9.0.9 Video
+	iffMpg      = 65,  // @v9.0.9 Video
+	iffFlv      = 66,  // @v9.0.9 Video
+	iffMov      = 67,  // @v9.0.9 Video
+	iffF4f      = 68,  // @v9.0.9 Video
+	iffClass    = 69,  // @v9.0.9 binary:class 0:CAFEBABE
+	iffExe      = 70,  // @v9.0.9 binary:exe   0:4D5A
+	iffDll      = 71,  // @v9.0.9 binary:dll   0:4D5A
+	iffPcap     = 72,  // @v9.0.9 binary:pcap  0:D4C3B2A1
+	iffPyo      = 73,  // @v9.0.9 binary:pyo   0:03F30D0A
+	iffSo       = 74,  // @v9.0.9 binary:so    0:7F454C46
+	iffMo       = 75,  // @v9.0.9 binary:mo    0:DE120495
+	iffMui      = 76,  // @v9.0.9 binary:mui   0:50413330
+	iffCat      = 77,  // @v9.0.9 binary:cat   0:30 6:2A864886
+	iffXsb      = 78,  // @v9.0.9 binary:xsb   0:DA7ABABE
+	iffKey      = 79,  // @v9.0.9 binary:key   0:4B4C737727
+	iffSq3      = 80,  // @v9.0.9 binary:sq3   0:53514C697465
+	iffQst      = 81,  // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
+	iffCrx      = 82,  // @v9.0.9 binary:crx   0:43723234
+	iffUtx      = 83,  // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
+	iffRx3      = 84,  // @v9.0.9 binary:rx3   0:52583362
+	iffKdc      = 85,  // @v9.0.9 binary:kdc   0:44494646
+	iffXnb      = 86,  // @v9.0.9 binary:xnb   0:584E42
+	iffBlp      = 87,  // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
+	iffBig      = 88,  // @v9.0.9 binary:big   0:42494746
+	iffMdl      = 89,  // @v9.0.9 binary:mdl   0:49445354
+	iffSpr      = 90,  // @v9.0.9 binary:spr   0:CDCC8C3F
+	iffSfo      = 91,  // @v9.0.9 binary:sfo   0:00505346
+	iffMpq      = 92,  // @v9.0.9 binary:mpq   0:4D50511A
+	iffNes      = 93,  // @v9.0.9 binary:nes   0:4E45531A
+	iffDmp      = 94,  // @v9.0.9 binary:dmp   0:4D444D5093A7
+	iffDex      = 95,  // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+	iffGim      = 96,  // @v9.0.9 binary:gim   0:4D49472E30302E31505350
+	iffAmxx     = 97,  // @v9.0.9 binary:amxx  0:58584D41
+	iffSln      = 98,  // Visual Studio Solution
+	iffVCProj   = 99,  // Visual Studio Project
+	iffAsm      = 100, // Assempbler source file
+	iffC        = 101, // C source file
+	iffCPP      = 102, // CPP source file
+	iffH        = 103, // C header file
+	iffPerl     = 104, // perl source code
+	iffPhp      = 105, // php source code
+	iffJava     = 106, // java source code
+	iffPy       = 107, // Python source code
 	iffUnixShell        = 108, // Unix Shell script
-	iffMsi              = 109, // Microsoft Installer package
-	iffTxtUtf8          = 110, // @v9.3.6 Текст в формате utf8
-	iffTxtAscii         = 111, // @v9.3.6 Текст в котором только ASCII-символы
-	iffLog              = 112, // @v9.7.1 Файл журнала (by ext only)
+	iffMsi      = 109, // Microsoft Installer package
+	iffTxtUtf8  = 110, // @v9.3.6 Текст в формате utf8
+	iffTxtAscii = 111, // @v9.3.6 Текст в котором только ASCII-символы
+	iffLog      = 112, // @v9.7.1 Файл журнала (by ext only)
 	iffProperties       = 113, // @v9.7.1 Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
-	iffCss              = 114, // @v9.7.1 CSS
+	iffCss      = 114, // @v9.7.1 CSS
 	iffJavaScript       = 115, // @v9.7.1 JS
-	iffJson             = 116  // @v9.7.2
+	iffJson     = 116  // @v9.7.2
 }
 //
 // Descr: Представление периода между двумя датами.
@@ -411,17 +411,17 @@ interface IStrAssocList {
 // Descr: Интерфейс обеспечивающий управление записью/чтением информации из файлов
 //
 enum SFileMode {
-	mRead           = 1,      // "r"
-	mWrite          = 2,      // "w"
-	mAppend         = 3,      // "a"
+	mRead   = 1,      // "r"
+	mWrite  = 2,      // "w"
+	mAppend = 3,      // "a"
 	mReadWrite      = 4,      // "r+"
 	mReadWriteTrunc = 5,      // "w+"
 	mAppendRead     = 6,      // "a+"
 
-	mBinary         = 0x0100, // "..b"
+	mBinary = 0x0100, // "..b"
 	mDenyRead       = 0x0200,
 	mDenyWrite      = 0x0400,
-	mNoStd          = 0x0800  // Файл открывается в низкоуровневом (небуферизованном) режиме (open)
+	mNoStd  = 0x0800  // Файл открывается в низкоуровневом (небуферизованном) режиме (open)
 }
 
 interface ISFile {
@@ -611,7 +611,7 @@ library PapyrusInterfaceLib version(1.1) {
 	enum PpyViewIdent {
 		ppvCCheck      = 1,  // PPViewCCheck
 		ppvTrfrAnlz    = 2,  // PPViewTrfrAnlz
-		ppvLot         = 3,  // PPViewLot
+		ppvLot = 3,  // PPViewLot
 		ppvGoods       = 4,  // PPViewGoods
 		ppvGoodsRest   = 5,  // PPViewGoodsRest
 		ppvBill        = 6,  // PPViewBill
@@ -630,12 +630,12 @@ library PapyrusInterfaceLib version(1.1) {
 	//   обязательно должны совпадать)
 	//
 	enum PpyObjectIdent {
-		ppoUnit           =   5,  // =PPOBJ_UNIT
+		ppoUnit   =   5,  // =PPOBJ_UNIT
 		ppoOprKind        =   12, // =PPOBJ_OPRKIND        Виды операций
 		ppoAccSheet       =   13, // =PPOBJ_ACCSHEET       Таблицы аналитического учета
 		ppoCashNode       =   17, // =PPOBJ_CASHNODE       Расчетные кассовые узлы
 		ppoQuotKind       =   29, // =PPOBJ_QUOTKIND       Виды котировок товаров
-		ppoTag            =   31, // =PPOBJ_TAG            Теги объектов
+		ppoTag    =   31, // =PPOBJ_TAG            Теги объектов
 		ppoGoodsTax       =   32, // =PPOBJ_GOODSTAX       Налоговые группы товаров
 		ppoCurrency       =   34, // =PPOBJ_CURRENCY       Валюты
 		ppoGoodsClass     =   37, // =PPOBJ_GOODSCLASS     Классы товаров
@@ -645,41 +645,41 @@ library PapyrusInterfaceLib version(1.1) {
 		ppoPersonCategory =   50, // =PPOBJ_PRSNCATEGORY   Категории персоналий
 		ppoSalCharge      =   56, // =PPOBJ_SALCHARGE      Штатные начисления           //
 		ppoDebtDim        =   64, // =PPOBJ_DEBTDIM        Размерность расчета долгов по документам
-		ppoPerson         = 1004, // =PPOBJ_PERSON         Персоналии
+		ppoPerson = 1004, // =PPOBJ_PERSON         Персоналии
 		ppoArticle        = 1006, // =PPOBJ_ARTICLE        Статьи аналитического учета
 		ppoGoodsGroup     = 1008, // =PPOBJ_GOODSGROUP     Группы товаров
-		ppoGoods          = 1009, // =PPOBJ_GOODS          Товары
+		ppoGoods  = 1009, // =PPOBJ_GOODS          Товары
 		ppoLocation       = 1010, // =PPOBJ_LOCATION       Склады
-		ppoBill           = 1011, // =PPOBJ_BILL           Документы
-		ppoQCert          = 1013, // =PPOBJ_QCERT          Сертификаты качества
-		ppoStaff          = 1021, // =PPOBJ_STAFFLIST      Штатные должности
-		ppoLot            = 1022, // =PPOBJ_LOT            Лоты
+		ppoBill   = 1011, // =PPOBJ_BILL           Документы
+		ppoQCert  = 1013, // =PPOBJ_QCERT          Сертификаты качества
+		ppoStaff  = 1021, // =PPOBJ_STAFFLIST      Штатные должности
+		ppoLot    = 1022, // =PPOBJ_LOT            Лоты
 		ppoTransport      = 1028, // =PPOBJ_TRANSPORT      Транспортные средства
-		ppoCCheck         = 1032, // =PPOBJ_CCHECK         Кассовые чеки
+		ppoCCheck = 1032, // =PPOBJ_CCHECK         Кассовые чеки
 		ppoProject        = 1033, // =PPOBJ_PROJECT        Проекты
 		ppoPrjTask        = 1036, // =PPOBJ_PRJTASK        Задачи
 		ppoProcessor      = 1037, // =PPOBJ_PROCESSOR      Процессоры
 		ppoTSession       = 1039, // =PPOBJ_TSESSION       Технологические сессии
-		ppoWorld          = 1043, // =PPOBJ_WORLD          Государства
+		ppoWorld  = 1043, // =PPOBJ_WORLD          Государства
 		ppoRegister       = 1044, // =PPOBJ_REGISTER       Регистры
 		ppoPersonRelType  = 1045, // =PPOBJ_PERSONRELTYPE  Типы персональных отношений
-		ppoBrand          = 1046, // =PPOBJ_BRAND          Бренды
-		ppoSCard          = 1031  // =PPOBJ_SCARD          Персональные карты
+		ppoBrand  = 1046, // =PPOBJ_BRAND          Бренды
+		ppoSCard  = 1031  // =PPOBJ_SCARD          Персональные карты
 	}
 	//
 	//
 	//
 	enum PpyAmountType {
-		ppamtMain          = 1,  // Номинальная сумма документа
+		ppamtMain  = 1,  // Номинальная сумма документа
 		ppamtBuying        = 2,  // Станд сумма в ценах поступления //
 		ppamtSelling       = 3,  // Станд сумма в ценах реализациии
 		ppamtDiscount      = 4,  // Скидка
 		ppamtPayment       = 5,  // Сумма оплаты на текущий момент
 		ppamtPctDis        = 6,  // Скидка в процентах (если задана пользователем)
-		ppamtVaTax         = 7,  // НДС
+		ppamtVaTax = 7,  // НДС
 		ppamtExcsize       = 8,  // Акциз
-		ppamtCVat          = 9,  // НДС в ценах поступления //
-		ppamtPVat          = 10, // НДС в ценах реализации
+		ppamtCVat  = 9,  // НДС в ценах поступления //
+		ppamtPVat  = 10, // НДС в ценах реализации
 		ppamtManDis        = 11, // Скидка суммой на весь док (заданная пользователем)
 		ppamtRentPrd       = 12, // Сумма выплат по ренте за период
 		ppamtSalesTax      = 13, // Налог с продаж
@@ -689,7 +689,7 @@ library PapyrusInterfaceLib version(1.1) {
 		ppamtFixPayment    = 17, // Фиксированная сумма оплаты (не зависит от привязанных оплат)
 		ppamtCS_AggrSum    = 18, // Сумма, агрегированная по чековым строкам кассовой сессии
 		ppamtCS_AggrRest   = 19, // Сумма непроведенных излишков по чековым строкам кассовой сессии
-		ppamtCSTax         = 20, // Сумма налога с продаж в ценах поступления //
+		ppamtCSTax = 20, // Сумма налога с продаж в ценах поступления //
 		ppamtAssetExpl     = 21, // Сумма вводимых в эксплуатацию основных средств
 								 // Набор сумм по строкам расширения бухгалтерских документов
 		ppamtAdlnMain      = 41  // Номинальная сумма строки расширения //
@@ -748,12 +748,12 @@ library PapyrusInterfaceLib version(1.1) {
 	}
 
 	enum PpyIniSection {
-		ppisPath           = 0,
-		ppisDbName         = 1,
-		ppisBackup         = 2,
-		ppisSystem         = 3,
+		ppisPath   = 0,
+		ppisDbName = 1,
+		ppisBackup = 2,
+		ppisSystem = 3,
 		ppisRecover        = 4,
-		ppisConfig         = 5,
+		ppisConfig = 5,
 		ppisImpPerson      = 6,  // import.ini
 		ppisImpGoodsGroup  = 7,  // import.ini
 		ppisImpGoods       = 8,  // import.ini
@@ -761,7 +761,7 @@ library PapyrusInterfaceLib version(1.1) {
 		ppisPriceList      = 10, // plist.cnf
 		ppisClientBank     = 11, // Зона описания экспорта в систему клиент-банк
 		ppisImpBank        = 12, // import.ini
-		ppisServer         = 13,
+		ppisServer = 13,
 		ppisImpSpecSer     = 14, // import.ini
 		ppisImpCountry     = 15, // import.ini
 		ppisImpScard       = 16, // import.ini
@@ -1018,7 +1018,7 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Зарезервированные теги объектов
 	//
 	enum PpyTagReserved {
-		pptagLotCLB           =  1, // Номер грузовой таможенной декларации (PPOBJ_LOT)
+		pptagLotCLB   =  1, // Номер грузовой таможенной декларации (PPOBJ_LOT)
 		pptagLotSerial        =  2, // Серийный номер (PPOBJ_LOT)
 		pptagFloatSerial      =  3, // "Плавающие" серийные номера. Такие серийные номера не привязаны к
 			// конкретным объектам, но используются для того, чтобы хранить произвольные строковые значения серий,
@@ -1036,7 +1036,7 @@ library PapyrusInterfaceLib version(1.1) {
 		pptagGuaSCardPrefix   = 13, // Префикс номеров персональных карт
 		pptagLogManufTime     = 14, // Дата/время производства товара, оприходованного лотом.
 		pptagGuaFilesRights   = 15, // Права глобальной учетной записи на доступ/изменение файлов
-		pptagBillUUID         = 16, // UUID документа
+		pptagBillUUID = 16, // UUID документа
 		pptagGoodsKeywords    = 17, // Ключевые слова товара
 		pptagBillKeywords     = 18, // Ключевые слова документа
 		pptagGuaPGGTAG        = 19, // Символ тега приватной группы товара для данной глобальной учетной записи
@@ -1414,13 +1414,13 @@ library PapyrusInterfaceLib version(1.1) {
 	//   анализа данных (КАД) и др.
 	//
 	enum PpySpecClassIdent {
-		spclsUtil            = 1,
+		spclsUtil    = 1,
 		spclsRtlPriceExtr    = 2,
 		spclsDL200Resolver   = 3,
 		spclsQuotation       = 4,
 		spclsAlcRepOpList    = 5,
 		spclsPrcssrAlcReport = 6,
-		spclsCCheck          = 7
+		spclsCCheck  = 7
 	}
 
 	interface IPapyrusSession {
@@ -1682,10 +1682,10 @@ library PapyrusInterfaceLib version(1.1) {
 		opkfNeedPayment    =  0x00000001, // Операция требует платежного документа
 		opkfGReceipt       =  0x00000002, // Приход товара
 		opkfGExpend        =  0x00000004, // Расход товара
-		opkfBuying         =  0x00000008, // Номинал операции в ценах поступления //
+		opkfBuying =  0x00000008, // Номинал операции в ценах поступления //
 		opkfSelling        =  0x00000010, // Номинал операции в ценах реализации  //
 		opkfNoupdLotRest   =  0x00000020, // Товарная операция, не изменяющая остаток по лоту
-		opkfAdvAcc         =  0x00000040, // Бухгалтерская операция, позволяющая документу содержать строки расширения //
+		opkfAdvAcc =  0x00000040, // Бухгалтерская операция, позволяющая документу содержать строки расширения //
 		opkfProfitable     =  0x00000080, // Операция доходная //
 		opkfOnOrder        =  0x00000100, // Операция продажи, допускающая продажу по заказу
 		opkfFreight        =  0x00000200, // Операция поддерживает ввод данных фрахта
@@ -1694,21 +1694,21 @@ library PapyrusInterfaceLib version(1.1) {
 		opkfOrdReserve     =  0x00001000, // Резервирующий заказ
 		opkfCalcSTaxes     =  0x00002000, // Считать налоги с продаж (НДС и акциз)
 		opkfChargeNegPaym  =  0x00004000, // Начисление ренты интерпретировать как отрицательную оплату основного документа
-		opkfAutoWL         =  0x00008000, // Автоматическая метка в документе
+		opkfAutoWL =  0x00008000, // Автоматическая метка в документе
 		opkfAttachFiles    =  0x00010000, // Присоединять файлы к документам
 		opkfUsePayer       =  0x00020000, // Использовать поле PPBill::Payer плательщика
 		opkfOrderByLoc     =  0x00040000, // @v5.5.9 Заказ привязан к складу (заказ от подразделения)
 		opkfOutBalacCTurn  =  0x00100000, // Забалансовая бух проводка
 		opkfExtAccturn     =  0x00200000, // Расширенная бух проводка
 		opkfExtAmtList     =  0x00400000, // Операция поддерживает список доп сумм
-		opkfRent           =  0x01000000, // С документом может быть ассоциирован договор ренты
+		opkfRent   =  0x01000000, // С документом может быть ассоциирован договор ренты
 		opkfNeedAck        =  0x02000000, // Документ требует подтверждения      //
 		opkfNoCalcTiOrd    =  0x04000000, // Не расчитывать заказ товара в строках документа
-		opkfReckon         =  0x08000000, // Операция используется как платежная //
+		opkfReckon =  0x08000000, // Операция используется как платежная //
 		opkfBanking        =  0x10000000, // Банковский платежный документ
 		opkfPassive        =  0x20000000, // Пассивная операция (не видна в списках выбора)
 		opkfCurTransit     =  0x40000000, // Транзитная валютная операция        //
-		opkfGoods          =  0x00000006  // (opkfGReceipt|opkfGExpend)
+		opkfGoods  =  0x00000006  // (opkfGReceipt|opkfGExpend)
 	}
 
 	enum PpyOOprKindPrnFlags {
@@ -1777,7 +1777,7 @@ library PapyrusInterfaceLib version(1.1) {
 		ppoptCharge       = 10, // Начисление
 		ppoptGeneric      = 11, // Обобщение (коллекция операций)
 		ppoptGoodsAck     = 12, // Acknowledge receipt of goods
-		ppoptPool         = 13, // Пул документов
+		ppoptPool = 13, // Пул документов
 		ppoptCashSess     = 14, // Кассовая сессия //
 		ppoptDraftReceipt = 15, // Draft goods receiption bill
 		ppoptDraftExpend  = 16  // Draft goods expend bill
@@ -1807,12 +1807,12 @@ library PapyrusInterfaceLib version(1.1) {
 		invopfCostNominal       = 0x0001, // Номинал в ценах поступления (иначе в ценах реализации)
 		invopfZeroDefault       = 0x0002, // Остаток по умолчанию нулевой
 		invopfWroffWoDscnt      = 0x0004, // Списание без скидки
-		invopfUsePacks          = 0x0008, // Использовать параметры упаковки при вводе
+		invopfUsePacks  = 0x0008, // Использовать параметры упаковки при вводе
 		invopfSelGoodsByName    = 0x0010, // Выбирать товары по полному наименованию, а не по сокращению
 		invopfUseAnotherLocLots = 0x0020, // При списании излишков использовать информацию о лотах с других складов
 		invopfInvByClient       = 0x0040, // Инвентаризация по клиенту (не списывается)
 		invopfAccelAddItems     = 0x0080, // Ускоренное добавление позиций по штрихкоду
-		invopfAsset             = 0x0100  // Инвентаризация по основным средствам (в обычную инвентаризацию
+		invopfAsset     = 0x0100  // Инвентаризация по основным средствам (в обычную инвентаризацию
 									      // основные средства не входят)
 	}
 
@@ -1824,8 +1824,8 @@ library PapyrusInterfaceLib version(1.1) {
 
 	enum PpyOInvOpAutoFillMethod { // Методы автозаполнения //
 		oafmPresents     = 0,
-		ofmAll           = 1,
-		ofmPrev          = 2,
+		ofmAll   = 1,
+		ofmPrev  = 2,
 		ofmByCurLotRest  = 3 // По текущим остаткам лотов
 	}
 
@@ -1905,7 +1905,7 @@ library PapyrusInterfaceLib version(1.1) {
 	// Дополнительные опции операции пула документов
 	//
 	enum PpyOBillPoolOpFlags {
-		bpoxfOneOp         = 0x0001, // Объединять только по одной операции
+		bpoxfOneOp = 0x0001, // Объединять только по одной операции
 		bpoxfOneDate       = 0x0002, // Объединять только по одной дате
 		bpoxfOneObject     = 0x0004, // Объединять только по одному контрагенту
 		bpoxfUniteAccturns = 0x0008, // Объединять бухгалтерские проводки
@@ -1997,7 +1997,7 @@ library PapyrusInterfaceLib version(1.1) {
 	}
 
 	enum PpyOQuotKindFlags {
-		qtfAbsDis         = 0x0001, // Скидка в абсолютном (денежном) выражении, иначе в %%
+		qtfAbsDis = 0x0001, // Скидка в абсолютном (денежном) выражении, иначе в %%
 		qtfNotForBill     = 0x0002, // Котировка не используется при формировании цены в документе
 		qtfPctDisOnCost   = 0x0004, // Скидка задана в процентах от цены поступления //
 									// (исключает QUOTKF_ABSDIS). Задается, например, как '10P' : 10% от цены поступления     //
@@ -2231,7 +2231,7 @@ library PapyrusInterfaceLib version(1.1) {
 	enum PpyOGoodsFlags {
 		gofINTVAL       = 0x00000001, // @transient Целочисленная единица измерения //
 		gofUNLIM        = 0x00000002, // @transient Неограниченный ресурс
-		gofODD          = 0x00000004, // @transient Нестандартный товар
+		gofODD  = 0x00000004, // @transient Нестандартный товар
 		gofAUTOCOMPL    = 0x00000008, // @transient Автокомплект
 		gofGENERIC      = 0x00000010, // Обобщенный товар
 		gofTAXFACTOR    = 0x00000020, // ExtRec содержит ненулевой налоговый фактор
@@ -2444,14 +2444,14 @@ library PapyrusInterfaceLib version(1.1) {
 	enum PpyO_RegTypeReserved {
 		regtPASSPORT     =  1, // Паспорт
 		regtREGFREE      =  2, // Свид частного предпринимателя //
-		regtTPID         =  3, // ИНН
+		regtTPID =  3, // ИНН
 		regtOKONH        =  4, // ОКОНХ
-		regtOKPO         =  5, // ОКПО
-		regtBIC          =  6, // БИК (банковский идентификатор, бывший МФО)
+		regtOKPO =  5, // ОКПО
+		regtBIC  =  6, // БИК (банковский идентификатор, бывший МФО)
 		regtBNKCORRACC   =  7, // Корр сч банка
-		regtCODE         =  8, // Код персоналии
+		regtCODE =  8, // Код персоналии
 		regtALBATROSCLID =  9, // Идентификатор клиента проекта альбатрос
-		regtKPP          = 10, // Код причины постановки на налоговый учет налогоплательщика
+		regtKPP  = 10, // Код причины постановки на налоговый учет налогоплательщика
 		regtOKATO        = 11, // Код фискального органа по ОКАТО
 		regtCERTORGCODE  = 12  // Код сертифицирующей организации
 	}
@@ -2746,50 +2746,50 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Структура записи Документа
 	//
 	enum PpyOBillFlags {
-		bofTotalDiscount         = 0x00000001,   // Скидка задана на весь документ
-		bofFreight               = 0x00000002,   // Документ содержит данные по фрахту
-		bofNeedPayment           = 0x00000004,   // Требует платежного документа
-		bofPayout                = 0x00000008,   // Документ оплачен
-		bofGReceipt              = 0x00000010,   // Приход товара
-		bofGExpend               = 0x00000020,   // Расход товара
-		bofGReval                = 0x00000200,   // Переоценка товара
-		bofGModif                = 0x00008000,   // Модификация товара
+		bofTotalDiscount = 0x00000001,   // Скидка задана на весь документ
+		bofFreight       = 0x00000002,   // Документ содержит данные по фрахту
+		bofNeedPayment   = 0x00000004,   // Требует платежного документа
+		bofPayout        = 0x00000008,   // Документ оплачен
+		bofGReceipt      = 0x00000010,   // Приход товара
+		bofGExpend       = 0x00000020,   // Расход товара
+		bofGReval        = 0x00000200,   // Переоценка товара
+		bofGModif        = 0x00008000,   // Модификация товара
 		// @#{bofGReceipt^bofGExpend^bofGReval^bofGModif}
-		bofGoods                 = 0x00008230,
+		bofGoods         = 0x00008230,
 		bofShippedBILLF_SHIPPED  = 0x00000040,   // Товар по документу отгружен
-		bofNoLoadTrfr            = 0x00000080,   // @transient При загрузке и обработке документа не
+		bofNoLoadTrfr    = 0x00000080,   // @transient При загрузке и обработке документа не
 			// следует загружать товарные строки
-		bofClosedOrder           = 0x00000100,   // Закрытый заказ
-		bofWritedOff             = 0x00000100,   // Списанный драфт
-		//                       = 0x00000200, occupied
-		bofCash                  = 0x00000400,   // Кассовый документ
-		bofCheck                 = 0x00000800,   // Признак пробитого чека
-		bofNoAturn               = 0x00001000,   // Док без бух. проводок
-		bofWhiteLabel            = 0x00002000,   // Спец. метка
-		bofExtra                 = 0x00004000,   // Существует дополнительная запись
+		bofClosedOrder   = 0x00000100,   // Закрытый заказ
+		bofWritedOff     = 0x00000100,   // Списанный драфт
+		//               = 0x00000200, occupied
+		bofCash          = 0x00000400,   // Кассовый документ
+		bofCheck         = 0x00000800,   // Признак пробитого чека
+		bofNoAturn       = 0x00001000,   // Док без бух. проводок
+		bofWhiteLabel    = 0x00002000,   // Спец. метка
+		bofExtra         = 0x00004000,   // Существует дополнительная запись
 		//                       0x00008000 occupied
-		bofNegInvoice            = 0x00010000,   // Этот флаг используется только в
+		bofNegInvoice    = 0x00010000,   // Этот флаг используется только в
 			                                     // в структуре PPALDD GoodsBillBase и порожденных для внутренней индикации
 			                                     // того, что счет-фактуру следует печатать с отрицательными суммами
-		bofRmvExcise             = 0x00020000,   // Скидкой снят налог с продаж
-		bofRent                  = 0x00040000,   // С документом ассоциирован договор ренты
-		bofReckon                = 0x00080000,   // Зачетный документ оплаты
-		bofBanking               = 0x00100000,   // Банковский платежный документ
-		bofFixedAmounts          = 0x00200000,   // Суммы по документу
+		bofRmvExcise     = 0x00020000,   // Скидкой снят налог с продаж
+		bofRent          = 0x00040000,   // С документом ассоциирован договор ренты
+		bofReckon        = 0x00080000,   // Зачетный документ оплаты
+		bofBanking       = 0x00100000,   // Банковский платежный документ
+		bofFixedAmounts  = 0x00200000,   // Суммы по документу
                  			                     // зафиксированы и не пересчитываются по товарным строкам
-		bofCSessWroff            = 0x00400000,   // Документ списания кассовой сессии
-		bofPrintInvoice          = 0x00800000,   // @transient Спец флаг, информирующий функцию
+		bofCSessWroff    = 0x00400000,   // Документ списания кассовой сессии
+		bofPrintInvoice  = 0x00800000,   // @transient Спец флаг, информирующий функцию
 			                                     // заполнения данных для печати документа, что печаться будет счет-фактура.
 			                                     // Видимо в дальнейшем этот флаг будет упразднен.
-		bofAdvanceRep            = 0x01000000,   // Авансовый отчет
+		bofAdvanceRep    = 0x01000000,   // Авансовый отчет
 		bofTggLexcsnPrice        = 0x02000000,   // Налог с продаж по документу установлен без изменения цены
-		bofRecomplete            = 0x04000000,   // @#{bofRecomplete&bofGModif} рекомплектация  //
+		bofRecomplete    = 0x04000000,   // @#{bofRecomplete&bofGModif} рекомплектация  //
                        			                 // Этот флаг устанавливается, если в документ модификации вставляется товарная строка, имеющая //
 			                                     // признак рекомплектации (bofMofid|PPTFR_ACK|PPTFR_REVAL). Такая строка может быть удалена из //
 			                                     // документа только последней, после чего флаг BILLF_RECOMPLETE снимается                      //
-		bofTSessWroff            = 0x08000000,   // Документ списания технологической сессии
-		bofCDfctWroff            = 0x10000000,   // Документ сформирован на основе дефицита по кассовой сессии
-		bofTDfctWroff            = 0x20000000    // Документ сформирован на основе дефицита по техн сессии
+		bofTSessWroff    = 0x08000000,   // Документ списания технологической сессии
+		bofCDfctWroff    = 0x10000000,   // Документ сформирован на основе дефицита по кассовой сессии
+		bofTDfctWroff    = 0x20000000    // Документ сформирован на основе дефицита по техн сессии
 	}
 
 	enum PpyORentFlags {
@@ -2925,7 +2925,7 @@ library PapyrusInterfaceLib version(1.1) {
 		// Правильнее всего для выяснения знака будет пользоваться функцией
 		// PPTransferItem::GetSign().
 		//
-		pptfrPlus         = 0x00004000, // Поступление товара
+		pptfrPlus = 0x00004000, // Поступление товара
 		pptfrMinus        = 0x00008000, // Расход товара
 		//
 		// @v1.10.1 Модификация товара.
@@ -2940,9 +2940,9 @@ library PapyrusInterfaceLib version(1.1) {
 		// документ не влечет изменение чистой цены (Price - Discount) по этой
 		// строчке.
 		//
-		pptfrQuot         = 0x00040000, // Цена установлена по котировке
+		pptfrQuot = 0x00040000, // Цена установлена по котировке
 		pptfrRmvExcise    = 0x00080000, // Со строчки скидкой снят акциз
-		pptfrAck          = 0x00100000, // Подтверждение
+		pptfrAck  = 0x00100000, // Подтверждение
 		pptfrNodiscount   = 0x00200000, // На строку не распространяется общая скидка
 		pptfrCostWoVat    = 0x00400000, // Цена поступления задана без НДС
 		pptfrCostWSTax    = 0x00800000, // Цена поступления задана с налогом с продаж
@@ -2956,7 +2956,7 @@ library PapyrusInterfaceLib version(1.1) {
 		// В этом случае компоненты пакета получают признак PPTFR_UNITEINTR
 		// и генерируют зеркальные операции для присвоения пакету лотов.
 		//
-		pptfrPckg         = 0x01000000,
+		pptfrPckg = 0x01000000,
 		pptfrPckgGen      = 0x02000000, // Row of component of package
 		pptfrFixModifCost = 0x04000000, // @v5.1.1 Цена поступления строки модификации фиксирована.
 								        // Для такой строки не осуществляется пересчет цены поступления //
@@ -3468,16 +3468,16 @@ library PapyrusInterfaceLib version(1.1) {
 			// фиксировать остатки товаров на момент закрытия сессии.
 			// Остатки фиксируются в таблице TSessLine с признаками Sign=0, Flags|=TSESLF_OUTREST
 		prcfPrintNewLinePane     = 0x0004, // Печатать этикетку для каждой новой строки в панели
-		prcfAltGroup             = 0x0008, // Альтернативная группа процессоров
-		prcfDefSignMinus         = 0x0010, // Знак операции по умолчанию - расход
-		prcfDefSignPlus          = 0x0020, // Знак операции по умолчанию - приход
+		prcfAltGroup     = 0x0008, // Альтернативная группа процессоров
+		prcfDefSignMinus = 0x0010, // Знак операции по умолчанию - расход
+		prcfDefSignPlus  = 0x0020, // Знак операции по умолчанию - приход
 					// @#{PRCF_DEFSIGN_MINUS^PRCF_DEFSIGN_PLUS}
 		prcfEnableDupSerial      = 0x0040, // Разрешение на ввод в строку сессии строк с одинаковым серийным номером
 		prcfOneClickTurnPane     = 0x0080, // Проводить строку сессии в панели процессора сразу после выбора товара
 					// (по штрихкоду или серийному номеру). Используется для быстрого ввода в случае, когда не надо явно задавать количество
 					// и другие атрибуты строки кроме собственно товара (лота)
-		prcfLockWrOff            = 0x0100, // Сессии по этому процессору не списываются //
-		prcfWrOfDtStart          = 0x0200, // Дата документа списания - дата начала сессии
+		prcfLockWrOff    = 0x0100, // Сессии по этому процессору не списываются //
+		prcfWrOfDtStart  = 0x0200, // Дата документа списания - дата начала сессии
 					// Если флаг не установлен, то дата конца сессии.
 		prcfWrOffDtBuSuper       = 0x0400, // Дата документа списания определяется датой суперсессии
 					// по правилу флага PRCF_WROFFDT_START. Если суперсессии нет, то PRCF_WROFFDT_BYSUPER игнорируется.
@@ -3486,7 +3486,7 @@ library PapyrusInterfaceLib version(1.1) {
 					// только на процессоры, непосредственно привязанными к этой группе.
 		prcfAccDupSerialInSess   = 0x1000, // Принимать две строки сессии с одним серийным номером
 		prcfTurnIncomplBill      = 0x2000, // Проводить документы по сессиям, даже если есть дефицит
-		prcfPassive              = 0x4000, // Пассивный процессор (флаг не наследуется от группы)
+		prcfPassive      = 0x4000, // Пассивный процессор (флаг не наследуется от группы)
 		prcfAddedObjAsAgent      = 0x8000, // Доп объект сессии списывается как агент (только в случае, если
 					// доп объект по виду операции не определен).
 				//
@@ -3647,7 +3647,7 @@ library PapyrusInterfaceLib version(1.1) {
 		prjtfActionViewed = 0x0002  // Задача просмотрена кем-либо
 	}
 	enum PpyOPrjTaskStatus {
-		prjtsNew           = 1, // Новая //
+		prjtsNew   = 1, // Новая //
 		prjtsCanceled      = 2, // Отмененна
 		prjtsInProgress    = 3, // Выполняется //
 		prjtsInExpectaiong = 4, // В ожидании
@@ -3853,9 +3853,9 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Флаги фильтра анализа товарных операций
 	//
 	enum PpyVTrfrAnlzFlags {
-		tavfLabelOnly          = 0x00000001,   // Только помеченные операции
-		tavfGByDate            = 0x00000002,   // Группировка по дате (только если выбран товар - GoodsID)
-		tavfGetRest            = 0x00000004,   // Рассчитывать товарные остатки
+		tavfLabelOnly  = 0x00000001,   // Только помеченные операции
+		tavfGByDate    = 0x00000002,   // Группировка по дате (только если выбран товар - GoodsID)
+		tavfGetRest    = 0x00000004,   // Рассчитывать товарные остатки
 		tavfSubstPersonRAddr   = 0x00000008,   // При подстановке персоналии использовать фактический адрес
 		tavfSubstDlvrAddr      = 0x00000010,   // При подстановке персоналии использовать адрес доставки
 		tavfDiffByDlvrAddr     = 0x00000020,   // При группировке по контрагенту заменять контрагента на
@@ -3865,13 +3865,13 @@ library PapyrusInterfaceLib version(1.1) {
 			// или выводить отчет на экран.
 		tavfInitLocCount       = 0x00000080,   // Рассчитывать количество адресов доставки для каждого
 			// элемента группировки. Внутренний флаг (инициализируется программно)
-		tavfCalcRest           = 0x00000100,   // Для группировки gGoods, gGoodsBill, gGoodsDate рассчитывать остатки
+		tavfCalcRest   = 0x00000100,   // Для группировки gGoods, gGoodsBill, gGoodsDate рассчитывать остатки
 		tavfShowAllArticles    = 0x00000200,   // Показывать отсутствующие позиции контрагентов
 		tavfShowAllAgents      = 0x00000400,   // Показывать отсутствующие позиции агентов
 		tavfShowAllGoods       = 0x00000800,   // Показывать отсутствующие позиции товаров
 		tavfByZeroAgent        = 0x00001000,   // Фильтрация по нулевому агенту по документу
-		tavfCalcVat            = 0x00002000,   // Рассчитывать суммы НДС
-		tavfCWoVat             = 0x00008000,   // Показывать цены без НДС
+		tavfCalcVat    = 0x00002000,   // Рассчитывать суммы НДС
+		tavfCWoVat     = 0x00008000,   // Показывать цены без НДС
 		tavfByZeroDlvrAddr     = 0x00010000,   // @v8.3.0  Фильтрация по пустому адресу доставки
 		tavfForceInitDlvrAddr  = 0x00020000    // @v8.3.0  Инициализировать адрес доставки без группировки
 	}
@@ -4126,14 +4126,14 @@ library PapyrusInterfaceLib version(1.1) {
 	//
 	enum PpyVLotFlags {
 		lvfWithoutQCert       = 0x0008, // Показывать только лоты, у которых нет серитфиката
-		lvfOrders             = 0x0010, // Лоты заказов
+		lvfOrders     = 0x0010, // Лоты заказов
 		lvfCostAbovePrice     = 0x0020, // Только лоты, у которых цена поступления больше цены реализации
-		lvfWithoutClb         = 0x0040, // Лоты без ГТД
-		lvfDeadLots           = 0x0080, // Только те лоты, по которым не было движения //
+		lvfWithoutClb = 0x0040, // Лоты без ГТД
+		lvfDeadLots   = 0x0080, // Только те лоты, по которым не было движения //
 		lvfWithoutExpiry      = 0x0100, // Лоты, для которых не указан срок годности
 		lvfOnlySpoilage       = 0x0200, // Только лоты с бракованными сериями
 		lvfShowSerialN        = 0x0400, // Показывать серийные номера лотов
-		lvfSkipNoOp           = 0x0800, // Не показывать лоты, по которым не было операций за операционный период
+		lvfSkipNoOp   = 0x0800, // Не показывать лоты, по которым не было операций за операционный период
 			// Имеет смысл только если !Operation.IsZero()
 		lvfCheckOriginLotDate = 0x1000, // Учитывать дату оригинального лота в соответствии с заданным периодом
 		lvfSkipClosedBeforeOp = 0x2000, // Пропускать лоты, закрытые до операционного периода
@@ -4245,26 +4245,26 @@ library PapyrusInterfaceLib version(1.1) {
 		gvfUseUnitMask       = 0x00000004, // Внутренний флаг - использовать маску фильтрации единиц измерения //
 		gvfIntUnitOnly       = 0x00000008, // Только те товары, для которых задана целочисленная единица измерения //
 		gvfFloatUnitOnly     = 0x00000010, // Только те товары, для которых задана нецелочисленная единица измерения //
-		gvfNegation          = 0x00000020, // Отрицание фильтра
-		gvfGenGoods          = 0x00000040, // Если установлен флаг fGenGoods, то поле GrpID используется // как обобщенный товар.
+		gvfNegation  = 0x00000020, // Отрицание фильтра
+		gvfGenGoods  = 0x00000040, // Если установлен флаг fGenGoods, то поле GrpID используется // как обобщенный товар.
 		gvfGroupGenGoods     = 0x00000080, // Группировать обобщенные товары
-		gvfUndefType         = 0x00000100, // Только те товары, для которых не определен тип
-		gvfNewLots           = 0x00000200, // Только те товары, которых не было на дату (LotPeriod.low-1)
+		gvfUndefType = 0x00000100, // Только те товары, для которых не определен тип
+		gvfNewLots   = 0x00000200, // Только те товары, которых не было на дату (LotPeriod.low-1)
 		gvfExcludeAsset      = 0x00000400, // Исключить основные средства
 		gvfIncludeIntr       = 0x00000800, // Рассматривать порожденные лоты. Действует при (!LotPeriod.IsZero() || SupplID)
 		gvfShowBarcode       = 0x00001000, // Показывать штрих-коды в броузере
-		gvfShowCargo         = 0x00002000, // Показывать товары с грузовыми параметрами
+		gvfShowCargo = 0x00002000, // Показывать товары с грузовыми параметрами
 		gvfHidePassive       = 0x00004000, // Не показывать пассивные товары (отменяет fPassiveOnly)
 		gvfPassiveOnly       = 0x00008000, // Показывать только пассивные товары (отменяет fHidePassive)
 		gvfGenGoodsOnly      = 0x00010000, // Показывать только обобщенные товары
 		gvfWOTaxGdsOnly      = 0x00020000, // Показывать только товары с ценой без налогов
 			// @#{fPassiveOnly^fGenGoodsOnly^fWOTaxGdsOnly}
 		gvfNoZeroRestOnLotPeriod = 0x00040000, // Если товар не удовлетворяет ограничению LotPeriod, но есть на остатке, то попадает в выборку
-		gvfNoDisOnly         = 0x00080000, // Показывать только товары с признаком без скидки
+		gvfNoDisOnly = 0x00080000, // Показывать только товары с признаком без скидки
 		gvfShowStrucType     = 0x00100000, // Показывать признак наличия структуры AHTOXA
 		gvfNotUseViewOptions = 0x00200000, // Не показывать в товарном фильтре кнопку опции просмотра
 		gvfShowGoodsWOStruc  = 0x00400000, // Показывать товары без структуры
-		gvfWoTaxGrp          = 0x00800000, // Показывать только товары без налоговой группы
+		gvfWoTaxGrp  = 0x00800000, // Показывать только товары без налоговой группы
 		gvfRestrictByMatrix  = 0x01000000, // Ограничивать выборку товарной матрицей. Если LocID == 0, то ограничивается матрицей для всех складов
 		gvfShowArCode        = 0x02000000, // Показывать артикулы товаров
 		gvfShowOwnArCode     = 0x04000000, // Показывать собственные артикулы (ArID = 0)
@@ -4274,7 +4274,7 @@ library PapyrusInterfaceLib version(1.1) {
 			// Этот флаг имеет более низкий приоритет, чем fRestrictByMatrix. То есть, если установлены оба
 			// флага (что программа не должна допускать), то применяется fRestrictByMatrix
 		gvfActualOnly        = 0x20000000, // Показывать только те товары, по которым есть не нулевые остатки по одному из складов LocList
-		gvfHasImages         = 0x40000000, // Только с картинками
+		gvfHasImages = 0x40000000, // Только с картинками
 		gvfUseIndepWtOnly    = 0x80000000  // Только с флагом GF_USEINDEPWT
 	}
 	//
@@ -4370,7 +4370,7 @@ library PapyrusInterfaceLib version(1.1) {
 		gsvfShowComplDecompl = 0x0001, // Показывать структуры комплектации/декомплектации
 		gsvfShowPartitial    = 0x0002, // Показывать частичные структуры
 		gsvfShowSubst        = 0x0004, // Показывать подстановочные структуры
-		gsvfShowGift         = 0x0008, // Показывать подарочные структуры
+		gsvfShowGift = 0x0008, // Показывать подарочные структуры
 		gsvfShowComplex      = 0x0010  // Показывать комплексные структуры
 	}
 
@@ -4415,8 +4415,8 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Флаги фильтрации остатков
 	//
 	enum PpyVGoodsRestFlags {
-		grvfBarCode          = 0x00000001, // Остатки со штрих-кодами
-		grvfNullRest         = 0x00000002, // Выводить нулевые остатки
+		grvfBarCode  = 0x00000001, // Остатки со штрих-кодами
+		grvfNullRest = 0x00000002, // Выводить нулевые остатки
 		grvfCalcOrder        = 0x00000004, // Расчитывать заказанное количество
 		grvfPriceByQuot      = 0x00000040, // Формировать цены по котировкам
 		grvfUnderMinStock    = 0x00000080, // Показывать только те позиции, остаток по которым ниже установленного минимума
@@ -4427,7 +4427,7 @@ library PapyrusInterfaceLib version(1.1) {
 		grvfCalcTotalOnly    = 0x00001000, // Расчитать только итоги
 		grvfEachLocation     = 0x00002000, // Рассчитывать остатки по каждому из складов
 		grvfComplPackQtty    = 0x00004000, // Показывать количество в упаковках
-		grvfCWoVat           = 0x00008000, // Показывать цены без НДС
+		grvfCWoVat   = 0x00008000, // Показывать цены без НДС
 		grvfCalcDeficit      = 0x00010000, // Рассчитывать дефицит
 		grvfWoSupplier       = 0x00020000, // Рассчитывать остатки без учета поставщика
 		grvfShowMinStock     = 0x00040000, // показывать минимальные остатки
@@ -4539,27 +4539,27 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Флаги фильтрации документов
 	//
 	enum PpyVBillFlags {
-		vbfShowDebt          = 0x00000001, // Показывать долг
-		vbfDebtOnly          = 0x00000002, // Выводить только неоплаченные документы if(fOrderOnly) then выводить только не закрытые заказы
+		vbfShowDebt  = 0x00000001, // Показывать долг
+		vbfDebtOnly  = 0x00000002, // Выводить только неоплаченные документы if(fOrderOnly) then выводить только не закрытые заказы
 		vbfPaymNeeded        = 0x00000004, // Выводить документы, требующие оплаты (независимо от операции)
 		vbfFreightedOnly     = 0x00000008, // Только зафрахтованные документы (BillTbl::Rec.Flags & BILLF_FREIGHT)
-		vbfCashOnly          = 0x00000010, // Документы розницы через кассовый узел
-		vbfOrderOnly         = 0x00000020, // Заказы
-		vbfInvOnly           = 0x00000040, // Инвентаризация //
+		vbfCashOnly  = 0x00000010, // Документы розницы через кассовый узел
+		vbfOrderOnly = 0x00000020, // Заказы
+		vbfInvOnly   = 0x00000040, // Инвентаризация //
 		//
 		// Если флаг fAsSelector установлен, то броузер работает как
 		// селектор. При этом, если был выбран какой-то документ,
 		// то поле sel содержит его идентификатор.
 		//
 		vbfAsSelector        = 0x00000080,
-		vbfLabelOnly         = 0x00000100, // Показывать только меченые документы
+		vbfLabelOnly = 0x00000100, // Показывать только меченые документы
 		vbfAllCurrencies     = 0x00000200, // Показывать все валюты
 		vbfAccturnOnly       = 0x00000400, // Только бухгалтерские документы
 		vbfSetupNewBill      = 0x00000800, // Формировать поля нового док в соответствии с фильтром
-		vbfDraftOnly         = 0x00001000, // Драфт-документы
+		vbfDraftOnly = 0x00001000, // Драфт-документы
 		vbfDebtsWithPayments = 0x00002000, // Долговые документы с оплатами
-		vbfPoolOnly          = 0x00004000, // Только пулы документов
-		vbfShowAck           = 0x00008000, // Показывать с номерами подтверждений
+		vbfPoolOnly  = 0x00004000, // Только пулы документов
+		vbfShowAck   = 0x00008000, // Показывать с номерами подтверждений
 		vbfEditPoolByType    = 0x00010000, // Изменения пула производить с помощью AssocID
 		vbfIgnoreRtPeriod    = 0x00020000  // @internal Функция PPViewBill::Init не должна устанавливать пересечение this->Period с периодом доступа на чтение.
 	}
@@ -4567,7 +4567,7 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Интерфейс фильтра по документам
 	//
 	enum PpyVBrowseBillsType {
-		vbbbtUndef          = -1,
+		vbbbtUndef  = -1,
 		vbbbtGoodsBills     =  0,
 		vbbbtOrderBills     =  1,
 		vbbbtAccturnBills   =  2,
@@ -4739,25 +4739,25 @@ library PapyrusInterfaceLib version(1.1) {
 	// Интерфейс фильтра по товарному отчету по операции
 	//
 	enum PpyVGoodsOpAnlzOpGrp { // OpGrp
-		vgoaogSelected          = 0,      // На выбор (opr)
-		vgoaogIncoming          = 1,      // Все операции, приносящие доход (расход товара)
+		vgoaogSelected  = 0,      // На выбор (opr)
+		vgoaogIncoming  = 1,      // Все операции, приносящие доход (расход товара)
 		vgoaogProfitable        = 2,      // Все доходные операции, включая возвраты
-		vgoaogPayed             = 3,      // Все оплаченные доходные операции
+		vgoaogPayed     = 3,      // Все оплаченные доходные операции
 		vgoaogInOutAnalyze      = 4       // Анализ вход-выход (по обобщенной операции или по модификации)
 	}
 
 	enum PpyVGoodsOpAnlzFlags {
-		vgoafLabelOnly           = 0x00000001, // Только по WL-документам
-		vgoafDiffByPrice         = 0x00000002, // Разбивать по ценам реализации
+		vgoafLabelOnly   = 0x00000001, // Только по WL-документам
+		vgoafDiffByPrice = 0x00000002, // Разбивать по ценам реализации
 		vgoafDiffByNetPrice      = 0x00000004, // Разбивать по чистым ценам реализации
-		vgoafIntrReval           = 0x00000008, // Разница цен при межскладском перемещении
+		vgoafIntrReval   = 0x00000008, // Разница цен при межскладском перемещении
 		vgoafPriceWithoutExcise  = 0x00000010, // Из цены реализации вычитать акциз
-		vgoafUseABCAnlz          = 0x00000020, // Использовать ABC анализ
-		vgoafCalcRest            = 0x00000040, // Рассчитывать колонку остатков
+		vgoafUseABCAnlz  = 0x00000020, // Использовать ABC анализ
+		vgoafCalcRest    = 0x00000040, // Рассчитывать колонку остатков
 		vgoafPriceDeviation      = 0x00000080, // Отклонение цен
 		vgoafDisplayWoPacks      = 0x00000100, // Количество показывать без упаковок
 		vgoafEachLocation        = 0x00000200, // Раздельно по каждому складу
-		vgoafCalcOrder           = 0x00000400, // @v5.5.10 Рассчитывать незакрытые заказы (количество)
+		vgoafCalcOrder   = 0x00000400, // @v5.5.10 Рассчитывать незакрытые заказы (количество)
 		vgoafShowSStatSales      = 0x00000800, // @v5.5.10 Показывать средне-дневные продажи из статистики продаж
 		vgoafCompareWithReceipt  = 0x00001000, // @v5.6.9 AHTOXA // Сравнивать с документами закупки
 		vgoafUnprofitableGoods   = 0x00002000, // Убыточные товары
@@ -4879,15 +4879,15 @@ library PapyrusInterfaceLib version(1.1) {
 	//
 	//
 	enum PpyVPrjTaskFlags {
-		vprjtfUnbindedOnly         = 0x0001, // Показывать только задачи, не привязанные к проектам
-		vprjtfUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
+		vprjtfUnbindedOnly = 0x0001, // Показывать только задачи, не привязанные к проектам
+		vprjtfUnviewedOnly = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
 		vprjtfUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
 		vprjtfNotShowPPWaitOnInit  = 0x0008  // @v5.4.11 VADIM Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
 	}
 
 	enum PpyVPrjTaskSortOrder {
 		vprjtoByDefault     = 0,
-		vprjtoByDt          = 1,
+		vprjtoByDt  = 1,
 		vprjtoByStartDt     = 2,
 		vprjtoByEstFinishDt = 3,
 		vprjtoByFinishDt    = 4,
@@ -4898,7 +4898,7 @@ library PapyrusInterfaceLib version(1.1) {
 	}
 
 	enum PpyVPrjTaskTabType {
-		vprjtctNone           = 0,
+		vprjtctNone   = 0,
 		vprjtctDateHour       = 1,
 		vprjtctClientDate     = 2,
 		vprjtctEmployerDate   = 3,
@@ -4907,7 +4907,7 @@ library PapyrusInterfaceLib version(1.1) {
 	}
 
 	enum PpyVPrjTaskTabParam {
-		vprjtctpNone           = 0,
+		vprjtctpNone   = 0,
 		vprjtctpUnComplTask    = 1,
 		vprjtctpComplTaskRatio = 2,
 		vprjtctpWrofBillPrct   = 3,

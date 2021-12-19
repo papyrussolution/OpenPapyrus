@@ -1289,8 +1289,8 @@ void GnuPlot::UpdatePlotBounds(GpTermEntry * pTerm)
 	Ev.FillGpValInteger("GPVAL_TERM_YSIZE", V.BbCanvas.ytop+1);
 	Ev.FillGpValInteger("GPVAL_TERM_SCALE", static_cast<intgr_t>(pTerm->tscale));
 	// May be useful for debugging font problems 
-	Ev.FillGpValInteger("GPVAL_TERM_HCHAR", pTerm->ChrH);
-	Ev.FillGpValInteger("GPVAL_TERM_VCHAR", pTerm->ChrV);
+	Ev.FillGpValInteger("GPVAL_TERM_HCHAR", pTerm->CH());
+	Ev.FillGpValInteger("GPVAL_TERM_VCHAR", pTerm->CV());
 }
 // 
 // Put all the handling for GPVAL_* variables in this one routine.
@@ -1343,7 +1343,7 @@ void GnuPlot::UpdateGpvalVariables(GpTermEntry * pTerm, int context)
 		if(!pTerm)
 			Ev.FillGpValString("GPVAL_TERM", "unknown");
 		else
-			Ev.FillGpValString("GPVAL_TERM", pTerm->name);
+			Ev.FillGpValString("GPVAL_TERM", pTerm->GetName());
 		Ev.FillGpValString("GPVAL_TERMOPTIONS", GPT._TermOptions);
 		Ev.FillGpValString("GPVAL_OUTPUT", NZOR(GPT.P_OutStr, ""));
 		Ev.FillGpValString("GPVAL_ENCODING", encoding_names[GPT._Encoding]);

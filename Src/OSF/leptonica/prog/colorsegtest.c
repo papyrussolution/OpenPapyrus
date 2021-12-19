@@ -49,6 +49,10 @@
  *      180 6 0 6     (3 colors)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 static const l_int32    MAX_DIST      = 120;
@@ -73,7 +77,6 @@ static char  mainName[] = "colorsegtest";
             "                     max_colors = 15\n"
             "                     sel_size = 4\n"
             "                     final_colors = 15\n", mainName, 1);
-
     filein = argv[1];
     fileout = argv[2];
     if (argc == 3) {  /* use default values */
@@ -88,6 +91,7 @@ static char  mainName[] = "colorsegtest";
         sel_size = atoi(argv[5]);
         final_colors = atoi(argv[6]);
     }
+    setLeptDebugOK(1);
 
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
@@ -95,7 +99,7 @@ static char  mainName[] = "colorsegtest";
     pixt = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
     pixd = pixColorSegment(pixt, max_dist, max_colors, sel_size,
                            final_colors, 1);
-    fprintf(stderr, "Time to segment: %7.3f sec\n", stopTimer());
+    lept_stderr("Time to segment: %7.3f sec\n", stopTimer());
     pixWrite(fileout, pixd, IFF_PNG);
 
     pixDestroy(&pixs);

@@ -364,8 +364,8 @@ typedef enum {
  * described per-function basis.
  */
 typedef enum {
-	LZMA_OK                 = 0, // Operation completed successfully
-	LZMA_STREAM_END         = 1,
+	LZMA_OK         = 0, // Operation completed successfully
+	LZMA_STREAM_END = 1,
 	/**<
 	 * \brief       End of stream was reached
 	 *
@@ -376,7 +376,7 @@ typedef enum {
 	 * In all cases, when LZMA_STREAM_END is returned, the last
 	 * output bytes should be picked from strm->next_out.
 	 */
-	LZMA_NO_CHECK           = 2,
+	LZMA_NO_CHECK   = 2,
 	/**<
 	 * \brief       Input stream has no integrity check
 	 *
@@ -414,7 +414,7 @@ typedef enum {
 	 * LZMA_UNSUPPORTED_CHECK. This way it is possible to find
 	 * out what the unsupported Check ID was.
 	 */
-	LZMA_GET_CHECK          = 4,
+	LZMA_GET_CHECK  = 4,
 	/**<
 	 * \brief       Integrity check type is now available
 	 *
@@ -426,7 +426,7 @@ typedef enum {
 	 * implement a decoder that accepts only files that have
 	 * strong enough integrity check.
 	 */
-	LZMA_MEM_ERROR          = 5,
+	LZMA_MEM_ERROR  = 5,
 	/**<
 	 * \brief       Cannot allocate memory
 	 *
@@ -466,7 +466,7 @@ typedef enum {
 	 * Rebuilding liblzma with more features enabled, or
 	 * upgrading to a newer version of liblzma may help.
 	 */
-	LZMA_DATA_ERROR         = 9,
+	LZMA_DATA_ERROR = 9,
 	/**<
 	 * \brief       Data is corrupt
 	 *
@@ -484,7 +484,7 @@ typedef enum {
 	 * This can mean, for example, invalid CRC32 in headers
 	 * or invalid check of uncompressed data.
 	 */
-	LZMA_BUF_ERROR          = 10,
+	LZMA_BUF_ERROR  = 10,
 	/**<
 	 * \brief       No progress is possible
 	 *
@@ -509,7 +509,7 @@ typedef enum {
 	 * is truncated or corrupt. This should simplify the
 	 * applications a little.
 	 */
-	LZMA_PROG_ERROR         = 11,
+	LZMA_PROG_ERROR = 11,
 	/**<
 	 * \brief       Programming error
 	 *
@@ -3416,7 +3416,7 @@ typedef struct {
  * \brief       Operation mode for lzma_index_iter_next()
  */
 typedef enum {
-	LZMA_INDEX_ITER_ANY             = 0,
+	LZMA_INDEX_ITER_ANY     = 0,
 	/**<
 	 * \brief       Get the next Block or Stream
 	 *
@@ -3427,7 +3427,7 @@ typedef enum {
 	 * lzma_index_iter.block will have undefined values.
 	 */
 
-	LZMA_INDEX_ITER_STREAM          = 1,
+	LZMA_INDEX_ITER_STREAM  = 1,
 	/**<
 	 * \brief       Get the next Stream
 	 *
@@ -3438,7 +3438,7 @@ typedef enum {
 	 * undefined values.
 	 */
 
-	LZMA_INDEX_ITER_BLOCK           = 2,
+	LZMA_INDEX_ITER_BLOCK   = 2,
 	/**<
 	 * \brief       Get the next Block
 	 *

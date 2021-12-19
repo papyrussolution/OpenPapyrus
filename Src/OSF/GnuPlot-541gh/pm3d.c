@@ -241,7 +241,7 @@ void GnuPlot::Pm3DDepthQueueClear()
 void GnuPlot::Pm3DDepthQueueFlush(GpTermEntry * pTerm)
 {
 	if(_Pm3D.pm3d.direction == PM3D_DEPTH || _Pm3D.track_pm3d_quadrangles) {
-		pTerm->layer(pTerm, TERM_LAYER_BEGIN_PM3D_FLUSH);
+		pTerm->Layer_(TERM_LAYER_BEGIN_PM3D_FLUSH);
 		if(_Pm3D.current_quadrangle > 0 && _Pm3D.P_Quadrangles) {
 			Quadrangle * qp;
 			Quadrangle * qe;
@@ -275,7 +275,7 @@ void GnuPlot::Pm3DDepthQueueFlush(GpTermEntry * pTerm)
 				if(qp->gray == PM3D_USE_COLORSPEC_INSTEAD_OF_GRAY)
 					ApplyPm3DColor(pTerm, qp->qcolor.colorspec);
 				else if(qp->gray == PM3D_USE_BACKGROUND_INSTEAD_OF_GRAY)
-					pTerm->linetype(pTerm, LT_BACKGROUND);
+					pTerm->SetLineType_(LT_BACKGROUND);
 				else if(qp->gray == PM3D_USE_RGB_COLOR_INSTEAD_OF_GRAY)
 					SetRgbColorVar(pTerm, qp->qcolor.rgb_color);
 				else if(_Pm3D.pm3d_shade.strength > 0)
@@ -294,7 +294,7 @@ void GnuPlot::Pm3DDepthQueueFlush(GpTermEntry * pTerm)
 		}
 		Pm3DDepthQueueClear();
 		_Pm3D.FreePolygonList();
-		pTerm->layer(pTerm, TERM_LAYER_END_PM3D_FLUSH);
+		pTerm->Layer_(TERM_LAYER_END_PM3D_FLUSH);
 	}
 }
 // 
@@ -341,7 +341,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 			return;
 		// for pm3dCompress.awk and pm3dConvertToImage.awk 
 		if(_Pm3D.pm3d.direction != PM3D_DEPTH)
-			pTerm->layer(pTerm, TERM_LAYER_BEGIN_PM3D_MAP);
+			pTerm->Layer_(TERM_LAYER_BEGIN_PM3D_MAP);
 		switch(at_which_z) {
 			case PM3D_AT_BASE: corners[0].z = corners[1].z = corners[2].z = corners[3].z = _3DBlk.base_z; break;
 			case PM3D_AT_TOP:  corners[0].z = corners[1].z = corners[2].z = corners[3].z = _3DBlk.ceiling_z; break;
@@ -863,7 +863,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 		_Pm3D.pm3d_plot_at = 0;
 		// for pm3dCompress.awk and pm3dConvertToImage.awk 
 		if(_Pm3D.pm3d.direction != PM3D_DEPTH)
-			pTerm->layer(pTerm, TERM_LAYER_END_PM3D_MAP);
+			pTerm->Layer_(TERM_LAYER_END_PM3D_MAP);
 	}
 }
 //
@@ -1305,15 +1305,15 @@ void GnuPlot::FilledPolygon(GpTermEntry * pTerm, gpdPoint * corners, int fillsty
 			icorners[0].style = FS_OPAQUE;
 		else
 			icorners[0].style = style_from_fill(&Gg.default_fillstyle);
-		pTerm->filled_polygon(pTerm, nv, icorners);
+		pTerm->FilledPolygon_(nv, icorners);
 		if(_Pm3D.pm3d.border.l_type != LT_NODRAW) {
 			// LT_DEFAULT means draw border in current color 
 			// FIXME: currently there is no obvious way to set LT_DEFAULT  
 			if(_Pm3D.pm3d.border.l_type != LT_DEFAULT)
 				TermApplyLpProperties(pTerm, &_Pm3D.pm3d.border);
-			pTerm->move(pTerm, icorners[0].x, icorners[0].y);
+			pTerm->Mov_(icorners[0].x, icorners[0].y);
 			for(i = nv-1; i >= 0; i--) {
-				pTerm->vector(pTerm, icorners[i].x, icorners[i].y);
+				pTerm->Vec_(icorners[i].x, icorners[i].y);
 			}
 		}
 	}

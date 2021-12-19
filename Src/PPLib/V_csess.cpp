@@ -834,7 +834,7 @@ int PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 				else {
 					CSessTotal  cs_total;
 					CsObj.P_Cc->GetSessTotal(sess_id, CsObj.P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0);
-					sa_entry.SessID         = sess_id;
+					sa_entry.SessID = sess_id;
 					sa_entry.ChkCount       = cs_total.CheckCount;
 					sa_entry.WORetAmount    = cs_total.WORetAmount;
 					sa_entry.WORetBnkAmount = cs_total.WORetBnkAmount;
@@ -858,13 +858,13 @@ int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 	int    ok = 1;
 	TempCSessChecksTbl::Rec csch_rec;
 	// @v10.6.4 MEMSZERO(csch_rec);
-	csch_rec.ID          = pRec->ID;
+	csch_rec.ID  = pRec->ID;
 	csch_rec.SuperSessID = pRec->SuperSessID;
 	csch_rec.CashNodeID  = pRec->CashNodeID;
 	csch_rec.CashNumber  = pRec->CashNumber;
 	csch_rec.SessNumber  = pRec->SessNumber;
-	csch_rec.Dt          = pRec->Dt;
-	csch_rec.Tm          = pRec->Tm;
+	csch_rec.Dt  = pRec->Dt;
+	csch_rec.Tm  = pRec->Tm;
 	csch_rec.Incomplete  = pRec->Incomplete;
 	csch_rec.Amount      = pRec->Amount;
 	csch_rec.Discount    = pRec->Discount;
@@ -2941,13 +2941,13 @@ int PPALDD_CSession::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = rFilt.ID;
 		CSessionTbl::Rec rec;
 		if(static_cast<PPObjCSession *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
-			H.ID          = rec.ID;
+			H.ID  = rec.ID;
 			H.CashNodeID  = rec.CashNodeID;
 			H.SuperSessID = rec.SuperSessID;
 			H.SessNumber  = rec.SessNumber;
 			H.CashNumber  = rec.CashNumber;
-			H.Dt          = rec.Dt;
-			H.Tm          = rec.Tm;
+			H.Dt  = rec.Dt;
+			H.Tm  = rec.Tm;
 			H.Amount      = rec.Amount;
 			H.Discount    = rec.Discount;
 			H.AggrAmount  = rec.AggrAmount;
@@ -2992,10 +2992,10 @@ int PPALDD_CSessionView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 int PPALDD_CSessionView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(CSess);
-	I.SessID          = item.ID;
+	I.SessID  = item.ID;
 	I.SessIncomplete  = item.Incomplete;
 	I.WrOffRcptAmount = item.WrOffCost;
-	I.Income          = item.Income;
+	I.Income  = item.Income;
 	I.CheckCount      = item.ChkCount;
 	I.WORetAmount     = item.WORetAmount;
 	I.RetAmount       = item.WORetAmount - item.Amount;

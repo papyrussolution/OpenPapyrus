@@ -774,10 +774,10 @@ static int solve_cubic_1(tri_diag m[], int n)
 	d = m[0][1]; /* D_{0,0} = M_{0,0} */
 	if(d <= 0.)
 		return FALSE; /* M (or D) should be positive definite */
-	m_n = m[0][0]; /*  M_{0,n-1}  */
+	m_n = m[0][0]; /* M_{0,n-1}  */
 	m_nn = m[n-1][1]; /* M_{n-1,n-1} */
 	for(i = 0; i < n - 2; i++) {
-		m_ij = m[i][2]; /*  M_{i,1}  */
+		m_ij = m[i][2]; /* M_{i,1}  */
 		m[i][2] = m_ij / d; /* C_{i,i+1} */
 		m[i][0] = m_n / d; /* C_{i,n-1} */
 		m_nn -= m[i][0] * m_n; /* to get C_{n-1,n-1} */
@@ -820,7 +820,7 @@ static void solve_cubic_2(tri_diag m[], double x[], int n)
 	if(n >= 2)
 		x[n - 2] -= m[n - 2][0] * x_n; /* C_{n-2,n-1} * x_{n-1} */
 	for(i = n - 3; i >= 0; i--) {
-		/*      C_{i,i+1} * x_{i+1} + C_{i,n-1} * x_{n-1} */
+		/* C_{i,i+1} * x_{i+1} + C_{i,n-1} * x_{n-1} */
 		x[i] -= m[i][2] * x[i+1] + m[i][0] * x_n;
 	}
 }
@@ -855,7 +855,7 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 		//
 		delta_t[i] = sqrt(SQR(d2x[i] / unit_x) + SQR(d2y[i] / unit_y));
 		d2x[i] /= delta_t[i]; /* first difference, with unit norm: */
-		d2y[i] /= delta_t[i]; /*   || (d2x[i], d2y[i]) || = 1      */
+		d2y[i] /= delta_t[i]; /* || (d2x[i], d2y[i]) || = 1      */
 		pc_temp = pc_temp->next;
 	}
 	// 
@@ -915,7 +915,7 @@ int GnuPlot::GenCubicSpline(int num_pts/* Number of points (num_pts>=3), input *
 	}
 	else {
 		d2x[0] = d2x[1]; /* Third derivative is zero in */
-		d2y[0] = d2y[1]; /*     first and last interval */
+		d2y[0] = d2y[1]; /* first and last interval */
 		d2x[n + 1] = d2x[n];
 		d2y[n + 1] = d2y[n];
 	}

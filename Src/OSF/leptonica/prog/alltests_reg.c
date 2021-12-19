@@ -42,88 +42,166 @@
  *    large number of images will be displayed on the screen.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
 static const char *tests[] = {
+                              "adaptmap_reg",
+                              "adaptnorm_reg",
+                              "affine_reg",
                               "alphaops_reg",
                               "alphaxform_reg",
+                              "baseline_reg",
                               "bilateral2_reg",
+                              "bilinear_reg",
                               "binarize_reg",
+                              "binmorph1_reg",
+                              "binmorph3_reg",
+                              "binmorph6_reg",
                               "blackwhite_reg",
+                              "blend1_reg",
+                              "blend2_reg",
                               "blend3_reg",
                               "blend4_reg",
+                              "blend5_reg",
+                              "boxa1_reg",
+                              "boxa2_reg",
+                              "boxa3_reg",
+                              "boxa4_reg",
+                              "bytea_reg",
+                              "ccbord_reg",
+                              "ccthin1_reg",
+                              "ccthin2_reg",
+                              "checkerboard_reg",
+                              "circle_reg",
                               "cmapquant_reg",
                               "colorcontent_reg",
+                              "colorfill_reg",
                               "coloring_reg",
                               "colorize_reg",
                               "colormask_reg",
+                              "colormorph_reg",
                               "colorquant_reg",
                               "colorseg_reg",
                               "colorspace_reg",
                               "compare_reg",
+                              "compfilter_reg",
+                              "conncomp_reg",
+                              "conversion_reg",
                               "convolve_reg",
+                              "crop_reg",
                               "dewarp_reg",
                               "distance_reg",
+                              "dither_reg",
                               "dna_reg",
                               "dwamorph1_reg",
+                              "edge_reg",
+                              "encoding_reg",
                               "enhance_reg",
+                              "equal_reg",
+                              "expand_reg",
+                              "extrema_reg",
+                              "falsecolor_reg",
+                              "fhmtauto_reg",
                          /*   "files_reg",  */
                               "findcorners_reg",
                               "findpattern_reg",
+                              "flipdetect_reg",
                               "fpix1_reg",
                               "fpix2_reg",
                               "genfonts_reg",
 #if HAVE_LIBGIF
                               "gifio_reg",
 #endif  /* HAVE_LIBGIF */
+                              "grayfill_reg",
+                              "graymorph1_reg",
                               "graymorph2_reg",
+                              "grayquant_reg",
                               "hardlight_reg",
+                              "hash_reg",
+                              "heap_reg",
                               "insert_reg",
                               "ioformats_reg",
+                              "iomisc_reg",
+                              "italic_reg",
+                              "jbclass_reg",
 #if HAVE_LIBJP2K
                               "jp2kio_reg",
 #endif  /* HAVE_LIBJP2K */
                               "jpegio_reg",
                               "kernel_reg",
                               "label_reg",
+                              "lineremoval_reg",
+                              "locminmax_reg",
+                              "logicops_reg",
+                              "lowaccess_reg",
+                              "lowsat_reg",
                               "maze_reg",
+                              "mtiff_reg",
                               "multitype_reg",
+                              "numa1_reg",
+                              "numa2_reg",
                               "nearline_reg",
                               "newspaper_reg",
                               "overlap_reg",
+                              "pageseg_reg",
                               "paint_reg",
                               "paintmask_reg",
+                              "pdfio1_reg",
+                              "pdfio2_reg",
                               "pdfseg_reg",
+                              "pixa1_reg",
                               "pixa2_reg",
+                              "pixadisp_reg",
+                              "pixcomp_reg",
+                              "pixmem_reg",
                               "pixserial_reg",
                               "pngio_reg",
                               "pnmio_reg",
                               "projection_reg",
+                              "projective_reg",
                               "psio_reg",
                               "psioseg_reg",
                               "pta_reg",
+                              "ptra1_reg",
+                              "ptra2_reg",
+                              "quadtree_reg",
+                              "rank_reg",
                               "rankbin_reg",
                               "rankhisto_reg",
+                              "rasterop_reg",
                               "rasteropip_reg",
-                              "rotateorth_reg",
+                              "rectangle_reg",
                               "rotate1_reg",
                               "rotate2_reg",
+                              "rotateorth_reg",
                               "scale_reg",
                               "seedspread_reg",
                               "selio_reg",
                               "shear1_reg",
                               "shear2_reg",
                               "skew_reg",
+                              "smallpix_reg",
+                              "speckle_reg",
                               "splitcomp_reg",
+                              "string_reg",
                               "subpixel_reg",
                               "texturefill_reg",
                               "threshnorm_reg",
                               "translate_reg",
                               "warper_reg",
+                              "watershed_reg",
+#if HAVE_LIBWEBP_ANIM
+                              "webpanimio_reg",
+#endif  /* HAVE_LIBWEBP_ANIM */
 #if HAVE_LIBWEBP
                               "webpio_reg",
 #endif  /* HAVE_LIBWEBP */
+                              "wordboxes_reg",
                               "writetext_reg",
                               "xformbox_reg",
                              };
@@ -145,10 +223,11 @@ static char  mainName[] = "alltests_reg";
         return ERROR_INT(" Syntax alltests_reg [generate | compare | display]",
                          mainName, 1);
 
+    setLeptDebugOK(1);  /* required for testing */
     l_getCurrentTime(&start, NULL);
     ntests = sizeof(tests) / sizeof(char *);
-    fprintf(stderr, "Running alltests_reg:\n"
-            "This currently tests %d of the 120 Regression Test\n"
+    lept_stderr("Running alltests_reg:\n"
+            "This currently tests %d regression test\n"
             "programs in the /prog directory.\n", ntests);
 
         /* Clear the output file if we're doing the set of reg tests */
@@ -156,7 +235,7 @@ static char  mainName[] = "alltests_reg";
     if (dotest) {
         results_file = genPathname("/tmp/lept", "reg_results.txt");
         sa = sarrayCreate(3);
-        sarrayAddString(sa, (char *)header, L_COPY);
+        sarrayAddString(sa, header, L_COPY);
         sarrayAddString(sa, getLeptonicaVersion(), L_INSERT);
         sarrayAddString(sa, getImagelibVersions(), L_INSERT);
         str = sarrayToString(sa, 1);
@@ -181,7 +260,7 @@ static char  mainName[] = "alltests_reg";
                 nfail++;
             }
             else
-                fprintf(stderr, "%s", buf);
+                lept_stderr("%s", buf);
         }
     }
 
@@ -193,11 +272,11 @@ static char  mainName[] = "alltests_reg";
 #endif  /* !_WIN32 */
         lept_free(results_file);
         ret = system(command);
-        fprintf(stderr, "Success in %d of %d *_reg programs (output matches"
+        lept_stderr("Success in %d of %d *_reg programs (output matches"
                 " the \"golden\" files)\n", ntests - nfail, ntests);
     }
 
     l_getCurrentTime(&stop, NULL);
-    fprintf(stderr, "Time for all regression tests: %d sec\n", stop - start);
+    lept_stderr("Time for all regression tests: %d sec\n", stop - start);
     return 0;
 }

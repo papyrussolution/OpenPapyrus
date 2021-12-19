@@ -192,28 +192,26 @@ struct _cairo_font_options {
 struct _cairo_glyph_text_info {
 	const char * utf8;
 	int utf8_len;
-
 	const cairo_text_cluster_t * clusters;
 	int num_clusters;
 	cairo_text_cluster_flags_t cluster_flags;
 };
-
-/* XXX: Right now, the _cairo_color structure puts unpremultiplied
-   color in the doubles and premultiplied color in the shorts. Yes,
-   this is crazy insane, (but at least we don't export this
-   madness). I'm still working on a cleaner API, but in the meantime,
-   at least this does prevent precision loss in color when changing
-   alpha. */
+// 
+// XXX: Right now, the _cairo_color structure puts unpremultiplied
+// color in the doubles and premultiplied color in the shorts. Yes,
+// this is crazy insane, (but at least we don't export this madness). 
+// I'm still working on a cleaner API, but in the meantime,
+// at least this does prevent precision loss in color when changing alpha.
+// 
 struct _cairo_color {
 	double red;
 	double green;
 	double blue;
 	double alpha;
-
-	unsigned short red_short;
-	unsigned short green_short;
-	unsigned short blue_short;
-	unsigned short alpha_short;
+	ushort red_short;
+	ushort green_short;
+	ushort blue_short;
+	ushort alpha_short;
 };
 
 struct _cairo_color_stop {
@@ -222,7 +220,6 @@ struct _cairo_color_stop {
 	double green;
 	double blue;
 	double alpha;
-
 	/* unpremultipled, for convenience */
 	uint16 red_short;
 	uint16 green_short;

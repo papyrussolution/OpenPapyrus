@@ -1,4 +1,4 @@
-/*  library.c - external functions of libzint
+/* library.c - external functions of libzint
 
     libzint - the open source barcode library
     Copyright (C) 2009-2016 Robin Stuart <rstuart114@gmail.com>

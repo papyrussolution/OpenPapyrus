@@ -172,23 +172,23 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
 
         Ex = (x - (x+ + x-) / 2)
         Ex = (M cos(t) - (Mcos(t+∆) + Mcos(t-∆))/2)
-           = M (cos(t) - (cos(t)cos(∆) + sin(t)sin(∆) +
+   = M (cos(t) - (cos(t)cos(∆) + sin(t)sin(∆) +
                           cos(t)cos(∆) - sin(t)sin(∆))/2)
-           = M(cos(t) - cos(t)cos(∆))
-           = M cos(t) (1 - cos(∆))
+   = M(cos(t) - cos(t)cos(∆))
+   = M cos(t) (1 - cos(∆))
 
         Ey = y - (y+ - y-) / 2
-           = m sin (t) - (m sin(t+∆) + m sin(t-∆)) / 2
-           = m (sin(t) - (sin(t)cos(∆) + cos(t)sin(∆) +
+   = m sin (t) - (m sin(t+∆) + m sin(t-∆)) / 2
+   = m (sin(t) - (sin(t)cos(∆) + cos(t)sin(∆) +
                           sin(t)cos(∆) - cos(t)sin(∆))/2)
-           = m (sin(t) - sin(t)cos(∆))
-           = m sin(t) (1 - cos(∆))
+   = m (sin(t) - sin(t)cos(∆))
+   = m sin(t) (1 - cos(∆))
 
         E² = Ex² + Ey²
-           = (M cos(t) (1 - cos (∆)))² + (m sin(t) (1-cos(∆)))²
-           = (1 - cos(∆))² (M² cos²(t) + m² sin²(t))
-           = (1 - cos(∆))² ((m² + M² - m²) cos² (t) + m² sin²(t))
-           = (1 - cos(∆))² (M² - m²) cos² (t) + (1 - cos(∆))² m²
+   = (M cos(t) (1 - cos (∆)))² + (m sin(t) (1-cos(∆)))²
+   = (1 - cos(∆))² (M² cos²(t) + m² sin²(t))
+   = (1 - cos(∆))² ((m² + M² - m²) cos² (t) + m² sin²(t))
+   = (1 - cos(∆))² (M² - m²) cos² (t) + (1 - cos(∆))² m²
 
    Find the extremum by differentiation wrt t and setting that to zero
 
@@ -202,7 +202,7 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
    axes of the ellipse at 0 and π radians:
 
         E²(0) = (1-cos(∆))² (M² - m²) + (1-cos(∆))² m²
-              = (1-cos(∆))² M²
+      = (1-cos(∆))² M²
         E²(π) = (1-cos(∆))² m²
 
    maximum error = M (1-cos(∆))
@@ -219,7 +219,7 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
    the number of vertices is then
 
              vertices = ceil(2π/2∆).
-                      = ceil(π/∆).
+              = ceil(π/∆).
 
    Note that this also equation works for M == m (a circle) as it
    doesn't matter where on the circle the error is computed.

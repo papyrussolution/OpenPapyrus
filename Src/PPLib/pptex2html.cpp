@@ -1778,7 +1778,7 @@ public:
 		int    GetExtStrData(int fldID, SString & rBuf) const;
 		int    PutExtStrData(int fldID, const char * pBuf);
 		enum {
-			fDivide           = 0x0001,
+			fDivide   = 0x0001,
 			fAttachToWorkbook = 0x0002,
 			fUtf8Codepage     = 0x0004
 		};

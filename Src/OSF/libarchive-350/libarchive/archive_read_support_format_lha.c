@@ -194,49 +194,49 @@ struct lha {
 #define H_LEVEL_OFFSET  20      /* Header Level.  */
 #define H_SIZE          22      /* Minimum header size. */
 
-static int      archive_read_format_lha_bid(struct archive_read *, int);
-static int      archive_read_format_lha_options(struct archive_read *,
+static int archive_read_format_lha_bid(struct archive_read *, int);
+static int archive_read_format_lha_options(struct archive_read *,
     const char *, const char *);
-static int      archive_read_format_lha_read_header(struct archive_read *,
+static int archive_read_format_lha_read_header(struct archive_read *,
     struct archive_entry *);
-static int      archive_read_format_lha_read_data(struct archive_read *,
+static int archive_read_format_lha_read_data(struct archive_read *,
     const void **, size_t *, int64 *);
-static int      archive_read_format_lha_read_data_skip(struct archive_read *);
-static int      archive_read_format_lha_cleanup(struct archive_read *);
+static int archive_read_format_lha_read_data_skip(struct archive_read *);
+static int archive_read_format_lha_cleanup(struct archive_read *);
 
 static void     lha_replace_path_separator(struct lha *,
     struct archive_entry *);
-static int      lha_read_file_header_0(struct archive_read *, struct lha *);
-static int      lha_read_file_header_1(struct archive_read *, struct lha *);
-static int      lha_read_file_header_2(struct archive_read *, struct lha *);
-static int      lha_read_file_header_3(struct archive_read *, struct lha *);
-static int      lha_read_file_extended_header(struct archive_read *,
+static int lha_read_file_header_0(struct archive_read *, struct lha *);
+static int lha_read_file_header_1(struct archive_read *, struct lha *);
+static int lha_read_file_header_2(struct archive_read *, struct lha *);
+static int lha_read_file_header_3(struct archive_read *, struct lha *);
+static int lha_read_file_extended_header(struct archive_read *,
     struct lha *, uint16_t *, int, size_t, size_t *);
 static size_t   lha_check_header_format(const void *);
-static int      lha_skip_sfx(struct archive_read *);
+static int lha_skip_sfx(struct archive_read *);
 static time_t   lha_dos_time(const uchar *);
 static time_t   lha_win_time(uint64, long *);
 static uchar    lha_calcsum(uchar, const void *,
     int, size_t);
-static int      lha_parse_linkname(struct archive_wstring *,
+static int lha_parse_linkname(struct archive_wstring *,
     struct archive_wstring *);
-static int      lha_read_data_none(struct archive_read *, const void **,
+static int lha_read_data_none(struct archive_read *, const void **,
     size_t *, int64 *);
-static int      lha_read_data_lzh(struct archive_read *, const void **,
+static int lha_read_data_lzh(struct archive_read *, const void **,
     size_t *, int64 *);
 static void     lha_crc16_init(void);
 static uint16_t lha_crc16(uint16_t, const void *, size_t);
-static int      lzh_decode_init(struct lzh_stream *, const char *);
+static int lzh_decode_init(struct lzh_stream *, const char *);
 static void     lzh_decode_free(struct lzh_stream *);
-static int      lzh_decode(struct lzh_stream *, int);
-static int      lzh_br_fillup(struct lzh_stream *, struct lzh_dec::lzh_br *);
-static int      lzh_huffman_init(struct lzh_dec::huffman *, size_t, int);
+static int lzh_decode(struct lzh_stream *, int);
+static int lzh_br_fillup(struct lzh_stream *, struct lzh_dec::lzh_br *);
+static int lzh_huffman_init(struct lzh_dec::huffman *, size_t, int);
 static void     lzh_huffman_free(struct lzh_dec::huffman *);
-static int      lzh_read_pt_bitlen(struct lzh_stream *, int start, int end);
-static int      lzh_make_fake_table(struct lzh_dec::huffman *, uint16_t);
-static int      lzh_make_huffman_table(struct lzh_dec::huffman *);
+static int lzh_read_pt_bitlen(struct lzh_stream *, int start, int end);
+static int lzh_make_fake_table(struct lzh_dec::huffman *, uint16_t);
+static int lzh_make_huffman_table(struct lzh_dec::huffman *);
 static inline int lzh_decode_huffman(struct lzh_dec::huffman *, unsigned);
-static int      lzh_decode_huffman_tree(struct lzh_dec::huffman *, unsigned, int);
+static int lzh_decode_huffman_tree(struct lzh_dec::huffman *, unsigned, int);
 
 int archive_read_support_format_lha(struct archive * _a)
 {
@@ -1791,7 +1791,7 @@ static void lzh_decode_free(struct lzh_stream * strm)
  *    bytes. */
 #define lzh_br_read_ahead_0(strm, br, n)        \
 	(lzh_br_has(br, (n)) || lzh_br_fillup(strm, br))
-/*  True  : the cache buffer has some bits as much as we need.
+/* True  : the cache buffer has some bits as much as we need.
  *  False : there are no enough bits in the cache buffer to be used,
  *    we have to get following bytes if we could. */
 #define lzh_br_read_ahead(strm, br, n)  \
@@ -1905,8 +1905,8 @@ static int lzh_br_fillup(struct lzh_stream * strm, struct lzh_dec::lzh_br * br)
  *    zeros are treated as the mark of the end of the data although the zeros
  *    is dummy, not the file data.
  */
-static int      lzh_read_blocks(struct lzh_stream *, int);
-static int      lzh_decode_blocks(struct lzh_stream *, int);
+static int lzh_read_blocks(struct lzh_stream *, int);
+static int lzh_decode_blocks(struct lzh_stream *, int);
 #define ST_RD_BLOCK             0
 #define ST_RD_PT_1              1
 #define ST_RD_PT_2              2

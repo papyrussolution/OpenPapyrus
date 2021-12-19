@@ -28,7 +28,11 @@ extern "C" {
 		#define ONIG_EXTERN   extern
 	#endif
 #else
-	#define ONIG_EXTERN   extern
+	#ifdef __cplusplus
+		#define ONIG_EXTERN
+	#else
+		#define ONIG_EXTERN   extern
+	#endif	
 #endif
 #ifndef ONIG_VARIADIC_FUNC_ATTR
 	#define ONIG_VARIADIC_FUNC_ATTR
@@ -46,7 +50,7 @@ typedef uint  OnigLen;
 
 typedef uint OnigCaseFoldType; /* case fold flag */
 
-ONIG_EXTERN OnigCaseFoldType OnigDefaultCaseFoldFlag;
+extern OnigCaseFoldType OnigDefaultCaseFoldFlag;
 
 #define ONIGENC_CASE_FOLD_ASCII_ONLY            (1)
 /* #define ONIGENC_CASE_FOLD_HIRAGANA_KATAKANA  (1<<1) */
@@ -110,37 +114,37 @@ typedef struct OnigEncodingTypeST {
 
 typedef OnigEncodingType * OnigEncoding;
 
-ONIG_EXTERN OnigEncodingType OnigEncodingASCII;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_1;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_2;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_3;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_4;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_5;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_6;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_7;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_8;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_9;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_10;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_11;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_13;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_14;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_15;
-ONIG_EXTERN OnigEncodingType OnigEncodingISO_8859_16;
-ONIG_EXTERN OnigEncodingType OnigEncodingUTF8;
-ONIG_EXTERN OnigEncodingType OnigEncodingUTF16_BE;
-ONIG_EXTERN OnigEncodingType OnigEncodingUTF16_LE;
-ONIG_EXTERN OnigEncodingType OnigEncodingUTF32_BE;
-ONIG_EXTERN OnigEncodingType OnigEncodingUTF32_LE;
-ONIG_EXTERN OnigEncodingType OnigEncodingEUC_JP;
-ONIG_EXTERN OnigEncodingType OnigEncodingEUC_TW;
-ONIG_EXTERN OnigEncodingType OnigEncodingEUC_KR;
-ONIG_EXTERN OnigEncodingType OnigEncodingEUC_CN;
-ONIG_EXTERN OnigEncodingType OnigEncodingSJIS;
-ONIG_EXTERN OnigEncodingType OnigEncodingKOI8;
-ONIG_EXTERN OnigEncodingType OnigEncodingKOI8_R;
-ONIG_EXTERN OnigEncodingType OnigEncodingCP1251;
-ONIG_EXTERN OnigEncodingType OnigEncodingBIG5;
-ONIG_EXTERN OnigEncodingType OnigEncodingGB18030;
+extern OnigEncodingType OnigEncodingASCII;
+extern OnigEncodingType OnigEncodingISO_8859_1;
+extern OnigEncodingType OnigEncodingISO_8859_2;
+extern OnigEncodingType OnigEncodingISO_8859_3;
+extern OnigEncodingType OnigEncodingISO_8859_4;
+extern OnigEncodingType OnigEncodingISO_8859_5;
+extern OnigEncodingType OnigEncodingISO_8859_6;
+extern OnigEncodingType OnigEncodingISO_8859_7;
+extern OnigEncodingType OnigEncodingISO_8859_8;
+extern OnigEncodingType OnigEncodingISO_8859_9;
+extern OnigEncodingType OnigEncodingISO_8859_10;
+extern OnigEncodingType OnigEncodingISO_8859_11;
+extern OnigEncodingType OnigEncodingISO_8859_13;
+extern OnigEncodingType OnigEncodingISO_8859_14;
+extern OnigEncodingType OnigEncodingISO_8859_15;
+extern OnigEncodingType OnigEncodingISO_8859_16;
+extern OnigEncodingType OnigEncodingUTF8;
+extern OnigEncodingType OnigEncodingUTF16_BE;
+extern OnigEncodingType OnigEncodingUTF16_LE;
+extern OnigEncodingType OnigEncodingUTF32_BE;
+extern OnigEncodingType OnigEncodingUTF32_LE;
+extern OnigEncodingType OnigEncodingEUC_JP;
+extern OnigEncodingType OnigEncodingEUC_TW;
+extern OnigEncodingType OnigEncodingEUC_KR;
+extern OnigEncodingType OnigEncodingEUC_CN;
+extern OnigEncodingType OnigEncodingSJIS;
+extern OnigEncodingType OnigEncodingKOI8;
+extern OnigEncodingType OnigEncodingKOI8_R;
+extern OnigEncodingType OnigEncodingCP1251;
+extern OnigEncodingType OnigEncodingBIG5;
+extern OnigEncodingType OnigEncodingGB18030;
 
 #define ONIG_ENCODING_ASCII        (&OnigEncodingASCII)
 #define ONIG_ENCODING_ISO_8859_1   (&OnigEncodingISO_8859_1)
@@ -325,17 +329,17 @@ typedef struct {
 	OnigMetaCharTableType meta_char_table;
 } OnigSyntaxType;
 
-ONIG_EXTERN OnigSyntaxType OnigSyntaxASIS;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPosixBasic;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPosixExtended;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxEmacs;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxGrep;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxGnuRegex;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxJava;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPerl;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxPerl_NG;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxRuby;
-ONIG_EXTERN OnigSyntaxType OnigSyntaxOniguruma;
+extern OnigSyntaxType OnigSyntaxASIS;
+extern OnigSyntaxType OnigSyntaxPosixBasic;
+extern OnigSyntaxType OnigSyntaxPosixExtended;
+extern OnigSyntaxType OnigSyntaxEmacs;
+extern OnigSyntaxType OnigSyntaxGrep;
+extern OnigSyntaxType OnigSyntaxGnuRegex;
+extern OnigSyntaxType OnigSyntaxJava;
+extern OnigSyntaxType OnigSyntaxPerl;
+extern OnigSyntaxType OnigSyntaxPerl_NG;
+extern OnigSyntaxType OnigSyntaxRuby;
+extern OnigSyntaxType OnigSyntaxOniguruma;
 
 /* predefined syntaxes (see regsyntax.c) */
 #define ONIG_SYNTAX_ASIS               (&OnigSyntaxASIS)
@@ -351,7 +355,7 @@ ONIG_EXTERN OnigSyntaxType OnigSyntaxOniguruma;
 #define ONIG_SYNTAX_ONIGURUMA          (&OnigSyntaxOniguruma)
 
 /* default syntax */
-ONIG_EXTERN OnigSyntaxType*   OnigDefaultSyntax;
+extern OnigSyntaxType * OnigDefaultSyntax;
 #define ONIG_SYNTAX_DEFAULT   OnigDefaultSyntax
 
 /* syntax (operators) */
@@ -639,9 +643,9 @@ typedef enum {
 } OnigCalloutOf;
 
 typedef enum {
-	ONIG_CALLOUT_TYPE_SINGLE              = 0,
-	ONIG_CALLOUT_TYPE_START_CALL          = 1,
-	ONIG_CALLOUT_TYPE_BOTH_CALL           = 2,
+	ONIG_CALLOUT_TYPE_SINGLE      = 0,
+	ONIG_CALLOUT_TYPE_START_CALL  = 1,
+	ONIG_CALLOUT_TYPE_BOTH_CALL   = 2,
 	ONIG_CALLOUT_TYPE_START_MARK_END_CALL = 3,
 } OnigCalloutType;
 

@@ -546,7 +546,7 @@ static void mmcl_repeat_range_multiply(MinMaxCharLen* to, int mlow, int mhigh)
 static void FASTCALL mmcl_alt_merge(MinMaxCharLen* to, const MinMaxCharLen * alt)
 {
 	if(to->min > alt->min) {
-		to->min         = alt->min;
+		to->min = alt->min;
 		to->min_is_sure = alt->min_is_sure;
 	}
 	else if(to->min == alt->min) {
@@ -6054,7 +6054,7 @@ static int set_optimize_info_from_tree(Node * node, regex_t* reg, ScanEnv* scan_
 	int r;
 	OptNode opt;
 	OptEnv env;
-	env.enc            = reg->enc;
+	env.enc    = reg->enc;
 	env.case_fold_flag = reg->case_fold_flag;
 	env.scan_env       = scan_env;
 	mml_clear(&env.mm);
@@ -6620,13 +6620,13 @@ int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType case_fol
 		case_fold_flag &= ~(INTERNAL_ONIGENC_CASE_FOLD_MULTI_CHAR|ONIGENC_CASE_FOLD_TURKISH_AZERI);
 		case_fold_flag |= ONIGENC_CASE_FOLD_ASCII_ONLY;
 	}
-	(reg)->enc            = enc;
+	(reg)->enc    = enc;
 	(reg)->options        = option;
-	(reg)->syntax         = syntax;
+	(reg)->syntax = syntax;
 	(reg)->optimize       = 0;
-	(reg)->exact          = (uchar *)NULL;
-	(reg)->extp           = (RegexExt*)NULL;
-	(reg)->ops            = (Operation*)NULL;
+	(reg)->exact  = (uchar *)NULL;
+	(reg)->extp   = (RegexExt*)NULL;
+	(reg)->ops    = (Operation*)NULL;
 	(reg)->ops_curr       = (Operation*)NULL;
 	(reg)->ops_used       = 0;
 	(reg)->ops_alloc      = 0;
@@ -6918,11 +6918,11 @@ int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern
 		unset_addr_list_end(&uslist);
 	}
 #endif
-	count.prec_read          = 0;
+	count.prec_read  = 0;
 	count.look_behind        = 0;
-	count.backref            = 0;
+	count.backref    = 0;
 	count.backref_with_level = 0;
-	count.call               = 0;
+	count.call       = 0;
 	count.empty_check_nest_level     = 0;
 	count.max_empty_check_nest_level = 0;
 	count.heavy_element = 0;

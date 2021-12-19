@@ -823,7 +823,7 @@ int32_t CollationBuilder::findOrInsertNodeForCEs(int32_t strength, const char *&
 	}
 
 	// root CE
-	if((uint8_t)(ce >> 56) == Collation::UNASSIGNED_IMPLICIT_BYTE) {
+	if((uint8)(ce >> 56) == Collation::UNASSIGNED_IMPLICIT_BYTE) {
 		errorCode = U_UNSUPPORTED_ERROR;
 		parserErrorReason = "tailoring relative to an unassigned code point not supported";
 		return 0;
@@ -835,7 +835,7 @@ int32_t CollationBuilder::findOrInsertNodeForRootCE(int64_t ce, int32_t strength
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT((uint8_t)(ce >> 56) != Collation::UNASSIGNED_IMPLICIT_BYTE);
+	U_ASSERT((uint8)(ce >> 56) != Collation::UNASSIGNED_IMPLICIT_BYTE);
 
 	// Find or insert the node for each of the root CE's weights,
 	// down to the requested level/strength.
@@ -1338,8 +1338,8 @@ bool CollationBuilder::mergeCompositeIntoString(const UnicodeString & nfdString,
 	UChar32 sourceChar = U_SENTINEL;
 	// The cc variables need to be declared before the loop so that at the end
 	// they are set to the last combining classes seen.
-	uint8_t sourceCC = 0;
-	uint8_t decompCC = 0;
+	uint8 sourceCC = 0;
+	uint8 decompCC = 0;
 	for(;;) {
 		if(sourceChar < 0) {
 			if(sourceIndex >= nfdString.length()) {

@@ -273,7 +273,7 @@ typedef enum {
 
 /*Below are the 3 arrays depicting a state transition table*/
 static const int8_t normalize_esq_chars_2022[256] = {
-/*       0      1       2       3       4      5       6        7       8       9  */
+/* 0      1       2       3       4      5       6        7       8       9  */
 
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -324,7 +324,7 @@ static const int8_t normalize_esq_chars_2022[256] = {
 
 #define MAX_STATES_2022 74
 static const int32_t escSeqStateTable_Key_2022[MAX_STATES_2022] = {
-/*   0           1           2           3           4           5           6           7           8           9
+/* 0           1           2           3           4           5           6           7           8           9
     */
 
 	1, 34, 36, 39, 55, 57, 60, 61, 1093, 1096
@@ -340,7 +340,7 @@ static const int32_t escSeqStateTable_Key_2022[MAX_STATES_2022] = {
 #ifdef U_ENABLE_GENERIC_ISO_2022
 
 static const char * const escSeqStateTable_Result_2022[MAX_STATES_2022] = {
-	/*  0                      1                        2                      3                   4
+	/* 0                      1                        2                      3                   4
 	                     5                        6                      7                       8
 	                         9    */
 
@@ -359,7 +359,7 @@ static const char * const escSeqStateTable_Result_2022[MAX_STATES_2022] = {
 #endif
 
 static const int8_t escSeqStateTable_Value_2022[MAX_STATES_2022] = {
-/*          0                           1                         2                             3
+/* 0                           1                         2                             3
                              4                           5                               6                        7
                             8                           9       */
 	VALID_NON_TERMINAL_2022, VALID_NON_TERMINAL_2022, VALID_NON_TERMINAL_2022, VALID_NON_TERMINAL_2022, VALID_NON_TERMINAL_2022,
@@ -428,7 +428,7 @@ extern const UConverterSharedData _ISO2022CNData;
 /* The purpose of this function is to get around gcc compiler warnings. */
 static inline void fromUWriteUInt8(UConverter * cnv,
     const char * bytes, int32_t length,
-    uint8_t ** target, const char * targetLimit,
+    uint8 ** target, const char * targetLimit,
     int32_t ** offsets,
     int32_t sourceIndex,
     UErrorCode * pErrorCode)
@@ -436,7 +436,7 @@ static inline void fromUWriteUInt8(UConverter * cnv,
 	char * targetChars = (char *)*target;
 	ucnv_fromUWriteBytes(cnv, bytes, length, &targetChars, targetLimit,
 	    offsets, sourceIndex, pErrorCode);
-	*target = (uint8_t*)targetChars;
+	*target = (uint8 *)targetChars;
 }
 
 static inline void setInitialStateToUnicodeKR(UConverter * /*converter*/, UConverterDataISO2022 * myConverterData) {
@@ -739,7 +739,7 @@ U_CDECL_END
  * <ESC>$(C KSC5601
  */
 static const int8_t nextStateToUnicodeJP[MAX_STATES_2022] = {
-/*      0                1               2               3               4               5               6
+/* 0                1               2               3               4               5               6
                  7               8               9    */
 	INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE, SS2_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE,
 	INVALID_STATE
@@ -758,7 +758,7 @@ static const int8_t nextStateToUnicodeJP[MAX_STATES_2022] = {
 #if !UCONFIG_ONLY_HTML_CONVERSION
 /*************** to unicode *******************/
 static const int8_t nextStateToUnicodeCN[MAX_STATES_2022] = {
-/*      0                1               2               3               4               5               6
+/* 0                1               2               3               4               5               6
                  7               8               9    */
 	INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE, INVALID_STATE, SS2_STATE, SS3_STATE, INVALID_STATE, INVALID_STATE,
 	INVALID_STATE
@@ -784,7 +784,7 @@ static UCNV_TableStates_2022 getKey_2022(char c, int32_t* key, int32_t* offset) 
 	int32_t hi = MAX_STATES_2022;
 	int32_t oldmid = 0;
 
-	togo = normalize_esq_chars_2022[(uint8_t)c];
+	togo = normalize_esq_chars_2022[(uint8)c];
 	if(togo == 0) {
 		/* not a valid character anywhere in an escape sequence */
 		*key = 0;
@@ -835,7 +835,7 @@ static void changeState_2022(UConverter * _this,
 	value = VALID_NON_TERMINAL_2022;
 	while(*source < sourceLimit) {
 		c = *(*source)++;
-		_this->toUBytes[_this->toULength++] = (uint8_t)c;
+		_this->toUBytes[_this->toULength++] = (uint8)c;
 		value = getKey_2022(c, (int32_t*)&key, &offset);
 
 		switch(value) {
@@ -1132,7 +1132,7 @@ static inline int32_t MBCS_FROM_UCHAR32_ISO2022(UConverterSharedData* sharedData
 	uint32_t stage2Entry;
 	uint32_t myValue;
 	int32_t length;
-	const uint8_t * p;
+	const uint8 * p;
 	/*
 	 * TODO(markus): Use and require new, faster MBCS conversion table structures.
 	 * Use internal version of ucnv_open() that verifies that the new structures are available,
@@ -1232,7 +1232,7 @@ static inline int32_t MBCS_SINGLE_FROM_UCHAR32(UConverterSharedData* sharedData,
  */
 static inline uint32_t _2022FromGR94DBCS(uint32_t value) {
 	if((uint16_t)(value - 0xa1a1) <= (0xfefe - 0xa1a1) &&
-	    (uint8_t)(value - 0xa1) <= (0xfe - 0xa1)
+	    (uint8)(value - 0xa1) <= (0xfe - 0xa1)
 	    ) {
 		return value - 0x8080; /* shift down to 21..7e byte range */
 	}
@@ -1250,7 +1250,7 @@ static inline uint32_t _2022FromGR94DBCS(uint32_t value) {
 static inline uint32_t _2022ToGR94DBCS(uint32_t value) {
 	uint32_t returnValue = value + 0x8080;
 	if((uint16_t)(returnValue - 0xa1a1) <= (0xfefe - 0xa1a1) &&
-	    (uint8_t)(returnValue - 0xa1) <= (0xfe - 0xa1)) {
+	    (uint8)(returnValue - 0xa1) <= (0xfe - 0xa1)) {
 		return returnValue;
 	}
 	else {
@@ -1384,8 +1384,8 @@ static void toUnicodeCallback(UConverter * cnv,
     const uint32_t sourceChar, const uint32_t targetUniChar,
     UErrorCode * err) {
 	if(sourceChar>0xff) {
-		cnv->toUBytes[0] = (uint8_t)(sourceChar>>8);
-		cnv->toUBytes[1] = (uint8_t)sourceChar;
+		cnv->toUBytes[0] = (uint8)(sourceChar>>8);
+		cnv->toUBytes[1] = (uint8)sourceChar;
 		cnv->toULength = 2;
 	}
 	else {
@@ -1538,13 +1538,13 @@ static inline uint32_t jisx201FromU(uint32_t value) {
  * Return 0 if the byte pair is out of range.
  */
 static inline uint32_t _2022FromSJIS(uint32_t value) {
-	uint8_t trail;
+	uint8 trail;
 
 	if(value > 0xEFFC) {
 		return 0; /* beyond JIS X 0208 */
 	}
 
-	trail = (uint8_t)value;
+	trail = (uint8)value;
 
 	value &= 0xff00; /* lead byte */
 	if(value <= 0x9f00) {
@@ -1577,7 +1577,7 @@ static inline uint32_t _2022FromSJIS(uint32_t value) {
  * Some invalid byte values already turn into equally invalid Shift-JIS
  * byte values and need not be tested explicitly.
  */
-static inline void _2022ToSJIS(uint8_t c1, uint8_t c2, char bytes[2]) {
+static inline void _2022ToSJIS(uint8 c1, uint8 c2, char bytes[2]) {
 	if(c1&1) {
 		++c1;
 		if(c2 <= 0x5f) {
@@ -1591,7 +1591,7 @@ static inline void _2022ToSJIS(uint8_t c1, uint8_t c2, char bytes[2]) {
 		}
 	}
 	else {
-		if((uint8_t)(c2-0x21) <= ((0x7e)-0x21)) {
+		if((uint8)(c2-0x21) <= ((0x7e)-0x21)) {
 			c2 += 0x7e;
 		}
 		else {
@@ -1689,8 +1689,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConvert
 	UConverter * cnv = args->converter;
 	UConverterDataISO2022 * converterData;
 	ISO2022State * pFromU2022State;
-	uint8_t * target = (uint8_t*)args->target;
-	const uint8_t * targetLimit = (const uint8_t*)args->targetLimit;
+	uint8 * target = (uint8 *)args->target;
+	const uint8 * targetLimit = (const uint8*)args->targetLimit;
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	int32_t* offsets = args->offsets;
@@ -2222,7 +2222,7 @@ escape:
 				    /* convert one or two bytes */
 				    myData->isEmptySegment = FALSE;
 				    cs = (StateEnum)pToU2022State->cs[pToU2022State->g];
-				    if((uint8_t)(mySourceChar - 0xa1) <= (0xdf - 0xa1) && myData->version==4 &&
+				    if((uint8)(mySourceChar - 0xa1) <= (0xdf - 0xa1) && myData->version==4 &&
 					!IS_JP_DBCS(cs)
 					) {
 					    /* 8-bit halfwidth katakana in any single-byte mode for JIS8 */
@@ -2264,7 +2264,7 @@ escape:
 							}
 							break;
 						    case HWKANA_7BIT:
-							if((uint8_t)(mySourceChar - 0x21) <= (0x5f - 0x21)) {
+							if((uint8)(mySourceChar - 0x21) <= (0x5f - 0x21)) {
 								/* 7-bit halfwidth Katakana */
 								targetUniChar = mySourceChar + (HWKANA_START - 0x21);
 							}
@@ -2273,9 +2273,9 @@ escape:
 							/* G0 DBCS */
 							if(mySource < mySourceLimit) {
 								int leadIsOk, trailIsOk;
-								uint8_t trailByte;
+								uint8 trailByte;
 getTrailByte:
-								trailByte = (uint8_t)*mySource;
+								trailByte = (uint8)*mySource;
 								/*
 								 * Ticket 5691: consistent illegal sequences:
 								 * - We include at least the first byte in the illegal sequence.
@@ -2286,13 +2286,13 @@ getTrailByte:
 								 * an ESC/SO/SI, we report only the first byte as the illegal sequence.
 								 * Otherwise we convert or report the pair of bytes.
 								 */
-								leadIsOk = (uint8_t)(mySourceChar - 0x21) <= (0x7e - 0x21);
-								trailIsOk = (uint8_t)(trailByte - 0x21) <= (0x7e - 0x21);
+								leadIsOk = (uint8)(mySourceChar - 0x21) <= (0x7e - 0x21);
+								trailIsOk = (uint8)(trailByte - 0x21) <= (0x7e - 0x21);
 								if(leadIsOk && trailIsOk) {
 									++mySource;
 									tmpSourceChar = (mySourceChar << 8) | trailByte;
 									if(cs == JISX208) {
-										_2022ToSJIS((uint8_t)mySourceChar, trailByte, tempBuf);
+										_2022ToSJIS((uint8)mySourceChar, trailByte, tempBuf);
 										mySourceChar = tmpSourceChar;
 									}
 									else {
@@ -2324,7 +2324,7 @@ getTrailByte:
 								}
 							}
 							else {
-								args->converter->toUBytes[0] = (uint8_t)mySourceChar;
+								args->converter->toUBytes[0] = (uint8)mySourceChar;
 								args->converter->toULength = 1;
 								goto endloop;
 							}
@@ -2466,7 +2466,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConvert
 			    (length == 1 && targetByteUnit > 0x7f) ||
 			    (length == 2 &&
 			    ((uint16_t)(targetByteUnit - 0xa1a1) > (0xfefe - 0xa1a1) ||
-			    (uint8_t)(targetByteUnit - 0xa1) > (0xfe - 0xa1)))
+			    (uint8)(targetByteUnit - 0xa1) > (0xfe - 0xa1)))
 			    ) {
 				targetByteUnit = missingCharMarker;
 			}
@@ -2774,7 +2774,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverter
 					                                   spurious errors */
 					*err = U_ILLEGAL_ESCAPE_SEQUENCE;
 					args->converter->toUCallbackReason = UCNV_IRREGULAR;
-					args->converter->toUBytes[0] = (uint8_t)mySourceChar;
+					args->converter->toUBytes[0] = (uint8)mySourceChar;
 					args->converter->toULength = 1;
 					args->target = myTarget;
 					args->source = mySource;
@@ -2809,10 +2809,10 @@ escape:
 			if(myData->toU2022State.g == 1) {
 				if(mySource < mySourceLimit) {
 					int leadIsOk, trailIsOk;
-					uint8_t trailByte;
+					uint8 trailByte;
 getTrailByte:
 					targetUniChar = missingCharMarker;
-					trailByte = (uint8_t)*mySource;
+					trailByte = (uint8)*mySource;
 					/*
 					 * Ticket 5691: consistent illegal sequences:
 					 * - We include at least the first byte in the illegal sequence.
@@ -2823,8 +2823,8 @@ getTrailByte:
 					 * an ESC/SO/SI, we report only the first byte as the illegal sequence.
 					 * Otherwise we convert or report the pair of bytes.
 					 */
-					leadIsOk = (uint8_t)(mySourceChar - 0x21) <= (0x7e - 0x21);
-					trailIsOk = (uint8_t)(trailByte - 0x21) <= (0x7e - 0x21);
+					leadIsOk = (uint8)(mySourceChar - 0x21) <= (0x7e - 0x21);
+					trailIsOk = (uint8)(trailByte - 0x21) <= (0x7e - 0x21);
 					if(leadIsOk && trailIsOk) {
 						++mySource;
 						tempBuf[0] = (char)(mySourceChar + 0x80);
@@ -2842,7 +2842,7 @@ getTrailByte:
 					}
 				}
 				else {
-					args->converter->toUBytes[0] = (uint8_t)mySourceChar;
+					args->converter->toUBytes[0] = (uint8)mySourceChar;
 					args->converter->toULength = 1;
 					break;
 				}
@@ -2985,8 +2985,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConvert
 	UConverter * cnv = args->converter;
 	UConverterDataISO2022 * converterData;
 	ISO2022State * pFromU2022State;
-	uint8_t * target = (uint8_t*)args->target;
-	const uint8_t * targetLimit = (const uint8_t*)args->targetLimit;
+	uint8 * target = (uint8 *)args->target;
+	const uint8 * targetLimit = (const uint8*)args->targetLimit;
 	const UChar * source = args->source;
 	const UChar * sourceLimit = args->sourceLimit;
 	int32_t* offsets = args->offsets;
@@ -3389,7 +3389,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConverter
 					                                       spurious errors */
 					    *err = U_ILLEGAL_ESCAPE_SEQUENCE;
 					    args->converter->toUCallbackReason = UCNV_IRREGULAR;
-					    args->converter->toUBytes[0] = static_cast<uint8_t>(mySourceChar);
+					    args->converter->toUBytes[0] = static_cast<uint8>(mySourceChar);
 					    args->converter->toULength = 1;
 					    args->target = myTarget;
 					    args->source = mySource;
@@ -3452,9 +3452,9 @@ escape:
 						    StateEnum tempState;
 						    int32_t tempBufLen;
 						    int leadIsOk, trailIsOk;
-						    uint8_t trailByte;
+						    uint8 trailByte;
 getTrailByte:
-						    trailByte = (uint8_t)*mySource;
+						    trailByte = (uint8)*mySource;
 						    /*
 						 * Ticket 5691: consistent illegal sequences:
 						 * - We include at least the first byte in the illegal sequence.
@@ -3467,8 +3467,8 @@ getTrailByte:
 						     *sequence.
 						 * Otherwise we convert or report the pair of bytes.
 						     */
-						    leadIsOk = (uint8_t)(mySourceChar - 0x21) <= (0x7e - 0x21);
-						    trailIsOk = (uint8_t)(trailByte - 0x21) <= (0x7e - 0x21);
+						    leadIsOk = (uint8)(mySourceChar - 0x21) <= (0x7e - 0x21);
+						    trailIsOk = (uint8)(trailByte - 0x21) <= (0x7e - 0x21);
 						    if(leadIsOk && trailIsOk) {
 							    ++mySource;
 							    tempState = (StateEnum)pToU2022State->cs[pToU2022State->g];
@@ -3503,7 +3503,7 @@ getTrailByte:
 						    }
 					    }
 					    else {
-						    args->converter->toUBytes[0] = (uint8_t)mySourceChar;
+						    args->converter->toUBytes[0] = (uint8)mySourceChar;
 						    args->converter->toULength = 1;
 						    goto endloop;
 					    }
@@ -3628,11 +3628,11 @@ static void U_CALLCONV _ISO_2022_WriteSub(UConverterFromUnicodeArgs * args, int3
 		    }
 		    else {
 			    /* save the subconverter's substitution string */
-			    uint8_t * currentSubChars = myConverterData->currentConverter->subChars;
+			    uint8 * currentSubChars = myConverterData->currentConverter->subChars;
 			    int8_t currentSubCharLen = myConverterData->currentConverter->subCharLen;
 
 			    /* set our substitution string into the subconverter */
-			    myConverterData->currentConverter->subChars = (uint8_t*)subchar;
+			    myConverterData->currentConverter->subChars = (uint8 *)subchar;
 			    myConverterData->currentConverter->subCharLen = (int8_t)length;
 
 			    /* let the subconverter write the subchar, set/retrieve fromUChar32 state */

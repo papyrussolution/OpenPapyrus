@@ -78,14 +78,14 @@ typedef struct UConverterStaticData {   /* +offset: size */
     int8_t minBytesPerChar; /* +70: 1 Minimum # bytes per char in this codepage */
     int8_t maxBytesPerChar; /* +71: 1 Maximum # bytes output per UChar in this codepage */
 
-    uint8_t subChar[UCNV_MAX_SUBCHAR_LEN]; /* +72: 4  [note:  4 and 8 byte boundary] */
+    uint8 subChar[UCNV_MAX_SUBCHAR_LEN]; /* +72: 4  [note:  4 and 8 byte boundary] */
     int8_t subCharLen; /* +76: 1 */
 
-    uint8_t hasToUnicodeFallback; /* +77: 1 bool needs to be changed to bool to be consistent across platform */
-    uint8_t hasFromUnicodeFallback; /* +78: 1 */
-    uint8_t unicodeMask; /* +79: 1  bit 0: has supplementary  bit 1: has single surrogates */
-    uint8_t subChar1; /* +80: 1  single-byte substitution character for IBM MBCS (0 if none) */
-    uint8_t reserved[19]; /* +81: 19 to round out the structure */
+    uint8 hasToUnicodeFallback; /* +77: 1 bool needs to be changed to bool to be consistent across platform */
+    uint8 hasFromUnicodeFallback; /* +78: 1 */
+    uint8 unicodeMask; /* +79: 1  bit 0: has supplementary  bit 1: has single surrogates */
+    uint8 subChar1; /* +80: 1  single-byte substitution character for IBM MBCS (0 if none) */
+    uint8 reserved[19]; /* +81: 19 to round out the structure */
                                     /* total size: 100 */
 } UConverterStaticData;
 
@@ -172,10 +172,10 @@ struct UConverter {
   * subCharLen==0 is equivalent to using a skip callback.
   * If the pointer is !=subUChars then it is allocated with
   * UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR bytes.
-  * The subUChars field is declared as UChar[] not uint8_t[] to
+  * The subUChars field is declared as UChar[] not uint8[] to
   * guarantee alignment for UChars.
      */
-    uint8_t *subChars;
+    uint8 *subChars;
 
     UConverterSharedData *sharedData; /* Pointer to the shared immutable part of the converter object */
 
@@ -187,7 +187,7 @@ struct UConverter {
 
     bool  useFallback;
     int8_t toULength;                   /* number of bytes in toUBytes */
-    uint8_t toUBytes[UCNV_MAX_CHAR_LEN-1];/* more "toU status"; keeps the bytes of the current character */
+    uint8 toUBytes[UCNV_MAX_CHAR_LEN-1]; /* more "toU status"; keeps the bytes of the current character */
     uint32_t toUnicodeStatus; /* Used to internalize stream status information */
     int32_t mode;
     uint32_t fromUnicodeStatus;
@@ -218,10 +218,10 @@ struct UConverter {
     int8_t invalidUCharLength;
     int8_t UCharErrorBufferLength; /* number of valid UChars in charErrorBuffer */
 
-    uint8_t subChar1;                                   /* single-byte substitution character if different from subChar */
+    uint8 subChar1;                                   /* single-byte substitution character if different from subChar */
     bool useSubChar1;
     char invalidCharBuffer[UCNV_MAX_CHAR_LEN]; /* bytes from last error/callback situation */
-    uint8_t charErrorBuffer[UCNV_ERROR_BUFFER_LENGTH]; /* codepage output from Error functions */
+    uint8 charErrorBuffer[UCNV_ERROR_BUFFER_LENGTH]; /* codepage output from Error functions */
     UChar subUChars[UCNV_MAX_SUBCHAR_LEN/U_SIZEOF_UCHAR]; /* see subChars documentation */
 
     UChar invalidUCharBuffer[U16_MAX_LENGTH]; /* UChars from last error/callback situation */

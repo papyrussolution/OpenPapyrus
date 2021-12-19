@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-static const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
+static const char * BillMultiplePrintCfg      = "BillMultiplePrintCfg";
 static const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
 static const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPriceChanged";
 

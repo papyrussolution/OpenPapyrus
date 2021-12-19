@@ -14,16 +14,16 @@
 #define FTHEADER_H_
 
 /*@***********************************************************************/
-/*                                                                       */
+/*                                                       */
 /* <Macro>                                                               */
-/*    FT_BEGIN_HEADER                                                    */
-/*                                                                       */
+/* FT_BEGIN_HEADER                                                    */
+/*                                                       */
 /* <Description>                                                         */
-/*    This macro is used in association with @FT_END_HEADER in header    */
-/*    files to ensure that the declarations within are properly          */
-/*    encapsulated in an `extern "C" { .. }` block when included from a  */
-/*    C++ compiler.                                                      */
-/*                                                                       */
+/* This macro is used in association with @FT_END_HEADER in header    */
+/* files to ensure that the declarations within are properly          */
+/* encapsulated in an `extern "C" { .. }` block when included from a  */
+/* C++ compiler.                                                      */
+/*                                                       */
 #ifndef FT_BEGIN_HEADER
 	#ifdef __cplusplus
 		#define FT_BEGIN_HEADER  extern "C" {
@@ -32,16 +32,16 @@
 	#endif
 #endif
 /*@***********************************************************************/
-/*                                                                       */
+/*                                                       */
 /* <Macro>                                                               */
-/*    FT_END_HEADER                                                      */
-/*                                                                       */
+/* FT_END_HEADER                                                      */
+/*                                                       */
 /* <Description>                                                         */
-/*    This macro is used in association with @FT_BEGIN_HEADER in header  */
-/*    files to ensure that the declarations within are properly          */
-/*    encapsulated in an `extern "C" { .. }` block when included from a  */
-/*    C++ compiler.                                                      */
-/*                                                                       */
+/* This macro is used in association with @FT_BEGIN_HEADER in header  */
+/* files to ensure that the declarations within are properly          */
+/* encapsulated in an `extern "C" { .. }` block when included from a  */
+/* C++ compiler.                                                      */
+/*                                                       */
 #ifndef FT_END_HEADER
 #ifdef __cplusplus
 #define FT_END_HEADER  }
@@ -732,7 +732,7 @@
 /* The internals of the cache sub-system are no longer exposed.  We */
 /* default to `FT_CACHE_H` at the moment just in case, but we know  */
 /* of no rogue client that uses them.                               */
-/*                                                                  */
+/*                                                  */
 #define FT_CACHE_MANAGER_H           FT_CACHE_H
 #define FT_CACHE_INTERNAL_MRU_H      FT_CACHE_H
 #define FT_CACHE_INTERNAL_MANAGER_H  FT_CACHE_H

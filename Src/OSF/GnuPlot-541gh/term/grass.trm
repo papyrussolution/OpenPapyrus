@@ -62,7 +62,7 @@ register_term(grass)
 #ifdef TERM_PROTO
 TERM_PUBLIC void GRASS_move(uint x, uint y);
 TERM_PUBLIC void GRASS_options();
-TERM_PUBLIC void GRASS_init(GpTermEntry * pThis);
+TERM_PUBLIC void GRASS_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void GRASS_reset();
 TERM_PUBLIC void GRASS_graphics();
 TERM_PUBLIC void GRASS_text();
@@ -145,7 +145,7 @@ TERM_PUBLIC void GRASS_options()
 	GnuPlot::OptionsNull(); /* no options to begin with */
 }
 
-TERM_PUBLIC void GRASS_init(GpTermEntry * pThis)
+TERM_PUBLIC void GRASS_init(GpTermEntry_Static * pThis)
 {
 	/* char buff[128]; */
 	char window_name[64];
@@ -181,15 +181,14 @@ TERM_PUBLIC void GRASS_init(GpTermEntry * pThis)
 	// D_set_overlay_mode (1); 
 	// Figure out where to put text 
 	R_set_window(top, b, l, r);
-	pThis->MaxX = r-l;
-	pThis->MaxY = b-top;
+	pThis->SetMax(r-l, b-top);
 	grass_xoffset = l;
 	grass_yoffset = b;
 	dots_per_line = (int)(size / 100.0 * (float)(pThis->MaxY));
-	pThis->ChrV = pThis->ChrH = (int)(0.8 * (float)dots_per_line);
-	R_text_size(pThis->ChrH, pThis->ChrV);
+	pThis->SetCharSize((int)(0.8 * (float)dots_per_line), (int)(0.8 * (float)dots_per_line));
+	R_text_size(pThis->CH(), pThis->CV());
 	R_font("romans");
-	pThis->TicV = pThis->TicH = 4;
+	pThis->SetTic(4, 4);
 	y_max = pThis->MaxY; /* kludge? */
 	R__curx = R_screen_top();
 	R__cury = R_screen_bot() + grass_yoffset;
@@ -201,8 +200,8 @@ TERM_PUBLIC void GRASS_init(GpTermEntry * pThis)
 	fprintf(stderr, "description = %s\n", pThis->description);
 	fprintf(stderr, "xmax = %d\t", (int)pThis->MaxX);
 	fprintf(stderr, "ymax = %d\n", (int)pThis->MaxY);
-	fprintf(stderr, "ChrV = %d\t", (int)pThis->ChrV);
-	fprintf(stderr, "ChrH = %d\n", (int)pThis->ChrH);
+	fprintf(stderr, "ChrV = %d\t", (int)pThis->CV());
+	fprintf(stderr, "ChrH = %d\n", (int)pThis->CH());
 	fprintf(stderr, "TicV = %d\t", (int)pThis->TicV);
 	fprintf(stderr, "TicH = %d\n", (int)pThis->TicH);
 	fprintf(stderr, "**********************************************\n\n");

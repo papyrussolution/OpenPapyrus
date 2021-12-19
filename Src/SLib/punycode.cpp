@@ -53,7 +53,7 @@ static uint FASTCALL decode_digit(uint cp)
 static char FASTCALL encode_digit(uint d, int flag)
 {
 	return (d + 22 + 75 * (d < 26) - ((flag != 0) << 5));
-	/*  0..25 map to ASCII a..z or A..Z */
+	/* 0..25 map to ASCII a..z or A..Z */
 	/* 26..35 map to ASCII 0..9         */
 }
 

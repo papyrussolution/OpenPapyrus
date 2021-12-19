@@ -10,7 +10,7 @@
 //
 //
 //
-const int MARK_BOOKMARK           = 24;
+const int MARK_BOOKMARK   = 24;
 const int MARK_HIDELINESBEGIN     = 23;
 const int MARK_HIDELINESEND       = 22;
 const int MARK_HIDELINESUNDERLINE = 21;
@@ -983,12 +983,12 @@ int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int tool
 {
 	WNDCLASSEX wc;
 	INITWINAPISTRUCT(wc);
-	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 	wc.lpfnWndProc   = STextBrowser::WndProc;
 	wc.cbClsExtra    = BRWCLASS_CEXTRA;
 	wc.cbWndExtra    = BRWCLASS_WEXTRA;
 	wc.hInstance     = hInst;
-	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
+	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.hCursor       = NULL; // LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
 	wc.lpszClassName = STextBrowser::WndClsName;

@@ -1,19 +1,11 @@
+// ccapitst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/*****************************************************************************
- *
- * File ccapitst.c
- *
- * Modification History:
- *        Name                      Description
- *     Madhu Katragadda              Ported for C API
- ******************************************************************************
- */
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Name                      Description
+// Madhu Katragadda              Ported for C API
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/uloc.h"
@@ -233,15 +225,15 @@ static void TestConvert()
 	FILE * ucs_file_in         =   NULL;
 	UChar BOM = 0x0000;
 	UChar myUChar = 0x0000;
-	char * mytarget;/*    [MAX_FILE_LEN] */
+	char * mytarget; /*    [MAX_FILE_LEN] */
 	char * mytarget_1;
 	char * mytarget_use;
 	UChar * consumedUni =   NULL;
 	char * consumed =   NULL;
-	char * output_cp_buffer;/*    [MAX_FILE_LEN] */
-	UChar * ucs_file_buffer;/*    [MAX_FILE_LEN] */
+	char * output_cp_buffer; /*    [MAX_FILE_LEN] */
+	UChar * ucs_file_buffer; /*    [MAX_FILE_LEN] */
 	UChar * ucs_file_buffer_use;
-	UChar * my_ucs_file_buffer;/*    [MAX_FILE_LEN] */
+	UChar * my_ucs_file_buffer; /*    [MAX_FILE_LEN] */
 	UChar * my_ucs_file_buffer_1;
 	int8_t ii = 0;
 	uint16_t codepage_index = 0;
@@ -1328,45 +1320,35 @@ static void TestConvertSafeCloneCallback()
 
 	TSCC_print_log(from2, "from2");
 	TSCC_print_log(from3, "from3(==from1)");
-
 	if(from2 == NULL) {
 		log_err("FAIL! from2 is null \n");
 		return;
 	}
-
 	if(from3 == NULL) {
 		log_err("FAIL! from3 is null \n");
 		return;
 	}
-
 	if(from3 != (&from1) ) {
 		log_err("FAIL! conv1's FROM context changed!\n");
 	}
-
 	if(from2 == (&from1) ) {
 		log_err("FAIL! conv1's FROM context is the same as conv2's!\n");
 	}
-
 	if(from1.wasClosed) {
 		log_err("FAIL! from1 is closed \n");
 	}
-
 	if(from2->wasClosed) {
 		log_err("FAIL! from2 was closed\n");
 	}
-
 /**********   to *********************/
 	ucnv_getToUCallBack(conv2, &junkTo, (const void **)pto2);
 	ucnv_getToUCallBack(conv1, &junkTo, (const void **)pto3);
-
 	TSCC_print_log(to2, "to2");
 	TSCC_print_log(to3, "to3(==to1)");
-
 	if(to2 == NULL) {
 		log_err("FAIL! to2 is null \n");
 		return;
 	}
-
 	if(to3 == NULL) {
 		log_err("FAIL! to3 is null \n");
 		return;
@@ -1906,43 +1888,31 @@ static void bug3()
 }
 
 static void convertExStreaming(UConverter * srcCnv, UConverter * targetCnv,
-    const char * src, int32_t srcLength,
-    const char * expectTarget, int32_t expectTargetLength,
-    int32_t chunkSize,
-    const char * testName,
-    UErrorCode expectCode) {
+    const char * src, int32_t srcLength, const char * expectTarget, int32_t expectTargetLength,
+    int32_t chunkSize, const char * testName, UErrorCode expectCode) 
+{
 	UChar pivotBuffer[CHUNK_SIZE];
 	UChar * pivotSource, * pivotTarget;
 	const UChar * pivotLimit;
-
 	char targetBuffer[CHUNK_SIZE];
 	char * target;
 	const char * srcLimit, * finalSrcLimit, * targetLimit;
-
 	int32_t targetLength;
-
 	bool flush;
-
 	UErrorCode errorCode;
-
 	/* setup */
 	if(chunkSize>CHUNK_SIZE) {
 		chunkSize = CHUNK_SIZE;
 	}
-
 	pivotSource = pivotTarget = pivotBuffer;
 	pivotLimit = pivotBuffer+chunkSize;
-
 	finalSrcLimit = src+srcLength;
 	target = targetBuffer;
 	targetLimit = targetBuffer+chunkSize;
-
 	ucnv_resetToUnicode(srcCnv);
 	ucnv_resetFromUnicode(targetCnv);
-
 	errorCode = U_ZERO_ERROR;
 	flush = FALSE;
-
 	/* convert, streaming-style (both converters and pivot keep state) */
 	for(;;) {
 		/* for testing, give ucnv_convertEx() at most <chunkSize> input/pivot/output units at a time */
@@ -1952,15 +1922,10 @@ static void convertExStreaming(UConverter * srcCnv, UConverter * targetCnv,
 		else {
 			srcLimit = finalSrcLimit;
 		}
-		ucnv_convertEx(targetCnv, srcCnv,
-		    &target, targetLimit,
-		    &src, srcLimit,
-		    pivotBuffer, &pivotSource, &pivotTarget, pivotLimit,
-		    FALSE, flush, &errorCode);
+		ucnv_convertEx(targetCnv, srcCnv, &target, targetLimit, &src, srcLimit, pivotBuffer, &pivotSource, &pivotTarget, pivotLimit, FALSE, flush, &errorCode);
 		targetLength = (int32_t)(target-targetBuffer);
 		if(target>targetLimit) {
-			log_err("ucnv_convertEx(%s) chunk[%d] target %p exceeds targetLimit %p\n",
-			    testName, chunkSize, target, targetLimit);
+			log_err("ucnv_convertEx(%s) chunk[%d] target %p exceeds targetLimit %p\n", testName, chunkSize, target, targetLimit);
 			break; /* TODO: major problem! */
 		}
 		if(errorCode==U_BUFFER_OVERFLOW_ERROR) {
@@ -1996,31 +1961,20 @@ static void convertExStreaming(UConverter * srcCnv, UConverter * targetCnv,
 		    testName, chunkSize, targetLength, expectTargetLength);
 	}
 	else if(memcmp(targetBuffer, expectTarget, targetLength)!=0) {
-		log_err("ucnv_convertEx(%s) chunk[%d] writes different bytes than expected\n",
-		    testName, chunkSize);
+		log_err("ucnv_convertEx(%s) chunk[%d] writes different bytes than expected\n", testName, chunkSize);
 	}
 }
 
-static void convertExMultiStreaming(UConverter * srcCnv, UConverter * targetCnv,
-    const char * src, int32_t srcLength,
-    const char * expectTarget, int32_t expectTargetLength,
-    const char * testName,
-    UErrorCode expectCode) {
-	convertExStreaming(srcCnv, targetCnv,
-	    src, srcLength,
-	    expectTarget, expectTargetLength,
-	    1, testName, expectCode);
-	convertExStreaming(srcCnv, targetCnv,
-	    src, srcLength,
-	    expectTarget, expectTargetLength,
-	    3, testName, expectCode);
-	convertExStreaming(srcCnv, targetCnv,
-	    src, srcLength,
-	    expectTarget, expectTargetLength,
-	    7, testName, expectCode);
+static void convertExMultiStreaming(UConverter * srcCnv, UConverter * targetCnv, const char * src, int32_t srcLength,
+    const char * expectTarget, int32_t expectTargetLength, const char * testName, UErrorCode expectCode) 
+{
+	convertExStreaming(srcCnv, targetCnv, src, srcLength, expectTarget, expectTargetLength, 1, testName, expectCode);
+	convertExStreaming(srcCnv, targetCnv, src, srcLength, expectTarget, expectTargetLength, 3, testName, expectCode);
+	convertExStreaming(srcCnv, targetCnv, src, srcLength, expectTarget, expectTargetLength, 7, testName, expectCode);
 }
 
-static void TestConvertEx() {
+static void TestConvertEx() 
+{
 #if !UCONFIG_NO_LEGACY_CONVERSION
 	static const uint8_t
 	    utf8[] = {
@@ -2064,21 +2018,11 @@ static void TestConvertEx() {
 	}
 
 	/* test ucnv_convertEx() with streaming conversion style */
-	convertExMultiStreaming(cnv1, cnv2,
-	    (const char *)utf8, sizeof(utf8), (const char *)shiftJIS, sizeof(shiftJIS),
-	    "UTF-8 -> Shift-JIS", U_ZERO_ERROR);
-
-	convertExMultiStreaming(cnv2, cnv1,
-	    (const char *)shiftJIS, sizeof(shiftJIS), (const char *)utf8, sizeof(utf8),
-	    "Shift-JIS -> UTF-8", U_ZERO_ERROR);
-
+	convertExMultiStreaming(cnv1, cnv2, (const char *)utf8, sizeof(utf8), (const char *)shiftJIS, sizeof(shiftJIS), "UTF-8 -> Shift-JIS", U_ZERO_ERROR);
+	convertExMultiStreaming(cnv2, cnv1, (const char *)shiftJIS, sizeof(shiftJIS), (const char *)utf8, sizeof(utf8), "Shift-JIS -> UTF-8", U_ZERO_ERROR);
 	/* U_ZERO_ERROR because by default the SUB callbacks are set */
-	convertExMultiStreaming(cnv1, cnv2,
-	    (const char *)shiftJIS, sizeof(shiftJIS), (const char *)errorTarget, sizeof(errorTarget),
-	    "shiftJIS[] UTF-8 -> Shift-JIS", U_ZERO_ERROR);
-
+	convertExMultiStreaming(cnv1, cnv2, (const char *)shiftJIS, sizeof(shiftJIS), (const char *)errorTarget, sizeof(errorTarget), "shiftJIS[] UTF-8 -> Shift-JIS", U_ZERO_ERROR);
 	/* test some simple conversions */
-
 	/* NUL-terminated source and target */
 	errorCode = U_STRING_NOT_TERMINATED_WARNING;
 	memcpy(srcBuffer, utf8, sizeof(utf8));
@@ -2091,7 +2035,6 @@ static void TestConvertEx() {
 		log_err("ucnv_convertEx(simple UTF-8 -> Shift_JIS) fails: %s - writes %d bytes, expect %d\n",
 		    u_errorName(errorCode), target-targetBuffer, sizeof(shiftJIS));
 	}
-
 	/* NUL-terminated source and U_STRING_NOT_TERMINATED_WARNING */
 	errorCode = U_AMBIGUOUS_ALIAS_WARNING;
 	memset(targetBuffer, 0xff, sizeof(targetBuffer));
@@ -2099,28 +2042,18 @@ static void TestConvertEx() {
 	target = targetBuffer;
 	ucnv_convertEx(cnv2, cnv1, &target, targetBuffer+sizeof(shiftJIS), &src, NULL,
 	    NULL, NULL, NULL, NULL, TRUE, TRUE, &errorCode);
-	if(errorCode!=U_STRING_NOT_TERMINATED_WARNING ||
-	    target-targetBuffer!=sizeof(shiftJIS) ||
-	    *target!=(char)0xff ||
-	    memcmp(targetBuffer, shiftJIS, sizeof(shiftJIS))!=0
-	    ) {
-		log_err(
-			"ucnv_convertEx(simple UTF-8 -> Shift_JIS) fails: %s, expect U_STRING_NOT_TERMINATED_WARNING - writes %d bytes, expect %d\n",
-			u_errorName(errorCode),
-			target-targetBuffer,
-			sizeof(shiftJIS));
+	if(errorCode!=U_STRING_NOT_TERMINATED_WARNING || target-targetBuffer!=sizeof(shiftJIS) || *target!=(char)0xff || memcmp(targetBuffer, shiftJIS, sizeof(shiftJIS))!=0) {
+		log_err("ucnv_convertEx(simple UTF-8 -> Shift_JIS) fails: %s, expect U_STRING_NOT_TERMINATED_WARNING - writes %d bytes, expect %d\n",
+			u_errorName(errorCode), target-targetBuffer, sizeof(shiftJIS));
 	}
-
 	/* bad arguments */
 	errorCode = U_MESSAGE_PARSE_ERROR;
 	src = srcBuffer;
 	target = targetBuffer;
-	ucnv_convertEx(cnv2, cnv1, &target, targetBuffer+sizeof(targetBuffer), &src, NULL,
-	    NULL, NULL, NULL, NULL, TRUE, TRUE, &errorCode);
+	ucnv_convertEx(cnv2, cnv1, &target, targetBuffer+sizeof(targetBuffer), &src, NULL, NULL, NULL, NULL, NULL, TRUE, TRUE, &errorCode);
 	if(errorCode!=U_MESSAGE_PARSE_ERROR) {
 		log_err("ucnv_convertEx(U_MESSAGE_PARSE_ERROR) sets %s\n", u_errorName(errorCode));
 	}
-
 	/* pivotLimit==pivotStart */
 	errorCode = U_ZERO_ERROR;
 	pivotSource = pivotTarget = pivotBuffer;
@@ -2129,7 +2062,6 @@ static void TestConvertEx() {
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("ucnv_convertEx(pivotLimit==pivotStart) sets %s\n", u_errorName(errorCode));
 	}
-
 	/* *pivotSource==NULL */
 	errorCode = U_ZERO_ERROR;
 	pivotSource = NULL;
@@ -2138,7 +2070,6 @@ static void TestConvertEx() {
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("ucnv_convertEx(*pivotSource==NULL) sets %s\n", u_errorName(errorCode));
 	}
-
 	/* *source==NULL */
 	errorCode = U_ZERO_ERROR;
 	src = NULL;
@@ -2148,7 +2079,6 @@ static void TestConvertEx() {
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("ucnv_convertEx(*source==NULL) sets %s\n", u_errorName(errorCode));
 	}
-
 	/* streaming conversion without a pivot buffer */
 	errorCode = U_ZERO_ERROR;
 	src = srcBuffer;
@@ -2158,7 +2088,6 @@ static void TestConvertEx() {
 	if(errorCode!=U_ILLEGAL_ARGUMENT_ERROR) {
 		log_err("ucnv_convertEx(pivotStart==NULL) sets %s\n", u_errorName(errorCode));
 	}
-
 	ucnv_close(cnv1);
 	ucnv_close(cnv2);
 #endif
@@ -2223,21 +2152,16 @@ static const char * const badUTF8[] = {
 #define ARG_CHAR_ARR_SIZE 8
 
 /* get some character that can be converted and convert it */
-static bool getTestChar(UConverter * cnv, const char * converterName,
-    char charUTF8[4], int32_t * pCharUTF8Length,
-    char char0[ARG_CHAR_ARR_SIZE], int32_t * pChar0Length,
-    char char1[ARG_CHAR_ARR_SIZE], int32_t * pChar1Length) {
+static bool getTestChar(UConverter * cnv, const char * converterName, char charUTF8[4], int32_t * pCharUTF8Length,
+    char char0[ARG_CHAR_ARR_SIZE], int32_t * pChar0Length, char char1[ARG_CHAR_ARR_SIZE], int32_t * pChar1Length) 
+{
 	UChar utf16[U16_MAX_LENGTH];
 	int32_t utf16Length;
-
 	const UChar * utf16Source;
 	char * target;
-
 	USet * set;
 	UChar32 c;
-	UErrorCode errorCode;
-
-	errorCode = U_ZERO_ERROR;
+	UErrorCode errorCode = U_ZERO_ERROR;
 	set = uset_open(1, 0);
 	ucnv_getUnicodeSet(cnv, set, UCNV_ROUNDTRIP_SET, &errorCode);
 	c = uset_charAt(set, uset_size(set)/2);
@@ -3033,9 +2957,9 @@ static void TestFromUCountPending() {
 		   \U00101234\U00050005\U00060006 -> z (<U101234>+<U50005>+<U60006> \x07+\x00+\x01\x02\x0f+\x09 |0)
 		   \U00060007 -> unassigned
 		 */
-		static const UChar head[] = {0xDBC4, 0xDE34, 0xD900, 0xDC05, 0x0000};/* \U00101234\U00050005 */
+		static const UChar head[] = {0xDBC4, 0xDE34, 0xD900, 0xDC05, 0x0000}; /* \U00101234\U00050005 */
 		static const UChar middle[] = {0xD940, 0x0000}; /* first half of \U00060006 or \U00060007 */
-		static const UChar tail[] = {0xDC07, 0x0000};/* second half of \U00060007 */
+		static const UChar tail[] = {0xDC07, 0x0000}; /* second half of \U00060007 */
 		char tgt[10];
 		char * target = tgt;
 		char * targetLimit = target + 2; /* expect overflow from converting \U00101234\U00050005 */

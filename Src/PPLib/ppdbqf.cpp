@@ -1207,7 +1207,7 @@ static IMPL_DBE_PROC(dbqf_addr_ex_field_ii)
 }
 
 //static
-int PPDbqFuncPool::IdEmpty               = 0;
+int PPDbqFuncPool::IdEmpty       = 0;
 int PPDbqFuncPool::IdBillDebt          	 = 0;
 int PPDbqFuncPool::IdCQtty             	 = 0;
 int PPDbqFuncPool::IdTrfrPrice         	 = 0;
@@ -1219,9 +1219,9 @@ int PPDbqFuncPool::IdObjNameArByAcc    	 = 0; //
 int PPDbqFuncPool::IdObjNameUser       	 = 0;
 int PPDbqFuncPool::IdObjNameGlobalUser 	 = 0; // 
 int PPDbqFuncPool::IdObjNameUnit       	 = 0;
-int PPDbqFuncPool::IdObjNameTech         = 0;
+int PPDbqFuncPool::IdObjNameTech = 0;
 int PPDbqFuncPool::IdObjNameGoodsByTech  = 0; //
-int PPDbqFuncPool::IdObjNamePrc          = 0;
+int PPDbqFuncPool::IdObjNamePrc  = 0;
 int PPDbqFuncPool::IdObjNameGoods      	 = 0;
 int PPDbqFuncPool::IdObjNamePerson     	 = 0; //
 int PPDbqFuncPool::IdObjNameSalCharge  	 = 0; //
@@ -1302,18 +1302,18 @@ int PPDbqFuncPool::IdGetAgrmntSymbol     = 0; // @vmiller
 int PPDbqFuncPool::IdBillAgentName       = 0; // (billID) Наименование агента по документу (извлекается из записи расширения документа)
 int PPDbqFuncPool::IdRegisterText        = 0; // (registerID) Текст описания регистрационного документа
 int PPDbqFuncPool::IdObjRegisterText     = 0; // (registerTypeID, objtype, objid)
-int PPDbqFuncPool::IdObjTagText          = 0; // (tagid, objid) Текстовое представление тега объекта
+int PPDbqFuncPool::IdObjTagText  = 0; // (tagid, objid) Текстовое представление тега объекта
 int PPDbqFuncPool::IdObjTagText_NoCache  = 0; // @v10.3.8
-int PPDbqFuncPool::IdDateRange           = 0; // 
+int PPDbqFuncPool::IdDateRange   = 0; // 
 //int PPDbqFuncPool::IdObjNameOpTypeK    = 0; // 
-int PPDbqFuncPool::IdOidText             = 0; // (objType, objID) Текстовое представление полного OID
-int PPDbqFuncPool::IdDateBase            = 0; // (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
+int PPDbqFuncPool::IdOidText     = 0; // (objType, objID) Текстовое представление полного OID
+int PPDbqFuncPool::IdDateBase    = 0; // (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
 int PPDbqFuncPool::IdBillFrghtStrgLoc    = 0; // 
 int PPDbqFuncPool::IdSCardExtString      = 0; // (scardID, fldId)
 int PPDbqFuncPool::IdStrByStrGroupPos    = 0; // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
-int PPDbqFuncPool::IdBillDate            = 0; // @v10.0.03
-int PPDbqFuncPool::IdUnxText             = 0; // @v10.7.2  
-int PPDbqFuncPool::IdIsTxtUuidEq         = 0; // @v10.9.10
+int PPDbqFuncPool::IdBillDate    = 0; // @v10.0.03
+int PPDbqFuncPool::IdUnxText     = 0; // @v10.7.2  
+int PPDbqFuncPool::IdIsTxtUuidEq = 0; // @v10.9.10
 int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 int PPDbqFuncPool::IdObjMemoPerson       = 0; // @v11.1.12 (fldPersonID)
 int PPDbqFuncPool::IdObjMemoPersonEvent  = 0; // @v11.1.12 (fldPersonEventID)

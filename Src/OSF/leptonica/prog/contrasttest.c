@@ -31,6 +31,10 @@
  *   It also plots atan curves for different width parameters.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <math.h>
 #include "allheaders.h"
 
@@ -38,10 +42,10 @@ int main(int    argc,
          char **argv)
 {
 char        *filein, *fileout;
-char         bigbuf[512];
+char         buf[512];
 l_int32      iplot;
 l_float32    factor;    /* scaled width of atan curve */
-l_float32    fact[] = {.2, 0.4, 0.6, 0.8, 1.0, -1.0};
+l_float32    fact[] = {0.2f, 0.4f, 0.6f, 0.8f, 1.0f, -1.0f};
 GPLOT       *gplot;
 NUMA        *na, *nax;
 PIX         *pixs;
@@ -50,19 +54,19 @@ static char  mainName[] = "contrasttest";
     if (argc != 4)
         return ERROR_INT(" Syntax:  contrasttest filein factor fileout",
                mainName, 1);
-
-    lept_mkdir("lept/contrast");
-
     filein = argv[1];
     factor = atof(argv[2]);
     fileout = argv[3];
+
+    setLeptDebugOK(1);
+    lept_mkdir("lept/contrast");
 
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
 
     na = numaContrastTRC(factor);
     gplotSimple1(na, GPLOT_PNG, "/tmp/lept/contrast/trc1", "contrast trc");
-    l_fileDisplay("/tmp/lept/contrast/trc1.png", 0, 100);
+    l_fileDisplay("/tmp/lept/contrast/trc1.png", 0, 100, 1.0);
     numaDestroy(&na);
 
          /* Plot contrast TRC maps */
@@ -72,13 +76,13 @@ static char  mainName[] = "contrasttest";
         "value in", "value out");
     for (iplot = 0; fact[iplot] >= 0.0; iplot++) {
         na = numaContrastTRC(fact[iplot]);
-        sprintf(bigbuf, "factor = %3.1f", fact[iplot]);
-        gplotAddPlot(gplot, nax, na, GPLOT_LINES, bigbuf);
+        snprintf(buf, sizeof(buf), "factor = %3.1f", fact[iplot]);
+        gplotAddPlot(gplot, nax, na, GPLOT_LINES, buf);
         numaDestroy(&na);
     }
     gplotMakeOutput(gplot);
     gplotDestroy(&gplot);
-    l_fileDisplay("/tmp/lept/contrast/trc2.png", 600, 100);
+    l_fileDisplay("/tmp/lept/contrast/trc2.png", 600, 100, 1.0);
     numaDestroy(&nax);
 
         /* Apply the input contrast enhancement */

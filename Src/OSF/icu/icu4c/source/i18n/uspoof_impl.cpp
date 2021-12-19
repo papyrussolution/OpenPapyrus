@@ -367,7 +367,7 @@ int32_t SpoofImpl::findHiddenOverlay(const UnicodeString & input, UErrorCode&) c
 		if(sawLeadCharacter && cp == 0x0307) {
 			return i;
 		}
-		uint8_t combiningClass = u_getCombiningClass(cp);
+		uint8 combiningClass = u_getCombiningClass(cp);
 		// Skip over characters except for those with combining class 0 (non-combining characters) or with
 		// combining class 230 (same class as U+0307)
 		U_ASSERT(u_getCombiningClass(0x0307) == 230);
@@ -856,7 +856,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_swap(const UDataSwapper * ds, const void * inDat
 	// Get the Spoof Data Header, and check that it appears to be OK.
 	//
 	//
-	const uint8_t   * inBytes = (const uint8_t*)inData+headerSize;
+	const uint8   * inBytes = (const uint8*)inData+headerSize;
 	SpoofDataHeader * spoofDH = (SpoofDataHeader*)inBytes;
 	if(ds->readUInt32(spoofDH->fMagic)   != USPOOF_MAGIC ||
 	    ds->readUInt32(spoofDH->fLength)  <  sizeof(SpoofDataHeader)) {
@@ -889,7 +889,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_swap(const UDataSwapper * ds, const void * inDat
 	//                 we need to reference the header to locate the data, and an
 	//                 inplace swap of the header leaves it unusable.
 	//
-	uint8_t          * outBytes = (uint8_t*)outData + headerSize;
+	uint8          * outBytes = (uint8 *)outData + headerSize;
 	SpoofDataHeader  * outputDH = (SpoofDataHeader*)outBytes;
 
 	int32_t sectionStart;
@@ -920,7 +920,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_swap(const UDataSwapper * ds, const void * inDat
 
 	// And, last, swap the header itself.
 	//   int32_t fMagic             // swap this
-	//   uint8_t   fFormatVersion[4]  // Do not swap this, just copy
+	//   uint8   fFormatVersion[4]  // Do not swap this, just copy
 	//   int32_t fLength and all the rest       // Swap the rest, all is 32 bit stuff.
 	//
 	uint32_t magic = ds->readUInt32(spoofDH->fMagic);

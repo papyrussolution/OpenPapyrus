@@ -53,7 +53,7 @@ struct private_data {
 
 /* Gzip Filter. */
 static ssize_t  gzip_filter_read(struct archive_read_filter *, const void **);
-static int      gzip_filter_close(struct archive_read_filter *);
+static int gzip_filter_close(struct archive_read_filter *);
 #endif
 
 /*
@@ -66,9 +66,9 @@ static int      gzip_filter_close(struct archive_read_filter *);
  * use the compress_program framework to try to fire up an external
  * gzip program.
  */
-static int      gzip_bidder_bid(struct archive_read_filter_bidder *,
+static int gzip_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      gzip_bidder_init(struct archive_read_filter *);
+static int gzip_bidder_init(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
@@ -217,7 +217,7 @@ static int gzip_bidder_bid(struct archive_read_filter_bidder * self,
 {
 	int bits_checked;
 
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 
 	if(peek_at_header(filter, &bits_checked, NULL))
 		return (bits_checked);

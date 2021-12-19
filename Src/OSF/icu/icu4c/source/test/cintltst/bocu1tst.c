@@ -1,17 +1,9 @@
+// bocu1tst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 2002-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  bocu1tst.c
+ *   Copyright (C) 2002-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2002may27
  *   created by: Markus W. Scherer
  *
@@ -165,16 +157,12 @@ static const int8_t
 bocu1ByteToTrail[BOCU1_MIN] = {
 /*  0     1     2     3     4     5     6     7    */
 	-1,   0x00, 0x01, 0x02, 0x03, 0x04, 0x05, -1,
-
 /*  8     9     a     b     c     d     e     f    */
 	-1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
-
 /*  10    11    12    13    14    15    16    17   */
 	0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
-
 /*  18    19    1a    1b    1c    1d    1e    1f   */
 	0x0e, 0x0f, -1,   -1,   0x10, 0x11, 0x12, 0x13,
-
 /*  20   */
 	-1
 };
@@ -188,10 +176,8 @@ static const int8_t
     bocu1TrailToByte[BOCU1_TRAIL_CONTROLS_COUNT] = {
 /*  0     1     2     3     4     5     6     7    */
 	0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x10, 0x11,
-
 /*  8     9     a     b     c     d     e     f    */
 	0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,
-
 /*  10    11    12    13   */
 	0x1c, 0x1d, 0x1e, 0x1f
 };
@@ -229,9 +215,7 @@ typedef struct Bocu1Rx Bocu1Rx;
 
 /* see bocu1.c */
 U_CFUNC int32_t packDiff(int32_t diff);
-
 U_CFUNC int32_t encodeBocu1(int32_t * pPrev, int32_t c);
-
 U_CFUNC int32_t decodeBocu1(Bocu1Rx * pRx, uint8_t b);
 
 /* icuhtml/design/conversion/bocu1/bocu1.c ---------------------------------- */
@@ -245,7 +229,8 @@ U_CFUNC int32_t decodeBocu1(Bocu1Rx * pRx, uint8_t b);
  * @param c current code point, 0..0x10ffff
  * @return "previous code point" state value
  */
-static int32_t bocu1Prev(int32_t c) {
+static int32_t bocu1Prev(int32_t c) 
+{
 	/* compute new prev */
 	if(0x3040<=c && c<=0x309f) {
 		/* Hiragana is not 128-aligned */
@@ -413,9 +398,9 @@ U_CFUNC int32_t encodeBocu1(int32_t * pPrev, int32_t c) {
  *
  * @see decodeBocu1
  */
-static int32_t decodeBocu1LeadByte(Bocu1Rx * pRx, uint8_t b) {
+static int32_t decodeBocu1LeadByte(Bocu1Rx * pRx, uint8_t b) 
+{
 	int32_t c, count;
-
 	if(b>=BOCU1_START_NEG_2) {
 		/* positive difference */
 		if(b<BOCU1_START_POS_3) {
@@ -452,13 +437,11 @@ static int32_t decodeBocu1LeadByte(Bocu1Rx * pRx, uint8_t b) {
 			count = 3;
 		}
 	}
-
 	/* set the state for decoding the trail byte(s) */
 	pRx->diff = c;
 	pRx->count = count;
 	return -1;
 }
-
 /**
  * Function for BOCU-1 decoder; handles multi-byte trail bytes.
  *
@@ -468,9 +451,9 @@ static int32_t decodeBocu1LeadByte(Bocu1Rx * pRx, uint8_t b) {
  *
  * @see decodeBocu1
  */
-static int32_t decodeBocu1TrailByte(Bocu1Rx * pRx, uint8_t b) {
+static int32_t decodeBocu1TrailByte(Bocu1Rx * pRx, uint8_t b) 
+{
 	int32_t t, c, count;
-
 	if(b<=0x20) {
 		/* skip some C0 controls and make the trail byte range contiguous */
 		t = bocu1ByteToTrail[b];
@@ -489,11 +472,9 @@ static int32_t decodeBocu1TrailByte(Bocu1Rx * pRx, uint8_t b) {
 	else {
 		t = (int32_t)b-BOCU1_TRAIL_BYTE_OFFSET;
 	}
-
 	/* add trail byte into difference and decrement count */
 	c = pRx->diff;
 	count = pRx->count;
-
 	if(count==1) {
 		/* final trail byte, deliver a code point */
 		c = pRx->prev+c+t;
@@ -868,12 +849,10 @@ static void TestBOCU1RefDiff() {
 	else {
 		log_err("writeDiff(-0x10ffff..0x10ffff) violates lexical ordering in %d cases\n", countErrors);
 	}
-
 	/* output signature byte sequence */
 	i = 0;
 	writePacked(encodeBocu1(&i, 0xfeff), level);
-	log_verbose("\nBOCU-1 signature byte sequence: %02x %02x %02x\n",
-	    level[0], level[1], level[2]);
+	log_verbose("\nBOCU-1 signature byte sequence: %02x %02x %02x\n", level[0], level[1], level[2]);
 }
 
 /* cintltst code ------------------------------------------------------------ */
@@ -883,18 +862,15 @@ static const int32_t DEFAULT_BUFFER_SIZE = 30000;
 /* test one string with the ICU and the reference BOCU-1 implementations */
 static void roundtripBOCU1(UConverter * bocu1, int32_t number, const UChar * text, int32_t length) 
 {
-	UChar * roundtripRef, * roundtripICU;
-	char * bocu1Ref, * bocu1ICU;
-	int32_t bocu1RefLength, bocu1ICULength, roundtripRefLength, roundtripICULength;
-	UErrorCode errorCode;
-	roundtripRef = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
-	roundtripICU = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
-	bocu1Ref = (char *)SAlloc::M(DEFAULT_BUFFER_SIZE);
-	bocu1ICU = (char *)SAlloc::M(DEFAULT_BUFFER_SIZE);
+	int32_t roundtripRefLength, roundtripICULength;
+	UChar * roundtripRef = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
+	UChar * roundtripICU = (UChar *)SAlloc::M(DEFAULT_BUFFER_SIZE * sizeof(UChar));
+	char * bocu1Ref = (char *)SAlloc::M(DEFAULT_BUFFER_SIZE);
+	char * bocu1ICU = (char *)SAlloc::M(DEFAULT_BUFFER_SIZE);
 	/* Unicode -> BOCU-1 */
-	bocu1RefLength = writeString(text, length, (uint8_t*)bocu1Ref);
-	errorCode = U_ZERO_ERROR;
-	bocu1ICULength = ucnv_fromUChars(bocu1, bocu1ICU, DEFAULT_BUFFER_SIZE, text, length, &errorCode);
+	int32_t bocu1RefLength = writeString(text, length, (uint8_t*)bocu1Ref);
+	UErrorCode errorCode = U_ZERO_ERROR;
+	int32_t bocu1ICULength = ucnv_fromUChars(bocu1, bocu1ICU, DEFAULT_BUFFER_SIZE, text, length, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		log_err("ucnv_fromUChars(BOCU-1, text(%d)[%d]) failed: %s\n", number, length, u_errorName(errorCode));
 		goto cleanup;
@@ -908,13 +884,11 @@ static void roundtripBOCU1(UConverter * bocu1, int32_t number, const UChar * tex
 	if(roundtripRefLength<0) {
 		goto cleanup; /* readString() found an error and reported it */
 	}
-
 	roundtripICULength = ucnv_toUChars(bocu1, roundtripICU, DEFAULT_BUFFER_SIZE, bocu1ICU, bocu1ICULength, &errorCode);
 	if(U_FAILURE(errorCode)) {
 		log_err("ucnv_toUChars(BOCU-1, text(%d)[%d]) failed: %s\n", number, length, u_errorName(errorCode));
 		goto cleanup;
 	}
-
 	if(length!=roundtripRefLength || 0!=u_memcmp(text, roundtripRef, length)) {
 		log_err("BOCU-1 -> Unicode: original(%d)[%d]!=reference[%d]\n", number, length, roundtripRefLength);
 		goto cleanup;
@@ -1019,7 +993,8 @@ static void TestBOCU1()
 
 U_CFUNC void addBOCU1Tests(TestNode** root);
 
-U_CFUNC void addBOCU1Tests(TestNode** root) {
+U_CFUNC void addBOCU1Tests(TestNode** root) 
+{
 	addTest(root, TestBOCU1RefDiff, "tsconv/bocu1tst/TestBOCU1RefDiff");
 	addTest(root, TestBOCU1, "tsconv/bocu1tst/TestBOCU1");
 }

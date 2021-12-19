@@ -2714,7 +2714,7 @@ int PPSession::GetUsedLicCount(int32 * pUsedLicCount)
 	for(uint i = 0; i < sync_array.getCount(); i++) {
 		_E _e;
 		_e.TerminalSessID = sync_array.at(i).TerminalSessID;
-		_e.MchnID         = sync_array.at(i).MchnID;
+		_e.MchnID = sync_array.at(i).MchnID;
 		if(!machine_list.lsearch(&_e, 0, PTR_CMPFUNC(_E)))
 			machine_list.insert(&_e);
 	}
@@ -2851,16 +2851,16 @@ int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	}
 	if(r < 0) {
 		MEMSZERO(tmp);
-		tmp.Tag           = 0;
-		tmp.ObjID         = objID;
+		tmp.Tag   = 0;
+		tmp.ObjID = objID;
 		tmp.PropID        = PPPRP_CFG;
 		tmp.AccessLevel   = DEFCFG_ACCESS;
 		tmp.BaseCurID     = DEFCFG_CURRENCY;
 		tmp.RealizeOrder  = DEFCFG_RLZORD;
-		tmp.Menu          = DEFCFG_MENU;
+		tmp.Menu  = DEFCFG_MENU;
 		tmp.LocAccSheetID = DEFCFG_LOCSHEET;
 		tmp.Location      = DEFCFG_LOCATION;
-		tmp.Flags         = DEFCFG_FLAGS;
+		tmp.Flags = DEFCFG_FLAGS;
 	}
 	if(r <= 0 || tmp.Tag == PPOBJ_CONFIG || p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &global, sizeof(global)) <= 0)
 		global = tmp;
@@ -3457,9 +3457,9 @@ PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pD
 int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	enum {
-        logmOrdinary          = 0,
-        logmSystem            = 1, // Под именем SYSTEM
-        logmService           = 2, // Под именем PPSession::P_JobLogin
+        logmOrdinary  = 0,
+        logmSystem    = 1, // Под именем SYSTEM
+        logmService   = 2, // Под именем PPSession::P_JobLogin
         logmEmptyBaseCreation = 3  // Под именем PPSession::P_EmptyBaseCreationLogin
 	};
 	int    ok = 1, r;

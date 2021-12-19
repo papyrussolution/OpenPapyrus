@@ -32,42 +32,42 @@
  * to the extent permitted by applicable law.
    ]*/
 
-/*                                       */
+/*                       */
 /* This file is included by ../term.c.                                     */
-/*                                                                         */
+/*                                                         */
 /* This terminal driver supports:                                          */
-/*     TGIF                                                                */
-/*                                                                         */
+/* TGIF                                                                */
+/*                                                         */
 /* AUTHORS:                                                                */
-/*  Werner Geppert and Andreas Kuhlewind                                   */
-/*  March, 21st 1995                                                       */
-/*                                                                         */
+/* Werner Geppert and Andreas Kuhlewind                                   */
+/* March, 21st 1995                                                       */
+/*                                                         */
 /* send your comments or suggestions to werner@mez.ruhr-uni-bochum.de      */
-/*                                                                         */
-/*                                                                         */
+/*                                                         */
+/*                                                         */
 /* MODIFIED May, 11st 1997 by NOVÁK Levente (novakl@tigris.klte.hu):       */
-/*                                                                         */
-/*          - Modified the default linewidth for borders from 3 to 2       */
-/*          - Modified the default size of markers' bounding box           */
-/*            to allow nicer shapes                                        */
-/*          - Slightly modified the markers and added several new ones,    */
-/*            now we have 64 different pointtypes, the same as for the     */
-/*            PostScript terminal                                          */
-/*          - I left the %.1f format for pixel positions, but I think      */
-/*            Tgif does only calculate with integer positions              */
-/*                                                                         */
+/*                                                         */
+/* - Modified the default linewidth for borders from 3 to 2       */
+/* - Modified the default size of markers' bounding box           */
+/* to allow nicer shapes                                        */
+/* - Slightly modified the markers and added several new ones,    */
+/* now we have 64 different pointtypes, the same as for the     */
+/* PostScript terminal                                          */
+/* - I left the %.1f format for pixel positions, but I think      */
+/* Tgif does only calculate with integer positions              */
+/*                                                         */
 /* Modified  07 July 2000 by Ian MacPhedran                                */
-/*          - added PM3D support                                           */
-/*                                                                         */
+/* - added PM3D support                                           */
+/*                                                         */
 /* Modified  04 February 2002 by Levente Novák                             */
-/*          - break long "polygon()" directives into lines, as it made     */
-/*            Tgif fail polygons had >8 sides                              */
-/*            (e.g. when using "filledcurves")                             */
-/*                                                                         */
+/* - break long "polygon()" directives into lines, as it made     */
+/* Tgif fail polygons had >8 sides                              */
+/* (e.g. when using "filledcurves")                             */
+/*                                                         */
 /* Modified  29 November 2004  Shigeharu TAKENO <shige@iee.niit.ac.jp>     */
-/*          - add linewidth and monochrome options                         */
-/*            update option parsing to be order-independent                */
-/*                                                                         */
+/* - add linewidth and monochrome options                         */
+/* update option parsing to be order-independent                */
+/*                                                         */
 /***************************************************************************/
 
 /*}}}  */
@@ -151,7 +151,7 @@ static uint uYshift; /* actual shift y                          */
 static uint uTgifPlotCount; /* counts number of plots          */
 static uint uTgifPlotRow = 1, uTgifPlotCol = 1; /* actual plot row and col   */
 static uint uTgif_win_horiz = 1, /* number of plots in x and  */
-    uTgif_win_verti = 1; /*      y direction [x,y]         */
+    uTgif_win_verti = 1; /* y direction [x,y]         */
 
 static double dActThick_factor = 1.0; /* linewidth factor */
 static double dActThick_default = 1.0; /* default linewidth factor */
@@ -265,12 +265,10 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    strcpy(sDefaultFont, "Helvetica");
 			    uActFontSize = 18;
 			    uDefaultFontSize = 18;
-			    pThis->ChrV = (uint)(uActFontSize);
-			    pThis->ChrH = (uint)(uActFontSize * 6 / 10);
-
+			    pThis->SetCharSize((uint)(uActFontSize * 6 / 10), (uint)(uActFontSize));
 			    TgifPortrait = TRUE;
 			    TgifUseColor = TRUE;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    TgifSolid = FALSE;
 			    uTgifPlotsPerPage = 1;
 			    uTgifPlotRow = 1;
@@ -284,12 +282,12 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case TGIF_MONOCHROME:
 			    TgifUseColor = FALSE;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_COLOR:
 			    TgifUseColor = TRUE;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case TGIF_LINEWIDTH:
@@ -367,8 +365,7 @@ TERM_PUBLIC void TGIF_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    /* We have font size specified */
 				    uActFontSize = (uint)pGp->Real(pGp->ConstExpress(&b));
 				    uDefaultFontSize = uActFontSize;
-				    pThis->ChrV = (uint)(uActFontSize);
-				    pThis->ChrH = (uint)(uActFontSize * 6 / 10);
+				    pThis->SetCharSize((uint)(uActFontSize * 6 / 10), (uint)(uActFontSize));
 			    }
 			    break;
 		    }

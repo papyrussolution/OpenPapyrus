@@ -29,54 +29,66 @@
  * <pre>
  *
  *      Filters
- *           PIX      *pixSelectBySize()
- *           PIXA     *pixaSelectBySize()
+ *           PIX *pixSelectBySize()
+ *           PIXA *pixaSelectBySize()
  *           NUMA     *pixaMakeSizeIndicator()
  *
- *           PIX      *pixSelectByPerimToAreaRatio()
- *           PIXA     *pixaSelectByPerimToAreaRatio()
- *           PIX      *pixSelectByPerimSizeRatio()
- *           PIXA     *pixaSelectByPerimSizeRatio()
- *           PIX      *pixSelectByAreaFraction()
- *           PIXA     *pixaSelectByAreaFraction()
- *           PIX      *pixSelectByWidthHeightRatio()
- *           PIXA     *pixaSelectByWidthHeightRatio()
+ *           PIX *pixSelectByPerimToAreaRatio()
+ *           PIXA *pixaSelectByPerimToAreaRatio()
+ *           PIX *pixSelectByPerimSizeRatio()
+ *           PIXA *pixaSelectByPerimSizeRatio()
+ *           PIX *pixSelectByAreaFraction()
+ *           PIXA *pixaSelectByAreaFraction()
+ *           PIX *pixSelectByArea()
+ *           PIXA *pixaSelectByArea()
+ *           PIX *pixSelectByWidthHeightRatio()
+ *           PIXA *pixaSelectByWidthHeightRatio()
+ *           PIXA *pixaSelectByNumConnComp()
  *
- *           PIXA     *pixaSelectWithIndicator()
- *           int32   pixRemoveWithIndicator()
- *           int32   pixAddWithIndicator()
- *           PIXA     *pixaSelectWithString()
- *           PIX      *pixaRenderComponent()
+ *           PIXA *pixaSelectWithIndicator()
+ *           l_int32   pixRemoveWithIndicator()
+ *           l_int32   pixAddWithIndicator()
+ *           PIXA *pixaSelectWithString()
+ *           PIX *pixaRenderComponent()
  *
  *      Sort functions
- *           PIXA     *pixaSort()
- *           PIXA     *pixaBinSort()
- *           PIXA     *pixaSortByIndex()
+ *           PIXA *pixaSort()
+ *           PIXA *pixaBinSort()
+ *           PIXA *pixaSortByIndex()
  *           PIXAA    *pixaSort2dByIndex()
  *
  *      Pixa and Pixaa range selection
- *           PIXA     *pixaSelectRange()
+ *           PIXA *pixaSelectRange()
  *           PIXAA    *pixaaSelectRange()
  *
  *      Pixa and Pixaa scaling
  *           PIXAA    *pixaaScaleToSize()
  *           PIXAA    *pixaaScaleToSizeVar()
- *           PIXA     *pixaScaleToSize()
- *           PIXA     *pixaScale()
+ *           PIXA *pixaScaleToSize()
+ *           PIXA *pixaScaleToSizeRel()
+ *           PIXA *pixaScale()
+ *           PIXA *pixaScaleBySampling()
+ *
+ *      Pixa rotation and translation
+ *           PIXA *pixaRotate()
+ *           PIXA *pixaRotateOrth()
+ *           PIXA *pixaTranslate()
  *
  *      Miscellaneous
- *           PIXA     *pixaAddBorderGeneral()
- *           PIXA     *pixaaFlattenToPixa()
- *           int32   pixaaSizeRange()
- *           int32   pixaSizeRange()
- *           PIXA     *pixaClipToPix()
- *           int32   pixaGetRenderingDepth()
- *           int32   pixaHasColor()
- *           int32   pixaAnyColormaps()
- *           int32   pixaGetDepthInfo()
- *           PIXA     *pixaConvertToSameDepth()
- *           int32   pixaEqual()
- *           PIXA     *pixaRotateOrth()
+ *           PIXA *pixaAddBorderGeneral()
+ *           PIXA *pixaaFlattenToPixa()
+ *           l_int32   pixaaSizeRange()
+ *           l_int32   pixaSizeRange()
+ *           PIXA *pixaClipToPix()
+ *           PIXA *pixaClipToForeground()
+ *           l_int32   pixaGetRenderingDepth()
+ *           l_int32   pixaHasColor()
+ *           l_int32   pixaAnyColormaps()
+ *           l_int32   pixaGetDepthInfo()
+ *           PIXA *pixaConvertToSameDepth()
+ *           PIXA *pixaConvertToGivenDepth()
+ *           l_int32   pixaEqual()
+ *           l_int32   pixaSetFullSizeBoxa()
  * </pre>
  */
 #include "allheaders.h"
@@ -85,7 +97,10 @@
 /* For more than this number of c.c. in a binarized image of
  * semi-perimeter (w + h) about 5000 or less, the O(n) binsort
  * is faster than the O(nlogn) shellsort.  */
-static const int32 MIN_COMPS_FOR_BIN_SORT = 200;
+static const l_int32 MinCompsForBinSort = 200;
+
+/* Don't rotate any angle smaller than this */
+static const float MinAngleToRotate = 0.001; /* radians; ~0.06 deg */
 
 /*---------------------------------------------------------------------*
 *                                Filters                              *
@@ -116,6 +131,7 @@ static const int32 MIN_COMPS_FOR_BIN_SORT = 200;
  *        Size
  *        PerimToAreaRatio
  *        PerimSizeRatio
+ *        Area
  *        AreaFraction
  *        WidthHeightRatio
  *
@@ -169,14 +185,14 @@ static const int32 MIN_COMPS_FOR_BIN_SORT = 200;
 /*!
  * \brief   pixSelectBySize()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    width, height threshold dimensions
- * \param[in]    connectivity 4 or 8
- * \param[in]    type L_SELECT_WIDTH, L_SELECT_HEIGHT,
- *                    L_SELECT_IF_EITHER, L_SELECT_IF_BOTH
- * \param[in]    relation L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                        L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 otherwise
+ * \param[in]    pixs           1 bpp
+ * \param[in]    width, height  threshold dimensions
+ * \param[in]    connectivity   4 or 8
+ * \param[in]    type           L_SELECT_WIDTH, L_SELECT_HEIGHT,
+ *                              L_SELECT_IF_EITHER, L_SELECT_IF_BOTH
+ * \param[in]    relation       L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                              L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged       [optional] 1 if changed; 0 otherwise
  * \return  filtered pixd, or NULL on error
  *
  * <pre>
@@ -193,31 +209,31 @@ static const int32 MIN_COMPS_FOR_BIN_SORT = 200;
  *          L_SELECT_IF_GTE.
  * </pre>
  */
-PIX * pixSelectBySize(PIX      * pixs,
-    int32 width,
-    int32 height,
-    int32 connectivity,
-    int32 type,
-    int32 relation,
-    int32  * pchanged)
+PIX * pixSelectBySize(PIX * pixs,
+    l_int32 width,
+    l_int32 height,
+    l_int32 connectivity,
+    l_int32 type,
+    l_int32 relation,
+    l_int32 * pchanged)
 {
-	int32 w, h, empty, changed, count;
-	BOXA    * boxa;
-	PIX     * pixd;
+	l_int32 w, h, empty, changed, count;
+	BOXA * boxa;
+	PIX * pixd;
 	PIXA    * pixas, * pixad;
 
-	PROCNAME("pixSelectBySize");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(connectivity != 4 && connectivity != 8)
-		return (PIX*)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+		return (PIX *)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
 	if(type != L_SELECT_WIDTH && type != L_SELECT_HEIGHT &&
 	    type != L_SELECT_IF_EITHER && type != L_SELECT_IF_BOTH)
-		return (PIX*)ERROR_PTR("invalid type", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
 	if(relation != L_SELECT_IF_LT && relation != L_SELECT_IF_GT &&
 	    relation != L_SELECT_IF_LTE && relation != L_SELECT_IF_GTE)
-		return (PIX*)ERROR_PTR("invalid relation", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid relation", procName, NULL);
 	if(pchanged) *pchanged = FALSE;
 
 	/* Check if any components exist */
@@ -258,12 +274,12 @@ PIX * pixSelectBySize(PIX      * pixs,
  * \brief   pixaSelectBySize()
  *
  * \param[in]    pixas
- * \param[in]    width, height threshold dimensions
- * \param[in]    type L_SELECT_WIDTH, L_SELECT_HEIGHT,
- *                    L_SELECT_IF_EITHER, L_SELECT_IF_BOTH
- * \param[in]    relation L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                        L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 otherwise
+ * \param[in]    width, height  threshold dimensions
+ * \param[in]    type           L_SELECT_WIDTH, L_SELECT_HEIGHT,
+ *                              L_SELECT_IF_EITHER, L_SELECT_IF_BOTH
+ * \param[in]    relation       L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                              L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged       [optional] 1 if changed; 0 otherwise
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -279,17 +295,17 @@ PIX * pixSelectBySize(PIX      * pixs,
  *          L_SELECT_IF_GTE.
  * </pre>
  */
-PIXA * pixaSelectBySize(PIXA     * pixas,
-    int32 width,
-    int32 height,
-    int32 type,
-    int32 relation,
-    int32  * pchanged)
+PIXA * pixaSelectBySize(PIXA * pixas,
+    l_int32 width,
+    l_int32 height,
+    l_int32 type,
+    l_int32 relation,
+    l_int32 * pchanged)
 {
-	NUMA  * na;
+	NUMA * na;
 	PIXA  * pixad;
 
-	PROCNAME("pixaSelectBySize");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -314,11 +330,11 @@ PIXA * pixaSelectBySize(PIXA     * pixas,
  * \brief   pixaMakeSizeIndicator()
  *
  * \param[in]    pixa
- * \param[in]    width, height threshold dimensions
- * \param[in]    type L_SELECT_WIDTH, L_SELECT_HEIGHT,
- *                    L_SELECT_IF_EITHER, L_SELECT_IF_BOTH
- * \param[in]    relation L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                        L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[in]    width, height  threshold dimensions
+ * \param[in]    type           L_SELECT_WIDTH, L_SELECT_HEIGHT,
+ *                              L_SELECT_IF_EITHER, L_SELECT_IF_BOTH
+ * \param[in]    relation       L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                              L_SELECT_IF_LTE, L_SELECT_IF_GTE
  * \return  na indicator array, or NULL on error
  *
  * <pre>
@@ -333,16 +349,16 @@ PIXA * pixaSelectBySize(PIXA     * pixas,
  *          L_SELECT_IF_GTE.
  * </pre>
  */
-NUMA * pixaMakeSizeIndicator(PIXA     * pixa,
-    int32 width,
-    int32 height,
-    int32 type,
-    int32 relation)
+NUMA * pixaMakeSizeIndicator(PIXA * pixa,
+    l_int32 width,
+    l_int32 height,
+    l_int32 type,
+    l_int32 relation)
 {
-	int32 i, n, w, h, ival;
-	NUMA    * na;
+	l_int32 i, n, w, h, ival;
+	NUMA * na;
 
-	PROCNAME("pixaMakeSizeIndicator");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
 		return (NUMA*)ERROR_PTR("pixa not defined", procName, NULL);
@@ -362,30 +378,30 @@ NUMA * pixaMakeSizeIndicator(PIXA     * pixa,
 		{
 			case L_SELECT_WIDTH:
 			    if((relation == L_SELECT_IF_LT && w < width) ||
-			    (relation == L_SELECT_IF_GT && w > width) ||
-			    (relation == L_SELECT_IF_LTE && w <= width) ||
-			    (relation == L_SELECT_IF_GTE && w >= width))
+				(relation == L_SELECT_IF_GT && w > width) ||
+				(relation == L_SELECT_IF_LTE && w <= width) ||
+				(relation == L_SELECT_IF_GTE && w >= width))
 				    ival = 1;
 			    break;
 			case L_SELECT_HEIGHT:
 			    if((relation == L_SELECT_IF_LT && h < height) ||
-			    (relation == L_SELECT_IF_GT && h > height) ||
-			    (relation == L_SELECT_IF_LTE && h <= height) ||
-			    (relation == L_SELECT_IF_GTE && h >= height))
+				(relation == L_SELECT_IF_GT && h > height) ||
+				(relation == L_SELECT_IF_LTE && h <= height) ||
+				(relation == L_SELECT_IF_GTE && h >= height))
 				    ival = 1;
 			    break;
 			case L_SELECT_IF_EITHER:
 			    if(((relation == L_SELECT_IF_LT) && (w < width || h < height)) ||
-			    ((relation == L_SELECT_IF_GT) && (w > width || h > height)) ||
-			    ((relation == L_SELECT_IF_LTE) && (w <= width || h <= height)) ||
-			    ((relation == L_SELECT_IF_GTE) && (w >= width || h >= height)))
+				((relation == L_SELECT_IF_GT) && (w > width || h > height)) ||
+				((relation == L_SELECT_IF_LTE) && (w <= width || h <= height)) ||
+				((relation == L_SELECT_IF_GTE) && (w >= width || h >= height)))
 				    ival = 1;
 			    break;
 			case L_SELECT_IF_BOTH:
 			    if(((relation == L_SELECT_IF_LT) && (w < width && h < height)) ||
-			    ((relation == L_SELECT_IF_GT) && (w > width && h > height)) ||
-			    ((relation == L_SELECT_IF_LTE) && (w <= width && h <= height)) ||
-			    ((relation == L_SELECT_IF_GTE) && (w >= width && h >= height)))
+				((relation == L_SELECT_IF_GT) && (w > width && h > height)) ||
+				((relation == L_SELECT_IF_LTE) && (w <= width && h <= height)) ||
+				((relation == L_SELECT_IF_GTE) && (w >= width && h >= height)))
 				    ival = 1;
 			    break;
 			default:
@@ -401,12 +417,12 @@ NUMA * pixaMakeSizeIndicator(PIXA     * pixa,
 /*!
  * \brief   pixSelectByPerimToAreaRatio()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    thresh threshold ratio of fg boundary to fg pixels
- * \param[in]    connectivity 4 or 8
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    pixs          1 bpp
+ * \param[in]    thresh        threshold ratio of fg boundary to fg pixels
+ * \param[in]    connectivity  4 or 8
+ * \param[in]    type          L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                             L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged      [optional] 1 if changed; 0 if clone returned
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -422,26 +438,26 @@ NUMA * pixaMakeSizeIndicator(PIXA     * pixa,
  *          components, and L_SELECT_IF_GT or L_SELECT_IF_GTE to remove them.
  * </pre>
  */
-PIX * pixSelectByPerimToAreaRatio(PIX       * pixs,
+PIX * pixSelectByPerimToAreaRatio(PIX * pixs,
     float thresh,
-    int32 connectivity,
-    int32 type,
-    int32   * pchanged)
+    l_int32 connectivity,
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	int32 w, h, empty, changed, count;
-	BOXA    * boxa;
-	PIX     * pixd;
+	l_int32 w, h, empty, changed, count;
+	BOXA * boxa;
+	PIX * pixd;
 	PIXA    * pixas, * pixad;
 
-	PROCNAME("pixSelectByPerimToAreaRatio");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(connectivity != 4 && connectivity != 8)
-		return (PIX*)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+		return (PIX *)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
 	if(type != L_SELECT_IF_LT && type != L_SELECT_IF_GT &&
 	    type != L_SELECT_IF_LTE && type != L_SELECT_IF_GTE)
-		return (PIX*)ERROR_PTR("invalid type", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
 	if(pchanged) *pchanged = FALSE;
 
 	/* Check if any components exist */
@@ -482,10 +498,10 @@ PIX * pixSelectByPerimToAreaRatio(PIX       * pixs,
  * \brief   pixaSelectByPerimToAreaRatio()
  *
  * \param[in]    pixas
- * \param[in]    thresh threshold ratio of fg boundary to fg pixels
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    thresh     threshold ratio of fg boundary to fg pixels
+ * \param[in]    type       L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                          L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged   [optional] 1 if changed; 0 if clone returned
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -497,13 +513,13 @@ PIX * pixSelectByPerimToAreaRatio(PIX       * pixs,
  */
 PIXA * pixaSelectByPerimToAreaRatio(PIXA      * pixas,
     float thresh,
-    int32 type,
-    int32   * pchanged)
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	NUMA  * na, * nai;
+	NUMA * na, * nai;
 	PIXA  * pixad;
 
-	PROCNAME("pixaSelectByPerimToAreaRatio");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -528,12 +544,12 @@ PIXA * pixaSelectByPerimToAreaRatio(PIXA      * pixas,
 /*!
  * \brief   pixSelectByPerimSizeRatio()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    thresh threshold ratio of fg boundary to fg pixels
- * \param[in]    connectivity 4 or 8
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    pixs          1 bpp
+ * \param[in]    thresh        threshold ratio of fg boundary to fg pixels
+ * \param[in]    connectivity  4 or 8
+ * \param[in]    type          L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                             L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged      [optional] 1 if changed; 0 if clone returned
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -550,26 +566,26 @@ PIXA * pixaSelectByPerimToAreaRatio(PIXA      * pixas,
  *          to remove them.
  * </pre>
  */
-PIX * pixSelectByPerimSizeRatio(PIX       * pixs,
+PIX * pixSelectByPerimSizeRatio(PIX * pixs,
     float thresh,
-    int32 connectivity,
-    int32 type,
-    int32   * pchanged)
+    l_int32 connectivity,
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	int32 w, h, empty, changed, count;
-	BOXA    * boxa;
-	PIX     * pixd;
+	l_int32 w, h, empty, changed, count;
+	BOXA * boxa;
+	PIX * pixd;
 	PIXA    * pixas, * pixad;
 
-	PROCNAME("pixSelectByPerimSizeRatio");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(connectivity != 4 && connectivity != 8)
-		return (PIX*)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+		return (PIX *)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
 	if(type != L_SELECT_IF_LT && type != L_SELECT_IF_GT &&
 	    type != L_SELECT_IF_LTE && type != L_SELECT_IF_GTE)
-		return (PIX*)ERROR_PTR("invalid type", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
 	if(pchanged) *pchanged = FALSE;
 
 	/* Check if any components exist */
@@ -610,10 +626,10 @@ PIX * pixSelectByPerimSizeRatio(PIX       * pixs,
  * \brief   pixaSelectByPerimSizeRatio()
  *
  * \param[in]    pixas
- * \param[in]    thresh threshold ratio of fg boundary to b.b. circumference
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    thresh    threshold ratio of fg boundary to b.b. circumference
+ * \param[in]    type      L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                         L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged  [optional] 1 if changed; 0 if clone returned
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -625,13 +641,13 @@ PIX * pixSelectByPerimSizeRatio(PIX       * pixs,
  */
 PIXA * pixaSelectByPerimSizeRatio(PIXA      * pixas,
     float thresh,
-    int32 type,
-    int32   * pchanged)
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	NUMA  * na, * nai;
+	NUMA * na, * nai;
 	PIXA  * pixad;
 
-	PROCNAME("pixaSelectByPerimSizeRatio");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -656,12 +672,12 @@ PIXA * pixaSelectByPerimSizeRatio(PIXA      * pixas,
 /*!
  * \brief   pixSelectByAreaFraction()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    thresh threshold ratio of fg pixels to (w * h)
- * \param[in]    connectivity 4 or 8
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    pixs          1 bpp
+ * \param[in]    thresh        threshold ratio of fg pixels to (w * h)
+ * \param[in]    connectivity  4 or 8
+ * \param[in]    type          L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                             L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged      [optional] 1 if changed; 0 if clone returned
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -677,26 +693,26 @@ PIXA * pixaSelectByPerimSizeRatio(PIXA      * pixas,
  *          L_SELECT_IF_GT or L_SELECT_IF_GTE to remove them.
  * </pre>
  */
-PIX * pixSelectByAreaFraction(PIX       * pixs,
+PIX * pixSelectByAreaFraction(PIX * pixs,
     float thresh,
-    int32 connectivity,
-    int32 type,
-    int32   * pchanged)
+    l_int32 connectivity,
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	int32 w, h, empty, changed, count;
-	BOXA    * boxa;
-	PIX     * pixd;
+	l_int32 w, h, empty, changed, count;
+	BOXA * boxa;
+	PIX * pixd;
 	PIXA    * pixas, * pixad;
 
-	PROCNAME("pixSelectByAreaFraction");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(connectivity != 4 && connectivity != 8)
-		return (PIX*)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+		return (PIX *)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
 	if(type != L_SELECT_IF_LT && type != L_SELECT_IF_GT &&
 	    type != L_SELECT_IF_LTE && type != L_SELECT_IF_GTE)
-		return (PIX*)ERROR_PTR("invalid type", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
 	if(pchanged) *pchanged = FALSE;
 
 	/* Check if any components exist */
@@ -737,10 +753,10 @@ PIX * pixSelectByAreaFraction(PIX       * pixs,
  * \brief   pixaSelectByAreaFraction()
  *
  * \param[in]    pixas
- * \param[in]    thresh threshold ratio of fg pixels to (w * h)
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    thresh      threshold ratio of fg pixels to (w * h)
+ * \param[in]    type        L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                           L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged    [optional] 1 if changed; 0 if clone returned
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -756,13 +772,13 @@ PIX * pixSelectByAreaFraction(PIX       * pixs,
  */
 PIXA * pixaSelectByAreaFraction(PIXA      * pixas,
     float thresh,
-    int32 type,
-    int32   * pchanged)
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	NUMA  * na, * nai;
+	NUMA * na, * nai;
 	PIXA  * pixad;
 
-	PROCNAME("pixaSelectByAreaFraction");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -785,14 +801,145 @@ PIXA * pixaSelectByAreaFraction(PIXA      * pixas,
 }
 
 /*!
+ * \brief   pixSelectByArea()
+ *
+ * \param[in]    pixs          1 bpp
+ * \param[in]    thresh        threshold number of FG pixels
+ * \param[in]    connectivity  4 or 8
+ * \param[in]    type          L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                             L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged      [optional] 1 if changed; 0 if clone returned
+ * \return  pixd, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The args specify constraints on the number of foreground
+ *          pixels in the components that are kept.
+ *      (2) If unchanged, returns a copy of pixs.  Otherwise,
+ *          returns a new pix with the filtered components.
+ *      (3) This filters components based on the number of fg pixels
+ *          in each component.
+ *      (4) Use L_SELECT_IF_LT or L_SELECT_IF_LTE to save components
+ *          with less than the threshold number of fg pixels, and
+ *          L_SELECT_IF_GT or L_SELECT_IF_GTE to remove them.
+ * </pre>
+ */
+PIX * pixSelectByArea(PIX * pixs,
+    float thresh,
+    l_int32 connectivity,
+    l_int32 type,
+    l_int32   * pchanged)
+{
+	l_int32 w, h, empty, changed, count;
+	BOXA * boxa;
+	PIX * pixd;
+	PIXA    * pixas, * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixs)
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
+	if(connectivity != 4 && connectivity != 8)
+		return (PIX *)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+	if(type != L_SELECT_IF_LT && type != L_SELECT_IF_GT &&
+	    type != L_SELECT_IF_LTE && type != L_SELECT_IF_GTE)
+		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
+	if(pchanged) *pchanged = FALSE;
+
+	/* Check if any components exist */
+	pixZero(pixs, &empty);
+	if(empty)
+		return pixCopy(NULL, pixs);
+
+	/* Filter components */
+	boxa = pixConnComp(pixs, &pixas, connectivity);
+	pixad = pixaSelectByArea(pixas, thresh, type, &changed);
+	boxaDestroy(&boxa);
+	pixaDestroy(&pixas);
+
+	if(!changed) {
+		pixaDestroy(&pixad);
+		return pixCopy(NULL, pixs);
+	}
+
+	/* Render the result */
+	if(pchanged) *pchanged = TRUE;
+	pixGetDimensions(pixs, &w, &h, NULL);
+	count = pixaGetCount(pixad);
+	if(count == 0) { /* return empty pix */
+		pixd = pixCreateTemplate(pixs);
+	}
+	else {
+		pixd = pixaDisplay(pixad, w, h);
+		pixCopyResolution(pixd, pixs);
+		pixCopyColormap(pixd, pixs);
+		pixCopyText(pixd, pixs);
+		pixCopyInputFormat(pixd, pixs);
+	}
+	pixaDestroy(&pixad);
+	return pixd;
+}
+
+/*!
+ * \brief   pixaSelectByArea()
+ *
+ * \param[in]    pixas
+ * \param[in]    thresh      threshold number of fg pixels
+ * \param[in]    type        L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                           L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged    [optional] 1 if changed; 0 if clone returned
+ * \return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Returns a pixa clone if no components are removed.
+ *      (2) Uses pix and box clones in the new pixa.
+ *      (3) This filters components based on the number of fg pixels
+ *          in the component.
+ *      (4) Use L_SELECT_IF_LT or L_SELECT_IF_LTE to save components
+ *          with less than the threshold number of fg pixels, and
+ *          L_SELECT_IF_GT or L_SELECT_IF_GTE to remove them.
+ * </pre>
+ */
+PIXA * pixaSelectByArea(PIXA      * pixas,
+    float thresh,
+    l_int32 type,
+    l_int32   * pchanged)
+{
+	NUMA * na, * nai;
+	PIXA  * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(type != L_SELECT_IF_LT && type != L_SELECT_IF_GT &&
+	    type != L_SELECT_IF_LTE && type != L_SELECT_IF_GTE)
+		return (PIXA*)ERROR_PTR("invalid type", procName, NULL);
+
+	/* Compute area of each component */
+	na = pixaCountPixels(pixas);
+
+	/* Generate indicator array for elements to be saved. */
+	nai = numaMakeThresholdIndicator(na, thresh, type);
+	numaDestroy(&na);
+
+	/* Filter to get output */
+	pixad = pixaSelectWithIndicator(pixas, nai, pchanged);
+
+	numaDestroy(&nai);
+	return pixad;
+}
+
+/*!
  * \brief   pixSelectByWidthHeightRatio()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    thresh threshold ratio of width/height
- * \param[in]    connectivity 4 or 8
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    pixs          1 bpp
+ * \param[in]    thresh        threshold ratio of width/height
+ * \param[in]    connectivity  4 or 8
+ * \param[in]    type          L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                             L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged      [optional] 1 if changed; 0 if clone returned
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -807,26 +954,26 @@ PIXA * pixaSelectByAreaFraction(PIXA      * pixas,
  *          L_SELECT_IF_GT or L_SELECT_IF_GTE to remove them.
  * </pre>
  */
-PIX * pixSelectByWidthHeightRatio(PIX       * pixs,
+PIX * pixSelectByWidthHeightRatio(PIX * pixs,
     float thresh,
-    int32 connectivity,
-    int32 type,
-    int32   * pchanged)
+    l_int32 connectivity,
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	int32 w, h, empty, changed, count;
-	BOXA    * boxa;
-	PIX     * pixd;
+	l_int32 w, h, empty, changed, count;
+	BOXA * boxa;
+	PIX * pixd;
 	PIXA    * pixas, * pixad;
 
-	PROCNAME("pixSelectByWidthHeightRatio");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(connectivity != 4 && connectivity != 8)
-		return (PIX*)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+		return (PIX *)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
 	if(type != L_SELECT_IF_LT && type != L_SELECT_IF_GT &&
 	    type != L_SELECT_IF_LTE && type != L_SELECT_IF_GTE)
-		return (PIX*)ERROR_PTR("invalid type", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
 	if(pchanged) *pchanged = FALSE;
 
 	/* Check if any components exist */
@@ -867,10 +1014,10 @@ PIX * pixSelectByWidthHeightRatio(PIX       * pixs,
  * \brief   pixaSelectByWidthHeightRatio()
  *
  * \param[in]    pixas
- * \param[in]    thresh threshold ratio of width/height
- * \param[in]    type L_SELECT_IF_LT, L_SELECT_IF_GT,
- *                    L_SELECT_IF_LTE, L_SELECT_IF_GTE
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    thresh      threshold ratio of width/height
+ * \param[in]    type        L_SELECT_IF_LT, L_SELECT_IF_GT,
+ *                           L_SELECT_IF_LTE, L_SELECT_IF_GTE
+ * \param[out]   pchanged    [optional] 1 if changed; 0 if clone returned
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -886,13 +1033,13 @@ PIX * pixSelectByWidthHeightRatio(PIX       * pixs,
  */
 PIXA * pixaSelectByWidthHeightRatio(PIXA      * pixas,
     float thresh,
-    int32 type,
-    int32   * pchanged)
+    l_int32 type,
+    l_int32   * pchanged)
 {
-	NUMA  * na, * nai;
+	NUMA * na, * nai;
 	PIXA  * pixad;
 
-	PROCNAME("pixaSelectByWidthHeightRatio");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -915,11 +1062,69 @@ PIXA * pixaSelectByWidthHeightRatio(PIXA      * pixas,
 }
 
 /*!
+ * \brief   pixaSelectByNumConnComp()
+ *
+ * \param[in]    pixas
+ * \param[in]    nmin          minimum number of components
+ * \param[in]    nmax          maximum number of components
+ * \param[in]    connectivity  4 or 8
+ * \param[out]   pchanged      [optional] 1 if changed; 0 if clone returned
+ * \return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Returns a pixa clone if no components are removed.
+ *      (2) Uses pix and box clones in the new pixa.
+ *      (3) This filters by the number of connected components in
+ *          a given range.
+ * </pre>
+ */
+PIXA * pixaSelectByNumConnComp(PIXA      * pixas,
+    l_int32 nmin,
+    l_int32 nmax,
+    l_int32 connectivity,
+    l_int32   * pchanged)
+{
+	l_int32 n, i, count;
+	NUMA * na;
+	PIX * pix;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(pchanged) *pchanged = 0;
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(nmin > nmax)
+		return (PIXA*)ERROR_PTR("nmin > nmax", procName, NULL);
+	if(connectivity != 4 && connectivity != 8)
+		return (PIXA*)ERROR_PTR("connectivity not 4 or 8", procName, NULL);
+
+	/* Get indicator array based on number of c.c. */
+	n = pixaGetCount(pixas);
+	na = numaCreate(n);
+	for(i = 0; i < n; i++) {
+		pix = pixaGetPix(pixas, i, L_CLONE);
+		pixCountConnComp(pix, connectivity, &count);
+		if(count >= nmin && count <= nmax)
+			numaAddNumber(na, 1);
+		else
+			numaAddNumber(na, 0);
+		pixDestroy(&pix);
+	}
+
+	/* Filter to get output */
+	pixad = pixaSelectWithIndicator(pixas, na, pchanged);
+	numaDestroy(&na);
+	return pixad;
+}
+
+/*!
  * \brief   pixaSelectWithIndicator()
  *
  * \param[in]    pixas
- * \param[in]    na indicator numa
- * \param[out]   pchanged [optional] 1 if changed; 0 if clone returned
+ * \param[in]    na         indicator numa
+ * \param[out]   pchanged   [optional] 1 if changed; 0 if clone returned
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -931,16 +1136,16 @@ PIXA * pixaSelectByWidthHeightRatio(PIXA      * pixas,
  *          empty in the dest pixa.
  * </pre>
  */
-PIXA * pixaSelectWithIndicator(PIXA     * pixas,
+PIXA * pixaSelectWithIndicator(PIXA * pixas,
     NUMA     * na,
-    int32  * pchanged)
+    l_int32 * pchanged)
 {
-	int32 i, n, nbox, ival, nsave;
-	BOX     * box;
-	PIX     * pixt;
+	l_int32 i, n, nbox, ival, nsave;
+	BOX * box;
+	PIX * pix1;
 	PIXA    * pixad;
 
-	PROCNAME("pixaSelectWithIndicator");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -964,8 +1169,8 @@ PIXA * pixaSelectWithIndicator(PIXA     * pixas,
 	for(i = 0; i < n; i++) {
 		numaGetIValue(na, i, &ival);
 		if(ival == 0) continue;
-		pixt = pixaGetPix(pixas, i, L_CLONE);
-		pixaAddPix(pixad, pixt, L_INSERT);
+		pix1 = pixaGetPix(pixas, i, L_CLONE);
+		pixaAddPix(pixad, pix1, L_INSERT);
 		if(nbox == n) { /* fully populated boxa */
 			box = pixaGetBox(pixas, i, L_CLONE);
 			pixaAddBox(pixad, box, L_INSERT);
@@ -978,9 +1183,9 @@ PIXA * pixaSelectWithIndicator(PIXA     * pixas,
 /*!
  * \brief   pixRemoveWithIndicator()
  *
- * \param[in]    pixs 1 bpp pix from which components are removed; in-place
- * \param[in]    pixa of connected components in pixs
- * \param[in]    na numa indicator: remove components corresponding to 1s
+ * \param[in]    pixs     1 bpp pix from which components are removed; in-place
+ * \param[in]    pixa     of connected components in pixs
+ * \param[in]    na       numa indicator: remove components corresponding to 1s
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -989,15 +1194,15 @@ PIXA * pixaSelectWithIndicator(PIXA     * pixas,
  *          components are set subtracted from pixs.
  * </pre>
  */
-int32 pixRemoveWithIndicator(PIX   * pixs,
+l_ok pixRemoveWithIndicator(PIX * pixs,
     PIXA  * pixa,
-    NUMA  * na)
+    NUMA * na)
 {
-	int32 i, n, ival, x, y, w, h;
-	BOX     * box;
-	PIX     * pix;
+	l_int32 i, n, ival, x, y, w, h;
+	BOX * box;
+	PIX * pix;
 
-	PROCNAME("pixRemoveWithIndicator");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -1028,10 +1233,10 @@ int32 pixRemoveWithIndicator(PIX   * pixs,
 /*!
  * \brief   pixAddWithIndicator()
  *
- * \param[in]    pixs 1 bpp pix from which components are added; in-place
- * \param[in]    pixa of connected components, some of which will be put
- *                    into pixs
- * \param[in]    na numa indicator: add components corresponding to 1s
+ * \param[in]    pixs     1 bpp pix from which components are added; in-place
+ * \param[in]    pixa     of connected components, some of which will be put
+ *                        into pixs
+ * \param[in]    na       numa indicator: add components corresponding to 1s
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1040,15 +1245,15 @@ int32 pixRemoveWithIndicator(PIX   * pixs,
  *          components are added to pixs.
  * </pre>
  */
-int32 pixAddWithIndicator(PIX   * pixs,
+l_ok pixAddWithIndicator(PIX * pixs,
     PIXA  * pixa,
-    NUMA  * na)
+    NUMA * na)
 {
-	int32 i, n, ival, x, y, w, h;
-	BOX     * box;
-	PIX     * pix;
+	l_int32 i, n, ival, x, y, w, h;
+	BOX * box;
+	PIX * pix;
 
-	PROCNAME("pixAddWithIndicator");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -1079,9 +1284,10 @@ int32 pixAddWithIndicator(PIX   * pixs,
  * \brief   pixaSelectWithString()
  *
  * \param[in]    pixas
- * \param[in]    str string of indices into pixa, giving the pix to be selected
- * \param[out]   perror [optional] 1 if any indices are invalid;
- *                      0 if all indices are valid
+ * \param[in]    str      string of indices into pixa, giving the pix to
+ *                        be selected
+ * \param[out]   perror   [optional] 1 if any indices are invalid;
+ *                        0 if all indices are valid
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -1091,17 +1297,17 @@ int32 pixAddWithIndicator(PIX   * pixs,
  * </pre>
  */
 PIXA * pixaSelectWithString(PIXA        * pixas,
-    const char  * str,
-    int32     * perror)
+    const char * str,
+    l_int32     * perror)
 {
-	int32 i, nval, npix, nbox, val, imaxval;
+	l_int32 i, nval, npix, nbox, val, imaxval;
 	float maxval;
 	BOX       * box;
-	NUMA      * na;
-	PIX       * pix1;
+	NUMA * na;
+	PIX * pix1;
 	PIXA      * pixad;
 
-	PROCNAME("pixaSelectWithString");
+	PROCNAME(__FUNCTION__);
 
 	if(perror) *perror = 0;
 	if(!pixas)
@@ -1116,19 +1322,19 @@ PIXA * pixaSelectWithString(PIXA        * pixas,
 		return (PIXA*)ERROR_PTR("no indices found", procName, NULL);
 	}
 	numaGetMax(na, &maxval, NULL);
-	imaxval = (int32)(maxval + 0.1);
+	imaxval = (l_int32)(maxval + 0.1);
 	nbox = pixaGetBoxaCount(pixas);
 	npix = pixaGetCount(pixas);
 	if(imaxval >= npix) {
 		if(perror) *perror = 1;
-		L_ERROR3("max index = %d, size of pixa = %d\n", procName, imaxval, npix);
+		L_ERROR("max index = %d, size of pixa = %d\n", procName, imaxval, npix);
 	}
 
 	pixad = pixaCreate(nval);
 	for(i = 0; i < nval; i++) {
 		numaGetIValue(na, i, &val);
 		if(val < 0 || val >= npix) {
-			L_ERROR2("index %d out of range of pix\n", procName, val);
+			L_ERROR("index %d out of range of pix\n", procName, val);
 			continue;
 		}
 		pix1 = pixaGetPix(pixas, val, L_COPY);
@@ -1145,11 +1351,11 @@ PIXA * pixaSelectWithString(PIXA        * pixas,
 /*!
  * \brief   pixaRenderComponent()
  *
- * \param[in]    pixs [optional] 1 bpp pix
- * \param[in]    pixa of 1 bpp connected components, one of which will
- *                    be rendered in pixs, with its origin determined
- *                    by the associated box.
- * \param[in]    index of component to be rendered
+ * \param[in]    pixs    [optional] 1 bpp pix
+ * \param[in]    pixa    of 1 bpp connected components, one of which will
+ *                       be rendered in pixs, with its origin determined
+ *                       by the associated box.
+ * \param[in]    index   of component to be rendered
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -1159,27 +1365,27 @@ PIXA * pixaSelectWithString(PIXA        * pixas,
  *      (2) The selected component is blitted into pixs.
  * </pre>
  */
-PIX * pixaRenderComponent(PIX     * pixs,
+PIX * pixaRenderComponent(PIX * pixs,
     PIXA    * pixa,
-    int32 index)
+    l_int32 index)
 {
-	int32 n, x, y, w, h, maxdepth;
-	BOX     * box;
-	BOXA    * boxa;
-	PIX     * pix;
+	l_int32 n, x, y, w, h, same, maxd;
+	BOX * box;
+	BOXA * boxa;
+	PIX * pix;
 
-	PROCNAME("pixaRenderComponent");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
-		return (PIX*)ERROR_PTR("pixa not defined", procName, pixs);
+		return (PIX *)ERROR_PTR("pixa not defined", procName, pixs);
 	n = pixaGetCount(pixa);
 	if(index < 0 || index >= n)
-		return (PIX*)ERROR_PTR("invalid index", procName, pixs);
+		return (PIX *)ERROR_PTR("invalid index", procName, pixs);
 	if(pixs && (pixGetDepth(pixs) != 1))
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixs);
-	pixaVerifyDepth(pixa, &maxdepth);
-	if(maxdepth > 1)
-		return (PIX*)ERROR_PTR("not all pix with d == 1", procName, pixs);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixs);
+	pixaVerifyDepth(pixa, &same, &maxd);
+	if(maxd > 1)
+		return (PIX *)ERROR_PTR("not all pix with d == 1", procName, pixs);
 
 	boxa = pixaGetBoxa(pixa, L_CLONE);
 	if(!pixs) {
@@ -1205,37 +1411,40 @@ PIX * pixaRenderComponent(PIX     * pixs,
  * \brief   pixaSort()
  *
  * \param[in]    pixas
- * \param[in]    sorttype L_SORT_BY_X, L_SORT_BY_Y, L_SORT_BY_WIDTH,
- *                        L_SORT_BY_HEIGHT, L_SORT_BY_MIN_DIMENSION,
- *                        L_SORT_BY_MAX_DIMENSION, L_SORT_BY_PERIMETER,
- *                        L_SORT_BY_AREA, L_SORT_BY_ASPECT_RATIO
+ * \param[in]    sorttype   L_SORT_BY_X, L_SORT_BY_Y, L_SORT_BY_WIDTH,
+ *                          L_SORT_BY_HEIGHT, L_SORT_BY_MIN_DIMENSION,
+ *                          L_SORT_BY_MAX_DIMENSION, L_SORT_BY_PERIMETER,
+ *                          L_SORT_BY_AREA, L_SORT_BY_ASPECT_RATIO
  * \param[in]    sortorder  L_SORT_INCREASING, L_SORT_DECREASING
- * \param[out]   pnaindex [optional] index of sorted order into
- *                        original array
- * \param[in]    copyflag L_COPY, L_CLONE
+ * \param[out]   pnaindex   [optional] index of sorted order into
+ *                          original array
+ * \param[in]    copyflag   L_COPY, L_CLONE
  * \return  pixad sorted version of pixas, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) This sorts based on the data in the boxa.  If the boxa
  *          count is not the same as the pixa count, this returns an error.
- *      (2) The copyflag refers to the pix and box copies that are
+ *      (2) If the boxa is empty, it makes one corresponding to the
+ *          dimensions of each pix, which allows meaningful sorting on
+ *          all types except x and y.
+ *      (3) The copyflag refers to the pix and box copies that are
  *          inserted into the sorted pixa.  These are either L_COPY
  *          or L_CLONE.
  * </pre>
  */
 PIXA * pixaSort(PIXA    * pixas,
-    int32 sorttype,
-    int32 sortorder,
+    l_int32 sorttype,
+    l_int32 sortorder,
     NUMA   ** pnaindex,
-    int32 copyflag)
+    l_int32 copyflag)
 {
-	int32 i, n, x, y, w, h;
-	BOXA    * boxa;
-	NUMA    * na, * naindex;
+	l_int32 i, n, nb, x, y, w, h;
+	BOXA * boxa;
+	NUMA * na, * naindex;
 	PIXA    * pixad;
 
-	PROCNAME("pixaSort");
+	PROCNAME(__FUNCTION__);
 
 	if(pnaindex) *pnaindex = NULL;
 	if(!pixas)
@@ -1253,17 +1462,29 @@ PIXA * pixaSort(PIXA    * pixas,
 	if(copyflag != L_COPY && copyflag != L_CLONE)
 		return (PIXA*)ERROR_PTR("invalid copy flag", procName, NULL);
 
+	/* Check the pixa and boxa counts. Make a boxa if required. */
+	if((n = pixaGetCount(pixas)) == 0) {
+		L_INFO("no pix in pixa\n", procName);
+		return pixaCopy(pixas, copyflag);
+	}
 	if((boxa = pixas->boxa) == NULL) /* not owned; do not destroy */
-		return (PIXA*)ERROR_PTR("boxa not found", procName, NULL);
-	n = pixaGetCount(pixas);
-	if(boxaGetCount(boxa) != n)
+		return (PIXA*)ERROR_PTR("boxa not found!", procName, NULL);
+	nb = boxaGetCount(boxa);
+	if(nb == 0) {
+		pixaSetFullSizeBoxa(pixas);
+		nb = n;
+		boxa = pixas->boxa; /* not owned */
+		if(sorttype == L_SORT_BY_X || sorttype == L_SORT_BY_Y)
+			L_WARNING("sort by x or y where all values are 0\n", procName);
+	}
+	if(nb != n)
 		return (PIXA*)ERROR_PTR("boxa and pixa counts differ", procName, NULL);
 
 	/* Use O(n) binsort if possible */
-	if(n > MIN_COMPS_FOR_BIN_SORT &&
+	if(n > MinCompsForBinSort &&
 	    ((sorttype == L_SORT_BY_X) || (sorttype == L_SORT_BY_Y) ||
-		    (sorttype == L_SORT_BY_WIDTH) || (sorttype == L_SORT_BY_HEIGHT) ||
-		    (sorttype == L_SORT_BY_PERIMETER)))
+	    (sorttype == L_SORT_BY_WIDTH) || (sorttype == L_SORT_BY_HEIGHT) ||
+	    (sorttype == L_SORT_BY_PERIMETER)))
 		return pixaBinSort(pixas, sorttype, sortorder, pnaindex, copyflag);
 
 	/* Build up numa of specific data */
@@ -1306,18 +1527,21 @@ PIXA * pixaSort(PIXA    * pixas,
 	}
 
 	/* Get the sort index for data array */
-	if((naindex = numaGetSortIndex(na, sortorder)) == NULL)
+	naindex = numaGetSortIndex(na, sortorder);
+	numaDestroy(&na);
+	if(!naindex)
 		return (PIXA*)ERROR_PTR("naindex not made", procName, NULL);
 
 	/* Build up sorted pixa using sort index */
-	if((pixad = pixaSortByIndex(pixas, naindex, copyflag)) == NULL)
+	if((pixad = pixaSortByIndex(pixas, naindex, copyflag)) == NULL) {
+		numaDestroy(&naindex);
 		return (PIXA*)ERROR_PTR("pixad not made", procName, NULL);
+	}
 
 	if(pnaindex)
 		*pnaindex = naindex;
 	else
 		numaDestroy(&naindex);
-	numaDestroy(&na);
 	return pixad;
 }
 
@@ -1325,12 +1549,12 @@ PIXA * pixaSort(PIXA    * pixas,
  * \brief   pixaBinSort()
  *
  * \param[in]    pixas
- * \param[in]    sorttype L_SORT_BY_X, L_SORT_BY_Y, L_SORT_BY_WIDTH,
- *                        L_SORT_BY_HEIGHT, L_SORT_BY_PERIMETER
- * \param[in]    sortorder  L_SORT_INCREASING, L_SORT_DECREASING
- * \param[out]   pnaindex [optional] index of sorted order into
- *                        original array
- * \param[in]    copyflag L_COPY, L_CLONE
+ * \param[in]    sorttype    L_SORT_BY_X, L_SORT_BY_Y, L_SORT_BY_WIDTH,
+ *                           L_SORT_BY_HEIGHT, L_SORT_BY_PERIMETER
+ * \param[in]    sortorder   L_SORT_INCREASING, L_SORT_DECREASING
+ * \param[out]   pnaindex    [optional] index of sorted order into
+ *                           original array
+ * \param[in]    copyflag    L_COPY, L_CLONE
  * \return  pixad sorted version of pixas, or NULL on error
  *
  * <pre>
@@ -1348,17 +1572,17 @@ PIXA * pixaSort(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaBinSort(PIXA    * pixas,
-    int32 sorttype,
-    int32 sortorder,
+    l_int32 sorttype,
+    l_int32 sortorder,
     NUMA   ** pnaindex,
-    int32 copyflag)
+    l_int32 copyflag)
 {
-	int32 i, n, x, y, w, h;
-	BOXA    * boxa;
-	NUMA    * na, * naindex;
+	l_int32 i, n, x, y, w, h;
+	BOXA * boxa;
+	NUMA * na, * naindex;
 	PIXA    * pixad;
 
-	PROCNAME("pixaBinSort");
+	PROCNAME(__FUNCTION__);
 
 	if(pnaindex) *pnaindex = NULL;
 	if(!pixas)
@@ -1407,18 +1631,21 @@ PIXA * pixaBinSort(PIXA    * pixas,
 	}
 
 	/* Get the sort index for data array */
-	if((naindex = numaGetBinSortIndex(na, sortorder)) == NULL)
+	naindex = numaGetBinSortIndex(na, sortorder);
+	numaDestroy(&na);
+	if(!naindex)
 		return (PIXA*)ERROR_PTR("naindex not made", procName, NULL);
 
 	/* Build up sorted pixa using sort index */
-	if((pixad = pixaSortByIndex(pixas, naindex, copyflag)) == NULL)
+	if((pixad = pixaSortByIndex(pixas, naindex, copyflag)) == NULL) {
+		numaDestroy(&naindex);
 		return (PIXA*)ERROR_PTR("pixad not made", procName, NULL);
+	}
 
 	if(pnaindex)
 		*pnaindex = naindex;
 	else
 		numaDestroy(&naindex);
-	numaDestroy(&na);
 	return pixad;
 }
 
@@ -1426,20 +1653,20 @@ PIXA * pixaBinSort(PIXA    * pixas,
  * \brief   pixaSortByIndex()
  *
  * \param[in]    pixas
- * \param[in]    naindex na that maps from the new pixa to the input pixa
- * \param[in]    copyflag L_COPY, L_CLONE
+ * \param[in]    naindex    na that maps from the new pixa to the input pixa
+ * \param[in]    copyflag   L_COPY, L_CLONE
  * \return  pixad sorted, or NULL on error
  */
 PIXA * pixaSortByIndex(PIXA    * pixas,
-    NUMA    * naindex,
-    int32 copyflag)
+    NUMA * naindex,
+    l_int32 copyflag)
 {
-	int32 i, n, index;
-	BOX     * box;
-	PIX     * pix;
+	l_int32 i, n, index;
+	BOX * box;
+	PIX * pix;
 	PIXA    * pixad;
 
-	PROCNAME("pixaSortByIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1465,22 +1692,22 @@ PIXA * pixaSortByIndex(PIXA    * pixas,
  * \brief   pixaSort2dByIndex()
  *
  * \param[in]    pixas
- * \param[in]    naa numaa that maps from the new pixaa to the input pixas
- * \param[in]    copyflag L_CLONE or L_COPY
+ * \param[in]    naa       numaa that maps from the new pixaa to the input pixas
+ * \param[in]    copyflag  L_CLONE or L_COPY
  * \return  paa sorted, or NULL on error
  */
 PIXAA * pixaSort2dByIndex(PIXA    * pixas,
     NUMAA   * naa,
-    int32 copyflag)
+    l_int32 copyflag)
 {
-	int32 pixtot, ntot, i, j, n, nn, index;
-	BOX     * box;
-	NUMA    * na;
-	PIX     * pix;
+	l_int32 pixtot, ntot, i, j, n, nn, index;
+	BOX * box;
+	NUMA * na;
+	PIX * pix;
 	PIXA    * pixa;
 	PIXAA   * paa;
 
-	PROCNAME("pixaSort2dByIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXAA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1520,9 +1747,9 @@ PIXAA * pixaSort2dByIndex(PIXA    * pixas,
  * \brief   pixaSelectRange()
  *
  * \param[in]    pixas
- * \param[in]    first use 0 to select from the beginning
- * \param[in]    last use 0 to select to the end
- * \param[in]    copyflag L_COPY, L_CLONE
+ * \param[in]    first     use 0 to select from the beginning
+ * \param[in]    last      use -1 to select to the end
+ * \param[in]    copyflag  L_COPY, L_CLONE
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -1533,15 +1760,15 @@ PIXAA * pixaSort2dByIndex(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaSelectRange(PIXA    * pixas,
-    int32 first,
-    int32 last,
-    int32 copyflag)
+    l_int32 first,
+    l_int32 last,
+    l_int32 copyflag)
 {
-	int32 n, npix, i;
-	PIX     * pix;
+	l_int32 n, npix, i;
+	PIX * pix;
 	PIXA    * pixad;
 
-	PROCNAME("pixaSelectRange");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1549,9 +1776,14 @@ PIXA * pixaSelectRange(PIXA    * pixas,
 		return (PIXA*)ERROR_PTR("invalid copyflag", procName, NULL);
 	n = pixaGetCount(pixas);
 	first = MAX(0, first);
-	if(last <= 0) last = n - 1;
+	if(last < 0) last = n - 1;
 	if(first >= n)
 		return (PIXA*)ERROR_PTR("invalid first", procName, NULL);
+	if(last >= n) {
+		L_WARNING("last = %d is beyond max index = %d; adjusting\n",
+		    procName, last, n - 1);
+		last = n - 1;
+	}
 	if(first > last)
 		return (PIXA*)ERROR_PTR("first > last", procName, NULL);
 
@@ -1568,8 +1800,8 @@ PIXA * pixaSelectRange(PIXA    * pixas,
  * \brief   pixaaSelectRange()
  *
  * \param[in]    paas
- * \param[in]    first use 0 to select from the beginning
- * \param[in]    last use 0 to select to the end
+ * \param[in]    first    use 0 to select from the beginning
+ * \param[in]    last     use -1 to select to the end
  * \param[in]    copyflag L_COPY, L_CLONE
  * \return  paad, or NULL on error
  *
@@ -1581,15 +1813,15 @@ PIXA * pixaSelectRange(PIXA    * pixas,
  * </pre>
  */
 PIXAA * pixaaSelectRange(PIXAA   * paas,
-    int32 first,
-    int32 last,
-    int32 copyflag)
+    l_int32 first,
+    l_int32 last,
+    l_int32 copyflag)
 {
-	int32 n, npixa, i;
+	l_int32 n, npixa, i;
 	PIXA    * pixa;
 	PIXAA   * paad;
 
-	PROCNAME("pixaaSelectRange");
+	PROCNAME(__FUNCTION__);
 
 	if(!paas)
 		return (PIXAA*)ERROR_PTR("paas not defined", procName, NULL);
@@ -1597,9 +1829,14 @@ PIXAA * pixaaSelectRange(PIXAA   * paas,
 		return (PIXAA*)ERROR_PTR("invalid copyflag", procName, NULL);
 	n = pixaaGetCount(paas, NULL);
 	first = MAX(0, first);
-	if(last <= 0) last = n - 1;
+	if(last < 0) last = n - 1;
 	if(first >= n)
 		return (PIXAA*)ERROR_PTR("invalid first", procName, NULL);
+	if(last >= n) {
+		L_WARNING("last = %d is beyond max index = %d; adjusting\n",
+		    procName, last, n - 1);
+		last = n - 1;
+	}
 	if(first > last)
 		return (PIXAA*)ERROR_PTR("first > last", procName, NULL);
 
@@ -1619,8 +1856,8 @@ PIXAA * pixaaSelectRange(PIXAA   * paas,
  * \brief   pixaaScaleToSize()
  *
  * \param[in]    paas
- * \param[in]    wd  target width; use 0 if using height as target
- * \param[in]    hd  target height; use 0 if using width as target
+ * \param[in]    wd    target width; use 0 if using height as target
+ * \param[in]    hd    target height; use 0 if using width as target
  * \return  paad, or NULL on error
  *
  * <pre>
@@ -1635,14 +1872,14 @@ PIXAA * pixaaSelectRange(PIXAA   * paas,
  * </pre>
  */
 PIXAA * pixaaScaleToSize(PIXAA   * paas,
-    int32 wd,
-    int32 hd)
+    l_int32 wd,
+    l_int32 hd)
 {
-	int32 n, i;
+	l_int32 n, i;
 	PIXA    * pixa1, * pixa2;
 	PIXAA   * paad;
 
-	PROCNAME("pixaaScaleToSize");
+	PROCNAME(__FUNCTION__);
 
 	if(!paas)
 		return (PIXAA*)ERROR_PTR("paas not defined", procName, NULL);
@@ -1685,11 +1922,11 @@ PIXAA * pixaaScaleToSizeVar(PIXAA  * paas,
     NUMA   * nawd,
     NUMA   * nahd)
 {
-	int32 n, i, wd, hd;
+	l_int32 n, i, wd, hd;
 	PIXA    * pixa1, * pixa2;
 	PIXAA   * paad;
 
-	PROCNAME("pixaaScaleToSizeVar");
+	PROCNAME(__FUNCTION__);
 
 	if(!paas)
 		return (PIXAA*)ERROR_PTR("paas not defined", procName, NULL);
@@ -1718,8 +1955,8 @@ PIXAA * pixaaScaleToSizeVar(PIXAA  * paas,
  * \brief   pixaScaleToSize()
  *
  * \param[in]    pixas
- * \param[in]    wd  target width; use 0 if using height as target
- * \param[in]    hd  target height; use 0 if using width as target
+ * \param[in]    wd    target width; use 0 if using height as target
+ * \param[in]    hd    target height; use 0 if using width as target
  * \return  pixad, or NULL on error
  *
  * <pre>
@@ -1728,19 +1965,20 @@ PIXAA * pixaaScaleToSizeVar(PIXAA  * paas,
  * </pre>
  */
 PIXA * pixaScaleToSize(PIXA    * pixas,
-    int32 wd,
-    int32 hd)
+    l_int32 wd,
+    l_int32 hd)
 {
-	int32 n, i;
-	PIX     * pix1, * pix2;
+	l_int32 n, i;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaScaleToSize");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
-	if(wd <= 0 && hd <= 0)
-		return (PIXA*)ERROR_PTR("neither wd nor hd > 0", procName, NULL);
+
+	if(wd <= 0 && hd <= 0) /* no scaling requested */
+		return pixaCopy(pixas, L_CLONE);
 
 	n = pixaGetCount(pixas);
 	pixad = pixaCreate(n);
@@ -1749,6 +1987,51 @@ PIXA * pixaScaleToSize(PIXA    * pixas,
 		pix2 = pixScaleToSize(pix1, wd, hd);
 		pixCopyText(pix2, pix1);
 		pixaAddPix(pixad, pix2, L_INSERT);
+		pixDestroy(&pix1);
+	}
+	return pixad;
+}
+
+/*!
+ * \brief   pixaScaleToSizeRel()
+ *
+ * \param[in]    pixas
+ * \param[in]    delw   change in width, in pixels; 0 means no change
+ * \param[in]    delh   change in height, in pixels; 0 means no change
+ * return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) If a requested change in a pix is not possible because
+ *          either the requested width or height is <= 0, issue a
+ *          warning and return a copy.
+ * </pre>
+ */
+PIXA * pixaScaleToSizeRel(PIXA    * pixas,
+    l_int32 delw,
+    l_int32 delh)
+{
+	l_int32 n, i;
+	PIX * pix1, * pix2;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+
+	n = pixaGetCount(pixas);
+	pixad = pixaCreate(n);
+	for(i = 0; i < n; i++) {
+		pix1 = pixaGetPix(pixas, i, L_CLONE);
+		pix2 = pixScaleToSizeRel(pix1, delw, delh);
+		if(pix2) {
+			pixaAddPix(pixad, pix2, L_INSERT);
+		}
+		else {
+			L_WARNING("relative scale to size failed; use a copy\n", procName);
+			pixaAddPix(pixad, pix1, L_COPY);
+		}
 		pixDestroy(&pix1);
 	}
 	return pixad;
@@ -1771,12 +2054,12 @@ PIXA * pixaScale(PIXA      * pixas,
     float scalex,
     float scaley)
 {
-	int32 i, n, nb;
-	BOXA    * boxa1, * boxa2;
-	PIX     * pix1, * pix2;
+	l_int32 i, n, nb;
+	BOXA * boxa1, * boxa2;
+	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
-	PROCNAME("pixaScale");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -1799,9 +2082,229 @@ PIXA * pixaScale(PIXA      * pixas,
 		boxa2 = boxaTransform(boxa1, 0, 0, scalex, scaley);
 		pixaSetBoxa(pixad, boxa2, L_INSERT);
 	}
-	else {
-		boxaDestroy(&boxa1);
+	boxaDestroy(&boxa1);
+	return pixad;
+}
+
+/*!
+ * \brief   pixaScaleBySampling()
+ *
+ * \param[in]    pixas
+ * \param[in]    scalex
+ * \param[in]    scaley
+ * \return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) If pixas has a full boxes, it is scaled as well.
+ * </pre>
+ */
+PIXA * pixaScaleBySampling(PIXA      * pixas,
+    float scalex,
+    float scaley)
+{
+	l_int32 i, n, nb;
+	BOXA * boxa1, * boxa2;
+	PIX * pix1, * pix2;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(scalex <= 0.0 || scaley <= 0.0)
+		return (PIXA*)ERROR_PTR("invalid scaling parameters", procName, NULL);
+
+	n = pixaGetCount(pixas);
+	pixad = pixaCreate(n);
+	for(i = 0; i < n; i++) {
+		pix1 = pixaGetPix(pixas, i, L_CLONE);
+		pix2 = pixScaleBySampling(pix1, scalex, scaley);
+		pixCopyText(pix2, pix1);
+		pixaAddPix(pixad, pix2, L_INSERT);
+		pixDestroy(&pix1);
 	}
+
+	boxa1 = pixaGetBoxa(pixas, L_CLONE);
+	nb = boxaGetCount(boxa1);
+	if(nb == n) {
+		boxa2 = boxaTransform(boxa1, 0, 0, scalex, scaley);
+		pixaSetBoxa(pixad, boxa2, L_INSERT);
+	}
+	boxaDestroy(&boxa1);
+	return pixad;
+}
+
+/*---------------------------------------------------------------------*
+*                     Pixa rotation and translation                   *
+*---------------------------------------------------------------------*/
+/*!
+ * \brief   pixaRotate()
+ *
+ * \param[in]    pixas    1, 2, 4, 8, 32 bpp rgb
+ * \param[in]    angle    rotation angle in radians; clockwise is positive
+ * \param[in]    type     L_ROTATE_AREA_MAP, L_ROTATE_SHEAR, L_ROTATE_SAMPLING
+ * \param[in]    incolor  L_BRING_IN_WHITE, L_BRING_IN_BLACK
+ * \param[in]    width    original width; use 0 to avoid embedding
+ * \param[in]    height   original height; use 0 to avoid embedding
+ * \return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Each pix is rotated about its center.  See pixRotate() for details.
+ *      (2) The boxa array is copied.  Why is it not rotated?
+ *          If a boxa exists, the array of boxes is in 1-to-1
+ *          correspondence with the array of pix, and each box typically
+ *          represents the location of the pix relative to an image from
+ *          which it has been extracted.  Like the pix, we could rotate
+ *          each box around its center, and then generate a box that
+ *          contains all four corners, as is done in boxaRotate(), but
+ *          this seems unnecessary.
+ * </pre>
+ */
+PIXA * pixaRotate(PIXA      * pixas,
+    float angle,
+    l_int32 type,
+    l_int32 incolor,
+    l_int32 width,
+    l_int32 height)
+{
+	l_int32 i, n;
+	BOXA * boxa;
+	PIX * pixs, * pixd;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(type != L_ROTATE_SHEAR && type != L_ROTATE_AREA_MAP &&
+	    type != L_ROTATE_SAMPLING)
+		return (PIXA*)ERROR_PTR("invalid type", procName, NULL);
+	if(incolor != L_BRING_IN_WHITE && incolor != L_BRING_IN_BLACK)
+		return (PIXA*)ERROR_PTR("invalid incolor", procName, NULL);
+	if(L_ABS(angle) < MinAngleToRotate)
+		return pixaCopy(pixas, L_COPY);
+
+	n = pixaGetCount(pixas);
+	if((pixad = pixaCreate(n)) == NULL)
+		return (PIXA*)ERROR_PTR("pixad not made", procName, NULL);
+	boxa = pixaGetBoxa(pixad, L_COPY);
+	pixaSetBoxa(pixad, boxa, L_INSERT);
+	for(i = 0; i < n; i++) {
+		if((pixs = pixaGetPix(pixas, i, L_CLONE)) == NULL) {
+			pixaDestroy(&pixad);
+			return (PIXA*)ERROR_PTR("pixs not found", procName, NULL);
+		}
+		pixd = pixRotate(pixs, angle, type, incolor, width, height);
+		pixaAddPix(pixad, pixd, L_INSERT);
+		pixDestroy(&pixs);
+	}
+
+	return pixad;
+}
+
+/*!
+ * \brief   pixaRotateOrth()
+ *
+ * \param[in]    pixas
+ * \param[in]    rotation    0 = noop, 1 = 90 deg, 2 = 180 deg, 3 = 270 deg;
+ *                           all rotations are clockwise
+ * \return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Rotates each pix in the pixa.  Rotates and saves the boxes in
+ *          the boxa if the boxa is full.
+ * </pre>
+ */
+PIXA * pixaRotateOrth(PIXA    * pixas,
+    l_int32 rotation)
+{
+	l_int32 i, n, nb, w, h;
+	BOX * boxs, * boxd;
+	PIX * pixs, * pixd;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(rotation < 0 || rotation > 3)
+		return (PIXA*)ERROR_PTR("rotation not in {0,1,2,3}", procName, NULL);
+	if(rotation == 0)
+		return pixaCopy(pixas, L_COPY);
+
+	n = pixaGetCount(pixas);
+	nb = pixaGetBoxaCount(pixas);
+	if((pixad = pixaCreate(n)) == NULL)
+		return (PIXA*)ERROR_PTR("pixad not made", procName, NULL);
+	for(i = 0; i < n; i++) {
+		if((pixs = pixaGetPix(pixas, i, L_CLONE)) == NULL) {
+			pixaDestroy(&pixad);
+			return (PIXA*)ERROR_PTR("pixs not found", procName, NULL);
+		}
+		pixd = pixRotateOrth(pixs, rotation);
+		pixaAddPix(pixad, pixd, L_INSERT);
+		if(n == nb) {
+			boxs = pixaGetBox(pixas, i, L_COPY);
+			pixGetDimensions(pixs, &w, &h, NULL);
+			boxd = boxRotateOrth(boxs, w, h, rotation);
+			pixaAddBox(pixad, boxd, L_INSERT);
+			boxDestroy(&boxs);
+		}
+		pixDestroy(&pixs);
+	}
+
+	return pixad;
+}
+
+/*!
+ * \brief   pixaTranslate()
+ *
+ * \param[in]    pixas
+ * \param[in]    hshift   horizontal shift; hshift > 0 is to right
+ * \param[in]    vshift   vertical shift; vshift > 0 is down
+ * \param[in]    incolor  L_BRING_IN_WHITE, L_BRING_IN_BLACK
+ * \return  pixad, or NULL on error.
+ */
+PIXA * pixaTranslate(PIXA    * pixas,
+    l_int32 hshift,
+    l_int32 vshift,
+    l_int32 incolor)
+{
+	l_int32 i, n, nb;
+	BOXA * boxas, * boxad;
+	PIX * pixs, * pixd;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if(hshift == 0 && vshift == 0)
+		return pixaCopy(pixas, L_COPY);
+
+	n = pixaGetCount(pixas);
+	nb = pixaGetBoxaCount(pixas);
+	if((pixad = pixaCreate(n)) == NULL)
+		return (PIXA*)ERROR_PTR("pixad not made", procName, NULL);
+	for(i = 0; i < n; i++) {
+		if((pixs = pixaGetPix(pixas, i, L_CLONE)) == NULL) {
+			pixaDestroy(&pixad);
+			return (PIXA*)ERROR_PTR("pixs not found", procName, NULL);
+		}
+		pixd = pixTranslate(NULL, pixs, hshift, vshift, incolor);
+		pixaAddPix(pixad, pixd, L_INSERT);
+		pixDestroy(&pixs);
+	}
+	if(n == nb) {
+		boxas = pixaGetBoxa(pixas, L_CLONE);
+		boxad = boxaTransform(boxas, hshift, vshift, 1.0, 1.0);
+		pixaSetBoxa(pixad, boxad, L_INSERT);
+		boxaDestroy(&boxas);
+	}
+
 	return pixad;
 }
 
@@ -1811,10 +2314,10 @@ PIXA * pixaScale(PIXA      * pixas,
 /*!
  * \brief   pixaAddBorderGeneral()
  *
- * \param[in]    pixad can be null or equal to pixas
- * \param[in]    pixas containing pix of all depths; colormap ok
- * \param[in]    left, right, top, bot  number of pixels added
- * \param[in]    val   value of added border pixels
+ * \param[in]    pixad    can be null or equal to pixas
+ * \param[in]    pixas    containing pix of all depths; colormap ok
+ * \param[in]    left, right, top, bot     number of pixels added
+ * \param[in]    val      value of added border pixels
  * \return  pixad with border added to each pix, including on error
  *
  * <pre>
@@ -1829,28 +2332,28 @@ PIXA * pixaScale(PIXA      * pixas,
  *             white:  val = 0xffffff00
  *             black:  val = 0
  *          For colormapped images, use 'index' found this way:
- *             white: pixcmapGetRankIntensity(cmap, 1.0, \&index);
- *             black: pixcmapGetRankIntensity(cmap, 0.0, \&index);
+ *             white: pixcmapGetRankIntensity(cmap, 1.0, &index);
+ *             black: pixcmapGetRankIntensity(cmap, 0.0, &index);
  *      (2) For in-place replacement of each pix with a bordered version,
  *          use %pixad = %pixas.  To make a new pixa, use %pixad = NULL.
  *      (3) In both cases, the boxa has sides adjusted as if it were
  *          expanded by the border.
  * </pre>
  */
-PIXA * pixaAddBorderGeneral(PIXA     * pixad,
-    PIXA     * pixas,
-    int32 left,
-    int32 right,
-    int32 top,
-    int32 bot,
-    uint32 val)
+PIXA * pixaAddBorderGeneral(PIXA * pixad,
+    PIXA * pixas,
+    l_int32 left,
+    l_int32 right,
+    l_int32 top,
+    l_int32 bot,
+    l_uint32 val)
 {
-	int32 i, n, nbox;
-	BOX     * box;
-	BOXA    * boxad;
-	PIX     * pixs, * pixd;
+	l_int32 i, n, nbox;
+	BOX * box;
+	BOXA * boxad;
+	PIX * pixs, * pixd;
 
-	PROCNAME("pixaAddBorderGeneral");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, pixad);
@@ -1876,7 +2379,7 @@ PIXA * pixaAddBorderGeneral(PIXA     * pixad,
 	boxad = pixaGetBoxa(pixad, L_CLONE);
 	for(i = 0; i < nbox; i++) {
 		if((box = pixaGetBox(pixas, i, L_COPY)) == NULL) {
-			L_WARNING2("box %d not found\n", procName, i);
+			L_WARNING("box %d not found\n", procName, i);
 			break;
 		}
 		boxAdjustSides(box, box, -left, right, -top, bot);
@@ -1902,21 +2405,21 @@ PIXA * pixaAddBorderGeneral(PIXA     * pixad,
  * Notes:
  *      (1) This 'flattens' the pixaa to a pixa, taking the pix in
  *          order in the first pixa, then the second, etc.
- *      (2) If \&naindex is defined, we generate a Numa that gives, for
+ *      (2) If &naindex is defined, we generate a Numa that gives, for
  *          each pix in the pixaa, the index of the pixa to which it belongs.
  * </pre>
  */
 PIXA * pixaaFlattenToPixa(PIXAA   * paa,
     NUMA   ** pnaindex,
-    int32 copyflag)
+    l_int32 copyflag)
 {
-	int32 i, j, m, mb, n;
-	BOX     * box;
-	NUMA    * naindex;
-	PIX     * pix;
+	l_int32 i, j, m, mb, n;
+	BOX * box;
+	NUMA * naindex;
+	PIX * pix;
 	PIXA    * pixa, * pixat;
 
-	PROCNAME("pixaaFlattenToPixa");
+	PROCNAME(__FUNCTION__);
 
 	if(pnaindex) *pnaindex = NULL;
 	if(!paa)
@@ -1943,7 +2446,7 @@ PIXA * pixaaFlattenToPixa(PIXAA   * paa,
 				pixaAddBox(pixa, box, L_INSERT);
 			}
 			if(pnaindex)
-				numaAddNumber(naindex, i);  /* save 'row' number */
+				numaAddNumber(naindex, i); /* save 'row' number */
 		}
 		pixaDestroy(&pixat);
 	}
@@ -1955,20 +2458,20 @@ PIXA * pixaaFlattenToPixa(PIXAA   * paa,
  * \brief   pixaaSizeRange()
  *
  * \param[in]    paa
- * \param[out]   pminw, pminh, pmaxw, pmaxh [optional] range of
- *                                          dimensions of all boxes
+ * \param[out]   pminw, pminh, pmaxw, pmaxh   [optional] range of
+ *                                            dimensions of all boxes
  * \return  0 if OK, 1 on error
  */
-int32 pixaaSizeRange(PIXAA    * paa,
-    int32  * pminw,
-    int32  * pminh,
-    int32  * pmaxw,
-    int32  * pmaxh)
+l_ok pixaaSizeRange(PIXAA    * paa,
+    l_int32 * pminw,
+    l_int32 * pminh,
+    l_int32 * pmaxw,
+    l_int32 * pmaxh)
 {
-	int32 minw, minh, maxw, maxh, minpw, minph, maxpw, maxph, i, n;
+	l_int32 minw, minh, maxw, maxh, minpw, minph, maxpw, maxph, i, n;
 	PIXA    * pixa;
 
-	PROCNAME("pixaaSizeRange");
+	PROCNAME(__FUNCTION__);
 
 	if(pminw) *pminw = 0;
 	if(pminh) *pminh = 0;
@@ -2007,20 +2510,20 @@ int32 pixaaSizeRange(PIXAA    * paa,
  * \brief   pixaSizeRange()
  *
  * \param[in]    pixa
- * \param[out]   pminw, pminh, pmaxw, pmaxh [optional] range of
- *                                          dimensions of pix in the array
+ * \param[out]   pminw, pminh, pmaxw, pmaxh   [optional] range of
+ *                                            dimensions of pix in the array
  * \return  0 if OK, 1 on error
  */
-int32 pixaSizeRange(PIXA     * pixa,
-    int32  * pminw,
-    int32  * pminh,
-    int32  * pmaxw,
-    int32  * pmaxh)
+l_ok pixaSizeRange(PIXA * pixa,
+    l_int32 * pminw,
+    l_int32 * pminh,
+    l_int32 * pmaxw,
+    l_int32 * pmaxh)
 {
-	int32 minw, minh, maxw, maxh, i, n, w, h;
-	PIX     * pix;
+	l_int32 minw, minh, maxw, maxh, i, n, w, h;
+	PIX * pix;
 
-	PROCNAME("pixaSizeRange");
+	PROCNAME(__FUNCTION__);
 
 	if(pminw) *pminw = 0;
 	if(pminh) *pminh = 0;
@@ -2080,14 +2583,14 @@ int32 pixaSizeRange(PIXA     * pixa,
  * </pre>
  */
 PIXA * pixaClipToPix(PIXA  * pixas,
-    PIX   * pixs)
+    PIX * pixs)
 {
-	int32 i, n;
-	BOX     * box;
-	PIX     * pix, * pixc;
+	l_int32 i, n;
+	BOX * box;
+	PIX * pix, * pixc;
 	PIXA    * pixad;
 
-	PROCNAME("pixaClipToPix");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
@@ -2112,19 +2615,81 @@ PIXA * pixaClipToPix(PIXA  * pixas,
 }
 
 /*!
+ * \brief   pixaClipToForeground()
+ *
+ * \param[in]    pixas
+ * \param[out]   ppixad   [optional] pixa of clipped pix returned
+ * \param[out]   pboxa    [optional] clipping boxes returned
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) At least one of [&pixd, &boxa] must be specified.
+ *      (2) Any pix with no fg pixels is skipped.
+ *      (3) See pixClipToForeground().
+ * </pre>
+ */
+l_ok pixaClipToForeground(PIXA   * pixas,
+    PIXA  ** ppixad,
+    BOXA ** pboxa)
+{
+	l_int32 i, n;
+	BOX * box1;
+	PIX * pix1, * pix2;
+
+	PROCNAME(__FUNCTION__);
+
+	if(ppixad) *ppixad = NULL;
+	if(pboxa) *pboxa = NULL;
+	if(!pixas)
+		return ERROR_INT("pixas not defined", procName, 1);
+	if(!ppixad && !pboxa)
+		return ERROR_INT("no output requested", procName, 1);
+
+	n = pixaGetCount(pixas);
+	if(ppixad) *ppixad = pixaCreate(n);
+	if(pboxa) *pboxa = boxaCreate(n);
+	for(i = 0; i < n; i++) {
+		pix1 = pixaGetPix(pixas, i, L_CLONE);
+		pixClipToForeground(pix1, &pix2, &box1);
+		pixDestroy(&pix1);
+		if(ppixad)
+			pixaAddPix(*ppixad, pix2, L_INSERT);
+		else
+			pixDestroy(&pix2);
+		if(pboxa)
+			boxaAddBox(*pboxa, box1, L_INSERT);
+		else
+			boxDestroy(&box1);
+	}
+
+	return 0;
+}
+
+/*!
  * \brief   pixaGetRenderingDepth()
  *
  * \param[in]    pixa
- * \param[out]   pdepth depth required to render if all
- *                      colormaps are removed
+ * \param[out]   pdepth   depth required to render if all colormaps are removed
  * \return  0 if OK; 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Any pix with 16 bpp will be considered as having 8 bpp.
+ *          If all pix have bpp = 1, this returns 1.
+ *          If any pix has color (either rgb or a colormap with color),
+ *          this return 32.
+ *          Otherwise, this returns the maximum of 8 and the max depth
+ *          of all the pix.
+ *      (2) This can be used to allow lossless rendering onto a single pix.
+ * </pre>
  */
-int32 pixaGetRenderingDepth(PIXA     * pixa,
-    int32  * pdepth)
+l_ok pixaGetRenderingDepth(PIXA * pixa,
+    l_int32 * pdepth)
 {
-	int32 hascolor, maxdepth;
+	l_int32 hascolor, maxdepth;
 
-	PROCNAME("pixaGetRenderingDepth");
+	PROCNAME(__FUNCTION__);
 
 	if(!pdepth)
 		return ERROR_INT("&depth not defined", procName, 1);
@@ -2150,18 +2715,18 @@ int32 pixaGetRenderingDepth(PIXA     * pixa,
  * \brief   pixaHasColor()
  *
  * \param[in]    pixa
- * \param[out]   phascolor 1 if any pix is rgb or has
- *                         a colormap with color; 0 otherwise
+ * \param[out]   phascolor   1 if any pix is rgb or has a colormap with color;
+ *                           0 otherwise
  * \return  0 if OK; 1 on error
  */
-int32 pixaHasColor(PIXA     * pixa,
-    int32  * phascolor)
+l_ok pixaHasColor(PIXA * pixa,
+    l_int32 * phascolor)
 {
-	int32 i, n, hascolor, d;
-	PIX      * pix;
+	l_int32 i, n, hascolor, d;
+	PIX * pix;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixaHasColor");
+	PROCNAME(__FUNCTION__);
 
 	if(!phascolor)
 		return ERROR_INT("&hascolor not defined", procName, 1);
@@ -2170,6 +2735,7 @@ int32 pixaHasColor(PIXA     * pixa,
 		return ERROR_INT("pixa not defined", procName, 1);
 
 	n = pixaGetCount(pixa);
+	hascolor = 0;
 	for(i = 0; i < n; i++) {
 		pix = pixaGetPix(pixa, i, L_CLONE);
 		if((cmap = pixGetColormap(pix)) != NULL)
@@ -2189,17 +2755,17 @@ int32 pixaHasColor(PIXA     * pixa,
  * \brief   pixaAnyColormaps()
  *
  * \param[in]    pixa
- * \param[out]   phascmap 1 if any pix has a colormap; 0 otherwise
+ * \param[out]   phascmap    1 if any pix has a colormap; 0 otherwise
  * \return  0 if OK; 1 on error
  */
-int32 pixaAnyColormaps(PIXA     * pixa,
-    int32  * phascmap)
+l_ok pixaAnyColormaps(PIXA * pixa,
+    l_int32 * phascmap)
 {
-	int32 i, n;
-	PIX      * pix;
+	l_int32 i, n;
+	PIX * pix;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixaAnyColormaps");
+	PROCNAME(__FUNCTION__);
 
 	if(!phascmap)
 		return ERROR_INT("&hascmap not defined", procName, 1);
@@ -2225,18 +2791,18 @@ int32 pixaAnyColormaps(PIXA     * pixa,
  * \brief   pixaGetDepthInfo()
  *
  * \param[in]    pixa
- * \param[out]   pmaxdepth [optional] max pixel depth of pix in pixa
- * \param[out]   psame [optional] true if all depths are equal
+ * \param[out]   pmaxdepth  [optional] max pixel depth of pix in pixa
+ * \param[out]   psame      [optional] true if all depths are equal
  * \return  0 if OK; 1 on error
  */
-int32 pixaGetDepthInfo(PIXA     * pixa,
-    int32  * pmaxdepth,
-    int32  * psame)
+l_ok pixaGetDepthInfo(PIXA * pixa,
+    l_int32 * pmaxdepth,
+    l_int32 * psame)
 {
-	int32 i, n, d, d0;
-	int32 maxd, same; /* depth info */
+	l_int32 i, n, d, d0;
+	l_int32 maxd, same; /* depth info */
 
-	PROCNAME("pixaGetDepthInfo");
+	PROCNAME(__FUNCTION__);
 
 	if(pmaxdepth) *pmaxdepth = 0;
 	if(psame) *psame = TRUE;
@@ -2270,57 +2836,128 @@ int32 pixaGetDepthInfo(PIXA     * pixa,
  *
  * <pre>
  * Notes:
- *      (1) If any pix has a colormap, they are all converted to rgb.
- *          Otherwise, they are all converted to the maximum depth of
- *          all the pix.
- *      (2) This can be used to allow lossless rendering onto a single pix.
+ *      (1) Any pix with 16 bpp will be converted to 8 bpp.
+ *          If all pix have bpp = 1, the output depth will be 1.
+ *          If any pix has color (either rgb or a colormap with color),
+ *          the output depth will be 32.
+ *          Otherwise, the output depth is the maximum of 8 and the
+ *          the max depth of all the pix.
+ *      (2) This can be used to allow lossless rendering onto
+ *          a single pix. (Except: 16 bpp gets converted to 8.)
  * </pre>
  */
 PIXA * pixaConvertToSameDepth(PIXA  * pixas)
 {
-	int32 i, n, same, hascmap, maxdepth;
-	PIX     * pix, * pixt;
-	PIXA    * pixat, * pixad;
+	l_int32 i, n, depth, same, hascmap, maxdepth;
+	BOXA * boxa;
+	PIX * pix1, * pix2;
+	PIXA    * pixa1, * pixad;
 
-	PROCNAME("pixaConvertToSameDepth");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
-
-	/* Remove colormaps to rgb */
 	if((n = pixaGetCount(pixas)) == 0)
 		return (PIXA*)ERROR_PTR("no components", procName, NULL);
+
+	/* Remove colormaps if necessary */
+	pixaGetRenderingDepth(pixas, &depth);
 	pixaAnyColormaps(pixas, &hascmap);
 	if(hascmap) {
-		pixat = pixaCreate(n);
+		pixa1 = pixaCreate(n);
 		for(i = 0; i < n; i++) {
-			pixt = pixaGetPix(pixas, i, L_CLONE);
-			pix = pixConvertTo32(pixt);
-			pixaAddPix(pixat, pix, L_INSERT);
-			pixDestroy(&pixt);
+			pix1 = pixaGetPix(pixas, i, L_CLONE);
+			if(depth == 32)
+				pix2 = pixConvertTo32(pix1);
+			else /* depth = 8 */
+				pix2 = pixConvertTo8(pix1, 0);
+			pixaAddPix(pixa1, pix2, L_INSERT);
+			pixDestroy(&pix1);
 		}
 	}
 	else {
-		pixat = pixaCopy(pixas, L_CLONE);
+		pixa1 = pixaCopy(pixas, L_CLONE);
 	}
 
-	pixaGetDepthInfo(pixat, &maxdepth, &same);
+	pixaGetDepthInfo(pixa1, &maxdepth, &same);
 	if(!same) { /* at least one pix has depth < maxdepth */
 		pixad = pixaCreate(n);
 		for(i = 0; i < n; i++) {
-			pixt = pixaGetPix(pixat, i, L_CLONE);
-			if(maxdepth <= 8)
-				pix = pixConvertTo8(pixt, 0);
+			pix1 = pixaGetPix(pixa1, i, L_CLONE);
+			if(maxdepth <= 16)
+				pix2 = pixConvertTo8(pix1, 0);
 			else
-				pix = pixConvertTo32(pixt);
-			pixaAddPix(pixad, pix, L_INSERT);
-			pixDestroy(&pixt);
+				pix2 = pixConvertTo32(pix1);
+			pixaAddPix(pixad, pix2, L_INSERT);
+			pixDestroy(&pix1);
 		}
 	}
 	else {
-		pixad = pixaCopy(pixat, L_CLONE);
+		pixad = pixaCopy(pixa1, L_CLONE);
 	}
-	pixaDestroy(&pixat);
+
+	boxa = pixaGetBoxa(pixas, L_COPY);
+	pixaSetBoxa(pixad, boxa, L_INSERT);
+	pixaDestroy(&pixa1);
+	return pixad;
+}
+
+/*!
+ * \brief   pixaConvertToGivenDepth()
+ *
+ * \param[in]    pixas
+ * \param[in]    depth    specify either 8 or 32 bpp
+ * \return  pixad, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Use this to remove any colormaps and convert all pix to either
+ *          8 or 32 bpp.
+ *      (2) To convert losslessly, get %depth from pixaGetRenderingDepth().
+ *      (3) Clone pix may be in the returned pixa if conversion is to 32 bpp.
+ * </pre>
+ */
+PIXA * pixaConvertToGivenDepth(PIXA    * pixas,
+    l_int32 depth)
+{
+	l_int32 i, n, maxd;
+	BOXA * boxa;
+	PIX * pix1, * pix2;
+	PIXA    * pixad;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixas)
+		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
+	if((n = pixaGetCount(pixas)) == 0)
+		return (PIXA*)ERROR_PTR("no components", procName, NULL);
+	if(depth != 8 && depth != 32)
+		return (PIXA*)ERROR_PTR("depth not 8 or 32", procName, NULL);
+
+	/* Warn with 1 --> {8,32} or lossy conversions */
+	pixaGetRenderingDepth(pixas, &maxd);
+	if(maxd == 1)
+		L_WARNING("All pix are 1 bpp; converting to %d bpp\n", procName, depth);
+	if(maxd > depth)
+		L_WARNING("Lossy conversion: max rendering depth %d > input %d\n",
+		    procName, maxd, depth);
+
+	pixad = pixaCreate(n);
+	for(i = 0; i < n; i++) {
+		pix1 = pixaGetPix(pixas, i, L_CLONE);
+		if(depth == 32) {
+			pix2 = (pixGetDepth(pix1) == 32) ? pixClone(pix1) :
+			    pixConvertTo32(pix1);
+		}
+		else { /* depth = 8 */
+			pix2 = pixConvertTo8(pix1, 0);
+		}
+		pixaAddPix(pixad, pix2, L_INSERT);
+		pixDestroy(&pix1);
+	}
+
+	boxa = pixaGetBoxa(pixas, L_COPY);
+	pixaSetBoxa(pixad, boxa, L_INSERT);
 	return pixad;
 }
 
@@ -2330,8 +2967,8 @@ PIXA * pixaConvertToSameDepth(PIXA  * pixas)
  * \param[in]    pixa1
  * \param[in]    pixa2
  * \param[in]    maxdist
- * \param[out]   pnaindex [optional] index array of correspondences
- *           [out]   psame (1 if equal; 0 otherwise
+ * \param[out]   pnaindex  [optional] index array of correspondences
+ * \param[out]   psame     1 if equal; 0 otherwise
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -2341,7 +2978,7 @@ PIXA * pixaConvertToSameDepth(PIXA  * pixas)
  *          have boxa, the pix in each pixa can differ in ordering
  *          by an amount given by the parameter %maxdist.  If they
  *          don't have a boxa, the %maxdist parameter is ignored,
- *          and the ordering must be identical.
+ *          and the ordering of the pix must be identical.
  *      (2) This applies only to boxa geometry, pixels and ordering;
  *          other fields in the pix are ignored.
  *      (3) naindex[i] gives the position of the box in pixa2 that
@@ -2352,18 +2989,18 @@ PIXA * pixaConvertToSameDepth(PIXA  * pixas)
  *          implemented with a hash function for efficiency.
  * </pre>
  */
-int32 pixaEqual(PIXA     * pixa1,
-    PIXA     * pixa2,
-    int32 maxdist,
-    NUMA    ** pnaindex,
-    int32  * psame)
+l_ok pixaEqual(PIXA * pixa1,
+    PIXA * pixa2,
+    l_int32 maxdist,
+    NUMA ** pnaindex,
+    l_int32 * psame)
 {
-	int32 i, j, n, same, sameboxa;
+	l_int32 i, j, n, empty1, empty2, same, sameboxa;
 	BOXA     * boxa1, * boxa2;
 	NUMA     * na;
-	PIX      * pix1, * pix2;
+	PIX * pix1, * pix2;
 
-	PROCNAME("pixaEqual");
+	PROCNAME(__FUNCTION__);
 
 	if(pnaindex) *pnaindex = NULL;
 	if(!psame)
@@ -2376,27 +3013,26 @@ int32 pixaEqual(PIXA     * pixa1,
 	n = pixaGetCount(pixa1);
 	if(n != pixaGetCount(pixa2))
 		return 0;
+
+	/* If there are no boxes, strict ordering of the pix in each
+	 * pixa  is required. */
 	boxa1 = pixaGetBoxa(pixa1, L_CLONE);
 	boxa2 = pixaGetBoxa(pixa2, L_CLONE);
-	if(!boxa1 && !boxa2)
-		maxdist = 0;  /* exact ordering required */
-	if(boxa1 && !boxa2) {
-		boxaDestroy(&boxa1);
-		return 0;
-	}
-	if(!boxa1 && boxa2) {
-		boxaDestroy(&boxa2);
-		return 0;
-	}
-	if(boxa1 && boxa2) {
+	empty1 = (boxaGetCount(boxa1) == 0) ? 1 : 0;
+	empty2 = (boxaGetCount(boxa2) == 0) ? 1 : 0;
+	if(!empty1 && !empty2) {
 		boxaEqual(boxa1, boxa2, maxdist, &na, &sameboxa);
-		boxaDestroy(&boxa1);
-		boxaDestroy(&boxa2);
 		if(!sameboxa) {
+			boxaDestroy(&boxa1);
+			boxaDestroy(&boxa2);
 			numaDestroy(&na);
 			return 0;
 		}
 	}
+	boxaDestroy(&boxa1);
+	boxaDestroy(&boxa2);
+	if((!empty1 && empty2) || (empty1 && !empty2))
+		return 0;
 
 	for(i = 0; i < n; i++) {
 		pix1 = pixaGetPix(pixa1, i, L_CLONE);
@@ -2423,55 +3059,42 @@ int32 pixaEqual(PIXA     * pixa1,
 }
 
 /*!
- * \brief   pixaRotateOrth()
+ * \brief   pixaSetFullSizeBoxa()
  *
- * \param[in]    pixas
- * \param[in]    rotation 0 = noop, 1 = 90 deg, 2 = 180 deg, 3 = 270 deg;
- *                        all rotations are clockwise
- * \return  pixad, or NULL on error
+ * \param[in]    pixa
+ * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) Rotates each pix in the pixa.  Rotates and saves the boxes in
- *          the boxa if the boxa is full.
+ *      (1) Replaces the existing boxa.  Each box gives the dimensions
+ *          of the corresponding pix.  This is needed for functions
+ *          like pixaSort() that sort based on the boxes.
  * </pre>
  */
-PIXA * pixaRotateOrth(PIXA    * pixas,
-    int32 rotation)
+l_ok pixaSetFullSizeBoxa(PIXA  * pixa)
 {
-	int32 i, n, nb, w, h;
-	BOX     * boxs, * boxd;
-	PIX     * pixs, * pixd;
-	PIXA    * pixad;
+	l_int32 i, n, w, h;
+	BOX * box;
+	BOXA * boxa;
+	PIX * pix;
 
-	PROCNAME("pixaRotateOrth");
+	PROCNAME(__FUNCTION__);
 
-	if(!pixas)
-		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
-	if(rotation < 0 || rotation > 3)
-		return (PIXA*)ERROR_PTR("rotation not in {0,1,2,3}", procName, NULL);
-	if(rotation == 0)
-		return pixaCopy(pixas, L_COPY);
-
-	n = pixaGetCount(pixas);
-	nb = pixaGetBoxaCount(pixas);
-	if((pixad = pixaCreate(n)) == NULL)
-		return (PIXA*)ERROR_PTR("pixad not made", procName, NULL);
-	for(i = 0; i < n; i++) {
-		if((pixs = pixaGetPix(pixas, i, L_CLONE)) == NULL)
-			return (PIXA*)ERROR_PTR("pixs not found", procName, NULL);
-		pixd = pixRotateOrth(pixs, rotation);
-		pixaAddPix(pixad, pixd, L_INSERT);
-		if(n == nb) {
-			boxs = pixaGetBox(pixas, i, L_COPY);
-			pixGetDimensions(pixs, &w, &h, NULL);
-			boxd = boxRotateOrth(boxs, w, h, rotation);
-			pixaAddBox(pixad, boxd, L_INSERT);
-			boxDestroy(&boxs);
-		}
-		pixDestroy(&pixs);
+	if(!pixa)
+		return ERROR_INT("pixa not defined", procName, 1);
+	if((n = pixaGetCount(pixa)) == 0) {
+		L_INFO("pixa contains no pix\n", procName);
+		return 0;
 	}
 
-	return pixad;
+	boxa = boxaCreate(n);
+	pixaSetBoxa(pixa, boxa, L_INSERT);
+	for(i = 0; i < n; i++) {
+		pix = pixaGetPix(pixa, i, L_CLONE);
+		pixGetDimensions(pix, &w, &h, NULL);
+		box = boxCreate(0, 0, w, h);
+		boxaAddBox(boxa, box, L_INSERT);
+		pixDestroy(&pix);
+	}
+	return 0;
 }
-

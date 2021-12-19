@@ -59,37 +59,37 @@ ubrk_swap(const UDataSwapper *ds,
 U_NAMESPACE_BEGIN
 
 // The current RBBI data format version.
-static const uint8_t RBBI_DATA_FORMAT_VERSION[] = {6, 0, 0, 0};
+static const uint8 RBBI_DATA_FORMAT_VERSION[] = {6, 0, 0, 0};
 
-/*  
+/* 
  *   The following structs map exactly onto the raw data from ICU common data file. 
  */
 struct RBBIDataHeader {
-    uint32_t         fMagic; /*  == 0xbla0  */
+    uint32_t         fMagic; /* == 0xbla0  */
     UVersionInfo     fFormatVersion; /* Data Format.  Same as the value in struct UDataInfo      */
-                                       /*   if there is one associated with this data.    */
-                                       /*     (version originates in rbbi, is copied to UDataInfo) */
-    uint32_t         fLength; /*  Total length in bytes of this RBBI Data,       */
-                                       /*      including all sections, not just the header.        */
-    uint32_t         fCatCount; /*  Number of character categories.       */
+                                       /* if there is one associated with this data.    */
+                                       /* (version originates in rbbi, is copied to UDataInfo) */
+    uint32_t         fLength; /* Total length in bytes of this RBBI Data,       */
+                                       /* including all sections, not just the header.        */
+    uint32_t         fCatCount; /* Number of character categories.       */
 
-    /*         */
-    /*  Offsets and sizes of each of the subsections within the RBBI data.    */
-    /*  All offsets are bytes from the start of the RBBIDataHeader.  */
-    /*  All sizes are in bytes.  */
-    /*         */
-    uint32_t         fFTable; /*  forward state transition table. */
+    /* */
+    /* Offsets and sizes of each of the subsections within the RBBI data.    */
+    /* All offsets are bytes from the start of the RBBIDataHeader.  */
+    /* All sizes are in bytes.  */
+    /* */
+    uint32_t         fFTable; /* forward state transition table. */
     uint32_t         fFTableLen;
-    uint32_t         fRTable; /*  Offset to the reverse state transition table. */
+    uint32_t         fRTable; /* Offset to the reverse state transition table. */
     uint32_t         fRTableLen;
-    uint32_t         fTrie; /*  Offset to Trie data for character categories */
+    uint32_t         fTrie; /* Offset to Trie data for character categories */
     uint32_t         fTrieLen;
-    uint32_t         fRuleSource; /*  Offset to the source for for the break */
-    uint32_t         fRuleSourceLen; /*    rules.  Stored UChar *. */
+    uint32_t         fRuleSource; /* Offset to the source for for the break */
+    uint32_t         fRuleSourceLen; /* rules.  Stored UChar *. */
     uint32_t         fStatusTable; /* Offset to the table of rule status values */
     uint32_t         fStatusTableLen;
 
-    uint32_t         fReserved[6]; /*  Reserved for expansion */
+    uint32_t         fReserved[6]; /* Reserved for expansion */
 
 };
 
@@ -121,7 +121,7 @@ struct RBBIStateTableRowT {
                                    //              before changing anything here.
 };
 
-typedef RBBIStateTableRowT<uint8_t> RBBIStateTableRow8;
+typedef RBBIStateTableRowT<uint8> RBBIStateTableRow8;
 typedef RBBIStateTableRowT<uint16_t> RBBIStateTableRow16;
 
 constexpr uint16_t ACCEPTING_UNCONDITIONAL = 1;   // Value constant for RBBIStateTableRow::fAccepting
@@ -152,9 +152,9 @@ constexpr uint32_t RBBI_BOF_REQUIRED = 2;
 constexpr uint32_t RBBI_8BITS_ROWS = 4;
 
 
-/*    */
-/*   The reference counting wrapper class */
-/*    */
+/* */
+/* The reference counting wrapper class */
+/* */
 class RBBIDataWrapper : public UMemory {
 public:
     enum EDontAdopt {
@@ -178,7 +178,7 @@ public:
     void   printTable(const char *heading, const RBBIStateTable *table);
 
     /* */
-    /*   Pointers to items within the data */
+    /* Pointers to items within the data */
     /* */
     const RBBIDataHeader     *fHeader;
     const RBBIStateTable     *fForwardTable;
@@ -197,8 +197,8 @@ private:
     UnicodeString       fRuleString;
     bool               fDontFreeData;
 
-    RBBIDataWrapper(const RBBIDataWrapper &other) = delete; /*  forbid copying of this class */
-    RBBIDataWrapper & operator = (const RBBIDataWrapper &other) = delete; /*  forbid copying of this class */
+    RBBIDataWrapper(const RBBIDataWrapper &other) = delete; /* forbid copying of this class */
+    RBBIDataWrapper & operator = (const RBBIDataWrapper &other) = delete; /* forbid copying of this class */
 };
 
 

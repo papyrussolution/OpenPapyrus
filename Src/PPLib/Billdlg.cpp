@@ -641,11 +641,11 @@ private:
 	int    EditAgreement();
 	void   SetupPaymDateCtrls();
 	enum {
-		fPctDis            = 0x0001, // Признак того, что скидка указана в процентах
+		fPctDis    = 0x0001, // Признак того, что скидка указана в процентах
 		fExtMainCurAmount  = 0x0002, // Признак наличия в диалоге полей валюты и валютного курса (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
-		fEditMode          = 0x0004,
+		fEditMode  = 0x0004,
 		fHasAmtIDList      = 0x0008,
-		fModified          = 0x0010,
+		fModified  = 0x0010,
 		fSetupObj2ByCliAgt = 0x0020,
 		fCheckAgreement    = 0x0040, // Включается если в таблице статей установлено использование соглашений
 		fCheckCreditLim    = 0x0080, // Вид операции, возможно, требует проверки кредитного лимита
@@ -1208,8 +1208,7 @@ int PPLinkFilesArray::AddNewByExt(const char * pExt, const char * pDescr, uint *
 int PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
 {
 	int    ok = 0;
-	if(pLink && StoreDir.Len() && pLink->Path.Len() && lsearch(pLink, 0, PTR_CMPFUNC(PPLinkFile)) <= 0 &&
-		strnicmp866(StoreDir, pLink->Path, StoreDir.Len()) != 0) {
+	if(pLink && StoreDir.Len() && pLink->Path.Len() && !lsearch(pLink, 0, PTR_CMPFUNC(PPLinkFile)) && strnicmp866(StoreDir, pLink->Path, StoreDir.Len()) != 0) {
 		PPLinkFile * p_flink = new PPLinkFile;
 		SString store_path;
 		pLink->Id = GetNewId();
@@ -1390,7 +1389,7 @@ int PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
 			size_t sz = 0;
 			_Entry _e;
 			_e.Tag        = PPOBJ_BILL;
-			_e.ID         = billID;
+			_e.ID = billID;
 			_e.Prop       = BILLPRP_LINKFILES;
 			_e.ItemsCount = getCount();
 			_e.Size = sizeof(_e);

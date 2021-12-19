@@ -71,7 +71,7 @@ public:
     DictionaryMatcher() {}
     virtual ~DictionaryMatcher();
     // this should emulate CompactTrieDictionary::matches()
-    /*  @param text      The text in which to look for matching words. Matching begins
+    /* @param text      The text in which to look for matching words. Matching begins
   *                   at the current position of the UText.
   *  @param maxLength The max length of match to consider. Units are the native indexing
   *                   units of the UText.

@@ -222,9 +222,9 @@ struct zip {
 	unsigned erd_size;
 	unsigned v_size;
 	unsigned v_crc32;
-	uint8                 * iv;
-	uint8                 * erd;
-	uint8                 * v_data;
+	uint8 * iv;
+	uint8 * erd;
+	uint8 * v_data;
 };
 
 /* Many systems define min or MIN, but not all. */
@@ -1059,11 +1059,9 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 			ret = ARCHIVE_WARN;
 		}
 		if(zip_entry->compressed_size == 0) {
-			zip_entry->compressed_size
-				= zip_entry_central_dir.compressed_size;
+			zip_entry->compressed_size = zip_entry_central_dir.compressed_size;
 		}
-		else if(zip_entry->compressed_size
-		    != zip_entry_central_dir.compressed_size) {
+		else if(zip_entry->compressed_size != zip_entry_central_dir.compressed_size) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Inconsistent compressed size: %jd in central directory, %jd in local header",
 			    (intmax_t)zip_entry_central_dir.compressed_size, (intmax_t)zip_entry->compressed_size);
 			ret = ARCHIVE_WARN;
@@ -1167,17 +1165,12 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 		archive_entry_set_size(entry, zip_entry->uncompressed_size);
 	}
 	zip->entry_bytes_remaining = zip_entry->compressed_size;
-
 	/* If there's no body, force read_data() to return EOF immediately. */
-	if(0 == (zip_entry->zip_flags & ZIP_LENGTH_AT_END)
-	    && zip->entry_bytes_remaining < 1)
+	if(0 == (zip_entry->zip_flags & ZIP_LENGTH_AT_END) && zip->entry_bytes_remaining < 1)
 		zip->end_of_entry = 1;
-
 	/* Set up a more descriptive format name. */
 	archive_string_empty(&zip->format_name);
-	archive_string_sprintf(&zip->format_name, "ZIP %d.%d (%s)",
-	    version / 10, version % 10,
-	    compression_name(zip->entry->compression));
+	archive_string_sprintf(&zip->format_name, "ZIP %d.%d (%s)", version / 10, version % 10, compression_name(zip->entry->compression));
 	a->archive.archive_format_name = zip->format_name.s;
 
 	return ret;
@@ -1186,14 +1179,12 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 static int check_authentication_code(struct archive_read * a, const void * _p)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
-
 	/* Check authentication code. */
 	if(zip->hctx_valid) {
 		const void * p;
 		uint8 hmac[20];
 		size_t hmac_len = 20;
 		int cmp;
-
 		archive_hmac_sha1_final(&zip->hctx, hmac, &hmac_len);
 		if(_p == NULL) {
 			/* Read authentication code. */
@@ -1246,7 +1237,7 @@ static int zip_read_data_none(struct archive_read * a, const void ** _buff, size
 	const char * buff;
 	ssize_t bytes_avail;
 	int r;
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 	zip = (struct zip *)(a->format->data);
 	if(zip->entry->zip_flags & ZIP_LENGTH_AT_END) {
 		const char * p;
@@ -1573,7 +1564,7 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff,
 	const void * compressed_buf;
 	ssize_t bytes_avail, in_bytes, to_consume = 0;
 
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 
 	/* Initialize decompressor if not yet initialized. */
 	if(!zip->decompress_init) {
@@ -1620,46 +1611,36 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff,
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xz premature end of stream");
 			    return ARCHIVE_FATAL;
 		    }
-
 		    zip->end_of_entry = 1;
 		    break;
 	}
-
 	to_consume = zip->zipx_lzma_stream.total_in;
-
 	__archive_read_consume(a, to_consume);
 	zip->entry_bytes_remaining -= to_consume;
 	zip->entry_compressed_bytes_read += to_consume;
 	zip->entry_uncompressed_bytes_read += zip->zipx_lzma_stream.total_out;
-
 	*size = zip->zipx_lzma_stream.total_out;
 	*buff = zip->uncompressed_buffer;
-
 	ret = consume_optional_marker(a, zip);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** buff,
-    size_t * size, int64 * offset)
+static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct zip* zip = (struct zip *)(a->format->data);
 	int ret;
 	lzma_ret lz_ret;
 	const void * compressed_buf;
 	ssize_t bytes_avail, in_bytes, to_consume;
-
-	(void)offset; /* UNUSED */
-
+	CXX_UNUSED(offset);
 	/* Initialize decompressor if not yet initialized. */
 	if(!zip->decompress_init) {
 		ret = zipx_lzma_alone_init(a, zip);
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
-
 	/* Fetch more compressed data. The same note as in deflate handler
 	 * applies here as well:
 	 *
@@ -1841,7 +1822,7 @@ static int zip_read_data_zipx_ppmd(struct archive_read * a, const void ** buff,
 	size_t consumed_bytes = 0;
 	ssize_t bytes_avail = 0;
 
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 
 	/* If we're here for the first time, initialize Ppmd8 decompression
 	 * context first. */
@@ -1952,7 +1933,7 @@ static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
 	int r;
 	uint64 total_out;
 
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 
 	/* Initialize decompression context if we're here for the first time. */
 	if(!zip->decompress_init) {
@@ -2062,7 +2043,7 @@ static int zip_read_data_deflate(struct archive_read * a, const void ** buff,
 	ssize_t bytes_avail;
 	const void * compressed_buff, * sp;
 	int r;
-	(void)offset; /* UNUSED */
+	CXX_UNUSED(offset);
 	zip = (struct zip *)(a->format->data);
 	/* If the buffer hasn't been allocated, allocate it now. */
 	if(zip->uncompressed_buffer == NULL) {
@@ -2746,7 +2727,7 @@ int archive_read_support_format_zip(struct archive * a)
 
 static int archive_read_support_format_zip_capabilities_streamable(struct archive_read * a)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
 	       ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
@@ -2754,7 +2735,7 @@ static int archive_read_support_format_zip_capabilities_streamable(struct archiv
 static int archive_read_format_zip_streamable_bid(struct archive_read * a, int best_bid)
 {
 	const char * p;
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 	if((p = static_cast<const char *>(__archive_read_ahead(a, 4, NULL))) == NULL)
 		return -1;
 	/*
@@ -3004,7 +2985,7 @@ int archive_read_support_format_zip_streamable(struct archive * _a)
 
 static int archive_read_support_format_zip_capabilities_seekable(struct archive_read * a)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
 	       ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
@@ -3164,8 +3145,8 @@ static int cmp_node(const struct archive_rb_node * n1, const struct archive_rb_n
 static int cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	/* This function won't be called */
-	(void)n; /* UNUSED */
-	(void)key; /* UNUSED */
+	CXX_UNUSED(n);
+	CXX_UNUSED(key);
 	return 1;
 }
 

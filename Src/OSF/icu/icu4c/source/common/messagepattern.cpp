@@ -711,7 +711,7 @@ MessagePattern::parseChoiceStyle(int32_t index, int32_t nestingLevel,
         int32_t numberIndex=index;
         index=skipDouble(index);
         int32_t length=index-numberIndex;
-        if(length==0) {
+        if(!length) {
             setParseError(parseError, start);  // Bad choice pattern syntax.
             errorCode=U_PATTERN_SYNTAX_ERROR;
             return 0;
@@ -810,7 +810,7 @@ MessagePattern::parsePluralOrSelectStyle(UMessagePatternArgType argType,
         } else {
             index=skipIdentifier(index);
             int32_t length=index-selectorIndex;
-            if(length==0) {
+            if(!length) {
                 setParseError(parseError, start);  // Bad plural/select pattern syntax.
                 errorCode=U_PATTERN_SYNTAX_ERROR;
                 return 0;

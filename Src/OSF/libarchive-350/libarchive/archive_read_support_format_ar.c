@@ -65,17 +65,17 @@ struct ar {
 #define AR_fmag_offset 58
 #define AR_fmag_size 2
 
-static int      archive_read_format_ar_bid(struct archive_read * a, int);
-static int      archive_read_format_ar_cleanup(struct archive_read * a);
-static int      archive_read_format_ar_read_data(struct archive_read * a,
+static int archive_read_format_ar_bid(struct archive_read * a, int);
+static int archive_read_format_ar_cleanup(struct archive_read * a);
+static int archive_read_format_ar_read_data(struct archive_read * a,
     const void ** buff, size_t * size, int64 * offset);
-static int      archive_read_format_ar_skip(struct archive_read * a);
-static int      archive_read_format_ar_read_header(struct archive_read * a,
+static int archive_read_format_ar_skip(struct archive_read * a);
+static int archive_read_format_ar_read_header(struct archive_read * a,
     struct archive_entry * e);
 static uint64 ar_atol8(const char * p, unsigned char_cnt);
 static uint64 ar_atol10(const char * p, unsigned char_cnt);
-static int      ar_parse_gnu_filename_table(struct archive_read * a);
-static int      ar_parse_common_header(struct ar * ar, struct archive_entry *,
+static int ar_parse_gnu_filename_table(struct archive_read * a);
+static int ar_parse_common_header(struct ar * ar, struct archive_entry *,
     const char * h);
 
 int archive_read_support_format_ar(struct archive * _a)
@@ -130,7 +130,7 @@ static int archive_read_format_ar_bid(struct archive_read * a, int best_bid)
 {
 	const void * h;
 
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 
 	/*
 	 * Verify the 8-byte file signature.

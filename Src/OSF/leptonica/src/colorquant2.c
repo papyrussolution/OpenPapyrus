@@ -37,18 +37,18 @@
  *          PIX              *pixFewColorsMedianCutQuantMixed()
  *
  *      Median cut indexed histogram
- *          int32          *pixMedianCutHisto()
+ *          l_int32          *pixMedianCutHisto()
  *
  *      Static helpers
  *          static PIXCMAP   *pixcmapGenerateFromHisto()
- *          static PIX       *pixQuantizeWithColormap()
+ *          static PIX *pixQuantizeWithColormap()
  *          static void       getColorIndexMedianCut()
  *          static L_BOX3D   *pixGetColorRegion()
- *          static int32    medianCutApply()
+ *          static l_int32    medianCutApply()
  *          static PIXCMAP   *pixcmapGenerateFromMedianCuts()
- *          static int32    vboxGetAverageColor()
- *          static int32    vboxGetCount()
- *          static int32    vboxGetVolume()
+ *          static l_int32    vboxGetAverageColor()
+ *          static l_int32    vboxGetCount()
+ *          static l_int32    vboxGetVolume()
  *          static L_BOX3D   *box3dCreate();
  *          static L_BOX3D   *box3dCopy();
  *
@@ -167,7 +167,6 @@
  *         dividing the color space up in the most heavily populated regions.
  * </pre>
  */
-
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -175,58 +174,58 @@
  * can be the number of pixels, the volume or a combination
  * of these.   */
 struct L_Box3d {
-	float sortparam;     /* parameter on which to sort the vbox */
-	int32 npix;            /* number of pixels in the vbox        */
-	int32 vol;             /* quantized volume of vbox            */
-	int32 r1;              /* min r index in the vbox             */
-	int32 r2;              /* max r index in the vbox             */
-	int32 g1;              /* min g index in the vbox             */
-	int32 g2;              /* max g index in the vbox             */
-	int32 b1;              /* min b index in the vbox             */
-	int32 b2;              /* max b index in the vbox             */
+	float sortparam; /* parameter on which to sort the vbox */
+	l_int32 npix;            /* number of pixels in the vbox        */
+	l_int32 vol;             /* quantized volume of vbox            */
+	l_int32 r1;              /* min r index in the vbox             */
+	l_int32 r2;              /* max r index in the vbox             */
+	l_int32 g1;              /* min g index in the vbox             */
+	l_int32 g2;              /* max g index in the vbox             */
+	l_int32 b1;              /* min b index in the vbox             */
+	l_int32 b2;              /* max b index in the vbox             */
 };
 
 typedef struct L_Box3d L_BOX3D;
 
 /* Static median cut helper functions */
-static PIXCMAP * pixcmapGenerateFromHisto(PIX * pixs, int32 depth,
-    int32 * histo, int32 histosize,
-    int32 sigbits);
-static PIX * pixQuantizeWithColormap(PIX * pixs, int32 ditherflag,
-    int32 outdepth,
-    PIXCMAP * cmap, int32 * indexmap,
-    int32 mapsize, int32 sigbits);
-static void getColorIndexMedianCut(uint32 pixel, int32 rshift,
-    uint32 mask, int32 sigbits,
-    int32 * pindex);
-static L_BOX3D * pixGetColorRegion(PIX * pixs, int32 sigbits,
-    int32 subsample);
-static int32 medianCutApply(int32 * histo, int32 sigbits,
+static PIXCMAP * pixcmapGenerateFromHisto(PIX * pixs, l_int32 depth,
+    l_int32 * histo, l_int32 histosize,
+    l_int32 sigbits);
+static PIX * pixQuantizeWithColormap(PIX * pixs, l_int32 ditherflag,
+    l_int32 outdepth,
+    PIXCMAP * cmap, l_int32 * indexmap,
+    l_int32 mapsize, l_int32 sigbits);
+static void getColorIndexMedianCut(l_uint32 pixel, l_int32 rshift,
+    l_uint32 mask, l_int32 sigbits,
+    l_int32 * pindex);
+static L_BOX3D * pixGetColorRegion(PIX * pixs, l_int32 sigbits,
+    l_int32 subsample);
+static l_int32 medianCutApply(l_int32 * histo, l_int32 sigbits,
     L_BOX3D * vbox, L_BOX3D ** pvbox1,
     L_BOX3D ** pvbox2);
-static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP * lh, int32 * histo,
-    int32 sigbits);
-static int32 vboxGetAverageColor(L_BOX3D * vbox, int32 * histo,
-    int32 sigbits, int32 index,
-    int32  * prval, int32 * pgval,
-    int32  * pbval);
-static int32 vboxGetCount(L_BOX3D * vbox, int32 * histo, int32 sigbits);
-static int32 vboxGetVolume(L_BOX3D * vbox);
-static L_BOX3D * box3dCreate(int32 r1, int32 r2, int32 g1,
-    int32 g2, int32 b1, int32 b2);
+static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP * lh, l_int32 * histo,
+    l_int32 sigbits);
+static l_int32 vboxGetAverageColor(L_BOX3D * vbox, l_int32 * histo,
+    l_int32 sigbits, l_int32 index,
+    l_int32 * prval, l_int32 * pgval,
+    l_int32 * pbval);
+static l_int32 vboxGetCount(L_BOX3D * vbox, l_int32 * histo, l_int32 sigbits);
+static l_int32 vboxGetVolume(L_BOX3D * vbox);
+static L_BOX3D * box3dCreate(l_int32 r1, l_int32 r2, l_int32 g1,
+    l_int32 g2, l_int32 b1, l_int32 b2);
 static L_BOX3D * box3dCopy(L_BOX3D * vbox);
 
 /* 5 significant bits for each component is generally satisfactory */
-static const int32 DEFAULT_SIG_BITS = 5;
-static const int32 MAX_ITERS_ALLOWED = 5000;   /* prevents infinite looping */
+static const l_int32 DefaultSigBits = 5;
+static const l_int32 MaxItersAllowed = 5000; /* prevents infinite looping */
 
 /* Specify fraction of vboxes made that are sorted on population alone.
  * The remaining vboxes are sorted on (population * vbox-volume).  */
-static const float FRACT_BY_POPULATION = 0.85f;
+static const float FractByPopulation = 0.85;
 
 /* To get the max value of 'dif' in the dithering color transfer,
- * divide DIF_CAP by 8. */
-static const int32 DIF_CAP = 100;
+ * divide DifCap by 8. */
+static const l_int32 DifCap = 100;
 
 #ifndef   NO_CONSOLE_IO
 #define   DEBUG_MC_COLORS       0
@@ -239,8 +238,8 @@ static const int32 DIF_CAP = 100;
 /*!
  * \brief   pixMedianCutQuant()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    ditherflag 1 for dither; 0 for no dither
+ * \param[in]    pixs         32 bpp; rgb color
+ * \param[in]    ditherflag   1 for dither; 0 for no dither
  * \return  pixd 8 bit with colormap, or NULL on error
  *
  * <pre>
@@ -249,26 +248,26 @@ static const int32 DIF_CAP = 100;
  *          use of defaulted parameters.
  * </pre>
  */
-PIX * pixMedianCutQuant(PIX     * pixs,
-    int32 ditherflag)
+PIX * pixMedianCutQuant(PIX * pixs,
+    l_int32 ditherflag)
 {
 	return pixMedianCutQuantGeneral(pixs, ditherflag,
-	    0, 256, DEFAULT_SIG_BITS, 1, 1);
+		   0, 256, DefaultSigBits, 1, 1);
 }
 
 /*!
  * \brief   pixMedianCutQuantGeneral()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    ditherflag 1 for dither; 0 for no dither
- * \param[in]    outdepth output depth; valid: 0, 1, 2, 4, 8
- * \param[in]    maxcolors between 2 and 256
- * \param[in]    sigbits valid: 5 or 6; use 0 for default
- * \param[in]    maxsub max subsampling, integer; use 0 for default;
- *                      1 for no subsampling
- * \param[in]    checkbw 1 to check if color content is very small,
- *                       0 to assume there is sufficient color
- * \return  pixd 8 bit with colormap, or NULL on error
+ * \param[in]    pixs         32 bpp; rgb color
+ * \param[in]    ditherflag   1 for dither; 0 for no dither
+ * \param[in]    outdepth     output depth; valid: 0, 1, 2, 4, 8
+ * \param[in]    maxcolors    between 2 and 256
+ * \param[in]    sigbits      valid: 5 or 6; use 0 for default
+ * \param[in]    maxsub       max subsampling, integer; use 0 for default;
+ *                            1 for no subsampling
+ * \param[in]    checkbw      1 to check if color content is very small,
+ *                            0 to assume there is sufficient color
+ * \return  pixd   8 bit with colormap, or NULL on error
  *
  * <pre>
  * Notes:
@@ -290,7 +289,13 @@ PIX * pixMedianCutQuant(PIX     * pixs,
  *          maximum subsampling to be allowed, where the actual subsampling
  *          will be the minimum of this value and the internally
  *          determined default value.
- *      (6) If the image appears gray because either most of the pixels
+ *      (6) %sigbits can be 5 or 6.  There are 2^24 colors in the color space.
+ *              sigbits     # of volume elems    # of colors in a volume elem
+ *              --------------------------------------------------------------
+ *                 5              2^15                  2^9 = 512
+ *                 6              2^18                  2^6 = 64
+ *          Volume in color space is measured in the number of volume elements.
+ *      (7) If the image appears gray because either most of the pixels
  *          are gray or most of the pixels are essentially black or white,
  *          the image is trivially quantized with a grayscale colormap.  The
  *          reason is that median cut divides the color space into rectangular
@@ -298,40 +303,40 @@ PIX * pixMedianCutQuant(PIX     * pixs,
  *          near the diagonal of the color space cube.
  * </pre>
  */
-PIX * pixMedianCutQuantGeneral(PIX     * pixs,
-    int32 ditherflag,
-    int32 outdepth,
-    int32 maxcolors,
-    int32 sigbits,
-    int32 maxsub,
-    int32 checkbw)
+PIX * pixMedianCutQuantGeneral(PIX * pixs,
+    l_int32 ditherflag,
+    l_int32 outdepth,
+    l_int32 maxcolors,
+    l_int32 sigbits,
+    l_int32 maxsub,
+    l_int32 checkbw)
 {
-	int32 i, subsample, histosize, smalln, ncolors, niters, popcolors;
-	int32 w, h, minside, factor, index, rval, gval, bval;
-	int32   * histo;
-	float pixfract, colorfract;
+	l_int32 i, subsample, histosize, smalln, ncolors, niters, popcolors;
+	l_int32 w, h, minside, factor, index, rval, gval, bval;
+	l_int32   * histo;
+	float maxprod, prod, norm, pixfract, colorfract;
 	L_BOX3D   * vbox, * vbox1, * vbox2;
 	L_HEAP    * lh, * lhs;
-	PIX       * pixd;
+	PIX * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixMedianCutQuantGeneral");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
 	if(maxcolors < 2 || maxcolors > 256)
-		return (PIX*)ERROR_PTR("maxcolors not in [2...256]", procName, NULL);
+		return (PIX *)ERROR_PTR("maxcolors not in [2...256]", procName, NULL);
 	if(outdepth != 0 && outdepth != 1 && outdepth != 2 && outdepth != 4 &&
 	    outdepth != 8)
-		return (PIX*)ERROR_PTR("outdepth not in {0,1,2,4,8}", procName, NULL);
+		return (PIX *)ERROR_PTR("outdepth not in {0,1,2,4,8}", procName, NULL);
 	if(outdepth > 0 && (maxcolors > (1 << outdepth)))
-		return (PIX*)ERROR_PTR("maxcolors > 2^(outdepth)", procName, NULL);
+		return (PIX *)ERROR_PTR("maxcolors > 2^(outdepth)", procName, NULL);
 	if(sigbits == 0)
-		sigbits = DEFAULT_SIG_BITS;
+		sigbits = DefaultSigBits;
 	else if(sigbits < 5 || sigbits > 6)
-		return (PIX*)ERROR_PTR("sigbits not 5 or 6", procName, NULL);
+		return (PIX *)ERROR_PTR("sigbits not 5 or 6", procName, NULL);
 	if(maxsub <= 0)
-		maxsub = 10;  /* default will prevail for 10^7 pixels or less */
+		maxsub = 10; /* default will prevail for 10^7 pixels or less */
 
 	/* Determine if the image has sufficient color content.
 	 * If pixfract << 1, most pixels are close to black or white.
@@ -344,7 +349,7 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 		factor = MAX(1, minside / 400);
 		pixColorFraction(pixs, 20, 244, 20, factor, &pixfract, &colorfract);
 		if(pixfract * colorfract < 0.00025) {
-			L_INFO3("\n  Pixel fraction neither white nor black = %6.3f"
+			L_INFO("\n  Pixel fraction neither white nor black = %6.3f"
 			    "\n  Color fraction of those pixels = %6.3f"
 			    "\n  Quantizing in gray\n",
 			    procName, pixfract, colorfract);
@@ -353,12 +358,12 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 	}
 
 	/* Compute the color space histogram.  Default sampling
-	 * is about 10^5 pixels.  */
+	 * is about 10^5 sampled pixels.  */
 	if(maxsub == 1) {
 		subsample = 1;
 	}
 	else {
-		subsample = (int32)(sqrt((double)(w * h) / 100000.));
+		subsample = (l_int32)(sqrt((double)(w * h) / 100000.));
 		subsample = MAX(1, MIN(maxsub, subsample));
 	}
 	histo = pixMedianCutHisto(pixs, sigbits, subsample);
@@ -387,18 +392,18 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 				outdepth = 8;
 		}
 		cmap = pixcmapGenerateFromHisto(pixs, outdepth,
-		    histo, histosize, sigbits);
+			histo, histosize, sigbits);
 		pixd = pixQuantizeWithColormap(pixs, ditherflag, outdepth, cmap,
-		    histo, histosize, sigbits);
-		LEPT_FREE(histo);
+			histo, histosize, sigbits);
+		SAlloc::F(histo);
 		return pixd;
 	}
 
 	/* Initial vbox: minimum region in colorspace occupied by pixels */
 	if(ditherflag || subsample > 1) /* use full color space */
 		vbox = box3dCreate(0, (1 << sigbits) - 1,
-		    0, (1 << sigbits) - 1,
-		    0, (1 << sigbits) - 1);
+			0, (1 << sigbits) - 1,
+			0, (1 << sigbits) - 1);
 	else
 		vbox = pixGetColorRegion(pixs, sigbits, subsample);
 	vbox->npix = vboxGetCount(vbox, histo, sigbits);
@@ -411,7 +416,7 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 	lheapAdd(lh, vbox);
 	ncolors = 1;
 	niters = 0;
-	popcolors = (int32)(FRACT_BY_POPULATION * maxcolors);
+	popcolors = (l_int32)(FractByPopulation * maxcolors);
 	while(1) {
 		vbox = (L_BOX3D*)lheapRemove(lh);
 		if(vboxGetCount(vbox, histo, sigbits) == 0) { /* just put it back */
@@ -425,7 +430,7 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 		}
 		if(vbox1->vol > 1)
 			vbox1->sortparam = vbox1->npix;
-		LEPT_FREE(vbox);
+		SAlloc::F(vbox);
 		lheapAdd(lh, vbox1);
 		if(vbox2) { /* vbox2 can be NULL */
 			if(vbox2->vol > 1)
@@ -435,17 +440,26 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 		}
 		if(ncolors >= popcolors)
 			break;
-		if(niters++ > MAX_ITERS_ALLOWED) {
+		if(niters++ > MaxItersAllowed) {
 			L_WARNING("infinite loop; perhaps too few pixels!\n", procName);
 			break;
 		}
 	}
 
 	/* Re-sort by the product of pixel occupancy times the size
-	 * in color space. */
+	 * in color space.  Normalize to the largest product to avoid
+	 * integer overflow. */
+	maxprod = 0.0;
+	for(i = 0; i < lh->n; i++) {
+		if((vbox = (L_BOX3D*)lheapGetElement(lh, i)) == NULL)
+			continue;
+		prod = (float)vbox->npix * (float)vbox->vol;
+		if(prod > maxprod) maxprod = prod;
+	}
+	norm = (maxprod == 0) ? 1.0 : 1000000.0 / maxprod;
 	lhs = lheapCreate(0, L_SORT_DECREASING);
 	while((vbox = (L_BOX3D*)lheapRemove(lh))) {
-		vbox->sortparam = vbox->npix * vbox->vol;
+		vbox->sortparam = norm * vbox->npix * vbox->vol;
 		lheapAdd(lhs, vbox);
 	}
 	lheapDestroy(&lh, TRUE);
@@ -464,18 +478,18 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 			break;
 		}
 		if(vbox1->vol > 1)
-			vbox1->sortparam = vbox1->npix * vbox1->vol;
-		LEPT_FREE(vbox);
+			vbox1->sortparam = norm * vbox1->npix * vbox1->vol;
+		SAlloc::F(vbox);
 		lheapAdd(lhs, vbox1);
 		if(vbox2) { /* vbox2 can be NULL */
 			if(vbox2->vol > 1)
-				vbox2->sortparam = vbox2->npix * vbox2->vol;
+				vbox2->sortparam = norm * vbox2->npix * vbox2->vol;
 			lheapAdd(lhs, vbox2);
 			ncolors++;
 		}
 		if(ncolors >= maxcolors)
 			break;
-		if(niters++ > MAX_ITERS_ALLOWED) {
+		if(niters++ > MaxItersAllowed) {
 			L_WARNING("infinite loop; perhaps too few pixels!\n", procName);
 			break;
 		}
@@ -505,7 +519,7 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 			outdepth = 8;
 	}
 	pixd = pixQuantizeWithColormap(pixs, ditherflag, outdepth, cmap,
-	    histo, histosize, sigbits);
+		histo, histosize, sigbits);
 
 	/* Force darkest color to black if each component <= 4 */
 	pixcmapGetRankIntensity(cmap, 0.0, &index);
@@ -520,27 +534,27 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
 		pixcmapResetColor(cmap, index, 255, 255, 255);
 
 	lheapDestroy(&lh, TRUE);
-	LEPT_FREE(histo);
+	SAlloc::F(histo);
 	return pixd;
 }
 
 /*!
  * \brief   pixMedianCutQuantMixed()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    ncolor maximum number of colors assigned to pixels with
- *                      significant color
- * \param[in]    ngray number of gray colors to be used; must be >= 2
- * \param[in]    darkthresh threshold near black; if the lightest component
- *                          is below this, the pixel is not considered to
- *                          be gray or color; uses 0 for default
- * \param[in]    lightthresh threshold near white; if the darkest component
- *                           is above this, the pixel is not considered to
- *                           be gray or color; use 0 for default
- * \param[in]    diffthresh thresh for the max difference between component
- *                          values; for differences below this, the pixel
- *                          is considered to be gray; use 0 for default
- * \return  pixd 8 bpp cmapped, or NULL on error
+ * \param[in]    pixs          32 bpp; rgb color
+ * \param[in]    ncolor        maximum number of colors assigned to
+ *                             pixels with significant color
+ * \param[in]    ngray          number of gray colors to be used; must be >= 2
+ * \param[in]    darkthresh    threshold near black; if the lightest component
+ *                             is below this, the pixel is not considered to
+ *                             be gray or color; uses 0 for default
+ * \param[in]    lightthresh   threshold near white; if the darkest component
+ *                             is above this, the pixel is not considered to
+ *                             be gray or color; use 0 for default
+ * \param[in]    diffthresh    thresh for the max difference between component
+ *                             values; for differences below this, the pixel
+ *                             is considered to be gray; use 0 for default
+ * \return  pixd   8 bpp cmapped, or NULL on error
  *
  * <pre>
  * Notes:
@@ -568,29 +582,29 @@ PIX * pixMedianCutQuantGeneral(PIX     * pixs,
  *          and equal-bin grayscale quantization for the non-color pixels.
  * </pre>
  */
-PIX * pixMedianCutQuantMixed(PIX     * pixs,
-    int32 ncolor,
-    int32 ngray,
-    int32 darkthresh,
-    int32 lightthresh,
-    int32 diffthresh)
+PIX * pixMedianCutQuantMixed(PIX * pixs,
+    l_int32 ncolor,
+    l_int32 ngray,
+    l_int32 darkthresh,
+    l_int32 lightthresh,
+    l_int32 diffthresh)
 {
-	int32 i, j, w, h, wplc, wplg, wpld, nc, unused, iscolor, factor, minside;
-	int32 rval, gval, bval, minval, maxval, val, grayval;
+	l_int32 i, j, w, h, wplc, wplg, wpld, nc, unused, iscolor, factor, minside;
+	l_int32 rval, gval, bval, minval, maxval, val, grayval;
 	float pixfract, colorfract;
-	int32   * lut;
-	uint32  * datac, * datag, * datad, * linec, * lineg, * lined;
-	PIX       * pixc, * pixg, * pixd;
+	l_int32   * lut;
+	l_uint32 * datac, * datag, * datad, * linec, * lineg, * lined;
+	PIX * pixc, * pixg, * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixMedianCutQuantMixed");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
 	if(ngray < 2)
-		return (PIX*)ERROR_PTR("ngray < 2", procName, NULL);
+		return (PIX *)ERROR_PTR("ngray < 2", procName, NULL);
 	if(ncolor + ngray > 255)
-		return (PIX*)ERROR_PTR("ncolor + ngray > 255", procName, NULL);
+		return (PIX *)ERROR_PTR("ncolor + ngray > 255", procName, NULL);
 	if(darkthresh <= 0) darkthresh = 20;
 	if(lightthresh <= 0) lightthresh = 244;
 	if(diffthresh <= 0) diffthresh = 20;
@@ -605,7 +619,7 @@ PIX * pixMedianCutQuantMixed(PIX     * pixs,
 	pixColorFraction(pixs, darkthresh, lightthresh, diffthresh, factor,
 	    &pixfract, &colorfract);
 	if(pixfract * colorfract < 0.0001) {
-		L_INFO3("\n  Pixel fraction neither white nor black = %6.3f"
+		L_INFO("\n  Pixel fraction neither white nor black = %6.3f"
 		    "\n  Color fraction of those pixels = %6.3f"
 		    "\n  Quantizing in gray\n",
 		    procName, pixfract, colorfract);
@@ -624,7 +638,7 @@ PIX * pixMedianCutQuantMixed(PIX     * pixs,
 	datag = pixGetData(pixg);
 	wplc = pixGetWpl(pixc);
 	wplg = pixGetWpl(pixg);
-	lut = (int32*)LEPT_CALLOC(256, sizeof(int32));
+	lut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
 	for(i = 0; i < 256; i++)
 		lut[i] = ncolor + 1 + (i * (ngray - 1) + 128) / 255;
 	for(i = 0; i < h; i++) {
@@ -652,7 +666,7 @@ PIX * pixMedianCutQuantMixed(PIX     * pixs,
 
 	/* Median cut on color pixels plus black */
 	pixd = pixMedianCutQuantGeneral(pixc, FALSE, 8, ncolor + 1,
-	    DEFAULT_SIG_BITS, 1, 0);
+		DefaultSigBits, 1, 0);
 
 	/* Augment the colormap with gray values.  The new cmap
 	 * indices should agree with the values previously stored in pixg. */
@@ -660,9 +674,9 @@ PIX * pixMedianCutQuantMixed(PIX     * pixs,
 	nc = pixcmapGetCount(cmap);
 	unused = ncolor  + 1 - nc;
 	if(unused < 0)
-		L_ERROR2("Too many colors: extra = %d\n", procName, -unused);
+		L_ERROR("Too many colors: extra = %d\n", procName, -unused);
 	if(unused > 0) { /* fill in with black; these won't be used */
-		L_INFO2("%d unused colors\n", procName, unused);
+		L_INFO("%d unused colors\n", procName, unused);
 		for(i = 0; i < unused; i++)
 			pixcmapAddColor(cmap, 0, 0, 0);
 	}
@@ -686,32 +700,31 @@ PIX * pixMedianCutQuantMixed(PIX     * pixs,
 
 	pixDestroy(&pixc);
 	pixDestroy(&pixg);
-	LEPT_FREE(lut);
+	SAlloc::F(lut);
 	return pixd;
 }
 
 /*!
  * \brief   pixFewColorsMedianCutQuantMixed()
  *
- * \param[in]    pixs 32 bpp rgb
- * \param[in]    ncolor number of colors to be assigned to pixels with
- *                       significant color
- * \param[in]    ngray number of gray colors to be used; must be >= 2
- * \param[in]    maxncolors maximum number of colors to be returned
- *                         from pixColorsForQuantization(); use 0 for default
- * \param[in]    darkthresh threshold near black; if the lightest component
- *                          is below this, the pixel is not considered to
- *                          be gray or color; use 0 for default
- * \param[in]    lightthresh threshold near white; if the darkest component
- *                           is above this, the pixel is not considered to
- *                           be gray or color; use 0 for default
- * \param[in]    diffthresh thresh for the max difference between component
- *                          values; for differences below this, the pixel
- *                          is considered to be gray; use 0 for default
- * \return  pixd 8 bpp, median cut quantized for pixels that are
- *                    not gray; gray pixels are quantized separately
- *                    over the full gray range; null if too many colors
- *                    or on error
+ * \param[in]    pixs          32 bpp rgb
+ * \param[in]    ncolor        number of colors to be assigned to pixels
+ *                             with significant color
+ * \param[in]    ngray         number of gray colors to be used; must be >= 2
+ * \param[in]    maxncolors    maximum number of colors to be returned from
+ *                             pixColorsForQuantization(); use 0 for default
+ * \param[in]    darkthresh    threshold near black; if the lightest component
+ *                             is below this, the pixel is not considered to
+ *                             be gray or color; use 0 for default
+ * \param[in]    lightthresh   threshold near white; if the darkest component
+ *                             is above this, the pixel is not considered to
+ *                             be gray or color; use 0 for default
+ * \param[in]    diffthresh    thresh for the max difference between component
+ *                             values; for differences below this, the pixel
+ *                             is considered to be gray; use 0 for default
+ * \return  pixd   8 bpp, median cut quantized for pixels that are
+ *                 not gray; gray pixels are quantized separately over
+ *                 the full gray range; null if too many colors or on error
  *
  * <pre>
  * Notes:
@@ -741,31 +754,31 @@ PIX * pixMedianCutQuantMixed(PIX     * pixs,
  *                 pixq = pixClone(pixs);
  * </pre>
  */
-PIX * pixFewColorsMedianCutQuantMixed(PIX       * pixs,
-    int32 ncolor,
-    int32 ngray,
-    int32 maxncolors,
-    int32 darkthresh,
-    int32 lightthresh,
-    int32 diffthresh)
+PIX * pixFewColorsMedianCutQuantMixed(PIX * pixs,
+    l_int32 ncolor,
+    l_int32 ngray,
+    l_int32 maxncolors,
+    l_int32 darkthresh,
+    l_int32 lightthresh,
+    l_int32 diffthresh)
 {
-	int32 ncolors, iscolor;
-	PIX     * pixg, * pixd;
+	l_int32 ncolors, iscolor;
+	PIX * pixg, * pixd;
 
-	PROCNAME("pixFewColorsMedianCutQuantMixed");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
 	if(maxncolors <= 0) maxncolors = 20;
 	if(darkthresh <= 0) darkthresh = 20;
 	if(lightthresh <= 0) lightthresh = 244;
 	if(diffthresh <= 0) diffthresh = 15;
 	if(ncolor < maxncolors) {
-		L_WARNING2("ncolor too small; setting to %d\n", procName, maxncolors);
+		L_WARNING("ncolor too small; setting to %d\n", procName, maxncolors);
 		ncolor = maxncolors;
 	}
 	if(ngray < maxncolors) {
-		L_WARNING2("ngray too small; setting to %d\n", procName, maxncolors);
+		L_WARNING("ngray too small; setting to %d\n", procName, maxncolors);
 		ngray = maxncolors;
 	}
 
@@ -775,7 +788,7 @@ PIX * pixFewColorsMedianCutQuantMixed(PIX       * pixs,
 	/* Note that maxncolors applies to all colors required to quantize,
 	 * both gray and colorful */
 	if(ncolors > maxncolors)
-		return (PIX*)ERROR_PTR("too many colors", procName, NULL);
+		return (PIX *)ERROR_PTR("too many colors", procName, NULL);
 
 	/* If no color, return quantized gray pix */
 	if(!iscolor) {
@@ -787,7 +800,7 @@ PIX * pixFewColorsMedianCutQuantMixed(PIX       * pixs,
 
 	/* Use the mixed gray/color quantizer */
 	return pixMedianCutQuantMixed(pixs, ncolor, ngray, darkthresh,
-	    lightthresh, diffthresh);
+		   lightthresh, diffthresh);
 }
 
 /*------------------------------------------------------------------------*
@@ -796,11 +809,11 @@ PIX * pixFewColorsMedianCutQuantMixed(PIX       * pixs,
 /*!
  * \brief   pixMedianCutHisto()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    sigbits valid: 5 or 6
- * \param[in]    subsample integer > 0
- * \return  histo 1-d array, giving the number of pixels in
- *                     each quantized region of color space, or NULL on error
+ * \param[in]    pixs        32 bpp; rgb color
+ * \param[in]    sigbits     valid: 5 or 6
+ * \param[in]    subsample   integer > 0
+ * \return  histo    1-d array, giving the number of pixels in each
+ *                   quantized region of color space, or NULL on error
  *
  * <pre>
  * Notes:
@@ -810,29 +823,29 @@ PIX * pixFewColorsMedianCutQuantMixed(PIX       * pixs,
  *          most significant and blue as least.
  * </pre>
  */
-int32 * pixMedianCutHisto(PIX     * pixs,
-    int32 sigbits,
-    int32 subsample)
+l_int32 * pixMedianCutHisto(PIX * pixs,
+    l_int32 sigbits,
+    l_int32 subsample)
 {
-	int32 i, j, w, h, wpl, rshift, index, histosize;
-	int32   * histo;
-	uint32 mask, pixel;
-	uint32  * data, * line;
+	l_int32 i, j, w, h, wpl, rshift, index, histosize;
+	l_int32   * histo;
+	l_uint32 mask, pixel;
+	l_uint32 * data, * line;
 
-	PROCNAME("pixMedianCutHisto");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (int32*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (l_int32*)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
-		return (int32*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (l_int32*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(sigbits < 5 || sigbits > 6)
-		return (int32*)ERROR_PTR("sigbits not 5 or 6", procName, NULL);
+		return (l_int32*)ERROR_PTR("sigbits not 5 or 6", procName, NULL);
 	if(subsample <= 0)
-		return (int32*)ERROR_PTR("subsample not > 0", procName, NULL);
+		return (l_int32*)ERROR_PTR("subsample not > 0", procName, NULL);
 
 	histosize = 1 << (3 * sigbits);
-	if((histo = (int32*)LEPT_CALLOC(histosize, sizeof(int32))) == NULL)
-		return (int32*)ERROR_PTR("histo not made", procName, NULL);
+	if((histo = (l_int32*)SAlloc::C(histosize, sizeof(l_int32))) == NULL)
+		return (l_int32*)ERROR_PTR("histo not made", procName, NULL);
 
 	rshift = 8 - sigbits;
 	mask = 0xff >> rshift;
@@ -857,8 +870,8 @@ int32 * pixMedianCutHisto(PIX     * pixs,
 /*!
  * \brief   pixcmapGenerateFromHisto()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    depth of colormap
+ * \param[in]    pixs      32 bpp; rgb color
+ * \param[in]    depth     of colormap
  * \param[in]    histo
  * \param[in]    histosize
  * \param[in]    sigbits
@@ -872,17 +885,17 @@ int32 * pixMedianCutHisto(PIX     * pixs,
  *          labeling the cmap indices for each existing color.
  * </pre>
  */
-static PIXCMAP * pixcmapGenerateFromHisto(PIX      * pixs,
-    int32 depth,
-    int32  * histo,
-    int32 histosize,
-    int32 sigbits)
+static PIXCMAP * pixcmapGenerateFromHisto(PIX * pixs,
+    l_int32 depth,
+    l_int32 * histo,
+    l_int32 histosize,
+    l_int32 sigbits)
 {
-	int32 i, index, shift, rval, gval, bval;
-	uint32 mask;
+	l_int32 i, index, shift, rval, gval, bval;
+	l_uint32 mask;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixcmapGenerateFromHisto");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return (PIXCMAP*)ERROR_PTR("pixs not defined", procName, NULL);
@@ -912,14 +925,14 @@ static PIXCMAP * pixcmapGenerateFromHisto(PIX      * pixs,
 /*!
  * \brief   pixQuantizeWithColormap()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    ditherflag 1 for dither; 0 for no dither
- * \param[in]    outdepth depth of the returned pixd
- * \param[in]    cmap     colormap
- * \param[in]    indexmap lookup table
- * \param[in]    mapsize  size of the lookup table
- * \param[in]    sigbits  significant bits in output
- * \return  pixd quantized to colormap, or NULL on error
+ * \param[in]    pixs        32 bpp; rgb color
+ * \param[in]    ditherflag  1 for dither; 0 for no dither
+ * \param[in]    outdepth    depth of the returned pixd
+ * \param[in]    cmap        colormap
+ * \param[in]    indexmap    lookup table
+ * \param[in]    mapsize     size of the lookup table
+ * \param[in]    sigbits     significant bits in output
+ * \return  pixd   quantized to colormap, or NULL on error
  *
  * <pre>
  * Notes:
@@ -929,31 +942,31 @@ static PIXCMAP * pixcmapGenerateFromHisto(PIX      * pixs,
  *          depth is set to 8.
  * </pre>
  */
-static PIX * pixQuantizeWithColormap(PIX      * pixs,
-    int32 ditherflag,
-    int32 outdepth,
+static PIX * pixQuantizeWithColormap(PIX * pixs,
+    l_int32 ditherflag,
+    l_int32 outdepth,
     PIXCMAP  * cmap,
-    int32  * indexmap,
-    int32 mapsize,
-    int32 sigbits)
+    l_int32 * indexmap,
+    l_int32 mapsize,
+    l_int32 sigbits)
 {
 	uint8   * bufu8r, * bufu8g, * bufu8b;
-	int32 i, j, w, h, wpls, wpld, rshift, index, cmapindex, success;
-	int32 rval, gval, bval, rc, gc, bc;
-	int32 dif, val1, val2, val3;
-	int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
-	uint32  * datas, * datad, * lines, * lined;
-	uint32 mask, pixel;
-	PIX       * pixd;
+	l_int32 i, j, w, h, wpls, wpld, rshift, index, cmapindex, success;
+	l_int32 rval, gval, bval, rc, gc, bc;
+	l_int32 dif, val1, val2, val3;
+	l_int32   * buf1r, * buf1g, * buf1b, * buf2r, * buf2g, * buf2b;
+	l_uint32 * datas, * datad, * lines, * lined;
+	l_uint32 mask, pixel;
+	PIX * pixd;
 
-	PROCNAME("pixQuantizeWithColormap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 32)
-		return (PIX*)ERROR_PTR("pixs not 32 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 32 bpp", procName, NULL);
 	if(!cmap)
-		return (PIX*)ERROR_PTR("cmap not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("cmap not defined", procName, NULL);
 	if(!indexmap)
-		return (PIX*)ERROR_PTR("indexmap not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("indexmap not defined", procName, NULL);
 	if(ditherflag)
 		outdepth = 8;
 
@@ -1012,15 +1025,15 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 		success = TRUE;
 		bufu8r = bufu8g = bufu8b = NULL;
 		buf1r = buf1g = buf1b = buf2r = buf2g = buf2b = NULL;
-		bufu8r = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-		bufu8g = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-		bufu8b = (uint8*)LEPT_CALLOC(w, sizeof(uint8));
-		buf1r = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf1g = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf1b = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf2r = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf2g = (int32*)LEPT_CALLOC(w, sizeof(int32));
-		buf2b = (int32*)LEPT_CALLOC(w, sizeof(int32));
+		bufu8r = (uint8 *)SAlloc::C(w, sizeof(uint8));
+		bufu8g = (uint8 *)SAlloc::C(w, sizeof(uint8));
+		bufu8b = (uint8 *)SAlloc::C(w, sizeof(uint8));
+		buf1r = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf1g = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf1b = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf2r = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf2g = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+		buf2b = (l_int32*)SAlloc::C(w, sizeof(l_int32));
 		if(!bufu8r || !bufu8g || !bufu8b || !buf1r || !buf1g ||
 		    !buf1b || !buf2r || !buf2g || !buf2b) {
 			L_ERROR("buffer not made\n", procName);
@@ -1061,8 +1074,8 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 				pixcmapGetColor(cmap, cmapindex, &rc, &gc, &bc);
 
 				dif = buf1r[j] / 8 - 8 * rc;
-				if(dif > DIF_CAP) dif = DIF_CAP;
-				if(dif < -DIF_CAP) dif = -DIF_CAP;
+				if(dif > DifCap) dif = DifCap;
+				if(dif < -DifCap) dif = -DifCap;
 				if(dif != 0) {
 					val1 = buf1r[j + 1] + 3 * dif;
 					val2 = buf2r[j] + 3 * dif;
@@ -1072,7 +1085,7 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 						buf2r[j] = MIN(16383, val2);
 						buf2r[j + 1] = MIN(16383, val3);
 					}
-					else if(dif < 0) {
+					else {
 						buf1r[j + 1] = MAX(0, val1);
 						buf2r[j] = MAX(0, val2);
 						buf2r[j + 1] = MAX(0, val3);
@@ -1080,8 +1093,8 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 				}
 
 				dif = buf1g[j] / 8 - 8 * gc;
-				if(dif > DIF_CAP) dif = DIF_CAP;
-				if(dif < -DIF_CAP) dif = -DIF_CAP;
+				if(dif > DifCap) dif = DifCap;
+				if(dif < -DifCap) dif = -DifCap;
 				if(dif != 0) {
 					val1 = buf1g[j + 1] + 3 * dif;
 					val2 = buf2g[j] + 3 * dif;
@@ -1091,7 +1104,7 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 						buf2g[j] = MIN(16383, val2);
 						buf2g[j + 1] = MIN(16383, val3);
 					}
-					else if(dif < 0) {
+					else {
 						buf1g[j + 1] = MAX(0, val1);
 						buf2g[j] = MAX(0, val2);
 						buf2g[j + 1] = MAX(0, val3);
@@ -1099,8 +1112,8 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 				}
 
 				dif = buf1b[j] / 8 - 8 * bc;
-				if(dif > DIF_CAP) dif = DIF_CAP;
-				if(dif < -DIF_CAP) dif = -DIF_CAP;
+				if(dif > DifCap) dif = DifCap;
+				if(dif < -DifCap) dif = -DifCap;
 				if(dif != 0) {
 					val1 = buf1b[j + 1] + 3 * dif;
 					val2 = buf2b[j] + 3 * dif;
@@ -1110,7 +1123,7 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 						buf2b[j] = MIN(16383, val2);
 						buf2b[j + 1] = MIN(16383, val3);
 					}
-					else if(dif < 0) {
+					else {
 						buf1b[j + 1] = MAX(0, val1);
 						buf2b[j] = MAX(0, val2);
 						buf2b[j + 1] = MAX(0, val3);
@@ -1139,15 +1152,15 @@ static PIX * pixQuantizeWithColormap(PIX      * pixs,
 		}
 
 buffer_cleanup:
-		LEPT_FREE(bufu8r);
-		LEPT_FREE(bufu8g);
-		LEPT_FREE(bufu8b);
-		LEPT_FREE(buf1r);
-		LEPT_FREE(buf1g);
-		LEPT_FREE(buf1b);
-		LEPT_FREE(buf2r);
-		LEPT_FREE(buf2g);
-		LEPT_FREE(buf2b);
+		SAlloc::F(bufu8r);
+		SAlloc::F(bufu8g);
+		SAlloc::F(bufu8b);
+		SAlloc::F(buf1r);
+		SAlloc::F(buf1g);
+		SAlloc::F(buf1b);
+		SAlloc::F(buf2r);
+		SAlloc::F(buf2g);
+		SAlloc::F(buf2b);
 		if(!success) pixDestroy(&pixd);
 	}
 
@@ -1157,11 +1170,11 @@ buffer_cleanup:
 /*!
  * \brief   getColorIndexMedianCut()
  *
- * \param[in]    pixel 32 bit rgb
- * \param[in]    rshift of component: 8 - sigbits
- * \param[in]    mask over sigbits
+ * \param[in]    pixel     32 bit rgb
+ * \param[in]    rshift    of component: 8 - sigbits
+ * \param[in]    mask      over sigbits
  * \param[in]    sigbits
- * \param[out]   pindex rgb index value
+ * \param[out]   pindex    rgb index value
  * \return  void
  *
  * <pre>
@@ -1170,13 +1183,13 @@ buffer_cleanup:
  *          is done on input values.
  * </pre>
  */
-static void getColorIndexMedianCut(uint32 pixel,
-    int32 rshift,
-    uint32 mask,
-    int32 sigbits,
-    int32  * pindex)
+static void getColorIndexMedianCut(l_uint32 pixel,
+    l_int32 rshift,
+    l_uint32 mask,
+    l_int32 sigbits,
+    l_int32 * pindex)
 {
-	int32 rval, gval, bval;
+	l_int32 rval, gval, bval;
 
 	rval = pixel >> (24 + rshift);
 	gval = (pixel >> (16 + rshift)) & mask;
@@ -1188,11 +1201,11 @@ static void getColorIndexMedianCut(uint32 pixel,
 /*!
  * \brief   pixGetColorRegion()
  *
- * \param[in]    pixs  32 bpp; rgb color
- * \param[in]    sigbits valid: 5, 6
- * \param[in]    subsample integer > 0
- * \return  vbox minimum 3D box in color space enclosing all pixels,
- *              or NULL on error
+ * \param[in]    pixs        32 bpp; rgb color
+ * \param[in]    sigbits     valid: 5, 6
+ * \param[in]    subsample   integer > 0
+ * \return  vbox    minimum 3D box in color space enclosing all pixels,
+ *                  or NULL on error
  *
  * <pre>
  * Notes:
@@ -1200,16 +1213,16 @@ static void getColorIndexMedianCut(uint32 pixel,
  *          pixels in the image.
  * </pre>
  */
-static L_BOX3D * pixGetColorRegion(PIX     * pixs,
-    int32 sigbits,
-    int32 subsample)
+static L_BOX3D * pixGetColorRegion(PIX * pixs,
+    l_int32 sigbits,
+    l_int32 subsample)
 {
-	int32 rmin, rmax, gmin, gmax, bmin, bmax, rval, gval, bval;
-	int32 w, h, wpl, i, j, rshift;
-	uint32 mask, pixel;
-	uint32  * data, * line;
+	l_int32 rmin, rmax, gmin, gmax, bmin, bmax, rval, gval, bval;
+	l_int32 w, h, wpl, i, j, rshift;
+	l_uint32 mask, pixel;
+	l_uint32 * data, * line;
 
-	PROCNAME("pixGetColorRegion");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return (L_BOX3D*)ERROR_PTR("pixs not defined", procName, NULL);
@@ -1249,24 +1262,24 @@ static L_BOX3D * pixGetColorRegion(PIX     * pixs,
 /*!
  * \brief   medianCutApply()
  *
- * \param[in]    histo  array; in rgb colorspace
+ * \param[in]    histo            array; in rgb colorspace
  * \param[in]    sigbits
- * \param[in]    vbox input 3D box
- * \param[out]   pvbox1, pvbox2 vbox split in two parts
+ * \param[in]    vbox             input 3D box
+ * \param[out]   pvbox1, pvbox2   vbox split in two parts
  * \return  0 if OK, 1 on error
  */
-static int32 medianCutApply(int32   * histo,
-    int32 sigbits,
+static l_int32 medianCutApply(l_int32   * histo,
+    l_int32 sigbits,
     L_BOX3D   * vbox,
     L_BOX3D  ** pvbox1,
     L_BOX3D  ** pvbox2)
 {
-	int32 i, j, k, sum, rw, gw, bw, maxw, index;
-	int32 total, left, right;
-	int32 partialsum[128];
+	l_int32 i, j, k, sum, rw, gw, bw, maxw, index;
+	l_int32 total, left, right;
+	l_int32 partialsum[128];
 	L_BOX3D  * vbox1, * vbox2;
 
-	PROCNAME("medianCutApply");
+	PROCNAME(__FUNCTION__);
 
 	if(pvbox1) *pvbox1 = NULL;
 	if(pvbox2) *pvbox2 = NULL;
@@ -1298,11 +1311,11 @@ static int32 medianCutApply(int32   * histo,
 	maxw = MAX(maxw, bw);
 #if  DEBUG_SPLIT_AXES
 	if(rw == maxw)
-		fprintf(stderr, "red split\n");
+		lept_stderr("red split\n");
 	else if(gw == maxw)
-		fprintf(stderr, "green split\n");
+		lept_stderr("green split\n");
 	else
-		fprintf(stderr, "blue split\n");
+		lept_stderr("blue split\n");
 #endif  /* DEBUG_SPLIT_AXES */
 
 	/* Find the partial sum arrays along the selected axis. */
@@ -1422,9 +1435,9 @@ static int32 medianCutApply(int32   * histo,
 /*!
  * \brief   pixcmapGenerateFromMedianCuts()
  *
- * \param[in]    lh priority queue of pointers to vboxes
+ * \param[in]    lh        priority queue of pointers to vboxes
  * \param[in]    histo
- * \param[in]    sigbits valid: 5 or 6
+ * \param[in]    sigbits   valid: 5 or 6
  * \return  cmap, or NULL on error
  *
  * <pre>
@@ -1438,14 +1451,14 @@ static int32 medianCutApply(int32   * histo,
  * </pre>
  */
 static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP   * lh,
-    int32  * histo,
-    int32 sigbits)
+    l_int32 * histo,
+    l_int32 sigbits)
 {
-	int32 index, rval, gval, bval;
+	l_int32 index, rval, gval, bval;
 	L_BOX3D  * vbox;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixcmapGenerateFromMedianCuts");
+	PROCNAME(__FUNCTION__);
 
 	if(!lh)
 		return (PIXCMAP*)ERROR_PTR("lh not defined", procName, NULL);
@@ -1459,7 +1472,7 @@ static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP   * lh,
 		vbox = (L_BOX3D*)lheapRemove(lh);
 		vboxGetAverageColor(vbox, histo, sigbits, index, &rval, &gval, &bval);
 		pixcmapAddColor(cmap, rval, gval, bval);
-		LEPT_FREE(vbox);
+		SAlloc::F(vbox);
 		index++;
 	}
 
@@ -1469,11 +1482,11 @@ static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP   * lh,
 /*!
  * \brief   vboxGetAverageColor()
  *
- * \param[in]    vbox 3d region of color space for one quantized color
+ * \param[in]    vbox       3d region of color space for one quantized color
  * \param[in]    histo
- * \param[in]    sigbits valid: 5 or 6
- * \param[in]    index if >= 0, assign to all colors in histo in this vbox
- * \param[out]   prval, pgval, pbval average color
+ * \param[in]    sigbits    valid: 5 or 6
+ * \param[in]    index      if >= 0, assign to all colors in histo in this vbox
+ * \param[out]   prval, pgval, pbval    average color
  * \return  cmap, or NULL on error
  *
  * <pre>
@@ -1491,17 +1504,17 @@ static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP   * lh,
  *          the lower corner.
  * </pre>
  */
-static int32 vboxGetAverageColor(L_BOX3D  * vbox,
-    int32  * histo,
-    int32 sigbits,
-    int32 index,
-    int32  * prval,
-    int32  * pgval,
-    int32  * pbval)
+static l_int32 vboxGetAverageColor(L_BOX3D  * vbox,
+    l_int32 * histo,
+    l_int32 sigbits,
+    l_int32 index,
+    l_int32 * prval,
+    l_int32 * pgval,
+    l_int32 * pbval)
 {
-	int32 i, j, k, ntot, mult, histoindex, rsum, gsum, bsum;
+	l_int32 i, j, k, ntot, mult, histoindex, rsum, gsum, bsum;
 
-	PROCNAME("vboxGetAverageColor");
+	PROCNAME(__FUNCTION__);
 
 	if(!vbox)
 		return ERROR_INT("vbox not defined", procName, 1);
@@ -1519,9 +1532,9 @@ static int32 vboxGetAverageColor(L_BOX3D  * vbox,
 			for(k = vbox->b1; k <= vbox->b2; k++) {
 				histoindex = (i << (2 * sigbits)) + (j << sigbits) + k;
 				ntot += histo[histoindex];
-				rsum += (int32)(histo[histoindex] * (i + 0.5) * mult);
-				gsum += (int32)(histo[histoindex] * (j + 0.5) * mult);
-				bsum += (int32)(histo[histoindex] * (k + 0.5) * mult);
+				rsum += (l_int32)(histo[histoindex] * (i + 0.5) * mult);
+				gsum += (l_int32)(histo[histoindex] * (j + 0.5) * mult);
+				bsum += (l_int32)(histo[histoindex] * (k + 0.5) * mult);
 				if(index >= 0)
 					histo[histoindex] = index;
 			}
@@ -1540,7 +1553,7 @@ static int32 vboxGetAverageColor(L_BOX3D  * vbox,
 	}
 
 #if  DEBUG_MC_COLORS
-	fprintf(stderr, "ntot[%d] = %d: [%d, %d, %d], (%d, %d, %d)\n",
+	lept_stderr("ntot[%d] = %d: [%d, %d, %d], (%d, %d, %d)\n",
 	    index, ntot, vbox->r2 - vbox->r1 + 1,
 	    vbox->g2 - vbox->g1 + 1, vbox->b2 - vbox->b1 + 1,
 	    *prval, *pgval, *pbval);
@@ -1552,18 +1565,18 @@ static int32 vboxGetAverageColor(L_BOX3D  * vbox,
 /*!
  * \brief   vboxGetCount()
  *
- * \param[in]    vbox 3d region of color space for one quantized color
+ * \param[in]    vbox      3d region of color space for one quantized color
  * \param[in]    histo
- * \param[in]    sigbits valid: 5 or 6
+ * \param[in]    sigbits   valid: 5 or 6
  * \return  number of image pixels in this region, or 0 on error
  */
-static int32 vboxGetCount(L_BOX3D  * vbox,
-    int32  * histo,
-    int32 sigbits)
+static l_int32 vboxGetCount(L_BOX3D  * vbox,
+    l_int32 * histo,
+    l_int32 sigbits)
 {
-	int32 i, j, k, npix, index;
+	l_int32 i, j, k, npix, index;
 
-	PROCNAME("vboxGetCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!vbox)
 		return ERROR_INT("vbox not defined", procName, 0);
@@ -1586,36 +1599,36 @@ static int32 vboxGetCount(L_BOX3D  * vbox,
 /*!
  * \brief   vboxGetVolume()
  *
- * \param[in]    vbox 3d region of color space for one quantized color
+ * \param[in]    vbox    3d region of color space for one quantized color
  * \return  quantized volume of vbox, or 0 on error
  */
-static int32 vboxGetVolume(L_BOX3D  * vbox)
+static l_int32 vboxGetVolume(L_BOX3D  * vbox)
 {
-	PROCNAME("vboxGetVolume");
+	PROCNAME(__FUNCTION__);
 
 	if(!vbox)
 		return ERROR_INT("vbox not defined", procName, 0);
 
 	return ((vbox->r2 - vbox->r1 + 1) * (vbox->g2 - vbox->g1 + 1) *
-	    (vbox->b2 - vbox->b1 + 1));
+	       (vbox->b2 - vbox->b1 + 1));
 }
 
 /*!
  * \brief    box3dCreate()
  *
- * \param[in]    r1, r2, g1, g2, b1, b2 initial values
+ * \param[in]    r1, r2, g1, g2, b1, b2    initial values
  * \return  vbox
  */
-static L_BOX3D * box3dCreate(int32 r1,
-    int32 r2,
-    int32 g1,
-    int32 g2,
-    int32 b1,
-    int32 b2)
+static L_BOX3D * box3dCreate(l_int32 r1,
+    l_int32 r2,
+    l_int32 g1,
+    l_int32 g2,
+    l_int32 b1,
+    l_int32 b2)
 {
 	L_BOX3D  * vbox;
 
-	vbox = (L_BOX3D*)LEPT_CALLOC(1, sizeof(L_BOX3D));
+	vbox = (L_BOX3D*)SAlloc::C(1, sizeof(L_BOX3D));
 	vbox->r1 = r1;
 	vbox->r2 = r2;
 	vbox->g1 = g1;
@@ -1629,7 +1642,7 @@ static L_BOX3D * box3dCreate(int32 r1,
  * \brief     box3dCopy()
  *
  * \param[in]    vbox
- * \return  vboxc copy of vbox
+ * \return  vboxc   copy of vbox
  *
  * <pre>
  * Notes:
@@ -1640,15 +1653,14 @@ static L_BOX3D * box3dCopy(L_BOX3D  * vbox)
 {
 	L_BOX3D  * vboxc;
 
-	PROCNAME("box3dCopy");
+	PROCNAME(__FUNCTION__);
 
 	if(!vbox)
 		return (L_BOX3D*)ERROR_PTR("vbox not defined", procName, NULL);
 
 	vboxc = box3dCreate(vbox->r1, vbox->r2, vbox->g1, vbox->g2,
-	    vbox->b1, vbox->b2);
+		vbox->b1, vbox->b2);
 	vboxc->npix = vbox->npix;
 	vboxc->vol = vbox->vol;
 	return vboxc;
 }
-

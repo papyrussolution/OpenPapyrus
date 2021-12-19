@@ -30,6 +30,10 @@
  *   Tests dewarping model applied to word bounding boxes.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 static l_int32 pageno = 35;
@@ -46,6 +50,7 @@ L_DEWARP   *dew;
 L_DEWARPA  *dewa;
 PIX        *pixs, *pixn, *pixg, *pixb, *pix2, *pix3, *pix4, *pix5, *pix6;
 
+    setLeptDebugOK(1);
     lept_mkdir("lept");
 
     snprintf(buf, sizeof(buf), "cat.%03d.jpg", pageno);
@@ -80,7 +85,7 @@ PIX        *pixs, *pixn, *pixg, *pixb, *pix2, *pix3, *pix4, *pix5, *pix6;
     pixDisplay(pix2, 200, 100);
 
         /* Reverse direction: get the word boxes for the dewarped pix ... */
-    pixGetWordBoxesInTextlines(pix2, 1, 5, 5, 500, 100, &boxa1, NULL);
+    pixGetWordBoxesInTextlines(pix2, 5, 5, 500, 100, &boxa1, NULL);
     pix3 = pixConvertTo32(pix2);
     pixRenderBoxaArb(pix3, boxa1, 2, 255, 0, 0);
     pixDisplay(pix3, 400, 100);
@@ -99,7 +104,7 @@ PIX        *pixs, *pixn, *pixg, *pixb, *pix2, *pix3, *pix4, *pix5, *pix6;
     pixDisplay(pix4, 600, 100);
 
         /* Forward direction: get the word boxes for the input pix ... */
-    pixGetWordBoxesInTextlines(pixb, 1, 5, 5, 500, 100, &boxa3, NULL);
+    pixGetWordBoxesInTextlines(pixb, 5, 5, 500, 100, &boxa3, NULL);
     pix5 = pixConvertTo32(pixb);
     pixRenderBoxaArb(pix5, boxa3, 2, 255, 0, 0);
     pixDisplay(pix5, 800, 100);

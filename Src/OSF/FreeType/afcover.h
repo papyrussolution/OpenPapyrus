@@ -42,7 +42,7 @@
 
 #if 0
   /* XXX: Only digits are in this coverage, however, both normal style */
-  /*      and oldstyle representation forms are possible. */
+  /* and oldstyle representation forms are possible. */
   COVERAGE( denominators, DENOMINATORS,
             "denominators",
             'd', 'n', 'o', 'm' )
@@ -57,7 +57,7 @@
 
 #if 0
   /* XXX: Only digits are in this coverage, however, both normal style */
-  /*      and oldstyle representation forms are possible. */
+  /* and oldstyle representation forms are possible. */
   COVERAGE( numerators, NUMERATORS,
             "numerators",
             'n', 'u', 'm', 'r' )

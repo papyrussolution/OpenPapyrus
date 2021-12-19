@@ -55,7 +55,7 @@ void win_sleep(GpTermEntry * pTerm, DWORD dwMilliSeconds)
 		else
 			rc = MsgWaitForMultipleObjects(0, NULL, FALSE, t1, QS_ALLINPUT);
 		if(rc != WAIT_TIMEOUT) {
-			if(sstreq(pTerm->name, "caca"))
+			if(sstreq(pTerm->GetName(), "caca"))
 				CACA_process_events();
 #endif
 			WinMessageLoop();
@@ -85,7 +85,7 @@ static void CreatePauseClass(PW * lppw)
 	wndclass.cbWndExtra = sizeof(void *);
 	wndclass.hInstance = lppw->hInstance;
 	wndclass.hIcon = NULL;
-	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wndclass.hCursor = ::LoadCursor(0, IDC_ARROW);
 	wndclass.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
 	wndclass.lpszMenuName = NULL;
 	wndclass.lpszClassName = szPauseClass;
@@ -99,22 +99,22 @@ bool MousableWindowOpened(GpTermEntry * pTerm)
 	// only pause-for-mouse when a window is open 
 	// FIXME: we might want to have a terminal entry for that 
 	if(pTerm) {
-		if(sstreq(pTerm->name, "windows") && GraphHasWindow(_WinM.P_GraphWin))
+		if(sstreq(pTerm->GetName(), "windows") && GraphHasWindow(_WinM.P_GraphWin))
 			result = TRUE;
 #ifdef WXWIDGETS
 		// FIXME: this does not test if the current window is open 
-		else if(sstreq(pTerm->name, "wxt") && wxt_active_window_opened())
+		else if(sstreq(pTerm->GetName(), "wxt") && wxt_active_window_opened())
 			result = TRUE;
 #endif
 #ifdef HAVE_LIBCACA
-		else if(sstreq(pTerm->name, "caca") && CACA_window_opened())
+		else if(sstreq(pTerm->GetName(), "caca") && CACA_window_opened())
 			result = TRUE;
 #endif
 #ifdef QTTERM
 #if 0 // FIXME: qt_window_opened() not yet implemented 
-		if(sstreq(pTerm->name, "qt") && !qt_active_window_opened())
+		if(sstreq(pTerm->GetName(), "qt") && !qt_active_window_opened())
 #else
-		if(sstreq(pTerm->name, "qt"))
+		if(sstreq(pTerm->GetName(), "qt"))
 #endif
 			result = TRUE;
 #endif
@@ -128,8 +128,9 @@ bool MousableWindowOpened(GpTermEntry * pTerm)
 int PauseBox(GpTermEntry * pTerm, PW * lppw)
 {
 	GnuPlot * p_gp = pTerm->P_Gp;
-	HDC hdc;
-	int width, height;
+	HDC  hdc;
+	long width;
+	long height;
 	TEXTMETRIC tm;
 	RECT rect;
 	SIZE size;
@@ -224,9 +225,9 @@ LRESULT CALLBACK WndPauseProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 	switch(message) {
 		case WM_KEYDOWN:
 		    if(wParam == VK_RETURN)
-			    SendMessage(hwnd, WM_COMMAND, lppw->bDefOK ? IDOK : IDCANCEL, 0L);
+			    ::SendMessage(hwnd, WM_COMMAND, lppw->bDefOK ? IDOK : IDCANCEL, 0L);
 		    else if(wParam == VK_ESCAPE)
-			    SendMessage(hwnd, WM_COMMAND, IDCANCEL, 0L);
+			    ::SendMessage(hwnd, WM_COMMAND, IDCANCEL, 0L);
 		    return 0;
 		case WM_COMMAND:
 		    if(oneof2(LOWORD(wParam), IDCANCEL, IDOK)) {

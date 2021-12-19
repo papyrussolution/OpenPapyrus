@@ -8,8 +8,14 @@
 #      alltests_reg generate
 #      alltests_reg compare
 #
-#  Ten of the tests require gnuplot.  These tests are skipped if
-#  gnuplot is not available.
+#  Some of the tests require gnuplot.  These tests, listed below,
+#  are skipped if gnuplot is not available.  You can determine if a
+#  test requires gnuplot, if any of these situations is true:
+#   * a function starting with "gplot" is called
+#   * a function starting with "boxaPlot" is called
+#   * a function starting with "pixCompare" is called
+#   * the function pixItalicWords() is called
+#   * the function pixWordMaskByDilation() is called
 #
 #  The wrapper receives several parameters in this form:
 #      path/to/source/config/test-driver <TEST DRIVER ARGS> -- ./foo_reg
@@ -31,8 +37,12 @@ TEST_NAME="${TEST##*/}"
 TEST_NAME="${TEST_NAME%_reg*}"
 
 case "${TEST_NAME}" in
-    colormask|colorspace|dna|enhance|fpix1|kernel|nearline|projection|rankbin|rankhisto)
-        which gnuplot > /dev/null || which wgnuplot > /dev/null || exec ${@%${TEST}} /bin/sh -c "exit 77" ;;
+    baseline|boxa[1234]|colormask|colorspace|crop|dna|enhance|extrema|fpix1|hash|italic|kernel|nearline|numa[123]|pixa1|projection|rank|rankbin|rankhisto|wordboxes)
+        GNUPLOT=$(which gnuplot || which wgnuplot)
+
+        if [ -z "${GNUPLOT}" ] || ! "${GNUPLOT}" -e "set terminal png" 2>/dev/null ; then
+            exec ${@%${TEST}} /bin/sh -c "exit 77"
+        fi
 esac
 
 exec ${@%${TEST}} /bin/sh -c "cd \"${srcdir}\" && \"${PWD}/\"${TEST} generate && \"${PWD}/\"${TEST} compare"

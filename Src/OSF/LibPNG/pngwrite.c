@@ -10,12 +10,8 @@
  * For conditions of distribution and use, see the disclaimer
  * and license in png.h
  */
-
 #include "pngpriv.h"
 #pragma hdrstop
-#ifdef PNG_SIMPLIFIED_WRITE_STDIO_SUPPORTED
-	#include <errno.h>
-#endif /* SIMPLIFIED_WRITE_STDIO */
 
 #ifdef PNG_WRITE_SUPPORTED
 #ifdef PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED
@@ -45,17 +41,13 @@ static void write_unknown_chunks(png_structrp png_ptr, png_const_inforp info_ptr
 				 *
 				 * @todo REVIEW: this would seem to be a bug.
 				 */
-				if(keep != PNG_HANDLE_CHUNK_NEVER &&
-				    ((up->name[3] & 0x20) /* safe-to-copy overrides everything */ ||
-					    keep == PNG_HANDLE_CHUNK_ALWAYS ||
-					    (keep == PNG_HANDLE_CHUNK_AS_DEFAULT &&
-						    png_ptr->unknown_default == PNG_HANDLE_CHUNK_ALWAYS)))
+				if(keep != PNG_HANDLE_CHUNK_NEVER && ((up->name[3] & 0x20) /* safe-to-copy overrides everything */ ||
+					    keep == PNG_HANDLE_CHUNK_ALWAYS || (keep == PNG_HANDLE_CHUNK_AS_DEFAULT && png_ptr->unknown_default == PNG_HANDLE_CHUNK_ALWAYS)))
 #endif
 				{
 					/* @todo review, what is wrong with a zero length unknown chunk? */
 					if(up->size == 0)
 						png_warning(png_ptr, "Writing zero-length unknown chunk");
-
 					png_write_chunk(png_ptr, up->name, up->data, up->size);
 				}
 			}
@@ -138,14 +130,14 @@ void PNGAPI png_write_info_before_PLTE(png_structrp png_ptr, png_const_inforp in
 			if((info_ptr->valid & PNG_INFO_sRGB) != 0)
 				png_app_warning(png_ptr,
 				    "profile matches sRGB but writing iCCP instead");
-#     endif
+#endif
 
 			png_write_iCCP(png_ptr, info_ptr->iccp_name,
 			    info_ptr->iccp_profile);
 		}
-#     ifdef PNG_WRITE_sRGB_SUPPORTED
+#ifdef PNG_WRITE_sRGB_SUPPORTED
 		else
-#     endif
+#endif
 #endif
 
 #ifdef PNG_WRITE_sRGB_SUPPORTED
@@ -811,14 +803,11 @@ void PNGAPI png_write_row(png_structrp png_ptr, png_const_bytep row)
 /* Added at libpng-1.5.10 */
 #ifdef PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED
 	/* Check for out-of-range palette index */
-	if(row_info.color_type == PNG_COLOR_TYPE_PALETTE &&
-	    png_ptr->num_palette_max >= 0)
+	if(row_info.color_type == PNG_COLOR_TYPE_PALETTE && png_ptr->num_palette_max >= 0)
 		png_do_check_palette_indexes(png_ptr, &row_info);
 #endif
-
 	/* Find a filter if necessary, filter the row and write it out. */
 	png_write_find_filter(png_ptr, &row_info);
-
 	if(png_ptr->write_row_fn != NULL)
 		(*(png_ptr->write_row_fn))(png_ptr, png_ptr->row_number, png_ptr->pass);
 }
@@ -910,7 +899,6 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 #ifdef PNG_MNG_FEATURES_SUPPORTED
 	if((png_ptr->mng_features_permitted & PNG_FLAG_MNG_FILTER_64) != 0 && (method == PNG_INTRAPIXEL_DIFFERENCING))
 		method = PNG_FILTER_TYPE_BASE;
-
 #endif
 	if(method == PNG_FILTER_TYPE_BASE) {
 		switch(filters & (PNG_ALL_FILTERS | 0x07)) {
@@ -920,30 +908,17 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 			case 7: png_app_error(png_ptr, "Unknown row filter for method 0");
 			    // @fallthrough
 #endif /* WRITE_FILTER */
-			case PNG_FILTER_VALUE_NONE:
-			    png_ptr->do_filter = PNG_FILTER_NONE; break;
-
+			case PNG_FILTER_VALUE_NONE: png_ptr->do_filter = PNG_FILTER_NONE; break;
 #ifdef PNG_WRITE_FILTER_SUPPORTED
-			case PNG_FILTER_VALUE_SUB:
-			    png_ptr->do_filter = PNG_FILTER_SUB; break;
-
-			case PNG_FILTER_VALUE_UP:
-			    png_ptr->do_filter = PNG_FILTER_UP; break;
-
-			case PNG_FILTER_VALUE_AVG:
-			    png_ptr->do_filter = PNG_FILTER_AVG; break;
-
-			case PNG_FILTER_VALUE_PAETH:
-			    png_ptr->do_filter = PNG_FILTER_PAETH; break;
-
-			default:
-			    png_ptr->do_filter = (uint8)filters; break;
+			case PNG_FILTER_VALUE_SUB: png_ptr->do_filter = PNG_FILTER_SUB; break;
+			case PNG_FILTER_VALUE_UP: png_ptr->do_filter = PNG_FILTER_UP; break;
+			case PNG_FILTER_VALUE_AVG: png_ptr->do_filter = PNG_FILTER_AVG; break;
+			case PNG_FILTER_VALUE_PAETH: png_ptr->do_filter = PNG_FILTER_PAETH; break;
+			default: png_ptr->do_filter = (uint8)filters; break;
 #else
-			default:
-			    png_app_error(png_ptr, "Unknown row filter for method 0");
+			default: png_app_error(png_ptr, "Unknown row filter for method 0");
 #endif /* WRITE_FILTER */
 		}
-
 #ifdef PNG_WRITE_FILTER_SUPPORTED
 		/* If we have allocated the row_buf, this means we have already started
 		 * with the image and we should have allocated all of the filter buffers
@@ -961,55 +936,39 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 		if(png_ptr->row_buf != NULL) {
 			int num_filters;
 			png_alloc_size_t buf_size;
-
 			/* Repeat the checks in png_write_start_row; 1 pixel high or wide
 			 * images cannot benefit from certain filters.  If this isn't done here
 			 * the check below will fire on 1 pixel high images.
 			 */
 			if(png_ptr->height == 1)
 				filters &= ~(PNG_FILTER_UP|PNG_FILTER_AVG|PNG_FILTER_PAETH);
-
 			if(png_ptr->width == 1)
 				filters &= ~(PNG_FILTER_SUB|PNG_FILTER_AVG|PNG_FILTER_PAETH);
-
-			if((filters & (PNG_FILTER_UP|PNG_FILTER_AVG|PNG_FILTER_PAETH)) != 0
-			 && png_ptr->prev_row == NULL) {
+			if((filters & (PNG_FILTER_UP|PNG_FILTER_AVG|PNG_FILTER_PAETH)) != 0 && png_ptr->prev_row == NULL) {
 				/* This is the error case, however it is benign - the previous row
 				 * is not available so the filter can't be used.  Just warn here.
 				 */
-				png_app_warning(png_ptr,
-				    "png_set_filter: UP/AVG/PAETH cannot be added after start");
+				png_app_warning(png_ptr, "png_set_filter: UP/AVG/PAETH cannot be added after start");
 				filters &= ~(PNG_FILTER_UP|PNG_FILTER_AVG|PNG_FILTER_PAETH);
 			}
-
 			num_filters = 0;
-
 			if(filters & PNG_FILTER_SUB)
 				num_filters++;
-
 			if(filters & PNG_FILTER_UP)
 				num_filters++;
-
 			if(filters & PNG_FILTER_AVG)
 				num_filters++;
-
 			if(filters & PNG_FILTER_PAETH)
 				num_filters++;
-
 			/* Allocate needed row buffers if they have not already been
 			 * allocated.
 			 */
-			buf_size = PNG_ROWBYTES(png_ptr->usr_channels * png_ptr->usr_bit_depth,
-			    png_ptr->width) + 1;
-
+			buf_size = PNG_ROWBYTES(png_ptr->usr_channels * png_ptr->usr_bit_depth, png_ptr->width) + 1;
 			if(png_ptr->try_row == NULL)
-				png_ptr->try_row = png_voidcast(png_bytep,
-				    png_malloc(png_ptr, buf_size));
-
+				png_ptr->try_row = png_voidcast(png_bytep, png_malloc(png_ptr, buf_size));
 			if(num_filters > 1) {
 				if(png_ptr->tst_row == NULL)
-					png_ptr->tst_row = png_voidcast(png_bytep,
-					    png_malloc(png_ptr, buf_size));
+					png_ptr->tst_row = png_voidcast(png_bytep, png_malloc(png_ptr, buf_size));
 			}
 		}
 		png_ptr->do_filter = (uint8)filters;
@@ -1022,29 +981,25 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 #ifdef PNG_WRITE_WEIGHTED_FILTER_SUPPORTED /* DEPRECATED */
 /* Provide floating and fixed point APIs */
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI png_set_filter_heuristics(png_structrp png_ptr, int heuristic_method,
-    int num_weights, png_const_doublep filter_weights,
-    png_const_doublep filter_costs)
+void PNGAPI png_set_filter_heuristics(png_structrp png_ptr, int heuristic_method, int num_weights, png_const_doublep filter_weights, png_const_doublep filter_costs)
 {
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(heuristic_method)
-	PNG_UNUSED(num_weights)
-	PNG_UNUSED(filter_weights)
-	PNG_UNUSED(filter_costs)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(heuristic_method);
+	CXX_UNUSED(num_weights);
+	CXX_UNUSED(filter_weights);
+	CXX_UNUSED(filter_costs);
 }
 
 #endif /* FLOATING_POINT */
 
 #ifdef PNG_FIXED_POINT_SUPPORTED
-void PNGAPI png_set_filter_heuristics_fixed(png_structrp png_ptr, int heuristic_method,
-    int num_weights, png_const_fixed_point_p filter_weights,
-    png_const_fixed_point_p filter_costs)
+void PNGAPI png_set_filter_heuristics_fixed(png_structrp png_ptr, int heuristic_method, int num_weights, png_const_fixed_point_p filter_weights, png_const_fixed_point_p filter_costs)
 {
-	PNG_UNUSED(png_ptr)
-	PNG_UNUSED(heuristic_method)
-	PNG_UNUSED(num_weights)
-	PNG_UNUSED(filter_weights)
-	PNG_UNUSED(filter_costs)
+	CXX_UNUSED(png_ptr);
+	CXX_UNUSED(heuristic_method);
+	CXX_UNUSED(num_weights);
+	CXX_UNUSED(filter_weights);
+	CXX_UNUSED(filter_costs);
 }
 
 #endif /* FIXED_POINT */
@@ -1299,7 +1254,6 @@ void PNGAPI png_write_png(png_structrp png_ptr, png_inforp info_ptr, int transfo
 #else
 		png_app_error(png_ptr, "PNG_TRANSFORM_PACKSWAP not supported");
 #endif
-
 	/* Invert the alpha channel from opacity to transparency */
 	if((transforms & PNG_TRANSFORM_INVERT_ALPHA) != 0)
 #ifdef PNG_WRITE_INVERT_ALPHA_SUPPORTED
@@ -1307,16 +1261,12 @@ void PNGAPI png_write_png(png_structrp png_ptr, png_inforp info_ptr, int transfo
 #else
 		png_app_error(png_ptr, "PNG_TRANSFORM_INVERT_ALPHA not supported");
 #endif
-
 	/* ----------------------- end of transformations ------------------- */
-
 	/* Write the bits */
 	png_write_image(png_ptr, info_ptr->row_pointers);
-
 	/* It is REQUIRED to call this to finish writing the rest of the file */
 	png_write_end(png_ptr, info_ptr);
-
-	PNG_UNUSED(params)
+	CXX_UNUSED(params);
 }
 
 #endif
@@ -1392,9 +1342,9 @@ static int png_write_image_16bit(void * argument)
 		}
 		else
 			aindex = channels;
-#     else
+#else
 		aindex = channels;
-#     endif
+#endif
 	}
 
 	else
@@ -1928,7 +1878,7 @@ static void (PNGCBAPI image_memory_write)(png_structp png_ptr, png_bytep /*const
 
 static void (PNGCBAPI image_memory_flush)(png_structp png_ptr)
 {
-	PNG_UNUSED(png_ptr)
+	CXX_UNUSED(png_ptr);
 }
 
 static int png_image_write_memory(void * argument)

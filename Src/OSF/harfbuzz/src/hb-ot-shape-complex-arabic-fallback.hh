@@ -43,7 +43,7 @@ static const hb_tag_t arabic_fallback_features[] =
 	HB_TAG('r', 'l', 'i', 'g'),
 };
 
-static OT::SubstLookup * arabic_fallback_synthesize_lookup_single(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static OT::SubstLookup * arabic_fallback_synthesize_lookup_single(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     uint feature_index)
 {
@@ -91,7 +91,7 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_single(const hb_ot_sh
 	return ret && !c.in_error() ? c.copy<OT::SubstLookup> () : nullptr;
 }
 
-static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font)
 {
 	OT::HBGlyphID first_glyphs[ARRAY_LENGTH_CONST(ligature_table)];
@@ -203,9 +203,9 @@ public:
 
 typedef OT::ArrayOf<ManifestLookup> Manifest;
 
-static bool arabic_fallback_plan_init_win1256(arabic_fallback_plan_t * fallback_plan HB_UNUSED,
-    const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED)
+static bool arabic_fallback_plan_init_win1256(arabic_fallback_plan_t * fallback_plan CXX_UNUSED_PARAM,
+    const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 #ifdef HB_WITH_WIN1256
 	/* Does this font look like it's Windows-1256-encoded? */

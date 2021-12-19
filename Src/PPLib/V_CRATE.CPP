@@ -256,7 +256,7 @@ int PPViewCurRate::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 			ident.CurID      = p_h->CurID;
 			ident.BaseCurID  = p_h->BaseCurID;
 			ident.RateTypeID = p_h->RateTypeID;
-			ident.Dt         = p_h->Dt;
+			ident.Dt = p_h->Dt;
 		}
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:

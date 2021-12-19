@@ -4497,6 +4497,8 @@
 	#define CTLSEL_OBJTAG_OBJGRP         (11 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTAG_TAGOBJTYP         (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OBJTAG_TAGOBJTYP      (13 + WINDOWS_ID_BIAS)
+	#define CTL_OBJTAG_HOTKEY            (14 + WINDOWS_ID_BIAS)
+	#define CTL_OBJTAG_HOTKEY_HINT       (15 + WINDOWS_ID_BIAS)
 // Диалог просмотра тегов (аналогичен DLG_OBJVIEW)
 #define DLG_TAGVIEW               343
 #define DLG_TAGENUMVIEW           344
@@ -11195,6 +11197,7 @@
 	#define CTL_STQCFG_LOCLMQBSECR           (6  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_FEATURES              (7  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_EXPIRYP               (8  + WINDOWS_ID_BIAS)
+	#define CTL_STQCFG_ROLE                  (9  + WINDOWS_ID_BIAS) // @v11.2.8
 #define DLG_FLEXLAYOUTLIST        1408 // Иерархический список layout'ов
 	#define CTL_FLEXLAYOUTLIST_LIST          (1  + WINDOWS_ID_BIAS)
 

@@ -255,7 +255,7 @@ static int ma_net_write_buff(NET * net, const char * packet, size_t len)
 
 uchar * mysql_net_store_length(uchar * packet, size_t length);
 
-/*  Read and write using timeouts */
+/* Read and write using timeouts */
 
 int ma_net_real_write(NET * net, const char * packet, size_t len)
 {

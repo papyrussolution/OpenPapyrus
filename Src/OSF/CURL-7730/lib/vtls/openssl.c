@@ -4074,7 +4074,7 @@ static ssize_t ossl_send(struct connectdata * conn,
 			    return -1;
 		    }
 			case SSL_ERROR_SSL:
-			    /*  A failure in the SSL library occurred, usually a protocol error.
+			    /* A failure in the SSL library occurred, usually a protocol error.
 			        The OpenSSL error queue contains more information on the error. */
 			    sslerror = ERR_get_error();
 			    if(ERR_GET_LIB(sslerror) == ERR_LIB_SSL &&

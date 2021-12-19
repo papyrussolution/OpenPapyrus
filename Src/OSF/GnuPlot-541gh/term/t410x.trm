@@ -68,10 +68,10 @@ register_term(tek410x)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void T410X_init(GpTermEntry * pThis);
+TERM_PUBLIC void T410X_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void T410X_reset();
 TERM_PUBLIC void T410X_graphics();
-TERM_PUBLIC void T410X_text(GpTermEntry * pThis);
+TERM_PUBLIC void T410X_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void T410X_move(uint x, uint y);
 TERM_PUBLIC void T410X_vector(uint x, uint y);
 TERM_PUBLIC void T410X_point(uint x, uint y, int number);
@@ -94,7 +94,7 @@ static void T410X_encode_int(int number);
 
 static int T410X_angle = 0;
 
-TERM_PUBLIC void T410X_init(GpTermEntry * pThis)
+TERM_PUBLIC void T410X_init(GpTermEntry_Static * pThis)
 {
 	fputs("\033%%!0\033MN0\033MCB7C;\033MQ1\033MT1", GPT.P_GpOutFile);
 	fputs("\033MG1\033RK!\033SK!\033LZ\033%%!1", GPT.P_GpOutFile);
@@ -135,7 +135,7 @@ TERM_PUBLIC void T410X_graphics()
 	fflush(GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void T410X_text(GpTermEntry * pThis)
+TERM_PUBLIC void T410X_text(GpTermEntry_Static * pThis)
 {
 	fputs("\033LV1\033%%!1", GPT.P_GpOutFile);
 /*

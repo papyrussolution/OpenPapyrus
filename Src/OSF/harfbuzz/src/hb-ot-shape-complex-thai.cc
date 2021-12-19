@@ -151,10 +151,10 @@ static hb_codepoint_t thai_pua_shape(hb_codepoint_t u, thai_action_t action, hb_
 }
 
 static enum thai_above_state_t { /* Cluster above looks like: */
-	T0, /*  ⣤                      */
-	T1, /*     ⣼                   */
-	T2, /*        ⣾                */
-	T3, /*           ⣿             */
+	T0, /* ⣤                      */
+	T1, /* ⣼                   */
+	T2, /* ⣾                */
+	T3, /* ⣿             */
 	NUM_ABOVE_STATES
 } thai_above_start_state[NUM_CONSONANT_TYPES + 1 /* For NOT_CONSONANT */] =
 {
@@ -200,7 +200,7 @@ static const struct thai_below_state_machine_edge_t {
 /*B2*/ {{NOP, B2}, {SD, B2}, {NOP, B2}},
 };
 
-static void do_thai_pua_shaping(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static void do_thai_pua_shaping(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
     hb_font_t * font)
 {

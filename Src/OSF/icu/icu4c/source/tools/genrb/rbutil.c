@@ -77,7 +77,7 @@ int32_t itostr(char * buffer, int32_t i, uint32_t radix, int32_t pad)
 	} while(i);
 
 	while(length < pad) {
-		buffer[length++] = '0';/*zero padding */
+		buffer[length++] = '0'; /*zero padding */
 	}
 
 	/* if i is negative add the negative sign */

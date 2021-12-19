@@ -47,7 +47,6 @@ static uint recategorize_combining_class(hb_codepoint_t u, uint klass)
 				case 0x0E4Eu:
 				    klass = HB_UNICODE_COMBINING_CLASS_ABOVE_RIGHT;
 				    break;
-
 				case 0x0EB1u:
 				case 0x0EB4u:
 				case 0x0EB5u:
@@ -58,7 +57,6 @@ static uint recategorize_combining_class(hb_codepoint_t u, uint klass)
 				case 0x0ECDu:
 				    klass = HB_UNICODE_COMBINING_CLASS_ABOVE;
 				    break;
-
 				case 0x0EBCu:
 				    klass = HB_UNICODE_COMBINING_CLASS_BELOW;
 				    break;
@@ -70,11 +68,8 @@ static uint recategorize_combining_class(hb_codepoint_t u, uint klass)
 				klass = HB_UNICODE_COMBINING_CLASS_BELOW_RIGHT;
 		}
 	}
-
-	switch(klass)
-	{
+	switch(klass) {
 		/* Hebrew */
-
 		case HB_MODIFIED_COMBINING_CLASS_CCC10: /* sheva */
 		case HB_MODIFIED_COMBINING_CLASS_CCC11: /* hataf segol */
 		case HB_MODIFIED_COMBINING_CLASS_CCC12: /* hataf patah */
@@ -85,27 +80,14 @@ static uint recategorize_combining_class(hb_codepoint_t u, uint klass)
 		case HB_MODIFIED_COMBINING_CLASS_CCC17: /* patah */
 		case HB_MODIFIED_COMBINING_CLASS_CCC18: /* qamats */
 		case HB_MODIFIED_COMBINING_CLASS_CCC20: /* qubuts */
-		case HB_MODIFIED_COMBINING_CLASS_CCC22: /* meteg */
-		    return HB_UNICODE_COMBINING_CLASS_BELOW;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC23: /* rafe */
-		    return HB_UNICODE_COMBINING_CLASS_ATTACHED_ABOVE;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC24: /* shin dot */
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE_RIGHT;
-
+		case HB_MODIFIED_COMBINING_CLASS_CCC22: /* meteg */ return HB_UNICODE_COMBINING_CLASS_BELOW;
+		case HB_MODIFIED_COMBINING_CLASS_CCC23: /* rafe */ return HB_UNICODE_COMBINING_CLASS_ATTACHED_ABOVE;
+		case HB_MODIFIED_COMBINING_CLASS_CCC24: /* shin dot */ return HB_UNICODE_COMBINING_CLASS_ABOVE_RIGHT;
 		case HB_MODIFIED_COMBINING_CLASS_CCC25: /* sin dot */
-		case HB_MODIFIED_COMBINING_CLASS_CCC19: /* holam */
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE_LEFT;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC26: /* point varika */
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC21: /* dagesh */
-		    break;
-
+		case HB_MODIFIED_COMBINING_CLASS_CCC19: /* holam */ return HB_UNICODE_COMBINING_CLASS_ABOVE_LEFT;
+		case HB_MODIFIED_COMBINING_CLASS_CCC26: /* point varika */ return HB_UNICODE_COMBINING_CLASS_ABOVE;
+		case HB_MODIFIED_COMBINING_CLASS_CCC21: /* dagesh */ break;
 		/* Arabic and Syriac */
-
 		case HB_MODIFIED_COMBINING_CLASS_CCC27: /* fathatan */
 		case HB_MODIFIED_COMBINING_CLASS_CCC28: /* dammatan */
 		case HB_MODIFIED_COMBINING_CLASS_CCC30: /* fatha */
@@ -113,47 +95,24 @@ static uint recategorize_combining_class(hb_codepoint_t u, uint klass)
 		case HB_MODIFIED_COMBINING_CLASS_CCC33: /* shadda */
 		case HB_MODIFIED_COMBINING_CLASS_CCC34: /* sukun */
 		case HB_MODIFIED_COMBINING_CLASS_CCC35: /* superscript alef */
-		case HB_MODIFIED_COMBINING_CLASS_CCC36: /* superscript alaph */
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE;
-
+		case HB_MODIFIED_COMBINING_CLASS_CCC36: /* superscript alaph */ return HB_UNICODE_COMBINING_CLASS_ABOVE;
 		case HB_MODIFIED_COMBINING_CLASS_CCC29: /* kasratan */
-		case HB_MODIFIED_COMBINING_CLASS_CCC32: /* kasra */
-		    return HB_UNICODE_COMBINING_CLASS_BELOW;
-
+		case HB_MODIFIED_COMBINING_CLASS_CCC32: /* kasra */ return HB_UNICODE_COMBINING_CLASS_BELOW;
 		/* Thai */
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC103: /* sara u / sara uu */
-		    return HB_UNICODE_COMBINING_CLASS_BELOW_RIGHT;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC107: /* mai */
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE_RIGHT;
-
+		case HB_MODIFIED_COMBINING_CLASS_CCC103: /* sara u / sara uu */ return HB_UNICODE_COMBINING_CLASS_BELOW_RIGHT;
+		case HB_MODIFIED_COMBINING_CLASS_CCC107: /* mai */ return HB_UNICODE_COMBINING_CLASS_ABOVE_RIGHT;
 		/* Lao */
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC118: /* sign u / sign uu */
-		    return HB_UNICODE_COMBINING_CLASS_BELOW;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC122: /* mai */
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE;
-
+		case HB_MODIFIED_COMBINING_CLASS_CCC118: /* sign u / sign uu */ return HB_UNICODE_COMBINING_CLASS_BELOW;
+		case HB_MODIFIED_COMBINING_CLASS_CCC122: /* mai */ return HB_UNICODE_COMBINING_CLASS_ABOVE;
 		/* Tibetan */
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC129: /* sign aa */
-		    return HB_UNICODE_COMBINING_CLASS_BELOW;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC130: /* sign i*/
-		    return HB_UNICODE_COMBINING_CLASS_ABOVE;
-
-		case HB_MODIFIED_COMBINING_CLASS_CCC132: /* sign u */
-		    return HB_UNICODE_COMBINING_CLASS_BELOW;
+		case HB_MODIFIED_COMBINING_CLASS_CCC129: /* sign aa */ return HB_UNICODE_COMBINING_CLASS_BELOW;
+		case HB_MODIFIED_COMBINING_CLASS_CCC130: /* sign i*/ return HB_UNICODE_COMBINING_CLASS_ABOVE;
+		case HB_MODIFIED_COMBINING_CLASS_CCC132: /* sign u */ return HB_UNICODE_COMBINING_CLASS_BELOW;
 	}
-
 	return klass;
 }
 
-void _hb_ot_shape_fallback_mark_position_recategorize_marks(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED,
-    hb_buffer_t * buffer)
+void _hb_ot_shape_fallback_mark_position_recategorize_marks(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_font_t * font CXX_UNUSED_PARAM, hb_buffer_t * buffer)
 {
 #ifdef HB_NO_OT_SHAPE_FALLBACK
 	return;
@@ -186,7 +145,7 @@ static void zero_mark_advances(hb_buffer_t * buffer,
 		}
 }
 
-static inline void position_mark(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static inline void position_mark(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer,
     hb_glyph_extents_t &base_extents,
@@ -485,7 +444,7 @@ void _hb_ot_shape_fallback_kern(const hb_ot_shape_plan_t * plan,
 }
 
 /* Adjusts width of various spaces. */
-void _hb_ot_shape_fallback_spaces(const hb_ot_shape_plan_t * plan HB_UNUSED,
+void _hb_ot_shape_fallback_spaces(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer)
 {

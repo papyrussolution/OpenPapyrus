@@ -175,8 +175,7 @@
  * compiler-specific macros to the values required to change the calling
  * conventions of the various functions.
  */
-#if defined(_Windows) || defined(_WINDOWS) || defined(WIN32) ||	\
-	defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#if defined(_Windows) || defined(_WINDOWS) || defined(WIN32) ||	defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
 /* Windows system (DOS doesn't support DLLs).  Includes builds under Cygwin or
  * MinGW on any architecture currently supported by Windows.  Also includes
  * Watcom builds but these need special treatment because they are not
@@ -218,23 +217,21 @@
 #error "PNG_USER_PRIVATEBUILD must be defined if PNGAPI is changed"
 #endif
 
-#if(defined(_MSC_VER) && _MSC_VER < 800) || \
-	(defined(__BORLANDC__) && __BORLANDC__ < 0x500)
-/* older Borland and MSC
- * compilers used '__export' and required this to be after
- * the type.
- */
-#    ifndef PNG_EXPORT_TYPE
-#define PNG_EXPORT_TYPE(type) type PNG_IMPEXP
-#endif
-#define PNG_DLL_EXPORT __export
+#if(defined(_MSC_VER) && _MSC_VER < 800) || (defined(__BORLANDC__) && __BORLANDC__ < 0x500)
+	/* older Borland and MSC
+	 * compilers used '__export' and required this to be after
+	 * the type.
+	 */
+	#ifndef PNG_EXPORT_TYPE
+		#define PNG_EXPORT_TYPE(type) type PNG_IMPEXP
+	#endif
+	#define PNG_DLL_EXPORT __export
 #else /* newer compiler */
-#define PNG_DLL_EXPORT __declspec(dllexport)
-#    ifndef PNG_DLL_IMPORT
-#define PNG_DLL_IMPORT __declspec(dllimport)
-#endif
+	#define PNG_DLL_EXPORT __declspec(dllexport)
+	#ifndef PNG_DLL_IMPORT
+		#define PNG_DLL_IMPORT __declspec(dllimport)
+	#endif
 #endif /* compiler */
-
 #else /* !Windows */
 #if(defined(__IBMC__) || defined(__IBMCPP__)) && defined(__OS2__)
 #define PNGAPI _System
@@ -244,7 +241,6 @@
  */
 #endif /* other system, !OS/2 */
 #endif /* !Windows/x86 */
-
 /* Now do all the defaulting . */
 #ifndef PNGCAPI
 	#define PNGCAPI
@@ -542,7 +538,7 @@ typedef size_t png_alloc_size_t;
 typedef png_int_32 png_fixed_point;
 
 /* Add typedefs for pointers */
-typedef void  * png_voidp_Removed;
+typedef void * png_voidp_Removed;
 typedef const void * png_const_voidp_Removed;
 typedef uint8   * png_bytep;
 typedef const uint8   * png_const_bytep;

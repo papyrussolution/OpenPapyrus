@@ -230,8 +230,8 @@ int STimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & 
 	wc.lpszClassName = SUcSwitch(STimeChunkBrowser::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = STimeChunkBrowser::WndProc;
-	wc.style         = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
-	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
+	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
+	wc.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
 	wc.cbClsExtra    = BRWCLASS_CEXTRA;
 	wc.cbWndExtra    = BRWCLASS_WEXTRA;
@@ -1116,18 +1116,12 @@ int STimeChunkBrowser::ProcessDblClk(SPoint2S p)
 		else if(loc.Kind == Loc::kHeader && !oneof2(loc.Pos, Loc::pLeftEdge, Loc::pRightEdge)) {
 			LDATE dt = ZERODATE;
 			GetStartPageDate(&dt);
-			/* @v9.1.3
-			if(ExecDateCalendar(H(), &dt) > 0)
-				ok = SetupDate(dt);
-			*/
-			// @v9.1.3 {
 			{
 				SlExtraProcBlock epb;
 				SLS.GetExtraProcBlock(&epb);
 				if(epb.F_CallCalendar && epb.F_CallCalendar(H(), &dt) > 0)
 					ok = SetupDate(dt);
 			}
-			// } @v9.1.3
 		}
 		else if(loc.Kind == Loc::kLeftZone) {
 			if(P.ViewType == Param::vPrcTime && loc.RowId) {

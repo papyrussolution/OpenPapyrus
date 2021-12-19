@@ -608,11 +608,11 @@ bool Collator::operator != (const Collator& other) const
 	return !operator == (other);
 }
 
-int32_t U_EXPORT2 Collator::getBound(const uint8_t * source,
+int32_t U_EXPORT2 Collator::getBound(const uint8 * source,
     int32_t sourceLength,
     UColBoundMode boundType,
     uint32_t noOfLevels,
-    uint8_t * result,
+    uint8 * result,
     int32_t resultLength,
     UErrorCode          &status)
 {
@@ -938,7 +938,7 @@ UCollationResult Collator::internalCompareUTF8(const char * left, int32_t leftLe
 }
 
 int32_t Collator::internalNextSortKeyPart(UCharIterator * /*iter*/, uint32_t /*state*/[2],
-    uint8_t * /*dest*/, int32_t /*count*/, UErrorCode & errorCode) const {
+    uint8 * /*dest*/, int32_t /*count*/, UErrorCode & errorCode) const {
 	if(U_SUCCESS(errorCode)) {
 		errorCode = U_UNSUPPORTED_ERROR;
 	}

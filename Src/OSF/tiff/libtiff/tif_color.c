@@ -126,13 +126,12 @@ int TIFFCIELabToRGBInit(TIFFCIELabToRGB* cielab, const TIFFDisplay * display, fl
 	for(i = 0; i <= cielab->range; i++) {
 		cielab->Yb2b[i] = cielab->display.d_Vrwb * ((float)pow((double)i / cielab->range, dfGamma));
 	}
-	/* Init reference white point */
+	// Init reference white point 
 	cielab->X0 = refWhite[0];
 	cielab->Y0 = refWhite[1];
 	cielab->Z0 = refWhite[2];
 	return 0;
 }
-
 /*
  * Convert color value from the YCbCr space to CIE XYZ.
  * The colorspace conversion algorithm comes from the IJG v5a code;
@@ -150,14 +149,14 @@ void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 C
 	int32 i;
 	// XXX: Only 8-bit YCbCr input supported for now 
 	Y = HICLAMP(Y, 255);
-	Cb = sclamp(Cb, 0, 255);
-	Cr = sclamp(Cr, 0, 255);
+	Cb = sclamp(Cb, 0L, 255L);
+	Cr = sclamp(Cr, 0L, 255L);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cr_r_tab[Cr];
-	*r = sclamp(i, 0, 255);
+	*r = sclamp(i, 0L, 255L);
 	i = ycbcr->Y_tab[Y] + (int)((ycbcr->Cb_g_tab[Cb] + ycbcr->Cr_g_tab[Cr]) >> SHIFT);
-	*g = sclamp(i, 0, 255);
+	*g = sclamp(i, 0L, 255L);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cb_b_tab[Cb];
-	*b = sclamp(i, 0, 255);
+	*b = sclamp(i, 0L, 255L);
 }
 
 // Clamp function for sanitization purposes. Normally clamping should not 

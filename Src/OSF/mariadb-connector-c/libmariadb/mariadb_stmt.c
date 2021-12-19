@@ -462,7 +462,7 @@ int store_param(MYSQL_STMT * stmt, int column, uchar ** p, unsigned long row_nr)
 		    (*p) += 2;
 		    break;
 		case MYSQL_TYPE_FLOAT:
-		    float4store(*p, (*(float*)buf));
+		    float4store(*p, (*(float *)buf));
 		    (*p) += 4;
 		    break;
 		case MYSQL_TYPE_DOUBLE:

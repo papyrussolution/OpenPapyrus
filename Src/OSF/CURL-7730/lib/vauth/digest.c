@@ -359,7 +359,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	char nonceCount[] = "00000001";
 	char method[]     = "AUTHENTICATE";
 	char qop[]        = DIGEST_QOP_VALUE_STRING_AUTH;
-	char * spn         = NULL;
+	char * spn = NULL;
 
 	/* Decode the challenge message */
 	CURLcode result = auth_decode_digest_md5_message(chlg64, nonce,

@@ -1979,11 +1979,11 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 	CharList   * l, * tail = NULL, * tail2 = NULL;
 	FileStream * in;
 	char line[16384];
-	char       * linePtr, * lineNext;
+	char * linePtr, * lineNext;
 	const uint32_t lineMax = 16300;
-	char       * tmp;
+	char * tmp;
 	int32_t tmpLength = 0;
-	char       * s;
+	char * s;
 	int32_t ln = 0; /* line number */
 
 	for(l = o->fileListFiles; l; l = l->next) {

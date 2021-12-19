@@ -265,7 +265,7 @@ typedef struct sasl_client_params {
 	/* for additions which don't require a version upgrade; set to 0 */
 	const void * gss_creds;             /* GSS credential handle */
 	const sasl_channel_binding_t * cbinding; /* client channel binding */
-	const sasl_http_request_t * http_request;/* HTTP Digest request method */
+	const sasl_http_request_t * http_request; /* HTTP Digest request method */
 	void * spare_ptr4;
 
 	/* Canonicalize a user name from on-wire to internal format
@@ -571,7 +571,7 @@ typedef struct sasl_server_params {
 	/* for additions which don't require a version upgrade; set to 0 */
 	const void * gss_creds;             /* GSS credential handle */
 	const sasl_channel_binding_t * cbinding; /* server channel binding */
-	const sasl_http_request_t * http_request;/* HTTP Digest request method */
+	const sasl_http_request_t * http_request; /* HTTP Digest request method */
 	void * spare_ptr4;
 	int (* spare_fptr1)();
 	int (* spare_fptr2)();

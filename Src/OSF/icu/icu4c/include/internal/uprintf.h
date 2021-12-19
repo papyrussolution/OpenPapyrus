@@ -71,7 +71,7 @@ typedef struct u_printf_stream_handler {
 /* Used by sprintf */
 typedef struct u_localized_print_string {
     UChar *str; /* Place to write the string */
-    int32_t available;/* Number of codeunits available to write to */
+    int32_t available; /* Number of codeunits available to write to */
     int32_t len; /* Maximum number of code units that can be written to output */
 
     ULocaleBundle  fBundle; /* formatters */

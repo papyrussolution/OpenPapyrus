@@ -720,7 +720,7 @@ int ActiveUserListDlg::setupList()
 			ss.add(buf.Z().Cat(login_dtm));
 			ss.add(work_dtm_buf);
 			p_list->addItem(i, ss.getBuf());
-			if(SyncAry.lsearch(p_item, &pos, PTR_CMPFUNC(PPSyncItem)) <= 0)
+			if(!SyncAry.lsearch(p_item, &pos, PTR_CMPFUNC(PPSyncItem)))
 				uniq_macs++;
 		}
 	}

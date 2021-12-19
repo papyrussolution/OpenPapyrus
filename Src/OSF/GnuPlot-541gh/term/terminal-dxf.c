@@ -17,7 +17,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -26,16 +26,16 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void DXF_init(GpTermEntry * pThis);
-TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void DXF_text(GpTermEntry * pThis);
-TERM_PUBLIC void DXF_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy);
-TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int  DXF_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC int  DXF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC void DXF_reset(GpTermEntry * pThis);
+TERM_PUBLIC void DXF_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void DXF_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void DXF_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void DXF_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void DXF_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void DXF_vector(GpTermEntry_Static * pThis, uint ux, uint uy);
+TERM_PUBLIC void DXF_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC int  DXF_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC int  DXF_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC void DXF_reset(GpTermEntry_Static * pThis);
 
 #define DXF_XMAX (120.0 * DXF_UNIT)
 #define DXF_YMAX (80.0 * DXF_UNIT)
@@ -96,7 +96,7 @@ static const char * layer_lines[] = { "CONTINUOUS", "DASHED", "HIDDEN", "CENTER"
 
 static bool vector_was_last = FALSE;
 
-TERM_PUBLIC void DXF_init(GpTermEntry * pThis)
+TERM_PUBLIC void DXF_init(GpTermEntry_Static * pThis)
 {
 	DXF_posx = DXF_posy = 0;
 	dxf_linetype = 0;
@@ -104,7 +104,7 @@ TERM_PUBLIC void DXF_init(GpTermEntry * pThis)
 	vector_was_last = FALSE;
 }
 
-TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void DXF_graphics(GpTermEntry_Static * pThis)
 {
 	int i;
 	static char dxfi1[] =
@@ -175,21 +175,21 @@ TERM_PUBLIC void DXF_graphics(GpTermEntry * pThis)
   2\nENTITIES\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void DXF_text(GpTermEntry * pThis)
+TERM_PUBLIC void DXF_text(GpTermEntry_Static * pThis)
 {
 	if(vector_was_last)
 		fputs("  0\nSEQEND\n", GPT.P_GpOutFile);
 	fputs("  0\nENDSEC\n  0\nEOF\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void DXF_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void DXF_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	linetype = ABS(linetype);
 	linetype = linetype % DXF_LINE_TYPES;
 	dxf_linetype = linetype;
 }
 
-TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void DXF_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	DXF_posx = x;
 	DXF_posy = y;
@@ -206,7 +206,7 @@ TERM_PUBLIC void DXF_move(GpTermEntry * pThis, uint x, uint y)
 	    layer_name[dxf_linetype], layer_lines[dxf_linetype], layer_name[dxf_linetype], layer_lines[dxf_linetype], DXF_posx / DXF_UNIT, DXF_posy / DXF_UNIT);
 }
 
-TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy)
+TERM_PUBLIC void DXF_vector(GpTermEntry_Static * pThis, uint ux, uint uy)
 {
 	DXF_posx = ux;
 	DXF_posy = uy;
@@ -217,7 +217,7 @@ TERM_PUBLIC void DXF_vector(GpTermEntry * pThis, uint ux, uint uy)
   10\n%-6.3f\n  20\n%-6.3f\n  30\n0.000\n", layer_name[dxf_linetype], layer_lines[dxf_linetype], DXF_posx / DXF_UNIT, DXF_posy / DXF_UNIT);
 }
 
-TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char str[])
+TERM_PUBLIC void DXF_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[])
 {
 	int stl;
 	float xleftpos, yleftpos, xrightpos, yrightpos;
@@ -294,19 +294,19 @@ TERM_PUBLIC void DXF_put_text(GpTermEntry * pThis, uint x, uint y, const char st
 	}
 }
 
-TERM_PUBLIC int DXF_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int DXF_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	dxf_angle = (ang ? 90.0f : 0.0f);
 	return TRUE;
 }
 
-TERM_PUBLIC int DXF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int DXF_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	dxf_justify = mode;
 	return TRUE;
 }
 
-TERM_PUBLIC void DXF_reset(GpTermEntry * pThis)
+TERM_PUBLIC void DXF_reset(GpTermEntry_Static * pThis)
 {
 	DXF_posx = DXF_posy = 0;
 }

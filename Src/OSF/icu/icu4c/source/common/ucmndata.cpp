@@ -101,8 +101,8 @@ static int32_t strcmpAfterPrefix(const char * s1, const char * s2, int32_t * pPr
 	s1 += pl;
 	s2 += pl;
 	for(;;) {
-		int32_t c1 = (uint8_t)*s1++;
-		int32_t c2 = (uint8_t)*s2++;
+		int32_t c1 = (uint8)*s1++;
+		int32_t c2 = (uint8)*s2++;
 		cmp = c1-c2;
 		if(cmp!=0 || c1==0) { /* different or done */
 			break;

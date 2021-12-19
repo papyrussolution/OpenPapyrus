@@ -945,13 +945,13 @@ sckName     - вид начисления с символом Name //
 samtName    - тип штатной суммы с символом Name
 amtName     - тип суммы документов с символом Name
 evName      - вид персональной операции с символом Name
-prLastMonth - последний месяц до периода начисления                    = -30.   //
-prLastQuart - последний квартал до периода начисления                  = -90.   //
-prLastYear  - последний год до периода начисления                      = -360.  //
-prThisMonth - с начала этого месяца                                    = -30.5  //
-prThisQuart - с начала этого квартала                                  = -90.5  //
-prThisYear  - с начала этого года                                      = -360.5 //
-prNominal   - период начисления                                        = 1.    //
+prLastMonth - последний месяц до периода начисления            = -30.   //
+prLastQuart - последний квартал до периода начисления          = -90.   //
+prLastYear  - последний год до периода начисления              = -360.  //
+prThisMonth - с начала этого месяца                            = -30.5  //
+prThisQuart - с начала этого квартала                          = -90.5  //
+prThisYear  - с начала этого года                              = -360.5 //
+prNominal   - период начисления                                = 1.    //
 prActual    - период начисления с поправкой на дату приема (уволнения) = 1.5   //
 tagName     - значение тега персоналии (преобразуется к double)
 
@@ -1395,10 +1395,10 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		// prNextQuart - следующий за периодом начисления квартал = -90.25
 		// prNextYear  - следующий за периодом начисления год     = -360.25
 		//
-		// prThisMonth - с начала этого месяца                    =  -30.5 //
-		// prThisQuart - с начала этого квартала                  =  -90.5 //
-		// prThisYear  - с начала этого года                      = -360.5 //
-		// prNominal   - период начисления                                        = 1.    //
+		// prThisMonth - с начала этого месяца            =  -30.5 //
+		// prThisQuart - с начала этого квартала          =  -90.5 //
+		// prThisYear  - с начала этого года              = -360.5 //
+		// prNominal   - период начисления                                = 1.    //
 		// prActual    - период начисления с поправкой на дату приема (уволнения) = 1.5   //
 		//
 		ok = 1;
@@ -1778,7 +1778,7 @@ int PrcssrSalary::ParseFunc(const char * pText)
 int PrcssrSalary::GetFunc(int id, FuncDescr * pDescr) const
 {
 	uint   pos = 0;
-	if(FuncList.lsearch(&id, &pos, PTR_CMPFUNC(long))) {
+	if(FuncList.lsearch(&id, &pos, CMPF_LONG)) {
 		const FuncDescr & r_descr = FuncList.at(pos);
 		ASSIGN_PTR(pDescr, r_descr);
 		return id;
@@ -2311,8 +2311,8 @@ PPALDD_DESTRUCTOR(Salary) { Destroy(); }
 int PPALDD_Salary::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(Salary, rsrv);
-	H.FltBeg         = p_filt->Period.low;
-	H.FltEnd         = p_filt->Period.upp;
+	H.FltBeg = p_filt->Period.low;
+	H.FltEnd = p_filt->Period.upp;
 	H.FltPostID      = p_filt->PostID;
 	H.FltSalChargeID = p_filt->SalChargeID;
 	H.FltOrgID       = p_filt->OrgID;
@@ -2331,9 +2331,9 @@ int PPALDD_Salary::InitIteration(long iterId, int sortId, long rsrv)
 int PPALDD_Salary::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(Salary);
-	I.ID          = item.ID;
-	I.Beg         = item.Beg;
-	I.End         = item.End;
+	I.ID  = item.ID;
+	I.Beg = item.Beg;
+	I.End = item.End;
 	I.PostID      = item.PostID;
 	I.SalChargeID = item.SalChargeID;
 	I.Amount      = item.Amount;
@@ -2380,8 +2380,8 @@ PPALDD_DESTRUCTOR(SalaryByPost) { Destroy(); }
 int PPALDD_SalaryByPost::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(Salary, rsrv);
-	H.FltBeg         = p_filt->Period.low;
-	H.FltEnd         = p_filt->Period.upp;
+	H.FltBeg = p_filt->Period.low;
+	H.FltEnd = p_filt->Period.upp;
 	H.FltPostID      = p_filt->PostID;
 	H.FltSalChargeID = p_filt->SalChargeID;
 	H.FltOrgID       = p_filt->OrgID;
@@ -2413,9 +2413,9 @@ int PPALDD_SalaryByPost::NextIteration(long iterId)
 	while((r = p_v->NextIteration(&item)) > 0) {
 		if(p_v->SetPostDateListItem(item.PostID, item.Beg) > 0) {
 		//if(I.PostID != item.PostID) {
-			I.ID          = item.ID;
-			I.Beg         = item.Beg;
-			I.End         = item.End;
+			I.ID  = item.ID;
+			I.Beg = item.Beg;
+			I.End = item.End;
 			I.PostID      = item.PostID;
 			break;
 		}

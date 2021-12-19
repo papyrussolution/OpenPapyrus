@@ -1850,9 +1850,9 @@ int xmlNop(void);
 			// Descr: Predefined values for C14N modes
 			//
 			enum xmlC14NMode {
-				XML_C14N_1_0            = 0, // Origianal C14N 1.0 spec 
+				XML_C14N_1_0    = 0, // Origianal C14N 1.0 spec 
 				XML_C14N_EXCLUSIVE_1_0  = 1, // Exclusive C14N 1.0 spec 
-				XML_C14N_1_1            = 2  // C14N 1.1 spec 
+				XML_C14N_1_1    = 2  // C14N 1.1 spec 
 			};
 
 			XMLPUBFUN int XMLCALL xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSet * nodes, int mode/* a xmlC14NMode */, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf);

@@ -942,7 +942,7 @@ void GnuPlot::UnsetMonochrome()
 		if(!Pgm.EndOfCommand())
 			UnsetLineStyle(&Gg.P_FirstMonoLineStyle);
 	}
-	GPT.P_Term->flags &= ~TERM_MONOCHROME;
+	GPT.P_Term->ResetFlag(TERM_MONOCHROME);
 }
 //
 // process 'unset offsets' command 

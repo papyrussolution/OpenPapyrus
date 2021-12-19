@@ -24,18 +24,18 @@ public:
 	/** (length) bytes were mapped to valid (s16, s16Length). */
 	static bool appendChange(int32_t length, const char16_t * s16, int32_t s16Length, ByteSink &sink, Edits * edits, UErrorCode & errorCode);
 	/** The bytes at [s, limit[ were mapped to valid (s16, s16Length). */
-	static bool appendChange(const uint8_t * s, const uint8_t * limit, const char16_t * s16, int32_t s16Length, ByteSink &sink, Edits * edits, UErrorCode & errorCode);
+	static bool appendChange(const uint8 * s, const uint8 * limit, const char16_t * s16, int32_t s16Length, ByteSink &sink, Edits * edits, UErrorCode & errorCode);
 
 	/** (length) bytes were mapped/changed to valid code point c. */
 	static void appendCodePoint(int32_t length, UChar32 c, ByteSink &sink, Edits * edits = nullptr);
 	/** The few bytes at [src, nextSrc[ were mapped/changed to valid code point c. */
-	static inline void appendCodePoint(const uint8_t * src, const uint8_t * nextSrc, UChar32 c, ByteSink &sink, Edits * edits = nullptr) 
+	static inline void appendCodePoint(const uint8 * src, const uint8 * nextSrc, UChar32 c, ByteSink &sink, Edits * edits = nullptr) 
 	{
 		appendCodePoint((int32_t)(nextSrc - src), c, sink, edits);
 	}
 	/** Append the two-byte character (U+0080..U+07FF). */
 	static void appendTwoBytes(UChar32 c, ByteSink &sink);
-	static bool appendUnchanged(const uint8_t * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits, UErrorCode & errorCode) 
+	static bool appendUnchanged(const uint8 * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits, UErrorCode & errorCode) 
 	{
 		if(U_FAILURE(errorCode)) {
 			return false;
@@ -45,9 +45,9 @@ public:
 		}
 		return true;
 	}
-	static bool appendUnchanged(const uint8_t * s, const uint8_t * limit, ByteSink &sink, uint32_t options, Edits * edits, UErrorCode & errorCode);
+	static bool appendUnchanged(const uint8 * s, const uint8 * limit, ByteSink &sink, uint32_t options, Edits * edits, UErrorCode & errorCode);
 private:
-	static void appendNonEmptyUnchanged(const uint8_t * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits);
+	static void appendNonEmptyUnchanged(const uint8 * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits);
 };
 
 class U_COMMON_API CharStringByteSink : public ByteSink {

@@ -48,23 +48,23 @@ RBBIRuleBuilder::RBBIRuleBuilder(const UnicodeString   &rules,
 	fDefaultTree        = &fForwardTree;
 	fForwardTable       = NULL;
 	fRuleStatusVals     = NULL;
-	fChainRules         = FALSE;
+	fChainRules = FALSE;
 	fLBCMNoChain        = FALSE;
 	fLookAheadHardBreak = FALSE;
-	fUSetNodes          = NULL;
+	fUSetNodes  = NULL;
 	fRuleStatusVals     = NULL;
-	fScanner            = NULL;
-	fSetBuilder         = NULL;
+	fScanner    = NULL;
+	fSetBuilder = NULL;
 	if(parseErr) {
 		memzero(parseErr, sizeof(UParseError));
 	}
 	if(U_FAILURE(status)) {
 		return;
 	}
-	fUSetNodes          = new UVector(status);// bcos status gets overwritten here
+	fUSetNodes  = new UVector(status);// bcos status gets overwritten here
 	fRuleStatusVals     = new UVector(status);
-	fScanner            = new RBBIRuleScanner(this);
-	fSetBuilder         = new RBBISetBuilder(this);
+	fScanner    = new RBBIRuleScanner(this);
+	fSetBuilder = new RBBISetBuilder(this);
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -128,7 +128,7 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData() {
 	int32_t headerSize        = align8(sizeof(RBBIDataHeader));
 	int32_t forwardTableSize  = align8(fForwardTable->getTableSize());
 	int32_t reverseTableSize  = align8(fForwardTable->getSafeTableSize());
-	int32_t trieSize          = align8(fSetBuilder->getTrieSize());
+	int32_t trieSize  = align8(fSetBuilder->getTrieSize());
 	int32_t statusTableSize   = align8(fRuleStatusVals->size() * sizeof(int32_t));
 
 	int32_t rulesLengthInUTF8 = 0;
@@ -137,7 +137,7 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData() {
 	    0xfffd, nullptr, fStatus);
 	*fStatus = U_ZERO_ERROR;
 
-	int32_t rulesSize         = align8((rulesLengthInUTF8+1));
+	int32_t rulesSize = align8((rulesLengthInUTF8+1));
 
 	int32_t totalSize = headerSize
 	    + forwardTableSize
@@ -163,13 +163,13 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData() {
 		return NULL;
 	}
 	memzero(data, totalSize);
-	data->fMagic            = 0xb1a0;
+	data->fMagic    = 0xb1a0;
 	data->fFormatVersion[0] = RBBI_DATA_FORMAT_VERSION[0];
 	data->fFormatVersion[1] = RBBI_DATA_FORMAT_VERSION[1];
 	data->fFormatVersion[2] = RBBI_DATA_FORMAT_VERSION[2];
 	data->fFormatVersion[3] = RBBI_DATA_FORMAT_VERSION[3];
-	data->fLength           = totalSize;
-	data->fCatCount         = fSetBuilder->getNumCharCategories();
+	data->fLength   = totalSize;
+	data->fCatCount = fSetBuilder->getNumCharCategories();
 
 	data->fFTable        = headerSize;
 	data->fFTableLen     = forwardTableSize;
@@ -177,17 +177,17 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData() {
 	data->fRTable        = data->fFTable  + data->fFTableLen;
 	data->fRTableLen     = reverseTableSize;
 
-	data->fTrie          = data->fRTable + data->fRTableLen;
+	data->fTrie  = data->fRTable + data->fRTableLen;
 	data->fTrieLen       = trieSize;
 	data->fStatusTable   = data->fTrie    + data->fTrieLen;
 	data->fStatusTableLen = statusTableSize;
 	data->fRuleSource    = data->fStatusTable + statusTableSize;
 	data->fRuleSourceLen = rulesLengthInUTF8;
 	memzero(data->fReserved, sizeof(data->fReserved));
-	fForwardTable->exportTable((uint8_t*)data + data->fFTable);
-	fForwardTable->exportSafeTable((uint8_t*)data + data->fRTable);
-	fSetBuilder->serializeTrie((uint8_t*)data + data->fTrie);
-	int32_t * ruleStatusTable = (int32_t*)((uint8_t*)data + data->fStatusTable);
+	fForwardTable->exportTable((uint8 *)data + data->fFTable);
+	fForwardTable->exportSafeTable((uint8 *)data + data->fRTable);
+	fSetBuilder->serializeTrie((uint8 *)data + data->fTrie);
+	int32_t * ruleStatusTable = (int32_t*)((uint8 *)data + data->fStatusTable);
 	for(i = 0; i<fRuleStatusVals->size(); i++) {
 		ruleStatusTable[i] = fRuleStatusVals->elementAti(i);
 	}

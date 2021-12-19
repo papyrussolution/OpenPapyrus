@@ -73,10 +73,10 @@ U_CDECL_END
 /* Fields in UDataInfo: */
 
 /* PNAME_SIG[] is encoded as numeric literals for compatibility with the HP compiler */
-#define PNAME_SIG_0 ((uint8_t)0x70) /* p */
-#define PNAME_SIG_1 ((uint8_t)0x6E) /* n */
-#define PNAME_SIG_2 ((uint8_t)0x61) /* a */
-#define PNAME_SIG_3 ((uint8_t)0x6D) /* m */
+#define PNAME_SIG_0 ((uint8)0x70) /* p */
+#define PNAME_SIG_1 ((uint8)0x6E) /* n */
+#define PNAME_SIG_2 ((uint8)0x61) /* a */
+#define PNAME_SIG_3 ((uint8)0x6D) /* m */
 
 U_NAMESPACE_BEGIN
 
@@ -113,7 +113,7 @@ private:
 
     static const int32_t indexes[];
     static const int32_t valueMaps[];
-    static const uint8_t bytesTries[];
+    static const uint8 bytesTries[];
     static const char nameGroups[];
 };
 
@@ -182,7 +182,7 @@ private:
  *
  *      For both properties and property values, ranges are sorted by their start/limit values.
  *
- * uint8_t bytesTries[];
+ * uint8 bytesTries[];
  *
  *      This is a sequence of BytesTrie structures, byte-serialized tries for
  *      mapping from names/aliases to values.

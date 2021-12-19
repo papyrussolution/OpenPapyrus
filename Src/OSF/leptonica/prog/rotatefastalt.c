@@ -38,6 +38,10 @@
  *          rotateAMColorFastLow2()
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include <math.h>   /* required for sin and tan */
 #include "allheaders.h"
@@ -65,13 +69,15 @@ static char  mainName[] = "rotatefastalt";
     filein = argv[1];
     angle = atof(argv[2]);
     fileout = argv[3];
+
+    setLeptDebugOK(1);
     deg2rad = 3.1415926535 / 180.;
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not read", mainName, 1);
 
     startTimer();
     pixd = pixRotateAMColorFast2(pixs, deg2rad * angle, 255);
-    fprintf(stderr, "Time for rotation: %7.3f sec\n", stopTimer());
+    lept_stderr("Time for rotation: %7.3f sec\n", stopTimer());
     pixWrite(fileout, pixd, IFF_JFIF_JPEG);
 
     pixDestroy(&pixs);
@@ -334,7 +340,7 @@ l_float32  sina, cosa;
                                ((word & 0x000003fc) << 6);
                 break;
             default:  /* for testing only; no interpolation, no shift */
-                fprintf(stderr, "shouldn't get here\n");
+                lept_stderr("shouldn't get here\n");
                 *(lined + j) = *pword;
                 break;
             }

@@ -30,9 +30,9 @@
  *        displayboxes_on_pixa pixain boxaain type width pixaout display
  *
  *   where 'type' follows the enum in pix.h:
- *          0:  draw red  
+ *          0:  draw red
  *          1:  draw green
- *          2:  draw blue  
+ *          2:  draw blue
  *          4:  draw rgb (sequentially)
  *          5:  draw randomly selected colors
  *   and 'display' is a boolean:
@@ -51,23 +51,27 @@
  *     displayboxes_on_pixa showboxes.pac showboxes2.baa 4 2 /tmp/result.pa 1
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
          char **argv)
 {
-char        *fileout;
-l_int32      width, type, display;
-BOXAA       *baa;
-PIX         *pix1;
-PIXA        *pixa1, *pixa2;
-static char  mainName[] = "displayboxes_on_pixa";
+char    *fileout;
+l_int32  width, type, display;
+BOXAA   *baa;
+PIX     *pix1;
+PIXA    *pixa1, *pixa2;
 
     if (argc != 7) {
-        fprintf(stderr, "Syntax error:"
+        lept_stderr("Syntax error:"
            " displaybaa_on_pixa pixain boxaain type width pixaout display\n");
         return 1;
     }
+    setLeptDebugOK(1);
 
         /* Input file can be either pixa or pixacomp */
     pixa1 = pixaReadBoth(argv[1]);

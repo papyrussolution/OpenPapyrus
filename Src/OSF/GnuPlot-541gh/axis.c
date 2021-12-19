@@ -1275,20 +1275,20 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 		axis_coord = axis - PARALLEL_AXES + 1;
 	if(this_axis->ticmode) {
 		// set the globals needed by the _callback() function 
-		if(this_axis->tic_rotate == TEXT_VERTICAL && pTerm->text_angle(pTerm, TEXT_VERTICAL)) {
+		if(this_axis->tic_rotate == TEXT_VERTICAL && pTerm->SetTextAngle_(TEXT_VERTICAL)) {
 			AxS.tic_hjust = axis_is_vertical ? CENTRE : (axis_is_second ? LEFT : RIGHT);
 			AxS.tic_vjust = axis_is_vertical ? (axis_is_second ? JUST_TOP : JUST_BOT) : JUST_CENTRE;
 			AxS.rotate_tics = TEXT_VERTICAL;
 			if(axis == FIRST_Y_AXIS)
-				(*ticlabel_position) += pTerm->ChrV / 2;
+				(*ticlabel_position) += pTerm->CV() / 2;
 			// EAM - allow rotation by arbitrary angle in degrees
 			//       Justification of ytic labels is a problem since
 			//	 the position is already [mis]corrected for length
 		}
-		else if(this_axis->tic_rotate && pTerm->text_angle(pTerm, this_axis->tic_rotate)) {
+		else if(this_axis->tic_rotate && pTerm->SetTextAngle_(this_axis->tic_rotate)) {
 			switch(axis) {
 				case FIRST_Y_AXIS: // EAM Purely empirical shift - is there a better? 
-				    *ticlabel_position = static_cast<int>(*ticlabel_position + pTerm->ChrH * 2.5);
+				    *ticlabel_position = static_cast<int>(*ticlabel_position + pTerm->CH() * 2.5);
 				    AxS.tic_hjust = RIGHT; 
 					break;
 				case SECOND_Y_AXIS: AxS.tic_hjust = LEFT;  break;
@@ -1317,20 +1317,20 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 			// put text at boundary if axis is close to boundary and the
 			// corresponding boundary is switched on 
 			if(axis_is_vertical) {
-				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > static_cast<int>(3 * pTerm->ChrH)) || 
+				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > static_cast<int>(3 * pTerm->CH())) || 
 					(!axis_is_second && (!(Gg.draw_border & 2))) || (axis_is_second && (!(Gg.draw_border & 8))))
 					AxS.tic_text = AxS.tic_start;
 				else
 					AxS.tic_text = axis_position;
-				AxS.tic_text += (axis_is_second ? 1 : -1) * pTerm->ChrH;
+				AxS.tic_text += (axis_is_second ? 1 : -1) * pTerm->CH();
 			}
 			else {
-				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > static_cast<int>(2 * pTerm->ChrV)) || 
+				if(((axis_is_second ? -1 : 1) * (AxS.tic_start - axis_position) > static_cast<int>(2 * pTerm->CV())) || 
 					(!axis_is_second && (!(Gg.draw_border & 1))) || (axis_is_second && (!(Gg.draw_border & 4))))
-					AxS.tic_text = static_cast<int>(AxS.tic_start + (axis_is_second ? 0 : -this_axis->ticscale * pTerm->TicV));
+					AxS.tic_text = static_cast<int>(AxS.tic_start + (axis_is_second ? 0 : -pTerm->MulTicV(this_axis->ticscale)));
 				else
 					AxS.tic_text = axis_position;
-				AxS.tic_text -= pTerm->ChrV;
+				AxS.tic_text -= pTerm->CV();
 			}
 		}
 		else {
@@ -1341,7 +1341,7 @@ void GnuPlot::AxisOutputTics(GpTermEntry * pTerm, AXIS_INDEX axis/* axis number 
 		}
 		// go for it 
 		GenTics(pTerm, &AxS[axis], callback);
-		pTerm->text_angle(pTerm, 0); // reset rotation angle 
+		pTerm->SetTextAngle_(0); // reset rotation angle 
 	}
 }
 
@@ -1391,13 +1391,13 @@ void GnuPlot::AxisDraw2DZeroAxis(GpTermEntry * pTerm, AXIS_INDEX axis, AXIS_INDE
 		TermApplyLpProperties(pTerm, p_this->zeroaxis);
 		if(oneof2(axis, FIRST_X_AXIS, SECOND_X_AXIS)) {
 			// zeroaxis is horizontal, at y == 0 
-			pTerm->move(pTerm, p_this->term_lower, AxS[crossaxis].term_zero);
-			pTerm->vector(pTerm, p_this->term_upper, AxS[crossaxis].term_zero);
+			pTerm->Mov_(p_this->term_lower, AxS[crossaxis].term_zero);
+			pTerm->Vec_(p_this->term_upper, AxS[crossaxis].term_zero);
 		}
 		else if(oneof2(axis, FIRST_Y_AXIS, SECOND_Y_AXIS)) {
 			// zeroaxis is vertical, at x == 0 
-			pTerm->move(pTerm, AxS[crossaxis].term_zero, p_this->term_lower);
-			pTerm->vector(pTerm, AxS[crossaxis].term_zero, p_this->term_upper);
+			pTerm->Mov_(AxS[crossaxis].term_zero, p_this->term_lower);
+			pTerm->Vec_(AxS[crossaxis].term_zero, p_this->term_upper);
 		}
 	}
 }
@@ -1449,11 +1449,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 		*pAutoscale |= which;
 		if(which==AUTOSCALE_MIN) {
 			pAx->MinConstraint &= ~CONSTRAINT_LOWER;
-			pAx->min_lb = 0; /*  dummy entry  */
+			pAx->min_lb = 0; /* dummy entry  */
 		}
 		else {
 			pAx->MaxConstraint &= ~CONSTRAINT_LOWER;
-			pAx->max_lb = 0; /*  dummy entry  */
+			pAx->max_lb = 0; /* dummy entry  */
 		}
 		Pgm.Shift();
 	}
@@ -1500,11 +1500,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 			*pAutoscale &= ~which;
 			if(which==AUTOSCALE_MIN) {
 				pAx->MinConstraint = CONSTRAINT_NONE;
-				pAx->min_ub = 0; /*  dummy entry  */
+				pAx->min_ub = 0; /* dummy entry  */
 			}
 			else {
 				pAx->MaxConstraint = CONSTRAINT_NONE;
-				pAx->max_ub = 0; /*  dummy entry  */
+				pAx->max_ub = 0; /* dummy entry  */
 			}
 			*pA = number;
 		}
@@ -1536,11 +1536,11 @@ void GnuPlot::LoadOneRange(GpAxis * pAx, double * pA, t_autoscale * pAutoscale, 
 			// there is _no_ upper bound on this autoscaling 
 			if(which==AUTOSCALE_MIN) {
 				pAx->MinConstraint &= ~CONSTRAINT_UPPER;
-				pAx->min_ub = 0; /*  dummy entry  */
+				pAx->min_ub = 0; /* dummy entry  */
 			}
 			else {
 				pAx->MaxConstraint &= ~CONSTRAINT_UPPER;
-				pAx->max_ub = 0; /*  dummy entry  */
+				pAx->max_ub = 0; /* dummy entry  */
 			}
 		}
 	}
@@ -1838,14 +1838,14 @@ void GnuPlot::AddTicUser(GpAxis * pAx, const char * pLabel, double position, int
 /*
  * Degrees/minutes/seconds geographic coordinate format
  * ------------------------------------------------------------
- *  %D                  = integer degrees, truncate toward zero
+ *  %D          = integer degrees, truncate toward zero
  *  %<width.precision>d	= floating point degrees
- *  %M                  = integer minutes, truncate toward zero
+ *  %M          = integer minutes, truncate toward zero
  *  %<width.precision>m	= floating point minutes
- *  %S                  = integer seconds, truncate toward zero
+ *  %S          = integer seconds, truncate toward zero
  *  %<width.precision>s	= floating point seconds
- *  %E                  = E/W instead of +/-
- *  %N                  = N/S instead of +/-
+ *  %E          = E/W instead of +/-
+ *  %N          = N/S instead of +/-
  */
 void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 {

@@ -386,12 +386,12 @@ bool FCDUTF16CollationIterator::nextSegment(UErrorCode & errorCode) {
 	U_ASSERT(checkDir > 0 && pos != limit);
 	// The input text [segmentStart..pos[ passes the FCD check.
 	const UChar * p = pos;
-	uint8_t prevCC = 0;
+	uint8 prevCC = 0;
 	for(;;) {
 		// Fetch the next character's fcd16 value.
 		const UChar * q = p;
 		uint16_t fcd16 = nfcImpl.nextFCD16(p, rawLimit);
-		uint8_t leadCC = (uint8_t)(fcd16 >> 8);
+		uint8 leadCC = (uint8)(fcd16 >> 8);
 		if(leadCC == 0 && q != pos) {
 			// FCD boundary before the [q, p[ character.
 			limit = segmentLimit = q;
@@ -408,7 +408,7 @@ bool FCDUTF16CollationIterator::nextSegment(UErrorCode & errorCode) {
 			pos = start;
 			break;
 		}
-		prevCC = (uint8_t)fcd16;
+		prevCC = (uint8)fcd16;
 		if(p == rawLimit || prevCC == 0) {
 			// FCD boundary after the last character.
 			limit = segmentLimit = p;
@@ -455,12 +455,12 @@ bool FCDUTF16CollationIterator::previousSegment(UErrorCode & errorCode) {
 	U_ASSERT(checkDir < 0 && pos != start);
 	// The input text [pos..segmentLimit[ passes the FCD check.
 	const UChar * p = pos;
-	uint8_t nextCC = 0;
+	uint8 nextCC = 0;
 	for(;;) {
 		// Fetch the previous character's fcd16 value.
 		const UChar * q = p;
 		uint16_t fcd16 = nfcImpl.previousFCD16(rawStart, p);
-		uint8_t trailCC = (uint8_t)fcd16;
+		uint8 trailCC = (uint8)fcd16;
 		if(trailCC == 0 && q != pos) {
 			// FCD boundary after the [p, q[ character.
 			start = segmentStart = q;
@@ -479,7 +479,7 @@ bool FCDUTF16CollationIterator::previousSegment(UErrorCode & errorCode) {
 			pos = limit;
 			break;
 		}
-		nextCC = (uint8_t)(fcd16 >> 8);
+		nextCC = (uint8)(fcd16 >> 8);
 		if(p == rawStart || nextCC == 0) {
 			// FCD boundary before the following character.
 			start = segmentStart = p;

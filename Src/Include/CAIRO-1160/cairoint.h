@@ -324,7 +324,7 @@ typedef struct _cairo_toy_font_face {
 typedef enum _cairo_scaled_glyph_info {
 	CAIRO_SCALED_GLYPH_INFO_METRICS      = (1 << 0),
 	CAIRO_SCALED_GLYPH_INFO_SURFACE      = (1 << 1),
-	CAIRO_SCALED_GLYPH_INFO_PATH         = (1 << 2),
+	CAIRO_SCALED_GLYPH_INFO_PATH = (1 << 2),
 	CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE = (1 << 3),
 	CAIRO_SCALED_GLYPH_INFO_COLOR_SURFACE = (1 << 4)
 } cairo_scaled_glyph_info_t;
@@ -504,7 +504,7 @@ typedef struct _cairo_stroke_face {
 
 /* cairo.c */
 
-static inline double cairo_const _cairo_restrict_value(double value, double min, double max)
+/* @v11.2.8 (replaced with sclamp) static inline double cairo_const _cairo_restrict_value(double value, double min, double max)
 {
 	if(value < min)
 		return min;
@@ -512,14 +512,13 @@ static inline double cairo_const _cairo_restrict_value(double value, double min,
 		return max;
 	else
 		return value;
-}
-
+}*/
 /* C99 round() rounds to the nearest integral value with halfway cases rounded
  * away from 0. _cairo_round rounds halfway cases toward positive infinity.
  * This matches the rounding behaviour of _cairo_lround. */
 static inline double cairo_const _cairo_round(double r)
 {
-	return floor(r + .5);
+	return floor(r + 0.5);
 }
 
 #if DISABLE_SOME_FLOATING_POINT

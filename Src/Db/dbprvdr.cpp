@@ -357,10 +357,7 @@ int DbProvider::GetDatabaseState(uint * pStateFlags)
 	return -1;
 }
 
-int DbProvider::IsValid() const
-{
-	return (State & stError) ? 0 : 1;
-}
+bool DbProvider::IsValid() const { return !(State & stError); }
 
 int DbProvider::SetDbName(const char * pName, const char * pSymb)
 {

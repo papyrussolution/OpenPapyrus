@@ -146,14 +146,14 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 [version]
 Signature    = 46V9FLAG19CZ5GPF
 Product      = Project Papyrus
-Team         = Andrey Fokin, Anton Sobolev
+Team = Andrey Fokin, Anton Sobolev
 Secret       = any_secret_word
 StartDevYear = 1996
 LastDevYear  = 2001
 MajorVer     = 3
 MinorVer     = 2
 Revision     = 7
-Demo         = 0
+Demo = 0
 OpenSouruce  = 0
 MinMajorVer  = 3
 MinMinorVer  = 2

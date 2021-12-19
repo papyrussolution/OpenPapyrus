@@ -1,8 +1,95 @@
 // PPEDI-BASE.CPP
-// Copyright (c) A.Sobolev 2018, 2020
+// Copyright (c) A.Sobolev 2018, 2020, 2021
+// @codepage UTF-8
+// Attention! Этот исходный файл включается самостоятельно в специализированные модули обмена 
+// с различными провайдерами. Поэтому он не должен зависеть от других функций и классов
+// модуля pplib. Допускается только зависимость от библиотек slib и libxml.
 //
 #include <pp.h>
 #pragma hdrstop
+
+PPEdiMessageEntry::PPEdiMessageEntry()
+{
+	THISZERO();
+}
+
+PPEdiMessageList::PPEdiMessageList() : TSVector <PPEdiMessageEntry>(), LastId(0)
+{
+}
+	
+PPEdiMessageList & PPEdiMessageList::Z()
+{
+	SVector::clear();
+	// LastId не обнуляем с целью обеспечения уникальности идентификаторов для разных сессий
+	return *this;
+}
+
+int PPEdiMessageList::SearchId(int id, uint * pPos) const
+{
+	return lsearch(&id, pPos, CMPF_LONG);
+}
+
+int PPEdiMessageList::Add(const PPEdiMessageEntry & rEntry)
+{
+	PPEdiMessageEntry new_entry;
+	new_entry = rEntry;
+	LastId++;
+	SETIFZ(new_entry.ID, LastId);
+	return insert(&new_entry);
+}
+
+SEancomXmlSegment::REF::REF() : Type(0)
+{
+}
+
+SEancomXmlSegment::REF & SEancomXmlSegment::REF::Z()
+{
+	Type = 0;
+	Text.Z();
+	return *this;
+}
+
+SEancomXmlSegment::DTM::DTM() : Type(0), Dtm(ZERODATETIME), Days(0)
+{
+}
+		
+SEancomXmlSegment::DTM & SEancomXmlSegment::DTM::Z()
+{
+	Type = 0;
+	Dtm = ZERODATETIME;
+	Days = 0;
+	return *this;
+}
+
+SEancomXmlSegment::MOA::MOA() : Type(0), Value(0.0)
+{
+	PTR32(CurrencySymb)[0] = 0;
+}
+		
+SEancomXmlSegment::MOA & SEancomXmlSegment::MOA::Z()
+{
+	Type = 0;
+	PTR32(CurrencySymb)[0] = 0;
+	Value = 0.0;
+	return *this;
+}
+
+SEancomXmlSegment::NAD::NAD()
+{
+	Z();
+}
+		
+SEancomXmlSegment::NAD & SEancomXmlSegment::NAD::Z()
+{
+	Type = 0;
+	PTR32(GLN)[0] = 0;
+	PTR32(CountryCode)[0] = 0;
+	PTR32(PostalCode)[0] = 0;
+	Name = 0;
+	City = 0;
+	Address = 0;
+	return *this;
+}
 
 SEancomXmlSegment::SEancomXmlSegment(const xmlNode * pNode)
 {
@@ -29,12 +116,14 @@ int SEancomXmlSegment::Is(const char * pName) const
 
 int SEancomXmlSegment::IsContent(const char * pText) const
 {
-	return P_Node ? IsText(PTRCHRC_(P_Node->content), pText) : 0;
+	// @v11.2.8 return P_Node ? IsText(PTRCHRC_(P_Node->content), pText) : 0;
+	return P_Cur ? IsText(PTRCHRC_(P_Cur->content), pText) : 0; // @v11.2.8
 }
 
 SString & SEancomXmlSegment::GetContent(SString & rBuf) const
 {
-	rBuf = P_Node ? PTRCHRC_(P_Node->content) : 0;
+	// @v11.2.8 rBuf = P_Node ? PTRCHRC_(P_Node->content) : 0;
+	rBuf = P_Cur ? PTRCHRC_(P_Cur->content) : 0; // @v11.2.8
 	return rBuf;
 }
 
@@ -73,8 +162,8 @@ int SEancomXmlSegment::GetMsgType(const char * pText) const
 int SEancomXmlSegment::GetInt(int & rVal) const
 {
 	int    ok = 0;
-	if(P_Node && P_Node->content) {
-		rVal = atoi(PTRCHRC_(P_Node->content));
+	if(P_Cur && P_Cur->content) {
+		rVal = atoi(PTRCHRC_(P_Cur->content));
 		ok = 1;
 	}
 	else {
@@ -87,8 +176,8 @@ int SEancomXmlSegment::GetInt(int & rVal) const
 int SEancomXmlSegment::GetReal(double & rVal) const
 {
 	int    ok = 0;
-	if(P_Node && P_Node->content) {
-		rVal = satof(PTRCHRC_(P_Node->content)); // @v10.7.9 atof-->satof
+	if(P_Cur && P_Cur->content) {
+		rVal = satof(PTRCHRC_(P_Cur->content)); // @v10.7.9 atof-->satof
 		ok = 1;
 	}
 	else {
@@ -101,8 +190,8 @@ int SEancomXmlSegment::GetReal(double & rVal) const
 int SEancomXmlSegment::GetText(SString & rText) const
 {
 	int    ok = 0;
-	if(P_Node && P_Node->content) {
-		rText.Set(P_Node->content);
+	if(P_Cur && P_Cur->content) {
+		rText.Set(P_Cur->content);
 		ok = 1;
 	}
 	else {
@@ -115,11 +204,11 @@ int SEancomXmlSegment::GetText(SString & rText) const
 int SEancomXmlSegment::GetREF(REF & rR)
 {
 	int    ok = 0;
-	rR.Clear();
+	rR.Z();
 	if(Is("RFF")) {
 		SEancomXmlSegment seg;
 		while(GetNext(seg)) {
-			if(seg.Is("S506")) {
+			if(seg.Is("C506")) {
 				SEancomXmlSegment seg2;
 				while(seg.GetNext(seg2)) {
 					if(seg2.Is("E1153")) { // Reference code qualifier
@@ -153,7 +242,7 @@ int SEancomXmlSegment::GetREF(REF & rR)
 int SEancomXmlSegment::GetDate(DTM & rD)
 {
 	int    ok = 0;
-	rD.Clear();
+	rD.Z();
 	if(Is("DTM")) { // Date/time/period
 		SEancomXmlSegment seg;
 		SString value;
@@ -163,7 +252,7 @@ int SEancomXmlSegment::GetDate(DTM & rD)
 		int    format = 0;
 		//
 		while(GetNext(seg)) {
-			if(seg.Is("S507")) {
+			if(seg.Is("C507")) {
 				SEancomXmlSegment seg2;
 				while(seg.GetNext(seg2)) {
 					if(seg2.Is("E2005")) { // Date or time or period function code qualifier
@@ -200,12 +289,12 @@ int SEancomXmlSegment::GetDate(DTM & rD)
 int SEancomXmlSegment::GetMOA(MOA & rM)
 {
 	int    ok = 0;
-	rM.Clear();
+	rM.Z();
 	if(Is("MOA")) {
 		SEancomXmlSegment seg;
 		SString value;
 		while(GetNext(seg)) {
-			if(seg.Is("S516")) {
+			if(seg.Is("C516")) {
 				SEancomXmlSegment seg2;
 				while(seg.GetNext(seg2)) {
 					if(seg2.Is("E5025")) { // Monetary amount type code qualifier
@@ -230,7 +319,7 @@ int SEancomXmlSegment::GetMOA(MOA & rM)
 int SEancomXmlSegment::GetNAD(NAD & rN)
 {
 	int    ok = 0;
-	rN.Clear();
+	rN.Z();
 	if(Is("NAD")) {
 		SEancomXmlSegment seg;
 		SString temp_buf;

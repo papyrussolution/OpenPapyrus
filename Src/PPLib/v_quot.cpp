@@ -2123,7 +2123,7 @@ int PPALDD_QuotView::InitData(PPFilt & rFilt, long rsrv)
 	H.FltCurID      = p_filt->CurID;
 	H.FltGoodsGrpID = p_filt->GoodsGrpID;
 	H.FltGoodsID    = p_filt->GoodsID;
-	H.Flags         = p_filt->Flags;
+	H.Flags = p_filt->Flags;
 	H.NumQuotKinds  = p_v->GetQuotKindList().getCount();
 	const size_t sz = sizeof(H.QuotName1);
 	const size_t offs = offsetof(PPALDD_QuotView::Head, QuotName1);

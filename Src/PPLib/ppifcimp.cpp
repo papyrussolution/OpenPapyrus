@@ -1986,22 +1986,15 @@ void LoginDialogParam::SetText(HWND hDlg, uint ctl, SString & rBuf)
 {
 	SString buf;
 	(buf = rBuf).Transf(CTRANSF_INNER_TO_OUTER);
-	// @v9.1.5 SendMessage(GetDlgItem(hDlg, ctl), (UINT)WM_SETTEXT, (WPARAM)0, (LPARAM)(const char *)buf);
-	TView::SSetWindowText(GetDlgItem(hDlg, ctl), buf); // @v9.1.5
+	TView::SSetWindowText(GetDlgItem(hDlg, ctl), buf);
 }
 
 void LoginDialogParam::GetText(HWND hDlg, uint ctl, SString & rBuf)
 {
-	// @v9.1.5 char * p_buf = 0;
 	HWND hwnd_ctl = GetDlgItem(hDlg, ctl);
 	size_t buf_size = ::SendMessage(hwnd_ctl, (UINT)WM_GETTEXTLENGTH, (WPARAM)0, (LPARAM)0) + 1;
-	// @v9.1.5 p_buf = new char[buf_size];
-	// @v9.1.5 memzero(p_buf, buf_size);
-	// @v9.1.5 SendMessage(hwnd_ctl, (UINT)WM_GETTEXT, (WPARAM)buf_size, (LPARAM)p_buf);
 	TView::SGetWindowText(hwnd_ctl, rBuf);
 	rBuf.Transf(CTRANSF_OUTER_TO_INNER);
-	// @v9.1.5 (rBuf = p_buf).ToOem();
-	// @v9.1.5 delete []p_buf;
 }
 
 void LoginDialogParam::SetupDBSelCombo(HWND hDlg)
@@ -4664,7 +4657,7 @@ int32 DL6ICLS_PPObjPerson::GetPersonReq(int32 personID, SPersonReq * pReq)
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(pReq && p_e && p_e->P_Obj && (ok = p_e->P_Obj->GetPersonReq(personID, &req)) > 0) {
 		SString temp_buf;
-		pReq->Flags         = req.Flags;
+		pReq->Flags = req.Flags;
 		pReq->SrchRegTypeID = req.SrchRegTypeID;
 		(temp_buf = req.Name).CopyToOleStr(&pReq->Name);
 		(temp_buf = req.ExtName).CopyToOleStr(&pReq->ExtName);
@@ -6396,7 +6389,7 @@ double DL6ICLS_PPObjBill::GetRestByTag(LDATE dt, int32 goodsID, int32 tagID, SSt
 	if(p_e && p_e->P_BObj) {
 		GoodsRestParam gp;
 		gp.DiffParam   |= GoodsRestParam::_diffLotTag;
-		gp.Date         = dt;
+		gp.Date = dt;
 		gp.GoodsID      = goodsID;
 		gp.DiffLotTagID = tagID;
 		if(pLocList) {
@@ -6687,10 +6680,10 @@ static void FASTCALL FillPersonRelTypeRec(const PPPersonRelType * pInner, SPpyO_
 #define FLD(f) pOuter->f = pInner->f
 		FLD(ID);
 #undef FLD
-		pOuter->RecTag            = ppoPersonRelType;
+		pOuter->RecTag    = ppoPersonRelType;
 		pOuter->StatusRestriction = (PpyOPersonRelTypeStatusRestr)pInner->StatusRestriction;
 		pOuter->Cardinality       = (PpyOPersonRelTypeCardinality)pInner->Cardinality;
-		pOuter->Flags             = (PpyOPersonRelTypeFlags)pInner->Flags;
+		pOuter->Flags     = (PpyOPersonRelTypeFlags)pInner->Flags;
 		(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 		(temp_buf = pInner->Symb).CopyToOleStr(&pOuter->Symb);
 	}
@@ -6702,10 +6695,10 @@ static void FASTCALL FillPersonRelTypeRec(const SPpyO_PersonRelType * pInner, PP
 #define FLD(f) pOuter->f = pInner->f
 	FLD(ID);
 #undef FLD
-	pOuter->Tag               = PPOBJ_PERSONRELTYPE;
+	pOuter->Tag       = PPOBJ_PERSONRELTYPE;
 	pOuter->StatusRestriction = (int16)pInner->StatusRestriction;
 	pOuter->Cardinality       = (int16)pInner->Cardinality;
-	pOuter->Flags             = (long)pInner->Flags;
+	pOuter->Flags     = (long)pInner->Flags;
 	temp_buf.CopyFromOleStr(pInner->Name).CopyTo(pOuter->Name, sizeof(pOuter->Name));
 	temp_buf.CopyFromOleStr(pInner->Symb).CopyTo(pOuter->Symb, sizeof(pOuter->Symb));
 }
@@ -6905,8 +6898,8 @@ static void FASTCALL FillPrjTaskRec(const PPPrjTaskPacket * pInner, SPpyO_PrjTas
 	pOuter->Status      = (PpyOPrjTaskStatus)pInner->Rec.Status;
 	pOuter->Flags       = (PpyOPrjTaskFlags)pInner->Rec.Flags;
 	pOuter->Kind        = (PpyOPrjTaskKind)pInner->Rec.Kind;
-	pOuter->Dt          = pInner->Rec.Dt.GetOleDate();
-	pOuter->Tm          = (OleDate)pInner->Rec.Tm;
+	pOuter->Dt  = pInner->Rec.Dt.GetOleDate();
+	pOuter->Tm  = (OleDate)pInner->Rec.Tm;
 	pOuter->StartDt     = pInner->Rec.StartDt.GetOleDate();
 	pOuter->StartTm     = (OleDate)pInner->Rec.StartTm;
 	pOuter->EstFinishDt = pInner->Rec.EstFinishDt.GetOleDate();
@@ -7050,7 +7043,7 @@ static void FASTCALL FillProjectRec(const PPProjectPacket * pInner, SPpyO_Projec
 	#undef FLD
 	pOuter->Status      = (PpyOProjectStatus)pInner->Rec.Status;
 	pOuter->Kind        = (PpyOProjectKind)pInner->Rec.Kind;
-	pOuter->Dt          = pInner->Rec.Dt.GetOleDate();
+	pOuter->Dt  = pInner->Rec.Dt.GetOleDate();
 	pOuter->BeginDt     = pInner->Rec.BeginDt.GetOleDate();
 	pOuter->EstFinishDt = pInner->Rec.EstFinishDt.GetOleDate();
 	pOuter->FinishDt    = pInner->Rec.FinishDt.GetOleDate();
@@ -7392,7 +7385,7 @@ int32 DL6ICLS_PPViewCCheck::NextIteration(PPYVIEWITEM item)
 	if(static_cast<PPViewCCheck *>(ExtraPtr)->NextIteration(&inner_item) > 0) {
 		LDATETIME dtm;
 		p_item->RecTag     = PPVIEWITEM_CCHECK;
-		p_item->ID         = inner_item.ID;
+		p_item->ID = inner_item.ID;
 		p_item->Code       = inner_item.Code;
 		p_item->CashID     = inner_item.CashID;
 		p_item->UserID     = inner_item.UserID;
@@ -8996,16 +8989,16 @@ int32 DL6ICLS_PPViewGoodsOpAnlz::NextIteration(PPYVIEWITEM item)
 		FLD(Cost);
 		FLD(Price);
 		FLD(PctVal);
-		p_item->Qtty.Val         = inner_item.Qtty.Val;
-		p_item->Qtty.Cmp         = inner_item.Qtty.Cm;
+		p_item->Qtty.Val = inner_item.Qtty.Val;
+		p_item->Qtty.Cmp = inner_item.Qtty.Cm;
 		p_item->SumCost.Val      = inner_item.SumCost.Val;
 		p_item->SumCost.Cmp      = inner_item.SumCost.Cm;
 		p_item->SumPrice.Val     = inner_item.SumPrice.Val;
 		p_item->SumPrice.Cmp     = inner_item.SumPrice.Cm;
 		p_item->Income.Val       = inner_item.Income.Val;
 		p_item->Income.Cmp       = inner_item.Income.Cm;
-		p_item->Rest.Val         = inner_item.Rest.Val;
-		p_item->Rest.Cmp         = inner_item.Rest.Cm;
+		p_item->Rest.Val = inner_item.Rest.Val;
+		p_item->Rest.Cmp = inner_item.Rest.Cm;
 		p_item->RestCostSum.Val  = inner_item.RestCostSum.Val;
 		p_item->RestCostSum.Cmp  = inner_item.RestCostSum.Cm;
 		p_item->RestPriceSum.Val = inner_item.RestPriceSum.Val;
@@ -9598,8 +9591,8 @@ int32 DL6ICLS_PPViewPrjTask::NextIteration(PPYVIEWITEM item)
 		p_item->Status      = (PpyOPrjTaskStatus)inner_item.Status;
 		p_item->Flags       = (PpyOPrjTaskFlags)inner_item.Flags;
 		p_item->Kind        = (PpyOPrjTaskKind)inner_item.Kind;
-		p_item->Dt          = inner_item.Dt.GetOleDate();
-		p_item->Tm          = (OleDate)inner_item.Tm;
+		p_item->Dt  = inner_item.Dt.GetOleDate();
+		p_item->Tm  = (OleDate)inner_item.Tm;
 		p_item->StartDt     = inner_item.StartDt.GetOleDate();
 		p_item->StartTm     = (OleDate)inner_item.StartTm;
 		p_item->EstFinishDt = inner_item.EstFinishDt.GetOleDate();
@@ -9691,7 +9684,7 @@ int32 DL6ICLS_PPViewProject::NextIteration(PPYVIEWITEM item)
 		p_item->RecTag      = ppvProject;
 		p_item->Kind        = (PpyOProjectKind)inner_item.Kind;
 		p_item->Status      = (PpyOProjectStatus)inner_item.Status;
-		p_item->Dt          = inner_item.Dt.GetOleDate();
+		p_item->Dt  = inner_item.Dt.GetOleDate();
 		p_item->BeginDt     = inner_item.BeginDt.GetOleDate();
 		p_item->EstFinishDt = inner_item.EstFinishDt.GetOleDate();
 		p_item->FinishDt    = inner_item.FinishDt.GetOleDate();
@@ -9825,7 +9818,7 @@ int32 DL6ICLS_PPViewOpGrouping::NextIteration(PPYVIEWITEM item)
 		p_item->Dt = inner_item.Dt.GetOleDate();
 		p_item->fVatFreeSuppl = (int)inner_item.fVatFreeSuppl;
 		p_item->fToggleSTax   = (int)inner_item.fToggleSTax;
-		p_item->Sign          = (int)inner_item.Sign;
+		p_item->Sign  = (int)inner_item.Sign;
 		(temp_buf = inner_item.OpName).CopyToOleStr(&p_item->OpName);
 		ok = 1;
 	}

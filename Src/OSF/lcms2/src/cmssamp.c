@@ -42,8 +42,8 @@ cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, cmsUInt32Number nIntent
     cmsContext ContextID = cmsGetProfileContextID(hProfile);
     cmsHPROFILE hLab = cmsCreateLab4ProfileTHR(ContextID, NULL);
     cmsHTRANSFORM xform;
-    cmsBool BPC[4] = { FALSE, FALSE, FALSE, FALSE };
-    cmsFloat64Number States[4] = { 1.0, 1.0, 1.0, 1.0 };
+    boolint BPC[4] = { FALSE, FALSE, FALSE, FALSE };
+    double States[4] = { 1.0, 1.0, 1.0, 1.0 };
     cmsHPROFILE hProfiles[4];
     cmsUInt32Number Intents[4];
 
@@ -60,12 +60,12 @@ cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, cmsUInt32Number nIntent
 // Use darker colorants to obtain black point. This works in the relative colorimetric intent and
 // assumes more ink results in darker colors. No ink limit is assumed.
 static
-cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
+boolint BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
                                     cmsUInt32Number Intent,
                                     cmsCIEXYZ* BlackPoint,
                                     cmsUInt32Number dwFlags)
 {
-    cmsUInt16Number *Black;
+    uint16 *Black;
     cmsHTRANSFORM xform;
     cmsColorSpaceSignature Space;
     cmsUInt32Number nChannels;
@@ -137,14 +137,14 @@ cmsBool  BlackPointAsDarkerColorant(cmsHPROFILE    hInput,
 
     return TRUE;
 
-    cmsUNUSED_PARAMETER(dwFlags);
+    CXX_UNUSED(dwFlags);
 }
 
 // Get a black point of output CMYK profile, discounting any ink-limiting embedded
 // in the profile. For doing that, we use perceptual intent in input direction:
 // Lab (0, 0, 0) -> [Perceptual] Profile -> CMYK -> [Rel. colorimetric] Profile -> Lab
 static
-cmsBool BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile)
+boolint BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile)
 {
     cmsHTRANSFORM hRoundTrip;
     cmsCIELab LabIn, LabOut;
@@ -187,7 +187,7 @@ cmsBool BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfi
 // just that. There is a special flag for using black point tag, but turned
 // off by default because it is bogus on most profiles. The detection algorithm
 // involves to turn BP to neutral and to use only L component.
-cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
+boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
 {
     cmsProfileClassSignature devClass;
 
@@ -280,7 +280,7 @@ cmsBool CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
 // http://www.personal.psu.edu/jhm/f90/lectures/lsq2.html
 
 static
-cmsFloat64Number RootOfLeastSquaresFitQuadraticCurve(int n, cmsFloat64Number x[], cmsFloat64Number y[])
+double RootOfLeastSquaresFitQuadraticCurve(int n, double x[], double y[])
 {
     double sum_x = 0, sum_x2 = 0, sum_x3 = 0, sum_x4 = 0;
     double sum_y = 0, sum_yx = 0, sum_yx2 = 0;
@@ -343,17 +343,17 @@ cmsFloat64Number RootOfLeastSquaresFitQuadraticCurve(int n, cmsFloat64Number x[]
 
 // Calculates the black point of a destination profile.
 // This algorithm comes from the Adobe paper disclosing its black point compensation method.
-cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
+boolint CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
 {
     cmsColorSpaceSignature ColorSpace;
     cmsHTRANSFORM hRoundTrip = NULL;
     cmsCIELab InitialLab, destLab, Lab;
-    cmsFloat64Number inRamp[256], outRamp[256];
-    cmsFloat64Number MinL, MaxL;
-    cmsBool NearlyStraightMidrange = TRUE;  
-    cmsFloat64Number yRamp[256];
-    cmsFloat64Number x[256], y[256];
-    cmsFloat64Number lo, hi;
+    double inRamp[256], outRamp[256];
+    double MinL, MaxL;
+    boolint NearlyStraightMidrange = TRUE;  
+    double yRamp[256];
+    double x[256], y[256];
+    double lo, hi;
     int n, l;
     cmsProfileClassSignature devClass;
 
@@ -439,7 +439,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
 
     for (l=0; l < 256; l++) {
 
-        Lab.L = (cmsFloat64Number) (l * 100.0) / 255.0;
+        Lab.L = (double) (l * 100.0) / 255.0;
         Lab.a = cmsmin(50, cmsmax(-50, InitialLab.a));
         Lab.b = cmsmin(50, cmsmax(-50, InitialLab.b));
 
@@ -511,7 +511,7 @@ cmsBool CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROF
     n = 0;
     for (l=0; l < 256; l++) {
     
-        cmsFloat64Number ff = yRamp[l];
+        double ff = yRamp[l];
 
         if(ff >= lo && ff < hi) {
             x[n] = inRamp[l];

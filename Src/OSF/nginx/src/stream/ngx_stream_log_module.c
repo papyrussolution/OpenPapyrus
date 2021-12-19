@@ -522,7 +522,7 @@ static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
 		/* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
 		0x10000000, /* 0001 0000 0000 0000  0000 0000 0000 0000 */
 
-		/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+		/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 		0x80000000, /* 1000 0000 0000 0000  0000 0000 0000 0000 */
 
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */

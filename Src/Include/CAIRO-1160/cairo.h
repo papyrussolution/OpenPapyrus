@@ -361,8 +361,8 @@ typedef enum _cairo_status {
  **/
 #ifndef __SLCAIRO_H // @sobolev
 typedef enum _cairo_content {
-	CAIRO_CONTENT_COLOR         = 0x1000,
-	CAIRO_CONTENT_ALPHA         = 0x2000,
+	CAIRO_CONTENT_COLOR = 0x1000,
+	CAIRO_CONTENT_ALPHA = 0x2000,
 	CAIRO_CONTENT_COLOR_ALPHA   = 0x3000
 } cairo_content_t;
 #endif
@@ -2225,9 +2225,9 @@ typedef enum _cairo_region_overlap {
 cairo_public cairo_region_t * cairo_region_create();
 cairo_public cairo_region_t * cairo_region_create_rectangle(const cairo_rectangle_int_t * rectangle);
 cairo_public cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_int_t * rects, int count);
-cairo_public cairo_region_t * cairo_region_copy(const cairo_region_t * original);
+cairo_public cairo_region_t * FASTCALL cairo_region_copy(const cairo_region_t * original);
 cairo_public cairo_region_t * FASTCALL cairo_region_reference(cairo_region_t * region);
-cairo_public void cairo_region_destroy(cairo_region_t * region);
+cairo_public void FASTCALL cairo_region_destroy(cairo_region_t * region);
 cairo_public boolint cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b);
 cairo_public cairo_status_t cairo_region_status(const cairo_region_t * region);
 cairo_public void cairo_region_get_extents(const cairo_region_t * region, cairo_rectangle_int_t * extents);

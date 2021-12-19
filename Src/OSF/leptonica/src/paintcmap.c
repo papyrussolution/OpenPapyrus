@@ -31,23 +31,23 @@
  *      These in-place functions paint onto colormap images.
  *
  *      Repaint selected pixels in region
- *           int32     pixSetSelectCmap()
+ *           l_int32     pixSetSelectCmap()
  *
  *      Repaint non-white pixels in region
- *           int32     pixColorGrayRegionsCmap()
- *           int32     pixColorGrayCmap()
- *           int32     pixColorGrayMaskedCmap()
- *           int32     addColorizedGrayToCmap()
+ *           l_int32     pixColorGrayRegionsCmap()
+ *           l_int32     pixColorGrayCmap()
+ *           l_int32     pixColorGrayMaskedCmap()
+ *           l_int32     addColorizedGrayToCmap()
  *
  *      Repaint selected pixels through mask
- *           int32     pixSetSelectMaskedCmap()
+ *           l_int32     pixSetSelectMaskedCmap()
  *
  *      Repaint all pixels through mask
- *           int32     pixSetMaskedCmap()
+ *           l_int32     pixSetMaskedCmap()
  *
  *
  *  The 'set select' functions condition the setting on a specific
- *  pixel value (i.e., index into the colormap) of the underyling
+ *  pixel value (i.e., index into the colormap) of the underlying
  *  Pix that is being modified.  The same conditioning is used in
  *  pixBlendCmap().
  *
@@ -69,23 +69,23 @@
 /*!
  * \brief   pixSetSelectCmap()
  *
- * \param[in]    pixs 1, 2, 4 or 8 bpp, with colormap
- * \param[in]    box [optional] region to set color; can be NULL
- * \param[in]    sindex colormap index of pixels to be changed
- * \param[in]    rval, gval, bval new color to paint
+ * \param[in]    pixs              1, 2, 4 or 8 bpp, with colormap
+ * \param[in]    box               [optional] region to set color; can be NULL
+ * \param[in]    sindex            colormap index of pixels to be changed
+ * \param[in]    rval, gval, bval  new color to paint
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This is an in-place operation.
  *      (2) It sets all pixels in region that have the color specified
- *          by the colormap index 'sindex' to the new color.
- *      (3) sindex must be in the existing colormap; otherwise an
+ *          by the colormap index %sindex to the new color.
+ *      (3) %sindex must be in the existing colormap; otherwise an
  *          error is returned.
  *      (4) If the new color exists in the colormap, it is used;
  *          otherwise, it is added to the colormap.  If it cannot be
  *          added because the colormap is full, an error is returned.
- *      (5) If box is NULL, applies function to the entire image; otherwise,
+ *      (5) If %box is NULL, applies function to the entire image; otherwise,
  *          clips the operation to the intersection of the box and pix.
  *      (6) An example of use would be to set to a specific color all
  *          the light (background) pixels within a certain region of
@@ -93,19 +93,19 @@
  *          this region unchanged.
  * </pre>
  */
-int32 pixSetSelectCmap(PIX     * pixs,
-    BOX     * box,
-    int32 sindex,
-    int32 rval,
-    int32 gval,
-    int32 bval)
+l_ok pixSetSelectCmap(PIX * pixs,
+    BOX * box,
+    l_int32 sindex,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval)
 {
-	int32 i, j, w, h, d, n, x1, y1, x2, y2, bw, bh, val, wpls;
-	int32 index; /* of new color to be set */
-	uint32  * lines, * datas;
+	l_int32 i, j, w, h, d, n, x1, y1, x2, y2, bw, bh, val, wpls;
+	l_int32 index; /* of new color to be set */
+	l_uint32  * lines, * datas;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixSetSelectCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -123,7 +123,7 @@ int32 pixSetSelectCmap(PIX     * pixs,
 		if(pixcmapAddColor(cmap, rval, gval, bval))
 			return ERROR_INT("error adding cmap entry", procName, 1);
 		else
-			index = n;  /* we've added one color */
+			index = n; /* we've added one color */
 	}
 
 	/* Determine the region of substitution */
@@ -189,18 +189,18 @@ int32 pixSetSelectCmap(PIX     * pixs,
 /*!
  * \brief   pixColorGrayRegionsCmap()
  *
- * \param[in]    pixs 8 bpp, with colormap
- * \param[in]    boxa of regions in which to apply color
- * \param[in]    type L_PAINT_LIGHT, L_PAINT_DARK
- * \param[in]    rval, gval, bval target color
+ * \param[in]    pixs               8 bpp, with colormap
+ * \param[in]    boxa               of regions in which to apply color
+ * \param[in]    type               L_PAINT_LIGHT, L_PAINT_DARK
+ * \param[in]    rval, gval, bval   target color
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This is an in-place operation.
- *      (2) If type == L_PAINT_LIGHT, it colorizes non-black pixels,
+ *      (2) If %type == L_PAINT_LIGHT, it colorizes non-black pixels,
  *          preserving antialiasing.
- *          If type == L_PAINT_DARK, it colorizes non-white pixels,
+ *          If %type == L_PAINT_DARK, it colorizes non-white pixels,
  *          preserving antialiasing.  See pixColorGrayCmap() for details.
  *      (3) This can also be called through pixColorGrayRegions().
  *      (4) This increases the colormap size by the number of
@@ -208,27 +208,27 @@ int32 pixSetSelectCmap(PIX     * pixs,
  *          selected regions of pixs.  If there is not enough room in
  *          the colormap for this expansion, it returns 1 (error),
  *          and the caller should check the return value.
- *      (5) Because two boxes in the boxa can overlap, pixels that
+ *      (5) Because two boxes in %boxa can overlap, pixels that
  *          are colorized in the first box must be excluded in the
  *          second because their value exceeds the size of the map.
  * </pre>
  */
-int32 pixColorGrayRegionsCmap(PIX     * pixs,
-    BOXA    * boxa,
-    int32 type,
-    int32 rval,
-    int32 gval,
-    int32 bval)
+l_ok pixColorGrayRegionsCmap(PIX * pixs,
+    BOXA * boxa,
+    l_int32 type,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval)
 {
-	int32 i, j, k, w, h, n, nc, x1, y1, x2, y2, bw, bh, wpl;
-	int32 val, nval;
-	int32   * map;
-	uint32  * line, * data;
+	l_int32 i, j, k, w, h, n, nc, x1, y1, x2, y2, bw, bh, wpl;
+	l_int32 val, nval;
+	l_int32   * map;
+	l_uint32  * line, * data;
 	BOX       * box;
-	NUMA      * na;
+	NUMA * na;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixColorGrayRegionsCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -268,7 +268,7 @@ int32 pixColorGrayRegionsCmap(PIX     * pixs,
 				if(j < 0 || j >= w) /* clip */
 					continue;
 				val = GET_DATA_BYTE(line, j);
-				if(val >= nc) continue;  /* from overlapping b.b. */
+				if(val >= nc) continue; /* from overlapping b.b. */
 				nval = map[val];
 				if(nval != 256)
 					SET_DATA_BYTE(line, j, nval);
@@ -277,27 +277,27 @@ int32 pixColorGrayRegionsCmap(PIX     * pixs,
 		boxDestroy(&box);
 	}
 
-	LEPT_FREE(map);
+	SAlloc::F(map);
 	return 0;
 }
 
 /*!
  * \brief   pixColorGrayCmap()
  *
- * \param[in]    pixs 2, 4 or 8 bpp, with colormap
- * \param[in]    box [optional] region to set color; can be NULL
- * \param[in]    type L_PAINT_LIGHT, L_PAINT_DARK
- * \param[in]    rval, gval, bval target color
+ * \param[in]    pixs               2, 4 or 8 bpp, with colormap
+ * \param[in]    box                [optional] region to set color; can be NULL
+ * \param[in]    type               L_PAINT_LIGHT, L_PAINT_DARK
+ * \param[in]    rval, gval, bval   target color
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This is an in-place operation.
- *      (2) If type == L_PAINT_LIGHT, it colorizes non-black pixels,
+ *      (2) If %type == L_PAINT_LIGHT, it colorizes non-black pixels,
  *          preserving antialiasing.
- *          If type == L_PAINT_DARK, it colorizes non-white pixels,
+ *          If %type == L_PAINT_DARK, it colorizes non-white pixels,
  *          preserving antialiasing.
- *      (3) box gives the region to apply color; if NULL, this
+ *      (3) %box gives the region to apply color; if NULL, this
  *          colorizes the entire image.
  *      (4) If the cmap is only 2 or 4 bpp, pixs is converted in-place
  *          to an 8 bpp cmap.  A 1 bpp cmap is not a valid input pix.
@@ -309,29 +309,29 @@ int32 pixColorGrayRegionsCmap(PIX     * pixs,
  *          should check the return value.
  *      (7) Using the darkness of each original pixel in the rect,
  *          it generates a new color (based on the input rgb values).
- *          If type == L_PAINT_LIGHT, the new color is a (generally)
- *          darken-to-black version of the  input rgb color, where the
+ *          If %type == L_PAINT_LIGHT, the new color is a (generally)
+ *          darken-to-black version of the input rgb color, where the
  *          amount of darkening increases with the darkness of the
  *          original pixel color.
- *          If type == L_PAINT_DARK, the new color is a (generally)
- *          faded-to-white version of the  input rgb color, where the
+ *          If %type == L_PAINT_DARK, the new color is a (generally)
+ *          faded-to-white version of the input rgb color, where the
  *          amount of fading increases with the brightness of the
  *          original pixel color.
  * </pre>
  */
-int32 pixColorGrayCmap(PIX     * pixs,
-    BOX     * box,
-    int32 type,
-    int32 rval,
-    int32 gval,
-    int32 bval)
+l_ok pixColorGrayCmap(PIX * pixs,
+    BOX * box,
+    l_int32 type,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval)
 {
-	int32 w, h, d, ret;
-	PIX      * pixt;
+	l_int32 w, h, d, ret;
+	PIX * pixt;
 	BOXA     * boxa;
 	PIXCMAP  * cmap;
 
-	PROCNAME("pixColorGrayCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -367,18 +367,18 @@ int32 pixColorGrayCmap(PIX     * pixs,
 /*!
  * \brief   pixColorGrayMaskedCmap()
  *
- * \param[in]    pixs 8 bpp, with colormap
- * \param[in]    pixm 1 bpp mask, through which to apply color
- * \param[in]    type L_PAINT_LIGHT, L_PAINT_DARK
- * \param[in]    rval, gval, bval target color
+ * \param[in]    pixs               8 bpp, with colormap
+ * \param[in]    pixm               1 bpp mask, through which to apply color
+ * \param[in]    type               L_PAINT_LIGHT, L_PAINT_DARK
+ * \param[in]    rval, gval, bval   target color
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This is an in-place operation.
- *      (2) If type == L_PAINT_LIGHT, it colorizes non-black pixels,
+ *      (2) If %type == L_PAINT_LIGHT, it colorizes non-black pixels,
  *          preserving antialiasing.
- *          If type == L_PAINT_DARK, it colorizes non-white pixels,
+ *          If %type == L_PAINT_DARK, it colorizes non-white pixels,
  *          preserving antialiasing.  See pixColorGrayCmap() for details.
  *      (3) This increases the colormap size by the number of
  *          different gray (non-black or non-white) colors in the
@@ -386,21 +386,21 @@ int32 pixColorGrayCmap(PIX     * pixs,
  *          for this expansion, it returns 1 (error).
  * </pre>
  */
-int32 pixColorGrayMaskedCmap(PIX     * pixs,
-    PIX     * pixm,
-    int32 type,
-    int32 rval,
-    int32 gval,
-    int32 bval)
+l_ok pixColorGrayMaskedCmap(PIX * pixs,
+    PIX * pixm,
+    l_int32 type,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval)
 {
-	int32 i, j, w, h, wm, hm, wmin, hmin, wpl, wplm;
-	int32 val, nval;
-	int32   * map;
-	uint32  * line, * data, * linem, * datam;
-	NUMA      * na;
+	l_int32 i, j, w, h, wm, hm, wmin, hmin, wpl, wplm;
+	l_int32 val, nval;
+	l_int32   * map;
+	l_uint32  * line, * data, * linem, * datam;
+	NUMA * na;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixColorGrayMaskedCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -423,9 +423,9 @@ int32 pixColorGrayMaskedCmap(PIX     * pixs,
 	pixGetDimensions(pixs, &w, &h, NULL);
 	pixGetDimensions(pixm, &wm, &hm, NULL);
 	if(wm != w)
-		L_WARNING3("wm = %d differs from w = %d\n", procName, wm, w);
+		L_WARNING("wm = %d differs from w = %d\n", procName, wm, w);
 	if(hm != h)
-		L_WARNING3("hm = %d differs from h = %d\n", procName, hm, h);
+		L_WARNING("hm = %d differs from h = %d\n", procName, hm, h);
 	wmin = MIN(w, wm);
 	hmin = MIN(h, hm);
 
@@ -448,24 +448,24 @@ int32 pixColorGrayMaskedCmap(PIX     * pixs,
 		}
 	}
 
-	LEPT_FREE(map);
+	SAlloc::F(map);
 	return 0;
 }
 
 /*!
  * \brief   addColorizedGrayToCmap()
  *
- * \param[in]    cmap from 2 or 4 bpp pix
- * \param[in]    type L_PAINT_LIGHT, L_PAINT_DARK
- * \param[in]    rval, gval, bval target color
- * \param[out]   pna [optional] table for mapping new cmap entries
+ * \param[in]    cmap              from 2 or 4 bpp pix
+ * \param[in]    type              L_PAINT_LIGHT, L_PAINT_DARK
+ * \param[in]    rval, gval, bval  target color
+ * \param[out]   pna               [optional] table for mapping new cmap entries
  * \return  0 if OK; 1 on error; 2 if new colors will not fit in cmap.
  *
  * <pre>
  * Notes:
- *      (1) If type == L_PAINT_LIGHT, it colorizes non-black pixels,
+ *      (1) If %type == L_PAINT_LIGHT, it colorizes non-black pixels,
  *          preserving antialiasing.
- *          If type == L_PAINT_DARK, it colorizes non-white pixels,
+ *          If %type == L_PAINT_DARK, it colorizes non-white pixels,
  *          preserving antialiasing.
  *      (2) This increases the colormap size by the number of
  *          different gray (non-black or non-white) colors in the
@@ -473,7 +473,7 @@ int32 pixColorGrayMaskedCmap(PIX     * pixs,
  *          for this expansion, it returns 1 (treated as a warning);
  *          the caller should check the return value.
  *      (3) This can be used to determine if the new colors will fit in
- *          the cmap, using null for \&na.  Returns 0 if they fit; 2 if
+ *          the cmap, using null for &na.  Returns 0 if they fit; 2 if
  *          they don't fit.
  *      (4) The mapping table contains, for each gray color found, the
  *          index of the corresponding colorized pixel.  Non-gray
@@ -481,17 +481,17 @@ int32 pixColorGrayMaskedCmap(PIX     * pixs,
  *      (5) See pixColorGrayCmap() for usage.
  * </pre>
  */
-int32 addColorizedGrayToCmap(PIXCMAP  * cmap,
-    int32 type,
-    int32 rval,
-    int32 gval,
-    int32 bval,
-    NUMA    ** pna)
+l_ok addColorizedGrayToCmap(PIXCMAP  * cmap,
+    l_int32 type,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval,
+    NUMA ** pna)
 {
-	int32 i, n, erval, egval, ebval, nrval, ngval, nbval, newindex;
-	NUMA    * na;
+	l_int32 i, n, erval, egval, ebval, nrval, ngval, nbval, newindex;
+	NUMA * na;
 
-	PROCNAME("addColorizedGrayToCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(pna) *pna = NULL;
 	if(!cmap)
@@ -505,15 +505,15 @@ int32 addColorizedGrayToCmap(PIXCMAP  * cmap,
 		pixcmapGetColor(cmap, i, &erval, &egval, &ebval);
 		if(type == L_PAINT_LIGHT) {
 			if(erval == egval && erval == ebval && erval != 0) {
-				nrval = (int32)(rval * (float)erval / 255.);
-				ngval = (int32)(gval * (float)egval / 255.);
-				nbval = (int32)(bval * (float)ebval / 255.);
+				nrval = (l_int32)(rval * (float)erval / 255.);
+				ngval = (l_int32)(gval * (float)egval / 255.);
+				nbval = (l_int32)(bval * (float)ebval / 255.);
 				if(pixcmapAddNewColor(cmap, nrval, ngval, nbval, &newindex)) {
 					numaDestroy(&na);
 					L_WARNING("no room; colormap full\n", procName);
 					return 2;
 				}
-				numaAddNumber(na, (float)newindex);
+				numaAddNumber(na, newindex);
 			}
 			else {
 				numaAddNumber(na, 256); /* invalid number; not gray */
@@ -521,15 +521,18 @@ int32 addColorizedGrayToCmap(PIXCMAP  * cmap,
 		}
 		else { /* L_PAINT_DARK */
 			if(erval == egval && erval == ebval && erval != 255) {
-				nrval = rval + (int32)((255. - rval) * (float)erval / 255.);
-				ngval = gval + (int32)((255. - gval) * (float)egval / 255.);
-				nbval = bval + (int32)((255. - bval) * (float)ebval / 255.);
+				nrval = rval +
+				    (l_int32)((255. - rval) * (float)erval / 255.);
+				ngval = gval +
+				    (l_int32)((255. - gval) * (float)egval / 255.);
+				nbval = bval +
+				    (l_int32)((255. - bval) * (float)ebval / 255.);
 				if(pixcmapAddNewColor(cmap, nrval, ngval, nbval, &newindex)) {
 					numaDestroy(&na);
 					L_WARNING("no room; colormap full\n", procName);
 					return 2;
 				}
-				numaAddNumber(na, (float)newindex);
+				numaAddNumber(na, newindex);
 			}
 			else {
 				numaAddNumber(na, 256); /* invalid number; not gray */
@@ -550,41 +553,41 @@ int32 addColorizedGrayToCmap(PIXCMAP  * cmap,
 /*!
  * \brief   pixSetSelectMaskedCmap()
  *
- * \param[in]    pixs 2, 4 or 8 bpp, with colormap
- * \param[in]    pixm [optional] 1 bpp mask; no-op if NULL
- * \param[in]    x, y UL corner of mask relative to pixs
- * \param[in]    sindex colormap index of pixels in pixs to be changed
- * \param[in]    rval, gval, bval new color to substitute
+ * \param[in]    pixs               2, 4 or 8 bpp, with colormap
+ * \param[in]    pixm               [optional] 1 bpp mask; no-op if NULL
+ * \param[in]    x, y               UL corner of mask relative to pixs
+ * \param[in]    sindex             cmap index of pixels in pixs to be changed
+ * \param[in]    rval, gval, bval   new color to substitute
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This is an in-place operation.
  *      (2) This paints through the fg of pixm and replaces all pixels
- *          in pixs that have a particular value (sindex) with the new color.
+ *          in pixs that have the value %sindex with the new color.
  *      (3) If pixm == NULL, a warning is given.
- *      (4) sindex must be in the existing colormap; otherwise an
+ *      (4) %sindex must be in the existing colormap; otherwise an
  *          error is returned.
  *      (5) If the new color exists in the colormap, it is used;
  *          otherwise, it is added to the colormap.  If the colormap
  *          is full, an error is returned.
  * </pre>
  */
-int32 pixSetSelectMaskedCmap(PIX     * pixs,
-    PIX     * pixm,
-    int32 x,
-    int32 y,
-    int32 sindex,
-    int32 rval,
-    int32 gval,
-    int32 bval)
+l_ok pixSetSelectMaskedCmap(PIX * pixs,
+    PIX * pixm,
+    l_int32 x,
+    l_int32 y,
+    l_int32 sindex,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval)
 {
-	int32 i, j, w, h, d, n, wm, hm, wpls, wplm, val;
-	int32 index; /* of new color to be set */
-	uint32  * lines, * linem, * datas, * datam;
+	l_int32 i, j, w, h, d, n, wm, hm, wpls, wplm, val;
+	l_int32 index; /* of new color to be set */
+	l_uint32  * lines, * linem, * datas, * datam;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixSetSelectMaskedCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -607,13 +610,12 @@ int32 pixSetSelectMaskedCmap(PIX     * pixs,
 		if(pixcmapAddColor(cmap, rval, gval, bval))
 			return ERROR_INT("error adding cmap entry", procName, 1);
 		else
-			index = n;  /* we've added one color */
+			index = n; /* we've added one color */
 	}
 
 	/* replace pixel value sindex by index when fg pixel in pixmc
 	 * overlays it */
-	w = pixGetWidth(pixs);
-	h = pixGetHeight(pixs);
+	pixGetDimensions(pixs, &w, &h, NULL);
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 	wm = pixGetWidth(pixm);
@@ -628,15 +630,6 @@ int32 pixSetSelectMaskedCmap(PIX     * pixs,
 			if(j + x < 0  || j + x >= w) continue;
 			if(GET_DATA_BIT(linem, j)) {
 				switch(d) {
-					case 1:
-					    val = GET_DATA_BIT(lines, x + j);
-					    if(val == sindex) {
-						    if(index == 0)
-							    CLEAR_DATA_BIT(lines, x + j);
-						    else
-							    SET_DATA_BIT(lines, x + j);
-					    }
-					    break;
 					case 2:
 					    val = GET_DATA_DIBIT(lines, x + j);
 					    if(val == sindex)
@@ -668,40 +661,41 @@ int32 pixSetSelectMaskedCmap(PIX     * pixs,
 /*!
  * \brief   pixSetMaskedCmap()
  *
- * \param[in]    pixs 2, 4 or 8 bpp, colormapped
- * \param[in]    pixm [optional] 1 bpp mask; no-op if NULL
- * \param[in]    x, y origin of pixm relative to pixs; can be negative
- * \param[in]    rval, gval, bval new color to set at each masked pixel
+ * \param[in]    pixs               2, 4 or 8 bpp, colormapped
+ * \param[in]    pixm               [optional] 1 bpp mask; no-op if NULL
+ * \param[in]    x, y               origin of pixm relative to pixs;
+ *                                  can be negative
+ * \param[in]    rval, gval, bval   new color to set at each masked pixel
  * \return  0 if OK; 1 on error
  *
  * <pre>
  * Notes:
  *      (1) This is an in-place operation.
  *      (2) It paints a single color through the mask (as a stencil).
- *      (3) The mask origin is placed at (x,y) on pixs, and the
+ *      (3) The mask origin is placed at (%x,%y) on %pixs, and the
  *          operation is clipped to the intersection of the mask and pixs.
- *      (4) If pixm == NULL, a warning is given.
- *      (5) Typically, pixm is a small binary mask located somewhere
- *          on the larger pixs.
+ *      (4) If %pixm == NULL, a warning is given.
+ *      (5) Typically, %pixm is a small binary mask located somewhere
+ *          on the larger %pixs.
  *      (6) If the color is in the colormap, it is used.  Otherwise,
  *          it is added if possible; an error is returned if the
  *          colormap is already full.
  * </pre>
  */
-int32 pixSetMaskedCmap(PIX      * pixs,
-    PIX      * pixm,
-    int32 x,
-    int32 y,
-    int32 rval,
-    int32 gval,
-    int32 bval)
+l_ok pixSetMaskedCmap(PIX * pixs,
+    PIX * pixm,
+    l_int32 x,
+    l_int32 y,
+    l_int32 rval,
+    l_int32 gval,
+    l_int32 bval)
 {
-	int32 w, h, d, wpl, wm, hm, wplm;
-	int32 i, j, index;
-	uint32  * data, * datam, * line, * linem;
+	l_int32 w, h, d, wpl, wm, hm, wplm;
+	l_int32 i, j, index;
+	l_uint32  * data, * datam, * line, * linem;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixSetMaskedCmap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -737,8 +731,7 @@ int32 pixSetMaskedCmap(PIX      * pixs,
 		for(j = 0; j < wm; j++) {
 			if(j + x < 0  || j + x >= w) continue;
 			if(GET_DATA_BIT(linem, j)) { /* paint color */
-				switch(d)
-				{
+				switch(d) {
 					case 2:
 					    SET_DATA_DIBIT(line, j + x, index);
 					    break;
@@ -754,7 +747,5 @@ int32 pixSetMaskedCmap(PIX      * pixs,
 			}
 		}
 	}
-
 	return 0;
 }
-

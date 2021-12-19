@@ -66,7 +66,7 @@ template <typename T>              struct hb_is_same<T, T> : hb_true_type {};
 template <unsigned Pri> struct hb_priority : hb_priority<Pri - 1> {};
 template <>             struct hb_priority<0> {};
 #define hb_prioritize hb_priority<16> ()
-#define HB_FUNCOBJ(x) static_const x HB_UNUSED
+#define HB_FUNCOBJ(x) static_const x CXX_UNUSED_PARAM
 
 template <typename T> struct hb_type_identity_t { typedef T type; };
 template <typename T> using hb_type_identity = typename hb_type_identity_t<T>::type;

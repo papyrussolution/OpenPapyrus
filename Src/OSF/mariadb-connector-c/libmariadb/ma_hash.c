@@ -289,7 +289,7 @@ bool hash_insert(HASH * info, const uchar * record)
 		do {
 			pos = data+idx;
 			hash_nr = rec_hashnr(info, pos->data);
-			if(flag == 0)           /* First loop; Check if ok */
+			if(flag == 0) /* First loop; Check if ok */
 				if(hash_mask(hash_nr, info->blength, info->records) != first_index)
 					break;
 			if(!(hash_nr & halfbuff)) { /* Key will not move */

@@ -1,14 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- * Copyright (c) 2003-2009, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
+ * Copyright (c) 2003-2009, International Business Machines Corporation and others.  All Rights Reserved.
  * Author: Alan Liu
  * Created: March 20 2003
  * Since: ICU 2.6
- **********************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -36,7 +32,8 @@ void addPosixTest(TestNode** root)
 /**********************************************************************/
 /* Test basic ucat.h API */
 
-void TestMessageCatalog() {
+void TestMessageCatalog() 
+{
 	UErrorCode ec = U_ZERO_ERROR;
 	u_nl_catd catd;
 	const char * DATA[] = {
@@ -57,18 +54,15 @@ void TestMessageCatalog() {
 	const UChar FAIL[] = {0x46, 0x41, 0x49, 0x4C, 0x00}; /* "FAIL" */
 	int32_t i;
 	const char * path = loadTestData(&ec);
-
 	if(U_FAILURE(ec)) {
 		log_data_err("FAIL: loadTestData => %s\n", u_errorName(ec));
 		return;
 	}
-
 	catd = u_catopen(path, "mc", &ec);
 	if(U_FAILURE(ec)) {
 		log_data_err("FAIL: u_catopen => %s\n", u_errorName(ec));
 		return;
 	}
-
 	for(i = 0; DATA[i]!=NULL; i += 4) {
 		int32_t set_num = T_CString_stringToInteger(DATA[i], 10);
 		int32_t msg_num = T_CString_stringToInteger(DATA[i+1], 10);
@@ -77,29 +71,20 @@ void TestMessageCatalog() {
 		const char * err;
 		char str[128];
 		const UChar * ustr;
-
 		u_uastrcpy(exp, DATA[i+2]);
-
 		ec = U_ZERO_ERROR;
 		ustr = u_catgets(catd, set_num, msg_num, FAIL, &len, &ec);
 		u_austrcpy(str, ustr);
 		err = u_errorName(ec);
-
-		log_verbose("u_catgets(%d, %d) => \"%s\", len=%d, %s\n",
-		    set_num, msg_num, str, len, err);
-
+		log_verbose("u_catgets(%d, %d) => \"%s\", len=%d, %s\n", set_num, msg_num, str, len, err);
 		if(u_strcmp(ustr, exp) != 0) {
-			log_err("FAIL: u_catgets => \"%s\", exp. \"%s\"\n",
-			    str, DATA[i+2]);
+			log_err("FAIL: u_catgets => \"%s\", exp. \"%s\"\n", str, DATA[i+2]);
 		}
-
 		if(len != (int32_t)uprv_strlen(DATA[i+2])) {
-			log_err("FAIL: u_catgets => len=%d, exp. %d\n",
-			    len, uprv_strlen(DATA[i+2]));
+			log_err("FAIL: u_catgets => len=%d, exp. %d\n", len, uprv_strlen(DATA[i+2]));
 		}
 		if(uprv_strcmp(err, DATA[i+3]) != 0) {
-			log_err("FAIL: u_catgets => %s, exp. %s\n",
-			    err, DATA[i+3]);
+			log_err("FAIL: u_catgets => %s, exp. %s\n", err, DATA[i+3]);
 		}
 	}
 	u_catclose(catd);

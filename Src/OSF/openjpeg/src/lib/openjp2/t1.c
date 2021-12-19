@@ -334,7 +334,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t * flagsp, OPJ_UINT32 ci,
 			OPJ_UINT32 ctxt1 = opj_t1_getctxno_zc(mqc, flags >> (ci * 3U)); \
 			v = (opj_smr_abs(*l_datap) & (OPJ_UINT32)one) ? 1 : 0; \
 /* #ifdef DEBUG_ENC_SIG */ \
-/*        slfprintf_stderr("   ctxt1=%d\n", ctxt1); */ \
+/* slfprintf_stderr("   ctxt1=%d\n", ctxt1); */ \
 /* #endif */ \
 			opj_t1_setcurctx(curctx, ctxt1); \
 			if(type == T1_TYPE_RAW) { /* BYPASS/LAZY MODE */ \
@@ -352,7 +352,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t * flagsp, OPJ_UINT32 ci,
 				*nmsedec += opj_t1_getnmsedec_sig(opj_smr_abs(*l_datap), \
 					(OPJ_UINT32)bpno); \
 /* #ifdef DEBUG_ENC_SIG */ \
-/*            slfprintf_stderr("   ctxt2=%d\n", ctxt2); */ \
+/* slfprintf_stderr("   ctxt2=%d\n", ctxt2); */ \
 /* #endif */ \
 				opj_t1_setcurctx(curctx, ctxt2); \
 				if(type == T1_TYPE_RAW) { /* BYPASS/LAZY MODE */ \
@@ -360,7 +360,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t * flagsp, OPJ_UINT32 ci,
 				} else { \
 					OPJ_UINT32 spb = opj_t1_getspb(lu); \
 /* #ifdef DEBUG_ENC_SIG */ \
-/*                slfprintf_stderr("   spb=%d\n", spb); */ \
+/* slfprintf_stderr("   spb=%d\n", spb); */ \
 /* #endif */ \
 					opj_mqc_encode_macro(mqc, curctx, a, c, ct, v ^ spb); \
 				} \
@@ -707,7 +707,7 @@ static void opj_t1_dec_sigpass_mqc(opj_t1_t * t1,
 				(OPJ_UINT32)bpno); \
 			v = ((OPJ_INT32)abs_data & one) ? 1 : 0; \
 /* #ifdef DEBUG_ENC_REF */ \
-/*        slfprintf_stderr("  ctxt=%d\n", ctxt); */ \
+/* slfprintf_stderr("  ctxt=%d\n", ctxt); */ \
 /* #endif */ \
 			opj_t1_setcurctx(curctx, ctxt); \
 			if(type == T1_TYPE_RAW) { /* BYPASS/LAZY MODE */ \
@@ -1025,7 +1025,7 @@ static void opj_t1_dec_refpass_mqc(opj_t1_t * t1,
 				else if(!(*flagsp & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci * 3U)))) { \
 					OPJ_UINT32 ctxt1 = opj_t1_getctxno_zc(mqc, *flagsp >> (ci * 3U)); \
 /* #ifdef DEBUG_ENC_CLN */ \
-/*            printf("   ctxt1=%d\n", ctxt1); */ \
+/* printf("   ctxt1=%d\n", ctxt1); */ \
 /* #endif */ \
 					opj_t1_setcurctx(curctx, ctxt1); \
 					v = (opj_smr_abs(*l_datap) & (OPJ_UINT32)one) ? 1 : 0; \
@@ -1045,14 +1045,14 @@ static void opj_t1_dec_refpass_mqc(opj_t1_t * t1,
 						(OPJ_UINT32)bpno); \
 					ctxt2 = opj_t1_getctxno_sc(lu); \
 /* #ifdef DEBUG_ENC_CLN */ \
-/*           printf("   ctxt2=%d\n", ctxt2); */ \
+/* printf("   ctxt2=%d\n", ctxt2); */ \
 /* #endif */ \
 					opj_t1_setcurctx(curctx, ctxt2); \
  \
 					v = opj_smr_sign(*l_datap); \
 					spb = opj_t1_getspb(lu); \
 /* #ifdef DEBUG_ENC_CLN */ \
-/*           printf("   spb=%d\n", spb); */ \
+/* printf("   spb=%d\n", spb); */ \
 /* #endif */ \
 					opj_mqc_encode_macro(mqc, curctx, a, c, ct, v ^ spb); \
 					vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (ci == 0)) ? 1 : 0; \
@@ -1704,10 +1704,10 @@ static void opj_t1_clbl_decode_processor(void * user_data, opj_tls_t* tls)
 							datap + 8)));
 					__m128 xmm3_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(
 							datap + 12)));
-					_mm_store_ps((float*)(datap +  0), _mm_mul_ps(xmm0_data, xmm_stepsize));
-					_mm_store_ps((float*)(datap +  4), _mm_mul_ps(xmm1_data, xmm_stepsize));
-					_mm_store_ps((float*)(datap +  8), _mm_mul_ps(xmm2_data, xmm_stepsize));
-					_mm_store_ps((float*)(datap + 12), _mm_mul_ps(xmm3_data, xmm_stepsize));
+					_mm_store_ps((float *)(datap +  0), _mm_mul_ps(xmm0_data, xmm_stepsize));
+					_mm_store_ps((float *)(datap +  4), _mm_mul_ps(xmm1_data, xmm_stepsize));
+					_mm_store_ps((float *)(datap +  8), _mm_mul_ps(xmm2_data, xmm_stepsize));
+					_mm_store_ps((float *)(datap + 12), _mm_mul_ps(xmm3_data, xmm_stepsize));
 					datap += 16;
 				}
 			}

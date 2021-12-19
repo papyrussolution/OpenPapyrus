@@ -635,7 +635,7 @@ PPThreadLocalArea::WaitBlock::~WaitBlock()
 	State &= ~stValid; // @v10.5.3
 }
 
-int PPThreadLocalArea::WaitBlock::IsValid() const { return BIN(State & stValid); }
+bool PPThreadLocalArea::WaitBlock::IsValid() const { return LOGIC(State & stValid); }
 HWND PPThreadLocalArea::WaitBlock::GetWindowHandle() const { return WaitDlg; }
 
 static INT_PTR CALLBACK WaitDialogWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

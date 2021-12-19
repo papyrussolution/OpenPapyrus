@@ -52,7 +52,7 @@ int ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
-PPViewPerson::PPViewPerson() : PPView(0, &Filt, PPVIEW_PERSON, 0, 0), DefaultTagID(0), P_TempPsn(0), P_Fr(0)
+PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), DefaultTagID(0), P_TempPsn(0), P_Fr(0) // @v11.2.8 0-->&PsnObj; implUseQuickTagEditFunc
 {
 }
 
@@ -2793,6 +2793,15 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				}
 				else if(hdr.ID != 0)
 					ok = EditItem(hdr.ID);
+				break;
+			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
+				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
+				//
+				{
+					const BrwHdr * p_row = static_cast<const BrwHdr *>(pBrw->getCurItem());
+					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_PERSON, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
+				}
 				break;
 			case PPVCMD_TAGS:
 				ok = -1;

@@ -110,10 +110,10 @@ int PPViewAmountType::MakeListEntry(const PPAmountTypePacket * pPack, AmountType
 {
 	int    ok = -1;
 	if(pPack && pItem) {
-		pItem->ID           = pPack->Rec.ID;
+		pItem->ID   = pPack->Rec.ID;
 		pItem->RefAmtTypeID = pPack->Rec.IsComplementary() ? pPack->Rec.RefAmtTypeID : 0;
 		pItem->Flags        = pPack->Rec.Flags;
-		pItem->Tax          = (pPack->Rec.Flags & PPAmountType::fTax) ? pPack->Rec.Tax : 0;
+		pItem->Tax  = (pPack->Rec.Flags & PPAmountType::fTax) ? pPack->Rec.Tax : 0;
 		pItem->TaxRate      = (pPack->Rec.Flags & PPAmountType::fTax) ? ((double)pPack->Rec.TaxRate) / 100 : 0;
 		pPack->Formula.CopyTo(pItem->Formula, sizeof(pItem->Formula));
 		ok = 1;
@@ -427,7 +427,7 @@ int PPViewAmountType::FetchData(long id)
 	}
 	else {
 		uint pos = 0;
-		int found = BIN(Data.lsearch(&id, &pos, CMPF_LONG) > 0);
+		const bool found = Data.lsearch(&id, &pos, CMPF_LONG);
 		PPAmountTypePacket pack;
 		if(ObjAmtT.GetPacket(id, &pack) > 0 && CheckForFilt(&pack) > 0) {
 			MEMSZERO(item);

@@ -77,7 +77,7 @@ struct private_data {
 
 /* Lz4 filter */
 static ssize_t  lz4_filter_read(struct archive_read_filter *, const void **);
-static int      lz4_filter_close(struct archive_read_filter *);
+static int lz4_filter_close(struct archive_read_filter *);
 #endif
 /*
  * Note that we can detect lz4 archives even if we can't decompress
@@ -85,9 +85,9 @@ static int      lz4_filter_close(struct archive_read_filter *);
  * error messages.)  So the bid framework here gets compiled even
  * if liblz4 is unavailable.
  */
-static int      lz4_reader_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int      lz4_reader_init(struct archive_read_filter *);
-static int      lz4_reader_free(struct archive_read_filter_bidder *);
+static int lz4_reader_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
+static int lz4_reader_init(struct archive_read_filter *);
+static int lz4_reader_free(struct archive_read_filter_bidder *);
 #if defined(HAVE_LIBLZ4)
 	static ssize_t  lz4_filter_read_default_stream(struct archive_read_filter *, const void **);
 	static ssize_t  lz4_filter_read_legacy_stream(struct archive_read_filter *, const void **);
@@ -116,7 +116,7 @@ int archive_read_support_filter_lz4(struct archive * _a)
 
 static int lz4_reader_free(struct archive_read_filter_bidder * self)
 {
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	return ARCHIVE_OK;
 }
 
@@ -133,7 +133,7 @@ static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archi
 	ssize_t avail;
 	int bits_checked;
 	uint32 number;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	/* Minimal lz4 archive is 11 bytes. */
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 11, &avail);
 	if(buffer == NULL)

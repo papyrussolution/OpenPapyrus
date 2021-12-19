@@ -151,19 +151,19 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_cpio.c 20116
 #define afiol_header_size 116
 
 struct links_entry {
-	struct links_entry      * next;
-	struct links_entry      * previous;
+	struct links_entry * next;
+	struct links_entry * previous;
 	unsigned int links;
 	dev_t dev;
 	int64 ino;
-	char                    * name;
+	char * name;
 };
 
 #define CPIO_MAGIC   0x13141516
 struct cpio {
 	int magic;
 	int (* read_header)(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-	struct links_entry       * links_head;
+	struct links_entry * links_head;
 	int64 entry_bytes_remaining;
 	int64 entry_bytes_unconsumed;
 	int64 entry_offset;
@@ -176,24 +176,24 @@ struct cpio {
 
 static int64  atol16(const char *, unsigned);
 static int64  atol8(const char *, unsigned);
-static int      archive_read_format_cpio_bid(struct archive_read *, int);
-static int      archive_read_format_cpio_options(struct archive_read *, const char *, const char *);
-static int      archive_read_format_cpio_cleanup(struct archive_read *);
-static int      archive_read_format_cpio_read_data(struct archive_read *, const void **, size_t *, int64 *);
-static int      archive_read_format_cpio_read_header(struct archive_read *, struct archive_entry *);
-static int      archive_read_format_cpio_skip(struct archive_read *);
+static int archive_read_format_cpio_bid(struct archive_read *, int);
+static int archive_read_format_cpio_options(struct archive_read *, const char *, const char *);
+static int archive_read_format_cpio_cleanup(struct archive_read *);
+static int archive_read_format_cpio_read_data(struct archive_read *, const void **, size_t *, int64 *);
+static int archive_read_format_cpio_read_header(struct archive_read *, struct archive_entry *);
+static int archive_read_format_cpio_skip(struct archive_read *);
 static int64  be4(const uchar *);
-static int      find_odc_header(struct archive_read *);
-static int      find_newc_header(struct archive_read *);
-static int      header_bin_be(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int      header_bin_le(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int      header_newc(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int      header_odc(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int      header_afiol(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int      is_octal(const char *, size_t);
-static int      is_hex(const char *, size_t);
+static int find_odc_header(struct archive_read *);
+static int find_newc_header(struct archive_read *);
+static int header_bin_be(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+static int header_bin_le(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+static int header_newc(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+static int header_odc(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+static int header_afiol(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+static int is_octal(const char *, size_t);
+static int is_hex(const char *, size_t);
 static int64  le4(const uchar *);
-static int      record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry);
+static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry);
 
 int archive_read_support_format_cpio(struct archive * _a)
 {
@@ -220,7 +220,7 @@ static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
 	const uchar * p;
 	struct cpio * cpio;
 	int bid;
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 	cpio = (struct cpio *)(a->format->data);
 	if((p = static_cast<const uchar *>(__archive_read_ahead(a, 6, NULL))) == NULL)
 		return -1;
@@ -353,11 +353,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return ARCHIVE_FATAL;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Linkname can't be converted from %s to "
-			    "current locale.",
-			    archive_string_conversion_charset_name(sconv));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Linkname can't be converted from %s to current locale.", archive_string_conversion_charset_name(sconv));
 			r = ARCHIVE_WARN;
 		}
 		__archive_read_consume(a, cpio->entry_bytes_remaining);
@@ -897,7 +893,7 @@ static int64 atol16(const char * p, unsigned char_cnt)
 
 static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry)
 {
-	struct links_entry      * le;
+	struct links_entry * le;
 	dev_t dev;
 	int64 ino;
 	if(archive_entry_nlink(entry) <= 1)

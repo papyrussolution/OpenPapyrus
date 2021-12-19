@@ -316,7 +316,7 @@ OPJ_SIZE_T opj_stream_read_data(opj_stream_private_t * p_stream, OPJ_BYTE * p_bu
 			/* direct read on the dest buffer */
 			p_stream->m_bytes_in_buffer = p_stream->m_read_fn(p_buffer, p_size, p_stream->m_user_data);
 			if(p_stream->m_bytes_in_buffer == (OPJ_SIZE_T)-1) {
-				/*  end of stream */
+				/* end of stream */
 				opj_event_msg(p_event_mgr, EVT_INFO, "Stream reached its end !\n");
 				p_stream->m_bytes_in_buffer = 0;
 				p_stream->m_status |= OPJ_STREAM_STATUS_END;

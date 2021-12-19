@@ -354,12 +354,12 @@ void _hb_ot_shaper_face_data_destroy(hb_ot_face_data_t * data)
 
 struct hb_ot_font_data_t {};
 
-hb_ot_font_data_t * _hb_ot_shaper_font_data_create(hb_font_t * font HB_UNUSED)
+hb_ot_font_data_t * _hb_ot_shaper_font_data_create(hb_font_t * font CXX_UNUSED_PARAM)
 {
 	return (hb_ot_font_data_t*)HB_SHAPER_DATA_SUCCEEDED;
 }
 
-void _hb_ot_shaper_font_data_destroy(hb_ot_font_data_t * data HB_UNUSED)
+void _hb_ot_shaper_font_data_destroy(hb_ot_font_data_t * data CXX_UNUSED_PARAM)
 {
 }
 

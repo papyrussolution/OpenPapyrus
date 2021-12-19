@@ -393,7 +393,7 @@ int FASTCALL PPViewAsset::NextIteration(AssetViewItem * pItem)
 				STRNSCPY(pItem->GoodsName, r_sr.Name);
 				STRNSCPY(pItem->Serial, r_sr.Serial);
 				pItem->P_GoodsGrpName = IterGrpName;
-				pItem->Dt         = r_sr.Dt;
+				pItem->Dt = r_sr.Dt;
 				pItem->ExplDt     = r_sr.ExplDt;
 				pItem->WrOffTerm  = r_sr.WrOffTerm;
 				pItem->Cost       = r_sr.Cost;

@@ -261,25 +261,25 @@ struct xar {
 	struct archive_rb_tree hardlink_rbtree;
 };
 
-static int      xar_options(struct archive_write *, const char *, const char *);
-static int      xar_write_header(struct archive_write *, struct archive_entry *);
+static int xar_options(struct archive_write *, const char *, const char *);
+static int xar_write_header(struct archive_write *, struct archive_entry *);
 static ssize_t  xar_write_data(struct archive_write *, const void *, size_t);
-static int      xar_finish_entry(struct archive_write *);
-static int      xar_close(struct archive_write *);
-static int      xar_free(struct archive_write *);
+static int xar_finish_entry(struct archive_write *);
+static int xar_close(struct archive_write *);
+static int xar_free(struct archive_write *);
 
 static struct file * file_new(struct archive_write * a, struct archive_entry *);
 static void     file_free(struct file *);
 static struct file * file_create_virtual_dir(struct archive_write * a, struct xar *, const char *);
-static int      file_add_child_tail(struct file *, struct file *);
+static int file_add_child_tail(struct file *, struct file *);
 static struct file * file_find_child(struct file *, const char *);
-static int      file_gen_utility_names(struct archive_write *, struct file *);
-static int      get_path_component(char *, int, const char *);
-static int      file_tree(struct archive_write *, struct file **);
+static int file_gen_utility_names(struct archive_write *, struct file *);
+static int get_path_component(char *, int, const char *);
+static int file_tree(struct archive_write *, struct file **);
 static void     file_register(struct xar *, struct file *);
 static void     file_init_register(struct xar *);
 static void     file_free_register(struct xar *);
-static int      file_register_hardlink(struct archive_write *, struct file *);
+static int file_register_hardlink(struct archive_write *, struct file *);
 static void     file_connect_hardlink_files(struct xar *);
 static void     file_init_hardlinks(struct xar *);
 static void     file_free_hardlinks(struct xar *);
@@ -287,25 +287,25 @@ static void     file_free_hardlinks(struct xar *);
 static void     checksum_init(struct chksumwork *, enum sumalg);
 static void     checksum_update(struct chksumwork *, const void *, size_t);
 static void     checksum_final(struct chksumwork *, struct chksumval *);
-static int      compression_init_encoder_gzip(struct archive *, struct la_zstream *, int, int);
-static int      compression_code_gzip(struct archive *, struct la_zstream *, enum la_zaction);
-static int      compression_end_gzip(struct archive *, struct la_zstream *);
-static int      compression_init_encoder_bzip2(struct archive *, struct la_zstream *, int);
+static int compression_init_encoder_gzip(struct archive *, struct la_zstream *, int, int);
+static int compression_code_gzip(struct archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_gzip(struct archive *, struct la_zstream *);
+static int compression_init_encoder_bzip2(struct archive *, struct la_zstream *, int);
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-static int      compression_code_bzip2(struct archive *, struct la_zstream *, enum la_zaction);
-static int      compression_end_bzip2(struct archive *, struct la_zstream *);
+static int compression_code_bzip2(struct archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_bzip2(struct archive *, struct la_zstream *);
 #endif
-static int      compression_init_encoder_lzma(struct archive *, struct la_zstream *, int);
-static int      compression_init_encoder_xz(struct archive *, struct la_zstream *, int, int);
+static int compression_init_encoder_lzma(struct archive *, struct la_zstream *, int);
+static int compression_init_encoder_xz(struct archive *, struct la_zstream *, int, int);
 #if defined(HAVE_LZMA_H)
-static int      compression_code_lzma(struct archive *, struct la_zstream *, enum la_zaction);
-static int      compression_end_lzma(struct archive *, struct la_zstream *);
+static int compression_code_lzma(struct archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_lzma(struct archive *, struct la_zstream *);
 #endif
-static int      xar_compression_init_encoder(struct archive_write *);
-static int      compression_code(struct archive *, struct la_zstream *, enum la_zaction);
-static int      compression_end(struct archive *, struct la_zstream *);
-static int      save_xattrs(struct archive_write *, struct file *);
-static int      getalgsize(enum sumalg);
+static int xar_compression_init_encoder(struct archive_write *);
+static int compression_code(struct archive *, struct la_zstream *, enum la_zaction);
+static int compression_end(struct archive *, struct la_zstream *);
+static int save_xattrs(struct archive_write *, struct file *);
+static int getalgsize(enum sumalg);
 static const char * getalgname(enum sumalg);
 
 int archive_write_set_format_xar(struct archive * _a)
@@ -2355,13 +2355,10 @@ static int compression_init_encoder_gzip(struct archive * a, struct la_zstream *
 	strm->next_out = lastrm->next_out;
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out = (uLong)lastrm->total_out;
-	if(deflateInit2(strm, level, Z_DEFLATED,
-	    (withheader) ? 15 : -15,
-	    8, Z_DEFAULT_STRATEGY) != Z_OK) {
+	if(deflateInit2(strm, level, Z_DEFLATED, (withheader) ? 15 : -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing compression library");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lastrm->real_stream = strm;
@@ -2371,13 +2368,10 @@ static int compression_init_encoder_gzip(struct archive * a, struct la_zstream *
 	return ARCHIVE_OK;
 }
 
-static int compression_code_gzip(struct archive * a,
-    struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_gzip(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
-	z_stream * strm;
 	int r;
-
-	strm = (z_stream*)lastrm->real_stream;
+	z_stream * strm = (z_stream*)lastrm->real_stream;
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
@@ -2401,26 +2395,20 @@ static int compression_code_gzip(struct archive * a,
 		case Z_STREAM_END:
 		    return (ARCHIVE_EOF);
 		default:
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"GZip compression failed:"
-			" deflate() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "GZip compression failed: deflate() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
 
 static int compression_end_gzip(struct archive * a, struct la_zstream * lastrm)
 {
-	z_stream * strm;
-	int r;
-
-	strm = (z_stream*)lastrm->real_stream;
-	r = deflateEnd(strm);
+	z_stream * strm = (z_stream*)lastrm->real_stream;
+	int r = deflateEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != Z_OK) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
@@ -2451,8 +2439,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	if(BZ2_bzCompressInit(strm, level, 0, 30) != BZ_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing compression library");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lastrm->real_stream = strm;
@@ -2480,18 +2467,13 @@ static int compression_code_bzip2(struct archive * a,
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out_lo32 = (uint32)(lastrm->total_out & 0xffffffff);
 	strm->total_out_hi32 = (uint32)(lastrm->total_out >> 32);
-	r = BZ2_bzCompress(strm,
-		(action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
+	r = BZ2_bzCompress(strm, (action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
 	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
-	lastrm->total_in =
-	    (((uint64)(uint32)strm->total_in_hi32) << 32)
-	    + (uint64)(uint32)strm->total_in_lo32;
+	lastrm->total_in = (((uint64)(uint32)strm->total_in_hi32) << 32) + (uint64)(uint32)strm->total_in_lo32;
 	lastrm->next_out = (uchar *)strm->next_out;
 	lastrm->avail_out = strm->avail_out;
-	lastrm->total_out =
-	    (((uint64)(uint32)strm->total_out_hi32) << 32)
-	    + (uint64)(uint32)strm->total_out_lo32;
+	lastrm->total_out = (((uint64)(uint32)strm->total_out_hi32) << 32) + (uint64)(uint32)strm->total_out_lo32;
 	switch(r) {
 		case BZ_RUN_OK: /* Non-finishing */
 		case BZ_FINISH_OK: /* Finishing: There's more work to do */
@@ -2501,41 +2483,33 @@ static int compression_code_bzip2(struct archive * a,
 		    return (ARCHIVE_EOF);
 		default:
 		    /* Any other return value indicates an error */
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"Bzip2 compression failed:"
-			" BZ2_bzCompress() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Bzip2 compression failed: BZ2_bzCompress() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
 
 static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 {
-	bz_stream * strm;
-	int r;
-
-	strm = (bz_stream*)lastrm->real_stream;
-	r = BZ2_bzCompressEnd(strm);
+	bz_stream * strm = (bz_stream*)lastrm->real_stream;
+	int r = BZ2_bzCompressEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != BZ_OK) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
 }
 
 #else
-static int compression_init_encoder_bzip2(struct archive * a,
-    struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
 {
-	(void)level; /* UNUSED */
+	CXX_UNUSED(level);
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "bzip2"));
 }
-
 #endif
 
 #if defined(HAVE_LZMA_H)
@@ -2695,7 +2669,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 {
 	lzma_stream * strm;
 
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	strm = (lzma_stream*)lastrm->real_stream;
 	lzma_end(strm);
 	SAlloc::F(strm);
@@ -2708,7 +2682,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 static int compression_init_encoder_lzma(struct archive * a,
     struct la_zstream * lastrm, int level)
 {
-	(void)level; /* UNUSED */
+	CXX_UNUSED(level);
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "lzma"));
@@ -2717,7 +2691,7 @@ static int compression_init_encoder_lzma(struct archive * a,
 static int compression_init_encoder_xz(struct archive * a,
     struct la_zstream * lastrm, int level, int threads)
 {
-	(void)level; /* UNUSED */
+	CXX_UNUSED(level);
 	(void)threads; /* UNUSED */
 	if(lastrm->valid)
 		compression_end(a, lastrm);

@@ -83,7 +83,7 @@ struct read_lzop {
 #define MAX_BLOCK_SIZE          (64 * 1024 * 1024)
 
 static ssize_t  lzop_filter_read(struct archive_read_filter *, const void **);
-static int      lzop_filter_close(struct archive_read_filter *);
+static int lzop_filter_close(struct archive_read_filter *);
 #endif
 
 static int lzop_bidder_bid(struct archive_read_filter_bidder *,
@@ -124,7 +124,7 @@ static int lzop_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 {
 	const uchar * p;
 	ssize_t avail;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	p = (const uchar *)__archive_read_filter_ahead(filter, LZOP_HEADER_MAGIC_LEN, &avail);
 	if(p == NULL || avail == 0)
 		return 0;

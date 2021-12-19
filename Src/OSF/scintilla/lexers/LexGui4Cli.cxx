@@ -69,8 +69,8 @@ static void colorFirstWord(WordList * keywordlists[], Accessor & styler, StyleCo
 			if(islower(*p)) *p = static_cast<char>(toupper(*p));
 			++p;
 		}
-		WordList &kGlobal               = *keywordlists[0];     // keyword lists set by the user
-		WordList &kEvent                = *keywordlists[1];
+		WordList &kGlobal       = *keywordlists[0];     // keyword lists set by the user
+		WordList &kEvent        = *keywordlists[1];
 		WordList &kAttribute    = *keywordlists[2];
 		WordList &kControl      = *keywordlists[3];
 		WordList &kCommand      = *keywordlists[4];

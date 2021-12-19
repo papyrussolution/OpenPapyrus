@@ -1656,7 +1656,7 @@ int CurRateCore::SearchRate(const CurRateIdent * pIdent, CurrencyRateTbl::Rec * 
 	k.CurID      = pIdent->CurID;
 	k.RateTypeID = pIdent->RateTypeID;
 	k.RelCurID   = pIdent->BaseCurID;
-	k.Dt         = pIdent->Dt;
+	k.Dt = pIdent->Dt;
 	return SearchByKey(this, 0, &k, pRec);
 }
 
@@ -1672,7 +1672,7 @@ int CurRateCore::GetRate(PPID curID, PPID rateTypeID, PPID relCurID, LDATE * pDt
 		k.CurID      = curID;
 		k.RateTypeID = rateTypeID;
 		k.RelCurID   = relCurID;
-		k.Dt         = dt;
+		k.Dt = dt;
 		if(search(1, &k, spLe) && k.CurID == curID && k.RateTypeID == rateTypeID && k.RelCurID == relCurID) {
 			dt = k.Dt;
 			rate = data.Rate;
@@ -1695,7 +1695,7 @@ int CurRateCore::UpdateRate(const CurRateIdent * pIdent, double rate, int use_ta
 		k.CurID      = pIdent->CurID;
 		k.RateTypeID = pIdent->RateTypeID;
 		k.RelCurID   = pIdent->BaseCurID;
-		k.Dt         = pIdent->Dt;
+		k.Dt = pIdent->Dt;
 		if(SearchByKey_ForUpdate(this, 0, &k, 0) > 0) {
 			data.Rate = rate;
 			THROW_DB(updateRec()); // @sfu
@@ -1705,7 +1705,7 @@ int CurRateCore::UpdateRate(const CurRateIdent * pIdent, double rate, int use_ta
 			data.CurID      = pIdent->CurID;
 			data.RateTypeID = pIdent->RateTypeID;
 			data.RelCurID   = pIdent->BaseCurID;
-			data.Dt         = pIdent->Dt;
+			data.Dt = pIdent->Dt;
 			data.Rate       = rate;
 			THROW_DB(insertRec());
 		}

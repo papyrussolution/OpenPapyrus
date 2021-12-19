@@ -609,7 +609,7 @@ bool FileManager::deleteFile(BufferID id)
 	fileOpStruct.wFunc = FO_DELETE;
 	fileOpStruct.fFlags = FOF_ALLOWUNDO;
 	fileOpStruct.fAnyOperationsAborted = false;
-	fileOpStruct.hNameMappings         = NULL;
+	fileOpStruct.hNameMappings = NULL;
 	fileOpStruct.lpszProgressTitle     = NULL;
 	return SHFileOperation(&fileOpStruct) == 0;
 }

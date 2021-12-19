@@ -1222,9 +1222,9 @@ void GnuPlot::DrawVertex(GpTermEntry * pTerm, GpVertex * pV)
 			if(p_type == PT_CHARACTER)
 				pTerm->put_text(pTerm, x, y, pV->lp_style->p_char);
 			else if(p_type == PT_VARIABLE)
-				pTerm->point(pTerm, x, y, (int)(pV->original->CRD_PTTYPE) - 1);
+				pTerm->Pnt_(x, y, (int)(pV->original->CRD_PTTYPE) - 1);
 			else
-				pTerm->point(pTerm, x, y, p_type);
+				pTerm->Pnt_(x, y, p_type);
 			// vertex has been drawn --> flag it as done 
 			pV->lp_style = NULL;
 		}

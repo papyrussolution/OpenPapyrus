@@ -54,8 +54,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 200
 #define links_cache_initial_size 1024
 
 struct links_entry {
-	struct links_entry      * next;
-	struct links_entry      * previous;
+	struct links_entry * next;
+	struct links_entry * previous;
 	struct archive_entry    * canonical;
 	struct archive_entry    * entry;
 	size_t hash;
@@ -64,7 +64,7 @@ struct links_entry {
 
 struct archive_entry_linkresolver {
 	struct links_entry      ** buckets;
-	struct links_entry       * spare;
+	struct links_entry * spare;
 	unsigned long number_entries;
 	size_t number_buckets;
 	int strategy;
@@ -238,7 +238,7 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 
 static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
     struct archive_entry * entry){
-	struct links_entry      * le;
+	struct links_entry * le;
 	size_t hash, bucket;
 	dev_t dev;
 	int64 ino;
@@ -287,7 +287,7 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 }
 
 static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)                             {
-	struct links_entry      * le;
+	struct links_entry * le;
 	size_t bucket;
 	/* Free a held entry. */
 	if(res->spare != NULL) {
@@ -379,7 +379,7 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 struct archive_entry * archive_entry_partial_links(struct archive_entry_linkresolver * res,
     unsigned int * links){
 	struct archive_entry    * e;
-	struct links_entry      * le;
+	struct links_entry * le;
 
 	/* Free a held entry. */
 	if(res->spare != NULL) {

@@ -2741,18 +2741,18 @@ enum {
 
 extern const Byte k7z_PROPID_To_VARTYPE[kpid_NUM_DEFINED]; // VARTYPE
 
-const uint32 kpv_ErrorFlags_IsNotArc              = 1 << 0;
-const uint32 kpv_ErrorFlags_HeadersError          = 1 << 1;
+const uint32 kpv_ErrorFlags_IsNotArc      = 1 << 0;
+const uint32 kpv_ErrorFlags_HeadersError  = 1 << 1;
 const uint32 kpv_ErrorFlags_EncryptedHeadersError = 1 << 2;
 const uint32 kpv_ErrorFlags_UnavailableStart      = 1 << 3;
 const uint32 kpv_ErrorFlags_UnconfirmedStart      = 1 << 4;
-const uint32 kpv_ErrorFlags_UnexpectedEnd         = 1 << 5;
-const uint32 kpv_ErrorFlags_DataAfterEnd          = 1 << 6;
+const uint32 kpv_ErrorFlags_UnexpectedEnd = 1 << 5;
+const uint32 kpv_ErrorFlags_DataAfterEnd  = 1 << 6;
 const uint32 kpv_ErrorFlags_UnsupportedMethod     = 1 << 7;
 const uint32 kpv_ErrorFlags_UnsupportedFeature    = 1 << 8;
-const uint32 kpv_ErrorFlags_DataError             = 1 << 9;
-const uint32 kpv_ErrorFlags_CrcError              = 1 << 10;
-// const uint32 kpv_ErrorFlags_Unsupported           = 1 << 11;
+const uint32 kpv_ErrorFlags_DataError     = 1 << 9;
+const uint32 kpv_ErrorFlags_CrcError      = 1 << 10;
+// const uint32 kpv_ErrorFlags_Unsupported   = 1 << 11;
 //
 //#include <PropIDUtils.h>
 // provide at least 64 bytes for buffer including zero-end
@@ -5120,11 +5120,11 @@ namespace NArchive {
 			const uint32 kLocalFileHeader   = 0x04034B50;
 			const uint32 kDataDescriptor    = 0x08074B50;
 			const uint32 kCentralFileHeader = 0x02014B50;
-			const uint32 kEcd               = 0x06054B50;
-			const uint32 kEcd64             = 0x06064B50;
+			const uint32 kEcd       = 0x06054B50;
+			const uint32 kEcd64     = 0x06064B50;
 			const uint32 kEcd64Locator      = 0x07064B50;
-			const uint32 kSpan              = 0x08074B50;
-			const uint32 kNoSpan            = 0x30304B50;   // PK00, replaces kSpan, if there is only 1 segment
+			const uint32 kSpan      = 0x08074B50;
+			const uint32 kNoSpan    = 0x30304B50;   // PK00, replaces kSpan, if there is only 1 segment
 		}
 
 		const uint kLocalHeaderSize = 4 + 26; // including signature
@@ -6443,7 +6443,7 @@ EXTERN_C_BEGIN
 	#define LZMA_PROPS_SIZE 5
 
 	typedef struct _CLzmaEncProps {
-		int level; /*  0 <= level <= 9 */
+		int level; /* 0 <= level <= 9 */
 		uint32 dictSize; // (1 << 12) <= dictSize <= (1 << 27) for 32-bit version
 			// (1 << 12) <= dictSize <= (1 << 30) for 64-bit version
 			// default = (1 << 24) 
@@ -7220,7 +7220,7 @@ namespace NArchive {
 				const char kCharacter    = '3';     // Character special file
 				const char kBlock        = '4';     // Block special file
 				const char kDirectory    = '5';     // Directory
-				const char kFIFO         = '6';     // FIFO special file
+				const char kFIFO = '6';     // FIFO special file
 				const char kContiguous   = '7';     // Contiguous file
 				const char kGnu_LongLink = 'K';
 				const char kGnu_LongName = 'L';
@@ -7613,12 +7613,12 @@ namespace NArchive {
 
 				const uint kDictBitStart     = 5;
 				const uint kNumDictBits  = 3;
-				const uint kDictMask         = (1 << kNumDictBits) - 1;
+				const uint kDictMask = (1 << kNumDictBits) - 1;
 				const uint kDictDirectoryValue  = 0x7;
 
 				const uint kSize64Bits    = 1 << 8;
 				const uint kUnicodeName   = 1 << 9;
-				const uint kSalt          = 1 << 10;
+				const uint kSalt  = 1 << 10;
 				const uint kOldVersion    = 1 << 11;
 				const uint kExtTime       = 1 << 12;
 				// const uint kExtFlags      = 1 << 13;
@@ -7683,7 +7683,7 @@ namespace NArchive {
 				   };
 				 */
 
-				const uint kLabelFileAttribute            = 0x08;
+				const uint kLabelFileAttribute    = 0x08;
 				const uint kWinFileDirectoryAttributeMask = 0x10;
 
 				enum CHostOS {

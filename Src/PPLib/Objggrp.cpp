@@ -2530,7 +2530,7 @@ int PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use_ta)
 				for(i = 0; i < prev_items.getCount(); i++) {
 					uint pos = 0;
 					gci = *static_cast<const _GCompItem *>(prev_items.at(i));
-					if(items.lsearch(&gci.CompID, &pos, PTR_CMPFUNC(long), offsetof(_GCompItem, CompID))) {
+					if(items.lsearch(&gci.CompID, &pos, CMPF_LONG, offsetof(_GCompItem, CompID))) {
 						_GCompItem * p_list_item = static_cast<_GCompItem *>(items.at(pos));
 						found_pos_list.add(static_cast<long>(pos));
 						if(p_list_item->Qtty != gci.Qtty || p_list_item->UnitID != gci.UnitID) {

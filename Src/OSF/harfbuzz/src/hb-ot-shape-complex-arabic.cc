@@ -62,12 +62,12 @@
  * Bits used in the joining tables
  */
 enum hb_arabic_joining_type_t {
-	JOINING_TYPE_U                = 0,
-	JOINING_TYPE_L                = 1,
-	JOINING_TYPE_R                = 2,
-	JOINING_TYPE_D                = 3,
-	JOINING_TYPE_C                = JOINING_TYPE_D,
-	JOINING_GROUP_ALAPH           = 4,
+	JOINING_TYPE_U        = 0,
+	JOINING_TYPE_L        = 1,
+	JOINING_TYPE_R        = 2,
+	JOINING_TYPE_D        = 3,
+	JOINING_TYPE_C        = JOINING_TYPE_D,
+	JOINING_GROUP_ALAPH   = 4,
 	JOINING_GROUP_DALATH_RISH     = 5,
 	NUM_STATE_MACHINE_COLS        = 6,
 
@@ -129,7 +129,7 @@ static const struct arabic_state_table_entry {
 	uint16_t next_state;
 } arabic_state_table[][NUM_STATE_MACHINE_COLS] =
 {
-	/*   jt_U,          jt_L,          jt_R,          jt_D,          jg_ALAPH,      jg_DALATH_RISH */
+	/* jt_U,          jt_L,          jt_R,          jt_D,          jg_ALAPH,      jg_DALATH_RISH */
 
 	/* State 0: prev was U, not willing to join. */
 	{ {NONE, NONE, 0}, {NONE, ISOL, 2}, {NONE, ISOL, 1}, {NONE, ISOL, 2}, {NONE, ISOL, 1}, {NONE, ISOL, 6}, },
@@ -309,7 +309,7 @@ void setup_masks_arabic_plan(const arabic_shape_plan_t * arabic_plan, hb_buffer_
 		info[i].mask |= arabic_plan->mask_array[info[i].arabic_shaping_action()];
 }
 
-static void setup_masks_arabic(const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, hb_font_t * font HB_UNUSED)
+static void setup_masks_arabic(const hb_ot_shape_plan_t * plan, hb_buffer_t * buffer, hb_font_t * font CXX_UNUSED_PARAM)
 {
 	const arabic_shape_plan_t * arabic_plan = (const arabic_shape_plan_t*)plan->data;
 	setup_masks_arabic_plan(arabic_plan, buffer, plan->props.script);
@@ -346,7 +346,7 @@ retry:
  */
 
 static void record_stch(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font HB_UNUSED,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	const arabic_shape_plan_t * arabic_plan = (const arabic_shape_plan_t*)plan->data;
@@ -368,7 +368,7 @@ static void record_stch(const hb_ot_shape_plan_t * plan,
 		}
 }
 
-static void apply_stch(const hb_ot_shape_plan_t * plan HB_UNUSED, hb_buffer_t * buffer, hb_font_t * font)
+static void apply_stch(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_buffer_t * buffer, hb_font_t * font)
 {
 	if(LIKELY(!(buffer->scratch_flags & HB_BUFFER_SCRATCH_FLAG_ARABIC_HAS_STCH)))
 		return;
@@ -532,7 +532,7 @@ static inline bool info_is_mcm(const hb_glyph_info_t &info)
 	return false;
 }
 
-static void reorder_marks_arabic(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static void reorder_marks_arabic(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
     uint start,
     uint end)

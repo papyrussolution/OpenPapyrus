@@ -924,7 +924,7 @@ struct ngx_tree_ctx_t {
 	ngx_tree_handler_pt pre_tree_handler;
 	ngx_tree_handler_pt post_tree_handler;
 	ngx_tree_handler_pt spec_handler;
-	void  * data;
+	void * data;
 	size_t alloc;
 	ngx_log_t * log;
 };
@@ -2218,7 +2218,7 @@ struct ngx_open_file_cache_cleanup_t {
 
 struct ngx_open_file_cache_event_t {
 	// ngx_connection_t stub to allow use c->fd as event ident 
-	void  * data;
+	void * data;
 	ngx_event_t   * read;
 	ngx_event_t   * write;
 	ngx_fd_t fd;
@@ -3217,7 +3217,7 @@ void ngx_http_script_nop_code(ngx_http_script_engine_t * e);
 #endif
 
 struct /*ngx_event_s*/ngx_event_t {
-	void  * P_Data;
+	void * P_Data;
 	unsigned write : 1;
 	unsigned accept : 1;
 	unsigned instance : 1; // used to detect the stale events in kqueue and epoll 
@@ -3279,7 +3279,7 @@ struct /*ngx_event_s*/ngx_event_t {
 	 * if $(CC) does not understand __thread declaration
 	 * and pthread_getspecific() is too costly
 	 */
-	void  * thr_ctx;
+	void * thr_ctx;
 #if (NGX_EVENT_T_PADDING)
 	uint32_t padding[NGX_EVENT_T_PADDING]; // event should not cross cache line in SMP 
 #endif
@@ -3288,7 +3288,7 @@ struct /*ngx_event_s*/ngx_event_t {
 
 #if (NGX_HAVE_FILE_AIO)
 	struct ngx_event_aio_s {
-		void  * data;
+		void * data;
 		ngx_event_handler_pt handler;
 		ngx_file_t  * file;
 	#if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
@@ -4281,7 +4281,7 @@ ngx_stream_variable_value_t * ngx_stream_get_variable(ngx_stream_session_t * s, 
 
 	struct ngx_stream_map_regex_t {
 		ngx_stream_regex_t * regex;
-		void  * value;
+		void * value;
 	};
 
 	ngx_stream_regex_t * ngx_stream_regex_compile(ngx_conf_t * cf, ngx_regex_compile_t * rc);
@@ -4413,7 +4413,7 @@ typedef ngx_int_t (*ngx_stream_upstream_init_peer_pt)(ngx_stream_session_t * s, 
 struct ngx_stream_upstream_peer_t {
 	ngx_stream_upstream_init_pt init_upstream;
 	ngx_stream_upstream_init_peer_pt init;
-	void  * data;
+	void * data;
 };
 
 struct ngx_stream_upstream_server_t {
@@ -4433,7 +4433,7 @@ struct ngx_stream_upstream_server_t {
 
 struct ngx_stream_upstream_srv_conf_s {
 	ngx_stream_upstream_peer_t peer;
-	void  ** srv_conf;
+	void ** srv_conf;
 	ngx_array_t   * servers;
 	/* ngx_stream_upstream_server_t */
 	ngx_uint_t flags;

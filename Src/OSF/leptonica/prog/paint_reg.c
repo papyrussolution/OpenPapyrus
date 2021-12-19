@@ -32,6 +32,10 @@
  *      (2) painting through masks (test by reconstructing cmapped image)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 static PIX * ReconstructByValue(L_REGPARAMS *rp, const char *fname);
@@ -107,7 +111,6 @@ L_REGPARAMS  *rp;
     pixg = pixClipRectangle(pixs, box, NULL);
     pixb = pixThresholdToBinary(pixg, 180);
     pixInvert(pixb, pixb);
-    pixDisplayWrite(pixb, 1);
     composeRGBPixel(50, 0, 250, &val32);
     pixPaintThroughMask(pixt, pixb, box->x, box->y, val32);
     boxDestroy(&box);

@@ -546,16 +546,16 @@ PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0),
 
 PPJob & FASTCALL PPJob::operator = (const PPJob & s)
 {
-	ID              = s.ID;
-	Name            = s.Name;
-	Descr           = s.Descr;
-	DbSymb          = s.DbSymb;
-	Dtr             = s.Dtr;
-	Flags           = s.Flags;
+	ID      = s.ID;
+	Name    = s.Name;
+	Descr   = s.Descr;
+	DbSymb  = s.DbSymb;
+	Dtr     = s.Dtr;
+	Flags   = s.Flags;
 	EstimatedTime   = s.EstimatedTime;
 	LastRunningTime = s.LastRunningTime;
 	NextJobID       = s.NextJobID;
-	Ver             = s.Ver;
+	Ver     = s.Ver;
 	EmailAccID      = s.EmailAccID;
 	ScheduleBeforeTime = s.ScheduleBeforeTime;
 	STRNSCPY(Symb, s.Symb);
@@ -3056,15 +3056,15 @@ int RFIDDevPrcssr::Add(PPRFIDDevice & rRec)
 	PPAbstractDevice * p_dvc = 0;
 	PPAbstractDevice::ConnectionParam cp, cp2;
 
-	cp.DeviceNo         = rRec.DeviceNumber;
-	cp.Address          = rRec.Port;
-	cp.Cpp              = rRec.Cpp;
+	cp.DeviceNo = rRec.DeviceNumber;
+	cp.Address  = rRec.Port;
+	cp.Cpp      = rRec.Cpp;
 	cp.Cpt.Get_NumTries = rRec.Get_NumTries;
 	cp.Cpt.Get_Delay    = rRec.Get_Timeout;
 	cp.Cpt.Put_NumTries = rRec.Put_NumTries;
 	cp.Cpt.Put_Delay    = rRec.Put_Timeout;
 	cp.ReleCount        = rRec.ReleCount;
-	cp.GoodsID          = rRec.GoodsID;
+	cp.GoodsID  = rRec.GoodsID;
 	cp.DeviceName       = rRec.Name;
 	THROW(PPAbstractDevice::CreateInstance("PPDevice_Leader", &p_dvc));
 	//THROW_PP_S(p_dvc->GetSessionPrice(&GObj, &price) > 0, PPERR_INVDEVQUOT, rRec.Name);
@@ -3108,7 +3108,7 @@ int RFIDDevPrcssr::Run()
 		PPAbstractDevice * p_dvc = DevList.at(i);
 		if(p_dvc) {
 			p_dvc->GetConnParam(&cp);
-			if(BadComList.lsearch(&cp, 0, PTR_CMPFUNC(ConnectionParam)) <= 0 && IsWait(i) == 0) {
+			if(!BadComList.lsearch(&cp, 0, PTR_CMPFUNC(ConnectionParam)) && IsWait(i) == 0) {
 				StrAssocArray in_params, out_params;
 				in_params.Z();
 				if(p_dvc->RunCmd(DVCCMD_PING, in_params, out_params)) {

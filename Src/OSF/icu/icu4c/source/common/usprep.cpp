@@ -41,7 +41,7 @@ static icu::UInitOnce gSharedDataInitOnce = U_INITONCE_INITIALIZER;
 
 static UMutex usprepMutex;
 /* format version of spp file */
-//static uint8_t formatVersion[4]={ 0, 0, 0, 0 };
+//static uint8 formatVersion[4]={ 0, 0, 0, 0 };
 
 /* the Unicode version of the sprep data */
 static UVersionInfo dataVersion = { 0, 0, 0, 0 };
@@ -211,7 +211,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	UTrie _sprepTrie = { 0, 0, 0, 0, 0, 0, 0 };
 	UDataMemory * dataMemory;
 	const int32_t * p = NULL;
-	const uint8_t * pb;
+	const uint8 * pb;
 	UVersionInfo normUnicodeVersion;
 	int32_t normUniVer, sprepUniVer, normCorrVer;
 
@@ -227,7 +227,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	}
 
 	p = (const int32_t*)udata_getMemory(dataMemory);
-	pb = (const uint8_t*)(p+_SPREP_INDEX_TOP);
+	pb = (const uint8*)(p+_SPREP_INDEX_TOP);
 	utrie_unserialize(&_sprepTrie, pb, p[_SPREP_INDEX_TRIE_SIZE], errorCode);
 	_sprepTrie.getFoldingOffset = getSPrepFoldingOffset;
 
@@ -249,7 +249,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	}
 	umtx_unlock(&usprepMutex);
 	/* initialize some variables */
-	profile->mappingData = (uint16_t*)((uint8_t*)(p+_SPREP_INDEX_TOP)+profile->indexes[_SPREP_INDEX_TRIE_SIZE]);
+	profile->mappingData = (uint16_t*)((uint8 *)(p+_SPREP_INDEX_TOP)+profile->indexes[_SPREP_INDEX_TRIE_SIZE]);
 
 	u_getUnicodeVersion(normUnicodeVersion);
 	normUniVer = (normUnicodeVersion[0] << 24) + (normUnicodeVersion[1] << 16) +
@@ -747,8 +747,8 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 	const UDataInfo * pInfo;
 	int32_t headerSize;
 
-	const uint8_t * inBytes;
-	uint8_t * outBytes;
+	const uint8 * inBytes;
+	uint8 * outBytes;
 
 	const int32_t * inIndexes;
 	int32_t indexes[16];
@@ -781,8 +781,8 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8_t*)inData+headerSize;
-	outBytes = (uint8_t*)outData+headerSize;
+	inBytes = (const uint8*)inData+headerSize;
+	outBytes = (uint8 *)outData+headerSize;
 
 	inIndexes = (const int32_t*)inBytes;
 

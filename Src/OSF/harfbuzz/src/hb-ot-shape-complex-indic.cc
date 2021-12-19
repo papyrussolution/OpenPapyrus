@@ -330,9 +330,9 @@ enum indic_syllable_type_t {
 
 #include "hb-ot-shape-complex-indic-machine.hh"
 
-static void setup_masks_indic(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static void setup_masks_indic(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_buffer_t * buffer,
-    hb_font_t * font HB_UNUSED)
+    hb_font_t * font CXX_UNUSED_PARAM)
 {
 	HB_BUFFER_ALLOCATE_VAR(buffer, indic_category);
 	HB_BUFFER_ALLOCATE_VAR(buffer, indic_position);
@@ -346,8 +346,8 @@ static void setup_masks_indic(const hb_ot_shape_plan_t * plan HB_UNUSED,
 		set_indic_properties(info[i]);
 }
 
-static void setup_syllables_indic(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED,
+static void setup_syllables_indic(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	find_syllables_indic(buffer);
@@ -884,7 +884,7 @@ static void initial_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
 	}
 }
 
-static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan HB_UNUSED,
+static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
     hb_font_t * font,
     hb_buffer_t * buffer)
 {
@@ -1039,7 +1039,7 @@ static void final_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
 		    is_one_of(info[base], (FLAG(OT_N) | FLAG(OT_H))))
 			base--;
 
-	/*   o Reorder matras:
+	/* o Reorder matras:
 	 *
 	 *     If a pre-base matra character had been reordered before applying basic
 	 *     features, the glyph can be moved closer to the main consonant based on
@@ -1143,7 +1143,7 @@ search:
 		}
 	}
 
-	/*   o Reorder reph:
+	/* o Reorder reph:
 	 *
 	 *     Reph’s original position is always at the beginning of the syllable,
 	 *     (i.e. it is not reordered at the character reordering stage). However,
@@ -1168,14 +1168,14 @@ search:
 		uint new_reph_pos;
 		reph_position_t reph_pos = indic_plan->config->reph_pos;
 
-		/*       1. If reph should be positioned after post-base consonant forms,
+		/* 1. If reph should be positioned after post-base consonant forms,
 		 *    proceed to step 5.
 		 */
 		if(reph_pos == REPH_POS_AFTER_POST) {
 			goto reph_step_5;
 		}
 
-		/*       2. If the reph repositioning class is not after post-base: target
+		/* 2. If the reph repositioning class is not after post-base: target
 		 *    position is after the first explicit halant glyph between the
 		 *    first post-reph consonant and last main consonant. If ZWJ or ZWNJ
 		 *    are following this halant, position is moved after it. If such
@@ -1199,7 +1199,7 @@ search:
 			}
 		}
 
-		/*       3. If reph should be repositioned after the main consonant: find the
+		/* 3. If reph should be repositioned after the main consonant: find the
 		 *    first consonant not ligated with main, or find the first
 		 *    consonant that is not a potential pre-base-reordering Ra.
 		 */
@@ -1211,7 +1211,7 @@ search:
 				goto reph_move;
 		}
 
-		/*       4. If reph should be positioned before post-base consonant, find
+		/* 4. If reph should be positioned before post-base consonant, find
 		 *    first post-base classified consonant not ligated with main. If no
 		 *    consonant is found, the target position should be before the
 		 *    first matra, syllable modifier sign or vedic sign.
@@ -1227,7 +1227,7 @@ search:
 				goto reph_move;
 		}
 
-		/*       5. If no consonant is found in steps 3 or 4, move reph to a position
+		/* 5. If no consonant is found in steps 3 or 4, move reph to a position
 		 *    immediately before the first post-base matra, syllable modifier
 		 *    sign or vedic sign that has a reordering class after the intended
 		 *    reph position. For example, if the reordering position for reph
@@ -1250,7 +1250,7 @@ reph_step_5:
 		}
 		/* See https://github.com/harfbuzz/harfbuzz/issues/2298#issuecomment-615318654 */
 
-		/*       6. Otherwise, reorder reph to the end of the syllable.
+		/* 6. Otherwise, reorder reph to the end of the syllable.
 		 */
 		{
 			new_reph_pos = end - 1;
@@ -1289,7 +1289,7 @@ reph_move:
 		}
 	}
 
-	/*   o Reorder pre-base-reordering consonants:
+	/* o Reorder pre-base-reordering consonants:
 	 *
 	 *     If a pre-base-reordering consonant is found, reorder it according to
 	 *     the following rules:
@@ -1298,7 +1298,7 @@ reph_move:
 	if(try_pref && base + 1 < end) { /* Otherwise there can't be any pre-base-reordering Ra. */
 		for(uint i = base + 1; i < end; i++)
 			if((info[i].mask & indic_plan->mask_array[INDIC_PREF]) != 0) {
-				/*       1. Only reorder a glyph produced by substitution during application
+				/* 1. Only reorder a glyph produced by substitution during application
 				 *    of the <pref> feature. (Note that a font may shape a Ra consonant with
 				 *    the feature generally but block it in certain contexts.)
 				 */
@@ -1381,7 +1381,7 @@ reph_move:
 }
 
 static void final_reordering_indic(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font HB_UNUSED,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	uint count = buffer->len;

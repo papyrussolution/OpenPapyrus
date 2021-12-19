@@ -38,8 +38,8 @@ public:
 			fBuildClient       = 0x0001,
 			fBuildServer       = 0x0002,
 			fBuildMtdll        = 0x0004,
-			fBuildDrv          = 0x0008,
-			fBuildSoap         = 0x0010,
+			fBuildDrv  = 0x0008,
+			fBuildSoap = 0x0010,
 			fBuildDistrib      = 0x0020,
 			fCopyToUhtt        = 0x0040,
 			fOpenSource        = 0x0080, // OpenSource-вариант сборки

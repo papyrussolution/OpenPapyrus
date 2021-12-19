@@ -36,6 +36,10 @@
  *    Results must be identical for all operations.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
     /* defined in morph.c */
@@ -54,14 +58,14 @@ static char  mainName[] = "fmorphauto_reg";
 
     if (argc != 2)
         return ERROR_INT(" Syntax:  fmorphauto_reg filein", mainName, 1);
-
     filein = argv[1];
+    setLeptDebugOK(1);
+
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pix not made", mainName, 1);
 
     sela = selaAddBasic(NULL);
     nsels = selaGetCount(sela);
-
     for (i = 0; i < nsels; i++)
     {
         sel = selaGetSel(sela, i);
@@ -79,13 +83,12 @@ static char  mainName[] = "fmorphauto_reg";
         pixZero(pixt4, &same);
 
         if (same == 1) {
-            fprintf(stderr, "dilations are identical for sel %d (%s)\n",
-                    i, selname);
-        }
-        else {
-            fprintf(stderr, "dilations differ for sel %d (%s)\n", i, selname);
+            lept_stderr("dilations are identical for sel %d (%s)\n",
+                        i, selname);
+        } else {
+            lept_stderr("dilations differ for sel %d (%s)\n", i, selname);
             pixCountPixels(pixt4, &xorcount, NULL);
-            fprintf(stderr, "Number of pixels in XOR: %d\n", xorcount);
+            lept_stderr("Number of pixels in XOR: %d\n", xorcount);
         }
 
         pixDestroy(&pixt1);
@@ -97,7 +100,7 @@ static char  mainName[] = "fmorphauto_reg";
             /*  ---------  erosion with asymmetric b.c  ----------*/
 
         resetMorphBoundaryCondition(ASYMMETRIC_MORPH_BC);
-        fprintf(stderr, "MORPH_BC = %d ... ", MORPH_BC);
+        lept_stderr("MORPH_BC = %d ... ", MORPH_BC);
         pixt1 = pixErode(NULL, pixs, sel);
 
         if (MORPH_BC == ASYMMETRIC_MORPH_BC)
@@ -111,13 +114,11 @@ static char  mainName[] = "fmorphauto_reg";
         pixZero(pixt4, &same);
 
         if (same == 1) {
-            fprintf(stderr, "erosions are identical for sel %d (%s)\n",
-                    i, selname);
-        }
-        else {
-            fprintf(stderr, "erosions differ for sel %d (%s)\n", i, selname);
+            lept_stderr("erosions are identical for sel %d (%s)\n", i, selname);
+        } else {
+            lept_stderr("erosions differ for sel %d (%s)\n", i, selname);
             pixCountPixels(pixt4, &xorcount, NULL);
-            fprintf(stderr, "Number of pixels in XOR: %d\n", xorcount);
+            lept_stderr("Number of pixels in XOR: %d\n", xorcount);
         }
 
         pixDestroy(&pixt1);
@@ -129,7 +130,7 @@ static char  mainName[] = "fmorphauto_reg";
             /*  ---------  erosion with symmetric b.c  ----------*/
 
         resetMorphBoundaryCondition(SYMMETRIC_MORPH_BC);
-        fprintf(stderr, "MORPH_BC = %d ... ", MORPH_BC);
+        lept_stderr("MORPH_BC = %d ... ", MORPH_BC);
         pixt1 = pixErode(NULL, pixs, sel);
 
         if (MORPH_BC == ASYMMETRIC_MORPH_BC)
@@ -143,13 +144,11 @@ static char  mainName[] = "fmorphauto_reg";
         pixZero(pixt4, &same);
 
         if (same == 1) {
-            fprintf(stderr, "erosions are identical for sel %d (%s)\n",
-                    i, selname);
-        }
-        else {
-            fprintf(stderr, "erosions differ for sel %d (%s)\n", i, selname);
+            lept_stderr("erosions are identical for sel %d (%s)\n", i, selname);
+        } else {
+            lept_stderr("erosions differ for sel %d (%s)\n", i, selname);
             pixCountPixels(pixt4, &xorcount, NULL);
-            fprintf(stderr, "Number of pixels in XOR: %d\n", xorcount);
+            lept_stderr("Number of pixels in XOR: %d\n", xorcount);
         }
 
         pixDestroy(&pixt1);

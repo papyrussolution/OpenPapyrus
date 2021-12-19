@@ -48,14 +48,12 @@
  *           BOXA        *boxaAffineTransform()
  *
  *      Matrix operations
- *           int32      l_productMatVec()
- *           int32      l_productMat2()
- *           int32      l_productMat3()
- *           int32      l_productMat4()
+ *           l_int32      l_productMatVec()
+ *           l_int32      l_productMat2()
+ *           l_int32      l_productMat3()
+ *           l_int32      l_productMat4()
  * </pre>
  */
-
-//#include <math.h>
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -65,8 +63,8 @@
 /*!
  * \brief   createMatrix2dTranslate()
  *
- * \param[in]    transx  x component of translation wrt. the origin
- * \param[in]    transy  y component of translation wrt. the origin
+ * \param[in]    transx   x component of translation wrt. the origin
+ * \param[in]    transy   y component of translation wrt. the origin
  * \return  3x3 transform matrix, or NULL on error
  *
  * <pre>
@@ -75,7 +73,7 @@
  *             v' = Av
  *          where v and v' are 1x3 column vectors in the form
  *             v = [x, y, 1]^    ^ denotes transpose
- *          and the affine tranlation matrix is
+ *          and the affine translation matrix is
  *             A = [ 1   0   tx
  *                   0   1   ty
  *                   0   0    1  ]
@@ -86,16 +84,10 @@
  *          translation vector of the origin.
  * </pre>
  */
-float * createMatrix2dTranslate(float transx,
-    float transy)
+float * createMatrix2dTranslate(float transx, float transy)
 {
-	float  * mat;
-
-	PROCNAME("createMatrix2dTranslate");
-
-	if((mat = (float*)LEPT_CALLOC(9, sizeof(float))) == NULL)
-		return (float*)ERROR_PTR("mat not made", procName, NULL);
-
+	float * mat;
+	mat = (float *)SAlloc::C(9, sizeof(float));
 	mat[0] = mat[4] = mat[8] = 1;
 	mat[2] = transx;
 	mat[5] = transy;
@@ -105,8 +97,8 @@ float * createMatrix2dTranslate(float transx,
 /*!
  * \brief   createMatrix2dScale()
  *
- * \param[in]    scalex  horizontal scale factor
- * \param[in]    scaley  vertical scale factor
+ * \param[in]    scalex    horizontal scale factor
+ * \param[in]    scaley    vertical scale factor
  * \return  3x3 transform matrix, or NULL on error
  *
  * <pre>
@@ -128,13 +120,9 @@ float * createMatrix2dTranslate(float transx,
 float * createMatrix2dScale(float scalex,
     float scaley)
 {
-	float  * mat;
+	float * mat;
 
-	PROCNAME("createMatrix2dScale");
-
-	if((mat = (float*)LEPT_CALLOC(9, sizeof(float))) == NULL)
-		return (float*)ERROR_PTR("mat not made", procName, NULL);
-
+	mat = (float *)SAlloc::C(9, sizeof(float));
 	mat[0] = scalex;
 	mat[4] = scaley;
 	mat[8] = 1;
@@ -144,8 +132,8 @@ float * createMatrix2dScale(float scalex,
 /*!
  * \brief   createMatrix2dRotate()
  *
- * \param[in]    xc, yc  location of center of rotation
- * \param[in]    angle  rotation in radians; clockwise is positive
+ * \param[in]    xc, yc    location of center of rotation
+ * \param[in]    angle     rotation in radians; clockwise is positive
  * \return  3x3 transform matrix, or NULL on error
  *
  * <pre>
@@ -178,13 +166,9 @@ float * createMatrix2dScale(float scalex,
  */
 float * createMatrix2dRotate(float xc, float yc, float angle)
 {
-	float sina, cosa;
-	float  * mat;
-	PROCNAME("createMatrix2dRotate");
-	if((mat = (float*)LEPT_CALLOC(9, sizeof(float))) == NULL)
-		return (float*)ERROR_PTR("mat not made", procName, NULL);
-	sina = sinf(angle);
-	cosa = cosf(angle);
+	float * mat = (float *)SAlloc::C(9, sizeof(float));
+	float sina = sinf(angle);
+	float cosa = cosf(angle);
 	mat[0] = mat[4] = cosa;
 	mat[1] = -sina;
 	mat[2] = xc * (1.0f - cosa) + yc * sina;
@@ -200,9 +184,9 @@ float * createMatrix2dRotate(float xc, float yc, float angle)
 /*!
  * \brief   ptaTranslate()
  *
- * \param[in]    ptas for initial points
- * \param[in]    transx  x component of translation wrt. the origin
- * \param[in]    transy  y component of translation wrt. the origin
+ * \param[in]    ptas      for initial points
+ * \param[in]    transx    x component of translation wrt. the origin
+ * \param[in]    transy    y component of translation wrt. the origin
  * \return  ptad  translated points, or NULL on error
  *
  * <pre>
@@ -214,11 +198,11 @@ PTA * ptaTranslate(PTA       * ptas,
     float transx,
     float transy)
 {
-	int32 i, npts;
+	l_int32 i, npts;
 	float x, y;
 	PTA       * ptad;
 
-	PROCNAME("ptaTranslate");
+	PROCNAME(__FUNCTION__);
 
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
@@ -237,9 +221,9 @@ PTA * ptaTranslate(PTA       * ptas,
 /*!
  * \brief   ptaScale()
  *
- * \param[in]    ptas for initial points
- * \param[in]    scalex  horizontal scale factor
- * \param[in]    scaley  vertical scale factor
+ * \param[in]    ptas      for initial points
+ * \param[in]    scalex    horizontal scale factor
+ * \param[in]    scaley    vertical scale factor
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -251,11 +235,11 @@ PTA * ptaScale(PTA       * ptas,
     float scalex,
     float scaley)
 {
-	int32 i, npts;
+	l_int32 i, npts;
 	float x, y;
 	PTA       * ptad;
 
-	PROCNAME("ptaScale");
+	PROCNAME(__FUNCTION__);
 
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
@@ -274,9 +258,9 @@ PTA * ptaScale(PTA       * ptas,
 /*!
  * \brief   ptaRotate()
  *
- * \param[in]    ptas for initial points
- * \param[in]    xc, yc  location of center of rotation
- * \param[in]    angle  rotation in radians; clockwise is positive
+ * \param[in]    ptas      for initial points
+ * \param[in]    xc, yc    location of center of rotation
+ * \param[in]    angle     rotation in radians; clockwise is positive
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -296,15 +280,14 @@ PTA * ptaScale(PTA       * ptas,
  *          center after it is rotated about the origin.
  * </pre>
  */
-PTA * ptaRotate(PTA * ptas, float xc, float yc, float angle)
+PTA * ptaRotate(PTA       * ptas, float xc, float yc, float angle)
 {
-	int32 i, npts;
+	l_int32 i, npts;
 	float x, y, xp, yp, sina, cosa;
 	PTA       * ptad;
-	PROCNAME("ptaRotate");
+	PROCNAME(__FUNCTION__);
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
-
 	npts = ptaGetCount(ptas);
 	if((ptad = ptaCreate(npts)) == NULL)
 		return (PTA*)ERROR_PTR("ptad not made", procName, NULL);
@@ -316,7 +299,6 @@ PTA * ptaRotate(PTA * ptas, float xc, float yc, float angle)
 		yp = yc + (x - xc) * sina + (y - yc) * cosa;
 		ptaAddPt(ptad, xp, yp);
 	}
-
 	return ptad;
 }
 
@@ -327,8 +309,8 @@ PTA * ptaRotate(PTA * ptas, float xc, float yc, float angle)
  * \brief   boxaTranslate()
  *
  * \param[in]    boxas
- * \param[in]    transx  x component of translation wrt. the origin
- * \param[in]    transy  y component of translation wrt. the origin
+ * \param[in]    transx    x component of translation wrt. the origin
+ * \param[in]    transy    y component of translation wrt. the origin
  * \return  boxad  translated boxas, or NULL on error
  *
  * Notes:
@@ -339,12 +321,12 @@ BOXA * boxaTranslate(BOXA       * boxas,
     float transy)
 {
 	PTA   * ptas, * ptad;
-	BOXA  * boxad;
+	BOXA * boxad;
 
-	PROCNAME("boxaTranslate");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 
 	ptas = boxaConvertToPta(boxas, 4);
 	ptad = ptaTranslate(ptas, transx, transy);
@@ -358,8 +340,8 @@ BOXA * boxaTranslate(BOXA       * boxas,
  * \brief   boxaScale()
  *
  * \param[in]    boxas
- * \param[in]    scalex  horizontal scale factor
- * \param[in]    scaley  vertical scale factor
+ * \param[in]    scalex    horizontal scale factor
+ * \param[in]    scaley    vertical scale factor
  * \return  boxad  scaled boxas, or NULL on error
  *
  * Notes:
@@ -370,12 +352,12 @@ BOXA * boxaScale(BOXA      * boxas,
     float scaley)
 {
 	PTA   * ptas, * ptad;
-	BOXA  * boxad;
+	BOXA * boxad;
 
-	PROCNAME("boxaScale");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 
 	ptas = boxaConvertToPta(boxas, 4);
 	ptad = ptaScale(ptas, scalex, scaley);
@@ -389,8 +371,8 @@ BOXA * boxaScale(BOXA      * boxas,
  * \brief   boxaRotate()
  *
  * \param[in]    boxas
- * \param[in]    xc, yc  location of center of rotation
- * \param[in]    angle  rotation in radians; clockwise is positive
+ * \param[in]    xc, yc    location of center of rotation
+ * \param[in]    angle     rotation in radians; clockwise is positive
  * \return  boxad  scaled boxas, or NULL on error
  *
  * Notes:
@@ -402,12 +384,12 @@ BOXA * boxaRotate(BOXA      * boxas,
     float angle)
 {
 	PTA   * ptas, * ptad;
-	BOXA  * boxad;
+	BOXA * boxad;
 
-	PROCNAME("boxaRotate");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 
 	ptas = boxaConvertToPta(boxas, 4);
 	ptad = ptaRotate(ptas, xc, yc, angle);
@@ -423,18 +405,18 @@ BOXA * boxaRotate(BOXA      * boxas,
 /*!
  * \brief   ptaAffineTransform()
  *
- * \param[in]    ptas for initial points
- * \param[in]    mat  3x3 transform matrix; canonical form
+ * \param[in]    ptas    for initial points
+ * \param[in]    mat     3x3 transform matrix; canonical form
  * \return  ptad  transformed points, or NULL on error
  */
 PTA * ptaAffineTransform(PTA        * ptas,
-    float  * mat)
+    float * mat)
 {
-	int32 i, npts;
+	l_int32 i, npts;
 	float vecs[3], vecd[3];
 	PTA       * ptad;
 
-	PROCNAME("ptaAffineTransform");
+	PROCNAME(__FUNCTION__);
 
 	if(!ptas)
 		return (PTA*)ERROR_PTR("ptas not defined", procName, NULL);
@@ -458,21 +440,21 @@ PTA * ptaAffineTransform(PTA        * ptas,
  * \brief   boxaAffineTransform()
  *
  * \param[in]    boxas
- * \param[in]    mat  3x3 transform matrix; canonical form
+ * \param[in]    mat      3x3 transform matrix; canonical form
  * \return  boxad  transformed boxas, or NULL on error
  */
 BOXA * boxaAffineTransform(BOXA       * boxas,
-    float  * mat)
+    float * mat)
 {
 	PTA   * ptas, * ptad;
-	BOXA  * boxad;
+	BOXA * boxad;
 
-	PROCNAME("boxaAffineTransform");
+	PROCNAME(__FUNCTION__);
 
 	if(!boxas)
-		return (BOXA*)ERROR_PTR("boxas not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 	if(!mat)
-		return (BOXA*)ERROR_PTR("transform not defined", procName, NULL);
+		return (BOXA *)ERROR_PTR("transform not defined", procName, NULL);
 
 	ptas = boxaConvertToPta(boxas, 4);
 	ptad = ptaAffineTransform(ptas, mat);
@@ -488,20 +470,20 @@ BOXA * boxaAffineTransform(BOXA       * boxas,
 /*!
  * \brief   l_productMatVec()
  *
- * \param[in]    mat  square matrix, as a 1-dimensional %size^2 array
- * \param[in]    vecs input column vector of length %size
- * \param[in]    vecd result column vector
- * \param[in]    size matrix is %size x %size; vectors are length %size
+ * \param[in]    mat     square matrix, as a 1-dimensional %size^2 array
+ * \param[in]    vecs    input column vector of length %size
+ * \param[in]    vecd    result column vector
+ * \param[in]    size    matrix is %size x %size; vectors are length %size
  * \return  0 if OK, 1 on error
  */
-int32 l_productMatVec(float  * mat,
-    float  * vecs,
-    float  * vecd,
-    int32 size)
+l_ok l_productMatVec(float * mat,
+    float * vecs,
+    float * vecd,
+    l_int32 size)
 {
-	int32 i, j;
+	l_int32 i, j;
 
-	PROCNAME("l_productMatVec");
+	PROCNAME(__FUNCTION__);
 
 	if(!mat)
 		return ERROR_INT("matrix not defined", procName, 1);
@@ -522,20 +504,20 @@ int32 l_productMatVec(float  * mat,
 /*!
  * \brief   l_productMat2()
  *
- * \param[in]    mat1  square matrix, as a 1-dimensional size^2 array
- * \param[in]    mat2  square matrix, as a 1-dimensional size^2 array
- * \param[in]    matd  square matrix; product stored here
- * \param[in]    size of matrices
+ * \param[in]    mat1     square matrix, as a 1-dimensional size^2 array
+ * \param[in]    mat2     square matrix, as a 1-dimensional size^2 array
+ * \param[in]    matd     square matrix; product stored here
+ * \param[in]    size     of matrices
  * \return  0 if OK, 1 on error
  */
-int32 l_productMat2(float  * mat1,
-    float  * mat2,
-    float  * matd,
-    int32 size)
+l_ok l_productMat2(float * mat1,
+    float * mat2,
+    float * matd,
+    l_int32 size)
 {
-	int32 i, j, k, index;
+	l_int32 i, j, k, index;
 
-	PROCNAME("l_productMat2");
+	PROCNAME(__FUNCTION__);
 
 	if(!mat1)
 		return ERROR_INT("matrix 1 not defined", procName, 1);
@@ -558,22 +540,22 @@ int32 l_productMat2(float  * mat1,
 /*!
  * \brief   l_productMat3()
  *
- * \param[in]    mat1  square matrix, as a 1-dimensional size^2 array
- * \param[in]    mat2  square matrix, as a 1-dimensional size^2 array
- * \param[in]    mat3  square matrix, as a 1-dimensional size^2 array
- * \param[in]    matd  square matrix; product stored here
- * \param[in]    size  of matrices
+ * \param[in]    mat1    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    mat2    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    mat3    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    matd    square matrix; product stored here
+ * \param[in]    size    of matrices
  * \return  0 if OK, 1 on error
  */
-int32 l_productMat3(float  * mat1,
-    float  * mat2,
-    float  * mat3,
-    float  * matd,
-    int32 size)
+l_ok l_productMat3(float * mat1,
+    float * mat2,
+    float * mat3,
+    float * matd,
+    l_int32 size)
 {
-	float  * matt;
+	float * matt;
 
-	PROCNAME("l_productMat3");
+	PROCNAME(__FUNCTION__);
 
 	if(!mat1)
 		return ERROR_INT("matrix 1 not defined", procName, 1);
@@ -584,35 +566,36 @@ int32 l_productMat3(float  * mat1,
 	if(!matd)
 		return ERROR_INT("result matrix not defined", procName, 1);
 
-	if((matt = (float*)LEPT_CALLOC(size * size, sizeof(float))) == NULL)
+	if((matt = (float *)SAlloc::C((size_t)size * size,
+	    sizeof(float))) == NULL)
 		return ERROR_INT("matt not made", procName, 1);
 	l_productMat2(mat1, mat2, matt, size);
 	l_productMat2(matt, mat3, matd, size);
-	LEPT_FREE(matt);
+	SAlloc::F(matt);
 	return 0;
 }
 
 /*!
  * \brief   l_productMat4()
  *
- * \param[in]    mat1  square matrix, as a 1-dimensional size^2 array
- * \param[in]    mat2  square matrix, as a 1-dimensional size^2 array
- * \param[in]    mat3  square matrix, as a 1-dimensional size^2 array
- * \param[in]    mat4  square matrix, as a 1-dimensional size^2 array
- * \param[in]    matd  square matrix; product stored here
- * \param[in]    size  of matrices
+ * \param[in]    mat1    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    mat2    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    mat3    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    mat4    square matrix, as a 1-dimensional size^2 array
+ * \param[in]    matd    square matrix; product stored here
+ * \param[in]    size    of matrices
  * \return  0 if OK, 1 on error
  */
-int32 l_productMat4(float  * mat1,
-    float  * mat2,
-    float  * mat3,
-    float  * mat4,
-    float  * matd,
-    int32 size)
+l_ok l_productMat4(float * mat1,
+    float * mat2,
+    float * mat3,
+    float * mat4,
+    float * matd,
+    l_int32 size)
 {
-	float  * matt;
+	float * matt;
 
-	PROCNAME("l_productMat4");
+	PROCNAME(__FUNCTION__);
 
 	if(!mat1)
 		return ERROR_INT("matrix 1 not defined", procName, 1);
@@ -623,11 +606,11 @@ int32 l_productMat4(float  * mat1,
 	if(!matd)
 		return ERROR_INT("result matrix not defined", procName, 1);
 
-	if((matt = (float*)LEPT_CALLOC(size * size, sizeof(float))) == NULL)
+	if((matt = (float *)SAlloc::C((size_t)size * size,
+	    sizeof(float))) == NULL)
 		return ERROR_INT("matt not made", procName, 1);
 	l_productMat3(mat1, mat2, mat3, matt, size);
 	l_productMat2(matt, mat4, matd, size);
-	LEPT_FREE(matt);
+	SAlloc::F(matt);
 	return 0;
 }
-

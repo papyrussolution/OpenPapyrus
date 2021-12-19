@@ -69,18 +69,18 @@
  * - all codes beyond US-ASCII, i.e. all >127
  */
 #define inSetD(c) \
-	((uint8_t)((c)-97)<26 || (uint8_t)((c)-65)<26 || /* letters */ \
-	(uint8_t)((c)-48)<10 || /* digits */ \
-	(uint8_t)((c)-39)<3 || /* '() */ \
-	(uint8_t)((c)-44)<4 || /* ,-./ */ \
+	((uint8)((c)-97)<26 || (uint8)((c)-65)<26 || /* letters */ \
+	(uint8)((c)-48)<10 || /* digits */ \
+	(uint8)((c)-39)<3 || /* '() */ \
+	(uint8)((c)-44)<4 || /* ,-./ */ \
 	(c)==58 || (c)==63      /* :? */ \
 	)
 
 #define inSetO(c) \
-	((uint8_t)((c)-33)<6 || /* !"#$%& */ \
-	(uint8_t)((c)-59)<4 || /* ;<=> */ \
-	(uint8_t)((c)-93)<4 || /* ]^_` */ \
-	(uint8_t)((c)-123)<3 || /* {|} */ \
+	((uint8)((c)-33)<6 || /* !"#$%& */ \
+	(uint8)((c)-59)<4 || /* ;<=> */ \
+	(uint8)((c)-93)<4 || /* ]^_` */ \
+	(uint8)((c)-123)<3 || /* {|} */ \
 	(c)==42 || (c)==64 || (c)==91 /* *@[ */ \
 	)
 
@@ -93,7 +93,7 @@
 #define TILDE 126
 
 /* legal byte values: all US-ASCII graphic characters from space to before tilde, and CR LF TAB */
-#define isLegalUTF7(c) (((uint8_t)((c)-32)<94 && (c)!=BACKSLASH) || isCRLFTAB(c))
+#define isLegalUTF7(c) (((uint8)((c)-32)<94 && (c)!=BACKSLASH) || isCRLFTAB(c))
 
 /* encode directly sets D and O and CR LF SP TAB */
 static const bool encodeDirectlyMaximum[128] = {
@@ -127,7 +127,7 @@ static const bool encodeDirectlyRestricted[128] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0
 };
 
-static const uint8_t
+static const uint8
     toBase64[64] = {
 	/* A-Z */
 	65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77,
@@ -208,13 +208,13 @@ static void U_CALLCONV _UTF7Open(UConverter * cnv,
 static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
 
-	uint8_t * bytes;
-	uint8_t byteIndex;
+	uint8 * bytes;
+	uint8 byteIndex;
 
 	int32_t length, targetCapacity;
 
@@ -227,12 +227,12 @@ static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 
 	int32_t sourceIndex, nextSourceIndex;
 
-	uint8_t b;
+	uint8 b;
 	/* set up the local pointers */
 	cnv = pArgs->converter;
 
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -459,7 +459,7 @@ unicodeMode:
 	}
 
 	/* set the converter state back into UConverter */
-	cnv->toUnicodeStatus = ((uint32_t)inDirectMode<<24)|((uint32_t)((uint8_t)base64Counter)<<16)|(uint32_t)bits;
+	cnv->toUnicodeStatus = ((uint32_t)inDirectMode<<24)|((uint32_t)((uint8)base64Counter)<<16)|(uint32_t)bits;
 	cnv->toULength = byteIndex;
 
 	/* write back the updated pointers */
@@ -473,7 +473,7 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target, * targetLimit;
+	uint8 * target, * targetLimit;
 	int32_t * offsets;
 
 	int32_t length, targetCapacity, sourceIndex;
@@ -481,7 +481,7 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 
 	/* UTF-7 state */
 	const bool * encodeDirectly;
-	uint8_t bits;
+	uint8 bits;
 	int8_t base64Counter;
 	bool inDirectMode;
 
@@ -491,8 +491,8 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	/* set up the local pointers */
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
-	targetLimit = (uint8_t*)pArgs->targetLimit;
+	target = (uint8 *)pArgs->target;
+	targetLimit = (uint8 *)pArgs->targetLimit;
 	offsets = pArgs->offsets;
 
 	/* get the state machine state */
@@ -501,7 +501,7 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 		encodeDirectly = status<0x10000000 ? encodeDirectlyMaximum : encodeDirectlyRestricted;
 		inDirectMode = (bool)((status>>24)&1);
 		base64Counter = (int8_t)(status>>16);
-		bits = (uint8_t)status;
+		bits = (uint8)status;
 		U_ASSERT(bits<=UPRV_LENGTHOF(toBase64));
 	}
 
@@ -520,7 +520,7 @@ directMode:
 			/* currently always encode CR LF SP TAB directly */
 			if(c<=127 && encodeDirectly[c]) {
 				/* encode directly */
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				if(offsets) {
 					*offsets++ = sourceIndex++;
 				}
@@ -631,7 +631,7 @@ unicodeMode:
 							    cnv->charErrorBufferLength = 1;
 							    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 						    }
-						    bits = (uint8_t)((c&15)<<2);
+						    bits = (uint8)((c&15)<<2);
 						    base64Counter = 1;
 						    break;
 						case 1:
@@ -665,7 +665,7 @@ unicodeMode:
 							    cnv->charErrorBufferLength = 2;
 							    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 						    }
-						    bits = (uint8_t)((c&3)<<4);
+						    bits = (uint8)((c&3)<<4);
 						    base64Counter = 2;
 						    break;
 						case 2:
@@ -921,13 +921,13 @@ U_CDECL_BEGIN
 static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
-	const uint8_t * source, * sourceLimit;
+	const uint8 * source, * sourceLimit;
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
 
-	uint8_t * bytes;
-	uint8_t byteIndex;
+	uint8 * bytes;
+	uint8 byteIndex;
 
 	int32_t length, targetCapacity;
 
@@ -941,13 +941,13 @@ static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	int32_t sourceIndex, nextSourceIndex;
 
 	UChar c;
-	uint8_t b;
+	uint8 b;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
 
-	source = (const uint8_t*)pArgs->source;
-	sourceLimit = (const uint8_t*)pArgs->sourceLimit;
+	source = (const uint8*)pArgs->source;
+	sourceLimit = (const uint8*)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -1185,7 +1185,7 @@ endloop:
 	}
 
 	/* set the converter state back into UConverter */
-	cnv->toUnicodeStatus = ((uint32_t)inDirectMode<<24)|((uint32_t)((uint8_t)base64Counter)<<16)|(uint32_t)bits;
+	cnv->toUnicodeStatus = ((uint32_t)inDirectMode<<24)|((uint32_t)((uint8)base64Counter)<<16)|(uint32_t)bits;
 	cnv->toULength = byteIndex;
 
 	/* write back the updated pointers */
@@ -1199,15 +1199,15 @@ static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
     UErrorCode * pErrorCode) {
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
-	uint8_t * target, * targetLimit;
+	uint8 * target, * targetLimit;
 	int32_t * offsets;
 
 	int32_t length, targetCapacity, sourceIndex;
 	UChar c;
-	uint8_t b;
+	uint8 b;
 
 	/* UTF-7 state */
-	uint8_t bits;
+	uint8 bits;
 	int8_t base64Counter;
 	bool inDirectMode;
 
@@ -1217,8 +1217,8 @@ static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	/* set up the local pointers */
 	source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
-	target = (uint8_t*)pArgs->target;
-	targetLimit = (uint8_t*)pArgs->targetLimit;
+	target = (uint8 *)pArgs->target;
+	targetLimit = (uint8 *)pArgs->targetLimit;
 	offsets = pArgs->offsets;
 
 	/* get the state machine state */
@@ -1226,7 +1226,7 @@ static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 		uint32_t status = cnv->fromUnicodeStatus;
 		inDirectMode = (bool)((status>>24)&1);
 		base64Counter = (int8_t)(status>>16);
-		bits = (uint8_t)status;
+		bits = (uint8)status;
 	}
 
 	/* UTF-7 always encodes UTF-16 code units, therefore we need only a simple sourceIndex */
@@ -1244,7 +1244,7 @@ directMode:
 			/* encode 0x20..0x7e except '&' directly */
 			if(inSetDIMAP(c)) {
 				/* encode directly */
-				*target++ = (uint8_t)c;
+				*target++ = (uint8)c;
 				if(offsets) {
 					*offsets++ = sourceIndex++;
 				}
@@ -1337,10 +1337,10 @@ unicodeMode:
 					 */
 					switch(base64Counter) {
 						case 0:
-						    b = (uint8_t)(c>>10);
+						    b = (uint8)(c>>10);
 						    *target++ = TO_BASE64_IMAP(b);
 						    if(target<targetLimit) {
-							    b = (uint8_t)((c>>4)&0x3f);
+							    b = (uint8)((c>>4)&0x3f);
 							    *target++ = TO_BASE64_IMAP(b);
 							    if(offsets) {
 								    *offsets++ = sourceIndex;
@@ -1351,22 +1351,22 @@ unicodeMode:
 							    if(offsets) {
 								    *offsets++ = sourceIndex++;
 							    }
-							    b = (uint8_t)((c>>4)&0x3f);
+							    b = (uint8)((c>>4)&0x3f);
 							    cnv->charErrorBuffer[0] = TO_BASE64_IMAP(b);
 							    cnv->charErrorBufferLength = 1;
 							    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 						    }
-						    bits = (uint8_t)((c&15)<<2);
+						    bits = (uint8)((c&15)<<2);
 						    base64Counter = 1;
 						    break;
 						case 1:
-						    b = (uint8_t)(bits|(c>>14));
+						    b = (uint8)(bits|(c>>14));
 						    *target++ = TO_BASE64_IMAP(b);
 						    if(target<targetLimit) {
-							    b = (uint8_t)((c>>8)&0x3f);
+							    b = (uint8)((c>>8)&0x3f);
 							    *target++ = TO_BASE64_IMAP(b);
 							    if(target<targetLimit) {
-								    b = (uint8_t)((c>>2)&0x3f);
+								    b = (uint8)((c>>2)&0x3f);
 								    *target++ = TO_BASE64_IMAP(b);
 								    if(offsets) {
 									    *offsets++ = sourceIndex;
@@ -1379,7 +1379,7 @@ unicodeMode:
 									    *offsets++ = sourceIndex;
 									    *offsets++ = sourceIndex++;
 								    }
-								    b = (uint8_t)((c>>2)&0x3f);
+								    b = (uint8)((c>>2)&0x3f);
 								    cnv->charErrorBuffer[0] = TO_BASE64_IMAP(b);
 								    cnv->charErrorBufferLength = 1;
 								    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -1389,24 +1389,24 @@ unicodeMode:
 							    if(offsets) {
 								    *offsets++ = sourceIndex++;
 							    }
-							    b = (uint8_t)((c>>8)&0x3f);
+							    b = (uint8)((c>>8)&0x3f);
 							    cnv->charErrorBuffer[0] = TO_BASE64_IMAP(b);
-							    b = (uint8_t)((c>>2)&0x3f);
+							    b = (uint8)((c>>2)&0x3f);
 							    cnv->charErrorBuffer[1] = TO_BASE64_IMAP(b);
 							    cnv->charErrorBufferLength = 2;
 							    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 						    }
-						    bits = (uint8_t)((c&3)<<4);
+						    bits = (uint8)((c&3)<<4);
 						    base64Counter = 2;
 						    break;
 						case 2:
-						    b = (uint8_t)(bits|(c>>12));
+						    b = (uint8)(bits|(c>>12));
 						    *target++ = TO_BASE64_IMAP(b);
 						    if(target<targetLimit) {
-							    b = (uint8_t)((c>>6)&0x3f);
+							    b = (uint8)((c>>6)&0x3f);
 							    *target++ = TO_BASE64_IMAP(b);
 							    if(target<targetLimit) {
-								    b = (uint8_t)(c&0x3f);
+								    b = (uint8)(c&0x3f);
 								    *target++ = TO_BASE64_IMAP(b);
 								    if(offsets) {
 									    *offsets++ = sourceIndex;
@@ -1419,7 +1419,7 @@ unicodeMode:
 									    *offsets++ = sourceIndex;
 									    *offsets++ = sourceIndex++;
 								    }
-								    b = (uint8_t)(c&0x3f);
+								    b = (uint8)(c&0x3f);
 								    cnv->charErrorBuffer[0] = TO_BASE64_IMAP(b);
 								    cnv->charErrorBufferLength = 1;
 								    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -1429,9 +1429,9 @@ unicodeMode:
 							    if(offsets) {
 								    *offsets++ = sourceIndex++;
 							    }
-							    b = (uint8_t)((c>>6)&0x3f);
+							    b = (uint8)((c>>6)&0x3f);
 							    cnv->charErrorBuffer[0] = TO_BASE64_IMAP(b);
-							    b = (uint8_t)(c&0x3f);
+							    b = (uint8)(c&0x3f);
 							    cnv->charErrorBuffer[1] = TO_BASE64_IMAP(b);
 							    cnv->charErrorBufferLength = 2;
 							    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;

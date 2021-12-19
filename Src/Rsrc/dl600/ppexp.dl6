@@ -251,8 +251,8 @@ data Global {
 data User {
 	key    ID;
 	string Name[32];
-	string Symb[20]; // @v9.5.2
-	link   Person PersonID; // @v9.5.2 Персоналия, на которую ссылается пользователь
+	string Symb[20]; // 
+	link   Person PersonID; // Персоналия, на которую ссылается пользователь
 }
 //
 // Запись системного журнала.
@@ -392,8 +392,8 @@ data CurRateView {
 	date   FltBeg;
 	date   FltEnd;
 
-	CurDt           = Glb.CurDate;
-	OrgName         = Glb.MainOrgName;
+	CurDt   = Glb.CurDate;
+	OrgName = Glb.MainOrgName;
 	FltCurName      = FltCurID.Name;
 	FltCurSymb      = FltCurID.Symb;
 	FltBaseCurName  = FltBaseCurID.Name;
@@ -708,10 +708,10 @@ data Person {
 	// Descr: Возвращает один email адрес персоналии. Если персоналия имеет более одного адреса,
 	//   то возвращается только первый.
 	//
-	string GetSingleEmail[64](); // @v9.4.1
-	string FormatRegister[256](string regCode[20]); // @v9.6.11
-	string FormatRegisterD[256](string regCode[20], date dt); // @v9.6.11
-	string GetExtName[256](); // @v10.4.0
+	string GetSingleEmail[64](); // 
+	string FormatRegister[256](string regCode[20]); // 
+	string FormatRegisterD[256](string regCode[20], date dt); // 
+	string GetExtName[256](); // 
 }
 //
 // Реквизиты персоналии, необходимые для печати некоторых форм
@@ -920,7 +920,7 @@ data ArticleView {
 	OrgName = Glb.MainOrgName;
 	iteration {
 		link Article ArticleID;
-		ID          = ArticleID.ID;
+		ID  = ArticleID.ID;
 		Number      = ArticleID.Number;
 		Name        = ArticleID.Name;
 		Closed      = ArticleID.Closed;             // Статья закрыта
@@ -1311,13 +1311,13 @@ data GoodsClassView {
 
 	iteration {
 		link   GoodsClass GcID;
-		Name          = GcID.Name;                 // Наименование класса
+		Name  = GcID.Name;                 // Наименование класса
 		DefGrpName    = GcID.DefGrpName;           // Группа товаров по умолчанию
 		DefUnitName   = GcID.DefUnitID.Name;       // Торговая единица измерения по умолчанию
 		DefPhUnitName = GcID.DefPhUnitID.Name;     // Физическая единица измерения по умолчанию
 		DefTaxGrpName = GcID.DefTaxGrpID.Name;     // Налоговая группа по умолчанию
 		DefTypeName   = GcID.DefGoodsTypeID.Name;  // Тип товара по умолчанию
-		Flags         = GcID.Flags;                // Флаги
+		Flags = GcID.Flags;                // Флаги
 		DynGenMask    = GcID.DynGenMask;           // Маска динамического обобщения //
 		//
 		// Параметры свойства Kind
@@ -2416,7 +2416,7 @@ data GoodsBillQCert {
 		QCode        = QualityCertID.Code;
 		QBlank       = QualityCertID.Blank;
 		QExpiry      = QualityCertID.Expiry;
-		Etc          = QualityCertID.Etc;
+		Etc  = QualityCertID.Etc;
 		QProduceDate = QualityCertID.ProduceDate;
 		GoodsName    = GoodsID.Name;
 		GoodsStorage = GoodsID.Storage;
@@ -2943,14 +2943,14 @@ data BillPayPlan {
 	link   OprKind OprKindID;
 	link   Bill      BillID;
 	int16  fProfitable;                                    // 1 - доходная операция, 0 - не доходная операция //
-	Dt           = BillID.Dt;
-	Code         = BillID.Code;
+	Dt   = BillID.Dt;
+	Code = BillID.Code;
 	LocID        = BillID.LocID;
 	ObjectID     = BillID.ArticleID;
 	PayerID      = BillID.PayerID;
 	AgentID      = BillID.AgentID;
 	Amount       = BillID.Amount;
-	Memo         = BillID.Memo;
+	Memo = BillID.Memo;
 	CurSymb      = BillID.CurID.Symb;
 	ObjName      = BillID.ArticleID.Name;                  // Наименование статьи контрагента по документу
 	CaName       = BillID.ArticleID.PersonID.ExtName2;     // (Расширенное) наименование персоналии-контрагента
@@ -3089,8 +3089,8 @@ data LotOps {
 		double Discount;
 		double CurPrice;
 		ContragentName = BillID.ArticleID.Name;
-		BillNo         = BillID.Code;
-		OpName         = BillID.OprKindID.Name;
+		BillNo = BillID.Code;
+		OpName = BillID.OprKindID.Name;
 	}
 }
 //
@@ -3133,14 +3133,14 @@ data BillList {
 		double Debit;                           // Для долговой карточки
 		double Credit;                          // Для долговой карточки
 		double Saldo;                           // Для долговой карточки
-		Dt             = BillID.Dt;             // Дата документа
-		Code           = BillID.Code;           // Номер документа
+		Dt     = BillID.Dt;             // Дата документа
+		Code   = BillID.Code;           // Номер документа
 		ContrAgentName = BillID.ArticleID.Name; // Наименование контрагента по документу
 		StatusName     = BillID.StatusID.Name;  // Статус документа
 		CurSymb        = BillID.CurID.Symb;     // Символ валюты
 		AgentName      = BillID.AgentID.Name;   // Наименование агента
-		OpName         = BillID.OprKindID.Name; // Наименование вида операции
-		Amount         = BillID.Amount;         // Номинальная сумма документа
+		OpName = BillID.OprKindID.Name; // Наименование вида операции
+		Amount = BillID.Amount;         // Номинальная сумма документа
 	}
 }
 //
@@ -3570,7 +3570,7 @@ data OperBillList : BillList {
 		Vat2Rate     = BillID.Vat2Rate;
 		Vat2Sum      = BillID.Vat2Sum;
 		SalesTaxSum  = BillID.SalesTax;
-		Memo         = BillID.Memo;
+		Memo = BillID.Memo;
 	}
 }
 
@@ -4264,8 +4264,8 @@ data VatBook {
 		OpMemo      = LinkBillID.Memo;             // Примечание к документу, связанного с записью
 		Date_N_Code = format(InvcDate, ~<) * Code; // Строка, комбинирующая дату и номер записи (для печати)
 		ArticleName = ArticleID.Name;              // Наименование аналитической статьи, связанной с записью
-		INN         = PersonID.INN;                // ИНН контрагента (если статья записи не связана с персоналией, то пусто)
-		KPP         = PersonID.KPP;                // КПП контрагента (если статья записи не связана с персоналией, то пусто)
+		INN = PersonID.INN;                // ИНН контрагента (если статья записи не связана с персоналией, то пусто)
+		KPP = PersonID.KPP;                // КПП контрагента (если статья записи не связана с персоналией, то пусто)
 		Contragent  = (PersonID.ExtName == "" ? ArticleName : PersonID.ExtName); // Полное наименование контрагента.
 	}
 }
@@ -4358,7 +4358,6 @@ data OpGrouping {
 }
 //
 // GoodsStruc
-// @v9.9.3 Verification needed
 //
 data GoodsStruc {
 	declare "Destroy"
@@ -4368,35 +4367,35 @@ data GoodsStruc {
 	link   Global    Glb;
 	link   Goods     GoodsID; // Идентификатор товара, к которому относится структура
 	link   Warehouse LocID;   // Склад, для которого рассчитываются ожидаемые цены
-	link   GoodsStruc ParentID; // @v9.9.3 Родительская структура
-	string Name[48];          // Наименование структуры // @v9.9.3 [30]-->[48]
-	string Symb[20];          // @v9.9.3 Символ структуры
+	link   GoodsStruc ParentID; // Родительская структура
+	string Name[48];          // Наименование структуры //
+	string Symb[20];          // Символ структуры
 	long   Flags;
 	int16  fAllowCompl;       // Допускает комплектацию
 	int16  fAllowDecompl;     // Допускает разукомплектацию
 	int16  fPartitial;        // Частичная структура
 	int16  fNamed;            // Именованная структура
 	int16  fUncertainPrice;   // Цена EstPrice не может быть вычислена правильно поскольку не известны цены на один или более компонентов структуры.
-	int16  fOutpWoVat;        // @v9.9.3 Выход без НДС
-	int16  fFolder;           // @v9.9.3 Структура верхнего уровня.
-	int16  fChild;            // @v9.9.3 Дочерняя структура (не может быть именованной)
-	int16  fAutoWrOff;        // @v9.9.3 Автоматическое списание в техн сессиях (исключен ручной ввод)
-	int16  fSubst;            // @v9.9.3 Структура подстановки (позиции, которые можно использовать вместо той, к которой относится структура)
-	int16  fPresent;          // @v9.9.3 Подарок
-	int16  fGiftPotential;    // @v9.9.3 Информировать кассира о близкой возможности предоставления подарка
-	int16  fComplex;          // @v9.9.3 Комплекс
-	int16  fPosModifier;      // @v9.9.3 POS-модификаторы (только в комбинации с fPartitial)
-	int16  fOverlapGift;      // @v9.9.3 Подарок с "перекрытием": такой подарок назначается независимо от того,
+	int16  fOutpWoVat;        // Выход без НДС
+	int16  fFolder;           // Структура верхнего уровня.
+	int16  fChild;            // Дочерняя структура (не может быть именованной)
+	int16  fAutoWrOff;        // Автоматическое списание в техн сессиях (исключен ручной ввод)
+	int16  fSubst;            // Структура подстановки (позиции, которые можно использовать вместо той, к которой относится структура)
+	int16  fPresent;          // Подарок
+	int16  fGiftPotential;    // Информировать кассира о близкой возможности предоставления подарка
+	int16  fComplex;          // Комплекс
+	int16  fPosModifier;      // POS-модификаторы (только в комбинации с fPartitial)
+	int16  fOverlapGift;      // Подарок с "перекрытием": такой подарок назначается независимо от того,
 		// что по некоторым позициям были выданы другие подарки. При этом два и более подарка с перекрытием взаимно исключаются.
-	int16  Reserve;           // @v9.9.3 @alignment
+	int16  Reserve;           // @alignment
 	double CommDenom;         // Общий делитель для количества компонентов
 	long   ItemsCount;        // Количество элементов структуры
 	double EstPrice;          // Ожидаемая цена реализации товара,
 		// вычисленная исходя из цен компонентов
 	long   VariedPropObjType; // Тип объекта изменяющейся характиристики заголовочного
 		// товара структуры и элементов структуры.
-	date   PeriodLow;         // @v9.9.3 Начало периода действия структуры
-	date   PeriodUpp;         // @v9.9.3 Конец периода действия структуры
+	date   PeriodLow;         // Начало периода действия структуры
+	date   PeriodUpp;         // Конец периода действия структуры
 	CurDt        = Glb.CurDate;
 	OrgName      = Glb.MainOrgName;
 	LocName      = LocID.Name;
@@ -4414,14 +4413,14 @@ data GoodsStruc {
 		int16  fRoundDown;      // Отбрасывать дробную часть в количестве
 		int16  fPhUnitVal;      // Количество задано в физических единицах
 		int16  fUncertainPrice; // Цена компонента не определена
-		int16  fAutoTsWrOff;    // @v9.9.3 Автосписание в технологических сессиях в случае, если этот товар не присутствует в строках сессии.
-		int16  fQttyAsPrice;    // @v9.9.3 Только для нелимитированных ресурсов. Количество устанавливать в 1, а цену в процентах от суммы основного товара.
-		int16  fMainItem;       // @v9.9.3 Основной компонент структуры (используется в производственных отчетах)
-		int16  fFormula;        // @v9.9.3 Компонент содержит формулу для расчета количества
-		int16  fSubPartStr;     // @v9.9.3 Вычитать количество этого компонента из количества основного товара применяя частичную структуру.
-		int16  fGoodsGroup;     // @v9.9.3 Вместо товара в поле PPGoodsStrucItem::GoodsID установлена товарная группа (для подарков)
-		int16  fIdentical;      // @v9.9.3 Для подарочных структур: заданное количество применимо только для одинаковых позиций.
-		int16  fQueryExpLot;    // @v9.9.3 При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота.
+		int16  fAutoTsWrOff;    // Автосписание в технологических сессиях в случае, если этот товар не присутствует в строках сессии.
+		int16  fQttyAsPrice;    // Только для нелимитированных ресурсов. Количество устанавливать в 1, а цену в процентах от суммы основного товара.
+		int16  fMainItem;       // Основной компонент структуры (используется в производственных отчетах)
+		int16  fFormula;        // Компонент содержит формулу для расчета количества
+		int16  fSubPartStr;     // Вычитать количество этого компонента из количества основного товара применяя частичную структуру.
+		int16  fGoodsGroup;     // Вместо товара в поле PPGoodsStrucItem::GoodsID установлена товарная группа (для подарков)
+		int16  fIdentical;      // Для подарочных структур: заданное количество применимо только для одинаковых позиций.
+		int16  fQueryExpLot;    // При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота.
 		double Netto;           // Нетто (без отходов) количество компонента в составе структуры
 		double Median;          // Количество единиц компонента
 		double PerUnit;         // на PerUnit единиц составного товара
@@ -4436,7 +4435,6 @@ data GoodsStruc {
 //
 // PPViewGoodsStruc
 // Список товарных структур
-// @v9.9.3 Verification needed
 //
 data GoodsStrucList {
 	declare "Destroy"
@@ -4445,28 +4443,28 @@ data GoodsStrucList {
 	long   ID;                // Идентификатор структуры
 	link   Global    Glb;
 	link   Warehouse LocID;   // Склад, для которого рассчитываются ожидаемые цены
-	link   GoodsGroup FltPrmrGroupID; // @v9.9.3
-	link   Goods FltPrmrGoodsID;      // @v9.9.3
-	link   GoodsGroup FltScndGroupID; // @v9.9.3
-	link   Goods FltScndGoodsID;      // @v9.9.3
-	long   FltFlags; // @v9.9.3
+	link   GoodsGroup FltPrmrGroupID; //
+	link   Goods FltPrmrGoodsID;      //
+	link   GoodsGroup FltScndGroupID; //
+	link   Goods FltScndGoodsID;      //
+	long   FltFlags;                  //
 	CurDt   = Glb.CurDate;
 	OrgName = Glb.MainOrgName;
 	LocName = LocID.Name;
 	iteration {
-		link   GoodsStruc GsID;      // @v9.5.0
-		link   GoodsStruc ParentID;  // @v9.9.3 Родительская структура
+		link   GoodsStruc GsID;      // 
+		link   GoodsStruc ParentID;  // Родительская структура
 		link   Goods     GoodsID;    // Идентификатор товара, к которому относится структура
 		link   Goods     ItemID;
-		link   QuotKind  GiftQuotKindID; // @v9.9.3
-        double CommDenom;  // @v9.9.3
-        double GiftLimit;  // @v9.9.3
-        double GiftAmtRestrict; // @v9.9.3
-        double Median;     // @v9.9.3
-        double Denom;      // @v9.9.3
-        double Netto;      // @v9.9.3
-        long   StrucFlags; // @v9.9.3
-        long   ItemFlags;  // @v9.9.3
+		link   QuotKind  GiftQuotKindID; // 
+        double CommDenom;  //
+        double GiftLimit;  //
+        double GiftAmtRestrict; //
+        double Median;     //
+        double Denom;      //
+        double Netto;      //
+        long   StrucFlags; //
+        long   ItemFlags;  //
 		//string GoodsName[128];
 		GoodsName = GoodsID.Name;
 		ItemName = ItemID.Name;      // Имя компонента
@@ -4867,7 +4865,7 @@ data CCheckView {
 		link   SCard   GSCardID;    // ИД карты (для группировки по картам)
 		link   Goods   Goods1ID;    // ИД товара1 (для корреляции товаров по кассовым чекам)
 		link   Goods   Goods2ID;    // ИД товара2 (для корреляции товаров по кассовым чекам)
-		link   Article CcAgentID;   // @v9.3.0 Агент по чеку. При группировке, включающей в себя агента, это поле инициализируется!
+		link   Article CcAgentID;   // Агент по чеку. При группировке, включающей в себя агента, это поле инициализируется!
 		double Amount;
 		double Discount;
 		double CashAmount; // Сумма оплаты наличными
@@ -4886,8 +4884,8 @@ data CCheckView {
 		CashNumber   = CheckID.CashID;
 		CheckNumber  = CheckID.Code;
 		SCard        = CheckID.SCardID;
-		Dt           = CheckID.Dt;
-		Tm           = CheckID.Tm;
+		Dt   = CheckID.Dt;
+		Tm   = CheckID.Tm;
 		TmTxt = (format(Tm, ~<&N));
 		SCardCode    = GSCardID ? GSCardID.Code : CheckID.SCardCode;
 		GSCardSer    = GSCardID.SeriesID.Name;   // Наименование серии карты (только для группировки по картам)
@@ -5114,10 +5112,10 @@ data CSessionView {
 		CashNodeName    = SessID.CashNodeID.Name;
 		SessNumber      = SessID.SessNumber;
 		CashNumber      = SessID.CashNumber;
-		Dt              = SessID.Dt;
-		Tm              = SessID.Tm;
-		Amount          = SessID.Amount;
-		Banking         = SessID.Banking;
+		Dt      = SessID.Dt;
+		Tm      = SessID.Tm;
+		Amount  = SessID.Amount;
+		Banking = SessID.Banking;
 		Discount        = SessID.Discount;
 		AggrAmount      = SessID.AggrAmount;
 		AggrRest        = SessID.AggrRest;
@@ -5665,9 +5663,9 @@ data GoodsBasket {
 		ItemCode       = ItemID.SingleBarCode;
 		ItemUnitName   = ItemID.UnitID.Name;
 		ItemPhUnitName = ItemID.PhUnitID.Name;
-		GrpID          = ItemID.GroupID.ID;
+		GrpID  = ItemID.GroupID.ID;
 		GrpName        = ItemID.GroupID.Name;
-		Brutto         = ItemID.Brutto;
+		Brutto = ItemID.Brutto;
 	}
 }
 //
@@ -6077,9 +6075,9 @@ data GTaxAnlzTotal {
 	double IncVATSum;
 	double STaxSum;
 
-	CurDt          = Glb.CurDate;
+	CurDt  = Glb.CurDate;
 	OrgName        = Glb.MainOrgName;
-	Period         = formatperiod(FltBeg, FltEnd);
+	Period = formatperiod(FltBeg, FltEnd);
 	TxtLotsPeriod  = ((FltLotsBeg || FltLotsEnd) ? ("Период поступления лотов " + formatperiod(FltLotsBeg, FltLotsEnd)) : "");
 	LocName        = FltLocID ? FltLocID.Name : "Все склады";
 	OprKindName    = FltOpID.Name;
@@ -6839,7 +6837,6 @@ data TSession {
 	link   Bill GetWrOffMemberByOp(string opSymb[20]); // Возвращает первый документ в пуле документов списания,
 		// имеющий вид операции с символом opSymb
 	//
-	// @v9.8.2
 	// Descr: Возвращает тег технологической сессии по символу tagSymb
 	//
 	link   ObjectTag GetTag(string tagSymb[20]);
@@ -7197,7 +7194,7 @@ data TSessAnlz {
 		// 2 - Дифференцировать по суперсессиям
 		//
 	int16  Reserve; // alignment(4)
-	CurDt          = Glb.CurDate;
+	CurDt  = Glb.CurDate;
 	PlanSessName   = PlanSessID.Name;
 	SnglSesPrcName = SingleSessID.PrcID.Name;
 	SnglSesArName  = SingleSessID.ArID.Name;
@@ -7349,7 +7346,7 @@ data ProjectView {
 		Code        = (PrjTaskID == 0) ? ProjectID.Code : PrjTaskID.Code;
 		ManagerName = (PrjTaskID == 0) ? ProjectID.MngrID.Name : PrjTaskID.EmployerID.Name;
 		ClientName  = (PrjTaskID == 0) ? ProjectID.ClientID.Name : PrjTaskID.ClientID.Name;
-		Dt          = (PrjTaskID == 0) ? ProjectID.Dt : PrjTaskID.Dt;
+		Dt  = (PrjTaskID == 0) ? ProjectID.Dt : PrjTaskID.Dt;
 		BeginDt     = (PrjTaskID == 0) ? ProjectID.BeginDt : PrjTaskID.StartDt;
 		EstFinishDt = (PrjTaskID == 0) ? ProjectID.EstFinishDt : PrjTaskID.EstFinishDt;
 		FinishDt    = (PrjTaskID == 0) ? ProjectID.FinishDt : PrjTaskID.FinishDt;
@@ -7425,9 +7422,9 @@ data PrjTaskView {
 		EmployerName = TodoID.EmployerID.Name;
 		ClientName   = TodoID.ClientID.Name;
 		DlvrAddr     = TodoID.DlvrAddrID.Addr;
-		Dt           = TodoID.Dt;
-		Tm           = TodoID.Tm;
-		TmT          = format(TodoID.Tm, ~>&NB);
+		Dt   = TodoID.Dt;
+		Tm   = TodoID.Tm;
+		TmT  = format(TodoID.Tm, ~>&NB);
 		StartDt      = TodoID.StartDt;
 		StartTm      = TodoID.StartTm;
 		StartTmT     = format(TodoID.StartTm, ~>&NB);
@@ -7441,7 +7438,7 @@ data PrjTaskView {
 		PriorText    = TodoID.PriorText;
 		StatusText   = TodoID.StatusText;
 		Descr        = TodoID.Descr;
-		Memo         = TodoID.Memo;
+		Memo = TodoID.Memo;
 	}
 }
 //
@@ -7800,8 +7797,8 @@ data PersonEventBase {
 	int16  EstDuration; // Ожидаемая продолжительность незакрытого парного состояния (дней)
 		// Пользователь это значение может ввести только для открывающей парной операции
 	int16  Reserve;     // @alignment
-	link   SCard PrmrSCardID; // @v9.5.7 Первичная персональная карта (связанная с первичной персоналией)
-	link   SCard ScndSCardID; // @v9.5.7 Вторичная персональная карта (связанная со вторичной персоналией)
+	link   SCard PrmrSCardID; // Первичная персональная карта (связанная с первичной персоналией)
+	link   SCard ScndSCardID; // Вторичная персональная карта (связанная со вторичной персоналией)
 	string Memo[240];   // Примечание
 	//
 	// Descr: Возвращает ссылку на структуру парного события.
@@ -7872,8 +7869,8 @@ data PersonEvent {
 		string GrpText2[48];
 		string AvgEvTime[32];
 		long   GrpCount;
-		Dt         = EvID.Dt;
-		Tm         = EvID.Tm;
+		Dt = EvID.Dt;
+		Tm = EvID.Tm;
 		TmTxt      = format(Tm, ~>&N);
 		OprNo      = EvID.OprNo;
 		LocName    = EvID.LocID.Name;
@@ -8833,10 +8830,10 @@ data UhttWorkbook {
 	date   Dt;                    // Дата содержания содержания //
 	time   Tm;                    // Временная метка содержания //
 	//
-	date   ModifDt;               // @v9.3.8 Дата последней модификации записи //
-	time   ModifTm;               // @v9.3.8 Время последней модификации записи //
-	date   ContentModifDt;        // @v9.3.7 Дата последней модификации файла содержания //
-	time   ContentModifTm;        // @v9.3.7 Время последней модификации файла содержания //
+	date   ModifDt;               // Дата последней модификации записи //
+	time   ModifTm;               // Время последней модификации записи //
+	date   ContentModifDt;        // Дата последней модификации файла содержания //
+	time   ContentModifTm;        // Время последней модификации файла содержания //
 	string Version[8];            // Символ версии записи
 	string Descr[512];            // Описание
 	iteration TagList {

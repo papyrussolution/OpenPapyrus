@@ -335,7 +335,7 @@ struct pthread_cond_t_ {
 	long nWaitersGone; /* Number of threads timed out          */
 	long nWaitersToUnblock; /* Number of threads to unblock         */
 	sem_t semBlockQueue; /* Queue up threads waiting for the     */
-	/*   condition to become signalled      */
+	/* condition to become signalled      */
 	sem_t semBlockLock; /* Semaphore that guards access to      */
 	/* | waiters blocked count/block queue  */
 	/* +-> Mandatory Sync.LEVEL-1           */

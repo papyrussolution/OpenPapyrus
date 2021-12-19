@@ -643,7 +643,7 @@ failed:
 
 ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 {
-	void  * data, * prev;
+	void * data, * prev;
 	u_char   * p, * name;
 	size_t len;
 	ngx_int_t rc;

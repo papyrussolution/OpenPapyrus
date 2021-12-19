@@ -57,14 +57,14 @@ static const char frenchCollArg     = 'F';
 static const char hiraganaQArg      = 'H';
 static const char keywordArg        = 'K';
 static const char languageArg       = 'L';
-static const char normArg           = 'N';
+static const char normArg   = 'N';
 static const char providerArg       = 'P';
-static const char regionArg         = 'R';
+static const char regionArg = 'R';
 static const char strengthArg       = 'S';
 static const char variableTopArg    = 'T';
 static const char variantArg        = 'V';
 static const char RFC3066Arg        = 'X';
-static const char scriptArg         = 'Z';
+static const char scriptArg = 'Z';
 
 static const char collationKeyword[]  = "@collation=";
 static const char providerKeyword[]  = "@sp=";
@@ -293,7 +293,7 @@ static const ShortStringOptions options[UCOL_SIT_ITEMS_COUNT] =
 /* 03 VARIANT */              {variantArg,        _processLocaleElement,  UCOL_SIT_VARIANT }, // variant
 /* 05 RFC3066BIS */           {RFC3066Arg,        _processRFC3066Locale,  0 }, // rfc3066bis locale name
 /* 01 SCRIPT */               {scriptArg,         _processLocaleElement,  UCOL_SIT_SCRIPT }, // script
-/*    PROVIDER */             {providerArg,       _processLocaleElement, UCOL_SIT_PROVIDER }
+/* PROVIDER */             {providerArg,       _processLocaleElement, UCOL_SIT_PROVIDER }
 };
 
 static

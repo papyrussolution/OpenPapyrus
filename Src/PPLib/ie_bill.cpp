@@ -1700,7 +1700,7 @@ int PPBillImporter::RunUhttImport()
 const Sdr_Bill * PPBillImporter::SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const
 {
 	uint   p = 0;
-	while(Bills.lsearch(rBillIdent, &p, PTR_CMPFUNC(Pchar)) > 0) {
+	while(Bills.lsearch(rBillIdent, &p, PTR_CMPFUNC(Pchar))) {
 		const long _int_bill_id = rBillIdent.ToLong(); // @debug
 		const Sdr_Bill * p_bill = &Bills.at(p);
 		if((!rRow.BillDate || rRow.BillDate == p_bill->Date) && (!rRow.INN[0] || sstreq(rRow.INN, p_bill->INN))) {

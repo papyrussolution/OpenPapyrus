@@ -29,7 +29,7 @@
 
 U_NAMESPACE_USE
 
-U_CAPI UCollator* U_EXPORT2 ucol_openBinary(const uint8_t * bin, int32_t length, const UCollator * base, UErrorCode * status)
+U_CAPI UCollator* U_EXPORT2 ucol_openBinary(const uint8 * bin, int32_t length, const UCollator * base, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -50,7 +50,7 @@ U_CAPI UCollator* U_EXPORT2 ucol_openBinary(const uint8_t * bin, int32_t length,
 }
 
 U_CAPI int32_t U_EXPORT2 ucol_cloneBinary(const UCollator * coll,
-    uint8_t * buffer, int32_t capacity,
+    uint8 * buffer, int32_t capacity,
     UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
@@ -101,9 +101,9 @@ U_CAPI void U_EXPORT2 ucol_close(UCollator * coll)
 	UTRACE_EXIT();
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8_t * src1, int32_t src1Length,
-    const uint8_t * src2, int32_t src2Length,
-    uint8_t * dest, int32_t destCapacity) {
+U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Length,
+    const uint8 * src2, int32_t src2Length,
+    uint8 * dest, int32_t destCapacity) {
 	/* check arguments */
 	if(src1==NULL || src1Length<-1 || src1Length==0 || (src1Length>0 && src1[src1Length-1]!=0) ||
 	    src2==NULL || src2Length<-1 || src2Length==0 || (src2Length>0 && src2[src2Length-1]!=0) ||
@@ -131,10 +131,10 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8_t * src1, int32_t src1Le
 	}
 
 	/* merge the sort keys with the same number of levels */
-	uint8_t * p = dest;
+	uint8 * p = dest;
 	for(;;) {
 		/* copy level from src1 not including 00 or 01 */
-		uint8_t b;
+		uint8 b;
 		while((b = *src1)>=2) {
 			++src1;
 			*p++ = b;
@@ -177,7 +177,7 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8_t * src1, int32_t src1Le
 	return (int32_t)(p-dest);
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const UChar * source, int32_t sourceLength, uint8_t * result, int32_t resultLength)
+U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const UChar * source, int32_t sourceLength, uint8 * result, int32_t resultLength)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_GET_SORTKEY);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
@@ -189,7 +189,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const UChar * s
 	return keySize;
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharIterator * iter, uint32_t state[2], uint8_t * dest, int32_t count,
+U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharIterator * iter, uint32_t state[2], uint8 * dest, int32_t count,
     UErrorCode * status)
 {
 	/* error checking */
@@ -213,11 +213,11 @@ U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharItera
 /**
  * Produce a bound for a given sortkey and a number of levels.
  */
-U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8_t * source,
+U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source,
     int32_t sourceLength,
     UColBoundMode boundType,
     uint32_t noOfLevels,
-    uint8_t * result,
+    uint8 * result,
     int32_t resultLength,
     UErrorCode * status)
 {
@@ -380,9 +380,9 @@ U_CAPI UCollationResult U_EXPORT2 ucol_strcollIter(const UCollator * coll, UChar
 	return result;
 }
 
-/*       */
+/* */
 /* ucol_strcoll     Main public API string comparison function */
-/*       */
+/* */
 U_CAPI UCollationResult U_EXPORT2 ucol_strcoll(const UCollator * coll, const UChar * source, int32_t sourceLength, const UChar * target, int32_t targetLength)
 {
 	UTRACE_ENTRY(UTRACE_UCOL_STRCOLL);

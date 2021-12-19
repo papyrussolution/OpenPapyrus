@@ -1,12 +1,8 @@
+// collationrootelements.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2013-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationrootelements.cpp
- *
+ * Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2013mar05
  * created by: Markus W. Scherer
  */

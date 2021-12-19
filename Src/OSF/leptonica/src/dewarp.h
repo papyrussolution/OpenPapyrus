@@ -1,28 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 #ifndef  LEPTONICA_DEWARP_H
 #define  LEPTONICA_DEWARP_H
@@ -98,91 +98,93 @@
  * </pre>
  */
 
-    /*! Dewarp version for serialization
-     * <pre>
-     * Note on versioning of the serialization of this data structure:
-     * The dewarping utility and the stored data can be expected to change.
-     * In most situations, the serialized version is ephemeral -- it is
-     * not needed after being used.  No functions will be provided to
-     * convert between different versions.
-     * </pre>
-     */
+/*! Dewarp version for serialization
+ * <pre>
+ * Note on versioning of the serialization of this data structure:
+ * The dewarping utility and the stored data can be expected to change.
+ * In most situations, the serialized version is ephemeral -- it is
+ * not needed after being used.  No functions will be provided to
+ * convert between different versions.
+ * </pre>
+ */
 #define  DEWARP_VERSION_NUMBER      4
 
 /*! Data structure to hold a number of Dewarp */
-struct L_Dewarpa
-{
-    int32            nalloc;        /*!< size of dewarp ptr array          */
-    int32            maxpage;       /*!< maximum page number in array      */
-    struct L_Dewarp  **dewarp;        /*!< array of ptrs to page dewarp      */
-    struct L_Dewarp  **dewarpcache;   /*!< array of ptrs to cached dewarps   */
-    struct Numa       *namodels;      /*!< list of page numbers for pages    */
-                                      /*!< with page models                  */
-    struct Numa       *napages;       /*!< list of page numbers with either  */
-                                      /*!< page models or ref page models    */
-    int32            redfactor;     /*!< reduction factor of input: 1 or 2 */
-    int32            sampling;      /*!< disparity arrays sampling factor  */
-    int32            minlines;      /*!< min number of long lines required */
-    int32            maxdist;       /*!< max distance for getting ref page */
-    int32            max_linecurv;  /*!< maximum abs line curvature,       */
-                                      /*!< in micro-units                    */
-    int32            min_diff_linecurv; /*!< minimum abs diff line         */
-                                          /*!< curvature in micro-units      */
-    int32            max_diff_linecurv; /*!< maximum abs diff line         */
-                                          /*!< curvature in micro-units      */
-    int32            max_edgeslope; /*!< maximum abs left or right edge    */
-                                      /*!< slope, in milli-units             */
-    int32            max_edgecurv;  /*!< maximum abs left or right edge    */
-                                      /*!< curvature, in micro-units         */
-    int32            max_diff_edgecurv; /*!< maximum abs diff left-right   */
-                                      /*!< edge curvature, in micro-units    */
-    int32            useboth;       /*!< use both disparity arrays if      */
-                                      /*!< available; only vertical otherwise */
-    int32            check_columns; /*!< if there are multiple columns,    */
-                                      /*!< only use the vertical disparity   */
-                                      /*!< array                             */
-    int32            modelsready;   /*!< invalid models have been removed  */
-                                      /*!< and refs built against valid set  */
+struct L_Dewarpa {
+	l_int32 nalloc;        /*!< size of dewarp ptr array          */
+	l_int32 maxpage;        /*!< maximum page number in array      */
+	struct L_Dewarp  ** dewarp; /*!< array of ptrs to page dewarp      */
+	struct L_Dewarp  ** dewarpcache; /*!< array of ptrs to cached dewarps   */
+	struct Numa       * namodels; /*!< list of page numbers for pages    */
+	/*!< with page models                  */
+	struct Numa       * napages; /*!< list of page numbers with either  */
+	/*!< page models or ref page models    */
+	l_int32 redfactor;        /*!< reduction factor of input: 1 or 2 */
+	l_int32 sampling;        /*!< disparity arrays sampling factor  */
+	l_int32 minlines;        /*!< min number of long lines required */
+	l_int32 maxdist;        /*!< max distance for getting ref page */
+	l_int32 max_linecurv;        /*!< maximum abs line curvature,       */
+	/*!< in micro-units                    */
+	l_int32 min_diff_linecurv;        /*!< minimum abs diff line         */
+	/*!< curvature in micro-units      */
+	l_int32 max_diff_linecurv;        /*!< maximum abs diff line         */
+	/*!< curvature in micro-units      */
+	l_int32 max_edgeslope;        /*!< maximum abs left or right edge    */
+	/*!< slope, in milli-units             */
+	l_int32 max_edgecurv;         /*!< maximum abs left or right edge    */
+	/*!< curvature, in micro-units         */
+	l_int32 max_diff_edgecurv;        /*!< maximum abs diff left-right   */
+	/*!< edge curvature, in micro-units    */
+	l_int32 useboth;        /*!< use both disparity arrays if      */
+	/*!< available; only vertical otherwise */
+	l_int32 check_columns;        /*!< if there are multiple columns,    */
+	/*!< only use the vertical disparity   */
+	/*!< array                             */
+	l_int32 modelsready;        /*!< invalid models have been removed  */
+	/*!< and refs built against valid set  */
 };
+
 typedef struct L_Dewarpa L_DEWARPA;
 
-
 /*! Data structure for a single dewarp */
-struct L_Dewarp
-{
-    struct L_Dewarpa  *dewa;         /*!< ptr to parent (not owned)          */
-    struct Pix        *pixs;         /*!< source pix, 1 bpp                  */
-    struct FPix       *sampvdispar;  /*!< sampled vert disparity array       */
-    struct FPix       *samphdispar;  /*!< sampled horiz disparity array      */
-    struct FPix       *fullvdispar;  /*!< full vert disparity array          */
-    struct FPix       *fullhdispar;  /*!< full horiz disparity array         */
-    struct Numa       *namidys;      /*!< sorted y val of midpoint each line */
-    struct Numa       *nacurves;     /*!< sorted curvature of each line      */
-    int32            w;            /*!< width of source image              */
-    int32            h;            /*!< height of source image             */
-    int32            pageno;       /*!< page number; important for reuse   */
-    int32            sampling;     /*!< sampling factor of disparity arrays */
-    int32            redfactor;    /*!< reduction factor of pixs: 1 or 2   */
-    int32            minlines;     /*!< min number of long lines required  */
-    int32            nlines;       /*!< number of long lines found         */
-    int32            mincurv;      /*!< min line curvature in micro-units  */
-    int32            maxcurv;      /*!< max line curvature in micro-units  */
-    int32            leftslope;    /*!< left edge slope in milli-units     */
-    int32            rightslope;   /*!< right edge slope in milli-units    */
-    int32            leftcurv;     /*!< left edge curvature in micro-units */
-    int32            rightcurv;    /*!< right edge curvature in micro-units*/
-    int32            nx;           /*!< number of sampling pts in x-dir    */
-    int32            ny;           /*!< number of sampling pts in y-dir    */
-    int32            hasref;       /*!< 0 if normal; 1 if has a refpage    */
-    int32            refpage;      /*!< page with disparity model to use   */
-    int32            vsuccess;     /*!< sets to 1 if vert disparity builds */
-    int32            hsuccess;     /*!< sets to 1 if horiz disparity builds */
-    int32            vvalid;       /*!< sets to 1 if valid vert disparity  */
-    int32            hvalid;       /*!< sets to 1 if valid horiz disparity */
-    int32            skip_horiz;   /*!< if 1, skip horiz disparity         */
-                                     /*!< correction                         */
-    int32            debug;        /*!< set to 1 if debug output requested */
+struct L_Dewarp {
+	struct L_Dewarpa  * dewa; /*!< ptr to parent (not owned)          */
+	struct Pix        * pixs; /*!< source pix, 1 bpp                  */
+	struct FPix       * sampvdispar; /*!< sampled vert disparity array       */
+	struct FPix       * samphdispar; /*!< sampled horiz disparity array      */
+	struct FPix       * sampydispar; /*!< sampled slope h-disparity array    */
+	struct FPix       * fullvdispar; /*!< full vert disparity array          */
+	struct FPix       * fullhdispar; /*!< full horiz disparity array         */
+	struct FPix       * fullydispar; /*!< full slope h-disparity array       */
+	struct Numa       * namidys; /*!< sorted y val of midpoint each line */
+	struct Numa       * nacurves; /*!< sorted curvature of each line      */
+	l_int32 w;                   /*!< width of source image              */
+	l_int32 h;                   /*!< height of source image             */
+	l_int32 pageno;        /*!< page number; important for reuse   */
+	l_int32 sampling;        /*!< sampling factor of disparity arrays */
+	l_int32 redfactor;        /*!< reduction factor of pixs: 1 or 2   */
+	l_int32 minlines;        /*!< min number of long lines required  */
+	l_int32 nlines;        /*!< number of long lines found         */
+	l_int32 mincurv;        /*!< min line curvature in micro-units  */
+	l_int32 maxcurv;        /*!< max line curvature in micro-units  */
+	l_int32 leftslope;        /*!< left edge slope in milli-units     */
+	l_int32 rightslope;        /*!< right edge slope in milli-units    */
+	l_int32 leftcurv;        /*!< left edge curvature in micro-units */
+	l_int32 rightcurv;        /*!< right edge curvature in micro-units*/
+	l_int32 nx;                  /*!< number of sampling pts in x-dir    */
+	l_int32 ny;                  /*!< number of sampling pts in y-dir    */
+	l_int32 hasref;        /*!< 0 if normal; 1 if has a refpage    */
+	l_int32 refpage;        /*!< page with disparity model to use   */
+	l_int32 vsuccess;        /*!< sets to 1 if vert disparity builds */
+	l_int32 hsuccess;        /*!< sets to 1 if horiz disparity builds */
+	l_int32 ysuccess;        /*!< sets to 1 if slope disparity builds */
+	l_int32 vvalid;        /*!< sets to 1 if valid vert disparity  */
+	l_int32 hvalid;        /*!< sets to 1 if valid horiz disparity */
+	l_int32 skip_horiz;        /*!< if 1, skip horiz disparity         */
+	/*!< correction                         */
+	l_int32 debug;        /*!< set to 1 if debug output requested */
 };
+
 typedef struct L_Dewarp L_DEWARP;
 
 #endif  /* LEPTONICA_DEWARP_H */

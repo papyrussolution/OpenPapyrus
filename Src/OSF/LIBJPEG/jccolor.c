@@ -106,7 +106,7 @@ METHODDEF(void) rgb_ycc_start(j_compress_ptr cinfo)
 		 * not MAXJSAMPLE+1, and thus that we don't have to range-limit.
 		 */
 		rgb_ycc_tab[i+B_CB_OFF] = FIX(0.5) * i    + CBCR_OFFSET + ONE_HALF-1;
-/*  B=>Cb and R=>Cr tables are the same
+/* B=>Cb and R=>Cr tables are the same
     rgb_ycc_tab[i+R_CR_OFF] = FIX(0.5) * i    + CBCR_OFFSET + ONE_HALF-1;
  */
 		rgb_ycc_tab[i+G_CR_OFF] = (-FIX(0.418687589)) * i;

@@ -1,12 +1,8 @@
+// collationkeys.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2012-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationkeys.cpp
- *
+ * Copyright (C) 2012-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2012sep02
  * created by: Markus W. Scherer
  */
@@ -85,7 +81,7 @@ char * SortKeyByteSink::GetAppendBuffer(int32_t min_capacity,
 
 namespace {
 /**
- * uint8_t byte buffer, similar to CharString but simpler.
+ * uint8 byte buffer, similar to CharString but simpler.
  */
 class SortKeyLevel : public UMemory {
 public:
@@ -108,15 +104,15 @@ public:
 		return len;
 	}
 
-	const uint8_t * data() const {
+	const uint8 * data() const {
 		return buffer.getAlias();
 	}
 
-	uint8_t operator[](int32_t index) const {
+	uint8 operator[](int32_t index) const {
 		return buffer[index];
 	}
 
-	uint8_t * data() {
+	uint8 * data() {
 		return buffer.getAlias();
 	}
 
@@ -132,7 +128,7 @@ public:
 	}
 
 private:
-	MaybeStackArray<uint8_t, 40> buffer;
+	MaybeStackArray<uint8, 40> buffer;
 	int32_t len;
 	bool ok;
 
@@ -144,14 +140,14 @@ private:
 
 void SortKeyLevel::appendByte(uint32_t b) {
 	if(len < buffer.getCapacity() || ensureCapacity(1)) {
-		buffer[len++] = (uint8_t)b;
+		buffer[len++] = (uint8)b;
 	}
 }
 
 void SortKeyLevel::appendWeight16(uint32_t w) {
 	U_ASSERT((w & 0xffff) != 0);
-	uint8_t b0 = (uint8_t)(w >> 8);
-	uint8_t b1 = (uint8_t)w;
+	uint8 b0 = (uint8)(w >> 8);
+	uint8 b1 = (uint8)w;
 	int32_t appendLength = (b1 == 0) ? 1 : 2;
 	if((len + appendLength) <= buffer.getCapacity() || ensureCapacity(appendLength)) {
 		buffer[len++] = b0;
@@ -163,7 +159,7 @@ void SortKeyLevel::appendWeight16(uint32_t w) {
 
 void SortKeyLevel::appendWeight32(uint32_t w) {
 	U_ASSERT(w != 0);
-	uint8_t bytes[4] = { (uint8_t)(w >> 24), (uint8_t)(w >> 16), (uint8_t)(w >> 8), (uint8_t)w };
+	uint8 bytes[4] = { (uint8)(w >> 24), (uint8)(w >> 16), (uint8)(w >> 8), (uint8)w };
 	int32_t appendLength = (bytes[1] == 0) ? 1 : (bytes[2] == 0) ? 2 : (bytes[3] == 0) ? 3 : 4;
 	if((len + appendLength) <= buffer.getCapacity() || ensureCapacity(appendLength)) {
 		buffer[len++] = bytes[0];
@@ -181,8 +177,8 @@ void SortKeyLevel::appendWeight32(uint32_t w) {
 
 void SortKeyLevel::appendReverseWeight16(uint32_t w) {
 	U_ASSERT((w & 0xffff) != 0);
-	uint8_t b0 = (uint8_t)(w >> 8);
-	uint8_t b1 = (uint8_t)w;
+	uint8 b0 = (uint8)(w >> 8);
+	uint8 b1 = (uint8)w;
 	int32_t appendLength = (b1 == 0) ? 1 : 2;
 	if((len + appendLength) <= buffer.getCapacity() || ensureCapacity(appendLength)) {
 		if(b1 == 0) {
@@ -431,13 +427,13 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 				if(0 < p && p <= Collation::MERGE_SEPARATOR_PRIMARY) {
 					// The backwards secondary level compares secondary weights backwards
 					// within segments separated by the merge separator (U+FFFE).
-					uint8_t * secs = secondaries.data();
+					uint8 * secs = secondaries.data();
 					int32_t last = secondaries.length() - 1;
 					if(secSegmentStart < last) {
-						uint8_t * q = secs + secSegmentStart;
-						uint8_t * r = secs + last;
+						uint8 * q = secs + secSegmentStart;
+						uint8 * r = secs + last;
 						do {
-							uint8_t b = *q;
+							uint8 b = *q;
 							*q++ = *r;
 							*r-- = b;
 						} while(q < r);
@@ -696,9 +692,9 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 		sink.Append(Collation::LEVEL_SEPARATOR_BYTE);
 		// Write pairs of nibbles as bytes, except separator bytes as themselves.
 		int32_t length = cases.length() - 1; // Ignore the trailing NO_CE.
-		uint8_t b = 0;
+		uint8 b = 0;
 		for(int32_t i = 0; i < length; ++i) {
-			uint8_t c = (uint8_t)cases[i];
+			uint8 c = (uint8)cases[i];
 			U_ASSERT((c & 0xf) == 0 && c != 0);
 			if(b == 0) {
 				b = c;

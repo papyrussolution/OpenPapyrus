@@ -1333,7 +1333,7 @@ static struct SResource * parseIntVector(ParseState* state,
 		}
 
 		/* For handling illegal char in the Intvector */
-		value = uprv_strtoul(string, &stopstring, 0);/* make intvector support decimal,hexdigit,octal digit
+		value = uprv_strtoul(string, &stopstring, 0); /* make intvector support decimal,hexdigit,octal digit
 		                                                ranging from -2^31-2^32-1*/
 		int32_t len = (int32_t)(stopstring-string);
 

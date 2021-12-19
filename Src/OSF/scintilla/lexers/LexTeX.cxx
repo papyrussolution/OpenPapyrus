@@ -126,7 +126,7 @@ static void ColouriseTeXDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 	styler.StartSegment(startPos);
 	bool processComment   = styler.GetPropertyInt("lexer.tex.comment.process",   0) == 1;
 	bool useKeywords      = styler.GetPropertyInt("lexer.tex.use.keywords",      1) == 1;
-	bool autoIf           = styler.GetPropertyInt("lexer.tex.auto.if",           1) == 1;
+	bool autoIf   = styler.GetPropertyInt("lexer.tex.auto.if",           1) == 1;
 	int defaultInterface = styler.GetPropertyInt("lexer.tex.interface.default", 1);
 	char key[100];
 	int k;
@@ -352,7 +352,6 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			else if(lineCurrent!=0 && IsTeXCommentLine(lineCurrent - 1, styler) && !IsTeXCommentLine(lineCurrent+1, styler))
 				levelCurrent--;
 		}
-//---------------------------------------------------------------------------------------------
 		if(atEOL) {
 			int lev = levelPrev;
 			if(visibleChars == 0 && foldCompact)
@@ -366,11 +365,9 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			levelPrev = levelCurrent;
 			visibleChars = 0;
 		}
-
 		if(!isspacechar(ch))
 			visibleChars++;
 	}
-
 	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
 	int flagsNext = styler.LevelAt(lineCurrent) & ~SC_FOLDLEVELNUMBERMASK;
 	styler.SetLevel(lineCurrent, levelPrev | flagsNext);

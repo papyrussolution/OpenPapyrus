@@ -682,7 +682,7 @@ void TimeZone::getOffset(UDate date, bool local, int32_t& rawOffset,
 		Grego::dayToFields(day, year, month, dom, dow);
 
 		dstOffset = getOffset(GregorianCalendar::AD, year, month, dom,
-			(uint8_t)dow, millis,
+			(uint8)dow, millis,
 			Grego::monthLength(year, month),
 			ec) - rawOffset;
 

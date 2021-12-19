@@ -90,7 +90,7 @@ int PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
 	p_dlg->AddClusterAssoc(CTL_SCALEFLT_FLAGS, 0, SCALF_PASSIVE);
 	p_dlg->SetClusterData(CTL_SCALEFLT_FLAGS, filt.Flags);
 	if(ExecView(p_dlg) == cmOK) {
-		filt.LocID         = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_LOC);
+		filt.LocID = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_LOC);
 		filt.ScaleTypeID   = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_TYPE);
 		filt.AltGoodsGrpID = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_ALTGRP);
 		filt.GroupID       = p_dlg->getCtrlLong(CTLSEL_SCALEFLT_GROUP);

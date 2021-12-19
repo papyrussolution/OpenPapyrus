@@ -30,11 +30,11 @@
  *
  *        PIXTILING       *pixTilingCreate()
  *        void            *pixTilingDestroy()
- *        int32          pixTilingGetCount()
- *        int32          pixTilingGetSize()
+ *        l_int32          pixTilingGetCount()
+ *        l_int32          pixTilingGetSize()
  *        PIX             *pixTilingGetTile()
- *        int32          pixTilingNoStripOnPaint()
- *        int32          pixTilingPaintTile()
+ *        l_int32          pixTilingNoStripOnPaint()
+ *        l_int32          pixTilingPaintTile()
  *
  *   This provides a simple way to split an image into tiles
  *   and to perform operations independently on each tile.
@@ -53,14 +53,14 @@
  *   where the desired tile width is 256 pixels and the overlap is
  *   30 pixels on left and right sides:
  *
- *     PIX *pixd = pixCreateTemplateNoInit(pixs);  // output
+ *     PIX *pixd = pixCreateTemplate(pixs);  // output
  *     PIXTILING  *pt = pixTilingCreate(pixs, 0, 1, 256, 30, 0);
- *     pixTilingGetCount(pt, \&nx, NULL);
- *     for (j = 0; j \< nx; j++) {
+ *     pixTilingGetCount(pt, &nx, NULL);
+ *     for (j = 0; j < nx; j++) {
  *         PIX *pixt = pixTilingGetTile(pt, 0, j);
  *         SomeInPlaceOperation(pixt, 30, 0, ...);
  *         pixTilingPaintTile(pixd, 0, j, pixt, pt);
- *         pixDestroy(\&pixt);
+ *         pixDestroy(&pixt);
  *     }
  *
  *   In this example, note the following:
@@ -88,13 +88,13 @@
 /*!
  * \brief   pixTilingCreate()
  *
- * \param[in]    pixs  pix to be tiled; any depth; colormap OK
- * \param[in]    nx    number of tiles across image
- * \param[in]    ny    number of tiles down image
- * \param[in]    w     desired width of each tile
- * \param[in]    h     desired height of each tile
- * \param[in]    xoverlap overlap into neighboring tiles on each side
- * \param[in]    yoverlap overlap into neighboring tiles above and below
+ * \param[in]    pixs       pix to be tiled; any depth; colormap OK
+ * \param[in]    nx         number of tiles across image
+ * \param[in]    ny         number of tiles down image
+ * \param[in]    w          desired width of each tile
+ * \param[in]    h          desired height of each tile
+ * \param[in]    xoverlap   overlap into neighboring tiles on each side
+ * \param[in]    yoverlap   overlap into neighboring tiles above and below
  * \return  pixtiling, or NULL on error
  *
  * <pre>
@@ -114,18 +114,18 @@
  *          the leftmost or topmost tile(s).
  * </pre>
  */
-PIXTILING * pixTilingCreate(PIX     * pixs,
-    int32 nx,
-    int32 ny,
-    int32 w,
-    int32 h,
-    int32 xoverlap,
-    int32 yoverlap)
+PIXTILING * pixTilingCreate(PIX * pixs,
+    l_int32 nx,
+    l_int32 ny,
+    l_int32 w,
+    l_int32 h,
+    l_int32 xoverlap,
+    l_int32 yoverlap)
 {
-	int32 width, height;
+	l_int32 width, height;
 	PIXTILING  * pt;
 
-	PROCNAME("pixTilingCreate");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return (PIXTILING*)ERROR_PTR("pixs not defined", procName, NULL);
@@ -146,12 +146,11 @@ PIXTILING * pixTilingCreate(PIX     * pixs,
 		ny = MAX(1, height / h);
 	h = height / ny; /* possibly reset */
 	if(xoverlap > w || yoverlap > h) {
-		L_INFO3("tile width = %d, tile height = %d\n", procName, w, h);
+		L_INFO("tile width = %d, tile height = %d\n", procName, w, h);
 		return (PIXTILING*)ERROR_PTR("overlap too large", procName, NULL);
 	}
 
-	if((pt = (PIXTILING*)LEPT_CALLOC(1, sizeof(PIXTILING))) == NULL)
-		return (PIXTILING*)ERROR_PTR("pt not made", procName, NULL);
+	pt = (PIXTILING*)SAlloc::C(1, sizeof(PIXTILING));
 	pt->pix = pixClone(pixs);
 	pt->xoverlap = xoverlap;
 	pt->yoverlap = yoverlap;
@@ -166,38 +165,41 @@ PIXTILING * pixTilingCreate(PIX     * pixs,
 /*!
  * \brief   pixTilingDestroy()
  *
- * \param[in,out]   ppt will be set to null before returning
+ * \param[in,out]   ppt   will be set to null before returning
  * \return  void
  */
 void pixTilingDestroy(PIXTILING  ** ppt)
 {
 	PIXTILING  * pt;
-	PROCNAME("pixTilingDestroy");
+
+	PROCNAME(__FUNCTION__);
+
 	if(ppt == NULL) {
 		L_WARNING("ptr address is null!\n", procName);
 		return;
 	}
+
 	if((pt = *ppt) == NULL)
 		return;
+
 	pixDestroy(&pt->pix);
-	LEPT_FREE(pt);
+	SAlloc::F(pt);
 	*ppt = NULL;
-	return;
 }
 
 /*!
  * \brief   pixTilingGetCount()
  *
- * \param[in]    pt pixtiling
- * \param[out]   pnx [optional] nx; can be null
- * \param[out]   pny [optional] ny; can be null
+ * \param[in]    pt     pixtiling
+ * \param[out]   pnx    [optional] nx; can be null
+ * \param[out]   pny    [optional] ny; can be null
  * \return  0 if OK, 1 on error
  */
-int32 pixTilingGetCount(PIXTILING  * pt,
-    int32    * pnx,
-    int32    * pny)
+l_ok pixTilingGetCount(PIXTILING  * pt,
+    l_int32    * pnx,
+    l_int32    * pny)
 {
-	PROCNAME("pixTilingGetCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!pt)
 		return ERROR_INT("pt not defined", procName, 1);
@@ -209,14 +211,17 @@ int32 pixTilingGetCount(PIXTILING  * pt,
 /*!
  * \brief   pixTilingGetSize()
  *
- * \param[in]    pt pixtiling
- * \param[out]   pw [optional] tile width; can be null
- * \param[out]   ph [optional] tile height; can be null
+ * \param[in]    pt    pixtiling
+ * \param[out]   pw    [optional] tile width; can be null
+ * \param[out]   ph    [optional] tile height; can be null
  * \return  0 if OK, 1 on error
  */
-int32 pixTilingGetSize(PIXTILING  * pt, int32 * pw, int32 * ph)
+l_ok pixTilingGetSize(PIXTILING  * pt,
+    l_int32    * pw,
+    l_int32    * ph)
 {
-	PROCNAME("pixTilingGetSize");
+	PROCNAME(__FUNCTION__);
+
 	if(!pt)
 		return ERROR_INT("pt not defined", procName, 1);
 	if(pw) *pw = pt->w;
@@ -227,31 +232,33 @@ int32 pixTilingGetSize(PIXTILING  * pt, int32 * pw, int32 * ph)
 /*!
  * \brief   pixTilingGetTile()
  *
- * \param[in]    pt pixtiling
- * \param[in]    i tile row index
- * \param[in]    j tile column index
- * \return  pixd tile with appropriate boundary (overlap) pixels added,
+ * \param[in]    pt    pixtiling
+ * \param[in]    i     tile row index
+ * \param[in]    j     tile column index
+ * \return  pixd   tile with appropriate boundary (overlap) pixels added,
  *                    or NULL on error
  */
-PIX * pixTilingGetTile(PIXTILING  * pt, int32 i, int32 j)
+PIX * pixTilingGetTile(PIXTILING  * pt,
+    l_int32 i,
+    l_int32 j)
 {
-	int32 wpix, hpix, wt, ht, nx, ny;
-	int32 xoverlap, yoverlap, wtlast, htlast;
-	int32 left, top, xtraleft, xtraright, xtratop, xtrabot, width, height;
-	BOX     * box;
-	PIX     * pixs, * pixt, * pixd;
+	l_int32 wpix, hpix, wt, ht, nx, ny;
+	l_int32 xoverlap, yoverlap, wtlast, htlast;
+	l_int32 left, top, xtraleft, xtraright, xtratop, xtrabot, width, height;
+	BOX * box;
+	PIX * pixs, * pixt, * pixd;
 
-	PROCNAME("pixTilingGetTile");
+	PROCNAME(__FUNCTION__);
 
 	if(!pt)
-		return (PIX*)ERROR_PTR("pt not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pt not defined", procName, NULL);
 	if((pixs = pt->pix) == NULL)
-		return (PIX*)ERROR_PTR("pix not found", procName, NULL);
+		return (PIX *)ERROR_PTR("pix not found", procName, NULL);
 	pixTilingGetCount(pt, &nx, &ny);
 	if(i < 0 || i >= ny)
-		return (PIX*)ERROR_PTR("invalid row index i", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid row index i", procName, NULL);
 	if(j < 0 || j >= nx)
-		return (PIX*)ERROR_PTR("invalid column index j", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid column index j", procName, NULL);
 
 	/* Grab the tile with as much overlap as exists within the
 	 * input pix.   First, compute the (left, top) coordinates.  */
@@ -302,16 +309,16 @@ PIX * pixTilingGetTile(PIXTILING  * pt, int32 i, int32 j)
 		xtratop = xtrabot = yoverlap;
 	if(i == 0 && j == 0)
 		pixd = pixAddMirroredBorder(pixt, xoverlap, xtraright,
-		    yoverlap, xtrabot);
+			yoverlap, xtrabot);
 	else if(i == 0 && j == nx - 1)
 		pixd = pixAddMirroredBorder(pixt, xtraleft, xoverlap,
-		    yoverlap, xtrabot);
+			yoverlap, xtrabot);
 	else if(i == ny - 1 && j == 0)
 		pixd = pixAddMirroredBorder(pixt, xoverlap, xtraright,
-		    xtratop, yoverlap);
+			xtratop, yoverlap);
 	else if(i == ny - 1 && j == nx - 1)
 		pixd = pixAddMirroredBorder(pixt, xtraleft, xoverlap,
-		    xtratop, yoverlap);
+			xtratop, yoverlap);
 	else if(i == 0)
 		pixd = pixAddMirroredBorder(pixt, 0, 0, yoverlap, xtrabot);
 	else if(i == ny - 1)
@@ -330,7 +337,7 @@ PIX * pixTilingGetTile(PIXTILING  * pt, int32 i, int32 j)
 /*!
  * \brief   pixTilingNoStripOnPaint()
  *
- * \param[in]    pt pixtiling
+ * \param[in]    pt    pixtiling
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -342,9 +349,10 @@ PIX * pixTilingGetTile(PIXTILING  * pt, int32 i, int32 j)
  *          to strip the added boundary pixels when painting.
  * </pre>
  */
-int32 pixTilingNoStripOnPaint(PIXTILING  * pt)
+l_ok pixTilingNoStripOnPaint(PIXTILING  * pt)
 {
-	PROCNAME("pixTilingNoStripOnPaint");
+	PROCNAME(__FUNCTION__);
+
 	if(!pt)
 		return ERROR_INT("pt not defined", procName, 1);
 	pt->strip = FALSE;
@@ -354,17 +362,23 @@ int32 pixTilingNoStripOnPaint(PIXTILING  * pt)
 /*!
  * \brief   pixTilingPaintTile()
  *
- * \param[in]    pixd dest: paint tile onto this, without overlap
- * \param[in]    i tile row index
- * \param[in]    j tile column index
- * \param[in]    pixs source: tile to be painted from
- * \param[in]    pt pixtiling struct
+ * \param[in]    pixd    dest: paint tile onto this, without overlap
+ * \param[in]    i       tile row index
+ * \param[in]    j       tile column index
+ * \param[in]    pixs    source: tile to be painted from
+ * \param[in]    pt      pixtiling struct
  * \return  0 if OK, 1 on error
  */
-int32 pixTilingPaintTile(PIX * pixd, int32 i, int32 j, PIX * pixs, PIXTILING * pt)
+l_ok pixTilingPaintTile(PIX        * pixd,
+    l_int32 i,
+    l_int32 j,
+    PIX        * pixs,
+    PIXTILING  * pt)
 {
-	int32 w, h;
-	PROCNAME("pixTilingPaintTile");
+	l_int32 w, h;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(!pixs)
@@ -379,11 +393,13 @@ int32 pixTilingPaintTile(PIX * pixd, int32 i, int32 j, PIX * pixs, PIXTILING * p
 	/* Strip added border pixels off if requested */
 	pixGetDimensions(pixs, &w, &h, NULL);
 	if(pt->strip == TRUE) {
-		pixRasterop(pixd, j * pt->w, i * pt->h, w - 2 * pt->xoverlap, h - 2 * pt->yoverlap, PIX_SRC, pixs, pt->xoverlap, pt->yoverlap);
+		pixRasterop(pixd, j * pt->w, i * pt->h,
+		    w - 2 * pt->xoverlap, h - 2 * pt->yoverlap, PIX_SRC,
+		    pixs, pt->xoverlap, pt->yoverlap);
 	}
 	else {
 		pixRasterop(pixd, j * pt->w, i * pt->h, w, h, PIX_SRC, pixs, 0, 0);
 	}
+
 	return 0;
 }
-

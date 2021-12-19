@@ -44,7 +44,7 @@ struct read_fd_data {
 	void    * buffer;
 };
 
-static int      file_close(struct archive *, void *);
+static int file_close(struct archive *, void *);
 static ssize_t  file_read(struct archive *, void *, const void ** buff);
 static int64  file_seek(struct archive *, void *, int64 request, int);
 static int64  file_skip(struct archive *, void *, int64 request);
@@ -185,7 +185,7 @@ static int64 file_seek(struct archive * a, void * client_data, int64 request, in
 static int file_close(struct archive * a, void * client_data)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	SAlloc::F(mine->buffer);
 	SAlloc::F(mine);
 	return ARCHIVE_OK;

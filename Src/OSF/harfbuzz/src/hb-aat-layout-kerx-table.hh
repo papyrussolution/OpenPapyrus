@@ -146,11 +146,11 @@ public:
 	template <>
 	struct Format1Entry<true> {
 		enum Flags {
-			Push                = 0x8000,/* If set, push this glyph on the kerning stack. */
-			DontAdvance         = 0x4000,/* If set, don't advance to the next glyph
+			Push        = 0x8000,/* If set, push this glyph on the kerning stack. */
+			DontAdvance = 0x4000,/* If set, don't advance to the next glyph
 			 * before going to the new state. */
-			Reset               = 0x2000,/* If set, reset the kerning data (clear the stack) */
-			Reserved            = 0x1FFF,/* Not used; set to 0. */
+			Reset       = 0x2000,/* If set, reset the kerning data (clear the stack) */
+			Reserved    = 0x1FFF,/* Not used; set to 0. */
 		};
 
 		struct EntryData {
@@ -174,13 +174,13 @@ public:
 	template <>
 	struct Format1Entry<false> {
 		enum Flags {
-			Push                = 0x8000,/* If set, push this glyph on the kerning stack. */
-			DontAdvance         = 0x4000,/* If set, don't advance to the next glyph
+			Push        = 0x8000,/* If set, push this glyph on the kerning stack. */
+			DontAdvance = 0x4000,/* If set, don't advance to the next glyph
 			 * before going to the new state. */
-			Offset              = 0x3FFF,/* Byte offset from beginning of subtable to the
+			Offset      = 0x3FFF,/* Byte offset from beginning of subtable to the
 			 * value table for the glyphs on the kerning stack. */
 
-			Reset               = 0x0000,/* Not supported? */
+			Reset       = 0x0000,/* Not supported? */
 		};
 
 		typedef void EntryData;
@@ -222,7 +222,7 @@ public:
 				crossStream(table->header.coverage & table->header.CrossStream) {
 			}
 
-			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED,
+			bool is_actionable(StateTableDriver<Types, EntryData> * driver CXX_UNUSED_PARAM,
 			    const Entry<EntryData> &entry)
 			{
 				return Format1EntryT::performAction(entry);
@@ -433,16 +433,16 @@ public:
 		struct driver_context_t {
 			static constexpr bool in_place = true;
 			enum Flags {
-				Mark              = 0x8000,/* If set, remember this glyph as the marked glyph. */
+				Mark      = 0x8000,/* If set, remember this glyph as the marked glyph. */
 				DontAdvance       = 0x4000,/* If set, don't advance to the next glyph before
 				 * going to the new state. */
-				Reserved          = 0x3FFF,/* Not used; set to 0. */
+				Reserved  = 0x3FFF,/* Not used; set to 0. */
 			};
 
 			enum SubTableFlags {
 				ActionType        = 0xC0000000,/* A two-bit field containing the action type. */
-				Unused            = 0x3F000000,/* Unused - must be zero. */
-				Offset            = 0x00FFFFFF,/* Masks the offset in bytes from the beginning
+				Unused    = 0x3F000000,/* Unused - must be zero. */
+				Offset    = 0x00FFFFFF,/* Masks the offset in bytes from the beginning
 				 * of the subtable to the beginning of the control
 				 * point table. */
 			};
@@ -455,7 +455,7 @@ public:
 				mark_set(false),
 				mark(0) {
 			}
-			bool is_actionable(StateTableDriver<Types, EntryData> * driver HB_UNUSED, const Entry<EntryData> &entry)
+			bool is_actionable(StateTableDriver<Types, EntryData> * driver CXX_UNUSED_PARAM, const Entry<EntryData> &entry)
 			{
 				return entry.data.ankrActionIndex != 0xFFFF;
 			}

@@ -33,10 +33,14 @@
  *   Default for ncontours is 40.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
-static const char *fileout = "/tmp/fpixcontours.png";
+static const char *fileout = "/tmp/lept/fpix/fpixcontours.png";
 
 int main(int    argc,
          char **argv)
@@ -48,15 +52,17 @@ PIX         *pix;
 static char  mainName[] = "fpixcontours";
 
     if (argc != 2 && argc != 3) {
-        fprintf(stderr, "Syntax: fpixcontours filein [ncontours]\n");
+        lept_stderr("Syntax: fpixcontours filein [ncontours]\n");
         return 1;
     }
-
     filein = argv[1];
     if (argc == 2)
         ncontours = 40;
     else  /* argc == 3 */
         ncontours = atoi(argv[2]);
+
+    setLeptDebugOK(1);
+    lept_mkdir("lept/fpix");
 
     if ((fpix = fpixRead(filein)) == NULL)
         return ERROR_INT(mainName, "fpix not read", 1);

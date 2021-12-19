@@ -287,7 +287,7 @@ static const char * const LANGUAGES_3[] = {
 	"zha", "zap", "zbl", "zea", "zen", "zgh", "zho", "zul",
 	"zun", "zxx", "zza",
 	NULL,
-/*  "in",  "iw",  "ji",  "jw",  "mo",  "sh",  "swc", "tl",  */
+/* "in",  "iw",  "ji",  "jw",  "mo",  "sh",  "swc", "tl",  */
 	"ind", "heb", "yid", "jaw", "mol", "srp", "swc", "tgl",
 	NULL
 };
@@ -360,7 +360,7 @@ static const char * const DEPRECATED_COUNTRIES[] = {
 	  */
 };
 static const char * const REPLACEMENT_COUNTRIES[] = {
-/*  "AN", "BU", "CS", "DD", "DY", "FX", "HV", "NH", "RH", "SU", "TP", "UK", "VD", "YD", "YU", "ZR" */
+/* "AN", "BU", "CS", "DD", "DY", "FX", "HV", "NH", "RH", "SU", "TP", "UK", "VD", "YD", "YU", "ZR" */
 	"CW", "MM", "RS", "DE", "BJ", "FR", "BF", "VU", "ZW", "RU", "TL", "GB", "VN", "YE", "RS", "CD", NULL, NULL /*
 	                                                                                                              replacement
 	                                                                                                              country
@@ -382,68 +382,68 @@ static const char * const REPLACEMENT_COUNTRIES[] = {
  * the two lists in COUNTRIES.
  */
 static const char * const COUNTRIES_3[] = {
-/*  "AD",  "AE",  "AF",  "AG",  "AI",  "AL",  "AM",      */
+/* "AD",  "AE",  "AF",  "AG",  "AI",  "AL",  "AM",      */
 	"AND", "ARE", "AFG", "ATG", "AIA", "ALB", "ARM",
-/*  "AO",  "AQ",  "AR",  "AS",  "AT",  "AU",  "AW",  "AX",  "AZ",     */
+/* "AO",  "AQ",  "AR",  "AS",  "AT",  "AU",  "AW",  "AX",  "AZ",     */
 	"AGO", "ATA", "ARG", "ASM", "AUT", "AUS", "ABW", "ALA", "AZE",
-/*  "BA",  "BB",  "BD",  "BE",  "BF",  "BG",  "BH",  "BI",     */
+/* "BA",  "BB",  "BD",  "BE",  "BF",  "BG",  "BH",  "BI",     */
 	"BIH", "BRB", "BGD", "BEL", "BFA", "BGR", "BHR", "BDI",
-/*  "BJ",  "BL",  "BM",  "BN",  "BO",  "BQ",  "BR",  "BS",  "BT",  "BV",     */
+/* "BJ",  "BL",  "BM",  "BN",  "BO",  "BQ",  "BR",  "BS",  "BT",  "BV",     */
 	"BEN", "BLM", "BMU", "BRN", "BOL", "BES", "BRA", "BHS", "BTN", "BVT",
-/*  "BW",  "BY",  "BZ",  "CA",  "CC",  "CD",  "CF",  "CG",     */
+/* "BW",  "BY",  "BZ",  "CA",  "CC",  "CD",  "CF",  "CG",     */
 	"BWA", "BLR", "BLZ", "CAN", "CCK", "COD", "CAF", "COG",
-/*  "CH",  "CI",  "CK",  "CL",  "CM",  "CN",  "CO",  "CR",     */
+/* "CH",  "CI",  "CK",  "CL",  "CM",  "CN",  "CO",  "CR",     */
 	"CHE", "CIV", "COK", "CHL", "CMR", "CHN", "COL", "CRI",
-/*  "CU",  "CV",  "CW",  "CX",  "CY",  "CZ",  "DE",  "DG",  "DJ",  "DK",     */
+/* "CU",  "CV",  "CW",  "CX",  "CY",  "CZ",  "DE",  "DG",  "DJ",  "DK",     */
 	"CUB", "CPV", "CUW", "CXR", "CYP", "CZE", "DEU", "DGA", "DJI", "DNK",
-/*  "DM",  "DO",  "DZ",  "EA",  "EC",  "EE",  "EG",  "EH",  "ER",     */
+/* "DM",  "DO",  "DZ",  "EA",  "EC",  "EE",  "EG",  "EH",  "ER",     */
 	"DMA", "DOM", "DZA", "XEA", "ECU", "EST", "EGY", "ESH", "ERI",
-/*  "ES",  "ET",  "FI",  "FJ",  "FK",  "FM",  "FO",  "FR",     */
+/* "ES",  "ET",  "FI",  "FJ",  "FK",  "FM",  "FO",  "FR",     */
 	"ESP", "ETH", "FIN", "FJI", "FLK", "FSM", "FRO", "FRA",
-/*  "GA",  "GB",  "GD",  "GE",  "GF",  "GG",  "GH",  "GI",  "GL",     */
+/* "GA",  "GB",  "GD",  "GE",  "GF",  "GG",  "GH",  "GI",  "GL",     */
 	"GAB", "GBR", "GRD", "GEO", "GUF", "GGY", "GHA", "GIB", "GRL",
-/*  "GM",  "GN",  "GP",  "GQ",  "GR",  "GS",  "GT",  "GU",     */
+/* "GM",  "GN",  "GP",  "GQ",  "GR",  "GS",  "GT",  "GU",     */
 	"GMB", "GIN", "GLP", "GNQ", "GRC", "SGS", "GTM", "GUM",
-/*  "GW",  "GY",  "HK",  "HM",  "HN",  "HR",  "HT",  "HU",     */
+/* "GW",  "GY",  "HK",  "HM",  "HN",  "HR",  "HT",  "HU",     */
 	"GNB", "GUY", "HKG", "HMD", "HND", "HRV", "HTI", "HUN",
-/*  "IC",  "ID",  "IE",  "IL",  "IM",  "IN",  "IO",  "IQ",  "IR",  "IS" */
+/* "IC",  "ID",  "IE",  "IL",  "IM",  "IN",  "IO",  "IQ",  "IR",  "IS" */
 	"XIC", "IDN", "IRL", "ISR", "IMN", "IND", "IOT", "IRQ", "IRN", "ISL",
-/*  "IT",  "JE",  "JM",  "JO",  "JP",  "KE",  "KG",  "KH",  "KI",     */
+/* "IT",  "JE",  "JM",  "JO",  "JP",  "KE",  "KG",  "KH",  "KI",     */
 	"ITA", "JEY", "JAM", "JOR", "JPN", "KEN", "KGZ", "KHM", "KIR",
-/*  "KM",  "KN",  "KP",  "KR",  "KW",  "KY",  "KZ",  "LA",     */
+/* "KM",  "KN",  "KP",  "KR",  "KW",  "KY",  "KZ",  "LA",     */
 	"COM", "KNA", "PRK", "KOR", "KWT", "CYM", "KAZ", "LAO",
-/*  "LB",  "LC",  "LI",  "LK",  "LR",  "LS",  "LT",  "LU",     */
+/* "LB",  "LC",  "LI",  "LK",  "LR",  "LS",  "LT",  "LU",     */
 	"LBN", "LCA", "LIE", "LKA", "LBR", "LSO", "LTU", "LUX",
-/*  "LV",  "LY",  "MA",  "MC",  "MD",  "ME",  "MF",  "MG",  "MH",  "MK",     */
+/* "LV",  "LY",  "MA",  "MC",  "MD",  "ME",  "MF",  "MG",  "MH",  "MK",     */
 	"LVA", "LBY", "MAR", "MCO", "MDA", "MNE", "MAF", "MDG", "MHL", "MKD",
-/*  "ML",  "MM",  "MN",  "MO",  "MP",  "MQ",  "MR",  "MS",     */
+/* "ML",  "MM",  "MN",  "MO",  "MP",  "MQ",  "MR",  "MS",     */
 	"MLI", "MMR", "MNG", "MAC", "MNP", "MTQ", "MRT", "MSR",
-/*  "MT",  "MU",  "MV",  "MW",  "MX",  "MY",  "MZ",  "NA",     */
+/* "MT",  "MU",  "MV",  "MW",  "MX",  "MY",  "MZ",  "NA",     */
 	"MLT", "MUS", "MDV", "MWI", "MEX", "MYS", "MOZ", "NAM",
-/*  "NC",  "NE",  "NF",  "NG",  "NI",  "NL",  "NO",  "NP",     */
+/* "NC",  "NE",  "NF",  "NG",  "NI",  "NL",  "NO",  "NP",     */
 	"NCL", "NER", "NFK", "NGA", "NIC", "NLD", "NOR", "NPL",
-/*  "NR",  "NU",  "NZ",  "OM",  "PA",  "PE",  "PF",  "PG",     */
+/* "NR",  "NU",  "NZ",  "OM",  "PA",  "PE",  "PF",  "PG",     */
 	"NRU", "NIU", "NZL", "OMN", "PAN", "PER", "PYF", "PNG",
-/*  "PH",  "PK",  "PL",  "PM",  "PN",  "PR",  "PS",  "PT",     */
+/* "PH",  "PK",  "PL",  "PM",  "PN",  "PR",  "PS",  "PT",     */
 	"PHL", "PAK", "POL", "SPM", "PCN", "PRI", "PSE", "PRT",
-/*  "PW",  "PY",  "QA",  "RE",  "RO",  "RS",  "RU",  "RW",  "SA",     */
+/* "PW",  "PY",  "QA",  "RE",  "RO",  "RS",  "RU",  "RW",  "SA",     */
 	"PLW", "PRY", "QAT", "REU", "ROU", "SRB", "RUS", "RWA", "SAU",
-/*  "SB",  "SC",  "SD",  "SE",  "SG",  "SH",  "SI",  "SJ",     */
+/* "SB",  "SC",  "SD",  "SE",  "SG",  "SH",  "SI",  "SJ",     */
 	"SLB", "SYC", "SDN", "SWE", "SGP", "SHN", "SVN", "SJM",
-/*  "SK",  "SL",  "SM",  "SN",  "SO",  "SR",  "SS",  "ST",  "SV",     */
+/* "SK",  "SL",  "SM",  "SN",  "SO",  "SR",  "SS",  "ST",  "SV",     */
 	"SVK", "SLE", "SMR", "SEN", "SOM", "SUR", "SSD", "STP", "SLV",
-/*  "SX",  "SY",  "SZ",  "TC",  "TD",  "TF",  "TG",  "TH",  "TJ",     */
+/* "SX",  "SY",  "SZ",  "TC",  "TD",  "TF",  "TG",  "TH",  "TJ",     */
 	"SXM", "SYR", "SWZ", "TCA", "TCD", "ATF", "TGO", "THA", "TJK",
-/*  "TK",  "TL",  "TM",  "TN",  "TO",  "TR",  "TT",  "TV",     */
+/* "TK",  "TL",  "TM",  "TN",  "TO",  "TR",  "TT",  "TV",     */
 	"TKL", "TLS", "TKM", "TUN", "TON", "TUR", "TTO", "TUV",
-/*  "TW",  "TZ",  "UA",  "UG",  "UM",  "US",  "UY",  "UZ",     */
+/* "TW",  "TZ",  "UA",  "UG",  "UM",  "US",  "UY",  "UZ",     */
 	"TWN", "TZA", "UKR", "UGA", "UMI", "USA", "URY", "UZB",
-/*  "VA",  "VC",  "VE",  "VG",  "VI",  "VN",  "VU",  "WF",     */
+/* "VA",  "VC",  "VE",  "VG",  "VI",  "VN",  "VU",  "WF",     */
 	"VAT", "VCT", "VEN", "VGB", "VIR", "VNM", "VUT", "WLF",
-/*  "WS",  "XK",  "YE",  "YT",  "ZA",  "ZM",  "ZW", */
+/* "WS",  "XK",  "YE",  "YT",  "ZA",  "ZM",  "ZW", */
 	"WSM", "XXK", "YEM", "MYT", "ZAF", "ZMB", "ZWE",
 	NULL,
-/*  "AN",  "BU",  "CS",  "FX",  "RO", "SU",  "TP",  "YD",  "YU",  "ZR" */
+/* "AN",  "BU",  "CS",  "FX",  "RO", "SU",  "TP",  "YD",  "YU",  "ZR" */
 	"ANT", "BUR", "SCG", "FXX", "ROM", "SUN", "TMP", "YMD", "YUG", "ZAR",
 	NULL
 };
@@ -540,8 +540,8 @@ U_CAPI const char * U_EXPORT2 locale_getKeywordsStart(const char * localeID) {
 		/* We do this because the @ sign is variant, and the @ sign used on one
 		   EBCDIC machine won't be compiled the same way on other EBCDIC based
 		   machines. */
-		static const uint8_t ebcdicSigns[] = { 0x7C, 0x44, 0x66, 0x80, 0xAC, 0xAE, 0xAF, 0xB5, 0xEC, 0xEF, 0x00 };
-		const uint8_t * charToFind = ebcdicSigns;
+		static const uint8 ebcdicSigns[] = { 0x7C, 0x44, 0x66, 0x80, 0xAC, 0xAE, 0xAF, 0xB5, 0xEC, 0xEF, 0x00 };
+		const uint8 * charToFind = ebcdicSigns;
 		while(*charToFind) {
 			if((result = uprv_strchr(localeID, *charToFind)) != NULL) {
 				return result;

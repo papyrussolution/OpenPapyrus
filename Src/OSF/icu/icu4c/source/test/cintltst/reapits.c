@@ -2121,7 +2121,7 @@ static void TestRefreshInput() {
 	 *    runs a find() loop, moving the text after the first match.
 	 *    The right number of matches should still be found.
 	 */
-	UChar testStr[]  = {0x41, 0x20, 0x42, 0x20, 0x43, 0x0};/* = "A B C"  */
+	UChar testStr[]  = {0x41, 0x20, 0x42, 0x20, 0x43, 0x0}; /* = "A B C"  */
 	UChar movedStr[] = {   0,    0,    0,    0,    0,   0};
 	UErrorCode status = U_ZERO_ERROR;
 	URegularExpression * re;

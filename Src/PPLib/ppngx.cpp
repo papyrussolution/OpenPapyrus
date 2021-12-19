@@ -799,7 +799,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagSelfyFace, &bc)) {
 							assert(bc.Len());
 							StyloQFace face_pack;
-							temp_buf.Z().CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
+							bc.ToRawStr(temp_buf);
 							if(face_pack.FromJson(temp_buf))
 								reply_tp.P.Put(SSecretTagPool::tagFace, bc);
 						}
@@ -807,7 +807,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
 							assert(bc.Len());
 							SString transmission_cfg_json;
-							temp_buf.Z().CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
+							bc.ToRawStr(temp_buf);
 							if(StyloQConfig::MakeTransmissionJson(temp_buf, transmission_cfg_json)) {
 								bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
 								reply_tp.P.Put(SSecretTagPool::tagConfig, bc);

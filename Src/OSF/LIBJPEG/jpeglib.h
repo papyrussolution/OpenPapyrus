@@ -211,7 +211,7 @@ typedef enum {
 // Supported color transforms. 
 //
 typedef enum {
-	JCT_NONE           = 0,
+	JCT_NONE   = 0,
 	JCT_SUBTRACT_GREEN = 1
 } J_COLOR_TRANSFORM;
 //

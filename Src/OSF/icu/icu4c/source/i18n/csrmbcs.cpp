@@ -148,7 +148,7 @@ int32_t CharsetRecog_mbcs::match_mbcs(InputText * det, const uint16_t commonChar
 	int32_t commonCharCount     = 0;
 	int32_t badCharCount        = 0;
 	int32_t totalCharCount      = 0;
-	int32_t confidence          = 0;
+	int32_t confidence  = 0;
 	IteratedChar iter;
 
 	while(nextChar(&iter, det)) {

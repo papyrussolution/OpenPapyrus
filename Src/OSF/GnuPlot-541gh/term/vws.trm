@@ -149,7 +149,7 @@ TERM_PUBLIC void VWS_init(GpTermEntry * pThis)
  * is easy to confuse an attribute and an attribute block
  */
 
-/*  lph:  Color map corresponding to an example in
+/* lph:  Color map corresponding to an example in
  *  MicroVMS Graphics Programming Guide (V3.0) */
 
 	const float r_map[8] = { 0.40, 0.50, 0.50, 0.00, 0.25, 0.90, 0.80, 0.35 };

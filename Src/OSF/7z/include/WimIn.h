@@ -196,8 +196,8 @@ namespace NHeaderFlags {
 	const uint32 kWriteInProgress = 1 << 6;
 	const uint32 kReparsePointFixup = 1 << 7;
 	const uint32 kXPRESS       = (uint32)1 << 17;
-	const uint32 kLZX          = (uint32)1 << 18;
-	const uint32 kLZMS         = (uint32)1 << 19;
+	const uint32 kLZX  = (uint32)1 << 18;
+	const uint32 kLZMS = (uint32)1 << 19;
 	const uint32 kXPRESS2      = (uint32)1 << 21;   // XPRESS with nonstandard chunk size ?
 	const uint32 kMethodMask   = 0xFFFE0000;
 }

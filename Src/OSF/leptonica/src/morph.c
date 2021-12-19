@@ -46,8 +46,8 @@
  *         PIX     *pixCloseSafeBrick()
  *
  *     Binary composed morphological (raster) ops with brick Sels
- *         int32  selectComposableSels()
- *         int32  selectComposableSizes()
+ *         l_int32  selectComposableSels()
+ *         l_int32  selectComposableSizes()
  *         PIX     *pixDilateCompBrick()
  *         PIX     *pixErodeCompBrick()
  *         PIX     *pixOpenCompBrick()
@@ -56,7 +56,7 @@
  *
  *     Functions associated with boundary conditions
  *         void     resetMorphBoundaryCondition()
- *         int32  getMorphBorderPixelColor()
+ *         l_int32  getMorphBorderPixelColor()
  *
  *     Static helpers for arg processing
  *         static PIX     *processMorphArgs1()
@@ -103,7 +103,7 @@
  *      code can be auto-gen'd for them; see the instructions in morphdwa.c.
  *
  *  (4) Same as (1), but you run it through pixMorphSequence(), with
- *      the sequence string either compiled in or generated using sprintf.
+ *      the sequence string either compiled in or generated using snprintf.
  *      All intermediate images and Sels are created, used and destroyed.
  *      You always get the result as a new Pix.  For example, you can
  *      specify a separable 11 x 17 brick opening as "o11.17",
@@ -111,12 +111,12 @@
  *      explicitly as "o11.1 + o1.11".  See morphseq.c for details.
  *
  *  (5) Same as (2), but you run it through pixMorphCompSequence(), with
- *      the sequence string either compiled in or generated using sprintf.
+ *      the sequence string either compiled in or generated using snprintf.
  *      All intermediate images and Sels are created, used and destroyed.
  *      You always get the result as a new Pix.  See morphseq.c for details.
  *
  *  (6) Same as (3), but you run it through pixMorphSequenceDwa(), with
- *      the sequence string either compiled in or generated using sprintf.
+ *      the sequence string either compiled in or generated using snprintf.
  *      All intermediate images and Sels are created, used and destroyed.
  *      You always get the result as a new Pix.  See morphseq.c for details.
  *
@@ -148,7 +148,7 @@
  *  which adds a border before the operation and removes it afterwards.
  *
  *  The hit-miss transform (HMT) is the bit-and of 2 erosions:
- *     (erosion of the src by the hits)  \&  (erosion of the bit-inverted
+ *     (erosion of the src by the hits)  &  (erosion of the bit-inverted
  *                                           src by the misses)
  *
  *  The 'generalized opening' is an HMT followed by a dilation that uses
@@ -168,10 +168,10 @@
  * in other files to access it directly.  However, in most
  * cases that is not necessary, because it can be reset
  * using resetMorphBoundaryCondition().  */
-LEPT_DLL int32 MORPH_BC = ASYMMETRIC_MORPH_BC;
+LEPT_DLL l_int32 MORPH_BC = ASYMMETRIC_MORPH_BC;
 
 /* We accept this cost in extra rasterops for decomposing exactly. */
-static const int32 ACCEPTABLE_COST = 5;
+static const l_int32 ACCEPTABLE_COST = 5;
 
 /* Static helpers for arg processing */
 static PIX * processMorphArgs1(PIX * pixd, PIX * pixs, SEL * sel, PIX ** ppixt);
@@ -183,9 +183,9 @@ static PIX * processMorphArgs2(PIX * pixd, PIX * pixs, SEL * sel);
 /*!
  * \brief   pixDilate()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -207,13 +207,13 @@ PIX * pixDilate(PIX  * pixd,
     PIX  * pixs,
     SEL  * sel)
 {
-	int32 i, j, w, h, sx, sy, cx, cy, seldata;
-	PIX     * pixt;
+	l_int32 i, j, w, h, sx, sy, cx, cy, seldata;
+	PIX * pixt;
 
-	PROCNAME("pixDilate");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs1(pixd, pixs, sel, &pixt)) == NULL)
-		return (PIX*)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
+		return (PIX *)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
@@ -235,9 +235,9 @@ PIX * pixDilate(PIX  * pixd,
 /*!
  * \brief   pixErode()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -259,14 +259,14 @@ PIX * pixErode(PIX  * pixd,
     PIX  * pixs,
     SEL  * sel)
 {
-	int32 i, j, w, h, sx, sy, cx, cy, seldata;
-	int32 xp, yp, xn, yn;
-	PIX     * pixt;
+	l_int32 i, j, w, h, sx, sy, cx, cy, seldata;
+	l_int32 xp, yp, xn, yn;
+	PIX * pixt;
 
-	PROCNAME("pixErode");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs1(pixd, pixs, sel, &pixt)) == NULL)
-		return (PIX*)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
+		return (PIX *)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
@@ -306,9 +306,9 @@ PIX * pixErode(PIX  * pixd,
 /*!
  * \brief   pixHMT()
  *
- * \param[in]    pixd [optional]; this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd   [optional]; this can be null, equal to pixs,
+ *                      or different from pixs
+ * \param[in]    pixs   1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -332,14 +332,14 @@ PIX * pixHMT(PIX  * pixd,
     PIX  * pixs,
     SEL  * sel)
 {
-	int32 i, j, w, h, sx, sy, cx, cy, firstrasterop, seldata;
-	int32 xp, yp, xn, yn;
-	PIX     * pixt;
+	l_int32 i, j, w, h, sx, sy, cx, cy, firstrasterop, seldata;
+	l_int32 xp, yp, xn, yn;
+	PIX * pixt;
 
-	PROCNAME("pixHMT");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs1(pixd, pixs, sel, &pixt)) == NULL)
-		return (PIX*)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
+		return (PIX *)ERROR_PTR("processMorphArgs1 failed", procName, pixd);
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
@@ -393,9 +393,9 @@ PIX * pixHMT(PIX  * pixd,
 /*!
  * \brief   pixOpen()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -419,13 +419,13 @@ PIX * pixOpen(PIX  * pixd,
 {
 	PIX  * pixt;
 
-	PROCNAME("pixOpen");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs2(pixd, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not returned", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not returned", procName, pixd);
 
 	if((pixt = pixErode(NULL, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixt not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixt not made", procName, pixd);
 	pixDilate(pixd, pixt, sel);
 	pixDestroy(&pixt);
 
@@ -464,13 +464,13 @@ PIX * pixClose(PIX  * pixd,
 {
 	PIX  * pixt;
 
-	PROCNAME("pixClose");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs2(pixd, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not returned", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not returned", procName, pixd);
 
 	if((pixt = pixDilate(NULL, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixt not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixt not made", procName, pixd);
 	pixErode(pixd, pixt, sel);
 	pixDestroy(&pixt);
 
@@ -480,9 +480,9 @@ PIX * pixClose(PIX  * pixd,
 /*!
  * \brief   pixCloseSafe()
  *
- * \param[in]    pixd [optional]; this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd   [optional]; this can be null, equal to pixs,
+ *                      or different from pixs
+ * \param[in]    pixs   1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -511,17 +511,17 @@ PIX * pixCloseSafe(PIX  * pixd,
     PIX  * pixs,
     SEL  * sel)
 {
-	int32 xp, yp, xn, yn, xmax, xbord;
-	PIX     * pixt1, * pixt2;
+	l_int32 xp, yp, xn, yn, xmax, xbord;
+	PIX * pixt1, * pixt2;
 
-	PROCNAME("pixCloseSafe");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(!sel)
-		return (PIX*)ERROR_PTR("sel not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("sel not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 
 	/* Symmetric b.c. handles correctly without added pixels */
 	if(MORPH_BC == SYMMETRIC_MORPH_BC)
@@ -532,10 +532,10 @@ PIX * pixCloseSafe(PIX  * pixd,
 	xbord = 32 * ((xmax + 31) / 32); /* full 32 bit words */
 
 	if((pixt1 = pixAddBorderGeneral(pixs, xbord, xbord, yp, yn, 0)) == NULL)
-		return (PIX*)ERROR_PTR("pixt1 not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixt1 not made", procName, pixd);
 	pixClose(pixt1, pixt1, sel);
 	if((pixt2 = pixRemoveBorderGeneral(pixt1, xbord, xbord, yp, yn)) == NULL)
-		return (PIX*)ERROR_PTR("pixt2 not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixt2 not made", procName, pixd);
 	pixDestroy(&pixt1);
 
 	if(!pixd)
@@ -549,9 +549,9 @@ PIX * pixCloseSafe(PIX  * pixd,
 /*!
  * \brief   pixOpenGeneralized()
  *
- * \param[in]    pixd [optional]; this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd   [optional]; this can be null, equal to pixs,
+ *                      or different from pixs
+ * \param[in]    pixs   1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -578,13 +578,13 @@ PIX * pixOpenGeneralized(PIX  * pixd,
 {
 	PIX  * pixt;
 
-	PROCNAME("pixOpenGeneralized");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs2(pixd, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not returned", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not returned", procName, pixd);
 
 	if((pixt = pixHMT(NULL, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixt not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixt not made", procName, pixd);
 	pixDilate(pixd, pixt, sel);
 	pixDestroy(&pixt);
 	return pixd;
@@ -593,9 +593,9 @@ PIX * pixOpenGeneralized(PIX  * pixd,
 /*!
  * \brief   pixCloseGeneralized()
  *
- * \param[in]    pixd [optional]; this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixd   [optional]; this can be null, equal to pixs,
+ *                      or different from pixs
+ * \param[in]    pixs   1 bpp
  * \param[in]    sel
  * \return  pixd
  *
@@ -623,13 +623,13 @@ PIX * pixCloseGeneralized(PIX  * pixd,
 {
 	PIX  * pixt;
 
-	PROCNAME("pixCloseGeneralized");
+	PROCNAME(__FUNCTION__);
 
 	if((pixd = processMorphArgs2(pixd, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not returned", procName, pixd);
+		return (PIX *)ERROR_PTR("pixd not returned", procName, pixd);
 
 	if((pixt = pixDilate(NULL, pixs, sel)) == NULL)
-		return (PIX*)ERROR_PTR("pixt not made", procName, pixd);
+		return (PIX *)ERROR_PTR("pixt not made", procName, pixd);
 	pixHMT(pixd, pixt, sel);
 	pixDestroy(&pixt);
 
@@ -642,18 +642,18 @@ PIX * pixCloseGeneralized(PIX  * pixd,
 /*!
  * \brief   pixDilateBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do separably if both hsize and vsize are > 1.
  *      (4) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -665,33 +665,39 @@ PIX * pixCloseGeneralized(PIX  * pixd,
  *      (6) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixDilateBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixDilateBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
 	SEL  * sel, * selh, * selv;
 
-	PROCNAME("pixDilateBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
 	if(hsize == 1 || vsize == 1) { /* no intermediate result */
 		sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+		if(!sel)
+			return (PIX *)ERROR_PTR("sel not made", procName, pixd);
 		pixd = pixDilate(pixd, pixs, sel);
 		selDestroy(&sel);
 	}
 	else {
-		selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT);
-		selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT);
+		if((selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT)) == NULL)
+			return (PIX *)ERROR_PTR("selh not made", procName, pixd);
+		if((selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT)) == NULL) {
+			selDestroy(&selh);
+			return (PIX *)ERROR_PTR("selv not made", procName, pixd);
+		}
 		pixt = pixDilate(NULL, pixs, selh);
 		pixd = pixDilate(pixd, pixt, selv);
 		pixDestroy(&pixt);
@@ -705,18 +711,18 @@ PIX * pixDilateBrick(PIX     * pixd,
 /*!
  * \brief   pixErodeBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do separably if both hsize and vsize are > 1.
  *      (4) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -728,33 +734,39 @@ PIX * pixDilateBrick(PIX     * pixd,
  *      (6) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixErodeBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixErodeBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
 	SEL  * sel, * selh, * selv;
 
-	PROCNAME("pixErodeBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
 	if(hsize == 1 || vsize == 1) { /* no intermediate result */
 		sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+		if(!sel)
+			return (PIX *)ERROR_PTR("sel not made", procName, pixd);
 		pixd = pixErode(pixd, pixs, sel);
 		selDestroy(&sel);
 	}
 	else {
-		selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT);
-		selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT);
+		if((selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT)) == NULL)
+			return (PIX *)ERROR_PTR("selh not made", procName, pixd);
+		if((selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT)) == NULL) {
+			selDestroy(&selh);
+			return (PIX *)ERROR_PTR("selv not made", procName, pixd);
+		}
 		pixt = pixErode(NULL, pixs, selh);
 		pixd = pixErode(pixd, pixt, selv);
 		pixDestroy(&pixt);
@@ -768,18 +780,18 @@ PIX * pixErodeBrick(PIX     * pixd,
 /*!
  * \brief   pixOpenBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do separably if both hsize and vsize are > 1.
  *      (4) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -791,33 +803,39 @@ PIX * pixErodeBrick(PIX     * pixd,
  *      (6) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixOpenBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixOpenBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
 	SEL  * sel, * selh, * selv;
 
-	PROCNAME("pixOpenBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
 	if(hsize == 1 || vsize == 1) { /* no intermediate result */
 		sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+		if(!sel)
+			return (PIX *)ERROR_PTR("sel not made", procName, pixd);
 		pixd = pixOpen(pixd, pixs, sel);
 		selDestroy(&sel);
 	}
 	else { /* do separably */
-		selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT);
-		selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT);
+		if((selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT)) == NULL)
+			return (PIX *)ERROR_PTR("selh not made", procName, pixd);
+		if((selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT)) == NULL) {
+			selDestroy(&selh);
+			return (PIX *)ERROR_PTR("selv not made", procName, pixd);
+		}
 		pixt = pixErode(NULL, pixs, selh);
 		pixd = pixErode(pixd, pixt, selv);
 		pixDilate(pixt, pixd, selh);
@@ -833,18 +851,18 @@ PIX * pixOpenBrick(PIX     * pixd,
 /*!
  * \brief   pixCloseBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do separably if both hsize and vsize are > 1.
  *      (4) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -856,33 +874,39 @@ PIX * pixOpenBrick(PIX     * pixd,
  *      (6) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixCloseBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
 	SEL  * sel, * selh, * selv;
 
-	PROCNAME("pixCloseBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
 	if(hsize == 1 || vsize == 1) { /* no intermediate result */
 		sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+		if(!sel)
+			return (PIX *)ERROR_PTR("sel not made", procName, pixd);
 		pixd = pixClose(pixd, pixs, sel);
 		selDestroy(&sel);
 	}
 	else { /* do separably */
-		selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT);
-		selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT);
+		if((selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT)) == NULL)
+			return (PIX *)ERROR_PTR("selh not made", procName, pixd);
+		if((selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT)) == NULL) {
+			selDestroy(&selh);
+			return (PIX *)ERROR_PTR("selv not made", procName, pixd);
+		}
 		pixt = pixDilate(NULL, pixs, selh);
 		pixd = pixDilate(pixd, pixt, selv);
 		pixErode(pixt, pixd, selh);
@@ -898,18 +922,18 @@ PIX * pixCloseBrick(PIX     * pixd,
 /*!
  * \brief   pixCloseSafeBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do separably if both hsize and vsize are > 1.
  *      (4) Safe closing adds a border of 0 pixels, of sufficient size so
  *          that all pixels in input image are processed within
  *          32-bit words in the expanded image.  As a result, there is
@@ -926,23 +950,23 @@ PIX * pixCloseBrick(PIX     * pixd,
  *      (7) The size of the result is determined by pixs.
  * </pre>
  */
-PIX * pixCloseSafeBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseSafeBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 maxtrans, bordsize;
-	PIX     * pixsb, * pixt, * pixdb;
+	l_int32 maxtrans, bordsize;
+	PIX * pixsb, * pixt, * pixdb;
 	SEL     * sel, * selh, * selv;
 
-	PROCNAME("pixCloseSafeBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
@@ -957,12 +981,23 @@ PIX * pixCloseSafeBrick(PIX     * pixd,
 
 	if(hsize == 1 || vsize == 1) { /* no intermediate result */
 		sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+		if(!sel) {
+			pixDestroy(&pixsb);
+			return (PIX *)ERROR_PTR("sel not made", procName, pixd);
+		}
 		pixdb = pixClose(NULL, pixsb, sel);
 		selDestroy(&sel);
 	}
 	else { /* do separably */
 		selh = selCreateBrick(1, hsize, 0, hsize / 2, SEL_HIT);
 		selv = selCreateBrick(vsize, 1, vsize / 2, 0, SEL_HIT);
+		if(!selh || !selv) {
+			selDestroy(&selh);
+			selDestroy(&selv);
+			pixDestroy(&pixsb);
+			return (PIX *)ERROR_PTR("selh and selv not both made",
+				   procName, pixd);
+		}
 		pixt = pixDilate(NULL, pixsb, selh);
 		pixdb = pixDilate(NULL, pixt, selv);
 		pixErode(pixt, pixdb, selh);
@@ -983,22 +1018,22 @@ PIX * pixCloseSafeBrick(PIX     * pixd,
 		pixCopy(pixd, pixt);
 		pixDestroy(&pixt);
 	}
-
 	return pixd;
 }
 
 /*-----------------------------------------------------------------*
 *     Binary composed morphological (raster) ops with brick Sels  *
 *-----------------------------------------------------------------*/
-/*  selectComposableSels()
+/* \brief   selectComposableSels()
  *
- *      Input:  size (of composed sel)
- *              direction (L_HORIZ, L_VERT)
- *              &sel1 (<optional return> contiguous sel; can be null)
- *              &sel2 (<optional return> comb sel; can be null)
- *      Return: 0 if OK, 1 on error
+ * \param[in]    size         of composed sel
+ * \param[in]    direction    L_HORIZ, L_VERT
+ * \param[out]   psel1        [optional] contiguous sel; can be null
+ * \param[out]   psel2        [optional] comb sel; can be null
+ * \return   0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) When using composable Sels, where the original Sel is
  *          decomposed into two, the best you can do in terms
  *          of reducing the computation is by a factor:
@@ -1013,22 +1048,23 @@ PIX * pixCloseSafeBrick(PIX     * pixd,
  *                64        |          1/4
  *               144        |          1/6
  *               256        |          1/8
+ * </pre>
  */
-int32 selectComposableSels(int32 size,
-    int32 direction,
+l_int32 selectComposableSels(l_int32 size,
+    l_int32 direction,
     SEL    ** psel1,
     SEL    ** psel2)
 {
-	int32 factor1, factor2;
+	l_int32 factor1, factor2;
 
-	PROCNAME("selectComposableSels");
+	PROCNAME(__FUNCTION__);
 
 	if(!psel1 && !psel2)
 		return ERROR_INT("neither &sel1 nor &sel2 are defined", procName, 1);
 	if(psel1) *psel1 = NULL;
 	if(psel2) *psel2 = NULL;
-	if(size < 1 || size > 250 * 250)
-		return ERROR_INT("size < 1", procName, 1);
+	if(size < 1 || size > 10000)
+		return ERROR_INT("size < 1 or size > 10000", procName, 1);
 	if(direction != L_HORIZ && direction != L_VERT)
 		return ERROR_INT("invalid direction", procName, 1);
 
@@ -1049,44 +1085,44 @@ int32 selectComposableSels(int32 size,
 /*!
  * \brief   selectComposableSizes()
  *
- * \param[in]    size of sel to be decomposed
- * \param[out]   pfactor1 larger factor
- * \param[out]   pfactor2 smaller factor
+ * \param[in]    size       of sel to be decomposed
+ * \param[out]   pfactor1   larger factor
+ * \param[out]   pfactor2   smaller factor
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This works for Sel sizes up to 62500, which seems sufficient.
+ *      (1) This works for Sel sizes up to 10000, which seems sufficient.
  *      (2) The composable sel size is typically within +- 1 of
  *          the requested size.  Up to size = 300, the maximum difference
  *          is +- 2.
  *      (3) We choose an overall cost function where the penalty for
  *          the size difference between input and actual is 4 times
  *          the penalty for additional rasterops.
- *      (4) Returned values: factor1 \>= factor2
- *          If size \> 1, then factor1 \> 1.
+ *      (4) Returned values: factor1 >= factor2
+ *          If size > 1, then factor1 > 1.
  * </pre>
  */
-int32 selectComposableSizes(int32 size,
-    int32  * pfactor1,
-    int32  * pfactor2)
+l_ok selectComposableSizes(l_int32 size,
+    l_int32 * pfactor1,
+    l_int32 * pfactor2)
 {
-	int32 i, midval, val1, val2m, val2p;
-	int32 index, prodm, prodp;
-	int32 mincost, totcost, rastcostm, rastcostp, diffm, diffp;
-	int32 lowval[256];
-	int32 hival[256];
-	int32 rastcost[256]; /* excess in sum of sizes (extra rasterops) */
-	int32 diff[256]; /* diff between product (sel size) and input size */
+	l_int32 i, midval, val1, val2m, val2p;
+	l_int32 index, prodm, prodp;
+	l_int32 mincost, totcost, rastcostm, rastcostp, diffm, diffp;
+	l_int32 lowval[256];
+	l_int32 hival[256];
+	l_int32 rastcost[256]; /* excess in sum of sizes (extra rasterops) */
+	l_int32 diff[256]; /* diff between product (sel size) and input size */
 
-	PROCNAME("selectComposableSizes");
+	PROCNAME(__FUNCTION__);
 
-	if(size < 1 || size > 250 * 250)
-		return ERROR_INT("size < 1", procName, 1);
+	if(size < 1 || size > 10000)
+		return ERROR_INT("size < 1 or size > 10000", procName, 1);
 	if(!pfactor1 || !pfactor2)
 		return ERROR_INT("&factor1 or &factor2 not defined", procName, 1);
 
-	midval = (int32)(sqrt((double)size) + 0.001);
+	midval = (l_int32)(sqrt((double)size) + 0.001);
 	if(midval * midval == size) {
 		*pfactor1 = *pfactor2 = midval;
 		return 0;
@@ -1119,6 +1155,7 @@ int32 selectComposableSizes(int32 size,
 
 	/* Choose the optimum factors; use cost ratio 4 on diff */
 	mincost = 10000;
+	index = 1; /* unimportant initial value */
 	for(i = 0; i < midval + 1; i++) {
 		if(diff[i] == 0 && rastcost[i] < ACCEPTABLE_COST) {
 			*pfactor1 = hival[i];
@@ -1140,19 +1177,19 @@ int32 selectComposableSizes(int32 size,
 /*!
  * \brief   pixDilateCompBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do compositely for each dimension \> 1.
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do compositely for each dimension > 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -1177,82 +1214,93 @@ int32 selectComposableSizes(int32 size,
  *          with hsize = 36.
  * </pre>
  */
-PIX * pixDilateCompBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixDilateCompBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	PIX  * pixt1, * pixt2, * pixt3;
-	SEL  * selh1, * selh2, * selv1, * selv2;
+	PIX  * pix1, * pix2, * pix3;
+	SEL  * selh1 = NULL;
+	SEL  * selh2 = NULL;
+	SEL  * selv1 = NULL;
+	SEL  * selv2 = NULL;
 
-	PROCNAME("pixDilateCompBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
-
-	pixt1 = pixAddBorder(pixs, 32, 0);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
-	if(hsize > 1)
-		selectComposableSels(hsize, L_HORIZ, &selh1, &selh2);
-	if(vsize > 1)
-		selectComposableSels(vsize, L_VERT, &selv1, &selv2);
-	if(vsize == 1) {
-		pixt2 = pixDilate(NULL, pixt1, selh1);
-		pixt3 = pixDilate(NULL, pixt2, selh2);
-	}
-	else if(hsize == 1) {
-		pixt2 = pixDilate(NULL, pixt1, selv1);
-		pixt3 = pixDilate(NULL, pixt2, selv2);
-	}
-	else {
-		pixt2 = pixDilate(NULL, pixt1, selh1);
-		pixt3 = pixDilate(NULL, pixt2, selh2);
-		pixDilate(pixt2, pixt3, selv1);
-		pixDilate(pixt3, pixt2, selv2);
-	}
-	pixDestroy(&pixt1);
-	pixDestroy(&pixt2);
-
 	if(hsize > 1) {
-		selDestroy(&selh1);
-		selDestroy(&selh2);
+		if(selectComposableSels(hsize, L_HORIZ, &selh1, &selh2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			return (PIX *)ERROR_PTR("horiz sels not made", procName, pixd);
+		}
 	}
 	if(vsize > 1) {
-		selDestroy(&selv1);
-		selDestroy(&selv2);
+		if(selectComposableSels(vsize, L_VERT, &selv1, &selv2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			selDestroy(&selv1);
+			selDestroy(&selv2);
+			return (PIX *)ERROR_PTR("vert sels not made", procName, pixd);
+		}
 	}
 
-	pixt1 = pixRemoveBorder(pixt3, 32);
-	pixDestroy(&pixt3);
+	pix1 = pixAddBorder(pixs, 32, 0);
+	if(vsize == 1) {
+		pix2 = pixDilate(NULL, pix1, selh1);
+		pix3 = pixDilate(NULL, pix2, selh2);
+	}
+	else if(hsize == 1) {
+		pix2 = pixDilate(NULL, pix1, selv1);
+		pix3 = pixDilate(NULL, pix2, selv2);
+	}
+	else {
+		pix2 = pixDilate(NULL, pix1, selh1);
+		pix3 = pixDilate(NULL, pix2, selh2);
+		pixDilate(pix2, pix3, selv1);
+		pixDilate(pix3, pix2, selv2);
+	}
+	pixDestroy(&pix1);
+	pixDestroy(&pix2);
+
+	selDestroy(&selh1);
+	selDestroy(&selh2);
+	selDestroy(&selv1);
+	selDestroy(&selv2);
+
+	pix1 = pixRemoveBorder(pix3, 32);
+	pixDestroy(&pix3);
 	if(!pixd)
-		return pixt1;
-	pixCopy(pixd, pixt1);
-	pixDestroy(&pixt1);
+		return pix1;
+	pixCopy(pixd, pix1);
+	pixDestroy(&pix1);
 	return pixd;
 }
 
 /*!
  * \brief   pixErodeCompBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do compositely for each dimension \> 1.
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do compositely for each dimension > 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -1277,29 +1325,45 @@ PIX * pixDilateCompBrick(PIX     * pixd,
  *          with hsize = 36.
  * </pre>
  */
-PIX * pixErodeCompBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixErodeCompBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
-	SEL  * selh1, * selh2, * selv1, * selv2;
+	SEL  * selh1 = NULL;
+	SEL  * selh2 = NULL;
+	SEL  * selv1 = NULL;
+	SEL  * selv2 = NULL;
 
-	PROCNAME("pixErodeCompBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
-	if(hsize > 1)
-		selectComposableSels(hsize, L_HORIZ, &selh1, &selh2);
-	if(vsize > 1)
-		selectComposableSels(vsize, L_VERT, &selv1, &selv2);
+	if(hsize > 1) {
+		if(selectComposableSels(hsize, L_HORIZ, &selh1, &selh2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			return (PIX *)ERROR_PTR("horiz sels not made", procName, pixd);
+		}
+	}
+	if(vsize > 1) {
+		if(selectComposableSels(vsize, L_VERT, &selv1, &selv2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			selDestroy(&selv1);
+			selDestroy(&selv2);
+			return (PIX *)ERROR_PTR("vert sels not made", procName, pixd);
+		}
+	}
+
 	if(vsize == 1) {
 		pixt = pixErode(NULL, pixs, selh1);
 		pixd = pixErode(pixd, pixt, selh2);
@@ -1316,34 +1380,29 @@ PIX * pixErodeCompBrick(PIX     * pixd,
 	}
 	pixDestroy(&pixt);
 
-	if(hsize > 1) {
-		selDestroy(&selh1);
-		selDestroy(&selh2);
-	}
-	if(vsize > 1) {
-		selDestroy(&selv1);
-		selDestroy(&selv2);
-	}
-
+	selDestroy(&selh1);
+	selDestroy(&selh2);
+	selDestroy(&selv1);
+	selDestroy(&selv2);
 	return pixd;
 }
 
 /*!
  * \brief   pixOpenCompBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do compositely for each dimension \> 1.
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do compositely for each dimension > 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -1368,29 +1427,45 @@ PIX * pixErodeCompBrick(PIX     * pixd,
  *          with hsize = 36.
  * </pre>
  */
-PIX * pixOpenCompBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixOpenCompBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
-	SEL  * selh1, * selh2, * selv1, * selv2;
+	SEL  * selh1 = NULL;
+	SEL  * selh2 = NULL;
+	SEL  * selv1 = NULL;
+	SEL  * selv2 = NULL;
 
-	PROCNAME("pixOpenCompBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
-	if(hsize > 1)
-		selectComposableSels(hsize, L_HORIZ, &selh1, &selh2);
-	if(vsize > 1)
-		selectComposableSels(vsize, L_VERT, &selv1, &selv2);
+	if(hsize > 1) {
+		if(selectComposableSels(hsize, L_HORIZ, &selh1, &selh2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			return (PIX *)ERROR_PTR("horiz sels not made", procName, pixd);
+		}
+	}
+	if(vsize > 1) {
+		if(selectComposableSels(vsize, L_VERT, &selv1, &selv2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			selDestroy(&selv1);
+			selDestroy(&selv2);
+			return (PIX *)ERROR_PTR("vert sels not made", procName, pixd);
+		}
+	}
+
 	if(vsize == 1) {
 		pixt = pixErode(NULL, pixs, selh1);
 		pixd = pixErode(pixd, pixt, selh2);
@@ -1415,34 +1490,29 @@ PIX * pixOpenCompBrick(PIX     * pixd,
 	}
 	pixDestroy(&pixt);
 
-	if(hsize > 1) {
-		selDestroy(&selh1);
-		selDestroy(&selh2);
-	}
-	if(vsize > 1) {
-		selDestroy(&selv1);
-		selDestroy(&selv2);
-	}
-
+	selDestroy(&selh1);
+	selDestroy(&selh2);
+	selDestroy(&selv1);
+	selDestroy(&selv2);
 	return pixd;
 }
 
 /*!
  * \brief   pixCloseCompBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do compositely for each dimension \> 1.
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do compositely for each dimension > 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) There are three cases:
  *          (a) pixd == null   (result into new pixd)
  *          (b) pixd == pixs   (in-place; writes result back to pixs)
@@ -1467,29 +1537,45 @@ PIX * pixOpenCompBrick(PIX     * pixd,
  *          with hsize = 36.
  * </pre>
  */
-PIX * pixCloseCompBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseCompBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
 	PIX  * pixt;
-	SEL  * selh1, * selh2, * selv1, * selv2;
+	SEL  * selh1 = NULL;
+	SEL  * selh2 = NULL;
+	SEL  * selv1 = NULL;
+	SEL  * selv2 = NULL;
 
-	PROCNAME("pixCloseCompBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
-	if(hsize > 1)
-		selectComposableSels(hsize, L_HORIZ, &selh1, &selh2);
-	if(vsize > 1)
-		selectComposableSels(vsize, L_VERT, &selv1, &selv2);
+	if(hsize > 1) {
+		if(selectComposableSels(hsize, L_HORIZ, &selh1, &selh2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			return (PIX *)ERROR_PTR("horiz sels not made", procName, pixd);
+		}
+	}
+	if(vsize > 1) {
+		if(selectComposableSels(vsize, L_VERT, &selv1, &selv2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			selDestroy(&selv1);
+			selDestroy(&selv2);
+			return (PIX *)ERROR_PTR("vert sels not made", procName, pixd);
+		}
+	}
+
 	if(vsize == 1) {
 		pixt = pixDilate(NULL, pixs, selh1);
 		pixd = pixDilate(pixd, pixt, selh2);
@@ -1514,34 +1600,29 @@ PIX * pixCloseCompBrick(PIX     * pixd,
 	}
 	pixDestroy(&pixt);
 
-	if(hsize > 1) {
-		selDestroy(&selh1);
-		selDestroy(&selh2);
-	}
-	if(vsize > 1) {
-		selDestroy(&selv1);
-		selDestroy(&selv2);
-	}
-
+	selDestroy(&selh1);
+	selDestroy(&selh2);
+	selDestroy(&selv1);
+	selDestroy(&selv2);
 	return pixd;
 }
 
 /*!
  * \brief   pixCloseSafeCompBrick()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) Sel is a brick with all elements being hits
  *      (2) The origin is at (x, y) = (hsize/2, vsize/2)
- *      (3) Do compositely for each dimension \> 1.
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (3) Do compositely for each dimension > 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) Safe closing adds a border of 0 pixels, of sufficient size so
  *          that all pixels in input image are processed within
  *          32-bit words in the expanded image.  As a result, there is
@@ -1571,23 +1652,26 @@ PIX * pixCloseCompBrick(PIX     * pixd,
  *          with hsize = 36.
  * </pre>
  */
-PIX * pixCloseSafeCompBrick(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseSafeCompBrick(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 maxtrans, bordsize;
-	PIX     * pixsb, * pixt, * pixdb;
-	SEL     * selh1, * selh2, * selv1, * selv2;
+	l_int32 maxtrans, bordsize;
+	PIX * pixsb, * pixt, * pixdb;
+	SEL     * selh1 = NULL;
+	SEL     * selh2 = NULL;
+	SEL     * selv1 = NULL;
+	SEL     * selv2 = NULL;
 
-	PROCNAME("pixCloseSafeCompBrick");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
@@ -1596,14 +1680,27 @@ PIX * pixCloseSafeCompBrick(PIX     * pixd,
 	if(MORPH_BC == SYMMETRIC_MORPH_BC)
 		return pixCloseCompBrick(pixd, pixs, hsize, vsize);
 
+	if(hsize > 1) {
+		if(selectComposableSels(hsize, L_HORIZ, &selh1, &selh2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			return (PIX *)ERROR_PTR("horiz sels not made", procName, pixd);
+		}
+	}
+	if(vsize > 1) {
+		if(selectComposableSels(vsize, L_VERT, &selv1, &selv2)) {
+			selDestroy(&selh1);
+			selDestroy(&selh2);
+			selDestroy(&selv1);
+			selDestroy(&selv2);
+			return (PIX *)ERROR_PTR("vert sels not made", procName, pixd);
+		}
+	}
+
 	maxtrans = MAX(hsize / 2, vsize / 2);
 	bordsize = 32 * ((maxtrans + 31) / 32); /* full 32 bit words */
 	pixsb = pixAddBorder(pixs, bordsize, 0);
 
-	if(hsize > 1)
-		selectComposableSels(hsize, L_HORIZ, &selh1, &selh2);
-	if(vsize > 1)
-		selectComposableSels(vsize, L_VERT, &selv1, &selv2);
 	if(vsize == 1) {
 		pixt = pixDilate(NULL, pixsb, selh1);
 		pixdb = pixDilate(NULL, pixt, selh2);
@@ -1640,15 +1737,10 @@ PIX * pixCloseSafeCompBrick(PIX     * pixd,
 		pixDestroy(&pixt);
 	}
 
-	if(hsize > 1) {
-		selDestroy(&selh1);
-		selDestroy(&selh2);
-	}
-	if(vsize > 1) {
-		selDestroy(&selv1);
-		selDestroy(&selv2);
-	}
-
+	selDestroy(&selh1);
+	selDestroy(&selh2);
+	selDestroy(&selv1);
+	selDestroy(&selv2);
 	return pixd;
 }
 
@@ -1658,12 +1750,12 @@ PIX * pixCloseSafeCompBrick(PIX     * pixd,
 /*!
  * \brief   resetMorphBoundaryCondition()
  *
- * \param[in]    bc SYMMETRIC_MORPH_BC, ASYMMETRIC_MORPH_BC
+ * \param[in]    bc    SYMMETRIC_MORPH_BC, ASYMMETRIC_MORPH_BC
  * \return  void
  */
-void resetMorphBoundaryCondition(int32 bc)
+void resetMorphBoundaryCondition(l_int32 bc)
 {
-	PROCNAME("resetMorphBoundaryCondition");
+	PROCNAME(__FUNCTION__);
 
 	if(bc != SYMMETRIC_MORPH_BC && bc != ASYMMETRIC_MORPH_BC) {
 		L_WARNING("invalid bc; using asymmetric\n", procName);
@@ -1680,10 +1772,10 @@ void resetMorphBoundaryCondition(int32 bc)
  * \param[in]    depth of pix
  * \return  color of border pixels for this operation
  */
-uint32 getMorphBorderPixelColor(int32 type,
-    int32 depth)
+l_uint32 getMorphBorderPixelColor(l_int32 type,
+    l_int32 depth)
 {
-	PROCNAME("getMorphBorderPixelColor");
+	PROCNAME(__FUNCTION__);
 
 	if(type != L_MORPH_DILATE && type != L_MORPH_ERODE)
 		return ERROR_INT("invalid type", procName, 0);
@@ -1707,11 +1799,11 @@ uint32 getMorphBorderPixelColor(int32 type,
 /*!
  * \brief   processMorphArgs1()
  *
- * \param[in]    pixd [optional]; this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    sel
- * \param[out]   ppixt ptr to PIX*
+ * \param[in]       pixd   [optional]; this can be null, equal to pixs,
+ *                         or different from pixs
+ * \param[in]       pixs   1 bpp
+ * \param[in]       sel
+ * \param[out]      ppixt  copy or clone of %pixs
  * \return  pixd, or NULL on error.
  *
  * <pre>
@@ -1719,41 +1811,41 @@ uint32 getMorphBorderPixelColor(int32 type,
  *      (1) This is used for generic erosion, dilation and HMT.
  * </pre>
  */
-static PIX * processMorphArgs1(PIX   * pixd,
-    PIX   * pixs,
+static PIX * processMorphArgs1(PIX * pixd,
+    PIX * pixs,
     SEL   * sel,
-    PIX  ** ppixt)
+    PIX ** ppixt)
 {
-	int32 sx, sy;
+	l_int32 sx, sy;
 
-	PROCNAME("processMorphArgs1");
+	PROCNAME(__FUNCTION__);
 
 	if(!ppixt)
-		return (PIX*)ERROR_PTR("&pixt not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("&pixt not defined", procName, pixd);
 	*ppixt = NULL;
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(!sel)
-		return (PIX*)ERROR_PTR("sel not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("sel not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 
 	selGetParameters(sel, &sx, &sy, NULL, NULL);
 	if(sx == 0 || sy == 0)
-		return (PIX*)ERROR_PTR("sel of size 0", procName, pixd);
+		return (PIX *)ERROR_PTR("sel of size 0", procName, pixd);
 
 	/* We require pixd to exist and to be the same size as pixs.
 	 * Further, pixt must be a copy (or clone) of pixs.  */
 	if(!pixd) {
 		if((pixd = pixCreateTemplate(pixs)) == NULL)
-			return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+			return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 		*ppixt = pixClone(pixs);
 	}
 	else {
 		pixResizeImageData(pixd, pixs);
 		if(pixd == pixs) { /* in-place; must make a copy of pixs */
 			if((*ppixt = pixCopy(NULL, pixs)) == NULL)
-				return (PIX*)ERROR_PTR("pixt not made", procName, pixd);
+				return (PIX *)ERROR_PTR("pixt not made", procName, pixd);
 		}
 		else {
 			*ppixt = pixClone(pixs);
@@ -1767,28 +1859,27 @@ static PIX * processMorphArgs1(PIX   * pixd,
  *
  *  This is used for generic openings and closings.
  */
-static PIX * processMorphArgs2(PIX   * pixd,
-    PIX   * pixs,
+static PIX * processMorphArgs2(PIX * pixd,
+    PIX * pixs,
     SEL   * sel)
 {
-	int32 sx, sy;
+	l_int32 sx, sy;
 
-	PROCNAME("processMorphArgs2");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(!sel)
-		return (PIX*)ERROR_PTR("sel not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("sel not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 
 	selGetParameters(sel, &sx, &sy, NULL, NULL);
 	if(sx == 0 || sy == 0)
-		return (PIX*)ERROR_PTR("sel of size 0", procName, pixd);
+		return (PIX *)ERROR_PTR("sel of size 0", procName, pixd);
 
 	if(!pixd)
 		return pixCreateTemplate(pixs);
 	pixResizeImageData(pixd, pixs);
 	return pixd;
 }
-

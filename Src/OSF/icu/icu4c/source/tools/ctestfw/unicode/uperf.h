@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- * Copyright (c) 2002-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
+ * Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
  */
 #ifndef _UPERF_H
 #define _UPERF_H

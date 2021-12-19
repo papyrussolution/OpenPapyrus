@@ -81,7 +81,7 @@ struct uShapeVariables {
 	int spacesRelativeToTextBeginEnd;
 };
 
-static const uint8_t tailFamilyIsolatedFinal[] = {
+static const uint8 tailFamilyIsolatedFinal[] = {
 	/* FEB1 */ 1,
 	/* FEB2 */ 1,
 	/* FEB3 */ 0,
@@ -98,7 +98,7 @@ static const uint8_t tailFamilyIsolatedFinal[] = {
 	/* FEBE */ 1
 };
 
-static const uint8_t tashkeelMedial[] = {
+static const uint8 tashkeelMedial[] = {
 	/* FE70 */ 0,
 	/* FE71 */ 1,
 	/* FE72 */ 0,
@@ -123,7 +123,7 @@ static const UChar yehHamzaToYeh[] =
 /* final   */ 0xFEF0
 };
 
-static const uint8_t IrrelevantPos[] = {
+static const uint8 IrrelevantPos[] = {
 	0x0, 0x2, 0x4, 0x6,
 	0x8, 0xA, 0xC, 0xE
 };
@@ -252,7 +252,7 @@ static const UChar araLink[178] =
 	1     + 8        + 256 * 0x60/*0x06D3*/
 };
 
-static const uint8_t presALink[] = {
+static const uint8 presALink[] = {
 /***********0*****1*****2*****3*****4*****5*****6*****7*****8*****9*****A*****B*****C*****D*****E*****F*/
 /*FB5*/ 0,    1,    0,    0,    0,    0,    0,    1,    2, 1 + 2,    0,    0,    0,    0,    0,    0,
 /*FB6*/ 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -274,7 +274,7 @@ static const uint8_t presALink[] = {
 /*FC6*/ 4,    4,    4
 };
 
-static const uint8_t presBLink[] =
+static const uint8 presBLink[] =
 {
 /***********0*****1*****2*****3*****4*****5*****6*****7*****8*****9*****A*****B*****C*****D*****E*****F*/
 /*FE7*/ 1 + 2, 1 + 2, 1 + 2,    0, 1 + 2,    0, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2, 1 + 2,
@@ -318,7 +318,7 @@ static const UChar convertFEto06[] =
 /*FEF*/ 0x649, 0x64A, 0x64A, 0x64A, 0x64A, 0x65C, 0x65C, 0x65D, 0x65D, 0x65E, 0x65E, 0x65F, 0x65F
 };
 
-static const uint8_t shapeTable[4][4][4] =
+static const uint8 shapeTable[4][4][4] =
 {
 	{ {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 1, 0, 3}, {0, 1, 0, 1} },
 	{ {0, 0, 2, 2}, {0, 0, 1, 2}, {0, 1, 1, 2}, {0, 1, 1, 3} },
@@ -649,7 +649,7 @@ static int32_t calculateSize(const UChar * source, int32_t sourceLength,
 		}
 		else if((options&U_SHAPE_TEXT_DIRECTION_MASK)==U_SHAPE_TEXT_DIRECTION_LOGICAL) {
 			for(i = 0; i<sourceLength; i++) {
-				if(( (source[i] == LAM_CHAR) && (i<(sourceLength-1)) && (isAlefChar(source[i+1]))) ||
+				if(((source[i] == LAM_CHAR) && (i<(sourceLength-1)) && (isAlefChar(source[i+1]))) ||
 				    (isTashkeelCharFE(source[i])) ) {
 					destSize--;
 				}

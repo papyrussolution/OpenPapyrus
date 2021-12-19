@@ -136,7 +136,7 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 		    /* 0 ∘ (Y - B_y) * B_dx * A_dy */
 		    return -bdx; /* ady * (y - b->top.y) is positive definite */
 		case HAVE_ADX_BDX:
-		    /*  0 ∘ (Y - B_y) * B_dx * A_dy - (Y - A_y) * A_dx * B_dy */
+		    /* 0 ∘ (Y - B_y) * B_dx * A_dy - (Y - A_y) * A_dx * B_dy */
 		    if((adx ^ bdx) < 0) {
 			    return adx;
 		    }

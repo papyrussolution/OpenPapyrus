@@ -37,14 +37,14 @@ public:
   * or built for all and may be used many times.
      */
     enum {
-        FWD             = 0x20,
-        BACK            = 0x10,
-        UTF16           = 8,
-        UTF8            = 4,
+        FWD     = 0x20,
+        BACK    = 0x10,
+        UTF16   = 8,
+        UTF8    = 4,
         CONTAINED       = 2,
         NOT_CONTAINED   = 1,
 
-        ALL             = 0x3f,
+        ALL     = 0x3f,
 
         FWD_UTF16_CONTAINED     = FWD  | UTF16 |     CONTAINED,
         FWD_UTF16_NOT_CONTAINED = FWD  | UTF16 | NOT_CONTAINED,
@@ -78,9 +78,9 @@ public:
 
     int32_t spanBack(const UChar *s, int32_t length, USetSpanCondition spanCondition) const;
 
-    int32_t spanUTF8(const uint8_t *s, int32_t length, USetSpanCondition spanCondition) const;
+    int32_t spanUTF8(const uint8 *s, int32_t length, USetSpanCondition spanCondition) const;
 
-    int32_t spanBackUTF8(const uint8_t *s, int32_t length, USetSpanCondition spanCondition) const;
+    int32_t spanBackUTF8(const uint8 *s, int32_t length, USetSpanCondition spanCondition) const;
 
 private:
     // Special spanLength byte values.
@@ -97,8 +97,8 @@ private:
 
     int32_t spanNot(const UChar *s, int32_t length) const;
     int32_t spanNotBack(const UChar *s, int32_t length) const;
-    int32_t spanNotUTF8(const uint8_t *s, int32_t length) const;
-    int32_t spanNotBackUTF8(const uint8_t *s, int32_t length) const;
+    int32_t spanNotUTF8(const uint8 *s, int32_t length) const;
+    int32_t spanNotBackUTF8(const uint8 *s, int32_t length) const;
 
     // Set for span(). Same as parent but without strings.
     UnicodeSet spanSet;
@@ -117,11 +117,11 @@ private:
 
     // Pointer to the part of the (utf8Lengths) memory block that stores
     // the lengths of span(), spanBack() etc. for each string.
-    uint8_t *spanLengths;
+    uint8 *spanLengths;
 
     // Pointer to the part of the (utf8Lengths) memory block that stores
     // the UTF-8 versions of the parent set's strings.
-    uint8_t *utf8;
+    uint8 *utf8;
 
     // Number of bytes for all UTF-8 versions of strings together.
     int32_t utf8Length;

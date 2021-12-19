@@ -79,10 +79,10 @@ struct program_bidder {
 	int inhibit;
 };
 
-static int      program_bidder_bid(struct archive_read_filter_bidder *,
+static int program_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter * upstream);
-static int      program_bidder_init(struct archive_read_filter *);
-static int      program_bidder_free(struct archive_read_filter_bidder *);
+static int program_bidder_init(struct archive_read_filter *);
+static int program_bidder_free(struct archive_read_filter_bidder *);
 
 /*
  * The actual filter needs to track input and output data.
@@ -104,7 +104,7 @@ struct program_filter {
 
 static ssize_t  program_filter_read(struct archive_read_filter *,
     const void **);
-static int      program_filter_close(struct archive_read_filter *);
+static int program_filter_close(struct archive_read_filter *);
 static void     free_state(struct program_bidder *);
 
 static int set_bidder_signature(struct archive_read_filter_bidder * bidder,

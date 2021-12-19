@@ -1592,7 +1592,7 @@ int PPLotExtCodeContainer::Search(const char * pCode, int * pRowIdx, uint * pInn
 	int    ok = 0;
 	for(uint pos = 0; !ok && SStrGroup::Pool.search(pCode, &pos, 1); pos++) {
 		uint vpos = 0;
-        if(SVector::lsearch(&pos, &vpos, PTR_CMPFUNC(long), offsetof(InnerItem, CodeP))) {
+        if(SVector::lsearch(&pos, &vpos, CMPF_LONG, offsetof(InnerItem, CodeP))) {
 			const InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(vpos));
 			ASSIGN_PTR(pRowIdx, p_item->RowIdx);
 			ASSIGN_PTR(pInnerIdx, vpos);

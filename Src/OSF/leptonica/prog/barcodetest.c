@@ -35,6 +35,10 @@
  *      (2) after 180 degree rotation
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 #include "readbarcode.h"
 
@@ -43,34 +47,42 @@ int main(int    argc,
 {
 char        *filein;
 PIX         *pixs;
-SARRAY      *saw1, *saw2, *saw3, *sad1, *sad2, *sad3;
+SARRAY      *saw1, *saw2, *sad1, *sad2;
 static char  mainName[] = "barcodetest";
 
     if (argc != 2)
         return ERROR_INT(" Syntax:  barcodetest filein", mainName, 1);
-
     filein = argv[1];
+
+    setLeptDebugOK(1);
+    lept_mkdir("lept/barc");
+
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
 
     sad1 = pixProcessBarcodes(pixs, L_BF_ANY, L_USE_WIDTHS, &saw1, 0);
-    sarrayWrite("/tmp/junksaw1", saw1);
-    sarrayWrite("/tmp/junksad1", sad1);
+    sarrayWrite("/tmp/lept/barc/saw1.sa", saw1);
+    sarrayWrite("/tmp/lept/barc/sad1.sa", sad1);
     sarrayDestroy(&saw1);
     sarrayDestroy(&sad1);
 
     pixRotate180(pixs, pixs);
     sad2 = pixProcessBarcodes(pixs, L_BF_ANY, L_USE_WIDTHS, &saw2, 0);
-    sarrayWrite("/tmp/junksaw2", saw2);
-    sarrayWrite("/tmp/junksad2", sad2);
+    sarrayWrite("/tmp/lept/barc/saw2.sa", saw2);
+    sarrayWrite("/tmp/lept/barc/sad2.sa", sad2);
     sarrayDestroy(&saw2);
     sarrayDestroy(&sad2);
 
-/*    sad3 = pixProcessBarcodes(pixs, L_BF_ANY, L_USE_WINDOW, &saw3, 1);
-    sarrayWrite("/tmp/junksaw3", saw3);
-    sarrayWrite("/tmp/junksad3", sad3);
+/*
+{
+    SARRAY  *saw3, *sad3;
+    sad3 = pixProcessBarcodes(pixs, L_BF_ANY, L_USE_WINDOW, &saw3, 1);
+    sarrayWrite("/tmp/lept/barc/saw3.sa", saw3);
+    sarrayWrite("/tmp/lept/barc/sad3.sa", sad3);
     sarrayDestroy(&saw3);
-    sarrayDestroy(&sad3); */
+    sarrayDestroy(&sad3);
+}
+*/
 
     pixDestroy(&pixs);
     return 0;

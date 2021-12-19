@@ -50,7 +50,7 @@ struct private_data {
 
 /* Zstd Filter. */
 static ssize_t  zstd_filter_read(struct archive_read_filter *, const void**);
-static int      zstd_filter_close(struct archive_read_filter *);
+static int zstd_filter_close(struct archive_read_filter *);
 #endif
 
 /*
@@ -59,9 +59,9 @@ static int      zstd_filter_close(struct archive_read_filter *);
  * messages.)  So the bid framework here gets compiled even if no zstd library
  * is available.
  */
-static int      zstd_bidder_bid(struct archive_read_filter_bidder *,
+static int zstd_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      zstd_bidder_init(struct archive_read_filter *);
+static int zstd_bidder_init(struct archive_read_filter *);
 
 int archive_read_support_filter_zstd(struct archive * _a)
 {
@@ -99,7 +99,7 @@ static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	const unsigned zstd_magic = 0xFD2FB528U;
 	const unsigned zstd_magic_skippable_start = 0x184D2A50U;
 	const unsigned zstd_magic_skippable_mask = 0xFFFFFFF0;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 4, &avail);
 	if(buffer == NULL)
 		return 0;

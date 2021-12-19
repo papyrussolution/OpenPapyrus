@@ -182,8 +182,8 @@ static struct {
 /*initializes some global variables */
 static UHashtable * SHARED_DATA_HASHTABLE = NULL;
 static icu::UMutex cnvCacheMutex;
-/*  Note:  the global mutex is used for      */
-/*         reference count updates. */
+/* Note:  the global mutex is used for      */
+/* reference count updates. */
 
 static const char ** gAvailableConverters = NULL;
 static uint16_t gAvailableConverterCount = 0;
@@ -224,9 +224,9 @@ static void ucnv_flushAvailableConverterCache() {
 }
 
 /* ucnv_cleanup - delete all storage held by the converter cache, except any  */
-/*                in use by open converters.       */
-/*                Not thread safe.        */
-/*                Not supported API.      */
+/* in use by open converters.       */
+/* Not thread safe.        */
+/* Not supported API.      */
 static bool U_CALLCONV ucnv_cleanup() {
 	ucnv_flushCache();
 	if(SHARED_DATA_HASHTABLE != NULL && uhash_count(SHARED_DATA_HASHTABLE) == 0) {
@@ -272,7 +272,7 @@ static bool U_CALLCONV isCnvAcceptable(void * /*context*/,
 static UConverterSharedData* ucnv_data_unFlattenClone(UConverterLoadArgs * pArgs, UDataMemory * pData, UErrorCode * status)
 {
 	/* UDataInfo info; -- necessary only if some converters have different formatVersion */
-	const uint8_t * raw = (const uint8_t*)udata_getMemory(pData);
+	const uint8 * raw = (const uint8*)udata_getMemory(pData);
 	const UConverterStaticData * source = (const UConverterStaticData*)raw;
 	UConverterSharedData * data;
 	UConverterType type = (UConverterType)source->conversionType;
@@ -408,8 +408,8 @@ static const UConverterSharedData * getAlgorithmicTypeFromName(const char * real
 #define UCNV_CACHE_LOAD_FACTOR 2
 
 /* Puts the shared data in the static hashtable SHARED_DATA_HASHTABLE */
-/*   Will always be called with the cnvCacheMutex already being held   */
-/*     by the calling function.   */
+/* Will always be called with the cnvCacheMutex already being held   */
+/* by the calling function.   */
 /* Stores the shared data in the SHARED_DATA_HASHTABLE
  * @param data The shared data
  */
@@ -451,8 +451,8 @@ static void ucnv_shareConverterData(UConverterSharedData * data)
 	UCNV_DEBUG_LOG("put", data->staticData->name, data);
 }
 
-/*  Look up a converter name in the shared data cache.  */
-/*    cnvCacheMutex must be held by the caller to protect the hash table. */
+/* Look up a converter name in the shared data cache.  */
+/* cnvCacheMutex must be held by the caller to protect the hash table. */
 /* gets the shared data from the SHARED_DATA_HASHTABLE (might return NULL if it isn't there)
  * @param name The name of the shared data
  * @return the shared data from the SHARED_DATA_HASHTABLE
@@ -648,7 +648,7 @@ static void parseConverterOptions(const char * inName,
 				pArgs->options = (pPieces->options &= ~UCNV_OPTION_VERSION);
 				return;
 			}
-			else if((uint8_t)(c-'0')<10) {
+			else if((uint8)(c-'0')<10) {
 				pArgs->options = pPieces->options = (pPieces->options&~UCNV_OPTION_VERSION)|(uint32_t)(c-'0');
 				++inName;
 			}
@@ -771,9 +771,9 @@ U_CFUNC UConverterSharedData * ucnv_loadSharedData(const char * converterName,
 	if(mySharedConverterData == NULL) {
 		/* it is a data-based converter, get its shared data.      */
 		/* Hold the cnvCacheMutex through the whole process of checking the */
-		/*   converter data cache, and adding new entries to the cache      */
-		/*   to prevent other threads from modifying the cache during the   */
-		/*   process. */
+		/* converter data cache, and adding new entries to the cache      */
+		/* to prevent other threads from modifying the cache during the   */
+		/* process. */
 		pArgs->nestedLoads = 1;
 		pArgs->pkg = NULL;
 
@@ -964,7 +964,7 @@ U_CFUNC UConverter * ucnv_createConverterFromSharedData(UConverter * myUConverte
 		myUConverter->maxBytesPerUChar = mySharedConverterData->staticData->maxBytesPerChar;
 		myUConverter->subChar1 = mySharedConverterData->staticData->subChar1;
 		myUConverter->subCharLen = mySharedConverterData->staticData->subCharLen;
-		myUConverter->subChars = (uint8_t*)myUConverter->subUChars;
+		myUConverter->subChars = (uint8 *)myUConverter->subUChars;
 		uprv_memcpy(myUConverter->subChars, mySharedConverterData->staticData->subChar, myUConverter->subCharLen);
 		myUConverter->toUCallbackReason = UCNV_ILLEGAL; /* default reason to invoke (*fromCharErrorBehaviour) */
 	}
@@ -1154,7 +1154,7 @@ static inline void internalSetName(const char * name, UErrorCode * status) {
 	gDefaultConverterNameBuffer[length] = 0;
 
 	/* gDefaultConverterName MUST be the last global var set by this function.  */
-	/*    It is the variable checked in ucnv_getDefaultName() to see if initialization is required. */
+	/* It is the variable checked in ucnv_getDefaultName() to see if initialization is required. */
 	//    But there is nothing here preventing that from being reordered, either by the compiler
 	//             or hardware. I'm adding the mutex to ucnv_getDefaultName for now. UMTX_CHECK is not enough.
 	//             -- Andy
@@ -1280,8 +1280,8 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 	const UDataInfo * pInfo;
 	int32_t headerSize;
 
-	const uint8_t * inBytes;
-	uint8_t * outBytes;
+	const uint8 * inBytes;
+	uint8 * outBytes;
 
 	uint32_t offset, count, staticDataSize;
 	int32_t size;
@@ -1295,7 +1295,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 	uint32_t mbcsHeaderLength;
 	bool noFromU = FALSE;
 
-	uint8_t outputType;
+	uint8 outputType;
 
 	int32_t maxFastUChar, mbcsIndexLength;
 
@@ -1330,8 +1330,8 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8_t*)inData+headerSize;
-	outBytes = (uint8_t*)outData+headerSize;
+	inBytes = (const uint8*)inData+headerSize;
+	outBytes = (uint8 *)outData+headerSize;
 
 	/* read the initial UConverterStaticData structure after the UDataInfo header */
 	inStaticData = (const UConverterStaticData*)inBytes;
@@ -1417,7 +1417,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 		/* mbcsHeader.options have been read above */
 
 		extOffset = (int32_t)(mbcsHeader.flags>>8);
-		outputType = (uint8_t)mbcsHeader.flags;
+		outputType = (uint8)mbcsHeader.flags;
 		if(noFromU && outputType==MBCS_OUTPUT_1) {
 			udata_printError(ds, "ucnv_swap(): unsupported combination of makeconv --small with SBCS\n");
 			*pErrorCode = U_UNSUPPORTED_ERROR;
@@ -1578,7 +1578,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 							outBytes+offset, pErrorCode);
 						    break;
 						default:
-						    /* just uint8_t[], nothing to swap */
+						    /* just uint8[], nothing to swap */
 						    break;
 					}
 

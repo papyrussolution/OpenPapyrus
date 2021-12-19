@@ -220,7 +220,7 @@ void CollationData::makeReorderRanges(const int32_t * reorder, int32_t length, b
 		return;
 	}
 	// Maps each script-or-group range to a new lead byte.
-	uint8_t table[MAX_NUM_SCRIPT_RANGES];
+	uint8 table[MAX_NUM_SCRIPT_RANGES];
 	memzero(table, sizeof(table));
 	{
 		// Set "don't care" values for reserved ranges.
@@ -372,25 +372,25 @@ void CollationData::makeReorderRanges(const int32_t * reorder, int32_t length, b
 	}
 }
 
-int32_t CollationData::addLowScriptRange(uint8_t table[], int32_t index, int32_t lowStart) const {
+int32_t CollationData::addLowScriptRange(uint8 table[], int32_t index, int32_t lowStart) const {
 	int32_t start = scriptStarts[index];
 	if((start & 0xff) < (lowStart & 0xff)) {
 		lowStart += 0x100;
 	}
-	table[index] = (uint8_t)(lowStart >> 8);
+	table[index] = (uint8)(lowStart >> 8);
 	int32_t limit = scriptStarts[index + 1];
 	lowStart = ((lowStart & 0xff00) + ((limit & 0xff00) - (start & 0xff00))) | (limit & 0xff);
 	return lowStart;
 }
 
-int32_t CollationData::addHighScriptRange(uint8_t table[], int32_t index, int32_t highLimit) const {
+int32_t CollationData::addHighScriptRange(uint8 table[], int32_t index, int32_t highLimit) const {
 	int32_t limit = scriptStarts[index + 1];
 	if((limit & 0xff) > (highLimit & 0xff)) {
 		highLimit -= 0x100;
 	}
 	int32_t start = scriptStarts[index];
 	highLimit = ((highLimit & 0xff00) - ((limit & 0xff00) - (start & 0xff00))) | (start & 0xff);
-	table[index] = (uint8_t)(highLimit >> 8);
+	table[index] = (uint8)(highLimit >> 8);
 	return highLimit;
 }
 

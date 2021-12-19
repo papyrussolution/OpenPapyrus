@@ -138,16 +138,16 @@ static const char template_header[] = {
 
 static ssize_t  archive_write_ustar_data(struct archive_write * a, const void * buff,
     size_t s);
-static int      archive_write_ustar_free(struct archive_write *);
-static int      archive_write_ustar_close(struct archive_write *);
-static int      archive_write_ustar_finish_entry(struct archive_write *);
-static int      archive_write_ustar_header(struct archive_write *,
+static int archive_write_ustar_free(struct archive_write *);
+static int archive_write_ustar_close(struct archive_write *);
+static int archive_write_ustar_finish_entry(struct archive_write *);
+static int archive_write_ustar_header(struct archive_write *,
     struct archive_entry * entry);
-static int      archive_write_ustar_options(struct archive_write *,
+static int archive_write_ustar_options(struct archive_write *,
     const char *, const char *);
-static int      format_256(int64, char *, int);
-static int      format_number(int64, char *, int size, int max, int strict);
-static int      format_octal(int64, char *, int);
+static int format_256(int64, char *, int);
+static int format_number(int64, char *, int size, int max, int strict);
+static int format_octal(int64, char *, int);
 
 /*
  * Set output format to 'ustar' format.

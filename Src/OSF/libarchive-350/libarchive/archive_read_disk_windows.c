@@ -278,24 +278,24 @@ static int setup_current_filesystem(struct archive_read_disk *);
 static int tree_target_is_same_as_parent(struct tree *,
     const BY_HANDLE_FILE_INFORMATION *);
 
-static int      _archive_read_disk_open_w(struct archive *, const wchar_t *);
-static int      _archive_read_free(struct archive *);
-static int      _archive_read_close(struct archive *);
-static int      _archive_read_data_block(struct archive *,
+static int _archive_read_disk_open_w(struct archive *, const wchar_t *);
+static int _archive_read_free(struct archive *);
+static int _archive_read_close(struct archive *);
+static int _archive_read_data_block(struct archive *,
     const void **, size_t *, int64 *);
-static int      _archive_read_next_header(struct archive *,
+static int _archive_read_next_header(struct archive *,
     struct archive_entry **);
-static int      _archive_read_next_header2(struct archive *,
+static int _archive_read_next_header2(struct archive *,
     struct archive_entry *);
 static const char * trivial_lookup_gname(void *, int64 gid);
 static const char * trivial_lookup_uname(void *, int64 uid);
-static int      setup_sparse(struct archive_read_disk *, struct archive_entry *);
-static int      close_and_restore_time(HANDLE, struct tree *,
+static int setup_sparse(struct archive_read_disk *, struct archive_entry *);
+static int close_and_restore_time(HANDLE, struct tree *,
     struct restore_time *);
-static int      setup_sparse_from_disk(struct archive_read_disk *,
+static int setup_sparse_from_disk(struct archive_read_disk *,
     struct archive_entry *, HANDLE);
-static int      la_linkname_from_handle(HANDLE, wchar_t **, int *);
-static int      la_linkname_from_pathw(const wchar_t *, wchar_t **, int *);
+static int la_linkname_from_handle(HANDLE, wchar_t **, int *);
+static int la_linkname_from_pathw(const wchar_t *, wchar_t **, int *);
 static void     entry_symlink_from_pathw(struct archive_entry *,
     const wchar_t * path);
 

@@ -25,8 +25,8 @@ struct LocaleDistanceData {
     LocaleDistanceData(LocaleDistanceData &&data);
     ~LocaleDistanceData();
 
-    const uint8_t *distanceTrieBytes = nullptr;
-    const uint8_t *regionToPartitions = nullptr;
+    const uint8 *distanceTrieBytes = nullptr;
+    const uint8 *regionToPartitions = nullptr;
     const char **partitions = nullptr;
     const LSR *paradigms = nullptr;
     int32_t paradigmsLength = 0;

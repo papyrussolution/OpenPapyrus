@@ -330,7 +330,7 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 	if(MpLo.title.text) {
 		char * p = MpLo.title.text;
 		uint x = pTerm->MaxX  / 2;
-		uint y = pTerm->MaxY - pTerm->ChrV;
+		uint y = pTerm->MaxY - pTerm->CV();
 		WriteLabel(pTerm, x, y, &(MpLo.title));
 		ResetTextColor(pTerm, &(MpLo.title.textcolor));
 		// Calculate fractional height of title compared to entire page 
@@ -341,7 +341,7 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 		// Oct 2012 - ChrV depends on the font used 
 		if(MpLo.title.font && *MpLo.title.font)
 			pTerm->set_font(pTerm, MpLo.title.font);
-		MpLo.title_height = (double)(y * pTerm->ChrV) / (double)pTerm->MaxY;
+		MpLo.title_height = (double)(y * pTerm->CV()) / (double)pTerm->MaxY;
 		if(MpLo.title.font && *MpLo.title.font)
 			pTerm->set_font(pTerm, "");
 		if(MpLo.title_height > 0.9)
@@ -432,12 +432,12 @@ void GnuPlot::MpLayoutMarginsAndSpacing(GpTermEntry * pTerm)
 	double tmp_width, tmp_height;
 	double leftmargin, rightmargin, topmargin, bottommargin, xspacing, yspacing;
 	if(MpLo.auto_layout_margins) {
-		leftmargin   = (MpLo.lmargin.scalex == screen) ? MpLo.lmargin.x : ((MpLo.lmargin.x * pTerm->ChrH) / pTerm->MaxX);
-		rightmargin  = (MpLo.rmargin.scalex == screen) ? MpLo.rmargin.x : (1 - (MpLo.rmargin.x * pTerm->ChrH) / pTerm->MaxX);
-		topmargin    = (MpLo.tmargin.scalex == screen) ? MpLo.tmargin.x : (1 - (MpLo.tmargin.x * pTerm->ChrV) / pTerm->MaxY);
-		bottommargin = (MpLo.bmargin.scalex == screen) ? MpLo.bmargin.x : ((MpLo.bmargin.x * pTerm->ChrV) / pTerm->MaxY);
-		xspacing     = (MpLo.xspacing.scalex == screen) ? MpLo.xspacing.x : ((MpLo.xspacing.x * pTerm->ChrH) / pTerm->MaxX);
-		yspacing     = (MpLo.yspacing.scalex == screen) ? MpLo.yspacing.x : (MpLo.yspacing.x * pTerm->ChrV) / pTerm->MaxY;
+		leftmargin   = (MpLo.lmargin.scalex == screen) ? MpLo.lmargin.x : ((MpLo.lmargin.x * pTerm->CH()) / pTerm->MaxX);
+		rightmargin  = (MpLo.rmargin.scalex == screen) ? MpLo.rmargin.x : (1 - (MpLo.rmargin.x * pTerm->CH()) / pTerm->MaxX);
+		topmargin    = (MpLo.tmargin.scalex == screen) ? MpLo.tmargin.x : (1 - (MpLo.tmargin.x * pTerm->CV()) / pTerm->MaxY);
+		bottommargin = (MpLo.bmargin.scalex == screen) ? MpLo.bmargin.x : ((MpLo.bmargin.x * pTerm->CV()) / pTerm->MaxY);
+		xspacing     = (MpLo.xspacing.scalex == screen) ? MpLo.xspacing.x : ((MpLo.xspacing.x * pTerm->CH()) / pTerm->MaxX);
+		yspacing     = (MpLo.yspacing.scalex == screen) ? MpLo.yspacing.x : (MpLo.yspacing.x * pTerm->CV()) / pTerm->MaxY;
 		tmp_width  = (rightmargin - leftmargin - (MpLo.num_cols - 1) * xspacing) / MpLo.num_cols;
 		tmp_height = (topmargin - bottommargin - (MpLo.num_rows - 1) * yspacing) / MpLo.num_rows;
 		V.MarginL.x = leftmargin + MpLo.act_col * (tmp_width + xspacing);

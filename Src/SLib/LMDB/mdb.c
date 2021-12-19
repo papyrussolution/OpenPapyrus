@@ -4415,7 +4415,7 @@ static int ESECT mdb_fopen(const MDB_env * env, MDB_name * fname,
 #else
 	int flags;
 #endif
-	if(fname->mn_alloced)           /* modifiable copy */
+	if(fname->mn_alloced) /* modifiable copy */
 		mdb_name_cpy(fname->mn_val + fname->mn_len, mdb_suffixes[which==MDB_O_LOCKS][F_ISSET(env->me_flags, MDB_NOSUBDIR)]);
 	/* The directory must already exist.  Usually the file need not.
 	 * MDB_O_META requires the file because we already created it using
@@ -9472,7 +9472,7 @@ static int ESECT mdb_env_cthr_toggle(mdb_copy * my, int adjust)
 	pthread_mutex_lock(&my->mc_mutex);
 	my->mc_new += adjust;
 	pthread_cond_signal(&my->mc_cond);
-	while(my->mc_new & 2)           /* both buffers in use */
+	while(my->mc_new & 2) /* both buffers in use */
 		pthread_cond_wait(&my->mc_cond, &my->mc_mutex);
 	pthread_mutex_unlock(&my->mc_mutex);
 

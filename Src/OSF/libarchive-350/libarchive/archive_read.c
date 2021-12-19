@@ -43,19 +43,19 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read.c 201157 2009-12-29 05:30:2
 
 // @sobolev #define minimum_Removed(a, b) (a < b ? a : b)
 
-static int      choose_filters(struct archive_read *);
-static int      choose_format(struct archive_read *);
-static int      close_filters(struct archive_read *);
+static int choose_filters(struct archive_read *);
+static int choose_format(struct archive_read *);
+static int close_filters(struct archive_read *);
 static struct archive_vtable * archive_read_vtable(void);
 static int64  _archive_filter_bytes(struct archive *, int);
-static int      _archive_filter_code(struct archive *, int);
+static int _archive_filter_code(struct archive *, int);
 static const char * _archive_filter_name(struct archive *, int);
 static int  _archive_filter_count(struct archive *);
-static int      _archive_read_close(struct archive *);
-static int      _archive_read_data_block(struct archive *, const void **, size_t *, int64 *);
-static int      _archive_read_free(struct archive *);
-static int      _archive_read_next_header(struct archive *, struct archive_entry **);
-static int      _archive_read_next_header2(struct archive *, struct archive_entry *);
+static int _archive_read_close(struct archive *);
+static int _archive_read_data_block(struct archive *, const void **, size_t *, int64 *);
+static int _archive_read_free(struct archive *);
+static int _archive_read_next_header(struct archive *, struct archive_entry **);
+static int _archive_read_next_header2(struct archive *, struct archive_entry *);
 static int64  advance_file_pointer(struct archive_read_filter *, int64);
 
 static struct archive_vtable * archive_read_vtable(void)                               

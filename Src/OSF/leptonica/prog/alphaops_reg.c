@@ -45,11 +45,14 @@
  *         binary and ascii colormap serialization.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 static PIX *DoBlendTest(PIX *pix, BOX *box, l_uint32 val, l_float32 gamma,
                         l_int32 minval, l_int32 maxval, l_int32 which);
-void CmapEqual(PIXCMAP *cmap1, PIXCMAP *cmap2, l_int32 *pequal);
 
 int main(int    argc,
          char **argv)
@@ -156,7 +159,7 @@ L_REGPARAMS  *rp;
     pix2 = pixRead("/tmp/lept/alpha/cs2.png");  /* cleaned under transparent */
     n1 = nbytesInFile("/tmp/lept/alpha/cs1.png");
     n2 = nbytesInFile("/tmp/lept/alpha/cs2.png");
-    fprintf(stderr, " Original: %d bytes\n Cleaned: %d bytes\n", n1, n2);
+    lept_stderr(" Original: %d bytes\n Cleaned: %d bytes\n", n1, n2);
     regTestWritePixAndCheck(rp, pix1, IFF_JFIF_JPEG);  /* 9 */
     regTestWritePixAndCheck(rp, pix2, IFF_JFIF_JPEG);  /* 10 */
     pixDisplayWithTitle(pix1, 300, 400, "without alpha", rp->display);
@@ -164,13 +167,13 @@ L_REGPARAMS  *rp;
                         rp->display);
 
     pixa = pixaCreate(0);
-    pixSaveTiled(pixg2, pixa, 1.0, 1, 20, 32);
-    pixSaveTiled(pixcs1, pixa, 1.0, 1, 20, 0);
-    pixSaveTiled(pix1, pixa, 1.0, 0, 20, 0);
-    pixSaveTiled(pixd1, pixa, 1.0, 1, 20, 0);
-    pixSaveTiled(pixd2, pixa, 1.0, 0, 20, 0);
-    pixSaveTiled(pix2, pixa, 1.0, 1, 20, 0);
-    pixd = pixaDisplay(pixa, 0, 0);
+    pixaAddPix(pixa, pixg2, L_INSERT);
+    pixaAddPix(pixa, pixcs1, L_INSERT);
+    pixaAddPix(pixa, pix1, L_INSERT);
+    pixaAddPix(pixa, pixd1, L_INSERT);
+    pixaAddPix(pixa, pixd2, L_INSERT);
+    pixaAddPix(pixa, pix2, L_INSERT);
+    pixd = pixaDisplayTiledInColumns(pixa, 1, 1.0, 20, 2);
     regTestWritePixAndCheck(rp, pixd, IFF_JFIF_JPEG);  /* 11 */
     pixDisplayWithTitle(pixd, 200, 200, "composite", rp->display);
     pixWrite("/tmp/lept/alpha/composite.png", pixd, IFF_JFIF_JPEG);
@@ -179,15 +182,9 @@ L_REGPARAMS  *rp;
     pixDestroy(&pixs);
     pixDestroy(&pixb);
     pixDestroy(&pixg);
-    pixDestroy(&pixg2);
     pixDestroy(&pixc);
-    pixDestroy(&pixcs1);
     pixDestroy(&pixcs2);
     pixDestroy(&pixd);
-    pixDestroy(&pixd1);
-    pixDestroy(&pixd2);
-    pixDestroy(&pix1);
-    pixDestroy(&pix2);
 
     /* ------------------------ (3) ----------------------------*/
     color = 0xffffa000;
@@ -258,7 +255,7 @@ L_REGPARAMS  *rp;
         /* Test binary serialization/deserialization of colormap with alpha */
     pixcmapSerializeToMemory(cmap, 4, &ncolors, &data);
     cmap2 = pixcmapDeserializeFromMemory(data, 4, ncolors);
-    CmapEqual(cmap, cmap2, &equal);
+    cmapEqual(cmap, cmap2, 4, &equal);
     regTestCompareValues(rp, TRUE, equal, 0.0);  /* 25 */
     pixcmapDestroy(&cmap2);
     lept_free(data);
@@ -270,7 +267,7 @@ L_REGPARAMS  *rp;
     fp = fopenReadStream("/tmp/lept/alpha/cmap.4");
     cmap2 = pixcmapReadStream(fp);
     fclose(fp);
-    CmapEqual(cmap, cmap2, &equal);
+    cmapEqual(cmap, cmap2, 4, &equal);
     regTestCompareValues(rp, TRUE, equal, 0.0);  /* 26 */
     pixcmapDestroy(&cmap2);
 
@@ -338,25 +335,3 @@ PIXA  *pixa;
   pixaDestroy(&pixa);
   return pixd;
 }
-
-void
-CmapEqual(PIXCMAP *cmap1, PIXCMAP *cmap2, l_int32 *pequal)
-{
-l_int32  n1, n2, i, rval1, gval1, bval1, aval1, rval2, gval2, bval2, aval2;
-
-    *pequal = FALSE;
-    n1 = pixcmapGetCount(cmap1);
-    n2 = pixcmapGetCount(cmap1);
-    if (n1 != n2) return;
-
-    for (i = 0; i < n1; i++) {
-        pixcmapGetRGBA(cmap1, i, &rval1, &gval1, &bval1, &aval1);
-        pixcmapGetRGBA(cmap2, i, &rval2, &gval2, &bval2, &aval2);
-        if ((rval1 != rval2) || (gval1 != gval2) ||
-            (bval1 != bval2) || (aval1 != aval2))
-            return;
-    }
-    *pequal = TRUE;
-    return;
-}
-

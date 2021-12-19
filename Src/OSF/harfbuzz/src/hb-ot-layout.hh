@@ -62,7 +62,7 @@ enum hb_ot_layout_glyph_props_flags_t {
 	/* The following three match LookupFlags::Ignore* numbers. */
 	HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH   = 0x02u,
 	HB_OT_LAYOUT_GLYPH_PROPS_LIGATURE     = 0x04u,
-	HB_OT_LAYOUT_GLYPH_PROPS_MARK         = 0x08u,
+	HB_OT_LAYOUT_GLYPH_PROPS_MARK = 0x08u,
 
 	/* The following are used internally; not derived from GDEF. */
 	HB_OT_LAYOUT_GLYPH_PROPS_SUBSTITUTED  = 0x10u,
@@ -143,8 +143,8 @@ static inline uint _hb_next_syllable(hb_buffer_t * buffer, uint start)
 	return start;
 }
 
-static inline void _hb_clear_syllables(const hb_ot_shape_plan_t * plan HB_UNUSED,
-    hb_font_t * font HB_UNUSED,
+static inline void _hb_clear_syllables(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
+    hb_font_t * font CXX_UNUSED_PARAM,
     hb_buffer_t * buffer)
 {
 	hb_glyph_info_t * info = buffer->info;
@@ -498,7 +498,7 @@ static inline void _hb_glyph_info_clear_substituted(hb_glyph_info_t * info)
 	info->glyph_props() &= ~(HB_OT_LAYOUT_GLYPH_PROPS_SUBSTITUTED);
 }
 
-static inline void _hb_clear_substitution_flags(const hb_ot_shape_plan_t * plan HB_UNUSED, hb_font_t * font HB_UNUSED, hb_buffer_t * buffer)
+static inline void _hb_clear_substitution_flags(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_font_t * font CXX_UNUSED_PARAM, hb_buffer_t * buffer)
 {
 	hb_glyph_info_t * info = buffer->info;
 	uint count = buffer->len;

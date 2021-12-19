@@ -32,6 +32,10 @@
  *    two pages are the same.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -40,21 +44,22 @@ int main(int    argc,
 l_int32  w, h, n, same;
 BOXA    *boxa1, *boxa2;
 NUMA    *nai1, *nai2;
-NUMAA   *naa1, *naa1r, *naa2;
+NUMAA   *naa1, *naa2;
 PIX     *pixs, *pixt, *pixb1, *pixb2;
+
+    setLeptDebugOK(1);
+    lept_mkdir("lept/comp");
 
     pixs = pixRead("lucasta.047.jpg");
     pixb1 = pixConvertTo1(pixs, 128);
-    pixGetWordBoxesInTextlines(pixb1, 1, 10, 10, 500, 50, &boxa1, &nai1);
+    pixGetWordBoxesInTextlines(pixb1, 10, 10, 500, 50, &boxa1, &nai1);
     pixt = pixDrawBoxaRandom(pixs, boxa1, 2);
     pixDisplay(pixt, 100, 100);
-    pixWrite("junkpixt", pixt, IFF_PNG);
+    pixWrite("/tmp/lept/comp/pixt.png", pixt, IFF_PNG);
     naa1 = boxaExtractSortedPattern(boxa1, nai1);
-    numaaWrite("junknaa1", naa1);
-    naa1r = numaaRead("junknaa1");
-    numaaWrite("junknaa1r", naa1r);
+    numaaWrite("/tmp/lept/comp/naa1.naa", naa1);
     n = numaaGetCount(naa1);
-    fprintf(stderr, "Number of textlines = %d\n", n);
+    lept_stderr("Number of textlines = %d\n", n);
     pixDisplay(pixb1, 300, 0);
 
         /* Translate */
@@ -62,10 +67,10 @@ PIX     *pixs, *pixt, *pixb1, *pixb2;
     pixGetDimensions(pixb1, &w, &h, NULL);
     pixRasterop(pixb2, 148, 133, w, h, PIX_SRC, pixb1, 0, 0);
     pixDisplay(pixb2, 600, 0);
-    pixGetWordBoxesInTextlines(pixb2, 1, 10, 10, 500, 50, &boxa2, &nai2);
+    pixGetWordBoxesInTextlines(pixb2, 10, 10, 500, 50, &boxa2, &nai2);
     naa2 = boxaExtractSortedPattern(boxa2, nai2);
     numaaCompareImagesByBoxes(naa1, naa2, 5, 10, 150, 150, 20, 20, &same, 1);
-    fprintf(stderr, "Translation.  same?: %d\n\n", same);
+    lept_stderr("Translation.  same?: %d\n\n", same);
     boxaDestroy(&boxa2);
     numaDestroy(&nai2);
     pixDestroy(&pixb2);
@@ -77,10 +82,10 @@ PIX     *pixs, *pixt, *pixb1, *pixb2;
     pixRasterop(pixb2, 0, 0, w, h / 3, PIX_SRC, pixb1, 0, 2 * h / 3);
     pixRasterop(pixb2, 0, h / 3, w, 2 * h / 3, PIX_SRC, pixb1, 0, h / 3);
     pixDisplay(pixb2, 900, 0);
-    pixGetWordBoxesInTextlines(pixb2, 1, 10, 10, 500, 50, &boxa2, &nai2);
+    pixGetWordBoxesInTextlines(pixb2, 10, 10, 500, 50, &boxa2, &nai2);
     naa2 = boxaExtractSortedPattern(boxa2, nai2);
     numaaCompareImagesByBoxes(naa1, naa2, 5, 10, 150, 150, 20, 20, &same, 1);
-    fprintf(stderr, "Aligned part below h/3.  same?: %d\n\n", same);
+    lept_stderr("Aligned part below h/3.  same?: %d\n\n", same);
     boxaDestroy(&boxa2);
     numaDestroy(&nai2);
     pixDestroy(&pixb2);
@@ -92,10 +97,10 @@ PIX     *pixs, *pixt, *pixb1, *pixb2;
     pixRasterop(pixb2, 0, 0, w, h / 3, PIX_SRC, pixb1, 0, 2 * h / 3);
     pixRasterop(pixb2, 0, h / 3, w, 2 * h / 3, PIX_SRC, pixb1, 0, 0);
     pixDisplay(pixb2, 1200, 0);
-    pixGetWordBoxesInTextlines(pixb2, 1, 10, 10, 500, 50, &boxa2, &nai2);
+    pixGetWordBoxesInTextlines(pixb2, 10, 10, 500, 50, &boxa2, &nai2);
     naa2 = boxaExtractSortedPattern(boxa2, nai2);
     numaaCompareImagesByBoxes(naa1, naa2, 5, 10, 150, 150, 20, 20, &same, 1);
-    fprintf(stderr, "Top/Bot switched; no alignment.  Same?: %d\n", same);
+    lept_stderr("Top/Bot switched; no alignment.  Same?: %d\n", same);
     boxaDestroy(&boxa2);
     numaDestroy(&nai2);
     pixDestroy(&pixb2);
@@ -107,6 +112,5 @@ PIX     *pixs, *pixt, *pixb1, *pixb2;
     pixDestroy(&pixb1);
     pixDestroy(&pixt);
     numaaDestroy(&naa1);
-    numaaDestroy(&naa1r);
     return 0;
 }

@@ -765,22 +765,22 @@ int SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_
 	return cmp;
 }
 
-int SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
-	{ return (imp_bsearch(key, pIdx, fcmp, ofs, pExtraData) == 0) ? 1 : (SLibError = SLERR_ARYITEMNFOUND, 0); }
-int SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp) const
-	{ return (imp_bsearch(key, pIdx, fcmp, 0, 0) == 0) ? 1 : (SLibError = SLERR_ARYITEMNFOUND, 0); }
+bool SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+	{ return (imp_bsearch(key, pIdx, fcmp, ofs, pExtraData) == 0) ? true : SLS.SetError(SLERR_ARYITEMNFOUND); }
+bool SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp) const
+	{ return (imp_bsearch(key, pIdx, fcmp, 0, 0) == 0) ? true : SLS.SetError(SLERR_ARYITEMNFOUND); }
 
-int SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+bool SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	if(pos < count) {
 		const void * p_data = _USERPTR(P_VData + pos * isize);
 		if(p_data && fcmp(PTR8C(p_data) + ofs, pKey, pExtraData) == 0)
-			return 1;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
-int SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	uint   i = pIdx ? (*pIdx * isize) : 0;
 	const  uint    lim = count * isize;
@@ -789,7 +789,7 @@ int SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t 
 		for(; i < lim; i += sizeof(void *))
 			if(fcmp(PTR8(*(void **)(p_org + i)) + ofs, pcKey, pExtraData) == 0) {
 				ASSIGN_PTR(pIdx, i / sizeof(void *));
-				return 1;
+				return true;
 			}
 	}
 	else {
@@ -803,7 +803,7 @@ int SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t 
 			for(; i < lim; i += isize)
 				if(*PTR32C(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);
-					return 1;
+					return true;
 				}
 		}
 		else if(fcmp == CMPF_INT64) {
@@ -811,14 +811,14 @@ int SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t 
 			for(; i < lim; i += isize)
 				if(*PTR64C(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);
-					return 1;
+					return true;
 				}
 		}
 		else {
 			for(; i < lim; i += isize)
 				if(fcmp(p_org + i, pcKey, pExtraData) == 0) {
 					ASSIGN_PTR(pIdx, i / isize);
-					return 1;
+					return true;
 				}
 		}
 	}
@@ -828,10 +828,10 @@ int SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t 
 	for(uint i = (pIdx ? (*pIdx * isize) : 0); i < lim; i += isize)
 		if(fcmp(((const char *)_USERPTR(p_org + i)) + ofs, pcKey, extraData) == 0) {
 			ASSIGN_PTR(pIdx, i / isize);
-			return 1;
+			return true;
 		}
 #endif // } 0
-	return ((SLibError = SLERR_ARYITEMNFOUND), 0);
+	return SLS.SetError(SLERR_ARYITEMNFOUND);
 }
 
 int SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, void * pExtraData /*=0*/)
@@ -907,13 +907,13 @@ SVector & FASTCALL SVector::operator = (const SVector & rS)
 	return *this;
 }
 
-int FASTCALL SVector::IsEq(const SVector & rS) const
+bool FASTCALL SVector::IsEq(const SVector & rS) const
 {
 	const uint16 tf = (aryPtrContainer|aryEachItem);
 	if(!(VFlags & tf) && !(rS.VFlags & tf))
 		if(count == rS.count && isize == rS.isize)
-			return BIN(memcmp(P_VData, rS.P_VData, isize * count) == 0);
-	return 0;
+			return (memcmp(P_VData, rS.P_VData, isize * count) == 0);
+	return false;
 }
 
 int FASTCALL SVector::atFree(uint idx)
@@ -1077,13 +1077,13 @@ int FASTCALL SArray::copy(const SArray & rS)
     return SVectorBase::CopyS(rS);
 }
 
-int FASTCALL SArray::IsEq(const SArray & src) const
+bool FASTCALL SArray::IsEq(const SArray & src) const
 {
 	const uint16 tf = (aryPtrContainer|aryEachItem);
 	if(!(VFlags & tf) && !(src.VFlags & tf))
 		if(count == src.count && isize == src.isize)
-			return BIN(memcmp(P_VData, src.P_VData, isize * count) == 0);
-	return 0;
+			return (memcmp(P_VData, src.P_VData, isize * count) == 0);
+	return false;
 }
 
 /*virtual*/void FASTCALL SArray::freeItem(void * pItem)
@@ -1902,7 +1902,7 @@ RPairArray::RPairArray(const RPairArray & rS)  : TSVector <RPair> (rS)
 
 RPairArray & FASTCALL RPairArray::operator = (const RPairArray & rS)
 {
-	SVector::copy(rS); // @v9.8.4 SArray-->SVector
+	SVector::copy(rS);
 	return *this;
 }
 
@@ -1945,19 +1945,19 @@ int UUIDAssocArray::Add(long key, const S_GUID & rVal, uint * pPos)
 		return 0;
 }
 
-int UUIDAssocArray::Search(long key, S_GUID * pVal, uint * pPos) const
+bool UUIDAssocArray::Search(long key, S_GUID * pVal, uint * pPos) const
 {
 	uint   pos = 0;
 	if(lsearch(&key, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pVal, at(pos).Val);
 		ASSIGN_PTR(pPos, pos);
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
-int UUIDAssocArray::SearchVal(const S_GUID_Base & rVal, long * pKey, uint * pPos) const
+bool UUIDAssocArray::SearchVal(const S_GUID_Base & rVal, long * pKey, uint * pPos) const
 {
 	uint   pos = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -1965,10 +1965,10 @@ int UUIDAssocArray::SearchVal(const S_GUID_Base & rVal, long * pKey, uint * pPos
 		if(r_item.Val == rVal) {
 			ASSIGN_PTR(pKey, r_item.Key);
 			ASSIGN_PTR(pPos, i);
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 int UUIDAssocArray::GetMaxKey(long * pMaxKey, uint * pPos) const
@@ -2035,15 +2035,15 @@ int FASTCALL SV_Uint32::IsEq(const SV_Uint32 & rPat) const
 	return ok;
 }
 
-int SV_Uint32::Search(uint val, uint * pPos) const
+bool SV_Uint32::Search(uint val, uint * pPos) const
 {
 	uint   c = P_Data ? P_Data[0] : 0;
 	for(uint i = 1; i <= c; i++)
 		if(P_Data[i] == val) {
 			ASSIGN_PTR(pPos, i-1);
-			return 1;
+			return true;
 		}
-	return 0;
+	return false;
 }
 
 uint SV_Uint32::GetCount() const
@@ -2147,22 +2147,22 @@ int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 	return 1;
 }
 
-int FASTCALL StrAssocArray::IsEq(const StrAssocArray & s) const
+bool FASTCALL StrAssocArray::IsEq(const StrAssocArray & s) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	uint   c = LAssocArray::getCount();
 	if(c == s.LAssocArray::getCount()) {
-		ok = 1;
+		ok = true;
 		for(uint i = 0; ok && i < c; i++) {
 			Item b = Get(i);
 			Item sb = s.Get(i);
 			if(b.Id == sb.Id && b.ParentId == sb.ParentId) {
 				if(b.Txt != 0 && sb.Txt != 0) {
 					if(!sstreq(b.Txt, sb.Txt))
-						ok = 0;
+						ok = false;
 				}
 				else if(b.Txt || sb.Txt)
-					ok = 0;
+					ok = false;
 			}
 		}
 	}
@@ -2914,7 +2914,7 @@ int StrAssocArray::Read(SFile & rFile, long o)
 //
 // @construction {
 //
-StrAssocTree::ENTRY::BaseList::BaseList() : TSArray <ENTRY>(aryDataOwner|aryEachItem)
+StrAssocTree::ENTRY::BaseList::BaseList(const ENTRY * pParent) : TSArray <ENTRY>(aryDataOwner|aryEachItem), P_Parent(0)
 {
 }
 
@@ -2926,6 +2926,7 @@ StrAssocTree::ENTRY::BaseList::BaseList(const BaseList & rS) : TSArray <ENTRY>(a
 StrAssocTree::ENTRY::BaseList & StrAssocTree::ENTRY::BaseList::Z()
 {
 	clear();
+	P_Parent = 0;
 	return *this;
 }
 
@@ -2942,6 +2943,7 @@ int FASTCALL StrAssocTree::ENTRY::BaseList::Copy(const StrAssocTree::ENTRY::Base
 		ENTRY & r_new_entry = at(i);
 		THROW(r_new_entry.Copy(rS.at(i)));
 	}
+	// ??? P_Parent
 	CATCHZOK
 	return ok;			
 }
@@ -2980,7 +2982,7 @@ bool StrAssocTree::ENTRY::BaseList::Implement_Get_Unsafe(SHandle h, int32 curren
 
 int StrAssocTree::ENTRY::BaseList::Implement_Add(int32 key, uint strP)
 {
-	ENTRY new_entry(key, strP);
+	ENTRY new_entry(this, key, strP, 0);
 	return insert(&new_entry);
 }
 
@@ -3070,11 +3072,12 @@ void StrAssocTree::ENTRY::BaseList::Implement_SortByText(void * pMaster)
 	CALLPTRMEMB(static_cast<ENTRY *>(pItem), Destroy());
 }
 
-StrAssocTree::ENTRY::ENTRY() : Key(0), StrP(0), P_Children(0)
+StrAssocTree::ENTRY::ENTRY() : Key(0), StrP(0), Flags(0), P_Children(0), P_ParentList(0), ExtraPtr(0)
 {
 }
 
-StrAssocTree::ENTRY::ENTRY(int32 key, uint32 strP) : Key(key), StrP(strP), P_Children(0)
+StrAssocTree::ENTRY::ENTRY(const BaseList * pParent, int32 key, uint32 strP, uintptr_t extra) : 
+	Key(key), StrP(strP), Flags(0), P_Children(0), P_ParentList(pParent), ExtraPtr(extra)
 {
 }
 
@@ -3082,7 +3085,10 @@ void StrAssocTree::ENTRY::Destroy()
 {
 	Key = 0;
 	StrP = 0;
+	Flags = 0;
 	ZDELETEFAST(P_Children);
+	P_ParentList = 0;
+	ExtraPtr = 0;
 }
 
 int FASTCALL StrAssocTree::ENTRY::Copy(const ENTRY & rS)
@@ -3090,6 +3096,8 @@ int FASTCALL StrAssocTree::ENTRY::Copy(const ENTRY & rS)
 	int    ok = 1;
 	Key = rS.Key;
 	StrP = rS.StrP;
+	Flags = rS.Flags;
+	ExtraPtr = rS.ExtraPtr;
 	if(rS.P_Children) {
 		if(P_Children)
 			P_Children->Copy(*rS.P_Children);
@@ -3107,11 +3115,11 @@ uint StrAssocTree::ENTRY::GetCount() const
 	return 1 + (P_Children ? P_Children->GetCount() : 0);
 }
 
-StrAssocTree::StrAssocTree() : SStrGroup(), TextCmpProc(0)
+StrAssocTree::StrAssocTree() : SStrGroup(), TextCmpProc(0), L(0)
 {
 }
 	
-StrAssocTree::StrAssocTree(const StrAssocTree & rS) : SStrGroup(static_cast<SStrGroup>(rS))
+StrAssocTree::StrAssocTree(const StrAssocTree & rS) : SStrGroup(static_cast<SStrGroup>(rS)), L(0)
 {
 	Copy(rS);
 }
@@ -3166,6 +3174,33 @@ SHandle FASTCALL StrAssocTree::Search(long id) const
 {
 	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
 	return SHandle(p_entry);
+}
+
+SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
+{
+	SHandle result;
+
+	uint   pos = 0;
+	while(Pool.search(pTxt, &pos, ignoreCase)) {
+		/*
+		if(LAssocArray::lsearch(&pos, &(assc_pos = 0), CMPF_LONG, offsetof(LAssoc, Val))) {
+			ASSIGN_PTR(pPos, assc_pos);
+			return 1;
+		}
+		else {
+			size_t _len = Pool.getLen(pos);
+			uint   _dlen = Pool.getDelimLen();
+			pos += (_len + _dlen);
+		}
+		*/
+	}
+	return result;
+}
+
+SHandle StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp) const
+{
+	SHandle result;
+	return result;
 }
 
 bool StrAssocTree::Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const
@@ -3233,7 +3268,7 @@ int StrAssocTree::Add(long id, long parentId, const char * pStr, int replaceDup)
 		if(p_parent_entry) {
 			uint strp = 0;
 			AddS(pStr, &strp);
-			SETIFZ(p_parent_entry->P_Children, new ENTRY::BaseList());
+			SETIFZ(p_parent_entry->P_Children, new ENTRY::BaseList(p_parent_entry));
 			ok = p_parent_entry->P_Children->Implement_Add(id, strp);
 		}			
 	}
@@ -3521,18 +3556,18 @@ LongArray & FASTCALL LongArray::operator = (const LongArray & s)
 	return *this;
 }
 
-int FASTCALL LongArray::IsEq(const LongArray * pS) const
+bool FASTCALL LongArray::IsEq(const LongArray * pS) const
 {
 	if(pS) {
 		const uint c = getCount();
 		if(pS->getCount() == c) {
 			for(uint i = 0; i < c; i++)
 				if(pS->at(i) != at(i))
-					return 0;
-			return 1;
+					return false;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 int CDECL LongArray::addzlist(long first, ...)

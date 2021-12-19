@@ -52,7 +52,7 @@ struct operator_info_t {
 
 static const operator_info_t operator_table[] =
 {
-	/*    Neither Opaque         Src Opaque             Dst Opaque             Both Opaque */
+	/* Neither Opaque         Src Opaque             Dst Opaque             Both Opaque */
 	PACK(CLEAR,                 CLEAR,                 CLEAR,                 CLEAR),
 	PACK(SRC,                   SRC,                   SRC,                   SRC),
 	PACK(DST,                   DST,                   DST,                   DST),

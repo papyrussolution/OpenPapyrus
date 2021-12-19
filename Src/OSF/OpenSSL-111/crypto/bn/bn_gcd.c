@@ -272,7 +272,7 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in, const BIGNUM * a, const BIGNUM * n, BN_
 					goto err;
 			}
 			else {
-				/*  sign*(X + Y)*a == A - B  (mod |n|) */
+				/* sign*(X + Y)*a == A - B  (mod |n|) */
 				if(!BN_uadd(Y, Y, X))
 					goto err;
 				/*

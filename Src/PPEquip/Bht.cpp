@@ -840,14 +840,14 @@ StyloBhtIIOnHostCfg & FASTCALL StyloBhtIIOnHostCfg::operator = (const StyloBhtII
 	DeviceName       = rSrc.DeviceName;
 	WeightPrefix     = rSrc.WeightPrefix;
 	QttyWeightPrefix = rSrc.QttyWeightPrefix;
-	UserName         = rSrc.UserName;
-	Password         = rSrc.Password;
+	UserName = rSrc.UserName;
+	Password = rSrc.Password;
 	ServerAddr       = rSrc.ServerAddr;
 	ServerPort       = rSrc.ServerPort;
 	ServerMask       = rSrc.ServerMask;
-	Flags            = rSrc.Flags;
+	Flags    = rSrc.Flags;
 	BcdPrinterID     = rSrc.BcdPrinterID;
-	DefQtty          = rSrc.DefQtty;
+	DefQtty  = rSrc.DefQtty;
 	ExportBillsPeriod = rSrc.ExportBillsPeriod;
 	if(rSrc.P_OpList) {
 		P_OpList = new SBIIOpInfoArray;
@@ -887,9 +887,9 @@ int StyloBhtIIOnHostCfg::IsValid()
 	return ok;
 }
 
-int StyloBhtIIOnHostCfg::IsEmpty() const
+bool StyloBhtIIOnHostCfg::IsEmpty() const
 {
-	return BIN(!DeviceName.Len() && !WeightPrefix.Len() && !QttyWeightPrefix.Len() &&
+	return (!DeviceName.Len() && !WeightPrefix.Len() && !QttyWeightPrefix.Len() &&
 		!BcdPrinterID && !UserName.Len() && !Password.Len() && !ServerAddr && !ServerPort &&
 		!ServerMask && !Flags && ExportBillsPeriod.IsZero() && !P_OpList);
 }
@@ -897,13 +897,13 @@ int StyloBhtIIOnHostCfg::IsEmpty() const
 PPID StyloBhtIIOnHostCfg::GetOpID(PPID opID) const
 {
 	uint   pos = 0;
-	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long)) > 0) ? P_OpList->at(pos).ToHostOpID : 0;
+	return (P_OpList && P_OpList->lsearch(&opID, &pos, CMPF_LONG)) ? P_OpList->at(pos).ToHostOpID : 0;
 }
 
-int StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
+bool StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 {
 	uint   pos = 0;
-	return (P_OpList && P_OpList->lsearch(&opID, &pos, PTR_CMPFUNC(long))) ? BIN(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice) : 0;
+	return (P_OpList && P_OpList->lsearch(&opID, &pos, CMPF_LONG)) ? LOGIC(P_OpList->at(pos).Flags & StyloBhtIIConfig::foprCostAsPrice) : false;
 }
 //
 //
@@ -1360,7 +1360,7 @@ private:
 			PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L);
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			StrAssocArray::Item item = p_list->Get(i);
-			if(!Data.P_OpList->lsearch(&item.Id, 0, PTR_CMPFUNC(long)) && op_type_list.lsearch(GetOpType(item.Id)))
+			if(!Data.P_OpList->lsearch(&item.Id, 0, CMPF_LONG) && op_type_list.lsearch(GetOpType(item.Id)))
 				_list.Add(item.Id, item.Txt);
 		}
 		GetObjectTitle(PPOBJ_OPRKIND, obj_title);
@@ -1421,7 +1421,7 @@ void BhtDialog::editMore()
 	SETIFZ(Data.P_SBIICfg->P_OpList, new SBIIOpInfoArray);
 	THROW_MEM(Data.P_SBIICfg->P_OpList);
 	for(long op_id = -StyloBhtIIConfig::oprkTransfer; op_id <= -StyloBhtIIConfig::oprkExpend; op_id++) {
-		if(Data.P_SBIICfg->P_OpList->lsearch(&op_id, 0, PTR_CMPFUNC(long)) <= 0) {
+		if(!Data.P_SBIICfg->P_OpList->lsearch(&op_id, 0, CMPF_LONG)) {
 			SBIIOpInfo op_info;
 			MEMSZERO(op_info);
 			op_info.OpID = op_id;
@@ -1614,7 +1614,7 @@ int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 					p_cfg->ServerPort        = p_buf_pre764->ServerPort;
 					p_cfg->ServerMask        = p_buf_pre764->ServerMask;
 					p_cfg->ExportBillsPeriod = p_buf_pre764->ExportBillsPeriod;
-					p_cfg->DefQtty           = p_buf_pre764->DefQtty;
+					p_cfg->DefQtty   = p_buf_pre764->DefQtty;
 					p_cfg->BcdPrinterID      = p_buf_pre764->BcdPrinterID;
 					{
 						PPGoodsConfig goods_cfg;
@@ -4409,7 +4409,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 		 			sdr_brow.GoodsID = srch_blk.GoodsID;
 		 	}
 		 	pList->insert(&sdr_brow);
-		 	if(!sdr_brow.GoodsID && unknown_goods_list.lsearch(sdr_brow.Serial, 0, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, Barcode)) <= 0) {
+		 	if(!sdr_brow.GoodsID && !unknown_goods_list.lsearch(sdr_brow.Serial, 0, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, Barcode))) {
 	 			ResolveGoodsItem goods_item;
 	 			STRNSCPY(goods_item.Barcode, sdr_brow.Serial);
 	 			goods_item.Quantity = sdr_brow.Qtty;
@@ -5126,24 +5126,24 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 			int    remove = BIN(!r_goods_item.ResolvedGoodsID);
 			if(r_goods_item.GoodsID) {
 				uint pos = 0;
-				while(brows_list.lsearch(&r_goods_item.GoodsID, &pos, CMPF_LONG, offsetof(BillRowEntry, GoodsID)) > 0) {
+				while(brows_list.lsearch(&r_goods_item.GoodsID, &pos, CMPF_LONG, offsetof(BillRowEntry, GoodsID))) {
 					if(remove) {
 						THROW_SL(brows_list.atFree(pos));
 					}
 					else {
-						((BillRowEntry*)brows_list.at(pos))->GoodsID = r_goods_item.ResolvedGoodsID;
+						static_cast<BillRowEntry *>(brows_list.at(pos))->GoodsID = r_goods_item.ResolvedGoodsID;
 						pos++;
 					}
 				}
 			}
 			else {
 				uint pos = 0;
-				while(brows_list.lsearch(r_goods_item.Barcode, &pos, PTR_CMPFUNC(Pchar), offsetof(BillRowEntry, Barcode)) > 0) {
+				while(brows_list.lsearch(r_goods_item.Barcode, &pos, PTR_CMPFUNC(Pchar), offsetof(BillRowEntry, Barcode))) {
 					if(remove) {
 						THROW_SL(brows_list.atFree(pos));
 					}
 					else {
-						((BillRowEntry*)brows_list.at(pos))->GoodsID = r_goods_item.ResolvedGoodsID;
+						static_cast<BillRowEntry *>(brows_list.at(pos))->GoodsID = r_goods_item.ResolvedGoodsID;
 						pos++;
 					}
 				}
@@ -5194,7 +5194,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 				if(!gb_exists) {
 					const  long bill_id = atol(bid);
 					uint   row_pos = 0;
-					if(brows_list.lsearch(&bill_id, &row_pos, CMPF_LONG) > 0) {
+					if(brows_list.lsearch(&bill_id, &row_pos, CMPF_LONG)) {
 						BillRowEntry * p_brow = 0;
 						for(;brows_list.enumItems(&row_pos, (void **)&p_brow) > 0 && p_brow->BillID == bill_id;) {
 							uint   pos = 0;

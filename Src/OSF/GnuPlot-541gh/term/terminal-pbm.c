@@ -26,7 +26,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -35,17 +35,17 @@
 #endif
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PBM_init(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_reset(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_monotext(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_graytext(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_colortext(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_text(GpTermEntry * pThis);
-TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void PBM_point(GpTermEntry * pThis, uint x, uint y, int point);
+TERM_PUBLIC void PBM_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PBM_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_setfont(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_monotext(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_graytext(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_colortext(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PBM_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void PBM_point(GpTermEntry_Static * pThis, uint x, uint y, int point);
 //#endif /* TERM_PROTO */
 
 /* make XMAX and YMAX a multiple of 8 */
@@ -90,7 +90,7 @@ static struct gen_table PBM_opts[] =
 	{ NULL, PBM_OTHER }
 };
 
-TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PBM_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int xpixels = PBM_XMAX;
 	int ypixels = PBM_YMAX;
@@ -114,7 +114,7 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case PBM_MONOCHROME:
 			    pbm_mode = 0;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case PBM_GRAY:
@@ -123,14 +123,13 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case PBM_COLOR:
 			    pbm_mode = 2;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case PBM_SIZE:
 			    pGp->Pgm.Shift();
 			    if(pGp->Pgm.EndOfCommand()) {
-				    pThis->MaxX = PBM_XMAX;
-				    pThis->MaxY = PBM_YMAX;
+				    pThis->SetMax(PBM_XMAX, PBM_YMAX);
 				    PBM_explicit_size = FALSE;
 			    }
 			    else {
@@ -173,39 +172,36 @@ TERM_PUBLIC void PBM_options(GpTermEntry * pThis, GnuPlot * pGp)
 		slprintf_cat(GPT._TermOptions, " size %d,%d", pThis->MaxX, pThis->MaxY);
 }
 
-TERM_PUBLIC void PBM_init(GpTermEntry * pThis)
+TERM_PUBLIC void PBM_init(GpTermEntry_Static * pThis)
 {
 	PBM_setfont(pThis); // HBB 980226: call it here! 
 }
 
-TERM_PUBLIC void PBM_reset(GpTermEntry * pThis)
+TERM_PUBLIC void PBM_reset(GpTermEntry_Static * pThis)
 {
 	fflush_binary(); // Only needed for VMS 
 }
 
-TERM_PUBLIC void PBM_setfont(GpTermEntry * pThis)
+TERM_PUBLIC void PBM_setfont(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	switch(pbm_font) {
 		case 1:
 		    p_gp->BmpCharSize(FNT5X9);
-		    pThis->ChrV = FNT5X9_VCHAR;
-		    pThis->ChrH = FNT5X9_HCHAR;
+		    pThis->SetCharSize(FNT5X9_HCHAR, FNT5X9_VCHAR);
 		    break;
 		case 2:
 		    p_gp->BmpCharSize(FNT9X17);
-		    pThis->ChrV = FNT9X17_VCHAR;
-		    pThis->ChrH = FNT9X17_HCHAR;
+		    pThis->SetCharSize(FNT9X17_HCHAR, FNT9X17_VCHAR);
 		    break;
 		case 3:
 		    p_gp->BmpCharSize(FNT13X25);
-		    pThis->ChrV = FNT13X25_VCHAR;
-		    pThis->ChrH = FNT13X25_HCHAR;
+		    pThis->SetCharSize(FNT13X25_HCHAR, FNT13X25_VCHAR);
 		    break;
 	}
 }
 
-TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void PBM_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int numplanes = 1;
@@ -232,7 +228,7 @@ TERM_PUBLIC void PBM_graphics(GpTermEntry * pThis)
 		b_setlinetype(pThis, 0); // solid lines 
 }
 
-static void PBM_monotext(GpTermEntry * pThis)
+static void PBM_monotext(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
@@ -248,7 +244,7 @@ static void PBM_monotext(GpTermEntry * pThis)
 	p_gp->BmpFreeBitmap();
 }
 
-static void PBM_graytext(GpTermEntry * pThis)
+static void PBM_graytext(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, j, row;
@@ -280,7 +276,7 @@ static void PBM_graytext(GpTermEntry * pThis)
 	p_gp->BmpFreeBitmap();
 }
 
-static void PBM_colortext(GpTermEntry * pThis)
+static void PBM_colortext(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	fprintf(GPT.P_GpOutFile, "P6\n%u %u\n%u\n", p_gp->_Bmp.b_ysize, p_gp->_Bmp.b_xsize, 255);
@@ -313,7 +309,7 @@ static void PBM_colortext(GpTermEntry * pThis)
 	p_gp->BmpFreeBitmap();
 }
 
-TERM_PUBLIC void PBM_text(GpTermEntry * pThis)
+TERM_PUBLIC void PBM_text(GpTermEntry_Static * pThis)
 {
 	switch(pbm_mode) {
 		case 0: PBM_monotext(pThis); break;
@@ -322,7 +318,7 @@ TERM_PUBLIC void PBM_text(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void PBM_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(linetype < -2)
 		linetype = LT_BLACK;
@@ -343,7 +339,7 @@ TERM_PUBLIC void PBM_linetype(GpTermEntry * pThis, int linetype)
 	}
 }
 
-TERM_PUBLIC void PBM_point(GpTermEntry * pThis, uint x, uint y, int point)
+TERM_PUBLIC void PBM_point(GpTermEntry_Static * pThis, uint x, uint y, int point)
 {
 	if(pbm_mode == 0)
 		GnuPlot::LineAndPoint(pThis, x, y, point);

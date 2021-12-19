@@ -22,14 +22,14 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
 #ifdef TERM_PROTO
-	TERM_PUBLIC void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-	TERM_PUBLIC void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-	TERM_PUBLIC void ENHest_FLUSH(GpTermEntry * pThis);
+	TERM_PUBLIC void ENHest_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+	TERM_PUBLIC void ENHest_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+	TERM_PUBLIC void ENHest_FLUSH(GpTermEntry_Static * pThis);
 #endif
 #ifdef TERM_BODY
 static double ENHest_x;
@@ -59,7 +59,7 @@ static double ENHest_base;
 // 
 #define ENHest_ORIG_FONTSIZE 12.0
 
-void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void ENHest_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// There are two special cases:
 	// overprint = 3 means save current position
@@ -92,7 +92,7 @@ void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double b
 	}
 }
 
-void ENHest_FLUSH(GpTermEntry * pThis)
+void ENHest_FLUSH(GpTermEntry_Static * pThis)
 {
 	double len = ENHest_fragment_width;
 	if(ENHest_opened_string) {
@@ -108,7 +108,7 @@ void ENHest_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+void ENHest_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	// Set up global variables needed by enhanced_recursion() 
 	ENHest_fontsize  = ENHest_ORIG_FONTSIZE;
@@ -127,8 +127,7 @@ void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 	ENHest_plaintext_pos = 0;
 	// If no enhanced text processing is needed, strlen() is sufficient 
 	if(pThis->P_Gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~\n") && !contains_unicode(str))) {
-		pThis->MaxX = (GPT._Encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str);
-		pThis->MaxY = 10; // 1 character height 
+		pThis->SetMax((GPT._Encoding == S_ENC_UTF8) ? strwidth_utf8(str) : strlen(str),  10/*1 character height*/); 
 		strcpy(ENHest_plaintext, str);
 	}
 	else {
@@ -143,12 +142,11 @@ void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
 		ENHest_plaintext[ENHest_plaintext_pos] = '\0';
 		if(ENHest_x > 0.0 && ENHest_x < 1.0)
 			ENHest_x = 1;
-		pThis->MaxX = static_cast<uint>(ENHest_total_width);
-		pThis->MaxY = static_cast<uint>(10.0 * (ENHest_max_height - ENHest_min_height)/ENHest_ORIG_FONTSIZE + 0.5);
+		pThis->SetMax(static_cast<uint>(ENHest_total_width), static_cast<uint>(10.0 * (ENHest_max_height - ENHest_min_height)/ENHest_ORIG_FONTSIZE + 0.5));
 	}
 }
 
-void ENHest_writec(GpTermEntry * pThis, int c)
+void ENHest_writec(GpTermEntry_Static * pThis, int c)
 {
 	if(c == '\n') {
 		ENHest_FLUSH(pThis);

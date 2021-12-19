@@ -30,35 +30,50 @@
  *
  *      Contains definitions of simple structuring elements
  *
+ *      Basic brick structuring elements
  *          SELA    *selaAddBasic()
  *               Linear horizontal and vertical
  *               Square
  *               Diagonals
  *
+ *      Simple hit-miss structuring elements
  *          SELA    *selaAddHitMiss()
  *               Isolated foreground pixel
  *               Horizontal and vertical edges
  *               Slanted edge
  *               Corners
  *
+ *      Structuring elements for comparing with DWA operations
  *          SELA    *selaAddDwaLinear()
  *          SELA    *selaAddDwaCombs()
+ *
+ *      Structuring elements for the intersection of lines
  *          SELA    *selaAddCrossJunctions()
  *          SELA    *selaAddTJunctions()
+ *
+ *      Structuring elements for connectivity-preserving thinning operations
+ *          SELA    *sela4ccThin()
+ *          SELA    *sela8ccThin()
+ *          SELA    *sela4and8ccThin()
+ *
+ *      Other structuring elements
+ *          SEL    *selMakePlusSign()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-//static const int32 L_BUF_SIZE = 512;
 #define L_BUF_SIZE 512
 
 /* Linear brick sel sizes, including all those that are required
  * for decomposable sels up to size 63. */
-static const int32 num_linear = 25;
-static const int32 basic_linear[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+static const l_int32 num_linear = 25;
+static const l_int32 basic_linear[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 				       12, 13, 14, 15, 20, 21, 25, 30, 31, 35, 40, 41, 45, 50, 51};
 
+/* ------------------------------------------------------------------- *
+*                    Basic brick structuring elements                 *
+* ------------------------------------------------------------------- */
 /*!
  * \brief   selaAddBasic()
  *
@@ -77,9 +92,11 @@ static const int32 basic_linear[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 SELA * selaAddBasic(SELA  * sela)
 {
 	char name[L_BUF_SIZE];
-	int32 i, size;
+	l_int32 i, size;
 	SEL     * sel;
-	PROCNAME("selaAddBasic");
+
+	PROCNAME(__FUNCTION__);
+
 	if(!sela) {
 		if((sela = selaCreate(0)) == NULL)
 			return (SELA*)ERROR_PTR("sela not made", procName, NULL);
@@ -91,13 +108,13 @@ SELA * selaAddBasic(SELA  * sela)
 	for(i = 0; i < num_linear; i++) {
 		size = basic_linear[i];
 		sel = selCreateBrick(1, size, 0, size / 2, 1);
-		_snprintf(name, L_BUF_SIZE, "sel_%dh", size);
+		snprintf(name, L_BUF_SIZE, "sel_%dh", size);
 		selaAddSel(sela, sel, name, 0);
 	}
 	for(i = 0; i < num_linear; i++) {
 		size = basic_linear[i];
 		sel = selCreateBrick(size, 1, size / 2, 0, 1);
-		_snprintf(name, L_BUF_SIZE, "sel_%dv", size);
+		snprintf(name, L_BUF_SIZE, "sel_%dv", size);
 		selaAddSel(sela, sel, name, 0);
 	}
 
@@ -106,7 +123,7 @@ SELA * selaAddBasic(SELA  * sela)
 	*-----------------------------------------------------------*/
 	for(i = 2; i <= 5; i++) {
 		sel = selCreateBrick(i, i, i / 2, i / 2, 1);
-		_snprintf(name, L_BUF_SIZE, "sel_%d", i);
+		snprintf(name, L_BUF_SIZE, "sel_%d", i);
 		selaAddSel(sela, sel, name, 0);
 	}
 
@@ -129,8 +146,7 @@ SELA * selaAddBasic(SELA  * sela)
 
 	/*  Diagonal, slope +, size 5 */
 	sel = selCreate(5, 5, "sel_5dp");
-	sel->cy = 2;
-	sel->cx = 2;
+	selSetOrigin(sel, 2, 2);
 	selSetElement(sel, 0, 4, 1);
 	selSetElement(sel, 1, 3, 1);
 	selSetElement(sel, 2, 2, 1);
@@ -140,8 +156,7 @@ SELA * selaAddBasic(SELA  * sela)
 
 	/*  Diagonal, slope -, size 5 */
 	sel = selCreate(5, 5, "sel_5dm");
-	sel->cy = 2;
-	sel->cx = 2;
+	selSetOrigin(sel, 2, 2);
 	selSetElement(sel, 0, 0, 1);
 	selSetElement(sel, 1, 1, 1);
 	selSetElement(sel, 2, 2, 1);
@@ -152,6 +167,9 @@ SELA * selaAddBasic(SELA  * sela)
 	return sela;
 }
 
+/* ------------------------------------------------------------------- *
+*                 Simple hit-miss structuring elements                *
+* ------------------------------------------------------------------- */
 /*!
  * \brief   selaAddHitMiss()
  *
@@ -161,7 +179,9 @@ SELA * selaAddBasic(SELA  * sela)
 SELA * selaAddHitMiss(SELA  * sela)
 {
 	SEL  * sel;
-	PROCNAME("selaAddHitMiss");
+
+	PROCNAME(__FUNCTION__);
+
 	if(!sela) {
 		if((sela = selaCreate(0)) == NULL)
 			return (SELA*)ERROR_PTR("sela not made", procName, NULL);
@@ -275,6 +295,9 @@ SELA * selaAddHitMiss(SELA  * sela)
 	return sela;
 }
 
+/* ------------------------------------------------------------------- *
+*        Structuring elements for comparing with DWA operations       *
+* ------------------------------------------------------------------- */
 /*!
  * \brief   selaAddDwaLinear()
  *
@@ -291,10 +314,10 @@ SELA * selaAddHitMiss(SELA  * sela)
 SELA * selaAddDwaLinear(SELA  * sela)
 {
 	char name[L_BUF_SIZE];
-	int32 i;
+	l_int32 i;
 	SEL     * sel;
 
-	PROCNAME("selaAddDwaLinear");
+	PROCNAME(__FUNCTION__);
 
 	if(!sela) {
 		if((sela = selaCreate(0)) == NULL)
@@ -303,12 +326,12 @@ SELA * selaAddDwaLinear(SELA  * sela)
 
 	for(i = 2; i < 64; i++) {
 		sel = selCreateBrick(1, i, 0, i / 2, 1);
-		_snprintf(name, L_BUF_SIZE, "sel_%dh", i);
+		snprintf(name, L_BUF_SIZE, "sel_%dh", i);
 		selaAddSel(sela, sel, name, 0);
 	}
 	for(i = 2; i < 64; i++) {
 		sel = selCreateBrick(i, 1, i / 2, 0, 1);
-		_snprintf(name, L_BUF_SIZE, "sel_%dv", i);
+		snprintf(name, L_BUF_SIZE, "sel_%dv", i);
 		selaAddSel(sela, sel, name, 0);
 	}
 	return sela;
@@ -331,10 +354,10 @@ SELA * selaAddDwaLinear(SELA  * sela)
 SELA * selaAddDwaCombs(SELA  * sela)
 {
 	char name[L_BUF_SIZE];
-	int32 i, f1, f2, prevsize, size;
+	l_int32 i, f1, f2, prevsize, size;
 	SEL     * selh, * selv;
 
-	PROCNAME("selaAddDwaCombs");
+	PROCNAME(__FUNCTION__);
 
 	if(!sela) {
 		if((sela = selaCreate(0)) == NULL)
@@ -348,17 +371,30 @@ SELA * selaAddDwaCombs(SELA  * sela)
 		if(size == prevsize)
 			continue;
 		selectComposableSels(i, L_HORIZ, NULL, &selh);
+		if(selh) {
+			snprintf(name, L_BUF_SIZE, "sel_comb_%dh", size);
+			selaAddSel(sela, selh, name, 0);
+		}
+		else {
+			L_ERROR("selh not made for i = %d\n", procName, i);
+		}
 		selectComposableSels(i, L_VERT, NULL, &selv);
-		_snprintf(name, L_BUF_SIZE, "sel_comb_%dh", size);
-		selaAddSel(sela, selh, name, 0);
-		_snprintf(name, L_BUF_SIZE, "sel_comb_%dv", size);
-		selaAddSel(sela, selv, name, 0);
+		if(selv) {
+			snprintf(name, L_BUF_SIZE, "sel_comb_%dv", size);
+			selaAddSel(sela, selv, name, 0);
+		}
+		else {
+			L_ERROR("selv not made for i = %d\n", procName, i);
+		}
 		prevsize = size;
 	}
 
 	return sela;
 }
 
+/* ------------------------------------------------------------------- *
+*          Structuring elements for the intersection of lines         *
+* ------------------------------------------------------------------- */
 /*!
  * \brief   selaAddCrossJunctions()
  *
@@ -388,19 +424,19 @@ SELA * selaAddDwaCombs(SELA  * sela)
 SELA * selaAddCrossJunctions(SELA      * sela,
     float hlsize,
     float mdist,
-    int32 norient,
-    int32 debugflag)
+    l_int32 norient,
+    l_int32 debugflag)
 {
 	char name[L_BUF_SIZE];
-	int32 i, j, w, xc, yc;
+	l_int32 i, j, w, xc, yc;
 	double pi, halfpi, radincr, radang;
 	double angle;
-	PIX       * pixc, * pixm, * pixt;
+	PIX * pixc, * pixm, * pixt;
 	PIXA      * pixa;
 	PTA       * pta1, * pta2, * pta3, * pta4;
 	SEL       * sel;
 
-	PROCNAME("selaAddCrossJunctions");
+	PROCNAME(__FUNCTION__);
 
 	if(hlsize <= 0)
 		return (SELA*)ERROR_PTR("hlsize not > 0", procName, NULL);
@@ -415,7 +451,7 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 	pi = 3.1415926535;
 	halfpi = 3.1415926535 / 2.0;
 	radincr = halfpi / (double)norient;
-	w = (int32)(2.2 * (MAX(hlsize, mdist) + 0.5));
+	w = (l_int32)(2.2 * (MAX(hlsize, mdist) + 0.5));
 	if(w % 2 == 0)
 		w++;
 	xc = w / 2;
@@ -447,8 +483,8 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 		/* Add red misses between the lines */
 		for(j = 0; j < 4; j++) {
 			angle = radang + (j - 0.5) * halfpi;
-			pixSetPixel(pixc, xc + (int32)(mdist * cos(angle)),
-			    yc + (int32)(mdist * sin(angle)), 0xff000000);
+			pixSetPixel(pixc, xc + (l_int32)(mdist * cos(angle)),
+			    yc + (l_int32)(mdist * sin(angle)), 0xff000000);
 		}
 
 		/* Add dark green for origin */
@@ -456,7 +492,7 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 
 		/* Generate the sel */
 		sel = selCreateFromColorPix(pixc, NULL);
-		sprintf(name, "sel_cross_%d", i);
+		snprintf(name, sizeof(name), "sel_cross_%d", i);
 		selaAddSel(sela, sel, name, 0);
 
 		if(debugflag) {
@@ -468,15 +504,15 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 	}
 
 	if(debugflag) {
-		int32 w;
+		l_int32 w;
 		lept_mkdir("lept/sel");
 		pixaGetPixDimensions(pixa, 0, &w, NULL, NULL);
 		pixt = pixaDisplayTiledAndScaled(pixa, 32, w, 1, 0, 10, 2);
-		pixWrite("/tmp/lept/sel/xsel1.png", pixt, IFF_PNG);
+		pixWriteDebug("/tmp/lept/sel/xsel1.png", pixt, IFF_PNG);
 		pixDisplay(pixt, 0, 100);
 		pixDestroy(&pixt);
 		pixt = selaDisplayInPix(sela, 15, 2, 20, 1);
-		pixWrite("/tmp/lept/sel/xsel2.png", pixt, IFF_PNG);
+		pixWriteDebug("/tmp/lept/sel/xsel2.png", pixt, IFF_PNG);
 		pixDisplay(pixt, 500, 100);
 		pixDestroy(&pixt);
 		selaWriteStream(stderr, sela);
@@ -510,19 +546,19 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 SELA * selaAddTJunctions(SELA      * sela,
     float hlsize,
     float mdist,
-    int32 norient,
-    int32 debugflag)
+    l_int32 norient,
+    l_int32 debugflag)
 {
 	char name[L_BUF_SIZE];
-	int32 i, j, k, w, xc, yc;
+	l_int32 i, j, k, w, xc, yc;
 	double pi, halfpi, radincr, jang, radang;
 	double angle[3], dist[3];
-	PIX       * pixc, * pixm, * pixt;
+	PIX * pixc, * pixm, * pixt;
 	PIXA      * pixa;
 	PTA       * pta1, * pta2, * pta3;
 	SEL       * sel;
 
-	PROCNAME("selaAddTJunctions");
+	PROCNAME(__FUNCTION__);
 
 	if(hlsize <= 2)
 		return (SELA*)ERROR_PTR("hlsizel not > 1", procName, NULL);
@@ -537,7 +573,7 @@ SELA * selaAddTJunctions(SELA      * sela,
 	pi = 3.1415926535;
 	halfpi = 3.1415926535 / 2.0;
 	radincr = halfpi / (float)norient;
-	w = (int32)(2.4 * (MAX(hlsize, mdist) + 0.5));
+	w = (l_int32)(2.4 * (MAX(hlsize, mdist) + 0.5));
 	if(w % 2 == 0)
 		w++;
 	xc = w / 2;
@@ -557,9 +593,9 @@ SELA * selaAddTJunctions(SELA      * sela,
 			radang = (float)i * radincr;
 			pta1 = generatePtaLineFromPt(xc, yc, hlsize + 1, jang + radang);
 			pta2 = generatePtaLineFromPt(xc, yc, hlsize + 1,
-			    jang + radang + halfpi);
+				jang + radang + halfpi);
 			pta3 = generatePtaLineFromPt(xc, yc, hlsize + 1,
-			    jang + radang + pi);
+				jang + radang + pi);
 			ptaJoin(pta1, pta2, 0, -1);
 			ptaJoin(pta1, pta3, 0, -1);
 			pixRenderPta(pixm, pta1, L_SET_PIXELS);
@@ -575,8 +611,8 @@ SELA * selaAddTJunctions(SELA      * sela,
 			dist[0] = 0.8 * mdist;
 			dist[1] = dist[2] = mdist;
 			for(k = 0; k < 3; k++) {
-				pixSetPixel(pixc, xc + (int32)(dist[k] * cos(angle[k])),
-				    yc + (int32)(dist[k] * sin(angle[k])),
+				pixSetPixel(pixc, xc + (l_int32)(dist[k] * cos(angle[k])),
+				    yc + (l_int32)(dist[k] * sin(angle[k])),
 				    0xff000000);
 			}
 
@@ -585,7 +621,7 @@ SELA * selaAddTJunctions(SELA      * sela,
 
 			/* Generate the sel */
 			sel = selCreateFromColorPix(pixc, NULL);
-			sprintf(name, "sel_cross_%d", 4 * i + j);
+			snprintf(name, sizeof(name), "sel_cross_%d", 4 * i + j);
 			selaAddSel(sela, sel, name, 0);
 
 			if(debugflag) {
@@ -598,15 +634,15 @@ SELA * selaAddTJunctions(SELA      * sela,
 	}
 
 	if(debugflag) {
-		int32 w;
+		l_int32 w;
 		lept_mkdir("lept/sel");
 		pixaGetPixDimensions(pixa, 0, &w, NULL, NULL);
 		pixt = pixaDisplayTiledAndScaled(pixa, 32, w, 4, 0, 10, 2);
-		pixWrite("/tmp/lept/sel/tsel1.png", pixt, IFF_PNG);
+		pixWriteDebug("/tmp/lept/sel/tsel1.png", pixt, IFF_PNG);
 		pixDisplay(pixt, 0, 100);
 		pixDestroy(&pixt);
 		pixt = selaDisplayInPix(sela, 15, 2, 20, 4);
-		pixWrite("/tmp/lept/sel/tsel2.png", pixt, IFF_PNG);
+		pixWriteDebug("/tmp/lept/sel/tsel2.png", pixt, IFF_PNG);
 		pixDisplay(pixt, 500, 100);
 		pixDestroy(&pixt);
 		selaWriteStream(stderr, sela);
@@ -616,3 +652,220 @@ SELA * selaAddTJunctions(SELA      * sela,
 	return sela;
 }
 
+/* -------------------------------------------------------------------------- *
+*    Structuring elements for connectivity-preserving thinning operations    *
+* -------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------
+ * These sels (and their rotated counterparts) are the useful
+ * 3x3 Sels for thinning.   The notation is based on
+ * "Connectivity-preserving morphological image transformations,"
+ * a version of which can be found at
+ *           http://www.leptonica.com/papers/conn.pdf
+ * ------------------------------------------------------------ */
+
+/* Sels for 4-connected thinning */
+static const char * sel_4_1 = "  x"
+    "oCx"
+    "  x";
+static const char * sel_4_2 = "  x"
+    "oCx"
+    " o ";
+static const char * sel_4_3 = " o "
+    "oCx"
+    "  x";
+static const char * sel_4_4 = " o "
+    "oCx"
+    " o ";
+static const char * sel_4_5 = " ox"
+    "oCx"
+    " o ";
+static const char * sel_4_6 = " o "
+    "oCx"
+    " ox";
+static const char * sel_4_7 = " xx"
+    "oCx"
+    " o ";
+static const char * sel_4_8 = "  x"
+    "oCx"
+    "o x";
+static const char * sel_4_9 = "o x"
+    "oCx"
+    "  x";
+
+/* Sels for 8-connected thinning */
+static const char * sel_8_1 = " x "
+    "oCx"
+    " x ";
+static const char * sel_8_2 = " x "
+    "oCx"
+    "o  ";
+static const char * sel_8_3 = "o  "
+    "oCx"
+    " x ";
+static const char * sel_8_4 = "o  "
+    "oCx"
+    "o  ";
+static const char * sel_8_5 = "o x"
+    "oCx"
+    "o  ";
+static const char * sel_8_6 = "o  "
+    "oCx"
+    "o x";
+static const char * sel_8_7 = " x "
+    "oCx"
+    "oo ";
+static const char * sel_8_8 = " x "
+    "oCx"
+    "ox ";
+static const char * sel_8_9 = "ox "
+    "oCx"
+    " x ";
+
+/* Sels for both 4 and 8-connected thinning */
+static const char * sel_48_1 = " xx"
+    "oCx"
+    "oo ";
+static const char * sel_48_2 = "o x"
+    "oCx"
+    "o x";
+
+/*!
+ * \brief   sela4ccThin()
+ *
+ * \param[in]    sela [optional]
+ * \return  sela with additional sels, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Adds the 9 basic sels for 4-cc thinning.
+ * </pre>
+ */
+SELA * sela4ccThin(SELA  * sela)
+{
+	SEL  * sel;
+
+	if(!sela) sela = selaCreate(9);
+
+	sel = selCreateFromString(sel_4_1, 3, 3, "sel_4_1");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_2, 3, 3, "sel_4_2");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_3, 3, 3, "sel_4_3");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_4, 3, 3, "sel_4_4");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_5, 3, 3, "sel_4_5");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_6, 3, 3, "sel_4_6");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_7, 3, 3, "sel_4_7");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_8, 3, 3, "sel_4_8");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_4_9, 3, 3, "sel_4_9");
+	selaAddSel(sela, sel, NULL, 0);
+
+	return sela;
+}
+
+/*!
+ * \brief   sela8ccThin()
+ *
+ * \param[in]    sela [optional]
+ * \return  sela with additional sels, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Adds the 9 basic sels for 8-cc thinning.
+ * </pre>
+ */
+SELA * sela8ccThin(SELA  * sela)
+{
+	SEL  * sel;
+
+	if(!sela) sela = selaCreate(9);
+
+	sel = selCreateFromString(sel_8_1, 3, 3, "sel_8_1");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_2, 3, 3, "sel_8_2");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_3, 3, 3, "sel_8_3");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_4, 3, 3, "sel_8_4");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_5, 3, 3, "sel_8_5");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_6, 3, 3, "sel_8_6");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_7, 3, 3, "sel_8_7");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_8, 3, 3, "sel_8_8");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_8_9, 3, 3, "sel_8_9");
+	selaAddSel(sela, sel, NULL, 0);
+
+	return sela;
+}
+
+/*!
+ * \brief   sela4and8ccThin()
+ *
+ * \param[in]    sela [optional]
+ * \return  sela with additional sels, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Adds the 2 basic sels for either 4-cc or 8-cc thinning.
+ * </pre>
+ */
+SELA * sela4and8ccThin(SELA  * sela)
+{
+	SEL  * sel;
+
+	if(!sela) sela = selaCreate(2);
+
+	sel = selCreateFromString(sel_48_1, 3, 3, "sel_48_1");
+	selaAddSel(sela, sel, NULL, 0);
+	sel = selCreateFromString(sel_48_2, 3, 3, "sel_48_2");
+	selaAddSel(sela, sel, NULL, 0);
+
+	return sela;
+}
+
+/* -------------------------------------------------------------------------- *
+*                        Other structuring elements                          *
+* -------------------------------------------------------------------------- */
+/*!
+ * \brief   selMakePlusSign()
+ *
+ * \param[in]    size        side of containing square
+ * \param[in]    linewidth   of lines
+ * \return  sel, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Useful for debugging to show location of selected pixels.
+ *      (2) See displaySelectedPixels() for an example of use.
+ * </pre>
+ */
+SEL * selMakePlusSign(l_int32 size,
+    l_int32 linewidth)
+{
+	PIX  * pix;
+	SEL  * sel;
+
+	PROCNAME(__FUNCTION__);
+
+	if(size < 3 || linewidth > size)
+		return (SEL*)ERROR_PTR("invalid input", procName, NULL);
+
+	pix = pixCreate(size, size, 1);
+	pixRenderLine(pix, size / 2, 0, size / 2, size - 1,
+	    linewidth, L_SET_PIXELS);
+	pixRenderLine(pix, 0, size / 2, size, size / 2,
+	    linewidth, L_SET_PIXELS);
+	sel = selCreateFromPix(pix, size / 2, size / 2, "plus_sign");
+	pixDestroy(&pix);
+	return sel;
+}

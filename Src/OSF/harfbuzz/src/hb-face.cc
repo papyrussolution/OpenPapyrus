@@ -107,7 +107,7 @@ static void _hb_face_for_data_closure_destroy(void * data)
 	SAlloc::F(closure);
 }
 
-static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
+static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_tag_t tag, void * user_data)
 {
 	hb_face_for_data_closure_t * data = (hb_face_for_data_closure_t*)user_data;
 	if(tag == HB_TAG_NONE)
@@ -509,7 +509,7 @@ static hb_blob_t * _hb_face_builder_data_reference_blob(hb_face_builder_data_t *
 	return hb_blob_create(buf, face_length, HB_MEMORY_MODE_WRITABLE, buf, free);
 }
 
-static hb_blob_t * _hb_face_builder_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
+static hb_blob_t * _hb_face_builder_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_tag_t tag, void * user_data)
 {
 	hb_face_builder_data_t * data = (hb_face_builder_data_t*)user_data;
 	if(!tag)

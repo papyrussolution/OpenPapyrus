@@ -31,7 +31,7 @@ struct ngx_http_gzip_ctx_t {
 	ngx_buf_t * in_buf;
 	ngx_buf_t * out_buf;
 	ngx_int_t bufs;
-	void  * preallocated;
+	void * preallocated;
 	char  * free_mem;
 	ngx_uint_t allocated;
 	int wbits;

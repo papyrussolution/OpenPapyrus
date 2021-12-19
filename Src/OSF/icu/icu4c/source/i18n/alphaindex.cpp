@@ -845,7 +845,7 @@ void AlphabeticIndex::init(const Locale * locale, UErrorCode & status) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	initialLabels_         = new UnicodeSet();
+	initialLabels_ = new UnicodeSet();
 	if(initialLabels_ == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;

@@ -433,14 +433,14 @@ U_CAPI const UChar * U_EXPORT2 res_getAlias(const ResourceData * pResData, Resou
 	return p;
 }
 
-U_CAPI const uint8_t * U_EXPORT2 res_getBinaryNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength) {
-	const uint8_t * p;
+U_CAPI const uint8 * U_EXPORT2 res_getBinaryNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength) {
+	const uint8 * p;
 	uint32_t offset = RES_GET_OFFSET(res);
 	int32_t length;
 	if(RES_GET_TYPE(res)==URES_BINARY) {
 		const int32_t * p32 = offset==0 ? (const int32_t*)&gEmpty32 : pResData->pRoot+offset;
 		length = *p32++;
-		p = (const uint8_t*)p32;
+		p = (const uint8*)p32;
 	}
 	else {
 		p = NULL;
@@ -555,11 +555,11 @@ const int32_t * ResourceDataValue::getIntVector(int32_t &length, UErrorCode & er
 	return iv;
 }
 
-const uint8_t * ResourceDataValue::getBinary(int32_t &length, UErrorCode & errorCode) const {
+const uint8 * ResourceDataValue::getBinary(int32_t &length, UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	const uint8_t * b = res_getBinary(fTraceInfo, &getData(), res, &length);
+	const uint8 * b = res_getBinary(fTraceInfo, &getData(), res, &length);
 	if(b == NULL) {
 		errorCode = U_RESOURCE_TYPE_MISMATCH;
 	}
@@ -1030,7 +1030,7 @@ typedef struct TempTable {
 	int32_t * resort;
 	uint32_t * resFlags;
 	int32_t localKeyLimit;
-	uint8_t majorFormatVersion;
+	uint8 majorFormatVersion;
 } TempTable;
 
 enum {

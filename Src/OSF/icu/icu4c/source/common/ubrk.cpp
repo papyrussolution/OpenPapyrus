@@ -102,7 +102,7 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules,
 	return uBI;
 }
 
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8_t * binaryRules, int32_t rulesLength,
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8 * binaryRules, int32_t rulesLength,
     const UChar * text, int32_t textLength,
     UErrorCode *   status)
 {
@@ -273,7 +273,7 @@ U_CAPI void U_EXPORT2 ubrk_refreshUText(UBreakIterator * bi,
 }
 
 U_CAPI int32_t U_EXPORT2 ubrk_getBinaryRules(UBreakIterator * bi,
-    uint8_t *       binaryRules, int32_t rulesCapacity,
+    uint8 *       binaryRules, int32_t rulesCapacity,
     UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
@@ -289,7 +289,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_getBinaryRules(UBreakIterator * bi,
 		return 0;
 	}
 	uint32_t rulesLength;
-	const uint8_t * returnedRules = rbbi->getBinaryRules(rulesLength);
+	const uint8 * returnedRules = rbbi->getBinaryRules(rulesLength);
 	if(rulesLength > INT32_MAX) {
 		*status = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0;

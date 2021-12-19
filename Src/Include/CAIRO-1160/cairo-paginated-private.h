@@ -48,14 +48,14 @@ struct _cairo_paginated_surface_backend {
 	 * any drawing operations for the page, (that is, it will occur
 	 * during the user's call to cairo_show_page or cairo_copy_page).
 	 */
-	cairo_warn cairo_int_status_t (* start_page)               (void  * surface);
+	cairo_warn cairo_int_status_t (* start_page)               (void * surface);
 
 	/* Required. Will be called twice for each page, once with an
 	 * argument of CAIRO_PAGINATED_MODE_ANALYZE and once with
 	 * CAIRO_PAGINATED_MODE_RENDER. See more details in the
 	 * documentation for _cairo_paginated_surface_create below.
 	 */
-	cairo_warn cairo_int_status_t (* set_paginated_mode)       (void  * surface, cairo_paginated_mode_t mode);
+	cairo_warn cairo_int_status_t (* set_paginated_mode)       (void * surface, cairo_paginated_mode_t mode);
 
 	/* Optional. Specifies the smallest box that encloses all objects
 	 * on the page. Will be called at the end of the ANALYZE phase but
@@ -68,7 +68,7 @@ struct _cairo_paginated_surface_backend {
 	 * mode is changed to RENDER.
 	 */
 	cairo_warn cairo_int_status_t (* set_fallback_images_required) (void * surface, boolint fallbacks_required);
-	boolint (* supports_fine_grained_fallbacks) (void  * surface);
+	boolint (* supports_fine_grained_fallbacks) (void * surface);
 
 	/* Optional. Indicates whether the page requires a thumbnail image to be
 	 * supplied. If a thumbnail is required, set width, heigh to size required

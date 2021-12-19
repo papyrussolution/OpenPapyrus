@@ -167,8 +167,8 @@ public:
 	void   FASTCALL Copy(const InetUrl & rS);
 	InetUrl & Z();
 	long   GetState() const { return State; }
-	int    IsValid() const;
-	int    IsEmpty() const;
+	bool   IsValid() const;
+	bool   IsEmpty() const;
 	int    Parse(const char * pUrl);
 	int    GetComponent(int c, int urlDecode, SString & rBuf) const;
 	int    SetComponent(int c, const char * pBuf);
@@ -212,7 +212,7 @@ public:
 
 	explicit TcpSocket(int timeout = 0, int maxConn = SOMAXCONN);
 	~TcpSocket();
-	int    IsValid() const;
+	bool   IsValid() const;
 	operator SOCKET () const { return S; }
 	int    FASTCALL IsEq(const TcpSocket & rS) const { return (S == rS.S); } // @v11.0.9
 	//
@@ -317,8 +317,8 @@ private:
 	struct SslBlock {
 		SslBlock();
 		~SslBlock();
-		int    operator !() const { return !IsValid(); }
-		int    IsValid() const { return (P_Ctx && P_S); }
+		bool   operator !() const { return !IsValid(); }
+		bool   IsValid() const { return (P_Ctx && P_S); }
 		int    Init();
 		int    Shutdown();
 		int    Connect(SOCKET s);
@@ -871,7 +871,7 @@ public:
 		mfDontVerifySslPeer = 0x0001, // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE
 		mfTcpKeepAlive      = 0x0002, // Устанавливает опцию CURLOPT_TCP_KEEPALIVE в TRUE
 		mfNoProgerss        = 0x0004, // Устанавливает опцию CURLOPT_NOPROGRESS в TRUE
-		mfVerbose           = 0x0008  // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
+		mfVerbose   = 0x0008  // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
 	};
 
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
@@ -955,7 +955,7 @@ public:
 
 	enum {
 		fRenameExistantFiles = 0x0001,
-		fDeleteAfter         = 0x0002
+		fDeleteAfter = 0x0002
 	};
 	long   Flags;
 	int    Format; // SFileFormat::XXX

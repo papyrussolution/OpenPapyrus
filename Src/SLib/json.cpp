@@ -170,10 +170,7 @@ SJson::~SJson()
 	}
 }
 
-bool SJson::IsValid() const
-{
-	return !(State & 0x0001);
-}
+bool SJson::IsValid() const { return !(State & 0x0001); }
 
 int FASTCALL SJson::ToStr(SString & rBuf) const
 {
@@ -286,8 +283,8 @@ const SJson * FASTCALL SJson::FindChildByKey(const char * pKey) const
 	const SJson * p_result = 0;
 	if(!isempty(pKey)) {
 		for(const SJson * p_c = P_Child; !p_result && p_c; p_c = p_c->P_Next) {
-			if(p_c->Text.IsEqiAscii(pKey))
-				p_result = p_c;
+			if(p_c->Text.IsEqiAscii(pKey) && p_c->P_Child)
+				p_result = p_c->P_Child;
 		}
 	}
 	return p_result;
@@ -513,46 +510,13 @@ int SJson::Insert(const char * pTextLabel, SJson * pValue)
 	return ok;
 }
 
-int SJson::InsertString(const char * pTextLabel, const char * pStr)
-{
-	return Insert(pTextLabel, json_new_string(pStr));
-}
-
-int SJson::InsertNumber(const char * pTextLabel, const char * pStr)
-{
-	return Insert(pTextLabel, json_new_number(pStr));
-}
-
-int FASTCALL SJson::InsertNull(const char * pTextLabel)
-{
-	return Insert(pTextLabel, json_new_null());
-}
-
-int SJson::InsertDouble(const char * pTextLabel, double val, long fmt)
-{
-	SString & r_temp_buf = SLS.AcquireRvlStr();
-	r_temp_buf.Cat(val, fmt);
-	return Insert(pTextLabel, json_new_number(r_temp_buf));
-}
-
-int SJson::InsertInt(const char * pTextLabel, int val)
-{
-	SString & r_temp_buf = SLS.AcquireRvlStr();
-	r_temp_buf.Cat(val);
-	return Insert(pTextLabel, json_new_number(r_temp_buf));
-}
-
-int SJson::InsertInt64(const char * pTextLabel, int64 val)
-{
-	SString & r_temp_buf = SLS.AcquireRvlStr();
-	r_temp_buf.Cat(val);
-	return Insert(pTextLabel, json_new_number(r_temp_buf));
-}
-
-int SJson::InsertBool(const char * pTextLabel, bool val)
-{
-	return Insert(pTextLabel, new SJson(val ? SJson::tTRUE : SJson::tFALSE));
-}
+int SJson::InsertString(const char * pTextLabel, const char * pStr) { return Insert(pTextLabel, json_new_string(pStr)); }
+int SJson::InsertNumber(const char * pTextLabel, const char * pStr) { return Insert(pTextLabel, json_new_number(pStr)); }
+int FASTCALL SJson::InsertNull(const char * pTextLabel) { return Insert(pTextLabel, json_new_null()); }
+int SJson::InsertDouble(const char * pTextLabel, double val, long fmt) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val, fmt))); }
+int SJson::InsertInt(const char * pTextLabel, int val) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))); }
+int SJson::InsertInt64(const char * pTextLabel, int64 val) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))); }
+int SJson::InsertBool(const char * pTextLabel, bool val) { return Insert(pTextLabel, new SJson(val ? SJson::tTRUE : SJson::tFALSE)); }
 
 #if 0 // @v11.2.7 (replaced with SJson::ToStr) {
 int FASTCALL json_tree_to_string(const SJson * pRoot, SString & rBuf)

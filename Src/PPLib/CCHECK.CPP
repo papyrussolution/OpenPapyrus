@@ -3293,7 +3293,7 @@ int CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRc
 						dr_item.GoodsID = r_line_rec.GoodsID;
 						dr_item.LocID   = loc_id;
 						dr_item.Qtty    = r_line_rec.Quantity;
-						if(goods_qtty_list.lsearch(&dr_item, &p, PTR_CMPFUNC(_2long)) > 0)
+						if(goods_qtty_list.lsearch(&dr_item, &p, PTR_CMPFUNC(_2long)))
 							goods_qtty_list.at(p).Qtty += r_line_rec.Quantity;
 						else
 							goods_qtty_list.insert(&dr_item);
@@ -4168,7 +4168,7 @@ int CSessDfctGoodsList::Search(PPID goodsID, CSessDfctGoodsItem * pItem)
 {
 	int    ok = 0;
 	uint   pos = 0;
-	if(bsearch(&goodsID, &pos, CMPF_LONG) > 0) {
+	if(bsearch(&goodsID, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pItem, at(pos));
 		ok = 1;
 	}
@@ -4180,7 +4180,7 @@ int CSessDfctGoodsList::Add(const CSessDfctGoodsItem * pItem)
 	int    ok = -1;
 	if(pItem) {
 		uint   pos = 0;
-		if(lsearch(&pItem->GoodsID, &pos, CMPF_LONG) > 0) {
+		if(lsearch(&pItem->GoodsID, &pos, CMPF_LONG)) {
 			CSessDfctGoodsItem & r_item = at(pos);
 			r_item.Qtty += pItem->Qtty;
 			r_item.Sum  += pItem->Sum;

@@ -41,7 +41,7 @@ typedef struct {
       uint32_t UCAConsts; /* structure which holds values for indirect positioning and implicit ranges */
       uint32_t contractionUCACombos; /* this one is needed only for UCA, to copy the appropriate contractions */
       uint32_t magic; /* magic number - lets us know whether reserved data is reset or junked */
-      uint32_t mappingPosition; /* const uint8_t *mappingPosition; */
+      uint32_t mappingPosition; /* const uint8 *mappingPosition; */
       uint32_t expansion; /* uint32_t *expansion;   */
       uint32_t contractionIndex; /* UChar *contractionIndex;        */
       uint32_t contractionCEs; /* uint32_t *contractionCEs;       */
@@ -57,21 +57,21 @@ typedef struct {
       int32_t endExpansionCECount; /* size of endExpansionCE */
       uint32_t unsafeCP; /* hash table of unsafe code points */
       uint32_t contrEndCP; /* hash table of final code points  */
-                                    /*   in contractions.      */
+                                    /* in contractions.      */
 
       int32_t contractionUCACombosSize; /* number of UCA contraction items. */
                                             /*Length is contractionUCACombosSize*contractionUCACombosWidth*sizeof(UChar) */
       bool jamoSpecial;                    /* is jamoSpecial */
       bool isBigEndian;                    /* is this data big endian? from the UDataInfo header*/
-      uint8_t charSetFamily; /* what is the charset family of this data from the UDataInfo header*/
-      uint8_t contractionUCACombosWidth; /* width of UCA combos field */
+      uint8 charSetFamily; /* what is the charset family of this data from the UDataInfo header*/
+      uint8 contractionUCACombosWidth; /* width of UCA combos field */
       UVersionInfo version;
       UVersionInfo UCAVersion; /* version of the UCA, read from file */
       UVersionInfo UCDVersion; /* UCD version, obtained by u_getUnicodeVersion */
       UVersionInfo formatVersion; /* format version from the UDataInfo header */
       uint32_t scriptToLeadByte; /* offset to script to lead collation byte mapping data */
       uint32_t leadByteToScript; /* offset to lead collation byte to script mapping data */
-      uint8_t reserved[76]; /* for future use */
+      uint8 reserved[76]; /* for future use */
 } UCATableHeader;
 
 typedef struct {
@@ -81,7 +81,7 @@ typedef struct {
   uint32_t table;
   uint32_t conts;
   UVersionInfo UCAVersion; /* version of the UCA, read from file */
-  uint8_t padding[8];
+  uint8 padding[8];
 } InverseUCATableHeader;
 
 #endif  /* !UCONFIG_NO_COLLATION */

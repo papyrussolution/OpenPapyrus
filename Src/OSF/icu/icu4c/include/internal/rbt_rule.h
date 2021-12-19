@@ -240,7 +240,7 @@ public:
   * @param v    the given index value.
   * @return     true if this rule matches the given index value.
      */
-    bool matchesIndexValue(uint8_t v) const;
+    bool matchesIndexValue(uint8 v) const;
 
     /**
   * Return true if this rule masks another rule.  If r1 masks r2 then

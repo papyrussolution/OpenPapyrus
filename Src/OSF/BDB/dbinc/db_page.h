@@ -74,8 +74,8 @@ typedef struct _dbmeta33 {
 	uint32 magic;	/* 12-15: Magic number. */
 	uint32 version;	/* 16-19: Version. */
 	uint32 pagesize;	/* 20-23: Pagesize. */
-	uint8  encrypt_alg;	/*    24: Encryption algorithm. */
-	uint8  type;		/*    25: Page type. */
+	uint8  encrypt_alg;	/* 24: Encryption algorithm. */
+	uint8  type;		/* 25: Page type. */
 #define	DBMETA_CHKSUM		0x01
 #define	DBMETA_PART_RANGE	0x02
 #define	DBMETA_PART_CALLBACK	0x04
@@ -259,8 +259,8 @@ typedef struct _db_page {
 	 */
 #define	LEAFLEVEL	  1
 #define	MAXBTREELEVEL	255
-	uint8  level;	/*    24: Btree tree level. */
-	uint8  type;		/*    25: Page type. */
+	uint8  level;	/* 24: Btree tree level. */
+	uint8  type;		/* 25: Page type. */
 } PAGE;
 
 /*
@@ -332,8 +332,8 @@ typedef struct _heappg {
 	db_indx_t free_indx;	/* 18-19: First available index. */
 	db_indx_t entries;	/* 20-21: Number of items on the page. */
 	db_indx_t hf_offset;	/* 22-23: High free byte page offset. */
-	uint8 unused2[1];	/*    24: Unused. */
-	uint8 type;		/*    25: Page type. */
+	uint8 unused2[1];	/* 24: Unused. */
+	uint8 type;		/* 25: Page type. */
 	uint8 unused3[2]; /* 26-27: Never used, just checksum alignment. */
 	uint8  chksum[DB_MAC_KEY]; /* 28-47: Checksum */
 	uint8  iv[DB_IV_BYTES]; /* 48-63: IV */
@@ -431,8 +431,8 @@ typedef struct _qpage {
 	DB_LSN	  lsn;		/* 00-07: Log sequence number. */
 	db_pgno_t pgno;		/* 08-11: Current page number. */
 	uint32 unused0[3];	/* 12-23: Unused. */
-	uint8  unused1[1];	/*    24: Unused. */
-	uint8  type;		/*    25: Page type. */
+	uint8  unused1[1];	/* 24: Unused. */
+	uint8  type;		/* 25: Page type. */
 	uint8  unused2[2];	/* 26-27: Unused. */
 	uint8  chksum[DB_MAC_KEY]; /* 28-47: Checksum */
 	uint8  iv[DB_IV_BYTES]; /* 48-63: IV */
@@ -546,7 +546,7 @@ typedef struct _qpage {
  * backward and forward traversal.
  */
 typedef struct _hkeydata {
-	uint8  type;		/*    00: Page type. */
+	uint8  type;		/* 00: Page type. */
 	uint8  data[1];	/* Variable length key/data item. */
 } HKEYDATA;
 #define	HKEYDATA_DATA(p)	(((uint8 *)p) + SSZA(HKEYDATA, data))
@@ -590,7 +590,7 @@ typedef struct _hkeydata {
  * The third type is the H_OFFPAGE, represented by the HOFFPAGE structure:
  */
 typedef struct _hoffpage {
-	uint8  type;		/*    00: Page type and delete flag. */
+	uint8  type;		/* 00: Page type and delete flag. */
 	uint8  unused[3];	/* 01-03: Padding, unused. */
 	db_pgno_t pgno;		/* 04-07: Offpage page number. */
 	uint32 tlen;		/* 08-11: Total length of item. */
@@ -610,7 +610,7 @@ typedef struct _hoffpage {
  * The fourth type is H_OFFDUP represented by the HOFFDUP structure:
  */
 typedef struct _hoffdup {
-	uint8  type;		/*    00: Page type and delete flag. */
+	uint8  type;		/* 00: Page type and delete flag. */
 	uint8  unused[3];	/* 01-03: Padding, unused. */
 	db_pgno_t pgno;		/* 04-07: Offpage page number. */
 } HOFFDUP;
@@ -648,7 +648,7 @@ typedef struct _hoffdup {
  */
 typedef struct _bkeydata {
 	db_indx_t len;		/* 00-01: Key/data item length. */
-	uint8  type;		/*    02: Page type AND DELETE FLAG. */
+	uint8  type;		/* 02: Page type AND DELETE FLAG. */
 	uint8  data[1];	/* Variable length key/data item. */
 } BKEYDATA;
 
@@ -674,8 +674,8 @@ typedef struct _bkeydata {
  */
 typedef struct _boverflow {
 	db_indx_t unused1;	/* 00-01: Padding, unused. */
-	uint8  type;		/*    02: Page type AND DELETE FLAG. */
-	uint8  unused2;	/*    03: Padding, unused. */
+	uint8  type;		/* 02: Page type AND DELETE FLAG. */
+	uint8  unused2;	/* 03: Padding, unused. */
 	db_pgno_t pgno;		/* 04-07: Next page number. */
 	uint32 tlen;		/* 08-11: Total length of item. */
 } BOVERFLOW;
@@ -706,8 +706,8 @@ typedef struct _boverflow {
  */
 typedef struct _binternal {
 	db_indx_t  len;		/* 00-01: Key/data item length. */
-	uint8   type;	/*    02: Page type AND DELETE FLAG. */
-	uint8   unused;	/*    03: Padding, unused. */
+	uint8   type;	/* 02: Page type AND DELETE FLAG. */
+	uint8   unused;	/* 03: Padding, unused. */
 	db_pgno_t  pgno;	/* 04-07: Page number of referenced page. */
 	db_recno_t nrecs;	/* 08-11: Subtree record count. */
 	uint8   data[1];	/* Variable length key item. */

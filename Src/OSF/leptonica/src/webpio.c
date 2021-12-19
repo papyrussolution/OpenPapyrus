@@ -1,28 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 /*!
  * \file webpio.c
@@ -33,19 +33,15 @@
  *          PIX             *pixReadMemWebP()
  *
  *    Reading WebP header
- *          int32          readHeaderWebP()
- *          int32          readHeaderMemWebP()
+ *          l_int32          readHeaderWebP()
+ *          l_int32          readHeaderMemWebP()
  *
  *    Writing WebP
- *          int32          pixWriteWebP()  [ special top level ]
- *          int32          pixWriteStreamWebP()
- *          int32          pixWriteMemWebP()
+ *          l_int32          pixWriteWebP()  [ special top level ]
+ *          l_int32          pixWriteStreamWebP()
+ *          l_int32          pixWriteMemWebP()
  * </pre>
  */
-//#ifdef HAVE_CONFIG_H
-//#include "config_auto.h"
-//#endif  /* HAVE_CONFIG_H */
-
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -56,42 +52,40 @@
 #include "webp/encode.h"
 
 /*---------------------------------------------------------------------*
- *                             Reading WebP                            *
- *---------------------------------------------------------------------*/
+*                             Reading WebP                            *
+*---------------------------------------------------------------------*/
 /*!
  * \brief   pixReadStreamWebP()
  *
- * \param[in]    fp file stream corresponding to WebP image
+ * \param[in]    fp    file stream corresponding to WebP image
  * \return  pix 32 bpp, or NULL on error
  */
-PIX *
-pixReadStreamWebP(FILE  *fp)
+PIX * pixReadStreamWebP(FILE * fp)
 {
-uint8  *filedata;
-size_t    filesize;
-PIX      *pix;
+	uint8  * filedata;
+	size_t filesize;
+	PIX * pix;
 
-    PROCNAME("pixReadStreamWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (!fp)
-        return (PIX *)ERROR_PTR("fp not defined", procName, NULL);
+	if(!fp)
+		return (PIX *)ERROR_PTR("fp not defined", procName, NULL);
 
-        /* Read data from file and decode into Y,U,V arrays */
-    rewind(fp);
-    if ((filedata = l_binaryReadStream(fp, &filesize)) == NULL)
-        return (PIX *)ERROR_PTR("filedata not read", procName, NULL);
+	/* Read data from file and decode into Y,U,V arrays */
+	rewind(fp);
+	if((filedata = l_binaryReadStream(fp, &filesize)) == NULL)
+		return (PIX *)ERROR_PTR("filedata not read", procName, NULL);
 
-    pix = pixReadMemWebP(filedata, filesize);
-    LEPT_FREE(filedata);
-    return pix;
+	pix = pixReadMemWebP(filedata, filesize);
+	SAlloc::F(filedata);
+	return pix;
 }
-
 
 /*!
  * \brief   pixReadMemWebP()
  *
- * \param[in]    filedata webp compressed data in memory
- * \param[in]    filesize number of bytes in data
+ * \param[in]  filedata    webp compressed data in memory
+ * \param[in]  filesize    number of bytes in data
  * \return  pix 32 bpp, or NULL on error
  *
  * <pre>
@@ -106,142 +100,140 @@ PIX      *pix;
  *          any event, fmemopen() doesn't work with l_binaryReadStream().
  * </pre>
  */
-PIX *
-pixReadMemWebP(const uint8  *filedata,
-               size_t          filesize)
+PIX * pixReadMemWebP(const uint8  * filedata,
+    size_t filesize)
 {
-uint8   *out = NULL;
-int32    w, h, has_alpha, wpl, stride;
-uint32  *data;
-size_t     size;
-PIX       *pix;
-WebPBitstreamFeatures  features;
+	uint8   * out = NULL;
+	l_int32 w, h, has_alpha, wpl, stride;
+	l_uint32  * data;
+	size_t size;
+	PIX * pix;
+	WebPBitstreamFeatures features;
 
-    PROCNAME("pixReadMemWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (!filedata)
-        return (PIX *)ERROR_PTR("filedata not defined", procName, NULL);
+	if(!filedata)
+		return (PIX *)ERROR_PTR("filedata not defined", procName, NULL);
 
-    if (WebPGetFeatures(filedata, filesize, &features))
-        return (PIX *)ERROR_PTR("Invalid WebP file", procName, NULL);
-    w = features.width;
-    h = features.height;
-    has_alpha = features.has_alpha;
+	if(WebPGetFeatures(filedata, filesize, &features))
+		return (PIX *)ERROR_PTR("Invalid WebP file", procName, NULL);
+	w = features.width;
+	h = features.height;
+	has_alpha = features.has_alpha;
 
-        /* Write from compressed Y,U,V arrays to pix raster data */
-    pix = pixCreate(w, h, 32);
-    pixSetInputFormat(pix, IFF_WEBP);
-    if (has_alpha) pixSetSpp(pix, 4);
-    data = pixGetData(pix);
-    wpl = pixGetWpl(pix);
-    stride = wpl * 4;
-    size = stride * h;
-    out = WebPDecodeRGBAInto(filedata, filesize, (uint8_t *)data, size,
-                             stride);
-    if (out == NULL) {  /* error: out should also point to data */
-        pixDestroy(&pix);
-        return (PIX *)ERROR_PTR("WebP decode failed", procName, NULL);
-    }
+	/* Write from compressed Y,U,V arrays to pix raster data */
+	pix = pixCreate(w, h, 32);
+	pixSetInputFormat(pix, IFF_WEBP);
+	if(has_alpha) pixSetSpp(pix, 4);
+	data = pixGetData(pix);
+	wpl = pixGetWpl(pix);
+	stride = wpl * 4;
+	size = (size_t)stride * h;
+	out = WebPDecodeRGBAInto(filedata, filesize, (uint8_t*)data, size,
+		stride);
+	if(out == NULL) { /* error: out should also point to data */
+		pixDestroy(&pix);
+		return (PIX *)ERROR_PTR("WebP decode failed", procName, NULL);
+	}
 
-        /* WebP decoder emits opposite byte order for RGBA components */
-    pixEndianByteSwap(pix);
-    return pix;
+	/* The WebP API expects data in RGBA order.  The pix stores
+	 * in host-dependent order with R as the MSB and A as the LSB.
+	 * On little-endian machines, the bytes in the word must
+	 * be swapped; e.g., R goes from byte 0 (LSB) to byte 3 (MSB).
+	 * No swapping is necessary for big-endians. */
+	pixEndianByteSwap(pix);
+	return pix;
 }
-
 
 /*!
  * \brief   readHeaderWebP()
  *
- * \param[in]    filename
- * \param[out]   pw width
- * \param[out]   ph height
- * \param[out]   pspp spp (3 or 4)
+ * \param[in]   filename
+ * \param[out]  pw        width
+ * \param[out]  ph        height
+ * \param[out]  pspp      spp (3 or 4)
  * \return  0 if OK, 1 on error
  */
-int32
-readHeaderWebP(const char *filename,
-               int32    *pw,
-               int32    *ph,
-               int32    *pspp)
+l_ok readHeaderWebP(const char * filename,
+    l_int32    * pw,
+    l_int32    * ph,
+    l_int32    * pspp)
 {
-uint8  data[100];  /* expect size info within the first 50 bytes or so */
-int32  nbytes, bytesread;
-size_t   filesize;
-FILE    *fp;
+	uint8 data[100]; /* expect size info within the first 50 bytes or so */
+	l_int32 nbytes, bytesread;
+	size_t filesize;
+	FILE * fp;
 
-    PROCNAME("readHeaderWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (!pw || !ph || !pspp)
-        return ERROR_INT("input ptr(s) not defined", procName, 1);
-    *pw = *ph = *pspp = 0;
-    if (!filename)
-        return ERROR_INT("filename not defined", procName, 1);
+	if(!pw || !ph || !pspp)
+		return ERROR_INT("input ptr(s) not defined", procName, 1);
+	*pw = *ph = *pspp = 0;
+	if(!filename)
+		return ERROR_INT("filename not defined", procName, 1);
 
-        /* Read no more than 100 bytes from the file */
-    if ((filesize = nbytesInFile(filename)) == 0)
-        return ERROR_INT("no file size found", procName, 1);
-    if (filesize < 100)
-        L_WARNING("very small webp file\n", procName);
-    nbytes = MIN(filesize, 100);
-    if ((fp = fopenReadStream(filename)) == NULL)
-        return ERROR_INT("image file not found", procName, 1);
-    bytesread = fread((char *)data, 1, nbytes, fp);
-    fclose(fp);
-    if (bytesread != nbytes)
-        return ERROR_INT("failed to read requested data", procName, 1);
+	/* Read no more than 100 bytes from the file */
+	if((filesize = nbytesInFile(filename)) == 0)
+		return ERROR_INT("no file size found", procName, 1);
+	if(filesize < 100)
+		L_WARNING("very small webp file\n", procName);
+	nbytes = MIN(filesize, 100);
+	if((fp = fopenReadStream(filename)) == NULL)
+		return ERROR_INT("image file not found", procName, 1);
+	bytesread = fread(data, 1, nbytes, fp);
+	fclose(fp);
+	if(bytesread != nbytes)
+		return ERROR_INT("failed to read requested data", procName, 1);
 
-    return readHeaderMemWebP(data, nbytes, pw, ph, pspp);
+	return readHeaderMemWebP(data, nbytes, pw, ph, pspp);
 }
-
 
 /*!
  * \brief   readHeaderMemWebP()
  *
  * \param[in]    data
- * \param[in]    size 100 bytes is sufficient
- * \param[out]   pw width
- * \param[out]   ph height
- * \param[out]   pspp spp (3 or 4)
+ * \param[in]    size    100 bytes is sufficient
+ * \param[out]   pw      width
+ * \param[out]   ph      height
+ * \param[out]   pspp    spp (3 or 4)
  * \return  0 if OK, 1 on error
  */
-int32
-readHeaderMemWebP(const uint8  *data,
-                  size_t          size,
-                  int32        *pw,
-                  int32        *ph,
-                  int32        *pspp)
+l_ok readHeaderMemWebP(const uint8  * data,
+    size_t size,
+    l_int32 * pw,
+    l_int32 * ph,
+    l_int32 * pspp)
 {
-WebPBitstreamFeatures  features;
+	WebPBitstreamFeatures features;
 
-    PROCNAME("readHeaderWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (pw) *pw = 0;
-    if (ph) *ph = 0;
-    if (pspp) *pspp = 0;
-    if (!data)
-        return ERROR_INT("data not defined", procName, 1);
-    if (!pw || !ph || !pspp)
-        return ERROR_INT("input ptr(s) not defined", procName, 1);
+	if(pw) *pw = 0;
+	if(ph) *ph = 0;
+	if(pspp) *pspp = 0;
+	if(!data)
+		return ERROR_INT("data not defined", procName, 1);
+	if(!pw || !ph || !pspp)
+		return ERROR_INT("input ptr(s) not defined", procName, 1);
 
-    if (WebPGetFeatures(data, (int32)size, &features))
-        return ERROR_INT("invalid WebP file", procName, 1);
-    *pw = features.width;
-    *ph = features.height;
-    *pspp = (features.has_alpha) ? 4 : 3;
-    return 0;
+	if(WebPGetFeatures(data, (l_int32)size, &features))
+		return ERROR_INT("invalid WebP file", procName, 1);
+	*pw = features.width;
+	*ph = features.height;
+	*pspp = (features.has_alpha) ? 4 : 3;
+	return 0;
 }
 
-
 /*---------------------------------------------------------------------*
- *                            Writing WebP                             *
- *---------------------------------------------------------------------*/
+*                            Writing WebP                             *
+*---------------------------------------------------------------------*/
 /*!
  * \brief   pixWriteWebP()
  *
- * \param[in]    filename
- * \param[in]    pixs
- * \param[in]    quality 0 - 100; default ~80
- * \param[in]    lossless use 1 for lossless; 0 for lossy
+ * \param[in]   filename
+ * \param[in]   pixs
+ * \param[in]   quality    0 - 100; default ~80
+ * \param[in]   lossless   use 1 for lossless; 0 for lossy
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -249,82 +241,79 @@ WebPBitstreamFeatures  features;
  *      (1) Special top-level function allowing specification of quality.
  * </pre>
  */
-int32
-pixWriteWebP(const char  *filename,
-             PIX         *pixs,
-             int32      quality,
-             int32      lossless)
+l_ok pixWriteWebP(const char * filename,
+    PIX         * pixs,
+    l_int32 quality,
+    l_int32 lossless)
 {
-FILE  *fp;
+	l_int32 ret;
+	FILE * fp;
 
-    PROCNAME("pixWriteWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (!pixs)
-        return ERROR_INT("pixs not defined", procName, 1);
-    if (!filename)
-        return ERROR_INT("filename not defined", procName, 1);
+	if(!pixs)
+		return ERROR_INT("pixs not defined", procName, 1);
+	if(!filename)
+		return ERROR_INT("filename not defined", procName, 1);
 
-    if ((fp = fopenWriteStream(filename, "wb+")) == NULL)
-        return ERROR_INT("stream not opened", procName, 1);
-    if (pixWriteStreamWebP(fp, pixs, quality, lossless) != 0) {
-        fclose(fp);
-        return ERROR_INT("pixs not compressed to stream", procName, 1);
-    }
-    fclose(fp);
-    return 0;
+	if((fp = fopenWriteStream(filename, "wb+")) == NULL)
+		return ERROR_INT("stream not opened", procName, 1);
+	ret = pixWriteStreamWebP(fp, pixs, quality, lossless);
+	fclose(fp);
+	if(ret)
+		return ERROR_INT("pixs not compressed to stream", procName, 1);
+	return 0;
 }
-
 
 /*!
  * \brief   pixWriteStreampWebP()
  *
- * \param[in]    fp file stream
- * \param[in]    pixs  all depths
- * \param[in]    quality 0 - 100; default ~80
- * \param[in]    lossless use 1 for lossless; 0 for lossy
+ * \param[in]   fp file stream
+ * \param[in]   pixs      all depths
+ * \param[in]   quality   0 - 100; default ~80
+ * \param[in]   lossless  use 1 for lossless; 0 for lossy
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) See pixWriteMemWebP() for details.
- *      (2) Use 'free', and not leptonica's 'LEPT_FREE', for all heap data
+ *      (2) Use 'free', and not leptonica's 'SAlloc::F', for all heap data
  *          that is returned from the WebP library.
  * </pre>
  */
-int32
-pixWriteStreamWebP(FILE    *fp,
-                   PIX     *pixs,
-                   int32  quality,
-                   int32  lossless)
+l_ok pixWriteStreamWebP(FILE * fp,
+    PIX * pixs,
+    l_int32 quality,
+    l_int32 lossless)
 {
-uint8  *filedata;
-size_t    filebytes, nbytes;
+	uint8  * filedata;
+	size_t filebytes, nbytes;
 
-    PROCNAME("pixWriteStreamWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (!fp)
-        return ERROR_INT("stream not open", procName, 1);
-    if (!pixs)
-        return ERROR_INT("pixs not defined", procName, 1);
+	if(!fp)
+		return ERROR_INT("stream not open", procName, 1);
+	if(!pixs)
+		return ERROR_INT("pixs not defined", procName, 1);
 
-    pixWriteMemWebP(&filedata, &filebytes, pixs, quality, lossless);
-    rewind(fp);
-    nbytes = fwrite(filedata, 1, filebytes, fp);
-    free(filedata);
-    if (nbytes != filebytes)
-        return ERROR_INT("Write error", procName, 1);
-    return 0;
+	pixSetPadBits(pixs, 0);
+	pixWriteMemWebP(&filedata, &filebytes, pixs, quality, lossless);
+	rewind(fp);
+	nbytes = fwrite(filedata, 1, filebytes, fp);
+	free(filedata);
+	if(nbytes != filebytes)
+		return ERROR_INT("Write error", procName, 1);
+	return 0;
 }
-
 
 /*!
  * \brief   pixWriteMemWebP()
  *
- * \param[out]   pencdata webp encoded data of pixs
- * \param[out]   pencsize size of webp encoded data
- * \param[in]    pixs any depth, cmapped OK
- * \param[in]    quality 0 - 100; default ~80
- * \param[in]    lossless use 1 for lossless; 0 for lossy
+ * \param[out]   pencdata   webp encoded data of pixs
+ * \param[out]   pencsize   size of webp encoded data
+ * \param[in]    pixs       any depth, cmapped OK
+ * \param[in]    quality    0 - 100; default ~80
+ * \param[in]    lossless   use 1 for lossless; 0 for lossy
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -337,70 +326,74 @@ size_t    filebytes, nbytes;
  *          setting the internal header field has_alpha to 0.
  * </pre>
  */
-int32
-pixWriteMemWebP(uint8  **pencdata,
-                size_t    *pencsize,
-                PIX       *pixs,
-                int32    quality,
-                int32    lossless)
+l_ok pixWriteMemWebP(uint8  ** pencdata,
+    size_t * pencsize,
+    PIX * pixs,
+    l_int32 quality,
+    l_int32 lossless)
 {
-int32    w, h, d, wpl, stride;
-uint32  *data;
-PIX       *pix1, *pix2;
+	l_int32 w, h, d, wpl, stride;
+	l_uint32  * data;
+	PIX * pix1, * pix2;
 
-    PROCNAME("pixWriteMemWebP");
+	PROCNAME(__FUNCTION__);
 
-    if (!pencdata)
-        return ERROR_INT("&encdata not defined", procName, 1);
-    *pencdata = NULL;
-    if (!pencsize)
-        return ERROR_INT("&encsize not defined", procName, 1);
-    *pencsize = 0;
-    if (!pixs)
-        return ERROR_INT("&pixs not defined", procName, 1);
-    if (lossless == 0 && (quality < 0 || quality > 100))
-        return ERROR_INT("quality not in [0 ... 100]", procName, 1);
+	if(!pencdata)
+		return ERROR_INT("&encdata not defined", procName, 1);
+	*pencdata = NULL;
+	if(!pencsize)
+		return ERROR_INT("&encsize not defined", procName, 1);
+	*pencsize = 0;
+	if(!pixs)
+		return ERROR_INT("&pixs not defined", procName, 1);
+	if(lossless == 0 && (quality < 0 || quality > 100))
+		return ERROR_INT("quality not in [0 ... 100]", procName, 1);
 
-    if ((pix1 = pixRemoveColormap(pixs, REMOVE_CMAP_TO_FULL_COLOR)) == NULL)
-        return ERROR_INT("failure to remove color map", procName, 1);
+	if((pix1 = pixRemoveColormap(pixs, REMOVE_CMAP_TO_FULL_COLOR)) == NULL)
+		return ERROR_INT("failure to remove color map", procName, 1);
 
-        /* Convert to rgb if not 32 bpp; pix2 must not be a clone of pixs. */
-    if (pixGetDepth(pix1) != 32)
-        pix2 = pixConvertTo32(pix1);
-    else
-        pix2 = pixCopy(NULL, pix1);
-    pixDestroy(&pix1);
-    pixGetDimensions(pix2, &w, &h, &d);
-    if (w <= 0 || h <= 0 || d != 32) {
-        pixDestroy(&pix2);
-        return ERROR_INT("pix2 not 32 bpp or of 0 size", procName, 1);
-    }
+	/* Convert to rgb if not 32 bpp; pix2 must not be a clone of pixs. */
+	if(pixGetDepth(pix1) != 32)
+		pix2 = pixConvertTo32(pix1);
+	else
+		pix2 = pixCopy(NULL, pix1);
+	pixDestroy(&pix1);
+	pixGetDimensions(pix2, &w, &h, &d);
+	if(w <= 0 || h <= 0 || d != 32) {
+		pixDestroy(&pix2);
+		return ERROR_INT("pix2 not 32 bpp or of 0 size", procName, 1);
+	}
 
-        /* If spp == 3, need to set alpha layer to opaque (all 1s). */
-    if (pixGetSpp(pix2) == 3)
-        pixSetComponentArbitrary(pix2, L_ALPHA_CHANNEL, 255);
+	/* If spp == 3, need to set alpha layer to opaque (all 1s). */
+	if(pixGetSpp(pix2) == 3)
+		pixSetComponentArbitrary(pix2, L_ALPHA_CHANNEL, 255);
 
-        /* Webp encoder assumes big-endian byte order for RGBA components */
-    pixEndianByteSwap(pix2);
-    wpl = pixGetWpl(pix2);
-    data = pixGetData(pix2);
-    stride = wpl * 4;
-    if (lossless) {
-        *pencsize = WebPEncodeLosslessRGBA((uint8_t *)data, w, h,
-                                           stride, pencdata);
-    } else {
-        *pencsize = WebPEncodeRGBA((uint8_t *)data, w, h, stride,
-                                   quality, pencdata);
-    }
-    pixDestroy(&pix2);
+	/* The WebP API expects data in RGBA order.  The pix stores
+	 * in host-dependent order with R as the MSB and A as the LSB.
+	 * On little-endian machines, the bytes in the word must
+	 * be swapped; e.g., R goes from byte 0 (LSB) to byte 3 (MSB).
+	 * No swapping is necessary for big-endians. */
+	pixEndianByteSwap(pix2);
+	wpl = pixGetWpl(pix2);
+	data = pixGetData(pix2);
+	stride = wpl * 4;
+	if(lossless) {
+		*pencsize = WebPEncodeLosslessRGBA((uint8_t*)data, w, h,
+			stride, pencdata);
+	}
+	else {
+		*pencsize = WebPEncodeRGBA((uint8_t*)data, w, h, stride,
+			quality, pencdata);
+	}
+	pixDestroy(&pix2);
 
-    if (*pencsize == 0) {
-        free(pencdata);
-        *pencdata = NULL;
-        return ERROR_INT("webp encoding failed", procName, 1);
-    }
+	if(*pencsize == 0) {
+		free(*pencdata);
+		*pencdata = NULL;
+		return ERROR_INT("webp encoding failed", procName, 1);
+	}
 
-    return 0;
+	return 0;
 }
 
 /* --------------------------------------------*/

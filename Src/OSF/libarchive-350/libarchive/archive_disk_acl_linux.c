@@ -665,7 +665,7 @@ int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
 	int ret = ARCHIVE_OK;
 
 #if !ARCHIVE_ACL_LIBRICHACL
-	(void)mode; /* UNUSED */
+	CXX_UNUSED(mode);
 #endif
 
 #if ARCHIVE_ACL_LIBRICHACL

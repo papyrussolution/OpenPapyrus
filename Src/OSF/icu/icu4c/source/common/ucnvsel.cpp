@@ -48,7 +48,7 @@ struct UConverterSelector {
 	char ** encodings;    // which encodings did user ask to use?
 	int32_t encodingsCount;
 	int32_t encodingStrLength;
-	uint8_t* swapped;
+	uint8* swapped;
 	bool ownPv, ownEncodingStrings;
 };
 
@@ -271,7 +271,7 @@ U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel,
 		return 0;
 	}
 	// ensure args make sense!
-	uint8_t * p = (uint8_t*)buffer;
+	uint8 * p = (uint8 *)buffer;
 	if(bufferCapacity < 0 ||
 	    (bufferCapacity > 0 && (p == NULL || (U_POINTER_MASK_LSB(p, 3) != 0)))
 	    ) {
@@ -390,8 +390,8 @@ static int32_t ucnvsel_swap(const UDataSwapper * ds,
 		}
 	}
 
-	const uint8_t * inBytes = (const uint8_t*)inData + headerSize;
-	uint8_t * outBytes = (uint8_t*)outData + headerSize;
+	const uint8 * inBytes = (const uint8*)inData + headerSize;
+	uint8 * outBytes = (uint8 *)outData + headerSize;
 
 	/* read the indexes */
 	const int32_t * inIndexes = (const int32_t*)inBytes;
@@ -451,7 +451,7 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 		return NULL;
 	}
 	// ensure args make sense!
-	const uint8_t * p = (const uint8_t*)buffer;
+	const uint8 * p = (const uint8*)buffer;
 	if(length <= 0 ||
 	    (length > 0 && (p == NULL || (U_POINTER_MASK_LSB(p, 3) != 0)))
 	    ) {
@@ -481,7 +481,7 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 		*status = U_UNSUPPORTED_ERROR;
 		return NULL;
 	}
-	uint8_t* swapped = NULL;
+	uint8* swapped = NULL;
 	if(pHeader->info.isBigEndian != U_IS_BIG_ENDIAN ||
 	    pHeader->info.charsetFamily != U_CHARSET_FAMILY
 	    ) {
@@ -498,7 +498,7 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 			*status = U_INDEX_OUTOFBOUNDS_ERROR;
 			return NULL;
 		}
-		swapped = (uint8_t*)uprv_malloc(totalSize);
+		swapped = (uint8 *)uprv_malloc(totalSize);
 		if(swapped == NULL) {
 			udata_closeSwapper(ds);
 			*status = U_MEMORY_ALLOCATION_ERROR;

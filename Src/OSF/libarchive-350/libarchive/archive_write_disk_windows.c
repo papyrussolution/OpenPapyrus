@@ -190,71 +190,56 @@ struct archive_write_disk {
 #define MINIMUM_DIR_MODE 0700
 #define MAXIMUM_DIR_MODE 0775
 
-static int      disk_unlink(const wchar_t *);
-static int      disk_rmdir(const wchar_t *);
-static int      check_symlinks(struct archive_write_disk *);
-static int      create_filesystem_object(struct archive_write_disk *);
-static struct fixup_entry * current_fixup(struct archive_write_disk *,
-    const wchar_t * pathname);
-static int      cleanup_pathname(struct archive_write_disk *);
-static int      create_dir(struct archive_write_disk *, wchar_t *);
-static int      create_parent_dir(struct archive_write_disk *, wchar_t *);
-static int      la_chmod(const wchar_t *, mode_t);
-static int      la_mktemp(struct archive_write_disk *);
-static int      older(BY_HANDLE_FILE_INFORMATION *, struct archive_entry *);
-static int      permissive_name_w(struct archive_write_disk *);
-static int      restore_entry(struct archive_write_disk *);
-static int      set_acls(struct archive_write_disk *, HANDLE h,
-    const wchar_t *, struct archive_acl *);
-static int      set_xattrs(struct archive_write_disk *);
-static int      clear_nochange_fflags(struct archive_write_disk *);
-static int      set_fflags(struct archive_write_disk *);
-static int      set_fflags_platform(const wchar_t *, unsigned long,
-    unsigned long);
-static int      set_ownership(struct archive_write_disk *);
-static int      set_mode(struct archive_write_disk *, int mode);
-static int      set_times(struct archive_write_disk *, HANDLE, int,
-    const wchar_t *, time_t, long, time_t, long, time_t,
-    long, time_t, long);
-static int      set_times_from_entry(struct archive_write_disk *);
+static int disk_unlink(const wchar_t *);
+static int disk_rmdir(const wchar_t *);
+static int check_symlinks(struct archive_write_disk *);
+static int create_filesystem_object(struct archive_write_disk *);
+static struct fixup_entry * current_fixup(struct archive_write_disk *, const wchar_t * pathname);
+static int cleanup_pathname(struct archive_write_disk *);
+static int create_dir(struct archive_write_disk *, wchar_t *);
+static int create_parent_dir(struct archive_write_disk *, wchar_t *);
+static int la_chmod(const wchar_t *, mode_t);
+static int la_mktemp(struct archive_write_disk *);
+static int older(BY_HANDLE_FILE_INFORMATION *, struct archive_entry *);
+static int permissive_name_w(struct archive_write_disk *);
+static int restore_entry(struct archive_write_disk *);
+static int set_acls(struct archive_write_disk *, HANDLE h, const wchar_t *, struct archive_acl *);
+static int set_xattrs(struct archive_write_disk *);
+static int clear_nochange_fflags(struct archive_write_disk *);
+static int set_fflags(struct archive_write_disk *);
+static int set_fflags_platform(const wchar_t *, unsigned long, unsigned long);
+static int set_ownership(struct archive_write_disk *);
+static int set_mode(struct archive_write_disk *, int mode);
+static int set_times(struct archive_write_disk *, HANDLE, int, const wchar_t *, time_t, long, time_t, long, time_t, long, time_t, long);
+static int set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
-static ssize_t  write_data_block(struct archive_write_disk *,
-    const char *, size_t);
+static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
 
 static struct archive_vtable * archive_write_disk_vtable(void);
 
-static int      _archive_write_disk_close(struct archive *);
-static int      _archive_write_disk_free(struct archive *);
-static int      _archive_write_disk_header(struct archive *,
-    struct archive_entry *);
+static int _archive_write_disk_close(struct archive *);
+static int _archive_write_disk_free(struct archive *);
+static int _archive_write_disk_header(struct archive *, struct archive_entry *);
 static int64  _archive_write_disk_filter_bytes(struct archive *, int);
-static int      _archive_write_disk_finish_entry(struct archive *);
-static ssize_t  _archive_write_disk_data(struct archive *, const void *,
-    size_t);
-static ssize_t  _archive_write_disk_data_block(struct archive *, const void *,
-    size_t, int64);
+static int _archive_write_disk_finish_entry(struct archive *);
+static ssize_t  _archive_write_disk_data(struct archive *, const void *, size_t);
+static ssize_t  _archive_write_disk_data_block(struct archive *, const void *, size_t, int64);
 
 #define bhfi_dev(bhfi)  ((bhfi)->dwVolumeSerialNumber)
 /* Treat FileIndex as i-node. We should remove a sequence number
  * which is high-16-bits of nFileIndexHigh. */
-#define bhfi_ino(bhfi)  \
-	((((int64)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) \
-	+ (bhfi)->nFileIndexLow)
-#define bhfi_size(bhfi) \
-	((((int64)(bhfi)->nFileSizeHigh) << 32) + (bhfi)->nFileSizeLow)
+#define bhfi_ino(bhfi)  ((((int64)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) + (bhfi)->nFileIndexLow)
+#define bhfi_size(bhfi) ((((int64)(bhfi)->nFileSizeHigh) << 32) + (bhfi)->nFileSizeLow)
 
-static int file_information(struct archive_write_disk * a, wchar_t * path,
-    BY_HANDLE_FILE_INFORMATION * st, mode_t * mode, int sim_lstat)
+static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HANDLE_FILE_INFORMATION * st, mode_t * mode, int sim_lstat)
 {
 	HANDLE h;
 	int r;
 	DWORD flag = FILE_FLAG_BACKUP_SEMANTICS;
 	WIN32_FIND_DATAW findData;
-
 	if(sim_lstat || mode != NULL) {
 		h = FindFirstFileW(path, &findData);
-		if(h == INVALID_HANDLE_VALUE &&
-		    GetLastError() == ERROR_INVALID_NAME) {
+		if(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_INVALID_NAME) {
 			wchar_t * full;
 			full = __la_win_permissive_name_w(path);
 			h = FindFirstFileW(full, &findData);
@@ -266,22 +251,15 @@ static int file_information(struct archive_write_disk * a, wchar_t * path,
 		}
 		FindClose(h);
 	}
-
 	/* Is symlink file ? */
-	if(sim_lstat &&
-	    ((findData.dwFileAttributes
-	    & FILE_ATTRIBUTE_REPARSE_POINT) &&
-	    (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)))
+	if(sim_lstat && ((findData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)))
 		flag |= FILE_FLAG_OPEN_REPARSE_POINT;
-
-	h = CreateFileW(a->name, 0, 0, NULL,
-		OPEN_EXISTING, flag, NULL);
+	h = CreateFileW(a->name, 0, 0, NULL, OPEN_EXISTING, flag, NULL);
 	if(h == INVALID_HANDLE_VALUE &&
 	    GetLastError() == ERROR_INVALID_NAME) {
 		wchar_t * full;
 		full = __la_win_permissive_name_w(path);
-		h = CreateFileW(full, 0, 0, NULL,
-			OPEN_EXISTING, flag, NULL);
+		h = CreateFileW(full, 0, 0, NULL, OPEN_EXISTING, flag, NULL);
 		SAlloc::F(full);
 	}
 	if(h == INVALID_HANDLE_VALUE) {
@@ -294,38 +272,31 @@ static int file_information(struct archive_write_disk * a, wchar_t * path,
 		la_dosmaperr(GetLastError());
 		return -1;
 	}
-
 	if(mode == NULL)
 		return 0;
-
 	*mode = S_IRUSR | S_IRGRP | S_IROTH;
 	if((st->dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0)
 		*mode |= S_IWUSR | S_IWGRP | S_IWOTH;
-	if((st->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
-	    findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
+	if((st->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
 		*mode |= S_IFLNK;
 	else if(st->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		*mode |= S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH;
 	else {
 		const wchar_t * p;
-
 		*mode |= S_IFREG;
 		p = wcsrchr(path, L'.');
 		if(p != NULL && wcslen(p) == 4) {
 			switch(p[1]) {
 				case L'B': case L'b':
-				    if((p[2] == L'A' || p[2] == L'a' ) &&
-					(p[3] == L'T' || p[3] == L't' ))
+				    if((p[2] == L'A' || p[2] == L'a' ) && (p[3] == L'T' || p[3] == L't' ))
 					    *mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				case L'C': case L'c':
-				    if(((p[2] == L'M' || p[2] == L'm' ) &&
-					(p[3] == L'D' || p[3] == L'd' )))
+				    if(((p[2] == L'M' || p[2] == L'm' ) && (p[3] == L'D' || p[3] == L'd' )))
 					    *mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				case L'E': case L'e':
-				    if((p[2] == L'X' || p[2] == L'x' ) &&
-					(p[3] == L'E' || p[3] == L'e' ))
+				    if((p[2] == L'X' || p[2] == L'x' ) && (p[3] == L'E' || p[3] == L'e' ))
 					    *mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				default:
@@ -348,30 +319,22 @@ static int permissive_name_w(struct archive_write_disk * a)
 	wchar_t * wn, * wnp;
 	wchar_t * ws, * wsp;
 	DWORD l;
-
 	wnp = a->name;
-	if(wnp[0] == L'\\' && wnp[1] == L'\\' &&
-	    wnp[2] == L'?' && wnp[3] == L'\\')
+	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] == L'?' && wnp[3] == L'\\')
 		/* We have already a permissive name. */
 		return 0;
 
-	if(wnp[0] == L'\\' && wnp[1] == L'\\' &&
-	    wnp[2] == L'.' && wnp[3] == L'\\') {
+	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] == L'.' && wnp[3] == L'\\') {
 		/* This is a device name */
-		if(((wnp[4] >= L'a' && wnp[4] <= L'z') ||
-		    (wnp[4] >= L'A' && wnp[4] <= L'Z')) &&
-		    wnp[5] == L':' && wnp[6] == L'\\') {
+		if(((wnp[4] >= L'a' && wnp[4] <= L'z') || (wnp[4] >= L'A' && wnp[4] <= L'Z')) && wnp[5] == L':' && wnp[6] == L'\\') {
 			wnp[2] = L'?'; /* Not device name. */
 			return 0;
 		}
 	}
-
 	/*
 	 * A full-pathname starting with a drive name like "C:\abc".
 	 */
-	if(((wnp[0] >= L'a' && wnp[0] <= L'z') ||
-	    (wnp[0] >= L'A' && wnp[0] <= L'Z')) &&
-	    wnp[1] == L':' && wnp[2] == L'\\') {
+	if(((wnp[0] >= L'a' && wnp[0] <= L'z') || (wnp[0] >= L'A' && wnp[0] <= L'Z')) && wnp[1] == L':' && wnp[2] == L'\\') {
 		wn = _wcsdup(wnp);
 		if(wn == NULL)
 			return -1;
@@ -390,7 +353,6 @@ static int permissive_name_w(struct archive_write_disk * a)
 	 */
 	if(wnp[0] == L'\\' && wnp[1] == L'\\' && wnp[2] != L'\\') {
 		const wchar_t * p = &wnp[2];
-
 		/* Skip server-name letters. */
 		while(*p != L'\\' && *p != L'\0')
 			++p;
@@ -405,8 +367,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 				wn = _wcsdup(wnp);
 				if(wn == NULL)
 					return -1;
-				archive_wstring_ensure(&(a->_name_data),
-				    8 + wcslen(wn) + 1);
+				archive_wstring_ensure(&(a->_name_data), 8 + wcslen(wn) + 1);
 				a->name = a->_name_data.s;
 				/* Prepend "\\?\UNC\" */
 				archive_wstrncpy(&(a->_name_data),
@@ -440,8 +401,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 		wn = _wcsdup(wnp);
 		if(wn == NULL)
 			return -1;
-		archive_wstring_ensure(&(a->_name_data),
-		    4 + 2 + wcslen(wn) + 1);
+		archive_wstring_ensure(&(a->_name_data), 4 + 2 + wcslen(wn) + 1);
 		a->name = a->_name_data.s;
 		/* Prepend "\\?\" and drive name. */
 		archive_wstrncpy(&(a->_name_data), L"\\\\?\\", 4);
@@ -451,7 +411,6 @@ static int permissive_name_w(struct archive_write_disk * a)
 		SAlloc::F(wn);
 		return 0;
 	}
-
 	wn = _wcsdup(wnp);
 	if(wn == NULL)
 		return -1;
@@ -480,13 +439,10 @@ static int permissive_name_w(struct archive_write_disk * a)
 
 static int la_chmod(const wchar_t * path, mode_t mode)
 {
-	DWORD attr;
 	BOOL r;
-	wchar_t * fullname;
 	int ret = 0;
-
-	fullname = NULL;
-	attr = GetFileAttributesW(path);
+	wchar_t * fullname = NULL;
+	DWORD attr = GetFileAttributesW(path);
 	if(attr == (DWORD)-1 &&
 	    GetLastError() == ERROR_INVALID_NAME) {
 		fullname = __la_win_permissive_name_w(path);
@@ -705,12 +661,10 @@ static int lazy_stat(struct archive_write_disk * a)
 		/* Already have stat() data available. */
 		return ARCHIVE_OK;
 	}
-	if(a->fh != INVALID_HANDLE_VALUE &&
-	    GetFileInformationByHandle(a->fh, &a->st) == 0) {
+	if(a->fh != INVALID_HANDLE_VALUE && GetFileInformationByHandle(a->fh, &a->st) == 0) {
 		a->pst = &a->st;
 		return ARCHIVE_OK;
 	}
-
 	/*
 	 * XXX At this point, symlinks should not be hit, otherwise
 	 * XXX a race occurred.  Do we want to check explicitly for that?
@@ -723,17 +677,16 @@ static int lazy_stat(struct archive_write_disk * a)
 	return ARCHIVE_WARN;
 }
 
-static struct archive_vtable * archive_write_disk_vtable(void)                               {
+static struct archive_vtable * archive_write_disk_vtable(void)                               
+{
 	static struct archive_vtable av;
 	static int inited = 0;
-
 	if(!inited) {
 		av.archive_close = _archive_write_disk_close;
 		av.archive_filter_bytes = _archive_write_disk_filter_bytes;
 		av.archive_free = _archive_write_disk_free;
 		av.archive_write_header = _archive_write_disk_header;
-		av.archive_write_finish_entry
-			= _archive_write_disk_finish_entry;
+		av.archive_write_finish_entry = _archive_write_disk_finish_entry;
 		av.archive_write_data = _archive_write_disk_data;
 		av.archive_write_data_block = _archive_write_disk_data_block;
 		inited = 1;
@@ -744,7 +697,7 @@ static struct archive_vtable * archive_write_disk_vtable(void)                  
 static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	(void)n; /* UNUSED */
+	CXX_UNUSED(n);
 	if(n == -1 || n == 0)
 		return (a->total_bytes_written);
 	return -1;
@@ -753,7 +706,6 @@ static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 int archive_write_disk_set_options(struct archive * _a, int flags)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-
 	a->flags = flags;
 	return ARCHIVE_OK;
 }
@@ -2694,9 +2646,9 @@ static int set_fflags(struct archive_write_disk * a)
 static int set_acls(struct archive_write_disk * a, HANDLE h, const wchar_t * name,
     struct archive_acl * acl)
 {
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	(void)h; /* UNUSED */
-	(void)name; /* UNUSED */
+	CXX_UNUSED(name);
 	(void)acl; /* UNUSED */
 	return ARCHIVE_OK;
 }

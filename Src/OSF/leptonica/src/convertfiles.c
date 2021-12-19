@@ -29,14 +29,13 @@
  * <pre>
  *
  *      Conversion to 1 bpp
- *          int32    convertFilesTo1bpp()
+ *          l_int32    convertFilesTo1bpp()
  *
  *  These are utility functions that will perform depth conversion
  *  on selected files, writing the results to a specified directory.
  *  We start with conversion to 1 bpp.
  * </pre>
  */
-
 #include "allheaders.h"
 #pragma hdrstop
 
@@ -47,13 +46,14 @@
  * \brief   convertFilesTo1bpp()
  *
  * \param[in]    dirin
- * \param[in]    substr [optional] substring filter on filenames; can be NULL
- * \param[in]    upscaling 1, 2 or 4; only for input color or grayscale
- * \param[in]    thresh  global threshold for binarization; use 0 for default
+ * \param[in]    substr       [optional] substring filter on filenames;
+   8                            can be NULL
+ * \param[in]    upscaling    1, 2 or 4; only for input color or grayscale
+ * \param[in]    thresh       global threshold for binarization; 0 for default
  * \param[in]    firstpage
- * \param[in]    npages use 0 to do all from %firstpage to the end
+ * \param[in]    npages       use 0 to do all from %firstpage to the end
  * \param[in]    dirout
- * \param[in]    outformat IFF_PNG, IFF_TIFF_G4
+ * \param[in]    outformat    IFF_PNG, IFF_TIFF_G4
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -62,22 +62,22 @@
  *          output directory are retained except for the extension.
  * </pre>
  */
-int32 convertFilesTo1bpp(const char  * dirin,
-    const char  * substr,
-    int32 upscaling,
-    int32 thresh,
-    int32 firstpage,
-    int32 npages,
-    const char  * dirout,
-    int32 outformat)
+l_ok convertFilesTo1bpp(const char * dirin,
+    const char * substr,
+    l_int32 upscaling,
+    l_int32 thresh,
+    l_int32 firstpage,
+    l_int32 npages,
+    const char * dirout,
+    l_int32 outformat)
 {
-	int32 i, nfiles;
+	l_int32 i, nfiles;
 	char buf[512];
-	char    * fname, * tail, * basename;
-	PIX     * pixs, * pixg1, * pixg2, * pixb;
-	SARRAY  * safiles;
+	char * fname, * tail, * basename;
+	PIX * pixs, * pixg1, * pixg2, * pixb;
+	SARRAY * safiles;
 
-	PROCNAME("convertFilesTo1bpp");
+	PROCNAME(__FUNCTION__);
 
 	if(!dirin)
 		return ERROR_INT("dirin", procName, 1);
@@ -102,7 +102,7 @@ int32 convertFilesTo1bpp(const char  * dirin,
 	for(i = 0; i < nfiles; i++) {
 		fname = sarrayGetString(safiles, i, L_NOCOPY);
 		if((pixs = pixRead(fname)) == NULL) {
-			L_WARNING2("Couldn't read file %s\n", procName, fname);
+			L_WARNING("Couldn't read file %s\n", procName, fname);
 			continue;
 		}
 		if(pixGetDepth(pixs) == 32)
@@ -128,19 +128,18 @@ int32 convertFilesTo1bpp(const char  * dirin,
 		splitPathAtDirectory(fname, NULL, &tail);
 		splitPathAtExtension(tail, &basename, NULL);
 		if(outformat == IFF_TIFF_G4) {
-			_snprintf(buf, sizeof(buf), "%s/%s.tif", dirout, basename);
+			snprintf(buf, sizeof(buf), "%s/%s.tif", dirout, basename);
 			pixWrite(buf, pixb, IFF_TIFF_G4);
 		}
 		else {
-			_snprintf(buf, sizeof(buf), "%s/%s.png", dirout, basename);
+			snprintf(buf, sizeof(buf), "%s/%s.png", dirout, basename);
 			pixWrite(buf, pixb, IFF_PNG);
 		}
 		pixDestroy(&pixb);
-		LEPT_FREE(tail);
-		LEPT_FREE(basename);
+		SAlloc::F(tail);
+		SAlloc::F(basename);
 	}
 
 	sarrayDestroy(&safiles);
 	return 0;
 }
-

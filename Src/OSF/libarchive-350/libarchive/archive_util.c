@@ -520,7 +520,7 @@ int __archive_mkstemp(char * pTemplate)
 void __archive_ensure_cloexec_flag(int fd)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(fd);
 #else
 	int flags;
 

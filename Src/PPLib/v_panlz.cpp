@@ -551,7 +551,7 @@ int PPViewPriceAnlz::SetContractPrices()
 			uint   pos = 0;
 			double cost = 0.0;
 			LAssoc k(item.SupplID, item.GoodsID);
-			if(suppl_cost_ary.lsearch(&k, &pos, PTR_CMPFUNC(_2long)) > 0) {
+			if(suppl_cost_ary.lsearch(&k, &pos, PTR_CMPFUNC(_2long))) {
 				_E * p_e = static_cast<_E *>(suppl_cost_ary.at(pos));
 				p_e->Cost = (item.Cost < p_e->Cost) ? item.Cost : p_e->Cost;
 			}
@@ -624,7 +624,7 @@ int PPALDD_PriceAnlz::NextIteration(PPIterID iterId)
 	I.LocID        = item.TabID;
 	I.GoodsID      = item.GoodsID;
 	I.ContractCost = item.ContractCost;
-	I.Cost         = item.Cost;
+	I.Cost = item.Cost;
 	I.CostDiff     = item.CostDiff;
 	FINISH_PPVIEW_ALDD_ITER();
 }

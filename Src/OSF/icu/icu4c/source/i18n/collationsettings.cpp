@@ -83,7 +83,7 @@ void CollationSettings::resetReordering() {
 
 void CollationSettings::aliasReordering(const CollationData & data, const int32_t * codes, int32_t length,
     const uint32_t * ranges, int32_t rangesLength,
-    const uint8_t * table, UErrorCode & errorCode) {
+    const uint8 * table, UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -158,14 +158,14 @@ void CollationSettings::setReordering(const CollationData & data,
 
 	// Write the lead byte permutation table.
 	// Set a 0 for each lead byte that has a range boundary in the middle.
-	uint8_t table[256];
+	uint8 table[256];
 	int32_t b = 0;
 	int32_t firstSplitByteRangeIndex = -1;
 	for(int32_t i = 0; i < rangesLength; ++i) {
 		uint32_t pair = ranges[i];
 		int32_t limit1 = (int32_t)(pair >> 24);
 		while(b < limit1) {
-			table[b] = (uint8_t)(b + pair);
+			table[b] = (uint8)(b + pair);
 			++b;
 		}
 		// Check the second byte of the limit.
@@ -178,7 +178,7 @@ void CollationSettings::setReordering(const CollationData & data,
 		}
 	}
 	while(b <= 0xff) {
-		table[b] = (uint8_t)b;
+		table[b] = (uint8)b;
 		++b;
 	}
 	if(firstSplitByteRangeIndex < 0) {
@@ -195,7 +195,7 @@ void CollationSettings::setReordering(const CollationData & data,
 
 void CollationSettings::setReorderArrays(const int32_t * codes, int32_t codesLength,
     const uint32_t * ranges, int32_t rangesLength,
-    const uint8_t * table, UErrorCode & errorCode) {
+    const uint8 * table, UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -223,7 +223,7 @@ void CollationSettings::setReorderArrays(const int32_t * codes, int32_t codesLen
 	uprv_memcpy(ownedCodes + reorderCodesCapacity, table, 256);
 	uprv_memcpy(ownedCodes, codes, codesLength * 4);
 	uprv_memcpy(ownedCodes + codesLength, ranges, rangesLength * 4);
-	reorderTable = reinterpret_cast<const uint8_t *>(reorderCodes + reorderCodesCapacity);
+	reorderTable = reinterpret_cast<const uint8 *>(reorderCodes + reorderCodesCapacity);
 	reorderCodesLength = codesLength;
 	reorderRanges = reinterpret_cast<uint32_t *>(ownedCodes) + codesLength;
 	reorderRangesLength = rangesLength;
@@ -253,7 +253,7 @@ void CollationSettings::copyReorderingFrom(const CollationSettings &other, UErro
 	}
 }
 
-bool CollationSettings::reorderTableHasSplitBytes(const uint8_t table[256]) {
+bool CollationSettings::reorderTableHasSplitBytes(const uint8 table[256]) {
 	U_ASSERT(table[0] == 0);
 	for(int32_t i = 1; i < 256; ++i) {
 		if(table[i] == 0) {

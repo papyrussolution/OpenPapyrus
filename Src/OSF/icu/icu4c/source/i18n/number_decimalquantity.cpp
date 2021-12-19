@@ -677,12 +677,12 @@ DecNum& DecimalQuantity::toDecNum(DecNum& output, UErrorCode & status) const {
 
 	// Use the BCD constructor. We need to do a little bit of work to convert, though.
 	// The decNumber constructor expects most-significant first, but we store least-significant first.
-	MaybeStackArray<uint8_t, 20> ubcd(precision, status);
+	MaybeStackArray<uint8, 20> ubcd(precision, status);
 	if(U_FAILURE(status)) {
 		return output;
 	}
 	for(int32_t m = 0; m < precision; m++) {
-		ubcd[precision - m - 1] = static_cast<uint8_t>(getDigitPos(m));
+		ubcd[precision - m - 1] = static_cast<uint8>(getDigitPos(m));
 	}
 	output.setTo(ubcd.getAlias(), precision, scale, isNegative(), status);
 	return output;

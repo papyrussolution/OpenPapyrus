@@ -51,7 +51,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -60,31 +60,31 @@
 #endif
 //#ifdef TERM_PROTO
 TERM_PUBLIC void CANVAS_options();
-TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis);
-TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis);
-TERM_PUBLIC int  CANVAS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis);
-TERM_PUBLIC void CANVAS_reset(GpTermEntry * pThis);
-TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type);
-TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height);
-TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void CANVAS_pointsize(GpTermEntry * pThis, double size);
-TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  CANVAS_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
-TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec);
-TERM_PUBLIC int  CANVAS_make_palette(GpTermEntry * pThis, t_sm_palette * palette);
-TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer);
-TERM_PUBLIC void CANVAS_path(GpTermEntry * pThis, int);
-TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int, const char *);
-TERM_PUBLIC int  CANVAS_set_font(GpTermEntry * pThis, const char *);
-TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry * pThis, char *, double, double, bool, bool, int);
-TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis);
-TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint, uint, const char *);
+TERM_PUBLIC void CANVAS_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CANVAS_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC int  CANVAS_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC void CANVAS_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CANVAS_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void CANVAS_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void CANVAS_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type);
+TERM_PUBLIC void CANVAS_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height);
+TERM_PUBLIC void CANVAS_linewidth(GpTermEntry_Static * pThis, double linewidth);
+TERM_PUBLIC void CANVAS_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void CANVAS_vector(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void CANVAS_point(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void CANVAS_pointsize(GpTermEntry_Static * pThis, double size);
+TERM_PUBLIC void CANVAS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC int  CANVAS_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry_Static * pThis, int, gpiPoint *);
+TERM_PUBLIC void CANVAS_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
+TERM_PUBLIC int  CANVAS_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
+TERM_PUBLIC void CANVAS_layer(GpTermEntry_Static * pThis, t_termlayer);
+TERM_PUBLIC void CANVAS_path(GpTermEntry_Static * pThis, int);
+TERM_PUBLIC void CANVAS_hypertext(GpTermEntry_Static * pThis, int, const char *);
+TERM_PUBLIC int  CANVAS_set_font(GpTermEntry_Static * pThis, const char *);
+TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry_Static * pThis, char *, double, double, bool, bool, int);
+TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry_Static * pThis);
+TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry_Static * pThis, uint, uint, const char *);
 
 #define CANVAS_OVERSAMPLE       10.
 #define CANVAS_XMAX             (600 * CANVAS_OVERSAMPLE)
@@ -222,7 +222,7 @@ static void CANVAS_finish(void)
 	}
 }
 
-TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void CANVAS_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int canvas_background = 0;
 	if(!pGp->Pgm.AlmostEquals(pGp->Pgm.GetPrevTokenIdx(), "termopt$ion")) {
@@ -240,7 +240,7 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 		CANVAS_background[0] = '\0';
 		/* Default to enhanced text mode */
 		pThis->put_text = ENHCANVAS_put_text;
-		pThis->flags |= TERM_ENHANCED_TEXT;
+		pThis->SetFlag(TERM_ENHANCED_TEXT);
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		const int _option = pGp->Pgm.LookupTableForCurrentToken(&CANVAS_opts[0]);
@@ -262,8 +262,7 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    canvas_xmax = static_cast<int>(CANVAS_XMAX);
 			    if(canvas_ymax <= 0)
 				    canvas_ymax = static_cast<int>(CANVAS_YMAX);
-			    pThis->MaxX = canvas_xmax;
-			    pThis->MaxY = canvas_ymax;
+			    pThis->SetMax(canvas_xmax, canvas_ymax);
 			    break;
 
 			case CANVAS_TITLE:
@@ -303,11 +302,11 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case CANVAS_ENH:
 			    pThis->put_text = ENHCANVAS_put_text;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case CANVAS_NOENH:
 			    pThis->put_text = CANVAS_put_text;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case CANVAS_LINEWIDTH:
 			    canvas_linewidth = pGp->RealExpression();
@@ -341,8 +340,7 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 		}
 	}
-	pThis->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
-	pThis->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
+	pThis->SetCharSize(static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE), static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE));
 	if(canvas_dashlength_factor != 1.0)
 		slprintf_cat(GPT._TermOptions, " dashlength %3.1f", canvas_dashlength_factor);
 	slprintf_cat(GPT._TermOptions, canvas_linecap == ROUNDED ? " rounded" : canvas_linecap == SQUARE ? " square" : " butt");
@@ -364,11 +362,11 @@ TERM_PUBLIC void CANVAS_options(GpTermEntry * pThis, GnuPlot * pGp)
 		slprintf_cat(GPT._TermOptions, " jsdir \"%s\"", CANVAS_scriptdir);
 }
 
-TERM_PUBLIC void CANVAS_init(GpTermEntry * pThis)
+TERM_PUBLIC void CANVAS_init(GpTermEntry_Static * pThis)
 {
 }
 
-TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void CANVAS_graphics(GpTermEntry_Static * pThis)
 {
 	int len;
 	// Force initialization at the beginning of each plot 
@@ -494,7 +492,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry * pThis)
 	fprintf(GPT.P_GpOutFile, "CanvasTextFunctions.enable(ctx);\nctx.strokeStyle = \" rgb(215,215,215)\";\nctx.lineWidth = %.1g;\n\n", canvas_linewidth);
 }
 
-static void CANVAS_mouse_param(GpTermEntry * pThis, char * gp_name, const char * js_name)
+static void CANVAS_mouse_param(GpTermEntry_Static * pThis, char * gp_name, const char * js_name)
 {
 	struct udvt_entry * udv;
 	if((udv = pThis->P_Gp->Ev.AddUdvByName(gp_name)) != 0) {
@@ -509,7 +507,7 @@ static void CANVAS_mouse_param(GpTermEntry * pThis, char * gp_name, const char *
 	}
 }
 
-TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
+TERM_PUBLIC void CANVAS_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	GpAxis * this_axis;
@@ -701,12 +699,12 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry * pThis)
 	fflush(GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void CANVAS_reset(GpTermEntry * pThis)
+TERM_PUBLIC void CANVAS_reset(GpTermEntry_Static * pThis)
 {
 	;
 }
 
-TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void CANVAS_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	/* NB: These values are manipulated as numbers; */
 	/* it does not work to give only the color name */
@@ -748,7 +746,7 @@ TERM_PUBLIC void CANVAS_linetype(GpTermEntry * pThis, int linetype)
 		CANVAS_dashtype(pThis, DASHTYPE_NODRAW, NULL);
 }
 
-TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
+TERM_PUBLIC void CANVAS_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type)
 {
 	if(canvas_line_type == LT_NODRAW)
 		type = DASHTYPE_NODRAW;
@@ -789,7 +787,7 @@ TERM_PUBLIC void CANVAS_dashtype(GpTermEntry * pThis, int type, t_dashtype * cus
 	canvas_dash_type = type;
 }
 
-TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint arg_x, uint arg_y)
+TERM_PUBLIC void CANVAS_move(GpTermEntry_Static * pThis, uint arg_x, uint arg_y)
 {
 	if(canvas_in_a_path && (canvas_x == arg_x) && (canvas_y == arg_y)) {
 		return;
@@ -800,7 +798,7 @@ TERM_PUBLIC void CANVAS_move(GpTermEntry * pThis, uint arg_x, uint arg_y)
 	canvas_y = arg_y;
 }
 
-TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
+TERM_PUBLIC void CANVAS_vector(GpTermEntry_Static * pThis, uint arg_x, uint arg_y)
 {
 	if((canvas_x == arg_x) && (canvas_y == arg_y))
 		return;
@@ -813,7 +811,7 @@ TERM_PUBLIC void CANVAS_vector(GpTermEntry * pThis, uint arg_x, uint arg_y)
 	canvas_y = arg_y;
 }
 
-TERM_PUBLIC int CANVAS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int CANVAS_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	switch(mode) {
 		case (CENTRE): canvas_justify = "Center"; break;
@@ -824,7 +822,7 @@ TERM_PUBLIC int CANVAS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 	return TRUE;
 }
 
-TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void CANVAS_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	double width  = CANVAS_ps * 0.6 * CANVASHTIC;
 	int pt = number % 9;
@@ -863,18 +861,18 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC void CANVAS_pointsize(GpTermEntry * pThis, double ptsize)
+TERM_PUBLIC void CANVAS_pointsize(GpTermEntry_Static * pThis, double ptsize)
 {
 	CANVAS_ps = (ptsize < 0.0) ? 1.0 : ptsize;
 }
 
-TERM_PUBLIC int CANVAS_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int CANVAS_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	canvas_text_angle = -1 * ang;
 	return TRUE;
 }
 
-TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void CANVAS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	if(!isempty(str)) {
 		CANVAS_finish();
@@ -901,7 +899,7 @@ TERM_PUBLIC void CANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char
 	}
 }
 
-TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void CANVAS_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	CANVAS_finish();
 	if(canvas_state.previous_linewidth != linewidth) {
@@ -910,7 +908,7 @@ TERM_PUBLIC void CANVAS_linewidth(GpTermEntry * pThis, double linewidth)
 	}
 }
 
-TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void CANVAS_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	rgb255_color rgb255;
 	canvas_state.alpha = 0.0;
@@ -942,7 +940,7 @@ TERM_PUBLIC void CANVAS_set_color(GpTermEntry * pThis, const t_colorspec * color
 	canvas_line_type = LT_UNDEFINED;
 }
 
-TERM_PUBLIC int CANVAS_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int CANVAS_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	return 0; // We can do full RGB color 
 }
@@ -1008,7 +1006,7 @@ static char * CANVAS_fillstyle(int style)
 	return fillcolor;
 }
 
-TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	int i;
 	CANVAS_finish();
@@ -1035,7 +1033,7 @@ TERM_PUBLIC void CANVAS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint
 		fprintf(GPT.P_GpOutFile, "cfsp();\n"); // Fill with stroke color 
 }
 
-TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+TERM_PUBLIC void CANVAS_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	char * fillcolor = CANVAS_fillstyle(style);
 	// FIXME: I do not understand why this is necessary, but without it a dashed line followed by a filled area fails to fill. 
@@ -1053,7 +1051,7 @@ TERM_PUBLIC void CANVAS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1
 	fprintf(GPT.P_GpOutFile, "R(%d,%d,%d,%d);\n", x1, canvas_ymax - (y1+height), width, height);
 }
 
-TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
+TERM_PUBLIC void CANVAS_layer(GpTermEntry_Static * pThis, t_termlayer layer)
 {
 	char * basename = (CANVAS_name) ? CANVAS_name : "gp";
 	switch(layer) {
@@ -1088,7 +1086,7 @@ TERM_PUBLIC void CANVAS_layer(GpTermEntry * pThis, t_termlayer layer)
 	}
 }
 
-TERM_PUBLIC void CANVAS_path(GpTermEntry * pThis, int p)
+TERM_PUBLIC void CANVAS_path(GpTermEntry_Static * pThis, int p)
 {
 	switch(p) {
 		case 1: // Close path 
@@ -1100,7 +1098,7 @@ TERM_PUBLIC void CANVAS_path(GpTermEntry * pThis, int p)
 	}
 }
 
-TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int type, const char * hypertext)
+TERM_PUBLIC void CANVAS_hypertext(GpTermEntry_Static * pThis, int type, const char * hypertext)
 {
 	if(type != TERM_HYPERTEXT_TOOLTIP)
 		return;
@@ -1121,7 +1119,7 @@ TERM_PUBLIC void CANVAS_hypertext(GpTermEntry * pThis, int type, const char * hy
 /*	ctx.textAlign = "center";					*/
 /*	ctx.fillText( "Oh goody, text support.", x, y );		*/
 /*									*/
-TERM_PUBLIC int CANVAS_set_font(GpTermEntry * pThis, const char * newfont)
+TERM_PUBLIC int CANVAS_set_font(GpTermEntry_Static * pThis, const char * newfont)
 {
 	int sep;
 	if(!newfont || !(*newfont))
@@ -1134,8 +1132,7 @@ TERM_PUBLIC int CANVAS_set_font(GpTermEntry * pThis, const char * newfont)
 				canvas_font_size = CANVAS_default_fsize;
 		}
 	}
-	pThis->ChrV = static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE);
-	pThis->ChrH = static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE);
+	pThis->SetCharSize(static_cast<uint>(canvas_font_size * canvas_fontscale * 0.8 * CANVAS_OVERSAMPLE), static_cast<uint>(canvas_font_size * canvas_fontscale * CANVAS_OVERSAMPLE));
 	return 1;
 }
 //
@@ -1149,7 +1146,7 @@ static bool ENHCANVAS_sizeonly = FALSE;
 static bool ENHCANVAS_widthflag = TRUE;
 static bool ENHCANVAS_overprint = FALSE;
 
-TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	static int save_x, save_y;
 	// overprint = 1 means print the base text (leave position in center)
@@ -1207,7 +1204,7 @@ static int canvas_strwidth(char * s)
 	return (width);
 }
 
-TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis)
+TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double save_fontsize;
@@ -1235,7 +1232,7 @@ TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
@@ -1291,7 +1288,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry * pThis, uint x, uint y, const c
 }
 
 #ifdef WRITE_PNG_IMAGE
-TERM_PUBLIC void CANVAS_image(GpTermEntry * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void CANVAS_image(GpTermEntry_Static * pThis, uint m, uint n, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	char * base_name = CANVAS_name ? CANVAS_name : "gp";
 	canvas_imagefile * thisimage = NULL;

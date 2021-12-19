@@ -177,7 +177,7 @@ enum zbar_symbol_type_t {
 	ZBAR_EAN13       =     13, /**< EAN-13 */
 	ZBAR_ISBN13      =     14, /**< ISBN-13 (from EAN-13). @since 0.4 */
 	ZBAR_COMPOSITE   =     15, /**< EAN/UPC composite */
-	ZBAR_I25         =     25, /**< Interleaved 2 of 5. @since 0.4 */
+	ZBAR_I25 =     25, /**< Interleaved 2 of 5. @since 0.4 */
 	ZBAR_DATABAR     =     34, /**< GS1 DataBar (RSS). @since 0.11 */
 	ZBAR_DATABAR_EXP =     35, /**< GS1 DataBar Expanded. @since 0.11 */
 	ZBAR_CODABAR     =     38, /**< Codabar. @since 0.11 */
@@ -1587,9 +1587,9 @@ struct codabar_decoder_t {
 //
 typedef struct ean_pass_s {
     int8 state; /* module position of w[idx] in symbol */
-#define STATE_REV   0x80        /*   scan direction reversed */
-#define STATE_ADDON 0x40        /*   scanning add-on */
-#define STATE_IDX   0x3f        /*   element offset into symbol */
+#define STATE_REV   0x80        /* scan direction reversed */
+#define STATE_ADDON 0x40        /* scanning add-on */
+#define STATE_IDX   0x3f        /* element offset into symbol */
     uint width; /* width of last character */
     uchar raw[7]; /* decode in process */
 } ean_pass_t;

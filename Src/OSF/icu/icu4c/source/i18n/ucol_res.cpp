@@ -407,7 +407,7 @@ const CollationCacheEntry * CollationLoader::loadFromData(UErrorCode & errorCode
 	// Note: U_MISSING_RESOURCE_ERROR --> The old code built from rules if available
 	// but that created undesirable dependencies.
 	int32_t length;
-	const uint8_t * inBytes = ures_getBinary(binary.getAlias(), &length, &errorCode);
+	const uint8 * inBytes = ures_getBinary(binary.getAlias(), &length, &errorCode);
 	CollationDataReader::read(rootEntry->tailoring, inBytes, length, *t, errorCode);
 	// Note: U_COLLATOR_VERSION_MISMATCH --> The old code built from rules if available
 	// but that created undesirable dependencies.

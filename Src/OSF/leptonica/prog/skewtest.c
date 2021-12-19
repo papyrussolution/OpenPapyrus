@@ -37,7 +37,14 @@
  *     maximized.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
+
+    /* binarization threshold */
+#define   BIN_THRESHOLD         130
 
     /* deskew */
 #define   DESKEW_REDUCTION      2      /* 1, 2 or 4 */
@@ -58,60 +65,64 @@
 int main(int    argc,
          char **argv)
 {
-char        *filein, *fileout;
+char        *filein;
 l_int32      ret;
 l_float32    deg2rad;
-l_float32    angle, conf, score;
+l_float32    angle, conf, score, endscore;
 PIX         *pix, *pixs, *pixd;
 static char  mainName[] = "skewtest";
 
-    if (argc != 3)
-        return ERROR_INT(" Syntax:  skewtest filein fileout", mainName, 1);
-
+    if (argc != 2)
+        return ERROR_INT(" Syntax:  skewtest filein", mainName, 1);
     filein = argv[1];
-    fileout = argv[2];
-    pixd = NULL;
 
+    setLeptDebugOK(1);
+    lept_rmdir("lept/deskew");
+    lept_mkdir("lept/deskew");
+    pixd = NULL;
     deg2rad = 3.1415926535 / 180.;
 
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT("pixs not made", mainName, 1);
 
         /* Find the skew angle various ways */
-    pix = pixConvertTo1(pixs, 130);
-    pixWrite("/tmp/binarized.tif", pix, IFF_TIFF_G4);
+    pix = pixConvertTo1(pixs, BIN_THRESHOLD);
+    pixWrite("/tmp/lept/deskew/binarized.tif", pix, IFF_TIFF_G4);
     pixFindSkew(pix, &angle, &conf);
-    fprintf(stderr, "pixFindSkew():\n"
-                    "  conf = %5.3f, angle = %7.3f degrees\n", conf, angle);
+    lept_stderr("pixFindSkew():\n"
+                "  conf = %5.3f, angle = %7.3f degrees\n", conf, angle);
 
     pixFindSkewSweepAndSearchScorePivot(pix, &angle, &conf, &score,
                                         SWEEP_REDUCTION2, SEARCH_REDUCTION,
                                         0.0, SWEEP_RANGE2, SWEEP_DELTA2,
                                         SEARCH_MIN_DELTA,
                                         L_SHEAR_ABOUT_CORNER);
-    fprintf(stderr, "pixFind...Pivot(about corner):\n"
-                    "  conf = %5.3f, angle = %7.3f degrees, score = %f\n",
-            conf, angle, score);
+    lept_stderr("pixFind...Pivot(about corner):\n"
+                "  conf = %5.3f, angle = %7.3f degrees, score = %.0f\n",
+                conf, angle, score);
 
     pixFindSkewSweepAndSearchScorePivot(pix, &angle, &conf, &score,
                                         SWEEP_REDUCTION2, SEARCH_REDUCTION,
                                         0.0, SWEEP_RANGE2, SWEEP_DELTA2,
                                         SEARCH_MIN_DELTA,
                                         L_SHEAR_ABOUT_CENTER);
-    fprintf(stderr, "pixFind...Pivot(about center):\n"
-                    "  conf = %5.3f, angle = %7.3f degrees, score = %f\n",
-            conf, angle, score);
+    lept_stderr("pixFind...Pivot(about center):\n"
+                "  conf = %5.3f, angle = %7.3f degrees, score = %.0f\n",
+                conf, angle, score);
 
         /* Use top-level */
     pixd = pixDeskew(pixs, 0);
-    pixWriteImpliedFormat(fileout, pixd, 0, 0);
+    pixWriteImpliedFormat("/tmp/lept/deskew/result1", pixd, 0, 0);
+    pixDestroy(&pix);
+    pixDestroy(&pixd);
 
-
-#if 0
-        /* Do it piecemeal; fails if outside the range */
+#if 1
+        /* Do skew finding and rotation separately.  This fails if
+         * the skew angle is outside the range. */
+    pix = pixConvertTo1(pixs, BIN_THRESHOLD);
     if (pixGetDepth(pixs) == 1) {
         pixd = pixDeskew(pix, DESKEW_REDUCTION);
-        pixWrite(fileout, pixd, IFF_PNG);
+        pixWrite("/tmp/lept/deskew/result2", pixd, IFF_PNG);
     }
     else {
         ret = pixFindSkewSweepAndSearch(pix, &angle, &conf, SWEEP_REDUCTION2,
@@ -120,22 +131,62 @@ static char  mainName[] = "skewtest";
         if (ret)
             L_WARNING("skew angle not valid\n", mainName);
         else {
-            fprintf(stderr, "conf = %5.3f, angle = %7.3f degrees\n",
-                    conf, angle);
+            lept_stderr("conf = %5.3f, angle = %7.3f degrees\n", conf, angle);
             if (conf > 2.5)
                 pixd = pixRotate(pixs, angle * deg2rad, L_ROTATE_AREA_MAP,
                                  L_BRING_IN_WHITE, 0, 0);
             else
                 pixd = pixClone(pixs);
-            pixWrite(fileout, pixd, IFF_PNG);
+            pixWrite("/tmp/lept/deskew/result2", pixd, IFF_PNG);
             pixDestroy(&pixd);
         }
+    }
+    pixDestroy(&pix);
+#endif
+
+#if 1
+    pixFindSkewSweepAndSearchScore(pixs, &angle, &conf, &endscore,
+                                   4, 2, 0.0, 5.0, 1.0, 0.01);
+    lept_stderr("angle = %8.4f, conf = %8.4f, endscore = %.0f\n",
+                angle, conf, endscore);
+    startTimer();
+    pixd = pixDeskew(pixs, DESKEW_REDUCTION);
+    lept_stderr("Time to deskew = %7.4f sec\n", stopTimer());
+    pixWrite("/tmp/lept/deskew/result3", pixd, IFF_PNG);
+    pixDestroy(&pixd);
+#endif
+
+#if 1
+    ret = pixFindSkew(pixs, &angle, &conf);
+    lept_stderr("angle = %8.4f, conf = %8.4f\n", angle, conf);
+    if (ret) {
+        L_WARNING("skew angle not valid\n", mainName);
+        return 1;
+    }
+#endif
+
+#if 1
+    ret = pixFindSkewSweep(pixs, &angle, SWEEP_REDUCTION,
+                           SWEEP_RANGE, SWEEP_DELTA);
+    lept_stderr("angle = %8.4f, conf = %8.4f\n", angle, conf);
+    if (ret) {
+        L_WARNING("skew angle not valid\n", mainName);
+        return 1;
+    }
+#endif
+
+#if 1
+    ret = pixFindSkewSweepAndSearch(pixs, &angle, &conf,
+                                    SWEEP_REDUCTION2, SEARCH_REDUCTION,
+                                    SWEEP_RANGE2, SWEEP_DELTA2,
+                                    SEARCH_MIN_DELTA);
+    lept_stderr("angle = %8.4f, conf = %8.4f\n", angle, conf);
+    if (ret) {
+        L_WARNING("skew angle not valid\n", mainName);
+        return 1;
     }
 #endif
 
     pixDestroy(&pixs);
-    pixDestroy(&pix);
-    pixDestroy(&pixd);
     return 0;
 }
-

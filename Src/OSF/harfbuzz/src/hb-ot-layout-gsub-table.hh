@@ -1305,13 +1305,13 @@ protected:
 		friend struct SubstLookup;
 
 		enum Type {
-			Single              = 1,
-			Multiple            = 2,
-			Alternate           = 3,
-			Ligature            = 4,
-			Context             = 5,
+			Single      = 1,
+			Multiple    = 2,
+			Alternate   = 3,
+			Ligature    = 4,
+			Context     = 5,
 			ChainContext        = 6,
-			Extension           = 7,
+			Extension   = 7,
 			ReverseChainSingle  = 8
 		};
 

@@ -425,7 +425,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 	// Should never happen but fuzzer managed to hit it 
 	SETIFZ(pFormat, DEF_FORMAT);
 	// By default we wrap numbers output to latex terminals in $...$ 
-	if(sstreq(pFormat, DEF_FORMAT) && !Tab.Mode && ((GPT.P_Term->flags & TERM_IS_LATEX)))
+	if(sstreq(pFormat, DEF_FORMAT) && !Tab.Mode && GPT.P_Term->CheckFlag(TERM_IS_LATEX))
 		pFormat = DEF_FORMAT_LATEX;
 	for(;;) {
 		//{{{  copy to dest until % 
@@ -484,7 +484,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			    /* g/G with enhanced formatting (if applicable) */
 			    t[0] = (*pFormat == 'h') ? 'g' : 'G';
 			    t[1] = 0;
-			    if((GPT.P_Term->flags & (TERM_ENHANCED_TEXT | TERM_IS_LATEX)) == 0) {
+			    if(!GPT.P_Term->CheckFlag(TERM_ENHANCED_TEXT | TERM_IS_LATEX)) {
 				    snprintf(dest, remaining_space, temp, x); // Not enhanced, not latex, just print it 
 			    }
 			    else if(Tab.Mode) {
@@ -500,7 +500,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 				    snprintf(tmp, 240, temp, x); /* magic number alert: why 240? */
 				    for(i = j = 0; tmp[i] && (i < LOCAL_BUFFER_SIZE); i++) {
 					    if(tmp[i]=='E' || tmp[i]=='e') {
-						    if(GPT.P_Term->flags & TERM_IS_LATEX) {
+						    if(GPT.P_Term->CheckFlag(TERM_IS_LATEX)) {
 							    if(*pFormat == 'h') {
 								    strcpy(&tmp2[j], "\\times");
 								    j += 6;
@@ -804,7 +804,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 		 * will not be readable by standard formatted input routines.
 		 */
 		if(GpU.use_minus_sign /* set minussign */ && GpU.minus_sign /* current encoding provides one */ && 
-			!Tab.Mode /* not used inside "set table" */ && !(GPT.P_Term->flags & TERM_IS_LATEX) /* but LaTeX doesn't want it */) {
+			!Tab.Mode /* not used inside "set table" */ && !GPT.P_Term->CheckFlag(TERM_IS_LATEX) /* but LaTeX doesn't want it */) {
 			char * dotpos1 = dest;
 			char * dotpos2;
 			size_t newlength = strlen(GpU.minus_sign);

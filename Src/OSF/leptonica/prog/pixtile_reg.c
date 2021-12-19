@@ -28,6 +28,10 @@
  *   pixtile_reg.c
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 static l_int32 TestTiling(PIX *pixd, PIX *pixs, l_int32 nx, l_int32 ny,
@@ -38,8 +42,9 @@ static l_int32 TestTiling(PIX *pixd, PIX *pixs, l_int32 nx, l_int32 ny,
 int main(int    argc,
          char **argv)
 {
-PIX         *pixs, *pixd;
+PIX  *pixs, *pixd;
 
+    setLeptDebugOK(1);
     pixs = pixRead("test24.jpg");
     pixd = pixCreateTemplateNoInit(pixs);
 
@@ -77,8 +82,8 @@ PIXTILING  *pt;
     pixTilingGetCount(pt, &nx, &ny);
     pixTilingGetSize(pt, &w, &h);
     if (pt)
-        fprintf(stderr, "nx,ny = %d,%d; w,h = %d,%d; overlap = %d,%d\n",
-                nx, ny, w, h, pt->xoverlap, pt->yoverlap);
+        lept_stderr("nx,ny = %d,%d; w,h = %d,%d; overlap = %d,%d\n",
+                    nx, ny, w, h, pt->xoverlap, pt->yoverlap);
     else
         return 1;
 
@@ -91,9 +96,9 @@ PIXTILING  *pt;
     }
     pixEqual(pixs, pixd, &same);
     if (same)
-        fprintf(stderr, "Tiling OK\n");
+        lept_stderr("Tiling OK\n");
     else
-        fprintf(stderr, "Tiling ERROR !\n");
+        lept_stderr("Tiling ERROR !\n");
 
     pixTilingDestroy(&pt);
     return 0;

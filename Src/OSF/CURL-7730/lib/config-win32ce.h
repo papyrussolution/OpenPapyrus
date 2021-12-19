@@ -23,11 +23,11 @@
  ***************************************************************************/
 
 /* ================================================================ */
-/*  lib/config-win32ce.h - Hand crafted config file for windows ce  */
+/* lib/config-win32ce.h - Hand crafted config file for windows ce  */
 /* ================================================================ */
 
 /* ---------------------------------------------------------------- */
-/*                          HEADER FILES                            */
+/*          HEADER FILES                            */
 /* ---------------------------------------------------------------- */
 
 /* Define if you have the <arpa/inet.h> header file.  */
@@ -129,7 +129,7 @@
 /* #define HAVE_WS2TCPIP_H 1 */
 
 /* ---------------------------------------------------------------- */
-/*                        OTHER HEADER INFO                         */
+/*        OTHER HEADER INFO                         */
 /* ---------------------------------------------------------------- */
 
 /* Define if sig_atomic_t is an available typedef. */
@@ -142,7 +142,7 @@
 /* #define TIME_WITH_SYS_TIME 1 */
 
 /* ---------------------------------------------------------------- */
-/*                             FUNCTIONS                            */
+/*             FUNCTIONS                            */
 /* ---------------------------------------------------------------- */
 
 /* Define if you have the closesocket function.  */
@@ -164,7 +164,7 @@
 #define HAVE_GETSERVBYNAME 1
 
 /* Define if you have the gettimeofday function.  */
-/*  #define HAVE_GETTIMEOFDAY 1 */
+/* #define HAVE_GETTIMEOFDAY 1 */
 
 /* Define if you have the inet_addr function.  */
 #define HAVE_INET_ADDR 1
@@ -310,7 +310,7 @@
 #define SEND_TYPE_RETV int
 
 /* ---------------------------------------------------------------- */
-/*                       TYPEDEF REPLACEMENTS                       */
+/*       TYPEDEF REPLACEMENTS                       */
 /* ---------------------------------------------------------------- */
 
 /* Define this if in_addr_t is not an available 'typedefed' type */
@@ -328,7 +328,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                            TYPE SIZES                            */
+/*            TYPE SIZES                            */
 /* ---------------------------------------------------------------- */
 
 /* The size of `int', as computed by sizeof. */
@@ -354,7 +354,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                          STRUCT RELATED                          */
+/*          STRUCT RELATED                          */
 /* ---------------------------------------------------------------- */
 
 /* Define this if you have struct sockaddr_storage */
@@ -367,7 +367,7 @@
 #define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
 
 /* ---------------------------------------------------------------- */
-/*                        COMPILER SPECIFIC                         */
+/*        COMPILER SPECIFIC                         */
 /* ---------------------------------------------------------------- */
 
 /* Undef keyword 'const' if it does not work.  */
@@ -390,7 +390,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                        LARGE FILE SUPPORT                        */
+/*        LARGE FILE SUPPORT                        */
 /* ---------------------------------------------------------------- */
 
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
@@ -406,14 +406,14 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                           LDAP SUPPORT                           */
+/*           LDAP SUPPORT                           */
 /* ---------------------------------------------------------------- */
 
 #define USE_WIN32_LDAP 1
 #undef HAVE_LDAP_URL_PARSE
 
 /* ---------------------------------------------------------------- */
-/*                       ADDITIONAL DEFINITIONS                     */
+/*       ADDITIONAL DEFINITIONS                     */
 /* ---------------------------------------------------------------- */
 
 /* Define cpu-machine-OS */
@@ -424,7 +424,7 @@
 #define PACKAGE "curl"
 
 /* ---------------------------------------------------------------- */
-/*                       WinCE                                      */
+/*       WinCE                                      */
 /* ---------------------------------------------------------------- */
 
 #ifndef UNICODE

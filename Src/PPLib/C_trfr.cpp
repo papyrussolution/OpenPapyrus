@@ -1923,7 +1923,7 @@ int CorrectIntrReverse(PPID billID)
 			if(r < 0 && !(ti->Flags & PPTFR_ONORDER)) {
 				THROW_PP(!(ti->Flags & PPTFR_UNLIM), PPERR_UNLIMINTROP);
 				saveLot      = ti->LotID;
-				tmp          = ti->Location;
+				tmp  = ti->Location;
 				saveDiscount = ti->Discount;
 				ti->Price   -= ti->Discount;
 				ti->Discount = 0.0;
@@ -1941,7 +1941,7 @@ int CorrectIntrReverse(PPID billID)
 				ti->Quantity = -ti->Quantity;
 				ti->Discount = saveDiscount;
 				ti->Price   += saveDiscount;
-				tmp          = ti->Location;
+				tmp  = ti->Location;
 				ti->Location = ti->CorrLoc;
 				ti->CorrLoc  = tmp;
 				ti->LotID    = saveLot;

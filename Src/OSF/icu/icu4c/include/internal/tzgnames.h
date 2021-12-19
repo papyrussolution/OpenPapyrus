@@ -28,7 +28,7 @@ U_CDECL_BEGIN
 typedef enum UTimeZoneGenericNameType {
     UTZGNM_UNKNOWN      = 0x00,
     UTZGNM_LOCATION     = 0x01,
-    UTZGNM_LONG         = 0x02,
+    UTZGNM_LONG = 0x02,
     UTZGNM_SHORT        = 0x04
 } UTimeZoneGenericNameType;
 

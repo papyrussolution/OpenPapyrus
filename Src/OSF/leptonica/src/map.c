@@ -30,7 +30,7 @@
  *
  *  This is an interface for map and set functions, based on using
  *  red-black binary search trees.  Because these trees are sorted,
- *  the are O(nlogn) to build.  They allow logn insertion, find
+ *  they are O(nlogn) to build.  They allow logn insertion, find
  *  and deletion of elements.
  *
  *  Both the map and set are ordered by key value, with unique keys.
@@ -50,7 +50,7 @@
  *      [add elements to the map ...]
  *      L_AMAP_NODE  *n = l_amapGetFirst(m);
  *      while (n) {
- *          int32 val = n->value.itype;
+ *          l_int32 val = n->value.itype;
  *          // do something ...
  *          n = l_amapGetNext(n);
  *      }
@@ -63,8 +63,8 @@
  *      L_AMAP_NODE  *nn;
  *      while (n) {
  *          nn = l_amapGetNext(n);
- *          int32 val = n->value.itype;
- *          uint32 key = n->key.utype;
+ *          l_int32 val = n->value.itype;
+ *          l_uint32 key = n->key.utype;
  *          // do something ...
  *          l_amapDelete(m, n->key);
  *          n = nn;
@@ -82,7 +82,7 @@
  *           L_AMAP_NODE   *l_amapGetNext()
  *           L_AMAP_NODE   *l_amapGetLast()
  *           L_AMAP_NODE   *l_amapGetPrev()
- *           int32        l_amapSize()
+ *           l_int32        l_amapSize()
  *
  *  Interface to (a) set using a general key
  *           L_ASET        *l_asetCreate()
@@ -94,7 +94,7 @@
  *           L_ASET_NODE   *l_asetGetNext()
  *           L_ASET_NODE   *l_asetGetLast()
  *           L_ASET_NODE   *l_asetGetPrev()
- *           int32        l_asetSize()
+ *           l_int32        l_asetSize()
  * </pre>
  */
 #include "allheaders.h"
@@ -103,15 +103,17 @@
 /* ------------------------------------------------------------- *
 *                         Interface to Map                      *
 * ------------------------------------------------------------- */
-L_AMAP * l_amapCreate(int32 keytype)
+L_AMAP * l_amapCreate(l_int32 keytype)
 {
-	PROCNAME("l_amapCreate");
+	L_AMAP  * m;
+
+	PROCNAME(__FUNCTION__);
 
 	if(keytype != L_INT_TYPE && keytype != L_UINT_TYPE &&
 	    keytype != L_FLOAT_TYPE)
 		return (L_AMAP*)ERROR_PTR("invalid keytype", procName, NULL);
 
-	L_AMAP * m = (L_AMAP*)LEPT_CALLOC(1, sizeof(L_AMAP));
+	m = (L_AMAP*)SAlloc::C(1, sizeof(L_AMAP));
 	m->keytype = keytype;
 	return m;
 }
@@ -126,7 +128,7 @@ void l_amapInsert(L_AMAP  * m,
     RB_TYPE key,
     RB_TYPE value)
 {
-	return l_rbtreeInsert(m, key, value);
+	l_rbtreeInsert(m, key, value);
 }
 
 void l_amapDelete(L_AMAP  * m,
@@ -160,7 +162,7 @@ L_AMAP_NODE * l_amapGetPrev(L_AMAP_NODE  * n)
 	return l_rbtreeGetPrev(n);
 }
 
-int32 l_amapSize(L_AMAP  * m)
+l_int32 l_amapSize(L_AMAP  * m)
 {
 	return l_rbtreeGetCount(m);
 }
@@ -168,15 +170,17 @@ int32 l_amapSize(L_AMAP  * m)
 /* ------------------------------------------------------------- *
 *                         Interface to Set                      *
 * ------------------------------------------------------------- */
-L_ASET * l_asetCreate(int32 keytype)
+L_ASET * l_asetCreate(l_int32 keytype)
 {
-	PROCNAME("l_asetCreate");
+	L_ASET  * s;
+
+	PROCNAME(__FUNCTION__);
 
 	if(keytype != L_INT_TYPE && keytype != L_UINT_TYPE &&
 	    keytype != L_FLOAT_TYPE)
 		return (L_ASET*)ERROR_PTR("invalid keytype", procName, NULL);
 
-	L_ASET * s = (L_ASET*)LEPT_CALLOC(1, sizeof(L_ASET));
+	s = (L_ASET*)SAlloc::C(1, sizeof(L_ASET));
 	s->keytype = keytype;
 	return s;
 }
@@ -199,7 +203,7 @@ void l_asetInsert(L_ASET  * s,
 	RB_TYPE value;
 
 	value.itype = 0; /* meaningless */
-	return l_rbtreeInsert(s, key, value);
+	l_rbtreeInsert(s, key, value);
 }
 
 void l_asetDelete(L_ASET  * s,
@@ -233,8 +237,7 @@ L_ASET_NODE * l_asetGetPrev(L_ASET_NODE  * n)
 	return l_rbtreeGetPrev(n);
 }
 
-int32 l_asetSize(L_ASET  * s)
+l_int32 l_asetSize(L_ASET  * s)
 {
 	return l_rbtreeGetCount(s);
 }
-

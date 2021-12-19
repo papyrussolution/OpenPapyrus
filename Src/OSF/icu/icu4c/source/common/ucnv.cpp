@@ -251,11 +251,11 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 	localConverter->isCopyLocal = localConverter->isExtraLocal = FALSE;
 
 	/* copy the substitution string */
-	if(cnv->subChars == (uint8_t*)cnv->subUChars) {
-		localConverter->subChars = (uint8_t*)localConverter->subUChars;
+	if(cnv->subChars == (uint8 *)cnv->subUChars) {
+		localConverter->subChars = (uint8 *)localConverter->subUChars;
 	}
 	else {
-		localConverter->subChars = (uint8_t*)uprv_malloc(UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
+		localConverter->subChars = (uint8 *)uprv_malloc(UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
 		if(localConverter->subChars == NULL) {
 			uprv_free(allocatedConverter);
 			UTRACE_EXIT_STATUS(*status);
@@ -271,7 +271,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 	}
 
 	if(localConverter==NULL || U_FAILURE(*status)) {
-		if(allocatedConverter != NULL && allocatedConverter->subChars != (uint8_t*)allocatedConverter->subUChars) {
+		if(allocatedConverter != NULL && allocatedConverter->subChars != (uint8 *)allocatedConverter->subUChars) {
 			uprv_free(allocatedConverter->subChars);
 		}
 		uprv_free(allocatedConverter);
@@ -357,7 +357,7 @@ U_CAPI void U_EXPORT2 ucnv_close(UConverter * converter)
 		converter->sharedData->impl->close(converter);
 	}
 
-	if(converter->subChars != (uint8_t*)converter->subUChars) {
+	if(converter->subChars != (uint8 *)converter->subUChars) {
 		uprv_free(converter->subChars);
 	}
 
@@ -451,7 +451,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv,
 	char chars[UCNV_ERROR_BUFFER_LENGTH];
 
 	UConverter * clone;
-	uint8_t * subChars;
+	uint8 * subChars;
 	int32_t cloneSize, length8;
 
 	/* Let the following functions check all arguments. */
@@ -471,7 +471,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv,
 #endif
 	    ) {
 		/* The converter is not stateful. Store the charset bytes as a fixed string. */
-		subChars = (uint8_t*)chars;
+		subChars = (uint8 *)chars;
 	}
 	else {
 		/*
@@ -489,7 +489,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv,
 			*err = U_BUFFER_OVERFLOW_ERROR;
 			return;
 		}
-		subChars = (uint8_t*)s;
+		subChars = (uint8 *)s;
 		if(length < 0) {
 			length = u_strlen(s);
 		}
@@ -502,11 +502,11 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv,
 	 */
 	if(length8 > UCNV_MAX_SUBCHAR_LEN) {
 		/* Use a separate buffer for the string. Outside UConverter to not make it too large. */
-		if(cnv->subChars == (uint8_t*)cnv->subUChars) {
+		if(cnv->subChars == (uint8 *)cnv->subUChars) {
 			/* Allocate a new buffer for the string. */
-			cnv->subChars = (uint8_t*)uprv_malloc(UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
+			cnv->subChars = (uint8 *)uprv_malloc(UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
 			if(cnv->subChars == NULL) {
-				cnv->subChars = (uint8_t*)cnv->subUChars;
+				cnv->subChars = (uint8 *)cnv->subUChars;
 				*err = U_MEMORY_ALLOCATION_ERROR;
 				return;
 			}
@@ -519,7 +519,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv,
 	}
 	else {
 		uprv_memcpy(cnv->subChars, subChars, length8);
-		if(subChars == (uint8_t*)chars) {
+		if(subChars == (uint8 *)chars) {
 			cnv->subCharLen = (int8_t)length8;
 		}
 		else { /* subChars == s */
@@ -1935,7 +1935,7 @@ U_CAPI UChar32 U_EXPORT2 ucnv_getNextUChar(UConverter * cnv,
 	if(U_FAILURE(*err)) {
 		c = 0xffff; /* no output */
 	}
-	else if(length==0) {
+	else if(!length) {
 		/* no input or only state changes */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		/* no need to reset explicitly because _toUnicodeWithCallback() did it */

@@ -81,11 +81,11 @@ static bool GGI_use_whm = 0;
 
 static void GGI_line_colors();
 TERM_PUBLIC void GGI_graphics();
-TERM_PUBLIC void GGI_set_size(GpTermEntry * pThis);
-TERM_PUBLIC void GGI_init(GpTermEntry * pThis);
+TERM_PUBLIC void GGI_set_size(GpTermEntry_Static * pThis);
+TERM_PUBLIC void GGI_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void GGI_linetype(int);
 TERM_PUBLIC void GGI_move(uint, uint);
-TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp);
+TERM_PUBLIC void GGI_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
 TERM_PUBLIC void GGI_put_text(uint, uint, const char*);
 TERM_PUBLIC void GGI_suspend();
 TERM_PUBLIC void GGI_resume();
@@ -118,7 +118,7 @@ TERM_PUBLIC int  GGI_from_button(uint32_t button);
 TERM_PUBLIC int  GGI_y(int32_t y);
 TERM_PUBLIC int  GGI_dispatch_event(const ggi_event* event);
 TERM_PUBLIC int  GGI_eventually_update_modifiers(const ggi_event* event, const int add);
-TERM_PUBLIC int  GGI_waitforinput(GpTermEntry * pThis, int);
+TERM_PUBLIC int  GGI_waitforinput(GpTermEntry_Static * pThis, int);
 TERM_PUBLIC void GGI_draw_ruler();
 TERM_PUBLIC void GGI_clear_zoombox();
 TERM_PUBLIC void GGI_draw_zoombox();
@@ -131,7 +131,7 @@ TERM_PUBLIC void GGI_clear(const GGI_vertex_t* v, const int tag);
 TERM_PUBLIC void GGI_save_puts(GGI_vertex_t* v, const int tag);
 TERM_PUBLIC void GGI_set_vertex(GGI_vertex_t* v, const int x, const int y, const char* str, const int tag);
 TERM_PUBLIC void GGI_abort_zooming();
-TERM_PUBLIC void GGI_put_tmptext(GpTermEntry * pThis, int, const char str[]);
+TERM_PUBLIC void GGI_put_tmptext(GpTermEntry_Static * pThis, int, const char str[]);
 TERM_PUBLIC void GGI_relative(int r[2]);
 TERM_PUBLIC void GGI_clear_hline(int x1, int x2, int y);
 TERM_PUBLIC void GGI_clear_vline(int y1, int y2, int x);
@@ -320,7 +320,7 @@ TERM_PUBLIC void GGI_graphics()
 #endif
 }
 
-TERM_PUBLIC void GGI_set_size(GpTermEntry * pThis)
+TERM_PUBLIC void GGI_set_size(GpTermEntry_Static * pThis)
 {
 	ggi_mode mode;
 	ggiGetMode(GGIvisual, &mode);
@@ -342,7 +342,7 @@ TERM_PUBLIC void GGI_set_size(GpTermEntry * pThis)
  * Called only once, when the terminal is initialized. We have to open the visual here because it
  * is during 'init' that we have to change the terminal dimensions (xmax, ymax).
  */
-TERM_PUBLIC void GGI_init(GpTermEntry * pThis)
+TERM_PUBLIC void GGI_init(GpTermEntry_Static * pThis)
 {
 	int success = 0;
 	ggi_mode mode;
@@ -481,7 +481,7 @@ TERM_PUBLIC void GGI_move(uint x, uint y)
 	GGIy = GGI_y(y);
 }
 
-TERM_PUBLIC void GGI_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void GGI_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&GGI_opts[0])) {
@@ -1127,7 +1127,7 @@ TERM_PUBLIC void GGI_abort_zooming()
 	}
 }
 
-TERM_PUBLIC int GGI_waitforinput(GpTermEntry * pThis, int options)
+TERM_PUBLIC int GGI_waitforinput(GpTermEntry_Static * pThis, int options)
 {
 	char c;
 
@@ -1183,7 +1183,7 @@ TERM_PUBLIC int GGI_waitforinput(GpTermEntry * pThis, int options)
 		return c;
 }
 
-TERM_PUBLIC void GGI_put_tmptext(GpTermEntry * pThis, int i, const char str[])
+TERM_PUBLIC void GGI_put_tmptext(GpTermEntry_Static * pThis, int i, const char str[])
 {
 	char * second;
 	if(GGIvisual == NULL)

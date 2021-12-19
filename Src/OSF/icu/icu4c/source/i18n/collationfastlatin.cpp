@@ -499,8 +499,8 @@ int32_t CollationFastLatin::compareUTF16(const uint16_t * table, const uint16_t 
 }
 
 int32_t CollationFastLatin::compareUTF8(const uint16_t * table, const uint16_t * primaries, int32_t options,
-    const uint8_t * left, int32_t leftLength,
-    const uint8_t * right, int32_t rightLength) {
+    const uint8 * left, int32_t leftLength,
+    const uint8 * right, int32_t rightLength) {
 	// Keep compareUTF16() and compareUTF8() in sync very closely!
 
 	U_ASSERT((table[0] >> 8) == VERSION);
@@ -527,7 +527,7 @@ int32_t CollationFastLatin::compareUTF8(const uint16_t * table, const uint16_t *
 				break;
 			}
 			UChar32 c = left[leftIndex++];
-			uint8_t t;
+			uint8 t;
 			if(c <= 0x7f) {
 				leftPair = primaries[c];
 				if(leftPair != 0) {
@@ -574,7 +574,7 @@ int32_t CollationFastLatin::compareUTF8(const uint16_t * table, const uint16_t *
 				break;
 			}
 			UChar32 c = right[rightIndex++];
-			uint8_t t;
+			uint8 t;
 			if(c <= 0x7f) {
 				rightPair = primaries[c];
 				if(rightPair != 0) {
@@ -918,13 +918,13 @@ uint32_t CollationFastLatin::lookup(const uint16_t * table, UChar32 c) {
 }
 
 uint32_t CollationFastLatin::lookupUTF8(const uint16_t * table, UChar32 c,
-    const uint8_t * s8, int32_t &sIndex, int32_t sLength) {
+    const uint8 * s8, int32_t &sIndex, int32_t sLength) {
 	// The caller handled ASCII and valid/supported Latin.
 	U_ASSERT(c > 0x7f);
 	int32_t i2 = sIndex + 1;
 	if(i2 < sLength || sLength < 0) {
-		uint8_t t1 = s8[sIndex];
-		uint8_t t2 = s8[i2];
+		uint8 t1 = s8[sIndex];
+		uint8 t2 = s8[i2];
 		sIndex += 2;
 		if(c == 0xe2 && t1 == 0x80 && 0x80 <= t2 && t2 <= 0xbf) {
 			return table[(LATIN_LIMIT - 0x80) + t2]; // 2000..203F -> 0180..01BF
@@ -942,14 +942,14 @@ uint32_t CollationFastLatin::lookupUTF8(const uint16_t * table, UChar32 c,
 }
 
 uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16_t * table, UChar32 c,
-    const uint8_t * s8, int32_t &sIndex) {
+    const uint8 * s8, int32_t &sIndex) {
 	// The caller handled ASCII.
 	// The string is well-formed and contains only supported characters.
 	U_ASSERT(c > 0x7f);
 	if(c <= LATIN_MAX_UTF8_LEAD) {
 		return table[((c - 0xc2) << 6) + s8[sIndex++]]; // 0080..017F
 	}
-	uint8_t t2 = s8[sIndex + 1];
+	uint8 t2 = s8[sIndex + 1];
 	sIndex += 2;
 	if(c == 0xe2) {
 		return table[(LATIN_LIMIT - 0x80) + t2]; // 2000..203F -> 0180..01BF
@@ -963,7 +963,7 @@ uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16_t * table, UChar32 c,
 }
 
 uint32_t CollationFastLatin::nextPair(const uint16_t * table, UChar32 c, uint32_t ce,
-    const UChar * s16, const uint8_t * s8, int32_t &sIndex, int32_t &sLength) {
+    const UChar * s16, const uint8 * s8, int32_t &sIndex, int32_t &sLength) {
 	if(ce >= MIN_LONG || ce < CONTRACTION) {
 		return ce; // simple or special mini CE
 	}
@@ -1000,7 +1000,7 @@ uint32_t CollationFastLatin::nextPair(const uint16_t * table, UChar32 c, uint32_
 			else {
 				c2 = s8[nextIndex++];
 				if(c2 > 0x7f) {
-					uint8_t t;
+					uint8 t;
 					if(c2 <= 0xc5 && 0xc2 <= c2 && nextIndex != sLength &&
 					    0x80 <= (t = s8[nextIndex]) && t <= 0xbf) {
 						c2 = ((c2 - 0xc2) << 6) + t; // 0080..017F

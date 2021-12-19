@@ -345,7 +345,7 @@ enum {
  *
  * 0  Unicode String:   int32_t length, UChar[length], (UChar)0, (padding)
  *                  or  (empty string ("") if offset==0)
- * 1  Binary:           int32_t length, uint8_t[length], (padding)
+ * 1  Binary:           int32_t length, uint8[length], (padding)
  *                      - the start of the bytes is 16-aligned -
  * 2  Table:            uint16_t count, uint16_t keyStringOffsets[count], (uint16_t padding), Resource[count]
  * 3  Alias:            (physically same value layout as string, new in ICU 2.4)
@@ -427,7 +427,7 @@ U_CAPI UResType U_EXPORT2 res_getPublicType(Resource res);
  * Returns NULL if not found.
  */
 U_CAPI const UChar * U_EXPORT2 res_getStringNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
-U_CAPI const uint8_t * U_EXPORT2 res_getBinaryNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
+U_CAPI const uint8 * U_EXPORT2 res_getBinaryNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
 U_CAPI const int32_t * U_EXPORT2 res_getIntVectorNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength);
 U_CAPI const UChar * U_EXPORT2 res_getAlias(const ResourceData * pResData, Resource res, int32_t * pLength);
 U_CAPI Resource U_EXPORT2 res_getResource(const ResourceData * pResData, const char * key);
@@ -459,7 +459,7 @@ inline const UChar * res_getString(const ResourceTracer& traceInfo, const Resour
 	return res_getStringNoTrace(pResData, res, pLength);
 }
 
-inline const uint8_t* res_getBinary(const ResourceTracer& traceInfo, const ResourceData * pResData, Resource res, int32_t * pLength) 
+inline const uint8* res_getBinary(const ResourceTracer& traceInfo, const ResourceData * pResData, Resource res, int32_t * pLength) 
 {
 	traceInfo.trace("binary");
 	return res_getBinaryNoTrace(pResData, res, pLength);
@@ -511,7 +511,7 @@ public:
 	virtual int32_t getInt(UErrorCode & errorCode) const override;
 	virtual uint32_t getUInt(UErrorCode & errorCode) const override;
 	virtual const int32_t * getIntVector(int32_t &length, UErrorCode & errorCode) const override;
-	virtual const uint8_t * getBinary(int32_t &length, UErrorCode & errorCode) const override;
+	virtual const uint8 * getBinary(int32_t &length, UErrorCode & errorCode) const override;
 	virtual ResourceArray getArray(UErrorCode & errorCode) const override;
 	virtual ResourceTable getTable(UErrorCode & errorCode) const override;
 	virtual bool isNoInheritanceMarker() const override;

@@ -23,11 +23,11 @@
 ***************************************************************************/
 
 /* ================================================================ */
-/*               Hand crafted config file for Windows               */
+/* Hand crafted config file for Windows               */
 /* ================================================================ */
 
 /* ---------------------------------------------------------------- */
-/*                          HEADER FILES                            */
+/*          HEADER FILES                            */
 /* ---------------------------------------------------------------- */
 
 /* Define if you have the <arpa/inet.h> header file. */
@@ -88,7 +88,7 @@
 	#define HAVE_WS2TCPIP_H 1 /* Define if you have the <ws2tcpip.h> header file. */
 #endif
 /* ---------------------------------------------------------------- */
-/*                        OTHER HEADER INFO                         */
+/*        OTHER HEADER INFO                         */
 /* ---------------------------------------------------------------- */
 
 #define HAVE_SIG_ATOMIC_T 1 /* Define if sig_atomic_t is an available typedef. */
@@ -101,7 +101,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                             FUNCTIONS                            */
+/*             FUNCTIONS                            */
 /* ---------------------------------------------------------------- */
 
 #define HAVE_CLOSESOCKET 1 /* Define if you have the closesocket function. */
@@ -173,7 +173,7 @@
 #define SEND_TYPE_RETV int /* Define to the function return type for send. */
 
 /* ---------------------------------------------------------------- */
-/*                       TYPEDEF REPLACEMENTS                       */
+/*       TYPEDEF REPLACEMENTS                       */
 /* ---------------------------------------------------------------- */
 #define in_addr_t ulong /* Define if in_addr_t is not an available 'typedefed' type. */
 #define RETSIGTYPE void /* Define to the return type of signal handlers (int or void). */
@@ -190,7 +190,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                            TYPE SIZES                            */
+/*            TYPE SIZES                            */
 /* ---------------------------------------------------------------- */
 #define SIZEOF_INT 4 /* Define to the size of `int', as computed by sizeof. */
 #define SIZEOF_LONG_DOUBLE 16 /* Define to the size of `long double', as computed by sizeof. */
@@ -208,7 +208,7 @@
 #define SIZEOF_CURL_OFF_T 8
 
 /* ---------------------------------------------------------------- */
-/*               BSD-style lwIP TCP/IP stack SPECIFIC               */
+/* BSD-style lwIP TCP/IP stack SPECIFIC               */
 /* ---------------------------------------------------------------- */
 
 /* Define to use BSD-style lwIP TCP/IP stack. */
@@ -239,7 +239,7 @@
 #define SEND_TYPE_ARG3 size_t
 #endif
 /* ---------------------------------------------------------------- */
-/*                        Watt-32 tcp/ip SPECIFIC                   */
+/*        Watt-32 tcp/ip SPECIFIC                   */
 /* ---------------------------------------------------------------- */
 #ifdef USE_WATT32
 	#include <tcp.h>
@@ -261,7 +261,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                        COMPILER SPECIFIC                         */
+/*        COMPILER SPECIFIC                         */
 /* ---------------------------------------------------------------- */
 
 /* Define to nothing if compiler does not support 'const' qualifier. */
@@ -404,7 +404,7 @@
 #endif
 #endif
 /* ---------------------------------------------------------------- */
-/*                          STRUCT RELATED                          */
+/*          STRUCT RELATED                          */
 /* ---------------------------------------------------------------- */
 /* Define if you have struct sockaddr_storage. */
 #if !defined(__SALFORDC__) && !defined(__BORLANDC__)
@@ -417,7 +417,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                        LARGE FILE SUPPORT                        */
+/*        LARGE FILE SUPPORT                        */
 /* ---------------------------------------------------------------- */
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
 	#if(_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
@@ -439,7 +439,7 @@
 	#define USE_WIN32_SMALL_FILES
 #endif
 /* ---------------------------------------------------------------- */
-/*                       DNS RESOLVER SPECIALTY                     */
+/*       DNS RESOLVER SPECIALTY                     */
 /* ---------------------------------------------------------------- */
 /*
  * Undefine both USE_ARES and USE_THREADS_WIN32 for synchronous DNS.
@@ -454,7 +454,7 @@
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                           LDAP SUPPORT                           */
+/*           LDAP SUPPORT                           */
 /* ---------------------------------------------------------------- */
 
 #if defined(CURL_HAS_NOVELL_LDAPSDK) || defined(CURL_HAS_MOZILLA_LDAPSDK)
@@ -508,7 +508,7 @@ typedef struct sockaddr_un {
 #endif
 
 /* ---------------------------------------------------------------- */
-/*                       ADDITIONAL DEFINITIONS                     */
+/*       ADDITIONAL DEFINITIONS                     */
 /* ---------------------------------------------------------------- */
 
 /* Define cpu-machine-OS */

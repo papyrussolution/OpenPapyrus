@@ -38,7 +38,7 @@ typedef struct  FT_RFork_Ref_ {
 typedef FT_Error
 (* ft_raccess_guess_func)(FT_Library library,
     FT_Stream stream,
-    char       * base_file_name,
+    char * base_file_name,
     char   ** result_file_name,
     FT_Long    * result_offset);
 

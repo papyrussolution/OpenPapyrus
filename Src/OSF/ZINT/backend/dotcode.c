@@ -285,7 +285,7 @@ int seventeen_ten(const uchar source[], int position, int length)
 	return found;
 }
 
-/*  checks how many characters ahead can be reached while datum_c is true,
+/* checks how many characters ahead can be reached while datum_c is true,
  *  returning the resulting number of codewords (Annex F.II.E)
  */
 int ahead_c(const uchar source[], int position, int length)

@@ -116,7 +116,7 @@ U_CAPI UCPTrie * U_EXPORT2 ucptrie_openFromBinary(UCPTrieType type, UCPTrieValue
 		    trie->nullValue = trie->data.ptr32[nullValueOffset];
 		    break;
 		case UCPTRIE_VALUE_BITS_8:
-		    trie->data.ptr8 = (const uint8_t*)p16;
+		    trie->data.ptr8 = (const uint8*)p16;
 		    trie->nullValue = trie->data.ptr8[nullValueOffset];
 		    break;
 		default:
@@ -171,7 +171,7 @@ U_CAPI int32_t U_EXPORT2 ucptrie_internalSmallIndex(const UCPTrie * trie, UChar3
 	return dataBlock + (c & UCPTRIE_SMALL_DATA_MASK);
 }
 
-U_CAPI int32_t U_EXPORT2 ucptrie_internalSmallU8Index(const UCPTrie * trie, int32_t lt1, uint8_t t2, uint8_t t3) {
+U_CAPI int32_t U_EXPORT2 ucptrie_internalSmallU8Index(const UCPTrie * trie, int32_t lt1, uint8 t2, uint8 t3) {
 	UChar32 c = (lt1 << 12) | (t2 << 6) | t3;
 	if(c >= trie->highStart) {
 		// Possible because the UTF-8 macro compares with shifted12HighStart which may be higher.
@@ -181,7 +181,7 @@ U_CAPI int32_t U_EXPORT2 ucptrie_internalSmallU8Index(const UCPTrie * trie, int3
 }
 
 U_CAPI int32_t U_EXPORT2 ucptrie_internalU8PrevIndex(const UCPTrie * trie, UChar32 c,
-    const uint8_t * start, const uint8_t * src) {
+    const uint8 * start, const uint8 * src) {
 	int32_t i, length;
 	// Support 64-bit pointers by avoiding cast of arbitrary difference.
 	if((src - start) <= 7) {

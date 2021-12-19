@@ -16,7 +16,7 @@ static uint32_t usual[] = {
 #else
 	0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 #endif
-	/*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
+	/* ~}| {zyx wvut srqp  onml kjih gfed cba` */
 	0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 	0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 	0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */

@@ -1813,36 +1813,28 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case NPPM_DMMREGASDCKDLG:
 	    {
 		    tTbData * pData = reinterpret_cast<tTbData *>(lParam);
-		    int iCont   = -1;
-		    bool isVisible       = false;
-
+		    int iCont = -1;
+		    bool isVisible = false;
 		    getIntegralDockingData(*pData, iCont, isVisible);
 		    _dockingManager.createDockableDlg(*pData, iCont, isVisible);
 		    return TRUE;
 	    }
-
 		case NPPM_DMMVIEWOTHERTAB:
-	    {
 		    _dockingManager.showDockableDlg(reinterpret_cast<TCHAR *>(lParam), SW_SHOW);
 		    return TRUE;
-	    }
-
 		case NPPM_DMMGETPLUGINHWNDBYNAME:  //(const TCHAR *windowName, const TCHAR *moduleName)
 	    {
 		    if(!lParam)
 			    return NULL;
-
 		    TCHAR * moduleName = reinterpret_cast<TCHAR *>(lParam);
 		    TCHAR * windowName = reinterpret_cast<TCHAR *>(wParam);
 		    std::vector<DockingCont *> dockContainer = _dockingManager.getContainerInfo();
-
 		    for(size_t i = 0, len = dockContainer.size(); i < len; ++i) {
 			    std::vector<tTbData *> tbData = dockContainer[i]->getDataOfAllTb();
 			    for(size_t j = 0, len2 = tbData.size(); j < len2; ++j) {
 				    if(generic_stricmp(moduleName, tbData[j]->pszModuleName) == 0) {
 					    if(!windowName)
 						    return (LRESULT)tbData[j]->hClient;
-
 					    if(generic_stricmp(windowName, tbData[j]->pszName) == 0)
 						    return (LRESULT)tbData[j]->hClient;
 				    }
@@ -1850,7 +1842,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    return NULL;
 	    }
-
 		case NPPM_ADDTOOLBARICON_DEPRECATED:
 	    {
 		    _toolBar.registerDynBtn(static_cast<UINT>(wParam),
@@ -1858,7 +1849,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			_pPublicInterface->getAbsentIcoHandle());
 		    return TRUE;
 	    }
-
 		case NPPM_ADDTOOLBARICON_FORDARKMODE:
 	    {
 		    _toolBar.registerDynBtnDM(static_cast<UINT>(wParam), reinterpret_cast<toolbarIconsWithDarkMode*>(lParam));
@@ -1871,13 +1861,9 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    _toolBar.setCheck(static_cast<int>(wParam), lParam != 0);
 		    return TRUE;
 	    }
-		case NPPM_GETWINDOWSVERSION:
-		    return (NppParameters::getInstance()).getWinVersion();
-		case NPPM_MAKECURRENTBUFFERDIRTY:
-		    _pEditView->getCurrentBuffer()->setDirty(true);
-		    return TRUE;
-		case NPPM_GETENABLETHEMETEXTUREFUNC:
-		    return (LRESULT)nppParam.getEnableThemeDlgTexture();
+		case NPPM_GETWINDOWSVERSION: return (NppParameters::getInstance()).getWinVersion();
+		case NPPM_MAKECURRENTBUFFERDIRTY: _pEditView->getCurrentBuffer()->setDirty(true); return TRUE;
+		case NPPM_GETENABLETHEMETEXTUREFUNC: return (LRESULT)nppParam.getEnableThemeDlgTexture();
 		case NPPM_GETPLUGINSCONFIGDIR:
 	    {
 		    generic_string userPluginConfDir = nppParam.getUserPluginConfDir();
@@ -1886,13 +1872,11 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				    return 0;
 			    }
 			    lstrcpy(reinterpret_cast<TCHAR *>(lParam), userPluginConfDir.c_str());
-
 			    // For the retro-compatibility
 			    return TRUE;
 		    }
 		    return userPluginConfDir.length();
 	    }
-
 		case NPPM_GETPLUGINHOMEPATH:
 	    {
 		    generic_string pluginHomePath = nppParam.getPluginRootDir();
@@ -1904,7 +1888,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    return pluginHomePath.length();
 	    }
-
 		case NPPM_GETSETTINGSONCLOUDPATH:
 	    {
 		    const NppGUI & nppGUI = nppParam.getNppGUI();
@@ -1917,7 +1900,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    return settingsOnCloudPath.length();
 	    }
-
 		case NPPM_SETLINENUMBERWIDTHMODE:
 	    {
 		    if(lParam != LINENUMWIDTH_DYNAMIC && lParam != LINENUMWIDTH_CONSTANT)
@@ -1927,20 +1909,15 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    ::SendMessage(hwnd, WM_COMMAND, IDM_VIEW_LINENUMBER, 0);
 		    return TRUE;
 	    }
-
 		case NPPM_GETLINENUMBERWIDTHMODE:
 	    {
 		    const ScintillaViewParams &svp = nppParam.getSVP();
 		    return svp._lineNumberMarginDynamicWidth ? LINENUMWIDTH_DYNAMIC : LINENUMWIDTH_CONSTANT;
 	    }
-		case NPPM_MSGTOPLUGIN:
-		    return _pluginsManager.relayPluginMessages(message, wParam, lParam);
-		case NPPM_ALLOCATESUPPORTED:
-		    return TRUE;
-		case NPPM_ALLOCATECMDID:
-		    return _pluginsManager.allocateCmdID(static_cast<int32_t>(wParam), reinterpret_cast<int *>(lParam));
-		case NPPM_ALLOCATEMARKER:
-		    return _pluginsManager.allocateMarker(static_cast<int32_t>(wParam), reinterpret_cast<int *>(lParam));
+		case NPPM_MSGTOPLUGIN: return _pluginsManager.relayPluginMessages(message, wParam, lParam);
+		case NPPM_ALLOCATESUPPORTED: return TRUE;
+		case NPPM_ALLOCATECMDID: return _pluginsManager.allocateCmdID(static_cast<int32_t>(wParam), reinterpret_cast<int *>(lParam));
+		case NPPM_ALLOCATEMARKER: return _pluginsManager.allocateMarker(static_cast<int32_t>(wParam), reinterpret_cast<int *>(lParam));
 		case NPPM_HIDETABBAR:
 	    {
 		    bool hide = (lParam != 0);

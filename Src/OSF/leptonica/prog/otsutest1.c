@@ -28,6 +28,10 @@
  *   otsutest1.c
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <math.h>
 #include "allheaders.h"
 
@@ -36,7 +40,7 @@ static const l_int32 gaussmean1[5] = {20, 40, 60, 80, 60};
 static const l_int32 gaussstdev1[5] = {10, 20, 20, 20, 30};
 static const l_int32 gaussmean2[5] = {220, 200, 140, 180, 150};
 static const l_int32 gaussstdev2[5] = {15, 20, 40, 20, 30};
-static const l_float32 gaussfract1[5] = {0.2, 0.3, 0.1, 0.5, 0.3};
+static const l_float32 gaussfract1[5] = {0.2f, 0.3f, 0.1f, 0.5f, 0.3f};
 static char  buf[256];
 
 static l_int32  GenerateSplitPlot(l_int32 i);
@@ -50,6 +54,7 @@ l_int32  i;
 PIX     *pix;
 PIXA    *pixa;
 
+    setLeptDebugOK(1);
     lept_mkdir("lept/otsu");
     for (i = 0; i < NTests; i++)
         GenerateSplitPlot(i);
@@ -57,18 +62,16 @@ PIXA    *pixa;
        /* Read the results back in ...  */
     pixa = pixaCreate(0);
     for (i = 0; i < NTests; i++) {
-        sprintf(buf, "/tmp/lept/otsu/plot.%d.png", i);
+        snprintf(buf, sizeof(buf), "/tmp/lept/otsu/plot.%d.png", i);
         pix = pixRead(buf);
-        pixSaveTiled(pix, pixa, 1.0, 1, 25, 32);
-        pixDestroy(&pix);
-        sprintf(buf, "/tmp/lept/otsu/plots.%d.png", i);
+        pixaAddPix(pixa, pix, L_INSERT);
+        snprintf(buf, sizeof(buf), "/tmp/lept/otsu/plots.%d.png", i);
         pix = pixRead(buf);
-        pixSaveTiled(pix, pixa, 1.0, 0, 25, 32);
-        pixDestroy(&pix);
+        pixaAddPix(pixa, pix, L_INSERT);
     }
 
         /* ... and save into a tiled pix  */
-    pix = pixaDisplay(pixa, 0, 0);
+    pix = pixaDisplayTiledInColumns(pixa, 2, 1.0, 25, 0);
     pixWrite("/tmp/lept/otsu/plot.png", pix, IFF_PNG);
     pixDisplay(pix, 100, 100);
     pixaDestroy(&pixa);
@@ -94,9 +97,8 @@ NUMA      *na1, *na2, *nascore, *nax, *nay;
         /* Otsu splitting */
     numaSplitDistribution(na1, 0.08, &split, &ave1, &ave2, &num1, &num2,
                           &nascore);
-    fprintf(stderr, "split = %d, ave1 = %6.1f, ave2 = %6.1f\n",
-            split, ave1, ave2);
-    fprintf(stderr, "num1 = %8.0f, num2 = %8.0f\n", num1, num2);
+    lept_stderr("split = %d, ave1 = %6.1f, ave2 = %6.1f\n", split, ave1, ave2);
+    lept_stderr("num1 = %8.0f, num2 = %8.0f\n", num1, num2);
 
         /* Prepare for plotting a vertical line at the split point */
     nax = numaMakeConstant(split, 2);
@@ -105,8 +107,8 @@ NUMA      *na1, *na2, *nascore, *nax, *nay;
     numaReplaceNumber(nay, 1, (l_int32)(0.5 * maxnum));
 
         /* Plot the input histogram with the split location */
-    sprintf(buf, "/tmp/lept/otsu/plot.%d", i);
-    sprintf(title, "Plot %d", i);
+    snprintf(buf, sizeof(buf), "/tmp/lept/otsu/plot.%d", i);
+    snprintf(title, sizeof(title), "Plot %d", i);
     gplot = gplotCreate(buf, GPLOT_PNG,
                         "Histogram: mixture of 2 gaussians",
                         "Grayscale value", "Number of pixels");
@@ -118,8 +120,8 @@ NUMA      *na1, *na2, *nascore, *nax, *nay;
     numaDestroy(&na2);
 
         /* Plot the score function */
-    sprintf(buf, "/tmp/lept/otsu/plots.%d", i);
-    sprintf(title, "Plot %d", i);
+    snprintf(buf, sizeof(buf), "/tmp/lept/otsu/plots.%d", i);
+    snprintf(title, sizeof(title), "Plot %d", i);
     gplot = gplotCreate(buf, GPLOT_PNG,
                         "Otsu score function for splitting",
                         "Grayscale value", "Score");
@@ -152,7 +154,7 @@ NUMA      *na;
         total += (l_int32)val;
         numaSetValue(na, i, val);
     }
-    fprintf(stderr, "Total = %d\n", total);
+    lept_stderr("Total = %d\n", total);
 
     return na;
 }

@@ -108,13 +108,13 @@
 /* using two successive underscores in a non-system symbol name      */
 /* violates the C (and C++) standard, so it was changed to the       */
 /* current form.  In spite of this, we have to make                  */
-/*                                                                   */
+/*                                                   */
 /* ```                                                               */
-/*   #undefine __FTERRORS_H__                                        */
+/* #undefine __FTERRORS_H__                                        */
 /* ```                                                               */
-/*                                                                   */
+/*                                                   */
 /* work for backward compatibility.                                  */
-/*                                                                   */
+/*                                                   */
 #if !(defined( FTERRORS_H_ ) && defined ( __FTERRORS_H__ ))
 #define FTERRORS_H_
 #define __FTERRORS_H__
@@ -122,25 +122,21 @@
 /* include module base error codes */
 #include <freetype/ftmoderr.h>
 
-/*******************************************************************/
-/*******************************************************************/
 /*****                                                         *****/
 /*****                       SETUP MACROS                      *****/
 /*****                                                         *****/
-/*******************************************************************/
-/*******************************************************************/
 
 #undef  FT_NEED_EXTERN_C
 
 /* FT_ERR_PREFIX is used as a prefix for error identifiers. */
 /* By default, we use `FT_Err_`.                            */
-/*                                                          */
+/*                                          */
 #ifndef FT_ERR_PREFIX
 #define FT_ERR_PREFIX  FT_Err_
 #endif
 
 /* FT_ERR_BASE is used as the base for module-specific errors. */
-/*                                                             */
+/*                                             */
 #ifdef FT_CONFIG_OPTION_USE_MODULE_ERRORS
 
 #ifndef FT_ERR_BASE
@@ -156,7 +152,7 @@
 
 /* If FT_ERRORDEF is not defined, we need to define a simple */
 /* enumeration type.                                         */
-/*                                                           */
+/*                                           */
 #ifndef FT_ERRORDEF
 
 #define FT_INCLUDE_ERR_PROTOS
@@ -219,15 +215,15 @@ FT_ERROR_END_LIST
 #endif
 
 /* FT_INCLUDE_ERR_PROTOS: Control whether function prototypes should be */
-/*                        included with                                 */
-/*                                                                      */
-/*                          #include <freetype/fterrors.h>              */
-/*                                                                      */
-/*                        This is only true where `FT_ERRORDEF` is      */
-/*                        undefined.                                    */
-/*                                                                      */
+/*        included with                                 */
+/*                                                      */
+/*          #include <freetype/fterrors.h>              */
+/*                                                      */
+/*        This is only true where `FT_ERRORDEF` is      */
+/*        undefined.                                    */
+/*                                                      */
 /* FT_ERR_PROTOS_DEFINED: Actual multiple-inclusion protection of       */
-/*                        `fterrors.h`.                                 */
+/*        `fterrors.h`.                                 */
 #ifdef FT_INCLUDE_ERR_PROTOS
 #undef FT_INCLUDE_ERR_PROTOS
 

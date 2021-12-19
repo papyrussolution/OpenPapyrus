@@ -1,19 +1,10 @@
+// cmsccoll.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 2001-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/*******************************************************************************
-*
-* File cmsccoll.C
-*
-*******************************************************************************/
-/**
- * These are the tests specific to ICU 1.8 and above, that I didn't know where
- * to fit.
- */
+// Copyright (c) 2001-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
+// These are the tests specific to ICU 1.8 and above, that I didn't know where to fit.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -32,35 +23,10 @@
 
 #define MAX_TOKEN_LEN 16
 
-typedef UCollationResult tst_strcoll (void * collator, const int object,
-    const UChar * source, const int sLen,
-    const UChar * target, const int tLen);
+typedef UCollationResult tst_strcoll (void * collator, const int object, const UChar * source, const int sLen, const UChar * target, const int tLen);
 
-const static char cnt1[][10] = {
-	"AA",
-	"AC",
-	"AZ",
-	"AQ",
-	"AB",
-	"ABZ",
-	"ABQ",
-	"Z",
-	"ABC",
-	"Q",
-	"B"
-};
-
-const static char cnt2[][10] = {
-	"DA",
-	"DAD",
-	"DAZ",
-	"MAR",
-	"Z",
-	"DAVIS",
-	"MARK",
-	"DAV",
-	"DAVI"
-};
+const static char cnt1[][10] = { "AA", "AC", "AZ", "AQ", "AB", "ABZ", "ABQ", "Z", "ABC", "Q", "B" };
+const static char cnt2[][10] = { "DA", "DAD", "DAZ", "MAR", "Z", "DAVIS", "MARK", "DAV", "DAVI" };
 
 static void IncompleteCntTest(void)
 {
@@ -68,15 +34,11 @@ static void IncompleteCntTest(void)
 	UChar temp[90];
 	UChar t1[90];
 	UChar t2[90];
-
 	UCollator * coll =  NULL;
 	uint32_t i = 0, j = 0;
 	uint32_t size = 0;
-
 	u_uastrcpy(temp, " & Z < ABC < Q < B");
-
 	coll = ucol_openRules(temp, u_strlen(temp), UCOL_OFF, UCOL_DEFAULT_STRENGTH, NULL, &status);
-
 	if(U_SUCCESS(status)) {
 		size = UPRV_LENGTHOF(cnt1);
 		for(i = 0; i < size-1; i++) {
@@ -767,17 +729,14 @@ static void TestJ784() {
 
 #endif
 
-static void TestUpperCaseFirst() {
-	const static char * data[] = {
-		"I",
-		"i",
-		"Y",
-		"y"
-	};
+static void TestUpperCaseFirst() 
+{
+	const static char * data[] = { "I", "i", "Y", "y" };
 	genericLocaleStarter("da", data, UPRV_LENGTHOF(data));
 }
 
-static void TestJ815() {
+static void TestJ815() 
+{
 	const static char * data[] = {
 		"aa",
 		"Aa",
@@ -1655,7 +1614,8 @@ static void TestLimitations() {
 
 #endif
 
-static void TestBocsuCoverage() {
+static void TestBocsuCoverage() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	const char * testString = "\\u0041\\u0441\\u4441\\U00044441\\u4441\\u0441\\u0041";
 	UChar test[256] = {0};
@@ -1677,7 +1637,8 @@ static void TestBocsuCoverage() {
 	}
 }
 
-static void TestVariableTopSetting() {
+static void TestVariableTopSetting() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	uint32_t varTopOriginal = 0, varTop1, varTop2;
 	UCollator * coll = ucol_open("", &status);

@@ -1821,8 +1821,8 @@ int PPObjPrjTask::ImportFromVCal()
 							todo_pack.Rec.EmployerID = NZOR(todo_pack.Rec.EmployerID, param.TodoDefEmployerID);
 							todo_pack.SDescr = vcal_rec.Descr;
 
-							todo_pack.Rec.Dt          = vcal_rec.CreatedDtm.d;
-							todo_pack.Rec.Tm          = vcal_rec.CreatedDtm.t;
+							todo_pack.Rec.Dt  = vcal_rec.CreatedDtm.d;
+							todo_pack.Rec.Tm  = vcal_rec.CreatedDtm.t;
 							todo_pack.Rec.StartDt     = vcal_rec.StartDtm.d;
 							todo_pack.Rec.StartTm     = vcal_rec.StartDtm.t;
 							todo_pack.Rec.FinishDt    = vcal_rec.CompletedDtm.d;
@@ -3273,7 +3273,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 	PPObjPerson obj_psn;
 	RestoreLostPrjTPersonDlg * p_dlg = 0;
 	BExtQuery * p_q = 0;
-#define PSN_NOTF_SRCH(notfFlag, personID, offs) if(notfFlag) notfFlag = (list.lsearch(&personID, 0, PTR_CMPFUNC(long), offs) > 0) ? 0 : 1
+#define PSN_NOTF_SRCH(notfFlag, personID, offs) if(notfFlag) notfFlag = list.lsearch(&personID, 0, CMPF_LONG, offs) ? 0 : 1
 	MEMSZERO(k0);
 	THROW_MEM(p_q = new BExtQuery(obj_prjt.P_Tbl, 0));
 	p_q->select(obj_prjt.P_Tbl->ID, obj_prjt.P_Tbl->CreatorID, obj_prjt.P_Tbl->EmployerID, obj_prjt.P_Tbl->ClientID, 0L);
@@ -3350,10 +3350,10 @@ int PPALDD_Project::InitData(PPFilt & rFilt, long rsrv)
 		PPObjProject * p_prj_obj = static_cast<PPObjProject *>(Extra[0].Ptr);
 		if(p_prj_obj->GetPacket(rFilt.ID, &pack) > 0) {
 			SString full_name;
-			H.ID          = pack.Rec.ID;
+			H.ID  = pack.Rec.ID;
 			H.Kind        = pack.Rec.Kind;
 			H.ParentID    = pack.Rec.ParentID;
-			H.Dt          = pack.Rec.Dt;
+			H.Dt  = pack.Rec.Dt;
 			H.BeginDt     = pack.Rec.BeginDt;
 			H.EstFinishDt = pack.Rec.EstFinishDt;
 			H.FinishDt    = pack.Rec.FinishDt;

@@ -41,8 +41,8 @@ struct write_fd_data {
 	int fd;
 };
 
-static int      file_free(struct archive *, void *);
-static int      file_open(struct archive *, void *);
+static int file_free(struct archive *, void *);
+static int file_open(struct archive *, void *);
 static ssize_t  file_write(struct archive *, void *, const void * buff, size_t);
 
 int archive_write_open_fd(struct archive * a, int fd)
@@ -108,7 +108,7 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 static int file_free(struct archive * a, void * client_data)
 {
 	struct write_fd_data * mine = (struct write_fd_data *)client_data;
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	if(mine == NULL)
 		return ARCHIVE_OK;
 	SAlloc::F(mine);

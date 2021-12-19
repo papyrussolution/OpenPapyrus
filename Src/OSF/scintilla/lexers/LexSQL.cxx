@@ -131,16 +131,16 @@ public:
 private:
 	SparseState <sql_state_t> sqlStatement;
 	enum {
-		MASK_NESTED_CASES                         = 0x0001FF,
+		MASK_NESTED_CASES                 = 0x0001FF,
 		MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT = 0x000200,
 		MASK_CASE_MERGE_WITHOUT_WHEN_FOUND        = 0x000400,
-		MASK_MERGE_STATEMENT                      = 0x000800,
-		MASK_INTO_DECLARE                         = 0x001000,
-		MASK_INTO_EXCEPTION                       = 0x002000,
-		MASK_INTO_CONDITION                       = 0x004000,
-		MASK_IGNORE_WHEN                          = 0x008000,
-		MASK_INTO_CREATE                          = 0x010000,
-		MASK_INTO_CREATE_VIEW                     = 0x020000,
+		MASK_MERGE_STATEMENT              = 0x000800,
+		MASK_INTO_DECLARE                 = 0x001000,
+		MASK_INTO_EXCEPTION               = 0x002000,
+		MASK_INTO_CONDITION               = 0x004000,
+		MASK_IGNORE_WHEN                  = 0x008000,
+		MASK_INTO_CREATE                  = 0x010000,
+		MASK_INTO_CREATE_VIEW             = 0x020000,
 		MASK_INTO_CREATE_VIEW_AS_STATEMENT        = 0x040000
 	};
 };

@@ -231,7 +231,7 @@ DictionaryMatcher * ICULanguageBreakFactory::loadDictionaryMatcherFor(UScriptCod
 	UDataMemory * file = udata_open(U_ICUDATA_BRKITR, ext.data(), dictnbuf.data(), &status);
 	if(U_SUCCESS(status)) {
 		// build trie
-		const uint8_t * data = (const uint8_t*)udata_getMemory(file);
+		const uint8 * data = (const uint8*)udata_getMemory(file);
 		const int32_t * indexes = (const int32_t*)data;
 		const int32_t offset = indexes[DictionaryData::IX_STRING_TRIE_OFFSET];
 		const int32_t trieType = indexes[DictionaryData::IX_TRIE_TYPE] & DictionaryData::TRIE_TYPE_MASK;

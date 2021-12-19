@@ -34,8 +34,8 @@ static u_char ngx_empty_gif[] = {
 	0xf9,                      /* graphic control label                  */
 	0x04,                      /* block size                             */
 	0x01,                      /* transparent color is given,            */
-	                           /*     no disposal specified,             */
-	                           /*     user input is not expected         */
+	                           /* no disposal specified,             */
+	                           /* user input is not expected         */
 	0x00, 0x00,                /* delay time                             */
 	0x01,                      /* transparent color #1                   */
 	0x00,                      /* block terminator                       */
@@ -50,7 +50,7 @@ static u_char ngx_empty_gif[] = {
 
 	/* table based image data                 */
 	0x02,                      /* LZW minimum code size,                 */
-	                           /*     must be at least 2-bit             */
+	                           /* must be at least 2-bit             */
 	0x02,                      /* block size                             */
 	0x4c, 0x01,                /* compressed bytes 01_001_100, 0000000_1 */
 	                           /* 100: clear code                        */

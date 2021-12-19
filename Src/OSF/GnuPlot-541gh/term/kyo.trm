@@ -46,10 +46,10 @@ register_term(kyo)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PRE_init(GpTermEntry * pThis);
-TERM_PUBLIC void KYO_init(GpTermEntry * pThis);
+TERM_PUBLIC void PRE_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void KYO_init(GpTermEntry_Static * pThis);
 TERM_PUBLIC void PRE_graphics();
-TERM_PUBLIC void PRE_text(GpTermEntry * pThis);
+TERM_PUBLIC void PRE_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void PRE_linetype(int linetype);
 TERM_PUBLIC void PRE_move(uint x, uint y);
 TERM_PUBLIC void PRE_vector(uint x, uint y);
@@ -67,7 +67,7 @@ TERM_PUBLIC void PRE_reset();
 
 /* for Courier font: */
 #define KYO_VCHAR (14*(300/72)) /* 12 pt + 2 pt baselineskip */
-#define KYO_HCHAR (300/10)      /*  10 chars per inch */
+#define KYO_HCHAR (300/10)      /* 10 chars per inch */
 #endif /* TERM_PROTO */
 
 #ifndef TERM_PROTO_ONLY
@@ -78,7 +78,7 @@ TERM_PUBLIC void PRE_reset();
 
 enum JUSTIFY pre_justify = LEFT; /* text is flush left */
 
-TERM_PUBLIC void PRE_init(GpTermEntry * pThis)
+TERM_PUBLIC void PRE_init(GpTermEntry_Static * pThis)
 {
 	fputs("!R! RES;\n", GPT.P_GpOutFile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
@@ -89,7 +89,7 @@ TERM_PUBLIC void PRE_init(GpTermEntry * pThis)
 	fputs("FTMD 15; FONT 29; SCPI 9;\n", GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void KYO_init(GpTermEntry * pThis)
+TERM_PUBLIC void KYO_init(GpTermEntry_Static * pThis)
 {
 	fputs("!R! RES;\n", GPT.P_GpOutFile);
 	/* UNIT: units are dots, 300 dots = 1 in = 72 pt */
@@ -104,7 +104,7 @@ TERM_PUBLIC void PRE_graphics()
 {
 }
 
-TERM_PUBLIC void PRE_text(GpTermEntry * pThis)
+TERM_PUBLIC void PRE_text(GpTermEntry_Static * pThis)
 {                               /* eject page after each plot */
 	fputs("PAGE;\n", GPT.P_GpOutFile);
 }

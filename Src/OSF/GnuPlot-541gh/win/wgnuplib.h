@@ -386,7 +386,7 @@ struct GW {
 		fColor        = 0x00000020, // colored graph? 
 		fOverSample   = 0x00000040, // oversampling? 
 		fGdiPlus      = 0x00000080, // Use GDI+ only backend? 
-		fD2D          = 0x00000100, // Use Direct2D backend?   
+		fD2D  = 0x00000100, // Use Direct2D backend?   
 		fAntialiasing = 0x00000200,
 		fPolyAa       = 0x00000400,
 		fFastRotation = 0x00000800,
@@ -558,7 +558,7 @@ LPTSTR GraphDefaultFont();
 	void Graph_set_clipboard(GW * lpgw, LPCSTR s);
 #endif
 /* BM: callback functions for enhanced text */
-void GraphEnhancedOpen(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+void GraphEnhancedOpen(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 void GraphEnhancedFlush();
 LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding);
 void WIN_update_options();

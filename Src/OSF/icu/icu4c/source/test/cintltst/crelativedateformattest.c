@@ -363,7 +363,7 @@ typedef struct {
 	UDateRelativeDateTimeFormatterStyle width;
 	UDisplayContext capContext;
 	URelativeDateTimeUnit unit;
-	const char **                       expectedResults;/* for the various offsets */
+	const char **                       expectedResults; /* for the various offsets */
 	const FieldsDat*                    expectedAttributes;
 } RelDateTimeFormatTestItem;
 

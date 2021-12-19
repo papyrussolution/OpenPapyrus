@@ -157,7 +157,7 @@ typedef struct  {
 
 	/* output params */
 	boolint is_image; /* returns TRUE if PS image will be emitted */
-	                       /*         FALSE if recording will be emitted */
+	                       /* FALSE if recording will be emitted */
 	long approx_size;
 	int eod_count;
 } cairo_emit_surface_params_t;

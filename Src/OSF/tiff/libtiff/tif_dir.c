@@ -367,7 +367,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    if(v < SAMPLEFORMAT_UINT || SAMPLEFORMAT_COMPLEXIEEEFP < v)
 			    goto badvalue;
 		    td->td_sampleformat = static_cast<uint16>(v);
-		    /*  Try to fix up the SWAB function for complex data. */
+		    /* Try to fix up the SWAB function for complex data. */
 		    if(td->td_sampleformat == SAMPLEFORMAT_COMPLEXINT && td->td_bitspersample == 32 && tif->tif_postdecode == _TIFFSwab32BitData)
 			    tif->tif_postdecode = _TIFFSwab16BitData;
 		    else if(oneof2(td->td_sampleformat, SAMPLEFORMAT_COMPLEXINT, SAMPLEFORMAT_COMPLEXIEEEFP) && td->td_bitspersample == 64 && tif->tif_postdecode == _TIFFSwab64BitData)

@@ -94,14 +94,14 @@ int FASTCALL SBuffer::Copy(const SBuffer & s)
 		return 0;
 }
 
-int SBuffer::IsValid()
+bool SBuffer::IsValid()
 {
 	if(!(Flags & fError)) {
 		SInvariantParam ip;
 		if(!InvariantC(&ip))
 			Flags |= fError;
 	}
-	return (Flags & fError) ? 0 : 1;
+	return !(Flags & fError);
 }
 
 SBuffer::~SBuffer()
@@ -670,13 +670,13 @@ SBinaryChunk & SBinaryChunk::Randomize(size_t len)
 	return *this;
 }
 
-int FASTCALL SBinaryChunk::IsEq(const SBinaryChunk & rS) const
+bool FASTCALL SBinaryChunk::IsEq(const SBinaryChunk & rS) const
 {
 	const size_t _len = Len();
 	return (_len == rS.Len() && (!_len || memcmp(P_Buf, rS.P_Buf, _len) == 0));
 }
 
-int FASTCALL SBinaryChunk::IsEq(const void * pData, size_t len) const
+bool FASTCALL SBinaryChunk::IsEq(const void * pData, size_t len) const
 {
 	return (Len() == len && (!len || memcmp(P_Buf, pData, len) == 0));
 }
@@ -734,6 +734,12 @@ void * SBinaryChunk::Ptr(size_t offs)
 { 
 	CheckInvariants();
 	return (offs < L) ? (PTR8(P_Buf)+offs) : 0; 
+}
+
+bool SBinaryChunk::ToRawStr(SString & rBuf) const
+{
+	rBuf.Z().CatN(P_Buf, Len());
+	return true;
 }
 
 SString & SBinaryChunk::Mime64(SString & rBuf) const
@@ -867,9 +873,9 @@ int SBinarySet::Ensure(size_t ensSize)
 	return (Size < ensSize) ? Alloc(ensSize) : 1;
 }
 
-int FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
+bool FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	CALLPTRMEMB(pList, Z());
 	if(DataLen) {
 		THROW(P_Buf);
@@ -893,22 +899,22 @@ int FASTCALL SBinarySet::Helper_GetChunkIdList(LongArray * pList) const
 	return ok;
 }
 
-int SBinarySet::IsValid() const { return Helper_GetChunkIdList(0); }
-int FASTCALL SBinarySet::GetChunkIdList(LongArray & rList) const { return Helper_GetChunkIdList(&rList); }
+bool SBinarySet::IsValid() const { return Helper_GetChunkIdList(0); }
+int  FASTCALL SBinarySet::GetChunkIdList(LongArray & rList) const { return Helper_GetChunkIdList(&rList); }
 
-int FASTCALL SBinarySet::IsEq(const SBinarySet & rS) const
+bool FASTCALL SBinarySet::IsEq(const SBinarySet & rS) const
 {
-	int   eq = 1;
+	bool   eq = true;
 	LongArray id_list_my;
 	LongArray id_list_other;
 	if(GetChunkIdList(id_list_my) && rS.GetChunkIdList(id_list_other)) {
 		if(id_list_my.getCount() != id_list_other.getCount())
-			eq = 0;
+			eq = false;
 		else {
 			id_list_my.sort();
 			id_list_other.sort();
 			if(!id_list_my.IsEq(&id_list_other))
-				eq = 0;
+				eq = false;
 			else {
 				SBinaryChunk cm;
 				SBinaryChunk co;
@@ -920,16 +926,16 @@ int FASTCALL SBinarySet::IsEq(const SBinarySet & rS) const
 					assert(r1 > 0 && r2 > 0); // Не может такого быть, чтоб было иначе!
 					if(r1 > 0 && r2 > 0) {
 						if(!cm.IsEq(co))
-							eq = 0;
+							eq = false;
 					}
 					else
-						eq = 0;
+						eq = false;
 				}
 			}
 		}
 	}
 	else
-		eq = 0;
+		eq = false;
 	return eq;
 }
 
@@ -1290,10 +1296,7 @@ STempBuffer & FASTCALL STempBuffer::operator = (const STempBuffer & rS)
 	return *this;
 }
 
-int STempBuffer::IsValid() const
-{
-	return BIN(P_Buf);
-}
+bool STempBuffer::IsValid() const { return LOGIC(P_Buf); }
 
 size_t STempBuffer::GetSize() const { return Size; }
 STempBuffer::operator char * () { return P_Buf; }

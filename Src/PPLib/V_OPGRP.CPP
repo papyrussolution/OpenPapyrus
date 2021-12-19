@@ -969,13 +969,13 @@ int PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
 		TrfrAnlzViewItem  trf_item;
 		if(P_ViewTrfrAnlz && P_ViewTrfrAnlz->NextIteration(&trf_item) > 0) {
-			item.Dt            = trf_item.Dt;
+			item.Dt    = trf_item.Dt;
 			item.GoodsTaxGrpID = trf_item.GoodsID;
 			item.LotTaxGrpID   = trf_item.BillID;
-			item.Qtty          = fabs(trf_item.Qtty);
+			item.Qtty  = fabs(trf_item.Qtty);
 			item.PhQtty        = fabs(trf_item.PhQtty);
-			item.Cost          = fabs(trf_item.Cost);
-			item.Price         = fabs(trf_item.Price);
+			item.Cost  = fabs(trf_item.Cost);
+			item.Price = fabs(trf_item.Price);
 			item.Discount      = fabs(trf_item.Discount);
 			ok = 1;
 		}
@@ -984,7 +984,7 @@ int PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
 		BillViewItem  bill_item;
 		if(P_ViewBill && P_ViewBill->NextIteration(&bill_item) > 0) {
 			AmtList   amt_list;
-			item.Dt            = bill_item.Dt;
+			item.Dt    = bill_item.Dt;
 			item.LotTaxGrpID   = bill_item.ID;
 			item.Amount        = BR2(bill_item.Amount);
 			if(bill_item.ID) {

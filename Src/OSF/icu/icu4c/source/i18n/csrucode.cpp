@@ -54,7 +54,7 @@ static int32_t adjustConfidence(UChar codeUnit, int32_t confidence) {
 
 bool CharsetRecog_UTF_16_BE::match(InputText* textIn, CharsetMatch * results) const
 {
-	const uint8_t * input = textIn->fRawInput;
+	const uint8 * input = textIn->fRawInput;
 	int32_t confidence = 10;
 	int32_t length = textIn->fRawLength;
 
@@ -89,7 +89,7 @@ const char * CharsetRecog_UTF_16_LE::getName() const
 
 bool CharsetRecog_UTF_16_LE::match(InputText* textIn, CharsetMatch * results) const
 {
-	const uint8_t * input = textIn->fRawInput;
+	const uint8 * input = textIn->fRawInput;
 	int32_t confidence = 10;
 	int32_t length = textIn->fRawLength;
 
@@ -122,7 +122,7 @@ CharsetRecog_UTF_32::~CharsetRecog_UTF_32()
 
 bool CharsetRecog_UTF_32::match(InputText* textIn, CharsetMatch * results) const
 {
-	const uint8_t * input = textIn->fRawInput;
+	const uint8 * input = textIn->fRawInput;
 	int32_t limit = (textIn->fRawLength / 4) * 4;
 	int32_t numValid = 0;
 	int32_t numInvalid = 0;
@@ -177,7 +177,7 @@ const char * CharsetRecog_UTF_32_BE::getName() const
 	return "UTF-32BE";
 }
 
-int32_t CharsetRecog_UTF_32_BE::getChar(const uint8_t * input, int32_t index) const
+int32_t CharsetRecog_UTF_32_BE::getChar(const uint8 * input, int32_t index) const
 {
 	return input[index + 0] << 24 | input[index + 1] << 16 |
 		input[index + 2] <<  8 | input[index + 3];
@@ -193,7 +193,7 @@ const char * CharsetRecog_UTF_32_LE::getName() const
 	return "UTF-32LE";
 }
 
-int32_t CharsetRecog_UTF_32_LE::getChar(const uint8_t * input, int32_t index) const
+int32_t CharsetRecog_UTF_32_LE::getChar(const uint8 * input, int32_t index) const
 {
 	return input[index + 3] << 24 | input[index + 2] << 16 |
 		input[index + 1] <<  8 | input[index + 0];

@@ -175,7 +175,7 @@ static int32_t getUTF8Length(const UChar * s, int32_t length) {
 }
 
 // Append the UTF-8 version of the string to t and return the appended UTF-8 length.
-static int32_t appendUTF8(const UChar * s, int32_t length, uint8_t * t, int32_t capacity) {
+static int32_t appendUTF8(const UChar * s, int32_t length, uint8 * t, int32_t capacity) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	int32_t length8 = 0;
 	u_strToUTF8((char *)t, capacity, &length8, s, length, &errorCode);
@@ -189,9 +189,9 @@ static int32_t appendUTF8(const UChar * s, int32_t length, uint8_t * t, int32_t 
 	}
 }
 
-static inline uint8_t makeSpanLengthByte(int32_t spanLength) {
+static inline uint8 makeSpanLengthByte(int32_t spanLength) {
 	// 0xfe==UnicodeSetStringSpan::LONG_SPAN
-	return spanLength<0xfe ? (uint8_t)spanLength : (uint8_t)0xfe;
+	return spanLength<0xfe ? (uint8)spanLength : (uint8)0xfe;
 }
 
 // Construct for all variants of span(), or only for any one variant.
@@ -259,9 +259,9 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
 		spanSet.freeze();
 	}
 
-	uint8_t * spanBackLengths;
-	uint8_t * spanUTF8Lengths;
-	uint8_t * spanBackUTF8Lengths;
+	uint8 * spanBackLengths;
+	uint8 * spanUTF8Lengths;
+	uint8 * spanBackUTF8Lengths;
 
 	// Allocate a block of meta data.
 	int32_t allocSize;
@@ -289,7 +289,7 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
 
 	if(all) {
 		// Store span lengths for all span() variants.
-		spanLengths = (uint8_t*)(utf8Lengths+stringsLength);
+		spanLengths = (uint8 *)(utf8Lengths+stringsLength);
 		spanBackLengths = spanLengths+stringsLength;
 		spanUTF8Lengths = spanBackLengths+stringsLength;
 		spanBackUTF8Lengths = spanUTF8Lengths+stringsLength;
@@ -298,11 +298,11 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
 	else {
 		// Store span lengths for only one span() variant.
 		if(which&UTF8) {
-			spanLengths = (uint8_t*)(utf8Lengths+stringsLength);
+			spanLengths = (uint8 *)(utf8Lengths+stringsLength);
 			utf8 = spanLengths+stringsLength;
 		}
 		else {
-			spanLengths = (uint8_t*)utf8Lengths;
+			spanLengths = (uint8 *)utf8Lengths;
 		}
 		spanBackLengths = spanUTF8Lengths = spanBackUTF8Lengths = spanLengths;
 	}
@@ -332,11 +332,11 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
 				}
 			}
 			if(which&UTF8) {
-				uint8_t * s8 = utf8+utf8Count;
+				uint8 * s8 = utf8+utf8Count;
 				int32_t length8 = appendUTF8(s16, length16, s8, utf8Length-utf8Count);
 				utf8Count += utf8Lengths[i] = length8;
 				if(length8==0) { // Irrelevant for UTF-8 because not representable in UTF-8.
-					spanUTF8Lengths[i] = spanBackUTF8Lengths[i] = (uint8_t)ALL_CP_CONTAINED;
+					spanUTF8Lengths[i] = spanBackUTF8Lengths[i] = (uint8)ALL_CP_CONTAINED;
 				}
 				else { // Relevant for UTF-8.
 					if(which&CONTAINED) {
@@ -377,7 +377,7 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
 		else { // Irrelevant string. (Also the empty string.)
 			if(which&UTF8) {
 				if(which&CONTAINED) { // Only necessary for LONGEST_MATCH.
-					uint8_t * s8 = utf8+utf8Count;
+					uint8 * s8 = utf8+utf8Count;
 					int32_t length8 = appendUTF8(s16, length16, s8, utf8Length-utf8Count);
 					utf8Count += utf8Lengths[i] = length8;
 				}
@@ -388,11 +388,11 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
 			if(all) {
 				spanLengths[i] = spanBackLengths[i] =
 					spanUTF8Lengths[i] = spanBackUTF8Lengths[i] =
-						(uint8_t)ALL_CP_CONTAINED;
+						(uint8)ALL_CP_CONTAINED;
 			}
 			else {
 				// All spanXYZLengths pointers contain the same address.
-				spanLengths[i] = (uint8_t)ALL_CP_CONTAINED;
+				spanLengths[i] = (uint8)ALL_CP_CONTAINED;
 			}
 		}
 	}
@@ -433,7 +433,7 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSetStringSpan &otherStri
 		}
 	}
 
-	spanLengths = (uint8_t*)(utf8Lengths+stringsLength);
+	spanLengths = (uint8 *)(utf8Lengths+stringsLength);
 	utf8 = spanLengths+stringsLength*4;
 	uprv_memcpy(utf8Lengths, otherStringSpan.utf8Lengths, allocSize);
 }
@@ -473,7 +473,7 @@ static inline bool matches16(const UChar * s, const UChar * t, int32_t length) {
 	return TRUE;
 }
 
-static inline bool matches8(const uint8_t * s, const uint8_t * t, int32_t length) {
+static inline bool matches8(const uint8 * s, const uint8 * t, int32_t length) {
 	do {
 		if(*s++!=*t++) {
 			return FALSE;
@@ -511,7 +511,7 @@ static inline int32_t spanOneBack(const UnicodeSet & set, const UChar * s, int32
 	return set.contains(c) ? 1 : -1;
 }
 
-static inline int32_t spanOneUTF8(const UnicodeSet & set, const uint8_t * s, int32_t length) {
+static inline int32_t spanOneUTF8(const UnicodeSet & set, const uint8 * s, int32_t length) {
 	UChar32 c = *s;
 	if(U8_IS_SINGLE(c)) {
 		return set.contains(c) ? 1 : -1;
@@ -522,7 +522,7 @@ static inline int32_t spanOneUTF8(const UnicodeSet & set, const uint8_t * s, int
 	return set.contains(c) ? i : -i;
 }
 
-static inline int32_t spanOneBackUTF8(const UnicodeSet & set, const uint8_t * s, int32_t length) {
+static inline int32_t spanOneBackUTF8(const UnicodeSet & set, const uint8 * s, int32_t length) {
 	UChar32 c = s[length-1];
 	if(U8_IS_SINGLE(c)) {
 		return set.contains(c) ? 1 : -1;
@@ -825,7 +825,7 @@ int32_t UnicodeSetStringSpan::spanBack(const UChar * s, int32_t length, USetSpan
 		offsets.setMaxLength(maxLength16);
 	}
 	int32_t i, stringsLength = strings.size();
-	uint8_t * spanBackLengths = spanLengths;
+	uint8 * spanBackLengths = spanLengths;
 	if(all) {
 		spanBackLengths += stringsLength;
 	}
@@ -977,7 +977,7 @@ int32_t UnicodeSetStringSpan::spanBack(const UChar * s, int32_t length, USetSpan
 	}
 }
 
-int32_t UnicodeSetStringSpan::spanUTF8(const uint8_t * s, int32_t length, USetSpanCondition spanCondition) const {
+int32_t UnicodeSetStringSpan::spanUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const {
 	if(spanCondition==USET_SPAN_NOT_CONTAINED) {
 		return spanNotUTF8(s, length);
 	}
@@ -994,12 +994,12 @@ int32_t UnicodeSetStringSpan::spanUTF8(const uint8_t * s, int32_t length, USetSp
 	}
 	int32_t pos = spanLength, rest = length-pos;
 	int32_t i, stringsLength = strings.size();
-	uint8_t * spanUTF8Lengths = spanLengths;
+	uint8 * spanUTF8Lengths = spanLengths;
 	if(all) {
 		spanUTF8Lengths += 2*stringsLength;
 	}
 	for(;;) {
-		const uint8_t * s8 = utf8;
+		const uint8 * s8 = utf8;
 		int32_t length8;
 		if(spanCondition==USET_SPAN_CONTAINED) {
 			for(i = 0; i<stringsLength; ++i) {
@@ -1157,7 +1157,7 @@ int32_t UnicodeSetStringSpan::spanUTF8(const uint8_t * s, int32_t length, USetSp
 	}
 }
 
-int32_t UnicodeSetStringSpan::spanBackUTF8(const uint8_t * s, int32_t length, USetSpanCondition spanCondition) const {
+int32_t UnicodeSetStringSpan::spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const {
 	if(spanCondition==USET_SPAN_NOT_CONTAINED) {
 		return spanNotBackUTF8(s, length);
 	}
@@ -1174,12 +1174,12 @@ int32_t UnicodeSetStringSpan::spanBackUTF8(const uint8_t * s, int32_t length, US
 		offsets.setMaxLength(maxLength8);
 	}
 	int32_t i, stringsLength = strings.size();
-	uint8_t * spanBackUTF8Lengths = spanLengths;
+	uint8 * spanBackUTF8Lengths = spanLengths;
 	if(all) {
 		spanBackUTF8Lengths += 3*stringsLength;
 	}
 	for(;;) {
-		const uint8_t * s8 = utf8;
+		const uint8 * s8 = utf8;
 		int32_t length8;
 		if(spanCondition==USET_SPAN_CONTAINED) {
 			for(i = 0; i<stringsLength; ++i) {
@@ -1451,10 +1451,10 @@ int32_t UnicodeSetStringSpan::spanNotBack(const UChar * s, int32_t length) const
 	return 0; // Reached the start of the string.
 }
 
-int32_t UnicodeSetStringSpan::spanNotUTF8(const uint8_t * s, int32_t length) const {
+int32_t UnicodeSetStringSpan::spanNotUTF8(const uint8 * s, int32_t length) const {
 	int32_t pos = 0, rest = length;
 	int32_t i, stringsLength = strings.size();
-	uint8_t * spanUTF8Lengths = spanLengths;
+	uint8 * spanUTF8Lengths = spanLengths;
 	if(all) {
 		spanUTF8Lengths += 2*stringsLength;
 	}
@@ -1476,7 +1476,7 @@ int32_t UnicodeSetStringSpan::spanNotUTF8(const uint8_t * s, int32_t length) con
 		}
 
 		// Try to match the strings at pos.
-		const uint8_t * s8 = utf8;
+		const uint8 * s8 = utf8;
 		int32_t length8;
 		for(i = 0; i<stringsLength; ++i) {
 			length8 = utf8Lengths[i];
@@ -1496,11 +1496,11 @@ int32_t UnicodeSetStringSpan::spanNotUTF8(const uint8_t * s, int32_t length) con
 	return length; // Reached the end of the string.
 }
 
-int32_t UnicodeSetStringSpan::spanNotBackUTF8(const uint8_t * s, int32_t length) const 
+int32_t UnicodeSetStringSpan::spanNotBackUTF8(const uint8 * s, int32_t length) const 
 {
 	int32_t pos = length;
 	int32_t i, stringsLength = strings.size();
-	uint8_t * spanBackUTF8Lengths = spanLengths;
+	uint8 * spanBackUTF8Lengths = spanLengths;
 	if(all) {
 		spanBackUTF8Lengths += 3*stringsLength;
 	}
@@ -1520,7 +1520,7 @@ int32_t UnicodeSetStringSpan::spanNotBackUTF8(const uint8_t * s, int32_t length)
 		}
 
 		// Try to match the strings at pos.
-		const uint8_t * s8 = utf8;
+		const uint8 * s8 = utf8;
 		int32_t length8;
 		for(i = 0; i<stringsLength; ++i) {
 			length8 = utf8Lengths[i];

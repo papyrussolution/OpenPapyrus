@@ -244,7 +244,7 @@ UnicodeString ResourceBundle::getString(UErrorCode & status) const
 	return UnicodeString(TRUE, r, len);
 }
 
-const uint8_t * ResourceBundle::getBinary(int32_t& len, UErrorCode & status) const {
+const uint8 * ResourceBundle::getBinary(int32_t& len, UErrorCode & status) const {
 	return ures_getBinary(fResource, &len, &status);
 }
 

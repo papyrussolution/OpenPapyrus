@@ -241,17 +241,17 @@ U_NAMESPACE_USE
 /* These strings describe the resources we attempt to load from
    the locale ResourceBundle data file.*/
 static const char _kLanguages[] = "Languages";
-static const char _kScripts[]         = "Scripts";
+static const char _kScripts[] = "Scripts";
 static const char _kScriptsStandAlone[] = "Scripts%stand-alone";
 static const char _kCountries[] = "Countries";
 static const char _kVariants[]        = "Variants";
-static const char _kKeys[]            = "Keys";
-static const char _kTypes[]           = "Types";
+static const char _kKeys[]    = "Keys";
+static const char _kTypes[]   = "Types";
 //static const char _kRootName[]        = "root";
 static const char _kCurrency[]        = "currency";
 static const char _kCurrencies[] = "Currencies";
 static const char _kLocaleDisplayPattern[] = "localeDisplayPattern";
-static const char _kPattern[]         = "pattern";
+static const char _kPattern[] = "pattern";
 static const char _kSeparator[] = "separator";
 
 /* ### Display name **************************************************/
@@ -348,7 +348,7 @@ static int32_t _getDisplayNameForComponent(const char * locale,
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	if(length==0) {
+	if(!length) {
 		// For the display name, we treat this as unknown language (ICU-20273).
 		if(getter == uloc_getLanguage) {
 			uprv_strcpy(localeBuffer, "und");
@@ -469,7 +469,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 	int32_t patLen = 0;
 	int32_t sub0Pos, sub1Pos;
 
-	UChar formatOpenParen         = 0x0028;// (
+	UChar formatOpenParen = 0x0028;// (
 	UChar formatReplaceOpenParen  = 0x005B;// [
 	UChar formatCloseParen        = 0x0029;// )
 	UChar formatReplaceCloseParen = 0x005D; // ]
@@ -548,7 +548,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 			langi = 1;
 		}
 		if(u_strchr(pattern, 0xFF08) != NULL) {
-			formatOpenParen         = 0xFF08;// fullwidth (
+			formatOpenParen = 0xFF08;// fullwidth (
 			formatReplaceOpenParen  = 0xFF3B;// fullwidth [
 			formatCloseParen        = 0xFF09;// fullwidth )
 			formatReplaceCloseParen = 0xFF3D; // fullwidth ]

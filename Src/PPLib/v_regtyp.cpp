@@ -1,5 +1,5 @@
 // V_REGTYP.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020, 2021
 // @codepage UTF-8
 //
 // Типы регистрационных документов 
@@ -94,7 +94,7 @@ int PPViewRegisterType::MakeListEntry(const PPRegisterTypePacket * pPack, RegTyp
 {
 	int    ok = -1;
 	if(pPack && pItem) {
-		pItem->ID           = pPack->Rec.ID;
+		pItem->ID   = pPack->Rec.ID;
 		pItem->RegOrgKind   = pPack->Rec.RegOrgKind;
 		pItem->PersonKindID = pPack->Rec.PersonKindID;
 		pItem->ExpiryPrd    = (long)pPack->Rec.ExpiryPeriod;
@@ -283,8 +283,8 @@ int PPViewRegisterType::FetchData(long id)
 		}
 	}
 	else {
-		uint pos = 0;
-		int found = BIN(Data.lsearch(&id, &pos, CMPF_LONG) > 0);
+		uint  pos = 0;
+		const bool found = Data.lsearch(&id, &pos, CMPF_LONG);
 		PPRegisterTypePacket pack;
 		if(ObjRegT.GetPacket(id, &pack) > 0 && CheckForFilt(&pack) > 0) {
 			RegTypeViewItem item;

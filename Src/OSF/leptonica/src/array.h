@@ -32,18 +32,29 @@
  *
  * <pre>
  *  Contains the following structs:
- *      struct Numa
+ *      struct Numa          array of floats
  *      struct Numaa
- *      struct L_Dna
+ *      struct L_Dna         array of doubles
  *      struct L_Dnaa
- *      struct L_DnaHash
- *      struct Sarray
- *      struct L_Bytea
+ *      struct L_Dnahash
+ *      struct Sarray        array of C-strings
+ *      struct L_Bytea       array of bytes
  *
  *  Contains definitions for:
  *      Numa interpolation flags
- *      Numa and FPix border flags
+ *      Numa border flags
  *      Numa data type conversion to string
+ *
+ *  Here are the non-image-related arrays in leptonica:
+ *  * Numa, L_Dna, L_Ptra, Sarray:
+ *    These have most of the typical operations of vectors, such as add,
+ *    insert, remove and replace.
+ *  * Numaa, L_Dnaa, L_Ptraa:
+ *    These are arrays of float, double and generic pointer arrays.
+ *  * L_Bytea:
+ *    This is an array of bytes, analogous to a C++ string.
+ *  * L_Dnahash:
+ *    This is a simple hashing for integers, used in the jbig2 classifier.
  * </pre>
  */
 
@@ -56,20 +67,20 @@
 
 /*! Number array: an array of floats */
 struct Numa {
-	int32 nalloc;         /*!< size of allocated number array      */
-	int32 n;              /*!< number of numbers saved             */
-	int32 refcount;       /*!< reference count (1 if no clones)    */
-	float startx;       /*!< x value assigned to array[0]        */
-	float delx;         /*!< change in x value as i --> i + 1    */
-	float * array; /*!< number array                        */
+	l_int32 nalloc; /*!< size of allocated number array      */
+	l_int32 n;              /*!< number of numbers saved             */
+	l_int32 refcount; /*!< reference count (1 if no clones)    */
+	float startx; /*!< x value assigned to array[0]        */
+	float delx; /*!< change in x value as i --> i + 1    */
+	float       * array; /*!< number array                        */
 };
 
 typedef struct Numa NUMA;
 
 /*! Array of number arrays */
 struct Numaa {
-	int32 nalloc;         /*!< size of allocated ptr array          */
-	int32 n;              /*!< number of Numa saved                 */
+	l_int32 nalloc; /*!< size of allocated ptr array          */
+	l_int32 n;              /*!< number of Numa saved                 */
 	struct Numa    ** numa; /*!< array of Numa                        */
 };
 
@@ -80,11 +91,11 @@ typedef struct Numaa NUMAA;
 
 /*! Double number array: an array of doubles */
 struct L_Dna {
-	int32 nalloc;         /*!< size of allocated number array      */
-	int32 n;              /*!< number of numbers saved             */
-	int32 refcount;       /*!< reference count (1 if no clones)    */
-	double startx;       /*!< x value assigned to array[0]        */
-	double delx;         /*!< change in x value as i --> i + 1    */
+	l_int32 nalloc; /*!< size of allocated number array      */
+	l_int32 n;              /*!< number of numbers saved             */
+	l_int32 refcount; /*!< reference count (1 if no clones)    */
+	double startx; /*!< x value assigned to array[0]        */
+	double delx; /*!< change in x value as i --> i + 1    */
 	double       * array; /*!< number array                        */
 };
 
@@ -92,18 +103,17 @@ typedef struct L_Dna L_DNA;
 
 /*! Array of double number arrays */
 struct L_Dnaa {
-	int32 nalloc;         /*!< size of allocated ptr array          */
-	int32 n;              /*!< number of L_Dna saved                */
+	l_int32 nalloc; /*!< size of allocated ptr array          */
+	l_int32 n;              /*!< number of L_Dna saved                */
 	struct L_Dna   ** dna;  /*!< array of L_Dna                       */
 };
 
 typedef struct L_Dnaa L_DNAA;
 
-/*! A hash table of Dnas */
 struct L_DnaHash {
-	int32 nbuckets;
-	int32 initsize;        /*!< initial size of each dna that is made  */
-	struct L_Dna   ** dna;   /*!< array of L_Dna                       */
+	l_int32 nbuckets;
+	l_int32 initsize; /*!< initial size of each dna that is made  */
+	struct L_Dna   ** dna; /*!< array of L_Dna                       */
 };
 
 typedef struct L_DnaHash L_DNAHASH;
@@ -113,9 +123,9 @@ typedef struct L_DnaHash L_DNAHASH;
 
 /*! String array: an array of C strings */
 struct Sarray {
-	int32 nalloc;         /*!< size of allocated ptr array         */
-	int32 n;              /*!< number of strings allocated         */
-	int32 refcount;       /*!< reference count (1 if no clones)    */
+	l_int32 nalloc; /*!< size of allocated ptr array         */
+	l_int32 n;              /*!< number of strings allocated         */
+	l_int32 refcount; /*!< reference count (1 if no clones)    */
 	char           ** array; /*!< string array                        */
 };
 
@@ -125,7 +135,7 @@ typedef struct Sarray SARRAY;
 struct L_Bytea {
 	size_t nalloc;          /*!< number of bytes allocated in data array  */
 	size_t size;            /*!< number of bytes presently used           */
-	int32 refcount;       /*!< reference count (1 if no clones)         */
+	l_int32 refcount; /*!< reference count (1 if no clones)         */
 	uint8         * data; /*!< data array                               */
 };
 
@@ -134,20 +144,20 @@ typedef struct L_Bytea L_BYTEA;
 /*------------------------------------------------------------------------*
 *                              Array flags                               *
 *------------------------------------------------------------------------*/
-/*! Flags for interpolation in Numa */
+/*! Numa Interpolation */
 enum {
 	L_LINEAR_INTERP = 1,    /*!< linear     */
 	L_QUADRATIC_INTERP = 2  /*!< quadratic  */
 };
 
-/*! Flags for added borders in Numa and Fpix */
+/*! Numa Border Adding */
 enum {
 	L_CONTINUED_BORDER = 1, /*!< extended with same value                  */
 	L_SLOPE_BORDER = 2,    /*!< extended with constant normal derivative  */
 	L_MIRRORED_BORDER = 3  /*!< mirrored                                  */
 };
 
-/*! Flags for data type converted from Numa */
+/*! Numa Data Conversion */
 enum {
 	L_INTEGER_VALUE = 1,    /*!< convert to integer  */
 	L_FLOAT_VALUE = 2       /*!< convert to float    */

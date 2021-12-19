@@ -75,6 +75,7 @@ declare command SEARCHNEXT               // @v8.1.6
 declare command SETUPSARTREINDICATORS    // @v10.2.0 @internal
 declare command USERSORT                 // @v10.6.4 @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
 declare command FOREIGNFOCUCNOTIFICATION // @v11.1.12 Вызывается базовым классом PPViewBrowser в ответ на cmNotifyForeignFocus
+declare command QUICKTAGEDIT             // @v11.2.8  Вызывается базовым классом PPViewBrowser в ответ на нажатие '/' и следом горячей клавиши редактирования тега
 //
 // Список изображений для иконок тулбаров
 // (текст после TBBM_ должен с точностью до регистра совпадать с наименованием соответствующего файла в каталоге)
@@ -404,7 +405,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          "Печать нулевого чека\tAlt-Minus"
+	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden,     "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 
@@ -468,7 +469,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
+	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 	separator
@@ -530,7 +531,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
+	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 	separator
@@ -632,7 +633,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
+	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,                      "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          "@{printcheck}\tCtrl-F7"
 	separator
@@ -656,7 +657,7 @@ toolbar export LINKBILLS TB_FIRST_TOOLBAR {
 	kbIns,     "@{doadddocument}\tInsert",      PPDV_ADDFILE02
 	kbAltF2,   "@{doaddbysample}\tAlt-F2",      PPDV_CREATEBYEXAMPLE01
 	kbDel,     "@{doremovebill}\tDelete",       PPDV_DELETEFILE02
-	kbF7,      "Печать текущего документа\tF7", PPDV_PRINTER01
+	kbF7,      "@{printcurrentdocument}\tF7",   PPDV_PRINTER01
 	separator
 	kbF9,      "@{totals}\tF9",           PPDV_SIGMA02
 }
@@ -674,7 +675,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	EXTUPDATE     : kbCtrlC,  TBBM_CHNGPRICE,       "Изменение цен\tCtrl-C"
 	PUTTOBASKET   : kbCtrlF4, PPDV_SHOPPINGCART01,  "@{doputtobasket}\tCtrl-F4"
 	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
-	PRINTLABEL    : kbCtrlL,  TBBM_PRNLABELS,       "Печать этикеток по лоту\tCtrl-L"
+	PRINTLABEL    : kbCtrlL,  TBBM_PRNLABELS,       "@{printlabel}\tCtrl-L"
 	EDITPERSON    : kbCtrlS,  TBBM_PERSONS,         "@{supplier}\tCtrl-S"
 	separator
 	REVALCOST     : kbCtrlD,  PPDV_NOICON,          "@{goodsrevalcost}\tCtrl-D"
@@ -856,7 +857,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	SORT           : kbCtrlO,     TBBM_SORT,              "@{sorting}\tCtrl-O"
 	PRINT          : kbF7,        PPDV_PRINTER01,         "@{printlist}\tF7"
 	POSPRINT       : kbCtrlF7,    TBBM_POSPRINT,          "Печать ценника\tCtrl-F7"
-	PRINTLABEL     : kbCtrlL,     TBBM_PRNLABELS,         "Печать этикеток\tCtrl-L"
+	PRINTLABEL     : kbCtrlL,     TBBM_PRNLABELS,         "@{printlabel}\tCtrl-L"
 	EXPORT         : kbCtrlE,     PPDV_EXPORT01,          "@{export}\tCtrl-E"
 	EXPORTUHTT     : kbAltU,      TBBM_EXPORTUHTT,        "@{exporttouhtt}\tAlt-U"
 	separator
@@ -1541,7 +1542,7 @@ browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser ATURNGRPNG north(100), 2, 0, "Группировка проводок {%s}", OWNER|GRID, 0
+browser ATURNGRPNG north(100), 2, 0, "@{view_accturn_grouping} {%s}", OWNER|GRID, 0
 {
 	//"@date",               1, notype, DATF_DMY, 8
 	"@debit",                4, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 7
@@ -1560,7 +1561,7 @@ browser ATURNGRPNG north(100), 2, 0, "Группировка проводок {%s}", OWNER|GRID, 0
 	}
 }
 
-browser ATURNGRPNG_CYCLE north(100), 2, 0, "Группировка проводок по периодам {%s}", OWNER|GRID, 0
+browser ATURNGRPNG_CYCLE north(100), 2, 0, "@{view_accturn_cyclegrouping} {%s}", OWNER|GRID, 0
 {
 	"@daterange",              0, notype, DATF_DMY, 8
 	"@debit",                  4, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 7
@@ -1932,7 +1933,7 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser INVNTRYLINESSUBST north(100), 1, 1, "Группировка строк инвентаризации {%s}", OWNER|GRID, 0
+browser INVNTRYLINESSUBST north(100), 1, 1, "@{view_inventorygrouping} {%s}", OWNER|GRID, 0
 {
 	"@parameter",             1, notype, 0, 25
 	"@rest",                  2, notype, NMBF_NOTRAILZ, 10.3
@@ -2369,7 +2370,7 @@ browser RECKONINGS south(56), 1, 0, "Зачеты документа (%s)", OWNER|GRID, 0
 	}
 }
 
-browser CHARGES south(73), 1, 0, "Начисления по документу (%s)", OWNER|GRID, 0
+browser CHARGES south(73), 1, 0, "@{doclink_charge} (%s)", OWNER|GRID, 0
 {
 	"@date",      1, date, DATF_DMY,   8, BCO_USERPROC
 	"@billno",    2, zstring(24),  0,  7, BCO_USERPROC
@@ -4353,8 +4354,8 @@ browser OBJSYNC north(100), 1, 1, "@{view_objsync} {%s}", OWNER|GRID, 0
 	"@objsyncentry_flags",  9, notype, NMBF_NOZERO,  4
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   :  kbEnter,    PPDV_EDITFILE02,        "@{edit}\tEnter"
-		ADDITEM    :  kbIns,      PPDV_ADDFILE02,         "Добавить запись\tInsert"
-		DELETEITEM :  kbDel,      PPDV_DELETEFILE02,      "Удалить запись\tDelete"
+		ADDITEM    :  kbIns,      PPDV_ADDFILE02,         "@{doaddrecord}\tInsert"
+		DELETEITEM :  kbDel,      PPDV_DELETEFILE02,      "@{doremoverecord}\tDelete"
 		separator
 		EDITOBJ    :  kbF4,       PPDV_LINS01,            "@{object}\tF4"
 		separator
@@ -5751,8 +5752,9 @@ browser CASHNODE north(100), 1, 1, "@{view_cashnode}", OWNER|GRID, 0
 		LOADDATA       : kbCtrlL,  PPDV_EXPORT01,     "@{douploaddata}\tCtrl-L"
 		LOADSTAT       : kbCtrlS,  TBBM_STAT,         "@{view_dvcloadingstat}\tCtrl-S"
 		OPPANEL        : kbCtrlO,  PPDV_PANE,         "Панель операций\tCtrl-O"
+		TAGS           : kbF2,     PPDV_TAGS01,       "@{tags}\tF2" // @v11.2.8
 		separator
-		PRINTZEROCHECK : kbAltMinus, PPDV_NOICON,     "Печать нулевого чека\tAlt-Minus" // @v10.0.0
+		PRINTZEROCHECK : kbAltMinus, PPDV_NOICON,     "@{printzerocheck}\tAlt-Minus" // @v10.0.0
 		separator
 		CHANGEFILT     : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		SYSJ           : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
@@ -7189,9 +7191,9 @@ record ImpExpHeader {
 
 record CliBnkData {
 	Empty            zstring(16)  "Поле, не заполняемое системой, но требуемое модулем клиент-банк";
-	BillID           long         format(9)    "ИД платежного документа";
-	Date             date         format(DATF_DMY|DATF_CENTURY) "Дата платежного документа";
-	Code             zstring(24)  "Номер платежного документа";
+	BillID           long         format(9)    "@{paymentdocumentid}";
+	Date             date         format(DATF_DMY|DATF_CENTURY) "@{paymentdocumentdate}";
+	Code             zstring(24)  "@{paymentdocumentno}";
 	Sequence         int16        format(4)    "@{bill_bnkqueueing}";
 	Purpose          zstring(160) "@{paymentpurpose}";
 	Amount           double       format(10.2) "@{paymentamount}";
@@ -7344,7 +7346,7 @@ record BRow {
 	Discount      double       format(8.2) "Сумма скидки по строке";
 	CVatRate      double       format(3.1) "Ставка входящего НДС по строке, %";
 	CVatSum       double       format(8.2) "Сумма входящего НДС по строке";
-	VatRate       double       format(3.1) "Ставка НДС по строке, %";
+	VatRate       double       format(3.1) "@{vatrate}, %";
 	VatSum        double       format(8.2) "Сумма НДС по строке";
 	Expiry        date         "@{lotexpirationdate}";
 	Serial        zstring(32)  "@{serial}";
@@ -7938,7 +7940,7 @@ record Goods2 {
 	QCManufDate    zstring(20)         "@{qcert}: @{qcert_sprdate}";
 	QCEtc          zstring(32)         "@{qcert}: прочая информация";
 	QCInnerCode    zstring(16)         "@{qcert}: внутренний код";
-	SalesTax       double format(10.2) "Ставка налога с продаж";
+	SalesTax       double format(10.2) "@{salestaxrate}";
 	Vat            double format(10.2) "@{vatrate}";
 	Country        zstring(48)         "@{countryoforg}";
 	CountryCode    zstring(48)         "@{countryoforgcode}";

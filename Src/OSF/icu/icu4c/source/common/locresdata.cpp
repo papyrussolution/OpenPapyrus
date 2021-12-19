@@ -44,7 +44,7 @@ uloc_getTableStringWithFallback(const char *path, const char *locale,
                               int32_t *pLength,
                               UErrorCode *pErrorCode)
 {
-/*    char localeBuffer[ULOC_FULLNAME_CAPACITY*4];*/
+/* char localeBuffer[ULOC_FULLNAME_CAPACITY*4];*/
     const UChar *item=NULL;
     UErrorCode errorCode;
     char explicitFallbackName[ULOC_FULLNAME_CAPACITY] = {0};

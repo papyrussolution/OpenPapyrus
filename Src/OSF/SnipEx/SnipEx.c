@@ -572,7 +572,7 @@ struct SnipExGlobals {
 			wchar_t TitleBuffer[128] = { 0 };
 			(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx - Current Snip: %dx%d", gCaptureWidth, gCaptureHeight);
 			SetWindowTextW(gMainWindowHandle, TitleBuffer);
-			SetCursor(LoadCursorW(NULL, IDC_ARROW));
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 			gNewButton.SelectedTool = FALSE;
 			gNewButton.State = BUTTONSTATE_NORMAL;
 			gDelayButton.SelectedTool = FALSE;
@@ -654,7 +654,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// @20201025 if(AdjustForCustomScaling() == FALSE) { return 0; }
 	WNDCLASSEXW CaptureWindowClass; // = { sizeof(WNDCLASSEXW) };
 	INITWINAPISTRUCT(CaptureWindowClass);
-	CaptureWindowClass.style         = CS_HREDRAW | CS_VREDRAW;
+	CaptureWindowClass.style = CS_HREDRAW | CS_VREDRAW;
 	CaptureWindowClass.hInstance     = Instance;
 	CaptureWindowClass.lpszClassName = L"SnipExCaptureWindowClass";
 	CaptureWindowClass.hCursor       = LoadCursorW(NULL, IDC_CROSS);
@@ -687,13 +687,13 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// The main window class that appears when the application is first launched.
 	WNDCLASSEXW MainWindowClass;// = { sizeof(WNDCLASSEXW) };
 	INITWINAPISTRUCT(MainWindowClass);
-	MainWindowClass.style         = CS_HREDRAW | CS_VREDRAW;
+	MainWindowClass.style = CS_HREDRAW | CS_VREDRAW;
 	MainWindowClass.hInstance     = Instance;
 	MainWindowClass.lpszClassName = L"SnipExWindowClass";
 	MainWindowClass.hCursor       = LoadCursorW(NULL, IDC_ARROW);
 	MainWindowClass.hbrBackground = GetSysColorBrush(COLOR_WINDOW);
 	MainWindowClass.lpfnWndProc   = MainWindowCallback;
-	MainWindowClass.hIcon         = LoadIconW(Instance, MAKEINTRESOURCEW(IDI_MAINAPPICON));
+	MainWindowClass.hIcon = LoadIconW(Instance, MAKEINTRESOURCEW(IDI_MAINAPPICON));
 	MainWindowClass.hIconSm       = LoadIconW(Instance, MAKEINTRESOURCEW(IDI_MAINAPPICON));
 	if(RegisterClassExW(&MainWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassExW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
@@ -1841,11 +1841,11 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 
 BOOL NewButton_Click(void)
 {
-	BOOL Result              = FALSE;
+	BOOL Result      = FALSE;
 	RECT CurrentWindowPos    = { 0 };
 	wchar_t TitleBuffer[64]  = { 0 };
-	HDC ScreenDC             = NULL;
-	HDC MemoryDC             = NULL;
+	HDC ScreenDC     = NULL;
+	HDC MemoryDC     = NULL;
 	// Now the "capture window" comes to life. It is a duplicate of the entire display surface,
 	// including multiple monitors. Take a screenshot of it, then overlay it on top of the real
 	// desktop, and then allow the user to select a subsection of the screenshot with the mouse.
@@ -2005,10 +2005,10 @@ Cleanup:
 
 BOOL CopyButton_Click(void)
 {
-	BOOL Result           = FALSE;
-	BITMAP Bitmap         = { 0 };
+	BOOL Result   = FALSE;
+	BITMAP Bitmap = { 0 };
 	HBITMAP ClipboardCopy = NULL;
-	HDC SourceDC          = NULL;
+	HDC SourceDC  = NULL;
 	HDC DestinationDC     = NULL;
 	if(SnExG.GetCurrentSnipState() == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: gSnipStates[gCurrentSnipState] is NULL. This is a bug.\n", __FUNCTIONW__, __LINE__);
@@ -2201,7 +2201,7 @@ BOOL SavePngToFile(_In_ wchar_t* FilePath)
 	}
 	{
 		GdiplusStartupInput GdiplusStartupInput = { 0 };
-		GdiplusStartupInput.GdiplusVersion           = 1;
+		GdiplusStartupInput.GdiplusVersion   = 1;
 		GdiplusStartupInput.DebugEventCallback       = NULL;
 		GdiplusStartupInput.SuppressBackgroundThread = FALSE;
 		GdiplusStartupInput.SuppressExternalCodecs   = FALSE;

@@ -31,9 +31,15 @@
  *    |=============================================================|
  *    |                         Important note                      |
  *    |=============================================================|
- *    | Some of these functions require libtiff, libjpeg and libz.  |
- *    | If you do not have these libraries, you must set            |
+ *    | Some of these functions require I/O libraries such as       |
+ *    | libtiff, libjpeg, and libz.  If you do not have these       |
+ *    | libraries, some calls will fail.                            |
+ *    |                                                             |
+ *    | You can manually deactivate all PostScript writing by       |
+ *    | setting this in environ.h:                                  |
+ *    | \code                                                       |
  *    |     #define  USE_PSIO     0                                 |
+ *    | \endcode                                                    |
  *    | in environ.h.  This will link psio1stub.c                   |
  *    |=============================================================|
  *
@@ -45,22 +51,23 @@
  *     using gs (ps2pdf).
  *
  *     Convert specified files to PS
- *          int32          convertFilesToPS()
- *          int32          sarrayConvertFilesToPS()
- *          int32          convertFilesFittedToPS()
- *          int32          sarrayConvertFilesFittedToPS()
- *          int32          writeImageCompressedToPSFile()
+ *          l_int32          convertFilesToPS()
+ *          l_int32          sarrayConvertFilesToPS()
+ *          l_int32          convertFilesFittedToPS()
+ *          l_int32          sarrayConvertFilesFittedToPS()
+ *          l_int32          writeImageCompressedToPSFile()
  *
  *     Convert mixed text/image files to PS
- *          int32          convertSegmentedPagesToPS()
- *          int32          pixWriteSegmentedPageToPS()
- *          int32          pixWriteMixedToPS()
+ *          l_int32          convertSegmentedPagesToPS()
+ *          l_int32          pixWriteSegmentedPageToPS()
+ *          l_int32          pixWriteMixedToPS()
  *
  *     Convert any image file to PS for embedding
- *          int32          convertToPSEmbed()
+ *          l_int32          convertToPSEmbed()
  *
  *     Write all images in a pixa out to PS
- *          int32          pixaWriteCompressedToPS()
+ *          l_int32          pixaWriteCompressedToPS()
+ *          l_int32          pixWriteCompressedToPS()
  *
  *  These PostScript converters are used in three different ways.
  *
@@ -110,15 +117,16 @@
 *                Convert files in a directory to PS           *
 *-------------------------------------------------------------*/
 /*
- *  convertFilesToPS()
+ * \brief   convertFilesToPS()
  *
- *      Input:  dirin (input directory)
- *              substr (<optional> substring filter on filenames; can be NULL)
- *              res (typ. 300 or 600 ppi)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]  dirin    input directory
+ * \param[in]  substr   [optional] substring filter on filenames; can be NULL
+ * \param[in]  res      typ. 300 or 600 ppi
+ * \param[in]  fileout  output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This generates a PS file for all image files in a specified
  *          directory that contain the substr pattern to be matched.
  *      (2) Each image is written to a separate page in the output PS file.
@@ -144,15 +152,16 @@
  *          the image to the output resolution before wrapping in PS.
  *      (6) The "canvas" on which the image is rendered, at the given
  *          output resolution, is a standard page size (8.5 x 11 in).
+ * </pre>
  */
-int32 convertFilesToPS(const char  * dirin,
-    const char  * substr,
-    int32 res,
-    const char  * fileout)
+l_ok convertFilesToPS(const char * dirin,
+    const char * substr,
+    l_int32 res,
+    const char * fileout)
 {
-	SARRAY  * sa;
+	SARRAY * sa;
 
-	PROCNAME("convertFilesToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!dirin)
 		return ERROR_INT("dirin not defined", procName, 1);
@@ -177,24 +186,27 @@ int32 convertFilesToPS(const char  * dirin,
 }
 
 /*
- *  sarrayConvertFilesToPS()
- *
- *      Input:  sarray (of full path names)
- *              res (typ. 300 or 600 ppi)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
- *
- *  Notes:
- *      (1) See convertFilesToPS()
- */
-int32 sarrayConvertFilesToPS(SARRAY      * sa,
-    int32 res,
-    const char  * fileout)
-{
-	char    * fname;
-	int32 i, nfiles, index, firstfile, ret, format;
 
-	PROCNAME("sarrayConvertFilesToPS");
+ * \brief    sarrayConvertFilesToPS()
+ *
+ * \param[in]  sarray   of full path names
+ * \param[in]  res      typ. 300 or 600 ppi
+ * \param[in]  fileout  output ps file
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *     (1) See convertFilesToPS()
+ * </pre>
+ */
+l_ok sarrayConvertFilesToPS(SARRAY * sa,
+    l_int32 res,
+    const char * fileout)
+{
+	char * fname;
+	l_int32 i, nfiles, index, ret, format;
+
+	PROCNAME(__FUNCTION__);
 
 	if(!sa)
 		return ERROR_INT("sa not defined", procName, 1);
@@ -208,7 +220,6 @@ int32 sarrayConvertFilesToPS(SARRAY      * sa,
 		L_WARNING("res is typically in the range 300-600 ppi\n", procName);
 
 	nfiles = sarrayGetCount(sa);
-	firstfile = TRUE;
 	for(i = 0, index = 0; i < nfiles; i++) {
 		fname = sarrayGetString(sa, i, L_NOCOPY);
 		ret = pixReadHeader(fname, &format, NULL, NULL, NULL, NULL, NULL);
@@ -216,22 +227,24 @@ int32 sarrayConvertFilesToPS(SARRAY      * sa,
 		if(format == IFF_UNKNOWN)
 			continue;
 
-		writeImageCompressedToPSFile(fname, fileout, res, &firstfile, &index);
+		writeImageCompressedToPSFile(fname, fileout, res, &index);
 	}
 
 	return 0;
 }
 
 /*
- *  convertFilesFittedToPS()
+ * \brief   convertFilesFittedToPS()
  *
- *      Input:  dirin (input directory)
- *              substr (<optional> substring filter on filenames; can be NULL)
- *              xpts, ypts (desired size in printer points; use 0 for default)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]  dirin    input directory
+ * \param[in]  substr   [optional] substring filter on filenames; can be NULL)
+ * \param[in]  xpts     desired size in printer points; use 0 for default
+ * \param[in]  ypts     desired size in printer points; use 0 for default
+ * \param[in]  fileout  output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This generates a PS file for all files in a specified directory
  *          that contain the substr pattern to be matched.
  *      (2) Each image is written to a separate page in the output PS file.
@@ -249,16 +262,17 @@ int32 sarrayConvertFilesToPS(SARRAY      * sa,
  *      (5) The size of the PostScript file is independent of the resolution,
  *          because the entire file is encoded.  The %xpts and %ypts
  *          parameter tells the PS decomposer how to render the page.
+ * </pre>
  */
-int32 convertFilesFittedToPS(const char  * dirin,
-    const char  * substr,
+l_ok convertFilesFittedToPS(const char * dirin,
+    const char * substr,
     float xpts,
     float ypts,
-    const char  * fileout)
+    const char * fileout)
 {
-	SARRAY  * sa;
+	SARRAY * sa;
 
-	PROCNAME("convertFilesFittedToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!dirin)
 		return ERROR_INT("dirin not defined", procName, 1);
@@ -287,25 +301,28 @@ int32 convertFilesFittedToPS(const char  * dirin,
 }
 
 /*
- *  sarrayConvertFilesFittedToPS()
+ * \brief  sarrayConvertFilesFittedToPS()
  *
- *      Input:  sarray (of full path names)
- *              xpts, ypts (desired size in printer points; use 0 for default)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]  sarray   of full path names
+ * \param[in]  xpts     desired size in printer points; use 0 for default
+ * \param[in]  ypts     desired size in printer points; use 0 for default
+ * \param[in]  fileout  output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
- *      (1) See convertFilesFittedToPS()
+ * <pre>
+ * Notes:
+ *     (1) See convertFilesFittedToPS()
+ * </pre>
  */
-int32 sarrayConvertFilesFittedToPS(SARRAY      * sa,
+l_ok sarrayConvertFilesFittedToPS(SARRAY * sa,
     float xpts,
     float ypts,
-    const char  * fileout)
+    const char * fileout)
 {
-	char    * fname;
-	int32 ret, i, w, h, nfiles, index, firstfile, format, res;
+	char * fname;
+	l_int32 ret, i, w, h, nfiles, index, format, res;
 
-	PROCNAME("sarrayConvertFilesFittedToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!sa)
 		return ERROR_INT("sa not defined", procName, 1);
@@ -323,7 +340,6 @@ int32 sarrayConvertFilesFittedToPS(SARRAY      * sa,
 		L_WARNING("xpts,ypts are typically in the range 500-800\n", procName);
 
 	nfiles = sarrayGetCount(sa);
-	firstfile = TRUE;
 	for(i = 0, index = 0; i < nfiles; i++) {
 		fname = sarrayGetString(sa, i, L_NOCOPY);
 		ret = pixReadHeader(fname, &format, &w, &h, NULL, NULL, NULL);
@@ -333,78 +349,70 @@ int32 sarrayConvertFilesFittedToPS(SARRAY      * sa,
 
 		/* Be sure the entire image is wrapped */
 		if(xpts * h < ypts * w)
-			res = (int32)((float)w * 72.0 / xpts);
+			res = (l_int32)((float)w * 72.0 / xpts);
 		else
-			res = (int32)((float)h * 72.0 / ypts);
+			res = (l_int32)((float)h * 72.0 / ypts);
 
-		writeImageCompressedToPSFile(fname, fileout, res, &firstfile, &index);
+		writeImageCompressedToPSFile(fname, fileout, res, &index);
 	}
 
 	return 0;
 }
 
 /*
- *  writeImageCompressedToPSFile()
+ * \brief   writeImageCompressedToPSFile()
  *
- *      Input:  filein (input image file)
- *              fileout (output ps file)
- *              res (output printer resolution)
- *              &firstfile (<input and return> 1 if the first image;
- *                          0 otherwise)
- *              &index (<input and return> index of image in output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]     filein      input image file
+ * \param[in]     fileout     output ps file
+ * \param[in]     res         output printer resolution
+ * \param[in,out] pindex      index of image in output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This wraps a single page image in PS.
  *      (2) The input file can be in any format.  It is compressed as follows:
  *             * if in tiffg4  -->  use ccittg4
  *             * if in jpeg    -->  use dct
  *             * all others    -->  use flate
- *      (3) Before the first call, set %firstpage = 1.  After writing
- *          the first page, it will be set to 0.
- *      (4) %index is incremented if the page is successfully written.
+ *      (3) Before the first call, set %index = 0.  %index is incremented
+ *          if the page is successfully written.  It is used to decide
+ *          whether to write (index == 0) or append (index > 0) to the file.
+ * </pre>
  */
-int32 writeImageCompressedToPSFile(const char  * filein,
-    const char  * fileout,
-    int32 res,
-    int32     * pfirstfile,
-    int32     * pindex)
+l_ok writeImageCompressedToPSFile(const char * filein,
+    const char * fileout,
+    l_int32 res,
+    l_int32     * pindex)
 {
-	const char  * op;
-	int32 format, retval;
+	const char * op;
+	l_int32 format, retval;
 
-	PROCNAME("writeImageCompressedToPSFile");
+	PROCNAME(__FUNCTION__);
 
-	if(!pfirstfile || !pindex)
-		return ERROR_INT("&firstfile and &index not defined", procName, 1);
+	if(!pindex)
+		return ERROR_INT("&index not defined", procName, 1);
 
 	findFileFormat(filein, &format);
 	if(format == IFF_UNKNOWN) {
-		L_ERROR2("format of %s not known\n", procName, filein);
+		L_ERROR("format of %s not known\n", procName, filein);
 		return 1;
 	}
-	op = (*pfirstfile == TRUE) ? "w" : "a";
+
+	op = (*pindex == 0) ? "w" : "a";
 	if(format == IFF_JFIF_JPEG) {
-		retval = convertJpegToPS(filein, fileout, op, 0, 0, res, 1.0, *pindex + 1, TRUE);
-		if(retval == 0) {
-			*pfirstfile = FALSE;
-			(*pindex)++;
-		}
+		retval = convertJpegToPS(filein, fileout, op, 0, 0,
+			res, 1.0, *pindex + 1, TRUE);
 	}
 	else if(format == IFF_TIFF_G4) {
-		retval = convertG4ToPS(filein, fileout, op, 0, 0, res, 1.0, *pindex + 1, FALSE, TRUE);
-		if(retval == 0) {
-			*pfirstfile = FALSE;
-			(*pindex)++;
-		}
+		retval = convertG4ToPS(filein, fileout, op, 0, 0,
+			res, 1.0, *pindex + 1, FALSE, TRUE);
 	}
 	else { /* all other image formats */
-		retval = convertFlateToPS(filein, fileout, op, 0, 0, res, 1.0, *pindex + 1, TRUE);
-		if(retval == 0) {
-			*pfirstfile = FALSE;
-			(*pindex)++;
-		}
+		retval = convertFlateToPS(filein, fileout, op, 0, 0,
+			res, 1.0, *pindex + 1, TRUE);
 	}
+	if(retval == 0) (*pindex)++;
 
 	return retval;
 }
@@ -413,25 +421,26 @@ int32 writeImageCompressedToPSFile(const char  * filein,
 *              Convert mixed text/image files to PS           *
 *-------------------------------------------------------------*/
 /*
- *  convertSegmentedPagesToPS()
+ * \brief  convertSegmentedPagesToPS()
  *
- *      Input:  pagedir (input page image directory)
- *              pagestr (<optional> substring filter on page filenames;
- *                       can be NULL)
- *              page_numpre (number of characters in page name before number)
- *              maskdir (input mask image directory)
- *              maskstr (<optional> substring filter on mask filenames;
- *                       can be NULL)
- *              mask_numpre (number of characters in mask name before number)
- *              numpost (number of characters in names after number)
- *              maxnum (only consider page numbers up to this value)
- *              textscale (scale of text output relative to pixs)
- *              imagescale (scale of image output relative to pixs)
- *              threshold (for binarization; typ. about 190; 0 for default)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]     pagedir      input page image directory
+ * \param[in]     pagestr      [optional] substring filter on page filenames;
+ *                             can be NULL
+ * \param[in]     page_numpre  number of characters in page name before number
+ * \param[in]     maskdir      input mask image directory
+ * \param[in]     maskstr      [optional] substring filter on mask filenames;
+ *                             can be NULL
+ * \param[in]     mask_numpre  number of characters in mask name before number
+ * \param[in]     numpost      number of characters in names after number
+ * \param[in]     maxnum       only consider page numbers up to this value
+ * \param[in]     textscale    scale of text output relative to pixs
+ * \param[in]     imagescale   scale of image output relative to pixs
+ * \param[in]     threshold    for binarization; typ. about 190; 0 for default
+ * \param[in]     fileout      output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This generates a PS file for all page image and mask files in two
  *          specified directories and that contain the page numbers as
  *          specified below.  The two directories can be the same, in which
@@ -464,25 +473,26 @@ int32 writeImageCompressedToPSFile(const char  * filein,
  *          of any pixels -- use a mask in the mask directory that is
  *          full size with all pixels set to 1.  If the page is 1 bpp,
  *          it is not necessary to have a mask.
+ * </pre>
  */
-int32 convertSegmentedPagesToPS(const char  * pagedir,
-    const char  * pagestr,
-    int32 page_numpre,
-    const char  * maskdir,
-    const char  * maskstr,
-    int32 mask_numpre,
-    int32 numpost,
-    int32 maxnum,
+l_ok convertSegmentedPagesToPS(const char * pagedir,
+    const char * pagestr,
+    l_int32 page_numpre,
+    const char * maskdir,
+    const char * maskstr,
+    l_int32 mask_numpre,
+    l_int32 numpost,
+    l_int32 maxnum,
     float textscale,
     float imagescale,
-    int32 threshold,
-    const char  * fileout)
+    l_int32 threshold,
+    const char * fileout)
 {
-	int32 pageno, i, npages;
-	PIX     * pixs, * pixm;
-	SARRAY  * sapage, * samask;
+	l_int32 pageno, i, npages;
+	PIX * pixs, * pixm;
+	SARRAY * sapage, * samask;
 
-	PROCNAME("convertSegmentedPagesToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!pagedir)
 		return ERROR_INT("pagedir not defined", procName, 1);
@@ -497,10 +507,10 @@ int32 convertSegmentedPagesToPS(const char  * pagedir,
 
 	/* Get numbered full pathnames; max size of sarray is maxnum */
 	sapage = getNumberedPathnamesInDirectory(pagedir, pagestr,
-	    page_numpre, numpost, maxnum);
+		page_numpre, numpost, maxnum);
 	samask = getNumberedPathnamesInDirectory(maskdir, maskstr,
-	    mask_numpre, numpost, maxnum);
-	sarrayPadToSameSize(sapage, samask, (char*)"");
+		mask_numpre, numpost, maxnum);
+	sarrayPadToSameSize(sapage, samask, "");
 	if((npages = sarrayGetCount(sapage)) == 0) {
 		sarrayDestroy(&sapage);
 		sarrayDestroy(&samask);
@@ -526,18 +536,19 @@ int32 convertSegmentedPagesToPS(const char  * pagedir,
 }
 
 /*
- *  pixWriteSegmentedPageToPS()
+ * \brief   pixWriteSegmentedPageToPS()
  *
- *      Input:  pixs (all depths; colormap ok)
- *              pixm (<optional> 1 bpp segmentation mask over image region)
- *              textscale (scale of text output relative to pixs)
- *              imagescale (scale of image output relative to pixs)
- *              threshold (threshold for binarization; typ. 190)
- *              pageno (page number in set; use 1 for new output file)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]     pixs      all depths; colormap ok
+ * \param[in]     pixm      [optional] 1 bpp segmentation mask over image region
+ * \param[in]     textscale   scale of text output relative to pixs
+ * \param[in]     imagescale  scale of image output relative to pixs
+ * \param[in]     threshold   for binarization; typ. about 190; 0 for default
+ * \param[in]     pageno    page number in set; use 1 for new output file
+ * \param[in]     fileout   output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This generates the PS string for a mixed text/image page,
  *          and adds it to an existing file if %pageno > 1.
  *          The PS output is determined by fitting the result to
@@ -558,21 +569,22 @@ int32 convertSegmentedPagesToPS(const char  * pagedir,
  *          sequential page numbers with the same output file.  It can
  *          also be used to write separate PS files for each page,
  *          by using different output files with %pageno = 0 or 1.
+ * </pre>
  */
-int32 pixWriteSegmentedPageToPS(PIX         * pixs,
+l_ok pixWriteSegmentedPageToPS(PIX         * pixs,
     PIX         * pixm,
     float textscale,
     float imagescale,
-    int32 threshold,
-    int32 pageno,
-    const char  * fileout)
+    l_int32 threshold,
+    l_int32 pageno,
+    const char * fileout)
 {
-	int32 alltext, notext, d, ret;
-	uint32 val;
+	l_int32 alltext, notext, d, ret;
+	l_uint32 val;
 	float scaleratio;
-	PIX       * pixmi, * pixmis, * pixt, * pixg, * pixsc, * pixb, * pixc;
+	PIX * pixmi, * pixmis, * pixt, * pixg, * pixsc, * pixb, * pixc;
 
-	PROCNAME("pixWriteSegmentedPageToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -635,7 +647,7 @@ int32 pixWriteSegmentedPageToPS(PIX         * pixs,
 		pixc = NULL;
 		if(pixm) {
 			if(imagescale == 1.0)
-				pixsc = pixClone(pixt);  /* can possibly be a clone of pixs */
+				pixsc = pixClone(pixt); /* can possibly be a clone of pixs */
 			else
 				pixsc = pixScale(pixt, imagescale, imagescale);
 
@@ -675,17 +687,18 @@ int32 pixWriteSegmentedPageToPS(PIX         * pixs,
 }
 
 /*
- *  pixWriteMixedToPS()
+ * \brief  pixWriteMixedToPS()
  *
- *      Input:  pixb (<optionall> 1 bpp "mask"; typically for text)
- *              pixc (<optional> 8 or 32 bpp image regions)
- *              scale (relative scale factor for rendering pixb
- *                    relative to pixc; typ. 4.0)
- *              pageno (page number in set; use 1 for new output file)
- *              fileout (output ps file)
- *      Return: 0 if OK, 1 on error
+ * \param[in]     pixb      [optional] 1 bpp mask; typically for text
+ * \param[in]     pixc      [optional] 8 or 32 bpp image regions
+ * \param[in]     scale     scale factor for rendering pixb, relative to pixc;
+ *                          typ. 4.0
+ * \param[in]     pageno    page number in set; use 1 for new output file
+ * \param[in]     fileout   output ps file
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This low level function generates the PS string for a mixed
  *          text/image page, and adds it to an existing file if
  *          %pageno > 1.
@@ -708,18 +721,19 @@ int32 pixWriteSegmentedPageToPS(PIX         * pixs,
  *          because ghostscript's ps2pdf is flaky when the latter is used.
  *      (7) The actual output resolution is determined by fitting the
  *          result to a letter-size (8.5 x 11 inch) page.
+ * <pre>
  */
-int32 pixWriteMixedToPS(PIX         * pixb,
+l_ok pixWriteMixedToPS(PIX         * pixb,
     PIX         * pixc,
     float scale,
-    int32 pageno,
-    const char  * fileout)
+    l_int32 pageno,
+    const char * fileout)
 {
-	char        * tname;
-	const char  * op;
-	int32 resb, resc, endpage, maskop, ret;
+	char * tname;
+	const char * op;
+	l_int32 resb, resc, endpage, maskop, ret;
 
-	PROCNAME("pixWriteMixedToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixb && !pixc)
 		return ERROR_INT("pixb and pixc both undefined", procName, 1);
@@ -733,19 +747,19 @@ int32 pixWriteMixedToPS(PIX         * pixb,
 	else {
 		resc = getResLetterPage(pixGetWidth(pixc), pixGetHeight(pixc), 0);
 		if(pixb)
-			resb = (int32)(scale * resc);
+			resb = (l_int32)(scale * resc);
 	}
 
 	/* Write the jpeg image first */
 	if(pixc) {
-		tname = l_makeTempFilename(NULL);
+		tname = l_makeTempFilename();
 		pixWrite(tname, pixc, IFF_JFIF_JPEG);
 		endpage = (pixb) ? FALSE : TRUE;
 		op = (pageno <= 1) ? "w" : "a";
 		ret = convertJpegToPS(tname, fileout, op, 0, 0, resc, 1.0,
-		    pageno, endpage);
+			pageno, endpage);
 		lept_rmfile(tname);
-		LEPT_FREE(tname);
+		SAlloc::F(tname);
 		if(ret)
 			return ERROR_INT("jpeg data not written", procName, 1);
 	}
@@ -753,14 +767,14 @@ int32 pixWriteMixedToPS(PIX         * pixb,
 	/* Write the binary data, either directly or, if there is
 	 * a jpeg image on the page, through the mask. */
 	if(pixb) {
-		tname = l_makeTempFilename(NULL);
+		tname = l_makeTempFilename();
 		pixWrite(tname, pixb, IFF_TIFF_G4);
 		op = (pageno <= 1 && !pixc) ? "w" : "a";
 		maskop = (pixc) ? 1 : 0;
 		ret = convertG4ToPS(tname, fileout, op, 0, 0, resb, 1.0,
-		    pageno, maskop, 1);
+			pageno, maskop, 1);
 		lept_rmfile(tname);
-		LEPT_FREE(tname);
+		SAlloc::F(tname);
 		if(ret)
 			return ERROR_INT("tiff data not written", procName, 1);
 	}
@@ -772,14 +786,15 @@ int32 pixWriteMixedToPS(PIX         * pixb,
 *            Convert any image file to PS for embedding       *
 *-------------------------------------------------------------*/
 /*
- *  convertToPSEmbed()
+ * \brief  convertToPSEmbed()
  *
- *      Input:  filein (input image file -- any format)
- *              fileout (output ps file)
- *              level (compression: 1 (uncompressed), 2 or 3)
- *      Return: 0 if OK, 1 on error
+ * \param[in]     filein    input image file, any format
+ * \param[in]     fileout   output ps file
+ * \param[in]     level     PostScript compression: 1 (uncompressed), 2 or 3
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This is a wrapper function that generates a PS file with
  *          a bounding box, from any input image file.
  *      (2) Do the best job of compression given the specified level.
@@ -792,16 +807,17 @@ int32 pixWriteMixedToPS(PIX         * pixb,
  *      (4) The bounding box is required when a program such as TeX
  *          (through epsf) places and rescales the image.  It is
  *          sized for fitting the image to an 8.5 x 11.0 inch page.
+ * </pre>
  */
-int32 convertToPSEmbed(const char  * filein,
-    const char  * fileout,
-    int32 level)
+l_ok convertToPSEmbed(const char * filein,
+    const char * fileout,
+    l_int32 level)
 {
-	char    * tname;
-	int32 d, format;
-	PIX     * pix, * pixs;
+	char * tname;
+	l_int32 d, format;
+	PIX * pix, * pixs;
 
-	PROCNAME("convertToPSEmbed");
+	PROCNAME(__FUNCTION__);
 
 	if(!filein)
 		return ERROR_INT("filein not defined", procName, 1);
@@ -828,9 +844,10 @@ int32 convertToPSEmbed(const char  * filein,
 		return 0;
 	}
 	else if(format == IFF_UNKNOWN) {
-		L_ERROR2("format of %s not known\n", procName, filein);
+		L_ERROR("format of %s not known\n", procName, filein);
 		return 1;
 	}
+
 	/* If level 3, flate encode. */
 	if(level == 3) {
 		convertFlateToPSEmbed(filein, fileout);
@@ -844,25 +861,35 @@ int32 convertToPSEmbed(const char  * filein,
 	if((d == 2 || d == 4) && !pixGetColormap(pixs))
 		pix = pixConvertTo8(pixs, 0);
 	else if(d == 16)
-		pix = pixConvert16To8(pixs, 1);
+		pix = pixConvert16To8(pixs, L_MS_BYTE);
 	else
 		pix = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
+	pixDestroy(&pixs);
+	if(!pix)
+		return ERROR_INT("converted pix not made", procName, 1);
 
 	d = pixGetDepth(pix);
-	tname = l_makeTempFilename(NULL);
+	tname = l_makeTempFilename();
 	if(d == 1) {
-		pixWrite(tname, pix, IFF_TIFF_G4);
+		if(pixWrite(tname, pix, IFF_TIFF_G4)) {
+			SAlloc::F(tname);
+			pixDestroy(&pix);
+			return ERROR_INT("g4 tiff not written", procName, 1);
+		}
 		convertG4ToPSEmbed(tname, fileout);
 	}
 	else {
-		pixWrite(tname, pix, IFF_JFIF_JPEG);
+		if(pixWrite(tname, pix, IFF_JFIF_JPEG)) {
+			SAlloc::F(tname);
+			pixDestroy(&pix);
+			return ERROR_INT("jpeg not written", procName, 1);
+		}
 		convertJpegToPSEmbed(tname, fileout);
 	}
 
 	lept_rmfile(tname);
-	LEPT_FREE(tname);
+	SAlloc::F(tname);
 	pixDestroy(&pix);
-	pixDestroy(&pixs);
 	return 0;
 }
 
@@ -870,39 +897,32 @@ int32 convertToPSEmbed(const char  * filein,
 *              Write all images in a pixa out to PS           *
 *-------------------------------------------------------------*/
 /*
- *  pixaWriteCompressedToPS()
+ * \brief  pixaWriteCompressedToPS()
  *
- *      Input:  pixa (any set of images)
- *              fileout (output ps file)
- *              res (of input image)
- *              level (compression: 2 or 3)
- *      Return: 0 if OK, 1 on error
+ * \param[in]     pixa      any set of images
+ * \param[in]     fileout   output ps file
+ * \param[in]     res       resolution for the set of input images
+ * \param[in]     level     PostScript compression capability: 2 or 3
+ * \return  0 if OK, 1 on error
  *
- *  Notes:
- *      (1) This generates a PS file of multiple page images, all
- *          with bounding boxes.
- *      (2) It compresses to:
- *              cmap + level2:        jpeg
- *              cmap + level3:        flate
- *              1 bpp:                tiffg4
- *              2 or 4 bpp + level2:  jpeg
- *              2 or 4 bpp + level3:  flate
- *              8 bpp:                jpeg
- *              16 bpp:               flate
- *              32 bpp:               jpeg
- *      (3) To generate a pdf, use: ps2pdf <infile.ps> <outfile.pdf>
+ * <pre>
+ * Notes:
+ *      (1) This generates a PostScript file of multiple page images,
+ *          all with bounding boxes.
+ *      (2) See pixWriteCompressedToPS() for details.
+ *      (3) To generate a pdf from %fileout, use:
+ *             ps2pdf <infile.ps> <outfile.pdf>
+ * </pre>
  */
-int32 pixaWriteCompressedToPS(PIXA        * pixa,
-    const char  * fileout,
-    int32 res,
-    int32 level)
+l_ok pixaWriteCompressedToPS(PIXA        * pixa,
+    const char * fileout,
+    l_int32 res,
+    l_int32 level)
 {
-	char     * tname;
-	int32 i, n, firstfile, index, writeout, d;
-	PIX      * pix, * pixt;
-	PIXCMAP  * cmap;
+	l_int32 i, n, index, ret;
+	PIX * pix;
 
-	PROCNAME("pixaWriteCompressedToPS");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixa)
 		return ERROR_INT("pixa not defined", procName, 1);
@@ -913,57 +933,132 @@ int32 pixaWriteCompressedToPS(PIXA        * pixa,
 		level = 2;
 	}
 
-	n = pixaGetCount(pixa);
-	firstfile = TRUE;
 	index = 0;
-	tname = l_makeTempFilename(NULL);
+	n = pixaGetCount(pixa);
 	for(i = 0; i < n; i++) {
-		writeout = TRUE;
 		pix = pixaGetPix(pixa, i, L_CLONE);
-		d = pixGetDepth(pix);
-		cmap = pixGetColormap(pix);
-		if(d == 1) {
-			pixWrite(tname, pix, IFF_TIFF_G4);
-		}
-		else if(cmap) {
-			if(level == 2) {
-				pixt = pixConvertForPSWrap(pix);
-				pixWrite(tname, pixt, IFF_JFIF_JPEG);
-				pixDestroy(&pixt);
-			}
-			else { /* level == 3 */
-				pixWrite(tname, pix, IFF_PNG);
-			}
+		ret = pixWriteCompressedToPS(pix, fileout, res, level, &index);
+		if(ret) L_ERROR("PS string not written for image %d\n", procName, i);
+		pixDestroy(&pix);
+	}
+	return 0;
+}
+
+/*
+ * \brief  pixWriteCompressedToPS()
+ *
+ * \param[in]      pix        any depth; colormap OK
+ * \param[in]      fileout    output ps file
+ * \param[in]      res        of input image
+ * \param[in]      level      PostScript compression capability: 2 or 3
+ * \param[in,out]  pindex     index of image in output ps file
+ * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This generates a PostScript string for %pix, and writes it
+ *          to a file, with a bounding box.
+ *      (2) *pindex keeps track of the number of images that have been
+ *          written to %fileout.  If this is the first image to be
+ *          converted, set *pindex == 0 before passing it in.  If the
+ *          PostScript string is successfully generated, this will increment
+ *          *pindex.  If *pindex > 0, the PostScript string will be
+ *          appended to %fileout.
+ *      (3) PostScript level 2 enables lossless tiffg4 and lossy jpeg
+ *          compression.  Level 3 adds lossless flate (essentially gzip)
+ *          compression.
+ *          * For images with a colormap, lossless flate is often better in
+ *            both quality and size than jpeg.
+ *          * The decision for images without a colormap affects compression
+ *            efficiency: %level2 (jpeg) is usually better than %level3 (flate)
+ *          * Because jpeg does not handle 16 bpp, if %level == 2, the image
+ *            is converted to 8 bpp (using MSB) and compressed with jpeg,
+ *              cmap + level2:        jpeg
+ *              cmap + level3:        flate
+ *              1 bpp:                tiffg4
+ *              2 or 4 bpp + level2:  jpeg
+ *              2 or 4 bpp + level3:  flate
+ *              8 bpp + level2:       jpeg
+ *              8 bpp + level3:       flate
+ *              16 bpp + level2:      jpeg   [converted to 8 bpp, with warning]
+ *              16 bpp + level3:      flate
+ *              32 bpp + level2:      jpeg
+ *              32 bpp + level3:      flate
+ * </pre>
+ */
+l_ok pixWriteCompressedToPS(PIX         * pix,
+    const char * fileout,
+    l_int32 res,
+    l_int32 level,
+    l_int32     * pindex)
+{
+	char     * tname;
+	l_int32 writeout, d;
+	PIX * pixt;
+	PIXCMAP  * cmap;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pix)
+		return ERROR_INT("pix not defined", procName, 1);
+	if(!fileout)
+		return ERROR_INT("fileout not defined", procName, 1);
+	if(level != 2 && level != 3) {
+		L_ERROR("only levels 2 and 3 permitted; using level 2\n", procName);
+		level = 2;
+	}
+	if(!pindex)
+		return ERROR_INT("&index not defined", procName, 1);
+
+	tname = l_makeTempFilename();
+	writeout = TRUE;
+	d = pixGetDepth(pix);
+	cmap = pixGetColormap(pix);
+	if(d == 1) {
+		if(pixWrite(tname, pix, IFF_TIFF_G4))
+			writeout = FALSE;
+	}
+	else if(level == 3) {
+		if(pixWrite(tname, pix, IFF_PNG))
+			writeout = FALSE;
+	}
+	else { /* level == 2 */
+		if(cmap) {
+			pixt = pixConvertForPSWrap(pix);
+			if(pixWrite(tname, pixt, IFF_JFIF_JPEG))
+				writeout = FALSE;
+			pixDestroy(&pixt);
 		}
 		else if(d == 16) {
-			if(level == 2)
-				L_WARNING("d = 16; must write out flate\n", procName);
-			pixWrite(tname, pix, IFF_PNG);
+			L_WARNING("d = 16; converting to 8 bpp for jpeg\n", procName);
+			pixt = pixConvert16To8(pix, L_MS_BYTE);
+			if(pixWrite(tname, pixt, IFF_JFIF_JPEG))
+				writeout = FALSE;
+			pixDestroy(&pixt);
 		}
 		else if(d == 2 || d == 4) {
-			if(level == 2) {
-				pixt = pixConvertTo8(pix, 0);
-				pixWrite(tname, pixt, IFF_JFIF_JPEG);
-				pixDestroy(&pixt);
-			}
-			else { /* level == 3 */
-				pixWrite(tname, pix, IFF_PNG);
-			}
+			pixt = pixConvertTo8(pix, 0);
+			if(pixWrite(tname, pixt, IFF_JFIF_JPEG))
+				writeout = FALSE;
+			pixDestroy(&pixt);
 		}
 		else if(d == 8 || d == 32) {
-			pixWrite(tname, pix, IFF_JFIF_JPEG);
+			if(pixWrite(tname, pix, IFF_JFIF_JPEG))
+				writeout = FALSE;
 		}
 		else { /* shouldn't happen */
-			L_ERROR2("invalid depth: %d\n", procName, d);
+			L_ERROR("invalid depth with level 2: %d\n", procName, d);
 			writeout = FALSE;
 		}
-		pixDestroy(&pix);
-		if(writeout)
-			writeImageCompressedToPSFile(tname, fileout, res, &firstfile, &index);
 	}
-	lept_rmfile(tname);
-	LEPT_FREE(tname);
-	return 0;
+
+	if(writeout)
+		writeImageCompressedToPSFile(tname, fileout, res, pindex);
+
+	if(lept_rmfile(tname) != 0)
+		L_ERROR("temp file %s was not deleted\n", procName, tname);
+	SAlloc::F(tname);
+	return (writeout) ? 0 : 1;
 }
 
 /* --------------------------------------------*/

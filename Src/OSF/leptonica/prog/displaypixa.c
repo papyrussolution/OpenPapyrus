@@ -41,6 +41,10 @@
  *   No scaling is done if @scalefact == 0.0 or @scalefact == 1.0.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
@@ -48,8 +52,8 @@ int main(int    argc,
          char **argv)
 {
 char         buf[32];
-char        *fileout, *fontdir, *textstr;
-l_int32      n, i, maxdepth, ntext, border, lossless, display, showtext;
+char        *fileout, *textstr;
+l_int32      n, i, same, maxd, ntext, border, lossless, display, showtext;
 l_float32    scalefact;
 L_BMF       *bmf;
 PIX         *pix1, *pix2, *pix3, *pix4, *pixd;
@@ -57,12 +61,13 @@ PIXA        *pixa, *pixad;
 static char  mainName[] = "displaypixa";
 
     if (argc != 4 && argc != 8) {
-        fprintf(stderr, "Syntax error in displaypixa:\n"
-           "   displaypixa filein fileout showtext\n"
-           "   displaypixa filein scalefact border"
-                 " lossless disp fileout showtext\n");
+        lept_stderr("Syntax error in displaypixa:\n"
+                    "   displaypixa filein fileout showtext\n"
+                    "   displaypixa filein scalefact border"
+                    " lossless disp fileout showtext\n");
          return 1;
     }
+    setLeptDebugOK(1);
 
         /* Input file can be either pixa or pixacomp */
     pixa = pixaReadBoth(argv[1]);
@@ -75,8 +80,8 @@ static char  mainName[] = "displaypixa";
 
         /* Simple specification; no output text */
     if (argc == 4 && (showtext == 0 || ntext == 0)) {  /* no text output */
-        pixaVerifyDepth(pixa, &maxdepth);
-        pixd = pixaDisplayTiledInRows(pixa, maxdepth, 1400, 1.0, 0, 10, 0);
+        pixaVerifyDepth(pixa, &same, &maxd);
+        pixd = pixaDisplayTiledInRows(pixa, maxd, 1400, 1.0, 0, 10, 0);
         pixDisplay(pixd, 100, 100);
         if (pixGetDepth(pixd) == 1)
             pixWrite(fileout, pixd, IFF_PNG);
@@ -110,8 +115,8 @@ static char  mainName[] = "displaypixa";
             pixDestroy(&pix3);
         }
         bmfDestroy(&bmf);
-        pixaVerifyDepth(pixad, &maxdepth);
-        pixd = pixaDisplayTiledInRows(pixad, maxdepth, 1400, 1.0, 0, 10, 0);
+        pixaVerifyDepth(pixad, &same, &maxd);
+        pixd = pixaDisplayTiledInRows(pixad, maxd, 1400, 1.0, 0, 10, 0);
         pixDisplay(pixd, 100, 100);
         if (pixGetDepth(pixd) == 1)
             pixWrite(fileout, pixd, IFF_PNG);
@@ -154,8 +159,8 @@ static char  mainName[] = "displaypixa";
     }
     bmfDestroy(&bmf);
 
-    pixaVerifyDepth(pixad, &maxdepth);
-    pixd = pixaDisplayTiledInRows(pixad, maxdepth, 1400, scalefact,
+    pixaVerifyDepth(pixad, &same, &maxd);
+    pixd = pixaDisplayTiledInRows(pixad, maxd, 1400, scalefact,
                                   0, 10, border);
     if (display) pixDisplay(pixd, 20, 20);
     if (pixGetDepth(pixd) == 1 || lossless)

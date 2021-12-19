@@ -1468,7 +1468,7 @@ int FastEditRightsDlg::loadData(PPID grpUserID, int load)
 		uint   pos = 0;
 		PPSecurPacket spack;
 		spack.Secur.ID = grpUserID;
-		if(Data.lsearch(&spack, &pos, PTR_CMPFUNC(PPSecurPacket)) > 0) {
+		if(Data.lsearch(&spack, &pos, PTR_CMPFUNC(PPSecurPacket))) {
 			loadPtr(&ptr, pos, 1); // load data
 			if(!load) {
 				if(ptr && P_ChildDlg) {

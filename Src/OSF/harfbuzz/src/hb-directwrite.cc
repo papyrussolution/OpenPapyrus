@@ -844,7 +844,7 @@ hb_bool_t _hb_directwrite_shape(hb_shape_plan_t * shape_plan,
 		   features, num_features, 0);
 }
 
-HB_UNUSED static bool _hb_directwrite_shape_experimental_width(hb_font_t * font,
+CXX_UNUSED_PARAM static bool _hb_directwrite_shape_experimental_width(hb_font_t * font,
     hb_buffer_t * buffer,
     const hb_feature_t * features,
     uint num_features,
@@ -874,7 +874,7 @@ static void _hb_directwrite_table_data_release(void * data)
 	delete context;
 }
 
-static hb_blob_t * _hb_directwrite_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
+static hb_blob_t * _hb_directwrite_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_tag_t tag, void * user_data)
 {
 	IDWriteFontFace * dw_face = ((IDWriteFontFace*)user_data);
 	const void * data;

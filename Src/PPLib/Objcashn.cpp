@@ -47,9 +47,9 @@ int FASTCALL PPGenCashNode::Copy(const PPGenCashNode & rS)
 	DrvVerMinor   = rS.DrvVerMinor;
 	DisRoundPrec  = rS.DisRoundPrec;
 	AmtRoundPrec  = rS.AmtRoundPrec;
-	LocID         = rS.LocID;
+	LocID = rS.LocID;
 	ExtQuotID     = rS.ExtQuotID;
-	Flags         = rS.Flags;
+	Flags = rS.Flags;
 	ExtFlags      = rS.ExtFlags;
 	GoodsLocAssocID = rS.GoodsLocAssocID;
 	ParentID      = rS.ParentID;
@@ -667,7 +667,7 @@ int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 	int    r;
 	PPCashNode cn_rec;
 	if((r = P_Ref->GetItem(PPOBJ_CASHNODE, id, &cn_rec)) > 0) {
-		pGCN->ID          = cn_rec.ID;
+		pGCN->ID  = cn_rec.ID;
 		pGCN->CashType    = cn_rec.CashType;
 		pGCN->CurRestBillID = cn_rec.CurRestBillID;
 		pGCN->DrvVerMajor = cn_rec.DrvVerMajor;
@@ -746,7 +746,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			pSCN->ExtCashNodeID   = 0;
 			// @v9.7.10 pSCN->PapyrusNodeID_unused = 0;
 			pSCN->AlternateRegID  = 0; // @v9.7.10
-			pSCN->ScaleID         = 0;
+			pSCN->ScaleID = 0;
 			pSCN->CustDispType    = 0;
 			pSCN->CustDispPort[0] = 0;
 			pSCN->CustDispFlags	  = 0;
@@ -1638,11 +1638,12 @@ int SyncCashNodeCfgDialog::editExt()
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 1, +1);
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 2, -1);
 		dlg->SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished); // @v9.7.5
-		dlg->SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags); // @v9.7.5
+		dlg->AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished);
+		dlg->SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags);
 		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, (double)Data.BonusMaxPart / 10.0);
 		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL);
+		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 1, CASHFX_USEGOODSMATRIX); // @v11.2.8
 		dlg->SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			long   days_period = dlg->getCtrlLong(CTL_CASHNSEXT_SCF_DAYS);

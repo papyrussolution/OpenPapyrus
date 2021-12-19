@@ -411,7 +411,7 @@ public:
 // MARK: JSON serializer -
 
 enum json_opt_mask {
-	json_opt_none           =   0x00,
+	json_opt_none   =   0x00,
 	json_opt_need_comma     =   0x01,
 	json_opt_prettify       =   0x02,
 	json_opt_no_maptype     =   0x04,
@@ -764,11 +764,11 @@ public:
 	{
 	}
 	enum {
-		fGcIsDark         = 0x0001, // flag to check if object is reachable
+		fGcIsDark = 0x0001, // flag to check if object is reachable
 		fGcVisited        = 0x0002, // flag to check if object has already been counted in memory size
-		fHasOuter         = 0x0004, // flag used to automatically set ivar 0 to outer class (if any)
-		fIsStruct         = 0x0008, // flag to mark class as a struct
-		fIsInited         = 0x0010, // flag used to mark already init meta-classes (to be improved)
+		fHasOuter = 0x0004, // flag used to automatically set ivar 0 to outer class (if any)
+		fIsStruct = 0x0008, // flag to mark class as a struct
+		fIsInited = 0x0010, // flag used to mark already init meta-classes (to be improved)
 		fFiberTrying      = 0x0020  // set when the try flag is set by the user
 	};
 	//gravity_gc_t gc; // to be collectable by the garbage collector

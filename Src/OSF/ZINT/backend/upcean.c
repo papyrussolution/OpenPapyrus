@@ -1,4 +1,4 @@
-/*  upcean.c - Handles UPC, EAN and ISBN
+/* upcean.c - Handles UPC, EAN and ISBN
 
     libzint - the open source barcode library
     Copyright (C) 2008-2016 Robin Stuart <rstuart114@gmail.com>

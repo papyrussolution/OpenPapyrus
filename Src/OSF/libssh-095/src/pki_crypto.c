@@ -903,7 +903,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 			    goto fail;
 		    }
 
-		    evp_rc = EVP_PKEY_get_raw_private_key(pkey, (uint8*)ed25519,
+		    evp_rc = EVP_PKEY_get_raw_private_key(pkey, (uint8 *)ed25519,
 			    &key_len);
 		    if(evp_rc != 1) {
 			    SSH_LOG(SSH_LOG_TRACE,
@@ -2318,12 +2318,12 @@ int pki_key_generate_ed25519(ssh_key key)
 		SSH_LOG(SSH_LOG_TRACE, "Failed to allocate memory for ed25519 public key");
 		goto error;
 	}
-	evp_rc = EVP_PKEY_get_raw_private_key(pkey, (uint8*)key->ed25519_privkey, &privkey_len);
+	evp_rc = EVP_PKEY_get_raw_private_key(pkey, (uint8 *)key->ed25519_privkey, &privkey_len);
 	if(evp_rc != 1) {
 		SSH_LOG(SSH_LOG_TRACE, "Failed to get ed25519 raw private key: %s", ERR_error_string(ERR_get_error(), NULL));
 		goto error;
 	}
-	evp_rc = EVP_PKEY_get_raw_public_key(pkey, (uint8*)key->ed25519_pubkey, &pubkey_len);
+	evp_rc = EVP_PKEY_get_raw_public_key(pkey, (uint8 *)key->ed25519_pubkey, &pubkey_len);
 	if(evp_rc != 1) {
 		SSH_LOG(SSH_LOG_TRACE, "Failed to get ed25519 raw public key: %s", ERR_error_string(ERR_get_error(), NULL));
 		goto error;

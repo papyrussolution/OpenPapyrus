@@ -156,20 +156,20 @@ public:
     int32_t length() const { return (int32_t)(limit-start); }
     UChar *getStart() { return start; }
     UChar *getLimit() { return limit; }
-    uint8_t getLastCC() const { return lastCC; }
+    uint8 getLastCC() const { return lastCC; }
 
     bool equals(const UChar *start, const UChar *limit) const;
-    bool equals(const uint8_t *otherStart, const uint8_t *otherLimit) const;
+    bool equals(const uint8 *otherStart, const uint8 *otherLimit) const;
 
-    bool append(UChar32 c, uint8_t cc, UErrorCode & errorCode) {
+    bool append(UChar32 c, uint8 cc, UErrorCode & errorCode) {
         return (c<=0xffff) ?
             appendBMP((UChar)c, cc, errorCode) :
             appendSupplementary(c, cc, errorCode);
     }
     bool append(const UChar *s, int32_t length, bool isNFD,
-                 uint8_t leadCC, uint8_t trailCC,
+                 uint8 leadCC, uint8 trailCC,
                  UErrorCode & errorCode);
-    bool appendBMP(UChar c, uint8_t cc, UErrorCode & errorCode) {
+    bool appendBMP(UChar c, uint8 cc, UErrorCode & errorCode) {
         if(remainingCapacity==0 && !resize(1, errorCode)) {
             return false;
         }
@@ -211,8 +211,8 @@ private:
   * We probably need it for UNORM_SIMPLE_APPEND.
      */
 
-    bool appendSupplementary(UChar32 c, uint8_t cc, UErrorCode & errorCode);
-    void insert(UChar32 c, uint8_t cc);
+    bool appendSupplementary(UChar32 c, uint8 cc, UErrorCode & errorCode);
+    void insert(UChar32 c, uint8 cc);
     static void writeCodePoint(UChar *p, UChar32 c) {
         if(c<=0xffff) {
             *p=(UChar)c;
@@ -227,12 +227,12 @@ private:
     UnicodeString & str;
     UChar *start, *reorderStart, *limit;
     int32_t remainingCapacity;
-    uint8_t lastCC;
+    uint8 lastCC;
 
     // private backward iterator
     void setIterator() { codePointStart=limit; }
     void skipPrevious();  // Requires start<codePointStart.
-    uint8_t previousCC();  // Returns 0 if there is no previous character.
+    uint8 previousCC();  // Returns 0 if there is no previous character.
 
     UChar *codePointStart, *codePointLimit;
 };
@@ -249,7 +249,7 @@ public:
     virtual ~Normalizer2Impl();
 
     void init(const int32_t *inIndexes, const UCPTrie *inTrie,
-              const uint16_t *inExtraData, const uint8_t *inSmallFCD);
+              const uint16_t *inExtraData, const uint8 *inSmallFCD);
 
     void addLcccChars(UnicodeSet & set) const;
     void addPropertyStarts(const USetAdder *sa, UErrorCode & errorCode) const;
@@ -281,7 +281,7 @@ public:
     bool isCompNo(uint16_t norm16) const { return minNoNo<=norm16 && norm16<minMaybeYes; }
     bool isDecompYes(uint16_t norm16) const { return norm16<minYesNo || minMaybeYes<=norm16; }
 
-    uint8_t getCC(uint16_t norm16) const {
+    uint8 getCC(uint16_t norm16) const {
         if(norm16>=MIN_NORMAL_MAYBE_YES) {
             return getCCFromNormalYesOrMaybe(norm16);
         }
@@ -290,13 +290,13 @@ public:
         }
         return getCCFromNoNo(norm16);
     }
-    static uint8_t getCCFromNormalYesOrMaybe(uint16_t norm16) {
-        return (uint8_t)(norm16 >> OFFSET_SHIFT);
+    static uint8 getCCFromNormalYesOrMaybe(uint16_t norm16) {
+        return (uint8)(norm16 >> OFFSET_SHIFT);
     }
-    static uint8_t getCCFromYesOrMaybe(uint16_t norm16) {
+    static uint8 getCCFromYesOrMaybe(uint16_t norm16) {
         return norm16>=MIN_NORMAL_MAYBE_YES ? getCCFromNormalYesOrMaybe(norm16) : 0;
     }
-    uint8_t getCCFromYesOrMaybeCP(UChar32 c) const {
+    uint8 getCCFromYesOrMaybeCP(UChar32 c) const {
         if(c < minCompNoMaybeCP) { return 0; }
         return getCCFromYesOrMaybe(getNorm16(c));
     }
@@ -362,7 +362,7 @@ public:
     /** Returns true if the single-or-lead code unit c might have non-zero FCD data. */
     bool singleLeadMightHaveNonZeroFCD16(UChar32 lead) const {
         // 0<=lead<=0xffff
-        uint8_t bits=smallFCD[lead>>8];
+        uint8 bits=smallFCD[lead>>8];
         if(bits==0) { return false; }
         return (bool)((bits>>((lead>>5)&7))&1);
     }
@@ -493,8 +493,8 @@ public:
                             UErrorCode & errorCode) const;
 
     /** sink==nullptr: isNormalized()/spanQuickCheckYes() */
-    const uint8_t *decomposeUTF8(uint32_t options,
-                                 const uint8_t *src, const uint8_t *limit,
+    const uint8 *decomposeUTF8(uint32_t options,
+                                 const uint8 *src, const uint8 *limit,
                                  ByteSink *sink, Edits *edits, UErrorCode & errorCode) const;
 
     bool compose(const UChar *src, const UChar *limit,
@@ -514,7 +514,7 @@ public:
 
     /** sink==nullptr: isNormalized() */
     bool composeUTF8(uint32_t options, bool onlyContiguous,
-                      const uint8_t *src, const uint8_t *limit,
+                      const uint8 *src, const uint8 *limit,
                       ByteSink *sink, icu::Edits *edits, UErrorCode & errorCode) const;
 
     const UChar *makeFCD(const UChar *src, const UChar *limit,
@@ -588,28 +588,28 @@ private:
 
     // For use with isCompYes().
     // Perhaps the compiler can combine the two tests for MIN_YES_YES_WITH_CC.
-    // static uint8_t getCCFromYes(uint16_t norm16) {
+    // static uint8 getCCFromYes(uint16_t norm16) {
     //     return norm16>=MIN_YES_YES_WITH_CC ? getCCFromNormalYesOrMaybe(norm16) : 0;
     // }
-    uint8_t getCCFromNoNo(uint16_t norm16) const {
+    uint8 getCCFromNoNo(uint16_t norm16) const {
         const uint16_t *mapping=getMapping(norm16);
         if(*mapping&MAPPING_HAS_CCC_LCCC_WORD) {
-            return (uint8_t)*(mapping-1);
+            return (uint8)*(mapping-1);
         } else {
             return 0;
         }
     }
     // requires that the [cpStart..cpLimit[ character passes isCompYesAndZeroCC()
-    uint8_t getTrailCCFromCompYesAndZeroCC(uint16_t norm16) const {
+    uint8 getTrailCCFromCompYesAndZeroCC(uint16_t norm16) const {
         if(norm16<=minYesNo) {
             return 0;  // yesYes and Hangul LV have ccc=tccc=0
         } else {
             // For Hangul LVT we harmlessly fetch a firstUnit with tccc=0 here.
-            return (uint8_t)(*getMapping(norm16)>>8);  // tccc from yesNo
+            return (uint8)(*getMapping(norm16)>>8);  // tccc from yesNo
         }
     }
-    uint8_t getPreviousTrailCC(const UChar *start, const UChar *p) const;
-    uint8_t getPreviousTrailCC(const uint8_t *start, const uint8_t *p) const;
+    uint8 getPreviousTrailCC(const UChar *start, const UChar *p) const;
+    uint8 getPreviousTrailCC(const uint8 *start, const uint8 *p) const;
 
     // Requires algorithmic-NoNo.
     UChar32 mapAlgorithmic(UChar32 c, uint16_t norm16) const {
@@ -664,7 +664,7 @@ private:
     bool decompose(UChar32 c, uint16_t norm16,
                     ReorderingBuffer &buffer, UErrorCode & errorCode) const;
 
-    const uint8_t *decomposeShort(const uint8_t *src, const uint8_t *limit,
+    const uint8 *decomposeShort(const uint8 *src, const uint8 *limit,
                                   StopAt stopAt, bool onlyContiguous,
                                   ReorderingBuffer &buffer, UErrorCode & errorCode) const;
 
@@ -680,10 +680,10 @@ private:
         return norm16 < minNoNoCompNoMaybeCC || isAlgorithmicNoNo(norm16);
     }
     bool hasCompBoundaryBefore(const UChar *src, const UChar *limit) const;
-    bool hasCompBoundaryBefore(const uint8_t *src, const uint8_t *limit) const;
+    bool hasCompBoundaryBefore(const uint8 *src, const uint8 *limit) const;
     bool hasCompBoundaryAfter(const UChar *start, const UChar *p,
                                bool onlyContiguous) const;
-    bool hasCompBoundaryAfter(const uint8_t *start, const uint8_t *p,
+    bool hasCompBoundaryAfter(const uint8 *start, const uint8 *p,
                                bool onlyContiguous) const;
     bool norm16HasCompBoundaryAfter(uint16_t norm16, bool onlyContiguous) const {
         return (norm16 & HAS_COMP_BOUNDARY_AFTER) != 0 &&
@@ -728,7 +728,7 @@ private:
     const UCPTrie *normTrie;
     const uint16_t *maybeYesCompositions;
     const uint16_t *extraData;  // mappings and/or compositions for yesYes, yesNo & noNo characters
-    const uint8_t *smallFCD;  // [0x100] one bit per 32 BMP code points, set if any FCD!=0
+    const uint8 *smallFCD;  // [0x100] one bit per 32 BMP code points, set if any FCD!=0
 
     UInitOnce       fCanonIterDataInitOnce = U_INITONCE_INITIALIZER;
     CanonIterData  *fCanonIterData;
@@ -896,7 +896,7 @@ unorm_getFCD16(UChar32 c);
  *
  *      The data structures for compositions lists and mappings are described in the design doc.
  *
- * uint8_t smallFCD[0x100]; -- new in format version 2
+ * uint8 smallFCD[0x100]; -- new in format version 2
  *
  *      This is a bit set to help speed up FCD value lookups in the absence of a full
  *      UTrie2 or other large data structure with the full FCD value mapping.

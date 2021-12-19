@@ -4,19 +4,19 @@
 /* decNumber package local type, tuning, and macro definitions        */
 /* ------------------------------------------------------------------ */
 /* Copyright (c) IBM Corporation, 2000-2016.   All rights reserved.   */
-/*     */
+/* */
 /* This software is made available under the terms of the    */
 /* ICU License -- ICU 1.8.1 and later.     */
-/*     */
+/* */
 /* The description and User's Guide ("The decNumber C Library") for   */
 /* this software is called decNumber.pdf.  This document is  */
 /* available, together with arithmetic and format specifications,     */
 /* testcases, and Web links, on the General Decimal Arithmetic page.  */
-/*     */
+/* */
 /* Please send comments, suggestions, and corrections to the author:  */
-/*   mfc@uk.ibm.com      */
-/*   Mike Cowlishaw, IBM Fellow   */
-/*   IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
+/* mfc@uk.ibm.com      */
+/* Mike Cowlishaw, IBM Fellow   */
+/* IBM UK, PO Box 31, Birmingham Road, Warwick CV34 5JL, UK         */
 /* ------------------------------------------------------------------ */
 /* This header file is included by all modules in the decNumber       */
 /* library, and contains local type definitions, tuning parameters,   */
@@ -68,9 +68,9 @@
 
   /* Local names for common types -- for safety, decNumber modules do */
   /* not use int or long directly.         */
-  #define Flag   uint8_t
+  #define Flag   uint8
   #define Byte   int8_t
-  #define uByte  uint8_t
+  #define uByte  uint8
   #define Short  int16_t
   #define uShort uint16_t
   #define Int    int32_t
@@ -84,7 +84,7 @@
   /* Development-use definitions  */
   typedef long int LI; /* for printf arguments only   */
   #define DECNOINT  0         /* 1 to check no internal use of 'int'  */
-                              /*   or stdint types  */
+                              /* or stdint types  */
   #if DECNOINT
     /* if these interfere with your C includes, do not set DECNOINT   */
     #define int     ?         /* enable to ensure that plain C 'int'  */
@@ -231,9 +231,9 @@
   /* D2U -- return the number of Units needed to hold d digits        */
   /* (runtime version, with table lookaside for small d)     */
   #if defined(DECDPUN) && DECDPUN==8
-    #define D2U(d) ((unsigned)((d)<=DECMAXD2U?d2utable[d]:((d)+7)>>3))
+    #define D2U(d) ((uint)((d)<=DECMAXD2U?d2utable[d]:((d)+7)>>3))
   #elif defined(DECDPUN) && DECDPUN==4
-    #define D2U(d) ((unsigned)((d)<=DECMAXD2U?d2utable[d]:((d)+3)>>2))
+    #define D2U(d) ((uint)((d)<=DECMAXD2U?d2utable[d]:((d)+3)>>2))
   #else
     #define D2U(d) ((d)<=DECMAXD2U?d2utable[d]:((d)+DECDPUN-1)/DECDPUN)
   #endif
@@ -340,13 +340,13 @@
     /* [ZEROWORD is defined to be one of these in the DFISZERO macro] */
 
     /* Format-dependent common tests:      */
-    /*   DFISZERO   -- test for (any) zero */
-    /*   DFISCCZERO -- test for coefficient continuation being zero   */
-    /*   DFISCC01   -- test for coefficient contains only 0s and 1s   */
-    /*   DFISINT    -- test for finite and exponent q=0      */
-    /*   DFISUINT01 -- test for sign=0, finite, exponent q=0, and     */
-    /*                 MSD=0 or 1 */
-    /*   ZEROWORD is also defined here.    */
+    /* DFISZERO   -- test for (any) zero */
+    /* DFISCCZERO -- test for coefficient continuation being zero   */
+    /* DFISCC01   -- test for coefficient contains only 0s and 1s   */
+    /* DFISINT    -- test for finite and exponent q=0      */
+    /* DFISUINT01 -- test for sign=0, finite, exponent q=0, and     */
+    /* MSD=0 or 1 */
+    /* ZEROWORD is also defined here.    */
     /* In DFISZERO the first test checks the least-significant word   */
     /* (most likely to be non-zero); the penultimate tests MSD and    */
     /* DPDs in the signword, and the final test excludes specials and */
@@ -471,8 +471,8 @@
     /* on IA32. */
 
     /* Two macros are defined for each format:      */
-    /*   GETCOEFF extracts the coefficient of the current format      */
-    /*   GETWCOEFF extracts the coefficient of the next-wider format. */
+    /* GETCOEFF extracts the coefficient of the current format      */
+    /* GETWCOEFF extracts the coefficient of the next-wider format. */
     /* The latter is a copy of the next-wider GETCOEFF using DFWWORD. */
 
     #if DECPMAX==7

@@ -104,7 +104,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
  *  reg_name      = 1*( unreserved | escaped | "$" | "," |
  *             ";" | ":" | "@" | "&" | "=" | "+" )
  *
- * path          = [ abs_path | opaque_part ]
+ * path  = [ abs_path | opaque_part ]
  */
 #define STRNDUP(s, n) (char *)xmlStrndup((const xmlChar *)(s), (n))
 // 
@@ -137,7 +137,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri)
  */
 #define ISA_PCT_ENCODED(p) ((*(p) == '%') && (ISA_HEXDIG(p + 1)) && (ISA_HEXDIG(p + 2)))
 /*
- *  pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+ *  pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
  */
 #define ISA_PCHAR(p) (ISA_UNRESERVED(p) || ISA_PCT_ENCODED(p) || ISA_SUB_DELIM(p) || ((*(p) == ':')) || ((*(p) == '@')))
 /**
@@ -245,7 +245,7 @@ static int xmlParse3986Query(xmlURI * uri, const char ** str)
  * Parse a port  part and fills in the appropriate fields
  * of the @uri structure
  *
- * port          = *DIGIT
+ * port  = *DIGIT
  *
  * Returns 0 or the error code
  */
@@ -334,7 +334,7 @@ static int xmlParse3986DecOctet(const char ** str)
  * Parse an host part and fills in the appropriate fields
  * of the @uri structure
  *
- * host          = IP-literal / IPv4address / reg-name
+ * host  = IP-literal / IPv4address / reg-name
  * IP-literal    = "[" ( IPv6address / IPvFuture  ) "]"
  * IPv4address   = dec-octet "." dec-octet "." dec-octet "." dec-octet
  * reg-name      = *( unreserved / pct-encoded / sub-delims )

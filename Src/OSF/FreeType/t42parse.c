@@ -282,23 +282,23 @@ static void t42_parse_encoding(T42_Face face, T42_Loader loader)
 			(void)T1_Add_Table(char_table, n, ".notdef", 8);
 
 		/* Now we need to read records of the form   */
-		/*                                     */
-		/*   ... charcode /charname ...        */
-		/*                                     */
+		/*                     */
+		/* ... charcode /charname ...        */
+		/*                     */
 		/* for each entry in our table.        */
-		/*                                     */
+		/*                     */
 		/* We simply look for a number followed by an immediate   */
 		/* name.  Note that this ignores correctly the sequence   */
 		/* that is often seen in type42 fonts: */
-		/*                                     */
-		/*   0 1 255 { 1 index exch /.notdef put } for dup  */
-		/*                                     */
+		/*                     */
+		/* 0 1 255 { 1 index exch /.notdef put } for dup  */
+		/*                     */
 		/* used to clean the encoding array before anything else. */
-		/*                                     */
+		/*                     */
 		/* Alternatively, if the array is directly given as */
-		/*                                     */
-		/*   /Encoding [ ... ]                 */
-		/*                                     */
+		/*                     */
+		/* /Encoding [ ... ]                 */
+		/*                     */
 		/* we only read immediates.            */
 		n = 0;
 		T1_Skip_Spaces(parser);
@@ -353,7 +353,7 @@ static void t42_parse_encoding(T42_Face face, T42_Loader loader)
 					/* Since the current position is not updated for     */
 					/* immediates-only mode we would get an infinite loop if   */
 					/* we don't do anything here.           */
-					/*                                      */
+					/*                      */
 					/* This encoding array is not valid according to the */
 					/* type42 specification (it might be an encoding for a CID */
 					/* type42 font, however), so we conclude that this font is */
@@ -409,17 +409,17 @@ static void t42_parse_sfnts(T42_Face face, T42_Loader loader)
 	T42_Load_Status status;
 
 	/* The format is             */
-	/*                           */
-	/*   /sfnts [ <hexstring> <hexstring> ... ] def */
-	/*                           */
+	/*           */
+	/* /sfnts [ <hexstring> <hexstring> ... ] def */
+	/*           */
 	/* or                        */
-	/*                           */
-	/*   /sfnts [                */
-	/*      <num_bin_bytes> RD <binary data>  */
-	/*      <num_bin_bytes> RD <binary data>  */
-	/*      ...                  */
-	/*   ] def                   */
-	/*                           */
+	/*           */
+	/* /sfnts [                */
+	/* <num_bin_bytes> RD <binary data>  */
+	/* <num_bin_bytes> RD <binary data>  */
+	/* ...                  */
+	/* ] def                   */
+	/*           */
 	/* with exactly one space after the `RD' token. */
 	T1_Skip_Spaces(parser);
 	if(parser->root.cursor >= limit || *parser->root.cursor++ != '[') {
@@ -686,10 +686,10 @@ static void t42_parse_charstrings(T42_Face face, T42_Loader loader)
 	n = 0;
 	for(;;) {
 		/* We support two formats.  */
-		/*                          */
-		/*   `/glyphname' + index [+ `def']      */
-		/*   `(glyphname)' [+ `cvn'] + index [+ `def'] */
-		/*                          */
+		/*          */
+		/* `/glyphname' + index [+ `def']      */
+		/* `(glyphname)' [+ `cvn'] + index [+ `def'] */
+		/*          */
 		/* The latter format gets created by the */
 		/* LilyPond typesetting program.  */
 		T1_Skip_Spaces(parser);

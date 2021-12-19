@@ -40,7 +40,7 @@ RBBINode::RBBINode(NodeType t) : UMemory() {
 #ifdef RBBI_DEBUG
 	fSerialNum    = ++gLastSerial;
 #endif
-	fType         = t;
+	fType = t;
 	fParent       = NULL;
 	fLeftChild    = NULL;
 	fRightChild   = NULL;
@@ -51,7 +51,7 @@ RBBINode::RBBINode(NodeType t) : UMemory() {
 	fLookAheadEnd = FALSE;
 	fRuleRoot     = FALSE;
 	fChainIn      = FALSE;
-	fVal          = 0;
+	fVal  = 0;
 	fPrecedence   = precZero;
 
 	UErrorCode status = U_ZERO_ERROR;
@@ -86,7 +86,7 @@ RBBINode::RBBINode(const RBBINode &other) : UMemory(other) {
 	fFirstPos    = other.fFirstPos;
 	fLastPos     = other.fLastPos;
 	fNullable    = other.fNullable;
-	fVal         = other.fVal;
+	fVal = other.fVal;
 	fRuleRoot    = FALSE;
 	fChainIn     = other.fChainIn;
 	UErrorCode status = U_ZERO_ERROR;
@@ -153,11 +153,11 @@ RBBINode * RBBINode::cloneTree() {
 		// Check for null pointer.
 		if(n != NULL) {
 			if(fLeftChild != NULL) {
-				n->fLeftChild          = fLeftChild->cloneTree();
+				n->fLeftChild  = fLeftChild->cloneTree();
 				n->fLeftChild->fParent = n;
 			}
 			if(fRightChild != NULL) {
-				n->fRightChild          = fRightChild->cloneTree();
+				n->fRightChild  = fRightChild->cloneTree();
 				n->fRightChild->fParent = n;
 			}
 		}
@@ -221,7 +221,7 @@ void RBBINode::flattenSets() {
 			RBBINode * setRefNode = fLeftChild;
 			RBBINode * usetNode   = setRefNode->fLeftChild;
 			RBBINode * replTree   = usetNode->fLeftChild;
-			fLeftChild           = replTree->cloneTree();
+			fLeftChild   = replTree->cloneTree();
 			fLeftChild->fParent  = this;
 			delete setRefNode;
 		}
@@ -235,7 +235,7 @@ void RBBINode::flattenSets() {
 			RBBINode * setRefNode = fRightChild;
 			RBBINode * usetNode   = setRefNode->fLeftChild;
 			RBBINode * replTree   = usetNode->fLeftChild;
-			fRightChild           = replTree->cloneTree();
+			fRightChild   = replTree->cloneTree();
 			fRightChild->fParent  = this;
 			delete setRefNode;
 		}

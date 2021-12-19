@@ -303,13 +303,13 @@ static int32_t reduceToUMappings(UCMTable * table) {
 	return j;
 }
 
-static uint32_t getToUnicodeValue(CnvExtData * extData, UCMTable * table, UCMapping * m) {
+static uint32_t getToUnicodeValue(CnvExtData * extData, UCMTable * table, UCMapping * m) 
+{
 	UChar32 * u32;
 	UChar * u;
 	uint32_t value;
 	int32_t u16Length, ratio;
 	UErrorCode errorCode;
-
 	/* write the Unicode result code point or string index */
 	if(m->uLen==1) {
 		u16Length = U16_LENGTH(m->u);

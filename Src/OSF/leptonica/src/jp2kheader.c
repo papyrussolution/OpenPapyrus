@@ -29,10 +29,10 @@
  * <pre>
  *
  *      Read header
- *          int32          readHeaderJp2k()
- *          int32          freadHeaderJp2k()
- *          int32          readHeaderMemJp2k()
- *          int32          fgetJp2kResolution()
+ *          l_int32          readHeaderJp2k()
+ *          l_int32          freadHeaderJp2k()
+ *          l_int32          readHeaderMemJp2k()
+ *          l_int32          fgetJp2kResolution()
  *
  *  Note: these function read image metadata from a jp2k file, without
  *  using any jp2k libraries.
@@ -45,7 +45,7 @@
 #pragma hdrstop
 
 #ifndef  NO_CONSOLE_IO
-#define  DEBUG_IHDR        0
+#define  DEBUG_CODEC        0
 #endif  /* ~NO_CONSOLE_IO */
 
 /* --------------------------------------------*/
@@ -53,8 +53,8 @@
 /* --------------------------------------------*/
 
     /* a sanity check on the size read from file */
-static const int32  MAX_JP2K_WIDTH = 100000;
-static const int32  MAX_JP2K_HEIGHT = 100000;
+static const l_int32  MAX_JP2K_WIDTH = 100000;
+static const l_int32  MAX_JP2K_HEIGHT = 100000;
 
 /*--------------------------------------------------------------------*
  *                          Stream interface                          *
@@ -64,33 +64,31 @@ static const int32  MAX_JP2K_HEIGHT = 100000;
  *
  * \param[in]    filename
  * \param[out]   pw [optional]
- *           [out]   ph ([optional]
- *           [out]   pbps ([optional]  bits/sample
+ * \param[out]   ph [optional]
+ * \param[out]   pbps [optional]  bits/sample
  * \param[out]   pspp [optional]  samples/pixel
+ * \param[out]   pcodec [optional]  L_JP2_CODEC or L_J2K_CODEC
  * \return  0 if OK, 1 on error
  */
-int32
+l_ok
 readHeaderJp2k(const char *filename,
-               int32    *pw,
-               int32    *ph,
-               int32    *pbps,
-               int32    *pspp)
+               l_int32    *pw,
+               l_int32    *ph,
+               l_int32    *pbps,
+               l_int32    *pspp,
+               l_int32    *pcodec)
 {
-int32  ret;
-FILE    *fp;
+l_int32  ret;
+FILE *fp;
 
-    PROCNAME("readHeaderJp2k");
+    PROCNAME(__FUNCTION__);
 
-    if (pw) *pw = 0;
-    if (ph) *ph = 0;
-    if (pbps) *pbps = 0;
-    if (pspp) *pspp = 0;
     if (!filename)
         return ERROR_INT("filename not defined", procName, 1);
 
     if ((fp = fopenReadStream(filename)) == NULL)
         return ERROR_INT("image file not found", procName, 1);
-    ret = freadHeaderJp2k(fp, pw, ph, pbps, pspp);
+    ret = freadHeaderJp2k(fp, pw, ph, pbps, pspp, pcodec);
     fclose(fp);
     return ret;
 }
@@ -101,27 +99,25 @@ FILE    *fp;
  *
  * \param[in]    fp file stream opened for read
  * \param[out]   pw [optional]
- *           [out]   ph ([optional]
- *           [out]   pbps ([optional]  bits/sample
+ * \param[out]   ph [optional]
+ * \param[out]   pbps [optional]  bits/sample
  * \param[out]   pspp [optional]  samples/pixel
+ * \param[out]   pcodec [optional]  L_JP2_CODEC or L_J2K_CODEC
  * \return  0 if OK, 1 on error
  */
-int32
-freadHeaderJp2k(FILE     *fp,
-                int32  *pw,
-                int32  *ph,
-                int32  *pbps,
-                int32  *pspp)
+l_ok
+freadHeaderJp2k(FILE *fp,
+                l_int32 *pw,
+                l_int32 *ph,
+                l_int32 *pbps,
+                l_int32 *pspp,
+                l_int32 *pcodec)
 {
 uint8  buf[80];  /* just need the first 80 bytes */
-int32  nread;
+l_int32  nread, ret;
 
-    PROCNAME("freadHeaderJp2k");
+    PROCNAME(__FUNCTION__);
 
-    if (pw) *pw = 0;
-    if (ph) *ph = 0;
-    if (pbps) *pbps = 0;
-    if (pspp) *pspp = 0;
     if (!fp)
         return ERROR_INT("fp not defined", procName, 1);
 
@@ -130,9 +126,9 @@ int32  nread;
     if (nread != sizeof(buf))
         return ERROR_INT("read failure", procName, 1);
 
-    readHeaderMemJp2k(buf, sizeof(buf), pw, ph, pbps, pspp);
+    ret = readHeaderMemJp2k(buf, sizeof(buf), pw, ph, pbps, pspp, pcodec);
     rewind(fp);
-    return 0;
+    return ret;
 }
 
 
@@ -142,9 +138,10 @@ int32  nread;
  * \param[in]    data
  * \param[in]    size at least 80
  * \param[out]   pw [optional]
- *           [out]   ph ([optional]
- *           [out]   pbps ([optional]  bits/sample
+ * \param[out]   ph [optional]
+ * \param[out]   pbps [optional]  bits/sample
  * \param[out]   pspp [optional]  samples/pixel
+ * \param[out]   pcodec [optional]  L_JP2_CODEC or L_J2K_CODEC
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -152,32 +149,38 @@ int32  nread;
  *      (1) The ISO/IEC reference for jpeg2000 is
  *               http://www.jpeg.org/public/15444-1annexi.pdf
  *          and the file format syntax begins at page 127.
- *      (2) The Image Header Box begins with 'ihdr' = 0x69686472 in
- *          big-endian order.  This typically, but not always, starts
- *          byte 44, with the big-endian data fields beginning at byte 48:
+ *      (2) With a image file codec (L_JP2_CODEC), the Image Header Box
+ *          begins with 'ihdr' = 0x69686472 in big-endian order.  This
+ *          typically, but not always, starts on byte 44, with the
+ *          big-endian data fields beginning at byte 48:
  *               h:    4 bytes
  *               w:    4 bytes
  *               spp:  2 bytes
  *               bps:  1 byte   (contains bps - 1)
+ *      (3) With a codestream codec (L_J2K_CODEC), the first 4 bytes are
+ *          0xff4fff51.  The fields for w and h appear to start on byte 8,
+ *          and the fields for spp and bps appear to start on byte 40.
  * </pre>
  */
-int32
+l_ok
 readHeaderMemJp2k(const uint8  *data,
                   size_t          size,
-                  int32        *pw,
-                  int32        *ph,
-                  int32        *pbps,
-                  int32        *pspp)
+                  l_int32 *pw,
+                  l_int32 *ph,
+                  l_int32 *pbps,
+                  l_int32 *pspp,
+                  l_int32 *pcodec)
 {
-int32  format, val, w, h, bps, spp, loc, found, windex;
+l_int32  format, val, w, h, bps, spp, loc, found, windex, codec;
 uint8  ihdr[4] = {0x69, 0x68, 0x64, 0x72};  /* 'ihdr' */
 
-    PROCNAME("readHeaderMemJp2k");
+    PROCNAME(__FUNCTION__);
 
     if (pw) *pw = 0;
     if (ph) *ph = 0;
     if (pbps) *pbps = 0;
     if (pspp) *pspp = 0;
+    if (pcodec) *pcodec = 0;
     if (!data)
         return ERROR_INT("data not defined", procName, 1);
     if (size < 80)
@@ -186,29 +189,61 @@ uint8  ihdr[4] = {0x69, 0x68, 0x64, 0x72};  /* 'ihdr' */
     if (format != IFF_JP2)
         return ERROR_INT("not jp2 file", procName, 1);
 
-        /* Search for beginning of the Image Header Box: 'ihdr' */
-    arrayFindSequence(data, size, ihdr, 4, &loc, &found);
-    if (!found)
-        return ERROR_INT("image parameters not found", procName, 1);
-#if  DEBUG_IHDR
-    if (loc != 44)
-        L_INFO("Beginning of ihdr is at byte %d\n", procName, loc);
-#endif  /* DEBUG_IHDR */
+        /* Find beginning of the image metadata */
+    if (!memcmp(data, "\xff\x4f\xff\x51", 4)) {   /* codestream */
+        windex = 2;
+        codec = L_J2K_CODEC;
+    } else {  /* file data with image header box 'ihdr' */
+        arrayFindSequence(data, size, ihdr, 4, &loc, &found);
+        if (!found)
+            return ERROR_INT("image parameters not found", procName, 1);
+        windex = loc / 4 + 1;  /* expect 12 */
+        codec = L_JP2_CODEC;
+#if  DEBUG_CODEC
+        if (loc != 44)
+            L_INFO("Beginning of ihdr is at byte %d\n", procName, loc);
+#endif  /* DEBUG_CODEC */
+    }
+    if (pcodec) *pcodec = codec;
 
-    windex = loc / 4 + 1;
-    val = *((uint32 *)data + windex);
-    h = convertOnLittleEnd32(val);
-    val = *((uint32 *)data + windex + 1);
-    w = convertOnLittleEnd32(val);
-    val = *((uint16 *)data + 2 * (windex + 2));
-    spp = convertOnLittleEnd16(val);
-    bps = *(data + 4 * (windex + 2) + 2) + 1;
+    if (codec == L_JP2_CODEC) {
+        if (size < 4 * (windex + 3))
+            return ERROR_INT("header size is too small", procName, 1);
+        val = *((l_uint32 *)data + windex);
+        h = convertOnLittleEnd32(val);
+        val = *((l_uint32 *)data + windex + 1);
+        w = convertOnLittleEnd32(val);
+        val = *((uint16 *)data + 2 * (windex + 2));
+        spp = convertOnLittleEnd16(val);
+        bps = *(data + 4 * (windex + 2) + 2) + 1;
+    } else {  /* codec == L_J2K_CODEC */
+        if (size < 4 * (windex + 9))
+            return ERROR_INT("header size is too small", procName, 1);
+        val = *((l_uint32 *)data + windex);
+        w = convertOnLittleEnd32(val);
+        val = *((l_uint32 *)data + windex + 1);
+        h = convertOnLittleEnd32(val);
+        val = *((uint16 *)data + 2 * (windex + 8));
+        spp = convertOnLittleEnd16(val);
+        bps = *(data + 4 * (windex + 8) + 2) + 1;
+    }
+#if  DEBUG_CODEC
+    lept_stderr("h = %d, w = %d, codec: %s, spp = %d, bps = %d\n", h, w,
+                (codec == L_JP2_CODEC ? "jp2" : "j2k"), spp, bps);
+#endif  /* DEBUG_CODEC */
+
+    if (w < 1 || h < 1)
+        return ERROR_INT("w and h must both be > 0", procName, 1);
     if (w > MAX_JP2K_WIDTH || h > MAX_JP2K_HEIGHT)
         return ERROR_INT("unrealistically large sizes", procName, 1);
+    if (spp != 1 && spp != 3 && spp != 4)
+        return ERROR_INT("spp must be in 1, 3 or 4", procName, 1);
+    if (bps != 8 && bps != 16)
+        return ERROR_INT("bps must be 8 or 16", procName, 1);
     if (pw) *pw = w;
     if (ph) *ph = h;
-    if (pbps) *pbps = bps;
     if (pspp) *pspp = spp;
+    if (pbps) *pbps = bps;
     return 0;
 }
 
@@ -234,20 +269,20 @@ uint8  ihdr[4] = {0x69, 0x68, 0x64, 0x72};  /* 'ihdr' */
  *             yexp:    1 byte
  *             xexp:    1 byte
  */
-int32
-fgetJp2kResolution(FILE     *fp,
-                   int32  *pxres,
-                   int32  *pyres)
+l_int32
+fgetJp2kResolution(FILE *fp,
+                   l_int32 *pxres,
+                   l_int32 *pyres)
 {
 uint8    xexp, yexp;
 uint8   *data;
 uint16   xnum, ynum, xdenom, ydenom;  /* these jp2k fields are 2-byte */
-int32    loc, found;
+l_int32    loc, found;
 uint8    resc[4] = {0x72, 0x65, 0x73, 0x63};  /* 'resc' */
 size_t     nbytes;
-double  xres, yres;
+double  xres, yres, maxres;
 
-    PROCNAME("fgetJp2kResolution");
+    PROCNAME(__FUNCTION__);
 
     if (pxres) *pxres = 0;
     if (pyres) *pyres = 0;
@@ -264,7 +299,12 @@ double  xres, yres;
     arrayFindSequence(data, nbytes, resc, 4, &loc, &found);
     if (!found) {
         L_WARNING("image resolution not found\n", procName);
-        LEPT_FREE(data);
+        SAlloc::F(data);
+        return 1;
+    }
+    if (nbytes < 80 || loc >= nbytes - 13) {
+        L_WARNING("image resolution found without enough space\n", procName);
+        SAlloc::F(data);
         return 1;
     }
 
@@ -278,6 +318,11 @@ double  xres, yres;
     xnum = convertOnLittleEnd16(xnum);
     xdenom = data[loc + 11] << 8 | data[loc + 10];
     xdenom = convertOnLittleEnd16(xdenom);
+    if (ydenom == 0 || xdenom == 0) {
+        L_WARNING("bad data: ydenom or xdenom is 0\n", procName);
+        SAlloc::F(data);
+        return 1;
+    }
     yexp = data[loc + 12];
     xexp = data[loc + 13];
     yres = ((double)ynum / (double)ydenom) * pow(10.0, (double)yexp);
@@ -286,10 +331,17 @@ double  xres, yres;
         /* Convert from pixels/meter to ppi */
     yres *= (300.0 / 11811.0);
     xres *= (300.0 / 11811.0);
-    *pyres = (int32)(yres + 0.5);
-    *pxres = (int32)(xres + 0.5);
 
-    LEPT_FREE(data);
+        /* Sanity check for bad data */
+    maxres = 100000.0;  /* ppi */
+    if (xres > maxres || yres > maxres) {
+        L_WARNING("ridiculously large resolution\n", procName);
+    } else {
+        *pyres = (l_int32)(yres + 0.5);
+        *pxres = (l_int32)(xres + 0.5);
+    }
+
+    SAlloc::F(data);
     return 0;
 }
 

@@ -168,18 +168,18 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 		}
 	}
 	memcpy(p_new->opts.options_seen, src->opts.options_seen, sizeof(p_new->opts.options_seen));
-	p_new->opts.fd                    = src->opts.fd;
-	p_new->opts.port                  = src->opts.port;
-	p_new->opts.timeout               = src->opts.timeout;
-	p_new->opts.timeout_usec          = src->opts.timeout_usec;
+	p_new->opts.fd            = src->opts.fd;
+	p_new->opts.port          = src->opts.port;
+	p_new->opts.timeout       = src->opts.timeout;
+	p_new->opts.timeout_usec  = src->opts.timeout_usec;
 	p_new->opts.compressionlevel      = src->opts.compressionlevel;
 	p_new->opts.StrictHostKeyChecking = src->opts.StrictHostKeyChecking;
 	p_new->opts.gss_delegate_creds    = src->opts.gss_delegate_creds;
-	p_new->opts.flags                 = src->opts.flags;
-	p_new->opts.nodelay               = src->opts.nodelay;
+	p_new->opts.flags         = src->opts.flags;
+	p_new->opts.nodelay       = src->opts.nodelay;
 	p_new->opts.config_processed      = src->opts.config_processed;
 	p_new->common.log_verbosity       = src->common.log_verbosity;
-	p_new->common.callbacks           = src->common.callbacks;
+	p_new->common.callbacks   = src->common.callbacks;
 	*dest = p_new;
 	return 0;
 }

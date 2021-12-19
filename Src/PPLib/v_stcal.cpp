@@ -772,8 +772,8 @@ PPALDD_DESTRUCTOR(StaffCalView) { Destroy(); }
 int PPALDD_StaffCalView::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(StaffCal, rsrv);
-	H.FltBeg         = p_filt->Period.low;
-	H.FltEnd         = p_filt->Period.upp;
+	H.FltBeg = p_filt->Period.low;
+	H.FltEnd = p_filt->Period.upp;
 	H.FltFlags       = p_filt->Flags;
 	H.FltLinkObjType = p_filt->LinkObjType;
 	H.FltSingleLinkObjID = p_filt->LinkObjList.GetSingle();
@@ -798,7 +798,7 @@ int PPALDD_StaffCalView::NextIteration(long iterId)
 	START_PPVIEW_ALDD_ITER(StaffCal);
 	SString temp_buf;
 	I.CalID       = item.CalID;
-	I.Dt          = item.Dt;
+	I.Dt  = item.Dt;
 	I.TmStart     = item.TmStart;
 	I.TmEnd       = item.TmEnd;
 	I.Duration    = item.Duration;

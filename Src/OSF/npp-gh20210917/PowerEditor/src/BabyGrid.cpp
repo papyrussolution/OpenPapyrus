@@ -1897,22 +1897,20 @@ LRESULT CALLBACK GridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if(BGHS[SelfIndex].COLUMNSIZING) {
 					int dx = x-BGHS[SelfIndex].columntoresizeinitx;
 					int nx = BGHS[SelfIndex].columntoresizeinitsize + dx;
-					if(nx<=0) {
-						nx = 0;
-					}
+					SETMAX(nx, 0);
 					int cr = BGHS[SelfIndex].columntoresize;
 					SendMessage(hWnd, BGM_SETCOLWIDTH, cr, nx);
 				}
 				if((r==0)&&(c>=-1)&&((t!=c)||(z!=c))&&(!BGHS[SelfIndex].COLUMNSIZING)) {
 					if((BGHS[SelfIndex].cursortype != 2)&&(BGHS[SelfIndex].ALLOWCOLUMNRESIZING)) {
 						BGHS[SelfIndex].cursortype = 2;
-						SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+						::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
 					}
 				}
 				else {
 					if((BGHS[SelfIndex].cursortype != 1)&&(!BGHS[SelfIndex].COLUMNSIZING)) {
 						BGHS[SelfIndex].cursortype = 1;
-						SetCursor(LoadCursor(NULL, IDC_ARROW));
+						::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 					}
 				}
 			}
@@ -1920,7 +1918,7 @@ LRESULT CALLBACK GridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONUP:
 		    if(BGHS[SelfIndex].COLUMNSIZING) {
 			    BGHS[SelfIndex].COLUMNSIZING = FALSE;
-			    SetCursor(LoadCursor(NULL, IDC_ARROW));
+			    ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 			    BGHS[SelfIndex].cursortype = 1;
 			    BGHS[SelfIndex].SHOWINTEGRALROWS = BGHS[SelfIndex].REMEMBERINTEGRALROWS;
 			    SizeGrid(hWnd, SelfIndex);

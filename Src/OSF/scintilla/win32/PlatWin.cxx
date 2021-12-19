@@ -1939,7 +1939,7 @@ static HCURSOR GetReverseArrowCursor()
 			BITMAP bmp;
 			if(::GetObject(info.hbmMask, sizeof(bmp), &bmp)) {
 				FlipBitmap(info.hbmMask, bmp.bmWidth, bmp.bmHeight);
-				if(info.hbmColor != NULL)
+				if(info.hbmColor)
 					FlipBitmap(info.hbmColor, bmp.bmWidth, bmp.bmHeight);
 				info.xHotspot = (DWORD)bmp.bmWidth - 1 - info.xHotspot;
 				reverseArrowCursor = ::CreateIconIndirect(&info);
@@ -1958,30 +1958,16 @@ static HCURSOR GetReverseArrowCursor()
 void SciWindow::SetCursor(Cursor curs)
 {
 	switch(curs) {
-		case cursorText:
-		    ::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
-		    break;
-		case cursorUp:
-		    ::SetCursor(::LoadCursor(NULL, IDC_UPARROW));
-		    break;
-		case cursorWait:
-		    ::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-		    break;
-		case cursorHoriz:
-		    ::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
-		    break;
-		case cursorVert:
-		    ::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
-		    break;
-		case cursorHand:
-		    ::SetCursor(::LoadCursor(NULL, IDC_HAND));
-		    break;
-		case cursorReverseArrow:
-		    ::SetCursor(GetReverseArrowCursor());
-		    break;
+		case cursorText: ::SetCursor(::LoadCursor(0, IDC_IBEAM)); break;
+		case cursorUp: ::SetCursor(::LoadCursor(0, IDC_UPARROW)); break;
+		case cursorWait: ::SetCursor(::LoadCursor(0, IDC_WAIT)); break;
+		case cursorHoriz: ::SetCursor(::LoadCursor(0, IDC_SIZEWE)); break;
+		case cursorVert: ::SetCursor(::LoadCursor(0, IDC_SIZENS)); break;
+		case cursorHand: ::SetCursor(::LoadCursor(0, IDC_HAND)); break;
+		case cursorReverseArrow: ::SetCursor(GetReverseArrowCursor()); break;
 		case cursorArrow:
 		case cursorInvalid: // Should not occur, but just in case.
-		    ::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		    ::SetCursor(::LoadCursor(0, IDC_ARROW));
 		    break;
 	}
 }
@@ -2878,9 +2864,7 @@ LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam
 			    if(nRows > 1) {
 				    linesToScroll = nRows - 1;
 			    }
-			    if(linesToScroll > 3) {
-				    linesToScroll = 3;
-			    }
+			    SETMIN(linesToScroll, 3);
 			    linesToScroll *= (wheelDelta / WHEEL_DELTA);
 			    LRESULT top = ::SendMessage(lb, LB_GETTOPINDEX, 0, 0) + linesToScroll;
 				SETMAX(top, 0);
@@ -3035,10 +3019,7 @@ public:
 			return NULL;
 		}
 	}
-	virtual bool IsValid()
-	{
-		return h != NULL;
-	}
+	virtual bool IsValid() { return (h != NULL); }
 };
 
 DynamicLibrary * DynamicLibrary::Load(const char * modulePath)

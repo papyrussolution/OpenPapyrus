@@ -51,7 +51,7 @@ static void release_table_data(void * user_data)
 	CFRelease(cf_data);
 }
 
-static hb_blob_t * _hb_cg_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
+static hb_blob_t * _hb_cg_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_tag_t tag, void * user_data)
 {
 	CGFontRef cg_font = reinterpret_cast<CGFontRef> (user_data);
 	CFDataRef cf_data = CGFontCopyTableForTag(cg_font, tag);
@@ -1053,7 +1053,7 @@ resize_and_retry:
 		 */
 		if(false) {
 			/* Make sure all runs had the expected direction. */
-			HB_UNUSED bool backward = HB_DIRECTION_IS_BACKWARD(buffer->props.direction);
+			CXX_UNUSED_PARAM bool backward = HB_DIRECTION_IS_BACKWARD(buffer->props.direction);
 			assert(bool (status_and & kCTRunStatusRightToLeft) == backward);
 			assert(bool (status_or  & kCTRunStatusRightToLeft) == backward);
 		}

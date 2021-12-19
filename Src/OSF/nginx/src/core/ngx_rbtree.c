@@ -129,7 +129,7 @@ void ngx_rbtree_insert_timer_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t *
 		 * The comparison takes into account that overflow.
 		 */
 
-		/*  node->key < temp->key */
+		/* node->key < temp->key */
 		p = ((ngx_rbtree_key_int_t)(node->key - temp->key) < 0) ? &temp->left : &temp->right;
 		if(*p == sentinel) {
 			break;

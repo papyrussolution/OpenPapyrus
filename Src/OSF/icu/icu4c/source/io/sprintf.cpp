@@ -94,7 +94,7 @@ U_CAPI int32_t U_EXPORT2 u_sprintf(UChar * buffer,
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_sprintf_u(UChar  * buffer,
+U_CAPI int32_t U_EXPORT2 u_sprintf_u(UChar * buffer,
     const UChar * patternSpecification,
     ...)
 {
@@ -131,7 +131,7 @@ U_CAPI int32_t U_EXPORT2 u_snprintf(UChar * buffer,
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_snprintf_u(UChar  * buffer,
+U_CAPI int32_t U_EXPORT2 u_snprintf_u(UChar * buffer,
     int32_t count,
     const UChar * patternSpecification,
     ...)

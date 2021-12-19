@@ -40,7 +40,7 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 		double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
 		double radius;
 #ifdef _WIN32
-		if(sstreq(pTerm->name, "windows"))
+		if(sstreq(pTerm->GetName(), "windows"))
 			aspect = 1.0;
 #endif
 		MapPositionR(pTerm, &pArrow->end, &radius, NULL, "arrow");
@@ -87,24 +87,24 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 		// axis_output_tics(), which wasn't really designed for this axis. 
 		AxS.tic_start = MapiY(0); /* Always equivalent to tics on theta=0 axis */
 		AxS.tic_mirror = AxS.tic_start; /* tic extends on both sides of theta=0 */
-		AxS.tic_text = AxS.tic_start - pTerm->ChrV;
+		AxS.tic_text = AxS.tic_start - pTerm->CV();
 		AxS.rotate_tics = AxS.__R().tic_rotate;
 		if(AxS.rotate_tics == 0)
 			AxS.tic_hjust = CENTRE;
-		else if(pTerm->text_angle(pTerm, AxS.rotate_tics))
+		else if(pTerm->SetTextAngle_(AxS.rotate_tics))
 			AxS.tic_hjust = (AxS.rotate_tics == TEXT_VERTICAL) ? RIGHT : LEFT;
 		if(AxS.__R().manual_justify)
 			AxS.tic_hjust = AxS.__R().tic_pos;
 		AxS.tic_direction = 1;
 		GenTics(pTerm, &AxS[POLAR_AXIS], &GnuPlot::XTick2DCallback);
-		pTerm->text_angle(pTerm, 0);
+		pTerm->SetTextAngle_(0);
 	}
 	// POLAR GRID radial lines 
 	if(AxS.polar_grid_angle > 0) {
 		double theta = 0.0;
 		int ox = MapiX(0);
 		int oy = MapiY(0);
-		pTerm->layer(pTerm, TERM_LAYER_BEGIN_GRID);
+		pTerm->Layer_(TERM_LAYER_BEGIN_GRID);
 		TermApplyLpProperties(pTerm, &AxS.grid_lp);
 		if(Gr.LargestPolarCircle <= 0.0)
 			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
@@ -113,7 +113,7 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 			int y = MapiY(Gr.LargestPolarCircle * sin(theta));
 			DrawClipLine(pTerm, ox, oy, x, y);
 		}
-		pTerm->layer(pTerm, TERM_LAYER_END_GRID);
+		pTerm->Layer_(TERM_LAYER_END_GRID);
 	}
 	// POLAR GRID tickmarks along the perimeter of the outer circle 
 	if(AxS.Theta().ticmode) {
@@ -122,7 +122,7 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
 		CopyOrInventFormatString(&AxS.Theta());
 		GenTics(pTerm, &AxS.Theta(), &GnuPlot::TTickCallback);
-		pTerm->text_angle(pTerm, 0);
+		pTerm->SetTextAngle_(0);
 	}
 	// Restore the grid line types if we had turned them off to draw labels only 
 	AxS.grid_lp.l_type = save_lgrid;
@@ -134,7 +134,7 @@ void GnuPlot::PlaceArrows(GpTermEntry * pTerm, int layer)
 {
 	BoundingBox * clip_save = V.P_ClipArea;
 	// Allow arrows to run off the plot, so long as they are still on the canvas 
-	V.P_ClipArea = (pTerm->flags & TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
+	V.P_ClipArea = pTerm->CheckFlag(TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
 	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
 		double dsx = 0, dsy = 0, dex = 0, dey = 0;
 		if(this_arrow->arrow_properties.layer != layer)
@@ -436,7 +436,6 @@ void GnuPlot::AdjustNonlinearOffset(GpAxis * pAxSecondary)
 	pAxSecondary->max = EvalLinkFunction(pAxSecondary, p_ax_primary->max);
 }
 
-//void do_plot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 {
 	int curve;
@@ -467,7 +466,7 @@ void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 	PlacePixmaps(pTerm, LAYER_BEHIND, 2);
 	PlaceObjects(pTerm, Gg.P_FirstObject, LAYER_BEHIND, 2);
 	GpU.screen_ok = FALSE;
-	(pTerm->layer)(pTerm, TERM_LAYER_BACKTEXT); // Sync point for epslatex text positioning 
+	pTerm->Layer_(TERM_LAYER_BACKTEXT); // Sync point for epslatex text positioning 
 	// DRAW TICS AND GRID 
 	if(oneof2(AxS.grid_layer, LAYER_BACK, LAYER_BEHIND))
 		PlaceGrid(pTerm, AxS.grid_layer);
@@ -488,7 +487,7 @@ void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 	PlaceObjects(pTerm, Gg.P_FirstObject, LAYER_BACK, 2); // Fixed objects 
 	PlaceLabels(pTerm, Gg.P_FirstLabel, LAYER_BACK, FALSE); // PLACE LABELS 
 	PlaceArrows(pTerm, LAYER_BACK); // PLACE ARROWS 
-	(pTerm->layer)(pTerm, TERM_LAYER_FRONTTEXT); // Sync point for epslatex text positioning 
+	pTerm->Layer_(TERM_LAYER_FRONTTEXT); // Sync point for epslatex text positioning 
 	// Draw axis labels and timestamps 
 	// Note: As of Dec 2012 these are drawn as "front" text. 
 	DrawTitles(pTerm);
@@ -498,7 +497,7 @@ void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
 SECOND_KEY_PASS:
 	// This tells the canvas, qt, and svg terminals to restart the plot   
 	// count so that key titles are in sync with the plots they describe. 
-	(pTerm->layer)(pTerm, TERM_LAYER_RESET_PLOTNO);
+	pTerm->Layer_(TERM_LAYER_RESET_PLOTNO);
 	// DRAW CURVES 
 	this_plot = plots;
 	previous_plot_style = 0;
@@ -510,7 +509,7 @@ SECOND_KEY_PASS:
 			const char * plaintext = this_plot->title_no_enhanced ? this_plot->title : EstimatePlainText(this_plot->title);
 			(pTerm->hypertext)(pTerm, TERM_HYPERTEXT_TITLE, plaintext);
 		}
-		(pTerm->layer)(pTerm, TERM_LAYER_BEFORE_PLOT);
+		pTerm->Layer_(TERM_LAYER_BEFORE_PLOT);
 		// set scaling for this plot's axes 
 		AxS.Idx_X = this_plot->AxIdx_X;
 		AxS.Idx_Y = this_plot->AxIdx_Y;
@@ -623,7 +622,7 @@ SECOND_KEY_PASS:
 					    // Note that the bar linewidth may not match the border or plot linewidth 
 					    pTerm->linewidth(pTerm, Gg.histogram_opts.bar_lw);
 					    if(!NeedFillBorder(pTerm, &Gg.default_fillstyle))
-						    pTerm->linetype(pTerm, this_plot->lp_properties.l_type);
+						    pTerm->SetLineType_(this_plot->lp_properties.l_type);
 					    PlotBars(pTerm, this_plot);
 					    TermApplyLpProperties(pTerm, &(this_plot->lp_properties));
 				    }
@@ -706,7 +705,7 @@ SECOND_KEY_PASS:
 		if(this_plot->title_position && this_plot->title_position->scalex == character)
 			AttachTitleToPlot(pTerm, this_plot, key);
 		// Sync point for end of this curve (used by svg, post, ...) 
-		(pTerm->layer)(pTerm, TERM_LAYER_AFTER_PLOT);
+		pTerm->Layer_(TERM_LAYER_AFTER_PLOT);
 		previous_plot_style = this_plot->plot_style;
 	}
 	// Go back and draw the legend in a separate pass if necessary 
@@ -789,7 +788,7 @@ void GnuPlot::PlotImpulses(GpTermEntry * pTerm, curve_points * pPlot, int yaxis_
 			int y = MapiY(pPlot->points[i].Pt.y);
 			// The jitter x offset is a scaled multiple of character width. 
 			if(!Gg.Polar && Jitter.spread > 0.0)
-				x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->ChrH;
+				x += pPlot->points[i].CRD_XJITTER * 0.3 * pTerm->CH();
 			if(!invalid_coordinate(x, y)) {
 				CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]);
 				if(Gg.Polar)
@@ -827,12 +826,12 @@ void GnuPlot::PlotLines(GpTermEntry * pTerm, curve_points * pPlot)
 			switch(pPlot->points[i].type) {
 				case INRANGE:
 					if(prev == INRANGE) {
-						pTerm->vector(pTerm, x, y);
+						pTerm->Vec_(x, y);
 					}
 					else if(prev == OUTRANGE) {
 						// from outrange to inrange 
 						if(!Gg.ClipLines1) {
-							pTerm->move(pTerm, x, y);
+							pTerm->Mov_(x, y);
 						}
 						else if(Gg.Polar && Gg.ClipRadial) {
 							DrawPolarClipLine(pTerm, xprev, yprev, xnow, ynow);
@@ -842,12 +841,12 @@ void GnuPlot::PlotLines(GpTermEntry * pTerm, curve_points * pPlot)
 								// This is needed if clip_line() doesn't agree that
 								// the current point is INRANGE, i.e. it is on the
 								//  border or just outside depending on rounding
-								pTerm->move(pTerm, x, y);
+								pTerm->Mov_(x, y);
 						}
 					}
 					else { /* prev == UNDEFINED */
-						pTerm->move(pTerm, x, y);
-						pTerm->vector(pTerm, x, y);
+						pTerm->Mov_(x, y);
+						pTerm->Vec_(x, y);
 					}
 					break;
 				case OUTRANGE:
@@ -979,7 +978,7 @@ void GnuPlot::FinishFilledCurve(GpTermEntry * pTerm, int points, gpiPoint * pCor
 		V.ClipPolygon(pCorners, clipcorners, points, &clippoints);
 		clipcorners->style = style_from_fill(&pPlot->fill_properties);
 		if(clippoints > 0)
-			pTerm->filled_polygon(pTerm, clippoints, clipcorners);
+			pTerm->FilledPolygon_(clippoints, clipcorners);
 	}
 }
 
@@ -1214,9 +1213,9 @@ void GnuPlot::PlotSteps(GpTermEntry * pTerm, curve_points * plot)
 				    if(style == FS_OPAQUE)
 					    DrawClipLine(pTerm, xl, yprev, xl, y0);
 				    if(yprev - y0 < 0)
-					    (pTerm->fillbox)(pTerm, style, xl, yprev, (xr-xl), y0-yprev);
+					    pTerm->FillBox_(style, xl, yprev, (xr-xl), y0-yprev);
 				    else
-					    (pTerm->fillbox)(pTerm, style, xl, y0, (xr-xl), yprev-y0);
+					    pTerm->FillBox_(style, xl, y0, (xr-xl), yprev-y0);
 			    }
 			    else {
 				    DrawClipLine(pTerm, xprev, yprev, x, yprev);
@@ -1450,8 +1449,8 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 					int y2 = static_cast<int>(ylowM - (Gr.BarSize * tic * cos(slope)));
 					// draw the bottom tic 
 					if(!V.ClipPoint(xlowM, ylowM)) {
-						pTerm->move(pTerm, x1, y1);
-						pTerm->vector(pTerm, x2, y2);
+						pTerm->Mov_(x1, y1);
+						pTerm->Vec_(x2, y2);
 					}
 					x1 += xhighM - xlowM;
 					x2 += xhighM - xlowM;
@@ -1459,8 +1458,8 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 					y2 += yhighM - ylowM;
 					// draw the top tic 
 					if(!V.ClipPoint(xhighM, yhighM)) {
-						pTerm->move(pTerm, x1, y1);
-						pTerm->vector(pTerm, x2, y2);
+						pTerm->Mov_(x1, y1);
+						pTerm->Vec_(x2, y2);
 					}
 				}
 			}
@@ -1688,16 +1687,16 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 					    h = yb - yt + 1;
 				    }
 				    style = style_from_fill(&plot->fill_properties);
-				    (pTerm->fillbox)(pTerm, style, x, y, w, h);
+				    pTerm->FillBox_(style, x, y, w, h);
 				    if(!NeedFillBorder(pTerm, &plot->fill_properties))
 					    break;
 			    }
 			    newpath(pTerm);
-			    pTerm->move(pTerm, xl, yb);
-			    pTerm->vector(pTerm, xl, yt);
-			    pTerm->vector(pTerm, xr, yt);
-			    pTerm->vector(pTerm, xr, yb);
-			    pTerm->vector(pTerm, xl, yb);
+			    pTerm->Mov_(xl, yb);
+			    pTerm->Vec_(xl, yt);
+			    pTerm->Vec_(xr, yt);
+			    pTerm->Vec_(xr, yb);
+			    pTerm->Vec_(xl, yb);
 			    closepath(pTerm);
 			    if(pTerm->fillbox && plot->fill_properties.border_color.type != TC_DEFAULT) {
 				    TermApplyLpProperties(pTerm, &plot->lp_properties);
@@ -1753,8 +1752,8 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 			(pTerm->set_font)(pTerm, plot->labels->font);
 		pTerm->justify_text(pTerm, CENTRE);
 	}
-	p_width  = static_cast<int>(pTerm->TicH * plot->lp_properties.PtSize);
-	p_height = static_cast<int>(pTerm->TicV * plot->lp_properties.PtSize);
+	p_width  = static_cast<int>(pTerm->MulTicH(plot->lp_properties.PtSize));
+	p_height = static_cast<int>(pTerm->MulTicV(plot->lp_properties.PtSize));
 	// Displace overlapping points if "set jitter" is in effect	/
 	// This operation leaves x and y untouched, but loads the	
 	// jitter offsets into xhigh and yhigh.			
@@ -1778,10 +1777,10 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 			// Swarm jitter y offset is in the original coordinate system.
 			// vertical jitter y offset is a multiple of character heights.
 			if(Jitter.spread > 0) {
-				x += plot->points[i].CRD_XJITTER * 0.7 * pTerm->ChrH;
+				x += plot->points[i].CRD_XJITTER * 0.7 * pTerm->CH();
 				switch(Jitter.style) {
 					case JITTER_ON_Y:
-					    y += plot->points[i].CRD_YJITTER * 0.7 * pTerm->ChrV;
+					    y += plot->points[i].CRD_YJITTER * 0.7 * pTerm->CV();
 					    break;
 					case JITTER_SWARM:
 					case JITTER_SQUARE:
@@ -1807,7 +1806,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 				if(plot->plot_style == LINESPOINTS && interval < 0) {
 					pTerm->set_color(pTerm, &background_fill);
 					(pTerm->pointsize)(pTerm, Gg.PointSize * Gg.PointIntervalBox);
-					pTerm->point(pTerm, x, y, 6);
+					pTerm->Pnt_(x, y, 6);
 					TermApplyLpProperties(pTerm, &(plot->lp_properties));
 				}
 				// rgb variable  -  color read from data column 
@@ -1831,7 +1830,7 @@ void GnuPlot::PlotPoints(GpTermEntry * pTerm, curve_points * plot)
 				}
 				// The normal case 
 				else if(pointtype >= -1)
-					pTerm->point(pTerm, x, y, pointtype);
+					pTerm->Pnt_(x, y, pointtype);
 			}
 		}
 	}
@@ -1965,7 +1964,7 @@ void GnuPlot::PlotDots(GpTermEntry * pTerm, const curve_points * pPlot)
 			// rgb variable  -  color read from data column 
 			CheckForVariableColor(pTerm, pPlot, &pPlot->varcolor[i]);
 			// point type -1 is a dot 
-			pTerm->point(pTerm, x, y, -1);
+			pTerm->Pnt_(x, y, -1);
 		}
 	}
 }
@@ -1999,7 +1998,7 @@ void GnuPlot::PlotVectors(GpTermEntry * pTerm, curve_points * plot)
 				double length;
 				double angle = SMathConst::PiDiv180 * tail->yhigh;
 				double aspect = (double)pTerm->TicV / (double)pTerm->TicH;
-				if(sstreq(pTerm->name, "windows"))
+				if(sstreq(pTerm->GetName(), "windows"))
 					aspect = 1.0;
 				if(tail->xhigh > 0)
 					// length > 0 is in x-axis coords 
@@ -2233,7 +2232,7 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 				const int h = (ymax-ymin);
 				if(style == FS_EMPTY && pPlot->plot_style != BOXPLOT)
 					style = FS_OPAQUE;
-				(pTerm->fillbox)(pTerm, style, x, y, w, h);
+				pTerm->FillBox_(style, x, y, w, h);
 				if(style_from_fill(&pPlot->fill_properties) != FS_EMPTY)
 					NeedFillBorder(pTerm, &pPlot->fill_properties);
 			}
@@ -2241,11 +2240,11 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		// Draw open box 
 		if(!skip_box) {
 			newpath(pTerm);
-			pTerm->move(pTerm, xlowM, MapiY(yopen));
-			pTerm->vector(pTerm, xhighM, MapiY(yopen));
-			pTerm->vector(pTerm, xhighM, MapiY(yclose));
-			pTerm->vector(pTerm, xlowM, MapiY(yclose));
-			pTerm->vector(pTerm, xlowM, MapiY(yopen));
+			pTerm->Mov_(xlowM, MapiY(yopen));
+			pTerm->Vec_(xhighM, MapiY(yopen));
+			pTerm->Vec_(xhighM, MapiY(yclose));
+			pTerm->Vec_(xlowM, MapiY(yclose));
+			pTerm->Vec_(xlowM, MapiY(yopen));
 			closepath(pTerm);
 		}
 		// BOXPLOT wants a median line also, which is stored in xhigh.
@@ -2259,12 +2258,12 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		// three vertical bars.  Now we use solid fill.  But if the current 
 		// terminal does not support filled boxes, fall back to the old way 
 		if((yopen > yclose) && !(pTerm->fillbox)) {
-			pTerm->move(pTerm, xM, ymin);
-			pTerm->vector(pTerm, xM, ymax);
-			pTerm->move(pTerm, (xM + xlowM) / 2, ymin);
-			pTerm->vector(pTerm, (xM + xlowM) / 2, ymax);
-			pTerm->move(pTerm, (xM + xhighM) / 2, ymin);
-			pTerm->vector(pTerm, (xM + xhighM) / 2, ymax);
+			pTerm->Mov_(xM, ymin);
+			pTerm->Vec_(xM, ymax);
+			pTerm->Mov_((xM + xlowM) / 2, ymin);
+			pTerm->Vec_((xM + xlowM) / 2, ymax);
+			pTerm->Mov_((xM + xhighM) / 2, ymin);
+			pTerm->Vec_((xM + xhighM) / 2, ymax);
 		}
 		// Error bars can now have their own line style 
 		if(Gr.BarLp.flags & LP_ERRORBAR_SET) {
@@ -2277,7 +2276,7 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		if(pPlot->plot_style == BOXPLOT || pPlot->arrow_properties.head == BOTH_HEADS) {
 			int d;
 			if(pPlot->plot_style == BOXPLOT) {
-				d = (Gr.BarSize < 0) ? 0 : static_cast<int>((xhighM-xlowM)/2.0 - (Gr.BarSize * pTerm->TicH));
+				d = (Gr.BarSize < 0) ? 0 : static_cast<int>((xhighM-xlowM)/2.0 - pTerm->MulTicH(Gr.BarSize));
 			}
 			else {
 				const double frac = pPlot->arrow_properties.head_length;
@@ -2415,8 +2414,8 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 		// In order to associate the key entry with the correct plot we
 		// must do it inside the loop over rows
 		if(i > 0) {
-			pTerm->layer(pTerm, TERM_LAYER_AFTER_PLOT);
-			pTerm->layer(pTerm, TERM_LAYER_BEFORE_PLOT);
+			pTerm->Layer_(TERM_LAYER_AFTER_PLOT);
+			pTerm->Layer_(TERM_LAYER_BEFORE_PLOT);
 		}
 		if(pPlot->labels) {
 			for(text_label * key_entry = pPlot->labels->next; key_entry; key_entry = key_entry->next) {
@@ -2451,8 +2450,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 			p_type = static_cast<int>(pPlot->points[i].CRD_PTTYPE-1);
 			// Draw filled area 
 			if(out_length > 1 && pPlot->fill_properties.fillstyle != FS_EMPTY) {
-				if(pTerm->filled_polygon)
-					pTerm->filled_polygon(pTerm, out_length, clpcorn);
+				pTerm->FilledPolygon_(out_length, clpcorn);
 			}
 			// Draw perimeter 
 			if(NeedFillBorder(pTerm, &pPlot->fill_properties)) {
@@ -2462,7 +2460,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 			// Points 
 			if(p_type) {
 				for(j = 0; j < n_spokes; j++)
-					pTerm->point(pTerm, corners[j].x, corners[j].y, p_type);
+					pTerm->Pnt_(corners[j].x, corners[j].y, p_type);
 			}
 		}
 	} // End of loop over rows, each a separate polygon 
@@ -2677,8 +2675,8 @@ void GnuPlot::PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAu
 outliers:
 		if(Gg.boxplot_opts.outliers) {
 			int i, j, x, y;
-			int p_width  = static_cast<int>(pTerm->TicH * pPlot->lp_properties.PtSize);
-			int p_height = static_cast<int>(pTerm->TicV * pPlot->lp_properties.PtSize);
+			int p_width  = static_cast<int>(pTerm->MulTicH(pPlot->lp_properties.PtSize));
+			int p_height = static_cast<int>(pTerm->MulTicV(pPlot->lp_properties.PtSize));
 			for(i = 0; i < subset_count; i++) {
 				if(subset_points[i].Pt.y >= candle.ylow && subset_points[i].Pt.y <= candle.yhigh)
 					continue;
@@ -2692,7 +2690,7 @@ outliers:
 				// Separate any duplicate outliers 
 				for(j = 1; (i >= j) && (subset_points[i].Pt.y == subset_points[i-j].Pt.y); j++)
 					x += p_width * ((j & 1) == 0 ? -j : j); ;
-				pTerm->point(pTerm, x, y, pPlot->lp_properties.PtType);
+				pTerm->Pnt_(x, y, pPlot->lp_properties.PtType);
 			}
 		}
 	}
@@ -2704,7 +2702,7 @@ outliers:
 void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, char * text, int ticlevel, const lp_style_type & rGrid/* grid.l_type == LT_NODRAW means no grid */, ticmark * userlabels/* User-specified tic labels */)
 {
 	// minitick if text is NULL - beware - TicH is unsigned 
-	int ticsize = static_cast<int>(AxS.tic_direction * (int)pTerm->TicV * tic_scale(ticlevel, pAx));
+	int ticsize = static_cast<int>(pTerm->MulTicV(AxS.tic_direction * tic_scale(ticlevel, pAx)));
 	int x = MapiX(place);
 	// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 2
@@ -2718,7 +2716,7 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 	}
 #undef MINIMUM_SEPARATION
 	if(rGrid.l_type > LT_NODRAW) {
-		(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_GRID);
+		pTerm->Layer_(TERM_LAYER_BEGIN_GRID);
 		TermApplyLpProperties(pTerm, &rGrid);
 		if(pAx->index == POLAR_AXIS) {
 			if(fabs(place) > Gr.LargestPolarCircle)
@@ -2729,30 +2727,30 @@ void GnuPlot::XTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 			legend_key * key = &Gg.KeyT;
 			if(key->visible && x < key->bounds.xright && x > key->bounds.xleft && key->bounds.ytop > V.BbPlot.ybot && key->bounds.ybot < V.BbPlot.ytop) {
 				if(key->bounds.ybot > V.BbPlot.ybot) {
-					pTerm->move(pTerm, x, V.BbPlot.ybot);
-					pTerm->vector(pTerm, x, key->bounds.ybot);
+					pTerm->Mov_(x, V.BbPlot.ybot);
+					pTerm->Vec_(x, key->bounds.ybot);
 				}
 				if(key->bounds.ytop < V.BbPlot.ytop) {
-					pTerm->move(pTerm, x, key->bounds.ytop);
-					pTerm->vector(pTerm, x, V.BbPlot.ytop);
+					pTerm->Mov_(x, key->bounds.ytop);
+					pTerm->Vec_(x, V.BbPlot.ytop);
 				}
 			}
 			else {
-				pTerm->move(pTerm, x, V.BbPlot.ybot);
-				pTerm->vector(pTerm, x, V.BbPlot.ytop);
+				pTerm->Mov_(x, V.BbPlot.ybot);
+				pTerm->Vec_(x, V.BbPlot.ytop);
 			}
 		}
 		TermApplyLpProperties(pTerm, &Gg.border_lp); // border linetype 
-		(pTerm->layer)(pTerm, TERM_LAYER_END_GRID);
+		pTerm->Layer_(TERM_LAYER_END_GRID);
 	} // End of grid code 
 	// we precomputed tic posn and text posn in global vars 
 	if(x < V.P_ClipArea->xleft || x > V.P_ClipArea->xright)
 		return;
-	pTerm->move(pTerm, x, AxS.tic_start);
-	pTerm->vector(pTerm, x, AxS.tic_start + ticsize);
+	pTerm->Mov_(x, AxS.tic_start);
+	pTerm->Vec_(x, AxS.tic_start + ticsize);
 	if(AxS.tic_mirror >= 0) {
-		pTerm->move(pTerm, x, AxS.tic_mirror);
-		pTerm->vector(pTerm, x, AxS.tic_mirror - ticsize);
+		pTerm->Mov_(x, AxS.tic_mirror);
+		pTerm->Vec_(x, AxS.tic_mirror - ticsize);
 	}
 	if(text) {
 		// get offset 
@@ -2793,32 +2791,32 @@ void GnuPlot::YTick2DCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, c
 #undef MINIMUM_SEPARATION
 	if(rGrid.l_type > LT_NODRAW) {
 		legend_key * key = &Gg.KeyT;
-		(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_GRID);
+		pTerm->Layer_(TERM_LAYER_BEGIN_GRID);
 		TermApplyLpProperties(pTerm, &rGrid);
 		// Make the grid avoid the key box 
 		if(key->visible && y < key->bounds.ytop && y > key->bounds.ybot && key->bounds.xleft < V.BbPlot.xright && key->bounds.xright > V.BbPlot.xleft) {
 			if(key->bounds.xleft > V.BbPlot.xleft) {
-				pTerm->move(pTerm, V.BbPlot.xleft, y);
-				pTerm->vector(pTerm, key->bounds.xleft, y);
+				pTerm->Mov_(V.BbPlot.xleft, y);
+				pTerm->Vec_(key->bounds.xleft, y);
 			}
 			if(key->bounds.xright < V.BbPlot.xright) {
-				pTerm->move(pTerm, key->bounds.xright, y);
-				pTerm->vector(pTerm, V.BbPlot.xright, y);
+				pTerm->Mov_(key->bounds.xright, y);
+				pTerm->Vec_(V.BbPlot.xright, y);
 			}
 		}
 		else {
-			pTerm->move(pTerm, V.BbPlot.xleft, y);
-			pTerm->vector(pTerm, V.BbPlot.xright, y);
+			pTerm->Mov_(V.BbPlot.xleft, y);
+			pTerm->Vec_(V.BbPlot.xright, y);
 		}
 		TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
-		(pTerm->layer)(pTerm, TERM_LAYER_END_GRID);
+		pTerm->Layer_(TERM_LAYER_END_GRID);
 	}
 	// we precomputed tic posn and text posn 
-	pTerm->move(pTerm, AxS.tic_start, y);
-	pTerm->vector(pTerm, AxS.tic_start + ticsize, y);
+	pTerm->Mov_(AxS.tic_start, y);
+	pTerm->Vec_(AxS.tic_start + ticsize, y);
 	if(AxS.tic_mirror >= 0) {
-		pTerm->move(pTerm, AxS.tic_mirror, y);
-		pTerm->vector(pTerm, AxS.tic_mirror - ticsize, y);
+		pTerm->Mov_(AxS.tic_mirror, y);
+		pTerm->Vec_(AxS.tic_mirror - ticsize, y);
 	}
 	if(text) {
 		// get offset 
@@ -2875,7 +2873,7 @@ void GnuPlot::TTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, cha
 			ApplyPm3DColor(pTerm, &pAx->ticdef.textcolor);
 		// The only rotation angle that makes sense is the angle being labeled 
 		if(pAx->tic_rotate != 0.0)
-			pTerm->text_angle(pTerm, static_cast<int>(place * AxS.ThetaDirection + AxS.ThetaOrigin - 90.0));
+			pTerm->SetTextAngle_(static_cast<int>(place * AxS.ThetaDirection + AxS.ThetaOrigin - 90.0));
 		WriteMultiline(pTerm, text_x, text_y, text, AxS.tic_hjust, AxS.tic_vjust, 0/* FIXME: these are not correct */, pAx->ticdef.font);
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 	}
@@ -2919,7 +2917,7 @@ void GnuPlot::MapPositionDouble(const GpTermEntry * pTerm, GpPosition * pos, dou
 		    *x = pos->x * (pTerm->MaxX-1);
 		    break;
 		case character:
-		    *x = pos->x * pTerm->ChrH;
+		    *x = pos->x * pTerm->CH_C();
 		    break;
 		case polar_axes:
 	    {
@@ -2954,7 +2952,7 @@ void GnuPlot::MapPositionDouble(const GpTermEntry * pTerm, GpPosition * pos, dou
 		    *y = pos->y * (pTerm->MaxY -1);
 		    break;
 		case character:
-		    *y = pos->y * pTerm->ChrV;
+		    *y = pos->y * pTerm->CV_C();
 		    break;
 		case polar_axes:
 		    break;
@@ -2975,17 +2973,11 @@ void GnuPlot::MapPositionR(const GpTermEntry * pTerm, GpPosition * pos, double *
 	else {
 		switch(pos->scalex) {
 			case first_axes:
-		    {
-			    double xx = AxisLogValueChecked(FIRST_X_AXIS, pos->x, what);
-			    *x = xx * AxS[FIRST_X_AXIS].term_scale;
+			    *x = AxisLogValueChecked(FIRST_X_AXIS, pos->x, what) * AxS[FIRST_X_AXIS].term_scale;
 			    break;
-		    }
 			case second_axes:
-		    {
-			    double xx = AxisLogValueChecked(SECOND_X_AXIS, pos->x, what);
-			    *x = xx * AxS[SECOND_X_AXIS].term_scale;
+			    *x = AxisLogValueChecked(SECOND_X_AXIS, pos->x, what) * AxS[SECOND_X_AXIS].term_scale;
 			    break;
-		    }
 			case graph:
 			    *x = pos->x * (V.BbPlot.xright - V.BbPlot.xleft);
 			    break;
@@ -2993,7 +2985,7 @@ void GnuPlot::MapPositionR(const GpTermEntry * pTerm, GpPosition * pos, double *
 			    *x = pos->x * (pTerm->MaxX-1);
 			    break;
 			case character:
-			    *x = pos->x * pTerm->ChrH;
+			    *x = pos->x * pTerm->CH_C();
 			    break;
 			case polar_axes:
 			    *x = 0;
@@ -3007,17 +2999,11 @@ void GnuPlot::MapPositionR(const GpTermEntry * pTerm, GpPosition * pos, double *
 		else {
 			switch(pos->scaley) {
 				case first_axes:
-				{
-					double yy = AxisLogValueChecked(FIRST_Y_AXIS, pos->y, what);
-					*y = yy * AxS[FIRST_Y_AXIS].term_scale;
+					*y = AxisLogValueChecked(FIRST_Y_AXIS, pos->y, what) * AxS[FIRST_Y_AXIS].term_scale;
 					return;
-				}
 				case second_axes:
-				{
-					double yy = AxisLogValueChecked(SECOND_Y_AXIS, pos->y, what);
-					*y = yy * AxS[SECOND_Y_AXIS].term_scale;
+					*y = AxisLogValueChecked(SECOND_Y_AXIS, pos->y, what) * AxS[SECOND_Y_AXIS].term_scale;
 					return;
-				}
 				case graph:
 					*y = pos->y * (V.BbPlot.ytop - V.BbPlot.ybot);
 					return;
@@ -3025,7 +3011,7 @@ void GnuPlot::MapPositionR(const GpTermEntry * pTerm, GpPosition * pos, double *
 					*y = pos->y * (pTerm->MaxY -1);
 					return;
 				case character:
-					*y = pos->y * pTerm->ChrV;
+					*y = pos->y * pTerm->CV_C();
 					break;
 				case polar_axes:
 					*y = 0;
@@ -3041,67 +3027,67 @@ void GnuPlot::PlotBorder(GpTermEntry * pTerm)
 {
 	int min, max;
 	bool border_complete = ((Gg.draw_border & 15) == 15);
-	(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_BORDER);
+	pTerm->Layer_(TERM_LAYER_BEGIN_BORDER);
 	TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 	if(border_complete)
 		newpath(pTerm);
 	// Trace border anticlockwise from upper left 
-	pTerm->move(pTerm, V.BbPlot.xleft, V.BbPlot.ytop);
+	pTerm->Mov_(V.BbPlot.xleft, V.BbPlot.ytop);
 	if(border_west && AxS[FIRST_Y_AXIS].ticdef.rangelimited) {
 		AxS.Idx_Y = FIRST_Y_AXIS;
 		max = MapiY(AxS[FIRST_Y_AXIS].data_max);
 		min = MapiY(AxS[FIRST_Y_AXIS].data_min);
-		pTerm->move(pTerm, V.BbPlot.xleft, max);
-		pTerm->vector(pTerm, V.BbPlot.xleft, min);
-		pTerm->move(pTerm, V.BbPlot.xleft, V.BbPlot.ybot);
+		pTerm->Mov_(V.BbPlot.xleft, max);
+		pTerm->Vec_(V.BbPlot.xleft, min);
+		pTerm->Mov_(V.BbPlot.xleft, V.BbPlot.ybot);
 	}
 	else if(border_west) {
-		pTerm->vector(pTerm, V.BbPlot.xleft, V.BbPlot.ybot);
+		pTerm->Vec_(V.BbPlot.xleft, V.BbPlot.ybot);
 	}
 	else {
-		pTerm->move(pTerm, V.BbPlot.xleft, V.BbPlot.ybot);
+		pTerm->Mov_(V.BbPlot.xleft, V.BbPlot.ybot);
 	}
 	if(border_south && AxS[FIRST_X_AXIS].ticdef.rangelimited) {
 		AxS.Idx_X = FIRST_X_AXIS;
 		max = MapiX(AxS[FIRST_X_AXIS].data_max);
 		min = MapiX(AxS[FIRST_X_AXIS].data_min);
-		pTerm->move(pTerm, min, V.BbPlot.ybot);
-		pTerm->vector(pTerm, max, V.BbPlot.ybot);
-		pTerm->move(pTerm, V.BbPlot.xright, V.BbPlot.ybot);
+		pTerm->Mov_(min, V.BbPlot.ybot);
+		pTerm->Vec_(max, V.BbPlot.ybot);
+		pTerm->Mov_(V.BbPlot.xright, V.BbPlot.ybot);
 	}
 	else if(border_south) {
-		pTerm->vector(pTerm, V.BbPlot.xright, V.BbPlot.ybot);
+		pTerm->Vec_(V.BbPlot.xright, V.BbPlot.ybot);
 	}
 	else {
-		pTerm->move(pTerm, V.BbPlot.xright, V.BbPlot.ybot);
+		pTerm->Mov_(V.BbPlot.xright, V.BbPlot.ybot);
 	}
 	if(border_east && AxS[SECOND_Y_AXIS].ticdef.rangelimited) {
 		AxS.Idx_Y = SECOND_Y_AXIS;
 		max = MapiY(AxS[SECOND_Y_AXIS].data_max);
 		min = MapiY(AxS[SECOND_Y_AXIS].data_min);
-		pTerm->move(pTerm, V.BbPlot.xright, min);
-		pTerm->vector(pTerm, V.BbPlot.xright, max);
-		pTerm->move(pTerm, V.BbPlot.xright, V.BbPlot.ytop);
+		pTerm->Mov_(V.BbPlot.xright, min);
+		pTerm->Vec_(V.BbPlot.xright, max);
+		pTerm->Mov_(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	else if(border_east) {
-		pTerm->vector(pTerm, V.BbPlot.xright, V.BbPlot.ytop);
+		pTerm->Vec_(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	else {
-		pTerm->move(pTerm, V.BbPlot.xright, V.BbPlot.ytop);
+		pTerm->Mov_(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	if(border_north && AxS[SECOND_X_AXIS].ticdef.rangelimited) {
 		AxS.Idx_X = SECOND_X_AXIS;
 		max = MapiX(AxS[SECOND_X_AXIS].data_max);
 		min = MapiX(AxS[SECOND_X_AXIS].data_min);
-		pTerm->move(pTerm, max, V.BbPlot.ytop);
-		pTerm->vector(pTerm, min, V.BbPlot.ytop);
-		pTerm->move(pTerm, V.BbPlot.xright, V.BbPlot.ytop);
+		pTerm->Mov_(max, V.BbPlot.ytop);
+		pTerm->Vec_(min, V.BbPlot.ytop);
+		pTerm->Mov_(V.BbPlot.xright, V.BbPlot.ytop);
 	}
 	else if(border_north) {
-		pTerm->vector(pTerm, V.BbPlot.xleft, V.BbPlot.ytop);
+		pTerm->Vec_(V.BbPlot.xleft, V.BbPlot.ytop);
 	}
 	else {
-		pTerm->move(pTerm, V.BbPlot.xleft, V.BbPlot.ytop);
+		pTerm->Mov_(V.BbPlot.xleft, V.BbPlot.ytop);
 	}
 	if(border_complete)
 		closepath(pTerm);
@@ -3118,7 +3104,7 @@ void GnuPlot::PlotBorder(GpTermEntry * pTerm)
 		DrawPolarCircle(pTerm, Gr.LargestPolarCircle);
 		V.P_ClipArea = clip_save;
 	}
-	(pTerm->layer)(pTerm, TERM_LAYER_END_BORDER);
+	pTerm->Layer_(TERM_LAYER_END_BORDER);
 }
 
 //void init_histogram(histogram_style * pHistogram, text_label * pTitle)
@@ -3159,7 +3145,7 @@ void GnuPlot::PlaceHistogramTitles(GpTermEntry * pTerm)
 			int y = _Bry.xlabel_y;
 			// NB: offset in "newhistogram" is additive with that in "set style hist" 
 			x += (int)xoffset_d;
-			y += (int)yoffset_d + 0.25 * pTerm->ChrV;
+			y += (int)yoffset_d + 0.25 * pTerm->CV();
 			WriteLabel(pTerm, x, y, &(p_hist->title));
 			ResetTextColor(pTerm, &p_hist->title.textcolor);
 		}
@@ -3235,7 +3221,7 @@ void GnuPlot::PlaceParallelAxes(GpTermEntry * pTerm, const curve_points * pFirst
 		double axis_coord = this_axis->paxis_x;
 		if((this_axis->ticmode & TICS_MASK) == NO_TICS)
 			continue;
-		if(this_axis->tic_rotate && pTerm->text_angle(pTerm, this_axis->tic_rotate)) {
+		if(this_axis->tic_rotate && pTerm->SetTextAngle_(this_axis->tic_rotate)) {
 			AxS.tic_hjust = LEFT;
 			AxS.tic_vjust = /*CENTRE*/JUST_CENTRE;
 		}
@@ -3248,10 +3234,10 @@ void GnuPlot::PlaceParallelAxes(GpTermEntry * pTerm, const curve_points * pFirst
 		AxS.tic_start = AxS[FIRST_X_AXIS].MapI(axis_coord);
 		AxS.tic_mirror = AxS.tic_start; /* tic extends on both sides of axis */
 		AxS.tic_direction = -1;
-		AxS.tic_text = static_cast<int>(AxS.tic_start - this_axis->ticscale * pTerm->TicV);
-		AxS.tic_text -= pTerm->ChrV;
+		AxS.tic_text = static_cast<int>(AxS.tic_start - pTerm->MulTicV(this_axis->ticscale));
+		AxS.tic_text -= pTerm->CV();
 		GenTics(pTerm, this_axis, &GnuPlot::YTick2DCallback);
-		pTerm->text_angle(pTerm, 0);
+		pTerm->SetTextAngle_(0);
 	}
 }
 // 
@@ -3302,10 +3288,10 @@ void GnuPlot::AttachTitleToPlot(GpTermEntry * pTerm, curve_points * pPlot, const
 			else if(pkey->textcolor.type != TC_DEFAULT)
 				ApplyPm3DColor(pTerm, &pkey->textcolor); // Draw key text in same color as key title 
 			else
-				pTerm->linetype(pTerm, LT_BLACK); // Draw key text in black 
+				pTerm->SetLineType_(LT_BLACK); // Draw key text in black 
 			{
 				char * p_title = pPlot->title;
-				if(pPlot->title_is_automated && (pTerm->flags & TERM_IS_LATEX))
+				if(pPlot->title_is_automated && pTerm->CheckFlag(TERM_IS_LATEX))
 					p_title = texify_title(p_title, pPlot->plot_type);
 				WriteMultiline(pTerm, x, y, p_title, (JUSTIFY)(int)(pPlot->title_position->y), JUST_TOP, 0, pkey->font);
 			}
@@ -3395,15 +3381,15 @@ void GnuPlot::DoRectangle(GpTermEntry * pTerm, int dimensions, t_object * pObjec
 	if(w && h) {
 		style = style_from_fill(pFillStyle);
 		if(style != FS_EMPTY && pTerm->fillbox)
-			(pTerm->fillbox)(pTerm, style, x, y, w, h);
+			pTerm->FillBox_(style, x, y, w, h);
 		// Now the border 
 		if(NeedFillBorder(pTerm, pFillStyle)) {
 			newpath(pTerm);
-			pTerm->move(pTerm, x, y);
-			pTerm->vector(pTerm, x, y+h);
-			pTerm->vector(pTerm, x+w, y+h);
-			pTerm->vector(pTerm, x+w, y);
-			pTerm->vector(pTerm, x, y);
+			pTerm->Mov_(x, y);
+			pTerm->Vec_(x, y+h);
+			pTerm->Vec_(x+w, y+h);
+			pTerm->Vec_(x+w, y);
+			pTerm->Vec_(x, y);
 			closepath(pTerm);
 		}
 	}
@@ -3429,7 +3415,7 @@ void GnuPlot::DoEllipse(GpTermEntry * pTerm, int dimensions, t_ellipse * pEllips
 	int segments = 72;
 	double ang_inc  =  SMathConst::Pi / 36.0;
 #ifdef _WIN32
-	if(sstreq(pTerm->name, "windows"))
+	if(sstreq(pTerm->GetName(), "windows"))
 		aspect = 1.0;
 #endif
 	// Find the center of the ellipse 
@@ -3507,8 +3493,8 @@ void GnuPlot::DoEllipse(GpTermEntry * pTerm, int dimensions, t_ellipse * pEllips
 		gpiPoint fillarea[120];
 		V.ClipPolygon(vertex, fillarea, segments, &in);
 		fillarea[0].style = style;
-		if((in > 1) && pTerm->filled_polygon)
-			pTerm->filled_polygon(pTerm, in, fillarea);
+		if(in > 1)
+			pTerm->FilledPolygon_(in, fillarea);
 	}
 	else {
 		DrawClipPolygon(pTerm, segments+1, vertex); // Draw the arc 
@@ -3590,7 +3576,7 @@ void GnuPlot::DoPolygon(GpTermEntry * pTerm, int dimensions, t_object * pObject,
 			}
 			else { // Not depth-sorted; draw it now 
 				if(out_length > 1)
-					pTerm->filled_polygon(pTerm, out_length, clpcorn);
+					pTerm->FilledPolygon_(out_length, clpcorn);
 			}
 		}
 		else { // Just draw the outline? 
@@ -3845,12 +3831,12 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 			// IntWarn(NO_CARET, "This terminal does not support palette-based images.\n\n"); 
 			return;
 		}
-		if(oneof2(pixel_planes, IC_RGB, IC_RGBA) && (pTerm->flags & TERM_NULL_SET_COLOR)) {
+		if(oneof2(pixel_planes, IC_RGB, IC_RGBA) && pTerm->CheckFlag(TERM_NULL_SET_COLOR)) {
 			// IntWarn(NO_CARET, "This terminal does not support rgb images.\n\n"); 
 			return;
 		}
 		// Use generic code to handle alpha channel if the terminal can't 
-		if(pixel_planes == IC_RGBA && !(pTerm->flags & TERM_ALPHA_CHANNEL))
+		if(pixel_planes == IC_RGBA && !pTerm->CheckFlag(TERM_ALPHA_CHANNEL))
 			fallback = true;
 		// Also use generic code if the pixels are of unequal size, e.g. log scale 
 		if(AxS.__X().log || AxS.__Y().log)
@@ -4059,7 +4045,7 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 			// non-rectangular pixels must be treated as general polygons 
 			if(!pTerm->filled_polygon && !rectangular_image)
 				IntError(NO_CARET, "This terminal does not support filled polygons");
-			(pTerm->layer)(pTerm, TERM_LAYER_BEGIN_IMAGE);
+			pTerm->Layer_(TERM_LAYER_BEGIN_IMAGE);
 			// Grid spacing in 3D space. 
 			delta_grid[0].x = (points[grid_corner[1]].Pt.x - points[grid_corner[0]].Pt.x) / (K-1);
 			delta_grid[0].y = (points[grid_corner[1]].Pt.y - points[grid_corner[0]].Pt.y) / (K-1);
@@ -4087,7 +4073,7 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 					int k;
 					// If terminal can't handle alpha, treat it as all-or-none. 
 					if(pixel_planes == IC_RGBA) {
-						if((points[i_image].CRD_A == 0) ||  (points[i_image].CRD_A < 128 && !(pTerm->flags & TERM_ALPHA_CHANNEL))) {
+						if((points[i_image].CRD_A == 0) ||  (points[i_image].CRD_A < 128 && !pTerm->CheckFlag(TERM_ALPHA_CHANNEL))) {
 							i_image++;
 							continue;
 						}
@@ -4171,23 +4157,22 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 							if(alpha <= 0)
 								goto skip_pixel;
 							SETMIN(alpha, 100);
-							if(pTerm->flags & TERM_ALPHA_CHANNEL)
+							if(pTerm->CheckFlag(TERM_ALPHA_CHANNEL))
 								corners[0].style = FS_TRANSPARENT_SOLID + (alpha<<4);
 						}
-						if(rectangular_image && pTerm->fillbox && !(pTerm->flags & TERM_POLYGON_PIXELS)) {
+						if(rectangular_image && pTerm->fillbox && !pTerm->CheckFlag(TERM_POLYGON_PIXELS)) {
 							// Some terminals (canvas) can do filled rectangles 
 							// more efficiently than filled polygons. 
-							(pTerm->fillbox)(pTerm, corners[0].style, MIN(corners[0].x, corners[2].x), MIN(corners[0].y, corners[2].y), abs(corners[2].x - corners[0].x), abs(corners[2].y - corners[0].y));
+							pTerm->FillBox_(corners[0].style, MIN(corners[0].x, corners[2].x), MIN(corners[0].y, corners[2].y), abs(corners[2].x - corners[0].x), abs(corners[2].y - corners[0].y));
 						}
-						else {
-							(pTerm->filled_polygon)(pTerm, N_corners, corners);
-						}
+						else
+							pTerm->FilledPolygon_(N_corners, corners);
 					}
 skip_pixel:
 					i_image++;
 				}
 			}
-			(pTerm->layer)(pTerm, TERM_LAYER_END_IMAGE);
+			pTerm->Layer_(TERM_LAYER_END_IMAGE);
 		}
 	}
 }

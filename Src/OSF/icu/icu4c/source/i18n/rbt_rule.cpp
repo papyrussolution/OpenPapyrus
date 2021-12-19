@@ -235,7 +235,7 @@ int16_t TransliterationRule::getIndexValue() const {
  * value.  If the rule contains only ante context, as in foo)>bar,
  * then it will match any key.
  */
-bool TransliterationRule::matchesIndexValue(uint8_t v) const {
+bool TransliterationRule::matchesIndexValue(uint8 v) const {
 	// Delegate to the key, or if there is none, to the postContext.
 	// If there is neither then we match any key; return true.
 	UnicodeMatcher * m = (key != NULL) ? key : postContext;

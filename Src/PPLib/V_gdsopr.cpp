@@ -14,9 +14,9 @@
 struct GoaAddingBlock {
 	GoaAddingBlock() { THISZERO(); }
 	enum {
-		fProfitable          = 0x0001, // CheckOpFlags(pPack->Rec.OpID, OPKF_PROFITABLE)
+		fProfitable  = 0x0001, // CheckOpFlags(pPack->Rec.OpID, OPKF_PROFITABLE)
 		fIncomeWithoutExcise = 0x0002, // (profitable && Filt.Flags & GoodsOpAnalyzeFilt::fPriceWithoutExcise)
-		fTradePlan           = 0x0004  // Блок используется для вставки торгового плана
+		fTradePlan   = 0x0004  // Блок используется для вставки торгового плана
 	};
 	PPID   ArID;         // (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? pPack->Rec.Object : 0L;
 	PPID   OpID;         //
@@ -1341,7 +1341,7 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 					continue;
 				TempGoodsOprTbl::Rec rec = P_TempTbl->data;
 				memzero(pItem, sizeof(GoodsOpAnalyzeViewItem));
-				pItem->ID__         = rec.ID__;
+				pItem->ID__ = rec.ID__;
 				pItem->InOutTag     = rec.InOutTag;
 				pItem->GoodsID      = rec.GoodsID;
 				if(Filt.ABCAnlzGroup == 2) { // GroupBy ABC group
@@ -1367,19 +1367,19 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 				}
 				pItem->P_GoodsGrpName = IterGrpName;
 				pItem->UnitPerPack    = rec.UnitPerPack;
-				pItem->Qtty           = rec.Quantity;
-				pItem->PhQtty         = rec.PhQtty;
-				pItem->Cost           = rec.Cost;
-				pItem->Price          = rec.Price;
+				pItem->Qtty   = rec.Quantity;
+				pItem->PhQtty = rec.PhQtty;
+				pItem->Cost   = rec.Cost;
+				pItem->Price  = rec.Price;
 				pItem->OldCost        = rec.OldCost;
 				pItem->SumCost        = rec.SumCost;
 				pItem->SumPrice       = rec.SumPrice;
-				pItem->Income         = rec.Income;
-				pItem->Rest           = rec.Rest;
-				pItem->PhRest         = rec.PhRest;
+				pItem->Income = rec.Income;
+				pItem->Rest   = rec.Rest;
+				pItem->PhRest = rec.PhRest;
 				pItem->RestCostSum    = rec.RestCostSum;
 				pItem->RestPriceSum   = rec.RestPriceSum;
-				pItem->LocID          = rec.LocID;
+				pItem->LocID  = rec.LocID;
 				STRNSCPY(pItem->GoodsName, rec.Text);
 				// @v10.0.0 {
 				if(!!Filt.Sgb) {
@@ -1572,7 +1572,7 @@ private:
 		vRecsCount      = 4,
 		vMinRecsCount   = 5,
 		vTotalRecsCount = 6,
-		vABCGrp         = 7,
+		vABCGrp = 7,
 		vMinABCGrp      = 8
 	};
 	*/
@@ -1707,8 +1707,8 @@ int ABCGroupingRecsStorage::EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pR
 		// @v10.6.4 MEMSZERO(rec);
 		uint   pos = 0;
 		if(Filt.GrpFract[*pABCGrp-1] > 0)
-			if(ABCGrpRecs->lsearch(pABCGrp, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2) > 0)
-				rec = *((TempGoodsOprTbl::Rec*)ABCGrpRecs->at(pos));
+			if(ABCGrpRecs->lsearch(pABCGrp, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2))
+				rec = *static_cast<const TempGoodsOprTbl::Rec *>(ABCGrpRecs->at(pos));
 			else {
 				Filt.GetGroupName(*pABCGrp - 1, rec.Text, sizeof(rec.Text));
 				rec.InOutTag = *pABCGrp;
@@ -1738,7 +1738,7 @@ int ABCGroupingRecsStorage::SaveValToMinABCGrp(double val, const GoodsOpAnalyzeV
 	uint   pos = 0;
 	if(MinABCGrp >= 0) {
 		short  srch_val = MinABCGrp + 1;
-		if(ABCGrpRecs->lsearch(&srch_val, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2) > 0) {
+		if(ABCGrpRecs->lsearch(&srch_val, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2)) {
 			TempGoodsOprTbl::Rec rec = *static_cast<TempGoodsOprTbl::Rec *>(ABCGrpRecs->at(pos));
 			rec.OldPrice = fdivi(MinRecsCount, TotalRecsCount) * 100.0;
 			rec.OldCost  = (double)MinRecsCount;
@@ -2388,12 +2388,12 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					GoaAddingBlock blk;
 					THROW(GObj.Fetch(gr_item.GoodsID, &blk.GoodsRec));
 					blk.FinalGoodsID = gr_item.GoodsID;
-					blk.ArID         = Filt.SupplID;
-					blk.OpID         = Filt.OpID;
+					blk.ArID = Filt.SupplID;
+					blk.OpID = Filt.OpID;
 					blk.LocID        = gr_item.LocID;
 					blk.ParentGrpID  = gr_item.GoodsGrpID;
 					blk.UnitPerPack  = gr_item.UnitPerPack;
-					blk.Cost         = gr_item.Cost;
+					blk.Cost = gr_item.Cost;
 					blk.Price        = gr_item.Price;
 					if(Filt.Flags & GoodsOpAnalyzeFilt::fCalcOrder)
 						blk.OldCost = gr_item.Order;
@@ -2484,16 +2484,16 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 						GoaAddingBlock blk;
 						THROW(GObj.Fetch(gr_item.GoodsID, &blk.GoodsRec));
 						blk.FinalGoodsID = gr_item.GoodsID;
-						blk.ArID         = Filt.SupplID;
-						blk.OpID         = Filt.OpID;
+						blk.ArID = Filt.SupplID;
+						blk.OpID = Filt.OpID;
 						blk.LocID        = gr_item.LocID;
 						blk.ParentGrpID  = gr_item.GoodsGrpID;
 						blk.UnitPerPack  = gr_item.UnitPerPack;
-						blk.Rest         = gr_item.Rest;
+						blk.Rest = gr_item.Rest;
 						blk.PhRest       = gr_item.PhRest;
 						blk.RestCostSum  = gr_item.SumCost;
 						blk.RestPriceSum = gr_item.SumPrice;
-						blk.Cost         = gr_item.Cost;
+						blk.Cost = gr_item.Cost;
 						blk.Price        = gr_item.Price;
 						if(Filt.Flags & GoodsOpAnalyzeFilt::fCalcOrder)
 							blk.OldCost = gr_item.Order;
@@ -2576,8 +2576,8 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				THROW(GObj.Fetch(p_id->GoodsID, &blk.GoodsRec));
 				blk.TiSign       = p_id->Sign;
 				blk.FinalGoodsID = p_id->GoodsID;
-				blk.ArID         = p_id->ArID;
-				blk.OpID         = Filt.OpID;
+				blk.ArID = p_id->ArID;
+				blk.OpID = Filt.OpID;
 				blk.LocID        = p_id->LocID;
 				blk.ParentGrpID  = blk.GoodsRec.ParentID;
 				THROW(AddItem(&blk));
@@ -2796,11 +2796,11 @@ int PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCacheItem *
 			_id.LocID   = pItem->LocID;
 			_id.Cost    = pItem->Cost;
 			_id.Price   = pItem->Price;
-			if(P_Uniq->lsearch(&_id, &pos, Cf_UniqItem) > 0)
-				id = ((GoaUniqItem*)P_Uniq->at(pos))->Id;
+			if(P_Uniq->lsearch(&_id, &pos, Cf_UniqItem))
+				id = static_cast<const GoaUniqItem *>(P_Uniq->at(pos))->Id;
 			else {
 				if(P_Uniq->getCount())
-					id = ((GoaUniqItem*)P_Uniq->at(P_Uniq->getCount() - 1))->Id + 1;
+					id = static_cast<const GoaUniqItem *>(P_Uniq->at(P_Uniq->getCount()-1))->Id + 1;
 				_id.Id = id;
 				THROW_SL(P_Uniq->insert(&_id));
 			}
@@ -4300,14 +4300,14 @@ int PPALDD_GoodsOpAnlzCmp::InitData(PPFilt & rFilt, long rsrv)
 	INIT_PPVIEW_ALDD_DATA_U(GoodsOpAnalyze, rsrv);
 	H.FltGoodsGrpID   = p_filt->GoodsGrpID;
 	H.FltLocID        = p_filt->LocList.GetSingle();
-	H.FltOpID         = p_filt->OpID;
+	H.FltOpID = p_filt->OpID;
 	H.FltOpGrpID      = p_filt->OpGrpID;
 	H.FltObjectID     = p_filt->ObjectID;
 	H.FltAgentID      = p_filt->AgentID;
 	H.FltSupplAgentID = p_filt->SupplAgentID;
 	H.FltSupplID      = p_filt->SupplID;
-	H.FltBeg          = p_filt->Period.low;
-	H.FltEnd          = p_filt->Period.upp;
+	H.FltBeg  = p_filt->Period.low;
+	H.FltEnd  = p_filt->Period.upp;
 	H.CmpFltBeg       = p_filt->CmpPeriod.low;
 	H.CmpFltEnd       = p_filt->CmpPeriod.upp;
 	H.FltFlags        = p_filt->Flags;
@@ -4350,18 +4350,18 @@ int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId)
 	I.SubstLocID  = item.SubstLocID;
 	STRNSCPY(I.GoodsName, item.GoodsName);
 	STRNSCPY(I.GrpName,   item.P_GoodsGrpName);
-	I.Qtty            = item.Qtty;
-	I.SumCost         = item.SumCost;
+	I.Qtty    = item.Qtty;
+	I.SumCost = item.SumCost;
 	I.SumPrice        = item.SumPrice;
-	I.Income          = item.Income;
-	I.Rest            = item.Rest;
+	I.Income  = item.Income;
+	I.Rest    = item.Rest;
 	I.RestCostSum     = item.RestCostSum;
 	I.RestPriceSum    = item.RestPriceSum;
-	I.CmpQtty         = item.Qtty.Cm;
+	I.CmpQtty = item.Qtty.Cm;
 	I.CmpSumCost      = item.SumCost.Cm;
 	I.CmpSumPrice     = item.SumPrice.Cm;
 	I.CmpIncome       = item.Income.Cm;
-	I.CmpRest         = item.Rest.Cm;
+	I.CmpRest = item.Rest.Cm;
 	I.CmpRestCostSum  = item.RestCostSum.Cm;
 	I.CmpRestPriceSum = item.RestPriceSum.Cm;
 	const GoodsOpAnalyzeFilt * p_filt = static_cast<const GoodsOpAnalyzeFilt *>(p_v->GetBaseFilt());

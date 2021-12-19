@@ -577,7 +577,7 @@ int TToolbar::Init(const ToolbarList * pList)
 	return ok;
 }
 
-BOOL  TToolbar::IsValid() const { return (H_Wnd && H_Toolbar); }
+bool  TToolbar::IsValid() const { return (H_Wnd && H_Toolbar); }
 int   TToolbar::GetCurrPos() const { return CurrPos; }
 HWND  TToolbar::H() const { return H_Wnd; }
 HWND  TToolbar::GetToolbarHWND() const { return H_Toolbar; }
@@ -710,9 +710,9 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 		lvi.iItem = 0;
 		ListView_SetItem(H_List, &lvi);
 		HBITMAP h_up = LoadBitmap(0, MAKEINTRESOURCE(OBM_UPARROWD));
-		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
+		::SendMessage(::GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_up));
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
-		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
+		::SendMessage(::GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_dn));
 		PrevListViewProc = static_cast<WNDPROC>(TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc));
 		TView::SetWindowProp(H_List, GWLP_USERDATA, this);
 	}

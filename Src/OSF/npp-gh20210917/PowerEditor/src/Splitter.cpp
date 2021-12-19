@@ -99,7 +99,7 @@ void Splitter::init(HINSTANCE hInst, HWND hPere, int splitterSize, double iSplit
 	}
 	wcex.hbrBackground      = (HBRUSH)(COLOR_3DFACE+1);
 	wcex.lpszMenuName       = NULL;
-	wcex.hIconSm            = NULL;
+	wcex.hIconSm    = NULL;
 	if((_dwFlags & SV_HORIZONTAL)&&(!_isHorizontalRegistered)) {
 		RegisterClassEx(&wcex);
 		_isHorizontalRegistered = true;

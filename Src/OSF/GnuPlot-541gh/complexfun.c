@@ -327,7 +327,7 @@ void GnuPlot::F_IGamma(union argument * arg)
 	}
 	Push(Gcomplex(&result, creal(w), cimag(w)));
 }
-/*   Igamma(a, z)
+/* Igamma(a, z)
  *   lower incomplete gamma function P(a, z).
  *
  *                  1      z  -t   (a-1)

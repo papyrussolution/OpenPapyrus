@@ -217,19 +217,19 @@ public:
 
 	struct JustWidthDeltaEntry {
 		enum Flags {
-			Reserved1           = 0xE000,/* Reserved. You should set these bits to zero. */
-			UnlimiteGap         = 0x1000,/* The glyph can take unlimited gap. When this
+			Reserved1   = 0xE000,/* Reserved. You should set these bits to zero. */
+			UnlimiteGap = 0x1000,/* The glyph can take unlimited gap. When this
 			 * glyph participates in the justification process,
 			 * it and any other glyphs on the line having this
 			 * bit set absorb all the remaining gap. */
-			Reserved2           = 0x0FF0,/* Reserved. You should set these bits to zero. */
-			Priority            = 0x000F/* The justification priority of the glyph. */
+			Reserved2   = 0x0FF0,/* Reserved. You should set these bits to zero. */
+			Priority    = 0x000F/* The justification priority of the glyph. */
 		};
 
 		enum Priority {
-			Kashida             = 0,/* Kashida priority. This is the highest priority
+			Kashida     = 0,/* Kashida priority. This is the highest priority
 			 * during justification. */
-			Whitespace          = 1,/* Whitespace priority. Any whitespace glyphs (as
+			Whitespace  = 1,/* Whitespace priority. Any whitespace glyphs (as
 			 * identified in the glyph properties table) will
 			 * get this priority. */
 			InterCharacter      = 2,/* Inter-character priority. Give this to any
@@ -288,8 +288,8 @@ public:
 		typedef void EntryData;
 
 		enum Flags {
-			SetMark             = 0x8000,/* If set, make the current glyph the marked glyph. */
-			DontAdvance         = 0x4000,/* If set, don't advance to the next glyph before going to the new state. */
+			SetMark     = 0x8000,/* If set, make the current glyph the marked glyph. */
+			DontAdvance = 0x4000,/* If set, don't advance to the next glyph before going to the new state. */
 			MarkCategory        = 0x3F80,/* The justification category for the marked glyph if nonzero. */
 			CurrentCategory     = 0x007F/* The justification category for the current glyph if nonzero. */
 		};

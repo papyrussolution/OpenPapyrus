@@ -261,8 +261,8 @@ int GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
 								char ip[16], host[64];
 								STRNSCPY(ip, p_iter->IpAddressList.IpAddress.String);
 								struct sockaddr_in sin;
-								sin.sin_family           = AF_INET;
-								sin.sin_port             = htons(0);
+								sin.sin_family   = AF_INET;
+								sin.sin_port     = htons(0);
 								sin.sin_addr.S_un.S_addr = inet_addr(ip);
 								memzero(host, sizeof(host));
 								getnameinfo((sockaddr *)&sin, sizeof(sin), host, sizeof(host), 0, 0, 0);

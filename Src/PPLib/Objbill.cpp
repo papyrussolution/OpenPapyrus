@@ -3809,7 +3809,7 @@ int PPObjBill::GetDraftRcptList(const DateRange * pPeriod, const PPIDArray * pLo
 						item.Qtty    = P_CpTrfr->data.Qtty;
 						for(uint i = 0; i < 2; i++) {
 							uint p = 0;
-							if(pList->lsearch(&item, &p, PTR_CMPFUNC(DraftRcptItem)) > 0)
+							if(pList->lsearch(&item, &p, PTR_CMPFUNC(DraftRcptItem)))
 								pList->at(p).Qtty += item.Qtty;
 							else
 								THROW_SL(pList->insert(&item));

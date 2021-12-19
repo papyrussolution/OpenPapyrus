@@ -3176,7 +3176,7 @@ static void ngx_resolver_free_locked(ngx_resolver_t * r, void * p)
 
 static void * ngx_resolver_dup(ngx_resolver_t * r, void * src, size_t size)
 {
-	void  * dst = ngx_resolver_alloc(r, size);
+	void * dst = ngx_resolver_alloc(r, size);
 	if(dst)
 		memcpy(dst, src, size);
 	return dst;

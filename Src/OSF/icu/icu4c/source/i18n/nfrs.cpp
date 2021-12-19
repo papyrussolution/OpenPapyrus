@@ -623,7 +623,7 @@ const NFRule* NFRuleSet::findFractionRuleSetRule(double number) const
 	// the numerator of the fraction is anything else (this lets us
 	// do things like "one third"/"two thirds" without having to define
 	// a whole bunch of extra rule sets)
-	if((unsigned)(winner + 1) < rules.size() &&
+	if((uint)(winner + 1) < rules.size() &&
 	    rules[winner + 1]->getBaseValue() == rules[winner]->getBaseValue()) {
 		double n = ((double)rules[winner]->getBaseValue()) * number;
 		if(n < 0.5 || n >= 2) {
@@ -855,7 +855,7 @@ uint64_t util64_pow(uint32_t base, uint16_t exponent) {
 	return result;
 }
 
-static const uint8_t asciiDigits[] = {
+static const uint8 asciiDigits[] = {
 	0x30u, 0x31u, 0x32u, 0x33u, 0x34u, 0x35u, 0x36u, 0x37u,
 	0x38u, 0x39u, 0x61u, 0x62u, 0x63u, 0x64u, 0x65u, 0x66u,
 	0x67u, 0x68u, 0x69u, 0x6au, 0x6bu, 0x6cu, 0x6du, 0x6eu,
@@ -868,7 +868,7 @@ static const UChar kUMinus = (UChar)0x002d;
 #ifdef RBNF_DEBUG
 static const char kMinus = '-';
 
-static const uint8_t digitInfo[] = {
+static const uint8 digitInfo[] = {
 	0,     0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,
 	0,     0,     0,     0,     0,     0,     0,     0,
@@ -903,7 +903,7 @@ int64_t util64_atoi(const char * str, uint32_t radix)
 		neg = 1;
 	}
 	int64_t result = 0;
-	uint8_t b;
+	uint8 b;
 	while((b = digitInfo[*str++]) && ((b &= 0x7f) < radix)) {
 		result *= lradix;
 		result += (int32_t)b;
@@ -931,7 +931,7 @@ int64_t util64_utoi(const UChar * str, uint32_t radix)
 	}
 	int64_t result = 0;
 	UChar c;
-	uint8_t b;
+	uint8 b;
 	while(((c = *str++) < 0x0080) && (b = digitInfo[c]) && ((b &= 0x7f) < radix)) {
 		result *= lradix;
 		result += (int32_t)b;

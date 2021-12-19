@@ -245,9 +245,9 @@ static inline int64_t * addTouint64_tArray(int64_t    * destination, uint32_t of
  */
 static inline void initializePatternCETable(UStringSearch * strsrch, UErrorCode * status)
 {
-	UPattern * pattern            = &(strsrch->pattern);
+	UPattern * pattern    = &(strsrch->pattern);
 	uint32_t cetablesize        = INITIAL_ARRAY_SIZE_;
-	int32_t * cetable            = pattern->cesBuffer;
+	int32_t * cetable    = pattern->cesBuffer;
 	uint32_t patternlength      = pattern->textLength;
 	UCollationElements * coleiter = strsrch->utilIter;
 	if(coleiter == nullptr) {
@@ -303,9 +303,9 @@ static
 inline void initializePatternPCETable(UStringSearch * strsrch,
     UErrorCode * status)
 {
-	UPattern * pattern            = &(strsrch->pattern);
+	UPattern * pattern    = &(strsrch->pattern);
 	uint32_t pcetablesize       = INITIAL_ARRAY_SIZE_;
-	int64_t  * pcetable           = pattern->pcesBuffer;
+	int64_t  * pcetable   = pattern->pcesBuffer;
 	uint32_t patternlength      = pattern->textLength;
 	UCollationElements * coleiter = strsrch->utilIter;
 	if(coleiter == nullptr) {
@@ -597,14 +597,14 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const UChar * pattern,
 		    UCOL_SHIFTED;
 		result->variableTop = ucol_getVariableTop(collator, status);
 
-		result->nfd         = Normalizer2::getNFDInstance(*status);
+		result->nfd = Normalizer2::getNFDInstance(*status);
 
 		if(U_FAILURE(*status)) {
 			uprv_free(result);
 			return nullptr;
 		}
 
-		result->search             = (USearch*)uprv_malloc(sizeof(USearch));
+		result->search     = (USearch*)uprv_malloc(sizeof(USearch));
 		if(result->search == nullptr) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			uprv_free(result);
@@ -616,7 +616,7 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const UChar * pattern,
 
 		result->pattern.text       = pattern;
 		result->pattern.textLength = patternlength;
-		result->pattern.ces         = nullptr;
+		result->pattern.ces = nullptr;
 		result->pattern.pces        = nullptr;
 
 		result->search->breakIter  = breakiter;
@@ -627,11 +627,11 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const UChar * pattern,
 		}
 #endif
 
-		result->ownCollator           = FALSE;
+		result->ownCollator   = FALSE;
 		result->search->matchedLength = 0;
 		result->search->matchedIndex  = USEARCH_DONE;
-		result->utilIter              = nullptr;
-		result->textIter              = ucol_openElements(collator, text,
+		result->utilIter      = nullptr;
+		result->textIter      = ucol_openElements(collator, text,
 			textlength, status);
 		result->textProcessedIter     = nullptr;
 		if(U_FAILURE(*status)) {
@@ -639,11 +639,11 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const UChar * pattern,
 			return nullptr;
 		}
 
-		result->search->isOverlap          = FALSE;
+		result->search->isOverlap  = FALSE;
 		result->search->isCanonicalMatch   = FALSE;
 		result->search->elementComparisonType = 0;
 		result->search->isForwardSearching = TRUE;
-		result->search->reset              = TRUE;
+		result->search->reset      = TRUE;
 
 		initialize(result, status);
 
@@ -715,7 +715,7 @@ U_CAPI void U_EXPORT2 usearch_setOffset(UStringSearch * strsrch, int32_t positio
 		}
 		strsrch->search->matchedIndex  = USEARCH_DONE;
 		strsrch->search->matchedLength = 0;
-		strsrch->search->reset         = FALSE;
+		strsrch->search->reset = FALSE;
 	}
 }
 
@@ -884,7 +884,7 @@ U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
 			ucol_setText(strsrch->textIter, text, textlength, status);
 			strsrch->search->matchedIndex  = USEARCH_DONE;
 			strsrch->search->matchedLength = 0;
-			strsrch->search->reset         = TRUE;
+			strsrch->search->reset = TRUE;
 #if !UCONFIG_NO_BREAK_ITERATION
 			if(strsrch->search->breakIter != nullptr) {
 				ubrk_setText(strsrch->search->breakIter, text,
@@ -1093,7 +1093,7 @@ U_CAPI int32_t U_EXPORT2 usearch_next(UStringSearch * strsrch,
 		// or is set by the user
 		int32_t offset       = usearch_getOffset(strsrch);
 		USearch     * search       = strsrch->search;
-		search->reset             = FALSE;
+		search->reset     = FALSE;
 		int32_t textlength   = search->textLength;
 		if(search->isForwardSearching) {
 			if(offset == textlength ||
@@ -1187,9 +1187,9 @@ U_CAPI int32_t U_EXPORT2 usearch_previous(UStringSearch * strsrch,
 		int32_t offset;
 		USearch * search = strsrch->search;
 		if(search->reset) {
-			offset                     = search->textLength;
+			offset             = search->textLength;
 			search->isForwardSearching = FALSE;
-			search->reset              = FALSE;
+			search->reset      = FALSE;
 			setColEIterOffset(strsrch->textIter, offset, *status);
 		}
 		else {
@@ -1304,11 +1304,11 @@ U_CAPI void U_EXPORT2 usearch_reset(UStringSearch * strsrch)
 		    &status);
 		strsrch->search->matchedLength      = 0;
 		strsrch->search->matchedIndex       = USEARCH_DONE;
-		strsrch->search->isOverlap          = FALSE;
+		strsrch->search->isOverlap  = FALSE;
 		strsrch->search->isCanonicalMatch   = FALSE;
 		strsrch->search->elementComparisonType = 0;
 		strsrch->search->isForwardSearching = TRUE;
-		strsrch->search->reset              = TRUE;
+		strsrch->search->reset      = TRUE;
 	}
 }
 

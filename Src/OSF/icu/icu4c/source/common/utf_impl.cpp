@@ -51,7 +51,7 @@
  * -finish:
  * (BSR: Bit Scan Reverse, scans for a 1-bit, starting from the MSB)
  */
-extern "C" U_EXPORT const uint8_t
+extern "C" U_EXPORT const uint8
 utf8_countTrailBytes[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -124,7 +124,7 @@ static UChar32 errorValue(int32_t count, int8_t strict) {
  *
  * Note that a bool is the same as an int8_t.
  */
-U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, int32_t length, UChar32 c, /*bool*/int strict) // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
+U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8 * s, int32_t * pi, int32_t length, UChar32 c, /*bool*/int strict) // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
 {
 	// *pi is one after byte c.
 	int32_t i = *pi;
@@ -135,7 +135,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, 
 	else if(c>=0xf0) {
 		// Test for 4-byte sequences first because
 		// U8_NEXT() handles shorter valid sequences inline.
-		uint8_t t1 = s[i], t2, t3;
+		uint8 t1 = s[i], t2, t3;
 		c &= 7;
 		if(U8_IS_VALID_LEAD4_AND_T1(c, t1) &&
 		    ++i!=length && (t2 = s[i]-0x80)<=0x3f &&
@@ -152,7 +152,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, 
 	else if(c>=0xe0) {
 		c &= 0xf;
 		if(strict!=-2) {
-			uint8_t t1 = s[i], t2;
+			uint8 t1 = s[i], t2;
 			if(U8_IS_VALID_LEAD3_AND_T1(c, t1) &&
 			    ++i!=length && (t2 = s[i]-0x80)<=0x3f) {
 				++i;
@@ -166,7 +166,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, 
 		}
 		else {
 			// strict=-2 -> lenient: allow surrogates
-			uint8_t t1 = s[i]-0x80, t2;
+			uint8 t1 = s[i]-0x80, t2;
 			if(t1<=0x3f && (c>0 || t1>=0x20) &&
 			    ++i!=length && (t2 = s[i]-0x80)<=0x3f) {
 				*pi = i+1;
@@ -175,7 +175,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, 
 		}
 	}
 	else if(c>=0xc2) {
-		uint8_t t1 = s[i]-0x80;
+		uint8 t1 = s[i]-0x80;
 		if(t1<=0x3f) {
 			*pi = i+1;
 			return ((c-0xc0)<<6)|t1;
@@ -188,29 +188,29 @@ U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, 
 	return c;
 }
 
-U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8_t * s, int32_t i, int32_t length, UChar32 c, bool * pIsError) {
+U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8 * s, int32_t i, int32_t length, UChar32 c, bool * pIsError) {
 	if((uint32_t)(c)<=0x7ff) {
 		if((i)+1<(length)) {
-			(s)[(i)++] = (uint8_t)(((c)>>6)|0xc0);
-			(s)[(i)++] = (uint8_t)(((c)&0x3f)|0x80);
+			(s)[(i)++] = (uint8)(((c)>>6)|0xc0);
+			(s)[(i)++] = (uint8)(((c)&0x3f)|0x80);
 			return i;
 		}
 	}
 	else if((uint32_t)(c)<=0xffff) {
 		/* Starting with Unicode 3.2, surrogate code points must not be encoded in UTF-8. */
 		if((i)+2<(length) && !U_IS_SURROGATE(c)) {
-			(s)[(i)++] = (uint8_t)(((c)>>12)|0xe0);
-			(s)[(i)++] = (uint8_t)((((c)>>6)&0x3f)|0x80);
-			(s)[(i)++] = (uint8_t)(((c)&0x3f)|0x80);
+			(s)[(i)++] = (uint8)(((c)>>12)|0xe0);
+			(s)[(i)++] = (uint8)((((c)>>6)&0x3f)|0x80);
+			(s)[(i)++] = (uint8)(((c)&0x3f)|0x80);
 			return i;
 		}
 	}
 	else if((uint32_t)(c)<=0x10ffff) {
 		if((i)+3<(length)) {
-			(s)[(i)++] = (uint8_t)(((c)>>18)|0xf0);
-			(s)[(i)++] = (uint8_t)((((c)>>12)&0x3f)|0x80);
-			(s)[(i)++] = (uint8_t)((((c)>>6)&0x3f)|0x80);
-			(s)[(i)++] = (uint8_t)(((c)&0x3f)|0x80);
+			(s)[(i)++] = (uint8)(((c)>>18)|0xf0);
+			(s)[(i)++] = (uint8)((((c)>>12)&0x3f)|0x80);
+			(s)[(i)++] = (uint8)((((c)>>6)&0x3f)|0x80);
+			(s)[(i)++] = (uint8)(((c)&0x3f)|0x80);
 			return i;
 		}
 	}
@@ -235,12 +235,12 @@ U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8_t * s, int32_t i, int32_t
 	return i;
 }
 
-U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8_t * s, int32_t start, int32_t * pi, UChar32 c, /*bool*/int strict) // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
+U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8 * s, int32_t start, int32_t * pi, UChar32 c, /*bool*/int strict) // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
 {
 	// *pi is the index of byte c.
 	int32_t i = *pi;
 	if(U8_IS_TRAIL(c) && i>start) {
-		uint8_t b1 = s[--i];
+		uint8 b1 = s[--i];
 		if(U8_IS_LEAD(b1)) {
 			if(b1<0xe0) {
 				*pi = i;
@@ -255,7 +255,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8_t * s, int32_t start,
 		else if(U8_IS_TRAIL(b1) && i>start) {
 			// Extract the value bits from the last trail byte.
 			c &= 0x3f;
-			uint8_t b2 = s[--i];
+			uint8 b2 = s[--i];
 			if(0xe0<=b2 && b2<=0xf4) {
 				if(b2<0xf0) {
 					b2 &= 0xf;
@@ -288,7 +288,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8_t * s, int32_t start,
 				}
 			}
 			else if(U8_IS_TRAIL(b2) && i>start) {
-				uint8_t b3 = s[--i];
+				uint8 b3 = s[--i];
 				if(0xf0<=b3 && b3<=0xf4) {
 					b3 &= 7;
 					if(U8_IS_VALID_LEAD4_AND_T1(b3, b2)) {
@@ -309,13 +309,13 @@ U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8_t * s, int32_t start,
 	return errorValue(0, strict);
 }
 
-U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, int32_t i) 
+U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8 * s, int32_t start, int32_t i) 
 {
 	// Same as utf8_prevCharSafeBody(..., strict=-1) minus assembling code points.
 	int32_t orig_i = i;
-	uint8_t c = s[i];
+	uint8 c = s[i];
 	if(U8_IS_TRAIL(c) && i>start) {
-		uint8_t b1 = s[--i];
+		uint8 b1 = s[--i];
 		if(U8_IS_LEAD(b1)) {
 			if(b1<0xe0 ||
 			    (b1<0xf0 ? U8_IS_VALID_LEAD3_AND_T1(b1, c) : U8_IS_VALID_LEAD4_AND_T1(b1, c))) {
@@ -323,14 +323,14 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
 			}
 		}
 		else if(U8_IS_TRAIL(b1) && i>start) {
-			uint8_t b2 = s[--i];
+			uint8 b2 = s[--i];
 			if(0xe0<=b2 && b2<=0xf4) {
 				if(b2<0xf0 ? U8_IS_VALID_LEAD3_AND_T1(b2, b1) : U8_IS_VALID_LEAD4_AND_T1(b2, b1)) {
 					return i;
 				}
 			}
 			else if(U8_IS_TRAIL(b2) && i>start) {
-				uint8_t b3 = s[--i];
+				uint8 b3 = s[--i];
 				if(0xf0<=b3 && b3<=0xf4 && U8_IS_VALID_LEAD4_AND_T1(b3, b2)) {
 					return i;
 				}

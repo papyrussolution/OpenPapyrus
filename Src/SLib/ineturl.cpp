@@ -153,8 +153,8 @@ int InetAddr::Set(ulong addr, int port)
 		char ip[16], host[64];
 		STRNSCPY(ip, pIP);
 		struct sockaddr_in sin;
-		sin.sin_family           = AF_INET;
-		sin.sin_port             = htons(0);
+		sin.sin_family   = AF_INET;
+		sin.sin_port     = htons(0);
 		sin.sin_addr.S_un.S_addr = inet_addr(ip);
 		memzero(host, sizeof(host));
 		if(getnameinfo(reinterpret_cast<const sockaddr *>(&sin), sizeof(sin), host, sizeof(host), 0, 0, 0) == 0) {
@@ -293,8 +293,8 @@ void FASTCALL InetUrl::Copy(const InetUrl & rS)
 	State = rS.State;
 }
 
-int InetUrl::IsValid() const { return BIN(!(State & stError)); }
-int InetUrl::IsEmpty() const { return BIN(State & stEmpty); }
+bool InetUrl::IsValid() const { return !(State & stError); }
+bool InetUrl::IsEmpty() const { return LOGIC(State & stEmpty); }
 
 InetUrl & InetUrl::Z()
 {

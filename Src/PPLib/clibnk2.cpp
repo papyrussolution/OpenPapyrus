@@ -834,13 +834,13 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 		PsnObj.GetPersonReq(p_order->PayerID, &payer_req);
 		PsnObj.GetPersonReq(p_order->RcvrID,  &rcvr_req);
 		{
-			data_buf.BillID           = pPack->Rec.ID;
-			data_buf.Date             = pPack->Rec.Dt;
-			data_buf.Amount           = pPack->GetAmount();
+			data_buf.BillID   = pPack->Rec.ID;
+			data_buf.Date     = pPack->Rec.Dt;
+			data_buf.Amount   = pPack->GetAmount();
 			data_buf.PayerPersonID    = p_order->PayerID;
 			data_buf.ReceiverPersonID = p_order->RcvrID;
-			data_buf.Sequence         = p_order->BnkQueueing;
-			data_buf.VatSum           = p_order->VATSum;
+			data_buf.Sequence = p_order->BnkQueueing;
+			data_buf.VatSum   = p_order->VATSum;
 			STRNSCPY(data_buf.Code, _EncodeStr(pPack->Rec.Code, temp_buf));
 			// @v11.1.12 STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->Rec.Memo, temp_buf));
 			STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->SMemo, temp_buf)); // @v11.1.12

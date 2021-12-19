@@ -134,19 +134,19 @@ int BZ2_bzCompressInit(bz_stream* strm, int blockSize100k, int verbosity, int wo
 		SAlloc::F(s);
 		return BZ_MEM_ERROR;
 	}
-	s->blockNo           = 0;
-	s->state             = BZ_S_INPUT;
-	s->mode              = BZ_M_RUNNING;
+	s->blockNo   = 0;
+	s->state     = BZ_S_INPUT;
+	s->mode      = BZ_M_RUNNING;
 	s->combinedCRC       = 0;
 	s->blockSize100k     = blockSize100k;
-	s->nblockMAX         = 100000 * blockSize100k - 19;
-	s->verbosity         = verbosity;
+	s->nblockMAX = 100000 * blockSize100k - 19;
+	s->verbosity = verbosity;
 	s->workFactor        = workFactor;
-	s->block             = (uchar *)s->arr2;
-	s->mtfv              = (uint16 *)s->arr1;
-	s->zbits             = NULL;
-	s->ptr               = (uint32 *)s->arr1;
-	strm->state          = s;
+	s->block     = (uchar *)s->arr2;
+	s->mtfv      = (uint16 *)s->arr1;
+	s->zbits     = NULL;
+	s->ptr       = (uint32 *)s->arr1;
+	strm->state  = s;
 	strm->total_in_lo32  = 0;
 	strm->total_in_hi32  = 0;
 	strm->total_out_lo32 = 0;
@@ -412,22 +412,22 @@ int BZ2_bzDecompressInit(bz_stream* strm, int verbosity, int small)
 	//if(strm->bzfree == NULL) strm->bzfree = default_bzfree;
 	s = (DState *)SAlloc::M(sizeof(DState));
 	if(s == NULL) return BZ_MEM_ERROR;
-	s->strm                  = strm;
-	strm->state              = s;
-	s->state                 = BZ_X_MAGIC_1;
-	s->bsLive                = 0;
-	s->bsBuff                = 0;
+	s->strm          = strm;
+	strm->state      = s;
+	s->state         = BZ_X_MAGIC_1;
+	s->bsLive        = 0;
+	s->bsBuff        = 0;
 	s->calculatedCombinedCRC = 0;
 	strm->total_in_lo32      = 0;
 	strm->total_in_hi32      = 0;
 	strm->total_out_lo32     = 0;
 	strm->total_out_hi32     = 0;
 	s->smallDecompress       = small ? true : false;
-	s->ll4                   = NULL;
-	s->ll16                  = NULL;
-	s->tt                    = NULL;
-	s->currBlockNo           = 0;
-	s->verbosity             = verbosity;
+	s->ll4           = NULL;
+	s->ll16          = NULL;
+	s->tt            = NULL;
+	s->currBlockNo   = 0;
+	s->verbosity     = verbosity;
 	return BZ_OK;
 }
 // 
@@ -505,11 +505,11 @@ static bool unRLE_obuf_to_output_FAST(DState* s)
 		uchar c_state_out_ch       = s->state_out_ch;
 		int32 c_state_out_len      = s->state_out_len;
 		int32 c_nblock_used        = s->nblock_used;
-		int32 c_k0                 = s->k0;
-		uint32 * c_tt              = s->tt;
-		uint32 c_tPos              = s->tPos;
+		int32 c_k0         = s->k0;
+		uint32 * c_tt      = s->tt;
+		uint32 c_tPos      = s->tPos;
 		char   * cs_next_out       = s->strm->next_out;
-		uint cs_avail_out         = s->strm->avail_out;
+		uint cs_avail_out = s->strm->avail_out;
 		int32 ro_blockSize100k     = s->blockSize100k;
 		/* end restore */
 		uint32 avail_out_INIT = cs_avail_out;
@@ -590,9 +590,9 @@ return_notr:
 		s->state_out_ch       = c_state_out_ch;
 		s->state_out_len      = c_state_out_len;
 		s->nblock_used        = c_nblock_used;
-		s->k0                 = c_k0;
-		s->tt                 = c_tt;
-		s->tPos               = c_tPos;
+		s->k0         = c_k0;
+		s->tt         = c_tt;
+		s->tPos       = c_tPos;
 		s->strm->next_out     = cs_next_out;
 		s->strm->avail_out    = cs_avail_out;
 		/* end save */
@@ -865,7 +865,7 @@ BZFILE* BZ2_bzWriteOpen(int*  bzerror, FILE* f, int blockSize100k, int verbosity
 	}
 	BZ_SETERR(BZ_OK);
 	bzf->initialisedOk = false;
-	bzf->bufN          = 0;
+	bzf->bufN  = 0;
 	bzf->handle        = f;
 	bzf->writing       = true;
 	//bzf->strm.bzalloc  = NULL;
@@ -1009,9 +1009,9 @@ BZFILE* BZ2_bzReadOpen(int*  bzerror, FILE* f, int verbosity, int small, void * 
 	;
 	BZ_SETERR(BZ_OK);
 	bzf->initialisedOk = false;
-	bzf->handle        = f;
-	bzf->bufN          = 0;
-	bzf->writing       = false;
+	bzf->handle  = f;
+	bzf->bufN    = 0;
+	bzf->writing = false;
 	//bzf->strm.bzalloc  = NULL;
 	//bzf->strm.bzfree   = NULL;
 	//bzf->strm.opaque   = NULL;

@@ -882,7 +882,7 @@ int GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket gc_pack;
 	if(gc_obj.GetPacket(id, &gc_pack) > 0) {
-		p_cache_rec->ID             = gc_pack.Rec.ID;
+		p_cache_rec->ID     = gc_pack.Rec.ID;
 		p_cache_rec->DefUnitID      = gc_pack.Rec.DefUnitID;
 		p_cache_rec->DefPhUnitID    = gc_pack.Rec.DefPhUnitID;
 		p_cache_rec->DefPhUPerU     = gc_pack.Rec.DefPhUPerU;
@@ -891,7 +891,7 @@ int GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->DefGrpID       = gc_pack.Rec.DefGrpID;
 		p_cache_rec->EditDlgID      = gc_pack.Rec.EditDlgID;
 		p_cache_rec->FiltDlgID      = gc_pack.Rec.FiltDlgID;
-		p_cache_rec->Flags          = gc_pack.Rec.Flags;
+		p_cache_rec->Flags  = gc_pack.Rec.Flags;
 		p_cache_rec->DynGenMask     = static_cast<int16>(gc_pack.Rec.DynGenMask);
 		p_cache_rec->LotDimCount    = gc_pack.Rec.LotDimCount;
 		p_cache_rec->LotDimUnitID   = gc_pack.Rec.LotDimUnitID;
@@ -924,8 +924,8 @@ void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	PPGdsClsPacket * p_data_pack = static_cast<PPGdsClsPacket *>(pDataRec);
 	const GoodsClassData * p_cache_rec = static_cast<const GoodsClassData *>(pEntry);
 	p_data_pack->Z();
-	p_data_pack->Rec.Tag         = PPOBJ_GOODSCLASS;
-	p_data_pack->Rec.ID          = p_cache_rec->ID;
+	p_data_pack->Rec.Tag = PPOBJ_GOODSCLASS;
+	p_data_pack->Rec.ID  = p_cache_rec->ID;
 	p_data_pack->Rec.DefUnitID   = p_cache_rec->DefUnitID;
 	p_data_pack->Rec.DefPhUnitID = p_cache_rec->DefPhUnitID;
 	p_data_pack->Rec.DefPhUPerU  = p_cache_rec->DefPhUPerU;

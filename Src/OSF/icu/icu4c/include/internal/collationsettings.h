@@ -126,15 +126,15 @@ struct U_I18N_API CollationSettings : public SharedObject {
     void resetReordering();
     void aliasReordering(const CollationData & data, const int32_t *codes, int32_t length,
                          const uint32_t *ranges, int32_t rangesLength,
-                         const uint8_t *table, UErrorCode & errorCode);
+                         const uint8 *table, UErrorCode & errorCode);
     void setReordering(const CollationData & data, const int32_t *codes, int32_t codesLength,
                        UErrorCode & errorCode);
     void copyReorderingFrom(const CollationSettings &other, UErrorCode & errorCode);
 
     inline bool hasReordering() const { return reorderTable != NULL; }
-    static bool reorderTableHasSplitBytes(const uint8_t table[256]);
+    static bool reorderTableHasSplitBytes(const uint8 table[256]);
     inline uint32_t reorder(uint32_t p) const {
-        uint8_t b = reorderTable[p >> 24];
+        uint8 b = reorderTable[p >> 24];
         if(b != 0 || p <= Collation::NO_CE_PRIMARY) {
             return ((uint32_t)b << 24) | (p & 0xffffff);
         } else {
@@ -221,7 +221,7 @@ struct U_I18N_API CollationSettings : public SharedObject {
   * (there are different offsets for primaries that share that lead byte)
   * and the reordering offset must be determined via the reorderRanges.
      */
-    const uint8_t *reorderTable;
+    const uint8 *reorderTable;
     /** Limit of last reordered range. 0 if no reordering or no split bytes. */
     uint32_t minHighNoReorder;
     /**
@@ -264,7 +264,7 @@ struct U_I18N_API CollationSettings : public SharedObject {
 private:
     void setReorderArrays(const int32_t *codes, int32_t codesLength,
                           const uint32_t *ranges, int32_t rangesLength,
-                          const uint8_t *table, UErrorCode & errorCode);
+                          const uint8 *table, UErrorCode & errorCode);
     uint32_t reorderEx(uint32_t p) const;
 };
 

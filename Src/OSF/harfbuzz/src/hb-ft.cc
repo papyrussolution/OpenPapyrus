@@ -209,8 +209,8 @@ void hb_ft_font_unlock_face(hb_font_t * font)
 	ft_font->lock.unlock();
 }
 
-static hb_bool_t hb_ft_get_nominal_glyph(hb_font_t * font HB_UNUSED, void * font_data, hb_codepoint_t unicode,
-    hb_codepoint_t * glyph, void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_nominal_glyph(hb_font_t * font CXX_UNUSED_PARAM, void * font_data, hb_codepoint_t unicode,
+    hb_codepoint_t * glyph, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -233,14 +233,14 @@ static hb_bool_t hb_ft_get_nominal_glyph(hb_font_t * font HB_UNUSED, void * font
 	return true;
 }
 
-static uint hb_ft_get_nominal_glyphs(hb_font_t * font HB_UNUSED,
+static uint hb_ft_get_nominal_glyphs(hb_font_t * font CXX_UNUSED_PARAM,
     void * font_data,
     uint count,
     const hb_codepoint_t * first_unicode,
     uint unicode_stride,
     hb_codepoint_t * first_glyph,
     uint glyph_stride,
-    void * user_data HB_UNUSED)
+    void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -256,12 +256,12 @@ static uint hb_ft_get_nominal_glyphs(hb_font_t * font HB_UNUSED,
 	return done;
 }
 
-static hb_bool_t hb_ft_get_variation_glyph(hb_font_t * font HB_UNUSED,
+static hb_bool_t hb_ft_get_variation_glyph(hb_font_t * font CXX_UNUSED_PARAM,
     void * font_data,
     hb_codepoint_t unicode,
     hb_codepoint_t variation_selector,
     hb_codepoint_t * glyph,
-    void * user_data HB_UNUSED)
+    void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -278,7 +278,7 @@ static void hb_ft_get_glyph_h_advances(hb_font_t* font, void * font_data,
     uint glyph_stride,
     hb_position_t * first_advance,
     uint advance_stride,
-    void * user_data HB_UNUSED)
+    void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -311,7 +311,7 @@ static void hb_ft_get_glyph_h_advances(hb_font_t* font, void * font_data,
 static hb_position_t hb_ft_get_glyph_v_advance(hb_font_t * font,
     void * font_data,
     hb_codepoint_t glyph,
-    void * user_data HB_UNUSED)
+    void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -327,7 +327,7 @@ static hb_position_t hb_ft_get_glyph_v_advance(hb_font_t * font,
 }
 
 static hb_bool_t hb_ft_get_glyph_v_origin(hb_font_t * font, void * font_data,
-    hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y, void * user_data HB_UNUSED)
+    hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -347,7 +347,7 @@ static hb_bool_t hb_ft_get_glyph_v_origin(hb_font_t * font, void * font_data,
 
 #ifndef HB_NO_OT_SHAPE_FALLBACK
 	static hb_position_t hb_ft_get_glyph_h_kerning(hb_font_t * font, void * font_data, hb_codepoint_t left_glyph,
-		hb_codepoint_t right_glyph, void * user_data HB_UNUSED)
+		hb_codepoint_t right_glyph, void * user_data CXX_UNUSED_PARAM)
 	{
 		const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 		FT_Vector kerningv;
@@ -359,7 +359,7 @@ static hb_bool_t hb_ft_get_glyph_v_origin(hb_font_t * font, void * font_data,
 #endif
 
 static hb_bool_t hb_ft_get_glyph_extents(hb_font_t * font, void * font_data,
-    hb_codepoint_t glyph, hb_glyph_extents_t * extents, void * user_data HB_UNUSED)
+    hb_codepoint_t glyph, hb_glyph_extents_t * extents, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -382,8 +382,8 @@ static hb_bool_t hb_ft_get_glyph_extents(hb_font_t * font, void * font_data,
 	return true;
 }
 
-static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED, void * font_data, hb_codepoint_t glyph,
-    uint point_index, hb_position_t * x, hb_position_t * y, void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font CXX_UNUSED_PARAM, void * font_data, hb_codepoint_t glyph,
+    uint point_index, hb_position_t * x, hb_position_t * y, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -399,8 +399,8 @@ static hb_bool_t hb_ft_get_glyph_contour_point(hb_font_t * font HB_UNUSED, void 
 	return true;
 }
 
-static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font HB_UNUSED, void * font_data,
-    hb_codepoint_t glyph, char * name, uint size, void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font CXX_UNUSED_PARAM, void * font_data,
+    hb_codepoint_t glyph, char * name, uint size, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -411,8 +411,8 @@ static hb_bool_t hb_ft_get_glyph_name(hb_font_t * font HB_UNUSED, void * font_da
 	return ret;
 }
 
-static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED, void * font_data,
-    const char * name, int len/* -1 means nul-terminated */, hb_codepoint_t * glyph, void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font CXX_UNUSED_PARAM, void * font_data,
+    const char * name, int len/* -1 means nul-terminated */, hb_codepoint_t * glyph, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -436,7 +436,7 @@ static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font HB_UNUSED, void * fo
 	return *glyph != 0;
 }
 
-static hb_bool_t hb_ft_get_font_h_extents(hb_font_t * font HB_UNUSED, void * font_data, hb_font_extents_t * metrics, void * user_data HB_UNUSED)
+static hb_bool_t hb_ft_get_font_h_extents(hb_font_t * font CXX_UNUSED_PARAM, void * font_data, hb_font_extents_t * metrics, void * user_data CXX_UNUSED_PARAM)
 {
 	const hb_ft_font_t * ft_font = (const hb_ft_font_t*)font_data;
 	hb_lock_t lock(ft_font->lock);
@@ -509,7 +509,7 @@ static void _hb_ft_font_set_funcs(hb_font_t * font, FT_Face ft_face, bool unref)
 	hb_font_set_funcs(font, _hb_ft_get_font_funcs(), ft_font, _hb_ft_font_destroy);
 }
 
-static hb_blob_t * _hb_ft_reference_table(hb_face_t * face HB_UNUSED, hb_tag_t tag, void * user_data)
+static hb_blob_t * _hb_ft_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_tag_t tag, void * user_data)
 {
 	FT_Face ft_face = (FT_Face)user_data;
 	FT_Byte * buffer;

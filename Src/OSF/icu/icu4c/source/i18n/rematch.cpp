@@ -75,7 +75,7 @@ RegexMatcher::RegexMatcher(const UnicodeString & regexp, const UnicodeString & i
 	}
 	UParseError pe;
 	fPatternOwned      = RegexPattern::compile(regexp, flags, pe, status);
-	fPattern           = fPatternOwned;
+	fPattern   = fPatternOwned;
 
 	UText inputText = UTEXT_INITIALIZER;
 	utext_openConstUnicodeString(&inputText, &input, &status);
@@ -97,7 +97,7 @@ RegexMatcher::RegexMatcher(UText * regexp, UText * input,
 		return;
 	}
 
-	fPattern           = fPatternOwned;
+	fPattern   = fPatternOwned;
 	init2(input, status);
 }
 
@@ -164,30 +164,30 @@ RegexMatcher::~RegexMatcher()
 //
 void RegexMatcher::init(UErrorCode & status) 
 {
-	fPattern           = NULL;
+	fPattern   = NULL;
 	fPatternOwned      = NULL;
-	fFrameSize         = 0;
+	fFrameSize = 0;
 	fRegionStart       = 0;
 	fRegionLimit       = 0;
 	fAnchorStart       = 0;
 	fAnchorLimit       = 0;
-	fLookStart         = 0;
-	fLookLimit         = 0;
+	fLookStart = 0;
+	fLookLimit = 0;
 	fActiveStart       = 0;
 	fActiveLimit       = 0;
 	fTransparentBounds = FALSE;
 	fAnchoringBounds   = TRUE;
-	fMatch             = FALSE;
+	fMatch     = FALSE;
 	fMatchStart        = 0;
-	fMatchEnd          = 0;
+	fMatchEnd  = 0;
 	fLastMatchEnd      = -1;
 	fAppendPosition    = 0;
-	fHitEnd            = FALSE;
+	fHitEnd    = FALSE;
 	fRequireEnd        = FALSE;
-	fStack             = NULL;
-	fFrame             = NULL;
-	fTimeLimit         = 0;
-	fTime              = 0;
+	fStack     = NULL;
+	fFrame     = NULL;
+	fTimeLimit = 0;
+	fTime      = 0;
 	fTickCounter       = 0;
 	fStackLimit        = DEFAULT_BACKTRACK_STACK_CAPACITY;
 	fCallbackFn        = NULL;
@@ -196,13 +196,13 @@ void RegexMatcher::init(UErrorCode & status)
 	fFindProgressCallbackContext = NULL;
 	fTraceDebug        = FALSE;
 	fDeferredStatus    = status;
-	fData              = fSmallData;
+	fData      = fSmallData;
 	fWordBreakItr      = NULL;
 	fGCBreakItr        = NULL;
-	fStack             = NULL;
-	fInputText         = NULL;
+	fStack     = NULL;
+	fInputText = NULL;
 	fAltInputText      = NULL;
-	fInput             = NULL;
+	fInput     = NULL;
 	fInputLength       = 0;
 	fInputUniStrMaybeMutable = FALSE;
 }
@@ -1817,10 +1817,10 @@ void RegexMatcher::resetPreserveRegion() {
 	fMatchEnd       = 0;
 	fLastMatchEnd   = -1;
 	fAppendPosition = 0;
-	fMatch          = FALSE;
-	fHitEnd         = FALSE;
+	fMatch  = FALSE;
+	fHitEnd = FALSE;
 	fRequireEnd     = FALSE;
-	fTime           = 0;
+	fTime   = 0;
 	fTickCounter    = TIMER_INITIAL_VALUE;
 	//resetStack(); // more expensive than it looks...
 }
@@ -2790,13 +2790,13 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status) {
 
 	//  Cache frequently referenced items from the compiled pattern
 	//
-	int64_t             * pat           = fPattern->fCompiledPat->getBuffer();
+	int64_t             * pat   = fPattern->fCompiledPat->getBuffer();
 
 	const UChar * litText       = fPattern->fLiteralText.getBuffer();
-	UVector             * fSets         = fPattern->fSets;
+	UVector             * fSets = fPattern->fSets;
 
 	fFrameSize = fPattern->fFrameSize;
-	REStackFrame        * fp            = resetStack();
+	REStackFrame        * fp    = resetStack();
 	if(U_FAILURE(fDeferredStatus)) {
 		status = fDeferredStatus;
 		return;
@@ -4288,15 +4288,15 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 	//  Cache frequently referenced items from the compiled pattern
 	//
-	int64_t             * pat           = fPattern->fCompiledPat->getBuffer();
+	int64_t             * pat   = fPattern->fCompiledPat->getBuffer();
 
 	const UChar * litText       = fPattern->fLiteralText.getBuffer();
-	UVector             * fSets         = fPattern->fSets;
+	UVector             * fSets = fPattern->fSets;
 
 	const UChar * inputBuf      = fInputText->chunkContents;
 
 	fFrameSize = fPattern->fFrameSize;
-	REStackFrame        * fp            = resetStack();
+	REStackFrame        * fp    = resetStack();
 	if(U_FAILURE(fDeferredStatus)) {
 		status = fDeferredStatus;
 		return;

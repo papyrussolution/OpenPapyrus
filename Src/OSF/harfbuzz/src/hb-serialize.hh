@@ -400,7 +400,7 @@ struct hb_serialize_context_t {
 	}
 
 	template <typename Type = void>
-	    Type * start_embed(const Type * obj HB_UNUSED = nullptr) const
+	    Type * start_embed(const Type * obj CXX_UNUSED_PARAM = nullptr) const
 	{
 		return reinterpret_cast<Type *> (this->head);
 	}

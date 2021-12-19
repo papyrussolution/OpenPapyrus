@@ -1,28 +1,28 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
- -
- -  Redistribution and use in source and binary forms, with or without
- -  modification, are permitted provided that the following conditions
- -  are met:
- -  1. Redistributions of source code must retain the above copyright
- -     notice, this list of conditions and the following disclaimer.
- -  2. Redistributions in binary form must reproduce the above
- -     copyright notice, this list of conditions and the following
- -     disclaimer in the documentation and/or other materials
- -     provided with the distribution.
- -
- -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
- -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *====================================================================*/
+   -  Copyright (C) 2001 Leptonica.  All rights reserved.
+   -
+   -  Redistribution and use in source and binary forms, with or without
+   -  modification, are permitted provided that the following conditions
+   -  are met:
+   -  1. Redistributions of source code must retain the above copyright
+   -     notice, this list of conditions and the following disclaimer.
+   -  2. Redistributions in binary form must reproduce the above
+   -     copyright notice, this list of conditions and the following
+   -     disclaimer in the documentation and/or other materials
+   -     provided with the distribution.
+   -
+   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
+   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*====================================================================*/
 
 #ifndef  LEPTONICA_REGUTILS_H
 #define  LEPTONICA_REGUTILS_H
@@ -110,31 +110,29 @@
  */
 
 /*----------------------------------------------------------------------------*
- *                      Regression test parameter packer                      *
- *----------------------------------------------------------------------------*/
+*                      Regression test parameter packer                      *
+*----------------------------------------------------------------------------*/
 
 /*! Regression test parameter packer */
-struct L_RegParams
-{
-    FILE    *fp;        /*!< stream to temporary output file for compare mode */
-    char    *testname;  /*!< name of test, without '_reg'                     */
-    char    *tempfile;  /*!< name of temp file for compare mode output        */
-    int32  mode;      /*!< generate, compare or display                     */
-    int32  index;     /*!< index into saved files for this test; 0-based    */
-    int32  success;   /*!< overall result of the test                       */
-    int32  display;   /*!< 1 if in display mode; 0 otherwise                */
-    L_TIMER  tstart;    /*!< marks beginning of the reg test                  */
+struct L_RegParams {
+	FILE * fp; /*!< stream to temporary output file for compare mode */
+	char * testname; /*!< name of test, without '_reg'                     */
+	char * tempfile; /*!< name of temp file for compare mode output        */
+	l_int32 mode; /*!< generate, compare or display                     */
+	l_int32 index; /*!< index into saved files for this test; 0-based    */
+	l_int32 success; /*!< overall result of the test                       */
+	l_int32 display; /*!< 1 if in display mode; 0 otherwise                */
+	L_TIMER tstart; /*!< marks beginning of the reg test                  */
 };
-typedef struct L_RegParams  L_REGPARAMS;
 
+typedef struct L_RegParams L_REGPARAMS;
 
-    /*! Running modes for the test */
+/*! Running modes for the test */
+/*! Regtest Mode */
 enum {
-    L_REG_GENERATE = 0,
-    L_REG_COMPARE = 1,
-    L_REG_DISPLAY = 2
+	L_REG_GENERATE = 0,
+	L_REG_COMPARE = 1,
+	L_REG_DISPLAY = 2
 };
-
 
 #endif  /* LEPTONICA_REGUTILS_H */
-

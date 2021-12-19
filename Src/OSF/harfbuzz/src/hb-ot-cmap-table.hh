@@ -715,7 +715,7 @@ private:
 
 	struct CmapSubtableFormat13 : CmapSubtableLongSegmented<CmapSubtableFormat13> {
 		static hb_codepoint_t group_get_glyph(const CmapSubtableLongGroup &group,
-		    hb_codepoint_t u HB_UNUSED)
+		    hb_codepoint_t u CXX_UNUSED_PARAM)
 		{
 			return group.glyphID;
 		}

@@ -32,13 +32,13 @@ static char classifyWordSQL(Sci_PositionU start,
 	char s[256];
 	bool wordIsNumber = isdec(styler[start]) || (styler[start] == '.');
 
-	WordList &kwStatements          = *keywordlists[KW_MSSQL_STATEMENTS];
-	WordList &kwDataTypes           = *keywordlists[KW_MSSQL_DATA_TYPES];
+	WordList &kwStatements  = *keywordlists[KW_MSSQL_STATEMENTS];
+	WordList &kwDataTypes   = *keywordlists[KW_MSSQL_DATA_TYPES];
 	WordList &kwSystemTables        = *keywordlists[KW_MSSQL_SYSTEM_TABLES];
 	WordList &kwGlobalVariables     = *keywordlists[KW_MSSQL_GLOBAL_VARIABLES];
-	WordList &kwFunctions           = *keywordlists[KW_MSSQL_FUNCTIONS];
+	WordList &kwFunctions   = *keywordlists[KW_MSSQL_FUNCTIONS];
 	WordList &kwStoredProcedures    = *keywordlists[KW_MSSQL_STORED_PROCEDURES];
-	WordList &kwOperators           = *keywordlists[KW_MSSQL_OPERATORS];
+	WordList &kwOperators   = *keywordlists[KW_MSSQL_OPERATORS];
 
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 128; i++) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));

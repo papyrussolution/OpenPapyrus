@@ -30,6 +30,10 @@
  *  e.g.:   graphicstest fish24.jpg junkout
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -45,9 +49,10 @@ static char  mainName[] = "graphicstest";
 
     if (argc != 3)
         return ERROR_INT(" Syntax: graphicstest filein fileout", mainName, 1);
-
     filein = argv[1];
     fileout = argv[2];
+    setLeptDebugOK(1);
+
     if ((pixs = pixRead(filein)) == NULL)
         return ERROR_INT(" Syntax: pixs not made", mainName, 1);
     d = pixGetDepth(pixs);

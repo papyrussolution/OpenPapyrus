@@ -1208,7 +1208,7 @@ long  SFile::GetMode() const { return Mode; }
 int SFile::GetBuffer(SBaseBuffer & rBuf) const
 {
 	if(T == tSBuffer && P_Sb) {
-		rBuf.P_Buf = (char *)P_Sb->GetBuf(0); // @attention
+		rBuf.P_Buf = (char *)P_Sb->GetBuf(0); // @attention @badcast
 		rBuf.Size = P_Sb->GetAvailableSize();
 		return 1;
 	}
@@ -1216,10 +1216,10 @@ int SFile::GetBuffer(SBaseBuffer & rBuf) const
 		return 0;
 }
 
-int SFile::IsValid() const
+bool SFile::IsValid() const
 {
 	assert(InvariantC(0));
-	return F ? 1 : ((IH >= 0 || T == tNullOutput) ? 1 : (SLibError = SLERR_FILENOTOPENED, 0));
+	return F ? true : ((IH >= 0 || T == tNullOutput) ? true : SLS.SetError(SLERR_FILENOTOPENED));
 }
 
 int SFile::Open(SBuffer & rBuf, long mode)
@@ -1383,7 +1383,7 @@ int SFile::Seek(long offs, int origin)
 		else
 			ok = 0;
 	}
-	BufR.Z(); // @v9.5.9
+	BufR.Z();
 	return ok;
 }
 
@@ -1391,7 +1391,7 @@ int SFile::Seek64(int64 offs, int origin)
 {
 	assert(InvariantC(0));
 	int   ok = (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
-	BufR.Z(); // @v9.5.9
+	BufR.Z();
 	return ok;
 }
 
@@ -1661,9 +1661,7 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 		else {
 			int64  last_pos = Tell64();
 			char * p = 0;
-			// @v9.9.5 STempBuffer temp_buf(1024+2);
-			// @v9.9.5 THROW(temp_buf.IsValid());
-			THROW(LB.Alloc(1024+2)); // @v9.9.5
+			THROW(LB.Alloc(1024+2));
 			size_t act_size = 0;
 			LB[LB.GetSize()-2] = 0;
 			while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {

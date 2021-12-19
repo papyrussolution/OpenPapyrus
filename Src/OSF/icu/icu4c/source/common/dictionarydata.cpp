@@ -158,8 +158,8 @@ U_CAPI int32_t U_EXPORT2 udict_swap(const UDataSwapper * ds, const void * inData
     void * outData, UErrorCode * pErrorCode) {
 	const UDataInfo * pInfo;
 	int32_t headerSize;
-	const uint8_t * inBytes;
-	uint8_t * outBytes;
+	const uint8 * inBytes;
+	uint8 * outBytes;
 	const int32_t * inIndexes;
 	int32_t indexes[DictionaryData::IX_COUNT];
 	int32_t i, offset, size;
@@ -183,8 +183,8 @@ U_CAPI int32_t U_EXPORT2 udict_swap(const UDataSwapper * ds, const void * inData
 		return 0;
 	}
 
-	inBytes = (const uint8_t*)inData + headerSize;
-	outBytes = (uint8_t*)outData + headerSize;
+	inBytes = (const uint8*)inData + headerSize;
+	outBytes = (uint8 *)outData + headerSize;
 
 	inIndexes = (const int32_t*)inBytes;
 	if(length >= 0) {

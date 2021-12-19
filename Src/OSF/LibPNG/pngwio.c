@@ -145,17 +145,13 @@ void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
 	png_ptr->output_flush_fn = output_flush_fn;
 #endif
 #else
-	PNG_UNUSED(output_flush_fn)
+	CXX_UNUSED(output_flush_fn);
 #endif /* WRITE_FLUSH */
-
 #ifdef PNG_READ_SUPPORTED
 	/* It is an error to read while writing a png file */
 	if(png_ptr->read_data_fn != NULL) {
 		png_ptr->read_data_fn = NULL;
-
-		png_warning(png_ptr,
-		    "Can't set both read_data_fn and write_data_fn in the"
-		    " same structure");
+		png_warning(png_ptr, "Can't set both read_data_fn and write_data_fn in the same structure");
 	}
 #endif
 }

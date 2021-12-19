@@ -1100,7 +1100,7 @@ const PPCommandItem * PPCommandFolder::SearchByID(long id, uint * pPos) const
 {
 	uint   pos = 0;
 	PPCommandItem * p_item = 0;
-	if(List.lsearch(&id, &pos, CMPF_LONG, offsetof(PPCommandItem, ID)) > 0) {
+	if(List.lsearch(&id, &pos, CMPF_LONG, offsetof(PPCommandItem, ID))) {
 		p_item = List.at(pos);
 		ASSIGN_PTR(pPos, pos);
 	}

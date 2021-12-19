@@ -63,25 +63,25 @@ register_term(dospc)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PC_init(GpTermEntry * pThis);
-TERM_PUBLIC void PC_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void PC_text(GpTermEntry * pThis);
+TERM_PUBLIC void PC_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PC_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PC_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PC_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void PC_reset();
 TERM_PUBLIC void PC_suspend();
 TERM_PUBLIC void PC_resume();
-TERM_PUBLIC void PC_linetype(GpTermEntry * pThis, int linetype);
+TERM_PUBLIC void PC_linetype(GpTermEntry_Static * pThis, int linetype);
 TERM_PUBLIC void PC_move(uint x, uint y);
 TERM_PUBLIC void PC_vector(uint x, uint y);
 TERM_PUBLIC void PC_put_text(uint x, uint y, const char * str);
-TERM_PUBLIC void PC_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC void PC_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void PC_enhanced_flush(GpTermEntry * pThis);
+TERM_PUBLIC void PC_enhanced_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC void PC_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void PC_enhanced_flush(GpTermEntry_Static * pThis);
 TERM_PUBLIC int PC_text_angle(int ang);
 TERM_PUBLIC int PC_set_font(const char * font);
-TERM_PUBLIC void PC_pointsize(GpTermEntry * pThis, double size);
+TERM_PUBLIC void PC_pointsize(GpTermEntry_Static * pThis, double size);
 TERM_PUBLIC int PC_justify_text(enum JUSTIFY ang);
-TERM_PUBLIC void PC_set_color(GpTermEntry * pThis, t_colorspec * colorspec);
+TERM_PUBLIC void PC_set_color(GpTermEntry_Static * pThis, t_colorspec * colorspec);
 TERM_PUBLIC int PC_make_palette(t_sm_palette * palette);
 TERM_PUBLIC void PC_fillbox(int fillstyle, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PC_filled_polygon(int npoints, gpiPoint * corners);
@@ -228,7 +228,7 @@ static struct gen_table pc_opts[] =
 	{ NULL, PC_INVALID }
 };
 
-TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PC_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int i;
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -236,12 +236,12 @@ TERM_PUBLIC void PC_options(GpTermEntry * pThis, GnuPlot * pGp)
 			case PC_ENH:
 			    pGp->Pgm.Shift();
 			    pThis->put_text = PC_enhanced_put_text;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case PC_NOENH:
 			    pGp->Pgm.Shift();
 			    pThis->put_text = PC_put_text;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case PC_LINEWIDTH:
 			    pGp->Pgm.Shift();
@@ -382,7 +382,7 @@ static void PC_setup()
 	}
 }
 
-TERM_PUBLIC void PC_init(GpTermEntry * pThis)
+TERM_PUBLIC void PC_init(GpTermEntry_Static * pThis)
 {
 	struct _fontinfo fi;
 	if(!pc_graphics)
@@ -393,12 +393,11 @@ TERM_PUBLIC void PC_init(GpTermEntry * pThis)
 	}
 	else {
 		// init terminal: fixed size... 
-		pThis->MaxX = pc_lastx + 1;
-		pThis->MaxY = pc_lasty + 1;
+		pThis->SetMax(pc_lastx + 1, pc_lasty + 1);
 	}
 }
 
-TERM_PUBLIC void PC_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void PC_graphics(GpTermEntry_Static * pThis)
 {
 	struct textsettings ts;
 	if(!graphics_on && !pc_processing_events) {
@@ -416,9 +415,8 @@ TERM_PUBLIC void PC_graphics(GpTermEntry * pThis)
 	/* set default font */
 	PC_set_font("");
 	_gettextsettings(&ts);
-	pThis->ChrH = ts.width;
-	pThis->ChrV = 12 * ts.height / 10; /* reserve some extra line spacing */
-	pThis->TicH = pThis->TicV = pThis->ChrV / 2.5;
+	pThis->SetCharSize(ts.width, 12 * ts.height / 10/* reserve some extra line spacing */);
+	pThis->SetTic(pThis->CV() / 2.5);
 	pc_linewidth = 1;
 	pc_pal_colors = 0;
 	pc_rgbcolors = 16; // reserved palette entries for default colors 
@@ -672,7 +670,7 @@ static int PC_translate_key(int key, int * mod)
 
 #endif
 
-TERM_PUBLIC void PC_text(GpTermEntry * pThis)
+TERM_PUBLIC void PC_text(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(!graphics_on)
@@ -753,7 +751,7 @@ TERM_PUBLIC void PC_resume()
 		_putimage(0, 0, pc_image, _GPSET);
 }
 
-TERM_PUBLIC void PC_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void PC_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	if(pc_colors > 14) {    /* 16 or more colors */
 		t_colorspec colorspec;
@@ -882,7 +880,7 @@ static bool pc_sizeonly;
 static double pc_text_sin;
 static double pc_text_cos;
 
-TERM_PUBLIC void PC_enhanced_open(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void PC_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char font[20];
@@ -914,13 +912,13 @@ TERM_PUBLIC void PC_enhanced_open(GpTermEntry * pThis, char * fontname, double f
 		sprintf_s(font, sizeof(font), ",%.1f", fontsize);
 		PC_set_font(font);
 		/* Scale fractional font height to vertical units of display */
-		pc_enhanced_base = base * pThis->ChrV / (PC_DEFAULT_FONTSIZE * pc_fontscale) / 1.2;
+		pc_enhanced_base = base * pThis->CV() / (PC_DEFAULT_FONTSIZE * pc_fontscale) / 1.2;
 		/* draw text left to right, align with baseline */
 		_settextalign(_LEFT, _BASE);
 	}
 }
 
-TERM_PUBLIC void PC_enhanced_flush(GpTermEntry * pThis)
+TERM_PUBLIC void PC_enhanced_flush(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * str = p_gp->Enht.Text; /* The fragment to print */
@@ -987,7 +985,7 @@ TERM_PUBLIC void PC_enhanced_flush(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void PC_enhanced_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void PC_enhanced_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const char * original_string = str;
@@ -1088,7 +1086,7 @@ TERM_PUBLIC int PC_set_font(const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void PC_pointsize(GpTermEntry * pThis, double size)
+TERM_PUBLIC void PC_pointsize(GpTermEntry_Static * pThis, double size)
 {
 	pThis->P_Gp->TermPointSize = pc_pointscale * (size >= 0 ? size : 1);
 }
@@ -1142,7 +1140,7 @@ static long PC_set_rgb_color(int r, int g, int b)
 	return i;
 }
 
-TERM_PUBLIC void PC_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
+TERM_PUBLIC void PC_set_color(GpTermEntry_Static * pThis, t_colorspec * colorspec)
 {
 	int color;
 	switch(colorspec->type) {

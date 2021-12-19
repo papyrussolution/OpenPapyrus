@@ -1,12 +1,8 @@
+// collationroot.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2012-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationroot.cpp
- *
+ * Copyright (C) 2012-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2012dec17
  * created by: Markus W. Scherer
  */
@@ -55,7 +51,7 @@ void U_CALLCONV CollationRoot::load(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	const uint8_t * inBytes = static_cast<const uint8_t *>(udata_getMemory(t->memory));
+	const uint8 * inBytes = static_cast<const uint8 *>(udata_getMemory(t->memory));
 	CollationDataReader::read(NULL, inBytes, udata_getLength(t->memory), *t, errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;

@@ -501,17 +501,17 @@ enum OpCode {
 
 enum SaveType {
 	SAVE_KEEP        = 0,/* SAVE S */
-	SAVE_S           = 1,
+	SAVE_S   = 1,
 	SAVE_RIGHT_RANGE = 2,
 };
 
 enum UpdateVarType {
 	UPDATE_VAR_KEEP_FROM_STACK_LAST     = 0,
-	UPDATE_VAR_S_FROM_STACK             = 1,
+	UPDATE_VAR_S_FROM_STACK     = 1,
 	UPDATE_VAR_RIGHT_RANGE_FROM_STACK   = 2,
 	UPDATE_VAR_RIGHT_RANGE_FROM_S_STACK = 3,
-	UPDATE_VAR_RIGHT_RANGE_TO_S         = 4,
-	UPDATE_VAR_RIGHT_RANGE_INIT         = 5,
+	UPDATE_VAR_RIGHT_RANGE_TO_S = 4,
+	UPDATE_VAR_RIGHT_RANGE_INIT = 5,
 };
 
 enum CheckPositionType {

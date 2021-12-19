@@ -44,11 +44,11 @@ const cmsCIExyY* CMSEXPORT cmsD50_xyY(void)
 }
 
 // Obtains WhitePoint from Temperature
-cmsBool  CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, cmsFloat64Number TempK)
+boolint CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, double TempK)
 {
-    cmsFloat64Number x, y;
-    cmsFloat64Number T, T2, T3;
-    // cmsFloat64Number M1, M2;
+    double x, y;
+    double T, T2, T3;
+    // double M1, M2;
 
     _cmsAssert(WhitePoint != NULL);
 
@@ -93,10 +93,10 @@ cmsBool  CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, cmsFloat64Number
 
 typedef struct {
 
-    cmsFloat64Number mirek;  // temp (in microreciprocal kelvin)
-    cmsFloat64Number ut;     // u coord of intersection w/ blackbody locus
-    cmsFloat64Number vt;     // v coord of intersection w/ blackbody locus
-    cmsFloat64Number tt;     // slope of ISOTEMPERATURE. line
+    double mirek;  // temp (in microreciprocal kelvin)
+    double ut;     // u coord of intersection w/ blackbody locus
+    double vt;     // v coord of intersection w/ blackbody locus
+    double tt;     // slope of ISOTEMPERATURE. line
 
     } ISOTEMPERATURE;
 
@@ -139,12 +139,12 @@ static const ISOTEMPERATURE isotempdata[] = {
 
 
 // Robertson's method
-cmsBool  CMSEXPORT cmsTempFromWhitePoint(cmsFloat64Number* TempK, const cmsCIExyY* WhitePoint)
+boolint CMSEXPORT cmsTempFromWhitePoint(double * TempK, const cmsCIExyY* WhitePoint)
 {
     cmsUInt32Number j;
-    cmsFloat64Number us,vs;
-    cmsFloat64Number uj,vj,tj,di,dj,mi,mj;
-    cmsFloat64Number xs, ys;
+    double us,vs;
+    double uj,vj,tj,di,dj,mi,mj;
+    double xs, ys;
 
     _cmsAssert(WhitePoint != NULL);
     _cmsAssert(TempK != NULL);
@@ -187,7 +187,7 @@ cmsBool  CMSEXPORT cmsTempFromWhitePoint(cmsFloat64Number* TempK, const cmsCIExy
 // Compute chromatic adaptation matrix using Chad as cone matrix
 
 static
-cmsBool ComputeChromaticAdaptation(cmsMAT3* Conversion,
+boolint ComputeChromaticAdaptation(cmsMAT3* Conversion,
                                 const cmsCIEXYZ* SourceWhitePoint,
                                 const cmsCIEXYZ* DestWhitePoint,
                                 const cmsMAT3* Chad)
@@ -229,7 +229,7 @@ cmsBool ComputeChromaticAdaptation(cmsMAT3* Conversion,
 
 // Returns the final chrmatic adaptation from illuminant FromIll to Illuminant ToIll
 // The cone matrix can be specified in ConeMatrix. If NULL, Bradford is assumed
-cmsBool  _cmsAdaptationMatrix(cmsMAT3* r, const cmsMAT3* ConeMatrix, const cmsCIEXYZ* FromIll, const cmsCIEXYZ* ToIll)
+boolint _cmsAdaptationMatrix(cmsMAT3* r, const cmsMAT3* ConeMatrix, const cmsCIEXYZ* FromIll, const cmsCIEXYZ* ToIll)
 {
     cmsMAT3 LamRigg   = {{ // Bradford matrix
         {{  0.8951,  0.2664, -0.1614 }},
@@ -245,7 +245,7 @@ cmsBool  _cmsAdaptationMatrix(cmsMAT3* r, const cmsMAT3* ConeMatrix, const cmsCI
 
 // Same as anterior, but assuming D50 destination. White point is given in xyY
 static
-cmsBool _cmsAdaptMatrixToD50(cmsMAT3* r, const cmsCIExyY* SourceWhitePt)
+boolint _cmsAdaptMatrixToD50(cmsMAT3* r, const cmsCIExyY* SourceWhitePt)
 {
     cmsCIEXYZ Dn;
     cmsMAT3 Bradford;
@@ -274,14 +274,14 @@ cmsBool _cmsAdaptMatrixToD50(cmsMAT3* r, const cmsCIExyY* SourceWhitePt)
 //              obtaining the coeficients of the transformation
 //            - Then, I apply these coeficients to the original matrix
 //
-cmsBool _cmsBuildRGB2XYZtransferMatrix(cmsMAT3* r, const cmsCIExyY* WhitePt, const cmsCIExyYTRIPLE* Primrs)
+boolint _cmsBuildRGB2XYZtransferMatrix(cmsMAT3* r, const cmsCIExyY* WhitePt, const cmsCIExyYTRIPLE* Primrs)
 {
     cmsVEC3 WhitePoint, Coef;
     cmsMAT3 Result, Primaries;
-    cmsFloat64Number xn, yn;
-    cmsFloat64Number xr, yr;
-    cmsFloat64Number xg, yg;
-    cmsFloat64Number xb, yb;
+    double xn, yn;
+    double xr, yr;
+    double xg, yg;
+    double xb, yb;
 
     xn = WhitePt -> x;
     yn = WhitePt -> y;
@@ -321,7 +321,7 @@ cmsBool _cmsBuildRGB2XYZtransferMatrix(cmsMAT3* r, const cmsCIExyY* WhitePt, con
 
 // Adapts a color to a given illuminant. Original color is expected to have
 // a SourceWhitePt white point.
-cmsBool CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result,
+boolint CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result,
                                        const cmsCIEXYZ* SourceWhitePt,
                                        const cmsCIEXYZ* Illuminant,
                                        const cmsCIEXYZ* Value)

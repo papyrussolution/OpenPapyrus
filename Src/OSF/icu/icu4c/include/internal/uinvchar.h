@@ -212,13 +212,13 @@ U_CAPI char U_EXPORT2 uprv_ebcdicToLowercaseAscii(char c);
  * @internal
  * @see uprv_strncpy
  */
-U_CAPI uint8_t* U_EXPORT2 uprv_aestrncpy(uint8_t * dst, const uint8_t * src, int32_t n);
+U_CAPI uint8* U_EXPORT2 uprv_aestrncpy(uint8 * dst, const uint8 * src, int32_t n);
 
 /**
  * Copy ASCII to EBCDIC
  * @internal
  * @see uprv_strncpy
  */
-U_CAPI uint8_t* U_EXPORT2 uprv_eastrncpy(uint8_t * dst, const uint8_t * src, int32_t n);
+U_CAPI uint8* U_EXPORT2 uprv_eastrncpy(uint8 * dst, const uint8 * src, int32_t n);
 
 #endif

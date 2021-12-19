@@ -68,7 +68,7 @@ enum {
 
 typedef struct {
 	uint32_t start, end;
-	uint8_t type, variant;
+	uint8 type, variant;
 	uint16_t size;
 } AlgorithmicRange;
 
@@ -223,19 +223,19 @@ static bool isDataLoaded(UErrorCode * pErrorCode) {
  * although we know that it will never be part of a name.
  */
 static uint16_t expandName(UCharNames * names,
-    const uint8_t * name, uint16_t nameLength, UCharNameChoice nameChoice,
+    const uint8 * name, uint16_t nameLength, UCharNameChoice nameChoice,
     char * buffer, uint16_t bufferLength) {
 	uint16_t * tokens = (uint16_t*)names+8;
 	uint16_t token, tokenCount = *tokens++, bufferPos = 0;
-	uint8_t * tokenStrings = (uint8_t*)names+names->tokenStringOffset;
-	uint8_t c;
+	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
+	uint8 c;
 
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
 		/*
 		 * skip the modern name if it is not requested _and_
 		 * if the semicolon byte value is a character, not a token number
 		 */
-		if((uint8_t)';'>=tokenCount || tokens[(uint8_t)';']==(uint16_t)(-1)) {
+		if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
 			int fieldIndex = nameChoice==U_ISO_COMMENT ? 2 : nameChoice;
 			do {
 				while(nameLength>0) {
@@ -288,7 +288,7 @@ static uint16_t expandName(UCharNames * names,
 					   extended names and there was no 2.0 name but there
 					   is a 1.0 name. */
 					if(!bufferPos && nameChoice == U_EXTENDED_CHAR_NAME) {
-						if((uint8_t)';'>=tokenCount || tokens[(uint8_t)';']==(uint16_t)(-1)) {
+						if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
 							continue;
 						}
 					}
@@ -298,7 +298,7 @@ static uint16_t expandName(UCharNames * names,
 			}
 			else {
 				/* write token word */
-				uint8_t * tokenString = tokenStrings+token;
+				uint8 * tokenString = tokenStrings+token;
 				while((c = *tokenString++)!=0) {
 					WRITE_CHAR(buffer, bufferLength, bufferPos, c);
 				}
@@ -320,12 +320,12 @@ static uint16_t expandName(UCharNames * names,
  * It returns the match/no match result as soon as possible.
  */
 static bool compareName(UCharNames * names,
-    const uint8_t * name, uint16_t nameLength, UCharNameChoice nameChoice,
+    const uint8 * name, uint16_t nameLength, UCharNameChoice nameChoice,
     const char * otherName) {
 	uint16_t * tokens = (uint16_t*)names+8;
 	uint16_t token, tokenCount = *tokens++;
-	uint8_t * tokenStrings = (uint8_t*)names+names->tokenStringOffset;
-	uint8_t c;
+	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
+	uint8 c;
 	const char * origOtherName = otherName;
 
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
@@ -333,7 +333,7 @@ static bool compareName(UCharNames * names,
 		 * skip the modern name if it is not requested _and_
 		 * if the semicolon byte value is a character, not a token number
 		 */
-		if((uint8_t)';'>=tokenCount || tokens[(uint8_t)';']==(uint16_t)(-1)) {
+		if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
 			int fieldIndex = nameChoice==U_ISO_COMMENT ? 2 : nameChoice;
 			do {
 				while(nameLength>0) {
@@ -390,7 +390,7 @@ static bool compareName(UCharNames * names,
 					   extended names and there was no 2.0 name but there
 					   is a 1.0 name. */
 					if(otherName == origOtherName && nameChoice == U_EXTENDED_CHAR_NAME) {
-						if((uint8_t)';'>=tokenCount || tokens[(uint8_t)';']==(uint16_t)(-1)) {
+						if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
 							continue;
 						}
 					}
@@ -400,7 +400,7 @@ static bool compareName(UCharNames * names,
 			}
 			else {
 				/* write token word */
-				uint8_t * tokenString = tokenStrings+token;
+				uint8 * tokenString = tokenStrings+token;
 				while((c = *tokenString++)!=0) {
 					if((char)c!=*otherName++) {
 						return FALSE;
@@ -414,8 +414,8 @@ static bool compareName(UCharNames * names,
 	return (bool)(*otherName==0);
 }
 
-static uint8_t getCharCat(UChar32 cp) {
-	uint8_t cat;
+static uint8 getCharCat(UChar32 cp) {
+	uint8 cat;
 
 	if(U_IS_UNICODE_NONCHAR(cp)) {
 		return U_NONCHARACTER_CODE_POINT;
@@ -429,7 +429,7 @@ static uint8_t getCharCat(UChar32 cp) {
 }
 
 static const char * getCharCatName(UChar32 cp) {
-	uint8_t cat = getCharCat(cp);
+	uint8 cat = getCharCat(cp);
 
 	/* Return unknown if the table of names above is not up to
 	   date. */
@@ -459,7 +459,7 @@ static uint16_t getExtName(uint32_t code, char * buffer, uint16_t bufferLength) 
 	if(ndigits < 4)
 		ndigits = 4;
 	for(cp = code, i = ndigits; (cp || i > 0) && bufferLength; cp >>= 4, bufferLength--) {
-		uint8_t v = (uint8_t)(cp & 0xf);
+		uint8 v = (uint8)(cp & 0xf);
 		buffer[--i] = (v < 10 ? '0' + v : 'A' + v - 10);
 	}
 	buffer += ndigits;
@@ -508,11 +508,11 @@ static const uint16_t * getGroup(UCharNames * names, uint32_t code) {
  * The offsets and lengths arrays must be at least 33 (one more) long because
  * there is no check here at the end if the last nibble is still used.
  */
-static const uint8_t * expandGroupLengths(const uint8_t * s,
+static const uint8 * expandGroupLengths(const uint8 * s,
     uint16_t offsets[LINES_PER_GROUP+1], uint16_t lengths[LINES_PER_GROUP+1]) {
 	/* read the lengths of the 32 strings in this group and get each string's offset */
 	uint16_t i = 0, offset = 0, length = 0;
-	uint8_t lengthByte;
+	uint8 lengthByte;
 
 	/* all 32 lengths must be read to get the offset of the first group string */
 	while(i<LINES_PER_GROUP) {
@@ -566,7 +566,7 @@ static uint16_t expandGroupName(UCharNames * names, const uint16_t * group,
     uint16_t lineNumber, UCharNameChoice nameChoice,
     char * buffer, uint16_t bufferLength) {
 	uint16_t offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
-	const uint8_t * s = (uint8_t*)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
+	const uint8 * s = (uint8 *)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
 	s = expandGroupLengths(s, offsets, lengths);
 	return expandName(names, s+offsets[lineNumber], lengths[lineNumber], nameChoice,
 		   buffer, bufferLength);
@@ -598,7 +598,7 @@ static bool enumGroupNames(UCharNames * names, const uint16_t * group,
     UEnumCharNamesFn * fn, void * context,
     UCharNameChoice nameChoice) {
 	uint16_t offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
-	const uint8_t * s = (uint8_t*)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
+	const uint8 * s = (uint8 *)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
 
 	s = expandGroupLengths(s, offsets, lengths);
 	if(fn!=DO_FIND_NAME) {
@@ -1208,8 +1208,8 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 
 /* sets of name characters, maximum name lengths ---------------------------- */
 
-#define SET_ADD(set, c) ((set)[(uint8_t)c>>5] |= ((uint32_t)1<<((uint8_t)c&0x1f)))
-#define SET_CONTAINS(set, c) (((set)[(uint8_t)c>>5]&((uint32_t)1<<((uint8_t)c&0x1f)))!=0)
+#define SET_ADD(set, c) ((set)[(uint8)c>>5] |= ((uint32_t)1<<((uint8)c&0x1f)))
+#define SET_CONTAINS(set, c) (((set)[(uint8)c>>5]&((uint32_t)1<<((uint8)c&0x1f)))!=0)
 
 static int32_t calcStringSetLength(uint32_t set[8], const char * s) {
 	int32_t length = 0;
@@ -1229,7 +1229,7 @@ static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) {
 	int32_t length;
 
 	/* enumerate algorithmic ranges */
-	p = (uint32_t*)((uint8_t*)uCharNames+uCharNames->algNamesOffset);
+	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
 	rangeCount = *p;
 	range = (AlgorithmicRange*)(p+1);
 	while(rangeCount>0) {
@@ -1276,7 +1276,7 @@ static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) {
 			    break;
 		}
 
-		range = (AlgorithmicRange*)((uint8_t*)range+range->size);
+		range = (AlgorithmicRange*)((uint8 *)range+range->size);
 		--rangeCount;
 	}
 	return maxNameLength;
@@ -1301,14 +1301,14 @@ static int32_t calcExtNameSetsLengths(int32_t maxNameLength) {
 	return maxNameLength;
 }
 
-static int32_t calcNameSetLength(const uint16_t * tokens, uint16_t tokenCount, const uint8_t * tokenStrings, int8_t * tokenLengths,
+static int32_t calcNameSetLength(const uint16_t * tokens, uint16_t tokenCount, const uint8 * tokenStrings, int8_t * tokenLengths,
     uint32_t set[8],
-    const uint8_t ** pLine, const uint8_t * lineLimit) {
-	const uint8_t * line = *pLine;
+    const uint8 ** pLine, const uint8 * lineLimit) {
+	const uint8 * line = *pLine;
 	int32_t length = 0, tokenLength;
 	uint16_t c, token;
 
-	while(line!=lineLimit && (c = *line++)!=(uint8_t)';') {
+	while(line!=lineLimit && (c = *line++)!=(uint8)';') {
 		if(c>=tokenCount) {
 			/* implicit letter */
 			SET_ADD(set, c);
@@ -1353,10 +1353,10 @@ static void calcGroupNameSetsLengths(int32_t maxNameLength)
 	uint16_t offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
 	uint16_t * tokens = (uint16_t*)uCharNames+8;
 	uint16_t tokenCount = *tokens++;
-	uint8_t * tokenStrings = (uint8_t*)uCharNames+uCharNames->tokenStringOffset;
+	uint8 * tokenStrings = (uint8 *)uCharNames+uCharNames->tokenStringOffset;
 	int8_t * tokenLengths;
 	const uint16_t * group;
-	const uint8_t * s, * line, * lineLimit;
+	const uint8 * s, * line, * lineLimit;
 	int32_t groupCount, lineNumber, length;
 	tokenLengths = (int8_t*)uprv_malloc(tokenCount);
 	if(tokenLengths!=NULL) {
@@ -1367,14 +1367,14 @@ static void calcGroupNameSetsLengths(int32_t maxNameLength)
 
 	/* enumerate all groups */
 	while(groupCount>0) {
-		s = (uint8_t*)uCharNames+uCharNames->groupStringOffset+GET_GROUP_OFFSET(group);
+		s = (uint8 *)uCharNames+uCharNames->groupStringOffset+GET_GROUP_OFFSET(group);
 		s = expandGroupLengths(s, offsets, lengths);
 
 		/* enumerate all lines in each group */
 		for(lineNumber = 0; lineNumber<LINES_PER_GROUP; ++lineNumber) {
 			line = s+offsets[lineNumber];
 			length = lengths[lineNumber];
-			if(length==0) {
+			if(!length) {
 				continue;
 			}
 
@@ -1476,7 +1476,7 @@ U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice,
 	length = 0;
 
 	/* try algorithmic names first */
-	p = (uint32_t*)((uint8_t*)uCharNames+uCharNames->algNamesOffset);
+	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
 	i = *p;
 	algRange = (AlgorithmicRange*)(p+1);
 	while(i>0) {
@@ -1484,7 +1484,7 @@ U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice,
 			length = getAlgName(algRange, (uint32_t)code, nameChoice, buffer, (uint16_t)bufferLength);
 			break;
 		}
-		algRange = (AlgorithmicRange*)((uint8_t*)algRange+algRange->size);
+		algRange = (AlgorithmicRange*)((uint8 *)algRange+algRange->size);
 		--i;
 	}
 
@@ -1600,7 +1600,7 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 				/* Now validate the category name.
 				   We could use a binary search, or a trie, if
 				   we really wanted to. */
-				uint8_t cat = getCharCat(cp);
+				uint8 cat = getCharCat(cp);
 				for(lower[i] = 0, cIdx = 0; cIdx < UPRV_LENGTHOF(charCatNames); ++cIdx) {
 					if(!uprv_strcmp(lower + 1, charCatNames[cIdx])) {
 						if(cat == cIdx) {
@@ -1617,14 +1617,14 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 	}
 
 	/* try algorithmic names now */
-	p = (uint32_t*)((uint8_t*)uCharNames+uCharNames->algNamesOffset);
+	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
 	i = *p;
 	algRange = (AlgorithmicRange*)(p+1);
 	while(i>0) {
 		if((cp = findAlgName(algRange, nameChoice, upper))!=0xffff) {
 			return cp;
 		}
-		algRange = (AlgorithmicRange*)((uint8_t*)algRange+algRange->size);
+		algRange = (AlgorithmicRange*)((uint8 *)algRange+algRange->size);
 		--i;
 	}
 
@@ -1669,7 +1669,7 @@ U_CAPI void U_EXPORT2 u_enumCharNames(UChar32 start, UChar32 limit,
 
 	/* interleave the data-driven ones with the algorithmic ones */
 	/* iterate over all algorithmic ranges; assume that they are in ascending order */
-	p = (uint32_t*)((uint8_t*)uCharNames+uCharNames->algNamesOffset);
+	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
 	i = *p;
 	algRange = (AlgorithmicRange*)(p+1);
 	while(i>0) {
@@ -1698,7 +1698,7 @@ U_CAPI void U_EXPORT2 u_enumCharNames(UChar32 start, UChar32 limit,
 			start = (UChar32)algRange->end+1;
 		}
 		/* continue to the next algorithmic range (here: start<limit) */
-		algRange = (AlgorithmicRange*)((uint8_t*)algRange+algRange->size);
+		algRange = (AlgorithmicRange*)((uint8 *)algRange+algRange->size);
 		--i;
 	}
 	/* enumerate the character names after the last algorithmic range */
@@ -1775,11 +1775,11 @@ U_CAPI void U_EXPORT2 uprv_getCharNameCharacters(const USetAdder * sa) {
  */
 static void makeTokenMap(const UDataSwapper * ds,
     int16_t tokens[], uint16_t tokenCount,
-    uint8_t map[256],
+    uint8 map[256],
     UErrorCode * pErrorCode) {
 	bool usedOutChar[256];
 	uint16_t i, j;
-	uint8_t c1, c2;
+	uint8 c1, c2;
 
 	if(U_FAILURE(*pErrorCode)) {
 		return;
@@ -1788,7 +1788,7 @@ static void makeTokenMap(const UDataSwapper * ds,
 	if(ds->inCharset==ds->outCharset) {
 		/* Same charset family: identity permutation */
 		for(i = 0; i<256; ++i) {
-			map[i] = (uint8_t)i;
+			map[i] = (uint8)i;
 		}
 	}
 	else {
@@ -1801,7 +1801,7 @@ static void makeTokenMap(const UDataSwapper * ds,
 		for(i = 1; i<tokenCount; ++i) {
 			if(tokens[i]==-1) {
 				/* convert the direct byte character */
-				c1 = (uint8_t)i;
+				c1 = (uint8)i;
 				ds->swapInvChars(ds, &c1, 1, &c2, pErrorCode);
 				if(U_FAILURE(*pErrorCode)) {
 					udata_printError(ds,
@@ -1825,7 +1825,7 @@ static void makeTokenMap(const UDataSwapper * ds,
 				while(usedOutChar[j]) {
 					++j;
 				}
-				map[i] = (uint8_t)j++;
+				map[i] = (uint8)j++;
 			}
 		}
 
@@ -1842,8 +1842,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 	const UDataInfo * pInfo;
 	int32_t headerSize;
 
-	const uint8_t * inBytes;
-	uint8_t * outBytes;
+	const uint8 * inBytes;
+	uint8 * outBytes;
 
 	uint32_t tokenStringOffset, groupsOffset, groupStringOffset, algNamesOffset,
 	    offset, i, count, stringsCount;
@@ -1877,8 +1877,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		return 0;
 	}
 
-	inBytes = (const uint8_t*)inData+headerSize;
-	outBytes = (uint8_t*)outData+headerSize;
+	inBytes = (const uint8*)inData+headerSize;
+	outBytes = (uint8 *)outData+headerSize;
 	if(length<0) {
 		algNamesOffset = ds->readUInt32(((const uint32_t*)inBytes)[3]);
 	}
@@ -1913,7 +1913,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		int16_t tokens[512];
 		uint16_t tokenCount;
 
-		uint8_t map[256], trailMap[256];
+		uint8 map[256], trailMap[256];
 
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
@@ -2006,10 +2006,10 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		 */
 		if(ds->inCharset!=ds->outCharset) {
 			uint16_t offsets[LINES_PER_GROUP+1], lengths[LINES_PER_GROUP+1];
-			const uint8_t * inStrings, * nextInStrings;
-			uint8_t * outStrings;
+			const uint8 * inStrings, * nextInStrings;
+			uint8 * outStrings;
 
-			uint8_t c;
+			uint8 c;
 
 			inStrings = inBytes+groupStringOffset;
 			outStrings = outBytes+groupStringOffset;
@@ -2090,8 +2090,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 				    /* swap the strings, up to the last terminating NUL */
 				    p += factorsCount;
 				    q += factorsCount;
-				    stringsCount = (uint32_t)((inBytes+offset)-(const uint8_t*)p);
-				    while(stringsCount>0 && ((const uint8_t*)p)[stringsCount-1]!=0) {
+				    stringsCount = (uint32_t)((inBytes+offset)-(const uint8*)p);
+				    while(stringsCount>0 && ((const uint8*)p)[stringsCount-1]!=0) {
 					    --stringsCount;
 				    }
 				    ds->swapInvChars(ds, p, (int32_t)stringsCount, q, pErrorCode);

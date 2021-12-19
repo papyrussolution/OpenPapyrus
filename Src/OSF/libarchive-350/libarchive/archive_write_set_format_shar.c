@@ -38,7 +38,7 @@ struct shar {
 	int end_of_line;
 	struct archive_entry    * entry;
 	int has_data;
-	char                    * last_dir;
+	char * last_dir;
 
 	/* Line buffer for uuencoded dump format */
 	char outbuff[45];
@@ -49,15 +49,15 @@ struct shar {
 	struct archive_string quoted_name;
 };
 
-static int      archive_write_shar_close(struct archive_write *);
-static int      archive_write_shar_free(struct archive_write *);
-static int      archive_write_shar_header(struct archive_write *,
+static int archive_write_shar_close(struct archive_write *);
+static int archive_write_shar_free(struct archive_write *);
+static int archive_write_shar_header(struct archive_write *,
     struct archive_entry *);
 static ssize_t  archive_write_shar_data_sed(struct archive_write *,
     const void * buff, size_t);
 static ssize_t  archive_write_shar_data_uuencode(struct archive_write *,
     const void * buff, size_t);
-static int      archive_write_shar_finish_entry(struct archive_write *);
+static int archive_write_shar_finish_entry(struct archive_write *);
 
 /*
  * Copy the given string to the buffer, quoting all shell meta characters

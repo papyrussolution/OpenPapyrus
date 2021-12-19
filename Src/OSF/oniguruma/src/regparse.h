@@ -26,8 +26,8 @@ typedef enum {
 } NodeType;
 
 enum BagType {
-	BAG_MEMORY         = 0,
-	BAG_OPTION         = 1,
+	BAG_MEMORY = 0,
+	BAG_OPTION = 1,
 	BAG_STOP_BACKTRACK = 2,
 	BAG_IF_ELSE        = 3,
 };

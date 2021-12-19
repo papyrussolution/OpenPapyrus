@@ -21,11 +21,11 @@ U_NAMESPACE_BEGIN
 //
 // Character classes for RBBI rule scanning.
 //
-    static const uint8_t kRuleSet_digit_char = 128;
-    static const uint8_t kRuleSet_name_char = 129;
-    static const uint8_t kRuleSet_name_start_char = 130;
-    static const uint8_t kRuleSet_rule_char = 131;
-    static const uint8_t kRuleSet_white_space = 132;
+    static const uint8 kRuleSet_digit_char = 128;
+    static const uint8 kRuleSet_name_char = 129;
+    static const uint8 kRuleSet_name_start_char = 130;
+    static const uint8 kRuleSet_rule_char = 131;
+    static const uint8 kRuleSet_white_space = 132;
 
 
 enum RBBI_RuleParseAction {
@@ -70,11 +70,11 @@ enum RBBI_RuleParseAction {
 //-------------------------------------------------------------------------------
 struct RBBIRuleTableEl {
     RBBI_RuleParseAction          fAction;
-    uint8_t                       fCharClass;       // 0-127:    an individual ASCII character
+    uint8                       fCharClass;       // 0-127:    an individual ASCII character
                                                     // 128-255:  character class index
-    uint8_t                       fNextState;       // 0-250:    normal next-stat numbers
+    uint8                       fNextState;       // 0-250:    normal next-stat numbers
                                                     // 255:      pop next-state from stack.
-    uint8_t                       fPushState;
+    uint8                       fPushState;
     bool       fNextChar;
 };
 

@@ -36,13 +36,13 @@ __FBSDID("$FreeBSD$");
 #define LRZIP_HEADER_MAGIC "LRZI"
 #define LRZIP_HEADER_MAGIC_LEN 4
 
-static int      lrzip_bidder_bid(struct archive_read_filter_bidder *,
+static int lrzip_bidder_bid(struct archive_read_filter_bidder *,
     struct archive_read_filter *);
-static int      lrzip_bidder_init(struct archive_read_filter *);
+static int lrzip_bidder_init(struct archive_read_filter *);
 
 static int lrzip_reader_free(struct archive_read_filter_bidder * self)
 {
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	return ARCHIVE_OK;
 }
 
@@ -79,7 +79,7 @@ static int lrzip_bidder_bid(struct archive_read_filter_bidder * self,
 	ssize_t avail, len;
 	int i;
 
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	/* Start by looking at the first six bytes of the header, which
 	 * is all fixed layout. */
 	len = 6;

@@ -55,5 +55,8 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\lcms2\src\lcms2_internal.h" />
+    <ClInclude Include="..\OSF\lcms2\testbed\testcms2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

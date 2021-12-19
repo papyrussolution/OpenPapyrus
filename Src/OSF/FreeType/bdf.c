@@ -1,4 +1,4 @@
-/*  bdf.c
+/* bdf.c
 
     FreeType font driver for bdf files
 

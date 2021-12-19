@@ -38,7 +38,7 @@ static inline int32_t getASCIIPropertyNameChar(const char * name) {
 	}
 
 	if(c!=0) {
-		return (i<<8)|(uint8_t)uprv_asciitolower((char)c);
+		return (i<<8)|(uint8)uprv_asciitolower((char)c);
 	}
 	else {
 		return i<<8;
@@ -62,7 +62,7 @@ static inline int32_t getEBCDICPropertyNameChar(const char * name) {
 	}
 
 	if(c!=0) {
-		return (i<<8)|(uint8_t)uprv_ebcdictolower((char)c);
+		return (i<<8)|(uint8)uprv_ebcdictolower((char)c);
 	}
 	else {
 		return i<<8;
@@ -227,7 +227,7 @@ bool PropNameData::containsName(BytesTrie &trie, const char * name) {
 		if(!USTRINGTRIE_HAS_NEXT(result)) {
 			return FALSE;
 		}
-		result = trie.next((uint8_t)c);
+		result = trie.next((uint8)c);
 	}
 	return USTRINGTRIE_HAS_VALUE(result);
 }

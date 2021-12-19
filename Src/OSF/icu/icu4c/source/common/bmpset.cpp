@@ -38,7 +38,6 @@ BMPSet::BMPSet(const int32_t * parentList, int32_t parentListLength) : list(pare
 	}
 	list4kStarts[0x11] = listLength-1;
 	containsFFFD = containsSlow(0xfffd, list4kStarts[0xf], list4kStarts[0x10]);
-
 	initBits();
 	overrideIllegal();
 }
@@ -90,9 +89,9 @@ static void set32x64Bits(uint32_t table[64], int32_t start, int32_t limit)
 			++lead;
 		}
 		if(lead<limitLead) {
-			bits = ~(((unsigned)1<<lead)-1);
+			bits = ~(((uint)1<<lead)-1);
 			if(limitLead<0x20) {
-				bits &= ((unsigned)1<<limitLead)-1;
+				bits &= ((uint)1<<limitLead)-1;
 			}
 			for(trail = 0; trail<64; ++trail) {
 				table[trail] |= bits;
@@ -108,19 +107,14 @@ static void set32x64Bits(uint32_t table[64], int32_t start, int32_t limit)
 	}
 }
 
-void BMPSet::initBits() {
+void BMPSet::initBits() 
+{
 	UChar32 start, limit;
 	int32_t listIndex = 0;
-
 	// Set latin1Contains[].
 	do {
 		start = list[listIndex++];
-		if(listIndex<listLength) {
-			limit = list[listIndex++];
-		}
-		else {
-			limit = 0x110000;
-		}
+		limit = (listIndex < listLength) ? list[listIndex++] : 0x110000;
 		if(start>=0x100) {
 			break;
 		}
@@ -133,12 +127,7 @@ void BMPSet::initBits() {
 	// to include them in table7FF as well.
 	for(listIndex = 0;;) {
 		start = list[listIndex++];
-		if(listIndex<listLength) {
-			limit = list[listIndex++];
-		}
-		else {
-			limit = 0x110000;
-		}
+		limit = (listIndex < listLength) ? list[listIndex++] : 0x110000;
 		if(limit>0x80) {
 			if(start<0x80) {
 				start = 0x80;
@@ -146,7 +135,6 @@ void BMPSet::initBits() {
 			break;
 		}
 	}
-
 	// Set table7FF[].
 	while(start<0x800) {
 		set32x64Bits(table7FF, start, limit<=0x800 ? limit : 0x800);
@@ -154,23 +142,15 @@ void BMPSet::initBits() {
 			start = 0x800;
 			break;
 		}
-
 		start = list[listIndex++];
-		if(listIndex<listLength) {
-			limit = list[listIndex++];
-		}
-		else {
-			limit = 0x110000;
-		}
+		limit = (listIndex < listLength) ? list[listIndex++] : 0x110000;
 	}
-
 	// Set bmpBlockBits[].
 	int32_t minStart = 0x800;
 	while(start<0x10000) {
 		if(limit>0x10000) {
 			limit = 0x10000;
 		}
-
 		if(start<minStart) {
 			start = minStart;
 		}
@@ -197,18 +177,11 @@ void BMPSet::initBits() {
 				}
 			}
 		}
-
 		if(limit==0x10000) {
 			break;
 		}
-
 		start = list[listIndex++];
-		if(listIndex<listLength) {
-			limit = list[listIndex++];
-		}
-		else {
-			limit = 0x110000;
-		}
+		limit = (listIndex < listLength) ? list[listIndex++] : 0x110000;
 	}
 }
 
@@ -521,15 +494,14 @@ const UChar * BMPSet::spanBack(const UChar * s, const UChar * limit, USetSpanCon
 	}
 	return limit+1;
 }
-
 /*
  * Precheck for sufficient trail bytes at end of string only once per span.
  * Check validity.
  */
-const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCondition spanCondition) const
+const uint8 * BMPSet::spanUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const
 {
-	const uint8_t * limit = s+length;
-	uint8_t b = *s;
+	const uint8 * limit = s+length;
+	uint8 b = *s;
 	if(U8_IS_SINGLE(b)) {
 		// Initial all-ASCII span.
 		if(spanCondition) {
@@ -553,7 +525,7 @@ const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCond
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {
 		spanCondition = USET_SPAN_CONTAINED; // Pin to 0/1 values.
 	}
-	const uint8_t * limit0 = limit;
+	const uint8 * limit0 = limit;
 	/*
 	 * Make sure that the last 1/2/3/4-byte sequence before limit is complete
 	 * or runs into a lead byte.
@@ -591,7 +563,7 @@ const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCond
 			}
 		}
 	}
-	uint8_t t1, t2, t3;
+	uint8 t1, t2, t3;
 	while(s < limit) {
 		b = *s;
 		if(U8_IS_SINGLE(b)) {
@@ -622,7 +594,7 @@ const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCond
 		++s; // Advance past the lead byte.
 		if(b>=0xe0) {
 			if(b<0xf0) {
-				if( /* handle U+0000..U+FFFF inline */(t1 = (uint8_t)(s[0]-0x80)) <= 0x3f && (t2 = (uint8_t)(s[1]-0x80)) <= 0x3f) {
+				if( /* handle U+0000..U+FFFF inline */(t1 = (uint8)(s[0]-0x80)) <= 0x3f && (t2 = (uint8)(s[1]-0x80)) <= 0x3f) {
 					b &= 0xf;
 					uint32_t twoBits = (bmpBlockBits[t1]>>b)&0x10001;
 					if(twoBits<=1) {
@@ -644,7 +616,7 @@ const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCond
 				}
 			}
 			else if( /* handle U+10000..U+10FFFF inline */
-				(t1 = (uint8_t)(s[0]-0x80)) <= 0x3f && (t2 = (uint8_t)(s[1]-0x80)) <= 0x3f && (t3 = (uint8_t)(s[2]-0x80)) <= 0x3f) {
+				(t1 = (uint8)(s[0]-0x80)) <= 0x3f && (t2 = (uint8)(s[1]-0x80)) <= 0x3f && (t3 = (uint8)(s[2]-0x80)) <= 0x3f) {
 				// Give an illegal sequence the same value as the result of contains(FFFD).
 				UChar32 c = ((UChar32)(b-0xf0)<<18)|((UChar32)t1<<12)|(t2<<6)|t3;
 				if(static_cast<int>(((0x10000<=c && c<=0x10ffff) ? containsSlow(c, list4kStarts[0x10], list4kStarts[0x11]) : containsFFFD)) != spanCondition) {
@@ -655,7 +627,7 @@ const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCond
 			}
 		}
 		else {
-			if(/* handle U+0000..U+07FF inline */b>=0xc0 && (t1 = (uint8_t)(*s-0x80)) <= 0x3f) {
+			if(/* handle U+0000..U+07FF inline */b>=0xc0 && (t1 = (uint8)(*s-0x80)) <= 0x3f) {
 				if((USetSpanCondition)((table7FF[t1]&((uint32_t)1<<(b&0x1f)))!=0) != spanCondition) {
 					return s-1;
 				}
@@ -680,12 +652,12 @@ const uint8_t * BMPSet::spanUTF8(const uint8_t * s, int32_t length, USetSpanCond
  * preceding bytes there should be. Therefore, going backwards through UTF-8
  * is much harder than going forward.
  */
-int32_t BMPSet::spanBackUTF8(const uint8_t * s, int32_t length, USetSpanCondition spanCondition) const {
+int32_t BMPSet::spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const {
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {
 		spanCondition = USET_SPAN_CONTAINED; // Pin to 0/1 values.
 	}
 
-	uint8_t b;
+	uint8 b;
 
 	do {
 		b = s[--length];
@@ -696,7 +668,7 @@ int32_t BMPSet::spanBackUTF8(const uint8_t * s, int32_t length, USetSpanConditio
 					if(!latin1Contains[b]) {
 						return length+1;
 					}
-					else if(length==0) {
+					else if(!length) {
 						return 0;
 					}
 					b = s[--length];
@@ -707,7 +679,7 @@ int32_t BMPSet::spanBackUTF8(const uint8_t * s, int32_t length, USetSpanConditio
 					if(latin1Contains[b]) {
 						return length+1;
 					}
-					else if(length==0) {
+					else if(!length) {
 						return 0;
 					}
 					b = s[--length];

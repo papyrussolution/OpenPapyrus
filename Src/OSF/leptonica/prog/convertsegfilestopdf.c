@@ -69,6 +69,10 @@
  *    generates images and the boxaa file in /tmp/segtest/.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
@@ -83,7 +87,7 @@ BOXAA       *baa;
 static char  mainName[] = "convertsegfilestopdf";
 
     if (argc != 12) {
-        fprintf(stderr,
+        lept_stderr(
 	    " Syntax: convertsegfilestopdf dirin substr res type thresh \\ \n"
             "                       boxaafile scalefactor title fileout\n"
             "     where\n"
@@ -111,7 +115,6 @@ static char  mainName[] = "convertsegfilestopdf";
             "         fileout:  Output pdf file\n");
         return 1;
     }
-
     pagedir = argv[1];
     pagesubstr = argv[2];
     maskdir = argv[3];
@@ -141,9 +144,10 @@ static char  mainName[] = "convertsegfilestopdf";
     if (!strcmp(title, "none"))
         title = NULL;
 
+    setLeptDebugOK(1);
     if (maskdir)  /* use this; ignore any input boxaafile */
         baa = convertNumberedMasksToBoxaa(maskdir, masksubstr, 0, 0);
-    else if (strcmp(boxaafile, "skip")) {  /* use the boxaafile */
+    else if (strcmp(boxaafile, "skip") != 0) {  /* use the boxaafile */
         boxaapath = genPathname(boxaafile, NULL);
         baa = boxaaRead(boxaapath);
         lept_free(boxaapath);

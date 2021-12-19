@@ -32,7 +32,7 @@
  *
  * cnvalias.icu is a binary, memory-mappable form of convrtrs.txt.
  * This binary form contains several tables. All indexes are to uint16_t
- * units, and not to the bytes (uint8_t units). Addressing everything on
+ * units, and not to the bytes (uint8 units). Addressing everything on
  * 16-bit boundaries allows us to store more information with small index
  * numbers, which are also 16-bit in size. The majority of the table (except
  * the string table) are 16-bit numbers.
@@ -231,8 +231,8 @@ static void U_CALLCONV initAliasData(UErrorCode &errCode)
 	}
 	gAliasData = data;
 	gMainTable.converterListSize      = sectionSizes[1];
-	gMainTable.tagListSize            = sectionSizes[2];
-	gMainTable.aliasListSize          = sectionSizes[3];
+	gMainTable.tagListSize    = sectionSizes[2];
+	gMainTable.aliasListSize  = sectionSizes[3];
 	gMainTable.untaggedConvArraySize  = sectionSizes[4];
 	gMainTable.taggedAliasArraySize   = sectionSizes[5];
 	gMainTable.taggedAliasListsSize   = sectionSizes[6];
@@ -306,7 +306,7 @@ enum {
 };
 
 /* character types for ASCII 00..7F */
-static const uint8_t asciiTypes[128] = {
+static const uint8 asciiTypes[128] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -317,10 +317,10 @@ static const uint8_t asciiTypes[128] = {
 	0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0, 0, 0, 0, 0
 };
 
-#define GET_ASCII_TYPE(c) ((int8_t)(c) >= 0 ? asciiTypes[(uint8_t)c] : (uint8_t)UIGNORE)
+#define GET_ASCII_TYPE(c) ((int8_t)(c) >= 0 ? asciiTypes[(uint8)c] : (uint8)UIGNORE)
 
 /* character types for EBCDIC 80..FF */
-static const uint8_t ebcdicTypes[128] = {
+static const uint8 ebcdicTypes[128] = {
 	0,    0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0, 0, 0, 0, 0, 0,
 	0,    0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0, 0, 0, 0, 0, 0,
 	0,    0,    0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0, 0, 0, 0, 0, 0,
@@ -331,7 +331,7 @@ static const uint8_t ebcdicTypes[128] = {
 	ZERO, NONZERO, NONZERO, NONZERO, NONZERO, NONZERO, NONZERO, NONZERO, NONZERO, NONZERO, 0, 0, 0, 0, 0, 0
 };
 
-#define GET_EBCDIC_TYPE(c) ((int8_t)(c) < 0 ? ebcdicTypes[(c)&0x7f] : (uint8_t)UIGNORE)
+#define GET_EBCDIC_TYPE(c) ((int8_t)(c) < 0 ? ebcdicTypes[(c)&0x7f] : (uint8)UIGNORE)
 
 #if U_CHARSET_FAMILY==U_ASCII_FAMILY
 #define GET_CHAR_TYPE(c) GET_ASCII_TYPE(c)
@@ -345,7 +345,7 @@ static const uint8_t ebcdicTypes[128] = {
 U_CAPI char * U_CALLCONV ucnv_io_stripASCIIForCompare(char * dst, const char * name) 
 {
 	char * dstItr = dst;
-	uint8_t type, nextType;
+	uint8 type, nextType;
 	char c1;
 	bool afterDigit = FALSE;
 	while((c1 = *name++) != 0) {
@@ -379,7 +379,7 @@ U_CAPI char * U_CALLCONV ucnv_io_stripASCIIForCompare(char * dst, const char * n
 U_CAPI char * U_CALLCONV ucnv_io_stripEBCDICForCompare(char * dst, const char * name) 
 {
 	char * dstItr = dst;
-	uint8_t type, nextType;
+	uint8 type, nextType;
 	char c1;
 	bool afterDigit = FALSE;
 	while((c1 = *name++) != 0) {
@@ -434,7 +434,7 @@ U_CAPI char * U_CALLCONV ucnv_io_stripEBCDICForCompare(char * dst, const char * 
 U_CAPI int U_EXPORT2 ucnv_compareNames(const char * name1, const char * name2) 
 {
 	int rc;
-	uint8_t type, nextType;
+	uint8 type, nextType;
 	char c1, c2;
 	bool afterDigit1 = FALSE, afterDigit2 = FALSE;
 	for(;;) {

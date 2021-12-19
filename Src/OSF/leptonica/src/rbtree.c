@@ -40,7 +40,7 @@
  *  deletion of key/value pairs in log(n) time.
  *
  *  We use red-black trees to implement our version of:
- *    * a map: a function that maps keys to values (int32).
+ *    * a map: a function that maps keys to values (e.g., int64 --> int64).
  *    * a set: a collection that is sorted by unique keys (without
  *      associated values)
  *
@@ -63,11 +63,11 @@
  *           L_RBTREE_NODE  *l_rbtreeGetNext()
  *           L_RBTREE_NODE  *l_rbtreeGetLast()
  *           L_RBTREE_NODE  *l_rbtreeGetPrev()
- *           int32         l_rbtreeGetCount()
+ *           l_int32         l_rbtreeGetCount()
  *           void            l_rbtreePrint()
  *
  *  General comparison function
- *           int32         l_compareKeys()
+ *           static l_int32  compareKeys()
  * </pre>
  */
 #include "allheaders.h"
@@ -79,19 +79,22 @@ enum {
 	L_BLACK_NODE = 2
 };
 
-/* The makes it simpler to read the code */
+/* This makes it simpler to read the code */
 typedef L_RBTREE_NODE node;
 
 /* Lots of static helper functions */
 static void destroy_helper(node * n);
-static void count_helper(node * n, int32 * pcount);
-static void print_tree_helper(FILE * fp, node * n, int32 keytype,
-    int32 indent);
+static void count_helper(node * n, l_int32 * pcount);
+static void print_tree_helper(FILE * fp, node * n, l_int32 keytype,
+    l_int32 indent);
+
+static l_int32 compareKeys(l_int32 keytype, RB_TYPE left, RB_TYPE right);
+
 static node * grandparent(node * n);
 static node * sibling(node * n);
 static node * uncle(node * n);
-static int32 node_color(node * n);
-static node * new_node(RB_TYPE key, RB_TYPE value, int32 node_color,
+static l_int32 node_color(node * n);
+static node * new_node(RB_TYPE key, RB_TYPE value, l_int32 node_color,
     node * left, node * right);
 static node * lookup_node(L_RBTREE * t, RB_TYPE key);
 static void rotate_left(L_RBTREE * t, node * n);
@@ -118,56 +121,62 @@ static void verify_properties(L_RBTREE * t);
 /* ------------------------------------------------------------- *
 *                   Interface to Red-black Tree                 *
 * ------------------------------------------------------------- */
-/*
- *  l_rbtreeCreate()
+/*!
+ * \brief   l_rbtreeCreate()
  *
- *      Input:  keytype (defined by an enum for an RB_TYPE union)
- *      Return: rbtree (container with empty ptr to the root)
+ * \param[in]   keytype   defined by an enum for an RB_TYPE union
+ * \return      rbtree    container with empty ptr to the root
  */
-L_RBTREE * l_rbtreeCreate(int32 keytype)
+L_RBTREE * l_rbtreeCreate(l_int32 keytype)
 {
-	PROCNAME("l_rbtreeCreate");
+	L_RBTREE  * t;
+
+	PROCNAME(__FUNCTION__);
 
 	if(keytype != L_INT_TYPE && keytype != L_UINT_TYPE &&
 	    keytype != L_FLOAT_TYPE && keytype)
 		return (L_RBTREE*)ERROR_PTR("invalid keytype", procName, NULL);
 
-	L_RBTREE * t = (L_RBTREE*)LEPT_CALLOC(1, sizeof(L_RBTREE));
+	t = (L_RBTREE*)SAlloc::C(1, sizeof(L_RBTREE));
 	t->keytype = keytype;
 	verify_properties(t);
 	return t;
 }
 
-/*
- *  l_rbtreeLookup()
+/*!
+ * \brief   l_rbtreeLookup()
  *
- *      Input:  t (rbtree, including root node)
- *              key (find a node with this key)
- *      Return: &value (a pointer to a union, if the node exists; else NULL)
+ * \param[in]   t        rbtree, including root node
+ * \param[in]   key      find a node with this key
+ * \return    &value     a pointer to a union, if the node exists; else NULL
  */
 RB_TYPE * l_rbtreeLookup(L_RBTREE  * t,
     RB_TYPE key)
 {
-	PROCNAME("l_rbtreeLookup");
+	node  * n;
+
+	PROCNAME(__FUNCTION__);
 
 	if(!t)
 		return (RB_TYPE*)ERROR_PTR("tree is null\n", procName, NULL);
 
-	node * n = lookup_node(t, key);
+	n = lookup_node(t, key);
 	return n == NULL ? NULL : &n->value;
 }
 
-/*
- *  l_rbtreeInsert()
+/*!
+ * \brief   l_rbtreeInsert()
  *
- *      Input:  t (rbtree, including root node)
- *              key (insert a node with this key, if the key does not already
- *                   exist in the tree)
- *              value (typically an int, used for an index)
- *      Return: void
+ * \param[in]   t         rbtree, including root node
+ * \param[in]   key       insert a node with this key, if the key does not
+ *                        already exist in the tree
+ * \param[in]   value     typically an int, used for an index
+ * \return     void
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) If a node with the key already exists, this just updates the value.
+ * </pre>
  */
 void l_rbtreeInsert(L_RBTREE     * t,
     RB_TYPE key,
@@ -175,7 +184,7 @@ void l_rbtreeInsert(L_RBTREE     * t,
 {
 	node  * n, * inserted_node;
 
-	PROCNAME("l_rbtreeInsert");
+	PROCNAME(__FUNCTION__);
 
 	if(!t) {
 		L_ERROR("tree is null\n", procName);
@@ -189,10 +198,10 @@ void l_rbtreeInsert(L_RBTREE     * t,
 	else {
 		n = t->root;
 		while(1) {
-			int comp_result = l_compareKeys(t->keytype, key, n->key);
+			int comp_result = compareKeys(t->keytype, key, n->key);
 			if(comp_result == 0) {
 				n->value = value;
-				LEPT_FREE(inserted_node);
+				SAlloc::F(inserted_node);
 				return;
 			}
 			else if(comp_result < 0) {
@@ -220,19 +229,19 @@ void l_rbtreeInsert(L_RBTREE     * t,
 	verify_properties(t);
 }
 
-/*
- *  l_rbtreeDelete()
+/*!
+ * \brief   l_rbtreeDelete()
  *
- *      Input:  t (rbtree, including root node)
- *              key (delete the node with this key)
- *      Return: void
+ * \param[in]   t     rbtree, including root node
+ * \param[in]   key   delete the node with this key
+ * \return      void
  */
 void l_rbtreeDelete(L_RBTREE  * t,
     RB_TYPE key)
 {
 	node  * n, * child;
 
-	PROCNAME("l_rbtreeDelete");
+	PROCNAME(__FUNCTION__);
 
 	if(!t) {
 		L_ERROR("tree is null\n", procName);
@@ -240,7 +249,7 @@ void l_rbtreeDelete(L_RBTREE  * t,
 	}
 
 	n = lookup_node(t, key);
-	if(n == NULL) return;  /* Key not found, do nothing */
+	if(n == NULL) return; /* Key not found, do nothing */
 	if(n->left != NULL && n->right != NULL) {
 		/* Copy key/value from predecessor and then delete it instead */
 		node * pred = maximum_node(n->left);
@@ -258,19 +267,21 @@ void l_rbtreeDelete(L_RBTREE  * t,
 	replace_node(t, n, child);
 	if(n->parent == NULL && child != NULL) /* root should be black */
 		child->color = L_BLACK_NODE;
-	LEPT_FREE(n);
+	SAlloc::F(n);
 
 	verify_properties(t);
 }
 
-/*
- *  l_rbtreeDestroy()
+/*!
+ * \brief   l_rbtreeDestroy()
  *
- *      Input:  &t (ptr to rbtree)
- *      Return: void
+ * \param[in]   pt     pointer to tree; will be wet to null before returning
+ * \return      void
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) Destroys the tree and nulls the input tree ptr.
+ * </pre>
  */
 void l_rbtreeDestroy(L_RBTREE  ** pt)
 {
@@ -280,9 +291,8 @@ void l_rbtreeDestroy(L_RBTREE  ** pt)
 	if(*pt == NULL) return;
 	n = (*pt)->root;
 	destroy_helper(n);
-	LEPT_FREE(*pt);
+	SAlloc::F(*pt);
 	*pt = NULL;
-	return;
 }
 
 /* postorder DFS */
@@ -291,23 +301,25 @@ static void destroy_helper(node  * n)
 	if(!n) return;
 	destroy_helper(n->left);
 	destroy_helper(n->right);
-	LEPT_FREE(n);
+	SAlloc::F(n);
 }
 
-/*
- *  l_rbtreeGetFirst()
+/*!
+ * \brief   l_rbtreeGetFirst()
  *
- *      Input:  t (rbtree, including root node)
- *      Return: void
+ * \param[in]    t    rbtree, including root node
+ * \return       first node, or NULL on error or if the tree is empty
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This is the first node in an in-order traversal.
+ * </pre>
  */
 L_RBTREE_NODE * l_rbtreeGetFirst(L_RBTREE  * t)
 {
 	node  * n;
 
-	PROCNAME("l_rbtreeGetFirst");
+	PROCNAME(__FUNCTION__);
 
 	if(!t)
 		return (L_RBTREE_NODE*)ERROR_PTR("tree is null", procName, NULL);
@@ -323,21 +335,23 @@ L_RBTREE_NODE * l_rbtreeGetFirst(L_RBTREE  * t)
 	return n;
 }
 
-/*
- *  l_rbtreeGetNext()
+/*!
+ * \brief   l_rbtreeGetNext()
  *
- *      Input:  n (current node)
- *      Return: next node (or NULL if it's the last node)
+ * \param[in]    n     current node
+ * \return       next node, or NULL if it's the last node
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This finds the next node, in an in-order traversal, from
  *          the current node.
  *      (2) It is useful as an iterator for a map.
  *      (3) Call l_rbtreeGetFirst() to get the first node.
+ * </pre>
  */
 L_RBTREE_NODE * l_rbtreeGetNext(L_RBTREE_NODE  * n)
 {
-	PROCNAME("l_rbtreeGetNext");
+	PROCNAME(__FUNCTION__);
 
 	if(!n)
 		return (L_RBTREE_NODE*)ERROR_PTR("n not defined", procName, NULL);
@@ -359,20 +373,22 @@ L_RBTREE_NODE * l_rbtreeGetNext(L_RBTREE_NODE  * n)
 	}
 }
 
-/*
- *  l_rbtreeGetLast()
+/*!
+ * \brief   l_rbtreeGetLast()
  *
- *      Input:  t (rbtree, including root node)
- *      Return: void
+ * \param[in]   t      rbtree, including root node
+ * \return      last node, or NULL on error or if the tree is empty
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This is the last node in an in-order traversal.
+ * </pre>
  */
 L_RBTREE_NODE * l_rbtreeGetLast(L_RBTREE  * t)
 {
 	node  * n;
 
-	PROCNAME("l_rbtreeGetLast");
+	PROCNAME(__FUNCTION__);
 
 	if(!t)
 		return (L_RBTREE_NODE*)ERROR_PTR("tree is null", procName, NULL);
@@ -388,21 +404,23 @@ L_RBTREE_NODE * l_rbtreeGetLast(L_RBTREE  * t)
 	return n;
 }
 
-/*
- *  l_rbtreeGetPrev()
+/*!
+ * \brief   l_rbtreeGetPrev()
  *
- *      Input:  n (current node)
- *      Return: next node (or NULL if it's the first node)
+ * \param[in]    n     current node
+ * \return       next node, or NULL if it's the first node
  *
- *  Notes:
+ * <pre>
+ * Notes:
  *      (1) This finds the previous node, in an in-order traversal, from
  *          the current node.
  *      (2) It is useful as an iterator for a map.
  *      (3) Call l_rbtreeGetLast() to get the last node.
+ * </pre>
  */
 L_RBTREE_NODE * l_rbtreeGetPrev(L_RBTREE_NODE  * n)
 {
-	PROCNAME("l_rbtreeGetPrev");
+	PROCNAME(__FUNCTION__);
 
 	if(!n)
 		return (L_RBTREE_NODE*)ERROR_PTR("n not defined", procName, NULL);
@@ -424,15 +442,15 @@ L_RBTREE_NODE * l_rbtreeGetPrev(L_RBTREE_NODE  * n)
 	}
 }
 
-/*
- *  l_rbtreeGetCount()
+/*!
+ * \brief   l_rbtreeGetCount()
  *
- *      Input:  t (rbtree)
- *      Return: count (the number of nodes in the tree); 0 on error
+ * \param[in]  t      rbtree
+ * \return     count  the number of nodes in the tree, or 0 on error
  */
-int32 l_rbtreeGetCount(L_RBTREE  * t)
+l_int32 l_rbtreeGetCount(L_RBTREE  * t)
 {
-	int32 count = 0;
+	l_int32 count = 0;
 	node    * n;
 
 	if(!t) return 0;
@@ -442,7 +460,7 @@ int32 l_rbtreeGetCount(L_RBTREE  * t)
 }
 
 /* preorder DFS */
-static void count_helper(node  * n, int32  * pcount)
+static void count_helper(node  * n, l_int32 * pcount)
 {
 	if(n)
 		(*pcount)++;
@@ -453,17 +471,17 @@ static void count_helper(node  * n, int32  * pcount)
 	count_helper(n->right, pcount);
 }
 
-/*
- *  l_rbtreePrint()
+/*!
+ * \brief   l_rbtreePrint()
  *
- *      Input:  fp (file stream)
- *              t (rbtree)
- *      Return: null
+ * \param[in]    fp    file stream
+ * \param[in]    t     rbtree
+ * \return       void
  */
-void l_rbtreePrint(FILE      * fp,
+void l_rbtreePrint(FILE * fp,
     L_RBTREE  * t)
 {
-	PROCNAME("l_rbtreePrint");
+	PROCNAME(__FUNCTION__);
 	if(!fp) {
 		L_ERROR("stream not defined\n", procName);
 		return;
@@ -479,12 +497,12 @@ void l_rbtreePrint(FILE      * fp,
 
 #define INDENT_STEP  4
 
-static void print_tree_helper(FILE    * fp,
+static void print_tree_helper(FILE * fp,
     node    * n,
-    int32 keytype,
-    int32 indent)
+    l_int32 keytype,
+    l_int32 indent)
 {
-	int32 i;
+	l_int32 i;
 
 	if(n == NULL) {
 		fprintf(fp, "<empty tree>");
@@ -517,13 +535,13 @@ static void print_tree_helper(FILE    * fp,
 }
 
 /* ------------------------------------------------------------- *
-*                   General comparison function                 *
+*                Static key comparison function                 *
 * ------------------------------------------------------------- */
-int32 l_compareKeys(int32 keytype,
+static l_int32 compareKeys(l_int32 keytype,
     RB_TYPE left,
     RB_TYPE right)
 {
-	static char procName[] = "l_compareKeys";
+	static char procName[] = "compareKeys";
 
 	if(keytype == L_INT_TYPE) {
 		if(left.itype < right.itype)
@@ -553,7 +571,7 @@ int32 l_compareKeys(int32 keytype,
 		}
 	}
 	else {
-		L_ERROR2("unknown keytype %d\n", procName, keytype);
+		L_ERROR("unknown keytype %d\n", procName, keytype);
 		return 0;
 	}
 }
@@ -561,8 +579,7 @@ int32 l_compareKeys(int32 keytype,
 /* ------------------------------------------------------------- *
 *                  Static red-black tree helpers                *
 * ------------------------------------------------------------- */
-static node * grandparent(node * n)
-{
+static node * grandparent(node * n) {
 	if(!n || !n->parent || !n->parent->parent) {
 		L_ERROR("root and child of root have no grandparent\n", "grandparent");
 		return NULL;
@@ -570,8 +587,7 @@ static node * grandparent(node * n)
 	return n->parent->parent;
 }
 
-static node * sibling(node * n)
-{
+static node * sibling(node * n) {
 	if(!n || !n->parent) {
 		L_ERROR("root has no sibling\n", "sibling");
 		return NULL;
@@ -582,8 +598,7 @@ static node * sibling(node * n)
 		return n->parent->left;
 }
 
-static node * uncle(node * n)
-{
+static node * uncle(node * n) {
 	if(!n || !n->parent || !n->parent->parent) {
 		L_ERROR("root and child of root have no uncle\n", "uncle");
 		return NULL;
@@ -591,15 +606,13 @@ static node * uncle(node * n)
 	return sibling(n->parent);
 }
 
-static int32 node_color(node * n)
-{
+static l_int32 node_color(node * n) {
 	return n == NULL ? L_BLACK_NODE : n->color;
 }
 
-static node * new_node(RB_TYPE key, RB_TYPE value, int32 node_color,
-    node * left, node * right)
-{
-	node * result = (node*)LEPT_CALLOC(1, sizeof(node));
+static node * new_node(RB_TYPE key, RB_TYPE value, l_int32 node_color,
+    node * left, node * right) {
+	node * result = (node*)SAlloc::C(1, sizeof(node));
 	result->key = key;
 	result->value = value;
 	result->color = node_color;
@@ -611,11 +624,10 @@ static node * new_node(RB_TYPE key, RB_TYPE value, int32 node_color,
 	return result;
 }
 
-static node * lookup_node(L_RBTREE * t, RB_TYPE key)
-{
+static node * lookup_node(L_RBTREE * t, RB_TYPE key) {
 	node * n = t->root;
 	while(n != NULL) {
-		int comp_result = l_compareKeys(t->keytype, key, n->key);
+		int comp_result = compareKeys(t->keytype, key, n->key);
 		if(comp_result == 0) {
 			return n;
 		}
@@ -629,8 +641,7 @@ static node * lookup_node(L_RBTREE * t, RB_TYPE key)
 	return n;
 }
 
-static void rotate_left(L_RBTREE * t, node * n)
-{
+static void rotate_left(L_RBTREE * t, node * n) {
 	node * r = n->right;
 	replace_node(t, n, r);
 	n->right = r->left;
@@ -641,8 +652,7 @@ static void rotate_left(L_RBTREE * t, node * n)
 	n->parent = r;
 }
 
-static void rotate_right(L_RBTREE * t, node * n)
-{
+static void rotate_right(L_RBTREE * t, node * n) {
 	node * L = n->left;
 	replace_node(t, n, L);
 	n->left = L->right;
@@ -653,8 +663,7 @@ static void rotate_right(L_RBTREE * t, node * n)
 	n->parent = L;
 }
 
-static void replace_node(L_RBTREE * t, node * oldn, node * newn)
-{
+static void replace_node(L_RBTREE * t, node * oldn, node * newn) {
 	if(oldn->parent == NULL) {
 		t->root = newn;
 	}
@@ -669,24 +678,21 @@ static void replace_node(L_RBTREE * t, node * oldn, node * newn)
 	}
 }
 
-static void insert_case1(L_RBTREE * t, node * n)
-{
+static void insert_case1(L_RBTREE * t, node * n) {
 	if(n->parent == NULL)
 		n->color = L_BLACK_NODE;
 	else
 		insert_case2(t, n);
 }
 
-static void insert_case2(L_RBTREE * t, node * n)
-{
+static void insert_case2(L_RBTREE * t, node * n) {
 	if(node_color(n->parent) == L_BLACK_NODE)
-		return;  /* Tree is still valid */
+		return; /* Tree is still valid */
 	else
 		insert_case3(t, n);
 }
 
-static void insert_case3(L_RBTREE * t, node * n)
-{
+static void insert_case3(L_RBTREE * t, node * n) {
 	if(node_color(uncle(n)) == L_RED_NODE) {
 		n->parent->color = L_BLACK_NODE;
 		uncle(n)->color = L_BLACK_NODE;
@@ -698,8 +704,7 @@ static void insert_case3(L_RBTREE * t, node * n)
 	}
 }
 
-static void insert_case4(L_RBTREE * t, node * n)
-{
+static void insert_case4(L_RBTREE * t, node * n) {
 	if(n == n->parent->right && n->parent == grandparent(n)->left) {
 		rotate_left(t, n->parent);
 		n = n->left;
@@ -711,8 +716,7 @@ static void insert_case4(L_RBTREE * t, node * n)
 	insert_case5(t, n);
 }
 
-static void insert_case5(L_RBTREE * t, node * n)
-{
+static void insert_case5(L_RBTREE * t, node * n) {
 	n->parent->color = L_BLACK_NODE;
 	grandparent(n)->color = L_RED_NODE;
 	if(n == n->parent->left && n->parent == grandparent(n)->left) {
@@ -726,8 +730,7 @@ static void insert_case5(L_RBTREE * t, node * n)
 	}
 }
 
-static node * maximum_node(node * n)
-{
+static node * maximum_node(node * n) {
 	if(!n) {
 		L_ERROR("n not defined\n", "maximum_node");
 		return NULL;
@@ -738,16 +741,14 @@ static node * maximum_node(node * n)
 	return n;
 }
 
-static void delete_case1(L_RBTREE * t, node * n)
-{
+static void delete_case1(L_RBTREE * t, node * n) {
 	if(n->parent == NULL)
 		return;
 	else
 		delete_case2(t, n);
 }
 
-static void delete_case2(L_RBTREE * t, node * n)
-{
+static void delete_case2(L_RBTREE * t, node * n) {
 	if(node_color(sibling(n)) == L_RED_NODE) {
 		n->parent->color = L_RED_NODE;
 		sibling(n)->color = L_BLACK_NODE;
@@ -759,8 +760,7 @@ static void delete_case2(L_RBTREE * t, node * n)
 	delete_case3(t, n);
 }
 
-static void delete_case3(L_RBTREE * t, node * n)
-{
+static void delete_case3(L_RBTREE * t, node * n) {
 	if(node_color(n->parent) == L_BLACK_NODE &&
 	    node_color(sibling(n)) == L_BLACK_NODE &&
 	    node_color(sibling(n)->left) == L_BLACK_NODE &&
@@ -773,8 +773,7 @@ static void delete_case3(L_RBTREE * t, node * n)
 	}
 }
 
-static void delete_case4(L_RBTREE * t, node * n)
-{
+static void delete_case4(L_RBTREE * t, node * n) {
 	if(node_color(n->parent) == L_RED_NODE &&
 	    node_color(sibling(n)) == L_BLACK_NODE &&
 	    node_color(sibling(n)->left) == L_BLACK_NODE &&
@@ -787,8 +786,7 @@ static void delete_case4(L_RBTREE * t, node * n)
 	}
 }
 
-static void delete_case5(L_RBTREE * t, node * n)
-{
+static void delete_case5(L_RBTREE * t, node * n) {
 	if(n == n->parent->left &&
 	    node_color(sibling(n)) == L_BLACK_NODE &&
 	    node_color(sibling(n)->left) == L_RED_NODE &&
@@ -808,8 +806,7 @@ static void delete_case5(L_RBTREE * t, node * n)
 	delete_case6(t, n);
 }
 
-static void delete_case6(L_RBTREE * t, node * n)
-{
+static void delete_case6(L_RBTREE * t, node * n) {
 	sibling(n)->color = node_color(n->parent);
 	n->parent->color = L_BLACK_NODE;
 	if(n == n->parent->left) {
@@ -842,8 +839,7 @@ static void verify_property_5_helper(node * n, int black_count,
     int* black_count_path);
 #endif
 
-static void verify_properties(L_RBTREE * t)
-{
+static void verify_properties(L_RBTREE * t) {
 #if VERIFY_RBTREE
 	verify_property_1(t->root);
 	verify_property_2(t->root);
@@ -854,8 +850,7 @@ static void verify_properties(L_RBTREE * t)
 }
 
 #if VERIFY_RBTREE
-static void verify_property_1(node * n)
-{
+static void verify_property_1(node * n) {
 	if(node_color(n) != L_RED_NODE && node_color(n) != L_BLACK_NODE) {
 		L_ERROR("color neither RED nor BLACK\n", "verify_property_1");
 		return;
@@ -865,14 +860,12 @@ static void verify_property_1(node * n)
 	verify_property_1(n->right);
 }
 
-static void verify_property_2(node * root)
-{
+static void verify_property_2(node * root) {
 	if(node_color(root) != L_BLACK_NODE)
 		L_ERROR("root is not black!\n", "verify_property_2");
 }
 
-static void verify_property_4(node * n)
-{
+static void verify_property_4(node * n) {
 	if(node_color(n) == L_RED_NODE) {
 		if(node_color(n->left) != L_BLACK_NODE ||
 		    node_color(n->right) != L_BLACK_NODE ||
@@ -886,15 +879,13 @@ static void verify_property_4(node * n)
 	verify_property_4(n->right);
 }
 
-static void verify_property_5(node * root)
-{
+static void verify_property_5(node * root) {
 	int black_count_path = -1;
 	verify_property_5_helper(root, 0, &black_count_path);
 }
 
 static void verify_property_5_helper(node * n, int black_count,
-    int* path_black_count)
-{
+    int* path_black_count) {
 	if(node_color(n) == L_BLACK_NODE) {
 		black_count++;
 	}

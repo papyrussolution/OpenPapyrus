@@ -76,11 +76,9 @@ symbol_list * symbol_list_type_set(symbol_list * syms, uniqstr type_name)
 		symbol_type_set(l->content.sym, type_name, l->sym_loc);
 	return syms;
 }
-
-/*-----------------------------------------------------------------------.
-| Print this list, for which every content_type must be SYMLIST_SYMBOL.  |
-   `-----------------------------------------------------------------------*/
-
+//
+// Print this list, for which every content_type must be SYMLIST_SYMBOL
+//
 void symbol_list_syms_print(const symbol_list * l, FILE * f)
 {
 	fputc('[', f);

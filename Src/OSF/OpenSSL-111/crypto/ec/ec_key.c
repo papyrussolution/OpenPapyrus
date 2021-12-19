@@ -88,7 +88,7 @@ EC_KEY * EC_KEY_copy(EC_KEY * dest, const EC_KEY * src)
 			return NULL;
 		if(!EC_GROUP_copy(dest->group, src->group))
 			return NULL;
-		/*  copy the public key */
+		/* copy the public key */
 		if(src->pub_key != NULL) {
 			EC_POINT_free(dest->pub_key);
 			dest->pub_key = EC_POINT_new(src->group);

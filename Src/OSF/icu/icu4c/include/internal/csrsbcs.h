@@ -29,12 +29,12 @@ private:
 
 protected:
 	int32_t byteIndex;
-    const uint8_t *charMap;
+    const uint8 *charMap;
 
 	void addByte(int32_t b);
 
 public:
-    NGramParser(const int32_t *theNgramList, const uint8_t *theCharMap);
+    NGramParser(const int32_t *theNgramList, const uint8 *theCharMap);
     virtual ~NGramParser();
 
 private:
@@ -57,7 +57,7 @@ public:
 class NGramParser_IBM420 : public NGramParser
 {
 public:
-    NGramParser_IBM420(const int32_t *theNgramList, const uint8_t *theCharMap);
+    NGramParser_IBM420(const int32_t *theNgramList, const uint8 *theCharMap);
     ~NGramParser_IBM420();
 
 private:
@@ -76,7 +76,7 @@ public:
     virtual ~CharsetRecog_sbcs();
     virtual const char *getName() const override = 0;
     virtual bool match(InputText *det, CharsetMatch *results) const override = 0;
-    virtual int32_t match_sbcs(InputText *det, const int32_t ngrams[], const uint8_t charMap[]) const;
+    virtual int32_t match_sbcs(InputText *det, const int32_t ngrams[], const uint8 charMap[]) const;
 };
 
 class CharsetRecog_8859_1 : public CharsetRecog_sbcs
@@ -267,7 +267,7 @@ public:
     virtual ~CharsetRecog_IBM420_ar();
 
     const char *getLanguage() const override;
-	int32_t match_sbcs(InputText *det, const int32_t ngrams[], const uint8_t charMap[]) const override;
+	int32_t match_sbcs(InputText *det, const int32_t ngrams[], const uint8 charMap[]) const override;
     
 };
 

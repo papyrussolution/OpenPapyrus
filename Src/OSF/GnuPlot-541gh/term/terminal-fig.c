@@ -69,7 +69,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -78,27 +78,27 @@
 #endif /* TERM_REGISTER */
 
 //#ifdef TERM_PROTO
-TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void FIG_init(GpTermEntry * pThis);
-TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void FIG_text(GpTermEntry * pThis);
-TERM_PUBLIC void FIG_linetype(GpTermEntry * pThis, int linetype);
-TERM_PUBLIC void FIG_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_pattern);
-TERM_PUBLIC void FIG_move(GpTermEntry * pThis, uint x, uint y);
-TERM_PUBLIC void FIG_vector(GpTermEntry * pThis, uint ux, uint uy);
-TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy, uint ex, uint ey, int head);
-TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC int  FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
-TERM_PUBLIC int  FIG_text_angle(GpTermEntry * pThis, int ang);
-TERM_PUBLIC void FIG_pointsize(GpTermEntry * pThis, double arg_pointsize);
-TERM_PUBLIC void FIG_linewidth(GpTermEntry * pThis, double linewidth);
-TERM_PUBLIC void FIG_reset(GpTermEntry * pThis);
-TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number);
-TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h);
-TERM_PUBLIC int  FIG_make_palette(GpTermEntry * pThis, t_sm_palette *);
-TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec *);
-TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int, gpiPoint *);
-TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint);
+TERM_PUBLIC void FIG_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void FIG_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void FIG_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void FIG_text(GpTermEntry_Static * pThis);
+TERM_PUBLIC void FIG_linetype(GpTermEntry_Static * pThis, int linetype);
+TERM_PUBLIC void FIG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_pattern);
+TERM_PUBLIC void FIG_move(GpTermEntry_Static * pThis, uint x, uint y);
+TERM_PUBLIC void FIG_vector(GpTermEntry_Static * pThis, uint ux, uint uy);
+TERM_PUBLIC void FIG_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, int head);
+TERM_PUBLIC void FIG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC int  FIG_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int  FIG_text_angle(GpTermEntry_Static * pThis, int ang);
+TERM_PUBLIC void FIG_pointsize(GpTermEntry_Static * pThis, double arg_pointsize);
+TERM_PUBLIC void FIG_linewidth(GpTermEntry_Static * pThis, double linewidth);
+TERM_PUBLIC void FIG_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC void FIG_lpoint(GpTermEntry_Static * pThis, uint x, uint y, int number);
+TERM_PUBLIC void FIG_boxfill(GpTermEntry_Static * pThis, int style, uint x, uint y, uint w, uint h);
+TERM_PUBLIC int  FIG_make_palette(GpTermEntry_Static * pThis, t_sm_palette *);
+TERM_PUBLIC void FIG_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
+TERM_PUBLIC void FIG_filled_polygon(GpTermEntry_Static * pThis, int, gpiPoint *);
+TERM_PUBLIC void FIG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint);
 //#endif // TERM_PROTO 
 
 #ifndef TERM_PROTO_ONLY
@@ -274,7 +274,7 @@ const struct gen_table FIG_fonts[] =
 	{ NULL, -1}
 };
 
-TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void FIG_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	int parse_error = FALSE;
 	float xsize_t = 0, ysize_t = 0;
@@ -408,13 +408,10 @@ TERM_PUBLIC void FIG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	else
 		sprintf(tmp_term_options, " size %.2fin, %.2fin ", (double)FIG_width/FIG_IRES, (double)FIG_height/FIG_IRES);
 	GPT._TermOptions.Cat(tmp_term_options);
-	pThis->MaxX = FIG_width;
-	pThis->MaxY = FIG_height;
-	pThis->TicV = FIG_VTIC;
-	pThis->TicH = FIG_HTIC;
+	pThis->SetMax(FIG_width, FIG_height);
+	pThis->SetTic(FIG_HTIC, FIG_VTIC);
 	// Empirical guess at font metrics 
-	pThis->ChrV = static_cast<uint>(FIG_font_s * FIG_IRES/72. * 0.75);
-	pThis->ChrH = static_cast<uint>(pThis->ChrV * 0.6);
+	pThis->SetCharSize(static_cast<uint>(pThis->CV() * 0.6), static_cast<uint>(FIG_font_s * FIG_IRES/72. * 0.75));
 	FIG_thickness = static_cast<int>(FIG_linewidth_factor);
 	if(parse_error)
 		pGp->IntErrorCurToken("unrecognized option");
@@ -452,7 +449,7 @@ static void FIG_poly_clean(enum FIG_poly_stat fig_stat)
 	FIG_polyvec_stat = FIG_poly_new;
 }
 
-TERM_PUBLIC void FIG_init(GpTermEntry * pThis)
+TERM_PUBLIC void FIG_init(GpTermEntry_Static * pThis)
 {
 	FIG_posx = FIG_posy = 0;
 	FIG_polyvec_stat = FIG_poly_new;
@@ -484,7 +481,7 @@ TERM_PUBLIC void FIG_init(GpTermEntry * pThis)
 	fprintf(GPT.P_GpOutFile, "%d %d\n", FIG_IRES, FIG_COORD_SYS);
 }
 
-TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void FIG_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int i, ncolors;
@@ -528,7 +525,7 @@ TERM_PUBLIC void FIG_graphics(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void FIG_text(GpTermEntry * pThis)
+TERM_PUBLIC void FIG_text(GpTermEntry_Static * pThis)
 {
 	// there is no way to have separate pictures in a FIG file
 	// FIXME: The existence of a header keyword "multiple-page" suggests otherwise!
@@ -546,7 +543,7 @@ static int fig2pscolors[npscolors] = {
 	11 /*use LtBlue instead of light gray*/
 };
 
-TERM_PUBLIC void FIG_linetype(GpTermEntry * pThis, int linetype)
+TERM_PUBLIC void FIG_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	int last_FIG_type = FIG_type;
 	int last_FIG_spacing = static_cast<int>(FIG_spacing);
@@ -592,7 +589,7 @@ TERM_PUBLIC void FIG_linetype(GpTermEntry * pThis, int linetype)
 		FIG_poly_clean(FIG_polyvec_stat);
 }
 
-TERM_PUBLIC void FIG_dashtype(GpTermEntry * pThis, int type, t_dashtype * /*custom_dash_pattern*/)
+TERM_PUBLIC void FIG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * /*custom_dash_pattern*/)
 {
 	double empirical_scale = 3.0;
 	if(type <= 0)
@@ -603,7 +600,7 @@ TERM_PUBLIC void FIG_dashtype(GpTermEntry * pThis, int type, t_dashtype * /*cust
 	FIG_line.cap_style = (FIG_type == SOLID_LINE) ? CAP_BUTT : CAP_ROUND;
 }
 
-TERM_PUBLIC void FIG_move(GpTermEntry * pThis, uint x, uint y)
+TERM_PUBLIC void FIG_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	int last_FIG_posx = FIG_posx;
 	int last_FIG_posy = FIG_posy;
@@ -613,7 +610,7 @@ TERM_PUBLIC void FIG_move(GpTermEntry * pThis, uint x, uint y)
 		FIG_poly_clean(FIG_polyvec_stat);
 }
 
-TERM_PUBLIC void FIG_vector(GpTermEntry * pThis, uint ux, uint uy)
+TERM_PUBLIC void FIG_vector(GpTermEntry_Static * pThis, uint ux, uint uy)
 {
 	int x = ux, y = uy;
 	if(FIG_polyvec_stat != FIG_poly_part) {
@@ -643,7 +640,7 @@ TERM_PUBLIC void FIG_vector(GpTermEntry * pThis, uint ux, uint uy)
 	FIG_posy = y;
 }
 
-TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy/* start coord */, uint ex, uint ey/* end coord */, int head)
+TERM_PUBLIC void FIG_arrow(GpTermEntry_Static * pThis, uint sx, uint sy/* start coord */, uint ex, uint ey/* end coord */, int head)
 {
 	int cap_style;
 	int arrow_depth = FIG_linedepth;
@@ -694,7 +691,7 @@ TERM_PUBLIC void FIG_arrow(GpTermEntry * pThis, uint sx, uint sy/* start coord *
 	FIG_posy = ey;
 }
 
-TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void FIG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	char * s1, * s2, * output_string;
 	int text_depth = FIG_linedepth;
@@ -709,10 +706,10 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	} while(*(s1++) );
 	FIG_poly_clean(FIG_polyvec_stat);
 	if(FIG_angle == 0.)
-		y -= pThis->ChrV / 2; /* assuming vertical center justified */
+		y -= pThis->CV() / 2; /* assuming vertical center justified */
 	else {
-		x += (int)(pThis->ChrV*sin(FIG_angle)/4.0);
-		y -= (int)(pThis->ChrV*cos(FIG_angle)/4.0);
+		x += (int)(pThis->CV()*sin(FIG_angle)/4.0);
+		y -= (int)(pThis->CV()*cos(FIG_angle)/4.0);
 	}
 	/* Adjust depth so that labels are drawn after objects */
 	if(FIG_current_layer != LAYER_PLOT)
@@ -720,13 +717,13 @@ TERM_PUBLIC void FIG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %6.3f %6.3f %d %6.3f %6.3f %d %d %s\\001\n",
 	    OBJ_TEXT, FIG_justify, FIG_color, text_depth, FIG_DEFAULT,
 	    FIG_font_id, (float)FIG_font_s,
-	    FIG_angle, FIG_text_flags, (float)pThis->ChrV,
-	    (float)pThis->ChrH * strlen(str),
+	    FIG_angle, FIG_text_flags, (float)pThis->CV(),
+	    (float)pThis->CH() * strlen(str),
 	    FIG_xoff + x, pThis->MaxY + FIG_yoff - y, output_string);
 	SAlloc::F(output_string);
 }
 
-TERM_PUBLIC int FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int FIG_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	switch(mode) {
 		case LEFT: FIG_justify = T_LEFT_JUSTIFIED; break;
@@ -741,13 +738,13 @@ TERM_PUBLIC int FIG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
 	return TRUE;
 }
 
-TERM_PUBLIC int FIG_text_angle(GpTermEntry * pThis, int ang)
+TERM_PUBLIC int FIG_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	FIG_angle = static_cast<float>(ang * SMathConst::PiDiv180);
 	return TRUE;
 }
 
-TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void FIG_lpoint(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	// FIXME: Some complicated gnuplot 4 convention for packing all sorts of stuff into the pointtype
 	if(number % 100 >= 49 && number % 100 < 99) {   /* circles, squares, triangles */
@@ -770,7 +767,7 @@ TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
 		xpc = FIG_xoff + x;
 		ypc = pThis->MaxY + FIG_yoff - y;
 		if(tnum == 0) { /* circle */
-			r = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 4 + 1);
+			r = static_cast<int>(FIG_current_pointsize * pThis->CV() / 4 + 1);
 			fprintf(GPT.P_GpOutFile, "1 3 %d %d %d %d %d %d %d %6.3f 1 0.000 %d %d %d %d %d %d %d %d\n",
 			    SOLID_LINE, FIG_thickness, line_color, fill_color, FIG_linedepth, 0, fill_style, FIG_spacing, xpc, ypc, r, r, xpc, ypc, xpc, ypc - r);
 		}
@@ -778,21 +775,21 @@ TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
 			fprintf(GPT.P_GpOutFile, "2 3 %d %d %d %d %d %d %d %6.3f 0 0 0 0 0 ",
 			    SOLID_LINE, FIG_thickness, line_color, fill_color, FIG_linedepth, 0, fill_style, FIG_spacing);
 			if(tnum == 1) { /* square */
-				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 4 + 1);
+				d = static_cast<int>(FIG_current_pointsize * pThis->CV() / 4 + 1);
 				fprintf(GPT.P_GpOutFile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc - d, xpc - d, ypc + d, xpc + d, ypc + d, xpc + d, ypc - d, xpc - d, ypc - d);
 			}
 			else if(tnum == 2) { /* diamond */
-				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 3 + 1);
+				d = static_cast<int>(FIG_current_pointsize * pThis->CV() / 3 + 1);
 				fprintf(GPT.P_GpOutFile, "5\n\t%d %d %d %d %d %d %d %d %d %d\n", xpc - d, ypc, xpc, ypc + d, xpc + d, ypc, xpc, ypc - d, xpc - d, ypc);
 			}
 			else if(tnum == 3) { /* triangle up */
-				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 3 + 1);
+				d = static_cast<int>(FIG_current_pointsize * pThis->CV() / 3 + 1);
 				h = d * 4 / 7; /* About d times one 3rd of sqrt(3) */
 				fprintf(GPT.P_GpOutFile, "4\n\t%d %d %d %d %d %d %d %d\n", xpc - d, ypc + h, xpc, ypc - 2 * h, xpc + d, ypc + h, xpc - d, ypc + h);
 			}
 			else if(tnum == 4) { /* triangle down */
-				d = static_cast<int>(FIG_current_pointsize * pThis->ChrV / 3 + 1);
+				d = static_cast<int>(FIG_current_pointsize * pThis->CV() / 3 + 1);
 				h = d * 4 / 7;
 				fprintf(GPT.P_GpOutFile, "4\n\t%d %d %d %d %d %d %d %d\n",
 				    xpc - d, ypc - h, xpc, ypc + 2 * h, xpc + d, ypc - h, xpc - d, ypc - h);
@@ -817,26 +814,26 @@ TERM_PUBLIC void FIG_lpoint(GpTermEntry * pThis, uint x, uint y, int number)
 	}
 }
 
-TERM_PUBLIC void FIG_pointsize(GpTermEntry * pThis, double arg_pointsize)
+TERM_PUBLIC void FIG_pointsize(GpTermEntry_Static * pThis, double arg_pointsize)
 {
 	FIG_current_pointsize = arg_pointsize < 0. ? 1. : arg_pointsize;
 	GnuPlot::DoPointSize(pThis, arg_pointsize * FIG_font_s / (double)FIG_FONT_S);
 }
 
-TERM_PUBLIC void FIG_linewidth(GpTermEntry * pThis, double linewidth)
+TERM_PUBLIC void FIG_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	SETMAX(linewidth, 1.0);
 	FIG_current_linewidth = linewidth;
 }
 
-TERM_PUBLIC void FIG_reset(GpTermEntry * pThis)
+TERM_PUBLIC void FIG_reset(GpTermEntry_Static * pThis)
 {
 	FIG_poly_clean(FIG_polyvec_stat);
 	FIG_posx = FIG_posy = 0;
 	fflush(GPT.P_GpOutFile);
 }
 
-TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uint w, uint h)
+TERM_PUBLIC void FIG_boxfill(GpTermEntry_Static * pThis, int style, uint x, uint y, uint w, uint h)
 {
 	int pen_color, fill_color, fill_style, fill_dens;
 	FIG_poly_clean(FIG_polyvec_stat);
@@ -889,7 +886,7 @@ TERM_PUBLIC void FIG_boxfill(GpTermEntry * pThis, int style, uint x, uint y, uin
 	    x, y, x+w, y, x+w, y-h, x, y-h, x, y);
 }
 
-TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int FIG_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int i;
@@ -923,7 +920,7 @@ TERM_PUBLIC int FIG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+TERM_PUBLIC void FIG_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
@@ -982,7 +979,7 @@ TERM_PUBLIC void FIG_set_color(GpTermEntry * pThis, const t_colorspec * colorspe
 	}
 }
 
-TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+TERM_PUBLIC void FIG_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	int i, j;
 	FIG_poly_clean(FIG_polyvec_stat); /* Clean up current data */
@@ -1008,7 +1005,7 @@ TERM_PUBLIC void FIG_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * 
 	}
 }
 
-TERM_PUBLIC void FIG_layer(GpTermEntry * pThis, t_termlayer syncpoint)
+TERM_PUBLIC void FIG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	static int save_depth = FIG_DEPTH;
 	GnuPlot * p_gp = pThis->P_Gp;

@@ -34,19 +34,23 @@
  *      jpeg     ==>  DCT (not transcoded)
  *      jp2k     ==>  JPX (not transcoded)
  *      tiff-g4  ==>  G4
- *      png      ==>  FLATE (not transcoded)
+ *      png      ==>  FLATE (some are not transcoded)
  *    The default resolution is set at 300 ppi if not given in the
  *    individual images, and the images are wrapped at full resolution.
  *    No title is attached.
  *
  *    This is meant for the simplest set of input arguments.  It is
- *    very fast for jpeg, jp2k and png.
+ *    very fast for jpeg, jp2k and some png.
  *    The syntax for using all files in the directory is:
- *         convertopdf <pdf_outfile>
+ *         convertopdf <directory> <pdf_outfile>
  *    The syntax using some substring to be matched in the file names is:
- *         converttopdf <substring> <pdf_outfile>
+ *         converttopdf <directory> <substring> <pdf_outfile>
  *    If you want something more general, use convertfilestopdf.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include <string.h>
 #include "allheaders.h"
@@ -58,16 +62,17 @@ l_int32  ret;
 char    *dirin, *substr, *fileout;
 
     if (argc != 3 && argc != 4) {
-        fprintf(stderr,
+        lept_stderr(
             " Syntax: converttopdf dir [substr] fileout\n"
             "         substr:  Leave this out to bundle all files\n"
             "         fileout:  Output pdf file\n");
         return 1;
     }
-
     dirin = argv[1];
     substr = (argc == 4) ? argv[2] : NULL;
     fileout = (argc == 4) ? argv[3] : argv[2];
+
+    setLeptDebugOK(1);
     ret = convertUnscaledFilesToPdf(dirin, substr, "", fileout);
     return ret;
 }

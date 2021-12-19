@@ -256,7 +256,7 @@
  */
 #     define PNG_BUILD_DLL
 #else
-#     ifdef _WINDLL
+#ifdef _WINDLL
 /* This is set by the Microsoft Visual Studio IDE in projects that
  * build a DLL.  It can't easily be removed from those projects (it
  * isn't visible in the Visual Studio UI) so it is a fairly reliable
@@ -264,7 +264,7 @@
  * attributes.
  */
 #define PNG_BUILD_DLL
-#     else
+#else
 #        ifdef __DLL__
 /* This is set by the Borland C system when compiling for a DLL
  * (as above.)
@@ -273,7 +273,7 @@
 #        else
 /* Add additional compiler cases here. */
 #endif
-#     endif
+#endif
 #endif
 #endif /* Setting PNG_BUILD_DLL if required */
 
@@ -382,12 +382,12 @@
 #if defined(MAXSEG_64K) && !defined(PNG_MAX_MALLOC_64K)
 	#define PNG_MAX_MALLOC_64K
 #endif
-#ifndef PNG_UNUSED
+#ifndef CXX_UNUSED
 	// Unused formal parameter warnings are silenced using the following macro
 	// which is expected to have no bad effects on performance (optimizing
 	// compilers will probably remove it entirely).  Note that if you replace
 	// it with something other than whitespace, you must include the terminating semicolon.
-	#define PNG_UNUSED(param) (void)param;
+	// @v11.2.8 #define PNG_UNUSED_Removed(param) (void)param;
 #endif
 // Just a little check that someone hasn't tried to define something contradictory.
 #if(PNG_ZBUF_SIZE > 65536L) && defined(PNG_MAX_MALLOC_64K)
@@ -527,7 +527,7 @@
 #else
 #     if PNG_ALIGN_TYPE == PNG_ALIGN_ALWAYS
 #define png_alignof(type) (1)
-#     endif
+#endif
 /* Else leave png_alignof undefined to prevent use thereof */
 #endif
 #endif
@@ -554,9 +554,9 @@
 #define PNG_HAVE_IDAT               0x04U
 /* #define PNG_AFTER_IDAT           0x08U (defined in png.h) */
 #define PNG_HAVE_IEND               0x10U
-/*               0x20 (unused) */
-/*               0x40 (unused) */
-/*               0x80 (unused) */
+/* 0x20 (unused) */
+/* 0x40 (unused) */
+/* 0x80 (unused) */
 #define PNG_HAVE_CHUNK_HEADER      0x100U
 #define PNG_WROTE_tIME             0x200U
 #define PNG_WROTE_INFO_BEFORE_PLTE 0x400U
@@ -594,20 +594,20 @@
 #define PNG_ADD_ALPHA        0x1000000U // Added to libpng-1.2.7 
 #define PNG_EXPAND_tRNS      0x2000000U // Added to libpng-1.2.9 
 #define PNG_SCALE_16_TO_8    0x4000000U // Added to libpng-1.5.4 
-/*    0x8000000U unused */
-/*   0x10000000U unused */
-/*   0x20000000U unused */
-/*   0x40000000U unused */
+/* 0x8000000U unused */
+/* 0x10000000U unused */
+/* 0x20000000U unused */
+/* 0x40000000U unused */
 // Flags for png_create_struct 
 #define PNG_STRUCT_PNG   0x0001U
 #define PNG_STRUCT_INFO  0x0002U
 // Flags for the png_ptr->flags rather than declaring a byte for each one 
 #define PNG_FLAG_ZLIB_CUSTOM_STRATEGY     0x0001U
 #define PNG_FLAG_ZSTREAM_INITIALIZED      0x0002U // Added to libpng-1.6.0 
-/*      0x0004    unused */
+/* 0x0004    unused */
 #define PNG_FLAG_ZSTREAM_ENDED            0x0008U // Added to libpng-1.6.0 
-/*      0x0010    unused */
-/*      0x0020    unused */
+/* 0x0010    unused */
+/* 0x0020    unused */
 #define PNG_FLAG_ROW_INIT                 0x0040U
 #define PNG_FLAG_FILLER_AFTER             0x0080U
 #define PNG_FLAG_CRC_ANCILLARY_USE        0x0100U
@@ -625,14 +625,14 @@
 #define PNG_FLAG_BENIGN_ERRORS_WARN     0x100000U // Added to libpng-1.4.0 
 #define PNG_FLAG_APP_WARNINGS_WARN      0x200000U // Added to libpng-1.6.0 
 #define PNG_FLAG_APP_ERRORS_WARN        0x400000U // Added to libpng-1.6.0 
-/*    0x800000U    unused */
-/*   0x1000000U    unused */
-/*   0x2000000U    unused */
-/*   0x4000000U    unused */
-/*   0x8000000U    unused */
-/*  0x10000000U    unused */
-/*  0x20000000U    unused */
-/*  0x40000000U    unused */
+/* 0x800000U    unused */
+/* 0x1000000U    unused */
+/* 0x2000000U    unused */
+/* 0x4000000U    unused */
+/* 0x8000000U    unused */
+/* 0x10000000U    unused */
+/* 0x20000000U    unused */
+/* 0x40000000U    unused */
 #define PNG_FLAG_CRC_ANCILLARY_MASK (PNG_FLAG_CRC_ANCILLARY_USE | PNG_FLAG_CRC_ANCILLARY_NOWARN)
 #define PNG_FLAG_CRC_CRITICAL_MASK  (PNG_FLAG_CRC_CRITICAL_USE | PNG_FLAG_CRC_CRITICAL_IGNORE)
 #define PNG_FLAG_CRC_MASK           (PNG_FLAG_CRC_ANCILLARY_MASK | PNG_FLAG_CRC_CRITICAL_MASK)

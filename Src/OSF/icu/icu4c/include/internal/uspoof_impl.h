@@ -106,7 +106,7 @@ public:
 	const UnicodeSet * fAllowedCharsSet; // The UnicodeSet of allowed characters.
 	                                     //   for this Spoof Checker.  Defaults to all chars.
 
-	const char       * fAllowedLocales;// The list of allowed locales.
+	const char * fAllowedLocales;// The list of allowed locales.
 	URestrictionLevel fRestrictionLevel; // The maximum restriction level for an acceptable identifier.
 };
 
@@ -297,7 +297,7 @@ private:
 //---------------------------------------------------------------------------------------
 struct SpoofDataHeader {
 	int32_t fMagic;            // (0x3845fdef)
-	uint8_t fFormatVersion[4];       // Data Format. Same as the value in struct UDataInfo
+	uint8 fFormatVersion[4];       // Data Format. Same as the value in struct UDataInfo
 	                                 //   if there is one associated with this data.
 	int32_t fLength;           // Total length in bytes of this spoof data,
 	//   including all sections, not just the header.

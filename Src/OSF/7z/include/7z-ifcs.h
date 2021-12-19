@@ -788,7 +788,7 @@ namespace NArcInfoFlags {
 	const uint32 kStartOpen       = 1 << 6;    // call handler for each start position
 	const uint32 kPureStartOpen   = 1 << 7;    // call handler only for start of file
 	const uint32 kBackwardOpen    = 1 << 8;    // archive can be open backward
-	const uint32 kPreArc          = 1 << 9;    // such archive can be stored before real archive (like SFX stub)
+	const uint32 kPreArc  = 1 << 9;    // such archive can be stored before real archive (like SFX stub)
 	const uint32 kSymLinks        = 1 << 10;   // the handler supports symbolic links
 	const uint32 kHardLinks       = 1 << 11;   // the handler supports hard links
 }
@@ -4093,14 +4093,14 @@ struct COpenType {
 	COpenSpecFlags SpecUnknownExt;
 	/* @construction
 	enum {
-		fRecursive              = 0x0001,
-		fCanReturnArc           = 0x0002,
+		fRecursive      = 0x0001,
+		fCanReturnArc   = 0x0002,
 		fCanReturnParser        = 0x0004,
-		fEachPos                = 0x0008,
+		fEachPos        = 0x0008,
 		fZerosTailIsAllowed     = 0x0010,
 		fMaxStartOffset_Defined = 0x0020,	
-		//fSkipSfxStub            = 0x0040,
-		//fExeAsUnknown           = 0x0080
+		//fSkipSfxStub    = 0x0040,
+		//fExeAsUnknown   = 0x0080
 	};
 	uint   Flags;
 	*/
@@ -7047,11 +7047,11 @@ void PrintHashStat(CStdOutStream &so, const CHashBundle &hb);
 // @construction {
 struct ListArchivesParam {
 	enum {
-		fStdInMode         = 0x0001,
+		fStdInMode = 0x0001,
 		fProcessAltStreams = 0x0002,
 		fShowAltStreams    = 0x0004,
 		fEnableHeaders     = 0x0008,
-		fTechMode          = 0x0010
+		fTechMode  = 0x0010
 	};
 	uint   Flags;
 };

@@ -51,13 +51,13 @@ public:
 	 * It must be length>0 and spanCondition==0 or 1.
 	 * @return The string pointer which limits the span.
 	 */
-	const uint8_t * spanUTF8(const uint8_t * s, int32_t length, USetSpanCondition spanCondition) const;
+	const uint8 * spanUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const;
 	/*
 	 * Span the trailing substring for which each character c has spanCondition==contains(c).
 	 * It must be length>0 and spanCondition==0 or 1.
 	 * @return The start of the span.
 	 */
-	int32_t spanBackUTF8(const uint8_t * s, int32_t length, USetSpanCondition spanCondition) const;
+	int32_t spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition spanCondition) const;
 private:
 	void initBits();
 	void overrideIllegal();

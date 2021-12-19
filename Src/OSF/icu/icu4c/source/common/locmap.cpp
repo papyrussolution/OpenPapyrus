@@ -788,152 +788,152 @@ ILCID_POSIX_ELEMENT_ARRAY(0x0435, zu, zu_ZA)
 
 /* This must be static and grouped by LCID. */
 static const ILcidPosixMap gPosixIDmap[] = {
-	ILCID_POSIX_MAP(af), /*  af  Afrikaans                 0x36 */
-	ILCID_POSIX_MAP(am), /*  am  Amharic                   0x5e */
-	ILCID_POSIX_MAP(ar), /*  ar  Arabic                    0x01 */
-	ILCID_POSIX_MAP(arn), /*  arn Araucanian/Mapudungun     0x7a */
-	ILCID_POSIX_MAP(as), /*  as  Assamese                  0x4d */
-	ILCID_POSIX_MAP(az), /*  az  Azerbaijani               0x2c */
-	ILCID_POSIX_MAP(ba), /*  ba  Bashkir                   0x6d */
-	ILCID_POSIX_MAP(be), /*  be  Belarusian                0x23 */
-/*    ILCID_POSIX_MAP(ber),     ber Berber/Tamazight          0x5f */
-	ILCID_POSIX_MAP(bg), /*  bg  Bulgarian                 0x02 */
-	ILCID_POSIX_MAP(bin), /*  bin Edo                       0x66 */
-	ILCID_POSIX_MAP(bn), /*  bn  Bengali; Bangla           0x45 */
-	ILCID_POSIX_MAP(bo), /*  bo  Tibetan                   0x51 */
-	ILCID_POSIX_MAP(br), /*  br  Breton                    0x7e */
-	ILCID_POSIX_MAP(ca), /*  ca  Catalan                   0x03 */
-	ILCID_POSIX_MAP(chr), /*  chr Cherokee                  0x5c */
-	ILCID_POSIX_MAP(ckb), /*  ckb Sorani (Central Kurdish)  0x92 */
-	ILCID_POSIX_MAP(co), /*  co  Corsican                  0x83 */
-	ILCID_POSIX_MAP(cs), /*  cs  Czech                     0x05 */
-	ILCID_POSIX_MAP(cy), /*  cy  Welsh                     0x52 */
-	ILCID_POSIX_MAP(da), /*  da  Danish                    0x06 */
-	ILCID_POSIX_MAP(de), /*  de  German                    0x07 */
-	ILCID_POSIX_MAP(dv), /*  dv  Divehi                    0x65 */
-	ILCID_POSIX_MAP(el), /*  el  Greek                     0x08 */
-	ILCID_POSIX_MAP(en), /*  en  English                   0x09 */
-	ILCID_POSIX_MAP(en_US_POSIX), /*    invariant             0x7f */
-	ILCID_POSIX_MAP(es), /*  es  Spanish                   0x0a */
-	ILCID_POSIX_MAP(et), /*  et  Estonian                  0x25 */
-	ILCID_POSIX_MAP(eu), /*  eu  Basque                    0x2d */
-	ILCID_POSIX_MAP(fa), /*  fa  Persian/Farsi             0x29 */
-	ILCID_POSIX_MAP(fa_AF), /*  fa  Persian/Dari              0x8c */
-	ILCID_POSIX_MAP(ff), /*  ff  Fula                      0x67 */
-	ILCID_POSIX_MAP(fi), /*  fi  Finnish                   0x0b */
-	ILCID_POSIX_MAP(fil), /*  fil Filipino                  0x64 */
-	ILCID_POSIX_MAP(fo), /*  fo  Faroese                   0x38 */
-	ILCID_POSIX_MAP(fr), /*  fr  French                    0x0c */
-	ILCID_POSIX_MAP(fuv), /*  fuv Fulfulde - Nigeria        0x67 */
-	ILCID_POSIX_MAP(fy), /*  fy  Frisian                   0x62 */
-	ILCID_POSIX_MAP(ga), /*  *   Gaelic (Ireland,Scotland) 0x3c */
-	ILCID_POSIX_MAP(gd), /*  gd  Gaelic (United Kingdom)   0x91 */
-	ILCID_POSIX_MAP(gl), /*  gl  Galician                  0x56 */
-	ILCID_POSIX_MAP(gn), /*  gn  Guarani                   0x74 */
-	ILCID_POSIX_MAP(gsw), /*  gsw Alemanic/Alsatian/Swiss German 0x84 */
-	ILCID_POSIX_MAP(gu), /*  gu  Gujarati                  0x47 */
-	ILCID_POSIX_MAP(ha), /*  ha  Hausa                     0x68 */
-	ILCID_POSIX_MAP(haw), /*  haw Hawaiian                  0x75 */
-	ILCID_POSIX_MAP(he), /*  he  Hebrew (formerly iw)      0x0d */
-	ILCID_POSIX_MAP(hi), /*  hi  Hindi                     0x39 */
-	ILCID_POSIX_MAP(hr), /*  *   Croatian and others       0x1a */
-	ILCID_POSIX_MAP(hsb), /*  hsb Upper Sorbian             0x2e */
-	ILCID_POSIX_MAP(hu), /*  hu  Hungarian                 0x0e */
-	ILCID_POSIX_MAP(hy), /*  hy  Armenian                  0x2b */
-	ILCID_POSIX_MAP(ibb), /*  ibb Ibibio - Nigeria          0x69 */
-	ILCID_POSIX_MAP(id), /*  id  Indonesian (formerly in)  0x21 */
-	ILCID_POSIX_MAP(ig), /*  ig  Igbo                      0x70 */
-	ILCID_POSIX_MAP(ii), /*  ii  Sichuan Yi                0x78 */
-	ILCID_POSIX_MAP(is), /*  is  Icelandic                 0x0f */
-	ILCID_POSIX_MAP(it), /*  it  Italian                   0x10 */
-	ILCID_POSIX_MAP(iu), /*  iu  Inuktitut                 0x5d */
-	ILCID_POSIX_MAP(iw), /*  iw  Hebrew                    0x0d */
-	ILCID_POSIX_MAP(ja), /*  ja  Japanese                  0x11 */
-	ILCID_POSIX_MAP(ka), /*  ka  Georgian                  0x37 */
-	ILCID_POSIX_MAP(kk), /*  kk  Kazakh                    0x3f */
-	ILCID_POSIX_MAP(kl), /*  kl  Kalaallisut               0x6f */
-	ILCID_POSIX_MAP(km), /*  km  Khmer                     0x53 */
-	ILCID_POSIX_MAP(kn), /*  kn  Kannada                   0x4b */
-	ILCID_POSIX_MAP(ko), /*  ko  Korean                    0x12 */
-	ILCID_POSIX_MAP(kok), /*  kok Konkani                   0x57 */
-	ILCID_POSIX_MAP(kr), /*  kr  Kanuri                    0x71 */
-	ILCID_POSIX_MAP(ks), /*  ks  Kashmiri                  0x60 */
-	ILCID_POSIX_MAP(ky), /*  ky  Kyrgyz                    0x40 */
-	ILCID_POSIX_MAP(lb), /*  lb  Luxembourgish             0x6e */
-	ILCID_POSIX_MAP(la), /*  la  Latin                     0x76 */
-	ILCID_POSIX_MAP(lo), /*  lo  Lao                       0x54 */
-	ILCID_POSIX_MAP(lt), /*  lt  Lithuanian                0x27 */
-	ILCID_POSIX_MAP(lv), /*  lv  Latvian, Lettish          0x26 */
-	ILCID_POSIX_MAP(mi), /*  mi  Maori                     0x81 */
-	ILCID_POSIX_MAP(mk), /*  mk  Macedonian                0x2f */
-	ILCID_POSIX_MAP(ml), /*  ml  Malayalam                 0x4c */
-	ILCID_POSIX_MAP(mn), /*  mn  Mongolian                 0x50 */
-	ILCID_POSIX_MAP(mni), /*  mni Manipuri                  0x58 */
-	ILCID_POSIX_MAP(moh), /*  moh Mohawk                    0x7c */
-	ILCID_POSIX_MAP(mr), /*  mr  Marathi                   0x4e */
-	ILCID_POSIX_MAP(ms), /*  ms  Malay                     0x3e */
-	ILCID_POSIX_MAP(mt), /*  mt  Maltese                   0x3a */
-	ILCID_POSIX_MAP(my), /*  my  Burmese                   0x55 */
-/*    ILCID_POSIX_MAP(nb),    //  no  Norwegian                 0x14 */
-	ILCID_POSIX_MAP(ne), /*  ne  Nepali                    0x61 */
-	ILCID_POSIX_MAP(nl), /*  nl  Dutch                     0x13 */
-/*    ILCID_POSIX_MAP(nn),    //  no  Norwegian                 0x14 */
-	ILCID_POSIX_MAP(no), /*  *   Norwegian                 0x14 */
-	ILCID_POSIX_MAP(nso), /*  nso Sotho, Northern (Sepedi dialect) 0x6c */
-	ILCID_POSIX_MAP(oc), /*  oc  Occitan                   0x82 */
-	ILCID_POSIX_MAP(om), /*  om  Oromo                     0x72 */
-	ILCID_POSIX_MAP(or_IN), /*  or  Oriya                     0x48 */
-	ILCID_POSIX_MAP(pa), /*  pa  Punjabi                   0x46 */
-	ILCID_POSIX_MAP(pap), /*  pap Papiamentu                0x79 */
-	ILCID_POSIX_MAP(pl), /*  pl  Polish                    0x15 */
-	ILCID_POSIX_MAP(ps), /*  ps  Pashto                    0x63 */
-	ILCID_POSIX_MAP(pt), /*  pt  Portuguese                0x16 */
-	ILCID_POSIX_MAP(qu), /*  qu  Quechua                   0x6B */
-	ILCID_POSIX_MAP(quc), /*  quc K'iche                    0x93 */
-	ILCID_POSIX_MAP(qut), /*  qut K'iche                    0x86 */
-	ILCID_POSIX_MAP(rm), /*  rm  Raeto-Romance/Romansh     0x17 */
-	ILCID_POSIX_MAP(ro), /*  ro  Romanian                  0x18 */
-	ILCID_POSIX_MAP(root), /*  root                          0x00 */
-	ILCID_POSIX_MAP(ru), /*  ru  Russian                   0x19 */
-	ILCID_POSIX_MAP(rw), /*  rw  Kinyarwanda               0x87 */
-	ILCID_POSIX_MAP(sa), /*  sa  Sanskrit                  0x4f */
-	ILCID_POSIX_MAP(sah), /*  sah Yakut                     0x85 */
-	ILCID_POSIX_MAP(sd), /*  sd  Sindhi                    0x59 */
-	ILCID_POSIX_MAP(se), /*  se  Sami                      0x3b */
-/*    ILCID_POSIX_MAP(sh),    //  sh  Serbo-Croatian            0x1a */
-	ILCID_POSIX_MAP(si), /*  si  Sinhalese                 0x5b */
-	ILCID_POSIX_MAP(sk), /*  sk  Slovak                    0x1b */
-	ILCID_POSIX_MAP(sl), /*  sl  Slovenian                 0x24 */
-	ILCID_POSIX_MAP(so), /*  so  Somali                    0x77 */
-	ILCID_POSIX_MAP(sq), /*  sq  Albanian                  0x1c */
-/*    ILCID_POSIX_MAP(sr),    //  sr  Serbian                   0x1a */
-	ILCID_POSIX_MAP(st), /*  st  Sutu                      0x30 */
-	ILCID_POSIX_MAP(sv), /*  sv  Swedish                   0x1d */
-	ILCID_POSIX_MAP(sw), /*  sw  Swahili                   0x41 */
-	ILCID_POSIX_MAP(syr), /*  syr Syriac                    0x5A */
-	ILCID_POSIX_MAP(ta), /*  ta  Tamil                     0x49 */
-	ILCID_POSIX_MAP(te), /*  te  Telugu                    0x4a */
-	ILCID_POSIX_MAP(tg), /*  tg  Tajik                     0x28 */
-	ILCID_POSIX_MAP(th), /*  th  Thai                      0x1e */
-	ILCID_POSIX_MAP(ti), /*  ti  Tigrigna                  0x73 */
-	ILCID_POSIX_MAP(tk), /*  tk  Turkmen                   0x42 */
-	ILCID_POSIX_MAP(tn), /*  tn  Tswana                    0x32 */
-	ILCID_POSIX_MAP(tr), /*  tr  Turkish                   0x1f */
-	ILCID_POSIX_MAP(ts), /*  ts  Tsonga                    0x31 */
-	ILCID_POSIX_MAP(tt), /*  tt  Tatar                     0x44 */
-	ILCID_POSIX_MAP(tzm), /*  tzm Tamazight                 0x5f */
-	ILCID_POSIX_MAP(ug), /*  ug  Uighur                    0x80 */
-	ILCID_POSIX_MAP(uk), /*  uk  Ukrainian                 0x22 */
-	ILCID_POSIX_MAP(ur), /*  ur  Urdu                      0x20 */
-	ILCID_POSIX_MAP(uz), /*  uz  Uzbek                     0x43 */
-	ILCID_POSIX_MAP(ve), /*  ve  Venda                     0x33 */
-	ILCID_POSIX_MAP(vi), /*  vi  Vietnamese                0x2a */
-	ILCID_POSIX_MAP(wo), /*  wo  Wolof                     0x88 */
-	ILCID_POSIX_MAP(xh), /*  xh  Xhosa                     0x34 */
-	ILCID_POSIX_MAP(yi), /*  yi  Yiddish                   0x3d */
-	ILCID_POSIX_MAP(yo), /*  yo  Yoruba                    0x6a */
-	ILCID_POSIX_MAP(zh), /*  zh  Chinese                   0x04 */
-	ILCID_POSIX_MAP(zu), /*  zu  Zulu                      0x35 */
+	ILCID_POSIX_MAP(af), /* af  Afrikaans                 0x36 */
+	ILCID_POSIX_MAP(am), /* am  Amharic                   0x5e */
+	ILCID_POSIX_MAP(ar), /* ar  Arabic                    0x01 */
+	ILCID_POSIX_MAP(arn), /* arn Araucanian/Mapudungun     0x7a */
+	ILCID_POSIX_MAP(as), /* as  Assamese                  0x4d */
+	ILCID_POSIX_MAP(az), /* az  Azerbaijani               0x2c */
+	ILCID_POSIX_MAP(ba), /* ba  Bashkir                   0x6d */
+	ILCID_POSIX_MAP(be), /* be  Belarusian                0x23 */
+/* ILCID_POSIX_MAP(ber),     ber Berber/Tamazight          0x5f */
+	ILCID_POSIX_MAP(bg), /* bg  Bulgarian                 0x02 */
+	ILCID_POSIX_MAP(bin), /* bin Edo                       0x66 */
+	ILCID_POSIX_MAP(bn), /* bn  Bengali; Bangla           0x45 */
+	ILCID_POSIX_MAP(bo), /* bo  Tibetan                   0x51 */
+	ILCID_POSIX_MAP(br), /* br  Breton                    0x7e */
+	ILCID_POSIX_MAP(ca), /* ca  Catalan                   0x03 */
+	ILCID_POSIX_MAP(chr), /* chr Cherokee                  0x5c */
+	ILCID_POSIX_MAP(ckb), /* ckb Sorani (Central Kurdish)  0x92 */
+	ILCID_POSIX_MAP(co), /* co  Corsican                  0x83 */
+	ILCID_POSIX_MAP(cs), /* cs  Czech                     0x05 */
+	ILCID_POSIX_MAP(cy), /* cy  Welsh                     0x52 */
+	ILCID_POSIX_MAP(da), /* da  Danish                    0x06 */
+	ILCID_POSIX_MAP(de), /* de  German                    0x07 */
+	ILCID_POSIX_MAP(dv), /* dv  Divehi                    0x65 */
+	ILCID_POSIX_MAP(el), /* el  Greek                     0x08 */
+	ILCID_POSIX_MAP(en), /* en  English                   0x09 */
+	ILCID_POSIX_MAP(en_US_POSIX), /* invariant             0x7f */
+	ILCID_POSIX_MAP(es), /* es  Spanish                   0x0a */
+	ILCID_POSIX_MAP(et), /* et  Estonian                  0x25 */
+	ILCID_POSIX_MAP(eu), /* eu  Basque                    0x2d */
+	ILCID_POSIX_MAP(fa), /* fa  Persian/Farsi             0x29 */
+	ILCID_POSIX_MAP(fa_AF), /* fa  Persian/Dari              0x8c */
+	ILCID_POSIX_MAP(ff), /* ff  Fula                      0x67 */
+	ILCID_POSIX_MAP(fi), /* fi  Finnish                   0x0b */
+	ILCID_POSIX_MAP(fil), /* fil Filipino                  0x64 */
+	ILCID_POSIX_MAP(fo), /* fo  Faroese                   0x38 */
+	ILCID_POSIX_MAP(fr), /* fr  French                    0x0c */
+	ILCID_POSIX_MAP(fuv), /* fuv Fulfulde - Nigeria        0x67 */
+	ILCID_POSIX_MAP(fy), /* fy  Frisian                   0x62 */
+	ILCID_POSIX_MAP(ga), /* *   Gaelic (Ireland,Scotland) 0x3c */
+	ILCID_POSIX_MAP(gd), /* gd  Gaelic (United Kingdom)   0x91 */
+	ILCID_POSIX_MAP(gl), /* gl  Galician                  0x56 */
+	ILCID_POSIX_MAP(gn), /* gn  Guarani                   0x74 */
+	ILCID_POSIX_MAP(gsw), /* gsw Alemanic/Alsatian/Swiss German 0x84 */
+	ILCID_POSIX_MAP(gu), /* gu  Gujarati                  0x47 */
+	ILCID_POSIX_MAP(ha), /* ha  Hausa                     0x68 */
+	ILCID_POSIX_MAP(haw), /* haw Hawaiian                  0x75 */
+	ILCID_POSIX_MAP(he), /* he  Hebrew (formerly iw)      0x0d */
+	ILCID_POSIX_MAP(hi), /* hi  Hindi                     0x39 */
+	ILCID_POSIX_MAP(hr), /* *   Croatian and others       0x1a */
+	ILCID_POSIX_MAP(hsb), /* hsb Upper Sorbian             0x2e */
+	ILCID_POSIX_MAP(hu), /* hu  Hungarian                 0x0e */
+	ILCID_POSIX_MAP(hy), /* hy  Armenian                  0x2b */
+	ILCID_POSIX_MAP(ibb), /* ibb Ibibio - Nigeria          0x69 */
+	ILCID_POSIX_MAP(id), /* id  Indonesian (formerly in)  0x21 */
+	ILCID_POSIX_MAP(ig), /* ig  Igbo                      0x70 */
+	ILCID_POSIX_MAP(ii), /* ii  Sichuan Yi                0x78 */
+	ILCID_POSIX_MAP(is), /* is  Icelandic                 0x0f */
+	ILCID_POSIX_MAP(it), /* it  Italian                   0x10 */
+	ILCID_POSIX_MAP(iu), /* iu  Inuktitut                 0x5d */
+	ILCID_POSIX_MAP(iw), /* iw  Hebrew                    0x0d */
+	ILCID_POSIX_MAP(ja), /* ja  Japanese                  0x11 */
+	ILCID_POSIX_MAP(ka), /* ka  Georgian                  0x37 */
+	ILCID_POSIX_MAP(kk), /* kk  Kazakh                    0x3f */
+	ILCID_POSIX_MAP(kl), /* kl  Kalaallisut               0x6f */
+	ILCID_POSIX_MAP(km), /* km  Khmer                     0x53 */
+	ILCID_POSIX_MAP(kn), /* kn  Kannada                   0x4b */
+	ILCID_POSIX_MAP(ko), /* ko  Korean                    0x12 */
+	ILCID_POSIX_MAP(kok), /* kok Konkani                   0x57 */
+	ILCID_POSIX_MAP(kr), /* kr  Kanuri                    0x71 */
+	ILCID_POSIX_MAP(ks), /* ks  Kashmiri                  0x60 */
+	ILCID_POSIX_MAP(ky), /* ky  Kyrgyz                    0x40 */
+	ILCID_POSIX_MAP(lb), /* lb  Luxembourgish             0x6e */
+	ILCID_POSIX_MAP(la), /* la  Latin                     0x76 */
+	ILCID_POSIX_MAP(lo), /* lo  Lao                       0x54 */
+	ILCID_POSIX_MAP(lt), /* lt  Lithuanian                0x27 */
+	ILCID_POSIX_MAP(lv), /* lv  Latvian, Lettish          0x26 */
+	ILCID_POSIX_MAP(mi), /* mi  Maori                     0x81 */
+	ILCID_POSIX_MAP(mk), /* mk  Macedonian                0x2f */
+	ILCID_POSIX_MAP(ml), /* ml  Malayalam                 0x4c */
+	ILCID_POSIX_MAP(mn), /* mn  Mongolian                 0x50 */
+	ILCID_POSIX_MAP(mni), /* mni Manipuri                  0x58 */
+	ILCID_POSIX_MAP(moh), /* moh Mohawk                    0x7c */
+	ILCID_POSIX_MAP(mr), /* mr  Marathi                   0x4e */
+	ILCID_POSIX_MAP(ms), /* ms  Malay                     0x3e */
+	ILCID_POSIX_MAP(mt), /* mt  Maltese                   0x3a */
+	ILCID_POSIX_MAP(my), /* my  Burmese                   0x55 */
+/* ILCID_POSIX_MAP(nb),    //  no  Norwegian                 0x14 */
+	ILCID_POSIX_MAP(ne), /* ne  Nepali                    0x61 */
+	ILCID_POSIX_MAP(nl), /* nl  Dutch                     0x13 */
+/* ILCID_POSIX_MAP(nn),    //  no  Norwegian                 0x14 */
+	ILCID_POSIX_MAP(no), /* *   Norwegian                 0x14 */
+	ILCID_POSIX_MAP(nso), /* nso Sotho, Northern (Sepedi dialect) 0x6c */
+	ILCID_POSIX_MAP(oc), /* oc  Occitan                   0x82 */
+	ILCID_POSIX_MAP(om), /* om  Oromo                     0x72 */
+	ILCID_POSIX_MAP(or_IN), /* or  Oriya                     0x48 */
+	ILCID_POSIX_MAP(pa), /* pa  Punjabi                   0x46 */
+	ILCID_POSIX_MAP(pap), /* pap Papiamentu                0x79 */
+	ILCID_POSIX_MAP(pl), /* pl  Polish                    0x15 */
+	ILCID_POSIX_MAP(ps), /* ps  Pashto                    0x63 */
+	ILCID_POSIX_MAP(pt), /* pt  Portuguese                0x16 */
+	ILCID_POSIX_MAP(qu), /* qu  Quechua                   0x6B */
+	ILCID_POSIX_MAP(quc), /* quc K'iche                    0x93 */
+	ILCID_POSIX_MAP(qut), /* qut K'iche                    0x86 */
+	ILCID_POSIX_MAP(rm), /* rm  Raeto-Romance/Romansh     0x17 */
+	ILCID_POSIX_MAP(ro), /* ro  Romanian                  0x18 */
+	ILCID_POSIX_MAP(root), /* root                          0x00 */
+	ILCID_POSIX_MAP(ru), /* ru  Russian                   0x19 */
+	ILCID_POSIX_MAP(rw), /* rw  Kinyarwanda               0x87 */
+	ILCID_POSIX_MAP(sa), /* sa  Sanskrit                  0x4f */
+	ILCID_POSIX_MAP(sah), /* sah Yakut                     0x85 */
+	ILCID_POSIX_MAP(sd), /* sd  Sindhi                    0x59 */
+	ILCID_POSIX_MAP(se), /* se  Sami                      0x3b */
+/* ILCID_POSIX_MAP(sh),    //  sh  Serbo-Croatian            0x1a */
+	ILCID_POSIX_MAP(si), /* si  Sinhalese                 0x5b */
+	ILCID_POSIX_MAP(sk), /* sk  Slovak                    0x1b */
+	ILCID_POSIX_MAP(sl), /* sl  Slovenian                 0x24 */
+	ILCID_POSIX_MAP(so), /* so  Somali                    0x77 */
+	ILCID_POSIX_MAP(sq), /* sq  Albanian                  0x1c */
+/* ILCID_POSIX_MAP(sr),    //  sr  Serbian                   0x1a */
+	ILCID_POSIX_MAP(st), /* st  Sutu                      0x30 */
+	ILCID_POSIX_MAP(sv), /* sv  Swedish                   0x1d */
+	ILCID_POSIX_MAP(sw), /* sw  Swahili                   0x41 */
+	ILCID_POSIX_MAP(syr), /* syr Syriac                    0x5A */
+	ILCID_POSIX_MAP(ta), /* ta  Tamil                     0x49 */
+	ILCID_POSIX_MAP(te), /* te  Telugu                    0x4a */
+	ILCID_POSIX_MAP(tg), /* tg  Tajik                     0x28 */
+	ILCID_POSIX_MAP(th), /* th  Thai                      0x1e */
+	ILCID_POSIX_MAP(ti), /* ti  Tigrigna                  0x73 */
+	ILCID_POSIX_MAP(tk), /* tk  Turkmen                   0x42 */
+	ILCID_POSIX_MAP(tn), /* tn  Tswana                    0x32 */
+	ILCID_POSIX_MAP(tr), /* tr  Turkish                   0x1f */
+	ILCID_POSIX_MAP(ts), /* ts  Tsonga                    0x31 */
+	ILCID_POSIX_MAP(tt), /* tt  Tatar                     0x44 */
+	ILCID_POSIX_MAP(tzm), /* tzm Tamazight                 0x5f */
+	ILCID_POSIX_MAP(ug), /* ug  Uighur                    0x80 */
+	ILCID_POSIX_MAP(uk), /* uk  Ukrainian                 0x22 */
+	ILCID_POSIX_MAP(ur), /* ur  Urdu                      0x20 */
+	ILCID_POSIX_MAP(uz), /* uz  Uzbek                     0x43 */
+	ILCID_POSIX_MAP(ve), /* ve  Venda                     0x33 */
+	ILCID_POSIX_MAP(vi), /* vi  Vietnamese                0x2a */
+	ILCID_POSIX_MAP(wo), /* wo  Wolof                     0x88 */
+	ILCID_POSIX_MAP(xh), /* xh  Xhosa                     0x34 */
+	ILCID_POSIX_MAP(yi), /* yi  Yiddish                   0x3d */
+	ILCID_POSIX_MAP(yo), /* yo  Yoruba                    0x6a */
+	ILCID_POSIX_MAP(zh), /* zh  Chinese                   0x04 */
+	ILCID_POSIX_MAP(zu), /* zu  Zulu                      0x35 */
 };
 
 static const uint32_t gLocaleCount = UPRV_LENGTHOF(gPosixIDmap);
@@ -1227,7 +1227,7 @@ U_CAPI uint32_t uprv_convertToLCID(const char * langID, const char * posixID, UE
 	uint32_t oldmid = 0;
 	int32_t compVal;
 
-	uint32_t value         = 0;
+	uint32_t value = 0;
 	uint32_t fallbackValue = (uint32_t)-1;
 	UErrorCode myStatus;
 	uint32_t idx;

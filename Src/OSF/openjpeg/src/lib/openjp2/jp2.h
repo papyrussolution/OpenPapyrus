@@ -71,13 +71,13 @@
 /* ----------------------------------------------------------------------- */
 
 typedef enum {
-    JP2_STATE_NONE            = 0x0,
+    JP2_STATE_NONE    = 0x0,
     JP2_STATE_SIGNATURE       = 0x1,
     JP2_STATE_FILE_TYPE       = 0x2,
-    JP2_STATE_HEADER          = 0x4,
+    JP2_STATE_HEADER  = 0x4,
     JP2_STATE_CODESTREAM      = 0x8,
     JP2_STATE_END_CODESTREAM  = 0x10,
-    JP2_STATE_UNKNOWN         = 0x7fffffff /* ISO C restricts enumerator values to range of 'int' */
+    JP2_STATE_UNKNOWN = 0x7fffffff /* ISO C restricts enumerator values to range of 'int' */
 }
 JP2_STATE;
 

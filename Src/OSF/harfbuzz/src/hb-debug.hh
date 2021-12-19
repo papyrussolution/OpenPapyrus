@@ -162,8 +162,8 @@ template <int max_level> static inline void _hb_debug_msg_va(const char * what,
 }
 
 template <> inline void HB_PRINTF_FUNC(7, 0)
-_hb_debug_msg_va<0> (const char * what HB_UNUSED, const void * obj HB_UNUSED, const char * func HB_UNUSED,
-bool indented HB_UNUSED, uint level HB_UNUSED, int level_dir HB_UNUSED, const char * message HB_UNUSED, va_list ap HB_UNUSED) {
+_hb_debug_msg_va<0> (const char * what CXX_UNUSED_PARAM, const void * obj CXX_UNUSED_PARAM, const char * func CXX_UNUSED_PARAM,
+bool indented CXX_UNUSED_PARAM, uint level CXX_UNUSED_PARAM, int level_dir CXX_UNUSED_PARAM, const char * message CXX_UNUSED_PARAM, va_list ap CXX_UNUSED_PARAM) {
 }
 
 template <int max_level> static inline void _hb_debug_msg(const char * what, const void * obj, const char * func,
@@ -177,22 +177,22 @@ _hb_debug_msg(const char * what, const void * obj, const char * func, bool inden
 	va_end(ap);
 }
 template <> inline void
-_hb_debug_msg<0> (const char * what HB_UNUSED,
-const void * obj HB_UNUSED,
-const char * func HB_UNUSED,
-bool indented HB_UNUSED,
-uint level HB_UNUSED,
-int level_dir HB_UNUSED,
-const char * message HB_UNUSED,
+_hb_debug_msg<0> (const char * what CXX_UNUSED_PARAM,
+const void * obj CXX_UNUSED_PARAM,
+const char * func CXX_UNUSED_PARAM,
+bool indented CXX_UNUSED_PARAM,
+uint level CXX_UNUSED_PARAM,
+int level_dir CXX_UNUSED_PARAM,
+const char * message CXX_UNUSED_PARAM,
 ...)HB_PRINTF_FUNC(7, 8);
 template <> inline void HB_PRINTF_FUNC(7, 8)
-_hb_debug_msg<0> (const char * what HB_UNUSED,
-const void * obj HB_UNUSED,
-const char * func HB_UNUSED,
-bool indented HB_UNUSED,
-uint level HB_UNUSED,
-int level_dir HB_UNUSED,
-const char * message HB_UNUSED,
+_hb_debug_msg<0> (const char * what CXX_UNUSED_PARAM,
+const void * obj CXX_UNUSED_PARAM,
+const char * func CXX_UNUSED_PARAM,
+bool indented CXX_UNUSED_PARAM,
+uint level CXX_UNUSED_PARAM,
+int level_dir CXX_UNUSED_PARAM,
+const char * message CXX_UNUSED_PARAM,
 ...) {
 }
 
@@ -237,7 +237,7 @@ static inline void _hb_warn_no_return(bool returned)
 }
 
 template <>
-/*static*/ inline void _hb_warn_no_return<hb_empty_t> (bool returned HB_UNUSED)
+/*static*/ inline void _hb_warn_no_return<hb_empty_t> (bool returned CXX_UNUSED_PARAM)
 {}
 
 template <int max_level, typename ret_t>
@@ -304,8 +304,8 @@ struct hb_auto_trace_t<0, ret_t> {
 
 	template <typename T>
 	T ret(T&& v,
-	    const char * func HB_UNUSED = nullptr,
-	    uint line HB_UNUSED = 0) {
+	    const char * func CXX_UNUSED_PARAM = nullptr,
+	    uint line CXX_UNUSED_PARAM = 0) {
 		return hb_forward<T> (v);
 	}
 };
@@ -316,8 +316,8 @@ template <typename ret_t>
 struct hb_no_trace_t {
 	template <typename T>
 	T ret(T&& v,
-	    const char * func HB_UNUSED = nullptr,
-	    uint line HB_UNUSED = 0) {
+	    const char * func CXX_UNUSED_PARAM = nullptr,
+	    uint line CXX_UNUSED_PARAM = 0) {
 		return hb_forward<T> (v);
 	}
 };

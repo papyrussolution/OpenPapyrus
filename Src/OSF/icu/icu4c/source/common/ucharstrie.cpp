@@ -24,7 +24,7 @@ UCharsTrie::~UCharsTrie() {
 
 UStringTrieResult UCharsTrie::current() const {
 	const UChar * pos = pos_;
-	if(pos==NULL) {
+	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;
 	}
 	else {
@@ -52,7 +52,7 @@ UStringTrieResult UCharsTrie::nextForCodePoint(UChar32 cp) {
 
 UStringTrieResult UCharsTrie::branchNext(const UChar * pos, int32_t length, int32_t uchar) {
 	// Branch according to the current unit.
-	if(length==0) {
+	if(!length) {
 		length = *pos++;
 	}
 	++length;
@@ -152,7 +152,7 @@ UStringTrieResult UCharsTrie::nextImpl(const UChar * pos, int32_t uchar) {
 
 UStringTrieResult UCharsTrie::next(int32_t uchar) {
 	const UChar * pos = pos_;
-	if(pos==NULL) {
+	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;
 	}
 	int32_t length = remainingMatchLength_; // Actual remaining match length minus 1.
@@ -180,7 +180,7 @@ UStringTrieResult UCharsTrie::next(ConstChar16Ptr ptr, int32_t sLength) {
 		return current();
 	}
 	const UChar * pos = pos_;
-	if(pos==NULL) {
+	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;
 	}
 	int32_t length = remainingMatchLength_; // Actual remaining match length minus 1.
@@ -328,11 +328,11 @@ bool UCharsTrie::findUniqueValue(const UChar * pos, bool haveUniqueValue, int32_
 	int32_t node = *pos++;
 	for(;;) {
 		if(node<kMinLinearMatch) {
-			if(node==0) {
+			if(!node) {
 				node = *pos++;
 			}
 			pos = findUniqueValueFromBranch(pos, node+1, haveUniqueValue, uniqueValue);
-			if(pos==NULL) {
+			if(!pos) {
 				return FALSE;
 			}
 			haveUniqueValue = TRUE;
@@ -372,7 +372,7 @@ bool UCharsTrie::findUniqueValue(const UChar * pos, bool haveUniqueValue, int32_
 
 int32_t UCharsTrie::getNextUChars(Appendable &out) const {
 	const UChar * pos = pos_;
-	if(pos==NULL) {
+	if(!pos) {
 		return 0;
 	}
 	if(remainingMatchLength_>=0) {
@@ -390,7 +390,7 @@ int32_t UCharsTrie::getNextUChars(Appendable &out) const {
 		}
 	}
 	if(node<kMinLinearMatch) {
-		if(node==0) {
+		if(!node) {
 			node = *pos++;
 		}
 		out.reserveAppendCapacity(++node);

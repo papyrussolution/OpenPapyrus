@@ -32,32 +32,32 @@ register_term(pdf)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PDF_init(GpTermEntry * pThis);
-TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void PDF_text(GpTermEntry * pThis);
+TERM_PUBLIC void PDF_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PDF_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PDF_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PDF_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void PDF_linetype(int linetype);
 TERM_PUBLIC void PDF_move(uint x, uint y);
 TERM_PUBLIC void PDF_vector(uint x, uint y);
 TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str);
 TERM_PUBLIC void PDF_reset();
-TERM_PUBLIC int PDF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC int PDF_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
 TERM_PUBLIC int PDF_text_angle(int ang);
-TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int pointstyle);
-TERM_PUBLIC int PDF_set_font(GpTermEntry * pThis, const char * font);
+TERM_PUBLIC void PDF_point(GpTermEntry_Static * pThis, uint x, uint y, int pointstyle);
+TERM_PUBLIC int PDF_set_font(GpTermEntry_Static * pThis, const char * font);
 TERM_PUBLIC void PDF_boxfill(int style, uint x1, uint y1, uint width, uint height);
 TERM_PUBLIC void PDF_linewidth(double linewidth);
 TERM_PUBLIC int PDF_make_palette(t_sm_palette *);
 TERM_PUBLIC void PDF_previous_palette();
-TERM_PUBLIC void PDF_set_color(GpTermEntry * pThis, t_colorspec *);
-TERM_PUBLIC void PDF_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void PDF_set_color(GpTermEntry_Static * pThis, t_colorspec *);
+TERM_PUBLIC void PDF_image(GpTermEntry_Static * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 
 TERM_PUBLIC void PDF_filled_polygon(int, gpiPoint *);
 
 /* To support "set term png enhanced" */
-TERM_PUBLIC void ENHPDF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry * pThis);
+TERM_PUBLIC void ENHPDF_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
+TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry_Static * pThis);
 
 #define PDF_NUM_POINTTYPES 75   /* number of point symbol types not counting the dot */
 
@@ -311,7 +311,7 @@ static void PDF_DefinePatterns()
 
 /*------------------- the terminal entry functions --------------------*/
 
-TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PDF_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	// Annoying hack to handle the case of 'set termoption' after 
 	// we have already initialized the terminal.                  
@@ -319,19 +319,19 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		pdf_explicit_size = FALSE;
 		// Default to enhanced text 
 		pThis->put_text = ENHPDF_put_text;
-		pThis->flags |= TERM_ENHANCED_TEXT;
+		pThis->SetFlag(TERM_ENHANCED_TEXT);
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		if(pGp->Pgm.AlmostEqualsCur("enh$anced")) {
 			pGp->Pgm.Shift();
 			pThis->put_text = ENHPDF_put_text;
-			pThis->flags |= TERM_ENHANCED_TEXT;
+			pThis->SetFlag(TERM_ENHANCED_TEXT);
 			continue;
 		}
 		else if(pGp->Pgm.AlmostEqualsCur("noenh$anced")) {
 			pGp->Pgm.Shift();
 			pThis->put_text = PDF_put_text;
-			pThis->flags &= ~TERM_ENHANCED_TEXT;
+			pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("fn$ame") || pGp->Pgm.AlmostEqualsCur("font")) {
@@ -375,13 +375,13 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 		if(pGp->Pgm.EqualsCur("color") || pGp->Pgm.AlmostEqualsCur("col$our")) {
 			pGp->Pgm.Shift();
 			PDF_monochrome = FALSE;
-			pThis->flags &= ~TERM_MONOCHROME;
+			pThis->ResetFlag(TERM_MONOCHROME);
 			continue;
 		}
 		if(pGp->Pgm.AlmostEqualsCur("mono$chrome")) {
 			pGp->Pgm.Shift();
 			PDF_monochrome = TRUE;
-			pThis->flags |= TERM_MONOCHROME;
+			pThis->SetFlag(TERM_MONOCHROME);
 			continue;
 		}
 		if(pGp->Pgm.EqualsCur("dl") || pGp->Pgm.AlmostEqualsCur("dashl$ength")) {
@@ -403,8 +403,7 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 			pGp->Pgm.Shift();
 			pdf_explicit_size = TRUE;
 			pdf_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
-			pThis->MaxX = xmax_t*PDF_RESOLUTION*72.0/GpResolution;
-			pThis->MaxY = ymax_t*PDF_RESOLUTION*72.0/GpResolution;
+			pThis->SetMax(xmax_t*PDF_RESOLUTION*72.0/GpResolution, ymax_t*PDF_RESOLUTION*72.0/GpResolution);
 			continue;
 		}
 		if(pGp->Pgm.EqualsCur("fontscale")) {
@@ -430,7 +429,7 @@ TERM_PUBLIC void PDF_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 }
 
-TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
+TERM_PUBLIC void PDF_init(GpTermEntry_Static * pThis)
 {
 	static bool PDFlib_booted = FALSE;
 	GnuPlot * p_gp = pThis->P_Gp;
@@ -479,10 +478,9 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	// Have to start the first page now, in order to know the actual size of the selected font 
 	PDF_graphics(pThis);
 	// set ChrH, ChrV
-	pThis->ChrH = PDF_fontAvWidth;
-	pThis->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
+	pThis->SetCharSize(PDF_fontAvWidth, (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading));
 	// set TicH, TicV
-	pThis->TicH = pThis->TicV = 3 * PDF_RESOLUTION;
+	pThis->SetTic(3 * PDF_RESOLUTION);
 	// initialize terminal's pointsize from "set pointsize" value 
 	p_gp->TermPointSize = pointsize;
 	// Initialize other default settings 
@@ -490,7 +488,7 @@ TERM_PUBLIC void PDF_init(GpTermEntry * pThis)
 	PDF_setlinejoin(myPDF, PDF_LineCap); /* round+round or butt+mitre */
 }
 
-TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void PDF_graphics(GpTermEntry_Static * pThis)
 {
 	if(PDF_pageIsOpen)
 		return; /* already open --> nothing to do */
@@ -498,8 +496,7 @@ TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis)
 	PDF_xLast = PDF_yLast = UINT_MAX;
 	// set size of canvas 
 	if(!pdf_explicit_size) {
-		pThis->MaxX = PDF_XMAX;
-		pThis->MaxY = PDF_YMAX;
+		pThis->SetMax(PDF_XMAX, PDF_YMAX);
 	}
 	PDF_begin_page(myPDF, (double)pThis->MaxX / PDF_RESOLUTION, (double)pThis->MaxY / PDF_RESOLUTION);
 	PDF_scale(myPDF, 1.0/PDF_RESOLUTION, 1.0/PDF_RESOLUTION);
@@ -510,7 +507,7 @@ TERM_PUBLIC void PDF_graphics(GpTermEntry * pThis)
 	PDF_SetFont();
 }
 
-TERM_PUBLIC void PDF_text(GpTermEntry * pThis)
+TERM_PUBLIC void PDF_text(GpTermEntry_Static * pThis)
 {
 	PDF_PathClose();
 	PDF_end_page(myPDF);
@@ -612,7 +609,7 @@ static GP_INLINE void PDF_dot(uint x, uint y)
 	PDF_setlinecap(myPDF, PDF_LineCap); /* restore ends */
 }
 
-TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int number)
+TERM_PUBLIC void PDF_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	PDF_PathClose();
@@ -854,7 +851,7 @@ TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int number)
 // 
 // 
 /* 47 + (0..15): diamonds with filled quadrants as given by bit pattern  */
-/*   Diamonds are drawn as squares rotated by 45 degrees, so can use
+/* Diamonds are drawn as squares rotated by 45 degrees, so can use
  * fall-through from diamond to squares, and re-use some macros. */
 // 
 			case 47+0:
@@ -998,7 +995,7 @@ TERM_PUBLIC void PDF_point(GpTermEntry * pThis, uint x, uint y, int number)
 	PDF_yLast = y;
 }
 
-TERM_PUBLIC int PDF_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int PDF_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	PDF_TextJust = mode;
 	return TRUE;
@@ -1037,7 +1034,7 @@ TERM_PUBLIC void PDF_put_text(uint x, uint y, const char * str)
 	}
 }
 
-TERM_PUBLIC int PDF_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int PDF_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	// FIXME: This condition is somehow triggered by enhanced_recursion 
 	if(font == PDF_fontNameCur)
@@ -1057,8 +1054,7 @@ TERM_PUBLIC int PDF_set_font(GpTermEntry * pThis, const char * font)
 	}
 	PDF_PathClose();
 	PDF_SetFont();
-	pThis->ChrH = PDF_fontAvWidth;
-	pThis->ChrV = (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading);
+	pThis->SetCharSize(PDF_fontAvWidth, (PDF_fontAscent + PDF_fontDescent + PDF_fontLeading));
 	return TRUE;
 }
 
@@ -1126,8 +1122,8 @@ TERM_PUBLIC void PDF_filled_polygon(int points, gpiPoint* corners)
 		    fillpar = fillpar % (PDF_patterns + 1) /* 0 == white */;
 		    /* Fill in solid background before drawing pattern */
 		    /* NOTE:  kpdf/xpdf would accept this as part of the pattern definition */
-		    /*        but acroread does not. So for compatibility we do the fill in */
-		    /*        a separate step, despite its inefficiency.                    */
+		    /* but acroread does not. So for compatibility we do the fill in */
+		    /* a separate step, despite its inefficiency.                    */
 		    if(fillpar != 0) {
 			    PDF_setcolor(myPDF, "fill", "rgb", 1, 1, 1, 0 /* unused */);
 			    PDF_moveto(myPDF, corners[0].x, corners[0].y);
@@ -1173,7 +1169,7 @@ TERM_PUBLIC int PDF_make_palette(t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void PDF_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
+TERM_PUBLIC void PDF_set_color(GpTermEntry_Static * pThis, t_colorspec * colorspec)
 {
 	if(colorspec->type == TC_LT) {
 		uint irgb = pm3d_color_names_tbl[ 1 + PDF_Pen_RealID(colorspec->lt) ].value;
@@ -1207,7 +1203,7 @@ TERM_PUBLIC void PDF_previous_palette()
 {
 }
 
-TERM_PUBLIC void PDF_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void PDF_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	uchar * pixel;
 	float xscale, yscale;
@@ -1300,7 +1296,7 @@ static uint ENHpdf_xsave, ENHpdf_ysave;
 //
 // Start a new string fragment 
 //
-TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// If the overprint code requests a save or request, that's all we do 
@@ -1327,7 +1323,7 @@ TERM_PUBLIC void ENHPDF_OPEN(GpTermEntry * pThis, char * fontname, double fontsi
 //
 // Write a string fragment and update the current position 
 //
-TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry * pThis)
+TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int x, y;
@@ -1380,7 +1376,7 @@ TERM_PUBLIC void ENHPDF_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void ENHPDF_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void ENHPDF_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;

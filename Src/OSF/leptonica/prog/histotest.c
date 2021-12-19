@@ -38,6 +38,10 @@
  *    For gray, sigbits is ignored.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -52,10 +56,10 @@ static char  mainName[] = "histotest";
 
     if (argc != 3)
         return ERROR_INT(" Syntax:  histotest filein sigbits", mainName, 1);
-
     filein = argv[1];
     sigbits = atoi(argv[2]);
 
+    setLeptDebugOK(1);
     lept_mkdir("lept/histo");
 
     if ((pixs = pixRead(filein)) == NULL)
@@ -68,14 +72,14 @@ static char  mainName[] = "histotest";
         startTimer();
         if ((na = pixOctcubeHistogram(pixs, sigbits, NULL)) == NULL)
             return ERROR_INT("na not made", mainName, 1);
-        fprintf(stderr, "histo time = %7.3f sec\n", stopTimer());
+        lept_stderr("histo time = %7.3f sec\n", stopTimer());
         gplot = gplotCreate("/tmp/lept/histo/color", GPLOT_PNG,
                             "color histogram with octcube indexing",
                             "octcube index", "number of pixels in cube");
         gplotAddPlot(gplot, NULL, na, GPLOT_LINES, "input pix");
         gplotMakeOutput(gplot);
         gplotDestroy(&gplot);
-        l_fileDisplay("/tmp/lept/histo/color.png", 100, 100);
+        l_fileDisplay("/tmp/lept/histo/color.png", 100, 100, 1.0);
     }
     else {
         if ((na = pixGetGrayHistogram(pixs, 1)) == NULL)
@@ -88,7 +92,7 @@ static char  mainName[] = "histotest";
         gplotAddPlot(gplot, NULL, na, GPLOT_LINES, "input pix");
         gplotMakeOutput(gplot);
         gplotDestroy(&gplot);
-        l_fileDisplay("/tmp/lept/histo/gray.png", 100, 100);
+        l_fileDisplay("/tmp/lept/histo/gray.png", 100, 100, 1.0);
     }
 
     pixDestroy(&pixs);

@@ -14,31 +14,31 @@
 enum DlOperator {
 	dlopConstructor = '0', // null
 	dlopDestructor  = '1',
-	dlopNew         = '2',
+	dlopNew = '2',
 	dlopDelete      = '3',
 	dlopAssignment  = '4',
-	dlopEq          = '8',
-	dlopNeq         = '9',
+	dlopEq  = '8',
+	dlopNeq = '9',
 	dlopConvert     = 'B',
-	dlopAdd         = 'H', // +
-	dlopSub         = 'G', // -
-	dlopMul         = 'D',
-	dlopDiv         = 'K',
-	dlopMod         = 'L', // %
-	dlopInc         = 'E',
-	dlopDec         = 'F',
-	dlopLt          = 'M',
-	dlopLe          = 'N',
-	dlopGt          = 'O', // ou
-	dlopGe          = 'P',
-	dlopAnd         = 'V',
-	dlopOr          = 'W',
-	dlopNot         = '7',
+	dlopAdd = 'H', // +
+	dlopSub = 'G', // -
+	dlopMul = 'D',
+	dlopDiv = 'K',
+	dlopMod = 'L', // %
+	dlopInc = 'E',
+	dlopDec = 'F',
+	dlopLt  = 'M',
+	dlopLe  = 'N',
+	dlopGt  = 'O', // ou
+	dlopGe  = 'P',
+	dlopAnd = 'V',
+	dlopOr  = 'W',
+	dlopNot = '7',
 	dlopBwAnd       = 'I',
 	dlopBwOr        = 'U',
 	dlopUnaryPlus   = '+',  // not msvs
 	dlopUnaryMinus  = '-',  // not msvs
-	dlopDot         = '.',  // not msvs
+	dlopDot = '.',  // not msvs
 	dlopQuest       = '?',  // not msvs
 	dlopObjRef      = '>'   // not msvs
 };
@@ -282,7 +282,7 @@ public:
 		sfHidden       = 0x0002, // COM-атрибут
 		sfRestricted   = 0x0004, // COM-атрибут
 		sfVersion      = 0x0008, // Для области определена версия //
-		sfUUID         = 0x0010, // Для атрибута UUID
+		sfUUID = 0x0010, // Для атрибута UUID
 		sfNoIDL        = 0x0020  // Не заносить описание объекта в IDL-файл
 	};
 	//
@@ -899,12 +899,12 @@ public:
 	// Compile-time {
 	//
 	enum {
-		cfDebug         = 0x0001, // Отладочный режим компиляции
+		cfDebug = 0x0001, // Отладочный режим компиляции
 		cfBinOnly       = 0x0002, // Создавать только бинарные файлы (не генерировать .H, .CPP и прочие файлы для разработки)
-		cfSQL           = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
+		cfSQL   = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
 		cfOracle        = 0x0008, // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
 		cfGravity       = 0x0010, // @v10.8.2 Генерировать gravity интерфейсы
-		cfMySQL         = 0x0020, // @v10.9.1 Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
+		cfMySQL = 0x0020, // @v10.9.1 Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
 		cfSqLite        = 0x0040, // @v10.9.1 Генерировать SQL-скрипт специфичный для SqLite для создания таблиц базы данных
 		cfStyloQAndroid = 0x0080  // @v11.1.2 Генерировать модули для проекта StyloQ Android (если другие опции это предполагают)
 	};
@@ -1134,7 +1134,7 @@ private:
 	int    FormatVar(CtmVar v, SString & rBuf) const;
 	enum {
 		fctfSourceOutput  = 0x0001, // Форматировать тип для вывода в C++
-		fctfIDL           = 0x0002, // Форматировать тип для вывода в IDL
+		fctfIDL   = 0x0002, // Форматировать тип для вывода в IDL
 		fctfIfaceImpl     = 0x0004, // Форматировать тип для функций реализации интерфейсов
 		fctfInstance      = 0x0008, // Форматирование для экземпляров типов. Основное отличие -
 			// строки представлены не ссылками, а собственно экземплярами (SString вместо SString&)
@@ -1289,7 +1289,7 @@ public:
 		ExportParam();
 		ExportParam(PPFilt & rF, long flags);
 		enum {
-			fIsView            = 0x0001, // P_F->Ptr указывает на класс, порожденный от PPView
+			fIsView    = 0x0001, // P_F->Ptr указывает на класс, порожденный от PPView
 			fInheritedTblNames = 0x0002, // При экспорте в качестве наименования таблиц будет
 				// применяться имя родительской структуры
 			fDiff_ID_ByScope   = 0x0004, // Если этот флаг установлен, то наименования полей идентификаторов
@@ -1297,7 +1297,7 @@ public:
 				// Эта опция необходима из-за того, что единовременно перевести все структуры на
 				// различающиеся наименования таких полей невозможно по причине необходимости верификации
 				// соответствующих отчетов
-			fForceDDF          = 0x0008, // Если в файлах словаря нет необходимости, то все равно создавать такие файлы.
+			fForceDDF  = 0x0008, // Если в файлах словаря нет необходимости, то все равно создавать такие файлы.
 				// Возникновение флага обусловлено тем, что CrystalReports не требует для печати
 				// файлов словарей. Однако, они необходимы для формирования и редактирования отчетов в дизайнере.
 			fDontWriteXmlDTD   = 0x0010, // Не формировать DTD в XML-файле

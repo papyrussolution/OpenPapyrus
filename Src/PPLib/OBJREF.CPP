@@ -1034,7 +1034,7 @@ void UnitCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	const UnitData * p_cache_rec = static_cast<const UnitData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag        = PPOBJ_UNIT;
-	p_data_rec->ID         = p_cache_rec->ID;
+	p_data_rec->ID = p_cache_rec->ID;
 	p_data_rec->BaseUnitID = p_cache_rec->BaseUnitID;
 	p_data_rec->BaseRatio  = p_cache_rec->BaseRatio;
 	p_data_rec->Rounding_  = p_cache_rec->Rounding_;
@@ -2769,8 +2769,8 @@ void GlobalUserAccCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	PPGlobalUserAcc * p_data_rec = static_cast<PPGlobalUserAcc *>(pDataRec);
 	const GlobalUserAccData * p_cache_rec = static_cast<const GlobalUserAccData *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
-	p_data_rec->Tag         = PPOBJ_GLOBALUSERACC;
-	p_data_rec->ID          = p_cache_rec->ID;
+	p_data_rec->Tag = PPOBJ_GLOBALUSERACC;
+	p_data_rec->ID  = p_cache_rec->ID;
 	p_data_rec->LocalDbUuid = p_cache_rec->LocalDbUuid;
 	p_data_rec->Flags       = p_cache_rec->Flags;
 	p_data_rec->LocalUserID = p_cache_rec->LocalUserID;

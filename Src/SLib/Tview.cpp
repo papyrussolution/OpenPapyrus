@@ -834,10 +834,11 @@ void TView::SetWordSelBlock(WordSel_ExtraBlock * pBlk)
 	KeyCode = 0;
 }*/
 
-void KeyDownCommand::Clear()
+KeyDownCommand & KeyDownCommand::Z()
 {
 	State = 0;
 	Code = 0;
+	return *this;
 }
 
 int KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
@@ -856,7 +857,7 @@ int KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
 			if(is_func_key)
 				rBuf.CatChar('F').Cat(Code - VK_F1 + 1);
 			else
-				rBuf.Cat((char)Code);
+				rBuf.CatChar((char)Code);
 			ok = 1;
 		}
 	}
@@ -1031,7 +1032,7 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 int FASTCALL KeyDownCommand::SetTvKeyCode(uint16 tvKeyCode)
 {
 	int    ok = 0;
-	Clear();
+	Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(TvKeyCodeVKList); i++) {
 		if(TvKeyCodeVKList[i].TvKeyCode == tvKeyCode) {
 			State = TvKeyCodeVKList[i].KState;
@@ -1057,7 +1058,7 @@ struct _KeySymb {
 	const  char * S;
 };
 
-static _KeySymb KeySymbList[] = {
+static const _KeySymb KeySymbList[] = {
 	{ VK_LBUTTON,        "lmouse,leftmouse"},
 	{ VK_RBUTTON,        "rmouse,rightmouse"},
 	{ VK_MBUTTON,        "mmouse,middlemouse"},

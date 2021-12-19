@@ -204,7 +204,7 @@ U_CAPI void U_EXPORT2 uiter_setString(UCharIterator * iter, const UChar * s, int
 
 /* internal helper function */
 static inline UChar32 utf16BEIteratorGet(UCharIterator * iter, int32_t index) {
-	const uint8_t * p = (const uint8_t*)iter->context;
+	const uint8 * p = (const uint8*)iter->context;
 	return ((UChar)p[2*index]<<8)|(UChar)p[2*index+1];
 }
 
@@ -554,11 +554,11 @@ static int32_t U_CALLCONV utf8IteratorGetIndex(UCharIterator * iter, UCharIterat
 		case UITER_CURRENT:
 		    if(iter->index<0) {
 			    /* the current UTF-16 index is unknown after setState(), count from the beginning */
-			    const uint8_t * s;
+			    const uint8 * s;
 			    UChar32 c;
 			    int32_t i, limit, index;
 
-			    s = (const uint8_t*)iter->context;
+			    s = (const uint8*)iter->context;
 			    i = index = 0;
 			    limit = iter->start; /* count up to the UTF-8 index */
 			    while(i<limit) {
@@ -579,11 +579,11 @@ static int32_t U_CALLCONV utf8IteratorGetIndex(UCharIterator * iter, UCharIterat
 		case UITER_LIMIT:
 		case UITER_LENGTH:
 		    if(iter->length<0) {
-			    const uint8_t * s;
+			    const uint8 * s;
 			    UChar32 c;
 			    int32_t i, limit, length;
 
-			    s = (const uint8_t*)iter->context;
+			    s = (const uint8*)iter->context;
 			    if(iter->index<0) {
 				    /*
 				     * the current UTF-16 index is unknown after setState(),
@@ -628,7 +628,7 @@ static int32_t U_CALLCONV utf8IteratorGetIndex(UCharIterator * iter, UCharIterat
 }
 
 static int32_t U_CALLCONV utf8IteratorMove(UCharIterator * iter, int32_t delta, UCharIteratorOrigin origin) {
-	const uint8_t * s;
+	const uint8 * s;
 	UChar32 c;
 	int32_t pos; /* requested UTF-16 index */
 	int32_t i; /* UTF-8 index */
@@ -734,7 +734,7 @@ static int32_t U_CALLCONV utf8IteratorMove(UCharIterator * iter, int32_t delta, 
 	/* delta!=0 */
 
 	/* move towards the requested position, pin to the edges of the string */
-	s = (const uint8_t*)iter->context;
+	s = (const uint8*)iter->context;
 	pos = iter->index; /* could be <0 (unknown) */
 	i = iter->start;
 	if(delta>0) {
@@ -824,7 +824,7 @@ static UChar32 U_CALLCONV utf8IteratorCurrent(UCharIterator * iter)
 		return U16_TRAIL(iter->reservedField);
 	}
 	else if(iter->start<iter->limit) {
-		const uint8_t * s = (const uint8_t*)iter->context;
+		const uint8 * s = (const uint8*)iter->context;
 		UChar32 c;
 		int32_t i = iter->start;
 		U8_NEXT_OR_FFFD(s, i, iter->limit, c);
@@ -852,7 +852,7 @@ static UChar32 U_CALLCONV utf8IteratorNext(UCharIterator * iter)
 		return trail;
 	}
 	else if(iter->start<iter->limit) {
-		const uint8_t * s = (const uint8_t*)iter->context;
+		const uint8 * s = (const uint8*)iter->context;
 		UChar32 c;
 		U8_NEXT_OR_FFFD(s, iter->start, iter->limit, c);
 		if((index = iter->index)>=0) {
@@ -890,7 +890,7 @@ static UChar32 U_CALLCONV utf8IteratorPrevious(UCharIterator * iter)
 		return lead;
 	}
 	else if(iter->start>0) {
-		const uint8_t * s = (const uint8_t*)iter->context;
+		const uint8 * s = (const uint8*)iter->context;
 		UChar32 c;
 		U8_PREV_OR_FFFD(s, 0, iter->start, c);
 		if((index = iter->index)>0) {
@@ -953,7 +953,7 @@ static void U_CALLCONV utf8IteratorSetState(UCharIterator * iter, uint32_t state
 			else {
 				/* verified index>=4 above */
 				UChar32 c;
-				U8_PREV_OR_FFFD((const uint8_t*)iter->context, 0, index, c);
+				U8_PREV_OR_FFFD((const uint8*)iter->context, 0, index, c);
 				if(c<=0xffff) {
 					*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 				}

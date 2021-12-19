@@ -57,7 +57,7 @@ HB_EXTERN hb_ot_name_id_t hb_ot_color_palette_color_get_name_id(const hb_face_t 
  * Since: 2.1.0
  */
 typedef enum { /*< flags >*/
-	HB_OT_COLOR_PALETTE_FLAG_DEFAULT                      = 0x00000000u,
+	HB_OT_COLOR_PALETTE_FLAG_DEFAULT              = 0x00000000u,
 	HB_OT_COLOR_PALETTE_FLAG_USABLE_WITH_LIGHT_BACKGROUND = 0x00000001u,
 	HB_OT_COLOR_PALETTE_FLAG_USABLE_WITH_DARK_BACKGROUND  = 0x00000002u
 } hb_ot_color_palette_flags_t;

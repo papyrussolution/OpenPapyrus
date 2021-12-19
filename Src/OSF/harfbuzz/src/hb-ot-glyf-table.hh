@@ -48,7 +48,7 @@ namespace OT {
 
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_loca;
 
-		bool sanitize(hb_sanitize_context_t * c HB_UNUSED) const
+		bool sanitize(hb_sanitize_context_t * c CXX_UNUSED_PARAM) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(true);
@@ -72,7 +72,7 @@ public:
 	struct glyf {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_glyf;
 
-		bool sanitize(hb_sanitize_context_t * c HB_UNUSED) const
+		bool sanitize(hb_sanitize_context_t * c CXX_UNUSED_PARAM) const
 		{
 			TRACE_SANITIZE(this);
 			/* Runtime checks as eager sanitizing each glyph is costy */
@@ -216,14 +216,14 @@ protected:
 			enum composite_glyph_flag_t {
 				ARG_1_AND_2_ARE_WORDS     = 0x0001,
 				ARGS_ARE_XY_VALUES        = 0x0002,
-				ROUND_XY_TO_GRID          = 0x0004,
-				WE_HAVE_A_SCALE           = 0x0008,
-				MORE_COMPONENTS           = 0x0020,
+				ROUND_XY_TO_GRID  = 0x0004,
+				WE_HAVE_A_SCALE   = 0x0008,
+				MORE_COMPONENTS   = 0x0020,
 				WE_HAVE_AN_X_AND_Y_SCALE  = 0x0040,
 				WE_HAVE_A_TWO_BY_TWO      = 0x0080,
 				WE_HAVE_INSTRUCTIONS      = 0x0100,
-				USE_MY_METRICS            = 0x0200,
-				OVERLAP_COMPOUND          = 0x0400,
+				USE_MY_METRICS    = 0x0200,
+				OVERLAP_COMPOUND  = 0x0400,
 				SCALED_COMPONENT_OFFSET   = 0x0800,
 				UNSCALED_COMPONENT_OFFSET = 0x1000
 			};

@@ -610,16 +610,16 @@ int PPObject::CreateReservedObjects(long flags)
 				THROW(r);
 				THROW(GetCommConfig(&comm_cfg));
 				if(r < 0) {
-					cfg_rec.Tag           = 0;
-					cfg_rec.ObjID         = PPCFG_MAIN;
+					cfg_rec.Tag   = 0;
+					cfg_rec.ObjID = PPCFG_MAIN;
 					cfg_rec.PropID        = PPPRP_CFG;
 					cfg_rec.AccessLevel   = DEFCFG_ACCESS;
 					cfg_rec.BaseCurID     = DEFCFG_CURRENCY;
 					cfg_rec.RealizeOrder  = DEFCFG_RLZORD;
-					cfg_rec.Menu          = DEFCFG_MENU;
+					cfg_rec.Menu  = DEFCFG_MENU;
 					cfg_rec.LocAccSheetID = 0;
 					cfg_rec.Location      = 0;
-					cfg_rec.Flags         = CFGFLG_UNITEINTRTRFR;
+					cfg_rec.Flags = CFGFLG_UNITEINTRTRFR;
 					do_update = 1;
 				}
 				if(!cfg_rec.LocAccSheetID && loc_acs_list.getCount() == 1) {

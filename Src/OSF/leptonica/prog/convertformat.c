@@ -34,29 +34,35 @@
  *      where format is one of these:
  *
  *         BMP
- *         JPEG  (only applicable for 8 bpp or rgb; transcode instead to png)
+ *         JPEG  (only applicable for 8 bpp or rgb; if not, transcode to png)
  *         PNG
  *         TIFF
- *         TIFF_G4  (only applicable for 1 bpp; transcode instead to png)
+ *         TIFF_G4  (only applicable for 1 bpp; if not, transcode to png)
  *         PNM
  *         GIF
  *         WEBP
+ *         JP2  (only available for 8 bpp or rgb; if not, transcode to png)
  *
- *   The output format can be chosen either explicitly with the @format
+ *   The output format can be chosen either explicitly with the %format
  *   arg, or implicitly using the extension of @fileout:
  *
  *         BMP       .bmp
  *         JPEG      .jpg
  *         PNG       .png
- *         TIFF      .tif
- *         TIFF_G4   .tif
+ *         TIFF       (zip compressed: use explicitly with %format arg)
+ *         TIFFG4    .tif
  *         PNM       .pnm
  *         GIF       .gif
  *         WEBP      .webp
+ *         JP2       .jp2
  *
  *   If the requested output format does not support the image type,
  *   the image is written in png format, with filename extension 'png'.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include <string.h>
 #include "allheaders.h"
@@ -71,13 +77,13 @@ PIX         *pixs;
 static char  mainName[] = "convertformat";
 
     if (argc != 3 && argc != 4) {
-        fprintf(stderr, "Syntax: convertformat filein fileout [format]\n"
-                        "If you don't specify a format, the output file\n"
-                        "needs one of these seven extensions:\n"
-                        "   bmp, jpg, png, tif, pnm, gif, webp\n");
+        lept_stderr("Syntax: convertformat filein fileout [format]\n"
+                    "Either specify a format from one of these:\n"
+                    "  BMP, JPEG, PNG, TIFF, TIFFG4, PNM, GIF, WEBP, JP2\n"
+                    "Or specify the extensions to the output file:\n"
+                    "  bmp, jpg, png, tif, pnm, gif, webp, jp2\n");
         return 1;
     }
-
     filein = argv[1];
     fileout = argv[2];
 
@@ -97,9 +103,11 @@ static char  mainName[] = "convertformat";
             format = IFF_GIF;
         else if (!strcmp(ext, ".webp"))
             format = IFF_WEBP;
+        else if (!strcmp(ext, ".jp2"))
+            format = IFF_JP2;
         else {
             return ERROR_INT(
-                "Valid extensions: bmp, jpg, png, tif, pnm, gif, webp",
+                "Valid extensions: bmp, jpg, png, tif, pnm, gif, webp, jp2",
                 mainName, 1);
         }
         lept_free(ext);
@@ -113,6 +121,8 @@ static char  mainName[] = "convertformat";
         else if (!strcmp(formatstr, "PNG"))
             format = IFF_PNG;
         else if (!strcmp(formatstr, "TIFF"))
+            format = IFF_TIFF_ZIP;  /* zip compressed tif */
+        else if (!strcmp(formatstr, "TIFFG4"))
             format = IFF_TIFF_G4;
         else if (!strcmp(formatstr, "PNM"))
             format = IFF_PNM;
@@ -120,13 +130,17 @@ static char  mainName[] = "convertformat";
             format = IFF_GIF;
         else if (!strcmp(formatstr, "WEBP"))
             format = IFF_WEBP;
+        else if (!strcmp(formatstr, "JP2"))
+            format = IFF_JP2;
         else {
             return ERROR_INT(
-                "Valid formats: BMP, JPEG, PNG, TIFF, PNM, GIF, WEBP",
+                "Valid formats: BMP, JPEG, PNG, TIFF, TIFFG4, PNM, "
+                "GIF, WEBP, JP2",
                 mainName, 1);
         }
     }
 
+    setLeptDebugOK(1);
     if ((pixs = pixRead(filein)) == NULL) {
         L_ERROR("read fail for %s\n", mainName, filein);
         return 1;
@@ -139,13 +153,22 @@ static char  mainName[] = "convertformat";
         L_WARNING("can't convert to tiff_g4; converting to png\n", mainName);
         change = TRUE;
     }
-    if (d < 8 && format == IFF_JFIF_JPEG) {
-        L_WARNING("can't convert to jpeg; converting to png\n", mainName);
-        change = TRUE;
-    }
-    if (d < 8 && format == IFF_WEBP) {
-        L_WARNING("can't convert to webp; converting to png\n", mainName);
-        change = TRUE;
+    if (d < 8) {
+        switch(format)
+        {
+        case IFF_JFIF_JPEG:
+            L_WARNING("can't convert to jpeg; converting to png\n", mainName);
+            change = TRUE;
+            break;
+        case IFF_WEBP:
+            L_WARNING("can't convert to webp; converting to png\n", mainName);
+            change = TRUE;
+            break;
+        case IFF_JP2:
+            L_WARNING("can't convert to jp2; converting to png\n", mainName);
+            change = TRUE;
+            break;
+        }
     }
     if (change) {
         splitPathAtExtension(fileout, &base, &ext);

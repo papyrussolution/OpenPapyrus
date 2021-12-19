@@ -32,6 +32,10 @@
  *      where level = {1,2,3} and 2 is the default
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -43,14 +47,12 @@ l_int32      level;
 static char  mainName[] = "converttops";
 
     if (argc != 3 && argc != 4) {
-        fprintf(stderr, "Syntax: converttops filein fileout [level]\n");
-        fprintf(stderr, "%s\n", error_msg);
+        lept_stderr("Syntax: converttops filein fileout [level]\n");
+        lept_stderr("%s\n", error_msg);
         return 1;
     }
-
     filein = argv[1];
     fileout = argv[2];
-
     level = 2;
     if (argc == 4) {
         level = atoi(argv[3]);
@@ -60,6 +62,7 @@ static char  mainName[] = "converttops";
         }
     }
 
+    setLeptDebugOK(1);
     convertToPSEmbed(filein, fileout, level);
     return 0;
 }

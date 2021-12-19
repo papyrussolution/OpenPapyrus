@@ -2272,7 +2272,7 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 	I.UnitPerPack   = item.UnitPerPack;
 	I.Quantity      = item.Quantity;
 	I.StockRest     = item.StockRest;
-	I.Price         = item.Price;
+	I.Price = item.Price;
 	I.StockPrice    = item.StockPrice;
 	I.WrOffPrice    = item.WrOffPrice;
 	I.DiffSign      = (item.Flags & INVENTF_SURPLUS) ? 1 : ((item.Flags & INVENTF_LACK) ? -1 : 0);

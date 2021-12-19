@@ -1301,7 +1301,7 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 	I.PlanInQtty  = item.PlanInQtty;
 	I.PlanOutQtty = item.PlanOutQtty;
 	I.OutRest     = item.OutRest;
-	I.Dev         = 0.0;
+	I.Dev = 0.0;
 	I.DevPct      = 0.0;
 	if(item.InQtty) {
 		I.Dev = item.InQtty - item.PlanInQtty;

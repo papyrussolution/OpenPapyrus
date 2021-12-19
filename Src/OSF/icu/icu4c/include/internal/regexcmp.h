@@ -222,13 +222,13 @@ private:
 //   The high 16 bits are the operator precedence, and the low 16 are a code for the operation itself.
 
 enum SetOperations {
-	setStart         = 0 << 16 | 1,
-	setEnd           = 1 << 16 | 2,
+	setStart = 0 << 16 | 1,
+	setEnd   = 1 << 16 | 2,
 	setNegation      = 2 << 16 | 3,
 	setCaseClose     = 2 << 16 | 9,
 	setDifference2   = 3 << 16 | 4,// '--' set difference operator
 	setIntersection2 = 3 << 16 | 5, // '&&' set intersection operator
-	setUnion         = 4 << 16 | 6,// implicit union of adjacent items
+	setUnion = 4 << 16 | 6,// implicit union of adjacent items
 	setDifference1   = 4 << 16 | 7,// '-', single dash difference op, for compatibility with old UnicodeSet.
 	setIntersection1 = 4 << 16 | 8 // '&', single amp intersection op, for compatibility with old UnicodeSet.
 };

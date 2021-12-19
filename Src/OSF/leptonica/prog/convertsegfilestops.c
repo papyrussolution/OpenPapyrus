@@ -70,6 +70,10 @@
  *    (i.e., non-image) regions of every page.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include <string.h>
 #include "allheaders.h"
 
@@ -81,7 +85,7 @@ l_int32    threshold, page_numpre, mask_numpre, numpost, maxnum;
 l_float32  textscale, imagescale;
 
     if (argc != 13) {
-	fprintf(stderr,
+	lept_stderr(
             " Syntax: convertsegfilestops pagedir pagestr page_numpre \\ \n"
             "                             maskdir maskstr mask_numpre \\ \n"
             "                             numpost maxnum textscale \\ \n"
@@ -106,7 +110,6 @@ l_float32  textscale, imagescale;
             "         fileout:  Output p file\n");
         return 1;
     }
-
     pagedir = argv[1];
     pagestr = argv[2];
     page_numpre = atoi(argv[3]);
@@ -125,6 +128,7 @@ l_float32  textscale, imagescale;
     if (!strcmp(maskstr, "allfiles"))
         maskstr = NULL;
 
+    setLeptDebugOK(1);
     return convertSegmentedPagesToPS(pagedir, pagestr, page_numpre,
                                      maskdir, maskstr, mask_numpre,
                                      numpost, maxnum, textscale,

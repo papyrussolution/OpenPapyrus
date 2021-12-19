@@ -207,7 +207,7 @@ UChar32 FilteredNormalizer2::composePair(UChar32 a, UChar32 b) const {
 	return (set.contains(a) && set.contains(b)) ? norm2.composePair(a, b) : U_SENTINEL;
 }
 
-uint8_t FilteredNormalizer2::getCombiningClass(UChar32 c) const {
+uint8 FilteredNormalizer2::getCombiningClass(UChar32 c) const {
 	return set.contains(c) ? norm2.getCombiningClass(c) : 0;
 }
 

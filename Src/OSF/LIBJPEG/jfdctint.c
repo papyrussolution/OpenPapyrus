@@ -194,7 +194,7 @@ GLOBAL(void) jpeg_fdct_islow(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp1 + tmp3;
 
-		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /*  c3 */
+		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /* c3 */
 		/* Add fudge factor here for final descale. */
 		z1 += ONE << (CONST_BITS-PASS1_BITS-1);
 
@@ -204,14 +204,14 @@ GLOBAL(void) jpeg_fdct_islow(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 		tmp13 += z1;
 
 		z1 = MULTIPLY(tmp0 + tmp3, -FIX_0_899976223); /* -c3+c7 */
-		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /*  c1+c3-c5-c7 */
+		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /* c1+c3-c5-c7 */
 		tmp3 = MULTIPLY(tmp3, FIX_0_298631336); /* -c1+c3+c5-c7 */
 		tmp0 += z1 + tmp12;
 		tmp3 += z1 + tmp13;
 
 		z1 = MULTIPLY(tmp1 + tmp2, -FIX_2_562915447); /* -c1-c3 */
-		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /*  c1+c3+c5-c7 */
-		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /*  c1+c3-c5+c7 */
+		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /* c1+c3+c5-c7 */
+		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /* c1+c3-c5+c7 */
 		tmp1 += z1 + tmp13;
 		tmp2 += z1 + tmp12;
 
@@ -268,7 +268,7 @@ GLOBAL(void) jpeg_fdct_islow(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp1 + tmp3;
 
-		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /*  c3 */
+		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /* c3 */
 		/* Add fudge factor here for final descale. */
 		z1 += ONE << (CONST_BITS+PASS1_BITS-1);
 
@@ -278,14 +278,14 @@ GLOBAL(void) jpeg_fdct_islow(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION 
 		tmp13 += z1;
 
 		z1 = MULTIPLY(tmp0 + tmp3, -FIX_0_899976223); /* -c3+c7 */
-		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /*  c1+c3-c5-c7 */
+		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /* c1+c3-c5-c7 */
 		tmp3 = MULTIPLY(tmp3, FIX_0_298631336); /* -c1+c3+c5-c7 */
 		tmp0 += z1 + tmp12;
 		tmp3 += z1 + tmp13;
 
 		z1 = MULTIPLY(tmp1 + tmp2, -FIX_2_562915447); /* -c1-c3 */
-		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /*  c1+c3+c5-c7 */
-		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /*  c1+c3-c5+c7 */
+		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /* c1+c3+c5-c7 */
+		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /* c1+c3-c5+c7 */
 		tmp1 += z1 + tmp13;
 		tmp2 += z1 + tmp12;
 
@@ -2308,21 +2308,21 @@ GLOBAL(void) jpeg_fdct_16x8(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION s
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp1 + tmp3;
 
-		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /*  c3 */
+		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /* c3 */
 		tmp12 = MULTIPLY(tmp12, -FIX_0_390180644); /* -c3+c5 */
 		tmp13 = MULTIPLY(tmp13, -FIX_1_961570560); /* -c3-c5 */
 		tmp12 += z1;
 		tmp13 += z1;
 
 		z1 = MULTIPLY(tmp0 + tmp3, -FIX_0_899976223); /* -c3+c7 */
-		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /*  c1+c3-c5-c7 */
+		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /* c1+c3-c5-c7 */
 		tmp3 = MULTIPLY(tmp3, FIX_0_298631336); /* -c1+c3+c5-c7 */
 		tmp0 += z1 + tmp12;
 		tmp3 += z1 + tmp13;
 
 		z1 = MULTIPLY(tmp1 + tmp2, -FIX_2_562915447); /* -c1-c3 */
-		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /*  c1+c3+c5-c7 */
-		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /*  c1+c3-c5+c7 */
+		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /* c1+c3+c5-c7 */
+		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /* c1+c3-c5+c7 */
 		tmp1 += z1 + tmp13;
 		tmp2 += z1 + tmp12;
 
@@ -2777,7 +2777,7 @@ GLOBAL(void) jpeg_fdct_8x4(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION st
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp1 + tmp3;
 
-		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /*  c3 */
+		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /* c3 */
 		/* Add fudge factor here for final descale. */
 		z1 += ONE << (CONST_BITS-PASS1_BITS-2);
 
@@ -2787,14 +2787,14 @@ GLOBAL(void) jpeg_fdct_8x4(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION st
 		tmp13 += z1;
 
 		z1 = MULTIPLY(tmp0 + tmp3, -FIX_0_899976223); /* -c3+c7 */
-		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /*  c1+c3-c5-c7 */
+		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /* c1+c3-c5-c7 */
 		tmp3 = MULTIPLY(tmp3, FIX_0_298631336); /* -c1+c3+c5-c7 */
 		tmp0 += z1 + tmp12;
 		tmp3 += z1 + tmp13;
 
 		z1 = MULTIPLY(tmp1 + tmp2, -FIX_2_562915447); /* -c1-c3 */
-		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /*  c1+c3+c5-c7 */
-		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /*  c1+c3-c5+c7 */
+		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /* c1+c3+c5-c7 */
+		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /* c1+c3-c5+c7 */
 		tmp1 += z1 + tmp13;
 		tmp2 += z1 + tmp12;
 
@@ -3092,19 +3092,19 @@ GLOBAL(void) jpeg_fdct_8x16(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION s
 		 */
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp1 + tmp3;
-		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /*  c3 */
+		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /* c3 */
 		tmp12 = MULTIPLY(tmp12, -FIX_0_390180644); /* -c3+c5 */
 		tmp13 = MULTIPLY(tmp13, -FIX_1_961570560); /* -c3-c5 */
 		tmp12 += z1;
 		tmp13 += z1;
 		z1 = MULTIPLY(tmp0 + tmp3, -FIX_0_899976223); /* -c3+c7 */
-		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /*  c1+c3-c5-c7 */
+		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /* c1+c3-c5-c7 */
 		tmp3 = MULTIPLY(tmp3, FIX_0_298631336); /* -c1+c3+c5-c7 */
 		tmp0 += z1 + tmp12;
 		tmp3 += z1 + tmp13;
 		z1 = MULTIPLY(tmp1 + tmp2, -FIX_2_562915447); /* -c1-c3 */
-		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /*  c1+c3+c5-c7 */
-		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /*  c1+c3-c5+c7 */
+		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /* c1+c3+c5-c7 */
+		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /* c1+c3-c5+c7 */
 		tmp1 += z1 + tmp13;
 		tmp2 += z1 + tmp12;
 		dataptr[1] = (DCTELEM)DESCALE(tmp0, CONST_BITS-PASS1_BITS);
@@ -3595,7 +3595,7 @@ GLOBAL(void) jpeg_fdct_4x8(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION st
 		 */
 		tmp12 = tmp0 + tmp2;
 		tmp13 = tmp1 + tmp3;
-		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /*  c3 */
+		z1 = MULTIPLY(tmp12 + tmp13, FIX_1_175875602); /* c3 */
 		/* Add fudge factor here for final descale. */
 		z1 += ONE << (CONST_BITS+PASS1_BITS-1);
 		tmp12 = MULTIPLY(tmp12, -FIX_0_390180644); /* -c3+c5 */
@@ -3603,13 +3603,13 @@ GLOBAL(void) jpeg_fdct_4x8(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION st
 		tmp12 += z1;
 		tmp13 += z1;
 		z1 = MULTIPLY(tmp0 + tmp3, -FIX_0_899976223); /* -c3+c7 */
-		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /*  c1+c3-c5-c7 */
+		tmp0 = MULTIPLY(tmp0, FIX_1_501321110); /* c1+c3-c5-c7 */
 		tmp3 = MULTIPLY(tmp3, FIX_0_298631336); /* -c1+c3+c5-c7 */
 		tmp0 += z1 + tmp12;
 		tmp3 += z1 + tmp13;
 		z1 = MULTIPLY(tmp1 + tmp2, -FIX_2_562915447); /* -c1-c3 */
-		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /*  c1+c3+c5-c7 */
-		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /*  c1+c3-c5+c7 */
+		tmp1 = MULTIPLY(tmp1, FIX_3_072711026); /* c1+c3+c5-c7 */
+		tmp2 = MULTIPLY(tmp2, FIX_2_053119869); /* c1+c3-c5+c7 */
 		tmp1 += z1 + tmp13;
 		tmp2 += z1 + tmp12;
 		dataptr[DCTSIZE*1] = (DCTELEM)RIGHT_SHIFT(tmp0, CONST_BITS+PASS1_BITS);

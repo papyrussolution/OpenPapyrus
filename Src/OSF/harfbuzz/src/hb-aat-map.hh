@@ -47,7 +47,7 @@ public:
 
 struct hb_aat_map_builder_t {
 public:
-	HB_INTERNAL hb_aat_map_builder_t(hb_face_t * face_, const hb_segment_properties_t * props_ HB_UNUSED) : face(face_) 
+	HB_INTERNAL hb_aat_map_builder_t(hb_face_t * face_, const hb_segment_properties_t * props_ CXX_UNUSED_PARAM) : face(face_) 
 	{
 	}
 	HB_INTERNAL void add_feature(hb_tag_t tag, uint value = 1);

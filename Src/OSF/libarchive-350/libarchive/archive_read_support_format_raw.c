@@ -37,12 +37,12 @@ struct raw_info {
 	int end_of_file;
 };
 
-static int      archive_read_format_raw_bid(struct archive_read *, int);
-static int      archive_read_format_raw_cleanup(struct archive_read *);
-static int      archive_read_format_raw_read_data(struct archive_read *,
+static int archive_read_format_raw_bid(struct archive_read *, int);
+static int archive_read_format_raw_cleanup(struct archive_read *);
+static int archive_read_format_raw_read_data(struct archive_read *,
     const void **, size_t *, int64 *);
-static int      archive_read_format_raw_read_data_skip(struct archive_read *);
-static int      archive_read_format_raw_read_header(struct archive_read *,
+static int archive_read_format_raw_read_data_skip(struct archive_read *);
+static int archive_read_format_raw_read_header(struct archive_read *,
     struct archive_entry *);
 
 int archive_read_support_format_raw(struct archive * _a)

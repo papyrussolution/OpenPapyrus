@@ -31,8 +31,8 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 
 #include "archive_private.h"
 #include "archive_read_private.h"
 
-static int      copy_data(struct archive * ar, struct archive * aw);
-static int      archive_read_extract_cleanup(struct archive_read *);
+static int copy_data(struct archive * ar, struct archive * aw);
+static int archive_read_extract_cleanup(struct archive_read *);
 
 /* Retrieve an extract object without initialising the associated
  * archive_write_disk object.

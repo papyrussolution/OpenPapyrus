@@ -2272,7 +2272,7 @@ float fann_train_candidates_epoch(Fann2 * ann, struct fann_train_data * data)
 		fann_run(ann, data->input[i]);
 		for(j = 0; j < ann->num_output; j++) {
 			/* TODO only debug, but the error is in opposite direction, this might be usefull info */
-			/*          if(output_train_errors[j] != (ann->output[j] - data->output[i][j])){
+			/* if(output_train_errors[j] != (ann->output[j] - data->output[i][j])){
 			 * printf("difference in calculated error at %f != %f; %f = %f - %f;\n", output_train_errors[j],
 			 *(ann->output[j] - data->output[i][j]), output_train_errors[j], ann->output[j],
 			 *data->output[i][j]);
@@ -3606,7 +3606,7 @@ void fann_update_weights_quickprop(Fann2 * ann, uint num_data, uint first_weight
 		/* The step must always be in direction opposite to the slope. */
 		if(prev_step > 0.001) {
 			/* If last step was positive...  */
-			if(slope > 0.0) /*  Add in linear term if current slope is still positive. */
+			if(slope > 0.0) /* Add in linear term if current slope is still positive. */
 				next_step += epsilon * slope;
 			/*If current slope is close to or larger than prev slope...  */
 			if(slope > (shrink_factor * prev_slope))
@@ -3616,7 +3616,7 @@ void fann_update_weights_quickprop(Fann2 * ann, uint num_data, uint first_weight
 		}
 		else if(prev_step < -0.001) {
 			/* If last step was negative...  */
-			if(slope < 0.0) /*  Add in linear term if current slope is still negative. */
+			if(slope < 0.0) /* Add in linear term if current slope is still negative. */
 				next_step += epsilon * slope;
 			/* If current slope is close to or more neg than prev slope... */
 			if(slope < (shrink_factor * prev_slope))

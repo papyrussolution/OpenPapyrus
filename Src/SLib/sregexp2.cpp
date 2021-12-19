@@ -283,10 +283,7 @@ SRegExp2::Error SRegExp2::GetLastErr() const
 	return LastErr;
 }
 	
-int SRegExp2::IsValid() const
-{
-	return (H != 0);
-}
+bool SRegExp2::IsValid() const { return (H != 0); }
 
 #if SLTEST_RUNNING // {
 

@@ -417,7 +417,7 @@ int RcProcessor::LoadExtraData(CtrlInfo * pCtrlInfo)
 		}
 		if(found) {
 			uint   i;
-			for(i = 0; i < 15 && ss.get(&p, extras[i]) > 0; i++) 
+			for(i = 0; i < 15 && ss.get(&p, extras[i]); i++) 
 				extras[i].Strip();
 			if(p_ctrlt->Type == CtrlType::ctrlDosCombo) {
 				out_extras[2] = extras[0];
@@ -624,7 +624,7 @@ int RcProcessor::PutControl(CtrlInfo * pCtrlInfo, int level /*=0*/)
 			if(pCtrlInfo->Extras.Len()) {
 				StringSet ss("`");
 				ss.setBuf(pCtrlInfo->Extras, pCtrlInfo->Extras.Len() + 1);
-				for(uint i = 1, p = 0; ss.get(&p, (buf = 0)) > 0; i++) {
+				for(uint i = 1, p = 0; ss.get(&p, buf); i++) {
 					OutBuf.Cat(tab).Cat("\t<property name=\"PpyExtra").Cat((long)i).Cat("\">\n");
 					OutBuf.Cat(tab).Cat("\t\t<string>").Cat(buf).Cat("</string>\n");
 					OutBuf.Cat(tab).Cat("\t</property>\n");

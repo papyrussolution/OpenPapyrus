@@ -201,7 +201,7 @@ cairo_private void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_f
 cairo_private cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t * font_subsets,
     cairo_scaled_font_t * scaled_font, ulong scaled_font_glyph_index, const char * utf8, int utf8_len, cairo_scaled_font_subsets_glyph_t * subset_glyph_ret);
 
-typedef cairo_int_status_t (* cairo_scaled_font_subset_callback_func_t) (cairo_scaled_font_subset_t * font_subset, void  * closure);
+typedef cairo_int_status_t (* cairo_scaled_font_subset_callback_func_t) (cairo_scaled_font_subset_t * font_subset, void * closure);
 /**
  * _cairo_scaled_font_subsets_foreach_scaled:
  * @font_subsets: a #cairo_scaled_font_subsets_t
@@ -232,7 +232,7 @@ typedef cairo_int_status_t (* cairo_scaled_font_subset_callback_func_t) (cairo_s
  * value indicating an error. Possible errors include
  * %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_scaled(cairo_scaled_font_subsets_t  * font_subsets, cairo_scaled_font_subset_callback_func_t font_subset_callback, void  * closure);
+cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_scaled(cairo_scaled_font_subsets_t  * font_subsets, cairo_scaled_font_subset_callback_func_t font_subset_callback, void * closure);
 /**
  * _cairo_scaled_font_subsets_foreach_unscaled:
  * @font_subsets: a #cairo_scaled_font_subsets_t
@@ -263,7 +263,7 @@ cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_scaled(cairo_sca
  * value indicating an error. Possible errors include
  * %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_unscaled(cairo_scaled_font_subsets_t  * font_subsets, cairo_scaled_font_subset_callback_func_t font_subset_callback, void  * closure);
+cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_unscaled(cairo_scaled_font_subsets_t  * font_subsets, cairo_scaled_font_subset_callback_func_t font_subset_callback, void * closure);
 /**
  * _cairo_scaled_font_subsets_foreach_user:
  * @font_subsets: a #cairo_scaled_font_subsets_t
@@ -294,7 +294,7 @@ cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_unscaled(cairo_s
  * value indicating an error. Possible errors include
  * %CAIRO_STATUS_NO_MEMORY.
  **/
-cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_user(cairo_scaled_font_subsets_t  * font_subsets, cairo_scaled_font_subset_callback_func_t font_subset_callback, void  * closure);
+cairo_private cairo_status_t _cairo_scaled_font_subsets_foreach_user(cairo_scaled_font_subsets_t  * font_subsets, cairo_scaled_font_subset_callback_func_t font_subset_callback, void * closure);
 /**
  * _cairo_scaled_font_subset_create_glyph_names:
  * @font_subsets: a #cairo_scaled_font_subsets_t

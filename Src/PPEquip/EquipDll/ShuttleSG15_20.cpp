@@ -56,10 +56,9 @@ public:
 		StIniParam() : Port(0), HideWindow(0)
 		{
 		}
-		int IsValid() 
+		bool IsValid() const
 		{
-			return (Port != 0 && DataBaseName.NotEmpty() && UserName.NotEmpty() &&
-                (ArrStorage.getCount() > 0) && (SG15Format.NotEmpty() || SG20Format.NotEmpty())) ? 1 : 0;
+			return (Port != 0 && DataBaseName.NotEmpty() && UserName.NotEmpty() && ArrStorage.getCount() && (SG15Format.NotEmpty() || SG20Format.NotEmpty()));
 		}
 		int HideWindow;
 		int Port;

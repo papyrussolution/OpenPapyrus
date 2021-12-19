@@ -331,7 +331,7 @@ struct st_mysql_options {
 
 typedef struct st_mysql {
 	NET net; /* Communication parameters */
-	void  * unused_0;
+	void * unused_0;
 	char * host, * user, * passwd, * unix_socket, * server_version, * host_info;
 	char * info, * db;
 	const struct ma_charset_info_st * charset; /* character set */

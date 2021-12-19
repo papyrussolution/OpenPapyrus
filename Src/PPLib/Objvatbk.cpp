@@ -1937,7 +1937,7 @@ int PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt)
 }
 
 enum {
-	mrbbfIsNeg          = 0x0001,
+	mrbbfIsNeg  = 0x0001,
 	mrbbfIsStorno       = 0x0002,
 	mrbbfFactByShipmExp = 0x0004
 };

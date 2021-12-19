@@ -261,62 +261,62 @@ typedef enum {
 } pixman_filter_t;
 
 typedef enum {
-	PIXMAN_OP_CLEAR                     = 0x00,
-	PIXMAN_OP_SRC                       = 0x01,
-	PIXMAN_OP_DST                       = 0x02,
-	PIXMAN_OP_OVER                      = 0x03,
-	PIXMAN_OP_OVER_REVERSE              = 0x04,
-	PIXMAN_OP_IN                        = 0x05,
-	PIXMAN_OP_IN_REVERSE                = 0x06,
-	PIXMAN_OP_OUT                       = 0x07,
-	PIXMAN_OP_OUT_REVERSE               = 0x08,
-	PIXMAN_OP_ATOP                      = 0x09,
-	PIXMAN_OP_ATOP_REVERSE              = 0x0a,
-	PIXMAN_OP_XOR                       = 0x0b,
-	PIXMAN_OP_ADD                       = 0x0c,
-	PIXMAN_OP_SATURATE                  = 0x0d,
+	PIXMAN_OP_CLEAR             = 0x00,
+	PIXMAN_OP_SRC               = 0x01,
+	PIXMAN_OP_DST               = 0x02,
+	PIXMAN_OP_OVER              = 0x03,
+	PIXMAN_OP_OVER_REVERSE      = 0x04,
+	PIXMAN_OP_IN                = 0x05,
+	PIXMAN_OP_IN_REVERSE        = 0x06,
+	PIXMAN_OP_OUT               = 0x07,
+	PIXMAN_OP_OUT_REVERSE       = 0x08,
+	PIXMAN_OP_ATOP              = 0x09,
+	PIXMAN_OP_ATOP_REVERSE      = 0x0a,
+	PIXMAN_OP_XOR               = 0x0b,
+	PIXMAN_OP_ADD               = 0x0c,
+	PIXMAN_OP_SATURATE          = 0x0d,
 
-	PIXMAN_OP_DISJOINT_CLEAR            = 0x10,
-	PIXMAN_OP_DISJOINT_SRC              = 0x11,
-	PIXMAN_OP_DISJOINT_DST              = 0x12,
-	PIXMAN_OP_DISJOINT_OVER             = 0x13,
+	PIXMAN_OP_DISJOINT_CLEAR    = 0x10,
+	PIXMAN_OP_DISJOINT_SRC      = 0x11,
+	PIXMAN_OP_DISJOINT_DST      = 0x12,
+	PIXMAN_OP_DISJOINT_OVER     = 0x13,
 	PIXMAN_OP_DISJOINT_OVER_REVERSE     = 0x14,
-	PIXMAN_OP_DISJOINT_IN               = 0x15,
+	PIXMAN_OP_DISJOINT_IN       = 0x15,
 	PIXMAN_OP_DISJOINT_IN_REVERSE       = 0x16,
-	PIXMAN_OP_DISJOINT_OUT              = 0x17,
+	PIXMAN_OP_DISJOINT_OUT      = 0x17,
 	PIXMAN_OP_DISJOINT_OUT_REVERSE      = 0x18,
-	PIXMAN_OP_DISJOINT_ATOP             = 0x19,
+	PIXMAN_OP_DISJOINT_ATOP     = 0x19,
 	PIXMAN_OP_DISJOINT_ATOP_REVERSE     = 0x1a,
-	PIXMAN_OP_DISJOINT_XOR              = 0x1b,
+	PIXMAN_OP_DISJOINT_XOR      = 0x1b,
 
-	PIXMAN_OP_CONJOINT_CLEAR            = 0x20,
-	PIXMAN_OP_CONJOINT_SRC              = 0x21,
-	PIXMAN_OP_CONJOINT_DST              = 0x22,
-	PIXMAN_OP_CONJOINT_OVER             = 0x23,
+	PIXMAN_OP_CONJOINT_CLEAR    = 0x20,
+	PIXMAN_OP_CONJOINT_SRC      = 0x21,
+	PIXMAN_OP_CONJOINT_DST      = 0x22,
+	PIXMAN_OP_CONJOINT_OVER     = 0x23,
 	PIXMAN_OP_CONJOINT_OVER_REVERSE     = 0x24,
-	PIXMAN_OP_CONJOINT_IN               = 0x25,
+	PIXMAN_OP_CONJOINT_IN       = 0x25,
 	PIXMAN_OP_CONJOINT_IN_REVERSE       = 0x26,
-	PIXMAN_OP_CONJOINT_OUT              = 0x27,
+	PIXMAN_OP_CONJOINT_OUT      = 0x27,
 	PIXMAN_OP_CONJOINT_OUT_REVERSE      = 0x28,
-	PIXMAN_OP_CONJOINT_ATOP             = 0x29,
+	PIXMAN_OP_CONJOINT_ATOP     = 0x29,
 	PIXMAN_OP_CONJOINT_ATOP_REVERSE     = 0x2a,
-	PIXMAN_OP_CONJOINT_XOR              = 0x2b,
+	PIXMAN_OP_CONJOINT_XOR      = 0x2b,
 
-	PIXMAN_OP_MULTIPLY                  = 0x30,
-	PIXMAN_OP_SCREEN                    = 0x31,
-	PIXMAN_OP_OVERLAY                   = 0x32,
-	PIXMAN_OP_DARKEN                    = 0x33,
-	PIXMAN_OP_LIGHTEN                   = 0x34,
-	PIXMAN_OP_COLOR_DODGE               = 0x35,
-	PIXMAN_OP_COLOR_BURN                = 0x36,
-	PIXMAN_OP_HARD_LIGHT                = 0x37,
-	PIXMAN_OP_SOFT_LIGHT                = 0x38,
-	PIXMAN_OP_DIFFERENCE                = 0x39,
-	PIXMAN_OP_EXCLUSION                 = 0x3a,
-	PIXMAN_OP_HSL_HUE                   = 0x3b,
-	PIXMAN_OP_HSL_SATURATION            = 0x3c,
-	PIXMAN_OP_HSL_COLOR                 = 0x3d,
-	PIXMAN_OP_HSL_LUMINOSITY            = 0x3e
+	PIXMAN_OP_MULTIPLY          = 0x30,
+	PIXMAN_OP_SCREEN            = 0x31,
+	PIXMAN_OP_OVERLAY           = 0x32,
+	PIXMAN_OP_DARKEN            = 0x33,
+	PIXMAN_OP_LIGHTEN           = 0x34,
+	PIXMAN_OP_COLOR_DODGE       = 0x35,
+	PIXMAN_OP_COLOR_BURN        = 0x36,
+	PIXMAN_OP_HARD_LIGHT        = 0x37,
+	PIXMAN_OP_SOFT_LIGHT        = 0x38,
+	PIXMAN_OP_DIFFERENCE        = 0x39,
+	PIXMAN_OP_EXCLUSION         = 0x3a,
+	PIXMAN_OP_HSL_HUE           = 0x3b,
+	PIXMAN_OP_HSL_SATURATION    = 0x3c,
+	PIXMAN_OP_HSL_COLOR         = 0x3d,
+	PIXMAN_OP_HSL_LUMINOSITY    = 0x3e
 
 #ifdef PIXMAN_USE_INTERNAL_API
 	,
@@ -336,7 +336,7 @@ typedef struct pixman_region16 pixman_region16_t;
 struct pixman_region16_data {
 	long size;
 	long numRects;
-/*  pixman_box16_t	rects[size];   in memory but not explicitly declared */
+/* pixman_box16_t	rects[size];   in memory but not explicitly declared */
 };
 
 struct pixman_rectangle16 {
@@ -407,7 +407,7 @@ typedef struct pixman_region32 pixman_region32_t;
 struct pixman_region32_data {
 	long size;
 	long numRects;
-/*  pixman_box32_t	rects[size];   in memory but not explicitly declared */
+/* pixman_box32_t	rects[size];   in memory but not explicitly declared */
 };
 
 struct pixman_rectangle32 {
@@ -439,21 +439,21 @@ void    pixman_region32_fini(pixman_region32_t * region);
 
 /* manipulation */
 void     pixman_region32_translate(pixman_region32_t * region, int x, int y);
-boolint  pixman_region32_copy(pixman_region32_t * dest, const pixman_region32_t * source);
-boolint  pixman_region32_intersect(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_region32_t * reg2);
-boolint  pixman_region32_union(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_region32_t * reg2);
-boolint  pixman_region32_intersect_rect(pixman_region32_t * dest, pixman_region32_t * source, int x, int y, uint width, uint height);
-boolint  pixman_region32_union_rect(pixman_region32_t * dest, pixman_region32_t * source, int x, int y, uint width, uint height);
-boolint  pixman_region32_subtract(pixman_region32_t * reg_d, pixman_region32_t * reg_m, pixman_region32_t * reg_s);
-boolint  pixman_region32_inverse(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_box32_t * inv_rect);
-boolint  pixman_region32_contains_point(const pixman_region32_t * region, int x, int y, pixman_box32_t * box);
+boolint pixman_region32_copy(pixman_region32_t * dest, const pixman_region32_t * source);
+boolint pixman_region32_intersect(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_region32_t * reg2);
+boolint pixman_region32_union(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_region32_t * reg2);
+boolint pixman_region32_intersect_rect(pixman_region32_t * dest, pixman_region32_t * source, int x, int y, uint width, uint height);
+boolint pixman_region32_union_rect(pixman_region32_t * dest, pixman_region32_t * source, int x, int y, uint width, uint height);
+boolint pixman_region32_subtract(pixman_region32_t * reg_d, pixman_region32_t * reg_m, pixman_region32_t * reg_s);
+boolint pixman_region32_inverse(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_box32_t * inv_rect);
+boolint pixman_region32_contains_point(const pixman_region32_t * region, int x, int y, pixman_box32_t * box);
 pixman_region_overlap_t pixman_region32_contains_rectangle(const pixman_region32_t * region, pixman_box32_t * prect);
-boolint  pixman_region32_not_empty(const pixman_region32_t * region);
+boolint pixman_region32_not_empty(const pixman_region32_t * region);
 pixman_box32_t * pixman_region32_extents(pixman_region32_t * region);
 int      pixman_region32_n_rects(pixman_region32_t * region);
 pixman_box32_t * pixman_region32_rectangles(pixman_region32_t * region, int * n_rects);
-boolint  pixman_region32_equal(pixman_region32_t * region1, pixman_region32_t * region2);
-boolint  pixman_region32_selfcheck(pixman_region32_t * region);
+boolint pixman_region32_equal(pixman_region32_t * region1, pixman_region32_t * region2);
+boolint pixman_region32_selfcheck(pixman_region32_t * region);
 void     pixman_region32_reset(pixman_region32_t * region, pixman_box32_t * box);
 void     pixman_region32_clear(pixman_region32_t * region);
 
@@ -631,21 +631,21 @@ pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format, 
 
 /* Destructor */
 pixman_image_t * FASTCALL pixman_image_ref(pixman_image_t * image);
-boolint   FASTCALL pixman_image_unref(pixman_image_t * image);
+boolint FASTCALL pixman_image_unref(pixman_image_t * image);
 void            pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t function, void * data);
 void *     pixman_image_get_destroy_data(pixman_image_t * image);
 
 /* Set properties */
-boolint   pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region);
-boolint   pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region);
+boolint pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region);
+boolint pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region);
 void            pixman_image_set_has_client_clip(pixman_image_t * image, boolint clien_clip);
-boolint   pixman_image_set_transform(pixman_image_t * image, const pixman_transform_t * transform);
+boolint pixman_image_set_transform(pixman_image_t * image, const pixman_transform_t * transform);
 void            pixman_image_set_repeat(pixman_image_t * image, pixman_repeat_t repeat);
-boolint   pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * filter_params, int n_filter_params);
+boolint pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * filter_params, int n_filter_params);
 void            pixman_image_set_source_clipping(pixman_image_t * image, boolint source_clipping);
 void            pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16 x, int16 y);
 void            pixman_image_set_component_alpha(pixman_image_t * image, boolint component_alpha);
-boolint   pixman_image_get_component_alpha(const pixman_image_t * image);
+boolint pixman_image_get_component_alpha(const pixman_image_t * image);
 void            pixman_image_set_accessors(pixman_image_t * image, pixman_read_memory_func_t read_func, pixman_write_memory_func_t write_func);
 void            pixman_image_set_indexed(pixman_image_t * image, const pixman_indexed_t * indexed);
 uint32 * pixman_image_get_data(pixman_image_t * image);
@@ -679,8 +679,8 @@ pixman_fixed_t * pixman_filter_create_separable_convolution(int * n_values,
     int subsample_bits_x,
     int subsample_bits_y);
 
-boolint   pixman_image_fill_rectangles(pixman_op_t op, pixman_image_t * image, const pixman_color_t * color, int n_rects, const pixman_rectangle16_t * rects);
-boolint   pixman_image_fill_boxes(pixman_op_t op, pixman_image_t * dest, const pixman_color_t * color, int n_boxes, const pixman_box32_t * boxes);
+boolint pixman_image_fill_rectangles(pixman_op_t op, pixman_image_t * image, const pixman_color_t * color, int n_rects, const pixman_rectangle16_t * rects);
+boolint pixman_image_fill_boxes(pixman_op_t op, pixman_image_t * dest, const pixman_color_t * color, int n_boxes, const pixman_box32_t * boxes);
 
 /* Composite */
 boolint pixman_compute_composite_region(pixman_region16_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,

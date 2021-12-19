@@ -2,8 +2,7 @@
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
  *******************************************************************************
- * Copyright (C) 2010-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
+ * Copyright (C) 2010-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *******************************************************************************
  * collation.h
  *
@@ -29,8 +28,8 @@ U_NAMESPACE_BEGIN
 class U_I18N_API Collation {
 public:
 	// Special sort key bytes for all levels.
-	static const uint8_t TERMINATOR_BYTE = 0;
-	static const uint8_t LEVEL_SEPARATOR_BYTE = 1;
+	static const uint8 TERMINATOR_BYTE = 0;
+	static const uint8 LEVEL_SEPARATOR_BYTE = 1;
 
 	/** The secondary/tertiary lower limit for tailoring before any root elements. */
 	static const uint32_t BEFORE_WEIGHT16 = 0x0100;
@@ -41,7 +40,7 @@ public:
 	 * Must not be used as primary compression low terminator.
 	 * Otherwise usable.
 	 */
-	static const uint8_t MERGE_SEPARATOR_BYTE = 2;
+	static const uint8 MERGE_SEPARATOR_BYTE = 2;
 	static const uint32_t MERGE_SEPARATOR_PRIMARY = 0x02000000; // U+FFFE
 	static const uint32_t MERGE_SEPARATOR_CE32 = 0x02000505; // U+FFFE
 
@@ -50,16 +49,16 @@ public:
 	 * Reserved value in primary second byte if the lead byte is compressible.
 	 * Otherwise usable in all CE weight bytes.
 	 */
-	static const uint8_t PRIMARY_COMPRESSION_LOW_BYTE = 3;
+	static const uint8 PRIMARY_COMPRESSION_LOW_BYTE = 3;
 	/**
 	 * Primary compression high terminator.
 	 * Reserved value in primary second byte if the lead byte is compressible.
 	 * Otherwise usable in all CE weight bytes.
 	 */
-	static const uint8_t PRIMARY_COMPRESSION_HIGH_BYTE = 0xff;
+	static const uint8 PRIMARY_COMPRESSION_HIGH_BYTE = 0xff;
 
 	/** Default secondary/tertiary weight lead byte. */
-	static const uint8_t COMMON_BYTE = 5;
+	static const uint8 COMMON_BYTE = 5;
 	static const uint32_t COMMON_WEIGHT16 = 0x0500;
 	/** Middle 16 bits of a CE with a common secondary weight. */
 	static const uint32_t COMMON_SECONDARY_CE = 0x05000000;
@@ -80,7 +79,7 @@ public:
 	static const uint32_t QUATERNARY_MASK = 0xc0;
 	/** Case bits and quaternary bits. */
 	static const uint32_t CASE_AND_QUATERNARY_MASK = CASE_MASK | QUATERNARY_MASK;
-	static const uint8_t UNASSIGNED_IMPLICIT_BYTE = 0xfe; // compressible
+	static const uint8 UNASSIGNED_IMPLICIT_BYTE = 0xfe; // compressible
 	/**
 	 * First unassigned: AlphabeticIndex overflow boundary.
 	 * We want a 3-byte primary so that it fits into the root elements table.
@@ -90,7 +89,7 @@ public:
 	 * the first few hundred Unicode code points all have real mappings.
 	 */
 	static const uint32_t FIRST_UNASSIGNED_PRIMARY = 0xfe040200;
-	static const uint8_t TRAIL_WEIGHT_BYTE = 0xff; // not compressible
+	static const uint8 TRAIL_WEIGHT_BYTE = 0xff; // not compressible
 	static const uint32_t FIRST_TRAILING_PRIMARY = 0xff020200; // [first trailing]
 	static const uint32_t MAX_PRIMARY = 0xffff0000; // U+FFFF
 	static const uint32_t MAX_REGULAR_CE32 = 0xffff0505; // U+FFFF
@@ -103,12 +102,12 @@ public:
 	 * Impossible case bits 11 mark special CE32s.
 	 * This value itself is used to indicate a fallback to the base collator.
 	 */
-	static const uint8_t SPECIAL_CE32_LOW_BYTE = 0xc0;
+	static const uint8 SPECIAL_CE32_LOW_BYTE = 0xc0;
 	static const uint32_t FALLBACK_CE32 = SPECIAL_CE32_LOW_BYTE;
 	/**
 	 * Low byte of a long-primary special CE32.
 	 */
-	static const uint8_t LONG_PRIMARY_CE32_LOW_BYTE = 0xc1; // SPECIAL_CE32_LOW_BYTE | LONG_PRIMARY_TAG
+	static const uint8 LONG_PRIMARY_CE32_LOW_BYTE = 0xc1; // SPECIAL_CE32_LOW_BYTE | LONG_PRIMARY_TAG
 	static const uint32_t UNASSIGNED_CE32 = 0xffffffff; // Compute an unassigned-implicit CE.
 	static const uint32_t NO_CE32 = 1;
 	/** No CE: End of input. Only used in runtime code, not stored in data. */

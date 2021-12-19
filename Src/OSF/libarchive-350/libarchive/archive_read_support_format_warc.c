@@ -134,7 +134,6 @@ int archive_read_support_format_warc(struct archive * _a)
 static int _warc_cleanup(struct archive_read * a)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
-
 	if(w->pool.len > 0U) {
 		SAlloc::F(w->pool.str);
 	}
@@ -149,7 +148,7 @@ static int _warc_bid(struct archive_read * a, int best_bid)
 	const char * hdr;
 	ssize_t nrd;
 	unsigned int ver;
-	(void)best_bid; /* UNUSED */
+	CXX_UNUSED(best_bid);
 	/* check first line of file, it should be a record already */
 	if((hdr = static_cast<const char *>(__archive_read_ahead(a, 12U, &nrd))) == NULL) {
 		/* no idea what to do */
@@ -165,7 +164,6 @@ static int _warc_bid(struct archive_read * a, int best_bid)
 		/* we only support WARC 0.12 to 1.0 */
 		return -1;
 	}
-
 	/* otherwise be confident */
 	return (64);
 }

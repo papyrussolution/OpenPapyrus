@@ -191,11 +191,11 @@ TERM_PUBLIC void wxt_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    break;
 			case WXT_ENHANCED:
 			    wxt_enhanced_enabled = TRUE;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case WXT_NOENHANCED:
 			    wxt_enhanced_enabled = FALSE;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    break;
 			case WXT_SIZE:
 		    {

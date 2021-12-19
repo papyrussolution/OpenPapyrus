@@ -930,12 +930,12 @@ int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchM
 		if(P_SaList) {
 			if(srchMode & lbSrchByID) {
 				//r = P_SaList->Search(*(long *)pPattern, &pos);
-				r = LL.lsearch(*(long *)pPattern, &pos);
+				r = LL.lsearch(*static_cast<const long *>(pPattern), &pos);
 			}
 			else {
-				pos = (dir == srchNext) ? (uint)_curItem() + 1 : 0U;
+				pos = (dir == srchNext) ? (static_cast<uint>(_curItem()) + 1) : 0U;
 				SETIFZ(fcmp, substFCMP);
-				r = P_SaList->SearchByText((const char *)pPattern, fcmp, &pos);
+				r = P_SaList->SearchByText(static_cast<const char *>(pPattern), fcmp, &pos);
 			}
 		}
 		if(r)

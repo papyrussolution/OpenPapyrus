@@ -93,7 +93,7 @@ int blake2s_init(blake2s_state * S, size_t outlen)
 	P->digest_length = (uint8)outlen;
 	P->key_length    = 0;
 	P->fanout        = 1;
-	P->depth         = 1;
+	P->depth = 1;
 	store32(&P->leaf_length, 0);
 	store32(&P->node_offset, 0);
 	store16(&P->xof_length, 0);
@@ -116,7 +116,7 @@ int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t 
 	P->digest_length = (uint8)outlen;
 	P->key_length    = (uint8)keylen;
 	P->fanout        = 1;
-	P->depth         = 1;
+	P->depth = 1;
 	store32(&P->leaf_length, 0);
 	store32(&P->node_offset, 0);
 	store16(&P->xof_length, 0);

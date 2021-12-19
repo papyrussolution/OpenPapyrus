@@ -46,7 +46,7 @@
 #define TERM_BODY
 #define TERM_PUBLIC static
 #define TERM_TABLE
-#define TERM_TABLE_START(x) GpTermEntry x {
+#define TERM_TABLE_START(x) GpTermEntry_Static x {
 #define TERM_TABLE_END(x)   };
 // } @experimental
 
@@ -118,17 +118,17 @@ static void make_color_model_code();
 static void write_component_array(const char * text, gradient_struct * grad, int cnt, int offset);
 static void write_gradient_definition(gradient_struct * gradient, int cnt);
 static void write_color_space(t_sm_palette * palette);
-static void make_palette_formulae(GpTermEntry * pThis);
-static void PS_make_header(GpTermEntry * pThis, t_sm_palette * palette);
-static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx, int dy);
+static void make_palette_formulae(GpTermEntry_Static * pThis);
+static void PS_make_header(GpTermEntry_Static * pThis, t_sm_palette * palette);
+static void PS_skip_image(GpTermEntry_Static * pThis, int bytes, int x0, int y0, int dx, int dy);
 #ifndef GNUPLOT_PS_DIR
-	static void PS_dump_header_to_file(GpTermEntry * pThis, char * name);
+	static void PS_dump_header_to_file(GpTermEntry_Static * pThis, char * name);
 #endif
 
-static void delete_ps_fontfile(GpTermEntry * pThis, ps_fontfile_def *, ps_fontfile_def *);
-TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def *, bool);
-TERM_PUBLIC void PS_load_fontfiles(GpTermEntry * pThis, bool);
-static char * fontpath_fullname(GpTermEntry * pThis, const char * name, const char * dir);
+static void delete_ps_fontfile(GpTermEntry_Static * pThis, ps_fontfile_def *, ps_fontfile_def *);
+TERM_PUBLIC void PS_load_fontfile(GpTermEntry_Static * pThis, ps_fontfile_def *, bool);
+TERM_PUBLIC void PS_load_fontfiles(GpTermEntry_Static * pThis, bool);
+static char * fontpath_fullname(GpTermEntry_Static * pThis, const char * name, const char * dir);
 
 static GpSizeUnits ps_explicit_units = INCHES;
 static int    eps_explicit_x = 0;
@@ -145,7 +145,7 @@ static bool   PS_relative_ok;
 
 #define DOTS_PER_INCH (300)    /* resolution of printer we expect to use */
 
-static void FASTCALL PsFlashPath(GpTermEntry * pThis)
+static void FASTCALL PsFlashPath(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(p_gp->TPsB.PathCount) {
@@ -157,8 +157,8 @@ static void FASTCALL PsFlashPath(GpTermEntry * pThis)
 
 //static char * pslatex_auxname = NULL; // name of auxiliary file 
 // Routine to copy pre-existing prolog files into output stream 
-static void PS_dump_prologue_file(GpTermEntry * pThis, char *);
-static void PS_load_glyphlist(GpTermEntry * pThis);
+static void PS_dump_prologue_file(GpTermEntry_Static * pThis, char *);
+static void PS_load_glyphlist(GpTermEntry_Static * pThis);
 
 static const char * OldEPSL_linetypes[] = {
 /* Line Types */
@@ -289,7 +289,7 @@ static char PS_default_font[2*MAX_ID_LEN] = {'H', 'e', 'l', 'v', 'e', 't', 'i', 
  * if so, return NULL. If not, reencode it if allowed to, otherwise
  * return an appropriate re-encode string
  */
-static void PS_RememberFont(GpTermEntry * pThis, char * fname)
+static void PS_RememberFont(GpTermEntry_Static * pThis, char * fname)
 {
 	struct PS_FontName * fnp;
 	char * recode = NULL;
@@ -434,7 +434,7 @@ static struct gen_table PS_opts[] =
 //#define PS_SCF (PS_SC * GPO.TPsB.P_Params->fontscale) // EAM March 2010 allow user to rescale fonts 
 static float _ps_scf(const GnuPlot * pGp) { return (PS_SC * pGp->TPsB.P_Params->fontscale); }
 
-void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
+void PS_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	char * s;
 	char * ps_fontfile_char = NULL;
@@ -501,11 +501,11 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) {
 		pThis->put_text = ENHPS_put_text;
 		pThis->set_font = ENHPS_set_font;
-		pThis->flags |= TERM_ENHANCED_TEXT;
+		pThis->SetFlag(TERM_ENHANCED_TEXT);
 	}
 	else {
 		pThis->set_font = PS_set_font;
-		pThis->flags &= ~TERM_ENHANCED_TEXT;
+		pThis->ResetFlag(TERM_ENHANCED_TEXT);
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
 		switch(pGp->Pgm.LookupTableForCurrentToken(&PS_opts[0])) {
@@ -565,7 +565,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    set_enhanced = TRUE;
 			    pThis->put_text = ENHPS_put_text;
 			    pThis->set_font = ENHPS_set_font;
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    pGp->Pgm.Shift();
 			    break;
 			case PS_NOENHANCED:
@@ -574,7 +574,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    set_enhanced = TRUE;
 			    pThis->put_text = PS_put_text;
 			    pThis->set_font = PS_set_font;
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    pGp->Pgm.Shift();
 			    break;
 #ifdef PSLATEX_DRIVER
@@ -662,7 +662,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    goto PS_options_error;
 			    set_color = TRUE;
 			    pGp->TPsB.P_Params->color = FALSE;
-			    pThis->flags |= TERM_MONOCHROME;
+			    pThis->SetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case PS_COLOR:
@@ -670,7 +670,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    goto PS_options_error;
 			    set_color = TRUE;
 			    pGp->TPsB.P_Params->color = TRUE;
-			    pThis->flags &= ~TERM_MONOCHROME;
+			    pThis->ResetFlag(TERM_MONOCHROME);
 			    pGp->Pgm.Shift();
 			    break;
 			case PS_BLACKTEXT:
@@ -918,8 +918,7 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    ps_explicit_size = TRUE;
 			    ps_explicit_units = pGp->ParseTermSize(&xmax_t, &ymax_t, INCHES);
 			    // PostScript *always* works in pts, not locally defined dpi 
-			    pThis->MaxX = static_cast<uint>(xmax_t * PS_SC * 72.0/GpResolution);
-			    pThis->MaxY = static_cast<uint>(ymax_t * PS_SC * 72.0/GpResolution);
+			    pThis->SetMax(static_cast<uint>(xmax_t * PS_SC * 72.0/GpResolution), static_cast<uint>(ymax_t * PS_SC * 72.0/GpResolution));
 			    eps_explicit_x = 2 * pThis->MaxX;
 			    eps_explicit_y = 2 * pThis->MaxY;
 			    break;
@@ -987,11 +986,11 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 			    pGp->TPsB.FontSize = 20; /* default: 10pt */
 		    break;
 	}
-	pThis->ChrV = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp));
+	pThis->CV() = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp));
 	if(pGp->TPsB.P_Params->oldstyle)
-		pThis->ChrH = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp) * 5/10);
+		pThis->CH() = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp) * 5/10);
 	else
-		pThis->ChrH = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp) * 6/10);
+		pThis->CH() = (uint)(pGp->TPsB.FontSize * _ps_scf(pGp) * 6/10);
 	snprintf(PS_default_font, sizeof(PS_default_font)-1, "%s, %.2g", pGp->TPsB.P_Params->font, pGp->TPsB.FontSize);
 	if(pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) {
 		if(pGp->TPsB.P_Params->first_fontfile) {
@@ -1041,27 +1040,19 @@ void PS_options(GpTermEntry * pThis, GnuPlot * pGp)
 	else {
 		GPT._TermOptions.Cat("   nobackground \\\n");
 	}
-
-	sprintf(tmp_term_options, "   palfuncparam %d,%g \\\n   ",
-	    pGp->TPsB.P_Params->palfunc_samples, pGp->TPsB.P_Params->palfunc_deviation);
+	sprintf(tmp_term_options, "   palfuncparam %d,%g \\\n   ", pGp->TPsB.P_Params->palfunc_samples, pGp->TPsB.P_Params->palfunc_deviation);
 	GPT._TermOptions.Cat(tmp_term_options);
-
 #ifdef PSLATEX_DRIVER
 	if((pGp->TPsB.P_Params->terminal == PSTERM_PSTEX) ||
 	    (pGp->TPsB.P_Params->terminal == PSTERM_PSLATEX)) {
-		sprintf(tmp_term_options, "%s %s ",
-		    pGp->TPsB.P_Params->rotate ? "rotate" : "norotate",
-		    pGp->TPsB.P_Params->useauxfile ? "auxfile" : "noauxfile");
+		sprintf(tmp_term_options, "%s %s ", pGp->TPsB.P_Params->rotate ? "rotate" : "norotate", pGp->TPsB.P_Params->useauxfile ? "auxfile" : "noauxfile");
 		GPT._TermOptions.Cat(tmp_term_options);
 	}
-
 	if(pGp->TPsB.P_Params->terminal == PSTERM_EPSLATEX) {
-		sprintf(tmp_term_options, "%s ",
-		    pGp->TPsB.P_Params->epslatex_standalone ? "standalone" : "input");
+		sprintf(tmp_term_options, "%s ", pGp->TPsB.P_Params->epslatex_standalone ? "standalone" : "input");
 		GPT._TermOptions.Cat(tmp_term_options);
 	}
 #endif
-
 	if((GPT._Encoding == S_ENC_UTF8) && (pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT)) {
 		sprintf(tmp_term_options, " %sadobeglyphnames \\\n   ", pGp->TPsB.P_Params->adobeglyphnames ? "" : "no");
 		GPT._TermOptions.Cat(tmp_term_options);
@@ -1114,14 +1105,14 @@ typedef struct ps_glyph {
 	char * glyphname;
 } ps_glyph;
 
-static ps_glyph * aglist = NULL;
-static int aglist_alloc = 0;
-static int aglist_size = 0;
-static int psglyphs = 0;
+static ps_glyph * aglist = NULL; // @global
+static int aglist_alloc = 0; // @global
+static int aglist_size = 0; // @global
+static int psglyphs = 0; // @global
 
 #endif
 
-TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current_ps_fontfile, bool doload)
+TERM_PUBLIC void PS_load_fontfile(GpTermEntry_Static * pThis, ps_fontfile_def * current_ps_fontfile, bool doload)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(current_ps_fontfile) {
@@ -1290,7 +1281,7 @@ TERM_PUBLIC void PS_load_fontfile(GpTermEntry * pThis, ps_fontfile_def * current
 	}
 }
 
-TERM_PUBLIC void PS_load_fontfiles(GpTermEntry * pThis, bool doload)
+TERM_PUBLIC void PS_load_fontfiles(GpTermEntry_Static * pThis, bool doload)
 {
 	ps_fontfile_def * current_ps_fontfile = pThis->P_Gp->TPsB.P_Params->first_fontfile;
 	while(current_ps_fontfile) {
@@ -1301,7 +1292,7 @@ TERM_PUBLIC void PS_load_fontfiles(GpTermEntry * pThis, bool doload)
 	}
 }
 
-TERM_PUBLIC void PS_common_init(GpTermEntry * pThis, bool uses_fonts/* FALSE for (e)ps(la)tex */, uint xoff, uint yoff/* how much to translate by */,
+TERM_PUBLIC void PS_common_init(GpTermEntry_Static * pThis, bool uses_fonts/* FALSE for (e)ps(la)tex */, uint xoff, uint yoff/* how much to translate by */,
     uint bb_xmin, uint bb_ymin, uint bb_xmax, uint bb_ymax/* bounding box */, const char ** dict/* extra entries for the dictionary */)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
@@ -1418,7 +1409,7 @@ end\n\
 	    p_gp->TPsB.P_Params->background.r,
 	    p_gp->TPsB.P_Params->background.g,
 	    p_gp->TPsB.P_Params->background.b, /* background color, used only if all components >= 0 */
-	    (int)(pThis->ChrV)/(-3),      /* shift for vertical centring */
+	    (int)(pThis->CV())/(-3),      /* shift for vertical centring */
 	    PS_SC*1.0,  /* dash length */
 	    PS_SC*1.0,  /* dash length */
 	    PS_HTIC/2.0,                /* half point width */
@@ -1510,19 +1501,17 @@ end\n\
 //
 // the init fn for the postscript driver 
 //
-void PS_init(GpTermEntry * pThis)
+void PS_init(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	uint xmin_t = 0, ymin_t = 0, xmax_t = 0, ymax_t = 0;
 	switch(p_gp->TPsB.P_Params->psformat) {
 		case PSTERM_EPS:
 		    if(ps_explicit_size) {
-			    pThis->MaxX = eps_explicit_x;
-			    pThis->MaxY = eps_explicit_y;
+			    pThis->SetMax(eps_explicit_x, eps_explicit_y);
 		    }
 		    else {
-			    pThis->MaxX = PS_XMAX;
-			    pThis->MaxY = p_gp->TPsB.P_Params->oldstyle ? PS_YMAX_OLDSTYLE : PS_YMAX;
+			    pThis->SetMax(PS_XMAX, p_gp->TPsB.P_Params->oldstyle ? PS_YMAX_OLDSTYLE : PS_YMAX);
 		    }
 		    xmin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.x / (2*PS_SC));
 		    xmax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x + p_gp->V.Offset.x) / (2*PS_SC));
@@ -1532,8 +1521,7 @@ void PS_init(GpTermEntry * pThis)
 		    break;
 		case PSTERM_PORTRAIT:
 		    if(!ps_explicit_size) {
-			    pThis->MaxX = PS_YMAX;
-			    pThis->MaxY = PS_XMAX;
+			    pThis->SetMax(PS_YMAX, PS_XMAX);
 		    }
 		    xmin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.x / PS_SC);
 		    xmax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x + p_gp->V.Offset.x) / PS_SC);
@@ -1543,8 +1531,7 @@ void PS_init(GpTermEntry * pThis)
 		    break;
 		case PSTERM_LANDSCAPE:
 		    if(!ps_explicit_size) {
-			    pThis->MaxX = PS_XMAX;
-			    pThis->MaxY = PS_YMAX;
+			    pThis->SetMax(PS_XMAX, PS_YMAX);
 		    }
 		    ymin_t = static_cast<uint>(pThis->MaxX * p_gp->V.Offset.x / PS_SC);
 		    ymax_t = static_cast<uint>(pThis->MaxX * (p_gp->V.Size.x+p_gp->V.Offset.x) / PS_SC);
@@ -1578,7 +1565,7 @@ void PS_init(GpTermEntry * pThis)
 	p_gp->TPsB.EnsPsInitialized = (pThis->put_text == ENHPS_put_text) ? 2 : 1;
 }
 
-void PS_graphics(GpTermEntry * pThis)
+void PS_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	//struct GpTermEntry * t = term;
@@ -1607,7 +1594,7 @@ doclip\n\
 	fprintf(GPT.P_GpPsFile, "0 setgray\nnewpath\n");
 	if(ps_common_uses_fonts)
 		fprintf(GPT.P_GpPsFile, "(%s) findfont %d scalefont setfont\n",
-		    p_gp->TPsB.P_Params->font, pThis->ChrV);
+		    p_gp->TPsB.P_Params->font, pThis->CV());
 	p_gp->TPsB.PathCount = 0;
 	PS_relative_ok = FALSE;
 	PS_pen_x = PS_pen_y = -4000;
@@ -1631,7 +1618,7 @@ doclip\n\
 	}
 }
 
-void PS_text(GpTermEntry * pThis)
+void PS_text(GpTermEntry_Static * pThis)
 {
 	pThis->P_Gp->TPsB.PathCount = 0;
 	fputs("stroke\ngrestore\nend\nshowpage\n", GPT.P_GpPsFile);
@@ -1641,7 +1628,7 @@ void PS_text(GpTermEntry * pThis)
 	 * absolute one */
 }
 
-void PS_reset(GpTermEntry * pThis)
+void PS_reset(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	fputs("%%Trailer\n", GPT.P_GpPsFile);
@@ -1660,7 +1647,7 @@ void PS_reset(GpTermEntry * pThis)
 		fprintf(GPT.P_GpPsFile, "%%%%Pages: %d\n", p_gp->TPsB.Page);
 }
 
-void PS_linetype(GpTermEntry * pThis, int linetype)
+void PS_linetype(GpTermEntry_Static * pThis, int linetype)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(linetype == LT_NODRAW)
@@ -1684,7 +1671,7 @@ void PS_linetype(GpTermEntry * pThis, int linetype)
 	p_gp->TPsB.PathCount = 0;
 }
 
-void PS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
+void PS_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype * custom_dash_type)
 {
 	int i;
 	double empirical_scale = 0.50;
@@ -1717,7 +1704,7 @@ void PS_dashtype(GpTermEntry * pThis, int type, t_dashtype * custom_dash_type)
 	}
 }
 
-void PS_linewidth(GpTermEntry * pThis, double linewidth)
+void PS_linewidth(GpTermEntry_Static * pThis, double linewidth)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// HBB NEW 20031219: don't do anything if nothing changed 
@@ -1750,7 +1737,7 @@ void PS_linewidth(GpTermEntry * pThis, double linewidth)
 	 */
 }
 
-void PS_pointsize(GpTermEntry * pThis, double ptsize)
+void PS_pointsize(GpTermEntry_Static * pThis, double ptsize)
 {
 	ptsize *= pThis->P_Gp->TPsB.P_Params->pointscale_factor;
 	fprintf(GPT.P_GpPsFile, "%.3f UP\n", ptsize);
@@ -1778,7 +1765,7 @@ void PS_pointsize(GpTermEntry * pThis, double ptsize)
 	 */
 }
 
-void PS_move(GpTermEntry * pThis, uint x, uint y)
+void PS_move(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// Make this semi-dynamic and independent of architecture 
@@ -1806,7 +1793,7 @@ void PS_move(GpTermEntry * pThis, uint x, uint y)
 	PS_pen_y = y;
 }
 
-void PS_vector(GpTermEntry * pThis, uint x, uint y)
+void PS_vector(GpTermEntry_Static * pThis, uint x, uint y)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char abso[5+2*INT_STR_LEN], rel[5+2*INT_STR_LEN];
@@ -1850,7 +1837,7 @@ void PS_vector(GpTermEntry * pThis, uint x, uint y)
 	PS_pen_y = y;
 }
 
-TERM_PUBLIC void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void PS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 #define PS_NONE 0
@@ -1997,19 +1984,19 @@ TERM_PUBLIC void PS_put_text(GpTermEntry * pThis, uint x, uint y, const char * s
 #undef PS_GLYPH
 }
 
-int PS_text_angle(GpTermEntry * pThis, int ang)
+int PS_text_angle(GpTermEntry_Static * pThis, int ang)
 {
 	pThis->P_Gp->TPsB.Ang = ang;
 	return TRUE;
 }
 
-int PS_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+int PS_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 	pThis->P_Gp->TPsB.Justify = mode;
 	return TRUE;
 }
 
-static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller(GpTermEntry * pThis, const char * font) )
+static int PS_common_set_font(GpTermEntry_Static * pThis, const char * font, int caller(GpTermEntry_Static * pThis, const char * font) )
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * name;
@@ -2066,19 +2053,18 @@ static int PS_common_set_font(GpTermEntry * pThis, const char * font, int caller
 		}
 	}
 	SAlloc::F(name);
-	pThis->ChrV = (uint)(size * _ps_scf(p_gp));
-	pThis->ChrH = (uint)(size * _ps_scf(p_gp) * 6/10);
+	pThis->SetCharSize((uint)(size * _ps_scf(p_gp) * 6/10), (uint)(size * _ps_scf(p_gp)));
 	return TRUE;
 }
 
-int PS_set_font(GpTermEntry * pThis, const char * font)
+int PS_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	return PS_common_set_font(pThis, font, PS_set_font);
 }
 //
 // postscript point routines 
 //
-void PS_point(GpTermEntry * pThis, uint x, uint y, int number)
+void PS_point(GpTermEntry_Static * pThis, uint x, uint y, int number)
 {
 	static const char * pointFNS[] = {
 		"Pnt",  "Pls",   "Crs",    "Star",
@@ -2126,7 +2112,7 @@ void PS_point(GpTermEntry * pThis, uint x, uint y, int number)
 	PS_linetype_last = LT_UNDEFINED; /* force next linetype change */
 }
 
-void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, uint height)
+void PS_fillbox(GpTermEntry_Static * pThis, int style, uint x1, uint y1, uint width, uint height)
 {
 	double filldens;
 	int pattern;
@@ -2178,7 +2164,7 @@ void PS_fillbox(GpTermEntry * pThis, int style, uint x1, uint y1, uint width, ui
 /*
  * close a postscript string if it has been opened
  */
-TERM_PUBLIC void ENHPS_FLUSH(GpTermEntry * pThis)
+TERM_PUBLIC void ENHPS_FLUSH(GpTermEntry_Static * pThis)
 {
 	if(ENHps_opened_string) {
 		fputs(")]\n", GPT.P_GpPsFile);
@@ -2190,7 +2176,7 @@ static char * ENHps_opensequence = NULL;
 //
 // open a postscript string
 //
-TERM_PUBLIC void ENHPS_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHPS_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// overprint 3 means save current position; 4 means restore saved position
@@ -2223,7 +2209,7 @@ TERM_PUBLIC void ENHPS_OPEN(GpTermEntry * pThis, char * fontname, double fontsiz
  * Write one character from inside enhanced text processing.
  * This is trivial except in the case of multi-byte encoding.
  */
-TERM_PUBLIC void ENHPS_WRITEC(GpTermEntry * pThis, int c)
+TERM_PUBLIC void ENHPS_WRITEC(GpTermEntry_Static * pThis, int c)
 {
 	static int in_utf8 = 0; /* nonzero means we are inside a multibyte sequence */
 	static char utf8[6]; /* holds the multibyte sequence being accumulated   */
@@ -2299,12 +2285,12 @@ TERM_PUBLIC void ENHPS_WRITEC(GpTermEntry * pThis, int c)
 // use in the recursive text processing rather than being written
 // to the output stream immediately.
 // 
-TERM_PUBLIC int ENHPS_set_font(GpTermEntry * pThis, const char * font)
+TERM_PUBLIC int ENHPS_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	return PS_common_set_font(pThis, font, ENHPS_set_font);
 }
 
-TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void ENHPS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(p_gp->Enht.Ignore) {
@@ -2394,7 +2380,7 @@ TERM_PUBLIC void ENHPS_put_text(GpTermEntry * pThis, uint x, uint y, const char 
 	PS_set_font(pThis, "");
 }
 
-static void make_palette_formulae(GpTermEntry * pThis)
+static void make_palette_formulae(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 #define R p_gp->SmPltt.formulaR
@@ -2421,7 +2407,7 @@ static void make_palette_formulae(GpTermEntry * pThis)
 #undef B
 }
 
-TERM_PUBLIC void ENHPS_boxed_text(GpTermEntry * pThis, uint x, uint y, int option)
+TERM_PUBLIC void ENHPS_boxed_text(GpTermEntry_Static * pThis, uint x, uint y, int option)
 {
 	switch(option) {
 		case TEXTBOX_INIT:
@@ -2548,7 +2534,7 @@ static void write_color_space(t_sm_palette * palette)
 
 static void write_component_array(const char * text, gradient_struct * grad, int cnt, int offset)
 {
-	/*  write something like
+	/* write something like
 	 *     /RedA [ 0 .1 .2 .3 .35 .3 .2 .1 0 0 0 ] def
 	 *  nicely formatted to GPT.P_GpPsFile
 	 */
@@ -2584,7 +2570,7 @@ static void write_gradient_definition(gradient_struct * gradient, int cnt)
 	write_component_array("BlueA", gradient, cnt, b);
 }
 
-static void PS_make_header(GpTermEntry * pThis, t_sm_palette * palette)
+static void PS_make_header(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// write header for smooth colors 
@@ -2668,7 +2654,7 @@ static void PS_make_header(GpTermEntry * pThis, t_sm_palette * palette)
 #undef B
 }
 
-int PS_make_palette(GpTermEntry * pThis, t_sm_palette * pPalette)
+int PS_make_palette(GpTermEntry_Static * pThis, t_sm_palette * pPalette)
 {
 	if(!pPalette) {
 		return 0; // postscript can do continuous colors 
@@ -2679,7 +2665,7 @@ int PS_make_palette(GpTermEntry * pThis, t_sm_palette * pPalette)
 	}
 }
 
-void PS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
+void PS_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray;
@@ -2721,7 +2707,7 @@ void PS_set_color(GpTermEntry * pThis, const t_colorspec * colorspec)
 	PS_relative_ok = FALSE; /* "M" required because "g" forces stroke (??) */
 }
 
-void PS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
+void PS_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners)
 {
 	int i;
 	float filldens = 1.0f;
@@ -2789,14 +2775,14 @@ void PS_filled_polygon(GpTermEntry * pThis, int points, gpiPoint * corners)
 
 #undef MAX_REL_PATHLEN
 
-void PS_previous_palette(GpTermEntry * pThis)
+void PS_previous_palette(GpTermEntry_Static * pThis)
 {
 	// Needed to stroke the previous graphic element. 
 	PsFlashPath(pThis);
 	fputs("grestore % colour palette end\n", GPT.P_GpPsFile);
 }
 
-static void delete_ps_fontfile(GpTermEntry * pThis, ps_fontfile_def * prev, ps_fontfile_def * pCurrent)
+static void delete_ps_fontfile(GpTermEntry_Static * pThis, ps_fontfile_def * prev, ps_fontfile_def * pCurrent)
 {
 	if(pCurrent) { // there really is something to delete 
 		FPRINTF((stderr, "Remove font/kerning file `%s'\n", pCurrent->fontfile_name));
@@ -2898,7 +2884,7 @@ static int png_extract_idat_chunks(uchar * encoded_image, int image_size)
 
 #ifdef HAVE_GD_PNG
 
-static void write_png_image_to_buffer(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, 
+static void write_png_image_to_buffer(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, 
 	int bits_per_component, int max_colors, double cscale, png_buffer_encode_t * png_buffer)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
@@ -2997,7 +2983,7 @@ static cairo_status_t write_png_data_to_buffer(void * png_ptr, const uchar * dat
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void write_png_image_to_buffer(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, 
+static void write_png_image_to_buffer(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, 
 	int bits_per_component, int max_colors, double cscale, png_buffer_encode_t * png_buffer)
 {
 	uchar * image255;
@@ -3058,7 +3044,7 @@ static void write_png_image_to_buffer(GpTermEntry * pThis, uint M, uint N, coord
    Some programs like dvips understand DSC like %%BeginBinary which could
    be used to mark the binary data, but other programs do not.
  */
-static uchar * PS_encode_png_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, int bits_per_component, int max_colors, double cscale, int * return_num_bytes)
+static uchar * PS_encode_png_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode, int bits_per_component, int max_colors, double cscale, int * return_num_bytes)
 {
 	png_buffer_encode_t png_buffer;
 	uchar * encoded_image_tmp, * encoded_image_tmp_ptr, * encoded_image, * encoded_image_ptr;
@@ -3140,7 +3126,7 @@ enum PS_ENCODING {
 // caller must free.  Can error to command line so make sure all
 // heap memory is recorded in static pointers when calling this routine.
 // 
-static char * PS_encode_image(GpTermEntry * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode,
+static char * PS_encode_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, t_imagecolor color_mode,
     int bits_per_component, int max_colors, double cscale, enum PS_ENCODING encoding, int * return_num_bytes)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
@@ -3318,7 +3304,7 @@ static char * PS_encode_image(GpTermEntry * pThis, uint M, uint N, coordval * im
 	return encoded_image;
 }
 
-static void print_five_operand_image(GpTermEntry * pThis, uint M, uint N, const gpiPoint * corner, t_imagecolor color_mode, ushort bits_per_component)
+static void print_five_operand_image(GpTermEntry_Static * pThis, uint M, uint N, const gpiPoint * corner, t_imagecolor color_mode, ushort bits_per_component)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * space = p_gp->TPsB.P_Params->level1 ? "" : "  ";
@@ -3347,7 +3333,7 @@ static void print_five_operand_image(GpTermEntry * pThis, uint M, uint N, const 
 		fprintf(GPT.P_GpPsFile, "%simage\n", space);
 }
 
-void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
+void PS_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, const gpiPoint * corner, t_imagecolor color_mode)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * encoded_image;
@@ -3502,7 +3488,7 @@ void PS_image(GpTermEntry * pThis, uint M, uint N, coordval * image, const gpiPo
 //
 // Skip the following image and draw a box instead. 
 //
-static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx, int dy) 
+static void PS_skip_image(GpTermEntry_Static * pThis, int bytes, int x0, int y0, int dx, int dy) 
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	fputs("  %% Construct a box instead of image\n  LTb\n", GPT.P_GpPsFile);
@@ -3533,7 +3519,7 @@ static void PS_skip_image(GpTermEntry * pThis, int bytes, int x0, int y0, int dx
 // 3) hard-coded path selected at build time
 // 4) directories in "set loadpath <dirlist>"
 // 
-static FILE * PS_open_prologue_file(GpTermEntry * pThis, char * name)
+static FILE * PS_open_prologue_file(GpTermEntry_Static * pThis, char * name)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * fullname = NULL;
@@ -3595,7 +3581,7 @@ static FILE * PS_open_prologue_file(GpTermEntry * pThis, char * name)
 }
 
 #ifndef GNUPLOT_PS_DIR
-static void PS_dump_header_to_file(GpTermEntry * pThis, char * name)
+static void PS_dump_header_to_file(GpTermEntry_Static * pThis, char * name)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const char ** dump = NULL;
@@ -3638,7 +3624,7 @@ static void PS_dump_header_to_file(GpTermEntry * pThis, char * name)
 }
 #endif
 
-static void PS_dump_prologue_file(GpTermEntry * pThis, char * name)
+static void PS_dump_prologue_file(GpTermEntry_Static * pThis, char * name)
 {
 	char buf[256];
 	FILE * prologue_fd = PS_open_prologue_file(pThis, name);
@@ -3649,7 +3635,7 @@ static void PS_dump_prologue_file(GpTermEntry * pThis, char * name)
 	}
 }
 
-static void PS_load_glyphlist(GpTermEntry * pThis)
+static void PS_load_glyphlist(GpTermEntry_Static * pThis)
 {
 	char buf[256];
 	char * next = NULL;
@@ -3686,7 +3672,7 @@ static void PS_load_glyphlist(GpTermEntry * pThis)
 	}
 }
 
-void PS_path(GpTermEntry * pThis, int p)
+void PS_path(GpTermEntry_Static * pThis, int p)
 {
 	switch(p) {
 		case 0: // Start new path 
@@ -3700,7 +3686,7 @@ void PS_path(GpTermEntry * pThis, int p)
 	}
 }
 
-TERM_PUBLIC void PS_layer(GpTermEntry * pThis, t_termlayer syncpoint)
+TERM_PUBLIC void PS_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	static int plotno = 0;
 	// We must ignore all syncpoints that we don't recognize 
@@ -3720,7 +3706,7 @@ TERM_PUBLIC void PS_layer(GpTermEntry * pThis, t_termlayer syncpoint)
 // This used to be a much more complicated routine in misc.c that did
 // a recursive search of subdirectories.  Simplify drastically for 5.3.
 //
-static char * fontpath_fullname(GpTermEntry * pThis, const char * name, const char * dir)
+static char * fontpath_fullname(GpTermEntry_Static * pThis, const char * name, const char * dir)
 {
 	char * fullname = NULL;
 	FILE * fp;

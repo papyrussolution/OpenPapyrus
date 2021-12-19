@@ -36,20 +36,18 @@
  *
  *      Expansion tables for power of 2 expansion
  *         static uint16    *makeExpandTab2x()
- *         static uint32    *makeExpandTab4x()
- *         static uint32    *makeExpandTab8x()
+ *         static l_uint32    *makeExpandTab4x()
+ *         static l_uint32    *makeExpandTab8x()
  * </pre>
  */
-
-//#include <string.h>
 #include "allheaders.h"
 #pragma hdrstop
 
 /* Static table functions and tables */
 static uint16 * makeExpandTab2x(void);
-static uint32 * makeExpandTab4x(void);
-static uint32 * makeExpandTab8x(void);
-static uint32 expandtab16[] = {
+static l_uint32 * makeExpandTab4x(void);
+static l_uint32 * makeExpandTab8x(void);
+static l_uint32 expandtab16[] = {
 	0x00000000, 0x0000ffff, 0xffff0000, 0xffffffff
 };
 
@@ -59,28 +57,28 @@ static uint32 expandtab16[] = {
 /*!
  * \brief   pixExpandBinaryReplicate()
  *
- * \param[in]    pixs 1 bpp
+ * \param[in]    pixs   1 bpp
  * \param[in]    xfact  integer scale factor for horiz. replicative expansion
  * \param[in]    yfact  integer scale factor for vertical replicative expansion
  * \return  pixd scaled up, or NULL on error
  */
-PIX * pixExpandBinaryReplicate(PIX     * pixs,
-    int32 xfact,
-    int32 yfact)
+PIX * pixExpandBinaryReplicate(PIX * pixs,
+    l_int32 xfact,
+    l_int32 yfact)
 {
-	int32 w, h, d, wd, hd, wpls, wpld, i, j, k, start;
-	uint32  * datas, * datad, * lines, * lined;
-	PIX       * pixd;
+	l_int32 w, h, d, wd, hd, wpls, wpld, i, j, k, start;
+	l_uint32 * datas, * datad, * lines, * lined;
+	PIX * pixd;
 
-	PROCNAME("pixExpandBinaryReplicate");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1)
-		return (PIX*)ERROR_PTR("pixs not binary", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not binary", procName, NULL);
 	if(xfact <= 0 || yfact <= 0)
-		return (PIX*)ERROR_PTR("invalid scale factor: <= 0", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid scale factor: <= 0", procName, NULL);
 
 	if(xfact == yfact) {
 		if(xfact == 1)
@@ -94,7 +92,7 @@ PIX * pixExpandBinaryReplicate(PIX     * pixs,
 	wd = xfact * w;
 	hd = yfact * h;
 	if((pixd = pixCreate(wd, hd, 1)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixCopyResolution(pixd, pixs);
 	pixScaleResolution(pixd, (float)xfact, (float)yfact);
 	wpld = pixGetWpl(pixd);
@@ -123,37 +121,37 @@ PIX * pixExpandBinaryReplicate(PIX     * pixs,
 /*!
  * \brief   pixExpandBinaryPower2()
  *
- * \param[in]    pixs 1 bpp
- * \param[in]    factor expansion factor: 1, 2, 4, 8, 16
+ * \param[in]    pixs      1 bpp
+ * \param[in]    factor    expansion factor: 1, 2, 4, 8, 16
  * \return  pixd expanded 1 bpp by replication, or NULL on error
  */
-PIX * pixExpandBinaryPower2(PIX     * pixs,
-    int32 factor)
+PIX * pixExpandBinaryPower2(PIX * pixs,
+    l_int32 factor)
 {
 	uint8 sval;
 	uint16  * tab2;
-	int32 i, j, k, w, h, d, wd, hd, wpls, wpld, sdibits, sqbits, sbytes;
-	uint32  * datas, * datad, * lines, * lined, * tab4, * tab8;
-	PIX       * pixd;
+	l_int32 i, j, k, w, h, d, wd, hd, wpls, wpld, sdibits, sqbits, sbytes;
+	l_uint32 * datas, * datad, * lines, * lined, * tab4, * tab8;
+	PIX * pixd;
 
-	PROCNAME("pixExpandBinaryPower2");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1)
-		return (PIX*)ERROR_PTR("pixs not binary", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not binary", procName, NULL);
 	if(factor == 1)
 		return pixCopy(NULL, pixs);
 	if(factor != 2 && factor != 4 && factor != 8 && factor != 16)
-		return (PIX*)ERROR_PTR("factor must be in {2,4,8,16}", procName, NULL);
+		return (PIX *)ERROR_PTR("factor must be in {2,4,8,16}", procName, NULL);
 
 	wpls = pixGetWpl(pixs);
 	datas = pixGetData(pixs);
 	wd = factor * w;
 	hd = factor * h;
 	if((pixd = pixCreate(wd, hd, 1)) == NULL)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixCopyResolution(pixd, pixs);
 	pixScaleResolution(pixd, (float)factor, (float)factor);
 	wpld = pixGetWpl(pixd);
@@ -168,9 +166,9 @@ PIX * pixExpandBinaryPower2(PIX     * pixs,
 				sval = GET_DATA_BYTE(lines, j);
 				SET_DATA_TWO_BYTES(lined, j, tab2[sval]);
 			}
-			memcpy((char*)(lined + wpld), (char*)lined, 4 * wpld);
+			memcpy(lined + wpld, lined, 4 * wpld);
 		}
-		LEPT_FREE(tab2);
+		SAlloc::F(tab2);
 	}
 	else if(factor == 4) {
 		tab4 = makeExpandTab4x();
@@ -183,9 +181,9 @@ PIX * pixExpandBinaryPower2(PIX     * pixs,
 				lined[j] = tab4[sval];
 			}
 			for(k = 1; k < 4; k++)
-				memcpy((char*)(lined + k * wpld), (char*)lined, 4 * wpld);
+				memcpy(lined + k * wpld, lined, 4 * wpld);
 		}
-		LEPT_FREE(tab4);
+		SAlloc::F(tab4);
 	}
 	else if(factor == 8) {
 		tab8 = makeExpandTab8x();
@@ -194,15 +192,13 @@ PIX * pixExpandBinaryPower2(PIX     * pixs,
 			lines = datas + i * wpls;
 			lined = datad + 8 * i * wpld;
 			for(j = 0; j < sqbits; j++) {
-				sval = (uint8)GET_DATA_QBIT(lines, j);
-				if(sval > 15)
-					L_WARNING2("sval = %d; should be < 16\n", procName, sval);
+				sval = GET_DATA_QBIT(lines, j);
 				lined[j] = tab8[sval];
 			}
 			for(k = 1; k < 8; k++)
-				memcpy((char*)(lined + k * wpld), (char*)lined, 4 * wpld);
+				memcpy(lined + k * wpld, lined, 4 * wpld);
 		}
-		LEPT_FREE(tab8);
+		SAlloc::F(tab8);
 	}
 	else { /* factor == 16 */
 		sdibits = (w + 1) / 2;
@@ -210,11 +206,11 @@ PIX * pixExpandBinaryPower2(PIX     * pixs,
 			lines = datas + i * wpls;
 			lined = datad + 16 * i * wpld;
 			for(j = 0; j < sdibits; j++) {
-				sval = (uint8)GET_DATA_DIBIT(lines, j);
+				sval = GET_DATA_DIBIT(lines, j);
 				lined[j] = expandtab16[sval];
 			}
 			for(k = 1; k < 16; k++)
-				memcpy((char*)(lined + k * wpld), (char*)lined, 4 * wpld);
+				memcpy(lined + k * wpld, lined, 4 * wpld);
 		}
 	}
 
@@ -227,13 +223,9 @@ PIX * pixExpandBinaryPower2(PIX     * pixs,
 static uint16 * makeExpandTab2x(void)
 {
 	uint16  * tab;
-	int32 i;
+	l_int32 i;
 
-	PROCNAME("makeExpandTab2x");
-
-	if((tab = (uint16*)LEPT_CALLOC(256, sizeof(uint16))) == NULL)
-		return (uint16*)ERROR_PTR("tab not made", procName, NULL);
-
+	tab = (uint16 *)SAlloc::C(256, sizeof(uint16));
 	for(i = 0; i < 256; i++) {
 		if(i & 0x01)
 			tab[i] = 0x3;
@@ -252,20 +244,15 @@ static uint16 * makeExpandTab2x(void)
 		if(i & 0x80)
 			tab[i] |= 0xc000;
 	}
-
 	return tab;
 }
 
-static uint32 * makeExpandTab4x(void)
+static l_uint32 * makeExpandTab4x(void)
 {
-	uint32  * tab;
-	int32 i;
+	l_uint32 * tab;
+	l_int32 i;
 
-	PROCNAME("makeExpandTab4x");
-
-	if((tab = (uint32*)LEPT_CALLOC(256, sizeof(uint32))) == NULL)
-		return (uint32*)ERROR_PTR("tab not made", procName, NULL);
-
+	tab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
 	for(i = 0; i < 256; i++) {
 		if(i & 0x01)
 			tab[i] = 0xf;
@@ -284,20 +271,15 @@ static uint32 * makeExpandTab4x(void)
 		if(i & 0x80)
 			tab[i] |= 0xf0000000;
 	}
-
 	return tab;
 }
 
-static uint32 * makeExpandTab8x(void)
+static l_uint32 * makeExpandTab8x(void)
 {
-	uint32  * tab;
-	int32 i;
+	l_uint32 * tab;
+	l_int32 i;
 
-	PROCNAME("makeExpandTab8x");
-
-	if((tab = (uint32*)LEPT_CALLOC(16, sizeof(uint32))) == NULL)
-		return (uint32*)ERROR_PTR("tab not made", procName, NULL);
-
+	tab = (l_uint32*)SAlloc::C(16, sizeof(l_uint32));
 	for(i = 0; i < 16; i++) {
 		if(i & 0x01)
 			tab[i] = 0xff;
@@ -308,7 +290,5 @@ static uint32 * makeExpandTab8x(void)
 		if(i & 0x08)
 			tab[i] |= 0xff000000;
 	}
-
 	return tab;
 }
-

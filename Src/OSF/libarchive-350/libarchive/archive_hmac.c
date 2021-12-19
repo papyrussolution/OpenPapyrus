@@ -170,7 +170,7 @@ static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
 
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
-	(void)out_len; /* UNUSED */
+	CXX_UNUSED(out_len);
 
 	mbedtls_md_hmac_finish(ctx, out);
 }
@@ -241,30 +241,30 @@ static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 /* Stub */
 static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size_t key_len)
 {
-	(void)ctx; /* UNUSED */
-	(void)key; /* UNUSED */
-	(void)key_len; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(key);
+	CXX_UNUSED(key_len);
 	return -1;
 }
 
 static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
     size_t data_len)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 	(void)data; /* UNUSED */
 	(void)data_len; /* UNUSED */
 }
 
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)
 {
-	(void)ctx; /* UNUSED */
-	(void)out; /* UNUSED */
-	(void)out_len; /* UNUSED */
+	CXX_UNUSED(ctx);
+	CXX_UNUSED(out);
+	CXX_UNUSED(out_len);
 }
 
 static void __hmac_sha1_cleanup(archive_hmac_sha1_ctx * ctx)
 {
-	(void)ctx; /* UNUSED */
+	CXX_UNUSED(ctx);
 }
 
 #endif

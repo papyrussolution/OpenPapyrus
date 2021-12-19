@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -203,10 +203,7 @@ int SSqlStmt::SetText(const char * pText)
 	return ok;
 }
 
-int SSqlStmt::IsValid() const
-{
-	return (Flags & fError) ? 0 : 1;
-}
+bool SSqlStmt::IsValid() const { return !(Flags & fError); }
 
 int SSqlStmt::SetupBindingSubstBuffer(int dir, uint count)
 {

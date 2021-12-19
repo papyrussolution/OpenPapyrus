@@ -199,10 +199,7 @@ void USize::SetInvalid()
 	Dir = -1;
 }
 
-int USize::IsValid() const
-{
-	return BIN(IsValidIEEE(S) && Dir >= 0);
-}
+bool USize::IsValid() const { return (IsValidIEEE(S) && Dir >= 0); }
 
 int USize::FromStr(const char * pStr, int fmt)
 {

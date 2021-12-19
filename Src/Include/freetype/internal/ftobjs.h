@@ -852,7 +852,7 @@ FT_Done_Memory(FT_Memory memory);
 
 /* Define default raster's interface.  The default raster is located in  */
 /* `src/base/ftraster.c'.                                                */
-/*                                                                       */
+/*                                                       */
 /* Client applications can register new rasters through the              */
 /* FT_Set_Raster() API.                                                  */
 

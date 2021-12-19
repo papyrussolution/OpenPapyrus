@@ -1,18 +1,11 @@
+// uwmsg.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- * Copyright (C) 1998-2016, International Business Machines Corporation
- * and others.  All Rights Reserved.
- **********************************************************************
- *
- * File uwmsg.c
- *
+ * Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   06/14/99    stephen     Creation.
- *******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -141,9 +134,9 @@ U_CFUNC int u_wmsg(FILE * fp, const char * tag, ...)
 	return 0;
 }
 
-/* these will break if the # of messages change. simply add or remove 0's .. */
-UChar ** gInfoMessages = NULL;
-UChar ** gErrMessages = NULL;
+// these will break if the # of messages change. simply add or remove 0's .. 
+static UChar ** gInfoMessages = NULL;
+static UChar ** gErrMessages = NULL;
 
 static const UChar * fetchErrorName(UErrorCode err)
 {

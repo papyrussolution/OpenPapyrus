@@ -33,13 +33,13 @@ RegexCompile::RegexCompile(RegexPattern * rxp, UErrorCode & status) : fParenStac
 {
 	// Lazy init of all shared global sets (needed for init()'s empty text)
 	RegexStaticSets::initGlobals(&status);
-	fStatus           = &status;
-	fRXPat            = rxp;
+	fStatus   = &status;
+	fRXPat    = rxp;
 	fScanIndex        = 0;
-	fLastChar         = -1;
-	fPeekChar         = -1;
-	fLineNum          = 1;
-	fCharNum          = 0;
+	fLastChar = -1;
+	fPeekChar = -1;
+	fLineNum  = 1;
+	fCharNum  = 0;
 	fQuoteMode        = FALSE;
 	fInBackslashQuote = FALSE;
 	fModeFlags        = fRXPat->fFlags | 0x80000000;
@@ -92,9 +92,9 @@ void RegexCompile::compile(const UnicodeString & pat,   // Source pat to be comp
 //
 void RegexCompile::compile(UText * pat/*Source pat to be compiled*/, UParseError &pp/*Error position info*/, UErrorCode &e/*Error Code*/)
 {
-	fStatus             = &e;
-	fParseErr           = &pp;
-	fStackPtr           = 0;
+	fStatus     = &e;
+	fParseErr   = &pp;
+	fStackPtr   = 0;
 	fStack[fStackPtr] = 0;
 	if(U_FAILURE(*fStatus)) {
 		return;
@@ -2140,7 +2140,7 @@ void RegexCompile::handleCloseParen()
 		    int32_t saveOp   = (int32_t)fRXPat->fCompiledPat->elementAti(fMatchOpenParen);
 		    U_ASSERT(URX_TYPE(saveOp) == URX_STATE_SAVE);
 		    int32_t dest     = fRXPat->fCompiledPat->size()-1;
-		    saveOp           = buildOp(URX_STATE_SAVE, dest);
+		    saveOp   = buildOp(URX_STATE_SAVE, dest);
 		    fRXPat->fCompiledPat->setElementAt(saveOp, fMatchOpenParen);
 	    }
 	    break;
@@ -3750,10 +3750,10 @@ static const UChar chPound     = 0x23;           // '#', introduces a comment.
 static const UChar chDigit0    = 0x30;           // '0'
 static const UChar chDigit7    = 0x37;           // '9'
 static const UChar chColon     = 0x3A;           // ':'
-static const UChar chE         = 0x45;           // 'E'
-static const UChar chQ         = 0x51;           // 'Q'
-//static const UChar      chN         = 0x4E;      // 'N'
-static const UChar chP         = 0x50;           // 'P'
+static const UChar chE = 0x45;           // 'E'
+static const UChar chQ = 0x51;           // 'Q'
+//static const UChar      chN = 0x4E;      // 'N'
+static const UChar chP = 0x50;           // 'P'
 static const UChar chBackSlash = 0x5c;           // '\'  introduces a char escape
 //static const UChar      chLBracket  = 0x5b;      // '['
 static const UChar chRBracket  = 0x5d;           // ']'
@@ -4096,11 +4096,11 @@ UnicodeSet * RegexCompile::scanPosixProp()
 	bool savedQuoteMode        = fQuoteMode;
 	bool savedInBackslashQuote = fInBackslashQuote;
 	bool savedEOLComments      = fEOLComments;
-	int64_t savedLineNum          = fLineNum;
-	int64_t savedCharNum          = fCharNum;
-	UChar32 savedLastChar         = fLastChar;
-	UChar32 savedPeekChar         = fPeekChar;
-	RegexPatternChar savedfC          = fC;
+	int64_t savedLineNum  = fLineNum;
+	int64_t savedCharNum  = fCharNum;
+	UChar32 savedLastChar = fLastChar;
+	UChar32 savedPeekChar = fPeekChar;
+	RegexPatternChar savedfC  = fC;
 
 	// Scan for a closing ].   A little tricky because there are some perverse
 	//   edge cases possible.  "[:abc\Qdef:] \E]"  is a valid non-property expression,
@@ -4146,11 +4146,11 @@ UnicodeSet * RegexCompile::scanPosixProp()
 		fQuoteMode        = savedQuoteMode;
 		fInBackslashQuote = savedInBackslashQuote;
 		fEOLComments      = savedEOLComments;
-		fLineNum          = savedLineNum;
-		fCharNum          = savedCharNum;
-		fLastChar         = savedLastChar;
-		fPeekChar         = savedPeekChar;
-		fC                = savedfC;
+		fLineNum  = savedLineNum;
+		fCharNum  = savedCharNum;
+		fLastChar = savedLastChar;
+		fPeekChar = savedPeekChar;
+		fC        = savedfC;
 		UTEXT_SETNATIVEINDEX(fRXPat->fPattern, savedNextIndex);
 	}
 	return uset;

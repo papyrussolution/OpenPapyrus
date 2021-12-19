@@ -45,7 +45,7 @@
  *         PIX     *pixErodeCompBrickExtendDwa()
  *         PIX     *pixOpenCompBrickExtendDwa()
  *         PIX     *pixCloseCompBrickExtendDwa()
- *         int32  getExtendedCompositeParameters()
+ *         l_int32  getExtendedCompositeParameters()
  *
  *    These are higher-level interfaces for dwa morphology with brick Sels.
  *    Because many morphological operations are performed using
@@ -70,7 +70,7 @@
  *          composite function is called.
  *
  *      (3) The extended composite function calls the composite function
- *          a number of times with size 63, and once with size \< 63.
+ *          a number of times with size 63, and once with size < 63.
  *          Because each operation with a size of 63 is done compositely
  *          with 7 x 9 (exactly 63), the net result is correct in
  *          length to within 2 pixels.
@@ -106,9 +106,9 @@
  *    (2) Make both the new Sels and dwa code outside the library,
  *        and link it directly to an executable:
  *        ~ Write a function to generate the new Sels in a Sela, and call
- *          fmorphautogen(sela, \<N\>, filename) to generate the code.
+ *          fmorphautogen(sela, <N>, filename) to generate the code.
  *        ~ Compile your program that uses the newly generated function
- *          pixMorphDwa_\<N\>(), and link to the two new C files.
+ *          pixMorphDwa_<N>(), and link to the two new C files.
  *
  *    (3) Make the new Sels in the library and use the dwa code outside it:
  *        ~ Add code in the library to generate your new brick Sels.
@@ -117,9 +117,9 @@
  *          a new Sela.)
  *        ~ Recompile the library.
  *        ~ Write a small program that generates the Sela and calls
- *          fmorphautogen(sela, \<N\>, filename) to generate the code.
+ *          fmorphautogen(sela, <N>, filename) to generate the code.
  *        ~ Compile your program that uses the newly generated function
- *          pixMorphDwa_\<N\>(), and link to the two new C files.
+ *          pixMorphDwa_<N>(), and link to the two new C files.
  *       As an example of this approach, see prog/dwamorph*_reg.c:
  *        ~ added selaAddDwaLinear() to sel2.c
  *        ~ wrote dwamorph1_reg.c, to generate the dwa code.
@@ -141,11 +141,11 @@
 /*!
  * \brief   pixDilateBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd    [optional]; this can be null, equal to pixs,
+ *                       or different from pixs
+ * \param[in]    pixs    1 bpp
+ * \param[in]    hsize   width of brick Sel
+ * \param[in]    vsize   height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -154,7 +154,7 @@
  *          with selaAddBasic().
  *      (2) A brick Sel has hits for all elements.
  *      (3) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (6) There are three cases:
@@ -170,24 +170,24 @@
  *          the appropriate decomposible function.
  * </pre>
  */
-PIX * pixDilateBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixDilateBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 found;
-	char    * selnameh, * selnamev;
+	l_int32 found;
+	char * selnameh, * selnamev;
 	SELA    * sela;
-	PIX     * pixt1, * pixt2, * pixt3;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixDilateBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
@@ -206,18 +206,18 @@ PIX * pixDilateBrickDwa(PIX     * pixd,
 	selaDestroy(&sela);
 	if(!found) {
 		L_INFO("Calling the decomposable dwa function\n", procName);
-		if(selnameh) LEPT_FREE(selnameh);
-		if(selnamev) LEPT_FREE(selnamev);
+		if(selnameh) SAlloc::F(selnameh);
+		if(selnamev) SAlloc::F(selnamev);
 		return pixDilateCompBrickDwa(pixd, pixs, hsize, vsize);
 	}
 
 	if(vsize == 1) {
 		pixt2 = pixMorphDwa_1(NULL, pixs, L_MORPH_DILATE, selnameh);
-		LEPT_FREE(selnameh);
+		SAlloc::F(selnameh);
 	}
 	else if(hsize == 1) {
 		pixt2 = pixMorphDwa_1(NULL, pixs, L_MORPH_DILATE, selnamev);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnamev);
 	}
 	else {
 		pixt1 = pixAddBorder(pixs, 32, 0);
@@ -226,8 +226,8 @@ PIX * pixDilateBrickDwa(PIX     * pixd,
 		pixt2 = pixRemoveBorder(pixt1, 32);
 		pixDestroy(&pixt1);
 		pixDestroy(&pixt3);
-		LEPT_FREE(selnameh);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnameh);
+		SAlloc::F(selnamev);
 	}
 
 	if(!pixd)
@@ -240,11 +240,11 @@ PIX * pixDilateBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixErodeBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -253,7 +253,7 @@ PIX * pixDilateBrickDwa(PIX     * pixd,
  *          with selaAddBasic().
  *      (2) A brick Sel has hits for all elements.
  *      (3) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (6) Note that we must always set or clear the border pixels
@@ -272,24 +272,24 @@ PIX * pixDilateBrickDwa(PIX     * pixd,
  *           the appropriate decomposible function.
  * </pre>
  */
-PIX * pixErodeBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixErodeBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 found;
-	char    * selnameh, * selnamev;
+	l_int32 found;
+	char * selnameh, * selnamev;
 	SELA    * sela;
-	PIX     * pixt1, * pixt2, * pixt3;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixErodeBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
@@ -308,18 +308,18 @@ PIX * pixErodeBrickDwa(PIX     * pixd,
 	selaDestroy(&sela);
 	if(!found) {
 		L_INFO("Calling the decomposable dwa function\n", procName);
-		if(selnameh) LEPT_FREE(selnameh);
-		if(selnamev) LEPT_FREE(selnamev);
+		if(selnameh) SAlloc::F(selnameh);
+		if(selnamev) SAlloc::F(selnamev);
 		return pixErodeCompBrickDwa(pixd, pixs, hsize, vsize);
 	}
 
 	if(vsize == 1) {
 		pixt2 = pixMorphDwa_1(NULL, pixs, L_MORPH_ERODE, selnameh);
-		LEPT_FREE(selnameh);
+		SAlloc::F(selnameh);
 	}
 	else if(hsize == 1) {
 		pixt2 = pixMorphDwa_1(NULL, pixs, L_MORPH_ERODE, selnamev);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnamev);
 	}
 	else {
 		pixt1 = pixAddBorder(pixs, 32, 0);
@@ -328,8 +328,8 @@ PIX * pixErodeBrickDwa(PIX     * pixd,
 		pixt2 = pixRemoveBorder(pixt1, 32);
 		pixDestroy(&pixt1);
 		pixDestroy(&pixt3);
-		LEPT_FREE(selnameh);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnameh);
+		SAlloc::F(selnamev);
 	}
 
 	if(!pixd)
@@ -342,11 +342,11 @@ PIX * pixErodeBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixOpenBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -355,7 +355,7 @@ PIX * pixErodeBrickDwa(PIX     * pixd,
  *          with selaAddBasic().
  *      (2) A brick Sel has hits for all elements.
  *      (3) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (4) Do separably if both hsize and vsize are \> 1.
+ *      (4) Do separably if both hsize and vsize are > 1.
  *      (5) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (6) Note that we must always set or clear the border pixels
@@ -374,24 +374,24 @@ PIX * pixErodeBrickDwa(PIX     * pixd,
  *           the appropriate decomposible function.
  * </pre>
  */
-PIX * pixOpenBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixOpenBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 found;
-	char    * selnameh, * selnamev;
+	l_int32 found;
+	char * selnameh, * selnamev;
 	SELA    * sela;
-	PIX     * pixt1, * pixt2, * pixt3;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixOpenBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
@@ -410,27 +410,27 @@ PIX * pixOpenBrickDwa(PIX     * pixd,
 	selaDestroy(&sela);
 	if(!found) {
 		L_INFO("Calling the decomposable dwa function\n", procName);
-		if(selnameh) LEPT_FREE(selnameh);
-		if(selnamev) LEPT_FREE(selnamev);
+		if(selnameh) SAlloc::F(selnameh);
+		if(selnamev) SAlloc::F(selnamev);
 		return pixOpenCompBrickDwa(pixd, pixs, hsize, vsize);
 	}
 
 	pixt1 = pixAddBorder(pixs, 32, 0);
 	if(vsize == 1) { /* horizontal only */
 		pixt2 = pixFMorphopGen_1(NULL, pixt1, L_MORPH_OPEN, selnameh);
-		LEPT_FREE(selnameh);
+		SAlloc::F(selnameh);
 	}
 	else if(hsize == 1) {  /* vertical only */
 		pixt2 = pixFMorphopGen_1(NULL, pixt1, L_MORPH_OPEN, selnamev);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnamev);
 	}
 	else { /* do separable */
 		pixt3 = pixFMorphopGen_1(NULL, pixt1, L_MORPH_ERODE, selnameh);
 		pixt2 = pixFMorphopGen_1(NULL, pixt3, L_MORPH_ERODE, selnamev);
 		pixFMorphopGen_1(pixt3, pixt2, L_MORPH_DILATE, selnameh);
 		pixFMorphopGen_1(pixt2, pixt3, L_MORPH_DILATE, selnamev);
-		LEPT_FREE(selnameh);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnameh);
+		SAlloc::F(selnamev);
 		pixDestroy(&pixt3);
 	}
 	pixt3 = pixRemoveBorder(pixt2, 32);
@@ -447,11 +447,11 @@ PIX * pixOpenBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixCloseBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -462,7 +462,7 @@ PIX * pixOpenBrickDwa(PIX     * pixd,
  *          with selaAddBasic().
  *      (3) A brick Sel has hits for all elements.
  *      (4) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (5) Do separably if both hsize and vsize are \> 1.
+ *      (5) Do separably if both hsize and vsize are > 1.
  *      (6) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (7) Note that we must always set or clear the border pixels
@@ -481,24 +481,24 @@ PIX * pixOpenBrickDwa(PIX     * pixd,
  *           the appropriate decomposible function.
  * </pre>
  */
-PIX * pixCloseBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 bordercolor, bordersize, found;
-	char    * selnameh, * selnamev;
+	l_int32 bordercolor, bordersize, found;
+	char * selnameh, * selnamev;
 	SELA    * sela;
-	PIX     * pixt1, * pixt2, * pixt3;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixCloseBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize == 1 && vsize == 1)
 		return pixCopy(pixd, pixs);
@@ -517,8 +517,8 @@ PIX * pixCloseBrickDwa(PIX     * pixd,
 	selaDestroy(&sela);
 	if(!found) {
 		L_INFO("Calling the decomposable dwa function\n", procName);
-		if(selnameh) LEPT_FREE(selnameh);
-		if(selnamev) LEPT_FREE(selnamev);
+		if(selnameh) SAlloc::F(selnameh);
+		if(selnamev) SAlloc::F(selnamev);
 		return pixCloseCompBrickDwa(pixd, pixs, hsize, vsize);
 	}
 
@@ -535,19 +535,19 @@ PIX * pixCloseBrickDwa(PIX     * pixd,
 
 	if(vsize == 1) { /* horizontal only */
 		pixt2 = pixFMorphopGen_1(NULL, pixt1, L_MORPH_CLOSE, selnameh);
-		LEPT_FREE(selnameh);
+		SAlloc::F(selnameh);
 	}
 	else if(hsize == 1) {  /* vertical only */
 		pixt2 = pixFMorphopGen_1(NULL, pixt1, L_MORPH_CLOSE, selnamev);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnamev);
 	}
 	else { /* do separable */
 		pixt3 = pixFMorphopGen_1(NULL, pixt1, L_MORPH_DILATE, selnameh);
 		pixt2 = pixFMorphopGen_1(NULL, pixt3, L_MORPH_DILATE, selnamev);
 		pixFMorphopGen_1(pixt3, pixt2, L_MORPH_ERODE, selnameh);
 		pixFMorphopGen_1(pixt2, pixt3, L_MORPH_ERODE, selnamev);
-		LEPT_FREE(selnameh);
-		LEPT_FREE(selnamev);
+		SAlloc::F(selnameh);
+		SAlloc::F(selnamev);
 		pixDestroy(&pixt3);
 	}
 	pixt3 = pixRemoveBorder(pixt2, bordersize);
@@ -567,11 +567,11 @@ PIX * pixCloseBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixDilateCompBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -581,7 +581,7 @@ PIX * pixCloseBrickDwa(PIX     * pixd,
  *          operation into two (brick + comb).
  *      (3) A brick Sel has hits for all elements.
  *      (4) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (5) Do separably if both hsize and vsize are \> 1.
+ *      (5) Do separably if both hsize and vsize are > 1.
  *      (6) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (7) There are three cases:
@@ -608,23 +608,23 @@ PIX * pixCloseBrickDwa(PIX     * pixd,
  *           with hsize = 36.
  * </pre>
  */
-PIX * pixDilateCompBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixDilateCompBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	char    * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	int32 hsize1, hsize2, vsize1, vsize2;
-	PIX     * pixt1, * pixt2, * pixt3;
+	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
+	l_int32 hsize1, hsize2, vsize1, vsize2;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixDilateCompBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 	if(hsize > 63 || vsize > 63)
 		return pixDilateCompBrickExtendDwa(pixd, pixs, hsize, vsize);
 
@@ -641,9 +641,9 @@ PIX * pixDilateCompBrickDwa(PIX     * pixd,
 		    &selnamev1, &selnamev2);
 
 #if DEBUG_SEL_LOOKUP
-	fprintf(stderr, "nameh1=%s, nameh2=%s, namev1=%s, namev2=%s\n",
+	lept_stderr("nameh1=%s, nameh2=%s, namev1=%s, namev2=%s\n",
 	    selnameh1, selnameh2, selnamev1, selnamev2);
-	fprintf(stderr, "hsize1=%d, hsize2=%d, vsize1=%d, vsize2=%d\n",
+	lept_stderr("hsize1=%d, hsize2=%d, vsize1=%d, vsize2=%d\n",
 	    hsize1, hsize2, vsize1, vsize2);
 #endif  /* DEBUG_SEL_LOOKUP */
 
@@ -689,10 +689,10 @@ PIX * pixDilateCompBrickDwa(PIX     * pixd,
 	pixDestroy(&pixt1);
 	pixt1 = pixRemoveBorder(pixt2, 64);
 	pixDestroy(&pixt2);
-	if(selnameh1) LEPT_FREE(selnameh1);
-	if(selnameh2) LEPT_FREE(selnameh2);
-	if(selnamev1) LEPT_FREE(selnamev1);
-	if(selnamev2) LEPT_FREE(selnamev2);
+	if(selnameh1) SAlloc::F(selnameh1);
+	if(selnameh2) SAlloc::F(selnameh2);
+	if(selnamev1) SAlloc::F(selnamev1);
+	if(selnamev2) SAlloc::F(selnamev2);
 
 	if(!pixd)
 		return pixt1;
@@ -704,11 +704,11 @@ PIX * pixDilateCompBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixErodeCompBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -718,7 +718,7 @@ PIX * pixDilateCompBrickDwa(PIX     * pixd,
  *          operation into two (brick + comb).
  *      (3) A brick Sel has hits for all elements.
  *      (4) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (5) Do separably if both hsize and vsize are \> 1.
+ *      (5) Do separably if both hsize and vsize are > 1.
  *      (6) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (7) There are three cases:
@@ -745,23 +745,23 @@ PIX * pixDilateCompBrickDwa(PIX     * pixd,
  *           with hsize = 36.
  * </pre>
  */
-PIX * pixErodeCompBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixErodeCompBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	char    * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
-	PIX     * pixt1, * pixt2, * pixt3;
+	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
+	l_int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixErodeCompBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 	if(hsize > 63 || vsize > 63)
 		return pixErodeCompBrickExtendDwa(pixd, pixs, hsize, vsize);
 
@@ -822,10 +822,10 @@ PIX * pixErodeCompBrickDwa(PIX     * pixd,
 	pixDestroy(&pixt1);
 	pixt1 = pixRemoveBorder(pixt2, 64);
 	pixDestroy(&pixt2);
-	if(selnameh1) LEPT_FREE(selnameh1);
-	if(selnameh2) LEPT_FREE(selnameh2);
-	if(selnamev1) LEPT_FREE(selnamev1);
-	if(selnamev2) LEPT_FREE(selnamev2);
+	if(selnameh1) SAlloc::F(selnameh1);
+	if(selnameh2) SAlloc::F(selnameh2);
+	if(selnamev1) SAlloc::F(selnamev1);
+	if(selnamev2) SAlloc::F(selnamev2);
 
 	if(!pixd)
 		return pixt1;
@@ -837,11 +837,11 @@ PIX * pixErodeCompBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixOpenCompBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -851,7 +851,7 @@ PIX * pixErodeCompBrickDwa(PIX     * pixd,
  *          operation into two (brick + comb).
  *      (3) A brick Sel has hits for all elements.
  *      (4) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (5) Do separably if both hsize and vsize are \> 1.
+ *      (5) Do separably if both hsize and vsize are > 1.
  *      (6) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (7) There are three cases:
@@ -878,23 +878,23 @@ PIX * pixErodeCompBrickDwa(PIX     * pixd,
  *           with hsize = 36.
  * </pre>
  */
-PIX * pixOpenCompBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixOpenCompBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	char    * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
-	PIX     * pixt1, * pixt2, * pixt3;
+	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
+	l_int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixOpenCompBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 	if(hsize > 63 || vsize > 63)
 		return pixOpenCompBrickExtendDwa(pixd, pixs, hsize, vsize);
 
@@ -993,10 +993,10 @@ PIX * pixOpenCompBrickDwa(PIX     * pixd,
 	pixDestroy(&pixt1);
 	pixt1 = pixRemoveBorder(pixt2, 64);
 	pixDestroy(&pixt2);
-	if(selnameh1) LEPT_FREE(selnameh1);
-	if(selnameh2) LEPT_FREE(selnameh2);
-	if(selnamev1) LEPT_FREE(selnamev1);
-	if(selnamev2) LEPT_FREE(selnamev2);
+	if(selnameh1) SAlloc::F(selnameh1);
+	if(selnameh2) SAlloc::F(selnameh2);
+	if(selnamev1) SAlloc::F(selnamev1);
+	if(selnamev2) SAlloc::F(selnamev2);
 
 	if(!pixd)
 		return pixt1;
@@ -1008,11 +1008,11 @@ PIX * pixOpenCompBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixCloseCompBrickDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -1023,7 +1023,7 @@ PIX * pixOpenCompBrickDwa(PIX     * pixd,
  *          operation into two (brick + comb).
  *      (3) A brick Sel has hits for all elements.
  *      (4) The origin of the Sel is at (x, y) = (hsize/2, vsize/2)
- *      (5) Do separably if both hsize and vsize are \> 1.
+ *      (5) Do separably if both hsize and vsize are > 1.
  *      (6) It is necessary that both horizontal and vertical Sels
  *          of the input size are defined in the basic sela.
  *      (7) There are three cases:
@@ -1050,23 +1050,23 @@ PIX * pixOpenCompBrickDwa(PIX     * pixd,
  *           with hsize = 36.
  * </pre>
  */
-PIX * pixCloseCompBrickDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseCompBrickDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	char    * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	int32 hsize1, hsize2, vsize1, vsize2, setborder;
-	PIX     * pixt1, * pixt2, * pixt3;
+	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
+	l_int32 hsize1, hsize2, vsize1, vsize2, setborder;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixCloseCompBrickDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 	if(hsize > 63 || vsize > 63)
 		return pixCloseCompBrickExtendDwa(pixd, pixs, hsize, vsize);
 
@@ -1160,10 +1160,10 @@ PIX * pixCloseCompBrickDwa(PIX     * pixd,
 	pixDestroy(&pixt1);
 	pixt1 = pixRemoveBorder(pixt2, 64);
 	pixDestroy(&pixt2);
-	if(selnameh1) LEPT_FREE(selnameh1);
-	if(selnameh2) LEPT_FREE(selnameh2);
-	if(selnamev1) LEPT_FREE(selnamev1);
-	if(selnamev2) LEPT_FREE(selnamev2);
+	if(selnameh1) SAlloc::F(selnameh1);
+	if(selnameh2) SAlloc::F(selnameh2);
+	if(selnamev1) SAlloc::F(selnamev1);
+	if(selnamev2) SAlloc::F(selnamev2);
 
 	if(!pixd)
 		return pixt1;
@@ -1178,11 +1178,11 @@ PIX * pixCloseCompBrickDwa(PIX     * pixd,
 /*!
  * \brief   pixDilateCompBrickExtendDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -1205,22 +1205,22 @@ PIX * pixCloseCompBrickDwa(PIX     * pixd,
  *          calls this function if either brick dimension exceeds 63.
  * </pre>
  */
-PIX * pixDilateCompBrickExtendDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixDilateCompBrickExtendDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 i, nops, nh, extrah, nv, extrav;
-	PIX     * pixt1, * pixt2, * pixt3;
+	l_int32 i, nops, nh, extrah, nv, extrav;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixDilateCompBrickExtendDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize < 64 && vsize < 64)
 		return pixDilateCompBrickDwa(pixd, pixs, hsize, vsize);
@@ -1231,7 +1231,7 @@ PIX * pixDilateCompBrickExtendDwa(PIX     * pixd,
 		getExtendedCompositeParameters(vsize, &nv, &extrav, NULL);
 
 	/* Horizontal dilation first: pixs --> pixt2.  Do not alter pixs. */
-	pixt1 = pixCreateTemplateNoInit(pixs); /* temp image */
+	pixt1 = pixCreateTemplate(pixs); /* temp image */
 	if(hsize == 1) {
 		pixt2 = pixClone(pixs);
 	}
@@ -1319,11 +1319,11 @@ PIX * pixDilateCompBrickExtendDwa(PIX     * pixd,
 /*!
  * \brief   pixErodeCompBrickExtendDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
  * <pre>
@@ -1333,22 +1333,22 @@ PIX * pixDilateCompBrickExtendDwa(PIX     * pixd,
  *          calls this function if either brick dimension exceeds 63.
  * </pre>
  */
-PIX * pixErodeCompBrickExtendDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixErodeCompBrickExtendDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 i, nops, nh, extrah, nv, extrav;
-	PIX     * pixt1, * pixt2, * pixt3;
+	l_int32 i, nops, nh, extrah, nv, extrav;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixErodeCompBrickExtendDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	if(hsize < 64 && vsize < 64)
 		return pixErodeCompBrickDwa(pixd, pixs, hsize, vsize);
@@ -1359,7 +1359,7 @@ PIX * pixErodeCompBrickExtendDwa(PIX     * pixd,
 		getExtendedCompositeParameters(vsize, &nv, &extrav, NULL);
 
 	/* Horizontal erosion first: pixs --> pixt2.  Do not alter pixs. */
-	pixt1 = pixCreateTemplateNoInit(pixs); /* temp image */
+	pixt1 = pixCreateTemplate(pixs); /* temp image */
 	if(hsize == 1) {
 		pixt2 = pixClone(pixs);
 	}
@@ -1447,35 +1447,38 @@ PIX * pixErodeCompBrickExtendDwa(PIX     * pixd,
 /*!
  * \brief   pixOpenCompBrickExtendDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
- *      1 There are three cases:
+ * <pre>
+ * Notes:
+ *      1) There are three cases:
  *          a) pixd == null   (result into new pixd
  *          b) pixd == pixs   (in-place; writes result back to pixs
  *          c) pixd != pixs   (puts result into existing pixd
  *      2) There is no need to call this directly:  pixOpenCompBrickDwa(
  *          calls this function if either brick dimension exceeds 63.
+ * </pre>
  */
-PIX * pixOpenCompBrickExtendDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixOpenCompBrickExtendDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	PIX     * pixt;
+	PIX * pixt;
 
-	PROCNAME("pixOpenCompBrickExtendDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	pixt = pixErodeCompBrickExtendDwa(NULL, pixs, hsize, vsize);
 	pixd = pixDilateCompBrickExtendDwa(pixd, pixt, hsize, vsize);
@@ -1486,36 +1489,39 @@ PIX * pixOpenCompBrickExtendDwa(PIX     * pixd,
 /*!
  * \brief   pixCloseCompBrickExtendDwa()
  *
- * \param[in]    pixd  [optional]; this can be null, equal to pixs,
- *                     or different from pixs
- * \param[in]    pixs 1 bpp
- * \param[in]    hsize width of brick Sel
- * \param[in]    vsize height of brick Sel
+ * \param[in]    pixd     [optional]; this can be null, equal to pixs,
+ *                        or different from pixs
+ * \param[in]    pixs     1 bpp
+ * \param[in]    hsize    width of brick Sel
+ * \param[in]    vsize    height of brick Sel
  * \return  pixd
  *
- *      1 There are three cases:
+ * <pre>
+ * Notes:
+ *      1) There are three cases:
  *          a) pixd == null   (result into new pixd
  *          b) pixd == pixs   (in-place; writes result back to pixs
  *          c) pixd != pixs   (puts result into existing pixd
  *      2) There is no need to call this directly:  pixCloseCompBrickDwa(
  *          calls this function if either brick dimension exceeds 63.
+ * </pre>
  */
-PIX * pixCloseCompBrickExtendDwa(PIX     * pixd,
-    PIX     * pixs,
-    int32 hsize,
-    int32 vsize)
+PIX * pixCloseCompBrickExtendDwa(PIX * pixd,
+    PIX * pixs,
+    l_int32 hsize,
+    l_int32 vsize)
 {
-	int32 bordercolor, borderx, bordery;
-	PIX     * pixt1, * pixt2, * pixt3;
+	l_int32 bordercolor, borderx, bordery;
+	PIX * pixt1, * pixt2, * pixt3;
 
-	PROCNAME("pixCloseCompBrickExtendDwa");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixGetDepth(pixs) != 1)
-		return (PIX*)ERROR_PTR("pixs not 1 bpp", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not 1 bpp", procName, pixd);
 	if(hsize < 1 || vsize < 1)
-		return (PIX*)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
+		return (PIX *)ERROR_PTR("hsize and vsize not >= 1", procName, pixd);
 
 	/* For "safe closing" with ASYMMETRIC_MORPH_BC, we always need
 	 * an extra 32 OFF pixels around the image (in addition to
@@ -1548,10 +1554,10 @@ PIX * pixCloseCompBrickExtendDwa(PIX     * pixd,
 /*!
  * \brief   getExtendedCompositeParameters()
  *
- * \param[in]    size of linear Sel
- * \param[out]   pn number of 63 wide convolutions
- * \param[out]   pextra size of extra Sel
- * \param[out]   pactualsize [optional] actual size used in operation
+ * \param[in]    size          of linear Sel
+ * \param[out]   pn            number of 63 wide convolutions
+ * \param[out]   pextra        size of extra Sel
+ * \param[out]   pactualsize   [optional] actual size used in operation
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1566,10 +1572,10 @@ PIX * pixCloseCompBrickExtendDwa(PIX     * pixd,
  *          %size into a set of %n Sels of length 63 plus an extra
  *          Sel of length %extra.
  *      (3) For notation, let w == %size, n == %n, and e == %extra.
- *          We have 1 \< e \< 63.
+ *          We have 1 < e < 63.
  *
- *          Then if w \< 64, we have n = 0 and e = w.
- *          The general formula for w \> 63 is:
+ *          Then if w < 64, we have n = 0 and e = w.
+ *          The general formula for w > 63 is:
  *             w = 63 + (n - 1) * 62 + (e - 1)
  *
  *          Where did this come from?  Each successive convolution with
@@ -1577,7 +1583,7 @@ PIX * pixCloseCompBrickExtendDwa(PIX     * pixd,
  *          This accounts for using 62 for each additional Sel of size 63,
  *          and using (e - 1) for the additional Sel of size e.
  *
- *          Solving for n and e for w \> 63:
+ *          Solving for n and e for w > 63:
  *             n = 1 + Int((w - 63) / 62)
  *             e = w - 63 - (n - 1) * 62 + 1
  *
@@ -1588,14 +1594,14 @@ PIX * pixCloseCompBrickExtendDwa(PIX     * pixd,
  *             w' = 63 + (n - 1) * 62 + f1 * f2 - 1
  * </pre>
  */
-int32 getExtendedCompositeParameters(int32 size,
-    int32  * pn,
-    int32  * pextra,
-    int32  * pactualsize)
+l_ok getExtendedCompositeParameters(l_int32 size,
+    l_int32 * pn,
+    l_int32 * pextra,
+    l_int32 * pactualsize)
 {
-	int32 n, extra, fact1, fact2;
+	l_int32 n, extra, fact1, fact2;
 
-	PROCNAME("getExtendedCompositeParameters");
+	PROCNAME(__FUNCTION__);
 
 	if(!pn || !pextra)
 		return ERROR_INT("&n and &extra not both defined", procName, 1);
@@ -1605,7 +1611,7 @@ int32 getExtendedCompositeParameters(int32 size,
 		extra = MIN(1, size);
 	}
 	else { /* size > 63 */
-		n = 1 + (int32)((size - 63) / 62);
+		n = 1 + (l_int32)((size - 63) / 62);
 		extra = size - 63 - (n - 1) * 62 + 1;
 	}
 
@@ -1618,4 +1624,3 @@ int32 getExtendedCompositeParameters(int32 size,
 	*pextra = extra;
 	return 0;
 }
-

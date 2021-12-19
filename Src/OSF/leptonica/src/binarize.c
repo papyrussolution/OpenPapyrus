@@ -38,22 +38,31 @@
  *  ===================================================================
  *
  *      Adaptive Otsu-based thresholding
- *          int32    pixOtsuAdaptiveThreshold()       8 bpp
+ *          l_int32       pixOtsuAdaptiveThreshold()       8 bpp
  *
  *      Otsu thresholding on adaptive background normalization
- *          PIX       *pixOtsuThreshOnBackgroundNorm()  8 bpp
+ *          PIX          *pixOtsuThreshOnBackgroundNorm()  8 bpp
  *
  *      Masking and Otsu estimate on adaptive background normalization
- *          PIX       *pixMaskedThreshOnBackgroundNorm()  8 bpp
+ *          PIX          *pixMaskedThreshOnBackgroundNorm()  8 bpp
  *
  *      Sauvola local thresholding
- *          int32    pixSauvolaBinarizeTiled()
- *          int32    pixSauvolaBinarize()
- *          PIX       *pixSauvolaGetThreshold()
- *          PIX       *pixApplyLocalThreshold();
+ *          l_int32       pixSauvolaBinarizeTiled()
+ *          l_int32       pixSauvolaBinarize()
+ *          static PIX *pixSauvolaGetThreshold()
+ *          static PIX *pixApplyLocalThreshold();
  *
- *      Thresholding using connected components
- *          PIX       *pixThresholdByConnComp()
+ *      Sauvola binarization on contrast normalization
+ *          PIX          *pixSauvolaOnContrastNorm()  8 bpp
+ *
+ *      Contrast normalization followed by bg normalization and thresholding
+ *          PIX          *pixThreshOnDoubleNorm()
+ *
+ *      Global thresholding using connected components
+ *          PIX          *pixThresholdByConnComp()
+ *
+ *      Global thresholding by histogram
+ *          PIX          *pixThresholdByHisto()
  *
  *  Notes:
  *      (1) pixOtsuAdaptiveThreshold() computes a global threshold over each
@@ -65,19 +74,20 @@
  *          that use background normalization with other techniques.
  *      (3) Sauvola binarization computes a local threshold based on
  *          the local average and square average.  It takes two constants:
- *          the window size for the measurment at each pixel and a
+ *          the window size for the measurement at each pixel and a
  *          parameter that determines the amount of normalized local
  *          standard deviation to subtract from the local average value.
- *      (4) pixThresholdByCC() uses the numbers of 4 and 8 connected
+ *      (4) pixThresholdByConnComp() uses the numbers of 4 and 8 connected
  *          components at different thresholding to determine if a
  *          global threshold can be used (for text or line-art) and the
  *          value it should have.
  * </pre>
  */
-
-//#include <math.h>
 #include "allheaders.h"
 #pragma hdrstop
+
+static PIX * pixSauvolaGetThreshold(PIX * pixm, PIX * pixms, float factor, PIX ** ppixsd);
+static PIX * pixApplyLocalThreshold(PIX * pixs, PIX * pixth);
 
 /*------------------------------------------------------------------*
 *                 Adaptive Otsu-based thresholding                 *
@@ -85,16 +95,16 @@
 /*!
  * \brief   pixOtsuAdaptiveThreshold()
  *
- * \param[in]    pixs 8 bpp
- * \param[in]    sx, sy desired tile dimensions; actual size may vary
- * \param[in]    smoothx, smoothy half-width of convolution kernel applied to
- *                                threshold array: use 0 for no smoothing
- * \param[in]    scorefract fraction of the max Otsu score; typ. 0.1;
- *                          use 0.0 for standard Otsu
- * \param[out]   ppixth [optional] array of threshold values
- *                      found for each tile
- * \param[out]   ppixd [optional] thresholded input pixs, based on
- *                     the threshold array
+ * \param[in]    pixs              8 bpp
+ * \param[in]    sx, sy            desired tile dimensions; actual size may vary
+ * \param[in]    smoothx, smoothy  half-width of convolution kernel applied to
+ *                                 threshold array: use 0 for no smoothing
+ * \param[in]    scorefract        fraction of the max Otsu score; typ. 0.1;
+ *                                 use 0.0 for standard Otsu
+ * \param[out]   ppixth            [optional] array of threshold values
+ *                                 found for each tile
+ * \param[out]   ppixd             [optional] thresholded input pixs,
+ *                                 based on the threshold array
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -137,21 +147,21 @@
  *          of the problem noted in (3) above for tiling.  Use Sauvola.
  * </pre>
  */
-int32 pixOtsuAdaptiveThreshold(PIX       * pixs,
-    int32 sx,
-    int32 sy,
-    int32 smoothx,
-    int32 smoothy,
+l_ok pixOtsuAdaptiveThreshold(PIX * pixs,
+    l_int32 sx,
+    l_int32 sy,
+    l_int32 smoothx,
+    l_int32 smoothy,
     float scorefract,
-    PIX      ** ppixth,
-    PIX      ** ppixd)
+    PIX ** ppixth,
+    PIX ** ppixd)
 {
-	int32 w, h, nx, ny, i, j, thresh;
-	uint32 val;
+	l_int32 w, h, nx, ny, i, j, thresh;
+	l_uint32 val;
 	PIX        * pixt, * pixb, * pixthresh, * pixth, * pixd;
 	PIXTILING  * pt;
 
-	PROCNAME("pixOtsuAdaptiveThreshold");
+	PROCNAME(__FUNCTION__);
 
 	if(!ppixth && !ppixd)
 		return ERROR_INT("neither &pixth nor &pixd defined", procName, 1);
@@ -219,17 +229,17 @@ int32 pixOtsuAdaptiveThreshold(PIX       * pixs,
 /*!
  * \brief   pixOtsuThreshOnBackgroundNorm()
  *
- * \param[in]    pixs 8 bpp grayscale; not colormapped
- * \param[in]    pixim [optional] 1 bpp 'image' mask; can be null
- * \param[in]    sx, sy tile size in pixels
- * \param[in]    thresh threshold for determining foreground
- * \param[in]    mincount min threshold on counts in a tile
- * \param[in]    bgval target bg val; typ. > 128
- * \param[in]    smoothx half-width of block convolution kernel width
- * \param[in]    smoothy half-width of block convolution kernel height
- * \param[in]    scorefract fraction of the max Otsu score; typ. 0.1
- * \param[out]   pthresh [optional] threshold value that was
- *                       used on the normalized image
+ * \param[in]    pixs         8 bpp grayscale; not colormapped
+ * \param[in]    pixim        [optional] 1 bpp 'image' mask; can be null
+ * \param[in]    sx, sy       tile size in pixels
+ * \param[in]    thresh       threshold for determining foreground
+ * \param[in]    mincount     min threshold on counts in a tile
+ * \param[in]    bgval        target bg val; typ. > 128
+ * \param[in]    smoothx      half-width of block convolution kernel width
+ * \param[in]    smoothy      half-width of block convolution kernel height
+ * \param[in]    scorefract   fraction of the max Otsu score; typ. 0.1
+ * \param[out]   pthresh      [optional] threshold value that was
+ *                            used on the normalized image
  * \return  pixd 1 bpp thresholded image, or NULL on error
  *
  * <pre>
@@ -251,40 +261,40 @@ int32 pixOtsuAdaptiveThreshold(PIX       * pixs,
  *            smoothx, smoothy = 2
  * </pre>
  */
-PIX * pixOtsuThreshOnBackgroundNorm(PIX       * pixs,
-    PIX       * pixim,
-    int32 sx,
-    int32 sy,
-    int32 thresh,
-    int32 mincount,
-    int32 bgval,
-    int32 smoothx,
-    int32 smoothy,
+PIX * pixOtsuThreshOnBackgroundNorm(PIX * pixs,
+    PIX * pixim,
+    l_int32 sx,
+    l_int32 sy,
+    l_int32 thresh,
+    l_int32 mincount,
+    l_int32 bgval,
+    l_int32 smoothx,
+    l_int32 smoothy,
     float scorefract,
-    int32   * pthresh)
+    l_int32   * pthresh)
 {
-	int32 w, h;
-	uint32 val;
-	PIX      * pixn, * pixt, * pixd;
+	l_int32 w, h;
+	l_uint32 val;
+	PIX * pixn, * pixt, * pixd;
 
-	PROCNAME("pixOtsuThreshOnBackgroundNorm");
+	PROCNAME(__FUNCTION__);
 
 	if(pthresh) *pthresh = 0;
 	if(!pixs || pixGetDepth(pixs) != 8)
-		return (PIX*)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixs))
-		return (PIX*)ERROR_PTR("pixs is colormapped", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs is colormapped", procName, NULL);
 	if(sx < 4 || sy < 4)
-		return (PIX*)ERROR_PTR("sx and sy must be >= 4", procName, NULL);
+		return (PIX *)ERROR_PTR("sx and sy must be >= 4", procName, NULL);
 	if(mincount > sx * sy) {
 		L_WARNING("mincount too large for tile size\n", procName);
 		mincount = (sx * sy) / 3;
 	}
 
 	pixn = pixBackgroundNorm(pixs, pixim, NULL, sx, sy, thresh,
-	    mincount, bgval, smoothx, smoothy);
+		mincount, bgval, smoothx, smoothy);
 	if(!pixn)
-		return (PIX*)ERROR_PTR("pixn not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixn not made", procName, NULL);
 
 	/* Just use 1 tile for a global threshold, which is stored
 	 * as a single pixel in pixt. */
@@ -299,7 +309,7 @@ PIX * pixOtsuThreshOnBackgroundNorm(PIX       * pixs,
 	pixDestroy(&pixt);
 
 	if(!pixd)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	else
 		return pixd;
 }
@@ -310,16 +320,16 @@ PIX * pixOtsuThreshOnBackgroundNorm(PIX       * pixs,
 /*!
  * \brief   pixMaskedThreshOnBackgroundNorm()
  *
- * \param[in]    pixs 8 bpp grayscale; not colormapped
- * \param[in]    pixim [optional] 1 bpp 'image' mask; can be null
- * \param[in]    sx, sy tile size in pixels
- * \param[in]    thresh threshold for determining foreground
- * \param[in]    mincount min threshold on counts in a tile
- * \param[in]    smoothx half-width of block convolution kernel width
- * \param[in]    smoothy half-width of block convolution kernel height
- * \param[in]    scorefract fraction of the max Otsu score; typ. ~ 0.1
- * \param[out]   pthresh [optional] threshold value that was
- *                       used on the normalized image
+ * \param[in]    pixs         8 bpp grayscale; not colormapped
+ * \param[in]    pixim        [optional] 1 bpp 'image' mask; can be null
+ * \param[in]    sx, sy       tile size in pixels
+ * \param[in]    thresh       threshold for determining foreground
+ * \param[in]    mincount     min threshold on counts in a tile
+ * \param[in]    smoothx      half-width of block convolution kernel width
+ * \param[in]    smoothy      half-width of block convolution kernel height
+ * \param[in]    scorefract   fraction of the max Otsu score; typ. ~ 0.1
+ * \param[out]   pthresh      [optional] threshold value that was
+ *                            used on the normalized image
  * \return  pixd 1 bpp thresholded image, or NULL on error
  *
  * <pre>
@@ -346,30 +356,30 @@ PIX * pixOtsuThreshOnBackgroundNorm(PIX       * pixs,
  *            smoothx, smoothy = 2
  * </pre>
  */
-PIX * pixMaskedThreshOnBackgroundNorm(PIX       * pixs,
-    PIX       * pixim,
-    int32 sx,
-    int32 sy,
-    int32 thresh,
-    int32 mincount,
-    int32 smoothx,
-    int32 smoothy,
+PIX * pixMaskedThreshOnBackgroundNorm(PIX * pixs,
+    PIX * pixim,
+    l_int32 sx,
+    l_int32 sy,
+    l_int32 thresh,
+    l_int32 mincount,
+    l_int32 smoothx,
+    l_int32 smoothy,
     float scorefract,
-    int32   * pthresh)
+    l_int32   * pthresh)
 {
-	int32 w, h, highthresh;
-	uint32 val;
-	PIX      * pixn, * pixm, * pixd, * pix1, * pix2, * pix3, * pix4;
+	l_int32 w, h, highthresh;
+	l_uint32 val;
+	PIX * pixn, * pixm, * pixd, * pix1, * pix2, * pix3, * pix4;
 
-	PROCNAME("pixMaskedThreshOnBackgroundNorm");
+	PROCNAME(__FUNCTION__);
 
 	if(pthresh) *pthresh = 0;
 	if(!pixs || pixGetDepth(pixs) != 8)
-		return (PIX*)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixs))
-		return (PIX*)ERROR_PTR("pixs is colormapped", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs is colormapped", procName, NULL);
 	if(sx < 4 || sy < 4)
-		return (PIX*)ERROR_PTR("sx and sy must be >= 4", procName, NULL);
+		return (PIX *)ERROR_PTR("sx and sy must be >= 4", procName, NULL);
 	if(mincount > sx * sy) {
 		L_WARNING("mincount too large for tile size\n", procName);
 		mincount = (sx * sy) / 3;
@@ -377,9 +387,9 @@ PIX * pixMaskedThreshOnBackgroundNorm(PIX       * pixs,
 
 	/* Standard background normalization */
 	pixn = pixBackgroundNorm(pixs, pixim, NULL, sx, sy, thresh,
-	    mincount, 255, smoothx, smoothy);
+		mincount, 255, smoothx, smoothy);
 	if(!pixn)
-		return (PIX*)ERROR_PTR("pixn not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixn not made", procName, NULL);
 
 	/* Special background normalization for adaptation to quickly
 	 * varying background.  Threshold on the very light parts,
@@ -398,10 +408,8 @@ PIX * pixMaskedThreshOnBackgroundNorm(PIX       * pixs,
 	 * which is stored as a single pixel in pix3. */
 	pixGetDimensions(pixs, &w, &h, NULL);
 	pixOtsuAdaptiveThreshold(pixs, w, h, 0, 0, scorefract, &pix3, NULL);
-	if(pix3 && pthresh) {
-		pixGetPixel(pix3, 0, 0, &val);
-		*pthresh = val;
-	}
+	pixGetPixel(pix3, 0, 0, &val);
+	if(pthresh) *pthresh = val;
 	pixDestroy(&pix3);
 
 	/* Threshold the background normalized images differentially,
@@ -422,7 +430,7 @@ PIX * pixMaskedThreshOnBackgroundNorm(PIX       * pixs,
 	pixDestroy(&pixn);
 
 	if(!pixd)
-		return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	else
 		return pixd;
 }
@@ -433,25 +441,25 @@ PIX * pixMaskedThreshOnBackgroundNorm(PIX       * pixs,
 /*!
  * \brief   pixSauvolaBinarizeTiled()
  *
- * \param[in]    pixs 8 bpp grayscale, not colormapped
- * \param[in]    whsize window half-width for measuring local statistics
- * \param[in]    factor factor for reducing threshold due to variance; >= 0
- * \param[in]    nx, ny subdivision into tiles; >= 1
- * \param[out]   ppixth [optional] Sauvola threshold values
- * \param[out]   ppixd [optional] thresholded image
+ * \param[in]    pixs      8 bpp grayscale, not colormapped
+ * \param[in]    whsize    window half-width for measuring local statistics
+ * \param[in]    factor    factor for reducing threshold due to variance; >= 0
+ * \param[in]    nx, ny    subdivision into tiles; >= 1
+ * \param[out]   ppixth    [optional] Sauvola threshold values
+ * \param[out]   ppixd     [optional] thresholded image
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) The window width and height are 2 * %whsize + 1.  The minimum
- *          value for %whsize is 2; typically it is \>= 7..
+ *          value for %whsize is 2; typically it is >= 7.
  *      (2) For nx == ny == 1, this defaults to pixSauvolaBinarize().
  *      (3) Why a tiled version?
- *          (a) Because the mean value accumulator is a uint32, overflow
- *              can occur for an image with more than 16M pixels.
- *          (b) The mean value accumulator array for 16M pixels is 64 MB.
- *              The mean square accumulator array for 16M pixels is 128 MB.
- *              Using tiles reduces the size of these arrays.
+ *          (a) A uint32 is used for the mean value accumulator, so
+ *              overflow can occur for an image with more than 16M pixels.
+ *          (b) A dpix is used to accumulate mean square values, and it
+ *              can only accommodate images with less than 2^28 pixels.
+ *              Using tiles reduces the size of all the arrays.
  *          (c) Each tile can be processed independently, in parallel,
  *              on a multicore processor.
  *      (4) The Sauvola threshold is determined from the formula:
@@ -459,20 +467,20 @@ PIX * pixMaskedThreshOnBackgroundNorm(PIX       * pixs,
  *          See pixSauvolaBinarize() for details.
  * </pre>
  */
-int32 pixSauvolaBinarizeTiled(PIX       * pixs,
-    int32 whsize,
+l_ok pixSauvolaBinarizeTiled(PIX * pixs,
+    l_int32 whsize,
     float factor,
-    int32 nx,
-    int32 ny,
-    PIX      ** ppixth,
-    PIX      ** ppixd)
+    l_int32 nx,
+    l_int32 ny,
+    PIX ** ppixth,
+    PIX ** ppixd)
 {
-	int32 i, j, w, h, xrat, yrat;
+	l_int32 i, j, w, h, xrat, yrat;
 	PIX        * pixth, * pixd, * tileth, * tiled, * pixt;
-	PIX       ** ptileth, ** ptiled;
+	PIX ** ptileth, ** ptiled;
 	PIXTILING  * pt;
 
-	PROCNAME("pixSauvolaBinarizeTiled");
+	PROCNAME(__FUNCTION__);
 
 	if(!ppixth && !ppixd)
 		return ERROR_INT("no outputs", procName, 1);
@@ -492,7 +500,7 @@ int32 pixSauvolaBinarizeTiled(PIX       * pixs,
 
 	if(nx <= 1 && ny <= 1)
 		return pixSauvolaBinarize(pixs, whsize, factor, 1, NULL, NULL,
-		    ppixth, ppixd);
+			   ppixth, ppixd);
 
 	/* Test to see if the tiles are too small.  The required
 	 * condition is that the tile dimensions must be at least
@@ -501,22 +509,23 @@ int32 pixSauvolaBinarizeTiled(PIX       * pixs,
 	yrat = h / ny;
 	if(xrat < whsize + 2) {
 		nx = w / (whsize + 2);
-		L_WARNING2("tile width too small; nx reduced to %d\n", procName, nx);
+		L_WARNING("tile width too small; nx reduced to %d\n", procName, nx);
 	}
 	if(yrat < whsize + 2) {
 		ny = h / (whsize + 2);
-		L_WARNING2("tile height too small; ny reduced to %d\n", procName, ny);
+		L_WARNING("tile height too small; ny reduced to %d\n", procName, ny);
 	}
 	if(nx <= 1 && ny <= 1)
-		return pixSauvolaBinarize(pixs, whsize, factor, 1, NULL, NULL, ppixth, ppixd);
+		return pixSauvolaBinarize(pixs, whsize, factor, 1, NULL, NULL,
+			   ppixth, ppixd);
 
 	/* We can use pixtiling for painting both outputs, if requested */
 	if(ppixth) {
-		pixth = pixCreateNoInit(w, h, 8);
+		pixth = pixCreate(w, h, 8);
 		*ppixth = pixth;
 	}
 	if(ppixd) {
-		pixd = pixCreateNoInit(w, h, 1);
+		pixd = pixCreate(w, h, 1);
 		*ppixd = pixd;
 	}
 	pt = pixTilingCreate(pixs, nx, ny, 0, 0, whsize + 1, whsize + 1);
@@ -548,20 +557,20 @@ int32 pixSauvolaBinarizeTiled(PIX       * pixs,
 /*!
  * \brief   pixSauvolaBinarize()
  *
- * \param[in]    pixs 8 bpp grayscale; not colormapped
- * \param[in]    whsize window half-width for measuring local statistics
- * \param[in]    factor factor for reducing threshold due to variance; >= 0
- * \param[in]    addborder 1 to add border of width (%whsize + 1) on all sides
- * \param[out]   ppixm [optional] local mean values
- * \param[out]   ppixsd [optional] local standard deviation values
- * \param[out]   ppixth [optional] threshold values
- * \param[out]   ppixd [optional] thresholded image
+ * \param[in]    pixs       8 bpp grayscale; not colormapped
+ * \param[in]    whsize     window half-width for measuring local statistics
+ * \param[in]    factor     factor for reducing threshold due to variance; >= 0
+ * \param[in]    addborder  1 to add border of width (%whsize + 1) on all sides
+ * \param[out]   ppixm      [optional] local mean values
+ * \param[out]   ppixsd     [optional] local standard deviation values
+ * \param[out]   ppixth     [optional] threshold values
+ * \param[out]   ppixd      [optional] thresholded image
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
  *      (1) The window width and height are 2 * %whsize + 1.  The minimum
- *          value for %whsize is 2; typically it is \>= 7..
+ *          value for %whsize is 2; typically it is >= 7..
  *      (2) The local statistics, measured over the window, are the
  *          average and standard deviation.
  *      (3) The measurements of the mean and standard deviation are
@@ -573,7 +582,7 @@ int32 pixSauvolaBinarizeTiled(PIX       * pixs,
  *          where:
  *            t = local threshold
  *            m = local mean
- *            k = %factor (\>= 0)   [ typ. 0.35 ]
+ *            k = %factor (>= 0)   [ typ. 0.35 ]
  *            s = local standard deviation, which is maximized at
  *                127.5 when half the samples are 0 and half are 255.
  *      (5) The basic idea of Niblack and Sauvola binarization is that
@@ -583,19 +592,19 @@ int32 pixSauvolaBinarizeTiled(PIX       * pixs,
  *          0.2 and 0.5.
  * </pre>
  */
-int32 pixSauvolaBinarize(PIX       * pixs,
-    int32 whsize,
+l_ok pixSauvolaBinarize(PIX * pixs,
+    l_int32 whsize,
     float factor,
-    int32 addborder,
-    PIX      ** ppixm,
-    PIX      ** ppixsd,
-    PIX      ** ppixth,
-    PIX      ** ppixd)
+    l_int32 addborder,
+    PIX ** ppixm,
+    PIX ** ppixsd,
+    PIX ** ppixth,
+    PIX ** ppixd)
 {
-	int32 w, h;
-	PIX     * pixg, * pixsc, * pixm, * pixms, * pixth, * pixd;
+	l_int32 w, h;
+	PIX * pixg, * pixsc, * pixm, * pixms, * pixth, * pixd;
 
-	PROCNAME("pixSauvolaBinarize");
+	PROCNAME(__FUNCTION__);
 
 	if(ppixm) *ppixm = NULL;
 	if(ppixsd) *ppixsd = NULL;
@@ -617,7 +626,7 @@ int32 pixSauvolaBinarize(PIX       * pixs,
 
 	if(addborder) {
 		pixg = pixAddMirroredBorder(pixs, whsize + 1, whsize + 1,
-		    whsize + 1, whsize + 1);
+			whsize + 1, whsize + 1);
 		pixsc = pixClone(pixs);
 	}
 	else {
@@ -635,7 +644,7 @@ int32 pixSauvolaBinarize(PIX       * pixs,
 	if(ppixth || ppixd)
 		pixth = pixSauvolaGetThreshold(pixm, pixms, factor, ppixsd);
 	if(ppixd) {
-		pixd = pixApplyLocalThreshold(pixsc, pixth, 1);
+		pixd = pixApplyLocalThreshold(pixsc, pixth);
 		pixCopyResolution(pixd, pixs);
 	}
 
@@ -650,8 +659,6 @@ int32 pixSauvolaBinarize(PIX       * pixs,
 		pixDestroy(&pixth);
 	if(ppixd)
 		*ppixd = pixd;
-	else
-		pixDestroy(&pixd);
 	pixDestroy(&pixg);
 	pixDestroy(&pixsc);
 	return 0;
@@ -660,11 +667,11 @@ int32 pixSauvolaBinarize(PIX       * pixs,
 /*!
  * \brief   pixSauvolaGetThreshold()
  *
- * \param[in]    pixm 8 bpp grayscale; not colormapped
- * \param[in]    pixms 32 bpp
- * \param[in]    factor factor for reducing threshold due to variance; >= 0
- * \param[out]   ppixsd [optional] local standard deviation
- * \return  pixd 8 bpp, sauvola threshold values, or NULL on error
+ * \param[in]    pixm     8 bpp grayscale; not colormapped
+ * \param[in]    pixms    32 bpp
+ * \param[in]    factor   factor for reducing threshold due to variance; >= 0
+ * \param[out]   ppixsd   [optional] local standard deviation
+ * \return  pixd   8 bpp, sauvola threshold values, or NULL on error
  *
  * <pre>
  * Notes:
@@ -673,7 +680,7 @@ int32 pixSauvolaBinarize(PIX       * pixs,
  *          where:
  *            t = local threshold
  *            m = local mean
- *            k = %factor (\>= 0)   [ typ. 0.35 ]
+ *            k = %factor (>= 0)   [ typ. 0.35 ]
  *            s = local standard deviation, which is maximized at
  *                127.5 when half the samples are 0 and half are 255.
  *      (2) See pixSauvolaBinarize() for other details.
@@ -694,31 +701,31 @@ int32 pixSauvolaBinarize(PIX       * pixs,
  *            s = sqrt(ms - mv * mv)
  * </pre>
  */
-PIX * pixSauvolaGetThreshold(PIX       * pixm,
-    PIX       * pixms,
+static PIX * pixSauvolaGetThreshold(PIX * pixm,
+    PIX * pixms,
     float factor,
-    PIX      ** ppixsd)
+    PIX ** ppixsd)
 {
-	int32 i, j, w, h, tabsize, wplm, wplms, wplsd, wpld, usetab;
-	int32 mv, ms, var, thresh;
-	uint32   * datam, * datams, * datasd, * datad;
-	uint32   * linem, * linems, * linesd, * lined;
+	l_int32 i, j, w, h, tabsize, wplm, wplms, wplsd, wpld, usetab;
+	l_int32 mv, ms, var, thresh;
+	l_uint32   * datam, * datams, * datasd, * datad;
+	l_uint32   * linem, * linems, * linesd, * lined;
 	float sd;
-	float  * tab; /* of 2^16 square roots */
+	float * tab; /* of 2^16 square roots */
 	PIX        * pixsd, * pixd;
 
-	PROCNAME("pixSauvolaGetThreshold");
+	PROCNAME(__FUNCTION__);
 
 	if(ppixsd) *ppixsd = NULL;
 	if(!pixm || pixGetDepth(pixm) != 8)
-		return (PIX*)ERROR_PTR("pixm undefined or not 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixm undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixm))
-		return (PIX*)ERROR_PTR("pixm is colormapped", procName, NULL);
+		return (PIX *)ERROR_PTR("pixm is colormapped", procName, NULL);
 	if(!pixms || pixGetDepth(pixms) != 32)
-		return (PIX*)ERROR_PTR("pixms undefined or not 32 bpp",
-		    procName, NULL);
+		return (PIX *)ERROR_PTR("pixms undefined or not 32 bpp",
+			   procName, NULL);
 	if(factor < 0.0)
-		return (PIX*)ERROR_PTR("factor must be >= 0", procName, NULL);
+		return (PIX *)ERROR_PTR("factor must be >= 0", procName, NULL);
 
 	/* Only make a table of 2^16 square roots if there
 	 * are enough pixels to justify it. */
@@ -726,7 +733,7 @@ PIX * pixSauvolaGetThreshold(PIX       * pixm,
 	usetab = (w * h > 100000) ? 1 : 0;
 	if(usetab) {
 		tabsize = 1 << 16;
-		tab = (float*)LEPT_CALLOC(tabsize, sizeof(float));
+		tab = (float *)SAlloc::C(tabsize, sizeof(float));
 		for(i = 0; i < tabsize; i++)
 			tab[i] = sqrtf((float)i);
 	}
@@ -757,40 +764,38 @@ PIX * pixSauvolaGetThreshold(PIX       * pixm,
 				sd = tab[var];
 			else
 				sd = sqrtf((float)var);
-			if(ppixsd) SET_DATA_BYTE(linesd, j, (int32)sd);
-			thresh = (int32)(mv * (1.0 - factor * (1.0 - sd / 128.)));
+			if(ppixsd) SET_DATA_BYTE(linesd, j, (l_int32)sd);
+			thresh = (l_int32)(mv * (1.0 - factor * (1.0 - sd / 128.)));
 			SET_DATA_BYTE(lined, j, thresh);
 		}
 	}
 
-	if(usetab) LEPT_FREE(tab);
+	if(usetab) SAlloc::F(tab);
 	return pixd;
 }
 
 /*!
  * \brief   pixApplyLocalThreshold()
  *
- * \param[in]    pixs 8 bpp grayscale; not colormapped
- * \param[in]    pixth 8 bpp array of local thresholds
- * \param[in]    redfactor  ...
- * \return  pixd 1 bpp, thresholded image, or NULL on error
+ * \param[in]    pixs     8 bpp grayscale; not colormapped
+ * \param[in]    pixth    8 bpp array of local thresholds
+ * \return  pixd   1 bpp, thresholded image, or NULL on error
  */
-PIX * pixApplyLocalThreshold(PIX     * pixs,
-    PIX     * pixth,
-    int32 redfactor)
+static PIX * pixApplyLocalThreshold(PIX * pixs,
+    PIX * pixth)
 {
-	int32 i, j, w, h, wpls, wplt, wpld, vals, valt;
-	uint32  * datas, * datat, * datad, * lines, * linet, * lined;
-	PIX       * pixd;
+	l_int32 i, j, w, h, wpls, wplt, wpld, vals, valt;
+	l_uint32 * datas, * datat, * datad, * lines, * linet, * lined;
+	PIX * pixd;
 
-	PROCNAME("pixApplyLocalThreshold");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs || pixGetDepth(pixs) != 8)
-		return (PIX*)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixs))
-		return (PIX*)ERROR_PTR("pixs is colormapped", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs is colormapped", procName, NULL);
 	if(!pixth || pixGetDepth(pixth) != 8)
-		return (PIX*)ERROR_PTR("pixth undefined or not 8 bpp", procName, NULL);
+		return (PIX *)ERROR_PTR("pixth undefined or not 8 bpp", procName, NULL);
 
 	pixGetDimensions(pixs, &w, &h, NULL);
 	pixd = pixCreate(w, h, 1);
@@ -816,24 +821,132 @@ PIX * pixApplyLocalThreshold(PIX     * pixs,
 }
 
 /*----------------------------------------------------------------------*
-*                  Thresholding using connected components             *
+*      Contrast normalization followed by Sauvola binarization         *
+*----------------------------------------------------------------------*/
+/*!
+ * \brief   pixSauvolaOnContrastNorm()
+ *
+ * \param[in]    pixs          8 or 32 bpp
+ * \param[in]    mindiff       minimum diff to accept as valid in contrast
+ *                             normalization.  Use ~130 for noisy images.
+ * \param[out]   ppixn         [optional] intermediate output from contrast
+ *                             normalization
+ * \param[out]   ppixth        [optional] threshold array for binarization
+ * \return  pixd    1 bpp thresholded image, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This composite operation is good for adaptively removing
+ *          dark background.
+ * </pre>
+ */
+PIX  * pixSauvolaOnContrastNorm(PIX * pixs,
+    l_int32 mindiff,
+    PIX    ** ppixn,
+    PIX    ** ppixth)
+{
+	l_int32 w, h, d, nx, ny;
+	PIX * pixg, * pix1, * pixd;
+
+	PROCNAME(__FUNCTION__);
+
+	if(ppixn) *ppixn = NULL;
+	if(ppixth) *ppixth = NULL;
+	if(!pixs || (d = pixGetDepth(pixs)) < 8)
+		return (PIX *)ERROR_PTR("pixs undefined or d < 8 bpp", procName, NULL);
+	if(d == 32)
+		pixg = pixConvertRGBToGray(pixs, 0.3f, 0.4f, 0.3f);
+	else
+		pixg = pixConvertTo8(pixs, 0);
+
+	pix1 = pixContrastNorm(NULL, pixg, 50, 50, mindiff, 2, 2);
+
+	/* Use tiles of size approximately 250 x 250 */
+	pixGetDimensions(pix1, &w, &h, NULL);
+	nx = MAX(1, (w + 125) / 250);
+	ny = MAX(1, (h + 125) / 250);
+	pixSauvolaBinarizeTiled(pix1, 25, 0.40f, nx, ny, ppixth, &pixd);
+	pixDestroy(&pixg);
+	if(ppixn)
+		*ppixn = pix1;
+	else
+		pixDestroy(&pix1);
+	return pixd;
+}
+
+/*----------------------------------------------------------------------*
+*      Contrast normalization followed by background normalization     *
+*                            and thresholding                          *
+*----------------------------------------------------------------------*/
+/*!
+ * \brief   pixTheshOnDoubleNorm()
+ *
+ * \param[in]    pixs          8 or 32 bpp
+ * \param[in]    mindiff       minimum diff to accept as valid in contrast
+ *                             normalization.  Use ~130 for noisy images.
+ * \return  pixd    1 bpp thresholded image, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This composite operation is good for adaptively removing
+ *          dark background.
+ *      (2) The threshold for the binarization uses an estimate based
+ *          on Otsu adaptive thresholding.
+ * </pre>
+ */
+PIX  * pixThreshOnDoubleNorm(PIX * pixs,
+    l_int32 mindiff)
+{
+	l_int32 d, ival;
+	l_uint32 val;
+	PIX * pixg, * pix1, * pixd;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!pixs || (d = pixGetDepth(pixs)) < 8)
+		return (PIX *)ERROR_PTR("pixs undefined or d < 8 bpp", procName, NULL);
+	if(d == 32)
+		pixg = pixConvertRGBToGray(pixs, 0.3f, 0.4f, 0.3f);
+	else
+		pixg = pixConvertTo8(pixs, 0);
+
+	/* Use the entire image for the estimate; pix1 is 1x1 */
+	pixOtsuAdaptiveThreshold(pixg, 5000, 5000, 0, 0, 0.1f, &pix1, NULL);
+	pixGetPixel(pix1, 0, 0, &val);
+	ival = (l_int32)val;
+	ival = MIN(ival, 110);
+	pixDestroy(&pix1);
+
+	/* Double normalization */
+	pixContrastNorm(pixg, pixg, 50, 50, mindiff, 2, 2);
+	pix1 = pixBackgroundNormSimple(pixg, NULL, NULL);
+	pixDestroy(&pixg);
+
+/*    lept_stderr("ival = %d\n", ival); */
+	pixd = pixThresholdToBinary(pix1, ival);
+	pixDestroy(&pix1);
+	return pixd;
+}
+
+/*----------------------------------------------------------------------*
+*            Global thresholding using connected components            *
 *----------------------------------------------------------------------*/
 /*!
  * \brief   pixThresholdByConnComp()
  *
- * \param[in]    pixs depth > 1, colormap OK
- * \param[in]    pixm [optional] 1 bpp mask giving region to ignore by setting
- *                    pixels to white; use NULL if no mask
- * \param[in]    start, end, incr binarization threshold levels to test
- * \param[in]    thresh48 threshold on normalized difference between the
- *                        numbers of 4 and 8 connected components
- * \param[in]    threshdiff threshold on normalized difference between the
- *                          number of 4 cc at successive iterations
- * \param[out]   pglobthresh [optional] best global threshold; 0
- *                           if no threshold is found
- * \param[out]   ppixd [optional] image thresholded to binary, or
- *                     null if no threshold is found
- * \param[in]    debugflag 1 for plotted results
+ * \param[in]    pixs          depth > 1, colormap OK
+ * \param[in]    pixm          [optional] 1 bpp mask giving region to ignore
+ *                             by setting pixels to white; use NULL if no mask
+ * \param[in]    start, end, incr   binarization threshold levels to test
+ * \param[in]    thresh48      threshold on normalized difference between the
+ *                             numbers of 4 and 8 connected components
+ * \param[in]    threshdiff    threshold on normalized difference between the
+ *                             number of 4 cc at successive iterations
+ * \param[out]   pglobthresh   [optional] best global threshold; 0
+ *                             if no threshold is found
+ * \param[out]   ppixd         [optional] image thresholded to binary, or
+ *                             null if no threshold is found
+ * \param[in]    debugflag     1 for plotted results
  * \return  0 if OK, 1 on error or if no threshold is found
  *
  * <pre>
@@ -872,24 +985,24 @@ PIX * pixApplyLocalThreshold(PIX     * pixs,
  *          which the caller should check.
  * </pre>
  */
-int32 pixThresholdByConnComp(PIX       * pixs,
-    PIX       * pixm,
-    int32 start,
-    int32 end,
-    int32 incr,
+l_ok pixThresholdByConnComp(PIX * pixs,
+    PIX * pixm,
+    l_int32 start,
+    l_int32 end,
+    l_int32 incr,
     float thresh48,
     float threshdiff,
-    int32   * pglobthresh,
-    PIX      ** ppixd,
-    int32 debugflag)
+    l_int32   * pglobthresh,
+    PIX ** ppixd,
+    l_int32 debugflag)
 {
-	int32 i, thresh, n, n4, n8, mincounts, found, globthresh;
+	l_int32 i, thresh, n, n4, n8, mincounts, found, globthresh;
 	float count4, count8, firstcount4, prevcount4, diff48, diff4;
 	GPLOT     * gplot;
-	NUMA      * na4, * na8;
-	PIX       * pix1, * pix2, * pix3;
+	NUMA * na4, * na8;
+	PIX * pix1, * pix2, * pix3;
 
-	PROCNAME("pixThresholdByConnComp");
+	PROCNAME(__FUNCTION__);
 
 	if(pglobthresh) *pglobthresh = 0;
 	if(ppixd) *ppixd = NULL;
@@ -929,7 +1042,7 @@ int32 pixThresholdByConnComp(PIX       * pixs,
 	pixDestroy(&pix3);
 	mincounts = 500;
 	if(n4 < mincounts) {
-		L_INFO2("Insufficient component count: %d\n", procName, n4);
+		L_INFO("Insufficient component count: %d\n", procName, n4);
 		pixDestroy(&pix2);
 		return 1;
 	}
@@ -948,7 +1061,10 @@ int32 pixThresholdByConnComp(PIX       * pixs,
 		pixDestroy(&pix3);
 	}
 	if(debugflag) {
-		gplot = gplotCreate("/tmp/threshroot", GPLOT_PNG, "number of cc vs. threshold", "threshold", "number of cc");
+		lept_mkdir("lept/binarize");
+		gplot = gplotCreate("/tmp/lept/binarize", GPLOT_PNG,
+			"number of cc vs. threshold",
+			"threshold", "number of cc");
 		gplotAddPlot(gplot, NULL, na4, GPLOT_LINES, "plot 4cc");
 		gplotAddPlot(gplot, NULL, na8, GPLOT_LINES, "plot 8cc");
 		gplotMakeOutput(gplot);
@@ -968,7 +1084,7 @@ int32 pixThresholdByConnComp(PIX       * pixs,
 			diff48 = (count4 - count8) / firstcount4;
 			diff4 = L_ABS(prevcount4 - count4) / firstcount4;
 			if(debugflag) {
-				fprintf(stderr, "diff48 = %7.3f, diff4 = %7.3f\n",
+				lept_stderr("diff48 = %7.3f, diff4 = %7.3f\n",
 				    diff48, diff4);
 			}
 			if(diff48 < thresh48 && diff4 < threshdiff) {
@@ -988,13 +1104,90 @@ int32 pixThresholdByConnComp(PIX       * pixs,
 			*ppixd = pixConvertTo1(pix2, globthresh);
 			pixCopyResolution(*ppixd, pixs);
 		}
-		if(debugflag) fprintf(stderr, "global threshold = %d\n", globthresh);
+		if(debugflag) lept_stderr("global threshold = %d\n", globthresh);
 		pixDestroy(&pix2);
 		return 0;
 	}
 
-	if(debugflag) fprintf(stderr, "no global threshold found\n");
+	if(debugflag) lept_stderr("no global threshold found\n");
 	pixDestroy(&pix2);
 	return 1;
 }
 
+/*----------------------------------------------------------------------*
+*                   Global thresholding by histogram                   *
+*----------------------------------------------------------------------*/
+/*!
+ * \brief   pixThresholdByHisto()
+ *
+ * \param[in]    pixs          gray 8 bpp, no colormap
+ * \param[in]    factor        subsampling factor >= 1
+ * \param[in]    halfw         half of window width for smoothing;
+ *                             use 0 for default
+ * \param[in]    delta         relative amount to resolve peaks and valleys;
+ *                             in (0 ... 1], use 0 for default
+ * \param[out]   pthresh       best global threshold; 0 if no threshold is found
+ * \param[out]   ppixd         [optional] thresholded 1 bpp pix
+ * \param[out]   ppixhisto     [optional] rescaled histogram of gray values
+ * \return  0 if OK, 1 on error or if no threshold is found
+ *
+ * <pre>
+ * Notes:
+ *      (1) This finds a global threshold.  It is best for an image that
+ *          has a fairly well-defined fg and bg.
+ *      (2) If it finds a good threshold and %ppixd is defined, the binarized
+ *          image is returned in &pixd; otherwise it return null.
+ *      (3) Suggest using default values for %half and %delta.
+ *      (4) Returns 0 in %pthresh if it can't find a good threshold.
+ * </pre>
+ */
+l_ok pixThresholdByHisto(PIX * pixs,
+    l_int32 factor,
+    l_int32 halfw,
+    float delta,
+    l_int32   * pthresh,
+    PIX ** ppixd,
+    PIX ** ppixhisto)
+{
+	float maxval, fract;
+	NUMA * na1, * na2, * na3;
+
+	PROCNAME(__FUNCTION__);
+
+	if(ppixhisto) *ppixhisto = NULL;
+	if(ppixd) *ppixd = NULL;
+	if(!pthresh)
+		return ERROR_INT("&thresh not defined", procName, 1);
+	*pthresh = 0;
+	if(!pixs || pixGetDepth(pixs) != 8)
+		return ERROR_INT("pixs undefined or not 8 bpp", procName, 1);
+	if(pixGetColormap(pixs))
+		return ERROR_INT("pixs has colormap", procName, 1);
+	if(factor < 1)
+		return ERROR_INT("sampling must be >= 1", procName, 1);
+	if(halfw <= 0) halfw = 20;
+	if(delta <= 0.0) delta = 0.1f;
+
+	/* Make a histogram of pixel values where the largest peak
+	 * is normalized to a value of 1.0. */
+	na1 = pixGetGrayHistogram(pixs, factor);
+	na2 = numaWindowedMean(na1, halfw); /* smoothing */
+	numaGetMax(na2, &maxval, NULL);
+	na3 = numaTransform(na2, 0.0f, 1.0f / maxval); /* rescale to max of 1.0 */
+	numaDestroy(&na1);
+	numaDestroy(&na2);
+
+	numaFindLocForThreshold(na3, 0, pthresh, &fract);
+	L_INFO("fractional area under first peak: %5.3f\n", procName, fract);
+
+	if(ppixhisto) {
+		lept_mkdir("lept/histo");
+		gplotSimple1(na3, GPLOT_PNG, "/tmp/lept/histo/histo", NULL);
+		*ppixhisto = pixRead("/tmp/lept/histo/histo.png");
+	}
+	numaDestroy(&na3);
+
+	if(*pthresh > 0 && ppixd)
+		*ppixd = pixThresholdToBinary(pixs, *pthresh);
+	return 0;
+}

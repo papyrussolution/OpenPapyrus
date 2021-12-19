@@ -116,32 +116,32 @@ register_term(png)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp);
-TERM_PUBLIC void PNG_init(GpTermEntry * pThis);
-TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis);
-TERM_PUBLIC void PNG_text(GpTermEntry * pThis);
+TERM_PUBLIC void PNG_options(GpTermEntry_Static * pThis, GnuPlot * pGp);
+TERM_PUBLIC void PNG_init(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PNG_graphics(GpTermEntry_Static * pThis);
+TERM_PUBLIC void PNG_text(GpTermEntry_Static * pThis);
 TERM_PUBLIC void PNG_linetype(int linetype);
 TERM_PUBLIC void PNG_linewidth(double linewidth);
 TERM_PUBLIC void PNG_move(uint x, uint y);
 TERM_PUBLIC void PNG_vector(uint x, uint y);
-TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC int  PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode);
+TERM_PUBLIC void PNG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC int  PNG_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode);
 TERM_PUBLIC void PNG_point(uint x, uint y, int number);
 TERM_PUBLIC int  PNG_text_angle(int ang);
-TERM_PUBLIC void PNG_reset(GpTermEntry * pThis);
-TERM_PUBLIC int  PNG_set_font(GpTermEntry * pThis, const char * fontname);
-TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize);
+TERM_PUBLIC void PNG_reset(GpTermEntry_Static * pThis);
+TERM_PUBLIC int  PNG_set_font(GpTermEntry_Static * pThis, const char * fontname);
+TERM_PUBLIC void PNG_pointsize(GpTermEntry_Static * pThis, double ptsize);
 TERM_PUBLIC void PNG_boxfill(int, uint, uint, uint, uint);
-TERM_PUBLIC int  PNG_make_palette(GpTermEntry * pThis, t_sm_palette *);
+TERM_PUBLIC int  PNG_make_palette(GpTermEntry_Static * pThis, t_sm_palette *);
 /* TERM_PUBLIC void PNG_previous_palette (); */
-TERM_PUBLIC void PNG_set_color(GpTermEntry * pThis, t_colorspec *);
+TERM_PUBLIC void PNG_set_color(GpTermEntry_Static * pThis, t_colorspec *);
 TERM_PUBLIC void PNG_filled_polygon(int, gpiPoint *);
-TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
+TERM_PUBLIC void PNG_image(GpTermEntry_Static * pThis, uint, uint, coordval *, gpiPoint *, t_imagecolor);
 
 /* To support "set term png enhanced" */
-TERM_PUBLIC void ENHGD_put_text(GpTermEntry * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC void ENHGD_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
-TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry * pThis);
+TERM_PUBLIC void ENHGD_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
+TERM_PUBLIC void ENHGD_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry_Static * pThis);
 
 TERM_PUBLIC void ENHGD_boxed_text(uint, uint, int);
 
@@ -329,7 +329,7 @@ static double PNG_dashlength_factor = 1.0;
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
-static void gd_iconv(GpTermEntry * pThis, char ** string);
+static void gd_iconv(GpTermEntry_Static * pThis, char ** string);
 
 /* EAM - gdImage structure to hold brushes for linewidth */
 /* We will allocate and initialize these on demand */
@@ -371,7 +371,7 @@ static void gp_gdImageFilledPolygon(gdImagePtr im, gdPointPtr p, int n, int c)
 /* Common code to crop the image around its bounding box, just before writing
    down the file.
  */
-static void image_do_crop(GpTermEntry * pThis)
+static void image_do_crop(GpTermEntry_Static * pThis)
 {
 	if(png_state.flags & PNG_USE_CROP) {
 		int x, y, x1, y1, x2, y2, flag;
@@ -597,7 +597,7 @@ static void PNG_Diamond(uint x, uint y,
  * suitable for use with the set term command.  GPT.TermOptions[] is used by
  * the save command.  Use GnuPlot::OptionsNull() if no options are available.
  */
-TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
+TERM_PUBLIC void PNG_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 {
 	double tmp;
 	char * string;
@@ -606,7 +606,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(!PNG_initialized) {
 		PNG_initialized = TRUE;
 		GPT._TermOptions.Z();
-		pThis->ChrH = PNG_HCHAR; /* Default to medium font */
+		pThis->CH() = PNG_HCHAR; /* Default to medium font */
 		png_state.default_font = gdfont;
 		png_state.n_colors = 0;
 		png_state.flags = 0;
@@ -659,12 +659,12 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		png_state.frame_optimization = FALSE;
 		png_state.loop_count = 0;
 		/* And default font size */
-		pThis->ChrH = PNG_HCHAR;
+		pThis->CH() = PNG_HCHAR;
 		png_state.default_ttfsize = 0;
 		PNG_linewidth_factor = 1.0;
 		PNG_dashlength_factor = 1.0;
 		/* Default to enhanced text */
-		pThis->flags |= TERM_ENHANCED_TEXT;
+		pThis->SetFlag(TERM_ENHANCED_TEXT);
 		pThis->put_text = ENHGD_put_text;
 	}
 	while(!pGp->Pgm.EndOfCommand()) {
@@ -697,7 +697,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 #ifdef HAVE_GD_TTF
 #define UNSET_TTF_FONT \
 	ZFREE(png_state.ttffont); \
-	png_state.default_ttfsize = 2 * pThis->ChrH - 2; \
+	png_state.default_ttfsize = 2 * pThis->CH() - 2; \
 	png_state.use_builtin = TRUE;
 #else
 #define UNSET_TTF_FONT \
@@ -706,36 +706,31 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 
 			case PNG_TINY:
 			    png_state.default_font = gdFontGetTiny();
-			    pThis->ChrV = png_state.default_font->h;
-			    pThis->ChrH = png_state.default_font->w;
+			    pThis->SetCharSize(png_state.default_font->w, png_state.default_font->h);
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_SMALL:
 			    png_state.default_font = gdFontGetSmall();
-			    pThis->ChrV = png_state.default_font->h;
-			    pThis->ChrH = png_state.default_font->w;
+			    pThis->SetCharSize(png_state.default_font->w, png_state.default_font->h);
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_MEDIUM:
 			    png_state.default_font = gdFontGetMediumBold();
-			    pThis->ChrV = png_state.default_font->h;
-			    pThis->ChrH = png_state.default_font->w;
+			    pThis->SetCharSize(png_state.default_font->w, png_state.default_font->h);
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_LARGE:
 			    png_state.default_font = gdFontGetLarge();
-			    pThis->ChrV = png_state.default_font->h;
-			    pThis->ChrH = png_state.default_font->w;
+			    pThis->SetCharSize(png_state.default_font->w, png_state.default_font->h);
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
 			case PNG_GIANT:
 			    png_state.default_font = gdFontGetGiant();
-			    pThis->ChrV = png_state.default_font->h;
-			    pThis->ChrH = png_state.default_font->w;
+			    pThis->SetCharSize(png_state.default_font->w, png_state.default_font->h);
 			    pGp->Pgm.Shift();
 			    UNSET_TTF_FONT;
 			    break;
@@ -820,32 +815,30 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 				    if(PNG_YMAX <= 0)
 					    PNG_YMAX = GREG_YMAX;
 			    }
-			    pThis->MaxY = PNG_YMAX;
-			    pThis->MaxX = PNG_XMAX;
+			    pThis->SetMax(PNG_XMAX, PNG_YMAX);
 			    /* EAM Apr 2003 - same tic size on both x and y axes */
 			    pThis->TicV = (PNG_XMAX < PNG_YMAX) ? PNG_XMAX/100 : PNG_YMAX/100;
-			    if(pThis->TicV < 1)
-				    pThis->TicV = 1;
+			    SETMAX(pThis->TicV, 1);
 			    pThis->TicH = pThis->TicV;
 			    break;
 			case PNG_ENHANCED:
-			    pThis->flags |= TERM_ENHANCED_TEXT;
+			    pThis->SetFlag(TERM_ENHANCED_TEXT);
 			    pThis->put_text = ENHGD_put_text;
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOENHANCED:
-			    pThis->flags &= ~TERM_ENHANCED_TEXT;
+			    pThis->ResetFlag(TERM_ENHANCED_TEXT);
 			    pThis->put_text = PNG_put_text;
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_TRUECOLOR:
 			    png_state.TrueColor = TRUE;
-			    pThis->flags |= TERM_ALPHA_CHANNEL;
+			    pThis->SetFlag(TERM_ALPHA_CHANNEL);
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_NOTRUECOLOR:
 			    png_state.TrueColor = FALSE;
-			    pThis->flags &= ~TERM_ALPHA_CHANNEL;
+			    pThis->ResetFlag(TERM_ALPHA_CHANNEL);
 			    pGp->Pgm.Shift();
 			    break;
 			case PNG_LINEWIDTH:
@@ -956,7 +949,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		SAlloc::F(png_state.default_ttffont);
 		png_state.default_ttffont = sstrdup(png_state.ttffont);
 		if(png_state.default_ttfsize == 0)
-			png_state.default_ttfsize = 2 * pThis->ChrH - 2;
+			png_state.default_ttfsize = 2 * pThis->CH() - 2;
 
 		/* First try the old GDFONTPATH mechanism for locating fonts */
 		gdUseFontConfig(0);
@@ -974,17 +967,15 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	}
 	// If no explicit TTF font size found, generate default 
 	if(!(png_state.default_ttfsize > 0))
-		png_state.default_ttfsize = 2 * pThis->ChrH - 2;
+		png_state.default_ttfsize = 2 * pThis->CH() - 2;
 	png_state.ttfsize = png_state.default_ttfsize;
 	/* Find approximate character width of selected TTF font   */
 	/* This is needed in order to set appropriate border width */
 	if(png_state.default_ttffont) {
 		int brect[8];
-		char * err;
-		err = gdImageStringFT(NULL, &brect[0], 0, png_state.default_ttffont, png_state.default_ttfsize*png_state.fontscale, 0.0, 0, 0, "f00000000g");
+		char * err = gdImageStringFT(NULL, &brect[0], 0, png_state.default_ttffont, png_state.default_ttfsize*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		if(!err) {
-			pThis->ChrH = .11 * (double)(brect[2] - brect[0]) + 0.5;
-			pThis->ChrV = 1.1 * (double)(brect[1] - brect[7]) + 0.5;
+			pThis->SetCharSize(0.11 * (double)(brect[2] - brect[0]) + 0.5, 1.1 * (double)(brect[1] - brect[7]) + 0.5);
 		}
 	}
 #endif
@@ -998,10 +989,10 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 	if(png_state.flags & PNG_USE_INTERLACE) {
 		GPT._TermOptions.Cat("interlace ");
 	}
-	/* JPEG files are always 24-bit color */
+	// JPEG files are always 24-bit color 
 	if(strcmp(pThis->name, "jpeg") == 0) {
 		png_state.TrueColor = TRUE;
-		pThis->flags |= TERM_ALPHA_CHANNEL;
+		pThis->SetFlag(TERM_ALPHA_CHANNEL);
 	}
 	else if(png_state.TrueColor) {
 		GPT._TermOptions.Cat("truecolor ");
@@ -1036,7 +1027,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
 		slprintf_cat(GPT._TermOptions, "font \"%s,%.1f\" ", png_state.ttffont, png_state.ttfsize);
 	}
 	else 
-		switch(pThis->ChrH) {
+		switch(pThis->CH()) {
 			case 5: GPT._TermOptions.Cat("tiny "); break;
 			case 6: GPT._TermOptions.Cat("small "); break;
 			case 7:
@@ -1054,7 +1045,7 @@ TERM_PUBLIC void PNG_options(GpTermEntry * pThis, GnuPlot * pGp)
  * should set up things that only need to be set once, like handshaking and
  * character sets etc...
  */
-TERM_PUBLIC void PNG_init(GpTermEntry * pThis)
+TERM_PUBLIC void PNG_init(GpTermEntry_Static * pThis)
 {
 	int i;
 	png_state.linetype = 0;
@@ -1115,7 +1106,7 @@ static void PNG_init_brush(int width)
  * the terminal type changed.  This procedure should reset the device,
  * possibly flushing a buffer somewhere or generating a form feed.
  */
-TERM_PUBLIC void PNG_reset(GpTermEntry * pThis)
+TERM_PUBLIC void PNG_reset(GpTermEntry_Static * pThis)
 {
 	int i;
 	/* EAM - Clean up the brushes used for linewidth */
@@ -1166,7 +1157,7 @@ static int png_smooth_color[gdMaxColors];
    restricted to certain number of colours---a new user's option
  */
 
-TERM_PUBLIC int PNG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
+TERM_PUBLIC int PNG_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int i;
@@ -1195,7 +1186,7 @@ TERM_PUBLIC int PNG_make_palette(GpTermEntry * pThis, t_sm_palette * palette)
 	return 0;
 }
 
-TERM_PUBLIC void PNG_set_color(GpTermEntry * pThis, t_colorspec * colorspec)
+TERM_PUBLIC void PNG_set_color(GpTermEntry_Static * pThis, t_colorspec * colorspec)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	double gray = colorspec->value;
@@ -1332,7 +1323,7 @@ TERM_PUBLIC void PNG_boxfill(int style, uint x, uint y, uint width, uint height)
  * be used as terminals (like plotters) will probably be in graphics mode
  * always and therefore won't need this.
  */
-TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
+TERM_PUBLIC void PNG_graphics(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int i;
@@ -1370,8 +1361,8 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
 	if(!png_state.image)
 		p_gp->IntError(NO_CARET, "libgd: failed to create output image structure");
 	png_state.height = PNG_YMAX - 1;
-	png_state.charw = pThis->ChrH; /* png_state.font->w; */
-	png_state.charh = pThis->ChrV; /* png_state.font->h; */
+	png_state.charw = pThis->CH(); // png_state.font->w; 
+	png_state.charh = pThis->CV(); // png_state.font->h; 
 	png_state.font = png_state.default_font;
 	png_state.color = 0;
 	png_state.dashfraction = -1.0;
@@ -1399,7 +1390,7 @@ TERM_PUBLIC void PNG_graphics(GpTermEntry * pThis)
  * that commands can be seen as they're typed.  Again, this will probably
  * do nothing if the device can't be used as a terminal.
  */
-TERM_PUBLIC void PNG_text(GpTermEntry * pThis)
+TERM_PUBLIC void PNG_text(GpTermEntry_Static * pThis)
 {
 	image_do_crop(pThis);
 	if(png_state.flags & PNG_USE_INTERLACE)
@@ -1582,7 +1573,7 @@ TERM_PUBLIC void PNG_linewidth(double linewidth)
  * justified according to _justify_text.
  */
 #ifdef HAVE_GD_TTF
-TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
+TERM_PUBLIC void PNG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * string)
 {
 	// Mar 2011 - added to handle SJIS/UTF8 conversion 
 	if(contains8bit(string)) {
@@ -1650,7 +1641,7 @@ TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * 
 	}
 }
 #else  /* not HAVE_GD_TTF */
-	TERM_PUBLIC void PNG_put_text(GpTermEntry * pThis, uint x, uint y, const char * string)
+	TERM_PUBLIC void PNG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * string)
 	{
 		if(png_state.angle == 0) {
 			y += png_state.charh / 2;
@@ -1671,7 +1662,7 @@ TERM_PUBLIC int PNG_text_angle(int ang)
 	return TRUE;
 }
 
-TERM_PUBLIC int PNG_justify_text(GpTermEntry * pThis, enum JUSTIFY mode)
+TERM_PUBLIC int PNG_justify_text(GpTermEntry_Static * pThis, enum JUSTIFY mode)
 {
 #ifdef HAVE_GD_TTF
 	png_state.justify = mode;
@@ -1748,7 +1739,7 @@ TERM_PUBLIC void PNG_point(uint x, uint y, int number)
 	png_state.color = save_color;
 }
 
-TERM_PUBLIC int PNG_set_font(GpTermEntry * pThis, const char * fontname)
+TERM_PUBLIC int PNG_set_font(GpTermEntry_Static * pThis, const char * fontname)
 {
 	double size;
 	gdFontPtr font = png_state.default_font;
@@ -1785,8 +1776,7 @@ TERM_PUBLIC int PNG_set_font(GpTermEntry * pThis, const char * fontname)
 	png_state.charw = font->w;
 	png_state.charh = font->h;
 	// EAM 9-Feb-2003 Make new font size visible to higher level routines like GnuPlot::WriteMultiline 
-	pThis->ChrH = font->w;
-	pThis->ChrV = font->h;
+	pThis->SetCharSize(font->w, font->h);
 #ifdef HAVE_GD_TTF
 	/* Find approximate character width and height of selected TTF font */
 	if(png_state.ttffont) {
@@ -1800,16 +1790,14 @@ TERM_PUBLIC int PNG_set_font(GpTermEntry * pThis, const char * fontname)
 			FPRINTF((stderr, "gd.trm:%d gdUseFontConfig(1) (%s)\n", __LINE__, png_state.ttffont));
 			err = gdImageStringFT(NULL, &brect[0], 0, png_state.ttffont, size*png_state.fontscale, 0.0, 0, 0, "f00000000g");
 		}
-		if(!err) {
-			pThis->ChrH = 0.11 * (double)(brect[2] - brect[0]) + 0.5;
-			pThis->ChrV = 1.1  * (double)(brect[1] - brect[7]) + 0.5;
-		}
+		if(!err)
+			pThis->SetCharSize(0.11 * (double)(brect[2] - brect[0]) + 0.5, 1.1  * (double)(brect[1] - brect[7]) + 0.5);
 	}
 #endif
 	return TRUE;
 }
 
-TERM_PUBLIC void PNG_pointsize(GpTermEntry * pThis, double ptsize)
+TERM_PUBLIC void PNG_pointsize(GpTermEntry_Static * pThis, double ptsize)
 {
 	if(ptsize < 0)
 		ptsize = 1;
@@ -1845,7 +1833,7 @@ static int ENHgd_overprint = 0;
 static bool ENHgd_widthflag = TRUE;
 static uint ENHgd_xsave, ENHgd_ysave;
 
-TERM_PUBLIC void ENHGD_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHGD_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// If the overprint code requests a save or restore, that's all we do 
 	if(overprint == 3) {
@@ -1871,7 +1859,7 @@ TERM_PUBLIC void ENHGD_OPEN(GpTermEntry * pThis, char * fontname, double fontsiz
 //
 // Write a string fragment and update the current position 
 //
-TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry * pThis)
+TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry_Static * pThis)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int brect[8]; char * err;
@@ -1940,7 +1928,7 @@ TERM_PUBLIC void ENHGD_FLUSH(GpTermEntry * pThis)
 	}
 }
 
-TERM_PUBLIC void ENHGD_put_text(GpTermEntry * pThis, uint x, uint y, const char * str)
+TERM_PUBLIC void ENHGD_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * original_string = (char *)str;
@@ -2054,7 +2042,7 @@ TERM_PUBLIC void ENHGD_boxed_text(uint x, uint y, int option)
 
 #undef gdfont
 
-TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
+TERM_PUBLIC void PNG_image(GpTermEntry_Static * pThis, uint M, uint N, coordval * image, gpiPoint * corner, t_imagecolor color_mode)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	int m, n, mout, nout;
@@ -2159,7 +2147,7 @@ TERM_PUBLIC void PNG_image(GpTermEntry * pThis, uint M, uint N, coordval * image
 // If it wants SJIS and we are currently in UTF8, convert.
 // If it wants UTF8 and we are currently in SJIS, convert.
 // 
-static void gd_iconv(GpTermEntry * pThis, char ** string)
+static void gd_iconv(GpTermEntry_Static * pThis, char ** string)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 #ifdef HAVE_ICONV
@@ -2370,7 +2358,7 @@ register_term(jpeg)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void JPEG_text(GpTermEntry * pThis);
+TERM_PUBLIC void JPEG_text(GpTermEntry_Static * pThis);
 #define GOT_NEXT_PROTO
 #endif
 
@@ -2383,7 +2371,7 @@ TERM_PUBLIC void JPEG_text(GpTermEntry * pThis);
  * All functions except the final write to file
  * are actually performed by the PNG driver code
  */
-TERM_PUBLIC void JPEG_text(GpTermEntry * pThis)
+TERM_PUBLIC void JPEG_text(GpTermEntry_Static * pThis)
 {
 	int quality = 90;
 	image_do_crop(pThis);
@@ -2521,7 +2509,7 @@ register_term(gif)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void GIF_text(GpTermEntry * pThis);
+TERM_PUBLIC void GIF_text(GpTermEntry_Static * pThis);
 #define GOT_NEXT_PROTO
 #endif
 
@@ -2534,7 +2522,7 @@ TERM_PUBLIC void GIF_text(GpTermEntry * pThis);
  * All functions except the final write to file
  * are actually performed by the PNG driver code
  */
-TERM_PUBLIC void GIF_text(GpTermEntry * pThis)
+TERM_PUBLIC void GIF_text(GpTermEntry_Static * pThis)
 {
 	image_do_crop(pThis);
 #ifdef GIF_ANIMATION
@@ -2750,7 +2738,7 @@ register_term(sixelgd)
 #endif
 
 #ifdef TERM_PROTO
-TERM_PUBLIC void SIXELGD_text(GpTermEntry * pThis);
+TERM_PUBLIC void SIXELGD_text(GpTermEntry_Static * pThis);
 #define GOT_NEXT_PROTO
 #endif
 
@@ -2764,7 +2752,7 @@ TERM_PUBLIC void SIXELGD_text(GpTermEntry * pThis);
  * All functions except the final write to file
  * are actually performed by the PNG driver code
  */
-TERM_PUBLIC void SIXELGD_text(GpTermEntry * pThis)
+TERM_PUBLIC void SIXELGD_text(GpTermEntry_Static * pThis)
 {
 	image_do_crop(pThis);
 	// The 'animate' option makes each plot write in place rather than scrolling 

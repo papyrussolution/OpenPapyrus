@@ -51,7 +51,7 @@ struct LocaleAndWeightArray;
  *    decimal point. User configuration of these values SHOULD also be
  *    limited in this fashion.
  *
- *        qvalue         = ( "0" [ "." 0*3DIGIT ])
+ *        qvalue = ( "0" [ "." 0*3DIGIT ])
  *    | ( "1" [ "." 0*3("0") ])
  */
 class U_COMMON_API LocalePriorityList : public UMemory {

@@ -250,25 +250,18 @@ static void end_box(sweep_line_t * sweep_line, edge_t * left, int32 bot, cairo_b
  * then either add it to the traps in `traps', if the trapezoid's
  * right edge differs from `edge->next', or do nothing if the new
  * trapezoid would be a continuation of the existing one. */
-static inline void start_or_continue_box(sweep_line_t * sweep_line,
-    edge_t * left,
-    edge_t * right,
-    int top,
-    cairo_boxes_t * out)
+static inline void start_or_continue_box(sweep_line_t * sweep_line, edge_t * left, edge_t * right, int top, cairo_boxes_t * out)
 {
 	if(left->right == right)
 		return;
-
 	if(left->right != NULL) {
 		if(right != NULL && left->right->x == right->x) {
-			/* continuation on right, so just swap edges */
+			// continuation on right, so just swap edges 
 			left->right = right;
 			return;
 		}
-
 		end_box(sweep_line, left, top, out);
 	}
-
 	if(right != NULL && left->x != right->x) {
 		left->top = top;
 		left->right = right;
@@ -285,48 +278,37 @@ static inline void active_edges(sweep_line_t * sweep, cairo_boxes_t * out)
 	int top = sweep->current_y;
 	int winding[2] = { 0 };
 	edge_t * pos;
-
 	if(sweep->last_y == sweep->current_y)
 		return;
-
 	pos = sweep->head.next;
 	if(pos == &sweep->tail)
 		return;
-
 	do {
-		edge_t * left, * right;
-
-		left = pos;
+		edge_t * right;
+		edge_t * left = pos;
 		do {
 			winding[left->a_or_b] += left->dir;
 			if(!is_zero(winding))
 				break;
 			if(left->next == &sweep->tail)
 				goto out;
-
 			if(UNLIKELY(left->right != NULL))
 				end_box(sweep, left, top, out);
-
 			left = left->next;
 		} while(1);
-
 		right = left->next;
 		do {
 			if(UNLIKELY(right->right != NULL))
 				end_box(sweep, right, top, out);
-
 			winding[right->a_or_b] += right->dir;
 			if(is_zero(winding)) {
 				/* skip co-linear edges */
 				if(LIKELY(right->x != right->next->x))
 					break;
 			}
-
 			right = right->next;
 		} while(true);
-
 		start_or_continue_box(sweep, left, right, top, out);
-
 		pos = right->next;
 	} while(pos != &sweep->tail);
 
@@ -346,23 +328,18 @@ static inline void sweep_line_delete_edge(sweep_line_t * sweep_line, edge_t * ed
 			end_box(sweep_line, edge, sweep_line->current_y, out);
 		}
 	}
-
 	if(sweep_line->insert_left == edge)
 		sweep_line->insert_left = edge->next;
 	if(sweep_line->insert_right == edge)
 		sweep_line->insert_right = edge->next;
-
 	edge->prev->next = edge->next;
 	edge->next->prev = edge->prev;
 }
 
-static inline void sweep_line_delete(sweep_line_t * sweep,
-    rectangle_t * rectangle,
-    cairo_boxes_t * out)
+static inline void sweep_line_delete(sweep_line_t * sweep, rectangle_t * rectangle, cairo_boxes_t * out)
 {
 	sweep_line_delete_edge(sweep, &rectangle->left, out);
 	sweep_line_delete_edge(sweep, &rectangle->right, out);
-
 	pqueue_pop(&sweep->pq);
 }
 
@@ -397,20 +374,16 @@ static inline void insert_edge(edge_t * edge, edge_t * pos)
 
 static inline void sweep_line_insert(sweep_line_t * sweep, rectangle_t * rectangle)
 {
-	edge_t * pos;
-
 	/* right edge */
-	pos = sweep->insert_right;
+	edge_t * pos = sweep->insert_right;
 	insert_edge(&rectangle->right, pos);
 	sweep->insert_right = &rectangle->right;
-
 	/* left edge */
 	pos = sweep->insert_left;
 	if(pos->x > sweep->insert_right->x)
 		pos = sweep->insert_right->prev;
 	insert_edge(&rectangle->left, pos);
 	sweep->insert_left = &rectangle->left;
-
 	pqueue_push(sweep, rectangle);
 }
 
@@ -419,44 +392,33 @@ static cairo_status_t intersect(rectangle_t ** rectangles, int num_rectangles, c
 	sweep_line_t sweep_line;
 	rectangle_t * rectangle;
 	cairo_status_t status;
-
 	sweep_line_init(&sweep_line, rectangles, num_rectangles);
 	if((status = (cairo_status_t)setjmp(sweep_line.unwind)))
 		goto unwind;
-
 	rectangle = rectangle_pop_start(&sweep_line);
 	do {
 		if(rectangle->top != sweep_line.current_y) {
-			rectangle_t * stop;
-
-			stop = rectangle_peek_stop(&sweep_line);
+			rectangle_t * stop = rectangle_peek_stop(&sweep_line);
 			while(stop != NULL && stop->bottom < rectangle->top) {
 				if(stop->bottom != sweep_line.current_y) {
 					active_edges(&sweep_line, out);
 					sweep_line.current_y = stop->bottom;
 				}
-
 				sweep_line_delete(&sweep_line, stop, out);
-
 				stop = rectangle_peek_stop(&sweep_line);
 			}
-
 			active_edges(&sweep_line, out);
 			sweep_line.current_y = rectangle->top;
 		}
-
 		sweep_line_insert(&sweep_line, rectangle);
 	} while((rectangle = rectangle_pop_start(&sweep_line)) != NULL);
-
 	while((rectangle = rectangle_peek_stop(&sweep_line)) != NULL) {
 		if(rectangle->bottom != sweep_line.current_y) {
 			active_edges(&sweep_line, out);
 			sweep_line.current_y = rectangle->bottom;
 		}
-
 		sweep_line_delete(&sweep_line, rectangle, out);
 	}
-
 unwind:
 	sweep_line_fini(&sweep_line);
 	return status;
@@ -499,7 +461,6 @@ static cairo_status_t _cairo_boxes_intersect_with_box(const cairo_boxes_t * boxe
 			}
 		}
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -546,19 +507,15 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 			else {
 				rectangles[j].right.x = box[i].p1.x;
 				rectangles[j].right.dir = 1;
-
 				rectangles[j].left.x = box[i].p2.x;
 				rectangles[j].left.dir = -1;
 			}
-
 			rectangles[j].left.a_or_b = 0;
 			rectangles[j].left.right = NULL;
 			rectangles[j].right.a_or_b = 0;
 			rectangles[j].right.right = NULL;
-
 			rectangles[j].top = box[i].p1.y;
 			rectangles[j].bottom = box[i].p2.y;
-
 			rectangles_ptrs[j] = &rectangles[j];
 			j++;
 		}
@@ -569,36 +526,29 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 			if(box[i].p1.x < box[i].p2.x) {
 				rectangles[j].left.x = box[i].p1.x;
 				rectangles[j].left.dir = 1;
-
 				rectangles[j].right.x = box[i].p2.x;
 				rectangles[j].right.dir = -1;
 			}
 			else {
 				rectangles[j].right.x = box[i].p1.x;
 				rectangles[j].right.dir = 1;
-
 				rectangles[j].left.x = box[i].p2.x;
 				rectangles[j].left.dir = -1;
 			}
-
 			rectangles[j].left.a_or_b = 1;
 			rectangles[j].left.right = NULL;
 			rectangles[j].right.a_or_b = 1;
 			rectangles[j].right.right = NULL;
-
 			rectangles[j].top = box[i].p1.y;
 			rectangles[j].bottom = box[i].p2.y;
-
 			rectangles_ptrs[j] = &rectangles[j];
 			j++;
 		}
 	}
 	assert(j == count);
-
 	_cairo_boxes_clear(out);
 	status = intersect(rectangles_ptrs, j, out);
 	if(rectangles != stack_rectangles)
 		SAlloc::F(rectangles);
-
 	return status;
 }

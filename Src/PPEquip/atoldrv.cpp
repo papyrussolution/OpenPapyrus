@@ -213,7 +213,8 @@ private:
 			QueryDataProc(0), GetParamIntProc(0), GetParamDoubleProc(0), GetParamBoolProc(0), GetParamStrProc(0), GetParamDateTimeProc(0),
 			GetParamByteArrayProc(0), GetSingleSettingProc(0), SetSingleSettingProc(0), ApplySingleSettingsProc(0), OpenDrawerProc(0),
 			OperatorLoginProc(0), OpenReceiptProc(0), CancelReceiptProc(0), RegistrationProc(0), CloseReceiptProc(0), PrintBarcodeProc(0),
-			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0), UtilFormNomenclature(0), UtilFormTlvProc(0)
+			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0), UtilFormNomenclature(0), UtilFormTlvProc(0),
+			ProcessJsonProc(0)
 		{
 			SString dll_path;
 			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
@@ -223,27 +224,27 @@ private:
 			THROW_SL(DestroyHandleProc = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_destroy")));
 			THROW_SL(GetVersionString  = reinterpret_cast<const char * (* cdecl)()>(Lib.GetProcAddr("libfptr_get_version_string"))); // @v10.5.6
 			THROW_SL(GetSettingsProc   = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_settings")));
-			THROW_SL(PrintTextProc           = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_text")));
-			THROW_SL(PaymentProc             = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_payment")));
-			THROW_SL(CutProc                 = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cut")));
-			THROW_SL(BeepProc                = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_beep")));
-			THROW_SL(OpenDrawerProc          = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_drawer")));
-			THROW_SL(QueryDataProc           = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_query_data")));
+			THROW_SL(PrintTextProc   = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_text")));
+			THROW_SL(PaymentProc     = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_payment")));
+			THROW_SL(CutProc         = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cut")));
+			THROW_SL(BeepProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_beep")));
+			THROW_SL(OpenDrawerProc  = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_drawer")));
+			THROW_SL(QueryDataProc   = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_query_data")));
 			THROW_SL(OperatorLoginProc       = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_operator_login")));
-			THROW_SL(OpenReceiptProc         = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_receipt")));
+			THROW_SL(OpenReceiptProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_receipt")));
 			THROW_SL(CancelReceiptProc       = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cancel_receipt")));
 			THROW_SL(RegistrationProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_registration")));
 			THROW_SL(CloseReceiptProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_close_receipt")));
 			THROW_SL(ApplySingleSettingsProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_apply_single_settings")));
-			THROW_SL(OpenProc                = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open")));
-			THROW_SL(CloseProc               = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_close")));
-			THROW_SL(IsOpenedProc            = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_is_opened")));
+			THROW_SL(OpenProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open")));
+			THROW_SL(CloseProc       = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_close")));
+			THROW_SL(IsOpenedProc    = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_is_opened")));
 			THROW_SL(PrintBarcodeProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_barcode")));
-			THROW_SL(ReportProc              = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_report")));
+			THROW_SL(ReportProc      = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_report")));
 			THROW_SL(CheckDocumentClosedProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_check_document_closed")));
 			THROW_SL(GetErrorCodeProc        = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_error_code")));
-			THROW_SL(CashIncomeProc          = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cash_income")));
-			THROW_SL(CashOutcomeProc         = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cash_outcome")));
+			THROW_SL(CashIncomeProc  = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cash_income")));
+			THROW_SL(CashOutcomeProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_cash_outcome")));
 			THROW_SL(GetSingleSettingProc    = reinterpret_cast<int (* cdecl)(void *, const wchar_t *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_single_setting")));
 			THROW_SL(SetSingleSettingProc    = reinterpret_cast<int (* cdecl)(void *, const wchar_t *, const wchar_t *)>(Lib.GetProcAddr("libfptr_set_single_setting")));
 			THROW_SL(GetErrorDescrProc     = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_error_description")));
@@ -260,6 +261,8 @@ private:
 			THROW_SL(GetParamStrProc       = reinterpret_cast<int (* cdecl)(void *, int, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_param_str")));
 			THROW_SL(GetParamDateTimeProc  = reinterpret_cast<void (* cdecl)(void *, int, int*, int*, int*, int*, int*, int*)>(Lib.GetProcAddr("libfptr_get_param_datetime")));
 			THROW_SL(GetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, uchar *, int)>(Lib.GetProcAddr("libfptr_get_param_bytearray")));
+			THROW_SL(ProcessJsonProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_process_json"))); // @v11.2.8
+
 			UtilFormNomenclature = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature")); // @v10.7.12
 			UtilFormTlvProc      = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_tlv")); // @v11.0.0
 			THROW(CreateHandleProc(&Handler) == 0 && Handler);
@@ -329,6 +332,7 @@ private:
 		int    (* cdecl CheckDocumentClosedProc)(void *);
 		int    (* cdecl CashIncomeProc)(void *);
 		int    (* cdecl CashOutcomeProc)(void *);
+		int    (* cdecl ProcessJsonProc)(void *); // @v11.2.8 libfptr_process_json(libfptr_handle handle);
 
 		SString AccessPassword;
 		SString UserPassword;
@@ -475,7 +479,7 @@ private:
 		return ok;
 	}
 	enum {
-		ptfWrap         = 0x0001,
+		ptfWrap = 0x0001,
 		ptfDoubleWidth  = 0x0002,
 		ptfDoubleHeight = 0x0004
 	};

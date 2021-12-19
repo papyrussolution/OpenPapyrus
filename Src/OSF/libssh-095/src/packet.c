@@ -1092,7 +1092,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 			    if(ptr == NULL) {
 				    goto error;
 			    }
-			    packet_len = ssh_packet_decrypt_len(session, ptr, (uint8*)data);
+			    packet_len = ssh_packet_decrypt_len(session, ptr, (uint8 *)data);
 			    to_be_read = packet_len - lenfield_blocksize + sizeof(uint32_t);
 		    }
 		    else {
@@ -1124,7 +1124,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 				    SSH_LOG(SSH_LOG_PACKET, "packet: partial packet (read len) [len=%d, receivedlen=%d, to_be_read=%d]", packet_len, (int)receivedlen, to_be_read);
 				    return 0;
 			    }
-			    packet_second_block = (uint8*)data + lenfield_blocksize + etm_packet_offset;
+			    packet_second_block = (uint8 *)data + lenfield_blocksize + etm_packet_offset;
 			    processed = to_be_read - current_macsize;
 		    }
 		    /* remaining encrypted bytes from the packet, MAC not included */
@@ -1155,7 +1155,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 				    if(packet_remaining > 0) {
 					    rc = ssh_packet_decrypt(session,
 						    cleartext_packet,
-						    (uint8*)data,
+						    (uint8 *)data,
 						    lenfield_blocksize + etm_packet_offset,
 						    processed - (lenfield_blocksize + etm_packet_offset));
 					    if(rc < 0) {
@@ -1256,7 +1256,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		    if(processed < receivedlen) {
 			    /* Handle a potential packet left in socket buffer */
 			    SSH_LOG(SSH_LOG_PACKET, "Processing %" PRIdS " bytes left in socket buffer", receivedlen-processed);
-			    ptr = ((uint8*)data) + processed;
+			    ptr = ((uint8 *)data) + processed;
 			    rc = ssh_packet_socket_callback(ptr, receivedlen - processed, user);
 			    processed += rc;
 		    }
@@ -1493,7 +1493,7 @@ static int packet_send2(ssh_session session)
 	else {
 		hmac_type = session->next_crypto->out_hmac;
 	}
-	payload = (uint8*)ssh_buffer_get(session->out_buffer);
+	payload = (uint8 *)ssh_buffer_get(session->out_buffer);
 	type = payload[0]; /* type is the first byte of the packet now */
 	payloadsize = currentlen;
 	if(etm) {
@@ -1601,7 +1601,7 @@ int FASTCALL ssh_packet_send(ssh_session session)
 	if(payloadsize < 1) {
 		return SSH_ERROR;
 	}
-	payload = (uint8*)ssh_buffer_get(session->out_buffer);
+	payload = (uint8 *)ssh_buffer_get(session->out_buffer);
 	type = payload[0]; /* type is the first byte of the packet now */
 	need_rekey = ssh_packet_need_rekey(session, payloadsize);
 	in_rekey = ssh_packet_in_rekey(session);
@@ -1651,7 +1651,7 @@ int FASTCALL ssh_packet_send(ssh_session session)
 			}
 			SSH_BUFFER_FREE(session->out_buffer);
 			session->out_buffer = ssh_list_pop_head(struct ssh_buffer_struct *, session->out_queue);
-			payload = (uint8*)ssh_buffer_get(session->out_buffer);
+			payload = (uint8 *)ssh_buffer_get(session->out_buffer);
 			type = payload[0];
 			SSH_LOG(SSH_LOG_PACKET, "Dequeue packet type %d", type);
 			rc = packet_send2(session);

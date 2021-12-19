@@ -146,7 +146,7 @@ void DecNum::setTo(double d, UErrorCode & status) {
 
 	// Set exponent and bitmask. Note that DoubleToStringConverter does not do negatives.
 	fData.getAlias()->exponent += point - length;
-	fData.getAlias()->bits |= static_cast<uint8_t>(std::signbit(d) ? DECNEG : 0);
+	fData.getAlias()->bits |= static_cast<uint8>(std::signbit(d) ? DECNEG : 0);
 }
 
 void DecNum::_setTo(const char * str, int32_t maxDigits, UErrorCode & status) {
@@ -173,7 +173,7 @@ void DecNum::_setTo(const char * str, int32_t maxDigits, UErrorCode & status) {
 	}
 }
 
-void DecNum::setTo(const uint8_t* bcd, int32_t length, int32_t scale, bool isNegative, UErrorCode & status) {
+void DecNum::setTo(const uint8* bcd, int32_t length, int32_t scale, bool isNegative, UErrorCode & status) {
 	if(length > kDefaultDigits) {
 		fData.resize(length, 0);
 		fContext.digits = length;
@@ -201,7 +201,7 @@ void DecNum::setTo(const uint8_t* bcd, int32_t length, int32_t scale, bool isNeg
 
 	fData.getAlias()->digits = length;
 	fData.getAlias()->exponent = scale;
-	fData.getAlias()->bits = static_cast<uint8_t>(isNegative ? DECNEG : 0);
+	fData.getAlias()->bits = static_cast<uint8>(isNegative ? DECNEG : 0);
 	uprv_decNumberSetBCD(fData, bcd, static_cast<uint32_t>(length));
 	if(fContext.status != 0) {
 		// Some error occurred while constructing the decNumber.

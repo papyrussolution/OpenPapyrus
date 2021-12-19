@@ -56,7 +56,7 @@ static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE(UConverterToUnicodeArgs *
 		i = args->converter->toULength; /* restore # of bytes consumed */
 		args->converter->toULength = 0;
 
-		ch = args->converter->toUnicodeStatus - 1;/*Stores the previously calculated ch from a previous call*/
+		ch = args->converter->toUnicodeStatus - 1; /*Stores the previously calculated ch from a previous call*/
 		args->converter->toUnicodeStatus = 0;
 		goto morebytes;
 	}
@@ -67,7 +67,7 @@ static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE(UConverterToUnicodeArgs *
 morebytes:
 		while(i < sizeof(uint32_t)) {
 			if(mySource < sourceLimit) {
-				ch = (ch << 8) | (uint8_t)(*mySource);
+				ch = (ch << 8) | (uint8)(*mySource);
 				toUBytes[i++] = (char)*(mySource++);
 			}
 			else {
@@ -135,7 +135,7 @@ static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE_OFFSET_LOGIC(UConverterTo
 		i = args->converter->toULength; /* restore # of bytes consumed */
 		args->converter->toULength = 0;
 
-		ch = args->converter->toUnicodeStatus - 1;/*Stores the previously calculated ch from a previous call*/
+		ch = args->converter->toUnicodeStatus - 1; /*Stores the previously calculated ch from a previous call*/
 		args->converter->toUnicodeStatus = 0;
 		goto morebytes;
 	}
@@ -146,7 +146,7 @@ static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE_OFFSET_LOGIC(UConverterTo
 morebytes:
 		while(i < sizeof(uint32_t)) {
 			if(mySource < sourceLimit) {
-				ch = (ch << 8) | (uint8_t)(*mySource);
+				ch = (ch << 8) | (uint8)(*mySource);
 				toUBytes[i++] = (char)*(mySource++);
 			}
 			else {
@@ -279,9 +279,9 @@ lowsurogate:
 		}
 
 		/* We cannot get any larger than 10FFFF because we are coming from UTF-16 */
-		temp[1] = (uint8_t)(ch >> 16 & 0x1F);
-		temp[2] = (uint8_t)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
-		temp[3] = (uint8_t)(ch); /* unsigned cast implicitly does (ch & FF) */
+		temp[1] = (uint8)(ch >> 16 & 0x1F);
+		temp[2] = (uint8)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
+		temp[3] = (uint8)(ch); /* unsigned cast implicitly does (ch & FF) */
 
 		for(indexToWrite = 0; indexToWrite <= sizeof(uint32_t) - 1; indexToWrite++) {
 			if(myTarget < targetLimit) {
@@ -382,9 +382,9 @@ lowsurogate:
 		}
 
 		/* We cannot get any larger than 10FFFF because we are coming from UTF-16 */
-		temp[1] = (uint8_t)(ch >> 16 & 0x1F);
-		temp[2] = (uint8_t)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
-		temp[3] = (uint8_t)(ch); /* unsigned cast implicitly does (ch & FF) */
+		temp[1] = (uint8)(ch >> 16 & 0x1F);
+		temp[2] = (uint8)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
+		temp[3] = (uint8)(ch); /* unsigned cast implicitly does (ch & FF) */
 
 		for(indexToWrite = 0; indexToWrite <= sizeof(uint32_t) - 1; indexToWrite++) {
 			if(myTarget < targetLimit) {
@@ -411,18 +411,18 @@ lowsurogate:
 static UChar32 U_CALLCONV T_UConverter_getNextUChar_UTF32_BE(UConverterToUnicodeArgs* args,
     UErrorCode * err)
 {
-	const uint8_t * mySource;
+	const uint8 * mySource;
 	UChar32 myUChar;
 	int32_t length;
 
-	mySource = (const uint8_t*)args->source;
-	if(mySource >= (const uint8_t*)args->sourceLimit) {
+	mySource = (const uint8*)args->source;
+	if(mySource >= (const uint8*)args->sourceLimit) {
 		/* no input */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0xffff;
 	}
 
-	length = (int32_t)((const uint8_t*)args->sourceLimit - mySource);
+	length = (int32_t)((const uint8*)args->sourceLimit - mySource);
 	if(length < 4) {
 		/* got a partial character */
 		uprv_memcpy(args->converter->toUBytes, mySource, length);
@@ -521,7 +521,7 @@ static void U_CALLCONV T_UConverter_toUnicode_UTF32_LE(UConverterToUnicodeArgs *
 morebytes:
 		while(i < sizeof(uint32_t)) {
 			if(mySource < sourceLimit) {
-				ch |= ((uint8_t)(*mySource)) << (i * 8);
+				ch |= ((uint8)(*mySource)) << (i * 8);
 				toUBytes[i++] = (char)*(mySource++);
 			}
 			else {
@@ -601,7 +601,7 @@ static void U_CALLCONV T_UConverter_toUnicode_UTF32_LE_OFFSET_LOGIC(UConverterTo
 morebytes:
 		while(i < sizeof(uint32_t)) {
 			if(mySource < sourceLimit) {
-				ch |= ((uint8_t)(*mySource)) << (i * 8);
+				ch |= ((uint8)(*mySource)) << (i * 8);
 				toUBytes[i++] = (char)*(mySource++);
 			}
 			else {
@@ -734,9 +734,9 @@ lowsurogate:
 		}
 
 		/* We cannot get any larger than 10FFFF because we are coming from UTF-16 */
-		temp[2] = (uint8_t)(ch >> 16 & 0x1F);
-		temp[1] = (uint8_t)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
-		temp[0] = (uint8_t)(ch); /* unsigned cast implicitly does (ch & FF) */
+		temp[2] = (uint8)(ch >> 16 & 0x1F);
+		temp[1] = (uint8)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
+		temp[0] = (uint8)(ch); /* unsigned cast implicitly does (ch & FF) */
 
 		for(indexToWrite = 0; indexToWrite <= sizeof(uint32_t) - 1; indexToWrite++) {
 			if(myTarget < targetLimit) {
@@ -837,9 +837,9 @@ lowsurogate:
 		}
 
 		/* We cannot get any larger than 10FFFF because we are coming from UTF-16 */
-		temp[2] = (uint8_t)(ch >> 16 & 0x1F);
-		temp[1] = (uint8_t)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
-		temp[0] = (uint8_t)(ch); /* unsigned cast implicitly does (ch & FF) */
+		temp[2] = (uint8)(ch >> 16 & 0x1F);
+		temp[1] = (uint8)(ch >> 8); /* unsigned cast implicitly does (ch & FF) */
+		temp[0] = (uint8)(ch); /* unsigned cast implicitly does (ch & FF) */
 
 		for(indexToWrite = 0; indexToWrite <= sizeof(uint32_t) - 1; indexToWrite++) {
 			if(myTarget < targetLimit) {
@@ -866,18 +866,18 @@ lowsurogate:
 static UChar32 U_CALLCONV T_UConverter_getNextUChar_UTF32_LE(UConverterToUnicodeArgs* args,
     UErrorCode * err)
 {
-	const uint8_t * mySource;
+	const uint8 * mySource;
 	UChar32 myUChar;
 	int32_t length;
 
-	mySource = (const uint8_t*)args->source;
-	if(mySource >= (const uint8_t*)args->sourceLimit) {
+	mySource = (const uint8*)args->source;
+	if(mySource >= (const uint8*)args->sourceLimit) {
 		/* no input */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0xffff;
 	}
 
-	length = (int32_t)((const uint8_t*)args->sourceLimit - mySource);
+	length = (int32_t)((const uint8*)args->sourceLimit - mySource);
 	if(length < 4) {
 		/* got a partial character */
 		uprv_memcpy(args->converter->toUBytes, mySource, length);

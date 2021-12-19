@@ -1598,7 +1598,7 @@ static int PThr4wTest_Once4()
 		{
 			bag_t * bag = static_cast<bag_t *>(arg);
 			EnterCriticalSection(&print_lock);
-			/*      once thrd  prio error */
+			/* once thrd  prio error */
 			printf("%4d %4d %4d %4d\n", bag->oncenum, bag->threadnum, bag->myPrio, bag->myPrio - GetThreadPriority(bag->w32Thread));
 			LeaveCriticalSection(&print_lock);
 		}
@@ -1660,7 +1660,7 @@ static int PThr4wTest_Once4()
 	InitializeCriticalSection(&numThreads.cs);
 	InitializeCriticalSection(&numOnce.cs);
 #if 0
-	/*       once thrd  prio change */
+	/* once thrd  prio change */
 	printf("once thrd  prio  error\n");
 #endif
 	/*
@@ -10085,7 +10085,7 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 			mblock->sequence = seqno;
 			mblock->timestamp = time(NULL);
 			mblock->checksum = compute_checksum(mblock, sizeof(msg_block_t)/sizeof(uint));
-			/*      printf ("Generated message: %d %d %d %d %x %x\n",
+			/* printf ("Generated message: %d %d %d %d %x %x\n",
 						  src, dest, seqno, mblock->timestamp,
 						  mblock->data[0], mblock->data[DATA_SIZE-1]);  */
 			return;

@@ -421,8 +421,8 @@ int32_t GregorianCalendar::handleComputeJulianDay(UCalendarDateFields bestField)
 
 	// The following check handles portions of the cutover year BEFORE the
 	// cutover itself happens.
-	//if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {  /*  cutoverJulianDay)) { */
-	if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {   /*  cutoverJulianDay)) { */
+	//if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {  /* cutoverJulianDay)) { */
+	if((fIsGregorian==TRUE) != (jd >= fCutoverJulianDay)) {   /* cutoverJulianDay)) { */
 #if defined (U_DEBUG_CAL)
 		fprintf(stderr, "%s:%d: jd [invert] %d\n", __FILE__, __LINE__, jd);
 #endif

@@ -336,14 +336,14 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			numrecs = P_GoodsTbl->getNumRecs();
 			SyncTable stbl(P_Ctx->PalmCfg.CompressData(), 0, P_Ctx);
 			THROW(InitTable(&stbl));
-			int fldn_id            = 0;
-			int fldn_name          = 0;
-			int fldn_bcode         = 0;
-			int fldn_pack          = 0;
-			int fldn_price         = 0;
-			int fldn_rest          = 0;
-			int fldn_ggid          = 0;
-			int fldn_brand         = 0;
+			int fldn_id    = 0;
+			int fldn_name  = 0;
+			int fldn_bcode = 0;
+			int fldn_pack  = 0;
+			int fldn_price = 0;
+			int fldn_rest  = 0;
+			int fldn_ggid  = 0;
+			int fldn_brand = 0;
 			int fldn_brandown      = 0;
 			int fldn_minord        = 0;
 			int fldn_multord       = 0;
@@ -456,11 +456,11 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 					}
 					else if(ver < 900) {
 						b.p_out_buf800 = AllocPalmRec800(&quot_list, &buf_len); // @checkerr
-						b.p_out_buf800->ID            = id_p;
+						b.p_out_buf800->ID    = id_p;
 						b.p_out_buf800->GoodsGrpID    = ggrp_id;
-						b.p_out_buf800->Pack          = pack;
-						b.p_out_buf800->Price         = price;
-						b.p_out_buf800->Rest          = rest;
+						b.p_out_buf800->Pack  = pack;
+						b.p_out_buf800->Price = price;
+						b.p_out_buf800->Rest  = rest;
 						STRNSCPY(b.p_out_buf800->Name, name);
 						STRNSCPY(b.p_out_buf800->Code, code);
 						b.p_out_buf800->BrandID       = brand_id;
@@ -469,11 +469,11 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 					}
 					else {
 						b.p_out_buf900 = AllocPalmRec900(&quot_list, &buf_len); // @checkerr
-						b.p_out_buf900->ID            = id_p;
+						b.p_out_buf900->ID    = id_p;
 						b.p_out_buf900->GoodsGrpID    = ggrp_id;
-						b.p_out_buf900->Pack          = pack;
-						b.p_out_buf900->Price         = price;
-						b.p_out_buf900->Rest          = rest;
+						b.p_out_buf900->Pack  = pack;
+						b.p_out_buf900->Price = price;
+						b.p_out_buf900->Rest  = rest;
 						STRNSCPY(b.p_out_buf900->Name, name);
 						STRNSCPY(b.p_out_buf900->Code, code);
 						b.p_out_buf900->BrandID       = brand_id;

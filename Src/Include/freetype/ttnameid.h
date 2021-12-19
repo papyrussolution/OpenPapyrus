@@ -838,17 +838,17 @@ FT_BEGIN_HEADER
 /* Bit  3   Latin Extended-B */
 #define TT_UCR_LATIN_EXTENDED_B                (1L <<  3) /* U+0180-U+024F */
 /* Bit  4   IPA Extensions                 */
-/*          Phonetic Extensions            */
-/*          Phonetic Extensions Supplement */
+/* Phonetic Extensions            */
+/* Phonetic Extensions Supplement */
 #define TT_UCR_IPA_EXTENSIONS                  (1L <<  4) /* U+0250-U+02AF */
                                                           /* U+1D00-U+1D7F */
                                                           /* U+1D80-U+1DBF */
 /* Bit  5   Spacing Modifier Letters */
-/*          Modifier Tone Letters    */
+/* Modifier Tone Letters    */
 #define TT_UCR_SPACING_MODIFIER                (1L <<  5) /* U+02B0-U+02FF */
                                                           /* U+A700-U+A71F */
 /* Bit  6   Combining Diacritical Marks            */
-/*          Combining Diacritical Marks Supplement */
+/* Combining Diacritical Marks Supplement */
 #define TT_UCR_COMBINING_DIACRITICAL_MARKS     (1L <<  6) /* U+0300-U+036F */
                                                           /* U+1DC0-U+1DFF */
 /* Bit  7   Greek and Coptic */
@@ -856,9 +856,9 @@ FT_BEGIN_HEADER
 /* Bit  8   Coptic */
 #define TT_UCR_COPTIC                          (1L <<  8) /* U+2C80-U+2CFF */
 /* Bit  9   Cyrillic            */
-/*          Cyrillic Supplement */
-/*          Cyrillic Extended-A */
-/*          Cyrillic Extended-B */
+/* Cyrillic Supplement */
+/* Cyrillic Extended-A */
+/* Cyrillic Extended-B */
 #define TT_UCR_CYRILLIC                        (1L <<  9) /* U+0400-U+04FF */
                                                           /* U+0500-U+052F */
                                                           /* U+2DE0-U+2DFF */
@@ -870,7 +870,7 @@ FT_BEGIN_HEADER
 /* Bit 12   Vai */
 #define TT_UCR_VAI                             (1L << 12) /* U+A500-U+A63F */
 /* Bit 13   Arabic            */
-/*          Arabic Supplement */
+/* Arabic Supplement */
 #define TT_UCR_ARABIC                          (1L << 13) /* U+0600-U+06FF */
                                                           /* U+0750-U+077F */
 /* Bit 14   NKo */
@@ -898,7 +898,7 @@ FT_BEGIN_HEADER
 /* Bit 25   Lao */
 #define TT_UCR_LAO                             (1L << 25) /* U+0E80-U+0EFF */
 /* Bit 26   Georgian            */
-/*          Georgian Supplement */
+/* Georgian Supplement */
 #define TT_UCR_GEORGIAN                        (1L << 26) /* U+10A0-U+10FF */
                                                           /* U+2D00-U+2D2F */
 /* Bit 27   Balinese */
@@ -906,15 +906,15 @@ FT_BEGIN_HEADER
 /* Bit 28   Hangul Jamo */
 #define TT_UCR_HANGUL_JAMO                     (1L << 28) /* U+1100-U+11FF */
 /* Bit 29   Latin Extended Additional */
-/*          Latin Extended-C          */
-/*          Latin Extended-D          */
+/* Latin Extended-C          */
+/* Latin Extended-D          */
 #define TT_UCR_LATIN_EXTENDED_ADDITIONAL       (1L << 29) /* U+1E00-U+1EFF */
                                                           /* U+2C60-U+2C7F */
                                                           /* U+A720-U+A7FF */
 /* Bit 30   Greek Extended */
 #define TT_UCR_GREEK_EXTENDED                  (1L << 30) /* U+1F00-U+1FFF */
 /* Bit 31   General Punctuation      */
-/*          Supplemental Punctuation */
+/* Supplemental Punctuation */
 #define TT_UCR_GENERAL_PUNCTUATION             (1L << 31) /* U+2000-U+206F */
                                                           /* U+2E00-U+2E7F */
 
@@ -933,17 +933,17 @@ FT_BEGIN_HEADER
 /* Bit 36   Number Forms */
 #define TT_UCR_NUMBER_FORMS                    (1L <<  4) /* U+2150-U+218F */
 /* Bit 37   Arrows                           */
-/*          Supplemental Arrows-A            */
-/*          Supplemental Arrows-B            */
-/*          Miscellaneous Symbols and Arrows */
+/* Supplemental Arrows-A            */
+/* Supplemental Arrows-B            */
+/* Miscellaneous Symbols and Arrows */
 #define TT_UCR_ARROWS                          (1L <<  5) /* U+2190-U+21FF */
                                                           /* U+27F0-U+27FF */
                                                           /* U+2900-U+297F */
                                                           /* U+2B00-U+2BFF */
 /* Bit 38   Mathematical Operators               */
-/*          Supplemental Mathematical Operators  */
-/*          Miscellaneous Mathematical Symbols-A */
-/*          Miscellaneous Mathematical Symbols-B */
+/* Supplemental Mathematical Operators  */
+/* Miscellaneous Mathematical Symbols-A */
+/* Miscellaneous Mathematical Symbols-B */
 #define TT_UCR_MATHEMATICAL_OPERATORS          (1L <<  6) /* U+2200-U+22FF */
                                                           /* U+2A00-U+2AFF */
                                                           /* U+27C0-U+27EF */
@@ -971,11 +971,11 @@ FT_BEGIN_HEADER
 /* Bit 49   Hiragana */
 #define TT_UCR_HIRAGANA                        (1L << 17) /* U+3040-U+309F */
 /* Bit 50   Katakana                     */
-/*          Katakana Phonetic Extensions */
+/* Katakana Phonetic Extensions */
 #define TT_UCR_KATAKANA                        (1L << 18) /* U+30A0-U+30FF */
                                                           /* U+31F0-U+31FF */
 /* Bit 51   Bopomofo          */
-/*          Bopomofo Extended */
+/* Bopomofo Extended */
 #define TT_UCR_BOPOMOFO                        (1L << 19) /* U+3100-U+312F */
                                                           /* U+31A0-U+31BF */
 /* Bit 52   Hangul Compatibility Jamo */
@@ -991,8 +991,8 @@ FT_BEGIN_HEADER
 /* Bit 56   Hangul Syllables */
 #define TT_UCR_HANGUL                          (1L << 24) /* U+AC00-U+D7A3 */
 /* Bit 57   High Surrogates              */
-/*          High Private Use Surrogates  */
-/*          Low Surrogates               */
+/* High Private Use Surrogates  */
+/* Low Surrogates               */
 
 /* According to OpenType specs v.1.3+,   */
 /* setting bit 57 implies that there is  */
@@ -1007,12 +1007,12 @@ FT_BEGIN_HEADER
 /* Bit 58  Phoenician */
 #define TT_UCR_PHOENICIAN                      (1L << 26) /*U+10900-U+1091F*/
 /* Bit 59   CJK Unified Ideographs             */
-/*          CJK Radicals Supplement            */
-/*          Kangxi Radicals                    */
-/*          Ideographic Description Characters */
-/*          CJK Unified Ideographs Extension A */
-/*          CJK Unified Ideographs Extension B */
-/*          Kanbun                             */
+/* CJK Radicals Supplement            */
+/* Kangxi Radicals                    */
+/* Ideographic Description Characters */
+/* CJK Unified Ideographs Extension A */
+/* CJK Unified Ideographs Extension B */
+/* Kanbun                             */
 #define TT_UCR_CJK_UNIFIED_IDEOGRAPHS          (1L << 27) /* U+4E00-U+9FFF */
                                                           /* U+2E80-U+2EFF */
                                                           /* U+2F00-U+2FDF */
@@ -1023,8 +1023,8 @@ FT_BEGIN_HEADER
 /* Bit 60   Private Use */
 #define TT_UCR_PRIVATE_USE                     (1L << 28) /* U+E000-U+F8FF */
 /* Bit 61   CJK Strokes                             */
-/*          CJK Compatibility Ideographs            */
-/*          CJK Compatibility Ideographs Supplement */
+/* CJK Compatibility Ideographs            */
+/* CJK Compatibility Ideographs Supplement */
 #define TT_UCR_CJK_COMPATIBILITY_IDEOGRAPHS    (1L << 29) /* U+31C0-U+31EF */
                                                           /* U+F900-U+FAFF */
                                                           /*U+2F800-U+2FA1F*/
@@ -1039,7 +1039,7 @@ FT_BEGIN_HEADER
 /* Bit 64   Combining Half Marks */
 #define TT_UCR_COMBINING_HALF_MARKS            (1L <<  0) /* U+FE20-U+FE2F */
 /* Bit 65   Vertical forms          */
-/*          CJK Compatibility Forms */
+/* CJK Compatibility Forms */
 #define TT_UCR_CJK_COMPATIBILITY_FORMS         (1L <<  1) /* U+FE10-U+FE1F */
                                                           /* U+FE30-U+FE4F */
 /* Bit 66   Small Form Variants */
@@ -1061,8 +1061,8 @@ FT_BEGIN_HEADER
 /* Bit 74   Myanmar */
 #define TT_UCR_MYANMAR                         (1L << 10) /* U+1000-U+109F */
 /* Bit 75   Ethiopic            */
-/*          Ethiopic Supplement */
-/*          Ethiopic Extended   */
+/* Ethiopic Supplement */
+/* Ethiopic Extended   */
 #define TT_UCR_ETHIOPIC                        (1L << 11) /* U+1200-U+137F */
                                                           /* U+1380-U+139F */
                                                           /* U+2D80-U+2DDF */
@@ -1075,7 +1075,7 @@ FT_BEGIN_HEADER
 /* Bit 79   Runic */
 #define TT_UCR_RUNIC                           (1L << 15) /* U+16A0-U+16FF */
 /* Bit 80   Khmer         */
-/*          Khmer Symbols */
+/* Khmer Symbols */
 #define TT_UCR_KHMER                           (1L << 16) /* U+1780-U+17FF */
                                                           /* U+19E0-U+19FF */
 /* Bit 81   Mongolian */
@@ -1083,13 +1083,13 @@ FT_BEGIN_HEADER
 /* Bit 82   Braille Patterns */
 #define TT_UCR_BRAILLE                         (1L << 18) /* U+2800-U+28FF */
 /* Bit 83   Yi Syllables */
-/*          Yi Radicals  */
+/* Yi Radicals  */
 #define TT_UCR_YI                              (1L << 19) /* U+A000-U+A48F */
                                                           /* U+A490-U+A4CF */
 /* Bit 84   Tagalog  */
-/*          Hanunoo  */
-/*          Buhid    */
-/*          Tagbanwa */
+/* Hanunoo  */
+/* Buhid    */
+/* Tagbanwa */
 #define TT_UCR_PHILIPPINE                      (1L << 20) /* U+1700-U+171F */
                                                           /* U+1720-U+173F */
                                                           /* U+1740-U+175F */
@@ -1101,19 +1101,19 @@ FT_BEGIN_HEADER
 /* Bit 87   Deseret */
 #define TT_UCR_DESERET                         (1L << 23) /*U+10400-U+1044F*/
 /* Bit 88   Byzantine Musical Symbols      */
-/*          Musical Symbols                */
-/*          Ancient Greek Musical Notation */
+/* Musical Symbols                */
+/* Ancient Greek Musical Notation */
 #define TT_UCR_MUSICAL_SYMBOLS                 (1L << 24) /*U+1D000-U+1D0FF*/
                                                           /*U+1D100-U+1D1FF*/
                                                           /*U+1D200-U+1D24F*/
 /* Bit 89   Mathematical Alphanumeric Symbols */
 #define TT_UCR_MATH_ALPHANUMERIC_SYMBOLS       (1L << 25) /*U+1D400-U+1D7FF*/
 /* Bit 90   Private Use (plane 15) */
-/*          Private Use (plane 16) */
+/* Private Use (plane 16) */
 #define TT_UCR_PRIVATE_USE_SUPPLEMENTARY       (1L << 26) /*U+F0000-U+FFFFD*/
                                                           /*U+100000-U+10FFFD*/
 /* Bit 91   Variation Selectors            */
-/*          Variation Selectors Supplement */
+/* Variation Selectors Supplement */
 #define TT_UCR_VARIATION_SELECTORS             (1L << 27) /* U+FE00-U+FE0F */
                                                           /*U+E0100-U+E01EF*/
 /* Bit 92   Tags */
@@ -1139,8 +1139,8 @@ FT_BEGIN_HEADER
 /* Bit 100  Syloti Nagri */
 #define TT_UCR_SYLOTI_NAGRI                    (1L <<  4) /* U+A800-U+A82F */
 /* Bit 101  Linear B Syllabary */
-/*          Linear B Ideograms */
-/*          Aegean Numbers     */
+/* Linear B Ideograms */
+/* Aegean Numbers     */
 #define TT_UCR_LINEAR_B                        (1L <<  5) /*U+10000-U+1007F*/
                                                           /*U+10080-U+100FF*/
                                                           /*U+10100-U+1013F*/
@@ -1161,7 +1161,7 @@ FT_BEGIN_HEADER
 /* Bit 109  Tai Xuan Jing Symbols */
 #define TT_UCR_TAI_XUAN_JING                   (1L << 13) /*U+1D300-U+1D35F*/
 /* Bit 110  Cuneiform                         */
-/*          Cuneiform Numbers and Punctuation */
+/* Cuneiform Numbers and Punctuation */
 #define TT_UCR_CUNEIFORM                       (1L << 14) /*U+12000-U+123FF*/
                                                           /*U+12400-U+1247F*/
 /* Bit 111  Counting Rod Numerals */
@@ -1185,13 +1185,13 @@ FT_BEGIN_HEADER
 /* Bit 120  Phaistos Disc */
 #define TT_UCR_PHAISTOS_DISC                   (1L << 24) /*U+101D0-U+101FF*/
 /* Bit 121  Carian */
-/*          Lycian */
-/*          Lydian */
+/* Lycian */
+/* Lydian */
 #define TT_UCR_OLD_ANATOLIAN                   (1L << 25) /*U+102A0-U+102DF*/
                                                           /*U+10280-U+1029F*/
                                                           /*U+10920-U+1093F*/
 /* Bit 122  Domino Tiles  */
-/*          Mahjong Tiles */
+/* Mahjong Tiles */
 #define TT_UCR_GAME_TILES                      (1L << 26) /*U+1F030-U+1F09F*/
                                                           /*U+1F000-U+1F02F*/
 /* Bit 123-127 Reserved for process-internal usage */

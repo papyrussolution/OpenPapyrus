@@ -343,7 +343,7 @@ U_CAPI void U_EXPORT2 ucal_setAttribute(UCalendar*              cal,
 		    break;
 
 		case UCAL_MINIMAL_DAYS_IN_FIRST_WEEK:
-		    ((Calendar*)cal)->setMinimalDaysInFirstWeek((uint8_t)newValue);
+		    ((Calendar*)cal)->setMinimalDaysInFirstWeek((uint8)newValue);
 		    break;
 
 		case UCAL_REPEATED_WALL_TIME:

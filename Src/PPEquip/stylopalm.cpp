@@ -7,7 +7,7 @@
 
 const char * P_PalmConfigFileName     = "palmcfg.bin";
 const char * P_StyloPalmCreatorID     = "SPII";
-const char * P_PalmArcTblName         = "SpiiUcl.pdb";
+const char * P_PalmArcTblName = "SpiiUcl.pdb";
 const char * P_PalmPackedDataTblName  = "SpiiPD.pdb";
 const char * P_PalmProgramFileName    = "StyloWce.exe";  // обновление файлов поддерживают только устройства с ОС Windows Mobile
 extern const char * P_PalmDllFileName = "TodayItem.dll"; // обновление файлов поддерживают только устройства с ОС Windows Mobile
@@ -296,11 +296,11 @@ SpGoodsStruc::~SpGoodsStruc()
 	
 void SpGoodsStruc::ToHostRec()
 {
-	ID           = ntohl(ID);
+	ID   = ntohl(ID);
 	GoodsGrpID   = ntohl(GoodsGrpID);
-	Pack         = ntohl(Pack);
+	Pack = ntohl(Pack);
 	Price        = ntohl(Price);
-	Rest         = ntohl(Rest);
+	Rest = ntohl(Rest);
 	BrandID      = ntohl(BrandID);
 	BrandOwnerID = ntohl(BrandOwnerID);
 	MinOrd       = ntohl(MinOrd);
@@ -452,7 +452,7 @@ SpClientStruc::~SpClientStruc()
 
 void SpClientStruc::ToHostRec()
 {
-	ID         = ntohl(ID);
+	ID = ntohl(ID);
 	QuotKindID = ntohl(QuotKindID);
 	Debt       = ntohl(Debt);
 	AddrCount  = ntohs(AddrCount);
@@ -544,7 +544,7 @@ int SpOrdHeaderStruc::ToBuf(void * pBuf, size_t * pBufSize)
 	
 void SpOrdHeaderStruc::ToPalmRec()
 {
-	ID         = htonl(ID);
+	ID = htonl(ID);
 	Date       = htons(Date);
 	ClientID   = htonl(ClientID);
 	DlvrAddrID = htonl(DlvrAddrID);

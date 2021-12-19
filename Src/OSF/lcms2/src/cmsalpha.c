@@ -27,15 +27,15 @@
 // Alpha copy
 //
 // This macro return words stored as big endian
-#define CHANGE_ENDIAN(w)    (cmsUInt16Number)((cmsUInt16Number)((w)<<8)|((w)>>8))
+#define CHANGE_ENDIAN(w)    (uint16)((uint16)((w)<<8)|((w)>>8))
 
 // Floor to byte, taking care of saturation
-cmsINLINE cmsUInt8Number _cmsQuickSaturateByte(cmsFloat64Number d)
+cmsINLINE uint8 _cmsQuickSaturateByte(double d)
 {
 	d += 0.5;
 	if(d <= 0) return 0;
 	if(d >= 255.0) return 255;
-	return (cmsUInt8Number)_cmsQuickFloorWord(d);
+	return (uint8)_cmsQuickFloorWord(d);
 }
 
 // Return the size in bytes of a given formatter
@@ -62,48 +62,48 @@ static void copy8(void * dst, const void * src)
 
 static void from8to16(void * dst, const void * src)
 {
-	cmsUInt8Number n = *(cmsUInt8Number *)src;
-	*(cmsUInt16Number*)dst = FROM_8_TO_16(n);
+	uint8 n = *(uint8 *)src;
+	*(uint16*)dst = FROM_8_TO_16(n);
 }
 
 static void from8to16SE(void * dst, const void * src)
 {
-	cmsUInt8Number n = *(cmsUInt8Number *)src;
-	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(FROM_8_TO_16(n));
+	uint8 n = *(uint8 *)src;
+	*(uint16*)dst = CHANGE_ENDIAN(FROM_8_TO_16(n));
 }
 
 static void from8toFLT(void * dst, const void * src)
 {
-	*(cmsFloat32Number*)dst = (*(cmsUInt8Number *)src) / 255.0f;
+	*(float*)dst = (*(uint8 *)src) / 255.0f;
 }
 
 static void from8toDBL(void * dst, const void * src)
 {
-	*(cmsFloat64Number*)dst = (*(cmsUInt8Number *)src) / 255.0;
+	*(double *)dst = (*(uint8 *)src) / 255.0;
 }
 
 static void from8toHLF(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = (*(cmsUInt8Number *)src) / 255.0f;
-	*(cmsUInt16Number*)dst = _cmsFloat2Half(n);
+	float n = (*(uint8 *)src) / 255.0f;
+	*(uint16*)dst = _cmsFloat2Half(n);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 // From 16
 static void from16to8(void * dst, const void * src)
 {
-	cmsUInt16Number n = *(cmsUInt16Number*)src;
-	*(cmsUInt8Number *)dst = FROM_16_TO_8(n);
+	uint16 n = *(uint16*)src;
+	*(uint8 *)dst = FROM_16_TO_8(n);
 }
 
 static void from16SEto8(void * dst, const void * src)
 {
-	cmsUInt16Number n = *(cmsUInt16Number*)src;
-	*(cmsUInt8Number *)dst = FROM_16_TO_8(CHANGE_ENDIAN(n));
+	uint16 n = *(uint16*)src;
+	*(uint8 *)dst = FROM_16_TO_8(CHANGE_ENDIAN(n));
 }
 
 static void copy16(void * dst, const void * src)
@@ -113,91 +113,91 @@ static void copy16(void * dst, const void * src)
 
 static void from16to16(void * dst, const void * src)
 {
-	cmsUInt16Number n = *(cmsUInt16Number*)src;
-	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(n);
+	uint16 n = *(uint16*)src;
+	*(uint16*)dst = CHANGE_ENDIAN(n);
 }
 
 static void from16toFLT(void * dst, const void * src)
 {
-	*(cmsFloat32Number*)dst = (*(cmsUInt16Number*)src) / 65535.0f;
+	*(float*)dst = (*(uint16*)src) / 65535.0f;
 }
 
 static void from16SEtoFLT(void * dst, const void * src)
 {
-	*(cmsFloat32Number*)dst = (CHANGE_ENDIAN(*(cmsUInt16Number*)src)) / 65535.0f;
+	*(float*)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
 }
 
 static void from16toDBL(void * dst, const void * src)
 {
-	*(cmsFloat64Number*)dst = (*(cmsUInt16Number*)src) / 65535.0f;
+	*(double *)dst = (*(uint16*)src) / 65535.0f;
 }
 
 static void from16SEtoDBL(void * dst, const void * src)
 {
-	*(cmsFloat64Number*)dst = (CHANGE_ENDIAN(*(cmsUInt16Number*)src)) / 65535.0f;
+	*(double *)dst = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
 }
 
 static void from16toHLF(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = (*(cmsUInt16Number*)src) / 65535.0f;
-	*(cmsUInt16Number*)dst = _cmsFloat2Half(n);
+	float n = (*(uint16*)src) / 65535.0f;
+	*(uint16*)dst = _cmsFloat2Half(n);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 static void from16SEtoHLF(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = (CHANGE_ENDIAN(*(cmsUInt16Number*)src)) / 65535.0f;
-	*(cmsUInt16Number*)dst = _cmsFloat2Half(n);
+	float n = (CHANGE_ENDIAN(*(uint16*)src)) / 65535.0f;
+	*(uint16*)dst = _cmsFloat2Half(n);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 // From Float
 static void fromFLTto8(void * dst, const void * src)
 {
-	cmsFloat32Number n = *(cmsFloat32Number*)src;
-	*(cmsUInt8Number *)dst = _cmsQuickSaturateByte(n * 255.0f);
+	float n = *(float*)src;
+	*(uint8 *)dst = _cmsQuickSaturateByte(n * 255.0f);
 }
 
 static void fromFLTto16(void * dst, const void * src)
 {
-	cmsFloat32Number n = *(cmsFloat32Number*)src;
-	*(cmsUInt16Number*)dst = _cmsQuickSaturateWord(n * 65535.0f);
+	float n = *(float*)src;
+	*(uint16*)dst = _cmsQuickSaturateWord(n * 65535.0f);
 }
 
 static void fromFLTto16SE(void * dst, const void * src)
 {
-	cmsFloat32Number n = *(cmsFloat32Number*)src;
-	cmsUInt16Number i = _cmsQuickSaturateWord(n * 65535.0f);
-	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(i);
+	float n = *(float*)src;
+	uint16 i = _cmsQuickSaturateWord(n * 65535.0f);
+	*(uint16*)dst = CHANGE_ENDIAN(i);
 }
 
 static void copy32(void * dst, const void * src)
 {
-	memmove(dst, src, sizeof(cmsFloat32Number));
+	memmove(dst, src, sizeof(float));
 }
 
 static void fromFLTtoDBL(void * dst, const void * src)
 {
-	cmsFloat32Number n = *(cmsFloat32Number*)src;
-	*(cmsFloat64Number*)dst = (cmsFloat64Number)n;
+	float n = *(float*)src;
+	*(double *)dst = (double)n;
 }
 
 static void fromFLTtoHLF(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = *(cmsFloat32Number*)src;
-	*(cmsUInt16Number*)dst = _cmsFloat2Half(n);
+	float n = *(float*)src;
+	*(uint16*)dst = _cmsFloat2Half(n);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
@@ -205,99 +205,97 @@ static void fromFLTtoHLF(void * dst, const void * src)
 static void fromHLFto8(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = _cmsHalf2Float(*(cmsUInt16Number*)src);
-	*(cmsUInt8Number *)dst = _cmsQuickSaturateByte(n * 255.0f);
+	float n = _cmsHalf2Float(*(uint16*)src);
+	*(uint8 *)dst = _cmsQuickSaturateByte(n * 255.0f);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 static void fromHLFto16(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = _cmsHalf2Float(*(cmsUInt16Number*)src);
-	*(cmsUInt16Number*)dst = _cmsQuickSaturateWord(n * 65535.0f);
+	float n = _cmsHalf2Float(*(uint16*)src);
+	*(uint16*)dst = _cmsQuickSaturateWord(n * 65535.0f);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 static void fromHLFto16SE(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = _cmsHalf2Float(*(cmsUInt16Number*)src);
-	cmsUInt16Number i = _cmsQuickSaturateWord(n * 65535.0f);
-	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(i);
+	float n = _cmsHalf2Float(*(uint16*)src);
+	uint16 i = _cmsQuickSaturateWord(n * 65535.0f);
+	*(uint16*)dst = CHANGE_ENDIAN(i);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 static void fromHLFtoFLT(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	*(cmsFloat32Number*)dst = _cmsHalf2Float(*(cmsUInt16Number*)src);
+	*(float*)dst = _cmsHalf2Float(*(uint16*)src);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 static void fromHLFtoDBL(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	*(cmsFloat64Number*)dst = (cmsFloat64Number)_cmsHalf2Float(*(cmsUInt16Number*)src);
+	*(double *)dst = (double)_cmsHalf2Float(*(uint16*)src);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 // From double
 static void fromDBLto8(void * dst, const void * src)
 {
-	cmsFloat64Number n = *(cmsFloat64Number*)src;
-	*(cmsUInt8Number *)dst = _cmsQuickSaturateByte(n * 255.0);
+	double n = *(double *)src;
+	*(uint8 *)dst = _cmsQuickSaturateByte(n * 255.0);
 }
 
 static void fromDBLto16(void * dst, const void * src)
 {
-	cmsFloat64Number n = *(cmsFloat64Number*)src;
-	*(cmsUInt16Number*)dst = _cmsQuickSaturateWord(n * 65535.0f);
+	double n = *(double *)src;
+	*(uint16*)dst = _cmsQuickSaturateWord(n * 65535.0f);
 }
 
 static void fromDBLto16SE(void * dst, const void * src)
 {
-	cmsFloat64Number n = *(cmsFloat64Number*)src;
-	cmsUInt16Number i = _cmsQuickSaturateWord(n * 65535.0f);
-	*(cmsUInt16Number*)dst = CHANGE_ENDIAN(i);
+	double n = *(double *)src;
+	uint16 i = _cmsQuickSaturateWord(n * 65535.0f);
+	*(uint16*)dst = CHANGE_ENDIAN(i);
 }
 
-static
-void fromDBLtoFLT(void * dst, const void * src)
+static void fromDBLtoFLT(void * dst, const void * src)
 {
-	cmsFloat64Number n = *(cmsFloat64Number*)src;
-	*(cmsFloat32Number*)dst = (cmsFloat32Number)n;
+	double n = *(double *)src;
+	*(float*)dst = (float)n;
 }
 
-static
-void fromDBLtoHLF(void * dst, const void * src)
+static void fromDBLtoHLF(void * dst, const void * src)
 {
 #ifndef CMS_NO_HALF_SUPPORT
-	cmsFloat32Number n = (cmsFloat32Number) *(cmsFloat64Number*)src;
-	*(cmsUInt16Number*)dst = _cmsFloat2Half(n);
+	float n = (float) *(double *)src;
+	*(uint16*)dst = _cmsFloat2Half(n);
 #else
-	cmsUNUSED_PARAMETER(dst);
-	cmsUNUSED_PARAMETER(src);
+	CXX_UNUSED(dst);
+	CXX_UNUSED(src);
 #endif
 }
 
 static void copy64(void * dst, const void * src)
 {
-	memmove(dst, src, sizeof(cmsFloat64Number));
+	memmove(dst, src, sizeof(double));
 }
 
 // Returns the position (x or y) of the formatter in the table of functions
@@ -436,8 +434,7 @@ static void ComputeIncrementsForPlanar(cmsUInt32Number Format, cmsUInt32Number B
 }
 
 // Dispatcher por chunky and planar RGB
-static
-void  ComputeComponentIncrements(cmsUInt32Number Format,
+static void  ComputeComponentIncrements(cmsUInt32Number Format,
     cmsUInt32Number BytesPerPlane,
     cmsUInt32Number ComponentStartingOrder[],
     cmsUInt32Number ComponentPointerIncrements[])
@@ -494,8 +491,8 @@ void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
 		return;
 
 	if(nExtra == 1) { // Optimized routine for copying a single extra channel quickly
-		cmsUInt8Number* SourcePtr;
-		cmsUInt8Number* DestPtr;
+		uint8 * SourcePtr;
+		uint8 * DestPtr;
 
 		cmsUInt32Number SourceStrideIncrement = 0;
 		cmsUInt32Number DestStrideIncrement = 0;
@@ -503,8 +500,8 @@ void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
 		// The loop itself
 		for(i = 0; i < LineCount; i++) {
 			// Prepare pointers for the loop
-			SourcePtr = (cmsUInt8Number *)in + SourceStartingOrder[0] + SourceStrideIncrement;
-			DestPtr = (cmsUInt8Number *)out + DestStartingOrder[0] + DestStrideIncrement;
+			SourcePtr = (uint8 *)in + SourceStartingOrder[0] + SourceStrideIncrement;
+			DestPtr = (uint8 *)out + DestStartingOrder[0] + DestStrideIncrement;
 
 			for(j = 0; j < PixelsPerLine; j++) {
 				copyValueFn(DestPtr, SourcePtr);
@@ -518,8 +515,8 @@ void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
 		}
 	}
 	else { // General case with more than one extra channel
-		cmsUInt8Number* SourcePtr[cmsMAXCHANNELS];
-		cmsUInt8Number* DestPtr[cmsMAXCHANNELS];
+		uint8 * SourcePtr[cmsMAXCHANNELS];
+		uint8 * DestPtr[cmsMAXCHANNELS];
 		cmsUInt32Number SourceStrideIncrements[cmsMAXCHANNELS];
 		cmsUInt32Number DestStrideIncrements[cmsMAXCHANNELS];
 		memzero(SourceStrideIncrements, sizeof(SourceStrideIncrements));
@@ -528,8 +525,8 @@ void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
 		for(i = 0; i < LineCount; i++) {
 			// Prepare pointers for the loop
 			for(j = 0; j < nExtra; j++) {
-				SourcePtr[j] = (cmsUInt8Number *)in + SourceStartingOrder[j] + SourceStrideIncrements[j];
-				DestPtr[j] = (cmsUInt8Number *)out + DestStartingOrder[j] + DestStrideIncrements[j];
+				SourcePtr[j] = (uint8 *)in + SourceStartingOrder[j] + SourceStrideIncrements[j];
+				DestPtr[j] = (uint8 *)out + DestStartingOrder[j] + DestStrideIncrements[j];
 			}
 			for(j = 0; j < PixelsPerLine; j++) {
 				for(k = 0; k < nExtra; k++) {

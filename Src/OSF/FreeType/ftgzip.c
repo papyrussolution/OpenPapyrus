@@ -55,13 +55,13 @@
 /* Note that our `zlib.h' includes `ftzconf.h' instead of `zconf.h'; */
 /* the main reason is that even a global `zlib.h' includes `zconf.h' */
 /* with                                           */
-/*                                                */
-/*   #include "zconf.h"                           */
-/*                                                */
+/*                                */
+/* #include "zconf.h"                           */
+/*                                */
 /* instead of the expected                        */
-/*                                                */
-/*   #include <zconf.h>                           */
-/*                                                */
+/*                                */
+/* #include <zconf.h>                           */
+/*                                */
 /* so that configuration with `FT_CONFIG_OPTION_SYSTEM_ZLIB' might   */
 /* include the wrong `zconf.h' file, leading to errors. */
 // @sobolev #include "zlib.h"

@@ -837,7 +837,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 					}
 					else if(!tare_ggrpid || GObj.BelongToGroup(item.GoodsID, tare_ggrpid) <= 0) {
 						uint idx = 0;
-						if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)) > 0)
+						if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)))
 							items_list.at(idx).Quantity += line_rec.Quantity;
 						else
 							items_list.insert(&line_rec);
@@ -861,7 +861,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 				Sdr_Baltika_RestPartLine temp_item = wotarebeerrest_list.at(j);
 				Sdr_Baltika_RestPartLine line_rec = temp_item;
 				uint idx = 0;
-				if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)) > 0)
+				if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)))
 					items_list.at(idx).Quantity += line_rec.Quantity;
 				else
 					items_list.insert(&line_rec);
@@ -885,7 +885,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 							if(bc_pack > 1.0) {
 								line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 							}
-							if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)) > 0)
+							if(items_list.lsearch(&line_rec, &idx, PTR_CMPFUNC(Sdr_Baltika_RestPartLine)))
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
 								items_list.insert(&line_rec);
@@ -998,7 +998,7 @@ int PPSupplExchange_Baltika::ExportRest()
 						if(bc_pack > 1.0) {
 							line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 						}
-						if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
+						if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)))
 							items_list.at(idx).Quantity += line_rec.Quantity;
 						else
 							items_list.insert(&line_rec);
@@ -1031,7 +1031,7 @@ int PPSupplExchange_Baltika::ExportRest()
 					if(bc_pack > 1.0) {
 						line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 					}
-					if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
+					if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)))
 						items_list.at(idx).Quantity += line_rec.Quantity;
 					else
 						items_list.insert(&line_rec);
@@ -1052,7 +1052,7 @@ int PPSupplExchange_Baltika::ExportRest()
 							if(bc_pack > 1.0) {
 								line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 							}
-							if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
+							if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)))
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
 								items_list.insert(&line_rec);
@@ -1118,7 +1118,7 @@ int PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 				line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 			}
 			STRNSCPY(line_rec.UnitId, GetEaText());
-			if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)) > 0)
+			if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplRestLine, WareId)))
 				items_list.at(idx).Quantity += line_rec.Quantity;
 			else
 				items_list.insert(&line_rec);
@@ -1385,7 +1385,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 				dlvr_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 			/* Сначала нужно выяснить, будем ли выгружать данную накладную. Поэтому блок перенесен
 			if(client_id && dlvr_addr_id)
-				if(dlvr_addr_list.lsearch(&dlvr_addr_id, 0, PTR_CMPFUNC(long), sizeof(long)) <= 0)
+				if(dlvr_addr_list.lsearch(&dlvr_addr_id, 0, CMPF_LONG, sizeof(long)) <= 0)
 					dlvr_addr_list.Add(client_id, dlvr_addr_id, 0);
 			*/
 		}
@@ -1568,7 +1568,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 							}
 							doc_type_str.CopyTo(line_rec.DocumentTypeId, sizeof(line_rec.DocumentTypeId));
 							idx = 0;
-							if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplBillLine, WareId)) > 0)
+							if(items_list.lsearch(line_rec.WareId, &idx, PTR_CMPFUNC(PcharNoCase), offsetof(Sdr_SupplBillLine, WareId)))
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
 								items_list.insert(&line_rec);
@@ -2600,8 +2600,8 @@ private:
 	}
 
 	enum {
-		stInited             = 0x0001,
-		stEpDefined          = 0x0002,
+		stInited     = 0x0001,
+		stEpDefined  = 0x0002,
 		stGoodsMappingInited = 0x0004
 	};
 	long   State;
@@ -4937,8 +4937,8 @@ private:
 	int    MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, const SapEfesOrder * pSrcPack, PPID resultOrderID, const char * pRetCode);
 
 	enum {
-		stInited             = 0x0001,
-		stEpDefined          = 0x0002
+		stInited     = 0x0001,
+		stEpDefined  = 0x0002
 	};
 
 	long   State;
@@ -6049,8 +6049,8 @@ private:
 	}
 
 	enum {
-		stInited             = 0x0001,
-		stEpDefined          = 0x0002
+		stInited     = 0x0001,
+		stEpDefined  = 0x0002
 	};
 
 	long   State;

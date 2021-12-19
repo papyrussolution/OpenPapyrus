@@ -14,7 +14,7 @@
 ** the total memory used by Lua (in bytes). Usually, 'size_t' and
 ** 'ptrdiff_t' should work, but we use 'long' for 16-bit machines.
 */
-#if defined(LUAI_MEM)           /* { external definitions? */
+#if defined(LUAI_MEM) /* { external definitions? */
 	typedef LUAI_UMEM lu_mem;
 	typedef LUAI_MEM l_mem;
 #elif LUAI_BITSINT >= 32        /* }{ */

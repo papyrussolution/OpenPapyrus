@@ -172,8 +172,8 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 			hmac_final(ctx, crypto->hmacbuf, &finallen);
 		}
 
-		cipher->encrypt(cipher, (uint8*)data + etm_packet_offset, out, len - etm_packet_offset);
-		memcpy((uint8*)data + etm_packet_offset, out, len - etm_packet_offset);
+		cipher->encrypt(cipher, (uint8 *)data + etm_packet_offset, out, len - etm_packet_offset);
+		memcpy((uint8 *)data + etm_packet_offset, out, len - etm_packet_offset);
 
 		if(etm) {
 			PUSH_BE_U32(data, 0, len - etm_packet_offset);

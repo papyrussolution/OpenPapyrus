@@ -375,7 +375,7 @@ protected:
 protected:
 			enum Flags {
 				SharedPointNumbers = 0x8000u,
-				CountMask         = 0x0FFFu
+				CountMask = 0x0FFFu
 			};
 
 public:

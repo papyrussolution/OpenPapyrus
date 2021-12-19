@@ -27,10 +27,10 @@ U_CDECL_BEGIN
 struct SearchData {
 	const char               * text;
 	const char               * pattern;
-	const char               * collator;/* currently supported "fr" "es" "de", plus  NULL/other => "en" */
+	const char               * collator; /* currently supported "fr" "es" "de", plus  NULL/other => "en" */
 	UCollationStrength strength;
 	USearchAttributeValue elemCompare;   /* value for the USEARCH_ELEMENT_COMPARISON attribute */
-	const char               * breaker;/* currently supported "wordbreaker" for EN_WORDBREAKER_, plus NULL/other =>
+	const char               * breaker; /* currently supported "wordbreaker" for EN_WORDBREAKER_, plus NULL/other =>
 	                                  EN_CHARACTERBREAKER_ */
 	int8_t offset[32];
 	uint8_t size[32];

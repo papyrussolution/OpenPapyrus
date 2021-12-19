@@ -52,6 +52,10 @@
  *    the change?  Answer:  75 (!)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 int main(int    argc,
@@ -68,12 +72,15 @@ static char  mainName[] = "comparetest";
     if (argc != 5)
         return ERROR_INT(" Syntax:  comparetest filein1 filein2 type fileout",
                          mainName, 1);
-
     filein1 = argv[1];
     filein2 = argv[2];
     type = atoi(argv[3]);
     pixd = NULL;
     fileout = argv[4];
+    setLeptDebugOK(1);
+
+        /* If comparing image files with 16 bps and spp > 1,
+         * comment this line out to strip 16 --> 8 spp */
     l_pngSetReadStrip16To8(0);
 
     if ((pixs1 = pixRead(filein1)) == NULL)
@@ -86,20 +93,18 @@ static char  mainName[] = "comparetest";
     if (d1 == 1 && d2 == 1) {
         pixEqual(pixs1, pixs2, &same);
         if (same) {
-            fprintf(stderr, "Images are identical\n");
+            lept_stderr("Images are identical\n");
             pixd = pixCreateTemplate(pixs1);  /* write empty pix for diff */
-        }
-        else {
+        } else {
             if (type == 0)
                 comptype = L_COMPARE_XOR;
             else
                 comptype = L_COMPARE_SUBTRACT;
             pixCompareBinary(pixs1, pixs2, comptype, &fract, &pixd);
-            fprintf(stderr, "Fraction of different pixels: %10.6f\n", fract);
+            lept_stderr("Fraction of different pixels: %10.6f\n", fract);
         }
         pixWrite(fileout, pixd, IFF_PNG);
-    }
-    else {
+    } else {
         if (type == 0)
             comptype = L_COMPARE_ABS_DIFF;
         else
@@ -107,19 +112,19 @@ static char  mainName[] = "comparetest";
         pixCompareGrayOrRGB(pixs1, pixs2, comptype, GPLOT_PNG, &same, &diff,
                             &rmsdiff, &pixd);
         if (type == 0) {
-            if (same)
-                fprintf(stderr, "Images are identical\n");
-            else {
-                fprintf(stderr, "Images differ: <diff> = %10.6f\n", diff);
-                fprintf(stderr, "               <rmsdiff> = %10.6f\n", rmsdiff);
+            if (same) {
+                lept_stderr("Images are identical\n");
+            } else {
+                lept_stderr("Images differ: <diff> = %10.6f\n", diff);
+                lept_stderr("               <rmsdiff> = %10.6f\n", rmsdiff);
             }
         }
         else {  /* subtraction */
-            if (same)
-                fprintf(stderr, "pixs2 strictly greater than pixs1\n");
-            else {
-                fprintf(stderr, "Images differ: <diff> = %10.6f\n", diff);
-                fprintf(stderr, "               <rmsdiff> = %10.6f\n", rmsdiff);
+            if (same) {
+                lept_stderr("pixs2 strictly greater than pixs1\n");
+            } else {
+                lept_stderr("Images differ: <diff> = %10.6f\n", diff);
+                lept_stderr("               <rmsdiff> = %10.6f\n", rmsdiff);
             }
         }
         if (d1 != 16)
@@ -130,12 +135,9 @@ static char  mainName[] = "comparetest";
         if (d1 != 16 && !same) {
             na1 = pixCompareRankDifference(pixs1, pixs2, 1);
             if (na1) {
-                fprintf(stderr, "na1[150] = %20.10f\n", na1->array[150]);
-                fprintf(stderr, "na1[200] = %20.10f\n", na1->array[200]);
-                fprintf(stderr, "na1[250] = %20.10f\n", na1->array[250]);
                 numaGetNonzeroRange(na1, 0.00005, &first, &last);
-                fprintf(stderr, "Nonzero diff range: first = %d, last = %d\n",
-                        first, last);
+                lept_stderr("Nonzero diff range: first = %d, last = %d\n",
+                             first, last);
                 na2 = numaClipToInterval(na1, first, last);
                 gplot = gplotCreate("/tmp/lept/comp/rank", GPLOT_PNG,
                                     "Pixel Rank Difference",
@@ -143,7 +145,7 @@ static char  mainName[] = "comparetest";
                 gplotAddPlot(gplot, NULL, na2, GPLOT_LINES, "rank");
                 gplotMakeOutput(gplot);
                 gplotDestroy(&gplot);
-                l_fileDisplay("/tmp/lept/comp/rank.png", 100, 100);
+                l_fileDisplay("/tmp/lept/comp/rank.png", 100, 100, 1.0);
                 numaDestroy(&na1);
                 numaDestroy(&na2);
             }

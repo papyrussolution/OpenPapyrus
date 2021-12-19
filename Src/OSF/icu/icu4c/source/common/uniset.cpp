@@ -497,7 +497,7 @@ bool UnicodeSet::containsNone(const UnicodeString & s) const {
  * is the given value.  This is used by <tt>RuleBasedTransliterator</tt> for
  * indexing.
  */
-bool UnicodeSet::matchesIndexValue(uint8_t v) const {
+bool UnicodeSet::matchesIndexValue(uint8 v) const {
 	/* The index value v, in the range [0,255], is contained in this set if
 	 * it is contained in any pair of this set.  Pairs either have the high
 	 * bytes equal, or unequal.  If the high bytes are equal, then we have
@@ -1509,7 +1509,7 @@ int32_t UnicodeSet::serialize(uint16_t * dest, int32_t destCapacity, UErrorCode 
 	/* count necessary 16-bit units */
 	length = this->len-1; // Subtract 1 to ignore final UNICODESET_HIGH
 	// assert(length>=0);
-	if(length==0) {
+	if(!length) {
 		/* empty set */
 		if(destCapacity>0) {
 			*dest = 0;
@@ -2229,7 +2229,7 @@ int32_t UnicodeSet::span(const UChar * s, int32_t length, USetSpanCondition span
 	if(length<0) {
 		length = u_strlen(s);
 	}
-	if(length==0) {
+	if(!length) {
 		return 0;
 	}
 	if(stringSpan!=NULL) {
@@ -2266,7 +2266,7 @@ int32_t UnicodeSet::spanBack(const UChar * s, int32_t length, USetSpanCondition 
 	if(length<0) {
 		length = u_strlen(s);
 	}
-	if(length==0) {
+	if(!length) {
 		return 0;
 	}
 	if(stringSpan) {
@@ -2299,17 +2299,17 @@ int32_t UnicodeSet::spanBack(const UChar * s, int32_t length, USetSpanCondition 
 
 int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const {
 	if(length>0 && bmpSet!=NULL) {
-		const uint8_t * s0 = (const uint8_t*)s;
+		const uint8 * s0 = (const uint8*)s;
 		return (int32_t)(bmpSet->spanUTF8(s0, length, spanCondition)-s0);
 	}
 	if(length<0) {
 		length = (int32_t)uprv_strlen(s);
 	}
-	if(length==0) {
+	if(!length) {
 		return 0;
 	}
 	if(stringSpan!=NULL) {
-		return stringSpan->spanUTF8((const uint8_t*)s, length, spanCondition);
+		return stringSpan->spanUTF8((const uint8*)s, length, spanCondition);
 	}
 	else if(hasStrings()) {
 		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ?
@@ -2317,7 +2317,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 		    UnicodeSetStringSpan::FWD_UTF8_CONTAINED;
 		UnicodeSetStringSpan strSpan(*this, *strings, which);
 		if(strSpan.needsStringSpanUTF8()) {
-			return strSpan.spanUTF8((const uint8_t*)s, length, spanCondition);
+			return strSpan.spanUTF8((const uint8*)s, length, spanCondition);
 		}
 	}
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {
@@ -2337,23 +2337,23 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 int32_t UnicodeSet::spanBackUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const 
 {
 	if(length>0 && bmpSet!=NULL) {
-		const uint8_t * s0 = (const uint8_t*)s;
+		const uint8 * s0 = (const uint8*)s;
 		return bmpSet->spanBackUTF8(s0, length, spanCondition);
 	}
 	if(length<0) {
 		length = (int32_t)uprv_strlen(s);
 	}
-	if(length==0) {
+	if(!length) {
 		return 0;
 	}
 	if(stringSpan!=NULL) {
-		return stringSpan->spanBackUTF8((const uint8_t*)s, length, spanCondition);
+		return stringSpan->spanBackUTF8((const uint8*)s, length, spanCondition);
 	}
 	else if(hasStrings()) {
 		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ? UnicodeSetStringSpan::BACK_UTF8_NOT_CONTAINED : UnicodeSetStringSpan::BACK_UTF8_CONTAINED;
 		UnicodeSetStringSpan strSpan(*this, *strings, which);
 		if(strSpan.needsStringSpanUTF8()) {
-			return strSpan.spanBackUTF8((const uint8_t*)s, length, spanCondition);
+			return strSpan.spanBackUTF8((const uint8*)s, length, spanCondition);
 		}
 	}
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {

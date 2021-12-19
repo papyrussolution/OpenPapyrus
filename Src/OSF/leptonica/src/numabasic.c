@@ -36,40 +36,42 @@
  *          void        *numaDestroy()
  *          NUMA        *numaCopy()
  *          NUMA        *numaClone()
- *          int32      numaEmpty()
+ *          l_int32      numaEmpty()
  *
  *      Add/remove number (float or integer)
- *          int32      numaAddNumber()
- *          static int32  numaExtendArray()
- *          int32      numaInsertNumber()
- *          int32      numaRemoveNumber()
- *          int32      numaReplaceNumber()
+ *          l_int32      numaAddNumber()
+ *          static l_int32  numaExtendArray()
+ *          l_int32      numaInsertNumber()
+ *          l_int32      numaRemoveNumber()
+ *          l_int32      numaReplaceNumber()
  *
  *      Numa accessors
- *          int32      numaGetCount()
- *          int32      numaSetCount()
- *          int32      numaGetIValue()
- *          int32      numaGetFValue()
- *          int32      numaSetValue()
- *          int32      numaShiftValue()
- *          int32     *numaGetIArray()
+ *          l_int32      numaGetCount()
+ *          l_int32      numaSetCount()
+ *          l_int32      numaGetIValue()
+ *          l_int32      numaGetFValue()
+ *          l_int32      numaSetValue()
+ *          l_int32      numaShiftValue()
+ *          l_int32     *numaGetIArray()
  *          float   *numaGetFArray()
- *          int32      numaGetRefcount()
- *          int32      numaChangeRefcount()
- *          int32      numaGetParameters()
- *          int32      numaSetParameters()
- *          int32      numaCopyParameters()
+ *          l_int32      numaGetRefcount()
+ *          l_int32      numaChangeRefcount()
+ *          l_int32      numaGetParameters()
+ *          l_int32      numaSetParameters()
+ *          l_int32      numaCopyParameters()
  *
  *      Convert to string array
- *          SARRAY      *numaConvertToSarray()
+ *          SARRAY *numaConvertToSarray()
  *
  *      Serialize numa for I/O
  *          NUMA        *numaRead()
  *          NUMA        *numaReadStream()
  *          NUMA        *numaReadMem()
- *          int32      numaWrite()
- *          int32      numaWriteStream()
- *          int32      numaWriteMem()
+ *          l_int32      numaWriteDebug()
+ *          l_int32      numaWrite()
+ *          l_int32      numaWriteStream()
+ *          l_int32      numaWriteStderr()
+ *          l_int32      numaWriteMem()
  *
  *      Numaa creation, destruction, truncation
  *          NUMAA       *numaaCreate()
@@ -78,29 +80,29 @@
  *          void        *numaaDestroy()
  *
  *      Add Numa to Numaa
- *          int32      numaaAddNuma()
- *          static int32   numaaExtendArray()
+ *          l_int32      numaaAddNuma()
+ *          static l_int32   numaaExtendArray()
  *
  *      Numaa accessors
- *          int32      numaaGetCount()
- *          int32      numaaGetNumaCount()
- *          int32      numaaGetNumberCount()
+ *          l_int32      numaaGetCount()
+ *          l_int32      numaaGetNumaCount()
+ *          l_int32      numaaGetNumberCount()
  *          NUMA       **numaaGetPtrArray()
  *          NUMA        *numaaGetNuma()
  *          NUMA        *numaaReplaceNuma()
- *          int32      numaaGetValue()
- *          int32      numaaAddNumber()
+ *          l_int32      numaaGetValue()
+ *          l_int32      numaaAddNumber()
  *
  *      Serialize numaa for I/O
  *          NUMAA       *numaaRead()
  *          NUMAA       *numaaReadStream()
  *          NUMAA       *numaaReadMem()
- *          int32      numaaWrite()
- *          int32      numaaWriteStream()
- *          int32      numaaWriteMem()
+ *          l_int32      numaaWrite()
+ *          l_int32      numaaWriteStream()
+ *          l_int32      numaaWriteMem()
  *
  *    (1) The Numa is a struct holding an array of floats.  It can also
- *        be used to store int32 values, with some loss of precision
+ *        be used to store l_int32 values, with some loss of precision
  *        for floats larger than about 10 million.  Use the L_Dna instead
  *        if integers larger than a few million need to be stored.
  *
@@ -121,17 +123,17 @@
  *         or numaGetFValue(), depending on whether you are retrieving
  *         an integer or a float.  This avoids doing an explicit cast,
  *         such as
- *           (a) return a float and cast it to an int32
+ *           (a) return a float and cast it to an l_int32
  *           (b) cast the return directly to (float *) to
  *               satisfy the function prototype, as in
- *                 numaGetFValue(na, index, (float *)\&ival);   [ugly!]
+ *                 numaGetFValue(na, index, (float *)&ival);   [ugly!]
  *
- *    (4) int \<--\> float conversions:
+ *    (4) int <--> float conversions:
  *
  *        Tradition dictates that type conversions go automatically from
- *        int32 --\> float, even though it is possible to lose
- *        precision for large integers, whereas you must cast (int32)
- *        to go from float --\> int32 because you're truncating
+ *        l_int32 --> float, even though it is possible to lose
+ *        precision for large integers, whereas you must cast (l_int32)
+ *        to go from float --> l_int32 because you're truncating
  *        to the integer value.
  *
  *    (5) As with other arrays in leptonica, the numa has both an allocated
@@ -164,11 +166,14 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static const int32 INITIAL_PTR_ARRAYSIZE = 50;      /* n'importe quoi */
+/* Bounds on initial array size */
+static const l_uint32 MaxFloatArraySize = 100000000; /* for numa */
+static const l_uint32 MaxPtrArraySize = 1000000; /* for numaa */
+static const l_int32 InitialArraySize = 50; /*!< n'importe quoi */
 
 /* Static functions */
-static int32 numaExtendArray(NUMA  * na);
-static int32 numaaExtendArray(NUMAA  * naa);
+static l_int32 numaExtendArray(NUMA * na);
+static l_int32 numaaExtendArray(NUMAA  * naa);
 
 /*--------------------------------------------------------------------------*
 *               Numa creation, destruction, copy, clone, etc.              *
@@ -176,20 +181,20 @@ static int32 numaaExtendArray(NUMAA  * naa);
 /*!
  * \brief   numaCreate()
  *
- * \param[in]    n size of number array to be alloc'd 0 for default
+ * \param[in]    n    size of number array to be alloc'd 0 for default
  * \return  na, or NULL on error
  */
-NUMA * numaCreate(int32 n)
+NUMA * numaCreate(l_int32 n)
 {
-	NUMA  * na;
-	PROCNAME("numaCreate");
+	NUMA * na;
 
-	if(n <= 0)
-		n = INITIAL_PTR_ARRAYSIZE;
+	PROCNAME(__FUNCTION__);
 
-	if((na = (NUMA*)LEPT_CALLOC(1, sizeof(NUMA))) == NULL)
-		return (NUMA*)ERROR_PTR("na not made", procName, NULL);
-	if((na->array = (float*)LEPT_CALLOC(n, sizeof(float))) == NULL) {
+	if(n <= 0 || n > MaxFloatArraySize)
+		n = InitialArraySize;
+
+	na = (NUMA*)SAlloc::C(1, sizeof(NUMA));
+	if((na->array = (float *)SAlloc::C(n, sizeof(float))) == NULL) {
 		numaDestroy(&na);
 		return (NUMA*)ERROR_PTR("number array not made", procName, NULL);
 	}
@@ -205,8 +210,8 @@ NUMA * numaCreate(int32 n)
 /*!
  * \brief   numaCreateFromIArray()
  *
- * \param[in]    iarray integer
- * \param[in]    size of the array
+ * \param[in]    iarray    integer array
+ * \param[in]    size      of the array
  * \return  na, or NULL on error
  *
  * <pre>
@@ -217,27 +222,32 @@ NUMA * numaCreate(int32 n)
  *          owned by the caller.
  * </pre>
  */
-NUMA * numaCreateFromIArray(int32 * iarray, int32 size)
+NUMA * numaCreateFromIArray(l_int32 * iarray,
+    l_int32 size)
 {
-	int32 i;
-	NUMA    * na;
-	PROCNAME("numaCreateFromIArray");
+	l_int32 i;
+	NUMA * na;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!iarray)
 		return (NUMA*)ERROR_PTR("iarray not defined", procName, NULL);
 	if(size <= 0)
 		return (NUMA*)ERROR_PTR("size must be > 0", procName, NULL);
+
 	na = numaCreate(size);
 	for(i = 0; i < size; i++)
 		numaAddNumber(na, iarray[i]);
+
 	return na;
 }
 
 /*!
  * \brief   numaCreateFromFArray()
  *
- * \param[in]    farray float
- * \param[in]    size of the array
- * \param[in]    copyflag L_INSERT or L_COPY
+ * \param[in]    farray     float array
+ * \param[in]    size       of the array
+ * \param[in]    copyflag   L_INSERT or L_COPY
  * \return  na, or NULL on error
  *
  * <pre>
@@ -247,14 +257,14 @@ NUMA * numaCreateFromIArray(int32 * iarray, int32 size)
  *          to be valid.
  * </pre>
  */
-NUMA * numaCreateFromFArray(float  * farray,
-    int32 size,
-    int32 copyflag)
+NUMA * numaCreateFromFArray(float * farray,
+    l_int32 size,
+    l_int32 copyflag)
 {
-	int32 i;
-	NUMA    * na;
+	l_int32 i;
+	NUMA * na;
 
-	PROCNAME("numaCreateFromFArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!farray)
 		return (NUMA*)ERROR_PTR("farray not defined", procName, NULL);
@@ -265,7 +275,7 @@ NUMA * numaCreateFromFArray(float  * farray,
 
 	na = numaCreate(size);
 	if(copyflag == L_INSERT) {
-		if(na->array) LEPT_FREE(na->array);
+		if(na->array) SAlloc::F(na->array);
 		na->array = farray;
 		na->n = size;
 	}
@@ -280,7 +290,7 @@ NUMA * numaCreateFromFArray(float  * farray,
 /*!
  * \brief   numaCreateFromString()
  *
- * \param[in]    str string of comma-separated numbers
+ * \param[in]    str    string of comma-separated numbers
  * \return  na, or NULL on error
  *
  * <pre>
@@ -290,15 +300,15 @@ NUMA * numaCreateFromFArray(float  * farray,
  *          indexing into arrays), use numaGetIValue(...).
  * </pre>
  */
-NUMA * numaCreateFromString(const char  * str)
+NUMA * numaCreateFromString(const char * str)
 {
 	char      * substr;
-	int32 i, n, nerrors;
+	l_int32 i, n, nerrors;
 	float val;
-	NUMA      * na;
+	NUMA * na;
 	SARRAY    * sa;
 
-	PROCNAME("numaCreateFromString");
+	PROCNAME(__FUNCTION__);
 
 	if(!str || (strlen(str) == 0))
 		return (NUMA*)ERROR_PTR("str not defined or empty", procName, NULL);
@@ -311,7 +321,7 @@ NUMA * numaCreateFromString(const char  * str)
 	for(i = 0; i < n; i++) {
 		substr = sarrayGetString(sa, i, L_NOCOPY);
 		if(sscanf(substr, "%f", &val) != 1) {
-			L_ERROR2("substr %d not float\n", procName, i);
+			L_ERROR("substr %d not float\n", procName, i);
 			nerrors++;
 		}
 		else {
@@ -331,7 +341,7 @@ NUMA * numaCreateFromString(const char  * str)
 /*!
  * \brief   numaDestroy()
  *
- * \param[in,out] pna to be nulled if it exists
+ * \param[in,out] pna   numa to be destroyed and nulled if it exists
  * \return  void
  *
  * <pre>
@@ -340,25 +350,29 @@ NUMA * numaCreateFromString(const char  * str)
  *      (2) Always nulls the input ptr.
  * </pre>
  */
-void numaDestroy(NUMA  ** pna)
+void numaDestroy(NUMA ** pna)
 {
-	NUMA  * na;
-	PROCNAME("numaDestroy");
+	NUMA * na;
+
+	PROCNAME(__FUNCTION__);
+
 	if(pna == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
 		return;
 	}
+
 	if((na = *pna) == NULL)
 		return;
+
 	/* Decrement the ref count.  If it is 0, destroy the numa. */
 	numaChangeRefcount(na, -1);
 	if(numaGetRefcount(na) <= 0) {
 		if(na->array)
-			LEPT_FREE(na->array);
-		LEPT_FREE(na);
+			SAlloc::F(na->array);
+		SAlloc::F(na);
 	}
+
 	*pna = NULL;
-	return;
 }
 
 /*!
@@ -367,12 +381,12 @@ void numaDestroy(NUMA  ** pna)
  * \param[in]    na
  * \return  copy of numa, or NULL on error
  */
-NUMA * numaCopy(NUMA  * na)
+NUMA * numaCopy(NUMA * na)
 {
-	int32 i;
-	NUMA    * cna;
+	l_int32 i;
+	NUMA * cna;
 
-	PROCNAME("numaCopy");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
@@ -394,11 +408,13 @@ NUMA * numaCopy(NUMA  * na)
  * \param[in]    na
  * \return  ptr to same numa, or NULL on error
  */
-NUMA * numaClone(NUMA  * na)
+NUMA * numaClone(NUMA * na)
 {
-	PROCNAME("numaClone");
+	PROCNAME(__FUNCTION__);
+
 	if(!na)
 		return (NUMA*)ERROR_PTR("na not defined", procName, NULL);
+
 	numaChangeRefcount(na, 1);
 	return na;
 }
@@ -416,9 +432,9 @@ NUMA * numaClone(NUMA  * na)
  *          the array appears to be empty.
  * </pre>
  */
-int32 numaEmpty(NUMA  * na)
+l_ok numaEmpty(NUMA * na)
 {
-	PROCNAME("numaEmpty");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
@@ -434,38 +450,57 @@ int32 numaEmpty(NUMA  * na)
  * \brief   numaAddNumber()
  *
  * \param[in]    na
- * \param[in]    val  float or int to be added; stored as a float
+ * \param[in]    val    float or int to be added; stored as a float
  * \return  0 if OK, 1 on error
  */
-int32 numaAddNumber(NUMA * na, float val)
+l_ok numaAddNumber(NUMA * na,
+    float val)
 {
-	int32 n;
-	PROCNAME("numaAddNumber");
+	l_int32 n;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+
 	n = numaGetCount(na);
-	if(n >= na->nalloc)
-		numaExtendArray(na);
+	if(n >= na->nalloc) {
+		if(numaExtendArray(na))
+			return ERROR_INT("extension failed", procName, 1);
+	}
 	na->array[n] = val;
 	na->n++;
 	return 0;
 }
+
 /*!
  * \brief   numaExtendArray()
  *
  * \param[in]    na
  * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The max number of floats is 100M.
+ * </pre>
  */
-static int32 numaExtendArray(NUMA  * na)
+static l_int32 numaExtendArray(NUMA * na)
 {
-	PROCNAME("numaExtendArray");
+	size_t oldsize, newsize;
+
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if(na->nalloc > MaxFloatArraySize) /* belt & suspenders */
+		return ERROR_INT("na has too many ptrs", procName, 1);
+	oldsize = na->nalloc * sizeof(float);
+	newsize = 2 * oldsize;
+	if(newsize > 4 * MaxFloatArraySize)
+		return ERROR_INT("newsize > 400 MB; too large", procName, 1);
 
-	if((na->array = (float*)reallocNew((void**)&na->array,
-			    sizeof(float) * na->nalloc,
-			    2 * sizeof(float) * na->nalloc)) == NULL)
+	if((na->array = (float *)reallocNew((void**)&na->array,
+	    oldsize, newsize)) == NULL)
 		return ERROR_INT("new ptr array not returned", procName, 1);
 
 	na->nalloc *= 2;
@@ -476,35 +511,39 @@ static int32 numaExtendArray(NUMA  * na)
  * \brief   numaInsertNumber()
  *
  * \param[in]    na
- * \param[in]    index location in na to insert new value
- * \param[in]    val  float32 or integer to be added
+ * \param[in]    index    location in na to insert new value
+ * \param[in]    val      float32 or integer to be added
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This shifts na[i] --\> na[i + 1] for all i \>= index,
+ *      (1) This shifts na[i] --> na[i + 1] for all i >= index,
  *          and then inserts val as na[index].
  *      (2) It should not be used repeatedly on large arrays,
  *          because the function is O(n).
  *
  * </pre>
  */
-int32 numaInsertNumber(NUMA      * na,
-    int32 index,
+l_ok numaInsertNumber(NUMA * na,
+    l_int32 index,
     float val)
 {
-	int32 i, n;
+	l_int32 i, n;
 
-	PROCNAME("numaInsertNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	n = numaGetCount(na);
-	if(index < 0 || index > n)
-		return ERROR_INT("index not in {0...n}", procName, 1);
+	if(index < 0 || index > n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n);
+		return 1;
+	}
 
-	if(n >= na->nalloc)
-		numaExtendArray(na);
+	if(n >= na->nalloc) {
+		if(numaExtendArray(na))
+			return ERROR_INT("extension failed", procName, 1);
+	}
 	for(i = n; i > index; i--)
 		na->array[i] = na->array[i - 1];
 	na->array[index] = val;
@@ -516,28 +555,30 @@ int32 numaInsertNumber(NUMA      * na,
  * \brief   numaRemoveNumber()
  *
  * \param[in]    na
- * \param[in]    index element to be removed
+ * \param[in]    index    element to be removed
  * \return  0 if OK, 1 on error
  *
  * <pre>
  * Notes:
- *      (1) This shifts na[i] --\> na[i - 1] for all i \> index.
+ *      (1) This shifts na[i] --> na[i - 1] for all i > index.
  *      (2) It should not be used repeatedly on large arrays,
  *          because the function is O(n).
  * </pre>
  */
-int32 numaRemoveNumber(NUMA    * na,
-    int32 index)
+l_ok numaRemoveNumber(NUMA * na,
+    l_int32 index)
 {
-	int32 i, n;
+	l_int32 i, n;
 
-	PROCNAME("numaRemoveNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	n = numaGetCount(na);
-	if(index < 0 || index >= n)
-		return ERROR_INT("index not in {0...n - 1}", procName, 1);
+	if(index < 0 || index >= n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n - 1);
+		return 1;
+	}
 
 	for(i = index + 1; i < n; i++)
 		na->array[i - 1] = na->array[i];
@@ -549,23 +590,25 @@ int32 numaRemoveNumber(NUMA    * na,
  * \brief   numaReplaceNumber()
  *
  * \param[in]    na
- * \param[in]    index element to be replaced
- * \param[in]    val new value to replace old one
+ * \param[in]    index    element to be replaced
+ * \param[in]    val      new value to replace old one
  * \return  0 if OK, 1 on error
  */
-int32 numaReplaceNumber(NUMA      * na,
-    int32 index,
+l_ok numaReplaceNumber(NUMA * na,
+    l_int32 index,
     float val)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("numaReplaceNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	n = numaGetCount(na);
-	if(index < 0 || index >= n)
-		return ERROR_INT("index not in {0...n - 1}", procName, 1);
+	if(index < 0 || index >= n) {
+		L_ERROR("index %d not in [0,...,%d]\n", procName, index, n - 1);
+		return 1;
+	}
 
 	na->array[index] = val;
 	return 0;
@@ -580,9 +623,9 @@ int32 numaReplaceNumber(NUMA      * na,
  * \param[in]    na
  * \return  count, or 0 if no numbers or on error
  */
-int32 numaGetCount(NUMA  * na)
+l_int32 numaGetCount(NUMA * na)
 {
-	PROCNAME("numaGetCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 0);
@@ -598,24 +641,24 @@ int32 numaGetCount(NUMA  * na)
  *
  * <pre>
  * Notes:
- *      (1) If newcount \<= na-\>nalloc, this resets na-\>n.
+ *      (1) If newcount <= na->nalloc, this resets na->n.
  *          Using newcount = 0 is equivalent to numaEmpty().
- *      (2) If newcount \> na-\>nalloc, this causes a realloc
- *          to a size na-\>nalloc = newcount.
+ *      (2) If newcount > na->nalloc, this causes a realloc
+ *          to a size na->nalloc = newcount.
  *      (3) All the previously unused values in na are set to 0.0.
  * </pre>
  */
-int32 numaSetCount(NUMA    * na,
-    int32 newcount)
+l_ok numaSetCount(NUMA * na,
+    l_int32 newcount)
 {
-	PROCNAME("numaSetCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	if(newcount > na->nalloc) {
-		if((na->array = (float*)reallocNew((void**)&na->array,
-				    sizeof(float) * na->nalloc,
-				    sizeof(float) * newcount)) == NULL)
+		if((na->array = (float *)reallocNew((void**)&na->array,
+		    sizeof(float) * na->nalloc,
+		    sizeof(float) * newcount)) == NULL)
 			return ERROR_INT("new ptr array not returned", procName, 1);
 		na->nalloc = newcount;
 	}
@@ -627,8 +670,8 @@ int32 numaSetCount(NUMA    * na,
  * \brief   numaGetFValue()
  *
  * \param[in]    na
- * \param[in]    index into numa
- * \param[out]   pval  float value; 0.0 on error
+ * \param[in]    index    into numa
+ * \param[out]   pval     float value; set to 0.0 on error
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -637,11 +680,11 @@ int32 numaSetCount(NUMA    * na,
  *          decide if a 0.0 in the returned ival is valid.
  * </pre>
  */
-int32 numaGetFValue(NUMA       * na,
-    int32 index,
-    float  * pval)
+l_ok numaGetFValue(NUMA       * na,
+    l_int32 index,
+    float * pval)
 {
-	PROCNAME("numaGetFValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
@@ -661,7 +704,7 @@ int32 numaGetFValue(NUMA       * na,
  *
  * \param[in]    na
  * \param[in]    index into numa
- * \param[out]   pival  integer value; 0 on error
+ * \param[out]   pival  integer value; set to 0 on error
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -670,13 +713,13 @@ int32 numaGetFValue(NUMA       * na,
  *          decide if a 0 in the returned ival is valid.
  * </pre>
  */
-int32 numaGetIValue(NUMA     * na,
-    int32 index,
-    int32  * pival)
+l_ok numaGetIValue(NUMA     * na,
+    l_int32 index,
+    l_int32 * pival)
 {
 	float val;
 
-	PROCNAME("numaGetIValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!pival)
 		return ERROR_INT("&ival not defined", procName, 1);
@@ -688,7 +731,7 @@ int32 numaGetIValue(NUMA     * na,
 		return ERROR_INT("index not valid", procName, 1);
 
 	val = na->array[index];
-	*pival = (int32)(val + L_SIGN(val) * 0.5);
+	*pival = (l_int32)(val + L_SIGN(val) * 0.5);
 	return 0;
 }
 
@@ -697,14 +740,14 @@ int32 numaGetIValue(NUMA     * na,
  *
  * \param[in]    na
  * \param[in]    index   to element to be set
- * \param[in]    val  to set element
+ * \param[in]    val     to set
  * \return  0 if OK; 1 on error
  */
-int32 numaSetValue(NUMA      * na,
-    int32 index,
+l_ok numaSetValue(NUMA * na,
+    l_int32 index,
     float val)
 {
-	PROCNAME("numaSetValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
@@ -719,15 +762,15 @@ int32 numaSetValue(NUMA      * na,
  * \brief   numaShiftValue()
  *
  * \param[in]    na
- * \param[in]    index to element to change relative to the current value
- * \param[in]    diff  increment if diff > 0 or decrement if diff < 0
+ * \param[in]    index   to element to change relative to the current value
+ * \param[in]    diff    increment if diff > 0 or decrement if diff < 0
  * \return  0 if OK; 1 on error
  */
-int32 numaShiftValue(NUMA      * na,
-    int32 index,
+l_ok numaShiftValue(NUMA * na,
+    l_int32 index,
     float diff)
 {
-	PROCNAME("numaShiftValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
@@ -757,19 +800,19 @@ int32 numaShiftValue(NUMA      * na,
  *          on an array of size 256.
  * </pre>
  */
-int32 * numaGetIArray(NUMA  * na)
+l_int32 * numaGetIArray(NUMA * na)
 {
-	int32 i, n, ival;
-	int32  * array;
+	l_int32 i, n, ival;
+	l_int32 * array;
 
-	PROCNAME("numaGetIArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
-		return (int32*)ERROR_PTR("na not defined", procName, NULL);
+		return (l_int32*)ERROR_PTR("na not defined", procName, NULL);
 
 	n = numaGetCount(na);
-	if((array = (int32*)LEPT_CALLOC(n, sizeof(int32))) == NULL)
-		return (int32*)ERROR_PTR("array not made", procName, NULL);
+	if((array = (l_int32*)SAlloc::C(n, sizeof(l_int32))) == NULL)
+		return (l_int32*)ERROR_PTR("array not made", procName, NULL);
 	for(i = 0; i < n; i++) {
 		numaGetIValue(na, i, &ival);
 		array[i] = ival;
@@ -782,7 +825,7 @@ int32 * numaGetIArray(NUMA  * na)
  * \brief   numaGetFArray()
  *
  * \param[in]    na
- * \param[in]    copyflag L_NOCOPY or L_COPY
+ * \param[in]    copyflag    L_NOCOPY or L_COPY
  * \return  either the bare internal array or a copy of it,
  *              or NULL on error
  *
@@ -800,24 +843,24 @@ int32 * numaGetIArray(NUMA  * na)
  *          is another way to insure full initialization.
  * </pre>
  */
-float * numaGetFArray(NUMA    * na,
-    int32 copyflag)
+float * numaGetFArray(NUMA * na,
+    l_int32 copyflag)
 {
-	int32 i, n;
-	float  * array;
+	l_int32 i, n;
+	float * array;
 
-	PROCNAME("numaGetFArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
-		return (float*)ERROR_PTR("na not defined", procName, NULL);
+		return (float *)ERROR_PTR("na not defined", procName, NULL);
 
 	if(copyflag == L_NOCOPY) {
 		array = na->array;
 	}
 	else { /* copyflag == L_COPY */
 		n = numaGetCount(na);
-		if((array = (float*)LEPT_CALLOC(n, sizeof(float))) == NULL)
-			return (float*)ERROR_PTR("array not made", procName, NULL);
+		if((array = (float *)SAlloc::C(n, sizeof(float))) == NULL)
+			return (float *)ERROR_PTR("array not made", procName, NULL);
 		for(i = 0; i < n; i++)
 			array[i] = na->array[i];
 	}
@@ -831,9 +874,10 @@ float * numaGetFArray(NUMA    * na,
  * \param[in]    na
  * \return  refcount, or UNDEF on error
  */
-int32 numaGetRefcount(NUMA  * na)
+l_int32 numaGetRefcount(NUMA * na)
 {
-	PROCNAME("numaGetRefcount");
+	PROCNAME(__FUNCTION__);
+
 	if(!na)
 		return ERROR_INT("na not defined", procName, UNDEF);
 	return na->refcount;
@@ -843,30 +887,33 @@ int32 numaGetRefcount(NUMA  * na)
  * \brief   numaChangeRefCount()
  *
  * \param[in]    na
- * \param[in]    delta change to be applied
+ * \param[in]    delta    change to be applied
  * \return  0 if OK, 1 on error
  */
-int32 numaChangeRefcount(NUMA * na, int32 delta)
+l_ok numaChangeRefcount(NUMA * na,
+    l_int32 delta)
 {
-	PROCNAME("numaChangeRefcount");
+	PROCNAME(__FUNCTION__);
+
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	na->refcount += delta;
 	return 0;
 }
+
 /*!
  * \brief   numaGetParameters()
  *
  * \param[in]    na
- * \param[out]   pstartx [optional] startx
- * \param[out]   pdelx [optional] delx
+ * \param[out]   pstartx    [optional] startx
+ * \param[out]   pdelx      [optional] delx
  * \return  0 if OK, 1 on error
  */
-int32 numaGetParameters(NUMA       * na,
-    float  * pstartx,
-    float  * pdelx)
+l_ok numaGetParameters(NUMA       * na,
+    float * pstartx,
+    float * pdelx)
 {
-	PROCNAME("numaGetParameters");
+	PROCNAME(__FUNCTION__);
 
 	if(!pdelx && !pstartx)
 		return ERROR_INT("no return val requested", procName, 1);
@@ -884,17 +931,21 @@ int32 numaGetParameters(NUMA       * na,
  * \brief   numaSetParameters()
  *
  * \param[in]    na
- * \param[in]    startx x value corresponding to na[0]
- * \param[in]    delx difference in x values for the situation where the
- *                    elements of na correspond to the evaulation of a
- *                    function at equal intervals of size %delx
+ * \param[in]    startx  x value corresponding to na[0]
+ * \param[in]    delx    difference in x values for the situation where the
+ *                       elements of na correspond to the evaluation of a
+ *                       function at equal intervals of size %delx
  * \return  0 if OK, 1 on error
  */
-int32 numaSetParameters(NUMA * na, float startx, float delx)
+l_ok numaSetParameters(NUMA * na,
+    float startx,
+    float delx)
 {
-	PROCNAME("numaSetParameters");
+	PROCNAME(__FUNCTION__);
+
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+
 	na->startx = startx;
 	na->delx = delx;
 	return 0;
@@ -903,16 +954,20 @@ int32 numaSetParameters(NUMA * na, float startx, float delx)
 /*!
  * \brief   numaCopyParameters()
  *
- * \param[in]    nad destination Numa
- * \param[in]    nas source Numa
+ * \param[in]    nad    destination Numa
+ * \param[in]    nas    source Numa
  * \return  0 if OK, 1 on error
  */
-int32 numaCopyParameters(NUMA  * nad, NUMA  * nas)
+l_ok numaCopyParameters(NUMA * nad,
+    NUMA * nas)
 {
 	float start, binsize;
-	PROCNAME("numaCopyParameters");
+
+	PROCNAME(__FUNCTION__);
+
 	if(!nas || !nad)
 		return ERROR_INT("nas and nad not both defined", procName, 1);
+
 	numaGetParameters(nas, &start, &binsize);
 	numaSetParameters(nad, start, binsize);
 	return 0;
@@ -925,11 +980,11 @@ int32 numaCopyParameters(NUMA  * nad, NUMA  * nas)
  * \brief   numaConvertToSarray()
  *
  * \param[in]    na
- * \param[in]    size1 size of conversion field
- * \param[in]    size2 for float conversion: size of field to the right
- *                     of the decimal point
- * \param[in]    addzeros for integer conversion: to add lead zeros
- * \param[in]    type L_INTEGER_VALUE, L_FLOAT_VALUE
+ * \param[in]    size1      size of conversion field
+ * \param[in]    size2      for float conversion: size of field to the right
+ *                          of the decimal point
+ * \param[in]    addzeros   for integer conversion: to add lead zeros
+ * \param[in]    type       L_INTEGER_VALUE, L_FLOAT_VALUE
  * \return  a sarray of the float values converted to strings
  *              representing either integer or float values; or NULL on error.
  *
@@ -939,46 +994,46 @@ int32 numaCopyParameters(NUMA  * nad, NUMA  * nas)
  *          For float conversion, addzeroes is ignored.
  * </pre>
  */
-SARRAY * numaConvertToSarray(NUMA    * na,
-    int32 size1,
-    int32 size2,
-    int32 addzeros,
-    int32 type)
+SARRAY * numaConvertToSarray(NUMA * na,
+    l_int32 size1,
+    l_int32 size2,
+    l_int32 addzeros,
+    l_int32 type)
 {
 	char fmt[32], strbuf[64];
-	int32 i, n, ival;
+	l_int32 i, n, ival;
 	float fval;
 	SARRAY    * sa;
 
-	PROCNAME("numaConvertToSarray");
+	PROCNAME(__FUNCTION__);
 
 	if(!na)
-		return (SARRAY*)ERROR_PTR("na not defined", procName, NULL);
+		return (SARRAY *)ERROR_PTR("na not defined", procName, NULL);
 	if(type != L_INTEGER_VALUE && type != L_FLOAT_VALUE)
-		return (SARRAY*)ERROR_PTR("invalid type", procName, NULL);
+		return (SARRAY *)ERROR_PTR("invalid type", procName, NULL);
 
 	if(type == L_INTEGER_VALUE) {
 		if(addzeros)
-			_snprintf(fmt, sizeof(fmt), "%%0%dd", size1);
+			snprintf(fmt, sizeof(fmt), "%%0%dd", size1);
 		else
-			_snprintf(fmt, sizeof(fmt), "%%%dd", size1);
+			snprintf(fmt, sizeof(fmt), "%%%dd", size1);
 	}
 	else { /* L_FLOAT_VALUE */
-		_snprintf(fmt, sizeof(fmt), "%%%d.%df", size1, size2);
+		snprintf(fmt, sizeof(fmt), "%%%d.%df", size1, size2);
 	}
 
 	n = numaGetCount(na);
 	if((sa = sarrayCreate(n)) == NULL)
-		return (SARRAY*)ERROR_PTR("sa not made", procName, NULL);
+		return (SARRAY *)ERROR_PTR("sa not made", procName, NULL);
 
 	for(i = 0; i < n; i++) {
 		if(type == L_INTEGER_VALUE) {
 			numaGetIValue(na, i, &ival);
-			_snprintf(strbuf, sizeof(strbuf), fmt, ival);
+			snprintf(strbuf, sizeof(strbuf), fmt, ival);
 		}
 		else { /* L_FLOAT_VALUE */
 			numaGetFValue(na, i, &fval);
-			_snprintf(strbuf, sizeof(strbuf), fmt, fval);
+			snprintf(strbuf, sizeof(strbuf), fmt, fval);
 		}
 		sarrayAddString(sa, strbuf, L_COPY);
 	}
@@ -995,41 +1050,38 @@ SARRAY * numaConvertToSarray(NUMA    * na,
  * \param[in]    filename
  * \return  na, or NULL on error
  */
-NUMA * numaRead(const char  * filename)
+NUMA * numaRead(const char * filename)
 {
-	FILE  * fp;
-	NUMA  * na;
+	FILE * fp;
+	NUMA * na;
 
-	PROCNAME("numaRead");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return (NUMA*)ERROR_PTR("filename not defined", procName, NULL);
 
 	if((fp = fopenReadStream(filename)) == NULL)
 		return (NUMA*)ERROR_PTR("stream not opened", procName, NULL);
-
-	if((na = numaReadStream(fp)) == NULL) {
-		fclose(fp);
-		return (NUMA*)ERROR_PTR("na not read", procName, NULL);
-	}
-
+	na = numaReadStream(fp);
 	fclose(fp);
+	if(!na)
+		return (NUMA*)ERROR_PTR("na not read", procName, NULL);
 	return na;
 }
 
 /*!
  * \brief   numaReadStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    file stream
  * \return  numa, or NULL on error
  */
-NUMA * numaReadStream(FILE  * fp)
+NUMA * numaReadStream(FILE * fp)
 {
-	int32 i, n, index, ret, version;
+	l_int32 i, n, index, ret, version;
 	float val, startx, delx;
-	NUMA      * na;
+	NUMA * na;
 
-	PROCNAME("numaReadStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return (NUMA*)ERROR_PTR("stream not defined", procName, NULL);
@@ -1042,6 +1094,10 @@ NUMA * numaReadStream(FILE  * fp)
 	if(fscanf(fp, "Number of numbers = %d\n", &n) != 1)
 		return (NUMA*)ERROR_PTR("invalid number of numbers", procName, NULL);
 
+	if(n > MaxFloatArraySize) {
+		L_ERROR("n = %d > %d\n", procName, n, MaxFloatArraySize);
+		return NULL;
+	}
 	if((na = numaCreate(n)) == NULL)
 		return (NUMA*)ERROR_PTR("na not made", procName, NULL);
 
@@ -1063,17 +1119,17 @@ NUMA * numaReadStream(FILE  * fp)
 /*!
  * \brief   numaReadMem()
  *
- * \param[in]    data  numa serialization; in ascii
- * \param[in]    size  of data; can use strlen to get it
+ * \param[in]    data    numa serialization; in ascii
+ * \param[in]    size    of data; can use strlen to get it
  * \return  na, or NULL on error
  */
 NUMA * numaReadMem(const uint8  * data,
     size_t size)
 {
-	FILE  * fp;
-	NUMA  * na;
+	FILE * fp;
+	NUMA * na;
 
-	PROCNAME("numaReadMem");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
 		return (NUMA*)ERROR_PTR("data not defined", procName, NULL);
@@ -1087,17 +1143,49 @@ NUMA * numaReadMem(const uint8  * data,
 }
 
 /*!
- * \brief   numaWrite()
+ * \brief   numaWriteDebug()
  *
- * \param[in]    filename, na
- * \return  0 if OK, 1 on error
+ * \param[in]    filename
+ * \param[in]    na
+ * \return  0 if OK; 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) Debug version, intended for use in the library when writing
+ *          to files in a temp directory with names that are compiled in.
+ *          This is used instead of numaWrite() for all such library calls.
+ *      (2) The global variable LeptDebugOK defaults to 0, and can be set
+ *          or cleared by the function setLeptDebugOK().
+ * </pre>
  */
-int32 numaWrite(const char  * filename,
+l_ok numaWriteDebug(const char * filename,
     NUMA        * na)
 {
-	FILE  * fp;
+	PROCNAME(__FUNCTION__);
 
-	PROCNAME("numaWrite");
+	if(LeptDebugOK) {
+		return numaWrite(filename, na);
+	}
+	else {
+		L_INFO("write to named temp file %s is disabled\n", procName, filename);
+		return 0;
+	}
+}
+
+/*!
+ * \brief   numaWrite()
+ *
+ * \param[in]    filename
+ * \param[in]    na
+ * \return  0 if OK, 1 on error
+ */
+l_ok numaWrite(const char * filename,
+    NUMA        * na)
+{
+	l_int32 ret;
+	FILE * fp;
+
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
@@ -1106,30 +1194,32 @@ int32 numaWrite(const char  * filename,
 
 	if((fp = fopenWriteStream(filename, "w")) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
-	numaWriteStream(fp, na);
+	ret = numaWriteStream(fp, na);
 	fclose(fp);
+	if(ret)
+		return ERROR_INT("na not written to stream", procName, 1);
 	return 0;
 }
 
 /*!
  * \brief   numaWriteStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp    file stream; use NULL to write to stderr
  * \param[in]    na
  * \return  0 if OK, 1 on error
  */
-int32 numaWriteStream(FILE  * fp,
-    NUMA  * na)
+l_ok numaWriteStream(FILE * fp,
+    NUMA * na)
 {
-	int32 i, n;
+	l_int32 i, n;
 	float startx, delx;
 
-	PROCNAME("numaWriteStream");
+	PROCNAME(__FUNCTION__);
 
-	if(!fp)
-		return ERROR_INT("stream not defined", procName, 1);
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
+	if(!fp)
+		return numaWriteStderr(na);
 
 	n = numaGetCount(na);
 	fprintf(fp, "\nNuma Version %d\n", NUMA_VERSION_NUMBER);
@@ -1147,10 +1237,41 @@ int32 numaWriteStream(FILE  * fp,
 }
 
 /*!
+ * \brief   numaWriteStderr()
+ *
+ * \param[in]    na
+ * \return  0 if OK, 1 on error
+ */
+l_ok numaWriteStderr(NUMA * na)
+{
+	l_int32 i, n;
+	float startx, delx;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!na)
+		return ERROR_INT("na not defined", procName, 1);
+
+	n = numaGetCount(na);
+	lept_stderr("\nNuma Version %d\n", NUMA_VERSION_NUMBER);
+	lept_stderr("Number of numbers = %d\n", n);
+	for(i = 0; i < n; i++)
+		lept_stderr("  [%d] = %f\n", i, na->array[i]);
+	lept_stderr("\n");
+
+	/* Optional data */
+	numaGetParameters(na, &startx, &delx);
+	if(startx != 0.0 || delx != 1.0)
+		lept_stderr("startx = %f, delx = %f\n", startx, delx);
+
+	return 0;
+}
+
+/*!
  * \brief   numaWriteMem()
  *
- * \param[out]   pdata data of serialized numa; ascii
- * \param[out]   psize size of returned data
+ * \param[out]   pdata    data of serialized numa; ascii
+ * \param[out]   psize    size of returned data
  * \param[in]    na
  * \return  0 if OK, 1 on error
  *
@@ -1159,14 +1280,14 @@ int32 numaWriteStream(FILE  * fp,
  *      (1) Serializes a numa in memory and puts the result in a buffer.
  * </pre>
  */
-int32 numaWriteMem(uint8  ** pdata,
-    size_t    * psize,
-    NUMA      * na)
+l_ok numaWriteMem(uint8  ** pdata,
+    size_t * psize,
+    NUMA * na)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("numaWriteMem");
+	PROCNAME(__FUNCTION__);
 
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
@@ -1181,8 +1302,11 @@ int32 numaWriteMem(uint8  ** pdata,
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = numaWriteStream(fp, na);
+	fputc('\0', fp);
+	fclose(fp);
+	*psize = *psize - 1;
 #else
-	L_WARNING("work-around: writing to a temp file\n", procName);
+	L_INFO("work-around: writing to a temp file\n", procName);
   #ifdef _WIN32
 	if((fp = fopenWriteWinTempfile()) == NULL)
 		return ERROR_INT("tmpfile stream not opened", procName, 1);
@@ -1193,8 +1317,8 @@ int32 numaWriteMem(uint8  ** pdata,
 	ret = numaWriteStream(fp, na);
 	rewind(fp);
 	*pdata = l_binaryReadStream(fp, psize);
-#endif  /* HAVE_FMEMOPEN */
 	fclose(fp);
+#endif  /* HAVE_FMEMOPEN */
 	return ret;
 }
 
@@ -1204,22 +1328,21 @@ int32 numaWriteMem(uint8  ** pdata,
 /*!
  * \brief   numaaCreate()
  *
- * \param[in]    n size of numa ptr array to be alloc'd 0 for default
+ * \param[in]    n     size of numa ptr array to be alloc'd 0 for default
  * \return  naa, or NULL on error
  *
  */
-NUMAA * numaaCreate(int32 n)
+NUMAA * numaaCreate(l_int32 n)
 {
 	NUMAA  * naa;
 
-	PROCNAME("numaaCreate");
+	PROCNAME(__FUNCTION__);
 
-	if(n <= 0)
-		n = INITIAL_PTR_ARRAYSIZE;
+	if(n <= 0 || n > MaxPtrArraySize)
+		n = InitialArraySize;
 
-	if((naa = (NUMAA*)LEPT_CALLOC(1, sizeof(NUMAA))) == NULL)
-		return (NUMAA*)ERROR_PTR("naa not made", procName, NULL);
-	if((naa->numa = (NUMA**)LEPT_CALLOC(n, sizeof(NUMA *))) == NULL) {
+	naa = (NUMAA*)SAlloc::C(1, sizeof(NUMAA));
+	if((naa->numa = (NUMA**)SAlloc::C(n, sizeof(NUMA *))) == NULL) {
 		numaaDestroy(&naa);
 		return (NUMAA*)ERROR_PTR("numa ptr array not made", procName, NULL);
 	}
@@ -1232,8 +1355,9 @@ NUMAA * numaaCreate(int32 n)
 /*!
  * \brief   numaaCreateFull()
  *
- * \param[in]    nptr: size of numa ptr array to be alloc'd
- * \param[in]    n: size of individual numa arrays to be alloc'd 0 for default
+ * \param[in]    nptr   size of numa ptr array to be alloc'd
+ * \param[in]    n      size of individual numa arrays to be allocated
+ *                      to 0 for default
  * \return  naa, or NULL on error
  *
  * <pre>
@@ -1244,12 +1368,12 @@ NUMAA * numaaCreate(int32 n)
  *          to add val to the index-th numa in naa.
  * </pre>
  */
-NUMAA * numaaCreateFull(int32 nptr,
-    int32 n)
+NUMAA * numaaCreateFull(l_int32 nptr,
+    l_int32 n)
 {
-	int32 i;
+	l_int32 i;
 	NUMAA   * naa;
-	NUMA    * na;
+	NUMA * na;
 
 	naa = numaaCreate(nptr);
 	for(i = 0; i < nptr; i++) {
@@ -1273,12 +1397,12 @@ NUMAA * numaaCreateFull(int32 nptr,
  *          index, and resets the count.
  * </pre>
  */
-int32 numaaTruncate(NUMAA  * naa)
+l_ok numaaTruncate(NUMAA  * naa)
 {
-	int32 i, n, nn;
-	NUMA    * na;
+	l_int32 i, n, nn;
+	NUMA * na;
 
-	PROCNAME("numaaTruncate");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 1);
@@ -1302,15 +1426,15 @@ int32 numaaTruncate(NUMAA  * naa)
 /*!
  * \brief   numaaDestroy()
  *
- * \param[in,out]  pnaa to be nulled if it exists
+ * \param[in,out]  pnaa   to be destroyed and nulled, if it exists
  * \return  void
  */
 void numaaDestroy(NUMAA  ** pnaa)
 {
-	int32 i;
+	l_int32 i;
 	NUMAA   * naa;
 
-	PROCNAME("numaaDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(pnaa == NULL) {
 		L_WARNING("ptr address is NULL!\n", procName);
@@ -1322,11 +1446,9 @@ void numaaDestroy(NUMAA  ** pnaa)
 
 	for(i = 0; i < naa->n; i++)
 		numaDestroy(&naa->numa[i]);
-	LEPT_FREE(naa->numa);
-	LEPT_FREE(naa);
+	SAlloc::F(naa->numa);
+	SAlloc::F(naa);
 	*pnaa = NULL;
-
-	return;
 }
 
 /*--------------------------------------------------------------------------*
@@ -1336,18 +1458,18 @@ void numaaDestroy(NUMAA  ** pnaa)
  * \brief   numaaAddNuma()
  *
  * \param[in]    naa
- * \param[in]    na   to be added
- * \param[in]    copyflag  L_INSERT, L_COPY, L_CLONE
+ * \param[in]    na         to be added
+ * \param[in]    copyflag   L_INSERT, L_COPY, L_CLONE
  * \return  0 if OK, 1 on error
  */
-int32 numaaAddNuma(NUMAA   * naa,
-    NUMA    * na,
-    int32 copyflag)
+l_ok numaaAddNuma(NUMAA   * naa,
+    NUMA * na,
+    l_int32 copyflag)
 {
-	int32 n;
-	NUMA    * nac;
+	l_int32 n;
+	NUMA * nac;
 
-	PROCNAME("numaaAddNuma");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 1);
@@ -1369,8 +1491,13 @@ int32 numaaAddNuma(NUMAA   * naa,
 	}
 
 	n = numaaGetCount(naa);
-	if(n >= naa->nalloc)
-		numaaExtendArray(naa);
+	if(n >= naa->nalloc) {
+		if(numaaExtendArray(naa)) {
+			if(copyflag != L_INSERT)
+				numaDestroy(&nac);
+			return ERROR_INT("extension failed", procName, 1);
+		}
+	}
 	naa->numa[n] = nac;
 	naa->n++;
 	return 0;
@@ -1381,17 +1508,29 @@ int32 numaaAddNuma(NUMAA   * naa,
  *
  * \param[in]    naa
  * \return  0 if OK, 1 on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) The max number of numa ptrs is 1M.
+ * </pre>
  */
-static int32 numaaExtendArray(NUMAA  * naa)
+static l_int32 numaaExtendArray(NUMAA  * naa)
 {
-	PROCNAME("numaaExtendArray");
+	size_t oldsize, newsize;
+
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 1);
+	if(naa->nalloc > MaxPtrArraySize) /* belt & suspenders */
+		return ERROR_INT("naa has too many ptrs", procName, 1);
+	oldsize = naa->nalloc * sizeof(NUMA *);
+	newsize = 2 * oldsize;
+	if(newsize > 8 * MaxPtrArraySize)
+		return ERROR_INT("newsize > 8 MB; too large", procName, 1);
 
 	if((naa->numa = (NUMA**)reallocNew((void**)&naa->numa,
-			    sizeof(NUMA *) * naa->nalloc,
-			    2 * sizeof(NUMA *) * naa->nalloc)) == NULL)
+	    oldsize, newsize)) == NULL)
 		return ERROR_INT("new ptr array not returned", procName, 1);
 
 	naa->nalloc *= 2;
@@ -1407,9 +1546,9 @@ static int32 numaaExtendArray(NUMAA  * naa)
  * \param[in]    naa
  * \return  count number of numa, or 0 if no numa or on error
  */
-int32 numaaGetCount(NUMAA  * naa)
+l_int32 numaaGetCount(NUMAA  * naa)
 {
-	PROCNAME("numaaGetCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 0);
@@ -1420,13 +1559,13 @@ int32 numaaGetCount(NUMAA  * naa)
  * \brief   numaaGetNumaCount()
  *
  * \param[in]    naa
- * \param[in]    index of numa in naa
+ * \param[in]    index     of numa in naa
  * \return  count of numbers in the referenced numa, or 0 on error.
  */
-int32 numaaGetNumaCount(NUMAA   * naa,
-    int32 index)
+l_int32 numaaGetNumaCount(NUMAA   * naa,
+    l_int32 index)
 {
-	PROCNAME("numaaGetNumaCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 0);
@@ -1440,14 +1579,14 @@ int32 numaaGetNumaCount(NUMAA   * naa,
  *
  * \param[in]    naa
  * \return  count total number of numbers in the numaa,
- *                     or 0 if no numbers or on error
+ *          or 0 if no numbers or on error
  */
-int32 numaaGetNumberCount(NUMAA  * naa)
+l_int32 numaaGetNumberCount(NUMAA  * naa)
 {
-	NUMA    * na;
-	int32 n, sum, i;
+	NUMA * na;
+	l_int32 n, sum, i;
 
-	PROCNAME("numaaGetNumberCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 0);
@@ -1478,7 +1617,7 @@ int32 numaaGetNumberCount(NUMAA  * naa)
  *            Numaa *naa = numaaCreate(n);
  *            Numa **array = numaaGetPtrArray(naa);
  *             ...  [manipulate Numas directly on the array]
- *            numaaDestroy(\&naa);
+ *            numaaDestroy(&naa);
  *      (3) Cautions:
  *           ~ Do not free this array; it is owned by tne Numaa.
  *           ~ Do not call any functions on the Numaa, other than
@@ -1491,7 +1630,7 @@ int32 numaaGetNumberCount(NUMAA  * naa)
  */
 NUMA ** numaaGetPtrArray(NUMAA  * naa)
 {
-	PROCNAME("numaaGetPtrArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return (NUMA**)ERROR_PTR("naa not defined", procName, NULL);
@@ -1504,15 +1643,15 @@ NUMA ** numaaGetPtrArray(NUMAA  * naa)
  * \brief   numaaGetNuma()
  *
  * \param[in]    naa
- * \param[in]    index  to the index-th numa
+ * \param[in]    index        to the index-th numa
  * \param[in]    accessflag   L_COPY or L_CLONE
  * \return  numa, or NULL on error
  */
 NUMA * numaaGetNuma(NUMAA   * naa,
-    int32 index,
-    int32 accessflag)
+    l_int32 index,
+    l_int32 accessflag)
 {
-	PROCNAME("numaaGetNuma");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return (NUMA*)ERROR_PTR("naa not defined", procName, NULL);
@@ -1531,8 +1670,8 @@ NUMA * numaaGetNuma(NUMAA   * naa,
  * \brief   numaaReplaceNuma()
  *
  * \param[in]    naa
- * \param[in]    index  to the index-th numa
- * \param[in]    na insert and replace any existing one
+ * \param[in]    index    to the index-th numa
+ * \param[in]    na       insert and replace any existing one
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1542,13 +1681,13 @@ NUMA * numaaGetNuma(NUMAA   * naa,
  *      (2) If the index is invalid, return 1 (error)
  * </pre>
  */
-int32 numaaReplaceNuma(NUMAA   * naa,
-    int32 index,
-    NUMA    * na)
+l_ok numaaReplaceNuma(NUMAA   * naa,
+    l_int32 index,
+    NUMA * na)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("numaaReplaceNuma");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 1);
@@ -1567,22 +1706,22 @@ int32 numaaReplaceNuma(NUMAA   * naa,
  * \brief   numaaGetValue()
  *
  * \param[in]    naa
- * \param[in]    i index of numa within numaa
- * \param[in]    j index into numa
- * \param[out]   pfval [optional] float value
- * \param[out]   pival [optional] int value
+ * \param[in]    i       index of numa within numaa
+ * \param[in]    j       index into numa
+ * \param[out]   pfval   [optional] float value
+ * \param[out]   pival   [optional] int value
  * \return  0 if OK, 1 on error
  */
-int32 numaaGetValue(NUMAA      * naa,
-    int32 i,
-    int32 j,
-    float  * pfval,
-    int32    * pival)
+l_ok numaaGetValue(NUMAA      * naa,
+    l_int32 i,
+    l_int32 j,
+    float * pfval,
+    l_int32    * pival)
 {
-	int32 n;
-	NUMA    * na;
+	l_int32 n;
+	NUMA * na;
 
-	PROCNAME("numaaGetValue");
+	PROCNAME(__FUNCTION__);
 
 	if(!pfval && !pival)
 		return ERROR_INT("no return val requested", procName, 1);
@@ -1597,7 +1736,7 @@ int32 numaaGetValue(NUMAA      * naa,
 	if(j < 0 || j >= na->n)
 		return ERROR_INT("invalid index into na", procName, 1);
 	if(pfval) *pfval = na->array[j];
-	if(pival) *pival = (int32)(na->array[j]);
+	if(pival) *pival = (l_int32)(na->array[j]);
 	return 0;
 }
 
@@ -1605,8 +1744,8 @@ int32 numaaGetValue(NUMAA      * naa,
  * \brief   numaaAddNumber()
  *
  * \param[in]    naa
- * \param[in]    index of numa within numaa
- * \param[in]    val  float or int to be added; stored as a float
+ * \param[in]    index    of numa within numaa
+ * \param[in]    val      float or int to be added; stored as a float
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -1614,14 +1753,14 @@ int32 numaaGetValue(NUMAA      * naa,
  *      (1) Adds to an existing numa only.
  * </pre>
  */
-int32 numaaAddNumber(NUMAA     * naa,
-    int32 index,
+l_ok numaaAddNumber(NUMAA     * naa,
+    l_int32 index,
     float val)
 {
-	int32 n;
-	NUMA    * na;
+	l_int32 n;
+	NUMA * na;
 
-	PROCNAME("numaaAddNumber");
+	PROCNAME(__FUNCTION__);
 
 	if(!naa)
 		return ERROR_INT("naa not defined", procName, 1);
@@ -1644,41 +1783,38 @@ int32 numaaAddNumber(NUMAA     * naa,
  * \param[in]    filename
  * \return  naa, or NULL on error
  */
-NUMAA * numaaRead(const char  * filename)
+NUMAA * numaaRead(const char * filename)
 {
 	FILE   * fp;
 	NUMAA  * naa;
 
-	PROCNAME("numaaRead");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return (NUMAA*)ERROR_PTR("filename not defined", procName, NULL);
 
 	if((fp = fopenReadStream(filename)) == NULL)
 		return (NUMAA*)ERROR_PTR("stream not opened", procName, NULL);
-
-	if((naa = numaaReadStream(fp)) == NULL) {
-		fclose(fp);
-		return (NUMAA*)ERROR_PTR("naa not read", procName, NULL);
-	}
-
+	naa = numaaReadStream(fp);
 	fclose(fp);
+	if(!naa)
+		return (NUMAA*)ERROR_PTR("naa not read", procName, NULL);
 	return naa;
 }
 
 /*!
  * \brief   numaaReadStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp     file stream
  * \return  naa, or NULL on error
  */
-NUMAA * numaaReadStream(FILE  * fp)
+NUMAA * numaaReadStream(FILE * fp)
 {
-	int32 i, n, index, ret, version;
-	NUMA      * na;
+	l_int32 i, n, index, ret, version;
+	NUMA * na;
 	NUMAA     * naa;
 
-	PROCNAME("numaaReadStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return (NUMAA*)ERROR_PTR("stream not defined", procName, NULL);
@@ -1690,6 +1826,11 @@ NUMAA * numaaReadStream(FILE  * fp)
 		return (NUMAA*)ERROR_PTR("invalid numaa version", procName, NULL);
 	if(fscanf(fp, "Number of numa = %d\n\n", &n) != 1)
 		return (NUMAA*)ERROR_PTR("invalid number of numa", procName, NULL);
+
+	if(n > MaxPtrArraySize) {
+		L_ERROR("n = %d > %d\n", procName, n, MaxPtrArraySize);
+		return NULL;
+	}
 	if((naa = numaaCreate(n)) == NULL)
 		return (NUMAA*)ERROR_PTR("naa not made", procName, NULL);
 
@@ -1711,8 +1852,8 @@ NUMAA * numaaReadStream(FILE  * fp)
 /*!
  * \brief   numaaReadMem()
  *
- * \param[in]    data  numaa serialization; in ascii
- * \param[in]    size  of data; can use strlen to get it
+ * \param[in]    data     numaa serialization; in ascii
+ * \param[in]    size     of data; can use strlen to get it
  * \return  naa, or NULL on error
  */
 NUMAA * numaaReadMem(const uint8  * data,
@@ -1721,7 +1862,7 @@ NUMAA * numaaReadMem(const uint8  * data,
 	FILE   * fp;
 	NUMAA  * naa;
 
-	PROCNAME("numaaReadMem");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
 		return (NUMAA*)ERROR_PTR("data not defined", procName, NULL);
@@ -1737,15 +1878,17 @@ NUMAA * numaaReadMem(const uint8  * data,
 /*!
  * \brief   numaaWrite()
  *
- * \param[in]    filename, naa
+ * \param[in]    filename
+ * \param[in]    naa
  * \return  0 if OK, 1 on error
  */
-int32 numaaWrite(const char  * filename,
+l_ok numaaWrite(const char * filename,
     NUMAA       * naa)
 {
-	FILE  * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("numaaWrite");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
@@ -1754,26 +1897,27 @@ int32 numaaWrite(const char  * filename,
 
 	if((fp = fopenWriteStream(filename, "w")) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
-	numaaWriteStream(fp, naa);
+	ret = numaaWriteStream(fp, naa);
 	fclose(fp);
-
+	if(ret)
+		return ERROR_INT("naa not written to stream", procName, 1);
 	return 0;
 }
 
 /*!
  * \brief   numaaWriteStream()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp     file stream
  * \param[in]    naa
  * \return  0 if OK, 1 on error
  */
-int32 numaaWriteStream(FILE   * fp,
+l_ok numaaWriteStream(FILE   * fp,
     NUMAA  * naa)
 {
-	int32 i, n;
-	NUMA    * na;
+	l_int32 i, n;
+	NUMA * na;
 
-	PROCNAME("numaaWriteStream");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 1);
@@ -1797,8 +1941,8 @@ int32 numaaWriteStream(FILE   * fp,
 /*!
  * \brief   numaaWriteMem()
  *
- * \param[out]   pdata  data of serialized numaa; ascii
- * \param[out]   psize  size of returned data
+ * \param[out]   pdata    data of serialized numaa; ascii
+ * \param[out]   psize    size of returned data
  * \param[in]    naa
  * \return  0 if OK, 1 on error
  *
@@ -1807,14 +1951,14 @@ int32 numaaWriteStream(FILE   * fp,
  *      (1) Serializes a numaa in memory and puts the result in a buffer.
  * </pre>
  */
-int32 numaaWriteMem(uint8  ** pdata,
-    size_t    * psize,
+l_ok numaaWriteMem(uint8  ** pdata,
+    size_t * psize,
     NUMAA     * naa)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("numaaWriteMem");
+	PROCNAME(__FUNCTION__);
 
 	if(pdata) *pdata = NULL;
 	if(psize) *psize = 0;
@@ -1829,8 +1973,11 @@ int32 numaaWriteMem(uint8  ** pdata,
 	if((fp = open_memstream((char**)pdata, psize)) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = numaaWriteStream(fp, naa);
+	fputc('\0', fp);
+	fclose(fp);
+	*psize = *psize - 1;
 #else
-	L_WARNING("work-around: writing to a temp file\n", procName);
+	L_INFO("work-around: writing to a temp file\n", procName);
   #ifdef _WIN32
 	if((fp = fopenWriteWinTempfile()) == NULL)
 		return ERROR_INT("tmpfile stream not opened", procName, 1);
@@ -1841,8 +1988,7 @@ int32 numaaWriteMem(uint8  ** pdata,
 	ret = numaaWriteStream(fp, naa);
 	rewind(fp);
 	*pdata = l_binaryReadStream(fp, psize);
-#endif  /* HAVE_FMEMOPEN */
 	fclose(fp);
+#endif  /* HAVE_FMEMOPEN */
 	return ret;
 }
-

@@ -289,12 +289,12 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
     WordList * wl[],
     Accessor & styler)
 {
-	WordList & keyWords              = *wl[0];
+	WordList & keyWords      = *wl[0];
 	WordList & reservedWords = *wl[1];
 	WordList & operators     = *wl[2];
 	WordList & pragmaWords   = *wl[3];
 	WordList & escapeCodes   = *wl[4];
-	WordList & doxyKeys              = *wl[5];
+	WordList & doxyKeys      = *wl[5];
 
 	const int BUFLEN = 128;
 

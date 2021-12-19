@@ -454,9 +454,9 @@ typedef struct  FT_Generic_ {
 
 // 
 // 
-/*                                                                       */
-/*                    L I S T   M A N A G E M E N T                      */
-/*                                                                       */
+/*                                                       */
+/*    L I S T   M A N A G E M E N T                      */
+/*                                                       */
 // 
 // 
 

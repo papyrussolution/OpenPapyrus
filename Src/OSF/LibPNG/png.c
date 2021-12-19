@@ -164,7 +164,7 @@ int png_user_version_check(png_structrp png_ptr, const char * user_png_ver)
 		pos = png_safecat(m, (sizeof m), pos, user_png_ver);
 		pos = png_safecat(m, (sizeof m), pos, " but running with ");
 		pos = png_safecat(m, (sizeof m), pos, PNG_LIBPNG_VER_STRING);
-		PNG_UNUSED(pos)
+		CXX_UNUSED(pos);
 		png_warning(png_ptr, m);
 #endif
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
@@ -195,17 +195,17 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 	create_struct.user_width_max = PNG_USER_WIDTH_MAX;
 	create_struct.user_height_max = PNG_USER_HEIGHT_MAX;
 
-#     ifdef PNG_USER_CHUNK_CACHE_MAX
+#ifdef PNG_USER_CHUNK_CACHE_MAX
 	/* Added at libpng-1.2.43 and 1.4.0 */
 	create_struct.user_chunk_cache_max = PNG_USER_CHUNK_CACHE_MAX;
-#     endif
+#endif
 
-#     ifdef PNG_USER_CHUNK_MALLOC_MAX
+#ifdef PNG_USER_CHUNK_MALLOC_MAX
 	/* Added at libpng-1.2.43 and 1.4.1, required only for read but exists
 	 * in png_struct regardless.
 	 */
 	create_struct.user_chunk_malloc_max = PNG_USER_CHUNK_MALLOC_MAX;
-#     endif
+#endif
 #endif
 
 	/* The following two API calls simply set fields in png_struct, so it is safe
@@ -214,11 +214,10 @@ PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_
 #ifdef PNG_USER_MEM_SUPPORTED
 	png_set_mem_fn(&create_struct, mem_ptr, malloc_fn, free_fn);
 #else
-	PNG_UNUSED(mem_ptr)
-	PNG_UNUSED(malloc_fn)
-	PNG_UNUSED(free_fn)
+	CXX_UNUSED(mem_ptr);
+	CXX_UNUSED(malloc_fn);
+	CXX_UNUSED(free_fn);
 #endif
-
 	/* (*error_fn) can return control to the caller after the error_ptr is set,
 	 * this will result in a memory leak unless the error_fn does something
 	 * extremely sophisticated.  The design lacks merit but is implicit in the
@@ -584,13 +583,11 @@ int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 		APPEND(':');
 		APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (uint)ptime->second);
 		APPEND_STRING(" +0000"); /* This reliably terminates the buffer */
-		PNG_UNUSED(pos)
-
+		CXX_UNUSED(pos);
 #undef APPEND
 #undef APPEND_NUMBER
 #undef APPEND_STRING
 	}
-
 	return 1;
 }
 
@@ -621,7 +618,7 @@ const char * PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_timep
 
 const char * PNGAPI png_get_copyright(png_const_structrp png_ptr)
 {
-	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
+	CXX_UNUSED(png_ptr); // Silence compiler warning about unused png_ptr 
 #ifdef PNG_STRING_COPYRIGHT
 	return PNG_STRING_COPYRIGHT
 #else
@@ -653,21 +650,21 @@ const char * PNGAPI png_get_copyright(png_const_structrp png_ptr)
  */
 const char * PNGAPI png_get_libpng_ver(png_const_structrp png_ptr)
 {
-	/* Version of *.c files used when building libpng */
+	// Version of *.c files used when building libpng 
 	return png_get_header_ver(png_ptr);
 }
 
 const char * PNGAPI png_get_header_ver(png_const_structrp png_ptr)
 {
-	/* Version of *.h files used when building libpng */
-	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
+	// Version of *.h files used when building libpng 
+	CXX_UNUSED(png_ptr); /* Silence compiler warning about unused png_ptr */
 	return PNG_LIBPNG_VER_STRING;
 }
 
 const char * PNGAPI png_get_header_version(png_const_structrp png_ptr)
 {
-	/* Returns longer string containing both version and date */
-	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
+	// Returns longer string containing both version and date 
+	CXX_UNUSED(png_ptr); // Silence compiler warning about unused png_ptr 
 #ifdef __STDC__
 	return PNG_HEADER_VERSION_STRING
 #ifndef PNG_READ_SUPPORTED
@@ -930,7 +927,7 @@ void /* PRIVATE */ png_colorspace_sync_info(png_const_structrp png_ptr, png_info
 		/* Clean up the iCCP profile now if it won't be used. */
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, -1 /*not used*/);
 #else
-		PNG_UNUSED(png_ptr)
+		CXX_UNUSED(png_ptr);
 #endif
 	}
 	else {
@@ -1529,16 +1526,13 @@ static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp co
 #endif
 	/* The 'reason' is an arbitrary message, allow +79 maximum 195 */
 	pos = png_safecat(message, (sizeof message), pos, reason);
-	PNG_UNUSED(pos)
-
+	CXX_UNUSED(pos);
 	/* This is recoverable, but make it unconditionally an app_error on write to
 	 * avoid writing invalid ICC profiles into PNG files (i.e., we handle them
 	 * on read, with a warning, but on write unless the app turns off
 	 * application errors the PNG won't be written.)
 	 */
-	png_chunk_report(png_ptr, message,
-	    (colorspace != NULL) ? PNG_CHUNK_ERROR : PNG_CHUNK_WRITE_ERROR);
-
+	png_chunk_report(png_ptr, message, (colorspace != NULL) ? PNG_CHUNK_ERROR : PNG_CHUNK_WRITE_ERROR);
 	return 0;
 }
 
@@ -2708,20 +2702,16 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii
 #endif /* FIXED_POINT */
 #endif /* SCAL */
 
-#if defined(PNG_FLOATING_POINT_SUPPORTED) && \
-	!defined(PNG_FIXED_POINT_MACRO_SUPPORTED) && \
-	(defined(PNG_gAMA_SUPPORTED) || defined(PNG_cHRM_SUPPORTED) || \
-	defined(PNG_sCAL_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || \
-	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)) || \
-	(defined(PNG_sCAL_SUPPORTED) &&	\
-	defined(PNG_FLOATING_ARITHMETIC_SUPPORTED))
+#if defined(PNG_FLOATING_POINT_SUPPORTED) && !defined(PNG_FIXED_POINT_MACRO_SUPPORTED) && \
+	(defined(PNG_gAMA_SUPPORTED) || defined(PNG_cHRM_SUPPORTED) || defined(PNG_sCAL_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED) || \
+	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)) || (defined(PNG_sCAL_SUPPORTED) &&	defined(PNG_FLOATING_ARITHMETIC_SUPPORTED))
 png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * text)
 {
 	double r = floor(100000 * fp + .5);
 	if(r > 2147483647. || r < -2147483648.)
 		png_fixed_error(png_ptr, text);
 #ifndef PNG_ERROR_TEXT_SUPPORTED
-	PNG_UNUSED(text)
+	CXX_UNUSED(text);
 #endif
 	return (png_fixed_point)r;
 }
@@ -3189,7 +3179,7 @@ static png_uint_16 png_exp16bit(png_fixed_point lg2)
 uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 {
 	if(value > 0 && value < 255) {
-#     ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
+#ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
 		/* 'value' is unsigned, ANSI-C90 requires the compiler to correctly
 		 * convert this to a floating point value.  This includes values that
 		 * would overflow if 'value' were to be converted to 'int'.
@@ -3216,7 +3206,7 @@ uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 		 */
 		double r = floor(255*pow((int)/*SAFE*/ value/255., gamma_val*.00001)+.5);
 		return static_cast<uint8>(r);
-#     else
+#else
 		png_int_32 lg2 = png_log8bit(value);
 		png_fixed_point res;
 
@@ -3225,7 +3215,7 @@ uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 
 		/* Overflow. */
 		value = 0;
-#     endif
+#endif
 	}
 
 	return (uint8)(value & 0xff);
@@ -3235,7 +3225,7 @@ uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 png_uint_16 png_gamma_16bit_correct(unsigned int value, png_fixed_point gamma_val)
 {
 	if(value > 0 && value < 65535) {
-#     ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
+#ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
 		/* The same (uint)->(double) constraints apply here as above,
 		 * however in this case the (uint) to (int) conversion can
 		 * overflow on an ANSI-C90 compliant system so the cast needs to ensure
@@ -3244,7 +3234,7 @@ png_uint_16 png_gamma_16bit_correct(unsigned int value, png_fixed_point gamma_va
 		double r = floor(65535*pow((png_int_32)value/65535.,
 			    gamma_val*.00001)+.5);
 		return (png_uint_16)r;
-#     else
+#else
 		png_int_32 lg2 = png_log16bit(value);
 		png_fixed_point res;
 
@@ -3253,7 +3243,7 @@ png_uint_16 png_gamma_16bit_correct(unsigned int value, png_fixed_point gamma_va
 
 		/* Overflow. */
 		value = 0;
-#     endif
+#endif
 	}
 
 	return (png_uint_16)value;

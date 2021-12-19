@@ -29,22 +29,22 @@
  * <pre>
  *
  *    About arbitrary lines
- *           PIX      *pixHShear()
- *           PIX      *pixVShear()
+ *           PIX *pixHShear()
+ *           PIX *pixVShear()
  *
  *    About special 'points': UL corner and center
- *           PIX      *pixHShearCorner()
- *           PIX      *pixVShearCorner()
- *           PIX      *pixHShearCenter()
- *           PIX      *pixVShearCenter()
+ *           PIX *pixHShearCorner()
+ *           PIX *pixVShearCorner()
+ *           PIX *pixHShearCenter()
+ *           PIX *pixVShearCenter()
  *
  *    In place about arbitrary lines
- *           int32   pixHShearIP()
- *           int32   pixVShearIP()
+ *           l_int32   pixHShearIP()
+ *           l_int32   pixVShearIP()
  *
  *    Linear interpolated shear about arbitrary lines
- *           PIX      *pixHShearLI()
- *           PIX      *pixVShearLI()
+ *           PIX *pixHShearLI()
+ *           PIX *pixVShearLI()
  *
  *    Static helper
  *      static float  normalizeAngleForShear()
@@ -54,7 +54,7 @@
 #pragma hdrstop
 
 /* Shear angle must not get too close to -pi/2 or pi/2 */
-static const float MIN_DIFF_FROM_HALF_PI = 0.04f;
+static const float MinDiffFromHalfPi = 0.04f;
 
 static float normalizeAngleForShear(float radang, float mindif);
 
@@ -68,12 +68,12 @@ static float normalizeAngleForShear(float radang, float mindif);
 /*!
  * \brief   pixHShear()
  *
- * \param[in]    pixd [optional], this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs no restrictions on depth
- * \param[in]    yloc location of horizontal line, measured from origin
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixd      [optional] this can be null, equal to pixs,
+ *                         or different from pixs
+ * \param[in]    pixs      any depth; cmap ok
+ * \param[in]    yloc      location of horizontal line, measured from origin
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd, always
  *
  * <pre>
@@ -95,50 +95,55 @@ static float normalizeAngleForShear(float radang, float mindif);
  *          (for small angles) or in the general case with 3 shears.
  *      (5) Changing the value of yloc is equivalent to translating
  *          the result horizontally.
- *      (6) This brings in 'incolor' pixels from outside the image.
- *      (7) For in-place operation, pixs cannot be colormapped,
- *          because the in-place operation only blits in 0 or 1 bits,
- *          not an arbitrary colormap index.
+ *      (6) This brings in %incolor pixels from outside the image.
+ *      (7) In-place shears do not work on cmapped pix, because the
+ *          in-place operation cannot initialize to the requested %incolor,
+ *          so we shear from a copy.
  *      (8) The angle is brought into the range [-pi, -pi].  It is
- *          not permitted to be within MIN_DIFF_FROM_HALF_PI radians
+ *          not permitted to be within MinDiffFromHalfPi radians
  *          from either -pi/2 or pi/2.
  * </pre>
  */
-PIX * pixHShear(PIX       * pixd,
-    PIX       * pixs,
-    int32 yloc,
+PIX * pixHShear(PIX * pixd,
+    PIX * pixs,
+    l_int32 yloc,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	int32 sign, w, h;
-	int32 y, yincr, inityincr, hshift;
+	l_int32 sign, w, h;
+	l_int32 y, yincr, inityincr, hshift;
 	float tanangle, invangle;
 
-	PROCNAME("pixHShear");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(incolor != L_BRING_IN_WHITE && incolor != L_BRING_IN_BLACK)
-		return (PIX*)ERROR_PTR("invalid incolor value", procName, pixd);
+		return (PIX *)ERROR_PTR("invalid incolor value", procName, pixd);
 
 	if(pixd == pixs) { /* in place */
-		if(pixGetColormap(pixs))
-			return (PIX*)ERROR_PTR("pixs is colormapped", procName, pixd);
-		pixHShearIP(pixd, yloc, radang, incolor);
+		if(!pixGetColormap(pixs)) {
+			pixHShearIP(pixd, yloc, radang, incolor);
+		}
+		else { /* can't do in-place with a colormap */
+			PIX * pix1 = pixCopy(NULL, pixs);
+			pixHShear(pixd, pix1, yloc, radang, incolor);
+			pixDestroy(&pix1);
+		}
 		return pixd;
 	}
 
 	/* Make sure pixd exists and is same size as pixs */
 	if(!pixd) {
 		if((pixd = pixCreateTemplate(pixs)) == NULL)
-			return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+			return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 	else { /* pixd != pixs */
 		pixResizeImageData(pixd, pixs);
 	}
 
 	/* Normalize angle.  If no rotation, return a copy */
-	radang = normalizeAngleForShear(radang, MIN_DIFF_FROM_HALF_PI);
+	radang = normalizeAngleForShear(radang, MinDiffFromHalfPi);
 	if(radang == 0.0 || tan(radang) == 0.0)
 		return pixCopy(pixd, pixs);
 
@@ -149,30 +154,28 @@ PIX * pixHShear(PIX       * pixd,
 	sign = L_SIGN(radang);
 	tanangle = tanf(radang);
 	invangle = L_ABS(1.0f / tanangle);
-	inityincr = (int32)(invangle / 2.);
-	yincr = (int32)invangle;
-	pixRasterop(pixd, 0, yloc - inityincr, w, 2 * inityincr, PIX_SRC,
-	    pixs, 0, yloc - inityincr);
-
+	inityincr = (l_int32)(invangle / 2.0f);
+	yincr = (l_int32)invangle;
+	pixRasterop(pixd, 0, yloc - inityincr, w, 2 * inityincr, PIX_SRC, pixs, 0, yloc - inityincr);
 	for(hshift = 1, y = yloc + inityincr; y < h; hshift++) {
-		yincr = (int32)(invangle * (hshift + 0.5) + 0.5) - (y - yloc);
+		yincr = (l_int32)(invangle * (hshift + 0.5) + 0.5) - (y - yloc);
 		if(h - y < yincr) /* reduce for last one if req'd */
 			yincr = h - y;
 		pixRasterop(pixd, -sign*hshift, y, w, yincr, PIX_SRC, pixs, 0, y);
 #if DEBUG
-		fprintf(stderr, "y = %d, hshift = %d, yincr = %d\n", y, hshift, yincr);
+		lept_stderr("y = %d, hshift = %d, yincr = %d\n", y, hshift, yincr);
 #endif /* DEBUG */
 		y += yincr;
 	}
 
 	for(hshift = -1, y = yloc - inityincr; y > 0; hshift--) {
-		yincr = (y - yloc) - (int32)(invangle * (hshift - 0.5) + 0.5);
+		yincr = (y - yloc) - (l_int32)(invangle * (hshift - 0.5) + 0.5);
 		if(y < yincr) /* reduce for last one if req'd */
 			yincr = y;
 		pixRasterop(pixd, -sign*hshift, y - yincr, w, yincr, PIX_SRC,
 		    pixs, 0, y - yincr);
 #if DEBUG
-		fprintf(stderr, "y = %d, hshift = %d, yincr = %d\n",
+		lept_stderr("y = %d, hshift = %d, yincr = %d\n",
 		    y - yincr, hshift, yincr);
 #endif /* DEBUG */
 		y -= yincr;
@@ -184,12 +187,12 @@ PIX * pixHShear(PIX       * pixd,
 /*!
  * \brief   pixVShear()
  *
- * \param[in]    pixd [optional], this can be null, equal to pixs,
- *                    or different from pixs
- * \param[in]    pixs no restrictions on depth
- * \param[in]    xloc location of vertical line, measured from origin
- * \param[in]    radang  angle in radians; not too close to +-(pi / 2)
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixd      [optional], this can be null, equal to pixs,
+ *                         or different from pixs
+ * \param[in]    pixs      any depth; cmap ok
+ * \param[in]    xloc      location of vertical line, measured from origin
+ * \param[in]    radang    angle in radians; not too close to +-(pi / 2)
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd, or NULL on error
  *
  * <pre>
@@ -211,50 +214,55 @@ PIX * pixHShear(PIX       * pixd,
  *          (for small angles) or in the general case with 3 shears.
  *      (5) Changing the value of xloc is equivalent to translating
  *          the result vertically.
- *      (6) This brings in 'incolor' pixels from outside the image.
- *      (7) For in-place operation, pixs cannot be colormapped,
- *          because the in-place operation only blits in 0 or 1 bits,
- *          not an arbitrary colormap index.
+ *      (6) This brings in %incolor pixels from outside the image.
+ *      (7) In-place shears do not work on cmapped pix, because the
+ *          in-place operation cannot initialize to the requested %incolor,
+ *          so we shear from a copy.
  *      (8) The angle is brought into the range [-pi, -pi].  It is
- *          not permitted to be within MIN_DIFF_FROM_HALF_PI radians
+ *          not permitted to be within MinDiffFromHalfPi radians
  *          from either -pi/2 or pi/2.
  * </pre>
  */
-PIX * pixVShear(PIX       * pixd,
-    PIX       * pixs,
-    int32 xloc,
+PIX * pixVShear(PIX * pixd,
+    PIX * pixs,
+    l_int32 xloc,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	int32 sign, w, h;
-	int32 x, xincr, initxincr, vshift;
+	l_int32 sign, w, h;
+	l_int32 x, xincr, initxincr, vshift;
 	float tanangle, invangle;
 
-	PROCNAME("pixVShear");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(incolor != L_BRING_IN_WHITE && incolor != L_BRING_IN_BLACK)
-		return (PIX*)ERROR_PTR("invalid incolor value", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid incolor value", procName, NULL);
 
 	if(pixd == pixs) { /* in place */
-		if(pixGetColormap(pixs))
-			return (PIX*)ERROR_PTR("pixs is colormapped", procName, pixd);
-		pixVShearIP(pixd, xloc, radang, incolor);
+		if(!pixGetColormap(pixs)) {
+			pixVShearIP(pixd, xloc, radang, incolor);
+		}
+		else { /* can't do in-place with a colormap */
+			PIX * pix1 = pixCopy(NULL, pixs);
+			pixVShear(pixd, pix1, xloc, radang, incolor);
+			pixDestroy(&pix1);
+		}
 		return pixd;
 	}
 
 	/* Make sure pixd exists and is same size as pixs */
 	if(!pixd) {
 		if((pixd = pixCreateTemplate(pixs)) == NULL)
-			return (PIX*)ERROR_PTR("pixd not made", procName, NULL);
+			return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	}
 	else { /* pixd != pixs */
 		pixResizeImageData(pixd, pixs);
 	}
 
 	/* Normalize angle.  If no rotation, return a copy */
-	radang = normalizeAngleForShear(radang, MIN_DIFF_FROM_HALF_PI);
+	radang = normalizeAngleForShear(radang, MinDiffFromHalfPi);
 	if(radang == 0.0 || tan(radang) == 0.0)
 		return pixCopy(pixd, pixs);
 
@@ -265,30 +273,28 @@ PIX * pixVShear(PIX       * pixd,
 	sign = L_SIGN(radang);
 	tanangle = tanf(radang);
 	invangle = L_ABS(1.0f / tanangle);
-	initxincr = (int32)(invangle / 2.);
-	xincr = (int32)invangle;
-	pixRasterop(pixd, xloc - initxincr, 0, 2 * initxincr, h, PIX_SRC,
-	    pixs, xloc - initxincr, 0);
-
+	initxincr = (l_int32)(invangle / 2.0f);
+	xincr = (l_int32)invangle;
+	pixRasterop(pixd, xloc - initxincr, 0, 2 * initxincr, h, PIX_SRC, pixs, xloc - initxincr, 0);
 	for(vshift = 1, x = xloc + initxincr; x < w; vshift++) {
-		xincr = (int32)(invangle * (vshift + 0.5) + 0.5) - (x - xloc);
+		xincr = (l_int32)(invangle * (vshift + 0.5) + 0.5) - (x - xloc);
 		if(w - x < xincr) /* reduce for last one if req'd */
 			xincr = w - x;
 		pixRasterop(pixd, x, sign*vshift, xincr, h, PIX_SRC, pixs, x, 0);
 #if DEBUG
-		fprintf(stderr, "x = %d, vshift = %d, xincr = %d\n", x, vshift, xincr);
+		lept_stderr("x = %d, vshift = %d, xincr = %d\n", x, vshift, xincr);
 #endif /* DEBUG */
 		x += xincr;
 	}
 
 	for(vshift = -1, x = xloc - initxincr; x > 0; vshift--) {
-		xincr = (x - xloc) - (int32)(invangle * (vshift - 0.5) + 0.5);
+		xincr = (x - xloc) - (l_int32)(invangle * (vshift - 0.5) + 0.5);
 		if(x < xincr) /* reduce for last one if req'd */
 			xincr = x;
 		pixRasterop(pixd, x - xincr, sign*vshift, xincr, h, PIX_SRC,
 		    pixs, x - xincr, 0);
 #if DEBUG
-		fprintf(stderr, "x = %d, vshift = %d, xincr = %d\n",
+		lept_stderr("x = %d, vshift = %d, xincr = %d\n",
 		    x - xincr, vshift, xincr);
 #endif /* DEBUG */
 		x -= xincr;
@@ -303,10 +309,10 @@ PIX * pixVShear(PIX       * pixd,
 /*!
  * \brief   pixHShearCorner()
  *
- * \param[in]    pixd [optional], if not null, must be equal to pixs
- * \param[in]    pixs
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixd      [optional], if not null, must be equal to pixs
+ * \param[in]    pixs      any depth
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd, or NULL on error.
  *
  * <pre>
@@ -316,15 +322,15 @@ PIX * pixVShear(PIX       * pixd,
  *          pushing increasingly leftward (-x) with increasing y.
  * </pre>
  */
-PIX * pixHShearCorner(PIX       * pixd,
-    PIX       * pixs,
+PIX * pixHShearCorner(PIX * pixd,
+    PIX * pixs,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	PROCNAME("pixHShearCorner");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 
 	return pixHShear(pixd, pixs, 0, radang, incolor);
 }
@@ -332,10 +338,10 @@ PIX * pixHShearCorner(PIX       * pixd,
 /*!
  * \brief   pixVShearCorner()
  *
- * \param[in]    pixd [optional], if not null, must be equal to pixs
- * \param[in]    pixs
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixd      [optional], if not null, must be equal to pixs
+ * \param[in]    pixs      any depth
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd, or NULL on error.
  *
  * <pre>
@@ -345,15 +351,15 @@ PIX * pixHShearCorner(PIX       * pixd,
  *          pushing increasingly downward (+y) with increasing x.
  * </pre>
  */
-PIX * pixVShearCorner(PIX       * pixd,
-    PIX       * pixs,
+PIX * pixVShearCorner(PIX * pixd,
+    PIX * pixs,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	PROCNAME("pixVShearCorner");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 
 	return pixVShear(pixd, pixs, 0, radang, incolor);
 }
@@ -361,10 +367,10 @@ PIX * pixVShearCorner(PIX       * pixd,
 /*!
  * \brief   pixHShearCenter()
  *
- * \param[in]    pixd [optional], if not null, must be equal to pixs
- * \param[in]    pixs
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixd      [optional] if not null, must be equal to pixs
+ * \param[in]    pixs      any depth
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd, or NULL on error.
  *
  * <pre>
@@ -374,15 +380,15 @@ PIX * pixVShearCorner(PIX       * pixd,
  *          pushing increasingly leftward (-x) with increasing y.
  * </pre>
  */
-PIX * pixHShearCenter(PIX       * pixd,
-    PIX       * pixs,
+PIX * pixHShearCenter(PIX * pixd,
+    PIX * pixs,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	PROCNAME("pixHShearCenter");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 
 	return pixHShear(pixd, pixs, pixGetHeight(pixs) / 2, radang, incolor);
 }
@@ -390,10 +396,10 @@ PIX * pixHShearCenter(PIX       * pixd,
 /*!
  * \brief   pixVShearCenter()
  *
- * \param[in]    pixd [optional], if not null, must be equal to pixs
- * \param[in]    pixs
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixd      [optional] if not null, must be equal to pixs
+ * \param[in]    pixs      any depth
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd, or NULL on error.
  *
  * <pre>
@@ -403,15 +409,15 @@ PIX * pixHShearCenter(PIX       * pixd,
  *          pushing increasingly downward (+y) with increasing x.
  * </pre>
  */
-PIX * pixVShearCenter(PIX       * pixd,
-    PIX       * pixs,
+PIX * pixVShearCenter(PIX * pixd,
+    PIX * pixs,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	PROCNAME("pixVShearCenter");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, pixd);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 
 	return pixVShear(pixd, pixs, pixGetWidth(pixs) / 2, radang, incolor);
 }
@@ -422,10 +428,10 @@ PIX * pixVShearCenter(PIX       * pixd,
 /*!
  * \brief   pixHShearIP()
  *
- * \param[in]    pixs
- * \param[in]    yloc location of horizontal line, measured from origin
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixs      any depth; no cmap
+ * \param[in]    yloc      location of horizontal line, measured from origin
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -438,16 +444,16 @@ PIX * pixVShearCenter(PIX       * pixd,
  *          pushing increasingly leftward (-x) with increasing y.
  * </pre>
  */
-int32 pixHShearIP(PIX       * pixs,
-    int32 yloc,
+l_ok pixHShearIP(PIX * pixs,
+    l_int32 yloc,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	int32 sign, w, h;
-	int32 y, yincr, inityincr, hshift;
+	l_int32 sign, w, h;
+	l_int32 y, yincr, inityincr, hshift;
 	float tanangle, invangle;
 
-	PROCNAME("pixHShearIP");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -457,7 +463,7 @@ int32 pixHShearIP(PIX       * pixs,
 		return ERROR_INT("pixs is colormapped", procName, 1);
 
 	/* Normalize angle */
-	radang = normalizeAngleForShear(radang, MIN_DIFF_FROM_HALF_PI);
+	radang = normalizeAngleForShear(radang, MinDiffFromHalfPi);
 	if(radang == 0.0 || tan(radang) == 0.0)
 		return 0;
 
@@ -465,14 +471,14 @@ int32 pixHShearIP(PIX       * pixs,
 	pixGetDimensions(pixs, &w, &h, NULL);
 	tanangle = tanf(radang);
 	invangle = L_ABS(1.0f / tanangle);
-	inityincr = (int32)(invangle / 2.);
-	yincr = (int32)invangle;
+	inityincr = (l_int32)(invangle / 2.0f);
+	yincr = (l_int32)invangle;
 
 	if(inityincr > 0)
 		pixRasteropHip(pixs, yloc - inityincr, 2 * inityincr, 0, incolor);
 
 	for(hshift = 1, y = yloc + inityincr; y < h; hshift++) {
-		yincr = (int32)(invangle * (hshift + 0.5) + 0.5) - (y - yloc);
+		yincr = (l_int32)(invangle * (hshift + 0.5) + 0.5) - (y - yloc);
 		if(yincr == 0) continue;
 		if(h - y < yincr) /* reduce for last one if req'd */
 			yincr = h - y;
@@ -481,7 +487,7 @@ int32 pixHShearIP(PIX       * pixs,
 	}
 
 	for(hshift = -1, y = yloc - inityincr; y > 0; hshift--) {
-		yincr = (y - yloc) - (int32)(invangle * (hshift - 0.5) + 0.5);
+		yincr = (y - yloc) - (l_int32)(invangle * (hshift - 0.5) + 0.5);
 		if(yincr == 0) continue;
 		if(y < yincr) /* reduce for last one if req'd */
 			yincr = y;
@@ -495,10 +501,10 @@ int32 pixHShearIP(PIX       * pixs,
 /*!
  * \brief   pixVShearIP()
  *
- * \param[in]    pixs all depths; not colormapped
- * \param[in]    xloc  location of vertical line, measured from origin
- * \param[in]    radang  angle in radians
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixs      any depth; no cmap
+ * \param[in]    xloc      location of vertical line, measured from origin
+ * \param[in]    radang    angle in radians
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -511,16 +517,16 @@ int32 pixHShearIP(PIX       * pixs,
  *          pushing increasingly downward (+y) with increasing x.
  * </pre>
  */
-int32 pixVShearIP(PIX       * pixs,
-    int32 xloc,
+l_ok pixVShearIP(PIX * pixs,
+    l_int32 xloc,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	int32 sign, w, h;
-	int32 x, xincr, initxincr, vshift;
+	l_int32 sign, w, h;
+	l_int32 x, xincr, initxincr, vshift;
 	float tanangle, invangle;
 
-	PROCNAME("pixVShearIP");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
@@ -530,7 +536,7 @@ int32 pixVShearIP(PIX       * pixs,
 		return ERROR_INT("pixs is colormapped", procName, 1);
 
 	/* Normalize angle */
-	radang = normalizeAngleForShear(radang, MIN_DIFF_FROM_HALF_PI);
+	radang = normalizeAngleForShear(radang, MinDiffFromHalfPi);
 	if(radang == 0.0 || tan(radang) == 0.0)
 		return 0;
 
@@ -538,14 +544,14 @@ int32 pixVShearIP(PIX       * pixs,
 	pixGetDimensions(pixs, &w, &h, NULL);
 	tanangle = tanf(radang);
 	invangle = L_ABS(1.0f / tanangle);
-	initxincr = (int32)(invangle / 2.);
-	xincr = (int32)invangle;
+	initxincr = (l_int32)(invangle / 2.0f);
+	xincr = (l_int32)invangle;
 
 	if(initxincr > 0)
 		pixRasteropVip(pixs, xloc - initxincr, 2 * initxincr, 0, incolor);
 
 	for(vshift = 1, x = xloc + initxincr; x < w; vshift++) {
-		xincr = (int32)(invangle * (vshift + 0.5) + 0.5) - (x - xloc);
+		xincr = (l_int32)(invangle * (vshift + 0.5) + 0.5) - (x - xloc);
 		if(xincr == 0) continue;
 		if(w - x < xincr) /* reduce for last one if req'd */
 			xincr = w - x;
@@ -554,7 +560,7 @@ int32 pixVShearIP(PIX       * pixs,
 	}
 
 	for(vshift = -1, x = xloc - initxincr; x > 0; vshift--) {
-		xincr = (x - xloc) - (int32)(invangle * (vshift - 0.5) + 0.5);
+		xincr = (x - xloc) - (l_int32)(invangle * (vshift - 0.5) + 0.5);
 		if(xincr == 0) continue;
 		if(x < xincr) /* reduce for last one if req'd */
 			xincr = x;
@@ -571,10 +577,10 @@ int32 pixVShearIP(PIX       * pixs,
 /*!
  * \brief   pixHShearLI()
  *
- * \param[in]    pixs 8 bpp or 32 bpp, or colormapped
- * \param[in]    yloc location of horizontal line, measured from origin
- * \param[in]    radang  angle in radians, in range (-pi/2 ... pi/2)
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixs      8 bpp or 32 bpp, or colormapped
+ * \param[in]    yloc      location of horizontal line, measured from origin
+ * \param[in]    radang    angle in radians, in range (-pi/2 ... pi/2)
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd sheared, or NULL on error
  *
  * <pre>
@@ -589,31 +595,31 @@ int32 pixVShearIP(PIX       * pixs,
  *          move to the left.
  *      (3) Any colormap is removed.
  *      (4) The angle is brought into the range [-pi/2 + del, pi/2 - del],
- *          where del == MIN_DIFF_FROM_HALF_PI.
+ *          where del == MinDiffFromHalfPi.
  * </pre>
  */
-PIX * pixHShearLI(PIX       * pixs,
-    int32 yloc,
+PIX * pixHShearLI(PIX * pixs,
+    l_int32 yloc,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	int32 i, jd, x, xp, xf, w, h, d, wm, wpls, wpld, val, rval, gval, bval;
-	uint32 word0, word1;
-	uint32  * datas, * datad, * lines, * lined;
+	l_int32 i, jd, x, xp, xf, w, h, d, wm, wpls, wpld, val, rval, gval, bval;
+	l_uint32 word0, word1;
+	l_uint32  * datas, * datad, * lines, * lined;
 	float tanangle, xshift;
-	PIX       * pix, * pixd;
+	PIX * pix, * pixd;
 
-	PROCNAME("pixHShearLI");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 8 && d != 32 && !pixGetColormap(pixs))
-		return (PIX*)ERROR_PTR("pixs not 8, 32 bpp, or cmap", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 8, 32 bpp, or cmap", procName, NULL);
 	if(incolor != L_BRING_IN_WHITE && incolor != L_BRING_IN_BLACK)
-		return (PIX*)ERROR_PTR("invalid incolor value", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid incolor value", procName, NULL);
 	if(yloc < 0 || yloc >= h)
-		return (PIX*)ERROR_PTR("yloc not in [0 ... h-1]", procName, NULL);
+		return (PIX *)ERROR_PTR("yloc not in [0 ... h-1]", procName, NULL);
 
 	if(pixGetColormap(pixs))
 		pix = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
@@ -621,7 +627,7 @@ PIX * pixHShearLI(PIX       * pixs,
 		pix = pixClone(pixs);
 
 	/* Normalize angle.  If no rotation, return a copy */
-	radang = normalizeAngleForShear(radang, MIN_DIFF_FROM_HALF_PI);
+	radang = normalizeAngleForShear(radang, MinDiffFromHalfPi);
 	if(radang == 0.0 || tan(radang) == 0.0) {
 		pixDestroy(&pix);
 		return pixCopy(NULL, pixs);
@@ -643,7 +649,7 @@ PIX * pixHShearLI(PIX       * pixs,
 		lined = datad + i * wpld;
 		xshift = (yloc - i) * tanangle;
 		for(jd = 0; jd < w; jd++) {
-			x = (int32)(64.0 * (-xshift + jd) + 0.5);
+			x = (l_int32)(64.0 * (-xshift + jd) + 0.5);
 			xp = x / 64;
 			xf = x & 63;
 			wm = w - 1;
@@ -656,7 +662,7 @@ PIX * pixHShearLI(PIX       * pixs,
 				else { /* xp == wm */
 					val = GET_DATA_BYTE(lines, xp);
 				}
-				SET_DATA_BYTE(lined, jd, (uint8)val);
+				SET_DATA_BYTE(lined, jd, val);
 			}
 			else { /* d == 32 */
 				if(xp < wm) {
@@ -684,10 +690,10 @@ PIX * pixHShearLI(PIX       * pixs,
 /*!
  * \brief   pixVShearLI()
  *
- * \param[in]    pixs 8 bpp or 32 bpp, or colormapped
- * \param[in]    xloc  location of vertical line, measured from origin
- * \param[in]    radang  angle in radians, in range (-pi/2 ... pi/2)
- * \param[in]    incolor L_BRING_IN_WHITE, L_BRING_IN_BLACK;
+ * \param[in]    pixs      8 bpp or 32 bpp, or colormapped
+ * \param[in]    xloc      location of vertical line, measured from origin
+ * \param[in]    radang    angle in radians, in range (-pi/2 ... pi/2)
+ * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK;
  * \return  pixd sheared, or NULL on error
  *
  * <pre>
@@ -702,31 +708,31 @@ PIX * pixHShearLI(PIX       * pixs,
  *          of the line move upward.
  *      (3) Any colormap is removed.
  *      (4) The angle is brought into the range [-pi/2 + del, pi/2 - del],
- *          where del == MIN_DIFF_FROM_HALF_PI.
+ *          where del == MinDiffFromHalfPi.
  * </pre>
  */
-PIX * pixVShearLI(PIX       * pixs,
-    int32 xloc,
+PIX * pixVShearLI(PIX * pixs,
+    l_int32 xloc,
     float radang,
-    int32 incolor)
+    l_int32 incolor)
 {
-	int32 id, y, yp, yf, j, w, h, d, hm, wpls, wpld, val, rval, gval, bval;
-	uint32 word0, word1;
-	uint32  * datas, * datad, * lines, * lined;
+	l_int32 id, y, yp, yf, j, w, h, d, hm, wpls, wpld, val, rval, gval, bval;
+	l_uint32 word0, word1;
+	l_uint32  * datas, * datad, * lines, * lined;
 	float tanangle, yshift;
-	PIX       * pix, * pixd;
+	PIX * pix, * pixd;
 
-	PROCNAME("pixVShearLI");
+	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 8 && d != 32 && !pixGetColormap(pixs))
-		return (PIX*)ERROR_PTR("pixs not 8, 32 bpp, or cmap", procName, NULL);
+		return (PIX *)ERROR_PTR("pixs not 8, 32 bpp, or cmap", procName, NULL);
 	if(incolor != L_BRING_IN_WHITE && incolor != L_BRING_IN_BLACK)
-		return (PIX*)ERROR_PTR("invalid incolor value", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid incolor value", procName, NULL);
 	if(xloc < 0 || xloc >= w)
-		return (PIX*)ERROR_PTR("xloc not in [0 ... w-1]", procName, NULL);
+		return (PIX *)ERROR_PTR("xloc not in [0 ... w-1]", procName, NULL);
 
 	if(pixGetColormap(pixs))
 		pix = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
@@ -734,7 +740,7 @@ PIX * pixVShearLI(PIX       * pixs,
 		pix = pixClone(pixs);
 
 	/* Normalize angle.  If no rotation, return a copy */
-	radang = normalizeAngleForShear(radang, MIN_DIFF_FROM_HALF_PI);
+	radang = normalizeAngleForShear(radang, MinDiffFromHalfPi);
 	if(radang == 0.0 || tan(radang) == 0.0) {
 		pixDestroy(&pix);
 		return pixCopy(NULL, pixs);
@@ -754,7 +760,7 @@ PIX * pixVShearLI(PIX       * pixs,
 	for(j = 0; j < w; j++) {
 		yshift = (j - xloc) * tanangle;
 		for(id = 0; id < h; id++) {
-			y = (int32)(64.0 * (-yshift + id) + 0.5);
+			y = (l_int32)(64.0 * (-yshift + id) + 0.5);
 			yp = y / 64;
 			yf = y & 63;
 			hm = h - 1;
@@ -763,20 +769,24 @@ PIX * pixVShearLI(PIX       * pixs,
 			lined = datad + id * wpld;
 			if(d == 8) {
 				if(yp < hm) {
-					val = ((63 - yf) * GET_DATA_BYTE(lines, j) + yf * GET_DATA_BYTE(lines + wpls, j) + 31) / 63;
+					val = ((63 - yf) * GET_DATA_BYTE(lines, j) +
+					    yf * GET_DATA_BYTE(lines + wpls, j) + 31) / 63;
 				}
 				else { /* yp == hm */
 					val = GET_DATA_BYTE(lines, j);
 				}
-				SET_DATA_BYTE(lined, j, (uint8)val);
+				SET_DATA_BYTE(lined, j, val);
 			}
 			else { /* d == 32 */
 				if(yp < hm) {
 					word0 = *(lines + j);
 					word1 = *(lines + wpls + j);
-					rval = ((63 - yf) * ((word0 >> L_RED_SHIFT) & 0xff) + yf * ((word1 >> L_RED_SHIFT) & 0xff) + 31) / 63;
-					gval = ((63 - yf) * ((word0 >> L_GREEN_SHIFT) & 0xff) + yf * ((word1 >> L_GREEN_SHIFT) & 0xff) + 31) / 63;
-					bval = ((63 - yf) * ((word0 >> L_BLUE_SHIFT) & 0xff) + yf * ((word1 >> L_BLUE_SHIFT) & 0xff) + 31) / 63;
+					rval = ((63 - yf) * ((word0 >> L_RED_SHIFT) & 0xff) +
+					    yf * ((word1 >> L_RED_SHIFT) & 0xff) + 31) / 63;
+					gval = ((63 - yf) * ((word0 >> L_GREEN_SHIFT) & 0xff) +
+					    yf * ((word1 >> L_GREEN_SHIFT) & 0xff) + 31) / 63;
+					bval = ((63 - yf) * ((word0 >> L_BLUE_SHIFT) & 0xff) +
+					    yf * ((word1 >> L_BLUE_SHIFT) & 0xff) + 31) / 63;
 					composeRGBPixel(rval, gval, bval, lined + j);
 				}
 				else { /* yp == hm */
@@ -793,16 +803,14 @@ PIX * pixVShearLI(PIX       * pixs,
 /*-------------------------------------------------------------------------*
 *                           Angle normalization                           *
 *-------------------------------------------------------------------------*/
-static float normalizeAngleForShear(float radang,
-    float mindif)
+static float normalizeAngleForShear(float radang, float mindif)
 {
 	float pi2;
-	PROCNAME("normalizeAngleForShear");
+	PROCNAME(__FUNCTION__);
 	/* Bring angle into range [-pi/2, pi/2] */
 	pi2 = 3.14159265f / 2.0f;
 	if(radang < -pi2 || radang > pi2)
-		radang = radang - (int32)(radang / pi2) * pi2;
-
+		radang = radang - (l_int32)(radang / pi2) * pi2;
 	/* If angle is too close to pi/2 or -pi/2, move it */
 	if(radang > pi2 - mindif) {
 		L_WARNING("angle close to pi/2; shifting away\n", procName);
@@ -815,4 +823,3 @@ static float normalizeAngleForShear(float radang,
 
 	return radang;
 }
-

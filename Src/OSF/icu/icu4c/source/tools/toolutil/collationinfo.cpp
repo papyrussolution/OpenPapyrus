@@ -1,12 +1,8 @@
+// collationinfo.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationinfo.cpp
- *
+ * Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2013aug05
  * created by: Markus W. Scherer
  */
@@ -20,26 +16,23 @@
 
 U_NAMESPACE_BEGIN
 
-void CollationInfo::printSizes(int32_t sizeWithHeader, const int32_t indexes[]) {
+void CollationInfo::printSizes(int32_t sizeWithHeader, const int32_t indexes[]) 
+{
 	int32_t totalSize = indexes[CollationDataReader::IX_TOTAL_SIZE];
 	if(sizeWithHeader > totalSize) {
 		printf("  header size:                  %6ld\n", (long)(sizeWithHeader - totalSize));
 	}
-
 	int32_t length = indexes[CollationDataReader::IX_INDEXES_LENGTH];
 	printf("  indexes:          %6ld *4 = %6ld\n", (long)length, (long)length * 4);
-
 	length = getDataLength(indexes, CollationDataReader::IX_REORDER_CODES_OFFSET);
 	if(length != 0) {
 		printf("  reorder codes:    %6ld *4 = %6ld\n", (long)length / 4, (long)length);
 	}
-
 	length = getDataLength(indexes, CollationDataReader::IX_REORDER_TABLE_OFFSET);
 	if(length != 0) {
 		U_ASSERT(length >= 256);
 		printf("  reorder table:                %6ld\n", (long)length);
 	}
-
 	length = getDataLength(indexes, CollationDataReader::IX_TRIE_OFFSET);
 	if(length != 0) {
 		printf("  trie size:                    %6ld\n", (long)length);

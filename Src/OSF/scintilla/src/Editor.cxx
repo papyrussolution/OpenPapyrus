@@ -5391,8 +5391,7 @@ void Editor::EnsureLineVisible(int lineDoc, bool enforcePolicy)
 				SetVerticalScrollPos();
 				Redraw();
 			}
-			else if((lineDisplay > topLine + LinesOnScreen() - 1) ||
-			    ((visiblePolicy & VISIBLE_STRICT) && (lineDisplay > topLine + LinesOnScreen() - 1 - visibleSlop))) {
+			else if((lineDisplay > topLine + LinesOnScreen() - 1) || ((visiblePolicy & VISIBLE_STRICT) && (lineDisplay > topLine + LinesOnScreen() - 1 - visibleSlop))) {
 				SetTopLine(sclamp(lineDisplay - LinesOnScreen() + 1 + visibleSlop, 0, MaxScrollPos()));
 				SetVerticalScrollPos();
 				Redraw();

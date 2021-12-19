@@ -1623,7 +1623,7 @@ int PPViewPrjTask::NextOuterIteration()
 			if(Filt.TabType == PrjTaskFilt::crstNone)
 				ok = TodoObj.Search(TodoObj.P_Tbl->data.ID, &rec);
 			else {
-				rec.ID         = P_TempTbl->data.TabID;
+				rec.ID = P_TempTbl->data.TabID;
 				rec.Dt.v       = (ulong)P_TempTbl->data.TabParam;
 				rec.EmployerID = P_TempTbl->data.EmployerID;
 				rec.ClientID   = P_TempTbl->data.ClientID;
@@ -2434,7 +2434,7 @@ int PPALDD_PrjTask::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = rFilt.ID;
 		PPPrjTaskPacket pack;
 		if(rFilt.ID && static_cast<PPObjPrjTask *>(Extra[0].Ptr)->GetPacket(rFilt.ID, &pack) > 0) {
-			H.ID          = pack.Rec.ID;
+			H.ID  = pack.Rec.ID;
 			H.Kind        = pack.Rec.Kind;
 			H.ProjectID   = pack.Rec.ProjectID;
 			H.CreatorID   = pack.Rec.CreatorID;
@@ -2445,8 +2445,8 @@ int PPALDD_PrjTask::InitData(PPFilt & rFilt, long rsrv)
 			H.BillArID    = pack.Rec.BillArID;
 			H.TemplateID  = pack.Rec.TemplateID;
 			H.LinkTaskID  = pack.Rec.LinkTaskID;
-			H.Dt          = pack.Rec.Dt;
-			H.Tm          = pack.Rec.Tm;
+			H.Dt  = pack.Rec.Dt;
+			H.Tm  = pack.Rec.Tm;
 			H.StartDt     = pack.Rec.StartDt;
 			H.StartTm     = pack.Rec.StartTm;
 			H.EstFinishDt = pack.Rec.EstFinishDt;

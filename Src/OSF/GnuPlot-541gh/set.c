@@ -863,7 +863,7 @@ void GnuPlot::SetCntrParam()
 				free_dynarray(&_Cntr.dyn_contour_levels_list);
 				init_dynarray(&_Cntr.dyn_contour_levels_list, sizeof(double), 5, 10);
 			}
-			/*  RKC: I have modified the next two:
+			/* RKC: I have modified the next two:
 			 *   to use commas to separate list elements as in xtics
 			 *   so that incremental lists start,incr[,end]as in "
 			 */
@@ -4551,7 +4551,7 @@ void GnuPlot::SetTerminal()
 			GPT.P_Term->options(GPT.P_Term, this);
 			if(_Plt.interactive && GPT._TermOptions.NotEmpty())
 				fprintf(stderr, "Options are '%s'\n", GPT._TermOptions.cptr());
-			if(GPT.P_Term->flags & TERM_MONOCHROME)
+			if(GPT.P_Term->CheckFlag(TERM_MONOCHROME))
 				InitMonochrome();
 			// Sanity check:
 			// The most common failure mode found by fuzzing is a divide-by-zero
@@ -4594,7 +4594,7 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 		}
 		else if(Pgm.EqualsCur("fontscale")) {
 			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-			if(pTerm->flags & TERM_FONTSCALE)
+			if(pTerm->CheckFlag(TERM_FONTSCALE))
 				ok_to_call_terminal = TRUE;
 			else {
 				Pgm.Shift();
@@ -4603,7 +4603,7 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 		}
 		else if(Pgm.EqualsCur("pointscale") || Pgm.EqualsCur("ps")) {
 			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-			if(pTerm->flags & TERM_POINTSCALE)
+			if(pTerm->CheckFlag(TERM_POINTSCALE))
 				ok_to_call_terminal = TRUE;
 			else {
 				Pgm.Shift();
@@ -4612,7 +4612,7 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 		}
 		else if(Pgm.EqualsCur("lw") || Pgm.AlmostEqualsCur("linew$idth")) {
 			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-			if(pTerm->flags & TERM_LINEWIDTH)
+			if(pTerm->CheckFlag(TERM_LINEWIDTH))
 				ok_to_call_terminal = TRUE;
 			else {
 				Pgm.Shift();
@@ -4624,14 +4624,14 @@ void GnuPlot::SetTermOptions(GpTermEntry * pTerm)
 		}
 		else if(Pgm.AlmostEqualsCur("dashl$ength") || Pgm.EqualsCur("dl")) {
 			Pgm.NumTokens = MIN(Pgm.NumTokens, Pgm.GetCurTokenIdx()+2);
-			if(pTerm->flags & TERM_CAN_DASH)
+			if(pTerm->CheckFlag(TERM_CAN_DASH))
 				ok_to_call_terminal = TRUE;
 			else {
 				Pgm.Shift();
 				Pgm.Shift();
 			}
 		}
-		else if(sstreq(pTerm->name, "gif") && Pgm.EqualsCur("delay") && Pgm.NumTokens == 4) {
+		else if(sstreq(pTerm->GetName(), "gif") && Pgm.EqualsCur("delay") && Pgm.NumTokens == 4) {
 			ok_to_call_terminal = TRUE;
 		}
 		else {

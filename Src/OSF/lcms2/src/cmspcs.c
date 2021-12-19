@@ -45,7 +45,7 @@
        Reverse transform is:
 
        X = Xn*[a* / 500 + (L* + 16) / 116] ^ 3   if(X/Xn) > (24/116)
-         = Xn*(a* / 500 + L* / 116) / 7.787      if(X/Xn) <= (24/116)
+ = Xn*(a* / 500 + L* / 116) / 7.787      if(X/Xn) <= (24/116)
 
 
 
@@ -90,7 +90,7 @@
 // Conversions
 void CMSEXPORT cmsXYZ2xyY(cmsCIExyY* Dest, const cmsCIEXYZ* Source)
 {
-	cmsFloat64Number ISum;
+	double ISum;
 
 	ISum = 1./(Source->X + Source->Y + Source->Z);
 
@@ -115,33 +115,28 @@ void CMSEXPORT cmsxyY2XYZ(cmsCIEXYZ* Dest, const cmsCIExyY* Source)
        contribute to the perceived color directly.
  */
 
-static
-cmsFloat64Number f(cmsFloat64Number t)
+static double f(double t)
 {
-	const cmsFloat64Number Limit = (24.0/116.0) * (24.0/116.0) * (24.0/116.0);
-
+	const double Limit = (24.0/116.0) * (24.0/116.0) * (24.0/116.0);
 	if(t <= Limit)
 		return (841.0/108.0) * t + (16.0/116.0);
 	else
 		return pow(t, 1.0/3.0);
 }
 
-static
-cmsFloat64Number f_1(cmsFloat64Number t)
+static double f_1(double t)
 {
-	const cmsFloat64Number Limit = (24.0/116.0);
-
+	const double Limit = (24.0/116.0);
 	if(t <= Limit) {
 		return (108.0/841.0) * (t - (16.0/116.0));
 	}
-
 	return t * t * t;
 }
 
 // Standard XYZ to Lab. it can handle negative XZY numbers in some cases
 void CMSEXPORT cmsXYZ2Lab(const cmsCIEXYZ* WhitePoint, cmsCIELab* Lab, const cmsCIEXYZ* xyz)
 {
-	cmsFloat64Number fx, fy, fz;
+	double fx, fy, fz;
 	if(WhitePoint == NULL)
 		WhitePoint = cmsD50_XYZ();
 	fx = f(xyz->X / WhitePoint->X);
@@ -155,7 +150,7 @@ void CMSEXPORT cmsXYZ2Lab(const cmsCIEXYZ* WhitePoint, cmsCIELab* Lab, const cms
 // Standard XYZ to Lab. It can return negative XYZ in some cases
 void CMSEXPORT cmsLab2XYZ(const cmsCIEXYZ* WhitePoint, cmsCIEXYZ* xyz,  const cmsCIELab* Lab)
 {
-	cmsFloat64Number x, y, z;
+	double x, y, z;
 	if(WhitePoint == NULL)
 		WhitePoint = cmsD50_XYZ();
 	y = (Lab->L + 16.0) / 116.0;
@@ -167,68 +162,68 @@ void CMSEXPORT cmsLab2XYZ(const cmsCIEXYZ* WhitePoint, cmsCIEXYZ* xyz,  const cm
 	xyz->Z = f_1(z) * WhitePoint->Z;
 }
 
-static cmsFloat64Number L2float2(cmsUInt16Number v)
+static double L2float2(uint16 v)
 {
-	return (cmsFloat64Number)v / 652.800;
+	return (double)v / 652.800;
 }
 
 // the a/b part
-static cmsFloat64Number ab2float2(cmsUInt16Number v)
+static double ab2float2(uint16 v)
 {
-	return ((cmsFloat64Number)v / 256.0) - 128.0;
+	return ((double)v / 256.0) - 128.0;
 }
 
-static cmsUInt16Number L2Fix2(cmsFloat64Number L)
+static uint16 L2Fix2(double L)
 {
 	return _cmsQuickSaturateWord(L *  652.8);
 }
 
-static cmsUInt16Number ab2Fix2(cmsFloat64Number ab)
+static uint16 ab2Fix2(double ab)
 {
 	return _cmsQuickSaturateWord((ab + 128.0) * 256.0);
 }
 
-static cmsFloat64Number L2float4(cmsUInt16Number v)
+static double L2float4(uint16 v)
 {
-	return (cmsFloat64Number)v / 655.35;
+	return (double)v / 655.35;
 }
 
 // the a/b part
-static cmsFloat64Number ab2float4(cmsUInt16Number v)
+static double ab2float4(uint16 v)
 {
-	return ((cmsFloat64Number)v / 257.0) - 128.0;
+	return ((double)v / 257.0) - 128.0;
 }
 
-void CMSEXPORT cmsLabEncoded2FloatV2(cmsCIELab* Lab, const cmsUInt16Number wLab[3])
+void CMSEXPORT cmsLabEncoded2FloatV2(cmsCIELab* Lab, const uint16 wLab[3])
 {
 	Lab->L = L2float2(wLab[0]);
 	Lab->a = ab2float2(wLab[1]);
 	Lab->b = ab2float2(wLab[2]);
 }
 
-void CMSEXPORT cmsLabEncoded2Float(cmsCIELab* Lab, const cmsUInt16Number wLab[3])
+void CMSEXPORT cmsLabEncoded2Float(cmsCIELab* Lab, const uint16 wLab[3])
 {
 	Lab->L = L2float4(wLab[0]);
 	Lab->a = ab2float4(wLab[1]);
 	Lab->b = ab2float4(wLab[2]);
 }
 
-static cmsFloat64Number Clamp_L_doubleV2(cmsFloat64Number L)
+static double Clamp_L_doubleV2(double L)
 {
-	const cmsFloat64Number L_max = (cmsFloat64Number)(0xFFFF * 100.0) / 0xFF00;
+	const double L_max = (double)(0xFFFF * 100.0) / 0xFF00;
 	if(L < 0) L = 0;
 	if(L > L_max) L = L_max;
 	return L;
 }
 
-static cmsFloat64Number Clamp_ab_doubleV2(cmsFloat64Number ab)
+static double Clamp_ab_doubleV2(double ab)
 {
 	if(ab < MIN_ENCODEABLE_ab2) ab = MIN_ENCODEABLE_ab2;
 	if(ab > MAX_ENCODEABLE_ab2) ab = MAX_ENCODEABLE_ab2;
 	return ab;
 }
 
-void CMSEXPORT cmsFloat2LabEncodedV2(cmsUInt16Number wLab[3], const cmsCIELab* fLab)
+void CMSEXPORT cmsFloat2LabEncodedV2(uint16 wLab[3], const cmsCIELab* fLab)
 {
 	cmsCIELab Lab;
 	Lab.L = Clamp_L_doubleV2(fLab->L);
@@ -239,7 +234,7 @@ void CMSEXPORT cmsFloat2LabEncodedV2(cmsUInt16Number wLab[3], const cmsCIELab* f
 	wLab[2] = ab2Fix2(Lab.b);
 }
 
-static cmsFloat64Number Clamp_L_doubleV4(cmsFloat64Number L)
+static double Clamp_L_doubleV4(double L)
 {
 	if(L < 0) L = 0;
 	if(L > 100.0) L = 100.0;
@@ -247,7 +242,7 @@ static cmsFloat64Number Clamp_L_doubleV4(cmsFloat64Number L)
 	return L;
 }
 
-static cmsFloat64Number Clamp_ab_doubleV4(cmsFloat64Number ab)
+static double Clamp_ab_doubleV4(double ab)
 {
 	if(ab < MIN_ENCODEABLE_ab4) ab = MIN_ENCODEABLE_ab4;
 	if(ab > MAX_ENCODEABLE_ab4) ab = MAX_ENCODEABLE_ab4;
@@ -255,17 +250,17 @@ static cmsFloat64Number Clamp_ab_doubleV4(cmsFloat64Number ab)
 	return ab;
 }
 
-static cmsUInt16Number L2Fix4(cmsFloat64Number L)
+static uint16 L2Fix4(double L)
 {
 	return _cmsQuickSaturateWord(L *  655.35);
 }
 
-static cmsUInt16Number ab2Fix4(cmsFloat64Number ab)
+static uint16 ab2Fix4(double ab)
 {
 	return _cmsQuickSaturateWord((ab + 128.0) * 257.0);
 }
 
-void CMSEXPORT cmsFloat2LabEncoded(cmsUInt16Number wLab[3], const cmsCIELab* fLab)
+void CMSEXPORT cmsFloat2LabEncoded(uint16 wLab[3], const cmsCIELab* fLab)
 {
 	cmsCIELab Lab;
 
@@ -279,37 +274,29 @@ void CMSEXPORT cmsFloat2LabEncoded(cmsUInt16Number wLab[3], const cmsCIELab* fLa
 }
 
 // Auxiliary: convert to Radians
-static
-cmsFloat64Number RADIANS(cmsFloat64Number deg)
+static double RADIANS(double deg)
 {
 	return (deg * M_PI) / 180.;
 }
 
 // Auxiliary: atan2 but operating in degrees and returning 0 if a==b==0
-static
-cmsFloat64Number atan2deg(cmsFloat64Number a, cmsFloat64Number b)
+static double atan2deg(double a, double b)
 {
-	cmsFloat64Number h;
-
+	double h;
 	if(a == 0 && b == 0)
 		h   = 0;
 	else
 		h = atan2(a, b);
-
 	h *= (180. / M_PI);
-
 	while(h > 360.)
 		h -= 360.;
-
 	while(h < 0)
 		h += 360.;
-
 	return h;
 }
 
 // Auxiliary: Square
-static
-cmsFloat64Number Sqr(cmsFloat64Number v)
+static double Sqr(double v)
 {
 	return v *  v;
 }
@@ -325,28 +312,24 @@ void CMSEXPORT cmsLab2LCh(cmsCIELCh* LCh, const cmsCIELab* Lab)
 // To cylindrical coordinates. No check is performed, then negative values are allowed
 void CMSEXPORT cmsLCh2Lab(cmsCIELab* Lab, const cmsCIELCh* LCh)
 {
-	cmsFloat64Number h = (LCh->h * M_PI) / 180.0;
-
+	double h = (LCh->h * M_PI) / 180.0;
 	Lab->L = LCh->L;
 	Lab->a = LCh->C * cos(h);
 	Lab->b = LCh->C * sin(h);
 }
 
 // In XYZ All 3 components are encoded using 1.15 fixed point
-static
-cmsUInt16Number XYZ2Fix(cmsFloat64Number d)
+static uint16 XYZ2Fix(double d)
 {
 	return _cmsQuickSaturateWord(d * 32768.0);
 }
 
-void CMSEXPORT cmsFloat2XYZEncoded(cmsUInt16Number XYZ[3], const cmsCIEXYZ* fXYZ)
+void CMSEXPORT cmsFloat2XYZEncoded(uint16 XYZ[3], const cmsCIEXYZ* fXYZ)
 {
 	cmsCIEXYZ xyz;
-
 	xyz.X = fXYZ->X;
 	xyz.Y = fXYZ->Y;
 	xyz.Z = fXYZ->Z;
-
 	// Clamp to encodeable values.
 	if(xyz.Y <= 0) {
 		xyz.X = 0;
@@ -377,20 +360,16 @@ void CMSEXPORT cmsFloat2XYZEncoded(cmsUInt16Number XYZ[3], const cmsCIEXYZ* fXYZ
 	XYZ[2] = XYZ2Fix(xyz.Z);
 }
 
-//  To convert from Fixed 1.15 point to cmsFloat64Number
-static
-cmsFloat64Number XYZ2float(cmsUInt16Number v)
+//  To convert from Fixed 1.15 point to double
+static double XYZ2float(uint16 v)
 {
-	cmsS15Fixed16Number fix32;
-
 	// From 1.15 to 15.16
-	fix32 = v << 1;
-
-	// From fixed 15.16 to cmsFloat64Number
+	cmsS15Fixed16Number fix32 = v << 1;
+	// From fixed 15.16 to double
 	return _cms15Fixed16toDouble(fix32);
 }
 
-void CMSEXPORT cmsXYZEncoded2Float(cmsCIEXYZ* fXYZ, const cmsUInt16Number XYZ[3])
+void CMSEXPORT cmsXYZEncoded2Float(cmsCIEXYZ* fXYZ, const uint16 XYZ[3])
 {
 	fXYZ->X = XYZ2float(XYZ[0]);
 	fXYZ->Y = XYZ2float(XYZ[1]);
@@ -398,32 +377,25 @@ void CMSEXPORT cmsXYZEncoded2Float(cmsCIEXYZ* fXYZ, const cmsUInt16Number XYZ[3]
 }
 
 // Returns dE on two Lab values
-cmsFloat64Number CMSEXPORT cmsDeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
+double CMSEXPORT cmsDeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
 {
-	cmsFloat64Number dL, da, db;
-
-	dL = fabs(Lab1->L - Lab2->L);
-	da = fabs(Lab1->a - Lab2->a);
-	db = fabs(Lab1->b - Lab2->b);
-
+	double dL = fabs(Lab1->L - Lab2->L);
+	double da = fabs(Lab1->a - Lab2->a);
+	double db = fabs(Lab1->b - Lab2->b);
 	return pow(Sqr(dL) + Sqr(da) + Sqr(db), 0.5);
 }
 
 // Return the CIE94 Delta E
-cmsFloat64Number CMSEXPORT cmsCIE94DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
+double CMSEXPORT cmsCIE94DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
 {
 	cmsCIELCh LCh1, LCh2;
-	cmsFloat64Number dE, dL, dC, dh, dhsq;
-	cmsFloat64Number c12, sc, sh;
-
+	double dE, dL, dC, dh, dhsq;
+	double c12, sc, sh;
 	dL = fabs(Lab1->L - Lab2->L);
-
 	cmsLab2LCh(&LCh1, Lab1);
 	cmsLab2LCh(&LCh2, Lab2);
-
 	dC  = fabs(LCh1.C - LCh2.C);
 	dE  = cmsDeltaE(Lab1, Lab2);
-
 	dhsq = Sqr(dE) - Sqr(dL) - Sqr(dC);
 	if(dhsq < 0)
 		dh = 0;
@@ -439,39 +411,30 @@ cmsFloat64Number CMSEXPORT cmsCIE94DeltaE(const cmsCIELab* Lab1, const cmsCIELab
 }
 
 // Auxiliary
-static
-cmsFloat64Number ComputeLBFD(const cmsCIELab* Lab)
+static double ComputeLBFD(const cmsCIELab* Lab)
 {
-	cmsFloat64Number yt;
-
+	double yt;
 	if(Lab->L > 7.996969)
 		yt = (Sqr((Lab->L+16)/116)*((Lab->L+16)/116))*100;
 	else
 		yt = 100 * (Lab->L / 903.3);
-
 	return (54.6 * (M_LOG10E * (log(yt + 1.5))) - 9.6);
 }
 
 // bfd - gets BFD(1:1) difference between Lab1, Lab2
-cmsFloat64Number CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
+double CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2)
 {
-	cmsFloat64Number lbfd1, lbfd2, AveC, Aveh, dE, deltaL,
-	    deltaC, deltah, dc, t, g, dh, rh, rc, rt, bfd;
+	double lbfd1, lbfd2, AveC, Aveh, dE, deltaL, deltaC, deltah, dc, t, g, dh, rh, rc, rt, bfd;
 	cmsCIELCh LCh1, LCh2;
-
 	lbfd1 = ComputeLBFD(Lab1);
 	lbfd2 = ComputeLBFD(Lab2);
 	deltaL = lbfd2 - lbfd1;
-
 	cmsLab2LCh(&LCh1, Lab1);
 	cmsLab2LCh(&LCh2, Lab2);
-
 	deltaC = LCh2.C - LCh1.C;
 	AveC = (LCh1.C+LCh2.C)/2;
 	Aveh = (LCh1.h+LCh2.h)/2;
-
 	dE = cmsDeltaE(Lab1, Lab2);
-
 	if(Sqr(dE)>(Sqr(Lab2->L-Lab1->L)+Sqr(deltaC)))
 		deltah = sqrt(Sqr(dE)-Sqr(Lab2->L-Lab1->L)-Sqr(deltaC));
 	else
@@ -484,7 +447,6 @@ cmsFloat64Number CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* 
 	    0.070*cos((3*Aveh-31)/(180/M_PI))+
 	    0.049*cos((4*Aveh+114)/(180/M_PI))-
 	    0.015*cos((5*Aveh-103)/(180/M_PI)));
-
 	dh    = dc*(g*t+1-g);
 	rh    = -0.260*cos((Aveh-308)/(180/M_PI))-
 	    0.379*cos((2*Aveh-160)/(180/M_PI))-
@@ -501,105 +463,93 @@ cmsFloat64Number CMSEXPORT cmsBFDdeltaE(const cmsCIELab* Lab1, const cmsCIELab* 
 }
 
 //  cmc - CMC(l:c) difference between Lab1, Lab2
-cmsFloat64Number CMSEXPORT cmsCMCdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, cmsFloat64Number l, cmsFloat64Number c)
+double CMSEXPORT cmsCMCdeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, double l, double c)
 {
-	cmsFloat64Number dE, dL, dC, dh, sl, sc, sh, t, f, cmc;
+	double dE, dL, dC, dh, sl, sc, sh, t, f, cmc;
 	cmsCIELCh LCh1, LCh2;
 
 	if(Lab1->L == 0 && Lab2->L == 0) return 0;
 
 	cmsLab2LCh(&LCh1, Lab1);
 	cmsLab2LCh(&LCh2, Lab2);
-
 	dL = Lab2->L-Lab1->L;
 	dC = LCh2.C-LCh1.C;
-
 	dE = cmsDeltaE(Lab1, Lab2);
-
 	if(Sqr(dE)>(Sqr(dL)+Sqr(dC)))
 		dh = sqrt(Sqr(dE)-Sqr(dL)-Sqr(dC));
 	else
 		dh = 0;
-
 	if((LCh1.h > 164) && (LCh1.h < 345))
 		t = 0.56 + fabs(0.2 * cos(((LCh1.h + 168)/(180/M_PI))));
 	else
 		t = 0.36 + fabs(0.4 * cos(((LCh1.h + 35 )/(180/M_PI))));
-
 	sc  = 0.0638   * LCh1.C / (1 + 0.0131  * LCh1.C) + 0.638;
 	sl  = 0.040975 * Lab1->L /(1 + 0.01765 * Lab1->L);
-
 	if(Lab1->L<16)
 		sl = 0.511;
-
 	f   = sqrt((LCh1.C * LCh1.C * LCh1.C * LCh1.C)/((LCh1.C * LCh1.C * LCh1.C * LCh1.C)+1900));
 	sh  = sc*(t*f+1-f);
 	cmc = sqrt(Sqr(dL/(l*sl))+Sqr(dC/(c*sc))+Sqr(dh/sh));
-
 	return cmc;
 }
 
 // dE2000 The weightings KL, KC and KH can be modified to reflect the relative
 // importance of lightness, chroma and hue in different industrial applications
-cmsFloat64Number CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2,
-    cmsFloat64Number Kl, cmsFloat64Number Kc, cmsFloat64Number Kh)
+double CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, double Kl, double Kc, double Kh)
 {
-	cmsFloat64Number L1  = Lab1->L;
-	cmsFloat64Number a1  = Lab1->a;
-	cmsFloat64Number b1  = Lab1->b;
-	cmsFloat64Number C   = sqrt(Sqr(a1) + Sqr(b1));
+	double L1  = Lab1->L;
+	double a1  = Lab1->a;
+	double b1  = Lab1->b;
+	double C   = sqrt(Sqr(a1) + Sqr(b1));
+	double Ls = Lab2->L;
+	double as = Lab2->a;
+	double bs = Lab2->b;
+	double Cs = sqrt(Sqr(as) + Sqr(bs));
+	double G = 0.5 * ( 1 - sqrt(pow((C + Cs) / 2, 7.0) / (pow((C + Cs) / 2, 7.0) + pow(25.0, 7.0) ) ));
+	double a_p = (1 + G ) * a1;
+	double b_p = b1;
+	double C_p = sqrt(Sqr(a_p) + Sqr(b_p));
+	double h_p = atan2deg(b_p, a_p);
 
-	cmsFloat64Number Ls = Lab2->L;
-	cmsFloat64Number as = Lab2->a;
-	cmsFloat64Number bs = Lab2->b;
-	cmsFloat64Number Cs = sqrt(Sqr(as) + Sqr(bs));
+	double a_ps = (1 + G) * as;
+	double b_ps = bs;
+	double C_ps = sqrt(Sqr(a_ps) + Sqr(b_ps));
+	double h_ps = atan2deg(b_ps, a_ps);
 
-	cmsFloat64Number G = 0.5 * ( 1 - sqrt(pow((C + Cs) / 2, 7.0) / (pow((C + Cs) / 2, 7.0) + pow(25.0, 7.0) ) ));
+	double meanC_p = (C_p + C_ps) / 2;
 
-	cmsFloat64Number a_p = (1 + G ) * a1;
-	cmsFloat64Number b_p = b1;
-	cmsFloat64Number C_p = sqrt(Sqr(a_p) + Sqr(b_p));
-	cmsFloat64Number h_p = atan2deg(b_p, a_p);
+	double hps_plus_hp  = h_ps + h_p;
+	double hps_minus_hp = h_ps - h_p;
 
-	cmsFloat64Number a_ps = (1 + G) * as;
-	cmsFloat64Number b_ps = bs;
-	cmsFloat64Number C_ps = sqrt(Sqr(a_ps) + Sqr(b_ps));
-	cmsFloat64Number h_ps = atan2deg(b_ps, a_ps);
-
-	cmsFloat64Number meanC_p = (C_p + C_ps) / 2;
-
-	cmsFloat64Number hps_plus_hp  = h_ps + h_p;
-	cmsFloat64Number hps_minus_hp = h_ps - h_p;
-
-	cmsFloat64Number meanh_p = fabs(hps_minus_hp) <= 180.000001 ? (hps_plus_hp)/2 :
+	double meanh_p = fabs(hps_minus_hp) <= 180.000001 ? (hps_plus_hp)/2 :
 	    (hps_plus_hp) < 360 ? (hps_plus_hp + 360)/2 :
 	    (hps_plus_hp - 360)/2;
 
-	cmsFloat64Number delta_h = (hps_minus_hp) <= -180.000001 ?  (hps_minus_hp + 360) :
+	double delta_h = (hps_minus_hp) <= -180.000001 ?  (hps_minus_hp + 360) :
 	    (hps_minus_hp) > 180 ? (hps_minus_hp - 360) :
 	    (hps_minus_hp);
-	cmsFloat64Number delta_L = (Ls - L1);
-	cmsFloat64Number delta_C = (C_ps - C_p );
+	double delta_L = (Ls - L1);
+	double delta_C = (C_ps - C_p );
 
-	cmsFloat64Number delta_H = 2 * sqrt(C_ps*C_p) * sin(RADIANS(delta_h) / 2);
+	double delta_H = 2 * sqrt(C_ps*C_p) * sin(RADIANS(delta_h) / 2);
 
-	cmsFloat64Number T = 1 - 0.17 * cos(RADIANS(meanh_p-30))
+	double T = 1 - 0.17 * cos(RADIANS(meanh_p-30))
 	    + 0.24 * cos(RADIANS(2*meanh_p))
 	    + 0.32 * cos(RADIANS(3*meanh_p + 6))
 	    - 0.2  * cos(RADIANS(4*meanh_p - 63));
 
-	cmsFloat64Number Sl = 1 + (0.015 * Sqr((Ls + L1) /2- 50) )/ sqrt(20 + Sqr( (Ls+L1)/2 - 50));
+	double Sl = 1 + (0.015 * Sqr((Ls + L1) /2- 50) )/ sqrt(20 + Sqr( (Ls+L1)/2 - 50));
 
-	cmsFloat64Number Sc = 1 + 0.045 * (C_p + C_ps)/2;
-	cmsFloat64Number Sh = 1 + 0.015 * ((C_ps + C_p)/2) * T;
+	double Sc = 1 + 0.045 * (C_p + C_ps)/2;
+	double Sh = 1 + 0.015 * ((C_ps + C_p)/2) * T;
 
-	cmsFloat64Number delta_ro = 30 * exp(-Sqr(((meanh_p - 275 ) / 25)));
+	double delta_ro = 30 * exp(-Sqr(((meanh_p - 275 ) / 25)));
 
-	cmsFloat64Number Rc = 2 * sqrt(( pow(meanC_p, 7.0) )/( pow(meanC_p, 7.0) + pow(25.0, 7.0)));
+	double Rc = 2 * sqrt(( pow(meanC_p, 7.0) )/( pow(meanC_p, 7.0) + pow(25.0, 7.0)));
 
-	cmsFloat64Number Rt = -sin(2 * RADIANS(delta_ro)) * Rc;
+	double Rt = -sin(2 * RADIANS(delta_ro)) * Rc;
 
-	cmsFloat64Number deltaE00 = sqrt(Sqr(delta_L /(Sl * Kl)) +
+	double deltaE00 = sqrt(Sqr(delta_L /(Sl * Kl)) +
 		Sqr(delta_C/(Sc * Kc))  +
 		Sqr(delta_H/(Sh * Kh))  +
 		Rt*(delta_C/(Sc * Kc)) * (delta_H / (Sh * Kh)));
@@ -653,19 +603,19 @@ cmsUInt32Number _cmsReasonableGridpointsByColorspace(cmsColorSpaceSignature Colo
 	return 33;              // 33 for RGB
 }
 
-cmsBool  _cmsEndPointsBySpace(cmsColorSpaceSignature Space, cmsUInt16Number ** White, cmsUInt16Number ** Black, cmsUInt32Number * nOutputs)
+boolint _cmsEndPointsBySpace(cmsColorSpaceSignature Space, uint16 ** White, uint16 ** Black, cmsUInt32Number * nOutputs)
 {
 	// Only most common spaces
-	static cmsUInt16Number RGBblack[4]  = { 0, 0, 0 };
-	static cmsUInt16Number RGBwhite[4]  = { 0xffff, 0xffff, 0xffff };
-	static cmsUInt16Number CMYKblack[4] = { 0xffff, 0xffff, 0xffff, 0xffff };  // 400% of ink
-	static cmsUInt16Number CMYKwhite[4] = { 0, 0, 0, 0 };
-	static cmsUInt16Number LABblack[4]  = { 0, 0x8080, 0x8080 };              // V4 Lab encoding
-	static cmsUInt16Number LABwhite[4]  = { 0xFFFF, 0x8080, 0x8080 };
-	static cmsUInt16Number CMYblack[4]  = { 0xffff, 0xffff, 0xffff };
-	static cmsUInt16Number CMYwhite[4]  = { 0, 0, 0 };
-	static cmsUInt16Number Grayblack[4] = { 0 };
-	static cmsUInt16Number GrayWhite[4] = { 0xffff };
+	static uint16 RGBblack[4]  = { 0, 0, 0 };
+	static uint16 RGBwhite[4]  = { 0xffff, 0xffff, 0xffff };
+	static uint16 CMYKblack[4] = { 0xffff, 0xffff, 0xffff, 0xffff };  // 400% of ink
+	static uint16 CMYKwhite[4] = { 0, 0, 0, 0 };
+	static uint16 LABblack[4]  = { 0, 0x8080, 0x8080 };              // V4 Lab encoding
+	static uint16 LABwhite[4]  = { 0xFFFF, 0x8080, 0x8080 };
+	static uint16 CMYblack[4]  = { 0xffff, 0xffff, 0xffff };
+	static uint16 CMYwhite[4]  = { 0, 0, 0 };
+	static uint16 Grayblack[4] = { 0 };
+	static uint16 GrayWhite[4] = { 0xffff };
 	switch(Space) {
 		case cmsSigGrayData: if(White) *White = GrayWhite;
 		    if(Black) *Black = Grayblack;

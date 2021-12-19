@@ -1,6 +1,6 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*  
+/* 
 **********************************************************************
 *   Copyright (C) 1999-2015, International Business Machines
 *   Corporation and others.  All Rights Reserved.
@@ -115,7 +115,7 @@ u_terminateWChars(wchar_t *dest, int32_t destCapacity, int32_t length, UErrorCod
  * @return 0 or 2..4
  */
 #define U8_COUNT_BYTES_NON_ASCII(leadByte) \
-    (U8_IS_LEAD(leadByte) ? ((uint8_t)(leadByte)>=0xe0)+((uint8_t)(leadByte)>=0xf0)+2 : 0)
+    (U8_IS_LEAD(leadByte) ? ((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0)+2 : 0)
 
 #ifdef __cplusplus
 
@@ -135,7 +135,7 @@ public:
   * @param length The length (2..4) of the byte sequence according to the lead byte.
   * @return true if t is a valid trail byte in this context.
      */
-    static inline bool isValidTrail(int32_t prev, uint8_t t, int32_t i, int32_t length) {
+    static inline bool isValidTrail(int32_t prev, uint8 t, int32_t i, int32_t length) {
         // The first trail byte after a 3- or 4-byte lead byte
         // needs to be validated together with its lead byte.
         if(length <= 2 || i > 1) {

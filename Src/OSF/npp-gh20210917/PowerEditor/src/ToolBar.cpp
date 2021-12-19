@@ -366,7 +366,7 @@ void ToolBar::reset(bool create)
 		_rbBand.cxMinChild      = 0;
 		_rbBand.cyIntegral      = 1;
 		_rbBand.cyMinChild      = _rbBand.cyMaxChild = getHeight();
-		_rbBand.cxIdeal         = getWidth();
+		_rbBand.cxIdeal = getWidth();
 
 		_pRebar->reNew(REBAR_BAR_TOOLBAR, &_rbBand);
 	}
@@ -480,13 +480,13 @@ void ToolBar::addToRebar(ReBar * rebar)
 	_pRebar = rebar;
 	INITWINAPISTRUCT(_rbBand);
 	_rbBand.fMask   = RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE |RBBIM_SIZE | RBBIM_IDEALSIZE | RBBIM_ID;
-	_rbBand.fStyle          = RBBS_VARIABLEHEIGHT | RBBS_USECHEVRON | RBBS_NOGRIPPER;
+	_rbBand.fStyle  = RBBS_VARIABLEHEIGHT | RBBS_USECHEVRON | RBBS_NOGRIPPER;
 	_rbBand.hwndChild       = getHSelf();
-	_rbBand.wID                     = REBAR_BAR_TOOLBAR;    //ID REBAR_BAR_TOOLBAR for toolbar
+	_rbBand.wID             = REBAR_BAR_TOOLBAR;    //ID REBAR_BAR_TOOLBAR for toolbar
 	_rbBand.cxMinChild      = 0;
 	_rbBand.cyIntegral      = 1;
 	_rbBand.cyMinChild      = _rbBand.cyMaxChild    = getHeight();
-	_rbBand.cxIdeal         = _rbBand.cx                    = getWidth();
+	_rbBand.cxIdeal = _rbBand.cx            = getWidth();
 	_pRebar->addBand(&_rbBand, true);
 	_rbBand.fMask   = RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE | RBBIM_SIZE;
 }

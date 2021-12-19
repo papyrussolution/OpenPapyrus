@@ -34,7 +34,7 @@ public:
 	void setDeclaredEncoding(const char * encoding, int32_t len);
 	bool isSet() const;
 	void MungeInput(bool fStripTags);
-	uint8_t * fInputBytes; // The text to be checked.  Markup will have been removed if appropriate.
+	uint8 * fInputBytes; // The text to be checked.  Markup will have been removed if appropriate.
 	int32_t fInputLen;      // Length of the byte data in fInputBytes.
 	// byte frequency statistics for the input text.
 	//   Value is percent, not absolute.
@@ -42,7 +42,7 @@ public:
 	int16_t  * fByteStats;
 	bool fC1Bytes;          // True if any bytes in the range 0x80 - 0x9F are in the input;false by default
 	char * fDeclaredEncoding;
-	const uint8_t * fRawInput;// Original, untouched input bytes.
+	const uint8 * fRawInput;// Original, untouched input bytes.
 		//  If user gave us a byte array, this is it.
 		//  If user gave us a stream, it's read to a buffer here.
 	int32_t fRawLength; // Length of data in fRawInput array.

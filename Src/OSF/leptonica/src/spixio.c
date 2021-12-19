@@ -35,17 +35,17 @@
  *
  *      Reading spix from file
  *           PIX        *pixReadStreamSpix()
- *           int32     readHeaderSpix()
- *           int32     freadHeaderSpix()
- *           int32     sreadHeaderSpix()
+ *           l_int32     readHeaderSpix()
+ *           l_int32     freadHeaderSpix()
+ *           l_int32     sreadHeaderSpix()
  *
  *      Writing spix to file
- *           int32     pixWriteStreamSpix()
+ *           l_int32     pixWriteStreamSpix()
  *
  *      Low-level serialization of pix to/from memory (uncompressed)
  *           PIX        *pixReadMemSpix()
- *           int32     pixWriteMemSpix()
- *           int32     pixSerializeToMemory()
+ *           l_int32     pixWriteMemSpix()
+ *           l_int32     pixSerializeToMemory()
  *           PIX        *pixDeserializeFromMemory()
  *
  *    Note: these functions have not been extensively tested for fuzzing
@@ -59,9 +59,9 @@
 #pragma hdrstop
 
 /* Image dimension limits */
-static const int32 L_MAX_ALLOWED_WIDTH = 1000000;
-static const int32 L_MAX_ALLOWED_HEIGHT = 1000000;
-static const int64 L_MAX_ALLOWED_AREA = 400000000LL;
+static const l_int32 MaxAllowedWidth = 1000000;
+static const l_int32 MaxAllowedHeight = 1000000;
+static const l_int64 MaxAllowedArea = 400000000LL;
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_SERIALIZE      0
@@ -73,7 +73,7 @@ static const int64 L_MAX_ALLOWED_AREA = 400000000LL;
 /*!
  * \brief   pixReadStreamSpix()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp     file stream
  * \return  pix, or NULL on error.
  *
  * <pre>
@@ -82,25 +82,23 @@ static const int64 L_MAX_ALLOWED_AREA = 400000000LL;
  *          at the beginning of the file.
  * </pre>
  */
-PIX * pixReadStreamSpix(FILE  * fp)
+PIX * pixReadStreamSpix(FILE * fp)
 {
 	size_t nbytes;
 	uint8  * data;
-	PIX      * pix;
+	PIX * pix;
 
-	PROCNAME("pixReadStreamSpix");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
-		return (PIX*)ERROR_PTR("stream not defined", procName, NULL);
+		return (PIX *)ERROR_PTR("stream not defined", procName, NULL);
 
 	if((data = l_binaryReadStream(fp, &nbytes)) == NULL)
-		return (PIX*)ERROR_PTR("data not read", procName, NULL);
-	if((pix = pixReadMemSpix(data, nbytes)) == NULL) {
-		LEPT_FREE(data);
-		return (PIX*)ERROR_PTR("pix not made", procName, NULL);
-	}
-
-	LEPT_FREE(data);
+		return (PIX *)ERROR_PTR("data not read", procName, NULL);
+	pix = pixReadMemSpix(data, nbytes);
+	SAlloc::F(data);
+	if(!pix)
+		return (PIX *)ERROR_PTR("pix not made", procName, NULL);
 	return pix;
 }
 
@@ -108,11 +106,11 @@ PIX * pixReadStreamSpix(FILE  * fp)
  * \brief   readHeaderSpix()
  *
  * \param[in]    filename
- * \param[out]   pwidth width
- * \param[out]   pheight height
- * \param[out]   pbps  bits/sample
- * \param[out]   pspp  samples/pixel
- * \param[out]   piscmap [optional]  input NULL to ignore
+ * \param[out]   pwidth     width
+ * \param[out]   pheight    height
+ * \param[out]   pbps       bits/sample
+ * \param[out]   pspp       samples/pixel
+ * \param[out]   piscmap    [optional]  input NULL to ignore
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -120,17 +118,17 @@ PIX * pixReadStreamSpix(FILE  * fp)
  *      (1) If there is a colormap, iscmap is returned as 1; else 0.
  * </pre>
  */
-int32 readHeaderSpix(const char * filename,
-    int32    * pwidth,
-    int32    * pheight,
-    int32    * pbps,
-    int32    * pspp,
-    int32    * piscmap)
+l_ok readHeaderSpix(const char * filename,
+    l_int32    * pwidth,
+    l_int32    * pheight,
+    l_int32    * pbps,
+    l_int32    * pspp,
+    l_int32    * piscmap)
 {
-	int32 ret;
-	FILE    * fp;
+	l_int32 ret;
+	FILE * fp;
 
-	PROCNAME("readHeaderSpix");
+	PROCNAME(__FUNCTION__);
 
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
@@ -146,12 +144,12 @@ int32 readHeaderSpix(const char * filename,
 /*!
  * \brief   freadHeaderSpix()
  *
- * \param[in]    fp file stream
- * \param[out]   pwidth width
- * \param[out]   pheight height
- * \param[out]   pbps  bits/sample
- * \param[out]   pspp  samples/pixel
- * \param[out]   piscmap [optional]  input NULL to ignore
+ * \param[in]    fp        file stream
+ * \param[out]   pwidth    width
+ * \param[out]   pheight   height
+ * \param[out]   pbps      bits/sample
+ * \param[out]   pspp      samples/pixel
+ * \param[out]   piscmap   [optional]  input NULL to ignore
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -159,17 +157,17 @@ int32 readHeaderSpix(const char * filename,
  *      (1) If there is a colormap, iscmap is returned as 1; else 0.
  * </pre>
  */
-int32 freadHeaderSpix(FILE     * fp,
-    int32  * pwidth,
-    int32  * pheight,
-    int32  * pbps,
-    int32  * pspp,
-    int32  * piscmap)
+l_ok freadHeaderSpix(FILE * fp,
+    l_int32 * pwidth,
+    l_int32 * pheight,
+    l_int32 * pbps,
+    l_int32 * pspp,
+    l_int32 * piscmap)
 {
-	int32 nbytes, ret;
-	uint32  * data;
+	l_int32 nbytes, ret;
+	l_uint32 data[6];
 
-	PROCNAME("freadHeaderSpix");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 1);
@@ -179,12 +177,9 @@ int32 freadHeaderSpix(FILE     * fp,
 	nbytes = fnbytesInFile(fp);
 	if(nbytes < 32)
 		return ERROR_INT("file too small to be spix", procName, 1);
-	if((data = (uint32*)LEPT_CALLOC(6, sizeof(uint32))) == NULL)
-		return ERROR_INT("LEPT_CALLOC fail for data", procName, 1);
 	if(fread(data, 4, 6, fp) != 6)
 		return ERROR_INT("error reading data", procName, 1);
-	ret = sreadHeaderSpix(data, pwidth, pheight, pbps, pspp, piscmap);
-	LEPT_FREE(data);
+	ret = sreadHeaderSpix(data, nbytes, pwidth, pheight, pbps, pspp, piscmap);
 	return ret;
 }
 
@@ -192,11 +187,12 @@ int32 freadHeaderSpix(FILE     * fp,
  * \brief   sreadHeaderSpix()
  *
  * \param[in]    data
- * \param[out]   pwidth width
- * \param[out]   pheight height
- * \param[out]   pbps  bits/sample
- * \param[out]   pspp  samples/pixel
- * \param[out]   piscmap [optional]  input NULL to ignore
+ * \param[in]    size      of data
+ * \param[out]   pwidth    width
+ * \param[out]   pheight   height
+ * \param[out]   pbps      bits/sample
+ * \param[out]   pspp      samples/pixel
+ * \param[out]   piscmap   [optional]  input NULL to ignore
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -204,17 +200,18 @@ int32 freadHeaderSpix(FILE     * fp,
  *      (1) If there is a colormap, iscmap is returned as 1; else 0.
  * </pre>
  */
-int32 sreadHeaderSpix(const uint32  * data,
-    int32         * pwidth,
-    int32         * pheight,
-    int32         * pbps,
-    int32         * pspp,
-    int32         * piscmap)
+l_ok sreadHeaderSpix(const l_uint32  * data,
+    size_t size,
+    l_int32         * pwidth,
+    l_int32         * pheight,
+    l_int32         * pbps,
+    l_int32         * pspp,
+    l_int32         * piscmap)
 {
-	char    * id;
-	int32 d, ncolors;
+	char * id;
+	l_int32 d, ncolors;
 
-	PROCNAME("sreadHeaderSpix");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
 		return ERROR_INT("data not defined", procName, 1);
@@ -223,6 +220,8 @@ int32 sreadHeaderSpix(const uint32  * data,
 	*pwidth = *pheight = *pbps = *pspp = 0;
 	if(piscmap)
 		*piscmap = 0;
+	if(size < 28)
+		return ERROR_INT("size too small", procName, 1);
 
 	/* Check file id */
 	id = (char*)data;
@@ -253,17 +252,17 @@ int32 sreadHeaderSpix(const uint32  * data,
 /*!
  * \brief   pixWriteStreamSpix()
  *
- * \param[in]    fp file stream
+ * \param[in]    fp     file stream
  * \param[in]    pix
  * \return  0 if OK; 1 on error
  */
-int32 pixWriteStreamSpix(FILE  * fp,
-    PIX   * pix)
+l_ok pixWriteStreamSpix(FILE * fp,
+    PIX * pix)
 {
 	uint8  * data;
 	size_t size;
 
-	PROCNAME("pixWriteStreamSpix");
+	PROCNAME(__FUNCTION__);
 
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 1);
@@ -273,7 +272,7 @@ int32 pixWriteStreamSpix(FILE  * fp,
 	if(pixWriteMemSpix(&data, &size, pix))
 		return ERROR_INT("failure to write pix to memory", procName, 1);
 	fwrite(data, 1, size, fp);
-	LEPT_FREE(data);
+	SAlloc::F(data);
 	return 0;
 }
 
@@ -283,37 +282,37 @@ int32 pixWriteStreamSpix(FILE  * fp,
 /*!
  * \brief   pixReadMemSpix()
  *
- * \param[in]    data const; uncompressed
- * \param[in]    size of data
+ * \param[in]    data    const; uncompressed
+ * \param[in]    size    bytes of data
  * \return  pix, or NULL on error
  */
 PIX * pixReadMemSpix(const uint8  * data,
     size_t size)
 {
-	return pixDeserializeFromMemory((uint32*)data, size);
+	return pixDeserializeFromMemory((l_uint32*)data, size);
 }
 
 /*!
  * \brief   pixWriteMemSpix()
  *
- * \param[out]   pdata data of serialized, uncompressed pix
- * \param[out]   psize size of returned data
- * \param[in]    pix all depths; colormap OK
+ * \param[out]   pdata    data of serialized, uncompressed pix
+ * \param[out]   psize    size of returned data
+ * \param[in]    pix      all depths; colormap OK
  * \return  0 if OK, 1 on error
  */
-int32 pixWriteMemSpix(uint8  ** pdata,
-    size_t    * psize,
-    PIX       * pix)
+l_ok pixWriteMemSpix(uint8  ** pdata,
+    size_t * psize,
+    PIX * pix)
 {
-	return pixSerializeToMemory(pix, (uint32**)pdata, psize);
+	return pixSerializeToMemory(pix, (l_uint32**)pdata, psize);
 }
 
 /*!
  * \brief   pixSerializeToMemory()
  *
- * \param[in]    pixs all depths, colormap OK
- * \param[out]   pdata serialized data in memory
- * \param[out]   pnbytes number of bytes in data string
+ * \param[in]    pixs     all depths, colormap OK
+ * \param[out]   pdata    serialized data in memory
+ * \param[out]   pnbytes  number of bytes in data string
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -332,18 +331,18 @@ int32 pixWriteMemSpix(uint8  ** pdata,
  *            rdata     (rdatasize)
  * </pre>
  */
-int32 pixSerializeToMemory(PIX        * pixs,
-    uint32  ** pdata,
+l_ok pixSerializeToMemory(PIX        * pixs,
+    l_uint32  ** pdata,
     size_t     * pnbytes)
 {
 	char      * id;
-	int32 w, h, d, wpl, rdatasize, ncolors, nbytes, index;
+	l_int32 w, h, d, wpl, rdatasize, ncolors, nbytes, index, valid;
 	uint8   * cdata; /* data in colormap array (4 bytes/color table entry) */
-	uint32  * data;
-	uint32  * rdata; /* data in pix raster */
+	l_uint32  * data;
+	l_uint32  * rdata; /* data in pix raster */
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixSerializeToMemory");
+	PROCNAME(__FUNCTION__);
 
 	if(!pdata || !pnbytes)
 		return ERROR_INT("&data and &nbytes not both defined", procName, 1);
@@ -358,12 +357,19 @@ int32 pixSerializeToMemory(PIX        * pixs,
 	rdatasize = 4 * wpl * h;
 	ncolors = 0;
 	cdata = NULL;
-	if((cmap = pixGetColormap(pixs)) != NULL)
+	if((cmap = pixGetColormap(pixs)) != NULL) {
+		pixcmapIsValid(cmap, pixs, &valid);
+		if(!valid)
+			return ERROR_INT("colormap not valid", procName, 1);
 		pixcmapSerializeToMemory(cmap, 4, &ncolors, &cdata);
+	}
 
 	nbytes = 24 + 4 * ncolors + 4 + rdatasize;
-	if((data = (uint32*)LEPT_CALLOC(nbytes / 4, sizeof(uint32))) == NULL)
+	if((data = (l_uint32*)SAlloc::C(nbytes / 4, sizeof(l_uint32)))
+	    == NULL) {
+		SAlloc::F(cdata);
 		return ERROR_INT("data not made", procName, 1);
+	}
 	*pdata = data;
 	*pnbytes = nbytes;
 	id = (char*)data;
@@ -377,26 +383,26 @@ int32 pixSerializeToMemory(PIX        * pixs,
 	data[4] = wpl;
 	data[5] = ncolors;
 	if(ncolors > 0)
-		memcpy((char*)(data + 6), (char*)cdata, 4 * ncolors);
+		memcpy(data + 6, cdata, 4 * ncolors);
 	index = 6 + ncolors;
 	data[index] = rdatasize;
-	memcpy((char*)(data + index + 1), (char*)rdata, rdatasize);
+	memcpy(data + index + 1, rdata, rdatasize);
 
 #if  DEBUG_SERIALIZE
-	fprintf(stderr, "Serialize:   "
+	lept_stderr("Serialize:   "
 	    "raster size = %d, ncolors in cmap = %d, total bytes = %d\n",
 	    rdatasize, ncolors, nbytes);
 #endif  /* DEBUG_SERIALIZE */
 
-	LEPT_FREE(cdata);
+	SAlloc::F(cdata);
 	return 0;
 }
 
 /*!
  * \brief   pixDeserializeFromMemory()
  *
- * \param[in]    data serialized data in memory
- * \param[in]    nbytes number of bytes in data string
+ * \param[in]    data     serialized data in memory
+ * \param[in]    nbytes   number of bytes in data string
  * \return  pix, or NULL on error
  *
  * <pre>
@@ -405,64 +411,86 @@ int32 pixSerializeToMemory(PIX        * pixs,
  *      (2) Note the image size limits.
  * </pre>
  */
-PIX * pixDeserializeFromMemory(const uint32  * data,
+PIX * pixDeserializeFromMemory(const l_uint32  * data,
     size_t nbytes)
 {
 	char      * id;
-	int32 w, h, d, pixdata_size, memdata_size, imdata_size, ncolors;
-	uint32  * imdata; /* data in pix raster */
-	PIX       * pix1, * pixd;
+	l_int32 w, h, d, pixdata_size, memdata_size, imdata_size, ncolors, valid;
+	l_uint32  * imdata; /* data in pix raster */
+	PIX * pix1, * pixd;
 	PIXCMAP   * cmap;
 
-	PROCNAME("pixDeserializeFromMemory");
+	PROCNAME(__FUNCTION__);
 
 	if(!data)
-		return (PIX*)ERROR_PTR("data not defined", procName, NULL);
-	if(nbytes < 28)
-		return (PIX*)ERROR_PTR("invalid data", procName, NULL);
+		return (PIX *)ERROR_PTR("data not defined", procName, NULL);
+	if(nbytes < 28 || nbytes > ((1LL << 31) - 1)) {
+		L_ERROR("invalid nbytes = %zu\n", procName, nbytes);
+		return NULL;
+	}
 
 	id = (char*)data;
 	if(id[0] != 's' || id[1] != 'p' || id[2] != 'i' || id[3] != 'x')
-		return (PIX*)ERROR_PTR("invalid id string", procName, NULL);
+		return (PIX *)ERROR_PTR("invalid id string", procName, NULL);
 	w = data[1];
 	h = data[2];
 	d = data[3];
 	ncolors = data[5];
-	imdata_size = data[6 + ncolors];
 
 	/* Sanity checks on the amount of image data */
-	if(w < 1 || w > L_MAX_ALLOWED_WIDTH)
-		return (PIX*)ERROR_PTR("invalid width", procName, NULL);
-	if(h < 1 || h > L_MAX_ALLOWED_HEIGHT)
-		return (PIX*)ERROR_PTR("invalid height", procName, NULL);
-	if(1LL * w * h > L_MAX_ALLOWED_AREA)
-		return (PIX*)ERROR_PTR("area too large", procName, NULL);
-	if(ncolors < 0 || ncolors > 256)
-		return (PIX*)ERROR_PTR("invalid ncolors", procName, NULL);
-	pix1 = pixCreateHeader(w, h, d); /* just make the header */
-	if(!pix1)
-		return (PIX*)ERROR_PTR("failed to make header", procName, NULL);
+	if(w < 1 || w > MaxAllowedWidth)
+		return (PIX *)ERROR_PTR("invalid width", procName, NULL);
+	if(h < 1 || h > MaxAllowedHeight)
+		return (PIX *)ERROR_PTR("invalid height", procName, NULL);
+	if(1LL * w * h > MaxAllowedArea)
+		return (PIX *)ERROR_PTR("area too large", procName, NULL);
+	if(ncolors < 0 || ncolors > 256 || ncolors + 7 >= nbytes/sizeof(l_int32))
+		return (PIX *)ERROR_PTR("invalid ncolors", procName, NULL);
+	if((pix1 = pixCreateHeader(w, h, d)) == NULL) /* just make the header */
+		return (PIX *)ERROR_PTR("failed to make header", procName, NULL);
 	pixdata_size = 4 * h * pixGetWpl(pix1);
 	memdata_size = nbytes - 24 - 4 * ncolors - 4;
 	imdata_size = data[6 + ncolors];
 	pixDestroy(&pix1);
 	if(pixdata_size != memdata_size || pixdata_size != imdata_size) {
-		L_ERROR4("pixdata_size = %d, memdata_size = %d, imdata_size = %d not all equal!\n", procName, pixdata_size, memdata_size, imdata_size);
+		L_ERROR("pixdata_size = %d, memdata_size = %d, imdata_size = %d "
+		    "not all equal!\n", procName, pixdata_size, memdata_size,
+		    imdata_size);
 		return NULL;
 	}
+
 	if((pixd = pixCreate(w, h, d)) == NULL)
-		return (PIX*)ERROR_PTR("pix not made", procName, NULL);
+		return (PIX *)ERROR_PTR("pix not made", procName, NULL);
 	if(ncolors > 0) {
-		cmap = pixcmapDeserializeFromMemory((uint8*)(&data[6]), 4, ncolors);
-		if(!cmap)
-			return (PIX*)ERROR_PTR("cmap not made", procName, NULL);
-		pixSetColormap(pixd, cmap);
+		cmap = pixcmapDeserializeFromMemory((uint8 *)(&data[6]), 4, ncolors);
+		if(!cmap) {
+			pixDestroy(&pixd);
+			return (PIX *)ERROR_PTR("cmap not made", procName, NULL);
+		}
+		if(pixSetColormap(pixd, cmap)) {
+			pixDestroy(&pixd);
+			return (PIX *)ERROR_PTR("cmap is not valid", procName, NULL);
+		}
 	}
+
+	/* Read the raster data */
 	imdata = pixGetData(pixd);
-	memcpy((char*)imdata, (char*)(data + 7 + ncolors), imdata_size);
+	memcpy(imdata, data + 7 + ncolors, imdata_size);
+
+	/* Verify that the colormap is valid with the pix */
+	if(ncolors > 0) {
+		pixcmapIsValid(cmap, pixd, &valid);
+		if(!valid) {
+			pixDestroy(&pixd);
+			return (PIX *)ERROR_PTR("cmap is invalid with pix", procName, NULL);
+		}
+	}
+
 #if  DEBUG_SERIALIZE
-	fprintf(stderr, "Deserialize: raster size = %d, ncolors in cmap = %d, total bytes = %lu\n", imdata_size, ncolors, nbytes);
+	lept_stderr("Deserialize: "
+	    "raster size = %d, ncolors in cmap = %d, total bytes = %zu\n",
+	    imdata_size, ncolors, nbytes);
 #endif  /* DEBUG_SERIALIZE */
+
 	return pixd;
 }
-

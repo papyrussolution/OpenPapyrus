@@ -662,6 +662,7 @@
     <ClInclude Include="..\OSF\lcms2\src\lcms2_internal.h" />
     <ClInclude Include="..\OSF\lcms2\include\lcms2.h" />
     <ClInclude Include="..\OSF\lcms2\include\lcms2_plugin.h" />
+    <ClInclude Include="..\OSF\lcms2\testbed\testcms2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

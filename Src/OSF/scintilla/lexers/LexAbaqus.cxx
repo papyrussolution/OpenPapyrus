@@ -147,7 +147,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    // nothing changes
 				    state = KW_LINE_VAL;
 			    }
-			    else if(( (IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') ||
+			    else if(((IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') ||
 					    ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E')))) &&
 			    (sc.state == SCE_ABAQUS_NUMBER)) {
 				    // remain in number mode
@@ -179,7 +179,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    // nothing changes
 				    state = DAT_LINE_VAL;
 			    }
-			    else if(( (IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') ||
+			    else if(((IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') ||
 					    ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E')))) &&
 			    (sc.state == SCE_ABAQUS_NUMBER)) {
 				    // remain in number mode

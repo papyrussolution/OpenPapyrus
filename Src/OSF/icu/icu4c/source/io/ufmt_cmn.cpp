@@ -60,7 +60,7 @@ bool ufmt_isdigit(UChar c,
 void ufmt_64tou(UChar * buffer,
     int32_t * len,
     uint64_t value,
-    uint8_t radix,
+    uint8 radix,
     bool uselower,
     int32_t minDigits)
 {
@@ -95,12 +95,12 @@ void ufmt_64tou(UChar * buffer,
 
 void ufmt_ptou(UChar * buffer,
     int32_t * len,
-    void  * value,
+    void * value,
     bool uselower)
 {
 	int32_t i;
 	int32_t length = 0;
-	uint8_t * ptrIdx = (uint8_t*)&value;
+	uint8 * ptrIdx = (uint8 *)&value;
 
 #if U_IS_BIG_ENDIAN
 	for(i = 0; i < (int32_t)sizeof(void *); i++)
@@ -108,7 +108,7 @@ void ufmt_ptou(UChar * buffer,
 	for(i = (int32_t)sizeof(void *)-1; i >= 0; i--)
 #endif
 	{
-		uint8_t byteVal = ptrIdx[i];
+		uint8 byteVal = ptrIdx[i];
 		uint16_t firstNibble = (uint16_t)(byteVal>>4);
 		uint16_t secondNibble = (uint16_t)(byteVal&0xF);
 		if(uselower) {
@@ -159,7 +159,7 @@ void * ufmt_utop(const UChar * buffer,
 	/* This union allows the pointer to be written as an array. */
 	union {
 		void * ptr;
-		uint8_t bytes[sizeof(void *)];
+		uint8 bytes[sizeof(void *)];
 	} result;
 
 	/* initialize variables */
@@ -196,11 +196,11 @@ void * ufmt_utop(const UChar * buffer,
 	*len = count;
 	while(--count >= offset) {
 		/* Get the first nibble of the byte */
-		uint8_t byte = (uint8_t)ufmt_digitvalue(buffer[count]);
+		uint8 byte = (uint8)ufmt_digitvalue(buffer[count]);
 
 		if(count > offset) {
 			/* Get the second nibble of the byte when available */
-			byte = (uint8_t)(byte + (ufmt_digitvalue(buffer[--count]) << 4));
+			byte = (uint8)(byte + (ufmt_digitvalue(buffer[--count]) << 4));
 		}
 		/* Write the byte into the array */
 		result.bytes[resultIdx] = byte;

@@ -339,7 +339,7 @@ int FASTCALL PPViewPersonRel::NextIteration(PersonRelViewItem * pItem)
 			PersonRelViewItem item;
 			Counter.Increment();
 			MEMSZERO(item);
-			item.ID             = P_TempTbl->data.ID;
+			item.ID     = P_TempTbl->data.ID;
 			item.PrmrPersonID   = P_TempTbl->data.PrmrPersonID;
 			item.ScndPersonID   = P_TempTbl->data.ScndPersonID;
 			item.RelTypeID = P_TempTbl->data.RelTypeID;

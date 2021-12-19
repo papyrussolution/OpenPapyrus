@@ -33,22 +33,22 @@
  *          void        *ptraDestroy()
  *
  *      Add/insert/remove/replace generic ptr object
- *          int32      ptraAdd()
- *          static int32  ptraExtendArray()
- *          int32      ptraInsert()
+ *          l_int32      ptraAdd()
+ *          static l_int32  ptraExtendArray()
+ *          l_int32      ptraInsert()
  *          void        *ptraRemove()
  *          void        *ptraRemoveLast()
  *          void        *ptraReplace()
- *          int32      ptraSwap()
- *          int32      ptraCompactArray()
+ *          l_int32      ptraSwap()
+ *          l_int32      ptraCompactArray()
  *
  *      Other array operations
- *          int32      ptraReverse()
- *          int32      ptraJoin()
+ *          l_int32      ptraReverse()
+ *          l_int32      ptraJoin()
  *
  *      Simple Ptra accessors
- *          int32      ptraGetMaxIndex()
- *          int32      ptraGetActualCount()
+ *          l_int32      ptraGetMaxIndex()
+ *          l_int32      ptraGetActualCount()
  *          void        *ptraGetPtrToItem()
  *
  *      Ptraa creation and destruction
@@ -56,8 +56,8 @@
  *          void        *ptraaDestroy()
  *
  *      Ptraa accessors
- *          int32      ptraaGetSize()
- *          int32      ptraaInsertPtra()
+ *          l_int32      ptraaGetSize()
+ *          l_int32      ptraaInsertPtra()
  *          L_PTRA      *ptraaGetPtra()
  *
  *      Ptraa conversion
@@ -86,9 +86,9 @@
  *        distance to the next null ptr in the array.
  *    (7) Null ptrs are valid input args for both insertion and
  *        replacement; this allows arbitrary swapping.
- *    (8) The item in the array with the largest index is at pa-\>imax.
+ *    (8) The item in the array with the largest index is at pa->imax.
  *        This can be any value from -1 (initialized; all array ptrs
- *        are null) up to pa-\>nalloc - 1 (the last ptr in the array).
+ *        are null) up to pa->nalloc - 1 (the last ptr in the array).
  *    (9) In referring to the array: the first ptr is the "top" or
  *        "beginning"; the last pointer is the "bottom" or "end";
  *        items are shifted "up" towards the top when compaction occurs;
@@ -120,10 +120,12 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static const int32 INITIAL_PTR_ARRAYSIZE = 20;      /* n'importe quoi */
+/* Bounds on initial array size */
+LEPT_DLL const l_uint32 MaxInitPtraSize = 1000001;
+static const l_int32 DefaultInitPtraSize = 20; /*!< n'importe quoi */
 
 /* Static function */
-static int32 ptraExtendArray(L_PTRA * pa);
+static l_int32 ptraExtendArray(L_PTRA * pa);
 
 /*--------------------------------------------------------------------------*
 *                       Ptra creation and destruction                      *
@@ -131,36 +133,36 @@ static int32 ptraExtendArray(L_PTRA * pa);
 /*!
  * \brief   ptraCreate()
  *
- * \param[in]    n size of ptr array to be alloc'd 0 for default
+ * \param[in]    n     size of ptr array to be alloc'd; use 0 for default
  * \return  pa, or NULL on error
  */
-L_PTRA * ptraCreate(int32 n)
+L_PTRA * ptraCreate(l_int32 n)
 {
 	L_PTRA  * pa;
-
-	PROCNAME("ptraCreate");
-
-	if(n <= 0)
-		n = INITIAL_PTR_ARRAYSIZE;
-
-	if((pa = (L_PTRA*)LEPT_CALLOC(1, sizeof(L_PTRA))) == NULL)
-		return (L_PTRA*)ERROR_PTR("pa not made", procName, NULL);
-	if((pa->array = (void**)LEPT_CALLOC(n, sizeof(void *))) == NULL)
+	PROCNAME(__FUNCTION__);
+	if(n > MaxInitPtraSize) {
+		L_ERROR("n = %d > maxsize = %d\n", procName, n, MaxInitPtraSize);
+		return NULL;
+	}
+	if(n <= 0) n = DefaultInitPtraSize;
+	pa = (L_PTRA*)SAlloc::C(1, sizeof(L_PTRA));
+	if((pa->array = (void**)SAlloc::C(n, sizeof(void *))) == NULL) {
+		ptraDestroy(&pa, 0, 0);
 		return (L_PTRA*)ERROR_PTR("ptr array not made", procName, NULL);
-
+	}
 	pa->nalloc = n;
 	pa->imax = -1;
 	pa->nactual = 0;
-
 	return pa;
 }
 
 /*!
  * \brief   ptraDestroy()
  *
- * \param[in,out]   ppa ptra to be nulled
- * \param[in]       freeflag TRUE to free each remaining item in the array
- * \param[in]       warnflag TRUE to warn if any remaining items are not destroyed
+ * \param[in,out]   ppa        will be set to null before returning
+ * \param[in]       freeflag   TRUE to free each remaining item in the array
+ * \param[in]       warnflag   TRUE to warn if any remaining items
+ *                             are not destroyed
  * \return  void
  *
  * <pre>
@@ -180,14 +182,14 @@ L_PTRA * ptraCreate(int32 n)
  * </pre>
  */
 void ptraDestroy(L_PTRA  ** ppa,
-    int32 freeflag,
-    int32 warnflag)
+    l_int32 freeflag,
+    l_int32 warnflag)
 {
-	int32 i, nactual;
+	l_int32 i, nactual;
 	void    * item;
 	L_PTRA  * pa;
 
-	PROCNAME("ptraDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(ppa == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
@@ -201,17 +203,18 @@ void ptraDestroy(L_PTRA  ** ppa,
 		if(freeflag) {
 			for(i = 0; i <= pa->imax; i++) {
 				if((item = ptraRemove(pa, i, L_NO_COMPACTION)) != NULL)
-					LEPT_FREE(item);
+					SAlloc::F(item);
 			}
 		}
 		else if(warnflag) {
-			L_WARNING2("potential memory leak of %d items in ptra\n", procName, nactual);
+			L_WARNING("potential memory leak of %d items in ptra\n",
+			    procName, nactual);
 		}
 	}
-	LEPT_FREE(pa->array);
-	LEPT_FREE(pa);
+
+	SAlloc::F(pa->array);
+	SAlloc::F(pa);
 	*ppa = NULL;
-	return;
 }
 
 /*--------------------------------------------------------------------------*
@@ -220,8 +223,8 @@ void ptraDestroy(L_PTRA  ** ppa,
 /*!
  * \brief   ptraAdd()
  *
- * \param[in]    pa ptra
- * \param[in]    item  generic ptr to a struct
+ * \param[in]    pa      ptra
+ * \param[in]    item    generic ptr to a struct
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -233,12 +236,12 @@ void ptraDestroy(L_PTRA  ** ppa,
  *          items in the array is entirely arbitrary.
  * </pre>
  */
-int32 ptraAdd(L_PTRA  * pa,
+l_ok ptraAdd(L_PTRA  * pa,
     void    * item)
 {
-	int32 imax;
+	l_int32 imax;
 
-	PROCNAME("ptraAdd");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
@@ -260,16 +263,16 @@ int32 ptraAdd(L_PTRA  * pa,
  * \param[in]    pa
  * \return  0 if OK, 1 on error
  */
-static int32 ptraExtendArray(L_PTRA  * pa)
+static l_int32 ptraExtendArray(L_PTRA  * pa)
 {
-	PROCNAME("ptraExtendArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
 
 	if((pa->array = (void**)reallocNew((void**)&pa->array,
-			    sizeof(void *) * pa->nalloc,
-			    2 * sizeof(void *) * pa->nalloc)) == NULL)
+	    sizeof(void *) * pa->nalloc,
+	    2 * sizeof(void *) * pa->nalloc)) == NULL)
 		return ERROR_INT("new ptr array not returned", procName, 1);
 
 	pa->nalloc *= 2;
@@ -279,10 +282,10 @@ static int32 ptraExtendArray(L_PTRA  * pa)
 /*!
  * \brief   ptraInsert()
  *
- * \param[in]    pa ptra
- * \param[in]    index location in ptra to insert new value
- * \param[in]    item  generic ptr to a struct; can be null
- * \param[in]    shiftflag L_AUTO_DOWNSHIFT, L_MIN_DOWNSHIFT, L_FULL_DOWNSHIFT
+ * \param[in]    pa          ptra
+ * \param[in]    index       location in ptra to insert new value
+ * \param[in]    item        generic ptr to a struct; can be null
+ * \param[in]    shiftflag   L_AUTO_DOWNSHIFT, L_MIN_DOWNSHIFT, L_FULL_DOWNSHIFT
  * \return  0 if OK, 1 on error
  *
  * <pre>
@@ -305,7 +308,7 @@ static int32 ptraExtendArray(L_PTRA  * pa)
  *              the first empty slot is reached.  This mode requires
  *              some computation before the actual shifting is done.
  *            ~ If %shiftflag == L_FULL_DOWNSHIFT, a shifting cascade is
- *              performed where pa[i] --\> pa[i + 1] for all i \>= index.
+ *              performed where pa[i] --> pa[i + 1] for all i >= index.
  *              Then, the item is inserted at pa[index].
  *      (3) If you are not using L_AUTO_DOWNSHIFT, the rule of thumb is
  *          to use L_FULL_DOWNSHIFT if the array is compacted (each
@@ -323,15 +326,15 @@ static int32 ptraExtendArray(L_PTRA  * pa)
  *          randomly to the ptr array.
  * </pre>
  */
-int32 ptraInsert(L_PTRA  * pa,
-    int32 index,
+l_ok ptraInsert(L_PTRA  * pa,
+    l_int32 index,
     void    * item,
-    int32 shiftflag)
+    l_int32 shiftflag)
 {
-	int32 i, ihole, imax;
+	l_int32 i, ihole, imax;
 	float nexpected;
 
-	PROCNAME("ptraInsert");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
@@ -405,31 +408,31 @@ int32 ptraInsert(L_PTRA  * pa,
 /*!
  * \brief   ptraRemove()
  *
- * \param[in]    pa ptra
- * \param[in]    index element to be removed
- * \param[in]    flag L_NO_COMPACTION, L_COMPACTION
+ * \param[in]    pa       ptra
+ * \param[in]    index    element to be removed
+ * \param[in]    flag     L_NO_COMPACTION, L_COMPACTION
  * \return  item, or NULL on error
  *
  * <pre>
  * Notes:
  *      (1) If flag == L_NO_COMPACTION, this removes the item and
  *          nulls the ptr on the array.  If it takes the last item
- *          in the array, pa-\>n is reduced to the next item.
+ *          in the array, pa->n is reduced to the next item.
  *      (2) If flag == L_COMPACTION, this compacts the array for
- *          for all i \>= index.  It should not be used repeatedly on
+ *          for all i >= index.  It should not be used repeatedly on
  *          large arrays, because compaction is O(n).
  *      (3) The ability to remove without automatic compaction allows
  *          removal with cost O(1).
  * </pre>
  */
 void * ptraRemove(L_PTRA  * pa,
-    int32 index,
-    int32 flag)
+    l_int32 index,
+    l_int32 flag)
 {
-	int32 i, imax, fromend, icurrent;
+	l_int32 i, imax, fromend, icurrent;
 	void    * item;
 
-	PROCNAME("ptraRemove");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return (void*)ERROR_PTR("pa not defined", procName, NULL);
@@ -466,14 +469,14 @@ void * ptraRemove(L_PTRA  * pa,
 /*!
  * \brief   ptraRemoveLast()
  *
- * \param[in]    pa ptra
+ * \param[in]    pa    ptra
  * \return  item, or NULL on error or if the array is empty
  */
 void * ptraRemoveLast(L_PTRA  * pa)
 {
-	int32 imax;
+	l_int32 imax;
 
-	PROCNAME("ptraRemoveLast");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return (void*)ERROR_PTR("pa not defined", procName, NULL);
@@ -489,22 +492,22 @@ void * ptraRemoveLast(L_PTRA  * pa)
 /*!
  * \brief   ptraReplace()
  *
- * \param[in]    pa ptra
- * \param[in]    index element to be replaced
- * \param[in]    item  new generic ptr to a struct; can be null
- * \param[in]    freeflag TRUE to free old item; FALSE to return it
+ * \param[in]    pa          ptra
+ * \param[in]    index       element to be replaced
+ * \param[in]    item        new generic ptr to a struct; can be null
+ * \param[in]    freeflag    TRUE to free old item; FALSE to return it
  * \return  item  old item, if it exists and is not freed,
  *                     or NULL on error
  */
 void * ptraReplace(L_PTRA  * pa,
-    int32 index,
+    l_int32 index,
     void    * item,
-    int32 freeflag)
+    l_int32 freeflag)
 {
-	int32 imax;
+	l_int32 imax;
 	void    * olditem;
 
-	PROCNAME("ptraReplace");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return (void*)ERROR_PTR("pa not defined", procName, NULL);
@@ -523,7 +526,7 @@ void * ptraReplace(L_PTRA  * pa,
 		return olditem;
 
 	if(olditem)
-		LEPT_FREE(olditem);
+		SAlloc::F(olditem);
 	return NULL;
 }
 
@@ -535,14 +538,14 @@ void * ptraReplace(L_PTRA  * pa,
  * \param[in]    index2
  * \return  0 if OK, 1 on error
  */
-int32 ptraSwap(L_PTRA  * pa,
-    int32 index1,
-    int32 index2)
+l_ok ptraSwap(L_PTRA  * pa,
+    l_int32 index1,
+    l_int32 index2)
 {
-	int32 imax;
+	l_int32 imax;
 	void    * item;
 
-	PROCNAME("ptraSwap");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
@@ -570,17 +573,18 @@ int32 ptraSwap(L_PTRA  * pa,
  *      (2) This does not change the size of the array of ptrs.
  * </pre>
  */
-int32 ptraCompactArray(L_PTRA  * pa)
+l_ok ptraCompactArray(L_PTRA  * pa)
 {
-	int32 i, imax, nactual, index;
+	l_int32 i, imax, nactual, index;
 
-	PROCNAME("ptraCompactArray");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
 	ptraGetMaxIndex(pa, &imax);
 	ptraGetActualCount(pa, &nactual);
 	if(imax + 1 == nactual) return 0;
+
 	/* Compact the array */
 	for(i = 0, index = 0; i <= imax; i++) {
 		if(pa->array[i])
@@ -588,7 +592,8 @@ int32 ptraCompactArray(L_PTRA  * pa)
 	}
 	pa->imax = index - 1;
 	if(nactual != index)
-		L_ERROR2("index = %d; != nactual\n", procName, index);
+		L_ERROR("index = %d; != nactual\n", procName, index);
+
 	return 0;
 }
 
@@ -598,16 +603,19 @@ int32 ptraCompactArray(L_PTRA  * pa)
 /*!
  * \brief   ptraReverse()
  *
- * \param[in]    pa ptra
+ * \param[in]    pa     ptra
  * \return  0 if OK, 1 on error
  */
-int32 ptraReverse(L_PTRA  * pa)
+l_ok ptraReverse(L_PTRA  * pa)
 {
-	int32 i, imax;
-	PROCNAME("ptraReverse");
+	l_int32 i, imax;
+
+	PROCNAME(__FUNCTION__);
+
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
 	ptraGetMaxIndex(pa, &imax);
+
 	for(i = 0; i < (imax + 1) / 2; i++)
 		ptraSwap(pa, i, imax - i);
 	return 0;
@@ -616,17 +624,17 @@ int32 ptraReverse(L_PTRA  * pa)
 /*!
  * \brief   ptraJoin()
  *
- * \param[in]    pa1 add to this one
- * \param[in]    pa2 appended to pa1, and emptied of items; can be null
+ * \param[in]    pa1    add to this one
+ * \param[in]    pa2    appended to pa1, and emptied of items; can be null
  * \return  0 if OK, 1 on error
  */
-int32 ptraJoin(L_PTRA  * pa1,
+l_ok ptraJoin(L_PTRA  * pa1,
     L_PTRA  * pa2)
 {
-	int32 i, imax;
+	l_int32 i, imax;
 	void    * item;
 
-	PROCNAME("ptraJoin");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa1)
 		return ERROR_INT("pa1 not defined", procName, 1);
@@ -648,8 +656,8 @@ int32 ptraJoin(L_PTRA  * pa1,
 /*!
  * \brief   ptraGetMaxIndex()
  *
- * \param[in]    pa ptra
- * \param[out]   pmaxindex index of last item in the array;
+ * \param[in]    pa          ptra
+ * \param[out]   pmaxindex   index of last item in the array;
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -662,15 +670,15 @@ int32 ptraJoin(L_PTRA  * pa1,
  *          indices below %maxindex; for example, if items have
  *          been removed.
  *      (2) When an item is added to the end of the array, it goes
- *          into pa-\>array[maxindex + 1], and maxindex is then
+ *          into pa->array[maxindex + 1], and maxindex is then
  *          incremented by 1.
  *      (3) If there are no items in the array, this returns %maxindex = -1.
  * </pre>
  */
-int32 ptraGetMaxIndex(L_PTRA   * pa,
-    int32  * pmaxindex)
+l_ok ptraGetMaxIndex(L_PTRA   * pa,
+    l_int32 * pmaxindex)
 {
-	PROCNAME("ptraGetMaxIndex");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
@@ -683,20 +691,20 @@ int32 ptraGetMaxIndex(L_PTRA   * pa,
 /*!
  * \brief   ptraGetActualCount()
  *
- * \param[in]    pa ptra
- * \param[out]   pcount actual number of items on the ptr array
+ * \param[in]    pa        ptra
+ * \param[out]   pcount    actual number of items on the ptr array
  * \return  0 if OK; 1 on error
  *
  * <pre>
  * Notes:
- *      (1) The actual number of items on the ptr array, pa-\>nactual,
- *          will be smaller than pa-\>n if the array is not compacted.
+ *      (1) The actual number of items on the ptr array, pa->nactual,
+ *          will be smaller than pa->n if the array is not compacted.
  * </pre>
  */
-int32 ptraGetActualCount(L_PTRA   * pa,
-    int32  * pcount)
+l_ok ptraGetActualCount(L_PTRA   * pa,
+    l_int32 * pcount)
 {
-	PROCNAME("ptraGetActualCount");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return ERROR_INT("pa not defined", procName, 1);
@@ -710,8 +718,8 @@ int32 ptraGetActualCount(L_PTRA   * pa,
 /*!
  * \brief   ptraGetPtrToItem()
  *
- * \param[in]    pa ptra
- * \param[in]    index of element to be retrieved
+ * \param[in]    pa       ptra
+ * \param[in]    index    of element to be retrieved
  * \return  a ptr to the element, or NULL on error
  *
  * <pre>
@@ -724,15 +732,15 @@ int32 ptraGetActualCount(L_PTRA   * pa,
  * </pre>
  */
 void * ptraGetPtrToItem(L_PTRA  * pa,
-    int32 index)
+    l_int32 index)
 {
-	PROCNAME("ptraGetPtrToItem");
+	PROCNAME(__FUNCTION__);
 
 	if(!pa)
 		return (void*)ERROR_PTR("pa not defined", procName, NULL);
 	if(index < 0 || index >= pa->nalloc)
 		return (void*)ERROR_PTR("index not in [0 ... nalloc-1]",
-		    procName, NULL);
+			   procName, NULL);
 
 	return pa->array[index];
 }
@@ -743,7 +751,7 @@ void * ptraGetPtrToItem(L_PTRA  * pa,
 /*!
  * \brief   ptraaCreate()
  *
- * \param[in]    n size of ptr array to be alloc'd
+ * \param[in]    n    size of ptr array to be alloc'd
  * \return  paa, or NULL on error
  *
  * <pre>
@@ -752,20 +760,20 @@ void * ptraGetPtrToItem(L_PTRA  * pa,
  *          The ptra can be generated and inserted randomly into this array.
  * </pre>
  */
-L_PTRAA * ptraaCreate(int32 n)
+L_PTRAA * ptraaCreate(l_int32 n)
 {
 	L_PTRAA  * paa;
 
-	PROCNAME("ptraaCreate");
+	PROCNAME(__FUNCTION__);
 
 	if(n <= 0)
 		return (L_PTRAA*)ERROR_PTR("n must be > 0", procName, NULL);
 
-	if((paa = (L_PTRAA*)LEPT_CALLOC(1, sizeof(L_PTRAA))) == NULL)
-		return (L_PTRAA*)ERROR_PTR("paa not made", procName, NULL);
-	if((paa->ptra = (L_PTRA**)LEPT_CALLOC(n, sizeof(L_PTRA *))) == NULL)
+	paa = (L_PTRAA*)SAlloc::C(1, sizeof(L_PTRAA));
+	if((paa->ptra = (L_PTRA**)SAlloc::C(n, sizeof(L_PTRA *))) == NULL) {
+		ptraaDestroy(&paa, 0, 0);
 		return (L_PTRAA*)ERROR_PTR("ptr array not made", procName, NULL);
-
+	}
 	paa->nalloc = n;
 	return paa;
 }
@@ -773,9 +781,10 @@ L_PTRAA * ptraaCreate(int32 n)
 /*!
  * \brief   ptraaDestroy()
  *
- * \param[in,out]   ppaa to be nulled
- * \param[in]    freeflag TRUE to free each remaining item in each ptra
- * \param[in]    warnflag TRUE to warn if any remaining items are not destroyed
+ * \param[in,out]   ppaa       will be set to null before returning
+ * \param[in]       freeflag   TRUE to free each remaining item in each ptra
+ * \param[in]       warnflag   TRUE to warn if any remaining items
+ *                             are not destroyed
  * \return  void
  *
  * <pre>
@@ -786,14 +795,14 @@ L_PTRAA * ptraaCreate(int32 n)
  * </pre>
  */
 void ptraaDestroy(L_PTRAA  ** ppaa,
-    int32 freeflag,
-    int32 warnflag)
+    l_int32 freeflag,
+    l_int32 warnflag)
 {
-	int32 i, n;
+	l_int32 i, n;
 	L_PTRA   * pa;
 	L_PTRAA  * paa;
 
-	PROCNAME("ptraaDestroy");
+	PROCNAME(__FUNCTION__);
 
 	if(ppaa == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
@@ -808,10 +817,9 @@ void ptraaDestroy(L_PTRAA  ** ppaa,
 		ptraDestroy(&pa, freeflag, warnflag);
 	}
 
-	LEPT_FREE(paa->ptra);
-	LEPT_FREE(paa);
+	SAlloc::F(paa->ptra);
+	SAlloc::F(paa);
 	*ppaa = NULL;
-	return;
 }
 
 /*--------------------------------------------------------------------------*
@@ -821,13 +829,13 @@ void ptraaDestroy(L_PTRAA  ** ppaa,
  * \brief   ptraaGetSize()
  *
  * \param[in]    paa
- * \param[out]   psize size of ptr array
+ * \param[out]   psize    size of ptr array
  * \return  0 if OK; 1 on error
  */
-int32 ptraaGetSize(L_PTRAA  * paa,
-    int32  * psize)
+l_ok ptraaGetSize(L_PTRAA  * paa,
+    l_int32 * psize)
 {
-	PROCNAME("ptraaGetSize");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
 		return ERROR_INT("paa not defined", procName, 1);
@@ -841,9 +849,9 @@ int32 ptraaGetSize(L_PTRAA  * paa,
 /*!
  * \brief   ptraaInsertPtra()
  *
- * \param[in]    paa ptraa
- * \param[in]    index location in array for insertion
- * \param[in]    pa to be inserted
+ * \param[in]    paa      ptraa
+ * \param[in]    index    location in array for insertion
+ * \param[in]    pa       to be inserted
  * \return  0 if OK; 1 on error
  *
  * <pre>
@@ -853,13 +861,13 @@ int32 ptraaGetSize(L_PTRAA  * paa,
  *          on error, the Ptra remains owned by the caller.
  * </pre>
  */
-int32 ptraaInsertPtra(L_PTRAA  * paa,
-    int32 index,
+l_ok ptraaInsertPtra(L_PTRAA  * paa,
+    l_int32 index,
     L_PTRA   * pa)
 {
-	int32 n;
+	l_int32 n;
 
-	PROCNAME("ptraaInsertPtra");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
 		return ERROR_INT("paa not defined", procName, 1);
@@ -869,7 +877,7 @@ int32 ptraaInsertPtra(L_PTRAA  * paa,
 	if(index < 0 || index >= n)
 		return ERROR_INT("invalid index", procName, 1);
 	if(paa->ptra[index] != NULL)
-		return ERROR_INT("ptra alread stored at index", procName, 1);
+		return ERROR_INT("ptra already stored at index", procName, 1);
 
 	paa->ptra[index] = pa;
 	return 0;
@@ -878,9 +886,9 @@ int32 ptraaInsertPtra(L_PTRAA  * paa,
 /*!
  * \brief   ptraaGetPtra()
  *
- * \param[in]    paa ptraa
- * \param[in]    index location in array
- * \param[in]    accessflag L_HANDLE_ONLY, L_REMOVE
+ * \param[in]    paa          ptraa
+ * \param[in]    index        location in array
+ * \param[in]    accessflag   L_HANDLE_ONLY, L_REMOVE
  * \return  ptra at index location, or NULL on error or if there
  *              is no ptra there.
  *
@@ -895,13 +903,13 @@ int32 ptraaInsertPtra(L_PTRAA  * paa,
  * </pre>
  */
 L_PTRA * ptraaGetPtra(L_PTRAA  * paa,
-    int32 index,
-    int32 accessflag)
+    l_int32 index,
+    l_int32 accessflag)
 {
-	int32 n;
+	l_int32 n;
 	L_PTRA  * pa;
 
-	PROCNAME("ptraaGetPtra");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
 		return (L_PTRA*)ERROR_PTR("paa not defined", procName, NULL);
@@ -923,7 +931,7 @@ L_PTRA * ptraaGetPtra(L_PTRAA  * paa,
 /*!
  * \brief   ptraaFlattenToPtra()
  *
- * \param[in]    paa ptraa
+ * \param[in]    paa    ptraa
  * \return  ptra, or NULL on error
  *
  * <pre>
@@ -936,10 +944,10 @@ L_PTRA * ptraaGetPtra(L_PTRAA  * paa,
  */
 L_PTRA * ptraaFlattenToPtra(L_PTRAA  * paa)
 {
-	int32 i, n;
+	l_int32 i, n;
 	L_PTRA    * pat, * pad;
 
-	PROCNAME("ptraaFlattenToPtra");
+	PROCNAME(__FUNCTION__);
 
 	if(!paa)
 		return (L_PTRA*)ERROR_PTR("paa not defined", procName, NULL);
@@ -955,4 +963,3 @@ L_PTRA * ptraaFlattenToPtra(L_PTRAA  * paa)
 
 	return pad;
 }
-

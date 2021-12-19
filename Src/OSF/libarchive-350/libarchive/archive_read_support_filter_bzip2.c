@@ -47,7 +47,7 @@ struct private_data {
 
 /* Bzip2 filter */
 static ssize_t  bzip2_filter_read(struct archive_read_filter *, const void **);
-static int      bzip2_filter_close(struct archive_read_filter *);
+static int bzip2_filter_close(struct archive_read_filter *);
 #endif
 
 /*
@@ -56,9 +56,9 @@ static int      bzip2_filter_close(struct archive_read_filter *);
  * error messages.)  So the bid framework here gets compiled even
  * if bzlib is unavailable.
  */
-static int      bzip2_reader_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int      bzip2_reader_init(struct archive_read_filter *);
-static int      bzip2_reader_free(struct archive_read_filter_bidder *);
+static int bzip2_reader_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
+static int bzip2_reader_init(struct archive_read_filter *);
+static int bzip2_reader_free(struct archive_read_filter_bidder *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
@@ -95,7 +95,7 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 }
 
 static int bzip2_reader_free(struct archive_read_filter_bidder * self){
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	return ARCHIVE_OK;
 }
 
@@ -111,7 +111,7 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
-	(void)self; /* UNUSED */
+	CXX_UNUSED(self);
 	/* Minimal bzip2 archive is 14 bytes. */
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 14, &avail));
 	if(buffer == NULL)

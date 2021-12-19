@@ -142,14 +142,14 @@ void ClientRectToScreenRect(HWND hWnd, RECT* rect)
 {
 	POINT pt;
 
-	pt.x             = rect->left;
-	pt.y             = rect->top;
+	pt.x     = rect->left;
+	pt.y     = rect->top;
 	::ClientToScreen(hWnd, &pt);
 	rect->left   = pt.x;
 	rect->top    = pt.y;
 
-	pt.x             = rect->right;
-	pt.y             = rect->bottom;
+	pt.x     = rect->right;
+	pt.y     = rect->bottom;
 	::ClientToScreen(hWnd, &pt);
 	rect->right  = pt.x;
 	rect->bottom = pt.y;
@@ -180,14 +180,14 @@ void ScreenRectToClientRect(HWND hWnd, RECT* rect)
 {
 	POINT pt;
 
-	pt.x             = rect->left;
-	pt.y             = rect->top;
+	pt.x     = rect->left;
+	pt.y     = rect->top;
 	::ScreenToClient(hWnd, &pt);
 	rect->left   = pt.x;
 	rect->top    = pt.y;
 
-	pt.x             = rect->right;
-	pt.y             = rect->bottom;
+	pt.x     = rect->right;
+	pt.y     = rect->bottom;
 	::ScreenToClient(hWnd, &pt);
 	rect->right  = pt.x;
 	rect->bottom = pt.y;

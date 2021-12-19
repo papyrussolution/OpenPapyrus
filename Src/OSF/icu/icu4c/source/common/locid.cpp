@@ -111,7 +111,7 @@ static void U_CALLCONV locale_init(UErrorCode & status)
 		return;
 	}
 	ucln_common_registerCleanup(UCLN_COMMON_LOCALE, locale_cleanup);
-	gLocaleCache[eROOT]          = Locale("");
+	gLocaleCache[eROOT]  = Locale("");
 	gLocaleCache[eENGLISH] = Locale("en");
 	gLocaleCache[eFRENCH]        = Locale("fr");
 	gLocaleCache[eGERMAN]        = Locale("de");
@@ -121,13 +121,13 @@ static void U_CALLCONV locale_init(UErrorCode & status)
 	gLocaleCache[eCHINESE] = Locale("zh");
 	gLocaleCache[eFRANCE]        = Locale("fr", "FR");
 	gLocaleCache[eGERMANY] = Locale("de", "DE");
-	gLocaleCache[eITALY]         = Locale("it", "IT");
-	gLocaleCache[eJAPAN]         = Locale("ja", "JP");
-	gLocaleCache[eKOREA]         = Locale("ko", "KR");
-	gLocaleCache[eCHINA]         = Locale("zh", "CN");
+	gLocaleCache[eITALY] = Locale("it", "IT");
+	gLocaleCache[eJAPAN] = Locale("ja", "JP");
+	gLocaleCache[eKOREA] = Locale("ko", "KR");
+	gLocaleCache[eCHINA] = Locale("zh", "CN");
 	gLocaleCache[eTAIWAN]        = Locale("zh", "TW");
-	gLocaleCache[eUK]            = Locale("en", "GB");
-	gLocaleCache[eUS]            = Locale("en", "US");
+	gLocaleCache[eUK]    = Locale("en", "GB");
+	gLocaleCache[eUS]    = Locale("en", "US");
 	gLocaleCache[eCANADA]        = Locale("en", "CA");
 	gLocaleCache[eCANADA_FRENCH] = Locale("fr", "CA");
 }
@@ -2315,7 +2315,7 @@ private:
 	char * current;
 	int32_t length;
 	UnicodeString currUSKey;
-	static const char fgClassID;/* Warning this is used beyond the typical RTTI usage. */
+	static const char fgClassID; /* Warning this is used beyond the typical RTTI usage. */
 
 public:
 	static UClassID U_EXPORT2 getStaticClassID() {

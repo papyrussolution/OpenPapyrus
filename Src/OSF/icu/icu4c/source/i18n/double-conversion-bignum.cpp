@@ -79,7 +79,8 @@ void Bignum::AssignUInt64(uint64_t value) {
 	}
 }
 
-void Bignum::AssignBignum(const Bignum & other) {
+void Bignum::AssignBignum(const Bignum & other) 
+{
 	exponent_ = other.exponent_;
 	for(int i = 0; i < other.used_bigits_; ++i) {
 		RawBigit(i) = other.RawBigit(i);
@@ -87,9 +88,8 @@ void Bignum::AssignBignum(const Bignum & other) {
 	used_bigits_ = other.used_bigits_;
 }
 
-static uint64_t ReadUInt64(const Vector<const char> buffer,
-    const int from,
-    const int digits_to_read) {
+static uint64_t ReadUInt64(const Vector<const char> buffer, const int from, const int digits_to_read) 
+{
 	uint64_t result = 0;
 	for(int i = from; i < from + digits_to_read; ++i) {
 		const int digit = buffer[i] - '0';

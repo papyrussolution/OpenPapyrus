@@ -1,21 +1,12 @@
+// pkgdata.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**************************************************************************
- *
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ***************************************************************************
- *   file name:  pkgdata.c
- *   encoding:   ANSI X3.4 (1968)
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000may16
- *   created by: Steven \u24C7 Loomis
- *
- *  common types for pkgdata
- */
+// Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   ANSI X3.4 (1968)
+// created on: 2000may16
+// created by: Steven \u24C7 Loomis
+// common types for pkgdata
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "pkgtypes.h"
@@ -69,8 +60,7 @@ const char * pkg_writeCharList(FileStream * s, CharList * l, const char * delim,
 			uprv_strncpy(buffer, l->str, 1023);
 			buffer[1023] = 0;
 			if(uprv_strlen(l->str) >= 1023) {
-				fprintf(stderr, "%s:%d: Internal error, line too long (greater than 1023 chars)\n",
-				    __FILE__, __LINE__);
+				fprintf(stderr, "%s:%d: Internal error, line too long (greater than 1023 chars)\n", __FILE__, __LINE__);
 				exit(0);
 			}
 			if(quote < 0) { /* remove quotes */
@@ -92,7 +82,6 @@ const char * pkg_writeCharList(FileStream * s, CharList * l, const char * delim,
 			}
 			T_FileStream_write(s, buffer, (int32_t)uprv_strlen(buffer));
 		}
-
 		if(l->next && delim) {
 			T_FileStream_write(s, delim, (int32_t)uprv_strlen(delim));
 		}
@@ -100,7 +89,6 @@ const char * pkg_writeCharList(FileStream * s, CharList * l, const char * delim,
 	}
 	return NULL;
 }
-
 /*
  * Count items . 0 if null
  */
@@ -119,15 +107,12 @@ uint32_t pkg_countCharList(CharList * l)
 CharList * pkg_prependToList(CharList * l, const char * str)
 {
 	CharList * newList = (CharList *)uprv_malloc(sizeof(CharList));
-	/* test for NULL */
-	if(newList == NULL) {
-		return NULL;
+	if(newList) { // test for NULL 
+		newList->str = str;
+		newList->next = l;
 	}
-	newList->str = str;
-	newList->next = l;
 	return newList;
 }
-
 /*
  * append string to CharList. *end or even end can be null if you don't
  * know it.[slow]
@@ -165,11 +150,11 @@ CharList * pkg_appendToList(CharList * l, CharList** end, const char * str)
 	else {
 		*end = l;
 	}
-
 	return l;
 }
 
-char * convertToNativePathSeparators(char * path) {
+char * convertToNativePathSeparators(char * path) 
+{
 #if defined(U_MAKE_IS_NMAKE)
 	char * itr;
 	while((itr = uprv_strchr(path, U_FILE_ALT_SEP_CHAR))) {
@@ -202,7 +187,6 @@ CharList * pkg_appendUniqueDirToList(CharList * l, CharList** end, const char * 
 	strncpy(aBuf, strAlias, (rPtr-strAlias));
 	aBuf[rPtr-strAlias] = 0; /* no trailing slash */
 	convertToNativePathSeparators(aBuf);
-
 	if(!pkg_listContains(l, aBuf)) {
 		return pkg_appendToList(l, end, uprv_strdup(aBuf));
 	}

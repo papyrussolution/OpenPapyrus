@@ -830,7 +830,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGo
 					if(r_eq_cfg.SalesGoodsGrp != 0) {
 						uint   sg_pos = 0;
 						PPID   sub_grp_id = 0;
-						if(ggobj.BelongToGroup(prev_gds_info.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+						if(ggobj.BelongToGroup(prev_gds_info.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
 							const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(rSalesGrpList.at(sg_pos));
 							p_writer->StartElement("sale-group");
 							p_writer->AddAttrib("id", sub_grp_id);
@@ -1838,7 +1838,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					DbfRecord dbfrSGI(p_tbl);
 					uint   sg_pos = 0;
 					PPID   sub_grp_id = 0;
-					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
 						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
@@ -2345,7 +2345,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					uint   sg_pos = 0;
 					PPID   sub_grp_id = 0;
 					DbfRecord dbfrSGI(p_out_tbl_sggrpi);
-					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG) > 0) {
+					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
 						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
 						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
@@ -3102,7 +3102,7 @@ public:
 		int SetItemDiscount(long pos, double discount)
 		{
 			uint p = 0;
-			return (Items.lsearch(&pos, &p, PTR_CMPFUNC(long)) > 0) ? (Items.at(p).Discount = discount, 1) : -1;
+			return Items.lsearch(&pos, &p, CMPF_LONG) ? (Items.at(p).Discount = discount, 1) : -1;
 		}
 		int GetHead(Header * pHead)
 		{

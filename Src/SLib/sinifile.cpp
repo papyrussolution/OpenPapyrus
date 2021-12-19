@@ -298,7 +298,7 @@ SIniFile::~SIniFile()
 	Close();
 }
 
-int  SIniFile::IsValid() const { return (File.IsValid() || (Flags & fIniBufInited)) ? 1 : SLS.SetError(SLERR_INIOPENFAULT, FileName); }
+bool SIniFile::IsValid() const { return (File.IsValid() || (Flags & fIniBufInited)) ? true : SLS.SetError(SLERR_INIOPENFAULT, FileName); }
 long SIniFile::GetFlags() const { return Flags; }
 const SString & SIniFile::GetFileName() const { return FileName; }
 int  SIniFile::Close() { return File.Close(); }
@@ -429,7 +429,7 @@ int SIniFile::InitIniBuf2()
 
 int SIniFile::Open(const char * pFileName)
 {
-	const  int already_opened = File.IsValid();
+	const  bool already_opened = File.IsValid();
 	int    ok = already_opened ? -1 : File.Open(pFileName, SFile::mRead);
 	if(ok) {
 		// @v10.3.11 {

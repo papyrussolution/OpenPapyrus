@@ -1430,7 +1430,7 @@ static OPJ_UINT32 opj_j2k_get_num_tp(opj_cp_t * cp, OPJ_UINT32 pino,
 	opj_tcp_t * tcp = 00;
 	opj_poc_t * l_current_poc = 00;
 
-	/*  preconditions */
+	/* preconditions */
 	assert(tileno < (cp->tw * cp->th));
 	assert(pino < (cp->tcps[tileno].numpocs + 1));
 
@@ -1853,7 +1853,7 @@ static OPJ_BOOL opj_j2k_read_siz(opj_j2k_t * p_j2k,
 		                        return OPJ_FALSE;
 		                }
 		 */              /* we try to correct */
-		/*              opj_event_msg(p_manager, EVT_WARNING, "- trying to adjust this\n");
+		/* opj_event_msg(p_manager, EVT_WARNING, "- trying to adjust this\n");
 		                if (l_image->numcomps < ((len - 38) / 3)) {
 		                        len = 38 + 3 * l_image->numcomps;
 		                        opj_event_msg(p_manager, EVT_WARNING, "- setting Lsiz to %d => HYPOTHESIS!!!\n",
@@ -7387,14 +7387,14 @@ OPJ_BOOL opj_j2k_setup_encoder(opj_j2k_t * p_j2k, opj_cparameters_t * parameters
 						return OPJ_FALSE;
 					}
 
-					tcp_poc->resno0         = parameters->POC[numpocs_tile].resno0;
+					tcp_poc->resno0 = parameters->POC[numpocs_tile].resno0;
 					tcp_poc->compno0        = parameters->POC[numpocs_tile].compno0;
-					tcp_poc->layno1         = parameters->POC[numpocs_tile].layno1;
-					tcp_poc->resno1         = parameters->POC[numpocs_tile].resno1;
+					tcp_poc->layno1 = parameters->POC[numpocs_tile].layno1;
+					tcp_poc->resno1 = parameters->POC[numpocs_tile].resno1;
 					tcp_poc->compno1        = opj_uint_min(parameters->POC[numpocs_tile].compno1,
 						image->numcomps);
-					tcp_poc->prg1           = parameters->POC[numpocs_tile].prg1;
-					tcp_poc->tile           = parameters->POC[numpocs_tile].tile;
+					tcp_poc->prg1   = parameters->POC[numpocs_tile].prg1;
+					tcp_poc->tile   = parameters->POC[numpocs_tile].tile;
 
 					numpocs_tile++;
 				}
@@ -8068,7 +8068,7 @@ static OPJ_BOOL opj_j2k_read_header_procedure(opj_j2k_t * p_j2k,
 	assert(p_j2k != 00);
 	assert(p_manager != 00);
 
-	/*  We enter in the main header */
+	/* We enter in the main header */
 	p_j2k->m_specific_param.m_decoder.m_state = J2K_STATE_MHSOC;
 
 	/* Try to read the SOC marker, the codestream must begin with SOC marker */

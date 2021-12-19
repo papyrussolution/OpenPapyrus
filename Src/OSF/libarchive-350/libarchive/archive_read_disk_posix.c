@@ -339,7 +339,7 @@ static const char * tree_current_access_path(struct tree *);
  */
 static const struct stat * tree_current_stat(struct tree *);
 static const struct stat * tree_current_lstat(struct tree *);
-static int      tree_current_is_symblic_link_target(struct tree *);
+static int tree_current_is_symblic_link_target(struct tree *);
 
 /* The following functions use tricks to avoid a certain number of
  * stat()/lstat() calls. */
@@ -352,22 +352,22 @@ static int update_current_filesystem(struct archive_read_disk * a,
 static int setup_current_filesystem(struct archive_read_disk *);
 static int tree_target_is_same_as_parent(struct tree *, const struct stat *);
 
-static int      _archive_read_disk_open(struct archive *, const char *);
-static int      _archive_read_free(struct archive *);
-static int      _archive_read_close(struct archive *);
-static int      _archive_read_data_block(struct archive *,
+static int _archive_read_disk_open(struct archive *, const char *);
+static int _archive_read_free(struct archive *);
+static int _archive_read_close(struct archive *);
+static int _archive_read_data_block(struct archive *,
     const void **, size_t *, int64 *);
-static int      _archive_read_next_header(struct archive *,
+static int _archive_read_next_header(struct archive *,
     struct archive_entry **);
-static int      _archive_read_next_header2(struct archive *,
+static int _archive_read_next_header2(struct archive *,
     struct archive_entry *);
 static const char * trivial_lookup_gname(void *, int64 gid);
 static const char * trivial_lookup_uname(void *, int64 uid);
-static int      setup_sparse(struct archive_read_disk *, struct archive_entry *);
-static int      close_and_restore_time(int fd, struct tree *,
+static int setup_sparse(struct archive_read_disk *, struct archive_entry *);
+static int close_and_restore_time(int fd, struct tree *,
     struct restore_time *);
-static int      open_on_current_dir(struct tree *, const char *, int);
-static int      tree_dup(int);
+static int open_on_current_dir(struct tree *, const char *, int);
+static int tree_dup(int);
 
 static struct archive_vtable * archive_read_disk_vtable(void)                               {
 	static struct archive_vtable av;
@@ -1458,7 +1458,7 @@ static int get_xfer_size(struct tree * t, int fd, const char * path)
 static int get_xfer_size(struct tree * t, int fd, const char * path)
 {
 	(void)t; /* UNUSED */
-	(void)fd; /* UNUSED */
+	CXX_UNUSED(fd);
 	(void)path; /* UNUSED */
 	return 1; /* Not supported */
 }

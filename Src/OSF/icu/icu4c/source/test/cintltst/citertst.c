@@ -744,14 +744,14 @@ static void TestSetText()
 static void TestMaxExpansion()
 {
 	UErrorCode status = U_ZERO_ERROR;
-	UCollator          * coll;/*= ucol_open("en_US", &status);*/
+	UCollator          * coll; /*= ucol_open("en_US", &status);*/
 	UChar ch     = 0;
 	UChar32 unassigned = 0xEFFFD;
 	UChar supplementary[2];
 	uint32_t stringOffset = 0;
 	bool isError = FALSE;
 	uint32_t sorder = 0;
-	UCollationElements * iter;/*= ucol_openElements(coll, &ch, 1, &status);*/
+	UCollationElements * iter; /*= ucol_openElements(coll, &ch, 1, &status);*/
 	uint32_t temporder = 0;
 
 	UChar rule[256];

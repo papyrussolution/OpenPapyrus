@@ -927,8 +927,7 @@ DvcDriver::~DvcDriver()
 
 int Init()
 {
-	if(!P_DvcDrv)
-		P_DvcDrv = new DvcDriver;
+	SETIFZ(P_DvcDrv, new DvcDriver);
 	return 1;
 }
 
@@ -961,7 +960,7 @@ int DvcDriver::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	size_t new_size = 0;
 	SString str, param_name, param_val;
 	StringSet set(';', pInputData);
-	for(uint i = 0; set.get(&i, str) > 0;) {
+	for(uint i = 0; set.get(&i, str);) {
 		str.Divide('=', param_name, param_val);
 		if(param_name.IsEqiAscii("TEXT"))
 			Text = param_val;
@@ -971,18 +970,18 @@ int DvcDriver::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 		THROW(!Test(Text, answer));
 		if(answer.BufSize() > outSize) {
 			new_size.Z().Cat(answer.BufSize());
-			memcpy(pOutputData, new_size, outSize);
+			strnzcpy(pOutputData, new_size, outSize);
 			ok = 2;
 		}
 		else
-			memcpy(pOutputData, answer, answer.BufSize());
+			strnzcpy(pOutputData, answer, outSize);
 	}
 	else if(!sstreqi_ascii(pCmd, "INIT")) {
-		memcpy(pOutputData, "2", sizeof("2"));
+		strnzcpy(pOutputData, "2", outSize);
         ok = 1;
 	}
 	CATCH
-		memcpy(pOutputData, "1", sizeof("1"));
+		strnzcpy(pOutputData, "1", outSize);
 		ok = 1;
 	ENDCATCH;
 	return ok;

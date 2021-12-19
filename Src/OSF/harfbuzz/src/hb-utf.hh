@@ -251,7 +251,7 @@ template <typename TCodepoint, bool validate = true>
 	typedef TCodepoint codepoint_t;
 
 	static const TCodepoint * next(const TCodepoint * text,
-	    const TCodepoint * end HB_UNUSED,
+	    const TCodepoint * end CXX_UNUSED_PARAM,
 	    hb_codepoint_t * unicode,
 	    hb_codepoint_t replacement)
 	{
@@ -262,7 +262,7 @@ template <typename TCodepoint, bool validate = true>
 	}
 
 	static const TCodepoint * prev(const TCodepoint * text,
-	    const TCodepoint * start HB_UNUSED,
+	    const TCodepoint * start CXX_UNUSED_PARAM,
 	    hb_codepoint_t * unicode,
 	    hb_codepoint_t replacement)
 	{
@@ -279,13 +279,13 @@ template <typename TCodepoint, bool validate = true>
 		return l;
 	}
 
-	static uint encode_len(hb_codepoint_t unicode HB_UNUSED)
+	static uint encode_len(hb_codepoint_t unicode CXX_UNUSED_PARAM)
 	{
 		return 1;
 	}
 
 	static codepoint_t * encode(codepoint_t * text,
-	    const codepoint_t * end HB_UNUSED,
+	    const codepoint_t * end CXX_UNUSED_PARAM,
 	    hb_codepoint_t unicode)
 	{
 		if(validate && UNLIKELY(unicode >= 0xD800u && (unicode <= 0xDFFFu || unicode > 0x10FFFFu)))
@@ -302,18 +302,18 @@ struct hb_latin1_t {
 	typedef uint8_t codepoint_t;
 
 	static const codepoint_t * next(const codepoint_t * text,
-	    const codepoint_t * end HB_UNUSED,
+	    const codepoint_t * end CXX_UNUSED_PARAM,
 	    hb_codepoint_t * unicode,
-	    hb_codepoint_t replacement HB_UNUSED)
+	    hb_codepoint_t replacement CXX_UNUSED_PARAM)
 	{
 		* unicode = *text++;
 		return text;
 	}
 
 	static const codepoint_t * prev(const codepoint_t * text,
-	    const codepoint_t * start HB_UNUSED,
+	    const codepoint_t * start CXX_UNUSED_PARAM,
 	    hb_codepoint_t * unicode,
-	    hb_codepoint_t replacement HB_UNUSED)
+	    hb_codepoint_t replacement CXX_UNUSED_PARAM)
 	{
 		* unicode = *--text;
 		return text;
@@ -326,13 +326,13 @@ struct hb_latin1_t {
 		return l;
 	}
 
-	static uint encode_len(hb_codepoint_t unicode HB_UNUSED)
+	static uint encode_len(hb_codepoint_t unicode CXX_UNUSED_PARAM)
 	{
 		return 1;
 	}
 
 	static codepoint_t * encode(codepoint_t * text,
-	    const codepoint_t * end HB_UNUSED,
+	    const codepoint_t * end CXX_UNUSED_PARAM,
 	    hb_codepoint_t unicode)
 	{
 		if(UNLIKELY(unicode >= 0x0100u))
@@ -346,9 +346,9 @@ struct hb_ascii_t {
 	typedef uint8_t codepoint_t;
 
 	static const codepoint_t * next(const codepoint_t * text,
-	    const codepoint_t * end HB_UNUSED,
+	    const codepoint_t * end CXX_UNUSED_PARAM,
 	    hb_codepoint_t * unicode,
-	    hb_codepoint_t replacement HB_UNUSED)
+	    hb_codepoint_t replacement CXX_UNUSED_PARAM)
 	{
 		* unicode = *text++;
 		if(*unicode >= 0x0080u)
@@ -357,7 +357,7 @@ struct hb_ascii_t {
 	}
 
 	static const codepoint_t * prev(const codepoint_t * text,
-	    const codepoint_t * start HB_UNUSED,
+	    const codepoint_t * start CXX_UNUSED_PARAM,
 	    hb_codepoint_t * unicode,
 	    hb_codepoint_t replacement)
 	{
@@ -374,13 +374,13 @@ struct hb_ascii_t {
 		return l;
 	}
 
-	static uint encode_len(hb_codepoint_t unicode HB_UNUSED)
+	static uint encode_len(hb_codepoint_t unicode CXX_UNUSED_PARAM)
 	{
 		return 1;
 	}
 
 	static codepoint_t * encode(codepoint_t * text,
-	    const codepoint_t * end HB_UNUSED,
+	    const codepoint_t * end CXX_UNUSED_PARAM,
 	    hb_codepoint_t unicode)
 	{
 		if(UNLIKELY(unicode >= 0x0080u))

@@ -20,7 +20,7 @@ int AverageEventTimePrcssr::Add(long id1, long id2, LDATE dt, LTIME tm)
 {
 	uint   pos = 0;
 	LAssoc srch_ids(id1, id2);
-	if(List.lsearch(&srch_ids, &pos, PTR_CMPFUNC(_2long)) > 0) {
+	if(List.lsearch(&srch_ids, &pos, PTR_CMPFUNC(_2long))) {
 		Item & r_item = List.at(pos);
 		if(r_item.FirstEv.d >= dt && r_item.FirstEv.t >= tm)
 			r_item.FirstEv.Set(dt, tm);

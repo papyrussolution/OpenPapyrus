@@ -197,7 +197,7 @@ class LexerVerilog : public ILexerWithSubStyles {
 	enum {
 		foldExternFlag      = 0x01, 
 		foldWaitDisableFlag = 0x02, 
-		typedefFlag         = 0x04, 
+		typedefFlag = 0x04, 
 		protectedFlag       = 0x08
 	};
 	// map using line number as key to store fold state information

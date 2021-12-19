@@ -82,7 +82,7 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 	return 0; /* no real difference found */
 }
 
-#define CONSTRAIN(x) ((x) < 0 ? 0 : ((x) > 1 ? 1 : (x)))
+// @v11.2.8 (replaced with sclamp(x, 0.0, 1.0) #define CONSTRAIN(x) ((x) < 0 ? 0 : ((x) > 1 ? 1 : (x)))
 // 
 // This one takes the gradient defined in GnuPlot::SmPltt.gradient and
 // returns an interpolated color for the given gray value.  It
@@ -97,17 +97,13 @@ int palettes_differ(t_sm_palette * p1, t_sm_palette * p2)
 int t_sm_palette::InterpolateColorFromGray(double gray, rgb_color * pColor) const
 {
 	if(gray < 0.0) {
-		pColor->r = P_Gradient[0].col.r;
-		pColor->g = P_Gradient[0].col.g;
-		pColor->b = P_Gradient[0].col.b;
+		*pColor = P_Gradient[0].col;
 		return 1;
 	}
 	else {
 		int maxidx = GradientNum;
 		if(gray > 1.0) {
-			pColor->r = P_Gradient[maxidx-1].col.r;
-			pColor->g = P_Gradient[maxidx-1].col.g;
-			pColor->b = P_Gradient[maxidx-1].col.b;
+			*pColor = P_Gradient[maxidx-1].col;
 			return 1;
 		}
 		else {
@@ -128,9 +124,7 @@ int t_sm_palette::InterpolateColorFromGray(double gray, rgb_color * pColor) cons
 				const rgb_color * p_col2 = &P_Gradient[idx].col;
 				if(gray == P_Gradient[idx].pos) {
 					// exact hit 
-					pColor->r = p_col2->r;
-					pColor->g = p_col2->g;
-					pColor->b = p_col2->b;
+					*pColor = *p_col2;
 				}
 				else {
 					// linear interpolation of two colors 
@@ -165,19 +159,19 @@ int GnuPlot::CalculateColorFromFormulae(double gray, rgb_color * pColor)
 	if(Ev.IsUndefined_)
 		IntError(NO_CARET, "Undefined value first color during function evaluation");
 	a = Real(&v);
-	a = CONSTRAIN(a);
+	a = sclamp(a, 0.0, 1.0);
 	Gcomplex(&SmPltt.Bfunc.dummy_values[0], gray, 0.0);
 	EvaluateAt(SmPltt.Bfunc.at, &v);
 	if(Ev.IsUndefined_)
 		IntError(NO_CARET, "Undefined value second color during function evaluation");
 	b = Real(&v);
-	b = CONSTRAIN(b);
+	b = sclamp(b, 0.0, 1.0);
 	Gcomplex(&SmPltt.Cfunc.dummy_values[0], gray, 0.0);
 	EvaluateAt(SmPltt.Cfunc.at, &v);
 	if(Ev.IsUndefined_)
 		IntError(NO_CARET, "Undefined value third color during function evaluation");
 	c = Real(&v);
-	c = CONSTRAIN(c);
+	c = sclamp(c, 0.0, 1.0);
 	pColor->r = a;
 	pColor->g = b;
 	pColor->b = c;
@@ -191,10 +185,7 @@ int GnuPlot::CalculateColorFromFormulae(double gray, rgb_color * pColor)
 //void t_sm_palette::ColorComponentsFromGray(double gray, rgb_color * pColor) const
 void GnuPlot::ColorComponentsFromGray(double gray, rgb_color * pColor)
 {
-	if(gray < 0.0)
-		gray = 0.0;
-	else if(gray > 1.0)
-		gray = 1.0;
+	gray = sclamp(gray, 0.0, 1.0);
 	switch(SmPltt.colorMode) {
 		default: // Can't happen 
 		case SMPAL_COLOR_MODE_GRAY:
@@ -334,23 +325,20 @@ void GnuPlot::Rgb255MaxColorsFromGray(double gray, rgb255_color * rgb255)
 static double get_max_dev(rgb_color * colors, int j, double limit)
 {
 	double max_dev = 0.0;
-	double rdev, gdev, bdev;
-	double r = colors[0].r, g = colors[0].g, b = colors[0].b;
-	int i;
-	double sr = (colors[j].r - r) / j;
-	double sg = (colors[j].g - g) / j;
-	double sb = (colors[j].b - b) / j;
-	for(i = 1; i<j; ++i) {
+	double r = colors[0].r;
+	double g = colors[0].g;
+	double b = colors[0].b;
+	const double sr = (colors[j].r - r) / j;
+	const double sg = (colors[j].g - g) / j;
+	const double sb = (colors[j].b - b) / j;
+	for(int i = 1; i < j; ++i) {
 		double dx = i;
-		rdev = fabs(sr*dx + r - colors[i].r);
-		gdev = fabs(sg*dx + g - colors[i].g);
-		bdev = fabs(sb*dx + b - colors[i].b);
-		if(rdev > max_dev)
-			max_dev = rdev;
-		if(gdev > max_dev)
-			max_dev = gdev;
-		if(bdev > max_dev)
-			max_dev = bdev;
+		const double rdev = fabs(sr*dx + r - colors[i].r);
+		const double gdev = fabs(sg*dx + g - colors[i].g);
+		const double bdev = fabs(sb*dx + b - colors[i].b);
+		SETMAX(max_dev, rdev);
+		SETMAX(max_dev, gdev);
+		SETMAX(max_dev, bdev);
 		if(max_dev >= limit)
 			break;
 	}
@@ -625,9 +613,9 @@ static void CMY_2_RGB(rgb_color * col)
 	const double c = col->r;
 	const double m = col->g;
 	const double y = col->b;
-	col->r = CONSTRAIN(1.0 - c);
-	col->g = CONSTRAIN(1.0 - m);
-	col->b = CONSTRAIN(1.0 - y);
+	col->r = sclamp(1.0 - c, 0.0, 1.0);
+	col->g = sclamp(1.0 - m, 0.0, 1.0);
+	col->b = sclamp(1.0 - y, 0.0, 1.0);
 }
 
 void t_sm_palette::HsvToRgb(rgb_color * pColor) const
@@ -652,41 +640,17 @@ void t_sm_palette::HsvToRgb(rgb_color * pColor) const
 		q = v * (1.0 - s*f);
 		t = v * (1.0 - s*(1.0-f));
 		switch(i % 6) {
-			case 0:
-				pColor->r = v;
-				pColor->g = t;
-				pColor->b = p;
-				break;
-			case 1:
-				pColor->r = q;
-				pColor->g = v;
-				pColor->b = p;
-				break;
-			case 2:
-				pColor->r = p;
-				pColor->g = v;
-				pColor->b = t;
-				break;
-			case 3:
-				pColor->r = p;
-				pColor->g = q;
-				pColor->b = v;
-				break;
-			case 4:
-				pColor->r = t;
-				pColor->g = p;
-				pColor->b = v;
-				break;
-			default:
-				pColor->r = v;
-				pColor->g = p;
-				pColor->b = q;
-				break;
+			case 0: pColor->Set(v, t, p); break;
+			case 1: pColor->Set(q, v, p); break;
+			case 2: pColor->Set(p, v, t); break;
+			case 3: pColor->Set(p, q, v); break;
+			case 4: pColor->Set(t, p, v); break;
+			default: pColor->Set(v, p, q); break;
 		}
 	}
 }
 
-#undef CONSTRAIN
+// @v11.2.8 (replaced with sclamp(x, 0.0, 1.0) #undef CONSTRAIN
 //
 // Support for user-callable rgb = hsv2rgb(h,s,v)
 //

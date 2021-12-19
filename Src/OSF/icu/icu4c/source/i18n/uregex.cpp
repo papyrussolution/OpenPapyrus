@@ -39,12 +39,12 @@ static const int32_t REXP_MAGIC = 0x72657870; // "rexp" in ASCII
 RegularExpression::RegularExpression() 
 {
 	fMagic        = REXP_MAGIC;
-	fPat          = NULL;
+	fPat  = NULL;
 	fPatRefCount  = NULL;
 	fPatString    = NULL;
 	fPatStringLen = 0;
 	fMatcher      = NULL;
-	fText         = NULL;
+	fText = NULL;
 	fTextLength   = 0;
 	fOwnsText     = FALSE;
 }
@@ -279,7 +279,7 @@ U_CAPI URegularExpression * U_EXPORT2 uregex_clone(const URegularExpression * so
 		return NULL;
 	}
 
-	clone->fPat          = source->fPat;
+	clone->fPat  = source->fPat;
 	clone->fPatRefCount  = source->fPatRefCount;
 	clone->fPatString    = source->fPatString;
 	clone->fPatStringLen = source->fPatStringLen;
@@ -1260,9 +1260,9 @@ int32_t RegexCImpl::appendReplacement(RegularExpression    * regexp,
 		return 0;
 	}
 
-	UChar    * dest             = *destBuf;
-	int32_t capacity         = *destCapacity;
-	int32_t destIdx          = 0;
+	UChar    * dest     = *destBuf;
+	int32_t capacity = *destCapacity;
+	int32_t destIdx  = 0;
 	int32_t i;
 
 	// If it wasn't supplied by the caller,  get the length of the replacement text.
@@ -1665,7 +1665,7 @@ static void copyString(UChar * destBuffer,    //  Destination buffer.
     int32_t destCapacity,                     //  Total capacity of dest buffer
     int32_t * destIndex,                       //  Index into dest buffer.  Updated on return.
     //    Update not clipped to destCapacity.
-    const UChar  * srcPtr,                          //  Pointer to source string
+    const UChar * srcPtr,                          //  Pointer to source string
     int32_t srcLen)                           //  Source string len.
 {
 	int32_t si;

@@ -23,14 +23,14 @@ U_NAMESPACE_BEGIN
 
 #define ZID_KEY_MAX  128
 
-static const char gZoneStrings[]                = "zoneStrings";
+static const char gZoneStrings[]        = "zoneStrings";
 
-static const char gRegionFormatTag[]            = "regionFormat";
-static const char gFallbackFormatTag[]          = "fallbackFormat";
+static const char gRegionFormatTag[]    = "regionFormat";
+static const char gFallbackFormatTag[]  = "fallbackFormat";
 
-static const UChar gEmpty[]                     = {0x00};
+static const UChar gEmpty[]             = {0x00};
 
-static const UChar gDefRegionPattern[]          = {0x7B, 0x30, 0x7D, 0x00}; // "{0}"
+static const UChar gDefRegionPattern[]  = {0x7B, 0x30, 0x7D, 0x00}; // "{0}"
 static const UChar gDefFallbackPattern[]        = {0x7B, 0x31, 0x7D, 0x20, 0x28, 0x7B, 0x30, 0x7D, 0x29, 0x00}; // "{1}
                                                                                                                 // ({0})"
 

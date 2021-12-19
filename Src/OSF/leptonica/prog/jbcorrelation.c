@@ -27,18 +27,24 @@
 /*
  * jbcorrelation.c
  *
- *     jbcorrelation dirin thresh weight rootname [firstpage npages]
+ *     jbcorrelation dirin thresh weight [firstpage npages]
  *
  *         dirin:  directory of input pages
  *         thresh: 0.80 - 0.85 is a reasonable compromise between accuracy
  *                 and number of classes, for characters
  *         weight: 0.6 seems to work reasonably with thresh = 0.8.
- *         rootname: used for naming the two output files (templates
- *                   and c.c. data)
  *
- *     Note: all components larger than a default size are not saved.
- *           The default size is given in jbclass.c.
+ *     Notes:
+ *         (1) All components larger than a default size are not saved.
+ *             The default size is given in jbclass.c.
+ *         (2) The two output files (for templates and c.c. data)
+ *             are written with the rootname
+ *               /tmp/lept/jb/result
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
 
 #include "allheaders.h"
 
@@ -49,23 +55,19 @@
 
 #define   BUF_SIZE         512
 
-    /* select additional debug output */
+    /* Select additional debug output */
 #define   DEBUG_TEST_DATA_IO        0
 #define   RENDER_DEBUG              1
-#define   DISPLAY_DIFFERENCE        0
+#define   DISPLAY_DIFFERENCE        1
 #define   DISPLAY_ALL_INSTANCES     0
 
-    /* for display output of all instances, sorted by class */
-#define   X_SPACING                10
-#define   Y_SPACING                15
-#define   MAX_OUTPUT_WIDTH        400
-
+static const char  rootname[] = "/tmp/lept/jb/result";
 
 int main(int    argc,
          char **argv)
 {
 char         filename[BUF_SIZE];
-char        *dirin, *rootname;
+char        *dirin;
 l_int32      i, firstpage, npages, nfiles;
 l_float32    thresh, weight;
 JBDATA      *data;
@@ -75,23 +77,25 @@ PIX         *pix;
 PIXA        *pixa, *pixadb;
 static char  mainName[] = "jbcorrelation";
 
-    if (argc != 5 && argc != 7)
-        return ERROR_INT(" Syntax: jbcorrelation dirin thresh weight "
-                         "rootname [firstpage, npages]", mainName, 1);
-
+    if (argc != 4 && argc != 6)
+        return ERROR_INT(
+             " Syntax: jbcorrelation dirin thresh weight [firstpage, npages]",
+             mainName, 1);
     dirin = argv[1];
     thresh = atof(argv[2]);
     weight = atof(argv[3]);
-    rootname = argv[4];
 
-    if (argc == 5) {
+    if (argc == 4) {
         firstpage = 0;
         npages = 0;
     }
     else {
-        firstpage = atoi(argv[5]);
-        npages = atoi(argv[6]);
+        firstpage = atoi(argv[4]);
+        npages = atoi(argv[5]);
     }
+
+    setLeptDebugOK(1);
+    lept_mkdir("lept/jb");
 
 #if 0
 
@@ -109,18 +113,18 @@ static char  mainName[] = "jbcorrelation";
     safiles = getSortedPathnamesInDirectory(dirin, NULL, firstpage, npages);
     nfiles = sarrayGetCount(safiles);
 
-    sarrayWriteStream(stderr, safiles);
+/*    sarrayWriteStderr(safiles); */
 
         /* Classify components on requested pages */
     startTimer();
     classer = jbCorrelationInit(COMPONENTS, 0, 0, thresh, weight);
     jbAddPages(classer, safiles);
-    fprintf(stderr, "Time to generate classes: %6.3f sec\n", stopTimer());
+    lept_stderr("Time to generate classes: %6.3f sec\n", stopTimer());
 
         /* Save and write out the result */
     data = jbDataSave(classer);
     jbDataWrite(rootname, data);
-    fprintf(stderr, "Number of classes: %d\n", classer->nclass);
+    lept_stderr("Number of classes: %d\n", classer->nclass);
 
         /* Render the pages from the classifier data.
          * Use debugflag == FALSE to omit outlines of each component. */
@@ -129,12 +133,11 @@ static char  mainName[] = "jbcorrelation";
         /* Write the pages out */
     npages = pixaGetCount(pixa);
     if (npages != nfiles)
-        fprintf(stderr, "npages = %d, nfiles = %d, not equal!\n",
-                npages, nfiles);
+        lept_stderr("npages = %d, nfiles = %d, not equal!\n", npages, nfiles);
     for (i = 0; i < npages; i++) {
         pix = pixaGetPix(pixa, i, L_CLONE);
-        snprintf(filename, BUF_SIZE, "%s.%04d", rootname, i);
-        fprintf(stderr, "filename: %s\n", filename);
+        snprintf(filename, BUF_SIZE, "%s.%03d", rootname, i);
+        lept_stderr("filename: %s\n", filename);
         pixWrite(filename, pix, IFF_PNG);
         pixDestroy(&pix);
     }
@@ -142,22 +145,24 @@ static char  mainName[] = "jbcorrelation";
 #if  DISPLAY_DIFFERENCE
     {
     char *fname;
-    PIX  *pixt;
-    fname = sarrayGetString(safiles, 0, 0);
-    pixt = pixRead(fname);
-    pix = pixaGetPix(pixa, 0, L_CLONE);
-    pixXor(pixt, pixt, pix);
-    pixWrite("junk_output_diff", pixt, IFF_PNG);
-    pixDestroy(&pix);
-    pixDestroy(&pixt);
+    PIX  *pix1, *pix2;
+    fname = sarrayGetString(safiles, 0, L_NOCOPY);
+    pix1 = pixRead(fname);
+    pix2 = pixaGetPix(pixa, 0, L_CLONE);
+    pixXor(pix1, pix1, pix2);
+    pixWrite("/tmp/lept/jb/output_diff.png", pix1, IFF_PNG);
+    pixDestroy(&pix1);
+    pixDestroy(&pix2);
     }
 #endif  /* DISPLAY_DIFFERENCE */
 
 #if  DEBUG_TEST_DATA_IO
-{ JBDATA  *newdata;
-  PIX     *newpix;
-  PIXA    *newpixa;
-  l_int32  same, iofail;
+    {
+    JBDATA  *newdata;
+    PIX     *newpix;
+    PIXA    *newpixa;
+    l_int32  same, iofail;
+
         /* Read the data back in and render the pages */
     newdata = jbDataRead(rootname);
     newpixa = jbDataRender(newdata, FALSE);
@@ -168,19 +173,19 @@ static char  mainName[] = "jbcorrelation";
         pixEqual(pix, newpix, &same);
         if (!same) {
             iofail = TRUE;
-            fprintf(stderr, "pix on page %d are unequal!\n", i);
+            lept_stderr("pix on page %d are unequal!\n", i);
         }
         pixDestroy(&pix);
         pixDestroy(&newpix);
 
     }
     if (iofail)
-        fprintf(stderr, "read/write for jbdata fails\n");
+        lept_stderr("read/write for jbdata fails\n");
     else
-        fprintf(stderr, "read/write for jbdata succeeds\n");
+        lept_stderr("read/write for jbdata succeeds\n");
     jbDataDestroy(&newdata);
     pixaDestroy(&newpixa);
-}
+    }
 #endif  /* DEBUG_TEST_DATA_IO */
 
 #if  RENDER_DEBUG
@@ -191,7 +196,7 @@ static char  mainName[] = "jbcorrelation";
     for (i = 0; i < npages; i++) {
         pix = pixaGetPix(pixadb, i, L_CLONE);
         snprintf(filename, BUF_SIZE, "%s.db.%04d", rootname, i);
-        fprintf(stderr, "filename: %s\n", filename);
+        lept_stderr("filename: %s\n", filename);
         pixWrite(filename, pix, IFF_PNG);
         pixDestroy(&pix);
     }
@@ -199,10 +204,10 @@ static char  mainName[] = "jbcorrelation";
 #endif  /* RENDER_DEBUG */
 
 #if  DISPLAY_ALL_INSTANCES
-        /* display all instances, organized by template */
-    pix = pixaaDisplayByPixa(classer->pixaa,
-                             X_SPACING, Y_SPACING, MAX_OUTPUT_WIDTH);
-    pixWrite("output_instances", pix, IFF_PNG);
+        /* Display all instances, organized by template.
+         * The display programs have a lot of trouble with these. */
+    pix = pixaaDisplayByPixa(classer->pixaa, 5, 1.0, 10, 0, 0);
+    pixWrite("/tmp/lept/jb/output_instances", pix, IFF_PNG);
     pixDestroy(&pix);
 #endif  /* DISPLAY_ALL_INSTANCES */
 

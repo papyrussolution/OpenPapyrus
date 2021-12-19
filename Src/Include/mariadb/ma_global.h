@@ -602,7 +602,7 @@ typedef uint64 my_ulonglong;
 */
 /* Optimized store functions for Intel x86 */
 #define int1store(T,A) *((int8*) (T)) = (A)
-#define uint1korr(A)   (*(((uint8*)(A))))
+#define uint1korr(A)   (*(((uint8 *)(A))))
 #if defined(__i386__) || defined(_WIN32)
 #define sint2korr(A)	(*((int16 *) (A)))
 #define sint3korr(A)	((int32) ((((uchar) (A)[2]) & 128) ? \
@@ -670,7 +670,7 @@ do { doubleget_union _tmp; \
 #define doublestore(T,V) do { *((long *) T) = ((doubleget_union *)&V)->m[0]; \
 			     *(((long *) T)+1) = ((doubleget_union *)&V)->m[1]; \
                          } while(0)
-#define float4get(V,M)   do { *((float *) &(V)) = *((float*) (M)); } while(0)
+#define float4get(V,M)   do { *((float *) &(V)) = *((float *) (M)); } while(0)
 #define float8get(V,M)   doubleget((V),(M))
 #define float4store(V,M) memcpy((uchar *) V,(uchar *) (&M),sizeof(float))
 #define floatstore(T,V)  memcpy((uchar *)(T), (uchar *)(&V),sizeof(float))

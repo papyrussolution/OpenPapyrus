@@ -245,7 +245,7 @@ static int mtherr(char * name, int code)
 	return 0;
 }
 
-/*                                                      polevl.c
+/*                                      polevl.c
  *                                                p1evl.c
  *
  *      Evaluate polynomial
@@ -303,7 +303,7 @@ static double polevl(double x, const double coef[], int N)
 	} while(--i);
 	return (ans);
 }
-/*                                          N
+/*                          N
  * Evaluate polynomial when coefficient of x  is 1.0.
  * Otherwise same as polevl.
  */
@@ -509,7 +509,7 @@ lgsing:
 		z = q * sin(PI * z);
 		if(z == 0.0)
 			goto lgsing;
-		/*      z = log(PI) - log( z ) - w;*/
+		/* z = log(PI) - log( z ) - w;*/
 		z = LOGPI - log(z) - w;
 		return (z);
 	}
@@ -1250,7 +1250,7 @@ void GnuPlot::F_InverseErf(union argument * /*arg*/)
 		Push(Gcomplex(&a, inverse_error_func(x), 0.0));
 	}
 }
-/*                                                      ndtri.c
+/*                                      ndtri.c
  *
  *      Inverse of Normal distribution function
  *
@@ -1418,7 +1418,7 @@ static double inverse_normal_func(double y0)
 		-8.57456785154685413611E-4,
 	};
 	static const double Q1[8] = {
-		/*  1.00000000000000000000E0,*/
+		/* 1.00000000000000000000E0,*/
 		1.57799883256466749731E1,
 		4.53907635128879210584E1,
 		4.13172038254672030440E1,
@@ -1519,7 +1519,7 @@ static double inverse_normal_func(double y0)
 		6.23974539184983293730E-9,
 	};
 	static const double Q2[8] = {
-		/*  1.00000000000000000000E0,*/
+		/* 1.00000000000000000000E0,*/
 		6.02427039364742014255E0,
 		3.67983563856160859403E0,
 		1.37702099489081330271E0,
@@ -1646,7 +1646,7 @@ static double inverse_normal_func(double y0)
  */
 
 #ifndef HAVE_ERFC
-/*                                                     erfc.c
+/*                                     erfc.c
  *
  *      Complementary error function
  *
@@ -1899,7 +1899,7 @@ under:
 #endif /* !HAVE_ERFC */
 
 #ifndef HAVE_ERF
-/*                                                     erf.c
+/*                                     erf.c
  *
  *      Error function
  *
@@ -2808,7 +2808,7 @@ static double AGN[11] = {
 	3.41551784765923618484E-10,
 };
 static double AGD[10] = {
-/*  1.00000000000000000000E0,*/
+/* 1.00000000000000000000E0,*/
 	9.30892908077441974853E0,
 	1.98352928718312140417E1,
 	1.55646628932864612953E1,
@@ -2919,7 +2919,7 @@ static double APFN[9] = {
 	2.48379932900442457853E-8,
 };
 static double APFD[9] = {
-/*  1.00000000000000000000E0,*/
+/* 1.00000000000000000000E0,*/
 	1.47345854687502542552E1,
 	3.75423933435489594466E1,
 	3.14657751203046424330E1,
@@ -3022,7 +3022,7 @@ static double APGN[11] = {
 	-5.63803833958893494476E-10,
 };
 static double APGD[11] = {
-/*  1.00000000000000000000E0,*/
+/* 1.00000000000000000000E0,*/
 	9.85865801696130355144E0,
 	2.16401867356585941885E1,
 	1.73130776389749389525E1,

@@ -582,7 +582,7 @@ public:
 			uint i = glyph_id - firstGlyph;
 			return i >= classArray.len ? outOfRange : classArray.arrayZ[i];
 		}
-		uint get_class(hb_codepoint_t glyph_id, uint num_glyphs HB_UNUSED, uint outOfRange) const
+		uint get_class(hb_codepoint_t glyph_id, uint num_glyphs CXX_UNUSED_PARAM, uint outOfRange) const
 		{
 			return get_class(glyph_id, outOfRange);
 		}
@@ -627,15 +627,15 @@ public:
 		typedef Lookup<HBUINT16> ClassTypeNarrow;
 		typedef Lookup<HBUINT16> ClassTypeWide;
 
-		template <typename T> static uint offsetToIndex(uint offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
+		template <typename T> static uint offsetToIndex(uint offset, const void * base CXX_UNUSED_PARAM, const T * array CXX_UNUSED_PARAM)
 		{
 			return offset;
 		}
-		template <typename T> static uint byteOffsetToIndex(uint offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
+		template <typename T> static uint byteOffsetToIndex(uint offset, const void * base CXX_UNUSED_PARAM, const T * array CXX_UNUSED_PARAM)
 		{
 			return offset / 2;
 		}
-		template <typename T> static uint wordOffsetToIndex(uint offset, const void * base HB_UNUSED, const T * array HB_UNUSED)
+		template <typename T> static uint wordOffsetToIndex(uint offset, const void * base CXX_UNUSED_PARAM, const T * array CXX_UNUSED_PARAM)
 		{
 			return offset;
 		}

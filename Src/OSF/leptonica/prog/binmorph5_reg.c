@@ -33,58 +33,87 @@
  *       (2) dwa composite     vs.    morph non-composite
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
-l_int32 DoComparisonDwa1(PIX *pixs, PIX *pixt1, PIX *pixt2, PIX *pixt3,
-                         PIX *pixt4, PIX *pixt5, PIX *pixt6, l_int32 isize);
-l_int32 DoComparisonDwa2(PIX *pixs, PIX *pixt1, PIX *pixt2, PIX *pixt3,
-                         PIX *pixt4, PIX *pixt5, PIX *pixt6, l_int32 size);
-l_int32 PixCompareDwa(l_int32 size, const char *type, PIX *pixt1, PIX *pixt2,
-                      PIX *pixt3, PIX *pixt4, PIX *pixt5, PIX *pixt6);
+void  TestAll(L_REGPARAMS *rp, PIX *pixs, l_int32 symmetric);
+
+l_int32 DoComparisonDwa1(L_REGPARAMS *rp,
+                         PIX *pixs, PIX *pix1, PIX *pix2, PIX *pix3,
+                         PIX *pix4, PIX *pix5, PIX *pix6, l_int32 isize);
+l_int32 DoComparisonDwa2(L_REGPARAMS *rp,
+                         PIX *pixs, PIX *pix1, PIX *pix2, PIX *pix3,
+                         PIX *pix4, PIX *pix5, PIX *pix6, l_int32 size);
+void PixCompareDwa(L_REGPARAMS *rp,
+                   l_int32 size, const char *type, PIX *pix1, PIX *pix2,
+                   PIX *pix3, PIX *pix4, PIX *pix5, PIX *pix6);
 
 #define  TIMING         0
 #define  FASTER_TEST    1
 #define  SLOWER_TEST    1
 
-    /* This fails on the symmetric case, but the differences are
-     * relatively small.  Most of the problems seems to be in the
-     * non-dwa code, because we are doing sequential erosions
-     * without an extra border, and things aren't being properly
-     * initialized.  To avoid these errors, add a border in advance
-     * for symmetric b.c.  Note that asymmetric b.c. are recommended
-     * for document image operations, and this test passes for
+    /* Note: this fails on the symmetric case when the added border
+     * is 64 pixels, but the differences are relatively small.
+     * Most of the problem seems to be in the non-dwa code, because we
+     * are doing sequential erosions without an extra border, and
+     * things aren't being properly initialized.  To avoid these errors,
+     * add a sufficiently large border for symmetric b.c.  The size of
+     * the border needs to be half the size of the largest SE that is
+     * being used.  Here we test up to size 240, and a border of 128
+     * pixels is sufficient for symmetric b.c.  (For a SE of size 240
+     * with its center in the middle at 120, the maximum translation will
+     * be about 120.)
+     * Note also that asymmetric b.c. are recommended for document image
+     * operations, and this test passes with no added border for
      * asymmetric b.c. */
-#define    TEST_SYMMETRIC   0     /* set to 1 for symmetric b.c.;
-                                     otherwise, it tests asymmetric b.c. */
-
 
 int main(int    argc,
          char **argv)
+{
+PIX  *pixs;
+L_REGPARAMS  *rp;
+
+    if (regTestSetup(argc, argv, &rp))
+        return 1;
+
+    pixs = pixRead("feyn-fract.tif");
+    TestAll(rp, pixs, FALSE);
+    TestAll(rp, pixs, TRUE);
+    pixDestroy(&pixs);
+    return regTestCleanup(rp);
+}
+
+void
+TestAll(L_REGPARAMS  *rp,
+        PIX          *pixs,
+        l_int32       symmetric)
 {
 l_int32  i, n, rsize, fact1, fact2, extra;
 l_int32  size, lastsize;
 l_int32  dwasize[256];
 l_int32  ropsize[256];
-PIX     *pixs, *pixt1, *pixt2, *pixt3, *pixt4, *pixt5, *pixt6;
+PIX     *pix1, *pix2, *pix3, *pix4, *pix5, *pix6;
 
-    pixs = pixRead("feyn.tif");
+    if (symmetric) {
+            /* This works properly with an added border of 128 */
+        resetMorphBoundaryCondition(SYMMETRIC_MORPH_BC);
+        pix1 = pixAddBorder(pixs, 128, 0);
+        pixTransferAllData(pixs, &pix1, 0, 0);
+        lept_stderr("Testing with symmetric boundary conditions\n");
+    } else {
+        resetMorphBoundaryCondition(ASYMMETRIC_MORPH_BC);
+        lept_stderr("Testing with asymmetric boundary conditions\n");
+    }
 
-#if TEST_SYMMETRIC
-        /* This works properly if there's an added border */
-    resetMorphBoundaryCondition(SYMMETRIC_MORPH_BC);
-#if 1
-    pixt1 = pixAddBorder(pixs, 64, 0);
-    pixTransferAllData(pixs, &pixt1, 0, 0);
-#endif
-#endif  /* TEST_SYMMETRIC */
-
-    pixt1 = pixCreateTemplateNoInit(pixs);
-    pixt2 = pixCreateTemplateNoInit(pixs);
-    pixt3 = pixCreateTemplateNoInit(pixs);
-    pixt4 = pixCreateTemplateNoInit(pixs);
-    pixt5 = pixCreateTemplateNoInit(pixs);
-    pixt6 = pixCreateTemplateNoInit(pixs);
-
+    pix1 = pixCreateTemplateNoInit(pixs);
+    pix2 = pixCreateTemplateNoInit(pixs);
+    pix3 = pixCreateTemplateNoInit(pixs);
+    pix4 = pixCreateTemplateNoInit(pixs);
+    pix5 = pixCreateTemplateNoInit(pixs);
+    pix6 = pixCreateTemplateNoInit(pixs);
 
     /* ---------------------------------------------------------------- *
      *                  Faster test; testing fewer sizes                *
@@ -108,8 +137,7 @@ PIX     *pixs, *pixt1, *pixt2, *pixt3, *pixt4, *pixt5, *pixt6;
         extra = i - 63 - (n - 1) * 62 + 1;
         if (extra == 2) continue;  /* don't use this one (e.g., i == 126) */
         if (ropsize[i] == dwasize[i])
-            DoComparisonDwa1(pixs, pixt1, pixt2, pixt3, pixt4,
-                             pixt5, pixt6, i);
+            DoComparisonDwa1(rp, pixs, pix1, pix2, pix3, pix4, pix5, pix6, i);
     }
 #endif  /* FASTER_TEST */
 
@@ -123,197 +151,179 @@ PIX     *pixs, *pixt1, *pixt2, *pixt3, *pixt4, *pixt5, *pixt6;
         if (size == lastsize) continue;
         if (size == 126 || size == 188) continue;  /* deliberately off by one */
         lastsize = size;
-        DoComparisonDwa2(pixs, pixt1, pixt2, pixt3, pixt4,
-                         pixt5, pixt6, size);
+        DoComparisonDwa2(rp, pixs, pix1, pix2, pix3, pix4, pix5, pix6, size);
     }
 #endif  /* SLOWER_TEST */
 
-    pixDestroy(&pixs);
-    pixDestroy(&pixt1);
-    pixDestroy(&pixt2);
-    pixDestroy(&pixt3);
-    pixDestroy(&pixt4);
-    pixDestroy(&pixt5);
-    pixDestroy(&pixt6);
-    return 0;
+    lept_stderr("\n");
+    pixDestroy(&pix1);
+    pixDestroy(&pix2);
+    pixDestroy(&pix3);
+    pixDestroy(&pix4);
+    pixDestroy(&pix5);
+    pixDestroy(&pix6);
 }
 
 
 l_int32
-DoComparisonDwa1(PIX     *pixs,
-                 PIX     *pixt1,
-                 PIX     *pixt2,
-                 PIX     *pixt3,
-                 PIX     *pixt4,
-                 PIX     *pixt5,
-                 PIX     *pixt6,
-                 l_int32  isize)
+DoComparisonDwa1(L_REGPARAMS  *rp,
+                 PIX          *pixs,
+                 PIX          *pix1,
+                 PIX          *pix2,
+                 PIX          *pix3,
+                 PIX          *pix4,
+                 PIX          *pix5,
+                 PIX          *pix6,
+                 l_int32       isize)
 {
 l_int32   fact1, fact2, size;
 
     selectComposableSizes(isize, &fact1, &fact2);
     size = fact1 * fact2;
 
-    fprintf(stderr, "..%d..", size);
+    lept_stderr("..%d..", size);
 
     if (TIMING) startTimer();
-    pixDilateCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixDilateCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixDilateCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixDilateCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixDilateCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixDilateCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixDilateCompBrick(pixt2, pixs, size, 1);
-    pixDilateCompBrick(pixt4, pixs, 1, size);
-    pixDilateCompBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "dilate", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
+    pixDilateCompBrick(pix2, pixs, size, 1);
+    pixDilateCompBrick(pix4, pixs, 1, size);
+    pixDilateCompBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "dilate", pix1, pix2, pix3, pix4, pix5, pix6);
 
     if (TIMING) startTimer();
-    pixErodeCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixErodeCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixErodeCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixErodeCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixErodeCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixErodeCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixErodeCompBrick(pixt2, pixs, size, 1);
-    pixErodeCompBrick(pixt4, pixs, 1, size);
-    pixErodeCompBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "erode", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
+    pixErodeCompBrick(pix2, pixs, size, 1);
+    pixErodeCompBrick(pix4, pixs, 1, size);
+    pixErodeCompBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "erode", pix1, pix2, pix3, pix4, pix5, pix6);
 
     if (TIMING) startTimer();
-    pixOpenCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixOpenCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixOpenCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixOpenCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixOpenCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixOpenCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixOpenCompBrick(pixt2, pixs, size, 1);
-    pixOpenCompBrick(pixt4, pixs, 1, size);
-    pixOpenCompBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "open", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
+    pixOpenCompBrick(pix2, pixs, size, 1);
+    pixOpenCompBrick(pix4, pixs, 1, size);
+    pixOpenCompBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "open", pix1, pix2, pix3, pix4, pix5, pix6);
 
     if (TIMING) startTimer();
-    pixCloseCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixCloseCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixCloseCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixCloseCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixCloseCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixCloseCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixCloseSafeCompBrick(pixt2, pixs, size, 1);
-    pixCloseSafeCompBrick(pixt4, pixs, 1, size);
-    pixCloseSafeCompBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "close", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
-
-#if 0
-    pixWrite("/tmp/junkpixt3.png", pixt3, IFF_PNG);
-    pixWrite("/tmp/junkpixt4.png", pixt4, IFF_PNG);
-    pixXor(pixt3, pixt3, pixt4);
-    pixWrite("/tmp/junkxor.png", pixt3, IFF_PNG);
-#endif
+    pixCloseSafeCompBrick(pix2, pixs, size, 1);
+    pixCloseSafeCompBrick(pix4, pixs, 1, size);
+    pixCloseSafeCompBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "close", pix1, pix2, pix3, pix4, pix5, pix6);
 
     return 0;
 }
 
 
 l_int32
-DoComparisonDwa2(PIX     *pixs,
-                 PIX     *pixt1,
-                 PIX     *pixt2,
-                 PIX     *pixt3,
-                 PIX     *pixt4,
-                 PIX     *pixt5,
-                 PIX     *pixt6,
-                 l_int32  size)  /* exactly decomposable */
+DoComparisonDwa2(L_REGPARAMS  *rp,
+                 PIX          *pixs,
+                 PIX          *pix1,
+                 PIX          *pix2,
+                 PIX          *pix3,
+                 PIX          *pix4,
+                 PIX          *pix5,
+                 PIX          *pix6,
+                 l_int32       size)  /* exactly decomposable */
 {
-    fprintf(stderr, "..%d..", size);
+    lept_stderr("..%d..", size);
 
     if (TIMING) startTimer();
-    pixDilateCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixDilateCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixDilateCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixDilateCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixDilateCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixDilateCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixDilateBrick(pixt2, pixs, size, 1);
-    pixDilateBrick(pixt4, pixs, 1, size);
-    pixDilateBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "dilate", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
+    pixDilateBrick(pix2, pixs, size, 1);
+    pixDilateBrick(pix4, pixs, 1, size);
+    pixDilateBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "dilate", pix1, pix2, pix3, pix4, pix5, pix6);
 
     if (TIMING) startTimer();
-    pixErodeCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixErodeCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixErodeCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixErodeCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixErodeCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixErodeCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixErodeBrick(pixt2, pixs, size, 1);
-    pixErodeBrick(pixt4, pixs, 1, size);
-    pixErodeBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "erode", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
+    pixErodeBrick(pix2, pixs, size, 1);
+    pixErodeBrick(pix4, pixs, 1, size);
+    pixErodeBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "erode", pix1, pix2, pix3, pix4, pix5, pix6);
 
     if (TIMING) startTimer();
-    pixOpenCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixOpenCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixOpenCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixOpenCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixOpenCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixOpenCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixOpenBrick(pixt2, pixs, size, 1);
-    pixOpenBrick(pixt4, pixs, 1, size);
-    pixOpenBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "open", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
+    pixOpenBrick(pix2, pixs, size, 1);
+    pixOpenBrick(pix4, pixs, 1, size);
+    pixOpenBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "open", pix1, pix2, pix3, pix4, pix5, pix6);
 
     if (TIMING) startTimer();
-    pixCloseCompBrickExtendDwa(pixt1, pixs, size, 1);
-    pixCloseCompBrickExtendDwa(pixt3, pixs, 1, size);
-    pixCloseCompBrickExtendDwa(pixt5, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Dwa: %7.3f sec\n", stopTimer());
+    pixCloseCompBrickExtendDwa(pix1, pixs, size, 1);
+    pixCloseCompBrickExtendDwa(pix3, pixs, 1, size);
+    pixCloseCompBrickExtendDwa(pix5, pixs, size, size);
+    if (TIMING) lept_stderr("Time Dwa: %7.3f sec\n", stopTimer());
     if (TIMING) startTimer();
-    pixCloseSafeBrick(pixt2, pixs, size, 1);
-    pixCloseSafeBrick(pixt4, pixs, 1, size);
-    pixCloseSafeBrick(pixt6, pixs, size, size);
-    if (TIMING) fprintf(stderr, "Time Rop: %7.3f sec\n", stopTimer());
-    PixCompareDwa(size, "close", pixt1, pixt2, pixt3, pixt4, pixt5, pixt6);
-
-#if 0
-    pixWrite("/tmp/junkpixt3.png", pixt3, IFF_PNG);
-    pixWrite("/tmp/junkpixt4.png", pixt4, IFF_PNG);
-    pixXor(pixt3, pixt3, pixt4);
-    pixWrite("/tmp/junkxor.png", pixt3, IFF_PNG);
-#endif
+    pixCloseSafeBrick(pix2, pixs, size, 1);
+    pixCloseSafeBrick(pix4, pixs, 1, size);
+    pixCloseSafeBrick(pix6, pixs, size, size);
+    if (TIMING) lept_stderr("Time Rop: %7.3f sec\n", stopTimer());
+    PixCompareDwa(rp, size, "close", pix1, pix2, pix3, pix4, pix5, pix6);
 
     return 0;
 }
 
 
-l_int32
-PixCompareDwa(l_int32      size,
-              const char  *type,
-              PIX         *pixt1,
-              PIX         *pixt2,
-              PIX         *pixt3,
-              PIX         *pixt4,
-              PIX         *pixt5,
-              PIX         *pixt6)
+void
+PixCompareDwa(L_REGPARAMS  *rp,
+              l_int32       size,
+              const char   *type,
+              PIX          *pix1,
+              PIX          *pix2,
+              PIX          *pix3,
+              PIX          *pix4,
+              PIX          *pix5,
+              PIX          *pix6)
 {
-l_int32  same, fail;
+l_int32  same;
 
-    fail = FALSE;
-    pixEqual(pixt1, pixt2, &same);
-    if (!same) {
-        fail = TRUE;
-        fprintf(stderr, "%s (%d, 1) not same\n", type, size);
-    }
-    pixEqual(pixt3, pixt4, &same);
-    if (!same) {
-        fail = TRUE;
-        fprintf(stderr, "%s (1, %d) not same\n", type, size);
-    }
-    pixEqual(pixt5, pixt6, &same);
-    if (!same) {
-        fail = TRUE;
-        fprintf(stderr, "%s (%d, %d) not same\n", type, size, size);
-    }
-    return fail;
+    pixEqual(pix1, pix2, &same);
+    regTestCompareValues(rp, TRUE, same, 0);
+    if (!same)
+        lept_stderr("%s (%d, 1) not same\n", type, size);
+    pixEqual(pix3, pix4, &same);
+    regTestCompareValues(rp, TRUE, same, 0);
+    if (!same)
+        lept_stderr("%s (1, %d) not same\n", type, size);
+    pixEqual(pix5, pix6, &same);
+    regTestCompareValues(rp, TRUE, same, 0);
+    if (!same)
+        lept_stderr("%s (%d, %d) not same\n", type, size, size);
 }
 

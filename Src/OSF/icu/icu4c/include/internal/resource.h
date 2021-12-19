@@ -181,7 +181,7 @@ public:
      *
   * @see ures_getBinary()
      */
-    virtual const uint8_t *getBinary(int32_t &length, UErrorCode & errorCode) const = 0;
+    virtual const uint8 *getBinary(int32_t &length, UErrorCode & errorCode) const = 0;
 
     /**
   * Sets U_RESOURCE_TYPE_MISMATCH if this is not an array resource

@@ -33,6 +33,10 @@
  *     serialization, interconversion)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config_auto.h>
+#endif  /* HAVE_CONFIG_H */
+
 #include "allheaders.h"
 
 l_int32 main(int    argc,
@@ -154,9 +158,14 @@ L_REGPARAMS  *rp;
     pixDestroy(&pixd);
 
         /* Test a few of the fpix functions */
+    if (!dew2) {
+        L_ERROR("dew2 doesn't exist !!!!\n", "dewarp_reg");
+        return 1;
+    }
     fpix1 = fpixClone(dew2->sampvdispar);
     fpixWrite("/tmp/lept/regout/dewarp.12.fpix", fpix1);
     regTestCheckFile(rp, "/tmp/lept/regout/dewarp.12.fpix");  /* 12 */
+
     fpix2 = fpixRead("/tmp/lept/regout/dewarp.12.fpix");
     fpixWrite("/tmp/lept/regout/dewarp.13.fpix", fpix2);
     regTestCheckFile(rp, "/tmp/lept/regout/dewarp.13.fpix");  /* 13 */
@@ -184,7 +193,7 @@ L_REGPARAMS  *rp;
     pixt1 = fpixRenderContours(fpix3, 2.0, 0.2);
     regTestWritePixAndCheck(rp, pixt1, IFF_PNG);  /* 19 */
     pixDisplayWithTitle(pixt1, 400, 800, "v. disparity contours", rp->display);
-    regTestCompareSimilarPix(rp, pix1, pixt1, 1, 0.00001, 1);  /* 20 */
+    regTestCompareSimilarPix(rp, pix1, pixt1, 1, 0.00001, 0);  /* 20 */
     dpixDestroy(&dpix1);
     dpixDestroy(&dpix2);
     dpixDestroy(&dpix3);

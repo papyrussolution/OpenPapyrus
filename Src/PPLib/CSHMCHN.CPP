@@ -206,8 +206,8 @@ PPID PPCashMachine::GetCurSessID()
 }
 
 const PPCashNode & PPCashMachine::GetNodeData() const { return NodeRec; }
-int PPCashMachine::IsValid() const { return Valid; }
-void PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
+bool  PPCashMachine::IsValid() const { return LOGIC(Valid); }
+void  PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
 
 int PPCashMachine::GetSyncIntrf()
 {

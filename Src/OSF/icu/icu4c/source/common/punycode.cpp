@@ -84,7 +84,7 @@
  * nonzero, in which case the uppercase form is used.
  */
 static inline char digitToBasic(int32_t digit, bool uppercase) {
-	/*  0..25 map to ASCII a..z or A..Z */
+	/* 0..25 map to ASCII a..z or A..Z */
 	/* 26..35 map to ASCII 0..9         */
 	if(digit<26) {
 		if(uppercase) {

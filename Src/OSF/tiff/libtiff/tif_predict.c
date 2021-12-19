@@ -239,9 +239,9 @@ static int PredictorSetupEncode(TIFF* tif)
 
 /* Remarks related to C standard compliance in all below functions : */
 /* - to avoid any undefined behaviour, we only operate on unsigned types */
-/*   since the behaviour of "overflows" is defined (wrap over) */
+/* since the behaviour of "overflows" is defined (wrap over) */
 /* - when storing into the byte stream, we explicitly mask with 0xff so */
-/*   as to make icc -check=conversions happy (not necessary by the standard) */
+/* as to make icc -check=conversions happy (not necessary by the standard) */
 
 TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
 static int horAcc8(TIFF* tif, uint8 * cp0, tmsize_t cc)

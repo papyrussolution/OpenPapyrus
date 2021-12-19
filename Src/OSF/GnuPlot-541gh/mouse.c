@@ -517,7 +517,7 @@ void GnuPlot::ApplyZoom(GpTermEntry * pTerm, t_zoom * z)
 		return;
 	}
 	// Now we're committed. Notify the terminal the the next replot is a zoom 
-	(pTerm->layer)(pTerm, TERM_LAYER_BEFORE_ZOOM);
+	pTerm->Layer_(TERM_LAYER_BEFORE_ZOOM);
 	// New range on primary axes 
 	SetExplicitRange(&AxS[FIRST_X_AXIS], zoom_now->_Min.x, zoom_now->_Max.x);
 	SetExplicitRange(&AxS[FIRST_Y_AXIS], zoom_now->_Min.y, zoom_now->_Max.y);
@@ -841,7 +841,7 @@ char * GnuPlot::BuiltinSetPlotsVisible(GpEvent * ge, GpTermEntry * pTerm)
 	}
 	else {
 		if(pTerm->modify_plots)
-			pTerm->modify_plots(MODPLOTS_SET_VISIBLE, -1);
+			pTerm->modify_plots(pTerm, MODPLOTS_SET_VISIBLE, -1);
 		return (char *)0;
 	}
 }
@@ -853,7 +853,7 @@ char * GnuPlot::BuiltinSetPlotsInvisible(GpEvent * ge, GpTermEntry * pTerm)
 	}
 	else {
 		if(pTerm->modify_plots)
-			pTerm->modify_plots(MODPLOTS_SET_INVISIBLE, -1);
+			pTerm->modify_plots(pTerm, MODPLOTS_SET_INVISIBLE, -1);
 		return (char *)0;
 	}
 }
@@ -865,7 +865,7 @@ char * GnuPlot::BuiltinInvertPlotVisibilities(GpEvent * ge, GpTermEntry * pTerm)
 	}
 	else {
 		if(pTerm->modify_plots)
-			pTerm->modify_plots(MODPLOTS_INVERT_VISIBILITIES, -1);
+			pTerm->modify_plots(pTerm, MODPLOTS_INVERT_VISIBILITIES, -1);
 		return (char *)0;
 	}
 }
@@ -1800,13 +1800,13 @@ void GnuPlot::EventButtonRelease(GpEvent * pGe, GpTermEntry * pTerm)
 						int dx = pTerm->TicH;
 						int dy = pTerm->TicV;
 						pTerm->linewidth(pTerm, Gg.border_lp.l_width);
-						pTerm->linetype(pTerm, Gg.border_lp.l_type);
-						pTerm->move(pTerm, x - dx, y);
-						pTerm->vector(pTerm, x + dx, y);
-						pTerm->move(pTerm, x, y - dy);
-						pTerm->vector(pTerm, x, y + dy);
+						pTerm->SetLineType_(Gg.border_lp.l_type);
+						pTerm->Mov_(x - dx, y);
+						pTerm->Vec_(x + dx, y);
+						pTerm->Mov_(x, y - dy);
+						pTerm->Vec_(x, y + dy);
 						pTerm->justify_text(pTerm, LEFT);
-						pTerm->put_text(pTerm, x + dx / 2, y + dy / 2 + pTerm->ChrV / 3, s0);
+						pTerm->put_text(pTerm, x + dx / 2, y + dy / 2 + pTerm->CV() / 3, s0);
 						(pTerm->text)(pTerm);
 					}
 				}
@@ -1960,7 +1960,7 @@ void GnuPlot::EventReset(GpEvent * ge, GpTermEntry * pTerm)
 	// character of input from being swallowed when the plot window is
 	// closed. But which systems, exactly, and in what circumstances?
 	if(paused_for_mouse || !_Plt.interactive) {
-		if(pTerm && TermInitialised && (!strncmp("x11", pTerm->name, 3) || !strncmp("wxt", pTerm->name, 3) || !strncmp("qt", pTerm->name, 2)))
+		if(pTerm && TermInitialised && (!strncmp("x11", pTerm->GetName(), 3) || !strncmp("wxt", pTerm->GetName(), 3) || !strncmp("qt", pTerm->GetName(), 2)))
 			ungetc('\n', stdin);
 	}
 	if(paused_for_mouse) {
@@ -2034,7 +2034,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 	#ifdef X11
 				// EAM FIXME:  Despite the name, only X11 uses this to pass font info.	
 				// Everyone else passes just the plot height and width.			
-				if(sstreq(pTerm->name, "x11")) {
+				if(sstreq(pTerm->GetName(), "x11")) {
 					// These are declared in ../term/x11.trm 
 					extern int X11_hchar_saved, X11_vchar_saved;
 					extern double X11_ymax_saved;
@@ -2054,8 +2054,8 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 					}
 					else {
 						// Otherwise we apply the changes right now 
-						pTerm->ChrH = X11_hchar_saved;
-						pTerm->ChrV = X11_vchar_saved;
+						pTerm->CH() = X11_hchar_saved;
+						pTerm->CV() = X11_vchar_saved;
 						// factor of 2.5 must match the use in x11.trm 
 						pTerm->TicH = pTerm->TicV = X11_vchar_saved / 2.5;
 						pTerm->MaxY  = X11_ymax_saved;
@@ -2065,7 +2065,7 @@ void GnuPlot::DoEvent(GpTermEntry * pTerm, GpEvent * pGe)
 				// @fallthrough to cover non-x11 case 
 	#endif
 				// Other terminals update aspect ratio based on current window size 
-				pTerm->TicV = static_cast<uint>(pTerm->TicH * (double)pGe->mx / (double)pGe->my);
+				pTerm->TicV = static_cast<uint>(pTerm->MulTicH((double)pGe->mx / (double)pGe->my));
 				FPRINTF((stderr, "mouse do_event: window size %d X %d, font hchar %d vchar %d\n", pGe->mx, pGe->my, pGe->par1, pGe->par2));
 				break;
 			case GE_buttonpress_old:

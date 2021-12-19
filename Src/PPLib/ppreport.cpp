@@ -246,10 +246,7 @@ SReport::~SReport()
 	SAlloc::F(P_Text);
 }
 
-int SReport::IsValid() const
-{
-	return !Error;
-}
+bool SReport::IsValid() const { return !Error; }
 
 int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 {
@@ -312,12 +309,12 @@ int SReport::readResource(TVRez * rez, uint resID)
 		fields[i].id      = rez->getUINT();
 		fields[i].name    = rez->getUINT(); // @
 		fields[i].type    = rez->getUINT();
-		lw                = rez->getUINT();
-		hw                = rez->getUINT();
+		lw        = rez->getUINT();
+		hw        = rez->getUINT();
 		fields[i].format  = MakeLong(lw, hw);
 		fields[i].fldfmt  = rez->getUINT();
-		lw                = rez->getUINT();
-		hw                = rez->getUINT();
+		lw        = rez->getUINT();
+		hw        = rez->getUINT();
 		fields[i].offs    = MakeLong(lw, hw);
 		fields[i].lastval = 0;
 	}
@@ -2452,11 +2449,12 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				}
 				pans.Flags &= ~pans.fForceDDF;
 				p_sel_entry = pans.Entries.at(pans.Selection);
-				fn                  = p_sel_entry->ReportPath_;
-				data_name           = p_sel_entry->DataName_;
+				// @v11.2.8 fn = p_sel_entry->ReportPath_;
+				SPathStruc::NormalizePath(p_sel_entry->ReportPath_, SPathStruc::npfCompensateDotDot, fn); // @v11.2.8 
+				data_name   = p_sel_entry->DataName_;
 				inherited_tbl_names = BIN(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
 				diffidbyscope       = BIN(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
-				rpt.PrnDest         = pans.Dest;
+				rpt.PrnDest = pans.Dest;
 				printer_name        = pans.Printer;
 				SETFLAG(rpt.PrnOptions, SPRN_USEDUPLEXPRINTING, BIN(pans.Flags & PrnDlgAns::fUseDuplexPrinting));
 			}

@@ -282,10 +282,7 @@ STabFile::STabFile(const char * pFileName, int updateMode) : Flags(0)
 	Open(pFileName, updateMode);
 }
 
-int STabFile::IsValid() const
-{
-	return F.IsValid();
-}
+bool STabFile::IsValid() const { return F.IsValid(); }
 
 int STabFile::Open(const char * pFileName, int updateMode)
 {

@@ -36,9 +36,6 @@ static bool FASTCALL IsANumberChar(int ch)
 	       (isdec(ch) || toupper(ch) == 'E' ||
 	    ch == '.' || ch == '-' || ch == '+');
 }
-
-//--------------------------------------------------------------------------------------------------
-
 /**
  * Check if the current content context represent a keyword and set the context state if so.
  */
@@ -65,8 +62,6 @@ static void CheckForKeyword(StyleContext& sc, WordList* keywordlists[], int acti
 		sc.ChangeState(SCE_MYSQL_USER3 | activeState);
 	delete [] s;
 }
-
-//--------------------------------------------------------------------------------------------------
 
 #define HIDDENCOMMAND_STATE 0x40 // Offset for states within a hidden command.
 #define MASKACTIVE(style) (style & ~HIDDENCOMMAND_STATE)
@@ -270,8 +265,6 @@ static void ColouriseMySQLDoc(Sci_PositionU startPos, Sci_Position length, int i
 
 	sc.Complete();
 }
-
-//--------------------------------------------------------------------------------------------------
 /**
  * Helper function to determine if we have a foldable comment currently.
  */
@@ -279,9 +272,6 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 {
 	return MASKACTIVE(style) == SCE_MYSQL_COMMENT;
 }
-
-//--------------------------------------------------------------------------------------------------
-
 /**
  * Code copied from StyleContext and modified to work here. Should go into Accessor as a
  * companion to Match()...
@@ -295,11 +285,10 @@ static bool MatchIgnoreCase(Accessor & styler, Sci_Position currentPos, const ch
 	}
 	return true;
 }
-
-//--------------------------------------------------------------------------------------------------
-
+//
 // Store both the current line's fold level and the next lines in the
 // level store to make it easy to pick up with each increment.
+//
 static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
@@ -491,8 +480,6 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 			visibleChars++;
 	}
 }
-
-//--------------------------------------------------------------------------------------------------
 
 static const char * const mysqlWordListDesc[] = {
 	"Major Keywords",

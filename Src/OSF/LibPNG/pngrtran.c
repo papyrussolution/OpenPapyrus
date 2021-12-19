@@ -198,7 +198,7 @@ static png_fixed_point translate_gamma_flags(png_structrp png_ptr, png_fixed_poi
 #ifdef PNG_READ_sRGB_SUPPORTED
 		png_ptr->flags |= PNG_FLAG_ASSUME_sRGB;
 #else
-		PNG_UNUSED(png_ptr)
+		CXX_UNUSED(png_ptr);
 #endif
 		if(is_screen != 0)
 			output_gamma = PNG_GAMMA_sRGB;
@@ -1028,10 +1028,10 @@ static void /* PRIVATE */ png_init_rgb_transformations(png_structrp png_ptr)
 		 * required, however if the alpha is 0 or 1 throughout OPTIMIZE_ALPHA
 		 * and ENCODE_ALPHA are irrelevant.
 		 */
-#     ifdef PNG_READ_ALPHA_MODE_SUPPORTED
+#ifdef PNG_READ_ALPHA_MODE_SUPPORTED
 		png_ptr->transformations &= ~PNG_ENCODE_ALPHA;
 		png_ptr->flags &= ~PNG_FLAG_OPTIMIZE_ALPHA;
-#     endif
+#endif
 
 		if(input_has_transparency == 0)
 			png_ptr->transformations &= ~(PNG_COMPOSE | PNG_BACKGROUND_EXPAND);
@@ -1724,29 +1724,29 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 
 	if(info_ptr->bit_depth == 16) {
 #ifdef PNG_READ_16BIT_SUPPORTED
-#     ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
+#ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
 		if((png_ptr->transformations & PNG_SCALE_16_TO_8) != 0)
 			info_ptr->bit_depth = 8;
-#     endif
+#endif
 
-#     ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
+#ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
 		if((png_ptr->transformations & PNG_16_TO_8) != 0)
 			info_ptr->bit_depth = 8;
-#     endif
+#endif
 
 #else
 		/* No 16-bit support: force chopping 16-bit input down to 8, in this case
 		 * the app program can chose if both APIs are available by setting the
 		 * correct scaling to use.
 		 */
-#     ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
+#ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
 		/* For compatibility with previous versions use the strip method by
 		 * default.  This code works because if PNG_SCALE_16_TO_8 is already
 		 * set the code below will do that in preference to the chop.
 		 */
 		png_ptr->transformations |= PNG_16_TO_8;
 		info_ptr->bit_depth = 8;
-#     else
+#else
 
 #        ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
 		png_ptr->transformations |= PNG_SCALE_16_TO_8;
@@ -2244,7 +2244,7 @@ static void png_do_read_invert_alpha(png_row_infop row_info, png_bytep row)
 			for(i = 0; i < row_width; i++) {
 				*(--dp) = (uint8)(255 - *(--sp));
 
-/*          This does nothing:
+/* This does nothing:
    *(--dp) = *(--sp);
    *(--dp) = *(--sp);
    *(--dp) = *(--sp);
@@ -2266,7 +2266,7 @@ static void png_do_read_invert_alpha(png_row_infop row_info, png_bytep row)
 				*(--dp) = (uint8)(255 - *(--sp));
 				*(--dp) = (uint8)(255 - *(--sp));
 
-/*          This does nothing:
+/* This does nothing:
    *(--dp) = *(--sp);
    *(--dp) = *(--sp);
    *(--dp) = *(--sp);
@@ -4193,12 +4193,12 @@ void /* PRIVATE */ png_do_read_transformations(png_structrp png_ptr, png_row_inf
 			(*(png_ptr->read_user_transform_fn)) /* User read transform function */
 				(png_ptr, /* png_ptr */
 			    row_info, /* row_info: */
-			    /*  uint32 width;       width of row */
-			    /*  size_t rowbytes;     number of bytes in row */
-			    /*  uint8 color_type;     color type of pixels */
-			    /*  uint8 bit_depth;      bit depth of samples */
-			    /*  uint8 channels;       number of channels (1-4) */
-			    /*  uint8 pixel_depth;    bits per pixel (depth*channels) */
+			    /* uint32 width;       width of row */
+			    /* size_t rowbytes;     number of bytes in row */
+			    /* uint8 color_type;     color type of pixels */
+			    /* uint8 bit_depth;      bit depth of samples */
+			    /* uint8 channels;       number of channels (1-4) */
+			    /* uint8 pixel_depth;    bits per pixel (depth*channels) */
 			    png_ptr->row_buf + 1); /* start of pixel data for row */
 #ifdef PNG_USER_TRANSFORM_PTR_SUPPORTED
 		if(png_ptr->user_transform_depth != 0)

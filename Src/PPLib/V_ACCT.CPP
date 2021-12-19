@@ -1,5 +1,5 @@
 // V_ACCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 // PPViewAccount
 //
@@ -148,7 +148,7 @@ int PPViewAccount::FetchData(long id)
 	}
 	else {
 		uint   pos = 0;
-		int    found = BIN(Data.lsearch(&id, &pos, CMPF_LONG) > 0);
+		const  bool found = Data.lsearch(&id, &pos, CMPF_LONG);
 		PPAccount rec;
 		if(AccObj.Search(id, &rec) > 0 && CheckForFilt(rec) > 0) {
 			MakeListEntry(rec, entry);

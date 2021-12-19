@@ -307,14 +307,14 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 		 */
 		int32_t i;
 		UChar32 c;
-		for(i = 0; (c = (uint8_t)src[i]) != 0 && (pDest < pDestLimit);) {
+		for(i = 0; (c = (uint8)src[i]) != 0 && (pDest < pDestLimit);) {
 			// modified copy of U8_NEXT()
 			++i;
 			if(U8_IS_SINGLE(c)) {
 				*pDest++ = (UChar)c;
 			}
 			else {
-				uint8_t __t1, __t2;
+				uint8 __t1, __t2;
 				if( /* handle U+0800..U+FFFF inline */
 					(0xe0<=(c) && (c)<0xf0) &&
 					U8_IS_VALID_LEAD3_AND_T1((c), src[i]) &&
@@ -330,7 +330,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8_t*)src, &(i), -1, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), -1, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -353,14 +353,14 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 		}
 
 		/* Pre-flight the rest of the string. */
-		while((c = (uint8_t)src[i]) != 0) {
+		while((c = (uint8)src[i]) != 0) {
 			// modified copy of U8_NEXT()
 			++i;
 			if(U8_IS_SINGLE(c)) {
 				++reqLength;
 			}
 			else {
-				uint8_t __t1, __t2;
+				uint8 __t1, __t2;
 				if( /* handle U+0800..U+FFFF inline */
 					(0xe0<=(c) && (c)<0xf0) &&
 					U8_IS_VALID_LEAD3_AND_T1((c), src[i]) &&
@@ -376,7 +376,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8_t*)src, &(i), -1, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), -1, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -412,12 +412,12 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 
 			do {
 				// modified copy of U8_NEXT()
-				c = (uint8_t)src[i++];
+				c = (uint8)src[i++];
 				if(U8_IS_SINGLE(c)) {
 					*pDest++ = (UChar)c;
 				}
 				else {
-					uint8_t __t1, __t2;
+					uint8 __t1, __t2;
 					if( /* handle U+0800..U+FFFF inline */
 						(0xe0<=(c) && (c)<0xf0) &&
 						((i)+1)<srcLength &&
@@ -445,7 +445,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 						}
 
 						/* function call for "complicated" and error cases */
-						(c) = utf8_nextCharSafeBody((const uint8_t*)src, &(i), srcLength, c, -1);
+						(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, c, -1);
 						if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 							*pErrorCode = U_INVALID_CHAR_FOUND;
 							return NULL;
@@ -464,12 +464,12 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 
 		while(i < srcLength && (pDest < pDestLimit)) {
 			// modified copy of U8_NEXT()
-			c = (uint8_t)src[i++];
+			c = (uint8)src[i++];
 			if(U8_IS_SINGLE(c)) {
 				*pDest++ = (UChar)c;
 			}
 			else {
-				uint8_t __t1, __t2;
+				uint8 __t1, __t2;
 				if( /* handle U+0800..U+FFFF inline */
 					(0xe0<=(c) && (c)<0xf0) &&
 					((i)+1)<srcLength &&
@@ -487,7 +487,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8_t*)src, &(i), srcLength, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -512,12 +512,12 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 		/* Pre-flight the rest of the string. */
 		while(i < srcLength) {
 			// modified copy of U8_NEXT()
-			c = (uint8_t)src[i++];
+			c = (uint8)src[i++];
 			if(U8_IS_SINGLE(c)) {
 				++reqLength;
 			}
 			else {
-				uint8_t __t1, __t2;
+				uint8 __t1, __t2;
 				if( /* handle U+0800..U+FFFF inline */
 					(0xe0<=(c) && (c)<0xf0) &&
 					((i)+1)<srcLength &&
@@ -535,7 +535,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for "complicated" and error cases */
-					(c) = utf8_nextCharSafeBody((const uint8_t*)src, &(i), srcLength, c, -1);
+					(c) = utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, c, -1);
 					if(c<0 && (++numSubstitutions, c = subchar) < 0) {
 						*pErrorCode = U_INVALID_CHAR_FOUND;
 						return NULL;
@@ -584,7 +584,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 	UChar * pDest = dest;
 	UChar32 ch;
 	int32_t reqLength = 0;
-	uint8_t* pSrc = (uint8_t*)src;
+	uint8* pSrc = (uint8 *)src;
 
 	/* args check */
 	if(U_FAILURE(*pErrorCode)) {
@@ -601,7 +601,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 	if(srcLength < 0) {
 		/* Transform a NUL-terminated string. */
 		UChar * pDestLimit = (dest!=NULL) ? (dest+destCapacity) : NULL;
-		uint8_t t1, t2, t3; /* trail bytes */
+		uint8 t1, t2, t3; /* trail bytes */
 
 		while(((ch = *pSrc) != 0) && (pDest < pDestLimit)) {
 			if(ch < 0xc0) {
@@ -696,7 +696,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 		}
 	}
 	else { /* srcLength >= 0 */
-		const uint8_t * pSrcLimit = (pSrc!=NULL) ? (pSrc + srcLength) : NULL;
+		const uint8 * pSrcLimit = (pSrc!=NULL) ? (pSrc + srcLength) : NULL;
 
 		/*
 		 * This function requires that if srcLength is given, then it must be
@@ -809,25 +809,25 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 	return dest;
 }
 
-static inline uint8_t * _appendUTF8(uint8_t * pDest, UChar32 c) {
+static inline uint8 * _appendUTF8(uint8 * pDest, UChar32 c) {
 	/* it is 0<=c<=0x10ffff and not a surrogate if called by a validating function */
 	if((c)<=0x7f) {
-		*pDest++ = (uint8_t)c;
+		*pDest++ = (uint8)c;
 	}
 	else if(c<=0x7ff) {
-		*pDest++ = (uint8_t)((c>>6)|0xc0);
-		*pDest++ = (uint8_t)((c&0x3f)|0x80);
+		*pDest++ = (uint8)((c>>6)|0xc0);
+		*pDest++ = (uint8)((c&0x3f)|0x80);
 	}
 	else if(c<=0xffff) {
-		*pDest++ = (uint8_t)((c>>12)|0xe0);
-		*pDest++ = (uint8_t)(((c>>6)&0x3f)|0x80);
-		*pDest++ = (uint8_t)(((c)&0x3f)|0x80);
+		*pDest++ = (uint8)((c>>12)|0xe0);
+		*pDest++ = (uint8)(((c>>6)&0x3f)|0x80);
+		*pDest++ = (uint8)(((c)&0x3f)|0x80);
 	}
 	else { /* if((uint32_t)(c)<=0x10ffff) */
-		*pDest++ = (uint8_t)(((c)>>18)|0xf0);
-		*pDest++ = (uint8_t)((((c)>>12)&0x3f)|0x80);
-		*pDest++ = (uint8_t)((((c)>>6)&0x3f)|0x80);
-		*pDest++ = (uint8_t)(((c)&0x3f)|0x80);
+		*pDest++ = (uint8)(((c)>>18)|0xf0);
+		*pDest++ = (uint8)((((c)>>12)&0x3f)|0x80);
+		*pDest++ = (uint8)((((c)>>6)&0x3f)|0x80);
+		*pDest++ = (uint8)(((c)&0x3f)|0x80);
 	}
 	return pDest;
 }
@@ -841,8 +841,8 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
     UErrorCode * pErrorCode) {
 	int32_t reqLength = 0;
 	uint32_t ch = 0, ch2 = 0;
-	uint8_t * pDest = (uint8_t*)dest;
-	uint8_t * pDestLimit = (pDest!=NULL) ? (pDest + destCapacity) : NULL;
+	uint8 * pDest = (uint8 *)dest;
+	uint8 * pDestLimit = (pDest!=NULL) ? (pDest + destCapacity) : NULL;
 	int32_t numSubstitutions;
 
 	/* args check */
@@ -868,7 +868,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			++pSrc;
 			if(ch <= 0x7f) {
 				if(pDest<pDestLimit) {
-					*pDest++ = (uint8_t)ch;
+					*pDest++ = (uint8)ch;
 				}
 				else {
 					reqLength = 1;
@@ -877,8 +877,8 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			}
 			else if(ch <= 0x7ff) {
 				if((pDestLimit - pDest) >= 2) {
-					*pDest++ = (uint8_t)((ch>>6)|0xc0);
-					*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+					*pDest++ = (uint8)((ch>>6)|0xc0);
+					*pDest++ = (uint8)((ch&0x3f)|0x80);
 				}
 				else {
 					reqLength = 2;
@@ -887,9 +887,9 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			}
 			else if(ch <= 0xd7ff || ch >= 0xe000) {
 				if((pDestLimit - pDest) >= 3) {
-					*pDest++ = (uint8_t)((ch>>12)|0xe0);
-					*pDest++ = (uint8_t)(((ch>>6)&0x3f)|0x80);
-					*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+					*pDest++ = (uint8)((ch>>12)|0xe0);
+					*pDest++ = (uint8)(((ch>>6)&0x3f)|0x80);
+					*pDest++ = (uint8)((ch&0x3f)|0x80);
 				}
 				else {
 					reqLength = 3;
@@ -977,16 +977,16 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			do {
 				ch = *pSrc++;
 				if(ch <= 0x7f) {
-					*pDest++ = (uint8_t)ch;
+					*pDest++ = (uint8)ch;
 				}
 				else if(ch <= 0x7ff) {
-					*pDest++ = (uint8_t)((ch>>6)|0xc0);
-					*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+					*pDest++ = (uint8)((ch>>6)|0xc0);
+					*pDest++ = (uint8)((ch&0x3f)|0x80);
 				}
 				else if(ch <= 0xd7ff || ch >= 0xe000) {
-					*pDest++ = (uint8_t)((ch>>12)|0xe0);
-					*pDest++ = (uint8_t)(((ch>>6)&0x3f)|0x80);
-					*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+					*pDest++ = (uint8)((ch>>12)|0xe0);
+					*pDest++ = (uint8)(((ch>>6)&0x3f)|0x80);
+					*pDest++ = (uint8)((ch&0x3f)|0x80);
 				}
 				else { /* ch is a surrogate */
 					/*
@@ -1004,10 +1004,10 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 						ch = U16_GET_SUPPLEMENTARY(ch, ch2);
 
 						/* writing 4 bytes per 2 UChars is ok */
-						*pDest++ = (uint8_t)((ch>>18)|0xf0);
-						*pDest++ = (uint8_t)(((ch>>12)&0x3f)|0x80);
-						*pDest++ = (uint8_t)(((ch>>6)&0x3f)|0x80);
-						*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+						*pDest++ = (uint8)((ch>>18)|0xf0);
+						*pDest++ = (uint8)(((ch>>12)&0x3f)|0x80);
+						*pDest++ = (uint8)(((ch>>6)&0x3f)|0x80);
+						*pDest++ = (uint8)((ch&0x3f)|0x80);
 					}
 					else {
 						/* Unicode 3.2 forbids surrogate code points in UTF-8 */
@@ -1031,7 +1031,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			ch = *pSrc++;
 			if(ch <= 0x7f) {
 				if(pDest<pDestLimit) {
-					*pDest++ = (uint8_t)ch;
+					*pDest++ = (uint8)ch;
 				}
 				else {
 					reqLength = 1;
@@ -1040,8 +1040,8 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			}
 			else if(ch <= 0x7ff) {
 				if((pDestLimit - pDest) >= 2) {
-					*pDest++ = (uint8_t)((ch>>6)|0xc0);
-					*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+					*pDest++ = (uint8)((ch>>6)|0xc0);
+					*pDest++ = (uint8)((ch&0x3f)|0x80);
 				}
 				else {
 					reqLength = 2;
@@ -1050,9 +1050,9 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			}
 			else if(ch <= 0xd7ff || ch >= 0xe000) {
 				if((pDestLimit - pDest) >= 3) {
-					*pDest++ = (uint8_t)((ch>>12)|0xe0);
-					*pDest++ = (uint8_t)(((ch>>6)&0x3f)|0x80);
-					*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+					*pDest++ = (uint8)((ch>>12)|0xe0);
+					*pDest++ = (uint8)(((ch>>6)&0x3f)|0x80);
+					*pDest++ = (uint8)((ch&0x3f)|0x80);
 				}
 				else {
 					reqLength = 3;
@@ -1114,7 +1114,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 		}
 	}
 
-	reqLength += (int32_t)(pDest - (uint8_t*)dest);
+	reqLength += (int32_t)(pDest - (uint8 *)dest);
 
 	if(pNumSubstitutions!=NULL) {
 		*pNumSubstitutions = numSubstitutions;
@@ -1175,7 +1175,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 		 * Handle non-ASCII strings with slower code.
 		 */
 		UChar32 c;
-		while(((c = (uint8_t)*src) != 0) && c <= 0x7f && (pDest < pDestLimit)) {
+		while(((c = (uint8)*src) != 0) && c <= 0x7f && (pDest < pDestLimit)) {
 			*pDest++ = (UChar)c;
 			++src;
 		}
@@ -1194,7 +1194,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 
 	/* Faster loop without ongoing checking for srcLength and pDestLimit. */
 	UChar32 ch;
-	uint8_t t1, t2;
+	uint8 t1, t2;
 	int32_t i = 0;
 	for(;;) {
 		int32_t count = (int32_t)(pDestLimit - pDest);
@@ -1202,7 +1202,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 		if(count >= count2 && srcLength > 0 && U8_IS_SINGLE(*src)) {
 			/* fast ASCII loop */
 			int32_t start = i;
-			uint8_t b;
+			uint8 b;
 			while(i < srcLength && U8_IS_SINGLE(b = src[i])) {
 				*pDest++ = b;
 				++i;
@@ -1230,7 +1230,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 			break;
 		}
 		do {
-			ch = (uint8_t)src[i++];
+			ch = (uint8)src[i++];
 			if(U8_IS_SINGLE(ch)) {
 				*pDest++ = (UChar)ch;
 			}
@@ -1238,8 +1238,8 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				if(ch >= 0xe0) {
 					if( /* handle U+0000..U+FFFF inline */
 						ch <= 0xef &&
-						(t1 = (uint8_t)(src[i] - 0x80)) <= 0x3f &&
-						(t2 = (uint8_t)(src[i+1] - 0x80)) <= 0x3f
+						(t1 = (uint8)(src[i] - 0x80)) <= 0x3f &&
+						(t2 = (uint8)(src[i+1] - 0x80)) <= 0x3f
 						) {
 						/* no need for (ch & 0xf) because the upper bits are truncated after
 						   <<12 in the cast to (UChar) */
@@ -1251,7 +1251,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				else {
 					if( /* handle U+0000..U+07FF inline */
 						ch >= 0xc0 &&
-						(t1 = (uint8_t)(src[i] - 0x80)) <= 0x3f
+						(t1 = (uint8)(src[i] - 0x80)) <= 0x3f
 						) {
 						*pDest++ = (UChar)(((ch & 0x1f) << 6) | t1);
 						++i;
@@ -1273,7 +1273,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				}
 				else {
 					/* function call for error cases */
-					utf8_nextCharSafeBody((const uint8_t*)src, &(i), srcLength, ch, -1);
+					utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, ch, -1);
 					++numSubstitutions;
 					*(pDest++) = (UChar)subchar;
 				}
@@ -1282,7 +1282,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 	}
 
 	while(i < srcLength && (pDest < pDestLimit)) {
-		ch = (uint8_t)src[i++];
+		ch = (uint8)src[i++];
 		if(U8_IS_SINGLE(ch)) {
 			*pDest++ = (UChar)ch;
 		}
@@ -1291,8 +1291,8 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				if( /* handle U+0000..U+FFFF inline */
 					ch <= 0xef &&
 					(i+1) < srcLength &&
-					(t1 = (uint8_t)(src[i] - 0x80)) <= 0x3f &&
-					(t2 = (uint8_t)(src[i+1] - 0x80)) <= 0x3f
+					(t1 = (uint8)(src[i] - 0x80)) <= 0x3f &&
+					(t2 = (uint8)(src[i+1] - 0x80)) <= 0x3f
 					) {
 					/* no need for (ch & 0xf) because the upper bits are truncated after <<12 in the
 					   cast to (UChar) */
@@ -1305,7 +1305,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				if( /* handle U+0000..U+07FF inline */
 					ch >= 0xc0 &&
 					i < srcLength &&
-					(t1 = (uint8_t)(src[i] - 0x80)) <= 0x3f
+					(t1 = (uint8)(src[i] - 0x80)) <= 0x3f
 					) {
 					*pDest++ = (UChar)(((ch & 0x1f) << 6) | t1);
 					++i;
@@ -1319,7 +1319,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 			}
 			else {
 				/* function call for error cases */
-				utf8_nextCharSafeBody((const uint8_t*)src, &(i), srcLength, ch, -1);
+				utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, ch, -1);
 				++numSubstitutions;
 				if(subchar<=0xFFFF) {
 					*(pDest++) = (UChar)subchar;
@@ -1340,7 +1340,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 
 	/* Pre-flight the rest of the string. */
 	while(i < srcLength) {
-		ch = (uint8_t)src[i++];
+		ch = (uint8)src[i++];
 		if(U8_IS_SINGLE(ch)) {
 			reqLength++;
 		}
@@ -1349,8 +1349,8 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				if( /* handle U+0000..U+FFFF inline */
 					ch <= 0xef &&
 					(i+1) < srcLength &&
-					(uint8_t)(src[i] - 0x80) <= 0x3f &&
-					(uint8_t)(src[i+1] - 0x80) <= 0x3f
+					(uint8)(src[i] - 0x80) <= 0x3f &&
+					(uint8)(src[i+1] - 0x80) <= 0x3f
 					) {
 					reqLength++;
 					i += 2;
@@ -1361,7 +1361,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 				if( /* handle U+0000..U+07FF inline */
 					ch >= 0xc0 &&
 					i < srcLength &&
-					(uint8_t)(src[i] - 0x80) <= 0x3f
+					(uint8)(src[i] - 0x80) <= 0x3f
 					) {
 					reqLength++;
 					++i;
@@ -1375,7 +1375,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest,
 			}
 			else {
 				/* function call for error cases */
-				utf8_nextCharSafeBody((const uint8_t*)src, &(i), srcLength, ch, -1);
+				utf8_nextCharSafeBody((const uint8*)src, &(i), srcLength, ch, -1);
 				++numSubstitutions;
 				reqLength += U16_LENGTH(ch);
 			}
@@ -1404,8 +1404,8 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
     UErrorCode * pErrorCode) {
 	int32_t reqLength = 0;
 	uint32_t ch = 0;
-	uint8_t * pDest = (uint8_t*)dest;
-	uint8_t * pDestLimit = pDest + destCapacity;
+	uint8 * pDest = (uint8 *)dest;
+	uint8 * pDestLimit = pDest + destCapacity;
 	const UChar * pSrcLimit;
 	int32_t count;
 
@@ -1423,11 +1423,11 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 	if(srcLength==-1) {
 		/* Convert NUL-terminated ASCII, then find the string length. */
 		while((ch = *src)<=0x7f && ch != 0 && pDest<pDestLimit) {
-			*pDest++ = (uint8_t)ch;
+			*pDest++ = (uint8)ch;
 			++src;
 		}
 		if(ch == 0) {
-			reqLength = (int32_t)(pDest - (uint8_t*)dest);
+			reqLength = (int32_t)(pDest - (uint8 *)dest);
 			if(pDestLength) {
 				*pDestLength = reqLength;
 			}
@@ -1449,7 +1449,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 			const UChar * prevSrc = src;
 			int32_t delta;
 			while(src < pSrcLimit && (ch = *src) <= 0x7f && ch != 0) {
-				*pDest++ = (uint8_t)ch;
+				*pDest++ = (uint8)ch;
 				++src;
 			}
 			delta = (int32_t)(src - prevSrc);
@@ -1474,16 +1474,16 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		do {
 			ch = *src++;
 			if(ch <= 0x7f && ch != 0) {
-				*pDest++ = (uint8_t)ch;
+				*pDest++ = (uint8)ch;
 			}
 			else if(ch <= 0x7ff) {
-				*pDest++ = (uint8_t)((ch>>6)|0xc0);
-				*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+				*pDest++ = (uint8)((ch>>6)|0xc0);
+				*pDest++ = (uint8)((ch&0x3f)|0x80);
 			}
 			else {
-				*pDest++ = (uint8_t)((ch>>12)|0xe0);
-				*pDest++ = (uint8_t)(((ch>>6)&0x3f)|0x80);
-				*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+				*pDest++ = (uint8)((ch>>12)|0xe0);
+				*pDest++ = (uint8)(((ch>>6)&0x3f)|0x80);
+				*pDest++ = (uint8)((ch&0x3f)|0x80);
 			}
 		} while(--count > 0);
 	}
@@ -1492,7 +1492,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		ch = *src++;
 		if(ch <= 0x7f && ch != 0) {
 			if(pDest<pDestLimit) {
-				*pDest++ = (uint8_t)ch;
+				*pDest++ = (uint8)ch;
 			}
 			else {
 				reqLength = 1;
@@ -1501,8 +1501,8 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		}
 		else if(ch <= 0x7ff) {
 			if((pDestLimit - pDest) >= 2) {
-				*pDest++ = (uint8_t)((ch>>6)|0xc0);
-				*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+				*pDest++ = (uint8)((ch>>6)|0xc0);
+				*pDest++ = (uint8)((ch&0x3f)|0x80);
 			}
 			else {
 				reqLength = 2;
@@ -1511,9 +1511,9 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		}
 		else {
 			if((pDestLimit - pDest) >= 3) {
-				*pDest++ = (uint8_t)((ch>>12)|0xe0);
-				*pDest++ = (uint8_t)(((ch>>6)&0x3f)|0x80);
-				*pDest++ = (uint8_t)((ch&0x3f)|0x80);
+				*pDest++ = (uint8)((ch>>12)|0xe0);
+				*pDest++ = (uint8)(((ch>>6)&0x3f)|0x80);
+				*pDest++ = (uint8)((ch&0x3f)|0x80);
 			}
 			else {
 				reqLength = 3;
@@ -1534,7 +1534,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		}
 	}
 
-	reqLength += (int32_t)(pDest - (uint8_t*)dest);
+	reqLength += (int32_t)(pDest - (uint8 *)dest);
 	if(pDestLength) {
 		*pDestLength = reqLength;
 	}

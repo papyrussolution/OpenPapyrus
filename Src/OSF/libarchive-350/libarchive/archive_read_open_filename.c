@@ -75,8 +75,8 @@ struct read_file_data {
 	} filename; /* Must be last! */
 };
 
-static int      file_open(struct archive *, void *);
-static int      file_close(struct archive *, void *);
+static int file_open(struct archive *, void *);
+static int file_close(struct archive *, void *);
 static int file_close2(struct archive *, void *);
 static int file_switch(struct archive *, void *, void *);
 static ssize_t  file_read(struct archive *, void *, const void ** buff);
@@ -494,7 +494,7 @@ static int64 file_seek(struct archive * a, void * client_data, int64 request, in
 static int file_close2(struct archive * a, void * client_data)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
-	(void)a; /* UNUSED */
+	CXX_UNUSED(a);
 	/* Only flush and close if open succeeded. */
 	if(mine->fd >= 0) {
 		/*

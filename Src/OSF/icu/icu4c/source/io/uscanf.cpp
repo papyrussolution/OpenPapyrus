@@ -77,7 +77,7 @@ u_vfscanf(UFILE * f,
 }
 
 U_CAPI int32_t U_EXPORT2  /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vfscanf_u(UFILE   * f, const UChar * patternSpecification, va_list ap)
+u_vfscanf_u(UFILE * f, const UChar * patternSpecification, va_list ap)
 {
 	return u_scanf_parse(f, patternSpecification, ap);
 }

@@ -284,14 +284,14 @@ static int _cmsPSActualColumn = 0;
 
 // Convert to byte
 static
-cmsUInt8Number Word2Byte(cmsUInt16Number w)
+uint8 Word2Byte(uint16 w)
 {
-	return (cmsUInt8Number)floor((cmsFloat64Number)w / 257.0 + 0.5);
+	return (uint8)floor((double)w / 257.0 + 0.5);
 }
 
 // Write a cooked byte
 static
-void WriteByte(cmsIOHANDLER* m, cmsUInt8Number b)
+void WriteByte(cmsIOHANDLER* m, uint8 b)
 {
 	_cmsIOPrintf(m, "%02x", b);
 	_cmsPSActualColumn += 2;
@@ -437,10 +437,10 @@ void EmitSafeGuardEnd(cmsIOHANDLER* m, const char * name, int depth)
 // Outputs a table of words. It does use 16 bits
 
 static
-void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve* Table, const char * name)
+void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve * Table, const char * name)
 {
 	cmsUInt32Number i;
-	cmsFloat64Number gamma;
+	double gamma;
 
 	if(Table == NULL) return; // Error
 
@@ -512,15 +512,15 @@ void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve* Table, const char * name)
 // Compare gamma table
 
 static
-cmsBool GammaTableEquals(cmsUInt16Number* g1, cmsUInt16Number* g2, cmsUInt32Number nEntries)
+boolint GammaTableEquals(uint16* g1, uint16* g2, cmsUInt32Number nEntries)
 {
-	return memcmp(g1, g2, nEntries* sizeof(cmsUInt16Number)) == 0;
+	return memcmp(g1, g2, nEntries* sizeof(uint16)) == 0;
 }
 
 // Does write a set of gamma curves
 
 static
-void EmitNGamma(cmsIOHANDLER* m, cmsUInt32Number n, cmsToneCurve* g[], const char * nameprefix)
+void EmitNGamma(cmsIOHANDLER* m, cmsUInt32Number n, cmsToneCurve * g[], const char * nameprefix)
 {
 	cmsUInt32Number i;
 	static char buffer[2048];
@@ -553,7 +553,7 @@ void EmitNGamma(cmsIOHANDLER* m, cmsUInt32Number n, cmsToneCurve* g[], const cha
 //  detect row changing by keeping a copy of last value of first
 //  component. -1 is used to mark beginning of whole block.
 
-static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTER cmsUInt16Number Out[], CMSREGISTER void * Cargo)
+static int OutputValueSampler(const uint16 In[], uint16 Out[], void * Cargo)
 {
 	cmsPsSamplerCargo* sc = (cmsPsSamplerCargo*)Cargo;
 	cmsUInt32Number i;
@@ -561,8 +561,8 @@ static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTE
 		if(In[0] == 0xFFFF) { // Only in L* = 100, ab = [-8..8]
 			if((In[1] >= 0x7800 && In[1] <= 0x8800) &&
 			    (In[2] >= 0x7800 && In[2] <= 0x8800)) {
-				cmsUInt16Number* Black;
-				cmsUInt16Number* White;
+				uint16* Black;
+				uint16* White;
 				cmsUInt32Number nOutputs;
 
 				if(!_cmsEndPointsBySpace(sc->ColorSpace, &White, &Black, &nOutputs))
@@ -602,8 +602,8 @@ static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTE
 	// Dump table.
 
 	for(i = 0; i < sc->Pipeline->Params->nOutputs; i++) {
-		cmsUInt16Number wWordOut = Out[i];
-		cmsUInt8Number wByteOut;     // Value as byte
+		uint16 wWordOut = Out[i];
+		uint8 wByteOut;     // Value as byte
 
 		// We always deal with Lab4
 
@@ -617,7 +617,7 @@ static int OutputValueSampler(CMSREGISTER const cmsUInt16Number In[], CMSREGISTE
 // Writes a Pipeline on memstream. Could be 8 or 16 bits based
 
 static
-void WriteCLUT(cmsIOHANDLER* m, cmsStage* mpe, const char * PreMaj,
+void WriteCLUT(cmsIOHANDLER* m, cmsStage * mpe, const char * PreMaj,
     const char * PostMaj,
     const char * PreMin,
     const char * PostMin,
@@ -656,7 +656,7 @@ void WriteCLUT(cmsIOHANDLER* m, cmsStage* mpe, const char * PreMaj,
 // Dumps CIEBasedA Color Space Array
 
 static
-int EmitCIEBasedA(cmsIOHANDLER* m, cmsToneCurve* Curve, cmsCIEXYZ* BlackPoint)
+int EmitCIEBasedA(cmsIOHANDLER* m, cmsToneCurve * Curve, cmsCIEXYZ* BlackPoint)
 {
 	_cmsIOPrintf(m, "[ /CIEBasedA\n");
 	_cmsIOPrintf(m, "  <<\n");
@@ -682,7 +682,7 @@ int EmitCIEBasedA(cmsIOHANDLER* m, cmsToneCurve* Curve, cmsCIEXYZ* BlackPoint)
 // Dumps CIEBasedABC Color Space Array
 
 static
-int EmitCIEBasedABC(cmsIOHANDLER* m, cmsFloat64Number* Matrix, cmsToneCurve** CurveSet, cmsCIEXYZ* BlackPoint)
+int EmitCIEBasedABC(cmsIOHANDLER* m, double * Matrix, cmsToneCurve ** CurveSet, cmsCIEXYZ* BlackPoint)
 {
 	int i;
 
@@ -724,12 +724,12 @@ int EmitCIEBasedABC(cmsIOHANDLER* m, cmsFloat64Number* Matrix, cmsToneCurve** Cu
 }
 
 static
-int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline* Pipeline, cmsUInt32Number Intent, cmsCIEXYZ* BlackPoint)
+int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline * Pipeline, cmsUInt32Number Intent, cmsCIEXYZ* BlackPoint)
 {
 	const char * PreMaj;
 	const char * PostMaj;
 	const char * PreMin, * PostMin;
-	cmsStage* mpe;
+	cmsStage * mpe;
 	int i, numchans;
 	static char buffer[2048];
 
@@ -800,16 +800,16 @@ int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline* Pipeline, cmsUInt32Number Inte
 // Generates a curve from a gray profile
 
 static
-cmsToneCurve* ExtractGray2Y(cmsContext ContextID, cmsHPROFILE hProfile, cmsUInt32Number Intent)
+cmsToneCurve * ExtractGray2Y(cmsContext ContextID, cmsHPROFILE hProfile, cmsUInt32Number Intent)
 {
-	cmsToneCurve* Out = cmsBuildTabulatedToneCurve16(ContextID, 256, NULL);
+	cmsToneCurve * Out = cmsBuildTabulatedToneCurve16(ContextID, 256, NULL);
 	cmsHPROFILE hXYZ  = cmsCreateXYZProfile();
 	cmsHTRANSFORM xform = cmsCreateTransformTHR(ContextID, hProfile, TYPE_GRAY_8, hXYZ, TYPE_XYZ_DBL, Intent, cmsFLAGS_NOOPTIMIZE);
 	int i;
 
 	if(Out != NULL && xform != NULL) {
 		for(i = 0; i < 256; i++) {
-			cmsUInt8Number Gray = (cmsUInt8Number)i;
+			uint8 Gray = (uint8)i;
 			cmsCIEXYZ XYZ;
 
 			cmsDoTransform(xform, &Gray, &XYZ, 1);
@@ -863,7 +863,7 @@ int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsUInt32Number Intent,
 
 	switch(nChannels) {
 		case 1: {
-		    cmsToneCurve* Gray2Y = ExtractGray2Y(m->ContextID, hProfile, Intent);
+		    cmsToneCurve * Gray2Y = ExtractGray2Y(m->ContextID, hProfile, Intent);
 		    EmitCIEBasedA(m, Gray2Y, &BlackPointAdaptedToD50);
 		    cmsFreeToneCurve(Gray2Y);
 	    }
@@ -872,7 +872,7 @@ int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsUInt32Number Intent,
 		case 3:
 		case 4: {
 		    cmsUInt32Number OutFrm = TYPE_Lab_16;
-		    cmsPipeline* DeviceLink;
+		    cmsPipeline * DeviceLink;
 		    _cmsTRANSFORM* v = (_cmsTRANSFORM*)xform;
 
 		    DeviceLink = cmsPipelineDup(v->Lut);
@@ -902,7 +902,7 @@ int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsUInt32Number Intent,
 }
 
 static
-cmsFloat64Number* GetPtrToMatrix(const cmsStage* mpe)
+double * GetPtrToMatrix(const cmsStage * mpe)
 {
 	_cmsStageMatrixData* Data = (_cmsStageMatrixData*)mpe->Data;
 
@@ -911,7 +911,7 @@ cmsFloat64Number* GetPtrToMatrix(const cmsStage* mpe)
 
 // Does create CSA based on matrix-shaper. Allowed types are gray and RGB based
 static
-int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage* Matrix, cmsStage* Shaper)
+int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage * Matrix, cmsStage * Shaper)
 {
 	cmsColorSpaceSignature ColorSpace;
 	int rc;
@@ -922,7 +922,7 @@ int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage* Matr
 	cmsDetectBlackPoint(&BlackPointAdaptedToD50, hProfile, INTENT_RELATIVE_COLORIMETRIC, 0);
 
 	if(ColorSpace == cmsSigGrayData) {
-		cmsToneCurve** ShaperCurve = _cmsStageGetPtrToCurveSet(Shaper);
+		cmsToneCurve ** ShaperCurve = _cmsStageGetPtrToCurveSet(Shaper);
 		rc = EmitCIEBasedA(m, ShaperCurve[0], &BlackPointAdaptedToD50);
 	}
 	else if(ColorSpace == cmsSigRgbData) {
@@ -935,7 +935,7 @@ int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage* Matr
 			for(j = 0; j < 3; j++)
 				Mat.v[i].n[j] *= MAX_ENCODEABLE_XYZ;
 
-		rc = EmitCIEBasedABC(m, (cmsFloat64Number*)&Mat,
+		rc = EmitCIEBasedABC(m, (double *)&Mat,
 			_cmsStageGetPtrToCurveSet(Shaper),
 			&BlackPointAdaptedToD50);
 	}
@@ -974,10 +974,10 @@ int WriteNamedColorCSA(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, cmsUInt32Number
 	nColors   = cmsNamedColorCount(NamedColorList);
 
 	for(i = 0; i < nColors; i++) {
-		cmsUInt16Number In[1];
+		uint16 In[1];
 		cmsCIELab Lab;
 
-		In[0] = (cmsUInt16Number)i;
+		In[0] = (uint16)i;
 
 		if(!cmsNamedColorInfo(NamedColorList, i, ColorName, NULL, NULL, NULL, NULL))
 			continue;
@@ -1002,8 +1002,8 @@ cmsUInt32Number GenerateCSA(cmsContext ContextID,
     cmsIOHANDLER* mem)
 {
 	cmsUInt32Number dwBytesUsed;
-	cmsPipeline* lut = NULL;
-	cmsStage* Matrix, * Shaper;
+	cmsPipeline * lut = NULL;
+	cmsStage * Matrix, * Shaper;
 
 	// Is a named color profile?
 	if(cmsGetDeviceClass(hProfile) == cmsSigNamedColorClass) {
@@ -1209,11 +1209,11 @@ int WriteOutputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsUInt32Number Intent
 	cmsUInt32Number i, nChannels;
 	cmsUInt32Number OutputFormat;
 	_cmsTRANSFORM* v;
-	cmsPipeline* DeviceLink;
+	cmsPipeline * DeviceLink;
 	cmsHPROFILE Profiles[3];
 	cmsCIEXYZ BlackPointAdaptedToD50;
-	cmsBool lDoBPC = (cmsBool)(dwFlags & cmsFLAGS_BLACKPOINTCOMPENSATION);
-	cmsBool lFixWhite = (cmsBool) !(dwFlags & cmsFLAGS_NOWHITEONWHITEFIXUP);
+	boolint lDoBPC = (boolint)(dwFlags & cmsFLAGS_BLACKPOINTCOMPENSATION);
+	boolint lFixWhite = (boolint) !(dwFlags & cmsFLAGS_NOWHITEONWHITEFIXUP);
 	cmsUInt32Number InFrm = TYPE_Lab_16;
 	cmsUInt32Number RelativeEncodingIntent;
 	cmsColorSpaceSignature ColorSpace;
@@ -1301,7 +1301,7 @@ int WriteOutputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsUInt32Number Intent
 
 // Builds a ASCII string containing colorant list in 0..1.0 range
 static
-void BuildColorantList(char * Colorant, cmsUInt32Number nColorant, cmsUInt16Number Out[])
+void BuildColorantList(char * Colorant, cmsUInt32Number nColorant, uint16 Out[])
 {
 	char Buff[32];
 	cmsUInt32Number j;
@@ -1349,10 +1349,10 @@ int WriteNamedColorCRD(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, cmsUInt32Number
 	nColors   = cmsNamedColorCount(NamedColorList);
 
 	for(i = 0; i < nColors; i++) {
-		cmsUInt16Number In[1];
-		cmsUInt16Number Out[cmsMAXCHANNELS];
+		uint16 In[1];
+		uint16 Out[cmsMAXCHANNELS];
 
-		In[0] = (cmsUInt16Number)i;
+		In[0] = (uint16)i;
 
 		if(!cmsNamedColorInfo(NamedColorList, i, ColorName, NULL, NULL, NULL, NULL))
 			continue;
@@ -1413,7 +1413,7 @@ cmsUInt32Number  GenerateCRD(cmsContext ContextID,
 	// Finally, return used byte count
 	return dwBytesUsed;
 
-	cmsUNUSED_PARAMETER(ContextID);
+	CXX_UNUSED(ContextID);
 }
 
 cmsUInt32Number CMSEXPORT cmsGetPostScriptColorResource(cmsContext ContextID,

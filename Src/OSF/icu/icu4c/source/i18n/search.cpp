@@ -23,16 +23,16 @@ U_NAMESPACE_BEGIN
 SearchIterator::SearchIterator(const SearchIterator &other)
 	: UObject(other)
 {
-	m_breakiterator_            = other.m_breakiterator_;
-	m_text_                     = other.m_text_;
-	m_search_                   = (USearch*)uprv_malloc(sizeof(USearch));
+	m_breakiterator_    = other.m_breakiterator_;
+	m_text_             = other.m_text_;
+	m_search_           = (USearch*)uprv_malloc(sizeof(USearch));
 	m_search_->breakIter        = other.m_search_->breakIter;
 	m_search_->isCanonicalMatch = other.m_search_->isCanonicalMatch;
 	m_search_->isOverlap        = other.m_search_->isOverlap;
 	m_search_->elementComparisonType = other.m_search_->elementComparisonType;
 	m_search_->matchedIndex     = other.m_search_->matchedIndex;
 	m_search_->matchedLength    = other.m_search_->matchedLength;
-	m_search_->text             = other.m_search_->text;
+	m_search_->text     = other.m_search_->text;
 	m_search_->textLength       = other.m_search_->textLength;
 }
 
@@ -283,9 +283,9 @@ int32_t SearchIterator::previous(UErrorCode & status)
 	if(U_SUCCESS(status)) {
 		int32_t offset;
 		if(m_search_->reset) {
-			offset                       = m_search_->textLength;
+			offset               = m_search_->textLength;
 			m_search_->isForwardSearching = FALSE;
-			m_search_->reset              = FALSE;
+			m_search_->reset      = FALSE;
 			setOffset(offset, status);
 		}
 		else {
@@ -331,29 +331,29 @@ void SearchIterator::reset()
 	UErrorCode status = U_ZERO_ERROR;
 	setMatchNotFound();
 	setOffset(0, status);
-	m_search_->isOverlap          = FALSE;
+	m_search_->isOverlap  = FALSE;
 	m_search_->isCanonicalMatch   = FALSE;
 	m_search_->elementComparisonType = 0;
 	m_search_->isForwardSearching = TRUE;
-	m_search_->reset              = TRUE;
+	m_search_->reset      = TRUE;
 }
 
 // protected constructors and destructors -----------------------------
 
 SearchIterator::SearchIterator()
 {
-	m_search_                     = (USearch*)uprv_malloc(sizeof(USearch));
-	m_search_->breakIter          = NULL;
-	m_search_->isOverlap          = FALSE;
+	m_search_             = (USearch*)uprv_malloc(sizeof(USearch));
+	m_search_->breakIter  = NULL;
+	m_search_->isOverlap  = FALSE;
 	m_search_->isCanonicalMatch   = FALSE;
 	m_search_->elementComparisonType = 0;
 	m_search_->isForwardSearching = TRUE;
-	m_search_->reset              = TRUE;
+	m_search_->reset      = TRUE;
 	m_search_->matchedIndex       = USEARCH_DONE;
 	m_search_->matchedLength      = 0;
-	m_search_->text               = NULL;
-	m_search_->textLength         = 0;
-	m_breakiterator_              = NULL;
+	m_search_->text       = NULL;
+	m_search_->textLength = 0;
+	m_breakiterator_      = NULL;
 }
 
 SearchIterator::SearchIterator(const UnicodeString & text,
@@ -361,36 +361,36 @@ SearchIterator::SearchIterator(const UnicodeString & text,
 	m_breakiterator_(breakiter),
 	m_text_(text)
 {
-	m_search_                     = (USearch*)uprv_malloc(sizeof(USearch));
-	m_search_->breakIter          = NULL;
-	m_search_->isOverlap          = FALSE;
+	m_search_             = (USearch*)uprv_malloc(sizeof(USearch));
+	m_search_->breakIter  = NULL;
+	m_search_->isOverlap  = FALSE;
 	m_search_->isCanonicalMatch   = FALSE;
 	m_search_->elementComparisonType = 0;
 	m_search_->isForwardSearching = TRUE;
-	m_search_->reset              = TRUE;
+	m_search_->reset      = TRUE;
 	m_search_->matchedIndex       = USEARCH_DONE;
 	m_search_->matchedLength      = 0;
-	m_search_->text               = m_text_.getBuffer();
-	m_search_->textLength         = text.length();
+	m_search_->text       = m_text_.getBuffer();
+	m_search_->textLength = text.length();
 }
 
 SearchIterator::SearchIterator(CharacterIterator &text,
     BreakIterator     * breakiter) :
 	m_breakiterator_(breakiter)
 {
-	m_search_                     = (USearch*)uprv_malloc(sizeof(USearch));
-	m_search_->breakIter          = NULL;
-	m_search_->isOverlap          = FALSE;
+	m_search_             = (USearch*)uprv_malloc(sizeof(USearch));
+	m_search_->breakIter  = NULL;
+	m_search_->isOverlap  = FALSE;
 	m_search_->isCanonicalMatch   = FALSE;
 	m_search_->elementComparisonType = 0;
 	m_search_->isForwardSearching = TRUE;
-	m_search_->reset              = TRUE;
+	m_search_->reset      = TRUE;
 	m_search_->matchedIndex       = USEARCH_DONE;
 	m_search_->matchedLength      = 0;
 	text.getText(m_text_);
-	m_search_->text               = m_text_.getBuffer();
-	m_search_->textLength         = m_text_.length();
-	m_breakiterator_             = breakiter;
+	m_search_->text       = m_text_.getBuffer();
+	m_search_->textLength = m_text_.length();
+	m_breakiterator_     = breakiter;
 }
 
 // protected methods ------------------------------------------------------
@@ -398,15 +398,15 @@ SearchIterator::SearchIterator(CharacterIterator &text,
 SearchIterator & SearchIterator::operator = (const SearchIterator &that)
 {
 	if(this != &that) {
-		m_breakiterator_            = that.m_breakiterator_;
-		m_text_                     = that.m_text_;
+		m_breakiterator_    = that.m_breakiterator_;
+		m_text_             = that.m_text_;
 		m_search_->breakIter        = that.m_search_->breakIter;
 		m_search_->isCanonicalMatch = that.m_search_->isCanonicalMatch;
 		m_search_->isOverlap        = that.m_search_->isOverlap;
 		m_search_->elementComparisonType = that.m_search_->elementComparisonType;
 		m_search_->matchedIndex     = that.m_search_->matchedIndex;
 		m_search_->matchedLength    = that.m_search_->matchedLength;
-		m_search_->text             = that.m_search_->text;
+		m_search_->text     = that.m_search_->text;
 		m_search_->textLength       = that.m_search_->textLength;
 	}
 	return *this;

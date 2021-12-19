@@ -107,9 +107,9 @@
 #define STORE_24(img, l, o, v)                                            \
 	do { \
 		uint8 * __tmp = (l) + 3 * (o);                                \
-		WRITE((img), __tmp++, ((v) & 0x000000ff) >>  0);              \
-		WRITE((img), __tmp++, ((v) & 0x0000ff00) >>  8);              \
-		WRITE((img), __tmp++, ((v) & 0x00ff0000) >> 16);              \
+		WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x000000ff) >> 0)); \
+		WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x0000ff00) >>  8)); \
+		WRITE((img), __tmp++, static_cast<uint8>(((v) & 0x00ff0000) >> 16)); \
 	} while(0)
 #endif
 
@@ -248,7 +248,7 @@ static force_inline uint32 fetch_and_convert_pixel(const bits_image_t * image, c
 
 static force_inline void convert_and_store_pixel(bits_image_t * image, uint8 * dest, int offset, pixman_format_code_t format, uint32 pixel)
 {
-	uint32 converted = convert_pixel_from_a8r8g8b8((pixman_image_t*)image, format, pixel);
+	const uint32 converted = convert_pixel_from_a8r8g8b8((pixman_image_t*)image, format, pixel);
 	switch(PIXMAN_FORMAT_BPP(format)) {
 		case 1: STORE_1(image, dest, offset, converted & 0x01); break;
 		case 4: STORE_4(image, dest, offset, converted & 0xf); break;

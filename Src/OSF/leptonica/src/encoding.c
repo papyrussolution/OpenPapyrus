@@ -19,15 +19,18 @@
  *    Base64
  *        char           *encodeBase64()
  *        uint8        *decodeBase64()
- *        static int32  isBase64()
- *        static int32 *genReverseTab64()
+ *        static l_int32  isBase64()
+ *        static l_int32 *genReverseTab64()
  *        static void     byteConvert3to4()
  *        static void     byteConvert4to3()
  *
  *    Ascii85
  *        char           *encodeAscii85()
  *        uint8        *decodeAscii85()
- *        static int32  convertChunkToAscii85()
+ *        static l_int32  convertChunkToAscii85()
+ *
+ *        char           *encodeAscii85WithComp()
+ *        uint8        *decodeAscii85WithComp()
  *
  *    String reformatting for base 64 encoded data
  *        char           *reformatPacked64()
@@ -49,34 +52,32 @@
  *         log2(84) / log2(256) = 0.799 < 4/5
  *         log2(85) / log2(256) = 0.801 > 4/5
  */
-
-//#include <ctype.h>
 #include "allheaders.h"
 #pragma hdrstop
 
 /* Base64 encoding table in string representation */
-static const int32 MAX_BASE64_LINE   = 72;   /* max line length base64 */
+static const l_int32 MAX_BASE64_LINE   = 72; /* max line length base64 */
 static const char * tablechar64 =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-static int32 isBase64(char);
-static int32 * genReverseTab64(void);
+static l_int32 isBase64(char);
+static l_int32 * genReverseTab64(void);
 static void byteConvert3to4(uint8 * in3, uint8 * out4);
 static void byteConvert4to3(uint8 * in4, uint8 * out3);
 
 /* Ascii85 encoding */
-static const int32 MAX_ASCII85_LINE   = 64;   /* max line length ascii85 */
-static const uint32 power85[5] = {1,
+static const l_int32 MAX_ASCII85_LINE   = 64; /* max line length ascii85 */
+static const l_uint32 power85[5] = {1,
 				    85,
 				    85 * 85,
 				    85 * 85 * 85,
 				    85 * 85 * 85 * 85};
 
-static int32 convertChunkToAscii85(uint8 * inarray, int32 insize,
-    int32 * pindex, char * outbuf,
-    int32 * pnbout);
+static l_int32 convertChunkToAscii85(const uint8 * inarray, size_t insize,
+    l_int32 * pindex, char * outbuf,
+    l_int32 * pnbout);
 
 /*-------------------------------------------------------------*
 *      Utility for encoding and decoding data with base64     *
@@ -84,28 +85,28 @@ static int32 convertChunkToAscii85(uint8 * inarray, int32 insize,
 /*!
  * \brief   encodeBase64()
  *
- * \param[in]    inarray input binary data
- * \param[in]    insize number of bytes in input array
- * \param[out]   poutsize number of bytes in output char array
+ * \param[in]    inarray     input binary data
+ * \param[in]    insize      number of bytes in input array
+ * \param[out]   poutsize    number of bytes in output char array
  * \return  chara with MAX_BASE64_LINE characters + \n in each line
  *
  * <pre>
  * Notes:
  *      (1) The input character data is unrestricted binary.
- *          The ouput encoded data consists of the 64 characters
+ *          The output encoded data consists of the 64 characters
  *          in the base64 set, plus newlines and the pad character '='.
  * </pre>
  */
-char * encodeBase64(uint8  * inarray,
-    int32 insize,
-    int32  * poutsize)
+char * encodeBase64(const uint8 * inarray,
+    l_int32 insize,
+    l_int32       * poutsize)
 {
-	char     * chara;
-	uint8  * bytea;
+	char          * chara;
+	const uint8 * bytea;
 	uint8 array3[3], array4[4];
-	int32 outsize, i, j, index, linecount;
+	l_int32 outsize, i, j, index, linecount;
 
-	PROCNAME("encodeBase64");
+	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
 		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
@@ -120,7 +121,7 @@ char * encodeBase64(uint8  * inarray,
 	 * enough array, and add 4 bytes to make sure it is big enough. */
 	outsize = 4 * ((insize + 2) / 3); /* without newlines */
 	outsize += outsize / MAX_BASE64_LINE + 4; /* with the newlines */
-	if((chara = (char*)LEPT_CALLOC(outsize, sizeof(char))) == NULL)
+	if((chara = (char*)SAlloc::C(outsize, sizeof(char))) == NULL)
 		return (char*)ERROR_PTR("chara not made", procName, NULL);
 
 	/* Read all the input data, and convert in sets of 3 input
@@ -151,7 +152,7 @@ char * encodeBase64(uint8  * inarray,
 	 * we add a fourth padding byte ('='). */
 	if(i > 0) { /* left-over 1 or 2 input bytes */
 		for(j = i; j < 3; j++)
-			array3[j] = '\0';  /* zero the remaining input bytes */
+			array3[j] = '\0'; /* zero the remaining input bytes */
 		byteConvert3to4(array3, array4);
 		for(j = 0; j <= i; j++)
 			chara[index++] = tablechar64[array4[j]];
@@ -166,9 +167,9 @@ char * encodeBase64(uint8  * inarray,
 /*!
  * \brief   decodeBase64()
  *
- * \param[in]    inarray input encoded char data, with 72 chars/line)
- * \param[in]    insize number of bytes in input array
- * \param[out]   poutsize number of bytes in output byte array
+ * \param[in]    inarray    input encoded char data, with 72 chars/line)
+ * \param[in]    insize     number of bytes in input array
+ * \param[out]   poutsize   number of bytes in output byte array
  * \return  bytea decoded byte data, or NULL on error
  *
  * <pre>
@@ -182,33 +183,33 @@ char * encodeBase64(uint8  * inarray,
  *          stops reading input when a pad byte is found.
  * </pre>
  */
-uint8 * decodeBase64(const char  * inarray,
-    int32 insize,
-    int32     * poutsize)
+uint8 * decodeBase64(const char * inarray,
+    l_int32 insize,
+    l_int32     * poutsize)
 {
 	char inchar;
 	uint8  * bytea;
 	uint8 array3[3], array4[4];
-	int32  * rtable64;
-	int32 i, j, outsize, in_index, out_index;
+	l_int32 * rtable64;
+	l_int32 i, j, outsize, in_index, out_index;
 
-	PROCNAME("decodeBase64");
+	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
-		return (uint8*)ERROR_PTR("&outsize not defined", procName, NULL);
+		return (uint8 *)ERROR_PTR("&outsize not defined", procName, NULL);
 	*poutsize = 0;
 	if(!inarray)
-		return (uint8*)ERROR_PTR("inarray not defined", procName, NULL);
+		return (uint8 *)ERROR_PTR("inarray not defined", procName, NULL);
 	if(insize <= 0)
-		return (uint8*)ERROR_PTR("insize not > 0", procName, NULL);
+		return (uint8 *)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* Validate the input data */
 	for(i = 0; i < insize; i++) {
 		inchar = inarray[i];
 		if(inchar == '\n') continue;
 		if(isBase64(inchar) == 0 && inchar != '=')
-			return (uint8*)ERROR_PTR("invalid char in inarray",
-			    procName, NULL);
+			return (uint8 *)ERROR_PTR("invalid char in inarray",
+				   procName, NULL);
 	}
 
 	/* The input array typically is made with a newline every
@@ -218,8 +219,8 @@ uint8 * decodeBase64(const char  * inarray,
 	 * out the newlines during decoding.  This guarantees that
 	 * the allocated array is large enough. */
 	outsize = 3 * ((insize + 3) / 4) + 4;
-	if((bytea = (uint8*)LEPT_CALLOC(outsize, sizeof(uint8))) == NULL)
-		return (uint8*)ERROR_PTR("bytea not made", procName, NULL);
+	if((bytea = (uint8 *)SAlloc::C(outsize, sizeof(uint8))) == NULL)
+		return (uint8 *)ERROR_PTR("bytea not made", procName, NULL);
 
 	/* The number of encoded input data bytes is always a multiple of 4.
 	 * Read all the data, until you reach either the end or
@@ -250,21 +251,21 @@ uint8 * decodeBase64(const char  * inarray,
 	 * there is one input pad byte and two output data bytes. */
 	if(i > 0) {
 		for(j = i; j < 4; j++)
-			array4[j] = '\0';  /* zero the remaining input bytes */
+			array4[j] = '\0'; /* zero the remaining input bytes */
 		byteConvert4to3(array4, array3);
 		for(j = 0; j < i - 1; j++)
 			bytea[out_index++] = array3[j];
 	}
 	*poutsize = out_index;
 
-	LEPT_FREE(rtable64);
+	SAlloc::F(rtable64);
 	return bytea;
 }
 
 /*!
  * \brief   isBase64()
  */
-static int32 isBase64(char c)
+static l_int32 isBase64(char c)
 {
 	return (isalnum(((int)c)) || ((c) == '+') || ((c) == '/')) ? 1 : 0;
 }
@@ -272,12 +273,12 @@ static int32 isBase64(char c)
 /*!
  * \brief   genReverseTab64()
  */
-static int32 * genReverseTab64()
+static l_int32 * genReverseTab64()
 {
-	int32 i;
-	int32  * rtable64;
+	l_int32 i;
+	l_int32 * rtable64;
 
-	rtable64 = (int32*)LEPT_CALLOC(128, sizeof(int32));
+	rtable64 = (l_int32*)SAlloc::C(128, sizeof(l_int32));
 	for(i = 0; i < 64; i++) {
 		rtable64[(unsigned char)tablechar64[i]] = i;
 	}
@@ -315,27 +316,28 @@ static void byteConvert4to3(uint8  * in4,
 /*!
  * \brief   encodeAscii85()
  *
- * \param[in]    inarray input data
- * \param[in]    insize number of bytes in input array
- * \param[out]   poutsize number of bytes in output char array
+ * \param[in]    inarray    input data
+ * \param[in]    insize     number of bytes in input array
+ * \param[out]   poutsize   number of bytes in output char array
  * \return  chara with 64 characters + \n in each line
  *
  * <pre>
  * Notes:
  *      (1) Ghostscript has a stack break if the last line of
- *          data only has a '\>', so we avoid the problem by
- *          always putting '~\>' on the last line.
+ *          data only has a '>', so we avoid the problem by
+ *          always putting '~>' on the last line.
  * </pre>
  */
-char * encodeAscii85(uint8  * inarray,
-    int32 insize,
-    int32  * poutsize)
+char * encodeAscii85(const uint8  * inarray,
+    size_t insize,
+    size_t         * poutsize)
 {
-	char    * chara;
-	char    * outbuf;
-	int32 maxsize, i, index, outindex, linecount, nbout, eof;
+	char * chara;
+	char outbuf[8];
+	l_int32 maxsize, i, index, linecount, nbout, eof;
+	size_t outindex;
 
-	PROCNAME("encodeAscii85");
+	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
 		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
@@ -346,12 +348,10 @@ char * encodeAscii85(uint8  * inarray,
 		return (char*)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* Accumulate results in char array */
-	maxsize = (int32)(80. + (insize * 5. / 4.) *
+	maxsize = (l_int32)(80. + (insize * 5. / 4.) *
 	    (1. + 2. / MAX_ASCII85_LINE));
-	if((chara = (char*)LEPT_CALLOC(maxsize, sizeof(char))) == NULL)
+	if((chara = (char*)SAlloc::C(maxsize, sizeof(char))) == NULL)
 		return (char*)ERROR_PTR("chara not made", procName, NULL);
-	if((outbuf = (char*)LEPT_CALLOC(8, sizeof(char))) == NULL)
-		return (char*)ERROR_PTR("outbuf not made", procName, NULL);
 
 	linecount = 0;
 	index = 0;
@@ -376,7 +376,6 @@ char * encodeAscii85(uint8  * inarray,
 		}
 	}
 
-	LEPT_FREE(outbuf);
 	*poutsize = outindex;
 	return chara;
 }
@@ -384,11 +383,11 @@ char * encodeAscii85(uint8  * inarray,
 /*!
  * \brief   convertChunkToAscii85()
  *
- * \param[in]    inarray input data
- * \param[in]    insize  number of bytes in input array
- * \param[out]   pindex use and -- ptr
- * \param[in]    outbuf holds 8 ascii chars; we use no more than 7
- * \param[out]   pnbsout number of bytes written to outbuf
+ * \param[in]    inarray    input data
+ * \param[in]    insize     number of bytes in input array
+ * \param[out]   pindex     use and -- ptr
+ * \param[in]    outbuf     holds 8 ascii chars; we use no more than 7
+ * \param[out]   pnbsout    number of bytes written to outbuf
  * \return  boolean for eof 0 if more data, 1 if end of file
  *
  * <pre>
@@ -397,15 +396,15 @@ char * encodeAscii85(uint8  * inarray,
  *      (2) Writes 1 byte if the value is 0.
  * </pre>
  */
-static int32 convertChunkToAscii85(uint8  * inarray,
-    int32 insize,
-    int32  * pindex,
-    char     * outbuf,
-    int32  * pnbout)
+static l_int32 convertChunkToAscii85(const uint8 * inarray,
+    size_t insize,
+    l_int32       * pindex,
+    char          * outbuf,
+    l_int32       * pnbout)
 {
 	uint8 inbyte;
-	uint32 inword, val;
-	int32 eof, index, nread, nbout, i;
+	l_uint32 inword, val;
+	l_int32 eof, index, nread, nbout, i;
 
 	eof = FALSE;
 	index = *pindex;
@@ -414,17 +413,17 @@ static int32 convertChunkToAscii85(uint8  * inarray,
 		eof = TRUE;
 	*pindex += nread; /* save new index */
 
-	/* Read input data and save in uint32 */
+	/* Read input data and save in l_uint32 */
 	inword = 0;
 	for(i = 0; i < nread; i++) {
 		inbyte = inarray[index + i];
-		inword += inbyte << (8 * (3 - i));
+		inword += (l_uint32)inbyte << (8 * (3 - i));
 	}
 
 #if 0
-	fprintf(stderr, "index = %d, nread = %d\n", index, nread);
-	fprintf(stderr, "inword = %x\n", inword);
-	fprintf(stderr, "eof = %d\n", eof);
+	lept_stderr("index = %d, nread = %d\n", index, nread);
+	lept_stderr("inword = %x\n", inword);
+	lept_stderr("eof = %d\n", eof);
 #endif
 
 	/* Special case: output 1 byte only */
@@ -448,44 +447,44 @@ static int32 convertChunkToAscii85(uint8  * inarray,
 /*!
  * \brief   decodeAscii85()
  *
- * \param[in]    inarray ascii85 input data
- * \param[in]    insize number of bytes in input array
- * \param[out]   poutsize number of bytes in output uint8 array
+ * \param[in]    inarray     ascii85 input data
+ * \param[in]    insize      number of bytes in input array
+ * \param[out]   poutsize    number of bytes in output uint8 array
  * \return  outarray binary
  *
  * <pre>
  * Notes:
  *      (1) We assume the data is properly encoded, so we do not check
- *          for invalid characters or the final '\>' character.
+ *          for invalid characters or the final '>' character.
  *      (2) We permit whitespace to be added to the encoding in an
  *          arbitrary way.
  * </pre>
  */
-uint8 * decodeAscii85(char     * inarray,
-    int32 insize,
-    int32  * poutsize)
+uint8 * decodeAscii85(const char * inarray,
+    size_t insize,
+    size_t     * poutsize)
 {
 	char inc;
-	char     * pin;
+	const char * pin;
 	uint8 val;
-	uint8  * outa;
-	int32 maxsize, ocount, bytecount, index;
-	uint32 oword;
+	uint8    * outa;
+	l_int32 maxsize, ocount, bytecount, index;
+	l_uint32 oword;
 
-	PROCNAME("decodeAscii85");
+	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
-		return (uint8*)ERROR_PTR("&outsize not defined", procName, NULL);
+		return (uint8 *)ERROR_PTR("&outsize not defined", procName, NULL);
 	*poutsize = 0;
 	if(!inarray)
-		return (uint8*)ERROR_PTR("inarray not defined", procName, NULL);
+		return (uint8 *)ERROR_PTR("inarray not defined", procName, NULL);
 	if(insize <= 0)
-		return (uint8*)ERROR_PTR("insize not > 0", procName, NULL);
+		return (uint8 *)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* Accumulate results in outa */
-	maxsize = (int32)(80. + (insize * 4. / 5.)); /* plenty big */
-	if((outa = (uint8*)LEPT_CALLOC(maxsize, sizeof(uint8))) == NULL)
-		return (uint8*)ERROR_PTR("outa not made", procName, NULL);
+	maxsize = (l_int32)(80. + (insize * 4. / 5.)); /* plenty big */
+	if((outa = (uint8 *)SAlloc::C(maxsize, sizeof(uint8))) == NULL)
+		return (uint8 *)ERROR_PTR("outa not made", procName, NULL);
 
 	pin = inarray;
 	ocount = 0; /* byte index into outa */
@@ -521,7 +520,7 @@ uint8 * decodeAscii85(char     * inarray,
 			ocount += 4;
 		}
 		else if(inc == '~') { /* end of data */
-			L_INFO2(" %d extra bytes output\n", procName, bytecount - 1);
+			L_INFO(" %d extra bytes output\n", procName, bytecount - 1);
 			switch(bytecount) {
 				case 0: /* normal eof */
 				case 1: /* error */
@@ -552,18 +551,95 @@ uint8 * decodeAscii85(char     * inarray,
 	return outa;
 }
 
+/*!
+ * \brief   encodeAscii85WithComp)
+ *
+ * \param[in]    indata     input binary data
+ * \param[in]    insize     number of bytes in input data
+ * \param[out]   poutsize   number of bytes in output string
+ * \return  outstr with 64 characters + \n in each line
+ *
+ * <pre>
+ * Notes:
+ *      (1) Compress the input data; then encode ascii85.  For ascii
+ *          input, a first compression step will significantly reduce
+ *          the final encoded output size.
+ * </pre>
+ */
+char * encodeAscii85WithComp(const uint8  * indata,
+    size_t insize,
+    size_t         * poutsize)
+{
+	char     * outstr;
+	size_t size1;
+	uint8  * data1;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!poutsize)
+		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
+	*poutsize = 0;
+	if(!indata)
+		return (char*)ERROR_PTR("indata not defined", procName, NULL);
+
+	if((data1 = zlibCompress(indata, insize, &size1)) == NULL)
+		return (char*)ERROR_PTR("data1 not made", procName, NULL);
+	outstr = encodeAscii85(data1, size1, poutsize);
+	SAlloc::F(data1);
+	return outstr;
+}
+
+/*!
+ * \brief   decodeAscii85WithComp()
+ *
+ * \param[in]    instr       ascii85 input data string
+ * \param[in]    insize      number of bytes in input data
+ * \param[out]   poutsize    number of bytes in output binary data
+ * \return  outdata   binary data before compression and ascii85 encoding
+ *
+ * <pre>
+ * Notes:
+ *      (1) We assume the input data has been zlib compressed and then
+ *          properly encoded, so we reverse the procedure.  This is the
+ *          inverse of encodeAscii85WithComp().
+ *      (2) Set %insize == 0 to use strlen(%instr).
+ * </pre>
+ */
+uint8 * decodeAscii85WithComp(const char * instr,
+    size_t insize,
+    size_t      * poutsize)
+{
+	size_t size1;
+	uint8  * data1, * outdata;
+
+	PROCNAME(__FUNCTION__);
+
+	if(!poutsize)
+		return (uint8 *)ERROR_PTR("&outsize not defined", procName, NULL);
+	*poutsize = 0;
+	if(!instr)
+		return (uint8 *)ERROR_PTR("instr not defined", procName, NULL);
+
+	if(insize == 0) insize = strlen(instr);
+	if((data1 = decodeAscii85(instr, insize, &size1)) == NULL)
+		return (uint8 *)ERROR_PTR("data1 not made", procName, NULL);
+	outdata = zlibUncompress(data1, size1, poutsize);
+	SAlloc::F(data1);
+	return outdata;
+}
+
 /*-------------------------------------------------------------*
 *       String reformatting for base 64 encoded data          *
 *-------------------------------------------------------------*/
 /*!
  * \brief   reformatPacked64()
  *
- * \param[in]    inarray base64 encoded string with newlines
- * \param[in]    insize number of bytes in input array
- * \param[in]    leadspace number of spaces in each line before the data
- * \param[in]    linechars number of bytes of data in each line; multiple of 4
- * \param[in]    addquotes 1 to add quotes to each line of data; 0 to skip
- * \param[out]   poutsize number of bytes in output char array
+ * \param[in]    inarray     base64 encoded string with newlines
+ * \param[in]    insize      number of bytes in input array
+ * \param[in]    leadspace   number of spaces in each line before the data
+ * \param[in]    linechars   number of bytes of data in each line; multiple of 4
+ * \param[in]    addquotes   1 to add quotes to each line of data; 0 to skip
+ * \param[out]   poutsize    number of bytes in output char array
  * \return  outarray ascii
  *
  * <pre>
@@ -576,17 +652,17 @@ uint8 * decodeAscii85(char     * inarray,
  *          string formatted for inclusion in a C source file.
  * </pre>
  */
-char * reformatPacked64(char     * inarray,
-    int32 insize,
-    int32 leadspace,
-    int32 linechars,
-    int32 addquotes,
-    int32  * poutsize)
+char * reformatPacked64(const char * inarray,
+    l_int32 insize,
+    l_int32 leadspace,
+    l_int32 linechars,
+    l_int32 addquotes,
+    l_int32    * poutsize)
 {
-	char    * flata, * outa;
-	int32 i, j, flatindex, flatsize, outindex, nlines, linewithpad, linecount;
+	char * flata, * outa;
+	l_int32 i, j, flatindex, flatsize, outindex, nlines, linewithpad, linecount;
 
-	PROCNAME("reformatPacked64");
+	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
 		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
@@ -601,7 +677,7 @@ char * reformatPacked64(char     * inarray,
 		return (char*)ERROR_PTR("linechars % 4 must be 0", procName, NULL);
 
 	/* Remove all white space */
-	if((flata = (char*)LEPT_CALLOC(insize, sizeof(char))) == NULL)
+	if((flata = (char*)SAlloc::C(insize, sizeof(char))) == NULL)
 		return (char*)ERROR_PTR("flata not made", procName, NULL);
 	for(i = 0, flatindex = 0; i < insize; i++) {
 		if(isBase64(inarray[i]) || inarray[i] == '=')
@@ -613,9 +689,11 @@ char * reformatPacked64(char     * inarray,
 	nlines = (flatsize + linechars - 1) / linechars;
 	linewithpad = leadspace + linechars + 1; /* including newline */
 	if(addquotes) linewithpad += 2;
-	if((outa = (char*)LEPT_CALLOC(nlines * linewithpad, sizeof(char)))
-	    == NULL)
+	if((outa = (char*)SAlloc::C((size_t)nlines * linewithpad,
+	    sizeof(char))) == NULL) {
+		SAlloc::F(flata);
 		return (char*)ERROR_PTR("outa not made", procName, NULL);
+	}
 	for(j = 0, outindex = 0; j < leadspace; j++)
 		outa[outindex++] = ' ';
 	if(addquotes) outa[outindex++] = '"';
@@ -634,7 +712,6 @@ char * reformatPacked64(char     * inarray,
 	if(addquotes) outa[outindex++] = '"';
 	*poutsize = outindex;
 
-	LEPT_FREE(flata);
+	SAlloc::F(flata);
 	return outa;
 }
-

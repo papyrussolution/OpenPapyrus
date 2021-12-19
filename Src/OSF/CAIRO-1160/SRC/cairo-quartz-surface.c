@@ -88,17 +88,17 @@
  * as args to the NS* method, but not as CG.
  */
 enum PrivateCGCompositeMode {
-	kPrivateCGCompositeClear            = 0,
-	kPrivateCGCompositeCopy             = 1,
+	kPrivateCGCompositeClear    = 0,
+	kPrivateCGCompositeCopy     = 1,
 	kPrivateCGCompositeSourceOver       = 2,
-	kPrivateCGCompositeSourceIn         = 3,
+	kPrivateCGCompositeSourceIn = 3,
 	kPrivateCGCompositeSourceOut        = 4,
 	kPrivateCGCompositeSourceAtop       = 5,
 	kPrivateCGCompositeDestinationOver  = 6,
 	kPrivateCGCompositeDestinationIn    = 7,
 	kPrivateCGCompositeDestinationOut   = 8,
 	kPrivateCGCompositeDestinationAtop  = 9,
-	kPrivateCGCompositeXOR              = 10,
+	kPrivateCGCompositeXOR      = 10,
 	kPrivateCGCompositePlusDarker       = 11,// (max (0, (1-d) + (1-s)))
 	kPrivateCGCompositePlusLighter      = 12,// (min (1, s + d))
 };

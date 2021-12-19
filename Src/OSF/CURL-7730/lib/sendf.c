@@ -54,16 +54,13 @@
  * blocks of data.  Remaining, bare CRs are changed to LFs.  The possibly new
  * size of the data is returned.
  */
-static size_t convert_lineends(struct Curl_easy * data,
-    char * startPtr, size_t size)
+static size_t convert_lineends(struct Curl_easy * data, char * startPtr, size_t size)
 {
 	char * inPtr, * outPtr;
-
 	/* sanity check */
 	if((startPtr == NULL) || (size < 1)) {
 		return size;
 	}
-
 	if(data->state.prev_block_had_trailing_cr) {
 		/* The previous block of incoming data
 		   had a trailing CR, which was turned into a LF. */
@@ -439,8 +436,7 @@ ssize_t Curl_recv_plain(struct connectdata * conn, int num, char * buf,
 		}
 		else {
 			char buffer[STRERROR_LEN];
-			failf(conn->data, "Recv failure: %s",
-			    Curl_strerror(err, buffer, sizeof(buffer)));
+			failf(conn->data, "Recv failure: %s", Curl_strerror(err, buffer, sizeof(buffer)));
 			conn->data->state.os_errno = err;
 			*code = CURLE_RECV_ERROR;
 		}
@@ -448,10 +444,7 @@ ssize_t Curl_recv_plain(struct connectdata * conn, int num, char * buf,
 	return nread;
 }
 
-static CURLcode pausewrite(struct Curl_easy * data,
-    int type,                        /* what type of data */
-    const char * ptr,
-    size_t len)
+static CURLcode pausewrite(struct Curl_easy * data, int type/* what type of data */, const char * ptr, size_t len)
 {
 	/* signalled to pause sending on this connection, but since we have data
 	   we want to send we need to dup it to save a copy for when the sending
@@ -478,17 +471,13 @@ static CURLcode pausewrite(struct Curl_easy * data,
 		/* store this information in the state struct for later use */
 		Curl_dyn_init(&s->tempwrite[i].b, DYN_PAUSE_BUFFER);
 		s->tempwrite[i].type = type;
-
 		if(newtype)
 			s->tempcount++;
 	}
-
 	if(Curl_dyn_addn(&s->tempwrite[i].b, (uchar *)ptr, len))
 		return CURLE_OUT_OF_MEMORY;
-
 	/* mark the connection as RECV paused */
 	k->keepon |= KEEP_RECV_PAUSE;
-
 	return CURLE_OK;
 }
 

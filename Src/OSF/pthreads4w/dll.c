@@ -134,4 +134,4 @@ void __ptw32_autostatic_anchor(void)
 
 __PTW32_END_C_DECLS
 
-#endif /*  __PTW32_STATIC_LIB */
+#endif /* __PTW32_STATIC_LIB */

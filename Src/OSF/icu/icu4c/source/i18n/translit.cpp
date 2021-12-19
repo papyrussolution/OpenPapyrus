@@ -1581,7 +1581,7 @@ bool Transliterator::initializeRegistry(UErrorCode & status) {
 	NameUnicodeTransliterator* tempNameUnicodeTranslit = new NameUnicodeTransliterator();
 #if !UCONFIG_NO_BREAK_ITERATION
 	// TODO: could or should these transliterators be referenced polymorphically once constructed?
-	BreakTransliterator* tempBreakTranslit         = new BreakTransliterator();
+	BreakTransliterator* tempBreakTranslit = new BreakTransliterator();
 #endif
 	// Check for null pointers
 	if(tempNullTranslit == NULL || tempLowercaseTranslit == NULL || tempUppercaseTranslit == NULL ||
