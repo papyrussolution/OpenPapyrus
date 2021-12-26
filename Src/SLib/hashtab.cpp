@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -516,27 +516,27 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 	return ok;
 }
 
-int SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
+bool SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(P_Tab) {
 		size_t h  = Hash(pSymb);
 		const  Entry & r_entry = P_Tab[h];
 		if(r_entry.Count > 0) {
 			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.02
-			uint   pos = (uint)r_entry.Val.Key;
+			uint   pos = static_cast<uint>(r_entry.Val.Key);
 			if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
 				ASSIGN_PTR(pVal, r_entry.Val.Val);
 				ASSIGN_PTR(pPos, pos);
-				ok = 1;
+				ok = true;
 			}
 			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
-					pos = (uint)r_entry.P_Ext[i-1].Key;
+					pos = static_cast<uint>(r_entry.P_Ext[i-1].Key);
 					if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
 						ASSIGN_PTR(pVal, r_entry.P_Ext[i-1].Val);
 						ASSIGN_PTR(pPos, pos);
-						ok = 1;
+						ok = true;
 					}
 				}
 			}

@@ -1717,11 +1717,11 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 			PPFreight ex_freight;
 			if(p_bobj->P_Tbl->GetFreight(analog_bill_rec.ID, &ex_freight) <= 0) {
 				PPFreight freight;
-				freight.DlvrAddrID = pSrcPack->Hdr.DlvrAddrID;
+				freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
 				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &freight, use_ta);
 			}
 			else if(ex_freight.DlvrAddrID == 0) {
-				ex_freight.DlvrAddrID = pSrcPack->Hdr.DlvrAddrID;
+				ex_freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
 				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &ex_freight, use_ta);
 			}
 		}

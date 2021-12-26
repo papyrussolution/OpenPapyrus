@@ -7941,20 +7941,20 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 			    state->last = BITS(1);
 			    DROPBITS(1);
 			    switch(BITS(2)) {
-				    case 0:     /* stored block */
+				    case 0: // stored block 
 						Tracev((stderr, "inflate:     stored block%s\n", state->last ? " (last)" : ""));
 						state->mode = STORED;
 						break;
-				    case 1:     /* fixed block */
+				    case 1: // fixed block 
 						fixedtables(state);
 						Tracev((stderr, "inflate:     fixed codes block%s\n", state->last ? " (last)" : ""));
-						state->mode = LEN_; /* decode codes */
+						state->mode = LEN_; // decode codes 
 						if(flush == Z_TREES) {
 							DROPBITS(2);
 							goto inf_leave;
 						}
 						break;
-				    case 2:     /* dynamic block */
+				    case 2: // dynamic block 
 						Tracev((stderr, "inflate:     dynamic codes block%s\n", state->last ? " (last)" : ""));
 						state->mode = TABLE;
 						break;

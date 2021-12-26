@@ -176,6 +176,7 @@ bool   RealRange::IsPositive() const { return (low > 0.0 && upp > 0.0); }
 bool   RealRange::IsNegative() const { return (low < 0.0 && upp < 0.0); }
 bool   RealRange::IsNormalized() const { return (low <= upp); }
 bool   RealRange::IsStrictlyNormalized() const { return (low < upp); }
+//RealRange & FASTCALL RealRange::operator = (const RealRange & rS) { return Set(rS.low, rS.upp); }
 RealRange & FASTCALL RealRange::operator = (const IntRange & rS) { return Set((double)rS.low, (double)rS.upp); }
 bool   FASTCALL RealRange::IsEq(const RealRange & rS) const { return (low == rS.low && upp == rS.upp); }
 bool   FASTCALL RealRange::LessThan(double v) const { return (low < v && upp < v); }

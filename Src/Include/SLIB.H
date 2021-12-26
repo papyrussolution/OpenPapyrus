@@ -496,7 +496,15 @@ public:
 		VectorImageMask(0x00008000U),
 		Ssc_CompressionSignature(0xFDB975312468ACE0ULL),
 		WaitableObjCheckTimeout(1 * 60 * 1000),
-		SUiLayoutSignature(0x28785EB8U)
+		SUiLayoutSignature(0x28785EB8U),
+		ListBoxDefSignature_INVALID(0x00000000),  // Invalid (destroyed) instance
+		ListBoxDefSignature_DEFAULT(0x1234ABCD),  // Instance of base class ListBoxDef or subclass hasn't own Sign
+		ListBoxDefSignature_STD(0xABCD0001),      // StdListBoxDef
+		ListBoxDefSignature_STRASSOC(0xABCD0002), // StrAssocListBoxDef
+		ListBoxDefSignature_STDTREE(0xABCD0003),  // StdTreeListBoxDef
+		ListBoxDefSignature_STRING(0xABCD0004),   // StringListBoxDef
+		ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
+		ListBoxDefSignature_STDTREE2(0xABCD0006)  // StdTreeListBoxDef2
 	{
 	}
 	const uint VectorImageMask;
@@ -508,6 +516,14 @@ public:
 	//
 	const long WaitableObjCheckTimeout;
 	const uint32 SUiLayoutSignature; // @v11.2.4 Сигнатура экземпляров класса SUiLayout для верификации валидности
+	const uint32 ListBoxDefSignature_INVALID;  //0x00000000 // Invalid (destroyed) instance
+	const uint32 ListBoxDefSignature_DEFAULT;  //0x1234ABCD // Instance of base class ListBoxDef or subclass hasn't own Sign
+	const uint32 ListBoxDefSignature_STD;      //0xABCD0001 // StdListBoxDef
+	const uint32 ListBoxDefSignature_STRASSOC; //0xABCD0002 // StrAssocListBoxDef
+	const uint32 ListBoxDefSignature_STDTREE;  //0xABCD0003 // StdTreeListBoxDef
+	const uint32 ListBoxDefSignature_STRING;   //0xABCD0004 // StringListBoxDef
+	const uint32 ListBoxDefSignature_DBQ;      //0xABCD0005 // DBQListBoxDef
+	const uint32 ListBoxDefSignature_STDTREE2; //0xABCD0006 // StdTreeListBoxDef2
 };
 
 extern const SlConstParam _SlConst;
@@ -2526,6 +2542,7 @@ private:
 #define SLERR_MATH_UNDERFLOW                   303 // Ошибка переполнения нижней границы точности ieee-числа
 #define SLERR_MATH_MAXITER                     304 // Ошибка превышения максимального числа итераций
 #define SLERR_MATH_TSVECBYSYMBNFOUND           305 // Вектор временной серии с символом '%s' не найден
+#define SLERR_BASE64DECODEFAULT                306 // Ошибка декодирования base64 
 //
 //
 //
@@ -2663,6 +2680,7 @@ private:
 #define SLERR_ZIP_COMPRESSED_DATA              621  // @v10.8.4 N Compressed data invalid
 #define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
 #define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
+#define SLERR_ZLIB_BUFINFLATEFAULT             623  // @v11.2.9 Ошибка распаковки буфера данных
 
 #define SLERR_CRYPTO_INVPARAM                  651  // @v11.0.11 Ошибка SLCRYPTO - недопустимый параметр функции
 #define SLERR_CRYPTO_KEYBUFOVRFLW              652  // @v11.0.11 Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
@@ -3171,6 +3189,14 @@ struct SSzChunk { // @flat @noctr @novtbl
 //
 //
 struct RealRange { // @persistent @flat @noctr @novtbl @size=16
+	/*
+	RealRange() : low(0.0), upp(0.0)
+	{
+	}
+	RealRange(double _lo, double _up) : low(_lo), upp(_up)
+	{
+	}
+	*/
 	bool   IsZero() const;
 	//
 	// Descr: Возвращает true если хоть один из компонентов экземпляра имеет значение NAN
@@ -3209,6 +3235,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	double GetActualUpp() const;
 	RealRange & Z();
+	//RealRange & FASTCALL operator = (const RealRange & rS);
 	RealRange & FASTCALL operator = (const IntRange & rS);
 	bool   FASTCALL operator != (const RealRange & rS) const;
 	//
@@ -6356,21 +6383,21 @@ private:
 class SSecretTagPool : public SBinarySet {
 public:
 	enum { // @persistent
-		tagSessionPrivateKey       =  1,  // Приватный ключ сессии обмена данными
-		tagSessionPublicKey  	   =  2,  // Публичный ключ сессии обмена данными
-		tagSessionSecret     	   =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом
-		tagSvcAppellation    	   =  4,  //
-		tagSvcIdent          	   =  5,  //
-		tagSecret            	   =  7,  //
-		tagSvcAccessPoint    	   =  8,  // URL
-		tagSvcCommand        	   =  9,  // Заголовок сервисной команды
-		tagSvcCommandParam   	   = 10,  // Параметры сервисной команды
-		tagSvcCapabities     	   = 11,  // Опции возможностей сервиса
+		tagSessionPrivateKey =  1,  // Приватный ключ сессии обмена данными
+		tagSessionPublicKey  =  2,  // Публичный ключ сессии обмена данными
+		tagSessionSecret   =  3,  // Секрет, сгенерированный после обмена публичными ключами с контрагентом
+		tagSvcAppellation  =  4,  //
+		tagSvcIdent        =  5,  //
+		tagSecret          =  7,  //
+		tagSvcAccessPoint  =  8,  // URL
+		tagSvcCommand      =  9,  // Заголовок сервисной команды
+		tagSvcCommandParam = 10,  // Параметры сервисной команды
+		tagSvcCapabities   = 11,  // Опции возможностей сервиса
 		tagClientIdent     = 12,  // Идентификатор клиента
 		tagSelfyFace       = 13,  // Собственный лик (json. see StyloQFace)
-		tagSrpVerifierSalt   	   = 14,  //
-		tagSrpVerifier       	   = 15,  //
-		tagSrpA              	   = 16,  // user-->host tagPublicIdent:tagSrpA
+		tagSrpVerifierSalt = 14,  //
+		tagSrpVerifier     = 15,  //
+		tagSrpA            = 16,  // user-->host tagPublicIdent:tagSrpA
 		tagSrpB            = 17,  // host-->user tagSrpVerifierSalt:tagSrpB
 		tagSrpM            = 18,  // user-->host tagSrpM
 		tagSrpHAMK         = 19,  // host-->user tagSrpHAMK
@@ -8282,7 +8309,7 @@ private:
 			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
 			int    Implement_Add(int32 key, uint strP);
 			ENTRY * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const;
-			ENTRY * Implement_SearchByText(const char * pText) const;
+			int    Implement_SearchStrP(uint strP, TSVector <ENTRY *> & rResult) const;
 			void   Implement_SortByID();
 			void   Implement_SortByText(void * pMaster);
 			//
@@ -8310,6 +8337,12 @@ private:
 		uintptr_t ExtraPtr;
 	};
 public:
+	//
+	// Заметки по поводу операций, базирующихся на SHandle:
+	// 1. Физически, handle это - указатель на ENTRY
+	// 2. Как следствие, при изменениях дерева (включение новых элементов, удаление существующих) эти манипуляторы могут стать инвалидными
+	//
+	//
 	StrAssocTree();
 	StrAssocTree(const StrAssocTree & rS);
 	int    FASTCALL Copy(const StrAssocTree & rS);
@@ -8320,7 +8353,14 @@ public:
 	SHandle FASTCALL Search(long id) const;
 	SHandle SearchByText(const char * pTxt, int ignoreCase) const;
 	SHandle SearchByText(const char * pTxt, CompFunc fcmp) const;
+	//
+	// Методы получения атрибутов узла дерева по манипулятору
+	//
 	bool   Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const;
+	int32  GetNodeKey(SHandle h) const;
+	SString & GetNodeString(SHandle h, SString & rBuf) const;
+	uint   GetNodeFlags(SHandle h) const;
+	uintptr_t GetNodeExtraPtr(SHandle h) const;
 	//
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
 	//  Порядок обхода элементов дерева - в глубину: перебираются элементы корневого уровня и для каждого элемента,
@@ -8784,10 +8824,10 @@ public:
 	//
 	// Descr: Ищет символ pSymb в таблице.
 	// Returns:
-	//   >0 - символ найден (по указателю pVal присвоено значение ассоциированного значения).
-	//   0  - символ не найден (значение по указатель pVal не меняется)
+	//   true  - символ найден (по указателю pVal присвоено значение ассоциированного значения).
+	//   false - символ не найден (значение по указатель pVal не меняется)
 	//
-	int    Search(const char * pSymb, uint * pVal, uint * pPos) const;
+	bool   Search(const char * pSymb, uint * pVal, uint * pPos) const;
 	int    FASTCALL InitIteration(Iter * pI) const;
 	int    NextIteration(Iter *, uint * pVal, uint * pPos, SString * pStr) const;
 	//

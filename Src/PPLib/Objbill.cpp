@@ -6314,14 +6314,11 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 {
 	int    ok = 1;
 	PPObjTag * p_tag_obj = 0;
-	SString b;
 	const int is_intrexpnd = IsIntrExpndOp(pPack->Rec.OpID);
 	ZDELETE(pPack->P_MirrorLTagL);
 	if(pPack->IsDraft()) {
-		// @v10.0.0 {
 		if(force == 2)
 			pPack->LTagL.Release();
-		// } @v10.0.0
 		if(pPack->LTagL.GetCount() == 0) {
 			const int lrtr = LoadRowTagListForDraft(pPack->Rec.ID, pPack->LTagL);
 			THROW(lrtr);
@@ -6351,7 +6348,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 		}
 	}
 	else if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) {
-		// @v9.1.5 PPOPT_GOODSORDER // @v10.0.0 else
 		PPTransferItem * p_ti;
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
 			if(p_ti->LotID) {
@@ -6390,23 +6386,40 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 		THROW(P_LotXcT->GetContainer(pPack->Rec.ID, pPack->XcL));
 		// @v10.3.0 {
 		if(PPRef->GetPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, vxcl_buf) > 0) {
+			bool   local_error = false;
 			SSerializeContext sctx;
 			const size_t actual_size = vxcl_buf.GetAvailableSize();
 			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()))) {
 				SCompressor compr(SCompressor::tZLib);
 				SBuffer dbuf;
-				THROW_SL(compr.DecompressBlock(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
-				if(!pPack->_VXcL.Serialize(-1, dbuf, &sctx)) {
-					pPack->_VXcL.Release();
+				//THROW_SL(compr.DecompressBlock(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
+				int  inflr = compr.DecompressBlock(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf);
+				if(!inflr) {
+					PPSetErrorSLib();
+					local_error = true;
+				}
+				else if(!pPack->_VXcL.Serialize(-1, dbuf, &sctx)) {
+					local_error = true;
 					// @todo log error
 				}
 			}
-			else {
-				if(!pPack->_VXcL.Serialize(-1, vxcl_buf, &sctx)) {
-					pPack->_VXcL.Release();
-					// @todo log error
-				}
+			else if(!pPack->_VXcL.Serialize(-1, vxcl_buf, &sctx)) {
+				local_error = true;
+				// @todo log error
+			}
+			if(local_error) {
+				SString msg_buf;
+				SString temp_buf;
+				SString bill_text;
+				PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+				PPLoadText(PPTXT_ERREXTRACTION_BILLPRP_VALXCL, temp_buf);
+				msg_buf.Printf(temp_buf, bill_text.cptr());
+				PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+				msg_buf.CatDiv(':', 2).Cat(temp_buf);
+				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+				PPErrorTooltip(-1, 0);
+				pPack->_VXcL.Release();
 			}
 		}
 		// } @v10.3.0

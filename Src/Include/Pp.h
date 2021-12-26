@@ -451,6 +451,7 @@ public:
 		P_SubjectOrder("$PpyOrderTransmission$"),
 		P_SubjectCharry("$PpyCharryTransmission$"),
 		P_BillNotePrefix_IntrExpnd("$INTREXPND"),
+		P_MagicFileTransmit("$#FILETRANSMITMAGIC#$"), // @v11.2.9
 		P_ObjMemoDelim("=^%"),
 		P_ObjMemo_UtmRejPfx("UTM Rej"),
 		P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
@@ -496,6 +497,7 @@ public:
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
 	const char * P_BillNotePrefix_IntrExpnd; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
+	const char * P_MagicFileTransmit;        // "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
 	const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
 	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
 	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
@@ -6620,7 +6622,7 @@ public:
 	enum {
 		stExpTariffTa    = 0x0001,
 		stMainOrgInit    = 0x0002,
-		stAuth   = 0x0004, // Поток авторизован в базе данных Papyrus
+		stAuth           = 0x0004, // Поток авторизован в базе данных Papyrus
 		stNonInteractive = 0x0008  // @v10.9.6 Поток не-интерактивный: всякие окна, диалоги и виджеты запрещены
 	};
 	int    State;                // @Muxa Флаги
@@ -7585,9 +7587,9 @@ public:
 	//   Не следует модифицировать или проверять значения 'того поля в обход этих функций.
 	//
 	long   SetExtFlag(long f, int set);
-	int    FASTCALL CheckExtFlag(long) const;
+	bool   FASTCALL CheckExtFlag(long) const;
 	void   SetStateFlag(long, int set);
-	int    CheckStateFlag(long) const;
+	bool   CheckStateFlag(long) const;
 	ObjCache * FASTCALL GetDbLocalObjCache(PPID objType);
 	int    SetDbLocalObjCache(ObjCache * pCache);
 	int    DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAdviseEventQueue::Client * pCli);
@@ -10537,6 +10539,7 @@ struct PPFreight {         // @persistent @store(PropertyTbl)
 	int    IsEmpty() const;
 	int    FASTCALL IsEq(const PPFreight &) const;
 	int    FASTCALL CheckForFilt(const FreightFilt & rFilt) const;
+	int    SetupDlvrAddr(PPID dlvrAddrID);
 
 	PPID   Tag;            // Const=PPOBJ_BILL
 	PPID   ID;             // ->Bill.ID
@@ -11342,6 +11345,7 @@ public:
 	// Descr: Устанавливает дополнительную статью в пакет документа (Rec.Object2). Выполняет все необходимые проверки.
 	//
 	int    SetupObject2(PPID arID);
+	int    SetupDlvrAddr(PPID dlvrAddrID);
 	//
 	// Descr: Устанавливает в пакете специальные атрибуты, зависящие от EDI-источника документа:
 	//   -- вид EDI операции (PPEDIOP_XXX)
@@ -46226,7 +46230,8 @@ public:
 	//
 	enum { // @persistent
 		doctypUndef       = 0,
-		doctypCommandList = 1
+		doctypCommandList = 1,
+		doctypOrderPrereq = 2
 	};
 	struct StoragePacket {
 		int FASTCALL IsEq(const StoragePacket & rS) const;
@@ -46290,18 +46295,18 @@ public:
 	// для ускорения начального этапа разработки и они несколько выпадают из общего концептуального замысла.
 	//
 	enum { // @persistent
-		sqbcEmpty    =  0,
-		sqbcRegister =  1,
-		sqbcLogin    =  2,
-		sqbcPersonEvent      =  3,
-		sqbcReport   =  4,
-		sqbcSearch   =  5, // Поисковый запрос
-		sqbcObjTransmit      = 21, // @special Передача данных между разделами papyrus. Кроме этой, мы резервируем
-		// еще 9 (до 30 включетельно) номеров для этой технологии, поскольку там достаточно разнообразных вариантов.
+		sqbcEmpty       =  0,
+		sqbcRegister    =  1,
+		sqbcLogin       =  2,
+		sqbcPersonEvent =  3,
+		sqbcReport      =  4,
+		sqbcSearch      =  5, // Поисковый запрос
+		sqbcObjTransmit = 21, // @special Передача данных между разделами papyrus. Кроме этой, мы резервируем
+			// еще 9 (до 30 включительно) номеров для этой технологии, поскольку там достаточно разнообразных вариантов.
 		// last obj transmit command = 30
 		sqbcPosProtocolHost  = 31, // @special Данные в формате papyrus-pos-protocol со стороны хоста
 		sqbcPosProtocolFront = 32, // @special Данные в формате papyrus-pos-protocol со стороны кассового узла
-		// Резервируем еще 8 (до 40 включительно) номеров для этого протокола.
+			// Резервируем еще 8 (до 40 включительно) номеров для этого протокола.
 		// last pos protocol command = 40
 		sqbcRsrvOrderPrereq  = 101, // Модуль данных, передаваемых сервисом клиенту чтобы тот мог сформировать 
 			// заказ. Дополнительные параметры определяют особенности модуля: заказ от конечного клиента, 

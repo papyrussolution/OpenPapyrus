@@ -2986,6 +2986,30 @@ int StrAssocTree::ENTRY::BaseList::Implement_Add(int32 key, uint strP)
 	return insert(&new_entry);
 }
 
+int StrAssocTree::ENTRY::BaseList::Implement_SearchStrP(uint strP, TSVector <ENTRY *> & rResult) const
+{
+	//
+	// Функция ищет ссылку на позицию строки strP среди всех своих элементов равно как и дочерних (рекурсивный вызов).
+	// На текущий момент вероятность того, что ссылка на одну и туже строку (кроме нулевой) содержится более чем в одном
+	// элементе близка к нулю, но учитывая то, что формально такого ограничения нет, мы прогоняем поиск все равно по всему дереву.
+	//
+	int    ok = 0;
+	if(strP > 0) {
+		for(uint i = 0; i < getCount(); i++) {
+			const ENTRY * p_entry = &at(i);
+			if(p_entry->StrP == strP) {
+				rResult.insert(&p_entry);
+				ok = 1;
+			}
+			if(p_entry->P_Children) {
+				if(p_entry->P_Children->Implement_SearchStrP(strP, rResult) > 0) // @recursion
+					ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 StrAssocTree::ENTRY * StrAssocTree::ENTRY::BaseList::Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const
 {
 	ENTRY * p_result = 0;
@@ -3179,20 +3203,18 @@ SHandle FASTCALL StrAssocTree::Search(long id) const
 SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 {
 	SHandle result;
-
 	uint   pos = 0;
-	while(Pool.search(pTxt, &pos, ignoreCase)) {
-		/*
-		if(LAssocArray::lsearch(&pos, &(assc_pos = 0), CMPF_LONG, offsetof(LAssoc, Val))) {
-			ASSIGN_PTR(pPos, assc_pos);
-			return 1;
+	while(!result && Pool.search(pTxt, &pos, ignoreCase)) {
+		TSVector <ENTRY *> entry_list;
+		if(L.Implement_SearchStrP(pos, entry_list) > 0) {
+			assert(entry_list.getCount());
+			result = entry_list.at(0);
 		}
 		else {
 			size_t _len = Pool.getLen(pos);
 			uint   _dlen = Pool.getDelimLen();
 			pos += (_len + _dlen);
 		}
-		*/
 	}
 	return result;
 }
@@ -3200,6 +3222,18 @@ SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 SHandle StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp) const
 {
 	SHandle result;
+	uint   pos = 0;
+	uint   next_pos = 0;
+	while(!result && Pool.search(pTxt, fcmp, &pos, &next_pos)) {
+		assert(next_pos > pos);
+		TSVector <ENTRY *> entry_list;
+		if(L.Implement_SearchStrP(pos, entry_list) > 0) {
+			assert(entry_list.getCount());
+			result = entry_list.at(0);
+		}
+		else
+			pos = next_pos;
+	}
 	return result;
 }
 

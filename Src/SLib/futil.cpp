@@ -132,8 +132,9 @@ int driveValid(const char * pPath)
 	if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
 		ok = 1;
 	else if(pPath[0] == '\\' && pPath[1] == '\\') {
-		char   buf[MAXPATH], *p;
+		char   buf[MAXPATH];
 		fnsplit(pPath, 0, buf, 0, 0);
+		char   * p = 0;
 		p = ((p = sstrchr(buf+2, '\\')) ? sstrchr(p+1, '\\') : 0);
 		if(p) {
 			*p = 0;

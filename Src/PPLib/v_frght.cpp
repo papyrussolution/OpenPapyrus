@@ -481,9 +481,8 @@ int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 			pItem->ShipmDate = P_TmpTbl->data.ShipmDate;
 			pItem->ArrvlDate = P_TmpTbl->data.ArrvlDate;
 			pItem->ShipID    = P_TmpTbl->data.ShipID;
-			// @v9.8.4 STRNSCPY(pItem->ShipName, P_TmpTbl->data.ShipName);
-			StrPool.GetS(P_TmpTbl->data.ShipNameP, temp_buf); // @v9.8.4 
-			STRNSCPY(pItem->ShipName, temp_buf); // @v9.8.4 
+			StrPool.GetS(P_TmpTbl->data.ShipNameP, temp_buf);
+			STRNSCPY(pItem->ShipName, temp_buf);
 			pItem->PortID    = P_TmpTbl->data.PortID;
 			STRNSCPY(pItem->PortName, P_TmpTbl->data.PortName);
 			pItem->DlvrAddrID = P_TmpTbl->data.DlvrAddrID;

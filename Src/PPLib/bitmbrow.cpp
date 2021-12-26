@@ -158,14 +158,15 @@ private:
 
 	enum {
 		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
-		stAltView  = 0x0004, // Альтернативный просмотр строк товарного документа
+		stAltView          = 0x0004, // Альтернативный просмотр строк товарного документа
 		stExpndOnReturn    = 0x0008, // Флаг устанавливается при расходном возврате
 		stUseLinkSelection = 0x0010, // При выборе товара всегда обращаться к строкам связанного документа
 		stShowLinkQtty     = 0x0020, // Показывать количество из связанного документа
-		stCtrlX    = 0x0040,
-		stAccsCost = 0x0080, // @*BillItemBrowser::BillItemBrowser
+		stCtrlX            = 0x0040,
+		stAccsCost         = 0x0080, // @*BillItemBrowser::BillItemBrowser
 		stActivateNewRow   = 0x0100, // If !0 && !EditMode then execute() calls addItem()
-		stIsModified       = 0x0400
+		stIsModified       = 0x0400,
+		stTagPreKey        = 0x0800  // @v11.2.9 Нажата клавиша, предваряющая последующее нажатие горячей клавиши для редактирования тега.
 	};
 	long   State;
 	int    AsSelector;
@@ -3383,8 +3384,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 		{
 			if(TVKEYDOWN) {
 				uchar  c = TVCHR;
-				// @v10.9.8 if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
-				if(isasciialnum(c)) { // @v10.9.8
+				if(isasciialnum(c)) {
 					LotExtCodeTbl::Rec rec;
 					PPLotExtCodeContainer::MarkSet set;
 					if(EditItemDialog(rec, c, set) > 0) {
@@ -3587,11 +3587,24 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 IMPL_HANDLE_EVENT(BillItemBrowser)
 {
 	int    c;
-	if(TVKEYDOWN && TVCHR == kbCtrlX)
-		State |= stCtrlX;
-	else if(TVCOMMAND || TVKEYDOWN) {
-		if(TVCHR != kbCtrlR && TVCHR != kbCtrlZ && TVCHR != kbCtrlD)
-			State &= ~stCtrlX;
+	{
+		/* @construction (попытка сделать быстрое редактирование тегов в строках документа) if(TVKEYDOWN && TVCHR == '/' && !(State & stTagPreKey)) {
+			State |= stTagPreKey;
+		}
+		else if(State & stTagPreKey) {
+			if(TVCOMMAND || TVKEYDOWN) {
+				if(TVKEYDOWN) {
+					;
+				}
+				State &= ~stCtrlX;
+			}
+		}*/
+		if(TVKEYDOWN && TVCHR == kbCtrlX)
+			State |= stCtrlX;
+		else if(TVCOMMAND || TVKEYDOWN) {
+			if(TVCHR != kbCtrlR && TVCHR != kbCtrlZ && TVCHR != kbCtrlD)
+				State &= ~stCtrlX;
+		}
 	}
 	if(TVKEYDOWN && (TVKEY == kbF3 || isalnum(c = TVCHR) || c == '*') && !AsSelector && EditMode < 2) {
 		PPID   pckg_id = 0;
@@ -3665,9 +3678,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		else if(TVBROADCAST) {
 			if(TVCMD == cmMouseHover) {
 				long   v = 0;
-				SString buf;
 				SPoint2S point = *static_cast<SPoint2S *>(event.message.infoPtr);
 				if(ItemByPoint(point, 0, &v)) {
+					SString buf;
 					if(ProblemsList.GetText(v, buf) > 0)
 						PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
 							SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
@@ -3741,10 +3754,8 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								P_BObj->SelectLot2(slp);
 							}
 							else {
-								// @v9.3.6 PPID   lot_id = r_ti.LotID;
-								// @v9.3.6 SelectLot(r_ti.LocID, labs(r_ti.GoodsID), 0, &lot_id, 0);
-								PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, PPObjBill::SelectLotParam::fShowManufTime); // @v9.3.6
-								slp.RetLotID = r_ti.LotID; // @v9.3.6
+								PPObjBill::SelectLotParam slp(labs(r_ti.GoodsID), r_ti.LocID, 0, PPObjBill::SelectLotParam::fShowManufTime);
+								slp.RetLotID = r_ti.LotID;
 								P_BObj->SelectLot2(slp);
 							}
 						}

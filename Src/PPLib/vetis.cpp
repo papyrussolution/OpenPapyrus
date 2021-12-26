@@ -11698,7 +11698,6 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 						else {
 							{
 								PPLoadText(PPTXT_VETISOUTGSENDING, fmt_buf);
-								BillTbl::Rec link_bill_rec;
 								TransferTbl::Rec trfr_rec;
 								addendum_msg_buf.Z();
 								if(vd_rec.LinkBillID && p_bobj->Fetch(vd_rec.LinkBillID, &link_bill_rec) > 0) {

@@ -129,11 +129,9 @@ bool hb_buffer_t::make_room_for(uint num_in, uint num_out)
 	if(UNLIKELY(!ensure(out_len + num_out))) return false;
 	if(out_info == info && out_len + num_out > idx + num_in) {
 		assert(have_output);
-
 		out_info = (hb_glyph_info_t*)pos;
 		memcpy(out_info, info, out_len * sizeof(out_info[0]));
 	}
-
 	return true;
 }
 
@@ -256,35 +254,25 @@ void hb_buffer_t::clear_positions()
 
 void hb_buffer_t::swap_buffers()
 {
-	if(UNLIKELY(!successful)) return;
+	if(UNLIKELY(!successful)) 
+		return;
 	assert(have_output);
 	have_output = false;
 	if(out_info != info) {
-		hb_glyph_info_t * tmp_string;
-		tmp_string = info;
+		hb_glyph_info_t * tmp_string = info;
 		info = out_info;
 		out_info = tmp_string;
 		pos = (hb_glyph_position_t*)out_info;
 	}
-
-	uint tmp;
-	tmp = len;
-	len = out_len;
-	out_len = tmp;
-
+	Exchange(&len, &out_len);
 	idx = 0;
 }
 
-void hb_buffer_t::replace_glyphs(uint num_in,
-    uint num_out,
-    const uint32_t * glyph_data)
+void hb_buffer_t::replace_glyphs(uint num_in, uint num_out, const uint32_t * glyph_data)
 {
 	if(UNLIKELY(!make_room_for(num_in, num_out))) return;
-
 	assert(idx + num_in <= len);
-
 	merge_clusters(idx, idx + num_in);
-
 	hb_glyph_info_t orig_info = info[idx];
 	hb_glyph_info_t * pinfo = &out_info[out_len];
 	for(uint i = 0; i < num_out; i++) {
@@ -292,7 +280,6 @@ void hb_buffer_t::replace_glyphs(uint num_in,
 		pinfo->codepoint = glyph_data[i];
 		pinfo++;
 	}
-
 	idx  += num_in;
 	out_len += num_out;
 }
@@ -1130,14 +1117,11 @@ hb_bool_t hb_buffer_allocation_successful(hb_buffer_t * buffer)
  *
  * Since: 0.9.7
  **/
-void hb_buffer_add(hb_buffer_t * buffer,
-    hb_codepoint_t codepoint,
-    uint cluster)
+void hb_buffer_add(hb_buffer_t * buffer, hb_codepoint_t codepoint, uint cluster)
 {
 	buffer->add(codepoint, cluster);
 	buffer->clear_context(1);
 }
-
 /**
  * hb_buffer_set_length:
  * @buffer: an #hb_buffer_t.
@@ -1171,7 +1155,6 @@ hb_bool_t hb_buffer_set_length(hb_buffer_t * buffer, uint length)
 	buffer->clear_context(1);
 	return true;
 }
-
 /**
  * hb_buffer_get_length:
  * @buffer: an #hb_buffer_t.
@@ -1184,11 +1167,10 @@ hb_bool_t hb_buffer_set_length(hb_buffer_t * buffer, uint length)
  *
  * Since: 0.9.2
  **/
-uint hb_buffer_get_length(hb_buffer_t * buffer)
+uint hb_buffer_get_length(const hb_buffer_t * buffer)
 {
 	return buffer->len;
 }
-
 /**
  * hb_buffer_get_glyph_infos:
  * @buffer: an #hb_buffer_t.
@@ -1203,15 +1185,11 @@ uint hb_buffer_get_length(hb_buffer_t * buffer)
  *
  * Since: 0.9.2
  **/
-hb_glyph_info_t * hb_buffer_get_glyph_infos(hb_buffer_t * buffer,
-    uint * length)
+hb_glyph_info_t * hb_buffer_get_glyph_infos(hb_buffer_t * buffer, uint * length)
 {
-	if(length)
-		*length = buffer->len;
-
+	ASSIGN_PTR(length, buffer->len);
 	return (hb_glyph_info_t*)buffer->info;
 }
-
 /**
  * hb_buffer_get_glyph_positions:
  * @buffer: an #hb_buffer_t.
@@ -1244,12 +1222,10 @@ hb_glyph_position_t * hb_buffer_get_glyph_positions(hb_buffer_t * buffer, uint *
  *
  * Since: 1.5.0
  **/
-hb_glyph_flags_t
-	(hb_glyph_info_get_glyph_flags) (const hb_glyph_info_t *info)
+hb_glyph_flags_t (hb_glyph_info_get_glyph_flags)(const hb_glyph_info_t *info)
 {
 	return hb_glyph_info_get_glyph_flags(info);
 }
-
 /**
  * hb_buffer_reverse:
  * @buffer: an #hb_buffer_t.
@@ -1273,12 +1249,10 @@ void hb_buffer_reverse(hb_buffer_t * buffer)
  *
  * Since: 0.9.41
  **/
-void hb_buffer_reverse_range(hb_buffer_t * buffer,
-    uint start, uint end)
+void hb_buffer_reverse_range(hb_buffer_t * buffer, uint start, uint end)
 {
 	buffer->reverse_range(start, end);
 }
-
 /**
  * hb_buffer_reverse_clusters:
  * @buffer: an #hb_buffer_t.
@@ -1293,7 +1267,6 @@ void hb_buffer_reverse_clusters(hb_buffer_t * buffer)
 {
 	buffer->reverse_clusters();
 }
-
 /**
  * hb_buffer_guess_segment_properties:
  * @buffer: an #hb_buffer_t.
@@ -1460,15 +1433,10 @@ void hb_buffer_add_utf32(hb_buffer_t * buffer, const uint32_t * text, int text_l
  *
  * Since: 0.9.39
  **/
-void hb_buffer_add_latin1(hb_buffer_t * buffer,
-    const uint8_t * text,
-    int text_length,
-    uint item_offset,
-    int item_length)
+void hb_buffer_add_latin1(hb_buffer_t * buffer, const uint8_t * text, int text_length, uint item_offset, int item_length)
 {
 	hb_buffer_add_utf<hb_latin1_t> (buffer, text, text_length, item_offset, item_length);
 }
-
 /**
  * hb_buffer_add_codepoints:
  * @buffer: a #hb_buffer_t to append characters to.
@@ -1545,31 +1513,25 @@ static int compare_info_codepoint(const hb_glyph_info_t * pa, const hb_glyph_inf
 static inline void normalize_glyphs_cluster(hb_buffer_t * buffer, uint start, uint end, bool backward)
 {
 	hb_glyph_position_t * pos = buffer->pos;
-
 	/* Total cluster advance */
 	hb_position_t total_x_advance = 0, total_y_advance = 0;
 	for(uint i = start; i < end; i++) {
 		total_x_advance += pos[i].x_advance;
 		total_y_advance += pos[i].y_advance;
 	}
-
 	hb_position_t x_advance = 0, y_advance = 0;
 	for(uint i = start; i < end; i++) {
 		pos[i].x_offset += x_advance;
 		pos[i].y_offset += y_advance;
-
 		x_advance += pos[i].x_advance;
 		y_advance += pos[i].y_advance;
-
 		pos[i].x_advance = 0;
 		pos[i].y_advance = 0;
 	}
-
 	if(backward) {
 		/* Transfer all cluster advance to the last glyph. */
 		pos[end - 1].x_advance = total_x_advance;
 		pos[end - 1].y_advance = total_y_advance;
-
 		hb_stable_sort(buffer->info + start, end - start - 1, compare_info_codepoint, buffer->pos + start);
 	}
 	else {
@@ -1598,11 +1560,8 @@ static inline void normalize_glyphs_cluster(hb_buffer_t * buffer, uint start, ui
 void hb_buffer_normalize_glyphs(hb_buffer_t * buffer)
 {
 	assert(buffer->have_positions);
-	assert((buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS) ||
-	    (!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)));
-
+	assert((buffer->content_type == HB_BUFFER_CONTENT_TYPE_GLYPHS) || (!buffer->len && (buffer->content_type == HB_BUFFER_CONTENT_TYPE_INVALID)));
 	bool backward = HB_DIRECTION_IS_BACKWARD(buffer->props.direction);
-
 	foreach_cluster(buffer, start, end)
 	normalize_glyphs_cluster(buffer, start, end, backward);
 }
@@ -1625,7 +1584,6 @@ void hb_buffer_t::sort(uint start, uint end, int (*compar)(const hb_glyph_info_t
 		}
 	}
 }
-
 /*
  * Comparing buffers.
  */
@@ -1643,17 +1601,13 @@ void hb_buffer_t::sort(uint start, uint end, int (*compar)(const hb_glyph_info_t
  *
  * Since: 1.5.0
  **/
-hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer,
-    hb_buffer_t * reference,
-    hb_codepoint_t dottedcircle_glyph,
-    uint position_fuzz)
+hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer, hb_buffer_t * reference, hb_codepoint_t dottedcircle_glyph, uint position_fuzz)
 {
 	if(buffer->content_type != reference->content_type && buffer->len && reference->len)
 		return HB_BUFFER_DIFF_FLAG_CONTENT_TYPE_MISMATCH;
 	hb_buffer_diff_flags_t result = HB_BUFFER_DIFF_FLAG_EQUAL;
 	bool contains = dottedcircle_glyph != (hb_codepoint_t)-1;
 	uint count = reference->len;
-
 	if(buffer->len != count) {
 		/*
 		 * we can't compare glyph-by-glyph, but we do want to know if there
@@ -1670,10 +1624,8 @@ hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer,
 		result |= HB_BUFFER_DIFF_FLAG_LENGTH_MISMATCH;
 		return hb_buffer_diff_flags_t(result);
 	}
-
 	if(!count)
 		return hb_buffer_diff_flags_t(result);
-
 	const hb_glyph_info_t * buf_info = buffer->info;
 	const hb_glyph_info_t * ref_info = reference->info;
 	for(uint i = 0; i < count; i++) {
@@ -1707,10 +1659,8 @@ hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer,
 			ref_pos++;
 		}
 	}
-
 	return result;
 }
-
 /*
  * Debugging.
  */

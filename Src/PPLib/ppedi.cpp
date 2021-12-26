@@ -1640,37 +1640,37 @@ public:
 	int    Write_CPS(SXml::WDoc & rDoc);
 	int    Read_CPS(xmlNode * pFirstNode);
 	enum { // values significat!
-		amtqAmtDue        =   9, // Amount due/amount payable
-		amtqCashDiscount  =  21, // Cash discount
+		amtqAmtDue                =   9, // Amount due/amount payable
+		amtqCashDiscount          =  21, // Cash discount
 		amtqCashOnDeliveryAmt     =  22, // Cash on delivery amount
-		amtqChargeAmt     =  23, // Charge amount
+		amtqChargeAmt             =  23, // Charge amount
 		amtqInvoiceItemAmt        =  38, // Invoice item amount
 		amtqInvoiceTotalAmt       =  39, // Invoice total amount
-		amtqCustomsValue  =  40, // Customs value
-		amtqFreightCharge =  64, // Freight charge
+		amtqCustomsValue          =  40, // Customs value
+		amtqFreightCharge         =  64, // Freight charge
 		amtqTotalLnItemsAmt       =  79, // Total line items amount
 		amtqLoadAndHandlCost      =  81, // Loading and handling cost
 		amtqMsgTotalMonetaryAmt   =  86, // Message total monetary amount
-		amtqOriginalAmt   =  98, // Original amount
-		amtqTaxAmt        = 124, // Tax amount
-		amtqTaxableAmt    = 125, // Taxable amount
-		amtqTotalAmt      = 128, // Total amount (The amount specified is the total amount)
+		amtqOriginalAmt           =  98, // Original amount
+		amtqTaxAmt                = 124, // Tax amount
+		amtqTaxableAmt            = 125, // Taxable amount
+		amtqTotalAmt              = 128, // Total amount (The amount specified is the total amount)
 		amtqTotalServiceCharge    = 140, // Total service charge
-		amtqUnitPrice     = 146, // Unit price (5110) Reporting monetary amount is a "per unit" amount. (цена без НДС)
+		amtqUnitPrice             = 146, // Unit price (5110) Reporting monetary amount is a "per unit" amount. (цена без НДС)
 		amtqMsgTotalDutyTaxFeeAmt = 176, // Message total duty/tax/fee amount
-		amtqExactAmt      = 178, // Exact amount
-		amtqLnItemAmt     = 203, // Line item amount
-		amtqAllowanceAmt  = 204, // Allowance amount
-		amtqTotalCharges  = 259, // Total charges
+		amtqExactAmt              = 178, // Exact amount
+		amtqLnItemAmt             = 203, // Line item amount
+		amtqAllowanceAmt          = 204, // Allowance amount
+		amtqTotalCharges          = 259, // Total charges
 		amtqTotalAllowances       = 260, // Total allowances
-		amtqInstalmentAmt = 262, // Instalment amount
+		amtqInstalmentAmt         = 262, // Instalment amount
 		amtqGoodsAndServicesTax   = 369, // Goods and services tax
 		amtqTotalAmtInclVAT       = 388, // Total amount including Value Added Tax (VAT)
 		amtqCalcBasisExclAllTaxes = 528, // Calculation basis excluding all taxes
 		amtqUnloadAndHandlCost    = 542, // Unloading and handling cost
 
 		amtqExtBias       = 10000, // Типы сумм, начинающиеся с этого номера представлены алфавитными кодами
-			// и тарктуются как специализированные (часто справочные) значения.
+			// и трактуются как специализированные (часто справочные) значения.
 		amtqExt_XB5       = 10001 // XB5 Information amount (SWIFT Code). A monetary amount provided for information purposes.
 	};
 	int    Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount);
@@ -3879,12 +3879,12 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 	}
 	else if(SXml::IsName(p_root, "ORDRSP")) { // @v11.2.7
 		PPID   ordrsp_op_id = 0;
-		PPBillPacket * p_bp_rsp = 0;
+		//PPBillPacket * p_bp_rsp = 0;
 		PPBillPacket * p_bp_ord = 0;
 		THROW(op_obj.GetEdiOrdrspOp(&ordrsp_op_id, 1));
 		THROW(Read_CommonDocumentEntries(p_root->children, document));
 		THROW_MEM(p_pack = new PPEdiProcessor::Packet(PPEDIOP_ORDERRSP));
-		p_bp_rsp = static_cast<PPBillPacket *>(p_pack->P_Data);
+		p_bpack = static_cast<PPBillPacket *>(p_pack->P_Data);
 		p_bp_ord = static_cast<PPBillPacket *>(p_pack->P_ExtData);
 		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "SG1")) {
@@ -3979,12 +3979,12 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 			Goods2Tbl::Rec goods_rec;
 			SString order_number;
 			LDATE  order_date = document.GetLinkedOrderDate();
-			assert(p_bp_rsp);
-			p_bp_rsp->CreateBlank_WithoutCode(ordrsp_op_id, 0/*link_bill_id*/, 0/*loc_id*/, 1);
-			p_bp_rsp->Rec.EdiOp = p_pack->DocType;
-			p_bp_rsp->Rec.Dt = document.GetBillDate();
-			p_bp_rsp->Rec.DueDate = document.GetBillDueDate();
-			STRNSCPY(p_bp_rsp->Rec.Code, document.GetFinalBillCode());
+			assert(p_bpack);
+			p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0/*link_bill_id*/, 0/*loc_id*/, 1);
+			p_bpack->Rec.EdiOp = p_pack->DocType;
+			p_bpack->Rec.Dt = document.GetBillDate();
+			p_bpack->Rec.DueDate = document.GetBillDueDate();
+			STRNSCPY(p_bpack->Rec.Code, document.GetFinalBillCode());
 			{
 				for(uint rffidx = 0; rffidx < document.RefL.getCount(); rffidx++) {
 					const RefValue * p_rff = document.RefL.at(rffidx);
@@ -3997,16 +3997,16 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 					const PartyValue * p_nad = document.PartyL.at(nadidx);
 					if(p_nad) {
 						if(p_nad->PartyQ) {
-							pProvider->ResolveContractor(p_nad->Code, p_nad->PartyQ, p_bp_rsp);
+							pProvider->ResolveContractor(p_nad->Code, p_nad->PartyQ, p_bpack);
 						}
 					}
 				}
 			}
 			if(order_number.NotEmptyS() && checkdate(order_date)) {
 				BillTbl::Rec ord_bill_rec;
-				if(pProvider->SearchLinkedBill(order_number, order_date, p_bp_rsp->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
-					p_bp_rsp->Rec.LinkBillID = ord_bill_rec.ID;
-					THROW(pProvider->P_BObj->ExtractPacket(p_bp_rsp->Rec.LinkBillID, p_bp_ord) > 0);
+				if(pProvider->SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
+					p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
+					THROW(pProvider->P_BObj->ExtractPacket(p_bpack->Rec.LinkBillID, p_bp_ord) > 0);
 				}
 			}
 			for(uint linidx = 0; linidx < document.DetailL.getCount(); linidx++) {
@@ -4034,11 +4034,14 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 					if(ti.GoodsID) {
 						double qty_ordered = 0.0;
 						double qty_allocated = 0.0;
+						double amt_ln_total = 0.0;
 						for(uint imdidx = 0; imdidx < p_lin->ImdL.getCount(); imdidx++) {
 							const ImdValue * p_imd = p_lin->ImdL.at(imdidx);
 						}
 						for(uint moaidx = 0; moaidx < p_lin->MoaL.getCount(); moaidx++) {
 							const QValue & r_moa = p_lin->MoaL.at(moaidx);
+							if(r_moa.Q == amtqTotalLnItemsAmt) // 79 Total line items amount
+								amt_ln_total = r_moa.Value;
 						}
 						for(uint qtyidx = 0; qtyidx < p_lin->QtyL.getCount(); qtyidx++) {
 							const QValue & r_qty = p_lin->QtyL.at(qtyidx);
@@ -4050,6 +4053,10 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 						for(uint priidx = 0; priidx < p_lin->PriL.getCount(); priidx++) {
 							const QValue & r_pri = p_lin->PriL.at(priidx);
 						}
+						ti.Quantity_ = qty_allocated;
+						if(qty_allocated > 0.0)
+							ti.Cost = amt_ln_total / qty_allocated;
+						THROW(p_bpack->LoadTItem(&ti, 0, 0));
 					}
 					else {
 						// @err
@@ -4574,6 +4581,7 @@ private:
 	int    Write_OwnFormat_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    Write_OwnFormat_ALCODESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	int    Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
+	int    Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack);
 	void   Write_OwnFormat_OriginOrder_Tag(SXml::WDoc & rDoc, const BillTbl::Rec & rOrderBillRec);
 };
 
@@ -4681,7 +4689,7 @@ int  EdiProviderImplementation_Kontur::ResolveDlvrLoc(const OwnFormatContractor 
 		{
 			PPFreight freight;
 			pPack->GetFreight(&freight);
-			freight.DlvrAddrID = final_dlvr_loc_id;
+			freight.SetupDlvrAddr(final_dlvr_loc_id);
 			pPack->SetFreight(&freight);
 			ok = 1;
 		}
@@ -5496,6 +5504,32 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 	return ok;
 }
 
+int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack)
+{
+	int    ok = 0;
+	SString temp_buf;
+	SString bill_text;
+	PPObjBill::MakeCodeString(&rRaPack.RBp.Rec, PPObjBill::mcsAddOpName, bill_text);
+	SXml::WDoc _doc(pX, cpUTF8);
+	SXml::WNode n_docs(_doc, "eDIMessage"); // <eDIMessage id="0000015137">
+	rIdent.ToStr(S_GUID::fmtIDL, temp_buf);
+	n_docs.PutAttrib("id", temp_buf);
+	{
+		SXml::WNode n_hdr(_doc, "interchangeHeader");
+		THROW(GetMainOrgGLN(temp_buf));
+		n_hdr.PutInner("sender", temp_buf);
+		THROW(GetArticleGLN(rRaPack.RBp.Rec.Object, temp_buf));
+		n_hdr.PutInner("recipient", temp_buf);
+		n_hdr.PutInner("documentType", "RECADV");
+		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+		//n_hdr.PutInner("isTest", "0");
+	}
+
+	//
+	CATCHZOK
+	return ok;
+}
+
 int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
 {
 	int    ok = 1;
@@ -5947,7 +5981,7 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 			}
 			else {
 				PPEdiProcessor::Packet pack(PPEDIOP_RECADV);
-				RecadvPacket * p_recadv_pack = (RecadvPacket *)pack.P_Data;
+				RecadvPacket * p_recadv_pack = static_cast<RecadvPacket *>(pack.P_Data);
 				assert(p_recadv_pack);
 				THROW(p_recadv_pack);
 				if(P_BObj->ExtractPacket(bill_id, &p_recadv_pack->ABp) > 0) {
@@ -5959,19 +5993,17 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 					*/
 					int    is_status_suited = 0;
 					PPBillPacket order_bp;
+					BillTbl::Rec order_bill_rec;
 					PPIDArray wroff_bill_list;
 					BillTbl::Rec wroff_bill_rec;
 					// @v11.1.12 BillCore::GetCode(p_recadv_pack->DesadvBillCode = p_recadv_pack->ABp.Rec.Code);
 					p_recadv_pack->DesadvBillCode = p_recadv_pack->ABp.Rec.Code; // @v11.1.12 
 					p_recadv_pack->DesadvBillDate = p_recadv_pack->ABp.Rec.Dt;
-					if(p_recadv_pack->ABp.Rec.LinkBillID) {
-						BillTbl::Rec order_bill_rec;
-						if(P_BObj->Fetch(p_recadv_pack->ABp.Rec.LinkBillID, &order_bill_rec) > 0) {
-							ObjTagItem tag_item;
-							if(p_ref->Ot.GetTag(PPOBJ_BILL, p_recadv_pack->ABp.Rec.LinkBillID, PPTAG_BILL_EDIORDERSENT, &tag_item) > 0) {
-								p_recadv_pack->OrderBillID = p_recadv_pack->ABp.Rec.LinkBillID;
-								THROW(P_BObj->ExtractPacket(p_recadv_pack->OrderBillID, &order_bp) > 0);
-							}
+					if(p_recadv_pack->ABp.Rec.LinkBillID && P_BObj->Fetch(p_recadv_pack->ABp.Rec.LinkBillID, &order_bill_rec) > 0) {
+						ObjTagItem tag_item;
+						if(p_ref->Ot.GetTag(PPOBJ_BILL, p_recadv_pack->ABp.Rec.LinkBillID, PPTAG_BILL_EDIORDERSENT, &tag_item) > 0) {
+							p_recadv_pack->OrderBillID = p_recadv_pack->ABp.Rec.LinkBillID;
+							THROW(P_BObj->ExtractPacket(p_recadv_pack->OrderBillID, &order_bp) > 0);
 						}
 					}
 					for(DateIter diter; P_BObj->P_Tbl->EnumLinks(bill_id, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;)
@@ -6936,8 +6968,10 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 	int    ok = -1;
 	xmlTextWriter * p_x = 0;
 	SString path;
-	if(rPack.P_Data && oneof5(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
+	// @v11.2.9 PPEDIOP_RECADV
+	if(rPack.P_Data && oneof6(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC, PPEDIOP_RECADV)) {
 		const S_GUID msg_uuid(SCtrGenerate_);
+		const PPEdiProcessor::RecadvPacket * p_recadv_pack = (rPack.DocType == PPEDIOP_RECADV) ? static_cast<const PPEdiProcessor::RecadvPacket *>(rPack.P_Data) : 0;
 		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 		SString temp_buf;
 		SString edi_format_symb;
@@ -6960,6 +6994,7 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 				case PPEDIOP_DESADV: THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *p_bp)); break;
 				case PPEDIOP_ALCODESADV: THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *p_bp)); break;
 				case PPEDIOP_INVOIC: THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *p_bp)); break;
+				case PPEDIOP_RECADV: THROW(Write_OwnFormat_RECADV(p_x, msg_uuid, *p_recadv_pack)); break; // @v11.2.9
 			}
 		}
 		else {
@@ -6968,8 +7003,9 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 				case PPEDIOP_ORDER: THROW(s_doc.Write_ORDERS(p_x, *p_bp)); break;
 				case PPEDIOP_ORDERRSP: THROW(s_doc.Write_ORDERRSP(p_x, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData))); break;
 				case PPEDIOP_DESADV: THROW(s_doc.Write_DESADV(p_x, *p_bp)); break;
-				case PPEDIOP_ALCODESADV: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break;
-				case PPEDIOP_INVOIC: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break;
+				case PPEDIOP_ALCODESADV: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break; // @todo
+				case PPEDIOP_INVOIC: /*THROW(s_doc.Write_DESADV(p_x, *p_bp));*/ break; // @todo
+				case PPEDIOP_RECADV: break; // @todo
 			}
 		}
 		xmlFreeTextWriter(p_x);
@@ -7321,7 +7357,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveDlvrLoc(const char * pText, P
 			else {
 				PPFreight freight;
 				pPack->GetFreight(&freight);
-				freight.DlvrAddrID = final_dlvr_loc_id;
+				freight.SetupDlvrAddr(final_dlvr_loc_id);
 				pPack->SetFreight(&freight);
 				ok = 1;
 			}

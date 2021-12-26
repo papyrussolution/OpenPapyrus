@@ -560,6 +560,35 @@ int FASTCALL PPFreight::IsEq(const PPFreight & s) const
 	else
 		return 1;
 }
+
+int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
+{
+	int    ok = 1;
+	if(dlvrAddrID) {
+		PPObjLocation loc_obj;
+		LocationTbl::Rec loc_rec;
+		THROW(loc_obj.Fetch(dlvrAddrID, &loc_rec) > 0);
+		THROW(loc_rec.Type == LOCTYP_ADDRESS);
+		DlvrAddrID = dlvrAddrID;
+		if(!PortOfDischarge) {
+			ObjTagItem tag_item;
+			if(PPRef->Ot.GetTag(PPOBJ_LOCATION, dlvrAddrID, PPTAG_LOC_TRUNKPOINT, &tag_item) > 0) {
+				PPID   _tag_dest_point_id = 0;
+				if(tag_item.GetInt(&_tag_dest_point_id) && _tag_dest_point_id) {
+					PPObjWorld w_obj;
+					WorldTbl::Rec w_rec;
+					if(w_obj.Search(_tag_dest_point_id, &w_rec) > 0 && oneof2(w_rec.Kind, WORLDOBJ_CITY, WORLDOBJ_CITYAREA))
+						PortOfDischarge = _tag_dest_point_id;		
+				}
+			}
+		}
+	}
+	else {
+		DlvrAddrID = 0;
+	}
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -816,8 +845,7 @@ int FASTCALL PPBill::SetFreight_DlvrAddrOnly(PPID dlvrAddrID)
 	int    ok = -1;
 	if(dlvrAddrID) {
 		PPFreight freight;
-		freight.DlvrAddrID = dlvrAddrID;
-		ok = SetFreight(&freight);
+		ok = freight.SetupDlvrAddr(dlvrAddrID) ? SetFreight(&freight) : 0;
 	}
 	return ok;
 }
@@ -2313,6 +2341,17 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		Rec.Object = preserve_ar_id;
 		ok = 0;
 	ENDCATCH
+	return ok;
+}
+
+int PPBillPacket::SetupDlvrAddr(PPID dlvrAddrID)
+{
+	int    ok = 1;
+	if(P_Freight || dlvrAddrID) {
+		THROW_SL(SETIFZ(P_Freight, new PPFreight));
+		THROW(P_Freight->SetupDlvrAddr(dlvrAddrID));
+	}
+	CATCHZOK
 	return ok;
 }
 

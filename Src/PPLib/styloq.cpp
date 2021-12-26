@@ -11,6 +11,10 @@
 #include <openssl/bn.h>
 #include <openssl/rand.h>
 
+// uhtt.ru service
+// url:  http://217.77.50.185:17863;
+// Q9vunMMIu5XY9PnVToWjmpO9bnA=
+
 const int ec_curve_name_id = NID_X9_62_prime256v1;
 const long __DefMqbConsumeTimeout = 5000;
 /*
@@ -974,6 +978,7 @@ int StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 				if(p_item) {
 					SJson * p_jitem = new SJson(SJson::tOBJECT);
 					p_jitem->InsertString("uuid", temp_buf.Z().Cat(p_item->Uuid));
+					p_jitem->InsertString("basecmdid", temp_buf.Z().Cat(p_item->BaseCmdId)); // @v11.2.9
 					p_jitem->InsertString("name", (temp_buf = p_item->Name).Escape());
 					if(p_item->Description.NotEmpty()) {
 						p_jitem->InsertString("descr", (temp_buf = p_item->Description).Escape());
@@ -1312,6 +1317,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 			}
 		}
 		else if(pPack) {
+			PPID   new_id = 0;
 			if(pPack->Rec.Kind == kNativeService) {
 				// ¬ таблице может быть не более одной записи вида kNativeService
 				THROW(GetOwnPeerEntry(0) < 0); // @error ѕопытка вставить вторую запись вида native-service
@@ -1326,7 +1332,9 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 			copyBufFrom(&pPack->Rec);
 			THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
 			THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
-			THROW_DB(insertRec(0, pID));		
+			THROW_DB(insertRec(0, &new_id));
+			ASSIGN_PTR(pID, new_id);
+			pPack->Rec.ID = new_id;
 			do_destroy_lob = true;
 		}
 		THROW(tra.Commit());
@@ -3695,7 +3703,7 @@ int StyloQCore::SetupPeerInstance(PPID * pID, int use_ta)
 			}
 		}
 		p_pack_to_export = &new_pack;
-		ASSIGN_PTR(pID, new_pack.Rec.ID);
+		ASSIGN_PTR(pID, id);
 		ok = 1;
 	}
 	if(p_pack_to_export) {

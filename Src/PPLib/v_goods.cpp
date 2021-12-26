@@ -3758,7 +3758,14 @@ int PPViewGoods::ChangeOrder(PPViewBrowser * pW)
 //
 int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	bool   is_overrode = false;
+	{
+		static const uint overrode_cmd_list[] = {PPVCMD_EDITITEM, PPVCMD_ADDITEM, PPVCMD_DELETEITEM};
+		for(uint i = 0; !is_overrode && i < SIZEOFARRAY(overrode_cmd_list); i++)
+			if(overrode_cmd_list[i] == ppvCmd)
+				is_overrode = true;
+	}
+	int    ok = is_overrode ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		const  PPConfig & r_cfg = LConfig;
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
@@ -4056,12 +4063,12 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				if(ok > 0)
 					UpdateTempTable(0, pBrw);
 				break;
-			case PPVCMD_SYSJ:
+			/* @v11.2.9 (processed in PPView::ProcessCommand) case PPVCMD_SYSJ:
 				if(id) {
 					ViewSysJournal(PPOBJ_GOODS, id, 0);
 					ok = -1;
 				}
-				break;
+				break;*/
 			case PPVCMD_SORT:
 				ok = ChangeOrder(pBrw);
 				break;

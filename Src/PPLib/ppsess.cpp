@@ -4621,11 +4621,11 @@ int PPSession::RestCheckingStatus(int s)
 	return c;
 }
 
-int FASTCALL PPSession::CheckExtFlag(long f) const
+bool FASTCALL PPSession::CheckExtFlag(long f) const
 {
-	int    result = 0;
+	bool   result = false;
 	ExtFlagsLck.Lock();
-	result = BIN(ExtFlags_ & f);
+	result = LOGIC(ExtFlags_ & f);
 	ExtFlagsLck.Unlock();
 	return result;
 }
@@ -5281,7 +5281,7 @@ void   PPSession::SetCurCashNodeID(PPID cashNodeID) { GetTLA().Lc.Cash = cashNod
 void   PPSession::SetDefBillCashID(PPID billCashID) { GetTLA().Lc.DefBillCashID = billCashID; }
 void   PPSession::SetMenu(short menuId) { GetTLA().Lc.Menu = menuId; }
 void   PPSession::SetStateFlag(long f, int set) { SETFLAG(GetTLA().Lc.State, f, set); }
-int    PPSession::CheckStateFlag(long f) const { return BIN(GetConstTLA().Lc.State & f); }
+bool   PPSession::CheckStateFlag(long f) const { return LOGIC(GetConstTLA().Lc.State & f); }
 int    PPSession::SetPath(PPID pathID, const char * pBuf, short flags, int replace) { return GetTLA().Paths.SetPath(pathID, pBuf, flags, replace); }
 int    PPSession::LoadDriveMapping(PPIniFile * pIniFile) { return DrvMap.Load(pIniFile); }
 int    PPSession::GetDriveMapping(int drive, SString & rMapping) const { return DrvMap.Get(drive, rMapping); }

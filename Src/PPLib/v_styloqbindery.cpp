@@ -17,7 +17,18 @@ PPViewStyloQBindery::PPViewStyloQBindery() : PPView(0, &Filt, PPVIEW_STYLOQBINDE
 
 PPViewStyloQBindery::~PPViewStyloQBindery()
 {
-	if(State & stMatchingUpdated) {
+	bool do_build_svc_db_symb_map = LOGIC(State & stMatchingUpdated);
+	if(!do_build_svc_db_symb_map) {
+		StyloQCore::StoragePacket sp;
+		SBinaryChunk own_svc_ident;
+		if(Obj.P_Tbl->GetOwnPeerEntry(&sp) > 0 && sp.Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident)) {
+			StyloQCore::SvcDbSymbMap map;
+			map.Read(0, 0);
+			if(!map.FindSvcIdent(own_svc_ident, 0, 0))
+				do_build_svc_db_symb_map = true;
+		}
+	}
+	if(do_build_svc_db_symb_map) {
 		StyloQCore::BuildSvcDbSymbMap();
 	}
 	ZDELETE(P_DsList);

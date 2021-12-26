@@ -492,7 +492,8 @@ int PPError()
 
 int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 {
-	int    ok = 0, r = 0;
+	int    ok = 0;
+	int    r = 0;
 	//
 	// Так как функция PPMessage может изменить контекст ошибки, сохраняем его
 	// для вывода в журнал последней отображенной ошибки
@@ -611,7 +612,8 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 				long   flags = SMessageWindow::fSizeByText|SMessageWindow::fOpaque|SMessageWindow::fPreserveFocus;
 				if(options & mfError) {
 					color = GetColorRef(SClrRed);
-					flags |= SMessageWindow::fShowOnCenter;
+					// @v11.2.9 flags |= SMessageWindow::fShowOnCenter; 
+					flags |= SMessageWindow::fShowOnRUCorner|SMessageWindow::fTopmost; // @v11.2.9 
 				}
 				ok = p_win->Open(buf, 0, 0, 0, 30000, color, flags, 0);
 			}

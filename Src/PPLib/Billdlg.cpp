@@ -3245,10 +3245,12 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID,  OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN2, PPOBJ_PERSON, Data.Captain2ID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN)); // @v10.9.2
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
+			PPIDArray worldobj_kind_list;
+			worldobj_kind_list.addzlist(WORLDOBJ_CITY, WORLDOBJ_CITYAREA, 0L);
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ISSLOC,   PPOBJ_WORLD, Data.PortOfLoading,   OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
 			{
 				int    dlvr_loc_as_warehouse = 0;
 				if(oneof2(R_Pack.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
@@ -3352,6 +3354,13 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				else
 					disableCtrl(CTL_FREIGHT_TRTYP, 0);
 			}
+			// @v11.2.9 {
+			else if(event.isCbSelected(CTLSEL_FREIGHT_DLVRLOC)) { 
+				Data.PortOfDischarge = getCtrlLong(CTLSEL_FREIGHT_ARRIVLOC);
+				if(!Data.SetupDlvrAddr(getCtrlLong(CTLSEL_FREIGHT_DLVRLOC)))
+					PPError();
+			}
+			// } @v11.2.9 
 			else if(event.isClusterClk(CTL_FREIGHT_TRTYP)) {
 				GetClusterData(CTL_FREIGHT_TRTYP, &Data.TrType);
 				SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP, PPOBJ_TRANSPORT, 0, OLW_CANINSERT, reinterpret_cast<void *>(Data.TrType));

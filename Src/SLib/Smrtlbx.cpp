@@ -518,7 +518,12 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 	if(def && h_lb) {
 		HTREEITEM h_parent = 0;
 		long   save_pos = 0;
-		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+		StdTreeListBoxDef * p_def = 0;
+		StdTreeListBoxDef2_ * p_def2 = 0;
+		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE)
+			p_def = static_cast<StdTreeListBoxDef *>(def);
+		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2)
+			p_def2 = static_cast<StdTreeListBoxDef2_ *>(def);
 		if(parentP == 0) {
 			save_pos = p_def->_curItem();
 			Helper_ClearTreeWnd();

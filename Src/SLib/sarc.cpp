@@ -137,14 +137,14 @@ int SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rD
 				stream.avail_out = temp_buf.GetSize();
 				stream.next_out = static_cast<Bytef *>(temp_buf.vptr());
 				zlib_err = inflate(&stream, Z_NO_FLUSH);
-				THROW(zlib_err != Z_STREAM_ERROR); // state not clobbered 
+				THROW_S_S(zlib_err != Z_STREAM_ERROR, SLERR_ZLIB_BUFINFLATEFAULT, stream.msg); // state not clobbered 
 				switch(zlib_err) {
 					case Z_NEED_DICT:
 						zlib_err = Z_DATA_ERROR; // and fall through 
 					case Z_DATA_ERROR:
 					case Z_MEM_ERROR:
 						inflateEnd(&stream);
-						CALLEXCEPT();
+						CALLEXCEPT_S_S(SLERR_ZLIB_BUFINFLATEFAULT, stream.msg);
 				}
 				{
 					const size_t chunk_size = temp_buf.GetSize() - stream.avail_out;
@@ -154,7 +154,7 @@ int SCompressor::DecompressBlock(const void * pSrc, size_t srcSize, SBuffer & rD
 			} while(stream.avail_out == 0);
 			// clean up and return 
 			inflateEnd(&stream);
-			ok = (int)written_size;
+			ok = static_cast<int>(written_size);
 			if(zlib_err != Z_STREAM_END)
 				ok = 0;
 		}
@@ -712,4 +712,3 @@ void TestSArchive()
 	}
 	CATCHZOK
 }
-

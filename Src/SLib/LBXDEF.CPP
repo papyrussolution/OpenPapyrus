@@ -14,7 +14,7 @@ static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraDat
 ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType),
 	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0)
 {
-	SetCapability(0, LBDEFSIGN_DEFAULT);
+	SetCapability(0, _SlConst.ListBoxDefSignature_DEFAULT);
 	UserData.Init();
 }
 
@@ -316,7 +316,7 @@ StrAssocArray * ListBoxDef::GetListByPattern(const char * pText)
 //
 StdListBoxDef::StdListBoxDef(SArray * pArray, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), P_Data(pArray)
 {
-	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STD);
+	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STD);
 	top();
 }
 
@@ -397,7 +397,7 @@ StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) :
 	ListBoxDef(options, MKSTYPE(S_ZSTRING, 252)), P_Data(pList)
 {
 	OneItem.Init();
-	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STRASSOC);
+	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STRASSOC);
 	top();
 }
 
@@ -495,7 +495,7 @@ int StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 //
 StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
 {
-	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, LBDEFSIGN_STDTREE);
+	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STDTREE);
 	setArray(pList);
 }
 
@@ -724,62 +724,11 @@ int StdTreeListBoxDef::GetParent(long child, long * pParent) const
 	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
 //
 //
-#if 0 // {
+#if 1 // {
 // @construction {
-class StdTreeListBoxDef2_ : public ListBoxDef {
-public:
-	friend class SmartListBox;
-
-	StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID);
-	~StdTreeListBoxDef2_();
-	virtual void   setViewHight(int);
-	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int    valid();
-	virtual int    go(long);
-	virtual int    step(long);
-	virtual int    top();
-	virtual int    bottom();
-	virtual long   getRecsCount();
-	virtual int    getIdList(LongArray & rList);
-	virtual void * FASTCALL getRow_(long);
-	virtual int    getCurString(SString & rBuf);
-	virtual int    getCurID(long *);
-	virtual int    getCurData(void *);
-	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
-	virtual int    GetFrameSize();
-	virtual int    GetFrameState();
-	int    setArray(StrAssocTree *);
-	int    GetStringByID(long id, SString & rBuf);
-	int    GoByID(long id);
-	bool   FASTCALL HasChildren(long id) const;
-	int    GetListByParent(long parentId, LongArray & rList) const;
-	int    GetParent(long child, long * pParent) const;
-	//int    GetChildList(long parentId, LongArray * pChildList);
-protected:
-	//void   setupView();
-	//int    Helper_CreateTree();
-	//int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
-private:
-	StrAssocTree * P_SaList;
-	struct TreeItem {
-		long   Id;
-		long   ParentId;
-		void * H; // @v10.9.4 HTREEITEM-->(void *)
-		uint   P;
-	};
-	//STree  T;
-	struct Item {
-		long   Id;
-		long   ParentId;
-		char   Txt[256];
-	};
-	Item   TempItem;
-	LongArray LL; // Линеаризованный список идентификаторов P_SaList используемый для базовых функций навигации.
-};
-
 StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0)
 {
-	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, LBDEFSIGN_STDTREE);
+	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STDTREE2);
 	setArray(pList);
 }
 
@@ -856,7 +805,7 @@ int StdTreeListBoxDef2_::getIdList(LongArray & rList)
 void * FASTCALL StdTreeListBoxDef2_::getRow_(long r)
 {
 	void * p_result = 0;
-	if(P_SaList && r >= 0 && r < LL.getCount()) {
+	if(P_SaList && r >= 0 && r < LL.getCountI()) {
 		long _id = LL.get(r);
 		long _parent_id = 0;
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -905,12 +854,14 @@ void StdTreeListBoxDef2_::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	ASSIGN_PTR(pScrollPos, 0);
 	if(P_SaList) {
-		uint32 pos = 0;
+		uint   pos = 0;
 		long * p_id = static_cast<long *>(getRow_(_curItem()));
-		if(p_id && *p_id && T.Search(p_id, &pos, CMPF_LONG)) {
+		if(p_id && *p_id && LL.lsearch(*p_id, &pos)) {
+			/* @todo replace
 			TreeItem * p_item = static_cast<TreeItem *>(T.GetData(pos));
 			if(p_item)
 				ASSIGN_PTR(pScrollPos, (long)p_item->H);
+			*/
 		}
 	}
 	ASSIGN_PTR(pScrollDelta, 0);
@@ -935,7 +886,10 @@ int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchM
 			else {
 				pos = (dir == srchNext) ? (static_cast<uint>(_curItem()) + 1) : 0U;
 				SETIFZ(fcmp, substFCMP);
-				r = P_SaList->SearchByText(static_cast<const char *>(pPattern), fcmp, &pos);
+				SHandle h = P_SaList->SearchByText(static_cast<const char *>(pPattern), fcmp);
+				if(!!h) {
+					
+				}
 			}
 		}
 		if(r)
@@ -1022,7 +976,7 @@ void StringListBoxDef::freeAll()
 //
 DBQListBoxDef::DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize) : ListBoxDef(aOptions, 0), query(0)
 {
-	SetCapability(0, LBDEFSIGN_DBQ);
+	SetCapability(0, _SlConst.ListBoxDefSignature_DBQ);
 	setQuery(rQuery, aBufSize);
 }
 

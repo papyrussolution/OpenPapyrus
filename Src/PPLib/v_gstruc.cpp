@@ -1128,14 +1128,110 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12 @const
 			}
 			return p_list;
 		}
+		//
+		//
+		//
+		void AddEntry(StrAssocTree * pList, uint level, uint idx, const ItemEntry & rEntry, long parentID, LongArray & rRecurList)
+		{
+			assert(level <= 255);
+			if(rEntry.GStrucID && !rRecurList.lsearch(rEntry.GoodsID)) {
+				LongArray seen_entry_list;
+				TitleBuf.Z();
+				if(rEntry.GoodsID) {
+					Goods2Tbl::Rec goods_rec;
+					if(Cb.GObj.Fetch(rEntry.GoodsID, &goods_rec) > 0)
+						TitleBuf = goods_rec.Name;
+					else
+						ideqvalstr(rEntry.GoodsID, TitleBuf);
+				}
+				else
+					TitleBuf = "#ng";
+				const long _ident = (idx | ((level + 1) << 24));
+				pList->Add(_ident, parentID/*rEntry.GStrucID*/, TitleBuf, 1);
+				rRecurList.add(rEntry.GoodsID);
+				for(uint inner_gl_idx = 0; Cb.StrucList.lsearch(&rEntry.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(StrucEntry, PrmrGoodsID)); inner_gl_idx++) {
+					const StrucEntry & r_se = Cb.StrucList.at(inner_gl_idx);
+					assert(r_se.PrmrGoodsID == rEntry.GoodsID);
+					if(r_se.Flags & (GSF_COMPL|GSF_DECOMPL)) {
+						seen_entry_list.Z();
+						for(uint i = 0; i < Cb.ItemList.getCount(); i++) {
+							const ItemEntry & r_ie = Cb.ItemList.at(i);
+							if(r_ie.GStrucID == r_se.GStrucID) {
+								if(!seen_entry_list.lsearch(r_ie.GoodsID)) {
+									AddEntry(pList, level+1, i, r_ie, _ident, rRecurList); // @recursion
+									seen_entry_list.add(r_ie.GoodsID);
+								}
+							}
+						}
+						break; // Пока добавим лишь одну найденную подструктуру
+					}
+				}
+			}
+		}
+		StrAssocTree * MakeTree()
+		{
+			StrAssocTree * p_list = new StrAssocTree;
+			if(p_list) {
+				LongArray absence_struc_item_list;
+				SString temp_buf;
+				Goods2Tbl::Rec goods_rec;
+				PPGoodsStrucHeader gs_rec;
+				LongArray gstruc_id_list;
+				for(uint sidx = 0; sidx < Cb.StrucList.getCount(); sidx++) {
+					const StrucEntry & r_se = Cb.StrucList.at(sidx);
+					TitleBuf.Z();
+					if(r_se.PrmrGoodsID)
+						if(Cb.GObj.Fetch(r_se.PrmrGoodsID, &goods_rec) > 0)
+							TitleBuf = goods_rec.Name;
+						else
+							ideqvalstr(r_se.PrmrGoodsID, TitleBuf);
+					else
+						TitleBuf = "#npg";
+					temp_buf.Z();
+					if(r_se.GStrucID) {
+						if(Cb.GSObj.Fetch(r_se.GStrucID, &gs_rec) > 0) {
+							if(gs_rec.Name[0])
+								temp_buf = gs_rec.Name;
+							else
+								(temp_buf = "gs").CatLongZ(r_se.GStrucID, 6);
+						}
+						else
+							(temp_buf = "#gs").CatLongZ(r_se.GStrucID, 6);
+					}
+					TitleBuf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+					p_list->Add(r_se.GStrucID, r_se.ParentStrucID, TitleBuf, 0);
+					gstruc_id_list.add(r_se.GStrucID);
+				}
+				{
+					gstruc_id_list.sortAndUndup();
+					LongArray seen_list;
+					LongArray recur_list;
+					for(uint gsidx = 0; gsidx < gstruc_id_list.getCount(); gsidx++) {
+						const PPID gs_id = gstruc_id_list.get(gsidx);
+						seen_list.Z();
+						recur_list.Z();
+						for(uint iidx = 0; iidx < Cb.ItemList.getCount(); iidx++) {
+							const ItemEntry & r_ie = Cb.ItemList.at(iidx);
+							if(r_ie.GStrucID == gs_id && !seen_list.lsearch(r_ie.GoodsID)) {
+								AddEntry(p_list, 0, iidx, r_ie, r_ie.GStrucID, recur_list);
+								seen_list.add(r_ie.GoodsID);
+							}
+						}
+					}
+				}
+				p_list->SortByText();
+			}
+			return p_list;
+		}
 		const long ItemOffset;
 		SString TitleBuf;
 		PPViewGoodsStruc::CommonProcessingBlock Cb;
 	};
 	class GStrucListWindow : public ListWindow {
 	public:
-		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), 
-			ListWindow(new StdTreeListBoxDef(pBlk ? pBlk->Make() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), "", 0), FfeRing(64)
+		GStrucListWindow(GoodsStrucTreeListViewBlock * pBlk, void * hMainBrwWindow) : P_Blk(pBlk), H_MainBrwWindow(hMainBrwWindow), FfeRing(64),
+			ListWindow(new StdTreeListBoxDef(pBlk ? pBlk->Make() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), "", 0)
+			// @construction ListWindow(new StdTreeListBoxDef2_(pBlk ? pBlk->MakeTree() : 0, lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtFocNotify, 0), "", 0)
 		{
 		}
 		~GStrucListWindow()

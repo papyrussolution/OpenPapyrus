@@ -436,7 +436,7 @@ private:
 			while(1) {
 				uint   h_count = 0;
 				HANDLE h_list[32];
-				// При наличии внешней сигратуры надо чаще проверять необходимость ее сброса по таймауту
+				// При наличии внешней сигнатуры надо чаще проверять необходимость ее сброса по таймауту
 				// дабы не держать потоки занятыми, если сигнатура более не валидна.
 				uint32 timeout = HasOuterSignature() ? 1000 : 60000;
 				h_list[h_count++] = EvLocalStop;
@@ -578,8 +578,9 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 	SBinaryChunk my_public;
 	SBinaryChunk other_public;
 	SString req_rtsid;
+	int32  in_pack_type = 0;
 	out_buf.Cat("(empty)"); // @debug
-	THROW(pReq->request_body);
+	THROW_PP(pReq->request_body, PPERR_SQPROT_UNDEFHTTPBODY);
 	GetHttpReqRtsId(pReq, req_rtsid);
 	temp_buf.Z();
 	for(ngx_chain_t * p_nb = pReq->request_body->bufs; p_nb; p_nb = p_nb->next) {
@@ -590,7 +591,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 	}
 	else {
 		if(P_StqRtb) {
-			THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret));
+			THROW_PP(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret), PPERR_SQ_UNDEFSESSSECRET);
 		}
 		THROW(sp.ReadMime64(temp_buf, &sess_secret));
 		sp.P.Get(SSecretTagPool::tagClientIdent, &cli_ident);
@@ -598,12 +599,13 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 			SString stq_dbsymb;
 			SBinaryChunk svc_ident;
 			sp.P.Get(SSecretTagPool::tagSvcIdent, &svc_ident);
-			THROW(svc_ident);
+			THROW_PP(svc_ident, PPERR_SQ_UNDEFSVCID);
 			THROW(StyloQCore::GetDbMapBySvcIdent(svc_ident, &stq_dbsymb, 0));
 			assert(stq_dbsymb.Len());
 			DblBlk.SetAttr(DbLoginBlock::attrDbSymb, stq_dbsymb);
 		}
-		switch(sp.GetH().Type) {
+		in_pack_type = sp.GetH().Type;
+		switch(in_pack_type) {
 			case PPSCMD_SQ_ACQUAINTANCE: // @init
 				{
 					//SBinaryChunk sess_secret; // @debug
@@ -611,7 +613,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					THROW_PP(sp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_UNDEFSESSPUBKEY);
 					assert(other_public.Len());
 					THROW(Login(PPSession::loginfAllowAuthAsJobSrv));
-					THROW(SETIFZ(P_Ic, new PPStyloQInterchange));
+					THROW_SL(SETIFZ(P_Ic, new PPStyloQInterchange));
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
@@ -625,7 +627,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						//
 						THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionPublicKey, &my_public));
 						assert(my_public.Len());
-						reply_tp.StartWriting(PPSCMD_SQ_ACQUAINTANCE, StyloQProtocol::psubtypeReplyOk);
+						reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 						reply_tp.P.Put(SSecretTagPool::tagSessionPublicKey, my_public);
 						THROW(reply_tp.FinishWriting(0));
 						out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
@@ -643,7 +645,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					assert(other_public.Len());
 					//assert(cli_ident.Len());
 					THROW(Login(PPSession::loginfAllowAuthAsJobSrv));
-					THROW(SETIFZ(P_Ic, new PPStyloQInterchange));
+					THROW_SL(SETIFZ(P_Ic, new PPStyloQInterchange));
 					THROW(P_Ic->SearchSession(other_public, &pack) > 0); 
 
 					ZDELETE(P_StqRtb);
@@ -662,7 +664,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					P_StqRtb->Sess.Put(SSecretTagPool::tagSessionSecret, sess_secret);
 					p_sess_secret = &sess_secret;
 					//
-					reply_tp.StartWriting(PPSCMD_SQ_SESSION, StyloQProtocol::psubtypeReplyOk);
+					reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 					THROW(reply_tp.FinishWriting(0));
 					out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
 					P_StqRtb->LastSndCmd = reply_tp.GetH().Type;
@@ -714,7 +716,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						{
 							// Host -> User: (HAMK) 
 							const SBinaryChunk srp_hamk(p_bytes_HAMK, P_StqRtb->P_SrpV->GetSessionKeyLength());
-							reply_tp.StartWriting(PPSCMD_SQ_SRPAUTH_S2, StyloQProtocol::psubtypeReplyOk);
+							reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 							reply_tp.P.Put(SSecretTagPool::tagSrpHAMK, srp_hamk);
 							reply_tp.FinishWriting(0);
 							out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
@@ -771,7 +773,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						}
 						THROW(P_Ic->StoreSession(&sess_id, &sess_pack, 1));
 						{
-							reply_tp.StartWriting(PPSCMD_SQ_SRPAUTH_ACK, StyloQProtocol::psubtypeReplyOk);
+							reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 							reply_tp.P.Put(SSecretTagPool::tagSessionPublicKey, my_public);
 							if(svc_session_expiry_period)
 								reply_tp.P.Put(SSecretTagPool::tagSessionExpirPeriodSec, &svc_session_expiry_period, sizeof(svc_session_expiry_period));
@@ -787,38 +789,37 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					int32 reply_status = 0;
 					SString reply_status_text;
 					StyloQProtocol reply_tp;
+					SBinaryChunk bc;
 					THROW(P_StqRtb);
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
 					THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret));
-					if(P_Ic->Registration_ServiceReply(*P_StqRtb, sp)) {
-						SBinaryChunk bc;
-						reply_tp.StartWriting(PPSCMD_SQ_SRPREGISTER, StyloQProtocol::psubtypeReplyOk);
-						//
-						// В случае успешной регистрации передаем клиенту наш лик и конфигурацию
-						//
-						if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagSelfyFace, &bc)) {
-							assert(bc.Len());
-							StyloQFace face_pack;
-							bc.ToRawStr(temp_buf);
-							if(face_pack.FromJson(temp_buf))
-								reply_tp.P.Put(SSecretTagPool::tagFace, bc);
-						}
-						bc.Z();
-						if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
-							assert(bc.Len());
-							SString transmission_cfg_json;
-							bc.ToRawStr(temp_buf);
-							if(StyloQConfig::MakeTransmissionJson(temp_buf, transmission_cfg_json)) {
-								bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
-								reply_tp.P.Put(SSecretTagPool::tagConfig, bc);
-							}
-						}
-						reply_status_text = "Wellcome!";
+					THROW(P_Ic->Registration_ServiceReply(*P_StqRtb, sp));
+					reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
+					//
+					// В случае успешной регистрации передаем клиенту наш лик и конфигурацию
+					//
+					if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagSelfyFace, &bc)) {
+						assert(bc.Len());
+						StyloQFace face_pack;
+						bc.ToRawStr(temp_buf);
+						if(face_pack.FromJson(temp_buf))
+							reply_tp.P.Put(SSecretTagPool::tagFace, bc);
 					}
-					else {
-						reply_tp.StartWriting(PPSCMD_SQ_SRPREGISTER, StyloQProtocol::psubtypeReplyError);
+					bc.Z();
+					if(P_StqRtb->StP.Pool.Get(SSecretTagPool::tagConfig, &bc)) {
+						assert(bc.Len());
+						SString transmission_cfg_json;
+						bc.ToRawStr(temp_buf);
+						if(StyloQConfig::MakeTransmissionJson(temp_buf, transmission_cfg_json)) {
+							bc.Z().Put(transmission_cfg_json.cptr(), transmission_cfg_json.Len());
+							reply_tp.P.Put(SSecretTagPool::tagConfig, bc);
+						}
+					}
+					reply_status_text = "Wellcome!";
+					/*else {
+						reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyError);
 						reply_status_text = "Something went wrong";
-					}
+					}*/
 					{
 						reply_tp.P.Put(SSecretTagPool::tagReplyStatus, &reply_status, sizeof(reply_status));
 						if(reply_status_text.NotEmpty()) 
@@ -843,11 +844,17 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 				break;
 			default:
 				// Недопустимая команда
+				CALLEXCEPT_PP(PPERR_SQ_UNKNCMD);
 				break;
 		}
 	}
 	CATCH
-		; // process error
+		reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyError);
+		PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf);
+		reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, temp_buf.cptr(), temp_buf.Len()+1);
+		reply_tp.FinishWriting(sess_secret.Len() ? &sess_secret : 0);
+		out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
+		//reply_tp.W
 	ENDCATCH
 	PushNgxResult(pReq, NGX_DONE, NGX_HTTP_OK, /*SFileFormat::Html*/SFileFormat::Unkn, /*cpUTF8*/cpUndef, out_buf);
 }

@@ -4793,7 +4793,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					}
 					if(ar_id) {
 						p_bp->SetupObject(ar_id, sob);
-						freight.DlvrAddrID = dlvr_loc_id;
+						freight.SetupDlvrAddr(dlvr_loc_id);
 					}
 					if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {
 						PPID   ar2_id = 0;

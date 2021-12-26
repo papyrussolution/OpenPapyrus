@@ -3741,16 +3741,6 @@ ushort messageBox(const char *msg, ushort aOptions);
 //
 #define lbSrchByID  0x0800
 //
-// Метки Sign экземпляров класса ListBoxDef
-//
-#define LBDEFSIGN_INVALID  0x00000000 // Invalid (destroyed) instance
-#define LBDEFSIGN_DEFAULT  0x1234ABCD // Instance of base class ListBoxDef or subclass hasn't own Sign
-#define LBDEFSIGN_STD      0xABCD0001 // StdListBoxDef
-#define LBDEFSIGN_STRASSOC 0xABCD0002 // StrAssocListBoxDef
-#define LBDEFSIGN_STDTREE  0xABCD0003 // StdTreeListBoxDef
-#define LBDEFSIGN_STRING   0xABCD0004 // StringListBoxDef
-#define LBDEFSIGN_DBQ      0xABCD0005 // DBQListBoxDef
-//
 // Descr: Абстрактный источник данных для списков
 //
 class ListBoxDef {
@@ -3825,6 +3815,7 @@ public:
 	int    HasItemColorSpec() const;
 	int    GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const;
 	long   GetCapability() const { return CFlags; }
+	uint32 GetSignature() const { return Sign; }
 	StrAssocArray * GetListByPattern(const char * pText);
 //protected:
 	uint   Options;
@@ -3939,6 +3930,57 @@ private:
 		char   Txt[256];
 	};
 	Item   TempItem;
+};
+
+class StdTreeListBoxDef2_ : public ListBoxDef { // @construction
+public:
+	friend class SmartListBox;
+
+	StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID);
+	~StdTreeListBoxDef2_();
+	virtual void   setViewHight(int);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    valid();
+	virtual int    go(long);
+	virtual int    step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual int    getIdList(LongArray & rList);
+	virtual void * FASTCALL getRow_(long);
+	virtual int    getCurString(SString & rBuf);
+	virtual int    getCurID(long *);
+	virtual int    getCurData(void *);
+	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
+	virtual int    GetFrameSize();
+	virtual int    GetFrameState();
+	int    setArray(StrAssocTree *);
+	int    GetStringByID(long id, SString & rBuf);
+	int    GoByID(long id);
+	bool   FASTCALL HasChildren(long id) const;
+	int    GetListByParent(long parentId, LongArray & rList) const;
+	int    GetParent(long child, long * pParent) const;
+	//int    GetChildList(long parentId, LongArray * pChildList);
+protected:
+	//void   setupView();
+	//int    Helper_CreateTree();
+	//int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
+private:
+	StrAssocTree * P_SaList;
+	struct TreeItem {
+		long   Id;
+		long   ParentId;
+		void * H; // @v10.9.4 HTREEITEM-->(void *)
+		uint   P;
+	};
+	//STree  T;
+	struct Item {
+		long   Id;
+		long   ParentId;
+		char   Txt[256];
+	};
+	Item   TempItem;
+	LongArray LL; // Линеаризованный список идентификаторов P_SaList используемый для базовых функций навигации.
 };
 
 /* @v11.2.5 class StringListBoxDef : public StdListBoxDef {
@@ -4809,12 +4851,12 @@ public:
 		fShowOnCursor      = 0x00000002,
 		fTextAlignLeft     = 0x00000010, // Текст выравнивается по левой границе окна. В противном случае - по центру.
 		fCloseOnMouseLeave = 0x00000100,
-		fOpaque    = 0x00000200, // Не прозрачный фон
+		fOpaque            = 0x00000200, // Не прозрачный фон
 		fSizeByText        = 0x00000400,
 		fChildWindow       = 0x00000800,
-		fTopmost   = 0x00001000,
+		fTopmost           = 0x00001000,
 		fPreserveFocus     = 0x00002000,
-		fLargeText = 0x00004000, // Крупный текст (default * 2)
+		fLargeText         = 0x00004000, // Крупный текст (default * 2)
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
 		fShowOnRUCorner    = 0x00010000, // @v10.9.0 Отображать окно в правом верхнем углу
 	};

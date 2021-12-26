@@ -10,10 +10,7 @@
 //
 /*
 // @stub
-int CallbackCompress(long a, long b, const char * c, int stop)
-{
-	return 1;
-}
+int CallbackCompress(long a, long b, const char * c, int stop) { return 1; }
 */
 //
 //

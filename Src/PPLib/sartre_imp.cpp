@@ -5623,3 +5623,112 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 	CATCHZOK
 	return ok;
 }
+//
+// @v11.2.9 @construction Модуль разбора и обработки po-файлов (для массового анализа вариантов перевода на основе opensource-репозиториев)
+//
+class PoBlock : SStrGroup {
+public:
+	PoBlock() : MsgIdHash(SMEGABYTE(20)), LastMsgId(0)
+	{
+	}
+	int    Add(uint lang, const char * pMsgId, const char * pText)
+	{
+		int    ok = 1;
+		if(!isempty(pMsgId) && !isempty(pText)) {
+			Entry new_entry(lang);
+			if(!MsgIdHash.Search(pMsgId, &new_entry.MsgId, 0)) {
+				new_entry.MsgId = ++LastMsgId;
+				THROW_SL(MsgIdHash.Add(pMsgId, new_entry.MsgId));
+			}
+			THROW_SL(SStrGroup::AddS(pText, &new_entry.TextP));
+			THROW_SL(L.insert(&new_entry));
+		}
+		CATCHZOK
+		return ok;
+	}
+private:
+	struct Entry {
+		explicit Entry(uint lang = 0) : MsgId(0), Lang(lang), TextP(0)
+		{
+		}
+		uint   MsgId;
+		uint   Lang;
+		uint   TextP;
+	};
+	uint   LastMsgId;
+	SString Ident; // 
+	TSVector <Entry> L;
+	SymbHashTable MsgIdHash;
+};
+
+int ImportPo(const char * pFileName, PoBlock & rBlk)
+{
+	int    ok = 1;
+	enum {
+		stateNothing = 0,
+		stateEmptyLine,
+		stateMsgId,
+		stateMsgStr
+	};
+	int    state = stateNothing;
+	uint   lang = 0;
+	SString line_buf;
+	SString last_msgid_buf;
+	SString last_msgstr_buf;
+	SFile  f_in(pFileName, SFile::mRead);
+	THROW_SL(f_in.IsValid());
+	while(f_in.ReadLine(line_buf)) {
+		line_buf.Chomp().Strip();
+		if(line_buf.IsEmpty()) {
+			if(state == stateMsgStr) {
+				if(last_msgid_buf.IsEmpty() && last_msgstr_buf.NotEmpty()) {
+					// metadata
+				}
+				else if(last_msgid_buf.NotEmpty() && last_msgstr_buf.NotEmpty()) {
+					THROW(rBlk.Add(lang, last_msgid_buf, last_msgstr_buf));
+				}
+			}
+			state = stateEmptyLine;
+		}
+		else if(line_buf.C(0) == '#') {
+			; // skip comment
+		}
+		else if(line_buf.HasPrefixIAscii("msgid")) {
+			state = stateMsgId;
+			last_msgid_buf.Z();
+			last_msgstr_buf.Z();
+		}
+		else if(line_buf.HasPrefixIAscii("msgstr")) {
+			if(state == stateMsgId) {
+				state = stateMsgStr;
+			}
+			else {
+				// @error
+			}
+		}
+		else if(line_buf.C(0) == '\"') {
+			const uint len = line_buf.Len();
+			SString * p_dest_buf = (state == stateMsgId) ? &last_msgid_buf : ((state == stateMsgStr) ? &last_msgstr_buf : 0);
+			if(p_dest_buf) {
+				for(uint i = 1; i < len; i++) {
+					const char c = line_buf.C(i);
+					const char c2 = ((i+1) < len) ? line_buf.C(i+1) : 0;
+					if(c == '\\' && c2 == '\"') {
+						p_dest_buf->CatChar(c2);
+						i++;
+					}
+					if(c == '\\' && c2 == 'n') {
+						p_dest_buf->CatChar('\n');
+						i++;
+					}
+					else if(c == '\"')
+						break;
+					else
+						p_dest_buf->CatChar(c);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}

@@ -2015,7 +2015,7 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 	return ok;
 }
 
-#define MAGIC_FILETRANSMIT "$#FILETRANSMITMAGIC#$"
+// @v11.2.9 (replaced with PPConst::P_MagicFileTransmit) #define MAGIC_FILETRANSMIT "$#FILETRANSMITMAGIC#$"
 
 class PPServerSession : public /*PPThread*/PPWorkerSession {
 public:
@@ -2752,8 +2752,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_GETFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			THROW_PP_S(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0, PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
-			name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
+			THROW_PP_S(name.CmpPrefix(_PPConst.P_MagicFileTransmit, 0) == 0, PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
+			name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
 			ok = TransmitFile(tfvStart, name, rReply);
 			break;
 		case PPSCMD_GETNEXTFILEPART:
@@ -3699,7 +3699,7 @@ PPServerSession::CmdRet PPServerSession::Testing()
 				msg_buf.CopyFromN(p_buf, actual_size);
 				ss.add(msg_buf.Chomp());
 			}
-			uint ssc = ss.getCount();
+			const uint ssc = ss.getCount();
 			if(ssc != num_lines) {
 				msg_buf.Printf("Number of accepted lines not equal to declared count (%u vs %u)", ssc, (uint)num_lines);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
@@ -3829,8 +3829,8 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				break;
 			case PPSCMD_PUTFILE:
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-				if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0)
-					name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
+				if(name.CmpPrefix(_PPConst.P_MagicFileTransmit, 0) == 0)
+					name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
 				else
 					name.Z();
 				ok = ReceiveFile(tfvStart, name, rReply);

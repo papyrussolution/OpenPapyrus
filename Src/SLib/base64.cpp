@@ -101,7 +101,7 @@ int FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOut
 	const  char * p_in = pIn;
 	if(p_in[0] == '+' && p_in[1] == ' ')
 		p_in += 2;
-	THROW(*p_in != 0);
+	THROW_S(*p_in != 0, SLERR_BASE64DECODEFAULT);
 	if(p_out) {
 		for(lup = 0; lup < inLen / 4; lup++) {
 			const int b1 = CHAR64(p_in[0]);
@@ -110,7 +110,7 @@ int FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOut
 			const int b3 = CHAR64(c3);
 			const int c4 = p_in[3];
 			const int b4 = CHAR64(c4);
-			THROW(b1 != -1 && b2 != -1 && (c3 == '=' || b3 != -1) && (c4 == '=' || b4 != -1));
+			THROW_S(b1 != -1 && b2 != -1 && (c3 == '=' || b3 != -1) && (c4 == '=' || b4 != -1), SLERR_BASE64DECODEFAULT);
 			p_in += 4;
 			*p_out++ = (char)(b1 << 2) | (b2 >> 4);
 			len++;
@@ -132,7 +132,7 @@ int FASTCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOut
 			const int b3 = CHAR64(c3);
 			const int c4 = p_in[3];
 			const int b4 = CHAR64(c4);
-			THROW(b1 != -1 && b2 != -1 && (c3 == '=' || b3 != -1) && (c4 == '=' || b4 != -1));
+			THROW_S(b1 != -1 && b2 != -1 && (c3 == '=' || b3 != -1) && (c4 == '=' || b4 != -1), SLERR_BASE64DECODEFAULT);
 			p_in += 4;
 			len++;
 			if(c3 != '=') {

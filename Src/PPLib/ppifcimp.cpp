@@ -5144,7 +5144,7 @@ static void FASTCALL FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pO
 	temp_buf.CopyFromOleStr(pInner->PaymBillCode).CopyTo(pOuter->Ext.PaymBillCode, sizeof(pOuter->Ext.PaymBillCode));
 	if(pInner->DlvrAddrID) {
 		pOuter->P_Freight = new PPFreight;
-		pOuter->P_Freight->DlvrAddrID = pInner->DlvrAddrID;
+		pOuter->P_Freight->SetupDlvrAddr(pInner->DlvrAddrID);
 	}
 	#undef FLD
 	// Условия ренты

@@ -168,7 +168,7 @@ public:
 	void   CloseCalendar()
 	{
 	}
-	int    OnSelectionType(int aSelType);
+	void   OnSelectionType(int aSelType);
 	int    OnResetButton(int kind /* -1 - left, 0 - all, 1 - right */);
 };
 
@@ -1560,17 +1560,16 @@ static INT_PTR CALLBACK PeriodWndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 //
 // TCalendarP
 //
-int TCalendarP::OnSelectionType(int aSelType)
+void TCalendarP::OnSelectionType(int aSelType)
 {
 	if(aSelType == SEL_DAYS) {
 		seltype = SEL_DAYS;
 		SendToEditBox(D1, D2, 0);
 	}
 	else if(aSelType == SEL_WEEKS) {
-		long days = 0;
 		seltype = SEL_WEEKS;
 		LDATE beg_dt = encodedate(1, 1, 1);
-		days = ((diffdate(D1, beg_dt) - 1) / 7) * 7 + 1;
+		long days = ((diffdate(D1, beg_dt) - 1) / 7) * 7 + 1;
 		LDATE dt1 = plusdate(beg_dt, days);
 		LDATE dt2 = ZERODATE;
 		if(D2 == ZERODATE || D2 == D1)
@@ -1594,10 +1593,9 @@ int TCalendarP::OnSelectionType(int aSelType)
 		SendToEditBox(D1.year(), D1.year());
 	}
 	else
-		return 0;
+		return;
 	InvalidateRect(c_hWnd, NULL, false);
 	SetFocus(c_hWnd);
-	return 1;
 }
 
 int TCalendarP::OnResetButton(int kind /* -1 - left, 0 - all, 1 - right */)
