@@ -25503,6 +25503,16 @@ public:
 	//int    ResolveWarehouseByCode(const char * pCode, PPID accSheetID, PPID * pArID);
 	int    ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList);
 	int    GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * pSerial, const char * pNumber, PPIDArray & rList);
+	//
+	// Descr: Если адрес dlvrAddrID существует (и относится к типу LOCTYP_ADDRESS), то функция пытается 
+	//   найти зарезервированный тег PPTAG_LOC_TRUNKPOINT, связанный с этим адресом и извлечь из него
+	//   магистральную точку. Функция проверяет значение тега на предмет того, чтоб это был идентификатор 
+	//   географического объекта типа WORLDOBJ_CITY либо WORLDOBJ_CITYAREA.
+	// Returns: 
+	//   !0 - магистральная точка (географический объект), связанная с адресом dlvrAddrID
+	//    0 - а адресом dlvrAddrID не связана магистральная точка (либо это - не адрес вовсе).
+	//
+	PPID   GetTrunkPointByDlvrAddr(PPID dlvrAddrID);
 private:
 	friend class LocationCache; // Только для использования PPObjLocation(SCtrLite)
 	friend class PPObjPerson;   // Только для использования PPObjLocation(SCtrLite)

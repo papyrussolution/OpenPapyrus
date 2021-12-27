@@ -2819,6 +2819,49 @@ private:
 	Generator_SQL SqlGen;
 };
 //
+// Descr: Провайдер для SQLite
+//
+class SSqliteDbProvider : public DbProvider { // @construction
+public:
+	SSqliteDbProvider();
+	~SSqliteDbProvider();
+	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int Logout();
+	virtual int GetDatabaseState(uint * pStateFlags);
+	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
+	virtual int IsFileExists_(const char * pFileName);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
+	virtual int DropFile(const char * pFileName);
+	virtual int PostProcessAfterUndump(DBTable * pTbl);
+	virtual int StartTransaction();
+	virtual int CommitWork();
+	virtual int RollbackWork();
+	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
+	virtual int Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword);
+	virtual int Implement_Close(DBTable * pTbl);
+	virtual int Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf);
+	virtual int Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData);
+	virtual int Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc);
+	virtual int Implement_DeleteRec(DBTable * pTbl);
+	virtual int Implement_BExtInsert(BExtInsert * pBei);
+	virtual int Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
+	virtual int Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
+	virtual int ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection);
+	virtual int RecoverTable(BTBLID tblID, BRecoverParam * pParam);
+	virtual int CreateStmt(SSqlStmt * pS, const char * pText, long flags);
+	virtual int DestroyStmt(SSqlStmt * pS);
+	virtual int Binding(SSqlStmt & rS, int dir);
+	virtual int ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind);
+	virtual int Exec(SSqlStmt & rS, uint count, int mode);
+	virtual int Describe(SSqlStmt & rS, SdRecord &);
+	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
+private:
+	long   Flags;
+	void * H;
+	Generator_SQL SqlGen;
+};
+//
 //
 //
 DBTable * FASTCALL _GetTable(int handle); // Used DbSession

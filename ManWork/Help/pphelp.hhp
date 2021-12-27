@@ -15,6 +15,10 @@ Main="Справочная информация по системе Papyrus",,,"Intro.html","Intro.html",,,,,
 
 
 [FILES]
+..\pict\png\dlg-posnode-ext.png
+HELP_DLG_CASHNSEXT.HTML
+..\pict\png\dlg-posnode-addeq.png
+HELP_DLG_EXTDEV.HTML
 ..\pict\png\dlg-f-scard.png
 ..\pict\png\dlg-034.png
 HELP_DLG_QUOTFLT.HTML

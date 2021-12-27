@@ -250,6 +250,7 @@
       <Filter>MiMalloc\Test</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\szlib.c" />
+    <ClCompile Include="..\Db\dbsql-sqlite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

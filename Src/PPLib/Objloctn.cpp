@@ -1099,6 +1099,25 @@ int PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * 
 	return ok;
 }
 
+PPID PPObjLocation::GetTrunkPointByDlvrAddr(PPID dlvrAddrID)
+{
+	PPID   trunk_point_id = 0;
+	LocationTbl::Rec loc_rec;
+	if(dlvrAddrID && Fetch(dlvrAddrID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
+		ObjTagItem tag_item;
+		if(PPRef->Ot.GetTag(PPOBJ_LOCATION, dlvrAddrID, PPTAG_LOC_TRUNKPOINT, &tag_item) > 0) {
+			PPID   _tag_dest_point_id = 0;
+			if(tag_item.GetInt(&_tag_dest_point_id) && _tag_dest_point_id) {
+				PPObjWorld w_obj;
+				WorldTbl::Rec w_rec;
+				if(w_obj.Search(_tag_dest_point_id, &w_rec) > 0 && oneof2(w_rec.Kind, WORLDOBJ_CITY, WORLDOBJ_CITYAREA))
+					trunk_point_id = _tag_dest_point_id;		
+			}
+		}
+	}
+	return trunk_point_id;
+}
+
 int PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList)
 {
 	rList.clear();

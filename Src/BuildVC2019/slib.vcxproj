@@ -1343,6 +1343,7 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\Db\dbsql-mysql.cpp" />
+    <ClCompile Include="..\Db\dbsql-sqlite.cpp" />
     <ClCompile Include="..\Db\dbsql.cpp" />
     <ClCompile Include="..\Db\Dbtable.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">

@@ -1627,6 +1627,14 @@ int SyncCashNodeCfgDialog::editExt()
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_CASHNSEXT);
 	if(CheckDialogPtrErr(&dlg)) {
+		/*{
+			TRect this_rect = getRect();
+			TRect dlg_rect = dlg->getRect();
+			SPoint2S shift;
+			shift.Set(this_rect.b.x-dlg_rect.b.x, this_rect.b.y-dlg_rect.b.y);
+			dlg_rect.move(shift);
+			::MoveWindow(dlg->H(), dlg_rect.a.x, dlg_rect.a.y, dlg_rect.width(), dlg_rect.height(), 0);
+		}*/
 		SString ctbl_list_buf;
 		long   dlvr_items_show_tag = 0; //DlvrItemsShowTag
 		if(Data.Scf.DlvrItemsShowTag > 0)
@@ -1640,7 +1648,7 @@ int SyncCashNodeCfgDialog::editExt()
 		dlg->SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished);
 		dlg->SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags);
-		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, (double)Data.BonusMaxPart / 10.0);
+		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, fdivi(static_cast<long>(Data.BonusMaxPart), 10L));
 		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL);
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 1, CASHFX_USEGOODSMATRIX); // @v11.2.8

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494482
+LastSignatureCode=2147494483
 LastAutoCodeList=1,12100;102,10174;103,10072;110,10000;111,12015;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10139;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10227
 
 [SignatureList]
@@ -2204,6 +2204,7 @@ ttl_stocksinotherstores=2147485476
 ttl_clibnkassoc=2147485477
 ttl_searchwareinuhtt=2147485478
 ttl_updatefreight=2147485479
+updatefreight_setportbytrunkpt=2147494483
 ttl_goodsclassformcalculation=2147485480
 ttl_toolpanesetting=2147485481
 ttl_personmatching=2147485482

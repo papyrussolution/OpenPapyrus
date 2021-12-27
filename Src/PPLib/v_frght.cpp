@@ -682,8 +682,7 @@ int PPViewFreight::Export()
 	PPBillExporter b_e;
 	for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 		BillTbl::Rec bill_rec;
-		// @v9.4.3 if(P_BObj->Fetch(item.BillID, &bill_rec) > 0 && ((bill_rec.Flags & BILLF_GOODS) || IsDraftOp(bill_rec.OpID))) {
-		if(P_BObj->Fetch(item.BillID, &bill_rec) > 0 && IsGoodsDetailOp(bill_rec.OpID)) { // @v9.4.3
+		if(P_BObj->Fetch(item.BillID, &bill_rec) > 0 && IsGoodsDetailOp(bill_rec.OpID)) {
 			bill_id_list.add(bill_rec.ID);
 		}
 	}
@@ -713,6 +712,10 @@ int PPViewFreight::UpdateFeatures()
     PPID   ship_id = 0;
 	PPID   captain_id = 0; // @v10.0.11
     long   shipm_flag_mode = -1;
+	enum {
+		fSetPortOfDischargeByTrunkPt = 0x0001
+	};
+	long   _flags = 0; // @v11.2.10
     LDATE  issue_date = ZERODATE;
     LDATE  arrival_date = ZERODATE;
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
@@ -727,13 +730,17 @@ int PPViewFreight::UpdateFeatures()
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  1,  1);
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  2,  0);
 	dlg->SetClusterData(CTL_UPDFREIGHT_SHPF, shipm_flag_mode);
+	dlg->AddClusterAssoc(CTL_UPDFREIGHT_FLAGS, 0, fSetPortOfDischargeByTrunkPt); // @v11.2.10
+	dlg->SetClusterData(CTL_UPDFREIGHT_FLAGS, _flags); // @v11.2.10
 	if(ExecView(dlg) == cmOK) {
 		ship_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_TR);
 		captain_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT); // @v10.0.11
         issue_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ISSDT);
         arrival_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ARRDT);
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
-        if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1)) {
+		dlg->GetClusterData(CTL_UPDFREIGHT_FLAGS, &_flags); // @v11.2.10
+        if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || 
+			(_flags & fSetPortOfDischargeByTrunkPt)) {
 			PPIDArray bill_list;
 			PPWaitStart();
 			{
@@ -778,6 +785,18 @@ int PPViewFreight::UpdateFeatures()
 							do_update |= 2;
 						}
                     }
+					// @v11.2.10 {
+					if(_flags & fSetPortOfDischargeByTrunkPt && freight.DlvrAddrID) {
+						const PPID preserver_port_of_discharge = freight.PortOfDischarge;
+						if(!preserver_port_of_discharge) {
+							PPID trunk_point_id = LocObj.GetTrunkPointByDlvrAddr(freight.DlvrAddrID);
+							if(trunk_point_id) {
+								freight.PortOfDischarge = trunk_point_id;
+								do_update |= 1;
+							}
+						}
+					}
+					// } @v11.2.10 
                     if(do_update) {
 						int    bill_updated = 0;
 						PPTransaction tra(1);
@@ -839,7 +858,7 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				ok = -1;
 				Export();
 				break;
-			case PPVCMD_SYSJ: // @v9.4.3
+			case PPVCMD_SYSJ:
 				if(id)
 					ViewSysJournal(PPOBJ_BILL, id, 0);
 				break;

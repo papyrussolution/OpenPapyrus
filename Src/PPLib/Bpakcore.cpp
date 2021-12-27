@@ -571,21 +571,13 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 		THROW(loc_rec.Type == LOCTYP_ADDRESS);
 		DlvrAddrID = dlvrAddrID;
 		if(!PortOfDischarge) {
-			ObjTagItem tag_item;
-			if(PPRef->Ot.GetTag(PPOBJ_LOCATION, dlvrAddrID, PPTAG_LOC_TRUNKPOINT, &tag_item) > 0) {
-				PPID   _tag_dest_point_id = 0;
-				if(tag_item.GetInt(&_tag_dest_point_id) && _tag_dest_point_id) {
-					PPObjWorld w_obj;
-					WorldTbl::Rec w_rec;
-					if(w_obj.Search(_tag_dest_point_id, &w_rec) > 0 && oneof2(w_rec.Kind, WORLDOBJ_CITY, WORLDOBJ_CITYAREA))
-						PortOfDischarge = _tag_dest_point_id;		
-				}
-			}
+			const PPID trunk_point_id = loc_obj.GetTrunkPointByDlvrAddr(dlvrAddrID);
+			if(trunk_point_id)
+				PortOfDischarge = trunk_point_id;
 		}
 	}
-	else {
+	else
 		DlvrAddrID = 0;
-	}
 	CATCHZOK
 	return ok;
 }
