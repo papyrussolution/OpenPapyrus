@@ -71,31 +71,22 @@ public:
 
 	struct SVG {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_SVG;
-
-		bool has_data() const {
-			return svgDocEntries;
-		}
+		bool has_data() const { return svgDocEntries; }
 
 		struct accelerator_t {
 			void init(hb_face_t * face)
 			{
 				table = hb_sanitize_context_t().reference_table<SVG> (face);
 			}
-
-			void fini() {
+			void fini() 
+			{
 				table.destroy();
 			}
-
 			hb_blob_t * reference_blob_for_glyph(hb_codepoint_t glyph_id) const
 			{
-				return table->get_glyph_entry(glyph_id).reference_blob(table.get_blob(),
-					   table->svgDocEntries);
+				return table->get_glyph_entry(glyph_id).reference_blob(table.get_blob(), table->svgDocEntries);
 			}
-
-			bool has_data() const {
-				return table->has_data();
-			}
-
+			bool has_data() const { return table->has_data(); }
 private:
 			hb_blob_ptr_t<SVG> table;
 		};

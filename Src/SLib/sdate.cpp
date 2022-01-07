@@ -21,25 +21,24 @@ const LDATETIME MAXDATETIME = {{MAXLONG}, {MAXLONG}};
 
 const char daysPerMonth[NUM_MONTHES] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-static const struct { char div, ord; } fmtParams[] = {
-	{47,0}, // DATF_AMERICAN
-	{46,2}, // DATF_ANSI
-	{47,1}, // DATF_BRITISH
-	{47,1}, // DATF_FRENCH
-	{46,1}, // DATF_GERMAN
-	{45,1}, // DATF_ITALIAN
-	{47,2}, // DATF_JAPAN
-	{45,0}, // DATF_USA
-	{47,0}, // DATF_MDY
-	{47,1}, // DATF_DMY
-	{47,2}, // DATF_YMD
-	{45,2}, // DATF_SQL то же, что ISO8601 но с префиксом DATE и в апострофах: DATE 'YYYY-MM-DD'
-	{20,1}, // DATF_INTERNET (формальный подход не сработает - структура сложная)
-	{45,2}  // DATF_ISO8601
-};
-
 int FASTCALL _decode_date_fmt(int style, int * pDiv)
 {
+	static const struct { char div, ord; } fmtParams[] = {
+		{47,0}, // DATF_AMERICAN
+		{46,2}, // DATF_ANSI
+		{47,1}, // DATF_BRITISH
+		{47,1}, // DATF_FRENCH
+		{46,1}, // DATF_GERMAN
+		{45,1}, // DATF_ITALIAN
+		{47,2}, // DATF_JAPAN
+		{45,0}, // DATF_USA
+		{47,0}, // DATF_MDY
+		{47,1}, // DATF_DMY
+		{47,2}, // DATF_YMD
+		{45,2}, // DATF_SQL то же, что ISO8601 но с префиксом DATE и в апострофах: DATE 'YYYY-MM-DD'
+		{20,1}, // DATF_INTERNET (формальный подход не сработает - структура сложная)
+		{45,2}  // DATF_ISO8601
+	};
 	int    ord = 1;
 	style &= 0x000f;
 	if(style > 0 && style <= SIZEOFARRAY(fmtParams)) {
@@ -844,7 +843,7 @@ LTIME LTIME::encode(int h, int m, int s, int ms)
 
 long FASTCALL LTIME::settotalsec(long s)
 {
-	long   inc_dt = s / (3600 * 60 * 60);
+	long   inc_dt = s / (3600 * 24); // @v11.2.11 @fix (3600 * 60 * 60)-->(3600 * 24)
 	encodetime(s / 3600, (s % 3600) / 60, s % 60, 0, this);
 	return inc_dt;
 }

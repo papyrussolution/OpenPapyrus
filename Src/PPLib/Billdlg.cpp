@@ -970,8 +970,7 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 					order.RcvrKindID = acs_rec.ObjGroup;
 			}
 		}
-		if(!order.PayerID)
-			GetMainOrgID(&order.PayerID);
+		SETIFZ(order.PayerID, GetMainOrgID());
 		if(!order.RcvrID || forceUpdateRcvr) {
 			PPID   article_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 			order.RcvrID = ObjectToPerson(article_id);

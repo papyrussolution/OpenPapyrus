@@ -1978,9 +1978,7 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 	SString fsrar_id;
 	SString url;
 	PPIDArray main_psn_list;
-	PPID   main_org_id = 0;
-	GetMainOrgID(&main_org_id);
-	// @v9.5.3 {
+	PPID   main_org_id = GetMainOrgID();
 	if(locID && main_org_id) {
 		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_FSRARID, fsrar_id);
 		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_EGAISSRVURL, url);
@@ -1994,7 +1992,6 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 			ok = 3;
 		}
 	}
-	// } @v9.5.3
 	if(!rList.getCount()) {
 		{
 			PersonKindTbl * t = &PsnObj.P_Tbl->Kind;
@@ -2074,9 +2071,8 @@ int PPEgaisProcessor::GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID)
 	rBuf.Z();
 	int    ok = 0;
 	Reference * p_ref = PPRef;
-	PPID   main_org_id = 0;
 	ObjTagItem rarid_tag;
-	GetMainOrgID(&main_org_id);
+	PPID   main_org_id = GetMainOrgID();
 	if(locID && (!P_UtmEntry || P_UtmEntry->Flags & UtmEntry::fDefault)) {
 		if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_FSRARID, rBuf) > 0)
 			ok = 2;
@@ -2444,7 +2440,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										const double mult = agi.UnpackedVolume / 10.0;
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 										price = (price / mult);
-										qtty_fmt = MKSFMTD(0, 3, 0); // @v9.7.10
+										qtty_fmt = MKSFMTD(0, 6, 0); // @v9.7.10 // @v11.2.10 MKSFMTD(0, 3, 0)-->MKSFMTD(0, 6, 0)
 									}
 									// @v10.6.7 @ctr MEMSZERO(lot_rec);
 									P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
@@ -8539,9 +8535,8 @@ int PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 				getCtrlData(CTLSEL_EGAISQ_MAINORG, &main_org_id);
 				getCtrlData(CTLSEL_EGAISQ_LOC, &loc_id);
 				{
-					PPID   preserve_main_org_id = 0;
 					TSVector <UtmEntry> utm_list;
-					GetMainOrgID(&preserve_main_org_id);
+					const  PPID preserve_main_org_id = GetMainOrgID();
 					if(main_org_id)
 						DS.SetMainOrgID(main_org_id, 0);
 					{
@@ -8685,9 +8680,8 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 	int    do_report_error = 0;
 	SString mark_buf;
 	SString temp_buf;
-	PPID   preserve_main_org_id = 0;
 	TSVector <UtmEntry> utm_list;
-	GetMainOrgID(&preserve_main_org_id);
+	const  PPID preserve_main_org_id = GetMainOrgID();
 	if(rParam.MainOrgID)
 		DS.SetMainOrgID(rParam.MainOrgID, 0);
 	{

@@ -5506,6 +5506,97 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 
 int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPEdiProcessor::RecadvPacket & rRaPack)
 {
+	/*
+		<eDIMessage id="a23df57f-a4d8-4a33-885f-dcf1b07ffc7c">
+			<interchangeHeader>
+				<sender>2000000000527</sender>
+				<recipient>2000000005775</recipient>
+				<documentType>RECADV</documentType>
+				<creationDateTime>2021-12-24T13:24:55.841Z</creationDateTime>
+			</interchangeHeader>
+			<receivingAdvice number="ABC70й00010-RECADV" date="2021-12-24">
+				<originOrder number="00010" date="2021-12-09"/>
+				<contractIdentificator number="ДОГОВОР-090" date="2020-12-10"/>
+				<despatchIdentificator number="ABC70й00010" date="2021-12-23"/>
+				<seller>
+					<gln>2000000005775</gln>
+					<organization>
+						<name>Тестовый поставщик Дударев Игорь</name>
+						<inn>9678517667</inn>
+						<kpp>967851766</kpp>
+					</organization>
+					<russianAddress>
+						<regionISOCode>RU-SVE</regionISOCode>
+						<district>Ленинский р-н</district>
+						<city>Екатеринбург</city>
+						<street>Радищева ул</street>
+						<house>28</house>
+						<postalCode>620000</postalCode>
+					</russianAddress>
+				</seller>
+				<buyer>
+					<gln>2000000000527</gln>
+					<organization>
+						<name>Тестовая сеть ЛЭНД</name>
+						<inn>9688621875</inn>
+						<kpp>968801000</kpp>
+					</organization>
+					<russianAddress>
+						<regionISOCode>RU-SPE</regionISOCode>
+					</russianAddress>
+				</buyer>
+				<deliveryInfo>
+					<receptionDateTime>2021-12-24T00:00:00.000Z</receptionDateTime>
+					<waybill number="ABC70й00010" date="2021-12-23"/>
+					<shipFrom>
+						<gln>2000000005775</gln>
+						<organization>
+							<name>Тестовый поставщик Дударев Игорь</name>
+							<inn>9678517667</inn>
+							<kpp>967851766</kpp>
+						</organization>
+						<russianAddress>
+							<regionISOCode>RU-SVE</regionISOCode>
+							<district>Ленинский р-н</district>
+							<city>Екатеринбург</city>
+							<street>Радищева ул</street>
+							<house>28</house>
+							<postalCode>620000</postalCode>
+						</russianAddress>
+					</shipFrom>
+					<shipTo>
+						<gln>2000000000527</gln>
+					</shipTo>
+				</deliveryInfo>
+				<lineItems>
+					<currencyISOCode>RUB</currencyISOCode>
+					<lineItem>
+						<gtin>2100000006991</gtin>
+						<internalBuyerCode>9392</internalBuyerCode>
+						<orderedQuantity unitOfMeasure="PCE">48.000</orderedQuantity>
+						<despatchedQuantity unitOfMeasure="PCE">48.000</despatchedQuantity>
+						<deliveredQuantity unitOfMeasure="PCE">48.000</deliveredQuantity>
+						<acceptedQuantity unitOfMeasure="PCE">48.000</acceptedQuantity>
+						<netPriceWithVAT>317.7300</netPriceWithVAT>
+						<amount>15251.0400</amount>
+					</lineItem>
+					<lineItem>
+						<gtin>2100000005994</gtin>
+						<internalBuyerCode>9391</internalBuyerCode>
+						<orderedQuantity unitOfMeasure="PCE">10.000</orderedQuantity>
+						<despatchedQuantity unitOfMeasure="PCE">10.000</despatchedQuantity>
+						<deliveredQuantity unitOfMeasure="PCE">10.000</deliveredQuantity>
+						<acceptedQuantity unitOfMeasure="PCE">10.000</acceptedQuantity>
+						<netPriceWithVAT>200.0000</netPriceWithVAT>
+						<amount>2000.0000</amount>
+					</lineItem>
+					<totalSumExcludingTaxes>0.00</totalSumExcludingTaxes>
+					<totalVATAmount>0.00</totalVATAmount>
+					<totalAmount>17251.04</totalAmount>
+				</lineItems>
+			</receivingAdvice>
+		</eDIMessage>
+	*/
 	int    ok = 0;
 	SString temp_buf;
 	SString bill_text;
@@ -5523,8 +5614,69 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 		n_hdr.PutInner("documentType", "RECADV");
 		n_hdr.PutInner("creationDateTime", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 		//n_hdr.PutInner("isTest", "0");
+		{
+			BillTbl::Rec order_bill_rec;
+			SXml::WNode n_b(_doc, "receivingAdvice");
+			n_b.PutAttrib("number", (temp_buf = rRaPack.RBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+			n_b.PutAttrib("date", temp_buf.Z().Cat(rRaPack.RBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+			{
+				const int goobr = GetOriginOrderBill(rRaPack.ABp, &order_bill_rec);
+				THROW(goobr);
+				THROW_PP_S(goobr > 0, PPERR_EDI_RECADV_NOORDER, bill_text);
+				Write_OwnFormat_OriginOrder_Tag(_doc, order_bill_rec);
+			}
+			{
+				SXml::WNode n_i(_doc, "contractIdentificator"); // <contractIdentificator number="357951" date="2012-05-06"/>
+			}
+			{
+				SXml::WNode n_i(_doc, "despatchIdentificator"); // <despatchIdentificator number="ABC70й00010" date="2021-12-23"/>
+				n_i.PutAttrib("number", (temp_buf = rRaPack.ABp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+				n_i.PutAttrib("date", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+			}
+			{
+				SXml::WNode n_i(_doc, "seller");
+				THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
+			}
+			{
+				SXml::WNode n_i(_doc, "buyer");
+				THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
+			}
+			{
+				SXml::WNode n_i(_doc, "deliveryInfo");
+				if(checkdate(order_bill_rec.DueDate, 0)) {
+					LDATETIME temp_dtm;
+					temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME);
+					n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
+				}
+				{
+					SXml::WNode n_i2(_doc, "shipFrom");
+					THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
+				}
+				{
+					SXml::WNode n_i2(_doc, "shipTo");
+					THROW(WriteOwnFormatContractor(_doc, 0, rRaPack.RBp.Rec.LocID));
+				}
+			}
+			{
+				SXml::WNode n_dtl(_doc, "lineItems");
+				n_dtl.PutInner("currencyISOCode", "RUB");
+				for(uint i = 0; i < rRaPack.ABp.GetTCount(); i++) { // Перебор ведем по оригинальному DESADV
+					const PPTransferItem & r_ti = rRaPack.ABp.ConstTI(i);
+					SXml::WNode n_item(_doc, "lineItem");
+					/*
+						<gtin>2100000006991</gtin>
+						<internalBuyerCode>9392</internalBuyerCode>
+						<orderedQuantity unitOfMeasure="PCE">48.000</orderedQuantity>
+						<despatchedQuantity unitOfMeasure="PCE">48.000</despatchedQuantity>
+						<deliveredQuantity unitOfMeasure="PCE">48.000</deliveredQuantity>
+						<acceptedQuantity unitOfMeasure="PCE">48.000</acceptedQuantity>
+						<netPriceWithVAT>317.7300</netPriceWithVAT>
+						<amount>15251.0400</amount>
+					*/
+				}
+			}
+		}
 	}
-
 	//
 	CATCHZOK
 	return ok;
@@ -5774,7 +5926,7 @@ PPEdiProcessor::Packet::~Packet()
 			delete static_cast<PPBillPacket *>(P_ExtData);
 			break;
 		case PPEDIOP_RECADV:
-			delete (RecadvPacket *)P_Data;
+			delete static_cast<RecadvPacket *>(P_Data);
 			break;
 	}
 	P_Data = 0;
@@ -6745,7 +6897,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 				//THROW_PP(ACfg.Hdr.E, PPERR_EDI_OPNDEF_DESADV);
 				THROW(ReadCommonAttributes(p_n, attrs));
 				THROW_MEM(p_pack = new PPEdiProcessor::Packet(edi_op));
-				p_recadv_pack = (PPEdiProcessor::RecadvPacket *)p_pack->P_Data;
+				p_recadv_pack = static_cast<PPEdiProcessor::RecadvPacket *>(p_pack->P_Data);
 				addendum_msg_buf.Z().Cat("RECADV").Space().Cat(attrs.Num).Space().Cat(attrs.Dt, DATF_DMY);
 				THROW_PP_S(p_recadv_pack, PPERR_EDI_INBILLNOTINITED, addendum_msg_buf);
 				{
@@ -8415,7 +8567,7 @@ int EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo *
 	SString ret_doc_ident; // Идент документа, возвращаемый провайдером
 	if(rPack.P_Data && oneof6(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_RECADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
 		const S_GUID msg_uuid(SCtrGenerate_);
-		const PPEdiProcessor::RecadvPacket * p_recadv_pack = (rPack.DocType == PPEDIOP_RECADV) ? (PPEdiProcessor::RecadvPacket *)rPack.P_Data : 0;
+		const PPEdiProcessor::RecadvPacket * p_recadv_pack = (rPack.DocType == PPEDIOP_RECADV) ? static_cast<const PPEdiProcessor::RecadvPacket *>(rPack.P_Data) : 0;
 		const PPBillPacket * p_bp = (rPack.DocType == PPEDIOP_RECADV) ? &p_recadv_pack->ABp : static_cast<const PPBillPacket *>(rPack.P_Data);
 		SString temp_buf;
 		SString doc_type_buf;

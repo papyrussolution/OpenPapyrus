@@ -93,36 +93,26 @@ float hb_style_get_value(hb_font_t * font, hb_tag_t tag)
 		return axis.default_value;
 	}
 #endif
-
 	if(style_tag == HB_STYLE_TAG_OPTICAL_SIZE && font->ptem)
 		return font->ptem;
-
 	/* STAT */
 	float value;
 	if(face->table.STAT->get_value(style_tag, &value))
 		return value;
-
-	switch((uint)style_tag)
-	{
+	switch((uint)style_tag) {
 		case HB_STYLE_TAG_ITALIC:
 		    return face->table.OS2->is_italic() || face->table.head->is_italic() ? 1 : 0;
 		case HB_STYLE_TAG_OPTICAL_SIZE:
 	    {
 		    uint lower, upper;
-		    return face->table.OS2->v5().get_optical_size(&lower, &upper)
-			   ? (float)(lower + upper) / 2.f
-			   : 12.f;
+		    return face->table.OS2->v5().get_optical_size(&lower, &upper) ? (float)(lower + upper) / 2.f : 12.f;
 	    }
 		case HB_STYLE_TAG_SLANT:
 		    return face->table.post->table->italicAngle.to_float();
 		case HB_STYLE_TAG_WIDTH:
-		    return face->table.OS2->has_data()
-			   ? face->table.OS2->get_width()
-			   : (face->table.head->is_condensed() ? 75 : 100);
+		    return face->table.OS2->has_data() ? face->table.OS2->get_width() : (face->table.head->is_condensed() ? 75 : 100);
 		case HB_STYLE_TAG_WEIGHT:
-		    return face->table.OS2->has_data()
-			   ? face->table.OS2->usWeightClass
-			   : (face->table.head->is_bold() ? 700 : 400);
+		    return face->table.OS2->has_data() ? face->table.OS2->usWeightClass : (face->table.head->is_bold() ? 700 : 400);
 		default:
 		    return 0;
 	}

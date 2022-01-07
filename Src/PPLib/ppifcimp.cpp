@@ -1960,7 +1960,7 @@ int32 DL6ICLS_PPSession::GetStatusInfo(SPpySessionInfo* pInfo)
 		}
 		pInfo->DbDivID = DS.LCfg().DBDiv;
 		pInfo->UserID  = DS.LCfg().UserID;
-		GetMainOrgID(&pInfo->MainOrgID);
+		pInfo->MainOrgID = GetMainOrgID();
 		{
 			r_tla.InitMainOrgData(0);
 			const PPCommConfig & r_ccfg = CConfig;

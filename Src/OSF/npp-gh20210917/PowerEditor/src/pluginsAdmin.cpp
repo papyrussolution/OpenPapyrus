@@ -591,13 +591,11 @@ PluginViewList::~PluginViewList()
 void PluginViewList::pushBack(PluginUpdateInfo* pi)
 {
 	_list.push_back(pi);
-
 	vector<generic_string> values2Add;
 	values2Add.push_back(pi->_displayName);
 	Version v = pi->_version;
 	values2Add.push_back(v.toString());
 	//values2Add.push_back(TEXT("Yes"));
-
 	// add in order
 	size_t i = _ui.findAlphabeticalOrderPos(pi->_displayName,
 		_sortType == DISPLAY_NAME_ALPHABET_ENCREASE ? _ui.sortEncrease : _ui.sortDecrease);
@@ -608,13 +606,10 @@ bool loadFromJson(PluginViewList & pl, const json& j)
 {
 	if(j.empty())
 		return false;
-
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
-
 	json jArray = j["npp-plugins"];
 	if(jArray.empty() || jArray.type() != json::value_t::array)
 		return false;
-
 	for(const auto& i : jArray) {
 		try {
 			//std::unique_ptr<PluginUpdateInfo*> pi = make_unique<PluginUpdateInfo*>();
@@ -660,14 +655,11 @@ PluginUpdateInfo::PluginUpdateInfo(const generic_string& fullFilePath, const gen
 {
 	if(!::PathFileExists(fullFilePath.c_str()))
 		return;
-
 	_fullFilePath = fullFilePath;
 	_displayName = filename;
-
 	std::string content = getFileContent(fullFilePath.c_str());
 	if(content.empty())
 		return;
-
 	_version.setVersionFrom(fullFilePath);
 }
 
@@ -690,30 +682,21 @@ bool PluginsAdminDlg::isValide()
 	if(winVersion <= WV_XP) {
 		return false;
 	}
-
 	if(!::PathFileExists(_pluginListFullPath.c_str())) {
 		return false;
 	}
-
 	if(!::PathFileExists(_updaterFullPath.c_str())) {
 		return false;
 	}
-
 #ifdef DEBUG // if not debug, then it's release
-
 	return true;
-
 #else //RELEASE
-
 	// check the signature on default location : %APPDATA%\Notepad++\plugins\config\pl\nppPluginList.dll or
 	// NPP_INST_DIR\plugins\config\pl\nppPluginList.dll
-
 	SecurityGard securityGard;
 	bool isOK = securityGard.checkModule(_pluginListFullPath, nm_pluginList);
-
 	if(!isOK)
 		return isOK;
-
 	isOK = securityGard.checkModule(_updaterFullPath, nm_gup);
 	return isOK;
 #endif
@@ -722,71 +705,49 @@ bool PluginsAdminDlg::isValide()
 bool PluginsAdminDlg::updateListAndLoadFromJson()
 {
 	HMODULE hLib = NULL;
-
-	try
-	{
+	try {
 		if(!isValide())
 			return false;
-
 		json j;
-
 #ifdef DEBUG // if not debug, then it's release
-
 		// load from nppPluginList.json instead of nppPluginList.dll
 		ifstream nppPluginListJson(_pluginListFullPath);
 		nppPluginListJson >> j;
-
 #else //RELEASE
-
 		hLib = ::LoadLibraryEx(_pluginListFullPath.c_str(), 0, LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE);
-
 		if(!hLib) {
 			// Error treatment
 			//printStr(TEXT("LoadLibrary PB!!!"));
 			return false;
 		}
-
 		HRSRC rc = ::FindResource(hLib, MAKEINTRESOURCE(IDR_PLUGINLISTJSONFILE), MAKEINTRESOURCE(TEXTFILE));
 		if(!rc) {
 			::FreeLibrary(hLib);
 			return false;
 		}
-
 		HGLOBAL rcData = ::LoadResource(hLib, rc);
 		if(!rcData) {
 			::FreeLibrary(hLib);
 			return false;
 		}
-
 		auto size = ::SizeofResource(hLib, rc);
 		auto data = static_cast<const char *>(::LockResource(rcData));
-
 		char * buffer = new char[size + 1];
 		::memcpy(buffer, data, size);
 		buffer[size] = '\0';
-
 		j = j.parse(buffer);
-
 		delete[] buffer;
-
 #endif
 		// if absent then download it
-
 		// check the update for nppPluginList.json
-
 		// download update if present
-
 		// load pl.json
 		//
-
 		loadFromJson(_availableList, j);
-
 		// initialize update list view
 		checkUpdates();
-
 		// initialize installed list view
 		loadFromPluginInfos();
-
 		::FreeLibrary(hLib);
 		return true;
 	}
@@ -803,18 +764,15 @@ bool PluginsAdminDlg::loadFromPluginInfos()
 {
 	if(!_pPluginsManager)
 		return false;
-
 	// Search from loaded plugins, if loaded plugins are in the available list,
 	// add them into installed plugins list, and hide them from the available list
 	for(const auto& i : _pPluginsManager->_loadedDlls) {
 		if(i._fileName.length() >= MAX_PATH)
 			continue;
-
 		// user file name (without ext. to find whole info in available list
 		TCHAR fnNoExt[MAX_PATH];
 		wcscpy_s(fnNoExt, i._fileName.c_str());
 		::PathRemoveExtension(fnNoExt);
-
 		int listIndex;
 		PluginUpdateInfo* foundInfo = _availableList.findPluginInfoFromFolderName(fnNoExt, listIndex);
 		if(!foundInfo) {
@@ -827,10 +785,8 @@ bool PluginsAdminDlg::loadFromPluginInfos()
 			pui->_fullFilePath = i._fullFilePath;
 			pui->_version.setVersionFrom(i._fullFilePath);
 			_installedList.pushBack(pui);
-
 			// Hide it from the available list
 			_availableList.hideFromListIndex(listIndex);
-
 			// if the installed plugin version is smaller than the one on the available list,
 			// put it in the update list as well.
 			if(pui->_version < foundInfo->_version) {
@@ -839,7 +795,6 @@ bool PluginsAdminDlg::loadFromPluginInfos()
 			}
 		}
 	}
-
 	return true;
 }
 
@@ -866,16 +821,13 @@ bool PluginViewList::removeFromListIndex(size_t index2remove)
 {
 	if(index2remove >= _list.size())
 		return false;
-
 	for(size_t i = 0; i < _ui.nbItem(); ++i) {
 		if(_ui.getLParamFromIndex(static_cast<int>(i)) == reinterpret_cast<LPARAM>(_list[index2remove])) {
 			if(!_ui.removeFromIndex(i))
 				return false;
 		}
 	}
-
 	_list.erase(_list.begin() + index2remove);
-
 	return true;
 }
 
@@ -925,9 +877,7 @@ bool PluginViewList::restore(const generic_string& folderName)
 			values2Add.push_back(v.toString());
 			values2Add.push_back(TEXT("Yes"));
 			_ui.addLine(values2Add, reinterpret_cast<LPARAM>(i));
-
 			i->_isVisible = true;
-
 			return true;
 		}
 	}
@@ -938,16 +888,13 @@ bool PluginViewList::hideFromListIndex(size_t index2hide)
 {
 	if(index2hide >= _list.size())
 		return false;
-
 	for(size_t i = 0; i < _ui.nbItem(); ++i) {
 		if(_ui.getLParamFromIndex(static_cast<int>(i)) == reinterpret_cast<LPARAM>(_list[index2hide])) {
 			if(!_ui.removeFromIndex(static_cast<int>(i)))
 				return false;
 		}
 	}
-
 	_list[index2hide]->_isVisible = false;
-
 	return true;
 }
 
@@ -964,16 +911,12 @@ bool PluginsAdminDlg::searchInPlugins(bool isNextMode) const
 	::GetDlgItemText(_hSelf, IDC_PLUGINADM_SEARCH_EDIT, txt2search, maxLen);
 	if(lstrlen(txt2search) < 2)
 		return false;
-
 	long foundIndex = searchInNamesFromCurrentSel(txt2search, isNextMode);
 	if(foundIndex == -1)
 		foundIndex = searchInDescsFromCurrentSel(txt2search, isNextMode);
-
 	if(foundIndex == -1)
 		return false;
-
 	_availableList.setSelection(foundIndex);
-
 	return true;
 }
 
@@ -981,44 +924,37 @@ void PluginsAdminDlg::switchDialog(int indexToSwitch)
 {
 	generic_string desc;
 	bool showAvailable, showUpdate, showInstalled;
-	switch(indexToSwitch)
-	{
+	switch(indexToSwitch) {
 		case 0: // available plugins
-	    {
-		    showAvailable = true;
-		    showUpdate = false;
-		    showInstalled = false;
-
-		    long infoIndex = _availableList.getSelectedIndex();
-		    if(infoIndex != -1 && infoIndex < static_cast<long>(_availableList.nbItem()))
-			    desc = _availableList.getPluginInfoFromUiIndex(infoIndex)->describe();
-	    }
-	    break;
-
+			{
+				showAvailable = true;
+				showUpdate = false;
+				showInstalled = false;
+				long infoIndex = _availableList.getSelectedIndex();
+				if(infoIndex != -1 && infoIndex < static_cast<long>(_availableList.nbItem()))
+					desc = _availableList.getPluginInfoFromUiIndex(infoIndex)->describe();
+			}
+			break;
 		case 1: // to be updated plugins
-	    {
-		    showAvailable = false;
-		    showUpdate = true;
-		    showInstalled = false;
-
-		    long infoIndex = _updateList.getSelectedIndex();
-		    if(infoIndex != -1 && infoIndex < static_cast<long>(_updateList.nbItem()))
-			    desc = _updateList.getPluginInfoFromUiIndex(infoIndex)->describe();
-	    }
-	    break;
-
+			{
+				showAvailable = false;
+				showUpdate = true;
+				showInstalled = false;
+				long infoIndex = _updateList.getSelectedIndex();
+				if(infoIndex != -1 && infoIndex < static_cast<long>(_updateList.nbItem()))
+					desc = _updateList.getPluginInfoFromUiIndex(infoIndex)->describe();
+			}
+			break;
 		case 2: // installed plugin
-	    {
-		    showAvailable = false;
-		    showUpdate = false;
-		    showInstalled = true;
-
-		    long infoIndex = _installedList.getSelectedIndex();
-		    if(infoIndex != -1 && infoIndex < static_cast<long>(_installedList.nbItem()))
-			    desc = _installedList.getPluginInfoFromUiIndex(infoIndex)->describe();
-	    }
-	    break;
-
+			{
+				showAvailable = false;
+				showUpdate = false;
+				showInstalled = true;
+				long infoIndex = _installedList.getSelectedIndex();
+				if(infoIndex != -1 && infoIndex < static_cast<long>(_installedList.nbItem()))
+					desc = _installedList.getPluginInfoFromUiIndex(infoIndex)->describe();
+			}
+			break;
 		default:
 		    return;
 	}
@@ -1139,7 +1075,6 @@ INT_PTR CALLBACK PluginsAdminDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 			pnmh->hwndFrom == _installedList.getViewHwnd()) {
 			    PluginViewList* pViewList;
 			    int buttonID;
-
 			    if(pnmh->hwndFrom == _availableList.getViewHwnd()) {
 				    pViewList = &_availableList;
 				    buttonID = IDC_PLUGINADM_INSTALL;

@@ -298,51 +298,30 @@ struct hb_font_t {
 			   klass->user_data.glyph_h_advances);
 	}
 
-	void get_glyph_v_advances(uint count,
-	    const hb_codepoint_t * first_glyph,
-	    uint glyph_stride,
-	    hb_position_t * first_advance,
-	    uint advance_stride)
+	void get_glyph_v_advances(uint count, const hb_codepoint_t * first_glyph, uint glyph_stride, hb_position_t * first_advance, uint advance_stride)
 	{
-		return klass->get.f.glyph_v_advances(this, user_data,
-			   count,
-			   first_glyph, glyph_stride,
-			   first_advance, advance_stride,
-			   klass->user_data.glyph_v_advances);
+		return klass->get.f.glyph_v_advances(this, user_data, count, first_glyph, glyph_stride, first_advance, advance_stride, klass->user_data.glyph_v_advances);
 	}
 
-	hb_bool_t get_glyph_h_origin(hb_codepoint_t glyph,
-	    hb_position_t * x, hb_position_t * y)
+	hb_bool_t get_glyph_h_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		* x = *y = 0;
-		return klass->get.f.glyph_h_origin(this, user_data,
-			   glyph, x, y,
-			   klass->user_data.glyph_h_origin);
+		return klass->get.f.glyph_h_origin(this, user_data, glyph, x, y, klass->user_data.glyph_h_origin);
 	}
-
-	hb_bool_t get_glyph_v_origin(hb_codepoint_t glyph,
-	    hb_position_t * x, hb_position_t * y)
+	hb_bool_t get_glyph_v_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		* x = *y = 0;
-		return klass->get.f.glyph_v_origin(this, user_data,
-			   glyph, x, y,
-			   klass->user_data.glyph_v_origin);
+		return klass->get.f.glyph_v_origin(this, user_data, glyph, x, y, klass->user_data.glyph_v_origin);
 	}
-
-	hb_position_t get_glyph_h_kerning(hb_codepoint_t left_glyph,
-	    hb_codepoint_t right_glyph)
+	hb_position_t get_glyph_h_kerning(hb_codepoint_t left_glyph, hb_codepoint_t right_glyph)
 	{
 #ifdef HB_DISABLE_DEPRECATED
 		return 0;
 #else
-		return klass->get.f.glyph_h_kerning(this, user_data,
-			   left_glyph, right_glyph,
-			   klass->user_data.glyph_h_kerning);
+		return klass->get.f.glyph_h_kerning(this, user_data, left_glyph, right_glyph, klass->user_data.glyph_h_kerning);
 #endif
 	}
-
-	hb_position_t get_glyph_v_kerning(hb_codepoint_t top_glyph,
-	    hb_codepoint_t bottom_glyph)
+	hb_position_t get_glyph_v_kerning(hb_codepoint_t top_glyph, hb_codepoint_t bottom_glyph)
 	{
 #ifdef HB_DISABLE_DEPRECATED
 		return 0;
@@ -554,17 +533,13 @@ struct hb_font_t {
 
 		return ret;
 	}
-
 	/* Generates gidDDD if glyph has no name. */
-	void glyph_to_string(hb_codepoint_t glyph,
-	    char * s, uint size)
+	void glyph_to_string(hb_codepoint_t glyph, char * s, uint size)
 	{
 		if(get_glyph_name(glyph, s, size)) return;
-
 		if(size && snprintf(s, size, "gid%u", glyph) < 0)
 			*s = '\0';
 	}
-
 	/* Parses gidDDD and uniUUUU strings automatically. */
 	hb_bool_t glyph_from_string(const char * s, int len, /* -1 means nul-terminated */
 	    hb_codepoint_t * glyph)
@@ -586,24 +561,20 @@ struct hb_font_t {
 		}
 		return false;
 	}
-
 	void mults_changed()
 	{
 		signed upem = face->get_upem();
 		x_mult = ((int64_t)x_scale << 16) / upem;
 		y_mult = ((int64_t)y_scale << 16) / upem;
 	}
-
 	hb_position_t em_mult(int16_t v, int64_t mult)
 	{
 		return (hb_position_t)((v * mult) >> 16);
 	}
-
 	hb_position_t em_scalef(float v, int scale)
 	{
 		return (hb_position_t)roundf(v * scale / face->get_upem());
 	}
-
 	float em_fscale(int16_t v, int scale)
 	{
 		return (float)v * scale / face->get_upem();

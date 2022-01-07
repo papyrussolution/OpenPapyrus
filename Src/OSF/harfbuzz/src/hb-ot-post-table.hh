@@ -214,19 +214,12 @@ private:
 			hb_atomic_ptr_t<uint16_t *> gids_sorted_by_name;
 		};
 
-		bool has_data() const {
-			return version.to_int();
-		}
-
+		bool has_data() const { return version.to_int(); }
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    (version.to_int() == 0x00010000 ||
-			    (version.to_int() == 0x00020000 && v2X.sanitize(c)) ||
-			    version.to_int() == 0x00030000)));
+			return_trace(LIKELY(c->check_struct(this) && (version.to_int() == 0x00010000 || (version.to_int() == 0x00020000 && v2X.sanitize(c)) || version.to_int() == 0x00030000)));
 		}
-
 public:
 		FixedVersion<>version; /* 0x00010000 for version 1.0
 		 * 0x00020000 for version 2.0

@@ -1210,7 +1210,7 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 				if(((Filt.Flags & TrfrAnlzFilt::fCWoVat) || (pTrfrRec->Flags & PPTFR_COSTWOVAT)) && (Flags & fAccsCost)) {
 					LDATE  lot_date = ZERODATE;
 					PPID   in_tax_grp_id = 0;
-					int    vat_free = 0;
+					bool   vat_free = false;
 					if(pTrfrRec->LotID && (org_lot_rec.ID > 0 || (!org_lot_rec.ID && p_trfr->Rcpt.SearchOrigin(pTrfrRec->LotID, 0, 0, &org_lot_rec) > 0))) {
 						lot_date = org_lot_rec.Dt;
 						in_tax_grp_id = org_lot_rec.InTaxGrpID;

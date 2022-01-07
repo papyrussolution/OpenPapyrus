@@ -6332,7 +6332,8 @@ public:
 		int32  DocType;
 		int64  TimeStamp;
 		int32  Flags;
-		uint8  Reserve[100]; // raw
+		int64  Counter;
+		uint8  Reserve[92]; // raw
 		TSLob <2048> VT;
 	} data;
 	struct Key0 {
@@ -6362,6 +6363,7 @@ public:
 	DBField DocType;
 	DBField TimeStamp;
 	DBField Flags;
+	DBField Counter;
 	DBField Reserve;
 	DBField VT;
 };

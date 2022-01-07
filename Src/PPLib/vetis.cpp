@@ -3584,9 +3584,7 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 	// @v10.1.9 THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
 	THROW(DS.FetchAlbatrosConfig(&acfg) > 0); // @v10.1.9
 	SETFLAG(rP.Flags, rP.fTestContour, acfg.Hdr.Flags & acfg.Hdr.fVetisTestContour); // @v10.5.1
-	if(!rP.MainOrgID) {
-		GetMainOrgID(&rP.MainOrgID);
-	}
+	SETIFZ(rP.MainOrgID, GetMainOrgID());
 	SETIFZ(rP.LocID, LConfig.Location);
 	acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
 	THROW_PP(temp_buf.NotEmptyS(), PPERR_VETISUSERUNDEF);
@@ -9610,7 +9608,7 @@ int EditVetisProductItem(VetisEntityCore & rEc, VetisProductItem & rData)
 			int    ok = 1;
 			SString temp_buf;
 			RVALUEPTR(Data, pData);
-			GetMainOrgID(&MainOrgID);
+			MainOrgID = GetMainOrgID();
 			WarehouseID = LConfig.Location;
 			SetupPersonCombo(this, CTLSEL_VETISPI_ORG, MainOrgID, 0, PPPRK_MAIN, 1);
 			SetupLocationCombo(this, CTLSEL_VETISPI_LOC, WarehouseID, 0, 0);
@@ -10104,9 +10102,8 @@ int PPViewVetisDocument::ViewWarehouse()
 {
 	int    ok = -1;
 	VetisEnterprise ve;
-	PPID   main_org_id = 0;
 	PPID   loc_id = LConfig.Location;
-	GetMainOrgID(&main_org_id);
+	PPID   main_org_id = GetMainOrgID();
 	EC.SetupEnterpriseEntry(main_org_id, loc_id, ve);
 	EditVetisEnterprise(EC, ve);
 	//DLG_VETISENT
@@ -10117,9 +10114,8 @@ int PPViewVetisDocument::ViewGoods()
 {
 	int    ok = -1;
 	VetisProductItem vpi;
-	PPID   main_org_id = 0;
 	PPID   loc_id = LConfig.Location;
-	GetMainOrgID(&main_org_id);
+	PPID   main_org_id = GetMainOrgID();
 	//EC.SetupEnterpriseEntry(main_org_id, loc_id, ve);
 	EditVetisProductItem(EC, vpi);
 	//DLG_VETISENT

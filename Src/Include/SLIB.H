@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #ifndef __SLIB_H
@@ -1674,6 +1674,46 @@ public:
 	S_GUID(const S_GUID & rS);
 	explicit S_GUID(const char * pStr);
 	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
+};
+//
+// Descr: Константы, идентифицирующие значения, ассоциированные со временем и датой
+// @v11.2.10 @construction
+//
+enum {
+	timeconstMONTHSHIFT      = 20,
+	timeconstDAYOFWEEKSHIFT  = 40,
+
+	timeconstYear        =  1,
+	timeconstMonth       =  2,
+	timeconstDayOfMonth  =  3,
+	timeconstDayOfWeek   =  4,
+	timeconstHour        =  5,
+	timeconstMinute      =  6,
+	timeconstSecond      =  7,
+	timeconstMillisecond =  8,
+	timeconstZoneOffset  =  9,
+	timeconstDstOffset   = 10,
+
+	timeconstMonthJan    = 1+timeconstMONTHSHIFT,
+	timeconstMonthFeb    = 2+timeconstMONTHSHIFT,
+	timeconstMonthMar    = 3+timeconstMONTHSHIFT,
+	timeconstMonthApr    = 4+timeconstMONTHSHIFT,
+	timeconstMonthMay    = 5+timeconstMONTHSHIFT,
+	timeconstMonthJun    = 6+timeconstMONTHSHIFT,
+	timeconstMonthJul    = 7+timeconstMONTHSHIFT,
+	timeconstMonthAug    = 8+timeconstMONTHSHIFT,
+	timeconstMonthSep    = 9+timeconstMONTHSHIFT,
+	timeconstMonthOct    = 10+timeconstMONTHSHIFT,
+	timeconstMonthNov    = 11+timeconstMONTHSHIFT,
+	timeconstMonthDec    = 12+timeconstMONTHSHIFT,
+
+	timeconstDowMon      = 1+timeconstDAYOFWEEKSHIFT,
+	timeconstDowTue      = 2+timeconstDAYOFWEEKSHIFT,
+	timeconstDowWed      = 3+timeconstDAYOFWEEKSHIFT,
+	timeconstDowThu      = 4+timeconstDAYOFWEEKSHIFT,
+	timeconstDowFri      = 5+timeconstDAYOFWEEKSHIFT,
+	timeconstDowSat      = 6+timeconstDAYOFWEEKSHIFT,
+	timeconstDowSun      = 7+timeconstDAYOFWEEKSHIFT,
 };
 //
 // Descr: Представление даты в формате MS-DOS.
@@ -6419,8 +6459,9 @@ public:
 		tagDocDeclaration  = 32,  // @v11.2.0 JSON-декларация документа, включенного с тегом tagRawData
 		tagSvcLoclAddendum = 33,  // @v11.2.3 Дополнительный идентификатор сервиса, определяющий локальный характер обслуживаемого запроса.
 			// Участвует в формировании символа очереди в случае MQB-обмена.
-		tagAssignedFaceRef = 34   // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
+		tagAssignedFaceRef = 34,  // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
 			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
+		tagErrorCode       = 35   // @v11.2.10 int32 Код ошибки (ответ)
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);

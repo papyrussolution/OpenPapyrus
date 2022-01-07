@@ -844,25 +844,18 @@ public:
 					default: return hb_blob_get_empty(); /* TODO: Support other image formats. */
 				}
 			}
-
-			bool has_data() const {
-				return cbdt.get_length();
-			}
-
+			bool has_data() const { return cbdt.get_length(); }
 private:
 			hb_blob_ptr_t<CBLC> cblc;
 			hb_blob_ptr_t<CBDT> cbdt;
-
 			uint upem;
 		};
 
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(c->check_struct(this) &&
-			    LIKELY(version.major == 2 || version.major == 3));
+			return_trace(c->check_struct(this) && LIKELY(version.major == 2 || version.major == 3));
 		}
-
 protected:
 		FixedVersion<>                version;
 		UnsizedArrayOf<HBUINT8>       dataZ;
@@ -873,16 +866,12 @@ public:
 	inline bool CBLC::subset(hb_subset_context_t * c) const
 	{
 		TRACE_SUBSET(this);
-
 		auto * cblc_prime = c->serializer->start_embed<CBLC> ();
-
 		// Use a vector as a secondary buffer as the tables need to be built in parallel.
 		hb_vector_t<char> cbdt_prime;
-
 		if(UNLIKELY(!cblc_prime)) return_trace(false);
 		if(UNLIKELY(!c->serializer->extend_min(cblc_prime))) return_trace(false);
 		cblc_prime->version = version;
-
 		hb_blob_t* cbdt_blob = hb_sanitize_context_t().reference_table<CBDT> (c->plan->source);
 		uint cbdt_length;
 		CBDT* cbdt = (CBDT*)hb_blob_get_data(cbdt_blob, &cbdt_length);
@@ -891,12 +880,9 @@ public:
 			return_trace(false);
 		}
 		_copy_data_to_cbdt(&cbdt_prime, cbdt, CBDT::min_size);
-
 		for(const BitmapSizeTable& table : +sizeTables.iter())
 			subset_size_table(c, table, (const char*)cbdt, cbdt_length, cblc_prime, &cbdt_prime);
-
 		hb_blob_destroy(cbdt_blob);
-
 		return_trace(CBLC::sink_cbdt(c, &cbdt_prime));
 	}
 

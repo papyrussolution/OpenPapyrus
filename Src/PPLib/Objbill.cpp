@@ -4076,8 +4076,7 @@ SString & PPObjBill::MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SStr
 	temp_buf.CatDiv(':', 1).Cat(pLotRec->OprNo);
 	rBuf.Space().Cat(temp_buf);
 	if(fmt & PPObjBill::ltfGoodsName) {
-		// @v9.5.5 GetGoodsName(pLotRec->GoodsID, temp_buf);
-		GObj.FetchNameR(pLotRec->GoodsID, temp_buf); // @v9.5.5
+		GObj.FetchNameR(pLotRec->GoodsID, temp_buf);
 		rBuf.CatDiv(':', 1).Cat(temp_buf);
 	}
 	if(fmt & PPObjBill::ltfLocName) {
@@ -4276,7 +4275,7 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			PPID   tax_grp_id = lot_rec.InTaxGrpID ? lot_rec.InTaxGrpID : goods_rec.TaxGrpID;
 			GTaxVect vect;
 			PPGoodsTaxEntry gt;
-			int    vat_free = IsLotVATFree(lot_rec);
+			const  bool vat_free = IsLotVATFree(lot_rec);
 			GObj.MultTaxFactor(goods_rec.ID, &tax_factor);
 			int    adj_vat = BIN(GObj.GTxObj.Fetch(tax_grp_id, lot_date, 0L, &gt) > 0);
 			// }
@@ -4303,7 +4302,7 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 							GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &pCard->OrgPrice, 1, vat_free);
 						}
 						long   amt_fl = ~GTAXVF_SALESTAX;
-						long   excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
+						long   excl_fl = vat_free ? GTAXVF_VAT : 0;
 						vect.Calc_(&gt, pCard->OrgCost, tax_factor, amt_fl, excl_fl);
 						pCard->OrgCost -= vect.GetValue(GTAXVF_VAT);
 						vect.Calc_(&gt, pCard->OrgPrice, tax_factor, amt_fl, excl_fl);
@@ -4325,7 +4324,7 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 						if(lot_rec.Flags & LOTF_COSTWOVAT)
 							GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &item.Price, 1, vat_free);
 						long   amt_fl = ~GTAXVF_SALESTAX;
-						long   excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
+						long   excl_fl = vat_free ? GTAXVF_VAT : 0;
 						vect.Calc_(&gt, item.Price, tax_factor, amt_fl, excl_fl);
 						item.Price -= vect.GetValue(GTAXVF_VAT);
 					}
@@ -4406,7 +4405,8 @@ int PPObjBill::GetShippedPartOfReceipt(PPID rcptBillID, const DateRange * pPerio
 int PPObjBill::CalcGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRange * pPeriod, long endOprNo, double * pSaldoQtty, double * pSaldoAmt)
 {
 	int    ok = 1;
-	double qt = 0.0, am = 0.0;
+	double qt = 0.0;
+	double am = 0.0;
 	DBQ  * t_dbq = 0;
 	PPFreight freight;
 	TransferTbl::Key3 tk3;

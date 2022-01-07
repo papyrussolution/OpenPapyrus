@@ -195,7 +195,7 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 		{
 			double tax_factor = 1.0;
 			PPID   tax_grp_id = lot_rec.InTaxGrpID;
-			int    vat_free = IsLotVATFree(lot_rec);
+			const  bool vat_free = IsLotVATFree(lot_rec);
 			if(tax_grp_id == 0) {
 				Goods2Tbl::Rec temp_goods_rec;
 				if(GObj.Fetch(goods_rec.ID, &temp_goods_rec) > 0)
@@ -215,7 +215,7 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 					GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &asset_rec.Price2, 1, vat_free);
 				}
 				long   amt_fl = ~GTAXVF_SALESTAX;
-				long   excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
+				long   excl_fl = vat_free ? GTAXVF_VAT : 0;
 				vect.Calc_(&gtx, start_cost, tax_factor, amt_fl, excl_fl);
 				start_cost -= vect.GetValue(GTAXVF_VAT);
 				vect.Calc_(&gtx, asset_rec.Cost, tax_factor, amt_fl, excl_fl);

@@ -184,13 +184,8 @@ public:
 	struct sbix {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_sbix;
 
-		bool has_data() const {
-			return version;
-		}
-
-		const SBIXStrike &get_strike(uint i) const {
-			return this+strikes[i];
-		}
+		bool has_data() const { return version; }
+		const SBIXStrike &get_strike(uint i) const { return this+strikes[i]; }
 
 		struct accelerator_t {
 			void init(hb_face_t * face)
@@ -198,37 +193,18 @@ public:
 				table = hb_sanitize_context_t().reference_table<sbix> (face);
 				num_glyphs = face->get_num_glyphs();
 			}
-
-			void fini() {
-				table.destroy();
-			}
-
-			bool has_data() const {
-				return table->has_data();
-			}
-
-			bool get_extents(hb_font_t * font,
-			    hb_codepoint_t glyph,
-			    hb_glyph_extents_t * extents) const
+			void fini() { table.destroy(); }
+			bool has_data() const { return table->has_data(); }
+			bool get_extents(hb_font_t * font, hb_codepoint_t glyph, hb_glyph_extents_t * extents) const
 			{
 				/* We only support PNG right now, and following function checks type. */
 				return get_png_extents(font, glyph, extents);
 			}
-
-			hb_blob_t * reference_png(hb_font_t * font,
-			    hb_codepoint_t glyph_id,
-			    int  * x_offset,
-			    int  * y_offset,
-			    uint * available_ppem) const
+			hb_blob_t * reference_png(hb_font_t * font, hb_codepoint_t glyph_id, int  * x_offset, int  * y_offset, uint * available_ppem) const
 			{
-				return choose_strike(font).get_glyph_blob(glyph_id, table.get_blob(),
-					   HB_TAG('p', 'n', 'g', ' '),
-					   x_offset, y_offset,
-					   num_glyphs, available_ppem);
+				return choose_strike(font).get_glyph_blob(glyph_id, table.get_blob(), HB_TAG('p', 'n', 'g', ' '), x_offset, y_offset, num_glyphs, available_ppem);
 			}
-
 private:
-
 			const SBIXStrike &choose_strike(hb_font_t * font) const
 			{
 				uint count = table->strikes.len;

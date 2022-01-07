@@ -357,27 +357,16 @@ public:
 			}
 			return true;
 		}
-
-		bool has_data() const {
-			return tupleVarCount;
-		}
-
+		bool has_data() const { return tupleVarCount; }
 protected:
 		struct TupleVarCount : HBUINT16 {
-			bool has_shared_point_numbers() const {
-				return ((*this) & SharedPointNumbers);
-			}
-
-			uint get_count() const {
-				return (*this) & CountMask;
-			}
-
+			bool has_shared_point_numbers() const { return ((*this) & SharedPointNumbers); }
+			uint get_count() const { return (*this) & CountMask; }
 protected:
 			enum Flags {
 				SharedPointNumbers = 0x8000u,
 				CountMask = 0x0FFFu
 			};
-
 public:
 			DEFINE_SIZE_STATIC(2);
 		};

@@ -4940,7 +4940,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 						if(ebid == lebid && code[0] != '\0' && qtty > 0)
 							THROW(AddEBLineToPacket(&b_pack, code, qtty, price, pLog));
 					} while(line_tbl.next());
-					b_pack.Rec.Flags2 |= BILLF2_BHT; // @v7.2.0
+					b_pack.Rec.Flags2 |= BILLF2_BHT;
 					THROW(r = p_bobj->__TurnPacket(&b_pack, 0, 1, 0));
 					if(r > 0 && pLog)
 						pLog->LogAcceptMsg(PPOBJ_BILL, b_pack.Rec.ID, 0);

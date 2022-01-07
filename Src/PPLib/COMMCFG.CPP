@@ -1,5 +1,5 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021
 // @codepage UTF-8
 //
 // Диалог редактирования общих параметров настройки
@@ -291,12 +291,10 @@ int EditCommConfig()
 int EditCurrConfig()
 {
 	int    ok = -1;
-	PPID   main_org_id = 0;
-	PPID   curr_loc = 0;
 	TDialog * dlg = new TDialog(DLG_CURRCFG);
 	if(CheckDialogPtrErr(&dlg)) {
-		GetMainOrgID(&main_org_id);
-		curr_loc = LConfig.Location;
+		PPID   main_org_id = GetMainOrgID();
+		PPID   curr_loc = LConfig.Location;
 		SetupPPObjCombo(dlg, CTLSEL_CURRCFG_MAINORG, PPOBJ_PERSON, main_org_id, 0, reinterpret_cast<void *>(PPPRK_MAIN));
 		SetupPPObjCombo(dlg, CTLSEL_CURRCFG_LOC, PPOBJ_LOCATION, curr_loc, 0);
 		if(ExecView(dlg) == cmOK) {

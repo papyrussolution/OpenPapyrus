@@ -45,27 +45,20 @@ namespace OT {
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this));
 		}
-
 public:
 		HBUINT32 ulCodePageRange1;
 		HBUINT32 ulCodePageRange2;
 public:
 		DEFINE_SIZE_STATIC(8);
 	};
-
 	struct OS2V2Tail {
-		bool has_data() const {
-			return sxHeight || sCapHeight;
-		}
-
+		bool has_data() const { return sxHeight || sCapHeight; }
 		const OS2V2Tail * operator->() const { return this; }
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this));
 		}
-
 public:
 		HBINT16 sxHeight;
 		HBINT16 sCapHeight;
@@ -92,39 +85,23 @@ public:
 			}
 			return false;
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
 			return_trace(c->check_struct(this));
 		}
-
 public:
 		HBUINT16 usLowerOpticalPointSize;
 		HBUINT16 usUpperOpticalPointSize;
 public:
 		DEFINE_SIZE_STATIC(4);
 	};
-
 	struct OS2 {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_OS2;
-
-		bool has_data() const {
-			return usWeightClass || usWidthClass || usFirstCharIndex || usLastCharIndex;
-		}
-
-		const OS2V1Tail &v1() const {
-			return version >= 1 ? v1X : Null(OS2V1Tail);
-		}
-
-		const OS2V2Tail &v2() const {
-			return version >= 2 ? v2X : Null(OS2V2Tail);
-		}
-
-		const OS2V5Tail &v5() const {
-			return version >= 5 ? v5X : Null(OS2V5Tail);
-		}
-
+		bool has_data() const { return usWeightClass || usWidthClass || usFirstCharIndex || usLastCharIndex; }
+		const OS2V1Tail &v1() const { return version >= 1 ? v1X : Null(OS2V1Tail); }
+		const OS2V2Tail &v2() const { return version >= 2 ? v2X : Null(OS2V2Tail); }
+		const OS2V5Tail &v5() const { return version >= 5 ? v5X : Null(OS2V5Tail); }
 		enum selection_flag_t {
 			ITALIC      = 1u<<0,
 			UNDERSCORE  = 1u<<1,
@@ -138,17 +115,9 @@ public:
 			OBLIQUE     = 1u<<9
 		};
 
-		bool        is_italic() const {
-			return fsSelection & ITALIC;
-		}
-
-		bool       is_oblique() const {
-			return fsSelection & OBLIQUE;
-		}
-
-		bool use_typo_metrics() const {
-			return fsSelection & USE_TYPO_METRICS;
-		}
+		bool is_italic() const { return fsSelection & ITALIC; }
+		bool is_oblique() const { return fsSelection & OBLIQUE; }
+		bool use_typo_metrics() const { return fsSelection & USE_TYPO_METRICS; }
 
 		enum width_class_t {
 			FWIDTH_ULTRA_CONDENSED      = 1,/* 50% */

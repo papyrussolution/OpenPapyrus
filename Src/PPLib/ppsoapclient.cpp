@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -11,16 +11,17 @@ static void FASTCALL _StripAndTransfToUtf8(SString & rS) { rS.Strip().Transf(CTR
 BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved, const char * pProductName)
 {
 	switch(dwReason) {
-		case DLL_PROCESS_ATTACH:
-			{
-				SString temp_buf;
-				temp_buf = pProductName;
-				SLS.Init(temp_buf, static_cast<HINSTANCE>(hModule));
-			}
+		case DLL_PROCESS_ATTACH: 
+			SLS.Init(SString(pProductName), static_cast<HINSTANCE>(hModule)); 
 			break;
-		case DLL_THREAD_ATTACH: SLS.InitThread(); break;
-		case DLL_THREAD_DETACH: SLS.ReleaseThread(); break;
-		case DLL_PROCESS_DETACH: break;
+		case DLL_THREAD_ATTACH: 
+			SLS.InitThread(); 
+			break;
+		case DLL_THREAD_DETACH: 
+			SLS.ReleaseThread(); 
+			break;
+		case DLL_PROCESS_DETACH: 
+			break;
 	}
 	return TRUE;
 }

@@ -3686,7 +3686,7 @@ table StyloQSec {
 	autolong ID;
 	long   Kind;             // 1 - native service (only record), 2 - foreign service, 3 - client, 4 - session, 5 - face
 		// 6 - kDocIncoming, 7 - kDocOutcominig
-	long   CorrespondID;     // ->StyloQSec.ID (для сессии - клиент или сервис, для клиента или сервиса - текущая сессия)
+	long   CorrespondID;     // ->StyloQSec.ID (для сессии - клиент или сервис, для клиента или сервиса - текущая сессия, для документа - эмитент (client || foreign_service))
 	raw    BI[20];           // Уникальный идентификатор стороны обмена, относительно данной инсталляции.
 		// Для сессии (4) - sha1(публичный идентификатор сессии контрагента). При этом CorrespondID указывает на запись контрагента.
 	datetime Expiration;     // (epoch time) Время истечения срока действия сессии. (for oneof3(Kind, 4, 6, 7))
@@ -3696,7 +3696,8 @@ table StyloQSec {
 	int64  TimeStamp;        // Временная метка записи.
 		// Для записей типа 1, 2, 3 значение равно 0 для обеспечения уникальности индекса {Kind, BI, TimeStamp}
 	long   Flags;            // @v11.2.7
-	raw    Reserve[100];     // @reserve @v11.2.7 [104]-->[100]
+	int64  Counter;          // @v11.2.10 Для записей вида kCounter
+	raw    Reserve[92];      // @reserve @v11.2.7 [104]-->[100] // @v11.2.10 [100]-->[92]
 	blob   VT[2048];
 index:
 	ID (unique);                                // #0

@@ -4712,77 +4712,77 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	Nam.Z();
 	Ext.Z();
 	if(pPath) {
+		SString temp_buf;
 		int    fname_as_dir_part = 0;
-		SString temp_buf(pPath);
-		temp_buf.Strip();
-		SStrScan scan(temp_buf);
 		const  char * p = 0;
 		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 Следующая проверка возможна только если в пути нет wildcard-символов
-			SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.0
-			fname_as_dir_part = IsDirectory((r_buf = pPath).RmvLastSlash());
+			fname_as_dir_part = IsDirectory((temp_buf = pPath).RmvLastSlash());
 		}
-		if(scan.Is("\\\\") || scan.Is("//")) {
-			Flags |= fUNC;
-			scan.Incr(2);
-			p = strpbrk(scan, "\\/");
-			scan.SetLen(p ? (p-scan) : sstrlen(scan));
-			scan.Get(Drv);
-			Flags |= fDrv;
-			scan.IncrLen();
-		}
-		else {
-			p = sstrchr(scan, ':');
-			if(p) {
-				scan.SetLen(p-scan);
+		{
+			SStrScan scan((temp_buf = pPath).Strip());
+			if(scan.Is("\\\\") || scan.Is("//")) {
+				Flags |= fUNC;
+				scan.Incr(2);
+				p = strpbrk(scan, "\\/");
+				scan.SetLen(p ? (p-scan) : sstrlen(scan));
 				scan.Get(Drv);
 				Flags |= fDrv;
 				scan.IncrLen();
-				scan.Incr(); // Пропускаем двоеточие
-			}
-		}
-		{
-			scan.Push();
-			const size_t start = scan.GetOffs();
-			while((p = strpbrk(scan, "\\/")) != 0) {
-				scan.Incr(p-scan+1);
-			}
-			scan.SetLen(scan.GetOffs() - start);
-			scan.Pop();
-		}
-		scan.Get(Dir);
-		if(Dir.Len())
-			Flags |= fDir;
-		scan.IncrLen();
-		//
-		//
-		//
-		{
-			scan.Push();
-			const size_t start = scan.GetOffs();
-			const char * p_last_dot = 0;
-			while((p = sstrchr(scan, '.')) != 0) {
-				p_last_dot = p;
-				scan.Incr(p-scan+1);
-			}
-			if(p_last_dot) {
-				Ext = p_last_dot + 1;
-				Flags |= fExt;
-				scan.SetLen(scan.GetOffs() - start - 1);
-				//scan.Offs = start;
-				scan.Pop();
-				scan.Get(Nam);
 			}
 			else {
-				Nam = scan;
+				p = sstrchr(scan, ':');
+				if(p) {
+					scan.SetLen(p-scan);
+					scan.Get(Drv);
+					Flags |= fDrv;
+					scan.IncrLen();
+					scan.Incr(); // Пропускаем двоеточие
+				}
+			}
+			{
+				scan.Push();
+				const size_t start = scan.GetOffs();
+				while((p = strpbrk(scan, "\\/")) != 0) {
+					scan.Incr(p-scan+1);
+				}
+				scan.SetLen(scan.GetOffs() - start);
 				scan.Pop();
 			}
+			scan.Get(Dir);
+			if(Dir.Len())
+				Flags |= fDir;
+			scan.IncrLen();
+			//
+			//
+			//
+			{
+				scan.Push();
+				const size_t start = scan.GetOffs();
+				const char * p_last_dot = 0;
+				while((p = sstrchr(scan, '.')) != 0) {
+					p_last_dot = p;
+					scan.Incr(p-scan+1);
+				}
+				if(p_last_dot) {
+					Ext = p_last_dot + 1;
+					Flags |= fExt;
+					scan.SetLen(scan.GetOffs() - start - 1);
+					//scan.Offs = start;
+					scan.Pop();
+					scan.Get(Nam);
+				}
+				else {
+					Nam = scan;
+					scan.Pop();
+				}
+			}
+			if(fname_as_dir_part) {
+				Dir.SetLastSlash().Cat(Nam);
+				Nam.Z();
+			}
+			if(Nam.Len())
+				Flags |= fNam;
 		}
-		if(fname_as_dir_part) {
-			Dir.SetLastSlash().Cat(Nam);
-			Nam.Z();
-		}
-		if(Nam.Len())
-			Flags |= fNam;
 	}
 }
 

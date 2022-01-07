@@ -57,32 +57,21 @@ void AAT::hb_aat_apply_context_t::set_ankr_table(const AAT::ankr * ankr_table_)
  * when moving to this file. */
 static const hb_aat_feature_mapping_t feature_mappings[] =
 {
-	{HB_TAG('a', 'f', 'r', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_FRACTIONS,               HB_AAT_LAYOUT_FEATURE_SELECTOR_VERTICAL_FRACTIONS,
+	{HB_TAG('a', 'f', 'r', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_FRACTIONS, HB_AAT_LAYOUT_FEATURE_SELECTOR_VERTICAL_FRACTIONS,
 	 HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_FRACTIONS},
-	{HB_TAG('c', '2', 'p', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_UPPER_CASE,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_UPPER_CASE_PETITE_CAPS,         HB_AAT_LAYOUT_FEATURE_SELECTOR_DEFAULT_UPPER_CASE},
-	{HB_TAG('c', '2', 's', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_UPPER_CASE,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_UPPER_CASE_SMALL_CAPS,          HB_AAT_LAYOUT_FEATURE_SELECTOR_DEFAULT_UPPER_CASE},
-	{HB_TAG('c', 'a', 'l', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_CONTEXTUAL_ALTERNATIVES,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_ALTERNATES_ON,
+	{HB_TAG('c', '2', 'p', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_UPPER_CASE, HB_AAT_LAYOUT_FEATURE_SELECTOR_UPPER_CASE_PETITE_CAPS,         HB_AAT_LAYOUT_FEATURE_SELECTOR_DEFAULT_UPPER_CASE},
+	{HB_TAG('c', '2', 's', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_UPPER_CASE, HB_AAT_LAYOUT_FEATURE_SELECTOR_UPPER_CASE_SMALL_CAPS,          HB_AAT_LAYOUT_FEATURE_SELECTOR_DEFAULT_UPPER_CASE},
+	{HB_TAG('c', 'a', 'l', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_CONTEXTUAL_ALTERNATIVES, HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_ALTERNATES_ON,
 	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_ALTERNATES_OFF},
-	{HB_TAG('c', 'a', 's', 'e'), HB_AAT_LAYOUT_FEATURE_TYPE_CASE_SENSITIVE_LAYOUT,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_LAYOUT_ON,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_LAYOUT_OFF},
-	{HB_TAG('c', 'l', 'i', 'g'), HB_AAT_LAYOUT_FEATURE_TYPE_LIGATURES,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_LIGATURES_ON,        HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_LIGATURES_OFF},
-	{HB_TAG('c', 'p', 's', 'p'), HB_AAT_LAYOUT_FEATURE_TYPE_CASE_SENSITIVE_LAYOUT,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_SPACING_ON,
+	{HB_TAG('c', 'a', 's', 'e'), HB_AAT_LAYOUT_FEATURE_TYPE_CASE_SENSITIVE_LAYOUT, HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_LAYOUT_ON, HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_LAYOUT_OFF},
+	{HB_TAG('c', 'l', 'i', 'g'), HB_AAT_LAYOUT_FEATURE_TYPE_LIGATURES, HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_LIGATURES_ON,        HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_LIGATURES_OFF},
+	{HB_TAG('c', 'p', 's', 'p'), HB_AAT_LAYOUT_FEATURE_TYPE_CASE_SENSITIVE_LAYOUT, HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_SPACING_ON,
 	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CASE_SENSITIVE_SPACING_OFF},
-	{HB_TAG('c', 's', 'w', 'h'), HB_AAT_LAYOUT_FEATURE_TYPE_CONTEXTUAL_ALTERNATIVES,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_SWASH_ALTERNATES_ON,
+	{HB_TAG('c', 's', 'w', 'h'), HB_AAT_LAYOUT_FEATURE_TYPE_CONTEXTUAL_ALTERNATIVES, HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_SWASH_ALTERNATES_ON,
 	 HB_AAT_LAYOUT_FEATURE_SELECTOR_CONTEXTUAL_SWASH_ALTERNATES_OFF},
-	{HB_TAG('d', 'l', 'i', 'g'), HB_AAT_LAYOUT_FEATURE_TYPE_LIGATURES,               HB_AAT_LAYOUT_FEATURE_SELECTOR_RARE_LIGATURES_ON,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_RARE_LIGATURES_OFF},
-	{HB_TAG('e', 'x', 'p', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_CHARACTER_SHAPE,         HB_AAT_LAYOUT_FEATURE_SELECTOR_EXPERT_CHARACTERS,
-	 (hb_aat_layout_feature_selector_t)16},
-	{HB_TAG('f', 'r', 'a', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_FRACTIONS,               HB_AAT_LAYOUT_FEATURE_SELECTOR_DIAGONAL_FRACTIONS,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_FRACTIONS},
+	{HB_TAG('d', 'l', 'i', 'g'), HB_AAT_LAYOUT_FEATURE_TYPE_LIGATURES, HB_AAT_LAYOUT_FEATURE_SELECTOR_RARE_LIGATURES_ON, HB_AAT_LAYOUT_FEATURE_SELECTOR_RARE_LIGATURES_OFF},
+	{HB_TAG('e', 'x', 'p', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_CHARACTER_SHAPE, HB_AAT_LAYOUT_FEATURE_SELECTOR_EXPERT_CHARACTERS, (hb_aat_layout_feature_selector_t)16},
+	{HB_TAG('f', 'r', 'a', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_FRACTIONS, HB_AAT_LAYOUT_FEATURE_SELECTOR_DIAGONAL_FRACTIONS, HB_AAT_LAYOUT_FEATURE_SELECTOR_NO_FRACTIONS},
 	{HB_TAG('f', 'w', 'i', 'd'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING,            HB_AAT_LAYOUT_FEATURE_SELECTOR_MONOSPACED_TEXT,
 	 (hb_aat_layout_feature_selector_t)7},
 	{HB_TAG('h', 'a', 'l', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING,            HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_HALF_WIDTH_TEXT,
@@ -202,26 +191,18 @@ static const hb_aat_feature_mapping_t feature_mappings[] =
 	 (hb_aat_layout_feature_selector_t)4},
 	{HB_TAG('t', 'r', 'a', 'd'), HB_AAT_LAYOUT_FEATURE_TYPE_CHARACTER_SHAPE,
 	 HB_AAT_LAYOUT_FEATURE_SELECTOR_TRADITIONAL_CHARACTERS,         (hb_aat_layout_feature_selector_t)16},
-	{HB_TAG('t', 'w', 'i', 'd'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING,            HB_AAT_LAYOUT_FEATURE_SELECTOR_THIRD_WIDTH_TEXT,
+	{HB_TAG('t', 'w', 'i', 'd'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING, HB_AAT_LAYOUT_FEATURE_SELECTOR_THIRD_WIDTH_TEXT,
 	 (hb_aat_layout_feature_selector_t)7},
-	{HB_TAG('u', 'n', 'i', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_LETTER_CASE,             (hb_aat_layout_feature_selector_t)14,
+	{HB_TAG('u', 'n', 'i', 'c'), HB_AAT_LAYOUT_FEATURE_TYPE_LETTER_CASE, (hb_aat_layout_feature_selector_t)14,
 	 (hb_aat_layout_feature_selector_t)15},
-	{HB_TAG('v', 'a', 'l', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_PROPORTIONAL_TEXT,          (hb_aat_layout_feature_selector_t)7},
-	{HB_TAG('v', 'e', 'r', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_VERTICAL_SUBSTITUTION,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_ON,
+	{HB_TAG('v', 'a', 'l', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING, HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_PROPORTIONAL_TEXT,          (hb_aat_layout_feature_selector_t)7},
+	{HB_TAG('v', 'e', 'r', 't'), HB_AAT_LAYOUT_FEATURE_TYPE_VERTICAL_SUBSTITUTION, HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_ON,
 	 HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_OFF},
-	{HB_TAG('v', 'h', 'a', 'l'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING,            HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_HALF_WIDTH_TEXT,
-	 (hb_aat_layout_feature_selector_t)7},
-	{HB_TAG('v', 'k', 'n', 'a'), HB_AAT_LAYOUT_FEATURE_TYPE_ALTERNATE_KANA,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_ALTERNATE_VERT_KANA_ON,         HB_AAT_LAYOUT_FEATURE_SELECTOR_ALTERNATE_VERT_KANA_OFF},
-	{HB_TAG('v', 'p', 'a', 'l'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_PROPORTIONAL_TEXT,          (hb_aat_layout_feature_selector_t)7},
-	{HB_TAG('v', 'r', 't', '2'), HB_AAT_LAYOUT_FEATURE_TYPE_VERTICAL_SUBSTITUTION,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_ON,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_OFF},
-	{HB_TAG('z', 'e', 'r', 'o'), HB_AAT_LAYOUT_FEATURE_TYPE_TYPOGRAPHIC_EXTRAS,      HB_AAT_LAYOUT_FEATURE_SELECTOR_SLASHED_ZERO_ON,
-	 HB_AAT_LAYOUT_FEATURE_SELECTOR_SLASHED_ZERO_OFF},
+	{HB_TAG('v', 'h', 'a', 'l'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING, HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_HALF_WIDTH_TEXT, (hb_aat_layout_feature_selector_t)7},
+	{HB_TAG('v', 'k', 'n', 'a'), HB_AAT_LAYOUT_FEATURE_TYPE_ALTERNATE_KANA, HB_AAT_LAYOUT_FEATURE_SELECTOR_ALTERNATE_VERT_KANA_ON, HB_AAT_LAYOUT_FEATURE_SELECTOR_ALTERNATE_VERT_KANA_OFF},
+	{HB_TAG('v', 'p', 'a', 'l'), HB_AAT_LAYOUT_FEATURE_TYPE_TEXT_SPACING, HB_AAT_LAYOUT_FEATURE_SELECTOR_ALT_PROPORTIONAL_TEXT,          (hb_aat_layout_feature_selector_t)7},
+	{HB_TAG('v', 'r', 't', '2'), HB_AAT_LAYOUT_FEATURE_TYPE_VERTICAL_SUBSTITUTION, HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_ON, HB_AAT_LAYOUT_FEATURE_SELECTOR_SUBSTITUTE_VERTICAL_FORMS_OFF},
+	{HB_TAG('z', 'e', 'r', 'o'), HB_AAT_LAYOUT_FEATURE_TYPE_TYPOGRAPHIC_EXTRAS,      HB_AAT_LAYOUT_FEATURE_SELECTOR_SLASHED_ZERO_ON, HB_AAT_LAYOUT_FEATURE_SELECTOR_SLASHED_ZERO_OFF},
 };
 
 const hb_aat_feature_mapping_t * hb_aat_layout_find_feature_mapping(hb_tag_t tag)
@@ -237,15 +218,13 @@ const hb_aat_feature_mapping_t * hb_aat_layout_find_feature_mapping(hb_tag_t tag
  * mort/morx/kerx/trak
  */
 
-void hb_aat_layout_compile_map(const hb_aat_map_builder_t * mapper,
-    hb_aat_map_t * map)
+void hb_aat_layout_compile_map(const hb_aat_map_builder_t * mapper, hb_aat_map_t * map)
 {
 	const AAT::morx& morx = *mapper->face->table.morx;
 	if(morx.has_data()) {
 		morx.compile_flags(mapper, map);
 		return;
 	}
-
 	const AAT::mort& mort = *mapper->face->table.mort;
 	if(mort.has_data()) {
 		mort.compile_flags(mapper, map);
@@ -262,13 +241,10 @@ void hb_aat_layout_compile_map(const hb_aat_map_builder_t * mapper,
  */
 hb_bool_t hb_aat_layout_has_substitution(hb_face_t * face)
 {
-	return face->table.morx->has_data() ||
-	       face->table.mort->has_data();
+	return face->table.morx->has_data() || face->table.mort->has_data();
 }
 
-void hb_aat_layout_substitute(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font,
-    hb_buffer_t * buffer)
+void hb_aat_layout_substitute(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer)
 {
 	hb_blob_t * morx_blob = font->face->table.morx.get_blob();
 	const AAT::morx& morx = *morx_blob->as<AAT::morx> ();
@@ -277,7 +253,6 @@ void hb_aat_layout_substitute(const hb_ot_shape_plan_t * plan,
 		morx.apply(&c);
 		return;
 	}
-
 	hb_blob_t * mort_blob = font->face->table.mort.get_blob();
 	const AAT::mort& mort = *mort_blob->as<AAT::mort> ();
 	if(mort.has_data()) {
@@ -289,7 +264,7 @@ void hb_aat_layout_substitute(const hb_ot_shape_plan_t * plan,
 
 void hb_aat_layout_zero_width_deleted_glyphs(hb_buffer_t * buffer)
 {
-	uint count = buffer->len;
+	const uint count = buffer->len;
 	hb_glyph_info_t * info = buffer->info;
 	hb_glyph_position_t * pos = buffer->pos;
 	for(uint i = 0; i < count; i++)
@@ -319,13 +294,10 @@ hb_bool_t hb_aat_layout_has_positioning(hb_face_t * face)
 	return face->table.kerx->has_data();
 }
 
-void hb_aat_layout_position(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font,
-    hb_buffer_t * buffer)
+void hb_aat_layout_position(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer)
 {
 	hb_blob_t * kerx_blob = font->face->table.kerx.get_blob();
 	const AAT::kerx& kerx = *kerx_blob->as<AAT::kerx> ();
-
 	AAT::hb_aat_apply_context_t c(plan, font, buffer, kerx_blob);
 	c.set_ankr_table(font->face->table.ankr.get());
 	kerx.apply(&c);
@@ -343,12 +315,9 @@ hb_bool_t hb_aat_layout_has_tracking(hb_face_t * face)
 	return face->table.trak->has_data();
 }
 
-void hb_aat_layout_track(const hb_ot_shape_plan_t * plan,
-    hb_font_t * font,
-    hb_buffer_t * buffer)
+void hb_aat_layout_track(const hb_ot_shape_plan_t * plan, hb_font_t * font, hb_buffer_t * buffer)
 {
 	const AAT::trak& trak = *font->face->table.trak;
-
 	AAT::hb_aat_apply_context_t c(plan, font, buffer);
 	trak.apply(&c);
 }
@@ -364,14 +333,10 @@ void hb_aat_layout_track(const hb_ot_shape_plan_t * plan,
  *
  * Since: 2.2.0
  */
-uint hb_aat_layout_get_feature_types(hb_face_t * face,
-    uint start_offset,
-    uint * feature_count,                             /*IN/OUT May be NULL*/
-    hb_aat_layout_feature_type_t * features /*OUT May be NULL*/)
+uint hb_aat_layout_get_feature_types(hb_face_t * face, uint start_offset, uint * feature_count/*IN/OUT May be NULL*/, hb_aat_layout_feature_type_t * features /*OUT May be NULL*/)
 {
 	return face->table.feat->get_feature_types(start_offset, feature_count, features);
 }
-
 /**
  * hb_aat_layout_feature_type_get_name_id:
  * @face: a face object
@@ -381,8 +346,7 @@ uint hb_aat_layout_get_feature_types(hb_face_t * face,
  *
  * Since: 2.2.0
  */
-hb_ot_name_id_t hb_aat_layout_feature_type_get_name_id(hb_face_t * face,
-    hb_aat_layout_feature_type_t feature_type)
+hb_ot_name_id_t hb_aat_layout_feature_type_get_name_id(hb_face_t * face, hb_aat_layout_feature_type_t feature_type)
 {
 	return face->table.feat->get_feature_name_id(feature_type);
 }
@@ -404,13 +368,9 @@ hb_ot_name_id_t hb_aat_layout_feature_type_get_name_id(hb_face_t * face,
  *
  * Since: 2.2.0
  */
-uint hb_aat_layout_feature_type_get_selector_infos(hb_face_t * face,
-    hb_aat_layout_feature_type_t feature_type,
-    uint start_offset,
-    uint  * selector_count,                                           /*IN/OUT  May be
-                                                                                                         NULL. */
-    hb_aat_layout_feature_selector_info_t * selectors,                                                /*OUT     May be
-                                                                                                         NULL. */
+uint hb_aat_layout_feature_type_get_selector_infos(hb_face_t * face, hb_aat_layout_feature_type_t feature_type, uint start_offset,
+    uint  * selector_count, /*IN/OUT  May be NULL. */
+    hb_aat_layout_feature_selector_info_t * selectors, /*OUT     May be NULL. */
     uint  * default_index /*OUT May be NULL*/)
 {
 	return face->table.feat->get_selector_infos(feature_type, start_offset, selector_count, selectors, default_index);

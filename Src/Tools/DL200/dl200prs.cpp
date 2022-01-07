@@ -1053,11 +1053,10 @@ int	PrcssrDL200::FillHeader()
 	uint   i;
 	char * p_buf = static_cast<char *>(P_HdrTbl->getDataBuf());
 	_DL200_OutpHdr * p_hdr_buf = reinterpret_cast<_DL200_OutpHdr *>(p_buf);
-	PPID   main_org_id = 0;
 	SString temp_buf;
 	PPObjPerson psn_obj;
 	PersonReq pr;
-	GetMainOrgID(&main_org_id);
+	const  PPID main_org_id = GetMainOrgID();
 	psn_obj.GetPersonReq(main_org_id, &pr);
 	STRNSCPY(p_hdr_buf->Title, D.Name);
 	p_hdr_buf->MainOrgID = main_org_id;

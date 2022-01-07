@@ -418,9 +418,8 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_
 	SBuffer sbuf_def; // буфер для соглашения по умолчанию
 	THROW(r = p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT2, sbuf));
 	if(r < 0 && id) {
-		PPID   mainorg_id = 0;
 		PPID   mainorg_arid = 0;
-		GetMainOrgID(&mainorg_id);
+		PPID   mainorg_id = GetMainOrgID();
 		P_Tbl->PersonToArticle(mainorg_id, GetSellAccSheet(), &mainorg_arid);
 		if(id != mainorg_arid && ObjRelTyp.Fetch(PPPSNRELTYP_AFFIL, &rt_pack) > 0 && (rt_pack.Rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) {
 			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0 && rel_list.getCount() && rel_list.lsearch(mainorg_arid) > 0) {
@@ -487,9 +486,9 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 	// @v10.6.4 MEMSZERO(prop_rec);
 	THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
 	if(r < 0 && id) {
-		PPID   mainorg_id = 0, mainorg_arid = 0;
+		PPID   mainorg_arid = 0;
 		//PPPersonRelType relt_rec;
-		GetMainOrgID(&mainorg_id);
+		PPID   mainorg_id = GetMainOrgID();
 		P_Tbl->PersonToArticle(mainorg_id, GetSellAccSheet(), &mainorg_arid);
 		// @v8.2.2 if(id != mainorg_arid && ObjRelTyp.Search(PPPSNRELTYP_AFFIL, &relt_rec) > 0 && (relt_rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) {
 		if(id != mainorg_arid && ObjRelTyp.Fetch(PPPSNRELTYP_AFFIL, &rt_pack) > 0 && (rt_pack.Rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) { // @v8.2.2

@@ -3672,7 +3672,6 @@ int PPBillImporter::DoFullEdiProcess()
 	PPEdiProcessor::ProviderImplementation * p_prvimp = 0;
 	SString temp_buf;
 	SString msg_buf;
-	PPID   main_org_id = 0;
 	ObjIdListFilt suppl_list;
 	ObjIdListFilt cli_list;
 	PPIDArray temp_id_list;
@@ -3684,8 +3683,8 @@ int PPBillImporter::DoFullEdiProcess()
 	PPBillIterchangeFilt be_filt;
 	be_filt.LocID = this->LocID;
 	be_filt.Period = this->Period;
-	GetMainOrgID(&main_org_id);
-	long ediprvimp_ctr_flags = 0;
+	PPID   main_org_id = GetMainOrgID();
+	long   ediprvimp_ctr_flags = 0;
 	if(Flags & fTestMode)
 		ediprvimp_ctr_flags |= PPEdiProcessor::ProviderImplementation::ctrfTestMode;
 	for(SEnum en = ediprv_obj.Enum(0); en.Next(&ediprv_rec) > 0;) {
@@ -3965,8 +3964,7 @@ int PPBillImporter::Run()
 		}
 		if(BillParam.ImpOpID && GetOpData(BillParam.ImpOpID, &op_rec) > 0) {
 			const PPID  contragent_acs_id = op_rec.AccSheetID;
-			PPID   main_org_id = 0;
-			GetMainOrgID(&main_org_id);
+			const PPID  main_org_id = GetMainOrgID();
 			if(!contragent_acs_id) {
 
 			}
@@ -5047,7 +5045,7 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 			temp_buf.CopyTo(pBill->AgentINN, sizeof(pBill->AgentINN));
 			GetReg(pPack->Ext.AgentID, PPREGT_GLN, temp_buf);
 			temp_buf.CopyTo(pBill->AgentGLN, sizeof(pBill->AgentGLN));
-			pBill->AgentPersonID = ObjectToPerson(pPack->Ext.AgentID, 0); // @v9.8.7
+			pBill->AgentPersonID = ObjectToPerson(pPack->Ext.AgentID, 0);
 		}
 		{
 			PPID   main_org_id = 0;
@@ -5633,8 +5631,7 @@ int DocNalogRu_Generator::Underwriter(PPID psnID)
 	SString inn;
 	SString temp_buf;
 	PersonTbl::Rec psn_rec;
-	PPID   main_org_id = 0;
-	GetMainOrgID(&main_org_id);
+	const  PPID main_org_id = GetMainOrgID();
 	if(main_org_id && PsnObj.Search(main_org_id, &psn_rec) > 0) {
 		RegisterTbl::Rec reg_rec;
 		if(PsnObj.GetRegister(main_org_id, PPREGT_TPID, getcurdate_(), &reg_rec) > 0) {
@@ -5747,6 +5744,40 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 		}
 	}
 	return ok;
+}
+
+//int WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWriter * pWriter)
+int DocNalogRu_Generator::WriteOrgInfo_VatLedger(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
+{
+	int    ok = -1;
+	assert(!isempty(pScopeXmlTag));
+    if(P_X && personID && !isempty(pScopeXmlTag)) {
+		PersonTbl::Rec psn_rec;
+    	if(PsnObj.Fetch(personID, &psn_rec) > 0) {
+			SString inn, kpp;
+			PsnObj.GetRegNumber(personID, PPREGT_TPID, inn);
+			inn.Strip();
+			PsnObj.GetRegNumber(personID, PPREGT_KPP, kpp);
+			kpp.Strip();
+			{
+				SXml::WNode n__(P_X, pScopeXmlTag);
+				if(inn.Len() == 12) {
+					SXml::WNode n(P_X, GetToken_Ansi(PPHSC_RU_PERSONINFO_PHS)/*"—‚Â‰»œ"*/);
+					//n.PutAttrib("»ÕÕ‘À", inn); // @todo PPHSC_RU_INNPHS
+					n.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
+				}
+				else if(inn.Len() == 10) {
+					SXml::WNode n(P_X, GetToken_Ansi(PPHSC_RU_PERSONINFO_JUR)/*"—‚Â‰ﬁÀ"*/);
+					//n.PutAttrib("»ÕÕﬁÀ", inn);
+					n.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), inn);
+					//n.PutAttrib(" œœ", kpp);
+					n.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_KPP), kpp);
+				}
+				ok = 1;
+			}
+    	}
+    }
+    return ok;
 }
 
 int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
@@ -5868,10 +5899,8 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 		PPOprKind op_rec;
 		PPOprKind link_op_rec;
 		SString temp_buf;
-
-		PPID   main_org_id = 0; // PPOBJ_PERSON
 		PPID   dto_id = 0; // PPOBJ_PERSON
-		GetMainOrgID(&main_org_id);
+		PPID   main_org_id = GetMainOrgID(); // PPOBJ_PERSON
 		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
 		DocNalogRu_Generator::FileInfo _hi;
 		THROW(g.CreateHeaderInfo("DP_REZRUISP", main_org_id, contragent_id, dto_id, rFileName, _hi));

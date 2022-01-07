@@ -976,8 +976,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 	GtinStruc gts;
 	PPObjPerson psn_obj;
 	PPObjGoods goods_obj;
-	PPID   main_org_id = 0;
-	GetMainOrgID(&main_org_id);
+	PPID   main_org_id = GetMainOrgID();
 	if(pPack->DocType == doctGisMt_LkReceipt) {
 		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 		if(p_bp) {

@@ -896,25 +896,18 @@ skip:
 
 				st = &StructAfter<SubTable> (*st);
 			}
-
 			return_trace(true);
 		}
 	};
 
 	struct kerx : KerxTable<kerx> {
 		friend struct KerxTable<kerx>;
-
 		static constexpr hb_tag_t tableTag = HB_AAT_TAG_kerx;
 		static constexpr unsigned minVersion = 2u;
-
 		typedef KerxSubTableHeader SubTableHeader;
 		typedef SubTableHeader::Types Types;
 		typedef KerxSubTable SubTable;
-
-		bool has_data() const {
-			return version;
-		}
-
+		bool has_data() const { return version; }
 protected:
 		HBUINT16 version; /* The version number of the extended kerning table
 		 * (currently 2, 3, or 4). */

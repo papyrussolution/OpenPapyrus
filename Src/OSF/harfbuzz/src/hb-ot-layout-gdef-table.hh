@@ -509,91 +509,38 @@ public:
 			ComponentGlyph      = 4
 		};
 
-		bool has_data() const {
-			return version.to_int();
-		}
-
-		bool has_glyph_classes() const {
-			return glyphClassDef != 0;
-		}
-
-		uint get_glyph_class(hb_codepoint_t glyph) const
-		{
-			return (this+glyphClassDef).get_class(glyph);
-		}
-
-		void get_glyphs_in_class(uint klass, hb_set_t * glyphs) const
-		{
-			(this+glyphClassDef).collect_class(glyphs, klass);
-		}
-
-		bool has_mark_attachment_types() const {
-			return markAttachClassDef != 0;
-		}
-
-		uint get_mark_attachment_type(hb_codepoint_t glyph) const
-		{
-			return (this+markAttachClassDef).get_class(glyph);
-		}
-
-		bool has_attach_points() const {
-			return attachList != 0;
-		}
-
-		uint get_attach_points(hb_codepoint_t glyph_id,
-		    uint start_offset,
-		    uint * point_count /* IN/OUT */,
-		    uint * point_array /*OUT*/) const
+		bool has_data() const { return version.to_int(); }
+		bool has_glyph_classes() const { return glyphClassDef != 0; }
+		uint get_glyph_class(hb_codepoint_t glyph) const { return (this+glyphClassDef).get_class(glyph); }
+		void get_glyphs_in_class(uint klass, hb_set_t * glyphs) const { (this+glyphClassDef).collect_class(glyphs, klass); }
+		bool has_mark_attachment_types() const { return markAttachClassDef != 0; }
+		uint get_mark_attachment_type(hb_codepoint_t glyph) const { return (this+markAttachClassDef).get_class(glyph); }
+		bool has_attach_points() const { return attachList != 0; }
+		uint get_attach_points(hb_codepoint_t glyph_id, uint start_offset, uint * point_count /* IN/OUT */, uint * point_array /*OUT*/) const
 		{
 			return (this+attachList).get_attach_points(glyph_id, start_offset, point_count, point_array);
 		}
-
-		bool has_lig_carets() const {
-			return ligCaretList != 0;
-		}
-
-		uint get_lig_carets(hb_font_t * font,
-		    hb_direction_t direction,
-		    hb_codepoint_t glyph_id,
-		    uint start_offset,
-		    uint * caret_count /* IN/OUT */,
-		    hb_position_t * caret_array /*OUT*/) const
+		bool has_lig_carets() const { return ligCaretList != 0; }
+		uint get_lig_carets(hb_font_t * font, hb_direction_t direction, hb_codepoint_t glyph_id, uint start_offset, uint * caret_count /* IN/OUT */, hb_position_t * caret_array /*OUT*/) const
 		{
-			return (this+ligCaretList).get_lig_carets(font,
-				   direction, glyph_id, get_var_store(),
-				   start_offset, caret_count, caret_array);
+			return (this+ligCaretList).get_lig_carets(font, direction, glyph_id, get_var_store(), start_offset, caret_count, caret_array);
 		}
-
-		bool has_mark_sets() const {
-			return version.to_int() >= 0x00010002u && markGlyphSetsDef != 0;
-		}
-
+		bool has_mark_sets() const { return version.to_int() >= 0x00010002u && markGlyphSetsDef != 0; }
 		bool mark_set_covers(uint set_index, hb_codepoint_t glyph_id) const
 		{
 			return version.to_int() >= 0x00010002u && (this+markGlyphSetsDef).covers(set_index, glyph_id);
 		}
-
-		bool has_var_store() const {
-			return version.to_int() >= 0x00010003u && varStore != 0;
-		}
-
-		const VariationStore &get_var_store() const
-		{
-			return version.to_int() >= 0x00010003u ? this+varStore : Null(VariationStore);
-		}
-
+		bool has_var_store() const { return version.to_int() >= 0x00010003u && varStore != 0; }
+		const VariationStore &get_var_store() const { return version.to_int() >= 0x00010003u ? this+varStore : Null(VariationStore); }
 		/* glyph_props is a 16-bit integer where the lower 8-bit have bits representing
 		 * glyph class and other bits, and high 8-bit the mark attachment type (if any).
 		 * Not to be confused with lookup_props which is very similar. */
 		uint get_glyph_props(hb_codepoint_t glyph) const
 		{
 			uint klass = get_glyph_class(glyph);
-
-			static_assert(((uint)HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH == (uint)LookupFlag::IgnoreBaseGlyphs),
-			    "");
+			static_assert(((uint)HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH == (uint)LookupFlag::IgnoreBaseGlyphs), "");
 			static_assert(((uint)HB_OT_LAYOUT_GLYPH_PROPS_LIGATURE == (uint)LookupFlag::IgnoreLigatures), "");
 			static_assert(((uint)HB_OT_LAYOUT_GLYPH_PROPS_MARK == (uint)LookupFlag::IgnoreMarks), "");
-
 			switch(klass) {
 				default:                    return 0;
 				case BaseGlyph:             return HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH;
@@ -603,9 +550,7 @@ public:
 				    return HB_OT_LAYOUT_GLYPH_PROPS_MARK | (klass << 8);
 			}
 		}
-
-		HB_INTERNAL bool is_blocklisted(hb_blob_t * blob,
-		    hb_face_t * face) const;
+		HB_INTERNAL bool is_blocklisted(hb_blob_t * blob, hb_face_t * face) const;
 
 		struct accelerator_t {
 			void init(hb_face_t * face)
@@ -616,28 +561,21 @@ public:
 					this->table = hb_blob_get_empty();
 				}
 			}
-
-			void fini() {
+			void fini() 
+			{
 				this->table.destroy();
 			}
-
 			hb_blob_ptr_t<GDEF> table;
 		};
-
 		uint get_size() const
 		{
-			return min_size +
-			       (version.to_int() >= 0x00010002u ? markGlyphSetsDef.static_size : 0) +
-			       (version.to_int() >= 0x00010003u ? varStore.static_size : 0);
+			return min_size + (version.to_int() >= 0x00010002u ? markGlyphSetsDef.static_size : 0) + (version.to_int() >= 0x00010003u ? varStore.static_size : 0);
 		}
-
 		void collect_variation_indices(hb_collect_variation_indices_context_t * c) const
 		{
 			(this+ligCaretList).collect_variation_indices(c);
 		}
-
-		void remap_layout_variation_indices(const hb_set_t * layout_variation_indices,
-		    hb_map_t * layout_variation_idx_map /*OUT*/) const
+		void remap_layout_variation_indices(const hb_set_t * layout_variation_indices, hb_map_t * layout_variation_idx_map /*OUT*/) const
 		{
 			if(version.to_int() < 0x00010003u || !varStore) return;
 			if(layout_variation_indices->is_empty()) return;

@@ -156,31 +156,18 @@ public:
 
 	struct fvar {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_fvar;
-
-		bool has_data() const {
-			return version.to_int();
-		}
-
+		bool has_data() const { return version.to_int(); }
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(version.sanitize(c) &&
-			    LIKELY(version.major == 1) &&
-			    c->check_struct(this) &&
+			return_trace(version.sanitize(c) && LIKELY(version.major == 1) && c->check_struct(this) &&
 			    axisSize == 20 && /* Assumed in our code. */
-			    instanceSize >= axisCount * 4 + 4 &&
-			    get_axes().sanitize(c) &&
+			    instanceSize >= axisCount * 4 + 4 && get_axes().sanitize(c) &&
 			    c->check_range(get_instance(0), instanceCount, instanceSize));
 		}
-
-		uint get_axis_count() const {
-			return axisCount;
-		}
-
+		uint get_axis_count() const { return axisCount; }
 #ifndef HB_DISABLE_DEPRECATED
-		uint get_axes_deprecated(uint start_offset,
-		    uint * axes_count /* IN/OUT */,
-		    hb_ot_var_axis_t * axes_array /*OUT*/) const
+		uint get_axes_deprecated(uint start_offset, uint * axes_count /* IN/OUT */, hb_ot_var_axis_t * axes_array /*OUT*/) const
 		{
 			if(axes_count) {
 				hb_array_t<const AxisRecord> arr = get_axes().sub_array(start_offset, axes_count);

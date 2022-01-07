@@ -570,9 +570,7 @@ int PPViewAlcoDeclRu::Diagnose()
 	RegisterTbl::Rec reg_rec;
 	STokenRecognizer tr;
 	SNaturalTokenArray nta;
-	PPID   main_org_id = Filt.MainOrgID;
-	if(!main_org_id)
-		GetMainOrgID(&main_org_id);
+	PPID   main_org_id = NZOR(Filt.MainOrgID, GetMainOrgID());
 	if(Arp.PsnObj.Search(main_org_id, &psn_rec) > 0) {
 					
 	}
@@ -684,9 +682,7 @@ public:
 		SetPeriodInput(this, CTL_ALCODECL_PERIOD, &Data.Period);
 		SetupPersonCombo(this, CTLSEL_ALCODECL_MAINORG, Data.MainOrgID, 0, PPPRK_MAIN, 1);
 		{
-			PPID   main_org_id = Data.MainOrgID;
-			if(!main_org_id)
-				GetMainOrgID(&main_org_id);
+			const PPID main_org_id = NZOR(Data.MainOrgID, GetMainOrgID());
 			LocationCtrlGroup::Rec l_rec(&Data.DivList, 0, main_org_id);
 			setGroupData(ctlgroupLoc, &l_rec);
 		}
@@ -1227,14 +1223,12 @@ int PPViewAlcoDeclRu::Export()
 	LongArray alco_code_id_list;
 	DocNalogRu_Generator g;
 	RegisterTbl::Rec reg_rec;
-	PPID   main_org_id = Filt.MainOrgID;
 	int    main_org_region_code = 0;
 	SString main_org_name;
 	SString main_org_inn;
 	SString main_org_kpp;
 	const PrcssrAlcReport::Config & r_cfg = Arp.GetConfig();
-	if(!main_org_id)
-		GetMainOrgID(&main_org_id);
+	PPID   main_org_id = NZOR(Filt.MainOrgID, GetMainOrgID());
 	THROW_PP(Arp.PsnObj.Search(main_org_id, &main_org_psn_rec) > 0, PPERR_UNDEFMAINORG);
 	main_org_name = main_org_psn_rec.Name;
 	if(Arp.PsnObj.GetRegNumber(main_org_id, PPREGT_TPID, Filt.Period.low, temp_buf) > 0) {

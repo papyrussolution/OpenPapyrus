@@ -47,6 +47,7 @@ int RunNginxWorker()
 // Content handler.
 // 
 extern ngx_module_t ngx_http_papyrus_test_module;
+ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r); // @sobolev
 
 struct NgxModule_Papyrus {
 	struct Config {
@@ -113,8 +114,7 @@ struct NgxModule_Papyrus {
 	//
 	static void /*ngx_http_foo_init*/HttpContentInit(ngx_http_request_t * pReq)
 	{
-		/*
-		if(!pReq->request_body) {
+		/*if(!pReq->request_body) {
 			ngx_http_finalize_request(pReq, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		}
 		else {
@@ -148,8 +148,7 @@ struct NgxModule_Papyrus {
 					}
 				}
 			}
-		}
-		*/
+		}*/
 	}
 	static ngx_int_t HttpHandler(ngx_http_request_t * pReq)
 	{
@@ -166,28 +165,63 @@ struct NgxModule_Papyrus {
 			//pReq->headers_out.override_charset->len = sizeof("utf-8") - 1;
 			//pReq->headers_out.override_charset->data = (u_char *)"utf-8";
 		}
-		int rc = ngx_http_read_client_request_body(pReq, HttpContentInit);
-		if(0) {
-			// Allocate a new buffer for sending out the reply. 
-			ngx_buf_t * b = static_cast<ngx_buf_t *>(ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t)));
-			// Insertion in the buffer chain. 
-			ngx_chain_t out(b, 0/*just one buffer*/);
-			b->pos = ngx_papyrus_test; /* first position in memory of the data */
-			b->last = ngx_papyrus_test + sizeof(ngx_papyrus_test) - 1; /* last position in memory of the data */
-			b->memory = 1; // content is in read-only memory 
-			b->last_buf = 1; // there will be no more buffers in the request 
-			// Sending the headers for the reply. 
-			pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
-			// Get the content length of the body. 
-			pReq->headers_out.content_length_n = sizeof(ngx_papyrus_test) - 1;
-			ngx_http_send_header(pReq); // Send the headers 
-			// Send the body, and return the status code of the output filter chain. 
-			return ngx_http_output_filter(pReq, &out);
+		//
+		int  rc = ngx_http_read_client_request_body(pReq, HttpContentInit);
+		if(rc == NGX_AGAIN) do {
+			rc = ngx_http_do_read_client_request_body(pReq);
+			if(pReq->request_body_no_buffering && oneof2(rc, NGX_OK, NGX_AGAIN)) {
+				if(rc == NGX_OK)
+					pReq->request_body_no_buffering = 0;
+				else // rc == NGX_AGAIN 
+					pReq->reading_body = 1;
+				pReq->read_event_handler = ngx_http_block_reading;
+				HttpContentInit(pReq);
+			}
+			if(rc >= NGX_HTTP_SPECIAL_RESPONSE) {
+				pReq->main->count--;
+			}
+		} while(rc == NGX_AGAIN);
+		
+		//rc = ngx_http_read_client_request_body(pReq, HttpContentInit);
+		//
+		if(rc == NGX_OK) {
+			if(0) {
+				// Allocate a new buffer for sending out the reply. 
+				ngx_buf_t * b = static_cast<ngx_buf_t *>(ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t)));
+				// Insertion in the buffer chain. 
+				ngx_chain_t out(b, 0/*just one buffer*/);
+				b->pos = ngx_papyrus_test; /* first position in memory of the data */
+				b->last = ngx_papyrus_test + sizeof(ngx_papyrus_test) - 1; /* last position in memory of the data */
+				b->memory = 1; // content is in read-only memory 
+				b->last_buf = 1; // there will be no more buffers in the request 
+				// Sending the headers for the reply. 
+				pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
+				// Get the content length of the body. 
+				pReq->headers_out.content_length_n = sizeof(ngx_papyrus_test) - 1;
+				ngx_http_send_header(pReq); // Send the headers 
+				// Send the body, and return the status code of the output filter chain. 
+				return ngx_http_output_filter(pReq, &out);
+			}
+			else {
+				// @debug {
+				/*{
+					int   local_ok = 1;
+					SString temp_buf;
+					StyloQProtocol sp;
+					for(ngx_chain_t * p_nb = pReq->request_body->bufs; p_nb; p_nb = p_nb->next) {
+						temp_buf.CatN(reinterpret_cast<const char *>(p_nb->buf->pos), ngx_buf_size(p_nb->buf));
+					}
+					if(!sp.ReadMime64(temp_buf, 0)) {
+						local_ok = 0;
+					}
+				}*/
+				// } @debug
+				DS.DispatchNgxRequest(pReq, p_cfg);
+				return NGX_DELEGATED/*NGX_DONE*/;
+			}
 		}
-		else {
-			DS.DispatchNgxRequest(pReq, p_cfg);
-			return NGX_DELEGATED/*NGX_DONE*/;
-		}
+		else
+			return rc;
 	}
 };
 
@@ -237,14 +271,15 @@ static bool GetHttpReqRtsId(ngx_http_request_t * pReq, SString & rRtsId)
 {
 	rRtsId.Z();
 	bool   ok = false;
-	SString temp_buf;
 	if(pReq && pReq->args.len > 0 && pReq->args.data) {
-		temp_buf.Z().CatN(reinterpret_cast<const char *>(pReq->args.data), pReq->args.len);
-		StringSet ss('&', temp_buf);
-		SString key_buf, val_buf;
-		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-			if(temp_buf.Divide('=', key_buf, val_buf) > 0 && key_buf.Strip().IsEqiAscii("rtsid")) {
-				rRtsId = val_buf.Strip();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf.CatN(reinterpret_cast<const char *>(pReq->args.data), pReq->args.len);
+		StringSet ss('&', r_temp_buf);
+		SString & r_key_buf = SLS.AcquireRvlStr();
+		SString & r_val_buf = SLS.AcquireRvlStr();
+		for(uint ssp = 0; ss.get(&ssp, r_temp_buf);) {
+			if(r_temp_buf.Divide('=', r_key_buf, r_val_buf) > 0 && r_key_buf.Strip().IsEqiAscii("rtsid")) {
+				rRtsId = r_val_buf.Strip();
 				ok = true;
 				break;
 			}
@@ -388,6 +423,7 @@ private:
 				}
 			}
 			if(!is_logged_id) {
+				ZDELETE(P_Ic); // @v11.2.10
 				login_result = DS.Login(db_symb, user_name, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal);
 			}
 			else 
@@ -591,7 +627,16 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 	}
 	else {
 		if(P_StqRtb) {
-			THROW_PP(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret), PPERR_SQ_UNDEFSESSSECRET);
+			//
+			// Если в P_StqRtb->Sess есть что-то, то считаем P_StqRtb валидным, в противном случае просто убиваем его (вероятно, он
+			// получил инвалидность в результате ошибки какого-то из предыдущих раундов).
+			//
+			if(P_StqRtb->Sess.GetDataLen()) {
+				THROW_PP(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret), PPERR_SQ_UNDEFSESSSECRET);
+			}
+			else {
+				ZDELETE(P_StqRtb);
+			}
 		}
 		THROW(sp.ReadMime64(temp_buf, &sess_secret));
 		sp.P.Get(SSecretTagPool::tagClientIdent, &cli_ident);
@@ -645,9 +690,11 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					assert(other_public.Len());
 					//assert(cli_ident.Len());
 					THROW(Login(PPSession::loginfAllowAuthAsJobSrv));
-					THROW_SL(SETIFZ(P_Ic, new PPStyloQInterchange));
-					THROW(P_Ic->SearchSession(other_public, &pack) > 0); 
-
+					THROW_SL(P_Ic = new PPStyloQInterchange);
+					{
+						int ssr = P_Ic->SearchSession(other_public, &pack);
+						THROW(ssr > 0); 
+					}
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
@@ -693,7 +740,8 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					assert(my_public.Len());
 					THROW(sp.P.Get(SSecretTagPool::tagSrpA, &__a));
 					THROW(P_Ic->SearchGlobalIdentEntry(StyloQCore::kClient, cli_ident, &storage_pack) > 0);
-					THROW(storage_pack.Rec.Kind == StyloQCore::kClient);
+					THROW_PP(storage_pack.Rec.Kind == StyloQCore::kClient, PPERR_SQ_CLIRECORDFAULT);
+					THROW_PP(storage_pack.Pool.IsValid(), PPERR_SQ_CLIRECORDFAULT);
 					THROW(storage_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bc) && temp_bc == cli_ident); // @error (I don't know you)
 					THROW(storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifier, &srp_v)); // @error (I havn't got your registration data)
 					THROW(storage_pack.Pool.Get(SSecretTagPool::tagSrpVerifierSalt, &srp_s)); // @error (I havn't got your registration data)
@@ -849,11 +897,21 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 		}
 	}
 	CATCH
-		reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyError);
-		PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf);
-		reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, temp_buf.cptr(), temp_buf.Len()+1);
-		reply_tp.FinishWriting(sess_secret.Len() ? &sess_secret : 0);
-		out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
+		{
+			//
+			// Пакет с сообщением об ошибке формируем без шифровки - существуют сценарии, при которых, в случае сбоя, адекватного ключа
+			// не будет у одной из стороны обмена.
+			// В оправдание этого можно сказать, что сообщение об ошибке не несет чувствительной информации (хотя, нужны более
+			// тщательные исследования этого вопроса).
+			//
+			const int32 err_code = PPErrCode;
+			reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyError);
+			PPGetMessage(mfError, err_code, 0, DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf);
+			reply_tp.P.Put(SSecretTagPool::tagErrorCode, &err_code, sizeof(err_code));
+			reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, temp_buf.cptr(), temp_buf.Len()+1);
+			reply_tp.FinishWriting(/*sess_secret.Len() ? &sess_secret : 0*/0);
+			out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
+		}
 		//reply_tp.W
 	ENDCATCH
 	PushNgxResult(pReq, NGX_DONE, NGX_HTTP_OK, /*SFileFormat::Html*/SFileFormat::Unkn, /*cpUTF8*/cpUndef, out_buf);

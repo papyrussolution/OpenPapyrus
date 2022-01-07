@@ -801,9 +801,8 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 				// Проверяем соответствие между главной организацией и покупателем,
 				// установленным в документе по номеру ИНН.
 				//
-				PPID   main_org_id = 0;
 				SString main_org_inn, input_inn;
-				GetMainOrgID(&main_org_id);
+				PPID   main_org_id = GetMainOrgID();
 				PsnObj.GetRegNumber(main_org_id, PPREGT_TPID, main_org_inn);
 				Buyer.GetRegNumber(PPREGT_TPID, input_inn);
 				THROW_PP_S(input_inn.Len() && input_inn.CmpNC(main_org_inn) == 0, PPERR_UNEQBUYERTPID, input_inn);

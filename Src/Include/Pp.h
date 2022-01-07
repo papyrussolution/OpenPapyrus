@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
@@ -8004,7 +8004,21 @@ DBQ  * FASTCALL ppcheckflag(DBQ * pDbq, DBItem & rItem, long mask, int test);
 DBQ  * FASTCALL ppcheckweekday(DBQ * pDbq, DBItem & rItem, int dayOfWeek);
 
 SString & FASTCALL GetMainOrgName(SString &);
-int    FASTCALL GetMainOrgID(PPID *);
+//
+// Descr: Присваивает по указателю pID идентификатор текущей главной организации.
+//   Если текущая главная организация определена, то возвращает 1, иначе 0.
+// Returns:
+//   >0 - текущая главная организация определена и присвоена по указателю pID
+//    0 - ошибка. По указателю pID присвоен 0.
+//
+int    FASTCALL GetMainOrgID(PPID * pID);
+//
+// Descr: Возвращает идентификатор текущей главной организации.
+// Returns:
+//   <0 - идентификатор текущей главной организации
+//   0  - ошибка.
+//
+PPID   FASTCALL GetMainOrgID();
 int    FASTCALL GetMainEmployerID(PPID *);
 //
 // Descr: Определяет город, в котором находится главная организация.
@@ -32877,6 +32891,7 @@ public:
 	int    WriteInvoiceItems(const FileInfo & rHi, const PPBillPacket & rBp);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
 	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	int    WriteOrgInfo_VatLedger(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	//
 	// Descr: Записывает тип "УчастникТип"
 	//
@@ -33116,8 +33131,8 @@ public:
 		RecadvPacket();
 
 		//PPBillPacket Bp; // При чтении - RECADV, при отправке DESADV
-		PPBillPacket ABp;
-		PPBillPacket RBp;
+		PPBillPacket ABp; // Пакет оригинального DESADV
+		PPBillPacket RBp; // Собственно, пакет RECADV
 		SString DesadvBillCode;
 		LDATE   DesadvBillDate;
 		int     AllRowsAccepted;
@@ -46036,11 +46051,11 @@ private:
 class StyloQConfig {
 public:
 	enum { // @persistent
-		tagUnkn    =  0,
-		tagUrl     =  1, // URL сервера централизованной обработки
-		tagMqbAuth =  2, // Login MQ-брокера сервера централизованной обработки
+		tagUnkn            =  0,
+		tagUrl             =  1, // URL сервера централизованной обработки
+		tagMqbAuth         =  2, // Login MQ-брокера сервера централизованной обработки
 		tagMqbSecret       =  3, // Secret MQ-брокера сервера централизованной обработки
-		tagLoclUrl =  4, // URL локальной обработки запросов (отдельная машина или сеанс)
+		tagLoclUrl         =  4, // URL локальной обработки запросов (отдельная машина или сеанс)
 		tagLoclMqbAuth     =  5, // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
 		tagLoclMqbSecret   =  6, // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
 		tagFeatures        =  7, // Флаги особенностей сервиса
@@ -46052,18 +46067,18 @@ public:
 		tagExpiryPeriodSec =  8, // @v11.2.3 Период истечения срока действия в секундах
 		tagExpiryEpochSec  =  9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 		tagPrefLanguage    = 10, // @v11.2.5 (private config) Предпочтительный язык
-		tagDefFace = 11, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
-		tagRole    = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
+		tagDefFace         = 11, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
+		tagRole            = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
 	};
 	enum { // @persistent
-		roleUndef  = 0,
-		roleClient = 1,
+		roleUndef          = 0,
+		roleClient         = 1,
 		rolePublicService  = 2,
 		rolePrivateService = 3,
-		roleMediator       = 4
+		//roleMediator       = 4
 	};
 	static int MakeTransmissionJson(const char * pSrcJson, SString & rTransmissionJson);
 	static SJson * MakeTransmissionJson(const char * pSrcJson);
@@ -46226,14 +46241,15 @@ public:
 	// Descr: Виды записей реестра объектов Stylo-Q
 	//
 	enum { // @persistent
-		kUndef  = 0,
+		kUndef          = 0,
 		kNativeService  = 1, // Собственная идентификация. Используется для любого узла, включая клиентские, которые никогда не будут сервисами //
 		kForeignService = 2, //
-		kClient = 3, //
+		kClient         = 3, //
 		kSession        = 4, //
-		kFace   = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
+		kFace           = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 		kDocIncoming    = 6, // Входящие документы
 		kDocOutcominig  = 7, // Исходящие документы
+		kCounter        = 8  // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -46241,7 +46257,9 @@ public:
 	enum { // @persistent
 		doctypUndef       = 0,
 		doctypCommandList = 1,
-		doctypOrderPrereq = 2
+		doctypOrderPrereq = 2, // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
+		doctypReport      = 3, // @v11.2.10 Отчеты в формате DL600 export
+		doctypGeneric     = 4  // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
 	};
 	struct StoragePacket {
 		int FASTCALL IsEq(const StoragePacket & rS) const;
@@ -46260,6 +46278,7 @@ public:
 	static int ReadIgnitionServerList(TSCollection <IgnitionServerEntry> & rList);
 
 	StyloQCore();
+
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
 	int    GetPeerEntry(PPID id, StoragePacket * pPack);
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StoragePacket * pPack);
@@ -46451,6 +46470,49 @@ public:
 
 		SString CommandJson;
 	};
+	struct Document {
+		Document();
+		int    FromJsonObject(const SJson * pJsObj);
+		int    FromJson(const char * pJson);
+		int    ToJson(SString & rResult) const;
+		struct LotExtCode {
+			LotExtCode();
+			int    Flags;
+			int    BoxRefN;
+			char   Code[256];
+		};
+		struct TransferItem {
+			// Так как одна строка может иметь более одного набора значений {qtty, cost, price},
+			// то выделяем такой набор в отдельную структуру.
+			struct ValuSet {
+				ValuSet() : Qtty(0.0), Cost(0.0), Price(0.0)
+				{
+				}
+				double Qtty;
+				double Cost;
+				double Price;
+			};
+			TransferItem();
+			int    GoodsID; // service-domain-id
+			int    UnitID;  // service-domain-id
+			int    Flags;
+			ValuSet Set;
+			TSVector <LotExtCode> XcL;
+		};
+		int64  ID;
+		LDATETIME CreationTime;
+		LDATETIME Time;
+		LDATETIME DueTime;
+		int    OpID;
+		int    ClientID;  // service-domain-id
+		int    DlvrLocID; // service-domain-id
+		SString Code;
+		SBinaryChunk SvcIdent;
+		S_GUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
+		SString Memo;
+		TSCollection <TransferItem> TiList;
+		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
+	};
 
 	PPStyloQInterchange();
 	PPStyloQInterchange(StyloQCore * pStQC);
@@ -46600,6 +46662,13 @@ private:
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
 	int    ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
+	//
+	// Descr: Обрабатывает команду создания документа по инициативе клиента.
+	// Returns:
+	//   >0 - идентификатор созданного или уже существующего документа
+	//    0 - ошибка
+	//
+	PPID   ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
@@ -55543,7 +55612,7 @@ PPID   GetAgentAccSheet();
 //   то функция IsSupplVATFree возвращает (>0).
 //
 int    FASTCALL IsSupplVATFree(PPID articleID); // @>>ArticleCache::IsSupplVatFree
-int    FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
+bool   FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
 //
 // Descr: GetSupplText если suppl != 0 возвращает строку вида "Поставщик: XXX" и
 //   код возврата > 0. В противном случае - пустую строку и код < 0.

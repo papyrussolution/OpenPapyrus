@@ -2102,8 +2102,7 @@ int PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long flags)
 	if(CheckDialogPtrErr(&(dlg = new LocationDialog(dlg_id, locTyp, flags)))) {
 		pData->Type = static_cast<int16>(locTyp);
 		if(locTyp == LOCTYP_DIVISION) {
-			if(pData->OwnerID == 0)
-				GetMainOrgID(&pData->OwnerID);
+			SETIFZ(pData->OwnerID, GetMainOrgID());
 		}
 		else if(locTyp == LOCTYP_WAREHOUSE && pData->OwnerID == 0)
 			dlg->disableCtrl(CTLSEL_LOCATION_OWNER, 1);

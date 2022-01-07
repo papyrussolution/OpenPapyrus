@@ -597,117 +597,122 @@
 	#define CNPRP_CTBLLIST       9L  // Список номеров столов
 	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 Список корреспондирующих кассовых узлов (Async)
 #define PPOBJ_ACTION             18L  // # События, регистрируемые в системном журнале *
-	#define PPACN_LOGIN             1L
-	#define PPACN_LOGOUT            2L
-	#define PPACN_TURNBILL          3L
-	#define PPACN_UPDBILL           4L
-	#define PPACN_RMVBILL           5L
-	#define PPACN_PRNBILL           6L
-	#define PPACN_ACCESSCASH        7L
-	#define PPACN_CSESSCLOSED       8L // Закрытие кассовой сессии
-	#define PPACN_EXPCASHSESS       9L // Выгрузка данных для Async Cash Sess
-	#define PPACN_UPDCASHSESS      10L //
-	#define PPACN_OBJADD           11L // Объект добавлен
-	#define PPACN_OBJUPD           12L // Объект изменен
-	#define PPACN_OBJRMV           13L // Объект удален
-	#define PPACN_OBJUNIFY         14L // Объекты объединены
-	#define PPACN_TRANSMOD         15L // Переданы изменения (PPOBJ_DBDIV, DestDbDivID)
-	#define PPACN_GOODSQUOTUPD     16L // Изменены котировки товара
-	#define PPACN_SCARDDISUPD      17L // Изменена скидка по дисконтной карте
-	#define PPACN_GOODSNODISRMVD   18L // Снят признак "Без скидки" с товара
-	#define PPACN_GOODSVATGRPCHD   19L // Изменена налоговая группа на товар
-	#define PPACN_SCARDBINDUPD     20L // Изменена привязка карты.
+	// Текстовые строки, соответствующие событиям содержатся в группе [PPSTR_ACTION=112]
+	// со значениями, равными приведенным ниже символам.
+	#define PPACN_LOGIN                  1L
+	#define PPACN_LOGOUT                 2L
+	#define PPACN_TURNBILL               3L
+	#define PPACN_UPDBILL                4L
+	#define PPACN_RMVBILL                5L
+	#define PPACN_PRNBILL                6L
+	#define PPACN_ACCESSCASH             7L
+	#define PPACN_CSESSCLOSED            8L // Закрытие кассовой сессии
+	#define PPACN_EXPCASHSESS            9L // Выгрузка данных для Async Cash Sess
+	#define PPACN_UPDCASHSESS           10L //
+	#define PPACN_OBJADD                11L // Объект добавлен
+	#define PPACN_OBJUPD                12L // Объект изменен
+	#define PPACN_OBJRMV                13L // Объект удален
+	#define PPACN_OBJUNIFY              14L // Объекты объединены
+	#define PPACN_TRANSMOD              15L // Переданы изменения (PPOBJ_DBDIV, DestDbDivID)
+	#define PPACN_GOODSQUOTUPD          16L // Изменены котировки товара
+	#define PPACN_SCARDDISUPD           17L // Изменена скидка по дисконтной карте
+	#define PPACN_GOODSNODISRMVD        18L // Снят признак "Без скидки" с товара
+	#define PPACN_GOODSVATGRPCHD        19L // Изменена налоговая группа на товар
+	#define PPACN_SCARDBINDUPD          20L // Изменена привязка карты.
 		// Объект: документ или чек, Extra - ид предшествующей карты.
-	#define PPACN_MAINTAINPRJTASK  21L // Осуществлена процедура обслуживания задач
+	#define PPACN_MAINTAINPRJTASK       21L // Осуществлена процедура обслуживания задач
 		// Extra - количество измененных задач
-	#define PPACN_BILLSTATUSUPD    22L // Изменен статус документа. Дополнительному полю
+	#define PPACN_BILLSTATUSUPD         22L // Изменен статус документа. Дополнительному полю
 		// присваивается значение предшествующего статуса
-	#define PPACN_CONFIGCREATED    23L // Создана конфигурация //
-	#define PPACN_CONFIGUPDATED    24L // Изменена конфигурация //
-	#define PPACN_OBJVIEWED        25L // Объект просмотрен
-	#define PPACN_TRANSMIT         26L // Осуществлена передача данных в другой раздел
-	#define PPACN_CLEARCHECK       27L // Очистка чека
-	#define PPACN_RMVCHKLINE       28L // Удаление позиции из чека
-	#define PPACN_RMVALLGDSALTGRP  29L // Удаление всех товаров из альт.группы
-	#define PPACN_AUTOFILLALTGRP   30L // Автозаполнение альт.группы
-	#define PPACN_CHNGPLUALTGRP    31L // Изменение номера PLU в альт.группе
-	#define PPACN_GOODSMTXUPD      32L // Изменена котировка товарной матрицы. В качестве объекта
+	#define PPACN_CONFIGCREATED         23L // Создана конфигурация //
+	#define PPACN_CONFIGUPDATED         24L // Изменена конфигурация //
+	#define PPACN_OBJVIEWED             25L // Объект просмотрен
+	#define PPACN_TRANSMIT              26L // Осуществлена передача данных в другой раздел
+	#define PPACN_CLEARCHECK            27L // Очистка чека
+	#define PPACN_RMVCHKLINE            28L // Удаление позиции из чека
+	#define PPACN_RMVALLGDSALTGRP       29L // Удаление всех товаров из альт.группы
+	#define PPACN_AUTOFILLALTGRP        30L // Автозаполнение альт.группы
+	#define PPACN_CHNGPLUALTGRP         31L // Изменение номера PLU в альт.группе
+	#define PPACN_GOODSMTXUPD           32L // Изменена котировка товарной матрицы. В качестве объекта
 		// указывается пара {PPOBJ_GOODS, goods_id}, в качестве дополнительного параметра - ид склада, к
 		// которому относится элемент измененной матрицы. Если доп параметр == -1, то склад не определен,
 		// если доп параметр == 0, то речь идет о котировке по всем складам
-	#define PPACN_CCHECKUPDATED    33L // Некоторые параметры чека изменены в ручную
-	#define PPACN_OBJSYNCACCEPTED  34L // @construction Объекта акцептирован в другом разделе БД.
+	#define PPACN_CCHECKUPDATED         33L // Некоторые параметры чека изменены в ручную
+	#define PPACN_OBJSYNCACCEPTED       34L // @construction Объекта акцептирован в другом разделе БД.
 		// Дополнительный параметр является идентификатором раздела, в котором акцептирован объект.
 		// Дата и время события соответствуют дате и времени акцепта объекта в другом разделе.
 		// Из-за этого данное событие вводится не стандартной функцией
-	#define PPACN_OBJSYNCCOMMIT    35L // Фиксирована транзакция приема данных из других разделов.
-	#define PPACN_BILLCORRECTED    36L // Документ исправлен функцией восстановления //
+	#define PPACN_OBJSYNCCOMMIT         35L // Фиксирована транзакция приема данных из других разделов.
+	#define PPACN_BILLCORRECTED         36L // Документ исправлен функцией восстановления //
 	#define PPACN_EXT_BILLCORRECTED_LINKRESET 1 // Обнулена ссылка на отсутствующий связанный документ
-	#define PPACN_INVENTWROFF      37L // Списание инвентаризации
-	#define PPACN_INVENTROLLBACK   38L // Откат списания инвентаризации
-	#define PPACN_INVENTBYTERM     39L // Загрузка инвентаризации из терминала
-	#define PPACN_INVENTUNITE      40L // Объединение инвентаризаций
-	#define PPACN_OPCNTRUPD        41L // Счетчик по виду операции изменен
+	#define PPACN_INVENTWROFF           37L // Списание инвентаризации
+	#define PPACN_INVENTROLLBACK        38L // Откат списания инвентаризации
+	#define PPACN_INVENTBYTERM          39L // Загрузка инвентаризации из терминала
+	#define PPACN_INVENTUNITE           40L // Объединение инвентаризаций
+	#define PPACN_OPCNTRUPD             41L // Счетчик по виду операции изменен
 		// Дополнительное поле получает величину, равную разнице между новым и старым значением счетчика
-	#define PPACN_GOODSMTXRESTRUPD 42L // Изменено ограничение на количество элементов матрицы. В качестве объекта
+	#define PPACN_GOODSMTXRESTRUPD      42L // Изменено ограничение на количество элементов матрицы. В качестве объекта
 		// указывается пара {PPOBJ_GOODS, goods_id}, в качестве дополнительного параметра - ид склада, к
 		// которому относится элемент измененной матрицы. Если доп параметр == -1, то склад не определен,
 		// если доп параметр == 0, то речь идет о котировке по всем складам
-	#define PPACN_ARSTOPSET        43L // На аналитическую статью установлен флаг STOP
-	#define PPACN_ARSTOPRESET      44L // С аналитической статьи снят флаг STOP
-	#define PPACN_BIZSCOREUPDATED  45L // Пересчитаны бизнес-показатели
-	#define PPACN_GLOBBIZSCOREUPD  46L // Обновлены глобальные бизнес-показатели
-	#define PPACN_BILLCCHKPRINTED  47L // По документу отпечатан кассовый чек
+	#define PPACN_ARSTOPSET             43L // На аналитическую статью установлен флаг STOP
+	#define PPACN_ARSTOPRESET           44L // С аналитической статьи снят флаг STOP
+	#define PPACN_BIZSCOREUPDATED       45L // Пересчитаны бизнес-показатели
+	#define PPACN_GLOBBIZSCOREUPD       46L // Обновлены глобальные бизнес-показатели
+	#define PPACN_BILLCCHKPRINTED       47L // По документу отпечатан кассовый чек
 		// В качестве доп значения передается ИД кассового узла, по которому отпечатан чек.
-	#define PPACN_OBJEXTMEMOUPD    48L // Изменено расширенное примечание по объекту (возможно, удалено)
-	#define PPACN_UPDBILLEXT       49L // Изменено расширение документа (независимо от основной части документа)
-	#define PPACN_CCHECKDELETED    50L // Чек удален (регистрируется только для ручных операций удаления одного чека).
-	#define PPACN_OBJTAGUPD        51L // Изменен тег объекта. Доп параметр - ID тега.
-	#define PPACN_INVENTTURN       52L // Создан документ инвентаризации
-	#define PPACN_RCVRFREIGHTCITY  53L // Восстановлен город во фрахте документа
-	#define PPACN_UPDBILLFREIGHT   54L // Изменен фрахт документа (независимо от основной части документа)
-	#define PPACN_UPDBILLOBJECT    55L // Изменен контрагент по документу. Доп параметр - ID предыдущего значения контрагента
-	#define PPACN_UPDTSESSPRC      56L // Изменен процессор в техн сессии. Доп параметр - ID предыдущего значения процессора
-	#define PPACN_UNMODIFBILLTRANS 57L // Часть изменений принятого документа не могут быть акцептированы.
+	#define PPACN_OBJEXTMEMOUPD         48L // Изменено расширенное примечание по объекту (возможно, удалено)
+	#define PPACN_UPDBILLEXT            49L // Изменено расширение документа (независимо от основной части документа)
+	#define PPACN_CCHECKDELETED         50L // Чек удален (регистрируется только для ручных операций удаления одного чека).
+	#define PPACN_OBJTAGUPD             51L // Изменен тег объекта. Доп параметр - ID тега.
+	#define PPACN_INVENTTURN            52L // Создан документ инвентаризации
+	#define PPACN_RCVRFREIGHTCITY       53L // Восстановлен город во фрахте документа
+	#define PPACN_UPDBILLFREIGHT        54L // Изменен фрахт документа (независимо от основной части документа)
+	#define PPACN_UPDBILLOBJECT         55L // Изменен контрагент по документу. Доп параметр - ID предыдущего значения контрагента
+	#define PPACN_UPDTSESSPRC           56L // Изменен процессор в техн сессии. Доп параметр - ID предыдущего значения процессора
+	#define PPACN_UNMODIFBILLTRANS      57L // Часть изменений принятого документа не могут быть акцептированы.
 		// Доп параметр - ID раздела-отправителя //
-	#define PPACN_MTXGOODSADD      58L // Создан товар, один из членов родительской ветки которого принадлежит
+	#define PPACN_MTXGOODSADD           58L // Создан товар, один из членов родительской ветки которого принадлежит
 		// товарной матрице (по любому складу). Это событие необходимо для обновления кэша товарной матрицы другими
 		// сеансами для адекватной вставки товара в матрицу.
 		// Доп параметр: ID родительской группы, принадлежащей матрице //
-	#define PPACN_CCHECKTOGGLEDLVR 59L // Изменен признак завершения доставки по чеку. Доп параметр: 1 - признак установлен, 0 - признак снят
-	#define PPACN_UNDOCSESSWROFF   60L // Откат списания кассовой сессии
-	#define PPACN_UNDOCSESSGRPNG   61L // Откат группировки кассовой сессии
-	#define PPACN_SUPPLDEALUPD     62L // Изменена контрактная цена по поставщику. Доп параметр: ИД поставщика
-	#define PPACN_QUOTUPD2         63L // Изменена котировка (2) товара. Доп параметр: ИД транзакции.
-	#define PPACN_QUOTRMV2         64L // Удалена котировка (2) товара. Доп параметр: ИД транзакции.
-	#define PPACN_DISPOSEBILL      65L // Товарный документ был размещен по складским ячейкам
-	#define PPACN_EVENTTOKEN       66L // Событийная метка с объектом типа PPOBJ_EVENTTOKEN
-	#define PPACN_UNITECCHECK      67L // Объединены два чека. ИД объекта - чек, который остался, доп параметр: ИД чека, который был влит в первый.
-	#define PPACN_SCARDBONUSCHARGE 68L // По бонусной карте начислен бонус. Доп параметр: сжатое значение периода начисления.
-	#define PPACN_OBJTAGRMV        69L // Удален тег объекта. Доп параметр - ID тега.
-	#define PPACN_PERSONEVENTREDO  70L // Повтор персонального события //
-	#define PPACN_SCARDOPMOV       71L // Операция по карте перемещена на другую карту. Доп параметр - ID карты назначения //
-	#define PPACN_SMSSENDED        72L // Отправлено SMS персоналии
-	#define PPACN_OBJTAGADD        73L // Создан тег объекта. Доп параметр - ID тега.
-	#define PPACN_SCARDTRNOVRUPD   74L // Изменено значение оборота по персональной карте
-	#define PPACN_UPDBILLWLABEL    75L // Изменен признак WhiteLabel по документу
-	#define PPACN_SCARDACTIVATED   76L // Персональная карта активирована
-	#define PPACN_STYLOREGISTERING 77L // Зарегистрировано устройство Stylo
-	#define PPACN_ATTACHMENTUPD    78L // Приклепленный к объекту файл изменен (доп параметр - номер файла)
-	#define PPACN_BILLWROFF        79L // Документ списан
-	#define PPACN_BILLWROFFUNDO    80L // Откат списания документа
-	#define PPACN_GOODSPASSVSET    81L // Установлен признак "Пассивный" для товара
-	#define PPACN_GSTRUCATTACHED   82L // @v10.2.1 К товару привязана товарная структура
-	#define PPACN_GSTRUCDETACHED   83L // @v10.2.1 От товара отвязана товарная структура
-	#define PPACN_GSTRUCCUPD       84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
-	#define PPACN_TSSERIESUPD      85L // @v10.3.3 Изменена временная серия
-	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
-	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
-	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
-	#define PPACN_BILLUNLINK       89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
-	#define PPACN_EVENTDETECTION   90L // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
+	#define PPACN_CCHECKTOGGLEDLVR      59L // Изменен признак завершения доставки по чеку. Доп параметр: 1 - признак установлен, 0 - признак снят
+	#define PPACN_UNDOCSESSWROFF        60L // Откат списания кассовой сессии
+	#define PPACN_UNDOCSESSGRPNG        61L // Откат группировки кассовой сессии
+	#define PPACN_SUPPLDEALUPD          62L // Изменена контрактная цена по поставщику. Доп параметр: ИД поставщика
+	#define PPACN_QUOTUPD2              63L // Изменена котировка (2) товара. Доп параметр: ИД транзакции.
+	#define PPACN_QUOTRMV2              64L // Удалена котировка (2) товара. Доп параметр: ИД транзакции.
+	#define PPACN_DISPOSEBILL           65L // Товарный документ был размещен по складским ячейкам
+	#define PPACN_EVENTTOKEN            66L // Событийная метка с объектом типа PPOBJ_EVENTTOKEN
+	#define PPACN_UNITECCHECK           67L // Объединены два чека. ИД объекта - чек, который остался, доп параметр: ИД чека, который был влит в первый.
+	#define PPACN_SCARDBONUSCHARGE      68L // По бонусной карте начислен бонус. Доп параметр: сжатое значение периода начисления.
+	#define PPACN_OBJTAGRMV             69L // Удален тег объекта. Доп параметр - ID тега.
+	#define PPACN_PERSONEVENTREDO       70L // Повтор персонального события //
+	#define PPACN_SCARDOPMOV            71L // Операция по карте перемещена на другую карту. Доп параметр - ID карты назначения //
+	#define PPACN_SMSSENDED             72L // Отправлено SMS персоналии
+	#define PPACN_OBJTAGADD             73L // Создан тег объекта. Доп параметр - ID тега.
+	#define PPACN_SCARDTRNOVRUPD        74L // Изменено значение оборота по персональной карте
+	#define PPACN_UPDBILLWLABEL         75L // Изменен признак WhiteLabel по документу
+	#define PPACN_SCARDACTIVATED        76L // Персональная карта активирована
+	#define PPACN_STYLOREGISTERING      77L // Зарегистрировано устройство Stylo
+	#define PPACN_ATTACHMENTUPD         78L // Приклепленный к объекту файл изменен (доп параметр - номер файла)
+	#define PPACN_BILLWROFF             79L // Документ списан
+	#define PPACN_BILLWROFFUNDO         80L // Откат списания документа
+	#define PPACN_GOODSPASSVSET         81L // Установлен признак "Пассивный" для товара
+	#define PPACN_GSTRUCATTACHED        82L // @v10.2.1 К товару привязана товарная структура
+	#define PPACN_GSTRUCDETACHED        83L // @v10.2.1 От товара отвязана товарная структура
+	#define PPACN_GSTRUCCUPD            84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
+	#define PPACN_TSSERIESUPD           85L // @v10.3.3 Изменена временная серия
+	#define PPACN_TSSTRATEGYUPD         86L // @v10.3.3 Изменена стратегия временной серии
+	#define PPACN_SCARDEXPRYUPD         87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
+	#define PPACN_SYSMAINTENANCE        88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
+	#define PPACN_BILLUNLINK            89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
+	#define PPACN_EVENTDETECTION        90L // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
+	#define PPACN_RECENTVERSIONLAUNCHED 91L // @v11.2.10 Событие, иниициируемое при запуске сеанса, версия которого превышает последнее значение, зафиксированное
+		// таким же событием. Используетс в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
+		// там другие механизмы.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             90L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST                  91L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
 	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
@@ -11200,6 +11205,7 @@
 	#define CTL_STQCFG_FEATURES              (7  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_EXPIRYP               (8  + WINDOWS_ID_BIAS)
 	#define CTL_STQCFG_ROLE                  (9  + WINDOWS_ID_BIAS) // @v11.2.8
+	#define CTL_STQCFG_FLAGS                 (10  + WINDOWS_ID_BIAS) // @v11.2.10
 #define DLG_FLEXLAYOUTLIST        1408 // Иерархический список layout'ов
 	#define CTL_FLEXLAYOUTLIST_LIST          (1  + WINDOWS_ID_BIAS)
 

@@ -3836,8 +3836,8 @@ int PPBillPacket::ShrinkTRows(long fl /* = ETIEF_DIFFBYLOT | ETIEF_UNITEBYGOODS 
 	return ok;
 }
 
-int FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec)
-	{ return BIN(IsSupplVATFree(rLotRec.SupplID) > 0 || PPObjLocation::CheckWarehouseFlags(rLotRec.LocID, LOCF_VATFREE)); }
+bool FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec)
+	{ return (IsSupplVATFree(rLotRec.SupplID) > 0 || PPObjLocation::CheckWarehouseFlags(rLotRec.LocID, LOCF_VATFREE)); }
 double FASTCALL PPBillPacket::GetAmount(int minus /*= 0*/) const
 	{ return BR2(minus ? -Rec.Amount : Rec.Amount); }
 
@@ -4742,13 +4742,11 @@ int PPBillPacket::GetMainOrgID_(PPID * pID) const
 		ArticleTbl::Rec ar_rec;
 		if(ar_obj.Fetch(Rec.Object2, &ar_rec) > 0 && ar_rec.ObjID) {
 			PPObjAccSheet acs_obj;
-			if(acs_obj.IsLinkedToMainOrg(ar_rec.AccSheetID)) {
+			if(acs_obj.IsLinkedToMainOrg(ar_rec.AccSheetID))
 				main_org_id = ar_rec.ObjID;
-			}
 		}
 	}
-	if(!main_org_id)
-		::GetMainOrgID(&main_org_id);
+	SETIFZ(main_org_id, GetMainOrgID());
 	ASSIGN_PTR(pID, main_org_id);
 	return BIN(main_org_id);
 }

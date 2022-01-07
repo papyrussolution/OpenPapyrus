@@ -7,7 +7,7 @@
 #pragma hdrstop
 
 static void ngx_http_read_client_request_body_handler(ngx_http_request_t * r);
-static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r);
+/* @sobolev static*/ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r);
 static ngx_int_t ngx_http_write_request_body(ngx_http_request_t * r);
 static ngx_int_t ngx_http_read_discarded_request_body(ngx_http_request_t * r);
 static ngx_int_t ngx_http_discard_request_body_filter(ngx_http_request_t * r, ngx_buf_t * b);
@@ -133,14 +133,11 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 	pReq->write_event_handler = ngx_http_request_empty_handler;
 	rc = ngx_http_do_read_client_request_body(pReq);
 done:
-	if(pReq->request_body_no_buffering && (rc == NGX_OK || rc == NGX_AGAIN)) {
-		if(rc == NGX_OK) {
+	if(pReq->request_body_no_buffering && oneof2(rc, NGX_OK, NGX_AGAIN)) {
+		if(rc == NGX_OK)
 			pReq->request_body_no_buffering = 0;
-		}
-		else {
-			/* rc == NGX_AGAIN */
+		else // rc == NGX_AGAIN 
 			pReq->reading_body = 1;
-		}
 		pReq->read_event_handler = ngx_http_block_reading;
 		post_handler(pReq);
 	}
@@ -187,7 +184,7 @@ static void ngx_http_read_client_request_body_handler(ngx_http_request_t * r)
 	}
 }
 
-static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
+/* @sobolev static*/ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 {
 	nginx_off_t rest;
 	size_t size;
@@ -211,13 +208,13 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 					}
 				}
 				else {
-					/* update chains */
+					// update chains 
 					rc = ngx_http_request_body_filter(r, NULL);
 					if(rc != NGX_OK) {
 						return rc;
 					}
 				}
-				if(rb->busy != NULL) {
+				if(rb->busy) {
 					if(r->request_body_no_buffering) {
 						if(c->P_EvRd->timer_set) {
 							ngx_del_timer(c->P_EvRd);
@@ -232,40 +229,42 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 				rb->buf->pos = rb->buf->start;
 				rb->buf->last = rb->buf->start;
 			}
-			size = rb->buf->end - rb->buf->last;
-			rest = rb->rest - (rb->buf->last - rb->buf->pos);
-			if((nginx_off_t)size > rest) {
-				size = (size_t)rest;
-			}
-			n = c->recv(c, rb->buf->last, size);
-			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, c->log, 0, "http client request body recv %z", n);
-			if(n == NGX_AGAIN) {
-				break;
-			}
-			if(n == 0) {
-				ngx_log_error(NGX_LOG_INFO, c->log, 0, "client prematurely closed connection");
-			}
-			if(n == 0 || n == NGX_ERROR) {
-				c->error = 1;
-				return NGX_HTTP_BAD_REQUEST;
-			}
-			rb->buf->last += n;
-			r->request_length += n;
-			if(n == rest) {
-				// pass buffer to request body filter chain 
-				ngx_chain_t out(rb->buf, 0);
-				//out.buf = rb->buf;
-				//out.next = NULL;
-				rc = ngx_http_request_body_filter(r, &out);
-				if(rc != NGX_OK) {
-					return rc;
+			{
+				size = rb->buf->end - rb->buf->last;
+				rest = rb->rest - (rb->buf->last - rb->buf->pos); 
+				if((nginx_off_t)size > rest) {
+					size = (size_t)rest;
 				}
-			}
-			if(rb->rest == 0) {
-				break;
-			}
-			if(rb->buf->last < rb->buf->end) {
-				break;
+				n = c->recv(c, rb->buf->last, size);
+				ngx_log_debug1(NGX_LOG_DEBUG_HTTP, c->log, 0, "http client request body recv %z", n);
+				if(n == NGX_AGAIN) {
+					break;
+				}
+				if(n == 0) {
+					ngx_log_error(NGX_LOG_INFO, c->log, 0, "client prematurely closed connection");
+				}
+				if(n == 0 || n == NGX_ERROR) {
+					c->error = 1;
+					return NGX_HTTP_BAD_REQUEST;
+				}
+				rb->buf->last += n;
+				r->request_length += n;
+				if(n == rest) {
+					// pass buffer to request body filter chain 
+					ngx_chain_t out(rb->buf, 0);
+					//out.buf = rb->buf;
+					//out.next = NULL;
+					rc = ngx_http_request_body_filter(r, &out);
+					if(rc != NGX_OK) {
+						return rc;
+					}
+				}
+				if(rb->rest == 0) {
+					break;
+				}
+				if(rb->buf->last < rb->buf->end) {
+					break;
+				}
 			}
 		}
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, c->log, 0, "http client request body rest %O", rb->rest);

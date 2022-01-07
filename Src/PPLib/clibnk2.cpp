@@ -155,10 +155,10 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 //   и по знаку суммы операции.
 //
 struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array] @flat
-	PPID   AccSheetID;       //
-	int16  Sign;             // -1, 1, 0 (undefined)
-	int16  AddedTag;         // Дополнительный тег для установки соотвествия вида операции
-	PPID   OpID;             //
+	PPID   AccSheetID; //
+	int16  Sign;       // -1, 1, 0 (undefined)
+	int16  AddedTag;   // Дополнительный тег для установки соотвествия вида операции
+	PPID   OpID;       //
 };
 //
 //
@@ -315,11 +315,10 @@ static int GetOurInfo(BankStmntItem * pItem)
 {
 	int    ok = 0;
 	if(pItem) {
-		PPID   org_id = 0;
 		SString temp_buf;
 		PPObjPerson psn_obj;
 		PPPersonPacket org_pack;
-		GetMainOrgID(&org_id);
+		PPID   org_id = GetMainOrgID();
 		THROW(psn_obj.GetPacket(org_id, &org_pack, 0));
 		org_pack.GetRegNumber(PPREGT_TPID, temp_buf); temp_buf.CopyTo(pItem->PayerINN, sizeof(pItem->PayerINN));
 		org_pack.GetRegNumber(PPREGT_KPP,  temp_buf); temp_buf.CopyTo(pItem->PayerKPP, sizeof(pItem->PayerKPP)); // @v7.4.5
@@ -529,8 +528,8 @@ static int IsOurINN(const char * pINN)
 	};
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
-	SVector prev_list(sizeof(BankStmntAssocItem_Pre578)); // @v9.8.8 SArray-->SVector
-	SVector temp_list(sizeof(BankStmntAssocItem)); // @v9.8.8 SArray-->SVector
+	SVector prev_list(sizeof(BankStmntAssocItem_Pre578));
+	SVector temp_list(sizeof(BankStmntAssocItem));
 	THROW(r = p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, &temp_list));
 	if(r > 0) {
 		THROW_SL(pList->copy(temp_list));
@@ -1092,153 +1091,143 @@ int SetupCliBnkFormats()
 	SetupCliBnkFormatsDialog * dlg = new SetupCliBnkFormatsDialog();
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
-
-class SetupCliBnkAssocDialog : public PPListDialog {
-public:
-	SetupCliBnkAssocDialog() : PPListDialog(DLG_CBASCFG, CTL_CBASCFG_LIST)
-	{
-		updateList(-1);
-	}
-private:
-	virtual int setupList();
-	virtual int addItem(long * pPos, long * pID);
-	virtual int editItem(long pos, long id);
-	virtual int delItem(long pos, long id);
-};
-
-static int CliBnkAssocItemDialog(BankStmntAssocItem * pItem)
-{
-	class SetupCliBnkAssocItemDialog : public TDialog {
-	public:
-		SetupCliBnkAssocItemDialog () : TDialog(DLG_CBASITM)
-		{
-		}
-		int    setDTS(const BankStmntAssocItem * pItem)
-		{
-			SetupPPObjCombo(this,  CTLSEL_CBASITM_ACC, PPOBJ_ACCSHEET, pItem->AccSheetID, 0, 0);
-			SetupStringCombo(this, CTLSEL_CBASITM_SIGN, PPTXT_SIGN, 0);
-			SetupPPObjCombo(this,  CTLSEL_CBASITM_OPRKIND, PPOBJ_OPRKIND, pItem->OpID, 0, 0);
-			int    k = SIGN_NO_MATTER;
-			switch(pItem->Sign) {
-				case -1: k = SIGN_LT; break;
-				case  1: k = SIGN_GT; break;
-				case  0: k = SIGN_NO_MATTER; break;
-			}
-			setCtrlData(CTLSEL_CBASITM_SIGN, &k);
-			setCtrlUInt16(CTL_CBASITM_ADDEDTAG, pItem->AddedTag);
-			return 1;
-		}
-		int    getDTS(BankStmntAssocItem * pItem)
-		{
-			getCtrlData(CTL_CBASITM_ACC, &pItem->AccSheetID);
-			getCtrlData(CTL_CBASITM_OPRKIND, &pItem->OpID);
-			switch(getCtrlLong(CTL_CBASITM_SIGN)) {
-				case SIGN_LT: pItem->Sign = -1; break;
-				case SIGN_GT: pItem->Sign =  1; break;
-				case SIGN_NO_MATTER: pItem->Sign = 0; break;
-			}
-			pItem->AddedTag = getCtrlUInt16(CTL_CBASITM_ADDEDTAG);
-			return 1;
-		}
-	};
-	DIALOG_PROC_BODY(SetupCliBnkAssocItemDialog, pItem);
-}
-
-int SetupCliBnkAssocDialog::setupList()
-{
-	int    ok = 1;
-	uint   i;
-	PPOprKind op_rec;
-	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
-	SString temp_buf;
-	SVector cfg(sizeof(BankStmntAssocItem)); // @v9.8.8 SArray-->SVector
-	BankStmntAssocItem * p_assoc_item;
-	THROW(ClientBankImportDef::ReadAssocList(&cfg));
-	for(i = 0; cfg.enumItems(&i, (void **)&p_assoc_item);) {
-		StringSet ss(SLBColumnDelim);
-		if(acs_obj.Fetch(p_assoc_item->AccSheetID, &acs_rec) <= 0)
-			ideqvalstr(p_assoc_item->AccSheetID, acs_rec.Name, sizeof(acs_rec.Name));
-		ss.add(acs_rec.Name);
-		int    k = -1;
-		switch(p_assoc_item->Sign) {
-			case -1: k = SIGN_LT - 1; break;
-			case  1: k = SIGN_GT - 1; break;
-			case  0: k = SIGN_NO_MATTER - 1; break;
-		}
-		THROW(PPGetSubStr(PPTXT_SIGN, k, temp_buf));
-		ss.add(temp_buf + 2);
-		ss.add(temp_buf.Z().Cat(p_assoc_item->AddedTag));
-		GetOpData(p_assoc_item->OpID, &op_rec);
-		ss.add(op_rec.Name);
-		THROW(addStringToList(i - 1, ss.getBuf()));
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-
-int SetupCliBnkAssocDialog::addItem(long * pPos, long * pID)
-{
-	int    ok = 1;
-	*pPos = *pID = 0;
-	SVector cfg(sizeof(BankStmntAssocItem));
-	BankStmntAssocItem assoc_item;
-	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_INS, 0));
-	MEMSZERO(assoc_item);
-	assoc_item.AddedTag = -1;
-	if(CliBnkAssocItemDialog(&assoc_item) > 0) {
-		THROW(ClientBankImportDef::ReadAssocList(&cfg));
-		THROW_SL(cfg.insert(&assoc_item));
-		THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
-		*pPos = *pID = cfg.getCount();
-		updateList(-1);
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-
-int SetupCliBnkAssocDialog::editItem(long pos, long id)
-{
-	int    ok = 1;
-	SVector cfg(sizeof(BankStmntAssocItem));
-	BankStmntAssocItem * p_assoc_item;
-	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_MOD, 0));
-	THROW(ClientBankImportDef::ReadAssocList(&cfg));
-	if(pos < cfg.getCountI()) {
-		THROW(p_assoc_item = static_cast<BankStmntAssocItem *>(cfg.at(id)));
-		if(CliBnkAssocItemDialog(p_assoc_item) > 0) {
-			THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
-			updateList(-1);
-		}
-	}
-	else
-		ok = -1;
-	CATCHZOKPPERR
-	return ok;
-}
-
-int SetupCliBnkAssocDialog::delItem(long pos, long id)
-{
-	int    ok = 1;
-	SVector cfg(sizeof(BankStmntAssocItem));
-	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_DEL, 0));
-	THROW(ClientBankImportDef::ReadAssocList(&cfg));
-	if(pos < cfg.getCountI()) {
-		THROW_SL(cfg.atFree(id));
-		THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
-		updateList(-1);
-	}
-	else
-		ok = -1;
-	CATCHZOKPPERR
-	return ok;
-}
 //
 // @todo Сохранение конфигурации должно осуществляться единой транзакцией, а не отдельными
 //   методами диалога.
 //
 int SetupCliBnkAssoc()
 {
+	class SetupCliBnkAssocDialog : public PPListDialog {
+	public:
+		SetupCliBnkAssocDialog() : PPListDialog(DLG_CBASCFG, CTL_CBASCFG_LIST)
+		{
+			updateList(-1);
+		}
+	private:
+		static int CliBnkAssocItemDialog(BankStmntAssocItem * pItem)
+		{
+			class SetupCliBnkAssocItemDialog : public TDialog {
+			public:
+				SetupCliBnkAssocItemDialog () : TDialog(DLG_CBASITM)
+				{
+				}
+				int    setDTS(const BankStmntAssocItem * pItem)
+				{
+					SetupPPObjCombo(this,  CTLSEL_CBASITM_ACC, PPOBJ_ACCSHEET, pItem->AccSheetID, 0, 0);
+					SetupStringCombo(this, CTLSEL_CBASITM_SIGN, PPTXT_SIGN, 0);
+					SetupPPObjCombo(this,  CTLSEL_CBASITM_OPRKIND, PPOBJ_OPRKIND, pItem->OpID, 0, 0);
+					int    k = SIGN_NO_MATTER;
+					switch(pItem->Sign) {
+						case -1: k = SIGN_LT; break;
+						case  1: k = SIGN_GT; break;
+						case  0: k = SIGN_NO_MATTER; break;
+					}
+					setCtrlData(CTLSEL_CBASITM_SIGN, &k);
+					setCtrlUInt16(CTL_CBASITM_ADDEDTAG, pItem->AddedTag);
+					return 1;
+				}
+				int    getDTS(BankStmntAssocItem * pItem)
+				{
+					getCtrlData(CTL_CBASITM_ACC, &pItem->AccSheetID);
+					getCtrlData(CTL_CBASITM_OPRKIND, &pItem->OpID);
+					switch(getCtrlLong(CTL_CBASITM_SIGN)) {
+						case SIGN_LT: pItem->Sign = -1; break;
+						case SIGN_GT: pItem->Sign =  1; break;
+						case SIGN_NO_MATTER: pItem->Sign = 0; break;
+					}
+					pItem->AddedTag = getCtrlUInt16(CTL_CBASITM_ADDEDTAG);
+					return 1;
+				}
+			};
+			DIALOG_PROC_BODY(SetupCliBnkAssocItemDialog, pItem);
+		}
+		virtual int setupList()
+		{
+			int    ok = 1;
+			uint   i;
+			PPOprKind op_rec;
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
+			SString temp_buf;
+			SVector cfg(sizeof(BankStmntAssocItem));
+			BankStmntAssocItem * p_assoc_item;
+			THROW(ClientBankImportDef::ReadAssocList(&cfg));
+			for(i = 0; cfg.enumItems(&i, (void **)&p_assoc_item);) {
+				StringSet ss(SLBColumnDelim);
+				if(acs_obj.Fetch(p_assoc_item->AccSheetID, &acs_rec) <= 0)
+					ideqvalstr(p_assoc_item->AccSheetID, acs_rec.Name, sizeof(acs_rec.Name));
+				ss.add(acs_rec.Name);
+				int    k = -1;
+				switch(p_assoc_item->Sign) {
+					case -1: k = SIGN_LT - 1; break;
+					case  1: k = SIGN_GT - 1; break;
+					case  0: k = SIGN_NO_MATTER - 1; break;
+				}
+				THROW(PPGetSubStr(PPTXT_SIGN, k, temp_buf));
+				ss.add(temp_buf + 2);
+				ss.add(temp_buf.Z().Cat(p_assoc_item->AddedTag));
+				GetOpData(p_assoc_item->OpID, &op_rec);
+				ss.add(op_rec.Name);
+				THROW(addStringToList(i - 1, ss.getBuf()));
+			}
+			CATCHZOKPPERR
+			return ok;
+		}
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int    ok = 1;
+			*pPos = *pID = 0;
+			SVector cfg(sizeof(BankStmntAssocItem));
+			BankStmntAssocItem assoc_item;
+			THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_INS, 0));
+			MEMSZERO(assoc_item);
+			assoc_item.AddedTag = -1;
+			if(CliBnkAssocItemDialog(&assoc_item) > 0) {
+				THROW(ClientBankImportDef::ReadAssocList(&cfg));
+				THROW_SL(cfg.insert(&assoc_item));
+				THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
+				*pPos = *pID = cfg.getCount();
+				updateList(-1);
+			}
+			CATCHZOKPPERR
+			return ok;
+		}
+		virtual int editItem(long pos, long id)
+		{
+			int    ok = 1;
+			SVector cfg(sizeof(BankStmntAssocItem));
+			BankStmntAssocItem * p_assoc_item;
+			THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_MOD, 0));
+			THROW(ClientBankImportDef::ReadAssocList(&cfg));
+			if(pos < cfg.getCountI()) {
+				THROW(p_assoc_item = static_cast<BankStmntAssocItem *>(cfg.at(id)));
+				if(CliBnkAssocItemDialog(p_assoc_item) > 0) {
+					THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
+					updateList(-1);
+				}
+			}
+			else
+				ok = -1;
+			CATCHZOKPPERR
+			return ok;
+		}
+		virtual int delItem(long pos, long id)
+		{
+			int    ok = 1;
+			SVector cfg(sizeof(BankStmntAssocItem));
+			THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_DEL, 0));
+			THROW(ClientBankImportDef::ReadAssocList(&cfg));
+			if(pos < cfg.getCountI()) {
+				THROW_SL(cfg.atFree(id));
+				THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
+				updateList(-1);
+			}
+			else
+				ok = -1;
+			CATCHZOKPPERR
+			return ok;
+		}
+	};
 	int    ok = 0;
 	SetupCliBnkAssocDialog * dlg = new SetupCliBnkAssocDialog();
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_READ, 0));

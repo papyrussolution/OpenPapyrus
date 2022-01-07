@@ -430,12 +430,8 @@ private:
 
 private:
 			struct GlyphHeader {
-				bool has_data() const {
-					return numberOfContours;
-				}
-
-				bool get_extents(hb_font_t * font, const accelerator_t &glyf_accelerator,
-				    hb_codepoint_t gid, hb_glyph_extents_t * extents) const
+				bool has_data() const { return numberOfContours; }
+				bool get_extents(hb_font_t * font, const accelerator_t &glyf_accelerator, hb_codepoint_t gid, hb_glyph_extents_t * extents) const
 				{
 					/* Undocumented rasterizer behavior: shift glyph to the left by (lsb - xMin),
 					   i.e., xMin = lsb */

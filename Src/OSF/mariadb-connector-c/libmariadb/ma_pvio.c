@@ -369,10 +369,7 @@ void ma_pvio_close(MARIADB_PVIO * pvio)
 #endif
 		if(pvio && pvio->methods->close)
 			pvio->methods->close(pvio);
-
-		if(pvio->cache)
-			SAlloc::F(pvio->cache);
-
+		SAlloc::F(pvio->cache);
 		SAlloc::F(pvio);
 	}
 }
@@ -393,8 +390,7 @@ bool ma_pvio_get_handle(MARIADB_PVIO * pvio, void * handle)
 static bool ma_pvio_wait_async(struct mysql_async_context * b, enum enum_pvio_io_event event,
     int timeout)
 {
-	switch(event)
-	{
+	switch(event) {
 		case VIO_IO_EVENT_READ:
 		    b->events_to_wait_for = MYSQL_WAIT_READ;
 		    break;
@@ -405,7 +401,6 @@ static bool ma_pvio_wait_async(struct mysql_async_context * b, enum enum_pvio_io
 		    b->events_to_wait_for = MYSQL_WAIT_WRITE | IF_WIN(0, MYSQL_WAIT_EXCEPT);
 		    break;
 	}
-
 	if(timeout >= 0) {
 		b->events_to_wait_for |= MYSQL_WAIT_TIMEOUT;
 		b->timeout_value = timeout;

@@ -1231,7 +1231,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 	PPID   wotarebeer_ggrpid = 0;
 	PPID   tare_ggrpid = 0;
 	PPID   consig_loc_grp = 0L;
-	PPID   order_number_tag_id = 0; // @v9.3.2
+	PPID   order_number_tag_id = 0;
 	PPID   promo_tag_id = 0; // @v10.3.11
 	LDATE  consig_parent_dt = ZERODATE;
 	SString path, log_msg;
@@ -1248,7 +1248,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 	LAssocArray dlvr_addr_list;
 	BillFilt filt;
 	PPIDArray loss_op_list, invrcpt_op_list, spoilage_loc_list;
-	TSVector <Sdr_BaltikaBillItemAttrs> items_attrs_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <Sdr_BaltikaBillItemAttrs> items_attrs_list;
 	TSVector <Sdr_BaltikaBillPricePromo> promo_item_list; // @v10.3.11
 	BillViewItem item;
 	PPObjTag   obj_tag;

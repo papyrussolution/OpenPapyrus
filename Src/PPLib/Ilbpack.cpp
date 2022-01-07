@@ -1252,8 +1252,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				}
 			}
 			if(!main_org_ar_id) {
-				PPID   main_org_psn_id = 0;
-				GetMainOrgID(&main_org_psn_id);
+				const PPID main_org_psn_id = GetMainOrgID();
 				if(main_org_psn_id) {
 					ar_obj.P_Tbl->PersonToArticle(main_org_psn_id, cvt_op_rec.AccSheetID, &main_org_ar_id);
 				}

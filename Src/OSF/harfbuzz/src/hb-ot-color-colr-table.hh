@@ -92,20 +92,13 @@ public:
 	struct COLR {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_COLR;
 
-		bool has_data() const {
-			return numBaseGlyphs;
-		}
+		bool has_data() const { return numBaseGlyphs; }
 
-		uint get_glyph_layers(hb_codepoint_t glyph,
-		    uint start_offset,
-		    uint * count,             /*IN/OUT May be NULL*/
-		    hb_ot_color_layer_t * layers /*OUT May be NULL*/) const
+		uint get_glyph_layers(hb_codepoint_t glyph, uint start_offset, uint * count/*IN/OUT May be NULL*/, hb_ot_color_layer_t * layers /*OUT May be NULL*/) const
 		{
 			const BaseGlyphRecord &record = (this+baseGlyphsZ).bsearch(numBaseGlyphs, glyph);
-
 			hb_array_t<const LayerRecord> all_layers = (this+layersZ).as_array(numLayers);
-			hb_array_t<const LayerRecord> glyph_layers = all_layers.sub_array(record.firstLayerIdx,
-				record.numLayers);
+			hb_array_t<const LayerRecord> glyph_layers = all_layers.sub_array(record.firstLayerIdx, record.numLayers);
 			if(count) {
 				+glyph_layers.sub_array(start_offset, count)
 				| hb_sink(hb_array(layers, *count))
@@ -115,43 +108,34 @@ public:
 		}
 
 		struct accelerator_t {
-			accelerator_t() {
+			accelerator_t() 
+			{
 			}
-			~accelerator_t () {
+			~accelerator_t () 
+			{
 				fini();
 			}
-
 			void init(hb_face_t * face)
 			{
 				colr = hb_sanitize_context_t().reference_table<COLR> (face);
 			}
-
-			void fini() {
+			void fini() 
+			{
 				this->colr.destroy();
 			}
-
-			bool is_valid() {
-				return colr.get_blob()->length;
-			}
-
-			void closure_glyphs(hb_codepoint_t glyph,
-			    hb_set_t * related_ids /*OUT*/) const
+			bool is_valid() const { return colr.get_blob()->length; }
+			void closure_glyphs(hb_codepoint_t glyph, hb_set_t * related_ids /*OUT*/) const
 			{
 				colr->closure_glyphs(glyph, related_ids);
 			}
-
 private:
 			hb_blob_ptr_t<COLR> colr;
 		};
-
-		void closure_glyphs(hb_codepoint_t glyph,
-		    hb_set_t * related_ids /*OUT*/) const
+		void closure_glyphs(hb_codepoint_t glyph, hb_set_t * related_ids /*OUT*/) const
 		{
 			const BaseGlyphRecord * record = get_base_glyph_record(glyph);
 			if(!record) return;
-
-			auto glyph_layers = (this+layersZ).as_array(numLayers).sub_array(record->firstLayerIdx,
-				record->numLayers);
+			auto glyph_layers = (this+layersZ).as_array(numLayers).sub_array(record->firstLayerIdx, record->numLayers);
 			if(!glyph_layers.length) return;
 			related_ids->add_array(&glyph_layers[0].glyphId, glyph_layers.length, LayerRecord::min_size);
 		}

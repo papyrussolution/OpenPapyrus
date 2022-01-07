@@ -22,8 +22,7 @@
  *
  * Since: EXPERIMENTAL
  **/
-void hb_draw_funcs_set_move_to_func(hb_draw_funcs_t * funcs,
-    hb_draw_move_to_func_t move_to)
+void hb_draw_funcs_set_move_to_func(hb_draw_funcs_t * funcs, hb_draw_move_to_func_t move_to)
 {
 	if(UNLIKELY(hb_object_is_immutable(funcs))) return;
 	funcs->move_to = move_to;

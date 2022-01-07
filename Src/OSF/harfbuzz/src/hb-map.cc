@@ -101,11 +101,7 @@ void hb_map_destroy(hb_map_t * map)
  *
  * Since: 1.7.7
  **/
-hb_bool_t hb_map_set_user_data(hb_map_t * map,
-    hb_user_data_key_t * key,
-    void * data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace)
+hb_bool_t hb_map_set_user_data(hb_map_t * map, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	return hb_object_set_user_data(map, key, data, destroy, replace);
 }

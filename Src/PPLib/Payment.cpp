@@ -1973,11 +1973,11 @@ int PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGP
 					PPID   rcvr_bnk_acc_id = 0;
 					if(flags & cboIn) {
 						payer_id = ObjectToPerson(p_prev_entry->ArID, 0);
-						GetMainOrgID(&rcvr_id);
+						rcvr_id  = GetMainOrgID();
 					}
 					else {
-						GetMainOrgID(&payer_id);
-						rcvr_id = ObjectToPerson(p_prev_entry->ArID, 0);
+						payer_id = GetMainOrgID();
+						rcvr_id  = ObjectToPerson(p_prev_entry->ArID, 0);
 					}
 					if(payer_id && rcvr_id) {
 						int r2 = 0;

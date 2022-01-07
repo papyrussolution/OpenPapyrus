@@ -2921,32 +2921,6 @@ void PPALDD_VatBook::Destroy() { DESTROY_PPVIEW_ALDD(VatBook); }
 //
 //
 //
-int WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWriter * pWriter)
-{
-	int    ok = -1;
-    if(pWriter && psnID) {
-		PersonTbl::Rec psn_rec;
-    	if(rPsnObj.Fetch(psnID, &psn_rec) > 0) {
-			SString inn, kpp;
-			rPsnObj.GetRegNumber(psnID, PPREGT_TPID, inn);
-			inn.Strip();
-			rPsnObj.GetRegNumber(psnID, PPREGT_KPP, kpp);
-			kpp.Strip();
-            if(inn.Len() == 12) {
-				SXml::WNode n(pWriter, "СведИП");
-				n.PutAttrib("ИННФЛ", inn);
-            }
-            else if(inn.Len() == 10) {
-				SXml::WNode n(pWriter, "СведЮЛ");
-				n.PutAttrib("ИННЮЛ", inn);
-				n.PutAttrib("КПП", kpp);
-            }
-            ok = 1;
-    	}
-    }
-    return ok;
-}
-
 int PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SString & rBuf)
 {
 	// @todo Необходима полная реализация.
@@ -3003,7 +2977,6 @@ int PPViewVatBook::Export()
 {
 	int    ok = 1;
 	uint   i;
-	PPID   main_org_id = 0;
 	SString temp_buf;
 	SString path;
 	SString data_name;
@@ -3012,12 +2985,13 @@ int PPViewVatBook::Export()
 	SString left;
 	SString out_file_name;
 	SString id_file;
-	xmlTextWriter * p_writer = 0;
+	DocNalogRu_Generator g;
+	//xmlTextWriter * p_writer = 0;
 	const LDATE _cdate = getcurdate_();
 	const long  _uniq_suffix = 1;
 	const char * p_ledger_title = 0;
 	const char * p_ledger_line_title = 0;
-	GetMainOrgID(&main_org_id);
+	PPID   main_org_id = GetMainOrgID();
 	{
 		SString sender_ident, rcvr_ident;
 		if(main_org_id) {
@@ -3094,39 +3068,40 @@ int PPViewVatBook::Export()
 				left.CopyTo(xml_entity_spec, sizeof(xml_entity_spec));
 				p_xml_entity_spec = xml_entity_spec;
 			}
-			left = 0;
+			left.Z();
 		}
 		out_file_name.Z().Cat(id_file).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
-		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
+		g.StartDocument(path); // @v11.2.10
+		//THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
-			xmlTextWriterSetIndent(p_writer, 1);
-			xmlTextWriterSetIndentTab(p_writer);
-			xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
+			//xmlTextWriterSetIndent(p_writer, 1);
+			//xmlTextWriterSetIndentTab(p_writer);
+			//xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
 			//
 			{
-				SXml::WNode n_file(p_writer, "Файл");
-				n_file.PutAttrib("ИдФайл", id_file);
+				SXml::WNode n_file(g.P_X, g.GetToken_Ansi(PPHSC_RU_FILE));
+				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_IDFILE), id_file);
 				{
 					PPVersionInfo vi = DS.GetVersionInfo();
 					SVerT ver = vi.GetVersion();
 					//vi.GetProductName(left);
 					vi.GetTextAttrib(vi.taiProductName, left);
 					left.Space().Cat(ver.ToStr(temp_buf));
-					n_file.PutAttrib("ВерсПрог", left);
+					n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERPROG), left);
 				}
-				n_file.PutAttrib("ВерсФорм", "5.06"); // @v10.4.2 "5.04"-->"5.06"
+				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.06"); // @v10.4.2 "5.04"-->"5.06"
 				{
-					SXml::WNode n_doc(p_writer, "Документ");
+					SXml::WNode n_doc(g.P_X, g.GetToken_Ansi(PPHSC_RU_DOCUMENT));
 					if(Filt.Kind == PPVTB_BUY) {
-						n_doc.PutAttrib("Индекс", "0000080");
+						n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_INDEX), "0000080");
 					}
 					else if(Filt.Kind == PPVTB_SELL) {
-						n_doc.PutAttrib("Индекс", "0000090");
+						n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_INDEX), "0000090");
 					}
 					n_doc.PutAttrib("НомКорр", "0");
 					{
-						SXml::WNode n_book(p_writer, p_ledger_title);
+						SXml::WNode n_book(g.P_X, p_ledger_title);
 						double sum_vat0 = 0.0;
 						double sum_vatn[3] = { 0.0, 0.0, 0.0 };
 						double sum_svatn[3] = { 0.0, 0.0, 0.0 };
@@ -3178,7 +3153,7 @@ int PPViewVatBook::Export()
 							n_book.PutAttrib("СтПродОсвВсКПр", temp_buf.Z().Cat(sum_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
 						}
 						for(InitIteration(); NextIteration(&item) > 0;) {
-							SXml::WNode n_item(p_writer, p_ledger_line_title);
+							SXml::WNode n_item(g.P_X, p_ledger_line_title);
 							line_no++;
 
 							const double _vat0 = MONEYTOLDBL(item.VAT0);
@@ -3200,12 +3175,12 @@ int PPViewVatBook::Export()
                             	//n_item.PutAttrib("ДатаИспрКСчФ", temp_buf.Z());
 								if(Filt.Kind == PPVTB_BUY) {
 									// n_item.PutAttrib("НомТД", temp_buf.Z()); // Номер таможенной декларации
-									n_item.PutAttrib("ОКВ", temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
+									n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_OKV), temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
 									n_item.PutAttrib("СтоимПокупВ", temp_buf.Z().Cat(_amount, SFMT_MONEY));
 									n_item.PutAttrib("СумНДСВыч", temp_buf.Z().Cat(_svat, SFMT_MONEY));
 								}
 								else if(Filt.Kind == PPVTB_SELL) {
-									n_item.PutAttrib("ОКВ", temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
+									n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_OKV), temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
 									if(!oneof2(base_cur_code, 0, 643)) { // @v10.6.3
 										n_item.PutAttrib("СтоимПродСФВ", temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
 									}
@@ -3229,21 +3204,25 @@ int PPViewVatBook::Export()
 								}
                             	{
                             		GetNalogRuOpIdent(item, temp_buf);
-									SXml::WNode n(p_writer, "КодВидОпер", temp_buf);
+									SXml::WNode n(g.P_X, "КодВидОпер", temp_buf);
                             	}
                            		if(Filt.Kind == PPVTB_BUY) {
 									{
-										SXml::WNode n(p_writer, "ДатаУчТов", temp_buf.Z().Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
+										SXml::WNode n(g.P_X, "ДатаУчТов", temp_buf.Z().Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
 									}
 									{
-										SXml::WNode n(p_writer, "СвПрод");
-										WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), p_writer);
+										//SXml::WNode n(g.P_X, "СвПрод");
+										//WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), g.P_X);
+										// (Эту функцию пока нельзя использовать - есть отличия) g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), ObjectToPerson(item.Object), /*shipper_loc_id*/0, item.Dt, 0);
+										g.WriteOrgInfo_VatLedger(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), ObjectToPerson(item.Object), /*shipper_loc_id*/0, item.Dt, 0);
 									}
                             	}
                             	else if(Filt.Kind == PPVTB_SELL) {
 									if(item.Object) {
-										SXml::WNode n(p_writer, "СвПокуп");
-										WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), p_writer);
+										//SXml::WNode n(g.P_X, "СвПокуп");
+										//WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), g.P_Xw);
+										// (Эту функцию пока нельзя использовать - есть отличия) g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), ObjectToPerson(item.Object), 0, item.Dt, 0);
+										g.WriteOrgInfo_VatLedger(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), ObjectToPerson(item.Object), 0, item.Dt, 0);
 									}
                             	}
                             }
@@ -3251,10 +3230,11 @@ int PPViewVatBook::Export()
 					}
 				}
 			}
-			xmlTextWriterEndDocument(p_writer);
+			//xmlTextWriterEndDocument(p_writer);
+			g.EndDocument();
 		}
 	}
-	CATCHZOKPPERR
-	xmlFreeTextWriter(p_writer);
+	//CATCHZOKPPERR
+	//xmlFreeTextWriter(p_writer);
 	return ok;
 }

@@ -264,10 +264,7 @@ public:
 	struct STAT {
 		static constexpr hb_tag_t tableTag = HB_OT_TAG_STAT;
 
-		bool has_data() const {
-			return version.to_int();
-		}
-
+		bool has_data() const { return version.to_int(); }
 		bool get_value(hb_tag_t tag, float * value) const
 		{
 			uint axis_index;

@@ -942,8 +942,7 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 		}
 	}
 	if(ok < 0) {
-        PPID   main_org_id = 0;
-        GetMainOrgID(&main_org_id);
+        const PPID main_org_id = GetMainOrgID();
         if(main_org_id && psn_obj.GetRegister(main_org_id, PPREGT_TAXSYSTEM, actual_date, &reg_rec) > 0 && reg_rec.ExtID > 0) {
 			tax_sys_id = reg_rec.ExtID;
 			ok = 1;
@@ -967,8 +966,7 @@ int PPObjCashNode::IsVatFree(PPID id)
 		}
 	}
 	if(result < 0) {
-        PPID   main_org_id = 0;
-        GetMainOrgID(&main_org_id);
+        const PPID main_org_id = GetMainOrgID();
         if(main_org_id && psn_obj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
 			result = 1;
 	}

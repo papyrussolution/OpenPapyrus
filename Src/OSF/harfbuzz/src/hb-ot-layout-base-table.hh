@@ -78,23 +78,16 @@ protected:
 public:
 		DEFINE_SIZE_STATIC(8);
 	};
-
 	struct BaseCoordFormat3 {
-		hb_position_t get_coord(hb_font_t * font,
-		    const VariationStore &var_store,
-		    hb_direction_t direction) const
+		hb_position_t get_coord(hb_font_t * font, const VariationStore &var_store, hb_direction_t direction) const
 		{
 			const Device &device = this+deviceTable;
-			return coordinate + (HB_DIRECTION_IS_VERTICAL(direction) ?
-			       device.get_y_delta(font, var_store) :
-			       device.get_x_delta(font, var_store));
+			return coordinate + (HB_DIRECTION_IS_VERTICAL(direction) ? device.get_y_delta(font, var_store) : device.get_x_delta(font, var_store));
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
-			return_trace(LIKELY(c->check_struct(this) &&
-			    deviceTable.sanitize(c, this)));
+			return_trace(LIKELY(c->check_struct(this) && deviceTable.sanitize(c, this)));
 		}
 
 protected:
@@ -109,13 +102,8 @@ public:
 	};
 
 	struct BaseCoord {
-		bool has_data() const {
-			return u.format;
-		}
-
-		hb_position_t get_coord(hb_font_t  * font,
-		    const VariationStore &var_store,
-		    hb_direction_t direction) const
+		bool has_data() const { return u.format; }
+		hb_position_t get_coord(hb_font_t  * font, const VariationStore &var_store, hb_direction_t direction) const
 		{
 			switch(u.format) {
 				case 1: return u.format1.get_coord();
@@ -124,7 +112,6 @@ public:
 				default: return 0;
 			}
 		}
-
 		bool sanitize(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
@@ -144,26 +131,18 @@ protected:
 			BaseCoordFormat2 format2;
 			BaseCoordFormat3 format3;
 		} u;
-
 public:
 		DEFINE_SIZE_UNION(2, format);
 	};
 
 	struct FeatMinMaxRecord {
-		int cmp(hb_tag_t key) const {
-			return tag.cmp(key);
-		}
-
-		bool has_data() const {
-			return tag;
-		}
-
+		int cmp(hb_tag_t key) const { return tag.cmp(key); }
+		bool has_data() const { return tag; }
 		void get_min_max(const BaseCoord ** min, const BaseCoord ** max) const
 		{
 			if(LIKELY(min)) *min = &(this+minCoord);
 			if(LIKELY(max)) *max = &(this+maxCoord);
 		}
-
 		bool sanitize(hb_sanitize_context_t * c, const void * base) const
 		{
 			TRACE_SANITIZE(this);

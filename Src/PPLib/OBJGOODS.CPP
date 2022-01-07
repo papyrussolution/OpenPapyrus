@@ -1992,7 +1992,7 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 			PPGoodsTaxEntry gtx;
 			PPID  lot_tax_grp_id = 0;
 			LDATE actual_date = ZERODATE;
-			int   vat_free = 0;
+			bool  vat_free = false;
 			if(pBlk) {
 				if(pBlk->P_LotRec) {
 					vat_free = IsLotVATFree(*pBlk->P_LotRec);

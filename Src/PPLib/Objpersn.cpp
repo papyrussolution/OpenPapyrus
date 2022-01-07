@@ -70,12 +70,17 @@ int FASTCALL GetMainOrgID(PPID * pID)
 	return _id ? 1 : PPSetError(PPERR_UNDEFMAINORG);
 }
 
+PPID FASTCALL GetMainOrgID()
+{
+	const PPID _id = CConfig.MainOrgID;
+	return _id ? _id : PPSetError(PPERR_UNDEFMAINORG);	
+}
+
 int FASTCALL GetMainCityID(PPID * pCityID)
 {
 	int    ok = -1;
 	PPID   city_id = 0;
-	PPID   main_org_id = 0;
-	GetMainOrgID(&main_org_id);
+	const  PPID   main_org_id = GetMainOrgID();
 	if(main_org_id) {
 		PPObjPerson psn_obj;
 		PersonTbl::Rec psn_rec;
@@ -7624,12 +7629,11 @@ int PPALDD_Employee::InitData(PPFilt & rFilt, long rsrv)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
 		PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(Extra[0].Ptr);
-		PPID    org_id;
 		SString tab_num;
 		PersonPostArray post_list;
 		MEMSZERO(H);
 		H.ID = H.PersonID = rFilt.ID;
-		GetMainOrgID(&org_id);
+		const PPID org_id = GetMainOrgID();
 		if(p_obj->GetPostByPersonList(rFilt.ID, org_id, 1, &post_list) > 0)
 			H.PsnPostID = post_list.at(0).ID;
 		p_obj->PsnObj.RegObj.GetTabNumber(H.PersonID, tab_num);
@@ -7659,8 +7663,7 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 		PPObjPerson psnobj;
 		PersonReq   req, bnk_req;
 		SString temp_buf;
-
-		GetMainOrgID(&H.ID);
+		H.ID = GetMainOrgID();
 		H.BaseCurID = LConfig.BaseCurID;
 		H.MainOrgID = H.ID;
 		GetMainOrgName(temp_buf).CopyTo(H.MainOrgName, sizeof(H.MainOrgName));
@@ -7721,8 +7724,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 				staff_id = PPFIXSTF_DIRECTOR;
 			else if(kind == 2)
 				staff_id = PPFIXSTF_ACCOUNTANT;
-			PPID   org_id = 0;
-			GetMainOrgID(&org_id);
+			const PPID   org_id = GetMainOrgID();
 			st_obj.GetFixedPostOnDate(org_id, staff_id, dt, &post_rec);
 			person_id = post_rec.PersonID;
 		}

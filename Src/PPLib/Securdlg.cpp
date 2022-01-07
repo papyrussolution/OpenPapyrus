@@ -111,6 +111,13 @@ public:
 			SETFLAG(p_secur->Flags, USRF_INHCFG,    v & 1);
 			SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
 			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
+			// @v11.2.10 {
+			{
+				long   desktop_surr_id = 0;
+				getCtrlData(CTLSEL_USR_PDESKTOP, &desktop_surr_id);
+				Data.PrivateDesktopUUID = DesktopList.GetUuidBySurrId(desktop_surr_id);
+			}
+			// } @v11.2.10 
 		}
 		// @v10.3.8 {
 		else if(ObjType == PPOBJ_USRGRP) {

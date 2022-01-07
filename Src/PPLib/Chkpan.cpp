@@ -8599,7 +8599,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 											dup_mark = 1;
 									}
 									if(!dup_mark) {
-										if(!disable_chzn_mark_backtest && CnExtFlags & CASHFX_CHECKEGAISMUNIQ) { // @v10.8.1 !disable_chzn_mark_backtest
+										if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) { // @v10.8.1 !disable_chzn_mark_backtest
 											PPIDArray cc_list;
 											CCheckCore & r_cc = GetCc();
 											int    cc_even = 0;

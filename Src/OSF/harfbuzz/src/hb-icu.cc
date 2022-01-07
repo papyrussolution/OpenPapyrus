@@ -90,7 +90,7 @@ UScriptCode hb_icu_script_from_script(hb_script_t script)
 {
 	if(UNLIKELY(script == HB_SCRIPT_INVALID))
 		return USCRIPT_INVALID_CODE;
-	uint numScriptCode = 1 + u_getIntPropertyMaxValue(UCHAR_SCRIPT);
+	const uint numScriptCode = 1 + u_getIntPropertyMaxValue(UCHAR_SCRIPT);
 	for(uint i = 0; i < numScriptCode; i++)
 		if(UNLIKELY(hb_icu_script_to_script((UScriptCode)i) == script))
 			return (UScriptCode)i;
@@ -134,11 +134,9 @@ static hb_unicode_general_category_t hb_icu_unicode_general_category(hb_unicode_
 		case U_CURRENCY_SYMBOL:               return HB_UNICODE_GENERAL_CATEGORY_CURRENCY_SYMBOL;
 		case U_MODIFIER_SYMBOL:               return HB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL;
 		case U_OTHER_SYMBOL:                  return HB_UNICODE_GENERAL_CATEGORY_OTHER_SYMBOL;
-
 		case U_INITIAL_PUNCTUATION:           return HB_UNICODE_GENERAL_CATEGORY_INITIAL_PUNCTUATION;
 		case U_FINAL_PUNCTUATION:             return HB_UNICODE_GENERAL_CATEGORY_FINAL_PUNCTUATION;
 	}
-
 	return HB_UNICODE_GENERAL_CATEGORY_UNASSIGNED;
 }
 

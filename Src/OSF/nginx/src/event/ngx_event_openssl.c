@@ -1500,11 +1500,9 @@ static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t
 				case NGX_ERROR_INFO:
 				    level = NGX_LOG_INFO;
 				    break;
-
 				case NGX_ERROR_ERR:
 				    level = NGX_LOG_ERR;
 				    break;
-
 				default:
 				    break;
 			}
