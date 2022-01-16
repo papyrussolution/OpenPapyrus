@@ -62,11 +62,11 @@ extern UINT cp_output;
 
 /* wgnuplib.c */
 extern HINSTANCE hdllInstance;
-extern LPWSTR szParentClass;
-extern LPWSTR szTextClass;
-extern LPWSTR szToolbarClass;
-extern LPWSTR szSeparatorClass;
-extern LPWSTR szPauseClass;
+extern LPCWSTR szParentClass;
+extern LPCWSTR szTextClass;
+extern LPCWSTR szToolbarClass;
+extern LPCWSTR szSeparatorClass;
+extern LPCWSTR szPauseClass;
 extern LPTSTR szAboutClass;
 
 void * LocalAllocPtr(UINT flags, UINT size);

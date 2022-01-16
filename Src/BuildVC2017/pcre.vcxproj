@@ -266,6 +266,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -445,6 +446,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
@@ -620,6 +622,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -808,6 +811,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>

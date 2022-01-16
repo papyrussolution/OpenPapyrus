@@ -60,17 +60,17 @@ typedef int (*ti_indicator_start_function)(double const * options);
 typedef int (*ti_indicator_function)(int size, double const * const * inputs, double const * options, double * const * outputs);
 
 typedef struct ti_indicator_info {
-	char * name;
-	char * full_name;
+	const char * name;
+	const char * full_name;
 	ti_indicator_start_function start;
 	ti_indicator_function indicator;
 	int    type;
 	int    inputs;
 	int    options;
 	int    outputs;
-	char * input_names[TI_MAXINDPARAMS];
-	char * option_names[TI_MAXINDPARAMS];
-	char * output_names[TI_MAXINDPARAMS];
+	const char * input_names[TI_MAXINDPARAMS];
+	const char * option_names[TI_MAXINDPARAMS];
+	const char * output_names[TI_MAXINDPARAMS];
 } ti_indicator_info;
 
 // Complete array of all indicators. Last element is 0,0,0,0...

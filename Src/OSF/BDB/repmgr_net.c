@@ -1307,13 +1307,12 @@ int __repmgr_getaddr(ENV * env, const char * host, uint port, int flags /* Match
 int __repmgr_listen(ENV*env)
 {
 	ADDRINFO * ai;
-	DB_REP * db_rep;
 	repmgr_netaddr_t * addrp;
-	char * why;
+	const char * why;
 	int sockopt, ret;
 	socket_t s;
-	db_rep = env->rep_handle;
-	/* Use OOB value as sentinel to show no socket open. */
+	DB_REP * db_rep = env->rep_handle;
+	// Use OOB value as sentinel to show no socket open
 	s = INVALID_SOCKET;
 	addrp = &SITE_FROM_EID(db_rep->self_eid)->net_addr;
 	if((ret = __repmgr_getaddr(env, addrp->host, addrp->port, AI_PASSIVE, &ai)) != 0)

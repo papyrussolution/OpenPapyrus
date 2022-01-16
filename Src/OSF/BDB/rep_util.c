@@ -1813,10 +1813,12 @@ static int __rep_print_int(ENV*env, uint32 verbose, const char * fmt, va_list ap
  * PUBLIC: void __rep_print_message
  * PUBLIC:     __P((ENV *, int, __rep_control_args *, char *, uint32));
  */
-void __rep_print_message(ENV*env, int eid, __rep_control_args * rp, char * str, uint32 flags)
+void __rep_print_message(ENV*env, int eid, __rep_control_args * rp, const char * str, uint32 flags)
 {
 	uint32 ctlflags, rectype, verbflag;
-	char ftype[64], * home, * type;
+	char ftype[64];
+	const char * home = 0;
+	const char * type = 0;
 	rectype = rp->rectype;
 	ctlflags = rp->flags;
 	verbflag = DB_VERB_REP_MSGS|DB_VERB_REPLICATION;

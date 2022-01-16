@@ -1,36 +1,24 @@
-
 /* flexdef - definitions file for flex */
-
-/*  Copyright (c) 1990 The Regents of the University of California. */
-/*  All rights reserved. */
-
-/*  This code is derived from software contributed to Berkeley by */
-/*  Vern Paxson. */
-
+/*  Copyright (c) 1990 The Regents of the University of California. All rights reserved. */
+/*  This code is derived from software contributed to Berkeley by Vern Paxson. */
 /*  The United States Government has rights in this work pursuant */
 /*  to contract no. DE-AC03-76SF00098 between the United States */
 /*  Department of Energy and the University of California. */
-
 /*  This file is part of flex. */
-
 /*  Redistribution and use in source and binary forms, with or without */
 /*  modification, are permitted provided that the following conditions */
 /*  are met: */
-
 /*  1. Redistributions of source code must retain the above copyright */
 /*     notice, this list of conditions and the following disclaimer. */
 /*  2. Redistributions in binary form must reproduce the above copyright */
 /*     notice, this list of conditions and the following disclaimer in the */
 /*     documentation and/or other materials provided with the distribution. */
-
 /*  Neither the name of the University nor the names of its contributors */
 /*  may be used to endorse or promote products derived from this software */
 /*  without specific prior written permission. */
-
 /*  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR */
 /*  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED */
-/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR */
-/*  PURPOSE. */
+/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. */
 
 #ifndef FLEXDEF_H
 #define FLEXDEF_H 1
@@ -417,14 +405,14 @@ extern char * infilename;
 extern char * outfilename;
 extern char * headerfilename;
 extern int did_outfilename;
-extern char * prefix;
+extern const char * prefix;
 extern char * yyclass;
 extern char * extra_type;
 extern int do_stdinit;
 extern int use_stdout;
 extern char **input_files;
 extern int num_input_files;
-extern char *program_name;
+extern const char * program_name;
 extern char *action_array;
 extern int action_size;
 extern int defs1_offset;
@@ -801,7 +789,7 @@ extern void out_str_dec(const char *, const char *, int);
 extern void outc(int);
 extern void outn(const char *);
 extern void out_m4_define(const char* def, const char* val);
-extern char *readable_form(int); /* Return a printable version of the given character, which might be 8-bit. */
+extern const char * readable_form(int); /* Return a printable version of the given character, which might be 8-bit. */
 extern void skelout(); /* Write out one section of the skeleton file. */
 extern void transition_struct_out(int, int); /* Output a yy_trans_info structure. */
 extern void *yy_flex_xmalloc(int); /* Only needed when using certain broken versions of bison to build parse.c. */

@@ -128,7 +128,7 @@ uint32 __rep_msg_to_old(uint32, uint32);
 uint32 __rep_msg_from_old(uint32, uint32);
 int __rep_print_system(ENV *, uint32, const char *, ...) __attribute__ ((__format__ (__printf__, 3, 4)));
 int __rep_print(ENV *, uint32, const char *, ...) __attribute__ ((__format__ (__printf__, 3, 4)));
-void __rep_print_message(ENV *, int, __rep_control_args *, char *, uint32);
+void __rep_print_message(ENV *, int, __rep_control_args *, const char *, uint32);
 void __rep_fire_event(ENV *, uint32, void *);
 void __rep_msg(const ENV *, const char *);
 int __rep_notify_threads(ENV *, rep_waitreason_t);

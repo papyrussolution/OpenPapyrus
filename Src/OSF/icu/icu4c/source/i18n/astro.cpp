@@ -10,7 +10,6 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "ucln_in.h"
-#include "putilimp.h"
 
 #if defined (PI)
 #undef PI

@@ -1,12 +1,8 @@
+// collationiterator.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2010-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationiterator.cpp
- *
+ * Copyright (C) 2010-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2010oct27
  * created by: Markus W. Scherer
  */
@@ -17,15 +13,14 @@
 
 #include "collationfcd.h"
 #include "collationiterator.h"
-#include "normalizer2impl.h"
 
 U_NAMESPACE_BEGIN
 
 CollationIterator::CEBuffer::~CEBuffer() {
 }
 
-bool
-CollationIterator::CEBuffer::ensureAppendCapacity(int32_t appCap, UErrorCode & errorCode) {
+bool CollationIterator::CEBuffer::ensureAppendCapacity(int32_t appCap, UErrorCode & errorCode) 
+{
 	int32_t capacity = buffer.getCapacity();
 	if((length + appCap) <= capacity) {
 		return TRUE;

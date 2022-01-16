@@ -13,7 +13,6 @@
 #include "numparse_types.h"
 #include "number_decimalquantity.h"
 #include "string_segment.h"
-#include "putilimp.h"
 
 using namespace icu;
 using namespace icu::number;

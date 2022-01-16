@@ -738,7 +738,7 @@ IMPL_HANDLE_EVENT(GoodsRestWPrgnFltDlg)
 		LDATE  dt = getCtrlDate(CTL_GRWPRGNFLT_DATE);
 		SETIFZ(dt, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_GRWPRGNFLT_PRGNPRD));
-		int    num_days = p_il ? atoi(p_il->getText()) : 0;
+		const int num_days = p_il ? satoi(p_il->getText()) : 0;
 		if(num_days > 0 && dt) {
 			DateRange period;
 			period.Set(plusdate(dt, 1), plusdate(dt, num_days));

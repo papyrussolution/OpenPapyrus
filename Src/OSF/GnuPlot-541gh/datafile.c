@@ -1957,7 +1957,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 
 /*}}} */
 
-char * read_error_msg = "Data file read error";
+const char * read_error_msg = "Data file read error";
 double df_matrix_corner[2][2]; /* First argument is corner, second argument is x (0) or y(1). */
 
 void df_swap_bytes_by_endianess(char * data, int read_order, int read_size)
@@ -2855,7 +2855,7 @@ df_bin_default_columns default_style_cols[] = {
 //static void adjust_binary_use_spec(curve_points * plot)
 void GnuPlot::AdjustBinaryUseSpec(curve_points * pPlot)
 {
-	char * nothing_known = "a 'using' specifier is required for that binary plot style";
+	const char * nothing_known = "a 'using' specifier is required for that binary plot style";
 	uint ps_index;
 	enum PLOT_STYLE plot_style = pPlot ? pPlot->plot_style : LINES;
 	// The default binary matrix format is nonuniform, i.e.
@@ -4700,7 +4700,7 @@ char * GnuPlot::DfGeneratePseudodata()
 			if(++_Df.df_pseudospan >= nvsteps)
 				return NULL;
 			else
-				return ""; /* blank record for end of scan line */
+				return const_cast<char *>(""); // @badcast blank record for end of scan line 
 		}
 		// Duplicate algorithm from calculate_set_of_isolines() 
 		u = u_min + _Df.df_pseudorecord * u_step;

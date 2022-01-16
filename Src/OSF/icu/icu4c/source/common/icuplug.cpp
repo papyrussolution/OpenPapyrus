@@ -1,18 +1,10 @@
+// icuplug.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 2009-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- *  FILE NAME : icuplug.c
- *
+ *   Copyright (C) 2009-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date         Name        Description
  *   10/29/2009   sl          New.
- ******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -21,7 +13,6 @@
 #if UCONFIG_ENABLE_PLUGINS
 
 #include "icuplugimp.h"
-#include "putilimp.h"
 #include "ucln.h"
 #ifdef __MVS__  /* defined by z/OS compiler */
 #define _POSIX_SOURCE

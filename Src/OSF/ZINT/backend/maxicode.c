@@ -519,7 +519,7 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 				substring[j] = character[i + j];
 			}
 			substring[9] = '\0';
-			value = atoi(substring);
+			value = satoi(substring);
 
 			character[i] = 31; /* NS */
 			character[i+1] = (value & 0x3f000000) >> 24;
@@ -593,16 +593,13 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 void maxi_do_primary_2(char postcode[], int country, int service)
 {
 	int postcode_length, postcode_num, i;
-
 	for(i = 0; i < 10; i++) {
 		if((postcode[i] < '0') || (postcode[i] > '9')) {
 			postcode[i] = '\0';
 		}
 	}
-
 	postcode_length = strlen(postcode);
-	postcode_num = atoi(postcode);
-
+	postcode_num = satoi(postcode);
 	maxi_codeword[0] = ((postcode_num & 0x03) << 4) | 2;
 	maxi_codeword[1] = ((postcode_num & 0xfc) >> 2);
 	maxi_codeword[2] = ((postcode_num & 0x3f00) >> 8);
@@ -717,10 +714,8 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 		servicestr[1] = symbol->primary[13];
 		servicestr[2] = symbol->primary[14];
 		servicestr[3] = '\0';
-
-		countrycode = atoi(countrystr);
-		service = atoi(servicestr);
-
+		countrycode = satoi(countrystr);
+		service = satoi(servicestr);
 		if(mode == 2) {
 			maxi_do_primary_2(postcode, countrycode, service);
 		}
@@ -731,7 +726,6 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 	else {
 		maxi_codeword[0] = mode;
 	}
-
 	i = maxi_text_process(mode, local_source, length, symbol->eci);
 	if(i == ZINT_ERROR_TOO_LONG) {
 		sstrcpy(symbol->errtxt, "Input data too long (E53)");

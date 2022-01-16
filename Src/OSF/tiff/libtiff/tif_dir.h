@@ -275,10 +275,10 @@ struct _TIFFField {
 	uint32 reserved;                        /* reserved for future extension */
 	TIFFSetGetFieldType set_field_type;     /* type to be passed to TIFFSetField */
 	TIFFSetGetFieldType get_field_type;     /* type to be passed to TIFFGetField */
-	unsigned short field_bit;               /* bit in fieldsset bit vector */
-	unsigned char field_oktochange;         /* if true, can change while writing */
-	unsigned char field_passcount;          /* if true, pass dir count on set */
-	char* field_name;                       /* ASCII name */
+	ushort field_bit;               /* bit in fieldsset bit vector */
+	uchar field_oktochange;         /* if true, can change while writing */
+	uchar field_passcount;          /* if true, pass dir count on set */
+	char * field_name;                /* ASCII name */
 	TIFFFieldArray* field_subfields;        /* if field points to child ifds, child ifd field definition array */
 };
 

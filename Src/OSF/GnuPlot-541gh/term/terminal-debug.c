@@ -224,7 +224,7 @@ TERM_PUBLIC void DEBUG_set_color(GpTermEntry_Static * pThis, const t_colorspec *
 
 TERM_PUBLIC void DEBUG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
-	char * l = "";
+	const char * l = "";
 	switch(syncpoint) {
 		case TERM_LAYER_RESET:              l = "reset"; break;
 		case TERM_LAYER_BACKTEXT:           l = "backtext"; break;

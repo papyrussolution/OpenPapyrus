@@ -318,7 +318,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -330,6 +330,8 @@
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -364,7 +366,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
@@ -375,6 +377,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -423,6 +427,8 @@
       <SDLCheck>
       </SDLCheck>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -467,6 +473,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -507,6 +515,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -547,6 +556,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -591,6 +601,7 @@
       <SDLCheck>
       </SDLCheck>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -635,6 +646,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -675,6 +687,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -715,6 +728,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -759,6 +773,7 @@
       <SDLCheck>
       </SDLCheck>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -803,6 +818,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -819,6 +835,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
@@ -832,6 +849,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>

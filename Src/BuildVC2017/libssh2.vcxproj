@@ -269,6 +269,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -317,6 +319,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -365,6 +368,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -413,6 +417,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -461,6 +467,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -509,6 +516,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -554,6 +562,8 @@
       <EnableModules>false</EnableModules>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -600,6 +610,7 @@
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -646,6 +657,7 @@
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -692,6 +704,8 @@
       <EnableModules>false</EnableModules>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -738,6 +752,7 @@
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -784,6 +799,7 @@
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>

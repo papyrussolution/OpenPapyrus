@@ -101,7 +101,7 @@ static void ColourisePSDoc(Sci_PositionU startPos, Sci_Position length, int init
 				else {
 					char szradix[5];
 					sc.GetCurrent(szradix, 4);
-					numRadix = atoi(szradix);
+					numRadix = satoi(szradix);
 					if(numRadix < 2 || numRadix > 36)
 						sc.ChangeState(SCE_PS_NAME);
 				}

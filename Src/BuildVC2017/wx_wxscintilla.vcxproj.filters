@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\Accessor.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\AutoComplete.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\CallTip.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\CaseConvert.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\CaseFolder.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Catalogue.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\CellBuffer.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\CharacterCategory.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\CharacterSet.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\CharClassify.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\ContractionState.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Decoration.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Document.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\EditModel.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Editor.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\EditView.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\ExternalLexer.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Indicator.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\KeyMap.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexA68k.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAbaqus.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAda.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAPDL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAsm.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAsn1.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexASY.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAU3.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAVE.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexAVS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexBaan.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexBash.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexBasic.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexBatch.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexBibTeX.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexBullant.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCaml.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCLW.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCmake.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCOBOL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCoffeeScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexConf.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCPP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCrontab.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCsound.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexCSS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexD.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexDiff.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexDMAP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexDMIS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexECL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexEDIFACT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexEiffel.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\LexerBase.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexErlang.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\LexerModule.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\LexerNoExceptions.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexErrorList.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\LexerSimple.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexEScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexFlagship.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexForth.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexFortran.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexGAP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexGui4Cli.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexHaskell.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexHex.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexHTML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexInno.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexJSON.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexKix.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexKVIrc.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexLatex.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexLisp.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexLout.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexLua.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMagik.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMake.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMarkdown.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMatlab.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMetapost.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMMIXAL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexModula.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMPT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMSSQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexMySQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexNimrod.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexNsis.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexNull.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexOpal.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexOScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPascal.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPB.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPerl.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPLM.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPO.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPOV.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPowerPro.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPowerShell.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexProgress.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexProps.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexPython.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexR.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexRebol.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexRegistry.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexRuby.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexRust.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexScriptol.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSmalltalk.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSorcus.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSpecman.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSpice.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexSTTXT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTACL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTADS3.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTAL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTCL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTCMD.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTeX.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexTxt2tags.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexVB.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexVerilog.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexVHDL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexVisualProlog.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexers\LexYAML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\LineMarker.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\MarginView.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\PerLine.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\PositionCache.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\PropSetSimple.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\RESearch.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\RunStyles.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\ScintillaBase.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Selection.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\Style.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\StyleContext.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\UniConversion.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\ViewStyle.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\lexlib\WordList.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\stc\scintilla\src\XPM.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\setup.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

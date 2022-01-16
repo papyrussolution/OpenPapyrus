@@ -973,7 +973,7 @@ err:
 
 static const char * __lv_dbtype_str(DBTYPE dbtype)
 {
-	char * p;
+	const char * p;
 	switch(dbtype) {
 	    case DB_BTREE: p = "DB_BTREE"; break;
 	    case DB_HASH: p = "DB_HASH"; break;

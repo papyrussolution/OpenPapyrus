@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib.h>
 #include <pp.h>
@@ -458,7 +458,7 @@ int PPSmsAccPacket::GetPassword(SString & rBuf) const
 			nmb[1] = temp_buf.C(p+1);
 			nmb[2] = temp_buf.C(p+2);
 			nmb[3] = 0;
-			temp_pw[i] = atoi(nmb);
+			temp_pw[i] = satoi(nmb);
 			p += 3;
 		}
 		IdeaDecrypt(0, temp_pw, MAX_PASSWORD_LEN);

@@ -1,15 +1,9 @@
+// UCHAR.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ********************************************************************************
- *   Copyright (C) 1996-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File UCHAR.C
- *
+ *   Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   04/02/97    aliu        Creation.
  *   4/15/99     Madhu       Updated all the function definitions for C Implementation
@@ -18,12 +12,10 @@
  *   11/11/1999  weiv        added u_isalnum(), cleaned comments
  *   01/11/2000  helena      Renamed u_getVersion to u_getUnicodeVersion.
  *   06/20/2000  helena      OS/400 port changes; mostly typecast.
- ******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln_cmn.h"
-#include "utrie2.h"
 #include "udataswp.h"
 #include "uprops.h"
 #include "ustr_imp.h"

@@ -219,7 +219,7 @@ static int merror = 0;
 #define MTHERR_TLPREC    5
 #define MTHERR_PLPREC    6
 
-static int mtherr(char * name, int code)
+static int mtherr(const char * name, int code)
 {
 	static const char * ermsg[7] = {
 		"unknown",          /* error code 0 */

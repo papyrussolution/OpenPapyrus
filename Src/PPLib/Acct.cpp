@@ -1,5 +1,5 @@
 // ACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020, 2022
 // @Kernel
 //
 #include <pp.h>
@@ -182,7 +182,7 @@ static int parseAccString(const char * pStr, int pTok[], int * pSide)
 	}
 	if((p = strtok(s, dot)) != 0)
 		do {
-			pTok[i++] = atoi(p);
+			pTok[i++] = satoi(p);
 		} while(i < 3 && (p = strtok(0, dot)) != 0);
 	while(i < 3)
 		pTok[i++] = -1; // 0;

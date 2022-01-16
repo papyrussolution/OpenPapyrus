@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -563,7 +563,7 @@ int BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID *
 		SmartListBox * p_listbox = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_BILLPRELUDE_OPLIST));
 		p_listbox->setDef(new StrAssocListBoxDef(op_obj.MakeOprKindList(linkOpID, pOpList, opklFlags), lbtDblClkNotify|lbtFocNotify|lbtDisposeData));
 		if(op_id)
-			p_listbox->search(&op_id, 0, srchFirst | lbSrchByID);
+			p_listbox->Search_(&op_id, 0, srchFirst|lbSrchByID);
 		dlg->SetupWordSelector(CTL_BILLPRELUDE_OPLIST, 0, 0, /*MIN_WORDSEL_SYMB*/2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
 		SetupPPObjCombo(dlg, CTLSEL_BILLPRELUDE_LOC, PPOBJ_LOCATION, loc_id, OLW_WORDSELECTOR); // @v10.7.8 OLW_WORDSELECTOR
 		if(loc_id && opklFlags & OPKLF_FIXEDLOC)
@@ -2995,7 +2995,7 @@ int BillDialog::getDTS(int onCancel)
 		}
 	}
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
-        if(P_Pack->Rec.Flags2 & (BILLF2_RECADV_ACCP|BILLF2_RECADV_DECL)) {
+        if(P_Pack->Rec.Flags2 & (BILLF2_EDI_ACCP|BILLF2_EDI_DECL)) {
         	int recadv_conf_status = GetClusterData(CTL_BILL_EDIACKRESP);
             BillCore::SetRecadvConfStatus(recadv_conf_status, P_Pack->Rec);
         }
@@ -3135,9 +3135,9 @@ int PPObjBill::ViewBillInfo(PPID billID)
 			const long org_flags = pack.Rec.Flags;
 			const long org_flags2 = pack.Rec.Flags2;
 			long   recadv_status = 0;
-			if(pack.Rec.Flags2 & BILLF2_RECADV_ACCP)
-				recadv_status = (pack.Rec.Flags2 & BILLF2_RECADV_DECL) ? 2 : 1;
-			else if(pack.Rec.Flags2 & BILLF2_RECADV_DECL)
+			if(pack.Rec.Flags2 & BILLF2_EDI_ACCP)
+				recadv_status = (pack.Rec.Flags2 & BILLF2_EDI_DECL) ? 2 : 1;
+			else if(pack.Rec.Flags2 & BILLF2_EDI_DECL)
 				recadv_status = 3;
 			GetGuid(billID, &guid);
 			THROW(CheckDialogPtr(&(dlg = new BillInfoDialog(&pack))));

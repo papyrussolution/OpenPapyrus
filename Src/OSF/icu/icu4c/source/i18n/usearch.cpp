@@ -15,7 +15,6 @@
 #if !UCONFIG_NO_COLLATION && !UCONFIG_NO_BREAK_ITERATION
 
 #include "unicode/usearch.h"
-#include "normalizer2impl.h"
 #include "usrchimp.h"
 #include "ucln_in.h"
 #include "ustr_imp.h"

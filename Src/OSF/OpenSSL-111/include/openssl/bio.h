@@ -11,11 +11,6 @@
 
 #include <openssl/e_os2.h>
 #include <openssl/crypto.h>
-//#ifndef OPENSSL_NO_STDIO
-//#include <stdio.h>
-//#endif
-//#include <stdarg.h>
-//#include <openssl/crypto.h>
 #include <openssl/bioerr.h>
 
 #ifdef  __cplusplus

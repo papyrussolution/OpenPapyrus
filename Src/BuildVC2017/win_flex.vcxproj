@@ -109,6 +109,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,6 +139,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,6 +177,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -215,6 +218,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

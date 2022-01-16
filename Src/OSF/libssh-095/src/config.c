@@ -664,8 +664,8 @@ static int ssh_config_parse_line(ssh_session session,
 		case SOC_PROTOCOL:
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && *parsing) {
-			    char * a, * b;
-			    b = _strdup(p);
+			    char * a;
+			    char * b = _strdup(p);
 			    if(b == NULL) {
 				    ZFREE(x);
 				    ssh_set_error_oom(session);
@@ -673,9 +673,8 @@ static int ssh_config_parse_line(ssh_session session,
 			    }
 			    i = 0;
 			    ssh_options_set(session, SSH_OPTIONS_SSH2, &i);
-
 			    for(a = strtok(b, ","); a; a = strtok(NULL, ",")) {
-				    switch(atoi(a)) {
+				    switch(satoi(a)) {
 					    case 1:
 						break;
 					    case 2:

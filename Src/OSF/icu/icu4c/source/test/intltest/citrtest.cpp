@@ -1,19 +1,14 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/****************************************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2014, International Business Machines Corporation and
-* others. All Rights Reserved.
-* Modification History:
-*
-*   Date          Name        Description
-*   05/22/2000    Madhu       Added tests for testing new API for utf16 support and more
-****************************************************************************************/
-
+// 
+// Copyright (c) 1997-2014, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+//   Date          Name        Description
+//   05/22/2000    Madhu       Added tests for testing new API for utf16 support and more
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/chariter.h"
-#include "unicode/unistr.h"
 #include "unicode/uchriter.h"
 #include "citrtest.h"
 

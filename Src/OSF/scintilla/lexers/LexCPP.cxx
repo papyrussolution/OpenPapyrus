@@ -1549,7 +1549,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 	// Evaluate logical negations
 	for(size_t j = 0; (j+1)<tokens.size(); ) {
 		if(setNegationOp.Contains(tokens[j][0])) {
-			int isTrue = atoi(tokens[j+1].c_str());
+			int isTrue = satoi(tokens[j+1].c_str());
 			if(tokens[j] == "!")
 				isTrue = !isTrue;
 			std::vector<std::string>::iterator itInsert =
@@ -1568,13 +1568,9 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 		// Looking at 3 tokens at a time so end at 2 before end
 		for(size_t k = 0; (k+2)<tokens.size(); ) {
 			char chOp = tokens[k+1][0];
-			if(
-			    ((prec==precArithmetic) && setArithmethicOp.Contains(chOp)) ||
-			    ((prec==precRelative) && setRelOp.Contains(chOp)) ||
-			    ((prec==precLogical) && setLogicalOp.Contains(chOp))
-			    ) {
-				int valA = atoi(tokens[k].c_str());
-				int valB = atoi(tokens[k+2].c_str());
+			if(((prec==precArithmetic) && setArithmethicOp.Contains(chOp)) || ((prec==precRelative) && setRelOp.Contains(chOp)) || ((prec==precLogical) && setLogicalOp.Contains(chOp))) {
+				int valA = satoi(tokens[k].c_str());
+				int valB = satoi(tokens[k+2].c_str());
 				int result = 0;
 				if(tokens[k+1] == "+")
 					result = valA + valB;

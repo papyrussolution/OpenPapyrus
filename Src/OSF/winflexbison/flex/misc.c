@@ -293,7 +293,9 @@ void lerr_fatal(const char * msg, ...)
 void line_directive_out(FILE * output_file, int do_infile)
 {
 	char directive[MAXLINE], filename[MAXLINE];
-	char   * s1, * s2, * s3;
+	const char * s1;
+	char * s2;
+	char * s3;
 	static const char line_fmt[] = "#line %d \"%s\"\n";
 	if(!gen_line_dirs)
 		return;
@@ -485,7 +487,7 @@ void out_m4_define(const char* def, const char* val)
 // readable_form - return the the human-readable form of a character
 // The returned string is in static storage.
 // 
-char * readable_form(int c)
+const char * readable_form(int c)
 {
 	static char rform[20];
 	if((c >= 0 && c < 32) || c >= 127) {

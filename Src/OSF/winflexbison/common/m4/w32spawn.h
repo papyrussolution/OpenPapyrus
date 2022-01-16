@@ -97,10 +97,10 @@ static char ** prepare_spawn(char ** argv)
 	size_t argc;
 	char ** new_argv;
 	size_t i;
-	/* Count number of arguments.  */
+	// Count number of arguments
 	for(argc = 0; argv[argc] != NULL; argc++)
 		;
-	/* Allocate new argument vector.  */
+	// Allocate new argument vector
 	new_argv = XNMALLOC(1 + argc + 1, char *);
 	/* Add an element upfront that can be used when argv[0] turns out to be a
 	   script, not a program.
@@ -108,8 +108,8 @@ static char ** prepare_spawn(char ** argv)
 	   "sh.exe".  We have to omit the directory part and rely on the search in
 	   PATH, because the mingw "mount points" are not visible inside Win32
 	   CreateProcess().  */
-	*new_argv++ = "sh.exe";
-	/* Put quoted arguments into the new argument vector.  */
+	*new_argv++ = const_cast<char *>("sh.exe"); // @v11.2.11 @badcast
+	// Put quoted arguments into the new argument vector
 	for(i = 0; i < argc; i++) {
 		const char * string = argv[i];
 		if(string[0] == '\0')
@@ -160,7 +160,6 @@ static char ** prepare_spawn(char ** argv)
 				*p++ = '"';
 			}
 			*p = '\0';
-
 			new_argv[i] = quoted_string;
 		}
 		else

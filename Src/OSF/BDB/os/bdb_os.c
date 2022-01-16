@@ -638,7 +638,7 @@ found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 	 * We don't use the obvious data structure because some C compilers
 	 * (and I use the phrase loosely) don't like static data arrays.
 	 */
-#define DB_TEMP_DIRECTORY(n) { char * __p = n; if(__os_exists(env, __p, &isdir) == 0 && isdir != 0) return (__os_strdup(env, __p, &dbenv->db_tmp_dir)); }
+#define DB_TEMP_DIRECTORY(n) { const char * __p = n; if(__os_exists(env, __p, &isdir) == 0 && isdir != 0) return (__os_strdup(env, __p, &dbenv->db_tmp_dir)); }
 #ifdef DB_WIN32
 	DB_TEMP_DIRECTORY("/temp");
 	DB_TEMP_DIRECTORY("C:/temp");

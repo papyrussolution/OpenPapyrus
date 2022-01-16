@@ -62,7 +62,7 @@ int TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	if(ver == 3) {
 		class TrfrAnlzFilt_v3 : public PPBaseFilt {
 		public:
-			TrfrAnlzFilt_v3::TrfrAnlzFilt_v3() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3)
+			TrfrAnlzFilt_v3() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 3)
 			{
 				SetFlatChunk(offsetof(TrfrAnlzFilt, ReserveStart),
 					offsetof(TrfrAnlzFilt, BillList)-offsetof(TrfrAnlzFilt, ReserveStart));
@@ -3635,7 +3635,7 @@ private:
 			clearEvent(event);
 		}
 	}
-	virtual int TrfrAnlzCtDialog::setupList()
+	virtual int setupList()
 	{
 		int    ok = 1;
 		SString buf;

@@ -1143,8 +1143,6 @@ void SHA3_sponge(const uchar * inp, size_t len, uchar * out, size_t d, size_t r)
 	SHA3_squeeze(A, out, d, r);
 }
 
-//#include <stdio.h>
-
 int main()
 {
 	/*

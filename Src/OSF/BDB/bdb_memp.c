@@ -2341,7 +2341,7 @@ int __memp_get_pgcookie(const DB_MPOOLFILE * dbmfp, DBT * pgcookie)
 {
 	if(dbmfp->pgcookie == NULL) {
 		pgcookie->size = 0;
-		pgcookie->data = "";
+		pgcookie->data = const_cast<char *>(""); // @badcast
 	}
 	else
 		memcpy(pgcookie, dbmfp->pgcookie, sizeof(DBT));

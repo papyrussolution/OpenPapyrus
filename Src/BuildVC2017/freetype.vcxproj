@@ -294,6 +294,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -342,6 +344,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -387,6 +391,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -432,6 +438,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -473,6 +481,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -514,6 +523,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -558,6 +568,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -602,6 +613,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -643,6 +655,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -684,6 +697,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -728,6 +742,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -772,6 +787,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>
       </SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>

@@ -373,7 +373,7 @@ ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t 
 	return NGX_DONE;
 }
 
-ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c, char * prefix, size_t len)
+ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c, const char * prefix, size_t len)
 {
 	ngx_str_t salt;
 	ngx_uint_t n;

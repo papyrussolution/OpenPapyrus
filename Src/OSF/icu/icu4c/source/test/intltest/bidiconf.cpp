@@ -1,26 +1,15 @@
+// bidiconf.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-*
-*   Copyright (C) 2009-2014, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-*******************************************************************************
-*   file name:  bidiconf.cpp
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 2009oct16
-*   created by: Markus W. Scherer
-*
-*   BiDi conformance test, using the Unicode BidiTest.txt and BidiCharacterTest.txt files.
-*/
+// Copyright (C) 2009-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2009oct16
+// created by: Markus W. Scherer
+// BiDi conformance test, using the Unicode BidiTest.txt and BidiCharacterTest.txt files.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ubidi.h"
-#include "unicode/unistr.h"
 #include "intltest.h"
 #include "uparse.h"
 

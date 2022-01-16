@@ -11,7 +11,7 @@
 
 static int __log_print_dbregister __P((ENV*, DBT*, DB_LOG *));
 
-int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_LOG_RECSPEC * spec, void * info)
+int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, const char * name, DB_LOG_RECSPEC * spec, void * info)
 {
 	DB * dbp;
 	DBT dbt;
@@ -28,7 +28,8 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 	int has_data, ret, downrev;
 	struct tm * lt;
 	__time64_t timeval;
-	char time_buf[CTIME_BUFLEN], * s;
+	char time_buf[CTIME_BUFLEN];
+	const char * s = 0;
 	const char * hdrname;
 
 	COMPQUIET(hdrstart, 0);
@@ -188,8 +189,7 @@ pr_data:
 					hdrtmp = hdrstart;
 				if(has_data == 1 && ALIGNP_INC(bp,
 					   sizeof(uint32)) != bp) {
-					if((ret = __os_malloc(env,
-						    uinttmp, &datatmp)) != 0)
+					if((ret = __os_malloc(env, uinttmp, &datatmp)) != 0)
 						return ret;
 					memcpy(datatmp, bp, uinttmp);
 				}
@@ -197,9 +197,7 @@ pr_data:
 					datatmp = bp;
 				else
 					datatmp = NULL;
-				if((ret = __db_prpage_int(env, &msgbuf,
-					    dbp, "\t", hdrtmp,
-					    uinttmp, datatmp, DB_PR_PAGE)) != 0)
+				if((ret = __db_prpage_int(env, &msgbuf, dbp, "\t", hdrtmp, uinttmp, datatmp, DB_PR_PAGE)) != 0)
 					return ret;
 				has_data = 0;
 				if(hdrtmp != hdrstart)

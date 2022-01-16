@@ -1,5 +1,5 @@
 // SUC.CPP
-// Copyright (c) A.Sobolev 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2017, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -396,30 +396,32 @@ SCodepageMapPool::CpMap::CpUToBHash::CpUToBHash(const SCodepageMapPool::CpMap & 
 			}
 		}
 	}
-	const uint fbc = real_fbc;
-	uint hs = mc+fbc+1;
-	do {
-		while(!IsPrime(hs))
-			hs++;
-		p_temp_hash = SAlloc::R(p_temp_hash, hs * es);
-		memzero(p_temp_hash, hs * es);
-		int    is_dup = 0; // Если !0, то в хэше есть дубликат - надо увеличивать размер
-		int    fuhr = FillUpHash(mc, rMap.P_Map, es, hs, p_temp_hash);
-		if(fuhr > 0) {
-			fuhr = FillUpHash(fbc, p_fallback, es, hs, p_temp_hash);
+	{
+		const uint fbc = real_fbc;
+		uint hs = mc+fbc+1;
+		do {
+			while(!IsPrime(hs))
+				hs++;
+			p_temp_hash = SAlloc::R(p_temp_hash, hs * es);
+			memzero(p_temp_hash, hs * es);
+			int    is_dup = 0; // Если !0, то в хэше есть дубликат - надо увеличивать размер
+			int    fuhr = FillUpHash(mc, rMap.P_Map, es, hs, p_temp_hash);
+			if(fuhr > 0) {
+				fuhr = FillUpHash(fbc, p_fallback, es, hs, p_temp_hash);
+			}
+			if(fuhr < 0) {
+				is_dup = 1;
+				hs += (mc+fbc); // Увеличиваем приблизительный размер хэша на один шаг, равный сумме элементов основной таблицы и fallback'а
+			}
+			else if(fuhr > 0)
+				ok = 1;
+			else  // fuhr == 0
+				ok = 0;
+		} while(ok < 0);
+		if(ok > 0) {
+			Count = hs;
+			P_Buf = p_temp_hash;
 		}
-		if(fuhr < 0) {
-			is_dup = 1;
-			hs += (mc+fbc); // Увеличиваем приблизительный размер хэша на один шаг, равный сумме элементов основной таблицы и fallback'а
-		}
-		else if(fuhr > 0)
-			ok = 1;
-		else  // fuhr == 0
-			ok = 0;
-	} while(ok < 0);
-	if(ok > 0) {
-		Count = hs;
-		P_Buf = p_temp_hash;
 	}
 	CATCHZOK
 	delete [] p_fallback;

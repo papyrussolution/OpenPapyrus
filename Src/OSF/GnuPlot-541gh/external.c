@@ -73,7 +73,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	/* 1st try:  "file" */
 	dl = DLL_OPEN(file);
 	if(!dl) {
-		char * err = DLL_ERROR(dl);
+		const char * err = DLL_ERROR(dl);
 		char * s;
 #ifdef DLL_PATHSEP
 		int no_path = !(s = strrchr(file, DLL_PATHSEP[0]));
@@ -121,7 +121,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	}
 	exfn = (exfn_t)DLL_SYM(dl, func);
 	if(!exfn) {
-		char * err = DLL_ERROR(dl);
+		const char * err = DLL_ERROR(dl);
 		SETIFZ(err, "external function not found");
 		IntWarnCurToken(err);
 		goto bailout;

@@ -146,13 +146,6 @@
 // 
 // Memory routines
 // 
-//#include <stdlib.h>   /* malloc, calloc, free */
-//#define ALLOC(s)          malloc(s)
-//#define ALLOC_AND_ZERO(s) calloc(1, s)
-//#define FREEMEM(p)        free(p)
-//#include <string.h>   /* memset, memcpy */
-//#define MEM_INIT(p, v, s)   memset((p), (v), (s))
-// 
 // Basic Types
 // 
 #if defined(__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
@@ -295,7 +288,6 @@ static const int LZ4_minLength = (MFLIMIT+1);
 #define LZ4_STATIC_ASSERT(c)   { enum { LZ4_static_assert = 1/(int)(!!(c)) }; }   /* use after variable declarations */
 
 #if defined(LZ4_DEBUG) && (LZ4_DEBUG>=2)
-	//#include <stdio.h>
 	static int g_debuglog_enable = 1;
 	/* #define DEBUGLOG(l, ...) { \
 		if((g_debuglog_enable) && (l<=LZ4_DEBUG)) {  \

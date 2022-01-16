@@ -545,7 +545,8 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 	int cnt, i, ret, t_ret;
 	char buf[DB_MAXPATHLEN], nbuf[DB_MAXPATHLEN], sepsave;
 	char * endname, * endpath, * exname, * fullname, ** names;
-	char * ndir, * namep, * p_new_, * cp;
+	const char * ndir;
+	char * namep, * p_new_, * cp;
 	ENV * env = dbp->env;
 	QUEUE * qp = (QUEUE *)dbp->q_internal;
 	cnt = ret = t_ret = 0;
@@ -608,7 +609,8 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 	exlen = fulllen+20;
 	if((ret = __os_malloc(env, exlen, &exname)) != 0)
 		goto err;
-	ndir = p_new_ = NULL;
+	ndir = 0;
+	p_new_ = 0;
 	if(newname != NULL) {
 		if((ret = __os_strdup(env, newname, &namep)) != 0)
 			goto err;

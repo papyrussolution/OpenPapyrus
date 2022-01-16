@@ -57,9 +57,6 @@ typedef struct {
 #ifndef BZ_IMPORT
 	#define BZ_EXPORT
 #endif
-#ifndef BZ_NO_STDIO
-	//#include <stdio.h> // Need a definitition for FILE 
-#endif
 #ifdef _WIN32
 	#include <windows.h>
 		#ifdef small

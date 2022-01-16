@@ -70,7 +70,7 @@ int pharma_one(struct ZintSymbol * symbol, const uchar source[], int length)
 		ZintMakeErrText_InvCharInData("C51", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
-	tester = atoi(reinterpret_cast<const char *>(source));
+	tester = satoi(reinterpret_cast<const char *>(source));
 	if((tester < 3) || (tester > 131070)) {
 		sstrcpy(symbol->errtxt, "Data out of range (C52)");
 		return ZINT_ERROR_INVALID_DATA;
@@ -108,7 +108,7 @@ int pharma_two_calc(struct ZintSymbol * symbol, uchar source[], char dest[])
 	int    counter, h;
 	char   inter[17];
 	int    error_number;
-	ulong  tester = atoi((char *)source);
+	ulong  tester = satoi((char *)source);
 	if((tester < 4) || (tester > 64570080)) {
 		sstrcpy(symbol->errtxt, "Data out of range (C53)");
 		return ZINT_ERROR_INVALID_DATA;
@@ -258,9 +258,9 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 	checkdigit = checksum % 10;
 	localstr[8] = itoc(checkdigit);
 	localstr[9] = '\0';
-	/* Convert string into an integer value */
-	pharmacode = atoi(localstr);
-	/* Convert from decimal to base-32 */
+	// Convert string into an integer value 
+	pharmacode = satoi(localstr);
+	// Convert from decimal to base-32 
 	devisor = 33554432;
 	for(i = 5; i >= 0; i--) {
 		codeword[i] = pharmacode / devisor;

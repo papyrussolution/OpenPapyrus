@@ -23,7 +23,7 @@ static int __partition_setup_keys(DBC*, DB_PARTITION*, const DBMETA*, uint32);
 static int __part_key_cmp(const void *, const void *);
 static inline void __part_search(DB*, DB_PARTITION*, DBT*, uint32 *);
 
-static char * Alloc_err = DB_STR_A("0644", "Partition open failed to allocate %d bytes", "%d");
+static const char * Alloc_err = DB_STR_A("0644", "Partition open failed to allocate %d bytes", "%d");
 /*
  * Allocate a partition cursor and copy flags to the partition cursor.
  * Not passed:

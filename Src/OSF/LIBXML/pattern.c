@@ -2119,24 +2119,26 @@ xmlPattern * xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int flag
 	xmlPattern * ret = NULL;
 	xmlPattern * cur;
 	xmlPatParserContextPtr ctxt = NULL;
-	const xmlChar * or, * start;
+	const xmlChar * p_or;
+	const xmlChar * start;
 	xmlChar * tmp = NULL;
 	int type = 0;
 	int streamable = 1;
 	if(pattern == NULL)
 		return 0;
 	start = pattern;
-	or = start;
-	while(*or != 0) {
+	p_or = start;
+	while(*p_or != 0) {
 		tmp = NULL;
-		while((*or != 0) && (*or != '|')) or++;
-		if(*or == 0)
+		while((*p_or != 0) && (*p_or != '|')) 
+			p_or++;
+		if(*p_or == 0)
 			ctxt = xmlNewPatParserContext(start, dict, namespaces);
 		else {
-			tmp = xmlStrndup(start, or - start);
+			tmp = xmlStrndup(start, p_or - start);
 			if(tmp)
 				ctxt = xmlNewPatParserContext(tmp, dict, namespaces);
-			or++;
+			p_or++;
 		}
 		if(!ctxt)
 			goto error;
@@ -2184,7 +2186,7 @@ xmlPattern * xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int flag
 		if(xmlReversePattern(cur) < 0)
 			goto error;
 		ZFREE(tmp);
-		start = or;
+		start = p_or;
 	}
 	if(streamable == 0) {
 		for(cur = ret; cur; cur = cur->next) {

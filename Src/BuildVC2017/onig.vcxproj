@@ -209,6 +209,8 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ONIG_STATIC;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -247,6 +249,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ONIG_STATIC;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -285,6 +288,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ONIG_STATIC;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -322,6 +326,8 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile />
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ONIG_STATIC;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -360,6 +366,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ONIG_STATIC;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -398,6 +405,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ONIG_STATIC;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -436,6 +444,8 @@
       <PrecompiledHeaderFile />
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ONIG_STATIC;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -476,6 +486,7 @@
       </PrecompiledHeaderFile>
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ONIG_STATIC;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -516,6 +527,7 @@
       </PrecompiledHeaderFile>
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ONIG_STATIC;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -554,6 +566,8 @@
       <PrecompiledHeaderFile />
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ONIG_STATIC;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -594,6 +608,7 @@
       </PrecompiledHeaderFile>
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ONIG_STATIC;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -634,6 +649,7 @@
       </PrecompiledHeaderFile>
       <OmitFramePointers>true</OmitFramePointers>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ONIG_STATIC;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>

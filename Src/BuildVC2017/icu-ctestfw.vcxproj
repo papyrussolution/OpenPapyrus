@@ -236,8 +236,8 @@
       <EnableModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EnableModules>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</ConformanceMode>
-      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
-      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\..\$(IcuBinOutputDir)\icutest70d.exe</OutputFile>
@@ -293,8 +293,8 @@
       <EnableModules Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EnableModules>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</ConformanceMode>
-      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
-      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\..\$(IcuBinOutputDir)\icutest70.exe</OutputFile>

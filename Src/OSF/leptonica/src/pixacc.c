@@ -84,28 +84,21 @@
  *          initialization in pixInitAccumulate().
  * </pre>
  */
-PIXACC * pixaccCreate(l_int32 w,
-    l_int32 h,
-    l_int32 negflag)
+PIXACC * pixaccCreate(l_int32 w, l_int32 h, l_int32 negflag)
 {
 	PIXACC  * pixacc;
-
 	PROCNAME(__FUNCTION__);
-
 	pixacc = (PIXACC*)SAlloc::C(1, sizeof(PIXACC));
 	pixacc->w = w;
 	pixacc->h = h;
-
 	if((pixacc->pix = pixCreate(w, h, 32)) == NULL) {
 		pixaccDestroy(&pixacc);
 		return (PIXACC*)ERROR_PTR("pix not made", procName, NULL);
 	}
-
 	if(negflag) {
 		pixacc->offset = 0x40000000;
 		pixSetAllArbitrary(pixacc->pix, pixacc->offset);
 	}
-
 	return pixacc;
 }
 
@@ -122,17 +115,13 @@ PIXACC * pixaccCreate(l_int32 w,
  *      (1) See pixaccCreate()
  * </pre>
  */
-PIXACC * pixaccCreateFromPix(PIX * pix,
-    l_int32 negflag)
+PIXACC * pixaccCreateFromPix(PIX * pix, l_int32 negflag)
 {
 	l_int32 w, h;
 	PIXACC  * pixacc;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return (PIXACC*)ERROR_PTR("pix not defined", procName, NULL);
-
 	pixGetDimensions(pix, &w, &h, NULL);
 	pixacc = pixaccCreate(w, h, negflag);
 	pixaccAdd(pixacc, pix);

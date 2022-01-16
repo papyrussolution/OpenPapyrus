@@ -41,10 +41,6 @@
  */
 
 #if !defined(HAVE_BCRYPT_PBKDF) && (!defined(HAVE_BLOWFISH_INITSTATE) || !defined(HAVE_BLOWFISH_EXPAND0STATE) || !defined(HAVE_BLF_ENC))
-#if 0
-	#include <stdio.h>              /* used for debugging */
-	#include <string.h>
-#endif
 #undef inline
 #ifdef __GNUC__
 #define inline __inline

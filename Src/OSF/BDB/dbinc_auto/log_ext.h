@@ -59,7 +59,7 @@ int __log_get_config(DB_ENV *, uint32, int *);
 int __log_set_config(DB_ENV *, uint32, int);
 int __log_set_config_int(DB_ENV *, uint32, int, int);
 int __log_check_sizes(ENV *, uint32, uint32);
-int __log_print_record (ENV *, DBT *, DB_LSN *, char *, DB_LOG_RECSPEC *, void *);
+int __log_print_record (ENV *, DBT *, DB_LSN *, const char *, DB_LOG_RECSPEC *, void *);
 int __log_put_pp(DB_ENV *, DB_LSN *, const DBT *, uint32);
 int __log_put(ENV *, DB_LSN *, const DBT *, uint32);
 int __log_current_lsn_int(ENV *, DB_LSN *, uint32 *, uint32 *);

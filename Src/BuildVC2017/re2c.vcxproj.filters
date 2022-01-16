@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\yasm\tools\re2c\actions.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\code.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\dfa.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\main.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\mbo_getopt.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\parser.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\scanner.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\substr.c" />
+    <ClCompile Include="..\OSF\yasm\tools\re2c\translate.c" />
+  </ItemGroup>
+</Project>

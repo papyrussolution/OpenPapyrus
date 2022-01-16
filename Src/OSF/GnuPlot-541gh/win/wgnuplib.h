@@ -97,7 +97,7 @@ struct PW {
 	}
 	HINSTANCE hInstance; /* required */
 	HINSTANCE hPrevInstance; /* required */
-	LPWSTR Title;                   /* required */
+	LPCWSTR Title;                   /* required */
 	LPWSTR Message; /* required */
 	POINT Origin;                   /* optional */
 	HWND hWndParent; /* optional */
@@ -165,7 +165,7 @@ struct TW {
 	POINT  ScreenSize;       // optional // size of the visible screen in characters */
 	uint   KeyBufSize;       // optional 
 	LPTSTR IniFile;          // optional 
-	LPTSTR IniSection;       // optional 
+	LPCTSTR IniSection;      // optional 
 	LPWSTR DragPre;          // optional 
 	LPWSTR DragPost;         // optional 
 	int    nCmdShow;         // optional 
@@ -356,7 +356,7 @@ struct GW {
 	LPTSTR Title;           // required 
 	TW *   lptw;            // associated text window, optional 
 	LPTSTR IniFile;         // optional 
-	LPTSTR IniSection;      // optional 
+	LPCTSTR IniSection;      // optional 
 	// window size and position 
 	BOOL   bDocked;    // is the graph docked to the text window? 
 	SPoint2I Origin_;  // origin of graph window 
@@ -550,7 +550,7 @@ void GraphRedraw(GW * lpgw);
 void GraphModifyPlots(GW * lpgw, uint operations, int plotno);
 void win_close_terminal_window(GW * lpgw);
 bool GraphHasWindow(GW * lpgw);
-LPTSTR GraphDefaultFont();
+LPCTSTR GraphDefaultFont();
 #ifdef USE_MOUSE
 	void Graph_set_cursor(GW * lpgw, int c, int x, int y);
 	void Graph_set_ruler(GW * lpgw, int x, int y);
@@ -558,7 +558,7 @@ LPTSTR GraphDefaultFont();
 	void Graph_set_clipboard(GW * lpgw, LPCSTR s);
 #endif
 /* BM: callback functions for enhanced text */
-void GraphEnhancedOpen(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+void GraphEnhancedOpen(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 void GraphEnhancedFlush();
 LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding);
 void WIN_update_options();

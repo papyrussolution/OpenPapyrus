@@ -34,8 +34,8 @@
 #endif
 
 /* Names of window classes */
-static const LPTSTR szGraphClass = TEXT("wgnuplot_graph");
-static const LPTSTR szGraphParentClass = TEXT("wgnuplot_graphwindow");
+static const LPCTSTR szGraphClass = TEXT("wgnuplot_graph");
+static const LPCTSTR szGraphParentClass = TEXT("wgnuplot_graphwindow");
 
 #ifdef USE_MOUSE
 /* Petr Mikulik, February 2001
@@ -810,7 +810,7 @@ static void GetPlotRectInMM(GW * lpgw, LPRECT rect, HDC hdc)
 	rect->bottom = (rect->bottom * iHeightMM * 100) / iHeightPels;
 }
 
-static bool TryCreateFont(GW * lpgw, LPTSTR fontface, HDC hdc)
+static bool TryCreateFont(GW * lpgw, LPCTSTR fontface, HDC hdc)
 {
 	if(fontface)
 		_tcsncpy(lpgw->lf.lfFaceName, fontface, LF_FACESIZE);
@@ -1196,7 +1196,7 @@ LPWSTR UnicodeTextWithEscapes(LPCSTR str, enum set_encoding_id encoding)
 	return textw;
 }
 
-void GraphEnhancedOpen(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void GraphEnhancedOpen(GpTermEntry * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const int win_scale = 1; /* scaling of base offset */
@@ -3032,7 +3032,7 @@ static void WriteGraphIni(GW * lpgw)
 {
 	RECT rect;
 	LPTSTR file = lpgw->IniFile;
-	LPTSTR section = lpgw->IniSection;
+	LPCTSTR section = lpgw->IniSection;
 	TCHAR profile[80];
 	UINT dpi;
 #ifdef WIN_CUSTOM_PENS
@@ -3101,7 +3101,7 @@ static void WriteGraphIni(GW * lpgw)
 #endif
 }
 
-LPTSTR GraphDefaultFont()
+LPCTSTR GraphDefaultFont()
 {
 	return (GetACP() == 932/* Japanese Shift-JIS */) ? TEXT(WINJPFONT) : TEXT(WINFONT);
 }
@@ -3109,7 +3109,7 @@ LPTSTR GraphDefaultFont()
 static void ReadGraphIni(GW * lpgw)
 {
 	LPTSTR file = lpgw->IniFile;
-	LPTSTR section = lpgw->IniSection;
+	LPCTSTR section = lpgw->IniSection;
 	TCHAR profile[81];
 	LPTSTR p;
 	int r, g, b;

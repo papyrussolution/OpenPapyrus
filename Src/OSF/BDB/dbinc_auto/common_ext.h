@@ -37,9 +37,9 @@ void __db_msgadd(ENV *, DB_MSGBUF *, const char *, ...) __attribute__ ((__format
 void __db_msgadd_ap(ENV *, DB_MSGBUF *, const char *, va_list);
 void __db_msg(const ENV *, const char *, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
 void __db_repmsg(const ENV *, const char *, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
-int FASTCALL __db_unknown_flag(ENV *, char *, uint32);
-int FASTCALL __db_unknown_type(ENV *, char *, DBTYPE);
-int FASTCALL __db_unknown_path(ENV *, char *);
+int FASTCALL __db_unknown_flag(ENV *, const char *, uint32);
+int FASTCALL __db_unknown_type(ENV *, const char *, DBTYPE);
+int FASTCALL __db_unknown_path(ENV *, const char *);
 int FASTCALL __db_check_txn(DB *, DB_TXN *, DB_LOCKER *, int);
 int __db_txn_deadlock_err(ENV *, DB_TXN *);
 int FASTCALL __db_not_txn_env(ENV *);

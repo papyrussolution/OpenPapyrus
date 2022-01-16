@@ -19,13 +19,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <errmsg.h>
-//#include <mysql.h>
-//#include <mysql/client_plugin.h>
-//#include <mariadb/ma_io.h>
-//#include <stdio.h>
-//#include <string.h>
 
 #ifdef HAVE_REMOTEIO
 	struct st_mysql_client_plugin_REMOTEIO * rio_plugin = NULL;

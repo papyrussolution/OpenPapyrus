@@ -338,7 +338,7 @@ bool ma_tls_connect(MARIADB_TLS * ctls)
 		Cred.cCreds = 1;
 		Cred.paCred = &cert_context;
 	}
-	sRet = AcquireCredentialsHandleA(NULL, UNISP_NAME_A, SECPKG_CRED_OUTBOUND, NULL, &Cred, NULL, NULL, &sctx->CredHdl, NULL);
+	sRet = AcquireCredentialsHandleA(NULL, const_cast<LPSTR>(UNISP_NAME_A), SECPKG_CRED_OUTBOUND, NULL, &Cred, NULL, NULL, &sctx->CredHdl, NULL);
 	if(sRet) {
 		ma_schannel_set_sec_error(pvio, sRet);
 		goto end;

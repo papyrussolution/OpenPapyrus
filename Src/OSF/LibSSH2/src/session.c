@@ -38,12 +38,6 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#include <errno.h>
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include <stdlib.h>
-//#include <fcntl.h>
 #ifdef HAVE_GETTIMEOFDAY
 	#include <sys/time.h>
 #endif

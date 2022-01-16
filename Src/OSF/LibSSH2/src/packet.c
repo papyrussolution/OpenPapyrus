@@ -440,25 +440,21 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 			    LIBSSH2_FREE(session, data);
 			    session->packAdd_state = libssh2_NB_state_idle;
 			    return 0;
-
 			/*
 			   byte      SSH_MSG_GLOBAL_REQUEST
 			   string    request name in US-ASCII only
 			   boolean   want reply
 			   ....      request-specific data follows
 			 */
-
 			case SSH_MSG_GLOBAL_REQUEST:
 			    if(datalen >= 5) {
-				    uint32 len = 0;
 				    uchar want_reply = 0;
-				    len = _libssh2_ntohu32(data + 1);
+				    uint32 len = _libssh2_ntohu32(data + 1);
 				    if(datalen >= (6 + len)) {
 					    want_reply = data[5 + len];
 					    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Received global request type %.*s (wr %X)",
 					    len, data + 5, want_reply);
 				    }
-
 				    if(want_reply) {
 					    static const uchar packet = SSH_MSG_REQUEST_FAILURE;
 libssh2_packet_add_jump_point5:
@@ -531,23 +527,14 @@ libssh2_packet_add_jump_point1:
 				    session->packAdd_state = libssh2_NB_state_idle;
 				    return 0;
 			    }
-			    /*
-			 * REMEMBER! remote means remote as source of data,
-			 * NOT remote window!
-			     */
+			    // REMEMBER! remote means remote as source of data, NOT remote window!
 			    if(channelp->remote.packet_size < (datalen - data_head)) {
-				    /*
-				 * Spec says we MAY ignore bytes sent beyond
-				 * packet_size
-				     */
+				    // Spec says we MAY ignore bytes sent beyond packet_size
 				    _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED, "Packet contains more data than we offered to receive, truncating");
 				    datalen = channelp->remote.packet_size + data_head;
 			    }
 			    if(channelp->remote.window_size <= channelp->read_avail) {
-				    /*
-				 * Spec says we MAY ignore bytes sent beyond
-				 * window_size
-				     */
+				    // Spec says we MAY ignore bytes sent beyond window_size
 				    _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED, "The current receive window is full, data ignored");
 				    LIBSSH2_FREE(session, data);
 				    session->packAdd_state = libssh2_NB_state_idle;
@@ -555,16 +542,14 @@ libssh2_packet_add_jump_point1:
 			    }
 			    /* Reset EOF status */
 			    channelp->remote.eof = 0;
-
-			    if(channelp->read_avail + datalen - data_head >
-			    channelp->remote.window_size) {
+			    if(channelp->read_avail + datalen - data_head > channelp->remote.window_size) {
 				    _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED, "Remote sent more data than current window allows, truncating");
 				    datalen = channelp->remote.window_size -
 				    channelp->read_avail + data_head;
 			    }
-			    /* Update the read_avail counter. The window size will be
-			 * updated once the data is actually read from the queue
-			 * from an upper layer */
+			    // Update the read_avail counter. The window size will be
+				// updated once the data is actually read from the queue
+				// from an upper layer 
 			    channelp->read_avail += datalen - data_head;
 			    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "increasing read_avail by %lu bytes to %lu/%lu",
 					(long)(datalen - data_head), (long)channelp->read_avail, (long)channelp->remote.window_size);
@@ -573,7 +558,6 @@ libssh2_packet_add_jump_point1:
 			   byte      SSH_MSG_CHANNEL_EOF
 			   uint32    recipient channel
 			 */
-
 			case SSH_MSG_CHANNEL_EOF:
 			    if(datalen >= 5)
 				    channelp = _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
@@ -616,17 +600,13 @@ libssh2_packet_add_jump_point1:
 						    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit status %lu received for channel %lu/%lu", channelp->exit_status, channelp->local.id, channelp->remote.id);
 					    }
 				    }
-				    else if(len == sizeof("exit-signal") - 1
-				 && !memcmp("exit-signal", data + 9,
-					    sizeof("exit-signal") - 1)) {
-					    /* command terminated due to signal */
+				    else if(len == sizeof("exit-signal") - 1 && !memcmp("exit-signal", data + 9, sizeof("exit-signal") - 1)) {
+					    // command terminated due to signal 
 					    if(datalen >= 20)
 						    channelp = _libssh2_channel_locate(session, channel);
-
 					    if(channelp) {
-						    /* set signal name (without SIG prefix) */
-						    uint32 namelen =
-						    _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
+						    // set signal name (without SIG prefix) 
+						    uint32 namelen = _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
 						    channelp->exit_signal = (char *)LIBSSH2_ALLOC(session, namelen + 1);
 						    if(!channelp->exit_signal)
 							    rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "memory for signal name");
@@ -662,9 +642,7 @@ libssh2_packet_add_jump_point4:
 
 			case SSH_MSG_CHANNEL_CLOSE:
 			    if(datalen >= 5)
-				    channelp =
-				    _libssh2_channel_locate(session,
-				    _libssh2_ntohu32(data + 1));
+				    channelp = _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
 			    if(!channelp) {
 				    /* We may have freed already, just quietly ignore this... */
 				    LIBSSH2_FREE(session, data);

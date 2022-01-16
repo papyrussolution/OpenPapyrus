@@ -103,7 +103,7 @@ extern int _zbar_process_image(zbar_processor_t*, zbar_image_t*);
 extern int _zbar_processor_handle_input(zbar_processor_t*, int);
 
 /* windowing platform API */
-extern int _zbar_processor_open(zbar_processor_t*, char*, uint, uint);
+extern int _zbar_processor_open(zbar_processor_t*, const char * pTitle, uint, uint);
 extern int _zbar_processor_close(zbar_processor_t*);
 extern int _zbar_processor_set_visible(zbar_processor_t*, int);
 extern int _zbar_processor_set_size(zbar_processor_t*, uint, uint);

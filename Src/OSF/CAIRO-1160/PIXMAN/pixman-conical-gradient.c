@@ -28,9 +28,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
-//#include <math.h>
-//#include "pixman-private.h"
 
 static force_inline double coordinates_to_parameter(double x, double y, double angle)
 {

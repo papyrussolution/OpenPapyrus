@@ -1,5 +1,5 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -118,7 +118,7 @@ void   ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
 int    ListBoxDef::GetFrameSize() { return -1; }
 int    ListBoxDef::GetFrameState() { return 0; }
 int    ListBoxDef::getIdList(LongArray &) { return -1; }
-int    ListBoxDef::search(const void *, CompFunc, int srchMode) { return 0; }
+int    ListBoxDef::search(const void * pPattern, CompFunc, int srchMode) { return 0; }
 int    ListBoxDef::valid() { return 1; }
 int    ListBoxDef::addItem(long id, const char *, long * pPos) { return -1; }
 int    ListBoxDef::removeItem(long pos) { return -1; }
@@ -375,8 +375,7 @@ int StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 			pos = 0;
 			if(fcmp == 0)
 				fcmp = (h == sizeof(int16)) ? PTR_CMPFUNC(int) : CMPF_LONG;
-			r = (srchMode & srchBinary) ?
-				P_Data->bsearch(pPattern, &pos, fcmp) : P_Data->lsearch(pPattern, &pos, fcmp);
+			r = (srchMode & srchBinary) ? P_Data->bsearch(pPattern, &pos, fcmp) : P_Data->lsearch(pPattern, &pos, fcmp);
 		}
 	}
 	else {
@@ -681,12 +680,12 @@ int  StdTreeListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMod
 		if(P_SaList) {
 			if(srchMode & lbSrchByID) {
 				pos = 0;
-				r = P_SaList->Search(*(long *)pPattern, &pos);
+				r = P_SaList->Search(*static_cast<const long *>(pPattern), &pos);
 			}
 			else {
 				pos = (dir == srchNext) ? (uint)_curItem() + 1 : 0U;
 				SETIFZ(fcmp, substFCMP);
-				r = P_SaList->SearchByText((const char *)pPattern, fcmp, &pos);
+				r = P_SaList->SearchByText(static_cast<const char *>(pPattern), fcmp, &pos);
 			}
 		}
 		if(r)
@@ -726,6 +725,23 @@ int StdTreeListBoxDef::GetParent(long child, long * pParent) const
 //
 #if 1 // {
 // @construction {
+
+StdTreeListBoxDef2_::SearchBlock::SearchBlock() : P_LastResult(0)
+{
+}
+
+StdTreeListBoxDef2_::SearchBlock::~SearchBlock()
+{
+	delete P_LastResult;
+}
+
+StdTreeListBoxDef2_::SearchBlock & StdTreeListBoxDef2_::SearchBlock::Z()
+{
+	ZDELETE(P_LastResult);
+	LastPattern.Z();
+	return *this;
+}
+
 StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0)
 {
 	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STDTREE2);
@@ -736,6 +752,7 @@ StdTreeListBoxDef2_::~StdTreeListBoxDef2_()
 {
 	if(Options & lbtDisposeData)
 		delete P_SaList;
+	
 }
 
 int StdTreeListBoxDef2_::setArray(StrAssocTree * pList)
@@ -743,9 +760,11 @@ int StdTreeListBoxDef2_::setArray(StrAssocTree * pList)
 	if(Options & lbtDisposeData) {
 		delete P_SaList;
 	}
+	Sb.Z();
 	P_SaList = pList;
 	if(P_SaList) {
 		P_SaList->GetList(LL);
+		P_SaList->MakeStringIndex(StrIndex);
 	}
 	//T.Z();
 	//Helper_CreateTree();
@@ -856,7 +875,12 @@ void StdTreeListBoxDef2_::getScrollData(long * pScrollDelta, long * pScrollPos)
 	if(P_SaList) {
 		uint   pos = 0;
 		long * p_id = static_cast<long *>(getRow_(_curItem()));
-		if(p_id && *p_id && LL.lsearch(*p_id, &pos)) {
+		if(p_id && *p_id /*&& LL.lsearch(*p_id, &pos)*/) {
+			SHandle h = P_SaList->Search(*p_id);
+			if(h) {
+				uintptr_t extra = P_SaList->GetNodeExtraPtr(h);
+				ASSIGN_PTR(pScrollPos, static_cast<long>(extra));
+			}
 			/* @todo replace
 			TreeItem * p_item = static_cast<TreeItem *>(T.GetData(pos));
 			if(p_item)
@@ -871,9 +895,26 @@ int  StdTreeListBoxDef2_::GetFrameState() { return -1; }
 int  StdTreeListBoxDef2_::GetFrameSize() { return -1; }
 void StdTreeListBoxDef2_::setViewHight(int h) { ListBoxDef::setViewHight(h); }
 
+static IMPL_CMPFUNC(INTVECBYINTVER, i1, i2)
+{
+	const LongArray * p_list = static_cast<const LongArray *>(pExtraData);
+	if(p_list) {
+		long v1 = *static_cast<const long *>(i1);
+		long v2 = *static_cast<const long *>(i2);
+		uint pos1 = 0;
+		uint pos2 = 0;
+		if(p_list->lsearch(v1, &pos1) && p_list->lsearch(v2, &pos2))
+			return CMPSIGN(pos1, pos2);
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
 int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchMode)
 {
-	int    r   = 0;
+	int    r = 0;
 	if(valid()) {
 		int    dir = (srchMode & ~srchFlags);
 		uint   ofs = sizeof(long);
@@ -883,12 +924,55 @@ int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchM
 				//r = P_SaList->Search(*(long *)pPattern, &pos);
 				r = LL.lsearch(*static_cast<const long *>(pPattern), &pos);
 			}
-			else {
-				pos = (dir == srchNext) ? (static_cast<uint>(_curItem()) + 1) : 0U;
-				SETIFZ(fcmp, substFCMP);
-				SHandle h = P_SaList->SearchByText(static_cast<const char *>(pPattern), fcmp);
-				if(!!h) {
-					
+			else if(!isempty(static_cast<const char *>(pPattern))) {
+				const char * p_pattern = static_cast<const char *>(pPattern);
+				bool search_by_substr = false;
+				/*if(p_pattern[0] == '*') {
+					p_pattern = p_pattern+1;
+					search_by_substr = true;
+				}*/
+				if(p_pattern[0]) {
+					bool do_setup_pos = false;
+					TSVector <SHandle> result_list;
+					SETIFZ(fcmp, substFCMP);
+					/*if(dir == srchFirst && Sb.P_LastResult && Sb.LastPattern != p_pattern) {
+						const uint lsrp = Sb.P_LastResult->getPointer();
+						Sb.P_LastResult->setPointer(0);
+						if(Sb.P_LastResult->getPointer() != lsrp && Sb.P_LastResult->getPointer() < Sb.P_LastResult->getCount()) {
+							do_setup_pos = true;
+						}
+					}
+					else*/if(dir == srchFirst || !Sb.P_LastResult || Sb.LastPattern != p_pattern) {
+						if(Sb.P_LastResult)
+							Sb.P_LastResult->Z();
+						else
+							Sb.P_LastResult = new LongArray;
+						if(P_SaList->SearchByText(static_cast<const char *>(pPattern), fcmp, result_list)) {
+							for(uint i = 0; i < result_list.getCount(); i++) {
+								long key = P_SaList->GetNodeKey(result_list.at(i));
+								Sb.P_LastResult->add(key);
+							}
+							Sb.P_LastResult->SVector::sort(PTR_CMPFUNC(INTVECBYINTVER), &LL);
+							do_setup_pos = true;
+						}
+					}
+					else {
+						const uint lsrc = Sb.P_LastResult->getCount();
+						if(Sb.P_LastResult->getPointer() < (lsrc-1))
+							Sb.P_LastResult->incPointer();
+						else
+							Sb.P_LastResult->setPointer(0);
+						do_setup_pos = true;
+					}
+					Sb.LastPattern = p_pattern;
+					if(do_setup_pos) {
+						assert(Sb.P_LastResult->getPointer() < Sb.P_LastResult->getCount());
+						const uint slrp = Sb.P_LastResult->getPointer();
+						long id = Sb.P_LastResult->get(slrp);
+						if(LL.lsearch(id, &pos)) {
+							r = 1;
+						}
+					}
 				}
 			}
 		}
@@ -905,9 +989,16 @@ int StdTreeListBoxDef2_::GetStringByID(long id, SString & rBuf)
 	rBuf.Z();
 	if(valid()) {
 		if(P_SaList) {
+			long strp = 0;
+			if(StrIndex.BSearch(id, &strp, 0)) {
+				if(P_SaList->GetTextByPos(strp, rBuf))
+					ok = 1;
+			}
+			/*
 			long parent_id = 0;
 			if(P_SaList->Search(id, &parent_id, &rBuf))
 				ok = 1;
+			*/
 			//ok = BIN(P_SaList->GetText(id, rBuf));
 		}
 	}
@@ -919,12 +1010,14 @@ int StdTreeListBoxDef2_::GoByID(long id)
 	uint   pos = 0;
 	if(valid() && P_SaList && LL.lsearch(id, &pos)) {
 		go(pos);
+		return 1;
 	}
+	else
+		return 0;
 	/*
 	if(valid() && P_SaList && P_SaList->Search(id, &pos))
 		go(pos);
 	*/
-	return 1;
 }
 
 bool FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const

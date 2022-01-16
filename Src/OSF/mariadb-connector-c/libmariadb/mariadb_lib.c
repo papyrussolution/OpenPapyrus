@@ -624,15 +624,11 @@ bool _mariadb_set_conf_option(MYSQL * mysql, const char * config_option, const c
 				void * option_val = NULL;
 				switch(mariadb_defaults[i].type) {
 					case MARIADB_OPTION_BOOL:
-					    val_bool = 0;
-					    if(config_value)
-						    val_bool = atoi(config_value);
+					    val_bool = satoi(config_value);
 					    option_val = &val_bool;
 					    break;
 					case MARIADB_OPTION_INT:
-					    val_int = 0;
-					    if(config_value)
-						    val_int = atoi(config_value);
+						val_int = satoi(config_value);
 					    option_val = &val_int;
 					    break;
 					case MARIADB_OPTION_SIZET:
@@ -3306,7 +3302,7 @@ static void mysql_once_init()
 			mysql_port = (uint)ntohs((ushort)serv_ptr->s_port);
 #endif
 		if((env = getenv("MYSQL_TCP_PORT")))
-			mysql_port = (uint)atoi(env);
+			mysql_port = (uint)satoi(env);
 	}
 	if(!mysql_unix_port) {
 		char * env;

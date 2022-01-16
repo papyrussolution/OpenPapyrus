@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -3571,7 +3571,7 @@ int FASTCALL _SetPaintObjInnerHandle(SPaintObj::Base * pBase, SDrawSystem sys, /
 		return 0;
 }
 
-int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
+int FASTCALL SPaintObj::ProcessInnerHandle(const SDrawContext * pCtx, int create)
 {
 	int    ok = -1;
 	if(H && F & fInner) {
@@ -3727,7 +3727,7 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 	return ok;
 }
 
-int FASTCALL SPaintObj::CreateInnerHandle(SDrawContext & rCtx)
+int FASTCALL SPaintObj::CreateInnerHandle(const SDrawContext & rCtx)
 {
 	return ProcessInnerHandle(&rCtx, 1);
 }
@@ -4332,7 +4332,7 @@ struct __GlyphKey { // @flat
 
 IMPL_CMPFUNC(__GlyphKey, i1, i2) { RET_CMPCASCADE2(static_cast<const __GlyphKey *>(i1), static_cast<const __GlyphKey *>(i2), I, C); }
 
-SPaintObj::Font * SPaintToolBox::GetFont(SDrawContext & rCtx, int fontIdent)
+SPaintObj::Font * SPaintToolBox::GetFont(const SDrawContext & rCtx, int fontIdent)
 {
 	SPaintObj::Font * p_font = 0;
 	SPaintObj * p_obj = GetObj(fontIdent);

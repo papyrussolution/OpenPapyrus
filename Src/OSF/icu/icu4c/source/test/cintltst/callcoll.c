@@ -1,20 +1,11 @@
+// CALLCOLL.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2014, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/*******************************************************************************
- *
- * File CALLCOLL.C
- *
- * Modification History:
- *        Name                     Description
- *     Madhu Katragadda              Ported for C API
- ********************************************************************************
- */
-
+// Copyright (c) 1997-2014, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+//   Name                     Description
+//   Madhu Katragadda              Ported for C API
+//
 /*
  * Important: This file is included into intltest/allcoll.cpp so that the
  * test data is shared. This makes it easier to maintain the test data,
@@ -24,7 +15,6 @@
  * that must prevent the actual code in here from being part of the
  * allcoll.cpp compilation.
  */
-
 /**
  * CollationDummyTest is a third level test class.  This tests creation of
  * a customized collator object.  For example, number 1 to be sorted

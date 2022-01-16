@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\yasm\libyasm\assocdat.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bc-align.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bc-data.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bc-incbin.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bc-org.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bc-reserve.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bitvect.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\bytecode.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\cmake-module.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\errwarn.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\expr.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\file.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\floatnum.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\hamt.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\insn.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\intnum.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\inttree.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\linemap.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\md5.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\mergesort.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\phash.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\section.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\strcasecmp.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\strsep.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\symrec.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\valparam.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\value.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\xmalloc.c" />
+    <ClCompile Include="..\OSF\yasm\libyasm\xstrdup.c" />
+    <ClCompile Include="..\OSF\YASM\libyasm\yasm-pch.cpp" />
+  </ItemGroup>
+</Project>

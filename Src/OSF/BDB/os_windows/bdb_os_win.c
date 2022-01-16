@@ -1276,7 +1276,7 @@ int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 //
 // Map
 //
-static int __os_map(ENV*, char *, REGINFO*, DB_FH*, size_t, int, int, int, void **);
+static int __os_map(ENV*, const char *, REGINFO*, DB_FH*, size_t, int, int, int, void **);
 static int __os_unique_name(_TCHAR*, HANDLE, _TCHAR*, size_t);
 //
 // Descr: Create/join a shared memory region.
@@ -1371,7 +1371,7 @@ int __os_detach(ENV * env, REGINFO * infop, int destroy)
  * __os_mapfile --
  *	Map in a shared memory file.
  */
-int __os_mapfile(ENV*env, char * path, DB_FH * fhp, size_t len, int is_rdonly, void ** addr)
+int __os_mapfile(ENV * env, const char * path, DB_FH * fhp, size_t len, int is_rdonly, void ** addr)
 {
 #ifdef DB_WINCE
 	/*
@@ -1461,7 +1461,7 @@ static int __os_unique_name(_TCHAR * orig_path, HANDLE hfile, _TCHAR * result_pa
 //
 // The mmap(2) function for Windows.
 //
-static int __os_map(ENV * env, char * path, REGINFO * infop, DB_FH * fhp, size_t len, int is_region, int is_system, int is_rdonly, void ** addr)
+static int __os_map(ENV * env, const char * path, REGINFO * infop, DB_FH * fhp, size_t len, int is_region, int is_system, int is_rdonly, void ** addr)
 {
 	int    ret = 0;
 	HANDLE hMemory;
@@ -1696,7 +1696,7 @@ int __os_read(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nrp)
 //
 // Descr: Write to a file handle.
 //
-int __os_write(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nwp)
+int __os_write(ENV * env, DB_FH * fhp, const void * addr, size_t len, size_t * nwp)
 {
 	int ret;
 #ifdef HAVE_FILESYSTEM_NOTZERO
@@ -1709,7 +1709,7 @@ int __os_write(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nwp)
 //
 // Descr: Physical write to a file handle.
 //
-int __os_physwrite(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nwp)
+int __os_physwrite(ENV * env, DB_FH * fhp, const void * addr, size_t len, size_t * nwp)
 {
 	DB_ENV * dbenv = env ? env->dbenv : 0;
 	DWORD  count;

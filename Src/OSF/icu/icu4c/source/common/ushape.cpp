@@ -1,26 +1,16 @@
+// ushape.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ushape.cpp
+ *   Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2000jun29
  *   created by: Markus W. Scherer
- *
  *   Arabic letter shaping implemented by Ayman Roshdy
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ushape.h"
-#include "putilimp.h"
 #include "ustr_imp.h"
 #include "ubidi_props.h"
 /*

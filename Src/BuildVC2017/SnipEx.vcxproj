@@ -302,6 +302,8 @@
       <PrecompiledHeaderFile />
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -350,6 +352,8 @@
       </PrecompiledHeaderFile>
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -398,6 +402,8 @@
       </PrecompiledHeaderFile>
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -445,6 +451,8 @@
       <PrecompiledHeaderFile />
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -493,6 +501,8 @@
       </PrecompiledHeaderFile>
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -541,6 +551,8 @@
       </PrecompiledHeaderFile>
       <DisableSpecificWarnings>26438;26448;26493;26485;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -591,6 +603,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -650,6 +664,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -709,6 +725,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -766,6 +784,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -824,6 +844,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -882,6 +904,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

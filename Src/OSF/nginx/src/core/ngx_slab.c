@@ -52,7 +52,7 @@
 
 static ngx_slab_page_t * ngx_slab_alloc_pages(ngx_slab_pool_t * pool, ngx_uint_t pages);
 static void ngx_slab_free_pages(ngx_slab_pool_t * pool, ngx_slab_page_t * page, ngx_uint_t pages);
-static void ngx_slab_error(ngx_slab_pool_t * pool, ngx_uint_t level, char * text);
+static void ngx_slab_error(ngx_slab_pool_t * pool, ngx_uint_t level, const char * text);
 
 static ngx_uint_t ngx_slab_max_size;
 static ngx_uint_t ngx_slab_exact_size;
@@ -537,7 +537,7 @@ static void ngx_slab_free_pages(ngx_slab_pool_t * pool, ngx_slab_page_t * page, 
 	pool->free.next = page;
 }
 
-static void ngx_slab_error(ngx_slab_pool_t * pool, ngx_uint_t level, char * text)
+static void ngx_slab_error(ngx_slab_pool_t * pool, ngx_uint_t level, const char * text)
 {
 	ngx_log_error(level, ngx_cycle->log, 0, "%s%s", text, pool->log_ctx);
 }

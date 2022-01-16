@@ -1301,7 +1301,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 			int specs = -1;
 			GpSurfacePoints * p_plot_/*this_plot*/;
 			splot_component this_component;
-			char * name_str;
+			const char * name_str;
 			bool duplication = FALSE;
 			bool set_title = FALSE, set_with = FALSE;
 			bool set_lpstyle = FALSE;
@@ -2058,7 +2058,7 @@ SKIPPED_EMPTY_FILE:
 			}
 			else {
 				struct at_type * at_ptr;
-				char * name_str;
+				const char * name_str;
 				was_definition = FALSE;
 				// Forgive trailing comma on a multi-element plot command 
 				if(Pgm.EndOfCommand() || this_plot == NULL) {

@@ -730,7 +730,7 @@ void __db_txnlist_print(DB_TXNHEAD * hp)
 {
 	DB_TXNLIST * p;
 	uint32 i;
-	char * txntype;
+	const char * txntype;
 	printf("Maxid: %lu Generation: %lu\n", (ulong)hp->maxid, (ulong)hp->generation);
 	for(i = 0; i < hp->nslots; i++)
 		LIST_FOREACH(p, &hp->head[i], links) {

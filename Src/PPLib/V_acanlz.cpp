@@ -1015,19 +1015,21 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 				ltoa(pRec->CorrAcc, trec.Name, 10);
 		}
 	}
-	const double amount = MONEYTOLDBL(pRec->Amount);
-	if((p.IsRegister && amount < 0.0) || pRec->Reverse) {
-		const double temp_amt = p.IsRegister ? fabs(amount) : amount;
-		p.Total->CrdTrnovr.Add(1L, trec.CurID, 1L);
-		p.Total->AddTrnovr(0, trec.CurID, temp_amt);
-		trec.Dbt = 0.0;
-		trec.Crd = temp_amt;
-	}
-	else {
-		p.Total->DbtTrnovr.Add(1L, trec.CurID, 1L);
-		p.Total->AddTrnovr(1, trec.CurID, amount);
-		trec.Dbt = amount;
-		trec.Crd = 0.0;
+	{
+		const double amount = MONEYTOLDBL(pRec->Amount);
+		if((p.IsRegister && amount < 0.0) || pRec->Reverse) {
+			const double temp_amt = p.IsRegister ? fabs(amount) : amount;
+			p.Total->CrdTrnovr.Add(1L, trec.CurID, 1L);
+			p.Total->AddTrnovr(0, trec.CurID, temp_amt);
+			trec.Dbt = 0.0;
+			trec.Crd = temp_amt;
+		}
+		else {
+			p.Total->DbtTrnovr.Add(1L, trec.CurID, 1L);
+			p.Total->AddTrnovr(1, trec.CurID, amount);
+			trec.Dbt = amount;
+			trec.Crd = 0.0;
+		}
 	}
 	p.Total->Count++;
 	if(p.P_TmpATTbl) {

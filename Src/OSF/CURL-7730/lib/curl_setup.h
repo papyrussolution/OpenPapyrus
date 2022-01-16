@@ -247,10 +247,6 @@
 		#define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
 	#endif
 #endif
-//#include <stdio.h>
-//#ifdef HAVE_ASSERT_H
-//#include <assert.h>
-//#endif
 #ifdef __TANDEM /* for nsr-tandem-nsk systems */
 	#include <floss.h>
 #endif

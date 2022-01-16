@@ -1303,7 +1303,7 @@ int FASTCALL __db_mi_open(ENV * env, const char * name, int after)
  */
 int FASTCALL __env_not_config(ENV * env, const char * i, uint32 flags)
 {
-	char * sub;
+	const char * sub;
 	int is_sub = 1;
 	switch(flags) {
 	    case DB_INIT_CDB:   sub = "DB_INIT_CDB"; is_sub = 0; break;

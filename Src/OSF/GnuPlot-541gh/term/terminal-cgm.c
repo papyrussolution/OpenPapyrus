@@ -182,7 +182,7 @@ static int * cgm_user_color_table = (int *)0;
 static int cgm_maximum_color_index = 255; /* Size of color table we will write */
 
 struct fontdata {
-	char * name; /* the name of the font */
+	const char * name; /* the name of the font */
 	double width; /* the width of the font, relative to
 	                           Times Bold Italic.  The width
 	                           adjustment can only be approximate.
@@ -269,7 +269,7 @@ static bool cgm_nofontlist_mode = FALSE; /* omit font list? */
 static void CGM_local_reset(GpTermEntry_Static * pThis);
 static void CGM_flush_polyline();
 static void CGM_flush_polygon();
-static void CGM_write_char_record(int _cls, int cgm_id, int length, char * data);
+static void CGM_write_char_record(int _cls, int cgm_id, int length, const char * data);
 static void CGM_write_code(int _cls, int cgm_id, int length);
 static void CGM_write_int(int value);
 static void CGM_write_int_record(int _cls, int cgm_id, int length, int * data);
@@ -745,7 +745,7 @@ TERM_PUBLIC int CGM_set_font(GpTermEntry_Static * pThis, const char * font)
 	SETIFZ(font_index, 1);
 	cgm_next.font_index = font_index;
 	{
-		char * s = cgm_font_data[font_index-1].name;
+		const char * s = cgm_font_data[font_index-1].name;
 		strnzcpy(cgm_font, s, sizeof(cgm_font));
 	}
 	// set font size 
@@ -1017,7 +1017,7 @@ static void CGM_flush_polyline()
 	cgm_coords = 0;
 }
 
-static void CGM_write_char_record(int _cls, int cgm_id, int numbytes, char * data)
+static void CGM_write_char_record(int _cls, int cgm_id, int numbytes, const char * data)
 {
 	int i;
 	static uchar flag = 0xff;

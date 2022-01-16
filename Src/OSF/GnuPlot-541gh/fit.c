@@ -1129,7 +1129,7 @@ double GnuPlot::CreateDVar(const char * pVarName, double value)
 // Modified from save.c:save_range() 
 //
 //static void log_axis_restriction(FILE * log_f, int param, double min, double max, int autoscale, char * pName)
-void GnuPlot::LogAxisRestriction(FILE * log_f, int param, double min, double max, int autoscale, char * pName)
+void GnuPlot::LogAxisRestriction(FILE * log_f, int param, double min, double max, int autoscale, const char * pName)
 {
 	char s[80];
 	// FIXME: Is it really worth it to format time values? 
@@ -1301,11 +1301,13 @@ void GnuPlot::FitCommand()
 	Pgm.dummy_func = NULL;
 	token2 = Pgm.GetCurTokenIdx();
 	// get filename 
-	file_name = StringOrExpress(NULL);
-	if(file_name)
-		file_name = sstrdup(file_name);
-	else
-		Eexc(token2, "missing filename or datablock");
+	{
+		const char * p_fn = StringOrExpress(NULL);
+		if(p_fn)
+			file_name = sstrdup(p_fn);
+		else
+			Eexc(token2, "missing filename or datablock");
+	}
 	// We accept a datablock but not a voxel grid 
 	if(*file_name == '$' && !GetDatablock(file_name))
 		IntError(Pgm.GetPrevTokenIdx(), "cannot fit voxel data");

@@ -36,13 +36,7 @@
 #ifndef CAIRO_PATH_FIXED_PRIVATE_H
 #define CAIRO_PATH_FIXED_PRIVATE_H
 
-//#include "cairo-types-private.h"
-//#include "cairo-compiler-private.h"
-//#include "cairo-list-private.h"
 #define WATCH_PATH 0
-//#if WATCH_PATH
-	//#include <stdio.h>
-//#endif
 
 enum cairo_path_op {
 	CAIRO_PATH_OP_MOVE_TO = 0,

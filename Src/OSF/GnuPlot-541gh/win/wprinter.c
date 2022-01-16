@@ -526,7 +526,7 @@ void DumpPrinter(HWND hwnd, LPTSTR szAppName, LPCTSTR szFileName)
 			::SendMessage(::GetDlgItem(pr.hDlgPrint, CANCEL_PROGRESS), PBM_SETRANGE32, 0, lsize);
 			di.pDocName = szAppName;
 			di.pOutputFile = NULL;
-			di.pDatatype = TEXT("RAW");
+			di.pDatatype = const_cast<LPWSTR>(TEXT("RAW"));
 			if((jobid = StartDocPrinter(printer, 1, (LPBYTE)&di)) > 0) {
 				while(pr.hDlgPrint && !pr.bUserAbort && (count = fread(buf, 1, 4096, f)) != 0) {
 					DWORD dwBytesWritten;

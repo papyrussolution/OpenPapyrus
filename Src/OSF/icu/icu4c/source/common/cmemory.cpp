@@ -1,14 +1,9 @@
+// cmemory.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 2002-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File cmemory.c      ICU Heap allocation.
+ *   Copyright (C) 2002-2015, International Business Machines Corporation and others.  All Rights Reserved.
+ *                     ICU Heap allocation.
  *                     All ICU heap allocation, both for C and C++ new of ICU
  *                     class types, comes through these functions.
  *
@@ -17,12 +12,9 @@
  *
  *                     Note that uprv_malloc(0) returns a non-NULL pointer, and
  *                     that a subsequent free of that pointer value is a NOP.
- *
- ******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
-#include "putilimp.h"
 
 /* uprv_malloc(0) returns a pointer to this read-only data. */
 static const int32_t zeroMem[] = {0, 0, 0, 0, 0, 0};

@@ -261,6 +261,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -308,6 +309,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -353,6 +355,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -400,6 +403,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -445,6 +449,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -492,6 +497,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -536,6 +542,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -585,6 +592,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -633,6 +641,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -682,6 +691,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -730,6 +740,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -779,6 +790,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>

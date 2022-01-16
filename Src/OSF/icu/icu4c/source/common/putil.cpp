@@ -1,15 +1,8 @@
+// putil.c (previously putil.cpp and ptypes.cpp)
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- *  FILE NAME : putil.c (previously putil.cpp and ptypes.cpp)
- *
+ *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date        Name        Description
  *   04/14/97    aliu        Creation.
  *   04/24/97    aliu        Added getDefaultDataDirectory() and
@@ -36,9 +29,7 @@
  *   04/26/01    Barry N.    OS/400 support for uprv_getDefaultLocaleID
  *   08/15/01    Steven H.   OS/400 support for uprv_getDefaultCodepage
  *   01/03/08    Steven L.   Fake Time Support
- ******************************************************************************
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 // Defines _XOPEN_SOURCE for access to POSIX functions.
@@ -60,7 +51,6 @@
 	#include <sys/time.h>
 #endif
 /* include the rest of the ICU headers */
-#include "putilimp.h"
 #include "locmap.h"
 #include "ucln_cmn.h"
 

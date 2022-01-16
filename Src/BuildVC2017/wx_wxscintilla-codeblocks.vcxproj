@@ -1,0 +1,1098 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugDev|Win32">
+      <Configuration>DebugDev</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDev|x64">
+      <Configuration>DebugDev</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugUnicode|Win32">
+      <Configuration>DebugUnicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugUnicode|x64">
+      <Configuration>DebugUnicode</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugUniv|Win32">
+      <Configuration>DebugUniv</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugUniv|x64">
+      <Configuration>DebugUniv</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDev|Win32">
+      <Configuration>ReleaseDev</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDev|x64">
+      <Configuration>ReleaseDev</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseUnicode|Win32">
+      <Configuration>ReleaseUnicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseUnicode|x64">
+      <Configuration>ReleaseUnicode</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseUniv|Win32">
+      <Configuration>ReleaseUniv</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseUniv|x64">
+      <Configuration>ReleaseUniv</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>wxscintilla-codeblocks</ProjectName>
+    <SccProjectName />
+    <SccLocalPath />
+    <ProjectGuid>{5D92E135-4D6F-4AF7-B3CD-723069013FE1}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Debug\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Debug\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\DebugDev\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\DebugDev\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\DebugDev\</ObjectFileName>
+      <ProgramDataBaseFileName>.\DebugDev\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugDev\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDev|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\DebugDev\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\DebugDev\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\DebugDev\</ObjectFileName>
+      <ProgramDataBaseFileName>.\DebugDev\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugDev\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Release\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Release\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\ReleaseDev\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\ReleaseDev\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\ReleaseDev\</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseDev\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseDev\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDev|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\ReleaseDev\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\ReleaseDev\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\ReleaseDev\</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseDev\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseDev\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXUNIVERSAL__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\DebugUniv\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\DebugUniv\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\DebugUniv\</ObjectFileName>
+      <ProgramDataBaseFileName>.\DebugUniv\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugUniv\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUniv|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXUNIVERSAL__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\DebugUniv\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\DebugUniv\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\DebugUniv\</ObjectFileName>
+      <ProgramDataBaseFileName>.\DebugUniv\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugUniv\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\ReleaseUnicode\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\ReleaseUnicode\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\ReleaseUnicode\</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseUnicode\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseUnicode\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\ReleaseUnicode\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\ReleaseUnicode\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\ReleaseUnicode\</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseUnicode\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseUnicode\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WXUNIVERSAL__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\ReleaseUniv\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\ReleaseUniv\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\ReleaseUniv\</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseUniv\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseUniv\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUniv|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;__WXMSW__;__WXUNIVERSAL__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\ReleaseUniv\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\ReleaseUniv\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\ReleaseUniv\</ObjectFileName>
+      <ProgramDataBaseFileName>.\ReleaseUniv\</ProgramDataBaseFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseUniv\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\DebugUnicode\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\DebugUnicode\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\DebugUnicode\</ObjectFileName>
+      <ProgramDataBaseFileName>.\DebugUnicode\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugUnicode\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level4</WarningLevel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\include;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib;..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src;..\OSF\wxWidgets\src\wxscintilla-codeblocks\include\;..\OSF\wxWidgets\include;..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;__WXMSW__;__WXDEBUG__;__WX__;SCI_LEXER;LINK_LEXERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\DebugUnicode\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\DebugUnicode\wx_wxscintilla-codeblocks.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\DebugUnicode\</ObjectFileName>
+      <ProgramDataBaseFileName>.\DebugUnicode\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableModules>false</EnableModules>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0807</Culture>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugUnicode\wx_wxscintilla-codeblocks.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\PlatWX.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\ScintillaWX.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexA68k.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAbaqus.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexASY.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAVS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBatch.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBibTeX.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCmake.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCOBOL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCoffeeScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexD.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexDiff.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexDMAP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexDMIS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexECL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexEDIFACT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexErrorList.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexGAP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexIndent.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexJSON.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexKVIrc.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLaTeX.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMagik.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMake.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMarkdown.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexModula.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMySQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexNimrod.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexNull.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexOScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPLM.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPO.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPowerPro.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPowerShell.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexProgress.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexProps.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexR.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRegistry.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRust.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSorcus.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSTTXT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTACL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTAL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTCMD.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTxt2tags.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVisualProlog.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\Accessor.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\CharacterCategory.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\CharacterSet.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerBase.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerModule.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerNoExceptions.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerSimple.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\PropSetSimple.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\WordList.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\AutoComplete.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CallTip.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CaseConvert.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CaseFolder.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Catalogue.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CellBuffer.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CharClassify.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ContractionState.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Decoration.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Document.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\EditModel.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Editor.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\EditView.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ExternalLexer.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Indicator.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\KeyMap.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAda.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAPDL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAsm.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAsn1.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAU3.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAVE.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBaan.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBash.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBasic.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBullant.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCaml.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCLW.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexConf.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCPP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCrontab.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCsound.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCSS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexEiffel.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexErlang.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexEScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexFlagship.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexForth.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexFortran.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexGui4Cli.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexHaskell.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexHex.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexHTML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexInno.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexKix.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLisp.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLout.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLua.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMatlab.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMetapost.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMMIXAL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMPT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMSSQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexNsis.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexOpal.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPascal.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPB.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPerl.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPOV.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPython.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRebol.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRuby.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexScriptol.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSmalltalk.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSpecman.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSpice.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTads3.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTCL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTex.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVB.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVerilog.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVHDL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexYAML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\LineMarker.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\MarginView.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\PerLine.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\PositionCache.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\RESearch.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\RunStyles.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ScintillaBase.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Selection.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Style.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\StyleContext.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\UniConversion.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ViewStyle.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\XPM.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\wxscintilla.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\wx\wxscintilla.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\PlatWX.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\ScintillaWX.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\Platform.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\SciLexer.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\Scintilla.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\ScintillaWidget.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\SString.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\AutoComplete.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CallTip.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CellBuffer.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CharClassify.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ContractionState.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Document.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Editor.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Indicator.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\KeyMap.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\LineMarker.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\RESearch.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ScintillaBase.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Style.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\StyleContext.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\SVector.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\UniConversion.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ViewStyle.h" />
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\XPM.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

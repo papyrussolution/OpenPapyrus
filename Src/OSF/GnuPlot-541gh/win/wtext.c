@@ -2098,7 +2098,7 @@ void TextAttr(TW * lptw, BYTE attr)
 
 void DragFunc(TW * lptw, HDROP hdrop)
 {
-	LPWSTR p;
+	LPCWSTR p;
 	LPWSTR w;
 	struct _stat buf;
 	if(lptw->DragPre && lptw->DragPost) {
@@ -2128,7 +2128,7 @@ void WriteTextIni(TW * lptw)
 {
 	RECT rect;
 	LPTSTR file = lptw->IniFile;
-	LPTSTR section = lptw->IniSection;
+	LPCTSTR section = lptw->IniSection;
 	TCHAR profile[80];
 	UINT dpi;
 	if(file && section) {
@@ -2176,7 +2176,7 @@ static LPTSTR GetUInt(LPTSTR str, uint * pval)
 void ReadTextIni(TW * lptw)
 {
 	LPTSTR file = lptw->IniFile;
-	LPTSTR section = lptw->IniSection;
+	LPCTSTR section = lptw->IniSection;
 	TCHAR profile[81];
 	LPTSTR p;
 	UINT dpi;

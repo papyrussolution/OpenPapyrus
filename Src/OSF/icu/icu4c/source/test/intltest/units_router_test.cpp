@@ -7,7 +7,6 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "intltest.h"
-#include "unicode/unistr.h"
 #include "units_router.h"
 
 class UnitsRouterTest : public IntlTest {

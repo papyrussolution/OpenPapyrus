@@ -260,6 +260,8 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAs>CompileAsCpp</CompileAs>
       <CompileAsManaged>false</CompileAsManaged>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -297,6 +299,7 @@
       <EnableModules>false</EnableModules>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -334,6 +337,7 @@
       <EnableModules>false</EnableModules>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -374,6 +378,8 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAs>CompileAsCpp</CompileAs>
       <CompileAsManaged>false</CompileAsManaged>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -413,6 +419,7 @@
       <EnableModules>false</EnableModules>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -452,6 +459,7 @@
       <EnableModules>false</EnableModules>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -498,6 +506,8 @@
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -543,6 +553,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -588,6 +599,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -634,6 +646,8 @@
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -681,6 +695,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -728,6 +743,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>

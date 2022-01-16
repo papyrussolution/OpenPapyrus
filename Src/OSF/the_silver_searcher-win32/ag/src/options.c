@@ -643,7 +643,7 @@ void parse_options(int argc, char ** argv, char ** base_paths[], char ** paths[]
 			    opts.print_path = PATH_PRINT_TOP;
 			    break;
 			case 'm':
-			    opts.max_matches_per_file = atoi(optarg);
+			    opts.max_matches_per_file = satoi(optarg);
 			    break;
 			case 'n':
 			    opts.recurse_dirs = 0;
@@ -709,7 +709,7 @@ void parse_options(int argc, char ** argv, char ** base_paths[], char ** paths[]
 				    break;
 			    }
 			    else if(strcmp(longopts[opt_index].name, "depth") == 0) {
-				    opts.max_search_depth = atoi(optarg);
+				    opts.max_search_depth = satoi(optarg);
 				    break;
 			    }
 			    else if(strcmp(longopts[opt_index].name, "filename") == 0) {
@@ -731,8 +731,7 @@ void parse_options(int argc, char ** argv, char ** base_paths[], char ** paths[]
 				    opts.print_line_numbers = FALSE;
 				    break;
 			    }
-			    else if(strcmp(longopts[opt_index].name, "no-pager") == 0 ||
-				strcmp(longopts[opt_index].name, "nopager") == 0) {
+			    else if(strcmp(longopts[opt_index].name, "no-pager") == 0 || strcmp(longopts[opt_index].name, "nopager") == 0) {
 				    out_fd = stdout;
 				    opts.pager = NULL;
 				    break;
@@ -746,7 +745,7 @@ void parse_options(int argc, char ** argv, char ** base_paths[], char ** paths[]
 				    break;
 			    }
 			    else if(strcmp(longopts[opt_index].name, "workers") == 0) {
-				    opts.workers = atoi(optarg);
+				    opts.workers = satoi(optarg);
 				    break;
 			    }
 			    else if(strcmp(longopts[opt_index].name, "color-line-number") == 0) {

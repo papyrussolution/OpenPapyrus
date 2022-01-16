@@ -1343,10 +1343,10 @@ const char * madb_get_os_character_set()
 #ifdef _WIN32
 int madb_get_windows_cp(const char * charset)
 {
-	unsigned int i = 0;
+	uint i = 0;
 	while(MADB_OS_CHARSET[i].identifier) {
 		if(MADB_OS_CHARSET[i].supported > MADB_CS_UNSUPPORTED && sstreq(MADB_OS_CHARSET[i].charset, charset))
-			return atoi(MADB_OS_CHARSET[i].identifier);
+			return satoi(MADB_OS_CHARSET[i].identifier);
 		i++;
 	}
 	return -1;

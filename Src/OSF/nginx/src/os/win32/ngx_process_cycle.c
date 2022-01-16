@@ -189,7 +189,7 @@ static void ngx_console_init(ngx_cycle_t * cycle)
 
 static int __stdcall ngx_console_handler(u_long type)
 {
-	char  * msg;
+	const char * msg;
 	switch(type) {
 		case CTRL_C_EVENT: msg = "Ctrl-C pressed, exiting"; break;
 		case CTRL_BREAK_EVENT: msg = "Ctrl-Break pressed, exiting"; break;

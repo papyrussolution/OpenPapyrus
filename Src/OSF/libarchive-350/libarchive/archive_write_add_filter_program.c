@@ -30,9 +30,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_program.c 
 #ifdef HAVE_SYS_WAIT_H
 #  include <sys/wait.h>
 #endif
-#ifdef HAVE_FCNTL_H
-#  include <fcntl.h>
-#endif
 #include "archive.h"
 #include "archive_private.h"
 #include "archive_string.h"

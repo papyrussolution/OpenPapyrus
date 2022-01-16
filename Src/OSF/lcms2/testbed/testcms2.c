@@ -4140,7 +4140,7 @@ static boolint CheckOneStr(cmsMLU* mlu, cmsInt32Number n)
 	return TRUE;
 }
 
-static void SetOneStr(cmsMLU** mlu, wchar_t* s1, wchar_t* s2)
+static void SetOneStr(cmsMLU** mlu, const wchar_t* s1, const wchar_t* s2)
 {
 	*mlu = cmsMLUalloc(DbgThread(), 0);
 	cmsMLUsetWide(*mlu, "en", "US", s1);
@@ -4151,13 +4151,11 @@ static cmsInt32Number CheckProfileSequenceTag(cmsInt32Number Pass,  cmsHPROFILE 
 {
 	cmsSEQ* s;
 	cmsInt32Number i;
-
 	switch(Pass) {
 		case 1:
-
 		    s = cmsAllocProfileSequenceDescription(DbgThread(), 3);
-		    if(s == NULL) return 0;
-
+		    if(s == NULL) 
+				return 0;
 		    SetOneStr(&s->seq[0].Manufacturer, L"Hello, world 0", L"Hola, mundo 0");
 		    SetOneStr(&s->seq[0].Model, L"Hello, world 0", L"Hola, mundo 0");
 		    SetOneStr(&s->seq[1].Manufacturer, L"Hello, world 1", L"Hola, mundo 1");

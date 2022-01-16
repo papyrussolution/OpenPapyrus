@@ -23,8 +23,6 @@
 //#pragma warning(disable: 4820)      // Disable compiler warning about padding bytes being added to structs
 //#pragma warning(disable: 4710)      // Disable compiler warning about functions not being inlined
 //#pragma warning(disable: 5045)      // Disable Spectre mitigation informational warning
-//#include <stdio.h>                  // For doing stuff with strings
-//#include <math.h>                   // Needed to introduce some math to draw the arrow head for the arrow tool
 #include "resource.h"               // Images, cursors, etc.
 //#include "SnipEx.h"                 // My custom definitions
 	#define CRASH(Expression) if (!(Expression)) { MessageBoxW(0, L"Something has failed that should never have failed and now the program will crash. If you want to help debug this, report this crash to ryanries09@gmail.com.", L"Fatal Error", MB_ICONERROR | MB_OK | MB_SYSTEMMODAL); *(int *)0 = 0; }
@@ -128,11 +126,11 @@
 	//HRESULT AddAllMenuItems(_In_ HINSTANCE Instance);
 	BOOL IsAppRunningElevated(void);
 	// OutputDebugStringW enhanced with varargs. Only works in debug builds.
-	void MyOutputDebugStringW(_In_ wchar_t* Message, _In_ ...);
+	void MyOutputDebugStringW(_In_ const wchar_t * Message, _In_ ...);
 	BOOL AdjustForCustomScaling(void);
-	LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData);
-	LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData);
-	LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName);
+	LSTATUS SetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData);
+	LSTATUS GetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData);
+	LSTATUS DeleteSnipExRegValue(_In_ const wchar_t* ValueName);
 //
 //
 //
@@ -2270,7 +2268,7 @@ Cleanup:
 }
 
 // OutputDebugString enhanced with varargs. Only works in debug builds.
-void MyOutputDebugStringW(_In_ wchar_t* Message, _In_ ...)
+void MyOutputDebugStringW(_In_ const wchar_t * Message, _In_ ...)
 {
 	#if _DEBUG
 	wchar_t Buffer[512] = { 0 };
@@ -2417,7 +2415,7 @@ BOOL AdjustForCustomScaling(void)
 	return TRUE;
 }
 
-LSTATUS DeleteSnipExRegValue(_In_ wchar_t* ValueName)
+LSTATUS DeleteSnipExRegValue(_In_ const wchar_t * ValueName)
 {
 	LSTATUS Result = ERROR_SUCCESS;
 	HKEY SoftwareKey = NULL;
@@ -2458,7 +2456,7 @@ Exit:
 	return Result;
 }
 
-LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
+LSTATUS SetSnipExRegValue(_In_ const wchar_t* ValueName, _In_ DWORD* ValueData)
 {
 	LSTATUS Result = ERROR_SUCCESS;
 	HKEY SoftwareKey = NULL;
@@ -2495,7 +2493,7 @@ LSTATUS SetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
 	return Result;
 }
 
-LSTATUS GetSnipExRegValue(_In_ wchar_t* ValueName, _In_ DWORD* ValueData)
+LSTATUS GetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData)
 {
 	LSTATUS Result = ERROR_SUCCESS;
 	HKEY SoftwareKey = NULL;

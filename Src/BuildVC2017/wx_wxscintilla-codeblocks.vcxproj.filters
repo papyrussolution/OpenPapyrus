@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="wxScintilla Src">
+      <UniqueIdentifier>{53b1ea09-1f62-4605-b5fa-21d53a707e00}</UniqueIdentifier>
+      <Extensions>*.cpp</Extensions>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{efa8995a-3860-4cdd-b7b0-4ad0b1baa98f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\PlatWX.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\ScintillaWX.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\AutoComplete.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CallTip.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CellBuffer.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CharClassify.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ContractionState.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Document.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Editor.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Indicator.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\KeyMap.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAda.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAPDL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAsm.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAsn1.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAU3.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAVE.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBaan.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBash.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBasic.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBullant.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCaml.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCLW.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexConf.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCPP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCrontab.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCsound.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCSS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexEiffel.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexErlang.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexEScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexFlagship.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexForth.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexFortran.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexGui4Cli.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexHaskell.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexHex.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexHTML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexInno.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexKix.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLisp.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLout.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLua.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMatlab.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMetapost.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMMIXAL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMPT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMSSQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexNsis.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexOpal.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPascal.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPB.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPerl.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPOV.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPython.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRebol.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRuby.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexScriptol.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSmalltalk.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSpecman.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSpice.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTads3.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTCL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTex.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVB.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVerilog.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVHDL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexYAML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\LineMarker.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\RESearch.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ScintillaBase.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Style.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\UniConversion.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ViewStyle.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\XPM.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\StyleContext.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\wxscintilla.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CaseConvert.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CaseFolder.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Catalogue.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Decoration.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\EditModel.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\EditView.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ExternalLexer.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\MarginView.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\PerLine.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\PositionCache.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\RunStyles.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Selection.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\Accessor.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\CharacterCategory.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\CharacterSet.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerBase.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerModule.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerNoExceptions.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\LexerSimple.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\PropSetSimple.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexlib\WordList.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexVisualProlog.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTxt2tags.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTCMD.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTAL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexTACL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSTTXT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSorcus.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexSML.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRust.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexRegistry.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexR.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexProps.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexProgress.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPowerShell.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPowerPro.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPO.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexPLM.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexOScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexNull.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexNimrod.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMySQL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexModula.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMarkdown.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMake.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexMagik.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexLaTeX.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexKVIrc.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexJSON.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexIndent.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexGAP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexErrorList.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexEDIFACT.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexECL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexDMIS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexDMAP.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexDiff.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexD.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCoffeeScript.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCOBOL.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexCmake.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBibTeX.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexBatch.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAVS.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexASY.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexAbaqus.cxx" />
+    <ClCompile Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\lexers\LexA68k.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\wx\wxscintilla.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\AutoComplete.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CallTip.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CellBuffer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\CharClassify.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ContractionState.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Document.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Editor.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Indicator.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\KeyMap.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\LineMarker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\Platform.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\PlatWX.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\RESearch.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\SciLexer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\Scintilla.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ScintillaBase.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\ScintillaWidget.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\ScintillaWX.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\scintilla-codeblocks\include\SString.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\Style.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\SVector.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\StyleContext.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\UniConversion.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\ViewStyle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\src\wxscintilla-codeblocks\src\scintilla\src\XPM.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

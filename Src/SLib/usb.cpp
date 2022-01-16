@@ -309,15 +309,17 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	//dev_info.cbSize = sizeof(dev_info);
 	THROW(P_DvcInfo); // @todo error
 	THROW_S(pHandle != INVALID_HANDLE_VALUE, SLERR_USB);
-	int    ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
-	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		THROW(p_data = static_cast<uint8 *>(SAlloc::M(size)));
-		allocated_size = size;
-		//MEMSZERO(dev_info);
-		//dev_info.cbSize = sizeof(dev_info);
-		ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
+	{
+		int    ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
+		if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+			THROW(p_data = static_cast<uint8 *>(SAlloc::M(size)));
+			allocated_size = size;
+			//MEMSZERO(dev_info);
+			//dev_info.cbSize = sizeof(dev_info);
+			ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
+		}
+		THROW(ret);
 	}
-	THROW(ret);
 	if(oneof3(prop_type, REG_SZ, REG_MULTI_SZ, REG_EXPAND_SZ)) {
 		rBuf = reinterpret_cast<const char *>(p_data);
 	}
@@ -834,8 +836,10 @@ int FASTCALL SRawInputData::Get(/*long*/void * rawInputHandle)
 			P_Buf = FixedBuffer;
 		}
 	}
-	int    ret = GetRawInputDataProc((HRAWINPUT)rawInputHandle, RID_INPUT, P_Buf, &buf_size, sizeof(RAWINPUTHEADER));
-	THROW(ret >= 0);
+	{
+		const int ret = GetRawInputDataProc((HRAWINPUT)rawInputHandle, RID_INPUT, P_Buf, &buf_size, sizeof(RAWINPUTHEADER));
+		THROW(ret >= 0);
+	}
 	CATCH
 		Reset();
 		ok = 0;

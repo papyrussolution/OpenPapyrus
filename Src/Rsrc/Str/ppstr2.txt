@@ -7939,6 +7939,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ttl_settingsvc_vk              "Настройки сервиса VK"
 @ttl_howtoprint                 "Как печатать?"
 @ttl_testdialog                 "Тест-диалог"
+@ttl_goodsstructree             "Иерархия товарной структуры"
 
 @specseriesfilt                 "Фильтр по специальным сериям"
 
@@ -8233,7 +8234,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rregt_countrycode                        "Цифровой код страны"
 @rregt_bankaccount                        "@{bankaccount}"
 @rregt_dto_id                             "Ид оператора передачи данных"
-@rregt_taxsystem                          "Вид системы налогообложения"
+@rregt_taxsystem                          "@{taxsystemkind}"
 /
 // Зарезервированные счетчики операций
 //
@@ -13233,6 +13234,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @sysjfilt_sgsj                            "@{repsubst}"
 @sysjfilt_sgd                             "@{repsubstdate}"
 @sysjfilt_eventlist                       "@{event}"
+
+@sysjtotal                                "Итоги по системному журналу"
+@sysjtotal_count                          "Количество событий"
 
 @accturnfilt                              "Фильтр по бухгалтерским проводкам"
 @accturnfilt_cur                          "@{currency}"

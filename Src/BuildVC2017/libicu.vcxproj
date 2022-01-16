@@ -213,7 +213,7 @@
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(OutDir)/</AssemblerListingLocation>
       <ObjectFileName>$(OutDir)/</ObjectFileName>
@@ -229,7 +229,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</StringPooling>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Default</BasicRuntimeChecks>
@@ -256,6 +256,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -295,6 +299,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>

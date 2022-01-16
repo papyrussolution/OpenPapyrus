@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1385,23 +1385,23 @@ public:
 		linarnNoAction         =  4,
 		linarnAcceptedWithoutAmendment =  5,
 		linarnAcceptedWithAmendment    =  6,
-		linarnNotAccepted      =  7,
-		linarnNotFound         = 10,
-		linarnNotAmended       = 11,
-		linarnProposedAmendment        = 23,
+		linarnNotAccepted       =  7,
+		linarnNotFound          = 10,
+		linarnNotAmended        = 11,
+		linarnProposedAmendment = 23,
 		linarnAcceptedWithAmendmentNoCfm = 24,
-		linarnReplaced         = 38,
-		linarnReferredItemRejected     = 55,
-		linarnReopened         = 74,
-		linarnCorrectionOfError        = 96,
-		linarnPriorAddition    = 115 
+		linarnReplaced             = 38,
+		linarnReferredItemRejected = 55,
+		linarnReopened             = 74,
+		linarnCorrectionOfError    = 96,
+		linarnPriorAddition        = 115 
 	};
 	struct LinValue {
 		LinValue() : LineN(0), Action(0)
 		{
 		}
 		int    LineN;
-		int    Action;
+		int    Action; // linarnXXX
 		SString GoodsCode;
 	};
 	//
@@ -1598,15 +1598,71 @@ public:
 	// +65 Unsettled dispute. To report an unsettled dispute.
 	//
 	enum {
+		fmsgcodeCancellation =  1, // Cancellation. Message cancelling a previous transmission for a given transaction.
+		fmsgcodeAddition     =  2, // Addition. Message containing items to be added.
+		fmsgcodeDeletion     =  3, // Deletion. Message containing items to be deleted.
+		fmsgcodeChange       =  4, // Change. Message containing items to be changed.
 		fmsgcodeReplace      =  5, // Replace
 		fmsgcodeConfirmation =  6, // Confirmation
 		fmsgcodeDuplicate    =  7, // Duplicate
+		fmsgcodeStatus       =  8, // Status. Code indicating that the referenced message is a status.
 		fmsgcodeOriginal     =  9, // Original
+		fmsgcodeNotFound = 10, // Not found. Message whose reference number is not filed.
+		fmsgcodeResponse = 11, // Response. Message responding to a previous message or document.
+		fmsgcodeNotProcessed = 12, // Not processed. Message indicating that the referenced message was received but not yet processed.
+		fmsgcodeRequest = 13, // Request. Code indicating that the referenced message is a request.
+		fmsgcodeAdvanceNotification = 14, // Advance notification. Code indicating that the information contained in the message is an advance notification of information to follow.
+		fmsgcodeReminder = 15, // Reminder. Repeated message transmission for reminding purposes.
 		fmsgcodeProposal     = 16, // Proposal
+		fmsgcodeCancelToBeReissued = 17, // Cancel, to be reissued. Referenced transaction cancelled, reissued message will follow.
+		fmsgcodeReissue = 18, // Reissue. New issue of a previous message (maybe cancelled).
+		fmsgcodeSellerInitiatedChange = 19, // Seller initiated change. Change information submitted by buyer but initiated by seller.
+		fmsgcodeReplaceHeadingSectionOnly = 20, // Replace heading section only. Message to replace the heading of a previous message.
+		fmsgcodeReplaceItemDetailAndSummaryOnly = 21, // Replace item detail and summary only. Message to replace item detail and summary of a previous message.
+		fmsgcodeFinalTtransmission = 22, // Final transmission. Final message in a related series of messages together making up a commercial, administrative or transport transaction.
+		fmsgcodeTransactionOnHold = 23, // Transaction on hold. Message not to be processed until further release information.
+		fmsgcodeDeliveryInstruction = 24, // Delivery instruction. Delivery schedule message only used to transmit short-term delivery instructions.
+		fmsgcodeForecast = 25, // Forecast. Delivery schedule message only used to transmit long-term schedule information.
+		fmsgcodeDeliveryInstructionAndForecast = 26, // Delivery instruction and forecast. Combination of codes '24' and '25'.
+		fmsgcodeNotAccepted = 27, // Not accepted. Message to inform that the referenced message is not accepted by the recipient.
+		fmsgcodeAcceptedWithAmendmentInHeading = 28, // Accepted, with amendment in heading section. Message accepted but amended in heading section.
 		fmsgcodeAcceptedWOA  = 29, // Accepted without amendment
+		fmsgcodeAcceptedWithAmendmentInDetail = 30, // Accepted, with amendment in detail section. Referenced message is accepted but amended in detail section.
 		fmsgcodeCopy = 31, // Copy
+		fmsgcodeApproval = 32, // Approval. A message releasing an existing referenced message for action to the receiver.
+		fmsgcodeChangeInHeading = 33, // Change in heading section. Message changing the referenced message heading section.
+		fmsgcodeAcceptedWithAmendment = 34, // Accepted with amendment. The referenced message is accepted but amended.
+		fmsgcodeRetransmission = 35, // Retransmission. Change-free transmission of a message previously sent.
+		fmsgcodeChangeInDetail = 36, // Change in detail section. Message changing referenced detail section.
+		fmsgcodeReversalOfDebit = 37, // Reversal of a debit. Reversal of a previously posted debit.
+		fmsgcodeReversalOfCredit = 38, // Reversal of a credit. Reversal of a previously posted credit.
+		fmsgcodeReversalForCancellation = 39, // Reversal for cancellation. Code indicating that the referenced message is reversing a cancellation of a previous transmission for a given transaction.
+		fmsgcodeRequestForDeletion = 40, // Request for deletion. The message is given to inform the recipient to delete the referenced transaction.
+		fmsgcodeFinishingClosingOrder = 41, // Finishing/closing order. Last of series of call-offs.
 		fmsgcodeConfirmationVieSpcMeans = 42, // Confirmation via specific means
-		fmsgcodeProvisional  = 46  // Provisional
+		fmsgcodeAdditionaTransmission = 43, // Additional transmission. Message already transmitted via another communication channel. This transmission is to provide electronically processable data only.
+		fmsgcodeAcceptedWithoutReserves = 44, // Accepted without reserves. Message accepted without reserves.
+		fmsgcodeAcceptedWithReserves = 45, // Accepted with reserves. Message accepted with reserves.
+		fmsgcodeProvisional  = 46, // Provisional
+		fmsgcodeDefinitive = 47, // Definitive. Message content is definitive.
+		fmsgcodeAcceptedContentsRejected = 48, // Accepted, contents rejected. Message to inform that the previous message is received, but it cannot be processed due to regulations, laws, etc.
+		fmsgcodeSettledDispute = 49, // Settled dispute. The reported dispute is settled.
+		fmsgcodeWithdraw = 50, // Withdraw. Message withdrawing a previously approved message.
+		fmsgcodeAuthorisation = 51, // Authorisation. Message authorising a message or transaction(s).
+		fmsgcodeProposedAmendment = 52, // Proposed amendment. A code used to indicate an amendment suggested by the sender.
+		fmsgcodeTest = 53, // Test. Code indicating the message is to be considered as a test.
+		fmsgcodeExtract = 54, // Extract. A subset of the original.
+		fmsgcodeNotificationOnly = 55, // Notification only. The receiver may use the notification information for analysis only.
+		fmsgcodeAdviceOfLedgerBookedItems = 56, // Advice of ledger booked items. An advice that items have been booked in the ledger.
+		fmsgcodeAdviceOfItemsPendingToBeBookedInLedger = 57, // Advice of items pending to be booked in the ledger. An advice that items are pending to be booked in the ledger.
+		fmsgcodePreAdviceOfItemsReqFurtherInfo = 58, // Pre-advice of items requiring further information. A pre-advice that items require further information.
+		fmsgcodePreAdvicedItems = 59, // Pre-adviced items. A pre-advice of items.
+		fmsgcodeNoActionSinceLastMessage = 60, // No action since last message. Code indicating the fact that no action has taken place since the last message.
+		fmsgcodeCompleteSchedule = 61, // Complete schedule. The message function is a complete schedule.
+		fmsgcodeUpdateSchedule = 62, // Update schedule. The message function is an update to a schedule.
+		fmsgcodeNotAcceptedProvisional = 63, // Not accepted, provisional. Not accepted, subject to confirmation.
+		fmsgcodeVerification = 64, // Verification. The message is transmitted to verify information.
+		fmsgcodeUnsettledDispute = 65, // Unsettled dispute. To report an unsettled dispute.
 	};
 	//
 	// Коды документов в BeginningOfMessage
@@ -4006,6 +4062,23 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 				BillTbl::Rec ord_bill_rec;
 				if(pProvider->SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0) {
 					p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
+					// @v11.2.11 {
+					{
+						const long preserve_ord_flags2 = ord_bill_rec.Flags2;
+						if(document.FuncMsgCode == fmsgcodeNotAccepted) {
+							ord_bill_rec.Flags2 |= BILLF2_EDI_DECL;
+							ord_bill_rec.Flags2 &= ~BILLF2_EDI_ACCP;
+						}
+						else if(document.FuncMsgCode == fmsgcodeAcceptedWOA) {
+							ord_bill_rec.Flags2 &= ~BILLF2_EDI_DECL;
+							ord_bill_rec.Flags2 |= BILLF2_EDI_ACCP;						
+						}
+						if(ord_bill_rec.Flags2 != preserve_ord_flags2) {
+							PPID temp_id = ord_bill_rec.ID;
+							THROW(pProvider->P_BObj->P_Tbl->EditRec(&temp_id, &ord_bill_rec, 1));
+						}
+					}
+					// } @v11.2.11 
 					THROW(pProvider->P_BObj->ExtractPacket(p_bpack->Rec.LinkBillID, p_bp_ord) > 0);
 				}
 			}

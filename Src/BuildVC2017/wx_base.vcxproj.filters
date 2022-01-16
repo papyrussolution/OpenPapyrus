@@ -1,0 +1,760 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MSW Sources">
+      <UniqueIdentifier>{D030D8C2-53EE-5B96-8F89-D78157B06140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Setup Headers">
+      <UniqueIdentifier>{63537534-1833-5C1F-8DBD-359A84F294C8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSW Headers">
+      <UniqueIdentifier>{5AFFF20E-29F9-512B-B80A-7DC45976CDAC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generic Headers">
+      <UniqueIdentifier>{61C63C83-EF8C-51CA-A418-51936E7FCD4A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Headers">
+      <UniqueIdentifier>{8C07E926-65B0-5F00-B0D6-7F40DA69BB25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\basemsw.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\crashrpt.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dde.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\debughlp.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dir.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dlmsw.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\evtloopconsole.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\fswatcher.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\main.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\mimetype.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\power.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\regconf.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\registry.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\secretstore.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\snglinst.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\stackwalk.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\stdpaths.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\thread.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\timer.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\utils.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\utilsexc.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\volume.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\fswatcherg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\any.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\appbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arcall.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arcfind.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\archive.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arrstr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\base64.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\clntdata.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\cmdline.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\config.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\convauto.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datetime.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datetimefmt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dircmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dummy.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dynlib.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dynload.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\encconv.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\event.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\evtloopcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\extended.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ffile.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\file.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fileback.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fileconf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filefn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filename.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filesys.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filtall.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filtfind.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fmapbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_arc.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_filter.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_mem.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fswatchercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\hash.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\hashmap.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\init.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\intl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ipcbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\languageinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\list.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\log.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\longlong.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\lzmastream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\memory.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\mimecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\module.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\msgout.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\mstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\numformatter.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\object.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\platinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\powercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\process.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\regex.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\secretstore.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stdpbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stdstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stopwatch.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\strconv.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\string.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stringimpl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stringops.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\strvararg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sysopt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\tarstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textbuf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textfile.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\threadinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\time.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\timercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\timerimpl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\tokenzr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\translation.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\txtstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\unichar.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\uri.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ustring.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\utilscmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\variant.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wfstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wxcrt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wxprintf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xlocale.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xti.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xtistrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\zipstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\zstream.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\wxWidgets\src\msw\version.rc">
+      <Filter>MSW Sources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\afterstd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\any.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\anystr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\app.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\apptrait.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\archive.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\arrimpl.cpp">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\arrstr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\atomic.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\base64.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\beforestd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\buffer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\build.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\chartype.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\checkeddelete.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\chkconf.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\clntdata.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cmdargs.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cmdline.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\compiler.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\confbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\config.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\containr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\convauto.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cpp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\crt.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\datetime.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\datstrm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dde.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\debug.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\defs.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dir.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dlimpexp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dlist.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dynarray.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dynlib.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dynload.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\encconv.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\event.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\eventfilter.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\evtloop.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\evtloopsrc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\except.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\features.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ffile.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\file.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fileconf.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filefn.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filename.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filesys.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\flags.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontenc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontmap.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_arc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_filter.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_mem.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_zip.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fswatcher.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\fswatcher.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hash.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hashmap.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hashset.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\iconloc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\init.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\intl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\iosfwrap.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ioswrap.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ipc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ipcbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\kbdstate.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\language.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\link.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\list.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\listimpl.cpp">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\log.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\longlong.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\lzmastream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\math.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\memconf.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\memory.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\memtext.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\convertible.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\if.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\implicitconversion.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\int2type.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\movable.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\pod.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\removeref.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mimetype.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\module.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mousestate.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msgout.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msgqueue.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mstream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\apptbase.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\apptrait.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\chkconf.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\crashrpt.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dde.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\debughlp.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\evtloopconsole.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\fswatcher.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\gccpriv.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\libraries.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\mimetype.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\private.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\regconf.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\registry.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\seh.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\stackwalk.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\stdpaths.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\winundef.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\winver.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\wrapcctl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\wrapcdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\wrapwin.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\numformatter.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\object.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\platform.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\platinfo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\power.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\process.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ptr_scpd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ptr_shrd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\recguard.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\regex.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\rtti.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopedarray.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopedptr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopeguard.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\secretstore.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sharedptr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\snglinst.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sstream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stack.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stackwalk.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stdpaths.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stdstream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stockitem.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stopwatch.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\strconv.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\string.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stringimpl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stringops.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\strvararg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sysopt.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tarstrm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textbuf.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textfile.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\thread.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\thrimpl.cpp">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\time.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\timer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tls.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tokenzr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tracker.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\translation.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\txtstrm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\typeinfo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\types.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\unichar.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\uri.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ustring.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\utils.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\variant.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\vector.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\version.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\versioninfo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\volume.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\weakref.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wfstream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wx.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxchar.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxcrt.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxcrtbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxcrtvararg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxprec.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xlocale.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xti.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xti2.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtictor.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtihandler.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtiprop.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtistrm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtitypes.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\zipstrm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\zstream.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\setup.h">
+      <Filter>Setup Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">
+      <Filter>MSW Headers</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

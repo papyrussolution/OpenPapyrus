@@ -918,12 +918,11 @@ static int name_to_codepage(const char * name)
 	else if(sstreq(name, "wchar_t"))
 		return 1200;
 	else if(_strnicmp(name, "cp", 2) == 0)
-		return atoi(name + 2); /* CP123 */
+		return satoi(name + 2); /* CP123 */
 	else if('0' <= name[0] && name[0] <= '9')
-		return atoi(name); /* 123 */
+		return satoi(name); /* 123 */
 	else if(_strnicmp(name, "xx", 2) == 0)
-		return atoi(name + 2); /* XX123 for debug */
-
+		return satoi(name + 2); /* XX123 for debug */
 	for(i = 0; codepage_alias[i].name != NULL; ++i)
 		if(_stricmp(name, codepage_alias[i].name) == 0)
 			return codepage_alias[i].codepage;
@@ -1736,7 +1735,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 #endif
 
 #if defined(MAKE_EXE)
-//#include <stdio.h>
 #include <fcntl.h>
 #include <io.h>
 int main(int argc, char ** argv)

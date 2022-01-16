@@ -10,8 +10,6 @@
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
 #include "mimalloc-atomic.h"
-//#include <stdio.h>  // fputs, stderr
-//#include <string.h> // memset
 
 #if defined(_MSC_VER) && (_MSC_VER < 1920)
 #pragma warning(disable:4204)  // non-constant aggregate initializer

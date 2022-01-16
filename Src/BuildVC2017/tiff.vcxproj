@@ -266,6 +266,8 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -320,6 +322,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -375,6 +378,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -431,6 +435,8 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -485,6 +491,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -539,6 +546,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -594,6 +602,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -650,6 +660,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -707,6 +718,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -765,6 +777,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -821,6 +835,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -877,6 +892,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

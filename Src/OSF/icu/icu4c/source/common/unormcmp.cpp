@@ -24,7 +24,6 @@
 
 #if !UCONFIG_NO_NORMALIZATION
 
-#include "normalizer2impl.h"
 #include "ucase.h"
 #include "uprops.h"
 #include "ustr_imp.h"

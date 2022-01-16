@@ -6,7 +6,6 @@
 
 #if !UCONFIG_NO_FORMATTING
 
-#include "unicode/unistr.h"
 #include "erarules.h"
 #include "erarulestest.h"
 

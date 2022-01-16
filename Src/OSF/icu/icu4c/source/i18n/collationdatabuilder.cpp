@@ -1,14 +1,9 @@
+// collationdatabuilder.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2012-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationdatabuilder.cpp
- *
+ * Copyright (C) 2012-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * (replaced the former ucol_elm.cpp)
- *
  * created on: 2012apr01
  * created by: Markus W. Scherer
  */
@@ -20,8 +15,6 @@
 #include "collationdatabuilder.h"
 #include "collationfastlatinbuilder.h"
 #include "collationiterator.h"
-#include "normalizer2impl.h"
-#include "utrie2.h"
 
 U_NAMESPACE_BEGIN
 
@@ -38,26 +31,15 @@ CollationDataBuilder::CEModifier::~CEModifier() {
  * Context strings must be unique and in ascending order.
  */
 struct ConditionalCE32 : public UMemory {
-	ConditionalCE32()
-		: context(),
-		ce32(0), defaultCE32(Collation::NO_CE32), builtCE32(Collation::NO_CE32),
-		next(-1) {
+	ConditionalCE32() : context(), ce32(0), defaultCE32(Collation::NO_CE32), builtCE32(Collation::NO_CE32), next(-1) 
+	{
 	}
-
-	ConditionalCE32(const UnicodeString & ct, uint32_t ce)
-		: context(ct),
-		ce32(ce), defaultCE32(Collation::NO_CE32), builtCE32(Collation::NO_CE32),
-		next(-1) {
+	ConditionalCE32(const UnicodeString & ct, uint32_t ce) : context(ct), ce32(ce), defaultCE32(Collation::NO_CE32), builtCE32(Collation::NO_CE32),
+		next(-1) 
+	{
 	}
-
-	inline bool hasContext() const {
-		return context.length() > 1;
-	}
-
-	inline int32_t prefixLength() const {
-		return context.charAt(0);
-	}
-
+	inline bool hasContext() const { return context.length() > 1; }
+	inline int32_t prefixLength() const { return context.charAt(0); }
 	/**
 	 * "\0" for the first entry for any code point, with its default CE32.
 	 *

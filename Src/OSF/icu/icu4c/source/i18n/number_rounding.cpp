@@ -12,7 +12,6 @@
 #include "number_roundingutils.h"
 #include "number_skeletons.h"
 #include "number_decnum.h"
-#include "putilimp.h"
 #include "string_segment.h"
 
 using namespace icu;

@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -2004,7 +2004,7 @@ int GoodsCore::ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg, cons
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
-				p_btblk->Len = atoi(t);
+				p_btblk->Len = satoi(t);
 				if(*p == '[') {
 					for(++p, x = t; *p && *p != ']';)
 						*x++ = *p++;

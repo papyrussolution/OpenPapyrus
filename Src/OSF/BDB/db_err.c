@@ -172,7 +172,7 @@ int FASTCALL __env_panic(ENV * env, int errval)
  *
  * EXTERN: char *db_strerror(int);
  */
-char * db_strerror(int error)
+const char * db_strerror(int error)
 {
 	if(error == 0)
 		return DB_STR("0062", "Successful return: 0");
@@ -426,7 +426,7 @@ static void __db_msgfile(const DB_ENV * dbenv, const char * fmt, va_list ap)
  *
  * PUBLIC: int __db_unknown_flag __P((ENV *, char *, uint32));
  */
-int FASTCALL __db_unknown_flag(ENV * env, char * routine, uint32 flag)
+int FASTCALL __db_unknown_flag(ENV * env, const char * routine, uint32 flag)
 {
 	__db_errx(env, DB_STR_A("0093", "%s: Unknown flag: %#x", "%s %#x"), routine, (uint)flag);
 #ifdef DIAGNOSTIC
@@ -440,7 +440,7 @@ int FASTCALL __db_unknown_flag(ENV * env, char * routine, uint32 flag)
  *
  * PUBLIC: int __db_unknown_type __P((ENV *, char *, DBTYPE));
  */
-int FASTCALL __db_unknown_type(ENV * env, char * routine, DBTYPE type)
+int FASTCALL __db_unknown_type(ENV * env, const char * routine, DBTYPE type)
 {
 	__db_errx(env, DB_STR_A("0094", "%s: Unexpected database type: %s", "%s %s"), routine, __db_dbtype_to_string(type));
 #ifdef DIAGNOSTIC
@@ -454,7 +454,7 @@ int FASTCALL __db_unknown_type(ENV * env, char * routine, DBTYPE type)
  *
  * PUBLIC: int __db_unknown_path __P((ENV *, char *));
  */
-int FASTCALL __db_unknown_path(ENV * env, char * routine)
+int FASTCALL __db_unknown_path(ENV * env, const char * routine)
 {
 	__db_errx(env, DB_STR_A("0095", "%s: Unexpected code path error", "%s"), routine);
 #ifdef DIAGNOSTIC

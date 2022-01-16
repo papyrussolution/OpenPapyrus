@@ -1980,7 +1980,7 @@ int PPViewGoods::RemoveAll()
 		enum {
 			ctlgroupLoc = 1
 		};
-		GoodsMoveDialog::GoodsMoveDialog() : TDialog(DLG_GOODSRMVALL)
+		GoodsMoveDialog() : TDialog(DLG_GOODSRMVALL)
 		{
 		}
 		DECL_DIALOG_SETDTS()

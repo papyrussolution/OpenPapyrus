@@ -267,6 +267,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAsManaged>false</CompileAsManaged>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -326,6 +328,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -386,6 +389,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -446,6 +450,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAsManaged>false</CompileAsManaged>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
@@ -505,6 +511,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
@@ -564,6 +571,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
@@ -625,6 +633,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -687,6 +697,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -750,6 +761,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -813,6 +825,8 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
@@ -875,6 +889,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>
@@ -937,6 +952,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X64 %(AdditionalOptions)</AdditionalOptions>

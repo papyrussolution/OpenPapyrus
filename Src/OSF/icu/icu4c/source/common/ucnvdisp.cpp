@@ -1,16 +1,9 @@
+// ucnvdisp.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2004, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- *  ucnvdisp.c:
+ *   Copyright (C) 1998-2004, International Business Machines Corporation and others.  All Rights Reserved.
  *  Implements APIs for the ICU's codeset conversion library display names.
- *
  * Modification History:
  *
  *   Date        Name        Description
@@ -27,7 +20,6 @@
 #include "unicode/ucnv.h"
 #include "ustr_imp.h"
 #include "ucnv_imp.h"
-#include "putilimp.h"
 
 U_CAPI int32_t U_EXPORT2 ucnv_getDisplayName(const UConverter * cnv,
     const char * displayLocale,

@@ -1054,7 +1054,7 @@ struct __db_log_verify_info {
 	uint32 aborted_txnid; // The last aborted txnid. 
 	DB_LSN aborted_txnlsn; /* Last aborted txn's last log. */
 	DB_LSN valid_lsn; /* When reach this log,unset DB_LOG_VERIFY_PARTIAL. */
-	char *logtype_names[256]; // The type name string of each type of log.
+	const char * logtype_names[256]; // The type name string of each type of log.
 	const DB_LOG_VERIFY_CONFIG *lv_config;
 	DB_THREAD_INFO * ip;
 	uint32 flags;	/* The result of the verification. */

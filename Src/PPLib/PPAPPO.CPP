@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1245,7 +1245,7 @@ static int StoreLastBinPath()
 	for(uint i = 0; reg_key.EnumValues(&i, &param, &reg_val) > 0;) {
 		const size_t prfx_len = sstrlen(_PPConst.WrParam_BinPath);
 		if(strnicmp(param, _PPConst.WrParam_BinPath, prfx_len) == 0) {
-			last_path_idx = MAX(atoi(param+prfx_len), last_path_idx);
+			last_path_idx = smax(static_cast<long>(satoi(param+prfx_len)), last_path_idx);
 			if(reg_val.GetString(temp_buf) && path.CmpNC(temp_buf) == 0)
 				return -1;
 		}

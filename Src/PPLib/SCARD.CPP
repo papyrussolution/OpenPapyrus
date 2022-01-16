@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -329,7 +329,7 @@ int SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
-				r_len = atoi(t);
+				r_len = satoi(t);
 				if(*p == '[') {
 					for(++p, x = t; *p && *p != ']';)
 						*x++ = *p++;
@@ -418,7 +418,7 @@ int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString 
 			for(++p, x = t; isdec(*p);)
 				*x++ = *p++;
 			*x = 0;
-			r_len = atoi(t);
+			r_len = satoi(t);
 			if(*p == '[') {
 				for(++p, x = t; *p && *p != ']';)
 					*x++ = *p++;
@@ -703,7 +703,7 @@ int SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPattern, in
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
-				r_len = atoi(t);
+				r_len = satoi(t);
 				if(*p == '[') {
 					for(++p, x = t; *p && *p != ']';)
 						*x++ = *p++;

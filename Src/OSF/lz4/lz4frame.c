@@ -54,15 +54,6 @@ You can contact the author at :
 #ifndef LZ4F_HEAPMODE
 	#define LZ4F_HEAPMODE 0
 #endif
-// 
-// Memory routines
-// 
-//#include <stdlib.h>   /* malloc, calloc, free */
-//#define ALLOC(s)       malloc(s)
-//#define ALLOC_AND_ZERO(s)  calloc(1,(s))
-//#define FREEMEM(p)     free(p)
-//#include <string.h>   /* memset, memcpy, memmove */
-//#define MEM_INIT       memset
 
 /*-************************************
 *  Includes
@@ -90,7 +81,6 @@ You can contact the author at :
 #define LZ4F_STATIC_ASSERT(c)    { enum { LZ4F_static_assert = 1/(int)(!!(c)) }; }   /* use only *after* variable declarations */
 
 #if defined(LZ4_DEBUG) && (LZ4_DEBUG>=2) && !defined(DEBUGLOG)
-	//#include <stdio.h>
 	static int g_debuglog_enable = 1;
 	/* #define DEBUGLOG(l, ...) {                                  \
                 if((g_debuglog_enable) && (l<=LZ4_DEBUG)) {  \

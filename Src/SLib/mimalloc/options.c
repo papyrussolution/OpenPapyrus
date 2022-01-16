@@ -10,11 +10,6 @@
 #include "mimalloc.h"
 #include "mimalloc-internal.h"
 #include "mimalloc-atomic.h"
-//#include <stdio.h>
-//#include <stdlib.h> // strtol
-//#include <string.h> // strncpy, strncat, strlen, strstr
-//#include <ctype.h>  // toupper
-//#include <stdarg.h>
 #ifdef _MSC_VER
 #pragma warning(disable:4996)   // strncpy, strncat
 #endif

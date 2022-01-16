@@ -1,12 +1,8 @@
+// collationdatareader.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2013-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationdatareader.cpp
- *
+ * Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2013feb07
  * created by: Markus W. Scherer
  */
@@ -22,9 +18,7 @@
 #include "collationsettings.h"
 #include "collationtailoring.h"
 #include "collunsafe.h"
-#include "normalizer2impl.h"
 #include "ucmndata.h"
-#include "utrie2.h"
 
 U_NAMESPACE_BEGIN
 

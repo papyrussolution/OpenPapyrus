@@ -95,12 +95,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-spans-private.h"
-//#include "cairo-error-private.h"
-//#include <stdlib.h>
-//#include <string.h>
-//#include <limits.h>
-//#include <setjmp.h>
 
 /*-------------------------------------------------------------------------
  * cairo specific config
@@ -178,9 +172,6 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 /*-------------------------------------------------------------------------
  * glitter-paths.c: Implementation internal types
  */
-//#include <stdlib.h>
-//#include <string.h>
-//#include <limits.h>
 
 /* All polygon coordinates are snapped onto a subsample grid. "Grid
  * scaled" numbers are fixed precision reals with multiplier GRID_X or
@@ -885,6 +876,7 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 	struct edge * head;
 	struct edge * prev = head_a->prev;
 	struct edge ** next = &head;
+	int32 x;
 	if(head_a->x.quo <= head_b->x.quo) {
 		head = head_a;
 	}
@@ -894,7 +886,7 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 		goto start_with_b;
 	}
 	do {
-		int32 x = head_b->x.quo;
+		x = head_b->x.quo;
 		while(head_a != NULL && head_a->x.quo <= x) {
 			prev = head_a;
 			next = &head_a->next;

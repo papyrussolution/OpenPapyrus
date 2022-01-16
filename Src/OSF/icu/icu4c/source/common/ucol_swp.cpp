@@ -1,26 +1,16 @@
+// ucol_swp.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2003-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ucol_swp.cpp
+ *   Copyright (C) 2003-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2003sep10
  *   created by: Markus W. Scherer
- *
  *   Swap collation binaries.
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "utrie.h"
-#include "utrie2.h"
 #include "udataswp.h"
 #include "ucol_data.h"
 #include "ucol_swp.h"

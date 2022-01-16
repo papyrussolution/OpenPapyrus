@@ -1,11 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* Copyright (c) 2011-2014, International Business Machines Corporation
-* and others. All Rights Reserved.
-********************************************************************/
-/* C API TEST FOR PLURAL RULES */
-
+// Copyright (c) 2011-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
+// C API TEST FOR PLURAL RULES 
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #if !UCONFIG_NO_FORMATTING
@@ -340,13 +338,15 @@ static void TestSelectRange()
 	if(!assertSuccess("format", &ec)) {
 		goto cleanup;
 	}
-	UChar buffer[40];
-	int32_t len = uplrules_selectForRange(uplrules, uresult, buffer, 40, &ec);
-	if(!assertSuccess("select", &ec)) {
-		goto cleanup;
+	{
+		UChar buffer[40];
+		int32_t len = uplrules_selectForRange(uplrules, uresult, buffer, 40, &ec);
+		if(!assertSuccess("select", &ec)) {
+			goto cleanup;
+		}
+		assertUEquals("102-201 is plural category 'few' in sl", u"few", buffer);
+		assertIntEquals("Length should be as expected", u_strlen(buffer), len);
 	}
-	assertUEquals("102-201 is plural category 'few' in sl", u"few", buffer);
-	assertIntEquals("Length should be as expected", u_strlen(buffer), len);
 cleanup:
 	uplrules_close(uplrules);
 	unumrf_close(unumrf);

@@ -19,7 +19,6 @@
 #ifdef U_HAVE_STRING_VIEW
 #include <string_view>
 #endif
-#include "unicode/unistr.h"
 #include "unicode/ustring.h"
 #include "unicode/utf_old.h"    // for UTF8_COUNT_TRAIL_BYTES
 #include "charstr.h"

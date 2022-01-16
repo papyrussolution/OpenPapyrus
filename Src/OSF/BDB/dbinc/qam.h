@@ -60,9 +60,9 @@ struct __queue {
 	//
 	DBT pgcookie;			/* Initialized pgcookie. */
 	DB_PGINFO pginfo;		/* Initialized pginfo struct. */
-	char *path;			/* Space allocated to file pathname. */
-	char *name;			/* The name of the file. */
-	char *dir;			/* The dir of the file. */
+	char * path; /* Space allocated to file pathname. */
+	char * name; /* The name of the file. */
+	const char * dir;  /* The dir of the file. */
 	int mode;			/* Mode to open extents. */
 };
 //

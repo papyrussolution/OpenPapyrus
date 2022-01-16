@@ -41,13 +41,9 @@
 	#define _OFF_T_
 	#define __have_typedef_off_t
 #endif
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <stdarg.h>
 #ifdef __GNUC__
 	#include <stdint.h>
 #endif
-//#include <ctype.h>
 #include <locale.h>
 #ifdef __WATCOMC__
 	#define _TIME_T_DEFINED

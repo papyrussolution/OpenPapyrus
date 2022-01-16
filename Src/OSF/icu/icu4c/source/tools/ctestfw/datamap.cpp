@@ -12,7 +12,6 @@
 #pragma hdrstop
 #include "unicode/datamap.h"
 #include "unicode/resbund.h"
-#include "unicode/unistr.h"
 #include "hash.h"
 
 DataMap::DataMap() 

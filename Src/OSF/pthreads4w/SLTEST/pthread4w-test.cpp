@@ -10341,10 +10341,10 @@ static int PThr4wTest_ThreeStage(int argc, char * argv[])
 		goal = 1000;
 	}
 	else {
-		nthread = atoi(argv[1]);
-		goal = atoi(argv[2]);
+		nthread = satoi(argv[1]);
+		goal = satoi(argv[2]);
 		if(argc >= 4)
-			DisplayMessages = atoi(argv[3]);
+			DisplayMessages = satoi(argv[3]);
 	}
 	srand((int)time(NULL)); /* Seed the RN generator */
 	if(nthread > MAX_THREADS) {

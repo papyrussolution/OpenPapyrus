@@ -1254,16 +1254,13 @@ int __rep_bulk_page(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args 
  */
 int __rep_page(ENV*env, DB_THREAD_INFO * ip, int eid, __rep_control_args * rp, DBT * rec)
 {
-	DB_REP * db_rep;
 	DBT key, data;
 	REP * rep;
 	__rep_fileinfo_args * msgfp;
 	db_recno_t recno;
-	int ret;
-	char * msg;
-
-	ret = 0;
-	db_rep = env->rep_handle;
+	const char * msg;
+	int ret = 0;
+	DB_REP * db_rep = env->rep_handle;
 	rep = db_rep->region;
 	if(rep->sync_state != SYNC_PAGE)
 		return DB_REP_PAGEDONE;

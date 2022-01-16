@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -149,7 +149,7 @@ static int StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNumPerio
 			*np++ = *p++;
 		} while(isdec(*p));
 		*np = 0;
-		numprds = atoi(number);
+		numprds = satoi(number);
 	}
 	else
 		numprds = 0;

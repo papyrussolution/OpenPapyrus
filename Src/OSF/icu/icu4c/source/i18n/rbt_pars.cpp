@@ -1,13 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1999-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
+ *   Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date        Name        Description
  *   11/17/99    aliu        Creation.
- **********************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -26,7 +22,6 @@
 #include "tridpars.h"
 #include "patternprops.h"
 #include "uprops.h"
-#include "putilimp.h"
 
 // Operators
 #define VARIABLE_DEF_OP ((UChar)0x003D) /*=*/

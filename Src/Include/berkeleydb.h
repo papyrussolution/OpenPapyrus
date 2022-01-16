@@ -2846,7 +2846,7 @@ extern "C" {
 
 int db_copy(DB_ENV*, const char *, const char *, const char *);
 int db_create(DB**, DB_ENV*, uint32);
-char * db_strerror(int);
+const char * db_strerror(int);
 int db_env_set_func_assert(void (*)(const char *, const char *, int));
 int db_env_set_func_close(int (*)(int));
 int db_env_set_func_dirfree(void (*)(char **, int));

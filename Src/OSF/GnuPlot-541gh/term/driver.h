@@ -51,7 +51,7 @@ void DUMB_arrow(GpTermEntry_Static * pThis, uint sx, uint sy, uint ex, uint ey, 
 #ifndef NO_DUMB_ENHANCED_SUPPORT
 	// To support "set term dumb enhanced" (don't ask why!) 
 	void ENHdumb_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
-	void ENHdumb_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+	void ENHdumb_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 	void ENHdumb_FLUSH(GpTermEntry_Static * pThis);
 #else
 	#define ENHdumb_put_text NULL
@@ -88,11 +88,11 @@ void PS_image(GpTermEntry_Static * pThis, uint, uint, coordval *, const gpiPoint
 // To support "set term post enhanced" 
 void ENHPS_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
 int  ENHPS_set_font(GpTermEntry_Static * pThis, const char * font);
-void ENHPS_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+void ENHPS_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 void ENHPS_FLUSH(GpTermEntry_Static * pThis);
 void ENHPS_WRITEC(GpTermEntry_Static * pThis, int c);
-void PS_RememberFont(GpTermEntry_Static * pThis, char * fname);
-char * PS_escape_string(char * origstr, char * escapelist);
+void PS_RememberFont(GpTermEntry_Static * pThis, const char * fname);
+char * PS_escape_string(char * origstr, const char * escapelist);
 void PS_path(GpTermEntry_Static * pThis, int p);
 void PS_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint);
 void ENHPS_boxed_text(GpTermEntry_Static * pThis, uint, uint, int);

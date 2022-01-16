@@ -2043,19 +2043,16 @@ word:
 		case ANCR_NO_TEXT_SEGMENT_BOUNDARY:
 	    {
 		    enum TextSegmentBoundaryType type;
-
 		    r = add_op(reg, OP_TEXT_SEGMENT_BOUNDARY);
-		    if(r != 0) return r;
-
+		    if(r != 0) 
+				return r;
 		    type = EXTENDED_GRAPHEME_CLUSTER_BOUNDARY;
 #ifdef USE_UNICODE_WORD_BREAK
 		    if(NODE_IS_TEXT_SEGMENT_WORD(node))
 			    type = WORD_BOUNDARY;
 #endif
-
 		    COP(reg)->text_segment_boundary.type = type;
-		    COP(reg)->text_segment_boundary.not =
-			(node->type == ANCR_NO_TEXT_SEGMENT_BOUNDARY ? 1 : 0);
+		    COP(reg)->text_segment_boundary.Not = (node->type == ANCR_NO_TEXT_SEGMENT_BOUNDARY ? 1 : 0);
 	    }
 	    break;
 

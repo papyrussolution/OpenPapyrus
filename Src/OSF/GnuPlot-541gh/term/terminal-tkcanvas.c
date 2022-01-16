@@ -96,8 +96,7 @@ TERM_PUBLIC void TK_point(GpTermEntry_Static * pThis, uint, uint, int);
 TERM_PUBLIC void TK_arrow(GpTermEntry_Static * pThis, uint, uint, uint, uint, int);
 #endif
 TERM_PUBLIC int  TK_set_font(GpTermEntry_Static * pThis, const char * font);
-TERM_PUBLIC void TK_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize,
-    double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void TK_enhanced_open(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void TK_enhanced_flush(GpTermEntry_Static * pThis);
 TERM_PUBLIC void TK_linewidth(GpTermEntry_Static * pThis, double linewidth);
 TERM_PUBLIC int  TK_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
@@ -178,7 +177,7 @@ static int tk_image_counter = 0;
 /* prototypes of local functions */
 static void TK_put_noenhanced_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
 static void TK_put_enhanced_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
-static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * stipple);
+static void TK_rectangle(int x1, int y1, int x2, int y2, const char * color, const char * stipple);
 static void TK_add_path_point(int x, int y); /* add a new point to current path or line */
 static void TK_flush_line(GpTermEntry_Static * pThis); // finish a poly-line 
 
@@ -211,9 +210,7 @@ enum TK_id {
 };
 
 static int tk_script_language = TK_LANG_TCL;
-static char * tk_script_languages[TK_LANG_MAX] = {
-	"tcl", "perl", "python", "ruby", "rexx", "perltkx"
-};
+static const char * tk_script_languages[TK_LANG_MAX] = { "tcl", "perl", "python", "ruby", "rexx", "perltkx" };
 
 static struct gen_table TK_opts[] =
 {
@@ -365,7 +362,7 @@ TERM_PUBLIC void TK_init(GpTermEntry_Static * pThis)
 	tk_image_counter = 0;
 }
 
-static char * tk_standalone_init[TK_LANG_MAX] = {
+static const char * tk_standalone_init[TK_LANG_MAX] = {
 	/* Tcl */
 	"canvas .c -width %d -height %d\n"
 	"pack .c\n"
@@ -413,7 +410,7 @@ static char * tk_standalone_init[TK_LANG_MAX] = {
 	"Tkx::MainLoop();\n"
 };
 
-static char * tk_init_gnuplot[TK_LANG_MAX] = {
+static const char * tk_init_gnuplot[TK_LANG_MAX] = {
 	/* Tcl */
 	"proc %s cv {\n"
 	"  $cv delete all\n"
@@ -490,7 +487,7 @@ static char * tk_init_gnuplot[TK_LANG_MAX] = {
 	"  }\n"
 };
 
-static char * tk_set_background[TK_LANG_MAX] = {
+static const char * tk_set_background[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv configure -bg %s\n",
 	/* Perl */
@@ -514,7 +511,7 @@ TERM_PUBLIC void TK_graphics(GpTermEntry_Static * pThis)
 	 * You can tune the output for a particular size of the canvas by
 	 * using the `size` option.
 	 */
-	char * tk_function = "gnuplot";
+	const char * tk_function = "gnuplot";
 	// Reset to start of output file.  If the user mistakenly tries to
 	// plot again into the same file, it will overwrite the original
 	// rather than corrupting it.
@@ -566,7 +563,7 @@ TERM_PUBLIC void TK_color(GpTermEntry_Static * pThis, const t_colorspec * colors
 	switch(colorspec->type) {
 		case TC_LT: {
 		    int linetype = colorspec->lt;
-		    char * color = NULL;
+		    const char * color = NULL;
 		    if(linetype == LT_BACKGROUND)
 			    color = tk_background[0] ? tk_background : "white";
 		    if(linetype == LT_NODRAW)
@@ -943,7 +940,7 @@ TERM_PUBLIC int TK_text_angle(GpTermEntry_Static * pThis, int ang)
 	return TRUE;
 }
 
-static char * tk_create_text_begin[TK_LANG_MAX] = {
+static const char * tk_create_text_begin[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv create text "
 	"[expr $cmx * %d /1000] [expr $cmy * %d /1000]\\\n"
@@ -966,7 +963,7 @@ static char * tk_create_text_begin[TK_LANG_MAX] = {
 	"    -text => q{%s}, -fill => q{%s}, -anchor => '%s'"
 };
 
-static char * tk_create_text_font[TK_LANG_MAX] = {
+static const char * tk_create_text_font[TK_LANG_MAX] = {
 	/* Tcl */
 	" -font $font",
 	/* Perl */
@@ -981,7 +978,7 @@ static char * tk_create_text_font[TK_LANG_MAX] = {
 	",\n    (defined $font ? (-font => $font) : ())"
 };
 
-static char * tk_create_text_angle[TK_LANG_MAX] = {
+static const char * tk_create_text_angle[TK_LANG_MAX] = {
 	/* Tcl */
 	" -angle %d",
 	/* Perl */
@@ -996,7 +993,7 @@ static char * tk_create_text_angle[TK_LANG_MAX] = {
 	", -angle => %d"
 };
 
-static char * tk_tag[TK_LANG_MAX] = {
+static const char * tk_tag[TK_LANG_MAX] = {
 	/* Tcl */
 	" -tags %s",
 	/* Perl */
@@ -1011,7 +1008,7 @@ static char * tk_tag[TK_LANG_MAX] = {
 	", -tags => q{%s}"
 };
 
-static char * tk_create_text_end[TK_LANG_MAX] = {
+static const char * tk_create_text_end[TK_LANG_MAX] = {
 	/* Tcl */
 	"\n",
 	/* Perl */
@@ -1060,12 +1057,11 @@ static void TK_put_noenhanced_text(GpTermEntry_Static * pThis, uint x, uint y, c
 	if(tk_boxed)
 		fprintf(GPT.P_GpOutFile, tk_tag[tk_script_language], "boxedtext");
 	fputs(tk_create_text_end[tk_script_language], GPT.P_GpOutFile);
-
 	if(quoted_str != str)
 		SAlloc::F(quoted_str);
 }
 
-static char * tk_undef_font[TK_LANG_MAX] = {
+static const char * tk_undef_font[TK_LANG_MAX] = {
 	/* Tcl */
 	"  catch {unset font}\n",
 	/* Perl */
@@ -1080,7 +1076,7 @@ static char * tk_undef_font[TK_LANG_MAX] = {
 	"  undef $font;\n"
 };
 
-static char * tk_set_font[TK_LANG_MAX] = {
+static const char * tk_set_font[TK_LANG_MAX] = {
 	"  set font [font create -family {%s}", /* Tcl */
 	"  $font = $cv->fontCreate(-family => q{%s}", /* Perl */
 	"\tgfont = font.Font(family='%s'", /* Python */
@@ -1089,7 +1085,7 @@ static char * tk_set_font[TK_LANG_MAX] = {
 	"  $font = Tkx::font_create(-family => q{%s}" /* Perl/Tkx */
 };
 
-static char * tk_set_fsize[TK_LANG_MAX] = {
+static const char * tk_set_fsize[TK_LANG_MAX] = {
 	/* Tcl */
 	" -size %d",
 	/* Perl */
@@ -1104,7 +1100,7 @@ static char * tk_set_fsize[TK_LANG_MAX] = {
 	", -size => %d"
 };
 
-static char * tk_set_fbold[TK_LANG_MAX] = {
+static const char * tk_set_fbold[TK_LANG_MAX] = {
 	/* Tcl */
 	" -weight bold",
 	/* Perl */
@@ -1119,7 +1115,7 @@ static char * tk_set_fbold[TK_LANG_MAX] = {
 	", -weight => q{bold}"
 };
 
-static char * tk_set_fitalic[TK_LANG_MAX] = {
+static const char * tk_set_fitalic[TK_LANG_MAX] = {
 	/* Tcl */
 	" -slant italic",
 	/* Perl */
@@ -1134,7 +1130,7 @@ static char * tk_set_fitalic[TK_LANG_MAX] = {
 	", -slant => q{italic}"
 };
 
-static char * tk_font_end[TK_LANG_MAX] = {
+static const char * tk_font_end[TK_LANG_MAX] = {
 	/* Tcl */
 	"]\n",
 	/* Perl */
@@ -1188,7 +1184,7 @@ TERM_PUBLIC int TK_set_font(GpTermEntry_Static * pThis, const char * font)
 	return TRUE;
 }
 
-TERM_PUBLIC void TK_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void TK_enhanced_open(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	if(overprint == 3) { /* save current position */
@@ -1232,7 +1228,7 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry_Static * pThis, char * fontname, d
 	}
 }
 
-static char * tk_enhanced_text_begin[TK_LANG_MAX] = {
+static const char * tk_enhanced_text_begin[TK_LANG_MAX] = {
 	/* Tcl */
 	"  set et [$cv create text $%s $%s\\\n"
 	"    -text {%s} -fill %s\\\n"
@@ -1254,7 +1250,7 @@ static char * tk_enhanced_text_begin[TK_LANG_MAX] = {
 	"    -text => q{%s}, -fill => q{%s}, -anchor => '%s'"
 };
 
-static char * tk_enhanced_text_end[TK_LANG_MAX] = {
+static const char * tk_enhanced_text_end[TK_LANG_MAX] = {
 	/* Tcl */
 	"]\n",
 	/* Perl */
@@ -1485,7 +1481,7 @@ TERM_PUBLIC void TK_arrow(GpTermEntry_Static * pThis, uint usx, uint usy, uint u
 
 #endif
 
-static char * tk_endblock[TK_LANG_MAX] = {
+static const char * tk_endblock[TK_LANG_MAX] = {
 	/* Tcl */
 	"}\n",
 	/* Perl */
@@ -1500,7 +1496,7 @@ static char * tk_endblock[TK_LANG_MAX] = {
 	"};\n"
 };
 
-static char * tk_info_procs[TK_LANG_MAX] = {
+static const char * tk_info_procs[TK_LANG_MAX] = {
 	/* Tcl */
 	"proc gnuplot_plotarea {} {\n"
 	"  return {%d %d %d %d}\n"
@@ -1554,7 +1550,7 @@ static char * tk_info_procs[TK_LANG_MAX] = {
 	"};\n"
 };
 
-static char * tk_gnuplot_xy[] = {
+static const char * tk_gnuplot_xy[] = {
 	/* Tcl */
 	"proc gnuplot_xy {win x1s y1s x2s y2s x1e y1e x2e y2e x1m y1m x2m y2m} {\n"
 	"  if {([llength [info commands user_gnuplot_coordinates]])} {\n"
@@ -1675,7 +1671,7 @@ TERM_PUBLIC void TK_text(GpTermEntry_Static * pThis)
 	fflush(GPT.P_GpOutFile);
 }
 
-static char * tk_rectangle[TK_LANG_MAX] = {
+static const char * tk_rectangle[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv create rectangle\\\n"
 	"    [expr $cmx*%d/1000] [expr $cmy*%d/1000]\\\n"
@@ -1702,7 +1698,7 @@ static char * tk_rectangle[TK_LANG_MAX] = {
 	"    -fill => q{%s}, -outline => q{}, -stipple => q{%s});\n"
 };
 
-static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * stipple)
+static void TK_rectangle(int x1, int y1, int x2, int y2, const char * color, const char * stipple)
 {
 	SETIFZ(color, "");
 	SETIFZ(stipple, "");
@@ -1711,8 +1707,8 @@ static void TK_rectangle(int x1, int y1, int x2, int y2, char * color, char * st
 
 TERM_PUBLIC void TK_fillbox(GpTermEntry_Static * pThis, int style, uint x, uint y, uint w, uint h)
 {
-	char * stipple = "";
-	char * color = tk_color;
+	const char * stipple = "";
+	const char * color = tk_color;
 	TK_flush_line(pThis);
 	switch(style & 0x0f) {
 		case FS_SOLID:
@@ -1747,7 +1743,7 @@ TERM_PUBLIC void TK_fillbox(GpTermEntry_Static * pThis, int style, uint x, uint 
 	TK_rectangle(x, TK_YMAX - y, x + w, TK_YMAX - y - h, color, stipple);
 }
 
-static char * tk_poly_begin[TK_LANG_MAX] = {
+static const char * tk_poly_begin[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv create polygon\\\n",
 	/* Perl */
@@ -1762,7 +1758,7 @@ static char * tk_poly_begin[TK_LANG_MAX] = {
 	"  $cv->create_polygon(\n"
 };
 
-static char * tk_poly_end[TK_LANG_MAX] = {
+static const char * tk_poly_end[TK_LANG_MAX] = {
 	/* Tcl */
 	"    -fill %s -outline {}\n",
 	/* Perl */
@@ -1851,7 +1847,7 @@ TERM_PUBLIC void TK_image(GpTermEntry_Static * pThis, uint m, uint n, coordval *
 }
 #endif
 
-static char * tk_box[TK_LANG_MAX] = {
+static const char * tk_box[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv raise boxedtext [$cv create rectangle [$cv bbox boxedtext] -fill {%s} -outline {%s}]\n",
 	/* Perl */
@@ -1874,7 +1870,7 @@ static char * tk_box[TK_LANG_MAX] = {
 	"    -fill => q{%s}, -outline => q{%s}));\n"
 };
 
-static char * tk_box_finish[TK_LANG_MAX] = {
+static const char * tk_box_finish[TK_LANG_MAX] = {
 	/* Tcl */
 	"  $cv dtag boxedtext\n",
 	/* Perl */

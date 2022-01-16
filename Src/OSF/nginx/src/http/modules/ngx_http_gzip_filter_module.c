@@ -825,7 +825,7 @@ static char * ngx_http_gzip_window(ngx_conf_t * cf, void * post, void * data)
 		}
 		wbits--;
 	}
-	return "must be 512, 1k, 2k, 4k, 8k, 16k, or 32k";
+	return const_cast<char *>("must be 512, 1k, 2k, 4k, 8k, 16k, or 32k");
 }
 
 static char * ngx_http_gzip_hash(ngx_conf_t * cf, void * post, void * data)
@@ -839,5 +839,5 @@ static char * ngx_http_gzip_hash(ngx_conf_t * cf, void * post, void * data)
 		}
 		memlevel--;
 	}
-	return "must be 512, 1k, 2k, 4k, 8k, 16k, 32k, 64k, or 128k";
+	return const_cast<char *>("must be 512, 1k, 2k, 4k, 8k, 16k, 32k, 64k, or 128k");
 }

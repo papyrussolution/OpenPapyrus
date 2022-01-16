@@ -32,7 +32,6 @@
  */
 
 #include "unicode/ucnv.h"
-#include "unicode/unistr.h"
 #include "unicode/uniset.h"
 #include "convtest.h"
 #include "unicode/tstdtmod.h"

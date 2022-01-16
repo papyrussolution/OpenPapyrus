@@ -15,7 +15,6 @@
 #include "unicode/ctest.h"
 #include "unicode/measunit.h"
 #include "unicode/measure.h"
-#include "unicode/unistr.h"
 #include "unicode/unum.h"
 #include "unicode/ures.h"
 #include "units_complexconverter.h"

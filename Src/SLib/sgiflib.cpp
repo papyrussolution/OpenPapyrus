@@ -109,9 +109,9 @@ static int SortRGBAxis; // @global
 // 
 // Return a string description of  the last GIF error
 // 
-char * GifErrorString(int ErrorCode)
+const char * GifErrorString(int ErrorCode)
 {
-	char * Err;
+	const char * Err;
 	switch(ErrorCode) {
 		case E_GIF_ERR_OPEN_FAILED: Err = "Failed to open given file"; break;
 		case E_GIF_ERR_WRITE_FAILED: Err = "Failed to write to given file"; break;
@@ -1412,7 +1412,7 @@ GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * pError)
 // 
 // Routine to compute the GIF version that will be written on output.
 // 
-char * EGifGetGifVersion(GifFileType * pGifFile)
+const char * EGifGetGifVersion(GifFileType * pGifFile)
 {
 	GifFilePrivateType * p_private = static_cast<GifFilePrivateType *>(pGifFile->Private);
 	int i, j;
@@ -1456,7 +1456,7 @@ int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, 
 {
 	GifByteType Buf[3];
 	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
-	char * write_version;
+	const char * write_version;
 	if(Private->FileState & FILE_STATE_SCREEN) {
 		/* If already has screen descriptor - something is wrong! */
 		GifFile->Error = E_GIF_ERR_HAS_SCRN_DSCR;

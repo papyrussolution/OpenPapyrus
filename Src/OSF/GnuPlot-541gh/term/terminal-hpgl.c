@@ -102,7 +102,7 @@ TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry_Static * pThis, int points, gp
 TERM_PUBLIC void HPGL2_set_color(GpTermEntry_Static * pThis, const t_colorspec * colorspec);
 TERM_PUBLIC int HPGL2_make_palette(GpTermEntry_Static * pThis, t_sm_palette * palette);
 TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
-TERM_PUBLIC void HPGL2_enh_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void HPGL2_enh_open(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry_Static * pThis);
 #define GOT_HPGL_PROTO
 //#endif /* TERM_PROTO */
@@ -665,7 +665,7 @@ static int HPGL2_numpen = 8; // default to 8 pen color
 static bool HPGL2_pspointset = TRUE; // default to PS point types 
 static int HPGL2_font_num = 0; // font from options 
 static double HPGL2_point_size = HPGL2_DEF_POINT; // pointsize from options 
-static char * PCL_dim = "letter"; // default plotting dimensions 
+static const char * PCL_dim = "letter"; // default plotting dimensions 
 static char PCL_dim_buf[256];
 static float HPGL2_fontscale = 1.0;
 static float HPGL2_pointscale = 1.0;
@@ -888,7 +888,7 @@ TERM_PUBLIC void PCL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 						/* no known abbreviation */
 						float xmax, ymax;
 						GpSizeUnits explicit_units;
-						char * unit = "in";
+						const char * unit = "in";
 						float scale = 1;
 						explicit_units = pGp->ParseTermSize(&xmax, &ymax, INCHES);
 						PCL_mode.xmax = static_cast<uint>(xmax / GpResolution * HPGL_PUPI);
@@ -2719,7 +2719,7 @@ TERM_PUBLIC void HPGL2_fillbox(GpTermEntry_Static * pThis, int fillstyle, uint x
 		    fputs("TR0;", GPT.P_GpOutFile);
 		/* deliberately fall through */
 		case FS_TRANSPARENT_PATTERN: {
-		    char * pattern[] = {
+		    const char * pattern[] = {
 			    /* white; cross hatch; fine cross hatch fine; solid */
 			    "UP;SP0;FT1", "FT4,70,45;", "FT4,50,45;", "FT1;",
 			    /* hatching;  hatching;  fine hatching; fine hatching */
@@ -2788,7 +2788,7 @@ TERM_PUBLIC void HPGL2_filled_polygon(GpTermEntry_Static * pThis, int points, gp
 		    fputs("TR0;", GPT.P_GpOutFile);
 		/* deliberately fall through */
 		case FS_TRANSPARENT_PATTERN: {
-		    char * pattern[] = {
+		    const char * pattern[] = {
 			    /* white; cross hatch; fine cross hatch fine; solid */
 			    "UP;SP0;FT1", "FT4,70,45;", "FT4,50,45;", "FT1;",
 			    /* hatching;  hatching;  fine hatching; fine hatching */
@@ -2968,7 +2968,7 @@ TERM_PUBLIC void HPGL2_enh_put_text(GpTermEntry_Static * pThis, uint x, uint y, 
 	HPGL2_set_font(pThis, "");
 }
 
-TERM_PUBLIC void HPGL2_enh_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void HPGL2_enh_open(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const int scale = static_cast<int>(0.9 * HPGL_PUPI / 72.0); // scaling of base offset 

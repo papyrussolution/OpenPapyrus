@@ -1012,7 +1012,7 @@ void GnuPlot::SetColorSequence(int option)
 	if(option == 1 || option == 2) {
 		int i;
 		char * command;
-		char * command_template = "set linetype %2d lc rgb 0x%06x";
+		const char * command_template = "set linetype %2d lc rgb 0x%06x";
 		ulong * colors = default_colors;
 		if(option == 2)
 			colors = podo_colors;
@@ -1851,10 +1851,10 @@ void GnuPlot::SetKey()
 	bool   hpos_set = FALSE;
 	bool   reg_set = FALSE;
 	bool   sdir_set = FALSE;
-	char * vpos_warn = "Multiple vertical position settings";
-	char * hpos_warn = "Multiple horizontal position settings";
-	char * reg_warn = "Multiple location region settings";
-	char * sdir_warn = "Multiple stack direction settings";
+	const char * vpos_warn = "Multiple vertical position settings";
+	const char * hpos_warn = "Multiple horizontal position settings";
+	const char * reg_warn = "Multiple location region settings";
+	const char * sdir_warn = "Multiple stack direction settings";
 	legend_key * key = &Gg.KeyT;
 	/* Only for backward compatibility with deprecated "set keytitle foo" */
 	if(Pgm.AlmostEqualsCur("keyt$itle"))
@@ -2308,7 +2308,7 @@ void GnuPlot::SetLogScale()
 	for(axis = 0; axis < NUMBER_OF_MAIN_VISIBLE_AXES; axis++) {
 		if(set_for_axis[axis]) {
 			static char command[128];
-			char * dummy;
+			const char * dummy;
 			if(!isalpha(axis_name((AXIS_INDEX)axis)[0]))
 				continue;
 			switch(axis) {
@@ -3159,7 +3159,7 @@ void GnuPlot::SetPalette()
 				// rgb color mapping formulae: rgb$formulae r,g,b (3 integers) 
 				case S_PALETTE_RGBFORMULAE: { // "rgb$formulae" 
 				    int i;
-				    char * formerr = "color formula out of range (use `show palette rgbformulae' to display the range)";
+				    const char * formerr = "color formula out of range (use `show palette rgbformulae' to display the range)";
 				    CHECK_TRANSFORM;
 				    Pgm.Shift();
 				    i = IntExpression();
@@ -5124,7 +5124,8 @@ void GnuPlot::SetTicProp(GpAxis * pThisAxis)
 {
 	bool   all_axes = FALSE; /* distinguish the global command "set tics" */
 	char   nocmd[12]; /* fill w/ "no"+axis_name+suffix */
-	char * cmdptr = NULL, * sfxptr = NULL;
+	char * cmdptr = NULL;
+	char * sfxptr = NULL;
 	AXIS_INDEX axis = (AXIS_INDEX)pThisAxis->index;
 	if(Pgm.AlmostEqualsCur("tic$s") && (axis < PARALLEL_AXES))
 		all_axes = TRUE;

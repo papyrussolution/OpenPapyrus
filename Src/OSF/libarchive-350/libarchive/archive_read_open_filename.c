@@ -29,12 +29,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

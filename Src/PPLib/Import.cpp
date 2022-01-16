@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 // Функции импорта справочников
 //
@@ -4709,13 +4709,13 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 									THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
 									THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
 									THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
-									rec.PostalCode = atoi(p_data->POSTALCODE);
-									rec.IfnsJ = atoi(p_data->IFNSUL);
-									rec.IfnsI = atoi(p_data->IFNSFL);
-									rec.TerrIfnsJ = atoi(p_data->TERRIFNSUL);
-									rec.TerrIfnsI = atoi(p_data->TERRIFNSFL);
+									rec.PostalCode = satoi(p_data->POSTALCODE);
+									rec.IfnsJ = satoi(p_data->IFNSUL);
+									rec.IfnsI = satoi(p_data->IFNSFL);
+									rec.TerrIfnsJ = satoi(p_data->TERRIFNSUL);
+									rec.TerrIfnsI = satoi(p_data->TERRIFNSFL);
 
-									rec.LevelStatus = atoi(p_data->AOLEVEL);
+									rec.LevelStatus = satoi(p_data->AOLEVEL);
 									rec.CenterStatus = (int16)p_data->CENTSTATUS;
 									rec.ActionStatus = (int16)p_data->ACTSTATUS;
 									rec.KladrCurStatus = (int16)p_data->CURRSTATUS;
@@ -4840,11 +4840,11 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 								//
 								//THROW(ProcessString(p_data->OKATO, &rec.OkatoTRef, line_buf, utext));
 								//THROW(ProcessString(p_data->OKTMO, &rec.OktmoTRef, line_buf, utext));
-								rec.PostalCode = atoi(p_data->POSTALCODE);
-								rec.IfnsJ = atoi(p_data->IFNSUL);
-								rec.IfnsI = atoi(p_data->IFNSFL);
-								rec.TerrIfnsJ = atoi(p_data->TERRIFNSUL);
-								rec.TerrIfnsI = atoi(p_data->TERRIFNSFL);
+								rec.PostalCode = satoi(p_data->POSTALCODE);
+								rec.IfnsJ = satoi(p_data->IFNSUL);
+								rec.IfnsI = satoi(p_data->IFNSFL);
+								rec.TerrIfnsJ = satoi(p_data->TERRIFNSUL);
+								rec.TerrIfnsI = satoi(p_data->TERRIFNSFL);
 
 								rec.IntStatus = 0;
 								rec.BuildStatus = (int16)p_data->STRSTATUS;
@@ -6006,8 +6006,8 @@ void PrcssrOsm::Scb_EndElement(void * ptr, const xmlChar * pName)
 
 IMPL_CMPCFUNC(STRINT64, p1, p2)
 {
-	int64 v1 = _atoi64(static_cast<const char *>(p1));
-	int64 v2 = _atoi64(static_cast<const char *>(p2));
+	int64 v1 = satoi64(static_cast<const char *>(p1));
+	int64 v2 = satoi64(static_cast<const char *>(p2));
 	return CMPSIGN(v1, v2);
 }
 

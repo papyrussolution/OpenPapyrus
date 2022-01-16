@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *****************************************************************************
- * Copyright (C) 1996-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- *****************************************************************************
+ * Copyright (C) 1996-2015, International Business Machines Corporation and others. All Rights Reserved.
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -12,7 +9,6 @@
 #if !UCONFIG_NO_NORMALIZATION
 
 #include "unicode/caniter.h"
-#include "normalizer2impl.h"
 
 /**
  * This class allows one to iterate through all the strings that are canonically equivalent to a given

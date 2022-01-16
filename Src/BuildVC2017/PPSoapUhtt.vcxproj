@@ -280,7 +280,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader />
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
@@ -299,6 +299,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -333,7 +334,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
@@ -347,6 +348,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -395,6 +397,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -445,6 +448,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -473,7 +477,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader />
-      <BrowseInformation />
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
@@ -491,6 +495,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -522,8 +527,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <BrowseInformation>
-      </BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
@@ -537,6 +541,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -581,6 +586,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -631,6 +637,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -659,7 +666,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader />
-      <BrowseInformation />
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
@@ -677,6 +684,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -708,8 +716,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <BrowseInformation>
-      </BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
@@ -723,6 +730,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -767,6 +775,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -817,6 +826,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>

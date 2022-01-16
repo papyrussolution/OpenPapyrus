@@ -1,13 +1,8 @@
+// plurrule.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File plurrule.cpp
- */
+// Copyright (C) 2007-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/upluralrules.h"
@@ -15,7 +10,6 @@
 #include "locutil.h"
 #include "patternprops.h"
 #include "plurrule_impl.h"
-#include "putilimp.h"
 #include "ucln_in.h"
 #include "ustrfmt.h"
 #include "sharedpluralrules.h"
@@ -1178,23 +1172,21 @@ bool RuleChain::isKeyword(const UnicodeString & keywordParam) const {
 	}
 }
 
-PluralRuleParser::PluralRuleParser() :
-	ruleIndex(0), token(), type(none), prevType(none),
+PluralRuleParser::PluralRuleParser() : ruleIndex(0), token(), type(none), prevType(none),
 	curAndConstraint(nullptr), currentChain(nullptr), rangeLowIdx(-1), rangeHiIdx(-1)
 {
 }
 
-PluralRuleParser::~PluralRuleParser() {
+PluralRuleParser::~PluralRuleParser() 
+{
 }
 
-int32_t PluralRuleParser::getNumberValue(const UnicodeString & token) {
-	int32_t i;
+int32_t PluralRuleParser::getNumberValue(const UnicodeString & token) 
+{
 	char digits[128];
-
-	i = token.extract(0, token.length(), digits, UPRV_LENGTHOF(digits), US_INV);
+	int32_t i = token.extract(0, token.length(), digits, UPRV_LENGTHOF(digits), US_INV);
 	digits[i] = '\0';
-
-	return((int32_t)atoi(digits));
+	return (int32_t)satoi(digits);
 }
 
 void PluralRuleParser::checkSyntax(UErrorCode & status)
@@ -1202,16 +1194,15 @@ void PluralRuleParser::checkSyntax(UErrorCode & status)
 	if(U_FAILURE(status)) {
 		return;
 	}
-	if(!(prevType==none || prevType==tSemiColon)) {
+	if(!oneof2(prevType, none, tSemiColon)) {
 		type = getKeyType(token, type); // Switch token type from tKeyword if we scanned a reserved word,
 		//   and we are not at the start of a rule, where a
 		//   keyword is expected.
 	}
-
 	switch(prevType) {
 		case none:
 		case tSemiColon:
-		    if(type!=tKeyword && type != tEOF) {
+		    if(!oneof2(type, tKeyword, tEOF)) {
 			    status = U_UNEXPECTED_TOKEN;
 		    }
 		    break;
@@ -1222,8 +1213,7 @@ void PluralRuleParser::checkSyntax(UErrorCode & status)
 		case tVariableE:
 		case tVariableC:
 		case tVariableV:
-		    if(type != tIs && type != tMod && type != tIn &&
-			type != tNot && type != tWithin && type != tEqual && type != tNotEqual) {
+		    if(!oneof7(type, tIs, tMod, tIn, tNot, tWithin, tEqual, tNotEqual)) {
 			    status = U_UNEXPECTED_TOKEN;
 		    }
 		    break;
@@ -1233,24 +1223,17 @@ void PluralRuleParser::checkSyntax(UErrorCode & status)
 		    }
 		    break;
 		case tColon:
-		    if(!(type == tVariableN ||
-			type == tVariableI ||
-			type == tVariableF ||
-			type == tVariableT ||
-			type == tVariableE ||
-			type == tVariableC ||
-			type == tVariableV ||
-			type == tAt)) {
+		    if(!oneof8(type, tVariableN, tVariableI, tVariableF, tVariableT, tVariableE, tVariableC, tVariableV, tAt)) {
 			    status = U_UNEXPECTED_TOKEN;
 		    }
 		    break;
 		case tIs:
-		    if(type != tNumber && type != tNot) {
+		    if(!oneof2(type, tNumber, tNot)) {
 			    status = U_UNEXPECTED_TOKEN;
 		    }
 		    break;
 		case tNot:
-		    if(type != tNumber && type != tIn && type != tWithin) {
+		    if(!oneof3(type, tNumber, tIn, tWithin)) {
 			    status = U_UNEXPECTED_TOKEN;
 		    }
 		    break;
@@ -1301,7 +1284,6 @@ void PluralRuleParser::checkSyntax(UErrorCode & status)
 		    break;
 	}
 }
-
 /*
  *  Scan the next token from the input rules.
  *     rules and returned token type are in the parser state variables.
@@ -1311,7 +1293,6 @@ void PluralRuleParser::getNextToken(UErrorCode & status)
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	UChar ch;
 	while(ruleIndex < ruleSrc->length()) {
 		ch = ruleSrc->charAt(ruleIndex);
@@ -1746,7 +1727,8 @@ bool FixedDecimal::quickInit(double n) {
 	return success;
 }
 
-int32_t FixedDecimal::decimals(double n) {
+int32_t FixedDecimal::decimals(double n) 
+{
 	// Count the number of decimal digits in the fraction part of the number, excluding trailing zeros.
 	// fastpath the common cases, integers or fractions with 3 or fewer digits
 	n = fabs(n);
@@ -1756,12 +1738,11 @@ int32_t FixedDecimal::decimals(double n) {
 			return ndigits;
 		}
 	}
-
 	// Slow path, convert with sprintf, parse converted output.
-	char buf[30] = {0};
+	char buf[32] = {0};
 	sprintf(buf, "%1.15e", n);
 	// formatted number looks like this: 1.234567890123457e-01
-	int exponent = atoi(buf+18);
+	int exponent = satoi(buf+18);
 	int numFractionDigits = 15;
 	for(int i = 16;; --i) {
 		if(buf[i] != '0') {

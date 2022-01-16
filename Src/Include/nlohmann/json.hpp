@@ -9969,14 +9969,10 @@ private:
 				   BasicJsonType()));
 		}
 
-		switch(result_number)
-		{
-			case token_type::value_integer:
-			    return sax->number_integer(number_lexer.get_number_integer());
-			case token_type::value_unsigned:
-			    return sax->number_unsigned(number_lexer.get_number_unsigned());
-			case token_type::value_float:
-			    return sax->number_float(number_lexer.get_number_float(), std::move(number_string));
+		switch(result_number) {
+			case token_type::value_integer: return sax->number_integer(number_lexer.get_number_integer());
+			case token_type::value_unsigned: return sax->number_unsigned(number_lexer.get_number_unsigned());
+			case token_type::value_float: return sax->number_float(number_lexer.get_number_float(), std::move(number_string));
 			case token_type::uninitialized:
 			case token_type::literal_true:
 			case token_type::literal_false:
@@ -9992,10 +9988,8 @@ private:
 			case token_type::end_of_input:
 			case token_type::literal_or_value:
 			default:
-			    return sax->parse_error(chars_read, number_string,
-				       parse_error::create(115, chars_read,
-				       exception_message(input_format_t::ubjson,
-				       "invalid number text: " + number_lexer.get_token_string(), "high-precision number"),
+			    return sax->parse_error(chars_read, number_string, parse_error::create(115, chars_read,
+				       exception_message(input_format_t::ubjson, "invalid number text: " + number_lexer.get_token_string(), "high-precision number"),
 				       BasicJsonType()));
 		}
 	}
@@ -10026,12 +10020,9 @@ private:
 	{
 		do {
 			get();
-		}
-		while(current == 'N');
-
+		} while(current == 'N');
 		return current;
 	}
-
 	/*
 	   @brief read a number from the input
 
@@ -10064,12 +10055,10 @@ private:
 				vec[i] = static_cast<std::uint8_t>(current); // LCOV_EXCL_LINE
 			}
 		}
-
 		// step 2: convert array into number of type T and return
-		std::memcpy(&result, vec.data(), sizeof(NumberType));
+		memcpy(&result, vec.data(), sizeof(NumberType));
 		return true;
 	}
-
 	/*!
 	   @brief create a string by reading characters from the input
 
@@ -14037,19 +14026,16 @@ private:
 	      in CBOR, MessagePack, and UBJSON are stored in network order (big
 	      endian) and therefore need reordering on little endian systems.
 	 */
-	template <typename NumberType, bool OutputIsLittleEndian = false>
-	void write_number(const NumberType n)
+	template <typename NumberType, bool OutputIsLittleEndian = false> void write_number(const NumberType n)
 	{
 		// step 1: write number to array of length NumberType
 		std::array<CharType, sizeof(NumberType)> vec{};
-		std::memcpy(vec.data(), &n, sizeof(NumberType));
-
+		memcpy(vec.data(), &n, sizeof(NumberType));
 		// step 2: write array to output (with possible reordering)
 		if(is_little_endian != OutputIsLittleEndian) {
 			// reverse byte order prior to conversion if necessary
 			std::reverse(vec.begin(), vec.end());
 		}
-
 		oa->write_characters(vec.data(), sizeof(NumberType));
 	}
 
@@ -14097,7 +14083,7 @@ public:
 		static_assert(sizeof(std::uint8_t) == sizeof(CharType), "size of CharType must be equal to std::uint8_t");
 		static_assert(std::is_trivial<CharType>::value, "CharType must be trivial");
 		CharType result;
-		std::memcpy(&result, &x, sizeof(x));
+		memcpy(&result, &x, sizeof(x));
 		return result;
 	}
 	template <typename C = CharType, enable_if_t<std::is_unsigned<C>::value>* = nullptr>
@@ -14137,12 +14123,11 @@ private:
     Design and Implementation, PLDI 1996
  */
 namespace dtoa_impl {
-template <typename Target, typename Source>
-Target reinterpret_bits(const Source source)
+template <typename Target, typename Source> Target reinterpret_bits(const Source source)
 {
 	static_assert(sizeof(Target) == sizeof(Source), "size mismatch");
 	Target target;
-	std::memcpy(&target, &source, sizeof(Source));
+	memcpy(&target, &source, sizeof(Source));
 	return target;
 }
 
@@ -14992,8 +14977,7 @@ inline char* append_exponent(char* buf, int e)
  */
 JSON_HEDLEY_NON_NULL(1)
 JSON_HEDLEY_RETURNS_NON_NULL
-inline char* format_buffer(char* buf, int len, int decimal_exponent,
-    int min_exp, int max_exp)
+inline char* format_buffer(char* buf, int len, int decimal_exponent, int min_exp, int max_exp)
 {
 	JSON_ASSERT(min_exp < 0);
 	JSON_ASSERT(max_exp > 0);
@@ -15008,8 +14992,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 	if(k <= n && n <= max_exp) {
 		// digits[000]
 		// len <= max_exp + 2
-
-		std::memset(buf + k, '0', static_cast<size_t>(n) - static_cast<size_t>(k));
+		memset(buf + k, '0', static_cast<size_t>(n) - static_cast<size_t>(k));
 		// Make it look like a floating-point number (#362, #378)
 		buf[n + 0] = '.';
 		buf[n + 1] = '0';
@@ -15019,10 +15002,8 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 	if(0 < n && n <= max_exp) {
 		// dig.its
 		// len <= max_digits10 + 1
-
 		JSON_ASSERT(k > n);
-
-		std::memmove(buf + (static_cast<size_t>(n) + 1), buf + n, static_cast<size_t>(k) - static_cast<size_t>(n));
+		memmove(buf + (static_cast<size_t>(n) + 1), buf + n, static_cast<size_t>(k) - static_cast<size_t>(n));
 		buf[n] = '.';
 		return buf + (static_cast<size_t>(k) + 1U);
 	}
@@ -15030,11 +15011,10 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 	if(min_exp < n && n <= 0) {
 		// 0.[000]digits
 		// len <= 2 + (-min_exp - 1) + max_digits10
-
-		std::memmove(buf + (2 + static_cast<size_t>(-n)), buf, static_cast<size_t>(k));
+		memmove(buf + (2 + static_cast<size_t>(-n)), buf, static_cast<size_t>(k));
 		buf[0] = '0';
 		buf[1] = '.';
-		std::memset(buf + 2, '0', static_cast<size_t>(-n));
+		memset(buf + 2, '0', static_cast<size_t>(-n));
 		return buf + (2U + static_cast<size_t>(-n) + static_cast<size_t>(k));
 	}
 
@@ -15047,8 +15027,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 	else {
 		// d.igitsE+123
 		// len <= max_digits10 + 1 + 5
-
-		std::memmove(buf + 2, buf + 1, static_cast<size_t>(k) - 1);
+		memmove(buf + 2, buf + 1, static_cast<size_t>(k) - 1);
 		buf[1] = '.';
 		buf += 1 + static_cast<size_t>(k);
 	}

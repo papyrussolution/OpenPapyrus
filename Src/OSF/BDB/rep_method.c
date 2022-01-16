@@ -878,7 +878,7 @@ err:
 int __rep_open_sysdb(ENV * env, DB_THREAD_INFO * ip, DB_TXN * txn, const char * dbname, uint32 flags, DB ** dbpp)
 {
 	DB * dbp;
-	char * fname;
+	const char * fname;
 	uint32 myflags;
 	int ret, t_ret;
 	DB_REP * db_rep = env->rep_handle;

@@ -1,15 +1,9 @@
+// uresbund.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- * Copyright (C) 1997-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
- *
- * File uresbund.cpp
- *
+ * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   04/01/97    aliu        Creation.
  *   06/14/99    stephen     Removed functions taking a filename suffix.
@@ -18,7 +12,6 @@
  *   March 2000  weiv        Total overhaul - using data in DLLs
  *   06/20/2000  helena      OS/400 port changes; mostly typecast.
  *   06/24/02    weiv        Added support for resource sharing
- ******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -29,7 +22,6 @@
 #include "ucln_cmn.h"
 #include "uenumimp.h"
 #include "ulocimp.h"
-#include "putilimp.h"
 #include "uresdata.h"
 
 using namespace icu;

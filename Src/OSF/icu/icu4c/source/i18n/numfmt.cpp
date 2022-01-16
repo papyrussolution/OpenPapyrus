@@ -15,7 +15,6 @@
  *         Changed setMinIntegerDigits per Java implementation.
  *         Changed setMinFractionDigits per Java implementation.
  *         Changed setMaxFractionDigits per Java implementation.
- ********************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -28,7 +27,6 @@
 #include "uresimp.h"
 #include "servloc.h"
 #include "ucln_in.h"
-#include "putilimp.h"
 #include "sharednumberformat.h"
 #include "unifiedcache.h"
 #include "number_decimalquantity.h"

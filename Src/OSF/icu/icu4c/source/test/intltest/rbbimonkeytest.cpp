@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* Copyright (c) 2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -15,7 +12,6 @@
 #include "unicode/brkiter.h"
 #include "unicode/utf16.h"
 #include "unicode/uniset.h"
-#include "unicode/unistr.h"
 #include "charstr.h"
 #include "cstr.h"
 #include "uelement.h"

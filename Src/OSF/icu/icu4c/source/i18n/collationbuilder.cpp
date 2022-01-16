@@ -1,14 +1,9 @@
+// collationbuilder.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2013-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationbuilder.cpp
- *
+ * Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * (replaced the former ucol_bld.cpp)
- *
  * created on: 2013may06
  * created by: Markus W. Scherer
  */
@@ -26,7 +21,6 @@
 #include "collationsettings.h"
 #include "collationtailoring.h"
 #include "collationweights.h"
-#include "normalizer2impl.h"
 #include "ucol_imp.h"
 #include "utf16collationiterator.h"
 

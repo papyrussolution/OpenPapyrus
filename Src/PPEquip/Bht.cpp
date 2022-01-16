@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2283,7 +2283,7 @@ int BhtProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, siz
 			bcc ^= (char)c;
 		}
 		recno_buf[RECNOLEN] = 0;
-		recno = atoi(recno_buf);
+		recno = satoi(recno_buf);
 		THROW(recno > 0);
 	}
 	while((c = GetChr()) != CHR_ETX && c != 0) {
@@ -2642,7 +2642,7 @@ int CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, 
 					sum += (uint)static_cast<uchar>(c);
 				}
 				recno_buf[RECNOLEN] = 0;
-				recno = atoi(recno_buf);
+				recno = satoi(recno_buf);
 				THROW(recno > 0);
 			}
 			c = GetChr();

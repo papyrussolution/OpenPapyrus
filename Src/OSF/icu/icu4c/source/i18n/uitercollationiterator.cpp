@@ -1,16 +1,11 @@
+// uitercollationiterator.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2012-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * uitercollationiterator.cpp
- *
+ * Copyright (C) 2012-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2012sep23 (from utf16collationiterator.cpp)
  * created by: Markus W. Scherer
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -18,7 +13,6 @@
 
 #include "collationfcd.h"
 #include "collationiterator.h"
-#include "normalizer2impl.h"
 #include "uitercollationiterator.h"
 
 U_NAMESPACE_BEGIN

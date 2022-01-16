@@ -1927,7 +1927,8 @@ U_CAPI int32_t U_EXPORT2 uhash_hashUnicodeString(const UElement key) {
 
 // Moved here from uhash_us.cpp so that using a UVector of UnicodeString *
 // does not depend on hashtable code.
-U_CAPI bool U_EXPORT2 uhash_compareUnicodeString(const UElement key1, const UElement key2) {
+U_CAPI bool U_EXPORT2 uhash_compareUnicodeString(const UElement key1, const UElement key2) 
+{
 	const UnicodeString * str1 = (const UnicodeString *)key1.pointer;
 	const UnicodeString * str2 = (const UnicodeString *)key2.pointer;
 	if(str1 == str2) {

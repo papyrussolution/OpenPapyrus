@@ -31,12 +31,10 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
 #include <mmintrin.h>
 #include <xmmintrin.h>
 #include <emmintrin.h>
 #include <tmmintrin.h>
-//#include "pixman-private.h"
 #include "pixman-inlines.h"
 
 typedef struct {

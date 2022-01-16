@@ -1,5 +1,5 @@
 // OBJQCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -389,7 +389,7 @@ int SelQCertDialog::updateView(PPID id)
 		// @v11.1.10 QcObj.UpdateSelector(P_List->def, 0, reinterpret_cast<void *>(extra_param));
 		QcObj.Selector(P_List->def, 0, reinterpret_cast<void *>(extra_param)); // @v11.1.10
 		if(id >= 0)
-			P_List->search(&id, 0, srchFirst | lbSrchByID);
+			P_List->Search_(&id, 0, srchFirst|lbSrchByID);
 		P_List->Draw_();
 	}
 	return 1;

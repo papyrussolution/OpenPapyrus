@@ -221,7 +221,7 @@ static int __rep_print_stats(ENV*env, uint32 flags)
 {
 	DB_REP_STAT * sp;
 	int is_client, ret;
-	char * p;
+	const char * p;
 	if((ret = __rep_stat(env, &sp, flags)) != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL))

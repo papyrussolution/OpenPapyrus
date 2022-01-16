@@ -46,12 +46,12 @@
 extern const char * S_SoapEnvNs;
 extern const char * S_SoapEncNs;
 
-char * envURI = "http://schemas.xmlsoap.org/soap/envelope/";
-char * encURI = "http://schemas.xmlsoap.org/soap/encoding/";
-char * rpcURI = "http://www.w3.org/2003/05/soap-rpc";
-char * xsiURI = "http://www.w3.org/2001/XMLSchema-instance";
-char * xsdURI = "http://www.w3.org/2001/XMLSchema";
-char * tmpURI = "http://tempuri.org";
+const char * envURI = "http://schemas.xmlsoap.org/soap/envelope/";
+const char * encURI = "http://schemas.xmlsoap.org/soap/encoding/";
+const char * rpcURI = "http://www.w3.org/2003/05/soap-rpc";
+const char * xsiURI = "http://www.w3.org/2001/XMLSchema-instance";
+const char * xsdURI = "http://www.w3.org/2001/XMLSchema";
+const char * tmpURI = "http://tempuri.org";
 static Symbol * symlist = (Symbol *)0;  /* pointer to linked list of symbols */
 static Symbol * nslist = (Symbol *)0;   /* pointer to linked list of namespace prefix symbols */
 static Tnode * Tptr[TYPES];
@@ -423,9 +423,9 @@ char * c_storage(int/*Storage*/);
 char * FASTCALL c_init(const Entry *);
 const char * c_type(const Tnode * typ);
 static const char * FASTCALL xsi_type(const Tnode *);
-static char * FASTCALL xsi_type_cond(Tnode * typ, int flag) { return flag ? xsi_type(typ) : ""; }
+static const char * FASTCALL xsi_type_cond(Tnode * typ, int flag) { return flag ? xsi_type(typ) : ""; }
 const char * FASTCALL xsi_type_u(const Tnode *);
-static char * FASTCALL xsi_type_cond_u(Tnode * typ, int flag) { return flag ? xsi_type_u(typ) : ""; }
+static const char * FASTCALL xsi_type_cond_u(Tnode * typ, int flag) { return flag ? xsi_type_u(typ) : ""; }
 const char * FASTCALL wsdl_type(const Tnode *, const char *);
 const char * FASTCALL base_type(const Tnode *, const char *);
 const char * xml_tag(Tnode *);
@@ -605,7 +605,7 @@ char * ns_remove1(char *);
 char * ns_remove2(char *);
 char * res_remove(char *);
 const char * FASTCALL ns_name(const char * tag);
-char * ns_cname(char *, char *);
+char * ns_cname(const char *, const char *);
 char * ns_fname(char *);
 
 static int FASTCALL has_class(const Tnode * typ)
@@ -707,11 +707,7 @@ static int FASTCALL has_ns_t(const Tnode * typ)
 	return has_ns(typ);
 }
 
-static char * strict_check()
-{
-	return sflag ? "" : "(soap->mode & SOAP_XML_STRICT) && ";
-}
-
+static const char * strict_check() { return sflag ? "" : "(soap->mode & SOAP_XML_STRICT) && "; }
 char * ns_of(char *);
 int  eq_ns(char *, char *);
 
@@ -795,7 +791,7 @@ int  FASTCALL is_repetition(const Entry *);
 int  FASTCALL is_choice(const Entry *);
 int  is_sequence(Entry *);
 int  FASTCALL is_anytype(const Entry * p);
-char * FASTCALL xsi_type_Tarray(const Tnode *);
+const char * FASTCALL xsi_type_Tarray(const Tnode *);
 char * FASTCALL xsi_type_Darray(const Tnode * typ);
 void matlab_def_table(Table *);
 void def_table(Table *);
@@ -853,10 +849,10 @@ FILE * gen_env(char *, char *, int, Table *, char *, char *, char *, char *, cha
 void gen_field(FILE *, int, Entry *, char *, char *, char *);
 void gen_val(FILE *, int, Tnode *, char *, char *, char *);
 void gen_atts(FILE *, int, Table *, char *);
-char * get_mxClassID(Tnode *);
+const char * get_mxClassID(Tnode *);
 const char * c_ident(const Tnode *);
 
-static char * FASTCALL c_type_id(const Tnode * typ, const char * name);
+static const char * FASTCALL c_type_id(const Tnode * typ, const char * name);
 static const char * FASTCALL the_type(const Tnode * typ);
 static int FASTCALL is_hexBinary(const Tnode * typ);
 static int FASTCALL is_primitive(const Tnode * typ);
@@ -1064,7 +1060,7 @@ void compile(Table * table)
 	int classflag = 0;
 	int found;
 	int filenum;
-	char * s;
+	const char * s;
 	char base[1024];
 	char soapStub[1024];
 	char soapH[1024];
@@ -2204,7 +2200,7 @@ void generate_schema(Table * t)
 					}
 					if(!cflag) {
 						if(iflag || jflag) {
-							char * sname = (sp && sp->name) ? sp->name : "";
+							const char * sname = (sp && sp->name) ? sp->name : "";
 							if(!Sflag) {
 								char * name1 = ns_cname(sname, "Proxy");
 								sprintf(buf, "%s%s%s.h", dirpath, prefix, name1);
@@ -2342,7 +2338,7 @@ void generate_schema(Table * t)
 					copyrightnote(fd, soapTester);
 					fprintf(fd, "\n/*\n   Stand-alone server auto-test code:\n   Takes request from standard input or over TCP/IP socket and returns\nresponse to standard output or socket\n\n   Compile:\n   cc soapTester.c soapServer.c soapC.c stdsoap2.c\n\n   Command line usage with redirect over stdin/out:\n   > ./a.out < SomeTest.req.xml\n   > ./a.out 12288 < SomeTest.req.xml\n     Note: 12288 = SOAP_XML_INDENT | SOAP_XML_STRICT (see codes in stdsoap2.h)\n   Command line usage to start server at port 8080:\n   > a.out 12288 8080\n*/\n\n#include \"");
 					if(iflag || jflag) {
-						char * sname = (sp && sp->name) ? sp->name : "";
+						const char * sname = (sp && sp->name) ? sp->name : "";
 						name1 = ns_cname(sname, "Service");
 						fprintf(fd, "%s%s%s.h\"\n\n#ifndef SOAP_DEFMAIN\n# define SOAP_DEFMAIN main\t/* redefine to use your own main() */\n#endif\n\nint SOAP_DEFMAIN(int argc, char **argv)\n{\n\t%s service(argc > 1 ? atoi(argv[1]) : 0);\n\tif(argc <= 2)\n\t\treturn service.serve();\n\treturn service.run(atoi(argv[2]));\n}\n",
 							dirpath, prefix, name1, name1);
@@ -2478,7 +2474,8 @@ void gen_wsdl(FILE * fd, Table * t, char * ns, char * name, char * URL, char * e
 	Service * sp, * sp2;
 	Method * m;
 	int mimein, mimeout;
-	char * action, * comment, * method_style = NULL, * method_encoding = NULL, * method_response_encoding = NULL;
+	const char * action;
+	char * comment, * method_style = NULL, * method_encoding = NULL, * method_response_encoding = NULL;
 	char * portname;
 	char * binding;
 	fprintf(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -2815,8 +2812,7 @@ void gen_wsdl(FILE * fd, Table * t, char * ns, char * name, char * URL, char * e
 			fprintf(fd, " transport=\"http://schemas.xmlsoap.org/soap/http\"/>\n");
 		fflush(fd);
 		for(p = t->list; p; p = p->next) {
-			if(p->info.typ->type == Tfun && !(p->info.sto&Sextern) &&
-			   has_ns_eq(ns, p->sym->name))                                   {
+			if(p->info.typ->type == Tfun && !(p->info.sto&Sextern) && has_ns_eq(ns, p->sym->name)) {
 				action = "";
 				mimein = 0;
 				mimeout = 0;
@@ -4266,7 +4262,7 @@ void gen_proxy_code(FILE * fd, Table * table, Symbol * ns, char * name, char * U
 {
 	Entry * p, * method, * param;
 	Table * t;
-	char * soap = iflag ? "this" : "this->soap";
+	const char * soap = iflag ? "this" : "this->soap";
 	fprintf(fd, "\n\n#include \"%s%s.h\"", prefix, name);
 	if(namespaceid)
 		fprintf(fd, "\n\nnamespace %s {", namespaceid);
@@ -4426,7 +4422,7 @@ void gen_object_header(FILE * fd, Table * table, Symbol * ns, char * name, char 
 void gen_method(FILE * fd, Table * table, Entry * method, int server)
 {
 	Table * params;
-	char * soap = iflag ? "this" : "this->soap";
+	const char * soap = iflag ? "this" : "this->soap";
 	Entry * result = (Entry *)method->info.typ->ref;
 	Entry * p = entry(classtable, method->sym);
 	if(!p)
@@ -4993,7 +4989,7 @@ void gen_object_code(FILE * fd, Table * table, Symbol * ns, char * name, char * 
 {
 	Entry * p, * method, * catch_method, * param;
 	Table * t;
-	char * soap = iflag ? "this" : "this->soap";
+	const char * soap = iflag ? "this" : "this->soap";
 	fprintf(fd, "\n\n#include \"%s%s.h\"", prefix, name);
 	if(namespaceid)
 		fprintf(fd, "\n\nnamespace %s {", namespaceid);
@@ -6377,7 +6373,7 @@ const char * FASTCALL ns_name(const char * tag)
 	return s;
 }
 
-char * ns_cname(char * tag, char * suffix)
+char * ns_cname(const char * tag, const char * suffix)
 {
 	char * s;
 	const char * t;
@@ -6717,15 +6713,17 @@ const char * c_type(const Tnode * typ)
 	    case Tenum:
 			if((Table *)typ->ref == booltable)
 				return "bool";
-			p = static_cast<char *>(emalloc((6+strlen(ident(typ->id->name)))*sizeof(char)));
-			strcpy(p, "enum ");
-			strcat(p, ident(typ->id->name));
+			else {
+				p = static_cast<char *>(emalloc((6+strlen(ident(typ->id->name)))*sizeof(char)));
+				strcpy(p, "enum ");
+				strcat(p, ident(typ->id->name));
+			}
 			break;
 	    case Tpointer:
-			p = c_type_id((Tnode *)typ->ref, "*");
+			p = const_cast<char *>(c_type_id((Tnode *)typ->ref, "*")); // @badcast
 			break;
 	    case Treference:
-			p = c_type_id((Tnode *)typ->ref, "&");
+			p = const_cast<char *>(c_type_id((Tnode *)typ->ref, "&")); // @badcast
 			break;
 	    case Tarray:
 			temp = typ;
@@ -6864,7 +6862,7 @@ char * FASTCALL c_init(const Entry * e)
 // c_type_id returns the arraytype to be used in parameter declaration
 // Allows you to specify the identifier that acts acts as teh name of teh type of array 
 // 
-static char * FASTCALL c_type_id(const Tnode * typ, const char * name)
+static const char * FASTCALL c_type_id(const Tnode * typ, const char * name)
 {
 	const char * id;
 	char * p;
@@ -6874,211 +6872,211 @@ static char * FASTCALL c_type_id(const Tnode * typ, const char * name)
 	Entry * e;
 	if(!typ)
 		return "NULL";
-	id = ident(name);
-	switch(typ->type) {
-	    case Tnone:
-			p = const_cast<char *>(id);
-			break;
-	    case Tvoid:
-			p = static_cast<char *>(emalloc(6+strlen(id)));
-			strcpy(p, "void ");
-			strcat(p, id);
-			break;
-	    case Tchar:
-			p = static_cast<char *>(emalloc(6+strlen(id)));
-			strcpy(p, "char ");
-			strcat(p, id);
-			break;
-	    case Twchar:
-			p = static_cast<char *>(emalloc(9+strlen(id)));
-			strcpy(p, "wchar_t ");
-			strcat(p, id);
-			break;
-	    case Tshort:
-			p = static_cast<char *>(emalloc(7+strlen(id)));
-			strcpy(p, "short ");
-			strcat(p, id);
-			break;
-	    case Tint:
-			p = static_cast<char *>(emalloc(5+strlen(id)));
-			strcpy(p, "int ");
-			strcat(p, id);
-			break;
-	    case Tlong:
-			p = static_cast<char *>(emalloc(6+strlen(id)));
-			strcpy(p, "long ");
-			strcat(p, id);
-			break;
-	    case Tllong:
-			p = static_cast<char *>(emalloc(8+strlen(id)));
-			strcpy(p, "LONG64 ");
-			strcat(p, id);
-			break;
-	    case Tfloat:
-			p = static_cast<char *>(emalloc(7+strlen(id)));
-			strcpy(p, "float ");
-			strcat(p, id);
-			break;
-	    case Tdouble:
-			p = static_cast<char *>(emalloc(8+strlen(id)));
-			strcpy(p, "double ");
-			strcat(p, id);
-			break;
-	    case Tldouble:
-			p = static_cast<char *>(emalloc(13+strlen(id)));
-			strcpy(p, "long double ");
-			strcat(p, id);
-			break;
-	    case Tuchar:
-			p = static_cast<char *>(emalloc(15+strlen(id)));
-			strcpy(p, "uchar ");
-			strcat(p, id);
-			break;
-	    case Tushort:
-			p = static_cast<char *>(emalloc(16+strlen(id)));
-			strcpy(p, "ushort ");
-			strcat(p, id);
-			break;
-	    case Tuint:
-			p = static_cast<char *>(emalloc(14+strlen(id)));
-			strcpy(p, "uint ");
-			strcat(p, id);
-			break;
-	    case Tulong:
-			p = static_cast<char *>(emalloc(15+strlen(id)));
-			strcpy(p, "ulong ");
-			strcat(p, id);
-			break;
-	    case Tullong:
-			p = static_cast<char *>(emalloc(9+strlen(id)));
-			strcpy(p, "ULONG64 ");
-			strcat(p, id);
-			break;
-	    case Ttime:
-			p = static_cast<char *>(emalloc(8+strlen(id)));
-			strcpy(p, "time_t ");
-			strcat(p, id);
-			break;
-	    case Tstruct:
-			p = static_cast<char *>(emalloc((9+strlen(ident(typ->id->name))+strlen(id))*sizeof(char)));
-			strcpy(p, "struct ");
-			strcat(p, ident(typ->id->name));
-			strcat(p, " ");
-			strcat(p, id);
-			break;
-	    case Tclass:
-			if(!typ->classed && !is_imported(typ)) {
-				p = static_cast<char *>(emalloc((8+strlen(ident(typ->id->name))+strlen(id))*sizeof(char)));
-				strcpy(p, "class ");
-				strcat(p, ident(typ->id->name));
-				const_cast<Tnode *>(typ)->classed = True; // @badcast
-			}
-			else {
-				p = static_cast<char *>(emalloc((2+strlen(ident(typ->id->name))+strlen(id))*sizeof(char)));
-				strcpy(p, ident(typ->id->name)); 
-			}
-			strcat(p, " ");
-			strcat(p, id);
-			break;
-	    case Tunion:
-			p = (char *)emalloc((8+strlen(ident(typ->id->name))+strlen(id))*sizeof(char));
-			strcpy(p, "union ");
-			strcat(p, ident(typ->id->name));
-			strcat(p, " ");
-			strcat(p, id);
-			break;
-	    case Tenum:
-			if((Table *)typ->ref == booltable) {
-				p = (char *)emalloc((strlen(id)+6)*sizeof(char));
-				strcpy(p, "bool ");
-				strcat(p, id);
-				return p;
-			}
-			p = (char *)emalloc((7+strlen(ident(typ->id->name))+strlen(id))*sizeof(char));
-			strcpy(p, "enum ");
-			strcat(p, ident(typ->id->name));
-			strcat(p, " ");
-			strcat(p, id);
-			break;
-	    case Tpointer:
-			p = (char *)emalloc(strlen(id)+2);
-			strcpy(p+1, id);
-			p[0] = '*';
-			p = c_type_id((Tnode *)typ->ref, p);
-			break;
-	    case Treference:
-			p = (char *)emalloc(strlen(id)+2);
-			strcpy(p+1, id);
-			p[0] = '&';
-			p = c_type_id((Tnode *)typ->ref, p);
-			break;
-	    case Tarray:
-			temp = typ;
-			while(((Tnode *)(typ->ref))->type==Tarray) {
-				typ = (Tnode *)typ->ref;
-			}
-			p = (char *)emalloc((12+strlen(q = c_type_id((Tnode *)typ->ref, id)))*sizeof(char));
-			strcpy(p, q);
-			typ = temp;
-			while(typ->type==Tarray) {
-				if(((Tnode *)typ->ref)->width) {
-					sprintf(tempBuf, "[%d]", (typ->width/((Tnode *)typ->ref)->width));
-					strcat(p, tempBuf);
-				}
-				typ = (Tnode *)typ->ref;
-			}
-			/*if(((Tnode*) (typ->ref))->type==Tarray){
-			sprintf(p,"%s [%d]",c_type((Tnode*)typ->ref),(typ->width / ((Tnode*) typ->ref)->width));
-			}else
-			sprintf(p,"%s a[%d]",c_type((Tnode*)typ->ref),(typ->width /((Tnode*) typ->ref)->width));*/
-			break;
-	    case Tfun:
-			if(strncmp(id, "operator ", 9))
-				q = c_type_id(((FNinfo *)typ->ref)->ret, id);
-			else
-				q = id;
-			p = (char *)emalloc(1024);
-			strcpy(p, q);
-			strcat(p, "(");
-			for(e = ((FNinfo *)typ->ref)->args->list; e; e = e->next) {
-				strcat(p, c_storage(e->info.sto));
-				if(e->info.typ->type != Tvoid) {
-					strcat(p, c_type_id(e->info.typ, e->sym->name));
-					strcat(p, c_init(e));
-				}
-				else
-					strcat(p, "void");
-				if(e->next)
-					strcat(p, ", ");
-			}
-			strcat(p, ")");
-			break;
-	    case Ttemplate:
-			if(typ->ref) {
-				p = static_cast<char *>(emalloc((strlen(q = c_type((Tnode *)typ->ref))+strlen(ident(typ->id->name))+strlen(id)+4)*sizeof(char)));
-				strcpy(p, ident(typ->id->name));
-				strcat(p, "<");
-				strcat(p, q);
-				strcat(p, " >");
+	else {
+		id = ident(name);
+		switch(typ->type) {
+			case Tnone:
+				p = const_cast<char *>(id);
+				break;
+			case Tvoid:
+				p = static_cast<char *>(emalloc(6+strlen(id)));
+				strcpy(p, "void ");
 				strcat(p, id);
 				break;
-			}
-	    default:
-			return "UnknownType";
+			case Tchar:
+				p = static_cast<char *>(emalloc(6+strlen(id)));
+				strcpy(p, "char ");
+				strcat(p, id);
+				break;
+			case Twchar:
+				p = static_cast<char *>(emalloc(9+strlen(id)));
+				strcpy(p, "wchar_t ");
+				strcat(p, id);
+				break;
+			case Tshort:
+				p = static_cast<char *>(emalloc(7+strlen(id)));
+				strcpy(p, "short ");
+				strcat(p, id);
+				break;
+			case Tint:
+				p = static_cast<char *>(emalloc(5+strlen(id)));
+				strcpy(p, "int ");
+				strcat(p, id);
+				break;
+			case Tlong:
+				p = static_cast<char *>(emalloc(6+strlen(id)));
+				strcpy(p, "long ");
+				strcat(p, id);
+				break;
+			case Tllong:
+				p = static_cast<char *>(emalloc(8+strlen(id)));
+				strcpy(p, "LONG64 ");
+				strcat(p, id);
+				break;
+			case Tfloat:
+				p = static_cast<char *>(emalloc(7+strlen(id)));
+				strcpy(p, "float ");
+				strcat(p, id);
+				break;
+			case Tdouble:
+				p = static_cast<char *>(emalloc(8+strlen(id)));
+				strcpy(p, "double ");
+				strcat(p, id);
+				break;
+			case Tldouble:
+				p = static_cast<char *>(emalloc(13+strlen(id)));
+				strcpy(p, "long double ");
+				strcat(p, id);
+				break;
+			case Tuchar:
+				p = static_cast<char *>(emalloc(15+strlen(id)));
+				strcpy(p, "uchar ");
+				strcat(p, id);
+				break;
+			case Tushort:
+				p = static_cast<char *>(emalloc(16+strlen(id)));
+				strcpy(p, "ushort ");
+				strcat(p, id);
+				break;
+			case Tuint:
+				p = static_cast<char *>(emalloc(14+strlen(id)));
+				strcpy(p, "uint ");
+				strcat(p, id);
+				break;
+			case Tulong:
+				p = static_cast<char *>(emalloc(15+strlen(id)));
+				strcpy(p, "ulong ");
+				strcat(p, id);
+				break;
+			case Tullong:
+				p = static_cast<char *>(emalloc(9+strlen(id)));
+				strcpy(p, "ULONG64 ");
+				strcat(p, id);
+				break;
+			case Ttime:
+				p = static_cast<char *>(emalloc(8+strlen(id)));
+				strcpy(p, "time_t ");
+				strcat(p, id);
+				break;
+			case Tstruct:
+				p = static_cast<char *>(emalloc((9+strlen(ident(typ->id->name))+strlen(id))*sizeof(char)));
+				strcpy(p, "struct ");
+				strcat(p, ident(typ->id->name));
+				strcat(p, " ");
+				strcat(p, id);
+				break;
+			case Tclass:
+				if(!typ->classed && !is_imported(typ)) {
+					p = static_cast<char *>(emalloc((8+strlen(ident(typ->id->name))+strlen(id))*sizeof(char)));
+					strcpy(p, "class ");
+					strcat(p, ident(typ->id->name));
+					const_cast<Tnode *>(typ)->classed = True; // @badcast
+				}
+				else {
+					p = static_cast<char *>(emalloc((2+strlen(ident(typ->id->name))+strlen(id))*sizeof(char)));
+					strcpy(p, ident(typ->id->name)); 
+				}
+				strcat(p, " ");
+				strcat(p, id);
+				break;
+			case Tunion:
+				p = (char *)emalloc((8+strlen(ident(typ->id->name))+strlen(id))*sizeof(char));
+				strcpy(p, "union ");
+				strcat(p, ident(typ->id->name));
+				strcat(p, " ");
+				strcat(p, id);
+				break;
+			case Tenum:
+				if((Table *)typ->ref == booltable) {
+					p = (char *)emalloc((strlen(id)+6)*sizeof(char));
+					strcpy(p, "bool ");
+					strcat(p, id);
+					return p;
+				}
+				p = (char *)emalloc((7+strlen(ident(typ->id->name))+strlen(id))*sizeof(char));
+				strcpy(p, "enum ");
+				strcat(p, ident(typ->id->name));
+				strcat(p, " ");
+				strcat(p, id);
+				break;
+			case Tpointer:
+				p = (char *)emalloc(strlen(id)+2);
+				strcpy(p+1, id);
+				p[0] = '*';
+				p = const_cast<char *>(c_type_id((Tnode *)typ->ref, p)); // @badcast
+				break;
+			case Treference:
+				p = (char *)emalloc(strlen(id)+2);
+				strcpy(p+1, id);
+				p[0] = '&';
+				p = const_cast<char *>(c_type_id((Tnode *)typ->ref, p)); // @badcast
+				break;
+			case Tarray:
+				temp = typ;
+				while(((Tnode *)(typ->ref))->type==Tarray) {
+					typ = (Tnode *)typ->ref;
+				}
+				p = (char *)emalloc((12+strlen(q = c_type_id((Tnode *)typ->ref, id)))*sizeof(char));
+				strcpy(p, q);
+				typ = temp;
+				while(typ->type==Tarray) {
+					if(((Tnode *)typ->ref)->width) {
+						sprintf(tempBuf, "[%d]", (typ->width/((Tnode *)typ->ref)->width));
+						strcat(p, tempBuf);
+					}
+					typ = (Tnode *)typ->ref;
+				}
+				/*if(((Tnode*) (typ->ref))->type==Tarray){
+				sprintf(p,"%s [%d]",c_type((Tnode*)typ->ref),(typ->width / ((Tnode*) typ->ref)->width));
+				}else
+				sprintf(p,"%s a[%d]",c_type((Tnode*)typ->ref),(typ->width /((Tnode*) typ->ref)->width));*/
+				break;
+			case Tfun:
+				if(strncmp(id, "operator ", 9))
+					q = c_type_id(((FNinfo *)typ->ref)->ret, id);
+				else
+					q = id;
+				p = (char *)emalloc(1024);
+				strcpy(p, q);
+				strcat(p, "(");
+				for(e = ((FNinfo *)typ->ref)->args->list; e; e = e->next) {
+					strcat(p, c_storage(e->info.sto));
+					if(e->info.typ->type != Tvoid) {
+						strcat(p, c_type_id(e->info.typ, e->sym->name));
+						strcat(p, c_init(e));
+					}
+					else
+						strcat(p, "void");
+					if(e->next)
+						strcat(p, ", ");
+				}
+				strcat(p, ")");
+				break;
+			case Ttemplate:
+				if(typ->ref) {
+					p = static_cast<char *>(emalloc((strlen(q = c_type((Tnode *)typ->ref))+strlen(ident(typ->id->name))+strlen(id)+4)*sizeof(char)));
+					strcpy(p, ident(typ->id->name));
+					strcat(p, "<");
+					strcat(p, q);
+					strcat(p, " >");
+					strcat(p, id);
+					break;
+				}
+			default:
+				return "UnknownType";
+		}
+		return p;
 	}
-	return p;
 }
 
-char * FASTCALL xsi_type_Tarray(const Tnode * typ)
+const char * FASTCALL xsi_type_Tarray(const Tnode * typ)
 {
 	int cardinality;
 	char * p;
 	const char * s;
 	Tnode * t = static_cast<Tnode *>(typ->ref);
 	if(is_fixedstring(typ)) {
-		if(typ->sym)
-			return ns_convert(typ->sym->name);
-		return "xsd:string";
+		return typ->sym ? ns_convert(typ->sym->name) : "xsd:string";
 	}
 	cardinality = 1;
 	while(t->type == Tarray || (is_dynamic_array(t) && !has_ns(t) && !is_untyped(typ))) {
@@ -7110,33 +7108,37 @@ char * FASTCALL xsi_type_Darray(const Tnode * typ)
 	char * p;
 	const char * s;
 	if(!typ->ref)
-		return "";
-	q = ((Table *)typ->ref)->list;
-	while(q && q->info.typ->type == Tfun)
-		q = q->next;
-	t = (Tnode *)q->info.typ->ref;
-	cardinality = 1;
-	while(t->type == Tarray || (is_dynamic_array(t) && !has_ns(t) && !is_untyped(typ))) {
-		if(t->type == Tarray)
-			t = (Tnode *)t->ref;
-		else {q = ((Table *)t->ref)->list;
-		      while(q && q->info.typ->type == Tfun)
-			      q = q->next;
-		      t = (Tnode *)q->info.typ->ref; }
-		cardinality++;
+		return const_cast<char *>(""); // @badcast
+	else {
+		q = ((Table *)typ->ref)->list;
+		while(q && q->info.typ->type == Tfun)
+			q = q->next;
+		t = (Tnode *)q->info.typ->ref;
+		cardinality = 1;
+		while(t->type == Tarray || (is_dynamic_array(t) && !has_ns(t) && !is_untyped(typ))) {
+			if(t->type == Tarray)
+				t = (Tnode *)t->ref;
+			else {
+				q = ((Table *)t->ref)->list;
+				while(q && q->info.typ->type == Tfun)
+					  q = q->next;
+				t = (Tnode *)q->info.typ->ref; 
+			}
+			cardinality++;
+		}
+		s = xsi_type(t);
+		if(!*s)
+			s = wsdl_type(t, "");
+		p = static_cast<char *>(emalloc(strlen(s)+cardinality*2+1));
+		strcpy(p, s);
+		if(cardinality > 1) {
+			strcat(p, "[");
+			for(; cardinality > 2; cardinality--)
+				strcat(p, ",");
+			strcat(p, "]");
+		}
+		return p;
 	}
-	s = xsi_type(t);
-	if(!*s)
-		s = wsdl_type(t, "");
-	p = static_cast<char *>(emalloc(strlen(s)+cardinality*2+1));
-	strcpy(p, s);
-	if(cardinality > 1) {
-		strcat(p, "[");
-		for(; cardinality > 2; cardinality--)
-			strcat(p, ",");
-		strcat(p, "]");
-	}
-	return p;
 }
 
 void generate(Tnode * typ)
@@ -7374,7 +7376,7 @@ void matlab_c_to_mx_dynamicArray(Tnode * typ)
 	fflush(fmatlab);
 }
 
-char * get_mxClassID(Tnode * typ)
+const char * get_mxClassID(Tnode * typ)
 {
 	switch(typ->type) {
 	    case Tdouble: return "mxDOUBLE_CLASS";
@@ -9199,12 +9201,12 @@ void soap_put(Tnode * typ)
 	const Entry * p;
 	const char * ci = c_ident(typ);
 	const char * ct = c_type(typ);
-	char * ctp = c_type_id(typ, "*");
-	char * ctpa = c_type_id(typ, "*a");
-	char * ctc = c_type_id(typ, "const");
-	char * ctca = c_type_id(typ, "const a");
-	char * ctcp = c_type_id(typ, "const*");
-	char * ctcpa = c_type_id(typ, "const*a");
+	const char * ctp = c_type_id(typ, "*");
+	const char * ctpa = c_type_id(typ, "*a");
+	const char * ctc = c_type_id(typ, "const");
+	const char * ctca = c_type_id(typ, "const a");
+	const char * ctcp = c_type_id(typ, "const*");
+	const char * ctcpa = c_type_id(typ, "const*a");
 	if(typ->type == Ttemplate || typ->type == Tunion)
 		return;
 	if(typ->type == Tclass)
@@ -9449,7 +9451,7 @@ int is_stdstr(const Tnode * typ)
 	return is_stdstring(typ) || is_stdwstring(typ);
 }
 
-static void FASTCALL soap_set_attr(const Entry * p, char * obj, const char * name, char * tag)
+static void FASTCALL soap_set_attr(const Entry * p, const char * obj, const char * name, char * tag)
 {
 	Tnode * typ = p->info.typ;
 	int flag = (p->info.minOccurs == 0);
@@ -9527,7 +9529,7 @@ static void FASTCALL soap_set_attr(const Entry * p, char * obj, const char * nam
 	}
 }
 
-static void FASTCALL soap_attr_value(const Entry * p, char * obj, const char * name, char * tag)
+static void FASTCALL soap_attr_value(const Entry * p, const char * obj, const char * name, char * tag)
 {
 	int flag = 0;
 	const Tnode * typ = p->info.typ;
@@ -9536,23 +9538,17 @@ static void FASTCALL soap_attr_value(const Entry * p, char * obj, const char * n
 	else if(p->info.minOccurs >= 1 && !p->info.hasval)
 		flag = 1;  /* required */
 	if(is_external(typ) && !is_anyAttribute(typ))
-		fprintf(fout, "\n\tif(soap_s2%s(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s))\n\t\treturn NULL;",
-			c_ident(typ), tag, flag, obj, name);
+		fprintf(fout, "\n\tif(soap_s2%s(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s))\n\t\treturn NULL;", c_ident(typ), tag, flag, obj, name);
 	else if(typ->type == Tllong || typ->type == Tullong)
-		fprintf(fout, "\n\tif(soap_s2%s(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s))\n\t\treturn NULL;",
-			c_type(typ), tag, flag, obj, name);
+		fprintf(fout, "\n\tif(soap_s2%s(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s))\n\t\treturn NULL;", c_type(typ), tag, flag, obj, name);
 	else if(typ->type == Tenum)
-		fprintf(fout, "\n\tif(soap_s2%s(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s))\n\t\treturn NULL;",
-			c_ident(typ), tag, flag, obj, name);
+		fprintf(fout, "\n\tif(soap_s2%s(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s))\n\t\treturn NULL;", c_ident(typ), tag, flag, obj, name);
 	else if(is_qname(typ))
-		fprintf(fout, "\n\tif(soap_s2QName(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s, %ld, %ld))\n\t\treturn NULL;",
-			tag, flag, obj, name, minlen(typ), maxlen(typ));
+		fprintf(fout, "\n\tif(soap_s2QName(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s, %ld, %ld))\n\t\treturn NULL;", tag, flag, obj, name, minlen(typ), maxlen(typ));
 	else if(is_string(typ))
-		fprintf(fout, "\n\tif(soap_s2string(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s, %ld, %ld))\n\t\treturn NULL;",
-			tag, flag, obj, name, minlen(typ), maxlen(typ));
+		fprintf(fout, "\n\tif(soap_s2string(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s, %ld, %ld))\n\t\treturn NULL;", tag, flag, obj, name, minlen(typ), maxlen(typ));
 	else if(is_wstring(typ))
-		fprintf(fout, "\n\tif(soap_s2wchar(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s, %ld, %ld))\n\t\treturn NULL;",
-			tag, flag, obj, name, minlen(typ), maxlen(typ));
+		fprintf(fout, "\n\tif(soap_s2wchar(soap, soap_attr_value(soap, \"%s\", %d), &%s->%s, %ld, %ld))\n\t\treturn NULL;", tag, flag, obj, name, minlen(typ), maxlen(typ));
 	else if(is_stdqname(typ))
 		fprintf(fout, "\n\t{\tconst char *t = soap_attr_value(soap, \"%s\", %d);\n\t\tif(t)\n\t\t{\tchar *s;\n\t\t\tif(soap_s2QName(soap, t, &s, %ld, %ld))\n\t\t\t\treturn NULL;\n\t\t\t%s->%s.assign(s);\n\t\t}\n\t\telse if(soap->error)\n\t\t\treturn NULL;\n\t}",
 			tag, flag, minlen(typ), maxlen(typ), obj, name);
@@ -9603,12 +9599,10 @@ static void FASTCALL soap_attr_value(const Entry * p, char * obj, const char * n
 			fprintf(fout, "\n\t\t}\n\t\telse if(soap->error)\n\t\t\treturn NULL;\n\t}");
 	}
 	else if(is_hexBinary(typ))
-		fprintf(fout,
-			"\n\tif(!(%s->%s.__ptr = (uchar *)soap_hex2s(soap, soap_attr_value(soap, \"%s\", %d), NULL, 0, &%s->%s.__size)))\n\t\treturn NULL;",
+		fprintf(fout, "\n\tif(!(%s->%s.__ptr = (uchar *)soap_hex2s(soap, soap_attr_value(soap, \"%s\", %d), NULL, 0, &%s->%s.__size)))\n\t\treturn NULL;",
 			obj, name, tag, flag, obj, name);
 	else if(is_binary(typ))
-		fprintf(fout,
-			"\n\tif(!(%s->%s.__ptr = (uchar *)soap_base642s(soap, soap_attr_value(soap, \"%s\", %d), NULL, 0, &%s->%s.__size)))\n\t\treturn NULL;",
+		fprintf(fout, "\n\tif(!(%s->%s.__ptr = (uchar *)soap_base642s(soap, soap_attr_value(soap, \"%s\", %d), NULL, 0, &%s->%s.__size)))\n\t\treturn NULL;",
 			obj, name, tag, flag, obj, name);
 	else if(is_anyAttribute(typ))
 		fprintf(fout, "\n\tsoap_in_%s(soap, \"%s\", &%s->%s, \"%s\");", c_ident(typ), tag, obj, name, xsi_type(typ));
@@ -9622,8 +9616,7 @@ static void FASTCALL soap_attr_value(const Entry * p, char * obj, const char * n
 					fprintf(fout, "\n\tif(%s->%s && *%s->%s < " SOAP_LONG_FORMAT ") {\n\t\tsoap->error = SOAP_LENGTH;\n\t\treturn NULL;\n\t}",
 						obj, name, obj, name, ptr->minLength);
 				if(ptr->maxLength != MAXLONG64)
-					fprintf(fout,
-						"\n\tif(%s->%s && *%s->%s > " SOAP_LONG_FORMAT ") {\n\t\tsoap->error = SOAP_LENGTH;\n\t\treturn NULL;\n\t}",
+					fprintf(fout, "\n\tif(%s->%s && *%s->%s > " SOAP_LONG_FORMAT ") {\n\t\tsoap->error = SOAP_LENGTH;\n\t\treturn NULL;\n\t}",
 						obj, name, obj, name, ptr->maxLength);
 			}
 		}
@@ -9638,7 +9631,7 @@ static void FASTCALL soap_attr_value(const Entry * p, char * obj, const char * n
 	}
 }
 
-static char * ptr_cast(const Table * t, char * name)
+static char * ptr_cast(const Table * t, const char * name)
 {
 	char * s = emalloc(strlen(t->sym->name)+strlen(name)+6);
 	sprintf(s, "((%s*)%s)", t->sym->name, name);

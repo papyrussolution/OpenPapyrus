@@ -79,11 +79,11 @@ GpValue * FASTCALL GnuPlot::ConstExpress(GpValue * pVal)
 // which must not be freed by the caller!
 // 
 //char * string_or_express(at_type ** ppAt)
-char * GnuPlot::StringOrExpress(at_type ** ppAt)
+const char * GnuPlot::StringOrExpress(at_type ** ppAt)
 {
 	int i;
 	bool has_dummies;
-	static char * array_placeholder = "@@";
+	static const char * array_placeholder = "@@";
 	static char * str = NULL;
 	ZFREE(str);
 	_Pb.df_array = NULL;

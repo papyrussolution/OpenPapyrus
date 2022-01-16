@@ -308,15 +308,13 @@ static int TIFFjpeg_has_multiple_scans(JPEGState* sp)
 
 static int TIFFjpeg_start_decompress(JPEGState* sp)
 {
-	const char * sz_max_allowed_scan_number;
-	/* progress monitor */
+	// progress monitor 
 	sp->cinfo.d.progress = &sp->progress;
 	sp->progress.progress_monitor = TIFFjpeg_progress_monitor;
-	sp->max_allowed_scan_number = 100;
-	sz_max_allowed_scan_number = getenv("LIBTIFF_JPEG_MAX_ALLOWED_SCAN_NUMBER");
-	if(sz_max_allowed_scan_number)
-		sp->max_allowed_scan_number = atoi(sz_max_allowed_scan_number);
-
+	{
+		const char * sz_max_allowed_scan_number = getenv("LIBTIFF_JPEG_MAX_ALLOWED_SCAN_NUMBER");
+		sp->max_allowed_scan_number = sz_max_allowed_scan_number ? satoi(sz_max_allowed_scan_number) : 100;
+	}
 	return CALLVJPEG(sp, jpeg_start_decompress(&sp->cinfo.d));
 }
 

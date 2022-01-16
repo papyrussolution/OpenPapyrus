@@ -95,14 +95,10 @@ static l_int32 boxGetDistanceInXorY(l_int32 c1, l_int32 s1, l_int32 c2, l_int32 
  *                           0 otherwise
  * \return  0 if OK, 1 on error
  */
-l_ok boxContains(BOX * box1,
-    BOX * box2,
-    l_int32 * presult)
+l_ok boxContains(BOX * box1, BOX * box2, l_int32 * presult)
 {
 	l_int32 x1, y1, w1, h1, x2, y2, w2, h2, valid1, valid2;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!presult)
 		return ERROR_INT("&result not defined", procName, 1);
 	*presult = 0;
@@ -173,15 +169,12 @@ l_ok boxIntersects(BOX      * box1,
  *      (2) If %box is not valid, returns an empty boxa.
  * </pre>
  */
-BOXA * boxaContainedInBox(BOXA * boxas,
-    BOX   * box)
+BOXA * boxaContainedInBox(BOXA * boxas, BOX   * box)
 {
 	l_int32 i, n, val, valid;
 	BOX * box1;
 	BOXA * boxad;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!boxas)
 		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 	if(!box)
@@ -190,7 +183,6 @@ BOXA * boxaContainedInBox(BOXA * boxas,
 	boxIsValid(box, &valid);
 	if(n == 0 || !valid)
 		return boxaCreate(1); /* empty */
-
 	boxad = boxaCreate(0);
 	for(i = 0; i < n; i++) {
 		if((box1 = boxaGetValidBox(boxas, i, L_CLONE)) == NULL)
@@ -200,7 +192,6 @@ BOXA * boxaContainedInBox(BOXA * boxas,
 			boxaAddBox(boxad, box1, L_COPY);
 		boxDestroy(&box1); /* destroy the clone */
 	}
-
 	return boxad;
 }
 
@@ -217,15 +208,11 @@ BOXA * boxaContainedInBox(BOXA * boxas,
  *      (1) If %box is not valid, returns a zero count.
  * </pre>
  */
-l_ok boxaContainedInBoxCount(BOXA     * boxa,
-    BOX      * box,
-    l_int32 * pcount)
+l_ok boxaContainedInBoxCount(BOXA     * boxa, BOX      * box, l_int32 * pcount)
 {
 	l_int32 i, n, val, valid;
 	BOX * box1;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pcount)
 		return ERROR_INT("&count not defined", procName, 1);
 	*pcount = 0;
@@ -237,7 +224,6 @@ l_ok boxaContainedInBoxCount(BOXA     * boxa,
 	boxIsValid(box, &valid);
 	if(n == 0 || !valid)
 		return 0;
-
 	for(i = 0; i < n; i++) {
 		if((box1 = boxaGetValidBox(boxa, i, L_CLONE)) == NULL)
 			continue;
@@ -257,9 +243,7 @@ l_ok boxaContainedInBoxCount(BOXA     * boxa,
  *                              some box in boxa1; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-l_ok boxaContainedInBoxa(BOXA     * boxa1,
-    BOXA     * boxa2,
-    l_int32 * pcontained)
+l_ok boxaContainedInBoxa(BOXA     * boxa1, BOXA     * boxa2, l_int32 * pcontained)
 {
 	l_int32 i, j, n1, n2, cont, result;
 	BOX * box1, * box2;
@@ -394,15 +378,12 @@ l_ok boxaIntersectsBoxCount(BOXA     * boxa,
  *          the remaining boxes are clipped to box.
  * </pre>
  */
-BOXA * boxaClipToBox(BOXA * boxas,
-    BOX   * box)
+BOXA * boxaClipToBox(BOXA * boxas, BOX   * box)
 {
 	l_int32 i, n, valid;
 	BOX * box1, * boxo;
 	BOXA * boxad;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!boxas)
 		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
 	if(!box)
@@ -411,7 +392,6 @@ BOXA * boxaClipToBox(BOXA * boxas,
 	boxIsValid(box, &valid);
 	if(n == 0 || !valid)
 		return boxaCreate(1); /* empty */
-
 	boxad = boxaCreate(0);
 	for(i = 0; i < n; i++) {
 		if((box1 = boxaGetValidBox(boxas, i, L_CLONE)) == NULL)
@@ -420,7 +400,6 @@ BOXA * boxaClipToBox(BOXA * boxas,
 			boxaAddBox(boxad, boxo, L_INSERT);
 		boxDestroy(&box1);
 	}
-
 	return boxad;
 }
 
@@ -451,21 +430,16 @@ BOXA * boxaClipToBox(BOXA * boxas,
  *          thousands of rectangles.
  * </pre>
  */
-BOXA * boxaCombineOverlaps(BOXA * boxas,
-    PIXA  * pixadb)
+BOXA * boxaCombineOverlaps(BOXA * boxas, PIXA  * pixadb)
 {
 	l_int32 i, j, w, h, n1, n2, overlap, niters;
 	BOX * box1, * box2, * box3;
 	BOXA * boxa1, * boxa2;
 	PIX * pix1;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!boxas)
 		return (BOXA *)ERROR_PTR("boxas not defined", procName, NULL);
-
 	if(pixadb) boxaGetExtent(boxas, &w, &h, NULL);
-
 	boxa1 = boxaCopy(boxas, L_COPY);
 	n1 = boxaGetCount(boxa1);
 	niters = 0;

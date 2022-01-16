@@ -11,7 +11,6 @@
 // better dependency modularization.
 
 #include "formattedval_impl.h"
-#include "putilimp.h"
 
 U_NAMESPACE_BEGIN
 

@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="libmujs">
+      <UniqueIdentifier>{2922f483-1012-471b-86cf-f7b14cc6367c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\one.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsarray.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsboolean.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsbuiltin.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jscompile.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsdate.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsdtoa.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsdump.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jserror.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsfunction.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsgc.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsintern.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jslex.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsmath.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsnumber.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsobject.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\json.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsparse.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsproperty.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsregexp.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsrepr.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsrun.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsstate.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsstring.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\jsvalue.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\main.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\pp.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\regexp.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\utf.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\mujs\utftype.c">
+      <Filter>libmujs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\mujs.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\astnames.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jsbuiltin.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jscompile.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jsi.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jslex.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jsparse.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jsrun.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\jsvalue.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\opnames.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\regexp.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\mujs\utf.h">
+      <Filter>libmujs</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

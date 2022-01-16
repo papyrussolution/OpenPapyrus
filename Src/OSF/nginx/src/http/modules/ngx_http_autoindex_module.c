@@ -297,7 +297,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 	static u_char title[] = "<html>" CRLF "<head><title>Index of ";
 	static u_char header[] = "</title></head>" CRLF "<body bgcolor=\"white\">" CRLF "<h1>Index of ";
 	static u_char tail[] = "</body>" CRLF "</html>" CRLF;
-	static char  * months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	static const char * months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	if(r->headers_out.charset.len == 5 && ngx_strncasecmp(r->headers_out.charset.data, (u_char *)"utf-8", 5) == 0) {
 		utf8 = 1;
 	}

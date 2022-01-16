@@ -240,9 +240,9 @@ static int __aes_derivekeys(ENV*env, DB_CIPHER * db_cipher, uint8 * passwd, size
  *	Handle AES-specific errors.  Codes and messages derived from
  *	rijndael/rijndael-api-fst.h.
  */
-static void __aes_err(ENV*env, int err)
+static void __aes_err(ENV * env, int err)
 {
-	char * errstr;
+	const char * errstr;
 	switch(err) {
 #ifdef  HAVE_CRYPTO_IPP
 	    case ippStsNullPtrErr:

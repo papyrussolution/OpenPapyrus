@@ -40,8 +40,8 @@ static int __txn_compare(const void *, const void *);
 static int __txn_print_all(ENV*, uint32);
 static int __txn_print_stats(ENV*, uint32);
 static int __txn_stat(ENV*, DB_TXN_STAT**, uint32);
-static char * __txn_status(const DB_TXN_ACTIVE *);
-static char * __txn_xa_status(const DB_TXN_ACTIVE *);
+static const char * __txn_status(const DB_TXN_ACTIVE *);
+static const char * __txn_xa_status(const DB_TXN_ACTIVE *);
 static void __txn_gid(ENV*, DB_MSGBUF*, DB_TXN_ACTIVE *);
 
 static void __clear_fe_watermark(DB_TXN *, DB *);
@@ -3140,7 +3140,7 @@ static int __txn_print_all(ENV*env, uint32 flags)
 	return 0;
 }
 
-static char * __txn_status(const DB_TXN_ACTIVE * txn)
+static const char * __txn_status(const DB_TXN_ACTIVE * txn)
 {
 	switch(txn->status) {
 	    case TXN_ABORTED: return "aborted";
@@ -3153,7 +3153,7 @@ static char * __txn_status(const DB_TXN_ACTIVE * txn)
 	return "unknown state";
 }
 
-static char * __txn_xa_status(const DB_TXN_ACTIVE * txn)
+static const char * __txn_xa_status(const DB_TXN_ACTIVE * txn)
 {
 	switch(txn->xa_status) {
 	    case TXN_XA_ACTIVE: return "xa active";

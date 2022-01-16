@@ -1,20 +1,13 @@
+// sfwdchit.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
- * COPYRIGHT: 
- * Copyright (c) 1997-2003, International Business Machines Corporation and
- * others. All Rights Reserved.
- ********************************************************************/
-/*   file name:  sfwdchit.cpp
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*/
+// Copyright (c) 1997-2003, International Business Machines Corporation and others. All Rights Reserved.
+// encoding:   UTF-8
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "sfwdchit.h"
 #include "unicode/ustring.h"
-#include "unicode/unistr.h"
 
 // A hash code of kInvalidHashCode indicates that the has code needs
 // to be computed. A hash code of kEmptyHashCode is used for empty keys

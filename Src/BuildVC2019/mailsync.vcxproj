@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FD5B276A-CB56-4697-8C6F-C02FF68AB435}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>mailsync</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;__PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <PrecompiledHeaderFile />
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;dbghelp.lib;kernel32.lib;user32.lib;gdi32.lib;gdiplus.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Ws2_32.lib;Dnsapi.lib;Wldap32.lib;Crypt32.lib;Mpr.lib;Shlwapi.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;__PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <OmitFramePointers>false</OmitFramePointers>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;dbghelp.lib;kernel32.lib;user32.lib;gdi32.lib;gdiplus.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Ws2_32.lib;Dnsapi.lib;Wldap32.lib;Crypt32.lib;Mpr.lib;Shlwapi.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <OmitFramePointers>true</OmitFramePointers>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;dbghelp.lib;kernel32.lib;user32.lib;gdi32.lib;gdiplus.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Ws2_32.lib;Dnsapi.lib;Wldap32.lib;Crypt32.lib;Mpr.lib;Shlwapi.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <OmitFramePointers>true</OmitFramePointers>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;dbghelp.lib;kernel32.lib;user32.lib;gdi32.lib;gdiplus.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Ws2_32.lib;Dnsapi.lib;Wldap32.lib;Crypt32.lib;Mpr.lib;Shlwapi.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DAVUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DAVWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\mailsync-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\VCard.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DeltaStream.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\GenericException.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\GoogleContactsWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailProcessor.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailStore.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailStoreTransaction.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\main.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MetadataExpirationWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MetadataWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DavXML.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Account.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Contact.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\ContactBook.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\ContactGroup.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\File.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Folder.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Identity.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Calendar.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Event.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Label.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\MailModel.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Message.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Task.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Thread.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\NetworkRequestUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\ProgressCollectors.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Query.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\SyncException.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\SyncWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\TaskProcessor.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\ThreadUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\XOAuth2TokenManager.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Backup.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Column.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Database.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Exception.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Statement.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Transaction.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\icalendarlib\date.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\icalendarlib\icalendar.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\icalendarlib\types.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\error.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\exceptions.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\filelib.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\platform.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\simpio.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\stacktrace\call_stack_gcc.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\stacktrace\call_stack_windows.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\strlib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="cyrus-sasl-sasl2.vcxproj">
+      <Project>{25b39566-623a-410b-b489-fefe6b997a7e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="icu-stubdata.vcxproj">
+      <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libctemplate.vcxproj">
+      <Project>{fb27fbdb-e6c0-4d00-a7f8-1eeef1b48abc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libcurl-7730.vcxproj">
+      <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libetpan.vcxproj">
+      <Project>{ba4ded3c-e56f-4484-bfc3-9c13e461a1be}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libicu.vcxproj">
+      <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libxml.vcxproj">
+      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
+    </ProjectReference>
+    <ProjectReference Include="mailcore2.vcxproj">
+      <Project>{aad35e01-77e4-43cb-bbb4-f7f6692ea829}</Project>
+    </ProjectReference>
+    <ProjectReference Include="mariadbclient.vcxproj">
+      <Project>{ff98372f-431d-34c6-99e2-6f65b53795d6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="pthreads4w.vcxproj">
+      <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="sqlite.vcxproj">
+      <Project>{d063e925-f6d0-4262-a3f9-d3f95b6f3e62}</Project>
+    </ProjectReference>
+    <ProjectReference Include="tidy5917.vcxproj">
+      <Project>{a98bf14b-99ef-3b8d-9a7e-e6db5c834ec9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="zlib.vcxproj">
+      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\constants.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DAVUtils.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DAVWorker.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DavXML.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\dbg.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DeltaStream.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\GenericException.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\GoogleContactsWorker.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailProcessor.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailStore.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailStoreTransaction.hpp" />
+    <ClInclude Include="..\osf\Mailspring-Sync\MailSync\mailsync-internal.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailUtils.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MetadataExpirationWorker.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MetadataWorker.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Account.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Calendar.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Contact.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\ContactBook.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\ContactGroup.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Event.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\File.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Folder.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Identity.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Label.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\MailModel.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Message.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Task.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Thread.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\NetworkRequestUtils.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\optionparser.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\ProgressCollectors.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Query.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\sha256.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\SPDLogExtensions.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\SyncException.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\SyncWorker.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\TaskProcessor.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\ThreadUtils.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\VCard.hpp" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\XOAuth2TokenManager.hpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

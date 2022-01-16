@@ -1,15 +1,9 @@
+// ucol_res.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 1996-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  ucol_res.cpp
+ *   Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  * Description:
  * This file contains dependencies that the collation run-time doesn't normally
  * need. This mainly contains resource bundle usage and collation meta information
@@ -23,7 +17,6 @@
  * 12/08/2004  grhoten   Split part of ucol.cpp into ucol_res.cpp
  * 2012-2014   markus    Rewritten in C++ again.
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -33,7 +26,6 @@
 #include "collationroot.h"
 #include "collationtailoring.h"
 #include "resource.h"
-#include "putilimp.h"
 #include "ucln_in.h"
 #include "ucol_imp.h"
 #include "uenumimp.h"

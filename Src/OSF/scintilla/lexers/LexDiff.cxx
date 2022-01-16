@@ -37,7 +37,7 @@ static void ColouriseDiffLine(char * lineBuffer, Sci_Position endLine, Accessor 
 	}
 	else if(0 == strncmp(lineBuffer, "---", 3) && lineBuffer[3] != '-') {
 		// In a context diff, --- appears in both the header and the position markers
-		if(lineBuffer[3] == ' ' && atoi(lineBuffer + 4) && !sstrchr(lineBuffer, '/'))
+		if(lineBuffer[3] == ' ' && satoi(lineBuffer + 4) && !sstrchr(lineBuffer, '/'))
 			styler.ColourTo(endLine, SCE_DIFF_POSITION);
 		else if(lineBuffer[3] == '\r' || lineBuffer[3] == '\n')
 			styler.ColourTo(endLine, SCE_DIFF_POSITION);
@@ -49,7 +49,7 @@ static void ColouriseDiffLine(char * lineBuffer, Sci_Position endLine, Accessor 
 	else if(0 == strncmp(lineBuffer, "+++ ", 4)) {
 		// I don't know of any diff where "+++ " is a position marker, but for
 		// consistency, do the same as with "--- " and "*** ".
-		if(atoi(lineBuffer+4) && !sstrchr(lineBuffer, '/'))
+		if(satoi(lineBuffer+4) && !sstrchr(lineBuffer, '/'))
 			styler.ColourTo(endLine, SCE_DIFF_POSITION);
 		else
 			styler.ColourTo(endLine, SCE_DIFF_HEADER);
@@ -61,7 +61,7 @@ static void ColouriseDiffLine(char * lineBuffer, Sci_Position endLine, Accessor 
 		// In a context diff, *** appears in both the header and the position markers.
 		// Also ******** is a chunk header, but here it's treated as part of the
 		// position marker since there is no separate style for a chunk header.
-		if(lineBuffer[3] == ' ' && atoi(lineBuffer+4) && !sstrchr(lineBuffer, '/'))
+		if(lineBuffer[3] == ' ' && satoi(lineBuffer+4) && !sstrchr(lineBuffer, '/'))
 			styler.ColourTo(endLine, SCE_DIFF_POSITION);
 		else if(lineBuffer[3] == '*')
 			styler.ColourTo(endLine, SCE_DIFF_POSITION);

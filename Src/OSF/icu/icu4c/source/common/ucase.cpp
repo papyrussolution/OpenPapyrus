@@ -1,20 +1,11 @@
+// ucase.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2004-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ucase.cpp
+ *   Copyright (C) 2004-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2004aug30
  *   created by: Markus W. Scherer
- *
  *   Low-level Unicode character/string case mapping code.
  *   Much code moved here (and modified) from uchar.c.
  */
@@ -22,7 +13,6 @@
 #pragma hdrstop
 #include "ucmndata.h" /* DataHeader */
 #include "udatamem.h"
-#include "utrie2.h"
 #include "ucase.h"
 
 struct UCaseProps {
@@ -30,7 +20,6 @@ struct UCaseProps {
 	const int32_t * indexes;
 	const uint16_t * exceptions;
 	const uint16_t * unfold;
-
 	UTrie2 trie;
 	uint8 formatVersion[4];
 };

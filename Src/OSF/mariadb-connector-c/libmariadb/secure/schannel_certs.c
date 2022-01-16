@@ -418,7 +418,7 @@ static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert, HCERT
 	CERT_CHAIN_PARA ChainPara;
 	HCERTCHAINENGINE hChainEngine = NULL;
 	PCCERT_CHAIN_CONTEXT pChainContext = NULL;
-	LPSTR rgszUsages[] = { szOID_PKIX_KP_SERVER_AUTH, szOID_SERVER_GATED_CRYPTO, szOID_SGC_NETSCAPE };
+	LPCSTR rgszUsages[] = { szOID_PKIX_KP_SERVER_AUTH, szOID_SERVER_GATED_CRYPTO, szOID_SGC_NETSCAPE };
 	DWORD cUsages = sizeof(rgszUsages) / sizeof(LPSTR);
 	SECURITY_STATUS status = SEC_E_OK;
 	if(pServerCert == NULL) {
@@ -429,7 +429,7 @@ static SECURITY_STATUS VerifyServerCertificate(PCCERT_CONTEXT pServerCert, HCERT
 	INITWINAPISTRUCT(ChainPara);
 	ChainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
 	ChainPara.RequestedUsage.Usage.cUsageIdentifier = cUsages;
-	ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = rgszUsages;
+	ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = const_cast<LPSTR *>(rgszUsages); // @badcast
 	if(hStore) {
 		CERT_CHAIN_ENGINE_CONFIG EngineConfig;
 		INITWINAPISTRUCT(EngineConfig);
@@ -479,19 +479,13 @@ void schannel_free_store(HCERTSTORE store)
    Verify server certificate against a wincrypt store
    @return 0 - success, otherwise error occured.
  */
-SECURITY_STATUS schannel_verify_server_certificate(const CERT_CONTEXT* cert,
-    HCERTSTORE store,
-    BOOL check_revocation,
-    const char * server_name,
-    BOOL check_server_name,
-    char * errmsg,
-    size_t errmsg_len)
+SECURITY_STATUS schannel_verify_server_certificate(const CERT_CONTEXT* cert, HCERTSTORE store, BOOL check_revocation,
+    const char * server_name, BOOL check_server_name, char * errmsg, size_t errmsg_len)
 {
 	SECURITY_STATUS status = SEC_E_OK;
 	wchar_t* wserver_name = NULL;
 	DWORD dwVerifyFlags;
 	DWORD dwRevocationFlags;
-
 	if(check_server_name) {
 		int cchServerName = (int)strlen(server_name) + 1;
 		wserver_name = (wchar_t *)LocalAlloc(0, sizeof(wchar_t) * cchServerName);
@@ -502,17 +496,13 @@ SECURITY_STATUS schannel_verify_server_certificate(const CERT_CONTEXT* cert,
 			FAIL("MultiByteToWideChar() failed");
 		}
 	}
-
 	dwVerifyFlags = 0;
 	dwRevocationFlags = 0;
 	if(check_revocation)
 		dwRevocationFlags |= CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT | CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
 	if(!check_server_name)
 		dwVerifyFlags |= SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
-
-	status = VerifyServerCertificate(cert, store, wserver_name ? wserver_name : L"SERVER_NAME",
-		dwRevocationFlags, dwVerifyFlags, errmsg, errmsg_len);
-
+	status = VerifyServerCertificate(cert, store, wserver_name ? wserver_name : const_cast<LPWSTR>(L"SERVER_NAME"), dwRevocationFlags, dwVerifyFlags, errmsg, errmsg_len);
 cleanup:
 	LocalFree(wserver_name);
 	return status;
@@ -605,42 +595,34 @@ static CERT_CONTEXT* create_client_certificate_mem(char * cert_file_content, cha
 	CERT_BLOB cert_blob;
 	DWORD actual_content_type = 0;
 	SECURITY_STATUS status = SEC_E_OK;
-
 	/* Parse certificate */
-	pem_locate(cert_file_content, PEM_TYPE_CERTIFICATE,
-	    &begin, &end);
-
+	pem_locate(cert_file_content, PEM_TYPE_CERTIFICATE, &begin, &end);
 	if(!begin || !end) {
 		SetLastError(SEC_E_INVALID_PARAMETER);
 		FAIL("Client certificate not found in PEM file");
 	}
-
 	cert_blob.pbData = (BYTE*)begin;
 	cert_blob.cbData = (DWORD)(end - begin);
-	if(!CryptQueryObject(
-		    CERT_QUERY_OBJECT_BLOB, &cert_blob,
-		    CERT_QUERY_CONTENT_FLAG_CERT,
-		    CERT_QUERY_FORMAT_FLAG_ALL, 0, NULL, &actual_content_type,
+	if(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB, &cert_blob, CERT_QUERY_CONTENT_FLAG_CERT, CERT_QUERY_FORMAT_FLAG_ALL, 0, NULL, &actual_content_type,
 		    NULL, NULL, NULL, (const void **)&ctx)) {
 		FAIL("Can't parse client certficate");
 	}
-
-	/* Parse key */
-	PEM_TYPE types[] = { PEM_TYPE_RSA_PRIVATE_KEY, PEM_TYPE_PRIVATE_KEY };
-	for(int i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
-		pem_locate(key_file_content, types[i], &begin, &end);
-		if(begin && end) {
-			/* Assign key to certificate.*/
-			status = load_private_key(ctx, begin, (end - begin), errmsg, errmsg_len);
-			goto cleanup;
+	{
+		// Parse key 
+		const PEM_TYPE types[] = { PEM_TYPE_RSA_PRIVATE_KEY, PEM_TYPE_PRIVATE_KEY };
+		for(int i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
+			pem_locate(key_file_content, types[i], &begin, &end);
+			if(begin && end) {
+				// Assign key to certificate
+				status = load_private_key(ctx, begin, (end - begin), errmsg, errmsg_len);
+				goto cleanup;
+			}
+		}
+		if(!begin || !end) {
+			SetLastError(SEC_E_INVALID_PARAMETER);
+			FAIL("Client private key not found in PEM");
 		}
 	}
-
-	if(!begin || !end) {
-		SetLastError(SEC_E_INVALID_PARAMETER);
-		FAIL("Client private key not found in PEM");
-	}
-
 cleanup:
 	if(status && ctx) {
 		CertFreeCertificateContext(ctx);
@@ -654,13 +636,9 @@ CERT_CONTEXT* schannel_create_cert_context(char * cert_file, char * key_file, ch
 {
 	CERT_CONTEXT* ctx = NULL;
 	char * key_file_content = NULL;
-	char * cert_file_content = NULL;
-
-	cert_file_content = pem_file_to_string(cert_file, errmsg, errmsg_len);
-
+	char * cert_file_content = pem_file_to_string(cert_file, errmsg, errmsg_len);
 	if(!cert_file_content)
 		goto cleanup;
-
 	if(cert_file == key_file) {
 		key_file_content = cert_file_content;
 	}

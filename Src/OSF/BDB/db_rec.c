@@ -279,18 +279,19 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	PAGE * pagep = 0;
 	int ret;
 	DB_THREAD_INFO * ip = static_cast<DB_TXNHEAD *>(info)->thread_info;
+	int modified = 0;
+	int cmp_n = 0;
+	int cmp_p = 0;
 	REC_PRINT(__db_big_print);
 	REC_INTRO(__db_big_42_read, ip, 0);
 	REC_FGET(mpf, ip, argp->pgno, &pagep, ppage);
-	int modified = 0;
-	/*
-	 * There are three pages we need to check.  The one on which we are
-	 * adding data, the previous one whose next_pointer may have
-	 * been updated, and the next one whose prev_pointer may have
-	 * been updated.
-	 */
-	int cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
-	int cmp_p = LOG_COMPARE(&LSN(pagep), &argp->pagelsn);
+	// 
+	// There are three pages we need to check.  The one on which we are
+	// adding data, the previous one whose next_pointer may have
+	// been updated, and the next one whose prev_pointer may have been updated.
+	// 
+	cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
+	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->pagelsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->pagelsn);
 	CHECK_ABORT(env, op, cmp_n, &LSN(pagep), lsnp);
 	if((cmp_p == 0 && DB_REDO(op) && argp->opcode == DB_ADD_BIG) || (cmp_n == 0 && DB_UNDO(op) && argp->opcode == DB_REM_BIG)) {
@@ -341,7 +342,7 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 ppage:  
 	if(argp->opcode != DB_ADD_BIG)
 		goto done;
-	/* Now check the previous page. */
+	// Now check the previous page. 
 	if(argp->prev_pgno != PGNO_INVALID) {
 		REC_FGET(mpf, ip, argp->prev_pgno, &pagep, npage);
 		modified = 0;
@@ -369,12 +370,11 @@ ppage:
 			goto out;
 	}
 	pagep = NULL;
-	/* Now check the next page.  Can only be set on a delete. */
+	// Now check the next page.  Can only be set on a delete. 
 npage:  
 	if(argp->next_pgno != PGNO_INVALID) {
 		REC_FGET(mpf, ip, argp->next_pgno, &pagep, done);
 		modified = 0;
-
 		cmp_n = LOG_COMPARE(lsnp, &LSN(pagep));
 		cmp_p = LOG_COMPARE(&LSN(pagep), &argp->nextlsn);
 		CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->nextlsn);

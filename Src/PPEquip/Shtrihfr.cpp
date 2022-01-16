@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -17,7 +17,7 @@ struct BillTaxEntry { // @flat
 	double Amount;
 };
 
-class BillTaxArray : public SVector { // @v9.8.4 SArray-->SVector
+class BillTaxArray : public SVector {
 public:
 	BillTaxArray() : SVector(sizeof(BillTaxEntry))
 	{
@@ -376,7 +376,16 @@ private:
 		TagType,                                // @v10.9.0
 		TagValueStr,                            // @v10.9.0
 		FNAddTag,                               // @v10.9.0
-		FNSendSTLVTag                           // @v10.9.0
+		FNSendSTLVTag,                          // @v10.9.0
+		// Код системы налогообложения. Битовое поле:
+		// Бит 5|Бит 4|Бит 3|Бит 2|Бит 1|Бит 0|Описание
+		// 0     0     0     0     0     1     Основная
+		// 0     0     0     0     1     0     Упрощенная система налогообложения доход
+		// 0     0     0     1     0     0     Упрощенная система налогообложения доход минус расход
+		// 0     0     1     0     0     0     Единый налог на вмененный доход
+		// 0     1     0     0     0     0     Единый сельскохозяйственный налог
+		// 1     0     0     0     0     0     Патентная система налогообложения
+		TaxType                                 // @v11.2.11
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -401,7 +410,7 @@ private:
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfOldShtrih     = 0x0008, // старая версия драйвера Штрих-ФР
 		sfPrintSlip     = 0x0010, // печать подкладного документа
-		sfDontUseCutter  = 0x0020, // не использовать отрезчик чеков
+		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
 		sfUseFnMethods  = 0x0080  // @v10.7.2 Разрешение на использование fn-методов (параметр pp.ini [config] ShtrihFRUseFnMethods)
 	};
@@ -562,9 +571,8 @@ int	SCS_SHTRIHFRF::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
-		// @v9.7.1 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
-		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v9.7.1
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str);
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
@@ -706,10 +714,13 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
 		const int is_al = BIN(r_al.getCount());
+		const int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0); // @v11.2.11
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		// } @v10.1.11 
+		PPID   tax_sys_id = 0;
+		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		// @v10.9.0 {
 		if(SCn.LocID)
 			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
@@ -965,11 +976,24 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal);
 				THROW(SetFR(StringForPrinting, ""));
 				if(prn_total_sale) {
+					// @v11.2.11 {
+					int   shtrih_vat_rate_ident = 0;
+					if(is_vat_free)
+						shtrih_vat_rate_ident = 4;
+					else {
+						if(sl_param.VatRate == 20.0 || sl_param.VatRate == 18.0)
+							shtrih_vat_rate_ident = 1;
+						else if(sl_param.VatRate == 10.0)
+							shtrih_vat_rate_ident = 2;
+						else if(sl_param.VatRate == 0.0)
+							shtrih_vat_rate_ident = 3;
+					}
+					// } @v11.2.11 
 					if(_fiscal != 0.0) {
 						if(!pPack->GetCount()) {
 							THROW(SetFR(Quantity, 1L));
 							THROW(SetFR(Price, amt));
-							THROW(SetFR(Tax1, 0L));
+							THROW(SetFR(Tax1, shtrih_vat_rate_ident)); // @v11.2.11 0-->shtrih_vat_rate_ident
 							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 							Flags |= sfOpenCheck;
 							running_total += amt;
@@ -977,7 +1001,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						else /*if(fiscal != 0.0)*/ {
 							THROW(SetFR(Quantity, 1L));
 							THROW(SetFR(Price, _fiscal));
-							THROW(SetFR(Tax1, 0L));
+							THROW(SetFR(Tax1, shtrih_vat_rate_ident)); // @v11.2.11 0-->shtrih_vat_rate_ident
 							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 							Flags |= sfOpenCheck;
 							running_total += _fiscal;
@@ -1071,6 +1095,31 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(!oneof3(ccrd_entry_id, Summ1, Summ2, 0)) {
 				THROW(SetFR(ccrd_entry_id, __amt_ccrd));
 			}
+			// @v11.2.11 {
+			if(ExtMethodsFlags & extmethfCloseCheckEx) {
+				// Код системы налогообложения. Битовое поле:
+				// Бит 5|Бит 4|Бит 3|Бит 2|Бит 1|Бит 0|Описание
+				// 0     0     0     0     0     1     Основная
+				// 0     0     0     0     1     0     Упрощенная система налогообложения доход
+				// 0     0     0     1     0     0     Упрощенная система налогообложения доход минус расход
+				// 0     0     1     0     0     0     Единый налог на вмененный доход
+				// 0     1     0     0     0     0     Единый сельскохозяйственный налог
+				// 1     0     0     0     0     0     Патентная система налогообложения
+				// TaxType   
+				int   shtrih_taxtype = 0;
+				switch(tax_sys_id) {
+					case TAXSYSK_GENERAL:           shtrih_taxtype = 0x001; break;
+					case TAXSYSK_SIMPLIFIED:        shtrih_taxtype = 0x002; break;
+					case TAXSYSK_SIMPLIFIED_PROFIT: shtrih_taxtype = 0x004; break;
+					case TAXSYSK_PATENT:            shtrih_taxtype = 0x020; break;
+					case TAXSYSK_IMPUTED:           shtrih_taxtype = 0x008; break;
+					case TAXSYSK_SINGLEAGRICULT:    shtrih_taxtype = 0x010; break;
+				}
+				if(shtrih_taxtype) {
+					THROW(SetFR(TaxType, shtrih_taxtype));
+				}
+			}
+			// } @v11.2.11
 		}
 		if(_fiscal != 0.0) {
 			if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
@@ -1759,7 +1808,10 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 	if(ASSIGN_ID_BY_NAME(p_drv, Summ15)) PayTypeRegFlags |= (1U << 15); // @v10.6.1
 	if(ASSIGN_ID_BY_NAME(p_drv, Summ16)) PayTypeRegFlags |= (1U << 16); // @v10.6.1
 	if(ASSIGN_ID_BY_NAME(p_drv, CloseCheckEx)) ExtMethodsFlags |= extmethfCloseCheckEx; // @v10.6.3
-
+	// @v11.2.11 {
+	if(ExtMethodsFlags & extmethfCloseCheckEx)
+		THROW(ASSIGN_ID_BY_NAME(p_drv, TaxType) > 0);
+	// } @v11.2.11
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax1) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax2) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax3) > 0);

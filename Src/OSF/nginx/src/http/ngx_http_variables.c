@@ -1197,7 +1197,7 @@ static ngx_int_t ngx_http_variable_sent_last_modified(ngx_http_request_t * r, ng
 static ngx_int_t ngx_http_variable_sent_connection(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	size_t len;
-	char  * p;
+	const char  * p;
 	if(r->headers_out.status == NGX_HTTP_SWITCHING_PROTOCOLS) {
 		len = sizeof("upgrade") - 1;
 		p = "upgrade";

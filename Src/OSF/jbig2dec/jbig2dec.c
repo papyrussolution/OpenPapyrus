@@ -56,7 +56,7 @@ typedef struct {
 	int verbose;
 	char * last_message;
 	Jbig2Severity severity;
-	char * type;
+	const char * type;
 	long repeats;
 } jbig2dec_error_callback_state_t;
 
@@ -332,9 +332,8 @@ static int print_usage(void)
 static void error_callback(void * error_callback_data, const char * message, Jbig2Severity severity, uint32_t seg_idx)
 {
 	jbig2dec_error_callback_state_t * state = (jbig2dec_error_callback_state_t*)error_callback_data;
-	char * type;
+	const char * type;
 	int ret;
-
 	switch(severity) {
 		case JBIG2_SEVERITY_DEBUG:
 		    if(state->verbose < 3)

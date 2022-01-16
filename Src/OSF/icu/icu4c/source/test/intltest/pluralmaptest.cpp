@@ -1,18 +1,10 @@
+// PLURALMAPTEST.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-* Copyright (C) 2014-2015, International Business Machines Corporation and    *
-* others. All Rights Reserved.                                                *
-*******************************************************************************
-*
-* File PLURALMAPTEST.CPP
-*
-********************************************************************************
-*/
+// Copyright (C) 2014-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
-#include "unicode/unistr.h"
 #include "intltest.h"
 #include "pluralmap.h"
 

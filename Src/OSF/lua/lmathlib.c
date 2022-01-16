@@ -9,8 +9,6 @@
 #define lmathlib_c
 #define LUA_LIB
 
-//#include <stdlib.h>
-//#include <math.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"

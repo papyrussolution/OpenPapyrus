@@ -1,15 +1,11 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 2008-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
+ *   Copyright (C) 2008-2016, International Business Machines Corporation and others.  All Rights Reserved.
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/uspoof.h"
-#include "utrie2.h"
 #include "scriptset.h"
 #include "udataswp.h"
 #include "ucln_in.h"

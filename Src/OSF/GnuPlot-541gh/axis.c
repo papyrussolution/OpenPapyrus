@@ -153,7 +153,7 @@ double GnuPlot::AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * 
 	return coord;
 }
 
-char * FASTCALL axis_name(AXIS_INDEX axis)
+const char * FASTCALL axis_name(AXIS_INDEX axis)
 {
 	static char name[] = "primary 00 ";
 	if(axis == THETA_index)

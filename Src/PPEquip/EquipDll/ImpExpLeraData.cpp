@@ -2011,7 +2011,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 						p_node = p_node->next; // <E6060>
 						if(p_node && sstreq(PTRCHRC_(p_node->name), ELEMENT_NAME_E6066) && p_node->children) {
 							// «апишем количество товарных позиций в документе
-							GoodsCount = atoi(PTRCHRC_(p_node->children->content));
+							GoodsCount = satoi(PTRCHRC_(p_node->children->content));
 							ok = 1;
 						}
 					}

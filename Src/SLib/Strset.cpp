@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -326,14 +326,16 @@ int StringSet::reverse()
 	while((prev_pos = pos), get(&pos, temp_buf)) {
 		THROW(pos_list.add(static_cast<long>(prev_pos)));
 	}
-	const uint plc = pos_list.getCount();
-	if(plc > 1) {
-		pos_list.reverse(0, plc);
-		for(uint i = 0; i < plc; i++) {
-			get(static_cast<uint>(pos_list.get(i)), temp_buf);
-			THROW(temp_ss.add(temp_buf));
+	{
+		const uint plc = pos_list.getCount();
+		if(plc > 1) {
+			pos_list.reverse(0, plc);
+			for(uint i = 0; i < plc; i++) {
+				get(static_cast<uint>(pos_list.get(i)), temp_buf);
+				THROW(temp_ss.add(temp_buf));
+			}
+			*this = temp_ss;
 		}
-		*this = temp_ss;
 	}
 	CATCHZOK
 	return ok;

@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -272,7 +272,7 @@ void PPObjListWindow::PostProcessHandleEvent(int update, PPID focusID)
 		p_lb->Draw_();
 		p_lb->setRange(p_lb->def->getRecsCount());
 		if(update == 2)
-			p_lb->search(&focusID, 0, srchFirst|lbSrchByID);
+			p_lb->Search_(&focusID, 0, srchFirst|lbSrchByID);
 		::SetFocus(H());
 	}
 }
@@ -469,7 +469,7 @@ void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 			if(byPos)
 		   		p_box->focusItem((pos < 0) ? sav_pos : pos);
 			else
-				p_box->search(&pos, 0, srchFirst|lbSrchByID);
+				p_box->Search_(&pos, 0, srchFirst|lbSrchByID);
 		}
 		else
 			PPError();

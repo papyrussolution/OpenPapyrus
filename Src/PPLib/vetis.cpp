@@ -233,7 +233,7 @@ struct VetisAddress {
 		S_GUID LocalityGUID;
 	};
 	struct VetisLocality : public VetisAddressObjectView {
-		VetisLocality::VetisLocality() : VetisAddressObjectView()
+		VetisLocality() : VetisAddressObjectView()
 		{
 		}
 		VetisLocality & Z()

@@ -261,6 +261,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -305,6 +306,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -349,6 +351,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -393,6 +396,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -436,6 +440,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -479,6 +484,7 @@
       </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -525,6 +531,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -575,6 +582,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -625,6 +633,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -675,6 +684,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -724,6 +734,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -773,6 +784,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>

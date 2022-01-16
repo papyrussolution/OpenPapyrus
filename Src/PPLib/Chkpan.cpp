@@ -85,11 +85,11 @@ struct SaComplexEntry {
 	SaComplexEntry(PPID goodsID, double qtty) : GoodsID(goodsID), FinalGoodsID(0), Qtty(qtty), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
 	{
 	}
-	int    SaComplexEntry::IsComplete() const
+	int    IsComplete() const
 	{
 		return BIN(GoodsID && (!(Flags & fGeneric) || FinalGoodsID));
 	}
-	int    SaComplexEntry::Subst(uint genListIdx)
+	int    Subst(uint genListIdx)
 	{
 		int    ok = 1;
 		if(genListIdx < GenericList.getCount()) {

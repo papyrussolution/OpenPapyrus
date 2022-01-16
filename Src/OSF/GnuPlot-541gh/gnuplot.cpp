@@ -24,7 +24,7 @@ GnuPlot GPO; // @global
 //extern GpTermEntry ENHest;
 
 void ENHest_put_text(GpTermEntry * pThis, uint x, uint y, const char * str);
-void ENHest_OPEN(GpTermEntry * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+void ENHest_OPEN(GpTermEntry * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 void ENHest_FLUSH(GpTermEntry * pThis);
 void ENHest_writec(GpTermEntry * pThis, int c);
 
@@ -132,7 +132,7 @@ void GnuPlot::CpFree(curve_points * cp)
 // takes a pointer to a data structure type 'dynarray', which mimics
 // the 'this' pointer of an object. 
 // 
-static char * P_DynarrayInitFailureMsg = "dynarray wasn't initialized";
+static const char * P_DynarrayInitFailureMsg = "dynarray wasn't initialized";
 // 
 // The 'constructor' of a dynarray object: initializes all the
 // variables to well-defined startup values 

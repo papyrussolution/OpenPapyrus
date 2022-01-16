@@ -42,7 +42,7 @@ static void ngx_http_ssl_handshake(ngx_event_t * rev);
 static void ngx_http_ssl_handshake_handler(ngx_connection_t * c);
 #endif
 
-static char * ngx_http_client_errors[] = {
+static const char * ngx_http_client_errors[] = {
 	"client sent invalid method", // NGX_HTTP_PARSE_INVALID_METHOD 
 	"client sent invalid request", // NGX_HTTP_PARSE_INVALID_REQUEST 
 	"client sent invalid version", // NGX_HTTP_PARSE_INVALID_VERSION 
@@ -2326,7 +2326,7 @@ static u_char * ngx_http_log_error(ngx_log_t * log, u_char * buf, size_t len)
 
 static u_char * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_request_t * sr, u_char * buf, size_t len)
 {
-	char * uri_separator;
+	const char * uri_separator;
 	ngx_http_upstream_t * u;
 	ngx_http_core_srv_conf_t  * cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
 	u_char * p = ngx_snprintf(buf, len, ", server: %V", &cscf->server_name);

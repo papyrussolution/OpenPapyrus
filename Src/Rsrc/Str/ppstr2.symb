@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494483
+LastSignatureCode=2147494486
 LastAutoCodeList=1,12104;102,10174;103,10072;110,10000;111,12015;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10139;120,10005;1001,10000;121,10000;122,10000;123,10306;124,10230
 
 [SignatureList]
@@ -2228,6 +2228,7 @@ ttl_fillstaffcal=2147493936
 ttl_settingsvc_vk=2147493959
 ttl_howtoprint=2147493978
 ttl_testdialog=2147493979
+ttl_goodsstructree=2147494486
 specseriesfilt=2147493803
 objsynccmptotal=2147485485
 objsynccmptotal_count=2147485486
@@ -7221,6 +7222,8 @@ sysjfilt_dayofweek=2147490248
 sysjfilt_sgsj=2147490249
 sysjfilt_sgd=2147490250
 sysjfilt_eventlist=2147490251
+sysjtotal=2147494484
+sysjtotal_count=2147494485
 accturnfilt=2147490252
 accturnfilt_cur=2147490253
 accturnfilt_cycl=2147490254

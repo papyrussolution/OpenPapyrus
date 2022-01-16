@@ -31,9 +31,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
-//#include <math.h>
-//#include "pixman-private.h"
 
 static inline pixman_fixed_32_32_t dot(pixman_fixed_48_16_t x1, pixman_fixed_48_16_t y1,
     pixman_fixed_48_16_t z1, pixman_fixed_48_16_t x2, pixman_fixed_48_16_t y2, pixman_fixed_48_16_t z2)

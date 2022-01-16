@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Proto">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Proto\Core">
+      <UniqueIdentifier>{f55ad70f-09b3-4e81-b4fa-58747a900b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Proto\Test">
+      <UniqueIdentifier>{30c85bb6-fa26-4015-a8a2-86100f5ffd1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Proto\Util">
+      <UniqueIdentifier>{9085b052-1b41-4642-a86a-c06868c135d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Proto\util-internal-testdata">
+      <UniqueIdentifier>{530522bb-2be8-4432-9c50-aa67e2f885ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\test_messages_proto2.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\test_messages_proto3.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_enormous_descriptor.proto">
+      <Filter>Proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_test_bad_identifiers.proto" />
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_test_large_enum_value.proto" />
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generated_code.proto" />
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generated_pkg_implicit.proto" />
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\any.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\api.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\descriptor.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\source_context.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\type.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\any_test.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\duration.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\empty.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\map_lite_unittest.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\map_proto2_unittest.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\map_unittest.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\plugin.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generated_code_proto2.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generated_code_proto2_import.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generated_pkg_explicit.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generated_pkg_explicit_legacy.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\timestamp.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_arena.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_custom_options.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_drop_unknown_fields.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_embed_optimize_for.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_empty.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_import.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_import_lite.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_import_public.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_import_public_lite.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_lazy_dependencies.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_lazy_dependencies_custom_option.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_lazy_dependencies_enum.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_lite.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_lite_imports_nonlite.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_proto3.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_proto3_arena.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_proto3_arena_lite.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_proto3_lite.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_proto3_optional.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_well_known_types.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_preserve_unknown_enum2.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_preserve_unknown_enum.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_optimize_for.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_mset.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_mset_wire_format.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_no_field_presence.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\unittest_no_generic_services.proto">
+      <Filter>Proto\Test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\wrappers.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\struct.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\field_mask.proto">
+      <Filter>Proto\Core</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\json_format.proto">
+      <Filter>Proto\Util</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\json_format_proto3.proto">
+      <Filter>Proto\Util</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\message_differencer_unittest.proto">
+      <Filter>Proto\Util</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\anys.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\books.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\default_value.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\default_value_test.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\field_mask.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\maps.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\oneofs.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\struct.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\proto3.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\timestamp_duration.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\wrappers.proto">
+      <Filter>Proto\util-internal-testdata</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

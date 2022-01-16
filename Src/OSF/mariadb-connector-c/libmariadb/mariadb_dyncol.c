@@ -61,12 +61,6 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <stdio.h>
-//#include <ma_sys.h>
-//#include <ma_string.h>
-//#include <ma_hash.h>
-//#include <mariadb_dyncol.h>
-//#include <mysql.h>
 
 #ifndef LIBMARIADB
 uint32 copy_and_convert(char * to, uint32 to_length, MARIADB_CHARSET_INFO * to_cs,

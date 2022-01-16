@@ -1204,7 +1204,7 @@ GpTermEntry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 	GpTermEntry * p_new_term = NULL;
 	bool ambiguous = FALSE;
 	// For backwards compatibility only 
-	char * name = (char *)pOrigName;
+	const char * name = pOrigName;
 	if(!strncmp(pOrigName, "X11", length)) {
 		name = "x11";
 		length = 3;
@@ -1275,7 +1275,7 @@ GpTermEntry * GnuPlot::ChangeTerm(const char * pOrigName, int length)
 //
 void GnuPlot::InitTerminal()
 {
-	char * term_name = DEFAULTTERM;
+	const char * term_name = DEFAULTTERM;
 #if defined(__BEOS__) || defined(X11)
 	char * env_term = NULL; /* from TERM environment var */
 #endif
@@ -1686,7 +1686,7 @@ void do_enh_writec(GpTermEntry * pThis, int c)
 //   2 for the overprinted text (not included in width calc)
 //   (overprinted text is centered horizontally on underprinted text
 // 
-const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pTerm->P_Gp;
 	// Keep track of the style of the font passed in at this recursion level 

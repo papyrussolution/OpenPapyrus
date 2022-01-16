@@ -1124,7 +1124,7 @@ int ExportCls::SendDoc()
 		param.DocumentContent = buf; // Содержание документа
 		param.Timeout = 10000;		// Таймаут на выполнение вызова метода (мс) (значение рекомендовано)
 		if((r = proxy.Send(&param, &resp)) == SOAP_OK) {
-			if(atoi(resp.SendResult->Res) == 0) {
+			if(satoi(resp.SendResult->Res) == 0) {
 				p_exp_rcpt = new Sdr_DllImpExpReceipt;
 				memzero(p_exp_rcpt, sizeof(Sdr_DllImpExpReceipt));
 				p_exp_rcpt->ID = atol(Bill.ID);
@@ -1133,7 +1133,7 @@ int ExportCls::SendDoc()
 			}
 			else {
 				SetError(IEERR_WEBSERVСERR);
-				SetWebServcError(atoi((const char *)resp.SendResult->Res), (const char *)resp.SendResult->Cnt);
+				SetWebServcError(satoi(resp.SendResult->Res), resp.SendResult->Cnt);
 				ok = 0;
 			}
 		}
@@ -1668,7 +1668,7 @@ int ImportCls::ReceiveDoc()
 				// Тогда при повторном получении сообщение вроде как дублируется. Вот дубляж и убивает все.
 				// Дабы этого не было, сделаем проверку на ноль и поставим этому сообщению статус Read
 				if(resp.ReceiveResult) {
-					if(atoi(resp.ReceiveResult->Res) == 0) {
+					if(satoi(resp.ReceiveResult->Res) == 0) {
 						if(oneof2(MessageType, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
 							// Для простоты обработки полученного документа удалим все переносы строк
 							(str = resp.ReceiveResult->Cnt).ReplaceCR();
@@ -1692,7 +1692,7 @@ int ImportCls::ReceiveDoc()
 					}
 					else {
 						SetError(IEERR_WEBSERVСERR);
-						SetWebServcError(atoi((const char *)resp.ReceiveResult->Res));
+						SetWebServcError(satoi(resp.ReceiveResult->Res));
 						ok = 0;
 					}
 				}
@@ -1745,9 +1745,9 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 		param.TrackingId = track_id_buf; // ИД документа в системе
 		param.Status = "N"; // Новый статус документа (new)
 		if(proxy.ChangeDocumentStatus(&param, &resp) == SOAP_OK) {
-			if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
+			if(satoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 				SetError(IEERR_WEBSERVСERR);
-				SetWebServcError(atoi(resp.ChangeDocumentStatusResult->Res));
+				SetWebServcError(satoi(resp.ChangeDocumentStatusResult->Res));
 				if(rErrTrackIdList.IsEmpty())
 					rErrTrackIdList = track_id_buf;
 				else
@@ -1786,9 +1786,9 @@ int ImportCls::SetReadStatus(SString & trackID)
 	param.TrackingId = (char *)(const char *)trackID; // ИД документа в системе
 	param.Status = "R"; // Новый статус документа (read)
 	if(proxy.ChangeDocumentStatus(&param, &resp) == SOAP_OK) {
-		if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
+		if(satoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 			SetError(IEERR_WEBSERVСERR);
-			SetWebServcError(atoi((const char *)resp.ChangeDocumentStatusResult->Res));
+			SetWebServcError(satoi(resp.ChangeDocumentStatusResult->Res));
 			ok = 0;
 		}
 	}
@@ -1872,7 +1872,7 @@ int ImportCls::ListMessageBox(SString & rResp)
 				param.DateTo = (char *)(const char *)upp;
 			}
 			if(proxy.ListMBEx(&param, &resp) == SOAP_OK) {
-				if(atoi(resp.ListMBExResult->Res) == 0) {
+				if(satoi(resp.ListMBExResult->Res) == 0) {
 					int len = strlen(resp.ListMBExResult->Cnt);
 					if(strncmp(resp.ListMBExResult->Cnt, EMPTY_LISTMB_RESP, strlen(resp.ListMBExResult->Cnt)) != 0) {
 						rResp.CopyFrom(resp.ListMBExResult->Cnt);
@@ -1882,7 +1882,7 @@ int ImportCls::ListMessageBox(SString & rResp)
 				}
 				else {
 					SetError(IEERR_WEBSERVСERR);
-					SetWebServcError(atoi((const char *)resp.ListMBExResult->Res));
+					SetWebServcError(satoi(resp.ListMBExResult->Res));
 				}
 			}
 			else {
@@ -2108,7 +2108,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 					}
 				}
 				else if(SXml::IsName(p_node, ELEMENT_NAME_TOTALLINES) && p_node->children) { // Количество товарных строк
-					GoodsCount = atoi(PTRCHRC_(p_node->children->content));
+					GoodsCount = satoi(PTRCHRC_(p_node->children->content));
 					ok = 1;
 				}
 				else if(SXml::IsName(p_node, ELEMENT_NAME_TOTALGROSSAMOUNT) && p_node->children) { // Сумма документа с НДС

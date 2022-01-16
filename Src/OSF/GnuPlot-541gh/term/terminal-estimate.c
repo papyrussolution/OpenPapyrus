@@ -28,7 +28,7 @@
 
 #ifdef TERM_PROTO
 	TERM_PUBLIC void ENHest_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char str[]);
-	TERM_PUBLIC void ENHest_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+	TERM_PUBLIC void ENHest_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 	TERM_PUBLIC void ENHest_FLUSH(GpTermEntry_Static * pThis);
 #endif
 #ifdef TERM_BODY
@@ -59,7 +59,7 @@ static double ENHest_base;
 // 
 #define ENHest_ORIG_FONTSIZE 12.0
 
-void ENHest_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void ENHest_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	// There are two special cases:
 	// overprint = 3 means save current position

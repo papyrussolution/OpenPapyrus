@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2375,23 +2375,25 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 		SetupPPObjCombo(dlg, CTLSEL_CASHN_EXTQUOT, PPOBJ_QUOTKIND, pACN->ExtQuotID, OLW_CANINSERT, 0);
 	else
 		dlg->disableCtrls(1, CTLSEL_CASHN_EXTQUOT, CTL_CASHN_EXTQUOT, 0);
-	long   temp_flags = (pACN->Flags&(CASHF_EXPCHECKD|CASHF_IMPORTCHECKSWOZR|CASHF_EXPDIVN|CASHF_EXPGOODSREST|CASHF_EXPGOODSGROUPS)) |
-		(pACN->ExtFlags & (CASHFX_EXPLOCPRNASSOC|CASHFX_APPLYUNITRND|CASHFX_RESTRUSERGGRP|CASHFX_RMVPASSIVEGOODS|
-		CASHFX_CREATEOBJSONIMP|CASHFX_SEPARATERCPPRN|CASHFX_IGNLOOKBACKPRICES|CASHFX_IGNCONDQUOTS));
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  0, CASHF_EXPCHECKD);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  1, CASHF_IMPORTCHECKSWOZR);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  2, CASHF_EXPDIVN);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  3, CASHF_EXPGOODSREST);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  4, CASHF_EXPGOODSGROUPS);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  5, CASHFX_EXPLOCPRNASSOC);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  6, CASHFX_APPLYUNITRND);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  7, CASHFX_RESTRUSERGGRP);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHFX_RMVPASSIVEGOODS);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHFX_CREATEOBJSONIMP);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHFX_SEPARATERCPPRN);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHFX_IGNLOOKBACKPRICES);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHFX_IGNCONDQUOTS); // @v10.0.03
-	dlg->SetClusterData(CTL_CASHN_FLAGS, temp_flags);
+	{
+		long   temp_flags = (pACN->Flags&(CASHF_EXPCHECKD|CASHF_IMPORTCHECKSWOZR|CASHF_EXPDIVN|CASHF_EXPGOODSREST|CASHF_EXPGOODSGROUPS)) |
+			(pACN->ExtFlags & (CASHFX_EXPLOCPRNASSOC|CASHFX_APPLYUNITRND|CASHFX_RESTRUSERGGRP|CASHFX_RMVPASSIVEGOODS|
+			CASHFX_CREATEOBJSONIMP|CASHFX_SEPARATERCPPRN|CASHFX_IGNLOOKBACKPRICES|CASHFX_IGNCONDQUOTS));
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  0, CASHF_EXPCHECKD);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  1, CASHF_IMPORTCHECKSWOZR);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  2, CASHF_EXPDIVN);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  3, CASHF_EXPGOODSREST);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  4, CASHF_EXPGOODSGROUPS);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  5, CASHFX_EXPLOCPRNASSOC);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  6, CASHFX_APPLYUNITRND);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  7, CASHFX_RESTRUSERGGRP);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHFX_RMVPASSIVEGOODS);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHFX_CREATEOBJSONIMP);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHFX_SEPARATERCPPRN);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHFX_IGNLOOKBACKPRICES);
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHFX_IGNCONDQUOTS); // @v10.0.03
+		dlg->SetClusterData(CTL_CASHN_FLAGS, temp_flags);
+	}
 	dlg->enableCommand(cmDivGrpAssc, BIN(pACN->Flags & CASHF_EXPDIVN));
 
 	dlg->AddClusterAssoc(CTL_CASHN_NOA_PRINTONLY, 0, CASHFX_GLASSOCPRINTONLY);
@@ -2469,6 +2471,7 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 							if(!Validate(pACN, 0))
 								PPError();
 							else {
+								long temp_flags = 0;
 								dlg->GetClusterData(CTL_CASHN_FLAGS, &temp_flags);
 								pACN->Flags = (temp_flags & ~(CASHFX_EXPLOCPRNASSOC|CASHFX_APPLYUNITRND|CASHFX_RESTRUSERGGRP|
 									CASHFX_RMVPASSIVEGOODS|CASHFX_CREATEOBJSONIMP|CASHFX_SEPARATERCPPRN|
@@ -2915,8 +2918,10 @@ int EquipConfigDialog::EditExtParams()
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
 				THROW_PP(checkirange(Data.LookBackPricePeriod, 0, (365*2)), PPERR_USERINPUT); // @v10.8.1 365-->(365*2)
 			}
-			const int prefix_len = sstrlen(Data.AgentPrefix);
-			THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
+			{
+				const int prefix_len = sstrlen(Data.AgentPrefix);
+				THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
+			}
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -3322,7 +3327,7 @@ int PPObjLocPrinter::Browse(void * extraPtr)
 {
 	class LocPrinterView : public ObjViewDialog {
 	public:
-		LocPrinterView::LocPrinterView(PPObjLocPrinter * pObj, void * extraPtr) : ObjViewDialog(DLG_LOCPRNVIEW, pObj, extraPtr)
+		LocPrinterView(PPObjLocPrinter * pObj, void * extraPtr) : ObjViewDialog(DLG_LOCPRNVIEW, pObj, extraPtr)
 		{
 		}
 	private:

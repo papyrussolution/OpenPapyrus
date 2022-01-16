@@ -132,7 +132,7 @@ int QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	}
 	else if(ver == 2) {
 		struct QuotFilt_v2 : public PPBaseFilt {
-			QuotFilt_v2::QuotFilt_v2() : PPBaseFilt(PPFILT_QUOT, 0, 2)
+			QuotFilt_v2() : PPBaseFilt(PPFILT_QUOT, 0, 2)
 			{
 				SetFlatChunk(offsetof(QuotFilt_v2, ReserveStart),
 					offsetof(QuotFilt_v2, Reserve)-offsetof(QuotFilt_v2, ReserveStart)+sizeof(Reserve));

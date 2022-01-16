@@ -1,0 +1,367 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6BF636B2-6EC5-36BB-B8F7-AD1B53C30093}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>libprotoc</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <PrecompiledHeaderFile />
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <PrecompiledHeaderFile />
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4018;4065;4146;4244;4251;4267;4305;4307;4309;4334;4355;4506;4800;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LIBPROTOC_EXPORTS;GOOGLE_PROTOBUF_CMAKE_BUILD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\protobuf-3.19.1\__build__;..\osf\protobuf-3.19.1\src;..\osf\protobuf-3.19.1\third_party\googletest\googlemock;..\osf\protobuf-3.19.1\third_party\googletest\googletest;..\osf\protobuf-3.19.1\third_party\googletest\googletest\include;..\osf\protobuf-3.19.1\third_party\googletest\googlemock\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86 /ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\code_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\command_line_interface.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_enum.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_enum_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_extension.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_file.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_helpers.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_map_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_message_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_padding_optimizer.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_parse_function_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_primitive_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_service.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_string_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_doc_comment.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_enum.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_enum_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_field_base.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_helpers.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_map_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_message_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_primitive_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_reflection_class.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_repeated_enum_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_repeated_message_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_repeated_primitive_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_source_generator_base.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_wrapper_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_context.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_doc_comment.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_enum.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_enum_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_enum_field_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_enum_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_extension.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_extension_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_file.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_generator_factory.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_helpers.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_kotlin_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_map_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_map_field_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_message_builder.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_message_builder_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_message_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_message_field_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_message_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_name_resolver.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_primitive_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_primitive_field_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_service.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_shared_code_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_string_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_string_field_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\js\js_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\js\well_known_types_embed.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_enum.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_enum_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_extension.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_file.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_helpers.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_map_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_message.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_message_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_oneof.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_primitive_field.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\php\php_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\plugin.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\plugin.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\python\python_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generator.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\subprocess.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\zip_writer.cc" />
+    <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\protobuf-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\code_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\command_line_interface.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_file.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_helpers.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_names.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_doc_comment.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_names.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_options.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\importer.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_kotlin_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_names.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\js\js_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_helpers.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\parser.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\php\php_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\plugin.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\plugin.pb.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\python\python_generator.h" />
+    <ClInclude Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generator.h" />
+    <ResourceCompile Include="..\osf\protobuf-3.19.1\version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libprotobuf.vcxproj">
+      <Project>{F794984C-5ECC-3922-BA3F-6D27CD4BDEC7}</Project>
+      <Name>libprotobuf</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

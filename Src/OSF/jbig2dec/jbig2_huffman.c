@@ -615,7 +615,6 @@ const Jbig2HuffmanParams * jbig2_find_table(Jbig2Ctx * ctx, Jbig2Segment * segme
 }
 
 #ifdef TEST
-#include <stdio.h>
 
 /* cc -g -o jbig2_huffman.test1 -DTEST jbig2_huffman.c .libs/libjbig2dec.a */
 
@@ -714,8 +713,6 @@ cleanup:
 
 	return success;
 }
-
-#include <stdio.h>
 
 /* a decoding test of each line from each standard table */
 

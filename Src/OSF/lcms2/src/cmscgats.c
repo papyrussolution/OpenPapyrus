@@ -1202,7 +1202,6 @@ boolint CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, co
 boolint CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-
 	return AddToList(it8, &GetTable(it8)->HeaderList, Key, SubKey, Buffer, WRITE_PAIR) != NULL;
 }
 
@@ -1211,7 +1210,6 @@ const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * Key)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	KEYVALUE* p;
-
 	if(IsAvailableOnList(GetTable(it8)->HeaderList, Key, NULL, &p)) {
 		return p->Value;
 	}
@@ -1221,47 +1219,38 @@ const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * Key)
 double CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp)
 {
 	const char * v = cmsIT8GetProperty(hIT8, cProp);
-
-	if(v == NULL) return 0.0;
-
-	return ParseFloatNumber(v);
+	return v ? ParseFloatNumber(v) : 0.0;
 }
 
 const char * CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey)
 {
-	cmsIT8* it8 = (cmsIT8*)hIT8;
-	KEYVALUE* p;
-
-	if(IsAvailableOnList(GetTable(it8)->HeaderList, Key, SubKey, &p)) {
-		return p->Value;
-	}
-	return NULL;
+	cmsIT8 * it8 = (cmsIT8*)hIT8;
+	KEYVALUE * p;
+	return IsAvailableOnList(GetTable(it8)->HeaderList, Key, SubKey, &p) ? p->Value : 0;
 }
-
-// ----------------------------------------------------------------- Datasets
-
+//
+// Datasets
+//
 static void AllocateDataFormat(cmsIT8* it8)
 {
-	TABLE* t = GetTable(it8);
-	if(t->DataFormat) return;   // Already allocated
-	t->nSamples  = (int)cmsIT8GetPropertyDbl(it8, "NUMBER_OF_FIELDS");
-	if(t->nSamples <= 0) {
-		SynError(it8, "AllocateDataFormat: Unknown NUMBER_OF_FIELDS");
-		t->nSamples = 10;
-	}
-
-	t->DataFormat = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * sizeof(char *));
-	if(t->DataFormat == NULL) {
-		SynError(it8, "AllocateDataFormat: Unable to allocate dataFormat array");
+	TABLE * t = GetTable(it8);
+	if(!t->DataFormat) { // Already allocated?
+		t->nSamples  = (int)cmsIT8GetPropertyDbl(it8, "NUMBER_OF_FIELDS");
+		if(t->nSamples <= 0) {
+			SynError(it8, "AllocateDataFormat: Unknown NUMBER_OF_FIELDS");
+			t->nSamples = 10;
+		}
+		t->DataFormat = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * sizeof(char *));
+		if(t->DataFormat == NULL) {
+			SynError(it8, "AllocateDataFormat: Unable to allocate dataFormat array");
+		}
 	}
 }
 
 static const char * GetDataFormat(cmsIT8* it8, int n)
 {
-	TABLE* t = GetTable(it8);
-	if(t->DataFormat)
-		return t->DataFormat[n];
-	return NULL;
+	TABLE * t = GetTable(it8);
+	return t->DataFormat ? t->DataFormat[n] : 0;
 }
 
 static boolint SetDataFormat(cmsIT8* it8, int n, const char * label)
@@ -1273,33 +1262,32 @@ static boolint SetDataFormat(cmsIT8* it8, int n, const char * label)
 		SynError(it8, "More than NUMBER_OF_FIELDS fields.");
 		return FALSE;
 	}
-
 	if(t->DataFormat) {
 		t->DataFormat[n] = AllocString(it8, label);
 	}
-
 	return TRUE;
 }
 
 boolint CMSEXPORT cmsIT8SetDataFormat(cmsHANDLE h, int n, const char * Sample)
 {
-	cmsIT8* it8 = (cmsIT8*)h;
+	cmsIT8 * it8 = (cmsIT8*)h;
 	return SetDataFormat(it8, n, Sample);
 }
 
 static void AllocateDataSet(cmsIT8* it8)
 {
-	TABLE* t = GetTable(it8);
-	if(t->Data) return;   // Already allocated
-	t->nSamples   = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
-	t->nPatches   = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_SETS"));
-	if(t->nSamples < 0 || t->nSamples > 0x7ffe || t->nPatches < 0 || t->nPatches > 0x7ffe) {
-		SynError(it8, "AllocateDataSet: too much data");
-	}
-	else {
-		t->Data = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char *));
-		if(t->Data == NULL) {
-			SynError(it8, "AllocateDataSet: Unable to allocate data array");
+	TABLE * t = GetTable(it8);
+	if(!t->Data) { // Already allocated!
+		t->nSamples   = satoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
+		t->nPatches   = satoi(cmsIT8GetProperty(it8, "NUMBER_OF_SETS"));
+		if(t->nSamples < 0 || t->nSamples > 0x7ffe || t->nPatches < 0 || t->nPatches > 0x7ffe) {
+			SynError(it8, "AllocateDataSet: too much data");
+		}
+		else {
+			t->Data = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char *));
+			if(t->Data == NULL) {
+				SynError(it8, "AllocateDataSet: Unable to allocate data array");
+			}
 		}
 	}
 }
@@ -1309,10 +1297,8 @@ static char * GetData(cmsIT8* it8, int nSet, int nField)
 	TABLE* t = GetTable(it8);
 	int nSamples    = t->nSamples;
 	int nPatches    = t->nPatches;
-
 	if(nSet >= nPatches || nField >= nSamples)
 		return NULL;
-
 	if(!t->Data) return NULL;
 	return t->Data [nSet * nSamples + nField];
 }
@@ -1320,20 +1306,16 @@ static char * GetData(cmsIT8* it8, int nSet, int nField)
 static boolint SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
 {
 	TABLE* t = GetTable(it8);
-
 	if(!t->Data)
 		AllocateDataSet(it8);
-
-	if(!t->Data) return FALSE;
-
+	if(!t->Data) 
+		return FALSE;
 	if(nSet > t->nPatches || nSet < 0) {
 		return SynError(it8, "Patch %d out of range, there are %d patches", nSet, t->nPatches);
 	}
-
 	if(nField > t->nSamples || nField < 0) {
 		return SynError(it8, "Sample %d out of range, there are %d samples", nField, t->nSamples);
 	}
-
 	t->Data [nSet * t->nSamples + nField] = AllocString(it8, Val);
 	return TRUE;
 }
@@ -1377,7 +1359,6 @@ static void Writef(SAVESTREAM* f, const char * frm, ...)
 {
 	char Buffer[4096];
 	va_list args;
-
 	va_start(args, frm);
 	vsnprintf(Buffer, 4095, frm, args);
 	Buffer[4095] = 0;
@@ -1390,15 +1371,12 @@ static void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
 {
 	KEYVALUE* p;
 	TABLE* t = GetTable(it8);
-
 	// Writes the type
 	WriteStr(fp, t->SheetType);
 	WriteStr(fp, "\n");
-
 	for(p = t->HeaderList; (p != NULL); p = p->Next) {
 		if(*p->Keyword == '#') {
 			char * Pt;
-
 			WriteStr(fp, "#\n# ");
 			for(Pt = p->Value; *Pt; Pt++) {
 				Writef(fp, "%c", *Pt);
@@ -1457,58 +1435,48 @@ static void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
 // Writes the data format
 static void WriteDataFormat(SAVESTREAM* fp, cmsIT8* it8)
 {
-	int i, nSamples;
-	TABLE* t = GetTable(it8);
-
-	if(!t->DataFormat) return;
-
-	WriteStr(fp, "BEGIN_DATA_FORMAT\n");
-	WriteStr(fp, " ");
-	nSamples = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
-
-	for(i = 0; i < nSamples; i++) {
-		WriteStr(fp, t->DataFormat[i]);
-		WriteStr(fp, ((i == (nSamples-1)) ? "\n" : "\t"));
+	TABLE * t = GetTable(it8);
+	if(t->DataFormat) {
+		WriteStr(fp, "BEGIN_DATA_FORMAT\n");
+		WriteStr(fp, " ");
+		const int nSamples = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_FIELDS"));
+		for(int i = 0; i < nSamples; i++) {
+			WriteStr(fp, t->DataFormat[i]);
+			WriteStr(fp, ((i == (nSamples-1)) ? "\n" : "\t"));
+		}
+		WriteStr(fp, "END_DATA_FORMAT\n");
 	}
-
-	WriteStr(fp, "END_DATA_FORMAT\n");
 }
 
 // Writes data array
 static void WriteData(SAVESTREAM* fp, cmsIT8* it8)
 {
 	int i, j;
-	TABLE* t = GetTable(it8);
-
-	if(!t->Data) return;
-
-	WriteStr(fp, "BEGIN_DATA\n");
-
-	t->nPatches = atoi(cmsIT8GetProperty(it8, "NUMBER_OF_SETS"));
-
-	for(i = 0; i < t->nPatches; i++) {
-		WriteStr(fp, " ");
-
-		for(j = 0; j < t->nSamples; j++) {
-			char * ptr = t->Data[i*t->nSamples+j];
-
-			if(ptr == NULL) WriteStr(fp, "\"\"");
-			else {
-				// If value contains whitespace, enclose within quote
-
-				if(strchr(ptr, ' ') != NULL) {
-					WriteStr(fp, "\"");
-					WriteStr(fp, ptr);
-					WriteStr(fp, "\"");
+	TABLE * t = GetTable(it8);
+	if(t->Data) {
+		WriteStr(fp, "BEGIN_DATA\n");
+		t->nPatches = satoi(cmsIT8GetProperty(it8, "NUMBER_OF_SETS"));
+		for(i = 0; i < t->nPatches; i++) {
+			WriteStr(fp, " ");
+			for(j = 0; j < t->nSamples; j++) {
+				char * ptr = t->Data[i*t->nSamples+j];
+				if(ptr == NULL) 
+					WriteStr(fp, "\"\"");
+				else {
+					// If value contains whitespace, enclose within quote
+					if(strchr(ptr, ' ') != NULL) {
+						WriteStr(fp, "\"");
+						WriteStr(fp, ptr);
+						WriteStr(fp, "\"");
+					}
+					else
+						WriteStr(fp, ptr);
 				}
-				else
-					WriteStr(fp, ptr);
+				WriteStr(fp, ((j == (t->nSamples-1)) ? "\n" : "\t"));
 			}
-
-			WriteStr(fp, ((j == (t->nSamples-1)) ? "\n" : "\t"));
 		}
+		WriteStr(fp, "END_DATA\n");
 	}
-	WriteStr(fp, "END_DATA\n");
 }
 
 // Saves whole file

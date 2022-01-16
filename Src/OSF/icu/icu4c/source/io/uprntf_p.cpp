@@ -1,22 +1,13 @@
+// uprntf_p.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File uprntf_p.c
- *
+ *   Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   11/23/98    stephen     Creation.
  *   03/12/99    stephen     Modified for new C API.
  *   08/07/2003  george      Reunify printf implementations
- ******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -25,7 +16,6 @@
 
 #include "uprintf.h"
 #include "ufmt_cmn.h"
-#include "putilimp.h"
 
 /* ANSI style formatting */
 /* Use US-ASCII characters only for formatting */

@@ -1,20 +1,11 @@
+// utrie2.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 2001-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  utrie2.cpp
+ *   Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2008aug16 (starting from a copy of utrie.c)
  *   created by: Markus W. Scherer
- *
  *   This is a common implementation of a Unicode trie.
  *   It is a kind of compressed, serializable table of 16- or 32-bit values associated with
  *   Unicode code points (0..0x10ffff).
@@ -26,7 +17,6 @@
  */
 #include <icu-internal.h>
 #pragma hdrstop
-#include "utrie2.h"
 #include "utrie2_impl.h"
 
 /* Public UTrie2 API implementation ----------------------------------------- */

@@ -1,5 +1,5 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -111,8 +111,10 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 			THROW(cr_f.IsValid());
 		}
 	}
-	const long mode = readOnly ? (SFile::mRead|SFile::mBinary|SFile::mNoStd) : SFile::mReadWrite; // @v10.4.1 SFile::mNoStd
-	THROW(F.Open(pFileName, mode));
+	{
+		const long mode = readOnly ? (SFile::mRead|SFile::mBinary|SFile::mNoStd) : SFile::mReadWrite; // @v10.4.1 SFile::mNoStd
+		THROW(F.Open(pFileName, mode));
+	}
 	THROW(Scan());
 	SETFLAG(State, stReadOnly, readOnly);
 	CATCHZOK
@@ -159,7 +161,7 @@ int TextDbFile::IsTerminalLine(const SString & rLine, uint fldNo) const
 	if(P.VertRecTerm.IsEmpty() || P.VertRecTerm.Cmp("\\n", 0) == 0)
 		return BIN(rLine.IsEmpty());
 	else {
-		const uint num_flds = (P.VertRecTerm[0] == ':' && P.VertRecTerm.Last() == ':') ? atoi(P.VertRecTerm.cptr()+1) : 0;
+		const uint num_flds = (P.VertRecTerm[0] == ':' && P.VertRecTerm.Last() == ':') ? satoi(P.VertRecTerm.cptr()+1) : 0;
 		if(num_flds > 0 && num_flds < 1000)
 			return (fldNo == num_flds) ? 2 : 0;
 		else

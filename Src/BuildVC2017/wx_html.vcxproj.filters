@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Setup Headers">
+      <UniqueIdentifier>{63537534-1833-5C1F-8DBD-359A84F294C8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSW Headers">
+      <UniqueIdentifier>{5AFFF20E-29F9-512B-B80A-7DC45976CDAC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wxHTML Headers">
+      <UniqueIdentifier>{B4103426-A5DB-5CF0-A30E-BC9546513AAF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Headers">
+      <UniqueIdentifier>{8C07E926-65B0-5F00-B0D6-7F40DA69BB25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dummy.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\htmllbox.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\helpbest.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\chm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\helpctrl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\helpdata.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\helpdlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\helpfrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\helpwnd.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\htmlcell.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\htmlfilt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\htmlpars.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\htmltag.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\htmlwin.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\htmprint.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_dflist.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_fonts.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_hline.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_image.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_layout.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_links.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_list.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_pre.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_span.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_style.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\m_tables.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\styleparams.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\html\winpars.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\forcelnk.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\helpctrl.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\helpdata.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\helpdlg.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\helpfrm.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\helpwnd.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmlcell.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmldefs.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmlfilt.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmlpars.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmlproc.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmltag.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmlwin.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\htmprint.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\m_templ.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\styleparams.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\html\winpars.h">
+      <Filter>wxHTML Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\htmllbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\helpbest.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxhtml.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\setup.h">
+      <Filter>Setup Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">
+      <Filter>MSW Headers</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\wxWidgets\src\msw\version.rc" />
+  </ItemGroup>
+</Project>

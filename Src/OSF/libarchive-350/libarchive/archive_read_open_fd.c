@@ -26,12 +26,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_fd.c 201103 2009-12-28 03:13:49Z kientzle $");
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#ifdef HAVE_IO_H
-#include <io.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

@@ -7,7 +7,6 @@
 #if !UCONFIG_NO_FORMATTING
 
 #include "number_decnum.h"
-#include "putilimp.h"
 #include "number_decimalquantity.h"
 #include "number_roundingutils.h"
 #include "double-conversion.h"

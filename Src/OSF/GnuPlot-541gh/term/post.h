@@ -10,7 +10,7 @@
 	extern void PSTEX_common_init(GpTermEntry_Static * pThis);
 	extern void PSTEX_reopen_output(GpTermEntry_Static * pThis);
 	extern void EPSLATEX_common_init(GpTermEntry_Static * pThis);
-	extern void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, char *);
+	extern void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, const char *);
 #endif
 
 #define PS_POINT_TYPES 8

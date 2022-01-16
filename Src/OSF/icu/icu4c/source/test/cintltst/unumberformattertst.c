@@ -1,6 +1,6 @@
 // © 2018 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #if !UCONFIG_NO_FORMATTING
@@ -25,7 +25,8 @@ void addUNumberFormatterTest(TestNode** root);
 
 #define TESTCASE(x) addTest(root, &x, "tsformat/unumberformatter/" #x)
 
-void addUNumberFormatterTest(TestNode** root) {
+void addUNumberFormatterTest(TestNode** root) 
+{
 	TESTCASE(TestSkeletonFormatToString);
 	TESTCASE(TestSkeletonFormatToFields);
 	TESTCASE(TestExampleCode);
@@ -345,27 +346,29 @@ static void Test21674_State()
 	if(!assertSuccess("unumf_openResult", &status)) {
 		goto cleanup;
 	}
-	typedef struct TestCase {
-		double num;
-		const UChar * expected;
-	} TestCase;
-	TestCase cases[] = { { 1.975, u"2" }, { 1.97, u"1.95" }, { 1.975, u"2" }, };
-	for(int8 i = 0; i < 3; i++) {
-		unumf_formatDouble(nf, cases[i].num, result, &status);
-		if(!assertSuccess("unumf_formatDouble", &status)) {
-			goto cleanup;
+	{
+		typedef struct TestCase {
+			double num;
+			const UChar * expected;
+		} TestCase;
+		TestCase cases[] = { { 1.975, u"2" }, { 1.97, u"1.95" }, { 1.975, u"2" }, };
+		for(int8 i = 0; i < 3; i++) {
+			unumf_formatDouble(nf, cases[i].num, result, &status);
+			if(!assertSuccess("unumf_formatDouble", &status)) {
+				goto cleanup;
+			}
+			const UFormattedValue* formattedValue = unumf_resultAsValue(result, &status);
+			if(!assertSuccess("unumf_resultAsValue", &status)) {
+				goto cleanup;
+			}
+			int32_t length;
+			const UChar * str = ufmtval_getString(formattedValue, &length, &status);
+			if(!assertSuccess("ufmtval_getString", &status)) {
+				goto cleanup;
+			}
+			char message[] = {i + '0', '\0'};
+			assertUEquals(message, cases[i].expected, str);
 		}
-		const UFormattedValue* formattedValue = unumf_resultAsValue(result, &status);
-		if(!assertSuccess("unumf_resultAsValue", &status)) {
-			goto cleanup;
-		}
-		int32_t length;
-		const UChar * str = ufmtval_getString(formattedValue, &length, &status);
-		if(!assertSuccess("ufmtval_getString", &status)) {
-			goto cleanup;
-		}
-		char message[] = {i + '0', '\0'};
-		assertUEquals(message, cases[i].expected, str);
 	}
 cleanup:
 	unumf_close(nf);

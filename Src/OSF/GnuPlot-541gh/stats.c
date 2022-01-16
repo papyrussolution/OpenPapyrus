@@ -239,7 +239,7 @@ void GnuPlot::FileOutput(GpFileStats s)
 	fprintf(Pgm.print_out, "  Data Blocks:       %*ld\n", width, s.blocks);
 }
 
-void GnuPlot::SglColumnOutputNonFormat(SglColumnStats s, char * x)
+void GnuPlot::SglColumnOutputNonFormat(SglColumnStats s, const char * x)
 {
 	fprintf(Pgm.print_out, "%s%s\t%f\n", "mean",     x, s.mean);
 	fprintf(Pgm.print_out, "%s%s\t%f\n", "stddev",   x, s.stddev);
@@ -594,7 +594,6 @@ void GnuPlot::StatsRequest()
 	int    columns;
 	double v[2];
 	static char * file_name = NULL;
-	char * temp_name;
 	// Vars to hold data and results 
 	long n; // number of records retained 
 	long max_n;
@@ -636,12 +635,14 @@ void GnuPlot::StatsRequest()
 	n = invalid = blanks = header_records = doubleblanks = out_of_range = 0;
 	// Get filename 
 	i = Pgm.GetCurTokenIdx();
-	temp_name = StringOrExpress(NULL);
-	if(temp_name) {
-		FREEANDASSIGN(file_name, sstrdup(temp_name));
+	{
+		const char * temp_name = StringOrExpress(NULL);
+		if(temp_name) {
+			FREEANDASSIGN(file_name, sstrdup(temp_name));
+		}
+		else
+			IntError(i, "missing filename or datablock");
 	}
-	else
-		IntError(i, "missing filename or datablock");
 	//
 	// Jan 2015: We used to handle ascii matrix data as a special case but
 	// the code did not work correctly.  Since df_read_matrix() dummies up

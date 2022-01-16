@@ -1,15 +1,9 @@
+// nfrule.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *   Copyright (C) 1997-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ******************************************************************************
- *   file name:  nfrule.cpp
+ *   Copyright (C) 1997-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  * Modification history
  * Date        Name      Comments
  * 10/11/2001  Doug      Ported from ICU4J
@@ -25,7 +19,6 @@
 #include "nfrlist.h"
 #include "nfsubs.h"
 #include "patternprops.h"
-#include "putilimp.h"
 
 U_NAMESPACE_BEGIN
 

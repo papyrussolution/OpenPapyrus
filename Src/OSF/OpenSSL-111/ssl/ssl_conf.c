@@ -554,7 +554,6 @@ static int cmd_RecordPadding(SSL_CONF_CTX * cctx, const char * value)
 {
 	int rv = 0;
 	int block_size = atoi(value);
-
 	/*
 	 * All we care about is a non-negative value,
 	 * the setters check the range
@@ -572,7 +571,6 @@ static int cmd_NumTickets(SSL_CONF_CTX * cctx, const char * value)
 {
 	int rv = 0;
 	int num_tickets = atoi(value);
-
 	if(num_tickets >= 0) {
 		if(cctx->ctx)
 			rv = SSL_CTX_set_num_tickets(cctx->ctx, num_tickets);

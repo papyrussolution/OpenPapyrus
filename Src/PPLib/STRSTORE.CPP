@@ -1,5 +1,5 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8 // @v10.4.5
 //
 #include <pp.h>
@@ -397,7 +397,7 @@ int StringStore2::GetString(const char * pSignature, SString & rBuf) const
 	if(P_SignatureHash) {
 		uint   hval = 0;
 		uint   hpos = 0;
-        if(P_SignatureHash->Search(pSignature, &hval, &hpos) > 0) {
+        if(P_SignatureHash->Search(pSignature, &hval, &hpos)) {
 			ok = Helper_GetString((long)hval, rBuf);
         }
 	}

@@ -92,14 +92,14 @@ void XPM::Init(const char * const * linesForm)
 	if(linesForm) {
 		std::fill(colourCodeTable, colourCodeTable+256, 0);
 		const char * line0 = linesForm[0];
-		width = atoi(line0);
+		width = satoi(line0);
 		line0 = NextField(line0);
-		height = atoi(line0);
+		height = satoi(line0);
 		Pixels.resize(width*height);
 		line0 = NextField(line0);
-		nColours = atoi(line0);
+		nColours = satoi(line0);
 		line0 = NextField(line0);
-		if(atoi(line0) == 1) { // Only one char per pixel is supported
+		if(satoi(line0) == 1) { // Only one char per pixel is supported
 			for(int c = 0; c<nColours; c++) {
 				const char * colourDef = linesForm[c+1];
 				int code = static_cast<uchar>(colourDef[0]);
@@ -171,10 +171,10 @@ std::vector<const char *> XPM::LinesFormFromTextForm(const char * textForm)
 				// Skip width
 				line0 = NextField(line0);
 				// Add 1 line for each pixel of height
-				strings += atoi(line0);
+				strings += satoi(line0);
 				line0 = NextField(line0);
 				// Add 1 line for each colour
-				strings += atoi(line0);
+				strings += satoi(line0);
 			}
 			if(countQuotes / 2 >= strings) {
 				break;  // Bad height or number of colors!

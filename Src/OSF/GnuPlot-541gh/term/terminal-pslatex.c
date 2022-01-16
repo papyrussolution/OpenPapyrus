@@ -651,7 +651,7 @@ void EPSLATEX_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * 
 // assigns dest to outstr, so it must be allocated or NULL
 // and it must not be outstr itself !
 //
-void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, char * ext)
+void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, const char * ext)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * psoutstr = NULL;

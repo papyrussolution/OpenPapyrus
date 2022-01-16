@@ -139,7 +139,7 @@ GifFileType * EGifOpenFileName(const char * GifFileName, const bool GifTestExist
 GifFileType * EGifOpenFileHandle(const int GifFileHandle, int * Error);
 GifFileType * EGifOpen(void * userPtr, OutputFunc writeFunc, int * Error);
 int EGifSpew(GifFileType * GifFile);
-char * EGifGetGifVersion(GifFileType * GifFile); /* new in 5.x */
+const char * EGifGetGifVersion(GifFileType * GifFile); /* new in 5.x */
 int EGifCloseFile(GifFileType * GifFile);
 
 #define E_GIF_ERR_OPEN_FAILED    1    /* And EGif possible errors. */
@@ -214,7 +214,7 @@ int GifQuantizeBuffer(uint Width, uint Height, int * ColorMapSize, GifByteType *
 // 
 // Error handling and reporting.
 // 
-extern char * GifErrorString(int ErrorCode);     /* new in 2012 - ESR */
+extern const char * GifErrorString(int ErrorCode);     /* new in 2012 - ESR */
 // 
 // Everything below this point is new after version 1.2, supporting `slurp
 // mode' for doing I/O in two big belts with all the image-bashing in core.

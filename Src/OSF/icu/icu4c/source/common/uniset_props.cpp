@@ -1,20 +1,11 @@
+// uniset_props.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uniset_props.cpp
+ *   Copyright (C) 1999-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2004aug25
  *   created by: Markus W. Scherer
- *
  *   Character property dependent functions moved here from uniset.cpp
  */
 #include <icu-internal.h>
@@ -25,7 +16,6 @@
 #include "ucln_cmn.h"
 #include "uprops.h"
 #include "propname.h"
-#include "normalizer2impl.h"
 #include "uinvchar.h"
 #include "uprops.h"
 

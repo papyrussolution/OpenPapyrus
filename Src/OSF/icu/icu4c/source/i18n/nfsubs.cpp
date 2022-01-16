@@ -1,15 +1,9 @@
+// nfsubs.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *   Copyright (C) 1997-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ******************************************************************************
- *   file name:  nfsubs.cpp
+ *   Copyright (C) 1997-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  * Modification history
  * Date        Name      Comments
  * 10/11/2001  Doug      Ported from ICU4J
@@ -18,7 +12,6 @@
 #pragma hdrstop
 #include "nfsubs.h"
 #include "fmtableimp.h"
-#include "putilimp.h"
 #include "number_decimalquantity.h"
 
 #if U_HAVE_RBNF

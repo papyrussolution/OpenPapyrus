@@ -1,5 +1,5 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -23,13 +23,13 @@ int FASTCALL IsComDvcSymb(const char * pSymb, int * pCount)
 				temp_buf[0] = pSymb[3];
 			if(pSymb[4])
 				temp_buf[1] = pSymb[4];
-			count = atoi(temp_buf);
+			count = satoi(temp_buf);
 		}
 		else if(strnicmp(pSymb, "LPT", 3) == 0) {
 			comdvcs = comdvcsLpt;
 			if(pSymb[3])
 				temp_buf[0] = pSymb[3];
-			count = atoi(temp_buf);
+			count = satoi(temp_buf);
 		}
 	}
 	ASSIGN_PTR(pCount, count);

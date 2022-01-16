@@ -1,5 +1,5 @@
 // ELINKDLG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // Диалоги редактирования электронных адресов
 //
@@ -108,7 +108,7 @@ class ELinkListDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPELinkArray);
 	PPObjELinkKind elkobj;
 public:
-	ELinkListDialog::ELinkListDialog(DlgDataType * pArray) : PPListDialog(DLG_ELNKLST, CTL_ELNKLST_LIST)
+	explicit ELinkListDialog(DlgDataType * pArray) : PPListDialog(DLG_ELNKLST, CTL_ELNKLST_LIST)
 	{
 		Data.copy(*pArray);
 		updateList(-1);

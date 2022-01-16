@@ -1,17 +1,13 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- * Copyright (C) 1999-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
+ * Copyright (C) 1999-2015, International Business Machines Corporation and others. All Rights Reserved.
  *   Date        Name        Description
  *   10/22/99    alan        Creation.
  **********************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
-#include "putilimp.h"
 
 U_NAMESPACE_BEGIN
 

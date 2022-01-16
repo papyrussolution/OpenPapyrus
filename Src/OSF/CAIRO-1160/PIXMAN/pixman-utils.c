@@ -26,9 +26,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include "pixman-private.h"
 
 boolint _pixman_multiply_overflows_size(size_t a, size_t b) { return a >= SIZE_MAX / b; }
 boolint _pixman_multiply_overflows_int(uint a, uint b) { return a >= INT32_MAX / b; }

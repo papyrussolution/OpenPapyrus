@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\yoga\yoga\event\event.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\internal\experiments.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\log.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\Utils.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGConfig.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGEnums.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGLayout.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGNode.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGNodePrint.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGStyle.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\YGValue.cpp" />
+    <ClCompile Include="..\osf\yoga\yoga\Yoga.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{66f82b4c-5956-441f-83b4-3f6ae1388687}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\Yoga\yoga\BitUtils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\CompactValue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\log.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\Utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGConfig.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGEnums.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGFloatOptional.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGLayout.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGMacros.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGNode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGNodePrint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGStyle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\YGValue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\Yoga.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Yoga\yoga\Yoga-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -91,7 +91,7 @@ TERM_PUBLIC void SVG_previous_palette(GpTermEntry_Static * pThis);
 TERM_PUBLIC void SVG_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
 TERM_PUBLIC void SVG_filled_polygon(GpTermEntry_Static * pThis, int, gpiPoint *);
 TERM_PUBLIC void SVG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint);
-TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, char *, double, double, bool, bool, int);
+TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, const char * pFontName, double, double, bool, bool, int);
 TERM_PUBLIC void ENHsvg_FLUSH(GpTermEntry_Static * pThis);
 TERM_PUBLIC void ENHsvg_put_text(GpTermEntry_Static * pThis, uint, uint, const char *);
 TERM_PUBLIC void ENHsvg_writec(GpTermEntry_Static * pThis, int);
@@ -150,13 +150,13 @@ static enum JUSTIFY SVG_TextJust = LEFT; /* current text justification*/
 
 /* default text font family: */
 static char * SVG_fontNameDef = NULL;
-static char * SVG_fontStyleDef = NULL; /* default font style */
-static char * SVG_fontWeightDef = NULL; /* default font weight */
+static const char * SVG_fontStyleDef = NULL; /* default font style */
+static const char * SVG_fontWeightDef = NULL; /* default font weight */
 static double SVG_fontSizeDef = 12; /* default text size*/
 /* current text font family: */
 static char * SVG_fontNameCur = NULL;
-static char * SVG_fontStyleCur = NULL; /* current font style */
-static char * SVG_fontWeightCur = NULL; /* current font weight */
+static const char * SVG_fontStyleCur = NULL; /* current font style */
+static const char * SVG_fontWeightCur = NULL; /* current font weight */
 static double SVG_fontSizeCur = 12; /* current text size*/
 static double SVG_fontscale = 1.0; /* multiplier for nominal font size */
 static bool SVG_groupIsOpen = FALSE; /* open group flag*/
@@ -194,10 +194,8 @@ static bool ENHsvg_preserve_spaces = FALSE;
 
 /* Support for dashed lines */
 #define SVG_dashtypes 5
-static char * SVG_defaultdashpattern[SVG_dashtypes] = {
-	"", " 5,8", " 2,4", " 8,4,2,4", " 9,4,1,4,1,4"
-};
-static char * SVG_axis_dashpattern = "2,4";
+static const char * SVG_defaultdashpattern[SVG_dashtypes] = { "", " 5,8", " 2,4", " 8,4,2,4", " 9,4,1,4,1,4" };
+static const char * SVG_axis_dashpattern = "2,4";
 static int SVG_dasharray[SVG_dashtypes][7] = {
 	{ 0, 0, 0, 0, 0, 0, 0},
 	{5, 8, 0, 0, 0, 0, 0},
@@ -205,7 +203,7 @@ static int SVG_dasharray[SVG_dashtypes][7] = {
 	{8, 4, 2, 4, 0, 0, 0},
 	{9, 4, 1, 4, 1, 4, 0}
 };
-static char * SVG_dashpattern = NULL;
+static const char * SVG_dashpattern = NULL;
 static char SVG_custom_dash_pattern[64];
 
 /* Hypertext support */
@@ -380,8 +378,8 @@ static void SVG_StyleFillColor()
 
 static void SVG_DefineFillPattern(int fillpat)
 {
-	char * path;
-	char * style = "stroke";
+	const char * path;
+	const char * style = "stroke";
 	fillpat %= 8;
 	if(fillpat != SVG_fillPattern) {
 		SVG_fillPattern = fillpat;
@@ -417,7 +415,7 @@ static void SVG_DefineFillPattern(int fillpat)
 			    break;
 		}
 		if(*path) {
-			char * figure = "fill:none;";
+			const char * figure = "fill:none;";
 			if(sstreq(style, "fill")) 
 				figure = "stroke:none;";
 			if(SVG_color_mode == TC_RGB)
@@ -716,7 +714,7 @@ static void SVG_write_preamble(GpTermEntry_Static * pThis)
 	GnuPlot * p_gp = pThis->P_Gp;
 	int len;
 	double stroke_width;
-	char * svg_encoding = "";
+	const char * svg_encoding = "";
 	switch(GPT._Encoding) {
 		case S_ENC_ISO8859_1:   svg_encoding = "encoding=\"iso-8859-1\" "; break;
 		case S_ENC_ISO8859_2:   svg_encoding = "encoding=\"iso-8859-2\" "; break;
@@ -799,7 +797,7 @@ static void SVG_write_preamble(GpTermEntry_Static * pThis)
 		else {
 			/* "standalone" option includes the mousing code in the file itself */
 			char * fullname = NULL;
-			char * name = "gnuplot_svg.js";
+			const char * name = "gnuplot_svg.js";
 			char buf[256];
 			FILE * svg_js_fd;
 			fullname = (char *)SAlloc::M(strlen(SVG_scriptdir) + strlen(name) + 4);
@@ -914,7 +912,7 @@ TERM_PUBLIC void SVG_graphics(GpTermEntry_Static * pThis)
 	SVG_xLast = SVG_yLast = UINT_MAX;
 }
 
-static void svg_mouse_param(GpTermEntry_Static * pThis, char * gp_name, const char * js_name)
+static void svg_mouse_param(GpTermEntry_Static * pThis, const char * gp_name, const char * js_name)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	udvt_entry * udv;
@@ -1119,14 +1117,26 @@ TERM_PUBLIC void SVG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype *
 		    break;
 		case DASHTYPE_CUSTOM:
 		    if(custom_dash_type) {
-			    SVG_dashpattern = SVG_custom_dash_pattern;
+				// @v11.2.11 {
+				char * p_new_pattern = SVG_custom_dash_pattern;
+			    *p_new_pattern = '\0';
+			    for(j = 0; j < 8 && custom_dash_type->pattern[j] > 0; j++) {
+				    char * p = &p_new_pattern[strlen(SVG_dashpattern)];
+				    snprintf(p, 8, "%.1f", custom_dash_type->pattern[j] * dash_scale);
+				    if(j < 7 && custom_dash_type->pattern[j+1])
+					    strcat(p, ",");
+			    }
+				SVG_dashpattern = p_new_pattern;
+				// } @v11.2.11 
+			    /* @v11.2.11
+				SVG_dashpattern = SVG_custom_dash_pattern;
 			    *SVG_dashpattern = '\0';
 			    for(j = 0; j < 8 && custom_dash_type->pattern[j] > 0; j++) {
 				    char * p = &SVG_dashpattern[strlen(SVG_dashpattern)];
 				    snprintf(p, 8, "%.1f", custom_dash_type->pattern[j] * dash_scale);
 				    if(j < 7 && custom_dash_type->pattern[j+1])
 					    strcat(p, ",");
-			    }
+			    } */
 		    }
 		    break;
 		default:
@@ -1137,6 +1147,19 @@ TERM_PUBLIC void SVG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype *
 		    if(dash_scale == 1.0) // Default dash length and sequence 
 			    SVG_dashpattern = SVG_defaultdashpattern[d];
 		    else { // Dash patterns scaled up by dashlength and linewidth 
+				// @v11.2.11 {
+				char * p_new_pattern = SVG_custom_dash_pattern;
+			    *p_new_pattern = '\0';
+			    j = 0;
+			    do {
+				    char * p = &p_new_pattern[strlen(SVG_dashpattern)];
+				    snprintf(p, 8, "%.1f", SVG_dasharray[d][j] * dash_scale);
+				    if(SVG_dasharray[d][++j])
+					    strcat(p, ",");
+			    } while(SVG_dasharray[d][j] > 0);
+				SVG_dashpattern = p_new_pattern;
+				// } @v11.2.11 
+				/* @v11.2.11
 			    SVG_dashpattern = SVG_custom_dash_pattern;
 			    *SVG_dashpattern = '\0';
 			    j = 0;
@@ -1146,6 +1169,7 @@ TERM_PUBLIC void SVG_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype *
 				    if(SVG_dasharray[d][++j])
 					    strcat(p, ",");
 			    } while(SVG_dasharray[d][j] > 0);
+				*/
 		    }
 		    break;
 	}
@@ -1250,7 +1274,7 @@ TERM_PUBLIC int SVG_text_angle(GpTermEntry_Static * pThis, int ang)
 
 TERM_PUBLIC void SVG_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str)
 {
-	char * alignment;
+	const char * alignment;
 	double vertical_offset;
 	int h = x, v = y;
 	SVG_PathClose();
@@ -1465,7 +1489,7 @@ TERM_PUBLIC void SVG_filled_polygon(GpTermEntry_Static * pThis, int points, gpiP
 TERM_PUBLIC void SVG_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	char * name = NULL;
+	const char * name = NULL;
 	char panel[2] = {'\0', '\0'};
 	// We must ignore all syncpoints that we don't recognize 
 	switch(syncpoint) {
@@ -1565,7 +1589,7 @@ static double ENHsvg_base = 0.0;
 static bool ENHsvg_opened_string = FALSE;
 static int ENHsvg_charcount = 0;
 
-TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	/* overprint = 1 means print the base text (leave position in center)

@@ -1218,6 +1218,7 @@ int DlContext::AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t
 
 uint DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & rText, DLSYMBID typeID, const UiRelRect & rRect)
 {
+	uint   fld_id = 0;
 	//
 	// Для элементов кластера создается специализированная область с именем 'DLG_SCOPE_NAME:CTRL_NAME'
 	//
@@ -1230,7 +1231,7 @@ uint DlContext::AddUiCluster(int kind, const CtmToken & rSymb, const CtmToken & 
 	(scope_name = p_cur_scope->GetName()).CatChar(':').Cat(rSymb.U.S);
 	if(type_id == 0)
 		SearchSymb("uint16", '@', &type_id);
-	uint   fld_id = AddUiCtrl(kind, rSymb, rText, type_id, rRect);
+	fld_id = AddUiCtrl(kind, rSymb, rText, type_id, rRect);
 	THROW(fld_id);
 	THROW(symb_id = CreateSymb(scope_name, '#', 0));
 	scope_id = EnterScope(DlScope::kUiCtrl, scope_name, symb_id, 0);  // checkcluster {
@@ -2044,13 +2045,15 @@ int DlContext::AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgLis
 	else if(propDirParam == DlFunc::fArgOut) { // propget
 		func.Flags |= DlFunc::fPropGet;
 	}
-	const uint   sc_kind = p_scope ? p_scope->GetKind() : 0;
-	const int    is_exp_func = oneof2(sc_kind, DlScope::kExpDataHdr, DlScope::kExpDataIter);
-	THROW_PP(is_exp_func || sc_kind == DlScope::kInterface, PPERR_DL6_FUNCINVSCOPE);
-	if(is_exp_func)
-		func.Name.CatChar('?').Cat(rSymb.Tok.U.S);
-	else
-		func.Name = rSymb.Tok.U.S;
+	{
+		const uint   sc_kind = p_scope ? p_scope->GetKind() : 0;
+		const int    is_exp_func = oneof2(sc_kind, DlScope::kExpDataHdr, DlScope::kExpDataIter);
+		THROW_PP(is_exp_func || sc_kind == DlScope::kInterface, PPERR_DL6_FUNCINVSCOPE);
+		if(is_exp_func)
+			func.Name.CatChar('?').Cat(rSymb.Tok.U.S);
+		else
+			func.Name = rSymb.Tok.U.S;
+	}
 	if(rArgList.P_List) {
 		for(uint i = 0; i < rArgList.P_List->getCount(); i++) {
 			const CtmDclr * p_dclr = rArgList.P_List->at(i);

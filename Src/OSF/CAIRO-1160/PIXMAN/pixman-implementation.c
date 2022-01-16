@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
-//#include "pixman-private.h"
 
 pixman_implementation_t * _pixman_implementation_create(pixman_implementation_t * fallback, const pixman_fast_path_t * fast_paths)
 {

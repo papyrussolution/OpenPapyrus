@@ -183,7 +183,7 @@ void GnuPlot::SaveTerm(GpTermEntry * pTerm, FILE * fp)
 // helper function 
 //
 //void save_axis_label_or_title(FILE * fp, char * name, char * suffix, text_label * label, bool savejust)
-void GnuPlot::SaveAxisLabelOrTitle(FILE * fp, char * pName, char * pSuffix, text_label * pLabel, bool savejust)
+void GnuPlot::SaveAxisLabelOrTitle(FILE * fp, const char * pName, const char * pSuffix, text_label * pLabel, bool savejust)
 {
 	fprintf(fp, "set %s%s \"%s\" ", pName, pSuffix, pLabel->text ? conv_text(pLabel->text) : "");
 	fprintf(fp, "\nset %s%s ", pName, pSuffix);
@@ -931,7 +931,7 @@ void GnuPlot::SaveTics(FILE * fp, const GpAxis * pAx)
 
 static void save_mtics(FILE * fp, const GpAxis * pAx)
 {
-	char * name = axis_name((AXIS_INDEX)pAx->index);
+	const char * name = axis_name((AXIS_INDEX)pAx->index);
 	switch(pAx->minitics & TICS_MASK) {
 		case 0: fprintf(fp, "set nom%stics\n", name); break;
 		case MINI_AUTO: fprintf(fp, "set m%stics\n", name); break;
@@ -1320,7 +1320,7 @@ void save_linetype(FILE * fp, lp_style_type * lp, bool show_point)
 }
 
 //void save_offsets(FILE * fp, char * lead)
-void GnuPlot::SaveOffsets(FILE * fp, char * lead)
+void GnuPlot::SaveOffsets(FILE * fp, const char * lead)
 {
 	fprintf(fp, "%s %s%g, %s%g, %s%g, %s%g\n", lead,
 	    Gr.LOff.scalex == graph ? "graph " : "", Gr.LOff.x,

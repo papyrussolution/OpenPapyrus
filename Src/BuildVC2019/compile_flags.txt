@@ -1,0 +1,8 @@
+-ID:\Papyrus\Src\BuildVC2017
+-ID:\Papyrus\Src\PPEquip\EquipDll\CustomDispaly
+-ID:\Papyrus\Src\Include
+-DPOSIFLEX_EXPORTS
+-D_USRDLL
+-D_WINDOWS
+-DWIN32
+-D_DEBUG

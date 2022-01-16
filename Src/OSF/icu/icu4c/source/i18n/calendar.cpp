@@ -84,18 +84,14 @@ U_CDECL_END
  * @return static string to the field name
  * @internal
  */
-
-const char * fldName(UCalendarDateFields f) {
-	return udbg_enumName(UDBG_UCalendarDateFields, (int32_t)f);
-}
+const char * fldName(UCalendarDateFields f) { return udbg_enumName(UDBG_UCalendarDateFields, (int32_t)f); }
 
 #if UCAL_DEBUG_DUMP
 // from CalendarTest::calToStr - but doesn't modify contents.
-void ucal_dump(const Calendar &cal) {
-	cal.dump();
-}
+void ucal_dump(const Calendar &cal) { cal.dump(); }
 
-void Calendar::dump() const {
+void Calendar::dump() const 
+{
 	int i;
 	fprintf(stderr, "@calendar=%s, timeset=%c, fieldset=%c, allfields=%c, virtualset=%c, t=%.2f",
 	    getType(), fIsTimeSet ? 'y' : 'n',  fAreFieldsSet ? 'y' : 'n',  fAreAllFieldsSet ? 'y' : 'n',

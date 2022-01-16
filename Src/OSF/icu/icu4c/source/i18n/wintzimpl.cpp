@@ -1,14 +1,8 @@
+// WINTZIMPL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ********************************************************************************
- *   Copyright (C) 2009-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File WINTZIMPL.CPP
- *
- ********************************************************************************
+ *   Copyright (C) 2009-2013, International Business Machines Corporation and others.  All Rights Reserved.
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -16,7 +10,6 @@
 #if U_PLATFORM_USES_ONLY_WIN32_API && !UCONFIG_NO_FORMATTING
 
 #include "wintzimpl.h"
-#include "putilimp.h"
 
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN

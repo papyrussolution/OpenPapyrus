@@ -3288,7 +3288,7 @@ template <typename T> class OptionSet : public _OptionSetBase { // @sobolev(publ
 		{
 			switch(opType) {
 				case SC_TYPE_BOOLEAN: {
-				    bool option = atoi(val) != 0;
+				    bool option = (satoi(val) != 0);
 				    if((*base).*pb != option) {
 					    (*base).*pb = option;
 					    return true;
@@ -3296,7 +3296,7 @@ template <typename T> class OptionSet : public _OptionSetBase { // @sobolev(publ
 				    break;
 			    }
 				case SC_TYPE_INTEGER: {
-				    int option = atoi(val);
+				    int option = satoi(val);
 				    if((*base).*pi != option) {
 					    (*base).*pi = option;
 					    return true;

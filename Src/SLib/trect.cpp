@@ -1,5 +1,5 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -226,6 +226,14 @@ FRect::FRect(const TRect & r)
 {
 	a = r.a;
 	b = r.b;
+}
+
+FRect::FRect(const RECT & r) // @v11.2.11
+{
+	a.x = r.left;
+	a.y = r.top;
+	b.x = r.right;
+	b.y = r.bottom;
 }
 
 int FASTCALL FRect::operator == (const FRect & rS) const { return IsEq(rS); }

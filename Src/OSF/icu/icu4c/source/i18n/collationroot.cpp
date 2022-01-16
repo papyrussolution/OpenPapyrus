@@ -15,7 +15,6 @@
 #include "collationroot.h"
 #include "collationsettings.h"
 #include "collationtailoring.h"
-#include "normalizer2impl.h"
 #include "ucln_in.h"
 #include "udatamem.h"
 

@@ -702,7 +702,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 {
 	class GrpArticleDialog : public TDialog {
 	public:
-		GrpArticleDialog::GrpArticleDialog() : TDialog(DLG_ARTICLEGROUP), Data(0L, (void *)0, 0)
+		GrpArticleDialog() : TDialog(DLG_ARTICLEGROUP), Data(0L, (void *)0, 0)
 		{
 			// @v10.6.4 MEMSZERO(Rec);
 		}

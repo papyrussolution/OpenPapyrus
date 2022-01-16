@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -80,9 +80,9 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 {
 	int   ok = 1, r = 0;
 	PPWaitStart();
-	long     scheme_id = 0;
-	PPID     ser_id = 0;
-	char   * p_format = "%s\n";
+	long   scheme_id = 0;
+	PPID   ser_id = 0;
+	const  char   * p_format = "%s\n";
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries ser_rec;
 	PPObjSCard   s_crd_obj;
@@ -321,7 +321,7 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 		int    r = 0;
 		long   scheme_id = 0;
 		PPID   ser_id = 0;
-		char * p_format = "%s\n";
+		const  char * p_format = "%s\n";
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries ser_rec;
 		PPObjSCard   s_crd_obj;

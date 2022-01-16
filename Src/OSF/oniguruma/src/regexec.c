@@ -3290,7 +3290,7 @@ cc_mb_not_success:
 				    MATCH_AT_ERROR_RETURN(ONIGERR_UNDEFINED_BYTECODE);
 				    break;
 			}
-			if(p->text_segment_boundary.not != 0)
+			if(p->text_segment_boundary.Not != 0)
 				is_break = !is_break;
 			if(is_break != 0) {
 				INC_OP;

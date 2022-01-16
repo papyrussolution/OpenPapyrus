@@ -122,7 +122,7 @@ static void make_palette_formulae(GpTermEntry_Static * pThis);
 static void PS_make_header(GpTermEntry_Static * pThis, t_sm_palette * palette);
 static void PS_skip_image(GpTermEntry_Static * pThis, int bytes, int x0, int y0, int dx, int dy);
 #ifndef GNUPLOT_PS_DIR
-	static void PS_dump_header_to_file(GpTermEntry_Static * pThis, char * name);
+	static void PS_dump_header_to_file(GpTermEntry_Static * pThis, const char * name);
 #endif
 
 static void delete_ps_fontfile(GpTermEntry_Static * pThis, ps_fontfile_def *, ps_fontfile_def *);
@@ -157,7 +157,7 @@ static void FASTCALL PsFlashPath(GpTermEntry_Static * pThis)
 
 //static char * pslatex_auxname = NULL; // name of auxiliary file 
 // Routine to copy pre-existing prolog files into output stream 
-static void PS_dump_prologue_file(GpTermEntry_Static * pThis, char *);
+static void PS_dump_prologue_file(GpTermEntry_Static * pThis, const char *);
 static void PS_load_glyphlist(GpTermEntry_Static * pThis);
 
 static const char * OldEPSL_linetypes[] = {
@@ -289,11 +289,11 @@ static char PS_default_font[2*MAX_ID_LEN] = {'H', 'e', 'l', 'v', 'e', 't', 'i', 
  * if so, return NULL. If not, reencode it if allowed to, otherwise
  * return an appropriate re-encode string
  */
-static void PS_RememberFont(GpTermEntry_Static * pThis, char * fname)
+static void PS_RememberFont(GpTermEntry_Static * pThis, const char * fname)
 {
 	struct PS_FontName * fnp;
-	char * recode = NULL;
-	char * myfname = "Symbol";
+	const char * recode = NULL;
+	const char * myfname = "Symbol";
 	if(strcmp(fname, "Symbol-Oblique") != 0)
 		myfname = fname;
 	/* There is some confusion between a font name in an enhanced text */
@@ -339,7 +339,7 @@ static void PS_RememberFont(GpTermEntry_Static * pThis, char * fname)
 	}
 }
 
-char * PS_escape_string(char * origstr, char * escapelist)
+char * PS_escape_string(char * origstr, const char * escapelist)
 {
 	char * newstr = 0;
 	if(!isempty(origstr)) {
@@ -2176,7 +2176,7 @@ static char * ENHps_opensequence = NULL;
 //
 // open a postscript string
 //
-TERM_PUBLIC void ENHPS_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHPS_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// overprint 3 means save current position; 4 means restore saved position
@@ -3307,7 +3307,7 @@ static char * PS_encode_image(GpTermEntry_Static * pThis, uint M, uint N, coordv
 static void print_five_operand_image(GpTermEntry_Static * pThis, uint M, uint N, const gpiPoint * corner, t_imagecolor color_mode, ushort bits_per_component)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
-	char * space = p_gp->TPsB.P_Params->level1 ? "" : "  ";
+	const char * space = p_gp->TPsB.P_Params->level1 ? "" : "  ";
 	fprintf(GPT.P_GpPsFile, "%sgsave\n", space);
 	if(p_gp->SmPltt.colorMode == SMPAL_COLOR_MODE_GRAY)
 		fprintf(GPT.P_GpPsFile, "%s{pm3dGamma exp} settransfer\n", space);
@@ -3519,7 +3519,7 @@ static void PS_skip_image(GpTermEntry_Static * pThis, int bytes, int x0, int y0,
 // 3) hard-coded path selected at build time
 // 4) directories in "set loadpath <dirlist>"
 // 
-static FILE * PS_open_prologue_file(GpTermEntry_Static * pThis, char * name)
+static FILE * PS_open_prologue_file(GpTermEntry_Static * pThis, const char * name)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	char * fullname = NULL;
@@ -3581,7 +3581,7 @@ static FILE * PS_open_prologue_file(GpTermEntry_Static * pThis, char * name)
 }
 
 #ifndef GNUPLOT_PS_DIR
-static void PS_dump_header_to_file(GpTermEntry_Static * pThis, char * name)
+static void PS_dump_header_to_file(GpTermEntry_Static * pThis, const char * name)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	const char ** dump = NULL;
@@ -3624,7 +3624,7 @@ static void PS_dump_header_to_file(GpTermEntry_Static * pThis, char * name)
 }
 #endif
 
-static void PS_dump_prologue_file(GpTermEntry_Static * pThis, char * name)
+static void PS_dump_prologue_file(GpTermEntry_Static * pThis, const char * name)
 {
 	char buf[256];
 	FILE * prologue_fd = PS_open_prologue_file(pThis, name);

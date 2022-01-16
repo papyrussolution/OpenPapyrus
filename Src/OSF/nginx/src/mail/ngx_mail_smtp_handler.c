@@ -21,8 +21,8 @@ static ngx_int_t ngx_mail_smtp_mail(ngx_mail_session_t * s, ngx_connection_t * c
 static ngx_int_t ngx_mail_smtp_starttls(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_smtp_rset(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_smtp_rcpt(ngx_mail_session_t * s, ngx_connection_t * c);
-static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c, char * err);
-static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c, char * err);
+static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c, const char * err);
+static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c, const char * err);
 
 static u_char smtp_ok[] = "250 2.0.0 OK" CRLF;
 static u_char smtp_bye[] = "221 2.0.0 Bye" CRLF;
@@ -560,7 +560,7 @@ static ngx_int_t ngx_mail_smtp_starttls(ngx_mail_session_t * s, ngx_connection_t
 	return NGX_MAIL_PARSE_INVALID_COMMAND;
 }
 
-static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c, char * err)
+static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c, const char * err)
 {
 	ssize_t n = c->recv(c, s->buffer->last, s->buffer->end - s->buffer->last);
 	if(n == NGX_ERROR || n == 0) {
@@ -588,7 +588,7 @@ static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_conne
 	}
 }
 
-static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c, char * err)
+static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c, const char * err)
 {
 	if(c->log->Level >= NGX_LOG_INFO) {
 		ngx_uint_t i;

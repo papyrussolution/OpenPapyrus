@@ -165,8 +165,10 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	cinfo->src->next_input_byte = NULL;
 	cinfo->src->bytes_in_buffer = 0;
 	reinterpret_cast<zbar_src_mgr_t *>(cinfo->src)->img = src;
-	int rc = jpeg_read_header(cinfo, TRUE);
-	zprintf(30, "header: %s\n", (rc == 2) ? "tables-only" : "normal");
+	{
+		int rc = jpeg_read_header(cinfo, TRUE);
+		zprintf(30, "header: %s\n", (rc == 2) ? "tables-only" : "normal");
+	}
 	/* supporting color with jpeg became...complicated,
 	 * so we skip that for now
 	 */
@@ -186,23 +188,27 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 		if(dst->crop_y + dst->crop_h > dst->height)
 			dst->crop_h = dst->height - dst->crop_y;
 	}
-	ulong datalen = (cinfo->output_width * cinfo->output_height * cinfo->out_color_components);
-	zprintf(24, "dst=%dx%d %lx src=%dx%d %lx dct=%x\n", dst->width, dst->height, dst->datalen, src->width, src->height, src->datalen, cinfo->dct_method);
-	if(!dst->P_Data) {
-		dst->datalen = datalen;
-		dst->P_Data = SAlloc::M(dst->datalen);
-		dst->cleanup = zbar_image_free_data;
+	{
+		const ulong datalen = (cinfo->output_width * cinfo->output_height * cinfo->out_color_components);
+		zprintf(24, "dst=%dx%d %lx src=%dx%d %lx dct=%x\n", dst->width, dst->height, dst->datalen, src->width, src->height, src->datalen, cinfo->dct_method);
+		if(!dst->P_Data) {
+			dst->datalen = datalen;
+			dst->P_Data = SAlloc::M(dst->datalen);
+			dst->cleanup = zbar_image_free_data;
+		}
+		else
+			assert(datalen <= dst->datalen);
 	}
-	else
-		assert(datalen <= dst->datalen);
 	if(!dst->P_Data) 
 		return;
-	uint bpl = dst->width * cinfo->output_components;
-	JSAMPROW buf = (JSAMPROW)dst->P_Data;
-	JSAMPARRAY line = &buf;
-	for(; cinfo->output_scanline < cinfo->output_height; buf += bpl) {
-		jpeg_read_scanlines(cinfo, line, 1);
-		/* FIXME pad out to dst->width */
+	{
+		uint bpl = dst->width * cinfo->output_components;
+		JSAMPROW buf = (JSAMPROW)dst->P_Data;
+		JSAMPARRAY line = &buf;
+		for(; cinfo->output_scanline < cinfo->output_height; buf += bpl) {
+			jpeg_read_scanlines(cinfo, line, 1);
+			/* FIXME pad out to dst->width */
+		}
 	}
 	/* FIXME always do this? */
 	jpeg_finish_decompress(cinfo);

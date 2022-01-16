@@ -108,7 +108,7 @@ struct Config {
 	int    BaudRate;
 	LDATETIME DateTm;
 	long   Flags;
-	char * ConnPass; // Пароль для связи
+	const  char * ConnPass; // Пароль для связи
 	int    ReadCycleCount;
 	int    ReadCycleDelay;
 	LogoStruct Logo;
@@ -503,7 +503,8 @@ static void FASTCALL CreateChZnCode(const char * pValue, SString & dst)
 }
 static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
 static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
-static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Cat(FS_STR); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
+// @v11.2.11 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Cat(FS_STR); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
+static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).Cat(FS_STR); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ) // @v11.2.11
 
 EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {

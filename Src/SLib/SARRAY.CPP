@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -2980,10 +2980,10 @@ bool StrAssocTree::ENTRY::BaseList::Implement_Get_Unsafe(SHandle h, int32 curren
 	return result;
 }
 
-int StrAssocTree::ENTRY::BaseList::Implement_Add(int32 key, uint strP)
+StrAssocTree::ENTRY * StrAssocTree::ENTRY::BaseList::Implement_Add(int32 key, uint strP)
 {
 	ENTRY new_entry(this, key, strP, 0);
-	return insert(&new_entry);
+	return insert(&new_entry) ? &at(getCount()-1) : 0;
 }
 
 int StrAssocTree::ENTRY::BaseList::Implement_SearchStrP(uint strP, TSVector <ENTRY *> & rResult) const
@@ -3030,13 +3030,27 @@ StrAssocTree::ENTRY * StrAssocTree::ENTRY::BaseList::Implement_Search(int32 key,
 	return p_result;
 }
 
+bool StrAssocTree::ENTRY::BaseList::Implement_MakeStringIndex(LAssocArray & rIndex) const
+{
+	bool   ok = true;
+	for(uint i = 0; i < SArray::getCount(); i++) {
+		const ENTRY & r_entry = at(i);
+		THROW(rIndex.Add(r_entry.Key, static_cast<long>(r_entry.StrP)));
+		if(r_entry.P_Children) {
+			THROW(r_entry.P_Children->Implement_MakeStringIndex(rIndex)); // @recursion
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 void StrAssocTree::ENTRY::BaseList::GetKeyList(bool recursive, LongArray & rList) const
 {
 	for(uint i = 0; i < SArray::getCount(); i++) {
 		const ENTRY & r_entry = at(i);
 		rList.add(r_entry.Key);
 		if(recursive && r_entry.P_Children)
-			GetKeyList(recursive, rList); // @recursion
+			r_entry.P_Children->GetKeyList(recursive, rList); // @recursion
 	}
 }
 
@@ -3219,20 +3233,25 @@ SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 	return result;
 }
 
-SHandle StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp) const
+bool StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHandle> & rList) const
 {
-	SHandle result;
+	//SHandle result;
+	rList.clear();
+	bool   result = false;
 	uint   pos = 0;
 	uint   next_pos = 0;
-	while(!result && Pool.search(pTxt, fcmp, &pos, &next_pos)) {
+	while(Pool.search(pTxt, fcmp, &pos, &next_pos)) {
 		assert(next_pos > pos);
 		TSVector <ENTRY *> entry_list;
 		if(L.Implement_SearchStrP(pos, entry_list) > 0) {
 			assert(entry_list.getCount());
-			result = entry_list.at(0);
+			//result = entry_list.at(0);
+			for(uint i = 0; i < entry_list.getCount(); i++) {
+				rList.insert(&SHandle(entry_list.at(i)));
+			}
+			result = true;
 		}
-		else
-			pos = next_pos;
+		pos = next_pos;
 	}
 	return result;
 }
@@ -3244,6 +3263,65 @@ bool StrAssocTree::Get_Unsafe(SHandle h, long * pId, long * pParentId, SString *
 	if(result && pBuf)
 		GetS(strp, *pBuf);
 	return result;
+}
+
+bool StrAssocTree::HasNodeChildren(SHandle h) const
+{
+	bool   result = false;
+	if(h) {
+		const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(h));
+		if(p_entry->P_Children && p_entry->P_Children->getCount())
+			result = true;
+	}
+	return result;
+}
+
+int32 StrAssocTree::GetNodeKey(SHandle h) const
+{
+	if(h) {
+		const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(h));
+		return p_entry->Key;
+	}
+	else
+		return 0;
+}
+
+uintptr_t StrAssocTree::GetNodeExtraPtr(SHandle h) const
+{
+	if(h) {
+		const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(h));
+		return p_entry->ExtraPtr;
+	}
+	else
+		return 0;
+}
+
+bool StrAssocTree::SetNodeExtraPtr(SHandle h, uintptr_t extraPtr)
+{
+	bool   ok = true;
+	if(h) {
+		ENTRY * p_entry = static_cast<ENTRY *>(static_cast<void *>(h));
+		p_entry->ExtraPtr = extraPtr;
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+bool StrAssocTree::MakeStringIndex(LAssocArray & rIndex) const
+{
+	rIndex.clear();
+	if(L.Implement_MakeStringIndex(rIndex)) {
+		rIndex.Sort();
+		return true;
+	}
+	else
+		return false;
+}
+
+bool StrAssocTree::GetTextByPos(uint strP, SString & rBuf) const
+{
+	return SStrGroup::GetS(strP, rBuf);
 }
 
 int StrAssocTree::GetList(LongArray & rList) const
@@ -3267,6 +3345,31 @@ int StrAssocTree::GetListByParent(long parentId, bool recursive, LongArray & rLi
 	CALLPTRMEMB(p_list, GetKeyList(recursive, rList));
 	return rList.getCount() ? 1 : -1;
 }
+
+int StrAssocTree::GetListByParent_Unsafe(SHandle hParent, bool recursive, TSVector <SHandle> & rList) const
+{
+	rList.clear();
+	int    ok = 0;
+	const ENTRY::BaseList * p_list = 0;
+	if(hParent == 0)
+		p_list = &L;
+	else {
+		//const ENTRY * p_entry = L.Implement_Search(parentId, 0, 0);
+		const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(hParent));
+		p_list = p_entry->P_Children;
+	}
+	//CALLPTRMEMB(p_list, GetKeyList(recursive, rList));
+	if(p_list && p_list->getCount()) {
+		for(uint i = 0; i < p_list->getCount(); i++) {
+			SHandle h(&p_list->at(i));
+			rList.insert(&h);
+		}
+		ok = 1;
+	}
+	else
+		ok = -1;
+	return ok;
+}
 	
 int StrAssocTree::Add(long id, const char * pStr, int replaceDup)
 {
@@ -3284,7 +3387,8 @@ int StrAssocTree::Add(long id, const char * pStr, int replaceDup)
 	else {
 		uint strp = 0;
 		AddS(pStr, &strp);
-		ok = L.Implement_Add(id, strp);
+		if(!L.Implement_Add(id, strp))
+			ok = 0;
 	}
 	return ok;
 }
@@ -3303,10 +3407,29 @@ int StrAssocTree::Add(long id, long parentId, const char * pStr, int replaceDup)
 			uint strp = 0;
 			AddS(pStr, &strp);
 			SETIFZ(p_parent_entry->P_Children, new ENTRY::BaseList(p_parent_entry));
-			ok = p_parent_entry->P_Children->Implement_Add(id, strp);
+			if(!p_parent_entry->P_Children->Implement_Add(id, strp))
+				ok = 0;
 		}			
 	}
 	return ok;
+}
+
+SHandle StrAssocTree::Add_Unsafe(SHandle hParent, long id, const char * pStr)
+{
+	SHandle result;
+	uint strp = 0;
+	if(hParent) {
+		//assert(ValidateEntryHandle(hParent));
+		ENTRY * p_parent_entry = reinterpret_cast<ENTRY *>(static_cast<void *>(hParent));
+		AddS(pStr, &strp);
+		SETIFZ(p_parent_entry->P_Children, new ENTRY::BaseList(p_parent_entry));
+		result = p_parent_entry->P_Children->Implement_Add(id, strp);
+	}
+	else {
+		AddS(pStr, &strp);
+		result = L.Implement_Add(id, strp);
+	}
+	return result;
 }
 
 void StrAssocTree::SortByID()

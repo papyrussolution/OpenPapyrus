@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{725008c9-0168-4d7d-a0b7-4086622f5336}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{09248d30-f024-4dae-a8da-30ccb4ff00d9}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\LXUtilities.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\ParagraphLayout.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\playout.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\plruns.cpp" />
+    <ClCompile Include="..\OSF\icu\icu4c\source\layoutex\RunArrays.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\icu\icu4c\source\layoutex\layoutex.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\LXUtilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\ParagraphLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\playout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\plruns.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\icu\icu4c\source\layoutex\layout\RunArrays.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

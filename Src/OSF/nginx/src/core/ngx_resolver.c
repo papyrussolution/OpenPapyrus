@@ -1219,23 +1219,18 @@ static void ngx_resolver_tcp_read(ngx_event_t * rev)
 			b->pos = b->start;
 		}
 	}
-
 	if(ngx_handle_read_event(rev, 0) != NGX_OK) {
 		goto failed;
 	}
-
 	return;
-
 failed:
-
 	ngx_close_connection(c);
 	rec->tcp = NULL;
 }
 
-static void ngx_resolver_process_response(ngx_resolver_t * r, u_char * buf, size_t n,
-    ngx_uint_t tcp)
+static void ngx_resolver_process_response(ngx_resolver_t * r, u_char * buf, size_t n, ngx_uint_t tcp)
 {
-	char * err;
+	const char * err;
 	ngx_uint_t i, times, ident, qident, flags, code, nqs, nan, trunc,
 	    qtype, qclass;
 #if (NGX_HAVE_INET6)
@@ -1388,27 +1383,18 @@ done:
 	ngx_log_error(r->log_level, r->log, 0, err);
 
 	return;
-
 dns_error_name:
-
-	ngx_log_error(r->log_level, r->log, 0,
-	    "DNS error (%ui: %s), query id:%ui, name:\"%*s\"",
-	    code, ngx_resolver_strerror(code), ident,
-	    (size_t)rn->nlen, rn->name);
+	ngx_log_error(r->log_level, r->log, 0, "DNS error (%ui: %s), query id:%ui, name:\"%*s\"", code, ngx_resolver_strerror(code), ident, (size_t)rn->nlen, rn->name);
 	return;
-
 dns_error:
-
-	ngx_log_error(r->log_level, r->log, 0,
-	    "DNS error (%ui: %s), query id:%ui",
-	    code, ngx_resolver_strerror(code), ident);
+	ngx_log_error(r->log_level, r->log, 0, "DNS error (%ui: %s), query id:%ui", code, ngx_resolver_strerror(code), ident);
 	return;
 }
 
 static void ngx_resolver_process_a(ngx_resolver_t * r, u_char * buf, size_t n,
     ngx_uint_t ident, ngx_uint_t code, ngx_uint_t qtype, ngx_uint_t nan, ngx_uint_t trunc, ngx_uint_t ans)
 {
-	char * err;
+	const char * err;
 	u_char * cname;
 	size_t len;
 	int32_t ttl;
@@ -1935,49 +1921,32 @@ found:
 
 				return;
 			}
-
 			for(next = ctx; next; next = next->next) {
 				next->node = NULL;
 			}
-
 			(void)ngx_resolve_name_locked(r, ctx, &name);
 		}
-
 		/* unlock name mutex */
-
 		return;
 	}
-
-	ngx_log_error(r->log_level, r->log, 0,
-	    "no A or CNAME types in DNS response");
+	ngx_log_error(r->log_level, r->log, 0, "no A or CNAME types in DNS response");
 	return;
-
 short_response:
-
 	err = "short DNS response";
-
 invalid:
-
 	/* unlock name mutex */
-
 	ngx_log_error(r->log_level, r->log, 0, err);
-
 	return;
-
 failed:
-
 next:
-
 	/* unlock name mutex */
-
 	return;
 }
 
 static void ngx_resolver_process_srv(ngx_resolver_t * r, u_char * buf, size_t n,
-    ngx_uint_t ident, ngx_uint_t code, ngx_uint_t nan,
-    ngx_uint_t trunc, ngx_uint_t ans)
+    ngx_uint_t ident, ngx_uint_t code, ngx_uint_t nan, ngx_uint_t trunc, ngx_uint_t ans)
 {
-	char   * err;
+	const char   * err;
 	u_char * cname;
 	size_t len;
 	int32_t ttl;
@@ -2434,7 +2403,7 @@ done:
 
 static void ngx_resolver_process_ptr(ngx_resolver_t * r, u_char * buf, size_t n, ngx_uint_t ident, ngx_uint_t code, ngx_uint_t nan)
 {
-	char * err;
+	const char * err;
 	size_t len;
 	in_addr_t addr;
 	int32_t ttl;
@@ -3019,7 +2988,7 @@ static ngx_int_t ngx_resolver_create_addr_query(ngx_resolver_t * r, ngx_resolver
 
 static ngx_int_t ngx_resolver_copy(ngx_resolver_t * r, ngx_str_t * name, u_char * buf, u_char * src, u_char * last)
 {
-	char * err;
+	const char * err;
 	u_char * dst;
 	ngx_uint_t i, n;
 	u_char * p = src;
@@ -3320,9 +3289,9 @@ next_srv:
 	}
 }
 
-char * ngx_resolver_strerror(ngx_int_t err)
+const char * ngx_resolver_strerror(ngx_int_t err)
 {
-	static char * errors[] = {
+	static const char * errors[] = {
 		"Format error", /* FORMERR */
 		"Server failure", /* SERVFAIL */
 		"Host not found", /* NXDOMAIN */

@@ -2217,8 +2217,6 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		#if !(defined(_WIN32_WCE) && defined(_MSC_VER))
 			#include <stddef.h>
 		#endif
-		//#include <string.h>
-		//#include <stdlib.h>
 	#endif
 	#ifdef Z_SOLO
 		typedef long ptrdiff_t; /* guess -- will be caught if guess is wrong */

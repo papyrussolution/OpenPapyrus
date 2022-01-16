@@ -12,7 +12,7 @@
 ngx_int_t ngx_last_process;
 ngx_process_t ngx_processes[NGX_MAX_PROCESSES];
 
-ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn)
+ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, const char * name, ngx_int_t respawn)
 {
 	u_long rc;
 	u_long code;

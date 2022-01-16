@@ -8,7 +8,6 @@
 
 #if !UCONFIG_NO_FORMATTING
 
-#include "putilimp.h"
 #include "tznames_impl.h"
 #include "ucln_in.h"
 

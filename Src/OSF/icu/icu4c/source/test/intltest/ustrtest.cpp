@@ -1,15 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ustrtest.h"
-#include "unicode/unistr.h"
 #include "unicode/uchar.h"
 #include "unicode/ucnv.h"
 #include "unicode/uenum.h"

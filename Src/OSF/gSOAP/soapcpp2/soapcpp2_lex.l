@@ -423,14 +423,14 @@ static void directive(void)
 					semwarn("option -1 or -2 overrides SOAP-ENV namespace");
 				else
 					envURI = s;
-				sp->URI = envURI;
+				sp->URI = const_cast<char *>(envURI); // @badcast
 			}
 			else if(!strcmp(sp->ns, "SOAP-ENC")) {	
 				if(vflag)
 					semwarn("option -1 or -2 overrides SOAP-ENC namespace");
 				else
 					encURI = s;
-				sp->URI = encURI;
+				sp->URI = const_cast<char *>(encURI); // @badcast
 			}
 			else
 				sp->URI = s;
@@ -891,8 +891,7 @@ static int octchar(int *p)
 
 static void module(const char *name, const char *fullname)
 { 
-	if(!fullname)
-		fullname = name;
+	SETIFZ(fullname, name);
 	if(imports) { 
 		Pragma ** pp;
 		char *s = emalloc(strlen(fullname)+15);
@@ -913,7 +912,7 @@ static void module(const char *name, const char *fullname)
 		lflag = 1;
 		typeNO = magic(name);
 		prefix = (char *)emalloc(strlen(fullname)+1);
-		strcpy(prefix, fullname);
+		strcpy(const_cast<char *>(prefix), fullname); // @badcast
 		slfprintf_stderr("Compiling module '%s' (magic number = %d)\n\n", fullname, typeNO);
 	}
 }

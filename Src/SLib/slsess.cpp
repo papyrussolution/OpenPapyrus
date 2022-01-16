@@ -272,10 +272,10 @@ static void InitTest()
 		// Тестирование макроса SETIFZ
 		//
 		int    a = 1;
-		SETIFZ(a, 2);
+		SETIFZQ(a, 2);
 		assert(a == 1);
 		a = 0;
-		SETIFZ(a, 2);
+		SETIFZQ(a, 2);
 		assert(a == 2);
 		{
 			void * ptr = 0;

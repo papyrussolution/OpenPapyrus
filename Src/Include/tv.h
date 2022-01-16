@@ -1,5 +1,5 @@
 // TV.H
-// Copyright (c) A.Sobolev 1996-2021
+// Copyright (c) A.Sobolev 1996-2021, 2022
 // @codepage UTF-8
 //
 #ifndef __TV_H
@@ -1397,7 +1397,7 @@ public:
 	int    SetBitmap(uint bmpId);
 	int    SetFont(HFONT);
 	int    CreateCursor(uint cursorId);
-	int    FASTCALL CreateInnerHandle(SDrawContext & rCtx);
+	int    FASTCALL CreateInnerHandle(const SDrawContext & rCtx);
 	int    FASTCALL DestroyInnerHandle();
 private:
 	//
@@ -1407,7 +1407,7 @@ private:
 	//   освобождать область памяти, на которую ссылается SPaintObj::H
 	//
 	void   ResetOwnership();
-	int    FASTCALL ProcessInnerHandle(SDrawContext * pCtx, int create);
+	int    FASTCALL ProcessInnerHandle(const SDrawContext * pCtx, int create);
 
 	enum {
 		fCairoPattern = 0x0001,
@@ -1530,7 +1530,7 @@ public:
 	HGDIOBJ FASTCALL Get(int ident) const;
 	HCURSOR FASTCALL GetCursor(int ident) const;
 	HBITMAP FASTCALL GetBitmap(int ident) const;
-	SPaintObj::Font * GetFont(SDrawContext & rCtx, int fontIdent);
+	SPaintObj::Font * GetFont(const SDrawContext & rCtx, int fontIdent);
 	SPaintObj::Para * GetParagraph(int ident);
 	int    GetGlyphId(SDrawContext & rCtx, int fontIdent, wchar_t chr);
 	const  SGlyph * FASTCALL GetGlyph(int glyphId) const;
@@ -3981,6 +3981,15 @@ private:
 	};
 	Item   TempItem;
 	LongArray LL; // Линеаризованный список идентификаторов P_SaList используемый для базовых функций навигации.
+	LAssocArray StrIndex; // @v11.2.11 Индекс соответствия идентификаторов элементов позициям строк в P_SaList
+	struct SearchBlock { // @v11.2.11 
+		SearchBlock();
+		~SearchBlock();
+		SearchBlock & Z();
+		LongArray * P_LastResult; // Список идентификаторов, найденных по запросу текстового поиска. Нужен для поиска последующих позиций.
+		SString LastPattern; // Последний образец, использованный для поиска. Важен для определения необходимости повторного сканирования дерева.
+	};
+	SearchBlock Sb;
 };
 
 /* @v11.2.5 class StringListBoxDef : public StdListBoxDef {
@@ -4062,7 +4071,7 @@ public:
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
 	~SmartListBox();
 	void   FASTCALL setDef(ListBoxDef * pDef);
-	int    search(const void * pattern, CompFunc fcmp, int srchMode);
+	bool   Search_(const void * pattern, CompFunc fcmp, int srchMode);
 	int    FASTCALL getCurID(long * pId);
 	int    FASTCALL getCurData(void * pData);
 	int    FASTCALL getCurString(SString & rBuf);
@@ -4149,7 +4158,7 @@ protected:
 private:
 	void   Helper_InsertColumn(uint pos);
 	void   Helper_ClearTreeWnd();
-	int    SetupTreeWnd2(uint32 parentP);
+	int    SetupTreeWnd2(void * pParent);
 
 	struct ColumnDescr {
 		uint   Width;

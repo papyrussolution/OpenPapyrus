@@ -1,23 +1,13 @@
+// uarrsort.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2003-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uarrsort.h
+ *   Copyright (C) 2003-2013, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2003aug04
  *   created by: Markus W. Scherer
- *
  *   Internal function for sorting arrays.
  */
-
 #ifndef __UARRSORT_H__
 #define __UARRSORT_H__
 
@@ -38,8 +28,7 @@ U_CDECL_BEGIN
  *
  * @internal
  */
-typedef int32_t U_CALLCONV
-    UComparator (const void * context, const void * left, const void * right);
+typedef int32_t U_CALLCONV UComparator (const void * context, const void * left, const void * right);
 U_CDECL_END
 
 /**
@@ -57,16 +46,12 @@ U_CDECL_END
  *
  * @internal
  */
-U_CAPI void U_EXPORT2 uprv_sortArray(void * array, int32_t length, int32_t itemSize,
-    UComparator * cmp, const void * context,
-    bool sortStable, UErrorCode * pErrorCode);
-
+U_CAPI void U_EXPORT2 uprv_sortArray(void * array, int32_t length, int32_t itemSize, UComparator * cmp, const void * context, bool sortStable, UErrorCode * pErrorCode);
 /**
  * Convenience UComparator implementation for uint16_t arrays.
  * @internal
  */
 U_CAPI int32_t U_EXPORT2 uprv_uint16Comparator(const void * context, const void * left, const void * right);
-
 /**
  * Convenience UComparator implementation for int32_t arrays.
  * @internal

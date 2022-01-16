@@ -1780,7 +1780,7 @@ public:
 	int    IncTotalItem(uint groupBy, const GoodsOpAnalyzeViewItem * pItem);
 private:
 	long   GetGoodsGrpPos(PPID goodsID);
-	ABCGroupingRecsStorage * ABCGrpStorageList::GetStorage(PPID goodsID);
+	ABCGroupingRecsStorage * GetStorage(PPID goodsID);
 
 	uint   EnumIdx;
 	SArray * P_TotalItems;

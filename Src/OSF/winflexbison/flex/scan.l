@@ -1,36 +1,26 @@
 /* scan.l - scanner for flex input -*-C-*- */
 
 %{
-/*  Copyright (c) 1990 The Regents of the University of California. */
-/*  All rights reserved. */
-
-/*  This code is derived from software contributed to Berkeley by */
-/*  Vern Paxson. */
-
+/*  Copyright (c) 1990 The Regents of the University of California. All rights reserved. */
+/*  This code is derived from software contributed to Berkeley by Vern Paxson. */
 /*  The United States Government has rights in this work pursuant */
 /*  to contract no. DE-AC03-76SF00098 between the United States */
 /*  Department of Energy and the University of California. */
-
 /*  This file is part of flex. */
-
 /*  Redistribution and use in source and binary forms, with or without */
 /*  modification, are permitted provided that the following conditions */
 /*  are met: */
-
 /*  1. Redistributions of source code must retain the above copyright */
 /*     notice, this list of conditions and the following disclaimer. */
 /*  2. Redistributions in binary form must reproduce the above copyright */
 /*     notice, this list of conditions and the following disclaimer in the */
 /*     documentation and/or other materials provided with the distribution. */
-
 /*  Neither the name of the University nor the names of its contributors */
 /*  may be used to endorse or promote products derived from this software */
 /*  without specific prior written permission. */
-
 /*  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR */
 /*  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED */
-/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR */
-/*  PURPOSE. */
+/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. */
 
 #include "flexdef.h"
 #pragma hdrstop
@@ -46,11 +36,7 @@ extern const char *escaped_qstart, *escaped_qend;
 #define ESCAPED_QEND M4QEND "]" M4QSTART M4QEND "]" M4QSTART
 
 #define ACTION_ECHO add_action( yytext )
-#define ACTION_IFDEF(def, should_define) \
-	{ \
-	if(should_define ) \
-		action_define( def, 1 ); \
-	}
+#define ACTION_IFDEF(def, should_define) { if(should_define) action_define(def, 1); }
 
 #define ACTION_ECHO_QSTART add_action (ESCAPED_QSTART)
 #define ACTION_ECHO_QEND   add_action (ESCAPED_QEND)
@@ -84,20 +70,20 @@ extern const char *escaped_qstart, *escaped_qend;
 
 #define PUT_BACK_STRING(str, start) \
 	{ size_t i = strlen( str );	\
-	  while ( i > start )		\
+	  while(i > start)		\
 	    unput((str)[--i]);		\
 	}
 
 #define CHECK_REJECT(str) \
-	if(all_upper( str ) ) \
+	if(all_upper(str)) \
 		reject = true;
 
 #define CHECK_YYMORE(str) \
-	if(all_lower( str ) ) \
+	if(all_lower(str) ) \
 		yymore_used = true;
 
 #define YY_USER_INIT \
-	if(getenv("POSIXLY_CORRECT") ) \
+	if(getenv("POSIXLY_CORRECT")) \
 		posix_compat = true;
 
 #define START_CODEBLOCK(x) do { \
@@ -155,14 +141,14 @@ M4QSTART    "[""["
 M4QEND      "]""]"
 
 %%
-	static int bracelevel, didadef, indented_code;
+	static int bracelevel;
+	static int didadef;
+	static int indented_code;
 	static int doing_rule_action = false;
 	static int option_sense;
-
 	int doing_codeblock = false;
 	int brace_depth=0, brace_start_line=0;
 	char nmdef[MAXLINE];
-
 
 <INITIAL>{
 	^{WS}		START_CODEBLOCK(true);
@@ -283,7 +269,8 @@ M4QEND      "]""]"
                 if(--brace_depth == 0) {
                     /* TODO: Matched. */
                     yy_pop_state();
-                }else
+                }
+				else
                     buf_strnappend(&top_buf, yytext, yyleng);
             }
 
@@ -315,12 +302,10 @@ M4QEND      "]""]"
 	{WS}		/* separates name and definition */
 
 	{NOT_WS}[^\r\n]*	{
- 		        if(yyleng < MAXLINE)
- 		         {
-			strncpy( nmdef, yytext, sizeof(nmdef) );
+ 		        if(yyleng < MAXLINE) {
+					strncpy( nmdef, yytext, sizeof(nmdef) );
  		         }
- 		        else
- 		         {
+ 		        else {
  		           format_synerr( _("Definition value for {%s} too long\n"), nmstr);
  		           FLEX_EXIT(EXIT_FAILURE);
 			 }
@@ -331,14 +316,13 @@ M4QEND      "]""]"
 			       --i;
 			    nmdef[i] = '\0';
 			}
-
-			ndinstal( nmstr, nmdef );
+			ndinstal(nmstr, nmdef);
 			didadef = true;
 			}
 
 	{NL}		{
 			if(! didadef )
-				synerr( _( "incomplete name definition" ) );
+				synerr(_( "incomplete name definition"));
 			BEGIN(INITIAL);
 			++linenum;
 			}
@@ -357,32 +341,21 @@ M4QEND      "]""]"
 	8bit		csize = option_sense ? 256 : 128;
 
 	align		long_align = option_sense;
-	always-interactive	{
-			ACTION_M4_IFDEF( "M4""_YY_ALWAYS_INTERACTIVE", option_sense );
-            interactive = option_sense;
-			}
+	always-interactive	{ ACTION_M4_IFDEF("M4""_YY_ALWAYS_INTERACTIVE", option_sense); interactive = option_sense; }
 	array		yytext_is_array = option_sense;
 	backup		backing_up_report = option_sense;
 	batch		interactive = ! option_sense;
     bison-bridge     bison_bridge_lval = option_sense;
-    bison-locations  { if((bison_bridge_lloc = option_sense))
-                            bison_bridge_lval = true;
-                     }
+    bison-locations  { if((bison_bridge_lloc = option_sense)) bison_bridge_lval = true; }
 	"c++"		C_plus_plus = option_sense;
 	caseful|case-sensitive		sf_set_case_ins(!option_sense);
 	caseless|case-insensitive	sf_set_case_ins(option_sense);
 	debug		ddebug = option_sense;
 	default		spprdflt = ! option_sense;
 	ecs		useecs = option_sense;
-	fast		{
-			useecs = usemecs = false;
-			use_read = fullspd = true;
-			}
-	full		{
-			useecs = usemecs = false;
-			use_read = fulltbl = true;
-			}
-	input		ACTION_IFDEF("YY_NO_INPUT", ! option_sense);
+	fast		{ useecs = usemecs = false; use_read = fullspd = true; }
+	full		{ useecs = usemecs = false; use_read = fulltbl = true; }
+	input		ACTION_IFDEF("YY_NO_INPUT", !option_sense);
 	interactive	interactive = option_sense;
 	lex-compat	lex_compat = option_sense;
 	posix-compat	posix_compat = option_sense;
@@ -394,10 +367,7 @@ M4QEND      "]""]"
                 do_yywrap = false;
 			}
 	meta-ecs	usemecs = option_sense;
-	never-interactive	{
-			ACTION_M4_IFDEF( "M4""_YY_NEVER_INTERACTIVE", option_sense );
-            interactive = !option_sense;
-			}
+	never-interactive	{ ACTION_M4_IFDEF("M4""_YY_NEVER_INTERACTIVE", option_sense); interactive = !option_sense; }
 	perf-report	performance_report += option_sense ? 1 : -1;
 	pointer		yytext_is_array = ! option_sense;
 	read		use_read = option_sense;
@@ -406,42 +376,42 @@ M4QEND      "]""]"
 	stack		ACTION_M4_IFDEF( "M4""_YY_STACK_USED", option_sense );
 	stdinit		do_stdinit = option_sense;
 	stdout		use_stdout = option_sense;
-    unistd      ACTION_IFDEF("YY_NO_UNISTD_H", ! option_sense);
-	unput		ACTION_M4_IFDEF("M4""_YY_NO_UNPUT", ! option_sense);
+    unistd      ACTION_IFDEF("YY_NO_UNISTD_H", !option_sense);
+	unput		ACTION_M4_IFDEF("M4""_YY_NO_UNPUT", !option_sense);
 	verbose		printstats = option_sense;
 	warn		nowarn = ! option_sense;
 	yylineno	do_yylineno = option_sense; ACTION_M4_IFDEF("M4""_YY_USE_LINENO", option_sense);
 	yymore		yymore_really_used = option_sense;
 	yywrap      do_yywrap = option_sense;
 
-	yy_push_state	ACTION_M4_IFDEF("M4""_YY_NO_PUSH_STATE", ! option_sense);
-	yy_pop_state	ACTION_M4_IFDEF("M4""_YY_NO_POP_STATE", ! option_sense);
-	yy_top_state	ACTION_M4_IFDEF("M4""_YY_NO_TOP_STATE", ! option_sense);
+	yy_push_state	ACTION_M4_IFDEF("M4""_YY_NO_PUSH_STATE", !option_sense);
+	yy_pop_state	ACTION_M4_IFDEF("M4""_YY_NO_POP_STATE", !option_sense);
+	yy_top_state	ACTION_M4_IFDEF("M4""_YY_NO_TOP_STATE", !option_sense);
 
-	yy_scan_buffer	ACTION_M4_IFDEF("M4""_YY_NO_SCAN_BUFFER", ! option_sense);
-	yy_scan_bytes	ACTION_M4_IFDEF("M4""_YY_NO_SCAN_BYTES", ! option_sense);
-	yy_scan_string	ACTION_M4_IFDEF("M4""_YY_NO_SCAN_STRING", ! option_sense);
+	yy_scan_buffer	ACTION_M4_IFDEF("M4""_YY_NO_SCAN_BUFFER", !option_sense);
+	yy_scan_bytes	ACTION_M4_IFDEF("M4""_YY_NO_SCAN_BYTES", !option_sense);
+	yy_scan_string	ACTION_M4_IFDEF("M4""_YY_NO_SCAN_STRING", !option_sense);
 
-    yyalloc         ACTION_M4_IFDEF("M4""_YY_NO_FLEX_ALLOC", ! option_sense);
-    yyrealloc       ACTION_M4_IFDEF("M4""_YY_NO_FLEX_REALLOC", ! option_sense);
-    yyfree          ACTION_M4_IFDEF("M4""_YY_NO_FLEX_FREE", ! option_sense);
+    yyalloc         ACTION_M4_IFDEF("M4""_YY_NO_FLEX_ALLOC", !option_sense);
+    yyrealloc       ACTION_M4_IFDEF("M4""_YY_NO_FLEX_REALLOC", !option_sense);
+    yyfree          ACTION_M4_IFDEF("M4""_YY_NO_FLEX_FREE", !option_sense);
 
-    yyget_debug     ACTION_M4_IFDEF("M4""_YY_NO_GET_DEBUG", ! option_sense);
-    yyset_debug     ACTION_M4_IFDEF("M4""_YY_NO_SET_DEBUG", ! option_sense);
-    yyget_extra     ACTION_M4_IFDEF("M4""_YY_NO_GET_EXTRA", ! option_sense);
-    yyset_extra     ACTION_M4_IFDEF("M4""_YY_NO_SET_EXTRA", ! option_sense);
-    yyget_leng      ACTION_M4_IFDEF("M4""_YY_NO_GET_LENG", ! option_sense);
-    yyget_text      ACTION_M4_IFDEF("M4""_YY_NO_GET_TEXT", ! option_sense);
-    yyget_lineno    ACTION_M4_IFDEF("M4""_YY_NO_GET_LINENO", ! option_sense);
-    yyset_lineno    ACTION_M4_IFDEF("M4""_YY_NO_SET_LINENO", ! option_sense);
-    yyget_in        ACTION_M4_IFDEF("M4""_YY_NO_GET_IN", ! option_sense);
-    yyset_in        ACTION_M4_IFDEF("M4""_YY_NO_SET_IN", ! option_sense);
-    yyget_out       ACTION_M4_IFDEF("M4""_YY_NO_GET_OUT", ! option_sense);
-    yyset_out       ACTION_M4_IFDEF("M4""_YY_NO_SET_OUT", ! option_sense);
-    yyget_lval      ACTION_M4_IFDEF("M4""_YY_NO_GET_LVAL", ! option_sense);
-    yyset_lval      ACTION_M4_IFDEF("M4""_YY_NO_SET_LVAL", ! option_sense);
-    yyget_lloc      ACTION_M4_IFDEF("M4""_YY_NO_GET_LLOC", ! option_sense);
-    yyset_lloc      ACTION_M4_IFDEF("M4""_YY_NO_SET_LLOC", ! option_sense);
+    yyget_debug     ACTION_M4_IFDEF("M4""_YY_NO_GET_DEBUG", !option_sense);
+    yyset_debug     ACTION_M4_IFDEF("M4""_YY_NO_SET_DEBUG", !option_sense);
+    yyget_extra     ACTION_M4_IFDEF("M4""_YY_NO_GET_EXTRA", !option_sense);
+    yyset_extra     ACTION_M4_IFDEF("M4""_YY_NO_SET_EXTRA", !option_sense);
+    yyget_leng      ACTION_M4_IFDEF("M4""_YY_NO_GET_LENG", !option_sense);
+    yyget_text      ACTION_M4_IFDEF("M4""_YY_NO_GET_TEXT", !option_sense);
+    yyget_lineno    ACTION_M4_IFDEF("M4""_YY_NO_GET_LINENO", !option_sense);
+    yyset_lineno    ACTION_M4_IFDEF("M4""_YY_NO_SET_LINENO", !option_sense);
+    yyget_in        ACTION_M4_IFDEF("M4""_YY_NO_GET_IN", !option_sense);
+    yyset_in        ACTION_M4_IFDEF("M4""_YY_NO_SET_IN", !option_sense);
+    yyget_out       ACTION_M4_IFDEF("M4""_YY_NO_GET_OUT", !option_sense);
+    yyset_out       ACTION_M4_IFDEF("M4""_YY_NO_SET_OUT", !option_sense);
+    yyget_lval      ACTION_M4_IFDEF("M4""_YY_NO_GET_LVAL", !option_sense);
+    yyset_lval      ACTION_M4_IFDEF("M4""_YY_NO_SET_LVAL", !option_sense);
+    yyget_lloc      ACTION_M4_IFDEF("M4""_YY_NO_GET_LLOC", !option_sense);
+    yyset_lloc      ACTION_M4_IFDEF("M4""_YY_NO_SET_LLOC", !option_sense);
 
 	extra-type	return TOK_EXTRA_TYPE;
 	outfile		return TOK_OUTFILE;
@@ -457,12 +427,10 @@ M4QEND      "]""]"
 
 
 	\"[^"\n]*\"	{
-			if(yyleng-1 < MAXLINE)
-        		 {
-			strncpy( nmstr, yytext + 1, sizeof(nmstr) );
+			if(yyleng-1 < MAXLINE) {
+				strncpy( nmstr, yytext + 1, sizeof(nmstr) );
 			 }
-			else
-			 {
+			else {
 			   synerr( _("Option line too long\n"));
 			   FLEX_EXIT(EXIT_FAILURE);
 			 }
@@ -471,8 +439,7 @@ M4QEND      "]""]"
 			}
 
 	(([a-mo-z]|n[a-np-z])[[:alpha:]\-+]*)|.	{
-			format_synerr( _( "unrecognized %%option: %s" ),
-				yytext );
+			format_synerr(_("unrecognized %%option: %s"), yytext);
 			BEGIN(RECOVER);
 			}
 }

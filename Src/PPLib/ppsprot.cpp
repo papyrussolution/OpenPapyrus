@@ -1,5 +1,5 @@
 // PPSPROT.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -380,7 +380,7 @@ int PPJobSrvClient::Connect(const char * pAddr, int port)
 			const char * p = sstrchr(pAddr, ':');
 			if(p) {
 				addr_buf.CatN(pAddr, (size_t)(p - pAddr));
-				port = atoi(p+1);
+				port = satoi(p+1);
 			}
 			else
 				addr_buf = pAddr;

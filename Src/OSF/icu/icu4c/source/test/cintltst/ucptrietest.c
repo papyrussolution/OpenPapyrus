@@ -1,9 +1,8 @@
+// ucptrietest.c (modified from trie2test.c)
 // © 2017 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
-// ucptrietest.c (modified from trie2test.c)
 // created: 2017dec29 Markus W. Scherer
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucptrie.h"
@@ -764,9 +763,11 @@ static void trieTestGolden(const char * testName, const UCPTrie* trie, const Che
 	}
 	fseek(stream, 0, SEEK_SET);
 	fread(memoryBuffer, 1, fsize, stream);
-	int32_t testResult = uprv_compareGoldenFiles((const char *)memoryBuffer, fsize, goldendatapath, getTestOption(WRITE_GOLDEN_DATA_OPTION));
-	if(testResult >= 0) {
-		log_err("Golden files for '%s' differ at index %d; run cintltst with -G to write new goldens", testName, testResult);
+	{
+		const int32_t testResult = uprv_compareGoldenFiles((const char *)memoryBuffer, fsize, goldendatapath, getTestOption(WRITE_GOLDEN_DATA_OPTION));
+		if(testResult >= 0) {
+			log_err("Golden files for '%s' differ at index %d; run cintltst with -G to write new goldens", testName, testResult);
+		}
 	}
 cleanup:
 	fclose(stream);

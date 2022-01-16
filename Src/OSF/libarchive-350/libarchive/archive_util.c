@@ -27,9 +27,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:14Z kientzle $");
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 #if defined(HAVE_WINCRYPT_H) && !defined(__CYGWIN__)
 #include <wincrypt.h>
 #endif

@@ -169,15 +169,6 @@
 #include "hb-aat.h"
 #define HB_AAT_H_IN
 
-//#include <limits.h>
-//#include <math.h>
-//#include <float.h>
-//#include <stdlib.h>
-//#include <stddef.h>
-//#include <string.h>
-//#include <assert.h>
-//#include <stdio.h>
-//#include <stdarg.h>
 #if (defined(_MSC_VER) && _MSC_VER >= 1500) || defined(__MINGW32__)
 	#ifdef __MINGW32_VERSION
 		#ifndef WIN32_LEAN_AND_MEAN

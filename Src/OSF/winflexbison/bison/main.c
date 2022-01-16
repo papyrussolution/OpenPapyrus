@@ -1,20 +1,15 @@
 /* Top level entry point of Bison.
 
-   Copyright (C) 1984, 1986, 1989, 1992, 1995, 2000-2002, 2004-2015,
-   2018-2020 Free Software Foundation, Inc.
-
+   Copyright (C) 1984, 1986, 1989, 1992, 1995, 2000-2002, 2004-2015, 2018-2020 Free Software Foundation, Inc.
    This file is part of Bison, the GNU Compiler Compiler.
-
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -109,42 +104,43 @@ int main(int argc, char * argv[])
 	timevar_pop(tv_actions);
 	grammar_rules_useless_report(_("rule useless in parser due to conflicts"));
 	print_precedence_warnings();
-	/* Whether to generate output files.  */
-	bool generate = !(feature_flag & feature_syntax_only);
-	if(generate) {
-		/* Output file names. */
-		compute_output_file_names();
-		/* Output the detailed report on the grammar.  */
-		if(report_flag) {
-			timevar_push(tv_report);
-			print_results();
-			timevar_pop(tv_report);
+	{
+		const bool generate = !(feature_flag & feature_syntax_only); // Whether to generate output files
+		if(generate) {
+			// Output file names
+			compute_output_file_names();
+			// Output the detailed report on the grammar
+			if(report_flag) {
+				timevar_push(tv_report);
+				print_results();
+				timevar_pop(tv_report);
+			}
+			// Output the graph
+			if(graph_flag) {
+				timevar_push(tv_graph);
+				print_graph();
+				timevar_pop(tv_graph);
+			}
+			// Output xml
+			if(xml_flag) {
+				timevar_push(tv_xml);
+				print_xml();
+				timevar_pop(tv_xml);
+			}
 		}
-		/* Output the graph.  */
-		if(graph_flag) {
-			timevar_push(tv_graph);
-			print_graph();
-			timevar_pop(tv_graph);
+		// Stop if there were errors, to avoid trashing previous output files
+		if(complaint_status == status_complaint)
+			goto finish;
+		// Lookahead tokens are no longer needed
+		timevar_push(tv_free);
+		lalr_free();
+		timevar_pop(tv_free);
+		// Output the tables and the parser to ftable.  In file output
+		if(generate) {
+			timevar_push(tv_parser);
+			output();
+			timevar_pop(tv_parser);
 		}
-		/* Output xml.  */
-		if(xml_flag) {
-			timevar_push(tv_xml);
-			print_xml();
-			timevar_pop(tv_xml);
-		}
-	}
-	// Stop if there were errors, to avoid trashing previous output files.  
-	if(complaint_status == status_complaint)
-		goto finish;
-	/* Lookahead tokens are no longer needed. */
-	timevar_push(tv_free);
-	lalr_free();
-	timevar_pop(tv_free);
-	/* Output the tables and the parser to ftable.  In file output.  */
-	if(generate) {
-		timevar_push(tv_parser);
-		output();
-		timevar_pop(tv_parser);
 	}
 finish:
 	timevar_push(tv_free);

@@ -323,7 +323,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -342,6 +342,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -383,8 +385,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation>
-      </BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -401,6 +402,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -457,6 +460,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -512,6 +517,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -546,7 +553,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation />
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -563,6 +570,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -598,8 +607,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation>
-      </BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -616,6 +624,8 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -670,6 +680,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -724,6 +736,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -758,7 +772,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation />
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -775,6 +789,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -810,8 +826,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation>
-      </BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -828,6 +843,8 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -882,6 +899,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -936,6 +955,8 @@
       <EnableModules>false</EnableModules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -971,6 +992,9 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -1001,6 +1025,9 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <BrowseInformationFile />
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -1461,27 +1488,7 @@
     <ClCompile Include="..\SLib\bitarray.cpp" />
     <ClCompile Include="..\SLib\bitstr.cpp" />
     <ClCompile Include="..\SLib\Bnfldlst.cpp" />
-    <ClCompile Include="..\Slib\chksyscr.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\chksyscr.cpp" />
     <ClCompile Include="..\SLib\Comdisp.cpp" />
     <ClCompile Include="..\SLib\cregexp.cpp" />
     <ClCompile Include="..\SLib\crypto.cpp" />
@@ -1491,27 +1498,7 @@
     <ClCompile Include="..\SLib\dec.cpp" />
     <ClCompile Include="..\SLib\dirent.cpp" />
     <ClCompile Include="..\SLib\Dlgprocs.cpp" />
-    <ClCompile Include="..\Slib\findfile.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\findfile.cpp" />
     <ClCompile Include="..\SLib\fsif.cpp" />
     <ClCompile Include="..\SLib\futil.cpp" />
     <ClCompile Include="..\SLib\gamma.cpp" />
@@ -1550,27 +1537,7 @@
     <ClCompile Include="..\SLib\lss_lin.cpp" />
     <ClCompile Include="..\SLib\Lvect.cpp" />
     <ClCompile Include="..\SLib\lzari.cpp" />
-    <ClCompile Include="..\Slib\macaddr.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\macaddr.cpp" />
     <ClCompile Include="..\SLib\mailsess.cpp" />
     <ClCompile Include="..\SLib\Makepath.c" />
     <ClCompile Include="..\SLib\mimalloc\alloc-aligned.c" />
@@ -1730,27 +1697,7 @@
     <ClCompile Include="..\SLib\Sarray.cpp" />
     <ClCompile Include="..\SLib\saudio.cpp" />
     <ClCompile Include="..\SLib\Sbrodef.cpp" />
-    <ClCompile Include="..\Slib\sbuffer.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\sbuffer.cpp" />
     <ClCompile Include="..\SLib\sclipboard.cpp" />
     <ClCompile Include="..\SLib\Scomport.cpp" />
     <ClCompile Include="..\SLib\scss.cpp" />
@@ -1867,52 +1814,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\SLib\sdate.cpp" />
-    <ClCompile Include="..\Slib\sdebug.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\sdebug.cpp" />
     <ClCompile Include="..\SLib\Sdirec.cpp" />
     <ClCompile Include="..\SLib\sdraw.cpp" />
     <ClCompile Include="..\SLib\sextprc.cpp" />
     <ClCompile Include="..\SLib\sfann2.cpp" />
-    <ClCompile Include="..\Slib\sfile.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\sfile.cpp" />
     <ClCompile Include="..\SLib\sformat.cpp" />
     <ClCompile Include="..\SLib\sfsort.cpp" />
     <ClCompile Include="..\SLib\sfxtree2.cpp" />
@@ -1966,27 +1873,7 @@
     <ClCompile Include="..\SLib\srp.cpp" />
     <ClCompile Include="..\SLib\Sstack.cpp" />
     <ClCompile Include="..\SLib\sstorage.cpp" />
-    <ClCompile Include="..\Slib\sstring.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\sstring.cpp" />
     <ClCompile Include="..\SLib\ssvg.cpp" />
     <ClCompile Include="..\SLib\ssystem.cpp" />
     <ClCompile Include="..\SLib\ss_bmhr.cpp">
@@ -2016,27 +1903,7 @@
       </AssemblerOutput>
     </ClCompile>
     <ClCompile Include="..\SLib\stchbrw.cpp" />
-    <ClCompile Include="..\Slib\stcp.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\stcp.cpp" />
     <ClCompile Include="..\SLib\stext.cpp" />
     <ClCompile Include="..\SLib\sthread.cpp" />
     <ClCompile Include="..\SLib\stoolti.cpp" />
@@ -2063,27 +1930,7 @@
     <ClCompile Include="..\SLib\tsstat.cpp" />
     <ClCompile Include="..\SLib\tulipindicators.cpp" />
     <ClCompile Include="..\SLib\Tview.cpp" />
-    <ClCompile Include="..\SLib\Tvrez.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\SLib\Tvrez.cpp" />
     <ClCompile Include="..\SLib\Twindow.cpp" />
     <ClCompile Include="..\SLib\uchardet.cpp" />
     <ClCompile Include="..\SLib\ui.cpp" />
@@ -2093,27 +1940,7 @@
     <ClCompile Include="..\SLib\Wbrowse.cpp" />
     <ClCompile Include="..\SLib\whatman.cpp" />
     <ClCompile Include="..\SLib\winreg.cpp" />
-    <ClCompile Include="..\Slib\winsrvc.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-      </BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
-      </BrowseInformation>
-    </ClCompile>
+    <ClCompile Include="..\Slib\winsrvc.cpp" />
     <ClCompile Include="..\SLib\wmi.cpp" />
     <ClCompile Include="..\SLib\xxhash.c" />
   </ItemGroup>

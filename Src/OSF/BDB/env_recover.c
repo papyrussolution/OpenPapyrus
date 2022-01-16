@@ -49,7 +49,8 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	uint32 hi_txn, log_size, txnid;
 	int32 low;
 	int all_recovered, progress, rectype, ret, t_ret;
-	char * p, * pass;
+	char * p;
+	const char * pass;
 	char t1[CTIME_BUFLEN], t2[CTIME_BUFLEN], time_buf[CTIME_BUFLEN];
 	COMPQUIET(nfiles, (double)0.001);
 	dbenv = env->dbenv;

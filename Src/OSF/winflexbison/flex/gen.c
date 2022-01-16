@@ -1,36 +1,24 @@
 /* gen - actual generation (writing) of flex scanners */
-
-/*  Copyright (c) 1990 The Regents of the University of California. */
-/*  All rights reserved. */
-
-/*  This code is derived from software contributed to Berkeley by */
-/*  Vern Paxson. */
-
+/*  Copyright (c) 1990 The Regents of the University of California. All rights reserved. */
+/*  This code is derived from software contributed to Berkeley by Vern Paxson. */
 /*  The United States Government has rights in this work pursuant */
 /*  to contract no. DE-AC03-76SF00098 between the United States */
 /*  Department of Energy and the University of California. */
-
 /*  This file is part of flex. */
-
 /*  Redistribution and use in source and binary forms, with or without */
 /*  modification, are permitted provided that the following conditions */
 /*  are met: */
-
 /*  1. Redistributions of source code must retain the above copyright */
 /*     notice, this list of conditions and the following disclaimer. */
 /*  2. Redistributions in binary form must reproduce the above copyright */
 /*     notice, this list of conditions and the following disclaimer in the */
 /*     documentation and/or other materials provided with the distribution. */
-
 /*  Neither the name of the University nor the names of its contributors */
 /*  may be used to endorse or promote products derived from this software */
 /*  without specific prior written permission. */
-
 /*  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR */
 /*  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED */
-/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR */
-/*  PURPOSE. */
-
+/*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. */
 #include "flexdef.h"
 #pragma hdrstop
 #include "tables.h"
@@ -399,22 +387,15 @@ void genecs()
 		ecgroup[i] = ABS(ecgroup[i]);
 		mkdata(ecgroup[i]);
 	}
-
 	dataend();
-
 	if(trace) {
 		fputs(_("\n\nEquivalence Classes:\n\n"), stderr);
-
 		numrows = csize / 8;
-
 		for(j = 0; j < numrows; ++j) {
 			for(i = j; i < csize; i = i + numrows) {
-				slfprintf_stderr("%4s = %-2d",
-				    readable_form(i), ecgroup[i]);
-
+				slfprintf_stderr("%4s = %-2d", readable_form(i), ecgroup[i]);
 				putc(' ', stderr);
 			}
-
 			putc('\n', stderr);
 		}
 	}
@@ -622,8 +603,8 @@ void gen_next_match()
 	/* NOTE - changes in here should be reflected in gen_next_state() and
 	 * gen_NUL_trans().
 	 */
-	char   * char_map = useecs ? "yy_ec[YY_SC_TO_UI(*yy_cp)] " : "YY_SC_TO_UI(*yy_cp)";
-	char   * char_map_2 = useecs ? "yy_ec[YY_SC_TO_UI(*++yy_cp)] " : "YY_SC_TO_UI(*++yy_cp)";
+	const char * char_map = useecs ? "yy_ec[YY_SC_TO_UI(*yy_cp)] " : "YY_SC_TO_UI(*yy_cp)";
+	const char * char_map_2 = useecs ? "yy_ec[YY_SC_TO_UI(*++yy_cp)] " : "YY_SC_TO_UI(*++yy_cp)";
 	if(fulltbl) {
 		if(gentables)
 			indent_put2s("while ( (yy_current_state = yy_nxt[yy_current_state][ %s ]) > 0 )", char_map);
@@ -1198,7 +1179,7 @@ void make_tables()
 		 * enough to hold the biggest offset.
 		 */
 		int total_table_size = tblend + numecs + 1;
-		char * trans_offset_type = (total_table_size >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t";
+		const char * trans_offset_type = (total_table_size >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t";
 		set_indent(0);
 		indent_puts("struct yy_trans_info");
 		++indent_level;

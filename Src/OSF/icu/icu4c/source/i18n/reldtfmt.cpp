@@ -462,26 +462,23 @@ namespace {
 struct RelDateFmtDataSink : public ResourceSink {
 	URelativeString * fDatesPtr;
 	int32_t fDatesLen;
-
-	RelDateFmtDataSink(URelativeString* fDates, int32_t len) : fDatesPtr(fDates), fDatesLen(len) {
+	RelDateFmtDataSink(URelativeString* fDates, int32_t len) : fDatesPtr(fDates), fDatesLen(len) 
+	{
 		for(int32_t i = 0; i < fDatesLen; ++i) {
 			fDatesPtr[i].offset = 0;
 			fDatesPtr[i].string = NULL;
 			fDatesPtr[i].len = -1;
 		}
 	}
-
 	virtual ~RelDateFmtDataSink();
-
-	virtual void put(const char * key, ResourceValue &value,
-	    bool /*noFallback*/, UErrorCode & errorCode) override {
+	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & errorCode) override 
+	{
 		ResourceTable relDayTable = value.getTable(errorCode);
 		int32_t n = 0;
 		int32_t len = 0;
 		for(int32_t i = 0; relDayTable.getKeyAndValue(i, key, value); ++i) {
 			// Find the relative offset.
-			int32_t offset = atoi(key);
-
+			int32_t offset = satoi(key);
 			// Put in the proper spot, but don't override existing data.
 			n = offset + UDAT_DIRECTION_THIS; // Converts to index in UDAT_R
 			if(n < fDatesLen && fDatesPtr[n].string == NULL) {
@@ -495,14 +492,16 @@ struct RelDateFmtDataSink : public ResourceSink {
 };
 
 // Virtual destructors must be defined out of line.
-RelDateFmtDataSink::~RelDateFmtDataSink() {
+RelDateFmtDataSink::~RelDateFmtDataSink() 
+{
 }
 }  // Namespace
 
 static const UChar patItem1[] = {0x7B, 0x31, 0x7D}; // "{1}"
 static const int32_t patItem1Len = 3;
 
-void RelativeDateFormat::loadDates(UErrorCode & status) {
+void RelativeDateFormat::loadDates(UErrorCode & status) 
+{
 	UResourceBundle * rb = ures_open(NULL, fLocale.getBaseName(), &status);
 	LocalUResourceBundlePointer dateTimePatterns(
 		ures_getByKeyWithFallback(rb,

@@ -479,7 +479,7 @@ typedef struct MDB_envinfo {
  * @param[out] patch if non-NULL, the library patch version number is copied here
  * @retval "version string" The library version as a string
  */
-char * mdb_version(int * major, int * minor, int * patch);
+const char * mdb_version(int * major, int * minor, int * patch);
 
 /** @brief Return a string describing a given error code.
  *
@@ -491,7 +491,7 @@ char * mdb_version(int * major, int * minor, int * patch);
  * @param[in] err The error code
  * @retval "error message" The description of the error
  */
-char * mdb_strerror(int err);
+const char * mdb_strerror(int err);
 
 /** @brief Create an LMDB environment handle.
  *

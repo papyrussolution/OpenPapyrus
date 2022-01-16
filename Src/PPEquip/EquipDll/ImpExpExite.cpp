@@ -1644,7 +1644,6 @@ int ImportCls::ReceiveDoc()
 		ProcessError("FtpConnect");
 		ok = 0;
 	}
-
 	// Проверяем наличие файлов
 	if(ok && !InboxFiles.getCount()) {
 		// Просматриваем файлы дальше
@@ -1660,7 +1659,6 @@ int ImportCls::ReceiveDoc()
 			}
 		}
 	}
-
 	// Теперь читаем конкретный файл
 	if(InboxReadIndex < InboxFiles.getCount()) {
 		SString name(InboxFiles.Get(InboxReadIndex).Txt);
@@ -2010,7 +2008,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 						p_node = p_node->next; // <E6060>
 						if(p_node && sstreq(p_node->name, ELEMENT_NAME_E6066) && p_node->children) {
 							// Запишем количество товарных позиций в документе
-							GoodsCount = atoi(PTRCHRC_(p_node->children->content));
+							GoodsCount = satoi(PTRCHRC_(p_node->children->content));
 							ok = 1;
 						}
 					}
@@ -2295,9 +2293,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 
 EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData, int * pObjId, const char * pMsgType = 0)
 {
-	int ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	SString str;
-
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
 	THROWERR(idSess == P_ImportCls->Id, IEERR_NOSESS);
 	THROWERR(pObjData, IEERR_NODATA);
@@ -2308,17 +2306,17 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	// Смотрим тип сообщения
 	THROWERR(pMsgType, IEERR_MSGSYMBNOTFOUND);
 	THROWERR(GetMsgTypeBySymb(pMsgType, P_ImportCls->MessageType), IEERR_MSGSYMBNOTFOUND);
-	THROWERR((P_ImportCls->MessageType == msgOrdRsp) || (P_ImportCls->MessageType == msgAperak) ||
-		(P_ImportCls->MessageType == msgDesadv), IEERR_ONLYIMPMSGTYPES);
+	THROWERR(oneof3(P_ImportCls->MessageType, msgOrdRsp, msgAperak, msgDesadv), IEERR_ONLYIMPMSGTYPES);
 	// Получаем документ
 	P_ImportCls->CreateFileName(P_ImportCls->ObjId);
 	THROW(r = P_ImportCls->ReceiveDoc());
 	if(r == -1)
 		ok = -1;
 	else {
-		if(((P_ImportCls->MessageType == msgOrdRsp) || (P_ImportCls->MessageType == msgDesadv)) && (r == 1)) // Ибо если r == -2, то нам не надо пытаться разбирать файл, ибо его нет
+		if(oneof2(P_ImportCls->MessageType, msgOrdRsp, msgDesadv) && r == 1) { // Ибо если r == -2, то нам не надо пытаться разбирать файл, ибо его нет
 			// Читаем документ и заполняем Sdr_Bill
-			THROW(P_ImportCls->ParseForDocData((Sdr_Bill *)pObjData))
+			THROW(P_ImportCls->ParseForDocData(static_cast<Sdr_Bill *>(pObjData)))
+		}
 		else if(P_ImportCls->MessageType == msgAperak) {
 			// Здесь заполняем pObjData из структуры P_ImportCls->AperakInfo
 			// Для пробы запишем номер документа и GLN адреса доставки, дату документа. Этого достаточно для определения принадлежности статуса конкретному магазину
@@ -2328,7 +2326,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 			P_ImportCls->AperakInfo.AddrGLN.CopyTo(((Sdr_Bill *)pObjData)->LocCode, sizeof((Sdr_Bill *)pObjData)->LocCode);
 			P_ImportCls->AperakInfo.BuyerGLN.CopyTo(((Sdr_Bill *)pObjData)->MainGLN, sizeof((Sdr_Bill *)pObjData)->MainGLN);
 			P_ImportCls->AperakInfo.SupplGLN.CopyTo(((Sdr_Bill *)pObjData)->GLN, sizeof((Sdr_Bill *)pObjData)->GLN);
-			((Sdr_Bill *)pObjData)->OrderDate = P_ImportCls->AperakInfo.OrderDate;
+			static_cast<Sdr_Bill *>(pObjData)->OrderDate = P_ImportCls->AperakInfo.OrderDate;
 		}
 	}
 	CATCH

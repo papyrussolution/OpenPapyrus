@@ -442,7 +442,7 @@ static uint ENHdumb_xsave, ENHdumb_ysave;
 #define ENHdumb_font ""
 static double ENHdumb_base;
 
-void ENHdumb_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+void ENHdumb_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// There are two special cases:

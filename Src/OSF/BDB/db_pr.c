@@ -483,7 +483,7 @@ static int __db_heapint(DB * dbp, HEAPPG * h, uint32 flags)
  * PUBLIC: int __db_prpage_int __P((ENV *, DB_MSGBUF *,
  * PUBLIC:      DB *, char *, PAGE *, uint32, uint8 *, uint32));
  */
-int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h, uint32 pagesize, uint8 * data, uint32 flags)
+int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, const char * lead, PAGE * h, uint32 pagesize, uint8 * data, uint32 flags)
 {
 	BINTERNAL * bi;
 	BKEYDATA * bk;
@@ -847,7 +847,7 @@ void __db_prflags(ENV * env, DB_MSGBUF * mbp, uint32 flags, FN const * fn, const
  */
 const char * __db_pagetype_to_string(uint32 type)
 {
-	char * s = NULL;
+	const char * s = NULL;
 	switch(type) {
 	    case P_BTREEMETA: s = "btree metadata"; break;
 	    case P_LDUP: s = "duplicate"; break;

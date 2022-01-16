@@ -211,7 +211,7 @@ int __db_prpage(DB*, PAGE*, uint32);
 const char * __db_lockmode_to_string(db_lockmode_t);
 int __db_dumptree(DB*, DB_TXN*, char *, char *, db_pgno_t, db_pgno_t);
 const FN * __db_get_flags_fn();
-int __db_prpage_int(ENV*, DB_MSGBUF*, DB*, char *, PAGE*, uint32, uint8*, uint32);
+int __db_prpage_int(ENV*, DB_MSGBUF*, DB*, const char *, PAGE*, uint32, uint8*, uint32);
 void __db_prbytes(ENV*, DB_MSGBUF*, uint8*, uint32);
 void __db_prflags(ENV*, DB_MSGBUF*, uint32, const FN*, const char *, const char *);
 const char * __db_pagetype_to_string(uint32);

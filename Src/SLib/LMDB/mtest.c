@@ -13,9 +13,6 @@
  */
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <time.h>
 #include "lmdb.h"
 
 char * mdb_dkey(MDB_val * key, char * buf); // @prototype (mdb.c)

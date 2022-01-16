@@ -1,21 +1,12 @@
+// n2builder.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-*******************************************************************************
-*
-*   Copyright (C) 2009-2014, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-*******************************************************************************
-*   file name:  n2builder.h
+*   Copyright (C) 2009-2014, International Business Machines Corporation and others.  All Rights Reserved.
 *   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
 *   created on: 2009nov25
 *   created by: Markus W. Scherer
 */
-
 #ifndef __N2BUILDER_H__
 #define __N2BUILDER_H__
 

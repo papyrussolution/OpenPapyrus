@@ -159,8 +159,8 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 {
 	struct private_data * data = (struct private_data *)f->data;
 	if(strcmp(key, "compression-level") == 0) {
-		int level = atoi(value);
-		/* If we don't have the library, hard-code the max level */
+		int level = satoi(value);
+		// If we don't have the library, hard-code the max level 
 		int minimum = CLEVEL_MIN;
 		int maximum = CLEVEL_MAX;
 		if(string_is_numeric(value) != ARCHIVE_OK) {

@@ -1,0 +1,1866 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MSW Sources">
+      <UniqueIdentifier>{D030D8C2-53EE-5B96-8F89-D78157B06140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Setup Headers">
+      <UniqueIdentifier>{63537534-1833-5C1F-8DBD-359A84F294C8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSW Headers">
+      <UniqueIdentifier>{5AFFF20E-29F9-512B-B80A-7DC45976CDAC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generic Headers">
+      <UniqueIdentifier>{61C63C83-EF8C-51CA-A418-51936E7FCD4A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wxHTML Headers">
+      <UniqueIdentifier>{B4103426-A5DB-5CF0-A30E-BC9546513AAF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Headers">
+      <UniqueIdentifier>{8C07E926-65B0-5F00-B0D6-7F40DA69BB25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\aboutdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\accel.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\anybutton.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\app.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\appprogress.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\artmsw.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\bitmap.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\bmpbuttn.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\bmpcbox.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\brush.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\button.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\calctrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\caret.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\checkbox.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\checklst.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\choice.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\clipbrd.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\colordlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\colour.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\combo.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\combobox.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\commandlinkbutton.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\control.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\cursor.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\customdraw.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\data.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\datecontrols.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\datectrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\datetimectrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dc.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dcclient.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dcmemory.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dcprint.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dcscreen.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dialog.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dialup.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dib.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dirdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\display.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dragimag.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\enhmeta.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\evtloop.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\fdrepdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\filedlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\font.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\fontdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\fontenum.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\fontutil.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\frame.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\gauge.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\gdiimage.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\gdiobj.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\gdiplus.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\graphics.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\graphicsd2d.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\headerctrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\helpchm.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\helpwin.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\hyperlink.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\icon.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\imaglist.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\iniconf.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\joystick.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\listbox.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\listctrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\main.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\mdi.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\menu.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\menuitem.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\metafile.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\minifram.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\msgdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\nativdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\nativewin.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\nonownedwnd.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\notebook.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\notifmsg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\access.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\activex.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\automtn.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\comimpl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\dataobj.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\dropsrc.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\droptgt.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\oleutils.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\safearray.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ole\uuid.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\ownerdrw.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\palette.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\pen.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\popupwin.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\printdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\printwin.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\progdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\radiobox.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\radiobut.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\region.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\renderer.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\richmsgdlg.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\richtooltip.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\rt\notifmsgrt.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\rt\utilsrt.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\scrolbar.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\settings.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\slider.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\sound.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\spinbutt.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\spinctrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\statbmp.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\statbox.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\statline.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\stattext.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\statusbar.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\systhemectrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\taskbar.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\taskbarbutton.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\textctrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\textentry.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\textmeasure.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\tglbtn.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\timectrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\toolbar.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\tooltip.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\toplevel.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\treectrl.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\uiaction.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\utilsgui.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\utilswin.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\uxtheme.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\volume.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\window.cpp">
+      <Filter>MSW Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\accelcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\accesscmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\addremovectrl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\affinematrix2d.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\anidecod.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\animatecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\appcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\artprov.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\artstd.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arttango.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\bmpbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\bmpbtncmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\bmpcboxcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\bookctrl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\btncmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\cairo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\calctrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\checkboxcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\checklstcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\choiccmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\clipcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\clrpickercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\cmdproc.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\cmndata.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\colourcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\colourdata.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\combocmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\containr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\cshelp.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ctrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ctrlsub.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datavcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dcbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dcbufcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dcgraph.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dcsvg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dirctrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dlgcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dndcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dobjcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\docmdi.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\docview.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dpycmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dseldlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dummy.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\effects.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\event.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fddlgcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filectrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filehistorycmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filepickercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fldlgcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fontcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fontdata.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fontenumcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fontmap.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fontpickercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fontutilcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\framecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_mem.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\gaugecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\gbsizer.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\gdicmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\geometry.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\gifdecod.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\graphcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\gridcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\headercolcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\headerctrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\helpbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\hyperlnkcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\iconbndl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagall.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagbmp.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\image.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagfill.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imaggif.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagiff.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagjpeg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagpcx.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagpng.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagpnm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagtga.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagtiff.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\imagxpm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\layout.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\lboxcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\listctrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\markupparser.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\matrix.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\menucmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\modalhook.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\mousemanager.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\msgout.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\nbkbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\notifmsgcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\odcombocmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\overlaycmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ownerdrwcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\panelcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\paper.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\persist.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\pickerbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\popupcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\preferencescmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\prntbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\quantize.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\radiobtncmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\radiocmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\rearrangectrl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\rendcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\rgncmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\richtooltipcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\scrolbarcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\settcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sizer.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\slidercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\spinbtncmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\spinctrlcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\srchcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\statbar.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\statbmpcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\statboxcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\statlinecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stattextcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stockitem.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\taskbarcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\tbarbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textentrycmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textmeasurecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\toplvcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\treebase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\uiactioncmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\utilscmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\valgen.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\validate.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\valnum.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\valtext.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wincmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\windowid.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wrapsizer.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\xrc\xmlreshandler.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xpmdecod.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\aboutdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\activityindicator.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\animateg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\bannerwindow.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\bmpcboxg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\busyinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\buttonbar.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\calctrlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\choicbkg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\choicdgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\clrpickerg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\collheaderctrlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\collpaneg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\combog.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\commandlinkbuttong.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\datavgen.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\datectlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\dcpsg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\dirctrlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\dragimgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\editlbox.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\filectrlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\filepickerg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\fontpickerg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\graphicc.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\grid.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\gridctrl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\grideditors.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\gridsel.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\headerctrlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\helpext.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\hyperlinkg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\infobar.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\laywin.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\listbkg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\logg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\markuptext.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\msgdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\notifmsgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\numdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\odcombo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\preferencesg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\printps.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\prntdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\progdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\propdlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\renderg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\richmsgdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\richtooltipg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\rowheightcache.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\sashwin.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\scrlwing.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\selstore.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\spinctlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\splash.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\splitter.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\srchctlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\statbmpg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\stattextg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\statusbr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\textdlgg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\timectrlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\tipdlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\tipwin.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\toolbkg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\treebkg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\treectlg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\treelist.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\vlbox.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\vscroll.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\wizard.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\wxWidgets\src\msw\version.rc">
+      <Filter>MSW Sources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\aboutdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\accel.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\access.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\activityindicator.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\addremovectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\affinematrix2d.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\affinematrix2dbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\anidecod.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\animate.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\animdecod.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\anybutton.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\appprogress.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\artprov.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\bannerwindow.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\bitmap.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\bmpbuttn.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\bmpcbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\bookctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\brush.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\busyinfo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\button.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\calctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\caret.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\checkbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\checklst.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\choicdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\choice.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\choicebk.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\clipbrd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\clrpicker.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cmdproc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cmndata.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\collheaderctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\collpane.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\colordlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\colour.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\colourdata.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\combo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\combobox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\commandlinkbutton.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\compositewin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\control.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cshelp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ctrlsub.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cursor.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\custombgwin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dataobj.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dataview.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\datectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dateevt.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\datetimectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcbuffer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcclient.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcgraph.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcmemory.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcmirror.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcprint.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcps.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcscreen.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dcsvg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dialog.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dialup.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dirctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dirdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\display.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dnd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\docmdi.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\docview.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dragimag.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dvrenderers.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\editlbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\effects.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\encinfo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fdrepdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filedlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filehistory.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filepicker.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fmappriv.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\font.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontdata.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontenum.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontpicker.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontutil.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\frame.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\gauge.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\gbsizer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\gdicmn.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\gdiobj.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\aboutdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\accel.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\activityindicator.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\animate.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\bmpcbox.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\busyinfo.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\buttonbar.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\calctrlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\choicdgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\clrpickerg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\collheaderctrl.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\collpaneg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\combo.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\custombgwin.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\dataview.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\datectrl.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\dcpsg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\dirctrlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\dragimgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\dvrenderer.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\dvrenderers.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\filectrlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\filepickerg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\fontpickerg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\grid.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\gridctrl.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\grideditors.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\gridsel.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\headerctrlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\helpext.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\hyperlink.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\infobar.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\laywin.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\logg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\msgdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\notebook.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\notifmsg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\numdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\panelg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\printps.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\prntdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\progdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\propdlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\richmsgdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\sashwin.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\scrolwin.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\spinctlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\splash.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\splitter.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\srchctlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\statbmpg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\stattextg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\textdlgg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\timectrl.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\treectlg.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\wizard.h">
+      <Filter>Generic Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\geometry.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\gifdecod.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\graphics.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\grid.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\headercol.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\headerctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\help.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\helpbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\helphtml.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\helpwin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hyperlink.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\icon.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\iconbndl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagbmp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\image.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imaggif.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagiff.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagjpeg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imaglist.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagpcx.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagpng.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagpnm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagtga.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagtiff.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\imagxpm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\infobar.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\itemattr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\itemid.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\joystick.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\layout.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\laywin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\listbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\listbook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\listbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\listctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\matrix.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mdi.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\menu.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\menuitem.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\metafile.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\minifram.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\modalhook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mousemanager.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msgdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\accel.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\anybutton.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\app.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\appprogress.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\bitmap.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\bmpbuttn.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\bmpcbox.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\brush.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\button.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\calctrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\caret.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\checkbox.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\checklst.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\choice.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\clipbrd.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\colordlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\colour.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\combo.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\combobox.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\commandlinkbutton.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\control.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ctrlsub.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\cursor.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\custombgwin.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\datectrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\datetimectrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dc.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dcclient.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dcmemory.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dcprint.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dcscreen.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dialog.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dib.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dirdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dragimag.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\enhmeta.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\evtloop.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\fdrepdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\filedlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\font.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\fontdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\frame.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\gauge.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\gdiimage.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\headerctrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\helpchm.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\helpwin.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\htmlhelp.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\hyperlink.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\icon.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\imaglist.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\iniconf.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\init.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\joystick.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\listbox.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\listctrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\mdi.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\menu.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\menuitem.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\metafile.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\minifram.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\missing.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\msgdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\msvcrt.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\nonownedwnd.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\notebook.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\access.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\activex.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\automtn.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\comimpl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\dataform.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\dataobj.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\dataobj2.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\dropsrc.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\droptgt.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\oleutils.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\safearray.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ole\uuid.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ownerdrawnbutton.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\ownerdrw.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\palette.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\panel.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\pen.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\popupwin.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\printdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\printwin.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\progdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\radiobox.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\radiobut.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\rcdefs.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\region.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\richmsgdlg.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\rt\utils.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\scrolbar.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\slider.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\sound.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\spinbutt.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\spinctrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\statbmp.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\statbox.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\statline.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\stattext.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\statusbar.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\taskbar.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\taskbarbutton.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\textctrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\textentry.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\tglbtn.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\timectrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\toolbar.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\tooltip.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\toplevel.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\treectrl.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\uxtheme.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\window.h">
+      <Filter>MSW Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\nativewin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\nonownedwnd.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\notebook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\notifmsg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\numdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\odcombo.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\overlay.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ownerdrw.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\palette.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\panel.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\paper.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\pen.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\peninfobase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist\bookctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist\dataview.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist\splitter.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist\toplevel.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist\treebook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\persist\window.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\pickerbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\popupwin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\position.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\preferences.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\print.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\printdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\prntbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\progdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\propdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\quantize.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\radiobox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\radiobut.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\range.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\rawbmp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\rearrangectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\region.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\renderer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\richmsgdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\richtooltip.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sashwin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopeguard.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scrolbar.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scrolwin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\selstore.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\settings.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\simplebook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sizer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\slider.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sound.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\spinbutt.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\spinctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\splash.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\splitter.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\srchctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\statbmp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\statbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\statline.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stattext.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\statusbr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\systhemectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\taskbar.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\taskbarbutton.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tbarbase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\testing.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textcompleter.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textctrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textentry.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textwrapper.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tglbtn.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\timectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tipdlg.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tipwin.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\toolbar.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\toolbook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tooltip.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\toplevel.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\treebase.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\treebook.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\treectrl.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\treelist.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\uiaction.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\valgen.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\validate.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\valnum.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\valtext.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\vidmode.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\vlbox.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\vms_x_fix.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\vscroll.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\window.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\windowid.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\windowptr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\withimages.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wizard.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wrapsizer.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wupdlock.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xpmdecod.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xpmhand.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xrc\xmlreshandler.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\setup.h">
+      <Filter>Setup Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">
+      <Filter>MSW Headers</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

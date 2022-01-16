@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -233,23 +233,25 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 	SDrawFigure * p_fig = 0;
 	SFileFormat fmt;
 	THROW(fileExists(pFileName));
-	const int fir = fmt.Identify(pFileName);
-	THROW(fir);
-	if(fmt == SFileFormat::Svg) {
-		SDrawContext dctx(static_cast<HDC>(0));
-		SDraw * p_draw_fig = new SDraw(pSid, 0);
-		THROW_S(p_draw_fig, SLERR_NOMEM);
-		p_draw_fig->SetupUnitContext(dctx);
-		THROW(p_draw_fig->ParseSvgFile(pFileName));
-		p_fig = p_draw_fig;
-	}
-	else {
-		THROW(SImageBuffer::IsSupportedFormat(fmt));
-		{
-			SDrawImage * p_img_fig = new SDrawImage(pSid);
-			THROW_S(p_img_fig, SLERR_NOMEM);
-			THROW(p_img_fig->LoadFile(pFileName));
-			p_fig = p_img_fig;
+	{
+		const int fir = fmt.Identify(pFileName);
+		THROW(fir);
+		if(fmt == SFileFormat::Svg) {
+			SDrawContext dctx(static_cast<HDC>(0));
+			SDraw * p_draw_fig = new SDraw(pSid, 0);
+			THROW_S(p_draw_fig, SLERR_NOMEM);
+			p_draw_fig->SetupUnitContext(dctx);
+			THROW(p_draw_fig->ParseSvgFile(pFileName));
+			p_fig = p_draw_fig;
+		}
+		else {
+			THROW(SImageBuffer::IsSupportedFormat(fmt));
+			{
+				SDrawImage * p_img_fig = new SDrawImage(pSid);
+				THROW_S(p_img_fig, SLERR_NOMEM);
+				THROW(p_img_fig->LoadFile(pFileName));
+				p_fig = p_img_fig;
+			}
 		}
 	}
 	CATCH
@@ -562,20 +564,22 @@ int SDrawGroup::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW(SDrawFigure::Serialize(dir, rBuf, pCtx));
-	uint32 c = getCount();
-	THROW(pCtx->Serialize(dir, c, rBuf));
-	if(dir > 0) {
-		for(uint i = 0; i < c; i++) {
-			SDrawFigure * p_item = at(i);
-			if(p_item)
-				THROW(p_item->Serialize(dir, rBuf, pCtx));
+	{
+		uint32 c = getCount();
+		THROW(pCtx->Serialize(dir, c, rBuf));
+		if(dir > 0) {
+			for(uint i = 0; i < c; i++) {
+				SDrawFigure * p_item = at(i);
+				if(p_item)
+					THROW(p_item->Serialize(dir, rBuf, pCtx));
+			}
 		}
-	}
-	else if(dir < 0) {
-		for(uint i = 0; i < c; i++) {
-			SDrawFigure * p_item = 0;
-			THROW(p_item = SDrawFigure::Unserialize(rBuf, pCtx));
-			THROW(Add(p_item));
+		else if(dir < 0) {
+			for(uint i = 0; i < c; i++) {
+				SDrawFigure * p_item = 0;
+				THROW(p_item = SDrawFigure::Unserialize(rBuf, pCtx));
+				THROW(Add(p_item));
+			}
 		}
 	}
 	CATCHZOK

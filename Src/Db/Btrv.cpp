@@ -1,5 +1,5 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -397,51 +397,53 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	THROW(xfile.insertRec());
 	THROW(p_bei = new BExtInsert(&xfield));
 	THROW(tbl_id = getUniqueKey(&xfield, 0));
-	BTBLID fld_id = static_cast<BTBLID>(tbl_id);
-	for(i = 0; i < fl.getCount(); i++) {
-		const BNField & f = fl.getField(i);
-		const size_t fname_len = sstrlen(f.Name);
-		fl.setFieldId(i, fld_id);
-		if(GETSTYPE(f.T) == S_DATETIME) {
-			{
+	{
+		BTBLID fld_id = static_cast<BTBLID>(tbl_id);
+		for(i = 0; i < fl.getCount(); i++) {
+			const BNField & f = fl.getField(i);
+			const size_t fname_len = sstrlen(f.Name);
+			fl.setFieldId(i, fld_id);
+			if(GETSTYPE(f.T) == S_DATETIME) {
+				{
+					MEMSZERO(fieldBuf);
+					fieldBuf.XeId   = fld_id++;
+					fieldBuf.XeFile = pTbl->tableID;
+					memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
+					memcpy(fieldBuf.XeName, f.Name, fname_len);
+					fieldBuf.XeName[fname_len] = '$';
+					fieldBuf.XeName[fname_len+1] = 'd';
+					fieldBuf.XeDataType = SLib2BtrType(S_DATE);
+					fieldBuf.XeOffset = static_cast<int16>(f.Offs);
+					fieldBuf.XeSize = sizeof(LDATE);
+					THROW(p_bei->insert(&fieldBuf));
+				}
+				{
+					MEMSZERO(fieldBuf);
+					fieldBuf.XeId   = fld_id++;
+					fieldBuf.XeFile = pTbl->tableID;
+					memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
+					memcpy(fieldBuf.XeName, f.Name, fname_len);
+					fieldBuf.XeName[fname_len] = '$';
+					fieldBuf.XeName[fname_len+1] = 't';
+					fieldBuf.XeDataType = SLib2BtrType(S_TIME);
+					fieldBuf.XeOffset = static_cast<int16>(f.Offs+sizeof(LDATE)); // @v10.3.4 @fix sizeof(S_DATE)-->sizeof(LDATE)
+					fieldBuf.XeSize = sizeof(LTIME);
+					THROW(p_bei->insert(&fieldBuf));
+				}
+			}
+			else {
 				MEMSZERO(fieldBuf);
 				fieldBuf.XeId   = fld_id++;
 				fieldBuf.XeFile = pTbl->tableID;
 				memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
 				memcpy(fieldBuf.XeName, f.Name, fname_len);
-				fieldBuf.XeName[fname_len] = '$';
-				fieldBuf.XeName[fname_len+1] = 'd';
-				fieldBuf.XeDataType = SLib2BtrType(S_DATE);
+				_t = GETSTYPE(f.T);
+				fieldBuf.XeDataType = SLib2BtrType(_t);
 				fieldBuf.XeOffset = static_cast<int16>(f.Offs);
-				fieldBuf.XeSize = sizeof(LDATE);
+				fieldBuf.XeSize = static_cast<int16>(stsize(f.T));
+				fieldBuf.XeDec = oneof3(_t, S_DEC, S_MONEY, S_NUMERIC) ? static_cast<int8>(GETSPRECD(f.T)) : 0;
 				THROW(p_bei->insert(&fieldBuf));
 			}
-			{
-				MEMSZERO(fieldBuf);
-				fieldBuf.XeId   = fld_id++;
-				fieldBuf.XeFile = pTbl->tableID;
-				memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
-				memcpy(fieldBuf.XeName, f.Name, fname_len);
-				fieldBuf.XeName[fname_len] = '$';
-				fieldBuf.XeName[fname_len+1] = 't';
-				fieldBuf.XeDataType = SLib2BtrType(S_TIME);
-				fieldBuf.XeOffset = static_cast<int16>(f.Offs+sizeof(LDATE)); // @v10.3.4 @fix sizeof(S_DATE)-->sizeof(LDATE)
-				fieldBuf.XeSize = sizeof(LTIME);
-				THROW(p_bei->insert(&fieldBuf));
-			}
-		}
-		else {
-			MEMSZERO(fieldBuf);
-			fieldBuf.XeId   = fld_id++;
-			fieldBuf.XeFile = pTbl->tableID;
-			memset(fieldBuf.XeName, ' ', sizeof(fieldBuf.XeName));
-			memcpy(fieldBuf.XeName, f.Name, fname_len);
-			_t = GETSTYPE(f.T);
-			fieldBuf.XeDataType = SLib2BtrType(_t);
-			fieldBuf.XeOffset = static_cast<int16>(f.Offs);
-			fieldBuf.XeSize = static_cast<int16>(stsize(f.T));
-			fieldBuf.XeDec = oneof3(_t, S_DEC, S_MONEY, S_NUMERIC) ? static_cast<int8>(GETSPRECD(f.T)) : 0;
-			THROW(p_bei->insert(&fieldBuf));
 		}
 	}
 	THROW(p_bei->flash());

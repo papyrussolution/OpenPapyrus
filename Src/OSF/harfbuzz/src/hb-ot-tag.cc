@@ -222,26 +222,19 @@ static void hb_ot_tags_from_language(const char * lang_str, const char * limit, 
 		if(s && limit - lang_str >= 6) {
 			const char * extlang_end = strchr(s + 1, '-');
 			/* If there is an extended language tag, use it. */
-			if(3 == (extlang_end ? extlang_end - s - 1 : strlen(s + 1)) &&
-			    ISALPHA(s[1]))
+			if(3 == (extlang_end ? extlang_end - s - 1 : strlen(s + 1)) && ISALPHA(s[1]))
 				lang_str = s + 1;
 		}
 		if(hb_sorted_array(ot_languages).bfind(lang_str, &tag_idx)) {
 			uint i;
-			while(tag_idx != 0 &&
-			    0 == strcmp(ot_languages[tag_idx].language, ot_languages[tag_idx - 1].language))
+			while(tag_idx != 0 && 0 == strcmp(ot_languages[tag_idx].language, ot_languages[tag_idx - 1].language))
 				tag_idx--;
-			for(i = 0;
-			    i < *count &&
-			    tag_idx + i < ARRAY_LENGTH(ot_languages) &&
-			    0 == strcmp(ot_languages[tag_idx + i].language, ot_languages[tag_idx].language);
-			    i++)
+			for(i = 0; i < *count && tag_idx + i < ARRAY_LENGTH(ot_languages) && 0 == strcmp(ot_languages[tag_idx + i].language, ot_languages[tag_idx].language); i++)
 				tags[i] = ot_languages[tag_idx + i].tag;
 			*count = i;
 			return;
 		}
 	}
-
 	if(!s)
 		s = lang_str + strlen(lang_str);
 	if(s - lang_str == 3) {
@@ -253,21 +246,16 @@ static void hb_ot_tags_from_language(const char * lang_str, const char * limit, 
 	*count = 0;
 }
 
-static bool parse_private_use_subtag(const char * private_use_subtag,
-    uint * count,
-    hb_tag_t * tags,
-    const char * prefix,
-    uchar (*normalize)(uchar))
+static bool parse_private_use_subtag(const char * private_use_subtag, uint * count, hb_tag_t * tags, const char * prefix, uchar (*normalize)(uchar))
 {
 #ifdef HB_NO_LANGUAGE_PRIVATE_SUBTAG
 	return false;
 #endif
-
-	if(!(private_use_subtag && count && tags && *count)) return false;
-
+	if(!(private_use_subtag && count && tags && *count)) 
+		return false;
 	const char * s = strstr(private_use_subtag, prefix);
-	if(!s) return false;
-
+	if(!s) 
+		return false;
 	char tag[4];
 	int i;
 	s += strlen(prefix);
@@ -323,18 +311,16 @@ void hb_ot_tags_from_script_and_language(hb_script_t script,
     hb_tag_t * language_tags /*OUT*/)
 {
 	bool needs_script = true;
-
 	if(language == HB_LANGUAGE_INVALID) {
 		if(language_count && language_tags && *language_count)
 			*language_count = 0;
 	}
 	else {
-		const char * lang_str, * s, * limit, * private_use_subtag;
+		const char * s;
 		bool needs_language;
-
-		lang_str = hb_language_to_string(language);
-		limit = nullptr;
-		private_use_subtag = nullptr;
+		const char * lang_str = hb_language_to_string(language);
+		const char * limit = nullptr;
+		const char * private_use_subtag = nullptr;
 		if(lang_str[0] == 'x' && lang_str[1] == '-') {
 			private_use_subtag = lang_str;
 		}
@@ -362,11 +348,9 @@ void hb_ot_tags_from_script_and_language(hb_script_t script,
 		if(needs_language && language_count && language_tags && *language_count)
 			hb_ot_tags_from_language(lang_str, limit, language_count, language_tags);
 	}
-
 	if(needs_script && script_count && script_tags && *script_count)
 		hb_ot_all_tags_from_script(script, script_count, script_tags);
 }
-
 /**
  * hb_ot_tag_to_language:
  *
@@ -379,20 +363,16 @@ void hb_ot_tags_from_script_and_language(hb_script_t script,
 hb_language_t hb_ot_tag_to_language(hb_tag_t tag)
 {
 	uint i;
-
 	if(tag == HB_OT_TAG_DEFAULT_LANGUAGE)
 		return nullptr;
-
 	{
 		hb_language_t disambiguated_tag = hb_ot_ambiguous_tag_to_language(tag);
 		if(disambiguated_tag != HB_LANGUAGE_INVALID)
 			return disambiguated_tag;
 	}
-
 	for(i = 0; i < ARRAY_LENGTH(ot_languages); i++)
 		if(ot_languages[i].tag == tag)
 			return hb_language_from_string(ot_languages[i].language, -1);
-
 	/* Return a custom language in the form of "x-hbot-AABBCCDD".
 	 * If it's three letters long, also guess it's ISO 639-3 and lower-case and
 	 * prepend it (if it's not a registered tag, the private use subtags will

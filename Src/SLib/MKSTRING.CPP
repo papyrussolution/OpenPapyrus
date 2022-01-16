@@ -1,14 +1,11 @@
 // MKSTRING.CPP
-// Copyright (c) A.Sobolev 1996, 2004, 2007, 2008, 2011, 2016, 2020
+// Copyright (c) A.Sobolev 1996, 2004, 2007, 2008, 2011, 2016, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
 #ifdef SL_STRSTORE // {
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <ctype.h>
 #include <strstore.h>
 
 int    line = 1;
@@ -67,7 +64,7 @@ void get(char * inFile, char * outFile)
 				else if(ival >= (32 - 1))
 					error("Too long section number");
 				number[ival] = '\0';
-				ival = atoi(number);
+				ival = satoi(number);
 				group = ival;
 				break;
 			case '"':
@@ -134,7 +131,7 @@ __next_c:
 					else if(ival >= (32 - 1))
 						error("Too long section number");
 					number[ival] = '\0';
-					ival = atoi(number);
+					ival = satoi(number);
 					ident = ival;
 				}
 				break;

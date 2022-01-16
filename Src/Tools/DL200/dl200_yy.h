@@ -1,5 +1,5 @@
 // DL200_YY.H
-// Copyright (c) A.Sobolev 2002
+// Copyright (c) A.Sobolev 2002, 2022
 //
 // Support for bison and flex parsing
 
@@ -19,5 +19,5 @@ extern YYIN_STR * yyin_struct;
 extern long yyin_count;
 extern FILE * yyin;
 
-void yyerror(char * str);
+void yyerror(const char * str);
 int  yylex(void);

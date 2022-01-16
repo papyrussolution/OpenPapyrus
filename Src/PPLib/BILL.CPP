@@ -38,9 +38,9 @@
 /*static*/int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
 {
 	int   recadv_status = PPEDI_RECADV_STATUS_UNDEF;
-	if(rRec.Flags2 & BILLF2_RECADV_ACCP)
-		recadv_status = (rRec.Flags2 & BILLF2_RECADV_DECL) ? PPEDI_RECADV_STATUS_PARTACCEPT : PPEDI_RECADV_STATUS_ACCEPT;
-	else if(rRec.Flags2 & BILLF2_RECADV_DECL)
+	if(rRec.Flags2 & BILLF2_EDI_ACCP)
+		recadv_status = (rRec.Flags2 & BILLF2_EDI_DECL) ? PPEDI_RECADV_STATUS_PARTACCEPT : PPEDI_RECADV_STATUS_ACCEPT;
+	else if(rRec.Flags2 & BILLF2_EDI_DECL)
 		recadv_status = PPEDI_RECADV_STATUS_REJECT;
 	return recadv_status;
 }
@@ -51,20 +51,20 @@
 	const  long preserve_flags2 = rRec.Flags2;
 	switch(recadvStatus) {
 		case PPEDI_RECADV_STATUS_ACCEPT:
-			rRec.Flags2 |= BILLF2_RECADV_ACCP;
-			rRec.Flags2 &= ~BILLF2_RECADV_DECL;
+			rRec.Flags2 |= BILLF2_EDI_ACCP;
+			rRec.Flags2 &= ~BILLF2_EDI_DECL;
 			break;
 		case PPEDI_RECADV_STATUS_PARTACCEPT:
-			rRec.Flags2 |= BILLF2_RECADV_ACCP;
-			rRec.Flags2 |= BILLF2_RECADV_DECL;
+			rRec.Flags2 |= BILLF2_EDI_ACCP;
+			rRec.Flags2 |= BILLF2_EDI_DECL;
 			break;
 		case PPEDI_RECADV_STATUS_REJECT:
-			rRec.Flags2 &= ~BILLF2_RECADV_ACCP;
-			rRec.Flags2 |= BILLF2_RECADV_DECL;
+			rRec.Flags2 &= ~BILLF2_EDI_ACCP;
+			rRec.Flags2 |= BILLF2_EDI_DECL;
 			break;
 		case PPEDI_RECADV_STATUS_UNDEF:
-			rRec.Flags2 &= ~BILLF2_RECADV_ACCP;
-			rRec.Flags2 &= ~BILLF2_RECADV_DECL;
+			rRec.Flags2 &= ~BILLF2_EDI_ACCP;
+			rRec.Flags2 &= ~BILLF2_EDI_DECL;
 			break;
 		default:
 			ok = 0;

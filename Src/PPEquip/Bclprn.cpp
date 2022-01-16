@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -248,8 +248,8 @@ load FONTS {
 
 // @vmiller
 struct UsbOpt {
-	char * P_Vid;
-	char * P_Pid;
+	const char * P_Vid;
+	const char * P_Pid;
 };
 
 // @vmiller
@@ -639,7 +639,7 @@ int BarcodeLabel::GetNumber(char ** ppLine, int * pNumber)
 	const char * p_org = *ppLine;
 	BarcodeFormatToken tok = NextToken(ppLine, temp, sizeof(temp));
 	if(tok == tokNumber) {
-		*pNumber = atoi(temp);
+		*pNumber = satoi(temp);
 		return 1;
 	}
 	else
@@ -919,9 +919,9 @@ int BarcodeLabel::GetText(int wrap, char ** ppLine)
 		if(ss.get(&pos, str, sizeof(str))) {
 			STRNSCPY(entry.Font, str);
 			if(ss.get(&pos, str, sizeof(str))) {
-				entry.FontWidth = atoi(str);
+				entry.FontWidth = satoi(str);
 				if(ss.get(&pos, str, sizeof(str)))
-					entry.FontHeight = atoi(str);
+					entry.FontHeight = satoi(str);
 			}
 		}
 	}
@@ -1907,8 +1907,8 @@ int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	char   buf[512];
 	size_t i = 0, j;
 	char   c;
-	int    rotation = pEntry->Rotation % 360;
-	int    font_id = atoi(pEntry->Font);
+	const  int rotation = pEntry->Rotation % 360;
+	const  int font_id = satoi(pEntry->Font);
 	if((rotation > 315 && rotation < 360) || (rotation >= 0 && rotation <= 45))
 		c = '1';
 	else if(rotation > 45 && rotation <= 135)
@@ -1920,8 +1920,10 @@ int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	else
 		c = '1';
 	buf[i++] = c;
-	if(pEntry->Type == BarcodeLabelEntry::etText)
-		buf[i++] = (font_id >= 1 && font_id <= 8) ? ('0' + font_id) : '9';
+	if(pEntry->Type == BarcodeLabelEntry::etText) {
+		// @v11.2.11 buf[i++] = (font_id >= 1 && font_id <= 8) ? ('0' + font_id) : '9';
+		buf[i++] = '0' + sclamp(font_id, 1, 9); // @v11.2.11
+	}
 	else {
 		// @v10.9.10 {
 		{
@@ -2262,7 +2264,7 @@ int EltronLabelPrinter::EndLabel()
 //
 struct BarCStdToEltronEntry {
 	int8   Std;
-	char * P_Str;
+	const char * P_Str;
 };
 
 static const BarCStdToEltronEntry _E_BarCStdTab[] = {
@@ -2347,7 +2349,7 @@ int EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	else if(pEntry->Type == BarcodeLabelEntry::etBarcode) {
 		strnzcpy(p_temp_str, pEntry->Text, buf_size);
 		PutDataEntryPrefix('B', pEntry);
-		char * p_std = 0;
+		const char * p_std = 0;
 		for(int j = 0; j < SIZEOFARRAY(_E_BarCStdTab); j++)
 			if(_E_BarCStdTab[j].Std == pEntry->BarcodeStd) {
 				p_std = _E_BarCStdTab[j].P_Str;

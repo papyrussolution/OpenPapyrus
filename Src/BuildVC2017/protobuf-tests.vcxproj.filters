@@ -1,0 +1,403 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\arena_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\arenastring_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\annotation_test_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\command_line_interface_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_bootstrap_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_move_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_plugin_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\metadata_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_bootstrap_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\csharp\csharp_generator_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\importer_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_doc_comment_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\java\java_plugin_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\mock_code_generator.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\objectivec\objectivec_helpers_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\parser_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\python\python_plugin_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\ruby\ruby_generator_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor_database_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\descriptor_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\drop_unknown_fields_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\dynamic_message_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\extension_set_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\generated_message_reflection_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\inlined_string_field_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\coded_stream_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\io_win32_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\printer_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\tokenizer_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\io\zero_copy_stream_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_field_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\message_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\no_field_presence_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\preserve_unknown_enum_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\proto3_arena_lite_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\proto3_arena_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\proto3_lite_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\reflection_ops_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\repeated_field_reflection_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\repeated_field_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\bytestream_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\common_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\int128_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\status_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\statusor_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\stringpiece_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\stringprintf_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\structurally_valid_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\strutil_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\template_util_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\stubs\time_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\text_format_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unknown_field_set_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\delimited_message_util_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\field_comparator_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\field_mask_util_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\default_value_objectwriter_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\json_objectwriter_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\json_stream_parser_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\protostream_objectsource_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\protostream_objectwriter_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\type_info_test_helper.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\json_util_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\message_differencer_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\time_util_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\type_resolver_util_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\well_known_types_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\wire_format_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\arena_test_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_lite_test_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\test_util_lite.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\reflection_tester.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\test_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\testing\file.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\testing\googletest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\any_test.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_test_bad_identifiers.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\default_value_test.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\json_format_proto3.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_lite_unittest.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_proto2_unittest.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_unittest.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\message_differencer_unittest.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\maps.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\timestamp_duration.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_custom_options.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_drop_unknown_fields.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_embed_optimize_for.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_empty.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_import.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_import_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_import_public.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_import_public_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_lazy_dependencies.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_test_large_enum_value.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\default_value.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\json_format.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_lazy_dependencies_custom_option.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_lazy_dependencies_enum.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_lite_imports_nonlite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_mset.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_mset_wire_format.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_no_field_presence.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_no_generic_services.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_optimize_for.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_preserve_unknown_enum.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_preserve_unknown_enum2.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_proto3.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_proto3_arena.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_proto3_arena_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_proto3_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_proto3_optional.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_well_known_types.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\proto3.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\books.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\anys.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_arena.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\oneofs.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\protobuf-pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\wrappers.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\struct.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\protobuf-3.19.1\src\google\protobuf\util\internal\testdata\field_mask.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\compiler\cpp\cpp_unittest.inc" />
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_test.inc" />
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\message_unittest.inc" />
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\proto3_lite_unittest.inc" />
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\wire_format_unittest.inc" />
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_test_util.inc" />
+    <None Include="..\osf\protobuf-3.19.1\src\google\protobuf\test_util.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{74A0318B-5463-3F90-B15E-0A339726C54B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{e2508b8a-089e-41d2-96f4-d4fd6a4568cb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

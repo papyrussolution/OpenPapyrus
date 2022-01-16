@@ -1,13 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *****************************************************************
- * Copyright (c) 2002-2014, International Business Machines Corporation
- * and others.  All Rights Reserved.
- *****************************************************************
+ * Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * Date        Name        Description
  * 06/06/2002  aliu        Creation.
- *****************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -16,7 +12,6 @@
 
 #include "anytrans.h"
 #include "nultrans.h"
-#include "putilimp.h"
 #include "tridpars.h"
 #include "uinvchar.h"
 
@@ -39,7 +34,8 @@ U_CDECL_BEGIN
 /**
  * Deleter function for Transliterator*.
  */
-static void U_CALLCONV _deleteTransliterator(void * obj) {
+static void U_CALLCONV _deleteTransliterator(void * obj) 
+{
 	delete (icu::Transliterator*)obj;
 }
 

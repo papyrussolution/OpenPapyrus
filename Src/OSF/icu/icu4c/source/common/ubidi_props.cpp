@@ -1,27 +1,17 @@
+// ubidi_props.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2004-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ubidi_props.c
+ *   Copyright (C) 2004-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2004dec30
  *   created by: Markus W. Scherer
- *
  *   Low-level Unicode bidi/shaping properties access.
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucmndata.h" /* DataHeader */
 #include "udatamem.h"
-#include "utrie2.h"
 #include "ubidi_props.h"
 #include "ucln_cmn.h"
 

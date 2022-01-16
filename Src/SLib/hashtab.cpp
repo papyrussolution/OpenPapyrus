@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -456,15 +456,17 @@ int SymbHashTable::Add(const char * pSymb, uint val, uint * pPos)
 	uint   pos = 0;
 	THROW(InitTab());
 	THROW(NamePool.add(pSymb, &pos));
-	size_t h = Hash(pSymb);
-	c = P_Tab[h].SetVal(pos, val);
-	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, ORDER_ASSOC));
-	AddCount++;
-	if(c > 1) {
-		CollCount++;
-		if((c-1) > MaxTail)
-			MaxTail = c-1;
+	{
+		const size_t h = Hash(pSymb);
+		c = P_Tab[h].SetVal(pos, val);
+		if(Flags & fUseAssoc)
+			THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, ORDER_ASSOC));
+		AddCount++;
+		if(c > 1) {
+			CollCount++;
+			if((c-1) > MaxTail)
+				MaxTail = c-1;
+		}
 	}
 	CATCH
 		c = 0;
@@ -643,30 +645,32 @@ int LAssocHashTable::Set(long key, long val)
 	int    c = 1;
 	int    found = 0;
 	THROW(InitTab());
-	size_t h = Hash(key);
-	Entry & r_entry = P_Tab[h];
-	if(r_entry.Count > 0) {
-		if(r_entry.Val.Key == key) {
-			r_entry.Val.Val = val;
-			found = 1;
-		}
-		else {
-			for(uint i = 1; !found && i < r_entry.Count; i++) {
-				if(r_entry.P_Ext[i-1].Key == key) {
-					r_entry.P_Ext[i-1].Val = val;
-					found = 1;
+	{
+		size_t h = Hash(key);
+		Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			if(r_entry.Val.Key == key) {
+				r_entry.Val.Val = val;
+				found = 1;
+			}
+			else {
+				for(uint i = 1; !found && i < r_entry.Count; i++) {
+					if(r_entry.P_Ext[i-1].Key == key) {
+						r_entry.P_Ext[i-1].Val = val;
+						found = 1;
+					}
 				}
 			}
 		}
-	}
-	if(!found) {
-		c = P_Tab[h].SetVal((uint)key, val);
-		AddCount++;
-	}
-	if(c > 1) {
-		CollCount++;
-		if((c-1) > MaxTail)
-			MaxTail = c-1;
+		if(!found) {
+			c = P_Tab[h].SetVal((uint)key, val);
+			AddCount++;
+		}
+		if(c > 1) {
+			CollCount++;
+			if((c-1) > MaxTail)
+				MaxTail = c-1;
+		}
 	}
 	CATCH
 		c = 0;
@@ -882,15 +886,17 @@ int GuidHashTable::Add(const S_GUID & rUuid, uint val, uint * pPos)
 	THROW(InitTab());
 	pos = Pool.getCount();
 	THROW(Pool.insert(&rUuid));
-	size_t h = Hash(rUuid);
-	c = P_Tab[h].SetVal(pos, val);
-	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 1/*binary*/));
-	AddCount++;
-	if(c > 1) {
-		CollCount++;
-		if((c-1) > MaxTail)
-			MaxTail = c-1;
+	{
+		const size_t h = Hash(rUuid);
+		c = P_Tab[h].SetVal(pos, val);
+		if(Flags & fUseAssoc)
+			THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 1/*binary*/));
+		AddCount++;
+		if(c > 1) {
+			CollCount++;
+			if((c-1) > MaxTail)
+				MaxTail = c-1;
+		}
 	}
 	CATCH
 		c = 0;
@@ -1051,15 +1057,17 @@ int PtrHashTable::Add(void * ptr, uint val, uint * pPos)
 	THROW(InitTab());
 	pos = Pool.getCount();
 	THROW(Pool.insert(&ptr));
-	size_t h = Hash(ptr);
-	c = P_Tab[h].SetVal(pos, val);
-	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 1/*binary*/));
-	AddCount++;
-	if(c > 1) {
-		CollCount++;
-		if((c-1) > MaxTail)
-			MaxTail = c-1;
+	{
+		const size_t h = Hash(ptr);
+		c = P_Tab[h].SetVal(pos, val);
+		if(Flags & fUseAssoc)
+			THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, 1/*binary*/));
+		AddCount++;
+		if(c > 1) {
+			CollCount++;
+			if((c-1) > MaxTail)
+				MaxTail = c-1;
+		}
 	}
 	CATCH
 		c = 0;

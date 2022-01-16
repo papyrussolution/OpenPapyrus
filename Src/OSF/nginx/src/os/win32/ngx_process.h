@@ -17,7 +17,7 @@ typedef uint64_t ngx_cpuset_t;
 typedef struct {
 	HANDLE handle;
 	ngx_pid_t pid;
-	char * name;
+	const char * name;
 	HANDLE term;
 	HANDLE quit;
 	HANDLE reopen;
@@ -30,14 +30,14 @@ typedef struct {
 
 typedef struct {
 	char * path;
-	char * name;
+	const  char * name;
 	const  char * args; // @v10.3.11 const
 	char * const * argv;
 	char * const * envp;
 	HANDLE child;
 } ngx_exec_ctx_t;
 
-ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, char * name, ngx_int_t respawn);
+ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, const char * name, ngx_int_t respawn);
 ngx_pid_t ngx_execute(ngx_cycle_t * cycle, ngx_exec_ctx_t * ctx);
 
 #define ngx_debug_point()

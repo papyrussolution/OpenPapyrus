@@ -2653,10 +2653,10 @@ AMQP_PUBLIC_FUNCTION void amqp_destroy_envelope(amqp_envelope_t *envelope);
 // Descr: Parameters used to connect to the RabbitMQ broker
 // 
 struct amqp_connection_info {
-	char * user; // the username to authenticate with the broker, default on most broker is 'guest' 
-	char * password; // the password to authenticate with the broker, default on most brokers is 'guest' 
-	char * host; // the hostname of the broker 
-	char * vhost; // the virtual host on the broker to connect to, a good default is "/" 
+	const char * user; // the username to authenticate with the broker, default on most broker is 'guest' 
+	const char * password; // the password to authenticate with the broker, default on most brokers is 'guest' 
+	const char * host; // the hostname of the broker 
+	const char * vhost; // the virtual host on the broker to connect to, a good default is "/" 
 	int    port; // the port that the broker is listening on, default on most brokers is 5672 
 	boolint ssl;
 };

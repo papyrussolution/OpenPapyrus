@@ -1,0 +1,735 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2AFE3C01-503B-3597-BB30-0E8DB606A672}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>RisohEditor</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">RisohEditor</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">RisohEditor</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">RisohEditor</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">RisohEditor</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">RisohEditor</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">RisohEditor</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">RisohEditor</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">RisohEditor</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\OSF\RisohEditor\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;msimg32.lib;winmm.lib;gdiplus.lib;vfw32.lib;oledlg.lib;advapi32.lib;shlwapi.lib;version.lib;urlmon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProgramDataBaseFile>$(OutDir)$(TargetName).pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\RisohEditor\EGA\ega.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\AccelRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\DialogRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\DlgInitRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\IconRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\MenuRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\PackedDIB.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\Res.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\ResToText.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\RisohEditor-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\RisohEditor\src\StringRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\VersionRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\RisohEditor.cpp" />
+    <ResourceCompile Include="..\OSF\RisohEditor\src\RisohEditor_res.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\RisohEditor\include\AccelRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\ConstantsDB.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\DialogRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\DlgInit.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\DlgInitRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\ega.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\getoptwin.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\IconRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MacroParser.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddBitmapDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddCtrlDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddCursorDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddIconDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddResDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddResIDDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MAdviceResHDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MBitmapDx.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MBmpView.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MByteStream.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MByteStreamEx.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MCloneInNewLangDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MCloneInNewNameDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MComboBox.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MComboBoxAutoComplete.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MConfigDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MConstantDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MCtrlDataDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MCtrlPropDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MDfmSettingsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MDlgInitDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MDlgPropDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MDropdownArrow.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MEditAccelDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MEditCtrl.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MEditMenuDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MEgaDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MEncodingDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MenuRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MessageRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MExportOptionsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MFile.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MFontsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MHyperLinkCtrl.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MIdAssocDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MIDListDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MIdOrString.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MIndexLabels.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MItemSearchDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MLangsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MMacrosDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MMessagesDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MModifyAssocDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MModifyResIDDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MOleCtrl.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MPathsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MPointSizeRect.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MProcessMaker.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MRadWindow.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MRegKey.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MRegKeyPortable.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceBinDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceBitmapDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceCursorDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceDialogFontsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceIconDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MResizable.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MRubberBand.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MSaveOptionsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MScrollBar.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MSplitterWnd.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MSrcEdit.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\mstr.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MString.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MStringListDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MStringsDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MTabCtrl.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MTestDialog.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MTestMenuDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MTestParentWnd.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MTextToText.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MToolBarCtrl.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MVersionInfoDlg.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MWaitCursor.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\MWindowBase.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\PackedDIB.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\pstdbool.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\pstdint.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\Res.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\ResHeader.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\resource.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\ResToText.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\RisohEditor.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\RisohSettings.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\StringRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\utf.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\utf.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\UTF16_validator.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\UTF8_validator.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\VersionRes.hpp" />
+    <ClInclude Include="..\OSF\RisohEditor\include\wondef.h" />
+    <ClInclude Include="..\OSF\RisohEditor\include\wonnt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="onig.vcxproj">
+      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

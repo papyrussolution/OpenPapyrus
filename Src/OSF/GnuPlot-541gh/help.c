@@ -124,7 +124,7 @@ static int keycount = 0; /* number of keys */
 static FILE * helpfp = NULL;
 static KEY empty_key = {NULL, 0, NULL, 0};
 
-static int LoadHelp(char * path);
+static int LoadHelp(const char * path);
 static void sortkeys();
 static int keycomp(SORTFUNC_ARGS a, SORTFUNC_ARGS b);
 static LINEBUF * storeline(char * text);
@@ -150,7 +150,7 @@ static int screensize; /* lines on screen (got with env var) */
  */
 //int help(char * keyword/* on this topic */, char * path/* from this file */, bool * subtopics/* (in) - subtopics only? */)
 /* (out) - are there subtopics? */
-int GnuPlot::Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */)
+int GnuPlot::Help(char * pKeyword/* on this topic */, const char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */)
 {
 	static char * oldpath = NULL; /* previous help file */
 	int status; /* result of LoadHelp */
@@ -188,7 +188,7 @@ int GnuPlot::Help(char * pKeyword/* on this topic */, char * pPath/* from this f
 //
 // we only read the file into memory once
 //
-static int LoadHelp(char * path)
+static int LoadHelp(const char * path)
 {
 	LINKEY * key = 0; /* this key */
 	long pos = 0; /* ftell location within help file */

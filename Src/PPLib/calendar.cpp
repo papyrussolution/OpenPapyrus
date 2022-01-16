@@ -174,7 +174,7 @@ public:
 
 class TPeriodCalendar {
 public:
-	TPeriodCalendar::TPeriodCalendar(TDialog * pDlg, uint dateCtlID) : P_Inner(0), P_Dlg(pDlg), DateCtlID(dateCtlID), SelType(-1)
+	TPeriodCalendar(TDialog * pDlg, uint dateCtlID) : P_Inner(0), P_Dlg(pDlg), DateCtlID(dateCtlID), SelType(-1)
 	{
 		CALLPTRMEMB(P_Dlg, getCtrlString(DateCtlID, Period));
 		UpdatePeriod();

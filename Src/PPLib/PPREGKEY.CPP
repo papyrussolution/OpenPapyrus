@@ -1,5 +1,5 @@
 // PPREGKEY.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -375,7 +375,7 @@ int main(int argc, char ** argv)
 	else {
 		param.RegName = argv[1];
 		param.RegCode = argv[2];
-		param.LicCount = (uint)atoi(argv[3]);
+		param.LicCount = (uint)satoi(argv[3]);
 		int    arg_idx = 4;
 		if(argc > arg_idx) {
 			int    is_ticker = 0;

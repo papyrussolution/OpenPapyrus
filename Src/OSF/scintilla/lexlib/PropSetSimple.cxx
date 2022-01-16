@@ -142,5 +142,5 @@ int PropSetSimple::GetInt(const char * key, int defaultValue) const
 {
 	std::string val = Get(key);
 	ExpandAllInPlace(*this, val, 100, VarChain(key));
-	return val.empty() ? defaultValue : atoi(val.c_str());
+	return val.empty() ? defaultValue : satoi(val.c_str());
 }

@@ -332,7 +332,7 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
  			}
  			else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
  				SmartListBox * p_lbx = static_cast<SmartListBox *>(p_v);
- 				p_lbx->search(&id, 0, lbSrchByID);
+ 				p_lbx->Search_(&id, 0, lbSrchByID);
  				p_lbx->selectItem(id);
  			}
 			TView::messageCommand(p_dlg, cmWSSelected, p_v);

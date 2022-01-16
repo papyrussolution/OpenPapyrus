@@ -1,20 +1,11 @@
+// putilimp.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- *  FILE NAME : putilimp.h
- *
+ *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date        Name        Description
  *   10/17/04    grhoten     Move internal functions from putil.h to this file.
- ******************************************************************************
  */
-
 #ifndef PUTILIMP_H
 #define PUTILIMP_H
 
@@ -508,16 +499,10 @@ U_CAPI void * U_EXPORT2 uprv_maximumPtr(void * base);
  * Thus, modern compilers optimize away the ">" comparison.
  * (See ICU tickets #7187 and #8096.)
  */
-#    define U_MAX_PTR(base) \
-	((void*)(((char*)(base)+0x7fffffffu) > (char*)(base) \
-	? ((char*)(base)+0x7fffffffu) \
-	: (char*)-1))
+#define U_MAX_PTR(base) ((void*)(((char*)(base)+0x7fffffffu) > (char*)(base) ? ((char*)(base)+0x7fffffffu) : (char*)-1))
 #  else
 /* Default version. C++ standard compliant for scalar pointers. */
-#    define U_MAX_PTR(base) \
-	((void*)(((uintptr_t)(base)+0x7fffffffu) > (uintptr_t)(base) \
-	? ((uintptr_t)(base)+0x7fffffffu) \
-	: (uintptr_t)-1))
+#define U_MAX_PTR(base) ((void*)(((uintptr_t)(base)+0x7fffffffu) > (uintptr_t)(base) ? ((uintptr_t)(base)+0x7fffffffu) : (uintptr_t)-1))
 #  endif
 #endif
 

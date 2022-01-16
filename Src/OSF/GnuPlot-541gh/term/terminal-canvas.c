@@ -82,7 +82,7 @@ TERM_PUBLIC void CANVAS_layer(GpTermEntry_Static * pThis, t_termlayer);
 TERM_PUBLIC void CANVAS_path(GpTermEntry_Static * pThis, int);
 TERM_PUBLIC void CANVAS_hypertext(GpTermEntry_Static * pThis, int, const char *);
 TERM_PUBLIC int  CANVAS_set_font(GpTermEntry_Static * pThis, const char *);
-TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry_Static * pThis, char *, double, double, bool, bool, int);
+TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry_Static * pThis, const char * pFontName, double, double, bool, bool, int);
 TERM_PUBLIC void ENHCANVAS_FLUSH(GpTermEntry_Static * pThis);
 TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry_Static * pThis, uint, uint, const char *);
 
@@ -113,7 +113,7 @@ static double CANVAS_default_fsize = 10;
 static double canvas_font_size = 10;
 static double canvas_fontscale = 1.0;
 static char * canvas_font_name = NULL;
-static char * canvas_justify = "";
+static const char * canvas_justify = "";
 static int canvas_text_angle = 0;
 static int canvas_in_a_path = FALSE;
 static int already_closed = FALSE;
@@ -492,7 +492,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry_Static * pThis)
 	fprintf(GPT.P_GpOutFile, "CanvasTextFunctions.enable(ctx);\nctx.strokeStyle = \" rgb(215,215,215)\";\nctx.lineWidth = %.1g;\n\n", canvas_linewidth);
 }
 
-static void CANVAS_mouse_param(GpTermEntry_Static * pThis, char * gp_name, const char * js_name)
+static void CANVAS_mouse_param(GpTermEntry_Static * pThis, const char * gp_name, const char * js_name)
 {
 	struct udvt_entry * udv;
 	if((udv = pThis->P_Gp->Ev.AddUdvByName(gp_name)) != 0) {
@@ -991,9 +991,9 @@ static char * CANVAS_fillstyle(int style)
 			    strcpy(fillcolor, canvas_state.color);
 		    }
 		    else {
-			    int r = atoi(&canvas_state.color[5]);
-			    int g = atoi(&canvas_state.color[9]);
-			    int b = atoi(&canvas_state.color[13]);
+			    int r = satoi(&canvas_state.color[5]);
+			    int g = satoi(&canvas_state.color[9]);
+			    int b = satoi(&canvas_state.color[13]);
 			    r = static_cast<int>((float)r*density + 255.0*(1.0-density));
 			    g = static_cast<int>((float)g*density + 255.0*(1.0-density));
 			    b = static_cast<int>((float)b*density + 255.0*(1.0-density));
@@ -1053,7 +1053,7 @@ TERM_PUBLIC void CANVAS_fillbox(GpTermEntry_Static * pThis, int style, uint x1, 
 
 TERM_PUBLIC void CANVAS_layer(GpTermEntry_Static * pThis, t_termlayer layer)
 {
-	char * basename = (CANVAS_name) ? CANVAS_name : "gp";
+	const char * basename = NZOR(CANVAS_name, "gp");
 	switch(layer) {
 		case TERM_LAYER_BEFORE_PLOT:
 		    canvas_state.plotno++;
@@ -1146,7 +1146,7 @@ static bool ENHCANVAS_sizeonly = FALSE;
 static bool ENHCANVAS_widthflag = TRUE;
 static bool ENHCANVAS_overprint = FALSE;
 
-TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHCANVAS_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	static int save_x, save_y;
 	// overprint = 1 means print the base text (leave position in center)
@@ -1238,7 +1238,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry_Static * pThis, uint x, uint y, 
 	char * original_string = (char *)str;
 	// Save starting font properties 
 	double fontsize = canvas_font_size;
-	char * fontname = "";
+	const char * fontname = "";
 	if(isempty(str))
 		return;
 	if(p_gp->Enht.Ignore || (!strpbrk(str, "{}^_@&~") && !contains_unicode(str))) {
@@ -1269,7 +1269,7 @@ TERM_PUBLIC void ENHCANVAS_put_text(GpTermEntry_Static * pThis, uint x, uint y, 
 	// After seeing where the final position is, we then offset the start  
 	// point accordingly and run it again without the flag set.            
 	if(sstreq(canvas_justify, "Right") || sstreq(canvas_justify, "Center")) {
-		char * justification = canvas_justify;
+		const char * justification = canvas_justify;
 		int x_offset = canvas_x - x;
 		int y_offset = (canvas_text_angle == 0) ? 0 : canvas_y - y;
 		canvas_justify = "";

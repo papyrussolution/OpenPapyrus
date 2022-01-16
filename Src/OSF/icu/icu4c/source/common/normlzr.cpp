@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *************************************************************************
- * COPYRIGHT:
- * Copyright (c) 1996-2012, International Business Machines Corporation and
- * others. All Rights Reserved.
- *************************************************************************
+ * Copyright (c) 1996-2012, International Business Machines Corporation and others. All Rights Reserved.
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -13,7 +9,6 @@
 #if !UCONFIG_NO_NORMALIZATION
 
 #include "unicode/uchriter.h"
-#include "normalizer2impl.h"
 #include "uprops.h"  // for uniset_getUnicode32Instance()
 
 #if defined(move32)

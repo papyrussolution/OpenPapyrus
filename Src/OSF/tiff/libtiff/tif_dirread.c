@@ -4439,7 +4439,7 @@ static int TIFFFetchStripThing(TIFF* tif, TIFFDirEntry* dir, uint32 nstrips, uin
 		const char * pszMax = getenv("LIBTIFF_STRILE_ARRAY_MAX_RESIZE_COUNT");
 		uint32 max_nstrips = 1000000;
 		if(pszMax)
-			max_nstrips = (uint32)atoi(pszMax);
+			max_nstrips = (uint32)satoi(pszMax);
 		TIFFReadDirEntryOutputErr(tif, TIFFReadDirEntryErrCount, module, fip ? fip->field_name : "unknown tagname", (nstrips <= max_nstrips));
 		if(nstrips > max_nstrips) {
 			SAlloc::F(data);

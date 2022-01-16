@@ -24,12 +24,8 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include "pixman-private.h"
 
 #if defined(USE_MIPS_DSPR2) || defined(USE_LOONGSON_MMI)
-
-//#include <string.h>
-//#include <stdlib.h>
 
 static boolint have_feature(const char * search_string)
 {

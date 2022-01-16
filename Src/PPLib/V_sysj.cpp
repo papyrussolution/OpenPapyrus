@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -765,6 +765,21 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	ENDCATCH
 	ASSIGN_PTR(pBrwId, brw_id);
 	return q;
+}
+
+void PPViewSysJournal::ViewTotal()
+{
+	TDialog * dlg = new TDialog(DLG_SYSJTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
+		long count = 0;
+		SysJournalViewItem item;
+		PPWaitStart();
+		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
+			count++;
+		PPWaitStop();
+		dlg->setCtrlLong(CTL_SYSJTOTAL_COUNT, count);
+		ExecViewAndDestroy(dlg);
+	}
 }
 
 int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

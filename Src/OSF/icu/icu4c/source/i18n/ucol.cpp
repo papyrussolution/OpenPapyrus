@@ -1,15 +1,9 @@
+// ucol.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 1996-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  ucol.cpp
+ *   Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  * Modification history
  * Date        Name      Comments
  * 1996-1999   various members of ICU team maintained C API for collation framework
@@ -18,13 +12,11 @@
  * 03/16/2001  weiv      Collation framework is rewritten in C and made UCA compliant
  * 2012-2014   markus    Rewritten in C++ again.
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
 
-#include "putilimp.h"
 #include "utracimp.h"
 
 U_NAMESPACE_USE

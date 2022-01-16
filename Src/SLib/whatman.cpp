@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -2358,25 +2358,27 @@ int TWhatmanToolArray::Get(uint pos, Item * pItem) const
 	Item   item(this);
 	SString temp_buf;
 	THROW_S(pos < getCount(), SLERR_BOUNDS);
-	const Entry & r_entry = *static_cast<const Entry *>(at(pos));
-	Pool.getnz(r_entry.TextP, item.Text);
-	Pool.getnz(r_entry.SymbP, item.Symb);
-	Pool.getnz(r_entry.WtmObjSymbP, item.WtmObjSymb);
-	Pool.getnz(r_entry.FigPathP, item.FigPath);
-	Pool.getnz(r_entry.PicPathP, item.PicPath);
-	Pool.getnz(r_entry.ExtDataP, temp_buf);
-	if(temp_buf.NotEmpty()) {
-		size_t sz = 0;
-		temp_buf.DecodeMime64(item.ExtData, sizeof(item.ExtData), &sz);
-		THROW_S(sz <= sizeof(item.ExtData), SLERR_BUFTOOSMALL);
-		item.ExtSize = (uint32)sz;
+	{
+		const Entry & r_entry = *static_cast<const Entry *>(at(pos));
+		Pool.getnz(r_entry.TextP, item.Text);
+		Pool.getnz(r_entry.SymbP, item.Symb);
+		Pool.getnz(r_entry.WtmObjSymbP, item.WtmObjSymb);
+		Pool.getnz(r_entry.FigPathP, item.FigPath);
+		Pool.getnz(r_entry.PicPathP, item.PicPath);
+		Pool.getnz(r_entry.ExtDataP, temp_buf);
+		if(temp_buf.NotEmpty()) {
+			size_t sz = 0;
+			temp_buf.DecodeMime64(item.ExtData, sizeof(item.ExtData), &sz);
+			THROW_S(sz <= sizeof(item.ExtData), SLERR_BUFTOOSMALL);
+			item.ExtSize = (uint32)sz;
+		}
+		item.FigSize = r_entry.FigSize;
+		item.PicSize = r_entry.PicSize;
+		item.Flags = r_entry.Flags;
+		item.Id = r_entry.Id;
+		item.ReplacedColor = r_entry.ReplacedColor;
+		item.Alb = r_entry.Alb; // @v10.9.10
 	}
-	item.FigSize = r_entry.FigSize;
-	item.PicSize = r_entry.PicSize;
-	item.Flags = r_entry.Flags;
-	item.Id = r_entry.Id;
-	item.ReplacedColor = r_entry.ReplacedColor;
-	item.Alb = r_entry.Alb; // @v10.9.10
 	CATCHZOK
 	ASSIGN_PTR(pItem, item);
 	return ok;

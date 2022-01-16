@@ -453,7 +453,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 	curve_points dummy_plot;
 	curve_points * this_plot = &dummy_plot;
 	GpValue original_value_sample_var;
-	char * name_str;
+	const char * name_str;
 	CheckGridRanges();
 	//
 	// This part is modelled on eval_plots()

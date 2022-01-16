@@ -669,7 +669,7 @@ typedef struct {
 		} word_boundary; /* OP_WORD_BOUNDARY, OP_NO_WORD_BOUNDARY, OP_WORD_BEGIN, OP_WORD_END */
 		struct {
 			enum TextSegmentBoundaryType type;
-			int not;
+			int Not;
 		} text_segment_boundary;
 		struct {
 			enum CheckPositionType type;

@@ -116,6 +116,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\tools\$(ProjectName).exe</OutputFile>
@@ -150,6 +151,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\tools\$(ProjectName).exe</OutputFile>
@@ -185,6 +187,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\tools\$(ProjectName).exe</OutputFile>
@@ -222,6 +225,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <OutputFile>..\..\tools\$(ProjectName).exe</OutputFile>

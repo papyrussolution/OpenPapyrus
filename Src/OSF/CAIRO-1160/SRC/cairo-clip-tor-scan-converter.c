@@ -128,10 +128,6 @@ typedef struct glitter_scan_converter glitter_scan_converter_t;
 /*-------------------------------------------------------------------------
  * glitter-paths.c: Implementation internal types
  */
-//#include <stdlib.h>
-//#include <string.h>
-//#include <limits.h>
-
 /* All polygon coordinates are snapped onto a subsample grid. "Grid
  * scaled" numbers are fixed precision reals with multiplier GRID_X or
  * GRID_Y. */

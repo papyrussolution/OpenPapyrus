@@ -796,13 +796,6 @@ struct fann_connection {
 	float weight; // The numerical value of the weight 
 };
 //
-//#include "fann_internal.h"
-// internal include file, not to be included directly
-//#include <math.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include "fann_data.h"
-
 #define FANN_FIX_VERSION "FANN_FIX_2.0"
 #define FANN_FLO_VERSION "FANN_FLO_2.1"
 #ifdef FIXEDFANN

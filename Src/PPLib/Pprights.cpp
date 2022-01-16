@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Права доступа
 //
@@ -1098,7 +1098,7 @@ int ParseBound(const char * pBuf, long * pVal)
 			while(*p >= '0' && *p <= '9')
 				*n++ = *p++;
 			*n = 0;
-			int    shift = atoi(nmb);
+			const int shift = satoi(nmb);
 			val = MakeLong(shift * sign, 0x8000);
 		}
 		else if(*p == 0)
@@ -1268,7 +1268,7 @@ IMPL_HANDLE_EVENT(FastEditRightsDlg)
 				else {
 					SmartListBox * p_lbx = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
 					if(p_lbx) {
-						p_lbx->search(&GrpUserID, CMPF_LONG, srchFirst | lbSrchByID);
+						p_lbx->Search_(&GrpUserID, CMPF_LONG, srchFirst | lbSrchByID);
 						p_lbx->Draw_();
 						PPError();
 					}

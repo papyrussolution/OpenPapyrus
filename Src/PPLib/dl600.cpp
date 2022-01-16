@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -18,15 +18,17 @@ int DlFunc::IsEq(const DlFunc & rPat) const
 	THROW(Flags == rPat.Flags);
 	THROW(ImplID == rPat.ImplID);
 	THROW(Name.Cmp(rPat.Name, 0) == 0);
-	uint c = ArgList.getCount();
-	THROW(c == rPat.ArgList.getCount());
-	if(c) do {
-		--c;
-		const Arg * p_arg = static_cast<const Arg *>(ArgList.at(c));
-		const Arg * p_pat_arg = static_cast<const Arg *>(rPat.ArgList.at(c));
-		THROW(p_arg->TypID == p_pat_arg->TypID);
-		THROW(p_arg->Flags == p_pat_arg->Flags);
-	} while(c);
+	{
+		uint c = ArgList.getCount();
+		THROW(c == rPat.ArgList.getCount());
+		if(c) do {
+			--c;
+			const Arg * p_arg = static_cast<const Arg *>(ArgList.at(c));
+			const Arg * p_pat_arg = static_cast<const Arg *>(rPat.ArgList.at(c));
+			THROW(p_arg->TypID == p_pat_arg->TypID);
+			THROW(p_arg->Flags == p_pat_arg->Flags);
+		} while(c);
+	}
 	CATCHZOK
 	return ok;
 }
@@ -664,24 +666,26 @@ int CtmExpr::Unpack(SStrScan & scan)
 		scan.IncrLen(1);
 	}
 	scan.Skip();
-	const size_t empty_len = sstrlen(P_EmptyExprStr);
-	if(scan.Search(P_EmptyExprStr) && scan.Len == 0) {
-		scan.Offs += empty_len;
-		P_Next = 0;
-	}
-	else {
-		P_Next = new CtmExpr;
-		P_Next->Init();
-		THROW(P_Next->Unpack(scan));
-	}
-	if(scan.Search(P_EmptyExprStr) && scan.Len == 0) {
-		scan.Offs += empty_len;
-		P_Arg = 0;
-	}
-	else {
-		P_Arg = new CtmExpr;
-		P_Arg->Init();
-		THROW(P_Arg->Unpack(scan));
+	{
+		const size_t empty_len = sstrlen(P_EmptyExprStr);
+		if(scan.Search(P_EmptyExprStr) && scan.Len == 0) {
+			scan.Offs += empty_len;
+			P_Next = 0;
+		}
+		else {
+			P_Next = new CtmExpr;
+			P_Next->Init();
+			THROW(P_Next->Unpack(scan));
+		}
+		if(scan.Search(P_EmptyExprStr) && scan.Len == 0) {
+			scan.Offs += empty_len;
+			P_Arg = 0;
+		}
+		else {
+			P_Arg = new CtmExpr;
+			P_Arg->Init();
+			THROW(P_Arg->Unpack(scan));
+		}
 	}
 	THROW(*scan == '}');
 	scan.Incr();
@@ -2671,19 +2675,23 @@ long DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 			fs.flags |= COMF_FILLOVF;
 			curpos++;
 		}
-		if(atoi(curpos))
-			fs.len = atoi(curpos);
-		if(oneof2(GETSTYPE(tp), S_FLOAT, S_DEC))
-			if(curpos = sstrchr(curpos, '.'))
-				fs.prec = atoi(curpos+1);
-		if(curpos = sstrchr(pFmtStr, '@')) {
+		if(satoi(curpos) > 0)
+			fs.len = satoi(curpos);
+		if(oneof2(GETSTYPE(tp), S_FLOAT, S_DEC)) {
+			curpos = sstrchr(curpos, '.');
+			if(curpos)
+				fs.prec = satoi(curpos+1);
+		}
+		curpos = sstrchr(pFmtStr, '@');
+		if(curpos) {
 			switch(toupper(curpos[1])) {
 				case 'U': fs.flags |= STRF_UPPER;    break;
 				case 'L': fs.flags |= STRF_LOWER;    break;
 				case 'P': fs.flags |= STRF_PASSWORD; break;
 			}
 		}
-		if(curpos = sstrchr(pFmtStr, '#')) {
+		curpos = sstrchr(pFmtStr, '#');
+		if(curpos) {
 			switch(toupper(curpos[1])) {
 				case 'A': fs.flags |= DATF_AMERICAN; break;
 				case 'G': fs.flags |= DATF_GERMAN;   break;
@@ -2704,7 +2712,8 @@ long DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 			else
 				SETIFZ(fs.len, 8);
 		}
-		if(curpos = sstrchr(pFmtStr, '$')) {
+		curpos = sstrchr(pFmtStr, '$');
+		if(curpos) {
 			for(curpos++; *curpos; curpos++)
 				switch(toupper(*curpos)) {
 					case 'C': fs.flags |= NMBF_TRICOMMA;  break;
@@ -2715,7 +2724,8 @@ long DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 					case 'N': fs.flags |= NMBF_NOTRAILZ;  break;
 				}
 		}
-		if((curpos = sstrchr(pFmtStr, '&')) != 0) {
+		curpos = sstrchr(pFmtStr, '&');
+		if(curpos) {
 			switch(curpos[1]) {
 				case 'F':
 				case 'f': SETIFZ(fs.len, 11); fs.flags |= TIMF_HMS | TIMF_MSEC; break;
@@ -2966,9 +2976,11 @@ int DlContext::DropDbTableSpec(const char * pName)
 	DLSYMBID parent_id = 0;
 	const DlScope * p_scope = Sc.SearchByName_Const(DlScope::kDbTable, pName, &parent_id);
 	THROW(p_scope);
-	DlScope * p_parent = Sc.SearchByID(parent_id, 0);
-	THROW(p_parent);
-	THROW(p_parent->Remove(p_scope->ID));
+	{
+		DlScope * p_parent = Sc.SearchByID(parent_id, 0);
+		THROW(p_parent);
+		THROW(p_parent->Remove(p_scope->ID));
+	}
 	CATCHZOK
 	return ok;
 }

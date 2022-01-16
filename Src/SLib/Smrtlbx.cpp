@@ -1,5 +1,5 @@
 // SMRTLBX.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -511,80 +511,154 @@ void SmartListBox::Helper_ClearTreeWnd()
 		TreeView_DeleteAllItems(h_lb);
 }
 
-int SmartListBox::SetupTreeWnd2(uint32 parentP)
+int SmartListBox::SetupTreeWnd2(void * pParent)
 {
 	int    ok = -1;
 	HWND   h_lb = getHandle();
 	if(def && h_lb) {
 		HTREEITEM h_parent = 0;
 		long   save_pos = 0;
+		SString err_msg;
 		StdTreeListBoxDef * p_def = 0;
 		StdTreeListBoxDef2_ * p_def2 = 0;
 		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE)
 			p_def = static_cast<StdTreeListBoxDef *>(def);
 		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2)
 			p_def2 = static_cast<StdTreeListBoxDef2_ *>(def);
-		if(parentP == 0) {
-			save_pos = p_def->_curItem();
-			Helper_ClearTreeWnd();
-			//
-			// добавляем список картинок
-			//
-			{
-				if(HIML)
-					ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
-				HIML = p_def->CreateImageList(TProgram::GetInst());
-				if(HIML)
-					::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
-			}
-		}
-		else {
-			const StdTreeListBoxDef::TreeItem * p_item = static_cast<const StdTreeListBoxDef::TreeItem *>(p_def->T.GetData(parentP));
-			if(p_item)
-				h_parent = static_cast<HTREEITEM>(p_item->H);
-		}
-		{
-			SString err_msg;
-			for(STree::Iter t_iter(parentP); p_def->T.Enum(t_iter);) {
-				StdTreeListBoxDef::TreeItem * p_item = static_cast<StdTreeListBoxDef::TreeItem *>(t_iter.GetData());
-				if(p_item) {
-					TVINSERTSTRUCT is;
-					is.hParent      = NZOR(h_parent, TVI_ROOT);
-					is.hInsertAfter = TVI_LAST;
-					is.item.mask    = TVIF_TEXT | TVIF_PARAM | TVIF_CHILDREN;
-					if(p_def->GetImageIdxByID(p_item->Id, 0) > 0) {
-						is.item.iImage = I_IMAGECALLBACK;
-						is.item.iSelectedImage = I_IMAGECALLBACK;
-						is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
+		if(p_def2) {
+			StrAssocTree * p_tree = p_def2->P_SaList;
+			if(p_tree) {
+				if(pParent) {
+					//SHandle h = p_tree->Search(parentP);
+					h_parent = reinterpret_cast<HTREEITEM>(p_tree->GetNodeExtraPtr(SHandle(pParent)));
+				}
+				else {
+					save_pos = p_def2->_curItem();
+					Helper_ClearTreeWnd();
+					//
+					// добавляем список картинок
+					//
+					{
+						if(HIML)
+							ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
+						HIML = p_def2->CreateImageList(TProgram::GetInst());
+						if(HIML)
+							::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
 					}
-					const  uint32 first_child_p = p_def->T.GetFirstChildP(t_iter.GetCurrentPos());
-					is.item.cChildren = first_child_p ? 1 : 0;
-					is.item.pszText = LPSTR_TEXTCALLBACK;
-					is.item.lParam  = p_item->Id;
-					HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
-					if(h_tree) {
-						p_item->H = h_tree;
-						if(first_child_p && !(parentP == 0 && p_item->Id == 0))
-							SetupTreeWnd2(t_iter.GetCurrentPos()); // @recursion
+				}
+				{
+					//LongArray item_id_list;
+					//p_tree->GetListByParent(parentP, false, item_id_list);
+					TSVector <SHandle> item_h_list;
+					p_tree->GetListByParent_Unsafe(SHandle(pParent), false, item_h_list);
+					//for(uint i = 0; i < item_id_list.getCount(); i++) {
+					for(uint i = 0; i < item_h_list.getCount(); i++) {
+						//const long current_id = item_id_list.get(i);
+						//SHandle current_h = p_tree->Search(current_id);
+						SHandle current_h = item_h_list.at(i);
+						if(current_h) {
+							const long current_id = p_tree->GetNodeKey(current_h);
+							TVINSERTSTRUCT is;
+							is.hParent      = NZOR(h_parent, TVI_ROOT);
+							is.hInsertAfter = TVI_LAST;
+							is.item.mask    = TVIF_TEXT | TVIF_PARAM | TVIF_CHILDREN;
+							if(p_def2->GetImageIdxByID(current_id, 0) > 0) {
+								is.item.iImage = I_IMAGECALLBACK;
+								is.item.iSelectedImage = I_IMAGECALLBACK;
+								is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
+							}
+							//const  uint32 first_child_p = p_tree->GetFirstChildP(t_iter.GetCurrentPos());
+							bool has_children = p_tree->HasNodeChildren(current_h);
+							is.item.cChildren = has_children ? 1 : 0;
+							is.item.pszText = LPSTR_TEXTCALLBACK;
+							is.item.lParam  = current_id;
+							HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
+							if(h_tree) {
+								p_tree->SetNodeExtraPtr(current_h, reinterpret_cast<uintptr_t>(h_tree));
+								//p_item->H = h_tree;
+								if(has_children /*&& !(parentP == 0 && p_item->Id == 0)*/)
+									SetupTreeWnd2(current_h); // @recursion
+							}
+							else {
+								//
+								// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
+								//
+								//TCHAR temp_buf[256];
+								//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
+								//(err_msg = SUcSwitch(temp_buf)).Chomp();
+								// @v10.3.11 {
+								SSystem::SFormatMessage(err_msg); 
+								err_msg.Chomp();
+								// } @v10.3.11
+							}
+						}
 					}
-					else {
-						//
-						// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
-						//
-						//TCHAR temp_buf[256];
-						//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
-						//(err_msg = SUcSwitch(temp_buf)).Chomp();
-						// @v10.3.11 {
-						SSystem::SFormatMessage(err_msg); 
-						err_msg.Chomp();
-						// } @v10.3.11
-					}
-					ok = 1;
 				}
 			}
 		}
-		if(parentP == 0) {
-			def->go(save_pos);
+		else if(p_def) {
+			uint32 parent_idx = reinterpret_cast<uint32>(pParent);
+			if(parent_idx) {
+				const StdTreeListBoxDef::TreeItem * p_item = static_cast<const StdTreeListBoxDef::TreeItem *>(p_def->T.GetData(parent_idx));
+				if(p_item)
+					h_parent = static_cast<HTREEITEM>(p_item->H);
+			}
+			else {
+				save_pos = p_def->_curItem();
+				Helper_ClearTreeWnd();
+				//
+				// добавляем список картинок
+				//
+				{
+					if(HIML)
+						ImageList_Destroy(static_cast<HIMAGELIST>(HIML));
+					HIML = p_def->CreateImageList(TProgram::GetInst());
+					if(HIML)
+						::SendMessage(static_cast<HWND>(h_lb), (UINT)TVM_SETIMAGELIST, static_cast<WPARAM>(TVSIL_NORMAL), reinterpret_cast<LPARAM>(HIML));
+				}
+			}
+			{
+				for(STree::Iter t_iter(parent_idx); p_def->T.Enum(t_iter);) {
+					StdTreeListBoxDef::TreeItem * p_item = static_cast<StdTreeListBoxDef::TreeItem *>(t_iter.GetData());
+					if(p_item) {
+						TVINSERTSTRUCT is;
+						is.hParent      = NZOR(h_parent, TVI_ROOT);
+						is.hInsertAfter = TVI_LAST;
+						is.item.mask    = TVIF_TEXT | TVIF_PARAM | TVIF_CHILDREN;
+						if(p_def->GetImageIdxByID(p_item->Id, 0) > 0) {
+							is.item.iImage = I_IMAGECALLBACK;
+							is.item.iSelectedImage = I_IMAGECALLBACK;
+							is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
+						}
+						const  uint32 first_child_p = p_def->T.GetFirstChildP(t_iter.GetCurrentPos());
+						is.item.cChildren = first_child_p ? 1 : 0;
+						is.item.pszText = LPSTR_TEXTCALLBACK;
+						is.item.lParam  = p_item->Id;
+						HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
+						if(h_tree) {
+							p_item->H = h_tree;
+							if(first_child_p && !(parent_idx == 0 && p_item->Id == 0))
+								SetupTreeWnd2(reinterpret_cast<void *>(t_iter.GetCurrentPos())); // @recursion
+						}
+						else {
+							//
+							// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
+							//
+							//TCHAR temp_buf[256];
+							//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
+							//(err_msg = SUcSwitch(temp_buf)).Chomp();
+							// @v10.3.11 {
+							SSystem::SFormatMessage(err_msg); 
+							err_msg.Chomp();
+							// } @v10.3.11
+						}
+						ok = 1;
+					}
+				}
+			}
+			if(pParent == 0) {
+				def->go(save_pos);
+			}
 		}
 	}
 	return ok;
@@ -593,10 +667,40 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 int SmartListBox::GetStringByID(long id, SString & rBuf)
 {
 	rBuf.Z();
-	return def ? static_cast<StdTreeListBoxDef *>(def)->GetStringByID(id, rBuf) : 0;
+	int    ok = 0;
+	if(def) {
+		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+			ok = p_def->GetStringByID(id, rBuf);
+		}
+		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+			ok = p_def->GetStringByID(id, rBuf);
+		}
+	}
+	return ok;
 }
 
-int SmartListBox::GetImageIdxByID(long id, long * pIdx) { return def ? static_cast<StdListBoxDef *>(def)->GetImageIdxByID(id, pIdx) : 0; }
+int SmartListBox::GetImageIdxByID(long id, long * pIdx) 
+{
+	int    ok = 0;
+	if(def) {
+		if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+			StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+			ok = p_def->GetImageIdxByID(id, pIdx);
+		}
+		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+			StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+			ok = p_def->GetImageIdxByID(id, pIdx);
+		}
+		else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STD) {
+			StdListBoxDef * p_def = static_cast<StdListBoxDef *>(def);
+			ok = p_def->GetImageIdxByID(id, pIdx);
+		}
+	}
+	return ok;
+	//return def ? static_cast<StdListBoxDef *>(def)->GetImageIdxByID(id, pIdx) : 0; 
+}
 
 int FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 {
@@ -791,7 +895,15 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					case TVN_SELCHANGED:
 						{
 							LPNMTREEVIEW pnmtv = reinterpret_cast<LPNMTREEVIEW>(lParam);
-							static_cast<StdTreeListBoxDef *>(def)->GoByID(pnmtv->itemNew.lParam);
+							if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+								p_def->GoByID(pnmtv->itemNew.lParam);
+							}
+							else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+								p_def->GoByID(pnmtv->itemNew.lParam);
+							}
+							//static_cast<StdTreeListBoxDef *>(def)->GoByID(pnmtv->itemNew.lParam);
 							if(def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
 							if(State & stLButtonDown) {
@@ -815,7 +927,15 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							t_item.mask = TVIF_PARAM;
 							t_item.hItem = TreeView_HitTest(h_tlist, &ht);
 							TreeView_GetItem(h_tlist, &t_item);
-							static_cast<StdTreeListBoxDef *>(def)->GoByID(t_item.lParam);
+							if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE) {
+								StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(def);
+								p_def->GoByID(t_item.lParam);
+							}
+							else if(def->GetSignature() == _SlConst.ListBoxDefSignature_STDTREE2) {
+								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(def);
+								p_def->GoByID(t_item.lParam);
+							}
+							//static_cast<StdTreeListBoxDef *>(def)->GoByID(t_item.lParam);
 							SelectTreeItem();
 							MessageCommandToOwner((p_nm->code == NM_RCLICK) ? cmRightClick : cmLBDblClk);
 						}
@@ -1061,8 +1181,9 @@ void FASTCALL SmartListBox::focusItem(long item)
 	}
 }
 
-int SmartListBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
+bool SmartListBox::Search_(const void * pPattern, CompFunc fcmp, int srchMode)
 {
+	bool result = false;
 	if(def && def->search(pPattern, fcmp, srchMode)) {
 		if(!(State & stTreeList)) {
 			long   scroll_delta, scroll_pos;
@@ -1072,9 +1193,9 @@ int SmartListBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
 		}
 		else
 			SelectTreeItem();
-		return 1;
+		result = true;
 	}
-	return 0;
+	return result;
 }
 //
 //
@@ -1307,7 +1428,6 @@ UiSearchTextBlock::~UiSearchTextBlock()
 
 void SmartListBox::search(char * pFirstLetter, int srchMode)
 {
-	int    r = -1;
 	char   pattern[512];
 	SString srch_pattern;
 	StrPool.getnz(SrchPatternPos, srch_pattern);
@@ -1320,13 +1440,13 @@ void SmartListBox::search(char * pFirstLetter, int srchMode)
 			StrPool.add(srch_pattern, &SrchPatternPos);
 		if(r2 == cmOK) {
 			srch_pattern.CopyTo(pattern, sizeof(pattern));
-			r = search(pattern, SrchFunc, (pattern[0] == '*') ? srchNext : srchFirst);
+			Search_(pattern, SrchFunc, (pattern[0] == '*') ? srchNext : srchFirst);
 		}
 	}
 	else if((srchMode & ~srchFlags) == srchNext) {
 		if(srch_pattern.NotEmpty()) {
 			srch_pattern.CopyTo(pattern, sizeof(pattern));
-			r = search(pattern, SrchFunc, srchNext);
+			Search_(pattern, SrchFunc, srchNext);
 		}
 	}
 	/*

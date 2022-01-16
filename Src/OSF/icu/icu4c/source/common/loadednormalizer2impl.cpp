@@ -1,12 +1,8 @@
+// loadednormalizer2impl.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * loadednormalizer2impl.cpp
- *
+ * Copyright (C) 2014, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2014sep03
  * created by: Markus W. Scherer
  */
@@ -17,28 +13,25 @@
 
 #include "unicode/ucptrie.h"
 #include "norm2allmodes.h"
-#include "normalizer2impl.h"
 #include "ucln_cmn.h"
 
 U_NAMESPACE_BEGIN
 
 class LoadedNormalizer2Impl : public Normalizer2Impl {
 public:
-	LoadedNormalizer2Impl() : memory(NULL), ownedTrie(NULL) {
+	LoadedNormalizer2Impl() : memory(NULL), ownedTrie(NULL) 
+	{
 	}
-
 	virtual ~LoadedNormalizer2Impl();
-
 	void load(const char * packageName, const char * name, UErrorCode & errorCode);
-
 private:
 	static bool U_CALLCONV isAcceptable(void * context, const char * type, const char * name, const UDataInfo * pInfo);
-
 	UDataMemory * memory;
 	UCPTrie * ownedTrie;
 };
 
-LoadedNormalizer2Impl::~LoadedNormalizer2Impl() {
+LoadedNormalizer2Impl::~LoadedNormalizer2Impl() 
+{
 	udata_close(memory);
 	ucptrie_close(ownedTrie);
 }

@@ -115,7 +115,7 @@ void GnuPlot::FileTypeFunction_Edf()
 		_Df.df_filename = (char *)SAlloc::R(_Df.df_filename, plen+1);
 		strnzcpy(_Df.df_filename, p, plen+1);
 		p = edf_findInHeader(header, "EDF_BinaryFilePosition");
-		_Df.df_bin_record[0].scan_skip[0] = p ? atoi(p) : 0;
+		_Df.df_bin_record[0].scan_skip[0] = satoi(p);
 	}
 	else
 		_Df.df_bin_record[0].scan_skip[0] = header_size; // skip header 
@@ -133,10 +133,10 @@ void GnuPlot::FileTypeFunction_Edf()
 	// now parse the header 
 	p = edf_findInHeader(header, "Dim_1");
 	if(p)
-		_Df.df_bin_record[0].scan_dim[0] = atoi(p);
+		_Df.df_bin_record[0].scan_dim[0] = satoi(p);
 	p = edf_findInHeader(header, "Dim_2");
 	if(p)
-		_Df.df_bin_record[0].scan_dim[1] = atoi(p);
+		_Df.df_bin_record[0].scan_dim[1] = satoi(p);
 	p = edf_findInHeader(header, "DataType");
 	if(p) {
 		k = lookup_table4_nth(edf_datatype_table, p);

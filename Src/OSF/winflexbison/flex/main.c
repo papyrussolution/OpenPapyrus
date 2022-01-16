@@ -96,7 +96,7 @@ char * infilename = NULL;
 char * outfilename = NULL;
 char * headerfilename = NULL;
 int    did_outfilename;
-char * prefix;
+const  char * prefix;
 char * yyclass;
 char * extra_type = NULL;
 int    do_stdinit;
@@ -216,7 +216,7 @@ char * flex_temp_out_main = 0;
 /* Make sure program_name is initialized so we don't crash if writing
  * out an error message before getting the program name from argv[0].
  */
-char   * program_name = "win_flex.exe";
+const char * program_name = "win_flex.exe";
 
 static const char outfile_template[] = "lex.%s.%s";
 static const char backing_name[] = "lex.backup";
@@ -566,19 +566,17 @@ void flexend(int exit_status)
 {
 	static int called_before = -1;  /* prevent infinite recursion. */
 	int tblsiz;
-
 	if(++called_before)
 		FLEX_EXIT(exit_status);
-
 	if(!exit_status) {
 		FILE* out = NULL;
 		fflush(stdout);
-		/* process output */
+		// process output 
 		if(fseek(stdout, 0, SEEK_SET))
 			flexerror(_("fseek for temp out failed"));
 		if(!use_stdout) {
 			if(!did_outfilename) {
-				char * suffix = C_plus_plus ? "cc" : "c";
+				const char * suffix = C_plus_plus ? "cc" : "c";
 				snprintf(outfile_path, sizeof(outfile_path), outfile_template, prefix, suffix);
 				outfilename = outfile_path;
 			}

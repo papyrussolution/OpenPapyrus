@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Account.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Backup.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Calendar.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\stacktrace\call_stack_gcc.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\stacktrace\call_stack_windows.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Column.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Contact.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\ContactBook.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\ContactGroup.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Database.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\icalendarlib\date.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DAVUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DAVWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DavXML.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\DeltaStream.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\error.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Event.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Exception.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\exceptions.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\File.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\filelib.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Folder.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\GenericException.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\GoogleContactsWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\icalendarlib\icalendar.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Identity.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Label.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\MailModel.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailProcessor.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailStore.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailStoreTransaction.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MailUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\main.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Message.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MetadataExpirationWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\MetadataWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\NetworkRequestUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\platform.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\ProgressCollectors.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Query.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\simpio.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Statement.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\StanfordCPPLib\strlib.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\SyncException.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\SyncWorker.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Task.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\TaskProcessor.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\Models\Thread.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\ThreadUtils.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\SQLiteCpp\src\Transaction.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\icalendarlib\types.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\VCard.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\XOAuth2TokenManager.cpp" />
+    <ClCompile Include="..\osf\Mailspring-Sync\MailSync\mailsync-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\Mailspring-Sync\MailSync\mailsync-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\constants.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\dbg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\optionparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\sha256.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\ThreadUtils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DAVUtils.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DAVWorker.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DavXML.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\DeltaStream.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\GenericException.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\GoogleContactsWorker.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailProcessor.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailStore.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailStoreTransaction.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MailUtils.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MetadataExpirationWorker.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\MetadataWorker.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\NetworkRequestUtils.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\ProgressCollectors.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Query.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\SPDLogExtensions.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\SyncException.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\SyncWorker.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\TaskProcessor.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\VCard.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\XOAuth2TokenManager.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Account.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Calendar.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Contact.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\ContactBook.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\ContactGroup.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Event.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\File.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Folder.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Identity.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Label.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\MailModel.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Message.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Task.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\Models\Thread.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

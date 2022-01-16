@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_lite_unittest.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_import_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_import_public_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\unittest_lite.pb.cc">
+      <Filter>Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\arena_test_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\test_util_lite.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\map_lite_test_util.cc" />
+    <ClCompile Include="..\osf\protobuf-3.19.1\src\google\protobuf\lite_arena_unittest.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{cca2db9b-25ce-487f-ba41-d8067804f7ae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

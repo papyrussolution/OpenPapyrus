@@ -28,9 +28,6 @@
 	#include <config.h>
 #endif
 #undef IN
-//#include <string.h>
-//#include <stdlib.h>
-//#include "pixman-private.h"
 #include "pixman-combine32.h"
 #include "pixman-inlines.h"
 

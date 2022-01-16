@@ -129,7 +129,7 @@
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Debug/libgit2_clar.lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <LargeAddressAware>true</LargeAddressAware>
       <ProgramDataBaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -184,7 +184,7 @@
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Debug/libgit2_clar.lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <LargeAddressAware>true</LargeAddressAware>
       <ProgramDataBaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -242,7 +242,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Release/libgit2_clar.lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <LargeAddressAware>true</LargeAddressAware>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <OptimizeReferences>true</OptimizeReferences>
@@ -303,7 +303,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Release/libgit2_clar.lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <LargeAddressAware>true</LargeAddressAware>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <OptimizeReferences>true</OptimizeReferences>

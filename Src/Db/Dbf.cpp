@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -201,11 +201,11 @@ int DbfRecord::put(int fld, const char * data)
 			LDATE dt, f_dt;
 			encodedate(d, m, y, &f_dt);
 			STRNSCPY(buf, data);
-			d = atoi(buf + 6);
+			d = satoi(buf + 6);
 			buf[6] = 0;
-			m = atoi(buf + 4);
+			m = satoi(buf + 4);
 			buf[4] = 0;
-			y = atoi(buf);
+			y = satoi(buf);
 			encodedate(d, m, y, &dt);
 			memcpy(P_Buffer + f.offset + 4, &date, 4);
 			if(dt != ZERODATE)
@@ -368,7 +368,7 @@ int DbfRecord::get(int fldN, int & data) const
 		return 0;
 	}
 	else {
-		data = atoi(tmp);
+		data = satoi(tmp);
 		return 1;
 	}
 }
@@ -382,9 +382,9 @@ int DbfRecord::get(int fldN, DBFDate * data) const
 	}
 	else {
 		tmp[8] = 0;
-		data->day   = atoi(tmp+6); tmp[6] = 0;
-		data->month = atoi(tmp+4); tmp[4] = 0;
-		data->year  = atoi(tmp);
+		data->day   = satoi(tmp+6); tmp[6] = 0;
+		data->month = satoi(tmp+4); tmp[4] = 0;
+		data->year  = satoi(tmp);
 		return 1;
 	}
 }
@@ -698,10 +698,12 @@ int DbfTable::getFields()
 	THROW_S(P_Flds = new DBFF[NumFlds], SLERR_NOMEM);
 	fseek(Stream, sizeof(DBFH), SEEK_SET);
 	THROW_S_S(fread(P_Flds, sizeof(DBFF), NumFlds, Stream) == NumFlds, SLERR_READFAULT, P_Name);
-	int    offs = 1;
-	for(uint i = 0; i < NumFlds; i++) {
-		P_Flds[i].offset = offs;
-		offs += P_Flds[i].fsize;
+	{
+		int    offs = 1;
+		for(uint i = 0; i < NumFlds; i++) {
+			P_Flds[i].offset = offs;
+			offs += P_Flds[i].fsize;
+		}
 	}
 	fseek(Stream, pos, SEEK_SET);
 	CATCHZOK
@@ -887,12 +889,14 @@ int DbfTable::flushBuffer()
 {
 	int    ok = 1;
 	THROW_S_S(Opened, SLERR_DBF_NOTOPENED, P_Name);
-	long pos = ftell(Stream);
-	fseek(Stream, Head.HeadSize + (BFirst - 1) * Head.RecSize, SEEK_SET);
-	THROW_S_S(fwrite(P_Buffer, (size_t)(Head.RecSize * (BLast - BFirst + 1)), 1, Stream) == 1, SLERR_WRITEFAULT, P_Name);
-	if(BLast == Head.NumRecs)
-		fputc('\x1A', Stream);
-	fseek(Stream, pos, SEEK_SET);
+	{
+		const long pos = ftell(Stream);
+		fseek(Stream, Head.HeadSize + (BFirst - 1) * Head.RecSize, SEEK_SET);
+		THROW_S_S(fwrite(P_Buffer, (size_t)(Head.RecSize * (BLast - BFirst + 1)), 1, Stream) == 1, SLERR_WRITEFAULT, P_Name);
+		if(BLast == Head.NumRecs)
+			fputc('\x1A', Stream);
+		fseek(Stream, pos, SEEK_SET);
+	}
 	CATCHZOK
 	return ok;
 }
@@ -901,12 +905,14 @@ int DbfTable::loadBuffer(long beg, long end)
 {
 	int    ok = 1;
 	THROW_S_S(Opened, SLERR_DBF_NOTOPENED, P_Name);
-	long pos = ftell(Stream);
-	fseek(Stream, Head.HeadSize + (beg - 1) * Head.RecSize, SEEK_SET);
-	THROW_S_S(fread(P_Buffer, (size_t)(Head.RecSize * (end - beg + 1)), 1, Stream) == 1, SLERR_READFAULT, P_Name);
-	fseek(Stream, pos, SEEK_SET);
-	BFirst = beg;
-	BLast  = end;
+	{
+		const long pos = ftell(Stream);
+		fseek(Stream, Head.HeadSize + (beg - 1) * Head.RecSize, SEEK_SET);
+		THROW_S_S(fread(P_Buffer, (size_t)(Head.RecSize * (end - beg + 1)), 1, Stream) == 1, SLERR_READFAULT, P_Name);
+		fseek(Stream, pos, SEEK_SET);
+		BFirst = beg;
+		BLast  = end;
+	}
 	CATCHZOK
 	return ok;
 }

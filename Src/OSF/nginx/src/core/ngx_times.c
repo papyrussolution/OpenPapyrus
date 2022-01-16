@@ -43,8 +43,8 @@ static u_char cached_http_log_time[NGX_TIME_SLOTS][sizeof("28/Sep/1970:12:00:00 
 static u_char cached_http_log_iso8601[NGX_TIME_SLOTS][sizeof("1970-09-28T12:00:00+06:00")];
 static u_char cached_syslog_time[NGX_TIME_SLOTS][sizeof("Sep 28 12:00:00")];
 
-static char  * week[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-static char  * months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+static const char  * week[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+static const char  * months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 void ngx_time_init(void)
 {

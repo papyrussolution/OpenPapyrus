@@ -37,7 +37,7 @@ static ngx_int_t ngx_http_dav_copy_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static ngx_int_t ngx_http_dav_copy_dir_time(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static ngx_int_t ngx_http_dav_copy_tree_file(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static ngx_int_t ngx_http_dav_depth(ngx_http_request_t * r, ngx_int_t dflt);
-static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, char * failed, u_char * path);
+static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, const char * failed, u_char * path);
 static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path);
 static void * ngx_http_dav_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_dav_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
@@ -261,7 +261,7 @@ ok:
 
 static ngx_int_t ngx_http_dav_delete_path(ngx_http_request_t * r, ngx_str_t * path, ngx_uint_t dir)
 {
-	char * failed;
+	const char * failed;
 	ngx_tree_ctx_t tree;
 	if(dir) {
 		tree.init_handler = NULL;
@@ -674,7 +674,7 @@ static ngx_int_t ngx_http_dav_depth(ngx_http_request_t * r, ngx_int_t dflt)
 	return NGX_HTTP_DAV_INVALID_DEPTH;
 }
 
-static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, char * failed, u_char * path)
+static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, const char * failed, u_char * path)
 {
 	ngx_int_t rc;
 	ngx_uint_t level;

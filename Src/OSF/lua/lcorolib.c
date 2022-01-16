@@ -8,7 +8,6 @@
 
 #define lcorolib_c
 #define LUA_LIB
-//#include <stdlib.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"

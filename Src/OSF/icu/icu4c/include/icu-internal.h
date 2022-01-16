@@ -3,21 +3,23 @@
 #ifndef __ICU_INTERNAL_H
 #define __ICU_INTERNAL_H // {
 
+#define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 
 #define U_I18N_IMPLEMENTATION
 #define U_IO_IMPLEMENTATION
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <limits.h>
-#include <locale.h>
-#include <assert.h>
-#include <time.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdarg.h>
+//#include <string.h>
+//#include <ctype.h>
+//#include <float.h>
+//#include <limits.h>
+//#include <locale.h>
+//#include <assert.h>
+//#include <time.h>
+/*
 #include <typeinfo>
 #include <array>
 #include <utility>
@@ -42,6 +44,7 @@
 #include <list>
 #include <map>
 #include <cinttypes>
+*/
 
 #include "utypeinfo.h"
 
@@ -210,7 +213,12 @@
 #include "uhash.h"
 #include "pluralmap.h"
 #include "util.h"
+#include "udataswp.h"
+#include "uset_imp.h"
+#include "normalizer2impl.h"
 #include "collation.h"
+#include "putilimp.h"
+#include "utrie2.h"
 #include "collationdata.h"
 #include "csmatch.h"
 #include "uarrsort.h"

@@ -419,6 +419,8 @@ struct UfpFileSet;
 class  PPViewAlcoDeclRu;
 class  PPNamedFilt;
 struct bignum_st; // OpenSSL
+struct DBDivPack;
+struct PPCommSyncID;
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -518,6 +520,59 @@ public:
 };
 
 extern const PPConstParam _PPConst;
+//
+// Output message functions
+//
+SString & CDECL PPFormat(const SString & rFmt, SString * pBuf, ...);
+SString & CDECL PPFormatT(int textCode, SString * pBuf, ...);
+SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
+void   FASTCALL PPSetAddedMsgString(const char * pStr);
+void   FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID);
+int    FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
+//
+// Descr: Сокращенный аналог PPGetLastErrorMessage(rmvSpcChrs, rBuf)
+//
+int    FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf);
+int    PPOutputMessage(const char * msg, uint option);
+int    FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo);
+int    FASTCALL PPMessage(uint options, int msgcode);
+int    FASTCALL PPError(int errcode);
+int    FASTCALL PPError(int errcode, const char * pAddInfo);
+int    FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions);
+int    PPTooltipMessage(uint options, int msgcode, const char * pAddInfo);
+int    PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags);
+//
+// Descr: Единственная польза от следующей функции - снижение размера
+//   бинарного кода за счет устранения передачи лишних параметров.
+//   Вызов PPError() в кодах встречается более 1100 раз
+//
+int    PPError(); // @>>PPError(-1, 0)
+//
+// Descr: То же, что и PPError() но гарантированно возвращает 0.
+//   Создана для замены конструкции (PPError(), 0)
+//
+int    PPErrorZ();
+int    FASTCALL PPErrorTooltip(int errCode, const char * pAddedMsg);
+//
+// Descr: Устанавливает код текущей ошибки Papyrus в значение errCode и дополнительную строку pAddedMsg.
+// Returns: 0
+//
+int    FASTCALL PPSetError(int errCode, const char * pAddedMsg);
+int    FASTCALL PPSetError(int errCode, long val);
+int    FASTCALL PPSetError(int errCode);
+int    FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx);
+int    PPSetErrorNoMem();
+int    PPSetErrorInvParam();
+//
+// Returns: 0
+//
+int    PPSetErrorSLib();
+//
+// Returns: 0
+//
+int    PPSetErrorDB();
+int    PPDbSearchError(); // { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
+int    FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID);
 //
 // Descr: Утилитный класс, используемый как базовый для классов, имеющих
 //   строки расширения, идентифицируемые целочисленными значениями.
@@ -8775,6 +8830,127 @@ protected:
 
 	long   ImplementFlags;
 };
+//
+// Конфигурация обмена данными между разделами БД
+//
+#define DBDXF_SKIPINCOMPLBILL      0x00000001L // Не принимать неполные документы
+#define DBDXF_CALCTOTALDEFICITE    0x00000002L // Расчитывать итоговый дефицит товаров
+#define DBDXF_TURNTOTALDEFICITE    0x00000004L // Приходовать дефицит
+#define DBDXF_LINKRETBILLS         0x00000008L // Связывать возвратные документы
+#define DBDXF_IGNOREACK            0x00000010L // Не принимать пакеты подтверджений
+#define DBDXF_TWOPASSRCV           0x00000020L // Автоматический двухпроходной прием с приходованием дефицита
+#define DBDXF_SENDINVWROFFBILLS    0x00000040L // Передавать документы списания ревизии
+#define DBDXF_NOUPDGOODS           0x00000080L // Не принимать изменения товаров
+#define DBDXF_IMPOPSYNC            0x00000100L // Контекстная синхронизация видов
+	// операций по наименованию, типу операции и таблице статей
+#define DBDXF_SYNCSCARDWOCHECKS    0x00000200L // Синхронизировать пластиковые карты без чеков
+#define DBDXF_DONTCVTTOTALDIS      0x00000400L // Не конвертировать общую скидку на документы. Если этот флаг
+	// не установлен, то система преобразует общую скидку, установленную по документу, в общую абсолютную скидку
+	// (PPObjBill::ConvertILTI [ILTICVT.CPP]). В этом случае могут возникнуть затруднения при модификации
+	// документа, на который в разделе-отправителе выставлена скидка в процентах, одновременно в обоих разделах -
+	// суммы не совпадут, по-скольку в разделе получателе скидка будет выражена в сумме.
+#define DBDXF_SENDCSESSION         0x00000800L // Передавать кассовые сессии.
+	// Если этот флаг установлен, то при передаче изменений будут передаваться //
+	// сессии, зафиксированные событием PPACN_CSESSCLOSED. Насильственная передача
+	// сессий (PPViewCSess::Transmit) возможна независимо от этого флага.
+	//
+	// Если этот флаг установлен, то документы списания кассовых сессий не передаются.
+	// @v4.6.4 Исключением является случай, когда в разделе-приемнике установлен флаг
+	// DBDIVF_RCVCSESSANDWROFFBILLS. [см. функцию PPObjectTransmit::PutObjectToIndex()]
+#define DBDXF_CHARRY_PRICEQCOST    0x00001000L // При приеме документов Charry цена реализации
+	// равна цене поступления. В противном случае - если лоты такого товара уже существуют, то
+	// цена берется из последнего из этих лотов, если же таких лотов нет, то цена реализации
+	// опять же равна цене поступления.
+#define DBDXF_PACKFILES            0x00002000L // Упаковывать файлы перед отправкой
+#define DBDXF_IGNOBJUNIFY          0x00004000L // Игнорировать объединение объектов при разрешении идентификаторов
+	// В функции PPObjectTransmit::NeedRestoreObj() не будет проверяться факт объединения объекта, если
+	// в БД такой объект не найден (в некоторых случаях такая проверка приводит к неверному разрешению
+	// синхронизации объектов).
+#define DBDXF_UNITEINVDUPREC       0x00008000L // Объединять дублирующиеся строки инвентаризации
+#define DBDXF_NOCOMMITBYDEF        0x00010000L // По умолчанию, при приеме данных не устанавливается признак "Непосредственная фиксация транзакции"
+#define DBDXF_DESTROYQUEUEBYDEF    0x00020000L // По умолчанию, при приеме данных устанавливать признак "Разрушать очередь после акцепта"
+#define DBDXF_DONTLOGOBJUPD        0x00040000L // Не показывать в журнале информацию об изменении объектов
+#define DBDXF_SUBSTDEFICITGOODS    0x00100000L // подставлять дефицитные товары
+#define DBDXF_CHARRY_GIDASARCODE   0x00200000L // При приеме документов по CHARRY идентификатор товара трактовать как код товара по контрагенту.
+#define DBDXF_SENDTAGATTCHM        0x00400000L // Передавать файлы, прикрепленные к тегам
+#define DBDXF_SYNCUSRANDGRPS       0x00800000L // @v10.1.5 Синхронизировать пользователей и группы
+#define DBDXF_USEMQB               0x01000000L // @v11.0.1 Использовать брокер сообщений для обмена
+
+struct PPDBXchgConfig { // @transient (Для сохранения транслируется в __PPDBXchgConfig)
+	PPID   OneRcvLocID;        // Единственная локация, на которую должны приниматься все документы, независимо от того, какой локации они принадлежали в разделе-отправителе
+	long   PctAdd;             // Процент наценки при доприходовании дефицита. В сотых долях процента (250 = 2.5%)
+	int16  RealizeOrder;       // RLZORD_XXX Порядок использования лотов при приеме документов (переопределяет PPConfig::RealizeOrder на приеме документов из другого раздела)
+	uint16 PadRo;              // @alignment
+	long   CharryOutCounter;   // Счетчик исходящих файлов Charry
+	long   Flags;              // @flags
+	PPID   DfctRcptOpID;       // Вид операции приходования дефицита.
+	PPID   SpcSubstGoodsGrpID; // @v10.0.10 Товарная группа для специальной подстановки при дефиците
+};
+//
+// Descr: Контекст обмена данными. Передается в виртуальные методы
+//   PPObject::Write, PPObject::Read.
+//
+struct ObjTransmContext {
+	friend class PPObjectTransmit;
+	enum {
+		ctrfDisableLogWindow = 0x0001
+	};
+	//
+	// Descr: Конструктор.
+	// ARG(pLogger IN): @#{vptr0} Если указатель !0, то объект получает в качестве логгера внешний экземпляр,
+	//   жизненный цикл которого управляется вызывающим кодом. В противном случае объект создает
+	//   собственный экземпляр PPLogger, который будет разрушен деструктором.
+	// Note: Для освобождения ссылки на внешний логгер и создания собственного экземпляра следует
+	//   использовать метод ResetOuterLogger()
+	//
+	ObjTransmContext(uint ctrFlags, PPLogger * pLogger);
+	~ObjTransmContext();
+	int    ResetOuterLogger();
+	int    Output(const char * pText);
+	int    OutputLastError();
+	int    OutReceivingMsg(const char * pMsg);
+	int    OutputAcceptErrMsg(uint msgID, PPID objID, const char * pObjName);
+	int    OutputAcceptObjErrMsg(PPID objType, PPID objID, const char * pObjName);
+	int    OutputAcceptMsg(PPID objType, PPID objID, int upd);
+	int    OutputString(uint strId, const char * pAddedInfo);
+	operator SSerializeContext & () { return SCtx; }
+	int    GetPrevRestoredObj(PPObjID * pOi) const;
+	int    ForceRestore(PPObjID);
+	int    IsForced(PPObjID) const;
+	int    GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrimID);
+	int    RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta);
+	int    ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID);
+	int    AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
+
+	LDATETIME TransmitSince;            // Момент, начиная с которого должны передаваться изменения //
+	PPDBXchgConfig Cfg;                 // Конфигурация обмена
+	BillTransmDeficit * P_Btd;          //
+	GoodsReplacementArray * P_Gra;      // @v10.0.12
+	enum {
+		fNotTrnsmLots = 0x0001,         // Не передавать товарные строки
+		fConsolid     = 0x0002,         // Принимающий раздел является консолидирующим
+		fRecover      = 0x0004          // Восстанавливающая передача
+	};
+	long   Flags;                       // ObjTransmContext::fXXX
+	const  DBDivPack * P_ThisDbDivPack; // Пакет текущего раздела БД
+	const  DBDivPack * P_SrcDbDivPack;  // Пакет раздела БД, из которого принимаются данные (в режиме передачи - 0)
+	const  DBDivPack * P_DestDbDivPack; // Пакет раздела-получателя данных (в режиме приема - 0)
+	PPID   Extra;        // Дополнительный параметр. В случае передачи документов, содержит id операции в которую требуется преобразовать текущую операцию
+	long   LastStreamId; // Идентификатор последнего потока, из которого извлекались данные. Необходим для правильного переключения состояний контекстов сериализации данных (SCtx)
+	SSerializeContext  SCtx;            // Контекст сериализации данных
+private:
+	const void * P_Rb;                  // @*PPObjectTransmit::CommitQueue Указатель на блок восстановления.
+	enum {
+		stOuterLogger = 0x0001
+	};
+	long   State;
+	PPObjIDArray * P_ForceRestoreObj;   // Список объектов, которые должны быть изменены обязательно.
+		// Список формируется в процессе приема данных. Некоторые объекты при приеме могут потребовать
+		// обязательной модификации объекта, от которого они зависят.
+		// Идентификаторы объектов здесь храняться в терминах раздела-отправителя (ссылки неразрешенные).
+	PPObjectTransmit * P_Ot;            // @notowned
+	PPLogger * P_Logger;                // Журнал, в который записывается информация о процессе
+};
 
 template <class ObjType, class ObjPackType> int Implement_ObjReadPacket(ObjType * pObj, PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
@@ -10353,9 +10529,13 @@ struct ILTI { // @persistent(DBX) @size=80
 	// То есть, отправлен запрос на подтверждение, но ответ еще не получен. У документа при этом может быть установлен
 	// тег типа PPTAG_BILL_EDIACK. Если BILLF2_ACKPENDING установлен и в документе есть такой тег, то это означает,
 	// что подтверждение уведомления об еще не было подтверждено со стороны сервиса EDI.
-#define BILLF2_RECADV_ACCP   0x00000040L // На документ отправленный через EDI-канал получено подтверждение о получении покупателем
-#define BILLF2_RECADV_DECL   0x00000080L // Документ отправленный через EDI-канал получено уведомление об отказе в приеме
-	// Если установлены оба флага BILLF2_RECADV_ACCF и BILLF2_RECADV_DECL, то к документу привязывается драфт-документ приемки покупателем
+#define BILLF2_EDI_ACCP      0x00000040L // На документ отправленный через EDI-канал получено подтверждение о получении покупателем
+#define BILLF2_EDI_DECL      0x00000080L // Документ отправленный через EDI-канал получено уведомление об отказе в приеме
+	// Если установлены оба флага BILLF2_EDI_ACCP и BILLF2_EDI_DECL, то к документу привязывается драфт-документ приемки покупателем
+	// Флаги BILLF2_EDI_ACCP и BILLF2_EDI_DECL могут быть установлены на документы edi-класса DESADV и ORDER. 
+	// В случае ORDER флаги устанавливаются при поступлении ответного документа ORDRSP. При этом один BILLF2_EDI_ACCP означает,
+	// что заказ полностью принят, BILLF2_EDI_DECL - заказ полностью отклонен, оба установленных флага означают частичное
+	// подтверждение заказа с корректировками со стороны поставщика.
 #define BILLF2_EDIAR_AGR     0x00000100L // Ответ на подтверждение нашей отгрузки покупателем (согласны)
 #define BILLF2_EDIAR_DISAGR  0x00000200L // Ответ на подтверждение нашей отгрузки покупателем (не согласны)
 #define BILLF2_EDIREPEALREQ  0x00000400L // Для документа получен запрос на отмену в проведении на сервере EDI
@@ -23494,7 +23674,10 @@ struct DBDivPack {
 	PPIDArray LocList;
 	SString ExtString;
 };
-
+//
+// @ModuleDecl(PPObjDBDiv)
+// Раздел базы данных (PPOBJ_DBDIV)
+//
 class PPObjDBDiv : public PPObjReference {
 public:
 	enum {
@@ -28100,8 +28283,7 @@ struct SysJournalViewItem : public SysJournalTbl::Rec {
 
 	long   ID;
 	long   GrpCount;
-	// @v9.9.0 char   ObjName[64];
-	SString ObjName; // @v9.9.0
+	SString ObjName;
 	SString GrpText1;
 	SString AvgEvTime;
 };
@@ -28139,6 +28321,7 @@ public:
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void ViewTotal();
 	virtual int Detail(const void *, PPViewBrowser * pBrw);
 	virtual int Print(const void *);
 	virtual int HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
@@ -30375,7 +30558,7 @@ class PPSuprWarePacket {
 public:
 	PPSuprWarePacket();
 	void   Init();
-	PPSuprWarePacket & FASTCALL PPSuprWarePacket::operator = (const PPSuprWarePacket & rSrc);
+	PPSuprWarePacket & FASTCALL operator = (const PPSuprWarePacket & rSrc);
 
 	PPSuprWare Rec;
 	TSVector <PPSuprWareAssoc> Items;
@@ -30400,6 +30583,62 @@ public:
 private:
 	static int MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList);
 	virtual int DeleteObj(PPID id);
+};
+//
+// Descr: Специализированный блок обработки структур для отображения //
+//   Применяется в PPViewGoodsStruc и для отображения иерархии структур.
+//
+struct GoodsStrucProcessingBlock {
+	struct ItemEntry {
+		PPID   GStrucID;
+		PPID   GoodsID;
+		long   ItemNo;     // Порядковый номер элемента в структуре [1..]
+		long   Flags;
+		long   StrucFlags; // Для быстрого доступа (дублирует StrucEntry::Flags)
+		uint   StrucEntryP;
+		double Median;
+		double Denom;
+		double Netto;
+	};
+	struct StrucEntry {
+		PPID   GStrucID;
+		PPID   PrmrGoodsID;
+		long   Flags;
+		PPID   ParentStrucID;
+		PPID   GiftQuotKindID;
+		PPID   VariedPropObjType;
+		uint   NameP;
+		uint   SymbP;
+		DateRange Period;
+		float  GiftLimit;
+		double GiftAmtRestrict;
+		double CommDenom;
+	};
+	GoodsStrucProcessingBlock();
+	GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS);
+	int    AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, bool checkExistance, bool recursive);
+	PPObjGoodsStruc GSObj;
+	PPObjGoods GObj;
+	TSVector <StrucEntry> StrucList;
+	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
+};
+//
+// Descr: Класс, реализующий построение дерева отображения товарных структур
+//
+class GoodsStrucTreeListViewBlock {
+public:
+	explicit GoodsStrucTreeListViewBlock(const GoodsStrucProcessingBlock & rCb);
+	StrAssocTree * MakeTree();
+	const GoodsStrucProcessingBlock::ItemEntry * GetEntryByIdx(uint idx) const;
+	const GoodsStrucProcessingBlock::StrucEntry * GetStrucEntryByID(PPID id) const;
+
+	GoodsStrucProcessingBlock Cb; // @todo must be private
+private:
+	SString & MakeText(const GoodsStrucProcessingBlock::StrucEntry & rSe, SString & rTitleBuf);
+	void AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SHandle hParent, LongArray & rRecurList);
+	const long ItemOffset;
+	SString TitleBuf;
 };
 //
 //
@@ -31089,32 +31328,7 @@ public:
 	int    FASTCALL NextIteration(GoodsStrucViewItem *);
 	IterOrder GetCurrentViewOrder() const { return CurrentViewOrder; }
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
-	struct ItemEntry {
-		PPID   GStrucID;
-		PPID   GoodsID;
-		long   ItemNo;     // Порядковый номер элемента в структуре [1..]
-		long   Flags;
-		long   StrucFlags; // Для быстрого доступа (дублирует StrucEntry::Flags)
-		uint   StrucEntryP;
-		double Median;
-		double Denom;
-		double Netto;
-	};
-	struct StrucEntry {
-		PPID   GStrucID;
-		PPID   PrmrGoodsID;
-		long   Flags;
-		PPID   ParentStrucID;
-		PPID   GiftQuotKindID;
-		PPID   VariedPropObjType;
-		uint   NameP;
-		uint   SymbP;
-		DateRange Period;
-		float  GiftLimit;
-		double GiftAmtRestrict;
-		double CommDenom;
-	};
-	int    CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewGoodsStruc::ItemEntry * pItem1, const PPViewGoodsStruc::ItemEntry * pItem2);
+	int    CmpSortIndexItems(PPViewBrowser * pBrw, const GoodsStrucProcessingBlock::ItemEntry * pItem1, const GoodsStrucProcessingBlock::ItemEntry * pItem2);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -31129,26 +31343,11 @@ private:
 	int    SortList(PPViewBrowser * pBrw);
 	int    MakeTreeListView(PPViewBrowser * pBrw); // @v11.1.12 @construction
 
-	struct CommonProcessingBlock {
-		CommonProcessingBlock();
-		CommonProcessingBlock(const CommonProcessingBlock & rS);
-		int    CommonProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, int checkExistance);
-		PPObjGoodsStruc GSObj;
-		PPObjGoods GObj;
-		TSVector <StrucEntry> StrucList;
-		TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
-		SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
-	};
-
 	uint    IterIdx;
 	IterOrder CurrentViewOrder;
 	GoodsStrucFilt Filt;
-	//PPObjGoodsStruc GSObj;
-	//PPObjGoods GObj;
-	//TSVector <StrucEntry> StrucList;
-	//TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'll be handed to AryBrowserDef
-	CommonProcessingBlock Cb;
-	TSArray  <ItemEntry> * P_DsList__; // @v10.7.5
+	GoodsStrucProcessingBlock Cb;
+	TSArray  <GoodsStrucProcessingBlock::ItemEntry> * P_DsList__; // @v10.7.5
 	TSCollection <PPObjGoodsStruc::CheckGsProblem> Problems; // Список проблем, выявленных функцией Recover()
 	void * H_AsideListWindow; // @v11.1.12 Список иерархии структур
 };
@@ -37694,62 +37893,6 @@ private:
 	friend class PPViewPrcBusy::PrcBusyTimeChunkGrid;
 };
 //
-// Конфигурация обмена данными между разделами БД
-//
-#define DBDXF_SKIPINCOMPLBILL      0x00000001L // Не принимать неполные документы
-#define DBDXF_CALCTOTALDEFICITE    0x00000002L // Расчитывать итоговый дефицит товаров
-#define DBDXF_TURNTOTALDEFICITE    0x00000004L // Приходовать дефицит
-#define DBDXF_LINKRETBILLS         0x00000008L // Связывать возвратные документы
-#define DBDXF_IGNOREACK            0x00000010L // Не принимать пакеты подтверджений
-#define DBDXF_TWOPASSRCV           0x00000020L // Автоматический двухпроходной прием с приходованием дефицита
-#define DBDXF_SENDINVWROFFBILLS    0x00000040L // Передавать документы списания ревизии
-#define DBDXF_NOUPDGOODS           0x00000080L // Не принимать изменения товаров
-#define DBDXF_IMPOPSYNC            0x00000100L // Контекстная синхронизация видов
-	// операций по наименованию, типу операции и таблице статей
-#define DBDXF_SYNCSCARDWOCHECKS    0x00000200L // Синхронизировать пластиковые карты без чеков
-#define DBDXF_DONTCVTTOTALDIS      0x00000400L // Не конвертировать общую скидку на документы. Если этот флаг
-	// не установлен, то система преобразует общую скидку, установленную по документу, в общую абсолютную скидку
-	// (PPObjBill::ConvertILTI [ILTICVT.CPP]). В этом случае могут возникнуть затруднения при модификации
-	// документа, на который в разделе-отправителе выставлена скидка в процентах, одновременно в обоих разделах -
-	// суммы не совпадут, по-скольку в разделе получателе скидка будет выражена в сумме.
-#define DBDXF_SENDCSESSION         0x00000800L // Передавать кассовые сессии.
-	// Если этот флаг установлен, то при передаче изменений будут передаваться //
-	// сессии, зафиксированные событием PPACN_CSESSCLOSED. Насильственная передача
-	// сессий (PPViewCSess::Transmit) возможна независимо от этого флага.
-	//
-	// Если этот флаг установлен, то документы списания кассовых сессий не передаются.
-	// @v4.6.4 Исключением является случай, когда в разделе-приемнике установлен флаг
-	// DBDIVF_RCVCSESSANDWROFFBILLS. [см. функцию PPObjectTransmit::PutObjectToIndex()]
-#define DBDXF_CHARRY_PRICEQCOST    0x00001000L // При приеме документов Charry цена реализации
-	// равна цене поступления. В противном случае - если лоты такого товара уже существуют, то
-	// цена берется из последнего из этих лотов, если же таких лотов нет, то цена реализации
-	// опять же равна цене поступления.
-#define DBDXF_PACKFILES            0x00002000L // Упаковывать файлы перед отправкой
-#define DBDXF_IGNOBJUNIFY          0x00004000L // Игнорировать объединение объектов при разрешении идентификаторов
-	// В функции PPObjectTransmit::NeedRestoreObj() не будет проверяться факт объединения объекта, если
-	// в БД такой объект не найден (в некоторых случаях такая проверка приводит к неверному разрешению
-	// синхронизации объектов).
-#define DBDXF_UNITEINVDUPREC       0x00008000L // Объединять дублирующиеся строки инвентаризации
-#define DBDXF_NOCOMMITBYDEF        0x00010000L // По умолчанию, при приеме данных не устанавливается признак "Непосредственная фиксация транзакции"
-#define DBDXF_DESTROYQUEUEBYDEF    0x00020000L // По умолчанию, при приеме данных устанавливать признак "Разрушать очередь после акцепта"
-#define DBDXF_DONTLOGOBJUPD        0x00040000L // Не показывать в журнале информацию об изменении объектов
-#define DBDXF_SUBSTDEFICITGOODS    0x00100000L // подставлять дефицитные товары
-#define DBDXF_CHARRY_GIDASARCODE   0x00200000L // При приеме документов по CHARRY идентификатор товара трактовать как код товара по контрагенту.
-#define DBDXF_SENDTAGATTCHM        0x00400000L // Передавать файлы, прикрепленные к тегам
-#define DBDXF_SYNCUSRANDGRPS       0x00800000L // @v10.1.5 Синхронизировать пользователей и группы
-#define DBDXF_USEMQB               0x01000000L // @v11.0.1 Использовать брокер сообщений для обмена
-
-struct PPDBXchgConfig { // @transient (Для сохранения транслируется в __PPDBXchgConfig)
-	PPID   OneRcvLocID;        // Единственная локация, на которую должны приниматься все документы, независимо от того, какой локации они принадлежали в разделе-отправителе
-	long   PctAdd;             // Процент наценки при доприходовании дефицита. В сотых долях процента (250 = 2.5%)
-	int16  RealizeOrder;       // RLZORD_XXX Порядок использования лотов при приеме документов (переопределяет PPConfig::RealizeOrder на приеме документов из другого раздела)
-	uint16 PadRo;              // @alignment
-	long   CharryOutCounter;   // Счетчик исходящих файлов Charry
-	long   Flags;              // @flags
-	PPID   DfctRcptOpID;       // Вид операции приходования дефицита.
-	PPID   SpcSubstGoodsGrpID; // @v10.0.10 Товарная группа для специальной подстановки при дефиците
-};
-//
 // --- Before v3.2.10 ---
 
 // Формат файла передачи объектов:
@@ -37958,71 +38101,6 @@ private:
 	TempDeficitTbl * Tbl;
 	PPObjBill  * BObj;
 	PPObjGoods   GObj;
-};
-//
-// Descr: Контекст обмена данными. Передается в виртуальные методы
-//   PPObject::Write, PPObject::Read.
-//
-struct ObjTransmContext {
-	friend class PPObjectTransmit;
-	enum {
-		ctrfDisableLogWindow = 0x0001
-	};
-	//
-	// Descr: Конструктор.
-	// ARG(pLogger IN): @#{vptr0} Если указатель !0, то объект получает в качестве логгера внешний экземпляр,
-	//   жизненный цикл которого управляется вызывающим кодом. В противном случае объект создает
-	//   собственный экземпляр PPLogger, который будет разрушен деструктором.
-	// Note: Для освобождения ссылки на внешний логгер и создания собственного экземпляра следует
-	//   использовать метод ResetOuterLogger()
-	//
-	ObjTransmContext(uint ctrFlags, PPLogger * pLogger);
-	~ObjTransmContext();
-	int    ResetOuterLogger();
-	int    Output(const char * pText);
-	int    OutputLastError();
-	int    OutReceivingMsg(const char * pMsg);
-	int    OutputAcceptErrMsg(uint msgID, PPID objID, const char * pObjName);
-	int    OutputAcceptObjErrMsg(PPID objType, PPID objID, const char * pObjName);
-	int    OutputAcceptMsg(PPID objType, PPID objID, int upd);
-	int    OutputString(uint strId, const char * pAddedInfo);
-	operator SSerializeContext & () { return SCtx; }
-	int    GetPrevRestoredObj(PPObjID * pOi) const;
-	int    ForceRestore(PPObjID);
-	int    IsForced(PPObjID) const;
-	int    GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrimID);
-	int    RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rCommID, int use_ta);
-	int    ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID);
-	int    AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta);
-
-	LDATETIME TransmitSince;            // Момент, начиная с которого должны передаваться изменения //
-	PPDBXchgConfig Cfg;                 // Конфигурация обмена
-	BillTransmDeficit * P_Btd;          //
-	GoodsReplacementArray * P_Gra;      // @v10.0.12
-	enum {
-		fNotTrnsmLots = 0x0001,         // Не передавать товарные строки
-		fConsolid     = 0x0002,         // Принимающий раздел является консолидирующим
-		fRecover      = 0x0004          // Восстанавливающая передача
-	};
-	long   Flags;                       // ObjTransmContext::fXXX
-	const  DBDivPack * P_ThisDbDivPack; // Пакет текущего раздела БД
-	const  DBDivPack * P_SrcDbDivPack;  // Пакет раздела БД, из которого принимаются данные (в режиме передачи - 0)
-	const  DBDivPack * P_DestDbDivPack; // Пакет раздела-получателя данных (в режиме приема - 0)
-	PPID   Extra;        // Дополнительный параметр. В случае передачи документов, содержит id операции в которую требуется преобразовать текущую операцию
-	long   LastStreamId; // Идентификатор последнего потока, из которого извлекались данные. Необходим для правильного переключения состояний контекстов сериализации данных (SCtx)
-	SSerializeContext  SCtx;            // Контекст сериализации данных
-private:
-	const void * P_Rb;                  // @*PPObjectTransmit::CommitQueue Указатель на блок восстановления.
-	enum {
-		stOuterLogger = 0x0001
-	};
-	long   State;
-	PPObjIDArray * P_ForceRestoreObj;   // Список объектов, которые должны быть изменены обязательно.
-		// Список формируется в процессе приема данных. Некоторые объекты при приеме могут потребовать
-		// обязательной модификации объекта, от которого они зависят.
-		// Идентификаторы объектов здесь храняться в терминах раздела-отправителя (ссылки неразрешенные).
-	PPObjectTransmit * P_Ot;            // @notowned
-	PPLogger * P_Logger;                // Журнал, в который записывается информация о процессе
 };
 
 class PPObjectTransmit {
@@ -55459,60 +55537,6 @@ int    FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf);
 SString & FASTCALL ideqvalstr(long id, SString & rBuf);
 char * FASTCALL ideqvalstr(long id, char * pBuf, size_t bufLen); // @obsolete
 //
-// Output message functions
-//
-SString & CDECL PPFormat(const SString & rFmt, SString * pBuf, ...);
-SString & CDECL PPFormatT(int textCode, SString * pBuf, ...);
-SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
-void   FASTCALL PPSetAddedMsgString(const char * pStr);
-void   FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID);
-int    FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
-//
-// Descr: Сокращенный аналог PPGetLastErrorMessage(rmvSpcChrs, rBuf)
-//
-int    FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf);
-int    PPOutputMessage(const char * msg, uint option);
-int    FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo);
-int    FASTCALL PPMessage(uint options, int msgcode);
-int    FASTCALL PPError(int errcode);
-int    FASTCALL PPError(int errcode, const char * pAddInfo);
-int    FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions);
-int    PPTooltipMessage(uint options, int msgcode, const char * pAddInfo);
-int    PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags);
-
-//
-// Descr: Единственная польза от следующей функции - снижение размера
-//   бинарного кода за счет устранения передачи лишних параметров.
-//   Вызов PPError() в кодах встречается более 1100 раз
-//
-int    PPError(); // @>>PPError(-1, 0)
-//
-// Descr: То же, что и PPError() но гарантированно возвращает 0.
-//   Создана для замены конструкции (PPError(), 0)
-//
-int    PPErrorZ();
-int    FASTCALL PPErrorTooltip(int errCode, const char * pAddedMsg);
-//
-// Descr: Устанавливает код текущей ошибки Papyrus в значение errCode и дополнительную строку pAddedMsg.
-// Returns: 0
-//
-int    FASTCALL PPSetError(int errCode, const char * pAddedMsg);
-int    FASTCALL PPSetError(int errCode, long val);
-int    FASTCALL PPSetError(int errCode);
-int    FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx);
-int    PPSetErrorNoMem();
-int    PPSetErrorInvParam();
-//
-// Returns: 0
-//
-int    PPSetErrorSLib();
-//
-// Returns: 0
-//
-int    PPSetErrorDB();
-int    PPDbSearchError(); // { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
-int    FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID);
-//
 // Descr: Специализированная функция, используемая в стереотипных методах семейства PPObject GetPacket()
 //   для диагностики вызова с нулевым идентификатором.
 //
@@ -56253,8 +56277,8 @@ public:
 	int    setDTS(PPID id);
 	int    getDTS(PPID * pID);
 protected:
-	virtual int setupList();
-	virtual int editItem(long pos, long id);
+	virtual int  setupList();
+	virtual int  editItem(long pos, long id);
 	ListBoxDef * P_Def;
 };
 

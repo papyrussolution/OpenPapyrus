@@ -36,12 +36,6 @@
 #ifndef CAIRO_PATTERN_PRIVATE_H
 #define CAIRO_PATTERN_PRIVATE_H
 
-//#include "cairo-error-private.h"
-//#include "cairo-types-private.h"
-//#include "cairo-list-private.h"
-//#include "cairo-surface-private.h"
-//#include <stdio.h> /* FILE* */
-
 CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_pattern_observer cairo_pattern_observer_t;

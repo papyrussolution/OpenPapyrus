@@ -12,7 +12,6 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "bytesinkutil.h"
-#include "putilimp.h"
 #include "ulocimp.h"
 #include "uresimp.h"
 #include "ureslocs.h"

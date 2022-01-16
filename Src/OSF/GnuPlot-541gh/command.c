@@ -1667,7 +1667,7 @@ void GnuPlot::PrintSetOutput(char * pName, bool datablock, bool append_p)
 }
 
 //char * print_show_output()
-char * GnuPlot::PrintShowOutput()
+const char * GnuPlot::PrintShowOutput()
 {
 	if(Pgm.print_out_name)
 		return Pgm.print_out_name;
@@ -2389,7 +2389,7 @@ void GnuPlot::HelpCommand()
 #if defined(SHELFIND)
 	static char help_fname[256] = ""; /* keep helpfilename across calls */
 #endif
-	char * help_ptr = getenv("GNUHELP"); // name of help file 
+	const char * help_ptr = getenv("GNUHELP"); // name of help file 
 	if(!help_ptr)
 #ifndef SHELFIND
 		help_ptr = HELPFILE; // if can't find environment variable then just use HELPFILE 

@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1373,7 +1373,7 @@ int Lst2LstObjDialog::addNewItem()
 		if(p_view && P_Object->Edit(&obj_id, Data.ExtraPtr) > 0) {
 			// @v11.1.10 P_Object->UpdateSelector(p_view->def, 0, Data.ExtraPtr);
 			P_Object->Selector(p_view->def, 0, Data.ExtraPtr); // @v11.1.10
-			p_view->search(&obj_id, 0, srchFirst|lbSrchByID);
+			p_view->Search_(&obj_id, 0, srchFirst|lbSrchByID);
 			p_view->Draw_();
 			ok = 1;
 		}

@@ -22,7 +22,7 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n);
 static void ngx_ssl_write_handler(ngx_event_t * wev);
 static void ngx_ssl_read_handler(ngx_event_t * rev);
 static void ngx_ssl_shutdown_handler(ngx_event_t * ev);
-static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t err, char * text);
+static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t err, const char * text);
 static void ngx_ssl_clear_error(ngx_log_t * log);
 static ngx_int_t ngx_ssl_session_id_context(ngx_ssl_t * ssl, ngx_str_t * sess_ctx);
 ngx_int_t ngx_ssl_session_cache_init(ngx_shm_zone_t * shm_zone, void * data);
@@ -561,16 +561,19 @@ static int ngx_ssl_verify_callback(int ok, X509_STORE_CTX * x509_store)
 	X509 * cert = X509_STORE_CTX_get_current_cert(x509_store);
 	int    err = X509_STORE_CTX_get_error(x509_store);
 	int    depth = X509_STORE_CTX_get_error_depth(x509_store);
+	const  char * p_none_literal = "(none)";
 	X509_NAME * sname = X509_get_subject_name(cert);
-	char * subject = sname ? X509_NAME_oneline(sname, NULL, 0) : "(none)";
+	const char * subject = sname ? X509_NAME_oneline(sname, NULL, 0) : p_none_literal;
 	X509_NAME * iname = X509_get_issuer_name(cert);
-	char * issuer = iname ? X509_NAME_oneline(iname, NULL, 0) : "(none)";
+	const char * issuer = iname ? X509_NAME_oneline(iname, NULL, 0) : p_none_literal;
 	ngx_log_debug5(NGX_LOG_DEBUG_EVENT, c->log, 0, "verify:%d, error:%d, depth:%d, subject:\"%s\", issuer:\"%s\"", ok, err, depth, subject, issuer);
 	if(sname) {
-		OPENSSL_free(subject);
+		assert(subject != p_none_literal);
+		OPENSSL_free(const_cast<char *>(subject));
 	}
 	if(iname) {
-		OPENSSL_free(issuer);
+		assert(issuer != p_none_literal);
+		OPENSSL_free(const_cast<char *>(issuer));
 	}
 #endif
 	return 1;
@@ -578,8 +581,7 @@ static int ngx_ssl_verify_callback(int ok, X509_STORE_CTX * x509_store)
 
 static void ngx_ssl_info_callback(const ngx_ssl_conn_t * ssl_conn, int where, int ret)
 {
-	BIO * rbio, * wbio;
-	ngx_connection_t  * c;
+	ngx_connection_t * c;
 	if((where & SSL_CB_HANDSHAKE_START) && SSL_is_server((ngx_ssl_conn_t*)ssl_conn)) {
 		c = (ngx_connection_t *)ngx_ssl_get_connection((ngx_ssl_conn_t*)ssl_conn);
 		if(c->ssl->handshaked) {
@@ -600,10 +602,8 @@ static void ngx_ssl_info_callback(const ngx_ssl_conn_t * ssl_conn, int where, in
 			 * If they are different, we assume that it's due to buffering
 			 * added to wbio, and set buffer size.
 			 */
-
-			rbio = SSL_get_rbio((ngx_ssl_conn_t*)ssl_conn);
-			wbio = SSL_get_wbio((ngx_ssl_conn_t*)ssl_conn);
-
+			BIO * rbio = SSL_get_rbio((ngx_ssl_conn_t*)ssl_conn);
+			BIO * wbio = SSL_get_wbio((ngx_ssl_conn_t*)ssl_conn);
 			if(rbio != wbio) {
 				(void)BIO_set_write_buffer_size(wbio, NGX_SSL_BUFSIZE);
 				c->ssl->handshake_buffer_set = 1;
@@ -1414,7 +1414,7 @@ static void ngx_ssl_shutdown_handler(ngx_event_t * ev)
 	handler(c);
 }
 
-static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t err, char * text)
+static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t err, const char * text)
 {
 	int n;
 	ngx_uint_t level = NGX_LOG_CRIT;
@@ -1519,7 +1519,7 @@ static void ngx_ssl_clear_error(ngx_log_t * log)
 	ERR_clear_error();
 }
 
-void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, char * fmt, ...)
+void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...)
 {
 	int flags;
 	u_long n;

@@ -32,10 +32,6 @@
  */
 #include "tiffiop.h"
 #pragma hdrstop
-//#include <limits.h>
-//#include <errno.h>
-//#include <ctype.h>
-//#include <stdlib.h>
 /*
  * Convert a string to an uint64 integer.
  *

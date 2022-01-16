@@ -10,7 +10,6 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ustr_imp.h"
-#include "putilimp.h"
 
 U_NAMESPACE_USE
 

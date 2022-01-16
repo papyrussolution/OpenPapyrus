@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3247,7 +3247,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 				90 – уровень дополнительных территорий (устаревшее)
 				91 – уровень объектов на дополнительных территориях (устаревшее)
 			*/
-			const int aolevel = atoi(r_item.AOLEVEL);
+			const int aolevel = satoi(r_item.AOLEVEL);
 			/*
 				:cregion
 				:urbs

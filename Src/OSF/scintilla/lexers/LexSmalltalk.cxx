@@ -152,7 +152,6 @@ static void handleNumeric(StyleContext& sc)
 	char num[256];
 	int nl;
 	int radix;
-
 	sc.SetState(SCE_ST_NUMBER);
 	num[0] = static_cast<char>(sc.ch);
 	nl = 1;
@@ -164,10 +163,7 @@ static void handleNumeric(StyleContext& sc)
 	}
 	if(sc.chNext == 'r') {
 		num[nl] = 0;
-		if(num[0] == '-')
-			radix = atoi(num + 1);
-		else
-			radix = atoi(num);
+		radix = (num[0] == '-') ? satoi(num + 1) : satoi(num);
 		sc.Forward();
 		if(sc.chNext == '-')
 			sc.Forward();

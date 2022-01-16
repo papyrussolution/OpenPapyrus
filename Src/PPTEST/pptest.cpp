@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1426,6 +1426,17 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) int Test_LCMS2(int argc, const char * argv[]);
 int DoTest_PThr4w();
 
+static void Test_LibPhoneNumber()
+{
+#if(_MSC_VER >= 1900)
+	SLibPhoneNumber pn;
+	int r4 = pn.Parse("(8142) 330 660", "RU");
+	int r1 = pn.Parse("+7(921)700-29-87", "RU");
+	int r2 = pn.Parse("8(921)700-29-87", "RU");
+	int r3 = pn.Parse("+7(921)700-29-87", 0);
+#endif
+}
+
 //#include <memory>
 //#include <string>
 
@@ -1475,6 +1486,7 @@ int DoConstructionTest()
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
+	Test_LibPhoneNumber();
 	Test_PPStyloQInterchange();
 	//Test_StyloQInvitation();
 	//Test_StrAssocTree();

@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -353,14 +353,16 @@ public:
 		getCtrlData(CTL_PHNSVC_SYMB, Data.Rec.Symb);
 		getCtrlString(CTL_PHNSVC_ADDR, temp_buf);
 		Data.SetExField(PHNSVCEXSTR_ADDR, temp_buf);
-		long   port = getCtrlLong(CTL_PHNSVC_PORT);
-		Data.SetExField(PHNSVCEXSTR_PORT, temp_buf.Z().Cat(port));
+		{
+			const long port = getCtrlLong(CTL_PHNSVC_PORT);
+			Data.SetExField(PHNSVCEXSTR_PORT, temp_buf.Z().Cat(port));
+		}
 		getCtrlString(CTL_PHNSVC_USERNAME, temp_buf);
 		Data.SetExField(PHNSVCEXSTR_USER, temp_buf);
 		getCtrlString(CTL_PHNSVC_PASSWORD, temp_buf);
 		Data.SetPassword(temp_buf);
 		getCtrlString(CTL_PHNSVC_LOCALCHNLSYMB, Data.LocalChannelSymb);
-		getCtrlString(CTL_PHNSVC_SCANCHNL, Data.ScanChannelSymb); // @v9.9.11
+		getCtrlString(CTL_PHNSVC_SCANCHNL, Data.ScanChannelSymb);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -724,16 +726,139 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 	rList.Z();
 	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
 	msg.AddAction("CoreShowChannels");
-	const int64 action_id = ++LastActionId; // @v9.9.9
-	msg.Add("ActionID", temp_buf.Z().Cat(action_id)); // @v9.9.9
-	THROW(ExecCommand(msg, &reply));
-	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-	if(rs.EventListFlag == 0) {
+	{
+		const int64 action_id = ++LastActionId; // @v9.9.9
+		msg.Add("ActionID", temp_buf.Z().Cat(action_id)); // @v9.9.9
+		THROW(ExecCommand(msg, &reply));
+		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
+		if(rs.EventListFlag == 0) {
+			do {
+				THROW(ReadReply(reply.Z()));
+				THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
+				if(reply.GetTag("Event", temp_buf)) {
+					if(temp_buf.IsEqiAscii("CoreShowChannel")) {
+						cnl_status.Z();
+						int    do_insert = 0;
+						for(uint p = 0; reply.get(&p, temp_buf);) {
+							temp_buf.Divide(':', key_buf, val_buf);
+							key_buf.Strip().ToLower();
+							val_buf.Strip();
+							if(key_buf == "state" || key_buf == "channelstate" || key_buf == "channelstatedesc") {
+								if(cnl_status.State == cnl_status.stUndef) {
+									do_insert = 1;
+									if(!GetStateVal(val_buf, &cnl_status.State))
+										cnl_status.State = val_buf.ToLong();
+								}
+							}
+							else if(key_buf == "type") {
+								if(val_buf.IsEqiAscii("SIP"))
+									cnl_status.Type = cnl_status.typSip;
+							}
+							else if(key_buf == "priority")
+								cnl_status.Priority = val_buf.ToLong();
+							else if(key_buf == "seconds")
+								cnl_status.Seconds = val_buf.ToLong();
+							else if(key_buf == "duration") {
+								LTIME t;
+								strtotime(val_buf, TIMF_HMS, &t);
+								cnl_status.Seconds = t.totalsec();
+							}
+							else if(key_buf == "timetohangup")
+								cnl_status.TimeToHungUp = val_buf.ToLong();
+							else if(key_buf == "callgroup")
+								cnl_status.CallGroup = val_buf.ToInt64();
+							else if(key_buf == "pickupgroup")
+								cnl_status.PickUpGroup = val_buf.ToInt64();
+							else if(key_buf == "channel") {
+								do_insert = 1;
+								cnl_status.Channel = val_buf;
+							}
+							else if(key_buf == "calleridnum") {
+								do_insert = 1;
+								cnl_status.CallerId = val_buf;
+							}
+							else if(key_buf == "connectedlinenum") {
+								do_insert = 1;
+								cnl_status.ConnectedLineNum = val_buf;
+							}
+							else if(key_buf == "connectedlinename") {
+								do_insert = 1;
+								cnl_status.ConnectedLineName = val_buf;
+							}
+							else if(key_buf == "effectiveconnectedlinenum") {
+								do_insert = 1;
+								cnl_status.EffConnectedLineNum = val_buf;
+							}
+							else if(key_buf == "effectiveconnectedlinename") {
+								do_insert = 1;
+								cnl_status.EffConnectedLineName = val_buf;
+							}
+							else if(key_buf == "accountcode")
+								cnl_status.AccountCode = val_buf;
+							else if(key_buf == "context")
+								cnl_status.Context = val_buf;
+							else if(key_buf == "exten")
+								cnl_status.Exten = val_buf;
+							else if(key_buf == "dnid")
+								cnl_status.DnId = val_buf;
+							else if(key_buf == "application")
+								cnl_status.Application = val_buf;
+							else if(key_buf == "data")
+								cnl_status.Data = val_buf;
+							else if(key_buf == "bridgeid") // @v10.0.02
+								cnl_status.BridgeId = val_buf;
+						}
+						if(do_insert)
+							rList.Add(cnl_status);
+					}
+				}
+			} while(rs.EventListFlag <= 0);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int AsteriskAmiClient::GetChannelListLinkedByBridge(const char * pChannel, PhnSvcChannelStatusPool & rList)
+{
+	int    ok = -1;
+	rList.Z();
+	if(!isempty(pChannel)) {
+		PhnSvcChannelStatusPool temp_pool;
+		THROW(GetChannelStatus(0, temp_pool));
+		{
+			PhnSvcChannelStatus item;
+			if(temp_pool.GetByChannel(pChannel, item) > 0 && item.BridgeId.NotEmpty())
+				ok = temp_pool.GetListWithSameBridge(item.BridgeId, -1, rList);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannelStatusPool & rList)
+{
+	int    ok = 1;
+	PhnSvcChannelStatus cnl_status;
+	Message msg, reply;
+	Message::ReplyStatus rs;
+	SString temp_buf;
+	SString key_buf, val_buf;
+	rList.Z();
+	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
+	msg.AddAction("Status");
+	{
+		const int64 action_id = ++LastActionId;
+		msg.Add("ActionID", temp_buf.Z().Cat(action_id));
+		if(pChannelName)
+			msg.Add("Channel", pChannelName);
+		THROW(ExecCommand(msg, &reply));
+		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 		do {
 			THROW(ReadReply(reply.Z()));
 			THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-			if(reply.GetTag("Event", temp_buf)) {
-				if(temp_buf.IsEqiAscii("CoreShowChannel")) {
+			if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("Status")) {
+				if(!reply.GetTag("ActionID", temp_buf) || temp_buf.ToInt64() == action_id) { // @v9.9.9
 					cnl_status.Z();
 					int    do_insert = 0;
 					for(uint p = 0; reply.get(&p, temp_buf);) {
@@ -809,127 +934,8 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 						rList.Add(cnl_status);
 				}
 			}
-		} while(rs.EventListFlag <= 0);
+		} while(!(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("StatusComplete")));
 	}
-	CATCHZOK
-	return ok;
-}
-
-int AsteriskAmiClient::GetChannelListLinkedByBridge(const char * pChannel, PhnSvcChannelStatusPool & rList)
-{
-	int    ok = -1;
-	rList.Z();
-	if(!isempty(pChannel)) {
-		PhnSvcChannelStatusPool temp_pool;
-		THROW(GetChannelStatus(0, temp_pool));
-		{
-			PhnSvcChannelStatus item;
-			if(temp_pool.GetByChannel(pChannel, item) > 0 && item.BridgeId.NotEmpty())
-				ok = temp_pool.GetListWithSameBridge(item.BridgeId, -1, rList);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannelStatusPool & rList)
-{
-	int    ok = 1;
-	PhnSvcChannelStatus cnl_status;
-	Message msg, reply;
-	Message::ReplyStatus rs;
-	SString temp_buf;
-	SString key_buf, val_buf;
-	rList.Z();
-	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
-	msg.AddAction("Status");
-	const int64 action_id = ++LastActionId; // @v9.9.9
-	msg.Add("ActionID", temp_buf.Z().Cat(action_id)); // @v9.9.9
-	if(pChannelName)
-		msg.Add("Channel", pChannelName);
-	THROW(ExecCommand(msg, &reply));
-	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-	do {
-		THROW(ReadReply(reply.Z()));
-		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-		if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("Status")) {
-			if(!reply.GetTag("ActionID", temp_buf) || temp_buf.ToInt64() == action_id) { // @v9.9.9
-				cnl_status.Z();
-				int    do_insert = 0;
-				for(uint p = 0; reply.get(&p, temp_buf);) {
-					temp_buf.Divide(':', key_buf, val_buf);
-					key_buf.Strip().ToLower();
-					val_buf.Strip();
-					if(key_buf == "state" || key_buf == "channelstate" || key_buf == "channelstatedesc") {
-						if(cnl_status.State == cnl_status.stUndef) {
-							do_insert = 1;
-							if(!GetStateVal(val_buf, &cnl_status.State))
-								cnl_status.State = val_buf.ToLong();
-						}
-					}
-					else if(key_buf == "type") {
-						if(val_buf.IsEqiAscii("SIP"))
-							cnl_status.Type = cnl_status.typSip;
-					}
-					else if(key_buf == "priority")
-						cnl_status.Priority = val_buf.ToLong();
-					else if(key_buf == "seconds")
-						cnl_status.Seconds = val_buf.ToLong();
-					else if(key_buf == "duration") {
-						LTIME t;
-						strtotime(val_buf, TIMF_HMS, &t);
-						cnl_status.Seconds = t.totalsec();
-					}
-					else if(key_buf == "timetohangup")
-						cnl_status.TimeToHungUp = val_buf.ToLong();
-					else if(key_buf == "callgroup")
-						cnl_status.CallGroup = val_buf.ToInt64();
-					else if(key_buf == "pickupgroup")
-						cnl_status.PickUpGroup = val_buf.ToInt64();
-					else if(key_buf == "channel") {
-						do_insert = 1;
-						cnl_status.Channel = val_buf;
-					}
-					else if(key_buf == "calleridnum") {
-						do_insert = 1;
-						cnl_status.CallerId = val_buf;
-					}
-					else if(key_buf == "connectedlinenum") {
-						do_insert = 1;
-						cnl_status.ConnectedLineNum = val_buf;
-					}
-					else if(key_buf == "connectedlinename") {
-						do_insert = 1;
-						cnl_status.ConnectedLineName = val_buf;
-					}
-					else if(key_buf == "effectiveconnectedlinenum") {
-						do_insert = 1;
-						cnl_status.EffConnectedLineNum = val_buf;
-					}
-					else if(key_buf == "effectiveconnectedlinename") {
-						do_insert = 1;
-						cnl_status.EffConnectedLineName = val_buf;
-					}
-					else if(key_buf == "accountcode")
-						cnl_status.AccountCode = val_buf;
-					else if(key_buf == "context")
-						cnl_status.Context = val_buf;
-					else if(key_buf == "exten")
-						cnl_status.Exten = val_buf;
-					else if(key_buf == "dnid")
-						cnl_status.DnId = val_buf;
-					else if(key_buf == "application")
-						cnl_status.Application = val_buf;
-					else if(key_buf == "data")
-						cnl_status.Data = val_buf;
-					else if(key_buf == "bridgeid") // @v10.0.02
-						cnl_status.BridgeId = val_buf;
-				}
-				if(do_insert)
-					rList.Add(cnl_status);
-			}
-		}
-	} while(!(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("StatusComplete")));
 	CATCH
 		PPLogMessage(PPFILNAM_PHNSVC_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
 		ok = 0;

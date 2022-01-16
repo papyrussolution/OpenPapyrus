@@ -211,7 +211,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 // @sobolev ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2);
 ngx_int_t FASTCALL ngx_strncasecmp(const u_char * s1, const u_char * s2, size_t n);
 const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t n);
-u_char * FASTCALL ngx_strstrn(u_char * s1, char * s2, size_t n);
+u_char * FASTCALL ngx_strstrn(u_char * s1, const char * s2, size_t n);
 const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size_t n);
 u_char * FASTCALL ngx_strlcasestrn(u_char * s1, u_char * last, const u_char * s2, size_t n);
 ngx_int_t ngx_rstrncmp(u_char * s1, u_char * s2, size_t n);
@@ -356,7 +356,7 @@ struct ngx_log_t {
 	// we declare "action" as "char *" because the actions are usually
 	// the static strings and in the "u_char *" case we have to override their types all the time
 	// 
-	char * action;
+	const char * action;
 	ngx_log_t * next;
 };
 
@@ -786,7 +786,7 @@ struct ngx_hash_init_t {
 	ngx_hash_key_pt key;
 	ngx_uint_t max_size;
 	ngx_uint_t bucket_size;
-	char * name;
+	const char * name;
 	ngx_pool_t  * pool;
 	ngx_pool_t  * temp_pool;
 };
@@ -882,7 +882,7 @@ struct ngx_temp_file_t {
 	nginx_off_t offset;
 	ngx_path_t * path;
 	ngx_pool_t * pool;
-	char * warn;
+	const char * warn;
 	ngx_uint_t access;
 	unsigned log_level : 8;
 	unsigned persistent : 1;
@@ -1235,7 +1235,7 @@ struct ngx_url_t {
 	ngx_sockaddr_t sockaddr;
 	ngx_addr_t * addrs;
 	ngx_uint_t naddrs;
-	char * err;
+	const char * err;
 };
 
 in_addr_t ngx_inet_addr(const u_char * text, size_t len);
@@ -1561,7 +1561,7 @@ ngx_int_t ngx_resolve_name(ngx_resolver_ctx_t * ctx);
 void ngx_resolve_name_done(ngx_resolver_ctx_t * ctx);
 ngx_int_t ngx_resolve_addr(ngx_resolver_ctx_t * ctx);
 void ngx_resolve_addr_done(ngx_resolver_ctx_t * ctx);
-char * ngx_resolver_strerror(ngx_int_t err);
+const char * ngx_resolver_strerror(ngx_int_t err);
 //
 #if (NGX_OPENSSL)
 	//
@@ -1730,7 +1730,7 @@ char * ngx_resolver_strerror(ngx_int_t err);
 	ngx_chain_t * ngx_ssl_send_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
 	void ngx_ssl_free_buffer(ngx_connection_t * c);
 	ngx_int_t ngx_ssl_shutdown(ngx_connection_t * c);
-	void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, char * fmt, ...);
+	void ngx_cdecl ngx_ssl_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...);
 	void ngx_ssl_cleanup_ctx(void * data);
 
 	extern int ngx_ssl_connection_index;
@@ -1853,8 +1853,8 @@ struct ngx_conf_post_t {
 
 struct ngx_conf_deprecated_t {
 	ngx_conf_post_handler_pt post_handler;
-	char * old_name;
-	char * new_name;
+	const char * old_name;
+	const char * new_name;
 };
 
 struct ngx_conf_num_bounds_t {
@@ -2151,7 +2151,7 @@ struct ngx_open_file_info_t {
 	nginx_off_t directio;
 	size_t read_ahead;
 	ngx_err_t err;
-	char  * failed;
+	const char  * failed;
 	time_t valid;
 	ngx_uint_t min_uses;
 #if (NGX_HAVE_OPENAT)
@@ -2396,7 +2396,7 @@ void FASTCALL ngx_close_connection(ngx_connection_t * c);
 void ngx_close_idle_connections(ngx_cycle_t * cycle);
 ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx_uint_t port);
 ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c);
-ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text);
+ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, const char * text);
 ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log);
 void FASTCALL ngx_free_connection(ngx_connection_t * c);
 void ngx_reusable_connection(ngx_connection_t * c, ngx_uint_t reusable);
@@ -5096,7 +5096,7 @@ ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_c
 ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n);
 ngx_int_t ngx_mail_auth_login_username(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n);
 ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t * c);
-ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c, char * prefix, size_t len);
+ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c, const char * prefix, size_t len);
 ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c);
 ngx_int_t ngx_mail_auth_external(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n);
 ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c);

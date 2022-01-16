@@ -903,7 +903,7 @@ void WindowsDlg::putItemsToClipboard(bool isFullPath)
 {
 	constexpr int nameColumn = 0;
 	constexpr int pathColumn = 1;
-
+	(void)nameColumn; // @sobolev
 	TCHAR str[MAX_PATH] = {};
 	const generic_string crlf = _T("\r\n");
 

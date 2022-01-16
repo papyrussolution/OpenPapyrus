@@ -551,7 +551,7 @@ static int InputCodePage()
 	LANGID inputLang = LOWORD(inputLocale);
 	char sCodePage[10];
 	int res = ::GetLocaleInfoA(MAKELCID(inputLang, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, sCodePage, sizeof(sCodePage));
-	return res ? atoi(sCodePage) : 0;
+	return res ? satoi(sCodePage) : 0;
 }
 
 /** Map the key codes to their equivalent SCK_ form. */

@@ -37,14 +37,9 @@ void TiXmlBaseA::PutString(const TIXMLA_STRING& str, TIXMLA_OSTREAM* stream)
 void TiXmlBaseA::PutString(const TIXMLA_STRING& str, TIXMLA_STRING* outString)
 {
 	int i = 0;
-
 	while(i<(int)str.length() ) {
 		int c = str[i];
-
-		if(c == '&'
-		 && i < ( static_cast<int>(str.length()) - 2 )
-		 && str[i+1] == '#'
-		 && str[i+2] == 'x') {
+		if(c == '&' && i < ( static_cast<int>(str.length()) - 2 ) && str[i+1] == '#' && str[i+2] == 'x') {
 			// Hexadecimal character reference.
 			// Pass through unchanged.
 			// &#xA9;	-- copyright symbol, for example.
@@ -417,53 +412,33 @@ TiXmlElementA::~TiXmlElementA()
 const char * TiXmlElementA::Attribute(const char * name) const
 {
 	TiXmlAttributeA* node = attributeSet.Find(name);
-
-	if(node)
-		return node->Value();
-
-	return 0;
+	return node ? node->Value() : 0;
 }
 
 const char * TiXmlElementA::Attribute(const char * name, int* i) const
 {
 	const char * s = Attribute(name);
-	if(i) {
-		if(s)
-			*i = atoi(s);
-		else
-			*i = 0;
-	}
+	ASSIGN_PTR(i, satoi(s));
 	return s;
 }
 
 const char * TiXmlElementA::Attribute(const char * name, double* d) const
 {
 	const char * s = Attribute(name);
-	if(d) {
-		if(s)
-			*d = atof(s);
-		else
-			*d = 0;
-	}
+	ASSIGN_PTR(d, satof(s));
 	return s;
 }
 
 int TiXmlElementA::QueryIntAttribute(const char * name, int* ival) const
 {
-	TiXmlAttributeA* node = attributeSet.Find(name);
-	if(!node)
-		return TIXMLA_NO_ATTRIBUTE;
-
-	return node->QueryIntValue(ival);
+	TiXmlAttributeA * node = attributeSet.Find(name);
+	return node ? node->QueryIntValue(ival) : TIXMLA_NO_ATTRIBUTE;
 }
 
 int TiXmlElementA::QueryDoubleAttribute(const char * name, double* dval) const
 {
-	TiXmlAttributeA* node = attributeSet.Find(name);
-	if(!node)
-		return TIXMLA_NO_ATTRIBUTE;
-
-	return node->QueryDoubleValue(dval);
+	TiXmlAttributeA * node = attributeSet.Find(name);
+	return node ? node->QueryDoubleValue(dval) : TIXMLA_NO_ATTRIBUTE;
 }
 
 void TiXmlElementA::SetAttribute(const char * name, int val)
@@ -480,7 +455,6 @@ void TiXmlElementA::SetAttribute(const char * name, const char * _value)
 		node->SetValue(_value);
 		return;
 	}
-
 	TiXmlAttributeA* attrib = new TiXmlAttributeA(name, _value);
 	if(attrib) {
 		attributeSet.Add(attrib);
@@ -497,15 +471,12 @@ void TiXmlElementA::Print(FILE* cfile, int depth) const
 	for(i = 0; i<depth; i++) {
 		fprintf(cfile, "    ");
 	}
-
 	fprintf(cfile, "<%s", value.c_str());
-
 	TiXmlAttributeA* attrib;
 	for(attrib = attributeSet.First(); attrib; attrib = attrib->Next() ) {
 		fprintf(cfile, " ");
 		attrib->Print(cfile, depth);
 	}
-
 	// There are 3 different formatting approaches:
 	// 1) An element without children is printed as a <foo /> node
 	// 2) An element with only a text child is printed as <foo> text </foo>
@@ -538,7 +509,6 @@ void TiXmlElementA::Print(FILE* cfile, int depth) const
 void TiXmlElementA::StreamOut(TIXMLA_OSTREAM * stream) const
 {
 	(*stream) << "<" << value;
-
 	TiXmlAttributeA* attrib;
 	for(attrib = attributeSet.First(); attrib; attrib = attrib->Next() ) {
 		(*stream) << " ";
@@ -563,23 +533,17 @@ void TiXmlElementA::StreamOut(TIXMLA_OSTREAM * stream) const
 
 TiXmlNodeA* TiXmlElementA::Clone() const
 {
-	TiXmlElementA* clone = new TiXmlElementA(Value());
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
-
-	// Clone the attributes, then clone the children.
-	TiXmlAttributeA* attribute = 0;
-	for(attribute = attributeSet.First();
-	    attribute;
-	    attribute = attribute->Next() ) {
-		clone->SetAttribute(attribute->Name(), attribute->Value());
-	}
-
-	TiXmlNodeA* node = 0;
-	for(node = firstChild; node; node = node->NextSibling() ) {
-		clone->LinkEndChild(node->Clone());
+	TiXmlElementA * clone = new TiXmlElementA(Value());
+	if(clone) {
+		CopyToClone(clone);
+		// Clone the attributes, then clone the children.
+		for(TiXmlAttributeA * attribute = attributeSet.First(); attribute; attribute = attribute->Next() ) {
+			clone->SetAttribute(attribute->Name(), attribute->Value());
+		}
+		TiXmlNodeA* node = 0;
+		for(node = firstChild; node; node = node->NextSibling() ) {
+			clone->LinkEndChild(node->Clone());
+		}
 	}
 	return clone;
 }
@@ -601,22 +565,14 @@ bool TiXmlDocumentA::LoadFile()
 {
 	// See STL_STRING_BUG below.
 	StringToBuffer buf(value);
-
-	if(buf.buffer && LoadFile(buf.buffer) )
-		return true;
-
-	return false;
+	return (buf.buffer && LoadFile(buf.buffer));
 }
 
 bool TiXmlDocumentA::SaveFile() const
 {
 	// See STL_STRING_BUG below.
 	StringToBuffer buf(value);
-
-	if(buf.buffer && SaveFile(buf.buffer) )
-		return true;
-
-	return false;
+	return (buf.buffer && SaveFile(buf.buffer));
 }
 
 bool TiXmlDocumentA::LoadFile(const char * filename)
@@ -634,16 +590,13 @@ bool TiXmlDocumentA::LoadFile(const char * filename)
 	// See STL_STRING_BUG above.
 	// Fixed with the StringToBuffer class.
 	value = filename;
-
-	FILE* file = fopen(value.c_str(), "r");
-
+	FILE * file = fopen(value.c_str(), "r");
 	if(file) {
 		// Get the file size, so we can pre-allocate the string. HUGE speed impact.
 		long length = 0;
 		fseek(file, 0, SEEK_END);
 		length = ftell(file);
 		fseek(file, 0, SEEK_SET);
-
 		// Strange case, but good to handle up front.
 		if(length == 0) {
 			fclose(file);
@@ -654,21 +607,14 @@ bool TiXmlDocumentA::LoadFile(const char * filename)
 		// The document parser may decide the document ends sooner than the entire file, however.
 		TIXMLA_STRING data;
 		data.reserve(length);
-
 		const int BUF_SIZE = 2048;
 		char buf[BUF_SIZE];
-
 		while(fgets(buf, BUF_SIZE, file) ) {
 			data += buf;
 		}
 		fclose(file);
-
 		Parse(data.c_str(), 0);
-
-		if(Error() )
-			return false;
-		else
-			return true;
+		return Error() ? false : true;
 	}
 	SetError(TIXMLA_ERROR_OPENING_FILE, 0, 0);
 	return false;
@@ -871,7 +817,7 @@ void TiXmlAttributeA::SetDoubleValue(double _value)
 
 const int TiXmlAttributeA::IntValue() const
 {
-	return atoi(value.c_str());
+	return satoi(value.c_str());
 }
 
 const double TiXmlAttributeA::DoubleValue() const

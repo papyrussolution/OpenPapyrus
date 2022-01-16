@@ -1,17 +1,9 @@
+// normalizer2.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2009-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  normalizer2.cpp
+ *   Copyright (C) 2009-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2009nov22
  *   created by: Markus W. Scherer
  */
@@ -21,7 +13,6 @@
 #if !UCONFIG_NO_NORMALIZATION
 
 #include "norm2allmodes.h"
-#include "normalizer2impl.h"
 #include "ucln_cmn.h"
 
 using icu::Normalizer2Impl;

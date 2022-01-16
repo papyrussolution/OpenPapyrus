@@ -1,5 +1,5 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022
 //
 #include <slib.h>
 
@@ -53,7 +53,7 @@ static void error(const char * s)
 
 #define fldoff(k,f)  offsetof(k##Spec, f)
 
-static char * P_TvNames[] = {
+static const char * P_TvNames[] = {
 	"TV_DIALOG",
 	"TV_BUTTON",
 	"TV_STATIC",

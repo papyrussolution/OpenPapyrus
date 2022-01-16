@@ -529,21 +529,14 @@ UText * RegexMatcher::appendTail(UText * dest, UErrorCode & status) {
 	}
 	return dest;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   end
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::end(UErrorCode &err) const {
-	return end(0, err);
-}
+int32_t RegexMatcher::end(UErrorCode &err) const { return end(0, err); }
+int64_t RegexMatcher::end64(UErrorCode &err) const { return end64(0, err); }
 
-int64_t RegexMatcher::end64(UErrorCode &err) const {
-	return end64(0, err);
-}
-
-int64_t RegexMatcher::end64(int32_t group, UErrorCode &err) const {
+int64_t RegexMatcher::end64(int32_t group, UErrorCode &err) const 
+{
 	if(U_FAILURE(err)) {
 		return -1;
 	}
@@ -574,8 +567,6 @@ int64_t RegexMatcher::end64(int32_t group, UErrorCode &err) const {
 int32_t RegexMatcher::end(int32_t group, UErrorCode &err) const {
 	return (int32_t)end64(group, err);
 }
-
-//--------------------------------------------------------------------------------
 //
 //   findProgressInterrupt  This function is called once for each advance in the target
 //                          string from the find() function, and calls the user progress callback
@@ -584,7 +575,6 @@ int32_t RegexMatcher::end(int32_t group, UErrorCode &err) const {
 //         Return:  TRUE if the find operation is to be terminated.
 //                  FALSE if the find operation is to continue running.
 //
-//--------------------------------------------------------------------------------
 bool RegexMatcher::findProgressInterrupt(int64_t pos, UErrorCode & status) {
 	if(fFindProgressCallbackFn && !(*fFindProgressCallbackFn)(fFindProgressCallbackContext, pos)) {
 		status = U_REGEX_STOPPED_BY_CALLER;
@@ -592,13 +582,11 @@ bool RegexMatcher::findProgressInterrupt(int64_t pos, UErrorCode & status) {
 	}
 	return FALSE;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   find()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::find() {
+bool RegexMatcher::find() 
+{
 	if(U_FAILURE(fDeferredStatus)) {
 		return FALSE;
 	}
@@ -606,13 +594,11 @@ bool RegexMatcher::find() {
 	bool result = find(status);
 	return result;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   find()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::find(UErrorCode & status) {
+bool RegexMatcher::find(UErrorCode & status) 
+{
 	// Start at the position of the last match end.  (Will be zero if the
 	//   matcher has been reset.)
 	//
@@ -2452,7 +2438,7 @@ void RegexMatcher::getMatchCallback(URegexMatchCallback   *&callback,
 //--------------------------------------------------------------------------------
 void RegexMatcher::setFindProgressCallback(URegexFindProgressCallback      * callback,
     const void   * context,
-    UErrorCode                      &status) {
+    UErrorCode & status) {
 	if(U_FAILURE(status)) {
 		return;
 	}

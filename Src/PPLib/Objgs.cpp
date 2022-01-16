@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1047,6 +1047,7 @@ private:
 	int    checkDupGoods(int pos, const PPGoodsStrucItem *);
 	void   selNamedGS();
 	int    enableEditRecurStruc();
+	void   ViewHierarchy();
 
 	PPObjGoodsStruc GsObj;
 	PPObjGoods      GObj;
@@ -1056,6 +1057,33 @@ private:
 	PPGoodsStruc RecurData;
 	int    Changed;
 };
+
+void GSDialog::ViewHierarchy() // @v11.2.11
+{
+	class GoodsStrucHierarchyDialog : public TDialog {
+	public:
+		GoodsStrucHierarchyDialog(PPID goodsID, PPID strucID) : TDialog(DLG_GSTRUCTREE), P_Box(0)
+		{
+			P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_GSTRUCTREE_LIST));
+			if(P_Box) {
+				Cb.AddItem(goodsID, strucID, 0, 0, false, true);
+				GoodsStrucTreeListViewBlock vb(Cb);
+				StrAssocTree * p_tree = vb.MakeTree();
+				if(p_tree) {
+					//PPListDialog a;
+					StdTreeListBoxDef2_ * p_def = new StdTreeListBoxDef2_(p_tree, 0, 0);
+					P_Box->setDef(p_def);
+					P_Box->Draw_();
+				}
+			}
+		}
+	private:
+		GoodsStrucProcessingBlock Cb;
+		SmartListBox * P_Box;
+	};
+	GoodsStrucHierarchyDialog * dlg = new GoodsStrucHierarchyDialog(0, Data.Rec.ID);
+	ExecViewAndDestroy(dlg);
+}
 
 int GSDialog::IsChanged()
 {
@@ -1258,6 +1286,9 @@ IMPL_HANDLE_EVENT(GSDialog)
 	else if(event.isCmd(cmLBItemFocused)) {
 		if(event.isCtlEvent(CtlList) && !enableEditRecurStruc())
 			PPError();
+	}
+	else if(event.isCmd(cmTree)) { // @v11.2.11
+		ViewHierarchy();
 	}
 	else if(event.isKeyDown(KB_CTRLENTER)) {
 		if(IsInState(sfModal)) {
@@ -2229,8 +2260,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				dlg->setDTS(pData);
 				while(ok <= 0 && ((r = ExecView(dlg)) == cmOK || r == cmUtil || dlg->IsChanged() && !CONFIRM(PPCFM_WARNCANCEL)))
 					if(r != cmCancel && dlg->getDTS(pData)) {
-						delete dlg;
-						dlg = 0;
+						ZDELETE(dlg);
 						ok = (r == cmUtil) ? PPObjGoodsStruc::EditExtDialog(pData) : 1;
 						break;
 					}

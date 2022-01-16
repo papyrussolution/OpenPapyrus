@@ -153,6 +153,67 @@
 	#undef min // @v9.8.11
 	#undef max // @v9.8.11
 #endif
+#ifdef SLIB_INCLUDE_CPPSTDLIBS
+	#include <list>
+	#include <deque>
+	#include <vector>
+	#include <map>
+	#include <unordered_map>
+	#include <algorithm>
+	#include <ios>
+	#include <ostream>
+	#include <istream>
+	#include <string>
+	#include <locale>
+	#include <iostream>
+	#include <sstream>
+	#include <fstream>
+	#include <type_traits>
+	#include <iomanip>
+	#include <exception>
+	#include <stdexcept>
+	#include <cassert>
+	#include <cwchar>
+	#include <codecvt>
+	#include <typeinfo>
+	#include <memory>
+	#include <iterator>
+	#include <utility>
+	#include <regex>
+	#include <unordered_set>
+	#include <tuple>
+	#include <array>
+	#include <deque>
+	#include <stack>
+	#include <cctype>
+	#include <cstdint>
+	#include <cinttypes>
+	#include <limits>
+	#include <ratio>
+	#include <chrono>
+	#include <functional>
+	#include <mutex>
+	#include <random>
+	#include <cwctype>
+	#include <cstdlib>
+	#include <cmath>
+	#include <climits>
+	#include <cstdarg>
+	#include <cstddef>
+	#include <set>
+	#include <ostream>
+	#include <clocale>
+	#include <cstdio>
+	#include <cstring>
+	#include <iosfwd>
+	#include <thread>
+	#include <ios>
+	#include <condition_variable>
+	#include <ctime>
+	#include <csignal>
+	#include <future>
+	#include <queue>
+#endif
 
 //#if _MSC_VER >= 1910
 #if CXX_HAS_STATIC_ASSERT
@@ -2754,6 +2815,12 @@ private:
 #define SLERR_AMQP_SSL_HOSTNAME_VERIFY_FAILED  723
 #define SLERR_AMQP_SSL_PEER_VERIFY_FAILED      724
 #define SLERR_AMQP_SSL_CONNECTION_FAILED       725
+// Коды ошибок разбора телефонного номера библиотекой libphonenumber
+#define SLERR_PHONENMB_INV_COUNTRY_CODE        760 // INVALID_COUNTRY_CODE in the java version.
+#define SLERR_PHONENMB_NOT_A_NUMBER            761
+#define SLERR_PHONENMB_TOO_SHORT_AFTER_IDD     762
+#define SLERR_PHONENMB_TOO_SHORT_NSN           763
+#define SLERR_PHONENMB_TOO_LONG_NSN            764 // TOO_LONG in the java version.
 
 // LastError
 //
@@ -5658,8 +5725,11 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 //
 void * FASTCALL memzero(void * p, size_t s);
 int    FASTCALL ismemzero(const void * p, size_t s);
-
-#define MEMSZERO(p)  memzero(&(p), sizeof(p))
+//
+// Descr: Обнуляет память по указателю &p размером sizeof(p). 
+// Attention! Не применять для классов с виртуальными функциями и динамически распределенных объектов.
+//
+#define MEMSZERO(p)  memzero(&(p), sizeof(p)) 
 #define THISZERO()   memzero(this, sizeof(*this))
 //
 // Descr: Заполняет буфер pBuf длиной bufSize случайными данными.
@@ -6129,6 +6199,22 @@ public:
 	//
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
+	// Descr: Дескриптор стратегии сжатия больших отрезков при внесении в пул. 
+	//   На начальном этапе применяется только алгоритм сжатия zlib.
+	//   Если размер отрезка, добавляемого в пул равен или превышает MinChunkSizeToCompress,
+	//   то отрезок сжимается и впереди добавляется сигнатура Ssc_CompressionSignature
+	//
+	struct DeflateStrategy {
+		DeflateStrategy() : MinChunkSizeToCompress(0), CompressMethod(0)
+		{
+		}
+		explicit DeflateStrategy(uint16 minChunkSize) : MinChunkSizeToCompress(minChunkSize), CompressMethod(0)
+		{
+		}
+		uint16 MinChunkSizeToCompress;
+		int16  CompressMethod; // Reserved.
+	};
+	//
 	// Descr: Сохраняет отрезок данных pData с идентификатором id и размером size в пуле.
 	//   Если pData == 0 или size == 0, то, если отрезок с идентификатором id будет
 	//   найден в пуле, то будет объявлен неиспользуемым (удален, другими словами).
@@ -6137,8 +6223,8 @@ public:
 	//   <0 - попытка удалить отрезок с идентификатором id провалилась поскольку такой идентификатор в пуле не найден
 	//    0 - ошибка (например, недостаточно памяти).
 	//
-	int    Put(uint32 id, const void * pData, uint32 size);
-	int    Put(uint32 id, const SBinaryChunk & rData);
+	int    Put(uint32 id, const void * pData, uint32 size, DeflateStrategy * pDs = 0);
+	int    Put(uint32 id, const SBinaryChunk & rData, DeflateStrategy * pDs = 0);
 	//
 	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
 	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
@@ -8348,11 +8434,20 @@ private:
 			int    FASTCALL Copy(const BaseList & rS);
 			uint   GetCount() const;
 			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
-			int    Implement_Add(int32 key, uint strP);
+			//
+			// Descr: Реализует вставку в конец вектора нового элемента с идентификатором key и позицией строки strP.
+			// Returns: 
+			//   !0 - Указатель на новый элемент в векторе.
+			//    0 - Ошибка
+			// Attention! Возвращаемое значение является нестабильным указателем - после вставки новых элементов он
+			//   может оказаться инвалидным - будьте внимательны.
+			//
+			ENTRY * Implement_Add(int32 key, uint strP);
 			ENTRY * Implement_Search(int32 key, int32 currentParentId, int32 * pResultParentId) const;
 			int    Implement_SearchStrP(uint strP, TSVector <ENTRY *> & rResult) const;
 			void   Implement_SortByID();
 			void   Implement_SortByText(void * pMaster);
+			bool   Implement_MakeStringIndex(LAssocArray & rIndex) const;
 			//
 			// Descr: Дополняет список rList собственными идентификаторами ключей.
 			//   Если параметр recursive == true, то рекурсивно перебирает все дочерние деревья //
@@ -8393,15 +8488,17 @@ public:
 	bool   Search(long id, long * pParentId, SString * pBuf) const;
 	SHandle FASTCALL Search(long id) const;
 	SHandle SearchByText(const char * pTxt, int ignoreCase) const;
-	SHandle SearchByText(const char * pTxt, CompFunc fcmp) const;
+	bool   SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHandle> & rList) const;
 	//
 	// Методы получения атрибутов узла дерева по манипулятору
 	//
 	bool   Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const;
+	bool   HasNodeChildren(SHandle h) const;
+	bool   SetNodeExtraPtr(SHandle h, uintptr_t extraPtr);
+	uintptr_t GetNodeExtraPtr(SHandle h) const;
 	int32  GetNodeKey(SHandle h) const;
 	SString & GetNodeString(SHandle h, SString & rBuf) const;
 	uint   GetNodeFlags(SHandle h) const;
-	uintptr_t GetNodeExtraPtr(SHandle h) const;
 	//
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
 	//  Порядок обхода элементов дерева - в глубину: перебираются элементы корневого уровня и для каждого элемента,
@@ -8411,8 +8508,25 @@ public:
 	//
 	int    GetList(LongArray & rList) const;
 	int    GetListByParent(long parentId, bool recursive, LongArray & rList) const;
+	int    GetListByParent_Unsafe(SHandle hParent, bool recursive, TSVector <SHandle> & rList) const;
 	int    Add(long id, const char * pStr, int replaceDup);
 	int    Add(long id, long parentId, const char * pStr, int replaceDup);
+	//
+	// Descr: Функция вставляет в новый элемент {id; pStr} в дерево this.
+	//   Если hParent != 0, то новый элемент включается как лист hParent в противном 
+	//   случае элемент включается в корневой уровень дерева.
+	// Note: Функция хотя и быстрая, но опасная. В режиме отладочной сборки hParent проверяется на валидность,
+	//   в Release-варианте сборке - нет. Существование элемента с идентфикатором id ни в дереве, ни на уровне hParent
+	//   не проверяется!
+	//   Возвращаемый манипулятор является нестабильным - после вставки новых элементов он с высокой вероятностью
+	//   может оказаться инвалидным!
+	// Returns:
+	//   !0 - функция завершилась успешно. Результат - манипулятор нового элемента.
+	//    0 - ошибка
+	//
+	SHandle Add_Unsafe(SHandle hParent, long id, const char * pStr);
+	bool   MakeStringIndex(LAssocArray & rIndex) const;
+	bool   GetTextByPos(uint strP, SString & rBuf) const;
 	void   SortByID();
 	void   SortByText();
 protected:
@@ -11325,6 +11439,18 @@ private:
 	static int FASTCALL IsUtf8(const uchar * p, size_t restLen);
 };
 //
+// Descr: wrapper-class for interface with libphonenumber
+//
+class SLibPhoneNumber {
+public:
+	SLibPhoneNumber();
+	~SLibPhoneNumber();
+	int    Parse(const char * pText, const char * pDefaultRegion);
+private:
+	void * H; // handle
+	void * P; // processor
+};
+//
 // JSON (Rui Maciel rui.maciel@gmail.com)
 //
 struct RcString;
@@ -12613,6 +12739,7 @@ struct FRect { // @persistent
 	FRect(float left, float top, float right, float bottom);
 	FRect(float width, float height);
 	FRect(const TRect & r);
+	FRect(const RECT & r);
 	int    FASTCALL operator == (const FRect & rS) const;
 	int    FASTCALL operator != (const FRect & rS) const;
 	FRect & Z();

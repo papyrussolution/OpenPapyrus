@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugJava|Win32">
+      <Configuration>DebugJava</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugJava|x64">
+      <Configuration>DebugJava</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseJava|Win32">
+      <Configuration>ReleaseJava</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseJava|x64">
+      <Configuration>ReleaseJava</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3DB35F2D-9679-4DED-BA0C-240A4E6E6674}</ProjectGuid>
+    <RootNamespace>javaviewerlib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.28307.799</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\mupdf-$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../include;$(JAVA_HOME)/include;$(JAVA_HOME)/include/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>
+      </MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName)32.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../include;$(JAVA_HOME)/include;$(JAVA_HOME)/include/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>
+      </MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName)64.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>../../include;$(JAVA_HOME)/include;$(JAVA_HOME)/include/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild />
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName)32.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>../../include;$(JAVA_HOME)/include;$(JAVA_HOME)/include/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName)64.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Annotation.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Buffer.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\BufferInputStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\BufferOutputStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\ColorParams.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\ColorSpace.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Context.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Cookie.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Device.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\DisplayList.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\DisplayListDevice.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Document.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\DocumentWriter.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\DrawDevice.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\FileStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\FitzInputStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Font.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Image.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Link.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Location.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Matrix.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\NativeDevice.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Outline.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Page.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Path.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PathWalker.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PDFAnnotation.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PDFDocument.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PDFGraftMap.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PDFObject.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PDFPage.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PDFWidget.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Pixmap.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PKCS7DesignatedName.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PKCS7Signer.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\PKCS7Verifier.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Point.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Quad.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Rect.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\RectI.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\SeekableInputOutputStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\SeekableInputStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\SeekableOutputStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\SeekableStream.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Separation.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Separations.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Shade.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\StrokeState.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\StructuredText.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\StructuredTextWalker.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\Text.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\TextWalker.java" />
+    <None Include="..\OSF\mupdf\platform\java\src\com\artifex\mupdf\fitz\TryLaterException.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\android\androiddrawdevice.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\android\androidfonts.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\android\androidimage.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\buffer.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\colorspace.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\context.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\cookie.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\device.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\displaylist.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\displaylistdevice.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\document.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\documentwriter.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\drawdevice.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\fitzinputstream.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\font.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\image.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\nativedevice.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\page.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\path.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pdfannotation.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pdfdocument.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pdfgraftmap.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pdfobject.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pdfpage.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pdfwidget.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pixmap.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pkcs7signer.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\pkcs7verifier.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\rect.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\shade.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\strokestate.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\structuredtext.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\text.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\jni\wrap.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseJava|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\platform\java\mupdf_native.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\mupdf\platform\java\mupdf_native.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugJava|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libmupdf.vcxproj">
+      <Project>{5f615f91-dff8-4f05-bf48-6222b7d86519}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

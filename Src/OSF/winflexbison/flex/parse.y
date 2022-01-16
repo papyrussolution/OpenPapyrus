@@ -953,7 +953,7 @@ void line_pinpoint( const char *str, int line )
 /* yyerror - eat up an error message from the parser;
  *	     currently, messages are ignore
  */
-void yyerror( const char * msg )
+void yyerror(const char * msg)
 {
 	(void)msg;
 }

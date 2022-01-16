@@ -1200,7 +1200,7 @@ void GnuPlot::F_SPrintf(union argument * /*arg*/)
 	int nargs = 0;
 	enum DATA_TYPES spec_type;
 	char * buffer = NULL;
-	char * error_return_message = NULL;
+	const char * error_return_message = NULL;
 	// Retrieve number of parameters from top of stack 
 	Pop(&num_params);
 	nargs = num_params.v.int_val;

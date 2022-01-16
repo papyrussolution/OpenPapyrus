@@ -29,8 +29,6 @@
 #ifdef HAVE_CONFIG_H
 	#include <config.h>
 #endif
-//#include <stdlib.h>
-//#include "pixman-private.h"
 
 static boolint linear_gradient_is_horizontal(pixman_image_t * image, int x, int y, int width, int height)
 {

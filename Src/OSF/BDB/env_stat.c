@@ -17,7 +17,7 @@ static int __env_print_fh(ENV *);
 static int __env_print_stats(ENV*, uint32);
 static int __env_print_thread(ENV *);
 static int __env_stat_print(ENV*, uint32);
-static char * __env_thread_state_print(DB_THREAD_STATE);
+static const char * __env_thread_state_print(DB_THREAD_STATE);
 static const char * __reg_type(reg_type_t);
 /*
  * __env_stat_print_pp --
@@ -372,7 +372,7 @@ static int __env_print_env_all(ENV * env, uint32 flags)
 	return 0;
 }
 
-static char * __env_thread_state_print(DB_THREAD_STATE state)
+static const char * __env_thread_state_print(DB_THREAD_STATE state)
 {
 	switch(state) {
 	    case THREAD_ACTIVE: return "active";

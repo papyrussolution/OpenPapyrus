@@ -164,7 +164,7 @@ TERM_PUBLIC void EMF_flush_dashtype(GpTermEntry_Static * pThis);
 
 // Enhanced text support 
 TERM_PUBLIC void ENHemf_put_text(GpTermEntry_Static * pThis, uint x, uint y, const char * str);
-TERM_PUBLIC void ENHemf_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void ENHemf_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry_Static * pThis);
 
 #undef RGB
@@ -1569,7 +1569,7 @@ static bool ENHemf_show = TRUE;
 static bool ENHemf_sizeonly = FALSE;
 static int ENHemf_overprint = 0;
 
-TERM_PUBLIC void ENHemf_OPEN(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void ENHemf_OPEN(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GnuPlot * p_gp = pThis->P_Gp;
 	// If the overprint code requests a save or restore, that's all we do 

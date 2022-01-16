@@ -1,20 +1,12 @@
+// ucnv.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- *  ucnv.c:
+ *   Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *  Implements APIs for the ICU's codeset conversion library;
  *  mostly calls through internal functions;
  *  created by Bertrand A. Damiba
- *
  * Modification History:
- *
  *   Date        Name        Description
  *   04/04/99    helena      Fixed internal header inclusion.
  *   05/09/00    helena      Added implementation to handle fallback mappings.
@@ -26,7 +18,6 @@
 #if !UCONFIG_NO_CONVERSION
 
 #include "unicode/ucnv.h"
-#include "putilimp.h"
 #include "utracimp.h"
 #include "ustr_imp.h"
 #include "ucnv_imp.h"

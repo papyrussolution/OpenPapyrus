@@ -1,13 +1,11 @@
+// characterproperties.cpp
 // © 2018 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
-// characterproperties.cpp
 // created: 2018sep03 Markus W. Scherer
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "emojiprops.h"
-#include "normalizer2impl.h"
 #include "ubidi_props.h"
 #include "ucase.h"
 #include "ucln_cmn.h"
@@ -32,11 +30,8 @@ struct Inclusion {
 };
 
 Inclusion gInclusions[NUM_INCLUSIONS]; // cached getInclusions()
-
 UnicodeSet * sets[UCHAR_BINARY_LIMIT] = {};
-
 UCPMap * maps[UCHAR_INT_LIMIT - UCHAR_INT_START] = {};
-
 icu::UMutex cpMutex;
 
 //----------------------------------------------------------------
@@ -45,17 +40,9 @@ icu::UMutex cpMutex;
 
 // USetAdder implementation
 // Does not use uset.h to reduce code dependencies
-void U_CALLCONV _set_add(USet * set, UChar32 c) {
-	((UnicodeSet*)set)->add(c);
-}
-
-void U_CALLCONV _set_addRange(USet * set, UChar32 start, UChar32 end) {
-	((UnicodeSet*)set)->add(start, end);
-}
-
-void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t length) {
-	((UnicodeSet*)set)->add(icu::UnicodeString((bool)(length<0), str, length));
-}
+void U_CALLCONV _set_add(USet * set, UChar32 c) { ((UnicodeSet*)set)->add(c); }
+void U_CALLCONV _set_addRange(USet * set, UChar32 start, UChar32 end) { ((UnicodeSet*)set)->add(start, end); }
+void U_CALLCONV _set_addString(USet * set, const UChar * str, int32_t length) { ((UnicodeSet*)set)->add(icu::UnicodeString((bool)(length<0), str, length)); }
 
 bool U_CALLCONV characterproperties_cleanup() 
 {

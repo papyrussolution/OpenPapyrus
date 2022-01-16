@@ -17,7 +17,6 @@
 
 #include "collationfcd.h"
 #include "collationiterator.h"
-#include "normalizer2impl.h"
 #include "utf8collationiterator.h"
 
 U_NAMESPACE_BEGIN

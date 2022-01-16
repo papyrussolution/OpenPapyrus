@@ -276,7 +276,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
@@ -289,6 +289,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -320,7 +321,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
@@ -332,6 +333,7 @@
       <EnableModules>false</EnableModules>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
     </ClCompile>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -377,6 +379,7 @@
       <SDLCheck>
       </SDLCheck>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -419,6 +422,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
+      <BrowseInformationFile />
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">

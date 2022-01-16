@@ -5899,17 +5899,12 @@ static void pr_pointsize()
  *   pr_width - determine line width values
  *---------------------------------------------------------------------------*/
 
-static const char width_keys[Nwidths][30] = {
-	"border", "axis",
-	"line1", "line2", "line3", "line4", "line5", "line6", "line7", "line8"
-};
+static const char width_keys[Nwidths][30] = { "border", "axis", "line1", "line2", "line3", "line4", "line5", "line6", "line7", "line8" };
 
 static void pr_width()
 {
-	int n;
 	char option[20], * v;
-
-	for(n = 0; n < Nwidths; n++) {
+	for(int n = 0; n < Nwidths; n++) {
 		strcpy(option, ".");
 		strcat(option, width_keys[n]);
 		strcat(option, "Width");

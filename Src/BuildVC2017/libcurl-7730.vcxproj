@@ -253,6 +253,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -300,6 +301,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>
@@ -432,6 +434,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
@@ -480,6 +483,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <AdditionalOptions>/machine:X64  %(AdditionalOptions)</AdditionalOptions>

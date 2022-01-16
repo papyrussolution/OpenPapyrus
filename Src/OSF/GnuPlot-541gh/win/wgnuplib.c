@@ -10,11 +10,11 @@
 #include "wcommon.h"
 
 HINSTANCE hdllInstance;
-LPWSTR szParentClass = L"wgnuplot_parent";
-LPWSTR szTextClass = L"wgnuplot_text";
-LPWSTR szToolbarClass = L"wgnuplot_toolbar";
-LPWSTR szSeparatorClass = L"wgnuplot_separator";
-LPWSTR szPauseClass = L"wgnuplot_pause";
+LPCWSTR szParentClass = L"wgnuplot_parent";
+LPCWSTR szTextClass = L"wgnuplot_text";
+LPCWSTR szToolbarClass = L"wgnuplot_toolbar";
+LPCWSTR szSeparatorClass = L"wgnuplot_separator";
+LPCWSTR szPauseClass = L"wgnuplot_pause";
 
 /* Window ID */
 struct WID {

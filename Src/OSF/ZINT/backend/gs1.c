@@ -149,7 +149,7 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 						j++;
 					} while(ai_string[j - 1] != ']');
 					ai_string[j - 1] = '\0';
-					ai_value[ai_count] = atoi(ai_string);
+					ai_value[ai_count] = satoi(ai_string);
 					ai_count++;
 				}
 			}
@@ -289,7 +289,7 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 					ai_string[0] = source[i+1];
 					ai_string[1] = source[i+2];
 					ai_string[2] = '\0';
-					last_ai = atoi(ai_string);
+					last_ai = satoi(ai_string);
 					ai_latch = 0;
 					// The following values from "GS-1 General Specification version 8.0 issue 2, May 2008"
 					// figure 5.4.8.2.1 - 1 "Element Strings with Pre-Defined Length Using Application Identifiers" 

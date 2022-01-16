@@ -189,12 +189,12 @@ struct WebServcErrMessage {
 };
 
 struct ObjectTypeSymbols {
-	char * P_Symb;
+	const char * P_Symb;
 	uint Type;
 };
 
 struct MessageTypeSymbols {
-	char * P_Symb;
+	const char * P_Symb;
 	uint   Type;
 };
 
@@ -678,8 +678,8 @@ int ExportCls::DocPartiesAndCurrency()
 {
 	int    ok = 1;
 	SString str, sender_gln, login;
-	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	const char * p_sg = 0;
+	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	if(MessageType == PPEDIOP_ORDER)
 		p_sg = "SG2";
 	else if(MessageType == PPEDIOP_RECADV)
@@ -1507,52 +1507,54 @@ int ImportCls::ReceiveDoc(const char * pLocalPath, int * pResultId)
 	if(!(State & stMsgList)) {
 		THROW(GetMessageList(pLocalPath));
 	}
-	//
-	// Проверяем наличие файлов
-	//
-	const uint _pos = MsgList.getPointer();
-	if(_pos < MsgList.getCount()) {
-		// Просматриваем файлы дальше
-		const PPEdiMessageEntry & r_eme = MsgList.at(_pos);
-		MsgList.incPointer();
-        (ImpFileName = TempPath).SetLastSlash().Cat(r_eme.SId);
-        if(fileExists(ImpFileName)) {
-			SFile file(ImpFileName, SFile::mRead);
-			SString file_buf;
-			int64 file_size = 0;
-			file.CalcSize(&file_size);
-			SBuffer buf((size_t)file_size + 1);
-			if(file.IsValid()) {
-				SStrScan Scan;
-				long ReEmmId = 0;
-				Scan.RegisterRe("[ ]+<", &ReEmmId);
-				while(file.ReadLine(file_buf)) {
-					Scan.Set(file_buf, 0);
-					if(Scan.GetRe(ReEmmId, str))
-						file_buf.ReplaceStr(str, "<", 0);
-					else
-						Scan.Incr();
-					file_buf.ReplaceCR().ReplaceStr("\n", "", 0);
-					buf.Write((const char *)file_buf, file_buf.Len());
+	{
+		//
+		// Проверяем наличие файлов
+		//
+		const uint _pos = MsgList.getPointer();
+		if(_pos < MsgList.getCount()) {
+			// Просматриваем файлы дальше
+			const PPEdiMessageEntry & r_eme = MsgList.at(_pos);
+			MsgList.incPointer();
+			(ImpFileName = TempPath).SetLastSlash().Cat(r_eme.SId);
+			if(fileExists(ImpFileName)) {
+				SFile file(ImpFileName, SFile::mRead);
+				SString file_buf;
+				int64 file_size = 0;
+				file.CalcSize(&file_size);
+				SBuffer buf((size_t)file_size + 1);
+				if(file.IsValid()) {
+					SStrScan Scan;
+					long ReEmmId = 0;
+					Scan.RegisterRe("[ ]+<", &ReEmmId);
+					while(file.ReadLine(file_buf)) {
+						Scan.Set(file_buf, 0);
+						if(Scan.GetRe(ReEmmId, str))
+							file_buf.ReplaceStr(str, "<", 0);
+						else
+							Scan.Incr();
+						file_buf.ReplaceCR().ReplaceStr("\n", "", 0);
+						buf.Write((const char *)file_buf, file_buf.Len());
+					}
 				}
+				file.Close();
+				if(file.Open(ImpFileName, SFile::mWrite)) {
+					file.Write(buf.GetBuf(), buf.GetAvailableSize());
+				}
+				file.Close();
+				if(MessageType == PPEDIOP_APERAK) {
+					THROW(ParseAperakResp()); // Сразу разберем ответ
+				}
+				result_id = r_eme.ID;
 			}
-			file.Close();
-			if(file.Open(ImpFileName, SFile::mWrite)) {
-				file.Write(buf.GetBuf(), buf.GetAvailableSize());
+			else {
+				ProcessError("ReceiveDoc");
+				ok = 0;
 			}
-			file.Close();
-			if(MessageType == PPEDIOP_APERAK) {
-				THROW(ParseAperakResp()); // Сразу разберем ответ
-			}
-            result_id = r_eme.ID;
 		}
-		else {
-			ProcessError("ReceiveDoc");
-			ok = 0;
-		}
+		else
+			ok = -1;
 	}
-	else
-		ok = -1;
 	CATCHZOK
 	if(!ok)
 		SysLogMessage(SYSLOG_RECEIVEDOC);
@@ -1695,10 +1697,11 @@ int ImportCls::ParseAperakResp()
 	int    ok = 1, is_correct = 0, exit_while = 0;
 	SString str;
 	xmlDoc * p_doc = 0;
+	xmlNode * p_node = 0;
 	AperakInfo.Clear();
 	THROWERR_STR(fileExists(ImpFileName), IEERR_IMPFILENOTFOUND, ImpFileName);
 	THROWERR((p_doc = xmlReadFile(ImpFileName, NULL, XML_PARSE_NOENT)), IEERR_NULLREADXMLPTR);
-	xmlNode * p_node = xmlDocGetRootElement(p_doc);
+	p_node = xmlDocGetRootElement(p_doc);
 	THROWERR(p_node, IEERR_XMLREAD);
 	if(SXml::IsName(p_node, "APERAK") && p_node->children) // По первому тэгу можно понять, что это Aperak
 		is_correct = 1;
@@ -1787,17 +1790,16 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 	int    ok = 0, exit_while = 0;
 	SString str;
 	xmlDoc * p_doc = 0;
+	xmlNode * p_node = 0;
+	xmlNode * p_root = 0;
 	THROWERR_STR(fileExists(ImpFileName), IEERR_IMPFILENOTFOUND, ImpFileName);
 	THROWERR(pBill, IEERR_NODATA);
 	memzero(pBill, sizeof(Sdr_Bill));
 	THROWERR((p_doc = xmlReadFile(ImpFileName, NULL, XML_PARSE_NOENT)), IEERR_NULLREADXMLPTR);
-	xmlNode * p_node = 0;
-	xmlNode * p_root = xmlDocGetRootElement(p_doc);
+	p_root = xmlDocGetRootElement(p_doc);
 	THROWERR(p_root, IEERR_XMLREAD);
-	// @v8.5.6 {
 	STRNSCPY(pBill->EdiOpSymb, p_root->name);
 	pBill->EdiOp = MessageType;
-	// } @v8.5.6
 	p_node = p_root->children;
 	while(p_node && p_node->type == XML_ELEMENT_NODE) {
 		if(p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT)
@@ -1926,7 +1928,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 				if(SXml::IsContent(p_node->children, "2")) {
 					p_node = p_node->next; // <E6060>
 					if(SXml::IsName(p_node, "E6066") && p_node->children) { // Количество товарных позиций в документе
-						GoodsCount = atoi(PTRCHRC_(p_node->children->content));
+						GoodsCount = satoi(PTRCHRC_(p_node->children->content));
 						ok = 1;
 					}
 				}
@@ -1954,12 +1956,13 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 	int    ok = 1, index = 1, sg26_end = 0, exit_while = 0;
 	SString str, goods_segment;
 	xmlDoc * p_doc = 0;
+	xmlNode * p_node = 0;
+	xmlNode * p_root = 0;
 	THROWERR_STR(fileExists(ImpFileName), IEERR_IMPFILENOTFOUND, ImpFileName);
 	THROWERR(pBRow, IEERR_NODATA);
 	memzero(pBRow, sizeof(Sdr_BRow));
 	THROWERR((p_doc = xmlReadFile(ImpFileName, NULL, XML_PARSE_NOENT)), IEERR_NULLREADXMLPTR);
-	xmlNode * p_node = 0;
-	xmlNode * p_root = xmlDocGetRootElement(p_doc);
+	p_root = xmlDocGetRootElement(p_doc);
 	THROWERR(p_root, IEERR_XMLREAD);
 	if(Itr.GetCount() < (uint)GoodsCount) {
 		p_node = p_root->children;

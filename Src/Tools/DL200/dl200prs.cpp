@@ -1,5 +1,5 @@
 // DL200PRS.CPP
-// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -74,49 +74,51 @@ public:
 			THROW(view.CalcTotal(&Total));
 			Flags |= fResolved;
 		}
-		double cost = 0.0;
-		double result = 0.0;
-		double netprice = 0.0;
-		switch(rS.Sub) {
-			case DL2_Score::subAmount:
-				result = Total.Sum;
-				break;
-			case DL2_Score::subCost:
-				result = Total.Amounts.Get(PPAMT_BUYING, 0);
-				break;
-			case DL2_Score::subPrice:
-				result = Total.Amounts.Get(PPAMT_SELLING, 0);
-				break;
-			case DL2_Score::subDiscount:
-				result = Total.Amounts.Get(PPAMT_DISCOUNT, 0);
-				break;
-			case DL2_Score::subNetPrice:
-				result = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
-				break;
-			case DL2_Score::subMargin:
-				cost = Total.Amounts.Get(PPAMT_BUYING, 0);
-				netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
-				result = netprice - cost;
-				break;
-			case DL2_Score::subPctIncome:
-				cost = Total.Amounts.Get(PPAMT_BUYING, 0);
-				netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
-				result = fdivnz(netprice - cost, cost);
-				break;
-			case DL2_Score::subPctMargin:
-				cost = Total.Amounts.Get(PPAMT_BUYING, 0);
-				netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
-				result = fdivnz(netprice - cost, netprice);
-				break;
-			case DL2_Score::subCount:
-				result = Total.Count;
-				break;
-			default:
-				result = Total.Sum;
-				break;
+		{
+			double cost = 0.0;
+			double result = 0.0;
+			double netprice = 0.0;
+			switch(rS.Sub) {
+				case DL2_Score::subAmount:
+					result = Total.Sum;
+					break;
+				case DL2_Score::subCost:
+					result = Total.Amounts.Get(PPAMT_BUYING, 0);
+					break;
+				case DL2_Score::subPrice:
+					result = Total.Amounts.Get(PPAMT_SELLING, 0);
+					break;
+				case DL2_Score::subDiscount:
+					result = Total.Amounts.Get(PPAMT_DISCOUNT, 0);
+					break;
+				case DL2_Score::subNetPrice:
+					result = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
+					break;
+				case DL2_Score::subMargin:
+					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
+					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
+					result = netprice - cost;
+					break;
+				case DL2_Score::subPctIncome:
+					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
+					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
+					result = fdivnz(netprice - cost, cost);
+					break;
+				case DL2_Score::subPctMargin:
+					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
+					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
+					result = fdivnz(netprice - cost, netprice);
+					break;
+				case DL2_Score::subCount:
+					result = Total.Count;
+					break;
+				default:
+					result = Total.Sum;
+					break;
+			}
+			p_ci = new DL2_CI;
+			p_ci->Init(result);
 		}
-		p_ci = new DL2_CI;
-		p_ci->Init(result);
 		CATCH
 			ZDELETE(p_ci);
 		ENDCATCH
@@ -185,21 +187,23 @@ public:
 			THROW(view.CalcTotal(&Total));
 			Flags |= fResolved;
 		}
-		double result = 0.0;
-		switch(rS.Sub) {
-			case DL2_Score::subAmount:    result = Total.Amount; break;
-			case DL2_Score::subCost:      result = Total.Amount; break;
-			case DL2_Score::subPrice:     result = Total.Amount + Total.Discount; break;
-			case DL2_Score::subDiscount:  result = Total.Discount; break;
-			case DL2_Score::subNetPrice:  result = Total.Amount; break;
-			case DL2_Score::subMargin:    break;
-			case DL2_Score::subPctIncome: break;
-			case DL2_Score::subPctMargin: break;
-			case DL2_Score::subCount:     result = Total.Count; break;
-			default:                      result = Total.Amount; break;
+		{
+			double result = 0.0;
+			switch(rS.Sub) {
+				case DL2_Score::subAmount:    result = Total.Amount; break;
+				case DL2_Score::subCost:      result = Total.Amount; break;
+				case DL2_Score::subPrice:     result = Total.Amount + Total.Discount; break;
+				case DL2_Score::subDiscount:  result = Total.Discount; break;
+				case DL2_Score::subNetPrice:  result = Total.Amount; break;
+				case DL2_Score::subMargin:    break;
+				case DL2_Score::subPctIncome: break;
+				case DL2_Score::subPctMargin: break;
+				case DL2_Score::subCount:     result = Total.Count; break;
+				default:                      result = Total.Amount; break;
+			}
+			p_ci = new DL2_CI;
+			p_ci->Init(result);
 		}
-		p_ci = new DL2_CI;
-		p_ci->Init(result);
 		CATCH
 			ZDELETE(p_ci);
 		ENDCATCH
@@ -258,25 +262,27 @@ public:
 			THROW(view.GetTotal(&Total));
 			Flags |= fResolved;
 		}
-		double result = 0.0;
-		switch(rS.Sub) {
-			case DL2_Score::subCount:    result = Total.Count; break;
-			case DL2_Score::subAmount:   result = Total.SumPrice; break;
-			case DL2_Score::subCost:     result = Total.SumCost; break;
-			case DL2_Score::subPrice:    result = Total.SumPrice; break;
-			case DL2_Score::subDiscount: break;
-			case DL2_Score::subNetPrice: break;
-			case DL2_Score::subMargin:   result = Total.SumPrice - Total.SumCost; break;
-			case DL2_Score::subPctIncome:
-				result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumCost);
-				break;
-			case DL2_Score::subPctMargin:
-				result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumPrice);
-				break;
-			default: result = Total.SumPrice; break;
+		{
+			double result = 0.0;
+			switch(rS.Sub) {
+				case DL2_Score::subCount:    result = Total.Count; break;
+				case DL2_Score::subAmount:   result = Total.SumPrice; break;
+				case DL2_Score::subCost:     result = Total.SumCost; break;
+				case DL2_Score::subPrice:    result = Total.SumPrice; break;
+				case DL2_Score::subDiscount: break;
+				case DL2_Score::subNetPrice: break;
+				case DL2_Score::subMargin:   result = Total.SumPrice - Total.SumCost; break;
+				case DL2_Score::subPctIncome:
+					result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumCost);
+					break;
+				case DL2_Score::subPctMargin:
+					result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumPrice);
+					break;
+				default: result = Total.SumPrice; break;
+			}
+			p_ci = new DL2_CI;
+			p_ci->Init(result);
 		}
-		p_ci = new DL2_CI;
-		p_ci->Init(result);
 		CATCH
 			ZDELETE(p_ci);
 		ENDCATCH
@@ -331,21 +337,23 @@ public:
 			THROW(view.GetTotal(&Total));
 			Flags |= fResolved;
 		}
-		double result = 0.0;
-		switch(rS.Sub) {
-			case DL2_Score::subNone:
-			case DL2_Score::subAmount:
-				result = Total.TDebt.Get(0, 0);
-				break;
-			case DL2_Score::subCount:
-				result = Total.Count;
-				break;
-			default:
-				result = Total.TDebt.Get(0, 0);
-				break;
+		{
+			double result = 0.0;
+			switch(rS.Sub) {
+				case DL2_Score::subNone:
+				case DL2_Score::subAmount:
+					result = Total.TDebt.Get(0, 0);
+					break;
+				case DL2_Score::subCount:
+					result = Total.Count;
+					break;
+				default:
+					result = Total.TDebt.Get(0, 0);
+					break;
+			}
+			p_ci = new DL2_CI;
+			p_ci->Init(result);
 		}
-		p_ci = new DL2_CI;
-		p_ci->Init(result);
 		CATCH
 			ZDELETE(p_ci);
 		ENDCATCH
@@ -398,16 +406,18 @@ public:
 			THROW(view.CalcTotal(&Total));
 			Flags |= fResolved;
 		}
-		double result = 0.0;
-		switch(rS.Sub) {
-			case DL2_Score::subNone:
-			case DL2_Score::subAmount: result = Total.Sum; break;
-			case DL2_Score::subCount:  result = Total.Count; break;
-			case DL2_Score::subAverage: result = fdivnz(Total.Sum, Total.Count); break;
-			default: result = Total.Sum; break;
+		{
+			double result = 0.0;
+			switch(rS.Sub) {
+				case DL2_Score::subNone:
+				case DL2_Score::subAmount: result = Total.Sum; break;
+				case DL2_Score::subCount:  result = Total.Count; break;
+				case DL2_Score::subAverage: result = fdivnz(Total.Sum, Total.Count); break;
+				default: result = Total.Sum; break;
+			}
+			p_ci = new DL2_CI;
+			p_ci->Init(result);
 		}
-		p_ci = new DL2_CI;
-		p_ci->Init(result);
 		CATCH
 			ZDELETE(p_ci);
 		ENDCATCH

@@ -1,21 +1,15 @@
+// ucnvsel.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2008-2011, International Business Machines
- *   Corporation, Google and others.  All Rights Reserved.
- *
- *******************************************************************************
+ *   Copyright (C) 2008-2011, International Business Machines Corporation, Google and others.  All Rights Reserved.
  */
 // Author : eldawy@google.com (Mohamed Eldawy)
-// ucnvsel.cpp
-//
 // Purpose: To generate a list of encodings capable of handling
 // a given Unicode text
 //
 // Started 09-April-2008
-
+//
 /**
  * \file
  *
@@ -33,7 +27,6 @@
 
 #include "unicode/ucnv.h"
 #include "unicode/uchriter.h"
-#include "utrie2.h"
 #include "propsvec.h"
 #include "ucmndata.h"
 #include "udataswp.h"

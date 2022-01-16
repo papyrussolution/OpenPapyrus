@@ -105,6 +105,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,6 +138,7 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,6 +179,7 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -220,6 +223,7 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

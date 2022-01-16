@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1269,6 +1269,11 @@ DBUpdateSetItem & DBUpdateSet::Get(uint pos) const
 	p_item->Val.I.destroy();
 }
 
+DBUpdateSet & FASTCALL set(DBField f, DBConst val) // @v11.2.11
+{
+	return set(f, static_cast<DBItem &>(val));
+}
+
 DBUpdateSet & FASTCALL set(DBField f, DBItem & val)
 {
 	DBUpdateSet * p_set = new DBUpdateSet;
@@ -1276,7 +1281,12 @@ DBUpdateSet & FASTCALL set(DBField f, DBItem & val)
 	return *p_set;
 }
 
-DBUpdateSet & FASTCALL DBUpdateSet::set(DBField f, DBItem & val)
+DBUpdateSet & STDCALL DBUpdateSet::set(DBField f, DBConst val) // @v11.2.11
+{
+	return set(f, static_cast<DBItem &>(val));
+}
+
+DBUpdateSet & STDCALL DBUpdateSet::set(DBField f, DBItem & val)
 {
 	DBUpdateSetItem item;
 	MEMSZERO(item);

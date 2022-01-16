@@ -1008,15 +1008,15 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 			date_str[0] = source[2];
 			date_str[1] = source[3];
 			date_str[2] = '\0';
-			group_val = atoi(date_str) * 384;
+			group_val = satoi(date_str) * 384;
 
 			date_str[0] = source[4];
 			date_str[1] = source[5];
-			group_val += (atoi(date_str) - 1) * 32;
+			group_val += (satoi(date_str) - 1) * 32;
 
 			date_str[0] = source[6];
 			date_str[1] = source[7];
-			group_val += atoi(date_str);
+			group_val += satoi(date_str);
 
 			mask = 0x8000;
 			for(j = 0; j < 16; j++) {
@@ -1171,7 +1171,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 				}
 				numeric_part[i] = '\0';
 			}
-			numeric_value = atoi(numeric_part);
+			numeric_value = satoi(numeric_part);
 			table3_letter = -1;
 			if(numeric_value < 31) {
 				switch(ninety[test1]) {

@@ -282,12 +282,12 @@ struct WebServcErrMessage {
 };
 
 struct ObjectTypeSymbols {
-	char * P_Symb;
+	const char * P_Symb;
 	uint Type;
 };
 
 struct MessageTypeSymbols {
-	char * P_Symb;
+	const char * P_Symb;
 	uint Type;
 };
 
@@ -528,7 +528,7 @@ int ImportExportCls::Relationships()
 	param.Password = Header.EdiPassword;	// Пароль
 	param.Timeout = 5000;					// Таймаут на выполнение вызова метода (мс)
 	if((r = proxy.Relationships(&param, &resp)) == SOAP_OK) {
-		if(atoi(resp.RelationshipsResult->Res) == 0) {
+		if(satoi(resp.RelationshipsResult->Res) == 0) {
 			//
 			// Разбираем полученный ответ и заполняем набор RlnCfgList
 			//
@@ -537,7 +537,7 @@ int ImportExportCls::Relationships()
 		}
 		else {
 			SetError(IEERR_WEBSERVСERR);
-			SetWebServcError(atoi((const char *)resp.RelationshipsResult->Res));
+			SetWebServcError(satoi(resp.RelationshipsResult->Res));
 			ok = 0;
 		}
 	}
@@ -932,10 +932,10 @@ int ExportCls::DocPartiesAndCurrency()
 {
 	int    ok = 1;
 	SString str, fmt;
+	const char * p_sg = 0;
 	THROWERR(P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	BillSumWithoutVat = 0.0;
 	SegNum = 0;
-	const char * p_sg = 0;
 	if(MessageType == PPEDIOP_ORDER)
 		p_sg = "SG2";
 	else if(MessageType == PPEDIOP_RECADV)
@@ -1390,11 +1390,11 @@ int ExportCls::SendDoc()
 		param.Password = Header.EdiPassword;	// Пароль
 		param.PartnerIln = Bill.GLN;			// ИД партнера, которому посылается документ
 		GetMsgTypeSymb(r_item.EdiDocType, edi_doc_type_symb);
-		param.DocumentType = (char *)(const char *)edi_doc_type_symb;      // Тип документа
-		param.DocumentVersion = (char *)(const char *)r_item.DocVersion;   // Версия спецификации
-		param.DocumentStandard = (char *)(const char *)r_item.DocStandard; // Стандарт документа
-		param.DocumentTest = (char *)(const char *)r_item.DocTest;         // Статус документа
-		param.ControlNumber = (char *)Bill.Code; // Контрольный номер документа (просто номер документа)
+		param.DocumentType = const_cast<char *>(edi_doc_type_symb.cptr()); // Тип документа
+		param.DocumentVersion = const_cast<char *>(r_item.DocVersion.cptr());   // Версия спецификации
+		param.DocumentStandard = const_cast<char *>(r_item.DocStandard.cptr()); // Стандарт документа
+		param.DocumentTest = const_cast<char *>(r_item.DocTest.cptr());         // Статус документа
+		param.ControlNumber = Bill.Code; // Контрольный номер документа (просто номер документа)
 		buf = new char[(size_t)file_size + 1];
 		memzero(buf, (size_t)file_size + 1);
 		file.ReadLine(str.Z()); // Пропускаем первую строку <?xml version="1.0" encoding="UTF-8" ?>
@@ -1403,14 +1403,14 @@ int ExportCls::SendDoc()
 		param.DocumentContent = buf; // Содержание документа
 		param.Timeout = 5000;		// Таймаут на выполнение вызова метода (мс) (число взято из описания методов web-сервиса)
 		if((r = proxy.Send(&param, &resp)) == SOAP_OK) {
-			if(atoi(resp.SendResult->Res) == 0) {
+			if(satoi(resp.SendResult->Res) == 0) {
 				exp_rcpt.ID = atol(Bill.ID);
 				STRNSCPY(exp_rcpt.ReceiptNumber, resp.SendResult->Cnt); // ИД документа в системе провайдера. А-ля номер квитанции
 				ReceiptList.insert(&exp_rcpt);
 			}
 			else {
 				SetError(IEERR_WEBSERVСERR);
-				SetWebServcError(atoi((const char *)resp.SendResult->Res));
+				SetWebServcError(satoi(resp.SendResult->Res));
 				ok = 0;
 			}
 		}
@@ -1935,7 +1935,8 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 //
 int ImportCls::ReceiveDoc(uint messageType)
 {
-	int    ok = -1, r = 0;
+	int    ok = -1;
+	int    r = 0;
 	_ns1__Receive param;
 	_ns1__ReceiveResponse resp;
 	SString partner_iln, track_id, str, login;
@@ -1976,20 +1977,20 @@ int ImportCls::ReceiveDoc(uint messageType)
 			if(pos_ > 0 && pos_ <= rcl_c) {
 				const StRlnConfig & r_item = RlnCfgList.at(pos_-1);
 				FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
-				param.Name = (char *)(const char *)login;
+				param.Name = const_cast<char *>(login.cptr());
 				//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 				param.Password = Header.EdiPassword;	// Пароль
-				param.PartnerIln = (char *)(const char *)partner_iln; // ИД партнера, которому был послан документ (при ORDRSP это будет GLN поставщика,
+				param.PartnerIln = const_cast<char *>(partner_iln.cptr()); // ИД партнера, которому был послан документ (при ORDRSP это будет GLN поставщика,
 					// а при APERAK это будет 9999000000001 - служебный GLN сервиса, с которого отправляются сообщения)
 				GetMsgTypeSymb(r_item.EdiDocType, edi_doc_type_symb);
-				param.DocumentType = (char *)(const char *)edi_doc_type_symb; // Тип документа
-				param.TrackingId = (char *)(const char *)track_id; // ИД документа в системе
-				param.DocumentStandard = (char *)(const char *)r_item.DocStandard;	// Стандарт документа
-				param.ChangeDocumentStatus = "R"; // Новый статус документа после завершения чтения (read)
+				param.DocumentType = const_cast<char *>(edi_doc_type_symb.cptr()); // Тип документа
+				param.TrackingId = const_cast<char *>(track_id.cptr()); // ИД документа в системе
+				param.DocumentStandard = const_cast<char *>(r_item.DocStandard.cptr()); // Стандарт документа
+				param.ChangeDocumentStatus = const_cast<char *>("R"); // Новый статус документа после завершения чтения (read)
 				param.Timeout = 10000;		// Таймаут на выполнение вызова метода (мс) (число взято из описания методов web-сервиса)
 				LastTrackId = track_id;
 				if(proxy.Receive(&param, &resp) == SOAP_OK) {
-					if(atoi(resp.ReceiveResult->Res) == 0) {
+					if(satoi(resp.ReceiveResult->Res) == 0) {
 						if(oneof2(messageType, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
 							file.Open(ImpFileName, SFile::mWrite);
 							file.WriteLine(resp.ReceiveResult->Cnt);
@@ -2006,7 +2007,7 @@ int ImportCls::ReceiveDoc(uint messageType)
 					}
 					else {
 						SetError(IEERR_WEBSERVСERR);
-						SetWebServcError(atoi((const char *)resp.ReceiveResult->Res));
+						SetWebServcError(satoi(resp.ReceiveResult->Res));
 						ok = 0;
 					}
 				}
@@ -2043,15 +2044,15 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
 		STRNSCPY(track_id_buf, TrackIds.Get(pos).Txt);
 		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
-		param.Name = (char *)login.cptr(); // @badcast
+		param.Name = const_cast<char *>(login.cptr()); // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
 		param.TrackingId = track_id_buf; // ИД документа в системе
-		param.Status = "N"; // Новый статус документа (new)
+		param.Status = const_cast<char *>("N"); // Новый статус документа (new)
 		if(proxy.ChangeDocumentStatus(&param, &resp) == SOAP_OK) {
-			if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
+			if(satoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 				SetError(IEERR_WEBSERVСERR);
-				SetWebServcError(atoi((const char *)resp.ChangeDocumentStatusResult->Res));
+				SetWebServcError(satoi(resp.ChangeDocumentStatusResult->Res));
 				if(rErrTrackIdList.IsEmpty())
 					rErrTrackIdList = track_id_buf;
 				else
@@ -2114,7 +2115,7 @@ int ImportCls::ListMessageBox(uint messageType)
 			param.DocumentVersion = const_cast<char *>(r_item.DocVersion.cptr());   // Версия спецификации
 			param.DocumentStandard = const_cast<char *>(r_item.DocStandard.cptr()); // Стандарт документа
 			param.DocumentTest = const_cast<char *>(r_item.DocTest.cptr());         // Статус документа
-			param.DocumentStatus = "N";	// Статус выбираемых документов (подтверждений, статусов) (только новые) (N - только новые, A - все)
+			param.DocumentStatus = const_cast<char *>("N"); // Статус выбираемых документов (подтверждений, статусов) (только новые) (N - только новые, A - все)
 			param.Timeout = 10000;		// Таймаут на выполнение вызова метода (мс) (число взято из описания методов web-сервиса)
 			if((Header.PeriodLow != ZERODATE) && (Header.PeriodUpp != ZERODATE)) {
 				low.Z().Cat(Header.PeriodLow.year());
@@ -2135,7 +2136,7 @@ int ImportCls::ListMessageBox(uint messageType)
 				param.DateTo = const_cast<char *>(upp.cptr());
 			}
 			if(proxy.ListMBEx(&param, &resp) == SOAP_OK) {
-				if(atoi(resp.ListMBExResult->Res) == 0) {
+				if(satoi(resp.ListMBExResult->Res) == 0) {
 					if(strcmp(resp.ListMBExResult->Cnt, EMPTY_LISTMB_RESP) != 0) {
 						SString xml_input(resp.ListMBExResult->Cnt);
 						SString str, cname;
@@ -2197,7 +2198,7 @@ int ImportCls::ListMessageBox(uint messageType)
 						ok = -1;
 				}
 				else {
-					SetWebServcError(atoi((const char *)resp.ListMBExResult->Res));
+					SetWebServcError(satoi(resp.ListMBExResult->Res));
 					THROWERR(0, IEERR_WEBSERVСERR);
 				}
 			}
@@ -2224,17 +2225,16 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 	int    ok = 0, exit_while = 0;
 	SString str, temp_buf;
 	xmlDoc * p_doc = 0;
+	xmlNode * p_node = 0;
+	xmlNode * p_root = 0;
 	THROWERR_STR(fileExists(ImpFileName), IEERR_IMPFILENOTFOUND, ImpFileName);
 	THROWERR(pBill, IEERR_NODATA);
 	memzero(pBill, sizeof(Sdr_Bill));
 	THROWERR((p_doc = xmlReadFile(ImpFileName, NULL, XML_PARSE_NOENT)), IEERR_NULLREADXMLPTR);
-	xmlNode * p_node = 0;
-	xmlNode * p_root = xmlDocGetRootElement(p_doc);
+	p_root = xmlDocGetRootElement(p_doc);
 	THROWERR(p_root, IEERR_XMLREAD);
-	// @v8.5.6 {
 	STRNSCPY(pBill->EdiOpSymb, p_root->name);
 	pBill->EdiOp = messageType;
-	// } @v8.5.6
 	p_node = p_root->children;
 	while(p_node && p_node->type == XML_ELEMENT_NODE) {
 		if(p_node->children && (p_node->children->type == XML_READER_TYPE_ELEMENT))
@@ -2375,7 +2375,7 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 						p_node = p_node->next; // <E6060>
 						if(SXml::IsName(p_node, "E6066") && p_node->children) {
 							// Запишем количество товарных позиций в документе
-							GoodsCount = atoi(PTRCHRC_(p_node->children->content));
+							GoodsCount = satoi(PTRCHRC_(p_node->children->content));
 							ok = 1;
 						}
 					}
@@ -2404,12 +2404,13 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 	int    ok = 1, index = 1, sg26_end = 0, exit_while = 0;
 	SString str, goods_segment;
 	xmlDoc * p_doc = 0;
+	const xmlNode * p_root = 0;
+	const xmlNode * p_node = 0;
 	THROWERR_STR(fileExists(ImpFileName), IEERR_IMPFILENOTFOUND, ImpFileName);
 	THROWERR(pBRow, IEERR_NODATA);
 	memzero(pBRow, sizeof(Sdr_BRow));
 	THROWERR((p_doc = xmlReadFile(ImpFileName, NULL, XML_PARSE_NOENT)), IEERR_NULLREADXMLPTR);
-	const xmlNode * p_node = 0;
-	const xmlNode * p_root = xmlDocGetRootElement(p_doc);
+	p_root = xmlDocGetRootElement(p_doc);
 	THROWERR(p_root, IEERR_XMLREAD);
 	if(Itr.GetCount() < (uint)GoodsCount) {
 		p_node = p_root->children;

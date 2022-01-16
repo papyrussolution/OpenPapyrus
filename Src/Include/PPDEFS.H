@@ -1863,6 +1863,7 @@
 #define cmPeriodResetLeft        1187 // @v11.2.4 Кнопка сброса левой границы периода в календарях
 #define cmPeriodResetRight       1188 // @v11.2.4 Кнопка сброса правой границы периода в календарях
 #define cmPeriodReset            1189 // @v11.2.4 Кнопка сброса периода в календарях
+#define cmTree                   1190 // @v11.2.11 Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11208,6 +11209,10 @@
 	#define CTL_STQCFG_FLAGS                 (10  + WINDOWS_ID_BIAS) // @v11.2.10
 #define DLG_FLEXLAYOUTLIST        1408 // Иерархический список layout'ов
 	#define CTL_FLEXLAYOUTLIST_LIST          (1  + WINDOWS_ID_BIAS)
+#define DLG_SYSJTOTAL             1409
+	#define CTL_SYSJTOTAL_COUNT              (1  + WINDOWS_ID_BIAS)
+#define DLG_GSTRUCTREE            1410 // @v11.2.11 Отображение дерева компонентов структуры
+	#define CTL_GSTRUCTREE_LIST              (1  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

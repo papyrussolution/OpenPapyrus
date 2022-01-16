@@ -42,7 +42,7 @@ typedef struct {
 } ngx_http_headers_conf_t;
 
 static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_conf_t * conf);
-static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires, time_t * expires_time, char ** err);
+static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires, time_t * expires_time, const char ** err);
 static ngx_int_t ngx_http_add_cache_control(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
 static ngx_int_t ngx_http_add_header(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
 static ngx_int_t ngx_http_set_last_modified(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
@@ -208,7 +208,7 @@ static ngx_int_t ngx_http_trailers_filter(ngx_http_request_t * r, ngx_chain_t * 
 
 static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_conf_t * conf)
 {
-	char * err;
+	const char * err;
 	size_t len;
 	time_t now, max_age;
 	ngx_str_t value;
@@ -310,7 +310,7 @@ static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_c
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires, time_t * expires_time, char ** err)
+static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires, time_t * expires_time, const char ** err)
 {
 	ngx_uint_t minus;
 	if(*expires != NGX_HTTP_EXPIRES_MODIFIED) {
@@ -506,7 +506,7 @@ static ngx_int_t ngx_http_headers_filter_init(ngx_conf_t * cf)
 static const char * ngx_http_headers_expires(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_headers_conf_t * hcf = (ngx_http_headers_conf_t *)conf;
-	char  * err;
+	const char * err;
 	ngx_str_t  * value;
 	ngx_int_t rc;
 	ngx_uint_t n;

@@ -39,10 +39,6 @@
  * Prior to 1.6.0 string.h was included here; the API changes in 1.6.0 to not
  * include this unnecessary header file.
  */
-
-#ifdef PNG_STDIO_SUPPORTED
-	//#include <stdio.h> /* Required for the definition of FILE: */
-#endif
 #ifdef PNG_SETJMP_SUPPORTED
 	#include <setjmp.h> /* Required for the definition of jmp_buf and the declaration of longjmp: */
 #endif

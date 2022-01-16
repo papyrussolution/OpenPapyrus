@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\RisohEditor\src\AccelRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\DialogRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\DlgInitRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\IconRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\MenuRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\PackedDIB.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\Res.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\ResToText.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\StringRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\VersionRes.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\RisohEditor.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\EGA\ega.cpp" />
+    <ClCompile Include="..\OSF\RisohEditor\src\RisohEditor-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\RisohEditor\src\RisohEditor_res.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{DEDD3EE6-F3BB-35B8-A0C4-01D858999657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{0f12cd60-0657-4961-badd-6a76b060d82b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\RisohEditor\include\DlgInit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\getoptwin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\pstdbool.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\pstdint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\resource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\utf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\UTF8_validator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\UTF16_validator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\wondef.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\wonnt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\AccelRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\ConstantsDB.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\DialogRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\DlgInitRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\ega.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\IconRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MacroParser.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddBitmapDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddCtrlDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddCursorDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddIconDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddResDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAddResIDDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MAdviceResHDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MBitmapDx.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MBmpView.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MByteStream.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MByteStreamEx.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MCloneInNewLangDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MCloneInNewNameDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MComboBox.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MComboBoxAutoComplete.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MConfigDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MConstantDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MCtrlDataDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MCtrlPropDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MDfmSettingsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MDlgInitDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MDlgPropDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MDropdownArrow.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MEditAccelDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MEditCtrl.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MEditMenuDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MEgaDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MEncodingDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MenuRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MessageRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MExportOptionsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MFile.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MFontsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MHyperLinkCtrl.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MIdAssocDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MIDListDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MIdOrString.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MIndexLabels.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MItemSearchDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MLangsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MMacrosDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MMessagesDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MModifyAssocDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MModifyResIDDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MOleCtrl.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MPathsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MPointSizeRect.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MProcessMaker.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MRadWindow.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MRegKey.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MRegKeyPortable.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceBinDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceBitmapDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceCursorDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceDialogFontsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MReplaceIconDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MResizable.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MRubberBand.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MSaveOptionsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MScrollBar.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MSplitterWnd.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MSrcEdit.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MString.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MStringListDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MStringsDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MTabCtrl.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MTestDialog.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MTestMenuDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MTestParentWnd.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MTextToText.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MToolBarCtrl.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MVersionInfoDlg.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MWaitCursor.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\MWindowBase.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\PackedDIB.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\Res.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\ResHeader.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\ResToText.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\RisohEditor.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\RisohSettings.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\StringRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\utf.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\VersionRes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\RisohEditor\include\mstr.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

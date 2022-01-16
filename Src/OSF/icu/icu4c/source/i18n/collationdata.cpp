@@ -1,12 +1,8 @@
+// collationdata.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2012-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * collationdata.cpp
- *
+ * Copyright (C) 2012-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * created on: 2012jul28
  * created by: Markus W. Scherer
  */
@@ -14,8 +10,6 @@
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
-#include "utrie2.h"
 
 U_NAMESPACE_BEGIN
 
@@ -37,7 +31,8 @@ uint32_t CollationData::getIndirectCE32(uint32_t ce32) const
 	return ce32;
 }
 
-uint32_t CollationData::getFinalCE32(uint32_t ce32) const {
+uint32_t CollationData::getFinalCE32(uint32_t ce32) const 
+{
 	if(Collation::isSpecialCE32(ce32)) {
 		ce32 = getIndirectCE32(ce32);
 	}

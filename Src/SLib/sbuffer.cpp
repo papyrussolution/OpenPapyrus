@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1133,22 +1133,32 @@ int SBinarySet::Enum(size_t * pPos, uint32 * pId, SBinaryChunk * pResult) const
 
 int SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 {
-	int    ok = 0;
+	int    ok = 1;
 	uint32 size = 0;
 	const void * ptr = GetPtr(id, &size);
-	if(ptr) {
-		if(!pResult || pResult->Put(ptr, size))
-			ok = 1;
+	THROW(ptr);
+	if(pResult) {
+		const size_t compress_prefix_size = SSerializeContext::GetCompressPrefix(0);
+		if(size > compress_prefix_size && SSerializeContext::IsCompressPrefix(ptr)) {
+			SCompressor compr(SCompressor::tZLib);
+			SBuffer dbuf;
+			THROW(compr.DecompressBlock(PTR8C(ptr)+compress_prefix_size, size-compress_prefix_size, dbuf));
+			THROW(pResult->Put(dbuf.GetBuf(), dbuf.GetAvailableSize()));
+		}
+		else {
+			THROW(pResult->Put(ptr, size));
+		}
 	}
+	CATCHZOK
 	return ok;
 }
 
-int SBinarySet::Put(uint32 id, const SBinaryChunk & rData)
+int SBinarySet::Put(uint32 id, const SBinaryChunk & rData, DeflateStrategy * pDs/*= 0*/)
 {
-	return Put(id, rData.PtrC(), rData.Len());
+	return Put(id, rData.PtrC(), rData.Len(), pDs);
 }
 
-int SBinarySet::Put(uint32 id, const void * pData, uint32 size)
+int SBinarySet::Put(uint32 id, const void * pData, uint32 size, DeflateStrategy * pDs/*= 0*/)
 {
 	int    ok = 0;
 	assert(id);
@@ -1156,96 +1166,111 @@ int SBinarySet::Put(uint32 id, const void * pData, uint32 size)
 		const bool do_remove = (!pData || !size); // Если указатель pData == 0 или размер size == 0, то считаем это требованием удалить блок
 			// с заданным идентификатором.
 		assert(DataLen <= SBaseBuffer::Size);
-		if(DataLen == 0) {
-			if(!do_remove) {
-				const size_t new_data_len = (size + sizeof(H) + sizeof(BH));
-				if(SBaseBuffer::Alloc(new_data_len)) {
-					reinterpret_cast<H *>(P_Buf)->Magic = _BinarySetMagic;
-					reinterpret_cast<H *>(P_Buf)->Flags = 0;
-					BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
-					p_blk->I = id;
-					p_blk->S = size;
-					memcpy(p_blk+1, pData, size);
-					DataLen = new_data_len;
-					ok = 1;
-				}
-			}
-			else
-				ok = -1;
+		if(pDs && size >= static_cast<uint32>(pDs->MinChunkSizeToCompress)) { // @v11.2.11
+			assert(!do_remove);
+			SCompressor compr(SCompressor::tZLib);
+			SSerializeContext sctx;
+			uint8 cs[32];
+			size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+			SBuffer cbuf;
+			THROW(cbuf.Write(cs, cs_size));
+			THROW(compr.CompressBlock(pData, size, cbuf, 0, 0));
+			THROW(Put(id, cbuf.GetBuf(), cbuf.GetAvailableSize(), 0/*!*/)); // @recursion
+			ok = 1;
 		}
 		else {
-			assert(DataLen >= sizeof(H));
-			assert(P_Buf);
-			if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
-				size_t offs = sizeof(H);
-				size_t suited_unused_block_offs = 0; // Если по ходу перебора блоков мы встретим неиспользуемы блок требуемого размера,
-					// то здесь сохраним его смещение, дабы, если не найдем существующего блока требуемого размера, то используем этот.
-					// Смещение найденного таким образом блока мы увеличим на sizeof(BH) дабы отличить от 0 (отсутствие такового блока).
-				BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
-				do {
-					if(p_blk->I == id) {
-						// Мы натолкнулись на уже существующий блок с нашим идентификатором
-						if(do_remove) {
-							// Если требуется просто удалить блок, то объявляем его неиспользуемым и уходим
-							p_blk->I = 0;
-							memzero(p_blk+1, p_blk->S);
-							ok = 1;
-						}
-						else if(p_blk->S == size) {
-							// Если размер существующего блока равен требуемому, то просто копируем новые данные и уходим: все сделано.
-							if(memcmp(p_blk+1, pData, size) == 0) { // Чтобы вызывающая функция могла узнать изменилось что-либо или нет
-								// сравним исходный блок с тем, что уже находится в пуле. Если они эквивалентны, то возвращает -1.
-								ok = -1;
-							}
-							else {
-								memcpy(p_blk+1, pData, size);
-								ok = 1;
-							}
-						}
-						else {
-							// Если размер существующего блока отличается от требуемого, то существующий блок объявляем неиспользуемым
-							// и продолжаем поиск.
-							p_blk->I = 0;
-							memzero(p_blk+1, p_blk->S);
-						}
-					}
-					else if(!do_remove && p_blk->I == 0 && p_blk->S == size) {
-						suited_unused_block_offs = offs+sizeof(BH);
-					}
-					offs += (sizeof(BH) + p_blk->S);
-					p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
-				} while(!ok && offs < DataLen);
-				assert(ok || offs == DataLen);
-				if(do_remove) {
-					if(!ok)
-						ok = -1;
-				}
-				else if(!ok) {
-					if(suited_unused_block_offs) {
-						assert(!do_remove);
-						p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + suited_unused_block_offs - sizeof(BH));
-						assert(p_blk->S == size);
-						p_blk->S = size;
+			if(DataLen == 0) {
+				if(!do_remove) {
+					const size_t new_data_len = (size + sizeof(H) + sizeof(BH));
+					if(SBaseBuffer::Alloc(new_data_len)) {
+						reinterpret_cast<H *>(P_Buf)->Magic = _BinarySetMagic;
+						reinterpret_cast<H *>(P_Buf)->Flags = 0;
+						BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
 						p_blk->I = id;
+						p_blk->S = size;
 						memcpy(p_blk+1, pData, size);
+						DataLen = new_data_len;
 						ok = 1;
 					}
-					else {
-						assert(PTR8C(p_blk) - PTR8C(P_Buf) == offs);
-						const size_t new_data_len = (DataLen + sizeof(BH) + size);
-						if(SBaseBuffer::Alloc(new_data_len)) {
-							p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs); // ! Расположение буфера могло измениться
+				}
+				else
+					ok = -1;
+			}
+			else {
+				assert(DataLen >= sizeof(H));
+				assert(P_Buf);
+				if(reinterpret_cast<H *>(P_Buf)->Magic == _BinarySetMagic) {
+					size_t offs = sizeof(H);
+					size_t suited_unused_block_offs = 0; // Если по ходу перебора блоков мы встретим неиспользуемы блок требуемого размера,
+						// то здесь сохраним его смещение, дабы, если не найдем существующего блока требуемого размера, то используем этот.
+						// Смещение найденного таким образом блока мы увеличим на sizeof(BH) дабы отличить от 0 (отсутствие такового блока).
+					BH * p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + sizeof(H));
+					do {
+						if(p_blk->I == id) {
+							// Мы натолкнулись на уже существующий блок с нашим идентификатором
+							if(do_remove) {
+								// Если требуется просто удалить блок, то объявляем его неиспользуемым и уходим
+								p_blk->I = 0;
+								memzero(p_blk+1, p_blk->S);
+								ok = 1;
+							}
+							else if(p_blk->S == size) {
+								// Если размер существующего блока равен требуемому, то просто копируем новые данные и уходим: все сделано.
+								if(memcmp(p_blk+1, pData, size) == 0) { // Чтобы вызывающая функция могла узнать изменилось что-либо или нет
+									// сравним исходный блок с тем, что уже находится в пуле. Если они эквивалентны, то возвращает -1.
+									ok = -1;
+								}
+								else {
+									memcpy(p_blk+1, pData, size);
+									ok = 1;
+								}
+							}
+							else {
+								// Если размер существующего блока отличается от требуемого, то существующий блок объявляем неиспользуемым
+								// и продолжаем поиск.
+								p_blk->I = 0;
+								memzero(p_blk+1, p_blk->S);
+							}
+						}
+						else if(!do_remove && p_blk->I == 0 && p_blk->S == size) {
+							suited_unused_block_offs = offs+sizeof(BH);
+						}
+						offs += (sizeof(BH) + p_blk->S);
+						p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs);
+					} while(!ok && offs < DataLen);
+					assert(ok || offs == DataLen);
+					if(do_remove) {
+						if(!ok)
+							ok = -1;
+					}
+					else if(!ok) {
+						if(suited_unused_block_offs) {
+							assert(!do_remove);
+							p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + suited_unused_block_offs - sizeof(BH));
+							assert(p_blk->S == size);
 							p_blk->S = size;
 							p_blk->I = id;
 							memcpy(p_blk+1, pData, size);
-							DataLen = new_data_len;
 							ok = 1;
+						}
+						else {
+							assert(PTR8C(p_blk) - PTR8C(P_Buf) == offs);
+							const size_t new_data_len = (DataLen + sizeof(BH) + size);
+							if(SBaseBuffer::Alloc(new_data_len)) {
+								p_blk = reinterpret_cast<BH *>(PTR8(P_Buf) + offs); // ! Расположение буфера могло измениться
+								p_blk->S = size;
+								p_blk->I = id;
+								memcpy(p_blk+1, pData, size);
+								DataLen = new_data_len;
+								ok = 1;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 //
@@ -1946,95 +1971,191 @@ void SBufferPipe::SetStatus(long st, int set)
 
 #if SLTEST_RUNNING // {
 
-SLTEST_R(SBufferPipe)
+SLTEST_R(SBuffer)
 {
-	//
-	// Проверено отключение блокировок в SBufferPipe - моментальное исключение по доступу к памяти
-	//
-	static const char p_eot_string[] = "end of transmission!";
-	int    ok = 1;
-	SFile file;
-	SString in_file_name(MakeInputFilePath("binfile"));
-	SString out_file_name(MakeOutputFilePath("bufferpipe-result"));
-	SBufferPipe pipe;
-
-	class ThreadReader : public SlThread {
-	public:
-		ThreadReader(SBufferPipe * pPipe, const char * pOutFileName) : SlThread(), P_Pipe(pPipe), OutFileName(pOutFileName)
+	{
+		SString temp_buf;
 		{
-		}
-	private:
-		virtual void Run()
-		{
-			assert(SLS.GetConstTLA().Id == GetThreadID());
-			uint64 total_rd = 0;
-			uint64 total_wr = 0;
-			SFile f_out(OutFileName, SFile::mWrite|SFile::mBinary);
-			if(f_out.IsValid()) {
-				uint8  temp_buf[1024];
-				while(1) {
-					size_t actual_size = P_Pipe->Get(temp_buf, sizeof(temp_buf));
-					total_rd += actual_size;
-					if(actual_size) {
-						f_out.Write(temp_buf, actual_size);
-						total_wr += actual_size;
-					}
-					else if(P_Pipe->GetStatus() & SBufferPipe::statusEOT)
-						break;
-				};
+			SBuffer sbuf;
+			long   lval;
+			double rval;
+			{
+				SLTEST_CHECK_Z(sbuf.GetAvailableSize());
+				SLTEST_CHECK_Z(sbuf.GetBuf());
+				SLTEST_CHECK_Z(sbuf.GetWrOffs());
+				SLTEST_CHECK_Z(sbuf.GetRdOffs());
+			}
+			{
+				sbuf.Write(1L);
+				sbuf.Write(17.0);
+				SLTEST_CHECK_EQ(sbuf.GetWrOffs(), sizeof(1L)+sizeof(17.0));
+				SLTEST_CHECK_Z(sbuf.GetRdOffs());
+				SLTEST_CHECK_NZ(sbuf.Read(lval));
+				SLTEST_CHECK_NZ(sbuf.Read(rval));
+				SLTEST_CHECK_EQ(lval, 1L);
+				SLTEST_CHECK_EQ(rval, 17.0);
+				SLTEST_CHECK_EQ(sbuf.GetRdOffs(), sizeof(lval)+sizeof(rval));
+			}
+			{
+				sbuf.Z(); // Сбрасываем буфер - все должно быть теперь по-нулям (указатель на буфер - нет: не нулевой)
+				SLTEST_CHECK_Z(sbuf.GetAvailableSize());
+				SLTEST_CHECK_Z(sbuf.GetWrOffs());
+				SLTEST_CHECK_Z(sbuf.GetRdOffs());
+			}
+			{
+				const char * p_terminated_string = "Некоторая строка у которой есть терминатор";
+				const char * p_terminated_string_part2 = "хвост строки с внутренним терминатором";
+				const char * pp_term_list[] = { "\xD", "\xD\xA", "\xA", "перекинь копыто через забор" };
+				for(uint i = 0; i < SIZEOFARRAY(pp_term_list); i++) {
+					const char * p_term = pp_term_list[i];
+					temp_buf.Z().Cat(p_terminated_string).Cat(p_term).Cat(p_terminated_string_part2);
+					sbuf.Z();
+					sbuf.Write(temp_buf.cptr(), temp_buf.Len());
+					sbuf.ReadTermStr(p_term, temp_buf);
+					SLTEST_CHECK_EQ(sbuf.GetRdOffs(), sstrlen(p_terminated_string)+sstrlen(p_term));
+					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sstrlen(p_terminated_string_part2));
+					SLTEST_CHECK_EQ(sbuf.GetAvailableSize(), sbuf.GetAvailableSizeI());
+					SLTEST_CHECK_Z(temp_buf.CmpSuffix(p_term, 0));
+					temp_buf.Trim(temp_buf.Len()-strlen(p_term));
+					SLTEST_CHECK_EQ(temp_buf, p_terminated_string);
+				}
 			}
 		}
-		SString OutFileName;
-		SBufferPipe * P_Pipe;
-	};
-	class ThreadWriter : public SlThread {
-	public:
-		ThreadWriter(SBufferPipe * pPipe, const char * pInFileName) : SlThread(), P_Pipe(pPipe), InFileName(pInFileName)
 		{
-		}
-	private:
-		virtual void Run()
-		{
-			assert(SLS.GetConstTLA().Id == GetThreadID());
-			uint64 total_rd = 0;
-			uint64 total_wr = 0;
-			SFile f_in(InFileName, SFile::mRead|SFile::mBinary);
-			if(f_in.IsValid()) {
-				uint8  temp_buf[1024];
-				size_t actual_sz = 0;
-				do {
-					size_t sz = SLS.GetTLA().Rg.GetUniformInt(sizeof(temp_buf));
-					assert(sz >= 0 && sz < sizeof(temp_buf));
-					SETIFZ(sz, 1);
-					f_in.Read(temp_buf, sz, &actual_sz);
-					total_rd += actual_sz;
-					if(actual_sz) {
-						P_Pipe->Put(temp_buf, actual_sz);
-						total_wr += actual_sz;
+			SString js_file_name;
+			SString js_text;
+			js_file_name = this->GetSuiteEntry()->InPath;
+			//D:\Papyrus\Src\PPTEST\DATA\json\bigjson.json 
+			js_file_name.SetLastSlash().Cat("json").SetLastSlash().Cat("bigjson.json");
+			if(fileExists(js_file_name)) {
+				SFile f_in(js_file_name, SFile::mRead);
+				if(f_in.IsValid()) {
+					STempBuffer rb(SKILOBYTE(512));
+					size_t rs = 0;
+					while(f_in.Read(rb, rb.GetSize(), &rs)) {
+						js_text.CatN(rb.cptr(), rs);
+						if(rs < rb.GetSize())
+							break;
 					}
-				} while(actual_sz);
-				P_Pipe->SetStatus(SBufferPipe::statusEOT, 1);
+					SJson * p_js = SJson::Parse(js_text);
+					if(p_js) {
+						SBinarySet set;
+						// 1, 2, 3, 4, 5, 6
+						const char * p_text_chunks[] = { "one", "two", "three", "four", "five" };
+						{
+							SBinarySet::DeflateStrategy ds(512);
+							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
+								const char * p_text = p_text_chunks[i];
+								SLTEST_CHECK_NZ(set.Put(i+1, p_text, sstrlen(p_text)));
+							}
+							SLTEST_CHECK_NZ(set.Put(SIZEOFARRAY(p_text_chunks)+1, js_text, js_text.Len(), &ds));
+						}
+						{
+							SBinaryChunk chunk;
+							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
+								SLTEST_CHECK_NZ(set.Get(i+1, &chunk));
+								SLTEST_CHECK_NZ(chunk.Len());
+								temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
+								SLTEST_CHECK_EQ(temp_buf, p_text_chunks[i]);
+							}
+							SLTEST_CHECK_NZ(set.Get(SIZEOFARRAY(p_text_chunks)+1, &chunk));
+							temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
+							SLTEST_CHECK_EQ(temp_buf, js_text);
+						}
+					}
+				}
 			}
 		}
-		SString InFileName;
-		SBufferPipe * P_Pipe;
-	};
-	for(uint i = 0; i < 4; i++) {
-		SFile::Remove(out_file_name);
-		pipe.Reset();
+	}
+	{
 		//
-		HANDLE objs_to_wait[8];
-		MEMSZERO(objs_to_wait);
-		size_t objs_to_wait_count = 0;
-		ThreadWriter * p_thr_wrr = new ThreadWriter(&pipe, in_file_name);
-		ThreadReader * p_thr_rdr = new ThreadReader(&pipe, out_file_name);
-		p_thr_wrr->Start();
-		objs_to_wait[objs_to_wait_count++] = *p_thr_wrr;
-		p_thr_rdr->Start();
-		objs_to_wait[objs_to_wait_count++] = *p_thr_rdr;
-		WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
-		SLTEST_CHECK_LT(0L, SFile::Compare(in_file_name, out_file_name, 0));
-		pipe.Reset();
+		// Проверено отключение блокировок в SBufferPipe - моментальное исключение по доступу к памяти
+		//
+		static const char p_eot_string[] = "end of transmission!";
+		int    ok = 1;
+		SFile file;
+		SString in_file_name(MakeInputFilePath("binfile"));
+		SString out_file_name(MakeOutputFilePath("bufferpipe-result"));
+		SBufferPipe pipe;
+
+		class ThreadReader : public SlThread {
+		public:
+			ThreadReader(SBufferPipe * pPipe, const char * pOutFileName) : SlThread(), P_Pipe(pPipe), OutFileName(pOutFileName)
+			{
+			}
+		private:
+			virtual void Run()
+			{
+				assert(SLS.GetConstTLA().Id == GetThreadID());
+				uint64 total_rd = 0;
+				uint64 total_wr = 0;
+				SFile f_out(OutFileName, SFile::mWrite|SFile::mBinary);
+				if(f_out.IsValid()) {
+					uint8  temp_buf[1024];
+					while(1) {
+						size_t actual_size = P_Pipe->Get(temp_buf, sizeof(temp_buf));
+						total_rd += actual_size;
+						if(actual_size) {
+							f_out.Write(temp_buf, actual_size);
+							total_wr += actual_size;
+						}
+						else if(P_Pipe->GetStatus() & SBufferPipe::statusEOT)
+							break;
+					};
+				}
+			}
+			SString OutFileName;
+			SBufferPipe * P_Pipe;
+		};
+		class ThreadWriter : public SlThread {
+		public:
+			ThreadWriter(SBufferPipe * pPipe, const char * pInFileName) : SlThread(), P_Pipe(pPipe), InFileName(pInFileName)
+			{
+			}
+		private:
+			virtual void Run()
+			{
+				assert(SLS.GetConstTLA().Id == GetThreadID());
+				uint64 total_rd = 0;
+				uint64 total_wr = 0;
+				SFile f_in(InFileName, SFile::mRead|SFile::mBinary);
+				if(f_in.IsValid()) {
+					uint8  temp_buf[1024];
+					size_t actual_sz = 0;
+					do {
+						size_t sz = SLS.GetTLA().Rg.GetUniformInt(sizeof(temp_buf));
+						assert(sz >= 0 && sz < sizeof(temp_buf));
+						SETIFZ(sz, 1);
+						f_in.Read(temp_buf, sz, &actual_sz);
+						total_rd += actual_sz;
+						if(actual_sz) {
+							P_Pipe->Put(temp_buf, actual_sz);
+							total_wr += actual_sz;
+						}
+					} while(actual_sz);
+					P_Pipe->SetStatus(SBufferPipe::statusEOT, 1);
+				}
+			}
+			SString InFileName;
+			SBufferPipe * P_Pipe;
+		};
+		for(uint i = 0; i < 4; i++) {
+			SFile::Remove(out_file_name);
+			pipe.Reset();
+			//
+			HANDLE objs_to_wait[8];
+			MEMSZERO(objs_to_wait);
+			size_t objs_to_wait_count = 0;
+			ThreadWriter * p_thr_wrr = new ThreadWriter(&pipe, in_file_name);
+			ThreadReader * p_thr_rdr = new ThreadReader(&pipe, out_file_name);
+			p_thr_wrr->Start();
+			objs_to_wait[objs_to_wait_count++] = *p_thr_wrr;
+			p_thr_rdr->Start();
+			objs_to_wait[objs_to_wait_count++] = *p_thr_rdr;
+			WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
+			SLTEST_CHECK_LT(0L, SFile::Compare(in_file_name, out_file_name, 0));
+			pipe.Reset();
+		}
 	}
 	return CurrentStatus;
 }

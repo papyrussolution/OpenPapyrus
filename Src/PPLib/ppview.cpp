@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8 // @v11.0.4
 //
 #include <pp.h>
@@ -569,7 +569,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 /*static*/void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
 {
 	if(param != ZERODATE) {
-		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		SString & r_buf = SLS.AcquireRvlStr();
 		PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 	}
 }
@@ -577,7 +577,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 /*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
 {
 	if(pParam && pParam->IsZero() == 0) {
-		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		SString & r_buf = SLS.AcquireRvlStr();
 		PutMembToBuf(r_buf.Cat(*pParam), pMembName, rBuf);
 	}
 }
@@ -585,20 +585,20 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 /*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
 {
 	if(pParam && !pParam->IsZero()) {
-		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+		SString & r_buf = SLS.AcquireRvlStr();
 		PutMembToBuf(r_buf.Cat(pParam->low).Dot().Dot().Cat(pParam->upp), pMembName, rBuf);
 	}
 }
 
 /*static*/void FASTCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
 {
-	SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+	SString & r_buf = SLS.AcquireRvlStr();
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 
 /*static*/void FASTCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
 {
-	SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
+	SString & r_buf = SLS.AcquireRvlStr();
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 

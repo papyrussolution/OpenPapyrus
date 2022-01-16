@@ -138,7 +138,7 @@ struct ngx_http_mp4_file_t {
 };
 
 struct ngx_http_mp4_atom_handler_t {
-	char * name;
+	const char * name;
 	ngx_int_t (* handler)(ngx_http_mp4_file_t * mp4, uint64_t atom_data_size);
 };
 

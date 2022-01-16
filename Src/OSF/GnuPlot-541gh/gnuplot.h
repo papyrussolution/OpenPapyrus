@@ -1537,7 +1537,7 @@ struct GpTermEntry {
 	void  (*filled_polygon)(GpTermEntry_Static * pThis, int points, gpiPoint *corners);
 	void  (*image)(GpTermEntry_Static * pThis, uint, uint, coordval *, const gpiPoint * pCorners, t_imagecolor);
 	// Enhanced text mode driver call-backs 
-	void  (*enhanced_open)(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+	void  (*enhanced_open)(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 	void  (*enhanced_flush)(GpTermEntry_Static * pThis);
 	void  (*enhanced_writec)(GpTermEntry_Static * pThis, int c);
 	// Driver-specific synchronization or other layering commands.
@@ -1852,7 +1852,7 @@ extern const gen_table set_encoding_tbl[]; /* parsing table for encodings */
 //void list_terms();
 char * get_terminals_names();
 // Support for enhanced text mode. 
-const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 //void enh_err_check(const char * str);
 // note: c is char, but must be declared int due to K&R compatibility. 
 void do_enh_writec(GpTermEntry_Static * pThis, int c);
@@ -2978,7 +2978,7 @@ double quantize_normal_tics(double, int);
 void   axis_set_scale_and_range(GpAxis * axis, int lower, int upper);
 // set widest_tic_label: length of the longest tics label 
 void   widest_tic_callback(GpAxis *, double place, char * text, int ticlevel, struct lp_style_type grid, struct ticmark *);
-char * FASTCALL axis_name(AXIS_INDEX);
+const  char * FASTCALL axis_name(AXIS_INDEX);
 void   init_parallel_axis(GpAxis *, AXIS_INDEX);
 void   dump_axis_range(GpAxis * axis); // For debugging 
 
@@ -5601,11 +5601,11 @@ public:
 	void   DoStringAndFree(char * cmdline);
 	void   DoZoom(double xmin, double ymin, double x2min, double y2min, double xmax, double ymax, double x2max, double y2max);
 	void   ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
-		double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[]);
+		double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, const char * pMsg);
 	void   ZoomInX(int zoomKey);
 	void   ZoomAroundMouse(int zoom_key);
 	//void   BindAppend(char * lhs, char * rhs, char * (*builtin)(GpEvent * ge));
-	void   BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc);
+	void   BindAppend(const char * lhs, char * rhs, BuiltinEventHandler handlerFunc);
 	void   BindInstallDefaultBindings();
 	void   DoEvent(GpTermEntry * pTerm, GpEvent * pGe);
 	//
@@ -5764,7 +5764,7 @@ public:
 	long   ParseColorName();
 	GpValue * ConstStringExpress(GpValue * pVal);
 	char * TryToGetString();
-	char * StringOrExpress(at_type ** ppAt);
+	const  char * StringOrExpress(at_type ** ppAt);
 	at_type * TempAt();
 	void   AcceptMultiplicativeExpression();
 	void   AcceptAdditiveExpression();
@@ -6811,9 +6811,9 @@ private:
 	void   SaveStyleTextBox(FILE * fp);
 	void   SaveFit(FILE * fp);
 	void   SaveAll(FILE * fp);
-	void   SaveOffsets(FILE * fp, char * lead);
+	void   SaveOffsets(FILE * fp, const char * lead);
 	void   SavePosition(FILE * fp, const GpPosition * pPos, int ndim, bool offset);
-	void   SaveAxisLabelOrTitle(FILE * fp, char * pName, char * pSuffix, text_label * pLabel, bool savejust);
+	void   SaveAxisLabelOrTitle(FILE * fp, const char * pName, const char * pSuffix, text_label * pLabel, bool savejust);
 	void   SaveTics(FILE * fp, const GpAxis * pAx);
 	void   SaveHistogramOpts(FILE * fp);
 	void   SavePixmaps(FILE * fp);
@@ -6923,7 +6923,7 @@ private:
 	void   LoadRcFile(int where);
 	void   LoadLineType(GpTermEntry * pTerm, lp_style_type * pLp, int tag);
 	void   LpUseProperties(GpTermEntry * pTerm, lp_style_type * pLp, int tag);
-	text_label * StoreLabel(GpTermEntry * pTerm, text_label * pListHead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
+	text_label * StoreLabel(GpTermEntry * pTerm, text_label * pListHead, GpCoordinate * cp, int i/* point number */, const char * string/* start of label string */, 
 		double colorval/* used if text color derived from palette */);
 	enum PLOT_STYLE GetStyle();
 	void   VertexInterp(int edgeNo, int start, int end, t_voxel isolevel);
@@ -6956,7 +6956,7 @@ private:
 	int    ExpectString(const char column);
 	void   AddKeyEntry(char * pTempString, int dfDatum);
 	void   PlotOptionBinaryFormat(char * pFormatString);
-	void   LogAxisRestriction(FILE * log_f, int param, double min, double max, int autoscale, char * pName);
+	void   LogAxisRestriction(FILE * log_f, int param, double min, double max, int autoscale, const char * pName);
 	void   DrawArrow(GpTermEntry_Static * pThis, uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle);
 	int    DoSearch(int dir);
 	void   PrintSearchResult(const HIST_ENTRY * result);
@@ -7047,10 +7047,10 @@ private:
 	void   EnsureOutput();
 	void   FileOutput(GpFileStats s);
 	void   TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats xy, long n);
-	void   SglColumnOutputNonFormat(SglColumnStats s, char * x);
+	void   SglColumnOutputNonFormat(SglColumnStats s, const char * x);
 	void   SglColumnOoutput(SglColumnStats s, long n);
 	void   PrintSetOutput(char * pName, bool datablock, bool append_p);
-	char * PrintShowOutput();
+	const  char * PrintShowOutput();
 	char * NewClause(int clauseStart, int clauseEnd);
 	void   ClauseResetAfterError();
 	bool   SomeGridSelected();
@@ -7193,7 +7193,7 @@ private:
 	void   InitEncoding();
 	void   InitSpecialChars();
 	void   MantExp(double log10_base, double x, bool scientific/* round to power of 3 */, double * m/* results */, int * p, const char * format/* format string for fixup */);
-	int    Help(char * pKeyword/* on this topic */, char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */);
+	int    Help(char * pKeyword/* on this topic */, const char * pPath/* from this file */, bool * pSubTopics/* (in) - subtopics only? */);
 	int    FASTCALL TypeUdv(int t_num) const;
 	int    LoadDashType(t_dashtype * dt, int tag);
 	void   ListTerms();

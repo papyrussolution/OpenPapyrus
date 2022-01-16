@@ -128,8 +128,7 @@ static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUT
 	ULONG           fContextAttr;
 	SString msg_buf;
 	if(!pAS->fInitialized) {
-		ss = rVt._AcquireCredentialsHandle(NULL, _T("NTLM"),
-			SECPKG_CRED_OUTBOUND, NULL, pAuthIdentity, NULL, NULL, &pAS->hcred, &tsExpiry);
+		ss = rVt._AcquireCredentialsHandle(NULL, const_cast<wchar_t *>(_T("NTLM")), SECPKG_CRED_OUTBOUND, NULL, pAuthIdentity, NULL, NULL, &pAS->hcred, &tsExpiry);
 		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_ACQCREDHDL);
 		pAS->fHaveCredHandle = TRUE;
@@ -196,7 +195,7 @@ static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn,
 	ULONG           fContextAttr;
 	SString msg_buf;
 	if(!pAS->fInitialized) {
-		ss = rVt._AcquireCredentialsHandle(NULL, _T("NTLM"), SECPKG_CRED_INBOUND, 0, 0, 0, 0, &pAS->hcred, &tsExpiry);
+		ss = rVt._AcquireCredentialsHandle(NULL, const_cast<wchar_t *>(_T("NTLM")), SECPKG_CRED_INBOUND, 0, 0, 0, 0, &pAS->hcred, &tsExpiry);
 		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_ACQCREDHDL);
 		pAS->fHaveCredHandle = TRUE;
@@ -255,7 +254,7 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	_SysCrProcTable vt;
 	THROW(vt.Load());
 	// Get max token size
-	vt._QuerySecurityPackageInfo(_T("NTLM"), &pSPI);
+	vt._QuerySecurityPackageInfo(const_cast<wchar_t *>(_T("NTLM")), &pSPI);
 	cbMaxToken = pSPI->cbMaxToken;
 	vt._FreeContextBuffer(pSPI);
 	// Allocate buffers for client and server messages

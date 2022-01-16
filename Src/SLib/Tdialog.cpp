@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -884,11 +884,11 @@ int TDialog::RestoreUserSettings()
 		uint   num_cols = 0;
 		StringSet ss(',', spec_buf);
 		ss.get(&pos, ver, sizeof(ver));
-		Settings.Ver = atoi(ver);
+		Settings.Ver = satoi(ver);
 		ss.get(&pos, temp_buf, sizeof(temp_buf));
-		Settings.Left = atoi(temp_buf);
+		Settings.Left = satoi(temp_buf);
 		ss.get(&pos, temp_buf, sizeof(temp_buf));
-		Settings.Top = atoi(temp_buf);
+		Settings.Top = satoi(temp_buf);
 		DlgFlags |= fUserSettings;
 		ok = 1;
 	}

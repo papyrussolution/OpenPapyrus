@@ -1,13 +1,8 @@
+// ucnv_bld.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ********************************************************************
- * COPYRIGHT:
- * Copyright (c) 1996-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- ********************************************************************
- *
- *  ucnv_bld.cpp:
+ * Copyright (c) 1996-2016, International Business Machines Corporation and others. All Rights Reserved.
  *
  *  Defines functions that are used in the creation/initialization/deletion
  *  of converters and related structures.
@@ -26,7 +21,6 @@
 #if !UCONFIG_NO_CONVERSION
 
 #include "unicode/ucnv.h"
-#include "putilimp.h"
 #include "utracimp.h"
 #include "ucnv_io.h"
 #include "ucnv_bld.h"

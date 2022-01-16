@@ -8,8 +8,6 @@
 
 #define lcode_c
 #define LUA_CORE
-//#include <math.h>
-//#include <stdlib.h>
 #include "lua.h"
 #include "lcode.h"
 #include "ldebug.h"

@@ -2261,7 +2261,7 @@ void GnuPlot::ShowTics(bool showx, bool showy, bool showz, bool showx2, bool sho
 //
 void GnuPlot::ShowMTics(const GpAxis * pAx)
 {
-	char * name = axis_name((AXIS_INDEX)pAx->index);
+	const char * name = axis_name((AXIS_INDEX)pAx->index);
 	switch(pAx->minitics) {
 		case MINI_OFF:
 		    fprintf(stderr, "\tminor %stics are off\n", name);
@@ -2642,7 +2642,7 @@ void GnuPlot::ShowArrowStyle(int tag)
 				fprintf(stderr, "\t  arrow heads: %s, ", (p_arrowstyle->arrow_properties.headfill==AS_FILLED) ? "filled" :
 				    (p_arrowstyle->arrow_properties.headfill==AS_EMPTY) ? "empty" : (p_arrowstyle->arrow_properties.headfill==AS_NOBORDER) ? "noborder" : "nofilled");
 				if(p_arrowstyle->arrow_properties.head_length > 0) {
-					static char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) ", "(character units) "};
+					static const char * msg[] = {"(first x axis) ", "(second x axis) ", "(graph units) ", "(screen units) ", "(character units) "};
 					fprintf(stderr, " length %s%g, angle %g deg",
 					    p_arrowstyle->arrow_properties.head_lengthunit == first_axes ? "" : msg[p_arrowstyle->arrow_properties.head_lengthunit],
 					    p_arrowstyle->arrow_properties.head_length, p_arrowstyle->arrow_properties.head_angle);
@@ -2778,7 +2778,7 @@ void GnuPlot::DispValue(FILE * fp, const GpValue * pVal, bool needQuotes)
 //
 const char * FASTCALL conv_text(const char * t)
 {
-	static char * empty = "";
+	static const char * empty = "";
 	static char * r = NULL, * s;
 	if(!t) 
 		return empty;

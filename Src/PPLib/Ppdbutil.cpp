@@ -2315,7 +2315,7 @@ static int PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString & rDe
 {
 	class RecoverDialog : public TDialog {
 	public:
-		RecoverDialog::RecoverDialog() : TDialog(DLG_RECOVER), _dbes(0)
+		RecoverDialog() : TDialog(DLG_RECOVER), _dbes(0)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_RECOVER_DEST, CTL_RECOVER_DEST, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_RECOVER_LOG,  CTL_RECOVER_LOG,  2, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);

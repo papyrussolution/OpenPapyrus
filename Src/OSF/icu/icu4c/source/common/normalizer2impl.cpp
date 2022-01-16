@@ -1,21 +1,12 @@
+// normalizer2impl.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2009-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  normalizer2impl.cpp
+ *   Copyright (C) 2009-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2009nov22
  *   created by: Markus W. Scherer
  */
-
 #include <icu-internal.h>
 #pragma hdrstop
 // #define UCPTRIE_DEBUG
@@ -24,8 +15,6 @@
 
 #include "unicode/ucptrie.h"
 #include "bytesinkutil.h"
-#include "normalizer2impl.h"
-#include "putilimp.h"
 #include "ucptrie_impl.h"
 #include "uset_imp.h"
 
@@ -1146,7 +1135,8 @@ bool Normalizer2Impl::norm16HasDecompBoundaryAfter(uint16_t norm16) const {
  * See normalizer2impl.h for a more detailed description
  * of the compositions list format.
  */
-int32_t Normalizer2Impl::combine(const uint16_t * list, UChar32 trail) {
+int32_t Normalizer2Impl::combine(const uint16_t * list, UChar32 trail) 
+{
 	uint16_t key1, firstUnit;
 	if(trail<COMP_1_TRAIL_LIMIT) {
 		// trail character is 0..33FF
@@ -1199,12 +1189,12 @@ int32_t Normalizer2Impl::combine(const uint16_t * list, UChar32 trail) {
 	}
 	return -1;
 }
-
 /**
  * @param list some character's compositions list
  * @param set recursively receives the composites from these compositions
  */
-void Normalizer2Impl::addComposites(const uint16_t * list, UnicodeSet & set) const {
+void Normalizer2Impl::addComposites(const uint16_t * list, UnicodeSet & set) const 
+{
 	uint16_t firstUnit;
 	int32_t compositeAndFwd;
 	do {
@@ -2844,36 +2834,28 @@ U_CAPI int32_t U_EXPORT2 unorm2_swap(const UDataSwapper * ds,
 			*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 			return 0;
 		}
-
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
 			uprv_memcpy(outBytes, inBytes, size);
 		}
-
 		offset = 0;
-
 		/* swap the int32_t indexes[] */
 		nextOffset = indexes[Normalizer2Impl::IX_NORM_TRIE_OFFSET];
 		ds->swapArray32(ds, inBytes, nextOffset-offset, outBytes, pErrorCode);
 		offset = nextOffset;
-
 		/* swap the trie */
 		nextOffset = indexes[Normalizer2Impl::IX_EXTRA_DATA_OFFSET];
 		utrie_swapAnyVersion(ds, inBytes+offset, nextOffset-offset, outBytes+offset, pErrorCode);
 		offset = nextOffset;
-
 		/* swap the uint16_t extraData[] */
 		nextOffset = indexes[Normalizer2Impl::IX_SMALL_FCD_OFFSET];
 		ds->swapArray16(ds, inBytes+offset, nextOffset-offset, outBytes+offset, pErrorCode);
 		offset = nextOffset;
-
 		/* no need to swap the uint8 smallFCD[] (new in formatVersion 2) */
 		nextOffset = indexes[Normalizer2Impl::IX_SMALL_FCD_OFFSET+1];
 		offset = nextOffset;
-
 		U_ASSERT(offset==size);
 	}
-
 	return headerSize+size;
 }
 

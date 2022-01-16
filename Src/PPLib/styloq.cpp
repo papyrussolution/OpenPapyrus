@@ -5812,6 +5812,7 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 	ENDCATCH
 	if(do_reply) {
 		//StyloQProtocol reply_tp;
+		SBinarySet::DeflateStrategy ds(512);
 		rReplyPack.StartWriting(PPSCMD_SQ_COMMAND, cmd_reply_ok ? StyloQProtocol::psubtypeReplyOk : StyloQProtocol::psubtypeReplyError);
 		if(reply_config.Len())
 			rReplyPack.P.Put(SSecretTagPool::tagConfig, reply_config);
@@ -5821,12 +5822,12 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 			if(reply_doc_declaration.Len()) {
 				rReplyPack.P.Put(SSecretTagPool::tagDocDeclaration, reply_doc_declaration);
 			}
-			rReplyPack.P.Put(SSecretTagPool::tagRawData, reply_doc);
+			rReplyPack.P.Put(SSecretTagPool::tagRawData, reply_doc, &ds);
 		}
 		else if(p_js_reply) {
 			p_js_reply->ToStr(cmd_buf);
 			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
-			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
+			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch, &ds);
 		}
 		else {
 			p_js_reply = new SJson(SJson::tOBJECT);
@@ -5842,7 +5843,7 @@ int PPStyloQInterchange::ProcessCommand(const StyloQProtocol & rRcvPack, const S
 			}
 			p_js_reply->ToStr(cmd_buf);
 			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
-			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch);
+			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch, &ds);
 		}
 		rReplyPack.FinishWriting(pSessSecret);
 		/*{
@@ -6280,6 +6281,129 @@ private:
 		DS.Logout();
 	}
 };
+#if 0 // {
+//
+// Descr: Новый вариант сервера, обслуживающего MQB-запросы. В этом варианте сервер может обслуживать запросы
+//   к нескольким сервисам (базам данных).
+//
+class StyloQServer2 : public PPThread {
+public:
+	struct LaunchEntry {
+		PPStyloQInterchange::RunServerParam P;
+		DbLoginBlock LB;
+	};
+private:
+	//PPStyloQInterchange::RunServerParam P;
+	//DbLoginBlock LB;
+	TSCollection <LaunchEntry> Entries;
+	struct RunEntry {
+		RunEntry(const LaunchEntry * pLe) : P_Cli(0)
+		{
+			if(pLe) {
+				P_Cli = PPMqbClient::CreateInstance(pLe->P.MqbInitParam);
+				if(P_Cli)
+					LB = pLe->LB;
+			}
+		}
+		~RunEntry()
+		{
+			delete P_Cli;
+		}
+		PPMqbClient * P_Cli;
+		DbLoginBlock LB;
+	};
+public:
+	StyloQServer2(const TSCollection <LaunchEntry> & rEntries) : PPThread(kStyloQServer, 0, 0)
+	{
+		TSCollection_Copy(Entries, rEntries);
+	}
+	virtual void Run()
+	{
+		const int   do_debug_log = 0; // @debug
+		const long  pollperiod_mqc = 500;
+		EvPollTiming pt_mqc(pollperiod_mqc, false);
+		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
+		const int  use_sj_scan_alg2 = 0;
+		SString msg_buf, temp_buf;
+		//PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(P.MqbInitParam); // @v11.0.9
+		TSCollection <RunEntry> run_list;
+		for(uint i = 0; i < Entries.getCount(); i++) {
+			const LaunchEntry * p_le = Entries.at(i);
+			if(p_le) {
+				RunEntry * p_re = new RunEntry(p_le);
+				if(p_re->P_Cli)
+					run_list.insert(p_re);
+			}
+		}
+		if(run_list.getCount()) {
+			PPMqbClient::Envelope mqb_envelop;
+			const long __cycle_hs = 37; // Период таймера в сотых долях секунды (37)
+			int    queue_stat_flags_inited = 0;
+			StyloQProtocol tpack;
+			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+			for(int stop = 0; !stop;) {
+				uint   h_count = 0;
+				HANDLE h_list[32];
+				h_list[h_count++] = stop_event;
+				h_list[h_count++] = EvLocalStop;
+				//
+				STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
+				__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
+				h_list[h_count++] = __timer;
+				uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
+				switch(r) {
+					case (WAIT_OBJECT_0 + 0): // stop event
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "StopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						stop = 1; // quit loop
+						break;
+					case (WAIT_OBJECT_0 + 1): // local stop event
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "LocalStopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						stop = 1; // quit loop
+						break;
+					case WAIT_TIMEOUT:
+						// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
+						// Предполагается, что это событие крайне маловероятно!
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						break;
+					case (WAIT_OBJECT_0 + 2): // __timer event
+						{
+							if(pt_purge.IsTime()) {
+								;
+							}
+							if(p_mqb_cli && pt_mqc.IsTime()) {
+								while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
+									p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
+									if(tpack.Read(mqb_envelop.Msg, 0)) {
+										StyloQServerSession * p_new_sess = new StyloQServerSession(LB, P, tpack);
+										CALLPTRMEMB(p_new_sess, Start(0));
+									}
+									else {
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+									}
+								}
+							}
+						}
+						break;
+					case WAIT_FAILED:
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "QueueFailed", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						// error
+						break;
+				}
+			}
+		}
+		//delete p_mqb_cli;
+		DBS.CloseDictionary();
+	}
+};
+#endif // 
 
 class StyloQServer : public PPThread {
 	PPStyloQInterchange::RunServerParam P;

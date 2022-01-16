@@ -45,9 +45,7 @@ int TaskListDlg::doDialog(bool isRTL)
 	if(isRTL) {
 		DLGTEMPLATE * pMyDlgTemplate = NULL;
 		HGLOBAL hMyDlgTemplate = makeRTLResource(IDD_VALUE_DLG, &pMyDlgTemplate);
-		int result =
-		    static_cast<int32_t>(::DialogBoxIndirectParam(_hInst, pMyDlgTemplate, _hParent, dlgProc,
-		    reinterpret_cast<LPARAM>(this)));
+		int result = static_cast<int32_t>(::DialogBoxIndirectParam(_hInst, pMyDlgTemplate, _hParent, dlgProc, reinterpret_cast<LPARAM>(this)));
 		::GlobalFree(hMyDlgTemplate);
 		return result;
 	}
@@ -57,34 +55,25 @@ int TaskListDlg::doDialog(bool isRTL)
 
 INT_PTR CALLBACK TaskListDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	switch(Message)
-	{
+	switch(Message) {
 		case WM_INITDIALOG:
 	    {
 		    NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-
 		    ::SendMessage(_hParent, WM_GETTASKLISTINFO, reinterpret_cast<WPARAM>(&_taskListInfo), 0);
 		    int nbTotal = static_cast<int32_t>(_taskListInfo._tlfsLst.size());
-
 		    int i2set = _taskListInfo._currentIndex + (_initDir == dirDown ? 1 : -1);
-
 		    if(i2set < 0)
 			    i2set = nbTotal - 1;
-
 		    if(i2set > (nbTotal - 1))
 			    i2set = 0;
-
 		    _taskList.init(_hInst, _hSelf, _hImalist, nbTotal, i2set);
 		    _taskList.setFont(TEXT("Verdana"), NppParameters::getInstance()._dpiManager.scaleY(14));
 		    _rc = _taskList.adjustSize();
-
 		    reSizeTo(_rc);
 		    goToCenter();
-
 		    _taskList.display(true);
 		    hWndServer = _hSelf;
 		    windowsVersion = NppParameters::getInstance().getWinVersion();
-
 #ifndef WH_MOUSE_LL
 #define WH_MOUSE_LL 14
 #endif

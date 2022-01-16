@@ -845,7 +845,7 @@ ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c)
 	return NGX_OK;
 }
 
-ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text)
+ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, const char * text)
 {
 	ngx_uint_t level;
 	// Winsock may return NGX_ECONNABORTED instead of NGX_ECONNRESET 

@@ -392,7 +392,7 @@ extern int yflag;
 extern int zflag;
 extern char dirpath[1024];
 extern char filename[1024];
-extern char * prefix;
+extern const char * prefix;
 extern char * importpath;
 extern int custom_header;
 extern int custom_fault;
@@ -404,10 +404,10 @@ extern int imports;
 extern char * imported;
 extern int typeNO;
 
-extern char * envURI;
-extern char * encURI;
-extern char * rpcURI;
-extern char * xsiURI;
-extern char * xsdURI;
+extern const char * envURI;
+extern const char * encURI;
+extern const char * rpcURI;
+extern const char * xsiURI;
+extern const char * xsdURI;
 
 #endif // __SOAPCPP2_H

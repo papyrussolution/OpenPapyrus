@@ -155,6 +155,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -221,6 +222,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -251,6 +253,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -280,6 +283,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
+      <BrowseInformationFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

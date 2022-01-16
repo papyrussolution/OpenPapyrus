@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2609,12 +2609,12 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				DBE * p_dbe_1 = 0;
 				DBE * p_dbe_2 = 0;
 				if(Filt.EdiRecadvStatus) {
-					p_dbe_1 = &(bll->Flags2 & BILLF2_RECADV_ACCP);
-					p_dbe_2 = &(bll->Flags2 & BILLF2_RECADV_DECL);
+					p_dbe_1 = &(bll->Flags2 & BILLF2_EDI_ACCP);
+					p_dbe_2 = &(bll->Flags2 & BILLF2_EDI_DECL);
 					switch(Filt.EdiRecadvStatus) {
-						case PPEDI_RECADV_STATUS_ACCEPT:     dbq = &(*dbq && *p_dbe_1 == BILLF2_RECADV_ACCP && *p_dbe_2 == 0L); break;
-						case PPEDI_RECADV_STATUS_PARTACCEPT: dbq = &(*dbq && *p_dbe_1 == BILLF2_RECADV_ACCP && *p_dbe_2 == BILLF2_RECADV_DECL); break;
-						case PPEDI_RECADV_STATUS_REJECT:     dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == BILLF2_RECADV_DECL); break;
+						case PPEDI_RECADV_STATUS_ACCEPT:     dbq = &(*dbq && *p_dbe_1 == BILLF2_EDI_ACCP && *p_dbe_2 == 0L); break;
+						case PPEDI_RECADV_STATUS_PARTACCEPT: dbq = &(*dbq && *p_dbe_1 == BILLF2_EDI_ACCP && *p_dbe_2 == BILLF2_EDI_DECL); break;
+						case PPEDI_RECADV_STATUS_REJECT:     dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == BILLF2_EDI_DECL); break;
 						case -1:                             dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == 0L); break;
 					}
 				}
@@ -2978,7 +2978,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			(param = WrParam_StoreFlags).CatChar('-').Cat(op_id).CatChar('-').Cat(action);
 			long   flags = 0;
 			if(reg_key.GetString(param, temp_buf)) {
-				long rf = atoi(temp_buf);
+				long rf = satoi(temp_buf);
 				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fCopyBillCode, rf);
 				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fRcptAllOnShipm, rf); // @v10.5.0
 			}

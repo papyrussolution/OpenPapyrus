@@ -70,7 +70,7 @@ static int __log_printf_int(ENV * env, DB_TXN * txnid, const char * fmt, va_list
 		return EAGAIN;
 	}
 	memzero(&opdbt, sizeof(opdbt));
-	opdbt.data = "DIAGNOSTIC";
+	opdbt.data = const_cast<char *>("DIAGNOSTIC"); // @badcast
 	opdbt.size = sizeof("DIAGNOSTIC")-1;
 	memzero(&msgdbt, sizeof(msgdbt));
 	msgdbt.data = __logbuf;

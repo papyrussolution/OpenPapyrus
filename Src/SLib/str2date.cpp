@@ -1,5 +1,5 @@
 // STR2DATE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -75,7 +75,7 @@ int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int
 					tmp[i++] = *c++;
 			}
 			tmp[i] = 0;
-			i = atoi(tmp);
+			i = satoi(tmp);
 			if(i >= 1 && i <= 31) {
 				d = MakeLong(i, 0x2000);
                 m = -1;
@@ -171,7 +171,7 @@ int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int
 							for(i = 0; isdec(*c);)
 								tmp[i++] = *c++;
 							tmp[i] = '\0';
-							*p_cur_pos_plus = atoi(tmp) * sign;
+							*p_cur_pos_plus = satoi(tmp) * sign;
 						}
 						*p_cur_pos = -1;
 					}
@@ -185,7 +185,7 @@ int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int
 						for(i = 0; isdec(*c);)
 							tmp[i++] = *c++;
 						tmp[i] = '\0';
-						*p_cur_pos = atoi(tmp);
+						*p_cur_pos = satoi(tmp);
 						if(p_cur_pos == &y && tmp[0])
 							not_empty_year = 1;
 					}

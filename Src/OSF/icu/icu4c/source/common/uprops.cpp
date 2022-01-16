@@ -26,7 +26,6 @@
 #pragma hdrstop
 #include "unicode/ucptrie.h"
 #include "emojiprops.h"
-#include "normalizer2impl.h"
 #include "ubidi_props.h"
 #include "uprops.h"
 #include "ucase.h"

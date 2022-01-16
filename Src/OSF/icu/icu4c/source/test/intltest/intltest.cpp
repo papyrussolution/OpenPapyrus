@@ -1,17 +1,12 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 /**
  * IntlTest is a base class for tests.
  */
-
 #include "unicode/ctest.h" // for str_timeDelta
 #include "unicode/ucnv.h"
 #include "intltest.h"
@@ -22,10 +17,9 @@
 #include "udbgutil.h"
 #include "uoptions.h"
 #include "number_decnum.h"
-
 #ifdef XP_MAC_CONSOLE
-#include <console.h>
-#include "Files.h"
+	#include <console.h>
+	#include "Files.h"
 #endif
 
 static char * _testDataPath = NULL;
@@ -2313,39 +2307,41 @@ UChar * IntlTest::ReadAndConvertFile(const char * fileName, int &ulen, const cha
 		errln("Error reading test data file.");
 		goto cleanUpAndReturn;
 	}
-	//
-	// Look for a Unicode Signature (BOM) on the data just read
-	//
-	int32_t signatureLength;
-	const char * bomEncoding;
-	const char * fileBufC = fileBuf;
-	bomEncoding = ucnv_detectUnicodeSignature(fileBuf, fileSize, &signatureLength, &status);
-	if(bomEncoding!=NULL) {
-		fileBufC  += signatureLength;
-		fileSize  -= signatureLength;
-		encoding = bomEncoding;
-	}
-	//
-	// Open a converter to take the rule file to UTF-16
-	//
-	conv = ucnv_open(encoding, &status);
-	if(U_FAILURE(status)) {
-		goto cleanUpAndReturn;
-	}
-	//
-	// Convert the rules to UChar.
-	//  Preflight first to determine required buffer size.
-	//
-	ulen = ucnv_toUChars(conv, NULL/*dest*/, 0/*destCapacity*/, fileBufC, fileSize, &status);
-	if(status == U_BUFFER_OVERFLOW_ERROR) {
-		// Buffer Overflow is expected from the preflight operation.
-		status = U_ZERO_ERROR;
-		retPtr = new UChar[ulen+1];
-		ucnv_toUChars(conv, retPtr/*dest*/, ulen+1, fileBufC, fileSize, &status);
+	{
+		//
+		// Look for a Unicode Signature (BOM) on the data just read
+		//
+		int32_t signatureLength;
+		const char * bomEncoding;
+		const char * fileBufC = fileBuf;
+		bomEncoding = ucnv_detectUnicodeSignature(fileBuf, fileSize, &signatureLength, &status);
+		if(bomEncoding!=NULL) {
+			fileBufC  += signatureLength;
+			fileSize  -= signatureLength;
+			encoding = bomEncoding;
+		}
+		//
+		// Open a converter to take the rule file to UTF-16
+		//
+		conv = ucnv_open(encoding, &status);
+		if(U_FAILURE(status)) {
+			goto cleanUpAndReturn;
+		}
+		//
+		// Convert the rules to UChar.
+		//  Preflight first to determine required buffer size.
+		//
+		ulen = ucnv_toUChars(conv, NULL/*dest*/, 0/*destCapacity*/, fileBufC, fileSize, &status);
+		if(status == U_BUFFER_OVERFLOW_ERROR) {
+			// Buffer Overflow is expected from the preflight operation.
+			status = U_ZERO_ERROR;
+			retPtr = new UChar[ulen+1];
+			ucnv_toUChars(conv, retPtr/*dest*/, ulen+1, fileBufC, fileSize, &status);
+		}
 	}
 cleanUpAndReturn:
 	fclose(f);
-	delete []fileBuf;
+	delete [] fileBuf;
 	ucnv_close(conv);
 	if(U_FAILURE(status)) {
 		errln("ucnv_toUChars: ICU Error \"%s\"\n", u_errorName(status));

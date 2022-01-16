@@ -128,14 +128,6 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 	 */
 	#define BROKEN_FDATASYNC
 #endif
-//#include <errno.h>
-//#include <limits.h>
-//#include <stddef.h>
-//#include <inttypes.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <time.h>
 #ifdef _MSC_VER
 	//#include <io.h>
 	//typedef SSIZE_T ssize_t;
@@ -1539,7 +1531,7 @@ static int utf8_to_utf16(const char * src, struct MDB_name * dst, int xtra);
 #endif
 
 /** Return the library version info. */
-char * ESECT mdb_version(int * major, int * minor, int * patch)
+const char * ESECT mdb_version(int * major, int * minor, int * patch)
 {
 	ASSIGN_PTR(major, MDB_VERSION_MAJOR);
 	ASSIGN_PTR(minor, MDB_VERSION_MINOR);
@@ -1548,7 +1540,7 @@ char * ESECT mdb_version(int * major, int * minor, int * patch)
 }
 
 /** Table of descriptions for LMDB @ref errors */
-static char * const mdb_errstr[] = {
+static const char * mdb_errstr[] = {
 	"MDB_KEYEXIST: Key/data pair already exists",
 	"MDB_NOTFOUND: No matching key/data pair found",
 	"MDB_PAGE_NOTFOUND: Requested page not found",
@@ -1572,7 +1564,7 @@ static char * const mdb_errstr[] = {
 	"MDB_PROBLEM: Unexpected problem - txn should abort",
 };
 
-char * mdb_strerror(int err)
+const char * mdb_strerror(int err)
 {
 #ifdef _WIN32
 	/** HACK: pad 4KB on stack over the buf. Return system msgs in buf.
@@ -7028,7 +7020,10 @@ int mdb_cursor_put(MDB_cursor * mc, MDB_val * key, MDB_val * data, uint flags)
 	MDB_node * leaf = NULL;
 	MDB_page * fp, * mp, * sub_root = NULL;
 	uint16_t fp_flags;
-	MDB_val xdata, * rdata, dkey, olddata;
+	MDB_val xdata;
+	MDB_val * rdata;
+	MDB_val dkey;
+	MDB_val olddata;
 	MDB_db dummy;
 	int do_sub = 0, insert_key, insert_data;
 	uint mcount = 0, dcount = 0, nospill;
@@ -7048,16 +7043,12 @@ int mdb_cursor_put(MDB_cursor * mc, MDB_val * key, MDB_val * data, uint flags)
 		if(!F_ISSET(mc->mc_db->md_flags, MDB_DUPFIXED))
 			return MDB_INCOMPATIBLE;
 	}
-
 	nospill = flags & MDB_NOSPILL;
 	flags &= ~MDB_NOSPILL;
-
 	if(mc->mc_txn->mt_flags & (MDB_TXN_RDONLY|MDB_TXN_BLOCKED))
 		return (mc->mc_txn->mt_flags & MDB_TXN_RDONLY) ? EACCES : MDB_BAD_TXN;
-
 	if(key->mv_size-1 >= ENV_MAXKEY(env))
 		return MDB_BAD_VALSIZE;
-
 #if SIZE_MAX > MAXDATASIZE
 	if(data->mv_size > ((mc->mc_db->md_flags & MDB_DUPSORT) ? ENV_MAXKEY(env) : MAXDATASIZE))
 		return MDB_BAD_VALSIZE;
@@ -7065,12 +7056,8 @@ int mdb_cursor_put(MDB_cursor * mc, MDB_val * key, MDB_val * data, uint flags)
 	if((mc->mc_db->md_flags & MDB_DUPSORT) && data->mv_size > ENV_MAXKEY(env))
 		return MDB_BAD_VALSIZE;
 #endif
-
-	DPRINTF(("==> put db %d key [%s], size %"Z "u, data size %"Z "u",
-	    DDBI(mc), DKEY(key), key ? key->mv_size : 0, data->mv_size));
-
+	DPRINTF(("==> put db %d key [%s], size %"Z "u, data size %"Z "u", DDBI(mc), DKEY(key), key ? key->mv_size : 0, data->mv_size));
 	dkey.mv_size = 0;
-
 	if(flags & MDB_CURRENT) {
 		if(!(mc->mc_flags & C_INITIALIZED))
 			return EINVAL;
@@ -7460,7 +7447,7 @@ new_sub:
 			mdb_size_t ecount;
 put_sub:
 			xdata.mv_size = 0;
-			xdata.mv_data = "";
+			xdata.mv_data = const_cast<char *>(""); // @badcast
 			leaf = NODEPTR(mc->mc_pg[mc->mc_top], mc->mc_ki[mc->mc_top]);
 			if((flags & (MDB_CURRENT|MDB_APPENDDUP)) == MDB_CURRENT) {
 				xflags = MDB_CURRENT|MDB_NOSPILL;

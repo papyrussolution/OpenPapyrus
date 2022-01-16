@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1542,45 +1542,47 @@ int PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssocArray 
 	int    ok = -1;
 	PPIDArray temp_list;
 	THROW(P_Tbl->GetListByKind(psnKindID, &temp_list));
-	const uint c = temp_list.getCount();
-	if(c) {
-		ok = 1;
-		temp_list.sortAndUndup();
-		if(pNameList || pList) {
-			PersonTbl::Rec psn_rec;
-			if(pNameList) {
-				if(c <= 1000) {
-					for(uint i = 0; i < c; i++) {
-						const PPID id = temp_list.get(i);
-						if(Fetch(id, &psn_rec) > 0) {
-							if(pList) {
-								THROW_SL(pList->add(id));
+	{
+		const uint c = temp_list.getCount();
+		if(c) {
+			ok = 1;
+			temp_list.sortAndUndup();
+			if(pNameList || pList) {
+				PersonTbl::Rec psn_rec;
+				if(pNameList) {
+					if(c <= 1000) {
+						for(uint i = 0; i < c; i++) {
+							const PPID id = temp_list.get(i);
+							if(Fetch(id, &psn_rec) > 0) {
+								if(pList) {
+									THROW_SL(pList->add(id));
+								}
+								THROW_SL(pNameList->AddFast(id, psn_rec.Name));
 							}
-							THROW_SL(pNameList->AddFast(id, psn_rec.Name));
+						}
+					}
+					else {
+						const PPID id_min = temp_list.get(0);
+						const PPID id_max = temp_list.get(c-1);
+						BExtQuery qp(P_Tbl, 0);
+						qp.select(P_Tbl->ID, P_Tbl->Name, 0L).where(P_Tbl->ID >= id_min && P_Tbl->ID <= id_max);
+						PersonTbl::Key0 k0;
+						MEMSZERO(k0);
+						k0.ID = id_min;
+						for(qp.initIteration(0, &k0, spGe); qp.nextIteration() > 0;) {
+							const PPID id = P_Tbl->data.ID;
+							if(temp_list.bsearch(id)) {
+								if(pList) {
+									THROW_SL(pList->add(id));
+								}
+								THROW_SL(pNameList->AddFast(id, P_Tbl->data.Name));
+							}
 						}
 					}
 				}
 				else {
-					const PPID id_min = temp_list.get(0);
-					const PPID id_max = temp_list.get(c-1);
-					BExtQuery qp(P_Tbl, 0);
-					qp.select(P_Tbl->ID, P_Tbl->Name, 0L).where(P_Tbl->ID >= id_min && P_Tbl->ID <= id_max);
-					PersonTbl::Key0 k0;
-					MEMSZERO(k0);
-					k0.ID = id_min;
-					for(qp.initIteration(0, &k0, spGe); qp.nextIteration() > 0;) {
-                        const PPID id = P_Tbl->data.ID;
-                        if(temp_list.bsearch(id)) {
-							if(pList) {
-								THROW_SL(pList->add(id));
-							}
-							THROW_SL(pNameList->AddFast(id, P_Tbl->data.Name));
-                        }
-					}
+					ASSIGN_PTR(pList, temp_list);
 				}
-			}
-			else {
-                ASSIGN_PTR(pList, temp_list);
 			}
 		}
 	}
@@ -2495,27 +2497,29 @@ int PPObjPerson::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * 
 {
 	int    ok = 1;
 	THROW_MEM(p->Data = new PPPersonPacket);
-	PPPersonPacket * p_pack = static_cast<PPPersonPacket *>(p->Data);
-	if(stream == 0) {
-		THROW(GetPacket(id, p_pack, 0) > 0);
-		if(GetConfig().Flags & PPPersonConfig::fSendAttachment) {
-			p_pack->LinkFiles.Init(Obj);
-			p_pack->LinkFiles.Load(p_pack->Rec.ID, 0L);
+	{
+		PPPersonPacket * p_pack = static_cast<PPPersonPacket *>(p->Data);
+		if(stream == 0) {
+			THROW(GetPacket(id, p_pack, 0) > 0);
+			if(GetConfig().Flags & PPPersonConfig::fSendAttachment) {
+				p_pack->LinkFiles.Init(Obj);
+				p_pack->LinkFiles.Load(p_pack->Rec.ID, 0L);
+			}
 		}
-	}
-	else {
-		SBuffer buffer;
-		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
-		{
-			StaffAmtEntry * p_amt_entry;
-			SInvariantParam ip;
-			for(uint i = 0; p_pack->Amounts.enumItems(&i, (void **)&p_amt_entry);)
-				if(!p_amt_entry->InvariantC(&ip)) {
-					PPSetError(PPERR_INVARIANT_STAFFAMTENT);
-					pCtx->OutputLastError();
-					p_pack->Amounts.atFree(i-1);
-				}
+		else {
+			SBuffer buffer;
+			THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0))
+			THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
+			{
+				StaffAmtEntry * p_amt_entry;
+				SInvariantParam ip;
+				for(uint i = 0; p_pack->Amounts.enumItems(&i, (void **)&p_amt_entry);)
+					if(!p_amt_entry->InvariantC(&ip)) {
+						PPSetError(PPERR_INVARIANT_STAFFAMTENT);
+						pCtx->OutputLastError();
+						p_pack->Amounts.atFree(i-1);
+					}
+			}
 		}
 	}
 	CATCHZOK
@@ -5954,7 +5958,7 @@ static int EditPersonRel(PersonLink * pData)
 			return ok;
 		}
 	private:
-		IMPL_HANDLE_EVENT(PersonRelDialog)
+		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
 			/*

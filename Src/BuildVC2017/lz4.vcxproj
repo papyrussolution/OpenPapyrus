@@ -251,6 +251,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -365,6 +366,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -479,6 +481,7 @@
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -596,6 +599,7 @@
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BrowseInformationFile />
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>

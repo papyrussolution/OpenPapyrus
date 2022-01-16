@@ -31,8 +31,7 @@
 
 #include "filter_fork.h"
 
-int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout,
-    HANDLE * out_child)
+int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout, HANDLE * out_child)
 {
 	HANDLE childStdout[2], childStdin[2], childStderr;
 	SECURITY_ATTRIBUTES secAtts;
@@ -41,23 +40,21 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	struct archive_string cmdline;
 	struct archive_string fullpath;
 	struct archive_cmdline * acmd;
-	char * arg0, * ext;
+	char * arg0;
+	const char * ext;
 	int i, l;
 	DWORD fl, fl_old;
 	HANDLE child;
-
 	childStdout[0] = childStdout[1] = INVALID_HANDLE_VALUE;
 	childStdin[0] = childStdin[1] = INVALID_HANDLE_VALUE;
 	childStderr = INVALID_HANDLE_VALUE;
 	archive_string_init(&cmdline);
 	archive_string_init(&fullpath);
-
 	acmd = __archive_cmdline_allocate();
 	if(acmd == NULL)
 		goto fail;
 	if(__archive_cmdline_parse(acmd, cmd) != ARCHIVE_OK)
 		goto fail;
-
 	/*
 	 * Search the full path of 'path'.
 	 * NOTE: This does not need if we give CreateProcessA 'path' as

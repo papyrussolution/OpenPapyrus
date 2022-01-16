@@ -232,7 +232,7 @@ static char * ngx_http_v2_recv_buffer_size(ngx_conf_t * cf, void * post, void * 
 {
 	size_t * sp = static_cast<size_t *>(data);
 	if(*sp <= 2 * NGX_HTTP_V2_STATE_BUFFER_SIZE) {
-		return "value is too small";
+		return const_cast<char *>("value is too small");
 	}
 	return NGX_CONF_OK;
 }
@@ -266,7 +266,7 @@ static char * ngx_http_v2_streams_index_mask(ngx_conf_t * cf, void * post, void 
 	ngx_uint_t * np = (ngx_uint_t *)data;
 	ngx_uint_t mask = *np - 1;
 	if(*np == 0 || (*np & mask)) {
-		return "must be a power of two";
+		return const_cast<char *>("must be a power of two");
 	}
 	*np = mask;
 	return NGX_CONF_OK;

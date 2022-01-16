@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2717,9 +2717,8 @@ int PPObjBill::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  6, BILLOPRT_TOTALDSCNT);
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  7, BILLOPRT_MODTRANSM);
 			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  8, BILLOPRT_ACCSSUPPL);
-			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  9, BILLOPRT_REJECT);    // @v9.0.1
-			AddClusterAssoc(CTL_RTBILL_OPRFLAGS, 10, BILLOPRT_EMPTY);    // @v9.3.1
-
+			AddClusterAssoc(CTL_RTBILL_OPRFLAGS,  9, BILLOPRT_REJECT);
+			AddClusterAssoc(CTL_RTBILL_OPRFLAGS, 10, BILLOPRT_EMPTY);
 			ushort comm_rt = pData ? pData->Flags : 0;
 			setCtrlData(CTL_RTBILL_FLAGS, &comm_rt);
 			SetClusterData(CTL_RTBILL_SFLAGS, pData ? pData->Flags : 0);
@@ -2962,7 +2961,7 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 					for(++p, x = t; isdec(*p);)
 						*x++ = *p++;
 					*x = 0;
-					r_len = atoi(t);
+					r_len = satoi(t);
 					if(*p == '[') {
 						for(++p, x = t; *p && *p != ']';)
 							*x++ = *p++;
@@ -2983,8 +2982,7 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 						for(long n = (long)low; !f && n <= (long)upp; n++) {
 							memzero(pttrn, sizeof(pttrn));
 							sprintf(pttrn, "%s%0*ld", pfx, (int)r_len, n);
-							// @v9.8.11 if(pExclList && pExclList->SearchNumber(pttrn, 0) > 0)
-							if(pExclList && pExclList->SearchString(pttrn, PPTAG_LOT_SN, 0, frlist) > 0) // @v9.8.11
+							if(pExclList && pExclList->SearchString(pttrn, PPTAG_LOT_SN, 0, frlist) > 0)
 								continue;
 							else {
 								f = 1;
@@ -4665,8 +4663,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 					double diff = new_price-old_price;
 					if(new_price > 0.0) {
 						ss.clear();
-						// @v9.5.5 GetGoodsName(p_item->GoodsID, sub);
-						goods_obj.FetchNameR(p_item->GoodsID, sub); // @v9.5.5
+						goods_obj.FetchNameR(p_item->GoodsID, sub);
 						ss.add(sub);
 						ss.add(sub.Z().Cat(old_price, SFMT_MONEY));
 						ss.add(sub.Z().Cat(new_price, SFMT_MONEY));
@@ -4725,13 +4722,13 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 			cfg.ValuationRndPrec = param.RoundPrec;
 			if(param.QuotKindID)
 				cfg.ValuationQuotKindID = param.QuotKindID;
-			valuation_qk_id = cfg.ValuationQuotKindID; // @v8.2.0
+			valuation_qk_id = cfg.ValuationQuotKindID;
 			SETFLAG(cfg.Flags, BCF_VALUATION_RNDVAT, param.Flags & CalcPriceParam::fRoundVat);
 			{
-				const PPID preserve_suppl = p_ti->Suppl; // @v9.4.8
-				SETIFZ(p_ti->Suppl, pPack->Rec.Object); // @v9.4.8
+				const PPID preserve_suppl = p_ti->Suppl;
+				SETIFZ(p_ti->Suppl, pPack->Rec.Object);
 				r2 = p_ti->Valuation(cfg, 1, &new_price);
-				p_ti->Suppl = preserve_suppl; // @v9.4.8
+				p_ti->Suppl = preserve_suppl;
 				THROW(r2);
 			}
 			THROW_SL(prices_ary.Add(goods_id, new_price, 0, 0));
@@ -4918,7 +4915,6 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	PPID   qk_id = 0;
 	TDialog * dlg = 0;
 	SArray * p_qbo_ary = 0;
-	// @v9.3.12 PPOPT_GOODSORDER
 	if(pPack && oneof3(pPack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && /*pPack->SampleBillID &&*/ pPack->GetQuotKindList(&ql) > 0) {
 		PPID   ar_id = NZOR(forceArID, pPack->Rec.Object);
 		int    is_quot = 0;
@@ -5750,7 +5746,7 @@ int PPObjBill::LoadForSubst(const SubstParam * pParam, PPBill * pPack)
 			ar = 1;
 			FetchExt(pPack->Rec.ID, &pPack->Ext);
 			break;
-		case SubstGrpBill::sgbDlvrLoc: // @v9.1.5
+		case SubstGrpBill::sgbDlvrLoc:
 			break;
 	}
 	if(((ar && pParam->Sgb.S2.Sgp) || oneof2(pParam->Sgb.S, SubstGrpBill::sgbStorageLoc, SubstGrpBill::sgbDlvrLoc)) && pPack->Rec.Flags & BILLF_FREIGHT) {

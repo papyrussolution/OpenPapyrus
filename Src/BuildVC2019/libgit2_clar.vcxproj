@@ -1,0 +1,1112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9795A60D-A88C-3BE8-A5C4-2095E3E93B21}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>libgit2_clar</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">libgit2_clar</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">libgit2_clar</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">libgit2_clar</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">libgit2_clar</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ForcedIncludeFiles>precompiled.h</ForcedIncludeFiles>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;PCRE_STATIC;_DEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH="d:/Papyrus/Src/OSF/libgit2-1.1.1/tests/resources/";CLAR_TMPDIR="libgit2_tests";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;winhttp.lib;rpcrt4.lib;crypt32.lib;ole32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;shlwapi.lib;mpr.lib;wininet.lib;gdiplus.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /GUARD:CF</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Debug/libgit2_clar.lib</ImportLibrary>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ProgramDataBaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <Version>1.1</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ForcedIncludeFiles>precompiled.h</ForcedIncludeFiles>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;PCRE_STATIC;_DEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH="d:/Papyrus/Src/OSF/libgit2-1.1.1/tests/resources/";CLAR_TMPDIR="libgit2_tests";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;winhttp.lib;rpcrt4.lib;crypt32.lib;ole32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;shlwapi.lib;mpr.lib;wininet.lib;gdiplus.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /GUARD:CF</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Debug/libgit2_clar.lib</ImportLibrary>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ProgramDataBaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <Version>1.1</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ForcedIncludeFiles>precompiled.h</ForcedIncludeFiles>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;PCRE_STATIC;NDEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH="d:/Papyrus/Src/OSF/libgit2-1.1.1/tests/resources/";CLAR_TMPDIR="libgit2_tests";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;winhttp.lib;rpcrt4.lib;crypt32.lib;ole32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;shlwapi.lib;mpr.lib;wininet.lib;gdiplus.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /GUARD:CF</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Release/libgit2_clar.lib</ImportLibrary>
+      <LargeAddressAware>true</LargeAddressAware>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDataBaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SetChecksum>true</SetChecksum>
+      <SubSystem>Console</SubSystem>
+      <Version>1.1</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\osf\libgit2-1.1.1\tests;src;tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\OSF\pcre-8.41;..\osf\libgit2-1.1.1\src\http-parser;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ForcedIncludeFiles>precompiled.h</ForcedIncludeFiles>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;PCRE_STATIC;NDEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH="d:/Papyrus/Src/OSF/libgit2-1.1.1/tests/resources/";CLAR_TMPDIR="libgit2_tests";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN32_WINNT=0x0600;CLAR_FIXTURE_PATH=\"D:/develop/LibGit2/libgit2-1.1.1/tests/resources/\";CLAR_TMPDIR=\"libgit2_tests\";_FILE_OFFSET_BITS=64;GIT_DEPRECATE_HARD;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>..\osf\libgit2-1.1.1\tests;..\osf\libgit2-1.1.1\__build__\src;..\osf\libgit2-1.1.1\__build__\tests;..\osf\libgit2-1.1.1\src;..\osf\libgit2-1.1.1\include;..\osf\libgit2-1.1.1\deps\pcre;..\osf\libgit2-1.1.1\deps\http-parser;..\osf\libgit2-1.1.1\deps\zlib;..\osf\libgit2-1.1.1\tests\..\src;..\osf\libgit2-1.1.1\tests\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;winhttp.lib;rpcrt4.lib;crypt32.lib;ole32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;shlwapi.lib;mpr.lib;wininet.lib;gdiplus.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /GUARD:CF</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>D:/develop/LibGit2/libgit2-1.1.1/__build__/tests/Release/libgit2_clar.lib</ImportLibrary>
+      <LargeAddressAware>true</LargeAddressAware>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDataBaseFile>$(ProjectDir)..\..\ppy\bin\$(TargetName).pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SetChecksum>true</SetChecksum>
+      <SubSystem>Console</SubSystem>
+      <Version>1.1</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\main.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_trace.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar_libgit2_timer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clar.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\precompiled.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">precompiled.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\apply_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\apply\apply_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\both.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\callbacks.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\check.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\fromdiff.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\fromfile.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\index.c">
+      <ObjectFileName>$(IntDir)/apply/index.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\partial.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\tree.c">
+      <ObjectFileName>$(IntDir)/apply/tree.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\apply\workdir.c">
+      <ObjectFileName>$(IntDir)/apply/workdir.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\attr\attr_expect.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\file.c">
+      <ObjectFileName>$(IntDir)/attr/file.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\flags.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\lookup.c">
+      <ObjectFileName>$(IntDir)/attr/lookup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\macro.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\attr\repo.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\blame_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\blame\blame_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\buffer.c">
+      <ObjectFileName>$(IntDir)/blame/buffer.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\getters.c">
+      <ObjectFileName>$(IntDir)/blame/getters.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\harder.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\blame\simple.c">
+      <ObjectFileName>$(IntDir)/blame/simple.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\basic.c">
+      <ObjectFileName>$(IntDir)/buf/basic.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\oom.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\percent.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\quote.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\buf\splice.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\binaryunicode.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\checkout_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\checkout\checkout_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\conflict.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\crlf.c">
+      <ObjectFileName>$(IntDir)/checkout/crlf.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\head.c">
+      <ObjectFileName>$(IntDir)/checkout/head.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\icase.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\index.c">
+      <ObjectFileName>$(IntDir)/checkout/index.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\nasty.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\tree.c">
+      <ObjectFileName>$(IntDir)/checkout/tree.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\checkout\typechange.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\cherrypick\bare.c">
+      <ObjectFileName>$(IntDir)/cherrypick/bare.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\cherrypick\workdir.c">
+      <ObjectFileName>$(IntDir)/cherrypick/workdir.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\fixtures.h" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\fs.h" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\print.h" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\sandbox.h" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\clar\summary.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\empty.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\local.c">
+      <ObjectFileName>$(IntDir)/clone/local.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\nonetwork.c">
+      <ObjectFileName>$(IntDir)/clone/nonetwork.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\clone\transport.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\commit.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\parent.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\parse.c">
+      <ObjectFileName>$(IntDir)/commit/parse.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\signature.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\commit\write.c">
+      <ObjectFileName>$(IntDir)/commit/write.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\add.c">
+      <ObjectFileName>$(IntDir)/config/add.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\backend.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\conditionals.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\config_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\config\config_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\configlevel.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\global.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\include.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\memory.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\multivar.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\new.c">
+      <ObjectFileName>$(IntDir)/config/new.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\read.c">
+      <ObjectFileName>$(IntDir)/config/read.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\readonly.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\rename.c">
+      <ObjectFileName>$(IntDir)/config/rename.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\snapshot.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\stress.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\validkeyname.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\config\write.c">
+      <ObjectFileName>$(IntDir)/config/write.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\array.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\assert.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\bitvec.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\buffer.c">
+      <ObjectFileName>$(IntDir)/core/buffer.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\copy.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\dirent.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\encoding.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\env.c">
+      <ObjectFileName>$(IntDir)/core/env.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\errors.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\features.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\filebuf.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\ftruncate.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\futils.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\hex.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\iconv.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\init.c">
+      <ObjectFileName>$(IntDir)/core/init.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\link.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\memmem.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\mkdir.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\oid.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\oidmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\opts.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\path.c">
+      <ObjectFileName>$(IntDir)/core/path.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\pool.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\posix.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\pqueue.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\qsort.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\regexp.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\rmdir.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\sha1.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\sortedcache.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\stat.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\string.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\strmap.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\strtol.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\structinit.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\useragent.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\vector.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\wildmatch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\core\zstream.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\date\date.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\date\rfc2822.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\delta\apply.c">
+      <ObjectFileName>$(IntDir)/delta/apply.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\describe\describe.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\describe\describe_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\describe\describe_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\describe\t6120.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\binary.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\blob.c">
+      <ObjectFileName>$(IntDir)/diff/blob.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\diff_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\diff\diff_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\diffiter.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\drivers.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\format_email.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\index.c">
+      <ObjectFileName>$(IntDir)/diff/index.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\notify.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\parse.c">
+      <ObjectFileName>$(IntDir)/diff/parse.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\patch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\patchid.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\pathspec.c">
+      <ObjectFileName>$(IntDir)/diff/pathspec.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\racediffiter.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\rename.c">
+      <ObjectFileName>$(IntDir)/diff/rename.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\stats.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\submodules.c">
+      <ObjectFileName>$(IntDir)/diff/submodules.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\tree.c">
+      <ObjectFileName>$(IntDir)/diff/tree.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\diff\workdir.c">
+      <ObjectFileName>$(IntDir)/diff/workdir.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\fetchhead\fetchhead_data.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\fetchhead\nonetwork.c">
+      <ObjectFileName>$(IntDir)/fetchhead/nonetwork.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\bare.c">
+      <ObjectFileName>$(IntDir)/filter/bare.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\blob.c">
+      <ObjectFileName>$(IntDir)/filter/blob.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\crlf.c">
+      <ObjectFileName>$(IntDir)/filter/crlf.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\filter\crlf.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\custom.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\custom_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\filter\custom_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\file.c">
+      <ObjectFileName>$(IntDir)/filter/file.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\ident.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\query.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\stream.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\systemattrs.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\filter\wildcard.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\graph\ahead_behind.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\graph\descendant_of.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\ignore\path.c">
+      <ObjectFileName>$(IntDir)/ignore/path.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\ignore\status.c">
+      <ObjectFileName>$(IntDir)/ignore/status.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\add.c">
+      <ObjectFileName>$(IntDir)/index/add.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\addall.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\bypath.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\cache.c">
+      <ObjectFileName>$(IntDir)/index/cache.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\collision.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\conflicts.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\index\conflicts.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\crlf.c">
+      <ObjectFileName>$(IntDir)/index/crlf.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\filemodes.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\inmemory.c">
+      <ObjectFileName>$(IntDir)/index/inmemory.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\names.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\nsec.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\racy.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\read_index.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\read_tree.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\rename.c">
+      <ObjectFileName>$(IntDir)/index/rename.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\reuc.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\splitindex.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\stage.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\tests.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\index\version.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\index.c">
+      <ObjectFileName>$(IntDir)/iterator/index.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\iterator_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\iterator\iterator_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\tree.c">
+      <ObjectFileName>$(IntDir)/iterator/tree.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\iterator\workdir.c">
+      <ObjectFileName>$(IntDir)/iterator/workdir.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\mailmap\basic.c">
+      <ObjectFileName>$(IntDir)/mailmap/basic.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\mailmap\blame.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\mailmap\mailmap_testdata.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\mailmap\parsing.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\analysis.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\annotated_commit.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\merge\conflict_data.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\driver.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\files.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\merge_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\merge\merge_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\automerge.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\commits.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\modeconflict.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\recursive.c">
+      <ObjectFileName>$(IntDir)/merge/trees/recursive.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\renames.c">
+      <ObjectFileName>$(IntDir)/merge/trees/renames.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\treediff.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\trivial.c">
+      <ObjectFileName>$(IntDir)/merge/trees/trivial.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\trees\whitespace.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\dirty.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\recursive.c">
+      <ObjectFileName>$(IntDir)/merge/workdir/recursive.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\renames.c">
+      <ObjectFileName>$(IntDir)/merge/workdir/renames.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\setup.c">
+      <ObjectFileName>$(IntDir)/merge/workdir/setup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\simple.c">
+      <ObjectFileName>$(IntDir)/merge/workdir/simple.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\submodules.c">
+      <ObjectFileName>$(IntDir)/merge/workdir/submodules.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\merge\workdir\trivial.c">
+      <ObjectFileName>$(IntDir)/merge/workdir/trivial.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\message\trailer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\cred.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\fetchlocal.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\joinpath.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\matchhost.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\redirect.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\refspecs.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\defaultbranch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\delete.c">
+      <ObjectFileName>$(IntDir)/network/remote/delete.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\isvalidname.c">
+      <ObjectFileName>$(IntDir)/network/remote/isvalidname.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\local.c">
+      <ObjectFileName>$(IntDir)/network/remote/local.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\push.c">
+      <ObjectFileName>$(IntDir)/network/remote/push.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\remotes.c">
+      <ObjectFileName>$(IntDir)/network/remote/remotes.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\remote\rename.c">
+      <ObjectFileName>$(IntDir)/network/remote/rename.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\network\urlparse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\notes\notes.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\notes\notesref.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\blob\filter.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\blob\fromstream.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\blob\write.c">
+      <ObjectFileName>$(IntDir)/object/blob/write.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\cache.c">
+      <ObjectFileName>$(IntDir)/object/cache.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\commit\commitstagedfile.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\commit\parse.c">
+      <ObjectFileName>$(IntDir)/object/commit/parse.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\lookup.c">
+      <ObjectFileName>$(IntDir)/object/lookup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\lookupbypath.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\message.c">
+      <ObjectFileName>$(IntDir)/object/message.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\peel.c">
+      <ObjectFileName>$(IntDir)/object/peel.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\chars.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\compare.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\convert.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\object\raw\data.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\fromstr.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\hash.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\short.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\size.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\type2string.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\raw\write.c">
+      <ObjectFileName>$(IntDir)/object/raw/write.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\shortid.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\list.c">
+      <ObjectFileName>$(IntDir)/object/tag/list.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\parse.c">
+      <ObjectFileName>$(IntDir)/object/tag/parse.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\peel.c">
+      <ObjectFileName>$(IntDir)/object/tag/peel.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\read.c">
+      <ObjectFileName>$(IntDir)/object/tag/read.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tag\write.c">
+      <ObjectFileName>$(IntDir)/object/tag/write.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\attributes.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\duplicateentries.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\frompath.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\parse.c">
+      <ObjectFileName>$(IntDir)/object/tree/parse.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\read.c">
+      <ObjectFileName>$(IntDir)/object/tree/read.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\update.c">
+      <ObjectFileName>$(IntDir)/object/tree/update.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\walk.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\object\tree\write.c">
+      <ObjectFileName>$(IntDir)/object/tree/write.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\alternates.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\backend_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\backend\backend_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\mempack.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\multiple.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\nobackend.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\nonrefreshing.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\backend\simple.c">
+      <ObjectFileName>$(IntDir)/odb/backend/simple.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\emptyobjects.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\foreach.c">
+      <ObjectFileName>$(IntDir)/odb/foreach.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\freshen.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\largefiles.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\loose.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\loose_data.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\mixed.c">
+      <ObjectFileName>$(IntDir)/odb/mixed.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\pack_data.h" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\odb\pack_data_one.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\packed.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\packed_one.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\sorting.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\odb\streamwrite.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\badssl.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\clone.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\fetch.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\fetchhead.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\push.c">
+      <ObjectFileName>$(IntDir)/online/push.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\push_util.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\online\push_util.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\online\remotes.c">
+      <ObjectFileName>$(IntDir)/online/remotes.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\filelimit.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\indexer.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\midx.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\packbuilder.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\pack\sharing.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\patch\parse.c">
+      <ObjectFileName>$(IntDir)/patch/parse.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\patch\patch_common.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\patch\print.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\path\core.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\path\dotgit.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\path\win32.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__do_merge.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__do_merge.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__timer.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\perf\helper__perf__timer.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\perf\merge.c">
+      <ObjectFileName>$(IntDir)/perf/merge.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\abort.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\inmemory.c">
+      <ObjectFileName>$(IntDir)/rebase/inmemory.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\iterator.c">
+      <ObjectFileName>$(IntDir)/rebase/iterator.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\merge.c">
+      <ObjectFileName>$(IntDir)/rebase/merge.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\setup.c">
+      <ObjectFileName>$(IntDir)/rebase/setup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\sign.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\rebase\submodule.c">
+      <ObjectFileName>$(IntDir)/rebase/submodule.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\basic.c">
+      <ObjectFileName>$(IntDir)/refs/basic.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\checkedout.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\create.c">
+      <ObjectFileName>$(IntDir)/refs/branches/create.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\delete.c">
+      <ObjectFileName>$(IntDir)/refs/branches/delete.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\ishead.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\iterator.c">
+      <ObjectFileName>$(IntDir)/refs/branches/iterator.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\lookup.c">
+      <ObjectFileName>$(IntDir)/refs/branches/lookup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\move.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\name.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\remote.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\upstream.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\branches\upstreamname.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\crashes.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\create.c">
+      <ObjectFileName>$(IntDir)/refs/create.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\delete.c">
+      <ObjectFileName>$(IntDir)/refs/delete.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\dup.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\foreachglob.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\isvalidname.c">
+      <ObjectFileName>$(IntDir)/refs/isvalidname.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\iterator.c">
+      <ObjectFileName>$(IntDir)/refs/iterator.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\list.c">
+      <ObjectFileName>$(IntDir)/refs/list.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\listall.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\lookup.c">
+      <ObjectFileName>$(IntDir)/refs/lookup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\namespaces.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\normalize.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\overwrite.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\pack.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\peel.c">
+      <ObjectFileName>$(IntDir)/refs/peel.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\races.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\read.c">
+      <ObjectFileName>$(IntDir)/refs/read.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\ref_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\refs\ref_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\drop.c">
+      <ObjectFileName>$(IntDir)/refs/reflog/drop.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\messages.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\reflog.c">
+      <ObjectFileName>$(IntDir)/refs/reflog/reflog.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\reflog\reflog_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\refs\reflog\reflog_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\rename.c">
+      <ObjectFileName>$(IntDir)/refs/rename.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\revparse.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\setter.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\shorthand.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\transactions.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\unicode.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\refs\update.c">
+      <ObjectFileName>$(IntDir)/refs/update.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\remote\create.c">
+      <ObjectFileName>$(IntDir)/remote/create.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\remote\insteadof.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\remote\list.c">
+      <ObjectFileName>$(IntDir)/remote/list.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\config.c">
+      <ObjectFileName>$(IntDir)/repo/config.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\discover.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\env.c">
+      <ObjectFileName>$(IntDir)/repo/env.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\getters.c">
+      <ObjectFileName>$(IntDir)/repo/getters.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\hashfile.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\head.c">
+      <ObjectFileName>$(IntDir)/repo/head.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\headtree.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\init.c">
+      <ObjectFileName>$(IntDir)/repo/init.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\message.c">
+      <ObjectFileName>$(IntDir)/repo/message.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\new.c">
+      <ObjectFileName>$(IntDir)/repo/new.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\open.c">
+      <ObjectFileName>$(IntDir)/repo/open.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\pathspec.c">
+      <ObjectFileName>$(IntDir)/repo/pathspec.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\repo_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\repo\repo_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\reservedname.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\setters.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\shallow.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\state.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\repo\template.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\default.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\hard.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\mixed.c">
+      <ObjectFileName>$(IntDir)/reset/mixed.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\reset_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\reset\reset_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\reset\soft.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revert\bare.c">
+      <ObjectFileName>$(IntDir)/revert/bare.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revert\workdir.c">
+      <ObjectFileName>$(IntDir)/revert/workdir.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\basic.c">
+      <ObjectFileName>$(IntDir)/revwalk/basic.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\hidecb.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\mergebase.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\signatureparsing.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\revwalk\simplify.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\apply.c">
+      <ObjectFileName>$(IntDir)/stash/apply.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\drop.c">
+      <ObjectFileName>$(IntDir)/stash/drop.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\foreach.c">
+      <ObjectFileName>$(IntDir)/stash/foreach.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\save.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\stash_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\stash\stash_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stash\submodules.c">
+      <ObjectFileName>$(IntDir)/stash/submodules.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\renames.c">
+      <ObjectFileName>$(IntDir)/status/renames.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\single.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\status\status_data.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\status_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\status\status_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\submodules.c">
+      <ObjectFileName>$(IntDir)/status/submodules.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\worktree.c">
+      <ObjectFileName>$(IntDir)/status/worktree.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\status\worktree_init.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stream\deprecated.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stream\registration.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\stress\diff.c">
+      <ObjectFileName>$(IntDir)/stress/diff.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\add.c">
+      <ObjectFileName>$(IntDir)/submodule/add.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\escape.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\init.c">
+      <ObjectFileName>$(IntDir)/submodule/init.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\inject_option.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\lookup.c">
+      <ObjectFileName>$(IntDir)/submodule/lookup.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\modify.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\nosubs.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\open.c">
+      <ObjectFileName>$(IntDir)/submodule/open.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\repository_init.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\status.c">
+      <ObjectFileName>$(IntDir)/submodule/status.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\submodule_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\submodule\submodule_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\submodule\update.c">
+      <ObjectFileName>$(IntDir)/submodule/update.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\basic.c">
+      <ObjectFileName>$(IntDir)/threads/basic.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\diff.c">
+      <ObjectFileName>$(IntDir)/threads/diff.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\iterator.c">
+      <ObjectFileName>$(IntDir)/threads/iterator.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\refdb.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\threads\thread_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\threads\thread_helpers.h" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\trace\trace.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\trace\windows\stacktrace.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\transport\register.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\transports\smart\packet.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\win32\forbidden.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\win32\longpath.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\bare.c">
+      <ObjectFileName>$(IntDir)/worktree/bare.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\config.c">
+      <ObjectFileName>$(IntDir)/worktree/config.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\merge.c">
+      <ObjectFileName>$(IntDir)/worktree/merge.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\open.c">
+      <ObjectFileName>$(IntDir)/worktree/open.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\reflog.c">
+      <ObjectFileName>$(IntDir)/worktree/reflog.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\refs.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\repository.c" />
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\submodule.c">
+      <ObjectFileName>$(IntDir)/worktree/submodule.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\worktree.c">
+      <ObjectFileName>$(IntDir)/worktree/worktree.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\osf\libgit2-1.1.1\tests\worktree\worktree_helpers.c" />
+    <ClInclude Include="..\osf\libgit2-1.1.1\tests\worktree\worktree_helpers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="git2internal.vcxproj">
+      <Project>{f3a5b389-8913-36e7-a237-227808be5296}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libssh2.vcxproj">
+      <Project>{15bc6de1-d1c2-4f47-a7a5-43d1a73d9b94}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="pcre.vcxproj">
+      <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="zlib.vcxproj">
+      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

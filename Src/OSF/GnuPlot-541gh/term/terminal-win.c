@@ -66,7 +66,7 @@ TERM_PUBLIC void WIN_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
 TERM_PUBLIC void WIN_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corners);
 TERM_PUBLIC void WIN_boxfill(GpTermEntry_Static * pThis, int, uint, uint, uint, uint);
 TERM_PUBLIC int WIN_set_font(GpTermEntry_Static * pThis, const char * font);
-TERM_PUBLIC void WIN_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
+TERM_PUBLIC void WIN_enhanced_open(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint);
 TERM_PUBLIC void WIN_enhanced_flush(GpTermEntry_Static * pThis);
 TERM_PUBLIC void WIN_image(GpTermEntry_Static * pThis, uint, uint, coordval *, const gpiPoint *, t_imagecolor);
 TERM_PUBLIC void WIN_layer(GpTermEntry_Static * pThis, t_termlayer syncpoint);
@@ -948,7 +948,7 @@ TERM_PUBLIC int WIN_set_font(GpTermEntry_Static * pThis, const char * font)
 // BM: new callback functions for enhanced text
 // These are only stubs that call functions in wgraph.c.
 //
-TERM_PUBLIC void WIN_enhanced_open(GpTermEntry_Static * pThis, char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
+TERM_PUBLIC void WIN_enhanced_open(GpTermEntry_Static * pThis, const char * fontname, double fontsize, double base, bool widthflag, bool showflag, int overprint)
 {
 	GraphEnhancedOpen(pThis, fontname, fontsize, base, widthflag, showflag, overprint);
 }

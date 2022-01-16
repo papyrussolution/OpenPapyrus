@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -94,19 +94,21 @@ struct ScalePLU { // @transient
 	strnzcpy(ip, pIP, ipSize);
 	StringSet ss_ip_digit('.', ip);
 	for(i = 0; i < ss_ip_digit.getCount(); i++) {
-		char   str_dig[16];
-		int    dig = 0;
+		char   str_dig[64];
 		size_t str_dig_len = 0;
 		memzero(str_dig, sizeof(str_dig));
 		ss_ip_digit.get(&k, str_dig, sizeof(str_dig));
 		str_dig_len = sstrlen(str_dig);
 		THROW_PP(str_dig_len < 4 && str_dig_len > 0, PPERR_SCALE_INVIP);
-		THROW_PP((dig = atoi(str_dig)) >= 0 && dig < 256, PPERR_SCALE_INVIP);
-		THROW_PP(dig != 0 || (i != 0 && str_dig[0] == '0'), PPERR_SCALE_INVIP);
-		if(dig == 0)
-			encoded_ip[i+3] = static_cast<uchar>(1);
-		else
-			encoded_ip[i] = static_cast<uchar>(dig);
+		{
+			const int dig = satoi(str_dig);
+			THROW_PP(dig >= 0 && dig <= 255, PPERR_SCALE_INVIP);
+			THROW_PP(dig != 0 || (i != 0 && str_dig[0] == '0'), PPERR_SCALE_INVIP);
+			if(dig == 0)
+				encoded_ip[i+3] = static_cast<uchar>(1);
+			else
+				encoded_ip[i] = static_cast<uchar>(dig);
+		}
 	}
 	THROW_PP(i == 4, PPERR_SCALE_INVIP);
 	strnzcpy(pEncodedIP, encoded_ip, 8);

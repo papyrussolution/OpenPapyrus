@@ -1721,7 +1721,7 @@ void LocationDialog::UpdateWarehouseList(long pos, int byPos /*= 1*/)
 		if(byPos)
 		   	p_box->focusItem((pos < 0) ? sav_pos : pos);
 		else
-			p_box->search(&pos, 0, srchFirst|lbSrchByID);
+			p_box->Search_(&pos, 0, srchFirst|lbSrchByID);
 	}
 }
 

@@ -1,6 +1,6 @@
 /*
 	DL200.Y
-	Copyright (c) A.Sobolev 2002, 2003, 2009, 2015, 2020
+	Copyright (c) A.Sobolev 2002, 2003, 2009, 2015, 2020, 2022
 */
 %{
 #include <pp.h>
@@ -31,7 +31,7 @@ void FASTCALL PPSetAddedMsgString(const char * /*pStr*/)
 	//P_AddedMsgString = newStr(pStr);
 }
 
-void yyerror(char * str)
+void yyerror(const char * str)
 {
 	if(yyin_count)
 		printf("Error %s(%d): %s\n", yyin_struct[yyin_count-1].fname, yyline, str);
@@ -195,7 +195,7 @@ columns_def :
 	if(GP_CurData) {
 		DL2_Column col;
 		memzero(&col, sizeof(col));
-		col.P_Title = "Default";
+		col.P_Title = const_cast<char *>("Default"); // @v11.2.11 @badcast
 		col.CiType = DL2CIT_REAL;
 		GP_CurData->AddColumn(&col);
 	}
@@ -207,7 +207,7 @@ column_def_list : column_def
 {
 	if(GP_CurData) {
 		if($1.P_Title == 0) {
-			char temp_buf[48];
+			char temp_buf[256];
 			sprintf(temp_buf, "Column %u", GP_CurData->GetColumnsCount()+1);
 			$1.P_Title = newStr(temp_buf);
 		}
@@ -219,7 +219,7 @@ column_def_list : column_def
 {
 	if(GP_CurData) {
 		if($3.P_Title == 0) {
-			char temp_buf[48];
+			char temp_buf[256];
 			sprintf(temp_buf, "Column %u", GP_CurData->GetColumnsCount()+1);
 			$3.P_Title = newStr(temp_buf);
 		}

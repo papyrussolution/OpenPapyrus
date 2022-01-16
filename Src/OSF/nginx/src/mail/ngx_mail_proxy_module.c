@@ -650,19 +650,17 @@ static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t
 
 	s->out.len = b->last - p - 2;
 	s->out.data = p;
-
-	ngx_log_error(NGX_LOG_INFO, s->connection->log, 0,
-	    "upstream sent invalid response: \"%V\"", &s->out);
-
+	ngx_log_error(NGX_LOG_INFO, s->connection->log, 0, "upstream sent invalid response: \"%V\"", &s->out);
 	s->out.len = b->last - b->pos;
 	s->out.data = b->pos;
-
 	return NGX_ERROR;
 }
 
 static void ngx_mail_proxy_handler(ngx_event_t * ev)
 {
-	char * action, * recv_action, * send_action;
+	const char * action;
+	const char * recv_action;
+	const char * send_action;
 	size_t size;
 	ssize_t n;
 	ngx_buf_t    * b;

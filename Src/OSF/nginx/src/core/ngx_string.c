@@ -524,10 +524,10 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
  * substring with known length in null-terminated string. The argument n
  * must be length of the second substring - 1.
  */
-u_char * FASTCALL ngx_strstrn(u_char * s1, char * s2, size_t n)
+u_char * FASTCALL ngx_strstrn(u_char * s1, const char * s2, size_t n)
 {
 	u_char c1, c2;
-	c2 = *(u_char *)s2++;
+	c2 = *(const u_char *)s2++;
 	do {
 		do {
 			c1 = *s1++;

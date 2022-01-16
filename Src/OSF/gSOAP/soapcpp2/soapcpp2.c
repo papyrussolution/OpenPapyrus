@@ -42,7 +42,7 @@ extern void init(void);
 extern int yyparse(void);
 extern FILE * yyin;
 
-extern char * ns_cname(char *, char *);
+extern char * ns_cname(const char *, const char *);
 
 FILE * fmsg;             /* fd to flush compiler messages */
 
@@ -73,7 +73,7 @@ int zflag = 0;          /* not used: reserved */
 int stop_flag = 0;
 
 char dirpath[1024];     /* directory path for generated source files */
-char * prefix = "soap";  /* file name prefix for generated source files */
+const char * prefix = "soap";  /* file name prefix for generated source files */
 char filename[1024];    /* current file name */
 char * importpath = SOAPCPP2_IMPORT_PATH; /* default file import path */
 

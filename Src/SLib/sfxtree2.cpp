@@ -1,5 +1,5 @@
 // SFXTREE2.CPP
-// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1091,266 +1091,268 @@ int SSuffixTree::InsertString(uint stringP)
 	// we automatically avoid the issues of having suffixes that are prefixes of other suffixes.
 	//
 	//assert(p_bstring->PhasePosition != 0);
-	const uint string_length = GetStrLen(stringP);
-	for(; p_bstring->PhasePosition < string_length; p_bstring->PhasePosition++) {
-		//D2("Phase %i started ------------------------- %s\n", p_bstring->PhasePosition, (const char *)lst_debug_print_substring(rString, 0, p_bstring->PhasePosition-1, p_bstring->PhasePosition, outp_buf));
-		//*P_Phase = i;
-		uint   use_end = stop_extensions ? 1 : 0;
-		//
-		// Now do the remaining extensions. We don't start at index 0
-		// with extensions but rather implement speedup Trick 3 as per Gusfield.
-		// j - extension of Ukkonen algorithm
-		//
-		for((j = (last_extension+1)), stop_extensions = 0; j < (p_bstring->PhasePosition+1) && !stop_extensions; j++) {
-			//Ext = j;
-			//D2("Phase %u, extension %i started.\n", p_bstring->PhasePosition, j);
+	{
+		const uint string_length = GetStrLen(stringP);
+		for(; p_bstring->PhasePosition < string_length; p_bstring->PhasePosition++) {
+			//D2("Phase %i started ------------------------- %s\n", p_bstring->PhasePosition, (const char *)lst_debug_print_substring(rString, 0, p_bstring->PhasePosition-1, p_bstring->PhasePosition, outp_buf));
+			//*P_Phase = i;
+			uint   use_end = stop_extensions ? 1 : 0;
 			//
-			// Get the node from which we start to walk down,
-			// either found via suffix links or because it's the root:
+			// Now do the remaining extensions. We don't start at index 0
+			// with extensions but rather implement speedup Trick 3 as per Gusfield.
+			// j - extension of Ukkonen algorithm
 			//
-			class _IndexTemp : public IndexBase {
-			public:
-				_IndexTemp(uint strP, uint startIdx, uint endIdx, uint extraIdx) : IndexBase(strP, startIdx, endIdx)
-				{
-					ExtraIdx = extraIdx;
+			for((j = (last_extension+1)), stop_extensions = 0; j < (p_bstring->PhasePosition+1) && !stop_extensions; j++) {
+				//Ext = j;
+				//D2("Phase %u, extension %i started.\n", p_bstring->PhasePosition, j);
+				//
+				// Get the node from which we start to walk down,
+				// either found via suffix links or because it's the root:
+				//
+				class _IndexTemp : public IndexBase {
+				public:
+					_IndexTemp(uint strP, uint startIdx, uint endIdx, uint extraIdx) : IndexBase(strP, startIdx, endIdx)
+					{
+						ExtraIdx = extraIdx;
+					}
+					//
+					// For the appended single string items, it's convenient to have the index of that single item handy:
+					//
+					uint   ExtraIdx;
+				};
+				_IndexTemp skipstring(stringP, 0, 0, p_bstring->PhasePosition);
+				if(use_end) {
+					use_end = 0; //D0("Re-using last phase's pString end\n");
 				}
-				//
-				// For the appended single string items, it's convenient to have the index of that single item handy:
-				//
-				uint   ExtraIdx;
-			};
-			_IndexTemp skipstring(stringP, 0, 0, p_bstring->PhasePosition);
-			if(use_end) {
-				use_end = 0; //D0("Re-using last phase's pString end\n");
-			}
-			else if(find_skipstring) {
-				//
-				// Finds the string range we need to cross up to previous node.
-				//
-				// The function finds the string range we need to jump over until
-				// we get back up to a node that has a suffix link. If that node is
-				// the root, the upstring will be empty.
-				//
-				// Result: The node we arrive at. Also, the string range is returned @skipstring.
-				//
-				uint   node_p = 0;
-				{
-					const Node * p_node = GetNode(end.NodeP);
-					if(p_node) {
-						if(p_node->SfxLinkNodeP) {
+				else if(find_skipstring) {
+					//
+					// Finds the string range we need to cross up to previous node.
+					//
+					// The function finds the string range we need to jump over until
+					// we get back up to a node that has a suffix link. If that node is
+					// the root, the upstring will be empty.
+					//
+					// Result: The node we arrive at. Also, the string range is returned @skipstring.
+					//
+					uint   node_p = 0;
+					{
+						const Node * p_node = GetNode(end.NodeP);
+						if(p_node) {
+							if(p_node->SfxLinkNodeP) {
+								//
+								// The node we ended at already has a suffix link,
+								// so we need to do nothing. Mark the pSkipString as empty:
+								//
+								skipstring.StartIdx = UINT_MAX; // LST_EMPTY_STRING
+								node_p = p_node->SfxLinkNodeP; //D0("Suffix link at start node\n");
+							}
 							//
-							// The node we ended at already has a suffix link,
-							// so we need to do nothing. Mark the pSkipString as empty:
+							// If the node doesn't have a suffix link directly, we must
+							// hop up over the complete edge's string. If we pEnd up at
+							// the root, the caller must descend as in the naive algorithm,
+							// otherwise the pSkipString is just whatever the string attached
+							// to the edge is:
 							//
-							skipstring.StartIdx = UINT_MAX; // LST_EMPTY_STRING
-							node_p = p_node->SfxLinkNodeP; //D0("Suffix link at start node\n");
-						}
-						//
-						// If the node doesn't have a suffix link directly, we must
-						// hop up over the complete edge's string. If we pEnd up at
-						// the root, the caller must descend as in the naive algorithm,
-						// otherwise the pSkipString is just whatever the string attached
-						// to the edge is:
-						//
-						else if(end.NodeP == RootNodeP) {
-							skipstring.StartIdx = UINT_MAX/* LST_EMPTY_STRING */;
-							node_p = RootNodeP; //D0("End node is root\n");
+							else if(end.NodeP == RootNodeP) {
+								skipstring.StartIdx = UINT_MAX/* LST_EMPTY_STRING */;
+								node_p = RootNodeP; //D0("End node is root\n");
+							}
+							else {
+								const uint parent_node_p = GetParentNodeP(end.NodeP);
+								if(parent_node_p == RootNodeP)
+									node_p = RootNodeP; //D0("Parent is root\n");
+								else {
+									const Edge * p_edge = GetEdge(p_node->UpEdgeP);
+									assert(p_edge);
+									if(p_edge)
+										skipstring.IndexBase::operator = (*p_edge);
+									//
+									// Follow the node up the edge, and cross over across
+									// the suffix link. Then return the node we arrive at.
+									//
+									//D0("Suffix link up from node\n");
+									const Node * p_parent_node = GetNode(parent_node_p);
+									if(p_parent_node)
+										node_p = p_parent_node->SfxLinkNodeP;
+								}
+							}
 						}
 						else {
-							const uint parent_node_p = GetParentNodeP(end.NodeP);
-							if(parent_node_p == RootNodeP)
-								node_p = RootNodeP; //D0("Parent is root\n");
+							// Okay -- the funkier case: we start in the middle of an edge.
+							const Edge * p_edge = GetEdge(end.EdgeP);
+							assert(p_edge);
+							Node * p_parent_node = GetNode(p_edge->SrcNodeP);
+							if(p_edge->SrcNodeP == RootNodeP)
+								node_p = RootNodeP; //D0("Edge src is root\n");
 							else {
-								const Edge * p_edge = GetEdge(p_node->UpEdgeP);
-								assert(p_edge);
-								if(p_edge)
-									skipstring.IndexBase::operator = (*p_edge);
-								//
-								// Follow the node up the edge, and cross over across
-								// the suffix link. Then return the node we arrive at.
-								//
-								//D0("Suffix link up from node\n");
-								const Node * p_parent_node = GetNode(parent_node_p);
-								if(p_parent_node)
-									node_p = p_parent_node->SfxLinkNodeP;
+								skipstring.StrP = p_edge->StrP;
+								skipstring.StartIdx = p_edge->StartIdx;
+								UpdateEndIdx(&skipstring, skipstring.StartIdx + end.Offset - 1);
+								node_p = p_parent_node->SfxLinkNodeP;
 							}
 						}
 					}
-					else {
-						// Okay -- the funkier case: we start in the middle of an edge.
-						const Edge * p_edge = GetEdge(end.EdgeP);
-						assert(p_edge);
-						Node * p_parent_node = GetNode(p_edge->SrcNodeP);
-						if(p_edge->SrcNodeP == RootNodeP)
-							node_p = RootNodeP; //D0("Edge src is root\n");
-						else {
-							skipstring.StrP = p_edge->StrP;
-							skipstring.StartIdx = p_edge->StartIdx;
-							UpdateEndIdx(&skipstring, skipstring.StartIdx + end.Offset - 1);
-							node_p = p_parent_node->SfxLinkNodeP;
+					if(node_p == RootNodeP) {
+						if(skipstring.StartIdx != UINT_MAX/*LST_EMPTY_STRING*/) {
+							//D0("Starting at root\n");
+							//
+							// It's the root node -- just follow the path down in the tree as in the naive algorithm.
+							//
+							skipstring.StrP = stringP;
+							skipstring.StartIdx = j;
+							UpdateEndIdx(&skipstring, p_bstring->PhasePosition-1);
+							if((p_bstring->PhasePosition-1) < j)
+								skipstring.StartIdx = UINT_MAX; // LST_EMPTY_STRING;
 						}
 					}
+					else {
+						//D0("Using suffix link\n");
+						//
+						// It's not the root node -- exploit suffix
+						// links as much as possible. stree_get_skipstring()
+						// has already filled in stuff for us.
+						//
+					}
+					FollowString(node_p, skipstring, end);
 				}
-				if(node_p == RootNodeP) {
-					if(skipstring.StartIdx != UINT_MAX/*LST_EMPTY_STRING*/) {
-						//D0("Starting at root\n");
+				find_skipstring = 1;
+				new_inner_node_p = 0;
+				inner_node_p = 0;
+				//
+				// Now extend the found path in the tree by the new character in this phase:
+				//
+				if(end.NodeP) {
+					//
+					// We followed the path up to a node. If that node is a leaf,
+					// we're done per Extension Rule 1. Otherwise we need to find
+					// out if our new character is somewhere on the out-edges
+					// of that node, and if not, hook in a new edge.
+					//
+					inner_node_p = end.NodeP;
+					{
 						//
-						// It's the root node -- just follow the path down in the tree as in the naive algorithm.
+						// The block below extends the tree by a single string item, down from
+						// a node within the tree. The point of insertion is given through @end.
 						//
-						skipstring.StrP = stringP;
-						skipstring.StartIdx = j;
-						UpdateEndIdx(&skipstring, p_bstring->PhasePosition-1);
-						if((p_bstring->PhasePosition-1) < j)
-							skipstring.StartIdx = UINT_MAX; // LST_EMPTY_STRING;
+						// Returns: 1 in @stop_extensions if Rule 3 (see Gusfield) applied and we
+						// can hence stop extensions for the current phase.
+						//
+						if(IsLeafNode(end.NodeP)) {
+							//D0("Rule 1 -- extending label.\n");
+							const Node * p_node = GetNode(end.NodeP);
+							Edge * p_up_edge = p_node ? GetEdge(p_node->UpEdgeP) : 0;
+							THROW(p_up_edge);
+							THROW(IncrementEndIdx(p_up_edge));
+							end.SetEdge(p_node->UpEdgeP, GetEdgeLen(p_node->UpEdgeP) - 2);
+						}
+						else {
+							uint   edge_p = FindEdgeWithStartitem(end.NodeP, stringP, skipstring.ExtraIdx);
+							if(!edge_p) {
+								//
+								// Extension Rule 2:
+								//
+								THROW(edge_p = CreateLeaf(end.NodeP, /*Ext,*/ stringP, skipstring.ExtraIdx)); //D0("Rule 2 -- adding edge.\n");
+							}
+							else {
+								//
+								// Otherwise it's Extension Rule 3, so we do nothing,
+								// but only mark that we've applied that rule so we can speed things up.
+								//
+								end.Advance(*this, edge_p); //D0("Rule 3 -- marked for stop.\n");
+								stop_extensions = 1;
+							}
+						}
 					}
 				}
 				else {
-					//D0("Using suffix link\n");
 					//
-					// It's not the root node -- exploit suffix
-					// links as much as possible. stree_get_skipstring()
-					// has already filled in stuff for us.
+					// We followed the path down to somewhere within an edge label.
+					// Now we need to check if the item following the common part in the label is what we want to add;
+					// that's a case of Extension Rule 3. Otherwise we need to split
+					// the edge and hook in a new edge with the new character.
 					//
-				}
-				FollowString(node_p, skipstring, end);
-			}
-			find_skipstring = 1;
-			new_inner_node_p = 0;
-			inner_node_p = 0;
-			//
-			// Now extend the found path in the tree by the new character in this phase:
-			//
-			if(end.NodeP) {
-				//
-				// We followed the path up to a node. If that node is a leaf,
-				// we're done per Extension Rule 1. Otherwise we need to find
-				// out if our new character is somewhere on the out-edges
-				// of that node, and if not, hook in a new edge.
-				//
-				inner_node_p = end.NodeP;
-				{
-					//
-					// The block below extends the tree by a single string item, down from
-					// a node within the tree. The point of insertion is given through @end.
-					//
-					// Returns: 1 in @stop_extensions if Rule 3 (see Gusfield) applied and we
-					// can hence stop extensions for the current phase.
-					//
-					if(IsLeafNode(end.NodeP)) {
-						//D0("Rule 1 -- extending label.\n");
-						const Node * p_node = GetNode(end.NodeP);
-						Edge * p_up_edge = p_node ? GetEdge(p_node->UpEdgeP) : 0;
-						THROW(p_up_edge);
-						THROW(IncrementEndIdx(p_up_edge));
-						end.SetEdge(p_node->UpEdgeP, GetEdgeLen(p_node->UpEdgeP) - 2);
-					}
-					else {
-						uint   edge_p = FindEdgeWithStartitem(end.NodeP, stringP, skipstring.ExtraIdx);
-						if(!edge_p) {
-							//
-							// Extension Rule 2:
-							//
-							THROW(edge_p = CreateLeaf(end.NodeP, /*Ext,*/ stringP, skipstring.ExtraIdx)); //D0("Rule 2 -- adding edge.\n");
-						}
-						else {
-							//
-							// Otherwise it's Extension Rule 3, so we do nothing,
-							// but only mark that we've applied that rule so we can speed things up.
-							//
-							end.Advance(*this, edge_p); //D0("Rule 3 -- marked for stop.\n");
+					assert(end.EdgeP);
+					{
+						//
+						// The block below extends the tree by a single string item, down from within
+						// an edge in the tree. The point of insertion is given through @end.
+						//
+						// Returns: 1 in @stop_extensions if Rule 3 (see Gusfield) applied and we
+						// can hence stop extensions for the current phase.
+						//
+						//uint   new_inner_node_p = 0;
+						uint   new_edge_p = 0;
+						Edge * p_end_edge = GetEdge(end.EdgeP);
+						assert(p_end_edge);
+						THROW(p_end_edge);
+						if(StrEq(stringP, skipstring.ExtraIdx, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset)) {
+							//D2("Rule 3 within edge %u-%u -- marked for stop.\n", r_end_edge.P_SrcNode->id, r_end_edge.P_DestNode->id);
+							end.Advance(*this, 0);
 							stop_extensions = 1;
 						}
-					}
-				}
-			}
-			else {
-				//
-				// We followed the path down to somewhere within an edge label.
-				// Now we need to check if the item following the common part in the label is what we want to add;
-				// that's a case of Extension Rule 3. Otherwise we need to split
-				// the edge and hook in a new edge with the new character.
-				//
-				assert(end.EdgeP);
-				{
-					//
-					// The block below extends the tree by a single string item, down from within
-					// an edge in the tree. The point of insertion is given through @end.
-					//
-					// Returns: 1 in @stop_extensions if Rule 3 (see Gusfield) applied and we
-					// can hence stop extensions for the current phase.
-					//
-					//uint   new_inner_node_p = 0;
-					uint   new_edge_p = 0;
-					Edge * p_end_edge = GetEdge(end.EdgeP);
-					assert(p_end_edge);
-					THROW(p_end_edge);
-					if(StrEq(stringP, skipstring.ExtraIdx, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset)) {
-						//D2("Rule 3 within edge %u-%u -- marked for stop.\n", r_end_edge.P_SrcNode->id, r_end_edge.P_DestNode->id);
-						end.Advance(*this, 0);
-						stop_extensions = 1;
-					}
-					else {
-						THROW(new_inner_node_p = CreateNode(/*-1*/));
-						uint   old_node_p = p_end_edge->DestNodeP;
-						//
-						// Carefully carefully carefully -- when we split a leaf edge,
-						// we need to figure out what kind of pEnd index to use (the edge-local or global one).
-						// It's not enough to check whether it's a leaf or not -- it could be a leaf created for a previous pString.
-						// So only make the pEnd index point back into the pTree if it was pointing there
-						// originally anyway. However, pTree->phase changes over time, so we must not use that.
-						//
-						if(IsLeafNode(old_node_p)) {
-							if(p_end_edge->Flags & IndexBase::fPhasePosRef) {
-								THROW(new_edge_p = CreateEdge(new_inner_node_p, old_node_p, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset));
+						else {
+							THROW(new_inner_node_p = CreateNode(/*-1*/));
+							uint   old_node_p = p_end_edge->DestNodeP;
+							//
+							// Carefully carefully carefully -- when we split a leaf edge,
+							// we need to figure out what kind of pEnd index to use (the edge-local or global one).
+							// It's not enough to check whether it's a leaf or not -- it could be a leaf created for a previous pString.
+							// So only make the pEnd index point back into the pTree if it was pointing there
+							// originally anyway. However, pTree->phase changes over time, so we must not use that.
+							//
+							if(IsLeafNode(old_node_p)) {
+								if(p_end_edge->Flags & IndexBase::fPhasePosRef) {
+									THROW(new_edge_p = CreateEdge(new_inner_node_p, old_node_p, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset));
+								}
+								else {
+									THROW(new_edge_p = CreateEdge(new_inner_node_p, old_node_p, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset, p_end_edge->EndIdx));
+								}
 							}
 							else {
-								THROW(new_edge_p = CreateEdge(new_inner_node_p, old_node_p, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset, p_end_edge->EndIdx));
+								THROW(new_edge_p = CreateEdge(new_inner_node_p, old_node_p, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset, GetEndIdx(p_end_edge)));
 							}
-						}
-						else {
-							THROW(new_edge_p = CreateEdge(new_inner_node_p, old_node_p, p_end_edge->StrP, p_end_edge->StartIdx + end.Offset, GetEndIdx(p_end_edge)));
-						}
-						{
-							//
-							// После создания новых ребер объект по указателю p_end_edge мог измениться - необходимо инициализировать снова
-							//
-							p_end_edge = GetEdge(end.EdgeP);
-							//
-							//p_end_edge->P_EndIdx = &p_end_edge->EndIdxLocal;
-							//p_end_edge->P_EndIdx[0] = p_end_edge->StartIdx + end.Offset - 1;
-							p_end_edge->Flags &= ~Edge::fPhasePosRef;
-							p_end_edge->EndIdx = p_end_edge->StartIdx + end.Offset - 1;
-							p_end_edge->DestNodeP = new_inner_node_p;
 							{
-								Node * p_new_inner_node = GetNode(new_inner_node_p);
-								THROW(p_new_inner_node);
-								p_new_inner_node->UpEdgeP = end.EdgeP;
+								//
+								// После создания новых ребер объект по указателю p_end_edge мог измениться - необходимо инициализировать снова
+								//
+								p_end_edge = GetEdge(end.EdgeP);
+								//
+								//p_end_edge->P_EndIdx = &p_end_edge->EndIdxLocal;
+								//p_end_edge->P_EndIdx[0] = p_end_edge->StartIdx + end.Offset - 1;
+								p_end_edge->Flags &= ~Edge::fPhasePosRef;
+								p_end_edge->EndIdx = p_end_edge->StartIdx + end.Offset - 1;
+								p_end_edge->DestNodeP = new_inner_node_p;
+								{
+									Node * p_new_inner_node = GetNode(new_inner_node_p);
+									THROW(p_new_inner_node);
+									p_new_inner_node->UpEdgeP = end.EdgeP;
+								}
+								//
+								// Now add another edge to the new node inserted, and label it with the remainder of the pString.
+								//
+								THROW(new_edge_p = CreateLeaf(new_inner_node_p, /*Ext,*/ stringP, skipstring.ExtraIdx));
 							}
-							//
-							// Now add another edge to the new node inserted, and label it with the remainder of the pString.
-							//
-							THROW(new_edge_p = CreateLeaf(new_inner_node_p, /*Ext,*/ stringP, skipstring.ExtraIdx));
 						}
 					}
 				}
+				//
+				// Now take care of suffix links: if we've created a new inner
+				// node in the last extension, create a suffix link to either
+				// the last inner node we've encountered above, or a new inner node, if we've created one.
+				//
+				if(prev_new_node_p) {
+					Node * p_prev_new_node = GetNode(prev_new_node_p);
+					p_prev_new_node->SfxLinkNodeP = NZOR(new_inner_node_p, inner_node_p);
+				}
+				prev_new_node_p = new_inner_node_p;
+				//D_PRINT_TREE(tree);
 			}
 			//
-			// Now take care of suffix links: if we've created a new inner
-			// node in the last extension, create a suffix link to either
-			// the last inner node we've encountered above, or a new inner node, if we've created one.
+			// Remember how far we got for the next phase. Also,
+			// repeat the last extension if we aborted due to Rule 3.
 			//
-			if(prev_new_node_p) {
-				Node * p_prev_new_node = GetNode(prev_new_node_p);
-				p_prev_new_node->SfxLinkNodeP = NZOR(new_inner_node_p, inner_node_p);
-			}
-			prev_new_node_p = new_inner_node_p;
-			//D_PRINT_TREE(tree);
+			last_extension = j - 1 - stop_extensions;
 		}
-		//
-		// Remember how far we got for the next phase. Also,
-		// repeat the last extension if we aborted due to Rule 3.
-		//
-		last_extension = j - 1 - stop_extensions;
 	}
 	Flags |= fNeedVisitorUpdate;
 	CATCHZOK

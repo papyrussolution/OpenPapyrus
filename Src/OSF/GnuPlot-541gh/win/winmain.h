@@ -55,7 +55,7 @@ struct GpWinMainBlock : public GnuPlotHolder {
 	}
 	void WinCloseHelp();
 	LPTSTR LocalisedFile(LPCTSTR name, LPCTSTR ext, LPCTSTR defaultname);
-	void   ReadMainIni(LPTSTR file, LPTSTR section);
+	void   ReadMainIni(LPCTSTR file, LPCTSTR section);
 	void   PrintingCleanup();
 
 	TW   TxtWin/*textwin*/;

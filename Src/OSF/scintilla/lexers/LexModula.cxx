@@ -444,39 +444,37 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 
 			    switch(sc.GetRelative(kl) ) {
 				    case '_':
-				{
-					int base = atoi(buf);
-					if(base < 2 || base > 16) {
-						sc.SetState(SCE_MODULA_BADSTR);
-					}
-					else {
-						int imax;
-
-						kl++;
-						for(i = 0; i < BUFLEN - 1; i++) {
-							buf[i] = sc.GetRelative(kl+i);
-							if(!IsDigitOfBase(buf[i], 16) ) {
-								break;
-							}
-						}
-						imax = i;
-						for(i = 0; i < imax; i++) {
-							if(!IsDigitOfBase(buf[i], base) ) {
+						{
+							int base = satoi(buf);
+							if(base < 2 || base > 16) {
 								sc.SetState(SCE_MODULA_BADSTR);
-								break;
 							}
+							else {
+								int imax;
+								kl++;
+								for(i = 0; i < BUFLEN - 1; i++) {
+									buf[i] = sc.GetRelative(kl+i);
+									if(!IsDigitOfBase(buf[i], 16) ) {
+										break;
+									}
+								}
+								imax = i;
+								for(i = 0; i < imax; i++) {
+									if(!IsDigitOfBase(buf[i], base) ) {
+										sc.SetState(SCE_MODULA_BADSTR);
+										break;
+									}
+								}
+								kl += imax;
+							}
+							sc.SetState(SCE_MODULA_BASENUM);
+							for(i = 0; i < kl; i++) {
+								sc.Forward();
+							}
+							sc.SetState(SCE_MODULA_DEFAULT);
+							continue;
 						}
-						kl += imax;
-					}
-					sc.SetState(SCE_MODULA_BASENUM);
-					for(i = 0; i < kl; i++) {
-						sc.Forward();
-					}
-					sc.SetState(SCE_MODULA_DEFAULT);
-					continue;
-				}
-				break;
-
+						break;
 				    case '.':
 					if(sc.GetRelative(kl+1) == '.') {
 						kl--;

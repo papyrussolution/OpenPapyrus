@@ -1,0 +1,91 @@
+// PROTOBUF-INTERNAL.H
+//
+//#include <slib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <float.h>
+#include <ctype.h>
+#include <locale.h>
+#include <sys/types.h>
+#include <assert.h>
+#ifdef _WIN32
+	#include <fcntl.h>
+#else
+	#include <unistd.h>
+#endif
+
+#include <algorithm>
+#include <cstring>
+#include <utility>
+#include <atomic>
+#include <sstream>
+#include <vector>
+#include <tuple>
+#include <unordered_set>
+#include <type_traits>
+#include <cstdint>
+#include <limits>
+#include <iomanip>
+#include <ostream>  // NOLINT(readability/streams)
+#include <memory>
+#include <string>
+#include <climits>
+#include <cstdio>
+#include <cmath>
+#include <iterator>
+#include <ctime>
+#include <stack>
+#include <iostream>
+#include <unordered_map>
+#include <array>
+#include <functional>
+#include <map>
+#include <set>
+#include <cstddef>
+#include <new>
+#include <cctype>
+#include <fstream>
+#include <queue>
+#include <typeinfo>
+#include <cerrno>
+#include <random>
+#include <iosfwd>
+
+#include <google/protobuf/reflection_ops.h>
+#include <google/protobuf/stubs/common.h>
+#include <google/protobuf/stubs/logging.h>
+#include <google/protobuf/stubs/mutex.h>
+#include <google/protobuf/stubs/strutil.h>
+#include <google/protobuf/stubs/substitute.h>
+#include <google/protobuf/stubs/stl_util.h>
+#include <google/protobuf/stubs/casts.h>
+#include <google/protobuf/stubs/hash.h>
+#include <google/protobuf/stubs/map_util.h>
+#include <google/protobuf/stubs/stringprintf.h>
+#include <google/protobuf/stubs/bytestream.h>
+#include <google/protobuf/map_field.h>
+#include <google/protobuf/map_field_inl.h>
+#include <google/protobuf/any.h>
+#include <google/protobuf/arenastring.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_util.h>
+#include <google/protobuf/message.h>
+#include <google/protobuf/io/tokenizer.h>
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include <google/protobuf/io/printer.h>
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/arena.h>
+#include <google/protobuf/arena_impl.h>
+#include <google/protobuf/compiler/code_generator.h>
+#include <google/protobuf/compiler/cpp/cpp_enum.h>
+#include <google/protobuf/compiler/cpp/cpp_helpers.h>
+#include <google/protobuf/compiler/cpp/cpp_names.h>
+#include <google/protobuf/compiler/parser.h>
+#include <google/protobuf/wire_format.h>
+#include <google/protobuf/wire_format_lite.h>
+#include <google/protobuf/extension_set.h>
+

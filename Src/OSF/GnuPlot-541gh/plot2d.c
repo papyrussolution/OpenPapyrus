@@ -507,7 +507,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		// If variable color is requested, take the color value from the 
 		// final column of input and decrement the column count by one.  
 		if(pPlot->varcolor) {
-			static char * errmsg = "Not enough columns for variable color";
+			static const char * errmsg = "Not enough columns for variable color";
 			switch(pPlot->plot_style) {
 				case CANDLESTICKS:
 				case FINANCEBARS:
@@ -1471,7 +1471,7 @@ void GnuPlot::SpiderPlotRangeFiddling(curve_points * plot)
 //
 //text_label * store_label(text_label * pListHead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
 	//double colorval/* used if text color derived from palette */)
-text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, GpCoordinate * cp, int i/* point number */, char * string/* start of label string */, 
+text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, GpCoordinate * cp, int i/* point number */, const char * string/* start of label string */, 
 	double colorval/* used if text color derived from palette */)
 {           
 	static text_label * tl = NULL;
@@ -1695,7 +1695,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 		else {
 			int specs = 0;
 			/* for datafile plot, record datafile spec for title */
-			char* name_str;
+			const char * name_str;
 			bool duplication = FALSE;
 			bool set_smooth = FALSE, set_axes = FALSE, set_title = FALSE;
 			bool set_with = FALSE, set_lpstyle = FALSE;
@@ -2633,7 +2633,7 @@ SKIPPED_EMPTY_FILE:
 			}
 			else {
 				struct at_type * at_ptr;
-				char * name_str;
+				const char * name_str;
 				int sample_range_token;
 				was_definition = FALSE;
 				// Forgive trailing comma on a multi-element plot command 

@@ -219,6 +219,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -267,6 +269,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -315,6 +318,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -362,6 +366,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -410,6 +416,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -458,6 +465,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -505,6 +513,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -553,6 +563,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -601,6 +612,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -648,6 +660,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <BrowseInformationFile />
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -696,6 +710,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -744,6 +759,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;DBUG_OFF;HAVE_COMPRESS;LIBMARIADB;THREAD;WIN32_LEAN_AND_MEAN;MARIADB_SYSTEM_TYPE=\"Windows\";MARIADB_MACHINE_TYPE=\"AMD64\";HAVE_DLOPEN;_CRT_SECURE_NO_WARNINGS;HAVE_SCHANNEL;HAVE_TLS;SIZEOF_CHARP=4;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>

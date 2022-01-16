@@ -65,12 +65,6 @@
 
 // ********** End of configuration toggles ******************************
 
-#include <stdio.h> // Needed for streams
-// Needed for portability (C99 per 7.1.2)
-#include <limits.h>
-#include <time.h>
-#include <stddef.h>
-
 #ifndef CMS_USE_CPP_API
 #ifdef __cplusplus
 // @sobolev extern "C" {

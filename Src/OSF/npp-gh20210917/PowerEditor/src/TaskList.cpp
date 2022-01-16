@@ -140,16 +140,14 @@ int TaskList::updateCurrentIndex()
 
 LRESULT TaskList::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	switch(Message)
-	{
+	switch(Message) {
 		case WM_KEYUP:
-	    {
-		    if(wParam == VK_CONTROL) {
-			    ::SendMessage(_hParent, WM_COMMAND, ID_PICKEDUP, _currentIndex);
-		    }
-	    }
+			{
+				if(wParam == VK_CONTROL) {
+					::SendMessage(_hParent, WM_COMMAND, ID_PICKEDUP, _currentIndex);
+				}
+			}
 		    return TRUE;
-
 		case WM_MOUSEWHEEL:
 	    {
 		    short zDelta = (short)HIWORD(wParam);
@@ -184,16 +182,11 @@ LRESULT TaskList::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 		    ListView_EnsureVisible(_hSelf, _currentIndex, true);
 		    return TRUE;
 	    }
-
 		case WM_KEYDOWN:
-	    {
 		    return TRUE;
-	    }
-
 		case WM_GETDLGCODE:
 	    {
 		    MSG * msg = (MSG*)lParam;
-
 		    if(msg) {
 			    if((msg->message == WM_KEYDOWN) && (0x80 & GetKeyState(VK_CONTROL))) {
 				    // Shift+Tab is cool but I think VK_UP and VK_LEFT are also cool :-)
@@ -235,7 +228,6 @@ LRESULT TaskList::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 		    }
 		    return DLGC_WANTALLKEYS;
 	    }
-
 		default:
 		    return ::CallWindowProc(_defaultProc, hwnd, Message, wParam, lParam);
 	}

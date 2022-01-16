@@ -294,12 +294,17 @@ int STDCALL periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 {
 	static const char * quart[4] = { "I", "II", "III", "IV" };
 	int  r = -1;
-	int  d1, m1, y1, d2, m2, y2;
+	int  d1 = 0;
+	int  m1 = 0;
+	int  y1 = 0;
+	int  d2 = 0;
+	int  m2 = 0;
+	int  y2 = 0;
 	char period[64];
 	char * p = period;
 	decodedate(&d1, &m1, &y1, &pPeriod->low);
 	decodedate(&d2, &m2, &y2, &pPeriod->upp);
-	if(d1 == 1 && d2 == dayspermonth(m2, y2)) {
+	if(d1 == 1 && (m2 && d2 == dayspermonth(m2, y2))) {
 		if(m1 == 1 && m2 == 12) {
 			if(y1 == y2)
 				itoa(y1, p, 10);

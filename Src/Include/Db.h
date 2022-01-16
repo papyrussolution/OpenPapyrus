@@ -4010,7 +4010,8 @@ class DBUpdateSet : SArray {
 public:
 	DBUpdateSet();
 	~DBUpdateSet();
-	DBUpdateSet & FASTCALL set(DBField f, DBItem & val);
+	DBUpdateSet & STDCALL set(DBField f, DBItem & val);
+	DBUpdateSet & STDCALL set(DBField f, DBConst val); // @v11.2.11
 	uint   GetCount() const;
 	DBUpdateSetItem & Get(uint pos) const;
 private:
@@ -4018,6 +4019,7 @@ private:
 };
 
 DBUpdateSet & FASTCALL set(DBField f, DBItem & val);
+DBUpdateSet & FASTCALL set(DBField f, DBConst val); // @v11.2.11
 //
 // Descr: Спцификация callback-функции, используемой -Cb вариантами функций deleteFrom и upfateFor.
 //

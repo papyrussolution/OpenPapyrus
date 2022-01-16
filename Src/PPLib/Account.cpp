@@ -1,5 +1,5 @@
 // ACCOUNT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @Kernel
 //
 #include <pp.h>
@@ -409,7 +409,7 @@ int AccountCore::ParseString(const char * pStr, int tok[])
 			if(i == 0 && (!isdec(p[0]) || p[0] == '0'))
 				tok[i++] = (SearchCode(p, 0L, 0) > 0) ? data.Ac : 0;
 			else
-				tok[i++] = atoi(p);
+				tok[i++] = satoi(p);
 		} while(i < 3 && (p = strtok(0, ".,")) != 0);
 	while(i < 3)
 		tok[i++] = 0;

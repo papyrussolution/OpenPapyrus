@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -250,7 +250,7 @@ int PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MA
 			nmb[1] = temp_buf[p+1];
 			nmb[2] = temp_buf[p+2];
 			nmb[3] = 0;
-			temp_pw[i] = atoi(nmb);
+			temp_pw[i] = satoi(nmb);
 			p += 3;
 		}
 		IdeaDecrypt(0, temp_pw, sizeof(temp_pw));

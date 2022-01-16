@@ -102,11 +102,11 @@ void     data_off(uint8 *, DB_FH *);
 void     data_on(uint8 **, uint8 **, uint8 **, DB_FH **, int);
 int      locker_start(ulong);
 int      locker_wait();
-os_pid_t os_spawn(const char *, char * const[]);
+os_pid_t os_spawn(const char *, const char * []);
 int      os_wait(os_pid_t *, uint);
 void * run_lthread(void *);
 void * run_wthread(void *);
-os_pid_t spawn_proc(ulong, char *, char *);
+os_pid_t spawn_proc(ulong, const char *, const char *);
 void     tm_env_close();
 int      tm_env_init();
 void     tm_mutex_destroy();
@@ -136,15 +136,9 @@ int main(int argc, char * argv[])
 	tmpath = argv[0];
 	while((ch = getopt(argc, argv, "l:n:p:T:t:v")) != EOF)
 		switch(ch) {
-		    case 'l':
-			maxlocks = (uint)atoi(optarg);
-			break;
-		    case 'n':
-			nlocks = (uint)atoi(optarg);
-			break;
-		    case 'p':
-			nprocs = (uint)atoi(optarg);
-			break;
+		    case 'l': maxlocks = (uint)satoi(optarg); break;
+		    case 'n': nlocks = (uint)satoi(optarg); break;
+		    case 'p': nprocs = (uint)satoi(optarg); break;
 		    case 't':
 			if((nthreads = (uint)atoi(optarg)) == 0)
 				nthreads = 1;
@@ -156,22 +150,22 @@ int main(int argc, char * argv[])
 #endif
 			break;
 		    case 'T':
-			if(!memcmp(optarg, "locker", sizeof("locker")-1))
-				rtype = LOCKER;
-			else if(!memcmp(optarg, "wakeup", sizeof("wakeup")-1))
-				rtype = WAKEUP;
-			else
-				return usage();
-			if((p = sstrchr(optarg, '=')) == NULL)
-				return usage();
-			id = (ulong)atoi(p+1);
-			break;
+				if(!memcmp(optarg, "locker", sizeof("locker")-1))
+					rtype = LOCKER;
+				else if(!memcmp(optarg, "wakeup", sizeof("wakeup")-1))
+					rtype = WAKEUP;
+				else
+					return usage();
+				if((p = sstrchr(optarg, '=')) == NULL)
+					return usage();
+				id = (ulong)satoi(p+1);
+				break;
 		    case 'v':
-			verbose = 1;
-			break;
+				verbose = 1;
+				break;
 		    case '?':
 		    default:
-			return usage();
+				return usage();
 		}
 	argc -= optind;
 	argv += optind;
@@ -523,7 +517,7 @@ int tm_env_init()
 {
 	uint32 flags;
 	int ret;
-	char * home;
+	const char * home;
 	//
 	// Create an environment object and initialize it for error reporting.
 	//
@@ -779,10 +773,11 @@ int os_wait(os_pid_t * procs, uint n)
 	return 0;
 }
 
-os_pid_t spawn_proc(ulong id, char * tmpath, char * typearg)
+os_pid_t spawn_proc(ulong id, const char * tmpath, const char * typearg)
 {
-	char * const vbuf = verbose ?  "-v" : NULL;
-	char * args[13], lbuf[16], nbuf[16], pbuf[16], tbuf[16], Tbuf[256];
+	const char * vbuf = verbose ?  "-v" : NULL;
+	const char * args[13];
+	char lbuf[16], nbuf[16], pbuf[16], tbuf[16], Tbuf[256];
 	args[0] = tmpath;
 	args[1] = "-l";
 	snprintf(lbuf, sizeof(lbuf),  "%d", maxlocks);
@@ -804,7 +799,7 @@ os_pid_t spawn_proc(ulong id, char * tmpath, char * typearg)
 	return os_spawn(tmpath, args);
 }
 
-os_pid_t os_spawn(const char * path, char * const argv[])
+os_pid_t os_spawn(const char * path, const char * argv[])
 {
 	os_pid_t pid;
 	int status;

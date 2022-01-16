@@ -37,11 +37,6 @@
 
 #ifndef _WIN32
 
-//#include "config.h"
-//#include <stdlib.h>
-//#include <errno.h>
-//#include <string.h>
-//#include <stdio.h>
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif

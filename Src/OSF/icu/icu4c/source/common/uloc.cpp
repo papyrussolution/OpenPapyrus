@@ -1,15 +1,9 @@
+// ULOC.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *
- * File ULOC.CPP
- *
+ *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   04/01/97    aliu        Creation.
  *   08/21/98    stephen     JDK 1.2 sync
@@ -18,11 +12,8 @@
  *   04/06/99    stephen     changed setDefault() to realloc and copy
  *   06/14/99    stephen     Changed calls to ures_open for new params
  *   07/21/99    stephen     Modified setDefault() to propagate to C++
- *   05/14/04    alan        7 years later: refactored, cleaned up, fixed bugs,
- *        brought canonicalization code into line with spec
- *****************************************************************************/
+ *   05/14/04    alan        7 years later: refactored, cleaned up, fixed bugs, brought canonicalization code into line with spec
 
-/*
    POSIX's locale format, from putil.c: [no spaces]
 
      ll [ _CC ] [ . MM ] [ @ VV]
@@ -32,7 +23,6 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "bytesinkutil.h"
-#include "putilimp.h"
 #include "ustr_imp.h"
 #include "ulocimp.h"
 #include "locmap.h"

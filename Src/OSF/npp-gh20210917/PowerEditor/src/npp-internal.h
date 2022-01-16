@@ -33,9 +33,10 @@ SCE_SEARCHRESULT_SEARCH_HEADER
 */
 
 #define SLIB_DONT_UNDEF_MINMAX
+#define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 #include <iso646.h>
-
+/*
 #include <list>
 #include <deque>
 #include <vector>
@@ -65,7 +66,7 @@ SCE_SEARCHRESULT_SEARCH_HEADER
 #include <utility>
 #include <random>
 #include <cwctype>
-
+*/
 #include <windowsx.h>
 #include <shobjidl.h>
 #include <shlwapi.h>

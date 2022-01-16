@@ -191,15 +191,12 @@ static const struct tzinfo tz[] = {
 static int FASTCALL checkday(const char * check, size_t len)
 {
 	int i;
-	bool found = FALSE;
-	// @v9.7.10 const char * const * what = (len > 3) ? &weekday[0] : &Curl_wkday[0];
+	bool found = false;
 	for(i = 0; i < 7; i++) {
-		// @v9.7.10 if(strcasecompare(check, what[0])) {
 		if(sstreqi_ascii(check, STextConst::Get((len > 3) ? STextConst::cDow_En : STextConst::cDow_En_Sh, i))) {
-			found = TRUE;
+			found = true;
 			break;
 		}
-		// @v9.7.10 what++;
 	}
 	return found ? i : -1;
 }
@@ -207,11 +204,10 @@ static int FASTCALL checkday(const char * check, size_t len)
 static int FASTCALL checkmonth(const char * check)
 {
 	int i;
-	bool found = FALSE;
-	// @v9.7.10 const char * const * what = &Curl_month[0];
+	bool found = false;
 	for(i = 0; i < 12; i++) {
 		if(sstreqi_ascii(check, /*what[0]*/STextConst::Get(STextConst::cMon_En_Sh, i))) {
-			found = TRUE;
+			found = true;
 			break;
 		}
 		//what++;
@@ -315,7 +311,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 	const char * indate = date; /* save the original pointer */
 	int part = 0; /* max 6 parts */
 	while(*date && (part < 6)) {
-		bool found = FALSE;
+		bool found = false;
 		skip(&date);
 		if(isasciialpha(*date)) { // a name coming up 
 			char buf[32] = "";
@@ -327,18 +323,18 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 			if(wdaynum == -1) {
 				wdaynum = checkday(buf, len);
 				if(wdaynum != -1)
-					found = TRUE;
+					found = true;
 			}
 			if(!found && (monnum == -1)) {
 				monnum = checkmonth(buf);
 				if(monnum != -1)
-					found = TRUE;
+					found = true;
 			}
 			if(!found && (tzoff == -1)) {
 				// this just must be a time zone string 
 				tzoff = checktz(buf);
 				if(tzoff != -1)
-					found = TRUE;
+					found = true;
 			}
 			if(!found)
 				return PARSEDATE_FAIL; /* bad string */
@@ -387,7 +383,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 					   Functions" at http://david.tribble.com/text/c0xtimezone.html If
 					   anyone has a more authoritative source for the exact maximum time
 					   zone offsets, please speak up! */
-					found = TRUE;
+					found = true;
 					tzoff = (val/100 * 60 + val%100)*60;
 					/* the + and - prefix indicates the local time compared to GMT,
 					   this we need ther reversed math to get what we want */
@@ -395,7 +391,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 				}
 				if(((end - date) == 8) && (yearnum == -1) && (monnum == -1) && (mdaynum == -1)) {
 					// 8 digits, no year, month or day yet. This is YYYYMMDD 
-					found = TRUE;
+					found = true;
 					yearnum = val/10000;
 					monnum = (val%10000)/100-1; /* month is 0 - 11 */
 					mdaynum = val%100;
@@ -403,13 +399,13 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 				if(!found && (dignext == DATE_MDAY) && (mdaynum == -1)) {
 					if((val > 0) && (val<32)) {
 						mdaynum = val;
-						found = TRUE;
+						found = true;
 					}
 					dignext = DATE_YEAR;
 				}
 				if(!found && (dignext == DATE_YEAR) && (yearnum == -1)) {
 					yearnum = val;
-					found = TRUE;
+					found = true;
 					if(yearnum < 1900) {
 						if(yearnum > 70)
 							yearnum += 1900;
@@ -483,4 +479,3 @@ time_t FASTCALL Sl_Curl_GetDate(const char * p)
 	}
 	return -1; // everything else is fail 
 }
-

@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1999-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
+ *   Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date        Name        Description
  *   11/17/99    aliu        Creation.
  **********************************************************************
@@ -16,7 +13,6 @@
 
 #include "rbt_set.h"
 #include "rbt_rule.h"
-#include "putilimp.h"
 
 U_CDECL_BEGIN
 static void U_CALLCONV _deleteRule(void * rule) 

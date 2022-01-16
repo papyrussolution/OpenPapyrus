@@ -1,20 +1,11 @@
+// ucnvbocu.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- ******************************************************************************
- *
- *   Copyright (C) 2002-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ucnvbocu.cpp
+ *   Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2002mar27
  *   created by: Markus W. Scherer
- *
  *   This is an implementation of the Binary Ordered Compression for Unicode,
  *   in its MIME-friendly form as defined in http://www.unicode.org/notes/tn6/
  */
@@ -25,7 +16,6 @@
 
 #include "unicode/ucnv.h"
 #include "unicode/ucnv_cb.h"
-#include "putilimp.h"
 #include "ucnv_bld.h"
 #include "ucnv_cnv.h"
 

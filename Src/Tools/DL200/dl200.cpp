@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1483,7 +1483,7 @@ int DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 					tok[i++] = substAr;
 				}
 				else
-					tok[i++] = atoi(d);
+					tok[i++] = satoi(d);
 			} while(i < 3 && (d = strtok(0, dot)) != 0);
 	}
 	else if(*p == '~') {
@@ -1558,7 +1558,7 @@ int DL2_Acc::GetFromStr(const char * pStr, int substAr)
 			*p_n++ = *p++;
 		*p_n = 0;
 		PrdOfs = PRD_DAY;
-		NumPrdOfs = minus ? -atoi(number) : atoi(number);
+		NumPrdOfs = minus ? -satoi(number) : satoi(number);
 		if(toupper(*p) == 'D')
 			PrdOfs = PRD_DAY;
 		else if(toupper(*p) == 'W')

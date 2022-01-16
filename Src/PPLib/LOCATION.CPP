@@ -1,5 +1,5 @@
 // LOCATION.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -292,17 +292,19 @@ int LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 	}
 	char * x, * p = strip(p_dup_templ);
 	if(*p) {
+		SString sfx, code;
 		memzero(pfx, sizeof(pfx));
 		while(*p) {
 			if(isdec(*p))
 				*c++ = *p++;
 			else if(*p == '%') {
-				SString sfx, code;
+				sfx.Z();
+				code.Z();
 				x_len = sstrlen(pfx);
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
-				r_len = atoi(t);
+				r_len = satoi(t);
 				if(*p == '[') {
 					for(++p, x = t; *p && *p != ']';)
 						*x++ = *p++;

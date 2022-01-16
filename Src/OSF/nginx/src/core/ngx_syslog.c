@@ -15,7 +15,7 @@ static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer);
 static ngx_int_t ngx_syslog_init_peer(ngx_syslog_peer_t * peer);
 static void ngx_syslog_cleanup(void * data);
 
-static char  * facilities[] = {
+static const char  * facilities[] = {
 	"kern", "user", "mail", "daemon", "auth", "intern", "lpr", "news", "uucp",
 	"clock", "authpriv", "ftp", "ntp", "audit", "alert", "cron", "local0",
 	"local1", "local2", "local3", "local4", "local5", "local6", "local7",
@@ -23,7 +23,7 @@ static char  * facilities[] = {
 };
 
 /* note 'error/warn' like in nginx.conf, not 'err/warning' */
-static char  * severities[] = {
+static const char  * severities[] = {
 	"emerg", "alert", "crit", "error", "warn", "notice", "info", "debug", NULL
 };
 

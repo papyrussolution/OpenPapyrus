@@ -1,0 +1,895 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL Debug|Win32">
+      <Configuration>DLL Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL Debug|x64">
+      <Configuration>DLL Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL Release|Win32">
+      <Configuration>DLL Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL Release|x64">
+      <Configuration>DLL Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>wxbase</ProjectName>
+    <ProjectGuid>{3FCC50C2-81E9-5DB2-B8D8-2129427568B1}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="wx_config.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="wx_setup.props" />
+    <Import Project="wx_local.props" Condition="Exists('wx_local.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">true</GenerateManifest>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(wxBaseLibNamePrefix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(wxBaseLibNamePrefix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">$(wxBaseDllNamePrefix)$(wxToolkitDllNameSuffix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">$(wxBaseDllNamePrefix)$(wxToolkitDllNameSuffix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(wxBaseLibNamePrefix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(wxBaseLibNamePrefix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">$(wxBaseDllNamePrefix)$(wxToolkitDllNameSuffix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">$(wxBaseDllNamePrefix)$(wxToolkitDllNameSuffix)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)lib.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <StringPooling>true</StringPooling>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)lib.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)lib.pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)lib.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableModules>false</EnableModules>
+      <OpenMPSupport>false</OpenMPSupport>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)dll.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StringPooling>true</StringPooling>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;WXDLLNAME=$(TargetName);wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wxzlib$(wxSuffixDebug).lib;wxregex$(wxSuffix).lib;wxexpat$(wxSuffixDebug).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImportLibrary>$(OutDir)$(wxBaseLibNamePrefix).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)dll.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;WXBUILDING;WXDLLNAME=$(TargetName);wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wxzlib$(wxSuffixDebug).lib;wxregex$(wxSuffix).lib;wxexpat$(wxSuffixDebug).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)$(wxBaseLibNamePrefix).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)dll.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;WXDLLNAME=$(TargetName);wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wxzlib$(wxSuffixDebug).lib;wxregex$(wxSuffix).lib;wxexpat$(wxSuffixDebug).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(OutDir)$(wxBaseLibNamePrefix).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">
+    <Midl>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;DLL_EXPORTS;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)..\wxprec_$(ProjectName)dll.pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <StringPooling>true</StringPooling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;NDEBUG;_UNICODE;WXBUILDING;WXDLLNAME=$(TargetName);wxUSE_GUI=0;WXMAKINGDLL_BASE;wxUSE_BASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(OutDir)$(wxIncSubDir);..\OSF\wxWidgets\include;..\OSF\wxWidgets\src\tiff\libtiff;..\OSF\wxWidgets\src\jpeg;..\OSF\wxWidgets\src\png;..\OSF\wxWidgets\src\zlib;..\OSF\wxWidgets\src\regex;..\OSF\wxWidgets\src\expat\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wxzlib$(wxSuffixDebug).lib;wxregex$(wxSuffix).lib;wxexpat$(wxSuffixDebug).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(OutDir)$(wxBaseLibNamePrefix).lib</ImportLibrary>
+    </Link>
+    <Bscmake>
+      <OutputFile>$(OutDir)wx_$(wxCompilerPrefix)_$(ProjectName).bsc</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\any.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\appbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arcall.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arcfind.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\archive.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\arrstr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\base64.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\clntdata.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\cmdline.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\config.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\convauto.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datetime.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datetimefmt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\datstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dircmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dummy.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dynlib.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dynload.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\encconv.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\event.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\evtloopcmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\extended.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ffile.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\file.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fileback.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fileconf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filefn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filename.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filesys.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filtall.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\filtfind.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fmapbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_arc.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_filter.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_mem.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fswatchercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\hash.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\hashmap.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\init.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\intl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ipcbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\languageinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\list.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\log.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\longlong.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\memory.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\mimecmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\module.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\msgout.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\mstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\numformatter.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\object.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\platinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\powercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\process.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\regex.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stdpbase.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stdstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stopwatch.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\strconv.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\string.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stringimpl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\stringops.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\strvararg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sysopt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\tarstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textbuf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\textfile.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\threadinfo.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\time.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\timercmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\timerimpl.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\tokenzr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\translation.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\txtstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\unichar.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\uri.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ustring.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\utilscmn.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\variant.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wfstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wxcrt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\wxprintf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xlocale.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xti.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\xtistrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\zipstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\zstream.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\basemsw.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\crashrpt.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dde.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\debughlp.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dir.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\dlmsw.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\evtloopconsole.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\fswatcher.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\main.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\mimetype.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\power.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\regconf.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\registry.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\snglinst.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\stackwalk.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\stdpaths.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\thread.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\timer.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\utils.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\utilsexc.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\volume.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\generic\fswatcherg.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\secretstore.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)msw_%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\secretstore.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)common_%(Filename).obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\lzmastream.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\wxWidgets\src\msw\version.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\setup.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\apptbase.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\apptrait.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\chkconf.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\crashrpt.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\dde.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\debughlp.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\evtloopconsole.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\fswatcher.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\gccpriv.h" />
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DLL Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\libraries.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\mimetype.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\private.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\regconf.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\registry.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\seh.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\stackwalk.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\stdpaths.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\winundef.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\winver.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\wrapcctl.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\wrapcdlg.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msw\wrapwin.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\generic\fswatcher.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\afterstd.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\any.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\anystr.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\app.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\apptrait.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\archive.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\arrstr.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\atomic.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\base64.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\beforestd.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\buffer.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\build.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\chartype.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\checkeddelete.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\chkconf.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\clntdata.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cmdargs.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cmdline.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\confbase.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\config.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\containr.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\convauto.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\convertible.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\cpp.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\crt.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\datetime.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\datstrm.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dde.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\debug.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\defs.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dir.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dlimpexp.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dlist.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dynarray.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dynlib.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\dynload.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\encconv.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\event.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\eventfilter.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\evtloop.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\except.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\features.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ffile.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\file.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fileconf.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filefn.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filename.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\filesys.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\flags.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontenc.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fontmap.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_arc.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_filter.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_mem.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_zip.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fswatcher.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hash.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hashmap.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\hashset.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\iconloc.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\if.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\implicitconversion.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\init.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\int2type.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\intl.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\iosfwrap.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ioswrap.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ipc.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ipcbase.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\kbdstate.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\language.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\link.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\list.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\log.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\longlong.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\math.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\memconf.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\memory.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\memtext.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mimetype.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\module.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mousestate.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\movable.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msgout.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\msgqueue.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\mstream.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\numformatter.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\object.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\platform.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\platinfo.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\pod.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\power.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\process.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ptr_scpd.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ptr_shrd.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\recguard.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\regex.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\rtti.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopedarray.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopedptr.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\scopeguard.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sharedptr.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\snglinst.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sstream.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stack.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stackwalk.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stdpaths.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stdstream.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stockitem.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stopwatch.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\strconv.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stream.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\string.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stringimpl.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\stringops.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\strvararg.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sysopt.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tarstrm.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textbuf.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\textfile.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\thread.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\time.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\timer.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tls.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tokenzr.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\tracker.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\translation.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\txtstrm.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\typeinfo.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\types.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\unichar.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\uri.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\ustring.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\utils.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\variant.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\vector.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\version.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\versioninfo.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\volume.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\weakref.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wfstream.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wx.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxchar.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxcrt.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxcrtbase.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxcrtvararg.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\wxprec.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xlocale.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xti.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xti2.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtictor.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtihandler.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtiprop.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtistrm.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\xtitypes.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\zipstrm.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\zstream.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\listimpl.cpp" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\meta\removeref.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\compiler.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\thrimpl.cpp" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\arrimpl.cpp" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\secretstore.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\evtloopsrc.h" />
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\lzmastream.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

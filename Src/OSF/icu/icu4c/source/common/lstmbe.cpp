@@ -8,7 +8,6 @@
 #if !UCONFIG_NO_BREAK_ITERATION
 
 #include "lstmbe.h"
-#include "putilimp.h"
 #include "ubrkimpl.h"
 #include "uresimp.h"
 

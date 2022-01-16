@@ -29,7 +29,7 @@ mouse_setting_t mouse_setting = DEFAULT_MOUSE_SETTING;
 /* the following table must match exactly the
  * enum's of GP_ in mousecmn.h and end with a NULL pointer!
  */
-static char* special_keys[] = {
+static const char * special_keys[] = {
 	"GP_FIRST_KEY", /* keep this dummy there */
 	"Linefeed",
 	"Clear",
@@ -1373,7 +1373,7 @@ double GnuPlot::Rescale(int axIdx, double w1, double w2)
 
 // Rescale axes and do zoom. 
 void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
- double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, char msg[])
+ double a7, double a8, double a9, double a10, double a11, double a12, double a13, double a14, double a15, const char * pMsg)
 {
 	double xmin  = Rescale(FIRST_X_AXIS,   a0, a1);
 	double ymin  = Rescale(FIRST_Y_AXIS,   a2, a3);
@@ -1385,8 +1385,9 @@ void GnuPlot::ZoomRescale_XYX2Y2(double a0, double a1, double a2, double a3, dou
 	double y2max = Rescale(SECOND_Y_AXIS, a14, a15);
 	Gr.RetainOffsets = true;
 	DoZoom(xmin, ymin, x2min, y2min, xmax, ymax, x2max, y2max);
-	if(msg[0] && display_ipc_commands()) {
-		fputs(msg, stderr); fputs("\n", stderr);
+	if(!isempty(pMsg) && display_ipc_commands()) {
+		fputs(pMsg, stderr); 
+		fputs("\n", stderr);
 	}
 }
 //
@@ -2187,10 +2188,10 @@ static int lookup_key(char * ptr, int * len)
 	}
 	else {
 		// second, search in the table of other keys 
-		for(char ** keyptr = special_keys; *keyptr; ++keyptr) {
+		for(const char ** keyptr = special_keys; *keyptr; ++keyptr) {
 			if(sstreq(ptr, *keyptr)) {
 				*len = strlen(ptr);
-				return keyptr - special_keys + GP_FIRST_KEY;
+				return (keyptr - special_keys + GP_FIRST_KEY);
 			}
 		}
 		return NO_KEY;
@@ -2402,7 +2403,7 @@ void GnuPlot::BindRemove(bind_t * b)
 	}
 }
 
-void GnuPlot::BindAppend(char * lhs, char * rhs, BuiltinEventHandler handlerFunc)
+void GnuPlot::BindAppend(const char * lhs, char * rhs, BuiltinEventHandler handlerFunc)
 {
 	bind_t * p_new = (bind_t *)SAlloc::M(sizeof(bind_t));
 	if(!BindScanLhs(p_new, lhs)) {

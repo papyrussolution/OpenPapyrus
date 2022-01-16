@@ -3353,6 +3353,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		RESTOREGOODS     : kbCtrlR, PPDV_NOICON,         "@{doundowarechange}\tCtrl-R"
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
 		separator
+		TOTAL            : kbF9,    PPDV_SIGMA02,        "@{totals}\tF9" // @v11.2.11
 		TRANSMIT         : kbCtrlH, PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
 		CHANGEFILT       : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
 		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "@{specialfunction}\tCtrl-X"

@@ -260,7 +260,7 @@ LPTSTR GpWinMainBlock::LocalisedFile(LPCTSTR name, LPCTSTR ext, LPCTSTR defaultn
 	return filename;
 }
 
-void GpWinMainBlock::ReadMainIni(LPTSTR file, LPTSTR section)
+void GpWinMainBlock::ReadMainIni(LPCTSTR file, LPCTSTR section)
 {
 	TCHAR profile[81] = TEXT("");
 	const TCHAR hlpext[] = TEXT(".chm");

@@ -71,18 +71,18 @@ int PPEds::GetCert(PCCERT_CONTEXT & rCert)
 	int    ok = 1;
 	// Получение дескриптора контекста криптографического провайдера.
 	HCRYPTPROV prov = 0;
-    THROW_PP(CryptAcquireContext(&prov, NULL, NULL, MY_PROV_TYPE, NULL), PPERR_EDS_GETPROVIDER);
-    // Получение пользовательского ключа (по двум типам ключей)
     DWORD key_type = AT_SIGNATURE;
 	HCRYPTKEY h_key = 0;
+	DWORD user_cert_length = 0;
+	BYTE * p_user_cert = 0;
+    THROW_PP(CryptAcquireContext(&prov, NULL, NULL, MY_PROV_TYPE, NULL), PPERR_EDS_GETPROVIDER);
+    // Получение пользовательского ключа (по двум типам ключей)
     if(!CryptGetUserKey(prov, key_type, &h_key)) {
         key_type = AT_KEYEXCHANGE;
         THROW_PP(CryptGetUserKey(prov, key_type, &h_key), PPERR_EDS_GETKEYFAILED);
     }
-	DWORD user_cert_length = 0;
     // Определение размера пользовательского сертификата.
     THROW_PP(CryptGetKeyParam(h_key, KP_CERTIFICATE, NULL, &user_cert_length, 0), PPERR_EDS_GETCERT);
-	BYTE * p_user_cert = 0;
     // Распределение памяти под буфер пользовательского сертификата.
     THROW_MEM((p_user_cert = (BYTE *)SAlloc::M(user_cert_length)));
     // Получение пользовательского сертификата.
@@ -200,11 +200,11 @@ int PPEds::EncodeData(const char * pOwnerName, const char * pFileName, int sameF
 
 	// Получим сертификат
 	THROW(GetCert(cert_sore, p_owner_cert, pOwnerName));
-
-	// Получим провайдера
-	DWORD dw_key_spec = 0;
-	THROW(GetCryptoProv(p_owner_cert, prov, dw_key_spec));
-
+	{
+		// Получим провайдера
+		DWORD dw_key_spec = 0;
+		THROW(GetCryptoProv(p_owner_cert, prov, dw_key_spec));
+	}
 	// Получим открытый ключ получателя
 	THROW_PP(CryptImportPublicKeyInfo(prov, MY_ENCODING_TYPE, &p_owner_cert->pCertInfo->SubjectPublicKeyInfo, &h_pub_key), PPERR_EDS_GETKEYFAILED);
 
@@ -464,7 +464,9 @@ int PPEds::FirstSignData(const char * pSignerName, const char * pFileName, SStri
 
 int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const char * pSignFileName)
 {
-	int ok = 1, blob_count = 0;
+	int    ok = 1;
+	int    blob_count = 0;
+	size_t actual_size = 0;
 	HCERTSTORE cert_sore = 0;
 	PCCERT_CONTEXT p_cosigner_cert = 0;
     HCRYPTPROV prov = NULL;
@@ -508,7 +510,6 @@ int PPEds::CoSignData(const char * pCosignerName, const char * pFileName, const 
 	file.CalcSize(&file_size);
 	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[SIZE_TO_READ]);
-	size_t actual_size = 0;
 	blob_count = fceili((double)file_size / SIZE_TO_READ);
 	for(size_t i = 0; i < (size_t)blob_count; i++) {
 		file.Read(pb_indata, SIZE_TO_READ, &actual_size);
@@ -585,35 +586,27 @@ int PPEds::CountersignData(const char * pCountersignerName, int signerNumber, co
 	CMSG_SIGNER_ENCODE_INFO countersigner_info;
 	CMSG_SIGNER_ENCODE_INFO cntr_sign_array[1] = {0};
 	SFile file;
-
-	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	int64 file_size = 0;
+	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
 	file.CalcSize(&file_size);
 	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
-
 	// Получим сертификат заверителя
 	THROW(GetCert(cert_sore, p_cntr_sig_cert, pCountersignerName));
-
 	// Откроем сообщение для раскодирования
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-
     // Загрузим сообщение pb_indata для раскодировки
 	THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
-
 	// Получим размер раскодированного сообщения
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_CONTENT_PARAM, 0, NULL, &cb_decoded), PPERR_EDS_GETSIGNINFOFAILED);
-
 	// Выделим память
 	THROW_MEM(pb_decoded = new BYTE[cb_decoded]);
 	memzero(pb_decoded, cb_decoded);
-
 	// Получаем в pb_decoded раскодированное сообщение
     THROW_PP(CryptMsgGetParam(h_msg, CMSG_CONTENT_PARAM, 0, pb_decoded, &cb_decoded), PPERR_EDS_GETSIGNINFOFAILED);
-
 	// Проверяем подпись
 	THROW(VerifySign(pFileName, pSignFileName, signerNumber));
 
@@ -675,19 +668,18 @@ int PPEds::DeleteSign(const char * pSignFileName, int signNumber)
 	DWORD cb_indata = 0;
     BYTE * pb_unsigned_message_blob = NULL; // Новые данные о подписях, указанная подпись удалена
 	DWORD cb_unsigned_message_blob = 0;
-
+    DWORD dw_key_spec = 0;
+	int sign_count = 0;
+	int64 file_size = 0;
 	SFile file;
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
-	int64 file_size = 0;
 	file.CalcSize(&file_size);
 	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
-    DWORD dw_key_spec = 0;
 	// Проверим, а есть ли подписи вообще
-	int sign_count = 0;
 	THROW(GetSignsCount(pSignFileName, sign_count));
 	if(sign_count != 0) { // Если есть хотя бы одна подпись
 		SString signer_name;
@@ -760,29 +752,23 @@ int PPEds::DeleteCountersign(char * pSignFileName, const int signerNumber)
 	DWORD cb_unsigned_message_blob = 0;
 	DWORD cb_signer_info = 0;
 	CMSG_CTRL_DEL_SIGNER_UNAUTH_ATTR_PARA unauth_para;
-
+	DWORD dw_key_spec = 0;
+	int64 file_size = 0;
 	SFile file;
 	THROW_SL(file.Open(pSignFileName, SFile::mRead | SFile::mBinary));
-	int64 file_size = 0;
 	file.CalcSize(&file_size);
 	cb_indata = static_cast<DWORD>(file_size);
 	THROW_MEM(pb_indata = new BYTE[cb_indata]);
 	memzero(pb_indata, cb_indata);
 	file.ReadV(pb_indata, cb_indata);
 	file.Close();
-
-    DWORD dw_key_spec = 0;
-
 	// Откроем сообщение для раскодирования
 	THROW_PP(h_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, NULL, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-
 	// Добавим данные о подписях в h_msg
 	THROW_PP(CryptMsgUpdate(h_msg, pb_indata, cb_indata, TRUE), PPERR_EDS_MSGUPDATEFAILED);
-
 	// Получим инфу о подписи
 	// Получим размер данных о подписях
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_INFO_PARAM, signerNumber - 1, NULL, &cb_signer_info), PPERR_EDS_GETSIGNINFOFAILED);
-
 	// Выделим память
 	THROW_MEM(pb_signer_info = (PCMSG_SIGNER_INFO)LocalAlloc(LPTR, cb_signer_info));
 	// Получим инфу о подписи
@@ -1194,16 +1180,17 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
     verify_params.hCryptProv = NULL/*prov*/;
     verify_params.pfnGetSignerCertificate = NULL; // Будет искать в сообщении
     verify_params.pvGetArg = NULL;
-
-	// Проверяем подпись
-	const BYTE * indata_arr[] = {pb_indata};
-	DWORD indata_size_arr[1];
-	indata_size_arr[0] = cb_indata;
-	if(!CryptVerifyDetachedMessageSignature(&verify_params, signerNumber - 1, pb_sign_data,
-		cb_sign_data, 1, indata_arr, indata_size_arr, /*NULL*/&p_cert)) {
-		THROW_PP((GetLastError() == CRYPT_E_HASH_VALUE) || (GetLastError() == NTE_BAD_SIGNATURE), PPERR_EDS_SIGNVERIFY);
-		//ShowError("VerifySign: Hash data is not correct. Maybe, document was modified.");
-		ok = -1;
+	{
+		// Проверяем подпись
+		const BYTE * indata_arr[] = {pb_indata};
+		DWORD indata_size_arr[1];
+		indata_size_arr[0] = cb_indata;
+		if(!CryptVerifyDetachedMessageSignature(&verify_params, signerNumber - 1, pb_sign_data,
+			cb_sign_data, 1, indata_arr, indata_size_arr, /*NULL*/&p_cert)) {
+			THROW_PP((GetLastError() == CRYPT_E_HASH_VALUE) || (GetLastError() == NTE_BAD_SIGNATURE), PPERR_EDS_SIGNVERIFY);
+			//ShowError("VerifySign: Hash data is not correct. Maybe, document was modified.");
+			ok = -1;
+		}
 	}
 	CATCHZOK
 	ZDELETE(pb_indata);
@@ -1639,27 +1626,27 @@ int PPEds::ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmt
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 4);
 		byte_pos += 4;
-		date.setyear(atoi(val));
+		date.setyear(satoi(val));
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 2);
 		byte_pos += 2;
-		date.setmonth(atoi(val));
+		date.setmonth(satoi(val));
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 2);
 		byte_pos += 2;
-		date.setday(atoi(val));
+		date.setday(satoi(val));
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 2);
 		byte_pos += 2;
-		sec += atoi(val) * 3600;
+		sec += (satoi(val) * 3600);
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 2);
 		byte_pos += 2;
-		sec += atoi(val) * 60;
+		sec += (satoi(val) * 60);
 		memzero(val, 4);
 		memcpy(val, pResponse + byte_pos, 2);
 		byte_pos += 2;
-		sec += atoi(val);
+		sec += satoi(val);
 		time.settotalsec(sec);
 		da_tm.Set(date, time);
 		rResponseFmtd.Time = da_tm;
@@ -1887,112 +1874,112 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	THROW_SL(sock.Send(request, request.Len(), NULL));
 	printf("%s", request.cptr());
 	printf("\n");
-
-	uint   size = SIZEOFARRAY(resp_buf);
-	uint   l = SIZEOFARRAY(resp_buf);
-	uint   count = 20;
-	size_t recvd_size = 0, wr_pos = 0;
-	Sleep(2000); // Подождем пару секунд, пока запрос обработается
-	while((l == size) || (count > 0)) {
-		memzero(resp_buf, sizeof(resp_buf));
-		Sleep(10);
-		if(sock.Recv(resp_buf, size, &recvd_size)) {
-			l = recvd_size;
-			buf.Write(resp_buf, recvd_size);
+	{
+		uint   size = SIZEOFARRAY(resp_buf);
+		uint   l = SIZEOFARRAY(resp_buf);
+		uint   count = 20;
+		size_t recvd_size = 0;
+		size_t wr_pos = 0;
+		size_t pos = 0;
+		Sleep(2000); // Подождем пару секунд, пока запрос обработается
+		while((l == size) || (count > 0)) {
+			memzero(resp_buf, sizeof(resp_buf));
+			Sleep(10);
+			if(sock.Recv(resp_buf, size, &recvd_size)) {
+				l = recvd_size;
+				buf.Write(resp_buf, recvd_size);
+			}
+			else
+				l = 0;
+			recvd_size = 0;
+			count--;
 		}
-		else
-			l = 0;
-		recvd_size = 0;
-		count--;
-	}
+		if(buf.GetWrOffs() != 0) {
+			SString substr;
+			substr.CopyFromN(buf.GetBufC(), buf.GetSize());
+			substr.Search("\r\n\r\n", 0, 1, &pos); // Между заголовком http-ответа и нужной инфой - пустая строка
+			file.Open("answer.tsr", SFile::mWrite|SFile::mBinary);
+			THROW_PP(ParseTSAResponse(buf.GetBufC() + pos + 4, rResponse), PPERR_EDS_TSPRESPPARSEFAILED);
+			THROW_PP((rResponse.PKIStatus == 0) || (rResponse.PKIStatus == 1), PPERR_EDS_TSPFAILED);
+			THROW_PP(req_struct.HashAlgorytm.CmpNC(rResponse.HashAlg) == 0, PPERR_EDS_TSPFAILED);
+			THROW_PP(req_struct.Hash.CmpNC(rResponse.Hash) == 0, PPERR_EDS_TSPFAILED);
+			THROW_PP(req_struct.Nonce.CmpNC(rResponse.Nonce) == 0, PPERR_EDS_TSPFAILED);
+			// Проверяем, чтобы время формирования штампа сильно не отличалось от текущего (я взяла 5 минут)
+			LDATETIME cur_dt_tm = getcurdatetime_();
+			LTIME  five_minutes, diff_time;
+			int    time_zone = gettimezone();
+			ulong  seconds = cur_dt_tm.t;
+			cur_dt_tm.t.settotalsec(time_zone * 60);
+			cur_dt_tm.t.v += seconds;
+			int diff = cur_dt_tm.d - rResponse.Time.d;
+			if(diff == 1) {
+				five_minutes.settotalsec(86400);
+				diff = (five_minutes.hour() - rResponse.Time.t.hour() + cur_dt_tm.t.hour()) * 3600 +
+					(five_minutes.minut() - rResponse.Time.t.minut() + cur_dt_tm.t.minut()) * 60 +
+					(five_minutes.sec() - rResponse.Time.t.sec() + cur_dt_tm.t.sec());
+				five_minutes.settotalsec(diff);
+			}
+			else
+				diff = abs((long)cur_dt_tm.t - (long)rResponse.Time.t);
+			diff_time.v = diff;
+			five_minutes.settotalsec(300); // 5 минут
+			THROW_PP(diff_time < five_minutes, PPERR_EDS_TSPFAILED);
 
-	size_t pos = 0;
-	if(buf.GetWrOffs() != 0) {
-		SString substr;
-		substr.CopyFromN(buf.GetBufC(), buf.GetSize());
-		substr.Search("\r\n\r\n", 0, 1, &pos); // Между заголовком http-ответа и нужной инфой - пустая строка
-		file.Open("answer.tsr", SFile::mWrite|SFile::mBinary);
-		THROW_PP(ParseTSAResponse(buf.GetBufC() + pos + 4, rResponse), PPERR_EDS_TSPRESPPARSEFAILED);
-		THROW_PP((rResponse.PKIStatus == 0) || (rResponse.PKIStatus == 1), PPERR_EDS_TSPFAILED);
-        THROW_PP(req_struct.HashAlgorytm.CmpNC(rResponse.HashAlg) == 0, PPERR_EDS_TSPFAILED);
-		THROW_PP(req_struct.Hash.CmpNC(rResponse.Hash) == 0, PPERR_EDS_TSPFAILED);
-		THROW_PP(req_struct.Nonce.CmpNC(rResponse.Nonce) == 0, PPERR_EDS_TSPFAILED);
-		// Проверяем, чтобы время формирования штампа сильно не отличалось от текущего (я взяла 5 минут)
-		LDATETIME cur_dt_tm = getcurdatetime_();
-		LTIME  five_minutes, diff_time;
-		int    time_zone = gettimezone();
-		ulong  seconds = cur_dt_tm.t;
-		cur_dt_tm.t.settotalsec(time_zone * 60);
-		cur_dt_tm.t.v += seconds;
-		int diff = cur_dt_tm.d - rResponse.Time.d;
-		if(diff == 1) {
-			five_minutes.settotalsec(86400);
-			diff = (five_minutes.hour() - rResponse.Time.t.hour() + cur_dt_tm.t.hour()) * 3600 +
-				(five_minutes.minut() - rResponse.Time.t.minut() + cur_dt_tm.t.minut()) * 60 +
-				(five_minutes.sec() - rResponse.Time.t.sec() + cur_dt_tm.t.sec());
-			five_minutes.settotalsec(diff);
+			buf.SetRdOffs(0);
+			file.Write(buf.GetBufU8() + pos + 4, buf.GetSize() - pos - 4);
+			file.Close();
 		}
-		else
-			diff = abs((long)cur_dt_tm.t - (long)rResponse.Time.t);
-		diff_time.v = diff;
-		five_minutes.settotalsec(300); // 5 минут
-		THROW_PP(diff_time < five_minutes, PPERR_EDS_TSPFAILED);
+		// Добавляем штмап в атрибут подписи
+		// Сначала раскодируем
+		cb_stamp_data = buf.GetSize() - pos - 4 - 9; // Почему тут еще 9? Да потому что первые 9 байт
+		// в ответе - общая инфа об этом самом ответе. А дальше уже идет непосредственно
+		// штамп времени.
+		THROW_MEM(pb_stamp_data = new BYTE[cb_stamp_data]);
+		memzero(pb_stamp_data, cb_stamp_data);
+		memcpy(pb_stamp_data, buf.GetBufU8() + pos + 4 + 9, cb_stamp_data);
+		THROW_PP(stamp_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
+		// Добавим в h_msg инфу о подписях
+		THROW_PP(CryptMsgUpdate(stamp_msg, pb_stamp_data, cb_stamp_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);
+		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_stamp_decoded), PPERR_EDS_TSPFAILED);
+		THROW_MEM(pb_stamp_decoded = new BYTE[cb_stamp_decoded]);
+		memzero(pb_stamp_decoded, cb_stamp_decoded);
+		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_stamp_decoded, &cb_stamp_decoded), PPERR_EDS_TSPFAILED);
 
-		buf.SetRdOffs(0);
-		file.Write(buf.GetBufU8() + pos + 4, buf.GetSize() - pos - 4);
+		// теперь закодируем отдельно добавляемую информацию
+		attr.pszObjId = const_cast<char *>(szOID_KP_TIME_STAMP_SIGNING);
+		attr.cValue = 1;
+		attr.rgValue = 0;
+		THROW_MEM(attr.rgValue = new CRYPT_ATTR_BLOB[sizeof(PCRYPT_ATTR_BLOB)]);
+		attr.rgValue->cbData = cb_stamp_decoded;
+		THROW_MEM(attr.rgValue->pbData = new BYTE[attr.rgValue->cbData]);
+		memzero(attr.rgValue->pbData, attr.rgValue->cbData);
+		memcpy(attr.rgValue->pbData, pb_stamp_decoded, attr.rgValue->cbData);
+		THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, NULL, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
+		THROW_MEM(pb_stamp_encoded = new BYTE[cb_stamp_encoded]);
+		memzero(pb_stamp_encoded, cb_stamp_encoded);
+		THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, pb_stamp_encoded, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
+
+		// Собственно добавляем штамп в неподписанные атрибуты подписи
+		THROW_MEM(attr_data.pbData = new BYTE[cb_stamp_encoded]);
+		memzero(attr_data.pbData, cb_stamp_encoded);
+		memcpy(attr_data.pbData, pb_stamp_encoded, cb_stamp_encoded);
+		attr_data.cbData = cb_stamp_encoded;
+		INITWINAPISTRUCT(attr_para);
+		attr_para.dwSignerIndex = signerNumber - 1;
+		attr_para.blob = attr_data;
+		THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_SIGNER_UNAUTH_ATTR, &attr_para), PPERR_EDS_TSPFAILED);
+
+		// Получаем размер сообщения
+		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_stamped_data), PPERR_EDS_TSPFAILED);
+		// Выделяем память для сообщения
+		THROW_MEM(pb_stamped_data = new BYTE[cb_stamped_data]);
+		memzero(pb_stamped_data, cb_stamped_data);
+		// Получаем сообщение
+		THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_stamped_data, &cb_stamped_data), PPERR_EDS_TSPFAILED);
+		THROW_SL(file.Open("test_stamped.p7s", SFile::mWrite | SFile::mBinary));
+		file.Write(pb_stamped_data, cb_stamped_data);
 		file.Close();
 	}
-
-	// Добавляем штмап в атрибут подписи
-	// Сначала раскодируем
-	cb_stamp_data = buf.GetSize() - pos - 4 - 9; // Почему тут еще 9? Да потому что первые 9 байт
-	// в ответе - общая инфа об этом самом ответе. А дальше уже идет непосредственно
-	// штамп времени.
-	THROW_MEM(pb_stamp_data = new BYTE[cb_stamp_data]);
-	memzero(pb_stamp_data, cb_stamp_data);
-	memcpy(pb_stamp_data, buf.GetBufU8() + pos + 4 + 9, cb_stamp_data);
-	THROW_PP(stamp_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
-    // Добавим в h_msg инфу о подписях
-	THROW_PP(CryptMsgUpdate(stamp_msg, pb_stamp_data, cb_stamp_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);
-	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_stamp_decoded), PPERR_EDS_TSPFAILED);
-	THROW_MEM(pb_stamp_decoded = new BYTE[cb_stamp_decoded]);
-	memzero(pb_stamp_decoded, cb_stamp_decoded);
-	THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_stamp_decoded, &cb_stamp_decoded), PPERR_EDS_TSPFAILED);
-
-	// теперь закодируем отдельно добавляемую информацию
-	attr.pszObjId = szOID_KP_TIME_STAMP_SIGNING;
-	attr.cValue = 1;
-	attr.rgValue = 0;
-	THROW_MEM(attr.rgValue = new CRYPT_ATTR_BLOB[sizeof(PCRYPT_ATTR_BLOB)]);
-	attr.rgValue->cbData = cb_stamp_decoded;
-	THROW_MEM(attr.rgValue->pbData = new BYTE[attr.rgValue->cbData]);
-	memzero(attr.rgValue->pbData, attr.rgValue->cbData);
-	memcpy(attr.rgValue->pbData, pb_stamp_decoded, attr.rgValue->cbData);
-	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, NULL, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
-    THROW_MEM(pb_stamp_encoded = new BYTE[cb_stamp_encoded]);
-	memzero(pb_stamp_encoded, cb_stamp_encoded);
-	THROW_PP(CryptEncodeObject(MY_ENCODING_TYPE, PKCS_ATTRIBUTE, &attr, pb_stamp_encoded, &cb_stamp_encoded), PPERR_EDS_MSGOPENFAILED);
-
-	// Собственно добавляем штамп в неподписанные атрибуты подписи
-	THROW_MEM(attr_data.pbData = new BYTE[cb_stamp_encoded]);
-	memzero(attr_data.pbData, cb_stamp_encoded);
-	memcpy(attr_data.pbData, pb_stamp_encoded, cb_stamp_encoded);
-	attr_data.cbData = cb_stamp_encoded;
-	INITWINAPISTRUCT(attr_para);
-	attr_para.dwSignerIndex = signerNumber - 1;
-	attr_para.blob = attr_data;
-	THROW_PP(CryptMsgControl(h_msg, 0, CMSG_CTRL_ADD_SIGNER_UNAUTH_ATTR, &attr_para), PPERR_EDS_TSPFAILED);
-
-	// Получаем размер сообщения
-    THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, NULL, &cb_stamped_data), PPERR_EDS_TSPFAILED);
-    // Выделяем память для сообщения
-	THROW_MEM(pb_stamped_data = new BYTE[cb_stamped_data]);
-	memzero(pb_stamped_data, cb_stamped_data);
-    // Получаем сообщение
-    THROW_PP(CryptMsgGetParam(h_msg, CMSG_ENCODED_MESSAGE, 0, pb_stamped_data, &cb_stamped_data), PPERR_EDS_TSPFAILED);
-	THROW_SL(file.Open("test_stamped.p7s", SFile::mWrite | SFile::mBinary));
-	file.Write(pb_stamped_data, cb_stamped_data);
-	file.Close();
 	CATCHZOK
 	WSACleanup();
 	ZDELETE(p_indata);
