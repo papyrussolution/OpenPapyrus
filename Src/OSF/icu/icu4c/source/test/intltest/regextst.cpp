@@ -11,7 +11,6 @@
 //
 //      ICU Regular Expressions test, part of intltest.
 //
-
 /*
      NOTE!!
 
@@ -30,7 +29,6 @@
 #include "unicode/uniset.h"
 #include "regextst.h"
 #include "regexcmp.h"
-#include "uinvchar.h"
 
 #define SUPPORT_MUTATING_INPUT_STRING   0
 

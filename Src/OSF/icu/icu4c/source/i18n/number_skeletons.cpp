@@ -17,7 +17,6 @@
 #include "patternprops.h"
 #include "number_utils.h"
 #include "number_decimalquantity.h"
-#include "uinvchar.h"
 #include "string_segment.h"
 #include "measunit_impl.h"
 

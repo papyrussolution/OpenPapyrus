@@ -9,12 +9,6 @@
 #pragma hdrstop
 
 #if !UCONFIG_NO_TRANSLITERATION
-
-#include "anytrans.h"
-#include "nultrans.h"
-#include "tridpars.h"
-#include "uinvchar.h"
-
 //------------------------------------------------------------
 // Constants
 

@@ -1,23 +1,15 @@
+// cstrtest.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- * Copyright (C) 1998-2014, International Business Machines Corporation
- * and others.  All Rights Reserved.
- **********************************************************************
- *
- * File cstrtest.c
- *
+ * Copyright (C) 1998-2014, International Business Machines Corporation and others.  All Rights Reserved.
  * Modification History:
- *
  *   Date        Name        Description
  *   07/13/2000  Madhu         created
- *******************************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"
-#include "uinvchar.h"
 #include "cintltst.h"
 
 static void TestAPI();

@@ -9,7 +9,6 @@
 #include "locdistance.h"
 #include "loclikelysubtags.h"
 #include "ucln_cmn.h"
-#include "uinvchar.h"
 
 U_NAMESPACE_BEGIN
 

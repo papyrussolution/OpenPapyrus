@@ -222,5 +222,29 @@
 #include "collationdata.h"
 #include "csmatch.h"
 #include "uarrsort.h"
+// 
+// Integer division and modulo with negative numerators
+// yields negative modulo results and quotients that are one more than
+// what we need here.
+// This macro adjust the results so that the modulo-value m is always >=0.
+// For positive n, the if() condition is always FALSE.
+// @param n Number to be split into quotient and rest. Will be modified to contain the quotient.
+// @param d Divisor.
+// @param m Output variable for the rest (modulo result).
+// 
+#define NEGDIVMOD(n, d, m) UPRV_BLOCK_MACRO_BEGIN { \
+		(m) = (n)%(d); \
+		(n) /= (d); \
+		if((m) < 0) { \
+			--(n); \
+			(m) += (d); \
+		} \
+} UPRV_BLOCK_MACRO_END
+
+#include "anytrans.h"
+#include "nultrans.h"
+#include "tridpars.h"
+#include "uinvchar.h"
+#include "bocsu.h"
 
 #endif // } __ICU_INTERNAL_H

@@ -13,7 +13,6 @@
 #include "static_unicode_sets.h"
 #include "ucln_cmn.h"
 #include "uenumimp.h"
-#include "uinvchar.h"
 #include "uresimp.h"
 #include "ulist.h"
 #include "uresimp.h"

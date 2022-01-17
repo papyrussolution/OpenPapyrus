@@ -142,8 +142,7 @@
  * to trail byte values 0..19 (0..0x13) as used in the difference calculation.
  * External byte values that are illegal as trail bytes are mapped to -1.
  */
-static const int8_t
-bocu1ByteToTrail[BOCU1_MIN] = {
+static const int8_t bocu1ByteToTrail[BOCU1_MIN] = {
 /* 0     1     2     3     4     5     6     7    */
 	-1,   0x00, 0x01, 0x02, 0x03, 0x04, 0x05, -1,
 
@@ -159,14 +158,12 @@ bocu1ByteToTrail[BOCU1_MIN] = {
 /* 20   */
 	-1
 };
-
 /*
  * Byte value map for control codes,
  * from trail byte values 0..19 (0..0x13) as used in the difference calculation
  * to external byte values 0x00..0x20.
  */
-static const int8_t
-    bocu1TrailToByte[BOCU1_TRAIL_CONTROLS_COUNT] = {
+static const int8_t bocu1TrailToByte[BOCU1_TRAIL_CONTROLS_COUNT] = {
 /* 0     1     2     3     4     5     6     7    */
 	0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x10, 0x11,
 
@@ -176,7 +173,7 @@ static const int8_t
 /* 10    11    12    13   */
 	0x1c, 0x1d, 0x1e, 0x1f
 };
-
+#if 0 // (moved to icu-internal.h)
 /**
  * Integer division and modulo with negative numerators
  * yields negative modulo results and quotients that are one more than
@@ -198,6 +195,7 @@ static const int8_t
 			(m) += (d); \
 		} \
 } UPRV_BLOCK_MACRO_END
+#endif // }
 
 /* Faster versions of packDiff() for single-byte-encoded diff values. */
 

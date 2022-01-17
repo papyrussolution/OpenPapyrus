@@ -13,13 +13,37 @@
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -32,12 +56,44 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -130,8 +186,80 @@
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllRelease'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerRelease'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
   <!-- Options that are common to all 'Debug' configurations for *all* projects. -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllDebug'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerDebug'">
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </Midl>
@@ -201,7 +329,11 @@
     <IntDir Condition="'$(Platform)'=='Win32'">\papyrus\__TEMP__\VC2017\icu\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <!-- Disable Incremental Linking for Release builds as it prevents Link-time Code Generation -->
     <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='MtDllDebug'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='ServerDebug'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='MtDllRelease'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='ServerRelease'">false</LinkIncremental>
   </PropertyGroup>
   <!-- Options that are common to *all* "common" project configurations -->
   <ItemDefinitionGroup>
@@ -270,6 +402,106 @@
       <TargetMachine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllDebug'">
+    <ClCompile>
+      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformation>false</BrowseInformation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</BufferSecurityCheck>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</OmitFramePointers>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+      </PrecompiledHeaderFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+      </BrowseInformationFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+      </BrowseInformationFile>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
+      <ProgramDatabaseFile>.\..\..\$(IcuLibOutputDir)\icuucd.pdb</ProgramDatabaseFile>
+      <ImportLibrary>..\..\$(IcuLibOutputDir)\icuucd.lib</ImportLibrary>
+    </Link>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerDebug'">
+    <ClCompile>
+      <PreprocessorDefinitions>U_STATIC_IMPLEMENTATION;RBBI_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformation>false</BrowseInformation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</BufferSecurityCheck>
+      <StringPooling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</StringPooling>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Default</BasicRuntimeChecks>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</BufferSecurityCheck>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</OmitFramePointers>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+      </PrecompiledHeaderFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+      </BrowseInformationFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+      </BrowseInformationFile>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
+      <ProgramDatabaseFile>.\..\..\$(IcuLibOutputDir)\icuucd.pdb</ProgramDatabaseFile>
+      <ImportLibrary>..\..\$(IcuLibOutputDir)\icuucd.lib</ImportLibrary>
+    </Link>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
   <!-- Options that are common to all 'Release' project configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -313,17 +545,129 @@
       <TargetMachine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MachineX86</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='MtDllRelease'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</BufferSecurityCheck>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</OmitFramePointers>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+      </PrecompiledHeaderFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+      </BrowseInformationFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+      </BrowseInformationFile>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
+      <ProgramDatabaseFile>.\..\..\$(IcuLibOutputDir)\icuuc.pdb</ProgramDatabaseFile>
+      <ImportLibrary>..\..\$(IcuLibOutputDir)\icuuc.lib</ImportLibrary>
+    </Link>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerRelease'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</BufferSecurityCheck>
+      <BufferSecurityCheck Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</BufferSecurityCheck>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</OmitFramePointers>
+      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</OmitFramePointers>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+      </PrecompiledHeaderFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+      </BrowseInformationFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+      </BrowseInformationFile>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
+      <ProgramDatabaseFile>.\..\..\$(IcuLibOutputDir)\icuuc.pdb</ProgramDatabaseFile>
+      <ImportLibrary>..\..\$(IcuLibOutputDir)\icuuc.lib</ImportLibrary>
+    </Link>
+    <Lib>
+      <TargetMachine Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\icu\icu4c\source\common\filteredbrk.cpp" />
     <ClCompile Include="..\OSF\icu\icu4c\source\common\icu-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\osf\icu\icu4c\source\common\ubidi.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\common\ubiditransform.cpp" />
@@ -682,13 +1026,29 @@
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\region.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\reldatefmt.cpp">
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</DisableLanguageExtensions>
     </ClCompile>
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\reldtfmt.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\i18n\rematch.cpp" />
@@ -775,13 +1135,29 @@
     <ClCompile Include="..\osf\icu\icu4c\source\io\sscanf.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\io\ucln_io.cpp">
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</DisableLanguageExtensions>
     </ClCompile>
     <ClCompile Include="..\osf\icu\icu4c\source\io\ufile.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\io\ufmt_cmn.cpp" />
@@ -792,26 +1168,58 @@
     <ClCompile Include="..\osf\icu\icu4c\source\io\ustdio.cpp" />
     <ClCompile Include="..\osf\icu\icu4c\source\io\ustream.cpp">
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">false</DisableLanguageExtensions>
       <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</DisableLanguageExtensions>
+      <DisableLanguageExtensions Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</DisableLanguageExtensions>
     </ClCompile>
     <ClCompile Include="..\osf\icu\icu4c\source\common\sharedobject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\osf\icu\icu4c\source\common\common.rc">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|ARM'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\osf\icu\icu4c\include;..\osf\icu\icu4c\include\internal;..\Include</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>

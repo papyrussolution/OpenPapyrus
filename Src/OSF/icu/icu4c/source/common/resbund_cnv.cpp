@@ -19,14 +19,10 @@
  */
 #include <icu-internal.h>
 #pragma hdrstop
-#include "uinvchar.h"
 
 U_NAMESPACE_BEGIN
 
-ResourceBundle::ResourceBundle(const UnicodeString & path,
-    const Locale & locale,
-    UErrorCode & error)
-	: UObject(), fLocale(NULL)
+ResourceBundle::ResourceBundle(const UnicodeString & path, const Locale & locale, UErrorCode & error) : UObject(), fLocale(NULL)
 {
 	constructForLocale(path, locale, error);
 }

@@ -195,8 +195,6 @@ UObject * UObjectTest::testClassNoClassID(UObject * obj, const char * className,
 #include "cpdtrans.h"
 #include "rbt.h"
 #include "rbt_data.h"
-#include "nultrans.h"
-#include "anytrans.h"
 #include "esctrn.h"
 #include "funcrepl.h"
 #include "servnotf.h"

@@ -9,7 +9,6 @@
 #include "loclikelysubtags.h"
 #include "lsr.h"
 #include "ucln_cmn.h"
-#include "uinvchar.h"
 #include "uniquecharstr.h"
 #include "uresdata.h"
 #include "uresimp.h"

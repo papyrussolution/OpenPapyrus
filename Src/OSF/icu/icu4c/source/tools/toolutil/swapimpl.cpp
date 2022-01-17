@@ -1,20 +1,11 @@
+// swapimpl.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 2005-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  swapimpl.cpp
+ *   Copyright (C) 2005-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   created on: 2005may05
  *   created by: Markus W. Scherer
- *
  *   Data file swapping functions moved here from the common library
  *   because some data is hardcoded in ICU4C and needs not be swapped any more.
  *   Moving the functions here simplifies testing (for code coverage) because
@@ -30,7 +21,6 @@
 /* Explicit include statement for std_string.h is needed
  * for compilation on certain platforms. (e.g. AIX/VACPP)
  */
-#include "uinvchar.h"
 #include "uarrsort.h"
 #include "ucmndata.h"
 #include "udataswp.h"

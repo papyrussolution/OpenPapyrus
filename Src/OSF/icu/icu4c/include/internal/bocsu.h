@@ -1,21 +1,13 @@
+// bocsu.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-*******************************************************************************
-*   Copyright (C) 2001-2014, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*******************************************************************************
-*   file name:  bocsu.h
+*   Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
 *   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
 *   Author: Markus W. Scherer
-*
 *   Modification history:
 *   05/18/2001  weiv    Made into separate module
 */
-
 #ifndef BOCSU_H
 #define BOCSU_H
 
@@ -138,7 +130,7 @@ U_NAMESPACE_END
 
 #define SLOPE_START_NEG_2   (SLOPE_MIDDLE+SLOPE_REACH_NEG_1)
 #define SLOPE_START_NEG_3   (SLOPE_START_NEG_2-SLOPE_LEAD_2)
-
+#if 0 // (moved to icu-internal.h)
 /*
  * Integer division and modulo with negative numerators
  * yields negative modulo results and quotients that are one more than
@@ -152,6 +144,7 @@ U_NAMESPACE_END
         (m)+=(d); \
     } \
 } UPRV_BLOCK_MACRO_END
+#endif
 
 U_CFUNC UChar32
 u_writeIdenticalLevelRun(UChar32 prev, const UChar *s, int32_t length, icu::ByteSink &sink);

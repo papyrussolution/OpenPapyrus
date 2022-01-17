@@ -23,7 +23,6 @@
 #include "ucnv_bld.h"
 #include "ucnv_imp.h"
 #include "ucnv_cnv.h"
-#include "uinvchar.h"
 #include "filestrm.h"
 #include "toolutil.h"
 #include "uoptions.h"

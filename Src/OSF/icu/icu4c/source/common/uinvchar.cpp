@@ -1,27 +1,17 @@
+// uinvchar.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2010, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uinvchar.c
+ *   Copyright (C) 1999-2010, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:2
- *
  *   created on: 2004sep14
  *   created by: Markus W. Scherer
- *
  *   Functions for handling invariant characters, moved here from putil.c
  *   for better modularization.
  */
 #include <icu-internal.h>
 #pragma hdrstop
 #include "udataswp.h"
-#include "uinvchar.h"
 
 /* invariant-character handling --------------------------------------------- */
 

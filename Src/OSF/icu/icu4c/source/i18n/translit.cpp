@@ -1,21 +1,16 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1999-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
+ *   Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date        Name        Description
  *   11/17/99    aliu        Creation.
- **********************************************************************
- */
+  */
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_TRANSLITERATION
 
 #include "cpdtrans.h"
-#include "nultrans.h"
 #include "rbt_data.h"
 #include "rbt_pars.h"
 #include "rbt.h"
@@ -30,10 +25,7 @@
 #include "brktrans.h"
 #include "esctrn.h"
 #include "unesctrn.h"
-#include "tridpars.h"
-#include "anytrans.h"
 #include "ucln_in.h"
-#include "uinvchar.h"
 
 static const UChar TARGET_SEP  = 0x002D; /*-*/
 static const UChar ID_DELIM    = 0x003B; /*;*/

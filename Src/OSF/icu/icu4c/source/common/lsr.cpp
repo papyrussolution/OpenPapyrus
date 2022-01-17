@@ -7,7 +7,6 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "lsr.h"
-#include "uinvchar.h"
 #include "ustr_imp.h"
 
 U_NAMESPACE_BEGIN

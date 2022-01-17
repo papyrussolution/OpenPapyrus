@@ -1,20 +1,15 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (c) 2002-2014, International Business Machines Corporation
- *   and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
+ *   Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
+  *   Date        Name        Description
  *   01/14/2002  aliu        Creation.
- **********************************************************************
- */
+  */
 #include <icu-internal.h>
 #pragma hdrstop
 
 #if !UCONFIG_NO_TRANSLITERATION
 
-#include "tridpars.h"
 #include "transreg.h"
 #include "ucln_in.h"
 

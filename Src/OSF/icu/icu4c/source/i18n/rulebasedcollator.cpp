@@ -1,14 +1,9 @@
+// rulebasedcollator.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 1996-2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * rulebasedcollator.cpp
- *
+ * Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
  * (replaced the former tblcoll.cpp)
- *
  * created on: 2012feb14 with new and old collation code
  * created by: Markus W. Scherer
  */
@@ -17,7 +12,6 @@
 
 #if !UCONFIG_NO_COLLATION
 
-#include "bocsu.h"
 #include "collationcompare.h"
 #include "collationdatareader.h"
 #include "collationfastlatin.h"

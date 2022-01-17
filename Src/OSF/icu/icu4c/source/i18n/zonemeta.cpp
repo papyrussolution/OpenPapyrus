@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- * Copyright (C) 2007-2014, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
+ Copyright (C) 2007-2014, International Business Machines Corporation and others. All Rights Reserved.
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -16,7 +13,6 @@
 #include "ucln_in.h"
 #include "uresimp.h"
 #include "olsontz.h"
-#include "uinvchar.h"
 
 static icu::UMutex gZoneMetaLock;
 

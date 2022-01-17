@@ -16,7 +16,6 @@
 #include "ucln_cmn.h"
 #include "uprops.h"
 #include "propname.h"
-#include "uinvchar.h"
 #include "uprops.h"
 
 U_NAMESPACE_USE

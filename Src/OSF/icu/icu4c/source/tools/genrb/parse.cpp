@@ -35,7 +35,6 @@
 #include "parse.h"
 #include "errmsg.h"
 #include "uhash.h"
-#include "uinvchar.h"
 #include "read.h"
 #include "ustr.h"
 #include "reslist.h"

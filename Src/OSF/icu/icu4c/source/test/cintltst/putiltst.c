@@ -20,7 +20,6 @@
 #include "unicode/icudataver.h"
 #include "putilimp.h"
 #include "toolutil.h"
-#include "uinvchar.h"
 #if U_PLATFORM_USES_ONLY_WIN32_API
 #include "wintz.h"
 #endif

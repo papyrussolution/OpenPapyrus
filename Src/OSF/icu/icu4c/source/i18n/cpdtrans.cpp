@@ -1,13 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (C) 1999-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
+ *   Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
  *   Date        Name        Description
  *   11/17/99    aliu        Creation.
- **********************************************************************
  */
 #include <icu-internal.h>
 #pragma hdrstop
@@ -15,7 +11,6 @@
 #if !UCONFIG_NO_TRANSLITERATION
 
 #include "cpdtrans.h"
-#include "tridpars.h"
 
 // keep in sync with Transliterator
 //static const UChar ID_SEP   = 0x002D; /*-*/

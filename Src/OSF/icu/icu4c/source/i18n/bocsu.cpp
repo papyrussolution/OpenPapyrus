@@ -1,17 +1,10 @@
+// bocsu.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *   Copyright (C) 2001-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  bocsu.cpp
+ *   Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
  *   Author: Markus W. Scherer
- *
  *   Modification history:
  *   05/18/2001  weiv    Made into separate module
  */
@@ -19,9 +12,6 @@
 #pragma hdrstop
 
 #if !UCONFIG_NO_COLLATION
-
-#include "bocsu.h"
-
 /*
  * encode one difference value -0x10ffff..+0x10ffff in 1..4 bytes,
  * preserving lexical order

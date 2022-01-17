@@ -21,7 +21,6 @@
  */
 #include <icu-internal.h>
 #pragma hdrstop
-#include "uinvchar.h"
 #include "ucmndata.h"
 #include "udataswp.h"
 #include "swapimpl.h"

@@ -19,7 +19,6 @@
 #include "strmatch.h"
 #include "strrepl.h"
 #include "unicode/symtable.h"
-#include "tridpars.h"
 #include "patternprops.h"
 #include "uprops.h"
 

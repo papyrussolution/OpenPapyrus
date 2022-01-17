@@ -7,7 +7,6 @@
 #pragma hdrstop
 #include "ustr_imp.h"
 #include "bytesinkutil.h"
-#include "uinvchar.h"
 #include "ulocimp.h"
 
 /* struct holding a single variant */

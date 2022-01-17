@@ -19,7 +19,6 @@
 #pragma hdrstop
 #include "unicode/ucnv.h" /* ucnv_compareNames() */
 #include "ucnv_io.h"
-#include "uinvchar.h"
 #include "filestrm.h"
 #include "toolutil.h"
 #include "unewdata.h"

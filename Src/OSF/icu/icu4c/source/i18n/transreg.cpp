@@ -1,14 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- **********************************************************************
- *   Copyright (c) 2001-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
+ *   Copyright (c) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
+  *   Date        Name        Description
  *   08/10/2001  aliu        Creation.
- **********************************************************************
- */
+  */
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -16,11 +12,9 @@
 
 #include "rbt.h"
 #include "cpdtrans.h"
-#include "nultrans.h"
 #include "transreg.h"
 #include "rbt_data.h"
 #include "rbt_pars.h"
-#include "tridpars.h"
 #include "locutil.h"
 
 // Enable the following symbol to add debugging code that tracks the

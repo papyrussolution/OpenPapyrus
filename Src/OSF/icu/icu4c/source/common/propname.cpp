@@ -14,8 +14,6 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "propname.h"
-#include "uinvchar.h"
-
 #define INCLUDED_FROM_PROPNAME_CPP
 #include "propname_data.h"
 

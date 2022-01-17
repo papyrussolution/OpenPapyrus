@@ -1,24 +1,14 @@
+// uinvchar.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uinvchar.h
+ *   Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
  *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:2
- *
  *   created on: 2004sep14
  *   created by: Markus W. Scherer
- *
  *   Definitions for handling invariant characters, moved here from putil.c
  *   for better modularization.
  */
-
 #ifndef __UINVCHAR_H__
 #define __UINVCHAR_H__
 
