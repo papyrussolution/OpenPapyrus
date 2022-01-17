@@ -17,24 +17,19 @@
 #define ABSL_SYNCHRONIZATION_INTERNAL_WAITER_H_
 
 #include "absl/base/config.h"
-
 #ifdef _WIN32
-#include <sdkddkver.h>
+	#include <sdkddkver.h>
 #else
-#include <pthread.h>
+	#include <pthread.h>
 #endif
-
 #ifdef __linux__
-#include <linux/futex.h>
+	#include <linux/futex.h>
 #endif
-
 #ifdef ABSL_HAVE_SEMAPHORE_H
-#include <semaphore.h>
+	#include <semaphore.h>
 #endif
-
 #include <atomic>
 #include <cstdint>
-
 #include "absl/base/internal/thread_identity.h"
 #include "absl/synchronization/internal/futex.h"
 #include "absl/synchronization/internal/kernel_timeout.h"

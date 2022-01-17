@@ -15,7 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/synchronization/notification.h"
-#include "absl/synchronization/mutex.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

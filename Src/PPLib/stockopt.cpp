@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -117,7 +117,7 @@ public:
 		Data.SoCfg.MaxSales = getCtrlReal(sel = CTL_STOCKOPTCFG_MAXSALES);
 		THROW_SL(checkfrange(Data.SoCfg.MaxSales, 0.0, 1.0E9));
 		Data.SoCfg.MaxItems = (uint)getCtrlLong(sel = CTL_STOCKOPTCFG_MAXITEMS);
-		THROW_SL(checkirange((long)Data.SoCfg.MaxItems, 0, 1000000));
+		THROW_SL(checkirange(static_cast<long>(Data.SoCfg.MaxItems), 0L, 1000000L));
 		ASSIGN_PTR(pData, Data.SoCfg);
 		CATCH
 			ok = PPErrorByDialog(this, sel, PPERR_SLIB);

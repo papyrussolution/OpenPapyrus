@@ -20,7 +20,6 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
-
 #include "absl/base/attributes.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/types/optional.h"

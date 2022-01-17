@@ -420,7 +420,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		}
 		xtic_textwidth = maxrightlabel - V.BbPlot.xright;
 		if(xtic_textwidth > static_cast<int>(pTerm->MulMaxX(0.25f))) {
-			xtic_textwidth = pTerm->MulMaxX(0.25f);
+			xtic_textwidth = static_cast<int>(pTerm->MulMaxX(0.25f));
 			IntWarn(NO_CARET, "difficulty making room for xtic labels");
 		}
 	}

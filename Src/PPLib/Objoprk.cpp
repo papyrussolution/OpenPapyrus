@@ -3333,8 +3333,8 @@ int FASTCALL IsIntrOp(PPID opID)
 	return r;
 }
 
-int FASTCALL IsIntrExpndOp(PPID opID) { return BIN(IsIntrOp(opID) == INTREXPND); }
-int FASTCALL IsGenericOp(PPID opID) { return opID ? BIN(GetOpType(opID) == PPOPT_GENERIC) : -1; }
+bool FASTCALL IsIntrExpndOp(PPID opID) { return (IsIntrOp(opID) == INTREXPND); }
+int  FASTCALL IsGenericOp(PPID opID) { return opID ? BIN(GetOpType(opID) == PPOPT_GENERIC) : -1; }
 
 int FASTCALL IsDraftOp(PPID opID)
 {

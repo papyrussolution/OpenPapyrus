@@ -14,9 +14,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/charconv.h"
-#include "absl/strings/internal/charconv_bigint.h"
-#include "absl/strings/internal/charconv_parse.h"
 
 // The macro ABSL_BIT_PACK_FLOATS is defined on x86-64, where IEEE floating
 // point numbers have the same endianness in memory as a bitfield struct

@@ -59,7 +59,6 @@
 #include <iterator>
 #include <type_traits>
 #include <utility>
-
 #include "absl/base/internal/throw_delegate.h"
 #include "absl/base/macros.h"
 #include "absl/base/optimization.h"

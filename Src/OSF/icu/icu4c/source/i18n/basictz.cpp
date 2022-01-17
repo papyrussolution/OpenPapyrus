@@ -1,11 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2013, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+//
+// Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -52,9 +49,7 @@ bool BasicTimeZone::hasEquivalentTransitions(const BasicTimeZone& tz, UDate star
 		return FALSE;
 	}
 	if(ignoreDstAmount) {
-		if((raw1 + dst1 != raw2 + dst2)
-		 || (dst1 != 0 && dst2 == 0)
-		 || (dst1 == 0 && dst2 != 0)) {
+		if((raw1 + dst1 != raw2 + dst2) || (dst1 != 0 && dst2 == 0) || (dst1 == 0 && dst2 != 0)) {
 			return FALSE;
 		}
 	}
@@ -69,15 +64,11 @@ bool BasicTimeZone::hasEquivalentTransitions(const BasicTimeZone& tz, UDate star
 	while(true) {
 		bool avail1 = getNextTransition(time, FALSE, tr1);
 		bool avail2 = tz.getNextTransition(time, FALSE, tr2);
-
 		if(ignoreDstAmount) {
 			// Skip a transition which only differ the amount of DST savings
 			while(true) {
-				if(avail1
-				 && tr1.getTime() <= end
-				 && (tr1.getFrom()->getRawOffset() + tr1.getFrom()->getDSTSavings()
-				    == tr1.getTo()->getRawOffset() + tr1.getTo()->getDSTSavings())
-				 && (tr1.getFrom()->getDSTSavings() != 0 && tr1.getTo()->getDSTSavings() != 0)) {
+				if(avail1 && tr1.getTime() <= end && (tr1.getFrom()->getRawOffset() + tr1.getFrom()->getDSTSavings() == 
+					tr1.getTo()->getRawOffset() + tr1.getTo()->getDSTSavings()) && (tr1.getFrom()->getDSTSavings() != 0 && tr1.getTo()->getDSTSavings() != 0)) {
 					getNextTransition(tr1.getTime(), FALSE, tr1);
 				}
 				else {

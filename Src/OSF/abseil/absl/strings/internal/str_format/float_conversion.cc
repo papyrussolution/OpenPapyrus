@@ -17,8 +17,6 @@
 #include "absl/strings/internal/str_format/float_conversion.h"
 #include "absl/functional/function_ref.h"
 #include "absl/numeric/internal/representation.h"
-#include "absl/types/optional.h"
-#include "absl/types/span.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

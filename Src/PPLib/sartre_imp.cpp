@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -714,7 +714,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 									if(anc_buf.NotEmptyS()) {
 										uint   anc_id = 0;
 										SrFlexiaModel::Item item;
-										if(anc_tab.Search(anc_buf, &anc_id, 0) > 0) {
+										if(anc_tab.Search(anc_buf, &anc_id, 0)) {
 											if(afx_buf.NotEmptyS()) {
 												afx_buf.ToUtf8().Utf8ToLower();
 												THROW(P_WdT->AddSpecial(SrWordTbl::spcAffix, afx_buf, &item.AffixID));
@@ -850,7 +850,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 											scan.IncrLen(1);
 											item_buf.Strip(); // базовый ancode
 											uint   anc_id = 0;
-											if(!(item_buf == "-") && anc_tab.Search(item_buf, &anc_id, 0) > 0)
+											if(!(item_buf == "-") && anc_tab.Search(item_buf, &anc_id, 0))
 												wa.BaseFormID = anc_id;
 											SETIFZ(wa.BaseFormID, base_skeleton_wf_id);
 											if(scan.Skip().SearchChar(' ')) {

@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // Штатное расписание
 //
@@ -22,8 +22,8 @@ int SetupStaffListCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID orgID
 IMPL_INVARIANT_C(StaffAmtEntry)
 {
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(checkirange(AmtTypeID, 1, 0x00ffffff), pInvP);
-	S_ASSERT_P(checkirange(CurID, 1, 0x00ffffff), pInvP);
+	S_ASSERT_P(checkirange(AmtTypeID, 1L, 0x00ffffffL), pInvP);
+	S_ASSERT_P(checkirange(CurID, 1L, 0x00ffffffL), pInvP);
 	S_ASSERT(Period.InvariantC(pInvP));
 	S_ASSERT_P(checkfrange(Amt, 0, 1.E9), pInvP);
 	S_INVARIANT_EPILOG(pInvP);

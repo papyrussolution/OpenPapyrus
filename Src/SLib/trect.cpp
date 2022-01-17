@@ -230,10 +230,10 @@ FRect::FRect(const TRect & r)
 
 FRect::FRect(const RECT & r) // @v11.2.11
 {
-	a.x = r.left;
-	a.y = r.top;
-	b.x = r.right;
-	b.y = r.bottom;
+	a.x = static_cast<float>(r.left);
+	a.y = static_cast<float>(r.top);
+	b.x = static_cast<float>(r.right);
+	b.y = static_cast<float>(r.bottom);
 }
 
 int FASTCALL FRect::operator == (const FRect & rS) const { return IsEq(rS); }

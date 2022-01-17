@@ -19,7 +19,6 @@
 #include "absl/flags/config.h"
 #include "absl/flags/internal/commandlineflag.h"
 #include "absl/flags/usage_config.h"
-#include "absl/synchronization/mutex.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

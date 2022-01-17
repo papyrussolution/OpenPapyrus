@@ -19,7 +19,6 @@
 #include "absl/debugging/stacktrace.h"
 #include "absl/profiling/internal/exponential_biased.h"
 #include "absl/profiling/internal/sample_recorder.h"
-#include "absl/synchronization/mutex.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

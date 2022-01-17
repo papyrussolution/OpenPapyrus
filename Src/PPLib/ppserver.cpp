@@ -3793,7 +3793,7 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			case PPSCMD_SUSPEND:
 				if(pEv->GetParam(1, name) > 0) { //if(PPGetExtStrData(1, pEv->Params, name) > 0) {
 					const long timeout = name.ToLong();
-					if(checkirange(timeout, 1, 1000000))
+					if(checkirange(timeout, 1L, 1000000L))
 						SuspendTimeout = timeout * 1000;
 				}
 				rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));

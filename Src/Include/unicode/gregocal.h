@@ -1,14 +1,9 @@
+// GREGOCAL.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-* Copyright (C) 1997-2013, International Business Machines Corporation and others.
-* All Rights Reserved.
-********************************************************************************
-*
-* File GREGOCAL.H
-*
+* Copyright (C) 1997-2013, International Business Machines Corporation and others. All Rights Reserved.
 * Modification History:
-*
 *   Date        Name        Description
 *   04/22/97    aliu        Overhauled header.
 *    07/28/98    stephen        Sync with JDK 1.2
@@ -20,20 +15,16 @@
 *   10/15/99    aliu        Fixed j32, cannot set date to Feb 29 2000 AD.
 *                           {JDK bug 4210209 4209272}
 *   11/07/2003  srl         Update, clean up documentation.
-********************************************************************************
 */
-
 #ifndef GREGOCAL_H
 #define GREGOCAL_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/calendar.h"
-
 /**
  * \file 
  * \brief C++ API: Concrete class which provides the standard calendar.

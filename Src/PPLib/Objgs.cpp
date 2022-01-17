@@ -1081,7 +1081,7 @@ void GSDialog::ViewHierarchy() // @v11.2.11
 		GoodsStrucProcessingBlock Cb;
 		SmartListBox * P_Box;
 	};
-	GoodsStrucHierarchyDialog * dlg = new GoodsStrucHierarchyDialog(0, Data.Rec.ID);
+	GoodsStrucHierarchyDialog * dlg = new GoodsStrucHierarchyDialog(Data.GoodsID, Data.Rec.ID);
 	ExecViewAndDestroy(dlg);
 }
 

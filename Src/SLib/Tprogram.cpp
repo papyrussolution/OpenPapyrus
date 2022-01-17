@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -663,7 +663,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			ReleaseCapture();
 			RECT rc;
 			::GetClientRect(hWnd, &rc);
-			if(checkirange(LOWORD(lParam), 0, rc.right) && checkirange(HIWORD(lParam), 0, rc.bottom))
+			if(checkirange(static_cast<long>(LOWORD(lParam)), 0L, rc.right) && checkirange(static_cast<long>(HIWORD(lParam)), 0L, rc.bottom))
 				::SendMessage(p_pgm->GetFrameWindow(), WM_USER_CLOSEBROWSER, 0, 0);
 			SetFocus(p_pgm->H_MainWnd);
 			break;

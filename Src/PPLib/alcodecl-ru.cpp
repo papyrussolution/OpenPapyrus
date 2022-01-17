@@ -1,5 +1,5 @@
 // ALCODECL-RU.CPP
-// Copyright (c) A.Sobolev 2021
+// Copyright (c) A.Sobolev 2021, 2022
 // @codepage UTF-8
 // Алкогольная декларация (Россия)
 //
@@ -1531,29 +1531,31 @@ int PPViewAlcoDeclRu::Export()
 										GetRcptChunkForExport(div_id, alco_code_id, manuf_id, suppl_id, temp_rcpt_list);
 										for(uint ridx = 0; ridx < temp_rcpt_list.getCount(); ridx++) {
 											const InnerRcptEntry & r_entry = temp_rcpt_list.at(ridx);
-											BillTbl::Rec suppl_bill_rec;
-											if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
-												if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
-													bill_code_buf = billext.InvoiceCode;
-												else {
-													// @v11.1.12 BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
-													bill_code_buf = suppl_bill_rec.Code; // @v11.1.12 
-												}
-												bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
-												assert(suppl_bill_rec.Dt == r_entry.BillDt);
-												if(r_entry.ItemKind == 0) {
-													SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLY));
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
-												}
-												else if(r_entry.ItemKind == 1) {
-													SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
-													n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
+											if(!feqeps(r_entry.Qtty, 0.0, 1E-7)) { // @v11.2.11 мудацкие сервисы мудацкого росалкогольрегулирования не принимают нули
+												BillTbl::Rec suppl_bill_rec;
+												if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
+													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])
+														bill_code_buf = billext.InvoiceCode;
+													else {
+														// @v11.1.12 BillCore::GetCode(bill_code_buf = suppl_bill_rec.Code);
+														bill_code_buf = suppl_bill_rec.Code; // @v11.1.12 
+													}
+													bill_code_buf.Transf(CTRANSF_INNER_TO_OUTER);
+													assert(suppl_bill_rec.Dt == r_entry.BillDt);
+													if(r_entry.ItemKind == 0) {
+														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLY));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
+													}
+													else if(r_entry.ItemKind == 1) {
+														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
+													}
 												}
 											}
 										}

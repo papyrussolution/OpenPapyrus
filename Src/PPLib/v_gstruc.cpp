@@ -309,14 +309,14 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 		}
 	}
 	if(GSObj.Get(strucID, &struc) > 0) {
-		const  int  folder = BIN(struc.Rec.Flags & GSF_FOLDER);
-		const  uint count  = folder ? struc.Children.getCount() : struc.Items.getCount();
+		const  bool is_folder = LOGIC(struc.Rec.Flags & GSF_FOLDER);
+		const  uint count  = is_folder ? struc.Children.getCount() : struc.Items.getCount();
 		if(count) {
 			SString temp_buf;
 			SString struc_name;
 			uint    struc_entry_pplus1 = 0;
 			for(uint i = 0; i < count; i++) {
-				if(folder) {
+				if(is_folder) {
 					const PPGoodsStruc * p_struc = struc.Children.at(i);
 					THROW(AddItem(goodsID, p_struc->Rec.ID, filtScndGroupID, filtScndID, checkExistance, recursive)); // @recursion
 				}
@@ -367,6 +367,12 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 						new_item.Denom = r_i.Denom;
 						new_item.Netto = r_i.Netto;
 						THROW_SL(ItemList.insert(&new_item));
+						if(recursive) {
+							PPGoodsStruc inner_struc;
+							if(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(new_item.GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc) > 0) {
+								THROW(AddItem(new_item.GoodsID, inner_struc.Rec.ID, filtScndGroupID, filtScndID, /*checkExistance*/true, /*recursive*/true));
+							}
+						}
 					}
 				}
 			}

@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -79,7 +79,7 @@ public:
 				for(uint c = 0; c < BillMultiPrintParam::pb__Count; c++) {
 					if(Data.FormBits & (1 << c)) {
 						long nc = GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c);
-						Data.CopyCounter[c] = (checkirange(nc, 1, 10)) ? static_cast<uint16>(nc) : 1;
+						Data.CopyCounter[c] = (checkirange(nc, 1L, 10L)) ? static_cast<uint16>(nc) : 1;
 						//rSelAry.Add(static_cast<PPID>(c+1), GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
 					}
 					else 

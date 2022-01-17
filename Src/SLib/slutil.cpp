@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -40,14 +40,28 @@ IMPL_CMPFUNC(_2int64, i1, i2)
 //
 // Check Range
 //
+bool STDCALL checkirange(int nmb, int low, int upp)
+{
+	if(nmb >= low && nmb <= upp)
+		return true;
+	else
+		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
+}
+
 bool STDCALL checkirange(long nmb, long low, long upp)
 {
 	if(nmb >= low && nmb <= upp)
 		return true;
-	else {
-		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
-		return false;
-	}
+	else
+		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
+}
+
+bool STDCALL checkirange(int64 nmb, int64 low, int64 upp)
+{
+	if(nmb >= low && nmb <= upp)
+		return true;
+	else
+		return SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low).CatCharN('.', 2).Cat(upp).CatChar(']'));
 }
 
 int    FASTCALL inrangeordefault(int val, int low, int upp, int def) { return (val >= low && val <= upp) ? val : def; }

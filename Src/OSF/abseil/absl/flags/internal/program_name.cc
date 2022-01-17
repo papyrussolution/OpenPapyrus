@@ -17,7 +17,6 @@
 #pragma hdrstop
 #include "absl/flags/internal/program_name.h"
 #include "absl/flags/internal/path_util.h"
-#include "absl/synchronization/mutex.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

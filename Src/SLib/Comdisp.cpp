@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -1081,7 +1081,7 @@ ComExcelWorksheet * ComExcelWorksheets::Enum(long * pPos)
 ComExcelWorksheet * ComExcelWorksheets::Get(long pos)
 {
 	ComExcelWorksheet * p_sheet = new ComExcelWorksheet;
-	THROW(checkirange(pos, 1, GetCount()));
+	THROW(checkirange(static_cast<int>(pos), 1, GetCount()));
 	THROW(SetParam(pos) > 0);
 	THROW(GetProperty(Item, static_cast<ComDispInterface *>(p_sheet)) > 0);
 	CATCH
@@ -1228,7 +1228,7 @@ ComExcelWorkbook * ComExcelWorkbooks::Enum(long * pPos)
 ComExcelWorkbook * ComExcelWorkbooks::Get(long pos)
 {
 	ComExcelWorkbook * p_wkbook = new ComExcelWorkbook;
-	THROW(checkirange(pos, 1, GetCount()));
+	THROW(checkirange(pos, 1L, GetCount()));
 	THROW(SetParam(pos) > 0);
 	THROW(CallMethod(Item, static_cast<ComDispInterface *>(p_wkbook)) > 0);
 	CATCH

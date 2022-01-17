@@ -31,7 +31,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 // This file is a no-op if the required LowLevelAlloc support is missing.
-#include "absl/base/internal/low_level_alloc.h"
 #ifndef ABSL_LOW_LEVEL_ALLOC_MISSING
 
 #include "absl/synchronization/internal/graphcycles.h"

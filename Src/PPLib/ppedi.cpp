@@ -1478,6 +1478,19 @@ public:
 			}
 			return result;
 		}
+		bool   GetLinkedOrderNumber(SString & rBuf) const
+		{
+			bool ok = false;
+			rBuf.Z();
+			for(uint rffidx = 0; !ok && rffidx < RefL.getCount(); rffidx++) {
+				const RefValue * p_rff = RefL.at(rffidx);
+				if(p_rff && p_rff->Q == refqON) {
+					rBuf = p_rff->Ref;
+					ok = true;
+				}
+			}
+			return ok;
+		}
 		LDATE  GetLinkedOrderDate() const
 		{
 			LDATE   result = ZERODATE;
@@ -3710,12 +3723,13 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 	int    ok = -1;
 	SString temp_buf;
 	SString addendum_msg_buf;
+	SString order_number;
 	xmlParserCtxt * p_ctx = static_cast<xmlParserCtxt *>(pCtx);
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
 	PPEdiProcessor::Packet * p_pack = 0;
 	PPBillPacket * p_bpack = 0; // is owned by p_pack
-	TSVector <DtmValue> dtm_temp_list;
+	//TSVector <DtmValue> dtm_temp_list;
 	DocumentValue document;
 	PPObjOprKind op_obj;
 	THROW(pProvider);
@@ -3727,13 +3741,13 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 		THROW(Read_CommonDocumentEntries(p_root->children, document));
 		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
 			if(SXml::IsName(p_n, "SG1")) {
-				dtm_temp_list.clear();
+				//dtm_temp_list.clear();
 				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::IsName(p_n2, "RFF")) {
 						THROW(Read_RFF(p_n2->children, document.RefL));
 					}
-					else if(SXml::IsName(p_n, "DTM")) {
-						THROW(Read_DTM(p_n2->children, dtm_temp_list));
+					else if(SXml::IsName(p_n2, "DTM")) {
+						THROW(Read_DTM(p_n2->children, document.DtmL));
 					}
 				}
 			}
@@ -3860,6 +3874,15 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 				if(checkdate(bill_due_dt, 0))
 					p_bpack->Rec.DueDate = bill_due_dt;
 				THROW(p_bpack->SetupObject(parties_blk.BillObjID, sob));
+				{
+					const LDATE  order_date = document.GetLinkedOrderDate();
+					document.GetLinkedOrderNumber(order_number);
+					if(order_number.NotEmptyS() && checkdate(order_date)) {
+						BillTbl::Rec ord_bill_rec;
+						if(pProvider->SearchLinkedBill(order_number, order_date, p_bpack->Rec.Object, PPEDIOP_ORDER, &ord_bill_rec) > 0)
+							p_bpack->Rec.LinkBillID = ord_bill_rec.ID;
+					}
+				}
 				for(i = 0; i < document.DetailL.getCount(); i++) {
 					const DocumentDetailValue * p_item = document.DetailL.at(i);
 					if(p_item) {
@@ -4033,7 +4056,6 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 		}
 		{
 			Goods2Tbl::Rec goods_rec;
-			SString order_number;
 			LDATE  order_date = document.GetLinkedOrderDate();
 			assert(p_bpack);
 			p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0/*link_bill_id*/, 0/*loc_id*/, 1);
@@ -4041,13 +4063,7 @@ int PPEanComDocument::Read_Document(PPEdiProcessor::ProviderImplementation * pPr
 			p_bpack->Rec.Dt = document.GetBillDate();
 			p_bpack->Rec.DueDate = document.GetBillDueDate();
 			STRNSCPY(p_bpack->Rec.Code, document.GetFinalBillCode());
-			{
-				for(uint rffidx = 0; rffidx < document.RefL.getCount(); rffidx++) {
-					const RefValue * p_rff = document.RefL.at(rffidx);
-					if(p_rff && p_rff->Q == refqON)
-						order_number = p_rff->Ref;
-				}
-			}
+			document.GetLinkedOrderNumber(order_number);
 			{
 				for(uint nadidx = 0; nadidx < document.PartyL.getCount(); nadidx++) {
 					const PartyValue * p_nad = document.PartyL.at(nadidx);
@@ -4640,7 +4656,7 @@ private:
 	int    ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack);
 	int    ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA);
 	int    ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	int    WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID);
+	int    WriteOwnFormatContractor(SXml::WDoc & rDoc, const char * pHeaderTag, PPID personID, PPID locID);
 	int    ReadOwnFormatContractor(xmlNode * pNode, OwnFormatContractor & rC);
 	int    Write_OwnFormat_ORDERS(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	//
@@ -4878,17 +4894,22 @@ int EdiProviderImplementation_Kontur::ReadCommonAttributes(const xmlNode * pNode
 	return ok;
 }
 
-int EdiProviderImplementation_Kontur::WriteOwnFormatContractor(SXml::WDoc & rDoc, PPID personID, PPID locID)
+int EdiProviderImplementation_Kontur::WriteOwnFormatContractor(SXml::WDoc & rDoc, const char * pHeaderTag, PPID personID, PPID locID)
 {
+	assert(!isempty(pHeaderTag));
 	int    ok = 1;
 	SString temp_buf;
-	if(locID) {
-		THROW(GetLocGLN(locID, temp_buf));
-		SXml::WNode n_gln(rDoc, "gln", temp_buf);
-	}
-	else if(personID) {
-		THROW(GetPersonGLN(personID, temp_buf));
-		SXml::WNode n_gln(rDoc, "gln", temp_buf);
+	THROW(!isempty(pHeaderTag));
+	{
+		SXml::WNode n_header(rDoc, pHeaderTag);
+		if(locID) {
+			THROW(GetLocGLN(locID, temp_buf));
+			SXml::WNode n_gln(rDoc, "gln", temp_buf);
+		}
+		else if(personID) {
+			THROW(GetPersonGLN(personID, temp_buf));
+			SXml::WNode n_gln(rDoc, "gln", temp_buf);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -4985,14 +5006,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 			SXml::WNode n_i(_doc, "contractIdentificator"); // <contractIdentificator number="357951" date="2012-05-06"/>
 		}
 		n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
-		{
-			SXml::WNode n_i(_doc, "seller");
-			THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
-		}
-		{
-			SXml::WNode n_i(_doc, "buyer");
-			THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
-		}
+		THROW(WriteOwnFormatContractor(_doc, "seller", ObjectToPerson(rBp.Rec.Object), 0));
+		THROW(WriteOwnFormatContractor(_doc, "buyer", MainOrgID, 0));
 		/*{
 			SXml::WNode n_i(_doc, "invoicee");
 		}*/
@@ -5003,10 +5018,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 				temp_dtm.Set(rBp.Rec.DueDate, ZEROTIME);
 				n_i.PutInner("requestedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 			}
-			{
-				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
-			}
+			THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.Rec.LocID));
 		}
 		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
 		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12
@@ -5129,14 +5141,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 			//SXml::WNode n_i(_doc, "contractIdentificator"); // <contractIdentificator number="357951" date="2012-05-06"/>
 		}
 		n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
-		{
-			SXml::WNode n_i(_doc, "seller");
-			THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
-		}
-		{
-			SXml::WNode n_i(_doc, "buyer");
-			THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
-		}
+		THROW(WriteOwnFormatContractor(_doc, "seller", MainOrgID, 0));
+		THROW(WriteOwnFormatContractor(_doc, "buyer", ObjectToPerson(rBp.Rec.Object), 0));
 		/*{
 			SXml::WNode n_i(_doc, "invoicee");
 		}*/
@@ -5152,13 +5158,9 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWriter * p
 				n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 			}
 			if(r_org_pack.GetDlvrAddrID()) {
-				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.GetDlvrAddrID()));
+				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, r_org_pack.GetDlvrAddrID()));
 			}
-			{
-				SXml::WNode n_i2(_doc, "shipFrom");
-				THROW(WriteOwnFormatContractor(_doc, 0, r_org_pack.Rec.LocID));
-			}
+			THROW(WriteOwnFormatContractor(_doc, "shipFrom", 0, r_org_pack.Rec.LocID));
 		}
 		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8));
 		n_b.PutInnerSkipEmpty("comment", (temp_buf = rBp.SMemo).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12
@@ -5277,14 +5279,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 		{
 			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> номер и дата ТОРГ-12
 		}
-		{
-			SXml::WNode n_i(_doc, "seller");
-			THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
-		}
-		{
-			SXml::WNode n_i(_doc, "buyer");
-			THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
-		}
+		THROW(WriteOwnFormatContractor(_doc, "seller", MainOrgID, 0));
+		THROW(WriteOwnFormatContractor(_doc, "buyer", ObjectToPerson(rBp.Rec.Object), 0));
 		{
 			//SXml::WNode n_i(_doc, "invoicee");
 		}
@@ -5297,13 +5293,9 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 				n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 			}
 			// } @v10.0.10
-			{
-				SXml::WNode n_i2(_doc, "shipFrom");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
-			}
+			THROW(WriteOwnFormatContractor(_doc, "shipFrom", 0, rBp.Rec.LocID));
 			if(rBp.GetDlvrAddrID()) {
-				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
+				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
 			}
 		}
 		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
@@ -5430,14 +5422,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 		{
 			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> номер и дата ТОРГ-12
 		}
-		{
-			SXml::WNode n_i(_doc, "seller");
-			THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
-		}
-		{
-			SXml::WNode n_i(_doc, "buyer");
-			THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
-		}
+		THROW(WriteOwnFormatContractor(_doc, "seller", MainOrgID, 0));
+		THROW(WriteOwnFormatContractor(_doc, "buyer", ObjectToPerson(rBp.Rec.Object), 0));
 		{
 			//SXml::WNode n_i(_doc, "invoicee");
 		}
@@ -5450,13 +5436,9 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWriter *
 				n_i2.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
 				n_i2.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 			}
-			{
-				SXml::WNode n_i2(_doc, "shipFrom");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
-			}
+			THROW(WriteOwnFormatContractor(_doc, "shipFrom", 0, rBp.Rec.LocID));
 			if(rBp.GetDlvrAddrID()) {
-				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
+				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
 			}
 		}
 		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
@@ -5706,14 +5688,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 				n_i.PutAttrib("number", (temp_buf = rRaPack.ABp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 				n_i.PutAttrib("date", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 			}
-			{
-				SXml::WNode n_i(_doc, "seller");
-				THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
-			}
-			{
-				SXml::WNode n_i(_doc, "buyer");
-				THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
-			}
+			THROW(WriteOwnFormatContractor(_doc, "seller", ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
+			THROW(WriteOwnFormatContractor(_doc, "buyer", MainOrgID, 0));
 			{
 				SXml::WNode n_i(_doc, "deliveryInfo");
 				if(checkdate(order_bill_rec.DueDate, 0)) {
@@ -5721,14 +5697,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 					temp_dtm.Set(order_bill_rec.DueDate, ZEROTIME);
 					n_i.PutInner("estimatedDeliveryDateTime", temp_buf.Z().Cat(temp_dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS));
 				}
-				{
-					SXml::WNode n_i2(_doc, "shipFrom");
-					THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
-				}
-				{
-					SXml::WNode n_i2(_doc, "shipTo");
-					THROW(WriteOwnFormatContractor(_doc, 0, rRaPack.RBp.Rec.LocID));
-				}
+				THROW(WriteOwnFormatContractor(_doc, "shipFrom", ObjectToPerson(rRaPack.RBp.Rec.Object), 0));
+				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rRaPack.RBp.Rec.LocID));
 			}
 			{
 				SXml::WNode n_dtl(_doc, "lineItems");
@@ -5820,26 +5790,16 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 				}
 			}
 		}
-		{
-			SXml::WNode n_i(_doc, "seller");
-			THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
-		}
-		{
-			SXml::WNode n_i(_doc, "buyer");
-			THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
-		}
+		THROW(WriteOwnFormatContractor(_doc, "seller", MainOrgID, 0));
+		THROW(WriteOwnFormatContractor(_doc, "buyer", ObjectToPerson(rBp.Rec.Object), 0));
 		{
 			//SXml::WNode n_i(_doc, "invoicee");
 		}
 		{
 			SXml::WNode n_i(_doc, "deliveryInfo");
-			{
-				SXml::WNode n_i2(_doc, "shipFrom");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.Rec.LocID));
-			}
+			THROW(WriteOwnFormatContractor(_doc, "shipFrom", 0, rBp.Rec.LocID));
 			if(rBp.GetDlvrAddrID()) {
-				SXml::WNode n_i2(_doc, "shipTo");
-				THROW(WriteOwnFormatContractor(_doc, 0, rBp.GetDlvrAddrID()));
+				THROW(WriteOwnFormatContractor(_doc, "shipTo", 0, rBp.GetDlvrAddrID()));
 			}
 		}
 		// @v11.1.12 n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->

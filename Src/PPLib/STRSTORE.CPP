@@ -326,7 +326,7 @@ int StringStore2::GetDescription(const char * pSignature, SString & rBuf) // @no
 	if(P_SignatureHash) {
 		uint   hval = 0;
 		uint   hpos = 0;
-        if(P_SignatureHash->Search(pSignature, &hval, &hpos) > 0) {
+        if(P_SignatureHash->Search(pSignature, &hval, &hpos)) {
 			ok = Helper_GetDescription((long)hval, rBuf);
         }
 	}

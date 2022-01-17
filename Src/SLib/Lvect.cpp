@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -51,7 +51,7 @@ int LMatrix::checktarget(LMIDX row, LMIDX col) const
 {
 	assert(row >= 0 && row < NumRows);
 	assert(col >= 0 && col < NumCols);
-	return (checkirange(row, 0, NumRows-1) && checkirange(col, 0, NumCols-1)) ? 1 : 0;
+	return (checkirange(row, 0L, NumRows-1) && checkirange(col, 0L, NumCols-1)) ? 1 : 0;
 }
 
 double * LMatrix::sget(LMIDX row, LMIDX col) const

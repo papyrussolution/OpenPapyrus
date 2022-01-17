@@ -1,21 +1,13 @@
+// ucnv_bld.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-**********************************************************************
-*   Copyright (C) 1999-2015 International Business Machines
-*   Corporation and others.  All Rights Reserved.
-**********************************************************************
-*
-*
-*  ucnv_bld.h:
+*   Copyright (C) 1999-2015 International Business Machines Corporation and others.  All Rights Reserved.
 *  Contains internal data structure definitions
 * Created by Bertrand A. Damiba
-*
 *   Change history:
-*
 *   06/29/2000  helena      Major rewrite of the callback APIs.
 */
-
 #ifndef UCNV_BLD_H
 #define UCNV_BLD_H
 

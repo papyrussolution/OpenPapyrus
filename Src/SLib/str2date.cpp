@@ -466,9 +466,9 @@ int STDCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
 				y = temp_dt.Y;
 				break;
 			case TOK_NUMBER:
-				if(d == 0 && checkirange(number, 1, 31))
+				if(d == 0 && checkirange(number, 1L, 31L))
 					d = number;
-				else if(m == 0 && checkirange(number, 1, 12))
+				else if(m == 0 && checkirange(number, 1L, 12L))
 					m = number;
 				else if(y == 0) {
 					y = NZOR(number, 2000);

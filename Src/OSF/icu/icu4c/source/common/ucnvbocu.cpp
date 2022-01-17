@@ -317,17 +317,14 @@ static int32_t packDiff(int32_t diff) {
 			m = diff%BOCU1_TRAIL_COUNT;
 			diff /= BOCU1_TRAIL_COUNT;
 			result = BOCU1_TRAIL_TO_BYTE(m);
-
 			m = diff%BOCU1_TRAIL_COUNT;
 			diff /= BOCU1_TRAIL_COUNT;
 			result |= BOCU1_TRAIL_TO_BYTE(m)<<8;
-
 			/*
 			 * We know that / and % would deliver quotient 0 and rest=diff.
 			 * Avoid division and modulo for performance.
 			 */
 			result |= BOCU1_TRAIL_TO_BYTE(diff)<<16;
-
 			result |= ((uint32_t)BOCU1_START_POS_4)<<24;
 		}
 	}
@@ -337,35 +334,27 @@ static int32_t packDiff(int32_t diff) {
 			/* two bytes */
 			diff -= BOCU1_REACH_NEG_1;
 			result = 0x02000000;
-
 			NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 			result |= BOCU1_TRAIL_TO_BYTE(m);
-
 			result |= (BOCU1_START_NEG_2+diff)<<8;
 		}
 		else if(diff>=BOCU1_REACH_NEG_3) {
 			/* three bytes */
 			diff -= BOCU1_REACH_NEG_2;
 			result = 0x03000000;
-
 			NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 			result |= BOCU1_TRAIL_TO_BYTE(m);
-
 			NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 			result |= BOCU1_TRAIL_TO_BYTE(m)<<8;
-
 			result |= (BOCU1_START_NEG_3+diff)<<16;
 		}
 		else {
 			/* four bytes */
 			diff -= BOCU1_REACH_NEG_3;
-
 			NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 			result = BOCU1_TRAIL_TO_BYTE(m);
-
 			NEGDIVMOD(diff, BOCU1_TRAIL_COUNT, m);
 			result |= BOCU1_TRAIL_TO_BYTE(m)<<8;
-
 			/*
 			 * We know that NEGDIVMOD would deliver
 			 * quotient -1 and rest=diff+BOCU1_TRAIL_COUNT.
@@ -373,21 +362,19 @@ static int32_t packDiff(int32_t diff) {
 			 */
 			m = diff+BOCU1_TRAIL_COUNT;
 			result |= BOCU1_TRAIL_TO_BYTE(m)<<16;
-
 			result |= BOCU1_MIN<<24;
 		}
 	}
 	return result;
 }
 
-static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv;
 	const UChar * source, * sourceLimit;
 	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
-
 	int32_t prev, c, diff;
 
 	int32_t sourceIndex, nextSourceIndex;

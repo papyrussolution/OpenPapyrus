@@ -55796,7 +55796,7 @@ int    FASTCALL IsExpendOp(PPID);
 //     (Op(o)::Type == PPOPT_GOODSEXPEND || Op(o)::Type == PPOPT_GOODSRECEIPT).
 //
 int    FASTCALL IsIntrOp(PPID opID);
-int    FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
+bool   FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
 int    FASTCALL IsDraftOp(PPID opID);
 int    FASTCALL IsGoodsDetailOp(PPID opID);
 int    FASTCALL EnumOperations(PPID oprType, PPID *, PPOprKind * = 0);

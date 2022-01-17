@@ -28,7 +28,6 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-
 #include "absl/base/internal/identity.h"
 #include "absl/base/macros.h"
 #include "absl/meta/type_traits.h"
@@ -37,16 +36,14 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 
 namespace internal_casts {
-
 template <class Dest, class Source>
 struct is_bitcastable
-    : std::integral_constant<
-          bool,
-          sizeof(Dest) == sizeof(Source) &&
-              type_traits_internal::is_trivially_copyable<Source>::value &&
-              type_traits_internal::is_trivially_copyable<Dest>::value &&
-              std::is_default_constructible<Dest>::value> {};
-
+	: std::integral_constant<
+		bool,
+		sizeof(Dest) == sizeof(Source) &&
+		type_traits_internal::is_trivially_copyable<Source>::value &&
+		type_traits_internal::is_trivially_copyable<Dest>::value &&
+		std::is_default_constructible<Dest>::value> {};
 }  // namespace internal_casts
 
 // implicit_cast()
@@ -100,7 +97,7 @@ struct is_bitcastable
 // Such implicit cast chaining may be useful within template logic.
 template <typename To>
 constexpr To implicit_cast(typename absl::internal::identity_t<To> to) {
-  return to;
+	return to;
 }
 
 // bit_cast()
@@ -149,14 +146,14 @@ constexpr To implicit_cast(typename absl::internal::identity_t<To> to) {
 // Specifically, this implementation also requires `Dest` to be
 // default-constructible.
 template <
-    typename Dest, typename Source,
-    typename std::enable_if<internal_casts::is_bitcastable<Dest, Source>::value,
-                            int>::type = 0>
+	typename Dest, typename Source,
+	typename std::enable_if<internal_casts::is_bitcastable<Dest, Source>::value,
+	int>::type = 0>
 inline Dest bit_cast(const Source& source) {
-  Dest dest;
-  memcpy(static_cast<void*>(std::addressof(dest)),
-         static_cast<const void*>(std::addressof(source)), sizeof(dest));
-  return dest;
+	Dest dest;
+	memcpy(static_cast<void*>(std::addressof(dest)),
+	    static_cast<const void*>(std::addressof(source)), sizeof(dest));
+	return dest;
 }
 
 // NOTE: This overload is only picked if the requirements of bit_cast are
@@ -164,21 +161,21 @@ inline Dest bit_cast(const Source& source) {
 // versions of this function template were unchecked. Do not use this in
 // new code.
 template <
-    typename Dest, typename Source,
-    typename std::enable_if<
-        !internal_casts::is_bitcastable<Dest, Source>::value,
-        int>::type = 0>
+	typename Dest, typename Source,
+	typename std::enable_if<
+		!internal_casts::is_bitcastable<Dest, Source>::value,
+		int>::type = 0>
 ABSL_DEPRECATED(
-    "absl::bit_cast type requirements were violated. Update the types "
-    "being used such that they are the same size and are both "
-    "TriviallyCopyable.")
+	"absl::bit_cast type requirements were violated. Update the types "
+	"being used such that they are the same size and are both "
+	"TriviallyCopyable.")
 inline Dest bit_cast(const Source& source) {
-  static_assert(sizeof(Dest) == sizeof(Source),
-                "Source and destination types should have equal sizes.");
+	static_assert(sizeof(Dest) == sizeof(Source),
+	    "Source and destination types should have equal sizes.");
 
-  Dest dest;
-  memcpy(&dest, &source, sizeof(dest));
-  return dest;
+	Dest dest;
+	memcpy(&dest, &source, sizeof(dest));
+	return dest;
 }
 
 ABSL_NAMESPACE_END

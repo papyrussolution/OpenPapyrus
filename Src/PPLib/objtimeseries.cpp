@@ -1,5 +1,5 @@
 // OBJTIMESERIES.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Модуль, управляющий объектом данных PPObjTimeSeries
 //
@@ -5561,7 +5561,7 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 			StringSet ss(',', temp_buf);
 			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 				const long md = temp_buf.ToLong();
-				if(checkirange(md, 1, (1440*180)))
+				if(checkirange(md, 1L, (1440L * 180)))
 					rMp.MainFrameSizeList.add(md);
 			}
 			rMp.MainFrameSizeList.sortAndUndup();
@@ -5615,7 +5615,7 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 		StringSet ss(',', temp_buf);
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 			const long ifs = temp_buf.ToLong();
-			if(checkirange(ifs, 1, 10080))
+			if(checkirange(ifs, 1L, 10080L))
 				rMp.InputFrameSizeList.add(ifs);
 		}
 		rMp.InputFrameSizeList.sortAndUndup();

@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1368,7 +1368,7 @@ int SFile::Seek(long offs, int origin)
 			o = P_Sb->GetWrOffs() + offs;
 		else
 			o = offs;
-		if(checkirange(o, 0, P_Sb->GetWrOffs())) {
+		if(checkirange(o, 0L, static_cast<long>(P_Sb->GetWrOffs()))) {
 			P_Sb->SetRdOffs(o);
 			ok = 1;
 		}

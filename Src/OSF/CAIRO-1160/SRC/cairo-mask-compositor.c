@@ -79,15 +79,10 @@ static void do_unaligned_row(void (*blt)(void * closure,
 			blt(closure, x2, y, 1, h, coverage * _cairo_fixed_fractional_part(b->p2.x));
 	}
 	else
-		blt(closure, x1, y, 1, h, coverage * (b->p2.x - b->p1.x));
+		blt(closure, x1, y, 1, h, static_cast<uint16>(coverage * (b->p2.x - b->p1.x)));
 }
 
-static void do_unaligned_box(void (*blt)(void * closure,
-    int16 x, int16 y,
-    int16 w, int16 h,
-    uint16 coverage),
-    void * closure,
-    const cairo_box_t * b, int tx, int ty)
+static void do_unaligned_box(void (*blt)(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 coverage), void * closure, const cairo_box_t * b, int tx, int ty)
 {
 	int y1 = _cairo_fixed_integer_part(b->p1.y) - ty;
 	int y2 = _cairo_fixed_integer_part(b->p2.y) - ty;
@@ -102,7 +97,7 @@ static void do_unaligned_box(void (*blt)(void * closure,
 			do_unaligned_row(blt, closure, b, tx, y2, 1, _cairo_fixed_fractional_part(b->p2.y));
 	}
 	else
-		do_unaligned_row(blt, closure, b, tx, y1, 1, b->p2.y - b->p1.y);
+		do_unaligned_row(blt, closure, b, tx, y1, 1, static_cast<uint16>(b->p2.y - b->p1.y));
 }
 
 struct blt_in {

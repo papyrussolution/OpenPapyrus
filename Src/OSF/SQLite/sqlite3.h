@@ -10833,7 +10833,7 @@ SQLITE_API int sqlite3changeset_invert(int nIn, const void * pIn,       /* Input
 **   if( rc==SQLITE_OK ) rc = sqlite3changegroup_add(pGrp, nB, pB);
 **   if( rc==SQLITE_OK ){
 **     rc = sqlite3changegroup_output(pGrp, pnOut, ppOut);
-**   }else{
+**   }else {
 **     *ppOut = 0;
 **     *pnOut = 0;
 **   }

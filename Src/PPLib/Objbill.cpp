@@ -7648,14 +7648,10 @@ int PPObjBill::RemoveTransferItem(PPID billID, int rByBill, int force)
 				THROW(P_PckgT->SetClosedTag(lot_id, ((lot_rec.Rest > 0) ? 0 : 1), 0));
 		}
 		if(ti_flags & PPTFR_RECEIPT) {
-			// @v8.9.2 THROW(SetClbNumberByLot(lot_id, 0, 0));
-			// @v8.9.2 THROW(SetSerialNumberByLot(lot_id, 0, 0));
-			THROW(p_ref->Ot.PutList(PPOBJ_LOT, lot_id, 0, 0)); // @v8.9.2
+			THROW(p_ref->Ot.PutList(PPOBJ_LOT, lot_id, 0, 0));
 		}
 		if(mirror_flags & PPTFR_RECEIPT && mirror_lot_id) {
-			// @v8.9.2 THROW(SetClbNumberByLot(mirror_lot_id, 0, 0));
-			// @v8.9.2 THROW(SetSerialNumberByLot(mirror_lot_id, 0, 0));
-			THROW(p_ref->Ot.PutList(PPOBJ_LOT, mirror_lot_id, 0, 0)); // @v8.9.2
+			THROW(p_ref->Ot.PutList(PPOBJ_LOT, mirror_lot_id, 0, 0));
 		}
 	}
 	CATCHZOK
@@ -7727,8 +7723,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	if(CheckOpFlags(pPack->Rec.OpID, OPKF_NEEDPAYMENT) || CheckOpFlags(pPack->Rec.OpID, OPKF_RECKON)) {
 		const double amt  = pPack->GetAmount();
 		const double paym = pPack->Amounts.Get(PPAMT_PAYMENT, pPack->Rec.CurID);
-		if(!(LConfig.Flags & CFGFLG_ALLOWOVERPAY))
-			THROW_PP(paym == 0.0 || paym <= amt, PPERR_EXTRAPAYM);
+		THROW_PP((LConfig.Flags & CFGFLG_ALLOWOVERPAY) || (paym == 0.0 || paym <= amt), PPERR_EXTRAPAYM);
 		SETFLAG(pPack->Rec.Flags, BILLF_PAYOUT, paym >= amt);
 	}
 	THROW(SetupSpecialAmounts(pPack));
@@ -7766,8 +7761,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			THROW(CheckRights(BILLRT_MODDATE));
 			pPack->Rec.BillNo = 0;
 		}
-		if(pPack->Rec.Object != org.Object)
-			THROW(CheckRights(BILLOPRT_MODOBJ, 1));
+		THROW((pPack->Rec.Object == org.Object) || CheckRights(BILLOPRT_MODOBJ, 1));
 		THROW(ProcessACPacket(pPack));
 		{
 			PPID   temp_id = id;
@@ -7793,8 +7787,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			if(pPack->IsDraft()) {
 				CpTrfrExt cte;
 				for(rbybill = 0; (r = P_CpTrfr->EnumItems(id, &rbybill, &ti, &cte)) > 0;) {
-					ti.Date = org.Dt; // @v8.9.10 P_CpTrfr->EnumItems не инициализирует дату, а это пагубно сказывается на
-						// сравнении PPTransferItem::IsEq()
+					ti.Date = org.Dt; // @v8.9.10 P_CpTrfr->EnumItems не инициализирует дату, а это пагубно сказывается на сравнении PPTransferItem::IsEq()
 					for(found = i = 0; !found && pPack->EnumTItems(&i, &p_ti);) {
 						if(p_ti->BillID == id && p_ti->RByBill == rbybill && !(p_ti->Flags & PPTransferItem::tfForceReplace)) {
 							pPack->ErrLine = i-1;
@@ -8016,9 +8009,6 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		THROW(FinishTFrame(id, tb_));
 		if(pPack->Rec.OpID) { // Проводку теневого документа не регистрируем
 			PPID   h_id = 0;
-			/* @v9.8.11 if(TLP(HistBill).IsOpened()) {
-				THROW(HistBill->PutPacket(&h_id, &hist_pack, 0, 0));
-			} */
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					THROW(p_ovc->Add(&h_id, PPObjID(Obj, id), &hist_buf, 0));
@@ -8038,16 +8028,12 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							temp_buf.Z().CatChar('[');
 							for(_i = 0; _i < _debug_org_ord_bill_list.getCount(); _i++) {
 								const PPID _ord_bill_id = _debug_org_ord_bill_list.get(_i);
-								if(_i)
-									temp_buf.CatDiv(',', 2);
-								temp_buf.Cat(_ord_bill_id);
+								temp_buf.CatDivConditionally(',', 2, LOGIC(_i)).Cat(_ord_bill_id);
 							}
 							temp_buf.CatChar(']').Cat("->").CatChar('[');
 							for(_i = 0; _i < _debug_new_ord_bill_list.getCount(); _i++) {
 								const PPID _ord_bill_id = _debug_new_ord_bill_list.get(_i);
-								if(_i)
-									temp_buf.CatDiv(',', 2);
-								temp_buf.Cat(_ord_bill_id);
+								temp_buf.CatDivConditionally(',', 2, LOGIC(_i)).Cat(_ord_bill_id);
 							}
 							temp_buf.CatChar(']');
 						}
@@ -8135,7 +8121,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();
 					PPBillPacket org_pack;
-					THROW(ExtractPacketWithFlags(id, &org_pack, BPLD_LOADINVLINES) > 0); // @v9.9.12 BPLD_LOADINVLINES
+					THROW(ExtractPacketWithFlags(id, &org_pack, BPLD_LOADINVLINES) > 0);
 					THROW(SerializePacket__(+1, &org_pack, hist_buf, &r_sctx));
 				}
 			}

@@ -28,7 +28,6 @@
 #include "absl/flags/reflection.h"
 #include "absl/flags/usage.h"
 #include "absl/flags/usage_config.h"
-#include "absl/synchronization/mutex.h"
 
 // --------------------------------------------------------------------
 

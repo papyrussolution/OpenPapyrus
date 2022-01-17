@@ -80,7 +80,7 @@ static int luaB_tonumber(lua_State * L) {
 		lua_Integer base = luaL_checkinteger(L, 2);
 		luaL_checktype(L, 1, LUA_TSTRING); /* no numbers as strings */
 		s = lua_tolstring(L, 1, &l);
-		luaL_argcheck(L, checkirange(base, 2, 36), 2, "base out of range");
+		luaL_argcheck(L, checkirange(base, 2LL, 36LL), 2, "base out of range");
 		if(b_str2int(s, (int)base, &n) == s + l) {
 			lua_pushinteger(L, n);
 			return 1;

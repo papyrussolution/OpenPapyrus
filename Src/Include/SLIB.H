@@ -213,6 +213,8 @@
 	#include <csignal>
 	#include <future>
 	#include <queue>
+	#include <cerrno>
+	#include <system_error>
 #endif
 
 //#if _MSC_VER >= 1910
@@ -3508,7 +3510,9 @@ struct TimeRange { // @persistent
 // Descr: Проверяет число nmb на принадлежность диапазону [low, upp].
 //   Принадлежность включительная (т.е. если число равно одной из границ, то условие выполняется).
 //
+bool   STDCALL checkirange(int nmb, int low, int upp);
 bool   STDCALL checkirange(long nmb, long low, long upp);
+bool   STDCALL checkirange(int64 nmb, int64 low, int64 upp);
 //
 // Descr: То же, что и checkirange но не инициирует ошибку SLIB (для тех случаев, когда производительность важна)
 //

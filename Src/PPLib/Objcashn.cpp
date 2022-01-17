@@ -2916,7 +2916,7 @@ int EquipConfigDialog::EditExtParams()
 			}
 			{
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
-				THROW_PP(checkirange(Data.LookBackPricePeriod, 0, (365*2)), PPERR_USERINPUT); // @v10.8.1 365-->(365*2)
+				THROW_PP(checkirange(Data.LookBackPricePeriod, 0L, (365L * 2)), PPERR_USERINPUT); // @v10.8.1 365-->(365*2)
 			}
 			{
 				const int prefix_len = sstrlen(Data.AgentPrefix);

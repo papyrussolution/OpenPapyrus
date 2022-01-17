@@ -14,7 +14,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/synchronization/mutex.h"
 
 #ifdef _WIN32
 //#include <windows.h>
@@ -29,13 +28,9 @@
 #endif
 #include "absl/base/internal/cycleclock.h"
 #include "absl/base/internal/hide_ptr.h"
-#include "absl/base/internal/low_level_alloc.h"
-#include "absl/base/internal/sysinfo.h"
-#include "absl/base/internal/thread_identity.h"
 #include "absl/debugging/stacktrace.h"
 #include "absl/debugging/symbolize.h"
 #include "absl/synchronization/internal/graphcycles.h"
-#include "absl/synchronization/internal/per_thread_sem.h"
 
 using absl::base_internal::CurrentThreadIdentityIfPresent;
 using absl::base_internal::PerThreadSynch;

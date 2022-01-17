@@ -14,7 +14,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/time/clock.h"
 #include "absl/base/internal/unscaledcycleclock.h"
 
 namespace absl {

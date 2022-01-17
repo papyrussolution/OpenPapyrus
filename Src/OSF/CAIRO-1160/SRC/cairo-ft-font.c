@@ -1968,7 +1968,9 @@ skip:
 		}
 #endif
 		FT_Set_Var_Design_Coordinates(face, ft_mm_var->num_axis, coords);
+#ifdef HAVE_FT_GET_VAR_DESIGN_COORDINATES
 done:
+#endif
 		SAlloc::F(coords);
 		SAlloc::F(current_coords);
 		SAlloc::F(ft_mm_var);

@@ -1,5 +1,5 @@
 // PPBulletinBoard.cpp
-// Copyright (c) A.Sobolev 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // Концепт доски объявлений, реализующей функционал общедоступных системных задач
 //
@@ -413,7 +413,7 @@ private:
 	long   GetFlashTimeout() const
 	{
 		const long cfg_tmr = Cfg.E.TsFlashTimer;
-		return checkirange(cfg_tmr, 1, (24*3600)) ? cfg_tmr : 600;
+		return checkirange(cfg_tmr, 1L, (24*3600L)) ? cfg_tmr : 600;
 	}
 	int    FASTCALL IsStrategySuited(const PPObjTimeSeries::Strategy & rS) const;
 

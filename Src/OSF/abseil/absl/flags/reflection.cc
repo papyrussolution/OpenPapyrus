@@ -1,18 +1,6 @@
-//
 //  Copyright 2020 The Abseil Authors.
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/flags/reflection.h"
@@ -21,7 +9,6 @@
 #include "absl/flags/internal/private_handle_accessor.h"
 #include "absl/flags/internal/registry.h"
 #include "absl/flags/usage_config.h"
-#include "absl/synchronization/mutex.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -42,26 +29,22 @@ public:
 
 	// Store a flag in this registry. Takes ownership of *flag.
 	void RegisterFlag(CommandLineFlag& flag, const char* filename);
-
-	void Lock() ABSL_EXCLUSIVE_LOCK_FUNCTION(lock_) {
+	void Lock() ABSL_EXCLUSIVE_LOCK_FUNCTION(lock_) 
+	{
 		lock_.Lock();
 	}
-	void Unlock() ABSL_UNLOCK_FUNCTION(lock_) {
+	void Unlock() ABSL_UNLOCK_FUNCTION(lock_) 
+	{
 		lock_.Unlock();
 	}
-
 	// Returns the flag object for the specified name, or nullptr if not found.
 	// Will emit a warning if a 'retired' flag is specified.
 	CommandLineFlag* FindFlag(absl::string_view name);
-
 	static FlagRegistry& GlobalRegistry(); // returns a singleton registry
-
 private:
-	friend class flags_internal::FlagSaverImpl; // reads all the flags in order
-	                                            // to copy them
+	friend class flags_internal::FlagSaverImpl; // reads all the flags in order to copy them
 	friend void ForEachFlag(std::function<void(CommandLineFlag&)> visitor);
 	friend void FinalizeRegistry();
-
 	// The map from name to flag, for FindFlag().
 	using FlagMap = absl::flat_hash_map<absl::string_view, CommandLineFlag*>;
 	using FlagIterator = FlagMap::iterator;
@@ -69,9 +52,7 @@ private:
 	FlagMap flags_;
 	std::vector<CommandLineFlag*> flat_flags_;
 	std::atomic<bool> finalized_flags_{false};
-
 	absl::Mutex lock_;
-
 	// Disallow
 	FlagRegistry(const FlagRegistry&);
 	FlagRegistry& operator=(const FlagRegistry&);
@@ -80,70 +61,55 @@ private:
 namespace {
 class FlagRegistryLock {
 public:
-	explicit FlagRegistryLock(FlagRegistry& fr) : fr_(fr) {
+	explicit FlagRegistryLock(FlagRegistry& fr) : fr_(fr) 
+	{
 		fr_.Lock();
 	}
-
-	~FlagRegistryLock() {
+	~FlagRegistryLock() 
+	{
 		fr_.Unlock();
 	}
-
 private:
 	FlagRegistry& fr_;
 };
 }  // namespace
 
-CommandLineFlag* FlagRegistry::FindFlag(absl::string_view name) {
+CommandLineFlag* FlagRegistry::FindFlag(absl::string_view name) 
+{
 	if(finalized_flags_.load(std::memory_order_acquire)) {
 		// We could save some gcus here if we make `Name()` be non-virtual.
 		// We could move the `const char*` name to the base class.
-		auto it = std::partition_point(
-			flat_flags_.begin(), flat_flags_.end(),
-			[ = ](CommandLineFlag* f) {
-					return f->Name() < name;
-				});
+		auto it = std::partition_point(flat_flags_.begin(), flat_flags_.end(), [ = ](CommandLineFlag* f) { return f->Name() < name; });
 		if(it != flat_flags_.end() && (*it)->Name() == name) return *it;
 	}
-
 	FlagRegistryLock frl(*this);
 	auto it = flags_.find(name);
 	return it != flags_.end() ? it->second : nullptr;
 }
 
-void FlagRegistry::RegisterFlag(CommandLineFlag& flag, const char* filename) {
-	if(filename != nullptr &&
-	    flag.Filename() != GetUsageConfig().normalize_filename(filename)) {
-		flags_internal::ReportUsageError(
-			absl::StrCat(
+void FlagRegistry::RegisterFlag(CommandLineFlag& flag, const char* filename) 
+{
+	if(filename != nullptr && flag.Filename() != GetUsageConfig().normalize_filename(filename)) {
+		flags_internal::ReportUsageError(absl::StrCat(
 				"Inconsistency between flag object and registration for flag '",
-				flag.Name(),
-				"', likely due to duplicate flags or an ODR violation. Relevant "
-				"files: ",
+				flag.Name(), "', likely due to duplicate flags or an ODR violation. Relevant files: ",
 				flag.Filename(), " and ", filename),
 			true);
 		std::exit(1);
 	}
-
 	FlagRegistryLock registry_lock(*this);
-
-	std::pair<FlagIterator, bool> ins =
-	    flags_.insert(FlagMap::value_type(flag.Name(), &flag));
+	std::pair<FlagIterator, bool> ins = flags_.insert(FlagMap::value_type(flag.Name(), &flag));
 	if(ins.second == false) { // means the name was already in the map
 		CommandLineFlag& old_flag = *ins.first->second;
 		if(flag.IsRetired() != old_flag.IsRetired()) {
 			// All registrations must agree on the 'retired' flag.
 			flags_internal::ReportUsageError(
-				absl::StrCat(
-					"Retired flag '", flag.Name(), "' was defined normally in file '",
-					(flag.IsRetired() ? old_flag.Filename() : flag.Filename()), "'."),
-				true);
+				absl::StrCat("Retired flag '", flag.Name(), "' was defined normally in file '", (flag.IsRetired() ? old_flag.Filename() : flag.Filename()), "'."), true);
 		}
 		else if(flags_internal::PrivateHandleAccessor::TypeId(flag) !=
 		    flags_internal::PrivateHandleAccessor::TypeId(old_flag)) {
-			flags_internal::ReportUsageError(
-				absl::StrCat("Flag '", flag.Name(),
-				"' was defined more than once but with "
-				"differing types. Defined in files '",
+			flags_internal::ReportUsageError(absl::StrCat("Flag '", flag.Name(),
+				"' was defined more than once but with differing types. Defined in files '",
 				old_flag.Filename(), "' and '", flag.Filename(), "'."),
 				true);
 		}
@@ -151,16 +117,14 @@ void FlagRegistry::RegisterFlag(CommandLineFlag& flag, const char* filename) {
 			return;
 		}
 		else if(old_flag.Filename() != flag.Filename()) {
-			flags_internal::ReportUsageError(
-				absl::StrCat("Flag '", flag.Name(),
+			flags_internal::ReportUsageError(absl::StrCat("Flag '", flag.Name(),
 				"' was defined more than once (in files '",
 				old_flag.Filename(), "' and '", flag.Filename(), "')."),
 				true);
 		}
 		else {
 			flags_internal::ReportUsageError(
-				absl::StrCat(
-					"Something is wrong with flag '", flag.Name(), "' in file '",
+				absl::StrCat("Something is wrong with flag '", flag.Name(), "' in file '",
 					flag.Filename(), "'. One possibility: file '", flag.Filename(),
 					"' is being linked both statically and dynamically into this "
 					"executable. e.g. some files listed as srcs to a test and also "
@@ -221,88 +185,73 @@ void FinalizeRegistry() {
 namespace {
 class RetiredFlagObj final : public CommandLineFlag {
 public:
-	constexpr RetiredFlagObj(const char* name, FlagFastTypeId type_id)
-		: name_(name), type_id_(type_id) {
+	constexpr RetiredFlagObj(const char* name, FlagFastTypeId type_id) : name_(name), type_id_(type_id) 
+	{
 	}
-
 private:
-	absl::string_view Name() const override {
-		return name_;
-	}
-
-	std::string Filename() const override {
+	absl::string_view Name() const override { return name_; }
+	std::string Filename() const override 
+	{
 		OnAccess();
 		return "RETIRED";
 	}
-
-	FlagFastTypeId TypeId() const override {
-		return type_id_;
-	}
-
-	std::string Help() const override {
+	FlagFastTypeId TypeId() const override { return type_id_; }
+	std::string Help() const override 
+	{
 		OnAccess();
 		return "";
 	}
-
-	bool IsRetired() const override {
-		return true;
-	}
-
-	bool IsSpecifiedOnCommandLine() const override {
+	bool IsRetired() const override { return true; }
+	bool IsSpecifiedOnCommandLine() const override 
+	{
 		OnAccess();
 		return false;
 	}
-
-	std::string DefaultValue() const override {
+	std::string DefaultValue() const override 
+	{
 		OnAccess();
 		return "";
 	}
-
-	std::string CurrentValue() const override {
+	std::string CurrentValue() const override 
+	{
 		OnAccess();
 		return "";
 	}
-
 	// Any input is valid
-	bool ValidateInputValue(absl::string_view) const override {
+	bool ValidateInputValue(absl::string_view) const override 
+	{
 		OnAccess();
 		return true;
 	}
-
-	std::unique_ptr<flags_internal::FlagStateInterface> SaveState() override {
-		return nullptr;
-	}
-
-	bool ParseFrom(absl::string_view, flags_internal::FlagSettingMode,
-	    flags_internal::ValueSource, std::string&) override {
+	std::unique_ptr<flags_internal::FlagStateInterface> SaveState() override { return nullptr; }
+	bool ParseFrom(absl::string_view, flags_internal::FlagSettingMode, flags_internal::ValueSource, std::string&) override 
+	{
 		OnAccess();
 		return false;
 	}
-
-	void CheckDefaultValueParsingRoundtrip() const override {
+	void CheckDefaultValueParsingRoundtrip() const override 
+	{
 		OnAccess();
 	}
-
-	void Read(void*) const override {
+	void Read(void*) const override 
+	{
 		OnAccess();
 	}
-
-	void OnAccess() const {
-		flags_internal::ReportUsageError(
-			absl::StrCat("Accessing retired flag '", name_, "'"), false);
+	void OnAccess() const 
+	{
+		flags_internal::ReportUsageError(absl::StrCat("Accessing retired flag '", name_, "'"), false);
 	}
-
 	// Data members
 	const char* const name_;
 	const FlagFastTypeId type_id_;
 };
 }  // namespace
 
-void Retire(const char* name, FlagFastTypeId type_id, char* buf) {
+void Retire(const char* name, FlagFastTypeId type_id, char* buf) 
+{
 	static_assert(sizeof(RetiredFlagObj) == kRetiredFlagObjSize, "");
 	static_assert(alignof(RetiredFlagObj) == kRetiredFlagObjAlignment, "");
-	auto* flag = ::new (static_cast<void*>(buf))
-	    flags_internal::RetiredFlagObj(name, type_id);
+	auto* flag = ::new (static_cast<void*>(buf)) flags_internal::RetiredFlagObj(name, type_id);
 	FlagRegistry::GlobalRegistry().RegisterFlag(*flag, nullptr);
 }
 
@@ -339,13 +288,14 @@ private:
 };
 }  // namespace flags_internal
 
-FlagSaver::FlagSaver() : impl_(new flags_internal::FlagSaverImpl) {
+FlagSaver::FlagSaver() : impl_(new flags_internal::FlagSaverImpl) 
+{
 	impl_->SaveFromRegistry();
 }
 
-FlagSaver::~FlagSaver() {
+FlagSaver::~FlagSaver() 
+{
 	if(!impl_) return;
-
 	impl_->RestoreToRegistry();
 	delete impl_;
 }
